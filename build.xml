@@ -1,0 +1,56 @@
+<project name="CSRBT" default="test" basedir=".">
+    <property name="src.main.dir" value="src/main/java"/>
+    <property name="src.test.dir" value="src/test/java"/>
+    <property name="resources.dir" value="src/main/resources"/>
+    <property name="build.dir" value="build"/>
+    <property name="classes.dir" value="${build.dir}/classes"/>
+    <property name="test.classes.dir" value="${build.dir}/test-classes"/>
+    <property name="lib.dir" value="."/>
+    <property name="test.reports.dir" value="${build.dir}/test-reports"/>
+
+    <path id="classpath">
+        <fileset dir="${lib.dir}">
+            <include name="junit-jupiter-5.9.2.jar"/>
+            <include name="log4j-api-2.17.1.jar"/>
+            <include name="log4j-core-2.17.1.jar"/>
+        </fileset>
+        <pathelement location="${classes.dir}"/>
+        <pathelement location="${test.classes.dir}"/>
+        <pathelement location="${resources.dir}"/>
+    </path>
+
+    <target name="init">
+        <mkdir dir="${build.dir}"/>
+        <mkdir dir="${classes.dir}"/>
+        <mkdir dir="${test.classes.dir}"/>
+        <mkdir dir="${test.reports.dir}"/>
+    </target>
+
+    <target name="compile" depends="init">
+        <javac srcdir="${src.main.dir}" destdir="${classes.dir}" includeantruntime="false">
+            <classpath refid="classpath"/>
+        </javac>
+        <javac srcdir="${src.test.dir}" destdir="${test.classes.dir}" includeantruntime="false">
+            <classpath refid="classpath"/>
+        </javac>
+        <copy todir="${classes.dir}">
+            <fileset dir="${resources.dir}"/>
+        </copy>
+    </target>
+
+    <target name="test" depends="compile">
+        <junit printsummary="yes" haltonfailure="no">
+            <classpath refid="classpath"/>
+            <formatter type="xml"/>
+            <batchtest todir="${test.reports.dir}">
+                <fileset dir="${test.classes.dir}">
+                    <include name="**/*Tester.class"/>
+                </fileset>
+            </batchtest>
+        </junit>
+    </target>
+
+    <target name="clean">
+        <delete dir="${build.dir}"/>
+    </target>
+</project>

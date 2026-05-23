@@ -1,0 +1,189 @@
+package core.strategy;
+
+import core.RedBlackTree;
+import core.TreeNode1;
+
+/**
+ * AVL tree strategy backed by the shared RedBlackTree / TreeNode1 skeleton.
+ *
+ * Height is maintained automatically by TreeNode1.setLeft() / setRight(),
+ * so we only need to read node.getHeight() here — no manual tracking.
+ *
+ * Balance factor:  bf = height(left) − height(right)
+ *   bf ∈ {-1, 0, 1}  → balanced
+ *   bf =  2          → left-heavy  (LL or LR fix)
+ *   bf = -2          → right-heavy (RR or RL fix)
+ *
+ * Color is irrelevant for AVL; every node is set BLACK on insert so the
+ * shared diagnostics don't flag spurious red-red violations.
+ */
+public class AVLStrategy implements TreeStrategy {
+
+    // ── Insert ────────────────────────────────────────────────────────────────
+
+    /**
+     * Standard BST link.  fixInsert walks up and rebalances.
+     */
+    @Override
+    public void insert(RedBlackTree tree, TreeNode1 node) {
+        TreeNode1 nil    = tree.getNIL();
+        TreeNode1 parent = nil;
+        TreeNode1 cur    = tree.getRoot();
+
+        while (!cur.isNil()) {
+            parent = cur;
+            int cmp = node.getData() - cur.getData();
+            if      (cmp < 0) cur = cur.getLeft();
+            else if (cmp > 0) cur = cur.getRight();
+            else return;   // duplicate — ignore
+        }
+
+        node.setColor(TreeNode1.Color.BLACK);   // AVL doesn't use red/black
+        node.setParent(parent);
+
+        if (parent.isNil()) {
+            tree.setRoot(node);
+        } else if (node.getData() < parent.getData()) {
+            parent.setLeft(node);
+        } else {
+            parent.setRight(node);
+        }
+    }
+
+    /**
+     * Walk from the newly inserted node upward, rebalancing as needed.
+     */
+    @Override
+    public void fixInsert(RedBlackTree tree, TreeNode1 node) {
+        rebalanceUp(tree, node.getParent());
+    }
+
+    // ── Delete ────────────────────────────────────────────────────────────────
+
+    @Override
+    public void delete(RedBlackTree tree, TreeNode1 node) {
+        TreeNode1 rebalanceFrom;
+
+        if (node.getLeft().isNil()) {
+            // Case 1: no left child — promote right subtree
+            rebalanceFrom = node.getParent();
+            transplant(tree, node, node.getRight());
+
+        } else if (node.getRight().isNil()) {
+            // Case 2: no right child — promote left subtree
+            rebalanceFrom = node.getParent();
+            transplant(tree, node, node.getLeft());
+
+        } else {
+            // Case 3: two children — replace with in-order successor
+            TreeNode1 successor = minimum(node.getRight());
+            rebalanceFrom = (successor.getParent() == node) ? successor
+                                                             : successor.getParent();
+
+            if (successor.getParent() != node) {
+                // Detach successor from its current position
+                transplant(tree, successor, successor.getRight());
+                successor.setRight(node.getRight());
+                successor.getRight().setParent(successor);
+            }
+            transplant(tree, node, successor);
+            successor.setLeft(node.getLeft());
+            successor.getLeft().setParent(successor);
+            successor.setColor(TreeNode1.Color.BLACK);
+        }
+
+        rebalanceUp(tree, rebalanceFrom);
+    }
+
+    // ── Search ────────────────────────────────────────────────────────────────
+
+    @Override
+    public TreeNode1 search(RedBlackTree tree, int value) {
+        TreeNode1 cur = tree.getRoot();
+        while (!cur.isNil()) {
+            int cmp = value - cur.getData();
+            if      (cmp == 0) return cur;
+            else if (cmp <  0) cur = cur.getLeft();
+            else               cur = cur.getRight();
+        }
+        return tree.getNIL();
+    }
+
+    // ── Core AVL rebalance ────────────────────────────────────────────────────
+
+    /**
+     * Walk from {@code start} to the root, fixing any node whose balance
+     * factor leaves {-1, 0, 1}.
+     *
+     * After a rotation the displaced node moved DOWN; we continue from its
+     * new parent (the subtree root that took its place) and keep ascending.
+     */
+    private void rebalanceUp(RedBlackTree tree, TreeNode1 start) {
+        TreeNode1 cur = start;
+        while (cur != null && !cur.isNil()) {
+            int bf = balanceFactor(cur);
+
+            if (bf > 1) {
+                // Left-heavy
+                if (balanceFactor(cur.getLeft()) < 0) {
+                    // Left-Right case: first rotate left child left
+                    rotateLeft(tree, cur.getLeft());
+                }
+                // Left-Left (or just-fixed LR) case
+                rotateRight(tree, cur);
+                // After rotateRight, cur slid DOWN — its new parent is the
+                // subtree root; continue ascending from there.
+                cur = cur.getParent();   // new subtree root
+
+            } else if (bf < -1) {
+                // Right-heavy
+                if (balanceFactor(cur.getRight()) > 0) {
+                    // Right-Left case: first rotate right child right
+                    rotateRight(tree, cur.getRight());
+                }
+                // Right-Right (or just-fixed RL) case
+                rotateLeft(tree, cur);
+                cur = cur.getParent();   // new subtree root
+            }
+
+            // Move up one more level (past the current or newly placed subtree root)
+            cur = cur.getParent();
+        }
+    }
+
+    // ── Private helpers ───────────────────────────────────────────────────────
+
+    /** AVL height: 0 for NIL, node.getHeight() otherwise. */
+    private int height(TreeNode1 node) {
+        return (node == null || node.isNil()) ? 0 : node.getHeight();
+    }
+
+    /** balance factor = h(left) − h(right). */
+    private int balanceFactor(TreeNode1 node) {
+        return height(node.getLeft()) - height(node.getRight());
+    }
+
+    /**
+     * Replaces subtree rooted at {@code u} with subtree rooted at {@code v}.
+     * Mirrors CLRS RB-TRANSPLANT — works for any BST variant.
+     */
+    private void transplant(RedBlackTree tree, TreeNode1 u, TreeNode1 v) {
+        TreeNode1 uParent = u.getParent();
+        if (uParent == null || uParent.isNil()) {
+            tree.setRoot(v);
+        } else if (u == uParent.getLeft()) {
+            uParent.setLeft(v);
+        } else {
+            uParent.setRight(v);
+        }
+        if (v != null && !v.isNil()) {
+            v.setParent(uParent);
+        }
+    }
+
+    /** Returns the leftmost (minimum) node in the subtree rooted at {@code node}. */
+    private TreeNode1 minimum(TreeNode1 node) {
+        while (!node.getLeft().isNil()) node = node.getLeft();
+        return node;
+    }
+}
