@@ -22,7 +22,8 @@ public class TreeAgent {
         logger.info("🚀 Initiating alien seed protocol: seed={}, depth={}, var={}", seedValue, maxDepth, variance);
         context.clear();
         Random rng = new Random();
-        TreeNode1 seed = TreeNode1.createNode(seedValue, TreeNode1.NIL);
+        TreeNode1 nil = context.getTree().getNIL();
+        TreeNode1 seed = TreeNode1.createNode(seedValue, nil);
         context.getTree().setRoot(seed);
         context.forceSizeInternal(1);
         alienSpawnIterative(seed, 1, maxDepth, variance, rng);
@@ -42,8 +43,9 @@ public class TreeAgent {
             if (depth >= maxDepth) continue;
             int leftData = current.getData() - rng.nextInt(variance + 1);
             int rightData = current.getData() + rng.nextInt(variance + 1);
-            TreeNode1 leftChild = TreeNode1.createNode(leftData, TreeNode1.NIL);
-            TreeNode1 rightChild = TreeNode1.createNode(rightData, TreeNode1.NIL);
+            TreeNode1 nil = context.getTree().getNIL();
+            TreeNode1 leftChild = TreeNode1.createNode(leftData, nil);
+            TreeNode1 rightChild = TreeNode1.createNode(rightData, nil);
             current.safeSetLeft(leftChild);
             current.safeSetRight(rightChild);
             leftChild.setParent(current);

@@ -70,8 +70,36 @@ public class TreeDiagnostics {
         return true;
     }
 
+    /**
+     * O(log n) localized red-red check around a single key. An insertion can
+     * only introduce a red-red violation at the inserted (RED) node relative to
+     * its parent or its children, so this is sufficient to detect insert-induced
+     * stress without the O(n) whole-tree {@link #hasNoRedRed()} scan.
+     *
+     * @return {@code true} if there is NO red-red violation at {@code value}'s node
+     */
+    public boolean hasNoRedRedAt(int value) {
+        TreeNode1 node = findNode(value);
+        if (node.isNil() || !node.isRed()) return true;   // absent or black → no local violation
+
+        TreeNode1 parent = node.getParent();
+        if (parent != null && !parent.isNil() && parent.isRed()) return false;
+        if (!node.getLeft().isNil()  && node.getLeft().isRed())  return false;
+        if (!node.getRight().isNil() && node.getRight().isRed()) return false;
+        return true;
+    }
+
+    private TreeNode1 findNode(int value) {
+        TreeNode1 x = context.getTree().getRoot();
+        while (!x.isNil()) {
+            if (value == x.getData()) return x;
+            x = (value < x.getData()) ? x.getLeft() : x.getRight();
+        }
+        return context.getTree().getNIL();
+    }
+
     private int blackHeight(TreeNode1 node) {
-        if (node == TreeNode1.NIL) return 0;
+        if (node.isNil()) return 0;   // per-tree sentinel: compare via identity-aware isNil()
         int leftHeight = blackHeight(node.getLeft());
         int rightHeight = blackHeight(node.getRight());
         if (leftHeight != rightHeight) {

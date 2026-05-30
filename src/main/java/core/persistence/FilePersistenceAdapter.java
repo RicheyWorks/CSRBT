@@ -8,6 +8,7 @@ import core.strategy.AVLStrategy;
 import core.strategy.RedBlackStrategy;
 import core.strategy.SplayStrategy;
 import core.strategy.TreeStrategy;
+import core.util.TreeDiagnostics;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -94,23 +95,58 @@ public class FilePersistenceAdapter implements TreePersistenceAdapter {
         }
 
         try (BufferedReader reader = Files.newBufferedReader(path)) {
-            // Parse header
-            String[] header = reader.readLine().split("\\|");
+            // ── Header line: VERSION|TIMESTAMP|STRATEGY|SIZE ──────────────────
+            String headerLine = reader.readLine();
+            if (headerLine == null) {
+                logger.warn("Snapshot '{}' is empty — no header line.", name);
+                return null;
+            }
+            String[] header = headerLine.split("\\|");
+            if (header.length < 4) {
+                logger.warn("Snapshot '{}' has a malformed header ({} fields, need 4): {}",
+                        name, header.length, headerLine);
+                return null;
+            }
+            String version      = header[0];
             String strategyName = header[2];
-            int size            = Integer.parseInt(header[3]);
+            if (!VERSION.equals(version)) {
+                logger.warn("Snapshot '{}' version mismatch (file='{}', expected='{}') — attempting load anyway.",
+                        name, version, VERSION);
+            }
+            int declaredSize;
+            try {
+                declaredSize = Integer.parseInt(header[3].trim());
+            } catch (NumberFormatException e) {
+                logger.warn("Snapshot '{}' has a non-numeric size field: '{}'", name, header[3]);
+                return null;
+            }
 
             TreeStrategy strategy = resolveStrategy(strategyName);
-            TreeContext context   = new TreeContext(strategy);
+            TreeContext  context  = new TreeContext(strategy);
 
-            // Parse pre-order node list
-            String[] tokens = reader.readLine().split(";");
+            // ── Data line: pre-order node list ───────────────────────────────
+            String dataLine = reader.readLine();
+            if (dataLine == null) {
+                logger.warn("Snapshot '{}' has a header but no node data line.", name);
+                return null;
+            }
+            String[] tokens = dataLine.split(";");
             int[] index     = {0};
             TreeNode1 root  = deserializePreOrder(tokens, index, context.getTree().getNIL());
 
             context.getTree().setRoot(root);
             if (root != context.getTree().getNIL()) root.setParent(context.getTree().getNIL());
 
-            logger.info("Snapshot '{}' loaded. strategy={} size={}", name, strategyName, size);
+            // Restore the facade's size (previously left at 0 — a latent bug) and
+            // verify it against the header, which is advisory only.
+            int actualSize = new TreeDiagnostics(context).inOrderTraversal().size();
+            if (actualSize != declaredSize) {
+                logger.warn("Snapshot '{}' size mismatch: header={}, parsed={} — using parsed.",
+                        name, declaredSize, actualSize);
+            }
+            context.forceSizeInternal(actualSize);
+
+            logger.info("Snapshot '{}' loaded. strategy={} size={}", name, strategyName, actualSize);
             return context;
 
         } catch (Exception e) {

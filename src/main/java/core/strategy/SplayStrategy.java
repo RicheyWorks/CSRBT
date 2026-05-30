@@ -31,7 +31,8 @@ public class SplayStrategy implements TreeStrategy {
     public void insert(MutableTree tree, TreeNode1 newNode) {
         newNode.setColor(TreeNode1.Color.BLACK);
 
-        TreeNode1 y = null;
+        TreeNode1 nil = tree.getNIL();
+        TreeNode1 y = nil;                 // "no parent" is the sentinel, never null
         TreeNode1 x = tree.getRoot();
 
         while (!x.isNil()) {
@@ -45,7 +46,7 @@ public class SplayStrategy implements TreeStrategy {
         }
 
         newNode.setParent(y);
-        if (y == null) {
+        if (y.isNil()) {
             tree.setRoot(newNode);
         } else if (newNode.getData() < y.getData()) {
             y.safeSetLeft(newNode);
@@ -105,12 +106,14 @@ public class SplayStrategy implements TreeStrategy {
     public void delete(MutableTree tree, TreeNode1 z) {
         splay(tree, z);
 
+        TreeNode1 nil      = tree.getNIL();
         TreeNode1 leftSub  = z.getLeft();
         TreeNode1 rightSub = z.getRight();
 
-        // Detach subtrees from the node being removed
-        if (!leftSub.isNil())  leftSub.setParent(null);
-        if (!rightSub.isNil()) rightSub.setParent(null);
+        // Detach subtrees from the node being removed. A detached subtree root's
+        // parent is the sentinel (the uniform "no parent" marker), not null.
+        if (!leftSub.isNil())  leftSub.setParent(nil);
+        if (!rightSub.isNil()) rightSub.setParent(nil);
 
         // Sever z's own child pointers so it is fully isolated
         z.safeSetLeft(tree.getNIL());

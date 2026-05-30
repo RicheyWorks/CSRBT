@@ -6,19 +6,25 @@ import core.TreeNode1;
 import core.persistence.FilePersistenceAdapter;
 import core.strategy.AVLStrategy;
 import core.strategy.RedBlackStrategy;
+import core.strategy.SplayStrategy;
+import core.util.OrderStatisticsOps;
 import core.util.TreeDiagnostics;
 
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
+import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Deque;
 import java.util.List;
 import java.util.Random;
 
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNotSame;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -163,6 +169,228 @@ public class RegressionFixesTest {
         }
     }
 
+    // ── #3  Inverse-command undo/redo ───────────────────────────────────────────
+
+    @Nested
+    @DisplayName("#3 Inverse-command undo/redo")
+    class UndoRedo {
+
+        @Test
+        @DisplayName("Undo reverses adds and removes; redo re-applies them")
+        void undoRedoRoundTrip() {
+            TreeContext ctx = new TreeContext(new RedBlackStrategy());
+            ctx.add(10);
+            ctx.add(20);
+            ctx.add(30);
+            assertEquals(List.of(10, 20, 30),
+                    new TreeDiagnostics(ctx).inOrderTraversal());
+
+            // Undo last add → {10,20}
+            assertTrue(ctx.getHistory().undo());
+            assertEquals(List.of(10, 20), new TreeDiagnostics(ctx).inOrderTraversal());
+            assertEquals(2, ctx.size());
+
+            // Redo → {10,20,30}
+            assertTrue(ctx.getHistory().redo());
+            assertEquals(List.of(10, 20, 30), new TreeDiagnostics(ctx).inOrderTraversal());
+            assertEquals(3, ctx.size());
+
+            // Undo a remove → value comes back
+            ctx.remove(20);
+            assertEquals(List.of(10, 30), new TreeDiagnostics(ctx).inOrderTraversal());
+            assertTrue(ctx.getHistory().undo());
+            assertEquals(List.of(10, 20, 30), new TreeDiagnostics(ctx).inOrderTraversal());
+        }
+
+        @Test
+        @DisplayName("Rewinding all operations returns to empty")
+        void rewindToEmpty() {
+            TreeContext ctx = new TreeContext(new RedBlackStrategy());
+            for (int v = 1; v <= 50; v++) ctx.add(v);
+            assertEquals(50, ctx.size());
+
+            int rewound = ctx.getHistory().rewind(50);
+            assertEquals(50, rewound);
+            assertEquals(0, ctx.size());
+            assertTrue(new TreeDiagnostics(ctx).inOrderTraversal().isEmpty());
+        }
+
+        @Test
+        @DisplayName("Replayed undo/redo does not itself create new history entries")
+        void replayDoesNotRecord() {
+            TreeContext ctx = new TreeContext(new RedBlackStrategy());
+            ctx.add(1);
+            ctx.add(2);
+            int depthBefore = ctx.getHistory().undoDepth();   // 2
+
+            ctx.getHistory().undo();                           // undo add(2)
+            assertEquals(depthBefore - 1, ctx.getHistory().undoDepth());
+            ctx.getHistory().redo();                           // redo add(2)
+            assertEquals(depthBefore, ctx.getHistory().undoDepth(),
+                    "redo must not push an extra command onto the undo stack");
+            assertEquals(List.of(1, 2), new TreeDiagnostics(ctx).inOrderTraversal());
+        }
+
+        @Test
+        @DisplayName("Checkpoint restore is undoable")
+        void checkpointRestoreUndoable() {
+            TreeContext ctx = new TreeContext(new RedBlackStrategy());
+            ctx.add(1); ctx.add(2); ctx.add(3);
+            ctx.getHistory().saveCheckpoint("cp");
+
+            ctx.add(4); ctx.add(5);
+            assertEquals(List.of(1, 2, 3, 4, 5), new TreeDiagnostics(ctx).inOrderTraversal());
+
+            assertTrue(ctx.getHistory().restoreCheckpoint("cp"));
+            assertEquals(List.of(1, 2, 3), new TreeDiagnostics(ctx).inOrderTraversal());
+
+            // Undo the restore → back to {1..5}
+            assertTrue(ctx.getHistory().undo());
+            assertEquals(List.of(1, 2, 3, 4, 5), new TreeDiagnostics(ctx).inOrderTraversal());
+        }
+    }
+
+    // ── #9  Localized per-insert diagnostic ─────────────────────────────────────
+
+    @Nested
+    @DisplayName("#9 Localized red-red check preserves behavior")
+    class LocalDiagnostic {
+
+        @Test
+        @DisplayName("Clean RB inserts never raise stress → no auto-morph, tree stays valid RB")
+        void noSpuriousMorph() {
+            TreeContext ctx = new TreeContext(new RedBlackStrategy());
+            Random rng = new Random(99);
+            for (int i = 0; i < 300; i++) ctx.add(rng.nextInt(5000));
+
+            // A correct RB strategy never leaves a red-red violation, so the
+            // stress signal must stay at zero and no morph to AVL should occur.
+            assertEquals("RedBlackStrategy",
+                    ctx.getTree().getStrategy().getClass().getSimpleName(),
+                    "no spurious stress-morph should have fired");
+            assertTrue(new TreeDiagnostics(ctx).isValidRedBlack());
+        }
+    }
+
+    // ── #1  Augment correctness after local-only rotation recompute ─────────────
+
+    @Nested
+    @DisplayName("#1 Order statistics stay correct (augment maintained through rotations)")
+    class AugmentIntegrity {
+
+        @Test
+        @DisplayName("select/rank are exact after rotation-heavy insert and delete")
+        void orderStatisticsExact() {
+            TreeContext ctx = new TreeContext(new RedBlackStrategy());
+            int n = 400;
+            List<Integer> vals = new ArrayList<>();
+            for (int i = 1; i <= n; i++) vals.add(i);
+            Collections.shuffle(vals, new Random(2024));
+            for (int v : vals) ctx.add(v);   // many rotations → exercises augment upkeep
+
+            OrderStatisticsOps os = new OrderStatisticsOps(ctx.getTree());
+
+            // Subtree size at root must equal element count (the augment invariant).
+            assertEquals(n, ctx.getTree().getRoot().getAugmentedValue(),
+                    "root augment must equal n after inserts");
+
+            for (int r = 1; r <= n; r++) {
+                assertEquals(r, os.select(r).getData(), "select(" + r + ")");
+                assertEquals(r, os.rank(r),             "rank(" + r + ")");
+            }
+            assertEquals((n + 1) / 2, os.median().getData());
+
+            // Delete a chunk, then re-verify against a reference sorted list.
+            List<Integer> deleted = new ArrayList<>(vals.subList(0, 150));
+            for (int v : deleted) ctx.remove(v);
+
+            List<Integer> remaining = new ArrayList<>();
+            for (int i = 1; i <= n; i++) if (!deleted.contains(i)) remaining.add(i);
+            Collections.sort(remaining);
+
+            assertEquals(remaining.size(), ctx.getTree().getRoot().getAugmentedValue(),
+                    "root augment must equal remaining count after deletes");
+
+            for (int r = 1; r <= remaining.size(); r++) {
+                assertEquals(remaining.get(r - 1), os.select(r).getData(),
+                        "post-delete select(" + r + ")");
+            }
+            assertEquals(remaining.size(), os.countInRange(1, n));
+        }
+    }
+
+    // ── #4 + #7  Per-tree sentinel & parent convention ──────────────────────────
+
+    @Nested
+    @DisplayName("#4/#7 Per-tree NIL sentinel + uniform parent convention")
+    class SentinelModel {
+
+        @Test
+        @DisplayName("Distinct trees own distinct sentinels and do not contaminate each other")
+        void perTreeIsolation() {
+            TreeContext a = new TreeContext(new RedBlackStrategy());
+            TreeContext b = new TreeContext(new RedBlackStrategy());
+
+            assertNotSame(a.getTree().getNIL(), b.getTree().getNIL(),
+                    "each engine must own its own NIL sentinel");
+
+            for (int i = 0; i < 100; i++) a.add(i);
+
+            assertEquals(0, b.size(), "mutating tree A must not affect tree B");
+            assertTrue(new TreeDiagnostics(b).inOrderTraversal().isEmpty());
+            assertTrue(new TreeDiagnostics(a).isValidRedBlack());
+            assertEquals(100, a.size());
+        }
+
+        @Test
+        @DisplayName("Splay tree never leaves a null parent (root's parent is the sentinel)")
+        void splayParentConvention() {
+            TreeContext s = new TreeContext(new SplayStrategy());
+            int[] vals = {5, 3, 8, 1, 4, 7, 9, 2, 6};
+            for (int v : vals) s.add(v);
+            s.remove(4);
+            s.remove(8);
+
+            // Walk the whole tree: no live node should have a null parent.
+            TreeNode1 root = s.getTree().getRoot();
+            Deque<TreeNode1> stack = new ArrayDeque<>();
+            if (!root.isNil()) stack.push(root);
+            while (!stack.isEmpty()) {
+                TreeNode1 n = stack.pop();
+                assertNotNull(n.getParent(), "node " + n.getData() + " has a null parent");
+                if (!n.getLeft().isNil())  stack.push(n.getLeft());
+                if (!n.getRight().isNil()) stack.push(n.getRight());
+            }
+            assertEquals(List.of(1, 2, 3, 5, 6, 7, 9),
+                    new TreeDiagnostics(s).inOrderTraversal());
+        }
+    }
+
+    // ── #2  Node identity equality ──────────────────────────────────────────────
+
+    @Nested
+    @DisplayName("#2 TreeNode1 uses identity equality")
+    class NodeIdentity {
+
+        @Test
+        @DisplayName("hashCode is stable across mutation and equals is identity-based")
+        void identitySemantics() {
+            TreeNode1 a = TreeNode1.createNode(5, TreeNode1.NIL);
+            TreeNode1 b = TreeNode1.createNode(5, TreeNode1.NIL);
+
+            // Distinct instances with identical data must NOT be equal.
+            org.junit.jupiter.api.Assertions.assertNotEquals(a, b);
+            assertTrue(a.equals(a));
+
+            // hashCode must not change when the node's structure/color mutates
+            // (the old recursive hashCode violated this).
+            int h = a.hashCode();
+            a.setColor(TreeNode1.Color.BLACK);
+            a.setLeft(TreeNode1.createNode(3, TreeNode1.NIL));
+            assertEquals(h, a.hashCode(), "hashCode must be stable across mutation");
+        }
+    }
+
     // ── #5  Path traversal ──────────────────────────────────────────────────────
 
     @Nested
@@ -187,7 +415,7 @@ public class RegressionFixesTest {
         }
 
         @Test
-        @DisplayName("A normal name still round-trips")
+        @DisplayName("A normal name round-trips with contents AND size restored (#8)")
         void normalNameWorks() {
             FilePersistenceAdapter fpa = new FilePersistenceAdapter();
             TreeContext ctx = new TreeContext(new RedBlackStrategy());
@@ -196,7 +424,17 @@ public class RegressionFixesTest {
             assertDoesNotThrow(() -> fpa.saveSnapshot("regression_ok", ctx));
             TreeContext loaded = fpa.loadSnapshot("regression_ok");
             assertTrue(loaded != null, "snapshot should load back");
+            assertEquals(5, loaded.getSize(), "loaded size must be restored (was a latent bug)");
+            assertEquals(List.of(1, 2, 3, 4, 5),
+                    new TreeDiagnostics(loaded).inOrderTraversal());
             fpa.deleteSnapshot("regression_ok");
+        }
+
+        @Test
+        @DisplayName("Missing snapshot loads as null, not a crash")
+        void missingLoadsNull() {
+            FilePersistenceAdapter fpa = new FilePersistenceAdapter();
+            assertEquals(null, fpa.loadSnapshot("definitely_does_not_exist_12345"));
         }
     }
 }

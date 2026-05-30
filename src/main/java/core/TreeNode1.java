@@ -1,7 +1,6 @@
 package core;
 
 import java.util.Random;
-import java.util.Objects;
 
 public class TreeNode1 implements Comparable<TreeNode1>, Cloneable {
     public enum Color { RED, BLACK }
@@ -18,7 +17,15 @@ public class TreeNode1 implements Comparable<TreeNode1>, Cloneable {
         node.augmentedValue = 1 + leftSize + rightSize;
     };
 
-    public static final TreeNode1 NIL = new TreeNode1(0, Color.BLACK); // Changed to public
+    /**
+     * Shared bootstrap sentinel. Retained for standalone node construction and
+     * tests. Engines should NOT use this directly — each {@link core.RedBlackTree}
+     * owns a per-instance sentinel via {@link #createNil()} so trees never share
+     * mutable sentinel state. Never mix nodes built against a per-tree sentinel
+     * with nodes built against this one (identity-based {@link #isNil()} relies
+     * on every node in a tree sharing the same sentinel).
+     */
+    public static final TreeNode1 NIL = new TreeNode1(0, Color.BLACK);
 
     private final int data;
     private TreeNode1 left;
@@ -77,8 +84,13 @@ public class TreeNode1 implements Comparable<TreeNode1>, Cloneable {
         return node;
     }
 
+    /**
+     * Create a FRESH, independent NIL sentinel. Each engine instance should own
+     * its own sentinel (previously this returned the shared static {@link #NIL},
+     * which let unrelated trees alias one mutable sentinel).
+     */
     public static TreeNode1 createNil() {
-        return NIL;
+        return new TreeNode1(0, Color.BLACK);
     }
 
     public static boolean isSharedNil(TreeNode1 node, TreeNode1 nil) {
@@ -136,7 +148,12 @@ public class TreeNode1 implements Comparable<TreeNode1>, Cloneable {
         if (isNil()) return 1;
         int leftBH = left.blackHeight();
         int rightBH = right.blackHeight();
-        assert leftBH == rightBH : "Black height violation";
+        // Explicit check (not `assert`, which is disabled by default at runtime)
+        // so this genuinely validates the invariant whenever it is called.
+        if (leftBH != rightBH) {
+            throw new IllegalStateException("Black-height violation at node " + data
+                    + " (left=" + leftBH + ", right=" + rightBH + ")");
+        }
         return (isBlack() ? 1 : 0) + leftBH;
     }
 
@@ -188,7 +205,9 @@ public class TreeNode1 implements Comparable<TreeNode1>, Cloneable {
     public int depth() {
         int depth = 0;
         TreeNode1 current = this;
-        while (current.getParent() != null) {
+        // "No parent" is either null (freshly created) or the sentinel (a root
+        // under the unified convention); stop at both so a root has depth 0.
+        while (current.getParent() != null && !current.getParent().isNil()) {
             depth++;
             current = current.getParent();
         }
@@ -199,23 +218,23 @@ public class TreeNode1 implements Comparable<TreeNode1>, Cloneable {
         return Integer.compare(this.data, other.data);
     }
 
+    /**
+     * Identity equality. Nodes are mutable (color, children, augment change on
+     * rotation/insert), so a structural {@code equals}/{@code hashCode} would be
+     * O(n), would mutate its hash over a node's lifetime — violating the hash
+     * contract — and would conflate distinct-but-similar nodes. Collections that
+     * track nodes (e.g. ancestor sets for LCA, clone memos) want identity, so
+     * that is what we provide. Use {@code inOrder()} / a structural comparator
+     * when value-based tree comparison is actually needed.
+     */
     @Override
     public boolean equals(Object obj) {
-        if (this == obj) return true;
-        if (!(obj instanceof TreeNode1)) return false;
-        TreeNode1 other = (TreeNode1) obj;
-        if (this.isNil() && other.isNil()) return true;
-        if (this.isNil() || other.isNil()) return false;
-        return this.data == other.data &&
-               this.color == other.color &&
-               (this.left == null ? other.left == null : this.left.equals(other.left)) &&
-               (this.right == null ? other.right == null : this.right.equals(other.right));
+        return this == obj;
     }
 
     @Override
     public int hashCode() {
-        if (isNil()) return 0;
-        return Objects.hash(data, color, left, right);
+        return System.identityHashCode(this);
     }
 
     @Override
@@ -260,6 +279,36 @@ public class TreeNode1 implements Comparable<TreeNode1>, Cloneable {
             child.parent = this;
         }
         recomputeAugmentAndPropagate();
+        updateBlackHeight();
+        updateHeight();
+    }
+
+    /**
+     * Link {@code child} as the left child and recompute THIS node's augment,
+     * black-height and height locally — without walking the augment up to the
+     * root. Intended for rotations, which rearrange a local pair but never
+     * change any ancestor's subtree size, so the O(height) propagation that
+     * {@link #setLeft} performs is pure waste there (it made each rotation
+     * O(height) and inserts O(height²)). Insert/delete BST links must still use
+     * the propagating {@link #setLeft}/{@link #setRight}.
+     */
+    public void setLeftLocal(TreeNode1 child) {
+        left = child;
+        if (child != null && !child.isNil()) {
+            child.parent = this;
+        }
+        recomputeAugment();
+        updateBlackHeight();
+        updateHeight();
+    }
+
+    /** Right-side counterpart of {@link #setLeftLocal}. */
+    public void setRightLocal(TreeNode1 child) {
+        right = child;
+        if (child != null && !child.isNil()) {
+            child.parent = this;
+        }
+        recomputeAugment();
         updateBlackHeight();
         updateHeight();
     }
@@ -429,13 +478,23 @@ public class TreeNode1 implements Comparable<TreeNode1>, Cloneable {
         return (isNil() ? "NIL" : data + (isRed() ? "R" : "B"));
     }
 
+    /**
+     * Validate this node's local red-black invariants, throwing
+     * {@link IllegalStateException} on violation. Uses explicit checks rather
+     * than {@code assert} (which is disabled by default at runtime) so the
+     * validation actually runs in production.
+     */
     public void assertValid() {
-        if (isNil()) {
-            assert isBlack() : "NIL nodes must be black!";
+        if (isNil() && !isBlack()) {
+            throw new IllegalStateException("NIL nodes must be black");
         }
         if (isRed()) {
-            assert left.isBlack() : "Red node has red left child!";
-            assert right.isBlack() : "Red node has red right child!";
+            if (!left.isBlack()) {
+                throw new IllegalStateException("Red node " + data + " has a red left child");
+            }
+            if (!right.isBlack()) {
+                throw new IllegalStateException("Red node " + data + " has a red right child");
+            }
         }
     }
 }

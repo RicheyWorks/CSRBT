@@ -20,7 +20,7 @@ public class RedBlackTree implements TreeEngine, MutableTree {
 
     public RedBlackTree(TreeStrategy strategy) {
         this.strategy = strategy;
-        this.NIL      = TreeNode1.NIL;
+        this.NIL      = TreeNode1.createNil();   // per-instance sentinel (not the shared static)
         this.root     = NIL;
     }
 

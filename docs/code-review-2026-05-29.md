@@ -110,15 +110,70 @@ The nodes whose height changed on an op are exactly the path the walk visits.
 null/empty names and any name containing `/`, `\`, or `..`, and verifies the
 normalized resolved path's parent is exactly the snapshots directory.
 
+**#3 — snapshot-per-add (FIXED).** `TreeContext.add/remove` no longer deep-copy
+the tree; they record a one-int inverse command. `TreeHistory` now undoes ADD
+with REMOVE (and vice-versa) via a recording-suppression flag
+(`setHistoryRecording`), so recording is O(1) time/memory instead of O(n) per op
+(O(n²) to build). Named checkpoints still keep a real snapshot, but their undo
+entry stores lightweight before/after key lists rather than a full tree copy.
+Added `TreeContext.getHistory()` (undo/redo were previously unreachable).
+**Semantics change:** undo now restores tree *contents* (the ordered key set),
+not necessarily the exact prior node layout — documented in `TreeHistory`.
+
+**#9 — per-insert O(n) diagnostic (FIXED).** `updateMetadata` now calls
+`TreeDiagnostics.hasNoRedRedAt(value)` — an O(log n) check of the inserted
+node's parent/children — instead of the whole-tree `hasNoRedRed()` scan. An
+insertion can only introduce a red-red violation at the new node's
+neighborhood, so the stress signal is unchanged in behavior (correct RB inserts
+still never raise it) but the per-insert cost drops from O(n) to O(log n). The
+whole-tree scan is retained for `isValidRedBlack` / `selfRepair`.
+
+**#8 — snapshot load hardening (FIXED).** `loadSnapshot` now validates the
+header (null/empty file, field count, version, numeric size) and the data line
+with specific log messages instead of relying on the broad `catch`. It also
+**fixes a latent bug**: a loaded context's `size` was never set (always 0); it
+is now restored from the parsed node count, cross-checked against the header.
+
 ### Deferred (design change + tests required, not done)
 
-- **#3 — snapshot-per-add (O(n²)).** `TreeHistory` undo/checkpoints depend on a
-  full pre-command snapshot, and the audit log retains every snapshot forever.
-  Correct fix is an inverse-command model (undo ADD via REMOVE and vice versa),
-  which changes semantics for CLEAR/MORPH/REPAIR — implement with tests.
-- **#9 — per-insert `hasNoRedRed()` (O(n)).** Drives the adaptive stress-morph;
-  a local check changes when morphs fire. Needs the heuristic redefined + tested.
-- Suggestions #1, #2, #4, #6, #7, #8 remain open.
+**#6 — assert-only invariants (FIXED).** `TreeNode1.blackHeight()` and
+`assertValid()` now perform explicit checks that throw `IllegalStateException`
+instead of using `assert` (disabled by default at runtime), so the invariant
+validation actually runs. Both methods were otherwise dead/near-dead, so this is
+behavior-neutral unless a caller deliberately validates.
+
+**#2 — mutable recursive `equals`/`hashCode` (FIXED).** `TreeNode1` now uses
+identity equality (`this == obj`) and `System.identityHashCode`. The old
+structural versions were O(n), mutated their hash as the node changed (violating
+the `hashCode` contract), and conflated distinct nodes. Identity is also what
+the only consumer — the LCA ancestor `HashSet` in `TreeEcology` — actually
+needs, so this fixes a latent correctness issue there too.
+
+**#1 — augment propagation O(log²n) (FIXED, most subtle change).** Rotations no
+longer propagate the subtree-size augment to the root. New
+`TreeNode1.setLeftLocal/setRightLocal` recompute only the touched node, and the
+rotation primitives recompute strictly bottom-up (x → y → adopting parent) so no
+stale value is read. A rotation drops from O(height) to O(1) augment work and an
+insert from O(height²) to O(height). Insert/delete BST links keep the
+propagating `setLeft/setRight`, which is where ancestor counts genuinely change.
+Correctness is guarded by a new order-statistics test (`select`/`rank` exact
+after rotation-heavy inserts and deletes). **This is the change most dependent on
+an actual test run — verify before trusting it.**
+
+**#4 (per-tree NIL) + #7 (parent convention) (FIXED).** Each `RedBlackTree` now
+owns a per-instance sentinel via `TreeNode1.createNil()` instead of aliasing the
+shared static `TreeNode1.NIL`; all engine/facade/util code routes through
+`tree.getNIL()` (verified: zero `TreeNode1.NIL` references remain in `main`).
+`SplayStrategy` no longer uses `null` for "no parent" — a root/detached subtree's
+parent is the sentinel, matching every other strategy — and `TreeNode1.depth()`
+now stops at null *or* sentinel so a root has depth 0 under the unified
+convention. `TreeDiagnostics.blackHeight` compares via `isNil()` rather than
+static identity. The static `TreeNode1.NIL` is retained (documented) only for
+standalone/bootstrap and test use. Guarded by per-tree isolation and
+splay-parent tests.
+
+> All review items (#1–#9) are now addressed. The remaining open suggestions are
+> hygiene/robustness, not correctness blockers.
 
 > Fixes were verified for internal consistency (reference grep) but **not
 > compiled or unit-tested** — no JDK was available here. Compile and run delete

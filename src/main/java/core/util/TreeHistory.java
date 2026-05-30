@@ -1,7 +1,6 @@
 package core.util;
 
 import core.TreeContext;
-import core.TreeNode1;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -9,26 +8,39 @@ import java.time.Instant;
 import java.util.*;
 
 /**
- * Full undo/redo system with named checkpoints and branching timelines.
+ * Undo/redo with named checkpoints and an audit trail.
  *
- * Architecture:
- *   - undoStack / redoStack for linear undo-redo
- *   - checkpoints map for named save points (branch roots)
- *   - auditLog for a complete immutable record of every operation ever run
+ * <h2>Model — inverse commands (not per-op snapshots)</h2>
+ * <p>Each ordinary mutation records only what is needed to invert it:
+ * an {@code ADD(v)} is undone by {@code REMOVE(v)} and vice-versa. This makes
+ * recording O(1) in time and memory per operation, replacing the previous
+ * design that deep-copied the entire tree on every add/remove (O(n) per op,
+ * O(n²) to build a tree, and unbounded memory in the audit log). See
+ * {@code docs/code-review-2026-05-29.md} item #3.</p>
  *
- * "Time travel": restore to any named checkpoint, or step backward/forward
- * through the undo stack one command at a time.
+ * <p><b>Semantics note:</b> undo restores the tree's <em>contents</em>
+ * (the ordered set of keys), not necessarily the exact prior node layout —
+ * re-inserting a key may yield a different but equally valid balanced shape.
+ * For an ordered-set abstraction this is the meaningful contract.</p>
+ *
+ * <p>Named checkpoints still hold a real snapshot (they are explicit, rare save
+ * points). Restoring a checkpoint pushes a lightweight {@code RESTORE} entry
+ * carrying the before/after key lists, so the restore is itself undoable
+ * without retaining a full tree copy on the undo stack.</p>
+ *
+ * <p>This class is not thread-safe and assumes single-threaded use alongside a
+ * given {@link TreeContext} (whose mutators are individually synchronized).</p>
  */
 public class TreeHistory {
 
     private static final Logger logger = LogManager.getLogger(TreeHistory.class);
     private static final int    MAX_HISTORY = 200;
 
-    private final TreeContext              context;
-    private final Deque<Command>           undoStack    = new ArrayDeque<>();
-    private final Deque<Command>           redoStack    = new ArrayDeque<>();
-    private final Map<String, Command>     checkpoints  = new LinkedHashMap<>();
-    private final List<Command>            auditLog     = new ArrayList<>();
+    private final TreeContext               context;
+    private final Deque<Command>            undoStack   = new ArrayDeque<>();
+    private final Deque<Command>            redoStack   = new ArrayDeque<>();
+    private final Map<String, TreeContext>  checkpoints = new LinkedHashMap<>();
+    private final List<Command>             auditLog    = new ArrayList<>();
 
     public TreeHistory(TreeContext context) {
         this.context = context;
@@ -36,98 +48,111 @@ public class TreeHistory {
 
     // ── Command record ────────────────────────────────────────────────────────
 
+    /**
+     * A recorded, invertible operation.
+     *
+     * <ul>
+     *   <li>{@code ADD}/{@code REMOVE} — carry only {@link #value}.</li>
+     *   <li>{@code RESTORE} — carries {@link #beforeContents} (undo target) and
+     *       {@link #afterContents} (redo target) as key lists.</li>
+     * </ul>
+     */
     public static class Command {
 
-        public enum Action { ADD, REMOVE, CLEAR, MORPH, REPAIR }
+        public enum Action { ADD, REMOVE, RESTORE }
 
-        public final Action      action;
-        public final int         value;
-        public final TreeContext snapshot;   // state BEFORE this command ran
-        public final Instant     timestamp;
-        public final String      strategyName;
+        public final Action        action;
+        public final int           value;            // ADD / REMOVE
+        public final List<Integer> beforeContents;   // RESTORE: state to set on undo
+        public final List<Integer> afterContents;    // RESTORE: state to set on redo
+        public final int           sizeAtRecord;
+        public final Instant       timestamp;
+        public final String        strategyName;
 
-        public Command(Action action, int value, TreeContext snapshot, String strategyName) {
-            this.action       = action;
-            this.value        = value;
-            this.snapshot     = snapshot;
-            this.timestamp    = Instant.now();
-            this.strategyName = strategyName;
+        private Command(Action action, int value,
+                        List<Integer> beforeContents, List<Integer> afterContents,
+                        int sizeAtRecord, String strategyName) {
+            this.action         = action;
+            this.value          = value;
+            this.beforeContents = beforeContents;
+            this.afterContents  = afterContents;
+            this.sizeAtRecord   = sizeAtRecord;
+            this.timestamp      = Instant.now();
+            this.strategyName   = strategyName;
+        }
+
+        static Command op(Action action, int value, int sizeAtRecord, String strategyName) {
+            return new Command(action, value, null, null, sizeAtRecord, strategyName);
+        }
+
+        static Command restore(List<Integer> before, List<Integer> after, String strategyName) {
+            return new Command(Action.RESTORE, -1, before, after, after.size(), strategyName);
         }
 
         @Override
         public String toString() {
+            if (action == Action.RESTORE) {
+                return String.format("[%s] RESTORE | strategy=%s | size=%d",
+                        timestamp, strategyName, sizeAtRecord);
+            }
             return String.format("[%s] %s(%d) | strategy=%s | size=%d",
-                    timestamp, action, value, strategyName, snapshot.getSize());
+                    timestamp, action, value, strategyName, sizeAtRecord);
         }
     }
 
     // ── Record ────────────────────────────────────────────────────────────────
 
-    public void addCommand(Command.Action action, int value, TreeContext snapshot) {
-        String sname = context.getTree().getStrategy().getClass().getSimpleName();
-        Command cmd  = new Command(action, value, snapshot, sname);
+    /** Record an insertion (called by {@link TreeContext#add}). */
+    public void recordAdd(int value) {
+        pushUndo(Command.op(Command.Action.ADD, value, context.getSize(), strategyName()));
+    }
 
-        // Trim if over limit
+    /** Record a removal (called by {@link TreeContext#remove}). */
+    public void recordRemove(int value) {
+        pushUndo(Command.op(Command.Action.REMOVE, value, context.getSize(), strategyName()));
+    }
+
+    private void pushUndo(Command cmd) {
+        // Trim oldest (tail) when over the cap — push() adds at the head.
         if (undoStack.size() >= MAX_HISTORY) {
-            undoStack.removeFirst();
+            undoStack.removeLast();
             logger.debug("History limit reached — oldest command evicted.");
         }
-
         undoStack.push(cmd);
-        redoStack.clear(); // branching: any new action clears the redo future
+        redoStack.clear();   // any new action invalidates the redo future
         auditLog.add(cmd);
-
         logger.debug("History recorded: {}", cmd);
     }
 
-    // ── Undo / Redo ───────────────────────────────────────────────────────────
+    // ── Undo / Redo ─────────────────────────────────────────────────────────────
 
-    /**
-     * Restores the tree to the state it was in just before the last command.
-     */
+    /** Reverts the most recent recorded operation. */
     public boolean undo() {
         if (undoStack.isEmpty()) {
             logger.warn("Nothing to undo.");
             return false;
         }
-
         Command cmd = undoStack.pop();
+        applyInverse(cmd);
         redoStack.push(cmd);
-        restoreFrom(cmd.snapshot);
-
-        logger.info("UNDO: {} — tree restored to size={}", cmd, cmd.snapshot.getSize());
+        logger.info("UNDO: {}", cmd);
         return true;
     }
 
-    /**
-     * Re-applies a command that was undone.
-     */
+    /** Re-applies the most recently undone operation. */
     public boolean redo() {
         if (redoStack.isEmpty()) {
             logger.warn("Nothing to redo.");
             return false;
         }
-
         Command cmd = redoStack.pop();
-
-        // Re-apply the action on the current context
-        switch (cmd.action) {
-            case ADD:    context.add(cmd.value);    break;
-            case REMOVE: context.remove(cmd.value); break;
-            case CLEAR:  context.clear();           break;
-            default:
-                logger.warn("Redo not supported for action {}", cmd.action);
-                return false;
-        }
-
+        applyForward(cmd);
         undoStack.push(cmd);
-        logger.info("REDO: {} — action re-applied.", cmd);
+        logger.info("REDO: {}", cmd);
         return true;
     }
 
-    /**
-     * Step back N commands at once.
-     */
+    /** Step back up to {@code steps} commands. */
     public int rewind(int steps) {
         int rewound = 0;
         for (int i = 0; i < steps && !undoStack.isEmpty(); i++) {
@@ -137,37 +162,63 @@ public class TreeHistory {
         return rewound;
     }
 
-    // ── Named checkpoints (branches) ─────────────────────────────────────────
-
-    /**
-     * Save the current state under a name. Can be restored at any time,
-     * even after many subsequent operations — this is your branch point.
-     */
-    public void saveCheckpoint(String name) {
-        TreeCloner cloner = new TreeCloner(context);
-        TreeContext snap  = cloner.snapshot();
-        String sname      = context.getTree().getStrategy().getClass().getSimpleName();
-        Command cmd       = new Command(Command.Action.ADD, -1, snap, sname);
-        checkpoints.put(name, cmd);
-        logger.info("Checkpoint '{}' saved. size={} strategy={}", name, snap.getSize(), sname);
+    private void applyInverse(Command cmd) {
+        context.setHistoryRecording(false);
+        try {
+            switch (cmd.action) {
+                case ADD:     context.remove(cmd.value);          break;
+                case REMOVE:  context.add(cmd.value);             break;
+                case RESTORE: setContents(cmd.beforeContents);    break;
+            }
+        } finally {
+            context.setHistoryRecording(true);
+        }
     }
 
-    /**
-     * Restore the tree to a previously saved named checkpoint.
-     */
+    private void applyForward(Command cmd) {
+        context.setHistoryRecording(false);
+        try {
+            switch (cmd.action) {
+                case ADD:     context.add(cmd.value);             break;
+                case REMOVE:  context.remove(cmd.value);          break;
+                case RESTORE: setContents(cmd.afterContents);     break;
+            }
+        } finally {
+            context.setHistoryRecording(true);
+        }
+    }
+
+    /** Replace the tree's contents with exactly {@code contents}. Caller has
+     *  already suppressed history recording. */
+    private void setContents(List<Integer> contents) {
+        context.clear();
+        for (int v : contents) context.add(v);
+    }
+
+    // ── Named checkpoints ───────────────────────────────────────────────────────
+
+    /** Save the current state under a name (full snapshot — explicit save point). */
+    public void saveCheckpoint(String name) {
+        TreeContext snap = new TreeCloner(context).snapshot();
+        checkpoints.put(name, snap);
+        logger.info("Checkpoint '{}' saved. size={} strategy={}",
+                name, snap.getSize(), strategyName());
+    }
+
+    /** Restore a named checkpoint. The restore is undoable via a lightweight
+     *  RESTORE entry (before/after key lists), not a full tree copy. */
     public boolean restoreCheckpoint(String name) {
-        Command cmd = checkpoints.get(name);
-        if (cmd == null) {
+        TreeContext snap = checkpoints.get(name);
+        if (snap == null) {
             logger.warn("Checkpoint '{}' not found. Available: {}", name, checkpoints.keySet());
             return false;
         }
+        List<Integer> before = new TreeDiagnostics(context).inOrderTraversal();
+        restoreFrom(snap);
+        List<Integer> after  = new TreeDiagnostics(context).inOrderTraversal();
 
-        // Push current state onto undo so the checkpoint restore is itself undoable
-        TreeCloner cloner = new TreeCloner(context);
-        addCommand(Command.Action.ADD, -1, cloner.snapshot());
-
-        restoreFrom(cmd.snapshot);
-        logger.info("Restored checkpoint '{}'. size={}", name, cmd.snapshot.getSize());
+        pushUndo(Command.restore(before, after, strategyName()));
+        logger.info("Restored checkpoint '{}'. size={}", name, after.size());
         return true;
     }
 
@@ -181,16 +232,11 @@ public class TreeHistory {
 
     // ── Audit log ─────────────────────────────────────────────────────────────
 
-    /**
-     * Full immutable audit trail of every operation since this TreeHistory was created.
-     */
+    /** Full immutable audit trail of every recorded operation. */
     public List<Command> getAuditLog() {
         return Collections.unmodifiableList(auditLog);
     }
 
-    /**
-     * Print a formatted audit trail to the logger.
-     */
     public void printAuditLog() {
         logger.info("=== AUDIT LOG ({} entries) ===", auditLog.size());
         for (int i = 0; i < auditLog.size(); i++) {
@@ -198,21 +244,13 @@ public class TreeHistory {
         }
     }
 
-    /**
-     * Returns a diff: which values were added or removed between two snapshots.
-     */
+    /** Diff of which keys were added/removed between two contexts. */
     public Map<String, List<Integer>> diff(TreeContext before, TreeContext after) {
-        TreeDiagnostics diagBefore = new TreeDiagnostics(before);
-        TreeDiagnostics diagAfter  = new TreeDiagnostics(after);
-
-        List<Integer> beforeVals = diagBefore.inOrderTraversal();
-        List<Integer> afterVals  = diagAfter.inOrderTraversal();
-
-        Set<Integer> beforeSet = new HashSet<>(beforeVals);
-        Set<Integer> afterSet  = new HashSet<>(afterVals);
+        Set<Integer> beforeSet = new HashSet<>(new TreeDiagnostics(before).inOrderTraversal());
+        Set<Integer> afterSet  = new HashSet<>(new TreeDiagnostics(after).inOrderTraversal());
 
         List<Integer> added   = new ArrayList<>(afterSet);  added.removeAll(beforeSet);
-        List<Integer> removed = new ArrayList<>(beforeSet); removed.removeAll(afterSet);
+        List<Integer> removed = new ArrayList<>(beforeSet);  removed.removeAll(afterSet);
 
         Map<String, List<Integer>> result = new LinkedHashMap<>();
         result.put("added",   added);
@@ -228,11 +266,14 @@ public class TreeHistory {
 
     // ── Internal ─────────────────────────────────────────────────────────────
 
-    private void restoreFrom(TreeContext snap) {
-        TreeCloner cloner = new TreeCloner(snap);
-        TreeContext fresh = cloner.snapshot();
+    private String strategyName() {
+        return context.getTree().getStrategy().getClass().getSimpleName();
+    }
 
-        // Structural restore — bypasses add/remove to avoid re-recording history
+    /** Structural restore from a snapshot — bypasses add/remove so it does not
+     *  re-record history. */
+    private void restoreFrom(TreeContext snap) {
+        TreeContext fresh = new TreeCloner(snap).snapshot();
         context.getTree().setRoot(
             fresh.getTree().getRoot() != null
                 ? fresh.getTree().getRoot().deepCopy(context.getTree().getNIL())

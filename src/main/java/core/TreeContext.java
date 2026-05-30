@@ -67,6 +67,14 @@ public class TreeContext implements AugmentedTree, SelfHealingTree, OrderedColle
 
     private final Object lock = new Object();
 
+    /**
+     * When false, {@link #add}/{@link #remove} skip recording undo history.
+     * {@link TreeHistory} flips this off while replaying inverse operations
+     * during undo/redo so the replay does not itself generate new history.
+     * Internal collaborator hook — not part of the public client API.
+     */
+    private boolean historyRecording = true;
+
     // ── Constructor ───────────────────────────────────────────────────────────
     public TreeContext(TreeStrategy strategy) {
         logger.info("=== TREE CONTEXT INITIALIZED [strategy={}] ===",
@@ -84,7 +92,6 @@ public class TreeContext implements AugmentedTree, SelfHealingTree, OrderedColle
 
     public void add(int value) {
         synchronized (lock) {
-            TreeContext snapshot = cloner.snapshot();
             long start = System.nanoTime();
 
             tree.add(value);
@@ -92,7 +99,10 @@ public class TreeContext implements AugmentedTree, SelfHealingTree, OrderedColle
 
             totalInsertTime += System.nanoTime() - start;
             insertCount++;
-            history.addCommand(TreeHistory.Command.Action.ADD, value, snapshot);
+            // Inverse-command undo: record only the value, not a full tree copy.
+            // (Previously snapshotted the entire tree here → O(n) per insert,
+            //  O(n^2) to build a tree. See docs/code-review-2026-05-29.md #3.)
+            if (historyRecording) history.recordAdd(value);
             updateMetadata(value);
         }
     }
@@ -104,7 +114,6 @@ public class TreeContext implements AugmentedTree, SelfHealingTree, OrderedColle
                 logger.warn("Remove skipped — value={} not found", value);
                 return;
             }
-            TreeContext snapshot = cloner.snapshot();
             long start = System.nanoTime();
 
             tree.remove(value);
@@ -112,7 +121,7 @@ public class TreeContext implements AugmentedTree, SelfHealingTree, OrderedColle
 
             totalDeleteTime += System.nanoTime() - start;
             deleteCount++;
-            history.addCommand(TreeHistory.Command.Action.REMOVE, value, snapshot);
+            if (historyRecording) history.recordRemove(value);
             frequencyMap.remove(value);
             morphIfStressed();
         }
@@ -159,7 +168,7 @@ public class TreeContext implements AugmentedTree, SelfHealingTree, OrderedColle
 
         // Only reset the structural state, not history or snapshots
         synchronized (lock) {
-            tree.setRoot(TreeNode1.NIL);
+            tree.setRoot(tree.getNIL());
             size = 0;
             frequencyMap.clear();
             recentInsertions.clear();
@@ -241,6 +250,9 @@ public class TreeContext implements AugmentedTree, SelfHealingTree, OrderedColle
     public RedBlackTree getTree()          { return tree; }
     public int          getSize()          { return size; }
 
+    /** Undo/redo + checkpoint history for this context. */
+    public TreeHistory  getHistory()       { return history; }
+
     // ── OrderedCollection: neutral client-facing views ────────────────────────
     // size()/inOrder() satisfy the interface; getSize() is retained for callers
     // already written against it.
@@ -262,6 +274,12 @@ public class TreeContext implements AugmentedTree, SelfHealingTree, OrderedColle
      */
     public void forceSizeInternal(int n) { this.size = n; }
 
+    /**
+     * Enable/disable undo-history recording. Reserved for {@link TreeHistory}
+     * to suppress re-recording while it replays inverse operations.
+     */
+    public void setHistoryRecording(boolean enabled) { this.historyRecording = enabled; }
+
     public double avgInsertTimeMs() {
         return insertCount == 0 ? 0 : (totalInsertTime / 1_000_000.0) / insertCount;
     }
@@ -276,8 +294,10 @@ public class TreeContext implements AugmentedTree, SelfHealingTree, OrderedColle
         recentInsertions.addLast(value);
         if (recentInsertions.size() > MEMORY_LIMIT) recentInsertions.removeFirst();
 
-        // Track red-red violations as a stress signal
-        if (!diagnostics.hasNoRedRed()) {
+        // Track red-red violations as a stress signal. A single insert can only
+        // introduce a violation at the new node's local neighborhood, so check
+        // there in O(log n) rather than scanning the whole tree (O(n)) per insert.
+        if (!diagnostics.hasNoRedRedAt(value)) {
             stressEvents.merge("redRedViolations", 1, Integer::sum);
         } else {
             stressEvents.put("redRedViolations", 0); // reset on clean insert
@@ -296,7 +316,7 @@ public class TreeContext implements AugmentedTree, SelfHealingTree, OrderedColle
 
     public void clear() {
         synchronized (lock) {
-            tree.setRoot(TreeNode1.NIL);
+            tree.setRoot(tree.getNIL());
             size = 0;
             frequencyMap.clear();
             recentInsertions.clear();

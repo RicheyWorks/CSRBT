@@ -26,35 +26,49 @@ public interface TreeStrategy {
     // ── Rotations: structurally identical across all three algorithms ─────────
     // AVLStrategy no longer needs to call `new RedBlackStrategy().rotateLeft()`
 
+    // Rotations use the *Local link variants: a rotation rearranges a local
+    // pair (x, y) but does not change the subtree-size of any ancestor, so the
+    // augment must be recomputed only for the touched nodes, never propagated to
+    // the root. The ancestor that adopts the new subtree root keeps the same set
+    // of descendants (augment unchanged), so it is linked locally too. This is
+    // what drops a rotation from O(height) to O(1) and an insert from O(height²)
+    // to O(height). Insert/delete BST links still use the propagating
+    // setLeft/setRight, which is where ancestor counts genuinely change.
+
     default void rotateLeft(MutableTree tree, TreeNode1 x) {
-        TreeNode1 y   = x.getRight();
-        TreeNode1 nil = tree.getNIL();
+        TreeNode1 y      = x.getRight();
+        TreeNode1 nil    = tree.getNIL();
+        TreeNode1 parent = x.getParent();        // capture BEFORE relinking
 
-        x.setRight(y.getLeft());
-        if (y.getLeft() != nil) y.getLeft().setParent(x);
+        // Move y's left subtree to be x's right child, then recompute x.
+        TreeNode1 yLeft = y.getLeft();
+        x.setRightLocal(yLeft);
+        if (yLeft != nil) yLeft.setParent(x);
 
-        y.setParent(x.getParent());
-        if      (x.getParent() == nil)              tree.setRoot(y);
-        else if (x == x.getParent().getLeft())      x.getParent().setLeft(y);
-        else                                        x.getParent().setRight(y);
+        // Put x under y and recompute y (x is already correct → bottom-up order).
+        y.setLeftLocal(x);   // also sets x.parent = y
 
-        y.setLeft(x);
-        x.setParent(y);
+        // Attach y under x's old parent and recompute that parent with correct y.
+        y.setParent(parent);
+        if      (parent == nil)               tree.setRoot(y);
+        else if (x == parent.getLeft())       parent.setLeftLocal(y);
+        else                                  parent.setRightLocal(y);
     }
 
     default void rotateRight(MutableTree tree, TreeNode1 y) {
-        TreeNode1 x   = y.getLeft();
-        TreeNode1 nil = tree.getNIL();
+        TreeNode1 x      = y.getLeft();
+        TreeNode1 nil    = tree.getNIL();
+        TreeNode1 parent = y.getParent();        // capture BEFORE relinking
 
-        y.setLeft(x.getRight());
-        if (x.getRight() != nil) x.getRight().setParent(y);
+        TreeNode1 xRight = x.getRight();
+        y.setLeftLocal(xRight);
+        if (xRight != nil) xRight.setParent(y);
 
-        x.setParent(y.getParent());
-        if      (y.getParent() == nil)              tree.setRoot(x);
-        else if (y == y.getParent().getRight())     y.getParent().setRight(x);
-        else                                        y.getParent().setLeft(x);
+        x.setRightLocal(y);  // also sets y.parent = x
 
-        x.setRight(y);
-        y.setParent(x);
+        x.setParent(parent);
+        if      (parent == nil)               tree.setRoot(x);
+        else if (y == parent.getRight())      parent.setRightLocal(x);
+        else                                  parent.setLeftLocal(x);
     }
 }
