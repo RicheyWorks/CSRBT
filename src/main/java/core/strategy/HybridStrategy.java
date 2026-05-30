@@ -1,13 +1,13 @@
 package core.strategy;
 
-import core.RedBlackTree;
+import core.MutableTree;
 import core.TreeNode1;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicInteger;
 
 /**
@@ -52,8 +52,13 @@ public class HybridStrategy implements TreeStrategy {
     private final AtomicInteger insertCount      = new AtomicInteger(0);
     private final AtomicInteger deleteCount      = new AtomicInteger(0);
 
-    /** value → access count; identifies hot nodes */
-    private final Map<Integer, Integer> hotNodeFrequency = new HashMap<>();
+    /**
+     * value → access count; identifies hot nodes.
+     * Concurrent so it is consistent with the AtomicInteger counters above:
+     * {@code merge}, {@code clear} and {@code entrySet} are all safe under the
+     * concurrent reads that diagnostics/genome feedback perform.
+     */
+    private final Map<Integer, Integer> hotNodeFrequency = new ConcurrentHashMap<>();
 
     public HybridStrategy() {
         this(Integer.MAX_VALUE);
@@ -66,7 +71,7 @@ public class HybridStrategy implements TreeStrategy {
     // ── Insert ────────────────────────────────────────────────────────────────
 
     @Override
-    public TreeNode1 insert(RedBlackTree tree, TreeNode1 newNode) {
+    public void insert(MutableTree tree, TreeNode1 newNode) {
         TreeNode1 nil = tree.getNIL();
         TreeNode1 y   = nil;
         TreeNode1 x   = tree.getRoot();
@@ -76,7 +81,7 @@ public class HybridStrategy implements TreeStrategy {
             if (newNode.getData() == x.getData()) {
                 logger.warn("Hybrid duplicate insert skipped: {}", newNode.getData());
                 recordAccess(newNode.getData());
-                return x;
+                return;
             }
             x = (newNode.getData() < x.getData()) ? x.getLeft() : x.getRight();
         }
@@ -94,7 +99,6 @@ public class HybridStrategy implements TreeStrategy {
 
         insertCount.incrementAndGet();
         recordAccess(newNode.getData());
-        return newNode;
     }
 
     /**
@@ -102,7 +106,7 @@ public class HybridStrategy implements TreeStrategy {
      * Phase 2: RB recolor pass (counts every color flip).
      */
     @Override
-    public void fixInsert(RedBlackTree tree, TreeNode1 node) {
+    public void fixInsert(MutableTree tree, TreeNode1 node) {
         avlRebalanceUp(tree, node.getParent());
         rbRecolorPass(tree, tree.getRoot());
         tree.getRoot().setColor(TreeNode1.Color.BLACK);
@@ -111,7 +115,7 @@ public class HybridStrategy implements TreeStrategy {
     // ── Delete ────────────────────────────────────────────────────────────────
 
     @Override
-    public void delete(RedBlackTree tree, TreeNode1 z) {
+    public void delete(MutableTree tree, TreeNode1 z) {
         TreeNode1 rebalanceFrom;
 
         if (z.getLeft().isNil()) {
@@ -143,7 +147,7 @@ public class HybridStrategy implements TreeStrategy {
     // ── Search ────────────────────────────────────────────────────────────────
 
     @Override
-    public TreeNode1 search(RedBlackTree tree, int value) {
+    public TreeNode1 search(MutableTree tree, int value) {
         TreeNode1 cur = tree.getRoot();
         while (!cur.isNil()) {
             int cmp = value - cur.getData();
@@ -158,9 +162,11 @@ public class HybridStrategy implements TreeStrategy {
 
     // ── AVL rebalance (Phase 1) ───────────────────────────────────────────────
 
-    private void avlRebalanceUp(RedBlackTree tree, TreeNode1 start) {
+    private void avlRebalanceUp(MutableTree tree, TreeNode1 start) {
         TreeNode1 cur = start;
         while (cur != null && !cur.isNil()) {
+            // Keep cached heights current along the path (see AVLStrategy note).
+            cur.refreshHeight();
             totalNodesSeen.incrementAndGet();
             int bf        = balanceFactor(cur);
             int depth     = cur.depth();
@@ -192,7 +198,7 @@ public class HybridStrategy implements TreeStrategy {
 
     // ── RB recolor pass (Phase 2) ─────────────────────────────────────────────
 
-    private void rbRecolorPass(RedBlackTree tree, TreeNode1 node) {
+    private void rbRecolorPass(MutableTree tree, TreeNode1 node) {
         if (node == null || node.isNil()) return;
 
         if (node.isRed()
@@ -282,7 +288,7 @@ public class HybridStrategy implements TreeStrategy {
         return height(node.getLeft()) - height(node.getRight());
     }
 
-    private void transplant(RedBlackTree tree, TreeNode1 u, TreeNode1 v) {
+    private void transplant(MutableTree tree, TreeNode1 u, TreeNode1 v) {
         TreeNode1 uParent = u.getParent();
         if (uParent == null || uParent.isNil()) {
             tree.setRoot(v);

@@ -1,6 +1,7 @@
 package core.evolution;
 
 import core.TreeContext;
+import core.TreeEngineRegistry;
 import core.strategy.*;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -399,10 +400,17 @@ public class GenomeDrivenTreeController {
             case AVL            -> new AVLStrategy();
             case SPLAY          -> new SplayStrategy();
             case HYBRID         -> new HybridStrategy();
-            // Aspirational — implement and add here when ready:
+            // These are NOT red-black strategies. PERSISTENT_TREE is a standalone
+            // TreeEngine (build it via TreeEngineRegistry.create); FIBONACCI_HEAP
+            // and VAN_EMDE_BOAS are intentionally unsupported (non-ordered-map
+            // contracts). Failing loudly here beats the old silent null, which
+            // setStrategy() swallowed as a no-op morph.
             case FIBONACCI_HEAP,
                  VAN_EMDE_BOAS,
-                 PERSISTENT_TREE -> null;
+                 PERSISTENT_TREE ->
+                    throw new UnsupportedOperationException(
+                        type + " is not a red-black strategy. "
+                      + TreeEngineRegistry.capability(type).note);
         };
     }
 

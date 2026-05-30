@@ -1,10 +1,16 @@
 package core;
 
+import core.interfaces.TreeEngine;
 import core.strategy.TreeStrategy;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-public class RedBlackTree {
+import java.util.ArrayDeque;
+import java.util.ArrayList;
+import java.util.Deque;
+import java.util.List;
+
+public class RedBlackTree implements TreeEngine, MutableTree {
 
     private static final Logger logger = LogManager.getLogger(RedBlackTree.class);
 
@@ -48,6 +54,52 @@ public class RedBlackTree {
 
     public void rotateLeft(TreeNode1 x)  { strategy.rotateLeft(this, x); }
     public void rotateRight(TreeNode1 y) { strategy.rotateRight(this, y); }
+
+    // ── TreeEngine: representation-neutral views ──────────────────────────────
+    // These expose behaviour only (ordered keys / size / clear) so callers can
+    // treat any backing structure uniformly via the TreeEngine interface.
+
+    /** {@inheritDoc} Keys in ascending order via iterative in-order walk. */
+    @Override
+    public List<Integer> inOrder() {
+        List<Integer> out = new ArrayList<>();
+        Deque<TreeNode1> stack = new ArrayDeque<>();
+        TreeNode1 cur = root;
+        while (!stack.isEmpty() || !cur.isNil()) {
+            while (!cur.isNil()) {
+                stack.push(cur);
+                cur = cur.getLeft();
+            }
+            cur = stack.pop();
+            out.add(cur.getData());
+            cur = cur.getRight();
+        }
+        return out;
+    }
+
+    /** {@inheritDoc} */
+    @Override
+    public int size() {
+        int n = 0;
+        Deque<TreeNode1> stack = new ArrayDeque<>();
+        TreeNode1 cur = root;
+        while (!stack.isEmpty() || !cur.isNil()) {
+            while (!cur.isNil()) {
+                stack.push(cur);
+                cur = cur.getLeft();
+            }
+            cur = stack.pop();
+            n++;
+            cur = cur.getRight();
+        }
+        return n;
+    }
+
+    /** {@inheritDoc} Detaches the whole tree by resetting the root to NIL. */
+    @Override
+    public void clear() {
+        this.root = NIL;
+    }
 
     // ── Accessors ─────────────────────────────────────────────────────────────
 

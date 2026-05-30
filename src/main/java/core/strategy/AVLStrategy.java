@@ -1,10 +1,10 @@
 package core.strategy;
 
-import core.RedBlackTree;
+import core.MutableTree;
 import core.TreeNode1;
 
 /**
- * AVL tree strategy backed by the shared RedBlackTree / TreeNode1 skeleton.
+ * AVL tree strategy backed by the shared MutableTree / TreeNode1 skeleton.
  *
  * Height is maintained automatically by TreeNode1.setLeft() / setRight(),
  * so we only need to read node.getHeight() here — no manual tracking.
@@ -25,7 +25,7 @@ public class AVLStrategy implements TreeStrategy {
      * Standard BST link.  fixInsert walks up and rebalances.
      */
     @Override
-    public void insert(RedBlackTree tree, TreeNode1 node) {
+    public void insert(MutableTree tree, TreeNode1 node) {
         TreeNode1 nil    = tree.getNIL();
         TreeNode1 parent = nil;
         TreeNode1 cur    = tree.getRoot();
@@ -54,14 +54,14 @@ public class AVLStrategy implements TreeStrategy {
      * Walk from the newly inserted node upward, rebalancing as needed.
      */
     @Override
-    public void fixInsert(RedBlackTree tree, TreeNode1 node) {
+    public void fixInsert(MutableTree tree, TreeNode1 node) {
         rebalanceUp(tree, node.getParent());
     }
 
     // ── Delete ────────────────────────────────────────────────────────────────
 
     @Override
-    public void delete(RedBlackTree tree, TreeNode1 node) {
+    public void delete(MutableTree tree, TreeNode1 node) {
         TreeNode1 rebalanceFrom;
 
         if (node.getLeft().isNil()) {
@@ -98,7 +98,7 @@ public class AVLStrategy implements TreeStrategy {
     // ── Search ────────────────────────────────────────────────────────────────
 
     @Override
-    public TreeNode1 search(RedBlackTree tree, int value) {
+    public TreeNode1 search(MutableTree tree, int value) {
         TreeNode1 cur = tree.getRoot();
         while (!cur.isNil()) {
             int cmp = value - cur.getData();
@@ -118,9 +118,14 @@ public class AVLStrategy implements TreeStrategy {
      * After a rotation the displaced node moved DOWN; we continue from its
      * new parent (the subtree root that took its place) and keep ascending.
      */
-    private void rebalanceUp(RedBlackTree tree, TreeNode1 start) {
+    private void rebalanceUp(MutableTree tree, TreeNode1 start) {
         TreeNode1 cur = start;
         while (cur != null && !cur.isNil()) {
+            // Refresh this node's height from its (already-correct, lower-on-path)
+            // children before reading balance factors. Insertion/deletion only
+            // updates the immediate parent's height, leaving ancestors stale; the
+            // upward walk fixes each node so the parent's bf is computed correctly.
+            cur.refreshHeight();
             int bf = balanceFactor(cur);
 
             if (bf > 1) {
@@ -167,7 +172,7 @@ public class AVLStrategy implements TreeStrategy {
      * Replaces subtree rooted at {@code u} with subtree rooted at {@code v}.
      * Mirrors CLRS RB-TRANSPLANT — works for any BST variant.
      */
-    private void transplant(RedBlackTree tree, TreeNode1 u, TreeNode1 v) {
+    private void transplant(MutableTree tree, TreeNode1 u, TreeNode1 v) {
         TreeNode1 uParent = u.getParent();
         if (uParent == null || uParent.isNil()) {
             tree.setRoot(v);

@@ -1,487 +1,495 @@
 package test.core;
 
-import core.BinarySearchTree1;
+import core.RedBlackTree;
+import core.PersistentTreeEngine;
+import core.evolution.StrategyBattleRunner;
+import core.evolution.StrategyBattleRunner.BattleResult;
+import core.evolution.StrategyBattleRunner.WorkloadType;
+import core.TreeContext;
+import core.TreeEngineRegistry;
 import core.TreeNode1;
-import org.junit.jupiter.api.*;
-import static org.junit.jupiter.api.Assertions.*;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
-import java.util.*;
+import core.evolution.TreeGenome.StructureType;
+import core.interfaces.OrderedCollection;
+import core.interfaces.TreeEngine;
+import core.strategy.AVLStrategy;
+import core.strategy.HybridStrategy;
+import core.strategy.RedBlackStrategy;
+import core.strategy.SplayStrategy;
+import core.strategy.TreeStrategy;
+import core.util.OrderStatisticsOps;
+import core.util.TreeDiagnostics;
 
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Nested;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestMethodOrder;
+import org.junit.jupiter.api.MethodOrderer;
+import org.junit.jupiter.api.Order;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.EnumSource;
+import org.junit.jupiter.params.provider.MethodSource;
+
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.Random;
+import java.util.function.Supplier;
+import java.util.stream.Stream;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
+/**
+ * JUnit 5 suite for the current CSRBT architecture.
+ *
+ * This replaces the legacy BinarySearchTree1 suite, which targeted an API
+ * (isFull/removeLeaves/trim/sum/...) that no longer exists. The current core
+ * is TreeContext (facade) over RedBlackTree, driven by a pluggable
+ * TreeStrategy. Tests are organized as:
+ *
+ *   - Core operations  : insert / contains / remove / size, on RedBlackStrategy
+ *   - RB invariants     : red-black properties hold ONLY for RedBlackStrategy
+ *                         (AVL/Splay/Hybrid don't maintain RB colors)
+ *   - Cross-strategy    : ordering + membership hold for every strategy
+ *   - Order statistics  : select / rank / range / successor / predecessor
+ *   - Strategy morphing : setStrategy() preserves contents
+ *   - Stress            : large randomized workload stays correct
+ */
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
-public class BinarySearchTreeTester {
-    private static final Logger logger = LogManager.getLogger(BinarySearchTreeTester.class);
-    private BinarySearchTree1 bst;
+@DisplayName("TreeContext / RedBlackTree current-API suite")
+public class TreeContextTester {
 
-    @BeforeAll
-    static void setupSuite() {
-        logger.info("=== RED-BLACK TREE TEST SUITE: READY TO EXPLODE ===");
-        System.out.println("🔥 BinarySearchTreeTester: 100+ NODE CHAOS UNLEASHED 🔥");
-    }
+    private TreeContext ctx;
 
     @BeforeEach
     void reset() {
-        logger.info("=== RESETTING RED-BLACK TREE ===");
-        bst = new BinarySearchTree1();
+        ctx = new TreeContext(new RedBlackStrategy());
     }
 
-    // Helper methods for Red-Black validation
-    private int blackHeight(TreeNode1 node) {
-        if (node == TreeNode1.NIL) return 0; // Updated NIL reference
-        int leftHeight = blackHeight(node.getLeft());
-        int rightHeight = blackHeight(node.getRight());
-        assertEquals(leftHeight, rightHeight, "Black height mismatch at " + node.getData());
-        return leftHeight + (node.isRed() ? 0 : 1);
+    /** In-order keys of the underlying tree, via diagnostics. */
+    private List<Integer> inOrder(TreeContext c) {
+        return new TreeDiagnostics(c).inOrderTraversal();
     }
 
-    private void checkRedBlackProperties(TreeNode1 root) {
-        // Property 2: Root is black
-        if (root == TreeNode1.NIL) return; // Updated NIL reference
-        assertFalse(root.isRed(), "Root must be black!");
-        // Property 4: No two reds in a row
-        checkNoRedRed(root);
-        // Property 5: Black height consistency (checked within blackHeight)
-        blackHeight(root);
+    private static List<Integer> sortedCopy(List<Integer> in) {
+        List<Integer> out = new ArrayList<>(in);
+        Collections.sort(out);
+        return out;
     }
 
-    private void checkNoRedRed(TreeNode1 node) {
-        if (node == TreeNode1.NIL) return; // Updated NIL reference
-        if (node.isRed()) {
-            assertFalse(node.getLeft().isRed(), "Red node " + node.getData() + " has red left child!");
-            assertFalse(node.getRight().isRed(), "Red node " + node.getData() + " has red right child!");
+    // ── Core operations (RedBlackStrategy) ─────────────────────────────────────
+
+    @Test @Order(1)
+    @DisplayName("empty tree: size 0, contains nothing")
+    void emptyTree() {
+        assertEquals(0, ctx.getSize(), "fresh tree should be empty");
+        assertFalse(ctx.contains(10), "empty tree contains nothing");
+        assertTrue(inOrder(ctx).isEmpty(), "empty in-order traversal");
+    }
+
+    @Test @Order(2)
+    @DisplayName("insert grows size and membership")
+    void insertAndContains() {
+        for (int v : new int[]{10, 5, 15, 2, 7}) ctx.add(v);
+        assertEquals(5, ctx.getSize(), "size tracks distinct inserts");
+        for (int v : new int[]{10, 5, 15, 2, 7}) assertTrue(ctx.contains(v), "should contain " + v);
+        assertFalse(ctx.contains(999), "should not contain unseen key");
+    }
+
+    @Test @Order(3)
+    @DisplayName("in-order traversal is sorted")
+    void inOrderSorted() {
+        int[] vals = {42, 7, 19, 1, 88, 23, 5};
+        for (int v : vals) ctx.add(v);
+        List<Integer> io = inOrder(ctx);
+        assertEquals(sortedCopy(io), io, "in-order traversal must be ascending");
+        assertEquals(vals.length, io.size(), "traversal size matches inserts");
+    }
+
+    @Test @Order(4)
+    @DisplayName("remove: existing decrements, missing is a no-op")
+    void removeSemantics() {
+        for (int v : new int[]{10, 5, 15, 2, 7}) ctx.add(v);
+        ctx.remove(2);
+        assertFalse(ctx.contains(2), "removed key gone");
+        assertEquals(4, ctx.getSize(), "size drops after real remove");
+
+        ctx.remove(12345);
+        assertEquals(4, ctx.getSize(), "removing absent key does not change size");
+
+        ctx.remove(10);
+        assertFalse(ctx.contains(10), "removing root works");
+        assertTrue(ctx.contains(5) && ctx.contains(15) && ctx.contains(7), "survivors remain");
+    }
+
+    @Test @Order(5)
+    @DisplayName("clear empties the tree")
+    void clearEmpties() {
+        for (int v : new int[]{3, 1, 4, 1, 5, 9, 2, 6}) ctx.add(v);
+        ctx.clear();
+        assertEquals(0, ctx.getSize(), "size 0 after clear");
+        assertTrue(inOrder(ctx).isEmpty(), "no keys after clear");
+    }
+
+    // ── Red-Black invariants (RedBlackStrategy only) ───────────────────────────
+
+    @Test @Order(6)
+    @DisplayName("red-black invariants hold after inserts")
+    void rbInvariantsAfterInserts() {
+        TreeDiagnostics diag = new TreeDiagnostics(ctx);
+        for (int i = 1; i <= 64; i++) {          // sorted inserts: worst case for naive BST
+            ctx.add(i);
+            assertTrue(diag.isValidRedBlack(), "RB validity must hold at n=" + i);
+            assertTrue(diag.hasNoRedRed(), "no red-red violation at n=" + i);
         }
-        checkNoRedRed(node.getLeft());
-        checkNoRedRed(node.getRight());
+        RedBlackTree t = ctx.getTree();
+        assertTrue(t.getRoot().isBlack(), "root must be black");
     }
 
-    @Test
-    @Order(1)
-    public void testExample() {
-        logger.debug("Running example test—buck wild flex!");
-        assertTrue(true, "Test suite’s alive—let’s roll!");
+    @Test @Order(7)
+    @DisplayName("red-black invariants hold after deletes")
+    void rbInvariantsAfterDeletes() {
+        TreeDiagnostics diag = new TreeDiagnostics(ctx);
+        for (int i = 1; i <= 40; i++) ctx.add(i);
+        for (int i = 1; i <= 40; i += 2) {       // delete the odds
+            ctx.remove(i);
+            assertTrue(diag.isValidRedBlack(), "RB validity must hold after removing " + i);
+        }
     }
 
-    @Test
-    @Order(2)
-    public void testIsFull() {
-        logger.info("=== TEST: IS FULL ===");
-        assertTrue(bst.isFull(), "Empty tree should be full!");
-
-        bst.add(10);
-        assertTrue(bst.isFull(), "Single-node tree should be full!");
-        checkRedBlackProperties(bst.getRoot()); // Updated to getRoot()
-
-        bst.add(5);
-        bst.add(15);
-        assertTrue(bst.isFull(), "Balanced tree [10,5,15] should be full!");
-        checkRedBlackProperties(bst.getRoot()); // Updated to getRoot()
-
-        bst.add(20);
-        assertTrue(bst.isFull(), "Tree [10,5,15,20] should still be full in Red-Black!");
-        checkRedBlackProperties(bst.getRoot()); // Updated to getRoot()
+    @Test @Order(8)
+    @DisplayName("selfRepair reports a valid tree")
+    void selfRepairValid() {
+        for (int v : new int[]{50, 25, 75, 10, 30, 60, 90}) ctx.add(v);
+        assertTrue(ctx.selfRepair(), "a healthy tree should report valid after self-repair");
     }
 
-    @Test
-    @Order(3)
-    public void testEquals() {
-        logger.info("=== TEST: EQUALS ===");
-        assertTrue(bst.equals(new BinarySearchTree1()), "Empty trees should be equal!");
+    // ── Cross-strategy: ordering + membership ──────────────────────────────────
 
-        bst.add(10);
-        BinarySearchTree1 bst2 = new BinarySearchTree1();
-        bst2.add(10);
-        assertTrue(bst.equals(bst2), "Single-node trees should be equal!");
-        checkRedBlackProperties(bst.getRoot()); // Updated to getRoot()
-
-        bst.add(5);
-        bst.add(15);
-        bst2.add(15);
-        bst2.add(5);
-        logger.debug("BST1: {}, BST2: {}", bst.toString(), bst2.toString());
-        assertFalse(bst.equals(bst2), "Different insertion order should fail equals!");
-        checkRedBlackProperties(bst.getRoot()); // Updated to getRoot()
+    static Stream<org.junit.jupiter.params.provider.Arguments> strategies() {
+        return Stream.of(
+            org.junit.jupiter.params.provider.Arguments.of("RedBlack", (Supplier<TreeStrategy>) RedBlackStrategy::new),
+            org.junit.jupiter.params.provider.Arguments.of("AVL",      (Supplier<TreeStrategy>) AVLStrategy::new),
+            org.junit.jupiter.params.provider.Arguments.of("Splay",    (Supplier<TreeStrategy>) SplayStrategy::new),
+            org.junit.jupiter.params.provider.Arguments.of("Hybrid",   (Supplier<TreeStrategy>) HybridStrategy::new)
+        );
     }
 
-    @Test
-    @Order(4)
-    public void testRemoveLeaves() {
-        logger.info("=== TEST: REMOVE LEAVES ===");
-        bst.add(10);
-        bst.add(5);
-        bst.add(15);
-        bst.add(2);
-        bst.add(7);
+    @ParameterizedTest(name = "[{0}] keeps keys ordered and findable")
+    @MethodSource("strategies")
+    @DisplayName("every strategy maintains a searchable ordered set")
+    void everyStrategyOrdersAndFinds(String name, Supplier<TreeStrategy> factory) {
+        TreeContext c = new TreeContext(factory.get());
+        int[] vals = {37, 12, 88, 3, 55, 21, 70, 9, 44, 61};
+        for (int v : vals) c.add(v);
 
-        assertFalse(bst.isEmpty(), "Tree shouldn’t be empty yet!");
-        bst.removeLeaves();
-        assertFalse(bst.contains(2), "Leaf 2 should be gone!");
-        assertFalse(bst.contains(7), "Leaf 7 should be gone!");
-        assertTrue(bst.contains(10), "Root should stick around!");
-        checkRedBlackProperties(bst.getRoot()); // Updated to getRoot()
+        for (int v : vals) assertTrue(c.contains(v), "[" + name + "] must contain " + v);
+        assertFalse(c.contains(1000), "[" + name + "] must not contain unseen key");
 
-        bst.removeLeaves();
-        assertTrue(bst.contains(10), "Root should still be here!");
-        assertFalse(bst.contains(5), "5 should be gone!");
-        assertFalse(bst.contains(15), "15 should be gone!");
-        checkRedBlackProperties(bst.getRoot()); // Updated to getRoot()
-
-        bst = new BinarySearchTree1();
-        bst.add(42);
-        bst.removeLeaves();
-        assertTrue(bst.isEmpty(), "Single-node tree should empty out!");
-
-        bst = new BinarySearchTree1();
-        bst.add(10);
-        bst.add(20);
-        bst.add(30);
-        bst.add(40);
-        bst.add(50);
-        bst.removeLeaves();
-        assertFalse(bst.contains(50), "Deep leaf 50 should be toast!");
-        checkRedBlackProperties(bst.getRoot()); // Updated to getRoot()
+        List<Integer> io = inOrder(c);
+        assertEquals(sortedCopy(io), io, "[" + name + "] in-order must be ascending");
+        assertEquals(vals.length, io.size(), "[" + name + "] traversal size matches inserts");
     }
 
-    @Test
-    @Order(5)
-    public void testTrim() {
-        logger.info("=== TEST: TRIM ===");
-        assertTrue(bst.isEmpty(), "Empty tree should stay empty after trim!");
+    // ── Order statistics (CLRS Ch.14.1) ────────────────────────────────────────
 
-        bst.add(10);
-        bst.trim(20, 30);
-        assertTrue(bst.isEmpty(), "10 < 20 should trim to empty!");
-
-        bst.add(5);
-        bst.add(15);
-        bst.trim(20, 30);
-        assertTrue(bst.isEmpty(), "All < 20 should trim to empty!");
-
-        bst.add(25);
-        bst.trim(20, 30);
-        assertFalse(bst.isEmpty(), "25 in [20, 30] should stay!");
-        checkRedBlackProperties(bst.getRoot()); // Updated to getRoot()
-
-        bst = new BinarySearchTree1();
-        bst.add(10);
-        bst.add(5);
-        bst.add(15);
-        bst.trim(16, 19);
-        assertTrue(bst.isEmpty(), "All out of [16, 19] should trim to empty!");
-    }
-
-    @Test
-    @Order(6)
-    public void testSize() {
-        logger.info("=== TEST: SIZE ===");
-        assertEquals(0, bst.size(), "Empty tree size should be 0!");
-
-        bst.add(10);
-        bst.add(5);
-        bst.add(15);
-        bst.add(2);
-        bst.add(7);
-        assertEquals(5, bst.size(), "Size should be 5!");
-        checkRedBlackProperties(bst.getRoot()); // Updated to getRoot()
-
-        bst.add(10);
-        bst.add(5);
-        assertEquals(5, bst.size(), "Duplicates shouldn’t bump size!");
-
-        bst.remove(5);
-        assertEquals(4, bst.size(), "Size should drop to 4!");
-        checkRedBlackProperties(bst.getRoot()); // Updated to getRoot()
-
-        bst.remove(100);
-        assertEquals(4, bst.size(), "Non-existent remove shouldn’t change size!");
-
-        bst.clear();
-        assertEquals(0, bst.size(), "Cleared tree should be 0!");
-    }
-
-    @Test
-    @Order(7)
-    public void testHeight() {
-        logger.info("=== TEST: HEIGHT ===");
-        assertEquals(-1, bst.height(), "Empty tree height should be -1!");
-
-        bst.add(10);
-        assertEquals(1, bst.height(), "Single-node height should be 1!");
-        checkRedBlackProperties(bst.getRoot()); // Updated to getRoot()
-
-        bst.add(5);
-        bst.add(15);
-        bst.add(2);
-        bst.add(7);
-        assertTrue(bst.height() <= 3, "Red-Black height should be <= 3 for 5 nodes!");
-        checkRedBlackProperties(bst.getRoot()); // Updated to getRoot()
-
-        bst = new BinarySearchTree1();
-        for (int i = 1; i <= 10; i++) bst.add(i);
-        assertTrue(bst.height() <= (int)(1.44 * Math.log(10 + 2) / Math.log(2)) - 1,
-                   "Red-Black height should be <= 1.44*log₂(12)-1 for 10 nodes!");
-        checkRedBlackProperties(bst.getRoot()); // Updated to getRoot()
-    }
-
-    @Test
-    @Order(8)
-    public void testMaxValue() {
-        logger.info("=== TEST: MAX VALUE ===");
-        assertThrows(NoSuchElementException.class, () -> bst.maxValue(), "Empty tree should throw!");
-
-        bst.add(42);
-        assertEquals(42, bst.maxValue(), "Single-node max should be 42!");
-        checkRedBlackProperties(bst.getRoot()); // Updated to getRoot()
-
-        bst = new BinarySearchTree1();
-        bst.add(10);
-        bst.add(5);
-        bst.add(2);
-        assertEquals(10, bst.maxValue(), "Left-heavy max should be 10!");
-        checkRedBlackProperties(bst.getRoot()); // Updated to getRoot()
-
-        bst = new BinarySearchTree1();
-        bst.add(10);
-        bst.add(15);
-        bst.add(20);
-        assertEquals(20, bst.maxValue(), "Right-heavy max should be 20!");
-        checkRedBlackProperties(bst.getRoot()); // Updated to getRoot()
-    }
-
-    @Test
-    @Order(9)
-    public void testCountLeaves() {
-        logger.info("=== TEST: COUNT LEAVES ===");
-        assertEquals(0, bst.countLeaves(), "Empty tree should have 0 leaves!");
-
-        bst.add(10);
-        assertEquals(1, bst.countLeaves(), "Single-node should have 1 leaf!");
-        checkRedBlackProperties(bst.getRoot()); // Updated to getRoot()
-
-        bst.add(5);
-        bst.add(15);
-        assertEquals(2, bst.countLeaves(), "Tree [10,5,15] should have 2 leaves!");
-        checkRedBlackProperties(bst.getRoot()); // Updated to getRoot()
-    }
-
-    @Test
-    @Order(10)
-    public void testSum() {
-        logger.info("=== TEST: SUM ===");
-        assertEquals(0, bst.sum(), "Empty tree sum should be 0!");
-
-        bst.add(10);
-        assertEquals(10, bst.sum(), "Single-node sum should be 10!");
-        checkRedBlackProperties(bst.getRoot()); // Updated to getRoot()
-
-        bst.add(5);
-        bst.add(15);
-        bst.add(2);
-        bst.add(7);
-        assertEquals(39, bst.sum(), "Sum should be 39!");
-        checkRedBlackProperties(bst.getRoot()); // Updated to getRoot()
-    }
-
-    @Test
-    @Order(11)
-    public void testAverage() {
-        logger.info("=== TEST: AVERAGE ===");
-        assertEquals(0, bst.average(), "Empty tree average should be 0!");
-
-        bst.add(10);
-        assertEquals(10.0, bst.average(), 0.01, "Single-node average should be 10!");
-        checkRedBlackProperties(bst.getRoot()); // Updated to getRoot()
-
-        bst.add(20);
-        bst.add(30);
-        assertEquals(20.0, bst.average(), 0.01, "Average should be 20!");
-        checkRedBlackProperties(bst.getRoot()); // Updated to getRoot()
-    }
-
-    @Test
-    @Order(12)
-    public void testContainsIter() {
-        logger.info("=== TEST: CONTAINS ITER ===");
-        assertFalse(bst.containsIter(10), "Empty tree shouldn’t contain 10!");
-
-        bst.add(10);
-        assertTrue(bst.containsIter(10), "Should contain 10!");
-        checkRedBlackProperties(bst.getRoot()); // Updated to getRoot()
-
-        bst.add(5);
-        bst.add(15);
-        assertTrue(bst.containsIter(5), "Should contain 5!");
-        assertTrue(bst.containsIter(15), "Should contain 15!");
-        assertFalse(bst.containsIter(7), "Shouldn’t contain 7!");
-        checkRedBlackProperties(bst.getRoot()); // Updated to getRoot()
-    }
-
-    @Test
-    @Order(13)
-    public void testRemove() {
-        logger.info("=== TEST: REMOVE ===");
-        bst.add(10);
-        bst.add(5);
-        bst.add(15);
-        bst.add(2);
-        bst.add(7);
-
-        bst.remove(2);
-        assertFalse(bst.contains(2), "2 should be gone!");
-        checkRedBlackProperties(bst.getRoot()); // Updated to getRoot()
-
-        bst.remove(5);
-        assertFalse(bst.contains(5), "5 should be gone!");
-        assertTrue(bst.contains(7), "7 should stay!");
-        checkRedBlackProperties(bst.getRoot()); // Updated to getRoot()
-
-        bst.remove(10);
-        assertFalse(bst.contains(10), "10 should be gone!");
-        checkRedBlackProperties(bst.getRoot()); // Updated to getRoot()
-    }
-
-    @Test
-    @Order(14)
-    public void testSizeRecursive() {
-        logger.info("=== TEST: SIZE RECURSIVE ===");
-        assertEquals(0, bst.sizeRecursive(), "Empty tree size should be 0!");
-
-        bst.add(10);
-        bst.add(5);
-        bst.add(15);
-        assertEquals(3, bst.sizeRecursive(), "Size should be 3!");
-        checkRedBlackProperties(bst.getRoot()); // Updated to getRoot()
-    }
-
-    @Test
-    @Order(15)
-    public void testMinValue() {
-        logger.info("=== TEST: MIN VALUE ===");
-        assertThrows(NoSuchElementException.class, () -> bst.minValue(), "Empty tree should throw!");
-
-        bst.add(42);
-        assertEquals(42, bst.minValue(), "Single-node min should be 42!");
-        checkRedBlackProperties(bst.getRoot()); // Updated to getRoot()
-
-        bst = new BinarySearchTree1();
-        bst.add(10);
-        bst.add(5);
-        bst.add(2);
-        assertEquals(2, bst.minValue(), "Left-heavy min should be 2!");
-        checkRedBlackProperties(bst.getRoot()); // Updated to getRoot()
-    }
-
-    @Test
-    @Order(16)
-    public void testPostOrderTraversal() {
-        logger.info("=== TEST: POST-ORDER TRAVERSAL ===");
-        assertTrue(bst.postOrderTraversal().isEmpty(), "Empty tree traversal should be empty!");
-
-        bst.add(10);
-        assertEquals(List.of(10), bst.postOrderTraversal(), "Single-node post-order should be [10]!");
-        checkRedBlackProperties(bst.getRoot()); // Updated to getRoot()
-
-        bst.add(5);
-        bst.add(15);
-        assertEquals(List.of(5, 15, 10), bst.postOrderTraversal(), "Post-order should be [5, 15, 10]!");
-        checkRedBlackProperties(bst.getRoot()); // Updated to getRoot()
-    }
-
-    @Test
-    @Order(17)
-    public void testInOrderTraversal() {
-        logger.info("=== TEST: IN-ORDER TRAVERSAL ===");
-        assertTrue(bst.inOrderTraversal().isEmpty(), "Empty tree traversal should be empty!");
-
-        bst.add(10);
-        bst.add(5);
-        bst.add(15);
-        assertEquals(List.of(5, 10, 15), bst.inOrderTraversal(), "In-order should be sorted!");
-        checkRedBlackProperties(bst.getRoot()); // Updated to getRoot()
-    }
-
-    @Test
-    @Order(18)
-    public void testPreOrderTraversal() {
-        logger.info("=== TEST: PRE-ORDER TRAVERSAL ===");
-        assertTrue(bst.preOrderTraversal().isEmpty(), "Empty tree traversal should be empty!");
-
-        bst.add(10);
-        bst.add(5);
-        bst.add(15);
-        assertEquals(List.of(10, 5, 15), bst.preOrderTraversal(), "Pre-order should be [10, 5, 15]!");
-        checkRedBlackProperties(bst.getRoot()); // Updated to getRoot()
-    }
-
-    @Test
-    @Order(19)
-    public void testToString() {
-        logger.info("=== TEST: TO STRING ===");
-        assertEquals("[]", bst.toString(), "Empty tree should be '[]'!");
-
-        bst.add(10);
-        assertEquals("[10]", bst.toString(), "Single-node should be '[10]'!");
-        checkRedBlackProperties(bst.getRoot()); // Updated to getRoot()
-
-        bst.add(5);
-        bst.add(15);
-        assertEquals("[5, 10, 15]", bst.toString(), "Should be sorted [5, 10, 15]!");
-        checkRedBlackProperties(bst.getRoot()); // Updated to getRoot()
-    }
-
-    @Test
-    @Order(20)
-    public void testClear() {
-        logger.info("=== TEST: CLEAR ===");
-        bst.add(10);
-        bst.add(5);
-        bst.add(15);
-        bst.clear();
-        assertTrue(bst.isEmpty(), "Tree should be empty after clear!");
-        assertEquals(0, bst.size(), "Size should be 0!");
-    }
-
-    @Test
-    @Order(21)
-    public void testIsEmpty() {
-        logger.info("=== TEST: IS EMPTY ===");
-        assertTrue(bst.isEmpty(), "New tree should be empty!");
-
-        bst.add(10);
-        assertFalse(bst.isEmpty(), "Tree with 10 shouldn’t be empty!");
-        checkRedBlackProperties(bst.getRoot()); // Updated to getRoot()
-
-        bst.remove(10);
-        assertTrue(bst.isEmpty(), "Tree should be empty after remove!");
-    }
-
-    @Test
-    @Order(22)
-    public void testStressInsertAndRemove_100Plus() {
-        logger.info("=== TEST: STRESS INSERT & REMOVE 100+ ===");
-        Random rand = new Random();
-        Set<Integer> keys = new TreeSet<>();
-        while (keys.size() < 100) {
-            keys.add(rand.nextInt(2000));
+    @Nested
+    @DisplayName("OrderStatisticsOps")
+    class OrderStats {
+        // Inserted unsorted to prove OS-SELECT is not array indexing.
+        private OrderStatisticsOps os() {
+            TreeContext c = new TreeContext(new RedBlackStrategy());
+            for (int v : new int[]{41, 38, 31, 12, 19, 8}) c.add(v);   // sorted: 8 12 19 31 38 41
+            return new OrderStatisticsOps(c.getTree());
         }
 
-        long startTime = System.currentTimeMillis();
-        for (int key : keys) {
-            bst.add(key);
+        @Test
+        @DisplayName("select returns the rank-th smallest")
+        void select() {
+            OrderStatisticsOps os = os();
+            assertEquals(8,  os.select(1).getData(), "1st smallest");
+            assertEquals(19, os.select(3).getData(), "3rd smallest");
+            assertEquals(41, os.select(6).getData(), "6th smallest");
         }
-        assertEquals(100, bst.size(), "Size should be 100 after inserts!");
-        
-        List<Integer> keyList = new ArrayList<>(keys);
-        Collections.shuffle(keyList);
-        for (int i = 0; i < 50; i++) {
-            bst.remove(keyList.get(i));
-        }
-        long endTime = System.currentTimeMillis();
 
-        assertEquals(50, bst.size(), "Size should be 50 after removing half!");
-        assertTrue(bst.height() <= (int)(1.44 * Math.log(50 + 2) / Math.log(2)) - 1,
-                   "Height should stay Red-Black balanced!");
-        assertTrue(endTime - startTime < 3000, "Took too long: " + (endTime - startTime) + "ms—under 3s!");
-        checkRedBlackProperties(bst.getRoot()); // Updated to getRoot()
-        logger.info("Stress test: 100 inserts, 50 removes, height: {}", bst.height());
+        @Test
+        @DisplayName("rank returns position of a key")
+        void rank() {
+            OrderStatisticsOps os = os();
+            assertEquals(1, os.rank(8),  "rank of min");
+            assertEquals(2, os.rank(12), "rank of 12");
+            assertEquals(5, os.rank(38), "rank of 38");
+        }
+
+        @Test
+        @DisplayName("min and max")
+        void minMax() {
+            OrderStatisticsOps os = os();
+            assertEquals(8,  os.minimum().getData(), "minimum");
+            assertEquals(41, os.maximum().getData(), "maximum");
+        }
+
+        @Test
+        @DisplayName("median is one of the two central keys")
+        void median() {
+            int m = os().median().getData();
+            assertTrue(m == 19 || m == 31, "median of even set is a central key, was " + m);
+        }
+
+        @Test
+        @DisplayName("countInRange and rangeQuery are consistent")
+        void range() {
+            OrderStatisticsOps os = os();
+            assertEquals(4, os.countInRange(12, 38), "12,19,31,38 are in [12,38]");
+            assertEquals(List.of(12, 19, 31, 38), os.rangeQuery(12, 38), "range query ascending");
+        }
+
+        @Test
+        @DisplayName("successor and predecessor")
+        void neighbors() {
+            OrderStatisticsOps os = os();
+            assertEquals(31, os.successor(19).getData(),  "successor of 19");
+            assertEquals(19, os.predecessor(31).getData(), "predecessor of 31");
+        }
+    }
+
+    // ── Strategy morphing preserves contents ───────────────────────────────────
+
+    @Test @Order(9)
+    @DisplayName("setStrategy rebuilds with the same key set")
+    void morphPreservesContents() {
+        int[] vals = {15, 8, 22, 4, 11, 19, 27, 1};
+        for (int v : vals) ctx.add(v);
+        List<Integer> before = inOrder(ctx);
+
+        ctx.setStrategy(new AVLStrategy());
+        assertEquals(before, inOrder(ctx), "morph to AVL preserves ordered keys");
+        for (int v : vals) assertTrue(ctx.contains(v), "AVL still contains " + v);
+
+        ctx.setStrategy(new SplayStrategy());
+        assertEquals(before, inOrder(ctx), "morph to Splay preserves ordered keys");
+    }
+
+    // ── Stress ─────────────────────────────────────────────────────────────────
+
+    @Test @Order(10)
+    @DisplayName("randomized stress stays correct and RB-balanced")
+    void stress() {
+        TreeDiagnostics diag = new TreeDiagnostics(ctx);
+        Random rng = new Random(42);              // fixed seed → deterministic
+        List<Integer> keys = new ArrayList<>();
+        java.util.Set<Integer> seen = new java.util.TreeSet<>();
+        while (seen.size() < 300) seen.add(rng.nextInt(5000));
+        keys.addAll(seen);
+
+        for (int k : keys) ctx.add(k);
+        assertEquals(keys.size(), ctx.getSize(), "size matches distinct inserts");
+        assertTrue(diag.isValidRedBlack(), "RB validity after bulk insert");
+
+        Collections.shuffle(keys, rng);
+        for (int i = 0; i < 150; i++) ctx.remove(keys.get(i));
+        assertEquals(150, ctx.getSize(), "size after removing half");
+        assertTrue(diag.isValidRedBlack(), "RB validity after bulk delete");
+
+        List<Integer> io = inOrder(ctx);
+        assertEquals(sortedCopy(io), io, "survivors remain ordered");
+        for (int i = 150; i < keys.size(); i++) {
+            assertTrue(ctx.contains(keys.get(i)), "survivor " + keys.get(i) + " still present");
+        }
+    }
+
+    // ── Neutral abstractions (Phase 2 seam) ────────────────────────────────────
+
+    @Nested
+    @DisplayName("representation-neutral interfaces")
+    class NeutralInterfaces {
+
+        @Test
+        @DisplayName("TreeContext is usable purely as an OrderedCollection")
+        void asOrderedCollection() {
+            OrderedCollection oc = new TreeContext(new RedBlackStrategy());
+            assertTrue(oc.isEmpty(), "fresh collection is empty");
+            for (int v : new int[]{30, 10, 20, 40, 5}) oc.add(v);
+            assertEquals(5, oc.size(), "size via interface");
+            assertFalse(oc.isEmpty(), "non-empty after inserts");
+            assertTrue(oc.contains(20), "membership via interface");
+            assertEquals(List.of(5, 10, 20, 30, 40), oc.inOrder(), "ordered via interface");
+            oc.remove(20);
+            assertFalse(oc.contains(20), "remove via interface");
+            assertEquals(4, oc.size(), "size after remove");
+            oc.clear();
+            assertTrue(oc.isEmpty(), "clear via interface");
+        }
+
+        @Test
+        @DisplayName("RedBlackTree is usable purely as a TreeEngine")
+        void asTreeEngine() {
+            TreeEngine engine = new core.RedBlackTree(new RedBlackStrategy());
+            assertTrue(engine.isEmpty(), "fresh engine is empty");
+            for (int v : new int[]{7, 3, 9, 1, 5}) engine.add(v);
+            assertEquals(5, engine.size(), "size via engine");
+            assertEquals(List.of(1, 3, 5, 7, 9), engine.inOrder(), "ordered via engine");
+            assertTrue(engine.contains(5), "membership via engine");
+            engine.remove(5);
+            assertFalse(engine.contains(5), "remove via engine");
+            assertEquals(4, engine.size(), "size after engine remove");
+            engine.clear();
+            assertTrue(engine.isEmpty() && engine.inOrder().isEmpty(), "clear via engine");
+        }
+    }
+
+    // ── Phase 3: persistent engine + honest registry ───────────────────────────
+
+    @Nested
+    @DisplayName("PersistentTreeEngine")
+    class Persistent {
+
+        @Test
+        @DisplayName("behaves as an ordered set")
+        void orderedSet() {
+            PersistentTreeEngine p = new PersistentTreeEngine();
+            for (int v : new int[]{50, 20, 70, 20, 10, 60}) p.add(v); // 20 duplicated
+            assertEquals(5, p.size(), "duplicate ignored (set semantics)");
+            assertEquals(List.of(10, 20, 50, 60, 70), p.inOrder(), "ascending order");
+            assertTrue(p.contains(60) && !p.contains(999), "membership");
+            p.remove(50);
+            assertEquals(List.of(10, 20, 60, 70), p.inOrder(), "remove keeps order");
+        }
+
+        @Test
+        @DisplayName("old versions survive later mutations (persistence)")
+        void versionsArePersistent() {
+            PersistentTreeEngine p = new PersistentTreeEngine();
+            p.add(5);
+            p.add(3);
+            p.add(8);
+            int snapshot = p.versionCount() - 1;        // version with {3,5,8}
+            List<Integer> atSnapshot = p.inOrderOfVersion(snapshot);
+            assertEquals(List.of(3, 5, 8), atSnapshot, "snapshot captured");
+
+            p.add(1);
+            p.remove(5);                                  // mutate "current"
+            assertEquals(List.of(1, 3, 8), p.inOrder(), "current reflects edits");
+            assertEquals(List.of(3, 5, 8), p.inOrderOfVersion(snapshot),
+                    "earlier version is unchanged by later edits");
+        }
+    }
+
+    @Nested
+    @DisplayName("TreeEngineRegistry (honest enum)")
+    class Registry {
+
+        @Test
+        @DisplayName("every declared StructureType has a capability")
+        void everyTypeMapped() {
+            for (StructureType t : StructureType.values()) {
+                assertTrue(TreeEngineRegistry.capability(t) != null, t + " must be mapped");
+            }
+        }
+
+        @Test
+        @DisplayName("supported types build a working engine")
+        void supportedBuild() {
+            for (StructureType t : TreeEngineRegistry.supportedTypes()) {
+                TreeEngine e = TreeEngineRegistry.create(t);
+                e.add(2); e.add(1); e.add(3);
+                assertEquals(List.of(1, 2, 3), e.inOrder(), t + " engine must order keys");
+            }
+        }
+
+        @Test
+        @DisplayName("RB family + persistent are supported")
+        void expectedSupported() {
+            assertTrue(TreeEngineRegistry.isSupported(StructureType.RED_BLACK));
+            assertTrue(TreeEngineRegistry.isSupported(StructureType.AVL));
+            assertTrue(TreeEngineRegistry.isSupported(StructureType.SPLAY));
+            assertTrue(TreeEngineRegistry.isSupported(StructureType.HYBRID));
+            assertTrue(TreeEngineRegistry.isSupported(StructureType.PERSISTENT_TREE));
+        }
+
+        @Test
+        @DisplayName("non-ordered-map types are unsupported and fail loudly")
+        void unsupportedFailLoudly() {
+            assertFalse(TreeEngineRegistry.isSupported(StructureType.FIBONACCI_HEAP));
+            assertFalse(TreeEngineRegistry.isSupported(StructureType.VAN_EMDE_BOAS));
+            assertThrows(UnsupportedOperationException.class,
+                    () -> TreeEngineRegistry.create(StructureType.FIBONACCI_HEAP),
+                    "creating an unsupported type must throw, not return null");
+            assertThrows(UnsupportedOperationException.class,
+                    () -> TreeEngineRegistry.create(StructureType.VAN_EMDE_BOAS));
+        }
+    }
+
+    // ── StrategyBattleRunner regression smoke test (ADR item 8) ────────────────
+
+    @Nested
+    @DisplayName("StrategyBattleRunner regression")
+    class BattleRegression {
+
+        private static final int  OPS  = 500;
+        private static final long SEED = 1234L;
+
+        private List<BattleResult> run(WorkloadType wl) {
+            return StrategyBattleRunner.run(wl, OPS, SEED);
+        }
+
+        @ParameterizedTest(name = "{0}")
+        @EnumSource(WorkloadType.class)
+        @DisplayName("every workload yields four well-formed, ranked results")
+        void wellFormed(WorkloadType wl) {
+            List<BattleResult> rs = run(wl);
+            assertEquals(4, rs.size(), "RedBlack, AVL, Splay, Hybrid all compete");
+
+            java.util.Set<Integer> ranks = new java.util.TreeSet<>();
+            for (BattleResult r : rs) {
+                assertEquals(OPS, r.totalOps, "totalOps matches workload size");
+                assertTrue(r.finalSize >= 0 && r.finalSize <= OPS,
+                        r.strategyName + " finalSize within [0, ops]");
+                assertTrue(r.searchHits >= 0 && r.searchHits <= OPS,
+                        r.strategyName + " searchHits within [0, ops]");
+                assertTrue(r.avgSearchDepth >= 0, r.strategyName + " depth non-negative");
+                ranks.add(r.rank);
+            }
+            assertEquals(java.util.Set.of(1, 2, 3, 4), ranks, "ranks are a permutation of 1..4");
+        }
+
+        @ParameterizedTest(name = "{0}")
+        @EnumSource(WorkloadType.class)
+        @DisplayName("all strategies agree on search hits (same ops ⇒ same membership)")
+        void crossStrategyMembershipAgrees(WorkloadType wl) {
+            List<BattleResult> rs = run(wl);
+            int expected = rs.get(0).searchHits;
+            for (BattleResult r : rs) {
+                assertEquals(expected, r.searchHits,
+                        r.strategyName + " must see identical search hits on identical ops");
+            }
+        }
+
+        @ParameterizedTest(name = "{0}")
+        @EnumSource(WorkloadType.class)
+        @DisplayName("per-strategy results are deterministic for a fixed seed")
+        void deterministic(WorkloadType wl) {
+            // Rank order depends on wall-clock timing (compositeScore weights
+            // time), so compare by strategy NAME, not list position. The
+            // structural outcomes (search hits, final size) must be stable.
+            java.util.Map<String, BattleResult> a = byName(run(wl));
+            java.util.Map<String, BattleResult> b = byName(run(wl));
+            assertEquals(a.keySet(), b.keySet(), "same competitors both runs");
+            for (String name : a.keySet()) {
+                assertEquals(a.get(name).searchHits, b.get(name).searchHits,
+                        name + " search hits must be stable across runs");
+                assertEquals(a.get(name).finalSize, b.get(name).finalSize,
+                        name + " final size must be stable across runs");
+            }
+        }
+
+        private java.util.Map<String, BattleResult> byName(List<BattleResult> rs) {
+            java.util.Map<String, BattleResult> m = new java.util.HashMap<>();
+            for (BattleResult r : rs) m.put(r.strategyName, r);
+            return m;
+        }
     }
 }

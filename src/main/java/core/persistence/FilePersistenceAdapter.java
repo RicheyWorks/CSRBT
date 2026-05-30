@@ -173,7 +173,21 @@ public class FilePersistenceAdapter implements TreePersistenceAdapter {
     // ── Helpers ───────────────────────────────────────────────────────────────
 
     private Path snapshotPath(String name) {
-        return Paths.get(DIR, name + EXT);
+        if (name == null || name.isEmpty()) {
+            throw new IllegalArgumentException("Snapshot name must be non-empty");
+        }
+        // Prevent path traversal: the resolved file must stay directly inside DIR.
+        // Reject separators and parent references outright, then verify the
+        // normalized path's parent is exactly the snapshots directory.
+        if (name.contains("/") || name.contains("\\") || name.contains("..")) {
+            throw new IllegalArgumentException("Illegal snapshot name: " + name);
+        }
+        Path base     = Paths.get(DIR).toAbsolutePath().normalize();
+        Path resolved = base.resolve(name + EXT).normalize();
+        if (!resolved.getParent().equals(base)) {
+            throw new IllegalArgumentException("Snapshot name escapes snapshot directory: " + name);
+        }
+        return resolved;
     }
 
     private TreeStrategy resolveStrategy(String name) {

@@ -1,16 +1,21 @@
 # Build
 bin/
+build/
 *.class
+
+# Dependency jars (supply locally; see build.xml lib.dir)
 *.jar
-ECHO is on.
-# IDE
+
+# IDE / editors
 .idea/
 *.iml
 .vscode/
-ECHO is on.
+*.geany
+.geany/
+
 # OS
 .DS_Store
 Thumbs.db
-ECHO is on.
+
 # Logs
 *.log

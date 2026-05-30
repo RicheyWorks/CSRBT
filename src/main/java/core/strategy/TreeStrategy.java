@@ -1,6 +1,6 @@
 package core.strategy;
 
-import core.RedBlackTree;
+import core.MutableTree;
 import core.TreeNode1;
 
 public interface TreeStrategy {
@@ -9,7 +9,7 @@ public interface TreeStrategy {
      * BST insertion only — links node into tree, calls tree.setRoot() if needed.
      * Must NOT fix RB/AVL invariants; that belongs in fixInsert.
      */
-    void insert(RedBlackTree tree, TreeNode1 node);
+    void insert(MutableTree tree, TreeNode1 node);
 
     /**
      * Restore invariants after insertion.
@@ -17,16 +17,16 @@ public interface TreeStrategy {
      * AVL: recompute heights + rotate.
      * Splay: splay node to root.
      */
-    void fixInsert(RedBlackTree tree, TreeNode1 node);
+    void fixInsert(MutableTree tree, TreeNode1 node);
 
-    void delete(RedBlackTree tree, TreeNode1 node);
+    void delete(MutableTree tree, TreeNode1 node);
 
-    TreeNode1 search(RedBlackTree tree, int value);
+    TreeNode1 search(MutableTree tree, int value);
 
     // ── Rotations: structurally identical across all three algorithms ─────────
     // AVLStrategy no longer needs to call `new RedBlackStrategy().rotateLeft()`
 
-    default void rotateLeft(RedBlackTree tree, TreeNode1 x) {
+    default void rotateLeft(MutableTree tree, TreeNode1 x) {
         TreeNode1 y   = x.getRight();
         TreeNode1 nil = tree.getNIL();
 
@@ -42,7 +42,7 @@ public interface TreeStrategy {
         x.setParent(y);
     }
 
-    default void rotateRight(RedBlackTree tree, TreeNode1 y) {
+    default void rotateRight(MutableTree tree, TreeNode1 y) {
         TreeNode1 x   = y.getLeft();
         TreeNode1 nil = tree.getNIL();
 

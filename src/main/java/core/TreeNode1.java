@@ -161,6 +161,20 @@ public class TreeNode1 implements Comparable<TreeNode1>, Cloneable {
         return height;
     }
 
+    /**
+     * Recompute this node's cached height from its children's cached heights.
+     * Local and non-throwing — intended to be called while walking UP a path
+     * (bottom-up) so that each ancestor's height is current before a parent's
+     * balance factor is read. Unlike {@link #setLeft}/{@link #setRight}, this
+     * does not propagate or re-augment; callers control the traversal.
+     */
+    public void refreshHeight() {
+        if (isNil()) { height = 0; return; }
+        int leftHeight  = (left  == null) ? 0 : left.getHeight();
+        int rightHeight = (right == null) ? 0 : right.getHeight();
+        height = 1 + Math.max(leftHeight, rightHeight);
+    }
+
     private void updateHeight() {
         if (isNil()) {
             height = 0;

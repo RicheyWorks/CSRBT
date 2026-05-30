@@ -8,9 +8,24 @@
     <property name="lib.dir" value="."/>
     <property name="test.reports.dir" value="${build.dir}/test-reports"/>
 
+    <!--
+      JUnit 5 is run via the JUnit Platform Console Standalone jar, which
+      bundles the Jupiter API, the Jupiter engine, and the launcher in one
+      file. Download it once and drop it in lib.dir:
+
+        https://repo1.maven.org/maven2/org/junit/platform/\
+          junit-platform-console-standalone/1.9.2/\
+          junit-platform-console-standalone-1.9.2.jar
+
+      (The legacy <junit> Ant task only drives JUnit 3/4 and cannot run the
+       Jupiter tests in this project, which is why it was replaced.)
+    -->
+    <property name="junit.console.jar"
+              value="${lib.dir}/junit-platform-console-standalone-1.9.2.jar"/>
+
     <path id="classpath">
+        <pathelement location="${junit.console.jar}"/>
         <fileset dir="${lib.dir}">
-            <include name="junit-jupiter-5.9.2.jar"/>
             <include name="log4j-api-2.17.1.jar"/>
             <include name="log4j-core-2.17.1.jar"/>
         </fileset>
@@ -26,11 +41,22 @@
         <mkdir dir="${test.reports.dir}"/>
     </target>
 
-    <target name="compile" depends="init">
-        <javac srcdir="${src.main.dir}" destdir="${classes.dir}" includeantruntime="false">
+    <target name="check-deps" depends="init">
+        <available file="${junit.console.jar}" property="junit.console.present"/>
+        <fail unless="junit.console.present">
+            Missing ${junit.console.jar}.
+            Download junit-platform-console-standalone-1.9.2.jar into ${lib.dir}
+            (see the comment at the top of build.xml for the URL).
+        </fail>
+    </target>
+
+    <target name="compile" depends="check-deps">
+        <javac srcdir="${src.main.dir}" destdir="${classes.dir}"
+               includeantruntime="false" release="17">
             <classpath refid="classpath"/>
         </javac>
-        <javac srcdir="${src.test.dir}" destdir="${test.classes.dir}" includeantruntime="false">
+        <javac srcdir="${src.test.dir}" destdir="${test.classes.dir}"
+               includeantruntime="false" release="17">
             <classpath refid="classpath"/>
         </javac>
         <copy todir="${classes.dir}">
@@ -39,15 +65,18 @@
     </target>
 
     <target name="test" depends="compile">
-        <junit printsummary="yes" haltonfailure="no">
-            <classpath refid="classpath"/>
-            <formatter type="xml"/>
-            <batchtest todir="${test.reports.dir}">
-                <fileset dir="${test.classes.dir}">
-                    <include name="**/*Tester.class"/>
-                </fileset>
-            </batchtest>
-        </junit>
+        <java jar="${junit.console.jar}" fork="true" failonerror="false"
+              resultproperty="junit.result">
+            <arg value="--class-path"/>
+            <arg pathref="classpath"/>
+            <arg value="--scan-classpath"/>
+            <arg value="--reports-dir=${test.reports.dir}"/>
+        </java>
+        <fail message="JUnit tests failed (see ${test.reports.dir}).">
+            <condition>
+                <not><equals arg1="${junit.result}" arg2="0"/></not>
+            </condition>
+        </fail>
     </target>
 
     <target name="clean">

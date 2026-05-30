@@ -1,6 +1,6 @@
 package core.strategy;
 
-import core.RedBlackTree;
+import core.MutableTree;
 import core.TreeNode1;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -28,7 +28,7 @@ public class SplayStrategy implements TreeStrategy {
     // ── Insert ────────────────────────────────────────────────────────────────
 
     @Override
-    public TreeNode1 insert(RedBlackTree tree, TreeNode1 newNode) {
+    public void insert(MutableTree tree, TreeNode1 newNode) {
         newNode.setColor(TreeNode1.Color.BLACK);
 
         TreeNode1 y = null;
@@ -39,7 +39,7 @@ public class SplayStrategy implements TreeStrategy {
             if (newNode.getData() == x.getData()) {
                 logger.warn("Splay duplicate insert skipped: {}", newNode.getData());
                 splay(tree, x);
-                return x;
+                return;
             }
             x = (newNode.getData() < x.getData()) ? x.getLeft() : x.getRight();
         }
@@ -54,12 +54,11 @@ public class SplayStrategy implements TreeStrategy {
         }
 
         splay(tree, newNode);
-        return newNode;
     }
 
     /** Splay already happened in insert — nothing left to do. */
     @Override
-    public void fixInsert(RedBlackTree tree, TreeNode1 node) {
+    public void fixInsert(MutableTree tree, TreeNode1 node) {
         // no-op
     }
 
@@ -71,7 +70,7 @@ public class SplayStrategy implements TreeStrategy {
      * recently-accessed paths short even when the key is absent.
      */
     @Override
-    public TreeNode1 search(RedBlackTree tree, int value) {
+    public TreeNode1 search(MutableTree tree, int value) {
         TreeNode1 current = tree.getRoot();
         TreeNode1 last    = tree.getNIL();
 
@@ -103,7 +102,7 @@ public class SplayStrategy implements TreeStrategy {
      * This avoids any color/black-height bookkeeping.
      */
     @Override
-    public void delete(RedBlackTree tree, TreeNode1 z) {
+    public void delete(MutableTree tree, TreeNode1 z) {
         splay(tree, z);
 
         TreeNode1 leftSub  = z.getLeft();
@@ -140,7 +139,7 @@ public class SplayStrategy implements TreeStrategy {
      * "parent == null" is the root test — consistent with how insert/delete
      * null out the subtree root's parent before handing off to splay.
      */
-    private void splay(RedBlackTree tree, TreeNode1 x) {
+    private void splay(MutableTree tree, TreeNode1 x) {
         while (x.getParent() != null && !x.getParent().isNil()) {
             TreeNode1 p = x.getParent();
             TreeNode1 g = p.getParent();

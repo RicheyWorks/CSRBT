@@ -1,6 +1,6 @@
 package core.strategy;
 
-import core.RedBlackTree;
+import core.MutableTree;
 import core.TreeNode1;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -19,7 +19,7 @@ public class RedBlackStrategy implements TreeStrategy {
     // ── Insert ────────────────────────────────────────────────────────────────
 
     @Override
-    public TreeNode1 insert(RedBlackTree tree, TreeNode1 newNode) {
+    public void insert(MutableTree tree, TreeNode1 newNode) {
         TreeNode1 y = null;
         TreeNode1 x = tree.getRoot();
 
@@ -27,7 +27,7 @@ public class RedBlackStrategy implements TreeStrategy {
             y = x;
             if (newNode.getData() == x.getData()) {
                 logger.warn("Duplicate insert skipped for value: {}", newNode.getData());
-                return x;
+                return;
             }
             x = (newNode.getData() < x.getData()) ? x.getLeft() : x.getRight();
         }
@@ -42,7 +42,6 @@ public class RedBlackStrategy implements TreeStrategy {
         }
 
         newNode.setColor(TreeNode1.Color.RED);
-        return newNode;
     }
 
     /**
@@ -64,7 +63,7 @@ public class RedBlackStrategy implements TreeStrategy {
      * Terminates because either we stop (parent BLACK) or z moves up 2 levels.
      */
     @Override
-    public void fixInsert(RedBlackTree tree, TreeNode1 node) {
+    public void fixInsert(MutableTree tree, TreeNode1 node) {
         while (node != null && !node.getParent().isNil() && node.getParent().isRed()) {
             TreeNode1 parent      = node.getParent();
             TreeNode1 grandparent = node.getGrandparent();
@@ -140,20 +139,27 @@ public class RedBlackStrategy implements TreeStrategy {
      * We track y's original color: if BLACK, call fixDelete on x.
      */
     @Override
-    public void delete(RedBlackTree tree, TreeNode1 z) {
+    public void delete(MutableTree tree, TreeNode1 z) {
         TreeNode1 nil            = tree.getNIL();
         TreeNode1 y              = z;
         TreeNode1.Color yOrigColor = y.getColor();
         TreeNode1 x;
+        // Parent of x is tracked explicitly: the shared NIL sentinel refuses to
+        // store a parent pointer (TreeNode1.setParent guards `this != nilSentinel`),
+        // so fixDelete must not rely on x.getParent() when x is NIL. CLRS sets
+        // T.nil.p; here we thread that value through instead.
+        TreeNode1 xParent;
 
         if (z.getLeft().isNil()) {
             // Case A: no left child
-            x = z.getRight();
+            x       = z.getRight();
+            xParent = z.getParent();
             transplant(tree, z, z.getRight());
 
         } else if (z.getRight().isNil()) {
             // Case B: no right child
-            x = z.getLeft();
+            x       = z.getLeft();
+            xParent = z.getParent();
             transplant(tree, z, z.getLeft());
 
         } else {
@@ -163,9 +169,11 @@ public class RedBlackStrategy implements TreeStrategy {
             x = y.getRight();
 
             if (y.getParent() == z) {
-                // x might be NIL; give it a parent pointer so fixDelete can walk up
-                x.setParent(y);
+                // x's parent after the splice is y (which moves into z's place)
+                xParent = y;
+                x.setParent(y);   // harmless no-op when x is NIL; real link otherwise
             } else {
+                xParent = y.getParent();
                 transplant(tree, y, y.getRight());
                 y.setRight(z.getRight());
                 y.getRight().setParent(y);
@@ -177,7 +185,7 @@ public class RedBlackStrategy implements TreeStrategy {
         }
 
         if (yOrigColor == TreeNode1.Color.BLACK) {
-            fixDelete(tree, x);
+            fixDelete(tree, x, xParent);
         }
     }
 
@@ -201,11 +209,11 @@ public class RedBlackStrategy implements TreeStrategy {
      *     Recolor w = parent's color, parent + far child BLACK, rotate parent.
      *     Extra black is resolved — loop ends.
      */
-    private void fixDelete(RedBlackTree tree, TreeNode1 x) {
-        TreeNode1 nil = tree.getNIL();
-
+    private void fixDelete(MutableTree tree, TreeNode1 x, TreeNode1 parent) {
+        // `parent` is x's parent, threaded in by the caller so this works even
+        // when x is the shared NIL sentinel (whose own parent pointer is never
+        // stored). Once x advances to a real node we re-read parent from it.
         while (x != tree.getRoot() && x.isBlack()) {
-            TreeNode1 parent = x.getParent();
 
             if (x == parent.getLeft()) {
                 // ── LEFT branch ──────────────────────────────────────────────
@@ -216,13 +224,14 @@ public class RedBlackStrategy implements TreeStrategy {
                     w.setColor(TreeNode1.Color.BLACK);
                     parent.setColor(TreeNode1.Color.RED);
                     tree.rotateLeft(parent);
-                    w = x.getParent().getRight();   // new sibling after rotation
+                    w = parent.getRight();   // new sibling after rotation (parent unchanged)
                 }
 
                 if (w.getLeft().isBlack() && w.getRight().isBlack()) {
                     // Case 2: sibling's children both BLACK → push black up
                     w.setColor(TreeNode1.Color.RED);
-                    x = x.getParent();
+                    x      = parent;
+                    parent = x.getParent();   // x is now a real node — safe
 
                 } else {
                     if (w.getRight().isBlack()) {
@@ -230,13 +239,13 @@ public class RedBlackStrategy implements TreeStrategy {
                         w.getLeft().setColor(TreeNode1.Color.BLACK);
                         w.setColor(TreeNode1.Color.RED);
                         tree.rotateRight(w);
-                        w = x.getParent().getRight();
+                        w = parent.getRight();
                     }
                     // Case 4: far child RED → absorb extra black via rotation
-                    w.setColor(x.getParent().getColor());
-                    x.getParent().setColor(TreeNode1.Color.BLACK);
+                    w.setColor(parent.getColor());
+                    parent.setColor(TreeNode1.Color.BLACK);
                     w.getRight().setColor(TreeNode1.Color.BLACK);
-                    tree.rotateLeft(x.getParent());
+                    tree.rotateLeft(parent);
                     x = tree.getRoot();   // done
                 }
 
@@ -249,13 +258,14 @@ public class RedBlackStrategy implements TreeStrategy {
                     w.setColor(TreeNode1.Color.BLACK);
                     parent.setColor(TreeNode1.Color.RED);
                     tree.rotateRight(parent);
-                    w = x.getParent().getLeft();
+                    w = parent.getLeft();
                 }
 
                 if (w.getRight().isBlack() && w.getLeft().isBlack()) {
                     // Case 2
                     w.setColor(TreeNode1.Color.RED);
-                    x = x.getParent();
+                    x      = parent;
+                    parent = x.getParent();
 
                 } else {
                     if (w.getLeft().isBlack()) {
@@ -263,13 +273,13 @@ public class RedBlackStrategy implements TreeStrategy {
                         w.getRight().setColor(TreeNode1.Color.BLACK);
                         w.setColor(TreeNode1.Color.RED);
                         tree.rotateLeft(w);
-                        w = x.getParent().getLeft();
+                        w = parent.getLeft();
                     }
                     // Case 4
-                    w.setColor(x.getParent().getColor());
-                    x.getParent().setColor(TreeNode1.Color.BLACK);
+                    w.setColor(parent.getColor());
+                    parent.setColor(TreeNode1.Color.BLACK);
                     w.getLeft().setColor(TreeNode1.Color.BLACK);
-                    tree.rotateRight(x.getParent());
+                    tree.rotateRight(parent);
                     x = tree.getRoot();   // done
                 }
             }
@@ -281,7 +291,7 @@ public class RedBlackStrategy implements TreeStrategy {
     // ── Search ────────────────────────────────────────────────────────────────
 
     @Override
-    public TreeNode1 search(RedBlackTree tree, int value) {
+    public TreeNode1 search(MutableTree tree, int value) {
         TreeNode1 cur = tree.getRoot();
         while (!cur.isNil()) {
             int cmp = value - cur.getData();
@@ -299,7 +309,7 @@ public class RedBlackStrategy implements TreeStrategy {
      * Replaces subtree rooted at u with subtree rooted at v.
      * Does NOT update v's left/right children — caller's responsibility.
      */
-    private void transplant(RedBlackTree tree, TreeNode1 u, TreeNode1 v) {
+    private void transplant(MutableTree tree, TreeNode1 u, TreeNode1 v) {
         TreeNode1 uParent = u.getParent();
         if (uParent == null || uParent.isNil()) {
             tree.setRoot(v);

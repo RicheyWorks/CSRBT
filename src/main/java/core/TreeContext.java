@@ -1,6 +1,7 @@
 package core;
 
 import core.interfaces.AugmentedTree;
+import core.interfaces.OrderedCollection;
 import core.interfaces.SelfHealingTree;
 import core.interfaces.TreePersistenceAdapter;
 import core.persistence.FilePersistenceAdapter;
@@ -12,7 +13,28 @@ import org.apache.logging.log4j.Logger;
 
 import java.util.*;
 
-public class TreeContext implements AugmentedTree, SelfHealingTree {
+/**
+ * Facade over a {@link RedBlackTree} engine adding metrics, persistence,
+ * augmentation, history and adaptive strategy morphing.
+ *
+ * <h2>Concurrency contract</h2>
+ * <p>This class is the <strong>sole synchronization point for mutations</strong>.
+ * The state-changing operations — {@link #add(int)}, {@link #remove(int)},
+ * {@link #setStrategy}, {@link #clear()} — are serialized on a single internal
+ * lock, so concurrent writers cannot corrupt the tree.</p>
+ *
+ * <p>Read operations ({@link #contains(int)}, {@link #size()}, {@link #inOrder()},
+ * {@link #selfRepair()}) are <em>not</em> locked and may observe a tree in the
+ * middle of a concurrent mutation. They are safe to call freely from a single
+ * thread, or concurrently when no writer is active. If an application needs a
+ * read to be consistent with respect to concurrent writers, it must provide its
+ * own external synchronization around the read/write pair.</p>
+ *
+ * <p>The underlying {@link RedBlackTree} and the {@link core.strategy.TreeStrategy}
+ * implementations are themselves <strong>not</strong> thread-safe; all access
+ * must go through this facade.</p>
+ */
+public class TreeContext implements AugmentedTree, SelfHealingTree, OrderedCollection {
 
     private static final Logger logger = LogManager.getLogger(TreeContext.class);
 
@@ -218,8 +240,27 @@ public class TreeContext implements AugmentedTree, SelfHealingTree {
 
     public RedBlackTree getTree()          { return tree; }
     public int          getSize()          { return size; }
+
+    // ── OrderedCollection: neutral client-facing views ────────────────────────
+    // size()/inOrder() satisfy the interface; getSize() is retained for callers
+    // already written against it.
+
+    /** {@inheritDoc} */
+    @Override
+    public int size() { return size; }
+
+    /** {@inheritDoc} Ascending keys, delegated to the backing engine. */
+    @Override
+    public List<Integer> inOrder() { return diagnostics.inOrderTraversal(); }
     public int          getRotationCount() { return rotationCount; }
     public void         incrementRotations(){ rotationCount++; }  // called by strategy
+
+    /**
+     * Directly overrides the cached size. Reserved for trusted utility
+     * collaborators (TreeAgent / TreeCloner / TreeHistory) that rebuild the
+     * backing tree out-of-band and must resync the facade's size counter.
+     */
+    public void forceSizeInternal(int n) { this.size = n; }
 
     public double avgInsertTimeMs() {
         return insertCount == 0 ? 0 : (totalInsertTime / 1_000_000.0) / insertCount;

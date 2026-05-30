@@ -24,9 +24,9 @@ public class TreeAgent {
         Random rng = new Random();
         TreeNode1 seed = TreeNode1.createNode(seedValue, TreeNode1.NIL);
         context.getTree().setRoot(seed);
-        context.size = 1;
+        context.forceSizeInternal(1);
         alienSpawnIterative(seed, 1, maxDepth, variance, rng);
-        context.size = sizeIterative();
+        context.forceSizeInternal(sizeIterative());
         autoTag();
     }
 
