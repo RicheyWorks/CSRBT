@@ -61,6 +61,16 @@ public class TreeCloner {
         }
 
         clone.forceSizeInternal(context.getSize());
+
+        // Preserve a non-default augmentor (e.g. interval max-hi): clone nodes are
+        // created with the default size augmentor, and the structural wiring above
+        // recomputes augmentedValue from it — overwriting any copied non-size
+        // augment. Re-applying the source augmentor to the rebuilt clone recomputes
+        // the correct values from the copied tags and sets the clone's field.
+        if (context.getAugmentor() != TreeNode1.defaultAugmentor) {
+            clone.setAugmentor(context.getAugmentor());
+        }
+
         logger.debug("Snapshot created. size={}", clone.getSize());
         return clone;
     }
@@ -148,6 +158,11 @@ public class TreeCloner {
 
         int size = new TreeDiagnostics(clone).inOrderTraversal().size();
         clone.forceSizeInternal(size);
+
+        // Preserve a non-default augmentor over the (truncated) copy — see snapshot().
+        if (context.getAugmentor() != TreeNode1.defaultAugmentor) {
+            clone.setAugmentor(context.getAugmentor());
+        }
 
         logger.info("Shallow clone (maxDepth={}) created. size={}", maxDepth, size);
         return clone;

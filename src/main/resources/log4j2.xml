@@ -6,7 +6,9 @@
         </Console>
     </Appenders>
     <Loggers>
-        <Root level="info">
+        <!-- WARN keeps test output readable; the engine logs every insert/remove
+             at INFO, which floods console runs. Raise to info/debug when tracing. -->
+        <Root level="warn">
             <AppenderRef ref="Console"/>
         </Root>
     </Loggers>

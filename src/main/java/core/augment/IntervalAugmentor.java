@@ -183,11 +183,23 @@ public class IntervalAugmentor implements TreeNode1.Augmentor {
     public static void insertInterval(TreeContext context, int lo, int hi) {
         if (lo > hi) throw new IllegalArgumentException(
                 "Invalid interval: lo=" + lo + " > hi=" + hi);
+        // Ensure the context (and therefore every node it creates) uses the
+        // interval augmentor, so max-hi is maintained across this and all other
+        // nodes on the root path during propagation below. Guarded so repeated
+        // inserts don't trigger an O(n) whole-tree re-augment each time.
+        if (context.getAugmentor() != INSTANCE) context.setAugmentor(INSTANCE);
         context.add(lo);
-        // Navigate to the node just inserted and stamp the high endpoint
+        // Navigate to the node just inserted and stamp the high endpoint, then
+        // force a re-augmentation up the tree: setTag alone does NOT trigger the
+        // augmentor, so without reaugment() the subtree max-hi would stay stale
+        // (computed from lo while the tag was still empty).
         TreeNode1 node = context.getTree().getRoot();
         while (!node.isNil()) {
-            if (node.getData() == lo) { node.setTag(String.valueOf(hi)); break; }
+            if (node.getData() == lo) {
+                node.setTag(String.valueOf(hi));
+                node.reaugment();
+                break;
+            }
             node = (lo < node.getData()) ? node.getLeft() : node.getRight();
         }
     }

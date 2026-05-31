@@ -9,7 +9,7 @@ import core.augment.IntervalAugmentor;
 import core.strategy.AVLStrategy;
 import core.strategy.RedBlackStrategy;
 import core.util.OrderStatisticsOps;
-import core.util.TreeEcology;
+import experimental.TreeEcology;
 
 import java.util.List;
 

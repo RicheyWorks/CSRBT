@@ -2,7 +2,9 @@ package core;
 
 import core.interfaces.TreeEngine;
 
+import java.util.ArrayDeque;
 import java.util.ArrayList;
+import java.util.Deque;
 import java.util.List;
 
 /**
@@ -12,12 +14,20 @@ import java.util.List;
  * wrapped around {@link RedBlackTree}. Its nodes are immutable; every mutation
  * returns a new root that structurally shares all untouched subtrees with the
  * previous version (classic persistence, CLRS-style path copying). The cost is
- * O(log n) fresh nodes per update; the payoff is that every past version
+ * O(height) fresh nodes per update; the payoff is that every past version
  * remains intact and queryable.</p>
  *
  * <p>It satisfies the same representation-neutral contract as every other
  * engine, so it plugs into the {@link TreeEngineRegistry} alongside the
  * pointer-based BST family without that family knowing it exists.</p>
+ *
+ * <p><b>Balancing caveat:</b> this engine is an <em>unbalanced</em> persistent
+ * BST. It does not self-balance, so adversarial or sorted input produces a tall
+ * tree and O(n) worst-case operations (vs. O(log n) for the balanced engines).
+ * All traversals here are <em>iterative</em>, so a tall tree degrades gracefully
+ * to O(n) time rather than overflowing the call stack — but if you need
+ * worst-case O(log n), use a balanced strategy. Making this a balanced
+ * persistent structure (weight-balanced / path-copying red-black) is future work.</p>
  *
  * <p>Set semantics: duplicate inserts are ignored. {@link #inOrder()} returns
  * ascending keys. Not thread-safe.</p>
@@ -29,7 +39,7 @@ public final class PersistentTreeEngine implements TreeEngine {
         final int  key;
         final Node left;
         final Node right;
-        final int  count;   // subtree size, for O(log n)-free size()
+        final int  count;   // subtree size, for O(1) size()
 
         Node(int key, Node left, Node right) {
             this.key   = key;
@@ -63,16 +73,27 @@ public final class PersistentTreeEngine implements TreeEngine {
         }
     }
 
-    private static Node insert(Node n, int key) {
-        if (n == null)         return new Node(key, null, null);
-        if (key == n.key)      return n;                       // set: no duplicates
-        if (key < n.key) {
-            Node l = insert(n.left, key);
-            return l == n.left ? n : new Node(n.key, l, n.right);
-        } else {
-            Node r = insert(n.right, key);
-            return r == n.right ? n : new Node(n.key, n.left, r);
+    /**
+     * Iterative path-copying insert. Descends to the insertion point recording the
+     * ancestor path, then rebuilds that path bottom-up with fresh nodes (every
+     * untouched subtree is shared). Iterative so a degenerate (tall) tree cannot
+     * overflow the stack. Returns the original root unchanged if the key exists.
+     */
+    private static Node insert(Node root, int key) {
+        Deque<Node> path = new ArrayDeque<>();
+        Node cur = root;
+        while (cur != null) {
+            if (key == cur.key) return root;       // set semantics: no duplicates
+            path.push(cur);
+            cur = key < cur.key ? cur.left : cur.right;
         }
+        Node rebuilt = new Node(key, null, null);  // fresh leaf
+        while (!path.isEmpty()) {
+            Node p = path.pop();
+            rebuilt = key < p.key ? new Node(p.key, rebuilt, p.right)
+                                  : new Node(p.key, p.left, rebuilt);
+        }
+        return rebuilt;
     }
 
     @Override
@@ -84,27 +105,50 @@ public final class PersistentTreeEngine implements TreeEngine {
         }
     }
 
-    private static Node delete(Node n, int key) {
-        if (n == null) return null;
-        if (key < n.key) {
-            Node l = delete(n.left, key);
-            return l == n.left ? n : new Node(n.key, l, n.right);
+    /**
+     * Iterative path-copying delete. Finds the target (recording the ancestor
+     * path), builds the replacement subtree (promoting a child, or splicing in the
+     * in-order successor for a two-child node — that splice is itself path-copied),
+     * then rebuilds the ancestor path bottom-up. Returns the original root if the
+     * key is absent.
+     */
+    private static Node delete(Node root, int key) {
+        Deque<Node> path = new ArrayDeque<>();
+        Node cur = root;
+        while (cur != null && cur.key != key) {
+            path.push(cur);
+            cur = key < cur.key ? cur.left : cur.right;
         }
-        if (key > n.key) {
-            Node r = delete(n.right, key);
-            return r == n.right ? n : new Node(n.key, n.left, r);
-        }
-        // key == n.key : remove this node
-        if (n.left  == null) return n.right;
-        if (n.right == null) return n.left;
-        int succ = min(n.right);                  // in-order successor
-        Node r = delete(n.right, succ);
-        return new Node(succ, n.left, r);
-    }
+        if (cur == null) return root;              // not found — no change
 
-    private static int min(Node n) {
-        while (n.left != null) n = n.left;
-        return n.key;
+        Node replacement;
+        if (cur.left == null) {
+            replacement = cur.right;
+        } else if (cur.right == null) {
+            replacement = cur.left;
+        } else {
+            // Two children: splice out the in-order successor (min of right
+            // subtree) with path copying, then put its key in cur's slot.
+            Deque<Node> succPath = new ArrayDeque<>();
+            Node s = cur.right;
+            while (s.left != null) { succPath.push(s); s = s.left; }
+            Node sub = s.right;                    // promote successor's right child
+            while (!succPath.isEmpty()) {
+                Node p = succPath.pop();           // we always descended left
+                sub = new Node(p.key, sub, p.right);
+            }
+            replacement = new Node(s.key, cur.left, sub);
+        }
+
+        // Rebuild ancestors. The slot direction is how we descended to cur, i.e.
+        // comparing the (target) key to each ancestor's key.
+        Node rebuilt = replacement;
+        while (!path.isEmpty()) {
+            Node p = path.pop();
+            rebuilt = key < p.key ? new Node(p.key, rebuilt, p.right)
+                                  : new Node(p.key, p.left, rebuilt);
+        }
+        return rebuilt;
     }
 
     @Override
@@ -119,16 +163,21 @@ public final class PersistentTreeEngine implements TreeEngine {
 
     @Override
     public List<Integer> inOrder() {
-        List<Integer> out = new ArrayList<>();
-        walk(root, out);
-        return out;
+        return inOrderOf(root);
     }
 
-    private static void walk(Node n, List<Integer> out) {
-        if (n == null) return;
-        walk(n.left, out);
-        out.add(n.key);
-        walk(n.right, out);
+    /** Iterative in-order traversal (stack-safe on a degenerate tree). */
+    private static List<Integer> inOrderOf(Node node) {
+        List<Integer> out = new ArrayList<>();
+        Deque<Node> stack = new ArrayDeque<>();
+        Node cur = node;
+        while (cur != null || !stack.isEmpty()) {
+            while (cur != null) { stack.push(cur); cur = cur.left; }
+            cur = stack.pop();
+            out.add(cur.key);
+            cur = cur.right;
+        }
+        return out;
     }
 
     @Override
@@ -136,8 +185,10 @@ public final class PersistentTreeEngine implements TreeEngine {
 
     @Override
     public void clear() {
-        root = null;
-        versions.add(null);
+        if (root != null) {           // don't record a redundant empty version
+            root = null;
+            versions.add(null);
+        }
     }
 
     // ── Persistence extras (the reason to choose this engine) ──────────────────
@@ -151,8 +202,6 @@ public final class PersistentTreeEngine implements TreeEngine {
             throw new IndexOutOfBoundsException(
                 "version " + version + " of " + versions.size());
         }
-        List<Integer> out = new ArrayList<>();
-        walk(versions.get(version), out);
-        return out;
+        return inOrderOf(versions.get(version));
     }
 }

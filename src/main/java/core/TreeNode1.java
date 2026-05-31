@@ -11,7 +11,7 @@ public class TreeNode1 implements Comparable<TreeNode1>, Cloneable {
         void apply(TreeNode1 node);
     }
 
-    static final Augmentor defaultAugmentor = node -> {
+    public static final Augmentor defaultAugmentor = node -> {
         int leftSize = (node.left != null && !node.left.isNil()) ? node.left.augmentedValue : 0;
         int rightSize = (node.right != null && !node.right.isNil()) ? node.right.augmentedValue : 0;
         node.augmentedValue = 1 + leftSize + rightSize;
@@ -37,7 +37,6 @@ public class TreeNode1 implements Comparable<TreeNode1>, Cloneable {
     private int augmentedValue = 0;
     private int blackHeight = 1;
     private int height = 1;
-    private final transient Object lock = new Object();
     private String tag = "";
     private boolean pathCompressed = false;
     private Augmentor augmentor;
@@ -166,12 +165,14 @@ public class TreeNode1 implements Comparable<TreeNode1>, Cloneable {
             blackHeight = 1;
             return;
         }
-        int leftBH = left.getBlackHeight();
+        // Informational bookkeeping only. This is called from setLeft/setRight for
+        // EVERY strategy, but only Red-Black trees maintain equal subtree
+        // black-heights — AVL/Splay/Hybrid colour all nodes black and legitimately
+        // have unequal black-heights. So we record a value without enforcing the
+        // RB invariant here; RB validity is checked separately by TreeDiagnostics.
+        int leftBH  = left.getBlackHeight();
         int rightBH = right.getBlackHeight();
-        if (leftBH != rightBH) {
-            throw new IllegalStateException("Black height mismatch: left=" + leftBH + ", right=" + rightBH);
-        }
-        blackHeight = (isBlack() ? 1 : 0) + leftBH;
+        blackHeight = (isBlack() ? 1 : 0) + Math.max(leftBH, rightBH);
     }
 
     public int getHeight() {
@@ -372,6 +373,17 @@ public class TreeNode1 implements Comparable<TreeNode1>, Cloneable {
         }
     }
 
+    /**
+     * Recompute this node's augment and propagate it to the root. Public hook for
+     * callers that mutate augment-relevant state outside the structural setters —
+     * e.g. {@code setTag}-based interval high endpoints, which the augmentor reads
+     * but {@link #setTag} does not itself trigger. Requires every node on the path
+     * to root to carry the same augmentor for the propagated values to be correct.
+     */
+    public void reaugment() {
+        recomputeAugmentAndPropagate();
+    }
+
     private void recomputeAugmentAndPropagate() {
         recomputeAugment();
         TreeNode1 current = this;
@@ -384,10 +396,6 @@ public class TreeNode1 implements Comparable<TreeNode1>, Cloneable {
     public void setAugmentor(Augmentor augmentor) {
         this.augmentor = augmentor != null ? augmentor : defaultAugmentor;
         recomputeAugmentAndPropagate();
-    }
-
-    public Object getLock() {
-        return lock;
     }
 
     public String getTag() {

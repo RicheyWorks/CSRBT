@@ -3,8 +3,10 @@ package core.persistence;
 import core.RedBlackTree;
 import core.TreeContext;
 import core.TreeNode1;
+import core.augment.IntervalAugmentor;
 import core.interfaces.TreePersistenceAdapter;
 import core.strategy.AVLStrategy;
+import core.strategy.HybridStrategy;
 import core.strategy.RedBlackStrategy;
 import core.strategy.SplayStrategy;
 import core.strategy.TreeStrategy;
@@ -22,8 +24,9 @@ import java.util.*;
  * No external dependencies — pure Java I/O.
  *
  * File format (each snapshot = one .rbt file):
- *   Line 1: VERSION|TIMESTAMP|STRATEGY|SIZE
- *   Line 2: pre-order node list as: DATA,COLOR;DATA,COLOR;...
+ *   Line 1: VERSION|TIMESTAMP|STRATEGY|SIZE|AUGMENTOR
+ *           (AUGMENTOR is optional/absent in legacy files: DEFAULT | INTERVAL)
+ *   Line 2: pre-order node list as: DATA,COLOR[,TAG];DATA,COLOR[,TAG];...
  *            NIL nodes encoded as "#"
  */
 public class FilePersistenceAdapter implements TreePersistenceAdapter {
@@ -49,12 +52,13 @@ public class FilePersistenceAdapter implements TreePersistenceAdapter {
         Path path = snapshotPath(name);
         try (BufferedWriter writer = Files.newBufferedWriter(path)) {
 
-            // Header
+            // Header: VERSION|TIMESTAMP|STRATEGY|SIZE|AUGMENTOR
             writer.write(String.join("|",
                     VERSION,
                     Instant.now().toString(),
                     snapshot.getTree().getStrategy().getClass().getSimpleName(),
-                    String.valueOf(snapshot.getSize())
+                    String.valueOf(snapshot.getSize()),
+                    augmentorToken(snapshot)
             ));
             writer.newLine();
 
@@ -71,17 +75,43 @@ public class FilePersistenceAdapter implements TreePersistenceAdapter {
         }
     }
 
+    /**
+     * Iterative pre-order serialization. Explicit stack rather than recursion so
+     * a deep/degenerate tree (e.g. a skewed splay tree) cannot overflow the call
+     * stack. Right child is pushed before left so left is emitted first, matching
+     * the recursive pre-order order the reader expects.
+     */
     private void serializePreOrder(TreeNode1 node, TreeNode1 nil, StringBuilder sb) {
-        if (node == nil) {
-            sb.append("#;");
-            return;
+        Deque<TreeNode1> stack = new ArrayDeque<>();
+        stack.push(node);
+        while (!stack.isEmpty()) {
+            TreeNode1 cur = stack.pop();
+            if (cur == nil) {
+                sb.append("#;");
+                continue;
+            }
+            sb.append(cur.getData())
+              .append(",")
+              .append(cur.getColor().name());
+            // Optional third field: per-node tag (e.g. interval high endpoint).
+            // Commas inside a tag are fine (the reader splits with limit 3); a
+            // tag containing the ';' node separator can't be encoded in this flat
+            // format, so it is dropped with a warning rather than corrupting the
+            // stream. Empty tags are omitted entirely (backward compatible: old
+            // two-field records still parse).
+            String tag = cur.getTag();
+            if (tag != null && !tag.isEmpty()) {
+                if (tag.indexOf(';') >= 0) {
+                    logger.warn("Tag on node {} contains ';' and cannot be persisted — dropping it.",
+                            cur.getData());
+                } else {
+                    sb.append(",").append(tag);
+                }
+            }
+            sb.append(";");
+            stack.push(cur.getRight());
+            stack.push(cur.getLeft());
         }
-        sb.append(node.getData())
-          .append(",")
-          .append(node.getColor().name())
-          .append(";");
-        serializePreOrder(node.getLeft(),  nil, sb);
-        serializePreOrder(node.getRight(), nil, sb);
     }
 
     // ── Load ─────────────────────────────────────────────────────────────────
@@ -131,8 +161,7 @@ public class FilePersistenceAdapter implements TreePersistenceAdapter {
                 return null;
             }
             String[] tokens = dataLine.split(";");
-            int[] index     = {0};
-            TreeNode1 root  = deserializePreOrder(tokens, index, context.getTree().getNIL());
+            TreeNode1 root  = deserializePreOrder(tokens, context.getTree().getNIL());
 
             context.getTree().setRoot(root);
             if (root != context.getTree().getNIL()) root.setParent(context.getTree().getNIL());
@@ -146,6 +175,13 @@ public class FilePersistenceAdapter implements TreePersistenceAdapter {
             }
             context.forceSizeInternal(actualSize);
 
+            // Restore the augmentor identity (5th header field, absent in legacy
+            // files). Re-applying it recomputes augmented values from the restored
+            // tags, so an interval tree round-trips without a manual setAugmentor.
+            if (header.length >= 5 && "INTERVAL".equals(header[4].trim())) {
+                context.setAugmentor(IntervalAugmentor.INSTANCE);
+            }
+
             logger.info("Snapshot '{}' loaded. strategy={} size={}", name, strategyName, actualSize);
             return context;
 
@@ -155,26 +191,67 @@ public class FilePersistenceAdapter implements TreePersistenceAdapter {
         }
     }
 
-    private TreeNode1 deserializePreOrder(String[] tokens, int[] index, TreeNode1 nil) {
+    /**
+     * Iterative pre-order reconstruction (explicit stack, no recursion) so a
+     * deep/degenerate snapshot cannot overflow the call stack. Each stack frame
+     * tracks how many of its node's two children have been attached; the next
+     * token fills the left child first, then the right.
+     */
+    private TreeNode1 deserializePreOrder(String[] tokens, TreeNode1 nil) {
+        int[] index = {0};
+        TreeNode1 root = parseToken(tokens, index, nil);
+        if (root == nil) return nil;
+
+        Deque<Frame> stack = new ArrayDeque<>();
+        stack.push(new Frame(root));
+
+        while (!stack.isEmpty() && index[0] < tokens.length) {
+            Frame f = stack.peek();
+            TreeNode1 child = parseToken(tokens, index, nil);
+
+            if (f.childrenDone == 0) {
+                f.childrenDone = 1;
+                if (child != nil) {
+                    f.node.setLeft(child);
+                    child.setParent(f.node);
+                    stack.push(new Frame(child));
+                }
+            } else {
+                stack.pop();   // this node's children are now both consumed
+                if (child != nil) {
+                    f.node.setRight(child);
+                    child.setParent(f.node);
+                    stack.push(new Frame(child));
+                }
+            }
+        }
+        return root;
+    }
+
+    /** Parse one token, advancing {@code index}, returning {@code nil} for "#". */
+    private TreeNode1 parseToken(String[] tokens, int[] index, TreeNode1 nil) {
         if (index[0] >= tokens.length) return nil;
-
         String token = tokens[index[0]++];
-        if (token.equals("#")) return nil;
+        if (token.equals("#") || token.isEmpty()) return nil;
 
-        String[] parts = token.split(",");
-        int      data  = Integer.parseInt(parts[0]);
+        // Limit 3 so a tag containing commas is preserved as a single field.
+        String[] parts = token.split(",", 3);
+        int data = Integer.parseInt(parts[0]);
         TreeNode1.Color color = TreeNode1.Color.valueOf(parts[1]);
-
         TreeNode1 node = TreeNode1.createNode(data, nil);
         node.setColor(color);
-
-        TreeNode1 left  = deserializePreOrder(tokens, index, nil);
-        TreeNode1 right = deserializePreOrder(tokens, index, nil);
-
-        if (left  != nil) { node.setLeft(left);   left.setParent(node);  }
-        if (right != nil) { node.setRight(right); right.setParent(node); }
-
+        // Optional third field: per-node tag. Absent in legacy two-field records.
+        if (parts.length >= 3 && !parts[2].isEmpty()) {
+            node.setTag(parts[2]);
+        }
         return node;
+    }
+
+    /** Reconstruction frame: a node plus how many children have been attached. */
+    private static final class Frame {
+        final TreeNode1 node;
+        int childrenDone;   // 0 → left pending, 1 → right pending
+        Frame(TreeNode1 node) { this.node = node; }
     }
 
     // ── List / Delete ─────────────────────────────────────────────────────────
@@ -226,11 +303,21 @@ public class FilePersistenceAdapter implements TreePersistenceAdapter {
         return resolved;
     }
 
+    /**
+     * Persistable token for the context's augmentor. Only the two built-in
+     * augmentors are recognized; any custom lambda is recorded as DEFAULT (its
+     * augmented values are still rebuilt from structure on load).
+     */
+    private String augmentorToken(TreeContext ctx) {
+        return ctx.getAugmentor() == IntervalAugmentor.INSTANCE ? "INTERVAL" : "DEFAULT";
+    }
+
     private TreeStrategy resolveStrategy(String name) {
         switch (name) {
-            case "AVLStrategy":   return new AVLStrategy();
-            case "SplayStrategy": return new SplayStrategy();
-            default:              return new RedBlackStrategy();
+            case "AVLStrategy":    return new AVLStrategy();
+            case "SplayStrategy":  return new SplayStrategy();
+            case "HybridStrategy": return new HybridStrategy();
+            default:               return new RedBlackStrategy();
         }
     }
 }

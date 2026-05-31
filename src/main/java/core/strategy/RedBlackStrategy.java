@@ -20,8 +20,9 @@ public class RedBlackStrategy implements TreeStrategy {
 
     @Override
     public void insert(MutableTree tree, TreeNode1 newNode) {
-        TreeNode1 y = null;
-        TreeNode1 x = tree.getRoot();
+        TreeNode1 nil = tree.getNIL();
+        TreeNode1 y = nil;              // "no parent" is the sentinel, never null,
+        TreeNode1 x = tree.getRoot();   // so the root's parent is NIL and fixInsert terminates cleanly
 
         while (!x.isNil()) {
             y = x;
@@ -33,7 +34,7 @@ public class RedBlackStrategy implements TreeStrategy {
         }
 
         newNode.setParent(y);
-        if (y == null) {
+        if (y.isNil()) {
             tree.setRoot(newNode);
         } else if (newNode.getData() < y.getData()) {
             y.safeSetLeft(newNode);
@@ -64,7 +65,8 @@ public class RedBlackStrategy implements TreeStrategy {
      */
     @Override
     public void fixInsert(MutableTree tree, TreeNode1 node) {
-        while (node != null && !node.getParent().isNil() && node.getParent().isRed()) {
+        while (node != null && node.getParent() != null
+                && !node.getParent().isNil() && node.getParent().isRed()) {
             TreeNode1 parent      = node.getParent();
             TreeNode1 grandparent = node.getGrandparent();
 
@@ -175,7 +177,13 @@ public class RedBlackStrategy implements TreeStrategy {
             } else {
                 xParent = y.getParent();
                 transplant(tree, y, y.getRight());
-                y.setRight(z.getRight());
+                // Local link (no upward augment walk): at this point y's own
+                // parent pointer is still stale and points INTO z.getRight()'s
+                // subtree, so a propagating setRight would walk a temporarily
+                // cyclic parent chain (y → … → z.right → y) and loop forever.
+                // transplant(z, y) below fixes y.parent, and the subsequent
+                // propagating setLeft refreshes the augment up to the root.
+                y.setRightLocal(z.getRight());
                 y.getRight().setParent(y);
             }
             transplant(tree, z, y);

@@ -1,6 +1,7 @@
 package core.util;
 
 import core.TreeContext;
+import core.TreeNode1;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -121,6 +122,12 @@ public class TreeHistory {
         undoStack.push(cmd);
         redoStack.clear();   // any new action invalidates the redo future
         auditLog.add(cmd);
+        // Cap the audit trail too: an uncapped log leaks memory in long-running
+        // processes (the undo stack is already bounded by MAX_HISTORY). Keep the
+        // most recent MAX_HISTORY entries.
+        if (auditLog.size() > MAX_HISTORY) {
+            auditLog.remove(0);
+        }
         logger.debug("History recorded: {}", cmd);
     }
 
@@ -280,5 +287,11 @@ public class TreeHistory {
                 : context.getTree().getNIL()
         );
         context.forceSizeInternal(fresh.getSize());
+        // deepCopy rebuilds nodes with the default (size) augmentor; re-apply the
+        // checkpoint's augmentor so non-size augmentation (e.g. interval max-hi) is
+        // restored from the copied tags rather than reverting to subtree size.
+        if (fresh.getAugmentor() != TreeNode1.defaultAugmentor) {
+            context.setAugmentor(fresh.getAugmentor());
+        }
     }
 }

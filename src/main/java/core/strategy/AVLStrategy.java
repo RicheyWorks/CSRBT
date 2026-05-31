@@ -83,7 +83,11 @@ public class AVLStrategy implements TreeStrategy {
             if (successor.getParent() != node) {
                 // Detach successor from its current position
                 transplant(tree, successor, successor.getRight());
-                successor.setRight(node.getRight());
+                // Local link: successor's parent pointer is still stale and points
+                // into node.getRight()'s subtree here, so a propagating setRight
+                // would walk a cyclic parent chain and loop forever. transplant
+                // below fixes the parent; setLeft then propagates the augment up.
+                successor.setRightLocal(node.getRight());
                 successor.getRight().setParent(successor);
             }
             transplant(tree, node, successor);

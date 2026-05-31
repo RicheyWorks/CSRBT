@@ -5,10 +5,9 @@ import core.TreeNode1;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * HybridStrategy v2 — AVL balance + RB color, fully self-instrumented.
@@ -45,20 +44,19 @@ public class HybridStrategy implements TreeStrategy {
     private final int depthThreshold;
 
     // ── Instrumentation counters ──────────────────────────────────────────────
-    private final AtomicInteger avlRotationCount = new AtomicInteger(0);
-    private final AtomicInteger rbFixCount       = new AtomicInteger(0);
-    private final AtomicInteger relaxedNodeCount = new AtomicInteger(0);
-    private final AtomicInteger totalNodesSeen   = new AtomicInteger(0);
-    private final AtomicInteger insertCount      = new AtomicInteger(0);
-    private final AtomicInteger deleteCount      = new AtomicInteger(0);
+    // Plain fields: a strategy is driven only through TreeContext, whose mutators
+    // are serialized, and is otherwise single-threaded. The previous AtomicInteger
+    // / ConcurrentHashMap types implied a thread-safety the surrounding tree
+    // operations never provided, so they were misleading rather than protective.
+    private int avlRotationCount = 0;
+    private int rbFixCount       = 0;
+    private int relaxedNodeCount = 0;
+    private int totalNodesSeen   = 0;
+    private int insertCount      = 0;
+    private int deleteCount      = 0;
 
-    /**
-     * value → access count; identifies hot nodes.
-     * Concurrent so it is consistent with the AtomicInteger counters above:
-     * {@code merge}, {@code clear} and {@code entrySet} are all safe under the
-     * concurrent reads that diagnostics/genome feedback perform.
-     */
-    private final Map<Integer, Integer> hotNodeFrequency = new ConcurrentHashMap<>();
+    /** value → access count; identifies hot nodes. */
+    private final Map<Integer, Integer> hotNodeFrequency = new HashMap<>();
 
     public HybridStrategy() {
         this(Integer.MAX_VALUE);
@@ -97,18 +95,18 @@ public class HybridStrategy implements TreeStrategy {
             y.safeSetRight(newNode);
         }
 
-        insertCount.incrementAndGet();
+        insertCount++;
         recordAccess(newNode.getData());
     }
 
     /**
      * Phase 1: AVL rebalance (counts every rotation).
-     * Phase 2: RB recolor pass (counts every color flip).
+     * Phase 2: RB recolor along the affected path (counts every color flip).
      */
     @Override
     public void fixInsert(MutableTree tree, TreeNode1 node) {
         avlRebalanceUp(tree, node.getParent());
-        rbRecolorPass(tree, tree.getRoot());
+        rbRecolorPathUp(node);                       // O(log n), not a full-tree scan
         tree.getRoot().setColor(TreeNode1.Color.BLACK);
     }
 
@@ -129,7 +127,11 @@ public class HybridStrategy implements TreeStrategy {
             rebalanceFrom = (successor.getParent() == z) ? successor : successor.getParent();
             if (successor.getParent() != z) {
                 transplant(tree, successor, successor.getRight());
-                successor.setRight(z.getRight());
+                // Local link: successor's parent pointer is still stale and points
+                // into z.getRight()'s subtree here, so a propagating setRight would
+                // walk a cyclic parent chain and loop forever. transplant below
+                // fixes the parent; setLeft then propagates the augment up.
+                successor.setRightLocal(z.getRight());
                 successor.getRight().setParent(successor);
             }
             transplant(tree, z, successor);
@@ -139,9 +141,9 @@ public class HybridStrategy implements TreeStrategy {
         }
 
         avlRebalanceUp(tree, rebalanceFrom);
-        rbRecolorPass(tree, tree.getRoot());
+        rbRecolorPathUp(rebalanceFrom);              // O(log n), not a full-tree scan
         tree.getRoot().setColor(TreeNode1.Color.BLACK);
-        deleteCount.incrementAndGet();
+        deleteCount++;
     }
 
     // ── Search ────────────────────────────────────────────────────────────────
@@ -167,28 +169,28 @@ public class HybridStrategy implements TreeStrategy {
         while (cur != null && !cur.isNil()) {
             // Keep cached heights current along the path (see AVLStrategy note).
             cur.refreshHeight();
-            totalNodesSeen.incrementAndGet();
+            totalNodesSeen++;
             int bf        = balanceFactor(cur);
             int depth     = cur.depth();
             int tolerance = (depth <= depthThreshold) ? 1 : 2;
 
-            if (depth > depthThreshold) relaxedNodeCount.incrementAndGet();
+            if (depth > depthThreshold) relaxedNodeCount++;
 
             if (bf > tolerance) {
                 if (balanceFactor(cur.getLeft()) < 0) {
                     rotateLeft(tree, cur.getLeft());
-                    avlRotationCount.incrementAndGet();
+                    avlRotationCount++;
                 }
                 rotateRight(tree, cur);
-                avlRotationCount.incrementAndGet();
+                avlRotationCount++;
                 cur = cur.getParent();
             } else if (bf < -tolerance) {
                 if (balanceFactor(cur.getRight()) > 0) {
                     rotateRight(tree, cur.getRight());
-                    avlRotationCount.incrementAndGet();
+                    avlRotationCount++;
                 }
                 rotateLeft(tree, cur);
-                avlRotationCount.incrementAndGet();
+                avlRotationCount++;
                 cur = cur.getParent();
             }
 
@@ -198,27 +200,32 @@ public class HybridStrategy implements TreeStrategy {
 
     // ── RB recolor pass (Phase 2) ─────────────────────────────────────────────
 
-    private void rbRecolorPass(MutableTree tree, TreeNode1 node) {
-        if (node == null || node.isNil()) return;
-
-        if (node.isRed()
-                && node.getParent() != null
-                && !node.getParent().isNil()
-                && node.getParent().isRed()) {
-            node.getParent().setColor(TreeNode1.Color.BLACK);
-            rbFixCount.incrementAndGet();
+    /**
+     * Recolor along the path from {@code start} up to the root: wherever a red node
+     * sits under a red parent, blacken the parent. Only nodes on the just-modified
+     * path can have acquired a new red-red adjacency, so an O(log n) walk suffices —
+     * the previous full-tree O(n) DFS on every write violated the O(log n)-per-op
+     * goal (audit finding S1). Colors here are cosmetic (Hybrid's balance comes from
+     * the AVL pass), so this need not establish full red-black validity.
+     */
+    private void rbRecolorPathUp(TreeNode1 start) {
+        TreeNode1 cur = start;
+        while (cur != null && !cur.isNil()) {
+            TreeNode1 parent = cur.getParent();
+            if (cur.isRed() && parent != null && !parent.isNil() && parent.isRed()) {
+                parent.setColor(TreeNode1.Color.BLACK);
+                rbFixCount++;
+            }
+            cur = parent;
         }
-
-        rbRecolorPass(tree, node.getLeft());
-        rbRecolorPass(tree, node.getRight());
     }
 
     // ── Metrics API ───────────────────────────────────────────────────────────
 
     public HybridMetricsSnapshot snapshot(int treeSize, double avgSearchDepth) {
-        int totalSeen = totalNodesSeen.get();
+        int totalSeen = totalNodesSeen;
         double relaxedPct = (totalSeen == 0) ? 0.0
-                : (double) relaxedNodeCount.get() / totalSeen;
+                : (double) relaxedNodeCount / totalSeen;
 
         long hotNodeCount = hotNodeFrequency.values().stream()
                 .filter(c -> c >= HOT_NODE_THRESHOLD)
@@ -228,40 +235,39 @@ public class HybridStrategy implements TreeStrategy {
         double balanceQuality = computeBalanceQuality(treeSize, avgSearchDepth);
 
         return new HybridMetricsSnapshot(
-                avlRotationCount.get(),
-                rbFixCount.get(),
+                avlRotationCount,
+                rbFixCount,
                 relaxedPct,
                 (int) hotNodeCount,
                 balanceQuality,
                 avgSearchDepth,
-                insertCount.get(),
-                deleteCount.get()
-        );
+                insertCount,
+                deleteCount        );
     }
 
     public void resetMetrics() {
-        avlRotationCount.set(0);
-        rbFixCount.set(0);
-        relaxedNodeCount.set(0);
-        totalNodesSeen.set(0);
+        avlRotationCount = 0;
+        rbFixCount = 0;
+        relaxedNodeCount = 0;
+        totalNodesSeen = 0;
         // Keep hotNodeFrequency — it accumulates across windows intentionally
     }
 
     public void fullReset() {
         resetMetrics();
         hotNodeFrequency.clear();
-        insertCount.set(0);
-        deleteCount.set(0);
+        insertCount = 0;
+        deleteCount = 0;
     }
 
     // ── Accessors for live counters (no snapshot needed) ──────────────────────
 
-    public int getAvlRotationCount() { return avlRotationCount.get(); }
-    public int getRbFixCount()       { return rbFixCount.get(); }
-    public int getRelaxedNodeCount() { return relaxedNodeCount.get(); }
-    public int getTotalNodesSeen()   { return totalNodesSeen.get(); }
-    public int getInsertCount()      { return insertCount.get(); }
-    public int getDeleteCount()      { return deleteCount.get(); }
+    public int getAvlRotationCount() { return avlRotationCount; }
+    public int getRbFixCount()       { return rbFixCount; }
+    public int getRelaxedNodeCount() { return relaxedNodeCount; }
+    public int getTotalNodesSeen()   { return totalNodesSeen; }
+    public int getInsertCount()      { return insertCount; }
+    public int getDeleteCount()      { return deleteCount; }
     public int getDepthThreshold()   { return depthThreshold; }
 
     public Set<Map.Entry<Integer, Integer>> getHotNodeEntries() {
@@ -346,7 +352,6 @@ public class HybridStrategy implements TreeStrategy {
             if (treeSize == 0) return 0.5;
             double rotCost  = Math.min(1.0, (double) avlRotations / Math.max(1, insertCount + deleteCount));
             double fixCost  = Math.min(1.0, (double) rbFixes       / Math.max(1, insertCount + deleteCount));
-            double depth    = Math.min(1.0, 1.0 - (avgSearchDepth / Math.max(1.0, avgSearchDepth * 1.5)));
 
             return Math.max(0.0, Math.min(1.0,
                     (balanceQuality * 0.45) +
