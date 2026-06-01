@@ -34,9 +34,21 @@ public class TreeNode1 implements Comparable<TreeNode1>, Cloneable {
     private Color color;
     private final TreeNode1 nilSentinel;
     private Rotation lastRotation = Rotation.NONE;
-    private int augmentedValue = 0;
+    private int augmentedValue = 0;   // pluggable augmentor payload (e.g. interval max-hi) — NOT subtree size; see `size` (ADR-002)
     private int blackHeight = 1;
     private int height = 1;
+    /**
+     * Intrinsic subtree node count (this node + both subtrees), maintained on
+     * every structural link exactly like {@link #height} and {@link #blackHeight}
+     * and independent of the pluggable {@link #augmentor}. This is the source of
+     * truth for dynamic order statistics (CLRS 14.1).
+     *
+     * Giving subtree size its own field — rather than borrowing
+     * {@code augmentedValue} — is what lets order statistics coexist with a custom
+     * augmentor (e.g. {@code IntervalAugmentor}'s max-hi) on a single tree, instead
+     * of the two fighting over one overloaded slot. See ADR-002.
+     */
+    private int size = 1;
     private String tag = "";
     private boolean pathCompressed = false;
     private Augmentor augmentor;
@@ -67,6 +79,7 @@ public class TreeNode1 implements Comparable<TreeNode1>, Cloneable {
         this.parent = null;
         this.color = color;
         this.augmentedValue = 0;
+        this.size = 0;            // the sentinel is empty: a NIL subtree has 0 nodes
         this.blackHeight = 1;
         this.height = 0;
         this.augmentor = defaultAugmentor;
@@ -326,6 +339,7 @@ public class TreeNode1 implements Comparable<TreeNode1>, Cloneable {
         left = right = parent = nilSentinel;
         color = Color.RED;
         augmentedValue = 1;
+        size = 1;                 // a cleared node is a standalone leaf: one node
         lastRotation = Rotation.NONE;
         blackHeight = 1;
         height = 1;
@@ -359,6 +373,15 @@ public class TreeNode1 implements Comparable<TreeNode1>, Cloneable {
         this.pathCompressed = pathCompressed;
     }
 
+    /**
+     * Intrinsic subtree size (node count). Always maintained on structural links,
+     * independent of the active {@link Augmentor}. This is what dynamic order
+     * statistics reads — see {@link core.util.OrderStatisticsOps}. NIL reports 0.
+     */
+    public int getSize() {
+        return isNil() ? 0 : size;
+    }
+
     public int getAugmentedValue() {
         return augmentedValue;
     }
@@ -367,7 +390,22 @@ public class TreeNode1 implements Comparable<TreeNode1>, Cloneable {
         this.augmentedValue = value;
     }
 
+    /**
+     * Recompute this node's intrinsic subtree size from its children's sizes.
+     * Always run (independent of the pluggable augmentor) so order statistics stay
+     * correct no matter which augmentor is installed. NIL has size 0. Like the
+     * augment recompute this is O(1) and rides the same bottom-up traversal, so
+     * insert/delete/rotation stay O(log n).
+     */
+    private void recomputeSize() {
+        if (isNil()) { size = 0; return; }
+        int leftSize  = (left  == null || left.isNil())  ? 0 : left.size;
+        int rightSize = (right == null || right.isNil()) ? 0 : right.size;
+        size = 1 + leftSize + rightSize;
+    }
+
     protected void recomputeAugment() {
+        recomputeSize();                 // intrinsic structural metadata, always maintained
         if (this.augmentor != null) {
             this.augmentor.apply(this);
         }
@@ -414,6 +452,7 @@ public class TreeNode1 implements Comparable<TreeNode1>, Cloneable {
         copy.safeSetRight(this.right.deepCopy(nil));
         copy.lastRotation = this.lastRotation;
         copy.augmentedValue = this.augmentedValue;
+        copy.size = this.size;
         copy.blackHeight = this.blackHeight;
         copy.height = this.height;
         copy.tag = this.tag;

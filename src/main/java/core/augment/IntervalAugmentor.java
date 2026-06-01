@@ -17,6 +17,9 @@ import java.util.Stack;
  *   node.getData()            = low endpoint of the interval  [lo, hi]
  *   node.getTag()             = String.valueOf(hi)  (high endpoint)
  *   node.getAugmentedValue()  = max(hi) across the entire subtree  ← augmentor
+ *   node.getSize()            = subtree node count (intrinsic; independent of this
+ *                               augmentor, so dynamic order statistics keep working
+ *                               on the same interval tree — see ADR-002)
  *
  * To insert interval [lo, hi]:
  *   context.add(lo);

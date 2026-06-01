@@ -10,9 +10,16 @@ import java.util.NoSuchElementException;
  * CLRS 4th ed., Chapter 14.1 — "Dynamic order statistics", pp. 339–345.
  *
  * ─────────────────────────────────────────────────────────────────────────────
- * PREREQUISITE (already satisfied by your default augmentor):
- *   node.getAugmentedValue() == size of subtree rooted at node
- *   i.e. x.augmentedValue = x.left.augmentedValue + x.right.augmentedValue + 1
+ * PREREQUISITE (now intrinsic — always satisfied):
+ *   node.getSize() == size of subtree rooted at node
+ *   i.e. x.size = x.left.size + x.right.size + 1
+ *
+ *   Subtree size is maintained as an intrinsic node attribute (like height and
+ *   black-height), NOT via the pluggable augmentor. Order statistics therefore
+ *   work regardless of which augmentor is installed — e.g. SELECT / RANK run
+ *   correctly on a tree that is simultaneously using IntervalAugmentor for
+ *   max-hi in augmentedValue. (See ADR-002: this resolved the prior overloading
+ *   where one int field meant size OR max-hi, making the two mutually exclusive.)
  *
  * This gives us two O(log n) operations that would otherwise cost O(n):
  *
@@ -25,9 +32,9 @@ import java.util.NoSuchElementException;
  *
  * WHY THIS WORKS (the core insight from Cormen):
  *   We don't sort or scan — we USE the stored subtree sizes as rank
- *   accumulators.  Every rotation in the RB strategy already maintains
- *   augmentedValue through TreeNode1.setLeft / setRight → recomputeAugment.
- *   The augmentation maintenance cost per rotation is O(1), so insert/delete
+ *   accumulators.  Every rotation in the RB strategy already maintains the
+ *   intrinsic size through TreeNode1.setLeft / setRight → recomputeSize.
+ *   The size maintenance cost per rotation is O(1), so insert/delete
  *   remain O(log n) even with augmentation.
  */
 public class OrderStatisticsOps {
@@ -228,7 +235,10 @@ public class OrderStatisticsOps {
     }
 
     private int subtreeSize(TreeNode1 node) {
-        return (node == null || node.isNil()) ? 0 : node.getAugmentedValue();
+        // Reads the node's INTRINSIC subtree size, not the pluggable augment slot,
+        // so order statistics work even when a custom augmentor (e.g.
+        // IntervalAugmentor's max-hi) occupies augmentedValue. See ADR-002.
+        return (node == null || node.isNil()) ? 0 : node.getSize();
     }
 
     private TreeNode1 findNode(int value) {

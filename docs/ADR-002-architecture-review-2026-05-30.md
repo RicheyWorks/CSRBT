@@ -150,8 +150,13 @@ to `experimental`); incremental/background morph for very large `n`.
 ## Action Items
 1. [ ] Land Option C step 1 (comparator-routed comparisons, internal) behind the
        existing int API; full suite stays green.
-2. [ ] Steps 2–3: generify strategies + order statistics; fix the `augmentedValue`
+2. [~] Steps 2–3: generify strategies + order statistics; fix the `augmentedValue`
        overloading with a typed augmentor payload.
+       — `augmentedValue` overloading **RESOLVED 2026-05-31**: subtree size promoted
+         to an intrinsic `TreeNode1` field (sibling of height/black-height), order
+         statistics repointed to it, so order-stats + interval now coexist on one
+         tree. See `CHANGELOG-2026-05-31.md` and `AugmentorCoexistenceTest`.
+         The generify-against-`<K>` portion of steps 2–3 is still pending.
 3. [ ] Step 4: `OrderedSet<K>` facade; reduce `TreeContext` to an `Integer` adapter.
 4. [ ] Step 5: pluggable key serializer for snapshots.
 5. [ ] Extract `StrategyScorer` from `TreeGenome`; add `WorkloadMonitor` (O(1)/op
