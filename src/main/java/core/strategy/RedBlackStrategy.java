@@ -26,17 +26,17 @@ public class RedBlackStrategy implements TreeStrategy {
 
         while (!x.isNil()) {
             y = x;
-            if (newNode.getData() == x.getData()) {
+            if (newNode.compareTo(x) == 0) {
                 logger.warn("Duplicate insert skipped for value: {}", newNode.getData());
                 return;
             }
-            x = (newNode.getData() < x.getData()) ? x.getLeft() : x.getRight();
+            x = (newNode.compareTo(x) < 0) ? x.getLeft() : x.getRight();
         }
 
         newNode.setParent(y);
         if (y.isNil()) {
             tree.setRoot(newNode);
-        } else if (newNode.getData() < y.getData()) {
+        } else if (newNode.compareTo(y) < 0) {
             y.safeSetLeft(newNode);
         } else {
             y.safeSetRight(newNode);
@@ -302,9 +302,9 @@ public class RedBlackStrategy implements TreeStrategy {
     public TreeNode1 search(MutableTree tree, int value) {
         TreeNode1 cur = tree.getRoot();
         while (!cur.isNil()) {
-            int cmp = value - cur.getData();
+            int cmp = cur.compareKeyTo(value);   // sign of (cur.key - value)
             if      (cmp == 0) return cur;
-            else if (cmp <  0) cur = cur.getLeft();
+            else if (cmp >  0) cur = cur.getLeft();    // cur.key > value → go left
             else               cur = cur.getRight();
         }
         return tree.getNIL();

@@ -76,12 +76,12 @@ public class HybridStrategy implements TreeStrategy {
 
         while (!x.isNil()) {
             y = x;
-            if (newNode.getData() == x.getData()) {
+            if (newNode.compareTo(x) == 0) {
                 logger.warn("Hybrid duplicate insert skipped: {}", newNode.getData());
                 recordAccess(newNode.getData());
                 return;
             }
-            x = (newNode.getData() < x.getData()) ? x.getLeft() : x.getRight();
+            x = (newNode.compareTo(x) < 0) ? x.getLeft() : x.getRight();
         }
 
         newNode.setColor(TreeNode1.Color.RED);
@@ -89,7 +89,7 @@ public class HybridStrategy implements TreeStrategy {
 
         if (y.isNil()) {
             tree.setRoot(newNode);
-        } else if (newNode.getData() < y.getData()) {
+        } else if (newNode.compareTo(y) < 0) {
             y.safeSetLeft(newNode);
         } else {
             y.safeSetRight(newNode);
@@ -152,12 +152,12 @@ public class HybridStrategy implements TreeStrategy {
     public TreeNode1 search(MutableTree tree, int value) {
         TreeNode1 cur = tree.getRoot();
         while (!cur.isNil()) {
-            int cmp = value - cur.getData();
+            int cmp = cur.compareKeyTo(value);   // sign of (cur.key - value)
             if (cmp == 0) {
                 recordAccess(value);
                 return cur;
             }
-            cur = (cmp < 0) ? cur.getLeft() : cur.getRight();
+            cur = (cmp > 0) ? cur.getLeft() : cur.getRight();   // cur.key > value → go left
         }
         return tree.getNIL();
     }

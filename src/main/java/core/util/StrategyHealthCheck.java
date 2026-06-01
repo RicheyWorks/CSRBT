@@ -75,7 +75,7 @@ public final class StrategyHealthCheck {
                 int n = expectedSortedKeys.size();
                 int step = Math.max(1, n / 16);
                 for (int r = 1; r <= n; r += step) {
-                    if (os.select(r).getData() != expectedSortedKeys.get(r - 1)) {
+                    if (os.select(r).compareKeyTo(expectedSortedKeys.get(r - 1)) != 0) {
                         failures.add("select(" + r + ") mismatch");
                         break;
                     }
@@ -96,8 +96,8 @@ public final class StrategyHealthCheck {
 
     private static boolean isBst(TreeNode1 n) {
         if (n.isNil()) return true;
-        if (!n.getLeft().isNil()  && n.getLeft().getData()  >= n.getData()) return false;
-        if (!n.getRight().isNil() && n.getRight().getData() <= n.getData()) return false;
+        if (!n.getLeft().isNil()  && n.getLeft().compareTo(n)  >= 0) return false;
+        if (!n.getRight().isNil() && n.getRight().compareTo(n) <= 0) return false;
         return isBst(n.getLeft()) && isBst(n.getRight());
     }
 

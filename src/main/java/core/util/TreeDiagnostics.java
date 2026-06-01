@@ -92,8 +92,8 @@ public class TreeDiagnostics {
     private TreeNode1 findNode(int value) {
         TreeNode1 x = context.getTree().getRoot();
         while (!x.isNil()) {
-            if (value == x.getData()) return x;
-            x = (value < x.getData()) ? x.getLeft() : x.getRight();
+            if (x.compareKeyTo(value) == 0) return x;
+            x = (x.compareKeyTo(value) > 0) ? x.getLeft() : x.getRight();
         }
         return context.getTree().getNIL();
     }

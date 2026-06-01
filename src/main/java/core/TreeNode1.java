@@ -1,5 +1,6 @@
 package core;
 
+import java.util.Comparator;
 import java.util.Random;
 
 public class TreeNode1 implements Comparable<TreeNode1>, Cloneable {
@@ -16,6 +17,23 @@ public class TreeNode1 implements Comparable<TreeNode1>, Cloneable {
         int rightSize = (node.right != null && !node.right.isNil()) ? node.right.augmentedValue : 0;
         node.augmentedValue = 1 + leftSize + rightSize;
     };
+
+    /**
+     * ADR-002 Option C, step 1 — the single key-ordering authority.
+     *
+     * Every key comparison in the engine, the four strategies, order statistics
+     * and the interval code routes through {@link #compareTo(TreeNode1)} or
+     * {@link #compareKeyTo(int)}, both of which consult this comparator. Nothing
+     * compares {@code getData()} values directly any more.
+     *
+     * For now keys are {@code int} and the order is the natural one, so this is
+     * behaviour-identical to the previous direct comparisons. The point of
+     * funnelling every site through here is step 2: promoting this to a pluggable
+     * {@code Comparator<K>} on the engine then changes ordering in ONE place
+     * instead of rewriting every call-site again. (Boxing to {@code Integer} is
+     * the documented, accepted cost for the int facade — ADR-002.)
+     */
+    static final Comparator<Integer> KEY_ORDER = Comparator.naturalOrder();
 
     /**
      * Shared bootstrap sentinel. Retained for standalone node construction and
@@ -229,7 +247,18 @@ public class TreeNode1 implements Comparable<TreeNode1>, Cloneable {
     }
 
     public int compareTo(TreeNode1 other) {
-        return Integer.compare(this.data, other.data);
+        return KEY_ORDER.compare(this.data, other.data);
+    }
+
+    /**
+     * Order this node's key against a raw key, through the same {@link #KEY_ORDER}
+     * authority as {@link #compareTo}. Sign matches {@code (this.key - otherKey)}:
+     * negative if this node's key sorts before {@code otherKey}, 0 if equal,
+     * positive if after. Used by search / range / interval navigation, which
+     * compare a node against a query key rather than against another node.
+     */
+    public int compareKeyTo(int otherKey) {
+        return KEY_ORDER.compare(this.data, otherKey);
     }
 
     /**
@@ -346,7 +375,7 @@ public class TreeNode1 implements Comparable<TreeNode1>, Cloneable {
     }
 
     public boolean isLessThan(TreeNode1 other) {
-        return this.data < other.data;
+        return this.compareTo(other) < 0;
     }
 
     public boolean wasRotatedLeft() {

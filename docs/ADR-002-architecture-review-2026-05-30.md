@@ -148,8 +148,16 @@ breeding/lineage machinery survives once `StrategyScorer` exists (likely demoted
 to `experimental`); incremental/background morph for very large `n`.
 
 ## Action Items
-1. [ ] Land Option C step 1 (comparator-routed comparisons, internal) behind the
+1. [x] Land Option C step 1 (comparator-routed comparisons, internal) behind the
        existing int API; full suite stays green.
+       — **DONE 2026-05-31**: introduced `TreeNode1.KEY_ORDER` (a
+         `Comparator<Integer>` = natural order) as the single key-ordering
+         authority; `compareTo` / new `compareKeyTo(int)` consult it, and every
+         comparison site across the 4 strategies, order statistics, interval,
+         diagnostics and the BST health-check now routes through them. No site
+         compares `getData()` directly. Behaviour-identical by construction
+         (natural int order); step 2 swaps `KEY_ORDER` for a pluggable
+         `Comparator<K>` in one place. See `CHANGELOG-2026-05-31-comparator-seam.md`.
 2. [~] Steps 2–3: generify strategies + order statistics; fix the `augmentedValue`
        overloading with a typed augmentor payload.
        — `augmentedValue` overloading **RESOLVED 2026-05-31**: subtree size promoted

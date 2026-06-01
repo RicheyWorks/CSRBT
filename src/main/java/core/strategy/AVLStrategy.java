@@ -32,7 +32,7 @@ public class AVLStrategy implements TreeStrategy {
 
         while (!cur.isNil()) {
             parent = cur;
-            int cmp = node.getData() - cur.getData();
+            int cmp = node.compareTo(cur);
             if      (cmp < 0) cur = cur.getLeft();
             else if (cmp > 0) cur = cur.getRight();
             else return;   // duplicate — ignore
@@ -43,7 +43,7 @@ public class AVLStrategy implements TreeStrategy {
 
         if (parent.isNil()) {
             tree.setRoot(node);
-        } else if (node.getData() < parent.getData()) {
+        } else if (node.compareTo(parent) < 0) {
             parent.setLeft(node);
         } else {
             parent.setRight(node);
@@ -105,9 +105,9 @@ public class AVLStrategy implements TreeStrategy {
     public TreeNode1 search(MutableTree tree, int value) {
         TreeNode1 cur = tree.getRoot();
         while (!cur.isNil()) {
-            int cmp = value - cur.getData();
+            int cmp = cur.compareKeyTo(value);   // sign of (cur.key - value)
             if      (cmp == 0) return cur;
-            else if (cmp <  0) cur = cur.getLeft();
+            else if (cmp >  0) cur = cur.getLeft();    // cur.key > value → go left
             else               cur = cur.getRight();
         }
         return tree.getNIL();

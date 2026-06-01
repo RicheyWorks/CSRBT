@@ -37,18 +37,18 @@ public class SplayStrategy implements TreeStrategy {
 
         while (!x.isNil()) {
             y = x;
-            if (newNode.getData() == x.getData()) {
+            if (newNode.compareTo(x) == 0) {
                 logger.warn("Splay duplicate insert skipped: {}", newNode.getData());
                 splay(tree, x);
                 return;
             }
-            x = (newNode.getData() < x.getData()) ? x.getLeft() : x.getRight();
+            x = (newNode.compareTo(x) < 0) ? x.getLeft() : x.getRight();
         }
 
         newNode.setParent(y);
         if (y.isNil()) {
             tree.setRoot(newNode);
-        } else if (newNode.getData() < y.getData()) {
+        } else if (newNode.compareTo(y) < 0) {
             y.safeSetLeft(newNode);
         } else {
             y.safeSetRight(newNode);
@@ -77,12 +77,12 @@ public class SplayStrategy implements TreeStrategy {
 
         while (!current.isNil()) {
             last = current;
-            int cmp = value - current.getData();
+            int cmp = current.compareKeyTo(value);   // sign of (current.key - value)
             if (cmp == 0) {
                 splay(tree, current);
                 return current;
             }
-            current = (cmp < 0) ? current.getLeft() : current.getRight();
+            current = (cmp > 0) ? current.getLeft() : current.getRight();   // current.key > value → go left
         }
 
         if (!last.isNil()) splay(tree, last);   // move-to-root on miss

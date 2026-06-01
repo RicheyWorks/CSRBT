@@ -217,8 +217,8 @@ public class OrderStatisticsOps {
         TreeNode1 candidate = tree.getNIL();
         TreeNode1 x = tree.getRoot();
         while (!x.isNil()) {
-            if (x.getData() >= value) { candidate = x; x = x.getLeft(); }
-            else                                       { x = x.getRight(); }
+            if (x.compareKeyTo(value) >= 0) { candidate = x; x = x.getLeft(); }
+            else                            { x = x.getRight(); }
         }
         return candidate.isNil() ? subtreeSize(tree.getRoot()) + 1 : osRank(candidate);
     }
@@ -228,8 +228,8 @@ public class OrderStatisticsOps {
         TreeNode1 candidate = tree.getNIL();
         TreeNode1 x = tree.getRoot();
         while (!x.isNil()) {
-            if (x.getData() <= value) { candidate = x; x = x.getRight(); }
-            else                                       { x = x.getLeft();  }
+            if (x.compareKeyTo(value) <= 0) { candidate = x; x = x.getRight(); }
+            else                            { x = x.getLeft();  }
         }
         return candidate.isNil() ? 0 : osRank(candidate);
     }
@@ -244,8 +244,8 @@ public class OrderStatisticsOps {
     private TreeNode1 findNode(int value) {
         TreeNode1 x = tree.getRoot();
         while (!x.isNil()) {
-            if (value == x.getData()) return x;
-            x = (value < x.getData()) ? x.getLeft() : x.getRight();
+            if (x.compareKeyTo(value) == 0) return x;
+            x = (x.compareKeyTo(value) > 0) ? x.getLeft() : x.getRight();
         }
         return tree.getNIL();
     }

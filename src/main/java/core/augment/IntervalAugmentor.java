@@ -198,12 +198,12 @@ public class IntervalAugmentor implements TreeNode1.Augmentor {
         // (computed from lo while the tag was still empty).
         TreeNode1 node = context.getTree().getRoot();
         while (!node.isNil()) {
-            if (node.getData() == lo) {
+            if (node.compareKeyTo(lo) == 0) {
                 node.setTag(String.valueOf(hi));
                 node.reaugment();
                 break;
             }
-            node = (lo < node.getData()) ? node.getLeft() : node.getRight();
+            node = (node.compareKeyTo(lo) > 0) ? node.getLeft() : node.getRight();
         }
     }
 
