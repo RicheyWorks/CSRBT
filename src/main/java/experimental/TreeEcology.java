@@ -114,7 +114,7 @@ public class TreeEcology {
      * z << 0.30 suggests mainland-like (subtrees very similar in composition).
      */
     public double empiricalZValue() {
-        TreeNode1 root = context.getTree().getRoot();
+        TreeNode1<Integer> root = context.getTree().getRoot();
         if (root.isNil()) return 0.0;
 
         List<Integer> leftVals  = subtreeValues(root.getLeft());
@@ -145,7 +145,7 @@ public class TreeEcology {
      * the same tree, enough separation to avoid competitive exclusion.
      */
     public double nicheOverlap() {
-        TreeNode1 root = context.getTree().getRoot();
+        TreeNode1<Integer> root = context.getTree().getRoot();
         if (root.isNil()) return 0.0;
 
         List<Integer> left  = subtreeValues(root.getLeft());
@@ -188,18 +188,18 @@ public class TreeEcology {
      */
     public Map<Integer, int[]> brokenStickDeviation() {
         Map<Integer, int[]> result = new LinkedHashMap<>();
-        TreeNode1 root = context.getTree().getRoot();
+        TreeNode1<Integer> root = context.getTree().getRoot();
         if (root.isNil()) return result;
 
         int n = context.getSize();
-        Queue<TreeNode1> queue  = new LinkedList<>();
+        Queue<TreeNode1<Integer>> queue  = new LinkedList<>();
         Queue<Integer>   depths = new LinkedList<>();
         queue.add(root);
         depths.add(0);
 
         Map<Integer, List<Integer>> sizesByDepth = new TreeMap<>();
         while (!queue.isEmpty()) {
-            TreeNode1 node = queue.poll();
+            TreeNode1<Integer> node = queue.poll();
             int depth      = depths.poll();
             sizesByDepth.computeIfAbsent(depth, k -> new ArrayList<>())
                         .add(node.getAugmentedValue());
@@ -239,7 +239,7 @@ public class TreeEcology {
      *   +1.0 = strongly K-selected (stable, dense, balanced)
      */
     public double rKScore() {
-        TreeNode1 root = context.getTree().getRoot();
+        TreeNode1<Integer> root = context.getTree().getRoot();
         if (root.isNil() || context.getSize() == 0) return 0.0;
 
         int    n    = context.getSize();
@@ -291,22 +291,22 @@ public class TreeEcology {
      *
      * @return the LCA of all leaves, with its depth as a bottleneck metric
      */
-    public TreeNode1 mitoEve() {
-        TreeNode1 root = context.getTree().getRoot();
+    public TreeNode1<Integer> mitoEve() {
+        TreeNode1<Integer> root = context.getTree().getRoot();
         if (root.isNil()) return root;
 
-        List<TreeNode1> leaves = new ArrayList<>();
-        Stack<TreeNode1> stack = new Stack<>();
+        List<TreeNode1<Integer>> leaves = new ArrayList<>();
+        Stack<TreeNode1<Integer>> stack = new Stack<>();
         stack.push(root);
         while (!stack.isEmpty()) {
-            TreeNode1 n = stack.pop();
+            TreeNode1<Integer> n = stack.pop();
             if (n.isLeaf()) leaves.add(n);
             if (!n.getRight().isNil()) stack.push(n.getRight());
             if (!n.getLeft().isNil())  stack.push(n.getLeft());
         }
 
         if (leaves.isEmpty()) return root;
-        TreeNode1 eve = leaves.get(0);
+        TreeNode1<Integer> eve = leaves.get(0);
         for (int i = 1; i < leaves.size(); i++) {
             eve = lca(eve, leaves.get(i));
         }
@@ -385,7 +385,7 @@ public class TreeEcology {
         double overlap = nicheOverlap();
         double rk      = rKScore();
         double z       = empiricalZValue();
-        TreeNode1 eve  = mitoEve();
+        TreeNode1<Integer> eve  = mitoEve();
 
         Map<Integer, int[]> stick = brokenStickDeviation();
         StringBuilder stickStr = new StringBuilder();
@@ -435,13 +435,13 @@ public class TreeEcology {
 
     // ── Helpers ───────────────────────────────────────────────────────────────
 
-    private List<Integer> subtreeValues(TreeNode1 root) {
+    private List<Integer> subtreeValues(TreeNode1<Integer> root) {
         List<Integer> vals = new ArrayList<>();
         if (root == null || root.isNil()) return vals;
-        Stack<TreeNode1> stack = new Stack<>();
+        Stack<TreeNode1<Integer>> stack = new Stack<>();
         stack.push(root);
         while (!stack.isEmpty()) {
-            TreeNode1 n = stack.pop();
+            TreeNode1<Integer> n = stack.pop();
             vals.add(n.getData());
             if (!n.getRight().isNil()) stack.push(n.getRight());
             if (!n.getLeft().isNil())  stack.push(n.getLeft());
@@ -458,10 +458,10 @@ public class TreeEcology {
         return props;
     }
 
-    private TreeNode1 lca(TreeNode1 a, TreeNode1 b) {
-        Set<TreeNode1> ancestors = new HashSet<>();
-        for (TreeNode1 x = a; x != null && !x.isNil(); x = x.getParent()) ancestors.add(x);
-        for (TreeNode1 y = b; y != null && !y.isNil(); y = y.getParent()) {
+    private TreeNode1<Integer> lca(TreeNode1<Integer> a, TreeNode1<Integer> b) {
+        Set<TreeNode1<Integer>> ancestors = new HashSet<>();
+        for (TreeNode1<Integer> x = a; x != null && !x.isNil(); x = x.getParent()) ancestors.add(x);
+        for (TreeNode1<Integer> y = b; y != null && !y.isNil(); y = y.getParent()) {
             if (ancestors.contains(y)) return y;
         }
         return context.getTree().getRoot();

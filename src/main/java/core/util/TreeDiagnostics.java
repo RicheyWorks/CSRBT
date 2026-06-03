@@ -17,11 +17,11 @@ public class TreeDiagnostics {
 
     public void emitRelicBeacon() {
         logger.info("📡 Emitting relic beacon from all active nodes");
-        Queue<TreeNode1> q = new LinkedList<>();
-        TreeNode1 root = context.getTree().getRoot();
+        Queue<TreeNode1<Integer>> q = new LinkedList<>();
+        TreeNode1<Integer> root = context.getTree().getRoot();
         if (!root.isNil()) q.add(root);
         while (!q.isEmpty()) {
-            TreeNode1 node = q.poll();
+            TreeNode1<Integer> node = q.poll();
             logger.info("🔹 Node {}: Color={}, Augment={}, Tag='{}'",
                     node.getData(), node.isRed() ? "Red" : "Black",
                     node.getAugmentedValue(), node.getTag());
@@ -31,7 +31,7 @@ public class TreeDiagnostics {
     }
 
     public boolean isValidRedBlack() {
-        TreeNode1 root = context.getTree().getRoot();
+        TreeNode1<Integer> root = context.getTree().getRoot();
         if (root.isNil()) return true;
         if (root.isRed()) {
             logger.error("Root {} is red—violation!", root.getData());
@@ -46,12 +46,12 @@ public class TreeDiagnostics {
     }
 
     public boolean hasNoRedRed() {
-        TreeNode1 root = context.getTree().getRoot();
+        TreeNode1<Integer> root = context.getTree().getRoot();
         if (root.isNil()) return true;
-        Stack<TreeNode1> stack = new Stack<>();
+        Stack<TreeNode1<Integer>> stack = new Stack<>();
         stack.push(root);
         while (!stack.isEmpty()) {
-            TreeNode1 current = stack.pop();
+            TreeNode1<Integer> current = stack.pop();
             if (current.isRed()) {
                 if (!current.getLeft().isNil() && current.getLeft().isRed()) {
                     logger.error("Red-red violation between {} and left child {}",
@@ -79,18 +79,18 @@ public class TreeDiagnostics {
      * @return {@code true} if there is NO red-red violation at {@code value}'s node
      */
     public boolean hasNoRedRedAt(int value) {
-        TreeNode1 node = findNode(value);
+        TreeNode1<Integer> node = findNode(value);
         if (node.isNil() || !node.isRed()) return true;   // absent or black → no local violation
 
-        TreeNode1 parent = node.getParent();
+        TreeNode1<Integer> parent = node.getParent();
         if (parent != null && !parent.isNil() && parent.isRed()) return false;
         if (!node.getLeft().isNil()  && node.getLeft().isRed())  return false;
         if (!node.getRight().isNil() && node.getRight().isRed()) return false;
         return true;
     }
 
-    private TreeNode1 findNode(int value) {
-        TreeNode1 x = context.getTree().getRoot();
+    private TreeNode1<Integer> findNode(int value) {
+        TreeNode1<Integer> x = context.getTree().getRoot();
         while (!x.isNil()) {
             if (x.compareKeyTo(value) == 0) return x;
             x = (x.compareKeyTo(value) > 0) ? x.getLeft() : x.getRight();
@@ -98,7 +98,7 @@ public class TreeDiagnostics {
         return context.getTree().getNIL();
     }
 
-    private int blackHeight(TreeNode1 node) {
+    private int blackHeight(TreeNode1<Integer> node) {
         if (node.isNil()) return 0;   // per-tree sentinel: compare via identity-aware isNil()
         int leftHeight = blackHeight(node.getLeft());
         int rightHeight = blackHeight(node.getRight());
@@ -110,8 +110,8 @@ public class TreeDiagnostics {
 
     public List<Integer> inOrderTraversal() {
         List<Integer> result = new ArrayList<>();
-        Stack<TreeNode1> stack = new Stack<>();
-        TreeNode1 current = context.getTree().getRoot();
+        Stack<TreeNode1<Integer>> stack = new Stack<>();
+        TreeNode1<Integer> current = context.getTree().getRoot();
         while (!stack.isEmpty() || !current.isNil()) {
             while (!current.isNil()) {
                 stack.push(current);

@@ -32,6 +32,11 @@ import java.util.function.Supplier;
  *       built here, with a reason. These are not ordered-map structures and
  *       therefore do not fit the {@code TreeEngine} contract.</li>
  * </ul>
+ *
+ * <p>ADR-002 step 2: the registry builds {@code Integer}-keyed engines
+ * ({@code TreeEngine<Integer>}), matching the current int behaviour. A
+ * key-type-parameterised registry can come with the {@code OrderedSet<K>} facade
+ * (step 4) if needed.</p>
  */
 public final class TreeEngineRegistry {
 
@@ -43,9 +48,9 @@ public final class TreeEngineRegistry {
     public static final class Capability {
         public final Support support;
         public final String  note;
-        private final Supplier<TreeEngine> engineFactory;   // null iff UNSUPPORTED
+        private final Supplier<TreeEngine<Integer>> engineFactory;   // null iff UNSUPPORTED
 
-        private Capability(Support support, String note, Supplier<TreeEngine> f) {
+        private Capability(Support support, String note, Supplier<TreeEngine<Integer>> f) {
             this.support       = support;
             this.note          = note;
             this.engineFactory = f;
@@ -79,11 +84,11 @@ public final class TreeEngineRegistry {
               + "This API exposes an unbounded int key space, so vEB is out of scope."));
     }
 
-    private static Capability strategy(String note, Supplier<TreeStrategy> s) {
-        return new Capability(Support.STRATEGY, note, () -> new RedBlackTree(s.get()));
+    private static Capability strategy(String note, Supplier<TreeStrategy<Integer>> s) {
+        return new Capability(Support.STRATEGY, note, () -> RedBlackTree.withNaturalOrder(s.get()));
     }
 
-    private static Capability engine(String note, Supplier<TreeEngine> f) {
+    private static Capability engine(String note, Supplier<TreeEngine<Integer>> f) {
         return new Capability(Support.ENGINE, note, f);
     }
 
@@ -109,7 +114,7 @@ public final class TreeEngineRegistry {
      * @throws UnsupportedOperationException with a clear reason for any type
      *         that is declared in the enum but intentionally not buildable.
      */
-    public static TreeEngine create(StructureType type) {
+    public static TreeEngine<Integer> create(StructureType type) {
         Capability c = MAP.get(type);
         if (!c.isBuildable()) {
             throw new UnsupportedOperationException(type + ": " + c.note);

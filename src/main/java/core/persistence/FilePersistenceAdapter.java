@@ -28,6 +28,10 @@ import java.util.*;
  *           (AUGMENTOR is optional/absent in legacy files: DEFAULT | INTERVAL)
  *   Line 2: pre-order node list as: DATA,COLOR[,TAG];DATA,COLOR[,TAG];...
  *            NIL nodes encoded as "#"
+ *
+ * ADR-002 step 2: the text format is {@code int}-keyed (keys parsed via
+ * {@link Integer#parseInt}); this adapter is pinned to {@code TreeNode1<Integer>}.
+ * A pluggable key (de)serializer for arbitrary {@code K} is step 5.
  */
 public class FilePersistenceAdapter implements TreePersistenceAdapter {
 
@@ -81,11 +85,11 @@ public class FilePersistenceAdapter implements TreePersistenceAdapter {
      * stack. Right child is pushed before left so left is emitted first, matching
      * the recursive pre-order order the reader expects.
      */
-    private void serializePreOrder(TreeNode1 node, TreeNode1 nil, StringBuilder sb) {
-        Deque<TreeNode1> stack = new ArrayDeque<>();
+    private void serializePreOrder(TreeNode1<Integer> node, TreeNode1<Integer> nil, StringBuilder sb) {
+        Deque<TreeNode1<Integer>> stack = new ArrayDeque<>();
         stack.push(node);
         while (!stack.isEmpty()) {
-            TreeNode1 cur = stack.pop();
+            TreeNode1<Integer> cur = stack.pop();
             if (cur == nil) {
                 sb.append("#;");
                 continue;
@@ -151,7 +155,7 @@ public class FilePersistenceAdapter implements TreePersistenceAdapter {
                 return null;
             }
 
-            TreeStrategy strategy = resolveStrategy(strategyName);
+            TreeStrategy<Integer> strategy = resolveStrategy(strategyName);
             TreeContext  context  = new TreeContext(strategy);
 
             // ── Data line: pre-order node list ───────────────────────────────
@@ -161,7 +165,7 @@ public class FilePersistenceAdapter implements TreePersistenceAdapter {
                 return null;
             }
             String[] tokens = dataLine.split(";");
-            TreeNode1 root  = deserializePreOrder(tokens, context.getTree().getNIL());
+            TreeNode1<Integer> root  = deserializePreOrder(tokens, context.getTree().getNIL());
 
             context.getTree().setRoot(root);
             if (root != context.getTree().getNIL()) root.setParent(context.getTree().getNIL());
@@ -197,9 +201,9 @@ public class FilePersistenceAdapter implements TreePersistenceAdapter {
      * tracks how many of its node's two children have been attached; the next
      * token fills the left child first, then the right.
      */
-    private TreeNode1 deserializePreOrder(String[] tokens, TreeNode1 nil) {
+    private TreeNode1<Integer> deserializePreOrder(String[] tokens, TreeNode1<Integer> nil) {
         int[] index = {0};
-        TreeNode1 root = parseToken(tokens, index, nil);
+        TreeNode1<Integer> root = parseToken(tokens, index, nil);
         if (root == nil) return nil;
 
         Deque<Frame> stack = new ArrayDeque<>();
@@ -207,7 +211,7 @@ public class FilePersistenceAdapter implements TreePersistenceAdapter {
 
         while (!stack.isEmpty() && index[0] < tokens.length) {
             Frame f = stack.peek();
-            TreeNode1 child = parseToken(tokens, index, nil);
+            TreeNode1<Integer> child = parseToken(tokens, index, nil);
 
             if (f.childrenDone == 0) {
                 f.childrenDone = 1;
@@ -229,7 +233,7 @@ public class FilePersistenceAdapter implements TreePersistenceAdapter {
     }
 
     /** Parse one token, advancing {@code index}, returning {@code nil} for "#". */
-    private TreeNode1 parseToken(String[] tokens, int[] index, TreeNode1 nil) {
+    private TreeNode1<Integer> parseToken(String[] tokens, int[] index, TreeNode1<Integer> nil) {
         if (index[0] >= tokens.length) return nil;
         String token = tokens[index[0]++];
         if (token.equals("#") || token.isEmpty()) return nil;
@@ -238,7 +242,7 @@ public class FilePersistenceAdapter implements TreePersistenceAdapter {
         String[] parts = token.split(",", 3);
         int data = Integer.parseInt(parts[0]);
         TreeNode1.Color color = TreeNode1.Color.valueOf(parts[1]);
-        TreeNode1 node = TreeNode1.createNode(data, nil);
+        TreeNode1<Integer> node = TreeNode1.createNode(data, nil);
         node.setColor(color);
         // Optional third field: per-node tag. Absent in legacy two-field records.
         if (parts.length >= 3 && !parts[2].isEmpty()) {
@@ -249,9 +253,9 @@ public class FilePersistenceAdapter implements TreePersistenceAdapter {
 
     /** Reconstruction frame: a node plus how many children have been attached. */
     private static final class Frame {
-        final TreeNode1 node;
+        final TreeNode1<Integer> node;
         int childrenDone;   // 0 → left pending, 1 → right pending
-        Frame(TreeNode1 node) { this.node = node; }
+        Frame(TreeNode1<Integer> node) { this.node = node; }
     }
 
     // ── List / Delete ─────────────────────────────────────────────────────────
@@ -312,12 +316,12 @@ public class FilePersistenceAdapter implements TreePersistenceAdapter {
         return ctx.getAugmentor() == IntervalAugmentor.INSTANCE ? "INTERVAL" : "DEFAULT";
     }
 
-    private TreeStrategy resolveStrategy(String name) {
+    private TreeStrategy<Integer> resolveStrategy(String name) {
         switch (name) {
-            case "AVLStrategy":    return new AVLStrategy();
-            case "SplayStrategy":  return new SplayStrategy();
-            case "HybridStrategy": return new HybridStrategy();
-            default:               return new RedBlackStrategy();
+            case "AVLStrategy":    return new AVLStrategy<>();
+            case "SplayStrategy":  return new SplayStrategy<>();
+            case "HybridStrategy": return new HybridStrategy<>();
+            default:               return new RedBlackStrategy<>();
         }
     }
 }

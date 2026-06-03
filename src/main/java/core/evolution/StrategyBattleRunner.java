@@ -48,7 +48,7 @@ public class StrategyBattleRunner {
 
     // ── Competitor registry ───────────────────────────────────────────────────
 
-    private static final LinkedHashMap<String, Supplier<TreeStrategy>> COMPETITORS
+    private static final LinkedHashMap<String, Supplier<TreeStrategy<Integer>>> COMPETITORS
             = new LinkedHashMap<>();
 
     static {
@@ -124,9 +124,9 @@ public class StrategyBattleRunner {
         List<int[]> ops = generateWorkload(workload, opCount, seed);
         List<BattleResult> results = new ArrayList<>();
 
-        for (Map.Entry<String, Supplier<TreeStrategy>> entry : COMPETITORS.entrySet()) {
+        for (Map.Entry<String, Supplier<TreeStrategy<Integer>>> entry : COMPETITORS.entrySet()) {
             String name     = entry.getKey();
-            TreeStrategy st = entry.getValue().get();
+            TreeStrategy<Integer> st = entry.getValue().get();
             BattleResult r  = runCompetitor(name, st, ops, workload);
             results.add(r);
         }
@@ -152,7 +152,7 @@ public class StrategyBattleRunner {
 
     // ── Competitor runner ─────────────────────────────────────────────────────
 
-    private static BattleResult runCompetitor(String name, TreeStrategy strategy,
+    private static BattleResult runCompetitor(String name, TreeStrategy<Integer> strategy,
                                                List<int[]> ops, WorkloadType workload) {
         TreeContext ctx       = new TreeContext(strategy);
         int         hits      = 0;
@@ -178,7 +178,7 @@ public class StrategyBattleRunner {
 
         // Capture hybrid-specific metrics if applicable
         HybridStrategy.HybridMetricsSnapshot hybridSnapshot = null;
-        if (strategy instanceof HybridStrategy hs) {
+        if (strategy instanceof HybridStrategy<?> hs) {
             hybridSnapshot = hs.snapshot(ctx.getSize(), avgDepth);
         }
 

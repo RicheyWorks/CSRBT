@@ -290,7 +290,7 @@ public class TreeHistory {
         // deepCopy rebuilds nodes with the default (size) augmentor; re-apply the
         // checkpoint's augmentor so non-size augmentation (e.g. interval max-hi) is
         // restored from the copied tags rather than reverting to subtree size.
-        if (fresh.getAugmentor() != TreeNode1.defaultAugmentor) {
+        if (fresh.getAugmentor() != TreeNode1.<Integer>defaultAugmentor()) {
             context.setAugmentor(fresh.getAugmentor());
         }
     }

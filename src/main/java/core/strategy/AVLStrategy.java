@@ -17,7 +17,7 @@ import core.TreeNode1;
  * Color is irrelevant for AVL; every node is set BLACK on insert so the
  * shared diagnostics don't flag spurious red-red violations.
  */
-public class AVLStrategy implements TreeStrategy {
+public class AVLStrategy<K> implements TreeStrategy<K> {
 
     // ── Insert ────────────────────────────────────────────────────────────────
 
@@ -25,10 +25,10 @@ public class AVLStrategy implements TreeStrategy {
      * Standard BST link.  fixInsert walks up and rebalances.
      */
     @Override
-    public void insert(MutableTree tree, TreeNode1 node) {
-        TreeNode1 nil    = tree.getNIL();
-        TreeNode1 parent = nil;
-        TreeNode1 cur    = tree.getRoot();
+    public void insert(MutableTree<K> tree, TreeNode1<K> node) {
+        TreeNode1<K> nil    = tree.getNIL();
+        TreeNode1<K> parent = nil;
+        TreeNode1<K> cur    = tree.getRoot();
 
         while (!cur.isNil()) {
             parent = cur;
@@ -54,15 +54,15 @@ public class AVLStrategy implements TreeStrategy {
      * Walk from the newly inserted node upward, rebalancing as needed.
      */
     @Override
-    public void fixInsert(MutableTree tree, TreeNode1 node) {
+    public void fixInsert(MutableTree<K> tree, TreeNode1<K> node) {
         rebalanceUp(tree, node.getParent());
     }
 
     // ── Delete ────────────────────────────────────────────────────────────────
 
     @Override
-    public void delete(MutableTree tree, TreeNode1 node) {
-        TreeNode1 rebalanceFrom;
+    public void delete(MutableTree<K> tree, TreeNode1<K> node) {
+        TreeNode1<K> rebalanceFrom;
 
         if (node.getLeft().isNil()) {
             // Case 1: no left child — promote right subtree
@@ -76,7 +76,7 @@ public class AVLStrategy implements TreeStrategy {
 
         } else {
             // Case 3: two children — replace with in-order successor
-            TreeNode1 successor = minimum(node.getRight());
+            TreeNode1<K> successor = minimum(node.getRight());
             rebalanceFrom = (successor.getParent() == node) ? successor
                                                              : successor.getParent();
 
@@ -102,8 +102,8 @@ public class AVLStrategy implements TreeStrategy {
     // ── Search ────────────────────────────────────────────────────────────────
 
     @Override
-    public TreeNode1 search(MutableTree tree, int value) {
-        TreeNode1 cur = tree.getRoot();
+    public TreeNode1<K> search(MutableTree<K> tree, K value) {
+        TreeNode1<K> cur = tree.getRoot();
         while (!cur.isNil()) {
             int cmp = cur.compareKeyTo(value);   // sign of (cur.key - value)
             if      (cmp == 0) return cur;
@@ -122,8 +122,8 @@ public class AVLStrategy implements TreeStrategy {
      * After a rotation the displaced node moved DOWN; we continue from its
      * new parent (the subtree root that took its place) and keep ascending.
      */
-    private void rebalanceUp(MutableTree tree, TreeNode1 start) {
-        TreeNode1 cur = start;
+    private void rebalanceUp(MutableTree<K> tree, TreeNode1<K> start) {
+        TreeNode1<K> cur = start;
         while (cur != null && !cur.isNil()) {
             // Refresh this node's height from its (already-correct, lower-on-path)
             // children before reading balance factors. Insertion/deletion only
@@ -163,12 +163,12 @@ public class AVLStrategy implements TreeStrategy {
     // ── Private helpers ───────────────────────────────────────────────────────
 
     /** AVL height: 0 for NIL, node.getHeight() otherwise. */
-    private int height(TreeNode1 node) {
+    private int height(TreeNode1<K> node) {
         return (node == null || node.isNil()) ? 0 : node.getHeight();
     }
 
     /** balance factor = h(left) − h(right). */
-    private int balanceFactor(TreeNode1 node) {
+    private int balanceFactor(TreeNode1<K> node) {
         return height(node.getLeft()) - height(node.getRight());
     }
 
@@ -176,8 +176,8 @@ public class AVLStrategy implements TreeStrategy {
      * Replaces subtree rooted at {@code u} with subtree rooted at {@code v}.
      * Mirrors CLRS RB-TRANSPLANT — works for any BST variant.
      */
-    private void transplant(MutableTree tree, TreeNode1 u, TreeNode1 v) {
-        TreeNode1 uParent = u.getParent();
+    private void transplant(MutableTree<K> tree, TreeNode1<K> u, TreeNode1<K> v) {
+        TreeNode1<K> uParent = u.getParent();
         if (uParent == null || uParent.isNil()) {
             tree.setRoot(v);
         } else if (u == uParent.getLeft()) {
@@ -191,7 +191,7 @@ public class AVLStrategy implements TreeStrategy {
     }
 
     /** Returns the leftmost (minimum) node in the subtree rooted at {@code node}. */
-    private TreeNode1 minimum(TreeNode1 node) {
+    private TreeNode1<K> minimum(TreeNode1<K> node) {
         while (!node.getLeft().isNil()) node = node.getLeft();
         return node;
     }

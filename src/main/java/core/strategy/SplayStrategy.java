@@ -21,19 +21,19 @@ import org.apache.logging.log4j.Logger;
  *   - Color is unused; every node is BLACK to suppress RB diagnostics.
  *   - fixInsert is a no-op — insert() splays during BST link.
  */
-public class SplayStrategy implements TreeStrategy {
+public class SplayStrategy<K> implements TreeStrategy<K> {
 
     private static final Logger logger = LogManager.getLogger(SplayStrategy.class);
 
     // ── Insert ────────────────────────────────────────────────────────────────
 
     @Override
-    public void insert(MutableTree tree, TreeNode1 newNode) {
+    public void insert(MutableTree<K> tree, TreeNode1<K> newNode) {
         newNode.setColor(TreeNode1.Color.BLACK);
 
-        TreeNode1 nil = tree.getNIL();
-        TreeNode1 y = nil;                 // "no parent" is the sentinel, never null
-        TreeNode1 x = tree.getRoot();
+        TreeNode1<K> nil = tree.getNIL();
+        TreeNode1<K> y = nil;                 // "no parent" is the sentinel, never null
+        TreeNode1<K> x = tree.getRoot();
 
         while (!x.isNil()) {
             y = x;
@@ -59,7 +59,7 @@ public class SplayStrategy implements TreeStrategy {
 
     /** Splay already happened in insert — nothing left to do. */
     @Override
-    public void fixInsert(MutableTree tree, TreeNode1 node) {
+    public void fixInsert(MutableTree<K> tree, TreeNode1<K> node) {
         // no-op
     }
 
@@ -71,9 +71,9 @@ public class SplayStrategy implements TreeStrategy {
      * recently-accessed paths short even when the key is absent.
      */
     @Override
-    public TreeNode1 search(MutableTree tree, int value) {
-        TreeNode1 current = tree.getRoot();
-        TreeNode1 last    = tree.getNIL();
+    public TreeNode1<K> search(MutableTree<K> tree, K value) {
+        TreeNode1<K> current = tree.getRoot();
+        TreeNode1<K> last    = tree.getNIL();
 
         while (!current.isNil()) {
             last = current;
@@ -103,12 +103,12 @@ public class SplayStrategy implements TreeStrategy {
      * This avoids any color/black-height bookkeeping.
      */
     @Override
-    public void delete(MutableTree tree, TreeNode1 z) {
+    public void delete(MutableTree<K> tree, TreeNode1<K> z) {
         splay(tree, z);
 
-        TreeNode1 nil      = tree.getNIL();
-        TreeNode1 leftSub  = z.getLeft();
-        TreeNode1 rightSub = z.getRight();
+        TreeNode1<K> nil      = tree.getNIL();
+        TreeNode1<K> leftSub  = z.getLeft();
+        TreeNode1<K> rightSub = z.getRight();
 
         // Detach subtrees from the node being removed. A detached subtree root's
         // parent is the sentinel (the uniform "no parent" marker), not null.
@@ -126,7 +126,7 @@ public class SplayStrategy implements TreeStrategy {
         } else {
             // Install left subtree as the tree, splay its max to the root
             tree.setRoot(leftSub);
-            TreeNode1 maxLeft = treeMaximum(leftSub, tree.getNIL());
+            TreeNode1<K> maxLeft = treeMaximum(leftSub, tree.getNIL());
             splay(tree, maxLeft);
             // maxLeft is now root and has no right child — attach right subtree
             maxLeft.safeSetRight(rightSub);
@@ -142,10 +142,10 @@ public class SplayStrategy implements TreeStrategy {
      * "parent == null" is the root test — consistent with how insert/delete
      * null out the subtree root's parent before handing off to splay.
      */
-    private void splay(MutableTree tree, TreeNode1 x) {
+    private void splay(MutableTree<K> tree, TreeNode1<K> x) {
         while (x.getParent() != null && !x.getParent().isNil()) {
-            TreeNode1 p = x.getParent();
-            TreeNode1 g = p.getParent();
+            TreeNode1<K> p = x.getParent();
+            TreeNode1<K> g = p.getParent();
 
             boolean pIsRoot = (g == null || g.isNil());
 
@@ -180,7 +180,7 @@ public class SplayStrategy implements TreeStrategy {
     // ── Helpers ───────────────────────────────────────────────────────────────
 
     /** Rightmost (maximum) node in the subtree rooted at {@code node}. */
-    private TreeNode1 treeMaximum(TreeNode1 node, TreeNode1 nil) {
+    private TreeNode1<K> treeMaximum(TreeNode1<K> node, TreeNode1<K> nil) {
         while (!node.getRight().isNil()) node = node.getRight();
         return node;
     }

@@ -32,7 +32,7 @@ import java.util.List;
  * <p>Set semantics: duplicate inserts are ignored. {@link #inOrder()} returns
  * ascending keys. Not thread-safe.</p>
  */
-public final class PersistentTreeEngine implements TreeEngine {
+public final class PersistentTreeEngine implements TreeEngine<Integer> {
 
     /** Immutable node. Once constructed, never mutated. */
     private static final class Node {
@@ -65,7 +65,7 @@ public final class PersistentTreeEngine implements TreeEngine {
     // ── TreeEngine ─────────────────────────────────────────────────────────────
 
     @Override
-    public void add(int value) {
+    public void add(Integer value) {
         Node next = insert(root, value);
         if (next != root) {          // only a real structural change makes a version
             root = next;
@@ -97,7 +97,7 @@ public final class PersistentTreeEngine implements TreeEngine {
     }
 
     @Override
-    public void remove(int value) {
+    public void remove(Integer value) {
         Node next = delete(root, value);
         if (next != root) {
             root = next;
@@ -152,7 +152,7 @@ public final class PersistentTreeEngine implements TreeEngine {
     }
 
     @Override
-    public boolean contains(int value) {
+    public boolean contains(Integer value) {
         Node n = root;
         while (n != null) {
             if (value == n.key) return true;

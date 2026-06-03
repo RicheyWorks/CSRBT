@@ -23,7 +23,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 public class CloneAugmentorTest {
 
     private static TreeContext intervalTree() {
-        TreeContext ctx = new TreeContext(new RedBlackStrategy());
+        TreeContext ctx = new TreeContext(new RedBlackStrategy<>());
         IntervalAugmentor.insertInterval(ctx, 15, 20);
         IntervalAugmentor.insertInterval(ctx, 10, 30);   // small lo, large hi
         IntervalAugmentor.insertInterval(ctx, 5, 8);
@@ -41,7 +41,7 @@ public class CloneAugmentorTest {
 
         assertEquals(30, clone.getTree().getRoot().getAugmentedValue(),
                 "clone root max-hi must be 30, not the subtree size");
-        TreeNode1 hit = IntervalAugmentor.intervalSearch(clone, 29, 31);
+        TreeNode1<Integer> hit = IntervalAugmentor.intervalSearch(clone, 29, 31);
         assertNotNull(hit);
         assertFalse(hit.isNil(), "clone must still find the [10,30] overlap");
         assertEquals(4, clone.getSize());

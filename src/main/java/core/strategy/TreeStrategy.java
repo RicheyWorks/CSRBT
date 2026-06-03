@@ -3,13 +3,13 @@ package core.strategy;
 import core.MutableTree;
 import core.TreeNode1;
 
-public interface TreeStrategy {
+public interface TreeStrategy<K> {
 
     /**
      * BST insertion only — links node into tree, calls tree.setRoot() if needed.
      * Must NOT fix RB/AVL invariants; that belongs in fixInsert.
      */
-    void insert(MutableTree tree, TreeNode1 node);
+    void insert(MutableTree<K> tree, TreeNode1<K> node);
 
     /**
      * Restore invariants after insertion.
@@ -17,11 +17,11 @@ public interface TreeStrategy {
      * AVL: recompute heights + rotate.
      * Splay: splay node to root.
      */
-    void fixInsert(MutableTree tree, TreeNode1 node);
+    void fixInsert(MutableTree<K> tree, TreeNode1<K> node);
 
-    void delete(MutableTree tree, TreeNode1 node);
+    void delete(MutableTree<K> tree, TreeNode1<K> node);
 
-    TreeNode1 search(MutableTree tree, int value);
+    TreeNode1<K> search(MutableTree<K> tree, K value);
 
     // ── Rotations: structurally identical across all three algorithms ─────────
     // AVLStrategy no longer needs to call `new RedBlackStrategy().rotateLeft()`
@@ -35,13 +35,13 @@ public interface TreeStrategy {
     // to O(height). Insert/delete BST links still use the propagating
     // setLeft/setRight, which is where ancestor counts genuinely change.
 
-    default void rotateLeft(MutableTree tree, TreeNode1 x) {
-        TreeNode1 y      = x.getRight();
-        TreeNode1 nil    = tree.getNIL();
-        TreeNode1 parent = x.getParent();        // capture BEFORE relinking
+    default void rotateLeft(MutableTree<K> tree, TreeNode1<K> x) {
+        TreeNode1<K> y      = x.getRight();
+        TreeNode1<K> nil    = tree.getNIL();
+        TreeNode1<K> parent = x.getParent();     // capture BEFORE relinking
 
         // Move y's left subtree to be x's right child, then recompute x.
-        TreeNode1 yLeft = y.getLeft();
+        TreeNode1<K> yLeft = y.getLeft();
         x.setRightLocal(yLeft);
         if (yLeft != nil) yLeft.setParent(x);
 
@@ -55,12 +55,12 @@ public interface TreeStrategy {
         else                                  parent.setRightLocal(y);
     }
 
-    default void rotateRight(MutableTree tree, TreeNode1 y) {
-        TreeNode1 x      = y.getLeft();
-        TreeNode1 nil    = tree.getNIL();
-        TreeNode1 parent = y.getParent();        // capture BEFORE relinking
+    default void rotateRight(MutableTree<K> tree, TreeNode1<K> y) {
+        TreeNode1<K> x      = y.getLeft();
+        TreeNode1<K> nil    = tree.getNIL();
+        TreeNode1<K> parent = y.getParent();     // capture BEFORE relinking
 
-        TreeNode1 xRight = x.getRight();
+        TreeNode1<K> xRight = x.getRight();
         y.setLeftLocal(xRight);
         if (xRight != nil) xRight.setParent(y);
 

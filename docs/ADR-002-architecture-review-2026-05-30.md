@@ -164,7 +164,13 @@ to `experimental`); incremental/background morph for very large `n`.
          to an intrinsic `TreeNode1` field (sibling of height/black-height), order
          statistics repointed to it, so order-stats + interval now coexist on one
          tree. See `CHANGELOG-2026-05-31.md` and `AugmentorCoexistenceTest`.
-         The generify-against-`<K>` portion of steps 2–3 is still pending.
+       — generify-against-`<K>` **IMPLEMENTED 2026-06-01** on branch
+         `adr002-step2-generics` (pending host `ant clean test`): `TreeNode1<K>`,
+         `MutableTree<K>`, `TreeStrategy<K>` + 4 strategies, `TreeEngine<K>`,
+         `RedBlackTree<K>`, `OrderStatisticsOps<K>`; `KEY_ORDER` promoted to a
+         per-tree pluggable `Comparator<? super K>`. The int facade (`TreeContext`)
+         and periphery are pinned to `<Integer>`. See
+         `PLAN-adr002-step2-generic-keys.md` and `CHANGELOG-2026-06-01-generic-keys.md`.
 3. [ ] Step 4: `OrderedSet<K>` facade; reduce `TreeContext` to an `Integer` adapter.
 4. [ ] Step 5: pluggable key serializer for snapshots.
 5. [ ] Extract `StrategyScorer` from `TreeGenome`; add `WorkloadMonitor` (O(1)/op

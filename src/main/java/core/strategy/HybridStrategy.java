@@ -22,7 +22,7 @@ import java.util.Set;
  *   rbFixCount         — color flips fired by the RB recolor phase
  *   relaxedNodeCount   — nodes that received ±2 tolerance (depth > threshold)
  *   totalNodesSeen     — nodes visited across all fix passes (denominator for %)
- *   hotNodeFrequency   — access count per data value (identifies hot nodes)
+ *   hotNodeFrequency   — access count per key (identifies hot nodes)
  *   insertCount        — total insertions processed
  *   deleteCount        — total deletions processed
  *
@@ -34,7 +34,7 @@ import java.util.Set;
  * Call resetMetrics() after each eval window to keep numbers per-window.
  * ─────────────────────────────────────────────────────────────────────────────
  */
-public class HybridStrategy implements TreeStrategy {
+public class HybridStrategy<K> implements TreeStrategy<K> {
 
     private static final Logger logger = LogManager.getLogger(HybridStrategy.class);
 
@@ -55,8 +55,8 @@ public class HybridStrategy implements TreeStrategy {
     private int insertCount      = 0;
     private int deleteCount      = 0;
 
-    /** value → access count; identifies hot nodes. */
-    private final Map<Integer, Integer> hotNodeFrequency = new HashMap<>();
+    /** key → access count; identifies hot nodes. */
+    private final Map<K, Integer> hotNodeFrequency = new HashMap<>();
 
     public HybridStrategy() {
         this(Integer.MAX_VALUE);
@@ -69,10 +69,10 @@ public class HybridStrategy implements TreeStrategy {
     // ── Insert ────────────────────────────────────────────────────────────────
 
     @Override
-    public void insert(MutableTree tree, TreeNode1 newNode) {
-        TreeNode1 nil = tree.getNIL();
-        TreeNode1 y   = nil;
-        TreeNode1 x   = tree.getRoot();
+    public void insert(MutableTree<K> tree, TreeNode1<K> newNode) {
+        TreeNode1<K> nil = tree.getNIL();
+        TreeNode1<K> y   = nil;
+        TreeNode1<K> x   = tree.getRoot();
 
         while (!x.isNil()) {
             y = x;
@@ -104,7 +104,7 @@ public class HybridStrategy implements TreeStrategy {
      * Phase 2: RB recolor along the affected path (counts every color flip).
      */
     @Override
-    public void fixInsert(MutableTree tree, TreeNode1 node) {
+    public void fixInsert(MutableTree<K> tree, TreeNode1<K> node) {
         avlRebalanceUp(tree, node.getParent());
         rbRecolorPathUp(node);                       // O(log n), not a full-tree scan
         tree.getRoot().setColor(TreeNode1.Color.BLACK);
@@ -113,8 +113,8 @@ public class HybridStrategy implements TreeStrategy {
     // ── Delete ────────────────────────────────────────────────────────────────
 
     @Override
-    public void delete(MutableTree tree, TreeNode1 z) {
-        TreeNode1 rebalanceFrom;
+    public void delete(MutableTree<K> tree, TreeNode1<K> z) {
+        TreeNode1<K> rebalanceFrom;
 
         if (z.getLeft().isNil()) {
             rebalanceFrom = z.getParent();
@@ -123,7 +123,7 @@ public class HybridStrategy implements TreeStrategy {
             rebalanceFrom = z.getParent();
             transplant(tree, z, z.getLeft());
         } else {
-            TreeNode1 successor = minimum(z.getRight());
+            TreeNode1<K> successor = minimum(z.getRight());
             rebalanceFrom = (successor.getParent() == z) ? successor : successor.getParent();
             if (successor.getParent() != z) {
                 transplant(tree, successor, successor.getRight());
@@ -149,8 +149,8 @@ public class HybridStrategy implements TreeStrategy {
     // ── Search ────────────────────────────────────────────────────────────────
 
     @Override
-    public TreeNode1 search(MutableTree tree, int value) {
-        TreeNode1 cur = tree.getRoot();
+    public TreeNode1<K> search(MutableTree<K> tree, K value) {
+        TreeNode1<K> cur = tree.getRoot();
         while (!cur.isNil()) {
             int cmp = cur.compareKeyTo(value);   // sign of (cur.key - value)
             if (cmp == 0) {
@@ -164,8 +164,8 @@ public class HybridStrategy implements TreeStrategy {
 
     // ── AVL rebalance (Phase 1) ───────────────────────────────────────────────
 
-    private void avlRebalanceUp(MutableTree tree, TreeNode1 start) {
-        TreeNode1 cur = start;
+    private void avlRebalanceUp(MutableTree<K> tree, TreeNode1<K> start) {
+        TreeNode1<K> cur = start;
         while (cur != null && !cur.isNil()) {
             // Keep cached heights current along the path (see AVLStrategy note).
             cur.refreshHeight();
@@ -208,10 +208,10 @@ public class HybridStrategy implements TreeStrategy {
      * goal (audit finding S1). Colors here are cosmetic (Hybrid's balance comes from
      * the AVL pass), so this need not establish full red-black validity.
      */
-    private void rbRecolorPathUp(TreeNode1 start) {
-        TreeNode1 cur = start;
+    private void rbRecolorPathUp(TreeNode1<K> start) {
+        TreeNode1<K> cur = start;
         while (cur != null && !cur.isNil()) {
-            TreeNode1 parent = cur.getParent();
+            TreeNode1<K> parent = cur.getParent();
             if (cur.isRed() && parent != null && !parent.isNil() && parent.isRed()) {
                 parent.setColor(TreeNode1.Color.BLACK);
                 rbFixCount++;
@@ -270,13 +270,13 @@ public class HybridStrategy implements TreeStrategy {
     public int getDeleteCount()      { return deleteCount; }
     public int getDepthThreshold()   { return depthThreshold; }
 
-    public Set<Map.Entry<Integer, Integer>> getHotNodeEntries() {
+    public Set<Map.Entry<K, Integer>> getHotNodeEntries() {
         return hotNodeFrequency.entrySet();
     }
 
     // ── Helpers ───────────────────────────────────────────────────────────────
 
-    private void recordAccess(int value) {
+    private void recordAccess(K value) {
         hotNodeFrequency.merge(value, 1, Integer::sum);
     }
 
@@ -286,16 +286,16 @@ public class HybridStrategy implements TreeStrategy {
         return Math.min(1.0, ideal / avgDepth);
     }
 
-    private int height(TreeNode1 node) {
+    private int height(TreeNode1<K> node) {
         return (node == null || node.isNil()) ? 0 : node.getHeight();
     }
 
-    private int balanceFactor(TreeNode1 node) {
+    private int balanceFactor(TreeNode1<K> node) {
         return height(node.getLeft()) - height(node.getRight());
     }
 
-    private void transplant(MutableTree tree, TreeNode1 u, TreeNode1 v) {
-        TreeNode1 uParent = u.getParent();
+    private void transplant(MutableTree<K> tree, TreeNode1<K> u, TreeNode1<K> v) {
+        TreeNode1<K> uParent = u.getParent();
         if (uParent == null || uParent.isNil()) {
             tree.setRoot(v);
         } else if (u == uParent.getLeft()) {
@@ -306,7 +306,7 @@ public class HybridStrategy implements TreeStrategy {
         v.setParent(uParent != null ? uParent : tree.getNIL());
     }
 
-    private TreeNode1 minimum(TreeNode1 node) {
+    private TreeNode1<K> minimum(TreeNode1<K> node) {
         while (!node.getLeft().isNil()) node = node.getLeft();
         return node;
     }

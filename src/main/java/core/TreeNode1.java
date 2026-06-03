@@ -1,56 +1,57 @@
 package core;
 
 import java.util.Comparator;
-import java.util.Random;
 
-public class TreeNode1 implements Comparable<TreeNode1>, Cloneable {
+public class TreeNode1<K> implements Comparable<TreeNode1<K>>, Cloneable {
     public enum Color { RED, BLACK }
     enum Rotation { NONE, LEFT, RIGHT }
 
     @FunctionalInterface
-    public interface Augmentor {
-        void apply(TreeNode1 node);
+    public interface Augmentor<K> {
+        void apply(TreeNode1<K> node);
     }
 
-    public static final Augmentor defaultAugmentor = node -> {
+    /**
+     * The default augmentor writes an {@code int} (a subtree count) into
+     * {@link #augmentedValue} and never touches the key {@code K}, so a single
+     * shared instance is type-safe for every {@code K}. It is handed out cast via
+     * {@link #defaultAugmentor()} so that identity comparisons
+     * ({@code augmentor != TreeNode1.defaultAugmentor()}) still work — every call
+     * returns the same object. (A factory that built a fresh lambda each call would
+     * silently break those identity checks.)
+     */
+    private static final Augmentor<Object> DEFAULT_AUGMENTOR = node -> {
         int leftSize = (node.left != null && !node.left.isNil()) ? node.left.augmentedValue : 0;
         int rightSize = (node.right != null && !node.right.isNil()) ? node.right.augmentedValue : 0;
         node.augmentedValue = 1 + leftSize + rightSize;
     };
 
     /**
-     * ADR-002 Option C, step 1 — the single key-ordering authority.
-     *
-     * Every key comparison in the engine, the four strategies, order statistics
-     * and the interval code routes through {@link #compareTo(TreeNode1)} or
-     * {@link #compareKeyTo(int)}, both of which consult this comparator. Nothing
-     * compares {@code getData()} values directly any more.
-     *
-     * For now keys are {@code int} and the order is the natural one, so this is
-     * behaviour-identical to the previous direct comparisons. The point of
-     * funnelling every site through here is step 2: promoting this to a pluggable
-     * {@code Comparator<K>} on the engine then changes ordering in ONE place
-     * instead of rewriting every call-site again. (Boxing to {@code Integer} is
-     * the documented, accepted cost for the int facade — ADR-002.)
+     * The shared default augmentor, viewed as {@code Augmentor<E>}. Returns the
+     * same singleton on every call (see {@link #DEFAULT_AUGMENTOR}), so it is safe
+     * to compare against by identity.
      */
-    static final Comparator<Integer> KEY_ORDER = Comparator.naturalOrder();
+    @SuppressWarnings("unchecked")
+    public static <E> Augmentor<E> defaultAugmentor() {
+        return (Augmentor<E>) DEFAULT_AUGMENTOR;
+    }
 
-    /**
-     * Shared bootstrap sentinel. Retained for standalone node construction and
-     * tests. Engines should NOT use this directly — each {@link core.RedBlackTree}
-     * owns a per-instance sentinel via {@link #createNil()} so trees never share
-     * mutable sentinel state. Never mix nodes built against a per-tree sentinel
-     * with nodes built against this one (identity-based {@link #isNil()} relies
-     * on every node in a tree sharing the same sentinel).
-     */
-    public static final TreeNode1 NIL = new TreeNode1(0, Color.BLACK);
-
-    private final int data;
-    private TreeNode1 left;
-    private TreeNode1 right;
-    private TreeNode1 parent;
+    private final K data;
+    private TreeNode1<K> left;
+    private TreeNode1<K> right;
+    private TreeNode1<K> parent;
     private Color color;
-    private final TreeNode1 nilSentinel;
+    private final TreeNode1<K> nilSentinel;
+    /**
+     * ADR-002 step 2 — the per-tree key-ordering authority (was the static
+     * {@code KEY_ORDER}). A generic class cannot hold a {@code static
+     * Comparator<K>}, so ordering moves to an instance field. The per-tree NIL
+     * sentinel is the source of truth (set once via {@link #createNil(Comparator)});
+     * every real node copies the reference from the {@code nil} it is built against,
+     * so {@link #createNode(Object, TreeNode1)} stays two-arg and no comparison
+     * call-site changes. {@link #compareTo} / {@link #compareKeyTo} consult this.
+     */
+    private final Comparator<? super K> keyOrder;
     private Rotation lastRotation = Rotation.NONE;
     private int augmentedValue = 0;   // pluggable augmentor payload (e.g. interval max-hi) — NOT subtree size; see `size` (ADR-002)
     private int blackHeight = 1;
@@ -69,29 +70,31 @@ public class TreeNode1 implements Comparable<TreeNode1>, Cloneable {
     private int size = 1;
     private String tag = "";
     private boolean pathCompressed = false;
-    private Augmentor augmentor;
+    private Augmentor<K> augmentor;
 
-    public TreeNode1(int data, TreeNode1 nil) {
-        this(data, nil, Color.RED, defaultAugmentor);
+    public TreeNode1(K data, TreeNode1<K> nil) {
+        this(data, nil, Color.RED, defaultAugmentor());
     }
 
-    public TreeNode1(int data, TreeNode1 nil, Augmentor augmentor) {
+    public TreeNode1(K data, TreeNode1<K> nil, Augmentor<K> augmentor) {
         this(data, nil, Color.RED, augmentor);
     }
 
-    private TreeNode1(int data, TreeNode1 nil, Color color, Augmentor augmentor) {
+    private TreeNode1(K data, TreeNode1<K> nil, Color color, Augmentor<K> augmentor) {
         if (nil == null) throw new IllegalArgumentException("nilSentinel cannot be null");
         this.data = data;
         this.nilSentinel = nil;
+        this.keyOrder = nil.keyOrder;   // inherit the tree's ordering authority from its sentinel
         this.left = this.right = nil;
         this.parent = null;
         this.color = color;
-        this.augmentor = augmentor != null ? augmentor : defaultAugmentor; // Null-safe
+        this.augmentor = augmentor != null ? augmentor : defaultAugmentor(); // Null-safe
         this.augmentor.apply(this);
     }
 
-    private TreeNode1(int data, Color color) {
+    private TreeNode1(K data, Color color, Comparator<? super K> keyOrder) {
         this.data = data;
+        this.keyOrder = keyOrder;
         this.nilSentinel = this;
         this.left = this.right = this;
         this.parent = null;
@@ -100,60 +103,62 @@ public class TreeNode1 implements Comparable<TreeNode1>, Cloneable {
         this.size = 0;            // the sentinel is empty: a NIL subtree has 0 nodes
         this.blackHeight = 1;
         this.height = 0;
-        this.augmentor = defaultAugmentor;
+        this.augmentor = defaultAugmentor();
         this.augmentor.apply(this);
     }
 
-    public static TreeNode1 createNode(int data, TreeNode1 nil) {
-        return new TreeNode1(data, nil);
+    public static <K> TreeNode1<K> createNode(K data, TreeNode1<K> nil) {
+        return new TreeNode1<>(data, nil);
     }
 
-    public static TreeNode1 createNodeWithAugment(int data, TreeNode1 nil, int augment) {
-        TreeNode1 node = new TreeNode1(data, nil);
+    public static <K> TreeNode1<K> createNodeWithAugment(K data, TreeNode1<K> nil, int augment) {
+        TreeNode1<K> node = new TreeNode1<>(data, nil);
         node.augmentedValue = augment;
         return node;
     }
 
     /**
-     * Create a FRESH, independent NIL sentinel. Each engine instance should own
-     * its own sentinel (previously this returned the shared static {@link #NIL},
-     * which let unrelated trees alias one mutable sentinel).
+     * Create a FRESH, independent NIL sentinel carrying this tree's key-ordering
+     * authority. Each engine instance owns its own sentinel; every node built
+     * against it inherits {@code keyOrder}. (ADR-002 step 2 replaced the former
+     * argument-less {@code createNil()} — and the shared static {@code NIL} — with
+     * this comparator-carrying factory.)
      */
-    public static TreeNode1 createNil() {
-        return new TreeNode1(0, Color.BLACK);
+    public static <K> TreeNode1<K> createNil(Comparator<? super K> keyOrder) {
+        return new TreeNode1<>(null, Color.BLACK, keyOrder);
     }
 
-    public static boolean isSharedNil(TreeNode1 node, TreeNode1 nil) {
+    public static <K> boolean isSharedNil(TreeNode1<K> node, TreeNode1<K> nil) {
         return node == nil;
     }
 
-    public int getData() {
+    public K getData() {
         return data;
     }
 
-    public TreeNode1 getLeft() {
+    public TreeNode1<K> getLeft() {
         return left;
     }
 
-    public TreeNode1 getRight() {
+    public TreeNode1<K> getRight() {
         return right;
     }
 
-    public TreeNode1 getParent() {
+    public TreeNode1<K> getParent() {
         return parent;
     }
 
-    public TreeNode1 getGrandparent() {
+    public TreeNode1<K> getGrandparent() {
         return (parent != null) ? parent.parent : nilSentinel;
     }
 
-    public TreeNode1 getUncle() {
-        TreeNode1 gp = getGrandparent();
+    public TreeNode1<K> getUncle() {
+        TreeNode1<K> gp = getGrandparent();
         if (gp == nilSentinel) return nilSentinel;
         return (parent == gp.left) ? gp.right : gp.left;
     }
 
-    public TreeNode1 getSibling() {
+    public TreeNode1<K> getSibling() {
         if (parent == null) return nilSentinel;
         return (this == parent.left) ? parent.right : parent.left;
     }
@@ -236,7 +241,7 @@ public class TreeNode1 implements Comparable<TreeNode1>, Cloneable {
 
     public int depth() {
         int depth = 0;
-        TreeNode1 current = this;
+        TreeNode1<K> current = this;
         // "No parent" is either null (freshly created) or the sentinel (a root
         // under the unified convention); stop at both so a root has depth 0.
         while (current.getParent() != null && !current.getParent().isNil()) {
@@ -246,19 +251,19 @@ public class TreeNode1 implements Comparable<TreeNode1>, Cloneable {
         return depth;
     }
 
-    public int compareTo(TreeNode1 other) {
-        return KEY_ORDER.compare(this.data, other.data);
+    public int compareTo(TreeNode1<K> other) {
+        return keyOrder.compare(this.data, other.data);
     }
 
     /**
-     * Order this node's key against a raw key, through the same {@link #KEY_ORDER}
+     * Order this node's key against a raw key, through the same {@link #keyOrder}
      * authority as {@link #compareTo}. Sign matches {@code (this.key - otherKey)}:
      * negative if this node's key sorts before {@code otherKey}, 0 if equal,
      * positive if after. Used by search / range / interval navigation, which
      * compare a node against a query key rather than against another node.
      */
-    public int compareKeyTo(int otherKey) {
-        return KEY_ORDER.compare(this.data, otherKey);
+    public int compareKeyTo(K otherKey) {
+        return keyOrder.compare(this.data, otherKey);
     }
 
     /**
@@ -281,7 +286,7 @@ public class TreeNode1 implements Comparable<TreeNode1>, Cloneable {
     }
 
     @Override
-    public TreeNode1 clone() throws CloneNotSupportedException {
+    public TreeNode1<K> clone() throws CloneNotSupportedException {
         return deepCopy(nilSentinel);
     }
 
@@ -300,13 +305,13 @@ public class TreeNode1 implements Comparable<TreeNode1>, Cloneable {
         updateBlackHeight();
     }
 
-    public void setParent(TreeNode1 p) {
+    public void setParent(TreeNode1<K> p) {
         if (this != nilSentinel) { // Prevent NIL from getting a parent
             this.parent = p;
         }
     }
 
-    public void setLeft(TreeNode1 child) {
+    public void setLeft(TreeNode1<K> child) {
         left = child;
         if (child != null && !child.isNil()) {
             child.parent = this;
@@ -316,7 +321,7 @@ public class TreeNode1 implements Comparable<TreeNode1>, Cloneable {
         updateHeight();
     }
 
-    public void setRight(TreeNode1 child) {
+    public void setRight(TreeNode1<K> child) {
         right = child;
         if (child != null && !child.isNil()) {
             child.parent = this;
@@ -335,7 +340,7 @@ public class TreeNode1 implements Comparable<TreeNode1>, Cloneable {
      * O(height) and inserts O(height²)). Insert/delete BST links must still use
      * the propagating {@link #setLeft}/{@link #setRight}.
      */
-    public void setLeftLocal(TreeNode1 child) {
+    public void setLeftLocal(TreeNode1<K> child) {
         left = child;
         if (child != null && !child.isNil()) {
             child.parent = this;
@@ -346,7 +351,7 @@ public class TreeNode1 implements Comparable<TreeNode1>, Cloneable {
     }
 
     /** Right-side counterpart of {@link #setLeftLocal}. */
-    public void setRightLocal(TreeNode1 child) {
+    public void setRightLocal(TreeNode1<K> child) {
         right = child;
         if (child != null && !child.isNil()) {
             child.parent = this;
@@ -356,11 +361,11 @@ public class TreeNode1 implements Comparable<TreeNode1>, Cloneable {
         updateHeight();
     }
 
-    public void safeSetLeft(TreeNode1 child) {
+    public void safeSetLeft(TreeNode1<K> child) {
         setLeft(child != null ? child : nilSentinel);
     }
 
-    public void safeSetRight(TreeNode1 child) {
+    public void safeSetRight(TreeNode1<K> child) {
         setRight(child != null ? child : nilSentinel);
     }
 
@@ -374,7 +379,7 @@ public class TreeNode1 implements Comparable<TreeNode1>, Cloneable {
         height = 1;
     }
 
-    public boolean isLessThan(TreeNode1 other) {
+    public boolean isLessThan(TreeNode1<K> other) {
         return this.compareTo(other) < 0;
     }
 
@@ -453,15 +458,15 @@ public class TreeNode1 implements Comparable<TreeNode1>, Cloneable {
 
     private void recomputeAugmentAndPropagate() {
         recomputeAugment();
-        TreeNode1 current = this;
+        TreeNode1<K> current = this;
         while (current.parent != null) {
             current = current.parent;
             current.recomputeAugment();
         }
     }
 
-    public void setAugmentor(Augmentor augmentor) {
-        this.augmentor = augmentor != null ? augmentor : defaultAugmentor;
+    public void setAugmentor(Augmentor<K> augmentor) {
+        this.augmentor = augmentor != null ? augmentor : defaultAugmentor();
         recomputeAugmentAndPropagate();
     }
 
@@ -473,9 +478,9 @@ public class TreeNode1 implements Comparable<TreeNode1>, Cloneable {
         this.tag = tag;
     }
 
-    public TreeNode1 deepCopy(TreeNode1 nil) {
+    public TreeNode1<K> deepCopy(TreeNode1<K> nil) {
         if (this.isNil()) return nil;
-        TreeNode1 copy = new TreeNode1(this.data, nil);
+        TreeNode1<K> copy = new TreeNode1<>(this.data, nil);
         copy.setColor(this.color);
         copy.safeSetLeft(this.left.deepCopy(nil));
         copy.safeSetRight(this.right.deepCopy(nil));
@@ -505,47 +510,10 @@ public class TreeNode1 implements Comparable<TreeNode1>, Cloneable {
         return sb.toString();
     }
 
-    public void alienSpawn(int depth, int maxDepth, int variance, Random rng) {
-        if (depth >= maxDepth) return;
-
-        int leftData = this.data - rng.nextInt(variance + 1);
-        int rightData = this.data + rng.nextInt(variance + 1);
-
-        TreeNode1 leftChild = TreeNode1.createNode(leftData, this.nilSentinel);
-        TreeNode1 rightChild = TreeNode1.createNode(rightData, this.nilSentinel);
-
-        this.safeSetLeft(leftChild);
-        this.safeSetRight(rightChild);
-
-        leftChild.setParent(this);
-        rightChild.setParent(this);
-
-        leftChild.setColor(rng.nextBoolean() ? Color.RED : Color.BLACK);
-        rightChild.setColor(rng.nextBoolean() ? Color.RED : Color.BLACK);
-
-        leftChild.alienSpawn(depth + 1, maxDepth, variance, rng);
-        rightChild.alienSpawn(depth + 1, maxDepth, variance, rng);
-    }
-
-    public void mutateAugmentorByDepth(int depth) {
-        if (this.isNil()) return;
-
-        if (depth <= 1) {
-            this.setAugmentor((node) -> node.augmentedValue = node.getData());
-        } else if (depth <= 3) {
-            this.setAugmentor((node) -> node.augmentedValue = node.getData() * 2);
-        } else {
-            this.setAugmentor((node) -> node.augmentedValue = node.getData() * node.getData());
-        }
-
-        this.getLeft().mutateAugmentorByDepth(depth + 1);
-        this.getRight().mutateAugmentorByDepth(depth + 1);
-    }
-
     public boolean isTripleRed() {
         if (!this.isRed()) return false;
-        TreeNode1 p = this.getParent();
-        TreeNode1 gp = (p != null) ? p.getParent() : null;
+        TreeNode1<K> p = this.getParent();
+        TreeNode1<K> gp = (p != null) ? p.getParent() : null;
         return (p != null && p.isRed() && gp != null && gp.isRed());
     }
 

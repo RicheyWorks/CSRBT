@@ -22,8 +22,8 @@ public class TreeAgent {
         logger.info("🚀 Initiating alien seed protocol: seed={}, depth={}, var={}", seedValue, maxDepth, variance);
         context.clear();
         Random rng = new Random();
-        TreeNode1 nil = context.getTree().getNIL();
-        TreeNode1 seed = TreeNode1.createNode(seedValue, nil);
+        TreeNode1<Integer> nil = context.getTree().getNIL();
+        TreeNode1<Integer> seed = TreeNode1.createNode(seedValue, nil);
         context.getTree().setRoot(seed);
         context.forceSizeInternal(1);
         alienSpawnIterative(seed, 1, maxDepth, variance, rng);
@@ -31,21 +31,21 @@ public class TreeAgent {
         autoTag();
     }
 
-    private void alienSpawnIterative(TreeNode1 node, int startDepth, int maxDepth, int variance, Random rng) {
+    private void alienSpawnIterative(TreeNode1<Integer> node, int startDepth, int maxDepth, int variance, Random rng) {
         if (startDepth >= maxDepth) return;
-        Stack<TreeNode1> stack = new Stack<>();
+        Stack<TreeNode1<Integer>> stack = new Stack<>();
         Stack<Integer> depthStack = new Stack<>();
         stack.push(node);
         depthStack.push(startDepth);
         while (!stack.isEmpty()) {
-            TreeNode1 current = stack.pop();
+            TreeNode1<Integer> current = stack.pop();
             int depth = depthStack.pop();
             if (depth >= maxDepth) continue;
             int leftData = current.getData() - rng.nextInt(variance + 1);
             int rightData = current.getData() + rng.nextInt(variance + 1);
-            TreeNode1 nil = context.getTree().getNIL();
-            TreeNode1 leftChild = TreeNode1.createNode(leftData, nil);
-            TreeNode1 rightChild = TreeNode1.createNode(rightData, nil);
+            TreeNode1<Integer> nil = context.getTree().getNIL();
+            TreeNode1<Integer> leftChild = TreeNode1.createNode(leftData, nil);
+            TreeNode1<Integer> rightChild = TreeNode1.createNode(rightData, nil);
             current.safeSetLeft(leftChild);
             current.safeSetRight(rightChild);
             leftChild.setParent(current);
@@ -61,12 +61,12 @@ public class TreeAgent {
 
     public void runAgentSwarm() {
         ExecutorService pool = Executors.newFixedThreadPool(8);
-        TreeNode1 root = context.getTree().getRoot();
+        TreeNode1<Integer> root = context.getTree().getRoot();
         if (!root.isNil()) {
-            Stack<TreeNode1> stack = new Stack<>();
+            Stack<TreeNode1<Integer>> stack = new Stack<>();
             stack.push(root);
             while (!stack.isEmpty()) {
-                TreeNode1 current = stack.pop();
+                TreeNode1<Integer> current = stack.pop();
                 pool.submit(() -> {
                     String role = current.isLeaf() ? "Scout" : (current.getTag() != null ? current.getTag() : "Node");
                     logger.info("🤖 Agent [{}] reports from Node {} (Color: {}, Rot: {})",
@@ -80,12 +80,12 @@ public class TreeAgent {
     }
 
     public void autoTag() {
-        TreeNode1 root = context.getTree().getRoot();
+        TreeNode1<Integer> root = context.getTree().getRoot();
         if (!root.isNil()) {
-            Stack<TreeNode1> stack = new Stack<>();
+            Stack<TreeNode1<Integer>> stack = new Stack<>();
             stack.push(root);
             while (!stack.isEmpty()) {
-                TreeNode1 current = stack.pop();
+                TreeNode1<Integer> current = stack.pop();
                 if (current.isLeaf()) {
                     current.setTag("leaf");
                 } else if (current.getLeft().isNil() && !current.getRight().isNil()) {
@@ -102,13 +102,13 @@ public class TreeAgent {
     }
 
     private int sizeIterative() {
-        TreeNode1 root = context.getTree().getRoot();
+        TreeNode1<Integer> root = context.getTree().getRoot();
         if (root.isNil()) return 0;
         int size = 0;
-        Stack<TreeNode1> stack = new Stack<>();
+        Stack<TreeNode1<Integer>> stack = new Stack<>();
         stack.push(root);
         while (!stack.isEmpty()) {
-            TreeNode1 current = stack.pop();
+            TreeNode1<Integer> current = stack.pop();
             size++;
             if (!current.getRight().isNil()) stack.push(current.getRight());
             if (!current.getLeft().isNil()) stack.push(current.getLeft());

@@ -20,18 +20,18 @@ package core;
  * callers that pass a {@code RedBlackTree} continue to work unchanged since
  * {@code RedBlackTree implements MutableTree}.
  */
-public interface MutableTree {
+public interface MutableTree<K> {
 
-    TreeNode1 getRoot();
+    TreeNode1<K> getRoot();
 
-    void setRoot(TreeNode1 root);
+    void setRoot(TreeNode1<K> root);
 
     /** The shared sentinel leaf. Never {@code null}; never reassigned. */
-    TreeNode1 getNIL();
+    TreeNode1<K> getNIL();
 
     /** Left rotation about {@code x} (CLRS LEFT-ROTATE). */
-    void rotateLeft(TreeNode1 x);
+    void rotateLeft(TreeNode1<K> x);
 
     /** Right rotation about {@code y} (CLRS RIGHT-ROTATE). */
-    void rotateRight(TreeNode1 y);
+    void rotateRight(TreeNode1<K> y);
 }

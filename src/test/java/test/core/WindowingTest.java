@@ -31,7 +31,7 @@ public class WindowingTest {
     @Test
     @DisplayName("window keeps only the most-recent N keys")
     void keepsRecent() {
-        TreeContext ctx = new TreeContext(new RedBlackStrategy());
+        TreeContext ctx = new TreeContext(new RedBlackStrategy<>());
         ctx.setMaxSize(10);
         for (int i = 1; i <= 100; i++) ctx.add(i);
 
@@ -44,14 +44,14 @@ public class WindowingTest {
     @Test
     @DisplayName("order statistics stay exact on the surviving window")
     void orderStatsOnSurvivors() {
-        TreeContext ctx = new TreeContext(new RedBlackStrategy());
+        TreeContext ctx = new TreeContext(new RedBlackStrategy<>());
         ctx.setMaxSize(20);
         for (int i = 0; i < 500; i++) ctx.add(i);   // survivors: 480..499
 
         List<Integer> survivors = range(480, 499);
         assertEquals(survivors, ctx.inOrder());
 
-        OrderStatisticsOps os = new OrderStatisticsOps(ctx.getTree());
+        OrderStatisticsOps<Integer> os = new OrderStatisticsOps<>(ctx.getTree());
         assertEquals(480, os.select(1).getData(), "min of the window");
         assertEquals(499, os.select(20).getData(), "max of the window");
         assertEquals(10, os.rank(489), "rank within the window");
@@ -61,7 +61,7 @@ public class WindowingTest {
     @Test
     @DisplayName("setMaxSize shrinks an existing set to the most-recent keys")
     void setMaxSizeShrinks() {
-        TreeContext ctx = new TreeContext(new RedBlackStrategy());
+        TreeContext ctx = new TreeContext(new RedBlackStrategy<>());
         for (int i = 1; i <= 20; i++) ctx.add(i);   // unbounded so far
         assertEquals(20, ctx.getSize());
 
@@ -73,7 +73,7 @@ public class WindowingTest {
     @Test
     @DisplayName("eviction respects FIFO order across interleaved removes")
     void fifoWithRemoves() {
-        TreeContext ctx = new TreeContext(new RedBlackStrategy());
+        TreeContext ctx = new TreeContext(new RedBlackStrategy<>());
         ctx.setMaxSize(3);
         ctx.add(1); ctx.add(2); ctx.add(3);   // {1,2,3}
         ctx.remove(2);                         // {1,3}, order [1,3]
@@ -86,7 +86,7 @@ public class WindowingTest {
     @Test
     @DisplayName("default is unbounded (no eviction)")
     void unboundedByDefault() {
-        TreeContext ctx = new TreeContext(new RedBlackStrategy());
+        TreeContext ctx = new TreeContext(new RedBlackStrategy<>());
         assertEquals(0, ctx.getMaxSize());
         for (int i = 0; i < 1000; i++) ctx.add(i);
         assertEquals(1000, ctx.getSize());

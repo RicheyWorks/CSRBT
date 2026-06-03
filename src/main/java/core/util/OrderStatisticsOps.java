@@ -30,18 +30,17 @@ import java.util.NoSuchElementException;
  * successor) is built on top of these two, and inherits O(log n).
  * ─────────────────────────────────────────────────────────────────────────────
  *
- * WHY THIS WORKS (the core insight from Cormen):
- *   We don't sort or scan — we USE the stored subtree sizes as rank
- *   accumulators.  Every rotation in the RB strategy already maintains the
- *   intrinsic size through TreeNode1.setLeft / setRight → recomputeSize.
- *   The size maintenance cost per rotation is O(1), so insert/delete
- *   remain O(log n) even with augmentation.
+ * NOTE on int-vs-K: ranks and percentiles are positional integers and stay
+ * {@code int} ({@link #select(int)}, {@link #percentile(int)}); keys are {@code K}
+ * ({@link #rank}, {@link #successor}, {@link #countInRange}, …). The {@code lo}/
+ * {@code hi} range guards compare two query keys, so they route through the
+ * engine's {@link RedBlackTree#comparator()} rather than a node.
  */
-public class OrderStatisticsOps {
+public class OrderStatisticsOps<K> {
 
-    private final RedBlackTree tree;
+    private final RedBlackTree<K> tree;
 
-    public OrderStatisticsOps(RedBlackTree tree) {
+    public OrderStatisticsOps(RedBlackTree<K> tree) {
         this.tree = tree;
     }
 
@@ -52,19 +51,10 @@ public class OrderStatisticsOps {
      *
      * Returns the node with the ith smallest key (1-indexed).
      *
-     * Algorithm:
-     *   r ← x.left.size + 1       // rank of x within its own subtree
-     *   if i = r  → x is the answer
-     *   if i < r  → recurse into left subtree (same rank)
-     *   if i > r  → recurse into right subtree (adjusted rank: i − r)
-     *
-     * The iterative version below is semantically identical to CLRS Fig 14.1
-     * but avoids stack overhead.
-     *
      * @param rank  1-indexed rank (1 = minimum, n = maximum)
      * @throws IndexOutOfBoundsException if rank < 1 or rank > n
      */
-    public TreeNode1 select(int rank) {
+    public TreeNode1<K> select(int rank) {
         int n = subtreeSize(tree.getRoot());
         if (rank < 1 || rank > n) {
             throw new IndexOutOfBoundsException(
@@ -73,7 +63,7 @@ public class OrderStatisticsOps {
         return osSelect(tree.getRoot(), rank);
     }
 
-    private TreeNode1 osSelect(TreeNode1 x, int i) {
+    private TreeNode1<K> osSelect(TreeNode1<K> x, int i) {
         while (!x.isNil()) {
             int r = subtreeSize(x.getLeft()) + 1;  // CLRS: r ← x.left.size + 1
             if      (i == r) return x;
@@ -89,32 +79,20 @@ public class OrderStatisticsOps {
      * OS-RANK(T, x) — CLRS 14.1, p.342
      *
      * Returns the rank (1-indexed position in sorted order) of the node
-     * with the given value.
-     *
-     * Algorithm:
-     *   r ← x.left.size + 1      // x's rank within its own subtree
-     *   y ← x
-     *   while y ≠ root:
-     *     if y is a right child:
-     *       r ← r + y.parent.left.size + 1   // add left sibling and parent
-     *     y ← y.parent
-     *   return r
-     *
-     * Intuition: as you walk up the tree, every time you came from a right
-     * child you "skip over" everything in the left subtree plus the parent.
+     * with the given key.
      *
      * @throws NoSuchElementException if value is not in the tree
      */
-    public int rank(int value) {
-        TreeNode1 x = findNode(value);
+    public int rank(K value) {
+        TreeNode1<K> x = findNode(value);
         if (x.isNil()) throw new NoSuchElementException(
                 "OS-RANK: value=" + value + " not found in tree");
         return osRank(x);
     }
 
-    private int osRank(TreeNode1 x) {
+    private int osRank(TreeNode1<K> x) {
         int r = subtreeSize(x.getLeft()) + 1;       // CLRS: r ← x.left.size + 1
-        TreeNode1 y = x;
+        TreeNode1<K> y = x;
         while (y.getParent() != null && !y.getParent().isNil()) {
             if (y == y.getParent().getRight()) {
                 r += subtreeSize(y.getParent().getLeft()) + 1;
@@ -129,11 +107,8 @@ public class OrderStatisticsOps {
     /**
      * Lower median — equivalent to CLRS Chapter 9 median but O(log n)
      * instead of the O(n) linear-time algorithm.
-     *
-     * This is the "free lunch" that augmented trees give you: once you have
-     * OS-SELECT, median is just select(⌊(n+1)/2⌋) — no partitioning needed.
      */
-    public TreeNode1 median() {
+    public TreeNode1<K> median() {
         int n = subtreeSize(tree.getRoot());
         if (n == 0) return tree.getNIL();
         return select((n + 1) / 2);
@@ -143,7 +118,7 @@ public class OrderStatisticsOps {
      * kth percentile node (0–100).
      * percentile(50) == median().
      */
-    public TreeNode1 percentile(int pct) {
+    public TreeNode1<K> percentile(int pct) {
         int n = subtreeSize(tree.getRoot());
         if (n == 0) return tree.getNIL();
         int rank = Math.max(1, Math.min(n, (int) Math.ceil(pct / 100.0 * n)));
@@ -152,11 +127,9 @@ public class OrderStatisticsOps {
 
     /**
      * Minimum and maximum in O(log n) via OS-SELECT.
-     * (Equivalent to walking left/right spine but expressed through the
-     * order-statistics abstraction for consistency.)
      */
-    public TreeNode1 minimum() { return select(1); }
-    public TreeNode1 maximum() {
+    public TreeNode1<K> minimum() { return select(1); }
+    public TreeNode1<K> maximum() {
         int n = subtreeSize(tree.getRoot());
         return n == 0 ? tree.getNIL() : select(n);
     }
@@ -166,7 +139,7 @@ public class OrderStatisticsOps {
      * Uses OS-RANK to find position, then OS-SELECT for rank+1.
      * O(log n).
      */
-    public TreeNode1 successor(int value) {
+    public TreeNode1<K> successor(K value) {
         int r = rank(value); // throws if not found
         int n = subtreeSize(tree.getRoot());
         return r < n ? select(r + 1) : tree.getNIL();
@@ -176,7 +149,7 @@ public class OrderStatisticsOps {
      * Predecessor of value x: the node with the largest key < x.
      * O(log n).
      */
-    public TreeNode1 predecessor(int value) {
+    public TreeNode1<K> predecessor(K value) {
         int r = rank(value);
         return r > 1 ? select(r - 1) : tree.getNIL();
     }
@@ -184,12 +157,9 @@ public class OrderStatisticsOps {
     /**
      * Count of elements in closed range [lo, hi].
      * O(log n) — no scan, just two rank lookups.
-     *
-     * CLRS connection: this is the "interval stabbing" query on a rank space,
-     * analogous to what augmented interval trees solve in key space (Ch 14.3).
      */
-    public int countInRange(int lo, int hi) {
-        if (lo > hi || subtreeSize(tree.getRoot()) == 0) return 0;
+    public int countInRange(K lo, K hi) {
+        if (compareKeys(lo, hi) > 0 || subtreeSize(tree.getRoot()) == 0) return 0;
         int rankLo = rankCeiling(lo);   // rank of smallest element >= lo
         int rankHi = rankFloor(hi);     // rank of largest element  <= hi
         return Math.max(0, rankHi - rankLo + 1);
@@ -199,9 +169,9 @@ public class OrderStatisticsOps {
      * Returns all elements in [lo, hi] as an ordered list.
      * O(log n + k) where k = count — enumerate by OS-SELECT from rankLo to rankHi.
      */
-    public java.util.List<Integer> rangeQuery(int lo, int hi) {
-        java.util.List<Integer> result = new java.util.ArrayList<>();
-        if (lo > hi) return result;
+    public java.util.List<K> rangeQuery(K lo, K hi) {
+        java.util.List<K> result = new java.util.ArrayList<>();
+        if (compareKeys(lo, hi) > 0) return result;
         int rankLo = rankCeiling(lo);
         int rankHi = rankFloor(hi);
         for (int r = rankLo; r <= rankHi; r++) {
@@ -212,10 +182,15 @@ public class OrderStatisticsOps {
 
     // ── Internal helpers ──────────────────────────────────────────────────────
 
+    /** Order two query keys through the engine's ordering authority. */
+    private int compareKeys(K a, K b) {
+        return tree.comparator().compare(a, b);
+    }
+
     /** Rank of the smallest element >= value (ceiling). */
-    private int rankCeiling(int value) {
-        TreeNode1 candidate = tree.getNIL();
-        TreeNode1 x = tree.getRoot();
+    private int rankCeiling(K value) {
+        TreeNode1<K> candidate = tree.getNIL();
+        TreeNode1<K> x = tree.getRoot();
         while (!x.isNil()) {
             if (x.compareKeyTo(value) >= 0) { candidate = x; x = x.getLeft(); }
             else                            { x = x.getRight(); }
@@ -224,9 +199,9 @@ public class OrderStatisticsOps {
     }
 
     /** Rank of the largest element <= value (floor). */
-    private int rankFloor(int value) {
-        TreeNode1 candidate = tree.getNIL();
-        TreeNode1 x = tree.getRoot();
+    private int rankFloor(K value) {
+        TreeNode1<K> candidate = tree.getNIL();
+        TreeNode1<K> x = tree.getRoot();
         while (!x.isNil()) {
             if (x.compareKeyTo(value) <= 0) { candidate = x; x = x.getRight(); }
             else                            { x = x.getLeft();  }
@@ -234,15 +209,15 @@ public class OrderStatisticsOps {
         return candidate.isNil() ? 0 : osRank(candidate);
     }
 
-    private int subtreeSize(TreeNode1 node) {
+    private int subtreeSize(TreeNode1<K> node) {
         // Reads the node's INTRINSIC subtree size, not the pluggable augment slot,
         // so order statistics work even when a custom augmentor (e.g.
         // IntervalAugmentor's max-hi) occupies augmentedValue. See ADR-002.
         return (node == null || node.isNil()) ? 0 : node.getSize();
     }
 
-    private TreeNode1 findNode(int value) {
-        TreeNode1 x = tree.getRoot();
+    private TreeNode1<K> findNode(K value) {
+        TreeNode1<K> x = tree.getRoot();
         while (!x.isNil()) {
             if (x.compareKeyTo(value) == 0) return x;
             x = (x.compareKeyTo(value) > 0) ? x.getLeft() : x.getRight();

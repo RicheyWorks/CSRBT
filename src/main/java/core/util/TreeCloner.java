@@ -47,15 +47,15 @@ public class TreeCloner {
      */
     public TreeContext snapshot() {
         TreeContext clone    = new TreeContext(context.getTree().getStrategy());
-        TreeNode1   origNil = context.getTree().getNIL();
-        TreeNode1   cloneNil = clone.getTree().getNIL();
+        TreeNode1<Integer> origNil = context.getTree().getNIL();
+        TreeNode1<Integer> cloneNil = clone.getTree().getNIL();
 
-        TreeNode1 origRoot = context.getTree().getRoot();
+        TreeNode1<Integer> origRoot = context.getTree().getRoot();
 
         if (origRoot == origNil) {
             clone.getTree().setRoot(cloneNil);
         } else {
-            TreeNode1 clonedRoot = deepCopyTwoPass(origRoot, origNil, cloneNil);
+            TreeNode1<Integer> clonedRoot = deepCopyTwoPass(origRoot, origNil, cloneNil);
             clone.getTree().setRoot(clonedRoot);
             clonedRoot.setParent(cloneNil);
         }
@@ -67,7 +67,7 @@ public class TreeCloner {
         // recomputes augmentedValue from it — overwriting any copied non-size
         // augment. Re-applying the source augmentor to the rebuilt clone recomputes
         // the correct values from the copied tags and sets the clone's field.
-        if (context.getAugmentor() != TreeNode1.defaultAugmentor) {
+        if (context.getAugmentor() != TreeNode1.<Integer>defaultAugmentor()) {
             clone.setAugmentor(context.getAugmentor());
         }
 
@@ -129,13 +129,13 @@ public class TreeCloner {
 
     /**
      * Clone with the augmentor mutated based on depth tier.
-     * See TreeNode1.mutateAugmentorByDepth for the per-depth logic.
+     * See {@link #mutateAugmentorByDepth} for the per-depth logic.
      */
     public TreeContext mutantClone() {
         TreeContext clone = snapshot();
-        TreeNode1   root  = clone.getTree().getRoot();
+        TreeNode1<Integer> root = clone.getTree().getRoot();
         if (!root.isNil()) {
-            root.mutateAugmentorByDepth(0);
+            mutateAugmentorByDepth(root, 0);
         }
         logger.info("Mutant clone created with depth-variant augmentors.");
         return clone;
@@ -147,10 +147,10 @@ public class TreeCloner {
      */
     public TreeContext shallowClone(int maxDepth) {
         TreeContext clone    = new TreeContext(context.getTree().getStrategy());
-        TreeNode1   origNil  = context.getTree().getNIL();
-        TreeNode1   cloneNil = clone.getTree().getNIL();
+        TreeNode1<Integer> origNil  = context.getTree().getNIL();
+        TreeNode1<Integer> cloneNil = clone.getTree().getNIL();
 
-        TreeNode1 root = cloneDepthLimited(
+        TreeNode1<Integer> root = cloneDepthLimited(
                 context.getTree().getRoot(), origNil, cloneNil, 0, maxDepth);
 
         clone.getTree().setRoot(root);
@@ -160,7 +160,7 @@ public class TreeCloner {
         clone.forceSizeInternal(size);
 
         // Preserve a non-default augmentor over the (truncated) copy — see snapshot().
-        if (context.getAugmentor() != TreeNode1.defaultAugmentor) {
+        if (context.getAugmentor() != TreeNode1.<Integer>defaultAugmentor()) {
             clone.setAugmentor(context.getAugmentor());
         }
 
@@ -181,20 +181,20 @@ public class TreeCloner {
      *               Because pass 1 is complete, every lookup is guaranteed to
      *               hit — no NIL fallback from an unvisited child.
      */
-    private TreeNode1 deepCopyTwoPass(TreeNode1 origRoot,
-                                       TreeNode1 origNil,
-                                       TreeNode1 cloneNil) {
+    private TreeNode1<Integer> deepCopyTwoPass(TreeNode1<Integer> origRoot,
+                                       TreeNode1<Integer> origNil,
+                                       TreeNode1<Integer> cloneNil) {
 
         // ── Pass 1: BFS — create all clone nodes ──────────────────────────────
-        Map<TreeNode1, TreeNode1> memo = new IdentityHashMap<>();
-        Queue<TreeNode1> queue = new ArrayDeque<>();
+        Map<TreeNode1<Integer>, TreeNode1<Integer>> memo = new IdentityHashMap<>();
+        Queue<TreeNode1<Integer>> queue = new ArrayDeque<>();
         queue.add(origRoot);
 
         while (!queue.isEmpty()) {
-            TreeNode1 orig = queue.poll();
+            TreeNode1<Integer> orig = queue.poll();
             if (orig == origNil || memo.containsKey(orig)) continue;
 
-            TreeNode1 copy = TreeNode1.createNode(orig.getData(), cloneNil);
+            TreeNode1<Integer> copy = TreeNode1.createNode(orig.getData(), cloneNil);
             copyNodeFields(orig, copy);
             memo.put(orig, copy);
 
@@ -203,13 +203,13 @@ public class TreeCloner {
         }
 
         // ── Pass 2: wire left / right / parent ────────────────────────────────
-        for (Map.Entry<TreeNode1, TreeNode1> entry : memo.entrySet()) {
-            TreeNode1 orig = entry.getKey();
-            TreeNode1 copy = entry.getValue();
+        for (Map.Entry<TreeNode1<Integer>, TreeNode1<Integer>> entry : memo.entrySet()) {
+            TreeNode1<Integer> orig = entry.getKey();
+            TreeNode1<Integer> copy = entry.getValue();
 
-            TreeNode1 cloneLeft  = memo.getOrDefault(orig.getLeft(),  cloneNil);
-            TreeNode1 cloneRight = memo.getOrDefault(orig.getRight(), cloneNil);
-            TreeNode1 cloneParent = (orig.getParent() == null || orig.getParent() == origNil)
+            TreeNode1<Integer> cloneLeft  = memo.getOrDefault(orig.getLeft(),  cloneNil);
+            TreeNode1<Integer> cloneRight = memo.getOrDefault(orig.getRight(), cloneNil);
+            TreeNode1<Integer> cloneParent = (orig.getParent() == null || orig.getParent() == origNil)
                     ? cloneNil
                     : memo.getOrDefault(orig.getParent(), cloneNil);
 
@@ -225,7 +225,7 @@ public class TreeCloner {
      * Copies all non-structural fields from orig → copy.
      * Structural fields (left, right, parent) are handled separately in pass 2.
      */
-    private void copyNodeFields(TreeNode1 orig, TreeNode1 copy) {
+    private void copyNodeFields(TreeNode1<Integer> orig, TreeNode1<Integer> copy) {
         copy.setColor(orig.getColor());
         copy.setLastRotation(orig.getLastRotation());
         copy.setAugmentedValue(orig.getAugmentedValue());
@@ -235,21 +235,45 @@ public class TreeCloner {
 
     // ── Depth-limited copy (for shallowClone) ─────────────────────────────────
 
-    private TreeNode1 cloneDepthLimited(TreeNode1 node,
-                                         TreeNode1 origNil,
-                                         TreeNode1 cloneNil,
+    private TreeNode1<Integer> cloneDepthLimited(TreeNode1<Integer> node,
+                                         TreeNode1<Integer> origNil,
+                                         TreeNode1<Integer> cloneNil,
                                          int depth, int max) {
         if (node == origNil || depth > max) return cloneNil;
 
-        TreeNode1 copy  = TreeNode1.createNode(node.getData(), cloneNil);
+        TreeNode1<Integer> copy  = TreeNode1.createNode(node.getData(), cloneNil);
         copyNodeFields(node, copy);
 
-        TreeNode1 left  = cloneDepthLimited(node.getLeft(),  origNil, cloneNil, depth + 1, max);
-        TreeNode1 right = cloneDepthLimited(node.getRight(), origNil, cloneNil, depth + 1, max);
+        TreeNode1<Integer> left  = cloneDepthLimited(node.getLeft(),  origNil, cloneNil, depth + 1, max);
+        TreeNode1<Integer> right = cloneDepthLimited(node.getRight(), origNil, cloneNil, depth + 1, max);
 
         if (left  != cloneNil) { copy.setLeft(left);   left.setParent(copy);  }
         if (right != cloneNil) { copy.setRight(right); right.setParent(copy); }
 
         return copy;
+    }
+
+    // ── Depth-tiered augmentor mutation (relocated from TreeNode1) ─────────────
+
+    /**
+     * Installs a depth-tiered augmentor on each node, doing simple key arithmetic
+     * (key, key·2, key²). ADR-002 step 2 moved this off the generic
+     * {@code TreeNode1<K>} — which carries no key arithmetic — into this
+     * {@code Integer}-specialised helper, the only place that needs it
+     * ({@link #mutantClone()}). Keys unbox to {@code int} for the arithmetic.
+     */
+    private static void mutateAugmentorByDepth(TreeNode1<Integer> node, int depth) {
+        if (node.isNil()) return;
+
+        if (depth <= 1) {
+            node.setAugmentor(n -> n.setAugmentedValue(n.getData()));
+        } else if (depth <= 3) {
+            node.setAugmentor(n -> n.setAugmentedValue(n.getData() * 2));
+        } else {
+            node.setAugmentor(n -> n.setAugmentedValue(n.getData() * n.getData()));
+        }
+
+        mutateAugmentorByDepth(node.getLeft(), depth + 1);
+        mutateAugmentorByDepth(node.getRight(), depth + 1);
     }
 }

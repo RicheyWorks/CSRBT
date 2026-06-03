@@ -44,16 +44,16 @@ public class StrategyInvariantTest {
     //  Shared helpers
     // ════════════════════════════════════════════════════════════════════════
 
-    private static RedBlackTree tree(TreeStrategy s) { return new RedBlackTree(s); }
+    private static RedBlackTree<Integer> tree(TreeStrategy<Integer> s) { return RedBlackTree.withNaturalOrder(s); }
 
     /** Actual height by traversal — never trusts the cached field. */
-    private static int height(TreeNode1 n) {
+    private static int height(TreeNode1<Integer> n) {
         if (n == null || n.isNil()) return 0;
         return 1 + Math.max(height(n.getLeft()), height(n.getRight()));
     }
 
     /** Assert in-order keys are strictly ascending and equal the oracle. */
-    private static void assertMatchesOracle(RedBlackTree t, TreeSet<Integer> oracle) {
+    private static void assertMatchesOracle(RedBlackTree<Integer> t, TreeSet<Integer> oracle) {
         List<Integer> in = t.inOrder();
         for (int i = 1; i < in.size(); i++) {
             assertTrue(in.get(i - 1) < in.get(i),
@@ -64,13 +64,13 @@ public class StrategyInvariantTest {
     }
 
     /** Verify BST parent/child ordering invariant node-by-node. */
-    private static void assertBstShape(RedBlackTree t) {
-        TreeNode1 root = t.getRoot();
+    private static void assertBstShape(RedBlackTree<Integer> t) {
+        TreeNode1<Integer> root = t.getRoot();
         if (root.isNil()) return;
         checkBst(root);
     }
 
-    private static void checkBst(TreeNode1 n) {
+    private static void checkBst(TreeNode1<Integer> n) {
         if (n.isNil()) return;
         if (!n.getLeft().isNil()) {
             assertTrue(n.getLeft().getData() < n.getData(),
@@ -85,14 +85,14 @@ public class StrategyInvariantTest {
     }
 
     /** Red-black validity: root black, no red-red, uniform black-height. */
-    private static void assertRedBlackValid(RedBlackTree t) {
-        TreeNode1 root = t.getRoot();
+    private static void assertRedBlackValid(RedBlackTree<Integer> t) {
+        TreeNode1<Integer> root = t.getRoot();
         if (root.isNil()) return;
         assertTrue(root.isBlack(), "root must be black");
         blackHeight(root);          // throws via assertion on red-red / bh mismatch
     }
 
-    private static int blackHeight(TreeNode1 n) {
+    private static int blackHeight(TreeNode1<Integer> n) {
         if (n.isNil()) return 1;
         if (n.isRed()) {
             assertFalse(n.getLeft().isRed(), "red-red: " + n.getData() + " / left");
@@ -105,11 +105,11 @@ public class StrategyInvariantTest {
     }
 
     /** AVL balance: |height(left) - height(right)| <= 1 at every node. */
-    private static void assertAvlBalanced(RedBlackTree t) {
+    private static void assertAvlBalanced(RedBlackTree<Integer> t) {
         assertBalancedRec(t.getRoot());
     }
 
-    private static void assertBalancedRec(TreeNode1 n) {
+    private static void assertBalancedRec(TreeNode1<Integer> n) {
         if (n.isNil()) return;
         int bf = height(n.getLeft()) - height(n.getRight());
         assertTrue(Math.abs(bf) <= 1,
@@ -119,9 +119,9 @@ public class StrategyInvariantTest {
     }
 
     /** Order-statistics exactness against the sorted key list. */
-    private static void assertOrderStatistics(RedBlackTree t, TreeSet<Integer> oracle) {
+    private static void assertOrderStatistics(RedBlackTree<Integer> t, TreeSet<Integer> oracle) {
         if (oracle.isEmpty()) return;
-        OrderStatisticsOps os = new OrderStatisticsOps(t);
+        OrderStatisticsOps<Integer> os = new OrderStatisticsOps<>(t);
         List<Integer> sorted = new ArrayList<>(oracle);
         for (int r = 1; r <= sorted.size(); r++) {
             assertEquals(sorted.get(r - 1), os.select(r).getData(), "select(" + r + ")");
@@ -131,10 +131,10 @@ public class StrategyInvariantTest {
     }
 
     /** Drive a deterministic mixed workload through a strategy and validate. */
-    private static void mixedWorkload(Supplier<TreeStrategy> strat,
+    private static void mixedWorkload(Supplier<TreeStrategy<Integer>> strat,
                                       long seed, int ops, int universe,
-                                      java.util.function.BiConsumer<RedBlackTree, TreeSet<Integer>> invariant) {
-        RedBlackTree t = tree(strat.get());
+                                      java.util.function.BiConsumer<RedBlackTree<Integer>, TreeSet<Integer>> invariant) {
+        RedBlackTree<Integer> t = tree(strat.get());
         TreeSet<Integer> oracle = new TreeSet<>();
         Random rng = new Random(seed);
 
@@ -175,7 +175,7 @@ public class StrategyInvariantTest {
 
         @Test @DisplayName("ascending inserts stay RB-valid and log-height")
         void ascending() {
-            RedBlackTree t = tree(new RedBlackStrategy());
+            RedBlackTree<Integer> t = tree(new RedBlackStrategy<>());
             int n = 1000;
             for (int i = 0; i < n; i++) t.add(i);
             assertRedBlackValid(t);
@@ -187,7 +187,7 @@ public class StrategyInvariantTest {
 
         @Test @DisplayName("descending inserts stay RB-valid")
         void descending() {
-            RedBlackTree t = tree(new RedBlackStrategy());
+            RedBlackTree<Integer> t = tree(new RedBlackStrategy<>());
             for (int i = 1000; i > 0; i--) t.add(i);
             assertRedBlackValid(t);
             assertEquals(1000, t.size());
@@ -195,7 +195,7 @@ public class StrategyInvariantTest {
 
         @Test @DisplayName("delete every other key preserves RB validity")
         void deleteAlternating() {
-            RedBlackTree t = tree(new RedBlackStrategy());
+            RedBlackTree<Integer> t = tree(new RedBlackStrategy<>());
             for (int i = 0; i < 500; i++) t.add(i);
             for (int i = 0; i < 500; i += 2) t.remove(i);
             assertRedBlackValid(t);
@@ -220,7 +220,7 @@ public class StrategyInvariantTest {
 
         @Test @DisplayName("ascending inserts stay strictly AVL-balanced and near-optimal height")
         void ascending() {
-            RedBlackTree t = tree(new AVLStrategy());
+            RedBlackTree<Integer> t = tree(new AVLStrategy<>());
             int n = 1000;
             for (int i = 0; i < n; i++) t.add(i);
             assertAvlBalanced(t);
@@ -231,7 +231,7 @@ public class StrategyInvariantTest {
 
         @Test @DisplayName("descending inserts stay AVL-balanced")
         void descending() {
-            RedBlackTree t = tree(new AVLStrategy());
+            RedBlackTree<Integer> t = tree(new AVLStrategy<>());
             for (int i = 1000; i > 0; i--) t.add(i);
             assertAvlBalanced(t);
             assertEquals(1000, t.size());
@@ -239,7 +239,7 @@ public class StrategyInvariantTest {
 
         @Test @DisplayName("delete-heavy sequence stays balanced (regression for the splice-cycle fix)")
         void deleteHeavy() {
-            RedBlackTree t = tree(new AVLStrategy());
+            RedBlackTree<Integer> t = tree(new AVLStrategy<>());
             for (int i = 0; i < 600; i++) t.add(i);
             Random rng = new Random(7);
             List<Integer> vals = new ArrayList<>();
@@ -267,7 +267,7 @@ public class StrategyInvariantTest {
 
         @Test @DisplayName("the accessed key is splayed to the root on a hit")
         void accessSplaysToRoot() {
-            RedBlackTree t = tree(new SplayStrategy());
+            RedBlackTree<Integer> t = tree(new SplayStrategy<>());
             for (int i = 0; i < 200; i++) t.add(i);
             Random rng = new Random(5);
             for (int i = 0; i < 100; i++) {
@@ -280,7 +280,7 @@ public class StrategyInvariantTest {
 
         @Test @DisplayName("the inserted key becomes the root")
         void insertSplaysToRoot() {
-            RedBlackTree t = tree(new SplayStrategy());
+            RedBlackTree<Integer> t = tree(new SplayStrategy<>());
             int[] xs = {50, 10, 90, 30, 70, 5};
             for (int x : xs) {
                 t.add(x);
@@ -290,7 +290,7 @@ public class StrategyInvariantTest {
 
         @Test @DisplayName("sequential inserts + locality searches stay ordered")
         void localityOrdered() {
-            RedBlackTree t = tree(new SplayStrategy());
+            RedBlackTree<Integer> t = tree(new SplayStrategy<>());
             TreeSet<Integer> oracle = new TreeSet<>();
             for (int i = 0; i < 500; i++) { t.add(i); oracle.add(i); }
             Random rng = new Random(9);
@@ -302,9 +302,9 @@ public class StrategyInvariantTest {
 
         @Test @DisplayName("root's parent is the sentinel, never null")
         void rootParentSentinel() {
-            RedBlackTree t = tree(new SplayStrategy());
+            RedBlackTree<Integer> t = tree(new SplayStrategy<>());
             for (int i = 0; i < 50; i++) t.add(i * 3);
-            TreeNode1 root = t.getRoot();
+            TreeNode1<Integer> root = t.getRoot();
             assertTrue(root.getParent() == null || root.getParent().isNil(),
                     "root parent must be null or the sentinel");
         }
@@ -328,7 +328,7 @@ public class StrategyInvariantTest {
 
         @Test @DisplayName("ascending inserts stay balanced and root is black")
         void ascending() {
-            RedBlackTree t = tree(new HybridStrategy());
+            RedBlackTree<Integer> t = tree(new HybridStrategy<>());
             for (int i = 0; i < 800; i++) t.add(i);
             assertAvlBalanced(t);
             assertTrue(t.getRoot().isBlack(), "hybrid forces a black root");
@@ -336,7 +336,7 @@ public class StrategyInvariantTest {
 
         @Test @DisplayName("delete-heavy sequence stays balanced and ordered")
         void deleteHeavy() {
-            RedBlackTree t = tree(new HybridStrategy());
+            RedBlackTree<Integer> t = tree(new HybridStrategy<>());
             TreeSet<Integer> oracle = new TreeSet<>();
             for (int i = 0; i < 400; i++) { t.add(i); oracle.add(i); }
             Random rng = new Random(13);
@@ -356,13 +356,13 @@ public class StrategyInvariantTest {
     @DisplayName("Edge cases (all strategies)")
     class EdgeCases {
 
-        private final List<Supplier<TreeStrategy>> strategies = List.of(
+        private final List<Supplier<TreeStrategy<Integer>>> strategies = List.of(
                 RedBlackStrategy::new, AVLStrategy::new, SplayStrategy::new, HybridStrategy::new);
 
         @Test @DisplayName("empty tree: contains is false, size 0, inOrder empty")
         void empty() {
-            for (Supplier<TreeStrategy> s : strategies) {
-                RedBlackTree t = tree(s.get());
+            for (Supplier<TreeStrategy<Integer>> s : strategies) {
+                RedBlackTree<Integer> t = tree(s.get());
                 assertFalse(t.contains(1));
                 assertEquals(0, t.size());
                 assertTrue(t.inOrder().isEmpty());
@@ -371,8 +371,8 @@ public class StrategyInvariantTest {
 
         @Test @DisplayName("duplicate inserts are ignored (set semantics)")
         void duplicates() {
-            for (Supplier<TreeStrategy> s : strategies) {
-                RedBlackTree t = tree(s.get());
+            for (Supplier<TreeStrategy<Integer>> s : strategies) {
+                RedBlackTree<Integer> t = tree(s.get());
                 t.add(5); t.add(5); t.add(5);
                 assertEquals(1, t.size(), s.get().getClass().getSimpleName() + " dedup");
                 assertEquals(List.of(5), t.inOrder());
@@ -381,8 +381,8 @@ public class StrategyInvariantTest {
 
         @Test @DisplayName("remove of a missing key is a no-op")
         void removeMissing() {
-            for (Supplier<TreeStrategy> s : strategies) {
-                RedBlackTree t = tree(s.get());
+            for (Supplier<TreeStrategy<Integer>> s : strategies) {
+                RedBlackTree<Integer> t = tree(s.get());
                 t.add(1); t.add(2);
                 t.remove(99);
                 assertEquals(2, t.size());
@@ -392,8 +392,8 @@ public class StrategyInvariantTest {
 
         @Test @DisplayName("insert then remove all empties the tree")
         void drain() {
-            for (Supplier<TreeStrategy> s : strategies) {
-                RedBlackTree t = tree(s.get());
+            for (Supplier<TreeStrategy<Integer>> s : strategies) {
+                RedBlackTree<Integer> t = tree(s.get());
                 for (int i = 0; i < 100; i++) t.add(i);
                 for (int i = 0; i < 100; i++) t.remove(i);
                 assertEquals(0, t.size(), s.get().getClass().getSimpleName() + " drained");

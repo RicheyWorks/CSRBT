@@ -245,7 +245,7 @@ public class GenomeDrivenTreeController {
      * This is explicit here so it is never accidentally bypassed.
      */
     private void applyStructure(TreeGenome.StructureType type) {
-        TreeStrategy newStrategy = buildStrategy(type);
+        TreeStrategy<Integer> newStrategy = buildStrategy(type);
         if (newStrategy == null) {
             logger.warn("No strategy for {} — morph skipped.", type);
             return;
@@ -443,12 +443,12 @@ public class GenomeDrivenTreeController {
 
     // ── Strategy factory ──────────────────────────────────────────────────────
 
-    private static TreeStrategy buildStrategy(TreeGenome.StructureType type) {
+    private static TreeStrategy<Integer> buildStrategy(TreeGenome.StructureType type) {
         return switch (type) {
-            case RED_BLACK      -> new RedBlackStrategy();
-            case AVL            -> new AVLStrategy();
-            case SPLAY          -> new SplayStrategy();
-            case HYBRID         -> new HybridStrategy();
+            case RED_BLACK      -> new RedBlackStrategy<>();
+            case AVL            -> new AVLStrategy<>();
+            case SPLAY          -> new SplayStrategy<>();
+            case HYBRID         -> new HybridStrategy<>();
             // These are NOT red-black strategies. PERSISTENT_TREE is a standalone
             // TreeEngine (build it via TreeEngineRegistry.create); FIBONACCI_HEAP
             // and VAN_EMDE_BOAS are intentionally unsupported (non-ordered-map

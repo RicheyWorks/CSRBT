@@ -17,6 +17,12 @@ import java.util.*;
  * Facade over a {@link RedBlackTree} engine adding metrics, persistence,
  * augmentation, history and adaptive strategy morphing.
  *
+ * <p>ADR-002 step 2: this is the {@code Integer} adapter over the now-generic
+ * engine. Its public API stays {@code int}; internally it drives a
+ * {@code RedBlackTree<Integer>}. The generic {@code OrderedSet<K>} facade is a
+ * later step (4); until then {@code TreeContext} is the int facade and its
+ * ~295-test suite is the regression harness.</p>
+ *
  * <h2>Concurrency contract</h2>
  * <p><strong>This class is designed for single-threaded use.</strong> The
  * backing {@link RedBlackTree}, the {@link core.strategy.TreeStrategy}
@@ -46,10 +52,10 @@ public class TreeContext implements AugmentedTree, SelfHealingTree, OrderedColle
     private static final Logger logger = LogManager.getLogger(TreeContext.class);
 
     // ── Core state ────────────────────────────────────────────────────────────
-    private RedBlackTree              tree;
+    private RedBlackTree<Integer>     tree;
     private int                       size;
-    private TreeStrategy              strategy;
-    private TreeNode1.Augmentor       augmentor         = TreeNode1.defaultAugmentor;
+    private TreeStrategy<Integer>     strategy;
+    private TreeNode1.Augmentor<Integer> augmentor      = TreeNode1.<Integer>defaultAugmentor();
     private TreePersistenceAdapter    persistenceAdapter;
 
     // ── Utility delegates ─────────────────────────────────────────────────────
@@ -98,11 +104,11 @@ public class TreeContext implements AugmentedTree, SelfHealingTree, OrderedColle
     private boolean historyRecording = true;
 
     // ── Constructor ───────────────────────────────────────────────────────────
-    public TreeContext(TreeStrategy strategy) {
+    public TreeContext(TreeStrategy<Integer> strategy) {
         logger.info("=== TREE CONTEXT INITIALIZED [strategy={}] ===",
                 strategy.getClass().getSimpleName());
         this.strategy          = strategy;
-        this.tree              = new RedBlackTree(strategy);
+        this.tree              = RedBlackTree.withNaturalOrder(strategy);
         this.persistenceAdapter = new FilePersistenceAdapter();
         this.diagnostics       = new TreeDiagnostics(this);
         this.cloner            = new TreeCloner(this);
@@ -132,8 +138,8 @@ public class TreeContext implements AugmentedTree, SelfHealingTree, OrderedColle
             // keys added after setAugmentor(). createNode always installs the
             // default (subtree-size) augmentor, so without this a later insert
             // silently reverts that node to size augmentation.
-            if (this.augmentor != TreeNode1.defaultAugmentor) {
-                TreeNode1 inserted = tree.getStrategy().search(tree, value);
+            if (this.augmentor != TreeNode1.<Integer>defaultAugmentor()) {
+                TreeNode1<Integer> inserted = tree.getStrategy().search(tree, value);
                 if (!inserted.isNil()) inserted.setAugmentor(this.augmentor);
             }
 
@@ -181,7 +187,7 @@ public class TreeContext implements AugmentedTree, SelfHealingTree, OrderedColle
     // ── AugmentedTree ─────────────────────────────────────────────────────────
 
     /** The augmentor currently applied to nodes in this context. */
-    public TreeNode1.Augmentor getAugmentor() { return augmentor; }
+    public TreeNode1.Augmentor<Integer> getAugmentor() { return augmentor; }
 
     /** Enable/disable the legacy facade-driven stress auto-morph (default off). */
     public void setAutoMorphEnabled(boolean enabled) { this.autoMorphEnabled = enabled; }
@@ -236,17 +242,17 @@ public class TreeContext implements AugmentedTree, SelfHealingTree, OrderedColle
     }
 
     @Override
-    public void setAugmentor(TreeNode1.Augmentor augmentor) {
-        this.augmentor = (augmentor != null) ? augmentor : TreeNode1.defaultAugmentor;
+    public void setAugmentor(TreeNode1.Augmentor<Integer> augmentor) {
+        this.augmentor = (augmentor != null) ? augmentor : TreeNode1.<Integer>defaultAugmentor();
         synchronized (lock) {
             // Re-apply augmentor to every existing node (iterative DFS)
-            TreeNode1 root = tree.getRoot();
+            TreeNode1<Integer> root = tree.getRoot();
             if (root.isNil()) return;
 
-            Deque<TreeNode1> stack = new ArrayDeque<>();
+            Deque<TreeNode1<Integer>> stack = new ArrayDeque<>();
             stack.push(root);
             while (!stack.isEmpty()) {
-                TreeNode1 current = stack.pop();
+                TreeNode1<Integer> current = stack.pop();
                 current.setAugmentor(this.augmentor);
                 if (!current.getRight().isNil()) stack.push(current.getRight());
                 if (!current.getLeft().isNil())  stack.push(current.getLeft());
@@ -293,7 +299,7 @@ public class TreeContext implements AugmentedTree, SelfHealingTree, OrderedColle
      * Swaps strategy and rebuilds the tree in-place from an in-order traversal.
      * Without the rebuild the morph would produce an empty tree — silent data loss.
      */
-    public boolean setStrategy(TreeStrategy newStrategy) {
+    public boolean setStrategy(TreeStrategy<Integer> newStrategy) {
         synchronized (lock) {
             if (newStrategy == null || newStrategy.getClass() == strategy.getClass()) return false;
 
@@ -306,7 +312,7 @@ public class TreeContext implements AugmentedTree, SelfHealingTree, OrderedColle
 
             // ── Build the candidate OFF TO THE SIDE — the incumbent tree is never
             //    touched, so a failed validation costs nothing to roll back. ──────
-            RedBlackTree candidate = new RedBlackTree(newStrategy);
+            RedBlackTree<Integer> candidate = RedBlackTree.withNaturalOrder(newStrategy);
             for (int value : elements) candidate.add(value);
 
             // ── Health gate: validate before publishing (DESIGN §3.4). The
@@ -329,7 +335,7 @@ public class TreeContext implements AugmentedTree, SelfHealingTree, OrderedColle
 
             // Restore non-default augmentation + per-node tags onto the published
             // tree so interval trees survive the morph instead of degrading.
-            if (this.augmentor != TreeNode1.defaultAugmentor) {
+            if (this.augmentor != TreeNode1.<Integer>defaultAugmentor()) {
                 setAugmentor(this.augmentor);   // re-applies to every published node
             }
             restoreTags(keyTags);
@@ -377,7 +383,7 @@ public class TreeContext implements AugmentedTree, SelfHealingTree, OrderedColle
 
     // ── Metrics getters ───────────────────────────────────────────────────────
 
-    public RedBlackTree getTree()          { return tree; }
+    public RedBlackTree<Integer> getTree() { return tree; }
     public int          getSize()          { return size; }
 
     /** Undo/redo + checkpoint history for this context. */
@@ -426,8 +432,8 @@ public class TreeContext implements AugmentedTree, SelfHealingTree, OrderedColle
      */
     private Map<Integer, String> captureKeyTags() {
         Map<Integer, String> out = new LinkedHashMap<>();
-        Deque<TreeNode1> stack = new ArrayDeque<>();
-        TreeNode1 cur = tree.getRoot();
+        Deque<TreeNode1<Integer>> stack = new ArrayDeque<>();
+        TreeNode1<Integer> cur = tree.getRoot();
         while (!stack.isEmpty() || !cur.isNil()) {
             while (!cur.isNil()) { stack.push(cur); cur = cur.getLeft(); }
             cur = stack.pop();
@@ -446,7 +452,7 @@ public class TreeContext implements AugmentedTree, SelfHealingTree, OrderedColle
         for (Map.Entry<Integer, String> e : keyTags.entrySet()) {
             String tag = e.getValue();
             if (tag == null || tag.isEmpty()) continue;
-            TreeNode1 n = tree.getStrategy().search(tree, e.getKey());
+            TreeNode1<Integer> n = tree.getStrategy().search(tree, e.getKey());
             if (!n.isNil()) {
                 n.setTag(tag);
                 n.reaugment();
@@ -482,7 +488,7 @@ public class TreeContext implements AugmentedTree, SelfHealingTree, OrderedColle
         if (violations > STRESS_THRESHOLD) {
             logger.warn("STRESS THRESHOLD EXCEEDED (violations={}) — morphing to AVL.", violations);
             stressEvents.put("redRedViolations", 0);
-            setStrategy(new AVLStrategy()); // health-gated; preserves data
+            setStrategy(new AVLStrategy<>()); // health-gated; preserves data
         }
     }
 

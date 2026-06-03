@@ -34,7 +34,7 @@ public class AugmentorCoexistenceTest {
 
     /** los = {5,10,15,17,25}; global max-hi = 30 (from the [10,30] interval). */
     private static TreeContext intervalTree() {
-        TreeContext ctx = new TreeContext(new RedBlackStrategy());
+        TreeContext ctx = new TreeContext(new RedBlackStrategy<>());
         IntervalAugmentor.insertInterval(ctx, 15, 20);
         IntervalAugmentor.insertInterval(ctx, 10, 30);
         IntervalAugmentor.insertInterval(ctx, 5, 8);
@@ -47,7 +47,7 @@ public class AugmentorCoexistenceTest {
     @DisplayName("order statistics run correctly on an interval-augmented tree")
     void orderStatisticsCoexistWithInterval() {
         TreeContext ctx = intervalTree();
-        TreeNode1 root = ctx.getTree().getRoot();
+        TreeNode1<Integer> root = ctx.getTree().getRoot();
 
         // Interval augmentation is live: max-hi sits in augmentedValue.
         assertEquals(30, root.getAugmentedValue(), "root max-hi must be 30");
@@ -58,7 +58,7 @@ public class AugmentorCoexistenceTest {
 
         // Order statistics over the LO keys {5,10,15,17,25} — correct only because
         // SELECT / RANK now read intrinsic size, not the max-hi in augmentedValue.
-        OrderStatisticsOps os = new OrderStatisticsOps(ctx.getTree());
+        OrderStatisticsOps<Integer> os = new OrderStatisticsOps<>(ctx.getTree());
         assertEquals(5,  os.select(1).getData(), "select(1) = min lo");
         assertEquals(10, os.select(2).getData());
         assertEquals(15, os.select(3).getData());
@@ -74,7 +74,7 @@ public class AugmentorCoexistenceTest {
         assertEquals(5, os.countInRange(5, 25));
 
         // ...and interval search still works at the same time.
-        TreeNode1 hit = IntervalAugmentor.intervalSearch(ctx, 29, 31);
+        TreeNode1<Integer> hit = IntervalAugmentor.intervalSearch(ctx, 29, 31);
         assertFalse(hit.isNil(), "must still find the [10,30] overlap");
         assertEquals(10, hit.getData(), "overlapping interval lo = 10");
     }
@@ -85,12 +85,12 @@ public class AugmentorCoexistenceTest {
         TreeContext ctx = intervalTree();
         ctx.remove(15);   // drop interval [15,20]; los now {5,10,17,25}
 
-        TreeNode1 root = ctx.getTree().getRoot();
+        TreeNode1<Integer> root = ctx.getTree().getRoot();
         assertEquals(4, root.getSize(), "size tracks the delete");
         assertEquals(ctx.getSize(), root.getSize());
         assertEquals(30, root.getAugmentedValue(), "max-hi still 30 (from [10,30])");
 
-        OrderStatisticsOps os = new OrderStatisticsOps(ctx.getTree());
+        OrderStatisticsOps<Integer> os = new OrderStatisticsOps<>(ctx.getTree());
         assertEquals(5,  os.select(1).getData());
         assertEquals(10, os.select(2).getData());
         assertEquals(17, os.select(3).getData());
@@ -101,17 +101,17 @@ public class AugmentorCoexistenceTest {
     @Test
     @DisplayName("under the default augmentor, intrinsic size mirrors augmentedValue")
     void defaultAugmentorSizeMatches() {
-        TreeContext ctx = new TreeContext(new RedBlackStrategy());
+        TreeContext ctx = new TreeContext(new RedBlackStrategy<>());
         for (int v : new int[]{50, 20, 80, 10, 30, 70, 90, 5}) ctx.add(v);
 
-        TreeNode1 root = ctx.getTree().getRoot();
+        TreeNode1<Integer> root = ctx.getTree().getRoot();
         assertEquals(8, root.getSize());
         // The default augmentor writes subtree size into augmentedValue, so the
         // intrinsic field and the augment slot agree under the default.
         assertEquals(root.getSize(), root.getAugmentedValue(),
                 "default augmentor mirrors subtree size");
 
-        OrderStatisticsOps os = new OrderStatisticsOps(ctx.getTree());
+        OrderStatisticsOps<Integer> os = new OrderStatisticsOps<>(ctx.getTree());
         assertEquals(5,  os.select(1).getData());
         assertEquals(90, os.select(8).getData());
         assertEquals(30, os.median().getData());

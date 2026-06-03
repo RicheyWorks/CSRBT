@@ -66,7 +66,7 @@ public class TreeContextTester {
 
     @BeforeEach
     void reset() {
-        ctx = new TreeContext(new RedBlackStrategy());
+        ctx = new TreeContext(new RedBlackStrategy<>());
     }
 
     /** In-order keys of the underlying tree, via diagnostics. */
@@ -145,7 +145,7 @@ public class TreeContextTester {
             assertTrue(diag.isValidRedBlack(), "RB validity must hold at n=" + i);
             assertTrue(diag.hasNoRedRed(), "no red-red violation at n=" + i);
         }
-        RedBlackTree t = ctx.getTree();
+        RedBlackTree<Integer> t = ctx.getTree();
         assertTrue(t.getRoot().isBlack(), "root must be black");
     }
 
@@ -171,17 +171,17 @@ public class TreeContextTester {
 
     static Stream<org.junit.jupiter.params.provider.Arguments> strategies() {
         return Stream.of(
-            org.junit.jupiter.params.provider.Arguments.of("RedBlack", (Supplier<TreeStrategy>) RedBlackStrategy::new),
-            org.junit.jupiter.params.provider.Arguments.of("AVL",      (Supplier<TreeStrategy>) AVLStrategy::new),
-            org.junit.jupiter.params.provider.Arguments.of("Splay",    (Supplier<TreeStrategy>) SplayStrategy::new),
-            org.junit.jupiter.params.provider.Arguments.of("Hybrid",   (Supplier<TreeStrategy>) HybridStrategy::new)
+            org.junit.jupiter.params.provider.Arguments.of("RedBlack", (Supplier<TreeStrategy<Integer>>) RedBlackStrategy::new),
+            org.junit.jupiter.params.provider.Arguments.of("AVL",      (Supplier<TreeStrategy<Integer>>) AVLStrategy::new),
+            org.junit.jupiter.params.provider.Arguments.of("Splay",    (Supplier<TreeStrategy<Integer>>) SplayStrategy::new),
+            org.junit.jupiter.params.provider.Arguments.of("Hybrid",   (Supplier<TreeStrategy<Integer>>) HybridStrategy::new)
         );
     }
 
     @ParameterizedTest(name = "[{0}] keeps keys ordered and findable")
     @MethodSource("strategies")
     @DisplayName("every strategy maintains a searchable ordered set")
-    void everyStrategyOrdersAndFinds(String name, Supplier<TreeStrategy> factory) {
+    void everyStrategyOrdersAndFinds(String name, Supplier<TreeStrategy<Integer>> factory) {
         TreeContext c = new TreeContext(factory.get());
         int[] vals = {37, 12, 88, 3, 55, 21, 70, 9, 44, 61};
         for (int v : vals) c.add(v);
@@ -200,16 +200,16 @@ public class TreeContextTester {
     @DisplayName("OrderStatisticsOps")
     class OrderStats {
         // Inserted unsorted to prove OS-SELECT is not array indexing.
-        private OrderStatisticsOps os() {
-            TreeContext c = new TreeContext(new RedBlackStrategy());
+        private OrderStatisticsOps<Integer> os() {
+            TreeContext c = new TreeContext(new RedBlackStrategy<>());
             for (int v : new int[]{41, 38, 31, 12, 19, 8}) c.add(v);   // sorted: 8 12 19 31 38 41
-            return new OrderStatisticsOps(c.getTree());
+            return new OrderStatisticsOps<>(c.getTree());
         }
 
         @Test
         @DisplayName("select returns the rank-th smallest")
         void select() {
-            OrderStatisticsOps os = os();
+            OrderStatisticsOps<Integer> os = os();
             assertEquals(8,  os.select(1).getData(), "1st smallest");
             assertEquals(19, os.select(3).getData(), "3rd smallest");
             assertEquals(41, os.select(6).getData(), "6th smallest");
@@ -218,7 +218,7 @@ public class TreeContextTester {
         @Test
         @DisplayName("rank returns position of a key")
         void rank() {
-            OrderStatisticsOps os = os();
+            OrderStatisticsOps<Integer> os = os();
             assertEquals(1, os.rank(8),  "rank of min");
             assertEquals(2, os.rank(12), "rank of 12");
             assertEquals(5, os.rank(38), "rank of 38");
@@ -227,7 +227,7 @@ public class TreeContextTester {
         @Test
         @DisplayName("min and max")
         void minMax() {
-            OrderStatisticsOps os = os();
+            OrderStatisticsOps<Integer> os = os();
             assertEquals(8,  os.minimum().getData(), "minimum");
             assertEquals(41, os.maximum().getData(), "maximum");
         }
@@ -242,7 +242,7 @@ public class TreeContextTester {
         @Test
         @DisplayName("countInRange and rangeQuery are consistent")
         void range() {
-            OrderStatisticsOps os = os();
+            OrderStatisticsOps<Integer> os = os();
             assertEquals(4, os.countInRange(12, 38), "12,19,31,38 are in [12,38]");
             assertEquals(List.of(12, 19, 31, 38), os.rangeQuery(12, 38), "range query ascending");
         }
@@ -250,7 +250,7 @@ public class TreeContextTester {
         @Test
         @DisplayName("successor and predecessor")
         void neighbors() {
-            OrderStatisticsOps os = os();
+            OrderStatisticsOps<Integer> os = os();
             assertEquals(31, os.successor(19).getData(),  "successor of 19");
             assertEquals(19, os.predecessor(31).getData(), "predecessor of 31");
         }
@@ -265,11 +265,11 @@ public class TreeContextTester {
         for (int v : vals) ctx.add(v);
         List<Integer> before = inOrder(ctx);
 
-        ctx.setStrategy(new AVLStrategy());
+        ctx.setStrategy(new AVLStrategy<>());
         assertEquals(before, inOrder(ctx), "morph to AVL preserves ordered keys");
         for (int v : vals) assertTrue(ctx.contains(v), "AVL still contains " + v);
 
-        ctx.setStrategy(new SplayStrategy());
+        ctx.setStrategy(new SplayStrategy<>());
         assertEquals(before, inOrder(ctx), "morph to Splay preserves ordered keys");
     }
 
@@ -310,7 +310,7 @@ public class TreeContextTester {
         @Test
         @DisplayName("TreeContext is usable purely as an OrderedCollection")
         void asOrderedCollection() {
-            OrderedCollection oc = new TreeContext(new RedBlackStrategy());
+            OrderedCollection oc = new TreeContext(new RedBlackStrategy<>());
             assertTrue(oc.isEmpty(), "fresh collection is empty");
             for (int v : new int[]{30, 10, 20, 40, 5}) oc.add(v);
             assertEquals(5, oc.size(), "size via interface");
@@ -327,7 +327,7 @@ public class TreeContextTester {
         @Test
         @DisplayName("RedBlackTree is usable purely as a TreeEngine")
         void asTreeEngine() {
-            TreeEngine engine = new core.RedBlackTree(new RedBlackStrategy());
+            TreeEngine<Integer> engine = RedBlackTree.withNaturalOrder(new RedBlackStrategy<Integer>());
             assertTrue(engine.isEmpty(), "fresh engine is empty");
             for (int v : new int[]{7, 3, 9, 1, 5}) engine.add(v);
             assertEquals(5, engine.size(), "size via engine");
@@ -394,7 +394,7 @@ public class TreeContextTester {
         @DisplayName("supported types build a working engine")
         void supportedBuild() {
             for (StructureType t : TreeEngineRegistry.supportedTypes()) {
-                TreeEngine e = TreeEngineRegistry.create(t);
+                TreeEngine<Integer> e = TreeEngineRegistry.create(t);
                 e.add(2); e.add(1); e.add(3);
                 assertEquals(List.of(1, 2, 3), e.inOrder(), t + " engine must order keys");
             }

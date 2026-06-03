@@ -49,7 +49,7 @@ public class RegressionFixesTest {
     // ── Helpers ────────────────────────────────────────────────────────────
 
     /** Actual height by traversal (does not trust the cached field). */
-    private static int height(TreeNode1 node) {
+    private static int height(TreeNode1<Integer> node) {
         if (node == null || node.isNil()) return 0;
         return 1 + Math.max(height(node.getLeft()), height(node.getRight()));
     }
@@ -68,7 +68,7 @@ public class RegressionFixesTest {
         @Test
         @DisplayName("Deleting a black leaf does not throw and keeps RB validity")
         void deleteBlackLeafNoThrow() {
-            TreeContext ctx = new TreeContext(new RedBlackStrategy());
+            TreeContext ctx = new TreeContext(new RedBlackStrategy<>());
             // 1..7 builds a tree whose lower level contains black leaves.
             for (int v = 1; v <= 7; v++) ctx.add(v);
 
@@ -90,7 +90,7 @@ public class RegressionFixesTest {
         @Test
         @DisplayName("Heavy randomized insert/delete preserves RB invariants, order, size")
         void randomizedChurnStaysValid() {
-            TreeContext ctx = new TreeContext(new RedBlackStrategy());
+            TreeContext ctx = new TreeContext(new RedBlackStrategy<>());
             Random rng = new Random(42);
 
             List<Integer> values = new ArrayList<>();
@@ -127,7 +127,7 @@ public class RegressionFixesTest {
         @Test
         @DisplayName("Sequential insert stays balanced (height ~ log n, not linear)")
         void sequentialInsertBalanced() {
-            TreeContext ctx = new TreeContext(new AVLStrategy());
+            TreeContext ctx = new TreeContext(new AVLStrategy<>());
             int n = 500;
             for (int v = 0; v < n; v++) ctx.add(v);   // worst case for a naive BST
 
@@ -143,7 +143,7 @@ public class RegressionFixesTest {
         @Test
         @DisplayName("Random insert/delete stays balanced and ordered")
         void randomChurnBalanced() {
-            TreeContext ctx = new TreeContext(new AVLStrategy());
+            TreeContext ctx = new TreeContext(new AVLStrategy<>());
             Random rng = new Random(7);
             java.util.Set<Integer> present = new java.util.TreeSet<>();
 
@@ -178,7 +178,7 @@ public class RegressionFixesTest {
         @Test
         @DisplayName("Undo reverses adds and removes; redo re-applies them")
         void undoRedoRoundTrip() {
-            TreeContext ctx = new TreeContext(new RedBlackStrategy());
+            TreeContext ctx = new TreeContext(new RedBlackStrategy<>());
             ctx.add(10);
             ctx.add(20);
             ctx.add(30);
@@ -205,7 +205,7 @@ public class RegressionFixesTest {
         @Test
         @DisplayName("Rewinding all operations returns to empty")
         void rewindToEmpty() {
-            TreeContext ctx = new TreeContext(new RedBlackStrategy());
+            TreeContext ctx = new TreeContext(new RedBlackStrategy<>());
             for (int v = 1; v <= 50; v++) ctx.add(v);
             assertEquals(50, ctx.size());
 
@@ -218,7 +218,7 @@ public class RegressionFixesTest {
         @Test
         @DisplayName("Replayed undo/redo does not itself create new history entries")
         void replayDoesNotRecord() {
-            TreeContext ctx = new TreeContext(new RedBlackStrategy());
+            TreeContext ctx = new TreeContext(new RedBlackStrategy<>());
             ctx.add(1);
             ctx.add(2);
             int depthBefore = ctx.getHistory().undoDepth();   // 2
@@ -234,7 +234,7 @@ public class RegressionFixesTest {
         @Test
         @DisplayName("Checkpoint restore is undoable")
         void checkpointRestoreUndoable() {
-            TreeContext ctx = new TreeContext(new RedBlackStrategy());
+            TreeContext ctx = new TreeContext(new RedBlackStrategy<>());
             ctx.add(1); ctx.add(2); ctx.add(3);
             ctx.getHistory().saveCheckpoint("cp");
 
@@ -259,7 +259,7 @@ public class RegressionFixesTest {
         @Test
         @DisplayName("Clean RB inserts never raise stress → no auto-morph, tree stays valid RB")
         void noSpuriousMorph() {
-            TreeContext ctx = new TreeContext(new RedBlackStrategy());
+            TreeContext ctx = new TreeContext(new RedBlackStrategy<>());
             Random rng = new Random(99);
             for (int i = 0; i < 300; i++) ctx.add(rng.nextInt(5000));
 
@@ -281,14 +281,14 @@ public class RegressionFixesTest {
         @Test
         @DisplayName("select/rank are exact after rotation-heavy insert and delete")
         void orderStatisticsExact() {
-            TreeContext ctx = new TreeContext(new RedBlackStrategy());
+            TreeContext ctx = new TreeContext(new RedBlackStrategy<>());
             int n = 400;
             List<Integer> vals = new ArrayList<>();
             for (int i = 1; i <= n; i++) vals.add(i);
             Collections.shuffle(vals, new Random(2024));
             for (int v : vals) ctx.add(v);   // many rotations → exercises augment upkeep
 
-            OrderStatisticsOps os = new OrderStatisticsOps(ctx.getTree());
+            OrderStatisticsOps<Integer> os = new OrderStatisticsOps<>(ctx.getTree());
 
             // Subtree size at root must equal element count (the augment invariant).
             assertEquals(n, ctx.getTree().getRoot().getAugmentedValue(),
@@ -328,8 +328,8 @@ public class RegressionFixesTest {
         @Test
         @DisplayName("Distinct trees own distinct sentinels and do not contaminate each other")
         void perTreeIsolation() {
-            TreeContext a = new TreeContext(new RedBlackStrategy());
-            TreeContext b = new TreeContext(new RedBlackStrategy());
+            TreeContext a = new TreeContext(new RedBlackStrategy<>());
+            TreeContext b = new TreeContext(new RedBlackStrategy<>());
 
             assertNotSame(a.getTree().getNIL(), b.getTree().getNIL(),
                     "each engine must own its own NIL sentinel");
@@ -345,18 +345,18 @@ public class RegressionFixesTest {
         @Test
         @DisplayName("Splay tree never leaves a null parent (root's parent is the sentinel)")
         void splayParentConvention() {
-            TreeContext s = new TreeContext(new SplayStrategy());
+            TreeContext s = new TreeContext(new SplayStrategy<>());
             int[] vals = {5, 3, 8, 1, 4, 7, 9, 2, 6};
             for (int v : vals) s.add(v);
             s.remove(4);
             s.remove(8);
 
             // Walk the whole tree: no live node should have a null parent.
-            TreeNode1 root = s.getTree().getRoot();
-            Deque<TreeNode1> stack = new ArrayDeque<>();
+            TreeNode1<Integer> root = s.getTree().getRoot();
+            Deque<TreeNode1<Integer>> stack = new ArrayDeque<>();
             if (!root.isNil()) stack.push(root);
             while (!stack.isEmpty()) {
-                TreeNode1 n = stack.pop();
+                TreeNode1<Integer> n = stack.pop();
                 assertNotNull(n.getParent(), "node " + n.getData() + " has a null parent");
                 if (!n.getLeft().isNil())  stack.push(n.getLeft());
                 if (!n.getRight().isNil()) stack.push(n.getRight());
@@ -375,8 +375,10 @@ public class RegressionFixesTest {
         @Test
         @DisplayName("hashCode is stable across mutation and equals is identity-based")
         void identitySemantics() {
-            TreeNode1 a = TreeNode1.createNode(5, TreeNode1.NIL);
-            TreeNode1 b = TreeNode1.createNode(5, TreeNode1.NIL);
+            java.util.Comparator<Integer> ord = java.util.Comparator.naturalOrder();
+            TreeNode1<Integer> nil = TreeNode1.createNil(ord);   // per-tree sentinel (ADR-002 step 2: shared static NIL removed)
+            TreeNode1<Integer> a = TreeNode1.createNode(5, nil);
+            TreeNode1<Integer> b = TreeNode1.createNode(5, nil);
 
             // Distinct instances with identical data must NOT be equal.
             org.junit.jupiter.api.Assertions.assertNotEquals(a, b);
@@ -386,7 +388,7 @@ public class RegressionFixesTest {
             // (the old recursive hashCode violated this).
             int h = a.hashCode();
             a.setColor(TreeNode1.Color.BLACK);
-            a.setLeft(TreeNode1.createNode(3, TreeNode1.NIL));
+            a.setLeft(TreeNode1.createNode(3, nil));
             assertEquals(h, a.hashCode(), "hashCode must be stable across mutation");
         }
     }
@@ -401,7 +403,7 @@ public class RegressionFixesTest {
         @DisplayName("Malicious names are rejected on save and delete")
         void rejectsTraversalNames() {
             FilePersistenceAdapter fpa = new FilePersistenceAdapter();
-            TreeContext ctx = new TreeContext(new RedBlackStrategy());
+            TreeContext ctx = new TreeContext(new RedBlackStrategy<>());
             ctx.add(1);
 
             for (String bad : new String[]{"../escape", "..\\escape", "a/b", "a\\b", "", null}) {
@@ -418,7 +420,7 @@ public class RegressionFixesTest {
         @DisplayName("A normal name round-trips with contents AND size restored (#8)")
         void normalNameWorks() {
             FilePersistenceAdapter fpa = new FilePersistenceAdapter();
-            TreeContext ctx = new TreeContext(new RedBlackStrategy());
+            TreeContext ctx = new TreeContext(new RedBlackStrategy<>());
             for (int v = 1; v <= 5; v++) ctx.add(v);
 
             assertDoesNotThrow(() -> fpa.saveSnapshot("regression_ok", ctx));

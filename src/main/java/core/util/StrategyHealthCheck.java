@@ -25,14 +25,17 @@ import java.util.List;
  *   <li>order-statistics (select/rank) agree at a sample of ranks — valid because
  *       the candidate is built with the default subtree-size augmentor.</li>
  * </ol>
+ *
+ * <p>ADR-002 step 2: pinned to {@code Integer} keys (it backs the {@code int}
+ * {@code TreeContext} facade and compares against an {@code List<Integer>}).</p>
  */
 public final class StrategyHealthCheck {
 
     private StrategyHealthCheck() { }
 
     /** @return list of failure descriptions; empty means the candidate is healthy. */
-    public static List<String> validate(RedBlackTree candidate,
-                                        TreeStrategy strategy,
+    public static List<String> validate(RedBlackTree<Integer> candidate,
+                                        TreeStrategy<Integer> strategy,
                                         List<Integer> expectedSortedKeys) {
         List<String> failures = new ArrayList<>();
 
@@ -71,7 +74,7 @@ public final class StrategyHealthCheck {
         // 5: order-statistics spot check (candidate carries subtree-size augment).
         if (failures.isEmpty() && !expectedSortedKeys.isEmpty()) {
             try {
-                OrderStatisticsOps os = new OrderStatisticsOps(candidate);
+                OrderStatisticsOps<Integer> os = new OrderStatisticsOps<>(candidate);
                 int n = expectedSortedKeys.size();
                 int step = Math.max(1, n / 16);
                 for (int r = 1; r <= n; r += step) {
@@ -94,21 +97,21 @@ public final class StrategyHealthCheck {
 
     // ── Invariant helpers ──────────────────────────────────────────────────────
 
-    private static boolean isBst(TreeNode1 n) {
+    private static boolean isBst(TreeNode1<Integer> n) {
         if (n.isNil()) return true;
         if (!n.getLeft().isNil()  && n.getLeft().compareTo(n)  >= 0) return false;
         if (!n.getRight().isNil() && n.getRight().compareTo(n) <= 0) return false;
         return isBst(n.getLeft()) && isBst(n.getRight());
     }
 
-    private static boolean isRedBlackValid(TreeNode1 root) {
+    private static boolean isRedBlackValid(TreeNode1<Integer> root) {
         if (root.isNil()) return true;
         if (root.isRed()) return false;        // root must be black
         return blackHeight(root) >= 0;          // -1 signals a violation
     }
 
     /** @return uniform black-height, or -1 if a red-red or black-height violation exists. */
-    private static int blackHeight(TreeNode1 n) {
+    private static int blackHeight(TreeNode1<Integer> n) {
         if (n.isNil()) return 1;
         if (n.isRed() && (n.getLeft().isRed() || n.getRight().isRed())) return -1;
         int lh = blackHeight(n.getLeft());
@@ -117,12 +120,12 @@ public final class StrategyHealthCheck {
         return lh + (n.isBlack() ? 1 : 0);
     }
 
-    private static boolean isHeightBalanced(TreeNode1 n) {
+    private static boolean isHeightBalanced(TreeNode1<Integer> n) {
         return balancedHeight(n) >= 0;
     }
 
     /** @return actual height, or -1 if any node's |balance factor| > 1. */
-    private static int balancedHeight(TreeNode1 n) {
+    private static int balancedHeight(TreeNode1<Integer> n) {
         if (n.isNil()) return 0;
         int lh = balancedHeight(n.getLeft());
         if (lh < 0) return -1;

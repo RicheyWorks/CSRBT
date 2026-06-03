@@ -3,7 +3,7 @@ package core.interfaces;
 import java.util.List;
 
 /**
- * Representation-neutral backing structure for an ordered set of {@code int} keys.
+ * Representation-neutral backing structure for an ordered set of {@code K} keys.
  *
  * <p>This is the extension point that decouples the orchestration layer
  * ({@link core.TreeContext}) from any one concrete data structure. A
@@ -26,19 +26,19 @@ import java.util.List;
  *   <li>Duplicate-key handling is engine-defined and not mandated here.</li>
  * </ul>
  */
-public interface TreeEngine {
+public interface TreeEngine<K> {
 
     /** Insert a key. */
-    void add(int value);
+    void add(K value);
 
     /** Remove a key if present; a no-op otherwise. */
-    void remove(int value);
+    void remove(K value);
 
     /** @return {@code true} if the key is present. */
-    boolean contains(int value);
+    boolean contains(K value);
 
     /** @return all keys in ascending order. */
-    List<Integer> inOrder();
+    List<K> inOrder();
 
     /** @return number of keys currently stored. */
     int size();

@@ -26,7 +26,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 public class TagPreservationTest {
 
     private static TreeContext intervalTree() {
-        TreeContext ctx = new TreeContext(new RedBlackStrategy());
+        TreeContext ctx = new TreeContext(new RedBlackStrategy<>());
         IntervalAugmentor.insertInterval(ctx, 15, 20);
         IntervalAugmentor.insertInterval(ctx, 10, 30);   // small lo, large hi
         IntervalAugmentor.insertInterval(ctx, 5, 8);
@@ -48,12 +48,12 @@ public class TagPreservationTest {
             assertEquals(30, ctx.getTree().getRoot().getAugmentedValue(),
                     "precondition: root max-hi is 30 before morph");
 
-            ctx.setStrategy(new AVLStrategy());   // rebuilds the whole tree
+            ctx.setStrategy(new AVLStrategy<>());   // rebuilds the whole tree
 
             assertEquals(30, ctx.getTree().getRoot().getAugmentedValue(),
                     "root max-hi must still be 30 after morph (tags preserved)");
 
-            TreeNode1 hit = IntervalAugmentor.intervalSearch(ctx, 29, 31);
+            TreeNode1<Integer> hit = IntervalAugmentor.intervalSearch(ctx, 29, 31);
             assertNotNull(hit);
             assertFalse(hit.isNil(), "the [10,30] interval must still be found post-morph");
             assertEquals(5, ctx.getSize());
@@ -82,7 +82,7 @@ public class TagPreservationTest {
                 assertEquals(30, loaded.getTree().getRoot().getAugmentedValue(),
                         "restored interval augmentor must reproduce max-hi = 30");
 
-                TreeNode1 hit = IntervalAugmentor.intervalSearch(loaded, 29, 31);
+                TreeNode1<Integer> hit = IntervalAugmentor.intervalSearch(loaded, 29, 31);
                 assertTrue(hit != null && !hit.isNil(),
                         "overlap search works on the reloaded interval tree");
             } finally {

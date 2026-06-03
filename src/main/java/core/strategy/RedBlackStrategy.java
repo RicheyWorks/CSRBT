@@ -12,17 +12,17 @@ import org.apache.logging.log4j.Logger;
  * Delete  → CLRS 13.4  RB-DELETE + RB-DELETE-FIXUP
  * Rotations live as defaults in TreeStrategy and are inherited here.
  */
-public class RedBlackStrategy implements TreeStrategy {
+public class RedBlackStrategy<K> implements TreeStrategy<K> {
 
     private static final Logger logger = LogManager.getLogger(RedBlackStrategy.class);
 
     // ── Insert ────────────────────────────────────────────────────────────────
 
     @Override
-    public void insert(MutableTree tree, TreeNode1 newNode) {
-        TreeNode1 nil = tree.getNIL();
-        TreeNode1 y = nil;              // "no parent" is the sentinel, never null,
-        TreeNode1 x = tree.getRoot();   // so the root's parent is NIL and fixInsert terminates cleanly
+    public void insert(MutableTree<K> tree, TreeNode1<K> newNode) {
+        TreeNode1<K> nil = tree.getNIL();
+        TreeNode1<K> y = nil;              // "no parent" is the sentinel, never null,
+        TreeNode1<K> x = tree.getRoot();   // so the root's parent is NIL and fixInsert terminates cleanly
 
         while (!x.isNil()) {
             y = x;
@@ -64,15 +64,15 @@ public class RedBlackStrategy implements TreeStrategy {
      * Terminates because either we stop (parent BLACK) or z moves up 2 levels.
      */
     @Override
-    public void fixInsert(MutableTree tree, TreeNode1 node) {
+    public void fixInsert(MutableTree<K> tree, TreeNode1<K> node) {
         while (node != null && node.getParent() != null
                 && !node.getParent().isNil() && node.getParent().isRed()) {
-            TreeNode1 parent      = node.getParent();
-            TreeNode1 grandparent = node.getGrandparent();
+            TreeNode1<K> parent      = node.getParent();
+            TreeNode1<K> grandparent = node.getGrandparent();
 
             if (parent == grandparent.getLeft()) {
                 // ── LEFT branch ──────────────────────────────────────────────
-                TreeNode1 uncle = grandparent.getRight();
+                TreeNode1<K> uncle = grandparent.getRight();
 
                 if (!uncle.isNil() && uncle.isRed()) {
                     // Case 1: uncle RED → recolor, move up
@@ -98,7 +98,7 @@ public class RedBlackStrategy implements TreeStrategy {
 
             } else {
                 // ── RIGHT branch (symmetric) ──────────────────────────────────
-                TreeNode1 uncle = grandparent.getLeft();
+                TreeNode1<K> uncle = grandparent.getLeft();
 
                 if (!uncle.isNil() && uncle.isRed()) {
                     // Case 1: uncle RED → recolor, move up
@@ -141,16 +141,16 @@ public class RedBlackStrategy implements TreeStrategy {
      * We track y's original color: if BLACK, call fixDelete on x.
      */
     @Override
-    public void delete(MutableTree tree, TreeNode1 z) {
-        TreeNode1 nil            = tree.getNIL();
-        TreeNode1 y              = z;
+    public void delete(MutableTree<K> tree, TreeNode1<K> z) {
+        TreeNode1<K> nil            = tree.getNIL();
+        TreeNode1<K> y              = z;
         TreeNode1.Color yOrigColor = y.getColor();
-        TreeNode1 x;
+        TreeNode1<K> x;
         // Parent of x is tracked explicitly: the shared NIL sentinel refuses to
         // store a parent pointer (TreeNode1.setParent guards `this != nilSentinel`),
         // so fixDelete must not rely on x.getParent() when x is NIL. CLRS sets
         // T.nil.p; here we thread that value through instead.
-        TreeNode1 xParent;
+        TreeNode1<K> xParent;
 
         if (z.getLeft().isNil()) {
             // Case A: no left child
@@ -217,7 +217,7 @@ public class RedBlackStrategy implements TreeStrategy {
      *     Recolor w = parent's color, parent + far child BLACK, rotate parent.
      *     Extra black is resolved — loop ends.
      */
-    private void fixDelete(MutableTree tree, TreeNode1 x, TreeNode1 parent) {
+    private void fixDelete(MutableTree<K> tree, TreeNode1<K> x, TreeNode1<K> parent) {
         // `parent` is x's parent, threaded in by the caller so this works even
         // when x is the shared NIL sentinel (whose own parent pointer is never
         // stored). Once x advances to a real node we re-read parent from it.
@@ -225,7 +225,7 @@ public class RedBlackStrategy implements TreeStrategy {
 
             if (x == parent.getLeft()) {
                 // ── LEFT branch ──────────────────────────────────────────────
-                TreeNode1 w = parent.getRight();   // sibling
+                TreeNode1<K> w = parent.getRight();   // sibling
 
                 if (w.isRed()) {
                     // Case 1: sibling RED → recolor + rotate to get BLACK sibling
@@ -259,7 +259,7 @@ public class RedBlackStrategy implements TreeStrategy {
 
             } else {
                 // ── RIGHT branch (symmetric) ──────────────────────────────────
-                TreeNode1 w = parent.getLeft();    // sibling
+                TreeNode1<K> w = parent.getLeft();    // sibling
 
                 if (w.isRed()) {
                     // Case 1
@@ -299,8 +299,8 @@ public class RedBlackStrategy implements TreeStrategy {
     // ── Search ────────────────────────────────────────────────────────────────
 
     @Override
-    public TreeNode1 search(MutableTree tree, int value) {
-        TreeNode1 cur = tree.getRoot();
+    public TreeNode1<K> search(MutableTree<K> tree, K value) {
+        TreeNode1<K> cur = tree.getRoot();
         while (!cur.isNil()) {
             int cmp = cur.compareKeyTo(value);   // sign of (cur.key - value)
             if      (cmp == 0) return cur;
@@ -317,8 +317,8 @@ public class RedBlackStrategy implements TreeStrategy {
      * Replaces subtree rooted at u with subtree rooted at v.
      * Does NOT update v's left/right children — caller's responsibility.
      */
-    private void transplant(MutableTree tree, TreeNode1 u, TreeNode1 v) {
-        TreeNode1 uParent = u.getParent();
+    private void transplant(MutableTree<K> tree, TreeNode1<K> u, TreeNode1<K> v) {
+        TreeNode1<K> uParent = u.getParent();
         if (uParent == null || uParent.isNil()) {
             tree.setRoot(v);
         } else if (u == uParent.getLeft()) {
@@ -331,7 +331,7 @@ public class RedBlackStrategy implements TreeStrategy {
     }
 
     /** Leftmost node in the subtree rooted at {@code node}. */
-    private TreeNode1 minimum(TreeNode1 node, TreeNode1 nil) {
+    private TreeNode1<K> minimum(TreeNode1<K> node, TreeNode1<K> nil) {
         while (!node.getLeft().isNil()) node = node.getLeft();
         return node;
     }

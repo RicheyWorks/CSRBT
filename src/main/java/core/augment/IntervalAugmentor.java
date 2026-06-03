@@ -30,6 +30,13 @@ import java.util.Stack;
  *   context.setAugmentor(IntervalAugmentor.INSTANCE);
  *
  * ─────────────────────────────────────────────────────────────────────────────
+ * ADR-002 step 2: this is an INTEGER-interval augmentor — the high endpoint and
+ * subtree max-hi are {@code int} (encoded via a parsed string tag and the int
+ * {@code augmentedValue} slot). It therefore implements
+ * {@code TreeNode1.Augmentor<Integer>} and is installed only on
+ * {@code TreeNode1<Integer>} trees. Generic intervals (typed endpoints) are a
+ * later, separate piece of work.
+ * ─────────────────────────────────────────────────────────────────────────────
  * CLRS INTERVAL-SEARCH theorem:
  *   If tree contains an interval that overlaps [qlo, qhi], the algorithm
  *   finds one such interval in O(log n).
@@ -38,7 +45,7 @@ import java.util.Stack;
  * Overlap condition:  i.lo ≤ j.hi  AND  j.lo ≤ i.hi
  * ─────────────────────────────────────────────────────────────────────────────
  */
-public class IntervalAugmentor implements TreeNode1.Augmentor {
+public class IntervalAugmentor implements TreeNode1.Augmentor<Integer> {
 
     public static final IntervalAugmentor INSTANCE = new IntervalAugmentor();
 
@@ -52,7 +59,7 @@ public class IntervalAugmentor implements TreeNode1.Augmentor {
      *  We also store x.max = maximum hi endpoint in subtree rooted at x."
      */
     @Override
-    public void apply(TreeNode1 node) {
+    public void apply(TreeNode1<Integer> node) {
         if (node.isNil()) {
             node.setAugmentedValue(Integer.MIN_VALUE);
             return;
@@ -86,8 +93,8 @@ public class IntervalAugmentor implements TreeNode1.Augmentor {
      *   cannot contain any overlap either (because max(left) < i.lo).
      *   So we never miss a valid answer.
      */
-    public static TreeNode1 intervalSearch(TreeContext context, int qlo, int qhi) {
-        TreeNode1 x = context.getTree().getRoot();
+    public static TreeNode1<Integer> intervalSearch(TreeContext context, int qlo, int qhi) {
+        TreeNode1<Integer> x = context.getTree().getRoot();
 
         while (!x.isNil()) {
             if (overlaps(x, qlo, qhi)) return x;   // found an overlapping interval
@@ -115,12 +122,12 @@ public class IntervalAugmentor implements TreeNode1.Augmentor {
      */
     public static List<int[]> intervalSearchAll(TreeContext context, int qlo, int qhi) {
         List<int[]> results = new ArrayList<>();
-        Stack<TreeNode1> stack = new Stack<>();
-        TreeNode1 root = context.getTree().getRoot();
+        Stack<TreeNode1<Integer>> stack = new Stack<>();
+        TreeNode1<Integer> root = context.getTree().getRoot();
         if (!root.isNil()) stack.push(root);
 
         while (!stack.isEmpty()) {
-            TreeNode1 node = stack.pop();
+            TreeNode1<Integer> node = stack.pop();
 
             // Prune: if this subtree's max hi < qlo, no overlap possible
             if (node.getAugmentedValue() < qlo) continue;
@@ -152,7 +159,7 @@ public class IntervalAugmentor implements TreeNode1.Augmentor {
      *   a.lo ≤ qhi  AND  qlo ≤ a.hi
      * (They DON'T overlap only if one ends before the other begins.)
      */
-    private static boolean overlaps(TreeNode1 node, int qlo, int qhi) {
+    private static boolean overlaps(TreeNode1<Integer> node, int qlo, int qhi) {
         int lo = node.getData();
         int hi = parseHi(node);
         return lo <= qhi && qlo <= hi;
@@ -162,7 +169,7 @@ public class IntervalAugmentor implements TreeNode1.Augmentor {
      * Reads the high endpoint from the node's tag.
      * Falls back to lo (degenerate point interval) if tag is absent or invalid.
      */
-    public static int parseHi(TreeNode1 node) {
+    public static int parseHi(TreeNode1<Integer> node) {
         if (node.isNil()) return Integer.MIN_VALUE;
         String tag = node.getTag();
         if (tag == null || tag.isEmpty()) return node.getData();
@@ -196,7 +203,7 @@ public class IntervalAugmentor implements TreeNode1.Augmentor {
         // force a re-augmentation up the tree: setTag alone does NOT trigger the
         // augmentor, so without reaugment() the subtree max-hi would stay stale
         // (computed from lo while the tag was still empty).
-        TreeNode1 node = context.getTree().getRoot();
+        TreeNode1<Integer> node = context.getTree().getRoot();
         while (!node.isNil()) {
             if (node.compareKeyTo(lo) == 0) {
                 node.setTag(String.valueOf(hi));
@@ -212,8 +219,8 @@ public class IntervalAugmentor implements TreeNode1.Augmentor {
      */
     public static String dump(TreeContext context) {
         StringBuilder sb = new StringBuilder("Intervals (sorted by lo):\n");
-        Stack<TreeNode1> stack = new Stack<>();
-        TreeNode1 curr = context.getTree().getRoot();
+        Stack<TreeNode1<Integer>> stack = new Stack<>();
+        TreeNode1<Integer> curr = context.getTree().getRoot();
         while (!stack.isEmpty() || !curr.isNil()) {
             while (!curr.isNil()) { stack.push(curr); curr = curr.getLeft(); }
             curr = stack.pop();
