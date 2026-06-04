@@ -222,4 +222,13 @@ future single-writer / multi-reader model via atomic root swap.)
 - [`docs/CHANGELOG-2026-05-30.md`](docs/CHANGELOG-2026-05-30.md) — everything that
   changed in the latest hardening session.
 - [`docs/strategy-audit-and-feasibility-2026-05-30.md`](docs/strategy-audit-and-feasibility-2026-05-30.md)
-  — per-
+  — per-strategy correctness audit and a gap analysis vs the adaptive end goal
+  (with resolution status).
+- [`docs/code-audit-2026-05-30.md`](docs/code-audit-2026-05-30.md) — correctness,
+  augmentation, persistence, and concurrency findings, with fixes applied.
+- [`docs/backend-audit-2026-05-30.md`](docs/backend-audit-2026-05-30.md) —
+  persistence/clone/agent infrastructure findings, with fixes applied.
+- [`docs/code-review-2026-05-29.md`](docs/code-review-2026-05-29.md) — earlier code
+  review findings and the fixes applied for each.
+- [`docs/PLAN-nil-sentinel-refactor.md`](docs/PLAN-nil-sentinel-refactor.md) —
+  step-by-step plan for the per-tree-NIL / parent-convention refactor.

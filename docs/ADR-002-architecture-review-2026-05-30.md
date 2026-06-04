@@ -176,4 +176,19 @@ to `experimental`); incremental/background morph for very large `n`.
          LF (the working tree had been picking up CRLF churn on Windows). See
          `CHANGELOG-2026-06-03-orderedset.md`.
 4. [x] Step 5: pluggable key serializer for snapshots.
-       — **IMPLEMENTED 2026-06-04** on branch `adr002-step4-orderedset` (pen
+       — **IMPLEMENTED 2026-06-04** on branch `adr002-step4-orderedset` (pending host
+         `ant clean test`): new `core.persistence.KeySerializer<K>` (built-ins `INTEGER`,
+         `LONG`, and `string()` which percent-encodes the format's reserved characters so
+         arbitrary string keys round-trip). `FilePersistenceAdapter` is generified over
+         `<K>` at its two key-I/O points (emit/parse) plus the serialize/deserialize/parse/
+         `Frame` helpers and `resolveStrategy`; new generic entry points
+         `saveSnapshot(name, OrderedSet<K>, KeySerializer<K>)` and
+         `loadOrderedSet(name, KeySerializer<K>[, Comparator])` rebuild through the engine
+         and reuse `OrderedSet.resyncFromEngine()`. The `int` `TreeContext` path is
+         byte-identical (it delegates through `KeySerializer.INTEGER`); the
+         `TreePersistenceAdapter` interface, `TreeContext`, and `OrderedSet` are unchanged.
+         See `PLAN-adr002-step5-key-serializer.md` and `CHANGELOG-2026-06-04-key-serializer.md`.
+5. [ ] Extract `StrategyScorer` from `TreeGenome`; add `WorkloadMonitor` (O(1)/op
+       rolling features); wire controller to feed it and drive the existing
+       `MorphPolicy` + health-gated `setStrategy`.
+6. [ ] Do C5 in a session with iterative compilation (clean rebuild between steps).
