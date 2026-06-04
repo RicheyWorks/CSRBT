@@ -1,7 +1,8 @@
 # CSRBT — Composable Self-Balancing Tree Engine
 
 CSRBT is a Java ordered-set engine whose balancing strategy is pluggable and can
-adapt to the workload hitting it. A single ordered-set API is backed by
+adapt to the workload hitting it. A single, generic ordered-set API
+(`OrderedSet<K>`, over any `Comparable` key or a custom `Comparator`) is backed by
 interchangeable strategies — Red-Black, AVL, Splay, and a Hybrid — and the engine
 can morph between them at runtime. A morph builds the new tree off to the side,
 validates it through a health gate (contents, size, the strategy's own structural
@@ -23,24 +24,30 @@ between today's code and that target tracked in
 The design is organized in three layers, with each layer depending only on the
 one below it through a narrow interface.
 
-**Mechanics.** `RedBlackTree` is a thin engine over a sentinel-`NIL` node model
-(`TreeNode1`, which carries color, height, and a pluggable augmentor). Balancing
-behavior lives behind the `TreeStrategy` interface, implemented by
+**Mechanics.** `RedBlackTree<K>` is a thin engine over a sentinel-`NIL` node
+model (`TreeNode1<K>`, which carries color, height, and a pluggable augmentor). It
+is generic over the key type, with all ordering routed through a pluggable
+`Comparator` seam (`withNaturalOrder` is the convenience factory for `Comparable`
+keys). Balancing behavior lives behind the `TreeStrategy<K>` interface, implemented by
 `RedBlackStrategy`, `AVLStrategy`, `SplayStrategy`, and `HybridStrategy` (AVL
 rebalance plus an RB recolor pass). Strategies no longer depend on the concrete
-engine: they operate against `MutableTree`, a minimal structural interface
+engine: they operate against `MutableTree<K>`, a minimal structural interface
 exposing `getRoot` / `setRoot` / `getNIL` / `rotateLeft` / `rotateRight` — the
-only capabilities any balancing algorithm needs. `RedBlackTree implements
-MutableTree`, so the engine and its strategies are decoupled without breaking
+only capabilities any balancing algorithm needs. `RedBlackTree<K> implements
+MutableTree<K>`, so the engine and its strategies are decoupled without breaking
 existing call sites.
 
-**Orchestration.** `TreeContext` is the client-facing facade: it owns metrics,
-health-gated strategy morphing, sliding-window eviction, persistence, the locking
-contract, and the utility delegates `TreeDiagnostics`, `TreeCloner`, and
-`TreeHistory`. A morph never mutates the live tree in place — the candidate is
+**Orchestration.** `OrderedSet<K>` is the generic, client-facing facade: over
+any key type it owns dedup-guarded add/remove, the size counter, order statistics,
+the health-gated strategy morph, sliding-window eviction, pluggable augmentation,
+and a self-repair rebuild. `TreeContext` is the `int` adapter over
+`OrderedSet<Integer>`: it preserves the `int` public API and layers on the
+genuinely `Integer`-bound machinery (undo/redo history, text-snapshot persistence,
+cloning, and diagnostics/relic reporting) plus the utility delegates
+`TreeDiagnostics`, `TreeCloner`, and `TreeHistory`. A morph never mutates the live tree in place — the candidate is
 built aside, validated by `StrategyHealthCheck`, and swapped in only on a full
-pass. Representation-neutral views are exposed through `OrderedCollection` (add /
-remove / contains / inOrder / size / clear) and `TreeEngine`, so callers can
+pass. Representation-neutral views are exposed through `OrderedCollection<K>` (add /
+remove / contains / inOrder / size / clear) and `TreeEngine<K>`, so callers can
 treat any backing structure uniformly.
 
 **Evolution.** `TreeGenome` is a self-interpreting fitness model that scores how
@@ -57,7 +64,7 @@ engine or fails loudly as unsupported, rather than silently returning a no-op.
 
 ```java
 // Pick a balancing strategy; the facade is the only class clients touch.
-TreeContext tree = new TreeContext(new RedBlackStrategy());
+TreeContext tree = new TreeContext(new RedBlackStrategy<>());
 
 tree.add(42);
 tree.add(17);
@@ -68,7 +75,7 @@ tree.size();           // 3
 tree.inOrder();        // [17, 42, 99]
 
 // O(log n) order statistics over the augmented tree.
-OrderStatisticsOps os = new OrderStatisticsOps(tree.getTree());
+OrderStatisticsOps<Integer> os = new OrderStatisticsOps<>(tree.getTree());
 os.select(2).getData();      // 42  (2nd smallest)
 os.rank(99);                 // 3
 os.median().getData();       // 42
@@ -80,10 +87,20 @@ tree.getHistory().undo();    // 42 is back
 
 // Durable text snapshots.
 new FilePersistenceAdapter().saveSnapshot("mytree", tree);
+
+// The generic facade offers the same operations over any key type.
+OrderedSet<String> words = OrderedSet.withNaturalOrder(new AVLStrategy<>());
+words.add("pear"); words.add("apple"); words.add("fig");
+words.inOrder();                            // [apple, fig, pear]
+words.select(2);                            // "fig"  (2nd smallest)
+words.setStrategy(new SplayStrategy<>());   // health-gated morph, contents preserved
 ```
 
 ## Features
 
+- **Generic keys** — `OrderedSet<K>` orders any key type through a pluggable
+  `Comparator` (or `withNaturalOrder` for `Comparable` keys); the `int`
+  `TreeContext` is a thin adapter over `OrderedSet<Integer>`.
 - **Pluggable balancing** — Red-Black, AVL, Splay, and a Hybrid strategy behind
   one interface, swappable at runtime without data loss.
 - **Order statistics** — `select`, `rank`, `median`, `percentile`, range count
@@ -108,9 +125,10 @@ package layout.
 ```
 src/main/java/core/
   ├─ MutableTree.java          structural seam the strategies depend on
-  ├─ RedBlackTree.java         the engine (implements TreeEngine, MutableTree)
+  ├─ RedBlackTree.java         the generic engine (implements TreeEngine, MutableTree)
   ├─ TreeNode1.java            node model (color, height, subtree-size augment)
-  ├─ TreeContext.java          orchestration facade
+  ├─ OrderedSet.java           generic ordered-set facade (OrderedSet<K>)
+  ├─ TreeContext.java          int adapter over OrderedSet<Integer>
   ├─ TreeEngineRegistry.java   structure-type → engine registry
   ├─ PersistentTreeEngine.java engine + persistence wiring
   ├─ strategy/                 TreeStrategy + RedBlack, AVL, Splay, Hybrid
@@ -147,6 +165,8 @@ ant clean       # remove the build/ directory
 - `StrategyInvariantTest` — per-strategy invariants (RB validity, strict AVL
   balance, splay-to-root, Hybrid balance) checked against a `TreeSet` oracle,
   driven directly through the engine to isolate each strategy.
+- `OrderedSetTest` — the generic `OrderedSet<K>` facade over non-`Integer` keys
+  (`String` and a reverse `Comparator`), cross-checked against a `TreeSet` oracle.
 - `RegressionFixesTest` — the earlier correctness/performance fixes (RB deletion,
   AVL balance, order-statistics integrity, undo/redo, snapshot loading).
 - `AuditFixesTest` / `TagPreservationTest` / `CloneAugmentorTest` — duplicate-insert
@@ -161,7 +181,7 @@ Run the full suite after any change to the engine or strategies.
 
 ## Concurrency
 
-`TreeContext` is designed for **single-threaded use**. Its mutators (`add`,
+`TreeContext` and the underlying `OrderedSet` are designed for **single-threaded use**. Its mutators (`add`,
 `remove`, `setStrategy`, `clear`) serialize on one internal lock, which only
 prevents two *writers* from interleaving — it is not sufficient for general
 concurrent access. Reads take no lock and may observe a tree mid-mutation, and
@@ -185,6 +205,10 @@ future single-writer / multi-reader model via atomic root swap.)
   — original architecture decision record: review, rationale, and roadmap.
 
 **Audits & change log**
+- [`docs/CHANGELOG-2026-06-03-orderedset.md`](docs/CHANGELOG-2026-06-03-orderedset.md)
+  — ADR-002 step 4: the `OrderedSet<K>` facade and the `TreeContext` `Integer` adapter.
+- [`docs/CHANGELOG-2026-06-01-generic-keys.md`](docs/CHANGELOG-2026-06-01-generic-keys.md)
+  — ADR-002 step 2: generifying the engine against `<K>` behind a `Comparator` seam.
 - [`docs/CHANGELOG-2026-05-30.md`](docs/CHANGELOG-2026-05-30.md) — everything that
   changed in the latest hardening session.
 - [`docs/strategy-audit-and-feasibility-2026-05-30.md`](docs/strategy-audit-and-feasibility-2026-05-30.md)

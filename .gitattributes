@@ -1,0 +1,10 @@
+# Normalize line endings to LF in the repository for all text files, and
+# check them out as LF on every platform. This prevents the recurring
+# CRLF churn that otherwise appears when the tree is edited on Windows.
+* text=auto eol=lf
+
+# Belt-and-suspenders: never normalize these even if force-added.
+*.jar binary
+*.png binary
+*.pdf binary
+*.class binary
