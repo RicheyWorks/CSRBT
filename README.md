@@ -94,6 +94,11 @@ words.add("pear"); words.add("apple"); words.add("fig");
 words.inOrder();                            // [apple, fig, pear]
 words.select(2);                            // "fig"  (2nd smallest)
 words.setStrategy(new SplayStrategy<>());   // health-gated morph, contents preserved
+
+// Snapshots work over any key type via a pluggable KeySerializer<K>.
+FilePersistenceAdapter store = new FilePersistenceAdapter();
+store.saveSnapshot("words", words, KeySerializer.string());
+OrderedSet<String> restored = store.loadOrderedSet("words", KeySerializer.string());
 ```
 
 ## Features
@@ -113,7 +118,10 @@ words.setStrategy(new SplayStrategy<>());   // health-gated morph, contents pres
   survivors (streaming-percentile use case).
 - **Undo / redo + checkpoints** — O(1)-per-op inverse-command history with named
   save points.
-- **Persistence** — human-readable text snapshots (no Java serialization).
+- **Persistence** — human-readable text snapshots (no Java serialization) over any key
+  type through a pluggable `KeySerializer<K>` (`OrderedSet<K>` snapshots via
+  `saveSnapshot`/`loadOrderedSet`; the `int` `TreeContext` path is the built-in
+  `KeySerializer.INTEGER`, byte-identical to the legacy format).
 - **Diagnostics & evolution** — red-black validity checks, self-repair, workload
   scoring, and head-to-head strategy benchmarking.
 
@@ -205,6 +213,8 @@ future single-writer / multi-reader model via atomic root swap.)
   — original architecture decision record: review, rationale, and roadmap.
 
 **Audits & change log**
+- [`docs/CHANGELOG-2026-06-04-key-serializer.md`](docs/CHANGELOG-2026-06-04-key-serializer.md)
+  — ADR-002 step 5: a pluggable `KeySerializer<K>` so snapshots persist any key type.
 - [`docs/CHANGELOG-2026-06-03-orderedset.md`](docs/CHANGELOG-2026-06-03-orderedset.md)
   — ADR-002 step 4: the `OrderedSet<K>` facade and the `TreeContext` `Integer` adapter.
 - [`docs/CHANGELOG-2026-06-01-generic-keys.md`](docs/CHANGELOG-2026-06-01-generic-keys.md)
@@ -212,13 +222,4 @@ future single-writer / multi-reader model via atomic root swap.)
 - [`docs/CHANGELOG-2026-05-30.md`](docs/CHANGELOG-2026-05-30.md) — everything that
   changed in the latest hardening session.
 - [`docs/strategy-audit-and-feasibility-2026-05-30.md`](docs/strategy-audit-and-feasibility-2026-05-30.md)
-  — per-strategy correctness audit and a gap analysis vs the adaptive end goal
-  (with resolution status).
-- [`docs/code-audit-2026-05-30.md`](docs/code-audit-2026-05-30.md) — correctness,
-  augmentation, persistence, and concurrency findings, with fixes applied.
-- [`docs/backend-audit-2026-05-30.md`](docs/backend-audit-2026-05-30.md) —
-  persistence/clone/agent infrastructure findings, with fixes applied.
-- [`docs/code-review-2026-05-29.md`](docs/code-review-2026-05-29.md) — earlier code
-  review findings and the fixes applied for each.
-- [`docs/PLAN-nil-sentinel-refactor.md`](docs/PLAN-nil-sentinel-refactor.md) —
-  step-by-step plan for the per-tree-NIL / parent-convention refactor.
+  — per-

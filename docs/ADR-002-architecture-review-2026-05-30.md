@@ -172,8 +172,8 @@ to `experimental`); incremental/background morph for very large `n`.
          and periphery are pinned to `<Integer>`. See
          `PLAN-adr002-step2-generic-keys.md` and `CHANGELOG-2026-06-01-generic-keys.md`.
 3. [x] Step 4: `OrderedSet<K>` facade; reduce `TreeContext` to an `Integer` adapter. (code complete; pending host `ant clean test`)
-4. [ ] Step 5: pluggable key serializer for snapshots.
-5. [ ] Extract `StrategyScorer` from `TreeGenome`; add `WorkloadMonitor` (O(1)/op
-       rolling features); wire controller to feed it and drive the existing
-       `MorphPolicy` + health-gated `setStrategy`.
-6. [ ] Do C5 in a session with iterative compilation (clean rebuild between steps).
+       — README write-up landed and `.gitattributes` added to normalize line endings to
+         LF (the working tree had been picking up CRLF churn on Windows). See
+         `CHANGELOG-2026-06-03-orderedset.md`.
+4. [x] Step 5: pluggable key serializer for snapshots.
+       — **IMPLEMENTED 2026-06-04** on branch `adr002-step4-orderedset` (pen
