@@ -312,4 +312,143 @@ public class FilePersistenceAdapter implements TreePersistenceAdapter {
      * {@link OrderedSet#resyncFromEngine()}. Returns {@code null} if the file is missing or
      * malformed.
      */
-    public <K> OrderedSet<K> loadOrderedSet(String name, KeySeriali
+    public <K> OrderedSet<K> loadOrderedSet(String name, KeySerializer<K> keySerializer,
+                                            Comparator<? super K> keyOrder) {
+        if (keySerializer == null) throw new IllegalArgumentException("keySerializer must not be null");
+        if (keyOrder == null)      throw new IllegalArgumentException("keyOrder must not be null");
+        Path path = snapshotPath(name);
+        if (!Files.exists(path)) {
+            logger.warn("Snapshot '{}' not found at {}", name, path);
+            return null;
+        }
+
+        try (BufferedReader reader = Files.newBufferedReader(path)) {
+            String headerLine = reader.readLine();
+            if (headerLine == null) {
+                logger.warn("Snapshot '{}' is empty — no header line.", name);
+                return null;
+            }
+            String[] header = headerLine.split("\\|");
+            if (header.length < 4) {
+                logger.warn("Snapshot '{}' has a malformed header ({} fields, need 4): {}",
+                        name, header.length, headerLine);
+                return null;
+            }
+            String version      = header[0];
+            String strategyName = header[2];
+            if (!VERSION.equals(version)) {
+                logger.warn("Snapshot '{}' version mismatch (file='{}', expected='{}') — attempting load anyway.",
+                        name, version, VERSION);
+            }
+            int declaredSize;
+            try {
+                declaredSize = Integer.parseInt(header[3].trim());
+            } catch (NumberFormatException e) {
+                logger.warn("Snapshot '{}' has a non-numeric size field: '{}'", name, header[3]);
+                return null;
+            }
+
+            TreeStrategy<K> strategy = resolveStrategy(strategyName);
+            OrderedSet<K>   set      = new OrderedSet<>(strategy, keyOrder);
+            RedBlackTree<K> engine   = set.getEngine();
+
+            String dataLine = reader.readLine();
+            if (dataLine == null) {
+                logger.warn("Snapshot '{}' has a header but no node data line.", name);
+                return null;
+            }
+            String[] tokens = dataLine.split(";");
+            TreeNode1<K> root = deserializePreOrder(tokens, engine.getNIL(), keySerializer);
+
+            engine.setRoot(root);
+            if (root != engine.getNIL()) root.setParent(engine.getNIL());
+            set.resyncFromEngine();   // recompute size + FIFO window from the rebuilt engine
+
+            int actualSize = set.size();
+            if (actualSize != declaredSize) {
+                logger.warn("Snapshot '{}' size mismatch: header={}, parsed={} — using parsed.",
+                        name, declaredSize, actualSize);
+            }
+
+            logger.info("Snapshot '{}' loaded (generic). strategy={} size={}", name, strategyName, actualSize);
+            return set;
+
+        } catch (Exception e) {
+            logger.error("Failed to load snapshot '{}'", name, e);
+            return null;
+        }
+    }
+
+    /** Natural-order convenience overload for {@link Comparable} keys. */
+    public <K extends Comparable<? super K>> OrderedSet<K> loadOrderedSet(String name,
+                                                                          KeySerializer<K> keySerializer) {
+        return loadOrderedSet(name, keySerializer, Comparator.<K>naturalOrder());
+    }
+
+    // ── List / Delete ─────────────────────────────────────────────────────────
+
+    @Override
+    public List<String> listSnapshots() {
+        try {
+            List<String> names = new ArrayList<>();
+            Files.list(Paths.get(DIR))
+                 .filter(p -> p.toString().endsWith(EXT))
+                 .forEach(p -> {
+                     String filename = p.getFileName().toString();
+                     names.add(filename.substring(0, filename.length() - EXT.length()));
+                 });
+            return names;
+        } catch (IOException e) {
+            logger.error("Failed to list snapshots", e);
+            return Collections.emptyList();
+        }
+    }
+
+    @Override
+    public boolean deleteSnapshot(String name) {
+        try {
+            return Files.deleteIfExists(snapshotPath(name));
+        } catch (IOException e) {
+            logger.error("Failed to delete snapshot '{}'", name, e);
+            return false;
+        }
+    }
+
+    // ── Helpers ───────────────────────────────────────────────────────────────
+
+    private Path snapshotPath(String name) {
+        if (name == null || name.isEmpty()) {
+            throw new IllegalArgumentException("Snapshot name must be non-empty");
+        }
+        // Prevent path traversal: the resolved file must stay directly inside DIR.
+        // Reject separators and parent references outright, then verify the
+        // normalized path's parent is exactly the snapshots directory.
+        if (name.contains("/") || name.contains("\\") || name.contains("..")) {
+            throw new IllegalArgumentException("Illegal snapshot name: " + name);
+        }
+        Path base     = Paths.get(DIR).toAbsolutePath().normalize();
+        Path resolved = base.resolve(name + EXT).normalize();
+        if (!resolved.getParent().equals(base)) {
+            throw new IllegalArgumentException("Snapshot name escapes snapshot directory: " + name);
+        }
+        return resolved;
+    }
+
+    /**
+     * Persistable token for the context's augmentor. Only the two built-in
+     * augmentors are recognized; any custom lambda is recorded as DEFAULT (its
+     * augmented values are still rebuilt from structure on load).
+     */
+    private String augmentorToken(TreeContext ctx) {
+        return ctx.getAugmentor() == IntervalAugmentor.INSTANCE ? "INTERVAL" : "DEFAULT";
+    }
+
+    private <K> TreeStrategy<K> resolveStrategy(String name) {
+        switch (name) {
+            case "AVLStrategy":    return new AVLStrategy<>();
+            case "SplayStrategy":  return new SplayStrategy<>();
+            case "HybridStrategy": return new HybridStrategy<>();
+            default:               return new RedBlackStrategy<>();
+        }
+    }
+}
