@@ -1,5 +1,6 @@
 package core.persistence;
 
+import core.OrderedSet;
 import core.RedBlackTree;
 import core.TreeContext;
 import core.TreeNode1;
@@ -29,9 +30,13 @@ import java.util.*;
  *   Line 2: pre-order node list as: DATA,COLOR[,TAG];DATA,COLOR[,TAG];...
  *            NIL nodes encoded as "#"
  *
- * ADR-002 step 2: the text format is {@code int}-keyed (keys parsed via
- * {@link Integer#parseInt}); this adapter is pinned to {@code TreeNode1<Integer>}.
- * A pluggable key (de)serializer for arbitrary {@code K} is step 5.
+ * <p>ADR-002 step 5: the two key-touching points (emit/parse) route through a pluggable
+ * {@link KeySerializer}. The {@code TreeContext} entry points below stay {@code int},
+ * delegating through {@link KeySerializer#INTEGER} so the on-disk format is byte-identical to
+ * the legacy int files; {@link #saveSnapshot(String, OrderedSet, KeySerializer)} and
+ * {@link #loadOrderedSet(String, KeySerializer, java.util.Comparator)} persist any key type
+ * {@code K} (the interval augmentor stays {@code Integer}, so the generic path records
+ * {@code AUGMENTOR=DEFAULT} while per-node tags still round-trip).</p>
  */
 public class FilePersistenceAdapter implements TreePersistenceAdapter {
 
@@ -66,9 +71,10 @@ public class FilePersistenceAdapter implements TreePersistenceAdapter {
             ));
             writer.newLine();
 
-            // Pre-order serialization
+            // Pre-order serialization (int keys via the built-in Integer serializer)
             StringBuilder sb = new StringBuilder();
-            serializePreOrder(snapshot.getTree().getRoot(), snapshot.getTree().getNIL(), sb);
+            serializePreOrder(snapshot.getTree().getRoot(), snapshot.getTree().getNIL(), sb,
+                    KeySerializer.INTEGER);
             writer.write(sb.toString());
             writer.newLine();
 
@@ -85,16 +91,17 @@ public class FilePersistenceAdapter implements TreePersistenceAdapter {
      * stack. Right child is pushed before left so left is emitted first, matching
      * the recursive pre-order order the reader expects.
      */
-    private void serializePreOrder(TreeNode1<Integer> node, TreeNode1<Integer> nil, StringBuilder sb) {
-        Deque<TreeNode1<Integer>> stack = new ArrayDeque<>();
+    private <K> void serializePreOrder(TreeNode1<K> node, TreeNode1<K> nil, StringBuilder sb,
+                                       KeySerializer<K> ks) {
+        Deque<TreeNode1<K>> stack = new ArrayDeque<>();
         stack.push(node);
         while (!stack.isEmpty()) {
-            TreeNode1<Integer> cur = stack.pop();
+            TreeNode1<K> cur = stack.pop();
             if (cur == nil) {
                 sb.append("#;");
                 continue;
             }
-            sb.append(cur.getData())
+            sb.append(ks.serialize(cur.getData()))
               .append(",")
               .append(cur.getColor().name());
             // Optional third field: per-node tag (e.g. interval high endpoint).
@@ -165,7 +172,8 @@ public class FilePersistenceAdapter implements TreePersistenceAdapter {
                 return null;
             }
             String[] tokens = dataLine.split(";");
-            TreeNode1<Integer> root  = deserializePreOrder(tokens, context.getTree().getNIL());
+            TreeNode1<Integer> root  = deserializePreOrder(tokens, context.getTree().getNIL(),
+                    KeySerializer.INTEGER);
 
             context.getTree().setRoot(root);
             if (root != context.getTree().getNIL()) root.setParent(context.getTree().getNIL());
@@ -201,31 +209,31 @@ public class FilePersistenceAdapter implements TreePersistenceAdapter {
      * tracks how many of its node's two children have been attached; the next
      * token fills the left child first, then the right.
      */
-    private TreeNode1<Integer> deserializePreOrder(String[] tokens, TreeNode1<Integer> nil) {
+    private <K> TreeNode1<K> deserializePreOrder(String[] tokens, TreeNode1<K> nil, KeySerializer<K> ks) {
         int[] index = {0};
-        TreeNode1<Integer> root = parseToken(tokens, index, nil);
+        TreeNode1<K> root = parseToken(tokens, index, nil, ks);
         if (root == nil) return nil;
 
-        Deque<Frame> stack = new ArrayDeque<>();
-        stack.push(new Frame(root));
+        Deque<Frame<K>> stack = new ArrayDeque<>();
+        stack.push(new Frame<>(root));
 
         while (!stack.isEmpty() && index[0] < tokens.length) {
-            Frame f = stack.peek();
-            TreeNode1<Integer> child = parseToken(tokens, index, nil);
+            Frame<K> f = stack.peek();
+            TreeNode1<K> child = parseToken(tokens, index, nil, ks);
 
             if (f.childrenDone == 0) {
                 f.childrenDone = 1;
                 if (child != nil) {
                     f.node.setLeft(child);
                     child.setParent(f.node);
-                    stack.push(new Frame(child));
+                    stack.push(new Frame<>(child));
                 }
             } else {
                 stack.pop();   // this node's children are now both consumed
                 if (child != nil) {
                     f.node.setRight(child);
                     child.setParent(f.node);
-                    stack.push(new Frame(child));
+                    stack.push(new Frame<>(child));
                 }
             }
         }
@@ -233,16 +241,16 @@ public class FilePersistenceAdapter implements TreePersistenceAdapter {
     }
 
     /** Parse one token, advancing {@code index}, returning {@code nil} for "#". */
-    private TreeNode1<Integer> parseToken(String[] tokens, int[] index, TreeNode1<Integer> nil) {
+    private <K> TreeNode1<K> parseToken(String[] tokens, int[] index, TreeNode1<K> nil, KeySerializer<K> ks) {
         if (index[0] >= tokens.length) return nil;
         String token = tokens[index[0]++];
         if (token.equals("#") || token.isEmpty()) return nil;
 
         // Limit 3 so a tag containing commas is preserved as a single field.
         String[] parts = token.split(",", 3);
-        int data = Integer.parseInt(parts[0]);
+        K data = ks.deserialize(parts[0]);
         TreeNode1.Color color = TreeNode1.Color.valueOf(parts[1]);
-        TreeNode1<Integer> node = TreeNode1.createNode(data, nil);
+        TreeNode1<K> node = TreeNode1.createNode(data, nil);
         node.setColor(color);
         // Optional third field: per-node tag. Absent in legacy two-field records.
         if (parts.length >= 3 && !parts[2].isEmpty()) {
@@ -252,76 +260,56 @@ public class FilePersistenceAdapter implements TreePersistenceAdapter {
     }
 
     /** Reconstruction frame: a node plus how many children have been attached. */
-    private static final class Frame {
-        final TreeNode1<Integer> node;
+    private static final class Frame<K> {
+        final TreeNode1<K> node;
         int childrenDone;   // 0 → left pending, 1 → right pending
-        Frame(TreeNode1<Integer> node) { this.node = node; }
+        Frame(TreeNode1<K> node) { this.node = node; }
     }
 
-    // ── List / Delete ─────────────────────────────────────────────────────────
+    // ── Generic snapshot I/O over any key type K (ADR-002 step 5) ──────────────
 
-    @Override
-    public List<String> listSnapshots() {
-        try {
-            List<String> names = new ArrayList<>();
-            Files.list(Paths.get(DIR))
-                 .filter(p -> p.toString().endsWith(EXT))
-                 .forEach(p -> {
-                     String filename = p.getFileName().toString();
-                     names.add(filename.substring(0, filename.length() - EXT.length()));
-                 });
-            return names;
+    /**
+     * Save an {@link OrderedSet} of arbitrary {@code K} keys, rendering each key through
+     * {@code keySerializer}. Header and tag handling are identical to the int path; the
+     * interval augmentor is {@code Integer}-bound, so the augmentor token is recorded as
+     * {@code DEFAULT}. Per-node tags still round-trip — re-apply a custom {@code Augmentor<K>}
+     * after load to recompute augmented values from them.
+     */
+    public <K> void saveSnapshot(String name, OrderedSet<K> set, KeySerializer<K> keySerializer) {
+        if (set == null)            throw new IllegalArgumentException("set must not be null");
+        if (keySerializer == null)  throw new IllegalArgumentException("keySerializer must not be null");
+        Path path = snapshotPath(name);
+        RedBlackTree<K> engine = set.getEngine();
+        try (BufferedWriter writer = Files.newBufferedWriter(path)) {
+
+            writer.write(String.join("|",
+                    VERSION,
+                    Instant.now().toString(),
+                    engine.getStrategy().getClass().getSimpleName(),
+                    String.valueOf(set.size()),
+                    "DEFAULT"
+            ));
+            writer.newLine();
+
+            StringBuilder sb = new StringBuilder();
+            serializePreOrder(engine.getRoot(), engine.getNIL(), sb, keySerializer);
+            writer.write(sb.toString());
+            writer.newLine();
+
+            logger.info("Snapshot '{}' saved (generic, strategy={}) → {}",
+                    name, engine.getStrategy().getClass().getSimpleName(), path);
+
         } catch (IOException e) {
-            logger.error("Failed to list snapshots", e);
-            return Collections.emptyList();
+            logger.error("Failed to save snapshot '{}'", name, e);
         }
-    }
-
-    @Override
-    public boolean deleteSnapshot(String name) {
-        try {
-            return Files.deleteIfExists(snapshotPath(name));
-        } catch (IOException e) {
-            logger.error("Failed to delete snapshot '{}'", name, e);
-            return false;
-        }
-    }
-
-    // ── Helpers ───────────────────────────────────────────────────────────────
-
-    private Path snapshotPath(String name) {
-        if (name == null || name.isEmpty()) {
-            throw new IllegalArgumentException("Snapshot name must be non-empty");
-        }
-        // Prevent path traversal: the resolved file must stay directly inside DIR.
-        // Reject separators and parent references outright, then verify the
-        // normalized path's parent is exactly the snapshots directory.
-        if (name.contains("/") || name.contains("\\") || name.contains("..")) {
-            throw new IllegalArgumentException("Illegal snapshot name: " + name);
-        }
-        Path base     = Paths.get(DIR).toAbsolutePath().normalize();
-        Path resolved = base.resolve(name + EXT).normalize();
-        if (!resolved.getParent().equals(base)) {
-            throw new IllegalArgumentException("Snapshot name escapes snapshot directory: " + name);
-        }
-        return resolved;
     }
 
     /**
-     * Persistable token for the context's augmentor. Only the two built-in
-     * augmentors are recognized; any custom lambda is recorded as DEFAULT (its
-     * augmented values are still rebuilt from structure on load).
+     * Load a snapshot into an {@link OrderedSet} of {@code K}, parsing keys with
+     * {@code keySerializer} and ordering them by {@code keyOrder}. The comparator is supplied
+     * by the caller (comparators are not serialized) and must match the one used when saving.
+     * The engine is rebuilt wholesale and the set's size/window are resynced via
+     * {@link OrderedSet#resyncFromEngine()}. Returns {@code null} if the file is missing or
+     * malformed.
      */
-    private String augmentorToken(TreeContext ctx) {
-        return ctx.getAugmentor() == IntervalAugmentor.INSTANCE ? "INTERVAL" : "DEFAULT";
-    }
-
-    private TreeStrategy<Integer> resolveStrategy(String name) {
-        switch (name) {
-            case "AVLStrategy":    return new AVLStrategy<>();
-            case "SplayStrategy":  return new SplayStrategy<>();
-            case "HybridStrategy": return new HybridStrategy<>();
-            default:               return new RedBlackStrategy<>();
-        }
-    }
-}
+    public <K> OrderedSet<K> loadOrderedSet(String name, KeySeriali
