@@ -17,11 +17,16 @@ import java.util.*;
  * Facade over a {@link RedBlackTree} engine adding metrics, persistence,
  * augmentation, history and adaptive strategy morphing.
  *
- * <p>ADR-002 step 2: this is the {@code Integer} adapter over the now-generic
- * engine. Its public API stays {@code int}; internally it drives a
- * {@code RedBlackTree<Integer>}. The generic {@code OrderedSet<K>} facade is a
- * later step (4); until then {@code TreeContext} is the int facade and its
- * ~295-test suite is the regression harness.</p>
+ * <p>ADR-002 step 4: this is the {@code Integer} adapter over the generic
+ * {@link OrderedSet} facade. Its public API stays {@code int}; internally it
+ * holds an {@code OrderedSet<Integer>} that owns the ordered-set behaviour:
+ * dedup-guarded add/remove, the size counter, order statistics, the
+ * health-gated strategy morph, the sliding window, augmentation, and the
+ * self-repair rebuild. {@code TreeContext} retains only the genuinely
+ * {@code Integer}-bound machinery layered on top: undo/redo history, snapshot
+ * persistence, cloning, diagnostics/relic reporting, and the legacy
+ * facade-driven stress auto-morph (default off). The ~295-test {@code int}
+ * suite is the regression harness for this delegation.</p>
  *
  * <h2>Concurrency contract</h2>
  * <p><strong>This class is designed for single-threaded use.</strong> The
@@ -29,8 +34,8 @@ import java.util.*;
  * implementations, and the per-node {@link TreeNode1} state are all
  * <em>not</em> thread-safe.</p>
  *
- * <p>The state-changing operations — {@link #add(int)}, {@link #remove(int)},
- * {@link #setStrategy}, {@link #clear()} — serialize on a single internal lock,
+ * <p>The state-changing operations -- {@link #add(int)}, {@link #remove(int)},
+ * {@link #setStrategy}, {@link #clear()} -- serialize on a single internal lock,
  * which prevents two <em>writers</em> from interleaving and corrupting the tree.
  * That is the only guarantee. It is <strong>not</strong> sufficient for general
  * concurrent use, because:</p>
@@ -47,30 +52,28 @@ import java.util.*;
  * synchronization around <em>all</em> access (reads, writes, and anything done
  * with objects returned from this facade).</p>
  */
-public class TreeContext implements AugmentedTree, SelfHealingTree, OrderedCollection {
+public class TreeContext implements AugmentedTree<Integer>, SelfHealingTree, OrderedCollection<Integer> {
 
     private static final Logger logger = LogManager.getLogger(TreeContext.class);
 
-    // ── Core state ────────────────────────────────────────────────────────────
-    private RedBlackTree<Integer>     tree;
-    private int                       size;
-    private TreeStrategy<Integer>     strategy;
-    private TreeNode1.Augmentor<Integer> augmentor      = TreeNode1.<Integer>defaultAugmentor();
+    // -- Core state --
+    // The ordered-set behaviour (engine, size, order statistics, morph, window,
+    // augmentation, metrics) lives in this generic delegate. Not final: a snapshot
+    // load adopts the deserialized context's set wholesale.
+    private OrderedSet<Integer>       set;
     private TreePersistenceAdapter    persistenceAdapter;
 
-    // ── Utility delegates ─────────────────────────────────────────────────────
+    // -- Utility delegates --
     private final TreeDiagnostics     diagnostics;
     private final TreeCloner          cloner;
     private final TreeHistory         history;
 
-    // ── Metrics ───────────────────────────────────────────────────────────────
+    // -- Metrics --
+    // Rotation count is a facade-level counter (incrementRotations is a legacy hook,
+    // currently uncalled by the strategies); insert/delete timings live in the set.
     private int  rotationCount    = 0;
-    private long totalInsertTime  = 0;
-    private long totalDeleteTime  = 0;
-    private int  insertCount      = 0;
-    private int  deleteCount      = 0;
 
-    // ── Stress / adaptive morph ───────────────────────────────────────────────
+    // -- Stress / adaptive morph --
     private static final int          STRESS_THRESHOLD  = 3;
     private static final int          MEMORY_LIMIT      = 50;
     private final Map<Integer, Integer> frequencyMap    = new HashMap<>();
@@ -87,107 +90,81 @@ public class TreeContext implements AugmentedTree, SelfHealingTree, OrderedColle
     private boolean autoMorphEnabled = false;
 
     /**
-     * Bounded-set / sliding-window capacity. 0 = unbounded (default). When &gt; 0,
-     * a successful {@link #add} that pushes the set over capacity evicts the
-     * oldest-inserted key (FIFO), keeping order statistics correct on the
-     * survivors. {@link #liveOrder} tracks live keys in insertion order.
-     */
-    private int maxSize = 0;
-    private final LinkedHashSet<Integer> liveOrder = new LinkedHashSet<>();
-
-    /**
      * When false, {@link #add}/{@link #remove} skip recording undo history.
      * {@link TreeHistory} flips this off while replaying inverse operations
      * during undo/redo so the replay does not itself generate new history.
-     * Internal collaborator hook — not part of the public client API.
+     * Internal collaborator hook -- not part of the public client API.
      */
     private boolean historyRecording = true;
 
-    // ── Constructor ───────────────────────────────────────────────────────────
+    // -- Constructor --
     public TreeContext(TreeStrategy<Integer> strategy) {
         logger.info("=== TREE CONTEXT INITIALIZED [strategy={}] ===",
                 strategy.getClass().getSimpleName());
-        this.strategy          = strategy;
-        this.tree              = RedBlackTree.withNaturalOrder(strategy);
+        this.set                = OrderedSet.withNaturalOrder(strategy);
         this.persistenceAdapter = new FilePersistenceAdapter();
-        this.diagnostics       = new TreeDiagnostics(this);
-        this.cloner            = new TreeCloner(this);
-        this.history           = new TreeHistory(this);
+        this.diagnostics        = new TreeDiagnostics(this);
+        this.cloner             = new TreeCloner(this);
+        this.history            = new TreeHistory(this);
     }
 
-    // ── Core operations ───────────────────────────────────────────────────────
+    // -- Core operations --
 
-    public void add(int value) {
+    /** Public {@code int} API -- delegates to the {@code Integer} adapter method. */
+    public void add(int value) { add(Integer.valueOf(value)); }
+
+    /**
+     * {@inheritDoc}
+     *
+     * <p>{@link OrderedSet#add} is the dedup guard: the size counter, FIFO window,
+     * augmentor stamping and insert metrics all happen inside it, and it returns
+     * {@code false} on a duplicate. So the {@code Integer}-only side-effects -- undo
+     * history and the stress signal -- fire only on a real insert, keeping the undo
+     * log and counters from drifting on a no-op add.</p>
+     */
+    @Override
+    public boolean add(Integer value) {
         synchronized (lock) {
-            // Duplicate guard: every strategy silently skips an existing key, so
-            // incrementing size/metrics/history unconditionally would drift the
-            // counters and record a phantom ADD whose later undo deletes a key the
-            // caller never inserted. Only proceed when the insert truly happens.
-            if (tree.contains(value)) {
+            if (!set.add(value)) {
                 logger.debug("Duplicate add ignored: {}", value);
-                return;
+                return false;
             }
-            long start = System.nanoTime();
-
-            tree.add(value);
-            size++;
-            liveOrder.add(value);   // FIFO insertion order, for windowed eviction
-
-            // Stamp the context's current augmentor onto the freshly inserted node
-            // so non-default augmentation (e.g. interval max-hi) is maintained for
-            // keys added after setAugmentor(). createNode always installs the
-            // default (subtree-size) augmentor, so without this a later insert
-            // silently reverts that node to size augmentation.
-            if (this.augmentor != TreeNode1.<Integer>defaultAugmentor()) {
-                TreeNode1<Integer> inserted = tree.getStrategy().search(tree, value);
-                if (!inserted.isNil()) inserted.setAugmentor(this.augmentor);
-            }
-
-            totalInsertTime += System.nanoTime() - start;
-            insertCount++;
             // Inverse-command undo: record only the value, not a full tree copy.
-            // (Previously snapshotted the entire tree here → O(n) per insert,
-            //  O(n^2) to build a tree. See docs/code-review-2026-05-29.md #3.)
             if (historyRecording) history.recordAdd(value);
             updateMetadata(value);
-
-            // Sliding-window eviction: drop oldest-inserted keys until within
-            // capacity. Done as a system action (not recorded in undo history).
-            while (maxSize > 0 && size > maxSize) {
-                if (!evictOldest()) break;
-            }
+            return true;
         }
     }
 
-    public void remove(int value) {
+    /** Public {@code int} API -- delegates to the {@code Integer} adapter method. */
+    public void remove(int value) { remove(Integer.valueOf(value)); }
+
+    /** {@inheritDoc} */
+    @Override
+    public boolean remove(Integer value) {
         synchronized (lock) {
-            // Guard: only decrement size and record history if the value exists
-            if (!tree.contains(value)) {
-                logger.warn("Remove skipped — value={} not found", value);
-                return;
+            if (!set.remove(value)) {
+                logger.warn("Remove skipped -- value={} not found", value);
+                return false;
             }
-            long start = System.nanoTime();
-
-            tree.remove(value);
-            size--;
-            liveOrder.remove(value);
-
-            totalDeleteTime += System.nanoTime() - start;
-            deleteCount++;
             if (historyRecording) history.recordRemove(value);
             frequencyMap.remove(value);
             morphIfStressed();
+            return true;
         }
     }
 
-    public boolean contains(int value) {
-        return tree.contains(value);
-    }
+    /** Public {@code int} API. */
+    public boolean contains(int value) { return set.contains(value); }
 
-    // ── AugmentedTree ─────────────────────────────────────────────────────────
+    /** {@inheritDoc} */
+    @Override
+    public boolean contains(Integer value) { return set.contains(value); }
+
+    // -- AugmentedTree --
 
     /** The augmentor currently applied to nodes in this context. */
-    public TreeNode1.Augmentor<Integer> getAugmentor() { return augmentor; }
+    public TreeNode1.Augmentor<Integer> getAugmentor() { return set.getAugmentor(); }
 
     /** Enable/disable the legacy facade-driven stress auto-morph (default off). */
     public void setAutoMorphEnabled(boolean enabled) { this.autoMorphEnabled = enabled; }
@@ -197,155 +174,60 @@ public class TreeContext implements AugmentedTree, SelfHealingTree, OrderedColle
 
     /**
      * Set the bounded-set capacity (0 = unbounded). When positive, the set keeps
-     * at most {@code n} keys, evicting the oldest-inserted ones first — a
+     * at most {@code n} keys, evicting the oldest-inserted ones first -- a
      * sliding window. Order statistics stay exact on the survivors. Setting a
      * positive capacity immediately evicts down to it.
      */
-    public void setMaxSize(int n) {
-        synchronized (lock) {
-            this.maxSize = Math.max(0, n);
-            while (maxSize > 0 && size > maxSize) {
-                if (!evictOldest()) break;
-            }
-        }
-    }
+    public void setMaxSize(int n) { set.setMaxSize(n); }
 
     /** @return the bounded-set capacity, or 0 if unbounded. */
-    public int getMaxSize() { return maxSize; }
-
-    /**
-     * Evict the oldest-inserted live key (FIFO). System action: not recorded in
-     * undo history. Returns false if there is nothing to evict.
-     */
-    private boolean evictOldest() {
-        if (liveOrder.size() != size) resyncLiveOrder();   // safety net after bulk rebuilds
-        java.util.Iterator<Integer> it = liveOrder.iterator();
-        if (!it.hasNext()) return false;
-        int oldest = it.next();
-        it.remove();
-        if (tree.contains(oldest)) {
-            tree.remove(oldest);
-            size--;
-            frequencyMap.remove(oldest);
-        }
-        return true;
-    }
-
-    /**
-     * Rebuild {@link #liveOrder} from the current contents. Used only as a safety
-     * net when the backing tree was replaced wholesale (snapshot load) and true
-     * insertion order is no longer known; falls back to ascending key order.
-     */
-    private void resyncLiveOrder() {
-        liveOrder.clear();
-        liveOrder.addAll(diagnostics.inOrderTraversal());
-    }
+    public int getMaxSize() { return set.getMaxSize(); }
 
     @Override
     public void setAugmentor(TreeNode1.Augmentor<Integer> augmentor) {
-        this.augmentor = (augmentor != null) ? augmentor : TreeNode1.<Integer>defaultAugmentor();
-        synchronized (lock) {
-            // Re-apply augmentor to every existing node (iterative DFS)
-            TreeNode1<Integer> root = tree.getRoot();
-            if (root.isNil()) return;
-
-            Deque<TreeNode1<Integer>> stack = new ArrayDeque<>();
-            stack.push(root);
-            while (!stack.isEmpty()) {
-                TreeNode1<Integer> current = stack.pop();
-                current.setAugmentor(this.augmentor);
-                if (!current.getRight().isNil()) stack.push(current.getRight());
-                if (!current.getLeft().isNil())  stack.push(current.getLeft());
-            }
-        }
+        set.setAugmentor(augmentor);
     }
 
-    // ── SelfHealingTree ───────────────────────────────────────────────────────
+    // -- SelfHealingTree --
 
     @Override
     public boolean selfRepair() {
-        logger.warn("Initiating self-repair protocol…");
+        logger.warn("Initiating self-repair protocol...");
+        // Cheap short-circuit on an already-healthy tree (preserves the original
+        // no-op-when-valid behaviour and avoids a needless rebuild).
         if (diagnostics.isValidRedBlack()) {
-            logger.info("Tree stable — no repair needed.");
+            logger.info("Tree stable -- no repair needed.");
             return true;
         }
-
-        // Capture elements (with their per-node tags) BEFORE clearing — don't
-        // wipe history/snapshots, and don't lose interval high endpoints.
-        Map<Integer, String> keyTags = captureKeyTags();
-        List<Integer> elements = new ArrayList<>(keyTags.keySet());
-        logger.warn("Rebuilding from {} elements: {}", elements.size(), elements);
-
-        // Only reset the structural state, not history or snapshots
         synchronized (lock) {
-            tree.setRoot(tree.getNIL());
-            size = 0;
+            // OrderedSet.selfRepair rebuilds from a sorted, de-duplicated snapshot
+            // (carrying per-node tags) and validates via StrategyHealthCheck.
+            boolean repaired = set.selfRepair();
+            // The engine was rebuilt wholesale; reset the (default-off) stress signal
+            // so a stale red-red counter cannot trip a spurious morph afterwards.
             frequencyMap.clear();
             recentInsertions.clear();
             stressEvents.clear();
+            logger.info("Self-repair: {}", repaired ? "SUCCESS" : "FAILURE");
+            return repaired;
         }
-
-        for (int value : elements) add(value);   // add() re-stamps the augmentor
-        restoreTags(keyTags);
-
-        boolean repaired = diagnostics.isValidRedBlack();
-        logger.info("Self-repair: {}", repaired ? "SUCCESS" : "FAILURE");
-        return repaired;
     }
 
-    // ── Strategy swap (adaptive morph) ────────────────────────────────────────
+    // -- Strategy swap (adaptive morph) --
 
     /**
-     * Swaps strategy and rebuilds the tree in-place from an in-order traversal.
-     * Without the rebuild the morph would produce an empty tree — silent data loss.
+     * Swap the balancing strategy. Delegates the health-gated morph (build the
+     * candidate aside -> validate -> publish, carrying per-node tags) to
+     * {@link OrderedSet#setStrategy}; a rejected or same-class morph leaves the
+     * incumbent untouched and returns {@code false}.
      */
     public boolean setStrategy(TreeStrategy<Integer> newStrategy) {
         synchronized (lock) {
-            if (newStrategy == null || newStrategy.getClass() == strategy.getClass()) return false;
-
-            Map<Integer, String> keyTags = captureKeyTags();
-            List<Integer> elements = new ArrayList<>(keyTags.keySet()); // ascending, distinct
-            logger.info("Morphing strategy: {} → {} ({} elements) — building candidate aside",
-                    strategy.getClass().getSimpleName(),
-                    newStrategy.getClass().getSimpleName(),
-                    elements.size());
-
-            // ── Build the candidate OFF TO THE SIDE — the incumbent tree is never
-            //    touched, so a failed validation costs nothing to roll back. ──────
-            RedBlackTree<Integer> candidate = RedBlackTree.withNaturalOrder(newStrategy);
-            for (int value : elements) candidate.add(value);
-
-            // ── Health gate: validate before publishing (DESIGN §3.4). The
-            //    candidate carries the default subtree-size augment here, so the
-            //    order-statistics clause is valid regardless of this context's
-            //    augmentor (re-applied after the swap below). ───────────────────
-            List<String> failures =
-                    StrategyHealthCheck.validate(candidate, newStrategy, elements);
-            if (!failures.isEmpty()) {
-                logger.warn("Morph to {} REJECTED by health gate: {} — keeping {} (incumbent untouched)",
-                        newStrategy.getClass().getSimpleName(), failures,
-                        strategy.getClass().getSimpleName());
-                return false;
-            }
-
-            // ── Publish: single reference swap under the write lock. ────────────
-            this.strategy = newStrategy;
-            this.tree     = candidate;
-            this.size     = elements.size();
-
-            // Restore non-default augmentation + per-node tags onto the published
-            // tree so interval trees survive the morph instead of degrading.
-            if (this.augmentor != TreeNode1.<Integer>defaultAugmentor()) {
-                setAugmentor(this.augmentor);   // re-applies to every published node
-            }
-            restoreTags(keyTags);
-
-            logger.info("Morph complete and health-validated. New size={}", size);
-            return true;
+            return set.setStrategy(newStrategy);
         }
     }
 
-    // ── Persistence ───────────────────────────────────────────────────────────
+    // -- Persistence --
 
     public void saveSnapshot(String name) {
         persistenceAdapter.saveSnapshot(name, cloner.snapshot());
@@ -359,19 +241,19 @@ public class TreeContext implements AugmentedTree, SelfHealingTree, OrderedColle
             return;
         }
         synchronized (lock) {
-            this.tree          = snapshot.tree;
-            this.size          = snapshot.size;
-            this.strategy      = snapshot.strategy;
-            this.augmentor     = snapshot.augmentor;
+            // The snapshot was deserialized into its own TreeContext: its engine was
+            // rebuilt wholesale and its set's size/window resynced via
+            // forceSizeInternal. Adopt that set outright, then copy the Integer-only
+            // extras. (frequencyMap is preserved; history/snapshots are not wiped.)
+            this.set           = snapshot.set;
             this.rotationCount = snapshot.rotationCount;
             this.frequencyMap.clear();
             this.frequencyMap.putAll(snapshot.frequencyMap);
-            resyncLiveOrder();   // tree was replaced wholesale; rebuild FIFO order
-            logger.info("Snapshot '{}' loaded. size={}", name, size);
+            logger.info("Snapshot '{}' loaded. size={}", name, set.size());
         }
     }
 
-    // ── Advanced (delegated) ──────────────────────────────────────────────────
+    // -- Advanced (delegated) --
 
     // Alien-seed / agent-swarm were experimental theatrics that could install a
     // non-BST into a live, contract-bound context; they now live in the
@@ -381,34 +263,36 @@ public class TreeContext implements AugmentedTree, SelfHealingTree, OrderedColle
     public List<TreeContext> deployCloneArmy(int count)       { return cloner.deployCloneArmy(count); }
     public void emitRelicBeacon()                             { diagnostics.emitRelicBeacon(); }
 
-    // ── Metrics getters ───────────────────────────────────────────────────────
+    // -- Metrics getters --
 
-    public RedBlackTree<Integer> getTree() { return tree; }
-    public int          getSize()          { return size; }
+    public RedBlackTree<Integer> getTree() { return set.getEngine(); }
+    public int          getSize()          { return set.size(); }
 
     /** Undo/redo + checkpoint history for this context. */
     public TreeHistory  getHistory()       { return history; }
 
-    // ── OrderedCollection: neutral client-facing views ────────────────────────
+    // -- OrderedCollection: neutral client-facing views --
     // size()/inOrder() satisfy the interface; getSize() is retained for callers
     // already written against it.
 
     /** {@inheritDoc} */
     @Override
-    public int size() { return size; }
+    public int size() { return set.size(); }
 
     /** {@inheritDoc} Ascending keys, delegated to the backing engine. */
     @Override
-    public List<Integer> inOrder() { return diagnostics.inOrderTraversal(); }
+    public List<Integer> inOrder() { return set.inOrder(); }
     public int          getRotationCount() { return rotationCount; }
-    public void         incrementRotations(){ rotationCount++; }  // called by strategy
+    public void         incrementRotations(){ rotationCount++; }  // legacy hook (strategies do not call it)
 
     /**
-     * Directly overrides the cached size. Reserved for trusted utility
-     * collaborators (TreeAgent / TreeCloner / TreeHistory) that rebuild the
-     * backing tree out-of-band and must resync the facade's size counter.
+     * Resync the facade after the backing engine was rebuilt out-of-band through
+     * {@link #getTree()} (snapshot deserialization, undo/redo restore, clone
+     * rebuild). The {@code OrderedSet} recomputes its size and FIFO window from the
+     * engine's current contents; the {@code n} argument is advisory. Reserved for
+     * trusted utility collaborators (TreeCloner / TreeHistory / FilePersistenceAdapter).
      */
-    public void forceSizeInternal(int n) { this.size = n; }
+    public void forceSizeInternal(int n) { set.resyncFromEngine(); }
 
     /**
      * Enable/disable undo-history recording. Reserved for {@link TreeHistory}
@@ -416,49 +300,10 @@ public class TreeContext implements AugmentedTree, SelfHealingTree, OrderedColle
      */
     public void setHistoryRecording(boolean enabled) { this.historyRecording = enabled; }
 
-    public double avgInsertTimeMs() {
-        return insertCount == 0 ? 0 : (totalInsertTime / 1_000_000.0) / insertCount;
-    }
-    public double avgDeleteTimeMs() {
-        return deleteCount == 0 ? 0 : (totalDeleteTime / 1_000_000.0) / deleteCount;
-    }
+    public double avgInsertTimeMs() { return set.avgInsertTimeMs(); }
+    public double avgDeleteTimeMs() { return set.avgDeleteTimeMs(); }
 
-    // ── Internal ──────────────────────────────────────────────────────────────
-
-    /**
-     * In-order snapshot of every key and its tag. {@link LinkedHashMap} keeps
-     * ascending key order, which also gives a stable re-insertion order for
-     * rebuilds (morph / self-repair).
-     */
-    private Map<Integer, String> captureKeyTags() {
-        Map<Integer, String> out = new LinkedHashMap<>();
-        Deque<TreeNode1<Integer>> stack = new ArrayDeque<>();
-        TreeNode1<Integer> cur = tree.getRoot();
-        while (!stack.isEmpty() || !cur.isNil()) {
-            while (!cur.isNil()) { stack.push(cur); cur = cur.getLeft(); }
-            cur = stack.pop();
-            out.put(cur.getData(), cur.getTag());
-            cur = cur.getRight();
-        }
-        return out;
-    }
-
-    /**
-     * Re-apply captured tags after a rebuild. Setting a tag does not itself
-     * trigger augmentation, so each tagged node is re-augmented to propagate
-     * tag-derived values (e.g. interval max-hi) back up the tree.
-     */
-    private void restoreTags(Map<Integer, String> keyTags) {
-        for (Map.Entry<Integer, String> e : keyTags.entrySet()) {
-            String tag = e.getValue();
-            if (tag == null || tag.isEmpty()) continue;
-            TreeNode1<Integer> n = tree.getStrategy().search(tree, e.getKey());
-            if (!n.isNil()) {
-                n.setTag(tag);
-                n.reaugment();
-            }
-        }
-    }
+    // -- Internal --
 
     private void updateMetadata(int value) {
         frequencyMap.merge(value, 1, Integer::sum);
@@ -486,7 +331,7 @@ public class TreeContext implements AugmentedTree, SelfHealingTree, OrderedColle
         if (!autoMorphEnabled) return;
         int violations = stressEvents.getOrDefault("redRedViolations", 0);
         if (violations > STRESS_THRESHOLD) {
-            logger.warn("STRESS THRESHOLD EXCEEDED (violations={}) — morphing to AVL.", violations);
+            logger.warn("STRESS THRESHOLD EXCEEDED (violations={}) -- morphing to AVL.", violations);
             stressEvents.put("redRedViolations", 0);
             setStrategy(new AVLStrategy<>()); // health-gated; preserves data
         }
@@ -494,12 +339,10 @@ public class TreeContext implements AugmentedTree, SelfHealingTree, OrderedColle
 
     public void clear() {
         synchronized (lock) {
-            tree.setRoot(tree.getNIL());
-            size = 0;
+            set.clear();
             frequencyMap.clear();
             recentInsertions.clear();
             stressEvents.clear();
-            liveOrder.clear();
         }
     }
 }

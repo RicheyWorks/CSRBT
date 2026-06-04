@@ -1,0 +1,348 @@
+package core;
+
+import core.interfaces.AugmentedTree;
+import core.interfaces.OrderedCollection;
+import core.interfaces.SelfHealingTree;
+import core.strategy.TreeStrategy;
+import core.util.OrderStatisticsOps;
+import core.util.StrategyHealthCheck;
+
+import java.util.ArrayDeque;
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.Deque;
+import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.TreeSet;
+
+/**
+ * Generic, client-facing ordered set of {@code K} keys over the strategy-driven
+ * {@link RedBlackTree} engine (ADR-002 step 4, the {@code OrderedSet<K>} facade).
+ *
+ * <p>Ordering is supplied by a pluggable {@link Comparator}; {@link #withNaturalOrder}
+ * is the convenience factory for {@link Comparable} keys. This is the key-type-agnostic
+ * core of what {@code TreeContext} used to do inline: dedup-guarded add/remove with a
+ * size counter, dynamic order statistics, a health-gated strategy morph, a sliding
+ * window, and pluggable augmentation. Genuinely {@code Integer}-bound concerns -- undo
+ * history, snapshot persistence, interval helpers, cloning -- deliberately stay on the
+ * {@code TreeContext} adapter (step 4 keeps this facade dependency-light; persistence is
+ * step 5).</p>
+ *
+ * <p><b>Concurrency:</b> single-threaded use. State-changing operations serialize on an
+ * internal lock against each other, but reads take no lock and accessors such as
+ * {@link #getEngine()} expose live internal structure. Provide external synchronization
+ * for concurrent access.</p>
+ */
+public class OrderedSet<K> implements SelfHealingTree, OrderedCollection<K>, AugmentedTree<K> {
+
+    private RedBlackTree<K> tree;
+    private final Comparator<? super K> keyOrder;
+    private OrderStatisticsOps<K> os;            // rebuilt whenever the engine is replaced
+
+    private int size = 0;
+    private TreeNode1.Augmentor<K> augmentor = TreeNode1.defaultAugmentor();
+
+    // -- sliding-window (0 = unbounded) --
+    private int maxSize = 0;
+    private final LinkedHashSet<K> liveOrder = new LinkedHashSet<>();
+
+    // -- metrics --
+    private long totalInsertTime = 0;
+    private long totalDeleteTime = 0;
+    private int  insertCount = 0;
+    private int  deleteCount = 0;
+
+    private final Object lock = new Object();
+
+    public OrderedSet(TreeStrategy<K> strategy, Comparator<? super K> keyOrder) {
+        if (strategy == null) throw new IllegalArgumentException("strategy cannot be null");
+        if (keyOrder == null) throw new IllegalArgumentException("keyOrder cannot be null");
+        this.keyOrder = keyOrder;
+        this.tree = new RedBlackTree<>(strategy, keyOrder);
+        this.os   = new OrderStatisticsOps<>(tree);
+    }
+
+    /** Convenience factory for naturally-ordered {@link Comparable} keys. */
+    public static <K extends Comparable<? super K>> OrderedSet<K> withNaturalOrder(TreeStrategy<K> strategy) {
+        return new OrderedSet<>(strategy, Comparator.naturalOrder());
+    }
+
+    // -- Core ordered-set operations --
+
+    /** @return {@code true} if the key was inserted; {@code false} if already present. */
+    public boolean add(K value) {
+        synchronized (lock) {
+            if (tree.contains(value)) return false;
+            long start = System.nanoTime();
+            tree.add(value);
+            size++;
+            liveOrder.add(value);                          // FIFO order for windowed eviction
+            // Non-default augmentation must be stamped onto the freshly created node, which
+            // createNode installs with the default (subtree-size) augmentor.
+            if (!isDefaultAugmentor()) {
+                TreeNode1<K> inserted = tree.getStrategy().search(tree, value);
+                if (!inserted.isNil()) inserted.setAugmentor(augmentor);
+            }
+            totalInsertTime += System.nanoTime() - start;
+            insertCount++;
+            while (maxSize > 0 && size > maxSize) {
+                if (!evictOldest()) break;
+            }
+            return true;
+        }
+    }
+
+    /** @return {@code true} if the key was present and removed; {@code false} otherwise. */
+    public boolean remove(K value) {
+        synchronized (lock) {
+            if (!tree.contains(value)) return false;
+            long start = System.nanoTime();
+            tree.remove(value);
+            size--;
+            liveOrder.remove(value);
+            totalDeleteTime += System.nanoTime() - start;
+            deleteCount++;
+            return true;
+        }
+    }
+
+    public boolean contains(K value) { return tree.contains(value); }
+
+    public int size() { return size; }
+
+    public boolean isEmpty() { return size == 0; }
+
+    /** @return all keys in ascending order. */
+    public List<K> inOrder() { return tree.inOrder(); }
+
+    public void clear() {
+        synchronized (lock) {
+            tree.setRoot(tree.getNIL());
+            size = 0;
+            liveOrder.clear();
+        }
+    }
+
+    // -- Dynamic order statistics (delegated to OrderStatisticsOps<K>) --
+    // Ranks/percentiles are positional ints; everything else is keyed by K.
+
+    /** ith smallest key (1-indexed). @throws IndexOutOfBoundsException if out of [1,size]. */
+    public K select(int rank) { return os.select(rank).getData(); }
+
+    /** 1-indexed rank of a key. @throws java.util.NoSuchElementException if absent. */
+    public int rank(K value) { return os.rank(value); }
+
+    /** Smallest key strictly greater than {@code value}, or {@code null} if none. @throws if absent. */
+    public K successor(K value) { return keyOrNull(os.successor(value)); }
+
+    /** Largest key strictly less than {@code value}, or {@code null} if none. @throws if absent. */
+    public K predecessor(K value) { return keyOrNull(os.predecessor(value)); }
+
+    public K minimum() { return isEmpty() ? null : os.minimum().getData(); }
+
+    public K maximum() { return keyOrNull(os.maximum()); }
+
+    public K median() { return keyOrNull(os.median()); }
+
+    /** kth-percentile key (0-100), or {@code null} if empty. */
+    public K percentile(int pct) { return keyOrNull(os.percentile(pct)); }
+
+    /** Count of keys in the closed range [lo, hi]. */
+    public int countInRange(K lo, K hi) { return os.countInRange(lo, hi); }
+
+    /** Keys in [lo, hi], ascending. */
+    public List<K> rangeQuery(K lo, K hi) { return os.rangeQuery(lo, hi); }
+
+    private K keyOrNull(TreeNode1<K> node) { return (node == null || node.isNil()) ? null : node.getData(); }
+
+    // -- Sliding window --
+
+    /** Set the bounded-set capacity (0 = unbounded); evicts oldest-inserted keys down to it. */
+    public void setMaxSize(int n) {
+        synchronized (lock) {
+            this.maxSize = Math.max(0, n);
+            while (maxSize > 0 && size > maxSize) {
+                if (!evictOldest()) break;
+            }
+        }
+    }
+
+    public int getMaxSize() { return maxSize; }
+
+    private boolean evictOldest() {
+        if (liveOrder.size() != size) resyncLiveOrder();   // safety net after wholesale rebuilds
+        java.util.Iterator<K> it = liveOrder.iterator();
+        if (!it.hasNext()) return false;
+        K oldest = it.next();
+        it.remove();
+        if (tree.contains(oldest)) {
+            tree.remove(oldest);
+            size--;
+        }
+        return true;
+    }
+
+    private void resyncLiveOrder() {
+        liveOrder.clear();
+        liveOrder.addAll(tree.inOrder());                  // ascending fallback when true FIFO is lost
+    }
+
+    // -- Augmentation --
+
+    public void setAugmentor(TreeNode1.Augmentor<K> augmentor) {
+        synchronized (lock) {
+            this.augmentor = (augmentor != null) ? augmentor : TreeNode1.<K>defaultAugmentor();
+            reapplyAugmentor();
+        }
+    }
+
+    public TreeNode1.Augmentor<K> getAugmentor() { return augmentor; }
+
+    private boolean isDefaultAugmentor() {
+        return augmentor == TreeNode1.<K>defaultAugmentor();
+    }
+
+    private void reapplyAugmentor() {
+        TreeNode1<K> root = tree.getRoot();
+        if (root.isNil()) return;
+        Deque<TreeNode1<K>> stack = new ArrayDeque<>();
+        stack.push(root);
+        while (!stack.isEmpty()) {
+            TreeNode1<K> cur = stack.pop();
+            cur.setAugmentor(this.augmentor);
+            if (!cur.getRight().isNil()) stack.push(cur.getRight());
+            if (!cur.getLeft().isNil())  stack.push(cur.getLeft());
+        }
+    }
+
+    // -- Strategy morph (health-gated, builds the candidate aside) --
+
+    /**
+     * Swap the balancing strategy, rebuilding the tree from its in-order contents. The
+     * candidate is built off to the side and validated by {@link StrategyHealthCheck};
+     * it is published only on a clean pass, so a rejected morph leaves the incumbent
+     * untouched. Per-node tags carry across so augmented data (e.g. interval max-hi)
+     * survives. @return {@code true} if the morph was applied.
+     */
+    public boolean setStrategy(TreeStrategy<K> newStrategy) {
+        synchronized (lock) {
+            if (newStrategy == null
+                    || newStrategy.getClass() == tree.getStrategy().getClass()) {
+                return false;
+            }
+            Map<K, String> keyTags = captureKeyTags();
+            List<K> elements = new ArrayList<>(keyTags.keySet());   // ascending, distinct
+
+            RedBlackTree<K> candidate = new RedBlackTree<>(newStrategy, keyOrder);
+            for (K v : elements) candidate.add(v);
+
+            List<String> failures = StrategyHealthCheck.validate(candidate, newStrategy, elements);
+            if (!failures.isEmpty()) return false;
+
+            this.tree = candidate;
+            this.os   = new OrderStatisticsOps<>(candidate);
+            this.size = elements.size();
+            if (!isDefaultAugmentor()) reapplyAugmentor();
+            restoreTags(keyTags);
+            resyncLiveOrder();
+            return true;
+        }
+    }
+
+    public TreeStrategy<K> getStrategy() { return tree.getStrategy(); }
+
+    // -- Self-healing --
+
+    /**
+     * Rebuild the tree from a sorted, de-duplicated snapshot of its keys under the
+     * current strategy, then report whether the rebuilt tree validates. A defensive
+     * rebuild: cheap when the tree is already healthy, corrective when it is not.
+     */
+    @Override
+    public boolean selfRepair() {
+        synchronized (lock) {
+            TreeStrategy<K> strategy = tree.getStrategy();
+            TreeSet<K> sorted = new TreeSet<>(keyOrder);
+            sorted.addAll(tree.inOrder());
+            List<K> elements = new ArrayList<>(sorted);
+            Map<K, String> keyTags = captureKeyTags();
+
+            RedBlackTree<K> rebuilt = new RedBlackTree<>(strategy, keyOrder);
+            for (K v : elements) rebuilt.add(v);
+
+            this.tree = rebuilt;
+            this.os   = new OrderStatisticsOps<>(rebuilt);
+            this.size = elements.size();
+            if (!isDefaultAugmentor()) reapplyAugmentor();
+            restoreTags(keyTags);
+            resyncLiveOrder();
+            return StrategyHealthCheck.validate(rebuilt, strategy, elements).isEmpty();
+        }
+    }
+
+    // -- Accessors / metrics --
+
+    /** The tree's key-ordering authority. */
+    public Comparator<? super K> comparator() { return keyOrder; }
+
+    /** The live backing engine. Exposes internal structure; treat as read-mostly. */
+    public RedBlackTree<K> getEngine() { return tree; }
+
+    /**
+     * Resynchronize the cached size and FIFO window from the backing engine after
+     * its root was replaced out-of-band via {@link #getEngine()} (e.g. snapshot
+     * load, undo/redo restore, or a clone rebuild that mutates the engine directly
+     * and then resizes). True insertion order is unknowable after a wholesale
+     * rebuild, so the window falls back to ascending key order -- the same safety
+     * net {@code resyncLiveOrder} applies after a morph. Lets the {@code TreeContext}
+     * adapter honour its {@code forceSizeInternal} contract while {@code OrderedSet}
+     * owns the engine, size, and window.
+     */
+    public void resyncFromEngine() {
+        synchronized (lock) {
+            List<K> keys = tree.inOrder();
+            this.size = keys.size();
+            liveOrder.clear();
+            liveOrder.addAll(keys);
+        }
+    }
+
+    public double avgInsertTimeMs() {
+        return insertCount == 0 ? 0 : (totalInsertTime / 1_000_000.0) / insertCount;
+    }
+
+    public double avgDeleteTimeMs() {
+        return deleteCount == 0 ? 0 : (totalDeleteTime / 1_000_000.0) / deleteCount;
+    }
+
+    // -- Internal --
+
+    /** In-order snapshot of every key and its tag ({@link LinkedHashMap} keeps ascending order). */
+    private Map<K, String> captureKeyTags() {
+        Map<K, String> out = new LinkedHashMap<>();
+        Deque<TreeNode1<K>> stack = new ArrayDeque<>();
+        TreeNode1<K> cur = tree.getRoot();
+        while (!stack.isEmpty() || !cur.isNil()) {
+            while (!cur.isNil()) { stack.push(cur); cur = cur.getLeft(); }
+            cur = stack.pop();
+            out.put(cur.getData(), cur.getTag());
+            cur = cur.getRight();
+        }
+        return out;
+    }
+
+    /** Re-apply captured tags after a rebuild, re-augmenting so tag-derived values propagate. */
+    private void restoreTags(Map<K, String> keyTags) {
+        for (Map.Entry<K, String> e : keyTags.entrySet()) {
+            String tag = e.getValue();
+            if (tag == null || tag.isEmpty()) continue;
+            TreeNode1<K> n = tree.getStrategy().search(tree, e.getKey());
+            if (!n.isNil()) {
+                n.setTag(tag);
+                n.reaugment();
+            }
+        }
+    }
+}

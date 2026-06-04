@@ -26,21 +26,25 @@ import java.util.List;
  *       the candidate is built with the default subtree-size augmentor.</li>
  * </ol>
  *
- * <p>ADR-002 step 2: pinned to {@code Integer} keys (it backs the {@code int}
- * {@code TreeContext} facade and compares against an {@code List<Integer>}).</p>
+ * <p>ADR-002 step 4: generic over the key type {@code K}. Every clause is
+ * key-agnostic — contents/size via {@code inOrder()}/{@code size()}, ordering via
+ * {@link TreeNode1#compareTo}, and the order-statistics spot check via
+ * {@code select}/{@code rank} — so the same validator serves the generic
+ * {@link core.OrderedSet} and the {@code Integer} {@code TreeContext} adapter
+ * (which calls it with {@code K = Integer}, inferred).</p>
  */
 public final class StrategyHealthCheck {
 
     private StrategyHealthCheck() { }
 
     /** @return list of failure descriptions; empty means the candidate is healthy. */
-    public static List<String> validate(RedBlackTree<Integer> candidate,
-                                        TreeStrategy<Integer> strategy,
-                                        List<Integer> expectedSortedKeys) {
+    public static <K> List<String> validate(RedBlackTree<K> candidate,
+                                            TreeStrategy<K> strategy,
+                                            List<K> expectedSortedKeys) {
         List<String> failures = new ArrayList<>();
 
         // 1 + 2: contents and size.
-        List<Integer> in = candidate.inOrder();
+        List<K> in = candidate.inOrder();
         if (!in.equals(expectedSortedKeys)) {
             failures.add("in-order keys differ from expected (" + in.size()
                     + " vs " + expectedSortedKeys.size() + ")");
@@ -74,7 +78,7 @@ public final class StrategyHealthCheck {
         // 5: order-statistics spot check (candidate carries subtree-size augment).
         if (failures.isEmpty() && !expectedSortedKeys.isEmpty()) {
             try {
-                OrderStatisticsOps<Integer> os = new OrderStatisticsOps<>(candidate);
+                OrderStatisticsOps<K> os = new OrderStatisticsOps<>(candidate);
                 int n = expectedSortedKeys.size();
                 int step = Math.max(1, n / 16);
                 for (int r = 1; r <= n; r += step) {
@@ -97,21 +101,21 @@ public final class StrategyHealthCheck {
 
     // ── Invariant helpers ──────────────────────────────────────────────────────
 
-    private static boolean isBst(TreeNode1<Integer> n) {
+    private static <K> boolean isBst(TreeNode1<K> n) {
         if (n.isNil()) return true;
         if (!n.getLeft().isNil()  && n.getLeft().compareTo(n)  >= 0) return false;
         if (!n.getRight().isNil() && n.getRight().compareTo(n) <= 0) return false;
         return isBst(n.getLeft()) && isBst(n.getRight());
     }
 
-    private static boolean isRedBlackValid(TreeNode1<Integer> root) {
+    private static <K> boolean isRedBlackValid(TreeNode1<K> root) {
         if (root.isNil()) return true;
         if (root.isRed()) return false;        // root must be black
         return blackHeight(root) >= 0;          // -1 signals a violation
     }
 
     /** @return uniform black-height, or -1 if a red-red or black-height violation exists. */
-    private static int blackHeight(TreeNode1<Integer> n) {
+    private static <K> int blackHeight(TreeNode1<K> n) {
         if (n.isNil()) return 1;
         if (n.isRed() && (n.getLeft().isRed() || n.getRight().isRed())) return -1;
         int lh = blackHeight(n.getLeft());
@@ -120,12 +124,12 @@ public final class StrategyHealthCheck {
         return lh + (n.isBlack() ? 1 : 0);
     }
 
-    private static boolean isHeightBalanced(TreeNode1<Integer> n) {
+    private static <K> boolean isHeightBalanced(TreeNode1<K> n) {
         return balancedHeight(n) >= 0;
     }
 
     /** @return actual height, or -1 if any node's |balance factor| > 1. */
-    private static int balancedHeight(TreeNode1<Integer> n) {
+    private static <K> int balancedHeight(TreeNode1<K> n) {
         if (n.isNil()) return 0;
         int lh = balancedHeight(n.getLeft());
         if (lh < 0) return -1;

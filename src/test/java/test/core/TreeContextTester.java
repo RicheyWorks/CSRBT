@@ -310,7 +310,7 @@ public class TreeContextTester {
         @Test
         @DisplayName("TreeContext is usable purely as an OrderedCollection")
         void asOrderedCollection() {
-            OrderedCollection oc = new TreeContext(new RedBlackStrategy<>());
+            OrderedCollection<Integer> oc = new TreeContext(new RedBlackStrategy<>());
             assertTrue(oc.isEmpty(), "fresh collection is empty");
             for (int v : new int[]{30, 10, 20, 40, 5}) oc.add(v);
             assertEquals(5, oc.size(), "size via interface");

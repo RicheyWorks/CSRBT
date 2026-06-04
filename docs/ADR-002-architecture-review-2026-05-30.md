@@ -171,7 +171,7 @@ to `experimental`); incremental/background morph for very large `n`.
          per-tree pluggable `Comparator<? super K>`. The int facade (`TreeContext`)
          and periphery are pinned to `<Integer>`. See
          `PLAN-adr002-step2-generic-keys.md` and `CHANGELOG-2026-06-01-generic-keys.md`.
-3. [ ] Step 4: `OrderedSet<K>` facade; reduce `TreeContext` to an `Integer` adapter.
+3. [x] Step 4: `OrderedSet<K>` facade; reduce `TreeContext` to an `Integer` adapter. (code complete; pending host `ant clean test`)
 4. [ ] Step 5: pluggable key serializer for snapshots.
 5. [ ] Extract `StrategyScorer` from `TreeGenome`; add `WorkloadMonitor` (O(1)/op
        rolling features); wire controller to feed it and drive the existing
