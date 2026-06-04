@@ -191,4 +191,8 @@ to `experimental`); incremental/background morph for very large `n`.
 5. [ ] Extract `StrategyScorer` from `TreeGenome`; add `WorkloadMonitor` (O(1)/op
        rolling features); wire controller to feed it and drive the existing
        `MorphPolicy` + health-gated `setStrategy`.
+       — **PLANNED 2026-06-04**: scoped in `PLAN-adr002-step6-control-plane.md` — the
+         four control-plane units (`WorkloadMonitor` → `StrategyScorer` → `MorphPolicy` →
+         `MorphController`) behind the existing `OrderedSet`/`TreeContext` facade, landed as a
+         strangler over the genome loop. Implementation pending.
 6. [ ] Do C5 in a session with iterative compilation (clean rebuild between steps).
