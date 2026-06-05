@@ -47,7 +47,7 @@ class OrderedSetTest {
             RedBlackStrategy::new, AVLStrategy::new, SplayStrategy::new);
 
     private static OrderedSet<String> rbNatural() {
-        return OrderedSet.withNaturalOrder(new RedBlackStrategy<>());
+        return OrderedSet.withNaturalOrder(new RedBlackStrategy<String>());
     }
 
     /** Assert the set agrees with the oracle on contents, size, and the whole order-stat surface. */

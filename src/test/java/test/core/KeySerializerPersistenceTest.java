@@ -146,7 +146,7 @@ class KeySerializerPersistenceTest {
         @Test
         @DisplayName("String keys, natural order — including keys that contain delimiters")
         void stringNaturalOrder() {
-            OrderedSet<String> set = OrderedSet.withNaturalOrder(new RedBlackStrategy<>());
+            OrderedSet<String> set = OrderedSet.withNaturalOrder(new RedBlackStrategy<String>());
             TreeSet<String> oracle = new TreeSet<>();
             for (String k : Arrays.asList(
                     "mango", "apple", "fig", "cherry", "a,b", "x;y", "p#q", "100%", "a|b")) {
@@ -173,7 +173,7 @@ class KeySerializerPersistenceTest {
         @Test
         @DisplayName("the backing strategy is restored from the header (AVL stays AVL)")
         void strategyIsRestored() {
-            OrderedSet<String> set = new OrderedSet<>(new AVLStrategy<>(), Comparator.naturalOrder());
+            OrderedSet<String> set = new OrderedSet<>(new AVLStrategy<String>(), Comparator.naturalOrder());
             for (int i = 0; i < 32; i++) set.add(String.format("k%02d", i));
             String name = snap("strategy");
             adapter.saveSnapshot(name, set, KeySerializer.string());
@@ -186,7 +186,7 @@ class KeySerializerPersistenceTest {
         @Test
         @DisplayName("a larger set round-trips under a Splay strategy with stats intact")
         void splayLargerSet() {
-            OrderedSet<String> set = new OrderedSet<>(new SplayStrategy<>(), Comparator.naturalOrder());
+            OrderedSet<String> set = new OrderedSet<>(new SplayStrategy<String>(), Comparator.naturalOrder());
             for (int i = 0; i < 200; i++) set.add(String.format("v%03d", i));
             assertRoundTrips(set, KeySerializer.string(), Comparator.naturalOrder(), snap("splay-200"));
         }
@@ -194,7 +194,7 @@ class KeySerializerPersistenceTest {
         @Test
         @DisplayName("Integer keys via the generic API + KeySerializer.INTEGER")
         void integerKeysGenericApi() {
-            OrderedSet<Integer> set = OrderedSet.withNaturalOrder(new RedBlackStrategy<>());
+            OrderedSet<Integer> set = OrderedSet.withNaturalOrder(new RedBlackStrategy<Integer>());
             for (int v : new int[]{5, -3, 42, 0, 17, -100, 8}) set.add(v);
             List<Integer> before = set.inOrder();
 
@@ -259,7 +259,7 @@ class KeySerializerPersistenceTest {
         @Test
         @DisplayName("an empty set round-trips (root is the NIL marker)")
         void emptySet() {
-            OrderedSet<String> set = OrderedSet.withNaturalOrder(new RedBlackStrategy<>());
+            OrderedSet<String> set = OrderedSet.withNaturalOrder(new RedBlackStrategy<String>());
             String name = snap("empty");
             adapter.saveSnapshot(name, set, KeySerializer.string());
 
@@ -273,7 +273,7 @@ class KeySerializerPersistenceTest {
         @Test
         @DisplayName("a single-key set round-trips")
         void singleKey() {
-            OrderedSet<String> set = OrderedSet.withNaturalOrder(new RedBlackStrategy<>());
+            OrderedSet<String> set = OrderedSet.withNaturalOrder(new RedBlackStrategy<String>());
             set.add("solo");
             String name = snap("single");
             adapter.saveSnapshot(name, set, KeySerializer.string());
@@ -294,7 +294,7 @@ class KeySerializerPersistenceTest {
         @Test
         @DisplayName("null arguments are rejected up front")
         void nullArguments() {
-            OrderedSet<String> set = OrderedSet.withNaturalOrder(new RedBlackStrategy<>());
+            OrderedSet<String> set = OrderedSet.withNaturalOrder(new RedBlackStrategy<String>());
             KeySerializer<String> ks = KeySerializer.string();
             Comparator<String> nat = Comparator.naturalOrder();
             assertThrows(IllegalArgumentException.class,
