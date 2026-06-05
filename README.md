@@ -12,9 +12,12 @@ the ordered set it provides O(log n) order statistics (rank, select, median,
 percentile, range) over a subtree-size augmentation.
 
 The current release is a correct, well-tested core: the four strategies, order
-statistics, persistence, undo/redo, health-gated morphing, and a workload-scoring
-layer. The remaining ambition — wiring a live workload monitor to *decide* morphs
-automatically (rather than on explicit request) — is specified in
+statistics, persistence, undo/redo, and health-gated morphing. The remaining
+ambition — a live control plane that *decides* morphs automatically from the workload,
+rather than on explicit request — is now landing incrementally (ADR-002 step 6): its
+first units, a workload monitor, a transparent cost-model scorer, and an anti-thrash
+policy, are built and independently tested in `core.control`, with the wiring that
+re-points the live loop onto them still to come. The target architecture is specified in
 [`docs/DESIGN-adaptive-engine.md`](docs/DESIGN-adaptive-engine.md), with the gap
 between today's code and that target tracked in
 [`docs/strategy-audit-and-feasibility-2026-05-30.md`](docs/strategy-audit-and-feasibility-2026-05-30.md).
@@ -59,6 +62,20 @@ and alien-seed/swarm theatrics (`TreeAgent`) live in a separate `experimental`
 package that depends on core, keeping the core contract-bound. `TreeEngineRegistry` keeps
 `TreeGenome.StructureType` honest — every declared type either maps to a working
 engine or fails loudly as unsupported, rather than silently returning a no-op.
+
+**Control plane (ADR-002 step 6, landing).** The design's successor to the genome is a
+pipeline of four small, independently testable units in `core.control`, each a pure
+function over an immutable input so every adaptation decision is explainable from a
+single log line. `WorkloadMonitor` folds the op stream into an immutable
+`WorkloadFeatures` vector — read/write mix, hot-key access skew, mean search depth,
+rotation rate, size, and growth — in O(1) per op with no tree traversal.
+`StrategyScorer` (the `CostModelStrategyScorer`) rebases the genome's per-structure
+weighting onto that vector and emits a ranked, cost-annotated list of `StrategyId`s.
+`MorphPolicy` applies the cooldown / stability / minimum-improvement gates over a
+`MorphHistory`. These units are landed and unit-tested but **not yet wired** into the
+live loop: the `MorphController` that runs them on a cadence and drives the existing
+health-gated `setStrategy` — retiring the `TreeGenome` path — is the final wiring step
+(Phase D). Until then the genome-driven controller still runs unchanged.
 
 ## Quick start
 
@@ -124,6 +141,10 @@ OrderedSet<String> restored = store.loadOrderedSet("words", KeySerializer.string
   `KeySerializer.INTEGER`, byte-identical to the legacy format).
 - **Diagnostics & evolution** — red-black validity checks, self-repair, workload
   scoring, and head-to-head strategy benchmarking.
+- **Adaptive control plane (in progress)** — an O(1)-per-op workload monitor, a
+  transparent cost-model strategy scorer, and an anti-thrash morph policy, each an
+  independently unit-tested unit in `core.control`; the automatic morph-decision wiring
+  is the remaining step (ADR-002 step 6, Phase D).
 
 ## Project layout
 
@@ -141,6 +162,8 @@ src/main/java/core/
   ├─ PersistentTreeEngine.java engine + persistence wiring
   ├─ strategy/                 TreeStrategy + RedBlack, AVL, Splay, Hybrid
   ├─ evolution/                TreeGenome, GenomeDrivenTreeController, StrategyBattleRunner
+  ├─ control/                  adaptive control plane (ADR-002 step 6): WorkloadMonitor,
+  │                            StrategyScorer, StrategyId, MorphPolicy, MorphHistory
   ├─ augment/                  IntervalAugmentor
   ├─ interfaces/               TreeEngine, OrderedCollection, AugmentedTree, …
   ├─ persistence/              FilePersistenceAdapter (text snapshots)
@@ -182,6 +205,10 @@ ant clean       # remove the build/ directory
   across morph, snapshot, and clone.
 - `HealthGatedMorphTest` / `MorphPolicyTest` — morph validation + rollback and the
   anti-thrash cooldown/stability/margin gates.
+- `WorkloadMonitorTest` / `StrategyScorerTest` / `MorphPolicyControlTest` — the
+  `core.control` units: O(1) workload-feature extraction, the cost-model strategy
+  ranking (the DESIGN §10 trace and each workload regime), and the promoted morph
+  policy + `MorphHistory` (with `shouldMorph` parity to the legacy gate).
 - `WindowingTest` / `PersistentTreeEngineTest` — bounded-set eviction and the
   stack-safe path-copying persistent engine.
 
@@ -213,6 +240,12 @@ future single-writer / multi-reader model via atomic root swap.)
   — original architecture decision record: review, rationale, and roadmap.
 
 **Audits & change log**
+- [`docs/PLAN-adr002-step6-control-plane.md`](docs/PLAN-adr002-step6-control-plane.md)
+  — ADR-002 step 6: the four-unit control plane (monitor → scorer → policy → controller)
+  as a strangler over the genome loop; Phases A–C (monitor, scorer, policy) landed.
+- [`docs/PLAN-adr002-step6-phaseD-controller-rewire.md`](docs/PLAN-adr002-step6-phaseD-controller-rewire.md)
+  — ADR-002 step 6, Phase D: the behavior-sensitive wiring (MorphController, the monitor
+  hook, and re-pointing the controller) that activates the control plane.
 - [`docs/CHANGELOG-2026-06-04-key-serializer.md`](docs/CHANGELOG-2026-06-04-key-serializer.md)
   — ADR-002 step 5: a pluggable `KeySerializer<K>` so snapshots persist any key type.
 - [`docs/CHANGELOG-2026-06-03-orderedset.md`](docs/CHANGELOG-2026-06-03-orderedset.md)
