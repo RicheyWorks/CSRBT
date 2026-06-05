@@ -3,6 +3,8 @@ package core.evolution;
 import core.TreeContext;
 import core.TreeEngineRegistry;
 import core.strategy.*;
+import core.control.RollingWorkloadMonitor;
+import core.control.WorkloadMonitor;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -111,6 +113,11 @@ public class GenomeDrivenTreeController {
 
     private TreeGenome.StructureType activeStrategyType;
 
+    // Control-plane workload monitor (ADR-002 step 6 Phase D / D3): observation-only.
+    // Every op feeds an O(1) rolling summary; nothing in the genome decision path reads
+    // it yet (the re-point to the control plane is D4).
+    private final WorkloadMonitor workloadMonitor = new RollingWorkloadMonitor();
+
     // ── Constructor ───────────────────────────────────────────────────────────
 
     public GenomeDrivenTreeController(TreeContext context, TreeGenome genome) {
@@ -136,19 +143,22 @@ public class GenomeDrivenTreeController {
     // ── Tree operations ───────────────────────────────────────────────────────
 
     public void add(int value) {
-        context.add(value);
+        boolean inserted = context.add(Integer.valueOf(value));
+        if (inserted) workloadMonitor.recordAdd(Integer.hashCode(value), 0);
         recordAccess(value);   // inserts count as accesses
         afterOperation();
     }
 
     public void remove(int value) {
-        context.remove(value);
+        boolean removed = context.remove(Integer.valueOf(value));
+        if (removed) workloadMonitor.recordRemove(Integer.hashCode(value), 0);
         afterOperation();
     }
 
     public boolean contains(int value) {
         boolean found = context.contains(value);
         recordAccess(value);   // search locality feeds entropy
+        workloadMonitor.recordSearch(Integer.hashCode(value), 0);
         return found;
     }
 
@@ -579,4 +589,6 @@ public class GenomeDrivenTreeController {
         return Collections.unmodifiableMap(performanceMemory);
     }
     public TreeGenome.StructureType getActiveStrategyType() { return activeStrategyType; }
+    /** The control-plane workload monitor fed by every op (observation-only in D3). */
+    public WorkloadMonitor getWorkloadMonitor() { return workloadMonitor; }
 }
