@@ -7,6 +7,7 @@ import core.interfaces.TreePersistenceAdapter;
 import core.persistence.FilePersistenceAdapter;
 import core.strategy.AVLStrategy;
 import core.strategy.TreeStrategy;
+import core.control.StrategyMorphTarget;
 import core.util.*;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -52,7 +53,7 @@ import java.util.*;
  * synchronization around <em>all</em> access (reads, writes, and anything done
  * with objects returned from this facade).</p>
  */
-public class TreeContext implements AugmentedTree<Integer>, SelfHealingTree, OrderedCollection<Integer> {
+public class TreeContext implements AugmentedTree<Integer>, SelfHealingTree, OrderedCollection<Integer>, StrategyMorphTarget<Integer> {
 
     private static final Logger logger = LogManager.getLogger(TreeContext.class);
 
@@ -226,6 +227,10 @@ public class TreeContext implements AugmentedTree<Integer>, SelfHealingTree, Ord
             return set.setStrategy(newStrategy);
         }
     }
+
+    /** {@inheritDoc} The installed balancing strategy (delegated to the set). */
+    @Override
+    public TreeStrategy<Integer> getStrategy() { return set.getStrategy(); }
 
     // -- Persistence --
 

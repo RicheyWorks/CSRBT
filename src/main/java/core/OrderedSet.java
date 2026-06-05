@@ -6,6 +6,7 @@ import core.interfaces.SelfHealingTree;
 import core.strategy.TreeStrategy;
 import core.util.OrderStatisticsOps;
 import core.util.StrategyHealthCheck;
+import core.control.StrategyMorphTarget;
 
 import java.util.ArrayDeque;
 import java.util.ArrayList;
@@ -35,7 +36,7 @@ import java.util.TreeSet;
  * {@link #getEngine()} expose live internal structure. Provide external synchronization
  * for concurrent access.</p>
  */
-public class OrderedSet<K> implements SelfHealingTree, OrderedCollection<K>, AugmentedTree<K> {
+public class OrderedSet<K> implements SelfHealingTree, OrderedCollection<K>, AugmentedTree<K>, StrategyMorphTarget<K> {
 
     private RedBlackTree<K> tree;
     private final Comparator<? super K> keyOrder;
