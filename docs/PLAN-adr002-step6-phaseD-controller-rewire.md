@@ -316,3 +316,77 @@ rollback), `OrderedSetTest`, `StrategyInvariantTest`.
 5. **D5:** flip default ON; deprecate genome decision methods + nested `MorphPolicy`
    (delegate to `core.control`); convergence tests (G3/G4 + G5/G6/G9). Then Phase E
    (ADR item 5 → done, changelog, README) and item 6 (C5 clean rebuild) to close ADR-002.
+
+---
+
+## 12. Review addendum — findings & resolved decisions (2026-06-05)
+
+A source review cross-checked this plan against the live code
+(`GenomeDrivenTreeController`, `OrderedSet`, `TreeContext`, the four `core.control`
+units, `StrategyId`). The §3 contract and the §4.6 cadence math hold, and the control
+units' public APIs match the contract almost exactly (the one nit is in 12.3 F7). Two
+design assumptions need correcting before D1; the §10 open decisions are resolved below.
+
+### 12.1 Blocking corrections (resolve before D1)
+
+**B1 — Execute through a morph-target seam, not a captured `OrderedSet`.** The live
+controller holds a `TreeContext`, whose inner `OrderedSet<Integer>` is private (no
+getter) and is **reassigned** by `loadSnapshot` (`TreeContext.java:248`). A long-lived
+`MorphController` (it owns the `MorphHistory`, so it persists across evals) that captured
+the `OrderedSet` reference would morph a *stale* set after any snapshot load. **Decision:**
+`MorphController<K>` executes through a narrow seam —
+`interface StrategyMorphTarget<K> { boolean setStrategy(TreeStrategy<K> s); TreeStrategy<K> getStrategy(); }`
+— implemented directly by `OrderedSet<K>` and by `TreeContext` (for `Integer`). The live
+controller passes its `TreeContext`, so every morph routes to the *current* set via the
+existing health-gated `setStrategy`. This supersedes the `OrderedSet<K> set` constructor
+arg in §3 (the executor and health gate are otherwise unchanged).
+
+**B2 — Reads must drive the eval cadence.** `contains()` does not call `afterOperation()`
+(`GenomeDrivenTreeController.java:149-153`); only writes tick the eval clock. As written,
+a read-heavy high-skew workload never re-evaluates, so the marquee "skewed reads → Splay"
+convergence (goals G3/G4) cannot trigger — the §2 target still feeds the monitor from
+`contains` but does not schedule an eval. **Decision:** in D3/D4, `contains()` advances the
+eval cadence (counts toward `EVAL_INTERVAL`) in addition to feeding the monitor, and
+`MorphHistory` advances by the ops actually counted per eval (writes **and** reads),
+preserving the §4.6 cooldown pacing in op terms. The convergence harness (D5) must
+therefore exercise reads against this cadence.
+
+### 12.2 Resolved open decisions (§10)
+
+1. **Monitor feed location** → controller-fed, via the B1 seam (parity; the facade hook
+   stays the documented fast-follow).
+2. **Depth signal** → **feed constant `0` for both `meanSearchDepth` and
+   `rotationsPerWrite` in D3.** Both are decision-irrelevant in `CostModelStrategyScorer`
+   today; feeding `0` keeps the hot path provably O(1) and removes any dependence on
+   whether `TreeNode1.getHeight()` is cached. Instrument for real only when a future scorer
+   term consumes them. (This also disposes of finding F4.)
+3. **Genome demotion** → deprecate the decision methods in place (no relocation).
+4. **Cutover** → flag, default OFF through D4, flip in D5.
+5. **performanceMemory** → retain for the log line / diagnostics, not the decision.
+
+### 12.3 Non-blocking findings (fold into the sub-steps)
+
+- **F3 — Phase D fixes a latent drift bug; state it as intended.** Today `applyStructure`
+  ignores `setStrategy`'s boolean (`:261`) and updates `activeStrategyType` / `morphCount`
+  even on a health-*rejected* morph (`:264-267`). §3 correctly gates the update on the
+  verdict — a deliberate "better, not same" divergence on the health-fail path. The §6
+  equivalence argument should name it so a test pinning today's behaviour does not read it
+  as a regression.
+- **F4 — `getRotationCount()` is vestigial** (never incremented by the strategies;
+  `TreeContext.java:72-73, 286`), so a rotation-delta feed is always `0`. Disposed of by
+  decision 12.2.2.
+- **F6 — feed effective mutations only.** Drive `recordAdd` / `recordRemove` off the
+  effective-insert/remove boolean (which the current `void add(int)/remove(int)` path
+  discards) so the monitor's `size` / `growthRate` do not drift on duplicate adds or absent
+  removes (`WorkloadMonitor` contract, "Effective mutations").
+- **F7 — `MorphResult` semantics.** `setStrategy` returns `false` for *both* a health-fail
+  and a same-class/null no-op (`OrderedSet.java:231-242`); do not report a no-op as
+  `healthPassed=false`. `buildNanos` is a wall-clock measurement *around* `setStrategy`
+  (the executor reports no build time). The §2/§3 pseudocode `best.newStrategy()` is
+  precisely `ranked.get(0).strategy().newStrategy()`.
+
+### 12.4 Status
+
+Plan remains **Proposed**. With B1, B2 and decision 12.2.2 incorporated, D1 is ready to
+start. All findings are source-read only — **unverified by execution** (the dev sandbox is
+JRE-only); host `ant clean test` + the Python decision mirror still govern every sub-step.
