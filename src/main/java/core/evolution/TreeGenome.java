@@ -264,6 +264,12 @@ public class TreeGenome implements Cloneable, Serializable {
     // Runtime stress / morph pressure
     // -------------------------------------------------
 
+    /**
+     * @deprecated ADR-002 step 6 Phase D: the live loop derives workload pressure from
+     *     {@code core.control.WorkloadMonitor} features, not the genome. Retained for the
+     *     legacy (flag-off) decision body and diagnostics; off the default decision path.
+     */
+    @Deprecated
     public double computeMorphPressure(double currentStress,
                                        double currentEntropy,
                                        double currentFragmentation) {
@@ -284,6 +290,12 @@ public class TreeGenome implements Cloneable, Serializable {
         );
     }
 
+    /**
+     * @deprecated ADR-002 step 6 Phase D: morph gating now lives in
+     *     {@code core.control.MorphPolicy}, fed by {@code core.control.StrategyScorer}. Retained
+     *     for the legacy (flag-off) decision body; off the default decision path.
+     */
+    @Deprecated
     public boolean shouldMorph(double currentStress,
                                double currentEntropy,
                                double currentFragmentation) {
@@ -420,6 +432,12 @@ public class TreeGenome implements Cloneable, Serializable {
         return scoreCard().bestStructure();
     }
 
+    /**
+     * @deprecated ADR-002 step 6 Phase D: live morph selection is now the cost-model
+     *     {@code core.control.StrategyScorer}, not genome fitness. Retained for the genome's own
+     *     {@link #scoreCard()} / diagnostics; off the default decision path.
+     */
+    @Deprecated
     public double fitnessFor(StructureType candidate) {
         Objects.requireNonNull(candidate, "candidate cannot be null");
 

@@ -80,11 +80,20 @@ public class ControllerControlPlaneFlagTest {
     }
 
     @Test
-    @DisplayName("flag OFF (default): legacy genome path; the same stream does NOT morph (control plane gated off)")
+    @DisplayName("control plane is ON by default (D5 flips the flag)")
+    void controlPlaneOnByDefault() {
+        GenomeDrivenTreeController c = new GenomeDrivenTreeController(
+                new TreeContext(new RedBlackStrategy<>()), TreeGenome.redBlackGenome());
+        assertTrue(c.isUseControlPlane(), "D5 defaults the control-plane re-point ON");
+    }
+
+    @Test
+    @DisplayName("flag OFF: legacy genome path; the same stream does NOT morph (control plane gated off)")
     void flagOffKeepsLegacyGenomePath() {
         GenomeDrivenTreeController c = new GenomeDrivenTreeController(
                 new TreeContext(new RedBlackStrategy<>()), TreeGenome.redBlackGenome());
-        assertFalse(c.isUseControlPlane(), "control plane is OFF by default");
+        c.setUseControlPlane(false);                     // opt out of the new default to exercise the legacy path
+        assertFalse(c.isUseControlPlane(), "legacy genome path selected");
 
         for (int i = 0; i < 50; i++)   c.add(i);
         for (int i = 0; i < 1500; i++) c.contains(7);   // under the flag OFF, reads do not tick the cadence

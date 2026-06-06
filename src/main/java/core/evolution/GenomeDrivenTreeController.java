@@ -121,8 +121,10 @@ public class GenomeDrivenTreeController {
     // it yet (the re-point to the control plane is D4).
     private final WorkloadMonitor workloadMonitor = new RollingWorkloadMonitor();
 
-    // Control-plane re-point (ADR-002 step 6 Phase D / D4), flag-gated (default OFF).
-    private boolean useControlPlane = false;
+    // Control-plane re-point (ADR-002 step 6 Phase D). Flag-gated; default ON since D5 — the
+    // WorkloadMonitor -> StrategyScorer -> MorphPolicy pipeline now drives adaptation. Set false
+    // to fall back to the (deprecated) genome decision body, which is retained for one-switch rollback.
+    private boolean useControlPlane = true;
     private int     lastControlEvalOpCount = 0;
     private final MorphController<Integer> morphController;
 
@@ -595,7 +597,12 @@ public class GenomeDrivenTreeController {
      *   <li><b>minimum improvement</b> — the candidate beats the incumbent by at
      *       least {@code minImprovement} (fractional), not merely marginally.</li>
      * </ul>
+     *
+     * @deprecated ADR-002 step 6 Phase D / D5: promoted to {@code core.control.MorphPolicy}, which
+     *     the control plane uses. This nested copy is retained only for the legacy (flag-off)
+     *     decision body and its unit test; prefer {@code core.control.MorphPolicy}.
      */
+    @Deprecated
     public static final class MorphPolicy {
         private final int    cooldownOps;
         private final double minImprovement;   // fractional, e.g. 0.20 = 20%
@@ -625,7 +632,11 @@ public class GenomeDrivenTreeController {
         public int    stabilityWins()  { return stabilityWins; }
     }
 
+    /** @deprecated legacy (flag-off) gate; the control plane uses {@code core.control.MorphPolicy}. */
+    @Deprecated
     public MorphPolicy getMorphPolicy()              { return morphPolicy; }
+    /** @deprecated legacy (flag-off) gate; the control plane uses {@code core.control.MorphPolicy}. */
+    @Deprecated
     public void        setMorphPolicy(MorphPolicy p) { this.morphPolicy = (p != null) ? p : MorphPolicy.defaults(); }
 
     // ── Getters ───────────────────────────────────────────────────────────────
