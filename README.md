@@ -11,15 +11,15 @@ validation keeps the incumbent untouched, so there is never data loss. On top of
 the ordered set it provides O(log n) order statistics (rank, select, median,
 percentile, range) over a subtree-size augmentation.
 
-The current release is a correct, well-tested core: the four strategies, order
-statistics, persistence, undo/redo, and health-gated morphing. The remaining
-ambition — a live control plane that *decides* morphs automatically from the workload,
-rather than on explicit request — is now landing incrementally (ADR-002 step 6): its
-first units, a workload monitor, a transparent cost-model scorer, and an anti-thrash
-policy, are built and independently tested in `core.control`, with the wiring that
-re-points the live loop onto them still to come. The target architecture is specified in
-[`docs/DESIGN-adaptive-engine.md`](docs/DESIGN-adaptive-engine.md), with the gap
-between today's code and that target tracked in
+The current release is a correct, well-tested core — the four strategies, order
+statistics, persistence, undo/redo, and health-gated morphing — now driven by a live
+control plane that *decides* morphs automatically from the workload rather than on
+explicit request (ADR-002 step 6). A workload monitor, a transparent cost-model scorer,
+an anti-thrash policy, and the `MorphController` that runs them on a cadence are wired
+into the live loop and **on by default**; the older genome-driven path is retained but
+deprecated behind a one-switch flag. The target architecture is specified in
+[`docs/DESIGN-adaptive-engine.md`](docs/DESIGN-adaptive-engine.md); the migration that
+closed the gap to it is tracked in
 [`docs/strategy-audit-and-feasibility-2026-05-30.md`](docs/strategy-audit-and-feasibility-2026-05-30.md).
 
 ## Architecture
@@ -53,11 +53,13 @@ pass. Representation-neutral views are exposed through `OrderedCollection<K>` (a
 remove / contains / inOrder / size / clear) and `TreeEngine<K>`, so callers can
 treat any backing structure uniformly.
 
-**Evolution.** `TreeGenome` is a self-interpreting fitness model that scores how
-well each structure fits a workload and recommends morphs.
-`GenomeDrivenTreeController` runs a per-strategy feedback loop (gated by an
-anti-thrash `MorphPolicy`), and `StrategyBattleRunner` benchmarks strategies
-head-to-head across workload types. The biological-model analytics (`TreeEcology`)
+**Evolution (legacy decision path).** `TreeGenome` is a self-interpreting fitness model
+that scores how well each structure fits a workload and recommends morphs, and
+`GenomeDrivenTreeController` ran it as a per-strategy feedback loop gated by an anti-thrash
+`MorphPolicy`. As of ADR-002 step 6 that genome path is deprecated — the controller now
+decides through the control plane (below) by default, keeping the genome loop only as a
+flagged fallback. `StrategyBattleRunner` benchmarks strategies head-to-head across workload
+types. The biological-model analytics (`TreeEcology`)
 and alien-seed/swarm theatrics (`TreeAgent`) live in a separate `experimental`
 package that depends on core, keeping the core contract-bound. `TreeEngineRegistry` keeps
 `TreeGenome.StructureType` honest — every declared type either maps to a working
@@ -164,7 +166,8 @@ src/main/java/core/
   ├─ strategy/                 TreeStrategy + RedBlack, AVL, Splay, Hybrid
   ├─ evolution/                TreeGenome, GenomeDrivenTreeController, StrategyBattleRunner
   ├─ control/                  adaptive control plane (ADR-002 step 6): WorkloadMonitor,
-  │                            StrategyScorer, StrategyId, MorphPolicy, MorphHistory
+  │                            StrategyScorer, StrategyId, MorphPolicy, MorphHistory,
+  │                            MorphController, StrategyMorphTarget
   ├─ augment/                  IntervalAugmentor
   ├─ interfaces/               TreeEngine, OrderedCollection, AugmentedTree, …
   ├─ persistence/              FilePersistenceAdapter (text snapshots)
@@ -210,6 +213,11 @@ ant clean       # remove the build/ directory
   `core.control` units: O(1) workload-feature extraction, the cost-model strategy
   ranking (the DESIGN §10 trace and each workload regime), and the promoted morph
   policy + `MorphHistory` (with `shouldMorph` parity to the legacy gate).
+- `MorphControllerTest` / `StrategyIdBridgeTest` / `ControllerMonitorFeedTest` /
+  `ControllerControlPlaneFlagTest` / `ControllerConvergenceTest` — the control-plane wiring
+  (Phase D): one `event=morph_eval` line per evaluation and health-fail-keeps-incumbent, the
+  `StrategyId`↔`StructureType` bridge, the O(1)-per-op monitor feed, the flag-gated re-point,
+  and convergence (skewed reads → Splay in ≤1 morph, steady → 0 morphs, regime-following).
 - `WindowingTest` / `PersistentTreeEngineTest` — bounded-set eviction and the
   stack-safe path-copying persistent engine.
 
