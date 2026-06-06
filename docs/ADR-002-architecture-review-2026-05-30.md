@@ -188,11 +188,21 @@ to `experimental`); incremental/background morph for very large `n`.
          byte-identical (it delegates through `KeySerializer.INTEGER`); the
          `TreePersistenceAdapter` interface, `TreeContext`, and `OrderedSet` are unchanged.
          See `PLAN-adr002-step5-key-serializer.md` and `CHANGELOG-2026-06-04-key-serializer.md`.
-5. [ ] Extract `StrategyScorer` from `TreeGenome`; add `WorkloadMonitor` (O(1)/op
+5. [x] Extract `StrategyScorer` from `TreeGenome`; add `WorkloadMonitor` (O(1)/op
        rolling features); wire controller to feed it and drive the existing
        `MorphPolicy` + health-gated `setStrategy`.
-       — **PLANNED 2026-06-04**: scoped in `PLAN-adr002-step6-control-plane.md` — the
-         four control-plane units (`WorkloadMonitor` → `StrategyScorer` → `MorphPolicy` →
-         `MorphController`) behind the existing `OrderedSet`/`TreeContext` facade, landed as a
-         strangler over the genome loop. Implementation pending.
+       — **DONE 2026-06-06**: the four control-plane units (`WorkloadMonitor` →
+         `StrategyScorer` → `MorphPolicy` → `MorphController`) landed behind the existing
+         `OrderedSet`/`TreeContext` facade as a flag-gated strangler over the genome loop
+         (Phase D, sub-steps D1–D5). `GenomeDrivenTreeController.evaluate()` now runs the
+         pipeline by default (`useControlPlane`, default ON since D5): an O(1)-per-op monitor
+         feed (reads drive the eval cadence), the cost-model scorer + `MorphPolicy` over a
+         `MorphHistory`, and the health-gated `setStrategy` executor via a `StrategyMorphTarget`
+         seam. One `event=morph_eval` line is emitted per evaluation. The genome decision
+         methods (`shouldMorph` / `computeMorphPressure` / `fitnessFor`) and the nested
+         `MorphPolicy` are `@Deprecated` but compile and stay behind the flag for one-switch
+         rollback. Convergence (skewed→Splay in ≤1 morph, steady→0 morphs, regime-following,
+         O(1) hot path) is guarded by `ControllerConvergenceTest`. See
+         `PLAN-adr002-step6-control-plane.md`, `PLAN-adr002-step6-phaseD-controller-rewire.md`,
+         and `CHANGELOG-2026-06-06-control-plane.md`.
 6. [ ] Do C5 in a session with iterative compilation (clean rebuild between steps).

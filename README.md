@@ -63,19 +63,20 @@ package that depends on core, keeping the core contract-bound. `TreeEngineRegist
 `TreeGenome.StructureType` honest — every declared type either maps to a working
 engine or fails loudly as unsupported, rather than silently returning a no-op.
 
-**Control plane (ADR-002 step 6, landing).** The design's successor to the genome is a
-pipeline of four small, independently testable units in `core.control`, each a pure
-function over an immutable input so every adaptation decision is explainable from a
-single log line. `WorkloadMonitor` folds the op stream into an immutable
-`WorkloadFeatures` vector — read/write mix, hot-key access skew, mean search depth,
-rotation rate, size, and growth — in O(1) per op with no tree traversal.
-`StrategyScorer` (the `CostModelStrategyScorer`) rebases the genome's per-structure
-weighting onto that vector and emits a ranked, cost-annotated list of `StrategyId`s.
-`MorphPolicy` applies the cooldown / stability / minimum-improvement gates over a
-`MorphHistory`. These units are landed and unit-tested but **not yet wired** into the
-live loop: the `MorphController` that runs them on a cadence and drives the existing
-health-gated `setStrategy` — retiring the `TreeGenome` path — is the final wiring step
-(Phase D). Until then the genome-driven controller still runs unchanged.
+**Control plane (ADR-002 step 6).** The genome's successor is a pipeline of four small,
+independently testable units in `core.control`, each a pure function over an immutable
+input so every adaptation decision is explainable from a single log line.
+`WorkloadMonitor` folds the op stream into an immutable `WorkloadFeatures` vector —
+read/write mix, hot-key access skew, mean search depth, rotation rate, size, and growth —
+in O(1) per op with no tree traversal. `StrategyScorer` (the `CostModelStrategyScorer`)
+rebases the per-structure weighting onto that vector and emits a ranked, cost-annotated
+list of `StrategyId`s. `MorphPolicy` applies the cooldown / stability / minimum-improvement
+gates over a `MorphHistory`. The `MorphController` runs them on a cadence and drives the
+existing health-gated `setStrategy` through a `StrategyMorphTarget` seam, emitting one
+`event=morph_eval` line per evaluation. As of Phase D, `GenomeDrivenTreeController` decides
+through this pipeline **by default** (`useControlPlane`, default ON): reads as well as writes
+drive the eval cadence, and the genome's self-interpreting fitness path is `@Deprecated` but
+retained behind the flag for one-switch rollback.
 
 ## Quick start
 
@@ -141,10 +142,10 @@ OrderedSet<String> restored = store.loadOrderedSet("words", KeySerializer.string
   `KeySerializer.INTEGER`, byte-identical to the legacy format).
 - **Diagnostics & evolution** — red-black validity checks, self-repair, workload
   scoring, and head-to-head strategy benchmarking.
-- **Adaptive control plane (in progress)** — an O(1)-per-op workload monitor, a
-  transparent cost-model strategy scorer, and an anti-thrash morph policy, each an
-  independently unit-tested unit in `core.control`; the automatic morph-decision wiring
-  is the remaining step (ADR-002 step 6, Phase D).
+- **Adaptive control plane** — an O(1)-per-op workload monitor, a transparent cost-model
+  strategy scorer, an anti-thrash morph policy, and the `MorphController` that runs them on
+  a cadence and drives the health-gated `setStrategy`. As of ADR-002 step 6 Phase D this is
+  the controller's **default** decision path; the genome loop is deprecated behind a flag.
 
 ## Project layout
 
@@ -240,12 +241,15 @@ future single-writer / multi-reader model via atomic root swap.)
   — original architecture decision record: review, rationale, and roadmap.
 
 **Audits & change log**
+- [`docs/CHANGELOG-2026-06-06-control-plane.md`](docs/CHANGELOG-2026-06-06-control-plane.md)
+  — ADR-002 step 6, Phase D (D1–D5): the control plane is wired in via `MorphController` and
+  made the controller's default decision path; the genome loop is deprecated behind a flag.
 - [`docs/PLAN-adr002-step6-control-plane.md`](docs/PLAN-adr002-step6-control-plane.md)
   — ADR-002 step 6: the four-unit control plane (monitor → scorer → policy → controller)
-  as a strangler over the genome loop; Phases A–C (monitor, scorer, policy) landed.
+  as a strangler over the genome loop. **Landed** (Phases A–E).
 - [`docs/PLAN-adr002-step6-phaseD-controller-rewire.md`](docs/PLAN-adr002-step6-phaseD-controller-rewire.md)
   — ADR-002 step 6, Phase D: the behavior-sensitive wiring (MorphController, the monitor
-  hook, and re-pointing the controller) that activates the control plane.
+  feed, and re-pointing the controller) that activated the control plane. **Done.**
 - [`docs/CHANGELOG-2026-06-04-key-serializer.md`](docs/CHANGELOG-2026-06-04-key-serializer.md)
   — ADR-002 step 5: a pluggable `KeySerializer<K>` so snapshots persist any key type.
 - [`docs/CHANGELOG-2026-06-03-orderedset.md`](docs/CHANGELOG-2026-06-03-orderedset.md)

@@ -1,6 +1,7 @@
 # PLAN: ADR-002 step 6 Phase D — wire the control plane into the live loop
 
-**Status:** Proposed (plan only — no code in this step)
+**Status:** Done — D1–D5 landed 2026-06-06 (control plane is the default decision path; genome
+loop deprecated behind `useControlPlane`). See `CHANGELOG-2026-06-06-control-plane.md`.
 **Date:** 2026-06-05
 **Owner:** Richmond
 **Implements:** the behaviour-sensitive remainder of ADR-002 action item 5, sequenced as
