@@ -17,6 +17,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.core.LogEvent;
 import org.apache.logging.log4j.core.Logger;
 import org.apache.logging.log4j.core.appender.AbstractAppender;
+import org.apache.logging.log4j.core.config.Configurator;
 import org.apache.logging.log4j.core.config.Property;
 
 import org.junit.jupiter.api.DisplayName;
@@ -146,8 +147,13 @@ public class MorphControllerTest {
     @Test
     @DisplayName("exactly one event=morph_eval line is emitted per evaluation (G9)")
     void emitsOneLinePerEval() {
-        Logger coreLogger = (Logger) LogManager.getLogger(MorphController.class);
-        coreLogger.setLevel(Level.INFO);                 // root is WARN; the line logs at INFO
+        // Root is WARN and the morph_eval line is INFO, so the level must be raised for the
+        // duration. Use Configurator.setLevel (not core.Logger.setLevel): it forces a context
+        // reconfigure that refreshes the already-resolved static logger inside MorphController,
+        // which a bare core.Logger.setLevel does not once the logger has been exercised at WARN.
+        final String loggerName = MorphController.class.getName();
+        Configurator.setLevel(loggerName, Level.INFO);
+        Logger coreLogger = (Logger) LogManager.getLogger(MorphController.class);   // re-fetch post-reconfigure
         CapturingAppender cap = new CapturingAppender("morphCtrlCap");
         cap.start();
         coreLogger.addAppender(cap);
@@ -162,6 +168,7 @@ public class MorphControllerTest {
         } finally {
             coreLogger.removeAppender(cap);
             cap.stop();
+            Configurator.setLevel(loggerName, Level.WARN);   // restore the quiet default
         }
         int n = 0;
         for (String m : cap.messages) if (m.contains("event=morph_eval")) n++;

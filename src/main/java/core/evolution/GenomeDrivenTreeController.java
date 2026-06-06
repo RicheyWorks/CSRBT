@@ -5,6 +5,9 @@ import core.TreeEngineRegistry;
 import core.strategy.*;
 import core.control.RollingWorkloadMonitor;
 import core.control.WorkloadMonitor;
+import core.control.CostModelStrategyScorer;
+import core.control.MorphController;
+import core.control.StrategyId;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -118,14 +121,35 @@ public class GenomeDrivenTreeController {
     // it yet (the re-point to the control plane is D4).
     private final WorkloadMonitor workloadMonitor = new RollingWorkloadMonitor();
 
+    // Control-plane re-point (ADR-002 step 6 Phase D / D4), flag-gated (default OFF).
+    private boolean useControlPlane = false;
+    private int     lastControlEvalOpCount = 0;
+    private final MorphController<Integer> morphController;
+
     // ── Constructor ───────────────────────────────────────────────────────────
 
     public GenomeDrivenTreeController(TreeContext context, TreeGenome genome) {
-        if (context == null) throw new IllegalArgumentException("context cannot be null");
-        if (genome  == null) throw new IllegalArgumentException("genome cannot be null");
+        this(context, genome, core.control.MorphPolicy.defaults());
+    }
+
+    /**
+     * Test/convergence seam (ADR-002 step 6 Phase D — plan §4.6 and the D5 note that a
+     * convergence harness may use "an eager {@code MorphPolicy(small cooldown, …)} to keep
+     * runtime bounded"). Builds the control-plane {@link MorphController} with an explicit
+     * {@code controlPolicy} over this controller's own monitor, so a test can inject an eager
+     * policy and exercise a morph without driving the full 4000-op default cooldown.
+     * Production uses the two-arg constructor, which passes {@link core.control.MorphPolicy#defaults()}.
+     */
+    public GenomeDrivenTreeController(TreeContext context, TreeGenome genome,
+                                      core.control.MorphPolicy controlPolicy) {
+        if (context == null)       throw new IllegalArgumentException("context cannot be null");
+        if (genome  == null)       throw new IllegalArgumentException("genome cannot be null");
+        if (controlPolicy == null) throw new IllegalArgumentException("controlPolicy cannot be null");
         this.context            = context;
         this.genome             = genome;
         this.activeStrategyType = genome.getPreferredStructure();
+        this.morphController = new MorphController<>(
+                context, workloadMonitor, new CostModelStrategyScorer(), controlPolicy);
 
         // Pre-populate performance records for all known types
         for (TreeGenome.StructureType t : TreeGenome.StructureType.values()) {
@@ -159,6 +183,7 @@ public class GenomeDrivenTreeController {
         boolean found = context.contains(value);
         recordAccess(value);   // search locality feeds entropy
         workloadMonitor.recordSearch(Integer.hashCode(value), 0);
+        if (useControlPlane) afterOperation();   // reads drive the eval cadence on the new path (plan B2)
         return found;
     }
 
@@ -170,6 +195,34 @@ public class GenomeDrivenTreeController {
     }
 
     public void evaluate() {
+        if (useControlPlane) evaluateViaControlPlane();
+        else evaluateViaGenome();
+    }
+
+    /**
+     * Control-plane evaluation (ADR-002 step 6 Phase D / D4): WorkloadMonitor -> StrategyScorer
+     * -> MorphPolicy via the MorphController, driving the health-gated setStrategy. The
+     * MorphController emits the single event=morph_eval line for the evaluation.
+     */
+    private void evaluateViaControlPlane() {
+        StrategyId current;
+        try {
+            current = StrategyIdBridge.toStrategyId(activeStrategyType);
+        } catch (IllegalArgumentException e) {
+            current = null;   // incumbent has no StrategyId (non-strategy type) -> treat as unknown
+        }
+        int opsElapsed = opCount - lastControlEvalOpCount;
+        lastControlEvalOpCount = opCount;
+        MorphController.MorphResult r = morphController.evaluateAndMaybeMorph(current, opsElapsed);
+        if (r.morphed()) {
+            activeStrategyType = StrategyIdBridge.toStructureType(r.to());
+            morphCount++;
+            lastMorphOpCount = opCount;
+        }
+    }
+
+    /** Legacy genome-driven evaluation (retained behind the flag; demoted in D5). */
+    private void evaluateViaGenome() {
         // Record performance for the currently active strategy
         recordCurrentPerformance();
 
@@ -591,4 +644,8 @@ public class GenomeDrivenTreeController {
     public TreeGenome.StructureType getActiveStrategyType() { return activeStrategyType; }
     /** The control-plane workload monitor fed by every op (observation-only in D3). */
     public WorkloadMonitor getWorkloadMonitor() { return workloadMonitor; }
+
+    /** Toggle the control-plane re-point (ADR-002 step 6 Phase D). Default OFF. */
+    public void    setUseControlPlane(boolean on) { this.useControlPlane = on; }
+    public boolean isUseControlPlane()            { return useControlPlane; }
 }
