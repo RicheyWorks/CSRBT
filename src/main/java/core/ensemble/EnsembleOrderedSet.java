@@ -128,6 +128,40 @@ public final class EnsembleOrderedSet<K> implements OrderedCollection<K> {
     public int countInRange(K lo, K hi)   { return primary.set().countInRange(lo, hi); }
     public List<K> rangeQuery(K lo, K hi) { return primary.set().rangeQuery(lo, hi); }
 
+    // ── Promotion: the O(1) atomic primary swap (ADR-003 E2) ─────────────────────
+
+    /**
+     * Promote {@code member} to primary — make it the member that serves reads and order
+     * statistics. Because every member already mirrors the logical set, this is a single
+     * {@code volatile} pointer publish: <b>O(1)</b>, with no tree rebuild, no traversal, and
+     * no copy. It is the payoff ADR-003 trades the mirror's write fan-out for — adaptation
+     * becomes a pointer swap instead of {@code OrderedSet.setStrategy}'s O(n) build-aside.
+     *
+     * <p>Serialized on the same write lock as the fan-out, so a swap never interleaves with a
+     * mutation. The incoming member must be a live ({@code ACTIVE}) member of this ensemble —
+     * serving reads from a quarantined member (E3) would read from a set that is no longer a
+     * faithful mirror.</p>
+     *
+     * @param member the member to serve reads from; must belong to this ensemble and be {@code ACTIVE}
+     * @return {@code true} if the primary changed; {@code false} if {@code member} was already primary
+     * @throws IllegalArgumentException if {@code member} is not part of this ensemble
+     * @throws IllegalStateException    if {@code member} is not {@code ACTIVE}
+     */
+    public boolean promote(EnsembleMember<K> member) {
+        Objects.requireNonNull(member, "member cannot be null");
+        synchronized (writeLock) {
+            if (!members.contains(member)) {
+                throw new IllegalArgumentException("member is not part of this ensemble: " + member);
+            }
+            if (!member.isActive()) {
+                throw new IllegalStateException("cannot promote a non-active member: " + member);
+            }
+            if (member == primary) return false;
+            this.primary = member;   // volatile publish — readers observe the swap atomically
+            return true;
+        }
+    }
+
     // ── Introspection ────────────────────────────────────────────────────────────
 
     /** The member currently serving reads. */

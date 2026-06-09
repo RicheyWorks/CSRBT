@@ -319,11 +319,11 @@ out-of-the-box overhead is 2×, buying O(1) adaptation and failover.
 
 ## 10. Action items (phased strangler, mirroring Phase D's style)
 
-1. [ ] **E1 — facade + mirror, sequential.** `EnsembleMember<K>`, `EnsembleOrderedSet<K>`
+1. [x] **E1 — facade + mirror, sequential.** `EnsembleMember<K>`, `EnsembleOrderedSet<K>`
    (MIRROR, k configurable) implementing `OrderedCollection<K>` + order stats; fan-out writes
    (sequential), primary serves reads. **Test:** all `ACTIVE` members agree with a `TreeSet`
    oracle and with each other across randomized mixed ops.
-2. [ ] **E2 — measured promotion.** Per-member meters (height, rotations/write,
+2. [x] **E2 — measured promotion.** Per-member meters (height, rotations/write,
    `avgInsert/DeleteTimeMs`) → `EnsembleController` → `MorphPolicy` → **O(1) atomic primary swap**;
    one `event=morph_eval decision=PROMOTE` line per eval. **Test:** a skewed read stream promotes
    the Splay member in ≤1 promotion with **no rebuild** (assert promotion count + that contents
