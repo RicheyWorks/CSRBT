@@ -273,11 +273,14 @@ public final class EnsembleController<K> {
             // else: no healthy replacement -> degraded; keep serving and report it.
         }
 
-        // 2) Non-primary members: validate against the trusted primary's contents.
+        // 2) Non-primary members: exact mirrors validate against the trusted primary's contents; a
+        //    sampled shadow (E5) diverges from the primary BY DESIGN, so it is validated only
+        //    against its own contents (structural invariants) -- divergence is not a fault for it.
         List<K> reference = ensemble.primary().set().inOrder();
         for (EnsembleMember<K> m : ensemble.members()) {
             if (m == ensemble.primary() || !m.isActive()) continue;
-            if (isHealthy(m, reference)) continue;
+            List<K> expected = m.isExact() ? reference : m.set().inOrder();
+            if (isHealthy(m, expected)) continue;
             ensemble.quarantine(m);
             quarantined++;
             ensemble.healFromPrimary(m);
@@ -296,10 +299,15 @@ public final class EnsembleController<K> {
         return StrategyHealthCheck.validate(m.set().getEngine(), m.set().getStrategy(), expectedSorted).isEmpty();
     }
 
-    /** First ACTIVE member other than {@code exclude} that passes structural self-validation, or null. */
+    /**
+     * First ACTIVE <em>exact</em> member other than {@code exclude} that passes structural
+     * self-validation, or null. Exactness is required because this feeds failover: a sampled
+     * shadow (E5) is not a faithful copy — promoting it would sync-on-promote from the very
+     * primary that just failed its health check.
+     */
     private EnsembleMember<K> firstHealthyOther(EnsembleMember<K> exclude) {
         for (EnsembleMember<K> m : ensemble.members()) {
-            if (m == exclude || !m.isActive()) continue;
+            if (m == exclude || !m.isActive() || !m.isExact()) continue;
             if (isHealthy(m, m.set().inOrder())) return m;
         }
         return null;

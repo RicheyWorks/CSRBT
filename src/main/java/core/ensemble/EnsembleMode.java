@@ -13,9 +13,27 @@ package core.ensemble;
  *       corruption that is internally self-consistent and so escapes the per-member health check
  *       (including a wrong primary). It costs a quorum-many reads and needs at least three members
  *       to adjudicate.</li>
+ *   <li>{@link #READ_REPLICA} -- the lock-free read mode (ADR-004 R2): MIRROR semantics with a
+ *       left-right write discipline. Readers enter an epoch on the serving member (one atomic
+ *       increment, an identity re-check, one decrement -- no lock, no retry loop beyond a raced
+ *       flip) and read a tree <em>no writer touches during that epoch</em>. The writer applies
+ *       each op to the non-serving mirrors first, flips the serving pointer to one of them,
+ *       drains the old side's epoch readers, and only then applies the op to the old side.
+ *       Costs the writer a second sequential apply plus the drain wait; requires at least two
+ *       exact ACTIVE members, and fails writes loudly when it degrades below that (a sampled
+ *       shadow can never serve, so it can never take the flip).</li>
+ *   <li>{@link #SAMPLED_SHADOW} -- the memory-lean mode (E5, ADR-003 Option B): the primary
+ *       receives every write and remains the one exact copy; the other members are <em>shadows</em>
+ *       that receive only a sampled fraction of writes (~1 + p&middot;(K-1) memory and write cost
+ *       instead of K&times;). A shadow is a statistical sketch -- it estimates a strategy's cost on
+ *       the live workload but can never serve, fail over, or vote. Promoting a shadow therefore
+ *       costs an O(n) catch-up sync from the primary first (the ADR's "sync-on-promote"), after
+ *       which the deposed primary becomes a shadow and starts to drift in its turn.</li>
  * </ul>
  */
 public enum EnsembleMode {
     MIRROR,
-    VERIFIED
+    VERIFIED,
+    READ_REPLICA,
+    SAMPLED_SHADOW
 }

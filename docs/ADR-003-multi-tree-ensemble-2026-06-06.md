@@ -1,6 +1,6 @@
 # ADR-003: Multi-tree ensemble — parallel strategies with measured promotion and N-version voting
 
-**Status:** Proposed
+**Status:** Accepted (2026-06-09 — E1–E6 landed; see the `CHANGELOG-2026-06-09-ensemble-*.md` series)
 **Date:** 2026-06-06
 **Deciders:** Richmond
 **Builds on:** the landed control plane (ADR-002 step 6, Phase D) — `WorkloadMonitor` →
@@ -334,11 +334,13 @@ out-of-the-box overhead is 2×, buying O(1) adaptation and failover.
 4. [x] **E4 — VERIFIED mode.** Read quorum + majority serve + dissenter quarantine. **Test:** inject
    a deliberately buggy strategy as one member → it is outvoted and quarantined; results stay
    correct. _(Done 2026-06-09 -- EnsembleMode.VERIFIED + quorum vote in EnsembleOrderedSet; see CHANGELOG-2026-06-09-ensemble-e4.md.)_
-5. [ ] **E5 — parallel fan-out + SAMPLED_SHADOW + benchmarks.** Member executor for parallel writes;
+5. [x] **E5 — parallel fan-out + SAMPLED_SHADOW + benchmarks.** Member executor for parallel writes;
    memory-lean sampled mode; a `StrategyBattleRunner`-style benchmark of adaptation latency and
-   steady-state overhead vs single-tree morph.
-6. [ ] **E6 — persistence + docs.** Snapshot primary / rebuild members on load; README "Ensemble"
-   section; `CHANGELOG-…-ensemble.md`; flip this ADR to **Accepted**.
+   steady-state overhead vs single-tree morph. _(Done 2026-06-09 in three slices: the benchmark -- EnsembleBenchmarkTest; the parallel fan-out -- MemberExecutor/ParallelMemberExecutor + EnsembleFanOutTest; SAMPLED_SHADOW -- EnsembleMode.SAMPLED_SHADOW + EnsembleMember.isExact + sync-on-promote, EnsembleShadowTest. See the three CHANGELOG-2026-06-09-ensemble-e5-*.md entries.)_
+6. [x] **E6 — persistence + docs.** Snapshot primary / rebuild members on load; README "Ensemble"
+   section; `CHANGELOG-…-ensemble.md`; flip this ADR to **Accepted**. _(Done 2026-06-09 --
+   FilePersistenceAdapter.saveSnapshot(ensemble)/loadEnsemble + EnsemblePersistenceTest; README
+   ensemble coverage; status flipped. See CHANGELOG-2026-06-09-ensemble-e6.md.)_
 
 ---
 

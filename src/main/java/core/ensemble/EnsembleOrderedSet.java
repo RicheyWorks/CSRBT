@@ -28,20 +28,42 @@ import java.util.function.Supplier;
  *
  * <p>Members share no mutable state, so the write fan-out is embarrassingly parallel; E1 keeps it
  * sequential under a single writer lock (linearizable logical set) and parallelizes in E5.</p>
+ *
+ * <p><b>Step E5 (fan-out executor):</b> writes go through a {@link MemberExecutor} — sequential by
+ * default (E1 behavior, bit-for-bit), parallel via {@link Builder#parallelFanOut()} or an injected
+ * {@link Builder#executor(MemberExecutor)}. Either way the whole fan-out runs under the single
+ * writer lock, so parallelism is within a write, never between writes — the logical set stays
+ * linearizable. The ADR-003 write-failure rule also lands here: a member that throws is
+ * {@code QUARANTINED} and the write still commits to the rest; if the <em>primary</em> throws, a
+ * surviving member is promoted first (failover precedes quarantine, as in VERIFIED reads).</p>
+ *
+ * <p><b>Step E5 (sampled shadows):</b> in {@link EnsembleMode#SAMPLED_SHADOW} the primary receives
+ * every write and stays the one exact copy; the other members receive only every
+ * ceil(1/p)-th write (deterministic stride over the write counter), so they cost ~p of a mirror in
+ * memory and write work. A shadow is marked {@linkplain EnsembleMember#isExact() inexact} on the
+ * first write that skips it; from then on it never serves, fails over, or votes. {@link #promote}
+ * on an inexact member performs the ADR's <em>sync-on-promote</em>: an O(n) rebuild from the
+ * primary, then the swap — after which the deposed primary drifts into a shadow in its turn.</p>
  */
-public final class EnsembleOrderedSet<K> implements OrderedCollection<K> {
+public final class EnsembleOrderedSet<K> implements OrderedCollection<K>, AutoCloseable {
 
     private static final Logger logger = LogManager.getLogger(EnsembleOrderedSet.class);
 
     private final List<EnsembleMember<K>> members;
     private final Comparator<? super K> keyOrder;
     private final Object writeLock = new Object();
+    private final MemberExecutor executor;
+    private final int sampleEvery;            // SAMPLED_SHADOW: shadows receive every sampleEvery-th write
+    private long writeOps;                    // logical add/remove counter; guarded by writeLock
     private volatile EnsembleMember<K> primary;
     private volatile EnsembleMode mode = EnsembleMode.MIRROR;
 
-    private EnsembleOrderedSet(List<EnsembleMember<K>> members, Comparator<? super K> keyOrder) {
+    private EnsembleOrderedSet(List<EnsembleMember<K>> members, Comparator<? super K> keyOrder,
+                               MemberExecutor executor, int sampleEvery) {
         this.members = members;
         this.keyOrder = keyOrder;
+        this.executor = executor;
+        this.sampleEvery = sampleEvery;
         this.primary = members.get(0);
     }
 
@@ -56,6 +78,9 @@ public final class EnsembleOrderedSet<K> implements OrderedCollection<K> {
         private final Comparator<? super K> keyOrder;
         private final List<Supplier<? extends TreeStrategy<K>>> specs = new ArrayList<>();
         private EnsembleMode mode = EnsembleMode.MIRROR;
+        private MemberExecutor executor;
+        private boolean parallel;
+        private double shadowSampleRate = 0.1;
 
         private Builder(Comparator<? super K> keyOrder) {
             this.keyOrder = Objects.requireNonNull(keyOrder, "keyOrder cannot be null");
@@ -73,6 +98,35 @@ public final class EnsembleOrderedSet<K> implements OrderedCollection<K> {
             return this;
         }
 
+        /**
+         * Fan writes out to members in parallel (ADR-003 E5): one logical write is applied to all
+         * K members concurrently on a daemon pool sized min(K-1, cores) — one member always runs
+         * on the writer's own thread. Mutually exclusive with {@link #executor(MemberExecutor)}.
+         */
+        public Builder<K> parallelFanOut() {
+            this.parallel = true;
+            return this;
+        }
+
+        /** Inject a custom fan-out executor (tests, alternative pools). Overrides the default. */
+        public Builder<K> executor(MemberExecutor executor) {
+            this.executor = Objects.requireNonNull(executor, "executor cannot be null");
+            return this;
+        }
+
+        /**
+         * Fraction p of writes a shadow receives in {@link EnsembleMode#SAMPLED_SHADOW} (default
+         * 0.1). Realized as a deterministic stride: shadows receive every ceil(1/p)-th write.
+         * Ignored in MIRROR/VERIFIED, where every member receives every write.
+         */
+        public Builder<K> shadowSampleRate(double p) {
+            if (!(p > 0.0 && p <= 1.0)) {
+                throw new IllegalArgumentException("shadowSampleRate must be in (0, 1]: " + p);
+            }
+            this.shadowSampleRate = p;
+            return this;
+        }
+
         public EnsembleOrderedSet<K> build() {
             if (specs.size() < 2) {
                 throw new IllegalArgumentException("an ensemble needs at least two members");
@@ -80,49 +134,248 @@ public final class EnsembleOrderedSet<K> implements OrderedCollection<K> {
             if (mode == EnsembleMode.VERIFIED && specs.size() < 3) {
                 throw new IllegalArgumentException("VERIFIED mode needs at least three members to form a majority");
             }
+            if (parallel && executor != null) {
+                throw new IllegalArgumentException("choose parallelFanOut() or executor(...), not both");
+            }
             List<EnsembleMember<K>> ms = new ArrayList<>(specs.size());
             for (Supplier<? extends TreeStrategy<K>> s : specs) {
                 ms.add(new EnsembleMember<>(new OrderedSet<>(s.get(), keyOrder)));
             }
-            EnsembleOrderedSet<K> ens = new EnsembleOrderedSet<>(ms, keyOrder);
+            MemberExecutor exec = executor != null ? executor
+                    : parallel ? new ParallelMemberExecutor(
+                            Math.max(1, Math.min(specs.size() - 1, Runtime.getRuntime().availableProcessors())))
+                    : MemberExecutor.sequential();
+            int sampleEvery = Math.max(1, (int) Math.round(1.0 / shadowSampleRate));
+            EnsembleOrderedSet<K> ens = new EnsembleOrderedSet<>(ms, keyOrder, exec, sampleEvery);
             ens.mode = mode;
             return ens;
         }
     }
 
-    // ── Writes: fan out to every active member (sequential in E1) ────────────────
+    // ── Writes: fan out to every active member via the MemberExecutor (E1 seq / E5 parallel) ──
 
     @Override
     public boolean add(K value) {
-        synchronized (writeLock) {
-            boolean changed = false;
-            for (EnsembleMember<K> m : members) {
-                if (!m.isActive()) continue;
-                boolean c = m.set().add(value);
-                if (m == primary) changed = c;
-            }
-            return changed;
-        }
+        return write("add", true, s -> s.add(value));
     }
 
     @Override
     public boolean remove(K value) {
+        return write("remove", true, s -> s.remove(value));
+    }
+
+    @Override
+    public void clear() {
+        // Never sampled: a skipped clear would leave a shadow holding keys the logical set dropped
+        // wholesale. (An emptied shadow that was already inexact stays inexact -- harmless.)
+        write("clear", false, s -> { s.clear(); return true; });
+    }
+
+    /** Dispatch a write: READ_REPLICA uses the left-right two-phase protocol (ADR-004 R2). */
+    private boolean write(String op, boolean sampleable, Function<OrderedSet<K>, Boolean> fn) {
+        return (mode == EnsembleMode.READ_REPLICA)
+                ? replicaWrite(op, fn)
+                : fanOutWrite(op, sampleable, fn);
+    }
+
+    /**
+     * One logical write: under the writer lock, apply {@code op} to the recipient members through
+     * the {@link MemberExecutor}, then enforce the ADR-003 write-failure rule — a member that
+     * throws is {@code QUARANTINED} while the write commits to the rest; if the serving primary
+     * threw, a surviving <em>exact</em> member is promoted first (failover precedes quarantine,
+     * mirroring VERIFIED reads). Returns the serving (possibly just-promoted) primary's
+     * effective-change result.
+     *
+     * <p>Recipients are all ACTIVE members — except in {@link EnsembleMode#SAMPLED_SHADOW} (when
+     * {@code sampleable}), where non-primary members receive only every {@code sampleEvery}-th
+     * write; a skipped member is marked inexact on its first miss and is a shadow from then on.</p>
+     *
+     * @throws IllegalStateException if every recipient failed, or the primary failed with no exact
+     *                               survivor (shadows cannot fail over) — the write did not commit
+     */
+    private boolean fanOutWrite(String op, boolean sampleable, Function<OrderedSet<K>, Boolean> fn) {
         synchronized (writeLock) {
-            boolean changed = false;
+            EnsembleMember<K> servingPrimary = primary;
+            boolean sampling = sampleable && mode == EnsembleMode.SAMPLED_SHADOW;
+            boolean shadowsReceive = !sampling || (++writeOps % sampleEvery == 0);
+
+            List<EnsembleMember<K>> recipients = new ArrayList<>();
             for (EnsembleMember<K> m : members) {
                 if (!m.isActive()) continue;
-                boolean c = m.set().remove(value);
-                if (m == primary) changed = c;
+                if (m == servingPrimary || shadowsReceive) {
+                    recipients.add(m);
+                } else if (m.isExact()) {
+                    m.setExact(false);            // first skipped write: an exact mirror becomes a shadow
+                }
+            }
+            List<MemberExecutor.Outcome> outcomes = executor.apply(recipients, m -> fn.apply(m.set()));
+
+            boolean primaryChanged = false, primaryFailed = false;
+            int failures = 0;
+            for (int i = 0; i < recipients.size(); i++) {
+                MemberExecutor.Outcome o = outcomes.get(i);
+                if (o.failed()) {
+                    failures++;
+                    if (recipients.get(i) == servingPrimary) primaryFailed = true;
+                } else if (recipients.get(i) == servingPrimary) {
+                    primaryChanged = o.changed();
+                }
+            }
+            if (failures == 0) return primaryChanged;                     // the common, healthy case
+
+            if (failures == recipients.size()) {
+                Throwable cause = outcomes.isEmpty() ? null : outcomes.get(0).cause();
+                throw new IllegalStateException(op + " failed on every recipient member; write did not commit", cause);
+            }
+
+            if (primaryFailed) {
+                // Failover before quarantine: promote the first EXACT member whose write committed
+                // (a sampled shadow is not a faithful copy and can never stand in for the primary).
+                EnsembleMember<K> replacement = null;
+                for (int i = 0; i < recipients.size(); i++) {
+                    if (!outcomes.get(i).failed() && recipients.get(i).isExact()) {
+                        replacement = recipients.get(i);
+                        primaryChanged = outcomes.get(i).changed();
+                        break;
+                    }
+                }
+                if (replacement == null) {
+                    Throwable cause = null;
+                    for (int i = 0; i < recipients.size(); i++) {
+                        if (recipients.get(i) == servingPrimary) { cause = outcomes.get(i).cause(); break; }
+                    }
+                    throw new IllegalStateException(
+                            op + " failed on the primary and no exact member can fail over; write did not commit", cause);
+                }
+                this.primary = replacement;                               // volatile publish under the lock
+            }
+            StringBuilder q = new StringBuilder("[");
+            for (int i = 0; i < recipients.size(); i++) {
+                if (!outcomes.get(i).failed()) continue;
+                EnsembleMember<K> failed = recipients.get(i);
+                if (failed.state() != EnsembleMember.State.RETIRED) {
+                    failed.setState(EnsembleMember.State.QUARANTINED);    // half-applied write -> heal later (E3)
+                }
+                if (q.length() > 1) q.append(", ");
+                q.append(failed.strategyName());
+            }
+            q.append(']');
+            logger.warn("event=write_member_failure op={} quarantined={} failedOver={} survivors={}",
+                    op, q, primaryFailed, recipients.size() - failures);
+            return primaryChanged;
+        }
+    }
+
+    // ── READ_REPLICA: left-right two-phase writes + epoch reads (ADR-004 R2) ──────
+
+    /**
+     * One logical write under the left-right discipline: apply {@code op} to every ACTIVE
+     * non-serving member (through the {@link MemberExecutor}, so the fan-out may be parallel),
+     * flip the serving pointer to an exact member whose write committed, <b>drain</b> the old
+     * side's epoch readers, then apply the op to the old side. A reader therefore never shares a
+     * tree with a writer: the serving member is mutated only after it stopped serving and its
+     * last reader left. Failed non-serving members are quarantined as in MIRROR; if the old
+     * serving member fails its (post-drain) apply it is quarantined too — it is no longer
+     * primary, so the write has already committed to the logical set.
+     *
+     * @throws IllegalStateException if no exact ACTIVE non-serving member committed the write —
+     *                               READ_REPLICA cannot flip, so the write must fail loudly
+     */
+    private boolean replicaWrite(String op, Function<OrderedSet<K>, Boolean> fn) {
+        synchronized (writeLock) {
+            EnsembleMember<K> serving = primary;
+            List<EnsembleMember<K>> others = new ArrayList<>();
+            for (EnsembleMember<K> m : members) {
+                if (m.isActive() && m != serving) others.add(m);
+            }
+            if (others.isEmpty()) {
+                throw new IllegalStateException(
+                        op + ": READ_REPLICA needs a second ACTIVE member to flip to; write did not commit");
+            }
+            List<MemberExecutor.Outcome> outcomes = executor.apply(others, m -> fn.apply(m.set()));
+
+            EnsembleMember<K> newServing = null;
+            boolean changed = false;
+            int failures = 0;
+            for (int i = 0; i < others.size(); i++) {
+                if (outcomes.get(i).failed()) {
+                    failures++;
+                } else if (newServing == null && others.get(i).isExact()) {
+                    newServing = others.get(i);
+                    changed = outcomes.get(i).changed();
+                }
+            }
+            StringBuilder q = failures == 0 ? null : new StringBuilder("[");
+            for (int i = 0; i < others.size(); i++) {
+                if (!outcomes.get(i).failed()) continue;
+                EnsembleMember<K> failed = others.get(i);
+                if (failed.state() != EnsembleMember.State.RETIRED) {
+                    failed.setState(EnsembleMember.State.QUARANTINED);
+                }
+                if (q.length() > 1) q.append(", ");
+                q.append(failed.strategyName());
+            }
+            if (newServing == null) {
+                Throwable cause = outcomes.isEmpty() ? null : outcomes.get(0).cause();
+                throw new IllegalStateException(
+                        op + ": no exact member committed the write; READ_REPLICA cannot flip", cause);
+            }
+
+            this.primary = newServing;     // flip: new readers go to the freshly written side
+            drainReaders(serving);         // wait out readers still inside the old side's epoch
+            try {
+                fn.apply(serving.set());   // bring the old side up to date — no reader can see this
+            } catch (Throwable t) {
+                if (serving.state() != EnsembleMember.State.RETIRED) {
+                    serving.setState(EnsembleMember.State.QUARANTINED);
+                }
+                logger.warn("event=replica_old_side_failure op={} member={} quarantined=true",
+                        op, serving.strategyName(), t);
+            }
+            if (q != null) {
+                q.append(']');
+                logger.warn("event=write_member_failure op={} quarantined={} failedOver=false survivors={}",
+                        op, q, others.size() - failures + 1);
             }
             return changed;
         }
     }
 
-    @Override
-    public void clear() {
-        synchronized (writeLock) {
-            for (EnsembleMember<K> m : members) {
-                if (m.isActive()) m.set().clear();
+    /**
+     * Epoch read (ADR-004 R2): enter the serving member's epoch, re-verify it is still serving,
+     * and only then dereference its tree. The re-check closes the flip race: once the count is
+     * held and the member is observed as primary, a writer must flip away and drain — and the
+     * drain waits on this very count — before it may mutate. A reader that loses the race exits
+     * without touching the tree and retries on the new serving member.
+     */
+    private <R> R replicaRead(Function<OrderedSet<K>, R> fn) {
+        for (;;) {
+            EnsembleMember<K> p = primary;
+            p.enterRead();
+            try {
+                if (p == primary) {
+                    return fn.apply(p.set());
+                }
+            } finally {
+                p.exitRead();
+            }
+            // raced a flip between the volatile load and the epoch entry — retry on the new side
+        }
+    }
+
+    /** Spin until {@code m} has no epoch readers (writer-side, under the write lock). */
+    private void drainReaders(EnsembleMember<K> m) {
+        int spins = 0;
+        while (m.activeReaders() != 0) {
+            spins++;
+            if (spins < 1024) {
+                Thread.onSpinWait();
+            } else {
+                Thread.yield();
+                if ((spins & 0xFFFF) == 0) {
+                    logger.warn("event=replica_drain_slow member={} readers={}",
+                            m.strategyName(), m.activeReaders());
+                }
             }
         }
     }
@@ -161,6 +414,12 @@ public final class EnsembleOrderedSet<K> implements OrderedCollection<K> {
      * serving reads from a quarantined member (E3) would read from a set that is no longer a
      * faithful mirror.</p>
      *
+     * <p><b>Sampled shadows (E5):</b> an {@linkplain EnsembleMember#isExact() inexact} member is
+     * first caught up by an O(n) rebuild from the current primary — the ADR's
+     * <em>sync-on-promote</em> — and only then swapped in. In MIRROR operation every member is
+     * exact and the swap stays O(1); the cost table's "O(n) sync-on-promote" applies exactly when
+     * SAMPLED_SHADOW chose to skimp on the standing fan-out.</p>
+     *
      * @param member the member to serve reads from; must belong to this ensemble and be {@code ACTIVE}
      * @return {@code true} if the primary changed; {@code false} if {@code member} was already primary
      * @throws IllegalArgumentException if {@code member} is not part of this ensemble
@@ -176,7 +435,22 @@ public final class EnsembleOrderedSet<K> implements OrderedCollection<K> {
                 throw new IllegalStateException("cannot promote a non-active member: " + member);
             }
             if (member == primary) return false;
+            if (!member.isExact()) {
+                // Sync-on-promote: rebuild the shadow from the one exact copy, then it may serve.
+                List<K> truth = primary.set().inOrder();
+                OrderedSet<K> set = member.set();
+                set.clear();
+                for (K k : truth) set.add(k);
+                member.setExact(true);
+                logger.info("event=shadow_catchup member={} n={}", member.strategyName(), truth.size());
+            }
+            EnsembleMember<K> deposed = primary;
             this.primary = member;   // volatile publish — readers observe the swap atomically
+            if (mode == EnsembleMode.READ_REPLICA) {
+                // Epoch-aware promotion (ADR-004 R2): readers may still be inside the deposed
+                // member's epoch. Drain before returning so any later mutation of it is safe.
+                drainReaders(deposed);
+            }
             return true;
         }
     }
@@ -190,6 +464,16 @@ public final class EnsembleOrderedSet<K> implements OrderedCollection<K> {
     public List<EnsembleMember<K>> members() { return Collections.unmodifiableList(members); }
 
     public Comparator<? super K> comparator() { return keyOrder; }
+
+    /** The fan-out executor in use (sequential unless configured otherwise). */
+    public MemberExecutor fanOutExecutor() { return executor; }
+
+    /**
+     * Release the fan-out executor's threads (E5). Safe to skip — the parallel pool uses daemon
+     * threads — and a no-op for the sequential default. The ensemble must not be written after close.
+     */
+    @Override
+    public void close() { executor.shutdown(); }
 
     @Override
     public String toString() {
@@ -243,11 +527,13 @@ public final class EnsembleOrderedSet<K> implements OrderedCollection<K> {
                 throw new IllegalStateException("cannot heal the primary from itself");
             }
             if (member.state() == EnsembleMember.State.RETIRED) return false;
+            drainReaders(member);                      // defensive (R2): never rebuild under a reader
             List<K> truth = primary.set().inOrder();   // source of truth
             OrderedSet<K> set = member.set();
             set.clear();
             for (K k : truth) set.add(k);
             member.setState(EnsembleMember.State.ACTIVE);
+            member.setExact(true);                     // a full rebuild is an exact mirror (until sampled again)
             return true;
         }
     }
@@ -278,18 +564,36 @@ public final class EnsembleOrderedSet<K> implements OrderedCollection<K> {
     /** Current read mode (MIRROR serves the primary; VERIFIED quorum-votes). */
     public EnsembleMode mode() { return mode; }
 
-    /** Switch read mode at runtime. VERIFIED needs at least three members to adjudicate a majority. */
+    /**
+     * Switch read mode at runtime. VERIFIED needs at least three <em>exact</em> ACTIVE members to
+     * adjudicate a majority — sampled shadows cannot vote, so an ensemble that has been running
+     * SAMPLED_SHADOW must heal its shadows back to exact mirrors before it can verify.
+     */
     public void setMode(EnsembleMode newMode) {
         Objects.requireNonNull(newMode, "mode cannot be null");
-        if (newMode == EnsembleMode.VERIFIED && members.size() < 3) {
-            throw new IllegalStateException("VERIFIED mode needs at least three members to form a majority");
+        if (newMode == EnsembleMode.VERIFIED || newMode == EnsembleMode.READ_REPLICA) {
+            int exactActive = 0;
+            for (EnsembleMember<K> m : members) {
+                if (m.isActive() && m.isExact()) exactActive++;
+            }
+            if (newMode == EnsembleMode.VERIFIED && exactActive < 3) {
+                throw new IllegalStateException(
+                        "VERIFIED mode needs at least three exact ACTIVE members to form a majority; have " + exactActive);
+            }
+            if (newMode == EnsembleMode.READ_REPLICA && exactActive < 2) {
+                throw new IllegalStateException(
+                        "READ_REPLICA mode needs at least two exact ACTIVE members to flip between; have " + exactActive);
+            }
         }
         this.mode = newMode;
     }
 
-    /** Dispatch a read: MIRROR serves the primary; VERIFIED fans out and votes. */
+    /** Dispatch a read: MIRROR serves the primary; VERIFIED votes; READ_REPLICA reads in an epoch. */
     private <R> R read(Function<OrderedSet<K>, R> fn) {
-        return (mode == EnsembleMode.VERIFIED) ? vote(fn) : fn.apply(primary.set());
+        EnsembleMode m = mode;
+        if (m == EnsembleMode.VERIFIED)     return vote(fn);
+        if (m == EnsembleMode.READ_REPLICA) return replicaRead(fn);
+        return fn.apply(primary.set());
     }
 
     /**
@@ -304,7 +608,7 @@ public final class EnsembleOrderedSet<K> implements OrderedCollection<K> {
             List<EnsembleMember<K>> voters = new ArrayList<>();
             List<R> answers = new ArrayList<>();
             for (EnsembleMember<K> m : members) {
-                if (!m.isActive()) continue;
+                if (!m.isActive() || !m.isExact()) continue;   // a sampled shadow can never vote (E5)
                 voters.add(m);
                 answers.add(fn.apply(m.set()));
             }

@@ -17,6 +17,8 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeSet;
+import java.util.concurrent.locks.StampedLock;
+import java.util.function.Supplier;
 
 /**
  * Generic, client-facing ordered set of {@code K} keys over the strategy-driven
@@ -31,10 +33,17 @@ import java.util.TreeSet;
  * {@code TreeContext} adapter (step 4 keeps this facade dependency-light; persistence is
  * step 5).</p>
  *
- * <p><b>Concurrency:</b> single-threaded use. State-changing operations serialize on an
- * internal lock against each other, but reads take no lock and accessors such as
- * {@link #getEngine()} expose live internal structure. Provide external synchronization
- * for concurrent access.</p>
+ * <p><b>Concurrency (ADR-004 R1):</b> one writer at a time (mutators serialize on an internal
+ * monitor), and concurrent reads are <em>torn-read-free</em>: every public read either runs
+ * optimistically and is discarded unless a {@link StampedLock} stamp validates (no write
+ * overlapped it), or holds the shared read lock. Public reads never splay — they descend the
+ * tree through a strategy-independent lookup, so a Splay-backed set keeps its move-to-root
+ * adaptivity on the write path only. The optimistic walk is step-bounded (a reader overlapping
+ * a rotation can transiently chase a cycle), falling back to the locked path; legitimately deep
+ * trees (e.g. a degenerate splay chain) simply take the locked path every time. Accessors such
+ * as {@link #getEngine()} still expose live internal structure and bypass all of this — they
+ * remain a single-threaded diagnostics seam. Set {@link #OPTIMISTIC_READS} to {@code false} to
+ * restore the pre-R1 unguarded reads wholesale.</p>
  */
 public class OrderedSet<K> implements SelfHealingTree, OrderedCollection<K>, AugmentedTree<K>, StrategyMorphTarget<K> {
 
@@ -57,6 +66,20 @@ public class OrderedSet<K> implements SelfHealingTree, OrderedCollection<K>, Aug
 
     private final Object lock = new Object();
 
+    // -- ADR-004 R1: torn-read-free concurrent reads --
+
+    /** Rollback constant: {@code false} restores the pre-R1 unguarded read walk verbatim. */
+    static final boolean OPTIMISTIC_READS = true;
+
+    /** Writers stamp mutations; readers validate optimistic walks or hold the shared lock. */
+    private final StampedLock readGuard = new StampedLock();
+
+    /** Thrown (stacklessly) when a step-bounded optimistic walk suspects a torn tree. */
+    private static final class TornReadException extends RuntimeException {
+        static final TornReadException INSTANCE = new TornReadException();
+        private TornReadException() { super(null, null, false, false); }
+    }
+
     public OrderedSet(TreeStrategy<K> strategy, Comparator<? super K> keyOrder) {
         if (strategy == null) throw new IllegalArgumentException("strategy cannot be null");
         if (keyOrder == null) throw new IllegalArgumentException("keyOrder cannot be null");
@@ -75,86 +98,199 @@ public class OrderedSet<K> implements SelfHealingTree, OrderedCollection<K>, Aug
     /** @return {@code true} if the key was inserted; {@code false} if already present. */
     public boolean add(K value) {
         synchronized (lock) {
-            if (tree.contains(value)) return false;
-            long start = System.nanoTime();
-            tree.add(value);
-            size++;
-            liveOrder.add(value);                          // FIFO order for windowed eviction
-            // Non-default augmentation must be stamped onto the freshly created node, which
-            // createNode installs with the default (subtree-size) augmentor.
-            if (!isDefaultAugmentor()) {
-                TreeNode1<K> inserted = tree.getStrategy().search(tree, value);
-                if (!inserted.isNil()) inserted.setAugmentor(augmentor);
+            long ws = readGuard.writeLock();   // tree.contains may splay: the precheck mutates too
+            try {
+                if (tree.contains(value)) return false;
+                long start = System.nanoTime();
+                tree.add(value);
+                size++;
+                liveOrder.add(value);                          // FIFO order for windowed eviction
+                // Non-default augmentation must be stamped onto the freshly created node, which
+                // createNode installs with the default (subtree-size) augmentor.
+                if (!isDefaultAugmentor()) {
+                    TreeNode1<K> inserted = tree.getStrategy().search(tree, value);
+                    if (!inserted.isNil()) inserted.setAugmentor(augmentor);
+                }
+                totalInsertTime += System.nanoTime() - start;
+                insertCount++;
+                while (maxSize > 0 && size > maxSize) {
+                    if (!evictOldest()) break;
+                }
+                return true;
+            } finally {
+                readGuard.unlockWrite(ws);
             }
-            totalInsertTime += System.nanoTime() - start;
-            insertCount++;
-            while (maxSize > 0 && size > maxSize) {
-                if (!evictOldest()) break;
-            }
-            return true;
         }
     }
 
     /** @return {@code true} if the key was present and removed; {@code false} otherwise. */
     public boolean remove(K value) {
         synchronized (lock) {
-            if (!tree.contains(value)) return false;
-            long start = System.nanoTime();
-            tree.remove(value);
-            size--;
-            liveOrder.remove(value);
-            totalDeleteTime += System.nanoTime() - start;
-            deleteCount++;
-            return true;
+            long ws = readGuard.writeLock();
+            try {
+                if (!tree.contains(value)) return false;
+                long start = System.nanoTime();
+                tree.remove(value);
+                size--;
+                liveOrder.remove(value);
+                totalDeleteTime += System.nanoTime() - start;
+                deleteCount++;
+                return true;
+            } finally {
+                readGuard.unlockWrite(ws);
+            }
         }
     }
 
-    public boolean contains(K value) { return tree.contains(value); }
+    /**
+     * Membership, torn-read-free (ADR-004 R1). Optimistic step-bounded descend validated by
+     * stamp, locked retry on any suspicion. Never splays — the engine-level
+     * {@code tree.contains} (which lets a splay strategy move the key to the root) is reserved
+     * for the write path, where the monitor already serializes it.
+     */
+    public boolean contains(K value) {
+        if (!OPTIMISTIC_READS) return tree.contains(value);
+        return guardedRead(
+                () -> !findReadOnly(value, true).isNil(),
+                () -> !findReadOnly(value, false).isNil());
+    }
 
     public int size() { return size; }
 
     public boolean isEmpty() { return size == 0; }
 
-    /** @return all keys in ascending order. */
-    public List<K> inOrder() { return tree.inOrder(); }
+    /** @return all keys in ascending order (a torn-read-free snapshot under ADR-004 R1). */
+    public List<K> inOrder() {
+        if (!OPTIMISTIC_READS) return tree.inOrder();
+        return guardedRead(() -> inOrderReadOnly(true), () -> inOrderReadOnly(false));
+    }
 
     public void clear() {
         synchronized (lock) {
-            tree.setRoot(tree.getNIL());
-            size = 0;
-            liveOrder.clear();
+            long ws = readGuard.writeLock();
+            try {
+                tree.setRoot(tree.getNIL());
+                size = 0;
+                liveOrder.clear();
+            } finally {
+                readGuard.unlockWrite(ws);
+            }
         }
+    }
+
+    // -- ADR-004 R1 read machinery --
+
+    /**
+     * Run {@code optimistic} under a {@link StampedLock#tryOptimisticRead} stamp and return its
+     * result only if the stamp validates (no writer overlapped); otherwise run {@code locked}
+     * under the shared read lock. The optimistic attempt may throw {@link TornReadException}
+     * (step bound tripped) or any {@code RuntimeException} (torn pointers / null data) — both
+     * simply divert to the locked path, where the tree is consistent by construction.
+     */
+    private <R> R guardedRead(Supplier<R> optimistic, Supplier<R> locked) {
+        long stamp = readGuard.tryOptimisticRead();
+        if (stamp != 0L) {
+            try {
+                R result = optimistic.get();
+                if (readGuard.validate(stamp)) return result;
+            } catch (RuntimeException torn) {
+                // fall through to the locked read
+            }
+        }
+        long rs = readGuard.readLock();
+        try {
+            return locked.get();
+        } finally {
+            readGuard.unlockRead(rs);
+        }
+    }
+
+    /** Shared-lock read for the order-statistics walks (consistent tree, no step bound needed). */
+    private <R> R lockedRead(Supplier<R> read) {
+        if (!OPTIMISTIC_READS) return read.get();
+        long rs = readGuard.readLock();
+        try {
+            return read.get();
+        } finally {
+            readGuard.unlockRead(rs);
+        }
+    }
+
+    /**
+     * Strategy-independent BST descend (never splays). When {@code bounded}, the walk gives up
+     * after ~2·log2(size)+32 steps — an optimistic reader overlapping a rotation can transiently
+     * chase a cycle, and a legitimately deep tree (degenerate splay chain) is indistinguishable
+     * from one, so both divert to the locked path.
+     */
+    private TreeNode1<K> findReadOnly(K value, boolean bounded) {
+        TreeNode1<K> x = tree.getRoot();
+        int steps = bounded
+                ? 2 * (32 - Integer.numberOfLeadingZeros(Math.max(1, size))) + 32
+                : Integer.MAX_VALUE;
+        while (x != null && !x.isNil()) {
+            if (--steps < 0) throw TornReadException.INSTANCE;
+            int cmp = x.compareKeyTo(value);
+            if (cmp == 0) return x;
+            x = (cmp > 0) ? x.getLeft() : x.getRight();
+        }
+        if (x == null) throw TornReadException.INSTANCE;   // children are never null when consistent
+        return x;                                          // NIL — not present
+    }
+
+    /** Iterative in-order snapshot; when {@code bounded}, budgeted at ~4n+64 visited links. */
+    private List<K> inOrderReadOnly(boolean bounded) {
+        List<K> out = new ArrayList<>();
+        long budget = bounded ? 4L * Math.max(16, size) + 64 : Long.MAX_VALUE;
+        Deque<TreeNode1<K>> stack = new ArrayDeque<>();
+        TreeNode1<K> cur = tree.getRoot();
+        while (cur != null && (!cur.isNil() || !stack.isEmpty())) {
+            if (--budget < 0) throw TornReadException.INSTANCE;
+            if (!cur.isNil()) {
+                stack.push(cur);
+                cur = cur.getLeft();
+            } else {
+                cur = stack.pop();
+                out.add(cur.getData());
+                cur = cur.getRight();
+            }
+        }
+        if (cur == null) throw TornReadException.INSTANCE;
+        return out;
     }
 
     // -- Dynamic order statistics (delegated to OrderStatisticsOps<K>) --
     // Ranks/percentiles are positional ints; everything else is keyed by K.
 
+    // All order-statistics reads hold the shared read lock (ADR-004 R1): the walks are pure
+    // (OrderStatisticsOps never splays or mutates) but not step-bounded, so they run only on a
+    // consistent tree. Their documented exceptions (out-of-range rank, absent key) propagate.
+
     /** ith smallest key (1-indexed). @throws IndexOutOfBoundsException if out of [1,size]. */
-    public K select(int rank) { return os.select(rank).getData(); }
+    public K select(int rank) { return lockedRead(() -> os.select(rank).getData()); }
 
     /** 1-indexed rank of a key. @throws java.util.NoSuchElementException if absent. */
-    public int rank(K value) { return os.rank(value); }
+    public int rank(K value) { return lockedRead(() -> os.rank(value)); }
 
     /** Smallest key strictly greater than {@code value}, or {@code null} if none. @throws if absent. */
-    public K successor(K value) { return keyOrNull(os.successor(value)); }
+    public K successor(K value) { return lockedRead(() -> keyOrNull(os.successor(value))); }
 
     /** Largest key strictly less than {@code value}, or {@code null} if none. @throws if absent. */
-    public K predecessor(K value) { return keyOrNull(os.predecessor(value)); }
+    public K predecessor(K value) { return lockedRead(() -> keyOrNull(os.predecessor(value))); }
 
-    public K minimum() { return isEmpty() ? null : os.minimum().getData(); }
+    public K minimum() { return lockedRead(() -> isEmpty() ? null : os.minimum().getData()); }
 
-    public K maximum() { return keyOrNull(os.maximum()); }
+    public K maximum() { return lockedRead(() -> keyOrNull(os.maximum())); }
 
-    public K median() { return keyOrNull(os.median()); }
+    public K median() { return lockedRead(() -> keyOrNull(os.median())); }
 
     /** kth-percentile key (0-100), or {@code null} if empty. */
-    public K percentile(int pct) { return keyOrNull(os.percentile(pct)); }
+    public K percentile(int pct) { return lockedRead(() -> keyOrNull(os.percentile(pct))); }
 
     /** Count of keys in the closed range [lo, hi]. */
-    public int countInRange(K lo, K hi) { return os.countInRange(lo, hi); }
+    public int countInRange(K lo, K hi) { return lockedRead(() -> os.countInRange(lo, hi)); }
 
     /** Keys in [lo, hi], ascending. */
-    public List<K> rangeQuery(K lo, K hi) { return os.rangeQuery(lo, hi); }
+    public List<K> rangeQuery(K lo, K hi) { return lockedRead(() -> os.rangeQuery(lo, hi)); }
 
     private K keyOrNull(TreeNode1<K> node) { return (node == null || node.isNil()) ? null : node.getData(); }
 
@@ -163,9 +299,14 @@ public class OrderedSet<K> implements SelfHealingTree, OrderedCollection<K>, Aug
     /** Set the bounded-set capacity (0 = unbounded); evicts oldest-inserted keys down to it. */
     public void setMaxSize(int n) {
         synchronized (lock) {
-            this.maxSize = Math.max(0, n);
-            while (maxSize > 0 && size > maxSize) {
-                if (!evictOldest()) break;
+            long ws = readGuard.writeLock();
+            try {
+                this.maxSize = Math.max(0, n);
+                while (maxSize > 0 && size > maxSize) {
+                    if (!evictOldest()) break;
+                }
+            } finally {
+                readGuard.unlockWrite(ws);
             }
         }
     }
@@ -194,8 +335,13 @@ public class OrderedSet<K> implements SelfHealingTree, OrderedCollection<K>, Aug
 
     public void setAugmentor(TreeNode1.Augmentor<K> augmentor) {
         synchronized (lock) {
-            this.augmentor = (augmentor != null) ? augmentor : TreeNode1.<K>defaultAugmentor();
-            reapplyAugmentor();
+            long ws = readGuard.writeLock();
+            try {
+                this.augmentor = (augmentor != null) ? augmentor : TreeNode1.<K>defaultAugmentor();
+                reapplyAugmentor();
+            } finally {
+                readGuard.unlockWrite(ws);
+            }
         }
     }
 
@@ -242,12 +388,19 @@ public class OrderedSet<K> implements SelfHealingTree, OrderedCollection<K>, Aug
             List<String> failures = StrategyHealthCheck.validate(candidate, newStrategy, elements);
             if (!failures.isEmpty()) return false;
 
-            this.tree = candidate;
-            this.os   = new OrderStatisticsOps<>(candidate);
-            this.size = elements.size();
-            if (!isDefaultAugmentor()) reapplyAugmentor();
-            restoreTags(keyTags);
-            resyncLiveOrder();
+            // Only the publish is stamped (ADR-004 R1): the candidate was built off to the
+            // side, so concurrent readers keep reading the untouched incumbent until here.
+            long ws = readGuard.writeLock();
+            try {
+                this.tree = candidate;
+                this.os   = new OrderStatisticsOps<>(candidate);
+                this.size = elements.size();
+                if (!isDefaultAugmentor()) reapplyAugmentor();
+                restoreTags(keyTags);
+                resyncLiveOrder();
+            } finally {
+                readGuard.unlockWrite(ws);
+            }
             return true;
         }
     }
@@ -273,12 +426,17 @@ public class OrderedSet<K> implements SelfHealingTree, OrderedCollection<K>, Aug
             RedBlackTree<K> rebuilt = new RedBlackTree<>(strategy, keyOrder);
             for (K v : elements) rebuilt.add(v);
 
-            this.tree = rebuilt;
-            this.os   = new OrderStatisticsOps<>(rebuilt);
-            this.size = elements.size();
-            if (!isDefaultAugmentor()) reapplyAugmentor();
-            restoreTags(keyTags);
-            resyncLiveOrder();
+            long ws = readGuard.writeLock();   // publish only; the rebuild happened aside
+            try {
+                this.tree = rebuilt;
+                this.os   = new OrderStatisticsOps<>(rebuilt);
+                this.size = elements.size();
+                if (!isDefaultAugmentor()) reapplyAugmentor();
+                restoreTags(keyTags);
+                resyncLiveOrder();
+            } finally {
+                readGuard.unlockWrite(ws);
+            }
             return StrategyHealthCheck.validate(rebuilt, strategy, elements).isEmpty();
         }
     }
@@ -303,10 +461,15 @@ public class OrderedSet<K> implements SelfHealingTree, OrderedCollection<K>, Aug
      */
     public void resyncFromEngine() {
         synchronized (lock) {
-            List<K> keys = tree.inOrder();
-            this.size = keys.size();
-            liveOrder.clear();
-            liveOrder.addAll(keys);
+            long ws = readGuard.writeLock();
+            try {
+                List<K> keys = tree.inOrder();
+                this.size = keys.size();
+                liveOrder.clear();
+                liveOrder.addAll(keys);
+            } finally {
+                readGuard.unlockWrite(ws);
+            }
         }
     }
 

@@ -5,6 +5,7 @@ import core.RedBlackTree;
 import core.TreeContext;
 import core.TreeNode1;
 import core.augment.IntervalAugmentor;
+import core.ensemble.EnsembleOrderedSet;
 import core.interfaces.TreePersistenceAdapter;
 import core.strategy.AVLStrategy;
 import core.strategy.HybridStrategy;
@@ -383,6 +384,44 @@ public class FilePersistenceAdapter implements TreePersistenceAdapter {
     public <K extends Comparable<? super K>> OrderedSet<K> loadOrderedSet(String name,
                                                                           KeySerializer<K> keySerializer) {
         return loadOrderedSet(name, keySerializer, Comparator.<K>naturalOrder());
+    }
+
+    // ── Ensemble snapshot I/O (ADR-003 E6) ──────────────────────────────────────
+
+    /**
+     * Save an {@link EnsembleOrderedSet} by snapshotting its <em>primary</em> — the primary is the
+     * logical set (every ACTIVE mirror is an exact copy of it, and in SAMPLED_SHADOW it is the one
+     * exact copy), so persisting K member trees would store the same keys K times. The on-disk
+     * format is exactly the {@link #saveSnapshot(String, OrderedSet, KeySerializer)} format; the
+     * recorded strategy is whichever member happened to be serving, and is informational only on
+     * the ensemble path (member strategies are runtime configuration, like the comparator).
+     */
+    public <K> void saveSnapshot(String name, EnsembleOrderedSet<K> ensemble, KeySerializer<K> keySerializer) {
+        if (ensemble == null) throw new IllegalArgumentException("ensemble must not be null");
+        saveSnapshot(name, ensemble.primary().set(), keySerializer);
+    }
+
+    /**
+     * Load a snapshot into {@code target}, rebuilding every member (ADR-003 E6): the target is
+     * cleared and the snapshot's keys are replayed through the ensemble facade, so the usual write
+     * path applies — in MIRROR/VERIFIED every ACTIVE member becomes an exact copy; in
+     * SAMPLED_SHADOW the primary takes every key and shadows sample their stride, exactly as if
+     * the keys had arrived live. The caller supplies the built ensemble (member strategies, mode,
+     * comparator, and executor are runtime configuration and are not serialized); its comparator
+     * must match the one used when saving.
+     *
+     * @return {@code true} if the snapshot was found and replayed; {@code false} if missing or
+     *         malformed (the target is left untouched in that case)
+     */
+    public <K> boolean loadEnsemble(String name, KeySerializer<K> keySerializer, EnsembleOrderedSet<K> target) {
+        if (target == null) throw new IllegalArgumentException("target must not be null");
+        OrderedSet<K> loaded = loadOrderedSet(name, keySerializer, target.comparator());
+        if (loaded == null) return false;
+        target.clear();
+        for (K k : loaded.inOrder()) target.add(k);
+        logger.info("Snapshot '{}' replayed into ensemble ({} members, n={}).",
+                name, target.members().size(), target.size());
+        return true;
     }
 
     // ── List / Delete ─────────────────────────────────────────────────────────

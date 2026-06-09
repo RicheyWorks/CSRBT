@@ -17,7 +17,10 @@ control plane that *decides* morphs automatically from the workload rather than 
 explicit request (ADR-002 step 6). A workload monitor, a transparent cost-model scorer,
 an anti-thrash policy, and the `MorphController` that runs them on a cadence are wired
 into the live loop and **on by default**; the older genome-driven path is retained but
-deprecated behind a one-switch flag. The target architecture is specified in
+deprecated behind a one-switch flag. On top of that, the **multi-tree ensemble**
+(ADR-003) keeps several strategy-backed members live over the same key set so adaptation
+becomes an O(1) primary swap instead of an O(n) morph, with failover, quorum
+verification, and a memory-lean sampled mode. The target architecture is specified in
 [`docs/DESIGN-adaptive-engine.md`](docs/DESIGN-adaptive-engine.md); the migration that
 closed the gap to it is tracked in
 [`docs/strategy-audit-and-feasibility-2026-05-30.md`](docs/strategy-audit-and-feasibility-2026-05-30.md).
@@ -80,6 +83,22 @@ through this pipeline **by default** (`useControlPlane`, default ON): reads as w
 drive the eval cadence, and the genome's self-interpreting fitness path is `@Deprecated` but
 retained behind the flag for one-switch rollback.
 
+**Ensemble (ADR-003).** `EnsembleOrderedSet<K>` is a drop-in `OrderedCollection` backed by
+several strategy members kept in exact sync: every effective write fans out to all ACTIVE
+members (sequentially by default, or in parallel across a daemon pool via
+`parallelFanOut()` — always under one writer lock, so the logical set stays linearizable),
+while reads are served by a `volatile` *primary*. Because every member is already warm,
+adaptation is `promote` — an O(1) pointer swap — instead of an O(n) morph;
+`EnsembleController` generalizes `MorphController` to drive promotions from the same
+control plane, gated by the same `MorphPolicy`. Members carry a health lifecycle
+(ACTIVE / QUARANTINED / RETIRED): a member that fails its cadence check or throws
+mid-write is quarantined and healed from the primary, and a failing *primary* fails over
+instantly to a healthy member. `VERIFIED` mode fans reads to a quorum and serves the
+majority, quarantining dissenters (N-version programming against silent corruption);
+`SAMPLED_SHADOW` mode is the memory-lean inverse — shadows receive only a sampled stride
+of writes (~1 + p·(K−1) cost), estimate strategy fitness, and pay an O(n) sync-on-promote
+if elevated. Snapshots persist the primary only and rebuild members on load.
+
 ## Quick start
 
 ```java
@@ -119,6 +138,20 @@ words.setStrategy(new SplayStrategy<>());   // health-gated morph, contents pres
 FilePersistenceAdapter store = new FilePersistenceAdapter();
 store.saveSnapshot("words", words, KeySerializer.string());
 OrderedSet<String> restored = store.loadOrderedSet("words", KeySerializer.string());
+
+// The ensemble (ADR-003): several members live at once; adaptation is an O(1) swap.
+EnsembleOrderedSet<Integer> ens = EnsembleOrderedSet.<Integer>builder(Comparator.naturalOrder())
+        .member(RedBlackStrategy::new)      // member 0 — initial primary
+        .member(AVLStrategy::new)           // warm standby / promotion candidate
+        .parallelFanOut()                   // E5: writes fan to members in parallel
+        .build();
+ens.add(42); ens.add(17);                   // fans out to all ACTIVE members
+ens.contains(17);                           // served by the primary
+ens.promote(ens.members().get(1));          // O(1): the warm AVL member now serves
+
+// Ensemble snapshots persist the primary (the logical set) and rebuild members on load.
+store.saveSnapshot("ens", ens, KeySerializer.INTEGER);
+store.loadEnsemble("ens", KeySerializer.INTEGER, ens);
 ```
 
 ## Features
@@ -148,6 +181,12 @@ OrderedSet<String> restored = store.loadOrderedSet("words", KeySerializer.string
   strategy scorer, an anti-thrash morph policy, and the `MorphController` that runs them on
   a cadence and drives the health-gated `setStrategy`. As of ADR-002 step 6 Phase D this is
   the controller's **default** decision path; the genome loop is deprecated behind a flag.
+- **Multi-tree ensemble (ADR-003)** — `EnsembleOrderedSet<K>` keeps K strategy members in
+  exact sync (parallel write fan-out under one writer lock) so adaptation is an **O(1)
+  promote** instead of an O(n) morph, with instant failover, quarantine/heal/retire
+  lifecycle, quorum-verified reads (`VERIFIED`), a memory-lean sampled mode
+  (`SAMPLED_SHADOW`, ~1 + p·(K−1) cost, O(n) sync-on-promote), and primary-only snapshots
+  that rebuild every member on load.
 
 ## Project layout
 
@@ -168,6 +207,9 @@ src/main/java/core/
   ├─ control/                  adaptive control plane (ADR-002 step 6): WorkloadMonitor,
   │                            StrategyScorer, StrategyId, MorphPolicy, MorphHistory,
   │                            MorphController, StrategyMorphTarget
+  ├─ ensemble/                 multi-tree ensemble (ADR-003): EnsembleOrderedSet,
+  │                            EnsembleMember, EnsembleMode, EnsembleController,
+  │                            MemberExecutor (sequential / parallel fan-out)
   ├─ augment/                  IntervalAugmentor
   ├─ interfaces/               TreeEngine, OrderedCollection, AugmentedTree, …
   ├─ persistence/              FilePersistenceAdapter (text snapshots)
@@ -220,26 +262,49 @@ ant clean       # remove the build/ directory
   and convergence (skewed reads → Splay in ≤1 morph, steady → 0 morphs, regime-following).
 - `WindowingTest` / `PersistentTreeEngineTest` — bounded-set eviction and the
   stack-safe path-copying persistent engine.
+- `EnsembleOrderedSetTest` / `EnsembleControllerTest` / `EnsembleHealthTest` /
+  `EnsembleVerifiedTest` / `EnsembleFanOutTest` / `EnsembleShadowTest` /
+  `EnsemblePersistenceTest` / `EnsembleBenchmarkTest` — the ADR-003 ensemble (E1–E6):
+  mirror fan-out against a `TreeSet` oracle, controller-driven O(1) promotion,
+  quarantine/heal/failover, quorum voting, parallel fan-out (oracle equivalence,
+  write-failure quarantine, linearizability under concurrent writers), sampled shadows
+  (stride fraction, sync-on-promote, no-serve/no-vote), primary-only snapshot round-trips,
+  and the O(1)-swap-vs-O(n)-rebuild benchmark.
 
 Run the full suite after any change to the engine or strategies.
 
 ## Concurrency
 
-`TreeContext` and the underlying `OrderedSet` are designed for **single-threaded use**. Its mutators (`add`,
-`remove`, `setStrategy`, `clear`) serialize on one internal lock, which only
-prevents two *writers* from interleaving — it is not sufficient for general
-concurrent access. Reads take no lock and may observe a tree mid-mutation, and
-accessors such as `getTree()` expose live internal structure that bypasses the
-lock entirely. The `RedBlackTree` and strategy implementations are **not**
-thread-safe on their own. Applications needing concurrent access must provide
-their own external synchronization around all access. (The design doc specifies a
-future single-writer / multi-reader model via atomic root swap.)
+`OrderedSet` (and the `TreeContext` adapter over it) supports **one writer, many readers**
+(ADR-004 R1). Mutators serialize on an internal lock and stamp their mutations on a
+`StampedLock`; public reads are **torn-read-free** — `contains`/`inOrder` run optimistically
+with a step-bounded walk and are discarded unless the stamp validates, order statistics hold
+the shared read lock, and facade reads never splay (Splay's move-to-root adaptivity lives on
+the write path). Reads are safe, not lock-free — a read overlapping a write may briefly take
+the shared lock (R2 of ADR-004 targets wait-free reads via the ensemble). Accessors such as
+`getTree()`/`getEngine()` still expose live internal structure that bypasses the guard — they
+remain a single-threaded diagnostics seam — and the `RedBlackTree`/strategy layer is **not**
+thread-safe on its own.
+
+The ensemble facade extends the same model to member granularity: `EnsembleOrderedSet`
+serializes all writers on one lock (concurrent callers are safe and linearizable),
+parallelizes the *internal* fan-out across members — only one thread ever touches a
+member's write path at a time — and publishes promotion/failover as a `volatile` primary
+swap. Reads served by the primary inherit R1's torn-read-free guarantee.
 
 ## Design history
 
 **Design & direction**
 - [`docs/DESIGN-adaptive-engine.md`](docs/DESIGN-adaptive-engine.md) — the target
   architecture: two-plane design, control loop, and acceptance goals (G1–G9).
+- [`docs/ADR-003-multi-tree-ensemble-2026-06-06.md`](docs/ADR-003-multi-tree-ensemble-2026-06-06.md)
+  — **Accepted**: the multi-tree ensemble — O(1) promotion, failover, quorum verification,
+  sampled shadows, parallel fan-out, persistence. Landed in steps E1–E6 (see the
+  `CHANGELOG-2026-06-09-ensemble-*.md` series).
+- [`docs/ADR-004-lock-free-reads-2026-06-09.md`](docs/ADR-004-lock-free-reads-2026-06-09.md)
+  — **Proposed**: retiring the torn-read caveat — optimistic step-bounded reads everywhere
+  (R1), then wait-free left-right epoch reads over ensemble mirrors (R2); the balanced
+  persistent engine held as the horizon (R3).
 - [`docs/ADR-002-architecture-review-2026-05-30.md`](docs/ADR-002-architecture-review-2026-05-30.md)
   — architecture review + decisions: phased generic-key migration and control-plane
   consolidation.
