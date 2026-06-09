@@ -30,28 +30,27 @@ import java.util.*;
  * suite is the regression harness for this delegation.</p>
  *
  * <h2>Concurrency contract</h2>
- * <p><strong>This class is designed for single-threaded use.</strong> The
- * backing {@link RedBlackTree}, the {@link core.strategy.TreeStrategy}
- * implementations, and the per-node {@link TreeNode1} state are all
- * <em>not</em> thread-safe.</p>
- *
- * <p>The state-changing operations -- {@link #add(int)}, {@link #remove(int)},
- * {@link #setStrategy}, {@link #clear()} -- serialize on a single internal lock,
- * which prevents two <em>writers</em> from interleaving and corrupting the tree.
- * That is the only guarantee. It is <strong>not</strong> sufficient for general
- * concurrent use, because:</p>
+ * <p><strong>One writer, many readers</strong> (ADR-004 R1, inherited from the
+ * {@link OrderedSet} delegate). State-changing operations -- {@link #add(int)},
+ * {@link #remove(int)}, {@link #setStrategy}, {@link #clear()} -- serialize on a
+ * single internal lock, and the delegated reads ({@link #contains(int)},
+ * {@link #size()}, {@link #inOrder()} and the order statistics) are
+ * torn-read-free under concurrent writes: optimistic, stamp-validated walks
+ * with a locked fallback. Two caveats remain:</p>
  * <ul>
- *   <li>Read operations ({@link #contains(int)}, {@link #size()},
- *       {@link #inOrder()}, {@link #selfRepair()}) take no lock and may observe a
- *       tree mid-mutation.</li>
- *   <li>Accessors such as {@link #getTree()} and the in-order traversals expose
- *       <em>live</em> internal structure and nodes; mutating them, or reading
- *       them while another thread writes, bypasses the lock entirely.</li>
+ *   <li>Accessors such as {@link #getTree()} and anything that hands out live
+ *       {@link TreeNode1}s bypass the guard entirely -- the backing
+ *       {@link RedBlackTree}, the {@link core.strategy.TreeStrategy}
+ *       implementations, and per-node state are <em>not</em> thread-safe. Treat
+ *       these as a single-threaded diagnostics seam.</li>
+ *   <li>The {@code Integer}-bound machinery layered on this adapter (undo/redo
+ *       history, snapshot persistence, cloning, diagnostics) mutates the engine
+ *       out-of-band and assumes a single thread.</li>
  * </ul>
  *
- * <p>An application that needs concurrent access must provide its own external
- * synchronization around <em>all</em> access (reads, writes, and anything done
- * with objects returned from this facade).</p>
+ * <p>An application doing anything beyond plain reads-under-writes must still
+ * provide external synchronization (or use the ensemble's {@code READ_REPLICA}
+ * mode for lock-free reads at member granularity).</p>
  */
 public class TreeContext implements AugmentedTree<Integer>, SelfHealingTree, OrderedCollection<Integer>, StrategyMorphTarget<Integer> {
 

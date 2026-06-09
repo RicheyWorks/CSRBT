@@ -44,6 +44,13 @@ import java.util.function.Supplier;
  * first write that skips it; from then on it never serves, fails over, or votes. {@link #promote}
  * on an inexact member performs the ADR's <em>sync-on-promote</em>: an O(n) rebuild from the
  * primary, then the swap — after which the deposed primary drifts into a shadow in its turn.</p>
+ *
+ * <p><b>ADR-004 R2 (READ_REPLICA):</b> lock-free reads via a left-right write discipline. Epoch
+ * readers enter the serving member's counter, re-verify it still serves, and read a tree no
+ * writer shares; the writer applies each op to the non-serving mirrors first, flips, drains the
+ * old side's epoch, then updates it. Promotion and healing are epoch-aware (drain after a flip,
+ * drain before a rebuild). Requires two exact ACTIVE members; degrades by failing writes loudly,
+ * never by serving a mutating tree.</p>
  */
 public final class EnsembleOrderedSet<K> implements OrderedCollection<K>, AutoCloseable {
 

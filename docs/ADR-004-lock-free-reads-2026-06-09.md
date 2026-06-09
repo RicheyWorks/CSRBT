@@ -1,6 +1,7 @@
 # ADR-004: Lock-free multi-reader reads — retiring the torn-read caveat
 
-**Status:** Proposed
+**Status:** Accepted (2026-06-09 — R1 + R2 landed, see CHANGELOG-2026-06-09-adr004-r1.md /
+-r2.md; R3 deliberately held as the horizon)
 **Date:** 2026-06-09
 **Deciders:** Richmond
 **Builds on:** the landed ensemble (ADR-003, E1–E6) — exact mirrors, the single writer lock, the
@@ -216,10 +217,14 @@ appears.
    fallback); torn-read stress test: hammer reads during writes, assert no NPE/cycle/wrong-size,
    on every strategy. _(Done 2026-06-09 -- ConcurrentReadStressTest; rollback constant
    OPTIMISTIC_READS. See CHANGELOG-2026-06-09-adr004-r1.md.)_
-3. [ ] **R2a** — epoch infrastructure (per-side reader counters, drain) behind
+3. [x] **R2a** — epoch infrastructure (per-side reader counters, drain) behind
    `EnsembleMode.READ_REPLICA`; single-writer/multi-reader stress: k reader threads see only
-   fully consistent states (size parity, sorted `inOrder`, monotone rank).
-4. [ ] **R2b** — epoch-aware promotion/failover/quarantine + the benchmark's read-throughput row.
+   fully consistent states (size parity, sorted `inOrder`, monotone rank). _(Done 2026-06-09 --
+   enter/verify/exit epoch readers + two-phase left-right writes; EnsembleReplicaTest. See
+   CHANGELOG-2026-06-09-adr004-r2.md.)_
+4. [x] **R2b** — epoch-aware promotion/failover/quarantine + the benchmark's read-throughput row.
+   _(Done 2026-06-09 -- promote drains the deposed side, heal drains before rebuild, loud
+   degradation below two exact members; printed MIRROR-vs-READ_REPLICA throughput reference.)_
 5. [ ] **R3** — (held) balanced persistent engine ADR when demanded.
 
 ---

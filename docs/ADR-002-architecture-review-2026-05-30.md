@@ -1,6 +1,8 @@
 # ADR-002: CSRBT architecture review — path to the adaptive end goal
 
-**Status:** Proposed
+**Status:** Accepted (all action items closed; statuses reconciled 2026-06-09 — the work
+landed across the 2026-05-31…2026-06-06 changelogs and has been the foundation for
+ADR-003/ADR-004 since)
 **Date:** 2026-05-30
 **Deciders:** project owner (Richmond)
 **Supersedes/extends:** ADR-001; companion to `DESIGN-adaptive-engine.md`
@@ -158,8 +160,10 @@ to `experimental`); incremental/background morph for very large `n`.
          compares `getData()` directly. Behaviour-identical by construction
          (natural int order); step 2 swaps `KEY_ORDER` for a pluggable
          `Comparator<K>` in one place. See `CHANGELOG-2026-05-31-comparator-seam.md`.
-2. [~] Steps 2–3: generify strategies + order statistics; fix the `augmentedValue`
-       overloading with a typed augmentor payload.
+2. [x] Steps 2–3: generify strategies + order statistics; fix the `augmentedValue`
+       overloading with a typed augmentor payload. _(Checkbox closed 2026-06-09: the
+       "pending host test" notes below were satisfied long since — the suite has run green
+       across ADR-003/ADR-004 work on top of these changes.)_
        — `augmentedValue` overloading **RESOLVED 2026-05-31**: subtree size promoted
          to an intrinsic `TreeNode1` field (sibling of height/black-height), order
          statistics repointed to it, so order-stats + interval now coexist on one
@@ -205,4 +209,8 @@ to `experimental`); incremental/background morph for very large `n`.
          O(1) hot path) is guarded by `ControllerConvergenceTest`. See
          `PLAN-adr002-step6-control-plane.md`, `PLAN-adr002-step6-phaseD-controller-rewire.md`,
          and `CHANGELOG-2026-06-06-control-plane.md`.
-6. [ ] Do C5 in a session with iterative compilation (clean rebuild between steps).
+6. [x] Do C5 in a session with iterative compilation (clean rebuild between steps).
+       — **DONE** (stale checkbox, fixed 2026-06-09): C5 *is* the generic-key migration,
+         delivered across steps 2–5 above (engine generification 2026-06-01, `OrderedSet<K>`
+         facade 2026-06-03, `KeySerializer<K>` 2026-06-04), each step verified by host
+         `ant clean test`. Nothing remains under this item.

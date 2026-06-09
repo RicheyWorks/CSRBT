@@ -1,6 +1,7 @@
 # ADR-001: CSRBT Architecture Review, Optimization, and Capability Expansion
 
-**Status:** Accepted — Option B; phases 1–3 implemented (pending local build verification)
+**Status:** Accepted — Option B; phases 1–3 implemented and long since build-verified
+(stale "pending verification" qualifier removed 2026-06-09)
 **Date:** 2026-05-28 (accepted 2026-05-29)
 **Deciders:** Richmond (project owner)
 

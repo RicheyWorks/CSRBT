@@ -262,6 +262,10 @@ ant clean       # remove the build/ directory
   and convergence (skewed reads → Splay in ≤1 morph, steady → 0 morphs, regime-following).
 - `WindowingTest` / `PersistentTreeEngineTest` — bounded-set eviction and the
   stack-safe path-copying persistent engine.
+- `ConcurrentReadStressTest` / `EnsembleReplicaTest` — ADR-004 (R1/R2): torn-read-free
+  optimistic reads on every strategy under write churn, and READ_REPLICA's left-right
+  epoch reads (oracle exactness, churn with mid-stream promotions, loud degradation,
+  printed read-throughput reference).
 - `EnsembleOrderedSetTest` / `EnsembleControllerTest` / `EnsembleHealthTest` /
   `EnsembleVerifiedTest` / `EnsembleFanOutTest` / `EnsembleShadowTest` /
   `EnsemblePersistenceTest` / `EnsembleBenchmarkTest` — the ADR-003 ensemble (E1–E6):
@@ -290,7 +294,11 @@ The ensemble facade extends the same model to member granularity: `EnsembleOrder
 serializes all writers on one lock (concurrent callers are safe and linearizable),
 parallelizes the *internal* fan-out across members — only one thread ever touches a
 member's write path at a time — and publishes promotion/failover as a `volatile` primary
-swap. Reads served by the primary inherit R1's torn-read-free guarantee.
+swap. Reads served by the primary inherit R1's torn-read-free guarantee, and
+`EnsembleMode.READ_REPLICA` (ADR-004 R2) makes them **lock-free**: epoch readers
+(enter / re-verify / exit on the serving member's counter) read a tree no writer shares,
+while the writer updates the non-serving mirrors first, flips, drains the old side's
+epoch, then updates it.
 
 ## Design history
 
@@ -302,9 +310,9 @@ swap. Reads served by the primary inherit R1's torn-read-free guarantee.
   sampled shadows, parallel fan-out, persistence. Landed in steps E1–E6 (see the
   `CHANGELOG-2026-06-09-ensemble-*.md` series).
 - [`docs/ADR-004-lock-free-reads-2026-06-09.md`](docs/ADR-004-lock-free-reads-2026-06-09.md)
-  — **Proposed**: retiring the torn-read caveat — optimistic step-bounded reads everywhere
-  (R1), then wait-free left-right epoch reads over ensemble mirrors (R2); the balanced
-  persistent engine held as the horizon (R3).
+  — **Accepted**: the torn-read caveat retired — optimistic step-bounded reads everywhere
+  (R1, landed) and lock-free left-right epoch reads over ensemble mirrors
+  (`READ_REPLICA`, R2, landed); the balanced persistent engine held as the horizon (R3).
 - [`docs/ADR-002-architecture-review-2026-05-30.md`](docs/ADR-002-architecture-review-2026-05-30.md)
   — architecture review + decisions: phased generic-key migration and control-plane
   consolidation.

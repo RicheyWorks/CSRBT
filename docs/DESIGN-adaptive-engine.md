@@ -135,7 +135,9 @@ it can only fail its health check and be dropped.
   to the caller. Snapshot load validates structure before returning.
 - **Concurrency**: single writer lock; readers on the `volatile` engine ref. Morph
   builds off-thread-safe-by-construction (no shared mutable sentinel) and publishes
-  atomically. Full lock-free is explicitly deferred.
+  atomically. Full lock-free is explicitly deferred. *(Update 2026-06-09: un-deferred
+  by ADR-004 — reads are torn-read-free everywhere via stamped optimistic walks (R1),
+  and lock-free on the ensemble via `READ_REPLICA` left-right epoch reads (R2).)*
 - **Observability**: every evaluation emits one structured line — feature vector,
   per-strategy scores, decision, and (if morphed) validation result and timing.
   This is the difference between "adaptive" and "mysterious."
