@@ -9,6 +9,7 @@ import core.control.StrategyId;
 import core.control.StrategyScorer;
 import core.control.WorkloadFeatures;
 import core.control.WorkloadMonitor;
+import core.util.StrategyHealthCheck;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -233,4 +234,104 @@ public final class EnsembleController<K> {
      * promotion reports {@code promoted=true} with {@code to} the newly-serving strategy.
      */
     public record PromotionResult(boolean promoted, StrategyId from, StrategyId to, String reason) { }
+
+    // -- Health / quarantine / heal + failover (ADR-003 E3) --
+
+    /**
+     * Run one cadence health check over every member (ADR-003 E3). The primary is validated first
+     * by its own structural invariants -- a bad primary must never keep serving, so a healthy member
+     * is promoted immediately (the O(1) failover) and the deposed primary is quarantined and healed.
+     * Each remaining ACTIVE member is then validated against the (now-trusted) primary's contents;
+     * any that diverge or break their invariant are quarantined, healed from the primary, and
+     * reactivated -- or retired if a heal still will not validate. Emits one {@code event=health_check}
+     * line and returns the {@link HealthReport}.
+     *
+     * <p>Runs under the engine's single-writer model like {@link #evaluateAndMaybePromote}. Reads are
+     * always served by a known-good primary (failover precedes quarantine), so queries are never
+     * interrupted or served from a tree known to be bad.</p>
+     */
+    public HealthReport checkHealth() {
+        StrategyId from = currentPrimaryId();
+        boolean failedOver = false;
+        StrategyId to = from;
+        int quarantined = 0, healed = 0, retired = 0;
+
+        // 1) Primary: structural self-validation; fail over before it can serve a bad read.
+        EnsembleMember<K> primary = ensemble.primary();
+        if (!isHealthy(primary, primary.set().inOrder())) {
+            EnsembleMember<K> replacement = firstHealthyOther(primary);
+            if (replacement != null) {
+                ensemble.promote(replacement);     // O(1) failover swap
+                ensemble.quarantine(primary);      // deposed primary out of service
+                quarantined++;
+                failedOver = true;
+                to = idOf(replacement);
+                ensemble.healFromPrimary(primary); // rebuild it from the new primary
+                if (isHealthy(primary, ensemble.primary().set().inOrder())) healed++;
+                else { ensemble.retire(primary); retired++; }
+            }
+            // else: no healthy replacement -> degraded; keep serving and report it.
+        }
+
+        // 2) Non-primary members: validate against the trusted primary's contents.
+        List<K> reference = ensemble.primary().set().inOrder();
+        for (EnsembleMember<K> m : ensemble.members()) {
+            if (m == ensemble.primary() || !m.isActive()) continue;
+            if (isHealthy(m, reference)) continue;
+            ensemble.quarantine(m);
+            quarantined++;
+            ensemble.healFromPrimary(m);
+            if (isHealthy(m, reference)) healed++;
+            else { ensemble.retire(m); retired++; }
+        }
+
+        HealthReport report = new HealthReport(failedOver, from, to, quarantined, healed, retired);
+        logger.info("event=health_check primary={} failedOver={} from={} to={} quarantined={} healed={} retired={} members={}",
+                currentPrimaryId(), failedOver, from, to, quarantined, healed, retired, memberStates());
+        return report;
+    }
+
+    /** Healthy iff {@link StrategyHealthCheck} reports no failures against {@code expectedSorted}. */
+    private boolean isHealthy(EnsembleMember<K> m, List<K> expectedSorted) {
+        return StrategyHealthCheck.validate(m.set().getEngine(), m.set().getStrategy(), expectedSorted).isEmpty();
+    }
+
+    /** First ACTIVE member other than {@code exclude} that passes structural self-validation, or null. */
+    private EnsembleMember<K> firstHealthyOther(EnsembleMember<K> exclude) {
+        for (EnsembleMember<K> m : ensemble.members()) {
+            if (m == exclude || !m.isActive()) continue;
+            if (isHealthy(m, m.set().inOrder())) return m;
+        }
+        return null;
+    }
+
+    /** The StrategyId backing {@code m}, or null if unmapped. */
+    private StrategyId idOf(EnsembleMember<K> m) {
+        for (Map.Entry<StrategyId, EnsembleMember<K>> e : byStrategy.entrySet()) {
+            if (e.getValue() == m) return e.getKey();
+        }
+        return null;
+    }
+
+    /** Compact "[strategy=STATE, ...]" snapshot of member states for the health_check line. */
+    private String memberStates() {
+        List<EnsembleMember<K>> ms = ensemble.members();
+        StringBuilder sb = new StringBuilder("[");
+        for (int i = 0; i < ms.size(); i++) {
+            EnsembleMember<K> m = ms.get(i);
+            if (i > 0) sb.append(", ");
+            sb.append(m.strategyName()).append('=').append(m.state());
+        }
+        return sb.append(']').toString();
+    }
+
+    /**
+     * The outcome of one {@link #checkHealth} pass: whether the primary failed over (and from/to
+     * which strategy), and how many members were quarantined, healed, or retired this pass.
+     */
+    public record HealthReport(boolean failedOver, StrategyId from, StrategyId to,
+                               int quarantined, int healed, int retired) {
+        /** Whether anything changed this pass (a failover, quarantine, heal, or retire). */
+        public boolean changed() { return failedOver || quarantined > 0 || healed > 0 || retired > 0; }
+    }
 }

@@ -177,4 +177,80 @@ public final class EnsembleOrderedSet<K> implements OrderedCollection<K> {
         return "EnsembleOrderedSet[primary=" + primary.strategyName()
                 + ", members=" + members.size() + ", n=" + size() + "]";
     }
+
+    // -- Health lifecycle: quarantine / heal / retire (ADR-003 E3) --
+
+    /**
+     * Drop {@code member} from serving and write fan-out by marking it {@code QUARANTINED}
+     * (E1's fan-out already skips non-{@code ACTIVE} members). The serving primary cannot be
+     * quarantined directly -- {@link #promote} a healthy member first (failover), then quarantine
+     * the deposed one. Serialized on the write lock.
+     *
+     * @return {@code true} if the member moved to {@code QUARANTINED}; {@code false} if already retired
+     * @throws IllegalStateException if {@code member} is the serving primary
+     */
+    public boolean quarantine(EnsembleMember<K> member) {
+        Objects.requireNonNull(member, "member cannot be null");
+        synchronized (writeLock) {
+            if (!members.contains(member)) {
+                throw new IllegalArgumentException("member is not part of this ensemble: " + member);
+            }
+            if (member == primary) {
+                throw new IllegalStateException("cannot quarantine the serving primary; fail over first");
+            }
+            if (member.state() == EnsembleMember.State.RETIRED) return false;
+            member.setState(EnsembleMember.State.QUARANTINED);
+            return true;
+        }
+    }
+
+    /**
+     * Heal {@code member} by rebuilding its backing set from the <em>current primary</em>'s
+     * contents and returning it to {@code ACTIVE} -- the recover step after a quarantine
+     * (ADR-003 E3). The primary is the source of truth, so the healed member becomes an exact
+     * mirror again under its own strategy. O(n) in the live size; {@code member} must not be the
+     * primary. Serialized on the write lock.
+     *
+     * @return {@code true} if the member was rebuilt and reactivated; {@code false} if retired
+     * @throws IllegalStateException if {@code member} is the serving primary
+     */
+    public boolean healFromPrimary(EnsembleMember<K> member) {
+        Objects.requireNonNull(member, "member cannot be null");
+        synchronized (writeLock) {
+            if (!members.contains(member)) {
+                throw new IllegalArgumentException("member is not part of this ensemble: " + member);
+            }
+            if (member == primary) {
+                throw new IllegalStateException("cannot heal the primary from itself");
+            }
+            if (member.state() == EnsembleMember.State.RETIRED) return false;
+            List<K> truth = primary.set().inOrder();   // source of truth
+            OrderedSet<K> set = member.set();
+            set.clear();
+            for (K k : truth) set.add(k);
+            member.setState(EnsembleMember.State.ACTIVE);
+            return true;
+        }
+    }
+
+    /**
+     * Permanently remove {@code member} from service ({@code RETIRED}) -- used when a heal still
+     * fails its health check. A retired member is never served, fanned to, or promoted. The
+     * primary cannot be retired directly. Serialized on the write lock.
+     *
+     * @throws IllegalStateException if {@code member} is the serving primary
+     */
+    public boolean retire(EnsembleMember<K> member) {
+        Objects.requireNonNull(member, "member cannot be null");
+        synchronized (writeLock) {
+            if (!members.contains(member)) {
+                throw new IllegalArgumentException("member is not part of this ensemble: " + member);
+            }
+            if (member == primary) {
+                throw new IllegalStateException("cannot retire the serving primary; fail over first");
+            }
+            member.setState(EnsembleMember.State.RETIRED);
+            return true;
+        }
+    }
 }

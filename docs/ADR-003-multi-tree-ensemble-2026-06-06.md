@@ -328,9 +328,9 @@ out-of-the-box overhead is 2×, buying O(1) adaptation and failover.
    one `event=morph_eval decision=PROMOTE` line per eval. **Test:** a skewed read stream promotes
    the Splay member in ≤1 promotion with **no rebuild** (assert promotion count + that contents
    were never rebuilt).
-3. [ ] **E3 — health / quarantine / heal + failover.** Per-member cadence health check; corrupt a
+3. [x] **E3 — health / quarantine / heal + failover.** Per-member cadence health check; corrupt a
    member → quarantined and healed from the primary, queries uninterrupted; corrupt the primary →
-   instant failover to a healthy member.
+   instant failover to a healthy member. _(Done 2026-06-09 -- quarantine/heal/retire on EnsembleOrderedSet + EnsembleController.checkHealth; see CHANGELOG-2026-06-09-ensemble-e3.md.)_
 4. [ ] **E4 — VERIFIED mode.** Read quorum + majority serve + dissenter quarantine. **Test:** inject
    a deliberately buggy strategy as one member → it is outvoted and quarantined; results stay
    correct.
