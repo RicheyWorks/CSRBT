@@ -73,8 +73,9 @@ public final class TreeEngineRegistry {
                 strategy("Hybrid — AVL balance pass + RB recolor pass.", HybridStrategy::new));
 
         MAP.put(StructureType.PERSISTENT_TREE,
-                engine("Persistent ordered set — immutable, path-copying, retains every version.",
-                       PersistentTreeEngine::new));
+                engine("Persistent ordered set — immutable, weight-balanced, path-copying; "
+                     + "O(1) snapshots, wait-free reads (ADR-005).",
+                       PersistentTreeEngine::withNaturalOrder));
 
         MAP.put(StructureType.FIBONACCI_HEAP, unsupported(
                 "Priority-queue contract (insert / extract-min / decrease-key). "

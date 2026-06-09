@@ -260,8 +260,11 @@ ant clean       # remove the build/ directory
   (Phase D): one `event=morph_eval` line per evaluation and health-fail-keeps-incumbent, the
   `StrategyId`↔`StructureType` bridge, the O(1)-per-op monitor feed, the flag-gated re-point,
   and convergence (skewed reads → Splay in ≤1 morph, steady → 0 morphs, regime-following).
-- `WindowingTest` / `PersistentTreeEngineTest` — bounded-set eviction and the
-  stack-safe path-copying persistent engine.
+- `WindowingTest` / `PersistentTreeEngineTest` / `PersistentEngineConcurrencyTest` —
+  bounded-set eviction; the weight-balanced path-copying persistent engine (ADR-005:
+  oracle parity with invariants checked, adversarial-input balance, explicit snapshots,
+  count-funded order statistics); and its wait-free-readers-under-churn proof plus the
+  printed persistent-vs-R1-vs-READ_REPLICA read-throughput reference.
 - `ConcurrentReadStressTest` / `EnsembleReplicaTest` — ADR-004 (R1/R2): torn-read-free
   optimistic reads on every strategy under write churn, and READ_REPLICA's left-right
   epoch reads (oracle exactness, churn with mid-stream promotions, loud degradation,
@@ -300,6 +303,15 @@ swap. Reads served by the primary inherit R1's torn-read-free guarantee, and
 while the writer updates the non-serving mirrors first, flips, drains the old side's
 epoch, then updates it.
 
+`PersistentTreeEngine` (ADR-005) gets the strongest guarantee with the least machinery:
+**wait-free readers by construction**. Every read — membership, traversal, order
+statistics, snapshots — is one `volatile` read of the root followed by a walk of immutable
+(`final`-field) nodes that can never change; mutators serialize on an internal monitor,
+path-copy O(log n) fresh nodes aside, and publish with a single `volatile` store. No
+stamps, retries, step bounds, or epochs anywhere on the read path, ensemble or not.
+`snapshot()` is an O(1) immutable capture that stays queryable forever. The price is paid
+on the write side: O(log n) allocation per mutation (GC pressure scales with write rate).
+
 ## Design history
 
 **Design & direction**
@@ -312,7 +324,12 @@ epoch, then updates it.
 - [`docs/ADR-004-lock-free-reads-2026-06-09.md`](docs/ADR-004-lock-free-reads-2026-06-09.md)
   — **Accepted**: the torn-read caveat retired — optimistic step-bounded reads everywhere
   (R1, landed) and lock-free left-right epoch reads over ensemble mirrors
-  (`READ_REPLICA`, R2, landed); the balanced persistent engine held as the horizon (R3).
+  (`READ_REPLICA`, R2, landed); the balanced persistent engine held as the horizon (R3,
+  since cashed in by ADR-005).
+- [`docs/ADR-005-balanced-persistent-engine-2026-06-09.md`](docs/ADR-005-balanced-persistent-engine-2026-06-09.md)
+  — **Accepted**: `PersistentTreeEngine` rebuilt as a generic weight-balanced (Δ=3, Γ=2)
+  path-copying engine — wait-free reads without an ensemble, O(1) explicit snapshots,
+  count-funded order statistics (P1+P2 landed; ensemble membership held as P3).
 - [`docs/ADR-002-architecture-review-2026-05-30.md`](docs/ADR-002-architecture-review-2026-05-30.md)
   — architecture review + decisions: phased generic-key migration and control-plane
   consolidation.

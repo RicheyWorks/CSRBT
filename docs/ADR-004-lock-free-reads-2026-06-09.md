@@ -225,7 +225,8 @@ appears.
 4. [x] **R2b** — epoch-aware promotion/failover/quarantine + the benchmark's read-throughput row.
    _(Done 2026-06-09 -- promote drains the deposed side, heal drains before rebuild, loud
    degradation below two exact members; printed MIRROR-vs-READ_REPLICA throughput reference.)_
-5. [ ] **R3** — (held) balanced persistent engine ADR when demanded.
+5. [x] **R3** — (held) balanced persistent engine ADR when demanded. _(Demanded and landed
+   2026-06-09 — see ADR-005-balanced-persistent-engine-2026-06-09.md, P1+P2.)_
 
 ---
 

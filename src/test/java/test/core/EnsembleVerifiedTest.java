@@ -25,9 +25,15 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
  * EnsembleOrderedSet VERIFIED mode (ADR-003, step E4): N-version read voting. Every read fans out
  * to a quorum of members, the strict-majority answer is served, and a dissenting member is
  * quarantined -- with failover first if the dissenter is the serving primary. The fault is a
- * {@link BuggyContainsStrategy}: it builds a correct tree (writes delegate to Red-Black) but its
- * {@code search} always reports "not found", so {@code contains} lies while the structure stays
- * internally self-consistent -- exactly the bug the E3 per-member health check cannot catch.
+ * {@link SilentDropStrategy}: writes delegate to a real Red-Black strategy, except that one poison
+ * key is silently never inserted, so the member holds a self-consistent tree whose <em>content</em>
+ * diverges -- exactly the bug the E3 per-member health check cannot catch.
+ *
+ * <p>History: this fault was originally a strategy whose {@code search} lied ("not found" for every
+ * key). ADR-004 R1 made that fault class structurally impossible -- public reads never consult the
+ * strategy any more (they descend the tree directly), so a read-path lie is unobservable by
+ * construction. Post-R1, the divergence VERIFIED voting exists to catch is divergent tree content,
+ * which is what this strategy injects.</p>
  */
 @DisplayName("EnsembleOrderedSet -- VERIFIED quorum voting (E4)")
 public class EnsembleVerifiedTest {
@@ -45,12 +51,12 @@ public class EnsembleVerifiedTest {
         EnsembleOrderedSet<Integer> ens = EnsembleOrderedSet.<Integer>builder(Comparator.<Integer>naturalOrder())
                 .member(() -> new RedBlackStrategy<Integer>())        // primary, good
                 .member(() -> new AVLStrategy<Integer>())             // good
-                .member(() -> new BuggyContainsStrategy<Integer>())   // lies on contains
+                .member(() -> new SilentDropStrategy<Integer>())      // silently drops key 7
                 .mode(EnsembleMode.VERIFIED)
                 .build();
         for (int i = 0; i < 50; i++) ens.add(i);
 
-        EnsembleMember<Integer> buggy = memberNamed(ens, "BuggyContainsStrategy");
+        EnsembleMember<Integer> buggy = memberNamed(ens, "SilentDropStrategy");
         assertSame(EnsembleMember.State.ACTIVE, buggy.state(), "buggy member starts ACTIVE");
 
         // Two good members say contains(7)=true, the buggy one says false -> majority wins.
@@ -66,7 +72,7 @@ public class EnsembleVerifiedTest {
     @DisplayName("a buggy primary is outvoted, fails over, and serves correct reads")
     void buggyPrimaryFailsOverUnderVote() {
         EnsembleOrderedSet<Integer> ens = EnsembleOrderedSet.<Integer>builder(Comparator.<Integer>naturalOrder())
-                .member(() -> new BuggyContainsStrategy<Integer>())   // primary, buggy
+                .member(() -> new SilentDropStrategy<Integer>())      // primary, buggy
                 .member(() -> new RedBlackStrategy<Integer>())
                 .member(() -> new AVLStrategy<Integer>())
                 .mode(EnsembleMode.VERIFIED)
@@ -74,7 +80,7 @@ public class EnsembleVerifiedTest {
         for (int i = 0; i < 50; i++) ens.add(i);
 
         EnsembleMember<Integer> buggyPrimary = ens.primary();
-        assertEquals("BuggyContainsStrategy", buggyPrimary.strategyName(), "the buggy member is the primary");
+        assertEquals("SilentDropStrategy", buggyPrimary.strategyName(), "the buggy member is the primary");
 
         // The vote serves the majority, not the wrong primary -- the case E3's self-check can't catch.
         assertTrue(ens.contains(7), "the majority answer is served, not the buggy primary's");
@@ -89,12 +95,12 @@ public class EnsembleVerifiedTest {
         EnsembleOrderedSet<Integer> ens = EnsembleOrderedSet.<Integer>builder(Comparator.<Integer>naturalOrder())
                 .member(() -> new RedBlackStrategy<Integer>())        // good primary
                 .member(() -> new AVLStrategy<Integer>())
-                .member(() -> new BuggyContainsStrategy<Integer>())
+                .member(() -> new SilentDropStrategy<Integer>())
                 .build();                                             // MIRROR (default)
         for (int i = 0; i < 50; i++) ens.add(i);
 
         assertTrue(ens.contains(7), "served by the good primary");
-        assertSame(EnsembleMember.State.ACTIVE, memberNamed(ens, "BuggyContainsStrategy").state(),
+        assertSame(EnsembleMember.State.ACTIVE, memberNamed(ens, "SilentDropStrategy").state(),
                 "MIRROR never consults or quarantines a non-primary member");
     }
 
@@ -110,15 +116,18 @@ public class EnsembleVerifiedTest {
     }
 
     /**
-     * A strategy that builds a correct tree -- inserts/deletes delegate to a real Red-Black strategy --
-     * but whose {@code search} always returns the NIL sentinel, so {@code contains} reports every key
-     * as absent while {@code inOrder}/{@code size} stay correct. A latent, self-consistent read bug.
+     * A strategy that silently drops one poisoned key on insert -- every other write delegates to a
+     * real Red-Black strategy. The result is a perfectly valid, self-consistent tree that simply
+     * lacks one key its siblings hold: invisible to E3's structural health check, caught only by
+     * comparing answers across members (E4 voting).
      */
-    static final class BuggyContainsStrategy<K> implements TreeStrategy<K> {
+    static final class SilentDropStrategy<K> implements TreeStrategy<K> {
+        static final Integer POISON = 7;
         private final RedBlackStrategy<K> real = new RedBlackStrategy<>();
-        @Override public void insert(MutableTree<K> t, TreeNode1<K> n)    { real.insert(t, n); }
-        @Override public void fixInsert(MutableTree<K> t, TreeNode1<K> n) { real.fixInsert(t, n); }
+        private boolean poisoned(TreeNode1<K> n) { return POISON.equals(n.getData()); }
+        @Override public void insert(MutableTree<K> t, TreeNode1<K> n)    { if (!poisoned(n)) real.insert(t, n); }     // BUG: drops 7
+        @Override public void fixInsert(MutableTree<K> t, TreeNode1<K> n) { if (!poisoned(n)) real.fixInsert(t, n); }
         @Override public void delete(MutableTree<K> t, TreeNode1<K> n)    { real.delete(t, n); }
-        @Override public TreeNode1<K> search(MutableTree<K> t, K value)   { return t.getNIL(); }  // BUG
+        @Override public TreeNode1<K> search(MutableTree<K> t, K value)   { return real.search(t, value); }
     }
 }

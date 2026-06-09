@@ -350,7 +350,7 @@ public class TreeContextTester {
         @Test
         @DisplayName("behaves as an ordered set")
         void orderedSet() {
-            PersistentTreeEngine p = new PersistentTreeEngine();
+            PersistentTreeEngine<Integer> p = PersistentTreeEngine.withNaturalOrder();
             for (int v : new int[]{50, 20, 70, 20, 10, 60}) p.add(v); // 20 duplicated
             assertEquals(5, p.size(), "duplicate ignored (set semantics)");
             assertEquals(List.of(10, 20, 50, 60, 70), p.inOrder(), "ascending order");
@@ -360,21 +360,20 @@ public class TreeContextTester {
         }
 
         @Test
-        @DisplayName("old versions survive later mutations (persistence)")
-        void versionsArePersistent() {
-            PersistentTreeEngine p = new PersistentTreeEngine();
+        @DisplayName("old snapshots survive later mutations (persistence, ADR-005)")
+        void snapshotsArePersistent() {
+            PersistentTreeEngine<Integer> p = PersistentTreeEngine.withNaturalOrder();
             p.add(5);
             p.add(3);
             p.add(8);
-            int snapshot = p.versionCount() - 1;        // version with {3,5,8}
-            List<Integer> atSnapshot = p.inOrderOfVersion(snapshot);
-            assertEquals(List.of(3, 5, 8), atSnapshot, "snapshot captured");
+            PersistentTreeEngine.Snapshot<Integer> snapshot = p.snapshot();   // {3,5,8}
+            assertEquals(List.of(3, 5, 8), snapshot.inOrder(), "snapshot captured");
 
             p.add(1);
             p.remove(5);                                  // mutate "current"
             assertEquals(List.of(1, 3, 8), p.inOrder(), "current reflects edits");
-            assertEquals(List.of(3, 5, 8), p.inOrderOfVersion(snapshot),
-                    "earlier version is unchanged by later edits");
+            assertEquals(List.of(3, 5, 8), snapshot.inOrder(),
+                    "earlier snapshot is unchanged by later edits");
         }
     }
 
