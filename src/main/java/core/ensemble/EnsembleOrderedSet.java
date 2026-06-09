@@ -4,11 +4,15 @@ import core.OrderedSet;
 import core.interfaces.OrderedCollection;
 import core.strategy.TreeStrategy;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Objects;
+import java.util.function.Function;
 import java.util.function.Supplier;
 
 /**
@@ -27,10 +31,13 @@ import java.util.function.Supplier;
  */
 public final class EnsembleOrderedSet<K> implements OrderedCollection<K> {
 
+    private static final Logger logger = LogManager.getLogger(EnsembleOrderedSet.class);
+
     private final List<EnsembleMember<K>> members;
     private final Comparator<? super K> keyOrder;
     private final Object writeLock = new Object();
     private volatile EnsembleMember<K> primary;
+    private volatile EnsembleMode mode = EnsembleMode.MIRROR;
 
     private EnsembleOrderedSet(List<EnsembleMember<K>> members, Comparator<? super K> keyOrder) {
         this.members = members;
@@ -48,6 +55,7 @@ public final class EnsembleOrderedSet<K> implements OrderedCollection<K> {
     public static final class Builder<K> {
         private final Comparator<? super K> keyOrder;
         private final List<Supplier<? extends TreeStrategy<K>>> specs = new ArrayList<>();
+        private EnsembleMode mode = EnsembleMode.MIRROR;
 
         private Builder(Comparator<? super K> keyOrder) {
             this.keyOrder = Objects.requireNonNull(keyOrder, "keyOrder cannot be null");
@@ -59,15 +67,26 @@ public final class EnsembleOrderedSet<K> implements OrderedCollection<K> {
             return this;
         }
 
+        /** Read mode: MIRROR (serve from the primary) or VERIFIED (quorum vote). Default MIRROR. */
+        public Builder<K> mode(EnsembleMode mode) {
+            this.mode = Objects.requireNonNull(mode, "mode cannot be null");
+            return this;
+        }
+
         public EnsembleOrderedSet<K> build() {
             if (specs.size() < 2) {
                 throw new IllegalArgumentException("an ensemble needs at least two members");
+            }
+            if (mode == EnsembleMode.VERIFIED && specs.size() < 3) {
+                throw new IllegalArgumentException("VERIFIED mode needs at least three members to form a majority");
             }
             List<EnsembleMember<K>> ms = new ArrayList<>(specs.size());
             for (Supplier<? extends TreeStrategy<K>> s : specs) {
                 ms.add(new EnsembleMember<>(new OrderedSet<>(s.get(), keyOrder)));
             }
-            return new EnsembleOrderedSet<>(ms, keyOrder);
+            EnsembleOrderedSet<K> ens = new EnsembleOrderedSet<>(ms, keyOrder);
+            ens.mode = mode;
+            return ens;
         }
     }
 
@@ -110,23 +129,23 @@ public final class EnsembleOrderedSet<K> implements OrderedCollection<K> {
 
     // ── Reads: served by the primary ──────────────────────────────────────────────
 
-    @Override public boolean contains(K value) { return primary.set().contains(value); }
-    @Override public int size()                { return primary.set().size(); }
-    @Override public List<K> inOrder()         { return primary.set().inOrder(); }
-    @Override public boolean isEmpty()         { return primary.set().isEmpty(); }
+    @Override public boolean contains(K value) { return read(s -> s.contains(value)); }
+    @Override public int size()                { return read(s -> s.size()); }
+    @Override public List<K> inOrder()         { return read(s -> s.inOrder()); }
+    @Override public boolean isEmpty()         { return read(s -> s.isEmpty()); }
 
     // ── Order statistics (drop-in parity with OrderedSet), served by the primary ──
 
-    public K select(int rank)             { return primary.set().select(rank); }
-    public int rank(K value)              { return primary.set().rank(value); }
-    public K successor(K value)           { return primary.set().successor(value); }
-    public K predecessor(K value)         { return primary.set().predecessor(value); }
-    public K minimum()                    { return primary.set().minimum(); }
-    public K maximum()                    { return primary.set().maximum(); }
-    public K median()                     { return primary.set().median(); }
-    public K percentile(int pct)          { return primary.set().percentile(pct); }
-    public int countInRange(K lo, K hi)   { return primary.set().countInRange(lo, hi); }
-    public List<K> rangeQuery(K lo, K hi) { return primary.set().rangeQuery(lo, hi); }
+    public K select(int rank)             { return read(s -> s.select(rank)); }
+    public int rank(K value)              { return read(s -> s.rank(value)); }
+    public K successor(K value)           { return read(s -> s.successor(value)); }
+    public K predecessor(K value)         { return read(s -> s.predecessor(value)); }
+    public K minimum()                    { return read(s -> s.minimum()); }
+    public K maximum()                    { return read(s -> s.maximum()); }
+    public K median()                     { return read(s -> s.median()); }
+    public K percentile(int pct)          { return read(s -> s.percentile(pct)); }
+    public int countInRange(K lo, K hi)   { return read(s -> s.countInRange(lo, hi)); }
+    public List<K> rangeQuery(K lo, K hi) { return read(s -> s.rangeQuery(lo, hi)); }
 
     // ── Promotion: the O(1) atomic primary swap (ADR-003 E2) ─────────────────────
 
@@ -251,6 +270,100 @@ public final class EnsembleOrderedSet<K> implements OrderedCollection<K> {
             }
             member.setState(EnsembleMember.State.RETIRED);
             return true;
+        }
+    }
+
+    // -- VERIFIED mode: quorum read voting (ADR-003 E4) --
+
+    /** Current read mode (MIRROR serves the primary; VERIFIED quorum-votes). */
+    public EnsembleMode mode() { return mode; }
+
+    /** Switch read mode at runtime. VERIFIED needs at least three members to adjudicate a majority. */
+    public void setMode(EnsembleMode newMode) {
+        Objects.requireNonNull(newMode, "mode cannot be null");
+        if (newMode == EnsembleMode.VERIFIED && members.size() < 3) {
+            throw new IllegalStateException("VERIFIED mode needs at least three members to form a majority");
+        }
+        this.mode = newMode;
+    }
+
+    /** Dispatch a read: MIRROR serves the primary; VERIFIED fans out and votes. */
+    private <R> R read(Function<OrderedSet<K>, R> fn) {
+        return (mode == EnsembleMode.VERIFIED) ? vote(fn) : fn.apply(primary.set());
+    }
+
+    /**
+     * VERIFIED read (ADR-003 E4): poll every ACTIVE member, serve the strict-majority answer, and
+     * quarantine any dissenter -- failing over first if the dissenter is the serving primary, so a
+     * wrong primary can never decide the result. With no clear majority (a tie, or no answer holding
+     * more than half the votes) the read falls back to the primary and quarantines no one, since the
+     * fault cannot be adjudicated. Runs under the write lock because a dissent mutates membership.
+     */
+    private <R> R vote(Function<OrderedSet<K>, R> fn) {
+        synchronized (writeLock) {
+            List<EnsembleMember<K>> voters = new ArrayList<>();
+            List<R> answers = new ArrayList<>();
+            for (EnsembleMember<K> m : members) {
+                if (!m.isActive()) continue;
+                voters.add(m);
+                answers.add(fn.apply(m.set()));
+            }
+            if (voters.isEmpty()) return fn.apply(primary.set());
+
+            // Tally distinct answers (equals-based; answers may be null, e.g. minimum() on empty).
+            List<R> distinct = new ArrayList<>();
+            List<Integer> counts = new ArrayList<>();
+            for (R a : answers) {
+                int idx = -1;
+                for (int j = 0; j < distinct.size(); j++) {
+                    if (Objects.equals(distinct.get(j), a)) { idx = j; break; }
+                }
+                if (idx < 0) { distinct.add(a); counts.add(1); }
+                else counts.set(idx, counts.get(idx) + 1);
+            }
+            int topCount = -1, topIdx = -1;
+            boolean unique = true;
+            for (int j = 0; j < counts.size(); j++) {
+                int c = counts.get(j);
+                if (c > topCount) { topCount = c; topIdx = j; unique = true; }
+                else if (c == topCount) { unique = false; }
+            }
+            boolean decisive = unique && topCount * 2 > voters.size();
+            if (!decisive) {
+                return fn.apply(primary.set());   // no majority -> cannot adjudicate; serve the primary
+            }
+            R winner = distinct.get(topIdx);
+
+            // Identify dissenters; fail over first if the primary itself dissents.
+            List<EnsembleMember<K>> dissenters = new ArrayList<>();
+            boolean primaryDissents = false;
+            for (int i = 0; i < voters.size(); i++) {
+                if (!Objects.equals(answers.get(i), winner)) {
+                    dissenters.add(voters.get(i));
+                    if (voters.get(i) == primary) primaryDissents = true;
+                }
+            }
+            if (dissenters.isEmpty()) return winner;   // unanimous -- the common, healthy case
+
+            if (primaryDissents) {
+                for (int i = 0; i < voters.size(); i++) {
+                    if (Objects.equals(answers.get(i), winner) && voters.get(i) != primary) {
+                        this.primary = voters.get(i);   // failover: volatile publish under the lock
+                        break;
+                    }
+                }
+            }
+            StringBuilder q = new StringBuilder("[");
+            for (EnsembleMember<K> d : dissenters) {
+                if (d == primary) continue;             // never quarantine the (new) serving primary
+                if (d.state() != EnsembleMember.State.RETIRED) d.setState(EnsembleMember.State.QUARANTINED);
+                if (q.length() > 1) q.append(", ");
+                q.append(d.strategyName());
+            }
+            q.append(']');
+            logger.warn("event=verified_dissent winnerVotes={} of {} quarantined={} failedOver={}",
+                    topCount, voters.size(), q, primaryDissents);
+            return winner;
         }
     }
 }

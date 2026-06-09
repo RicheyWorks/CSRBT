@@ -331,9 +331,9 @@ out-of-the-box overhead is 2×, buying O(1) adaptation and failover.
 3. [x] **E3 — health / quarantine / heal + failover.** Per-member cadence health check; corrupt a
    member → quarantined and healed from the primary, queries uninterrupted; corrupt the primary →
    instant failover to a healthy member. _(Done 2026-06-09 -- quarantine/heal/retire on EnsembleOrderedSet + EnsembleController.checkHealth; see CHANGELOG-2026-06-09-ensemble-e3.md.)_
-4. [ ] **E4 — VERIFIED mode.** Read quorum + majority serve + dissenter quarantine. **Test:** inject
+4. [x] **E4 — VERIFIED mode.** Read quorum + majority serve + dissenter quarantine. **Test:** inject
    a deliberately buggy strategy as one member → it is outvoted and quarantined; results stay
-   correct.
+   correct. _(Done 2026-06-09 -- EnsembleMode.VERIFIED + quorum vote in EnsembleOrderedSet; see CHANGELOG-2026-06-09-ensemble-e4.md.)_
 5. [ ] **E5 — parallel fan-out + SAMPLED_SHADOW + benchmarks.** Member executor for parallel writes;
    memory-lean sampled mode; a `StrategyBattleRunner`-style benchmark of adaptation latency and
    steady-state overhead vs single-tree morph.
