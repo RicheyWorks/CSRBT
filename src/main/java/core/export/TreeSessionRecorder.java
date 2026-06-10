@@ -81,6 +81,13 @@ public final class TreeSessionRecorder<K> implements TreeEventListener<K> {
                     + "\", \"cost\": " + (Double.isNaN(t.cost()) ? "null"
                             : String.format(java.util.Locale.ROOT, "%.4f", t.cost()))
                     + ", \"pulls\": " + t.pulls());
+        } else if (e instanceof TreeEvent.Lineage<K> l) {
+            // ADR-011 V4: births in the population search (deaths are Trial decisions).
+            decision("Lineage", "\"generation\": " + l.generation()
+                    + ", \"child\": \"" + l.child() + "\", \"parentA\": "
+                    + (l.parentA() == null ? "null" : "\"" + l.parentA() + "\"")
+                    + ", \"parentB\": " + (l.parentB() == null ? "null" : "\"" + l.parentB() + "\"")
+                    + ", \"op\": \"" + l.op() + "\"");
         }
         // Other ensemble lifecycle events: out of scope for v1 single-set sessions.
     }

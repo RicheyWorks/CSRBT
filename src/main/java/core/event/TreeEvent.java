@@ -72,4 +72,14 @@ public sealed interface TreeEvent<K> {
      * (TRIED, and DISQUALIFIED before scoring).
      */
     record Trial<K>(String arm, String phase, double cost, int pulls) implements TreeEvent<K> { }
+
+    /**
+     * A birth in the population search (ADR-011 V4): {@code child} was bred in
+     * {@code generation} from {@code parentA} (and {@code parentB} for a blend;
+     * {@code null} for a mutation or founder) by {@code op} ∈ founder / mutation / blend.
+     * Deaths are {@code Trial} events (DISQUALIFIED for gate/invariant kills, CULLED for
+     * selection), so a recorded session carries complete lineages.
+     */
+    record Lineage<K>(int generation, String child, String parentA, String parentB, String op)
+            implements TreeEvent<K> { }
 }

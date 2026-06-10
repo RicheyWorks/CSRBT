@@ -174,8 +174,11 @@ parameterized family provably saturates).
    class-based no-op guard). (5,3) self-disqualifies live; WB(3,2) beats a splay primary
    through real gates; 11 tests, suite 515. See
    CHANGELOG-2026-06-10-adr011-v3-policy-bandit.md.)_
-4. [ ] **V4** — (μ+λ) population search; out-of-box exploration behind a flag; lineage
-   recording.
+4. [x] **V4** — (μ+λ) population search; out-of-box exploration behind a flag; lineage
+   recording. _(Done 2026-06-10 — `PolicyEvolutionController` (nursery slots as offspring
+   bodies, elitism in slot 0, graveyard breeding, deposed-primary rotation),
+   `weightBalancedUnboxed` behind the flag, `TreeEvent.Lineage` + CULLED in the recorder;
+   6 tests, suite 521. See CHANGELOG-2026-06-10-adr011-v4-evolution.md.)_
 5. [ ] **V5** — the experiment: workload-family benchmark, ≥10%/≥1 family/≥3 seeds, verdict
    published either way.
 

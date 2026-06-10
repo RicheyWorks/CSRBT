@@ -24,9 +24,17 @@ For the next agent session. Read this before touching code.
     the predicted parameterized-identity seam: `TreeStrategy.samePolicyAs` — the old
     class-based no-op guard silently refused WB(3,2)→WB(4,2).
     See `CHANGELOG-2026-06-10-adr011-v3-policy-bandit.md`.
-  - **Next: V4** — (μ+λ) population search over `PolicyGenome`s on the population
-    ensemble (mutation/blend already exist from V2); out-of-box exploration behind a
-    flag; lineage recording through the recorder. Then V5, the acceptance experiment.
+  - **V4 done (2026-06-10, suite 521 green):** `PolicyEvolutionController` — (μ+λ) on
+    nursery slots, elitism, graveyard breeding, out-of-box behind a flag
+    (`weightBalancedUnboxed`), `TreeEvent.Lineage` + CULLED deaths in the recorder.
+    See `CHANGELOG-2026-06-10-adr011-v4-evolution.md`.
+  - **Next: V5 — the acceptance experiment** (the last stage; flips ADR-011 to Accepted
+    either way). Workload families: uniform, hot-key skew, sequential, delete-heavy,
+    regime-switching; fixed seeds (≥3); long runs amortizing morph costs. Success
+    criterion: searched policy beats the best of the four fixed strategies by **≥10%
+    realized cost on ≥1 family across ≥3 seeds**. In-suite printed benchmark rows with
+    soft assertions (house style, not JMH). The negative result is a documented finding —
+    publish the verdict either way in the ADR + changelog.
 - The README polish (V1 + ADR-011 frontier paragraph) rides in the V2 commit.
 
 ## If the user says "next" / "continue"

@@ -95,6 +95,33 @@ public final class PolicyGenome {
                               WeightBalancedStrategy.DEFAULT_RATIO);
     }
 
+    /** Structural ceiling for unboxed exploration (V4): past this, Δ-tolerance is theater. */
+    public static final int DELTA_STRUCTURAL_MAX = 32;
+
+    /**
+     * The V4 escape hatch — a weight-balanced genome validated against <em>structural</em>
+     * bounds only ({@code Δ ∈ [DELTA_MIN, DELTA_STRUCTURAL_MAX]}, {@code Γ ∈ [1, Δ)}),
+     * permitted to leave the verified box. Exists exclusively behind the population
+     * search's out-of-box flag (ADR-011 V4): an out-of-box genome is an <em>experiment</em>
+     * whose soundness nothing guarantees — which is safe here and only here, because the
+     * health gate and the strategy's own invariant kill the unsound ones on the record.
+     */
+    public static PolicyGenome weightBalancedUnboxed(int delta, int ratio) {
+        if (delta < DELTA_MIN || delta > DELTA_STRUCTURAL_MAX) {
+            throw new IllegalArgumentException("delta must be in ["
+                    + DELTA_MIN + ", " + DELTA_STRUCTURAL_MAX + "] even unboxed: " + delta);
+        }
+        if (ratio < 1 || ratio >= delta) {
+            throw new IllegalArgumentException("ratio must be in [1, delta): " + ratio);
+        }
+        return new PolicyGenome(Family.WEIGHT_BALANCED, delta, ratio);
+    }
+
+    /** True when this genome lies inside the verified searchable box (V3's grid). */
+    public boolean inVerifiedBox() {
+        return !family.parameterized() || delta <= DELTA_MAX;
+    }
+
     public Family family() { return family; }
 
     /** @throws IllegalStateException if this family carries no genes */
@@ -135,7 +162,7 @@ public final class PolicyGenome {
     }
 
     /** Clamp-by-reflection: a step past a wall lands one inside it (a step is bounded). */
-    private static int reflect(int v, int lo, int hi) {
+    static int reflect(int v, int lo, int hi) {
         if (v < lo) return Math.min(hi, lo + (lo - v));
         if (v > hi) return Math.max(lo, hi - (v - hi));
         return v;
