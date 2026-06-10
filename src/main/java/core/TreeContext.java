@@ -193,13 +193,17 @@ public class TreeContext implements AugmentedTree<Integer>, SelfHealingTree, Ord
     @Override
     public boolean selfRepair() {
         logger.warn("Initiating self-repair protocol...");
-        // Cheap short-circuit on an already-healthy tree (preserves the original
-        // no-op-when-valid behaviour and avoids a needless rebuild).
-        if (diagnostics.isValidRedBlack()) {
-            logger.info("Tree stable -- no repair needed.");
-            return true;
-        }
         synchronized (lock) {
+            // Cheap short-circuit on an already-healthy tree — validated against the
+            // CURRENT strategy's invariant (ADR-010 X1). The old gate was
+            // diagnostics.isValidRedBlack() regardless of strategy, so after a morph to
+            // AVL/Splay/Hybrid a perfectly healthy tree failed RB color discipline and
+            // every selfRepair() call paid a needless O(n) rebuild.
+            if (StrategyHealthCheck.validate(set.getEngine(), set.getStrategy(),
+                    set.inOrder()).isEmpty()) {
+                logger.info("Tree stable -- no repair needed.");
+                return true;
+            }
             // OrderedSet.selfRepair rebuilds from a sorted, de-duplicated snapshot
             // (carrying per-node tags) and validates via StrategyHealthCheck.
             boolean repaired = set.selfRepair();

@@ -95,7 +95,10 @@ snapshot so the replay animates exactly what the structure did.
 **Held with triggers:** genome **deletion** (not relocation) when the control-plane flag
 has soaked one release; Gradle/JMH/coordinates (ADR-009 G1 trigger); Count-Min skew
 estimator (a workload the rolling estimator misjudges); evolutionary/bandit layer (an
-experimental-tier consumer).
+experimental-tier consumer); generic typed-endpoint intervals — `IntervalAugmentor` is
+deliberately `Integer`-bound (its javadoc says so) because typed intervals require typing
+`TreeNode1`'s int augment slot, a node-model change to make only when a caller with
+non-int intervals exists.
 
 ---
 
@@ -113,7 +116,8 @@ single-file, still dependency-free, or it has failed its own constraint.
 
 ## 5. Action items
 
-1. [ ] **X1** — strategy-aware selfRepair gate + scoped javadoc + tests.
+1. [x] **X1** — strategy-aware selfRepair gate + scoped javadoc + tests. _(Done
+   2026-06-10 — see CHANGELOG-2026-06-10-adr010-x1-repair-gate.md.)_
 2. [ ] **X2a** — `TreeSessionRecorder` + session-format tests.
 3. [ ] **X2b** — visualizer replay mode (timeline, decision log) + `ArenaSession` driver
    + one canonical recorded session in `docs/`.

@@ -30,6 +30,12 @@ public class TreeDiagnostics {
         }
     }
 
+    /**
+     * Red-Black validity check — <b>RB-strategy introspection only</b> (ADR-010 X1): root
+     * blackness, black-height equality, no red-red edges. A tree managed by AVL/Splay/Hybrid
+     * legitimately fails these color rules, so this must never gate strategy-agnostic
+     * decisions; {@code StrategyHealthCheck.validate} is the per-strategy gate.
+     */
     public boolean isValidRedBlack() {
         TreeNode1<Integer> root = context.getTree().getRoot();
         if (root.isNil()) return true;
