@@ -31,6 +31,13 @@
   button:hover, label.btn:hover { border-color: var(--accent); }
   button.active { border-color: var(--accent); color: var(--accent); }
   input[type=file] { display: none; }
+  #replay { display: none; gap: 8px; align-items: center; flex-wrap: wrap;
+            padding: 8px 14px; background: var(--panel); border-bottom: 1px solid #00000055; }
+  #replay.on { display: flex; }
+  #chips { display: flex; gap: 6px; overflow-x: auto; max-width: 58vw; }
+  .chip { white-space: nowrap; font-size: 12px; padding: 4px 10px; border-radius: 12px;
+          background: #262b38; border: 1px solid #353b4d; cursor: pointer; color: var(--dim); }
+  .chip.active { border-color: var(--accent); color: var(--accent); }
   #stage { flex: 1; position: relative; }
   canvas { position: absolute; inset: 0; width: 100%; height: 100%; }
   #drop { position: absolute; inset: 0; display: none; align-items: center; justify-content: center;
@@ -48,14 +55,23 @@
   <label class="btn">Load exported JSON…<input type="file" id="file" accept=".json"></label>
   <span class="meta" id="meta"></span>
 </header>
+<div id="replay">
+  <button onclick="stepFrame(-1)">◀</button>
+  <button id="playBtn" onclick="togglePlay()">▶ play</button>
+  <button onclick="stepFrame(1)">▶</button>
+  <span class="meta" id="frameLabel"></span>
+  <div id="chips"></div>
+</div>
 <div id="stage">
   <canvas id="cv"></canvas>
   <div id="drop">drop the exported .json anywhere</div>
 </div>
 <footer>
   Contract: <code>docs/visualizer-contract.json</code> — generate states with
-  <code>core.export.TreeExport.toJson(set)</code>. Nodes are matched by key across loads,
-  so loading successive exports animates the morph. Node area tracks subtree size.
+  <code>core.export.TreeExport.toJson(set)</code>, or record whole sessions with
+  <code>TreeSessionRecorder</code> and drop them here for replay
+  (try <code>docs/arena-session.json</code>: the real controller morphing RB → Splay → RB).
+  Nodes are matched by key across frames, so every transition animates.
 </footer>
 
 <script>
@@ -92,9 +108,94 @@ function flatten(state) {
 }
 
 function loadState(name, btn) {
+  exitReplay();
   applyState(STATES[name]);
   for (const b of document.querySelectorAll("header button")) b.classList.remove("active");
   if (btn) btn.classList.add("active");
+}
+
+// ── Session replay (ADR-010 X2): TreeSessionRecorder files — decisions + snapshots ──
+let frames = [], frameIdx = 0, playTimer = null;
+
+function enterReplay(session) {
+  stopPlay();
+  frames = session.events.slice();
+  frames.push({ type: "Final", op: frames.length ? frames[frames.length - 1].op : 0,
+                state: session.final });
+  const chips = document.getElementById("chips");
+  chips.innerHTML = "";
+  frames.forEach((f, i) => {
+    const c = document.createElement("span");
+    c.className = "chip";
+    c.textContent = chipText(f);
+    c.onclick = () => { stopPlay(); gotoFrame(i); };
+    chips.appendChild(c);
+  });
+  document.getElementById("replay").classList.add("on");
+  for (const b of document.querySelectorAll("header button")) b.classList.remove("active");
+  nodes.clear();                                       // don't tween in from an unrelated state
+  gotoFrame(0);
+}
+
+function exitReplay() {
+  stopPlay();
+  frames = [];
+  document.getElementById("replay").classList.remove("on");
+}
+
+function chipText(f) {
+  if (f.type === "Start") return "start";
+  if (f.type === "Final") return "final";
+  if (f.type === "Morph") {
+    return f.from.replace("Strategy", "") + "→" + f.to.replace("Strategy", "")
+         + (f.committed ? "" : " ✗") + " @" + f.op;
+  }
+  if (f.type === "Repair") return "repair @" + f.op;
+  return f.type + " @" + f.op;
+}
+
+function narrate(f) {
+  if (f.type === "Start") return "start state";
+  if (f.type === "Final") return "final state";
+  if (f.type === "Morph") {
+    return "op " + f.op + ": morph " + f.from + " → " + f.to
+         + (f.committed ? "" : " — held by the health gate");
+  }
+  if (f.type === "Repair") return "op " + f.op + ": self-repair " + (f.healthy ? "✓" : "✗");
+  return f.type;
+}
+
+function gotoFrame(i) {
+  frameIdx = Math.max(0, Math.min(frames.length - 1, i));
+  const f = frames[frameIdx];
+  applyState(f.state);
+  let label = (frameIdx + 1) + "/" + frames.length + " — " + narrate(f);
+  if (f.counts && (f.counts.inserts || f.counts.removes || f.counts.evicts)) {
+    label += " (+" + f.counts.inserts + " ins, −" + f.counts.removes + " rem"
+           + (f.counts.evicts ? ", " + f.counts.evicts + " evict" : "") + " since last)";
+  }
+  document.getElementById("frameLabel").textContent = label;
+  document.querySelectorAll("#chips .chip")
+          .forEach((c, j) => c.classList.toggle("active", j === frameIdx));
+}
+
+function stepFrame(d) { stopPlay(); gotoFrame(frameIdx + d); }
+
+function togglePlay() {
+  if (playTimer) { stopPlay(); return; }
+  if (frameIdx >= frames.length - 1) gotoFrame(0);
+  document.getElementById("playBtn").textContent = "⏸ pause";
+  playTimer = setInterval(() => {
+    if (frameIdx >= frames.length - 1) stopPlay();
+    else gotoFrame(frameIdx + 1);
+  }, 1600);
+}
+
+function stopPlay() {
+  clearInterval(playTimer);
+  playTimer = null;
+  const b = document.getElementById("playBtn");
+  if (b) b.textContent = "▶ play";
 }
 
 function applyState(state) {
@@ -105,7 +206,10 @@ function applyState(state) {
   const padX = 50, padTop = 56, padBot = 36;
   const xs = k => padX + (W - 2 * padX) * (k + 0.5) / n;
   const ys = d => padTop + (H - padTop - padBot) * (maxDepth === 1 ? 0.5 : (d - 1) / (maxDepth - 1));
-  const rOf = s => Math.max(11, Math.min(22, 9 + 3.4 * Math.log2(s + 1)));
+  // Crowding-aware radius: big trees (a 1k+-node session frame) shrink toward dots
+  // rather than overlapping; small trees keep readable, size-scaled nodes.
+  const crowdCap = Math.max(2.2, Math.min(22, ((W - 2 * padX) / n) * 1.15));
+  const rOf = s => Math.min(crowdCap, Math.max(2.2, 9 + 3.4 * Math.log2(s + 1)));
 
   const seen = new Set();
   const pos = new Map(flat.map(f => [f.key, f]));
@@ -180,11 +284,13 @@ function draw() {
     ctx.fill();
     ctx.strokeStyle = n.red ? "#f0a3a3" : "#4a5168";
     ctx.stroke();
-    ctx.fillStyle = LABEL;
-    ctx.font = `${Math.max(10, n.r * 0.82)}px system-ui, sans-serif`;
-    ctx.textAlign = "center";
-    ctx.textBaseline = "middle";
-    ctx.fillText(n.label ?? "", n.x, n.y + 0.5);
+    if (n.r >= 8) {                                     // crowded frames: dots, no labels
+      ctx.fillStyle = LABEL;
+      ctx.font = `${Math.max(10, n.r * 0.82)}px system-ui, sans-serif`;
+      ctx.textAlign = "center";
+      ctx.textBaseline = "middle";
+      ctx.fillText(n.label ?? "", n.x, n.y + 0.5);
+    }
   }
   ctx.globalAlpha = 1;
 }
@@ -193,12 +299,17 @@ function draw() {
 function loadFile(file) {
   file.text().then(text => {
     try {
-      const state = JSON.parse(text);
-      if (!state || typeof state.size !== "number" || !("root" in state)) {
-        throw new Error("not a TreeExport contract file");
+      const obj = JSON.parse(text);
+      if (obj && obj.version === 1 && Array.isArray(obj.events)) {   // a recorded session
+        enterReplay(obj);
+        return;
       }
+      if (!obj || typeof obj.size !== "number" || !("root" in obj)) {
+        throw new Error("not a TreeExport state or TreeSessionRecorder session");
+      }
+      exitReplay();
       for (const b of document.querySelectorAll("header button")) b.classList.remove("active");
-      applyState(state);
+      applyState(obj);
     } catch (err) { alert("Could not load: " + err.message); }
   });
 }

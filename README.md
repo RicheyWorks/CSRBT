@@ -412,6 +412,23 @@ the opposite, deliberately coarse stance: every public method is synchronized, b
 paged tree mutates in place with no read guard and ensemble votes read members lock-free
 — correctness first, page latching only if a workload ever demands it.
 
+**The memory-model edges, named explicitly (ADR-010 X3).** Every cross-thread guarantee
+above reduces to four standard happens-before mechanisms. (1) *Monitor edges:* each facade's
+mutators serialize on one lock (`OrderedSet.lock`, the ensemble's `writeLock`, the engines'
+internal monitors), so writer→writer ordering is total and anything a writer did is visible
+to the next writer. (2) *Volatile publication:* the persistent engine's root, the ensemble's
+`primary`, member lifecycle fields (`state`, `exact`), `mode`, and the kill switches are
+`volatile` — a reader that observes the new reference/state also observes everything written
+before its store, which is why an atomic swap is a complete publication. (3) *Stamp
+validation:* R1's optimistic reads are speculative — the `StampedLock` validate supplies the
+read fence, and a failed validation discards everything observed in the window. (4)
+*`final`-field semantics:* the persistent engine's all-`final` nodes are safely published by
+construction; no reader can see a partially built node. The one deliberate non-edge: ADR-007's
+lock-free vote pass reads with no fence at all and is correct anyway, because writes are
+serialized (edge 1) — at most one is in flight, so a unanimous answer is identical whether
+each member was read before or after it; any skew shows up as disagreement and is
+re-adjudicated under the lock, never served.
+
 ## Design history
 
 **Design & direction**

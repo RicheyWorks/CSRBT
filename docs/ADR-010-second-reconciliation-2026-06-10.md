@@ -1,6 +1,6 @@
 # ADR-010: Second roadmap reconciliation — the "beastmode" review, audited
 
-**Status:** Proposed (X1–X3 scoped; held items carry triggers)
+**Status:** Accepted (2026-06-10 — X1/X2/X3 all landed; held items carry triggers)
 **Date:** 2026-06-10
 **Deciders:** Richmond
 **Builds on:** ADR-009 (the first external-review audit; its method is reused verbatim),
@@ -118,10 +118,13 @@ single-file, still dependency-free, or it has failed its own constraint.
 
 1. [x] **X1** — strategy-aware selfRepair gate + scoped javadoc + tests. _(Done
    2026-06-10 — see CHANGELOG-2026-06-10-adr010-x1-repair-gate.md.)_
-2. [ ] **X2a** — `TreeSessionRecorder` + session-format tests.
-3. [ ] **X2b** — visualizer replay mode (timeline, decision log) + `ArenaSession` driver
-   + one canonical recorded session in `docs/`.
-4. [ ] **X3** — README happens-before paragraph.
+2. [x] **X2a** — `TreeSessionRecorder` + session-format tests. _(Done 2026-06-10.)_
+3. [x] **X2b** — visualizer replay mode (timeline, decision log) + `ArenaSession` driver
+   + one canonical recorded session in `docs/`. _(Done 2026-06-10 — see
+   CHANGELOG-2026-06-10-adr010-x2-replay-arena.md.)_
+4. [x] **X3** — README happens-before paragraph. _(Done 2026-06-10 — the four edges named:
+   monitor, volatile publication, stamp validation, final-field; plus the deliberate
+   non-edge in ADR-007's vote pass.)_
 
 ---
 

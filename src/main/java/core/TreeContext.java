@@ -276,6 +276,13 @@ public class TreeContext implements AugmentedTree<Integer>, SelfHealingTree, Ord
     public RedBlackTree<Integer> getTree() { return set.getEngine(); }
     public int          getSize()          { return set.size(); }
 
+    /**
+     * The backing {@link OrderedSet} — like {@link #getTree()}, a diagnostics/export seam
+     * (event-listener registration, {@code TreeExport}, session recording — ADR-010 X2),
+     * not a second mutation path.
+     */
+    public OrderedSet<Integer> getOrderedSet() { return set; }
+
     /** Undo/redo + checkpoint history for this context. */
     public TreeHistory  getHistory()       { return history; }
 
