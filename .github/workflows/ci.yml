@@ -9,6 +9,9 @@ on:
     branches: ["**"]
   pull_request:
 
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: "true"   # runner deprecation notice, 2026-06-16
+
 jobs:
   test:
     runs-on: ubuntu-latest
@@ -25,6 +28,13 @@ jobs:
           java-version: ${{ matrix.java }}
       - name: Install Ant
         run: sudo apt-get update && sudo apt-get install -y ant
+      # The dependency jars are deliberately gitignored (build.xml: "supply locally").
+      # CI is a fresh checkout, so supply them here — same coordinates, Maven Central.
+      - name: Fetch test dependencies
+        run: |
+          curl -sfLO https://repo1.maven.org/maven2/org/junit/platform/junit-platform-console-standalone/1.9.2/junit-platform-console-standalone-1.9.2.jar
+          curl -sfLO https://repo1.maven.org/maven2/org/apache/logging/log4j/log4j-api/2.17.1/log4j-api-2.17.1.jar
+          curl -sfLO https://repo1.maven.org/maven2/org/apache/logging/log4j/log4j-core/2.17.1/log4j-core-2.17.1.jar
       - name: Build and test
         run: ant clean test
       - name: Upload test reports

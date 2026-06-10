@@ -19,3 +19,10 @@ Thumbs.db
 
 # Logs
 *.log
+
+# Test-run snapshot artifacts (tests clean up after themselves; interrupted
+# runs leave uniquely-named strays — never commit them)
+snapshots/test-*
+
+# Scratch
+*.tmp
