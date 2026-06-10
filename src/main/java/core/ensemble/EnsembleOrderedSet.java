@@ -14,6 +14,7 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Objects;
+import java.util.concurrent.atomic.AtomicLong;
 import java.util.function.Function;
 import java.util.function.Supplier;
 
@@ -58,6 +59,13 @@ public final class EnsembleOrderedSet<K> implements OrderedCollection<K>, AutoCl
 
     private static final Logger logger = LogManager.getLogger(EnsembleOrderedSet.class);
 
+    /**
+     * ADR-007 kill switch: when true (the default) a VERIFIED vote first makes one lock-free
+     * pass and serves on unanimity; any disagreement escalates to the locked E4 vote. Set
+     * false to restore pre-ADR-007 behavior wholesale (every vote under the writeLock).
+     */
+    public static volatile boolean OPTIMISTIC_VOTES = true;
+
     private final List<EnsembleMember<K>> members;
     private final Comparator<? super K> keyOrder;
     private final Object writeLock = new Object();
@@ -65,6 +73,8 @@ public final class EnsembleOrderedSet<K> implements OrderedCollection<K>, AutoCl
     private final int sampleEvery;            // SAMPLED_SHADOW: shadows receive every sampleEvery-th write
     private final int rebuildEvery;           // REBUILD_SHADOW: shadows rebuilt every rebuildEvery-th write
     private final long memoryCeilingBytes;    // 0 = no ceiling (ADR-003 "Revisit": memory ceilings)
+    private final int verifyEvery;            // VERIFIED: every verifyEvery-th read votes (ADR-006)
+    private final AtomicLong verifiedReads = new AtomicLong();   // VERIFIED read stride; outside the lock
     private long writeOps;                    // logical add/remove counter; guarded by writeLock
     private volatile boolean overCeiling;     // latched breach flag; reset when back under
     private volatile EnsembleMember<K> primary;
@@ -72,13 +82,14 @@ public final class EnsembleOrderedSet<K> implements OrderedCollection<K>, AutoCl
 
     private EnsembleOrderedSet(List<EnsembleMember<K>> members, Comparator<? super K> keyOrder,
                                MemberExecutor executor, int sampleEvery, int rebuildEvery,
-                               long memoryCeilingBytes) {
+                               long memoryCeilingBytes, int verifyEvery) {
         this.members = members;
         this.keyOrder = keyOrder;
         this.executor = executor;
         this.sampleEvery = sampleEvery;
         this.rebuildEvery = rebuildEvery;
         this.memoryCeilingBytes = memoryCeilingBytes;
+        this.verifyEvery = verifyEvery;
         this.primary = members.get(0);
     }
 
@@ -99,6 +110,7 @@ public final class EnsembleOrderedSet<K> implements OrderedCollection<K>, AutoCl
         private int rebuildEvery = 4096;
         private long memoryCeilingBytes = 0;
         private int maxMembers = 0;
+        private int verifyEvery = 1;
 
         private Builder(Comparator<? super K> keyOrder) {
             this.keyOrder = Objects.requireNonNull(keyOrder, "keyOrder cannot be null");
@@ -120,8 +132,25 @@ public final class EnsembleOrderedSet<K> implements OrderedCollection<K>, AutoCl
          * it automatically; promote it explicitly, or let failover find it.
          */
         public Builder<K> persistentMember() {
-            specs.add(() -> new EnsembleMember<>(
-                    new PersistentRankedSet<>(keyOrder), "PersistentTreeEngine"));
+            return engineMember(() -> new PersistentRankedSet<>(keyOrder), "PersistentTreeEngine");
+        }
+
+        /**
+         * Add an ENGINE-tier member backed by any {@link RankedSet} (ADR-008 — the
+         * generalization {@link #persistentMember()} now delegates to). The supplied set must
+         * honor {@code OrderedSet}'s method-for-method semantics (the {@code RankedSet} voting
+         * parity contract) and start empty. Like every engine member it serves, votes, heals,
+         * and fails over, but is never promoted automatically — the cost-model scorer cannot
+         * rank a member with no {@code TreeStrategy}.
+         *
+         * @param set   factory for the backing set (one fresh instance per build)
+         * @param label member label for logs and {@code memberNamed}-style lookups,
+         *              e.g. {@code "BPlusTreeEngine"}
+         */
+        public Builder<K> engineMember(Supplier<? extends RankedSet<K>> set, String label) {
+            Objects.requireNonNull(set, "set cannot be null");
+            Objects.requireNonNull(label, "label cannot be null");
+            specs.add(() -> new EnsembleMember<>(set.get(), label));
             return this;
         }
 
@@ -152,6 +181,21 @@ public final class EnsembleOrderedSet<K> implements OrderedCollection<K>, AutoCl
         public Builder<K> maxMembers(int k) {
             if (k < 2) throw new IllegalArgumentException("maxMembers must be >= 2: " + k);
             this.maxMembers = k;
+            return this;
+        }
+
+        /**
+         * VERIFIED amplification dial (ADR-006): every {@code n}-th read runs the full E4 vote
+         * (majority serve, dissenter quarantine, primary failover); the other n−1 serve from the
+         * primary alone, lock-free, exactly like MIRROR reads. Default 1 — every read votes, the
+         * E4 guarantee verbatim. The honest trade at n&gt;1: a <em>divergent primary</em> can
+         * serve up to n−1 unverified reads before the next vote catches and deposes it; against
+         * the post-R1 fault class (persistent content divergence) detection is still bounded by
+         * n verified-mode reads. Ignored outside VERIFIED.
+         */
+        public Builder<K> verifyEvery(int n) {
+            if (n < 1) throw new IllegalArgumentException("verifyEvery must be >= 1: " + n);
+            this.verifyEvery = n;
             return this;
         }
 
@@ -214,7 +258,7 @@ public final class EnsembleOrderedSet<K> implements OrderedCollection<K>, AutoCl
                     : MemberExecutor.sequential();
             int sampleEvery = Math.max(1, (int) Math.round(1.0 / shadowSampleRate));
             EnsembleOrderedSet<K> ens = new EnsembleOrderedSet<>(ms, keyOrder, exec, sampleEvery,
-                    rebuildEvery, memoryCeilingBytes);
+                    rebuildEvery, memoryCeilingBytes, verifyEvery);
             ens.mode = mode;
             return ens;
         }
@@ -619,6 +663,9 @@ public final class EnsembleOrderedSet<K> implements OrderedCollection<K>, AutoCl
     /** REBUILD_SHADOW cadence in writes (Option C; meaningful only in that mode). */
     public int rebuildEvery() { return rebuildEvery; }
 
+    /** VERIFIED vote stride in reads (ADR-006; 1 = every read votes, the E4 default). */
+    public int verifyEvery() { return verifyEvery; }
+
     /**
      * Release the fan-out executor's threads (E5). Safe to skip — the parallel pool uses daemon
      * threads — and a no-op for the sequential default. The ensemble must not be written after close.
@@ -629,7 +676,10 @@ public final class EnsembleOrderedSet<K> implements OrderedCollection<K>, AutoCl
     @Override
     public String toString() {
         return "EnsembleOrderedSet[primary=" + primary.strategyName()
-                + ", members=" + members.size() + ", n=" + size() + "]";
+                + ", members=" + members.size() + ", n=" + size() + ", mode=" + mode
+                + (mode == EnsembleMode.VERIFIED && verifyEvery > 1
+                        ? ", verifyEvery=" + verifyEvery : "")
+                + "]";
     }
 
     // -- Health lifecycle: quarantine / heal / retire (ADR-003 E3) --
@@ -742,7 +792,14 @@ public final class EnsembleOrderedSet<K> implements OrderedCollection<K>, AutoCl
     /** Dispatch a read: MIRROR serves the primary; VERIFIED votes; READ_REPLICA reads in an epoch. */
     private <R> R read(Function<RankedSet<K>, R> fn) {
         EnsembleMode m = mode;
-        if (m == EnsembleMode.VERIFIED)     return vote(fn);
+        if (m == EnsembleMode.VERIFIED) {
+            // ADR-006: every verifyEvery-th read votes; the others serve from the primary,
+            // lock-free. At the default (1) the stride counter is never touched.
+            if (verifyEvery == 1 || verifiedReads.incrementAndGet() % verifyEvery == 0) {
+                return vote(fn);
+            }
+            return fn.apply(primary.set());
+        }
         if (m == EnsembleMode.READ_REPLICA) return replicaRead(fn);
         return fn.apply(primary.set());
     }
@@ -754,7 +811,32 @@ public final class EnsembleOrderedSet<K> implements OrderedCollection<K>, AutoCl
      * more than half the votes) the read falls back to the primary and quarantines no one, since the
      * fault cannot be adjudicated. Runs under the write lock because a dissent mutates membership.
      */
+    /**
+     * VERIFIED read (E4 + ADR-007). Writes are serialized, so at most one is ever in flight:
+     * a lock-free pass that comes back <em>unanimous</em> is a consistent cut — every member
+     * answered either before or after that one write, and unanimity means the answer is the
+     * same under both placements — and is served with no lock at all. Any disagreement,
+     * genuine divergence or mere read skew across a write commit, proves nothing and
+     * escalates to {@link #voteLocked}, where no write can be concurrent, skew is therefore
+     * impossible, and dissent is genuine. All quarantine/failover decisions live only there.
+     */
     private <R> R vote(Function<RankedSet<K>, R> fn) {
+        if (OPTIMISTIC_VOTES) {
+            R first = null;
+            int voters = 0;
+            boolean unanimous = true;
+            for (EnsembleMember<K> m : members) {
+                if (!m.isActive() || !m.isExact()) continue;   // volatile reads; a stale view only causes escalation
+                R a = fn.apply(m.set());
+                if (voters++ == 0) first = a;
+                else if (!Objects.equals(first, a)) { unanimous = false; break; }
+            }
+            if (unanimous && voters > 0) return first;   // the common, healthy case — lock-free
+        }
+        return voteLocked(fn);
+    }
+
+    private <R> R voteLocked(Function<RankedSet<K>, R> fn) {
         synchronized (writeLock) {
             List<EnsembleMember<K>> voters = new ArrayList<>();
             List<R> answers = new ArrayList<>();
