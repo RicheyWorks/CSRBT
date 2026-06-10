@@ -118,8 +118,9 @@ tree export feeding a first animation. That ordering is deliberate.
 1. [x] **P1** — O(1) `size()` via the size augment + churn/morph/undo size-parity tests.
    _(Done 2026-06-09 — 20k calls on n=50k in 1.41 ms; see
    CHANGELOG-2026-06-09-adr009-p1-o1-size.md.)_
-2. [ ] **P2** — `NavigableOrderedSet<K>` adapter + contract tests (floor/ceiling/higher/
-   lower parity vs `TreeSet`, view semantics pinned, loud unsupported ops).
+2. [x] **P2** — `NavigableOrderedSet<K>` adapter + contract tests (floor/ceiling/higher/
+   lower parity vs `TreeSet`, view semantics pinned, loud unsupported ops). _(Done
+   2026-06-09 — see CHANGELOG-2026-06-09-adr009-p2-navigableset.md.)_
 3. [ ] **P3** — `TreeEventListener` seam (allocation-free when absent, benchmark-asserted) +
    `TreeExport.toJson`; demo JSON checked into `docs/` as the visualizer contract.
 4. [ ] **G0** — GitHub Actions workflow running `ant clean test` on JDK 17 (CI without the
