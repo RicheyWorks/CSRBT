@@ -123,8 +123,9 @@ tree export feeding a first animation. That ordering is deliberate.
    2026-06-09 — see CHANGELOG-2026-06-09-adr009-p2-navigableset.md.)_
 3. [ ] **P3** — `TreeEventListener` seam (allocation-free when absent, benchmark-asserted) +
    `TreeExport.toJson`; demo JSON checked into `docs/` as the visualizer contract.
-4. [ ] **G0** — GitHub Actions workflow running `ant clean test` on JDK 17 (CI without the
-   migration).
+4. [x] **G0** — GitHub Actions workflow running `ant clean test` on JDK 17 (CI without the
+   migration). _(Done 2026-06-09 — `.github/workflows/ci.yml`, JDK 17+21 matrix, report
+   artifacts.)_
 5. [ ] **G1** — (held) Gradle multi-module + JMH + coverage/javadoc publishing. Trigger:
    publishing/external contributors.
 6. [ ] **G2** — (held) jqwik property tests. Trigger: an oracle-missed invariant bug, or G1.
