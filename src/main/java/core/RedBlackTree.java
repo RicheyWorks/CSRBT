@@ -90,22 +90,18 @@ public class RedBlackTree<K> implements TreeEngine<K>, MutableTree<K> {
         return out;
     }
 
-    /** {@inheritDoc} */
+    /**
+     * {@inheritDoc}
+     *
+     * <p>O(1) via the size augment (ADR-009 P1): every structural change already maintains
+     * {@code TreeNode1.size} — it is the same intrinsic metadata the order-statistics walks
+     * ({@code select}/{@code rank}) have trusted since they existed, and the NIL sentinel
+     * carries size 0, so the empty tree falls out for free. The previous implementation
+     * walked all n nodes with an explicit stack to count what the root already knew.</p>
+     */
     @Override
     public int size() {
-        int n = 0;
-        Deque<TreeNode1<K>> stack = new ArrayDeque<>();
-        TreeNode1<K> cur = root;
-        while (!stack.isEmpty() || !cur.isNil()) {
-            while (!cur.isNil()) {
-                stack.push(cur);
-                cur = cur.getLeft();
-            }
-            cur = stack.pop();
-            n++;
-            cur = cur.getRight();
-        }
-        return n;
+        return root.getSize();
     }
 
     /** {@inheritDoc} Detaches the whole tree by resetting the root to NIL. */
