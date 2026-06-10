@@ -1,28 +1,34 @@
-# Session handoff — 2026-06-09/10
+# Session handoff — 2026-06-10 (was 2026-06-09; kept as the single live handoff)
 
 For the next agent session. Read this before touching code.
 
 ## Where things stand
 
-- Suite: **474 tests, green** (`ant clean test`, sandbox JDK 17).
-- **ADR-001 through ADR-009 all Accepted.** Every implementation item is landed; every
-  open thread is *held with a documented trigger* inside its ADR:
-  - ADR-006 V2 / ADR-007 W2 — burst auto-escalation → real dissent bursts in traffic.
-  - ADR-008 D2 (disk pages) → a working set that misses RAM; D3 (registry/genome) → after D2.
-  - ADR-009 G1 (Gradle/JMH/coverage) → publishing or external contributors;
-    G2 (jqwik) → an invariant bug the seeded oracle tests miss, or G1.
-- Extras beyond the ADRs: `demo/visualizer.html` (animated drawer over the
-  `docs/visualizer-contract.json` export schema), README current, CI workflow in
-  `.github/workflows/ci.yml` (fires on first push to GitHub).
-- A consolidation audit closed the session: see
-  `CHANGELOG-2026-06-10-consolidation-audit.md` (TreeExport made spine-proof).
+- Suite: **487 tests, green** at commit `a2e3669` (ADR-011 V1).
+- **ADR-001 through ADR-010 all Accepted.** Held threads keep their documented triggers
+  inside their ADRs (ADR-006 V2 / ADR-007 W2 burst escalation; ADR-008 D2/D3 disk pages;
+  ADR-009 G1 Gradle/JMH / G2 jqwik).
+- **The active frontier is ADR-011 (the evolution machine), staged V1–V5.**
+  - **V1 done** (`a2e3669`): `WeightBalancedStrategy(Δ, Γ)` on the mutable seam +
+    strategy-supplied invariant hook in the health gate. First empirical finding: (5,3)
+    is in-bounds but *unsound* — self-disqualified via its own invariant, pinned as a
+    regression. See `CHANGELOG-2026-06-10-adr011-v1-weight-balanced.md`.
+  - **V2 done (2026-06-10, suite 504 green):** `core.evolution.PolicyGenome`
+    (bounds-checked vector, seeded-Random pure perturbation/blend, value identity =
+    V3 arm identity) + `core.evolution.Fitness` (explainable Evaluation record:
+    writeFraction×rotationsPerWrite + readFraction×meanDepth/log₂(n+1)).
+    See `CHANGELOG-2026-06-10-adr011-v2-genome-fitness.md`.
+  - **Next: V3** — `PolicyBandit` (UCB1 over the discretized box) driving ensemble
+    shadows, `TreeEvent.Trial` events, arena replay of a recorded search session.
+    Caller-cadenced; promotion through the existing `MorphPolicy` gates.
+- The README polish (V1 + ADR-011 frontier paragraph) rides in the V2 commit.
 
-## If the user says "next"
+## If the user says "next" / "continue"
 
-There is no unblocked code work left by design — do not invent some. The honest options:
-ship visibility (push to GitHub → CI goes live; demo clip of the visualizer morph;
-README/thread material), start a held item **only if its trigger has fired**, or another
-audit pass with fresh eyes.
+Continue ADR-011 in stage order: V2 (genome+fitness) → V3 (`PolicyBandit` over ensemble
+shadows + `TreeEvent.Trial` + arena replay) → V4 ((μ+λ) population search) → V5 (the
+acceptance experiment; verdict published either way). Each V is one additive slice:
+changelog per slice, tick the ADR action item, green through `ant clean test`.
 
 ## Sandbox mechanics (cost an hour once — don't rediscover)
 

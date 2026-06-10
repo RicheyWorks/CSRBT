@@ -23,10 +23,18 @@ strategy-backed trees: the **engine family** adds a weight-balanced path-copying
 persistent engine with wait-free readers and O(1) snapshots (ADR-005) and a
 page-structured **B+tree** for large n (ADR-008), both first-class ensemble citizens
 through the `RankedSet` seam. A `NavigableSet` adapter (ADR-009) makes the whole thing
-a drop-in for `TreeSet` call sites. The target architecture is specified in
+a drop-in for `TreeSet` call sites. Adaptation decisions are observable end to end:
+structured events, JSON tree export, and a session recorder feed a zero-dependency
+visualizer (`demo/visualizer.html`) that **replays the controller's own decisions** —
+load `docs/arena-session.json` and watch it morph RB → Splay → RB on a live workload.
+The current frontier is **ADR-011, the evolution machine**: the strategy family gained
+its first *parameterized* member (`WeightBalancedStrategy(Δ, Γ)`), the health gate
+validates candidates against their own parameters, and the staged plan ends in a
+falsifiable experiment — can searched parameters beat the four fixed strategies?
+(First empirical finding already in the suite: (5,3) is unsound and self-disqualifies.)
+The target architecture is specified in
 [`docs/DESIGN-adaptive-engine.md`](docs/DESIGN-adaptive-engine.md); ADR-001 through
-ADR-008 are all **Accepted**, and the running reconciliation of what remains open lives
-in [`docs/ADR-009-roadmap-reconciliation-2026-06-09.md`](docs/ADR-009-roadmap-reconciliation-2026-06-09.md).
+ADR-010 are all **Accepted**, ADR-011 is in flight (V1 landed).
 
 ## Architecture
 
@@ -38,8 +46,12 @@ model (`TreeNode1<K>`, which carries color, height, and a pluggable augmentor). 
 is generic over the key type, with all ordering routed through a pluggable
 `Comparator` seam (`withNaturalOrder` is the convenience factory for `Comparable`
 keys). Balancing behavior lives behind the `TreeStrategy<K>` interface, implemented by
-`RedBlackStrategy`, `AVLStrategy`, `SplayStrategy`, and `HybridStrategy` (AVL
-rebalance plus an RB recolor pass). Strategies no longer depend on the concrete
+`RedBlackStrategy`, `AVLStrategy`, `SplayStrategy`, `HybridStrategy` (AVL
+rebalance plus an RB recolor pass), and `WeightBalancedStrategy(Δ, Γ)` — the first
+*parameterized* strategy (ADR-011): BB[α] weight balance over the intrinsic subtree-size
+augment, its (Δ, Γ) dials forming the genome dimension the evolution machine searches,
+with a strategy-supplied invariant hook so the health gate validates each candidate
+against its own parameters. Strategies no longer depend on the concrete
 engine: they operate against `MutableTree<K>`, a minimal structural interface
 exposing `getRoot` / `setRoot` / `getNIL` / `rotateLeft` / `rotateRight` — the
 only capabilities any balancing algorithm needs. `RedBlackTree<K> implements

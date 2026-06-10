@@ -164,8 +164,10 @@ parameterized family provably saturates).
    swaps RB ↔ WB(Δ,Γ)). _(Done 2026-06-10 — and the first run produced the machine's
    first finding: (5,3) is unsound and self-disqualifies, now a pinned regression. See
    CHANGELOG-2026-06-10-adr011-v1-weight-balanced.md.)_
-2. [ ] **V2** — `PolicyGenome` (bounds, perturbation, blend) + `Fitness` (explainable,
-   deterministic, unit-tested).
+2. [x] **V2** — `PolicyGenome` (bounds, perturbation, blend) + `Fitness` (explainable,
+   deterministic, unit-tested). _(Done 2026-06-10 — both pure units in `core.evolution`,
+   value identity = V3's arm identity; 17 tests, suite 504. See
+   CHANGELOG-2026-06-10-adr011-v2-genome-fitness.md.)_
 3. [ ] **V3** — `PolicyBandit` over ensemble shadows + `TreeEvent.Trial` + arena replay of
    a recorded search session.
 4. [ ] **V4** — (μ+λ) population search; out-of-box exploration behind a flag; lineage
