@@ -2,6 +2,7 @@ package core;
 
 import core.interfaces.AugmentedTree;
 import core.interfaces.OrderedCollection;
+import core.interfaces.RankedSet;
 import core.interfaces.SelfHealingTree;
 import core.strategy.TreeStrategy;
 import core.util.OrderStatisticsOps;
@@ -45,7 +46,8 @@ import java.util.function.Supplier;
  * remain a single-threaded diagnostics seam. Set {@link #OPTIMISTIC_READS} to {@code false} to
  * restore the pre-R1 unguarded reads wholesale.</p>
  */
-public class OrderedSet<K> implements SelfHealingTree, OrderedCollection<K>, AugmentedTree<K>, StrategyMorphTarget<K> {
+public class OrderedSet<K> implements SelfHealingTree, OrderedCollection<K>, RankedSet<K>,
+        AugmentedTree<K>, StrategyMorphTarget<K> {
 
     private RedBlackTree<K> tree;
     private final Comparator<? super K> keyOrder;

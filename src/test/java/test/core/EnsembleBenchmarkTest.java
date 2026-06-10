@@ -71,9 +71,9 @@ public class EnsembleBenchmarkTest {
         // Ensemble: promoting the warm AVL member is a pointer swap -- same engine, nothing rebuilt.
         EnsembleOrderedSet<Integer> ens = ensemble(n);
         EnsembleMember<Integer> avl = memberNamed(ens, "AVLStrategy");
-        RedBlackTree<Integer> avlEngineBefore = avl.set().getEngine();
+        RedBlackTree<Integer> avlEngineBefore = avl.orderedSet().getEngine();
         assertTrue(ens.promote(avl), "promotion applied");
-        assertSame(avlEngineBefore, avl.set().getEngine(), "ensemble promote SWAPS: same engine, no rebuild");
+        assertSame(avlEngineBefore, avl.orderedSet().getEngine(), "ensemble promote SWAPS: same engine, no rebuild");
         assertSame(avl, ens.primary(), "AVL now serves reads");
         assertEquals(n, ens.size(), "contents intact after the swap");
     }

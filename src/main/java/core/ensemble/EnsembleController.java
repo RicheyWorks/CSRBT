@@ -76,11 +76,17 @@ public final class EnsembleController<K> {
         this(ensemble, monitor, new CostModelStrategyScorer(), MorphPolicy.defaults());
     }
 
-    /** Map each member to the {@link StrategyId} whose strategy class it carries (unknown ids skipped). */
+    /**
+     * Map each member to the {@link StrategyId} whose strategy class it carries (unknown ids
+     * skipped). ENGINE-tier members (ADR-005 P3) carry no strategy and are skipped here too: the
+     * cost-model scorer cannot rank them, so they are never promoted <em>automatically</em> —
+     * they still serve, vote, heal, and fail over, and can be promoted explicitly.
+     */
     private static <K> Map<StrategyId, EnsembleMember<K>> indexMembers(EnsembleOrderedSet<K> ens) {
         Map<StrategyId, EnsembleMember<K>> map = new EnumMap<>(StrategyId.class);
         for (EnsembleMember<K> m : ens.members()) {
-            Class<?> memberStrategy = m.set().getStrategy().getClass();
+            if (!m.isStrategyBacked()) continue;
+            Class<?> memberStrategy = m.orderedSet().getStrategy().getClass();
             for (StrategyId id : StrategyId.values()) {
                 if (id.newStrategy().getClass() == memberStrategy) {
                     map.putIfAbsent(id, m);
@@ -211,7 +217,8 @@ public final class EnsembleController<K> {
 
     /** Node height of a member's tree (NIL = 0), iterative so a deep splay tree cannot overflow. */
     private int height(EnsembleMember<K> m) {
-        RedBlackTree<K> engine = m.set().getEngine();
+        if (!m.isStrategyBacked()) return m.set().height();   // engine members report their own (ADR-005 P3)
+        RedBlackTree<K> engine = m.orderedSet().getEngine();
         TreeNode1<K> root = engine.getRoot();
         if (root == null || root.isNil()) return 0;
         Deque<TreeNode1<K>> nodes  = new ArrayDeque<>();
@@ -294,9 +301,17 @@ public final class EnsembleController<K> {
         return report;
     }
 
-    /** Healthy iff {@link StrategyHealthCheck} reports no failures against {@code expectedSorted}. */
+    /**
+     * Healthy iff {@link StrategyHealthCheck} reports no failures against {@code expectedSorted}.
+     * An ENGINE-tier member (ADR-005 P3) is outside {@code StrategyHealthCheck}'s vocabulary — it
+     * is validated by its own structural self-check plus content equality with the expectation.
+     */
     private boolean isHealthy(EnsembleMember<K> m, List<K> expectedSorted) {
-        return StrategyHealthCheck.validate(m.set().getEngine(), m.set().getStrategy(), expectedSorted).isEmpty();
+        if (!m.isStrategyBacked()) {
+            return m.set().validateStructure().isEmpty() && m.set().inOrder().equals(expectedSorted);
+        }
+        return StrategyHealthCheck.validate(m.orderedSet().getEngine(), m.orderedSet().getStrategy(),
+                expectedSorted).isEmpty();
     }
 
     /**

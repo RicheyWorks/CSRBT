@@ -1,11 +1,14 @@
 package core.persistence;
 
 import core.OrderedSet;
+import core.PersistentRankedSet;
+import core.PersistentTreeEngine;
 import core.RedBlackTree;
 import core.TreeContext;
 import core.TreeNode1;
 import core.augment.IntervalAugmentor;
 import core.ensemble.EnsembleOrderedSet;
+import core.interfaces.RankedSet;
 import core.interfaces.TreePersistenceAdapter;
 import core.strategy.AVLStrategy;
 import core.strategy.HybridStrategy;
@@ -386,19 +389,151 @@ public class FilePersistenceAdapter implements TreePersistenceAdapter {
         return loadOrderedSet(name, keySerializer, Comparator.<K>naturalOrder());
     }
 
+    // ── Persistent-engine snapshot I/O (ADR-005 P3) ─────────────────────────────
+
+    /** Header strategy token marking the flat ascending-key format below. */
+    private static final String PERSISTENT_LABEL = "PersistentTreeEngine";
+
+    /**
+     * Save a {@link PersistentTreeEngine.Snapshot} — an O(1) frozen version of the set — as a
+     * flat ascending key list (same header line as every other snapshot, strategy token
+     * {@value #PERSISTENT_LABEL}; the data line is {@code k1;k2;...}). No colors or structure:
+     * the engine is weight-balanced, so an ascending replay on load rebuilds an equivalent tree.
+     * A key whose serialized form contains {@code ';'} cannot be encoded and fails loudly
+     * (unlike tags, silently dropping a <em>key</em> would corrupt the set).
+     */
+    public <K> void saveSnapshot(String name, PersistentTreeEngine.Snapshot<K> snapshot,
+                                 KeySerializer<K> keySerializer) {
+        if (snapshot == null)      throw new IllegalArgumentException("snapshot must not be null");
+        if (keySerializer == null) throw new IllegalArgumentException("keySerializer must not be null");
+        Path path = snapshotPath(name);
+        try (BufferedWriter writer = Files.newBufferedWriter(path)) {
+            writer.write(String.join("|",
+                    VERSION,
+                    Instant.now().toString(),
+                    PERSISTENT_LABEL,
+                    String.valueOf(snapshot.size()),
+                    "DEFAULT"
+            ));
+            writer.newLine();
+
+            StringBuilder sb = new StringBuilder();
+            for (K k : snapshot.inOrder()) {
+                String token = keySerializer.serialize(k);
+                if (token.indexOf(';') >= 0) {
+                    throw new IllegalArgumentException(
+                            "key serializes to a token containing ';' and cannot be persisted: " + token);
+                }
+                sb.append(token).append(';');
+            }
+            writer.write(sb.toString());
+            writer.newLine();
+            logger.info("Snapshot '{}' saved (persistent, n={}) → {}", name, snapshot.size(), path);
+        } catch (IOException e) {
+            logger.error("Failed to save snapshot '{}'", name, e);
+        }
+    }
+
+    /**
+     * Load a {@value #PERSISTENT_LABEL} snapshot into a fresh weight-balanced
+     * {@link PersistentTreeEngine}, replaying the stored ascending keys (O(n log n), balanced by
+     * construction). The comparator is supplied by the caller — comparators are not serialized —
+     * and must match the one used when saving. Returns {@code null} if the file is missing,
+     * malformed, or not a persistent snapshot.
+     */
+    public <K> PersistentTreeEngine<K> loadPersistent(String name, KeySerializer<K> keySerializer,
+                                                      Comparator<? super K> keyOrder) {
+        if (keySerializer == null) throw new IllegalArgumentException("keySerializer must not be null");
+        if (keyOrder == null)      throw new IllegalArgumentException("keyOrder must not be null");
+        List<K> keys = readFlatKeys(name, keySerializer);
+        if (keys == null) return null;
+        PersistentTreeEngine<K> engine = new PersistentTreeEngine<>(keyOrder);
+        for (K k : keys) engine.add(k);
+        logger.info("Snapshot '{}' loaded (persistent). size={}", name, engine.size());
+        return engine;
+    }
+
+    /** Natural-order convenience overload for {@link Comparable} keys. */
+    public <K extends Comparable<? super K>> PersistentTreeEngine<K> loadPersistent(
+            String name, KeySerializer<K> keySerializer) {
+        return loadPersistent(name, keySerializer, Comparator.<K>naturalOrder());
+    }
+
+    /** Parse a flat persistent snapshot's keys, or {@code null} if missing/malformed/wrong format. */
+    private <K> List<K> readFlatKeys(String name, KeySerializer<K> ks) {
+        Path path = snapshotPath(name);
+        if (!Files.exists(path)) {
+            logger.warn("Snapshot '{}' not found at {}", name, path);
+            return null;
+        }
+        try (BufferedReader reader = Files.newBufferedReader(path)) {
+            String headerLine = reader.readLine();
+            if (headerLine == null) {
+                logger.warn("Snapshot '{}' is empty — no header line.", name);
+                return null;
+            }
+            String[] header = headerLine.split("\\|");
+            if (header.length < 4 || !PERSISTENT_LABEL.equals(header[2])) {
+                logger.warn("Snapshot '{}' is not a persistent snapshot (strategy='{}').",
+                        name, header.length >= 3 ? header[2] : "?");
+                return null;
+            }
+            if (!VERSION.equals(header[0])) {
+                logger.warn("Snapshot '{}' version mismatch (file='{}', expected='{}') — attempting load anyway.",
+                        name, header[0], VERSION);
+            }
+            String dataLine = reader.readLine();
+            if (dataLine == null) {
+                logger.warn("Snapshot '{}' has a header but no key data line.", name);
+                return null;
+            }
+            List<K> keys = new ArrayList<>();
+            for (String token : dataLine.split(";")) {
+                if (!token.isEmpty()) keys.add(ks.deserialize(token));
+            }
+            return keys;
+        } catch (Exception e) {
+            logger.error("Failed to load snapshot '{}'", name, e);
+            return null;
+        }
+    }
+
+    /** The strategy token in a snapshot's header, or {@code null} if unreadable. */
+    private String snapshotStrategy(String name) {
+        Path path = snapshotPath(name);
+        if (!Files.exists(path)) return null;
+        try (BufferedReader reader = Files.newBufferedReader(path)) {
+            String headerLine = reader.readLine();
+            if (headerLine == null) return null;
+            String[] header = headerLine.split("\\|");
+            return header.length >= 3 ? header[2] : null;
+        } catch (IOException e) {
+            return null;
+        }
+    }
+
     // ── Ensemble snapshot I/O (ADR-003 E6) ──────────────────────────────────────
 
     /**
      * Save an {@link EnsembleOrderedSet} by snapshotting its <em>primary</em> — the primary is the
      * logical set (every ACTIVE mirror is an exact copy of it, and in SAMPLED_SHADOW it is the one
-     * exact copy), so persisting K member trees would store the same keys K times. The on-disk
-     * format is exactly the {@link #saveSnapshot(String, OrderedSet, KeySerializer)} format; the
-     * recorded strategy is whichever member happened to be serving, and is informational only on
-     * the ensemble path (member strategies are runtime configuration, like the comparator).
+     * exact copy), so persisting K member trees would store the same keys K times. A strategy-backed
+     * primary writes the {@link #saveSnapshot(String, OrderedSet, KeySerializer)} pre-order format;
+     * a persistent-engine primary (ADR-005 P3) writes the flat ascending-key format. Either way the
+     * recorded strategy token is informational on the ensemble path (member strategies are runtime
+     * configuration, like the comparator), and {@link #loadEnsemble} reads both.
      */
     public <K> void saveSnapshot(String name, EnsembleOrderedSet<K> ensemble, KeySerializer<K> keySerializer) {
         if (ensemble == null) throw new IllegalArgumentException("ensemble must not be null");
-        saveSnapshot(name, ensemble.primary().set(), keySerializer);
+        RankedSet<K> primarySet = ensemble.primary().set();
+        if (primarySet instanceof OrderedSet<K> os) {
+            saveSnapshot(name, os, keySerializer);
+        } else if (primarySet instanceof PersistentRankedSet<K> prs) {
+            saveSnapshot(name, prs.engine().snapshot(), keySerializer);
+        } else {
+            throw new IllegalArgumentException(
+                    "no persistence path for primary backing " + primarySet.getClass().getSimpleName());
+        }
     }
 
     /**
@@ -415,10 +550,16 @@ public class FilePersistenceAdapter implements TreePersistenceAdapter {
      */
     public <K> boolean loadEnsemble(String name, KeySerializer<K> keySerializer, EnsembleOrderedSet<K> target) {
         if (target == null) throw new IllegalArgumentException("target must not be null");
-        OrderedSet<K> loaded = loadOrderedSet(name, keySerializer, target.comparator());
-        if (loaded == null) return false;
+        List<K> keys;
+        if (PERSISTENT_LABEL.equals(snapshotStrategy(name))) {
+            keys = readFlatKeys(name, keySerializer);              // ADR-005 P3 flat format
+        } else {
+            OrderedSet<K> loaded = loadOrderedSet(name, keySerializer, target.comparator());
+            keys = loaded == null ? null : loaded.inOrder();
+        }
+        if (keys == null) return false;
         target.clear();
-        for (K k : loaded.inOrder()) target.add(k);
+        for (K k : keys) target.add(k);
         logger.info("Snapshot '{}' replayed into ensemble ({} members, n={}).",
                 name, target.members().size(), target.size());
         return true;

@@ -97,7 +97,7 @@ public class EnsembleHealthTest {
         assertEquals("RedBlackStrategy", rb.strategyName(), "RB is the initial primary");
 
         // Corrupt the primary's structure: paint the root red (a red-black tree's root must be black).
-        TreeNode1<Integer> root = rb.set().getEngine().getRoot();
+        TreeNode1<Integer> root = rb.orderedSet().getEngine().getRoot();
         root.setColor(TreeNode1.Color.RED);
 
         HealthReport r = ctl.checkHealth();

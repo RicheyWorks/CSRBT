@@ -1,7 +1,9 @@
 package core.ensemble;
 
 import core.OrderedSet;
+import core.PersistentRankedSet;
 import core.interfaces.OrderedCollection;
+import core.interfaces.RankedSet;
 import core.strategy.TreeStrategy;
 
 import org.apache.logging.log4j.LogManager;
@@ -61,16 +63,22 @@ public final class EnsembleOrderedSet<K> implements OrderedCollection<K>, AutoCl
     private final Object writeLock = new Object();
     private final MemberExecutor executor;
     private final int sampleEvery;            // SAMPLED_SHADOW: shadows receive every sampleEvery-th write
+    private final int rebuildEvery;           // REBUILD_SHADOW: shadows rebuilt every rebuildEvery-th write
+    private final long memoryCeilingBytes;    // 0 = no ceiling (ADR-003 "Revisit": memory ceilings)
     private long writeOps;                    // logical add/remove counter; guarded by writeLock
+    private volatile boolean overCeiling;     // latched breach flag; reset when back under
     private volatile EnsembleMember<K> primary;
     private volatile EnsembleMode mode = EnsembleMode.MIRROR;
 
     private EnsembleOrderedSet(List<EnsembleMember<K>> members, Comparator<? super K> keyOrder,
-                               MemberExecutor executor, int sampleEvery) {
+                               MemberExecutor executor, int sampleEvery, int rebuildEvery,
+                               long memoryCeilingBytes) {
         this.members = members;
         this.keyOrder = keyOrder;
         this.executor = executor;
         this.sampleEvery = sampleEvery;
+        this.rebuildEvery = rebuildEvery;
+        this.memoryCeilingBytes = memoryCeilingBytes;
         this.primary = members.get(0);
     }
 
@@ -83,11 +91,14 @@ public final class EnsembleOrderedSet<K> implements OrderedCollection<K>, AutoCl
     /** Fluent builder. The first member added is the initial primary. */
     public static final class Builder<K> {
         private final Comparator<? super K> keyOrder;
-        private final List<Supplier<? extends TreeStrategy<K>>> specs = new ArrayList<>();
+        private final List<Supplier<EnsembleMember<K>>> specs = new ArrayList<>();
         private EnsembleMode mode = EnsembleMode.MIRROR;
         private MemberExecutor executor;
         private boolean parallel;
         private double shadowSampleRate = 0.1;
+        private int rebuildEvery = 4096;
+        private long memoryCeilingBytes = 0;
+        private int maxMembers = 0;
 
         private Builder(Comparator<? super K> keyOrder) {
             this.keyOrder = Objects.requireNonNull(keyOrder, "keyOrder cannot be null");
@@ -95,7 +106,52 @@ public final class EnsembleOrderedSet<K> implements OrderedCollection<K>, AutoCl
 
         /** Add a member backed by a fresh strategy from {@code strategy}. */
         public Builder<K> member(Supplier<? extends TreeStrategy<K>> strategy) {
-            specs.add(Objects.requireNonNull(strategy, "strategy cannot be null"));
+            Objects.requireNonNull(strategy, "strategy cannot be null");
+            specs.add(() -> new EnsembleMember<>(new OrderedSet<>(strategy.get(), keyOrder)));
+            return this;
+        }
+
+        /**
+         * Add an ENGINE-tier member backed by the weight-balanced persistent engine
+         * (ADR-005 P3). A persistent member mirrors the logical set like any other, serves,
+         * votes, fails over, and heals — its reads are wait-free by construction, so promoting
+         * it buys the R3 read guarantee for the whole ensemble's serving path. It carries no
+         * {@code TreeStrategy}, so the controller's StrategyId-driven promotion never selects
+         * it automatically; promote it explicitly, or let failover find it.
+         */
+        public Builder<K> persistentMember() {
+            specs.add(() -> new EnsembleMember<>(
+                    new PersistentRankedSet<>(keyOrder), "PersistentTreeEngine"));
+            return this;
+        }
+
+        /**
+         * REBUILD_SHADOW cadence (ADR-003 Option C): shadows are rebuilt from a primary snapshot
+         * every {@code ops} writes (default 4096) and drift again until the next rebuild.
+         */
+        public Builder<K> rebuildEvery(int ops) {
+            if (ops < 1) throw new IllegalArgumentException("rebuildEvery must be >= 1: " + ops);
+            this.rebuildEvery = ops;
+            return this;
+        }
+
+        /**
+         * Soft memory ceiling in estimated bytes (ADR-003 "Revisit"; 0 = none, the default).
+         * Checked on every write: a breach latches {@link EnsembleOrderedSet#isOverMemoryCeiling()}
+         * and logs one loud {@code event=memory_ceiling} line (and one on recovery). The ensemble
+         * never degrades itself — switching to SAMPLED_SHADOW/REBUILD_SHADOW or reducing K is the
+         * operator's call, because both have semantic consequences (exactness, voting).
+         */
+        public Builder<K> memoryCeilingBytes(long bytes) {
+            if (bytes < 0) throw new IllegalArgumentException("memoryCeilingBytes must be >= 0: " + bytes);
+            this.memoryCeilingBytes = bytes;
+            return this;
+        }
+
+        /** Hard cap on K (ADR-003 "Revisit"): {@code build()} rejects more members than this. */
+        public Builder<K> maxMembers(int k) {
+            if (k < 2) throw new IllegalArgumentException("maxMembers must be >= 2: " + k);
+            this.maxMembers = k;
             return this;
         }
 
@@ -138,6 +194,10 @@ public final class EnsembleOrderedSet<K> implements OrderedCollection<K>, AutoCl
             if (specs.size() < 2) {
                 throw new IllegalArgumentException("an ensemble needs at least two members");
             }
+            if (maxMembers > 0 && specs.size() > maxMembers) {
+                throw new IllegalArgumentException("ensemble capped at K=" + maxMembers
+                        + " members; " + specs.size() + " specified (memory ceiling, ADR-003)");
+            }
             if (mode == EnsembleMode.VERIFIED && specs.size() < 3) {
                 throw new IllegalArgumentException("VERIFIED mode needs at least three members to form a majority");
             }
@@ -145,15 +205,16 @@ public final class EnsembleOrderedSet<K> implements OrderedCollection<K>, AutoCl
                 throw new IllegalArgumentException("choose parallelFanOut() or executor(...), not both");
             }
             List<EnsembleMember<K>> ms = new ArrayList<>(specs.size());
-            for (Supplier<? extends TreeStrategy<K>> s : specs) {
-                ms.add(new EnsembleMember<>(new OrderedSet<>(s.get(), keyOrder)));
+            for (Supplier<EnsembleMember<K>> s : specs) {
+                ms.add(s.get());
             }
             MemberExecutor exec = executor != null ? executor
                     : parallel ? new ParallelMemberExecutor(
                             Math.max(1, Math.min(specs.size() - 1, Runtime.getRuntime().availableProcessors())))
                     : MemberExecutor.sequential();
             int sampleEvery = Math.max(1, (int) Math.round(1.0 / shadowSampleRate));
-            EnsembleOrderedSet<K> ens = new EnsembleOrderedSet<>(ms, keyOrder, exec, sampleEvery);
+            EnsembleOrderedSet<K> ens = new EnsembleOrderedSet<>(ms, keyOrder, exec, sampleEvery,
+                    rebuildEvery, memoryCeilingBytes);
             ens.mode = mode;
             return ens;
         }
@@ -179,7 +240,7 @@ public final class EnsembleOrderedSet<K> implements OrderedCollection<K>, AutoCl
     }
 
     /** Dispatch a write: READ_REPLICA uses the left-right two-phase protocol (ADR-004 R2). */
-    private boolean write(String op, boolean sampleable, Function<OrderedSet<K>, Boolean> fn) {
+    private boolean write(String op, boolean sampleable, Function<RankedSet<K>, Boolean> fn) {
         return (mode == EnsembleMode.READ_REPLICA)
                 ? replicaWrite(op, fn)
                 : fanOutWrite(op, sampleable, fn);
@@ -200,11 +261,16 @@ public final class EnsembleOrderedSet<K> implements OrderedCollection<K>, AutoCl
      * @throws IllegalStateException if every recipient failed, or the primary failed with no exact
      *                               survivor (shadows cannot fail over) — the write did not commit
      */
-    private boolean fanOutWrite(String op, boolean sampleable, Function<OrderedSet<K>, Boolean> fn) {
+    private boolean fanOutWrite(String op, boolean sampleable, Function<RankedSet<K>, Boolean> fn) {
         synchronized (writeLock) {
             EnsembleMember<K> servingPrimary = primary;
-            boolean sampling = sampleable && mode == EnsembleMode.SAMPLED_SHADOW;
-            boolean shadowsReceive = !sampling || (++writeOps % sampleEvery == 0);
+            boolean sampling   = sampleable && mode == EnsembleMode.SAMPLED_SHADOW;
+            boolean rebuilding = sampleable && mode == EnsembleMode.REBUILD_SHADOW;
+            long op0 = (sampling || rebuilding) ? ++writeOps : 0;
+            // SAMPLED_SHADOW: shadows take every sampleEvery-th write. REBUILD_SHADOW (Option C):
+            // shadows take no live writes at all — they are refreshed wholesale by the cadence
+            // rebuild below, which runs after this write commits so the rebuilt copy includes it.
+            boolean shadowsReceive = !(sampling || rebuilding) || (sampling && op0 % sampleEvery == 0);
 
             List<EnsembleMember<K>> recipients = new ArrayList<>();
             for (EnsembleMember<K> m : members) {
@@ -228,7 +294,11 @@ public final class EnsembleOrderedSet<K> implements OrderedCollection<K>, AutoCl
                     primaryChanged = o.changed();
                 }
             }
-            if (failures == 0) return primaryChanged;                     // the common, healthy case
+            if (failures == 0) {                                          // the common, healthy case
+                if (rebuilding && op0 % rebuildEvery == 0) rebuildShadows();
+                checkMemoryCeiling();
+                return primaryChanged;
+            }
 
             if (failures == recipients.size()) {
                 Throwable cause = outcomes.isEmpty() ? null : outcomes.get(0).cause();
@@ -269,7 +339,57 @@ public final class EnsembleOrderedSet<K> implements OrderedCollection<K>, AutoCl
             q.append(']');
             logger.warn("event=write_member_failure op={} quarantined={} failedOver={} survivors={}",
                     op, q, primaryFailed, recipients.size() - failures);
+            if (rebuilding && op0 % rebuildEvery == 0) rebuildShadows();
+            checkMemoryCeiling();
             return primaryChanged;
+        }
+    }
+
+    // ── REBUILD_SHADOW: the Option C cadence rebuild (ADR-003 §3C) ────────────────
+
+    /**
+     * Rebuild every ACTIVE non-primary member from the primary's contents (Option C's amortized
+     * O(n) cost), making each an exact, <em>warm</em> promotion target until the next live write
+     * marks it inexact again. Runs under the write lock, after the triggering write committed, so
+     * the rebuilt copies include it. The realized meters a rebuild leaves behind (height, build
+     * time per insert) are the mode's promotion signal — Option C trades the mirror's continuous
+     * signal and redundancy for 1× steady-state writes, exactly as the ADR's cost table says.
+     */
+    private void rebuildShadows() {
+        List<K> truth = primary.set().inOrder();
+        int rebuilt = 0;
+        for (EnsembleMember<K> m : members) {
+            if (m == primary || !m.isActive()) continue;
+            RankedSet<K> s = m.set();
+            s.clear();
+            for (K k : truth) s.add(k);
+            m.setExact(true);
+            rebuilt++;
+        }
+        logger.info("event=shadow_rebuild op={} n={} rebuilt={}", writeOps, truth.size(), rebuilt);
+    }
+
+    // ── Memory ceiling (ADR-003 "Revisit") ────────────────────────────────────────
+
+    /**
+     * Compare the estimated footprint against the configured ceiling (no-op when none). The check
+     * is O(K) arithmetic over {@code size()}, so it runs on every write; breach and recovery each
+     * log exactly once (latched), and the state is queryable via {@link #isOverMemoryCeiling()}.
+     */
+    private void checkMemoryCeiling() {
+        if (memoryCeilingBytes <= 0) return;
+        long estimate = estimatedMemoryBytes();
+        if (estimate > memoryCeilingBytes) {
+            if (!overCeiling) {
+                overCeiling = true;
+                logger.warn("event=memory_ceiling state=BREACHED estimateBytes={} ceilingBytes={} members={} "
+                        + "hint=\"switch to SAMPLED_SHADOW/REBUILD_SHADOW or reduce K\"",
+                        estimate, memoryCeilingBytes, members.size());
+            }
+        } else if (overCeiling) {
+            overCeiling = false;
+            logger.info("event=memory_ceiling state=RECOVERED estimateBytes={} ceilingBytes={}",
+                    estimate, memoryCeilingBytes);
         }
     }
 
@@ -288,7 +408,7 @@ public final class EnsembleOrderedSet<K> implements OrderedCollection<K>, AutoCl
      * @throws IllegalStateException if no exact ACTIVE non-serving member committed the write —
      *                               READ_REPLICA cannot flip, so the write must fail loudly
      */
-    private boolean replicaWrite(String op, Function<OrderedSet<K>, Boolean> fn) {
+    private boolean replicaWrite(String op, Function<RankedSet<K>, Boolean> fn) {
         synchronized (writeLock) {
             EnsembleMember<K> serving = primary;
             List<EnsembleMember<K>> others = new ArrayList<>();
@@ -344,6 +464,7 @@ public final class EnsembleOrderedSet<K> implements OrderedCollection<K>, AutoCl
                 logger.warn("event=write_member_failure op={} quarantined={} failedOver=false survivors={}",
                         op, q, others.size() - failures + 1);
             }
+            checkMemoryCeiling();
             return changed;
         }
     }
@@ -355,7 +476,7 @@ public final class EnsembleOrderedSet<K> implements OrderedCollection<K>, AutoCl
      * drain waits on this very count — before it may mutate. A reader that loses the race exits
      * without touching the tree and retries on the new serving member.
      */
-    private <R> R replicaRead(Function<OrderedSet<K>, R> fn) {
+    private <R> R replicaRead(Function<RankedSet<K>, R> fn) {
         for (;;) {
             EnsembleMember<K> p = primary;
             p.enterRead();
@@ -445,7 +566,7 @@ public final class EnsembleOrderedSet<K> implements OrderedCollection<K>, AutoCl
             if (!member.isExact()) {
                 // Sync-on-promote: rebuild the shadow from the one exact copy, then it may serve.
                 List<K> truth = primary.set().inOrder();
-                OrderedSet<K> set = member.set();
+                RankedSet<K> set = member.set();
                 set.clear();
                 for (K k : truth) set.add(k);
                 member.setExact(true);
@@ -474,6 +595,29 @@ public final class EnsembleOrderedSet<K> implements OrderedCollection<K>, AutoCl
 
     /** The fan-out executor in use (sequential unless configured otherwise). */
     public MemberExecutor fanOutExecutor() { return executor; }
+
+    // ── Memory metrics (ADR-003 "Revisit": memory ceilings / cap-K) ──────────────
+
+    /**
+     * Estimated live footprint of all non-retired members, in bytes — a coarse node-count model
+     * (see {@link RankedSet#estimatedMemoryBytes()}), for trend and ceiling checks, not accounting.
+     */
+    public long estimatedMemoryBytes() {
+        long sum = 0;
+        for (EnsembleMember<K> m : members) {
+            if (m.state() != EnsembleMember.State.RETIRED) sum += m.set().estimatedMemoryBytes();
+        }
+        return sum;
+    }
+
+    /** The configured soft ceiling in bytes (0 = none). */
+    public long memoryCeilingBytes() { return memoryCeilingBytes; }
+
+    /** True while the estimated footprint exceeds the configured ceiling (latched per breach). */
+    public boolean isOverMemoryCeiling() { return overCeiling; }
+
+    /** REBUILD_SHADOW cadence in writes (Option C; meaningful only in that mode). */
+    public int rebuildEvery() { return rebuildEvery; }
 
     /**
      * Release the fan-out executor's threads (E5). Safe to skip — the parallel pool uses daemon
@@ -536,7 +680,7 @@ public final class EnsembleOrderedSet<K> implements OrderedCollection<K>, AutoCl
             if (member.state() == EnsembleMember.State.RETIRED) return false;
             drainReaders(member);                      // defensive (R2): never rebuild under a reader
             List<K> truth = primary.set().inOrder();   // source of truth
-            OrderedSet<K> set = member.set();
+            RankedSet<K> set = member.set();
             set.clear();
             for (K k : truth) set.add(k);
             member.setState(EnsembleMember.State.ACTIVE);
@@ -596,7 +740,7 @@ public final class EnsembleOrderedSet<K> implements OrderedCollection<K>, AutoCl
     }
 
     /** Dispatch a read: MIRROR serves the primary; VERIFIED votes; READ_REPLICA reads in an epoch. */
-    private <R> R read(Function<OrderedSet<K>, R> fn) {
+    private <R> R read(Function<RankedSet<K>, R> fn) {
         EnsembleMode m = mode;
         if (m == EnsembleMode.VERIFIED)     return vote(fn);
         if (m == EnsembleMode.READ_REPLICA) return replicaRead(fn);
@@ -610,7 +754,7 @@ public final class EnsembleOrderedSet<K> implements OrderedCollection<K>, AutoCl
      * more than half the votes) the read falls back to the primary and quarantines no one, since the
      * fault cannot be adjudicated. Runs under the write lock because a dissent mutates membership.
      */
-    private <R> R vote(Function<OrderedSet<K>, R> fn) {
+    private <R> R vote(Function<RankedSet<K>, R> fn) {
         synchronized (writeLock) {
             List<EnsembleMember<K>> voters = new ArrayList<>();
             List<R> answers = new ArrayList<>();

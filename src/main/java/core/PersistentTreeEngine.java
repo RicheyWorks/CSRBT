@@ -194,6 +194,28 @@ public final class PersistentTreeEngine<K> implements TreeEngine<K> {
     // ── Diagnostics ────────────────────────────────────────────────────────────
 
     /**
+     * Tree height (empty = 0), by an iterative walk — O(n), intended for cadence diagnostics
+     * (the ensemble's meters line), not hot paths. The weight invariant bounds it at O(log n).
+     */
+    public int height() {
+        Node<K> r = root;
+        if (r == null) return 0;
+        Deque<Node<K>> nodes = new ArrayDeque<>();
+        Deque<Integer> depths = new ArrayDeque<>();
+        nodes.push(r);
+        depths.push(1);
+        int max = 0;
+        while (!nodes.isEmpty()) {
+            Node<K> n = nodes.pop();
+            int d = depths.pop();
+            if (d > max) max = d;
+            if (n.left != null)  { nodes.push(n.left);  depths.push(d + 1); }
+            if (n.right != null) { nodes.push(n.right); depths.push(d + 1); }
+        }
+        return max;
+    }
+
+    /**
      * Mechanical invariant check (ADR-005 §7): BST order, count correctness, and the Δ-weight
      * balance at every node. @return an empty list when healthy, else one message per violation
      * (capped — a corrupt tree need not produce a novel).

@@ -64,7 +64,7 @@ public class EnsembleControllerTest {
 
         // Splay starts as a non-primary mirror; capture its engine to prove "no rebuild".
         EnsembleMember<Integer> splay = memberNamed(ens, "SplayStrategy");
-        RedBlackTree<Integer> splayEngineBefore = splay.set().getEngine();
+        RedBlackTree<Integer> splayEngineBefore = splay.orderedSet().getEngine();
         assertSame(memberNamed(ens, "RedBlackStrategy"), ens.primary(), "RB is the initial primary");
 
         TreeSet<Integer> oracle = new TreeSet<>();
@@ -88,7 +88,7 @@ public class EnsembleControllerTest {
 
         // No rebuild: the promoted member's engine is the very same instance -- promote() is a
         // pointer swap, never OrderedSet.setStrategy()'s build-aside.
-        assertSame(splayEngineBefore, splay.set().getEngine(),
+        assertSame(splayEngineBefore, splay.orderedSet().getEngine(),
                 "promotion must not rebuild the member's engine");
 
         // Contents intact across the swap -- on the new primary and as a mirror on every member.
@@ -127,11 +127,11 @@ public class EnsembleControllerTest {
         for (int v : new int[]{50, 20, 80, 10, 30, 60, 90}) ens.add(v);
 
         EnsembleMember<Integer> avl = memberNamed(ens, "AVLStrategy");
-        RedBlackTree<Integer> avlEngineBefore = avl.set().getEngine();
+        RedBlackTree<Integer> avlEngineBefore = avl.orderedSet().getEngine();
 
         assertTrue(ens.promote(avl), "promoting a non-primary member changes the primary");
         assertSame(avl, ens.primary(), "AVL now serves reads");
-        assertSame(avlEngineBefore, avl.set().getEngine(), "no rebuild on promote");
+        assertSame(avlEngineBefore, avl.orderedSet().getEngine(), "no rebuild on promote");
         assertFalse(ens.promote(avl), "promoting the current primary is a no-op");
 
         // Reads now come from AVL but answer identically (mirror invariant holds).

@@ -29,11 +29,21 @@ package core.ensemble;
  *       the live workload but can never serve, fail over, or vote. Promoting a shadow therefore
  *       costs an O(n) catch-up sync from the primary first (the ADR's "sync-on-promote"), after
  *       which the deposed primary becomes a shadow and starts to drift in its turn.</li>
+ *   <li>{@link #REBUILD_SHADOW} -- the write-lean mode (ADR-003 Option C): the primary receives
+ *       every write; shadows receive <em>none</em> and are instead rebuilt wholesale from a
+ *       primary snapshot every {@code rebuildEvery} writes (1&times; steady-state write cost plus
+ *       an amortized O(n) rebuild). A freshly rebuilt shadow is exact and <em>warm</em> -- an O(1)
+ *       promotion target -- until the next write marks it stale again; between rebuilds it can no
+ *       more serve, fail over, or vote than a sampled shadow can, and its promotion signal (the
+ *       realized height and build cost each rebuild leaves behind) lags the workload by up to one
+ *       cadence. The honest trade per the ADR's cost table: cheap steady-state writes, weak
+ *       continuous redundancy.</li>
  * </ul>
  */
 public enum EnsembleMode {
     MIRROR,
     VERIFIED,
     READ_REPLICA,
-    SAMPLED_SHADOW
+    SAMPLED_SHADOW,
+    REBUILD_SHADOW
 }
