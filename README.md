@@ -12,18 +12,21 @@ the ordered set it provides O(log n) order statistics (rank, select, median,
 percentile, range) over a subtree-size augmentation.
 
 The current release is a correct, well-tested core — the four strategies, order
-statistics, persistence, undo/redo, and health-gated morphing — now driven by a live
+statistics, persistence, undo/redo, and health-gated morphing — driven by a live
 control plane that *decides* morphs automatically from the workload rather than on
-explicit request (ADR-002 step 6). A workload monitor, a transparent cost-model scorer,
-an anti-thrash policy, and the `MorphController` that runs them on a cadence are wired
-into the live loop and **on by default**; the older genome-driven path is retained but
-deprecated behind a one-switch flag. On top of that, the **multi-tree ensemble**
-(ADR-003) keeps several strategy-backed members live over the same key set so adaptation
-becomes an O(1) primary swap instead of an O(n) morph, with failover, quorum
-verification, and a memory-lean sampled mode. The target architecture is specified in
-[`docs/DESIGN-adaptive-engine.md`](docs/DESIGN-adaptive-engine.md); the migration that
-closed the gap to it is tracked in
-[`docs/strategy-audit-and-feasibility-2026-05-30.md`](docs/strategy-audit-and-feasibility-2026-05-30.md).
+explicit request (ADR-002 step 6). On top of that, the **multi-tree ensemble**
+(ADR-003) keeps several members live over the same key set so adaptation becomes an
+O(1) primary swap instead of an O(n) morph, with instant failover, quorum-verified
+reads (with a tunable verification stride and lock-free unanimous votes, ADR-006/007),
+two write-lean shadow modes, and memory ceilings. Members are no longer only
+strategy-backed trees: the **engine family** adds a weight-balanced path-copying
+persistent engine with wait-free readers and O(1) snapshots (ADR-005) and a
+page-structured **B+tree** for large n (ADR-008), both first-class ensemble citizens
+through the `RankedSet` seam. A `NavigableSet` adapter (ADR-009) makes the whole thing
+a drop-in for `TreeSet` call sites. The target architecture is specified in
+[`docs/DESIGN-adaptive-engine.md`](docs/DESIGN-adaptive-engine.md); ADR-001 through
+ADR-008 are all **Accepted**, and the running reconciliation of what remains open lives
+in [`docs/ADR-009-roadmap-reconciliation-2026-06-09.md`](docs/ADR-009-roadmap-reconciliation-2026-06-09.md).
 
 ## Architecture
 
@@ -94,10 +97,32 @@ control plane, gated by the same `MorphPolicy`. Members carry a health lifecycle
 (ACTIVE / QUARANTINED / RETIRED): a member that fails its cadence check or throws
 mid-write is quarantined and healed from the primary, and a failing *primary* fails over
 instantly to a healthy member. `VERIFIED` mode fans reads to a quorum and serves the
-majority, quarantining dissenters (N-version programming against silent corruption);
-`SAMPLED_SHADOW` mode is the memory-lean inverse — shadows receive only a sampled stride
-of writes (~1 + p·(K−1) cost), estimate strategy fitness, and pay an O(n) sync-on-promote
-if elevated. Snapshots persist the primary only and rebuild members on load.
+majority, quarantining dissenters (N-version programming against silent corruption) —
+its cost is tunable on two axes: `verifyEvery(n)` votes on a deterministic stride of
+reads instead of all of them (ADR-006), and a lock-free unanimous fast path serves
+agreeing votes with no lock at all, escalating any dissent to the locked vote where
+quarantine decisions stay race-free (ADR-007). `SAMPLED_SHADOW` is the memory-lean mode —
+shadows receive only a sampled stride of writes (~1 + p·(K−1) cost) and pay an O(n)
+sync-on-promote if elevated; `REBUILD_SHADOW` (ADR-003 Option C) is the write-lean one —
+shadows take no live writes and are rebuilt wholesale from the primary on a cadence.
+A soft memory ceiling (`memoryCeilingBytes`, observed and logged, never self-degrading)
+and a hard cap on K (`maxMembers`) round out the memory controls. Snapshots persist the
+primary only and rebuild members on load.
+
+**Engine family (ADR-005, ADR-008).** Ensemble members need not be strategy-backed
+trees: the `RankedSet` seam admits any engine honoring `OrderedSet`'s exact semantics
+(the voting-parity contract), via `Builder.engineMember(...)` or the
+`persistentMember()` shorthand. Two engines ship. `PersistentTreeEngine` is a generic
+weight-balanced (Δ=3, Γ=2) path-copying structure: every read — including order
+statistics — is a `volatile` root read plus a walk of immutable nodes, so readers are
+**wait-free by construction**, and `snapshot()` is an O(1) immutable capture that stays
+queryable forever; snapshots persist through `KeySerializer` as flat ascending keys.
+`BPlusTreeEngine` is the large-n answer: keys live in fanout-sized leaf pages chained
+for range scans, internal nodes are pure routing with per-child counts funding the full
+order-statistics surface, and the in-memory layout is deliberately the on-disk page
+layout for the held disk-backing slice. Engine members serve, vote, heal, and fail
+over like any member; the cost-model scorer cannot rank them, so they are promoted
+explicitly or by failover, never automatically.
 
 ## Quick start
 
@@ -152,6 +177,26 @@ ens.promote(ens.members().get(1));          // O(1): the warm AVL member now ser
 // Ensemble snapshots persist the primary (the logical set) and rebuild members on load.
 store.saveSnapshot("ens", ens, KeySerializer.INTEGER);
 store.loadEnsemble("ens", KeySerializer.INTEGER, ens);
+
+// Engine-tier members (ADR-005/008): wait-free persistent reads, page-structured large-n.
+EnsembleOrderedSet<Integer> mixed = EnsembleOrderedSet.<Integer>builder(Comparator.naturalOrder())
+        .member(RedBlackStrategy::new)
+        .persistentMember()                                   // wait-free reads when promoted
+        .engineMember(BPlusTreeEngine::withNaturalOrder, "BPlusTreeEngine")
+        .mode(EnsembleMode.VERIFIED).verifyEvery(16)          // quorum reads, 1-in-16 vote stride
+        .build();
+
+// Wait-free O(1) snapshots on the persistent engine: "the set as of now" is a handle.
+PersistentTreeEngine<Integer> eng = PersistentTreeEngine.withNaturalOrder();
+eng.add(1); eng.add(2);
+PersistentTreeEngine.Snapshot<Integer> frozen = eng.snapshot();
+eng.add(3);
+frozen.size();                              // 2 — immutable, queryable forever
+
+// Drop-in NavigableSet over any OrderedSet (ADR-009): floor/ceiling/views, TreeSet parity.
+NavigableSet<String> navigable = new NavigableOrderedSet<>(words);
+navigable.floor("grape");                   // "fig"
+navigable.subSet("apple", true, "pear", false);   // live, read-only range view
 ```
 
 ## Features
@@ -163,7 +208,12 @@ store.loadEnsemble("ens", KeySerializer.INTEGER, ens);
   one interface, swappable at runtime without data loss.
 - **Order statistics** — `select`, `rank`, `median`, `percentile`, range count
   and range query in O(log n) via subtree-size augmentation, kept exact across
-  inserts, deletes, rotations, and strategy morphs.
+  inserts, deletes, rotations, and strategy morphs; `size()` is O(1) off the same
+  augment (ADR-009 P1).
+- **`NavigableSet` adapter** — `NavigableOrderedSet<K>` is a drop-in for `TreeSet`
+  call sites: floor/ceiling/higher/lower ride the rank machinery in O(log n), range
+  and descending views are live and compose, and view mutators refuse loudly rather
+  than rot quietly (ADR-009 P2).
 - **Interval queries** — overlap and stabbing queries via a pluggable interval
   augmentor; tags survive morphs and snapshots.
 - **Sliding-window / bounded set** — optional capacity (`setMaxSize`) that evicts
@@ -181,12 +231,22 @@ store.loadEnsemble("ens", KeySerializer.INTEGER, ens);
   strategy scorer, an anti-thrash morph policy, and the `MorphController` that runs them on
   a cadence and drives the health-gated `setStrategy`. As of ADR-002 step 6 Phase D this is
   the controller's **default** decision path; the genome loop is deprecated behind a flag.
-- **Multi-tree ensemble (ADR-003)** — `EnsembleOrderedSet<K>` keeps K strategy members in
+- **Multi-tree ensemble (ADR-003)** — `EnsembleOrderedSet<K>` keeps K members in
   exact sync (parallel write fan-out under one writer lock) so adaptation is an **O(1)
   promote** instead of an O(n) morph, with instant failover, quarantine/heal/retire
   lifecycle, quorum-verified reads (`VERIFIED`), a memory-lean sampled mode
-  (`SAMPLED_SHADOW`, ~1 + p·(K−1) cost, O(n) sync-on-promote), and primary-only snapshots
-  that rebuild every member on load.
+  (`SAMPLED_SHADOW`), a write-lean rebuild mode (`REBUILD_SHADOW`), memory ceiling and
+  cap-K controls, and primary-only snapshots that rebuild every member on load.
+- **Tunable verified reads (ADR-006/007)** — `verifyEvery(n)` makes VERIFIED's K× read
+  amplification a dial (deterministic stride, default 1 = every read votes), and the
+  optimistic unanimous fast path makes healthy votes **lock-free** (any dissent
+  escalates to the locked vote, so quarantine stays race-free; sandbox rows: 15× at
+  n=16, 2.7× under a saturating writer).
+- **Engine family (ADR-005/008)** — beyond the strategy trees: `PersistentTreeEngine`
+  (weight-balanced path-copying; wait-free readers, O(1) immutable snapshots,
+  `KeySerializer` persistence) and `BPlusTreeEngine` (page-structured, leaf-chained,
+  count-funded order statistics; the disk-ready layout). Both join ensembles as
+  first-class members through the `RankedSet` seam (`engineMember(...)`).
 
 ## Project layout
 
@@ -201,7 +261,15 @@ src/main/java/core/
   ├─ OrderedSet.java           generic ordered-set facade (OrderedSet<K>)
   ├─ TreeContext.java          int adapter over OrderedSet<Integer>
   ├─ TreeEngineRegistry.java   structure-type → engine registry
-  ├─ PersistentTreeEngine.java engine + persistence wiring
+  ├─ PersistentTreeEngine.java weight-balanced path-copying engine (ADR-005):
+  │                            wait-free readers, O(1) immutable snapshots
+  ├─ PersistentRankedSet.java  RankedSet adapter — the persistent engine as an
+  │                            ensemble member
+  ├─ BPlusTreeEngine.java      page-structured large-n engine (ADR-008): leaf
+  │                            chain, count-funded order statistics
+  ├─ adapter/                  NavigableOrderedSet — java.util.NavigableSet face
+  │                            (ADR-009): TreeSet-parity navigation, live
+  │                            read-only views
   ├─ strategy/                 TreeStrategy + RedBlack, AVL, Splay, Hybrid
   ├─ evolution/                TreeGenome, GenomeDrivenTreeController, StrategyBattleRunner
   ├─ control/                  adaptive control plane (ADR-002 step 6): WorkloadMonitor,
@@ -211,7 +279,8 @@ src/main/java/core/
   │                            EnsembleMember, EnsembleMode, EnsembleController,
   │                            MemberExecutor (sequential / parallel fan-out)
   ├─ augment/                  IntervalAugmentor
-  ├─ interfaces/               TreeEngine, OrderedCollection, AugmentedTree, …
+  ├─ interfaces/               TreeEngine, OrderedCollection, RankedSet (the
+  │                            engine-member voting-parity seam), AugmentedTree, …
   ├─ persistence/              FilePersistenceAdapter (text snapshots)
   └─ util/                     diagnostics, cloner, history, order statistics,
                                strategy health check
@@ -219,8 +288,9 @@ src/main/java/experimental/    opt-in theatrics (TreeAgent alien-seed/swarm,
                                TreeEcology analytics) — depends on core, never
                                the reverse; core stays contract-bound
 src/test/java/test/core/       JUnit 5 suite (strategy invariants, regressions)
-docs/                          design, audits, ADR, code reviews, refactor plan
+docs/                          design, audits, ADRs, changelogs, code reviews
 build.xml                      Ant build (JUnit 5 console launcher)
+.github/workflows/ci.yml       CI: ant clean test on a JDK 17/21 matrix (ADR-009 G0)
 ```
 
 ## Building and testing
@@ -277,8 +347,24 @@ ant clean       # remove the build/ directory
   write-failure quarantine, linearizability under concurrent writers), sampled shadows
   (stride fraction, sync-on-promote, no-serve/no-vote), primary-only snapshot round-trips,
   and the O(1)-swap-vs-O(n)-rebuild benchmark.
+- `EnsembleEngineMemberTest` / `EnsembleRebuildShadowTest` — engine-tier membership
+  (ADR-005 P3: mirror/serve/vote/heal through the `RankedSet` seam, no auto-promotion,
+  persistent-snapshot round trips) and Option C (`REBUILD_SHADOW` cadence cycle,
+  sync-on-promote, ceiling latch + cap-K).
+- `EnsembleVerifiedSamplingTest` / `EnsembleVerifiedConcurrencyTest` — ADR-006/007:
+  stride-deterministic detection (caught on exactly the nth read), the bounded
+  divergent-primary window, no-false-quarantines under write churn (skew always
+  escalates and adjudicates clean), and both printed benchmark rows.
+- `BPlusTreeEngineTest` — ADR-008: oracle parity at the fanout floor with the invariant
+  checker run throughout, degenerate inputs, OrderedSet-parity order statistics and
+  edge semantics, and VERIFIED unanimity beside strategy members as the end-to-end
+  parity proof.
+- `SizeAugmentTest` / `NavigableOrderedSetTest` — ADR-009: O(1) `size()` parity per-op
+  under churn/morph/undo, and `TreeSet`-parity navigation swept across every boundary
+  class plus view composition and the read-only clause.
 
-Run the full suite after any change to the engine or strategies.
+Run the full suite after any change to the engine or strategies. CI runs the same
+`ant clean test` on a JDK 17/21 matrix (`.github/workflows/ci.yml`).
 
 ## Concurrency
 
@@ -288,7 +374,8 @@ Run the full suite after any change to the engine or strategies.
 with a step-bounded walk and are discarded unless the stamp validates, order statistics hold
 the shared read lock, and facade reads never splay (Splay's move-to-root adaptivity lives on
 the write path). Reads are safe, not lock-free — a read overlapping a write may briefly take
-the shared lock (R2 of ADR-004 targets wait-free reads via the ensemble). Accessors such as
+the shared lock; when reads must be wait-free, reach for the ensemble's `READ_REPLICA` mode
+(ADR-004 R2) or the persistent engine (ADR-005), both below. Accessors such as
 `getTree()`/`getEngine()` still expose live internal structure that bypasses the guard — they
 remain a single-threaded diagnostics seam — and the `RedBlackTree`/strategy layer is **not**
 thread-safe on its own.
@@ -312,11 +399,35 @@ stamps, retries, step bounds, or epochs anywhere on the read path, ensemble or n
 `snapshot()` is an O(1) immutable capture that stays queryable forever. The price is paid
 on the write side: O(log n) allocation per mutation (GC pressure scales with write rate).
 
+Two later refinements close the remaining gaps. VERIFIED votes no longer serialize
+against writes in the healthy case (ADR-007): because writes are serialized, a lock-free
+pass that comes back *unanimous* is a consistent cut and is served with no lock; any
+disagreement — real divergence or read skew — escalates to the locked vote, where skew is
+impossible and quarantine/failover decisions stay race-free. Combined with ADR-006's vote
+stride, a healthy VERIFIED steady state takes no locks at all. `BPlusTreeEngine` takes
+the opposite, deliberately coarse stance: every public method is synchronized, because a
+paged tree mutates in place with no read guard and ensemble votes read members lock-free
+— correctness first, page latching only if a workload ever demands it.
+
 ## Design history
 
 **Design & direction**
 - [`docs/DESIGN-adaptive-engine.md`](docs/DESIGN-adaptive-engine.md) — the target
   architecture: two-plane design, control loop, and acceptance goals (G1–G9).
+- [`docs/ADR-009-roadmap-reconciliation-2026-06-09.md`](docs/ADR-009-roadmap-reconciliation-2026-06-09.md)
+  — **Proposed, in flight**: an external review's gap list audited against the code —
+  what was stale, what was real (O(1) `size()`, the `NavigableSet` adapter, CI — all
+  landed), and what is held with explicit triggers (events/export, Gradle/JMH, jqwik).
+- [`docs/ADR-008-bplus-tree-engine-2026-06-09.md`](docs/ADR-008-bplus-tree-engine-2026-06-09.md)
+  — **Accepted**: the Phase-4 large-n engine — a page-structured B+tree, structure
+  before disk (D1 landed; paged file backing and registry/genome integration held).
+- [`docs/ADR-007-optimistic-votes-2026-06-09.md`](docs/ADR-007-optimistic-votes-2026-06-09.md)
+  — **Accepted**: the writer-lock ceiling decomposed — unanimous VERIFIED votes go
+  lock-free (a consistent cut by construction), dissent escalates to the locked vote.
+- [`docs/ADR-006-verified-read-sampling-2026-06-09.md`](docs/ADR-006-verified-read-sampling-2026-06-09.md)
+  — **Accepted**: `verifyEvery(n)` — VERIFIED's K× amplification as a deterministic
+  stride dial; post-R1 the fault class is persistent, so sampling changes detection
+  latency, not detection.
 - [`docs/ADR-003-multi-tree-ensemble-2026-06-06.md`](docs/ADR-003-multi-tree-ensemble-2026-06-06.md)
   — **Accepted**: the multi-tree ensemble — O(1) promotion, failover, quorum verification,
   sampled shadows, parallel fan-out, persistence. Landed in steps E1–E6 (see the
@@ -329,7 +440,8 @@ on the write side: O(log n) allocation per mutation (GC pressure scales with wri
 - [`docs/ADR-005-balanced-persistent-engine-2026-06-09.md`](docs/ADR-005-balanced-persistent-engine-2026-06-09.md)
   — **Accepted**: `PersistentTreeEngine` rebuilt as a generic weight-balanced (Δ=3, Γ=2)
   path-copying engine — wait-free reads without an ensemble, O(1) explicit snapshots,
-  count-funded order statistics (P1+P2 landed; ensemble membership held as P3).
+  count-funded order statistics. P3 (ensemble membership via the `RankedSet` seam +
+  snapshot persistence) landed same day.
 - [`docs/ADR-002-architecture-review-2026-05-30.md`](docs/ADR-002-architecture-review-2026-05-30.md)
   — architecture review + decisions: phased generic-key migration and control-plane
   consolidation.
@@ -339,6 +451,11 @@ on the write side: O(log n) allocation per mutation (GC pressure scales with wri
   — original architecture decision record: review, rationale, and roadmap.
 
 **Audits & change log**
+- [`docs/CHANGELOG-2026-06-09-session-index-2.md`](docs/CHANGELOG-2026-06-09-session-index-2.md)
+  and [`docs/CHANGELOG-2026-06-09-session-index.md`](docs/CHANGELOG-2026-06-09-session-index.md)
+  — the 2026-06-09 session maps: eleven ensemble/read-path slices (ADR-003/004/005),
+  then ADR-006/007/008 closing the open list; each slice has its own changelog beside
+  these.
 - [`docs/CHANGELOG-2026-06-06-control-plane.md`](docs/CHANGELOG-2026-06-06-control-plane.md)
   — ADR-002 step 6, Phase D (D1–D5): the control plane is wired in via `MorphController` and
   made the controller's default decision path; the genome loop is deprecated behind a flag.
