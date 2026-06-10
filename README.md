@@ -27,14 +27,19 @@ a drop-in for `TreeSet` call sites. Adaptation decisions are observable end to e
 structured events, JSON tree export, and a session recorder feed a zero-dependency
 visualizer (`demo/visualizer.html`) that **replays the controller's own decisions** —
 load `docs/arena-session.json` and watch it morph RB → Splay → RB on a live workload.
-The current frontier is **ADR-011, the evolution machine**: the strategy family gained
-its first *parameterized* member (`WeightBalancedStrategy(Δ, Γ)`), the health gate
-validates candidates against their own parameters, and the staged plan ends in a
-falsifiable experiment — can searched parameters beat the four fixed strategies?
-(First empirical finding already in the suite: (5,3) is unsound and self-disqualifies.)
+**ADR-011, the evolution machine, is complete**: the strategy family gained its first
+*parameterized* member (`WeightBalancedStrategy(Δ, Γ)`, validated against its own
+parameters by the health gate), a UCB1 bandit and a (μ+λ) population search breed and
+trial policies as live ensemble shadows — births, deaths, and promotions all replayable
+in the arena — and the story ends in a falsifiable experiment, answered honestly:
+**searched parameters do not beat the four fixed strategies** (≥10% on no family across
+3 seeds, deterministic comparisons/op). The search converged to the literature's WB(3,·),
+unsound points like (5,3) self-disqualified on the record, and the adaptive claim stays
+where it belongs — with the controller that picks the right specialist per workload.
 The target architecture is specified in
-[`docs/DESIGN-adaptive-engine.md`](docs/DESIGN-adaptive-engine.md); ADR-001 through
-ADR-010 are all **Accepted**, ADR-011 is in flight (V1 landed).
+[`docs/DESIGN-adaptive-engine.md`](docs/DESIGN-adaptive-engine.md); **ADR-001 through
+ADR-011 are all Accepted** (ADR-011's verdict:
+[`docs/CHANGELOG-2026-06-10-adr011-v5-experiment.md`](docs/CHANGELOG-2026-06-10-adr011-v5-experiment.md)).
 
 ## Architecture
 

@@ -28,13 +28,21 @@ For the next agent session. Read this before touching code.
     nursery slots, elitism, graveyard breeding, out-of-box behind a flag
     (`weightBalancedUnboxed`), `TreeEvent.Lineage` + CULLED deaths in the recorder.
     See `CHANGELOG-2026-06-10-adr011-v4-evolution.md`.
-  - **Next: V5 — the acceptance experiment** (the last stage; flips ADR-011 to Accepted
-    either way). Workload families: uniform, hot-key skew, sequential, delete-heavy,
-    regime-switching; fixed seeds (≥3); long runs amortizing morph costs. Success
-    criterion: searched policy beats the best of the four fixed strategies by **≥10%
-    realized cost on ≥1 family across ≥3 seeds**. In-suite printed benchmark rows with
-    soft assertions (house style, not JMH). The negative result is a documented finding —
-    publish the verdict either way in the ADR + changelog.
+  - **V5 done — ADR-011 Accepted, verdict negative (2026-06-10, suite 523 green):**
+    `EvolutionAcceptanceExperimentTest` — 5 families × 3 seeds, deterministic
+    comparisons/op (wall-clock proved >10% noisy; documented). No family sustains ≥10%
+    over its best fixed strategy; the search converged to WB(3,·). The honest no, on the
+    record. See `CHANGELOG-2026-06-10-adr011-v5-experiment.md`.
+
+## If the user says "next" (post-ADR-011)
+
+ADR-011 was the roadmap's last open frontier. There is no unblocked code work queued —
+do not invent some. Honest options: ship visibility (the evolution-machine story is
+genuinely publishable: a search that found unsoundness, confirmed the literature, and
+published its own negative result); start a held item **only if its trigger fired**
+(rotation counters now have a named consumer — the V5 composite-cost refinement — if the
+verdict ever needs revisiting; ADR-008 D2 disk pages; ADR-009 G1 Gradle/JMH); or an
+audit pass with fresh eyes over the five V-slices, which landed in one day.
 - The README polish (V1 + ADR-011 frontier paragraph) rides in the V2 commit.
 
 ## If the user says "next" / "continue"

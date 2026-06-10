@@ -1,6 +1,13 @@
 # ADR-011: The evolution machine — online structural evolution over the ensemble
 
-**Status:** Proposed (V1 scoped for implementation; V2–V5 staged behind it)
+**Status:** **Accepted** (2026-06-10 — V1–V5 all landed; the V5 experiment ran and the
+verdict is **negative**: inside the verified box, the searched policy does not beat the
+best fixed strategy by ≥10% deterministic realized cost (comparisons/op) on any family,
+sustained across 3 seeds. Per §1's honesty constraint this is the legitimate finding —
+the fixed four cover the space, the search converged to the literature point WB(3,·),
+and the instrument that shows it is now in the suite. See
+CHANGELOG-2026-06-10-adr011-v5-experiment.md for the full verdict table and the
+secondary findings.)
 **Date:** 2026-06-10
 **Deciders:** Richmond
 **Builds on:** every load-bearing seam in the codebase, deliberately: the `TreeStrategy`
@@ -179,8 +186,13 @@ parameterized family provably saturates).
    bodies, elitism in slot 0, graveyard breeding, deposed-primary rotation),
    `weightBalancedUnboxed` behind the flag, `TreeEvent.Lineage` + CULLED in the recorder;
    6 tests, suite 521. See CHANGELOG-2026-06-10-adr011-v4-evolution.md.)_
-5. [ ] **V5** — the experiment: workload-family benchmark, ≥10%/≥1 family/≥3 seeds, verdict
-   published either way.
+5. [x] **V5** — the experiment: workload-family benchmark, ≥10%/≥1 family/≥3 seeds, verdict
+   published either way. _(Done 2026-06-10 — `EvolutionAcceptanceExperimentTest`, 5
+   families × 3 seeds, deterministic comparisons/op (byte-identical across runs;
+   wall-clock proved >10% noisy — itself a finding). **Verdict: success=false** — no
+   family sustains ≥10% over its best fixed strategy; the search converged to WB(3,·),
+   the literature's neighborhood. The negative result is the documented finding; suite
+   523. See CHANGELOG-2026-06-10-adr011-v5-experiment.md.)_
 
 ---
 
