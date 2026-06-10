@@ -30,7 +30,11 @@ import java.util.Objects;
  * set's locks, immediately after the decision committed — so they are consistent by
  * construction. The recorder inherits the listener contract: keep the set's other work off
  * this thread while recording, and detach (re-register {@code null}) when done. v1 records
- * single-set sessions; ensemble lifecycle events are ignored.</p>
+ * single-set sessions; ensemble lifecycle events are ignored. ADR-011 V3 adds
+ * {@code Trial} decision points (additive): register the recorder on a
+ * {@code PolicySearchController} <em>and</em> attach it to the trial member's set, and the
+ * session replays the search — arms tried, scored, disqualified, selected — over snapshots
+ * of the trial tree itself.</p>
  */
 public final class TreeSessionRecorder<K> implements TreeEventListener<K> {
 
@@ -70,8 +74,15 @@ public final class TreeSessionRecorder<K> implements TreeEventListener<K> {
                     + m.toStrategy() + "\", \"committed\": " + m.committed());
         } else if (e instanceof TreeEvent.Repair<K> r) {
             decision("Repair", "\"healthy\": " + r.healthy());
+        } else if (e instanceof TreeEvent.Trial<K> t) {
+            // ADR-011 V3: search-trial decision points (additive to session format v1).
+            // cost is NaN where no score exists — rendered as null, since JSON has no NaN.
+            decision("Trial", "\"arm\": \"" + t.arm() + "\", \"phase\": \"" + t.phase()
+                    + "\", \"cost\": " + (Double.isNaN(t.cost()) ? "null"
+                            : String.format(java.util.Locale.ROOT, "%.4f", t.cost()))
+                    + ", \"pulls\": " + t.pulls());
         }
-        // Ensemble lifecycle events: out of scope for v1 single-set sessions.
+        // Other ensemble lifecycle events: out of scope for v1 single-set sessions.
     }
 
     private void decision(String type, String fields) {

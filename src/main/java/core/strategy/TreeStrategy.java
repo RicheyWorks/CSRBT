@@ -36,6 +36,18 @@ public interface TreeStrategy<K> {
         return java.util.List.of();
     }
 
+    /**
+     * Policy identity (ADR-011 V3): true when {@code other} encodes the <em>same balancing
+     * policy</em>, parameters included — the test {@code OrderedSet.setStrategy} uses for
+     * its same-strategy no-op guard. The default — class identity — is exact for the
+     * classic, parameterless strategies; a parameterized strategy must override it
+     * (class identity alone would make {@code WB(3,2) → WB(4,2)} look like a no-op and
+     * silently refuse a real morph, which is how this seam was discovered).
+     */
+    default boolean samePolicyAs(TreeStrategy<K> other) {
+        return other != null && getClass() == other.getClass();
+    }
+
     // ── Rotations: structurally identical across all three algorithms ─────────
     // AVLStrategy no longer needs to call `new RedBlackStrategy().rotateLeft()`
 

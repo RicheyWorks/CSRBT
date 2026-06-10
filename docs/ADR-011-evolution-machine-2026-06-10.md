@@ -168,8 +168,12 @@ parameterized family provably saturates).
    deterministic, unit-tested). _(Done 2026-06-10 — both pure units in `core.evolution`,
    value identity = V3's arm identity; 17 tests, suite 504. See
    CHANGELOG-2026-06-10-adr011-v2-genome-fitness.md.)_
-3. [ ] **V3** — `PolicyBandit` over ensemble shadows + `TreeEvent.Trial` + arena replay of
-   a recorded search session.
+3. [x] **V3** — `PolicyBandit` over ensemble shadows + `TreeEvent.Trial` + arena replay of
+   a recorded search session. _(Done 2026-06-10 — plus the predicted parameterized-identity
+   seam: `TreeStrategy.samePolicyAs` (WB(3,2)→WB(4,2) was silently refused by the
+   class-based no-op guard). (5,3) self-disqualifies live; WB(3,2) beats a splay primary
+   through real gates; 11 tests, suite 515. See
+   CHANGELOG-2026-06-10-adr011-v3-policy-bandit.md.)_
 4. [ ] **V4** — (μ+λ) population search; out-of-box exploration behind a flag; lineage
    recording.
 5. [ ] **V5** — the experiment: workload-family benchmark, ≥10%/≥1 family/≥3 seeds, verdict

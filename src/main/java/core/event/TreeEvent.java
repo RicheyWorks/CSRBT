@@ -60,4 +60,16 @@ public sealed interface TreeEvent<K> {
 
     /** The soft memory ceiling latched ({@code breached=true}) or recovered. */
     record MemoryCeiling<K>(boolean breached, long estimateBytes, long ceilingBytes) implements TreeEvent<K> { }
+
+    // ── PolicySearchController (ADR-011 V3: the evolution machine's search loop) ────
+
+    /**
+     * One step of a policy-search trial: an arm was {@code TRIED} (morphed onto the trial
+     * shadow through the health gate), {@code SCORED} (fitness recorded; {@code cost} is the
+     * evaluation, {@code pulls} the arm's pull count), {@code DISQUALIFIED} (failed the gate
+     * or its own invariant — dead permanently), or {@code SELECTED} (promoted to primary
+     * through the MorphPolicy gates). {@code cost} is {@code NaN} where no score exists
+     * (TRIED, and DISQUALIFIED before scoring).
+     */
+    record Trial<K>(String arm, String phase, double cost, int pulls) implements TreeEvent<K> { }
 }

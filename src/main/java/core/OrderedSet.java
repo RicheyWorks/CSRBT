@@ -396,8 +396,9 @@ public class OrderedSet<K> implements SelfHealingTree, OrderedCollection<K>, Ran
      */
     public boolean setStrategy(TreeStrategy<K> newStrategy) {
         synchronized (lock) {
-            if (newStrategy == null
-                    || newStrategy.getClass() == tree.getStrategy().getClass()) {
+            // Same-policy no-op: parameter-aware (ADR-011 V3) — class identity alone would
+            // make WB(3,2) -> WB(4,2) a silent refusal of a real morph.
+            if (newStrategy == null || newStrategy.samePolicyAs(tree.getStrategy())) {
                 return false;
             }
             Map<K, String> keyTags = captureKeyTags();

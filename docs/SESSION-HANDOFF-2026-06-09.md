@@ -18,9 +18,15 @@ For the next agent session. Read this before touching code.
     V3 arm identity) + `core.evolution.Fitness` (explainable Evaluation record:
     writeFraction×rotationsPerWrite + readFraction×meanDepth/log₂(n+1)).
     See `CHANGELOG-2026-06-10-adr011-v2-genome-fitness.md`.
-  - **Next: V3** — `PolicyBandit` (UCB1 over the discretized box) driving ensemble
-    shadows, `TreeEvent.Trial` events, arena replay of a recorded search session.
-    Caller-cadenced; promotion through the existing `MorphPolicy` gates.
+  - **V3 done (2026-06-10, suite 515 green):** `PolicyBandit` (pure UCB1, no RNG) +
+    `PolicySearchController` (trial windows on a shadow, promotion via MorphPolicy with
+    −cost desirability, throne/lab swap) + `TreeEvent.Trial` in the recorder. Also landed
+    the predicted parameterized-identity seam: `TreeStrategy.samePolicyAs` — the old
+    class-based no-op guard silently refused WB(3,2)→WB(4,2).
+    See `CHANGELOG-2026-06-10-adr011-v3-policy-bandit.md`.
+  - **Next: V4** — (μ+λ) population search over `PolicyGenome`s on the population
+    ensemble (mutation/blend already exist from V2); out-of-box exploration behind a
+    flag; lineage recording through the recorder. Then V5, the acceptance experiment.
 - The README polish (V1 + ADR-011 frontier paragraph) rides in the V2 commit.
 
 ## If the user says "next" / "continue"

@@ -238,6 +238,13 @@ public class WeightBalancedStrategy<K> implements TreeStrategy<K> {
         return node;
     }
 
+    /** Policy identity includes the parameters: WB(3,2) and WB(4,2) are different policies. */
+    @Override
+    public boolean samePolicyAs(TreeStrategy<K> other) {
+        return other instanceof WeightBalancedStrategy<K> w
+                && w.delta == delta && w.ratio == ratio;
+    }
+
     @Override
     public String toString() {
         return "WeightBalancedStrategy(Δ=" + delta + ", Γ=" + ratio + ")";
