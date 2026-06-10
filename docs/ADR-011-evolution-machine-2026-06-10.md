@@ -159,9 +159,11 @@ parameterized family provably saturates).
 
 ## 5. Action items
 
-1. [ ] **V1** — `WeightBalancedStrategy(Δ, Γ)` + strategy-supplied invariant hook in
+1. [x] **V1** — `WeightBalancedStrategy(Δ, Γ)` + strategy-supplied invariant hook in
    `StrategyHealthCheck` + grid-point oracle/invariant tests + morph interop (health-gated
-   swaps RB ↔ WB(Δ,Γ)).
+   swaps RB ↔ WB(Δ,Γ)). _(Done 2026-06-10 — and the first run produced the machine's
+   first finding: (5,3) is unsound and self-disqualifies, now a pinned regression. See
+   CHANGELOG-2026-06-10-adr011-v1-weight-balanced.md.)_
 2. [ ] **V2** — `PolicyGenome` (bounds, perturbation, blend) + `Fitness` (explainable,
    deterministic, unit-tested).
 3. [ ] **V3** — `PolicyBandit` over ensemble shadows + `TreeEvent.Trial` + arena replay of

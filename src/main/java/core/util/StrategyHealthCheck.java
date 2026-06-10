@@ -72,7 +72,10 @@ public final class StrategyHealthCheck {
                 }
             }
             case "SplayStrategy" -> { /* no balance invariant */ }
-            default -> { /* unknown strategy: structural checks above still apply */ }
+            default -> failures.addAll(strategy.validateInvariant(candidate));
+            // ^ ADR-011 V1: strategies outside the built-in switch supply their own
+            //   invariant (parameterized strategies validate against their own Δ/Γ);
+            //   the structural checks above still apply regardless.
         }
 
         // 5: order-statistics spot check (candidate carries subtree-size augment).

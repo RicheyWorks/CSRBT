@@ -23,6 +23,19 @@ public interface TreeStrategy<K> {
 
     TreeNode1<K> search(MutableTree<K> tree, K value);
 
+    /**
+     * Strategy-supplied structural invariant (ADR-011 V1): an empty list when the tree
+     * satisfies <em>this strategy's</em> invariant, else one message per violation. The
+     * health gate calls this for strategies its built-in switch doesn't know — which is
+     * what lets a <em>parameterized</em> strategy (e.g. {@code WeightBalancedStrategy(Δ,Γ)})
+     * be validated against its own parameters, and what makes an unsound parameter point
+     * self-disqualifying instead of silently wrong. The default reports nothing: the
+     * classic strategies are validated by the gate's built-in checks.
+     */
+    default java.util.List<String> validateInvariant(MutableTree<K> tree) {
+        return java.util.List.of();
+    }
+
     // ── Rotations: structurally identical across all three algorithms ─────────
     // AVLStrategy no longer needs to call `new RedBlackStrategy().rotateLeft()`
 
