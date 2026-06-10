@@ -289,6 +289,9 @@ src/main/java/experimental/    opt-in theatrics (TreeAgent alien-seed/swarm,
                                the reverse; core stays contract-bound
 src/test/java/test/core/       JUnit 5 suite (strategy invariants, regressions)
 docs/                          design, audits, ADRs, changelogs, code reviews
+demo/visualizer.html           single-file animated tree visualizer over the
+                               TreeExport contract — open in any browser; loads any
+                               exported JSON, animates between states (morphs!)
 build.xml                      Ant build (JUnit 5 console launcher)
 .github/workflows/ci.yml       CI: ant clean test on a JDK 17/21 matrix (ADR-009 G0)
 ```

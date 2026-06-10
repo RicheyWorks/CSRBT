@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>CSRBT — tree visualizer</title>
+<!--
+  CSRBT tree visualizer (demo for ADR-009 P3).
+
+  A single-file, dependency-free drawer for the JSON that core.export.TreeExport emits
+  (schema: docs/visualizer-contract.json). Load any exported state via the button or by
+  dropping a .json file anywhere; nodes are matched by key across loads, so successive
+  states ANIMATE — load the embedded Red-Black / Splay / AVL states (the same 15 keys,
+  exported by the real library after real health-gated morphs) to watch a morph happen.
+
+  Everything here is vanilla canvas; the library knows nothing about this file. The
+  contract is the JSON, deliberately.
+-->
+<style>
+  :root { --bg:#14161d; --panel:#1d2029; --ink:#e8e6e3; --dim:#8a8f9e; --accent:#5b9bd5; }
+  * { box-sizing: border-box; margin: 0; }
+  body { background: var(--bg); color: var(--ink); font: 14px/1.45 system-ui, sans-serif;
+         height: 100vh; display: flex; flex-direction: column; overflow: hidden; }
+  header { display: flex; gap: 10px; align-items: center; flex-wrap: wrap;
+           padding: 10px 14px; background: var(--panel); border-bottom: 1px solid #00000055; }
+  header h1 { font-size: 15px; font-weight: 600; margin-right: 6px; }
+  header .meta { color: var(--dim); font-size: 12.5px; }
+  header .meta b { color: var(--ink); font-weight: 600; }
+  button, label.btn {
+    background: #262b38; color: var(--ink); border: 1px solid #353b4d; border-radius: 6px;
+    padding: 5px 12px; font: inherit; font-size: 13px; cursor: pointer; }
+  button:hover, label.btn:hover { border-color: var(--accent); }
+  button.active { border-color: var(--accent); color: var(--accent); }
+  input[type=file] { display: none; }
+  #stage { flex: 1; position: relative; }
+  canvas { position: absolute; inset: 0; width: 100%; height: 100%; }
+  #drop { position: absolute; inset: 0; display: none; align-items: center; justify-content: center;
+          background: #14161dd9; color: var(--accent); font-size: 18px; pointer-events: none; }
+  footer { padding: 6px 14px; color: var(--dim); font-size: 12px; background: var(--panel);
+           border-top: 1px solid #00000055; }
+</style>
+</head>
+<body>
+<header>
+  <h1>CSRBT visualizer</h1>
+  <button id="b-RB" onclick="loadState('RB', this)">Red-Black</button>
+  <button id="b-SPLAY" onclick="loadState('SPLAY', this)">Splay (sorted inserts)</button>
+  <button id="b-AVL" onclick="loadState('AVL', this)">AVL</button>
+  <label class="btn">Load exported JSON…<input type="file" id="file" accept=".json"></label>
+  <span class="meta" id="meta"></span>
+</header>
+<div id="stage">
+  <canvas id="cv"></canvas>
+  <div id="drop">drop the exported .json anywhere</div>
+</div>
+<footer>
+  Contract: <code>docs/visualizer-contract.json</code> — generate states with
+  <code>core.export.TreeExport.toJson(set)</code>. Nodes are matched by key across loads,
+  so loading successive exports animates the morph. Node area tracks subtree size.
+</footer>
+
+<script>
+// ── The three embedded states: the same 15 keys exported by the real library, before and
+//    after real health-gated morphs (RedBlack → Splay → AVL). Splay after sorted inserts is
+//    a 15-deep spine; AVL is a perfect tree — the animation between them is the point.
+const STATES = {
+RB: {"type":"OrderedSet","strategy":"RedBlackStrategy","size":15,"height":6,"meters":{"avgInsertMs":0.016282,"avgDeleteMs":0.0},"root":{"key":"4","color":"BLACK","size":15,"depth":1,"left":{"key":"2","color":"BLACK","size":3,"depth":2,"left":{"key":"1","color":"BLACK","size":1,"depth":3,"left":null,"right":null},"right":{"key":"3","color":"BLACK","size":1,"depth":3,"left":null,"right":null}},"right":{"key":"8","color":"RED","size":11,"depth":2,"left":{"key":"6","color":"BLACK","size":3,"depth":3,"left":{"key":"5","color":"BLACK","size":1,"depth":4,"left":null,"right":null},"right":{"key":"7","color":"BLACK","size":1,"depth":4,"left":null,"right":null}},"right":{"key":"10","color":"BLACK","size":7,"depth":3,"left":{"key":"9","color":"BLACK","size":1,"depth":4,"left":null,"right":null},"right":{"key":"12","color":"RED","size":5,"depth":4,"left":{"key":"11","color":"BLACK","size":1,"depth":5,"left":null,"right":null},"right":{"key":"14","color":"BLACK","size":3,"depth":5,"left":{"key":"13","color":"RED","size":1,"depth":6,"left":null,"right":null},"right":{"key":"15","color":"RED","size":1,"depth":6,"left":null,"right":null}}}}}}},
+SPLAY: {"type":"OrderedSet","strategy":"SplayStrategy","size":15,"height":15,"meters":{"avgInsertMs":0.016282,"avgDeleteMs":0.0},"root":{"key":"15","color":"BLACK","size":15,"depth":1,"left":{"key":"14","color":"BLACK","size":14,"depth":2,"left":{"key":"13","color":"BLACK","size":13,"depth":3,"left":{"key":"12","color":"BLACK","size":12,"depth":4,"left":{"key":"11","color":"BLACK","size":11,"depth":5,"left":{"key":"10","color":"BLACK","size":10,"depth":6,"left":{"key":"9","color":"BLACK","size":9,"depth":7,"left":{"key":"8","color":"BLACK","size":8,"depth":8,"left":{"key":"7","color":"BLACK","size":7,"depth":9,"left":{"key":"6","color":"BLACK","size":6,"depth":10,"left":{"key":"5","color":"BLACK","size":5,"depth":11,"left":{"key":"4","color":"BLACK","size":4,"depth":12,"left":{"key":"3","color":"BLACK","size":3,"depth":13,"left":{"key":"2","color":"BLACK","size":2,"depth":14,"left":{"key":"1","color":"BLACK","size":1,"depth":15,"left":null,"right":null},"right":null},"right":null},"right":null},"right":null},"right":null},"right":null},"right":null},"right":null},"right":null},"right":null},"right":null},"right":null},"right":null},"right":null}},
+AVL: {"type":"OrderedSet","strategy":"AVLStrategy","size":15,"height":4,"meters":{"avgInsertMs":0.016282,"avgDeleteMs":0.0},"root":{"key":"8","color":"BLACK","size":15,"depth":1,"left":{"key":"4","color":"BLACK","size":7,"depth":2,"left":{"key":"2","color":"BLACK","size":3,"depth":3,"left":{"key":"1","color":"BLACK","size":1,"depth":4,"left":null,"right":null},"right":{"key":"3","color":"BLACK","size":1,"depth":4,"left":null,"right":null}},"right":{"key":"6","color":"BLACK","size":3,"depth":3,"left":{"key":"5","color":"BLACK","size":1,"depth":4,"left":null,"right":null},"right":{"key":"7","color":"BLACK","size":1,"depth":4,"left":null,"right":null}}},"right":{"key":"12","color":"BLACK","size":7,"depth":2,"left":{"key":"10","color":"BLACK","size":3,"depth":3,"left":{"key":"9","color":"BLACK","size":1,"depth":4,"left":null,"right":null},"right":{"key":"11","color":"BLACK","size":1,"depth":4,"left":null,"right":null}},"right":{"key":"14","color":"BLACK","size":3,"depth":3,"left":{"key":"13","color":"BLACK","size":1,"depth":4,"left":null,"right":null},"right":{"key":"15","color":"BLACK","size":1,"depth":4,"left":null,"right":null}}}}}
+};
+
+const RED = "#d65a5a", BLACK_FILL = "#2c3242", EDGE = "#3c4254", LABEL = "#e8e6e3";
+const DURATION = 750;                                   // ms per transition
+
+const cv = document.getElementById("cv"), ctx = cv.getContext("2d");
+const meta = document.getElementById("meta"), drop = document.getElementById("drop");
+
+let nodes = new Map();      // key -> {x,y,r,red, fx,fy,fr,fred,falpha, tx,ty,tr,tred,talpha, alpha}
+let edges = [];             // [{from,to}] of the CURRENT target state
+let animStart = 0;
+
+function flatten(state) {
+  // -> list of {key,color,size,depth,inorder,parent}; x = in-order index, y = depth.
+  const out = [];
+  let idx = 0;
+  (function walk(n, parent, depth) {
+    if (!n) return;
+    walk(n.left, n.key, depth + 1);
+    out.push({ key: n.key, red: n.color === "RED", size: n.size, depth, inorder: idx++, parent });
+    walk(n.right, n.key, depth + 1);
+  })(state.root, null, 1);
+  return out;
+}
+
+function loadState(name, btn) {
+  applyState(STATES[name]);
+  for (const b of document.querySelectorAll("header button")) b.classList.remove("active");
+  if (btn) btn.classList.add("active");
+}
+
+function applyState(state) {
+  const flat = flatten(state);
+  const maxDepth = Math.max(1, state.height || Math.max(...flat.map(n => n.depth)));
+  const n = Math.max(1, flat.length);
+  const W = cv.clientWidth, H = cv.clientHeight;
+  const padX = 50, padTop = 56, padBot = 36;
+  const xs = k => padX + (W - 2 * padX) * (k + 0.5) / n;
+  const ys = d => padTop + (H - padTop - padBot) * (maxDepth === 1 ? 0.5 : (d - 1) / (maxDepth - 1));
+  const rOf = s => Math.max(11, Math.min(22, 9 + 3.4 * Math.log2(s + 1)));
+
+  const seen = new Set();
+  const pos = new Map(flat.map(f => [f.key, f]));
+  for (const f of flat) {
+    seen.add(f.key);
+    const tx = xs(f.inorder), ty = ys(f.depth), tr = rOf(f.size);
+    let node = nodes.get(f.key);
+    if (!node) {                                         // entering: grow out of the parent's spot
+      const p = f.parent && nodes.get(f.parent);
+      node = { x: p ? p.x : tx, y: p ? p.y : ty - 30, r: 0, red: f.red, alpha: 0 };
+      nodes.set(f.key, node);
+    }
+    Object.assign(node, { fx: node.x, fy: node.y, fr: node.r, fred: node.red, falpha: node.alpha,
+                          tx, ty, tr, tred: f.red, talpha: 1, label: f.key });
+  }
+  for (const [key, node] of nodes) {                     // exiting: shrink and fade in place
+    if (!seen.has(key)) {
+      Object.assign(node, { fx: node.x, fy: node.y, fr: node.r, fred: node.red, falpha: node.alpha,
+                            tx: node.x, ty: node.y + 24, tr: 0, talpha: 0, exiting: true });
+    }
+  }
+  edges = flat.filter(f => f.parent !== null).map(f => ({ from: f.parent, to: f.key }));
+  meta.innerHTML = `<b>${state.strategy}</b> &nbsp; n=<b>${state.size}</b> &nbsp; ` +
+                   `height=<b>${state.height}</b> &nbsp; ` +
+                   `avg insert <b>${(state.meters?.avgInsertMs ?? 0).toFixed(4)}</b> ms`;
+  animStart = performance.now();
+  requestAnimationFrame(frame);
+}
+
+const ease = t => t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2;
+
+function frame(now) {
+  const t = Math.min(1, (now - animStart) / DURATION), e = ease(t);
+  for (const [key, n] of nodes) {
+    n.x = n.fx + (n.tx - n.fx) * e;
+    n.y = n.fy + (n.ty - n.fy) * e;
+    n.r = n.fr + (n.tr - n.fr) * e;
+    n.alpha = n.falpha + (n.talpha - n.falpha) * e;
+    n.red = e > 0.5 ? n.tred : n.fred;                  // colors flip mid-flight
+    if (t === 1 && n.exiting) nodes.delete(key);
+  }
+  draw();
+  if (t < 1) requestAnimationFrame(frame);
+}
+
+function draw() {
+  const dpr = window.devicePixelRatio || 1;
+  if (cv.width !== cv.clientWidth * dpr || cv.height !== cv.clientHeight * dpr) {
+    cv.width = cv.clientWidth * dpr;
+    cv.height = cv.clientHeight * dpr;
+  }
+  ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+  ctx.clearRect(0, 0, cv.clientWidth, cv.clientHeight);
+
+  ctx.lineWidth = 1.5;
+  for (const ed of edges) {
+    const a = nodes.get(ed.from), b = nodes.get(ed.to);
+    if (!a || !b) continue;
+    ctx.globalAlpha = Math.min(a.alpha, b.alpha) * 0.9;
+    ctx.strokeStyle = EDGE;
+    ctx.beginPath();
+    ctx.moveTo(a.x, a.y);
+    ctx.lineTo(b.x, b.y);
+    ctx.stroke();
+  }
+  for (const n of nodes.values()) {
+    if (n.r < 0.5) continue;
+    ctx.globalAlpha = n.alpha;
+    ctx.beginPath();
+    ctx.arc(n.x, n.y, n.r, 0, Math.PI * 2);
+    ctx.fillStyle = n.red ? RED : BLACK_FILL;
+    ctx.fill();
+    ctx.strokeStyle = n.red ? "#f0a3a3" : "#4a5168";
+    ctx.stroke();
+    ctx.fillStyle = LABEL;
+    ctx.font = `${Math.max(10, n.r * 0.82)}px system-ui, sans-serif`;
+    ctx.textAlign = "center";
+    ctx.textBaseline = "middle";
+    ctx.fillText(n.label ?? "", n.x, n.y + 0.5);
+  }
+  ctx.globalAlpha = 1;
+}
+
+// ── Loading exported files ──────────────────────────────────────────────────────
+function loadFile(file) {
+  file.text().then(text => {
+    try {
+      const state = JSON.parse(text);
+      if (!state || typeof state.size !== "number" || !("root" in state)) {
+        throw new Error("not a TreeExport contract file");
+      }
+      for (const b of document.querySelectorAll("header button")) b.classList.remove("active");
+      applyState(state);
+    } catch (err) { alert("Could not load: " + err.message); }
+  });
+}
+document.getElementById("file").addEventListener("change", e => {
+  if (e.target.files[0]) loadFile(e.target.files[0]);
+  e.target.value = "";
+});
+window.addEventListener("dragover", e => { e.preventDefault(); drop.style.display = "flex"; });
+window.addEventListener("dragleave", e => { if (!e.relatedTarget) drop.style.display = "none"; });
+window.addEventListener("drop", e => {
+  e.preventDefault();
+  drop.style.display = "none";
+  if (e.dataTransfer.files[0]) loadFile(e.dataTransfer.files[0]);
+});
+window.addEventListener("resize", () => { animStart = performance.now() - DURATION; frame(performance.now()); });
+
+loadState("RB", document.getElementById("b-RB"));
+</script>
+</body>
+</html>

@@ -49,5 +49,15 @@ change, closing the last implementation item the external review's gap list got 
 - Export: schema fields, balanced braces, RB-root-is-black, quote escaping, empty-set form
   (`"root": null`, `"height": 0`).
 
-With P1/P2/G0 already landed, this closes every implementation item in ADR-009; G1
+## `demo/visualizer.html` (new) — the contract, consumed
+
+A single-file, dependency-free canvas drawer over the export schema: RB coloring, node
+area tracking subtree size, in-order/depth layout, drag-and-drop loading of any exported
+JSON — and nodes are matched by key across loads, so successive exports **animate**. Three
+embedded states (the same 15 keys exported by the real library across real health-gated
+morphs: Red-Black h=6 → Splay-after-sorted-inserts h=15, a full spine → AVL h=4, perfect)
+make the morph animation a one-click demo. The library knows nothing about this file; the
+JSON is the boundary, deliberately.
+
+With P1/P2/P3/G0 landed, this closes every implementation item in ADR-009; G1
 (Gradle/JMH) and G2 (jqwik) remain held on their documented triggers.
