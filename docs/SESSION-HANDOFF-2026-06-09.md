@@ -1,28 +1,30 @@
-# Session handoff — 2026-06-09 (end of session)
+# Session handoff — 2026-06-09/10
 
 For the next agent session. Read this before touching code.
 
 ## Where things stand
 
-- Suite: **466 tests, green** (`ant clean test`, verified in-sandbox on JDK 17).
-- ADR-001–008 Accepted. ADR-009 Proposed: **P1 done** (O(1) size), **P2 done**
-  (NavigableSet adapter), **G0 done** (CI workflow). Each has a changelog in `docs/`.
-- All work since commit `ebbb183` is uncommitted (the user commits host-side; the sandbox
-  cannot write `.git`). Pending commit suggestion is in the chat; roughly: ADR-006/007/008
-  slice + ADR-009 + P1 + P2 + G0 + handoff docs.
+- Suite: **474 tests, green** (`ant clean test`, sandbox JDK 17).
+- **ADR-001 through ADR-009 all Accepted.** Every implementation item is landed; every
+  open thread is *held with a documented trigger* inside its ADR:
+  - ADR-006 V2 / ADR-007 W2 — burst auto-escalation → real dissent bursts in traffic.
+  - ADR-008 D2 (disk pages) → a working set that misses RAM; D3 (registry/genome) → after D2.
+  - ADR-009 G1 (Gradle/JMH/coverage) → publishing or external contributors;
+    G2 (jqwik) → an invariant bug the seeded oracle tests miss, or G1.
+- Extras beyond the ADRs: `demo/visualizer.html` (animated drawer over the
+  `docs/visualizer-contract.json` export schema), README current, CI workflow in
+  `.github/workflows/ci.yml` (fires on first push to GitHub).
+- A consolidation audit closed the session: see
+  `CHANGELOG-2026-06-10-consolidation-audit.md` (TreeExport made spine-proof).
 
-## Next up (in order, per ADR-009 §4)
+## If the user says "next"
 
-1. **P3** — `TreeEventListener` seam (insert/remove/rotate/morph-with-reason/repair/
-   quarantine/promote/failover; records, no-op default, **allocation-free when no listener
-   is registered — assert with a benchmark row**) + `TreeExport.toJson(set)` (nodes:
-   key/color/size/depth + strategy + meters) as the visualizer contract; check a demo JSON
-   into `docs/`. Touches `OrderedSet`/strategy hot paths — do it early in a fresh session,
-   not near a limit.
-2. **G1/G2** — held; triggers documented in ADR-009 §2.
-3. ADR-006 V2 / ADR-007 W2 / ADR-008 D2+D3 — held; triggers in their ADRs.
+There is no unblocked code work left by design — do not invent some. The honest options:
+ship visibility (push to GitHub → CI goes live; demo clip of the visualizer morph;
+README/thread material), start a held item **only if its trigger has fired**, or another
+audit pass with fresh eyes.
 
-## Sandbox mechanics (cost an hour last time — don't rediscover)
+## Sandbox mechanics (cost an hour once — don't rediscover)
 
 - **JDK/ant:** sandbox has JRE 11 only, no root. Download user-space:
   `curl -sfLo jdk17.tar.gz "https://api.adoptium.net/v3/binary/latest/17/ga/linux/x64/jdk/hotspot/normal/eclipse"`,
@@ -31,19 +33,22 @@ For the next agent session. Read this before touching code.
 - **Shadow tree:** the repo mount **cannot delete files** (`ant clean` fails in-place).
   Build out-of-tree: copy `src build.xml *.jar snapshots` to `~/csrbt`, run ant there.
   The shadow tree is ephemeral — rebuild it each session.
-- **Mount staleness (the truncation trap):** *edits* to existing repo files (via the file
-  tools) often appear **truncated** through the bash mount for minutes; *new* files sync
-  fine, and the Windows side (file tools) is always authoritative. Therefore: after editing
-  an existing file, do **not** `cp` it from the mount into the shadow tree — re-apply the
-  same edit to the shadow copy with a python/sed patch (assert exactly one match), or
-  route content through a brand-new file. Verify with `wc -l` both sides when in doubt.
-- Stray `sync_probe.tmp` and similar can only be deleted host-side by the user.
+- **Mount staleness (the truncation trap):** *edits* to existing repo files (file tools)
+  often appear **truncated** through the bash mount for minutes; *new* files sync fine; the
+  Windows side (file tools) is always authoritative. After editing an existing file, do
+  **not** `cp` it from the mount into the shadow tree — re-apply the same edit to the
+  shadow copy with a python patch (assert exactly one match), or route content through a
+  brand-new file. Verify with `wc -l` both sides when in doubt.
+- Git is host-side only (the user commits in PowerShell); stray temp files can only be
+  deleted host-side.
 
 ## House style reminders
 
-- One slice per commit; changelog per slice (`docs/CHANGELOG-<date>-<slice>.md`); tick the
-  ADR action item with a pointer; ship green through `ant clean test`.
-- No background threads (rejected three times: ADR-006 C, ADR-008 D, ADR-009).
-  Caller-cadenced control is a load-bearing decision.
+- One slice per commit; changelog per slice; tick the ADR action item with a pointer;
+  ship green through `ant clean test`.
+- No background threads (rejected three times). Caller-cadenced control is load-bearing.
 - `TreeContext` stays Integer (documented adapter); generic callers use `OrderedSet<K>`.
 - Benchmarks are in-suite printed rows with soft assertions, not JMH (until G1).
+- Engines added to ensembles must honor `OrderedSet` semantics exactly (`RankedSet`
+  voting-parity contract) and either be immutable, R1-guarded, or synchronized — the
+  ADR-007 optimistic vote reads members lock-free.

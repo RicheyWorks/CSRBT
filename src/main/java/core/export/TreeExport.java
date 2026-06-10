@@ -56,28 +56,71 @@ public final class TreeExport {
         return sb.toString();
     }
 
-    private static <K> void node(StringBuilder sb, TreeNode1<K> n, int depth, int indent) {
-        if (n == null || n.isNil()) {
+    /**
+     * Emit the node subtree as nested JSON, iteratively (explicit stack). Recursion here
+     * would be bounded by tree <em>height</em>, and a degenerate tree — a Splay spine after
+     * sorted inserts, the very state worth visualizing — is O(n) deep; this codebase has
+     * already met that stack overflow once (the E5a benchmark). The JSON nests just as
+     * deep, but that costs heap, not stack.
+     */
+    private static <K> void node(StringBuilder sb, TreeNode1<K> root, int depth, int indent) {
+        if (root == null || root.isNil()) {
             sb.append("null");
             return;
         }
-        String pad = "  ".repeat(indent + 1);
-        sb.append("{\n");
-        sb.append(pad).append("\"key\": \"").append(escape(String.valueOf(n.getData()))).append("\", ");
-        sb.append("\"color\": \"").append(n.getColor()).append("\", ");
-        sb.append("\"size\": ").append(n.getSize()).append(", ");
-        sb.append("\"depth\": ").append(depth).append(",\n");
-        sb.append(pad).append("\"left\": ");
-        node(sb, n.getLeft(), depth + 1, indent + 1);
-        sb.append(",\n");
-        sb.append(pad).append("\"right\": ");
-        node(sb, n.getRight(), depth + 1, indent + 1);
-        sb.append("\n").append("  ".repeat(indent)).append("}");
+        final class Frame {
+            final TreeNode1<K> n; final int depth, indent; int stage = 0;
+            Frame(TreeNode1<K> n, int depth, int indent) { this.n = n; this.depth = depth; this.indent = indent; }
+        }
+        java.util.ArrayDeque<Frame> stack = new java.util.ArrayDeque<>();
+        stack.push(new Frame(root, depth, indent));
+        while (!stack.isEmpty()) {
+            Frame f = stack.peek();
+            // Indentation caps at 64 levels: un-capped, a spine's output is O(n^2) characters
+            // (gigabytes at 50k keys) purely in whitespace. The JSON stays valid; readability
+            // at depth 64 was never on the table anyway.
+            String pad = "  ".repeat(Math.min(f.indent + 1, 64));
+            if (f.stage == 0) {
+                f.stage = 1;
+                sb.append("{\n");
+                sb.append(pad).append("\"key\": \"").append(escape(String.valueOf(f.n.getData()))).append("\", ");
+                sb.append("\"color\": \"").append(f.n.getColor()).append("\", ");
+                sb.append("\"size\": ").append(f.n.getSize()).append(", ");
+                sb.append("\"depth\": ").append(f.depth).append(",\n");
+                sb.append(pad).append("\"left\": ");
+                TreeNode1<K> left = f.n.getLeft();
+                if (left == null || left.isNil()) sb.append("null");
+                else stack.push(new Frame(left, f.depth + 1, f.indent + 1));
+            } else if (f.stage == 1) {
+                f.stage = 2;
+                sb.append(",\n").append(pad).append("\"right\": ");
+                TreeNode1<K> right = f.n.getRight();
+                if (right == null || right.isNil()) sb.append("null");
+                else stack.push(new Frame(right, f.depth + 1, f.indent + 1));
+            } else {
+                sb.append("\n").append("  ".repeat(Math.min(f.indent, 64))).append("}");
+                stack.pop();
+            }
+        }
     }
 
+    /** Iterative height walk — same stack-overflow reasoning as {@link #node}. */
     private static <K> int depthOf(TreeNode1<K> n) {
         if (n == null || n.isNil()) return 0;
-        return 1 + Math.max(depthOf(n.getLeft()), depthOf(n.getRight()));
+        java.util.ArrayDeque<TreeNode1<K>> nodes = new java.util.ArrayDeque<>();
+        java.util.ArrayDeque<Integer> depths = new java.util.ArrayDeque<>();
+        nodes.push(n);
+        depths.push(1);
+        int max = 0;
+        while (!nodes.isEmpty()) {
+            TreeNode1<K> cur = nodes.pop();
+            int d = depths.pop();
+            if (d > max) max = d;
+            TreeNode1<K> l = cur.getLeft(), r = cur.getRight();
+            if (l != null && !l.isNil()) { nodes.push(l); depths.push(d + 1); }
+            if (r != null && !r.isNil()) { nodes.push(r); depths.push(d + 1); }
+        }
+        return max;
     }
 
     private static double round(double ms) {

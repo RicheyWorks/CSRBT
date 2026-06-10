@@ -237,6 +237,22 @@ public class TreeEventExportTest {
             assertTrue(ej.contains("\"height\": 0"), ej);
         }
 
+        @Test
+        @DisplayName("a degenerate 50k-deep Splay spine exports without blowing the stack")
+        void degenerateTreeExports() {
+            // Sorted inserts under Splay leave each new max at the root: a perfect spine,
+            // O(n) deep — the worst case for anything recursive over height (and the very
+            // state a visualizer is FOR). The iterative walks must shrug at it.
+            OrderedSet<Integer> spine = OrderedSet.withNaturalOrder(new SplayStrategy<Integer>());
+            final int n = 50_000;
+            for (int i = 0; i < n; i++) spine.add(i);
+
+            String json = TreeExport.toJson(spine);
+            assertTrue(json.contains("\"height\": " + n), "a full spine: " + json.substring(0, 120));
+            assertTrue(json.contains("\"size\": " + n));
+            assertEquals(count(json, '{'), count(json, '}'), "balanced braces at depth " + n);
+        }
+
         private static int count(String s, char c) {
             int n = 0;
             for (int i = 0; i < s.length(); i++) if (s.charAt(i) == c) n++;
