@@ -1,6 +1,6 @@
 # ADR-009: Roadmap reconciliation — auditing the "polish gaps" list against the actual codebase
 
-**Status:** Proposed (P1–P3 scoped for implementation; G1/G2 held with triggers)
+**Status:** Accepted (2026-06-09 — P1/P2/P3/G0 all landed; G1/G2 held with triggers)
 **Date:** 2026-06-09
 **Deciders:** Richmond
 **Builds on:** ADR-001–008 (all Accepted), the external review/roadmap pasted 2026-06-09
@@ -121,8 +121,10 @@ tree export feeding a first animation. That ordering is deliberate.
 2. [x] **P2** — `NavigableOrderedSet<K>` adapter + contract tests (floor/ceiling/higher/
    lower parity vs `TreeSet`, view semantics pinned, loud unsupported ops). _(Done
    2026-06-09 — see CHANGELOG-2026-06-09-adr009-p2-navigableset.md.)_
-3. [ ] **P3** — `TreeEventListener` seam (allocation-free when absent, benchmark-asserted) +
-   `TreeExport.toJson`; demo JSON checked into `docs/` as the visualizer contract.
+3. [x] **P3** — `TreeEventListener` seam (allocation-free when absent, benchmark-asserted) +
+   `TreeExport.toJson`; demo JSON checked into `docs/` as the visualizer contract. _(Done
+   2026-06-09 — see CHANGELOG-2026-06-09-adr009-p3-events-export.md and
+   docs/visualizer-contract.json.)_
 4. [x] **G0** — GitHub Actions workflow running `ant clean test` on JDK 17 (CI without the
    migration). _(Done 2026-06-09 — `.github/workflows/ci.yml`, JDK 17+21 matrix, report
    artifacts.)_

@@ -2,6 +2,8 @@ package core.ensemble;
 
 import core.OrderedSet;
 import core.PersistentRankedSet;
+import core.event.TreeEvent;
+import core.event.TreeEventListener;
 import core.interfaces.OrderedCollection;
 import core.interfaces.RankedSet;
 import core.strategy.TreeStrategy;
@@ -79,6 +81,20 @@ public final class EnsembleOrderedSet<K> implements OrderedCollection<K>, AutoCl
     private volatile boolean overCeiling;     // latched breach flag; reset when back under
     private volatile EnsembleMember<K> primary;
     private volatile EnsembleMode mode = EnsembleMode.MIRROR;
+
+    // -- structured events (ADR-009 P3); null = unobserved, the allocation-free default --
+    private volatile TreeEventListener<K> events;
+
+    /**
+     * Register a structured-event listener (ADR-009 P3); {@code null} unregisters. Ensemble
+     * events mirror the {@code event=...} log lines: quarantine/heal/retire, promotion (with
+     * a failover flag), Option C shadow rebuilds, and memory-ceiling transitions. Controller-
+     * driven repairs flow through the same lifecycle methods, so they emit automatically.
+     * See {@link TreeEventListener} for the fast/non-reentrant contract.
+     */
+    public void setEventListener(TreeEventListener<K> listener) { this.events = listener; }
+
+    private void emit(TreeEvent<K> e) { events.onEvent(e); }   // call only after a null check
 
     private EnsembleOrderedSet(List<EnsembleMember<K>> members, Comparator<? super K> keyOrder,
                                MemberExecutor executor, int sampleEvery, int rebuildEvery,
@@ -369,6 +385,10 @@ public final class EnsembleOrderedSet<K> implements OrderedCollection<K>, AutoCl
                             op + " failed on the primary and no exact member can fail over; write did not commit", cause);
                 }
                 this.primary = replacement;                               // volatile publish under the lock
+                if (events != null) {
+                    emit(new TreeEvent.Promote<>(servingPrimary.strategyName(),
+                            replacement.strategyName(), true));
+                }
             }
             StringBuilder q = new StringBuilder("[");
             for (int i = 0; i < recipients.size(); i++) {
@@ -376,6 +396,7 @@ public final class EnsembleOrderedSet<K> implements OrderedCollection<K>, AutoCl
                 EnsembleMember<K> failed = recipients.get(i);
                 if (failed.state() != EnsembleMember.State.RETIRED) {
                     failed.setState(EnsembleMember.State.QUARANTINED);    // half-applied write -> heal later (E3)
+                    if (events != null) emit(new TreeEvent.Quarantine<>(failed.strategyName()));
                 }
                 if (q.length() > 1) q.append(", ");
                 q.append(failed.strategyName());
@@ -411,6 +432,7 @@ public final class EnsembleOrderedSet<K> implements OrderedCollection<K>, AutoCl
             rebuilt++;
         }
         logger.info("event=shadow_rebuild op={} n={} rebuilt={}", writeOps, truth.size(), rebuilt);
+        if (events != null) emit(new TreeEvent.ShadowRebuild<>(rebuilt, truth.size()));
     }
 
     // ── Memory ceiling (ADR-003 "Revisit") ────────────────────────────────────────
@@ -429,11 +451,17 @@ public final class EnsembleOrderedSet<K> implements OrderedCollection<K>, AutoCl
                 logger.warn("event=memory_ceiling state=BREACHED estimateBytes={} ceilingBytes={} members={} "
                         + "hint=\"switch to SAMPLED_SHADOW/REBUILD_SHADOW or reduce K\"",
                         estimate, memoryCeilingBytes, members.size());
+                if (events != null) {
+                    emit(new TreeEvent.MemoryCeiling<>(true, estimate, memoryCeilingBytes));
+                }
             }
         } else if (overCeiling) {
             overCeiling = false;
             logger.info("event=memory_ceiling state=RECOVERED estimateBytes={} ceilingBytes={}",
                     estimate, memoryCeilingBytes);
+            if (events != null) {
+                emit(new TreeEvent.MemoryCeiling<>(false, estimate, memoryCeilingBytes));
+            }
         }
     }
 
@@ -618,6 +646,9 @@ public final class EnsembleOrderedSet<K> implements OrderedCollection<K>, AutoCl
             }
             EnsembleMember<K> deposed = primary;
             this.primary = member;   // volatile publish — readers observe the swap atomically
+            if (events != null) {
+                emit(new TreeEvent.Promote<>(deposed.strategyName(), member.strategyName(), false));
+            }
             if (mode == EnsembleMode.READ_REPLICA) {
                 // Epoch-aware promotion (ADR-004 R2): readers may still be inside the deposed
                 // member's epoch. Drain before returning so any later mutation of it is safe.
@@ -704,6 +735,7 @@ public final class EnsembleOrderedSet<K> implements OrderedCollection<K>, AutoCl
             }
             if (member.state() == EnsembleMember.State.RETIRED) return false;
             member.setState(EnsembleMember.State.QUARANTINED);
+            if (events != null) emit(new TreeEvent.Quarantine<>(member.strategyName()));
             return true;
         }
     }
@@ -735,6 +767,7 @@ public final class EnsembleOrderedSet<K> implements OrderedCollection<K>, AutoCl
             for (K k : truth) set.add(k);
             member.setState(EnsembleMember.State.ACTIVE);
             member.setExact(true);                     // a full rebuild is an exact mirror (until sampled again)
+            if (events != null) emit(new TreeEvent.Heal<>(member.strategyName(), true));
             return true;
         }
     }
@@ -756,6 +789,7 @@ public final class EnsembleOrderedSet<K> implements OrderedCollection<K>, AutoCl
                 throw new IllegalStateException("cannot retire the serving primary; fail over first");
             }
             member.setState(EnsembleMember.State.RETIRED);
+            if (events != null) emit(new TreeEvent.Retire<>(member.strategyName()));
             return true;
         }
     }
@@ -885,7 +919,12 @@ public final class EnsembleOrderedSet<K> implements OrderedCollection<K>, AutoCl
             if (primaryDissents) {
                 for (int i = 0; i < voters.size(); i++) {
                     if (Objects.equals(answers.get(i), winner) && voters.get(i) != primary) {
+                        EnsembleMember<K> deposed = primary;
                         this.primary = voters.get(i);   // failover: volatile publish under the lock
+                        if (events != null) {
+                            emit(new TreeEvent.Promote<>(deposed.strategyName(),
+                                    voters.get(i).strategyName(), true));
+                        }
                         break;
                     }
                 }
@@ -893,7 +932,10 @@ public final class EnsembleOrderedSet<K> implements OrderedCollection<K>, AutoCl
             StringBuilder q = new StringBuilder("[");
             for (EnsembleMember<K> d : dissenters) {
                 if (d == primary) continue;             // never quarantine the (new) serving primary
-                if (d.state() != EnsembleMember.State.RETIRED) d.setState(EnsembleMember.State.QUARANTINED);
+                if (d.state() != EnsembleMember.State.RETIRED) {
+                    d.setState(EnsembleMember.State.QUARANTINED);
+                    if (events != null) emit(new TreeEvent.Quarantine<>(d.strategyName()));
+                }
                 if (q.length() > 1) q.append(", ");
                 q.append(d.strategyName());
             }

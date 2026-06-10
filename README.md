@@ -415,9 +415,10 @@ paged tree mutates in place with no read guard and ensemble votes read members l
 - [`docs/DESIGN-adaptive-engine.md`](docs/DESIGN-adaptive-engine.md) — the target
   architecture: two-plane design, control loop, and acceptance goals (G1–G9).
 - [`docs/ADR-009-roadmap-reconciliation-2026-06-09.md`](docs/ADR-009-roadmap-reconciliation-2026-06-09.md)
-  — **Proposed, in flight**: an external review's gap list audited against the code —
-  what was stale, what was real (O(1) `size()`, the `NavigableSet` adapter, CI — all
-  landed), and what is held with explicit triggers (events/export, Gradle/JMH, jqwik).
+  — **Accepted**: an external review's gap list audited against the code — what was stale,
+  what was real (O(1) `size()`, the `NavigableSet` adapter, structured events + the
+  `docs/visualizer-contract.json` export, CI — all landed), and what is held with explicit
+  triggers (Gradle/JMH, jqwik).
 - [`docs/ADR-008-bplus-tree-engine-2026-06-09.md`](docs/ADR-008-bplus-tree-engine-2026-06-09.md)
   — **Accepted**: the Phase-4 large-n engine — a page-structured B+tree, structure
   before disk (D1 landed; paged file backing and registry/genome integration held).

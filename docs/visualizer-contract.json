@@ -1,0 +1,36 @@
+{
+  "type": "OrderedSet",
+  "strategy": "RedBlackStrategy",
+  "size": 7,
+  "height": 3,
+  "meters": { "avgInsertMs": 0.013331, "avgDeleteMs": 0.0 },
+  "root": {
+    "key": "40", "color": "BLACK", "size": 7, "depth": 1,
+    "left": {
+      "key": "20", "color": "BLACK", "size": 3, "depth": 2,
+      "left": {
+        "key": "10", "color": "RED", "size": 1, "depth": 3,
+        "left": null,
+        "right": null
+      },
+      "right": {
+        "key": "30", "color": "RED", "size": 1, "depth": 3,
+        "left": null,
+        "right": null
+      }
+    },
+    "right": {
+      "key": "60", "color": "BLACK", "size": 3, "depth": 2,
+      "left": {
+        "key": "50", "color": "RED", "size": 1, "depth": 3,
+        "left": null,
+        "right": null
+      },
+      "right": {
+        "key": "70", "color": "RED", "size": 1, "depth": 3,
+        "left": null,
+        "right": null
+      }
+    }
+  }
+}

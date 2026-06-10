@@ -1,5 +1,7 @@
 package core;
 
+import core.event.TreeEvent;
+import core.event.TreeEventListener;
 import core.interfaces.AugmentedTree;
 import core.interfaces.OrderedCollection;
 import core.interfaces.RankedSet;
@@ -68,6 +70,20 @@ public class OrderedSet<K> implements SelfHealingTree, OrderedCollection<K>, Ran
 
     private final Object lock = new Object();
 
+    // -- structured events (ADR-009 P3); null = unobserved, the allocation-free default --
+    private volatile TreeEventListener<K> events;
+
+    /**
+     * Register a structured-event listener (ADR-009 P3); {@code null} unregisters. Events
+     * mirror the {@code event=...} log lines: effective inserts/removes, window evictions,
+     * morph attempts (with the health-gate verdict), and self-repairs. With no listener the
+     * write path allocates nothing for events. See {@link TreeEventListener} for the
+     * fast/non-reentrant contract.
+     */
+    public void setEventListener(TreeEventListener<K> listener) { this.events = listener; }
+
+    private void emit(TreeEvent<K> e) { events.onEvent(e); }   // call only after a null check
+
     // -- ADR-004 R1: torn-read-free concurrent reads --
 
     /** Rollback constant: {@code false} restores the pre-R1 unguarded read walk verbatim. */
@@ -115,6 +131,7 @@ public class OrderedSet<K> implements SelfHealingTree, OrderedCollection<K>, Ran
                 }
                 totalInsertTime += System.nanoTime() - start;
                 insertCount++;
+                if (events != null) emit(new TreeEvent.Insert<>(value));
                 while (maxSize > 0 && size > maxSize) {
                     if (!evictOldest()) break;
                 }
@@ -137,6 +154,7 @@ public class OrderedSet<K> implements SelfHealingTree, OrderedCollection<K>, Ran
                 liveOrder.remove(value);
                 totalDeleteTime += System.nanoTime() - start;
                 deleteCount++;
+                if (events != null) emit(new TreeEvent.Remove<>(value));
                 return true;
             } finally {
                 readGuard.unlockWrite(ws);
@@ -324,6 +342,7 @@ public class OrderedSet<K> implements SelfHealingTree, OrderedCollection<K>, Ran
         if (tree.contains(oldest)) {
             tree.remove(oldest);
             size--;
+            if (events != null) emit(new TreeEvent.Evict<>(oldest));
         }
         return true;
     }
@@ -388,8 +407,15 @@ public class OrderedSet<K> implements SelfHealingTree, OrderedCollection<K>, Ran
             for (K v : elements) candidate.add(v);
 
             List<String> failures = StrategyHealthCheck.validate(candidate, newStrategy, elements);
-            if (!failures.isEmpty()) return false;
+            if (!failures.isEmpty()) {
+                if (events != null) {
+                    emit(new TreeEvent.Morph<>(tree.getStrategy().getClass().getSimpleName(),
+                            newStrategy.getClass().getSimpleName(), false));
+                }
+                return false;
+            }
 
+            String fromStrategy = tree.getStrategy().getClass().getSimpleName();
             // Only the publish is stamped (ADR-004 R1): the candidate was built off to the
             // side, so concurrent readers keep reading the untouched incumbent until here.
             long ws = readGuard.writeLock();
@@ -402,6 +428,10 @@ public class OrderedSet<K> implements SelfHealingTree, OrderedCollection<K>, Ran
                 resyncLiveOrder();
             } finally {
                 readGuard.unlockWrite(ws);
+            }
+            if (events != null) {
+                emit(new TreeEvent.Morph<>(fromStrategy,
+                        newStrategy.getClass().getSimpleName(), true));
             }
             return true;
         }
@@ -439,7 +469,9 @@ public class OrderedSet<K> implements SelfHealingTree, OrderedCollection<K>, Ran
             } finally {
                 readGuard.unlockWrite(ws);
             }
-            return StrategyHealthCheck.validate(rebuilt, strategy, elements).isEmpty();
+            boolean healthy = StrategyHealthCheck.validate(rebuilt, strategy, elements).isEmpty();
+            if (events != null) emit(new TreeEvent.Repair<>(healthy));
+            return healthy;
         }
     }
 
