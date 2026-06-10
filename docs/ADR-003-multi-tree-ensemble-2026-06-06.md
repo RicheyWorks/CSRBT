@@ -138,7 +138,8 @@ the next rebuild.
 
 **Choice:** ship **Option A (synchronous mirror)** as the default and the headline capability
 (O(1) adaptation + redundancy), with **Option B (sampled shadows)** offered as a memory-lean
-mode behind the same facade. Option C is held as a future optimization.
+mode behind the same facade. Option C is held as a future optimization. _(Update 2026-06-09:
+Option C landed as `REBUILD_SHADOW` — see CHANGELOG-2026-06-09-adr005-p3-engine-member.md.)_
 
 ---
 
@@ -296,7 +297,9 @@ out-of-the-box overhead is 2×, buying O(1) adaptation and failover.
   probe-reads/VERIFIED are enabled.
 
 **Revisit:**
-- Memory ceilings — cap K and offer SAMPLED_SHADOW when constrained.
+- ~~Memory ceilings — cap K and offer SAMPLED_SHADOW when constrained.~~ _(Landed 2026-06-09:
+  `memoryCeilingBytes` latch + `maxMembers` cap; the ensemble observes and logs, the operator
+  degrades. See CHANGELOG-2026-06-09-adr005-p3-engine-member.md.)_
 - Whether VERIFIED's read amplification is acceptable for the target deployment.
 - The single external-writer lock as a throughput ceiling (future: lock-free multi-reader on the
   primary via the atomic swap already in place).

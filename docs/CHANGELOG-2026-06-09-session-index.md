@@ -39,4 +39,7 @@ its own changelog with the details.
 - **Deliberately open:** ADR-004 R3 (balanced persistent engine); ADR-003 Option C
   (periodic-rebuild shadows); memory ceilings / cap-K metrics (ADR-003 "Revisit");
   VERIFIED read-amplification tuning; DESIGN doc's Phase-4 disk engine.
+  _(Update, later same day: R3 cashed in as ADR-005 P1–P3; Option C landed as
+  `REBUILD_SHADOW`; memory ceilings / cap-K landed. Still open: VERIFIED read-amplification
+  tuning; Phase-4 disk engine. See the ADR-005 changelogs.)_
 - **Suite:** every slice shipped through host `ant clean test` green, per `CLAUDE.md`.

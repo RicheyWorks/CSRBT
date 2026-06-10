@@ -1,7 +1,8 @@
 # ADR-005: Balanced persistent engine — cashing in ADR-004's R3 horizon
 
 **Status:** Accepted (2026-06-09 — P1 + P2 landed, see
-CHANGELOG-2026-06-09-adr005-persistent-engine.md; P3 deliberately held)
+CHANGELOG-2026-06-09-adr005-persistent-engine.md; P3 landed same day, see
+CHANGELOG-2026-06-09-adr005-p3-engine-member.md)
 **Date:** 2026-06-09
 **Deciders:** Richmond
 **Builds on:** ADR-004 (R3 held as horizon: "balanced persistent engine ADR when demanded"),
@@ -205,7 +206,10 @@ demand appears; P3 when a persistent ensemble member is demanded.
    reads vs R1 optimistic vs R2 READ_REPLICA. _(Done 2026-06-09 —
    `PersistentEngineConcurrencyTest`; sandbox reference: ~3.1M persistent reads / 250ms vs
    ~0.38M R1 vs ~1.8M READ_REPLICA under identical churn.)_
-5. [ ] **P3** — (held) ensemble membership + snapshot persistence via `KeySerializer`.
+5. [x] **P3** — ensemble membership + snapshot persistence via `KeySerializer`. _(Done
+   2026-06-09 — the `RankedSet` seam + `PersistentRankedSet` adapter +
+   `Builder.persistentMember()`; flat-key `saveSnapshot`/`loadPersistent`; tests
+   `EnsembleEngineMemberTest`. See CHANGELOG-2026-06-09-adr005-p3-engine-member.md.)_
 
 ---
 
