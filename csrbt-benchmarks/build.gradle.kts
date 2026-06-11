@@ -24,4 +24,10 @@ val jmhVer = libs.versions.jmh.asProvider().get()
 
 jmh {
     jmhVersion = jmhVer
-    // Defa
+    // Defaults for the whole rig; individual benchmarks override via annotations.
+    fork = 1
+    warmupIterations = 3
+    iterations = 5
+    resultFormat = "JSON"
+    resultsFile = layout.buildDirectory.file("reports/jmh/results.json")
+}
