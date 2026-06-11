@@ -1,7 +1,8 @@
-# ADR-009 G0 — CI without the build-system migration: run the existing Ant build as-is.
-# The Gradle/JMH/coverage migration (G1) is held until publishing/external contributors;
-# this workflow is the honest interim. Matrix runs 17 (the compile target) and 21 (forward
-# compatibility); build.xml uses release="17" so both produce identical bytecode.
+# ADR-013 — G1 fired: CI runs the Gradle build (replaces the G0 Ant interim).
+# Gradle version is pinned explicitly so the workflow is green even before the
+# wrapper jar is committed (host-side `gradle wrapper`, action item 4); the
+# toolchain in each module pins compilation to 17 regardless of runner JDK.
+# Matrix keeps G0's shape: 17 (compile target) and 21 (forward compatibility).
 name: ci
 
 on:
@@ -19,27 +20,25 @@ jobs:
       fail-fast: false
       matrix:
         java: [17, 21]
-    name: ant clean test (JDK ${{ matrix.java }})
+    name: gradle build (JDK ${{ matrix.java }})
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-java@v4
         with:
           distribution: temurin
           java-version: ${{ matrix.java }}
-      - name: Install Ant
-        run: sudo apt-get update && sudo apt-get install -y ant
-      # The dependency jars are deliberately gitignored (build.xml: "supply locally").
-      # CI is a fresh checkout, so supply them here — same coordinates, Maven Central.
-      - name: Fetch test dependencies
-        run: |
-          curl -sfLO https://repo1.maven.org/maven2/org/junit/platform/junit-platform-console-standalone/1.9.2/junit-platform-console-standalone-1.9.2.jar
-          curl -sfLO https://repo1.maven.org/maven2/org/apache/logging/log4j/log4j-api/2.17.1/log4j-api-2.17.1.jar
-          curl -sfLO https://repo1.maven.org/maven2/org/apache/logging/log4j/log4j-core/2.17.1/log4j-core-2.17.1.jar
+      - uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: "9.5.1"
       - name: Build and test
-        run: ant clean test
-      - name: Upload test reports
+        run: gradle build
+      - name: Coverage report
+        run: gradle :csrbt-core:jacocoTestReport
+      - name: Upload reports
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: test-reports-jdk${{ matrix.java }}
-          path: build/test-reports/
+          name: reports-jdk${{ matrix.java }}
+          path: |
+            **/build/reports/tests/test
+            csrbt-core/build/reports/jacoco

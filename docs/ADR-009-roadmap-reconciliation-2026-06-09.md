@@ -128,9 +128,11 @@ tree export feeding a first animation. That ordering is deliberate.
 4. [x] **G0** — GitHub Actions workflow running `ant clean test` on JDK 17 (CI without the
    migration). _(Done 2026-06-09 — `.github/workflows/ci.yml`, JDK 17+21 matrix, report
    artifacts.)_
-5. [ ] **G1** — (held) Gradle multi-module + JMH + coverage/javadoc publishing. Trigger:
-   publishing/external contributors.
-6. [ ] **G2** — (held) jqwik property tests. Trigger: an oracle-missed invariant bug, or G1.
+5. [x] **G1** — (held) Gradle multi-module + JMH + coverage/javadoc publishing. Trigger:
+   publishing/external contributors. _(Trigger fired 2026-06-11 — the decision to ship as a
+   library. Converted by ADR-013; see CHANGELOG-2026-06-11-adr013-gradle-migration.md.)_
+6. [x] **G2** — (held) jqwik property tests. Trigger: an oracle-missed invariant bug, or G1.
+   _(Rode in with G1, as predicted — ADR-013 action item 6, `OrderedSetPropertyTest`.)_
 
 ---
 

@@ -58,7 +58,8 @@ ADR-012 are all Accepted** (ADR-011's verdict:
 [`docs/CHANGELOG-2026-06-10-adr011-v5-experiment.md`](docs/CHANGELOG-2026-06-10-adr011-v5-experiment.md);
 ADR-012's disposition:
 [`docs/CHANGELOG-2026-06-11-adr012-disposition.md`](docs/CHANGELOG-2026-06-11-adr012-disposition.md)).
-The suite is **533 tests**, green through `ant clean test`, run by CI on JDK 17 and 21.
+The suite is **583 tests** (JUnit 5 + jqwik properties), green through
+`./gradlew build`, run by CI on JDK 17 and 21 (ADR-013).
 
 ## Architecture
 
@@ -320,35 +321,42 @@ src/main/java/core/
   ├─ persistence/              FilePersistenceAdapter (text snapshots)
   └─ util/                     diagnostics, cloner, history, order statistics,
                                strategy health check
-src/main/java/experimental/cache/  the second policy space (ADR-012 E6): CacheGenome,
+csrbt-experimental/.../cache/  the second policy space (ADR-012 E6): CacheGenome,
                                SegmentedLruCache (viability oracle), CacheEvolutionLoop
-src/main/java/experimental/    opt-in theatrics (TreeAgent alien-seed/swarm,
+csrbt-experimental/            opt-in theatrics (TreeAgent alien-seed/swarm,
                                TreeEcology analytics) — depends on core, never
                                the reverse; core stays contract-bound
-src/test/java/test/core/       JUnit 5 suite (strategy invariants, regressions)
+csrbt-core/src/test/           JUnit 5 + jqwik suite (strategy invariants, regressions,
+                               property tests with shrinking)
+csrbt-benchmarks/              JMH rig (ADR-013): the four fixed strategies under
+                               shuffled insert / uniform lookup, JSON results
 docs/                          design, audits, ADRs, changelogs, code reviews
 demo/visualizer.html           single-file animated tree visualizer over the
                                TreeExport contract — open in any browser; loads any
                                exported JSON, animates between states (morphs!)
-build.xml                      Ant build (JUnit 5 console launcher)
-.github/workflows/ci.yml       CI: ant clean test on a JDK 17/21 matrix (ADR-009 G0)
+settings.gradle.kts            Gradle multi-module build (ADR-013)
+.github/workflows/ci.yml       CI: gradle build on a JDK 17/21 matrix (ADR-013)
 ```
+
+Paths above are rooted in `csrbt-core/src/main/java/` — the module split (ADR-013)
+encodes the dependency direction: `experimental → core`, `benchmarks → both`.
 
 ## Building and testing
 
-The build targets **JDK 17** and runs the test suite through the JUnit 5
-Platform Console Standalone jar. Place that jar in the project root (see the
-comment at the top of `build.xml` for the download URL), alongside the bundled
-`log4j-api` / `log4j-core` jars.
+The build is **Gradle 9.5** (ADR-013) with a **JDK 17 toolchain** — Gradle fetches
+a matching JDK if your default differs. Dependencies resolve from Maven Central;
+nothing is vendored.
 
 ```
-ant compile     # compile main + test sources (release 17)
-ant test        # compile, then run the full JUnit 5 suite
-ant clean       # remove the build/ directory
+./gradlew build                      # compile everything, run the full suite
+./gradlew :csrbt-core:test           # just the library suite
+./gradlew :csrbt-core:jacocoTestReport   # coverage (build/reports/jacoco)
+./gradlew :csrbt-core:javadoc        # API docs
+./gradlew :csrbt-benchmarks:jmh      # JMH benchmarks (JSON in build/reports/jmh)
 ```
 
-`ant test` fails the build if any test fails; reports are written to
-`build/test-reports`. The suite includes:
+`build` fails if any test fails; per-module reports land in
+`<module>/build/reports/tests/test`. The suite includes:
 
 - `StrategyInvariantTest` — per-strategy invariants (RB validity, strict AVL
   balance, splay-to-root, Hybrid balance) checked against a `TreeSet` oracle,
@@ -405,7 +413,7 @@ ant clean       # remove the build/ directory
   class plus view composition and the read-only clause.
 
 Run the full suite after any change to the engine or strategies. CI runs the same
-`ant clean test` on a JDK 17/21 matrix (`.github/workflows/ci.yml`).
+`gradle build` on a JDK 17/21 matrix (`.github/workflows/ci.yml`).
 
 ## Concurrency
 

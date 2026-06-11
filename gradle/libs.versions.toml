@@ -1,0 +1,21 @@
+# ADR-013: single file to audit every dependency. Versions verified current 2026-06-11.
+# JUnit stays on 5.x deliberately: jqwik 1.9.3 targets Platform 1.x / Jupiter 5.x.
+# JUnit 6.x migration is held (trigger: jqwik supports Platform 6) — see ADR-013 §3.
+
+[versions]
+junit = "5.14.4"
+log4j = "2.26.0"
+jqwik = "1.9.3"
+jmh = "1.37"
+jmh-plugin = "0.7.3"
+
+[libraries]
+junit-bom = { module = "org.junit:junit-bom", version.ref = "junit" }
+junit-jupiter = { module = "org.junit.jupiter:junit-jupiter" }
+junit-platform-launcher = { module = "org.junit.platform:junit-platform-launcher" }
+log4j-api = { module = "org.apache.logging.log4j:log4j-api", version.ref = "log4j" }
+log4j-core = { module = "org.apache.logging.log4j:log4j-core", version.ref = "log4j" }
+jqwik = { module = "net.jqwik:jqwik", version.ref = "jqwik" }
+
+[plugins]
+jmh = { id = "me.champeau.jmh", version.ref = "jmh-plugin" }

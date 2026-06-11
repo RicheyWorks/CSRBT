@@ -1,10 +1,14 @@
 # Build
 bin/
 build/
+.gradle/
+.jqwik-database
 *.class
 
-# Dependency jars (supply locally; see build.xml lib.dir)
+# Stray jars (dependencies come from Maven Central via Gradle — ADR-013).
+# The wrapper jar is the one jar that MUST be committed.
 *.jar
+!gradle/wrapper/gradle-wrapper.jar
 
 # IDE / editors
 .idea/

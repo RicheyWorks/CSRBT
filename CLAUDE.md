@@ -1,10 +1,14 @@
 # CSRBT — working notes for agents
 
 ## Build & test
-- Build + run the full suite: `ant clean test` (the default target is `test`).
-- The suite is JUnit 5 (Jupiter) via the console-standalone jar; reports land in `build/test-reports/`.
-- Java 17 is required to **compile** (`build.xml` uses `release="17"`). A JRE-only environment can run the
-  produced classes but cannot compile — do compilation/test on a host with a JDK 17.
+- Gradle multi-module build (ADR-013): `./gradlew build` runs everything. Modules: `csrbt-core`
+  (the library, publishable), `csrbt-experimental` (arena/ecology/cache-evo; depends on core),
+  `csrbt-benchmarks` (JMH; `./gradlew :csrbt-benchmarks:jmh`).
+- The suite is JUnit 5 + jqwik; per-module reports land in `<module>/build/reports/tests/test/`.
+- Compilation is `options.release = 17` on whatever JDK runs Gradle (no toolchain pin).
+  **Gradle 9 itself needs JVM 17+ to run**, so a JRE-11 sandbox can neither build nor test —
+  do compilation/test on a host with JDK 17+.
+- Dependencies are in `gradle/libs.versions.toml` — one file to audit; nothing is vendored.
 
 ## Git is host-side
 Agent sandboxes mount the repo but **cannot write `.git`** (commits, staging, `checkout` all fail from the
@@ -22,7 +26,9 @@ del .git\index.lock                                                # cmd
 Prefer **PowerShell** on Windows for these commands.
 
 ## Logging in tests
-Root logger is WARN (`src/main/resources/log4j2.xml`); the engine and control plane log per-op at INFO/WARN.
+Root logger is WARN (`csrbt-core/src/test/resources/log4j2.xml`; the experimental module carries its own
+copy — the published jar deliberately ships no logging config); the engine and control plane log per-op at
+INFO/WARN.
 Tests that need to read a specific INFO line should raise the level with
 `org.apache.logging.log4j.core.config.Configurator.setLevel(name, Level.INFO)` (it forces a context
 reconfigure) rather than `core.Logger.setLevel`, which does not refresh an already-exercised logger. Capturing
