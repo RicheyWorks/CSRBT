@@ -183,6 +183,36 @@ hard-asserted in the ADR-007 functional tests. If CI reds again after this, it i
 NOT this benchmark: pull the `test-reports-*` artifact from the run page for the
 failing test name before touching anything.
 
+---
+
+## 2026-06-11 FINAL STATE — read this first
+
+**Everything is resolved. ADR-001 through ADR-012 all Accepted.** Suite **533 green**
+through `ant clean test` (JDK 17 compile target; CI matrix 17+21). Repo is public on
+GitHub (`RicheyWorks/CSRBT`), all work pushed.
+
+The day in one line: *the machine found its own miscalibration (E3b), fixed exactly
+that (scorer calibration + fresh-eyes audit), proved its remaining "failure" was
+correct economics (E3c: the oracle gap is a free-switching fiction), closed its own
+research program honestly (ADR-012 disposition: E4/E5 parked with re-arming
+triggers), transferred the whole discipline to a second domain where the textbook
+answer won again (E6, cache eviction), and then its CI taught it the V5 rule one
+last time (the ADR-007 benchmark, the suite's last weather-exposed hard assert, now
+a soft row).*
+
+**Nothing is queued.** Held items with named triggers, none fired: ADR-009 G1
+Gradle/JMH (trigger: Maven Central / first external contributor — the GitHub push
+moved this closer; the ADR-007 benchmark softening leans on it), ADR-008 D2 disk
+pages, E4/E5 re-arming triggers (ADR-012 §8), generic evolution-loop extraction
+(trigger: a third policy space), rotation counters (ADR-009 §3).
+
+**CI note:** if a run reds, get the failing test NAME first — `test-reports-*`
+artifact on the run page (logs/artifacts are admin-only via API; the sandbox cannot
+fetch them). Local green ≠ runner green: the runners run saturated, and wall-clock
+asserts flip there (reproduced locally under 6-way CPU load, 2026-06-11).
+
+---
+
 **If the user says "next" after this:** ADR-012 is now fully resolved (E1–E3c done,
 E4/E5 parked with triggers, E6 done). The open surface is exactly: **held
 infrastructure** (ADR-009 G1 Gradle/JMH, ADR-008 D2 disk pages — triggers unfired),

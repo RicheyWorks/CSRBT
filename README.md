@@ -38,10 +38,24 @@ in the arena — and the story ends in a falsifiable experiment, answered honest
 3 seeds, deterministic comparisons/op). The search converged to the literature's WB(3,·),
 unsound points like (5,3) self-disqualified on the record, and the adaptive claim stays
 where it belongs — with the controller that picks the right specialist per workload.
+**ADR-012, the ecology turn, is also complete** — the non-stationary axis, asked and
+answered with instruments before mechanisms (viability map, diversity collapse,
+regime-shift races, a pre-registered discriminating schedule, the real price of
+switching) and closed with a disposition: the calibrated selector *ties* the best
+fixed choice without hindsight, and chasing regime blocks is provably uneconomical at
+realistic granularity. The same evolve-under-viability pattern then transferred to a
+second policy space (cache eviction, `experimental.cache`), where the gate killed the
+lethal genome on the record and evolution once again converged to the textbook answer.
+The full story is in [the evolution machine section](#the-evolution-machine-the-story-told-honestly)
+below.
+
 The target architecture is specified in
 [`docs/DESIGN-adaptive-engine.md`](docs/DESIGN-adaptive-engine.md); **ADR-001 through
-ADR-011 are all Accepted** (ADR-011's verdict:
-[`docs/CHANGELOG-2026-06-10-adr011-v5-experiment.md`](docs/CHANGELOG-2026-06-10-adr011-v5-experiment.md)).
+ADR-012 are all Accepted** (ADR-011's verdict:
+[`docs/CHANGELOG-2026-06-10-adr011-v5-experiment.md`](docs/CHANGELOG-2026-06-10-adr011-v5-experiment.md);
+ADR-012's disposition:
+[`docs/CHANGELOG-2026-06-11-adr012-disposition.md`](docs/CHANGELOG-2026-06-11-adr012-disposition.md)).
+The suite is **533 tests**, green through `ant clean test`, run by CI on JDK 17 and 21.
 
 ## Architecture
 
@@ -303,6 +317,8 @@ src/main/java/core/
   ├─ persistence/              FilePersistenceAdapter (text snapshots)
   └─ util/                     diagnostics, cloner, history, order statistics,
                                strategy health check
+src/main/java/experimental/cache/  the second policy space (ADR-012 E6): CacheGenome,
+                               SegmentedLruCache (viability oracle), CacheEvolutionLoop
 src/main/java/experimental/    opt-in theatrics (TreeAgent alien-seed/swarm,
                                TreeEcology analytics) — depends on core, never
                                the reverse; core stays contract-bound
