@@ -494,12 +494,24 @@ too-strict mutant follows it, and WB(3,2) takes the throne through the morph gat
 splay primary. Nothing in the file is staged — every frame is the real controller's own
 decision on a seeded stream, snapshotted the moment it committed.
 
-**Where it points next** is [ADR-012, the ecology turn](docs/ADR-012-ecology-turn-2026-06-10.md)
-(Proposed): V5 closed the *stationary* axis, but it never tested adaptation under a
-*changing* workload — the axis where population diversity stops being decoration and
-becomes a measurable performance property. Instruments before mechanisms: map the
-viability boundary the health gate already enforces, measure the diversity collapse, then
-run the regime-shift experiment that justifies the turn.
+**Where it pointed next** was [ADR-012, the ecology turn](docs/ADR-012-ecology-turn-2026-06-10.md):
+V5 closed the *stationary* axis but never tested adaptation under a *changing* workload.
+E1–E3 ran the same day, instruments before mechanisms, and every honest answer landed
+harder than its thesis. The [viability map](docs/viability-map.json) (drop it on the
+visualizer): the viable (Δ, Γ) region is a **sliver** — 2 cells of 46, (3,2) and (4,2),
+the literature's narrowness result reproduced by the gate built to catch it, which
+retroactively explains V5's convergence ([E1](docs/CHANGELOG-2026-06-10-adr012-e1-viability-map.md)).
+The collapse, measured: **the viability filter, not selection, collapses diversity** —
+one lineage from generation 1, every seed; the mutation walk to the sliver takes 6–7
+generations ([E2](docs/CHANGELOG-2026-06-10-adr012-e2-diversity.md)). And the
+regime-shift experiment, with exploration priced at the comparator seam: **no adaptive
+scheme of any architecture — evolution, elite, or the ADR-002 selector — beats the best
+fixed strategy**; live evolution pays O(n) candidate rebuilds per generation while
+serving costs log n, and the selector's per-morph bill still runs ~1.5× hindsight-best
+AVL ([E3](docs/CHANGELOG-2026-06-10-adr012-e3-nonstationary.md)). Three instruments,
+three negative results, all reproducible, all replayable — the machine keeps earning
+its keep by saying no with receipts. E4–E6 stay staged in the ADR, each with a now
+*measured* bar to clear.
 
 ## Design history
 

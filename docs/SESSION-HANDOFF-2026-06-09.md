@@ -103,6 +103,15 @@ axis it just repeats V5.
 A fresh-eyes audit of the five V-slices (they landed in one day) is always a legitimate
 alternative to starting E1.
 
+**2026-06-10, second session, end state:** E1–E3 + selector addendum done (all negative,
+all instrumented — see the changelogs), consolidation audit done
+(`CHANGELOG-2026-06-10-ecology-audit.md`; one fix: RedBlackTree absent-remove WARN →
+debug), README story updated with the turn's results, suite **527 green**. Open paths,
+none unblocked by default: E4 (bar now measured: cut lag without adding rebuilds — and
+there is almost no lag to cut), a *pre-registered* non-AVL-dominated schedule for a
+sharper E3 discriminator (declare before running), E5/E6 per their ADR triggers, or ship
+the story externally. Don't invent work; the frontier is honestly mapped.
+
 ## If the user says "next" (post-ADR-011)
 
 ADR-011 was the roadmap's last open frontier. There is no unblocked code work queued —

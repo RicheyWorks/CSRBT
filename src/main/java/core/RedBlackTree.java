@@ -50,7 +50,9 @@ public class RedBlackTree<K> implements TreeEngine<K>, MutableTree<K> {
         logger.info("Removing value={}", value);
         TreeNode1<K> node = strategy.search(this, value);
         if (node.isNil()) {
-            logger.warn("Remove failed — value={} not found", value);
+            // A remove of an absent key is a routine no-op, not a fault. At WARN this
+            // line flooded ~43k entries per E1 viability sweep (2026-06-10 audit).
+            logger.debug("Remove no-op — value={} not found", value);
             return;
         }
         strategy.delete(this, node);
