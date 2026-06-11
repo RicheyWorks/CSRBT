@@ -64,10 +64,12 @@ viability map + diversity metrics are pure observation; E3 is the experiment tha
    honest no → the replayable search session → the ADR-012 pointer), plus README intro
    now points at `arena-search-session.json` and the Design history list gained
    ADR-010/011/012. Link-checked. **Item 1 is closed.**
-2. **ADR-012 E1 — the viability map.** Sweep (Δ, Γ) (+ unboxed behind the flag), record the
-   health-gate/invariant rejection spectrum → an artifact the arena renders as a heatmap.
-   Pure instrument; thesis: the viable region has structure (V1's (5,3) is the first
-   counterexample — map the whole boundary). Mutational robustness, for free.
+2. **ADR-012 E1 — the viability map. Done (2026-06-10, suite 525 green).**
+   `experimental.ViabilityMap` + `docs/viability-map.json` + visualizer heatmap +
+   `ViabilityMapTest`. **Finding: the viable region is a sliver — (3,2) and (4,2), 2 of
+   46 cells**; Γ=1 dies everywhere, Γ≥3 dies everywhere in-box (mostly by op 300), all
+   unboxed samples dead. Retroactively explains V5's convergence: there was almost
+   nowhere else viable to go. See `CHANGELOG-2026-06-10-adr012-e1-viability-map.md`.
 3. **ADR-012 E2 — diversity as a first-class output.** Population-diversity metrics in the
    recorder; quantify the stationary (μ+λ) collapse rate (V5's convergence, measured not
    just observed).

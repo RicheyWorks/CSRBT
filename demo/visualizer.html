@@ -72,7 +72,8 @@
   <code>TreeSessionRecorder</code> and drop them here for replay
   (try <code>docs/arena-session.json</code>: the real controller morphing RB → Splay → RB, or
   <code>docs/arena-search-session.json</code>: the ADR-011 evolution machine — genomes born,
-  gate-killed, culled, and one promoted).
+  gate-killed, culled, and one promoted; or <code>docs/viability-map.json</code>: the
+  ADR-012 E1 lethality heatmap over the (Δ, Γ) plane).
   Nodes are matched by key across frames, so every transition animates.
 </footer>
 
@@ -114,6 +115,66 @@ function loadState(name, btn) {
   applyState(STATES[name]);
   for (const b of document.querySelectorAll("header button")) b.classList.remove("active");
   if (btn) btn.classList.add("active");
+}
+
+// ── Viability heatmap (ADR-012 E1): ViabilityMap artifacts — the (Δ, Γ) plane ──────
+let heatmap = null;
+
+function enterHeatmap(m) {
+  exitReplay();
+  nodes.clear();
+  edges = [];
+  heatmap = m;
+  for (const b of document.querySelectorAll("header button")) b.classList.remove("active");
+  const viable = m.cells.filter(c => c.firstViolationOp.every(o => o < 0)).length;
+  meta.innerHTML = `<b>viability map</b> &nbsp; ${m.cells.length} cells &nbsp; ` +
+                   `<b>${viable}</b> viable &nbsp; ${m.cells.length - viable} unsound &nbsp; ` +
+                   `(${m.ops} ops × ${m.seeds.length} seeds, invariant every ${m.checkEvery})`;
+  draw();
+}
+
+function drawHeatmap() {
+  const W = cv.clientWidth, H = cv.clientHeight;
+  const deltas = [...new Set(heatmap.cells.map(c => c.delta))].sort((a, b) => a - b);
+  const maxG = Math.max(...heatmap.cells.map(c => c.ratio));
+  const padL = 64, padR = 24, padT = 48, padB = 56;
+  const cw = (W - padL - padR) / deltas.length, ch = (H - padT - padB) / maxG;
+  const col = new Map(deltas.map((d, i) => [d, i]));
+
+  ctx.font = "12px system-ui, sans-serif";
+  ctx.textAlign = "center";
+  ctx.textBaseline = "middle";
+  for (const c of heatmap.cells) {
+    const x = padL + col.get(c.delta) * cw;
+    const y = padT + (maxG - c.ratio) * ch;          // Γ grows upward
+    const deaths = c.firstViolationOp.filter(o => o >= 0);
+    if (deaths.length === 0) {
+      ctx.fillStyle = "#3f8f5f";                     // viable: green
+    } else {
+      // Earlier death = deeper red. 100 ops → full red; clean-until-late fades toward panel.
+      const t = Math.max(0, Math.min(1, 1 - (Math.min(...deaths) - 100) / 2000));
+      ctx.fillStyle = `rgb(${Math.round(120 + 95 * t)}, ${Math.round(70 - 25 * t)}, ${Math.round(75 - 25 * t)})`;
+    }
+    ctx.fillRect(x + 1, y + 1, cw - 2, ch - 2);
+    ctx.strokeStyle = c.inBox ? "#5b9bd5" : "#353b4d"; // box boundary is the search's, drawn
+    ctx.strokeRect(x + 1, y + 1, cw - 2, ch - 2);
+    if (cw > 34 && ch > 16) {
+      ctx.fillStyle = "#e8e6e3";
+      ctx.fillText(deaths.length === 0 ? "OK" : "" + Math.min(...deaths), x + cw / 2, y + ch / 2);
+    }
+  }
+  ctx.fillStyle = "#8a8f9e";
+  for (const d of deltas) {
+    ctx.fillText("Δ=" + d, padL + col.get(d) * cw + cw / 2, H - padB / 2);
+  }
+  for (let g = 1; g <= maxG; g++) {
+    if (maxG > 12 && g % 2 === 0 && g !== maxG) continue;
+    ctx.textAlign = "right";
+    ctx.fillText("Γ=" + g, padL - 8, padT + (maxG - g) * ch + ch / 2);
+    ctx.textAlign = "center";
+  }
+  ctx.fillText("first invariant violation (op) — green = clean for " + heatmap.ops
+             + " ops on every seed; blue border = the search box", W / 2, padT / 2);
 }
 
 // ── Session replay (ADR-010 X2): TreeSessionRecorder files — decisions + snapshots ──
@@ -223,6 +284,7 @@ function stopPlay() {
 }
 
 function applyState(state) {
+  heatmap = null;
   const flat = flatten(state);
   const maxDepth = Math.max(1, state.height || Math.max(...flat.map(n => n.depth)));
   const n = Math.max(1, flat.length);
@@ -288,6 +350,8 @@ function draw() {
   ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
   ctx.clearRect(0, 0, cv.clientWidth, cv.clientHeight);
 
+  if (heatmap) { drawHeatmap(); return; }
+
   ctx.lineWidth = 1.5;
   for (const ed of edges) {
     const a = nodes.get(ed.from), b = nodes.get(ed.to);
@@ -324,6 +388,10 @@ function loadFile(file) {
   file.text().then(text => {
     try {
       const obj = JSON.parse(text);
+      if (obj && obj.type === "ViabilityMap" && Array.isArray(obj.cells)) {  // ADR-012 E1
+        enterHeatmap(obj);
+        return;
+      }
       if (obj && obj.version === 1 && Array.isArray(obj.events)) {   // a recorded session
         enterReplay(obj);
         return;

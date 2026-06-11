@@ -182,8 +182,11 @@ turns on it.
 
 ## 6. Action items
 
-1. [ ] **E1** — viability-map sweep over the (Δ, Γ) plane (+ unboxed behind the flag);
-   rejection-spectrum artifact + arena heatmap. Instrument only.
+1. [x] **E1** — viability-map sweep over the (Δ, Γ) plane (+ unboxed behind the flag);
+   rejection-spectrum artifact + arena heatmap. Instrument only. **Done 2026-06-10** —
+   `experimental.ViabilityMap`, `docs/viability-map.json`, visualizer heatmap,
+   `ViabilityMapTest`; finding: the viable region is a *sliver* — 2 cells of 46
+   ((3,2) and (4,2)); see `CHANGELOG-2026-06-10-adr012-e1-viability-map.md`.
 2. [ ] **E2** — population-diversity metrics in the recorder; measure the stationary
    (μ+λ) collapse rate K.
 3. [ ] **E3** — non-stationary workload harness; fixed vs elite-only vs full-population on
