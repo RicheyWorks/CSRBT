@@ -131,7 +131,7 @@ public class GenomeDrivenTreeController {
     // ── Constructor ───────────────────────────────────────────────────────────
 
     public GenomeDrivenTreeController(TreeContext context, TreeGenome genome) {
-        this(context, genome, core.control.MorphPolicy.defaults());
+        this(context, genome, io.github.richeyworks.csrbt.control.MorphPolicy.defaults());
     }
 
     /**
@@ -143,7 +143,7 @@ public class GenomeDrivenTreeController {
      * Production uses the two-arg constructor, which passes {@link io.github.richeyworks.csrbt.control.MorphPolicy#defaults()}.
      */
     public GenomeDrivenTreeController(TreeContext context, TreeGenome genome,
-                                      core.control.MorphPolicy controlPolicy) {
+                                      io.github.richeyworks.csrbt.control.MorphPolicy controlPolicy) {
         if (context == null)       throw new IllegalArgumentException("context cannot be null");
         if (genome  == null)       throw new IllegalArgumentException("genome cannot be null");
         if (controlPolicy == null) throw new IllegalArgumentException("controlPolicy cannot be null");

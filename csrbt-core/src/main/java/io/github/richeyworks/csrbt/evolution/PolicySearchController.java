@@ -244,7 +244,7 @@ public final class PolicySearchController<K> {
     private PolicyGenome armOf(TreeStrategy<K> strategy) {
         for (PolicyGenome g : bandit.arms()) {
             if (g.toStrategy().getClass() == strategy.getClass()) {
-                if (!(strategy instanceof core.strategy.WeightBalancedStrategy<K> ws)) return g;
+                if (!(strategy instanceof io.github.richeyworks.csrbt.strategy.WeightBalancedStrategy<K> ws)) return g;
                 if (g.family().parameterized()
                         && g.delta() == ws.delta() && g.ratio() == ws.ratio()) return g;
             }

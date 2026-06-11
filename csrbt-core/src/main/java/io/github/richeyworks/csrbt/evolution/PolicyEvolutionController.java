@@ -213,7 +213,7 @@ public final class PolicyEvolutionController<K> {
             }
             EnsembleMember<K> body = nursery.get(slot);
             OrderedSet<K> set = body.orderedSet();
-            core.strategy.TreeStrategy<K> candidate = g.toStrategy();
+            io.github.richeyworks.csrbt.strategy.TreeStrategy<K> candidate = g.toStrategy();
             boolean accepted = candidate.samePolicyAs(set.getStrategy())
                     || set.setStrategy(candidate);         // the health gate (V1 hook included)
             if (accepted) {
