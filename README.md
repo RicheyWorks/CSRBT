@@ -529,8 +529,14 @@ above are superseded, but both verdicts remain no: the registered bar is a ≥10
 over best fixed, and tying isn't winning. The claim, precisely sized: *the calibrated
 selector matches the best fixed choice without knowing it in advance; it does not yet
 beat it.* The residual ~13% oracle gap lives in the sequential blocks (the oracle
-rides Splay at 13.7 cmp/op where AVL pays 20.3) and is named and held — a
-recency-aware locality feature, only if that gap ever needs claiming.
+rides Splay at 13.7 cmp/op where AVL pays 20.3) — and the follow-up experiment
+([E3c](docs/CHANGELOG-2026-06-11-adr012-e3c-switching-cost.md)) showed that gap is a
+**free-switching fiction**: clairvoyant switchers handed the winners table outright,
+paying real costs (O(n) morph rebuilds, or a MIRROR ensemble's O(1) promote with its
+standing fan-out), lose **~50% to plain fixed AVL on every seed** — the cheapest real
+way to switch costs more than three times the entire prize. The held recency-feature
+upgrade is retired with receipts: perfect perception still loses, so better perception
+cannot help. The selector's refusal to chase blocks was correct economics all along.
 
 ## Design history
 

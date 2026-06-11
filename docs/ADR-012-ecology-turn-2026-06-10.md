@@ -215,7 +215,14 @@ turns on it.
    ~3.5% E3b) while paying its own rebuilds. Both verdicts stand (tying ≠ the ≥10%
    win). Residual ~13% oracle gap (sequential blocks) named and held: recency-aware
    locality feature, only if that gap needs claiming. See
-   `CHANGELOG-2026-06-10-scorer-calibration.md`.
+   `CHANGELOG-2026-06-10-scorer-calibration.md`. **E3c (2026-06-11,
+   `SwitchingCostExperimentTest`): the gap is unclaimable — claimable=false 0/3
+   seeds, ~−50% each.** Two clairvoyant switchers (real O(n) morph rebuilds; MIRROR
+   ensemble O(1) promote with standing fan-out) were handed the winners table and
+   still lost half again over best fixed: the switching bill (~8.6 cmp/op cheapest)
+   exceeds the free-oracle prize (~2.4 cmp/op) more than threefold. The recency
+   feature is retired; the selector's hold on AVL was correct economics. See
+   `CHANGELOG-2026-06-11-adr012-e3c-switching-cost.md`.
 4. [ ] **E4** — diversity-preserving selection + elite archive; does it cut E3's lag
    without a steady-state cost regression beyond a documented bound?
 5. [ ] **E5** — widen the genome (splay-p, hybrid-mix); do stable species emerge under

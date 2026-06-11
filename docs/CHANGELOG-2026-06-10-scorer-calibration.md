@@ -51,6 +51,12 @@ wins running inside a 6k-op block. That residue is named and held: a recency-awa
 locality feature (or margin/cadence schedule) is the next perception upgrade *if* the
 oracle gap ever needs claiming; it is not smuggled into this slice.
 
+> **Resolved next day (E3c):** the gap is measurably *unclaimable* — clairvoyant
+> switchers with real switching costs lose ~50% to best fixed on every seed, so the
+> held feature is retired, and the selector's hold on AVL through the sequential
+> blocks is re-judged as correct economics, not a perception failure. See
+> `CHANGELOG-2026-06-11-adr012-e3c-switching-cost.md`.
+
 ## Why this is the right epitaph for the day
 
 Ten slices ago the machine's story was "honest no's, but the adaptive claim lives with

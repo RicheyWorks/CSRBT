@@ -139,6 +139,19 @@ per-diet figures). One named sensitivity, recorded not fixed: G4's pure-write RB
 gap is 12.3% — 2.3 points over the eager harness margin; under production 20% a
 pure-write diet would not morph (mixed diets ~27% do).
 
+**Same session, E3c done (`SwitchingCostExperimentTest`, suite 529 green):** the held
+recency-feature item is **retired by measurement**. Two clairvoyant switchers (real
+morph rebuilds; MIRROR-ensemble O(1) promote) were handed the per-block winners table
+and lost ~50% to fixed AVL on all three seeds — `claimable=false 0/3`. The cheapest
+real switching quantum (~8.6 cmp/op standing fan-out) exceeds the free-oracle prize
+(~2.4 cmp/op) >3×; E3b's "oracle gap" was a free-switching fiction at 6k-op blocks.
+Consequence, recorded in README/ADR-012/calibration changelog: the calibrated
+selector's hold on AVL through sequential blocks is *correct economics*, and the
+adaptive claim's honest ceiling on discriminating schedules is "match best fixed
+without hindsight" — which the selector already delivers. The axis that would change
+the answer is named, not built: longer blocks, or a switching mechanism cheaper than
+both quanta. Neither has a trigger.
+
 The honest claim, measured: *the calibrated
 selector matches the best fixed choice without hindsight; it does not yet beat it.*
 
