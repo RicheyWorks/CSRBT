@@ -21,8 +21,8 @@ Thumbs.db
 *.log
 
 # Test-run snapshot artifacts (tests clean up after themselves; interrupted
-# runs leave uniquely-named strays — never commit them)
-snapshots/test-*
+# runs leave strays — never commit any of it; the directory is created at runtime)
+snapshots/
 
 # Scratch
 *.tmp
