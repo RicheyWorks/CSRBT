@@ -26,7 +26,9 @@ through the `RankedSet` seam. A `NavigableSet` adapter (ADR-009) makes the whole
 a drop-in for `TreeSet` call sites. Adaptation decisions are observable end to end:
 structured events, JSON tree export, and a session recorder feed a zero-dependency
 visualizer (`demo/visualizer.html`) that **replays the controller's own decisions** —
-load `docs/arena-session.json` and watch it morph RB → Splay → RB on a live workload.
+load `docs/arena-session.json` and watch it morph RB → Splay → RB on a live workload,
+or `docs/arena-search-session.json` and watch the evolution machine itself: genomes
+born, gate-killed, culled, and one promoted.
 **ADR-011, the evolution machine, is complete**: the strategy family gained its first
 *parameterized* member (`WeightBalancedStrategy(Δ, Γ)`, validated against its own
 parameters by the health gate), a UCB1 bandit and a (μ+λ) population search breed and
@@ -446,11 +448,74 @@ serialized (edge 1) — at most one is in flight, so a unanimous answer is ident
 each member was read before or after it; any skew shows up as disagreement and is
 re-adjudicated under the lock, never served.
 
+## The evolution machine: the story, told honestly
+
+ADR-011 asked a falsifiable question: *if the balancing policy itself becomes searchable —
+a genome, bred and trialed live behind the health gate — does the search find something
+the four textbook strategies miss?* The machine was built in five slices in one day, and
+the arc is worth telling because every twist is on the record.
+
+**The first run drew blood.** The moment `WeightBalancedStrategy(Δ, Γ)` existed and the
+health gate learned to ask a strategy for *its own* structural invariant, the very first
+parameter sweep found that WB(5,3) — comfortably inside the documented bounds — is
+**unsound**: under live delete churn its one-rotation-per-level repair fails to restore
+its own Δ-balance, and the gate disqualified it by the strategy's own testimony (contents
+stayed oracle-exact — only balance degrades; the gate is why nothing was ever at risk). Nobody
+went looking for that; it's pinned as a regression now
+([V1](docs/CHANGELOG-2026-06-10-adr011-v1-weight-balanced.md)).
+
+**The search machinery never got to cheat.** Genomes are bounds-checked vectors with
+seeded, pure perturbation ([V2](docs/CHANGELOG-2026-06-10-adr011-v2-genome-fitness.md));
+the UCB1 bandit and the (μ+λ) population controller trial candidates only as live
+ensemble shadows, and promotion goes through the same anti-thrash morph gates as every
+other adaptation decision ([V3](docs/CHANGELOG-2026-06-10-adr011-v3-policy-bandit.md),
+[V4](docs/CHANGELOG-2026-06-10-adr011-v4-evolution.md)). V3 also surfaced a real seam
+bug the design predicted: the old class-identity guard silently refused WB(3,2)→WB(4,2)
+morphs — parameterized strategies forced `samePolicyAs` into the strategy contract.
+
+**The experiment answered no — twice, which is once more than it had to.** The
+acceptance run ([V5](docs/CHANGELOG-2026-06-10-adr011-v5-experiment.md)) raced the
+evolved policy against RB/AVL/Splay/Hybrid on five workload families × three seeds. The
+first wall-clock run said *yes, ≥10%*; the second run said *no* — so the experiment
+caught its own metric being weather (time on shared hardware) and was rebuilt on
+**comparisons per op counted at the comparator seam**: deterministic, byte-identical
+across runs. On that honest metric the evolved policy beats three of the four fixed
+strategies almost everywhere (~15% fewer comparisons than RB on uniform) — but every
+family already has a specialist within 10%. The search converged to the literature's
+WB(3,·) on every family and seed: the machine independently confirmed the textbook
+default is locally optimal. **The adaptive claim stays with the controller that picks
+the right specialist, not with a fifth structure.**
+
+**You can watch all of it.** Drop
+[`docs/arena-search-session.json`](docs/arena-search-session.json) into
+[`demo/visualizer.html`](demo/visualizer.html): founders enter the nursery, the unsound
+WB(5,3) dies by its own invariant in generation 1 (V1's finding, replayed live), a
+too-strict mutant follows it, and WB(3,2) takes the throne through the morph gates off a
+splay primary. Nothing in the file is staged — every frame is the real controller's own
+decision on a seeded stream, snapshotted the moment it committed.
+
+**Where it points next** is [ADR-012, the ecology turn](docs/ADR-012-ecology-turn-2026-06-10.md)
+(Proposed): V5 closed the *stationary* axis, but it never tested adaptation under a
+*changing* workload — the axis where population diversity stops being decoration and
+becomes a measurable performance property. Instruments before mechanisms: map the
+viability boundary the health gate already enforces, measure the diversity collapse, then
+run the regime-shift experiment that justifies the turn.
+
 ## Design history
 
 **Design & direction**
 - [`docs/DESIGN-adaptive-engine.md`](docs/DESIGN-adaptive-engine.md) — the target
   architecture: two-plane design, control loop, and acceptance goals (G1–G9).
+- [`docs/ADR-012-ecology-turn-2026-06-10.md`](docs/ADR-012-ecology-turn-2026-06-10.md)
+  — **Proposed**: the ecology turn, staged E1–E6 — the non-stationary axis V5 never
+  tested, instruments before mechanisms, honest scope (general principles of adaptive
+  informational systems, not biological claims).
+- [`docs/ADR-011-evolution-machine-2026-06-10.md`](docs/ADR-011-evolution-machine-2026-06-10.md)
+  — **Accepted, verdict negative**: the evolution machine, V1–V5 (see the story above);
+  per-slice changelogs `CHANGELOG-2026-06-10-adr011-v*.md`.
+- [`docs/ADR-010-second-reconciliation-2026-06-10.md`](docs/ADR-010-second-reconciliation-2026-06-10.md)
+  — **Accepted**: second reconciliation pass — the repair gate (X1), session replay in
+  the arena (X2), and the memory-model edges named explicitly (X3).
 - [`docs/ADR-009-roadmap-reconciliation-2026-06-09.md`](docs/ADR-009-roadmap-reconciliation-2026-06-09.md)
   — **Accepted**: an external review's gap list audited against the code — what was stale,
   what was real (O(1) `size()`, the `NavigableSet` adapter, structured events + the

@@ -58,9 +58,12 @@ viability map + diversity metrics are pure observation; E3 is the experiment tha
    the story, which is selection of a run, not staging of events). Visualizer now renders
    Trial/Lineage first-class (chips: ⊕ born / = scored / ✂ culled / ☠ disqualified /
    ★ selected; narration per phase) — smoke-tested all 39 frames render without
-   undefined/NaN. Suite 523 green after. **Remaining: write the public story** — the
-   changelogs are the draft: a machine that found an unsound parameter on its first run,
-   confirmed the literature, and published its own negative result.
+   undefined/NaN. Suite 523 green after. **Done same session: the public story** — README
+   section "The evolution machine: the story, told honestly" (V1's blood-drawing first
+   run → the samePolicyAs seam bug → the metric that caught itself being weather → the
+   honest no → the replayable search session → the ADR-012 pointer), plus README intro
+   now points at `arena-search-session.json` and the Design history list gained
+   ADR-010/011/012. Link-checked. **Item 1 is closed.**
 2. **ADR-012 E1 — the viability map.** Sweep (Δ, Γ) (+ unboxed behind the flag), record the
    health-gate/invariant rejection spectrum → an artifact the arena renders as a heatmap.
    Pure instrument; thesis: the viable region has structure (V1's (5,3) is the first
