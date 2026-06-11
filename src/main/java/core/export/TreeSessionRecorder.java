@@ -88,6 +88,15 @@ public final class TreeSessionRecorder<K> implements TreeEventListener<K> {
                     + (l.parentA() == null ? "null" : "\"" + l.parentA() + "\"")
                     + ", \"parentB\": " + (l.parentB() == null ? "null" : "\"" + l.parentB() + "\"")
                     + ", \"op\": \"" + l.op() + "\"");
+        } else if (e instanceof TreeEvent.Diversity<K> d) {
+            // ADR-012 E2: per-generation population diversity (spread NaN → null, as Trial cost).
+            decision("Diversity", "\"generation\": " + d.generation()
+                    + ", \"survivors\": " + d.survivors()
+                    + ", \"lineages\": " + d.lineages()
+                    + ", \"meanPairwiseDistance\": " + (Double.isNaN(d.meanPairwiseDistance())
+                            ? "null" : String.format(java.util.Locale.ROOT, "%.2f", d.meanPairwiseDistance()))
+                    + ", \"disqualified\": " + d.disqualified()
+                    + ", \"culled\": " + d.culled());
         }
         // Other ensemble lifecycle events: out of scope for v1 single-set sessions.
     }

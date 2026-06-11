@@ -82,4 +82,20 @@ public sealed interface TreeEvent<K> {
      */
     record Lineage<K>(int generation, String child, String parentA, String parentB, String op)
             implements TreeEvent<K> { }
+
+    /**
+     * The population's diversity at the close of {@code generation} (ADR-012 E2) — emitted
+     * once per {@code endGeneration}, after selection, over the <em>surviving parents</em>:
+     * {@code survivors} (= μ when the pool allows), {@code lineages} (distinct founder
+     * roots among survivors — ancestry follows parentA; a blend inherits its first parent's
+     * root; a rediscovered genome value keeps its first-recorded root),
+     * {@code meanPairwiseDistance} (mean L1 distance in parameter space over survivor
+     * pairs of the same parameterized family; {@code NaN} when no such pair exists —
+     * serialized as null), and the generation's deaths: {@code disqualified} (gate /
+     * own-invariant kills) and {@code culled} (selection). Diversity is an output, not a
+     * mechanism: nothing reads it back into selection (that would be E4).
+     */
+    record Diversity<K>(int generation, int survivors, int lineages,
+                        double meanPairwiseDistance, int disqualified, int culled)
+            implements TreeEvent<K> { }
 }

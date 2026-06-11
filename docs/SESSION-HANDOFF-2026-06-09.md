@@ -70,9 +70,14 @@ viability map + diversity metrics are pure observation; E3 is the experiment tha
    46 cells**; Γ=1 dies everywhere, Γ≥3 dies everywhere in-box (mostly by op 300), all
    unboxed samples dead. Retroactively explains V5's convergence: there was almost
    nowhere else viable to go. See `CHANGELOG-2026-06-10-adr012-e1-viability-map.md`.
-3. **ADR-012 E2 — diversity as a first-class output.** Population-diversity metrics in the
-   recorder; quantify the stationary (μ+λ) collapse rate (V5's convergence, measured not
-   just observed).
+3. **ADR-012 E2 — diversity as a first-class output. Done (2026-06-10, suite 526 green).**
+   `TreeEvent.Diversity` per generation (survivors, founder lineages, pairwise spread,
+   disqualified/culled) through controller → recorder → visualizer. **Finding: K_collapse
+   = 1 — the viability filter, not (μ+λ), collapses diversity** (3 of 4 corner founders
+   die gen 1, every seed); the ±1 mutation walk to the sliver takes 6–7 generations; all
+   seeds end at (3,2)+neighbor. Also demonstrated: viability is diet-relative ((6,1)
+   dies under E1's churn, survives E2's milder mix). E4's job is now precise: preserve
+   what the gate kills. See `CHANGELOG-2026-06-10-adr012-e2-diversity.md`.
 4. **ADR-012 E3 — the non-stationary harness (the axis V5 skipped).** Regime-shifting
    workload; fixed vs elite-only vs full-population on re-adaptation lag + integrated cost.
    *This is the experiment that justifies the whole turn.* Verdict published either way.

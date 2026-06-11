@@ -222,6 +222,10 @@ function chipText(f) {
     return (mark[f.phase] ?? "") + " " + f.arm
          + (f.phase === "SCORED" ? " " + f.cost.toFixed(3) : "") + " g" + f.pulls;
   }
+  if (f.type === "Diversity") {                          // ADR-012 E2: the population pulse
+    return "◆ g" + f.generation + " lin " + f.lineages
+         + (f.meanPairwiseDistance == null ? "" : " spread " + f.meanPairwiseDistance.toFixed(1));
+  }
   return f.type + " @" + f.op;
 }
 
@@ -246,6 +250,14 @@ function narrate(f) {
     if (f.phase === "DISQUALIFIED") return arm + " dead — failed its own invariant under live churn" + g;
     if (f.phase === "SELECTED")     return arm + " promoted to primary through the morph gates" + g;
     return arm + " " + f.phase + g;
+  }
+  if (f.type === "Diversity") {
+    return "generation " + f.generation + " closes: " + f.survivors + " survivor"
+         + (f.survivors === 1 ? "" : "s") + ", " + f.lineages + " lineage"
+         + (f.lineages === 1 ? "" : "s")
+         + (f.meanPairwiseDistance == null ? "" : ", mean spread "
+            + f.meanPairwiseDistance.toFixed(2))
+         + " — " + f.disqualified + " disqualified, " + f.culled + " culled";
   }
   return f.type;
 }

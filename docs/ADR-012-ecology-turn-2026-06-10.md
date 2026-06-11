@@ -187,8 +187,13 @@ turns on it.
    `experimental.ViabilityMap`, `docs/viability-map.json`, visualizer heatmap,
    `ViabilityMapTest`; finding: the viable region is a *sliver* — 2 cells of 46
    ((3,2) and (4,2)); see `CHANGELOG-2026-06-10-adr012-e1-viability-map.md`.
-2. [ ] **E2** — population-diversity metrics in the recorder; measure the stationary
-   (μ+λ) collapse rate K.
+2. [x] **E2** — population-diversity metrics in the recorder; measure the stationary
+   (μ+λ) collapse rate K. **Done 2026-06-10** — `TreeEvent.Diversity` + controller
+   ancestry/metrics + recorder + visualizer + `DiversityCollapseTest`; finding:
+   **K_collapse = 1 and the attribution flips** — the viability filter collapses the
+   population to one lineage in generation 1 (selection never had diversity to
+   squander); the mutation walk to E1's sliver takes 6–7 generations. See
+   `CHANGELOG-2026-06-10-adr012-e2-diversity.md`.
 3. [ ] **E3** — non-stationary workload harness; fixed vs elite-only vs full-population on
    re-adaptation lag + integrated cost. The axis V5 skipped. Verdict published either way.
 4. [ ] **E4** — diversity-preserving selection + elite archive; does it cut E3's lag

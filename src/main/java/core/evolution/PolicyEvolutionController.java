@@ -79,6 +79,8 @@ public final class PolicyEvolutionController<K> {
     /** Scored parents, ascending cost; empty until the first generation completes. */
     private final List<Scored> parents = new ArrayList<>();
     private final Set<PolicyGenome> dead = new HashSet<>();
+    /** Founder root per genome (ADR-012 E2): ancestry follows parentA; first root wins. */
+    private final Map<PolicyGenome, PolicyGenome> roots = new LinkedHashMap<>();
     private final Map<EnsembleMember<K>, PolicyGenome> onTrial = new LinkedHashMap<>();
     private int generation;
     private boolean generationOpen;
@@ -202,6 +204,9 @@ public final class PolicyEvolutionController<K> {
             }
             if (g == null) continue;                       // breeding only found the dead: slot idles
 
+            // ADR-012 E2: ancestry. Founders root themselves; offspring follow parentA.
+            roots.putIfAbsent(g, pa == null ? g : roots.getOrDefault(pa, pa));
+
             if (!"elite".equals(op)) {
                 emit(new TreeEvent.Lineage<>(generation, g.toString(),
                         pa == null ? null : pa.toString(), pb == null ? null : pb.toString(), op));
@@ -261,14 +266,21 @@ public final class PolicyEvolutionController<K> {
         List<Map.Entry<PolicyGenome, Double>> ranked = new ArrayList<>(pool.entrySet());
         ranked.sort(Map.Entry.comparingByValue());
         parents.clear();
+        int culled = 0;
         for (int i = 0; i < ranked.size(); i++) {
             if (i < mu) {
                 parents.add(new Scored(ranked.get(i).getKey(), ranked.get(i).getValue()));
             } else {
+                culled++;
                 emit(new TreeEvent.Trial<>(ranked.get(i).getKey().toString(), "CULLED",
                         ranked.get(i).getValue(), generation));
             }
         }
+
+        // ADR-012 E2: diversity as a first-class output — measured over the survivors,
+        // emitted once per generation, read back into nothing (mechanisms are E4's).
+        emit(new TreeEvent.Diversity<>(generation, parents.size(), survivorLineages(),
+                survivorSpread(), deaths, culled));
 
         // 3. Promotion = selection pressure on the throne (the V3 gate math, verbatim).
         double incumbentCost = incumbentCost(f);
@@ -300,10 +312,11 @@ public final class PolicyEvolutionController<K> {
 
         List<PolicyGenome> survivors = parents.stream().map(Scored::genome).toList();
         double bestCost = parents.isEmpty() ? Double.NaN : parents.get(0).cost();
-        logger.info("event=generation_eval gen={} evaluated={} deaths={} survivors={} best={} incumbent={} decision={}",
+        logger.info("event=generation_eval gen={} evaluated={} deaths={} survivors={} best={} incumbent={} decision={} lineages={} spread={}",
                 generation, scored.size(), deaths, survivors,
                 String.format("%.4f", bestCost), String.format("%.4f", incumbentCost),
-                promoted ? "PROMOTE" : "HOLD");
+                promoted ? "PROMOTE" : "HOLD",
+                survivorLineages(), String.format("%.2f", survivorSpread()));
         return new GenerationResult(generation, scored.size(), deaths, survivors,
                 bestCost, incumbentCost, promoted, reason);
     }
@@ -356,6 +369,33 @@ public final class PolicyEvolutionController<K> {
     }
 
     // ── Plumbing ─────────────────────────────────────────────────────────────────
+
+    /** Distinct founder roots among the surviving parents (≥ 1 once any parent exists). */
+    private int survivorLineages() {
+        Set<PolicyGenome> r = new HashSet<>();
+        for (Scored p : parents) r.add(roots.getOrDefault(p.genome(), p.genome()));
+        return r.size();
+    }
+
+    /**
+     * Mean L1 distance in (Δ, Γ) over survivor pairs of the same parameterized family;
+     * {@code NaN} when no such pair exists (fewer than two parameterized survivors).
+     */
+    private double survivorSpread() {
+        double sum = 0;
+        int pairs = 0;
+        for (int i = 0; i < parents.size(); i++) {
+            PolicyGenome a = parents.get(i).genome();
+            if (!a.family().parameterized()) continue;
+            for (int j = i + 1; j < parents.size(); j++) {
+                PolicyGenome b = parents.get(j).genome();
+                if (b.family() != a.family()) continue;
+                sum += Math.abs(a.delta() - b.delta()) + Math.abs(a.ratio() - b.ratio());
+                pairs++;
+            }
+        }
+        return pairs == 0 ? Double.NaN : sum / pairs;
+    }
 
     private void kill(PolicyGenome g, String why) {
         dead.add(g);
