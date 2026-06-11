@@ -5,25 +5,40 @@ import java.util.Comparator;
 import java.util.List;
 
 /**
- * Transparent, weight-based {@link StrategyScorer} (ADR-002 step 6, Phase B). It rebases
- * the genome's per-structure weighted "fitness" idea (DESIGN §3.2) onto the live
- * {@link WorkloadFeatures} and emits an <em>estimated per-op cost</em> (lower = better)
- * instead of a self-interpreting fitness — so each decision is explainable from named
- * constants and one log line, with no opaque internal state.
+ * Transparent, weight-based {@link StrategyScorer} (ADR-002 step 6, Phase B; recalibrated
+ * 2026-06-10). It turns the live {@link WorkloadFeatures} into an <em>estimated per-op
+ * cost</em> (lower = better), so each decision is explainable from named constants and one
+ * log line, with no opaque internal state.
+ *
+ * <h2>What the model predicts — and the calibration decision</h2>
+ * <p>The constants are calibrated against <b>realized comparisons per op</b> — the
+ * deterministic meter ADR-011 V5 made the house standard — using the measured tables in
+ * the V5 verdict, the ADR-012 E3 per-block series, and the E3b fixed-strategy probe.
+ * The original Phase-B constants encoded a rotation-priced (wall-clock-flavored) story:
+ * "RB wins write-heavy and balanced mixes." On the comparisons meter that story is
+ * <b>measurably false</b> — AVL beat RB on every diet probed (uniform 12.6 vs 15.4,
+ * churn 14.0 vs 16.2, sequential 20.3 vs 33.9 cmp/op) — and the miscalibration had a
+ * pinned consequence: in the E3b pre-registered experiment the selector sat on RB
+ * through a 36% opportunity and never morphed. Where the two meters disagree, the
+ * deterministic one decides (the V5 rule); rotation pricing remains a held item
+ * (ADR-009 §3) until the composite metric has a consumer.</p>
  *
  * <h2>The model (cost in [0,1], lower wins)</h2>
  * Driven by the op mix ({@code readFraction r}, {@code writeFraction w}) and hot-key
- * {@code accessSkew s} — the three signals DESIGN §3.2 names as decisive:
+ * {@code accessSkew s}:
  * <ul>
- *   <li><b>AVL</b> — strict balance ⇒ shallowest tree ⇒ reads cheap, writes pay more
- *       rotations: {@code BASE − READ·r + WRITE·w}. Ignores skew (no locality use).</li>
- *   <li><b>Red-Black</b> — fewest rotations per insert, solid worst case: cost falls with
- *       writes (and a little with reads): {@code BASE − WRITE·w − READ·r}. The safe
- *       all-rounder, so it wins balanced/write-heavy mixes.</li>
- *   <li><b>Splay</b> — self-adjusting: hot keys migrate to the root, so cost falls sharply
- *       with skew (most when reads dominate) but rises when the workload is uniform and the
- *       rotation overhead goes unrewarded:
- *       {@code BASE − SKEW·s − SKEW_READ·s·r + UNIFORM·(1−s)}.</li>
+ *   <li><b>AVL</b> — strict balance ⇒ shallowest tree ⇒ fewest comparisons on nearly
+ *       every diet; mild write surcharge: {@code BASE − READ·r + WRITE·w}. The
+ *       calibrated all-diet baseline.</li>
+ *   <li><b>Red-Black</b> — looser balance ⇒ deeper paths ⇒ consistently more
+ *       comparisons than AVL (measured 16–40% across diets); rotation thrift is real
+ *       but unpriced by this meter: {@code BASE − WRITE·w − READ·r}, BASE set so RB
+ *       trails AVL everywhere, more under read pressure.</li>
+ *   <li><b>Splay</b> — self-adjusting: hot keys migrate to the root, so cost falls
+ *       sharply with skew (most when reads dominate) and rises when uniform traffic
+ *       leaves the rotation overhead unrewarded:
+ *       {@code BASE − SKEW·s − SKEW_READ·s·r + UNIFORM·(1−s)}. Calibrated to overtake
+ *       AVL near s·r ≳ 0.4 (the measured sequential/hot-read crossover).</li>
  *   <li><b>Hybrid</b> — the AVL+RB compromise, modelled as the mean of the three plus a
  *       small tie penalty, so it is scored but <em>never wins a tie</em> (anti-churn,
  *       DESIGN §3.3 spirit).</li>
@@ -36,21 +51,21 @@ import java.util.List;
  */
 public final class CostModelStrategyScorer implements StrategyScorer {
 
-    // ── AVL: read-cheap, write-expensive (strict balance) ───────────────────────
-    static final double BASE_AVL   = 0.55;
-    static final double K_AVL_READ = 0.22;
-    static final double K_AVL_WRITE= 0.30;
+    // ── AVL: the comparisons baseline — shallowest paths, mild write surcharge ──
+    static final double BASE_AVL   = 0.46;
+    static final double K_AVL_READ = 0.12;
+    static final double K_AVL_WRITE= 0.04;
 
-    // ── Red-Black: write-cheap baseline, mild read benefit ──────────────────────
-    static final double BASE_RB    = 0.58;
-    static final double K_RB_WRITE = 0.34;
-    static final double K_RB_READ  = 0.06;
+    // ── Red-Black: deeper paths than AVL on every measured diet ─────────────────
+    static final double BASE_RB    = 0.62;
+    static final double K_RB_WRITE = 0.05;
+    static final double K_RB_READ  = 0.04;
 
     // ── Splay: skew-driven, penalised when uniform ──────────────────────────────
-    static final double BASE_SPLAY      = 0.55;
-    static final double K_SPLAY_SKEW    = 0.16;
-    static final double K_SPLAY_SKEWREAD= 0.25;
-    static final double K_SPLAY_UNIFORM = 0.10;
+    static final double BASE_SPLAY      = 0.50;
+    static final double K_SPLAY_SKEW    = 0.10;
+    static final double K_SPLAY_SKEWREAD= 0.30;
+    static final double K_SPLAY_UNIFORM = 0.12;
 
     // ── Hybrid: mean of the three, biased to lose ties ──────────────────────────
     static final double HYBRID_TIE_PENALTY = 0.02;
@@ -71,9 +86,9 @@ public final class CostModelStrategyScorer implements StrategyScorer {
         scores.add(new Score(StrategyId.SPLAY, splay, String.format(
                 "skew=%.2f read=%.2f: self-adjusts hot keys toward the root", s, r)));
         scores.add(new Score(StrategyId.AVL, avl, String.format(
-                "read=%.2f write=%.2f: strict balance → shallowest tree, skew unused", r, w)));
+                "read=%.2f write=%.2f: strict balance → fewest comparisons (calibrated baseline)", r, w)));
         scores.add(new Score(StrategyId.RED_BLACK, rb, String.format(
-                "write=%.2f: fewest rotations/insert, solid worst case", w)));
+                "write=%.2f: rotation-thrifty but deeper paths — trails AVL on comparisons", w)));
         scores.add(new Score(StrategyId.HYBRID, hybrid,
                 "AVL+RB compromise; biased to lose ties to avoid churn"));
 

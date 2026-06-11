@@ -114,10 +114,20 @@ hard-asserted: AVL×4/SPLAY×2 block winners). Verdict still no — **the ADR-00
 never morphed once through a 36% opportunity** (its rows are byte-identical to RB's).
 The premise survives; the *perception* fails: `CostModelStrategyScorer`'s predictions
 don't track realized comparison costs well enough to clear the 20% margin 3 wins
-running. **The one mechanism slice with a real, measured trigger: calibrate the scorer
-against realized meters, then re-run E3b as the benchmark.** Everything else (E4 — no
-lag to cut; E5/E6 — ADR triggers) stays staged. Don't invent work; the frontier is
-honestly mapped, and for once it points somewhere specific.
+running.
+
+**The calibration slice is DONE (same session, suite 528 green):** scorer constants
+refit to the realized comparisons tables (shape kept; V5 rule applied to the scorer's
+own worldview — see `CHANGELOG-2026-06-10-scorer-calibration.md`). Re-pinned:
+`StrategyScorerTest` write-heavy/balanced → AVL; `ControllerConvergenceTest` G4 → "one
+morph to AVL, then holds". Result: **SELECT went from never-morphing (−52/−56%) to
+tying hindsight-best AVL** — 16.20–16.45 vs 16.12–16.26 on E3, 17.81–17.96 vs
+17.21–17.34 on E3b. Both verdicts remain success=false (tying ≠ the registered ≥10%
+win). The residual oracle gap (~13%, the sequential blocks where Splay pays 33%) is a
+*perception* item, named and held: recency-aware locality feature or margin/cadence
+schedule — only if the oracle gap ever needs claiming. Everything else (E4 — no lag to
+cut; E5/E6 — ADR triggers) stays staged. The honest claim, measured: *the calibrated
+selector matches the best fixed choice without hindsight; it does not yet beat it.*
 
 ## If the user says "next" (post-ADR-011)
 

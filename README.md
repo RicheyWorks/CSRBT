@@ -513,6 +513,25 @@ three negative results, all reproducible, all replayable — the machine keeps e
 its keep by saying no with receipts. E4–E6 stay staged in the ADR, each with a now
 *measured* bar to clear.
 
+**The day's last two slices turned the no into a diagnosis, then a fix.** E3b
+pre-registered a discriminating schedule from V5's own winners table (oracle gap
+~13.5%, premise hard-asserted) and caught the selector red-handed: **it never morphed
+once through a 36% opportunity**, because its Phase-B cost model predicted the wrong
+meter — it told the controller RB was 30% *better* where the comparator seam measured
+AVL winning every diet probed
+([E3b](docs/CHANGELOG-2026-06-10-adr012-e3b-discriminating-schedule.md)). The fix was
+perception, nothing else: the scorer's constants refit to the realized
+comparisons-per-op tables already on the record — shape kept, gates and schedules
+untouched ([calibration](docs/CHANGELOG-2026-06-10-scorer-calibration.md)). The
+calibrated selector goes from never morphing to **tying hindsight-best AVL within ~1%
+on E3 and ~3.5% on E3b, while paying its own morph rebuilds** — the selector rows
+above are superseded, but both verdicts remain no: the registered bar is a ≥10% *win*
+over best fixed, and tying isn't winning. The claim, precisely sized: *the calibrated
+selector matches the best fixed choice without knowing it in advance; it does not yet
+beat it.* The residual ~13% oracle gap lives in the sequential blocks (the oracle
+rides Splay at 13.7 cmp/op where AVL pays 20.3) and is named and held — a
+recency-aware locality feature, only if that gap ever needs claiming.
+
 ## Design history
 
 **Design & direction**

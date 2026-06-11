@@ -57,15 +57,19 @@ public class StrategyScorerTest {
     }
 
     @Test
-    @DisplayName("write-heavy → Red-Black first (fewest rotations per insert)")
-    void writeHeavyPicksRedBlack() {
-        assertEquals(StrategyId.RED_BLACK, scorer.score(wf(0.15, 0.85, 0.05)).get(0).strategy());
+    @DisplayName("write-heavy → AVL first (calibrated: fewest comparisons; rotation thrift unpriced)")
+    void writeHeavyPicksAvl() {
+        // Re-pinned by the 2026-06-10 calibration: on the realized comparisons meter AVL
+        // beat RB on the write-heavy churn diet (14.0 vs 16.2 cmp/op, E3b probe). The old
+        // pin ("RB first") encoded rotation pricing, which the house meter doesn't count.
+        assertEquals(StrategyId.AVL, scorer.score(wf(0.15, 0.85, 0.05)).get(0).strategy());
     }
 
     @Test
-    @DisplayName("balanced mix → Red-Black first (solid all-rounder)")
-    void balancedPicksRedBlack() {
-        assertEquals(StrategyId.RED_BLACK, scorer.score(wf(0.50, 0.50, 0.05)).get(0).strategy());
+    @DisplayName("balanced mix → AVL first (calibrated: AVL 12.6 vs RB 15.4 cmp/op measured)")
+    void balancedPicksAvl() {
+        // Re-pinned by the 2026-06-10 calibration (same evidence trail as above).
+        assertEquals(StrategyId.AVL, scorer.score(wf(0.50, 0.50, 0.05)).get(0).strategy());
     }
 
     @Test

@@ -61,6 +61,12 @@ the balanced fixed four simply don't have transients on this schedule.
   here and remains untested on this axis. That is a legitimate E3 follow-up if the
   question ever needs closing completely.
 
+> **Superseded note (same day, post-calibration):** the SELECT rows in the addendum
+> below are the *pre-calibration* scorer. After
+> `CHANGELOG-2026-06-10-scorer-calibration.md`, SELECT scores 16.20–16.45 on this
+> schedule — a near-tie with hindsight-best AVL (16.12–16.26). The verdict line is
+> unchanged (no ≥10% win).
+
 ## Addendum (same day): the selector raced, and the question is now closed
 
 The documented missing contestant — **ADR-002's selector** (MorphController:

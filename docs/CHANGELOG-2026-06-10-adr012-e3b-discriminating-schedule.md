@@ -18,6 +18,12 @@ registration protocol, and the answer is the sharpest of the day. Suite **528, g
   in principle by a perfect switcher.
 - The premise is hard-asserted in the test: ≥2 distinct block winners, every seed.
 
+> **Superseded note (same day):** the SELECT rows below are the *pre-calibration*
+> scorer. After the scorer calibration
+> (`CHANGELOG-2026-06-10-scorer-calibration.md`) SELECT scores 17.81–17.96 — within
+> ~3.5% of hindsight-best AVL. The verdict line is unchanged (tying ≠ the ≥10% win the
+> registration demands), but the diagnosis below is what the calibration fixed.
+
 ## The verdict (`event=adr012_e3b_verdict success=false sustainedSeeds=0/3`)
 
 | contestant | integrated cmp/op (11 / 2026 / 42) |

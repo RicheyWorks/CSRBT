@@ -47,14 +47,19 @@ public class ControllerConvergenceTest {
     }
 
     @Test
-    @DisplayName("G4: a steady write-heavy workload never morphs (0 morphs)")
-    void steadyWorkloadHolds() {
+    @DisplayName("G4: a steady write-heavy workload converges to AVL in one morph, then holds")
+    void steadyWorkloadConvergesOnce() {
         GenomeDrivenTreeController c = controllerOver(new TreeContext(new RedBlackStrategy<>()));
 
-        for (int i = 0; i < 600; i++) c.add(i);             // pure distinct writes -> write-heavy, low skew -> RB
+        for (int i = 0; i < 600; i++) c.add(i);             // pure distinct writes, low skew
 
-        assertEquals(TreeGenome.StructureType.RED_BLACK, c.getActiveStrategyType(), "RB stays incumbent");
-        assertEquals(0, c.getMorphCount(), "a steady workload triggers no morph");
+        // Re-pinned by the 2026-06-10 scorer calibration: on the comparisons meter AVL
+        // beats RB on write-heavy diets too (E3b probe: 14.0 vs 16.2 cmp/op on churn),
+        // so the eager policy morphs once — and then HOLDS: steady means no thrash, not
+        // no decision. The anti-thrash property this test guards is the morph *count*.
+        assertEquals(TreeGenome.StructureType.AVL, c.getActiveStrategyType(),
+                "the calibrated scorer follows the meter to AVL");
+        assertEquals(1, c.getMorphCount(), "exactly one morph on a steady workload — no thrash");
     }
 
     @Test
@@ -67,9 +72,9 @@ public class ControllerConvergenceTest {
         for (int i = 0; i < 600; i++) c.contains(7);        // regime 1: skewed reads -> Splay
         assertEquals(TreeGenome.StructureType.SPLAY, c.getActiveStrategyType(), "regime 1 selects Splay");
 
-        for (int i = 64; i < 5064; i++) c.add(i);           // regime 2: heavy writes flush the window -> RB
-        assertEquals(TreeGenome.StructureType.RED_BLACK, c.getActiveStrategyType(),
-                "the write regime is followed back to RB");
+        for (int i = 64; i < 5064; i++) c.add(i);           // regime 2: heavy writes flush the window
+        assertEquals(TreeGenome.StructureType.AVL, c.getActiveStrategyType(),
+                "the write regime is followed to AVL (the comparisons-calibrated pick)");
     }
 
     @Test
