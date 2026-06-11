@@ -126,7 +126,20 @@ tying hindsight-best AVL** — 16.20–16.45 vs 16.12–16.26 on E3, 17.81–17.
 win). The residual oracle gap (~13%, the sequential blocks where Splay pays 33%) is a
 *perception* item, named and held: recency-aware locality feature or margin/cadence
 schedule — only if the oracle gap ever needs claiming. Everything else (E4 — no lag to
-cut; E5/E6 — ADR triggers) stays staged. The honest claim, measured: *the calibrated
+cut; E5/E6 — ADR triggers) stays staged.
+
+**2026-06-11, end state:** README story extended through E3b + calibration; ADR-012 E3
+action item ticked with the calibration pointer; **fresh-eyes audit of the calibration
+slice done** (`CHANGELOG-2026-06-11-calibration-audit.md`) — slice survives: constants
+faithful, dominance algebra checked (RB now strictly dominated in the model, intended),
+E3b protocol sound, suite **independently rebuilt and re-run: 528 green** (javac 17.0.19
++ JUnit console, clean shadow tree). Three stale-doc nits fixed (StrategyScorerTest
+class javadoc, regime-change @DisplayName, the mixed-convention "16–40%" range →
+per-diet figures). One named sensitivity, recorded not fixed: G4's pure-write RB→AVL
+gap is 12.3% — 2.3 points over the eager harness margin; under production 20% a
+pure-write diet would not morph (mixed diets ~27% do).
+
+The honest claim, measured: *the calibrated
 selector matches the best fixed choice without hindsight; it does not yet beat it.*
 
 ## If the user says "next" (post-ADR-011)

@@ -20,8 +20,10 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 /**
  * Phase-B control-plane unit (ADR-002 step 6): the {@link CostModelStrategyScorer} must
  * turn a {@link WorkloadFeatures} vector into an ascending-cost ranking that matches the
- * regimes DESIGN §3.2/§10 describe — Splay for skewed reads, AVL for uniform reads,
- * Red-Black for write-heavy/balanced — with Hybrid scored but never winning a tie.
+ * measured regimes (2026-06-10 calibration to realized comparisons/op) — Splay for skewed
+ * reads, AVL everywhere else — with Hybrid scored but never winning a tie. The DESIGN
+ * §3.2/§10 "RB for write-heavy/balanced" story was the rotation-priced reading; on the
+ * house comparisons meter it is measurably false (see the calibration changelog).
  */
 @DisplayName("CostModelStrategyScorer ranking")
 public class StrategyScorerTest {

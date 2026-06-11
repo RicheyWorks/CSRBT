@@ -21,7 +21,7 @@ has a consumer.
 | | old | new | consequence |
 |---|---|---|---|
 | AVL | BASE .55, −.22r, +.30w | BASE .46, −.12r, +.04w | the all-diet comparisons baseline |
-| RB | BASE .58, −.34w, −.06r | BASE .62, −.05w, −.04r | trails AVL everywhere (16–40% measured) |
+| RB | BASE .58, −.34w, −.06r | BASE .62, −.05w, −.04r | trails AVL everywhere (+16% churn, +22% uniform, +67% sequential) |
 | SPLAY | BASE .55, −.16s, −.25sr, +.10(1−s) | BASE .50, −.10s, −.30sr, +.12(1−s) | overtakes AVL near s·r ≳ 0.4 |
 | HYBRID | mean + .02 | unchanged | still never wins a tie |
 

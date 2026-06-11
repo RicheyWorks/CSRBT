@@ -209,7 +209,13 @@ turns on it.
    once** through a 36% opportunity; its cost model doesn't track the realized meter.
    The premise survives; the perception fails. Named consumer: scorer calibration
    against realized meters. See
-   `CHANGELOG-2026-06-10-adr012-e3b-discriminating-schedule.md`.
+   `CHANGELOG-2026-06-10-adr012-e3b-discriminating-schedule.md`. **Calibration done
+   (same day, suite 528):** scorer constants refit to the realized comparisons tables,
+   shape kept; SELECT goes from never morphing to tying hindsight-best AVL (~1% E3,
+   ~3.5% E3b) while paying its own rebuilds. Both verdicts stand (tying ≠ the ≥10%
+   win). Residual ~13% oracle gap (sequential blocks) named and held: recency-aware
+   locality feature, only if that gap needs claiming. See
+   `CHANGELOG-2026-06-10-scorer-calibration.md`.
 4. [ ] **E4** — diversity-preserving selection + elite archive; does it cut E3's lag
    without a steady-state cost regression beyond a documented bound?
 5. [ ] **E5** — widen the genome (splay-p, hybrid-mix); do stable species emerge under

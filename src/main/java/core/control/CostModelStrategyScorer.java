@@ -31,7 +31,7 @@ import java.util.List;
  *       every diet; mild write surcharge: {@code BASE − READ·r + WRITE·w}. The
  *       calibrated all-diet baseline.</li>
  *   <li><b>Red-Black</b> — looser balance ⇒ deeper paths ⇒ consistently more
- *       comparisons than AVL (measured 16–40% across diets); rotation thrift is real
+ *       comparisons than AVL (measured +16% churn, +22% uniform, +67% sequential); rotation thrift is real
  *       but unpriced by this meter: {@code BASE − WRITE·w − READ·r}, BASE set so RB
  *       trails AVL everywhere, more under read pressure.</li>
  *   <li><b>Splay</b> — self-adjusting: hot keys migrate to the root, so cost falls

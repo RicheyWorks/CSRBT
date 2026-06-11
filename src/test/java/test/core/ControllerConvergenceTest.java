@@ -63,7 +63,7 @@ public class ControllerConvergenceTest {
     }
 
     @Test
-    @DisplayName("G4: a regime change is followed — skewed reads pick Splay, then heavy writes return to RB")
+    @DisplayName("G4: a regime change is followed — skewed reads pick Splay, then heavy writes go to AVL")
     void regimeChangeIsFollowed() {
         TreeContext ctx = new TreeContext(new RedBlackStrategy<>());
         for (int i = 0; i < 64; i++) ctx.add(i);
