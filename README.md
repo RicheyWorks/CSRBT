@@ -544,9 +544,11 @@ cannot help. The selector's refusal to chase blocks was correct economics all al
 - [`docs/DESIGN-adaptive-engine.md`](docs/DESIGN-adaptive-engine.md) — the target
   architecture: two-plane design, control loop, and acceptance goals (G1–G9).
 - [`docs/ADR-012-ecology-turn-2026-06-10.md`](docs/ADR-012-ecology-turn-2026-06-10.md)
-  — **Proposed**: the ecology turn, staged E1–E6 — the non-stationary axis V5 never
-  tested, instruments before mechanisms, honest scope (general principles of adaptive
-  informational systems, not biological claims).
+  — **Accepted (disposition 2026-06-11)**: the ecology turn — the non-stationary axis
+  V5 never tested, instruments before mechanisms, honest scope (general principles of
+  adaptive informational systems, not biological claims). Instrument phase E1–E3c
+  complete: four published negatives with receipts; E4–E5 parked with named re-arming
+  triggers, E6 staged (optional).
 - [`docs/ADR-011-evolution-machine-2026-06-10.md`](docs/ADR-011-evolution-machine-2026-06-10.md)
   — **Accepted, verdict negative**: the evolution machine, V1–V5 (see the story above);
   per-slice changelogs `CHANGELOG-2026-06-10-adr011-v*.md`.

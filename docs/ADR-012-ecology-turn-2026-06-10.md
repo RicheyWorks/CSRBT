@@ -1,7 +1,10 @@
 # ADR-012: The ecology turn — from policy optimizer to observable adaptive system
 
-**Status:** Proposed (staged E1–E6; E1–E2 scoped for implementation, E3+ staged behind them)
-**Date:** 2026-06-10
+**Status:** Accepted (2026-06-11) — instrument phase complete (E1–E3c: three negative
+verdicts, two instruments that landed harder than their theses, all with receipts);
+**E4–E5 parked** with explicit re-arming triggers (§8);
+E6 stays staged (optional, long). See §8, the disposition.
+**Date:** 2026-06-10 (disposition 2026-06-11)
 **Deciders:** Richmond
 **Builds on:** ADR-011 in full (the evolution machine: parameterized strategies, genome,
 fitness, bandit, (μ+λ) population search, health gate as viability filter, recorder +
@@ -223,12 +226,20 @@ turns on it.
    exceeds the free-oracle prize (~2.4 cmp/op) more than threefold. The recency
    feature is retired; the selector's hold on AVL was correct economics. See
    `CHANGELOG-2026-06-11-adr012-e3c-switching-cost.md`.
-4. [ ] **E4** — diversity-preserving selection + elite archive; does it cut E3's lag
-   without a steady-state cost regression beyond a documented bound?
-5. [ ] **E5** — widen the genome (splay-p, hybrid-mix); do stable species emerge under
-   heterogeneous/cyclic environments?
+4. [~] **E4** — diversity-preserving selection + elite archive; does it cut E3's lag
+   without a steady-state cost regression beyond a documented bound? **PARKED
+   2026-06-11 (§8):** the premise is measured away — E3 found no meaningful lag to cut
+   (only SPLAY shows any; the adaptive bill is O(n) rebuilds, not lag) and E3c showed
+   the smallest real switching quantum exceeds the schedule's whole prize >3×.
+   Re-arming triggers in §8.
+5. [~] **E5** — widen the genome (splay-p, hybrid-mix); do stable species emerge under
+   heterogeneous/cyclic environments? **PARKED 2026-06-11 (§8):** gated on E4 by
+   design ("otherwise it is Option B and repeats V5"), and E4 is parked. Re-arming
+   triggers in §8.
 6. [ ] **E6** — (optional, long) generalize the loop to a second policy space (cache
-   eviction); does the machinery transfer unchanged?
+   eviction); does the machinery transfer unchanged? **Unaffected by the disposition:**
+   its thesis is machinery transfer, not beating fixed strategies — none of E3/E3b/E3c
+   touches it. Stays staged, optional.
 
 ---
 
@@ -243,3 +254,57 @@ mechanism with live-behavior impact (E4 diversity-preserving selection) sits beh
 defaulting to the V4 pure-(μ+λ) behavior, so the existing controller is unchanged unless
 asked. No slice weakens the health gate — the viability filter is load-bearing for the
 entire premise and only ever gets *more* observable, never more permissive.
+
+---
+
+## 8. Disposition (2026-06-11) — Accepted; the instrument phase is the deliverable
+
+One day after this ADR was proposed, its instrument phase was complete and had answered
+the staged questions decisively enough to re-judge the mechanism phase. In the
+reconciliation tradition (ADR-009/ADR-010): record what was measured, accept what was
+delivered, and park what lost its premise — with the conditions that would re-arm it.
+
+**What the instruments delivered (the ADR's two outputs, both real):**
+
+- *Performance artifact:* the calibrated ADR-002 selector ties hindsight-best fixed on
+  discriminating schedules without knowing the future (within ~1–3.5%), and E3c proved
+  that ceiling is structural — the smallest real switching quantum (~8.6 cmp/op
+  standing fan-out; O(n) rebuilds are worse) exceeds the free-oracle prize (~2.4
+  cmp/op) more than threefold at 6k-op blocks. "Match best fixed without hindsight,
+  don't pay to chase blocks" is not a limitation of the selector; it is the optimum.
+- *Evolutionary artifact:* the viability map (a 2-of-46 sliver, the literature's
+  narrowness result reproduced by our own gate), the diversity collapse with its
+  attribution flipped (the filter, not selection, collapses the population — K=1,
+  generation 1), and the exploration bill priced at the seam (O(n) candidate rebuilds,
+  2.7–5× best fixed). Every negative is reproducible, instrumented, replayable.
+
+**Why E4 parks (premise measured away, twice):** E4's thesis was "preserved diversity
+reduces E3's re-adaptation lag." E3 found no lag worth cutting (only SPLAY shows any,
+and the adaptive cost lives in rebuilds, not lag); E3c showed that even a free
+winners-table cannot make switching pay at this regime granularity. A diversity
+mechanism cannot cut a lag that does not exist, with a mechanism whose quantum costs
+more than the prize.
+
+**Why E5 parks:** gated on E4 working, by this ADR's own words — without the
+non-stationary win there is nothing for speciation room to express except Option B,
+which repeats V5.
+
+**Re-arming triggers (named, falsifiable, dormant):**
+
+1. A real workload with regime blocks long enough that the switching quantum amortizes
+   — E3c's arithmetic re-run at the new block length showing claimable ≥ the margin —
+   re-arms E4 (and the retired recency-feature perception item with it).
+2. A switching mechanism cheaper than both measured quanta (cheaper than O(n) rebuild
+   *and* standing K× fan-out) with a named design — re-arms E4 and re-prices E3c.
+3. E4 landing green re-arms E5, per the original gate.
+
+**E6 is untouched** — its thesis (the loop transfers: genome + fitness + viability
+oracle, no change to the machinery) is orthogonal to everything measured here. It
+remains the one staged slice, optional and long.
+
+**The honest summary this ADR earned:** the ecology turn asked whether the machine
+could be more than a tree that tunes α. The answer is yes — but as a *microscope*, not
+as a contender: the instruments produced three negative verdicts (E3, E3b, E3c) and
+two findings sharper than their theses (E1's sliver, E2's flipped attribution), and
+the adaptive claim found its true, measured size. That is the program working, not
+failing.

@@ -152,6 +152,21 @@ without hindsight" — which the selector already delivers. The axis that would 
 the answer is named, not built: longer blocks, or a switching mechanism cheaper than
 both quanta. Neither has a trigger.
 
+**Same session, ADR-012 dispositioned (docs-only, suite 529 unchanged):** status →
+**Accepted**, new §8 in the ADR-009/010 reconciliation tradition
+(`CHANGELOG-2026-06-11-adr012-disposition.md`). E4 parked (premise measured away
+twice: no lag to cut, switching quantum > prize), E5 parked by its own E4 gate, E6
+untouched (machinery transfer, orthogonal, optional). Three re-arming triggers named
+in §8. README design-history updated.
+
+**If the user says "next" after this:** the open surface is exactly: **E6** (the long
+arrow — transfer the evolve-under-viability loop to cache eviction; the one staged
+slice, premise intact), **held infrastructure** (ADR-009 G1 Gradle/JMH, ADR-008 D2
+disk pages — triggers unfired), or **ship/rest** (the arc is complete and
+publishable). Nothing else is queued; do not invent work. The day's story, one line:
+the machine found its own miscalibration, fixed exactly that, proved its remaining
+"failure" was correct economics, and closed its own research program honestly.
+
 The honest claim, measured: *the calibrated
 selector matches the best fixed choice without hindsight; it does not yet beat it.*
 
