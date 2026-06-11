@@ -78,11 +78,17 @@ viability map + diversity metrics are pure observation; E3 is the experiment tha
    seeds end at (3,2)+neighbor. Also demonstrated: viability is diet-relative ((6,1)
    dies under E1's churn, survives E2's milder mix). E4's job is now precise: preserve
    what the gate kills. See `CHANGELOG-2026-06-10-adr012-e2-diversity.md`.
-4. **ADR-012 E3 — the non-stationary harness (the axis V5 skipped).** Regime-shifting
-   workload; fixed vs elite-only vs full-population on re-adaptation lag + integrated cost.
-   *This is the experiment that justifies the whole turn.* Verdict published either way.
-   (E4 diversity-preserving selection, E5 widened genome/speciation, E6 generalize to a
-   second policy space all follow — see the ADR.)
+4. **ADR-012 E3 — the non-stationary harness. Done (2026-06-10, suite 527 green).
+   Verdict: no, decisively.** `NonStationaryExperimentTest`: 8 regime blocks × 2 cycles,
+   seven contestants, byte-identical streams, exploration priced at the ensemble
+   comparator. ELITE 2.7×, POP ~5× the best fixed (AVL 16.2 cmp/op), all seeds.
+   **Mechanism: O(n) candidate rebuilds per generation dominate — exploration scales
+   with n, serving with log n.** Re-adaptation lag ≈ 0 for balanced fixed trees (no
+   policy to re-adapt); only SPLAY shows transients. Documented gaps: cadence is a free
+   parameter; rotations unpriced; ADR-002's *selector* was not a contestant (legitimate
+   follow-up). E4's bar is now measured: cut lag without adding rebuilds — a mechanism
+   that breeds more is going the wrong way. See
+   `CHANGELOG-2026-06-10-adr012-e3-nonstationary.md`. (E4/E5/E6 still staged in the ADR.)
 
 Held items still on their own triggers only (ADR-008 D2 disk pages; ADR-006/007 burst
 escalation; ADR-009 G1 Gradle/JMH — note G1 also cures V5's wall-clock weather). The

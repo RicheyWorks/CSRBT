@@ -194,8 +194,13 @@ turns on it.
    population to one lineage in generation 1 (selection never had diversity to
    squander); the mutation walk to E1's sliver takes 6–7 generations. See
    `CHANGELOG-2026-06-10-adr012-e2-diversity.md`.
-3. [ ] **E3** — non-stationary workload harness; fixed vs elite-only vs full-population on
+3. [x] **E3** — non-stationary workload harness; fixed vs elite-only vs full-population on
    re-adaptation lag + integrated cost. The axis V5 skipped. Verdict published either way.
+   **Done 2026-06-10 — verdict negative, decisively**: with exploration priced at the
+   ensemble's comparator seam, ELITE costs 2.7× and POP ~5× the best fixed (AVL) on
+   integrated cmp/op, all seeds; the bill is O(n) candidate rebuilds per generation, not
+   shadow serving. Only SPLAY shows measurable re-adaptation lag. E4's bar: cut lag
+   *without adding rebuilds*. See `CHANGELOG-2026-06-10-adr012-e3-nonstationary.md`.
 4. [ ] **E4** — diversity-preserving selection + elite archive; does it cut E3's lag
    without a steady-state cost regression beyond a documented bound?
 5. [ ] **E5** — widen the genome (splay-p, hybrid-mix); do stable species emerge under
