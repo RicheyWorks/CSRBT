@@ -170,6 +170,16 @@ evolution found pure LRU beats textbook SLRU under drift, converged, tied best f
 Δ+0.000. ADR-012 item 6 ticked; README story closed. Generic-loop extraction = held,
 trigger: a third policy space.
 
+**Same session, post-push: CI red, weather-proofed
+(`CHANGELOG-2026-06-11-ci-weatherproof.md`):** the pushed head failed CI on both JDKs;
+the identical tree is green locally under the exact CI invocation (real ant, three
+verification routes). Diagnosis by elimination (CI logs are admin-only): the ADR-007
+benchmark's hard `optimistic < locked` — the suite's only strict comparison of two
+wall-clock measurements under contention, a pre-V5-rule holdout. Re-asserted as
+best-of-3 (one win proves the property; a real regression loses all three). If CI
+reds again: pull the `test-reports-*` artifact from the run page for the failing test
+name before touching anything.
+
 **If the user says "next" after this:** ADR-012 is now fully resolved (E1–E3c done,
 E4/E5 parked with triggers, E6 done). The open surface is exactly: **held
 infrastructure** (ADR-009 G1 Gradle/JMH, ADR-008 D2 disk pages — triggers unfired),

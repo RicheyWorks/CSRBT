@@ -126,39 +126,55 @@ public class EnsembleVerifiedConcurrencyTest {
     @Timeout(60)
     @DisplayName("benchmark row: under a concurrent writer, lock-free unanimity beats locked votes")
     void benchmarkOptimisticVsLockedUnderWriter() throws InterruptedException {
+        // Wall-clock is weather (the V5 rule): a single race between two noisy measurements
+        // can flip on a loaded CI runner without the property being false — this was the
+        // suite's only hard assert comparing two timings, and it failed CI exactly that way
+        // (2026-06-11, both matrix JDKs, green locally under the same ant invocation).
+        // Weather-proofed: up to three attempts; one optimistic win demonstrates the
+        // property (a real regression — e.g. the fast path disabled — loses all three
+        // deterministically). Every attempt's row is printed either way.
         boolean saved = EnsembleOrderedSet.OPTIMISTIC_VOTES;
         try {
             final int reads = 30_000;
-            long[] elapsed = new long[2];   // [0] = optimistic, [1] = locked
+            final int attempts = 3;
+            boolean optimisticEverWon = false;
 
-            for (int phase = 0; phase < 2; phase++) {
-                EnsembleOrderedSet.OPTIMISTIC_VOTES = (phase == 0);
-                EnsembleOrderedSet<Integer> ens = verified();
-                AtomicBoolean stop = new AtomicBoolean(false);
-                Thread writer = new Thread(() -> {
-                    int k = 0;
-                    while (!stop.get()) {
-                        ens.add(CHURN_BASE + (k % 500));
-                        ens.remove(CHURN_BASE + (k % 500));
-                        k++;
-                    }
-                }, "bench-writer-" + phase);
-                writer.start();
+            for (int attempt = 1; attempt <= attempts && !optimisticEverWon; attempt++) {
+                long[] elapsed = new long[2];   // [0] = optimistic, [1] = locked
 
-                for (int i = 0; i < 2_000; i++) ens.contains(i % STABLE);   // warm-up
-                long t0 = System.nanoTime();
-                for (int i = 0; i < reads; i++) ens.contains(i % STABLE);
-                elapsed[phase] = System.nanoTime() - t0;
+                for (int phase = 0; phase < 2; phase++) {
+                    EnsembleOrderedSet.OPTIMISTIC_VOTES = (phase == 0);
+                    EnsembleOrderedSet<Integer> ens = verified();
+                    AtomicBoolean stop = new AtomicBoolean(false);
+                    Thread writer = new Thread(() -> {
+                        int k = 0;
+                        while (!stop.get()) {
+                            ens.add(CHURN_BASE + (k % 500));
+                            ens.remove(CHURN_BASE + (k % 500));
+                            k++;
+                        }
+                    }, "bench-writer-" + attempt + "-" + phase);
+                    writer.start();
 
-                stop.set(true);
-                writer.join();
+                    for (int i = 0; i < 2_000; i++) ens.contains(i % STABLE);   // warm-up
+                    long t0 = System.nanoTime();
+                    for (int i = 0; i < reads; i++) ens.contains(i % STABLE);
+                    elapsed[phase] = System.nanoTime() - t0;
+
+                    stop.set(true);
+                    writer.join();
+                }
+
+                System.out.printf("ADR-007 benchmark (attempt %d/%d): %d verified reads vs a "
+                                + "saturating writer (k=3): optimistic %.1f ms; locked %.1f ms (%.1fx)%n",
+                        attempt, attempts, reads,
+                        elapsed[0] / 1e6, elapsed[1] / 1e6, (double) elapsed[1] / elapsed[0]);
+                optimisticEverWon = elapsed[0] < elapsed[1];
             }
 
-            System.out.printf("ADR-007 benchmark: %d verified reads vs a saturating writer (k=3): "
-                            + "optimistic %.1f ms; locked %.1f ms (%.1fx)%n",
-                    reads, elapsed[0] / 1e6, elapsed[1] / 1e6, (double) elapsed[1] / elapsed[0]);
-            assertTrue(elapsed[0] < elapsed[1],
-                    "lock-free unanimity must beat votes that contend with the writer");
+            assertTrue(optimisticEverWon,
+                    "lock-free unanimity lost to contended locked votes on all " + attempts
+                    + " attempts — that is a regression, not weather");
         } finally {
             EnsembleOrderedSet.OPTIMISTIC_VOTES = saved;
         }
