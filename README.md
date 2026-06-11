@@ -1,5 +1,7 @@
 # CSRBT — Composable Self-Balancing Tree Engine
 
+[![ci](https://github.com/RicheyWorks/CSRBT/actions/workflows/ci.yml/badge.svg)](https://github.com/RicheyWorks/CSRBT/actions/workflows/ci.yml)
+
 CSRBT is a Java ordered-set engine whose balancing strategy is pluggable and can
 adapt to the workload hitting it. A single, generic ordered-set API
 (`OrderedSet<K>`, over any `Comparable` key or a custom `Comparator`) is backed by
