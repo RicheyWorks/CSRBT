@@ -103,14 +103,21 @@ axis it just repeats V5.
 A fresh-eyes audit of the five V-slices (they landed in one day) is always a legitimate
 alternative to starting E1.
 
-**2026-06-10, second session, end state:** E1–E3 + selector addendum done (all negative,
-all instrumented — see the changelogs), consolidation audit done
+**2026-06-10, second session, end state:** E1–E3 + selector addendum + **E3b** done (all
+negative, all instrumented — see the changelogs), consolidation audit done
 (`CHANGELOG-2026-06-10-ecology-audit.md`; one fix: RedBlackTree absent-remove WARN →
-debug), README story updated with the turn's results, suite **527 green**. Open paths,
-none unblocked by default: E4 (bar now measured: cut lag without adding rebuilds — and
-there is almost no lag to cut), a *pre-registered* non-AVL-dominated schedule for a
-sharper E3 discriminator (declare before running), E5/E6 per their ADR triggers, or ship
-the story externally. Don't invent work; the frontier is honestly mapped.
+debug), README story updated, suite **528 green**.
+
+**E3b (`DiscriminatingScheduleExperimentTest`) is the sharpest result:** pre-registered
+uniform↔sequential schedule from V5's own winners table (oracle gap ~13.5%, premise
+hard-asserted: AVL×4/SPLAY×2 block winners). Verdict still no — **the ADR-002 selector
+never morphed once through a 36% opportunity** (its rows are byte-identical to RB's).
+The premise survives; the *perception* fails: `CostModelStrategyScorer`'s predictions
+don't track realized comparison costs well enough to clear the 20% margin 3 wins
+running. **The one mechanism slice with a real, measured trigger: calibrate the scorer
+against realized meters, then re-run E3b as the benchmark.** Everything else (E4 — no
+lag to cut; E5/E6 — ADR triggers) stays staged. Don't invent work; the frontier is
+honestly mapped, and for once it points somewhere specific.
 
 ## If the user says "next" (post-ADR-011)
 

@@ -203,7 +203,13 @@ turns on it.
    *without adding rebuilds*. Same-day addendum: the ADR-002 *selector* raced too —
    ~1.5× best fixed (per-morph beats per-generation rebuilds) but still −52%; on this
    (AVL-dominated, fixed-in-advance) schedule **no adaptive scheme of any architecture
-   wins**. See `CHANGELOG-2026-06-10-adr012-e3-nonstationary.md`.
+   wins**. See `CHANGELOG-2026-06-10-adr012-e3-nonstationary.md`. **E3b (same day,
+   pre-registered):** on a discriminating schedule (oracle gap ~13.5%, premise
+   hard-asserted), still no — and the diagnosis is sharp: **the selector never morphed
+   once** through a 36% opportunity; its cost model doesn't track the realized meter.
+   The premise survives; the perception fails. Named consumer: scorer calibration
+   against realized meters. See
+   `CHANGELOG-2026-06-10-adr012-e3b-discriminating-schedule.md`.
 4. [ ] **E4** — diversity-preserving selection + elite archive; does it cut E3's lag
    without a steady-state cost regression beyond a documented bound?
 5. [ ] **E5** — widen the genome (splay-p, hybrid-mix); do stable species emerge under
