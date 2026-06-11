@@ -1,6 +1,6 @@
 package test.core;
 
-import core.evolution.GenomeDrivenTreeController.MorphPolicy;
+import io.github.richeyworks.csrbt.evolution.GenomeDrivenTreeController.MorphPolicy;
 
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;

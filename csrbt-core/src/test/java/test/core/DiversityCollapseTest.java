@@ -1,15 +1,15 @@
 package test.core;
 
-import core.control.MorphPolicy;
-import core.control.RollingWorkloadMonitor;
-import core.ensemble.EnsembleMember;
-import core.ensemble.EnsembleMode;
-import core.ensemble.EnsembleOrderedSet;
-import core.event.TreeEvent;
-import core.evolution.PolicyEvolutionController;
-import core.evolution.PolicyGenome;
-import core.export.TreeSessionRecorder;
-import core.strategy.RedBlackStrategy;
+import io.github.richeyworks.csrbt.control.MorphPolicy;
+import io.github.richeyworks.csrbt.control.RollingWorkloadMonitor;
+import io.github.richeyworks.csrbt.ensemble.EnsembleMember;
+import io.github.richeyworks.csrbt.ensemble.EnsembleMode;
+import io.github.richeyworks.csrbt.ensemble.EnsembleOrderedSet;
+import io.github.richeyworks.csrbt.event.TreeEvent;
+import io.github.richeyworks.csrbt.evolution.PolicyEvolutionController;
+import io.github.richeyworks.csrbt.evolution.PolicyGenome;
+import io.github.richeyworks.csrbt.export.TreeSessionRecorder;
+import io.github.richeyworks.csrbt.strategy.RedBlackStrategy;
 
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;

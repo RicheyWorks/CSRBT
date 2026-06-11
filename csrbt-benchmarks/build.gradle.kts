@@ -7,7 +7,7 @@ plugins {
 }
 
 group = "io.github.richeyworks"
-version = "0.1.0-SNAPSHOT"
+version = "0.1.0"
 
 tasks.withType<JavaCompile>().configureEach {
     options.release = 17 // see csrbt-core/build.gradle.kts
@@ -24,10 +24,4 @@ val jmhVer = libs.versions.jmh.asProvider().get()
 
 jmh {
     jmhVersion = jmhVer
-    // Defaults for the whole rig; individual benchmarks override via annotations.
-    fork = 1
-    warmupIterations = 3
-    iterations = 5
-    resultFormat = "JSON"
-    resultsFile = layout.buildDirectory.file("reports/jmh/results.json")
-}
+    // Defa

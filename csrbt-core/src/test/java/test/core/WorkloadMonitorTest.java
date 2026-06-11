@@ -1,8 +1,8 @@
 package test.core;
 
-import core.control.RollingWorkloadMonitor;
-import core.control.WorkloadFeatures;
-import core.control.WorkloadMonitor;
+import io.github.richeyworks.csrbt.control.RollingWorkloadMonitor;
+import io.github.richeyworks.csrbt.control.WorkloadFeatures;
+import io.github.richeyworks.csrbt.control.WorkloadMonitor;
 
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;

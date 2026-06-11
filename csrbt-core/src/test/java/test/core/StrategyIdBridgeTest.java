@@ -1,8 +1,8 @@
 package test.core;
 
-import core.control.StrategyId;
-import core.evolution.StrategyIdBridge;
-import core.evolution.TreeGenome.StructureType;
+import io.github.richeyworks.csrbt.control.StrategyId;
+import io.github.richeyworks.csrbt.evolution.StrategyIdBridge;
+import io.github.richeyworks.csrbt.evolution.TreeGenome.StructureType;
 
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -15,7 +15,7 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
  * the strangler uses to read the incumbent and to write a morph back. The four implemented
  * types round-trip both ways; the three non-strategy types have no StrategyId and must throw.
  */
-@DisplayName("core.evolution.StrategyIdBridge (Phase D / D2)")
+@DisplayName("io.github.richeyworks.csrbt.evolution.StrategyIdBridge (Phase D / D2)")
 public class StrategyIdBridgeTest {
 
     @Test

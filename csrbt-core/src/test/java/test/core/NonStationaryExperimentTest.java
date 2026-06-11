@@ -1,21 +1,21 @@
 package test.core;
 
-import core.OrderedSet;
-import core.control.CostModelStrategyScorer;
-import core.control.MorphController;
-import core.control.MorphPolicy;
-import core.control.RollingWorkloadMonitor;
-import core.control.StrategyId;
-import core.ensemble.EnsembleMember;
-import core.ensemble.EnsembleMode;
-import core.ensemble.EnsembleOrderedSet;
-import core.evolution.PolicyEvolutionController;
-import core.evolution.PolicyGenome;
-import core.strategy.AVLStrategy;
-import core.strategy.HybridStrategy;
-import core.strategy.RedBlackStrategy;
-import core.strategy.SplayStrategy;
-import core.strategy.TreeStrategy;
+import io.github.richeyworks.csrbt.OrderedSet;
+import io.github.richeyworks.csrbt.control.CostModelStrategyScorer;
+import io.github.richeyworks.csrbt.control.MorphController;
+import io.github.richeyworks.csrbt.control.MorphPolicy;
+import io.github.richeyworks.csrbt.control.RollingWorkloadMonitor;
+import io.github.richeyworks.csrbt.control.StrategyId;
+import io.github.richeyworks.csrbt.ensemble.EnsembleMember;
+import io.github.richeyworks.csrbt.ensemble.EnsembleMode;
+import io.github.richeyworks.csrbt.ensemble.EnsembleOrderedSet;
+import io.github.richeyworks.csrbt.evolution.PolicyEvolutionController;
+import io.github.richeyworks.csrbt.evolution.PolicyGenome;
+import io.github.richeyworks.csrbt.strategy.AVLStrategy;
+import io.github.richeyworks.csrbt.strategy.HybridStrategy;
+import io.github.richeyworks.csrbt.strategy.RedBlackStrategy;
+import io.github.richeyworks.csrbt.strategy.SplayStrategy;
+import io.github.richeyworks.csrbt.strategy.TreeStrategy;
 
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;

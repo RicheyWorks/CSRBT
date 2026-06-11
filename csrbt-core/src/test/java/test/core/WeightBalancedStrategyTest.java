@@ -1,10 +1,10 @@
 package test.core;
 
-import core.OrderedSet;
-import core.RedBlackTree;
-import core.strategy.RedBlackStrategy;
-import core.strategy.SplayStrategy;
-import core.strategy.WeightBalancedStrategy;
+import io.github.richeyworks.csrbt.OrderedSet;
+import io.github.richeyworks.csrbt.RedBlackTree;
+import io.github.richeyworks.csrbt.strategy.RedBlackStrategy;
+import io.github.richeyworks.csrbt.strategy.SplayStrategy;
+import io.github.richeyworks.csrbt.strategy.WeightBalancedStrategy;
 
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;

@@ -6,7 +6,7 @@
 <!--
   CSRBT tree visualizer (demo for ADR-009 P3).
 
-  A single-file, dependency-free drawer for the JSON that core.export.TreeExport emits
+  A single-file, dependency-free drawer for the JSON that io.github.richeyworks.csrbt.export.TreeExport emits
   (schema: docs/visualizer-contract.json). Load any exported state via the button or by
   dropping a .json file anywhere; nodes are matched by key across loads, so successive
   states ANIMATE — load the embedded Red-Black / Splay / AVL states (the same 15 keys,
@@ -68,7 +68,7 @@
 </div>
 <footer>
   Contract: <code>docs/visualizer-contract.json</code> — generate states with
-  <code>core.export.TreeExport.toJson(set)</code>, or record whole sessions with
+  <code>io.github.richeyworks.csrbt.export.TreeExport.toJson(set)</code>, or record whole sessions with
   <code>TreeSessionRecorder</code> and drop them here for replay
   (try <code>docs/arena-session.json</code>: the real controller morphing RB → Splay → RB, or
   <code>docs/arena-search-session.json</code>: the ADR-011 evolution machine — genomes born,

@@ -1,7 +1,7 @@
 package test.core;
 
-import experimental.ViabilityMap;
-import experimental.ViabilityMap.Cell;
+import io.github.richeyworks.csrbt.experimental.ViabilityMap;
+import io.github.richeyworks.csrbt.experimental.ViabilityMap.Cell;
 
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;

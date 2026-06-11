@@ -1,10 +1,10 @@
 package test.core;
 
-import core.control.CostModelStrategyScorer;
-import core.control.StrategyId;
-import core.control.StrategyScorer;
-import core.control.StrategyScorer.Score;
-import core.control.WorkloadFeatures;
+import io.github.richeyworks.csrbt.control.CostModelStrategyScorer;
+import io.github.richeyworks.csrbt.control.StrategyId;
+import io.github.richeyworks.csrbt.control.StrategyScorer;
+import io.github.richeyworks.csrbt.control.StrategyScorer.Score;
+import io.github.richeyworks.csrbt.control.WorkloadFeatures;
 
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;

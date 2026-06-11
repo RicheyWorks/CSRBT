@@ -1,15 +1,15 @@
 package test.core;
 
-import core.evolution.TreeGenome;
-import core.evolution.TreeGenome.AdaptationMode;
-import core.evolution.TreeGenome.BalanceTraits;
-import core.evolution.TreeGenome.CapabilityProfile;
-import core.evolution.TreeGenome.EcologyTraits;
-import core.evolution.TreeGenome.GenomeOrigin;
-import core.evolution.TreeGenome.MorphTraits;
-import core.evolution.TreeGenome.ScoreCard;
-import core.evolution.TreeGenome.StructureType;
-import core.evolution.TreeGenome.WorkloadTraits;
+import io.github.richeyworks.csrbt.evolution.TreeGenome;
+import io.github.richeyworks.csrbt.evolution.TreeGenome.AdaptationMode;
+import io.github.richeyworks.csrbt.evolution.TreeGenome.BalanceTraits;
+import io.github.richeyworks.csrbt.evolution.TreeGenome.CapabilityProfile;
+import io.github.richeyworks.csrbt.evolution.TreeGenome.EcologyTraits;
+import io.github.richeyworks.csrbt.evolution.TreeGenome.GenomeOrigin;
+import io.github.richeyworks.csrbt.evolution.TreeGenome.MorphTraits;
+import io.github.richeyworks.csrbt.evolution.TreeGenome.ScoreCard;
+import io.github.richeyworks.csrbt.evolution.TreeGenome.StructureType;
+import io.github.richeyworks.csrbt.evolution.TreeGenome.WorkloadTraits;
 
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;

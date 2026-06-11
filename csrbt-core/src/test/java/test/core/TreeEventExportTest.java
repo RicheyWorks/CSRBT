@@ -1,16 +1,16 @@
 package test.core;
 
-import core.OrderedSet;
-import core.ensemble.EnsembleController;
-import core.ensemble.EnsembleMember;
-import core.ensemble.EnsembleMode;
-import core.ensemble.EnsembleOrderedSet;
-import core.control.RollingWorkloadMonitor;
-import core.event.TreeEvent;
-import core.export.TreeExport;
-import core.strategy.AVLStrategy;
-import core.strategy.RedBlackStrategy;
-import core.strategy.SplayStrategy;
+import io.github.richeyworks.csrbt.OrderedSet;
+import io.github.richeyworks.csrbt.ensemble.EnsembleController;
+import io.github.richeyworks.csrbt.ensemble.EnsembleMember;
+import io.github.richeyworks.csrbt.ensemble.EnsembleMode;
+import io.github.richeyworks.csrbt.ensemble.EnsembleOrderedSet;
+import io.github.richeyworks.csrbt.control.RollingWorkloadMonitor;
+import io.github.richeyworks.csrbt.event.TreeEvent;
+import io.github.richeyworks.csrbt.export.TreeExport;
+import io.github.richeyworks.csrbt.strategy.AVLStrategy;
+import io.github.richeyworks.csrbt.strategy.RedBlackStrategy;
+import io.github.richeyworks.csrbt.strategy.SplayStrategy;
 
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;

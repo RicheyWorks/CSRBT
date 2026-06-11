@@ -1,12 +1,12 @@
 package test.core;
 
-import core.OrderedSet;
-import core.TreeContext;
-import core.persistence.FilePersistenceAdapter;
-import core.persistence.KeySerializer;
-import core.strategy.AVLStrategy;
-import core.strategy.RedBlackStrategy;
-import core.strategy.SplayStrategy;
+import io.github.richeyworks.csrbt.OrderedSet;
+import io.github.richeyworks.csrbt.TreeContext;
+import io.github.richeyworks.csrbt.persistence.FilePersistenceAdapter;
+import io.github.richeyworks.csrbt.persistence.KeySerializer;
+import io.github.richeyworks.csrbt.strategy.AVLStrategy;
+import io.github.richeyworks.csrbt.strategy.RedBlackStrategy;
+import io.github.richeyworks.csrbt.strategy.SplayStrategy;
 
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.DisplayName;

@@ -1,10 +1,10 @@
 package test.core;
 
-import core.RedBlackTree;
-import core.control.WorkloadFeatures;
-import core.evolution.Fitness;
-import core.strategy.RedBlackStrategy;
-import core.strategy.WeightBalancedStrategy;
+import io.github.richeyworks.csrbt.RedBlackTree;
+import io.github.richeyworks.csrbt.control.WorkloadFeatures;
+import io.github.richeyworks.csrbt.evolution.Fitness;
+import io.github.richeyworks.csrbt.strategy.RedBlackStrategy;
+import io.github.richeyworks.csrbt.strategy.WeightBalancedStrategy;
 
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;

@@ -6,7 +6,7 @@ plugins {
 }
 
 group = "io.github.richeyworks"
-version = "0.1.0-SNAPSHOT"
+version = "0.1.0"
 
 tasks.withType<JavaCompile>().configureEach {
     options.release = 17 // see csrbt-core/build.gradle.kts
@@ -23,5 +23,4 @@ dependencies {
 }
 
 tasks.test {
-    useJUnitPlatform()
-}
+ 

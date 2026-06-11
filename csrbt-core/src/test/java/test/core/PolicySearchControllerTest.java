@@ -1,17 +1,17 @@
 package test.core;
 
-import core.control.MorphPolicy;
-import core.control.RollingWorkloadMonitor;
-import core.ensemble.EnsembleMember;
-import core.ensemble.EnsembleMode;
-import core.ensemble.EnsembleOrderedSet;
-import core.evolution.PolicyBandit;
-import core.evolution.PolicyGenome;
-import core.evolution.PolicySearchController;
-import core.export.TreeSessionRecorder;
-import core.strategy.RedBlackStrategy;
-import core.strategy.SplayStrategy;
-import core.strategy.WeightBalancedStrategy;
+import io.github.richeyworks.csrbt.control.MorphPolicy;
+import io.github.richeyworks.csrbt.control.RollingWorkloadMonitor;
+import io.github.richeyworks.csrbt.ensemble.EnsembleMember;
+import io.github.richeyworks.csrbt.ensemble.EnsembleMode;
+import io.github.richeyworks.csrbt.ensemble.EnsembleOrderedSet;
+import io.github.richeyworks.csrbt.evolution.PolicyBandit;
+import io.github.richeyworks.csrbt.evolution.PolicyGenome;
+import io.github.richeyworks.csrbt.evolution.PolicySearchController;
+import io.github.richeyworks.csrbt.export.TreeSessionRecorder;
+import io.github.richeyworks.csrbt.strategy.RedBlackStrategy;
+import io.github.richeyworks.csrbt.strategy.SplayStrategy;
+import io.github.richeyworks.csrbt.strategy.WeightBalancedStrategy;
 
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -40,7 +40,7 @@ public class PolicySearchControllerTest {
 
     /** Primary + one trial shadow; shadows receive every write (p=1) so trials are exact. */
     private static EnsembleOrderedSet<Integer> ensemble(
-            java.util.function.Supplier<core.strategy.TreeStrategy<Integer>> primary) {
+            java.util.function.Supplier<io.github.richeyworks.csrbt.strategy.TreeStrategy<Integer>> primary) {
         return EnsembleOrderedSet.<Integer>builder(Comparator.<Integer>naturalOrder())
                 .member(primary::get)                              // primary
                 .member(() -> new RedBlackStrategy<Integer>())     // the trial slot
@@ -99,7 +99,7 @@ public class PolicySearchControllerTest {
 
         List<String> phases = new ArrayList<>();
         c.setEventListener(e -> {
-            if (e instanceof core.event.TreeEvent.Trial<Integer> t) phases.add(t.phase());
+            if (e instanceof io.github.richeyworks.csrbt.event.TreeEvent.Trial<Integer> t) phases.add(t.phase());
         });
 
         // V1's discovering recipe: seeded churn, delete-heavy enough to break the repair.
@@ -136,7 +136,7 @@ public class PolicySearchControllerTest {
 
         List<String> phases = new ArrayList<>();
         c.setEventListener(e -> {
-            if (e instanceof core.event.TreeEvent.Trial<Integer> t) phases.add(t.phase());
+            if (e instanceof io.github.richeyworks.csrbt.event.TreeEvent.Trial<Integer> t) phases.add(t.phase());
         });
 
         Random rnd = new Random(42);

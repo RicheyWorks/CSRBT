@@ -5,10 +5,10 @@ plugins {
     `maven-publish`
 }
 
-// Package relocation (core.* -> io.github.richeyworks.csrbt.*) is held until the
-// first Central release dry-run — ADR-013 §3.
+// Package relocation (core.* -> io.github.richeyworks.csrbt.*) — ADR-013 §3's held
+// trigger, fired 2026-06-11 for the v0.1.0 release.
 group = "io.github.richeyworks"
-version = "0.1.0-SNAPSHOT"
+version = "0.1.0"
 
 java {
     withSourcesJar()
@@ -77,11 +77,4 @@ publishing {
                     }
                 }
                 scm {
-                    url = "https://github.com/RicheyWorks/CSRBT"
-                    connection = "scm:git:https://github.com/RicheyWorks/CSRBT.git"
-                }
-            }
-        }
-    }
-    // Signing + Central portal credentials are held until the first release — ADR-013 §3.
-}
+                    url = "https://github.com/

@@ -1,10 +1,10 @@
 package test.core;
 
-import core.TreeContext;
-import core.TreeNode1;
-import core.augment.IntervalAugmentor;
-import core.strategy.RedBlackStrategy;
-import core.util.OrderStatisticsOps;
+import io.github.richeyworks.csrbt.TreeContext;
+import io.github.richeyworks.csrbt.TreeNode1;
+import io.github.richeyworks.csrbt.augment.IntervalAugmentor;
+import io.github.richeyworks.csrbt.strategy.RedBlackStrategy;
+import io.github.richeyworks.csrbt.util.OrderStatisticsOps;
 
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;

@@ -1,16 +1,16 @@
 package test.core;
 
-import core.OrderedSet;
-import core.control.MorphController;
-import core.control.MorphController.MorphResult;
-import core.control.MorphPolicy;
-import core.control.StrategyId;
-import core.control.StrategyMorphTarget;
-import core.control.StrategyScorer;
-import core.control.WorkloadFeatures;
-import core.control.WorkloadMonitor;
-import core.strategy.RedBlackStrategy;
-import core.strategy.TreeStrategy;
+import io.github.richeyworks.csrbt.OrderedSet;
+import io.github.richeyworks.csrbt.control.MorphController;
+import io.github.richeyworks.csrbt.control.MorphController.MorphResult;
+import io.github.richeyworks.csrbt.control.MorphPolicy;
+import io.github.richeyworks.csrbt.control.StrategyId;
+import io.github.richeyworks.csrbt.control.StrategyMorphTarget;
+import io.github.richeyworks.csrbt.control.StrategyScorer;
+import io.github.richeyworks.csrbt.control.WorkloadFeatures;
+import io.github.richeyworks.csrbt.control.WorkloadMonitor;
+import io.github.richeyworks.csrbt.strategy.RedBlackStrategy;
+import io.github.richeyworks.csrbt.strategy.TreeStrategy;
 
 import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.LogManager;
@@ -33,12 +33,12 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
- * core.control.MorphController (ADR-002 step 6, Phase D / D1): orchestration of one
+ * io.github.richeyworks.csrbt.control.MorphController (ADR-002 step 6, Phase D / D1): orchestration of one
  * evaluation, the MorphResult contract, health-fail-keeps-incumbent (G6), and exactly one
  * event=morph_eval line per evaluation (G9). Monitor/scorer/policy are hand-fed; the real
  * OrderedSet executor is exercised through the StrategyMorphTarget seam.
  */
-@DisplayName("core.control.MorphController (Phase D / D1)")
+@DisplayName("io.github.richeyworks.csrbt.control.MorphController (Phase D / D1)")
 public class MorphControllerTest {
 
     private static WorkloadMonitor fixedMonitor(WorkloadFeatures f) {

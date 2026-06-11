@@ -1,11 +1,11 @@
 package test.core;
 
-import core.control.MorphPolicy;
-import core.event.TreeEvent;
+import io.github.richeyworks.csrbt.control.MorphPolicy;
+import io.github.richeyworks.csrbt.event.TreeEvent;
 
-import experimental.cache.CacheEvolutionLoop;
-import experimental.cache.CacheGenome;
-import experimental.cache.SegmentedLruCache;
+import io.github.richeyworks.csrbt.experimental.cache.CacheEvolutionLoop;
+import io.github.richeyworks.csrbt.experimental.cache.CacheGenome;
+import io.github.richeyworks.csrbt.experimental.cache.SegmentedLruCache;
 
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;

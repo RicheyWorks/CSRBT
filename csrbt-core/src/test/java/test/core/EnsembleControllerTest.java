@@ -1,17 +1,17 @@
 package test.core;
 
-import core.RedBlackTree;
-import core.control.CostModelStrategyScorer;
-import core.control.MorphPolicy;
-import core.control.RollingWorkloadMonitor;
-import core.control.StrategyId;
-import core.ensemble.EnsembleController;
-import core.ensemble.EnsembleController.PromotionResult;
-import core.ensemble.EnsembleMember;
-import core.ensemble.EnsembleOrderedSet;
-import core.strategy.AVLStrategy;
-import core.strategy.RedBlackStrategy;
-import core.strategy.SplayStrategy;
+import io.github.richeyworks.csrbt.RedBlackTree;
+import io.github.richeyworks.csrbt.control.CostModelStrategyScorer;
+import io.github.richeyworks.csrbt.control.MorphPolicy;
+import io.github.richeyworks.csrbt.control.RollingWorkloadMonitor;
+import io.github.richeyworks.csrbt.control.StrategyId;
+import io.github.richeyworks.csrbt.ensemble.EnsembleController;
+import io.github.richeyworks.csrbt.ensemble.EnsembleController.PromotionResult;
+import io.github.richeyworks.csrbt.ensemble.EnsembleMember;
+import io.github.richeyworks.csrbt.ensemble.EnsembleOrderedSet;
+import io.github.richeyworks.csrbt.strategy.AVLStrategy;
+import io.github.richeyworks.csrbt.strategy.RedBlackStrategy;
+import io.github.richeyworks.csrbt.strategy.SplayStrategy;
 
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;

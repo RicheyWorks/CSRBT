@@ -1,7 +1,7 @@
 package test.core;
 
-import core.evolution.PolicyBandit;
-import core.evolution.PolicyGenome;
+import io.github.richeyworks.csrbt.evolution.PolicyBandit;
+import io.github.richeyworks.csrbt.evolution.PolicyGenome;
 
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;

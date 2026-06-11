@@ -1,11 +1,11 @@
 package test.core;
 
-import core.TreeContext;
-import core.control.MorphController;
-import core.control.MorphPolicy;
-import core.evolution.GenomeDrivenTreeController;
-import core.evolution.TreeGenome;
-import core.strategy.RedBlackStrategy;
+import io.github.richeyworks.csrbt.TreeContext;
+import io.github.richeyworks.csrbt.control.MorphController;
+import io.github.richeyworks.csrbt.control.MorphPolicy;
+import io.github.richeyworks.csrbt.evolution.GenomeDrivenTreeController;
+import io.github.richeyworks.csrbt.evolution.TreeGenome;
+import io.github.richeyworks.csrbt.strategy.RedBlackStrategy;
 
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;

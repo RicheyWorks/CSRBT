@@ -1,11 +1,11 @@
 package test.core;
 
-import core.control.MorphHistory;
-import core.control.MorphPolicy;
-import core.control.MorphPolicy.Decision;
-import core.control.StrategyId;
-import core.control.StrategyScorer.Score;
-import core.control.WorkloadFeatures;
+import io.github.richeyworks.csrbt.control.MorphHistory;
+import io.github.richeyworks.csrbt.control.MorphPolicy;
+import io.github.richeyworks.csrbt.control.MorphPolicy.Decision;
+import io.github.richeyworks.csrbt.control.StrategyId;
+import io.github.richeyworks.csrbt.control.StrategyScorer.Score;
+import io.github.richeyworks.csrbt.control.WorkloadFeatures;
 
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
@@ -24,7 +24,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
  * over the scorer's ascending-cost ranking, while {@link MorphPolicy#shouldMorph} must
  * remain byte-identical to the legacy nested policy (parity is re-pinned here).
  */
-@DisplayName("core.control.MorphPolicy + MorphHistory")
+@DisplayName("io.github.richeyworks.csrbt.control.MorphPolicy + MorphHistory")
 public class MorphPolicyControlTest {
 
     private static Score sc(StrategyId id, double cost) { return new Score(id, cost, id + " @" + cost); }

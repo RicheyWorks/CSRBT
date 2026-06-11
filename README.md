@@ -47,7 +47,7 @@ regime-shift races, a pre-registered discriminating schedule, the real price of
 switching) and closed with a disposition: the calibrated selector *ties* the best
 fixed choice without hindsight, and chasing regime blocks is provably uneconomical at
 realistic granularity. The same evolve-under-viability pattern then transferred to a
-second policy space (cache eviction, `experimental.cache`), where the gate killed the
+second policy space (cache eviction, `…csrbt.experimental.cache`), where the gate killed the
 lethal genome on the record and evolution once again converged to the textbook answer.
 The full story is in [the evolution machine section](#the-evolution-machine-the-story-told-honestly)
 below.
@@ -103,13 +103,13 @@ that scores how well each structure fits a workload and recommends morphs, and
 decides through the control plane (below) by default, keeping the genome loop only as a
 flagged fallback. `StrategyBattleRunner` benchmarks strategies head-to-head across workload
 types. The biological-model analytics (`TreeEcology`)
-and alien-seed/swarm theatrics (`TreeAgent`) live in a separate `experimental`
+and alien-seed/swarm theatrics (`TreeAgent`) live in a separate `…csrbt.experimental`
 package that depends on core, keeping the core contract-bound. `TreeEngineRegistry` keeps
 `TreeGenome.StructureType` honest — every declared type either maps to a working
 engine or fails loudly as unsupported, rather than silently returning a no-op.
 
 **Control plane (ADR-002 step 6).** The genome's successor is a pipeline of four small,
-independently testable units in `core.control`, each a pure function over an immutable
+independently testable units in `io.github.richeyworks.csrbt.control`, each a pure function over an immutable
 input so every adaptation decision is explainable from a single log line.
 `WorkloadMonitor` folds the op stream into an immutable `WorkloadFeatures` vector —
 read/write mix, hot-key access skew, mean search depth, rotation rate, size, and growth —
@@ -338,7 +338,7 @@ settings.gradle.kts            Gradle multi-module build (ADR-013)
 .github/workflows/ci.yml       CI: gradle build on a JDK 17/21 matrix (ADR-013)
 ```
 
-Paths above are rooted in `csrbt-core/src/main/java/` — the module split (ADR-013)
+Paths above are rooted in `csrbt-core/src/main/java/io/github/richeyworks/csrbt/` — the module split (ADR-013)
 encodes the dependency direction: `experimental → core`, `benchmarks → both`.
 
 ## Building and testing
@@ -371,7 +371,7 @@ nothing is vendored.
 - `HealthGatedMorphTest` / `MorphPolicyTest` — morph validation + rollback and the
   anti-thrash cooldown/stability/margin gates.
 - `WorkloadMonitorTest` / `StrategyScorerTest` / `MorphPolicyControlTest` — the
-  `core.control` units: O(1) workload-feature extraction, the cost-model strategy
+  `…csrbt.control` units: O(1) workload-feature extraction, the cost-model strategy
   ranking (the DESIGN §10 trace and each workload regime), and the promoted morph
   policy + `MorphHistory` (with `shouldMorph` parity to the legacy gate).
 - `MorphControllerTest` / `StrategyIdBridgeTest` / `ControllerMonitorFeedTest` /
@@ -659,11 +659,4 @@ item; the contribution is the pattern, measured twice.
 - [`docs/strategy-audit-and-feasibility-2026-05-30.md`](docs/strategy-audit-and-feasibility-2026-05-30.md)
   — per-strategy correctness audit and a gap analysis vs the adaptive end goal
   (with resolution status).
-- [`docs/code-audit-2026-05-30.md`](docs/code-audit-2026-05-30.md) — correctness,
-  augmentation, persistence, and concurrency findings, with fixes applied.
-- [`docs/backend-audit-2026-05-30.md`](docs/backend-audit-2026-05-30.md) —
-  persistence/clone/agent infrastructure findings, with fixes applied.
-- [`docs/code-review-2026-05-29.md`](docs/code-review-2026-05-29.md) — earlier code
-  review findings and the fixes applied for each.
-- [`docs/PLAN-nil-sentinel-refactor.md`](docs/PLAN-nil-sentinel-refactor.md) —
-  step-by-step plan for the per-tree-NIL / parent-convention refactor.
+- [`docs/code-audit-2026-05-30.md`](docs/code-audit-2026-

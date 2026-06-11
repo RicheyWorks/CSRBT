@@ -1,9 +1,9 @@
 package test.core;
 
-import core.evolution.PolicyGenome;
-import core.strategy.RedBlackStrategy;
-import core.strategy.TreeStrategy;
-import core.strategy.WeightBalancedStrategy;
+import io.github.richeyworks.csrbt.evolution.PolicyGenome;
+import io.github.richeyworks.csrbt.strategy.RedBlackStrategy;
+import io.github.richeyworks.csrbt.strategy.TreeStrategy;
+import io.github.richeyworks.csrbt.strategy.WeightBalancedStrategy;
 
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;

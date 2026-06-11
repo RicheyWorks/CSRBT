@@ -1,8 +1,8 @@
 package test.core;
 
-import core.OrderedSet;
-import core.adapter.NavigableOrderedSet;
-import core.strategy.RedBlackStrategy;
+import io.github.richeyworks.csrbt.OrderedSet;
+import io.github.richeyworks.csrbt.adapter.NavigableOrderedSet;
+import io.github.richeyworks.csrbt.strategy.RedBlackStrategy;
 
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
