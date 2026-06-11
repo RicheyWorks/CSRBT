@@ -159,13 +159,25 @@ twice: no lag to cut, switching quantum > prize), E5 parked by its own E4 gate, 
 untouched (machinery transfer, orthogonal, optional). Three re-arming triggers named
 in §8. README design-history updated.
 
-**If the user says "next" after this:** the open surface is exactly: **E6** (the long
-arrow — transfer the evolve-under-viability loop to cache eviction; the one staged
-slice, premise intact), **held infrastructure** (ADR-009 G1 Gradle/JMH, ADR-008 D2
-disk pages — triggers unfired), or **ship/rest** (the arc is complete and
-publishable). Nothing else is queued; do not invent work. The day's story, one line:
-the machine found its own miscalibration, fixed exactly that, proved its remaining
-"failure" was correct economics, and closed its own research program honestly.
+**Same session, E6 done (suite 533 green; `experimental.cache` + 
+`CacheTransferExperimentTest`):** the last staged slice. Verdict split and published
+(`CHANGELOG-2026-06-11-adr012-e6-transfer.md`): **patternTransferred=true,
+loopReusedVerbatim=false** — MorphPolicy/TreeEvent/TreeEventListener crossed to the
+cache space unchanged; the loop class is genome-typed and was re-typed (~345 lines,
+`CacheEvolutionLoop`). Gate killed the in-box lethal genome (protectedTenths=10, no
+probation) with zero unsafe promotions; determinism pinned. Performance motif again:
+evolution found pure LRU beats textbook SLRU under drift, converged, tied best fixed
+Δ+0.000. ADR-012 item 6 ticked; README story closed. Generic-loop extraction = held,
+trigger: a third policy space.
+
+**If the user says "next" after this:** ADR-012 is now fully resolved (E1–E3c done,
+E4/E5 parked with triggers, E6 done). The open surface is exactly: **held
+infrastructure** (ADR-009 G1 Gradle/JMH, ADR-008 D2 disk pages — triggers unfired),
+or **ship/rest** (the arc is complete and publishable). Nothing else is queued; do
+not invent work. The story, one line: the machine found its own miscalibration, fixed
+exactly that, proved its remaining "failure" was correct economics, closed its own
+research program honestly — and then showed the whole discipline transfers to a
+second domain, where the textbook answer won again.
 
 The honest claim, measured: *the calibrated
 selector matches the best fixed choice without hindsight; it does not yet beat it.*

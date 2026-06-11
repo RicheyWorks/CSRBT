@@ -538,6 +538,20 @@ way to switch costs more than three times the entire prize. The held recency-fea
 upgrade is retired with receipts: perfect perception still loses, so better perception
 cannot help. The selector's refusal to chase blocks was correct economics all along.
 
+**The last staged slice asked whether any of this is about trees at all.** E6 pointed
+the evolve-under-viability machinery at a second policy space — cache eviction, with a
+two-gene segmented-LRU genome whose box deliberately contains a lethal point (no
+probation: this space's WB(5,3)) — and published the split verdict
+([E6](docs/CHANGELOG-2026-06-11-adr012-e6-transfer.md)): **the pattern and the seams
+transfer; the loop class doesn't.** `MorphPolicy`, the `TreeEvent` vocabulary, and the
+recorder seam crossed unchanged; the generation protocol had to be re-typed. The gate
+killed the lethal genome on the record with zero unsafe promotions, and the motif held
+in the new space exactly as it held in the old: on a drifting workload evolution
+discovered that pure LRU beats the textbook segmented split (frequency-earned
+protection is a liability when the hot set moves), converged to it, and tied the best
+fixed choice at Δ+0.000 — matching, never beating. That closes ADR-012's last staged
+item; the contribution is the pattern, measured twice.
+
 ## Design history
 
 **Design & direction**

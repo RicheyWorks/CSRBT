@@ -3,7 +3,8 @@
 **Status:** Accepted (2026-06-11) — instrument phase complete (E1–E3c: three negative
 verdicts, two instruments that landed harder than their theses, all with receipts);
 **E4–E5 parked** with explicit re-arming triggers (§8);
-E6 stays staged (optional, long). See §8, the disposition.
+**E6 done 2026-06-11** (pattern transferred, loop re-typed — see action item 6).
+See §8, the disposition.
 **Date:** 2026-06-10 (disposition 2026-06-11)
 **Deciders:** Richmond
 **Builds on:** ADR-011 in full (the evolution machine: parameterized strategies, genome,
@@ -236,10 +237,17 @@ turns on it.
    heterogeneous/cyclic environments? **PARKED 2026-06-11 (§8):** gated on E4 by
    design ("otherwise it is Option B and repeats V5"), and E4 is parked. Re-arming
    triggers in §8.
-6. [ ] **E6** — (optional, long) generalize the loop to a second policy space (cache
-   eviction); does the machinery transfer unchanged? **Unaffected by the disposition:**
-   its thesis is machinery transfer, not beating fixed strategies — none of E3/E3b/E3c
-   touches it. Stays staged, optional.
+6. [x] **E6** — (optional, long) generalize the loop to a second policy space (cache
+   eviction); does the machinery transfer unchanged? **Done 2026-06-11** —
+   `experimental.cache` (CacheGenome / SegmentedLruCache / CacheEvolutionLoop),
+   `CacheTransferExperimentTest`; verdict split and published:
+   **patternTransferred=true, loopReusedVerbatim=false**. The seams crossed unchanged
+   (MorphPolicy, TreeEvent vocabulary, TreeEventListener); the loop class is
+   genome-typed and had to be re-typed. Bonus finding: on a drifting workload the
+   evolved policy converged to pure LRU — beating the textbook segmented split — and
+   tied the best fixed founder at Δ+0.000: the V5 motif, echoed in a space the tree
+   never saw. Generic-loop extraction is held with a named trigger (a third policy
+   space). See `CHANGELOG-2026-06-11-adr012-e6-transfer.md`.
 
 ---
 
@@ -300,7 +308,8 @@ which repeats V5.
 
 **E6 is untouched** — its thesis (the loop transfers: genome + fitness + viability
 oracle, no change to the machinery) is orthogonal to everything measured here. It
-remains the one staged slice, optional and long.
+remains the one staged slice, optional and long. *(Executed later the same day —
+verdict in action item 6: the pattern and seams transfer, the loop class doesn't.)*
 
 **The honest summary this ADR earned:** the ecology turn asked whether the machine
 could be more than a tree that tunes α. The answer is yes — but as a *microscope*, not
