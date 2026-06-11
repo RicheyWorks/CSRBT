@@ -70,7 +70,9 @@
   Contract: <code>docs/visualizer-contract.json</code> — generate states with
   <code>core.export.TreeExport.toJson(set)</code>, or record whole sessions with
   <code>TreeSessionRecorder</code> and drop them here for replay
-  (try <code>docs/arena-session.json</code>: the real controller morphing RB → Splay → RB).
+  (try <code>docs/arena-session.json</code>: the real controller morphing RB → Splay → RB, or
+  <code>docs/arena-search-session.json</code>: the ADR-011 evolution machine — genomes born,
+  gate-killed, culled, and one promoted).
   Nodes are matched by key across frames, so every transition animates.
 </footer>
 
@@ -151,6 +153,14 @@ function chipText(f) {
          + (f.committed ? "" : " ✗") + " @" + f.op;
   }
   if (f.type === "Repair") return "repair @" + f.op;
+  if (f.type === "Lineage") {                            // ADR-011 V4: a genome is born
+    return (f.parentA ? "⊕ " : "⊕ founder ") + f.child + " g" + f.generation;
+  }
+  if (f.type === "Trial") {                              // ADR-011 V3/V4: gate + selection
+    const mark = { TRIED: "?", SCORED: "=", CULLED: "✂", DISQUALIFIED: "☠", SELECTED: "★" };
+    return (mark[f.phase] ?? "") + " " + f.arm
+         + (f.phase === "SCORED" ? " " + f.cost.toFixed(3) : "") + " g" + f.pulls;
+  }
   return f.type + " @" + f.op;
 }
 
@@ -162,6 +172,20 @@ function narrate(f) {
          + (f.committed ? "" : " — held by the health gate");
   }
   if (f.type === "Repair") return "op " + f.op + ": self-repair " + (f.healthy ? "✓" : "✗");
+  if (f.type === "Lineage") {
+    return "generation " + f.generation + ": " + f.child
+         + (f.parentA ? " born of " + f.parentA + (f.parentB ? " × " + f.parentB : " by mutation")
+                      : " enters as a founder");
+  }
+  if (f.type === "Trial") {
+    const arm = f.arm, g = " (generation " + f.pulls + ")";
+    if (f.phase === "TRIED")        return arm + " materialized on trial" + g;
+    if (f.phase === "SCORED")       return arm + " scored — cost " + f.cost.toFixed(4) + g;
+    if (f.phase === "CULLED")       return arm + " culled by selection" + g;
+    if (f.phase === "DISQUALIFIED") return arm + " dead — failed its own invariant under live churn" + g;
+    if (f.phase === "SELECTED")     return arm + " promoted to primary through the morph gates" + g;
+    return arm + " " + f.phase + g;
+  }
   return f.type;
 }
 

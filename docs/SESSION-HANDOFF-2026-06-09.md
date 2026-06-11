@@ -34,6 +34,55 @@ For the next agent session. Read this before touching code.
     over its best fixed strategy; the search converged to WB(3,·). The honest no, on the
     record. See `CHANGELOG-2026-06-10-adr011-v5-experiment.md`.
 
+## Roadmap (written 2026-06-10 at session end)
+
+**The direction has a name now: ADR-012, the ecology turn** (Proposed; full reasoning in
+`docs/ADR-012-ecology-turn-2026-06-10.md`). The reframe: ADR-011's optimization thesis is
+closed (V5 said no — fixed four cover *steady state*), but V5 only tested the stationary
+axis. The open, falsifiable, and far more interesting axis is **adaptation under a
+*changing* environment** — where diversity stops being decoration and becomes a measurable
+performance property. The machine becomes a microscope for general principles of adaptive
+informational systems under a hard viability filter (honest scope: artificial-life /
+complex-systems principles, *not* biological claims — the mapping is too lossy and the ADR
+says so). We are well-placed because we already have the two things such projects lack: the
+safety boundary (health gate) and full observability (recorder/arena).
+
+Priority order; each is one session-sized arc. **Instruments before mechanisms** (the E1–E2
+viability map + diversity metrics are pure observation; E3 is the experiment that matters).
+
+1. **Ship visibility** — **mostly done (2026-06-10, second session).** Landed:
+   `experimental.SearchArenaSession` → `docs/arena-search-session.json` (38 events, nothing
+   staged: WB(5,3) founder dies by its own invariant at gen 1 — V1's finding replayed
+   live — a WB(2,1) mutant dies at gen 3, WB(3,2) the literature point is SELECTED through
+   the morph gates off a splay primary; seed swept until the *real* controller exhibited
+   the story, which is selection of a run, not staging of events). Visualizer now renders
+   Trial/Lineage first-class (chips: ⊕ born / = scored / ✂ culled / ☠ disqualified /
+   ★ selected; narration per phase) — smoke-tested all 39 frames render without
+   undefined/NaN. Suite 523 green after. **Remaining: write the public story** — the
+   changelogs are the draft: a machine that found an unsound parameter on its first run,
+   confirmed the literature, and published its own negative result.
+2. **ADR-012 E1 — the viability map.** Sweep (Δ, Γ) (+ unboxed behind the flag), record the
+   health-gate/invariant rejection spectrum → an artifact the arena renders as a heatmap.
+   Pure instrument; thesis: the viable region has structure (V1's (5,3) is the first
+   counterexample — map the whole boundary). Mutational robustness, for free.
+3. **ADR-012 E2 — diversity as a first-class output.** Population-diversity metrics in the
+   recorder; quantify the stationary (μ+λ) collapse rate (V5's convergence, measured not
+   just observed).
+4. **ADR-012 E3 — the non-stationary harness (the axis V5 skipped).** Regime-shifting
+   workload; fixed vs elite-only vs full-population on re-adaptation lag + integrated cost.
+   *This is the experiment that justifies the whole turn.* Verdict published either way.
+   (E4 diversity-preserving selection, E5 widened genome/speciation, E6 generalize to a
+   second policy space all follow — see the ADR.)
+
+Held items still on their own triggers only (ADR-008 D2 disk pages; ADR-006/007 burst
+escalation; ADR-009 G1 Gradle/JMH — note G1 also cures V5's wall-clock weather). The
+composite cost metric (comparisons + w·rotations) and its rotation counters get a real
+consumer at E3/E5. Splay-p / hybrid-mix is E5, *not* a standalone — on the steady-state
+axis it just repeats V5.
+
+A fresh-eyes audit of the five V-slices (they landed in one day) is always a legitimate
+alternative to starting E1.
+
 ## If the user says "next" (post-ADR-011)
 
 ADR-011 was the roadmap's last open frontier. There is no unblocked code work queued —
@@ -61,6 +110,10 @@ changelog per slice, tick the ADR action item, green through `ant clean test`.
 - **Shadow tree:** the repo mount **cannot delete files** (`ant clean` fails in-place).
   Build out-of-tree: copy `src build.xml *.jar snapshots` to `~/csrbt`, run ant there.
   The shadow tree is ephemeral — rebuild it each session.
+- **No-ant shortcut (worked 2026-06-10):** skip ant entirely — `javac --release 17 -d
+  /tmp/classes @srcs.txt`, then run the suite with the in-repo
+  `junit-platform-console-standalone-1.9.2.jar` via `--scan-class-path /tmp/testclasses`
+  (put `/tmp/classes:src/main/resources:log4j jars` on `--class-path`). 523 green in ~11 s.
 - **Mount staleness (the truncation trap):** *edits* to existing repo files (file tools)
   often appear **truncated** through the bash mount for minutes; *new* files sync fine; the
   Windows side (file tools) is always authoritative. After editing an existing file, do
