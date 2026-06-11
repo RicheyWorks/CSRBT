@@ -77,4 +77,11 @@ publishing {
                     }
                 }
                 scm {
-                    url = "https://github.com/
+                    url = "https://github.com/RicheyWorks/CSRBT"
+                    connection = "scm:git:https://github.com/RicheyWorks/CSRBT.git"
+                }
+            }
+        }
+    }
+    // Signing + Central portal credentials are held until the Central release — ADR-013 §3.
+}
