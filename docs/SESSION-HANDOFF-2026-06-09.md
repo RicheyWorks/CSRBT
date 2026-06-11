@@ -175,10 +175,13 @@ trigger: a third policy space.
 the identical tree is green locally under the exact CI invocation (real ant, three
 verification routes). Diagnosis by elimination (CI logs are admin-only): the ADR-007
 benchmark's hard `optimistic < locked` — the suite's only strict comparison of two
-wall-clock measurements under contention, a pre-V5-rule holdout. Re-asserted as
-best-of-3 (one win proves the property; a real regression loses all three). If CI
-reds again: pull the `test-reports-*` artifact from the run page for the failing test
-name before touching anything.
+wall-clock measurements under contention, a pre-V5-rule holdout. Best-of-3 turned
+JDK 21 green, JDK 17 stayed red — then the flip was **reproduced locally under 6-way
+CPU saturation** (0.9× attempt 1). Final form: soft verdict per the in-suite
+benchmark convention (rows + WARNING, never reds the build); correctness stays
+hard-asserted in the ADR-007 functional tests. If CI reds again after this, it is
+NOT this benchmark: pull the `test-reports-*` artifact from the run page for the
+failing test name before touching anything.
 
 **If the user says "next" after this:** ADR-012 is now fully resolved (E1–E3c done,
 E4/E5 parked with triggers, E6 done). The open surface is exactly: **held

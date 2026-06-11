@@ -11,14 +11,23 @@ loaded runner without anything being wrong: the ADR-007 benchmark's hard
 under thread contention**.
 
 That assert predates the V5 rule ("wall-clock is weather; deterministic meters
-decide") and survived it as the suite's last weather-exposed hard verdict. It is now
-weather-proofed with its teeth kept: up to three attempts, each row printed; **one
-optimistic win demonstrates the property** (a single race can flip on a busy runner),
-while a real regression — say, the fast path silently disabled — loses all three
-deterministically and still fails the build. Locally the first attempt wins at 1.6×.
+decide") and survived it as the suite's last weather-exposed hard verdict. The first
+fix kept teeth: best-of-3, one optimistic win proves the property. The re-push
+(`8808a42`) turned **JDK 21 green** and left JDK 17 red — and the flip was then
+**reproduced locally under deliberate 6-way CPU saturation**: attempt 1 lost (0.9×),
+attempt 2 won (1.8×). On a *persistently* saturated runner, three contended races in
+a row can all lose without anything being broken — best-of-N is not weather-proof,
+it is weather-resistant.
 
-If CI reds again on the re-push, the cause is something only the runner can see —
-pull the `test-reports-*` artifact from the run page (it names the failing test) and
-the next diagnosis starts from fact, not elimination.
+So the final form follows the house convention that already governs every other
+benchmark in the suite ("printed rows with soft assertions, not JMH — until G1"):
+the three attempt rows print either way; if optimistic never wins, a loud WARNING
+prints and the build stays green. The teeth this gives up are not lost — the
+lock-free path's **correctness** is hard-asserted by the ADR-007 functional tests
+(equivalence and divergence-repair, both paths); the speed claim was always a
+benchmark row, and benchmark rows don't red the build. The real performance rig is
+ADR-009 G1's JMH module, whose trigger ("published artifact with external
+consumers") the GitHub push has moved measurably closer.
 
-Suite **533 green** under `ant clean test`, locally, on the patched tree.
+Suite **533 green** under `ant clean test` (real ant 1.10.14, Temurin 17), locally,
+on the final tree; the loaded-run subset (suspects under 6 spinners) also green.
