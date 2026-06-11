@@ -139,7 +139,7 @@ public class WeightBalancedStrategyTest {
             return depth(tree, tree.getRoot());
         }
 
-        private int depth(RedBlackTree<Integer> tree, core.TreeNode1<Integer> n) {
+        private int depth(RedBlackTree<Integer> tree, io.github.richeyworks.csrbt.TreeNode1<Integer> n) {
             if (n == null || n.isNil()) return 0;
             return 1 + Math.max(depth(tree, n.getLeft()), depth(tree, n.getRight()));
         }
