@@ -200,7 +200,10 @@ turns on it.
    ensemble's comparator seam, ELITE costs 2.7× and POP ~5× the best fixed (AVL) on
    integrated cmp/op, all seeds; the bill is O(n) candidate rebuilds per generation, not
    shadow serving. Only SPLAY shows measurable re-adaptation lag. E4's bar: cut lag
-   *without adding rebuilds*. See `CHANGELOG-2026-06-10-adr012-e3-nonstationary.md`.
+   *without adding rebuilds*. Same-day addendum: the ADR-002 *selector* raced too —
+   ~1.5× best fixed (per-morph beats per-generation rebuilds) but still −52%; on this
+   (AVL-dominated, fixed-in-advance) schedule **no adaptive scheme of any architecture
+   wins**. See `CHANGELOG-2026-06-10-adr012-e3-nonstationary.md`.
 4. [ ] **E4** — diversity-preserving selection + elite archive; does it cut E3's lag
    without a steady-state cost regression beyond a documented bound?
 5. [ ] **E5** — widen the genome (splay-p, hybrid-mix); do stable species emerge under

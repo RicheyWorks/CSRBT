@@ -1,8 +1,11 @@
 package test.core;
 
 import core.OrderedSet;
+import core.control.CostModelStrategyScorer;
+import core.control.MorphController;
 import core.control.MorphPolicy;
 import core.control.RollingWorkloadMonitor;
+import core.control.StrategyId;
 import core.ensemble.EnsembleMember;
 import core.ensemble.EnsembleMode;
 import core.ensemble.EnsembleOrderedSet;
@@ -33,11 +36,15 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 /**
  * ADR-012 E3 — <b>the non-stationary harness</b>: the axis V5 skipped. One long run whose
  * workload shifts regime on a fixed schedule (hot-read → write-heavy → sequential-append →
- * delete-churn, twice around), served by seven contestants on byte-identical streams: the
+ * delete-churn, twice around), served by eight contestants on byte-identical streams: the
  * four fixed strategies as plain sets, and two live evolution controllers — <b>elite</b>
  * (μ=1, sliver founders: E2's converged population) and <b>population</b> (μ=2, diverse
  * founders) — adapting <em>during</em> the run, generations caller-cadenced, promotions
- * through the morph gates, nothing pre-searched.
+ * through the morph gates, nothing pre-searched — plus <b>the ADR-002 selector</b>
+ * (monitor → scorer → policy → health-gated morph among the fixed four, evaluated every
+ * 10 ops like production): the contestant the first E3 run documented as missing, and
+ * the place V5 said the adaptive claim lives. The selector pays per <em>morph</em> — an
+ * O(n) rebuild only when the gates clear — not per generation.
  *
  * <p><b>Cost is honest about exploration.</b> Realized cost = comparisons/op at the
  * comparator seam (the V5 meter: deterministic, byte-identical across runs). For the
@@ -211,8 +218,50 @@ public class NonStationaryExperimentTest {
         }
     }
 
+    /** The ADR-002 selector: the control plane over one live set, production cadence. */
+    private static RunResult runSelector(long seed, TreeSet<Integer> oracle) {
+        long[] cmp = { 0L };
+        Comparator<Integer> counting = (a, b) -> { cmp[0]++; return Integer.compare(a, b); };
+        OrderedSet<Integer> set = new OrderedSet<>(new RedBlackStrategy<>(), counting);
+        RollingWorkloadMonitor monitor = new RollingWorkloadMonitor();
+        MorphController<Integer> mc = new MorphController<>(set, monitor,
+                new CostModelStrategyScorer(), MorphPolicy.defaults());
+        StrategyId[] current = { StrategyId.RED_BLACK };
+        int[] sinceEval = { 0 };
+        Ops sink = new Ops() {
+            @Override public void add(int k) {
+                if (set.add(k)) monitor.recordAdd(Integer.hashCode(k));
+                if (oracle != null) oracle.add(k);
+            }
+            @Override public void remove(int k) {
+                if (set.remove(k)) monitor.recordRemove(Integer.hashCode(k));
+                if (oracle != null) oracle.remove(k);
+            }
+            @Override public void contains(int k) {
+                set.contains(k);
+                monitor.recordSearch(Integer.hashCode(k), 0);
+            }
+        };
+        RunResult r = drive(sink, cmp, seed, () -> {
+            if (++sinceEval[0] == 10) {                    // EVAL_INTERVAL, the production cadence
+                MorphController.MorphResult res = mc.evaluateAndMaybeMorph(current[0], 10);
+                if (res.morphed()) current[0] = res.to();
+                sinceEval[0] = 0;
+            }
+        });
+        if (oracle != null) {
+            Random probe = new Random(seed ^ 0x5EEDL);
+            for (int i = 0; i < 2_000; i++) {
+                int k = probe.nextInt(25_000);
+                assertEquals(oracle.contains(k), set.contains(k),
+                        "selector contestant diverged at key " + k);
+            }
+        }
+        return r;
+    }
+
     @Test
-    @DisplayName("seven contestants × three seeds: integrated cost + re-adaptation lag, verdict printed")
+    @DisplayName("eight contestants × three seeds: integrated cost + re-adaptation lag, verdict printed")
     void theExperiment() {
         Map<String, Supplier<TreeStrategy<Integer>>> fixed = new LinkedHashMap<>();
         fixed.put("RB", RedBlackStrategy::new);
@@ -237,6 +286,7 @@ public class NonStationaryExperimentTest {
                     List.of(PolicyGenome.weightBalanced(3, 2), PolicyGenome.weightBalanced(4, 2),
                             PolicyGenome.weightBalanced(6, 1), PolicyGenome.weightBalanced(8, 7)),
                     2, 4, seed, new TreeSet<>()));
+            results.put("SELECT", runSelector(seed, new TreeSet<>()));
 
             double bestFixedCost = Double.POSITIVE_INFINITY;
             String bestFixedName = "?";
@@ -245,8 +295,8 @@ public class NonStationaryExperimentTest {
                 assertTrue(c > 0.0);
                 if (c < bestFixedCost) { bestFixedCost = c; bestFixedName = name; }
             }
-            double bestAdaptive = Math.min(results.get("ELITE").cmpPerOp(),
-                                           results.get("POP").cmpPerOp());
+            double bestAdaptive = Math.min(results.get("SELECT").cmpPerOp(),
+                    Math.min(results.get("ELITE").cmpPerOp(), results.get("POP").cmpPerOp()));
             double improvement = (bestFixedCost - bestAdaptive) / bestFixedCost;
             if (improvement >= SUCCESS_MARGIN) sustainedWins++;
 

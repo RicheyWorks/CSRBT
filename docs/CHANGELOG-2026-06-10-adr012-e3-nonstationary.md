@@ -61,11 +61,42 @@ the balanced fixed four simply don't have transients on this schedule.
   here and remains untested on this axis. That is a legitimate E3 follow-up if the
   question ever needs closing completely.
 
+## Addendum (same day): the selector raced, and the question is now closed
+
+The documented missing contestant — **ADR-002's selector** (MorphController:
+monitor → cost-model scorer → MorphPolicy → health-gated morph among the fixed four,
+evaluated every 10 ops like production, paying per *morph* rather than per generation) —
+was added as the eighth contestant. Result, all seeds:
+
+| contestant | integrated cmp/op (11 / 2026 / 42) |
+|---|---|
+| AVL (best fixed, hindsight) | 16.19 / 16.26 / 16.12 |
+| **SELECT (ADR-002)** | **24.48 / 24.96 / 24.77** |
+| ELITE | 44.30 / 43.71 / 42.02 |
+| POP | 80.35 / 73.66 / 83.28 |
+
+The selector cuts the adaptive penalty from 2.7–5× to ~1.5× — per-morph rebuilds beat
+per-generation rebuilds, confirming E3's cost attribution from the other side — but it
+still loses to hindsight-best AVL by ~52%, tracking close to the RB it starts on (its
+cost model holds conservative through 6k-op blocks under the default 4000-op cooldown /
+20% margin / 3-win gates). **So the full verdict: on this schedule, no adaptive scheme
+of any architecture — evolution, elite, or selector — beats the best fixed strategy.**
+
+The honest caveat that keeps this from overreach: "best fixed" is chosen *in
+hindsight*, and this schedule turned out AVL-dominated — every regime block has AVL at
+or near the top, so the adaptive premise ("no single fixed choice covers a shifting
+workload") is simply false *here*. A schedule engineered so that no structure dominates
+would be the sharper discriminator — but engineering the workload until the adaptive
+contestant wins is exactly the move the house discipline forbids. The schedule was
+fixed before any contestant ran; the verdict stands for it, and the dominance
+observation is recorded as the condition under which it generalizes.
+
 ## What landed
 
-`NonStationaryExperimentTest` (1 test, ~4 s): `RegimeStream` schedule, windowed
-comparator sampling, mean re-adaptation lag, per-block cost rows, hard correctness floor
-(positive costs, full window series, both adaptive contestants answer a 2k-key
-membership sample oracle-exactly at run end), soft verdict.
+`NonStationaryExperimentTest` (1 test, ~5 s): `RegimeStream` schedule, windowed
+comparator sampling, mean re-adaptation lag, per-block cost rows, eight contestants,
+hard correctness floor (positive costs, full window series, the three adaptive
+contestants answer a 2k-key membership sample oracle-exactly at run end), soft verdict.
 
-ADR-012 action item 3 ticked. E4 — if attempted — now has a measured bar to clear.
+ADR-012 action item 3 ticked. E4 — if attempted — now has a measured bar to clear, and
+one fewer place to hide.

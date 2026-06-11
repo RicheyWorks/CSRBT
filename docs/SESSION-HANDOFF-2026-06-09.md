@@ -85,9 +85,13 @@ viability map + diversity metrics are pure observation; E3 is the experiment tha
    **Mechanism: O(n) candidate rebuilds per generation dominate — exploration scales
    with n, serving with log n.** Re-adaptation lag ≈ 0 for balanced fixed trees (no
    policy to re-adapt); only SPLAY shows transients. Documented gaps: cadence is a free
-   parameter; rotations unpriced; ADR-002's *selector* was not a contestant (legitimate
-   follow-up). E4's bar is now measured: cut lag without adding rebuilds — a mechanism
-   that breeds more is going the wrong way. See
+   parameter; rotations unpriced. **Follow-up done same day: the ADR-002 selector raced
+   as the eighth contestant** — 24.5–25.0 cmp/op, ~1.5× best fixed (per-morph rebuilds
+   beat per-generation rebuilds; the cost model holds near RB under default gates), so
+   on this schedule no adaptive scheme of any architecture wins. Caveat recorded: the
+   schedule (fixed before any contestant ran) turned out AVL-dominated, which is the
+   condition under which the verdict generalizes. E4's bar is now measured: cut lag
+   without adding rebuilds — a mechanism that breeds more is going the wrong way. See
    `CHANGELOG-2026-06-10-adr012-e3-nonstationary.md`. (E4/E5/E6 still staged in the ADR.)
 
 Held items still on their own triggers only (ADR-008 D2 disk pages; ADR-006/007 burst
