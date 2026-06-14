@@ -46,6 +46,50 @@ public class RedBlackTree<K> implements TreeEngine<K>, MutableTree<K> {
         strategy.fixInsert(this, newNode); // fixInsert enforces root BLACK at the end
     }
 
+    /**
+     * Replace this tree with a perfectly balanced, black-height-correct red-black tree built
+     * directly from an ascending, distinct key list in O(n) — no rotations, no per-insert fixups.
+     * The structure is the recursive-median BST; the single deepest level is coloured RED and every
+     * other node BLACK (root forced BLACK). Because a median build places all leaves on the bottom
+     * one or two levels, colouring exactly the deepest level red keeps every root-to-NIL path's black
+     * count equal, so the result satisfies the red-black invariants. Subtree sizes are maintained by
+     * the local structural links, so dynamic order statistics are correct immediately.
+     *
+     * <p>The caller guarantees the list is sorted and distinct under this tree's comparator;
+     * {@link OrderedSet#buildFromSorted} validates that before delegating here.</p>
+     */
+    public void buildBalanced(List<K> ascendingDistinct) {
+        int n = ascendingDistinct.size();
+        if (n == 0) {
+            root = NIL;
+            return;
+        }
+        int maxDepth = 31 - Integer.numberOfLeadingZeros(n); // floor(log2 n) = height of a median build
+        root = buildBalancedNode(ascendingDistinct, 0, n - 1, 0, maxDepth);
+        root.setParent(NIL);                   // a root has no real parent (matches post-fixInsert state)
+        root.setColor(TreeNode1.Color.BLACK);  // RB root invariant (only changes anything for n == 1)
+    }
+
+    private TreeNode1<K> buildBalancedNode(List<K> keys, int lo, int hi, int depth, int maxDepth) {
+        if (lo > hi) {
+            return NIL;
+        }
+        int mid = (lo + hi) >>> 1;
+        TreeNode1<K> node = TreeNode1.createNode(keys.get(mid), NIL);
+        TreeNode1<K> left = buildBalancedNode(keys, lo, mid - 1, depth + 1, maxDepth);
+        TreeNode1<K> right = buildBalancedNode(keys, mid + 1, hi, depth + 1, maxDepth);
+        // Local links recompute this node's size/augment/height in O(1) (no walk to the root),
+        // so the whole construction is O(n).
+        if (!left.isNil()) {
+            node.setLeftLocal(left);
+        }
+        if (!right.isNil()) {
+            node.setRightLocal(right);
+        }
+        node.setColor(depth == maxDepth ? TreeNode1.Color.RED : TreeNode1.Color.BLACK);
+        return node;
+    }
+
     public void remove(K value) {
         logger.info("Removing value={}", value);
         TreeNode1<K> node = strategy.search(this, value);

@@ -111,6 +111,54 @@ public class OrderedSet<K> implements SelfHealingTree, OrderedCollection<K>, Ran
         return new OrderedSet<>(strategy, Comparator.naturalOrder());
     }
 
+    /**
+     * Build an ordered set directly from an ASCENDING, DISTINCT key list in O(n), bypassing the
+     * O(n log n) repeated-insert path: a balanced, black-height-correct red-black tree is built
+     * bottom-up with no rotations. Ideal for bulk-loading a known-sorted run (e.g. from an external
+     * sort engine). The list must be strictly ascending under {@code keyOrder}; this is validated.
+     */
+    public static <K> OrderedSet<K> fromSorted(List<K> ascendingDistinct, TreeStrategy<K> strategy,
+                                               Comparator<? super K> keyOrder) {
+        OrderedSet<K> set = new OrderedSet<>(strategy, keyOrder);
+        set.buildFromSorted(ascendingDistinct);
+        return set;
+    }
+
+    /** {@link #fromSorted} convenience for naturally-ordered {@link Comparable} keys. */
+    public static <K extends Comparable<? super K>> OrderedSet<K> fromSortedNatural(
+            List<K> ascendingDistinct, TreeStrategy<K> strategy) {
+        return fromSorted(ascendingDistinct, strategy, Comparator.naturalOrder());
+    }
+
+    /**
+     * Populate this (empty) set in O(n) from an ASCENDING, DISTINCT key list — see {@link #fromSorted}.
+     * Order statistics are correct immediately because the build maintains intrinsic subtree sizes.
+     *
+     * @throws IllegalStateException    if this set is not empty
+     * @throws IllegalArgumentException if the list is not strictly ascending under this set's comparator
+     */
+    public void buildFromSorted(List<K> ascendingDistinct) {
+        synchronized (lock) {
+            if (size != 0) {
+                throw new IllegalStateException("buildFromSorted requires an empty set (size=" + size + ")");
+            }
+            for (int i = 1; i < ascendingDistinct.size(); i++) {
+                if (keyOrder.compare(ascendingDistinct.get(i - 1), ascendingDistinct.get(i)) >= 0) {
+                    throw new IllegalArgumentException(
+                            "buildFromSorted requires a strictly ascending (sorted, distinct) list; "
+                            + "violation at index " + i);
+                }
+            }
+            long ws = readGuard.writeLock();
+            try {
+                tree.buildBalanced(ascendingDistinct);
+            } finally {
+                readGuard.unlockWrite(ws);
+            }
+            resyncFromEngine();   // sync the cached size + FIFO window from the freshly built engine
+        }
+    }
+
     // -- Core ordered-set operations --
 
     /** @return {@code true} if the key was inserted; {@code false} if already present. */
