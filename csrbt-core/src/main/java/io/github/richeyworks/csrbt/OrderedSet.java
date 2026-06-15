@@ -152,10 +152,23 @@ public class OrderedSet<K> implements SelfHealingTree, OrderedCollection<K>, Ran
             long ws = readGuard.writeLock();
             try {
                 tree.buildBalanced(ascendingDistinct);
+                this.size = ascendingDistinct.size();
+                // The FIFO window is only consulted for sliding-window eviction (maxSize > 0); for an
+                // unbounded set it is pure overhead, and resyncing through inOrder() would add a whole
+                // extra O(n) traversal on top. The input list is already the in-order sequence, so when
+                // the window IS active we populate it directly (no traversal) and evict down to bound.
+                if (maxSize > 0) {
+                    liveOrder.clear();
+                    liveOrder.addAll(ascendingDistinct);
+                    while (maxSize > 0 && size > maxSize) {
+                        if (!evictOldest()) {
+                            break;
+                        }
+                    }
+                }
             } finally {
                 readGuard.unlockWrite(ws);
             }
-            resyncFromEngine();   // sync the cached size + FIFO window from the freshly built engine
         }
     }
 
