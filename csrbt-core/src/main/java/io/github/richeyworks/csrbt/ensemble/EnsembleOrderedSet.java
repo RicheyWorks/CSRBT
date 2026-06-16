@@ -299,6 +299,48 @@ public final class EnsembleOrderedSet<K> implements OrderedCollection<K>, AutoCl
         write("clear", false, s -> { s.clear(); return true; });
     }
 
+    /**
+     * Bulk-build every member from one ASCENDING, DISTINCT run, fanned out across members through the
+     * {@link MemberExecutor} (parallel when {@code parallelFanOut()}). Strategy-backed members use
+     * {@link io.github.richeyworks.csrbt.OrderedSet#buildFromSorted} (O(n)); any engine-tier member
+     * without that fast path falls back to element-wise {@code add}. Every member ends an exact mirror.
+     *
+     * <p>Additive and gated: requires an <em>empty</em> ensemble in {@link EnsembleMode#MIRROR} or
+     * {@link EnsembleMode#VERIFIED} (the modes where every member is an exact copy). It deliberately
+     * bypasses the per-write cadence/events of the {@code add} path -- it is a one-shot initial load,
+     * not a logical write stream. Runs under the writer lock, so it is linearizable against writes.</p>
+     *
+     * @throws IllegalStateException if the ensemble is non-empty, not in an all-exact mode, or a member build fails
+     */
+    public void buildAllFromSorted(List<K> ascendingDistinct) {
+        synchronized (writeLock) {
+            if (mode != EnsembleMode.MIRROR && mode != EnsembleMode.VERIFIED) {
+                throw new IllegalStateException("buildAllFromSorted requires MIRROR or VERIFIED mode; was " + mode);
+            }
+            if (!isEmpty()) {
+                throw new IllegalStateException("buildAllFromSorted requires an empty ensemble");
+            }
+            List<EnsembleMember<K>> recipients = new ArrayList<>();
+            for (EnsembleMember<K> m : members) {
+                if (m.isActive()) recipients.add(m);
+            }
+            List<MemberExecutor.Outcome> outcomes = executor.apply(recipients, m -> {
+                if (m.isStrategyBacked()) {
+                    m.orderedSet().buildFromSorted(ascendingDistinct);
+                } else {
+                    for (K k : ascendingDistinct) m.set().add(k);
+                }
+                return true;
+            });
+            for (int i = 0; i < recipients.size(); i++) {
+                if (outcomes.get(i).failed()) {
+                    throw new IllegalStateException("buildAllFromSorted: a member build failed", outcomes.get(i).cause());
+                }
+                recipients.get(i).setExact(true);
+            }
+        }
+    }
+
     /** Dispatch a write: READ_REPLICA uses the left-right two-phase protocol (ADR-004 R2). */
     private boolean write(String op, boolean sampleable, Function<RankedSet<K>, Boolean> fn) {
         return (mode == EnsembleMode.READ_REPLICA)
