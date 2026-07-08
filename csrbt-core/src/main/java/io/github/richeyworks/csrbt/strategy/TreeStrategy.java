@@ -78,6 +78,8 @@ public interface TreeStrategy<K> {
         if      (parent == nil)               tree.setRoot(y);
         else if (x == parent.getLeft())       parent.setLeftLocal(y);
         else                                  parent.setRightLocal(y);
+
+        tree.onRotation();   // meter structural churn (see MutableTree#onRotation)
     }
 
     default void rotateRight(MutableTree<K> tree, TreeNode1<K> y) {
@@ -95,5 +97,7 @@ public interface TreeStrategy<K> {
         if      (parent == nil)               tree.setRoot(x);
         else if (y == parent.getRight())      parent.setRightLocal(x);
         else                                  parent.setLeftLocal(x);
+
+        tree.onRotation();   // meter structural churn (see MutableTree#onRotation)
     }
 }

@@ -20,6 +20,14 @@ public class RedBlackTree<K> implements TreeEngine<K>, MutableTree<K> {
     private final TreeStrategy<K> strategy;
     private final Comparator<? super K> keyOrder;   // the tree's ordering authority (also carried by NIL)
 
+    /**
+     * Total primitive rotations this engine has performed, fed by {@link #onRotation()} (the
+     * {@code MutableTree} hook the shared {@code TreeStrategy} rotation bodies fire). Monotonic for
+     * the lifetime of <em>this engine instance</em>; a facade that swaps engines (morph, self-repair)
+     * observes a reset. Written only on the write path, which the facade already serializes.
+     */
+    private long rotationCount;
+
     public RedBlackTree(TreeStrategy<K> strategy, Comparator<? super K> keyOrder) {
         this.strategy = strategy;
         this.keyOrder = keyOrder;
@@ -113,6 +121,13 @@ public class RedBlackTree<K> implements TreeEngine<K>, MutableTree<K> {
 
     public void rotateLeft(TreeNode1<K> x)  { strategy.rotateLeft(this, x); }
     public void rotateRight(TreeNode1<K> y) { strategy.rotateRight(this, y); }
+
+    /** {@inheritDoc} Counts every primitive rotation — the {@code rotationsPerWrite} source signal. */
+    @Override
+    public void onRotation() { rotationCount++; }
+
+    /** Total primitive rotations performed by this engine instance (see {@link #onRotation()}). */
+    public long rotationCount() { return rotationCount; }
 
     // ── TreeEngine: representation-neutral views ──────────────────────────────
     // These expose behaviour only (ordered keys / size / clear) so callers can

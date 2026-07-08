@@ -236,6 +236,23 @@ public class OrderedSet<K> implements SelfHealingTree, OrderedCollection<K>, Ran
                 () -> !findReadOnly(value, false).isNil());
     }
 
+    /**
+     * Membership <em>with the realized search depth</em> — the measuring twin of {@link #contains}.
+     * Returns the number of nodes touched on the descend (≥ 1 on any non-empty tree) when the key is
+     * present, or the bitwise complement {@code ~depth} (always negative) when it is absent — so
+     * {@code result >= 0} is containment and {@code result >= 0 ? result : ~result} is the depth
+     * walked either way. One walk answers both questions, which is exactly what a
+     * {@link io.github.richeyworks.csrbt.control.WorkloadMonitor} caller needs to feed
+     * {@code recordSearch(keyHash, depthTouched)} honestly instead of with a zero. Same concurrency
+     * contract as {@link #contains}: optimistic + validated, locked fallback, never splays.
+     */
+    public int searchDepth(K value) {
+        if (!OPTIMISTIC_READS) return searchDepthReadOnly(value, false);
+        return guardedRead(
+                () -> searchDepthReadOnly(value, true),
+                () -> searchDepthReadOnly(value, false));
+    }
+
     public int size() { return size; }
 
     public boolean isEmpty() { return size == 0; }
@@ -316,6 +333,28 @@ public class OrderedSet<K> implements SelfHealingTree, OrderedCollection<K>, Ran
         }
         if (x == null) throw TornReadException.INSTANCE;   // children are never null when consistent
         return x;                                          // NIL — not present
+    }
+
+    /**
+     * Depth-counting twin of {@link #findReadOnly}: same strategy-independent descend, same step
+     * bound and torn-read diversion, but returns {@code depth} (nodes touched) when found and
+     * {@code ~depth} when the walk ends at NIL.
+     */
+    private int searchDepthReadOnly(K value, boolean bounded) {
+        TreeNode1<K> x = tree.getRoot();
+        int steps = bounded
+                ? 2 * (32 - Integer.numberOfLeadingZeros(Math.max(1, size))) + 32
+                : Integer.MAX_VALUE;
+        int depth = 0;
+        while (x != null && !x.isNil()) {
+            if (--steps < 0) throw TornReadException.INSTANCE;
+            depth++;
+            int cmp = x.compareKeyTo(value);
+            if (cmp == 0) return depth;
+            x = (cmp > 0) ? x.getLeft() : x.getRight();
+        }
+        if (x == null) throw TornReadException.INSTANCE;   // children are never null when consistent
+        return ~depth;                                     // NIL — not present
     }
 
     /** Iterative in-order snapshot; when {@code bounded}, budgeted at ~4n+64 visited links. */
@@ -568,6 +607,14 @@ public class OrderedSet<K> implements SelfHealingTree, OrderedCollection<K>, Ran
             }
         }
     }
+
+    /**
+     * Total primitive rotations performed by the <em>current</em> backing engine — the
+     * {@code rotationsPerWrite} source signal for a {@link io.github.richeyworks.csrbt.control.WorkloadMonitor}.
+     * Callers metering per-op churn should difference successive readings; a morph or self-repair swaps
+     * the engine and resets the counter, so guard deltas with {@code Math.max(0, after - before)}.
+     */
+    public long rotationCount() { return tree.rotationCount(); }
 
     public double avgInsertTimeMs() {
         return insertCount == 0 ? 0 : (totalInsertTime / 1_000_000.0) / insertCount;

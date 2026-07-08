@@ -34,4 +34,15 @@ public interface MutableTree<K> {
 
     /** Right rotation about {@code y} (CLRS RIGHT-ROTATE). */
     void rotateRight(TreeNode1<K> y);
+
+    /**
+     * Notification hook fired once per primitive rotation, from the shared
+     * {@link io.github.richeyworks.csrbt.strategy.TreeStrategy} rotation bodies —
+     * the single choke point every strategy's rotations flow through. Lets an
+     * engine meter structural churn ({@code rotationsPerWrite} is a first-class
+     * {@link io.github.richeyworks.csrbt.control.WorkloadFeatures} input that
+     * callers previously had no way to source). Default: no-op, so existing
+     * implementations and tests are untouched.
+     */
+    default void onRotation() { }
 }
