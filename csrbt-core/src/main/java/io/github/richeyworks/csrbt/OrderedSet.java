@@ -82,7 +82,20 @@ public class OrderedSet<K> implements SelfHealingTree, OrderedCollection<K>, Ran
      */
     public void setEventListener(TreeEventListener<K> listener) { this.events = listener; }
 
-    private void emit(TreeEvent<K> e) { events.onEvent(e); }   // call only after a null check
+    /**
+     * Forward to the listener, swallowing anything it throws (hardening M-1): emit is called on the
+     * write path under the write stamp, after the mutation has committed — a throwing listener must
+     * not convert a successful insert into an apparent failure or poison every subsequent write.
+     * Call only after a null check.
+     */
+    private void emit(TreeEvent<K> e) {
+        try {
+            events.onEvent(e);
+        } catch (RuntimeException listenerFault) {
+            // Observability must never break the data plane; the listener contract says fast +
+            // non-throwing, and a violation is the listener's bug, not this write's.
+        }
+    }
 
     // -- ADR-004 R1: torn-read-free concurrent reads --
 

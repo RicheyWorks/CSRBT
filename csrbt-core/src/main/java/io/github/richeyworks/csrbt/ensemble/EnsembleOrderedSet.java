@@ -94,7 +94,19 @@ public final class EnsembleOrderedSet<K> implements OrderedCollection<K>, AutoCl
      */
     public void setEventListener(TreeEventListener<K> listener) { this.events = listener; }
 
-    private void emit(TreeEvent<K> e) { events.onEvent(e); }   // call only after a null check
+    /**
+     * Forward to the listener, swallowing anything it throws (hardening M-1, mirroring
+     * {@code OrderedSet.emit}): several emit sites run inside the write lock mid-fan-out — a
+     * throwing listener must not fail the write, spuriously quarantine a member, or abort a
+     * promotion that already happened. Call only after a null check.
+     */
+    private void emit(TreeEvent<K> e) {
+        try {
+            events.onEvent(e);
+        } catch (RuntimeException listenerFault) {
+            // Observability must never break the data plane.
+        }
+    }
 
     private EnsembleOrderedSet(List<EnsembleMember<K>> members, Comparator<? super K> keyOrder,
                                MemberExecutor executor, int sampleEvery, int rebuildEvery,

@@ -48,7 +48,7 @@ public class RedBlackTree<K> implements TreeEngine<K>, MutableTree<K> {
     // ── Core operations ───────────────────────────────────────────────────────
 
     public void add(K value) {
-        logger.info("Inserting value={}", value);
+        logger.debug("Inserting value={}", value);   // hardening M-3: per-op key values stay below INFO
         TreeNode1<K> newNode = TreeNode1.createNode(value, NIL);
         strategy.insert(this, newNode);   // strategy calls setRoot() internally if needed
         strategy.fixInsert(this, newNode); // fixInsert enforces root BLACK at the end
@@ -99,7 +99,7 @@ public class RedBlackTree<K> implements TreeEngine<K>, MutableTree<K> {
     }
 
     public void remove(K value) {
-        logger.info("Removing value={}", value);
+        logger.debug("Removing value={}", value);   // hardening M-3: per-op key values stay below INFO
         TreeNode1<K> node = strategy.search(this, value);
         if (node.isNil()) {
             // A remove of an absent key is a routine no-op, not a fault. At WARN this

@@ -15,6 +15,7 @@ import io.github.richeyworks.csrbt.strategy.HybridStrategy;
 import io.github.richeyworks.csrbt.strategy.RedBlackStrategy;
 import io.github.richeyworks.csrbt.strategy.SplayStrategy;
 import io.github.richeyworks.csrbt.strategy.TreeStrategy;
+import io.github.richeyworks.csrbt.util.StrategyHealthCheck;
 import io.github.richeyworks.csrbt.util.TreeDiagnostics;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -184,12 +185,24 @@ public class FilePersistenceAdapter implements TreePersistenceAdapter {
 
             // Restore the facade's size (previously left at 0 — a latent bug) and
             // verify it against the header, which is advisory only.
-            int actualSize = new TreeDiagnostics(context).inOrderTraversal().size();
+            List<Integer> restored = new TreeDiagnostics(context).inOrderTraversal();
+            int actualSize = restored.size();
             if (actualSize != declaredSize) {
                 logger.warn("Snapshot '{}' size mismatch: header={}, parsed={} — using parsed.",
                         name, declaredSize, actualSize);
             }
             context.forceSizeInternal(actualSize);
+
+            // Hardening M-2: a snapshot is INPUT, not truth. Refuse a file whose restored tree
+            // violates ordering or the strategy's own structural invariant — the same gate every
+            // morph passes — rather than silently serving a corrupt (or tampered) structure.
+            List<String> failures = validateRestored(context.getTree(), strategy, restored,
+                    Comparator.<Integer>naturalOrder());
+            if (!failures.isEmpty()) {
+                logger.error("Snapshot '{}' failed structural validation, refusing to load: {}",
+                        name, failures);
+                return null;
+            }
 
             // Restore the augmentor identity (5th header field, absent in legacy
             // files). Re-applying it recomputes augmented values from the restored
@@ -205,6 +218,24 @@ public class FilePersistenceAdapter implements TreePersistenceAdapter {
             logger.error("Failed to load snapshot '{}'", name, e);
             return null;
         }
+    }
+
+    /**
+     * Post-load structural gate (hardening M-2): the restored keys must be strictly ascending under
+     * {@code order} (a corrupt file can encode an out-of-order tree that parses cleanly), and the
+     * tree must pass {@link StrategyHealthCheck} — contents, size, the strategy's own structural
+     * invariant, and order-statistics spot checks: the same gate every morph passes, applied to
+     * file input. Returns the failure list; empty means healthy.
+     */
+    private static <K> List<String> validateRestored(RedBlackTree<K> engine, TreeStrategy<K> strategy,
+                                                     List<K> restoredInOrder,
+                                                     Comparator<? super K> order) {
+        for (int i = 1; i < restoredInOrder.size(); i++) {
+            if (order.compare(restoredInOrder.get(i - 1), restoredInOrder.get(i)) >= 0) {
+                return List.of("restored keys not strictly ascending at index " + i);
+            }
+        }
+        return StrategyHealthCheck.validate(engine, strategy, restoredInOrder);
     }
 
     /**
@@ -372,6 +403,15 @@ public class FilePersistenceAdapter implements TreePersistenceAdapter {
             if (actualSize != declaredSize) {
                 logger.warn("Snapshot '{}' size mismatch: header={}, parsed={} — using parsed.",
                         name, declaredSize, actualSize);
+            }
+
+            // Hardening M-2: refuse a restored tree that violates ordering or the strategy's own
+            // structural invariant (the morph gate, applied to file input).
+            List<String> failures = validateRestored(engine, strategy, engine.inOrder(), keyOrder);
+            if (!failures.isEmpty()) {
+                logger.error("Snapshot '{}' failed structural validation, refusing to load: {}",
+                        name, failures);
+                return null;
             }
 
             logger.info("Snapshot '{}' loaded (generic). strategy={} size={}", name, strategyName, actualSize);
