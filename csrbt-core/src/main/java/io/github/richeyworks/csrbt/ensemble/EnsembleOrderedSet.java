@@ -85,6 +85,9 @@ public final class EnsembleOrderedSet<K> implements OrderedCollection<K>, AutoCl
     private final long memoryCeilingBytes;    // 0 = no ceiling (ADR-003 "Revisit": memory ceilings)
     private final int verifyEvery;            // VERIFIED: every verifyEvery-th read votes (ADR-006)
     private final AtomicLong verifiedReads = new AtomicLong();   // VERIFIED read stride; outside the lock
+
+    /** Sliding-window capacity shared by every member (0 = unbounded); see {@link #setMaxSize}. */
+    private volatile int windowMaxSize;
     private long writeOps;                    // logical add/remove counter; guarded by writeLock
     private volatile boolean overCeiling;     // latched breach flag; reset when back under
     private volatile EnsembleMember<K> primary;
@@ -374,6 +377,62 @@ public final class EnsembleOrderedSet<K> implements OrderedCollection<K>, AutoCl
         }
     }
 
+    // ── Sliding window (the ensemble face of OrderedSet.setMaxSize) ─────────────────────────
+
+    /**
+     * True when this ensemble can honor a bounded sliding window: every member is strategy-backed
+     * (an {@link OrderedSet}, which owns the FIFO window). Engine-tier members (persistent engine,
+     * B+tree) have no window, and a half-windowed ensemble would silently diverge — so
+     * {@link #setMaxSize} refuses rather than approximates.
+     */
+    public boolean supportsWindow() {
+        for (EnsembleMember<K> m : members) {
+            if (!m.isStrategyBacked()) return false;
+        }
+        return true;
+    }
+
+    /**
+     * Bound every member to a sliding window of {@code n} keys (0 = unbounded), FIFO-evicting the
+     * oldest-inserted key once full — {@link OrderedSet#setMaxSize} fanned across the ensemble.
+     *
+     * <p><b>Why mirrors stay exact:</b> all writes fan out under the single writer lock in one
+     * order, so every exact member sees the identical insert sequence, builds the identical FIFO,
+     * and evicts the identical keys — window eviction is deterministic per member and therefore
+     * uniform across them. {@code buildAllFromSorted} after this call likewise bounds every member
+     * identically (each member's bulk build evicts down to the shared bound).</p>
+     *
+     * <p><b>Caveats, honestly:</b> in SAMPLED_SHADOW mode, shadows sample writes and are already
+     * inexact — a windowed shadow is a differently-thinned approximation, which the rebuild/heal
+     * machinery already handles. And after a member is <em>healed</em> from the primary, its FIFO
+     * order falls back to ascending key order ({@code OrderedSet}'s documented safety net), so its
+     * subsequent evictions can diverge from the primary's until the next health cadence
+     * re-verifies it — windowed ensembles pair best with a periodic {@code checkHealth}.</p>
+     *
+     * @throws IllegalStateException if any member is engine-tier (no window; see {@link #supportsWindow})
+     */
+    public void setMaxSize(int n) {
+        synchronized (writeLock) {
+            for (EnsembleMember<K> m : members) {
+                if (!m.isStrategyBacked()) {
+                    throw new IllegalStateException("setMaxSize requires every member to be "
+                            + "strategy-backed; engine member '" + m.strategyName()
+                            + "' has no sliding window");
+                }
+            }
+            int bound = Math.max(0, n);
+            this.windowMaxSize = bound;
+            for (EnsembleMember<K> m : members) {
+                m.orderedSet().setMaxSize(bound);   // deterministic per member; uniform across mirrors
+            }
+        }
+    }
+
+    /** The shared window capacity, or {@code 0} when unbounded. */
+    public int getMaxSize() {
+        return windowMaxSize;
+    }
+
     /** Dispatch a write: READ_REPLICA uses the left-right two-phase protocol (ADR-004 R2). */
     private boolean write(String op, boolean sampleable, Function<RankedSet<K>, Boolean> fn) {
         return (mode == EnsembleMode.READ_REPLICA)
@@ -661,6 +720,45 @@ public final class EnsembleOrderedSet<K> implements OrderedCollection<K>, AutoCl
     @Override public int size()                { return read(s -> s.size()); }
     @Override public List<K> inOrder()         { return read(s -> s.inOrder()); }
     @Override public boolean isEmpty()         { return read(s -> s.isEmpty()); }
+
+    /**
+     * Membership <em>with the realized search depth</em>, measured wherever a single authoritative
+     * walk serves the read — the ensemble face of {@link OrderedSet#searchDepth}, closing the
+     * "ensemble reads record depth 0" gap without touching vote semantics.
+     *
+     * <p>Encoding matches {@code OrderedSet.searchDepth}: {@code depth ≥ 1} (nodes touched) when
+     * present, {@code ~depth} (negative) when absent. Reads that have no single measurable walk
+     * return the <b>unmeasured</b> encoding {@code 0} / {@code ~0}: a <em>voted</em> VERIFIED read
+     * (members legitimately disagree on depth — different tree shapes hold the same keys — so
+     * depths are never voted; containment is voted exactly as {@link #contains} would),
+     * a READ_REPLICA read, or a primary that is an engine-tier member. Callers feeding a
+     * {@code WorkloadMonitor} thus record real depths in MIRROR and on VERIFIED's non-voted
+     * strides, and an honest zero elsewhere — never a fabricated number.</p>
+     *
+     * <p>Counts toward the VERIFIED verification stride exactly like {@link #contains}, so mixing
+     * the two preserves the every-{@code verifyEvery}-th-read-votes contract.</p>
+     */
+    public int searchDepth(K value) {
+        EnsembleMode m = mode;
+        if (m == EnsembleMode.VERIFIED) {
+            if (verifyEvery == 1 || verifiedReads.incrementAndGet() % verifyEvery == 0) {
+                return vote(s -> s.contains(value)) ? 0 : ~0;   // voted: containment only, unmeasured
+            }
+            return measuredOn(primary.set(), value);            // non-voted stride: primary's walk
+        }
+        if (m == EnsembleMode.READ_REPLICA) {
+            return replicaRead(s -> s.contains(value)) ? 0 : ~0;
+        }
+        return measuredOn(primary.set(), value);                // MIRROR / shadow modes: primary's walk
+    }
+
+    /** One measuring walk when the serving set supports it; unmeasured containment otherwise. */
+    private int measuredOn(RankedSet<K> set, K value) {
+        if (set instanceof OrderedSet<K> os) {
+            return os.searchDepth(value);
+        }
+        return set.contains(value) ? 0 : ~0;
+    }
 
     // ── Order statistics (drop-in parity with OrderedSet), served by the primary ──
 

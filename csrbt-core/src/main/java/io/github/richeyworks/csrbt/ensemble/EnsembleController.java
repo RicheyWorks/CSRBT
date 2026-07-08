@@ -113,11 +113,18 @@ public final class EnsembleController<K> {
         return changed;
     }
 
-    /** Membership test served by the primary; always recorded as a read (drives skew + read mix). */
+    /**
+     * Membership test recorded as a read with its <em>realized</em> search depth where one exists
+     * ({@link EnsembleOrderedSet#searchDepth}): one walk answers the query and measures it, so
+     * {@code meanSearchDepth} — the scorer's primary tree-shape signal — carries real numbers in
+     * MIRROR and on VERIFIED's non-voted strides. Voted/replica/engine-served reads record an
+     * honest zero, exactly as before. Vote semantics are untouched (containment is what votes;
+     * depths never do).
+     */
     public boolean contains(K key) {
-        boolean present = ensemble.contains(key);
-        monitor.recordSearch(Objects.hashCode(key), 0);
-        return present;
+        int d = ensemble.searchDepth(key);
+        monitor.recordSearch(Objects.hashCode(key), d >= 0 ? d : ~d);
+        return d >= 0;
     }
 
     // -- Control loop: one measured-promotion evaluation --
