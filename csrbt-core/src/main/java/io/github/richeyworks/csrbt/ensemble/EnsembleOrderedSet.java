@@ -68,6 +68,14 @@ public final class EnsembleOrderedSet<K> implements OrderedCollection<K>, AutoCl
      */
     public static volatile boolean OPTIMISTIC_VOTES = true;
 
+    /**
+     * Per-instance override of {@link #OPTIMISTIC_VOTES} (hardening L-1): {@code null} (the
+     * default) follows the process-global kill switch; a builder-set value pins this ensemble's
+     * vote path regardless of what other code does to the static. Set via
+     * {@link Builder#optimisticVotes(boolean)}.
+     */
+    private Boolean optimisticVotesOverride;
+
     private final List<EnsembleMember<K>> members;
     private final Comparator<? super K> keyOrder;
     private final Object writeLock = new Object();
@@ -132,6 +140,7 @@ public final class EnsembleOrderedSet<K> implements OrderedCollection<K>, AutoCl
         private final Comparator<? super K> keyOrder;
         private final List<Supplier<EnsembleMember<K>>> specs = new ArrayList<>();
         private EnsembleMode mode = EnsembleMode.MIRROR;
+        private Boolean optimisticVotesOverride;   // null = follow the static kill switch
         private MemberExecutor executor;
         private boolean parallel;
         private double shadowSampleRate = 0.1;
@@ -262,6 +271,17 @@ public final class EnsembleOrderedSet<K> implements OrderedCollection<K>, AutoCl
             return this;
         }
 
+        /**
+         * Pin THIS ensemble's VERIFIED vote path (hardening L-1): {@code true} = lock-free
+         * unanimity first (ADR-007), {@code false} = every vote under the write lock. Unset,
+         * the ensemble follows the process-global {@link #OPTIMISTIC_VOTES} kill switch — which
+         * any code in the JVM can flip; pinning makes this instance immune to that.
+         */
+        public Builder<K> optimisticVotes(boolean optimistic) {
+            this.optimisticVotesOverride = optimistic;
+            return this;
+        }
+
         public EnsembleOrderedSet<K> build() {
             if (specs.size() < 2) {
                 throw new IllegalArgumentException("an ensemble needs at least two members");
@@ -288,6 +308,7 @@ public final class EnsembleOrderedSet<K> implements OrderedCollection<K>, AutoCl
             EnsembleOrderedSet<K> ens = new EnsembleOrderedSet<>(ms, keyOrder, exec, sampleEvery,
                     rebuildEvery, memoryCeilingBytes, verifyEvery);
             ens.mode = mode;
+            ens.optimisticVotesOverride = optimisticVotesOverride;
             return ens;
         }
     }
@@ -909,7 +930,7 @@ public final class EnsembleOrderedSet<K> implements OrderedCollection<K>, AutoCl
      * impossible, and dissent is genuine. All quarantine/failover decisions live only there.
      */
     private <R> R vote(Function<RankedSet<K>, R> fn) {
-        if (OPTIMISTIC_VOTES) {
+        if (optimisticVotesOverride != null ? optimisticVotesOverride : OPTIMISTIC_VOTES) {
             R first = null;
             int voters = 0;
             boolean unanimous = true;

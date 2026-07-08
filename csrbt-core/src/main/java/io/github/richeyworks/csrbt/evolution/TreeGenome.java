@@ -1,7 +1,5 @@
 package io.github.richeyworks.csrbt.evolution;
 
-import java.io.Serial;
-import java.io.Serializable;
 import java.util.Locale;
 import java.util.Objects;
 import java.util.Random;
@@ -23,10 +21,11 @@ import java.util.UUID;
  *
  * <p>Still intentionally kept as one flagship class and one file.</p>
  */
-public class TreeGenome implements Cloneable, Serializable {
-
-    @Serial
-    private static final long serialVersionUID = 5L;
+// Hardening L-3: Serializable removed — this deprecated type kept the Java-serialization door ajar
+// (no readObject validation) for any app deserializing untrusted streams with this jar on the
+// classpath. Nothing in the codebase serializes it; the evolution machine's real genome is
+// PolicyGenome, which was never Serializable.
+public class TreeGenome implements Cloneable {
 
     private static final double MIN_TRAIT = 0.0;
     private static final double MAX_TRAIT = 1.0;
@@ -953,10 +952,7 @@ public class TreeGenome implements Cloneable, Serializable {
     // Nested utility result classes
     // -------------------------------------------------
 
-    public static class ScoreCard implements Serializable {
-        @Serial
-        private static final long serialVersionUID = 1L;
-
+    public static class ScoreCard {
         private final double redBlack;
         private final double avl;
         private final double splay;
@@ -1054,10 +1050,7 @@ public class TreeGenome implements Cloneable, Serializable {
     // Nested trait classes
     // -------------------------------------------------
 
-    public static class BalanceTraits implements Serializable {
-        @Serial
-        private static final long serialVersionUID = 1L;
-
+    public static class BalanceTraits {
         private double balancePreference;
         private double depthStressTolerance;
         private double fragmentationTolerance;
@@ -1152,10 +1145,7 @@ public class TreeGenome implements Cloneable, Serializable {
         }
     }
 
-    public static class EcologyTraits implements Serializable {
-        @Serial
-        private static final long serialVersionUID = 1L;
-
+    public static class EcologyTraits {
         private double entropyPreference;
         private double duplicateTolerance;
 
@@ -1232,10 +1222,7 @@ public class TreeGenome implements Cloneable, Serializable {
         }
     }
 
-    public static class WorkloadTraits implements Serializable {
-        @Serial
-        private static final long serialVersionUID = 1L;
-
+    public static class WorkloadTraits {
         private double localityPreference;
         private double orderStatisticPreference;
         private double priorityQueuePreference;
@@ -1330,10 +1317,7 @@ public class TreeGenome implements Cloneable, Serializable {
         }
     }
 
-    public static class MorphTraits implements Serializable {
-        @Serial
-        private static final long serialVersionUID = 1L;
-
+    public static class MorphTraits {
         private double mutationRate;
         private double morphThreshold;
 
@@ -1410,10 +1394,7 @@ public class TreeGenome implements Cloneable, Serializable {
         }
     }
 
-    public static class CapabilityProfile implements Serializable {
-        @Serial
-        private static final long serialVersionUID = 1L;
-
+    public static class CapabilityProfile {
         private double orderedSearchWeight;
         private double predecessorSuccessorWeight;
         private double rankSelectWeight;

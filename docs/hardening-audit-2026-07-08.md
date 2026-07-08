@@ -7,7 +7,10 @@ analysis of source at commit `922f7af`; no runtime penetration testing.
 > **Remediation status (same day):** M-1 fixed (`OrderedSet.emit` + `EnsembleOrderedSet.emit` now
 > swallow listener faults), M-2 fixed (`FilePersistenceAdapter.validateRestored` — ascending check +
 > `StrategyHealthCheck` gate on both load paths; invalid snapshots are refused), M-3 fixed
-> (per-op key logging demoted to DEBUG). L/I items remain open as next-touch notes.
+> (per-op key logging demoted to DEBUG). **L/I follow-ups closed 2026-07-08:** L-1
+> (`Builder.optimisticVotes(boolean)` per-instance pin; the static remains the default seed), L-3
+> (`Serializable` stripped from the deprecated `TreeGenome` and its nested trait classes), I-1
+> (`selfRepair` cost warning on `SelfHealingTree`). L-2/I-2/I-3 remain accepted-and-documented.
 
 ## What's already hardened well
 
