@@ -579,6 +579,46 @@ protection is a liability when the hot set moves), converged to it, and tied the
 fixed choice at Δ+0.000 — matching, never beating. That closes ADR-012's last staged
 item; the contribution is the pattern, measured twice.
 
+## Feeding the engine (2026-07)
+
+The July 2026 work opened CSRBT to external feeders — the reference feeder is
+[SuperBeefSort](https://github.com/RicheyWorks/SuperBeefSort), whose sort engine profiles data, constructs sets in O(n)
+born with the profile-advised strategy, and drives every adaptation tier live (see its
+`docs/audit-csrbt-feeding-2026-07-07.md` for the full integration story). The seams it fed
+back into the core:
+
+**The workload signal seam.** `OrderedSet.searchDepth(K)` is the measuring twin of
+`contains` — one never-splaying walk answers containment *and* the realized depth
+(`depth ≥ 1` present, `~depth` absent) — and `OrderedSet.rotationCount()` meters structural
+churn via a `MutableTree.onRotation()` hook under every strategy's rotations. Together they
+give `WorkloadMonitor.recordSearch/recordAdd` real values for `meanSearchDepth` and
+`rotationsPerWrite`, the two feature-vector components that previously had no public origin.
+`EnsembleOrderedSet.searchDepth` extends this to ensembles with one hard rule: **depths never
+vote** (members holding the same keys in different shapes legitimately disagree), so VERIFIED
+voted reads vote containment exactly as `contains` would and report an honest unmeasured zero,
+while MIRROR reads and VERIFIED's non-voted strides measure the primary's walk.
+`EnsembleController.contains` records it, so ensemble scoring finally sees tree shape.
+
+**Windowed ensembles.** `EnsembleOrderedSet.setMaxSize(n)` fans the sliding window across
+members. Mirrors stay exact because all writes fan out under one writer lock in one order:
+identical insert sequences build identical FIFOs and evict identical keys. Ensembles with
+engine-tier members refuse the window (`supportsWindow()`) rather than silently diverging.
+
+**Hardening (2026-07-08, `docs/hardening-audit-2026-07-08.md`).** Snapshot loads are now
+health-gated (the morph gate applied to file input — corrupt or tampered `.rbt` files are
+refused, not served); event listeners can no longer break the write path (`emit` isolates
+listener faults); per-op key logging sits below INFO; `Builder.optimisticVotes(boolean)` pins
+an instance's VERIFIED vote path against the process-global kill switch; and the deprecated
+`TreeGenome` no longer implements `Serializable`.
+
+Benchmarks: `SearchDepthBenchmark` prices the measuring read against `contains`
+(`./gradlew :csrbt-benchmarks:jmh`). Changelogs:
+[`CHANGELOG-2026-07-07-workload-signal-seam.md`](docs/CHANGELOG-2026-07-07-workload-signal-seam.md),
+[`CHANGELOG-2026-07-08-ensemble-window-depth.md`](docs/CHANGELOG-2026-07-08-ensemble-window-depth.md).
+And SuperBeefSort's `./gradlew run --args="organism"` records a live
+profile → born-optimal → drift → morph-evaluation session to JSON that
+[`demo/visualizer.html`](demo/visualizer.html) replays.
+
 ## Design history
 
 **Design & direction**
