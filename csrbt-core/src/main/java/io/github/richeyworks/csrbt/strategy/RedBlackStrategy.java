@@ -24,19 +24,21 @@ public class RedBlackStrategy<K> implements TreeStrategy<K> {
         TreeNode1<K> y = nil;              // "no parent" is the sentinel, never null,
         TreeNode1<K> x = tree.getRoot();   // so the root's parent is NIL and fixInsert terminates cleanly
 
+        int cmp = 0;                       // one comparison per step; the last one aims the link
         while (!x.isNil()) {
             y = x;
-            if (newNode.compareTo(x) == 0) {
+            cmp = newNode.compareTo(x);
+            if (cmp == 0) {
                 logger.warn("Duplicate insert skipped for value: {}", newNode.getData());
-                return;
+                return;                    // abort UNLINKED — addIfAbsent reads this back
             }
-            x = (newNode.compareTo(x) < 0) ? x.getLeft() : x.getRight();
+            x = (cmp < 0) ? x.getLeft() : x.getRight();
         }
 
         newNode.setParent(y);
         if (y.isNil()) {
             tree.setRoot(newNode);
-        } else if (newNode.compareTo(y) < 0) {
+        } else if (cmp < 0) {
             y.safeSetLeft(newNode);
         } else {
             y.safeSetRight(newNode);

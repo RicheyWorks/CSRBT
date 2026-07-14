@@ -102,9 +102,10 @@ that scores how well each structure fits a workload and recommends morphs, and
 `MorphPolicy`. As of ADR-002 step 6 that genome path is deprecated — the controller now
 decides through the control plane (below) by default, keeping the genome loop only as a
 flagged fallback. `StrategyBattleRunner` benchmarks strategies head-to-head across workload
-types. The biological-model analytics (`TreeEcology`)
-and alien-seed/swarm theatrics (`TreeAgent`) live in a separate `…csrbt.experimental`
-package that depends on core, keeping the core contract-bound. `TreeEngineRegistry` keeps
+types. The biological-model analytics (`TreeEcology`) live in a separate `…csrbt.experimental`
+package that depends on core, keeping the core contract-bound (the alien-seed/swarm
+theatrics that once lived there, `TreeAgent`, were removed in the 2026-07-14 capability
+audit — zero tests, zero consumers). `TreeEngineRegistry` keeps
 `TreeGenome.StructureType` honest — every declared type either maps to a working
 engine or fails loudly as unsupported, rather than silently returning a no-op.
 
@@ -323,8 +324,8 @@ src/main/java/core/
                                strategy health check
 csrbt-experimental/.../cache/  the second policy space (ADR-012 E6): CacheGenome,
                                SegmentedLruCache (viability oracle), CacheEvolutionLoop
-csrbt-experimental/            opt-in theatrics (TreeAgent alien-seed/swarm,
-                               TreeEcology analytics) — depends on core, never
+csrbt-experimental/            opt-in instruments (TreeEcology analytics, ViabilityMap,
+                               arena recorders) — depends on core, never
                                the reverse; core stays contract-bound
 csrbt-core/src/test/           JUnit 5 + jqwik suite (strategy invariants, regressions,
                                property tests with shrinking)

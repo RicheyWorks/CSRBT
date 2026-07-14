@@ -74,14 +74,16 @@ public class HybridStrategy<K> implements TreeStrategy<K> {
         TreeNode1<K> y   = nil;
         TreeNode1<K> x   = tree.getRoot();
 
+        int cmp = 0;                       // one comparison per step; the last one aims the link
         while (!x.isNil()) {
             y = x;
-            if (newNode.compareTo(x) == 0) {
+            cmp = newNode.compareTo(x);
+            if (cmp == 0) {
                 logger.warn("Hybrid duplicate insert skipped: {}", newNode.getData());
                 recordAccess(newNode.getData());
-                return;
+                return;                    // abort UNLINKED — addIfAbsent reads this back
             }
-            x = (newNode.compareTo(x) < 0) ? x.getLeft() : x.getRight();
+            x = (cmp < 0) ? x.getLeft() : x.getRight();
         }
 
         newNode.setColor(TreeNode1.Color.RED);
@@ -89,7 +91,7 @@ public class HybridStrategy<K> implements TreeStrategy<K> {
 
         if (y.isNil()) {
             tree.setRoot(newNode);
-        } else if (newNode.compareTo(y) < 0) {
+        } else if (cmp < 0) {
             y.safeSetLeft(newNode);
         } else {
             y.safeSetRight(newNode);

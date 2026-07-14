@@ -264,10 +264,11 @@ public class TreeContext implements AugmentedTree<Integer>, SelfHealingTree, Ord
     // -- Advanced (delegated) --
 
     // Alien-seed / agent-swarm were experimental theatrics that could install a
-    // non-BST into a live, contract-bound context; they now live in the
-    // standalone `experimental` package (io.github.richeyworks.csrbt.experimental.TreeAgent), which depends on
-    // core rather than core depending on it. Use `new io.github.richeyworks.csrbt.experimental.TreeAgent(ctx)`
-    // directly if you want that behavior.
+    // non-BST into a live, contract-bound context; they were quarantined to the
+    // experimental package (TreeAgent) and then removed entirely in the 2026-07-14
+    // capability audit — zero tests, zero consumers, and a contract-violating tree
+    // builder is exactly where the next audit's bug lives. Recover from git history
+    // if the theatrics are ever wanted again.
     public List<TreeContext> deployCloneArmy(int count)       { return cloner.deployCloneArmy(count); }
     public void emitRelicBeacon()                             { diagnostics.emitRelicBeacon(); }
 

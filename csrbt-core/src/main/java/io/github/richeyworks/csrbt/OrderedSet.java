@@ -190,18 +190,20 @@ public class OrderedSet<K> implements SelfHealingTree, OrderedCollection<K>, Ran
     /** @return {@code true} if the key was inserted; {@code false} if already present. */
     public boolean add(K value) {
         synchronized (lock) {
-            long ws = readGuard.writeLock();   // tree.contains may splay: the precheck mutates too
+            long ws = readGuard.writeLock();   // the insert descent may splay (duplicate touch): writes mutate
             try {
-                if (tree.contains(value)) return false;
                 long start = System.nanoTime();
-                tree.add(value);
+                // Single descent (2026-07-14 census, finding A): the strategy's insert descent
+                // discovers a duplicate itself and aborts unlinked — no contains precheck, and
+                // the returned node spares the augmentor re-find below.
+                TreeNode1<K> inserted = tree.addIfAbsent(value);
+                if (inserted == null) return false;
                 size++;
                 liveOrder.add(value);                          // FIFO order for windowed eviction
                 // Non-default augmentation must be stamped onto the freshly created node, which
                 // createNode installs with the default (subtree-size) augmentor.
                 if (!isDefaultAugmentor()) {
-                    TreeNode1<K> inserted = tree.getStrategy().search(tree, value);
-                    if (!inserted.isNil()) inserted.setAugmentor(augmentor);
+                    inserted.setAugmentor(augmentor);
                 }
                 totalInsertTime += System.nanoTime() - start;
                 insertCount++;
@@ -221,9 +223,10 @@ public class OrderedSet<K> implements SelfHealingTree, OrderedCollection<K>, Ran
         synchronized (lock) {
             long ws = readGuard.writeLock();
             try {
-                if (!tree.contains(value)) return false;
                 long start = System.nanoTime();
-                tree.remove(value);
+                // Single descent (finding A): search finds the node, delete works on the node
+                // reference — the contains precheck was a second full descent for nothing.
+                if (!tree.removeIfPresent(value)) return false;
                 size--;
                 liveOrder.remove(value);
                 totalDeleteTime += System.nanoTime() - start;
@@ -452,8 +455,7 @@ public class OrderedSet<K> implements SelfHealingTree, OrderedCollection<K>, Ran
         if (!it.hasNext()) return false;
         K oldest = it.next();
         it.remove();
-        if (tree.contains(oldest)) {
-            tree.remove(oldest);
+        if (tree.removeIfPresent(oldest)) {                // one descent, not contains + remove
             size--;
             if (events != null) emit(new TreeEvent.Evict<>(oldest));
         }

@@ -48,10 +48,31 @@ public class RedBlackTree<K> implements TreeEngine<K>, MutableTree<K> {
     // ── Core operations ───────────────────────────────────────────────────────
 
     public void add(K value) {
+        addIfAbsent(value);
+    }
+
+    /**
+     * Single-descent insert (2026-07-14 census, finding A). Every strategy's {@code insert}
+     * descent already discovers a duplicate itself and returns <em>without linking</em> the new
+     * node, so the {@code contains} precheck the facade used to pay was a second full descent for
+     * nothing. The link test below is the protocol's readback: an unlinked node still has its
+     * construction-time {@code parent == null} and is not the root. {@code fixInsert} runs only
+     * when a link actually happened.
+     *
+     * @return the freshly linked node (post-fixup; callers may stamp augmentors on it directly
+     *         instead of re-finding it), or {@code null} if the key was already present.
+     */
+    public TreeNode1<K> addIfAbsent(K value) {
         logger.debug("Inserting value={}", value);   // hardening M-3: per-op key values stay below INFO
         TreeNode1<K> newNode = TreeNode1.createNode(value, NIL);
         strategy.insert(this, newNode);   // strategy calls setRoot() internally if needed
+        boolean linked = getRoot() == newNode
+                || (newNode.getParent() != null && !newNode.getParent().isNil());
+        if (!linked) {
+            return null;                   // duplicate: the strategy aborted before linking
+        }
         strategy.fixInsert(this, newNode); // fixInsert enforces root BLACK at the end
+        return newNode;
     }
 
     /**
@@ -99,15 +120,27 @@ public class RedBlackTree<K> implements TreeEngine<K>, MutableTree<K> {
     }
 
     public void remove(K value) {
+        removeIfPresent(value);
+    }
+
+    /**
+     * Single-descent remove (2026-07-14 census, finding A): one {@code strategy.search} descent
+     * finds the node, {@code strategy.delete} operates on the node reference without descending
+     * again — so the facade no longer needs a {@code contains} precheck to learn the outcome.
+     *
+     * @return whether the key was present (and is now removed).
+     */
+    public boolean removeIfPresent(K value) {
         logger.debug("Removing value={}", value);   // hardening M-3: per-op key values stay below INFO
         TreeNode1<K> node = strategy.search(this, value);
         if (node.isNil()) {
             // A remove of an absent key is a routine no-op, not a fault. At WARN this
             // line flooded ~43k entries per E1 viability sweep (2026-06-10 audit).
             logger.debug("Remove no-op — value={} not found", value);
-            return;
+            return false;
         }
         strategy.delete(this, node);
+        return true;
     }
 
     public boolean contains(K value) {

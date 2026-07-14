@@ -121,23 +121,40 @@ tests and zero consumers** — dead weight.
 2. **[in flight] Adaptivity earns-its-keep census.** `PhaseShiftWorkTest` (SBS) is written and
    compile-fixed; run host-side and read the VERDICT line. This is the largest untested *claim*
    (not surface) in the ring: that the control plane beats every static shape on shifting skew.
-3. **[recommend: delete or test] `TreeAgent`** (experimental): zero tests, zero consumers, no ADR
-   anchor. Either give it the ViabilityMap treatment or remove it; untested experimental code in a
-   published-adjacent repo is where the next audit's bug lives.
-4. **[exhibit gap] `searchDepth` is measured but never shown.** The store dashboard already ticks
-   stats over SSE; publishing the index's probe depth for a hot key (one `searchDepth` call per
-   stats tick, read-path, off-lock safe) would make morph wins *visible* — depth dropping when the
-   pilot flips strategy under skew. Small, contained, high-payoff.
-5. **[exhibit gap] Ensemble/evolution tiers have no live exhibit.** The dashboard demos the
-   ADAPTIVE tier; ENSEMBLE/EVOLUTION are exercised only by tests and replay files. A dashboard
-   toggle (or a second demo main) opening the store at `IndexTier.ENSEMBLE` would show quarantine
-   and vote traffic live. Larger than #4; do it only if the exhibit earns audience.
+3. **[closed — deleted] `TreeAgent`** (experimental): zero tests, zero consumers, no ADR anchor,
+   and a contract-violating tree builder (random colors, order not guaranteed). Removed same day;
+   README and the TreeContext breadcrumb updated. Recoverable from git history if ever wanted.
+4. **[closed] `searchDepth` is now shown.** `SmokeHouse.searchDepth(K)` surfaces the measuring
+   read through the store (same probe the pilot already samples internally), and the dashboard
+   ticks the median key's probe depth over SSE — a "probe depth" chip that visibly drops when the
+   pilot morphs the index. Same-day follow-up to this audit.
+5. **[closed] Ensemble/evolution tiers are now showable live.** `StoreDashboard` takes the tier
+   as an argument: `./gradlew run --args="ENSEMBLE"` (or STATIC / EVOLUTION; default ADAPTIVE).
+   The tier is a dashboard chip; ensemble voted strides report unmeasured depth and render as a
+   dash, per the `EnsembleOrderedSet.searchDepth` contract.
 6. **[minor, note only] SmokeHouse doesn't surface `successor`/`predecessor`** (floor/ceiling-style
    key navigation) even though the index funds them for free. Add `nextKey(K)`/`prevKey(K)` if a
    consumer ever asks; not worth speculative API.
 7. **[re-audit note] `EnsembleOrderedSet.OPTIMISTIC_VOTES` is a public mutable static** — any code
    in the JVM can flip the vote path for every unpinned ensemble. ADR-007 accepts this as a kill
    switch; the L-1 pin is the mitigation. Flagged so the trade stays deliberate.
+8. **[found by the write census, fixed same day] The double-descent write tax.** `OrderedSet.add`
+   and `remove` each ran a full `tree.contains` precheck descent and then the engine op's second
+   descent — measured at 1.77× JDK TreeMap's comparison bill on 50/50 churn, uniformly across
+   every strategy (see `SuperBeefSort/docs/phase-shift-census-findings.md` §5, finding A).
+   **Fixed**: every strategy's insert descent already detected duplicates and aborted unlinked, so
+   `RedBlackTree.addIfAbsent` (returns the linked node, or null on duplicate — the facade also
+   stamps augmentors on it directly, deleting a *third* descent on augmented adds) and
+   `removeIfPresent` (search once, delete the found node) replace the prechecks in `add`,
+   `remove`, and `evictOldest`. The RB/Splay/Hybrid insert descents also compared twice per step
+   (`==` then `<`); now once, with the last comparison aiming the link — TreeMap parity.
+   Regression net: `SingleDescentWriteTest` (oracle churn with duplicates/misses across all five
+   strategies, engine contracts, events + window eviction). **Re-run confirmed:** CSRBT_RedBlack
+   is now bit-identical to JDK TreeMap on the census — total and per-phase — and Hybrid edges the
+   JDK outright (findings doc §6). Finding B (AVL beats RB on writes) was an artifact of this bug
+   and is withdrawn; the WRITE_HEAVY→RB clamp stands. Residual: the cost model steered adaptive
+   to AVL, a −0.6% near-tie post-fix — its coefficients were likely tuned against the old write
+   path; recalibrate whenever the scorer is next touched.
 
 **Not audited here:** SmokeHouse's own log/compaction seams (covered by the 2026-07 Phase-4 debug
 audit, `SmokeHouse/docs/phase4-audit-debug-report.md`) and SBS sort strategies (DifferentialTest
