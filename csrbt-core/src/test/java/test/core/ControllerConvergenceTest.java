@@ -47,23 +47,24 @@ public class ControllerConvergenceTest {
     }
 
     @Test
-    @DisplayName("G4: a steady write-heavy workload converges to AVL in one morph, then holds")
+    @DisplayName("G4: a steady write-heavy workload converges to Hybrid in one morph, then holds")
     void steadyWorkloadConvergesOnce() {
         GenomeDrivenTreeController c = controllerOver(new TreeContext(new RedBlackStrategy<>()));
 
         for (int i = 0; i < 600; i++) c.add(i);             // pure distinct writes, low skew
 
-        // Re-pinned by the 2026-06-10 scorer calibration: on the comparisons meter AVL
-        // beats RB on write-heavy diets too (E3b probe: 14.0 vs 16.2 cmp/op on churn),
-        // so the eager policy morphs once — and then HOLDS: steady means no thrash, not
-        // no decision. The anti-thrash property this test guards is the morph *count*.
-        assertEquals(TreeGenome.StructureType.AVL, c.getActiveStrategyType(),
-                "the calibrated scorer follows the meter to AVL");
+        // Re-pinned twice, both times by the meter. 2026-06-10: AVL over RB (the old pin
+        // encoded rotation pricing). 2026-07-14: HYBRID over AVL — the earlier evidence was
+        // measured through the double-descent write path (census finding A); post-fix, Hybrid
+        // is best-fixed on every E3/E3b seed. Steady still means no thrash, not no decision:
+        // the anti-thrash property this test guards is the morph *count*.
+        assertEquals(TreeGenome.StructureType.HYBRID, c.getActiveStrategyType(),
+                "the recalibrated scorer follows the post-fix meter to Hybrid");
         assertEquals(1, c.getMorphCount(), "exactly one morph on a steady workload — no thrash");
     }
 
     @Test
-    @DisplayName("G4: a regime change is followed — skewed reads pick Splay, then heavy writes go to AVL")
+    @DisplayName("G4: a regime change is followed — skewed reads pick Splay, then heavy writes go to Hybrid")
     void regimeChangeIsFollowed() {
         TreeContext ctx = new TreeContext(new RedBlackStrategy<>());
         for (int i = 0; i < 64; i++) ctx.add(i);
@@ -73,8 +74,8 @@ public class ControllerConvergenceTest {
         assertEquals(TreeGenome.StructureType.SPLAY, c.getActiveStrategyType(), "regime 1 selects Splay");
 
         for (int i = 64; i < 5064; i++) c.add(i);           // regime 2: heavy writes flush the window
-        assertEquals(TreeGenome.StructureType.AVL, c.getActiveStrategyType(),
-                "the write regime is followed to AVL (the comparisons-calibrated pick)");
+        assertEquals(TreeGenome.StructureType.HYBRID, c.getActiveStrategyType(),
+                "the write regime is followed to Hybrid (the 2026-07-14 post-fix pick)");
     }
 
     @Test

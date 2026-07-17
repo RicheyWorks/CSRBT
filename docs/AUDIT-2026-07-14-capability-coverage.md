@@ -153,8 +153,12 @@ tests and zero consumers** — dead weight.
    is now bit-identical to JDK TreeMap on the census — total and per-phase — and Hybrid edges the
    JDK outright (findings doc §6). Finding B (AVL beats RB on writes) was an artifact of this bug
    and is withdrawn; the WRITE_HEAVY→RB clamp stands. Residual: the cost model steered adaptive
-   to AVL, a −0.6% near-tie post-fix — its coefficients were likely tuned against the old write
-   path; recalibrate whenever the scorer is next touched.
+   to AVL, a −0.6% near-tie post-fix — its coefficients were tuned against the old write path.
+   **Recalibrated same day** (`CHANGELOG-2026-07-14-scorer-recalibration.md`): Hybrid gets its
+   own calibrated line (measured best-fixed on every post-fix E3/E3b seed), RB gets read parity
+   (read diets now hold instead of buying a rebuild worth ≤1.5%), Splay unchanged; four pins
+   re-pinned with evidence (StrategyScorerTest ×3, ControllerConvergenceTest G4 ×2 — counting
+   the retired Hybrid-never-first as one), everything else survives.
 
 **Not audited here:** SmokeHouse's own log/compaction seams (covered by the 2026-07 Phase-4 debug
 audit, `SmokeHouse/docs/phase4-audit-debug-report.md`) and SBS sort strategies (DifferentialTest

@@ -54,6 +54,18 @@ public class TreeNode1<K> implements Comparable<TreeNode1<K>>, Cloneable {
     private final Comparator<? super K> keyOrder;
     private Rotation lastRotation = Rotation.NONE;
     private int augmentedValue = 0;   // pluggable augmentor payload (e.g. interval max-hi) — NOT subtree size; see `size` (ADR-002)
+    /**
+     * The additive GENERIC augment slot (outer-ring ADR, Phase 7): a reference-typed
+     * payload for augmentors whose subtree summary cannot fit the int
+     * {@link #augmentedValue} — e.g. {@code GenericIntervalAugmentor}'s typed
+     * {@code {hi, maxHi}}. Contract: the referenced payload is treated as
+     * <b>immutable</b> — augmentors replace it, never mutate it — because
+     * {@link #deepCopy} copies the reference, so a clone shares payload objects with
+     * its source until either side replaces them. {@code null} on any node no
+     * ref-slot augmentor has touched; the default augmentor and every int-slot
+     * augmentor (order statistics, the int {@code IntervalAugmentor}) ignore it.
+     */
+    private Object augmentedRef;
     private int blackHeight = 1;
     private int height = 1;
     /**
@@ -373,6 +385,7 @@ public class TreeNode1<K> implements Comparable<TreeNode1<K>>, Cloneable {
         left = right = parent = nilSentinel;
         color = Color.RED;
         augmentedValue = 1;
+        augmentedRef = null;
         size = 1;                 // a cleared node is a standalone leaf: one node
         lastRotation = Rotation.NONE;
         blackHeight = 1;
@@ -422,6 +435,19 @@ public class TreeNode1<K> implements Comparable<TreeNode1<K>>, Cloneable {
 
     public void setAugmentedValue(int value) {
         this.augmentedValue = value;
+    }
+
+    /** The generic augment slot's payload, or {@code null}; see the field contract. */
+    public Object getAugmentedRef() {
+        return augmentedRef;
+    }
+
+    /**
+     * Set the generic augment slot. Like {@link #setTag} this does NOT propagate:
+     * callers that change augment-relevant state must follow with {@link #reaugment()}.
+     */
+    public void setAugmentedRef(Object ref) {
+        this.augmentedRef = ref;
     }
 
     /**
@@ -486,6 +512,7 @@ public class TreeNode1<K> implements Comparable<TreeNode1<K>>, Cloneable {
         copy.safeSetRight(this.right.deepCopy(nil));
         copy.lastRotation = this.lastRotation;
         copy.augmentedValue = this.augmentedValue;
+        copy.augmentedRef = this.augmentedRef;   // reference copy — payloads are immutable by contract
         copy.size = this.size;
         copy.blackHeight = this.blackHeight;
         copy.height = this.height;

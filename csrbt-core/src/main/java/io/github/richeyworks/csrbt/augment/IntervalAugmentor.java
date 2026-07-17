@@ -34,8 +34,10 @@ import java.util.Stack;
  * subtree max-hi are {@code int} (encoded via a parsed string tag and the int
  * {@code augmentedValue} slot). It therefore implements
  * {@code TreeNode1.Augmentor<Integer>} and is installed only on
- * {@code TreeNode1<Integer>} trees. Generic intervals (typed endpoints) are a
- * later, separate piece of work.
+ * {@code TreeNode1<Integer>} trees. Generic intervals (typed endpoints) landed
+ * 2026-07-14 as {@link GenericIntervalAugmentor}, on the additive
+ * {@code TreeNode1.augmentedRef} slot; this int/tag encoding stays as the
+ * specialization and is untouched by it.
  * ─────────────────────────────────────────────────────────────────────────────
  * CLRS INTERVAL-SEARCH theorem:
  *   If tree contains an interval that overlaps [qlo, qhi], the algorithm

@@ -25,3 +25,22 @@ dependencies {
 tasks.test {
     useJUnitPlatform()
 }
+
+// The ADR-011/012 replay recorders (demo/visualizer.html's food). Wired here so they are
+// runnable post-Ant (their javadocs used to say `ant compile`); log through log4j's built-in
+// SimpleLogger so the WARN lines SearchArenaSession promises actually print.
+listOf(
+    "arenaSession" to "io.github.richeyworks.csrbt.experimental.ArenaSession",
+    "searchArenaSession" to "io.github.richeyworks.csrbt.experimental.SearchArenaSession",
+).forEach { (taskName, mainCls) ->
+    tasks.register<JavaExec>(taskName) {
+        group = "verification"
+        description = "Record the ${if (taskName == "arenaSession") "controller" else "evolution-machine search"} replay session for demo/visualizer.html."
+        mainClass = mainCls
+        classpath = sourceSets["main"].runtimeClasspath
+        systemProperty("log4j2.loggerContextFactory",
+                "org.apache.logging.log4j.simple.SimpleLoggerContextFactory")
+        systemProperty("org.apache.logging.log4j.simplelog.level", "WARN")
+        systemProperty("org.apache.logging.log4j.simplelog.StatusLogger.level", "OFF")
+    }
+}

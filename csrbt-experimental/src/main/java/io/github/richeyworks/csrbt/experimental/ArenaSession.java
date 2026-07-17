@@ -18,9 +18,8 @@ import io.github.richeyworks.csrbt.strategy.RedBlackStrategy;
  * convergence tests (G3/G4): uniform build-up holds Red-Black; a hot-key read regime
  * converges to Splay; a heavy write regime flushes the window and returns to Red-Black.</p>
  *
- * <p>Run from the repo root after {@code ant compile}:</p>
- * <pre>{@code java -cp build/classes:log4j-api-2.17.1.jar:log4j-core-2.17.1.jar \
- *     experimental.ArenaSession > docs/arena-session.json}</pre>
+ * <p>Run from the repo root (stdout is clean JSON):</p>
+ * <pre>{@code ./gradlew :csrbt-experimental:arenaSession > docs/arena-session.json}</pre>
  */
 public final class ArenaSession {
 

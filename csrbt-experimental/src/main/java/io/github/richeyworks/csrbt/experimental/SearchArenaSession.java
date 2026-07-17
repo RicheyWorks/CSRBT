@@ -26,11 +26,10 @@ import java.util.Random;
  * ({@code SELECTED}) off a splay primary. Nothing is staged: every event is the
  * controller's own decision on a seeded stream, snapshotted the moment it commits.
  *
- * <p>Run from the repo root after {@code ant compile} (writes the file directly —
- * unlike {@code ArenaSession} this run logs WARN lines for the on-record deaths, so
- * stdout is not clean JSON):</p>
- * <pre>{@code java -cp build/classes:log4j-api-2.17.1.jar:log4j-core-2.17.1.jar \
- *     experimental.SearchArenaSession [docs/arena-search-session.json]}</pre>
+ * <p>Run from the repo root (writes the file directly — unlike {@code ArenaSession} this run
+ * logs WARN lines for the on-record deaths, so stdout is not clean JSON):</p>
+ * <pre>{@code ./gradlew :csrbt-experimental:searchArenaSession
+ *     [--args="docs/arena-search-session.json"]}</pre>
  */
 public final class SearchArenaSession {
 

@@ -31,3 +31,7 @@ jmh {
     resultFormat = "JSON"
     resultsFile = layout.buildDirectory.file("reports/jmh/results.json")
 }
+
+// The jmh plugin doesn't hook the jmh source set into `build`/`check`, so a compile
+// break in a benchmark would only surface at the next manual jmh run. Feed it in.
+tasks.named("check") { dependsOn(tasks.named("compileJmhJava")) }

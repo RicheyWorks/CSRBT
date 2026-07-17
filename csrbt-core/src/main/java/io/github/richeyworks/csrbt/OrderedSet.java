@@ -506,8 +506,9 @@ public class OrderedSet<K> implements SelfHealingTree, OrderedCollection<K>, Ran
      * Swap the balancing strategy, rebuilding the tree from its in-order contents. The
      * candidate is built off to the side and validated by {@link StrategyHealthCheck};
      * it is published only on a clean pass, so a rejected morph leaves the incumbent
-     * untouched. Per-node tags carry across so augmented data (e.g. interval max-hi)
-     * survives. @return {@code true} if the morph was applied.
+     * untouched. Per-node tags AND generic augment payloads ({@link TreeNode1#getAugmentedRef()})
+     * carry across so augmented data (e.g. interval max-hi, int or typed) survives.
+     * @return {@code true} if the morph was applied.
      */
     public boolean setStrategy(TreeStrategy<K> newStrategy) {
         synchronized (lock) {
@@ -517,6 +518,7 @@ public class OrderedSet<K> implements SelfHealingTree, OrderedCollection<K>, Ran
                 return false;
             }
             Map<K, String> keyTags = captureKeyTags();
+            Map<K, Object> keyRefs = captureKeyRefs();
             List<K> elements = new ArrayList<>(keyTags.keySet());   // ascending, distinct
 
             RedBlackTree<K> candidate = new RedBlackTree<>(newStrategy, keyOrder);
@@ -541,6 +543,7 @@ public class OrderedSet<K> implements SelfHealingTree, OrderedCollection<K>, Ran
                 this.size = elements.size();
                 if (!isDefaultAugmentor()) reapplyAugmentor();
                 restoreTags(keyTags);
+                restoreRefs(keyRefs);
                 resyncLiveOrder();
             } finally {
                 readGuard.unlockWrite(ws);
@@ -570,6 +573,7 @@ public class OrderedSet<K> implements SelfHealingTree, OrderedCollection<K>, Ran
             sorted.addAll(tree.inOrder());
             List<K> elements = new ArrayList<>(sorted);
             Map<K, String> keyTags = captureKeyTags();
+            Map<K, Object> keyRefs = captureKeyRefs();
 
             RedBlackTree<K> rebuilt = new RedBlackTree<>(strategy, keyOrder);
             for (K v : elements) rebuilt.add(v);
@@ -581,6 +585,7 @@ public class OrderedSet<K> implements SelfHealingTree, OrderedCollection<K>, Ran
                 this.size = elements.size();
                 if (!isDefaultAugmentor()) reapplyAugmentor();
                 restoreTags(keyTags);
+                restoreRefs(keyRefs);
                 resyncLiveOrder();
             } finally {
                 readGuard.unlockWrite(ws);
@@ -663,6 +668,42 @@ public class OrderedSet<K> implements SelfHealingTree, OrderedCollection<K>, Ran
             TreeNode1<K> n = tree.getStrategy().search(tree, e.getKey());
             if (!n.isNil()) {
                 n.setTag(tag);
+                n.reaugment();
+            }
+        }
+    }
+
+    /**
+     * In-order snapshot of every key's generic augment slot, {@link TreeNode1#getAugmentedRef()};
+     * only non-null entries are captured, so trees that never used the ref slot pay one traversal
+     * and an empty map. The ref-slot counterpart of {@link #captureKeyTags()}.
+     */
+    private Map<K, Object> captureKeyRefs() {
+        Map<K, Object> out = new LinkedHashMap<>();
+        Deque<TreeNode1<K>> stack = new ArrayDeque<>();
+        TreeNode1<K> cur = tree.getRoot();
+        while (!stack.isEmpty() || !cur.isNil()) {
+            while (!cur.isNil()) { stack.push(cur); cur = cur.getLeft(); }
+            cur = stack.pop();
+            if (cur.getAugmentedRef() != null) out.put(cur.getData(), cur.getAugmentedRef());
+            cur = cur.getRight();
+        }
+        return out;
+    }
+
+    /**
+     * Re-apply captured generic augment payloads after a rebuild, re-augmenting per node.
+     * Restoring a payload whose derived part (e.g. subtree max-hi) is stale for the NEW tree
+     * shape is safe: {@code reaugment()} recomputes the derived part on every node up to the
+     * root, and payloads carry their semantic part (e.g. this node's own hi) immutably. The
+     * final propagation pass from each restored node leaves every derived value correct —
+     * the same argument {@link #restoreTags} relies on for tag-derived int augments.
+     */
+    private void restoreRefs(Map<K, Object> keyRefs) {
+        for (Map.Entry<K, Object> e : keyRefs.entrySet()) {
+            TreeNode1<K> n = tree.getStrategy().search(tree, e.getKey());
+            if (!n.isNil()) {
+                n.setAugmentedRef(e.getValue());
                 n.reaugment();
             }
         }

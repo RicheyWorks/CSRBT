@@ -59,19 +59,19 @@ public class StrategyScorerTest {
     }
 
     @Test
-    @DisplayName("write-heavy → AVL first (calibrated: fewest comparisons; rotation thrift unpriced)")
-    void writeHeavyPicksAvl() {
-        // Re-pinned by the 2026-06-10 calibration: on the realized comparisons meter AVL
-        // beat RB on the write-heavy churn diet (14.0 vs 16.2 cmp/op, E3b probe). The old
-        // pin ("RB first") encoded rotation pricing, which the house meter doesn't count.
-        assertEquals(StrategyId.AVL, scorer.score(wf(0.15, 0.85, 0.05)).get(0).strategy());
+    @DisplayName("write-heavy → Hybrid first (2026-07-14: best-fixed on every post-fix probe seed)")
+    void writeHeavyPicksHybrid() {
+        // Re-pinned by the 2026-07-14 recalibration: the 2026-06-10 "AVL beats RB on writes"
+        // evidence was measured through the double-descent/double-compare write path (census
+        // finding A). Post-fix, Hybrid is best-fixed on every E3/E3b seed (11.56-11.61 vs AVL
+        // 11.84-11.90 vs RB 14.09-14.19 cmp/op) — writes fund its RB delete machinery.
+        assertEquals(StrategyId.HYBRID, scorer.score(wf(0.15, 0.85, 0.05)).get(0).strategy());
     }
 
     @Test
-    @DisplayName("balanced mix → AVL first (calibrated: AVL 12.6 vs RB 15.4 cmp/op measured)")
-    void balancedPicksAvl() {
-        // Re-pinned by the 2026-06-10 calibration (same evidence trail as above).
-        assertEquals(StrategyId.AVL, scorer.score(wf(0.50, 0.50, 0.05)).get(0).strategy());
+    @DisplayName("balanced mix → Hybrid first (2026-07-14 recalibration, same evidence trail)")
+    void balancedPicksHybrid() {
+        assertEquals(StrategyId.HYBRID, scorer.score(wf(0.50, 0.50, 0.05)).get(0).strategy());
     }
 
     @Test
@@ -84,17 +84,22 @@ public class StrategyScorerTest {
     }
 
     @Test
-    @DisplayName("Hybrid is scored but never ranks first (anti-churn tie bias)")
-    void hybridNeverRanksFirst() {
-        double[][] regimes = {
-                {0.94, 0.06, 0.71}, {0.95, 0.05, 0.03}, {0.15, 0.85, 0.05},
-                {0.50, 0.50, 0.05}, {0.45, 0.55, 0.80}, {0.55, 0.45, 0.20}, {1.0, 0.0, 1.0}
-        };
-        for (double[] g : regimes) {
-            List<Score> ranked = scorer.score(wf(g[0], g[1], g[2]));
-            assertNotEquals(StrategyId.HYBRID, ranked.get(0).strategy(),
-                    "Hybrid won regime r=" + g[0] + " w=" + g[1] + " s=" + g[2]);
-        }
+    @DisplayName("Hybrid wins exactly where writes fund it: the w ≈ 0.08 crossover vs AVL")
+    void hybridCrossoverIsWriteFunded() {
+        // 2026-07-14 recalibration: Hybrid replaced the old mean+tie-penalty line with its own
+        // calibrated cost. It crosses under AVL at w ≳ 0.08 — pure-read diets stay AVL's (and
+        // Splay's under skew), anything write-funded is Hybrid's. This replaces the retired
+        // "Hybrid never ranks first" pin, which encoded the pre-fix write path.
+        assertNotEquals(StrategyId.HYBRID, scorer.score(wf(0.95, 0.05, 0.03)).get(0).strategy(),
+                "at w=0.05 Hybrid must not out-rank AVL");
+        assertNotEquals(StrategyId.HYBRID, scorer.score(wf(1.0, 0.0, 1.0)).get(0).strategy(),
+                "max-skew pure reads stay Splay's");
+        assertEquals(StrategyId.HYBRID, scorer.score(wf(0.85, 0.15, 0.05)).get(0).strategy(),
+                "at w=0.15 the write funding has crossed over");
+        assertEquals(StrategyId.HYBRID, scorer.score(wf(0.50, 0.50, 0.05)).get(0).strategy());
+        // And the ordering stays deterministic on either side of the crossover.
+        assertTrue(scorer.score(wf(0.85, 0.15, 0.05)).get(0).estimatedCost()
+                < scorer.score(wf(0.85, 0.15, 0.05)).get(1).estimatedCost() + 1e-12);
     }
 
     @Test
