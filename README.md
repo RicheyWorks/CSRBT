@@ -619,6 +619,28 @@ Benchmarks: `SearchDepthBenchmark` prices the measuring read against `contains`
 And SuperBeefSort's `./gradlew run --args="organism"` records a live
 profile → born-optimal → drift → morph-evaluation session to JSON that
 [`demo/visualizer.html`](demo/visualizer.html) replays.
+(The arena replay recorders themselves are Gradle tasks now:
+`./gradlew :csrbt-experimental:arenaSession` and `:csrbt-experimental:searchArenaSession`.)
+
+## The ecosystem (2026-07)
+
+CSRBT is the index engine of a six-engine organism, each engine its own repo, composed by
+nested Gradle composite builds — clone them as siblings and every build resolves the live
+sources:
+
+| Engine | Role |
+|---|---|
+| **CSRBT** (this repo) | the adaptive ordered index — orders the world |
+| [SuperBeefSort](https://github.com/RicheyWorks/SuperBeefSort) | the intake tract — profiles, sorts, feeds in O(n) |
+| [SmokeHouse](https://github.com/RicheyWorks/SmokeHouse) | the log-structured store — durability, tail, watchers, read replicas |
+| [Carver](https://github.com/RicheyWorks/Carver) | the read planner — costs access paths with CSRBT order statistics as its histogram |
+| [Renderer](https://github.com/RicheyWorks/Renderer) | the materialized-view engine — folds the store's tail into CSRBT-held ranked aggregates |
+| [Brine](https://github.com/RicheyWorks/Brine) | the adaptive cache — eviction policy evolved by `csrbt-experimental`'s cache-evolution loop |
+
+Brine is `csrbt-experimental`'s first external consumer — the publication trigger ADR-013 §4
+held for two months fired on 2026-07-18, and the module now publishes alongside `csrbt-core`
+(`./gradlew publishToMavenLocal`). Engine selection history:
+[`SuperBeefSort/docs/adr-fifth-engine-candidates.md`](https://github.com/RicheyWorks/SuperBeefSort/blob/main/docs/adr-fifth-engine-candidates.md).
 
 ## Design history
 
