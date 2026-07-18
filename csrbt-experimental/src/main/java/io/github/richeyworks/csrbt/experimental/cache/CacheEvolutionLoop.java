@@ -111,6 +111,20 @@ public final class CacheEvolutionLoop {
         return hit;
     }
 
+    /**
+     * Whether {@code key} currently resides in the serving primary (no recency bump, no
+     * stats) — the residency seam an external value cache needs to trim its value map to
+     * the champion's actual contents. Named by the first external consumer (Brine).
+     */
+    public boolean resident(int key) {
+        return primary.peek(key);
+    }
+
+    /** The genome of the serving primary — the current champion policy, for the record. */
+    public CacheGenome champion() {
+        return primaryGenome;
+    }
+
     // ── The generation (the tree protocol, step for step) ─────────────────────────
 
     public List<CacheGenome> beginGeneration() {
