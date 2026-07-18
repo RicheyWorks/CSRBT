@@ -642,6 +642,7 @@ conductor) · [DryAge](https://github.com/RicheyWorks/DryAge) (time travel over 
 log) · [Twine](https://github.com/RicheyWorks/Twine) (crash-atomic batches) ·
 [SmokeSignal](https://github.com/RicheyWorks/SmokeSignal) (loopback wire protocol) ·
 [Jerky](https://github.com/RicheyWorks/Jerky) (compressed cold archives).
+Engine 12: [WholeHog](https://github.com/RicheyWorks/WholeHog) — the integration organism: all of them, composed and asserted together.
 
 Brine is `csrbt-experimental`'s first external consumer — the publication trigger ADR-013 §4
 held for two months fired on 2026-07-18, and the module now publishes alongside `csrbt-core`
