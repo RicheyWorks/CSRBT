@@ -1,12 +1,18 @@
 // csrbt-experimental — arena, ecology, viability map, cache evolution (ADR-011/012
-// research surface). Depends on core; never the other way. Not published
-// (revisit-trigger: an external consumer asks for the arena — ADR-013 §4).
+// research surface). Depends on core; never the other way. ADR-013 §4's publication
+// trigger FIRED 2026-07-18: Brine consumes the cache-evolution loop, so the module is
+// now publishable (local repo today; Central rides csrbt-core's Phase 9 release).
 plugins {
     `java-library`
+    `maven-publish`
 }
 
 group = "io.github.richeyworks"
 version = "0.1.0"
+
+java {
+    withSourcesJar()
+}
 
 tasks.withType<JavaCompile>().configureEach {
     options.release = 17 // see csrbt-core/build.gradle.kts
@@ -42,5 +48,35 @@ listOf(
                 "org.apache.logging.log4j.simple.SimpleLoggerContextFactory")
         systemProperty("org.apache.logging.log4j.simplelog.level", "WARN")
         systemProperty("org.apache.logging.log4j.simplelog.StatusLogger.level", "OFF")
+    }
+}
+
+publishing {
+    publications {
+        create<MavenPublication>("maven") {
+            artifactId = "csrbt-experimental"
+            from(components["java"])
+            pom {
+                name = "CSRBT Experimental"
+                description = "CSRBT's research surface: strategy arena, ecology, viability map, and cache evolution."
+                url = "https://github.com/RicheyWorks/CSRBT"
+                licenses {
+                    license {
+                        name = "MIT License"
+                        url = "https://opensource.org/licenses/MIT"
+                    }
+                }
+                developers {
+                    developer {
+                        id = "RicheyWorks"
+                        name = "Richmond"
+                    }
+                }
+                scm {
+                    url = "https://github.com/RicheyWorks/CSRBT"
+                    connection = "scm:git:https://github.com/RicheyWorks/CSRBT.git"
+                }
+            }
+        }
     }
 }
