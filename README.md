@@ -637,6 +637,12 @@ sources:
 | [Renderer](https://github.com/RicheyWorks/Renderer) | the materialized-view engine — folds the store's tail into CSRBT-held ranked aggregates |
 | [Brine](https://github.com/RicheyWorks/Brine) | the adaptive cache — eviction policy evolved by `csrbt-experimental`'s cache-evolution loop |
 
+Engines 7–11 (2026-07-18): [PitBoss](https://github.com/RicheyWorks/PitBoss) (replica-fleet
+conductor) · [DryAge](https://github.com/RicheyWorks/DryAge) (time travel over the immutable
+log) · [Twine](https://github.com/RicheyWorks/Twine) (crash-atomic batches) ·
+[SmokeSignal](https://github.com/RicheyWorks/SmokeSignal) (loopback wire protocol) ·
+[Jerky](https://github.com/RicheyWorks/Jerky) (compressed cold archives).
+
 Brine is `csrbt-experimental`'s first external consumer — the publication trigger ADR-013 §4
 held for two months fired on 2026-07-18, and the module now publishes alongside `csrbt-core`
 (`./gradlew publishToMavenLocal`). Engine selection history:
