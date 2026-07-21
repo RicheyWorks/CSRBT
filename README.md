@@ -2,6 +2,9 @@
 
 [![ci](https://github.com/RicheyWorks/CSRBT/actions/workflows/ci.yml/badge.svg)](https://github.com/RicheyWorks/CSRBT/actions/workflows/ci.yml)
 [![license: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
+[![Java 17](https://img.shields.io/badge/Java-17-orange.svg)](https://openjdk.org/projects/jdk/17/)
+[![build: Gradle](https://img.shields.io/badge/build-Gradle-02303A.svg)](https://gradle.org/)
+![version 0.1.0](https://img.shields.io/badge/version-0.1.0-informational.svg)
 
 CSRBT is a Java ordered-set engine whose balancing strategy is pluggable and can
 adapt to the workload hitting it. A single, generic ordered-set API
