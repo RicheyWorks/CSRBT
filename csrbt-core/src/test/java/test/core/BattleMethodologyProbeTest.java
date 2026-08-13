@@ -39,12 +39,19 @@ class BattleMethodologyProbeTest {
                 + "never-repaired insert chain reads in the thousands");
 
         // With the rotation meter live (T-1), the score must not double-charge
-        // self-adjustment: Splay's splaying is priced in its wall time, so it must
-        // place on its depth advantage in its own workload, not be pushed last by a
-        // second rotation charge.
-        assertTrue(splay.rank <= 2,
-                "Splay must contend in LOCALITY_BURST (rank " + splay.rank + ") — a "
-                + "rotation term in the score double-counts the work its time already paid");
+        // self-adjustment. The DETERMINISTIC core of Splay's locality win is realized
+        // depth: same ops → same trees → same depths and rotation counts, on every JDK
+        // and every runner. (An earlier version asserted rank <= 2, but rank folds in
+        // WALL TIME — on a slow CI runner Splay's splaying cost can outweigh its depth
+        // advantage, and the assertion flaked exactly as the V-D finding predicted
+        // single-pass timing claims would. Depth dominance is the timing-free pin.)
+        double bestOtherDepth = results.stream()
+                .filter(r -> !r.strategyName.equals("Splay"))
+                .mapToDouble(r -> r.avgSearchDepth).min().orElseThrow();
+        assertTrue(splay.avgSearchDepth < bestOtherDepth,
+                "Splay's realized depth (" + splay.avgSearchDepth + ") must beat every "
+                + "balancer's (best other: " + bestOtherDepth + ") in its own workload — "
+                + "that advantage is what the old rotation term erased");
         assertTrue(splay.rotations > results.stream()
                         .filter(r -> !r.strategyName.equals("Splay"))
                         .mapToInt(r -> r.rotations).max().orElse(0),
