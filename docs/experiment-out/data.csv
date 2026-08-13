@@ -1,0 +1,14 @@
+dataset,name,count
+pondA,cattail,18
+pondA,duckweed,44
+pondA,frogbit,3
+pondA,azolla,9
+pondA,rush,6
+pondB,duckweed,51
+pondB,azolla,2
+pondB,lily,12
+pondB,rush,6
+coop,peck,4
+coop,flap,2
+coop,strut,1
+coop,dustbathe,1

@@ -125,12 +125,21 @@ public class TreeContext implements AugmentedTree<Integer>, SelfHealingTree, Ord
     @Override
     public boolean add(Integer value) {
         synchronized (lock) {
+            // D-2 (consolidation 2026-08-12): with a sliding window active, this add may
+            // evict the oldest key. Capture the victim BEFORE the add; if the insert
+            // succeeded but the size did not grow, the eviction happened and the undo
+            // command must carry it — recording only ADD(v) made undo drop the evicted
+            // key permanently.
+            int sizeBefore = set.size();
+            Integer victim = historyRecording ? set.peekOldest() : null;
             if (!set.add(value)) {
                 logger.debug("Duplicate add ignored: {}", value);
                 return false;
             }
             // Inverse-command undo: record only the value, not a full tree copy.
-            if (historyRecording) history.recordAdd(value);
+            if (historyRecording) {
+                history.recordAdd(value, set.size() == sizeBefore ? victim : null);
+            }
             updateMetadata(value);
             return true;
         }
@@ -298,8 +307,21 @@ public class TreeContext implements AugmentedTree<Integer>, SelfHealingTree, Ord
     /** {@inheritDoc} Ascending keys, delegated to the backing engine. */
     @Override
     public List<Integer> inOrder() { return set.inOrder(); }
-    public int          getRotationCount() { return rotationCount; }
-    public void         incrementRotations(){ rotationCount++; }  // legacy hook (strategies do not call it)
+    /**
+     * Total primitive rotations the CURRENT engine has performed (T-1, 2026-08-12):
+     * this used to read a legacy field nothing increments — the battle runner's
+     * rotation term and the genome controller's stress metric (rotations per window)
+     * were identically 0 forever. Now delegates to the engine's live
+     * {@code onRotation()} meter. Note a strategy morph builds the engine aside, so
+     * the count resets on morph — per-window deltas self-heal (one clamped-to-zero
+     * window), cumulative readers should sample per engine generation.
+     */
+    public int          getRotationCount() { return (int) Math.min(Integer.MAX_VALUE,
+                                                    set.getEngine().rotationCount()); }
+    /** @deprecated dead legacy hook — the engine meters rotations itself via
+     *  {@code onRotation()}; this no longer feeds {@link #getRotationCount()}. */
+    @Deprecated
+    public void         incrementRotations(){ rotationCount++; }
 
     /**
      * Resync the facade after the backing engine was rebuilt out-of-band through

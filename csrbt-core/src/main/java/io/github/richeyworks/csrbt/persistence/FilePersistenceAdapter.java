@@ -15,6 +15,7 @@ import io.github.richeyworks.csrbt.strategy.HybridStrategy;
 import io.github.richeyworks.csrbt.strategy.RedBlackStrategy;
 import io.github.richeyworks.csrbt.strategy.SplayStrategy;
 import io.github.richeyworks.csrbt.strategy.TreeStrategy;
+import io.github.richeyworks.csrbt.strategy.WeightBalancedStrategy;
 import io.github.richeyworks.csrbt.util.StrategyHealthCheck;
 import io.github.richeyworks.csrbt.util.TreeDiagnostics;
 import org.apache.logging.log4j.LogManager;
@@ -61,32 +62,60 @@ public class FilePersistenceAdapter implements TreePersistenceAdapter {
 
     // ── Save ─────────────────────────────────────────────────────────────────
 
+    /**
+     * D-3 (consolidation 2026-08-12): every save writes a sibling {@code .tmp} file and
+     * commits with an atomic rename, so a failed save (I/O error, unencodable key) can
+     * never truncate or half-write the target — the previous snapshot, if any, survives
+     * intact. Before this, {@code Files.newBufferedWriter(path)} truncated the target at
+     * OPEN, so a save that later failed had already destroyed the prior good file.
+     */
+    private static Path tempPathFor(Path target) {
+        return target.resolveSibling(target.getFileName() + ".tmp");
+    }
+
+    private static void commitAtomically(Path tmp, Path target) throws IOException {
+        try {
+            Files.move(tmp, target, StandardCopyOption.ATOMIC_MOVE,
+                    StandardCopyOption.REPLACE_EXISTING);
+        } catch (AtomicMoveNotSupportedException e) {
+            Files.move(tmp, target, StandardCopyOption.REPLACE_EXISTING);
+        }
+    }
+
     @Override
     public void saveSnapshot(String name, TreeContext snapshot) {
         Path path = snapshotPath(name);
-        try (BufferedWriter writer = Files.newBufferedWriter(path)) {
+        Path tmp = tempPathFor(path);
+        boolean committed = false;
+        try {
+            try (BufferedWriter writer = Files.newBufferedWriter(tmp)) {
+                // Header: VERSION|TIMESTAMP|STRATEGY|SIZE|AUGMENTOR
+                writer.write(String.join("|",
+                        VERSION,
+                        Instant.now().toString(),
+                        snapshot.getTree().getStrategy().getClass().getSimpleName(),
+                        String.valueOf(snapshot.getSize()),
+                        augmentorToken(snapshot)
+                ));
+                writer.newLine();
 
-            // Header: VERSION|TIMESTAMP|STRATEGY|SIZE|AUGMENTOR
-            writer.write(String.join("|",
-                    VERSION,
-                    Instant.now().toString(),
-                    snapshot.getTree().getStrategy().getClass().getSimpleName(),
-                    String.valueOf(snapshot.getSize()),
-                    augmentorToken(snapshot)
-            ));
-            writer.newLine();
-
-            // Pre-order serialization (int keys via the built-in Integer serializer)
-            StringBuilder sb = new StringBuilder();
-            serializePreOrder(snapshot.getTree().getRoot(), snapshot.getTree().getNIL(), sb,
-                    KeySerializer.INTEGER);
-            writer.write(sb.toString());
-            writer.newLine();
-
+                // Pre-order serialization (int keys via the built-in Integer serializer)
+                StringBuilder sb = new StringBuilder();
+                serializePreOrder(snapshot.getTree().getRoot(), snapshot.getTree().getNIL(), sb,
+                        KeySerializer.INTEGER);
+                writer.write(sb.toString());
+                writer.newLine();
+            }
+            commitAtomically(tmp, path);   // writer closed above; rename is the commit
+            committed = true;
             logger.info("Snapshot '{}' saved → {}", name, path);
-
         } catch (IOException e) {
-            logger.error("Failed to save snapshot '{}'", name, e);
+            logger.error("Failed to save snapshot '{}' — previous file (if any) left intact",
+                    name, e);
+        } finally {
+            if (!committed) {
+                try { Files.deleteIfExists(tmp); } catch (IOException ignored) { }
+            }
         }
     }
 
@@ -117,9 +146,12 @@ public class FilePersistenceAdapter implements TreePersistenceAdapter {
             // two-field records still parse).
             String tag = cur.getTag();
             if (tag != null && !tag.isEmpty()) {
-                if (tag.indexOf(';') >= 0) {
-                    logger.warn("Tag on node {} contains ';' and cannot be persisted — dropping it.",
-                            cur.getData());
+                // ';' would split the record; a control char (\n, \r) would split the
+                // LINE — same failure as unescaped string keys (P-1). Both are dropped
+                // with a warning rather than corrupting the stream.
+                if (tag.indexOf(';') >= 0 || tag.chars().anyMatch(c -> c < 0x20)) {
+                    logger.warn("Tag on node {} contains ';' or a control character and "
+                            + "cannot be persisted — dropping it.", cur.getData());
                 } else {
                     sb.append(",").append(tag);
                 }
@@ -183,13 +215,17 @@ public class FilePersistenceAdapter implements TreePersistenceAdapter {
             context.getTree().setRoot(root);
             if (root != context.getTree().getNIL()) root.setParent(context.getTree().getNIL());
 
-            // Restore the facade's size (previously left at 0 — a latent bug) and
-            // verify it against the header, which is advisory only.
+            // Restore the facade's size and verify it against the header. A mismatch is a
+            // REFUSAL, not a warning (bug audit 2026-08-12, P-2): the pre-order decoder
+            // reads token exhaustion as NIL children, so a truncated/partially-written
+            // file parses cleanly into a smaller tree that would sail through the
+            // structural gate below — the header size field exists precisely to catch it.
             List<Integer> restored = new TreeDiagnostics(context).inOrderTraversal();
             int actualSize = restored.size();
             if (actualSize != declaredSize) {
-                logger.warn("Snapshot '{}' size mismatch: header={}, parsed={} — using parsed.",
-                        name, declaredSize, actualSize);
+                logger.error("Snapshot '{}' size mismatch: header={}, parsed={} — refusing "
+                        + "(truncated or tampered file).", name, declaredSize, actualSize);
+                return null;
             }
             context.forceSizeInternal(actualSize);
 
@@ -315,7 +351,10 @@ public class FilePersistenceAdapter implements TreePersistenceAdapter {
         if (keySerializer == null)  throw new IllegalArgumentException("keySerializer must not be null");
         Path path = snapshotPath(name);
         RedBlackTree<K> engine = set.getEngine();
-        try (BufferedWriter writer = Files.newBufferedWriter(path)) {
+        Path tmp = tempPathFor(path);
+        boolean committed = false;
+        try {
+            try (BufferedWriter writer = Files.newBufferedWriter(tmp)) {
 
             writer.write(String.join("|",
                     VERSION,
@@ -330,12 +369,18 @@ public class FilePersistenceAdapter implements TreePersistenceAdapter {
             serializePreOrder(engine.getRoot(), engine.getNIL(), sb, keySerializer);
             writer.write(sb.toString());
             writer.newLine();
-
+            }
+            commitAtomically(tmp, path);   // D-3: rename is the commit
+            committed = true;
             logger.info("Snapshot '{}' saved (generic, strategy={}) → {}",
                     name, engine.getStrategy().getClass().getSimpleName(), path);
-
         } catch (IOException e) {
-            logger.error("Failed to save snapshot '{}'", name, e);
+            logger.error("Failed to save snapshot '{}' — previous file (if any) left intact",
+                    name, e);
+        } finally {
+            if (!committed) {
+                try { Files.deleteIfExists(tmp); } catch (IOException ignored) { }
+            }
         }
     }
 
@@ -401,8 +446,11 @@ public class FilePersistenceAdapter implements TreePersistenceAdapter {
 
             int actualSize = set.size();
             if (actualSize != declaredSize) {
-                logger.warn("Snapshot '{}' size mismatch: header={}, parsed={} — using parsed.",
-                        name, declaredSize, actualSize);
+                // Refusal, not warning — see the int path (P-2): a pre-order prefix from a
+                // truncated file parses cleanly, and the header size is the tripwire.
+                logger.error("Snapshot '{}' size mismatch: header={}, parsed={} — refusing "
+                        + "(truncated or tampered file).", name, declaredSize, actualSize);
+                return null;
             }
 
             // Hardening M-2: refuse a restored tree that violates ordering or the strategy's own
@@ -447,7 +495,10 @@ public class FilePersistenceAdapter implements TreePersistenceAdapter {
         if (snapshot == null)      throw new IllegalArgumentException("snapshot must not be null");
         if (keySerializer == null) throw new IllegalArgumentException("keySerializer must not be null");
         Path path = snapshotPath(name);
-        try (BufferedWriter writer = Files.newBufferedWriter(path)) {
+        Path tmp = tempPathFor(path);
+        boolean committed = false;
+        try {
+            try (BufferedWriter writer = Files.newBufferedWriter(tmp)) {
             writer.write(String.join("|",
                     VERSION,
                     Instant.now().toString(),
@@ -468,9 +519,18 @@ public class FilePersistenceAdapter implements TreePersistenceAdapter {
             }
             writer.write(sb.toString());
             writer.newLine();
+            }
+            commitAtomically(tmp, path);   // D-3: rename is the commit
+            committed = true;
             logger.info("Snapshot '{}' saved (persistent, n={}) → {}", name, snapshot.size(), path);
         } catch (IOException e) {
-            logger.error("Failed to save snapshot '{}'", name, e);
+            logger.error("Failed to save snapshot '{}' — previous file (if any) left intact",
+                    name, e);
+        } finally {
+            // Also cleans up after the loud IllegalArgumentException for ';' keys.
+            if (!committed) {
+                try { Files.deleteIfExists(tmp); } catch (IOException ignored) { }
+            }
         }
     }
 
@@ -609,10 +669,11 @@ public class FilePersistenceAdapter implements TreePersistenceAdapter {
 
     @Override
     public List<String> listSnapshots() {
-        try {
+        // try-with-resources: Files.list holds an open directory handle (hygiene,
+        // bug audit 2026-08-12).
+        try (java.util.stream.Stream<java.nio.file.Path> paths = Files.list(Paths.get(DIR))) {
             List<String> names = new ArrayList<>();
-            Files.list(Paths.get(DIR))
-                 .filter(p -> p.toString().endsWith(EXT))
+            paths.filter(p -> p.toString().endsWith(EXT))
                  .forEach(p -> {
                      String filename = p.getFileName().toString();
                      names.add(filename.substring(0, filename.length() - EXT.length()));
@@ -665,10 +726,13 @@ public class FilePersistenceAdapter implements TreePersistenceAdapter {
 
     private <K> TreeStrategy<K> resolveStrategy(String name) {
         switch (name) {
-            case "AVLStrategy":    return new AVLStrategy<>();
-            case "SplayStrategy":  return new SplayStrategy<>();
-            case "HybridStrategy": return new HybridStrategy<>();
-            default:               return new RedBlackStrategy<>();
+            case "AVLStrategy":            return new AVLStrategy<>();
+            case "SplayStrategy":          return new SplayStrategy<>();
+            case "HybridStrategy":         return new HybridStrategy<>();
+            // P-3 (bug audit 2026-08-12): WB colors every node BLACK; the old RB fallback
+            // applied red-black validation to that shape and refused every WB snapshot.
+            case "WeightBalancedStrategy": return new WeightBalancedStrategy<>();
+            default:                       return new RedBlackStrategy<>();
         }
     }
 }

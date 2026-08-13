@@ -66,11 +66,15 @@ public final class StrategyHealthCheck {
                     failures.add("red-black invariant violated");
                 }
             }
-            case "AVLStrategy", "HybridStrategy" -> {
+            case "AVLStrategy" -> {
                 if (!isHeightBalanced(candidate.getRoot())) {
                     failures.add(name + " height-balance invariant violated");
                 }
             }
+            // HybridStrategy routes through the default branch (bug audit 2026-08-12,
+            // H-2): its invariant is depth-relaxed (|bf| ≤ 2 below the threshold), so
+            // the strict AVL check here branded every finite-threshold Hybrid unhealthy.
+            // Hybrid now overrides validateInvariant with its own tolerance-aware walk.
             case "SplayStrategy" -> { /* no balance invariant */ }
             default -> failures.addAll(strategy.validateInvariant(candidate));
             // ^ ADR-011 V1: strategies outside the built-in switch supply their own
@@ -104,11 +108,23 @@ public final class StrategyHealthCheck {
 
     // ── Invariant helpers ──────────────────────────────────────────────────────
 
+    /**
+     * Range-bounded BST check (bug audit 2026-08-12): the old form compared each node
+     * only to its immediate children, so a key violating an <em>ancestor's</em> range
+     * passed — and with {@code selfRepair} feeding the tree's own {@code inOrder()} as
+     * the expected keys (clause 1 a tautology), a globally-invalid tree was certified
+     * healthy. Bounds are threaded down the recursion: every node must lie strictly
+     * inside the (min, max) window its ancestors impose.
+     */
     private static <K> boolean isBst(TreeNode1<K> n) {
+        return isBst(n, null, null);
+    }
+
+    private static <K> boolean isBst(TreeNode1<K> n, TreeNode1<K> min, TreeNode1<K> max) {
         if (n.isNil()) return true;
-        if (!n.getLeft().isNil()  && n.getLeft().compareTo(n)  >= 0) return false;
-        if (!n.getRight().isNil() && n.getRight().compareTo(n) <= 0) return false;
-        return isBst(n.getLeft()) && isBst(n.getRight());
+        if (min != null && n.compareTo(min) <= 0) return false;
+        if (max != null && n.compareTo(max) >= 0) return false;
+        return isBst(n.getLeft(), min, n) && isBst(n.getRight(), n, max);
     }
 
     private static <K> boolean isRedBlackValid(TreeNode1<K> root) {

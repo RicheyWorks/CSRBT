@@ -24,14 +24,26 @@ import java.util.function.Supplier;
  *   DELETE_HEAVY     — insert 500 then delete 80%, random order
  *
  * ─────────────────────────────────────────────────────────────────────────────
- * METRICS PER COMPETITOR
+ * METRICS PER COMPETITOR (methodology per ADR-022)
  *
- *   totalTimeNs     — wall time for the full workload
- *   avgSearchDepth  — mean tree height after all operations
+ *   totalTimeNs     — MEDIAN wall time over TIMED_PASSES fresh runs, after one
+ *                     untimed warmup pass (JIT paid off the clock; single-pass
+ *                     cold-start timing used to hand the first competitor a 3.6×
+ *                     penalty and reorder ranks on identical inputs)
+ *   avgSearchDepth  — mean REALIZED search depth (nodes touched per search op),
+ *                     not the root height it used to be (root height is the worst
+ *                     case, guaranteed Splay last place regardless of locality)
  *   rotations       — total rotation count
  *   finalSize       — tree size at end
  *   searchHits      — how many searches found their key
  *
+ * Search ops run in two steps: a measuring walk (realized depth + hit/miss), then
+ * the STRATEGY'S OWN search — the engine-level path where a self-adjusting
+ * strategy actually self-adjusts. OrderedSet.contains never splays by design
+ * (ADR-004 R1 reserves splaying for the write path), so the old contains-driven
+ * battle benchmarked Splay with its defining move disabled in the very workloads
+ * documented to favor it. Every competitor pays the same two-walk cost, so
+ * relative timing stays fair.
  * ─────────────────────────────────────────────────────────────────────────────
  */
 public class StrategyBattleRunner {
@@ -89,13 +101,19 @@ public class StrategyBattleRunner {
             this.hybridSnapshot = hybridSnapshot;
         }
 
-        /** Composite score: lower time + lower depth + fewer rotations = better. */
+        /**
+         * Composite score: lower time + lower realized depth = better. The rotation
+         * term was REMOVED when the rotation meter came alive (T-1 + ADR-022's held
+         * weight decision, fired 2026-08-12): rotations are work, and work is already
+         * priced into wall time — charging them again double-counted Splay's
+         * self-adjustment (~6 rotations per locality search) and flipped the locality
+         * verdicts away from the workloads' documented intent. Rotations remain a
+         * reported metric; they just don't score twice.
+         */
         double compositeScore() {
             double timeMs     = totalTimeNs / 1_000_000.0;
             double depthScore = avgSearchDepth;
-            double rotScore   = (double) rotations / Math.max(1, totalOps);
-            // Normalize each to roughly [0, 10] then sum; lower = better
-            return (timeMs * 0.5) + (depthScore * 3.0) + (rotScore * 2.0);
+            return (timeMs * 0.5) + (depthScore * 3.0);
         }
 
         @Override
@@ -125,9 +143,7 @@ public class StrategyBattleRunner {
         List<BattleResult> results = new ArrayList<>();
 
         for (Map.Entry<String, Supplier<TreeStrategy<Integer>>> entry : COMPETITORS.entrySet()) {
-            String name     = entry.getKey();
-            TreeStrategy<Integer> st = entry.getValue().get();
-            BattleResult r  = runCompetitor(name, st, ops, workload);
+            BattleResult r = runCompetitor(entry.getKey(), entry.getValue(), ops, workload);
             results.add(r);
         }
 
@@ -152,41 +168,80 @@ public class StrategyBattleRunner {
 
     // ── Competitor runner ─────────────────────────────────────────────────────
 
-    private static BattleResult runCompetitor(String name, TreeStrategy<Integer> strategy,
+    /** Untimed warmup passes + timed passes per competitor (ADR-022). */
+    private static final int TIMED_PASSES = 3;
+
+    private static BattleResult runCompetitor(String name,
+                                               Supplier<TreeStrategy<Integer>> strategyFactory,
                                                List<int[]> ops, WorkloadType workload) {
-        TreeContext ctx       = new TreeContext(strategy);
-        int         hits      = 0;
-        int         totalOps  = ops.size();
+        // Warmup: one full untimed pass on a throwaway context, so the JIT is paid
+        // before any clock starts (ADR-022; the first competitor used to run 3.6×
+        // slower cold, reordering ranks on identical inputs).
+        runPass(new TreeContext(strategyFactory.get()), ops);
 
-        long start = System.nanoTime();
-
-        for (int[] op : ops) {
-            int type  = op[0];   // 0=insert, 1=search, 2=delete
-            int value = op[1];
-
-            switch (type) {
-                case 0 -> ctx.add(value);
-                case 1 -> { if (ctx.contains(value)) hits++; }
-                case 2 -> ctx.remove(value);
-            }
+        // Timed passes: fresh context each, median wall time. The non-timing metrics
+        // are identical across passes (same ops, same strategy), so they come from
+        // the last pass.
+        long[] times = new long[TIMED_PASSES];
+        PassResult last = null;
+        TreeContext lastCtx = null;
+        TreeStrategy<Integer> lastStrategy = null;
+        for (int pass = 0; pass < TIMED_PASSES; pass++) {
+            TreeStrategy<Integer> strategy = strategyFactory.get();
+            TreeContext ctx = new TreeContext(strategy);
+            long start = System.nanoTime();
+            PassResult r = runPass(ctx, ops);
+            times[pass] = System.nanoTime() - start;
+            last = r;
+            lastCtx = ctx;
+            lastStrategy = strategy;
         }
+        Arrays.sort(times);
+        long medianElapsed = times[TIMED_PASSES / 2];
 
-        long elapsed = System.nanoTime() - start;
+        double avgDepth = last.searchOps == 0 ? 0.0
+                : (double) last.depthSum / last.searchOps;   // realized, not root height
 
-        // Measure avg search depth as tree height (proxy; real avg would require traversal)
-        double avgDepth = ctx.getTree().getRoot().getHeight();
-
-        // Capture hybrid-specific metrics if applicable
         HybridStrategy.HybridMetricsSnapshot hybridSnapshot = null;
-        if (strategy instanceof HybridStrategy<?> hs) {
-            hybridSnapshot = hs.snapshot(ctx.getSize(), avgDepth);
+        if (lastStrategy instanceof HybridStrategy<?> hs) {
+            hybridSnapshot = hs.snapshot(lastCtx.getSize(), avgDepth);
         }
 
         return new BattleResult(
-                name, workload, elapsed, avgDepth,
-                ctx.getRotationCount(), ctx.getSize(),
-                hits, totalOps, hybridSnapshot
+                name, workload, medianElapsed, avgDepth,
+                lastCtx.getRotationCount(), lastCtx.getSize(),
+                last.hits, ops.size(), hybridSnapshot
         );
+    }
+
+    private record PassResult(int hits, long depthSum, int searchOps) { }
+
+    /** One full workload pass. Search = measuring walk + the strategy's own search. */
+    private static PassResult runPass(TreeContext ctx, List<int[]> ops) {
+        int hits = 0;
+        long depthSum = 0;
+        int searchOps = 0;
+        for (int[] op : ops) {
+            int type  = op[0];   // 0=insert, 1=search, 2=delete
+            int value = op[1];
+            switch (type) {
+                case 0 -> ctx.add(value);
+                case 1 -> {
+                    // Realized depth + hit/miss in one measuring walk (pre-access cost)…
+                    int d = ctx.getOrderedSet().searchDepth(value);
+                    boolean hit = d >= 0;
+                    depthSum += hit ? d : ~d;
+                    searchOps++;
+                    if (hit) hits++;
+                    // …then the STRATEGY'S search, so a self-adjusting strategy adjusts
+                    // (SplayStrategy splays the accessed key toward the root; a plain
+                    // descent for everyone else — the same extra cost for all).
+                    ctx.getTree().getStrategy().search(ctx.getTree(), value);
+                }
+                case 2 -> ctx.remove(value);
+            }
+        }
+        return new PassResult(hits, depthSum, searchOps);
     }
 
     // ── Workload generation ───────────────────────────────────────────────────

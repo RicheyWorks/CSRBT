@@ -2,6 +2,9 @@ package io.github.richeyworks.csrbt.util;
 
 import io.github.richeyworks.csrbt.TreeContext;
 import io.github.richeyworks.csrbt.TreeNode1;
+import io.github.richeyworks.csrbt.strategy.HybridStrategy;
+import io.github.richeyworks.csrbt.strategy.TreeStrategy;
+import io.github.richeyworks.csrbt.strategy.WeightBalancedStrategy;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -39,6 +42,35 @@ public class TreeCloner {
         this.context = context;
     }
 
+    /**
+     * A fresh strategy instance carrying the same policy as {@code original} (bug audit
+     * 2026-08-12, C-1): clones used to share the ORIGINAL strategy object, so a stateful
+     * strategy (Hybrid's counters) was mutated by operations on any clone — against this
+     * class's "no references are shared" contract, and cross-contaminating
+     * {@code deployCloneArmy}/{@code strategyParallelClones} benchmarks. Parameterized
+     * strategies are reconstructed with their parameters; anything unknown falls back to
+     * a reflective no-arg construction, and only if THAT fails do we share (with a warn).
+     */
+    private static TreeStrategy<Integer> freshStrategyLike(TreeStrategy<Integer> original) {
+        if (original instanceof HybridStrategy<Integer> h) {
+            return new HybridStrategy<>(h.getDepthThreshold());
+        }
+        if (original instanceof WeightBalancedStrategy<Integer> wb) {
+            return new WeightBalancedStrategy<>(wb.delta(), wb.ratio());
+        }
+        try {
+            @SuppressWarnings("unchecked")
+            TreeStrategy<Integer> fresh = (TreeStrategy<Integer>)
+                    original.getClass().getDeclaredConstructor().newInstance();
+            return fresh;
+        } catch (ReflectiveOperationException e) {
+            logger.warn("Cannot construct a fresh {} for the clone — sharing the instance "
+                    + "(stateful strategies will cross-contaminate).",
+                    original.getClass().getSimpleName());
+            return original;
+        }
+    }
+
     // ── Public API ────────────────────────────────────────────────────────────
 
     /**
@@ -46,7 +78,7 @@ public class TreeCloner {
      * No references are shared with the original.
      */
     public TreeContext snapshot() {
-        TreeContext clone    = new TreeContext(context.getTree().getStrategy());
+        TreeContext clone    = new TreeContext(freshStrategyLike(context.getTree().getStrategy()));
         TreeNode1<Integer> origNil = context.getTree().getNIL();
         TreeNode1<Integer> cloneNil = clone.getTree().getNIL();
 
@@ -146,7 +178,7 @@ public class TreeCloner {
      * Good for visualizing the top of a large tree without copying everything.
      */
     public TreeContext shallowClone(int maxDepth) {
-        TreeContext clone    = new TreeContext(context.getTree().getStrategy());
+        TreeContext clone    = new TreeContext(freshStrategyLike(context.getTree().getStrategy()));
         TreeNode1<Integer> origNil  = context.getTree().getNIL();
         TreeNode1<Integer> cloneNil = clone.getTree().getNIL();
 

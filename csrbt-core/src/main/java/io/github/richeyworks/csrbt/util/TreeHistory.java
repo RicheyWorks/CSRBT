@@ -24,6 +24,15 @@ import java.util.*;
  * re-inserting a key may yield a different but equally valid balanced shape.
  * For an ordered-set abstraction this is the meaningful contract.</p>
  *
+ * <p><b>Sliding-window semantics</b> (D-2, consolidation 2026-08-12): an add under an
+ * active window may evict the oldest key; the command records the victim and undo
+ * restores it — at the FIFO <em>tail</em>, since window position is not part of the
+ * contents contract. A redo therefore RE-EXECUTES the add and may evict a different
+ * key than the original run did; the command's eviction record is refreshed on every
+ * redo so the following undo is exact again. A checkpoint RESTORE whose before-state
+ * exceeds the window bound restores at most {@code maxSize} keys — the window itself
+ * caps what can exist.</p>
+ *
  * <p>Named checkpoints still hold a real snapshot (they are explicit, rare save
  * points). Restoring a checkpoint pushes a lightweight {@code RESTORE} entry
  * carrying the before/after key lists, so the restore is itself undoable
@@ -70,6 +79,15 @@ public class TreeHistory {
         public final Instant       timestamp;
         public final String        strategyName;
 
+        /**
+         * The key a window-evicting ADD displaced, or {@code null} (D-2, consolidation
+         * 2026-08-12): undoing such an ADD must restore the evicted key, and redoing
+         * it re-runs the eviction — which may displace a DIFFERENT key by then, so
+         * this field is refreshed on every redo to keep later undos truthful. Mutable
+         * for exactly that reason.
+         */
+        Integer evictedValue;
+
         private Command(Action action, int value,
                         List<Integer> beforeContents, List<Integer> afterContents,
                         int sizeAtRecord, String strategyName) {
@@ -105,7 +123,17 @@ public class TreeHistory {
 
     /** Record an insertion (called by {@link TreeContext#add}). */
     public void recordAdd(int value) {
-        pushUndo(Command.op(Command.Action.ADD, value, context.getSize(), strategyName()));
+        recordAdd(value, null);
+    }
+
+    /**
+     * Record an insertion that may have evicted the window's oldest key (D-2).
+     * {@code evicted} is {@code null} when no eviction occurred.
+     */
+    public void recordAdd(int value, Integer evicted) {
+        Command cmd = Command.op(Command.Action.ADD, value, context.getSize(), strategyName());
+        cmd.evictedValue = evicted;
+        pushUndo(cmd);
     }
 
     /** Record a removal (called by {@link TreeContext#remove}). */
@@ -173,7 +201,13 @@ public class TreeHistory {
         context.setHistoryRecording(false);
         try {
             switch (cmd.action) {
-                case ADD:     context.remove(cmd.value);          break;
+                case ADD:
+                    context.remove(cmd.value);
+                    // D-2: a window-evicting add displaced a key — restore it. (It
+                    // re-enters at the FIFO tail; window POSITION is not part of the
+                    // ordered-set contents contract this class restores.)
+                    if (cmd.evictedValue != null) context.add(cmd.evictedValue);
+                    break;
                 case REMOVE:  context.add(cmd.value);             break;
                 case RESTORE: setContents(cmd.beforeContents);    break;
             }
@@ -186,7 +220,17 @@ public class TreeHistory {
         context.setHistoryRecording(false);
         try {
             switch (cmd.action) {
-                case ADD:     context.add(cmd.value);             break;
+                case ADD: {
+                    // D-2: re-running the add re-runs the eviction, which may displace
+                    // a DIFFERENT key than the original did — refresh the record so a
+                    // later undo restores what THIS redo actually evicted.
+                    int sizeBefore = context.getOrderedSet().size();
+                    Integer victim = context.getOrderedSet().peekOldest();
+                    boolean inserted = context.add(Integer.valueOf(cmd.value));
+                    cmd.evictedValue = (inserted
+                            && context.getOrderedSet().size() == sizeBefore) ? victim : null;
+                    break;
+                }
                 case REMOVE:  context.remove(cmd.value);          break;
                 case RESTORE: setContents(cmd.afterContents);     break;
             }

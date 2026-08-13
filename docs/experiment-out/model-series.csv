@@ -1,0 +1,265 @@
+model,series,t,value
+"Logistic growth (r=0.150, K=60)",N,0,5.000000
+"Logistic growth (r=0.150, K=60)",N,1,5.731870
+"Logistic growth (r=0.150, K=60)",N,2,6.558093
+"Logistic growth (r=0.150, K=60)",N,3,7.486982
+"Logistic growth (r=0.150, K=60)",N,4,8.526448
+"Logistic growth (r=0.150, K=60)",N,5,9.683617
+"Logistic growth (r=0.150, K=60)",N,6,10.964379
+"Logistic growth (r=0.150, K=60)",N,7,12.372881
+"Logistic growth (r=0.150, K=60)",N,8,13.910991
+"Logistic growth (r=0.150, K=60)",N,9,15.577768
+"Logistic growth (r=0.150, K=60)",N,10,17.368993
+"Logistic growth (r=0.150, K=60)",N,11,19.276805
+"Logistic growth (r=0.150, K=60)",N,12,21.289522
+"Logistic growth (r=0.150, K=60)",N,13,23.391678
+"Logistic growth (r=0.150, K=60)",N,14,25.564325
+"Logistic growth (r=0.150, K=60)",N,15,27.785606
+"Logistic growth (r=0.150, K=60)",N,16,30.031571
+"Logistic growth (r=0.150, K=60)",N,17,32.277182
+"Logistic growth (r=0.150, K=60)",N,18,34.497417
+"Logistic growth (r=0.150, K=60)",N,19,36.668372
+"Logistic growth (r=0.150, K=60)",N,20,38.768261
+"Logistic growth (r=0.150, K=60)",N,21,40.778228
+"Logistic growth (r=0.150, K=60)",N,22,42.682910
+"Logistic growth (r=0.150, K=60)",N,23,44.470732
+"Logistic growth (r=0.150, K=60)",N,24,46.133939
+"Logistic growth (r=0.150, K=60)",N,25,47.668411
+"Logistic growth (r=0.150, K=60)",N,26,49.073291
+"Logistic growth (r=0.150, K=60)",N,27,50.350518
+"Logistic growth (r=0.150, K=60)",N,28,51.504297
+"Logistic growth (r=0.150, K=60)",N,29,52.540558
+"Logistic growth (r=0.150, K=60)",N,30,53.466455
+"Logistic growth (r=0.150, K=60)",N,31,54.289916
+"Logistic growth (r=0.150, K=60)",N,32,55.019260
+"Logistic growth (r=0.150, K=60)",N,33,55.662887
+"Logistic growth (r=0.150, K=60)",N,34,56.229043
+"Logistic growth (r=0.150, K=60)",N,35,56.725643
+"Logistic growth (r=0.150, K=60)",N,36,57.160147
+"Logistic growth (r=0.150, K=60)",N,37,57.539494
+"Logistic growth (r=0.150, K=60)",N,38,57.870057
+"Logistic growth (r=0.150, K=60)",N,39,58.157631
+"Logistic growth (r=0.150, K=60)",N,40,58.407447
+"Logistic growth (r=0.150, K=60)",N,41,58.624190
+"Logistic growth (r=0.150, K=60)",N,42,58.812035
+"Logistic growth (r=0.150, K=60)",N,43,58.974681
+"Logistic growth (r=0.150, K=60)",N,44,59.115394
+"Logistic growth (r=0.150, K=60)",N,45,59.237046
+"Logistic growth (r=0.150, K=60)",N,46,59.342154
+"Logistic growth (r=0.150, K=60)",N,47,59.432921
+"Logistic growth (r=0.150, K=60)",N,48,59.511267
+"Logistic growth (r=0.150, K=60)",N,49,59.578866
+"Logistic growth (r=0.150, K=60)",N,50,59.637172
+"Logistic growth (r=0.150, K=60)",N,51,59.687448
+"Logistic growth (r=0.150, K=60)",N,52,59.730788
+"Logistic growth (r=0.150, K=60)",N,53,59.768142
+"Logistic growth (r=0.150, K=60)",N,54,59.800331
+"Logistic growth (r=0.150, K=60)",N,55,59.828063
+"Logistic growth (r=0.150, K=60)",N,56,59.851954
+"Logistic growth (r=0.150, K=60)",N,57,59.872532
+"Logistic growth (r=0.150, K=60)",N,58,59.890254
+"Logistic growth (r=0.150, K=60)",N,59,59.905517
+"Logistic growth (r=0.150, K=60)",N,60,59.918660
+"Island richness (c=0.234, e=0.200, pool=100)",S,0,0.000000
+"Island richness (c=0.234, e=0.200, pool=100)",S,1,18.958294
+"Island richness (c=0.234, e=0.200, pool=100)",S,2,31.245891
+"Island richness (c=0.234, e=0.200, pool=100)",S,3,39.209955
+"Island richness (c=0.234, e=0.200, pool=100)",S,4,44.371770
+"Island richness (c=0.234, e=0.200, pool=100)",S,5,47.717341
+"Island richness (c=0.234, e=0.200, pool=100)",S,6,49.885733
+"Island richness (c=0.234, e=0.200, pool=100)",S,7,51.291152
+"Island richness (c=0.234, e=0.200, pool=100)",S,8,52.202058
+"Island richness (c=0.234, e=0.200, pool=100)",S,9,52.792451
+"Island richness (c=0.234, e=0.200, pool=100)",S,10,53.175107
+"Island richness (c=0.234, e=0.200, pool=100)",S,11,53.423121
+"Island richness (c=0.234, e=0.200, pool=100)",S,12,53.583869
+"Island richness (c=0.234, e=0.200, pool=100)",S,13,53.688055
+"Island richness (c=0.234, e=0.200, pool=100)",S,14,53.755583
+"Island richness (c=0.234, e=0.200, pool=100)",S,15,53.799350
+"Island richness (c=0.234, e=0.200, pool=100)",S,16,53.827717
+"Island richness (c=0.234, e=0.200, pool=100)",S,17,53.846103
+"Island richness (c=0.234, e=0.200, pool=100)",S,18,53.858019
+"Island richness (c=0.234, e=0.200, pool=100)",S,19,53.865743
+"Island richness (c=0.234, e=0.200, pool=100)",S,20,53.870749
+"Island richness (c=0.234, e=0.200, pool=100)",S,21,53.873993
+"Island richness (c=0.234, e=0.200, pool=100)",S,22,53.876096
+"Island richness (c=0.234, e=0.200, pool=100)",S,23,53.877459
+"Island richness (c=0.234, e=0.200, pool=100)",S,24,53.878343
+"Island richness (c=0.234, e=0.200, pool=100)",S,25,53.878915
+"Island richness (c=0.234, e=0.200, pool=100)",S,26,53.879286
+"Island richness (c=0.234, e=0.200, pool=100)",S,27,53.879527
+"Island richness (c=0.234, e=0.200, pool=100)",S,28,53.879683
+"Island richness (c=0.234, e=0.200, pool=100)",S,29,53.879784
+"Island richness (c=0.234, e=0.200, pool=100)",S,30,53.879849
+"Island richness (c=0.234, e=0.200, pool=100)",S,31,53.879892
+"Island richness (c=0.234, e=0.200, pool=100)",S,32,53.879919
+"Island richness (c=0.234, e=0.200, pool=100)",S,33,53.879937
+"Island richness (c=0.234, e=0.200, pool=100)",S,34,53.879949
+"Island richness (c=0.234, e=0.200, pool=100)",S,35,53.879956
+"Island richness (c=0.234, e=0.200, pool=100)",S,36,53.879961
+"Island richness (c=0.234, e=0.200, pool=100)",S,37,53.879964
+"Island richness (c=0.234, e=0.200, pool=100)",S,38,53.879966
+"Island richness (c=0.234, e=0.200, pool=100)",S,39,53.879967
+"Island richness (c=0.234, e=0.200, pool=100)",S,40,53.879968
+"Lotka–Volterra competition (K1=50, K2=40, α12=0.70, α21=1.10)",species 1,0,5.000000
+"Lotka–Volterra competition (K1=50, K2=40, α12=0.70, α21=1.10)",species 1,1,6.862537
+"Lotka–Volterra competition (K1=50, K2=40, α12=0.70, α21=1.10)",species 1,2,9.184886
+"Lotka–Volterra competition (K1=50, K2=40, α12=0.70, α21=1.10)",species 1,3,11.937918
+"Lotka–Volterra competition (K1=50, K2=40, α12=0.70, α21=1.10)",species 1,4,15.027145
+"Lotka–Volterra competition (K1=50, K2=40, α12=0.70, α21=1.10)",species 1,5,18.307942
+"Lotka–Volterra competition (K1=50, K2=40, α12=0.70, α21=1.10)",species 1,6,21.620028
+"Lotka–Volterra competition (K1=50, K2=40, α12=0.70, α21=1.10)",species 1,7,24.823566
+"Lotka–Volterra competition (K1=50, K2=40, α12=0.70, α21=1.10)",species 1,8,27.820434
+"Lotka–Volterra competition (K1=50, K2=40, α12=0.70, α21=1.10)",species 1,9,30.556925
+"Lotka–Volterra competition (K1=50, K2=40, α12=0.70, α21=1.10)",species 1,10,33.014644
+"Lotka–Volterra competition (K1=50, K2=40, α12=0.70, α21=1.10)",species 1,11,35.198157
+"Lotka–Volterra competition (K1=50, K2=40, α12=0.70, α21=1.10)",species 1,12,37.124557
+"Lotka–Volterra competition (K1=50, K2=40, α12=0.70, α21=1.10)",species 1,13,38.816414
+"Lotka–Volterra competition (K1=50, K2=40, α12=0.70, α21=1.10)",species 1,14,40.297689
+"Lotka–Volterra competition (K1=50, K2=40, α12=0.70, α21=1.10)",species 1,15,41.591644
+"Lotka–Volterra competition (K1=50, K2=40, α12=0.70, α21=1.10)",species 1,16,42.719906
+"Lotka–Volterra competition (K1=50, K2=40, α12=0.70, α21=1.10)",species 1,17,43.702154
+"Lotka–Volterra competition (K1=50, K2=40, α12=0.70, α21=1.10)",species 1,18,44.556084
+"Lotka–Volterra competition (K1=50, K2=40, α12=0.70, α21=1.10)",species 1,19,45.297507
+"Lotka–Volterra competition (K1=50, K2=40, α12=0.70, α21=1.10)",species 1,20,45.940487
+"Lotka–Volterra competition (K1=50, K2=40, α12=0.70, α21=1.10)",species 1,21,46.497496
+"Lotka–Volterra competition (K1=50, K2=40, α12=0.70, α21=1.10)",species 1,22,46.979556
+"Lotka–Volterra competition (K1=50, K2=40, α12=0.70, α21=1.10)",species 1,23,47.396388
+"Lotka–Volterra competition (K1=50, K2=40, α12=0.70, α21=1.10)",species 1,24,47.756536
+"Lotka–Volterra competition (K1=50, K2=40, α12=0.70, α21=1.10)",species 1,25,48.067494
+"Lotka–Volterra competition (K1=50, K2=40, α12=0.70, α21=1.10)",species 1,26,48.335819
+"Lotka–Volterra competition (K1=50, K2=40, α12=0.70, α21=1.10)",species 1,27,48.567233
+"Lotka–Volterra competition (K1=50, K2=40, α12=0.70, α21=1.10)",species 1,28,48.766724
+"Lotka–Volterra competition (K1=50, K2=40, α12=0.70, α21=1.10)",species 1,29,48.938627
+"Lotka–Volterra competition (K1=50, K2=40, α12=0.70, α21=1.10)",species 1,30,49.086707
+"Lotka–Volterra competition (K1=50, K2=40, α12=0.70, α21=1.10)",species 1,31,49.214229
+"Lotka–Volterra competition (K1=50, K2=40, α12=0.70, α21=1.10)",species 1,32,49.324020
+"Lotka–Volterra competition (K1=50, K2=40, α12=0.70, α21=1.10)",species 1,33,49.418525
+"Lotka–Volterra competition (K1=50, K2=40, α12=0.70, α21=1.10)",species 1,34,49.499858
+"Lotka–Volterra competition (K1=50, K2=40, α12=0.70, α21=1.10)",species 1,35,49.569844
+"Lotka–Volterra competition (K1=50, K2=40, α12=0.70, α21=1.10)",species 1,36,49.630058
+"Lotka–Volterra competition (K1=50, K2=40, α12=0.70, α21=1.10)",species 1,37,49.681859
+"Lotka–Volterra competition (K1=50, K2=40, α12=0.70, α21=1.10)",species 1,38,49.726418
+"Lotka–Volterra competition (K1=50, K2=40, α12=0.70, α21=1.10)",species 1,39,49.764744
+"Lotka–Volterra competition (K1=50, K2=40, α12=0.70, α21=1.10)",species 1,40,49.797708
+"Lotka–Volterra competition (K1=50, K2=40, α12=0.70, α21=1.10)",species 1,41,49.826057
+"Lotka–Volterra competition (K1=50, K2=40, α12=0.70, α21=1.10)",species 1,42,49.850436
+"Lotka–Volterra competition (K1=50, K2=40, α12=0.70, α21=1.10)",species 1,43,49.871401
+"Lotka–Volterra competition (K1=50, K2=40, α12=0.70, α21=1.10)",species 1,44,49.889429
+"Lotka–Volterra competition (K1=50, K2=40, α12=0.70, α21=1.10)",species 1,45,49.904931
+"Lotka–Volterra competition (K1=50, K2=40, α12=0.70, α21=1.10)",species 1,46,49.918261
+"Lotka–Volterra competition (K1=50, K2=40, α12=0.70, α21=1.10)",species 1,47,49.929722
+"Lotka–Volterra competition (K1=50, K2=40, α12=0.70, α21=1.10)",species 1,48,49.939577
+"Lotka–Volterra competition (K1=50, K2=40, α12=0.70, α21=1.10)",species 1,49,49.948050
+"Lotka–Volterra competition (K1=50, K2=40, α12=0.70, α21=1.10)",species 1,50,49.955336
+"Lotka–Volterra competition (K1=50, K2=40, α12=0.70, α21=1.10)",species 1,51,49.961599
+"Lotka–Volterra competition (K1=50, K2=40, α12=0.70, α21=1.10)",species 1,52,49.966985
+"Lotka–Volterra competition (K1=50, K2=40, α12=0.70, α21=1.10)",species 1,53,49.971615
+"Lotka–Volterra competition (K1=50, K2=40, α12=0.70, α21=1.10)",species 1,54,49.975596
+"Lotka–Volterra competition (K1=50, K2=40, α12=0.70, α21=1.10)",species 1,55,49.979019
+"Lotka–Volterra competition (K1=50, K2=40, α12=0.70, α21=1.10)",species 1,56,49.981962
+"Lotka–Volterra competition (K1=50, K2=40, α12=0.70, α21=1.10)",species 1,57,49.984492
+"Lotka–Volterra competition (K1=50, K2=40, α12=0.70, α21=1.10)",species 1,58,49.986667
+"Lotka–Volterra competition (K1=50, K2=40, α12=0.70, α21=1.10)",species 1,59,49.988537
+"Lotka–Volterra competition (K1=50, K2=40, α12=0.70, α21=1.10)",species 1,60,49.990145
+"Lotka–Volterra competition (K1=50, K2=40, α12=0.70, α21=1.10)",species 1,61,49.991527
+"Lotka–Volterra competition (K1=50, K2=40, α12=0.70, α21=1.10)",species 1,62,49.992716
+"Lotka–Volterra competition (K1=50, K2=40, α12=0.70, α21=1.10)",species 1,63,49.993737
+"Lotka–Volterra competition (K1=50, K2=40, α12=0.70, α21=1.10)",species 1,64,49.994616
+"Lotka–Volterra competition (K1=50, K2=40, α12=0.70, α21=1.10)",species 1,65,49.995371
+"Lotka–Volterra competition (K1=50, K2=40, α12=0.70, α21=1.10)",species 1,66,49.996020
+"Lotka–Volterra competition (K1=50, K2=40, α12=0.70, α21=1.10)",species 1,67,49.996579
+"Lotka–Volterra competition (K1=50, K2=40, α12=0.70, α21=1.10)",species 1,68,49.997058
+"Lotka–Volterra competition (K1=50, K2=40, α12=0.70, α21=1.10)",species 1,69,49.997471
+"Lotka–Volterra competition (K1=50, K2=40, α12=0.70, α21=1.10)",species 1,70,49.997826
+"Lotka–Volterra competition (K1=50, K2=40, α12=0.70, α21=1.10)",species 1,71,49.998131
+"Lotka–Volterra competition (K1=50, K2=40, α12=0.70, α21=1.10)",species 1,72,49.998393
+"Lotka–Volterra competition (K1=50, K2=40, α12=0.70, α21=1.10)",species 1,73,49.998618
+"Lotka–Volterra competition (K1=50, K2=40, α12=0.70, α21=1.10)",species 1,74,49.998812
+"Lotka–Volterra competition (K1=50, K2=40, α12=0.70, α21=1.10)",species 1,75,49.998979
+"Lotka–Volterra competition (K1=50, K2=40, α12=0.70, α21=1.10)",species 1,76,49.999122
+"Lotka–Volterra competition (K1=50, K2=40, α12=0.70, α21=1.10)",species 1,77,49.999245
+"Lotka–Volterra competition (K1=50, K2=40, α12=0.70, α21=1.10)",species 1,78,49.999351
+"Lotka–Volterra competition (K1=50, K2=40, α12=0.70, α21=1.10)",species 1,79,49.999442
+"Lotka–Volterra competition (K1=50, K2=40, α12=0.70, α21=1.10)",species 1,80,49.999520
+"Lotka–Volterra competition (K1=50, K2=40, α12=0.70, α21=1.10)",species 2,0,5.000000
+"Lotka–Volterra competition (K1=50, K2=40, α12=0.70, α21=1.10)",species 2,1,6.585411
+"Lotka–Volterra competition (K1=50, K2=40, α12=0.70, α21=1.10)",species 2,2,8.345837
+"Lotka–Volterra competition (K1=50, K2=40, α12=0.70, α21=1.10)",species 2,3,10.115714
+"Lotka–Volterra competition (K1=50, K2=40, α12=0.70, α21=1.10)",species 2,4,11.683820
+"Lotka–Volterra competition (K1=50, K2=40, α12=0.70, α21=1.10)",species 2,5,12.855825
+"Lotka–Volterra competition (K1=50, K2=40, α12=0.70, α21=1.10)",species 2,6,13.515931
+"Lotka–Volterra competition (K1=50, K2=40, α12=0.70, α21=1.10)",species 2,7,13.651473
+"Lotka–Volterra competition (K1=50, K2=40, α12=0.70, α21=1.10)",species 2,8,13.333621
+"Lotka–Volterra competition (K1=50, K2=40, α12=0.70, α21=1.10)",species 2,9,12.676264
+"Lotka–Volterra competition (K1=50, K2=40, α12=0.70, α21=1.10)",species 2,10,11.798570
+"Lotka–Volterra competition (K1=50, K2=40, α12=0.70, α21=1.10)",species 2,11,10.802866
+"Lotka–Volterra competition (K1=50, K2=40, α12=0.70, α21=1.10)",species 2,12,9.766823
+"Lotka–Volterra competition (K1=50, K2=40, α12=0.70, α21=1.10)",species 2,13,8.744247
+"Lotka–Volterra competition (K1=50, K2=40, α12=0.70, α21=1.10)",species 2,14,7.769458
+"Lotka–Volterra competition (K1=50, K2=40, α12=0.70, α21=1.10)",species 2,15,6.862295
+"Lotka–Volterra competition (K1=50, K2=40, α12=0.70, α21=1.10)",species 2,16,6.032478
+"Lotka–Volterra competition (K1=50, K2=40, α12=0.70, α21=1.10)",species 2,17,5.282981
+"Lotka–Volterra competition (K1=50, K2=40, α12=0.70, α21=1.10)",species 2,18,4.612478
+"Lotka–Volterra competition (K1=50, K2=40, α12=0.70, α21=1.10)",species 2,19,4.017045
+"Lotka–Volterra competition (K1=50, K2=40, α12=0.70, α21=1.10)",species 2,20,3.491317
+"Lotka–Volterra competition (K1=50, K2=40, α12=0.70, α21=1.10)",species 2,21,3.029255
+"Lotka–Volterra competition (K1=50, K2=40, α12=0.70, α21=1.10)",species 2,22,2.624643
+"Lotka–Volterra competition (K1=50, K2=40, α12=0.70, α21=1.10)",species 2,23,2.271396
+"Lotka–Volterra competition (K1=50, K2=40, α12=0.70, α21=1.10)",species 2,24,1.963750
+"Lotka–Volterra competition (K1=50, K2=40, α12=0.70, α21=1.10)",species 2,25,1.696359
+"Lotka–Volterra competition (K1=50, K2=40, α12=0.70, α21=1.10)",species 2,26,1.464346
+"Lotka–Volterra competition (K1=50, K2=40, α12=0.70, α21=1.10)",species 2,27,1.263314
+"Lotka–Volterra competition (K1=50, K2=40, α12=0.70, α21=1.10)",species 2,28,1.089330
+"Lotka–Volterra competition (K1=50, K2=40, α12=0.70, α21=1.10)",species 2,29,0.938903
+"Lotka–Volterra competition (K1=50, K2=40, α12=0.70, α21=1.10)",species 2,30,0.808954
+"Lotka–Volterra competition (K1=50, K2=40, α12=0.70, α21=1.10)",species 2,31,0.696773
+"Lotka–Volterra competition (K1=50, K2=40, α12=0.70, α21=1.10)",species 2,32,0.599989
+"Lotka–Volterra competition (K1=50, K2=40, α12=0.70, α21=1.10)",species 2,33,0.516532
+"Lotka–Volterra competition (K1=50, K2=40, α12=0.70, α21=1.10)",species 2,34,0.444597
+"Lotka–Volterra competition (K1=50, K2=40, α12=0.70, α21=1.10)",species 2,35,0.382616
+"Lotka–Volterra competition (K1=50, K2=40, α12=0.70, α21=1.10)",species 2,36,0.329229
+"Lotka–Volterra competition (K1=50, K2=40, α12=0.70, α21=1.10)",species 2,37,0.283257
+"Lotka–Volterra competition (K1=50, K2=40, α12=0.70, α21=1.10)",species 2,38,0.243679
+"Lotka–Volterra competition (K1=50, K2=40, α12=0.70, α21=1.10)",species 2,39,0.209612
+"Lotka–Volterra competition (K1=50, K2=40, α12=0.70, α21=1.10)",species 2,40,0.180294
+"Lotka–Volterra competition (K1=50, K2=40, α12=0.70, α21=1.10)",species 2,41,0.155066
+"Lotka–Volterra competition (K1=50, K2=40, α12=0.70, α21=1.10)",species 2,42,0.133361
+"Lotka–Volterra competition (K1=50, K2=40, α12=0.70, α21=1.10)",species 2,43,0.114689
+"Lotka–Volterra competition (K1=50, K2=40, α12=0.70, α21=1.10)",species 2,44,0.098626
+"Lotka–Volterra competition (K1=50, K2=40, α12=0.70, α21=1.10)",species 2,45,0.084811
+"Lotka–Volterra competition (K1=50, K2=40, α12=0.70, α21=1.10)",species 2,46,0.072928
+"Lotka–Volterra competition (K1=50, K2=40, α12=0.70, α21=1.10)",species 2,47,0.062708
+"Lotka–Volterra competition (K1=50, K2=40, α12=0.70, α21=1.10)",species 2,48,0.053920
+"Lotka–Volterra competition (K1=50, K2=40, α12=0.70, α21=1.10)",species 2,49,0.046362
+"Lotka–Volterra competition (K1=50, K2=40, α12=0.70, α21=1.10)",species 2,50,0.039863
+"Lotka–Volterra competition (K1=50, K2=40, α12=0.70, α21=1.10)",species 2,51,0.034274
+"Lotka–Volterra competition (K1=50, K2=40, α12=0.70, α21=1.10)",species 2,52,0.029469
+"Lotka–Volterra competition (K1=50, K2=40, α12=0.70, α21=1.10)",species 2,53,0.025337
+"Lotka–Volterra competition (K1=50, K2=40, α12=0.70, α21=1.10)",species 2,54,0.021784
+"Lotka–Volterra competition (K1=50, K2=40, α12=0.70, α21=1.10)",species 2,55,0.018729
+"Lotka–Volterra competition (K1=50, K2=40, α12=0.70, α21=1.10)",species 2,56,0.016103
+"Lotka–Volterra competition (K1=50, K2=40, α12=0.70, α21=1.10)",species 2,57,0.013845
+"Lotka–Volterra competition (K1=50, K2=40, α12=0.70, α21=1.10)",species 2,58,0.011903
+"Lotka–Volterra competition (K1=50, K2=40, α12=0.70, α21=1.10)",species 2,59,0.010234
+"Lotka–Volterra competition (K1=50, K2=40, α12=0.70, α21=1.10)",species 2,60,0.008798
+"Lotka–Volterra competition (K1=50, K2=40, α12=0.70, α21=1.10)",species 2,61,0.007564
+"Lotka–Volterra competition (K1=50, K2=40, α12=0.70, α21=1.10)",species 2,62,0.006503
+"Lotka–Volterra competition (K1=50, K2=40, α12=0.70, α21=1.10)",species 2,63,0.005591
+"Lotka–Volterra competition (K1=50, K2=40, α12=0.70, α21=1.10)",species 2,64,0.004807
+"Lotka–Volterra competition (K1=50, K2=40, α12=0.70, α21=1.10)",species 2,65,0.004133
+"Lotka–Volterra competition (K1=50, K2=40, α12=0.70, α21=1.10)",species 2,66,0.003553
+"Lotka–Volterra competition (K1=50, K2=40, α12=0.70, α21=1.10)",species 2,67,0.003055
+"Lotka–Volterra competition (K1=50, K2=40, α12=0.70, α21=1.10)",species 2,68,0.002626
+"Lotka–Volterra competition (K1=50, K2=40, α12=0.70, α21=1.10)",species 2,69,0.002258
+"Lotka–Volterra competition (K1=50, K2=40, α12=0.70, α21=1.10)",species 2,70,0.001941
+"Lotka–Volterra competition (K1=50, K2=40, α12=0.70, α21=1.10)",species 2,71,0.001669
+"Lotka–Volterra competition (K1=50, K2=40, α12=0.70, α21=1.10)",species 2,72,0.001435
+"Lotka–Volterra competition (K1=50, K2=40, α12=0.70, α21=1.10)",species 2,73,0.001234
+"Lotka–Volterra competition (K1=50, K2=40, α12=0.70, α21=1.10)",species 2,74,0.001061
+"Lotka–Volterra competition (K1=50, K2=40, α12=0.70, α21=1.10)",species 2,75,0.000912
+"Lotka–Volterra competition (K1=50, K2=40, α12=0.70, α21=1.10)",species 2,76,0.000784
+"Lotka–Volterra competition (K1=50, K2=40, α12=0.70, α21=1.10)",species 2,77,0.000674
+"Lotka–Volterra competition (K1=50, K2=40, α12=0.70, α21=1.10)",species 2,78,0.000579
+"Lotka–Volterra competition (K1=50, K2=40, α12=0.70, α21=1.10)",species 2,79,0.000498
+"Lotka–Volterra competition (K1=50, K2=40, α12=0.70, α21=1.10)",species 2,80,0.000428

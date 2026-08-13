@@ -1,0 +1,8 @@
+hypothesis,observed,verdict
+evenness(graze) > 0.9,0.994433,CONFIRMED
+hill1(bloom) < 20,9.111201,CONFIRMED
+"brayCurtis(graze, bloom) > 0.5",0.850500,CONFIRMED
+evenness(bloom) > 0.9,0.494749,REFUTED
+"jaccard(pondA, pondB) <= 0.5",0.500000,CONFIRMED
+evenness(bloom) is uneven,uneven,CONFIRMED
+survivorship is type3,type3,CONFIRMED

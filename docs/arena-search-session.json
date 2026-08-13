@@ -8,17 +8,17 @@
   "strategy": "RedBlackStrategy",
   "size": 0,
   "height": 0,
-  "meters": { "avgInsertMs": 0.0, "avgDeleteMs": 0.0 },
+  "meters": { "avgInsertMs": 0, "avgDeleteMs": 0 },
   "root": null
 } },
-    { "op": 0, "type": "Lineage", "generation": 1, "child": "WB(Δ=3,Γ=2)", "parentA": null, "parentB": null, "op": "founder",
+    { "op": 0, "type": "Lineage", "generation": 1, "child": "WB(Δ=3,Γ=2)", "parentA": null, "parentB": null, "breedOp": "founder",
       "counts": { "inserts": 0, "removes": 0, "evicts": 0 },
       "state": {
   "type": "OrderedSet",
   "strategy": "RedBlackStrategy",
   "size": 0,
   "height": 0,
-  "meters": { "avgInsertMs": 0.0, "avgDeleteMs": 0.0 },
+  "meters": { "avgInsertMs": 0, "avgDeleteMs": 0 },
   "root": null
 } },
     { "op": 0, "type": "Morph", "from": "RedBlackStrategy", "to": "WeightBalancedStrategy", "committed": true,
@@ -28,7 +28,7 @@
   "strategy": "WeightBalancedStrategy",
   "size": 0,
   "height": 0,
-  "meters": { "avgInsertMs": 0.0, "avgDeleteMs": 0.0 },
+  "meters": { "avgInsertMs": 0, "avgDeleteMs": 0 },
   "root": null
 } },
     { "op": 0, "type": "Trial", "arm": "WB(Δ=3,Γ=2)", "phase": "TRIED", "cost": null, "pulls": 1,
@@ -38,17 +38,17 @@
   "strategy": "WeightBalancedStrategy",
   "size": 0,
   "height": 0,
-  "meters": { "avgInsertMs": 0.0, "avgDeleteMs": 0.0 },
+  "meters": { "avgInsertMs": 0, "avgDeleteMs": 0 },
   "root": null
 } },
-    { "op": 0, "type": "Lineage", "generation": 1, "child": "WB(Δ=5,Γ=3)", "parentA": null, "parentB": null, "op": "founder",
+    { "op": 0, "type": "Lineage", "generation": 1, "child": "WB(Δ=5,Γ=3)", "parentA": null, "parentB": null, "breedOp": "founder",
       "counts": { "inserts": 0, "removes": 0, "evicts": 0 },
       "state": {
   "type": "OrderedSet",
   "strategy": "WeightBalancedStrategy",
   "size": 0,
   "height": 0,
-  "meters": { "avgInsertMs": 0.0, "avgDeleteMs": 0.0 },
+  "meters": { "avgInsertMs": 0, "avgDeleteMs": 0 },
   "root": null
 } },
     { "op": 0, "type": "Trial", "arm": "WB(Δ=5,Γ=3)", "phase": "TRIED", "cost": null, "pulls": 1,
@@ -58,7 +58,7 @@
   "strategy": "WeightBalancedStrategy",
   "size": 0,
   "height": 0,
-  "meters": { "avgInsertMs": 0.0, "avgDeleteMs": 0.0 },
+  "meters": { "avgInsertMs": 0, "avgDeleteMs": 0 },
   "root": null
 } },
     { "op": 524, "type": "Trial", "arm": "WB(Δ=3,Γ=2)", "phase": "SCORED", "cost": 0.0000, "pulls": 1,
@@ -68,7 +68,7 @@
   "strategy": "WeightBalancedStrategy",
   "size": 100,
   "height": 8,
-  "meters": { "avgInsertMs": 0.011184, "avgDeleteMs": 0.002287 },
+  "meters": { "avgInsertMs": 0, "avgDeleteMs": 0 },
   "root": {
     "key": "101", "color": "BLACK", "size": 100, "depth": 1,
     "left": {
@@ -478,7 +478,417 @@
   "strategy": "WeightBalancedStrategy",
   "size": 100,
   "height": 8,
-  "meters": { "avgInsertMs": 0.011184, "avgDeleteMs": 0.002287 },
+  "meters": { "avgInsertMs": 0, "avgDeleteMs": 0 },
+  "root": {
+    "key": "101", "color": "BLACK", "size": 100, "depth": 1,
+    "left": {
+      "key": "57", "color": "BLACK", "size": 59, "depth": 2,
+      "left": {
+        "key": "31", "color": "BLACK", "size": 34, "depth": 3,
+        "left": {
+          "key": "18", "color": "BLACK", "size": 16, "depth": 4,
+          "left": {
+            "key": "8", "color": "BLACK", "size": 8, "depth": 5,
+            "left": {
+              "key": "3", "color": "BLACK", "size": 3, "depth": 6,
+              "left": {
+                "key": "1", "color": "BLACK", "size": 1, "depth": 7,
+                "left": null,
+                "right": null
+              },
+              "right": {
+                "key": "7", "color": "BLACK", "size": 1, "depth": 7,
+                "left": null,
+                "right": null
+              }
+            },
+            "right": {
+              "key": "15", "color": "BLACK", "size": 4, "depth": 6,
+              "left": {
+                "key": "12", "color": "BLACK", "size": 2, "depth": 7,
+                "left": {
+                  "key": "10", "color": "BLACK", "size": 1, "depth": 8,
+                  "left": null,
+                  "right": null
+                },
+                "right": null
+              },
+              "right": {
+                "key": "17", "color": "BLACK", "size": 1, "depth": 7,
+                "left": null,
+                "right": null
+              }
+            }
+          },
+          "right": {
+            "key": "24", "color": "BLACK", "size": 7, "depth": 5,
+            "left": {
+              "key": "21", "color": "BLACK", "size": 4, "depth": 6,
+              "left": {
+                "key": "19", "color": "BLACK", "size": 2, "depth": 7,
+                "left": null,
+                "right": {
+                  "key": "20", "color": "BLACK", "size": 1, "depth": 8,
+                  "left": null,
+                  "right": null
+                }
+              },
+              "right": {
+                "key": "23", "color": "BLACK", "size": 1, "depth": 7,
+                "left": null,
+                "right": null
+              }
+            },
+            "right": {
+              "key": "27", "color": "BLACK", "size": 2, "depth": 6,
+              "left": {
+                "key": "26", "color": "BLACK", "size": 1, "depth": 7,
+                "left": null,
+                "right": null
+              },
+              "right": null
+            }
+          }
+        },
+        "right": {
+          "key": "46", "color": "BLACK", "size": 17, "depth": 4,
+          "left": {
+            "key": "35", "color": "BLACK", "size": 8, "depth": 5,
+            "left": {
+              "key": "33", "color": "BLACK", "size": 3, "depth": 6,
+              "left": {
+                "key": "32", "color": "BLACK", "size": 1, "depth": 7,
+                "left": null,
+                "right": null
+              },
+              "right": {
+                "key": "34", "color": "BLACK", "size": 1, "depth": 7,
+                "left": null,
+                "right": null
+              }
+            },
+            "right": {
+              "key": "40", "color": "BLACK", "size": 4, "depth": 6,
+              "left": {
+                "key": "38", "color": "BLACK", "size": 1, "depth": 7,
+                "left": null,
+                "right": null
+              },
+              "right": {
+                "key": "42", "color": "BLACK", "size": 2, "depth": 7,
+                "left": {
+                  "key": "41", "color": "BLACK", "size": 1, "depth": 8,
+                  "left": null,
+                  "right": null
+                },
+                "right": null
+              }
+            }
+          },
+          "right": {
+            "key": "50", "color": "BLACK", "size": 8, "depth": 5,
+            "left": {
+              "key": "48", "color": "BLACK", "size": 3, "depth": 6,
+              "left": {
+                "key": "47", "color": "BLACK", "size": 1, "depth": 7,
+                "left": null,
+                "right": null
+              },
+              "right": {
+                "key": "49", "color": "BLACK", "size": 1, "depth": 7,
+                "left": null,
+                "right": null
+              }
+            },
+            "right": {
+              "key": "52", "color": "BLACK", "size": 4, "depth": 6,
+              "left": {
+                "key": "51", "color": "BLACK", "size": 1, "depth": 7,
+                "left": null,
+                "right": null
+              },
+              "right": {
+                "key": "55", "color": "BLACK", "size": 2, "depth": 7,
+                "left": {
+                  "key": "54", "color": "BLACK", "size": 1, "depth": 8,
+                  "left": null,
+                  "right": null
+                },
+                "right": null
+              }
+            }
+          }
+        }
+      },
+      "right": {
+        "key": "85", "color": "BLACK", "size": 24, "depth": 3,
+        "left": {
+          "key": "70", "color": "BLACK", "size": 16, "depth": 4,
+          "left": {
+            "key": "64", "color": "BLACK", "size": 8, "depth": 5,
+            "left": {
+              "key": "60", "color": "BLACK", "size": 3, "depth": 6,
+              "left": {
+                "key": "59", "color": "BLACK", "size": 1, "depth": 7,
+                "left": null,
+                "right": null
+              },
+              "right": {
+                "key": "63", "color": "BLACK", "size": 1, "depth": 7,
+                "left": null,
+                "right": null
+              }
+            },
+            "right": {
+              "key": "67", "color": "BLACK", "size": 4, "depth": 6,
+              "left": {
+                "key": "66", "color": "BLACK", "size": 2, "depth": 7,
+                "left": {
+                  "key": "65", "color": "BLACK", "size": 1, "depth": 8,
+                  "left": null,
+                  "right": null
+                },
+                "right": null
+              },
+              "right": {
+                "key": "68", "color": "BLACK", "size": 1, "depth": 7,
+                "left": null,
+                "right": null
+              }
+            }
+          },
+          "right": {
+            "key": "76", "color": "BLACK", "size": 7, "depth": 5,
+            "left": {
+              "key": "75", "color": "BLACK", "size": 2, "depth": 6,
+              "left": {
+                "key": "72", "color": "BLACK", "size": 1, "depth": 7,
+                "left": null,
+                "right": null
+              },
+              "right": null
+            },
+            "right": {
+              "key": "80", "color": "BLACK", "size": 4, "depth": 6,
+              "left": {
+                "key": "77", "color": "BLACK", "size": 1, "depth": 7,
+                "left": null,
+                "right": null
+              },
+              "right": {
+                "key": "83", "color": "BLACK", "size": 2, "depth": 7,
+                "left": {
+                  "key": "82", "color": "BLACK", "size": 1, "depth": 8,
+                  "left": null,
+                  "right": null
+                },
+                "right": null
+              }
+            }
+          }
+        },
+        "right": {
+          "key": "94", "color": "BLACK", "size": 7, "depth": 4,
+          "left": {
+            "key": "89", "color": "BLACK", "size": 2, "depth": 5,
+            "left": null,
+            "right": {
+              "key": "93", "color": "BLACK", "size": 1, "depth": 6,
+              "left": null,
+              "right": null
+            }
+          },
+          "right": {
+            "key": "97", "color": "BLACK", "size": 4, "depth": 5,
+            "left": {
+              "key": "96", "color": "BLACK", "size": 1, "depth": 6,
+              "left": null,
+              "right": null
+            },
+            "right": {
+              "key": "99", "color": "BLACK", "size": 2, "depth": 6,
+              "left": {
+                "key": "98", "color": "BLACK", "size": 1, "depth": 7,
+                "left": null,
+                "right": null
+              },
+              "right": null
+            }
+          }
+        }
+      }
+    },
+    "right": {
+      "key": "137", "color": "BLACK", "size": 40, "depth": 2,
+      "left": {
+        "key": "117", "color": "BLACK", "size": 22, "depth": 3,
+        "left": {
+          "key": "105", "color": "BLACK", "size": 8, "depth": 4,
+          "left": {
+            "key": "103", "color": "BLACK", "size": 3, "depth": 5,
+            "left": {
+              "key": "102", "color": "BLACK", "size": 1, "depth": 6,
+              "left": null,
+              "right": null
+            },
+            "right": {
+              "key": "104", "color": "BLACK", "size": 1, "depth": 6,
+              "left": null,
+              "right": null
+            }
+          },
+          "right": {
+            "key": "114", "color": "BLACK", "size": 4, "depth": 5,
+            "left": {
+              "key": "107", "color": "BLACK", "size": 2, "depth": 6,
+              "left": null,
+              "right": {
+                "key": "110", "color": "BLACK", "size": 1, "depth": 7,
+                "left": null,
+                "right": null
+              }
+            },
+            "right": {
+              "key": "115", "color": "BLACK", "size": 1, "depth": 6,
+              "left": null,
+              "right": null
+            }
+          }
+        },
+        "right": {
+          "key": "130", "color": "BLACK", "size": 13, "depth": 4,
+          "left": {
+            "key": "124", "color": "BLACK", "size": 8, "depth": 5,
+            "left": {
+              "key": "120", "color": "BLACK", "size": 4, "depth": 6,
+              "left": {
+                "key": "119", "color": "BLACK", "size": 1, "depth": 7,
+                "left": null,
+                "right": null
+              },
+              "right": {
+                "key": "121", "color": "BLACK", "size": 2, "depth": 7,
+                "left": null,
+                "right": {
+                  "key": "123", "color": "BLACK", "size": 1, "depth": 8,
+                  "left": null,
+                  "right": null
+                }
+              }
+            },
+            "right": {
+              "key": "126", "color": "BLACK", "size": 3, "depth": 6,
+              "left": {
+                "key": "125", "color": "BLACK", "size": 1, "depth": 7,
+                "left": null,
+                "right": null
+              },
+              "right": {
+                "key": "129", "color": "BLACK", "size": 1, "depth": 7,
+                "left": null,
+                "right": null
+              }
+            }
+          },
+          "right": {
+            "key": "132", "color": "BLACK", "size": 4, "depth": 5,
+            "left": {
+              "key": "131", "color": "BLACK", "size": 1, "depth": 6,
+              "left": null,
+              "right": null
+            },
+            "right": {
+              "key": "133", "color": "BLACK", "size": 2, "depth": 6,
+              "left": null,
+              "right": {
+                "key": "136", "color": "BLACK", "size": 1, "depth": 7,
+                "left": null,
+                "right": null
+              }
+            }
+          }
+        }
+      },
+      "right": {
+        "key": "155", "color": "BLACK", "size": 17, "depth": 3,
+        "left": {
+          "key": "145", "color": "BLACK", "size": 12, "depth": 4,
+          "left": {
+            "key": "140", "color": "BLACK", "size": 5, "depth": 5,
+            "left": {
+              "key": "139", "color": "BLACK", "size": 1, "depth": 6,
+              "left": null,
+              "right": null
+            },
+            "right": {
+              "key": "142", "color": "BLACK", "size": 3, "depth": 6,
+              "left": {
+                "key": "141", "color": "BLACK", "size": 1, "depth": 7,
+                "left": null,
+                "right": null
+              },
+              "right": {
+                "key": "143", "color": "BLACK", "size": 1, "depth": 7,
+                "left": null,
+                "right": null
+              }
+            }
+          },
+          "right": {
+            "key": "149", "color": "BLACK", "size": 6, "depth": 5,
+            "left": {
+              "key": "147", "color": "BLACK", "size": 2, "depth": 6,
+              "left": null,
+              "right": {
+                "key": "148", "color": "BLACK", "size": 1, "depth": 7,
+                "left": null,
+                "right": null
+              }
+            },
+            "right": {
+              "key": "151", "color": "BLACK", "size": 3, "depth": 6,
+              "left": {
+                "key": "150", "color": "BLACK", "size": 1, "depth": 7,
+                "left": null,
+                "right": null
+              },
+              "right": {
+                "key": "152", "color": "BLACK", "size": 1, "depth": 7,
+                "left": null,
+                "right": null
+              }
+            }
+          }
+        },
+        "right": {
+          "key": "158", "color": "BLACK", "size": 4, "depth": 4,
+          "left": {
+            "key": "156", "color": "BLACK", "size": 2, "depth": 5,
+            "left": null,
+            "right": {
+              "key": "157", "color": "BLACK", "size": 1, "depth": 6,
+              "left": null,
+              "right": null
+            }
+          },
+          "right": {
+            "key": "159", "color": "BLACK", "size": 1, "depth": 5,
+            "left": null,
+            "right": null
+          }
+        }
+      }
+    }
+  }
+} },
+    { "op": 524, "type": "Diversity", "generation": 1, "survivors": 1, "lineages": 1, "meanPairwiseDistance": null, "disqualified": 1, "culled": 0,
+      "counts": { "inserts": 0, "removes": 0, "evicts": 0 },
+      "state": {
+  "type": "OrderedSet",
+  "strategy": "WeightBalancedStrategy",
+  "size": 100,
+  "height": 8,
+  "meters": { "avgInsertMs": 0, "avgDeleteMs": 0 },
   "root": {
     "key": "101", "color": "BLACK", "size": 100, "depth": 1,
     "left": {
@@ -888,7 +1298,7 @@
   "strategy": "WeightBalancedStrategy",
   "size": 100,
   "height": 8,
-  "meters": { "avgInsertMs": 0.011184, "avgDeleteMs": 0.002287 },
+  "meters": { "avgInsertMs": 0, "avgDeleteMs": 0 },
   "root": {
     "key": "101", "color": "BLACK", "size": 100, "depth": 1,
     "left": {
@@ -1291,14 +1701,14 @@
     }
   }
 } },
-    { "op": 524, "type": "Lineage", "generation": 2, "child": "WB(Δ=4,Γ=2)", "parentA": "WB(Δ=3,Γ=2)", "parentB": null, "op": "mutation",
+    { "op": 524, "type": "Lineage", "generation": 2, "child": "WB(Δ=4,Γ=2)", "parentA": "WB(Δ=3,Γ=2)", "parentB": null, "breedOp": "mutation",
       "counts": { "inserts": 0, "removes": 0, "evicts": 0 },
       "state": {
   "type": "OrderedSet",
   "strategy": "WeightBalancedStrategy",
   "size": 100,
   "height": 8,
-  "meters": { "avgInsertMs": 0.011184, "avgDeleteMs": 0.002287 },
+  "meters": { "avgInsertMs": 0, "avgDeleteMs": 0 },
   "root": {
     "key": "101", "color": "BLACK", "size": 100, "depth": 1,
     "left": {
@@ -1708,7 +2118,7 @@
   "strategy": "WeightBalancedStrategy",
   "size": 100,
   "height": 8,
-  "meters": { "avgInsertMs": 0.011184, "avgDeleteMs": 0.002287 },
+  "meters": { "avgInsertMs": 0, "avgDeleteMs": 0 },
   "root": {
     "key": "101", "color": "BLACK", "size": 100, "depth": 1,
     "left": {
@@ -2118,7 +2528,7 @@
   "strategy": "WeightBalancedStrategy",
   "size": 81,
   "height": 8,
-  "meters": { "avgInsertMs": 0.006997, "avgDeleteMs": 0.001567 },
+  "meters": { "avgInsertMs": 0, "avgDeleteMs": 0 },
   "root": {
     "key": "104", "color": "BLACK", "size": 81, "depth": 1,
     "left": {
@@ -2452,7 +2862,7 @@
   "strategy": "WeightBalancedStrategy",
   "size": 81,
   "height": 8,
-  "meters": { "avgInsertMs": 0.006997, "avgDeleteMs": 0.001567 },
+  "meters": { "avgInsertMs": 0, "avgDeleteMs": 0 },
   "root": {
     "key": "104", "color": "BLACK", "size": 81, "depth": 1,
     "left": {
@@ -2786,7 +3196,341 @@
   "strategy": "WeightBalancedStrategy",
   "size": 81,
   "height": 8,
-  "meters": { "avgInsertMs": 0.006997, "avgDeleteMs": 0.001567 },
+  "meters": { "avgInsertMs": 0, "avgDeleteMs": 0 },
+  "root": {
+    "key": "104", "color": "BLACK", "size": 81, "depth": 1,
+    "left": {
+      "key": "62", "color": "BLACK", "size": 51, "depth": 2,
+      "left": {
+        "key": "33", "color": "BLACK", "size": 31, "depth": 3,
+        "left": {
+          "key": "20", "color": "BLACK", "size": 14, "depth": 4,
+          "left": {
+            "key": "3", "color": "BLACK", "size": 6, "depth": 5,
+            "left": {
+              "key": "2", "color": "BLACK", "size": 2, "depth": 6,
+              "left": {
+                "key": "0", "color": "BLACK", "size": 1, "depth": 7,
+                "left": null,
+                "right": null
+              },
+              "right": null
+            },
+            "right": {
+              "key": "11", "color": "BLACK", "size": 3, "depth": 6,
+              "left": {
+                "key": "4", "color": "BLACK", "size": 1, "depth": 7,
+                "left": null,
+                "right": null
+              },
+              "right": {
+                "key": "12", "color": "BLACK", "size": 1, "depth": 7,
+                "left": null,
+                "right": null
+              }
+            }
+          },
+          "right": {
+            "key": "27", "color": "BLACK", "size": 7, "depth": 5,
+            "left": {
+              "key": "24", "color": "BLACK", "size": 2, "depth": 6,
+              "left": {
+                "key": "23", "color": "BLACK", "size": 1, "depth": 7,
+                "left": null,
+                "right": null
+              },
+              "right": null
+            },
+            "right": {
+              "key": "30", "color": "BLACK", "size": 4, "depth": 6,
+              "left": {
+                "key": "28", "color": "BLACK", "size": 1, "depth": 7,
+                "left": null,
+                "right": null
+              },
+              "right": {
+                "key": "31", "color": "BLACK", "size": 2, "depth": 7,
+                "left": null,
+                "right": {
+                  "key": "32", "color": "BLACK", "size": 1, "depth": 8,
+                  "left": null,
+                  "right": null
+                }
+              }
+            }
+          }
+        },
+        "right": {
+          "key": "41", "color": "BLACK", "size": 16, "depth": 4,
+          "left": {
+            "key": "39", "color": "BLACK", "size": 5, "depth": 5,
+            "left": {
+              "key": "36", "color": "BLACK", "size": 3, "depth": 6,
+              "left": {
+                "key": "34", "color": "BLACK", "size": 1, "depth": 7,
+                "left": null,
+                "right": null
+              },
+              "right": {
+                "key": "37", "color": "BLACK", "size": 1, "depth": 7,
+                "left": null,
+                "right": null
+              }
+            },
+            "right": {
+              "key": "40", "color": "BLACK", "size": 1, "depth": 6,
+              "left": null,
+              "right": null
+            }
+          },
+          "right": {
+            "key": "51", "color": "BLACK", "size": 10, "depth": 5,
+            "left": {
+              "key": "43", "color": "BLACK", "size": 4, "depth": 6,
+              "left": {
+                "key": "42", "color": "BLACK", "size": 1, "depth": 7,
+                "left": null,
+                "right": null
+              },
+              "right": {
+                "key": "44", "color": "BLACK", "size": 2, "depth": 7,
+                "left": null,
+                "right": {
+                  "key": "45", "color": "BLACK", "size": 1, "depth": 8,
+                  "left": null,
+                  "right": null
+                }
+              }
+            },
+            "right": {
+              "key": "53", "color": "BLACK", "size": 5, "depth": 6,
+              "left": {
+                "key": "52", "color": "BLACK", "size": 1, "depth": 7,
+                "left": null,
+                "right": null
+              },
+              "right": {
+                "key": "56", "color": "BLACK", "size": 3, "depth": 7,
+                "left": {
+                  "key": "55", "color": "BLACK", "size": 1, "depth": 8,
+                  "left": null,
+                  "right": null
+                },
+                "right": {
+                  "key": "58", "color": "BLACK", "size": 1, "depth": 8,
+                  "left": null,
+                  "right": null
+                }
+              }
+            }
+          }
+        }
+      },
+      "right": {
+        "key": "83", "color": "BLACK", "size": 19, "depth": 3,
+        "left": {
+          "key": "73", "color": "BLACK", "size": 7, "depth": 4,
+          "left": {
+            "key": "66", "color": "BLACK", "size": 3, "depth": 5,
+            "left": {
+              "key": "63", "color": "BLACK", "size": 1, "depth": 6,
+              "left": null,
+              "right": null
+            },
+            "right": {
+              "key": "71", "color": "BLACK", "size": 1, "depth": 6,
+              "left": null,
+              "right": null
+            }
+          },
+          "right": {
+            "key": "78", "color": "BLACK", "size": 3, "depth": 5,
+            "left": {
+              "key": "76", "color": "BLACK", "size": 1, "depth": 6,
+              "left": null,
+              "right": null
+            },
+            "right": {
+              "key": "81", "color": "BLACK", "size": 1, "depth": 6,
+              "left": null,
+              "right": null
+            }
+          }
+        },
+        "right": {
+          "key": "91", "color": "BLACK", "size": 11, "depth": 4,
+          "left": {
+            "key": "88", "color": "BLACK", "size": 4, "depth": 5,
+            "left": {
+              "key": "86", "color": "BLACK", "size": 1, "depth": 6,
+              "left": null,
+              "right": null
+            },
+            "right": {
+              "key": "89", "color": "BLACK", "size": 2, "depth": 6,
+              "left": null,
+              "right": {
+                "key": "90", "color": "BLACK", "size": 1, "depth": 7,
+                "left": null,
+                "right": null
+              }
+            }
+          },
+          "right": {
+            "key": "94", "color": "BLACK", "size": 6, "depth": 5,
+            "left": {
+              "key": "92", "color": "BLACK", "size": 2, "depth": 6,
+              "left": null,
+              "right": {
+                "key": "93", "color": "BLACK", "size": 1, "depth": 7,
+                "left": null,
+                "right": null
+              }
+            },
+            "right": {
+              "key": "98", "color": "BLACK", "size": 3, "depth": 6,
+              "left": {
+                "key": "95", "color": "BLACK", "size": 1, "depth": 7,
+                "left": null,
+                "right": null
+              },
+              "right": {
+                "key": "99", "color": "BLACK", "size": 1, "depth": 7,
+                "left": null,
+                "right": null
+              }
+            }
+          }
+        }
+      }
+    },
+    "right": {
+      "key": "139", "color": "BLACK", "size": 29, "depth": 2,
+      "left": {
+        "key": "124", "color": "BLACK", "size": 18, "depth": 3,
+        "left": {
+          "key": "114", "color": "BLACK", "size": 9, "depth": 4,
+          "left": {
+            "key": "110", "color": "BLACK", "size": 2, "depth": 5,
+            "left": {
+              "key": "106", "color": "BLACK", "size": 1, "depth": 6,
+              "left": null,
+              "right": null
+            },
+            "right": null
+          },
+          "right": {
+            "key": "120", "color": "BLACK", "size": 6, "depth": 5,
+            "left": {
+              "key": "118", "color": "BLACK", "size": 3, "depth": 6,
+              "left": {
+                "key": "117", "color": "BLACK", "size": 1, "depth": 7,
+                "left": null,
+                "right": null
+              },
+              "right": {
+                "key": "119", "color": "BLACK", "size": 1, "depth": 7,
+                "left": null,
+                "right": null
+              }
+            },
+            "right": {
+              "key": "121", "color": "BLACK", "size": 2, "depth": 6,
+              "left": null,
+              "right": {
+                "key": "123", "color": "BLACK", "size": 1, "depth": 7,
+                "left": null,
+                "right": null
+              }
+            }
+          }
+        },
+        "right": {
+          "key": "133", "color": "BLACK", "size": 8, "depth": 4,
+          "left": {
+            "key": "127", "color": "BLACK", "size": 4, "depth": 5,
+            "left": {
+              "key": "126", "color": "BLACK", "size": 1, "depth": 6,
+              "left": null,
+              "right": null
+            },
+            "right": {
+              "key": "129", "color": "BLACK", "size": 2, "depth": 6,
+              "left": {
+                "key": "128", "color": "BLACK", "size": 1, "depth": 7,
+                "left": null,
+                "right": null
+              },
+              "right": null
+            }
+          },
+          "right": {
+            "key": "135", "color": "BLACK", "size": 3, "depth": 5,
+            "left": {
+              "key": "134", "color": "BLACK", "size": 1, "depth": 6,
+              "left": null,
+              "right": null
+            },
+            "right": {
+              "key": "138", "color": "BLACK", "size": 1, "depth": 6,
+              "left": null,
+              "right": null
+            }
+          }
+        }
+      },
+      "right": {
+        "key": "153", "color": "BLACK", "size": 10, "depth": 3,
+        "left": {
+          "key": "143", "color": "BLACK", "size": 5, "depth": 4,
+          "left": {
+            "key": "141", "color": "BLACK", "size": 2, "depth": 5,
+            "left": {
+              "key": "140", "color": "BLACK", "size": 1, "depth": 6,
+              "left": null,
+              "right": null
+            },
+            "right": null
+          },
+          "right": {
+            "key": "145", "color": "BLACK", "size": 2, "depth": 5,
+            "left": {
+              "key": "144", "color": "BLACK", "size": 1, "depth": 6,
+              "left": null,
+              "right": null
+            },
+            "right": null
+          }
+        },
+        "right": {
+          "key": "158", "color": "BLACK", "size": 4, "depth": 4,
+          "left": {
+            "key": "154", "color": "BLACK", "size": 2, "depth": 5,
+            "left": null,
+            "right": {
+              "key": "157", "color": "BLACK", "size": 1, "depth": 6,
+              "left": null,
+              "right": null
+            }
+          },
+          "right": {
+            "key": "159", "color": "BLACK", "size": 1, "depth": 5,
+            "left": null,
+            "right": null
+          }
+        }
+      }
+    }
+  }
+} },
+    { "op": 991, "type": "Diversity", "generation": 2, "survivors": 1, "lineages": 1, "meanPairwiseDistance": null, "disqualified": 0, "culled": 1,
+      "counts": { "inserts": 0, "removes": 0, "evicts": 0 },
+      "state": {
+  "type": "OrderedSet",
+  "strategy": "WeightBalancedStrategy",
+  "size": 81,
+  "height": 8,
+  "meters": { "avgInsertMs": 0, "avgDeleteMs": 0 },
   "root": {
     "key": "104", "color": "BLACK", "size": 81, "depth": 1,
     "left": {
@@ -3120,7 +3864,7 @@
   "strategy": "WeightBalancedStrategy",
   "size": 81,
   "height": 8,
-  "meters": { "avgInsertMs": 0.006997, "avgDeleteMs": 0.001567 },
+  "meters": { "avgInsertMs": 0, "avgDeleteMs": 0 },
   "root": {
     "key": "104", "color": "BLACK", "size": 81, "depth": 1,
     "left": {
@@ -3447,14 +4191,14 @@
     }
   }
 } },
-    { "op": 991, "type": "Lineage", "generation": 3, "child": "WB(Δ=2,Γ=1)", "parentA": "WB(Δ=3,Γ=2)", "parentB": null, "op": "mutation",
+    { "op": 991, "type": "Lineage", "generation": 3, "child": "WB(Δ=2,Γ=1)", "parentA": "WB(Δ=3,Γ=2)", "parentB": null, "breedOp": "mutation",
       "counts": { "inserts": 0, "removes": 0, "evicts": 0 },
       "state": {
   "type": "OrderedSet",
   "strategy": "WeightBalancedStrategy",
   "size": 81,
   "height": 8,
-  "meters": { "avgInsertMs": 0.006997, "avgDeleteMs": 0.001567 },
+  "meters": { "avgInsertMs": 0, "avgDeleteMs": 0 },
   "root": {
     "key": "104", "color": "BLACK", "size": 81, "depth": 1,
     "left": {
@@ -3788,7 +4532,7 @@
   "strategy": "WeightBalancedStrategy",
   "size": 81,
   "height": 8,
-  "meters": { "avgInsertMs": 0.006997, "avgDeleteMs": 0.001567 },
+  "meters": { "avgInsertMs": 0, "avgDeleteMs": 0 },
   "root": {
     "key": "104", "color": "BLACK", "size": 81, "depth": 1,
     "left": {
@@ -4122,7 +4866,7 @@
   "strategy": "WeightBalancedStrategy",
   "size": 100,
   "height": 8,
-  "meters": { "avgInsertMs": 0.006077, "avgDeleteMs": 0.001424 },
+  "meters": { "avgInsertMs": 0, "avgDeleteMs": 0 },
   "root": {
     "key": "106", "color": "BLACK", "size": 100, "depth": 1,
     "left": {
@@ -4532,7 +5276,417 @@
   "strategy": "WeightBalancedStrategy",
   "size": 100,
   "height": 8,
-  "meters": { "avgInsertMs": 0.006077, "avgDeleteMs": 0.001424 },
+  "meters": { "avgInsertMs": 0, "avgDeleteMs": 0 },
+  "root": {
+    "key": "106", "color": "BLACK", "size": 100, "depth": 1,
+    "left": {
+      "key": "62", "color": "BLACK", "size": 46, "depth": 2,
+      "left": {
+        "key": "33", "color": "BLACK", "size": 27, "depth": 3,
+        "left": {
+          "key": "20", "color": "BLACK", "size": 12, "depth": 4,
+          "left": {
+            "key": "6", "color": "BLACK", "size": 6, "depth": 5,
+            "left": {
+              "key": "3", "color": "BLACK", "size": 2, "depth": 6,
+              "left": {
+                "key": "1", "color": "BLACK", "size": 1, "depth": 7,
+                "left": null,
+                "right": null
+              },
+              "right": null
+            },
+            "right": {
+              "key": "12", "color": "BLACK", "size": 3, "depth": 6,
+              "left": {
+                "key": "9", "color": "BLACK", "size": 1, "depth": 7,
+                "left": null,
+                "right": null
+              },
+              "right": {
+                "key": "19", "color": "BLACK", "size": 1, "depth": 7,
+                "left": null,
+                "right": null
+              }
+            }
+          },
+          "right": {
+            "key": "27", "color": "BLACK", "size": 5, "depth": 5,
+            "left": {
+              "key": "24", "color": "BLACK", "size": 3, "depth": 6,
+              "left": {
+                "key": "22", "color": "BLACK", "size": 1, "depth": 7,
+                "left": null,
+                "right": null
+              },
+              "right": {
+                "key": "25", "color": "BLACK", "size": 1, "depth": 7,
+                "left": null,
+                "right": null
+              }
+            },
+            "right": {
+              "key": "31", "color": "BLACK", "size": 1, "depth": 6,
+              "left": null,
+              "right": null
+            }
+          }
+        },
+        "right": {
+          "key": "41", "color": "BLACK", "size": 14, "depth": 4,
+          "left": {
+            "key": "38", "color": "BLACK", "size": 6, "depth": 5,
+            "left": {
+              "key": "35", "color": "BLACK", "size": 3, "depth": 6,
+              "left": {
+                "key": "34", "color": "BLACK", "size": 1, "depth": 7,
+                "left": null,
+                "right": null
+              },
+              "right": {
+                "key": "36", "color": "BLACK", "size": 1, "depth": 7,
+                "left": null,
+                "right": null
+              }
+            },
+            "right": {
+              "key": "39", "color": "BLACK", "size": 2, "depth": 6,
+              "left": null,
+              "right": {
+                "key": "40", "color": "BLACK", "size": 1, "depth": 7,
+                "left": null,
+                "right": null
+              }
+            }
+          },
+          "right": {
+            "key": "51", "color": "BLACK", "size": 7, "depth": 5,
+            "left": {
+              "key": "44", "color": "BLACK", "size": 3, "depth": 6,
+              "left": {
+                "key": "42", "color": "BLACK", "size": 1, "depth": 7,
+                "left": null,
+                "right": null
+              },
+              "right": {
+                "key": "48", "color": "BLACK", "size": 1, "depth": 7,
+                "left": null,
+                "right": null
+              }
+            },
+            "right": {
+              "key": "55", "color": "BLACK", "size": 3, "depth": 6,
+              "left": {
+                "key": "53", "color": "BLACK", "size": 1, "depth": 7,
+                "left": null,
+                "right": null
+              },
+              "right": {
+                "key": "56", "color": "BLACK", "size": 1, "depth": 7,
+                "left": null,
+                "right": null
+              }
+            }
+          }
+        }
+      },
+      "right": {
+        "key": "88", "color": "BLACK", "size": 18, "depth": 3,
+        "left": {
+          "key": "73", "color": "BLACK", "size": 9, "depth": 4,
+          "left": {
+            "key": "71", "color": "BLACK", "size": 5, "depth": 5,
+            "left": {
+              "key": "69", "color": "BLACK", "size": 3, "depth": 6,
+              "left": {
+                "key": "66", "color": "BLACK", "size": 1, "depth": 7,
+                "left": null,
+                "right": null
+              },
+              "right": {
+                "key": "70", "color": "BLACK", "size": 1, "depth": 7,
+                "left": null,
+                "right": null
+              }
+            },
+            "right": {
+              "key": "72", "color": "BLACK", "size": 1, "depth": 6,
+              "left": null,
+              "right": null
+            }
+          },
+          "right": {
+            "key": "78", "color": "BLACK", "size": 3, "depth": 5,
+            "left": {
+              "key": "75", "color": "BLACK", "size": 1, "depth": 6,
+              "left": null,
+              "right": null
+            },
+            "right": {
+              "key": "85", "color": "BLACK", "size": 1, "depth": 6,
+              "left": null,
+              "right": null
+            }
+          }
+        },
+        "right": {
+          "key": "95", "color": "BLACK", "size": 8, "depth": 4,
+          "left": {
+            "key": "93", "color": "BLACK", "size": 2, "depth": 5,
+            "left": {
+              "key": "91", "color": "BLACK", "size": 1, "depth": 6,
+              "left": null,
+              "right": null
+            },
+            "right": null
+          },
+          "right": {
+            "key": "102", "color": "BLACK", "size": 5, "depth": 5,
+            "left": {
+              "key": "98", "color": "BLACK", "size": 3, "depth": 6,
+              "left": {
+                "key": "97", "color": "BLACK", "size": 1, "depth": 7,
+                "left": null,
+                "right": null
+              },
+              "right": {
+                "key": "101", "color": "BLACK", "size": 1, "depth": 7,
+                "left": null,
+                "right": null
+              }
+            },
+            "right": {
+              "key": "103", "color": "BLACK", "size": 1, "depth": 6,
+              "left": null,
+              "right": null
+            }
+          }
+        }
+      }
+    },
+    "right": {
+      "key": "139", "color": "BLACK", "size": 53, "depth": 2,
+      "left": {
+        "key": "126", "color": "BLACK", "size": 18, "depth": 3,
+        "left": {
+          "key": "117", "color": "BLACK", "size": 8, "depth": 4,
+          "left": {
+            "key": "109", "color": "BLACK", "size": 5, "depth": 5,
+            "left": {
+              "key": "107", "color": "BLACK", "size": 1, "depth": 6,
+              "left": null,
+              "right": null
+            },
+            "right": {
+              "key": "112", "color": "BLACK", "size": 3, "depth": 6,
+              "left": {
+                "key": "110", "color": "BLACK", "size": 1, "depth": 7,
+                "left": null,
+                "right": null
+              },
+              "right": {
+                "key": "113", "color": "BLACK", "size": 1, "depth": 7,
+                "left": null,
+                "right": null
+              }
+            }
+          },
+          "right": {
+            "key": "120", "color": "BLACK", "size": 2, "depth": 5,
+            "left": {
+              "key": "118", "color": "BLACK", "size": 1, "depth": 6,
+              "left": null,
+              "right": null
+            },
+            "right": null
+          }
+        },
+        "right": {
+          "key": "133", "color": "BLACK", "size": 9, "depth": 4,
+          "left": {
+            "key": "129", "color": "BLACK", "size": 5, "depth": 5,
+            "left": {
+              "key": "127", "color": "BLACK", "size": 2, "depth": 6,
+              "left": null,
+              "right": {
+                "key": "128", "color": "BLACK", "size": 1, "depth": 7,
+                "left": null,
+                "right": null
+              }
+            },
+            "right": {
+              "key": "132", "color": "BLACK", "size": 2, "depth": 6,
+              "left": {
+                "key": "131", "color": "BLACK", "size": 1, "depth": 7,
+                "left": null,
+                "right": null
+              },
+              "right": null
+            }
+          },
+          "right": {
+            "key": "136", "color": "BLACK", "size": 3, "depth": 5,
+            "left": {
+              "key": "135", "color": "BLACK", "size": 1, "depth": 6,
+              "left": null,
+              "right": null
+            },
+            "right": {
+              "key": "138", "color": "BLACK", "size": 1, "depth": 6,
+              "left": null,
+              "right": null
+            }
+          }
+        }
+      },
+      "right": {
+        "key": "188", "color": "BLACK", "size": 34, "depth": 3,
+        "left": {
+          "key": "157", "color": "BLACK", "size": 20, "depth": 4,
+          "left": {
+            "key": "153", "color": "BLACK", "size": 8, "depth": 5,
+            "left": {
+              "key": "141", "color": "BLACK", "size": 5, "depth": 6,
+              "left": {
+                "key": "140", "color": "BLACK", "size": 1, "depth": 7,
+                "left": null,
+                "right": null
+              },
+              "right": {
+                "key": "145", "color": "BLACK", "size": 3, "depth": 7,
+                "left": {
+                  "key": "142", "color": "BLACK", "size": 1, "depth": 8,
+                  "left": null,
+                  "right": null
+                },
+                "right": {
+                  "key": "148", "color": "BLACK", "size": 1, "depth": 8,
+                  "left": null,
+                  "right": null
+                }
+              }
+            },
+            "right": {
+              "key": "154", "color": "BLACK", "size": 2, "depth": 6,
+              "left": null,
+              "right": {
+                "key": "156", "color": "BLACK", "size": 1, "depth": 7,
+                "left": null,
+                "right": null
+              }
+            }
+          },
+          "right": {
+            "key": "173", "color": "BLACK", "size": 11, "depth": 5,
+            "left": {
+              "key": "163", "color": "BLACK", "size": 5, "depth": 6,
+              "left": {
+                "key": "159", "color": "BLACK", "size": 3, "depth": 7,
+                "left": {
+                  "key": "158", "color": "BLACK", "size": 1, "depth": 8,
+                  "left": null,
+                  "right": null
+                },
+                "right": {
+                  "key": "162", "color": "BLACK", "size": 1, "depth": 8,
+                  "left": null,
+                  "right": null
+                }
+              },
+              "right": {
+                "key": "170", "color": "BLACK", "size": 1, "depth": 7,
+                "left": null,
+                "right": null
+              }
+            },
+            "right": {
+              "key": "179", "color": "BLACK", "size": 5, "depth": 6,
+              "left": {
+                "key": "174", "color": "BLACK", "size": 1, "depth": 7,
+                "left": null,
+                "right": null
+              },
+              "right": {
+                "key": "182", "color": "BLACK", "size": 3, "depth": 7,
+                "left": {
+                  "key": "180", "color": "BLACK", "size": 1, "depth": 8,
+                  "left": null,
+                  "right": null
+                },
+                "right": {
+                  "key": "183", "color": "BLACK", "size": 1, "depth": 8,
+                  "left": null,
+                  "right": null
+                }
+              }
+            }
+          }
+        },
+        "right": {
+          "key": "204", "color": "BLACK", "size": 13, "depth": 4,
+          "left": {
+            "key": "195", "color": "BLACK", "size": 6, "depth": 5,
+            "left": {
+              "key": "191", "color": "BLACK", "size": 2, "depth": 6,
+              "left": null,
+              "right": {
+                "key": "192", "color": "BLACK", "size": 1, "depth": 7,
+                "left": null,
+                "right": null
+              }
+            },
+            "right": {
+              "key": "199", "color": "BLACK", "size": 3, "depth": 6,
+              "left": {
+                "key": "196", "color": "BLACK", "size": 1, "depth": 7,
+                "left": null,
+                "right": null
+              },
+              "right": {
+                "key": "202", "color": "BLACK", "size": 1, "depth": 7,
+                "left": null,
+                "right": null
+              }
+            }
+          },
+          "right": {
+            "key": "213", "color": "BLACK", "size": 6, "depth": 5,
+            "left": {
+              "key": "209", "color": "BLACK", "size": 2, "depth": 6,
+              "left": {
+                "key": "206", "color": "BLACK", "size": 1, "depth": 7,
+                "left": null,
+                "right": null
+              },
+              "right": null
+            },
+            "right": {
+              "key": "215", "color": "BLACK", "size": 3, "depth": 6,
+              "left": {
+                "key": "214", "color": "BLACK", "size": 1, "depth": 7,
+                "left": null,
+                "right": null
+              },
+              "right": {
+                "key": "216", "color": "BLACK", "size": 1, "depth": 7,
+                "left": null,
+                "right": null
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+} },
+    { "op": 1146, "type": "Diversity", "generation": 3, "survivors": 1, "lineages": 1, "meanPairwiseDistance": null, "disqualified": 1, "culled": 0,
+      "counts": { "inserts": 0, "removes": 0, "evicts": 0 },
+      "state": {
+  "type": "OrderedSet",
+  "strategy": "WeightBalancedStrategy",
+  "size": 100,
+  "height": 8,
+  "meters": { "avgInsertMs": 0, "avgDeleteMs": 0 },
   "root": {
     "key": "106", "color": "BLACK", "size": 100, "depth": 1,
     "left": {
@@ -4942,7 +6096,7 @@
   "strategy": "WeightBalancedStrategy",
   "size": 100,
   "height": 8,
-  "meters": { "avgInsertMs": 0.006077, "avgDeleteMs": 0.001424 },
+  "meters": { "avgInsertMs": 0, "avgDeleteMs": 0 },
   "root": {
     "key": "106", "color": "BLACK", "size": 100, "depth": 1,
     "left": {
@@ -5352,7 +6506,7 @@
   "strategy": "WeightBalancedStrategy",
   "size": 100,
   "height": 8,
-  "meters": { "avgInsertMs": 0.006077, "avgDeleteMs": 0.001424 },
+  "meters": { "avgInsertMs": 0, "avgDeleteMs": 0 },
   "root": {
     "key": "106", "color": "BLACK", "size": 100, "depth": 1,
     "left": {
@@ -5755,14 +6909,14 @@
     }
   }
 } },
-    { "op": 1146, "type": "Lineage", "generation": 4, "child": "WB(Δ=3,Γ=1)", "parentA": "WB(Δ=3,Γ=2)", "parentB": null, "op": "mutation",
+    { "op": 1146, "type": "Lineage", "generation": 4, "child": "WB(Δ=3,Γ=1)", "parentA": "WB(Δ=3,Γ=2)", "parentB": null, "breedOp": "mutation",
       "counts": { "inserts": 0, "removes": 0, "evicts": 0 },
       "state": {
   "type": "OrderedSet",
   "strategy": "WeightBalancedStrategy",
   "size": 100,
   "height": 8,
-  "meters": { "avgInsertMs": 0.006077, "avgDeleteMs": 0.001424 },
+  "meters": { "avgInsertMs": 0, "avgDeleteMs": 0 },
   "root": {
     "key": "106", "color": "BLACK", "size": 100, "depth": 1,
     "left": {
@@ -6172,7 +7326,7 @@
   "strategy": "WeightBalancedStrategy",
   "size": 100,
   "height": 8,
-  "meters": { "avgInsertMs": 0.006077, "avgDeleteMs": 0.001424 },
+  "meters": { "avgInsertMs": 0, "avgDeleteMs": 0 },
   "root": {
     "key": "106", "color": "BLACK", "size": 100, "depth": 1,
     "left": {
@@ -6582,7 +7736,7 @@
   "strategy": "WeightBalancedStrategy",
   "size": 98,
   "height": 8,
-  "meters": { "avgInsertMs": 0.005493, "avgDeleteMs": 0.001326 },
+  "meters": { "avgInsertMs": 0, "avgDeleteMs": 0 },
   "root": {
     "key": "106", "color": "BLACK", "size": 98, "depth": 1,
     "left": {
@@ -6984,7 +8138,7 @@
   "strategy": "WeightBalancedStrategy",
   "size": 98,
   "height": 8,
-  "meters": { "avgInsertMs": 0.005493, "avgDeleteMs": 0.001326 },
+  "meters": { "avgInsertMs": 0, "avgDeleteMs": 0 },
   "root": {
     "key": "106", "color": "BLACK", "size": 98, "depth": 1,
     "left": {
@@ -7386,7 +8540,409 @@
   "strategy": "WeightBalancedStrategy",
   "size": 98,
   "height": 8,
-  "meters": { "avgInsertMs": 0.005493, "avgDeleteMs": 0.001326 },
+  "meters": { "avgInsertMs": 0, "avgDeleteMs": 0 },
+  "root": {
+    "key": "106", "color": "BLACK", "size": 98, "depth": 1,
+    "left": {
+      "key": "66", "color": "BLACK", "size": 51, "depth": 2,
+      "left": {
+        "key": "34", "color": "BLACK", "size": 32, "depth": 3,
+        "left": {
+          "key": "20", "color": "BLACK", "size": 14, "depth": 4,
+          "left": {
+            "key": "12", "color": "BLACK", "size": 8, "depth": 5,
+            "left": {
+              "key": "6", "color": "BLACK", "size": 4, "depth": 6,
+              "left": {
+                "key": "1", "color": "BLACK", "size": 1, "depth": 7,
+                "left": null,
+                "right": null
+              },
+              "right": {
+                "key": "7", "color": "BLACK", "size": 2, "depth": 7,
+                "left": null,
+                "right": {
+                  "key": "10", "color": "BLACK", "size": 1, "depth": 8,
+                  "left": null,
+                  "right": null
+                }
+              }
+            },
+            "right": {
+              "key": "17", "color": "BLACK", "size": 3, "depth": 6,
+              "left": {
+                "key": "15", "color": "BLACK", "size": 1, "depth": 7,
+                "left": null,
+                "right": null
+              },
+              "right": {
+                "key": "19", "color": "BLACK", "size": 1, "depth": 7,
+                "left": null,
+                "right": null
+              }
+            }
+          },
+          "right": {
+            "key": "28", "color": "BLACK", "size": 5, "depth": 5,
+            "left": {
+              "key": "24", "color": "BLACK", "size": 2, "depth": 6,
+              "left": null,
+              "right": {
+                "key": "26", "color": "BLACK", "size": 1, "depth": 7,
+                "left": null,
+                "right": null
+              }
+            },
+            "right": {
+              "key": "30", "color": "BLACK", "size": 2, "depth": 6,
+              "left": null,
+              "right": {
+                "key": "31", "color": "BLACK", "size": 1, "depth": 7,
+                "left": null,
+                "right": null
+              }
+            }
+          }
+        },
+        "right": {
+          "key": "41", "color": "BLACK", "size": 17, "depth": 4,
+          "left": {
+            "key": "38", "color": "BLACK", "size": 5, "depth": 5,
+            "left": {
+              "key": "36", "color": "BLACK", "size": 2, "depth": 6,
+              "left": null,
+              "right": {
+                "key": "37", "color": "BLACK", "size": 1, "depth": 7,
+                "left": null,
+                "right": null
+              }
+            },
+            "right": {
+              "key": "39", "color": "BLACK", "size": 2, "depth": 6,
+              "left": null,
+              "right": {
+                "key": "40", "color": "BLACK", "size": 1, "depth": 7,
+                "left": null,
+                "right": null
+              }
+            }
+          },
+          "right": {
+            "key": "51", "color": "BLACK", "size": 11, "depth": 5,
+            "left": {
+              "key": "44", "color": "BLACK", "size": 5, "depth": 6,
+              "left": {
+                "key": "42", "color": "BLACK", "size": 1, "depth": 7,
+                "left": null,
+                "right": null
+              },
+              "right": {
+                "key": "48", "color": "BLACK", "size": 3, "depth": 7,
+                "left": {
+                  "key": "46", "color": "BLACK", "size": 1, "depth": 8,
+                  "left": null,
+                  "right": null
+                },
+                "right": {
+                  "key": "49", "color": "BLACK", "size": 1, "depth": 8,
+                  "left": null,
+                  "right": null
+                }
+              }
+            },
+            "right": {
+              "key": "57", "color": "BLACK", "size": 5, "depth": 6,
+              "left": {
+                "key": "56", "color": "BLACK", "size": 2, "depth": 7,
+                "left": {
+                  "key": "52", "color": "BLACK", "size": 1, "depth": 8,
+                  "left": null,
+                  "right": null
+                },
+                "right": null
+              },
+              "right": {
+                "key": "61", "color": "BLACK", "size": 2, "depth": 7,
+                "left": {
+                  "key": "58", "color": "BLACK", "size": 1, "depth": 8,
+                  "left": null,
+                  "right": null
+                },
+                "right": null
+              }
+            }
+          }
+        }
+      },
+      "right": {
+        "key": "88", "color": "BLACK", "size": 18, "depth": 3,
+        "left": {
+          "key": "73", "color": "BLACK", "size": 10, "depth": 4,
+          "left": {
+            "key": "68", "color": "BLACK", "size": 3, "depth": 5,
+            "left": {
+              "key": "67", "color": "BLACK", "size": 1, "depth": 6,
+              "left": null,
+              "right": null
+            },
+            "right": {
+              "key": "72", "color": "BLACK", "size": 1, "depth": 6,
+              "left": null,
+              "right": null
+            }
+          },
+          "right": {
+            "key": "81", "color": "BLACK", "size": 6, "depth": 5,
+            "left": {
+              "key": "78", "color": "BLACK", "size": 3, "depth": 6,
+              "left": {
+                "key": "75", "color": "BLACK", "size": 1, "depth": 7,
+                "left": null,
+                "right": null
+              },
+              "right": {
+                "key": "80", "color": "BLACK", "size": 1, "depth": 7,
+                "left": null,
+                "right": null
+              }
+            },
+            "right": {
+              "key": "85", "color": "BLACK", "size": 2, "depth": 6,
+              "left": null,
+              "right": {
+                "key": "86", "color": "BLACK", "size": 1, "depth": 7,
+                "left": null,
+                "right": null
+              }
+            }
+          }
+        },
+        "right": {
+          "key": "102", "color": "BLACK", "size": 7, "depth": 4,
+          "left": {
+            "key": "98", "color": "BLACK", "size": 4, "depth": 5,
+            "left": {
+              "key": "93", "color": "BLACK", "size": 2, "depth": 6,
+              "left": {
+                "key": "92", "color": "BLACK", "size": 1, "depth": 7,
+                "left": null,
+                "right": null
+              },
+              "right": null
+            },
+            "right": {
+              "key": "100", "color": "BLACK", "size": 1, "depth": 6,
+              "left": null,
+              "right": null
+            }
+          },
+          "right": {
+            "key": "105", "color": "BLACK", "size": 2, "depth": 5,
+            "left": {
+              "key": "104", "color": "BLACK", "size": 1, "depth": 6,
+              "left": null,
+              "right": null
+            },
+            "right": null
+          }
+        }
+      }
+    },
+    "right": {
+      "key": "142", "color": "BLACK", "size": 46, "depth": 2,
+      "left": {
+        "key": "126", "color": "BLACK", "size": 17, "depth": 3,
+        "left": {
+          "key": "117", "color": "BLACK", "size": 11, "depth": 4,
+          "left": {
+            "key": "110", "color": "BLACK", "size": 6, "depth": 5,
+            "left": {
+              "key": "108", "color": "BLACK", "size": 2, "depth": 6,
+              "left": {
+                "key": "107", "color": "BLACK", "size": 1, "depth": 7,
+                "left": null,
+                "right": null
+              },
+              "right": null
+            },
+            "right": {
+              "key": "112", "color": "BLACK", "size": 3, "depth": 6,
+              "left": {
+                "key": "111", "color": "BLACK", "size": 1, "depth": 7,
+                "left": null,
+                "right": null
+              },
+              "right": {
+                "key": "113", "color": "BLACK", "size": 1, "depth": 7,
+                "left": null,
+                "right": null
+              }
+            }
+          },
+          "right": {
+            "key": "120", "color": "BLACK", "size": 4, "depth": 5,
+            "left": {
+              "key": "118", "color": "BLACK", "size": 2, "depth": 6,
+              "left": null,
+              "right": {
+                "key": "119", "color": "BLACK", "size": 1, "depth": 7,
+                "left": null,
+                "right": null
+              }
+            },
+            "right": {
+              "key": "123", "color": "BLACK", "size": 1, "depth": 6,
+              "left": null,
+              "right": null
+            }
+          }
+        },
+        "right": {
+          "key": "129", "color": "BLACK", "size": 5, "depth": 4,
+          "left": {
+            "key": "128", "color": "BLACK", "size": 1, "depth": 5,
+            "left": null,
+            "right": null
+          },
+          "right": {
+            "key": "134", "color": "BLACK", "size": 3, "depth": 5,
+            "left": {
+              "key": "130", "color": "BLACK", "size": 1, "depth": 6,
+              "left": null,
+              "right": null
+            },
+            "right": {
+              "key": "136", "color": "BLACK", "size": 1, "depth": 6,
+              "left": null,
+              "right": null
+            }
+          }
+        }
+      },
+      "right": {
+        "key": "191", "color": "BLACK", "size": 28, "depth": 3,
+        "left": {
+          "key": "173", "color": "BLACK", "size": 16, "depth": 4,
+          "left": {
+            "key": "157", "color": "BLACK", "size": 9, "depth": 5,
+            "left": {
+              "key": "147", "color": "BLACK", "size": 3, "depth": 6,
+              "left": {
+                "key": "145", "color": "BLACK", "size": 1, "depth": 7,
+                "left": null,
+                "right": null
+              },
+              "right": {
+                "key": "154", "color": "BLACK", "size": 1, "depth": 7,
+                "left": null,
+                "right": null
+              }
+            },
+            "right": {
+              "key": "164", "color": "BLACK", "size": 5, "depth": 6,
+              "left": {
+                "key": "162", "color": "BLACK", "size": 2, "depth": 7,
+                "left": {
+                  "key": "158", "color": "BLACK", "size": 1, "depth": 8,
+                  "left": null,
+                  "right": null
+                },
+                "right": null
+              },
+              "right": {
+                "key": "170", "color": "BLACK", "size": 2, "depth": 7,
+                "left": null,
+                "right": {
+                  "key": "171", "color": "BLACK", "size": 1, "depth": 8,
+                  "left": null,
+                  "right": null
+                }
+              }
+            }
+          },
+          "right": {
+            "key": "180", "color": "BLACK", "size": 6, "depth": 5,
+            "left": {
+              "key": "176", "color": "BLACK", "size": 3, "depth": 6,
+              "left": {
+                "key": "174", "color": "BLACK", "size": 1, "depth": 7,
+                "left": null,
+                "right": null
+              },
+              "right": {
+                "key": "177", "color": "BLACK", "size": 1, "depth": 7,
+                "left": null,
+                "right": null
+              }
+            },
+            "right": {
+              "key": "185", "color": "BLACK", "size": 2, "depth": 6,
+              "left": null,
+              "right": {
+                "key": "186", "color": "BLACK", "size": 1, "depth": 7,
+                "left": null,
+                "right": null
+              }
+            }
+          }
+        },
+        "right": {
+          "key": "209", "color": "BLACK", "size": 11, "depth": 4,
+          "left": {
+            "key": "195", "color": "BLACK", "size": 6, "depth": 5,
+            "left": {
+              "key": "193", "color": "BLACK", "size": 2, "depth": 6,
+              "left": {
+                "key": "192", "color": "BLACK", "size": 1, "depth": 7,
+                "left": null,
+                "right": null
+              },
+              "right": null
+            },
+            "right": {
+              "key": "198", "color": "BLACK", "size": 3, "depth": 6,
+              "left": {
+                "key": "197", "color": "BLACK", "size": 1, "depth": 7,
+                "left": null,
+                "right": null
+              },
+              "right": {
+                "key": "202", "color": "BLACK", "size": 1, "depth": 7,
+                "left": null,
+                "right": null
+              }
+            }
+          },
+          "right": {
+            "key": "214", "color": "BLACK", "size": 4, "depth": 5,
+            "left": {
+              "key": "211", "color": "BLACK", "size": 1, "depth": 6,
+              "left": null,
+              "right": null
+            },
+            "right": {
+              "key": "215", "color": "BLACK", "size": 2, "depth": 6,
+              "left": null,
+              "right": {
+                "key": "219", "color": "BLACK", "size": 1, "depth": 7,
+                "left": null,
+                "right": null
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+} },
+    { "op": 1296, "type": "Diversity", "generation": 4, "survivors": 1, "lineages": 1, "meanPairwiseDistance": null, "disqualified": 0, "culled": 1,
+      "counts": { "inserts": 0, "removes": 0, "evicts": 0 },
+      "state": {
+  "type": "OrderedSet",
+  "strategy": "WeightBalancedStrategy",
+  "size": 98,
+  "height": 8,
+  "meters": { "avgInsertMs": 0, "avgDeleteMs": 0 },
   "root": {
     "key": "106", "color": "BLACK", "size": 98, "depth": 1,
     "left": {
@@ -7788,7 +9344,7 @@
   "strategy": "WeightBalancedStrategy",
   "size": 98,
   "height": 8,
-  "meters": { "avgInsertMs": 0.005493, "avgDeleteMs": 0.001326 },
+  "meters": { "avgInsertMs": 0, "avgDeleteMs": 0 },
   "root": {
     "key": "106", "color": "BLACK", "size": 98, "depth": 1,
     "left": {
@@ -8183,14 +9739,14 @@
     }
   }
 } },
-    { "op": 1296, "type": "Lineage", "generation": 5, "child": "WB(Δ=4,Γ=2)", "parentA": "WB(Δ=3,Γ=2)", "parentB": null, "op": "mutation",
+    { "op": 1296, "type": "Lineage", "generation": 5, "child": "WB(Δ=4,Γ=2)", "parentA": "WB(Δ=3,Γ=2)", "parentB": null, "breedOp": "mutation",
       "counts": { "inserts": 0, "removes": 0, "evicts": 0 },
       "state": {
   "type": "OrderedSet",
   "strategy": "WeightBalancedStrategy",
   "size": 98,
   "height": 8,
-  "meters": { "avgInsertMs": 0.005493, "avgDeleteMs": 0.001326 },
+  "meters": { "avgInsertMs": 0, "avgDeleteMs": 0 },
   "root": {
     "key": "106", "color": "BLACK", "size": 98, "depth": 1,
     "left": {
@@ -8592,7 +10148,7 @@
   "strategy": "WeightBalancedStrategy",
   "size": 98,
   "height": 8,
-  "meters": { "avgInsertMs": 0.005493, "avgDeleteMs": 0.001326 },
+  "meters": { "avgInsertMs": 0, "avgDeleteMs": 0 },
   "root": {
     "key": "106", "color": "BLACK", "size": 98, "depth": 1,
     "left": {
@@ -8994,7 +10550,7 @@
   "strategy": "WeightBalancedStrategy",
   "size": 106,
   "height": 8,
-  "meters": { "avgInsertMs": 0.00502, "avgDeleteMs": 0.001246 },
+  "meters": { "avgInsertMs": 0, "avgDeleteMs": 0 },
   "root": {
     "key": "107", "color": "BLACK", "size": 106, "depth": 1,
     "left": {
@@ -9428,7 +10984,7 @@
   "strategy": "WeightBalancedStrategy",
   "size": 106,
   "height": 8,
-  "meters": { "avgInsertMs": 0.00502, "avgDeleteMs": 0.001246 },
+  "meters": { "avgInsertMs": 0, "avgDeleteMs": 0 },
   "root": {
     "key": "107", "color": "BLACK", "size": 106, "depth": 1,
     "left": {
@@ -9862,7 +11418,441 @@
   "strategy": "WeightBalancedStrategy",
   "size": 106,
   "height": 8,
-  "meters": { "avgInsertMs": 0.00502, "avgDeleteMs": 0.001246 },
+  "meters": { "avgInsertMs": 0, "avgDeleteMs": 0 },
+  "root": {
+    "key": "107", "color": "BLACK", "size": 106, "depth": 1,
+    "left": {
+      "key": "66", "color": "BLACK", "size": 59, "depth": 2,
+      "left": {
+        "key": "36", "color": "BLACK", "size": 36, "depth": 3,
+        "left": {
+          "key": "20", "color": "BLACK", "size": 18, "depth": 4,
+          "left": {
+            "key": "15", "color": "BLACK", "size": 10, "depth": 5,
+            "left": {
+              "key": "4", "color": "BLACK", "size": 6, "depth": 6,
+              "left": {
+                "key": "0", "color": "BLACK", "size": 2, "depth": 7,
+                "left": null,
+                "right": {
+                  "key": "1", "color": "BLACK", "size": 1, "depth": 8,
+                  "left": null,
+                  "right": null
+                }
+              },
+              "right": {
+                "key": "6", "color": "BLACK", "size": 3, "depth": 7,
+                "left": {
+                  "key": "5", "color": "BLACK", "size": 1, "depth": 8,
+                  "left": null,
+                  "right": null
+                },
+                "right": {
+                  "key": "10", "color": "BLACK", "size": 1, "depth": 8,
+                  "left": null,
+                  "right": null
+                }
+              }
+            },
+            "right": {
+              "key": "17", "color": "BLACK", "size": 3, "depth": 6,
+              "left": {
+                "key": "16", "color": "BLACK", "size": 1, "depth": 7,
+                "left": null,
+                "right": null
+              },
+              "right": {
+                "key": "19", "color": "BLACK", "size": 1, "depth": 7,
+                "left": null,
+                "right": null
+              }
+            }
+          },
+          "right": {
+            "key": "26", "color": "BLACK", "size": 7, "depth": 5,
+            "left": {
+              "key": "21", "color": "BLACK", "size": 2, "depth": 6,
+              "left": null,
+              "right": {
+                "key": "24", "color": "BLACK", "size": 1, "depth": 7,
+                "left": null,
+                "right": null
+              }
+            },
+            "right": {
+              "key": "33", "color": "BLACK", "size": 4, "depth": 6,
+              "left": {
+                "key": "31", "color": "BLACK", "size": 2, "depth": 7,
+                "left": null,
+                "right": {
+                  "key": "32", "color": "BLACK", "size": 1, "depth": 8,
+                  "left": null,
+                  "right": null
+                }
+              },
+              "right": {
+                "key": "35", "color": "BLACK", "size": 1, "depth": 7,
+                "left": null,
+                "right": null
+              }
+            }
+          }
+        },
+        "right": {
+          "key": "51", "color": "BLACK", "size": 17, "depth": 4,
+          "left": {
+            "key": "43", "color": "BLACK", "size": 9, "depth": 5,
+            "left": {
+              "key": "38", "color": "BLACK", "size": 4, "depth": 6,
+              "left": {
+                "key": "37", "color": "BLACK", "size": 1, "depth": 7,
+                "left": null,
+                "right": null
+              },
+              "right": {
+                "key": "40", "color": "BLACK", "size": 2, "depth": 7,
+                "left": null,
+                "right": {
+                  "key": "41", "color": "BLACK", "size": 1, "depth": 8,
+                  "left": null,
+                  "right": null
+                }
+              }
+            },
+            "right": {
+              "key": "46", "color": "BLACK", "size": 4, "depth": 6,
+              "left": {
+                "key": "44", "color": "BLACK", "size": 1, "depth": 7,
+                "left": null,
+                "right": null
+              },
+              "right": {
+                "key": "49", "color": "BLACK", "size": 2, "depth": 7,
+                "left": {
+                  "key": "47", "color": "BLACK", "size": 1, "depth": 8,
+                  "left": null,
+                  "right": null
+                },
+                "right": null
+              }
+            }
+          },
+          "right": {
+            "key": "58", "color": "BLACK", "size": 7, "depth": 5,
+            "left": {
+              "key": "55", "color": "BLACK", "size": 3, "depth": 6,
+              "left": {
+                "key": "54", "color": "BLACK", "size": 1, "depth": 7,
+                "left": null,
+                "right": null
+              },
+              "right": {
+                "key": "57", "color": "BLACK", "size": 1, "depth": 7,
+                "left": null,
+                "right": null
+              }
+            },
+            "right": {
+              "key": "62", "color": "BLACK", "size": 3, "depth": 6,
+              "left": {
+                "key": "61", "color": "BLACK", "size": 1, "depth": 7,
+                "left": null,
+                "right": null
+              },
+              "right": {
+                "key": "63", "color": "BLACK", "size": 1, "depth": 7,
+                "left": null,
+                "right": null
+              }
+            }
+          }
+        }
+      },
+      "right": {
+        "key": "88", "color": "BLACK", "size": 22, "depth": 3,
+        "left": {
+          "key": "78", "color": "BLACK", "size": 11, "depth": 4,
+          "left": {
+            "key": "73", "color": "BLACK", "size": 5, "depth": 5,
+            "left": {
+              "key": "72", "color": "BLACK", "size": 2, "depth": 6,
+              "left": {
+                "key": "67", "color": "BLACK", "size": 1, "depth": 7,
+                "left": null,
+                "right": null
+              },
+              "right": null
+            },
+            "right": {
+              "key": "75", "color": "BLACK", "size": 2, "depth": 6,
+              "left": null,
+              "right": {
+                "key": "76", "color": "BLACK", "size": 1, "depth": 7,
+                "left": null,
+                "right": null
+              }
+            }
+          },
+          "right": {
+            "key": "85", "color": "BLACK", "size": 5, "depth": 5,
+            "left": {
+              "key": "81", "color": "BLACK", "size": 3, "depth": 6,
+              "left": {
+                "key": "80", "color": "BLACK", "size": 1, "depth": 7,
+                "left": null,
+                "right": null
+              },
+              "right": {
+                "key": "82", "color": "BLACK", "size": 1, "depth": 7,
+                "left": null,
+                "right": null
+              }
+            },
+            "right": {
+              "key": "86", "color": "BLACK", "size": 1, "depth": 6,
+              "left": null,
+              "right": null
+            }
+          }
+        },
+        "right": {
+          "key": "98", "color": "BLACK", "size": 10, "depth": 4,
+          "left": {
+            "key": "94", "color": "BLACK", "size": 5, "depth": 5,
+            "left": {
+              "key": "90", "color": "BLACK", "size": 2, "depth": 6,
+              "left": null,
+              "right": {
+                "key": "92", "color": "BLACK", "size": 1, "depth": 7,
+                "left": null,
+                "right": null
+              }
+            },
+            "right": {
+              "key": "96", "color": "BLACK", "size": 2, "depth": 6,
+              "left": null,
+              "right": {
+                "key": "97", "color": "BLACK", "size": 1, "depth": 7,
+                "left": null,
+                "right": null
+              }
+            }
+          },
+          "right": {
+            "key": "101", "color": "BLACK", "size": 4, "depth": 5,
+            "left": {
+              "key": "100", "color": "BLACK", "size": 1, "depth": 6,
+              "left": null,
+              "right": null
+            },
+            "right": {
+              "key": "105", "color": "BLACK", "size": 2, "depth": 6,
+              "left": {
+                "key": "102", "color": "BLACK", "size": 1, "depth": 7,
+                "left": null,
+                "right": null
+              },
+              "right": null
+            }
+          }
+        }
+      }
+    },
+    "right": {
+      "key": "142", "color": "BLACK", "size": 46, "depth": 2,
+      "left": {
+        "key": "126", "color": "BLACK", "size": 15, "depth": 3,
+        "left": {
+          "key": "120", "color": "BLACK", "size": 6, "depth": 4,
+          "left": {
+            "key": "113", "color": "BLACK", "size": 2, "depth": 5,
+            "left": {
+              "key": "110", "color": "BLACK", "size": 1, "depth": 6,
+              "left": null,
+              "right": null
+            },
+            "right": null
+          },
+          "right": {
+            "key": "123", "color": "BLACK", "size": 3, "depth": 5,
+            "left": {
+              "key": "122", "color": "BLACK", "size": 1, "depth": 6,
+              "left": null,
+              "right": null
+            },
+            "right": {
+              "key": "124", "color": "BLACK", "size": 1, "depth": 6,
+              "left": null,
+              "right": null
+            }
+          }
+        },
+        "right": {
+          "key": "136", "color": "BLACK", "size": 8, "depth": 4,
+          "left": {
+            "key": "130", "color": "BLACK", "size": 5, "depth": 5,
+            "left": {
+              "key": "128", "color": "BLACK", "size": 2, "depth": 6,
+              "left": null,
+              "right": {
+                "key": "129", "color": "BLACK", "size": 1, "depth": 7,
+                "left": null,
+                "right": null
+              }
+            },
+            "right": {
+              "key": "132", "color": "BLACK", "size": 2, "depth": 6,
+              "left": null,
+              "right": {
+                "key": "133", "color": "BLACK", "size": 1, "depth": 7,
+                "left": null,
+                "right": null
+              }
+            }
+          },
+          "right": {
+            "key": "138", "color": "BLACK", "size": 2, "depth": 5,
+            "left": null,
+            "right": {
+              "key": "140", "color": "BLACK", "size": 1, "depth": 6,
+              "left": null,
+              "right": null
+            }
+          }
+        }
+      },
+      "right": {
+        "key": "173", "color": "BLACK", "size": 30, "depth": 3,
+        "left": {
+          "key": "157", "color": "BLACK", "size": 12, "depth": 4,
+          "left": {
+            "key": "147", "color": "BLACK", "size": 5, "depth": 5,
+            "left": {
+              "key": "145", "color": "BLACK", "size": 2, "depth": 6,
+              "left": null,
+              "right": {
+                "key": "146", "color": "BLACK", "size": 1, "depth": 7,
+                "left": null,
+                "right": null
+              }
+            },
+            "right": {
+              "key": "149", "color": "BLACK", "size": 2, "depth": 6,
+              "left": null,
+              "right": {
+                "key": "154", "color": "BLACK", "size": 1, "depth": 7,
+                "left": null,
+                "right": null
+              }
+            }
+          },
+          "right": {
+            "key": "166", "color": "BLACK", "size": 6, "depth": 5,
+            "left": {
+              "key": "162", "color": "BLACK", "size": 3, "depth": 6,
+              "left": {
+                "key": "160", "color": "BLACK", "size": 1, "depth": 7,
+                "left": null,
+                "right": null
+              },
+              "right": {
+                "key": "164", "color": "BLACK", "size": 1, "depth": 7,
+                "left": null,
+                "right": null
+              }
+            },
+            "right": {
+              "key": "167", "color": "BLACK", "size": 2, "depth": 6,
+              "left": null,
+              "right": {
+                "key": "168", "color": "BLACK", "size": 1, "depth": 7,
+                "left": null,
+                "right": null
+              }
+            }
+          }
+        },
+        "right": {
+          "key": "193", "color": "BLACK", "size": 17, "depth": 4,
+          "left": {
+            "key": "184", "color": "BLACK", "size": 7, "depth": 5,
+            "left": {
+              "key": "179", "color": "BLACK", "size": 3, "depth": 6,
+              "left": {
+                "key": "176", "color": "BLACK", "size": 1, "depth": 7,
+                "left": null,
+                "right": null
+              },
+              "right": {
+                "key": "182", "color": "BLACK", "size": 1, "depth": 7,
+                "left": null,
+                "right": null
+              }
+            },
+            "right": {
+              "key": "186", "color": "BLACK", "size": 3, "depth": 6,
+              "left": {
+                "key": "185", "color": "BLACK", "size": 1, "depth": 7,
+                "left": null,
+                "right": null
+              },
+              "right": {
+                "key": "188", "color": "BLACK", "size": 1, "depth": 7,
+                "left": null,
+                "right": null
+              }
+            }
+          },
+          "right": {
+            "key": "209", "color": "BLACK", "size": 9, "depth": 5,
+            "left": {
+              "key": "198", "color": "BLACK", "size": 5, "depth": 6,
+              "left": {
+                "key": "194", "color": "BLACK", "size": 2, "depth": 7,
+                "left": null,
+                "right": {
+                  "key": "195", "color": "BLACK", "size": 1, "depth": 8,
+                  "left": null,
+                  "right": null
+                }
+              },
+              "right": {
+                "key": "203", "color": "BLACK", "size": 2, "depth": 7,
+                "left": {
+                  "key": "202", "color": "BLACK", "size": 1, "depth": 8,
+                  "left": null,
+                  "right": null
+                },
+                "right": null
+              }
+            },
+            "right": {
+              "key": "215", "color": "BLACK", "size": 3, "depth": 6,
+              "left": {
+                "key": "214", "color": "BLACK", "size": 1, "depth": 7,
+                "left": null,
+                "right": null
+              },
+              "right": {
+                "key": "219", "color": "BLACK", "size": 1, "depth": 7,
+                "left": null,
+                "right": null
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+} },
+    { "op": 1434, "type": "Diversity", "generation": 5, "survivors": 1, "lineages": 1, "meanPairwiseDistance": null, "disqualified": 0, "culled": 1,
+      "counts": { "inserts": 0, "removes": 0, "evicts": 0 },
+      "state": {
+  "type": "OrderedSet",
+  "strategy": "WeightBalancedStrategy",
+  "size": 106,
+  "height": 8,
+  "meters": { "avgInsertMs": 0, "avgDeleteMs": 0 },
   "root": {
     "key": "107", "color": "BLACK", "size": 106, "depth": 1,
     "left": {
@@ -10296,7 +12286,7 @@
   "strategy": "WeightBalancedStrategy",
   "size": 106,
   "height": 8,
-  "meters": { "avgInsertMs": 0.00502, "avgDeleteMs": 0.001246 },
+  "meters": { "avgInsertMs": 0, "avgDeleteMs": 0 },
   "root": {
     "key": "107", "color": "BLACK", "size": 106, "depth": 1,
     "left": {
@@ -10723,14 +12713,14 @@
     }
   }
 } },
-    { "op": 1434, "type": "Lineage", "generation": 6, "child": "WB(Δ=3,Γ=1)", "parentA": "WB(Δ=3,Γ=2)", "parentB": null, "op": "mutation",
+    { "op": 1434, "type": "Lineage", "generation": 6, "child": "WB(Δ=3,Γ=1)", "parentA": "WB(Δ=3,Γ=2)", "parentB": null, "breedOp": "mutation",
       "counts": { "inserts": 0, "removes": 0, "evicts": 0 },
       "state": {
   "type": "OrderedSet",
   "strategy": "WeightBalancedStrategy",
   "size": 106,
   "height": 8,
-  "meters": { "avgInsertMs": 0.00502, "avgDeleteMs": 0.001246 },
+  "meters": { "avgInsertMs": 0, "avgDeleteMs": 0 },
   "root": {
     "key": "107", "color": "BLACK", "size": 106, "depth": 1,
     "left": {
@@ -11164,7 +13154,7 @@
   "strategy": "WeightBalancedStrategy",
   "size": 106,
   "height": 8,
-  "meters": { "avgInsertMs": 0.00502, "avgDeleteMs": 0.001246 },
+  "meters": { "avgInsertMs": 0, "avgDeleteMs": 0 },
   "root": {
     "key": "107", "color": "BLACK", "size": 106, "depth": 1,
     "left": {
@@ -11598,7 +13588,7 @@
   "strategy": "WeightBalancedStrategy",
   "size": 95,
   "height": 8,
-  "meters": { "avgInsertMs": 0.004634, "avgDeleteMs": 0.001165 },
+  "meters": { "avgInsertMs": 0, "avgDeleteMs": 0 },
   "root": {
     "key": "107", "color": "BLACK", "size": 95, "depth": 1,
     "left": {
@@ -11988,7 +13978,7 @@
   "strategy": "WeightBalancedStrategy",
   "size": 95,
   "height": 8,
-  "meters": { "avgInsertMs": 0.004634, "avgDeleteMs": 0.001165 },
+  "meters": { "avgInsertMs": 0, "avgDeleteMs": 0 },
   "root": {
     "key": "107", "color": "BLACK", "size": 95, "depth": 1,
     "left": {
@@ -12378,7 +14368,397 @@
   "strategy": "WeightBalancedStrategy",
   "size": 95,
   "height": 8,
-  "meters": { "avgInsertMs": 0.004634, "avgDeleteMs": 0.001165 },
+  "meters": { "avgInsertMs": 0, "avgDeleteMs": 0 },
+  "root": {
+    "key": "107", "color": "BLACK", "size": 95, "depth": 1,
+    "left": {
+      "key": "66", "color": "BLACK", "size": 49, "depth": 2,
+      "left": {
+        "key": "36", "color": "BLACK", "size": 31, "depth": 3,
+        "left": {
+          "key": "10", "color": "BLACK", "size": 13, "depth": 4,
+          "left": {
+            "key": "4", "color": "BLACK", "size": 6, "depth": 5,
+            "left": {
+              "key": "1", "color": "BLACK", "size": 3, "depth": 6,
+              "left": {
+                "key": "0", "color": "BLACK", "size": 1, "depth": 7,
+                "left": null,
+                "right": null
+              },
+              "right": {
+                "key": "3", "color": "BLACK", "size": 1, "depth": 7,
+                "left": null,
+                "right": null
+              }
+            },
+            "right": {
+              "key": "6", "color": "BLACK", "size": 2, "depth": 6,
+              "left": null,
+              "right": {
+                "key": "9", "color": "BLACK", "size": 1, "depth": 7,
+                "left": null,
+                "right": null
+              }
+            }
+          },
+          "right": {
+            "key": "25", "color": "BLACK", "size": 6, "depth": 5,
+            "left": {
+              "key": "12", "color": "BLACK", "size": 3, "depth": 6,
+              "left": {
+                "key": "11", "color": "BLACK", "size": 1, "depth": 7,
+                "left": null,
+                "right": null
+              },
+              "right": {
+                "key": "16", "color": "BLACK", "size": 1, "depth": 7,
+                "left": null,
+                "right": null
+              }
+            },
+            "right": {
+              "key": "28", "color": "BLACK", "size": 2, "depth": 6,
+              "left": null,
+              "right": {
+                "key": "30", "color": "BLACK", "size": 1, "depth": 7,
+                "left": null,
+                "right": null
+              }
+            }
+          }
+        },
+        "right": {
+          "key": "54", "color": "BLACK", "size": 17, "depth": 4,
+          "left": {
+            "key": "44", "color": "BLACK", "size": 10, "depth": 5,
+            "left": {
+              "key": "40", "color": "BLACK", "size": 4, "depth": 6,
+              "left": {
+                "key": "37", "color": "BLACK", "size": 2, "depth": 7,
+                "left": null,
+                "right": {
+                  "key": "39", "color": "BLACK", "size": 1, "depth": 8,
+                  "left": null,
+                  "right": null
+                }
+              },
+              "right": {
+                "key": "41", "color": "BLACK", "size": 1, "depth": 7,
+                "left": null,
+                "right": null
+              }
+            },
+            "right": {
+              "key": "48", "color": "BLACK", "size": 5, "depth": 6,
+              "left": {
+                "key": "46", "color": "BLACK", "size": 2, "depth": 7,
+                "left": null,
+                "right": {
+                  "key": "47", "color": "BLACK", "size": 1, "depth": 8,
+                  "left": null,
+                  "right": null
+                }
+              },
+              "right": {
+                "key": "49", "color": "BLACK", "size": 2, "depth": 7,
+                "left": null,
+                "right": {
+                  "key": "53", "color": "BLACK", "size": 1, "depth": 8,
+                  "left": null,
+                  "right": null
+                }
+              }
+            }
+          },
+          "right": {
+            "key": "62", "color": "BLACK", "size": 6, "depth": 5,
+            "left": {
+              "key": "58", "color": "BLACK", "size": 3, "depth": 6,
+              "left": {
+                "key": "57", "color": "BLACK", "size": 1, "depth": 7,
+                "left": null,
+                "right": null
+              },
+              "right": {
+                "key": "60", "color": "BLACK", "size": 1, "depth": 7,
+                "left": null,
+                "right": null
+              }
+            },
+            "right": {
+              "key": "64", "color": "BLACK", "size": 2, "depth": 6,
+              "left": {
+                "key": "63", "color": "BLACK", "size": 1, "depth": 7,
+                "left": null,
+                "right": null
+              },
+              "right": null
+            }
+          }
+        }
+      },
+      "right": {
+        "key": "92", "color": "BLACK", "size": 17, "depth": 3,
+        "left": {
+          "key": "79", "color": "BLACK", "size": 10, "depth": 4,
+          "left": {
+            "key": "71", "color": "BLACK", "size": 4, "depth": 5,
+            "left": {
+              "key": "67", "color": "BLACK", "size": 1, "depth": 6,
+              "left": null,
+              "right": null
+            },
+            "right": {
+              "key": "73", "color": "BLACK", "size": 2, "depth": 6,
+              "left": {
+                "key": "72", "color": "BLACK", "size": 1, "depth": 7,
+                "left": null,
+                "right": null
+              },
+              "right": null
+            }
+          },
+          "right": {
+            "key": "86", "color": "BLACK", "size": 5, "depth": 5,
+            "left": {
+              "key": "82", "color": "BLACK", "size": 3, "depth": 6,
+              "left": {
+                "key": "81", "color": "BLACK", "size": 1, "depth": 7,
+                "left": null,
+                "right": null
+              },
+              "right": {
+                "key": "84", "color": "BLACK", "size": 1, "depth": 7,
+                "left": null,
+                "right": null
+              }
+            },
+            "right": {
+              "key": "89", "color": "BLACK", "size": 1, "depth": 6,
+              "left": null,
+              "right": null
+            }
+          }
+        },
+        "right": {
+          "key": "101", "color": "BLACK", "size": 6, "depth": 4,
+          "left": {
+            "key": "94", "color": "BLACK", "size": 3, "depth": 5,
+            "left": {
+              "key": "93", "color": "BLACK", "size": 1, "depth": 6,
+              "left": null,
+              "right": null
+            },
+            "right": {
+              "key": "97", "color": "BLACK", "size": 1, "depth": 6,
+              "left": null,
+              "right": null
+            }
+          },
+          "right": {
+            "key": "103", "color": "BLACK", "size": 2, "depth": 5,
+            "left": null,
+            "right": {
+              "key": "105", "color": "BLACK", "size": 1, "depth": 6,
+              "left": null,
+              "right": null
+            }
+          }
+        }
+      }
+    },
+    "right": {
+      "key": "145", "color": "BLACK", "size": 45, "depth": 2,
+      "left": {
+        "key": "122", "color": "BLACK", "size": 15, "depth": 3,
+        "left": {
+          "key": "112", "color": "BLACK", "size": 4, "depth": 4,
+          "left": {
+            "key": "110", "color": "BLACK", "size": 1, "depth": 5,
+            "left": null,
+            "right": null
+          },
+          "right": {
+            "key": "119", "color": "BLACK", "size": 2, "depth": 5,
+            "left": null,
+            "right": {
+              "key": "121", "color": "BLACK", "size": 1, "depth": 6,
+              "left": null,
+              "right": null
+            }
+          }
+        },
+        "right": {
+          "key": "128", "color": "BLACK", "size": 10, "depth": 4,
+          "left": {
+            "key": "124", "color": "BLACK", "size": 5, "depth": 5,
+            "left": {
+              "key": "123", "color": "BLACK", "size": 1, "depth": 6,
+              "left": null,
+              "right": null
+            },
+            "right": {
+              "key": "126", "color": "BLACK", "size": 3, "depth": 6,
+              "left": {
+                "key": "125", "color": "BLACK", "size": 1, "depth": 7,
+                "left": null,
+                "right": null
+              },
+              "right": {
+                "key": "127", "color": "BLACK", "size": 1, "depth": 7,
+                "left": null,
+                "right": null
+              }
+            }
+          },
+          "right": {
+            "key": "136", "color": "BLACK", "size": 4, "depth": 5,
+            "left": {
+              "key": "130", "color": "BLACK", "size": 2, "depth": 6,
+              "left": null,
+              "right": {
+                "key": "134", "color": "BLACK", "size": 1, "depth": 7,
+                "left": null,
+                "right": null
+              }
+            },
+            "right": {
+              "key": "140", "color": "BLACK", "size": 1, "depth": 6,
+              "left": null,
+              "right": null
+            }
+          }
+        }
+      },
+      "right": {
+        "key": "173", "color": "BLACK", "size": 29, "depth": 3,
+        "left": {
+          "key": "166", "color": "BLACK", "size": 10, "depth": 4,
+          "left": {
+            "key": "157", "color": "BLACK", "size": 5, "depth": 5,
+            "left": {
+              "key": "155", "color": "BLACK", "size": 1, "depth": 6,
+              "left": null,
+              "right": null
+            },
+            "right": {
+              "key": "164", "color": "BLACK", "size": 3, "depth": 6,
+              "left": {
+                "key": "163", "color": "BLACK", "size": 1, "depth": 7,
+                "left": null,
+                "right": null
+              },
+              "right": {
+                "key": "165", "color": "BLACK", "size": 1, "depth": 7,
+                "left": null,
+                "right": null
+              }
+            }
+          },
+          "right": {
+            "key": "168", "color": "BLACK", "size": 4, "depth": 5,
+            "left": {
+              "key": "167", "color": "BLACK", "size": 1, "depth": 6,
+              "left": null,
+              "right": null
+            },
+            "right": {
+              "key": "172", "color": "BLACK", "size": 2, "depth": 6,
+              "left": {
+                "key": "169", "color": "BLACK", "size": 1, "depth": 7,
+                "left": null,
+                "right": null
+              },
+              "right": null
+            }
+          }
+        },
+        "right": {
+          "key": "193", "color": "BLACK", "size": 18, "depth": 4,
+          "left": {
+            "key": "184", "color": "BLACK", "size": 10, "depth": 5,
+            "left": {
+              "key": "178", "color": "BLACK", "size": 4, "depth": 6,
+              "left": {
+                "key": "174", "color": "BLACK", "size": 2, "depth": 7,
+                "left": null,
+                "right": {
+                  "key": "175", "color": "BLACK", "size": 1, "depth": 8,
+                  "left": null,
+                  "right": null
+                }
+              },
+              "right": {
+                "key": "179", "color": "BLACK", "size": 1, "depth": 7,
+                "left": null,
+                "right": null
+              }
+            },
+            "right": {
+              "key": "189", "color": "BLACK", "size": 5, "depth": 6,
+              "left": {
+                "key": "188", "color": "BLACK", "size": 2, "depth": 7,
+                "left": {
+                  "key": "185", "color": "BLACK", "size": 1, "depth": 8,
+                  "left": null,
+                  "right": null
+                },
+                "right": null
+              },
+              "right": {
+                "key": "190", "color": "BLACK", "size": 2, "depth": 7,
+                "left": null,
+                "right": {
+                  "key": "192", "color": "BLACK", "size": 1, "depth": 8,
+                  "left": null,
+                  "right": null
+                }
+              }
+            }
+          },
+          "right": {
+            "key": "216", "color": "BLACK", "size": 7, "depth": 5,
+            "left": {
+              "key": "208", "color": "BLACK", "size": 4, "depth": 6,
+              "left": {
+                "key": "195", "color": "BLACK", "size": 1, "depth": 7,
+                "left": null,
+                "right": null
+              },
+              "right": {
+                "key": "213", "color": "BLACK", "size": 2, "depth": 7,
+                "left": {
+                  "key": "210", "color": "BLACK", "size": 1, "depth": 8,
+                  "left": null,
+                  "right": null
+                },
+                "right": null
+              }
+            },
+            "right": {
+              "key": "217", "color": "BLACK", "size": 2, "depth": 6,
+              "left": null,
+              "right": {
+                "key": "218", "color": "BLACK", "size": 1, "depth": 7,
+                "left": null,
+                "right": null
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+} },
+    { "op": 1587, "type": "Diversity", "generation": 6, "survivors": 1, "lineages": 1, "meanPairwiseDistance": null, "disqualified": 0, "culled": 1,
+      "counts": { "inserts": 0, "removes": 0, "evicts": 0 },
+      "state": {
+  "type": "OrderedSet",
+  "strategy": "WeightBalancedStrategy",
+  "size": 95,
+  "height": 8,
+  "meters": { "avgInsertMs": 0, "avgDeleteMs": 0 },
   "root": {
     "key": "107", "color": "BLACK", "size": 95, "depth": 1,
     "left": {
@@ -12767,7 +15147,7 @@
   "strategy": "WeightBalancedStrategy",
   "size": 95,
   "height": 8,
-  "meters": { "avgInsertMs": 0.004634, "avgDeleteMs": 0.001165 },
+  "meters": { "avgInsertMs": 0, "avgDeleteMs": 0 },
   "root": {
     "key": "107", "color": "BLACK", "size": 95, "depth": 1,
     "left": {

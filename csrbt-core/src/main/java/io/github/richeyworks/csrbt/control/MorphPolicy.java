@@ -71,7 +71,12 @@ public final class MorphPolicy {
         double incumbentCost = (current == null) ? Double.POSITIVE_INFINITY : costOf(ranked, current);
         if (candidateCost >= incumbentCost) return Decision.HOLD;                // not actually cheaper
 
-        double improvement = (incumbentCost - candidateCost) / Math.max(1e-9, Math.abs(incumbentCost));
+        // The ∞-cost sentinel means "no comparable incumbent — any scored candidate beats
+        // it". Without this short-circuit the fraction is ∞/∞ = NaN, which fails every
+        // >= comparison and silently HOLDs forever (bug audit 2026-08-12, V-B).
+        double improvement = Double.isInfinite(incumbentCost)
+                ? Double.POSITIVE_INFINITY
+                : (incumbentCost - candidateCost) / Math.max(1e-9, Math.abs(incumbentCost));
         MorphHistory h = (history == null) ? MorphHistory.initial() : history;
         boolean pass = gatesPass(improvement, h.opsSinceLastMorph(), h.consecutiveWins(best.strategy()));
         return pass ? Decision.MORPH : Decision.HOLD;
@@ -84,7 +89,12 @@ public final class MorphPolicy {
     public boolean shouldMorph(double currentScore, double candidateScore,
                                int opsSinceLastMorph, int consecutiveWins) {
         if (candidateScore <= currentScore) return false;                       // must be better
-        double improvement = (candidateScore - currentScore) / Math.max(1e-9, Math.abs(currentScore));
+        // Same ∞-sentinel short-circuit as evaluate() (V-B): an unscored incumbent
+        // (−∞ desirability / +∞ cost) auto-loses on the margin gate instead of
+        // producing ∞/∞ = NaN and holding forever.
+        double improvement = Double.isInfinite(currentScore)
+                ? Double.POSITIVE_INFINITY
+                : (candidateScore - currentScore) / Math.max(1e-9, Math.abs(currentScore));
         return gatesPass(improvement, opsSinceLastMorph, consecutiveWins);
     }
 

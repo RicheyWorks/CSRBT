@@ -270,10 +270,53 @@ public final class EnsembleController<K> {
         StrategyId to = from;
         int quarantined = 0, healed = 0, retired = 0;
 
-        // 1) Primary: structural self-validation; fail over before it can serve a bad read.
+        // 1) Primary: structural self-validation AND a content cross-check against the
+        //    exact-member majority (bug audit 2026-08-12, E-B). Self-validation alone is
+        //    blind to content divergence — a structurally valid primary that silently
+        //    lost a key used to pass here, become the step-2 reference, and have every
+        //    honest member quarantined and healed FROM it: permanent silent data loss
+        //    that also destroyed the majority evidence VERIFIED needs. If a strict
+        //    majority of exact members disagrees with the primary and agrees with each
+        //    other, the primary is the dissenter — treat it as unhealthy and fail over
+        //    to a majority member. No majority → cannot adjudicate → keep the primary
+        //    (the vote semantics).
         EnsembleMember<K> primary = ensemble.primary();
-        if (!isHealthy(primary, primary.set().inOrder())) {
-            EnsembleMember<K> replacement = firstHealthyOther(primary);
+        boolean primaryUnhealthy = !isHealthy(primary, primary.set().inOrder());
+        EnsembleMember<K> majorityMember = null;
+        if (!primaryUnhealthy) {
+            List<List<K>> contents = new ArrayList<>();
+            List<EnsembleMember<K>> exactVoters = new ArrayList<>();
+            for (EnsembleMember<K> m : ensemble.members()) {
+                if (!m.isActive() || !m.isExact()) continue;
+                exactVoters.add(m);
+                contents.add(m.set().inOrder());
+            }
+            if (exactVoters.size() >= 3) {
+                List<K> primaryContent = primary.set().inOrder();
+                int agree = 0;
+                for (int i = 0; i < exactVoters.size(); i++) {
+                    if (contents.get(i).equals(primaryContent)) agree++;
+                }
+                if (agree * 2 <= exactVoters.size()) {
+                    // The primary is not in the majority. Find the content a strict
+                    // majority DOES hold; if one exists, the primary is the dissenter.
+                    for (int i = 0; i < exactVoters.size() && majorityMember == null; i++) {
+                        if (exactVoters.get(i) == primary) continue;
+                        int count = 0;
+                        for (List<K> c : contents) {
+                            if (c.equals(contents.get(i))) count++;
+                        }
+                        if (count * 2 > exactVoters.size()) majorityMember = exactVoters.get(i);
+                    }
+                    if (majorityMember != null) primaryUnhealthy = true;
+                }
+            }
+        }
+        if (primaryUnhealthy) {
+            // On content divergence, the replacement MUST hold the majority content —
+            // any structurally-healthy member would pass firstHealthyOther.
+            EnsembleMember<K> replacement =
+                    majorityMember != null ? majorityMember : firstHealthyOther(primary);
             if (replacement != null) {
                 ensemble.promote(replacement);     // O(1) failover swap
                 ensemble.quarantine(primary);      // deposed primary out of service
@@ -299,6 +342,19 @@ public final class EnsembleController<K> {
             quarantined++;
             ensemble.healFromPrimary(m);
             if (isHealthy(m, reference)) healed++;
+            else { ensemble.retire(m); retired++; }
+        }
+
+        // 3) QUARANTINED members: E3's recover step (bug audit 2026-08-12, E-C). The old
+        //    loop skipped every non-ACTIVE member, so a quarantine was PERMANENT — after
+        //    one dissent, VERIFIED silently ran below quorum forever (a 2-voter ensemble
+        //    ties 1-1 on the next divergence and cannot detect it). Heal each quarantined
+        //    member from the primary and reactivate it, or retire it if the heal will
+        //    not validate.
+        for (EnsembleMember<K> m : ensemble.members()) {
+            if (m.state() != EnsembleMember.State.QUARANTINED) continue;
+            ensemble.healFromPrimary(m);   // rebuild + reactivate
+            if (isHealthy(m, ensemble.primary().set().inOrder())) healed++;
             else { ensemble.retire(m); retired++; }
         }
 

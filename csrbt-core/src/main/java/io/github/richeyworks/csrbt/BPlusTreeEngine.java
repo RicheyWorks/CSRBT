@@ -346,6 +346,19 @@ public final class BPlusTreeEngine<K> implements RankedSet<K> {
         return out;
     }
 
+    /**
+     * Per-leaf key counts, left to right along the leaf chain — the page-occupancy
+     * view: how full each leaf actually is against the {@link #fanout()} capacity.
+     * Read-only, one chain walk; empty tree returns an empty list. Every count is in
+     * {@code [fanout/2, fanout]} except a lone root leaf, which may hold fewer — the
+     * same occupancy floor {@link #validateStructure()} enforces.
+     */
+    public synchronized List<Integer> leafKeyCounts() {
+        List<Integer> out = new ArrayList<>();
+        for (Leaf l = leftmostLeaf(); l != null; l = l.next) out.add(l.keys.size());
+        return out;
+    }
+
     @Override
     public synchronized void clear() {
         root = null;

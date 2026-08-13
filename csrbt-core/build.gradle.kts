@@ -3,12 +3,13 @@ plugins {
     `java-library`
     jacoco
     `maven-publish`
+    signing
 }
 
 // Package relocation (core.* -> io.github.richeyworks.csrbt.*) — ADR-013 §3's held
 // trigger, fired 2026-06-11 for the v0.1.0 release.
 group = "io.github.richeyworks"
-version = "0.1.0"
+version = "0.2.0"
 
 java {
     withSourcesJar()
@@ -84,4 +85,26 @@ publishing {
         }
     }
     // Signing + Central portal credentials are held until the Central release — ADR-013 §3.
+}
+
+// Phase 9 release prep: PGP signing + a local staging layout for the Central Portal bundle.
+// Signing activates ONLY when SIGNING_KEY is present in the environment, so everyday local
+// builds stay signature-free. Stage with: ./gradlew publishMavenPublicationToStagingRepository
+publishing {
+    repositories {
+        maven {
+            name = "staging"
+            url = uri(layout.buildDirectory.dir("staging-deploy"))
+        }
+    }
+}
+
+signing {
+    val key = providers.environmentVariable("SIGNING_KEY").orNull
+    val pass = providers.environmentVariable("SIGNING_PASSWORD").orNull
+    isRequired = key != null
+    if (key != null) {
+        useInMemoryPgpKeys(key, pass)
+        sign(publishing.publications["maven"])
+    }
 }

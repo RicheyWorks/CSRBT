@@ -248,6 +248,7 @@ public final class PolicyEvolutionController<K> {
         for (Map.Entry<EnsembleMember<K>, PolicyGenome> t : onTrial.entrySet()) {
             OrderedSet<K> set = t.getKey().orderedSet();
             PolicyGenome g = t.getValue();
+            if (dead.contains(g)) continue;   // a duplicate body of an already-dead genome (V-A)
             List<String> violations = set.getStrategy().validateInvariant(set.getEngine());
             if (!violations.isEmpty()) {
                 kill(g, "own invariant failed under live churn: " + violations.get(0));
@@ -259,10 +260,24 @@ public final class PolicyEvolutionController<K> {
             bodies.put(g, t.getKey());
             emit(new TreeEvent.Trial<>(g.toString(), "SCORED", cost, generation));
         }
+        // Death is by genome VALUE, and duplicate bodies of the same genome can sit in
+        // one trial (elite + bred copies): if ANY body's invariant failed, the genome is
+        // DISQUALIFIED — a sibling body that happened to score first must not carry it
+        // into the survivors (bug audit 2026-08-12, V-A, the same-generation half of
+        // the resurrection hole).
+        scored.keySet().removeAll(dead);
+        bodies.keySet().removeAll(dead);
 
         // 2. (μ+λ) selection: fresh offspring scores first, surviving parents' last scores after.
+        //    The graveyard gate (bug audit 2026-08-12, V-A): a scored parent can DIE during
+        //    this same endGeneration (the live invariant check above), and its stale score
+        //    used to re-enter the pool here — resurrecting it into parents, the elite slot,
+        //    and the next trial list. "DISQUALIFIED = dead permanently" applies to the pool
+        //    refill exactly as it already does to every breeding path.
         Map<PolicyGenome, Double> pool = new LinkedHashMap<>(scored);
-        for (Scored p : parents) pool.putIfAbsent(p.genome(), p.cost());
+        for (Scored p : parents) {
+            if (!dead.contains(p.genome())) pool.putIfAbsent(p.genome(), p.cost());
+        }
         List<Map.Entry<PolicyGenome, Double>> ranked = new ArrayList<>(pool.entrySet());
         ranked.sort(Map.Entry.comparingByValue());
         parents.clear();

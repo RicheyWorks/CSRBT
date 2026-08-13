@@ -1,0 +1,25 @@
+cross,rowGamete,colGamete,offspring
+Rr x Rr,R,R,RR
+Rr x Rr,R,r,Rr
+Rr x Rr,r,R,Rr
+Rr x Rr,r,r,rr
+Bb x Bb,B,B,BB
+Bb x Bb,B,b,Bb
+Bb x Bb,b,B,Bb
+Bb x Bb,b,b,bb
+RrPp x RrPp,RP,RP,RRPP
+RrPp x RrPp,RP,Rp,RRPp
+RrPp x RrPp,RP,rP,RrPP
+RrPp x RrPp,RP,rp,RrPp
+RrPp x RrPp,Rp,RP,RRPp
+RrPp x RrPp,Rp,Rp,RRpp
+RrPp x RrPp,Rp,rP,RrPp
+RrPp x RrPp,Rp,rp,Rrpp
+RrPp x RrPp,rP,RP,RrPP
+RrPp x RrPp,rP,Rp,RrPp
+RrPp x RrPp,rP,rP,rrPP
+RrPp x RrPp,rP,rp,rrPp
+RrPp x RrPp,rp,RP,RrPp
+RrPp x RrPp,rp,Rp,Rrpp
+RrPp x RrPp,rp,rP,rrPp
+RrPp x RrPp,rp,rp,rrpp

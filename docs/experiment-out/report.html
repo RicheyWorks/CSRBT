@@ -1,0 +1,509 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>meadow disturbance study — experiment report</title>
+<style>
+  body { font: 14px/1.5 system-ui, sans-serif; color: #1a1a19; margin: 40px auto;
+         max-width: 860px; padding: 0 20px; }
+  h1 { font-size: 24px; } h2 { font-size: 17px; margin-top: 28px;
+       border-bottom: 1px solid #ddd; padding-bottom: 4px; }
+  pre { background: #f6f6f4; border: 1px solid #e4e4e0; border-radius: 8px;
+        padding: 14px 18px; white-space: pre-wrap; font-size: 12.5px; }
+  table { border-collapse: collapse; margin: 10px 0; }
+  td, th { border: 1px solid #d8d8d4; padding: 4px 12px; font-size: 12.5px;
+           text-align: right; }
+  th { background: #f0f0ed; text-align: left; }
+  td:first-child { text-align: left; }
+  .verdict-CONFIRMED { color: #0a7a0a; font-weight: 600; }
+  .verdict-REFUTED { color: #c03030; font-weight: 600; }
+  section { break-inside: avoid; }
+  footer { margin-top: 40px; color: #888; font-size: 12px; }
+</style>
+</head>
+<body>
+<h1>🧪 meadow disturbance study</h1>
+<p>An experiment run by the CSRBT ecology engine — deterministic (seed 42), every number reproducible.</p>
+<section><h2>The narrated report</h2>
+<pre>🧪 ECOLOGY EXPERIMENT — meadow disturbance study
+   100 keys, seed 42, window 250 ops, 3 phase(s), 6 model(s), 7 hypothesis(es)
+   entered: 3 dataset(s), 3 note(s), 1 tree(s)
+   environment: area=0.50 temperature=1.00 wind=1.30 distance=0.80
+
+── PHASE · graze (uniform, 2000 ops) ──
+  100 distinct keys, 2000 touches recorded.
+  Diversity H' = 4.580, evenness J' = 0.99: very even — no key dominates the community.
+  of 100 keys present, the community behaves like about 97.5 equally-common ones.
+  the rank–abundance curve follows a geometric series — classic niche preemption, where each species takes a fixed share of what is left.
+  the survey looks complete — Chao1 estimates ≈ 100 keys and we saw all 100.
+── PHASE · bloom (hot, 2000 ops) ──
+  87 distinct keys, 2000 touches recorded.
+  Diversity H' = 2.210, evenness J' = 0.49: uneven — a few hot keys carry most of the traffic.
+  of 87 keys present, the community behaves like about 9.1 equally-common ones.
+  the rank–abundance curve fits MacArthur's broken stick — resources divided about as evenly as random splitting allows.
+  we saw 87 keys, but Chao1 estimates ≈ 95 — roughly 8 rare keys likely went unseen.
+── PHASE · seasons (churn, 1500 ops) ──
+  923 distinct keys, 1500 touches recorded.
+  Diversity H' = 6.780, evenness J' = 0.99: very even — no key dominates the community.
+  of 923 keys present, the community behaves like about 880.0 equally-common ones.
+  the rank–abundance curve follows a geometric series — classic niche preemption, where each species takes a fixed share of what is left.
+  we saw 923 keys, but Chao1 estimates ≈ 1027 — roughly 104 rare keys likely went unseen.
+  graze → bloom: Bray–Curtis 0.85 (major turnover — this is substantially a different community); Pianka 0.23 (little overlap — effectively separate niches).
+  bloom → seasons: Bray–Curtis 0.95 (major turnover — this is substantially a different community); Pianka 0.05 (little overlap — effectively separate niches).
+
+── ENTERED DATA · pondA (5 kinds, 80 records) ──
+  5 distinct keys, 80 touches recorded.
+  Diversity H' = 1.228, evenness J' = 0.76: moderately even — some keys are busier than others.
+  of 5 keys present, the community behaves like about 3.4 equally-common ones.
+  the rank–abundance curve follows a geometric series — classic niche preemption, where each species takes a fixed share of what is left.
+  the survey looks complete — Chao1 estimates ≈ 5 keys and we saw all 5.
+── ENTERED DATA · pondB (4 kinds, 71 records) ──
+  4 distinct keys, 71 touches recorded.
+  Diversity H' = 0.847, evenness J' = 0.61: moderately even — some keys are busier than others.
+  of 4 keys present, the community behaves like about 2.3 equally-common ones.
+  the rank–abundance curve follows a geometric series — classic niche preemption, where each species takes a fixed share of what is left.
+  the survey looks complete — Chao1 estimates ≈ 4 keys and we saw all 4.
+── ENTERED DATA · coop (4 kinds, 8 records) ──
+  4 distinct keys, 8 touches recorded.
+  Diversity H' = 1.213, evenness J' = 0.88: very even — no key dominates the community.
+  of 4 keys present, the community behaves like about 3.4 equally-common ones.
+  the rank–abundance curve follows a geometric series — classic niche preemption, where each species takes a fixed share of what is left.
+  we saw 4 keys, but Chao1 estimates ≈ 6 — roughly 2 rare keys likely went unseen.
+  pondA ↔ pondB: Jaccard 0.50, Sørensen 0.67 — share 3 of 6 kinds; Bray–Curtis 0.31 (moderate turnover — a noticeable shift in who is common).
+  pondB ↔ coop: Jaccard 0.00, Sørensen 0.00 — share 0 of 8 kinds; Bray–Curtis 1.00 (major turnover — this is substantially a different community).
+
+── THE CENSUS — lifespans in this experiment ──
+  Cohort of 676 completed lives; mean age 820 ops, median 206.
+  Survivorship: Type III — heavy early mortality, but survivors persist (think oysters: many spawned, few make it).
+
+── FIELD NOTEBOOK ──
+  • sampled both ponds after two dry weeks
+  [bloom] five keys took nearly all the traffic, as designed
+  [coop] tallied one hen for ten minutes before feeding
+
+── TREE THINKING — phylogenies in this experiment ──
+  pondlife — 7 taxa, depth 6:
+    ┐
+    ├─ Porifera
+    └─ ┐
+       ├─ Cnidaria
+       └─ ┐
+          ├─ ┐
+          │  ├─ Mollusca
+          │  └─ Annelida
+          └─ ┐
+             ├─ Arthropoda
+             └─ ┐
+                ├─ Echinodermata
+                └─ Chordata
+
+── THEORY BENCH ──
+  Logistic growth (r=0.150, K=60): carrying capacity K = 60.000, 60 steps.
+  Island richness (c=0.234, e=0.200, pool=100): equilibrium S* = 53.880, 40 steps.
+  Lotka–Volterra competition (K1=50, K2=40, α12=0.70, α21=1.10)
+  Hardy–Weinberg: p=0.543 q=0.458, χ²=0.221 (df 1, critical 3.841) → consistent with equilibrium.
+  Euler–Lotka: R0=2.400, T=1.58, r≈0.5529 (ln R0/T), r=0.5947 (exact).
+  Mark–recapture (M=120, C=90, R=30): Lincoln–Petersen N̂=360.0, Chapman N̂=354.2 (95% CI 268.0–440.4).
+
+── PUNNETT SQUARES ──
+  Rr × Rr (complete dominance): 2×2 square
+    phenotypes: {R_=3, rr=1}
+    observed vs expected: χ²=0.263 (df 1, critical 3.841) → consistent with the Mendelian ratio.
+  Bb × Bb (incomplete dominance): 2×2 square
+    phenotypes: {BB=1, Bb=2, bb=1}
+  RrPp × RrPp (complete dominance): 4×4 square
+    phenotypes: {R_P_=9, R_pp=3, rrP_=3, rrpp=1}
+
+── HYPOTHESES (pre-registered, graded by the run) ──
+  ✅ CONFIRMED  evenness(graze) &gt; 0.9                    (observed 0.9944)
+  ✅ CONFIRMED  hill1(bloom) &lt; 20                        (observed 9.1112)
+  ✅ CONFIRMED  brayCurtis(graze, bloom) &gt; 0.5           (observed 0.8505)
+  ❌ REFUTED    evenness(bloom) &gt; 0.9                    (observed 0.4947)
+  ✅ CONFIRMED  jaccard(pondA, pondB) &lt;= 0.5             (observed 0.5000)
+  ✅ CONFIRMED  evenness(bloom) is uneven                (observed 0.4947 → "uneven")
+  ✅ CONFIRMED  survivorship is type3                    (observed "type3")
+</pre></section>
+<section><h2>phases</h2>
+<table>
+<tr><th>phase</th><th>kind</th><th>ops</th><th>richness</th><th>touches</th><th>shannon</th><th>evenness</th><th>hill1</th><th>chao1</th><th>bestFit</th></tr>
+<tr><td>graze</td><td>uniform</td><td>2000</td><td>100</td><td>2000</td><td>4.579535</td><td>0.994433</td><td>97.469071</td><td>100.000000</td><td>GEOMETRIC</td></tr>
+<tr><td>bloom</td><td>hot</td><td>2000</td><td>87</td><td>2000</td><td>2.209505</td><td>0.494749</td><td>9.111201</td><td>94.692308</td><td>BROKEN_STICK</td></tr>
+<tr><td>seasons</td><td>churn</td><td>1500</td><td>923</td><td>1500</td><td>6.779959</td><td>0.993018</td><td>880.032779</td><td>1026.740035</td><td>GEOMETRIC</td></tr>
+</table></section>
+<section><h2>data</h2>
+<table>
+<tr><th>dataset</th><th>name</th><th>count</th></tr>
+<tr><td>pondA</td><td>cattail</td><td>18</td></tr>
+<tr><td>pondA</td><td>duckweed</td><td>44</td></tr>
+<tr><td>pondA</td><td>frogbit</td><td>3</td></tr>
+<tr><td>pondA</td><td>azolla</td><td>9</td></tr>
+<tr><td>pondA</td><td>rush</td><td>6</td></tr>
+<tr><td>pondB</td><td>duckweed</td><td>51</td></tr>
+<tr><td>pondB</td><td>azolla</td><td>2</td></tr>
+<tr><td>pondB</td><td>lily</td><td>12</td></tr>
+<tr><td>pondB</td><td>rush</td><td>6</td></tr>
+<tr><td>coop</td><td>peck</td><td>4</td></tr>
+<tr><td>coop</td><td>flap</td><td>2</td></tr>
+<tr><td>coop</td><td>strut</td><td>1</td></tr>
+<tr><td>coop</td><td>dustbathe</td><td>1</td></tr>
+</table></section>
+<section><h2>drift</h2>
+<table>
+<tr><th>transition</th><th>brayCurtis</th></tr>
+<tr><td>1-&gt;2</td><td>0.344000</td></tr>
+<tr><td>2-&gt;3</td><td>0.372000</td></tr>
+<tr><td>3-&gt;4</td><td>0.388000</td></tr>
+<tr><td>4-&gt;5</td><td>0.368000</td></tr>
+<tr><td>5-&gt;6</td><td>0.328000</td></tr>
+<tr><td>6-&gt;7</td><td>0.320000</td></tr>
+<tr><td>7-&gt;8</td><td>0.300000</td></tr>
+<tr><td>8-&gt;9</td><td>0.624000</td></tr>
+<tr><td>9-&gt;10</td><td>0.400000</td></tr>
+<tr><td>10-&gt;11</td><td>0.212000</td></tr>
+<tr><td>11-&gt;12</td><td>0.228000</td></tr>
+<tr><td>12-&gt;13</td><td>0.164000</td></tr>
+<tr><td>13-&gt;14</td><td>0.188000</td></tr>
+<tr><td>14-&gt;15</td><td>0.148000</td></tr>
+<tr><td>15-&gt;16</td><td>0.156000</td></tr>
+<tr><td>16-&gt;17</td><td>0.592000</td></tr>
+<tr><td>17-&gt;18</td><td>0.800000</td></tr>
+<tr><td>18-&gt;19</td><td>0.808000</td></tr>
+<tr><td>19-&gt;20</td><td>0.804000</td></tr>
+<tr><td>20-&gt;21</td><td>0.868000</td></tr>
+<tr><td>21-&gt;22</td><td>0.844000</td></tr>
+</table></section>
+<section><h2>notes</h2>
+<table>
+<tr><th>about</th><th>note</th></tr>
+<tr><td></td><td>sampled both ponds after two dry weeks</td></tr>
+<tr><td>bloom</td><td>five keys took nearly all the traffic, as designed</td></tr>
+<tr><td>coop</td><td>tallied one hen for ten minutes before feeding</td></tr>
+</table></section>
+<section><h2>trees</h2>
+<table>
+<tr><th>label</th><th>taxa</th><th>depth</th><th>newick</th></tr>
+<tr><td>pondlife</td><td>7</td><td>6</td><td>(Porifera,(Cnidaria,((Mollusca,Annelida),(Arthropoda,(Echinodermata,Chordata)))));</td></tr>
+</table></section>
+<section><h2>model-series</h2>
+<table>
+<tr><th>model</th><th>series</th><th>t</th><th>value</th></tr>
+<tr><td>Logistic growth (r=0.150, K=60)</td><td>N</td><td>0</td><td>5.000000</td></tr>
+<tr><td>Logistic growth (r=0.150, K=60)</td><td>N</td><td>1</td><td>5.731870</td></tr>
+<tr><td>Logistic growth (r=0.150, K=60)</td><td>N</td><td>2</td><td>6.558093</td></tr>
+<tr><td>Logistic growth (r=0.150, K=60)</td><td>N</td><td>3</td><td>7.486982</td></tr>
+<tr><td>Logistic growth (r=0.150, K=60)</td><td>N</td><td>4</td><td>8.526448</td></tr>
+<tr><td>Logistic growth (r=0.150, K=60)</td><td>N</td><td>5</td><td>9.683617</td></tr>
+<tr><td>Logistic growth (r=0.150, K=60)</td><td>N</td><td>6</td><td>10.964379</td></tr>
+<tr><td>Logistic growth (r=0.150, K=60)</td><td>N</td><td>7</td><td>12.372881</td></tr>
+<tr><td>Logistic growth (r=0.150, K=60)</td><td>N</td><td>8</td><td>13.910991</td></tr>
+<tr><td>Logistic growth (r=0.150, K=60)</td><td>N</td><td>9</td><td>15.577768</td></tr>
+<tr><td>Logistic growth (r=0.150, K=60)</td><td>N</td><td>10</td><td>17.368993</td></tr>
+<tr><td>Logistic growth (r=0.150, K=60)</td><td>N</td><td>11</td><td>19.276805</td></tr>
+<tr><td>Logistic growth (r=0.150, K=60)</td><td>N</td><td>12</td><td>21.289522</td></tr>
+<tr><td>Logistic growth (r=0.150, K=60)</td><td>N</td><td>13</td><td>23.391678</td></tr>
+<tr><td>Logistic growth (r=0.150, K=60)</td><td>N</td><td>14</td><td>25.564325</td></tr>
+<tr><td>Logistic growth (r=0.150, K=60)</td><td>N</td><td>15</td><td>27.785606</td></tr>
+<tr><td>Logistic growth (r=0.150, K=60)</td><td>N</td><td>16</td><td>30.031571</td></tr>
+<tr><td>Logistic growth (r=0.150, K=60)</td><td>N</td><td>17</td><td>32.277182</td></tr>
+<tr><td>Logistic growth (r=0.150, K=60)</td><td>N</td><td>18</td><td>34.497417</td></tr>
+<tr><td>Logistic growth (r=0.150, K=60)</td><td>N</td><td>19</td><td>36.668372</td></tr>
+<tr><td>Logistic growth (r=0.150, K=60)</td><td>N</td><td>20</td><td>38.768261</td></tr>
+<tr><td>Logistic growth (r=0.150, K=60)</td><td>N</td><td>21</td><td>40.778228</td></tr>
+<tr><td>Logistic growth (r=0.150, K=60)</td><td>N</td><td>22</td><td>42.682910</td></tr>
+<tr><td>Logistic growth (r=0.150, K=60)</td><td>N</td><td>23</td><td>44.470732</td></tr>
+<tr><td>Logistic growth (r=0.150, K=60)</td><td>N</td><td>24</td><td>46.133939</td></tr>
+<tr><td>Logistic growth (r=0.150, K=60)</td><td>N</td><td>25</td><td>47.668411</td></tr>
+<tr><td>Logistic growth (r=0.150, K=60)</td><td>N</td><td>26</td><td>49.073291</td></tr>
+<tr><td>Logistic growth (r=0.150, K=60)</td><td>N</td><td>27</td><td>50.350518</td></tr>
+<tr><td>Logistic growth (r=0.150, K=60)</td><td>N</td><td>28</td><td>51.504297</td></tr>
+<tr><td>Logistic growth (r=0.150, K=60)</td><td>N</td><td>29</td><td>52.540558</td></tr>
+<tr><td>Logistic growth (r=0.150, K=60)</td><td>N</td><td>30</td><td>53.466455</td></tr>
+<tr><td>Logistic growth (r=0.150, K=60)</td><td>N</td><td>31</td><td>54.289916</td></tr>
+<tr><td>Logistic growth (r=0.150, K=60)</td><td>N</td><td>32</td><td>55.019260</td></tr>
+<tr><td>Logistic growth (r=0.150, K=60)</td><td>N</td><td>33</td><td>55.662887</td></tr>
+<tr><td>Logistic growth (r=0.150, K=60)</td><td>N</td><td>34</td><td>56.229043</td></tr>
+<tr><td>Logistic growth (r=0.150, K=60)</td><td>N</td><td>35</td><td>56.725643</td></tr>
+<tr><td>Logistic growth (r=0.150, K=60)</td><td>N</td><td>36</td><td>57.160147</td></tr>
+<tr><td>Logistic growth (r=0.150, K=60)</td><td>N</td><td>37</td><td>57.539494</td></tr>
+<tr><td>Logistic growth (r=0.150, K=60)</td><td>N</td><td>38</td><td>57.870057</td></tr>
+<tr><td>Logistic growth (r=0.150, K=60)</td><td>N</td><td>39</td><td>58.157631</td></tr>
+<tr><td>Logistic growth (r=0.150, K=60)</td><td>N</td><td>40</td><td>58.407447</td></tr>
+<tr><td>Logistic growth (r=0.150, K=60)</td><td>N</td><td>41</td><td>58.624190</td></tr>
+<tr><td>Logistic growth (r=0.150, K=60)</td><td>N</td><td>42</td><td>58.812035</td></tr>
+<tr><td>Logistic growth (r=0.150, K=60)</td><td>N</td><td>43</td><td>58.974681</td></tr>
+<tr><td>Logistic growth (r=0.150, K=60)</td><td>N</td><td>44</td><td>59.115394</td></tr>
+<tr><td>Logistic growth (r=0.150, K=60)</td><td>N</td><td>45</td><td>59.237046</td></tr>
+<tr><td>Logistic growth (r=0.150, K=60)</td><td>N</td><td>46</td><td>59.342154</td></tr>
+<tr><td>Logistic growth (r=0.150, K=60)</td><td>N</td><td>47</td><td>59.432921</td></tr>
+<tr><td>Logistic growth (r=0.150, K=60)</td><td>N</td><td>48</td><td>59.511267</td></tr>
+<tr><td>Logistic growth (r=0.150, K=60)</td><td>N</td><td>49</td><td>59.578866</td></tr>
+<tr><td>Logistic growth (r=0.150, K=60)</td><td>N</td><td>50</td><td>59.637172</td></tr>
+<tr><td>Logistic growth (r=0.150, K=60)</td><td>N</td><td>51</td><td>59.687448</td></tr>
+<tr><td>Logistic growth (r=0.150, K=60)</td><td>N</td><td>52</td><td>59.730788</td></tr>
+<tr><td>Logistic growth (r=0.150, K=60)</td><td>N</td><td>53</td><td>59.768142</td></tr>
+<tr><td>Logistic growth (r=0.150, K=60)</td><td>N</td><td>54</td><td>59.800331</td></tr>
+<tr><td>Logistic growth (r=0.150, K=60)</td><td>N</td><td>55</td><td>59.828063</td></tr>
+<tr><td>Logistic growth (r=0.150, K=60)</td><td>N</td><td>56</td><td>59.851954</td></tr>
+<tr><td>Logistic growth (r=0.150, K=60)</td><td>N</td><td>57</td><td>59.872532</td></tr>
+<tr><td>Logistic growth (r=0.150, K=60)</td><td>N</td><td>58</td><td>59.890254</td></tr>
+<tr><td>Logistic growth (r=0.150, K=60)</td><td>N</td><td>59</td><td>59.905517</td></tr>
+<tr><td>Logistic growth (r=0.150, K=60)</td><td>N</td><td>60</td><td>59.918660</td></tr>
+<tr><td>Island richness (c=0.234, e=0.200, pool=100)</td><td>S</td><td>0</td><td>0.000000</td></tr>
+<tr><td>Island richness (c=0.234, e=0.200, pool=100)</td><td>S</td><td>1</td><td>18.958294</td></tr>
+<tr><td>Island richness (c=0.234, e=0.200, pool=100)</td><td>S</td><td>2</td><td>31.245891</td></tr>
+<tr><td>Island richness (c=0.234, e=0.200, pool=100)</td><td>S</td><td>3</td><td>39.209955</td></tr>
+<tr><td>Island richness (c=0.234, e=0.200, pool=100)</td><td>S</td><td>4</td><td>44.371770</td></tr>
+<tr><td>Island richness (c=0.234, e=0.200, pool=100)</td><td>S</td><td>5</td><td>47.717341</td></tr>
+<tr><td>Island richness (c=0.234, e=0.200, pool=100)</td><td>S</td><td>6</td><td>49.885733</td></tr>
+<tr><td>Island richness (c=0.234, e=0.200, pool=100)</td><td>S</td><td>7</td><td>51.291152</td></tr>
+<tr><td>Island richness (c=0.234, e=0.200, pool=100)</td><td>S</td><td>8</td><td>52.202058</td></tr>
+<tr><td>Island richness (c=0.234, e=0.200, pool=100)</td><td>S</td><td>9</td><td>52.792451</td></tr>
+<tr><td>Island richness (c=0.234, e=0.200, pool=100)</td><td>S</td><td>10</td><td>53.175107</td></tr>
+<tr><td>Island richness (c=0.234, e=0.200, pool=100)</td><td>S</td><td>11</td><td>53.423121</td></tr>
+<tr><td>Island richness (c=0.234, e=0.200, pool=100)</td><td>S</td><td>12</td><td>53.583869</td></tr>
+<tr><td>Island richness (c=0.234, e=0.200, pool=100)</td><td>S</td><td>13</td><td>53.688055</td></tr>
+<tr><td>Island richness (c=0.234, e=0.200, pool=100)</td><td>S</td><td>14</td><td>53.755583</td></tr>
+<tr><td>Island richness (c=0.234, e=0.200, pool=100)</td><td>S</td><td>15</td><td>53.799350</td></tr>
+<tr><td>Island richness (c=0.234, e=0.200, pool=100)</td><td>S</td><td>16</td><td>53.827717</td></tr>
+<tr><td>Island richness (c=0.234, e=0.200, pool=100)</td><td>S</td><td>17</td><td>53.846103</td></tr>
+<tr><td>Island richness (c=0.234, e=0.200, pool=100)</td><td>S</td><td>18</td><td>53.858019</td></tr>
+<tr><td>Island richness (c=0.234, e=0.200, pool=100)</td><td>S</td><td>19</td><td>53.865743</td></tr>
+<tr><td>Island richness (c=0.234, e=0.200, pool=100)</td><td>S</td><td>20</td><td>53.870749</td></tr>
+<tr><td>Island richness (c=0.234, e=0.200, pool=100)</td><td>S</td><td>21</td><td>53.873993</td></tr>
+<tr><td>Island richness (c=0.234, e=0.200, pool=100)</td><td>S</td><td>22</td><td>53.876096</td></tr>
+<tr><td>Island richness (c=0.234, e=0.200, pool=100)</td><td>S</td><td>23</td><td>53.877459</td></tr>
+<tr><td>Island richness (c=0.234, e=0.200, pool=100)</td><td>S</td><td>24</td><td>53.878343</td></tr>
+<tr><td>Island richness (c=0.234, e=0.200, pool=100)</td><td>S</td><td>25</td><td>53.878915</td></tr>
+<tr><td>Island richness (c=0.234, e=0.200, pool=100)</td><td>S</td><td>26</td><td>53.879286</td></tr>
+<tr><td>Island richness (c=0.234, e=0.200, pool=100)</td><td>S</td><td>27</td><td>53.879527</td></tr>
+<tr><td>Island richness (c=0.234, e=0.200, pool=100)</td><td>S</td><td>28</td><td>53.879683</td></tr>
+<tr><td>Island richness (c=0.234, e=0.200, pool=100)</td><td>S</td><td>29</td><td>53.879784</td></tr>
+<tr><td>Island richness (c=0.234, e=0.200, pool=100)</td><td>S</td><td>30</td><td>53.879849</td></tr>
+<tr><td>Island richness (c=0.234, e=0.200, pool=100)</td><td>S</td><td>31</td><td>53.879892</td></tr>
+<tr><td>Island richness (c=0.234, e=0.200, pool=100)</td><td>S</td><td>32</td><td>53.879919</td></tr>
+<tr><td>Island richness (c=0.234, e=0.200, pool=100)</td><td>S</td><td>33</td><td>53.879937</td></tr>
+<tr><td>Island richness (c=0.234, e=0.200, pool=100)</td><td>S</td><td>34</td><td>53.879949</td></tr>
+<tr><td>Island richness (c=0.234, e=0.200, pool=100)</td><td>S</td><td>35</td><td>53.879956</td></tr>
+<tr><td>Island richness (c=0.234, e=0.200, pool=100)</td><td>S</td><td>36</td><td>53.879961</td></tr>
+<tr><td>Island richness (c=0.234, e=0.200, pool=100)</td><td>S</td><td>37</td><td>53.879964</td></tr>
+<tr><td>Island richness (c=0.234, e=0.200, pool=100)</td><td>S</td><td>38</td><td>53.879966</td></tr>
+<tr><td>Island richness (c=0.234, e=0.200, pool=100)</td><td>S</td><td>39</td><td>53.879967</td></tr>
+<tr><td>Island richness (c=0.234, e=0.200, pool=100)</td><td>S</td><td>40</td><td>53.879968</td></tr>
+<tr><td>Lotka–Volterra competition (K1=50, K2=40, α12=0.70, α21=1.10)</td><td>species 1</td><td>0</td><td>5.000000</td></tr>
+<tr><td>Lotka–Volterra competition (K1=50, K2=40, α12=0.70, α21=1.10)</td><td>species 1</td><td>1</td><td>6.862537</td></tr>
+<tr><td>Lotka–Volterra competition (K1=50, K2=40, α12=0.70, α21=1.10)</td><td>species 1</td><td>2</td><td>9.184886</td></tr>
+<tr><td>Lotka–Volterra competition (K1=50, K2=40, α12=0.70, α21=1.10)</td><td>species 1</td><td>3</td><td>11.937918</td></tr>
+<tr><td>Lotka–Volterra competition (K1=50, K2=40, α12=0.70, α21=1.10)</td><td>species 1</td><td>4</td><td>15.027145</td></tr>
+<tr><td>Lotka–Volterra competition (K1=50, K2=40, α12=0.70, α21=1.10)</td><td>species 1</td><td>5</td><td>18.307942</td></tr>
+<tr><td>Lotka–Volterra competition (K1=50, K2=40, α12=0.70, α21=1.10)</td><td>species 1</td><td>6</td><td>21.620028</td></tr>
+<tr><td>Lotka–Volterra competition (K1=50, K2=40, α12=0.70, α21=1.10)</td><td>species 1</td><td>7</td><td>24.823566</td></tr>
+<tr><td>Lotka–Volterra competition (K1=50, K2=40, α12=0.70, α21=1.10)</td><td>species 1</td><td>8</td><td>27.820434</td></tr>
+<tr><td>Lotka–Volterra competition (K1=50, K2=40, α12=0.70, α21=1.10)</td><td>species 1</td><td>9</td><td>30.556925</td></tr>
+<tr><td>Lotka–Volterra competition (K1=50, K2=40, α12=0.70, α21=1.10)</td><td>species 1</td><td>10</td><td>33.014644</td></tr>
+<tr><td>Lotka–Volterra competition (K1=50, K2=40, α12=0.70, α21=1.10)</td><td>species 1</td><td>11</td><td>35.198157</td></tr>
+<tr><td>Lotka–Volterra competition (K1=50, K2=40, α12=0.70, α21=1.10)</td><td>species 1</td><td>12</td><td>37.124557</td></tr>
+<tr><td>Lotka–Volterra competition (K1=50, K2=40, α12=0.70, α21=1.10)</td><td>species 1</td><td>13</td><td>38.816414</td></tr>
+<tr><td>Lotka–Volterra competition (K1=50, K2=40, α12=0.70, α21=1.10)</td><td>species 1</td><td>14</td><td>40.297689</td></tr>
+<tr><td>Lotka–Volterra competition (K1=50, K2=40, α12=0.70, α21=1.10)</td><td>species 1</td><td>15</td><td>41.591644</td></tr>
+<tr><td>Lotka–Volterra competition (K1=50, K2=40, α12=0.70, α21=1.10)</td><td>species 1</td><td>16</td><td>42.719906</td></tr>
+<tr><td>Lotka–Volterra competition (K1=50, K2=40, α12=0.70, α21=1.10)</td><td>species 1</td><td>17</td><td>43.702154</td></tr>
+<tr><td>Lotka–Volterra competition (K1=50, K2=40, α12=0.70, α21=1.10)</td><td>species 1</td><td>18</td><td>44.556084</td></tr>
+<tr><td>Lotka–Volterra competition (K1=50, K2=40, α12=0.70, α21=1.10)</td><td>species 1</td><td>19</td><td>45.297507</td></tr>
+<tr><td>Lotka–Volterra competition (K1=50, K2=40, α12=0.70, α21=1.10)</td><td>species 1</td><td>20</td><td>45.940487</td></tr>
+<tr><td>Lotka–Volterra competition (K1=50, K2=40, α12=0.70, α21=1.10)</td><td>species 1</td><td>21</td><td>46.497496</td></tr>
+<tr><td>Lotka–Volterra competition (K1=50, K2=40, α12=0.70, α21=1.10)</td><td>species 1</td><td>22</td><td>46.979556</td></tr>
+<tr><td>Lotka–Volterra competition (K1=50, K2=40, α12=0.70, α21=1.10)</td><td>species 1</td><td>23</td><td>47.396388</td></tr>
+<tr><td>Lotka–Volterra competition (K1=50, K2=40, α12=0.70, α21=1.10)</td><td>species 1</td><td>24</td><td>47.756536</td></tr>
+<tr><td>Lotka–Volterra competition (K1=50, K2=40, α12=0.70, α21=1.10)</td><td>species 1</td><td>25</td><td>48.067494</td></tr>
+<tr><td>Lotka–Volterra competition (K1=50, K2=40, α12=0.70, α21=1.10)</td><td>species 1</td><td>26</td><td>48.335819</td></tr>
+<tr><td>Lotka–Volterra competition (K1=50, K2=40, α12=0.70, α21=1.10)</td><td>species 1</td><td>27</td><td>48.567233</td></tr>
+<tr><td>Lotka–Volterra competition (K1=50, K2=40, α12=0.70, α21=1.10)</td><td>species 1</td><td>28</td><td>48.766724</td></tr>
+<tr><td>Lotka–Volterra competition (K1=50, K2=40, α12=0.70, α21=1.10)</td><td>species 1</td><td>29</td><td>48.938627</td></tr>
+<tr><td>Lotka–Volterra competition (K1=50, K2=40, α12=0.70, α21=1.10)</td><td>species 1</td><td>30</td><td>49.086707</td></tr>
+<tr><td>Lotka–Volterra competition (K1=50, K2=40, α12=0.70, α21=1.10)</td><td>species 1</td><td>31</td><td>49.214229</td></tr>
+<tr><td>Lotka–Volterra competition (K1=50, K2=40, α12=0.70, α21=1.10)</td><td>species 1</td><td>32</td><td>49.324020</td></tr>
+<tr><td>Lotka–Volterra competition (K1=50, K2=40, α12=0.70, α21=1.10)</td><td>species 1</td><td>33</td><td>49.418525</td></tr>
+<tr><td>Lotka–Volterra competition (K1=50, K2=40, α12=0.70, α21=1.10)</td><td>species 1</td><td>34</td><td>49.499858</td></tr>
+<tr><td>Lotka–Volterra competition (K1=50, K2=40, α12=0.70, α21=1.10)</td><td>species 1</td><td>35</td><td>49.569844</td></tr>
+<tr><td>Lotka–Volterra competition (K1=50, K2=40, α12=0.70, α21=1.10)</td><td>species 1</td><td>36</td><td>49.630058</td></tr>
+<tr><td>Lotka–Volterra competition (K1=50, K2=40, α12=0.70, α21=1.10)</td><td>species 1</td><td>37</td><td>49.681859</td></tr>
+<tr><td>Lotka–Volterra competition (K1=50, K2=40, α12=0.70, α21=1.10)</td><td>species 1</td><td>38</td><td>49.726418</td></tr>
+<tr><td>Lotka–Volterra competition (K1=50, K2=40, α12=0.70, α21=1.10)</td><td>species 1</td><td>39</td><td>49.764744</td></tr>
+<tr><td>Lotka–Volterra competition (K1=50, K2=40, α12=0.70, α21=1.10)</td><td>species 1</td><td>40</td><td>49.797708</td></tr>
+<tr><td>Lotka–Volterra competition (K1=50, K2=40, α12=0.70, α21=1.10)</td><td>species 1</td><td>41</td><td>49.826057</td></tr>
+<tr><td>Lotka–Volterra competition (K1=50, K2=40, α12=0.70, α21=1.10)</td><td>species 1</td><td>42</td><td>49.850436</td></tr>
+<tr><td>Lotka–Volterra competition (K1=50, K2=40, α12=0.70, α21=1.10)</td><td>species 1</td><td>43</td><td>49.871401</td></tr>
+<tr><td>Lotka–Volterra competition (K1=50, K2=40, α12=0.70, α21=1.10)</td><td>species 1</td><td>44</td><td>49.889429</td></tr>
+<tr><td>Lotka–Volterra competition (K1=50, K2=40, α12=0.70, α21=1.10)</td><td>species 1</td><td>45</td><td>49.904931</td></tr>
+<tr><td>Lotka–Volterra competition (K1=50, K2=40, α12=0.70, α21=1.10)</td><td>species 1</td><td>46</td><td>49.918261</td></tr>
+<tr><td>Lotka–Volterra competition (K1=50, K2=40, α12=0.70, α21=1.10)</td><td>species 1</td><td>47</td><td>49.929722</td></tr>
+<tr><td>Lotka–Volterra competition (K1=50, K2=40, α12=0.70, α21=1.10)</td><td>species 1</td><td>48</td><td>49.939577</td></tr>
+<tr><td>Lotka–Volterra competition (K1=50, K2=40, α12=0.70, α21=1.10)</td><td>species 1</td><td>49</td><td>49.948050</td></tr>
+<tr><td>Lotka–Volterra competition (K1=50, K2=40, α12=0.70, α21=1.10)</td><td>species 1</td><td>50</td><td>49.955336</td></tr>
+<tr><td>Lotka–Volterra competition (K1=50, K2=40, α12=0.70, α21=1.10)</td><td>species 1</td><td>51</td><td>49.961599</td></tr>
+<tr><td>Lotka–Volterra competition (K1=50, K2=40, α12=0.70, α21=1.10)</td><td>species 1</td><td>52</td><td>49.966985</td></tr>
+<tr><td>Lotka–Volterra competition (K1=50, K2=40, α12=0.70, α21=1.10)</td><td>species 1</td><td>53</td><td>49.971615</td></tr>
+<tr><td>Lotka–Volterra competition (K1=50, K2=40, α12=0.70, α21=1.10)</td><td>species 1</td><td>54</td><td>49.975596</td></tr>
+<tr><td>Lotka–Volterra competition (K1=50, K2=40, α12=0.70, α21=1.10)</td><td>species 1</td><td>55</td><td>49.979019</td></tr>
+<tr><td>Lotka–Volterra competition (K1=50, K2=40, α12=0.70, α21=1.10)</td><td>species 1</td><td>56</td><td>49.981962</td></tr>
+<tr><td>Lotka–Volterra competition (K1=50, K2=40, α12=0.70, α21=1.10)</td><td>species 1</td><td>57</td><td>49.984492</td></tr>
+<tr><td>Lotka–Volterra competition (K1=50, K2=40, α12=0.70, α21=1.10)</td><td>species 1</td><td>58</td><td>49.986667</td></tr>
+<tr><td>Lotka–Volterra competition (K1=50, K2=40, α12=0.70, α21=1.10)</td><td>species 1</td><td>59</td><td>49.988537</td></tr>
+<tr><td>Lotka–Volterra competition (K1=50, K2=40, α12=0.70, α21=1.10)</td><td>species 1</td><td>60</td><td>49.990145</td></tr>
+<tr><td>Lotka–Volterra competition (K1=50, K2=40, α12=0.70, α21=1.10)</td><td>species 1</td><td>61</td><td>49.991527</td></tr>
+<tr><td>Lotka–Volterra competition (K1=50, K2=40, α12=0.70, α21=1.10)</td><td>species 1</td><td>62</td><td>49.992716</td></tr>
+<tr><td>Lotka–Volterra competition (K1=50, K2=40, α12=0.70, α21=1.10)</td><td>species 1</td><td>63</td><td>49.993737</td></tr>
+<tr><td>Lotka–Volterra competition (K1=50, K2=40, α12=0.70, α21=1.10)</td><td>species 1</td><td>64</td><td>49.994616</td></tr>
+<tr><td>Lotka–Volterra competition (K1=50, K2=40, α12=0.70, α21=1.10)</td><td>species 1</td><td>65</td><td>49.995371</td></tr>
+<tr><td>Lotka–Volterra competition (K1=50, K2=40, α12=0.70, α21=1.10)</td><td>species 1</td><td>66</td><td>49.996020</td></tr>
+<tr><td>Lotka–Volterra competition (K1=50, K2=40, α12=0.70, α21=1.10)</td><td>species 1</td><td>67</td><td>49.996579</td></tr>
+<tr><td>Lotka–Volterra competition (K1=50, K2=40, α12=0.70, α21=1.10)</td><td>species 1</td><td>68</td><td>49.997058</td></tr>
+<tr><td>Lotka–Volterra competition (K1=50, K2=40, α12=0.70, α21=1.10)</td><td>species 1</td><td>69</td><td>49.997471</td></tr>
+<tr><td>Lotka–Volterra competition (K1=50, K2=40, α12=0.70, α21=1.10)</td><td>species 1</td><td>70</td><td>49.997826</td></tr>
+<tr><td>Lotka–Volterra competition (K1=50, K2=40, α12=0.70, α21=1.10)</td><td>species 1</td><td>71</td><td>49.998131</td></tr>
+<tr><td>Lotka–Volterra competition (K1=50, K2=40, α12=0.70, α21=1.10)</td><td>species 1</td><td>72</td><td>49.998393</td></tr>
+<tr><td>Lotka–Volterra competition (K1=50, K2=40, α12=0.70, α21=1.10)</td><td>species 1</td><td>73</td><td>49.998618</td></tr>
+<tr><td>Lotka–Volterra competition (K1=50, K2=40, α12=0.70, α21=1.10)</td><td>species 1</td><td>74</td><td>49.998812</td></tr>
+<tr><td>Lotka–Volterra competition (K1=50, K2=40, α12=0.70, α21=1.10)</td><td>species 1</td><td>75</td><td>49.998979</td></tr>
+<tr><td>Lotka–Volterra competition (K1=50, K2=40, α12=0.70, α21=1.10)</td><td>species 1</td><td>76</td><td>49.999122</td></tr>
+<tr><td>Lotka–Volterra competition (K1=50, K2=40, α12=0.70, α21=1.10)</td><td>species 1</td><td>77</td><td>49.999245</td></tr>
+<tr><td>Lotka–Volterra competition (K1=50, K2=40, α12=0.70, α21=1.10)</td><td>species 1</td><td>78</td><td>49.999351</td></tr>
+<tr><td>Lotka–Volterra competition (K1=50, K2=40, α12=0.70, α21=1.10)</td><td>species 1</td><td>79</td><td>49.999442</td></tr>
+<tr><td>Lotka–Volterra competition (K1=50, K2=40, α12=0.70, α21=1.10)</td><td>species 1</td><td>80</td><td>49.999520</td></tr>
+<tr><td>Lotka–Volterra competition (K1=50, K2=40, α12=0.70, α21=1.10)</td><td>species 2</td><td>0</td><td>5.000000</td></tr>
+<tr><td>Lotka–Volterra competition (K1=50, K2=40, α12=0.70, α21=1.10)</td><td>species 2</td><td>1</td><td>6.585411</td></tr>
+<tr><td>Lotka–Volterra competition (K1=50, K2=40, α12=0.70, α21=1.10)</td><td>species 2</td><td>2</td><td>8.345837</td></tr>
+<tr><td>Lotka–Volterra competition (K1=50, K2=40, α12=0.70, α21=1.10)</td><td>species 2</td><td>3</td><td>10.115714</td></tr>
+<tr><td>Lotka–Volterra competition (K1=50, K2=40, α12=0.70, α21=1.10)</td><td>species 2</td><td>4</td><td>11.683820</td></tr>
+<tr><td>Lotka–Volterra competition (K1=50, K2=40, α12=0.70, α21=1.10)</td><td>species 2</td><td>5</td><td>12.855825</td></tr>
+<tr><td>Lotka–Volterra competition (K1=50, K2=40, α12=0.70, α21=1.10)</td><td>species 2</td><td>6</td><td>13.515931</td></tr>
+<tr><td>Lotka–Volterra competition (K1=50, K2=40, α12=0.70, α21=1.10)</td><td>species 2</td><td>7</td><td>13.651473</td></tr>
+<tr><td>Lotka–Volterra competition (K1=50, K2=40, α12=0.70, α21=1.10)</td><td>species 2</td><td>8</td><td>13.333621</td></tr>
+<tr><td>Lotka–Volterra competition (K1=50, K2=40, α12=0.70, α21=1.10)</td><td>species 2</td><td>9</td><td>12.676264</td></tr>
+<tr><td>Lotka–Volterra competition (K1=50, K2=40, α12=0.70, α21=1.10)</td><td>species 2</td><td>10</td><td>11.798570</td></tr>
+<tr><td>Lotka–Volterra competition (K1=50, K2=40, α12=0.70, α21=1.10)</td><td>species 2</td><td>11</td><td>10.802866</td></tr>
+<tr><td>Lotka–Volterra competition (K1=50, K2=40, α12=0.70, α21=1.10)</td><td>species 2</td><td>12</td><td>9.766823</td></tr>
+<tr><td>Lotka–Volterra competition (K1=50, K2=40, α12=0.70, α21=1.10)</td><td>species 2</td><td>13</td><td>8.744247</td></tr>
+<tr><td>Lotka–Volterra competition (K1=50, K2=40, α12=0.70, α21=1.10)</td><td>species 2</td><td>14</td><td>7.769458</td></tr>
+<tr><td>Lotka–Volterra competition (K1=50, K2=40, α12=0.70, α21=1.10)</td><td>species 2</td><td>15</td><td>6.862295</td></tr>
+<tr><td>Lotka–Volterra competition (K1=50, K2=40, α12=0.70, α21=1.10)</td><td>species 2</td><td>16</td><td>6.032478</td></tr>
+<tr><td>Lotka–Volterra competition (K1=50, K2=40, α12=0.70, α21=1.10)</td><td>species 2</td><td>17</td><td>5.282981</td></tr>
+<tr><td>Lotka–Volterra competition (K1=50, K2=40, α12=0.70, α21=1.10)</td><td>species 2</td><td>18</td><td>4.612478</td></tr>
+<tr><td>Lotka–Volterra competition (K1=50, K2=40, α12=0.70, α21=1.10)</td><td>species 2</td><td>19</td><td>4.017045</td></tr>
+<tr><td>Lotka–Volterra competition (K1=50, K2=40, α12=0.70, α21=1.10)</td><td>species 2</td><td>20</td><td>3.491317</td></tr>
+<tr><td>Lotka–Volterra competition (K1=50, K2=40, α12=0.70, α21=1.10)</td><td>species 2</td><td>21</td><td>3.029255</td></tr>
+<tr><td>Lotka–Volterra competition (K1=50, K2=40, α12=0.70, α21=1.10)</td><td>species 2</td><td>22</td><td>2.624643</td></tr>
+<tr><td>Lotka–Volterra competition (K1=50, K2=40, α12=0.70, α21=1.10)</td><td>species 2</td><td>23</td><td>2.271396</td></tr>
+<tr><td>Lotka–Volterra competition (K1=50, K2=40, α12=0.70, α21=1.10)</td><td>species 2</td><td>24</td><td>1.963750</td></tr>
+<tr><td>Lotka–Volterra competition (K1=50, K2=40, α12=0.70, α21=1.10)</td><td>species 2</td><td>25</td><td>1.696359</td></tr>
+<tr><td>Lotka–Volterra competition (K1=50, K2=40, α12=0.70, α21=1.10)</td><td>species 2</td><td>26</td><td>1.464346</td></tr>
+<tr><td>Lotka–Volterra competition (K1=50, K2=40, α12=0.70, α21=1.10)</td><td>species 2</td><td>27</td><td>1.263314</td></tr>
+<tr><td>Lotka–Volterra competition (K1=50, K2=40, α12=0.70, α21=1.10)</td><td>species 2</td><td>28</td><td>1.089330</td></tr>
+<tr><td>Lotka–Volterra competition (K1=50, K2=40, α12=0.70, α21=1.10)</td><td>species 2</td><td>29</td><td>0.938903</td></tr>
+<tr><td>Lotka–Volterra competition (K1=50, K2=40, α12=0.70, α21=1.10)</td><td>species 2</td><td>30</td><td>0.808954</td></tr>
+<tr><td>Lotka–Volterra competition (K1=50, K2=40, α12=0.70, α21=1.10)</td><td>species 2</td><td>31</td><td>0.696773</td></tr>
+<tr><td>Lotka–Volterra competition (K1=50, K2=40, α12=0.70, α21=1.10)</td><td>species 2</td><td>32</td><td>0.599989</td></tr>
+<tr><td>Lotka–Volterra competition (K1=50, K2=40, α12=0.70, α21=1.10)</td><td>species 2</td><td>33</td><td>0.516532</td></tr>
+<tr><td>Lotka–Volterra competition (K1=50, K2=40, α12=0.70, α21=1.10)</td><td>species 2</td><td>34</td><td>0.444597</td></tr>
+<tr><td>Lotka–Volterra competition (K1=50, K2=40, α12=0.70, α21=1.10)</td><td>species 2</td><td>35</td><td>0.382616</td></tr>
+<tr><td>Lotka–Volterra competition (K1=50, K2=40, α12=0.70, α21=1.10)</td><td>species 2</td><td>36</td><td>0.329229</td></tr>
+<tr><td>Lotka–Volterra competition (K1=50, K2=40, α12=0.70, α21=1.10)</td><td>species 2</td><td>37</td><td>0.283257</td></tr>
+<tr><td>Lotka–Volterra competition (K1=50, K2=40, α12=0.70, α21=1.10)</td><td>species 2</td><td>38</td><td>0.243679</td></tr>
+<tr><td>Lotka–Volterra competition (K1=50, K2=40, α12=0.70, α21=1.10)</td><td>species 2</td><td>39</td><td>0.209612</td></tr>
+<tr><td>Lotka–Volterra competition (K1=50, K2=40, α12=0.70, α21=1.10)</td><td>species 2</td><td>40</td><td>0.180294</td></tr>
+<tr><td>Lotka–Volterra competition (K1=50, K2=40, α12=0.70, α21=1.10)</td><td>species 2</td><td>41</td><td>0.155066</td></tr>
+<tr><td>Lotka–Volterra competition (K1=50, K2=40, α12=0.70, α21=1.10)</td><td>species 2</td><td>42</td><td>0.133361</td></tr>
+<tr><td>Lotka–Volterra competition (K1=50, K2=40, α12=0.70, α21=1.10)</td><td>species 2</td><td>43</td><td>0.114689</td></tr>
+<tr><td>Lotka–Volterra competition (K1=50, K2=40, α12=0.70, α21=1.10)</td><td>species 2</td><td>44</td><td>0.098626</td></tr>
+<tr><td>Lotka–Volterra competition (K1=50, K2=40, α12=0.70, α21=1.10)</td><td>species 2</td><td>45</td><td>0.084811</td></tr>
+<tr><td>Lotka–Volterra competition (K1=50, K2=40, α12=0.70, α21=1.10)</td><td>species 2</td><td>46</td><td>0.072928</td></tr>
+<tr><td>Lotka–Volterra competition (K1=50, K2=40, α12=0.70, α21=1.10)</td><td>species 2</td><td>47</td><td>0.062708</td></tr>
+<tr><td>Lotka–Volterra competition (K1=50, K2=40, α12=0.70, α21=1.10)</td><td>species 2</td><td>48</td><td>0.053920</td></tr>
+<tr><td>Lotka–Volterra competition (K1=50, K2=40, α12=0.70, α21=1.10)</td><td>species 2</td><td>49</td><td>0.046362</td></tr>
+<tr><td>Lotka–Volterra competition (K1=50, K2=40, α12=0.70, α21=1.10)</td><td>species 2</td><td>50</td><td>0.039863</td></tr>
+<tr><td>Lotka–Volterra competition (K1=50, K2=40, α12=0.70, α21=1.10)</td><td>species 2</td><td>51</td><td>0.034274</td></tr>
+<tr><td>Lotka–Volterra competition (K1=50, K2=40, α12=0.70, α21=1.10)</td><td>species 2</td><td>52</td><td>0.029469</td></tr>
+<tr><td>Lotka–Volterra competition (K1=50, K2=40, α12=0.70, α21=1.10)</td><td>species 2</td><td>53</td><td>0.025337</td></tr>
+<tr><td>Lotka–Volterra competition (K1=50, K2=40, α12=0.70, α21=1.10)</td><td>species 2</td><td>54</td><td>0.021784</td></tr>
+<tr><td>Lotka–Volterra competition (K1=50, K2=40, α12=0.70, α21=1.10)</td><td>species 2</td><td>55</td><td>0.018729</td></tr>
+<tr><td>Lotka–Volterra competition (K1=50, K2=40, α12=0.70, α21=1.10)</td><td>species 2</td><td>56</td><td>0.016103</td></tr>
+<tr><td>Lotka–Volterra competition (K1=50, K2=40, α12=0.70, α21=1.10)</td><td>species 2</td><td>57</td><td>0.013845</td></tr>
+<tr><td>Lotka–Volterra competition (K1=50, K2=40, α12=0.70, α21=1.10)</td><td>species 2</td><td>58</td><td>0.011903</td></tr>
+<tr><td>Lotka–Volterra competition (K1=50, K2=40, α12=0.70, α21=1.10)</td><td>species 2</td><td>59</td><td>0.010234</td></tr>
+<tr><td>Lotka–Volterra competition (K1=50, K2=40, α12=0.70, α21=1.10)</td><td>species 2</td><td>60</td><td>0.008798</td></tr>
+<tr><td>Lotka–Volterra competition (K1=50, K2=40, α12=0.70, α21=1.10)</td><td>species 2</td><td>61</td><td>0.007564</td></tr>
+<tr><td>Lotka–Volterra competition (K1=50, K2=40, α12=0.70, α21=1.10)</td><td>species 2</td><td>62</td><td>0.006503</td></tr>
+<tr><td>Lotka–Volterra competition (K1=50, K2=40, α12=0.70, α21=1.10)</td><td>species 2</td><td>63</td><td>0.005591</td></tr>
+<tr><td>Lotka–Volterra competition (K1=50, K2=40, α12=0.70, α21=1.10)</td><td>species 2</td><td>64</td><td>0.004807</td></tr>
+<tr><td>Lotka–Volterra competition (K1=50, K2=40, α12=0.70, α21=1.10)</td><td>species 2</td><td>65</td><td>0.004133</td></tr>
+<tr><td>Lotka–Volterra competition (K1=50, K2=40, α12=0.70, α21=1.10)</td><td>species 2</td><td>66</td><td>0.003553</td></tr>
+<tr><td>Lotka–Volterra competition (K1=50, K2=40, α12=0.70, α21=1.10)</td><td>species 2</td><td>67</td><td>0.003055</td></tr>
+<tr><td>Lotka–Volterra competition (K1=50, K2=40, α12=0.70, α21=1.10)</td><td>species 2</td><td>68</td><td>0.002626</td></tr>
+<tr><td>Lotka–Volterra competition (K1=50, K2=40, α12=0.70, α21=1.10)</td><td>species 2</td><td>69</td><td>0.002258</td></tr>
+<tr><td>Lotka–Volterra competition (K1=50, K2=40, α12=0.70, α21=1.10)</td><td>species 2</td><td>70</td><td>0.001941</td></tr>
+<tr><td>Lotka–Volterra competition (K1=50, K2=40, α12=0.70, α21=1.10)</td><td>species 2</td><td>71</td><td>0.001669</td></tr>
+<tr><td>Lotka–Volterra competition (K1=50, K2=40, α12=0.70, α21=1.10)</td><td>species 2</td><td>72</td><td>0.001435</td></tr>
+<tr><td>Lotka–Volterra competition (K1=50, K2=40, α12=0.70, α21=1.10)</td><td>species 2</td><td>73</td><td>0.001234</td></tr>
+<tr><td>Lotka–Volterra competition (K1=50, K2=40, α12=0.70, α21=1.10)</td><td>species 2</td><td>74</td><td>0.001061</td></tr>
+<tr><td>Lotka–Volterra competition (K1=50, K2=40, α12=0.70, α21=1.10)</td><td>species 2</td><td>75</td><td>0.000912</td></tr>
+<tr><td>Lotka–Volterra competition (K1=50, K2=40, α12=0.70, α21=1.10)</td><td>species 2</td><td>76</td><td>0.000784</td></tr>
+<tr><td>Lotka–Volterra competition (K1=50, K2=40, α12=0.70, α21=1.10)</td><td>species 2</td><td>77</td><td>0.000674</td></tr>
+<tr><td>Lotka–Volterra competition (K1=50, K2=40, α12=0.70, α21=1.10)</td><td>species 2</td><td>78</td><td>0.000579</td></tr>
+<tr><td>Lotka–Volterra competition (K1=50, K2=40, α12=0.70, α21=1.10)</td><td>species 2</td><td>79</td><td>0.000498</td></tr>
+<tr><td>Lotka–Volterra competition (K1=50, K2=40, α12=0.70, α21=1.10)</td><td>species 2</td><td>80</td><td>0.000428</td></tr>
+</table></section>
+<section><h2>punnett</h2>
+<table>
+<tr><th>cross</th><th>rowGamete</th><th>colGamete</th><th>offspring</th></tr>
+<tr><td>Rr x Rr</td><td>R</td><td>R</td><td>RR</td></tr>
+<tr><td>Rr x Rr</td><td>R</td><td>r</td><td>Rr</td></tr>
+<tr><td>Rr x Rr</td><td>r</td><td>R</td><td>Rr</td></tr>
+<tr><td>Rr x Rr</td><td>r</td><td>r</td><td>rr</td></tr>
+<tr><td>Bb x Bb</td><td>B</td><td>B</td><td>BB</td></tr>
+<tr><td>Bb x Bb</td><td>B</td><td>b</td><td>Bb</td></tr>
+<tr><td>Bb x Bb</td><td>b</td><td>B</td><td>Bb</td></tr>
+<tr><td>Bb x Bb</td><td>b</td><td>b</td><td>bb</td></tr>
+<tr><td>RrPp x RrPp</td><td>RP</td><td>RP</td><td>RRPP</td></tr>
+<tr><td>RrPp x RrPp</td><td>RP</td><td>Rp</td><td>RRPp</td></tr>
+<tr><td>RrPp x RrPp</td><td>RP</td><td>rP</td><td>RrPP</td></tr>
+<tr><td>RrPp x RrPp</td><td>RP</td><td>rp</td><td>RrPp</td></tr>
+<tr><td>RrPp x RrPp</td><td>Rp</td><td>RP</td><td>RRPp</td></tr>
+<tr><td>RrPp x RrPp</td><td>Rp</td><td>Rp</td><td>RRpp</td></tr>
+<tr><td>RrPp x RrPp</td><td>Rp</td><td>rP</td><td>RrPp</td></tr>
+<tr><td>RrPp x RrPp</td><td>Rp</td><td>rp</td><td>Rrpp</td></tr>
+<tr><td>RrPp x RrPp</td><td>rP</td><td>RP</td><td>RrPP</td></tr>
+<tr><td>RrPp x RrPp</td><td>rP</td><td>Rp</td><td>RrPp</td></tr>
+<tr><td>RrPp x RrPp</td><td>rP</td><td>rP</td><td>rrPP</td></tr>
+<tr><td>RrPp x RrPp</td><td>rP</td><td>rp</td><td>rrPp</td></tr>
+<tr><td>RrPp x RrPp</td><td>rp</td><td>RP</td><td>RrPp</td></tr>
+<tr><td>RrPp x RrPp</td><td>rp</td><td>Rp</td><td>Rrpp</td></tr>
+<tr><td>RrPp x RrPp</td><td>rp</td><td>rP</td><td>rrPp</td></tr>
+<tr><td>RrPp x RrPp</td><td>rp</td><td>rp</td><td>rrpp</td></tr>
+</table></section>
+<section><h2>crosses</h2>
+<table>
+<tr><th>cross</th><th>phenotype</th><th>expectedRatioPart</th></tr>
+<tr><td>Rr x Rr</td><td>R_</td><td>3</td></tr>
+<tr><td>Rr x Rr</td><td>rr</td><td>1</td></tr>
+<tr><td>Bb x Bb</td><td>BB</td><td>1</td></tr>
+<tr><td>Bb x Bb</td><td>Bb</td><td>2</td></tr>
+<tr><td>Bb x Bb</td><td>bb</td><td>1</td></tr>
+<tr><td>RrPp x RrPp</td><td>R_P_</td><td>9</td></tr>
+<tr><td>RrPp x RrPp</td><td>R_pp</td><td>3</td></tr>
+<tr><td>RrPp x RrPp</td><td>rrP_</td><td>3</td></tr>
+<tr><td>RrPp x RrPp</td><td>rrpp</td><td>1</td></tr>
+</table></section>
+<section><h2>hypotheses</h2>
+<table>
+<tr><th>hypothesis</th><th>observed</th><th>verdict</th></tr>
+<tr><td>evenness(graze) &gt; 0.9</td><td>0.994433</td><td class="verdict-CONFIRMED">CONFIRMED</td></tr>
+<tr><td>hill1(bloom) &lt; 20</td><td>9.111201</td><td class="verdict-CONFIRMED">CONFIRMED</td></tr>
+<tr><td>brayCurtis(graze, bloom) &gt; 0.5</td><td>0.850500</td><td class="verdict-CONFIRMED">CONFIRMED</td></tr>
+<tr><td>evenness(bloom) &gt; 0.9</td><td>0.494749</td><td class="verdict-REFUTED">REFUTED</td></tr>
+<tr><td>jaccard(pondA, pondB) &lt;= 0.5</td><td>0.500000</td><td class="verdict-CONFIRMED">CONFIRMED</td></tr>
+<tr><td>evenness(bloom) is uneven</td><td>uneven</td><td class="verdict-CONFIRMED">CONFIRMED</td></tr>
+<tr><td>survivorship is type3</td><td>type3</td><td class="verdict-CONFIRMED">CONFIRMED</td></tr>
+</table></section>
+<footer>Generated by CSRBT's ecology experiment engine (ADR-019). CSV files in this bundle open directly in Excel, Google Sheets, or R; this page prints to PDF.</footer>
+</body>
+</html>

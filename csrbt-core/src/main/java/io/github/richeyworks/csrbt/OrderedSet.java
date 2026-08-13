@@ -166,6 +166,15 @@ public class OrderedSet<K> implements SelfHealingTree, OrderedCollection<K>, Ran
             try {
                 tree.buildBalanced(ascendingDistinct);
                 this.size = ascendingDistinct.size();
+                // Reapply a non-default augmentor (bug audit 2026-08-12, C-3):
+                // buildBalanced creates every node with the DEFAULT subtree-size
+                // augmentor, so without this step a pre-installed custom augmentor
+                // (e.g. interval max-hi) silently stopped being maintained — while
+                // getAugmentor() still reported it installed, defeating the
+                // fail-loud guards. setStrategy and selfRepair already do this.
+                if (!isDefaultAugmentor()) {
+                    reapplyAugmentor();
+                }
                 // The FIFO window is only consulted for sliding-window eviction (maxSize > 0); for an
                 // unbounded set it is pure overhead, and resyncing through inOrder() would add a whole
                 // extra O(n) traversal on top. The input list is already the in-order sequence, so when
@@ -267,6 +276,125 @@ public class OrderedSet<K> implements SelfHealingTree, OrderedCollection<K>, Ran
         return guardedRead(
                 () -> searchDepthReadOnly(value, true),
                 () -> searchDepthReadOnly(value, false));
+    }
+
+    // ── Atomic navigation (ADR-021) ───────────────────────────────────────────
+    // The NavigableOrderedSet adapter used to compose navigation from 2–4
+    // independently-guarded reads (countAtMost → contains → select); a write landing
+    // between those epochs made read-only navigation throw or violate its contract
+    // (floor(k) > k) under the R1 single-writer model this class advertises. These
+    // primitives answer each navigation question in ONE guarded acquisition — a single
+    // O(log n) descent under one optimistic stamp (locked fallback), same protocol as
+    // contains(). Deep-sweep audit 2026-08-12, finding D-1.
+
+    /** Greatest key {@code <= value}, or {@code null}. One guarded acquisition. */
+    public K floor(K value) {
+        java.util.Objects.requireNonNull(value, "value cannot be null");
+        if (!OPTIMISTIC_READS) return navigateReadOnly(value, true, true, false);
+        return guardedRead(() -> navigateReadOnly(value, true, true, true),
+                           () -> navigateReadOnly(value, true, true, false));
+    }
+
+    /** Greatest key {@code < value}, or {@code null}. One guarded acquisition. */
+    public K lower(K value) {
+        java.util.Objects.requireNonNull(value, "value cannot be null");
+        if (!OPTIMISTIC_READS) return navigateReadOnly(value, true, false, false);
+        return guardedRead(() -> navigateReadOnly(value, true, false, true),
+                           () -> navigateReadOnly(value, true, false, false));
+    }
+
+    /** Least key {@code >= value}, or {@code null}. One guarded acquisition. */
+    public K ceiling(K value) {
+        java.util.Objects.requireNonNull(value, "value cannot be null");
+        if (!OPTIMISTIC_READS) return navigateReadOnly(value, false, true, false);
+        return guardedRead(() -> navigateReadOnly(value, false, true, true),
+                           () -> navigateReadOnly(value, false, true, false));
+    }
+
+    /** Least key {@code > value}, or {@code null}. One guarded acquisition. */
+    public K higher(K value) {
+        java.util.Objects.requireNonNull(value, "value cannot be null");
+        if (!OPTIMISTIC_READS) return navigateReadOnly(value, false, false, false);
+        return guardedRead(() -> navigateReadOnly(value, false, false, true),
+                           () -> navigateReadOnly(value, false, false, false));
+    }
+
+    /** Keys {@code <=} (inclusive) or {@code <} (strict) {@code value}, one acquisition. */
+    public int countUpTo(K value, boolean inclusive) {
+        java.util.Objects.requireNonNull(value, "value cannot be null");
+        if (!OPTIMISTIC_READS) return countUpToReadOnly(value, inclusive, false);
+        return guardedRead(() -> countUpToReadOnly(value, inclusive, true),
+                           () -> countUpToReadOnly(value, inclusive, false));
+    }
+
+    /**
+     * Keys inside the given bounds — {@code null} bound = unbounded on that side —
+     * computed in ONE guarded acquisition (both count descents run under the same
+     * optimistic stamp, so no write can slip between them). This is the adapter's
+     * view-sizing primitive (ADR-021).
+     */
+    public int countBetween(K lo, boolean loInclusive, K hi, boolean hiInclusive) {
+        if (!OPTIMISTIC_READS) return countBetweenReadOnly(lo, loInclusive, hi, hiInclusive, false);
+        return guardedRead(() -> countBetweenReadOnly(lo, loInclusive, hi, hiInclusive, true),
+                           () -> countBetweenReadOnly(lo, loInclusive, hi, hiInclusive, false));
+    }
+
+    /**
+     * One navigation descent, {@link #findReadOnly}'s concurrency discipline: step-bounded
+     * when optimistic, torn-pointer diversion, no mutation. {@code lessSide} picks
+     * floor/lower vs ceiling/higher; {@code inclusive} picks floor/ceiling vs lower/higher.
+     */
+    private K navigateReadOnly(K value, boolean lessSide, boolean inclusive, boolean bounded) {
+        TreeNode1<K> x = tree.getRoot();
+        TreeNode1<K> best = null;
+        int steps = bounded
+                ? 2 * (32 - Integer.numberOfLeadingZeros(Math.max(1, size))) + 32
+                : Integer.MAX_VALUE;
+        while (x != null && !x.isNil()) {
+            if (--steps < 0) throw TornReadException.INSTANCE;
+            int cmp = x.compareKeyTo(value);          // >0: x > value; <0: x < value
+            if (cmp == 0) {
+                if (inclusive) return x.getData();
+                x = lessSide ? x.getLeft() : x.getRight();
+            } else if (cmp < 0) {                     // x < value
+                if (lessSide) best = x;
+                x = x.getRight();
+            } else {                                  // x > value
+                if (!lessSide) best = x;
+                x = x.getLeft();
+            }
+        }
+        if (x == null) throw TornReadException.INSTANCE;   // children are never null when consistent
+        return best == null ? null : best.getData();
+    }
+
+    /** Rank descent over intrinsic subtree sizes; same step bound and torn diversion. */
+    private int countUpToReadOnly(K value, boolean inclusive, boolean bounded) {
+        TreeNode1<K> x = tree.getRoot();
+        int count = 0;
+        int steps = bounded
+                ? 2 * (32 - Integer.numberOfLeadingZeros(Math.max(1, size))) + 32
+                : Integer.MAX_VALUE;
+        while (x != null && !x.isNil()) {
+            if (--steps < 0) throw TornReadException.INSTANCE;
+            int cmp = x.compareKeyTo(value);
+            boolean counts = inclusive ? cmp <= 0 : cmp < 0;   // x is within the bound
+            if (counts) {
+                count += x.getLeft().getSize() + 1;
+                x = x.getRight();
+            } else {
+                x = x.getLeft();
+            }
+        }
+        if (x == null) throw TornReadException.INSTANCE;
+        return count;
+    }
+
+    private int countBetweenReadOnly(K lo, boolean loInclusive, K hi, boolean hiInclusive,
+                                     boolean bounded) {
+        int upTo   = (hi == null) ? size : countUpToReadOnly(hi, hiInclusive, bounded);
+        int before = (lo == null) ? 0    : countUpToReadOnly(lo, !loInclusive, bounded);
+        return Math.max(0, upTo - before);
     }
 
     public int size() { return size; }
@@ -448,6 +576,20 @@ public class OrderedSet<K> implements SelfHealingTree, OrderedCollection<K>, Ran
     }
 
     public int getMaxSize() { return maxSize; }
+
+    /**
+     * The FIFO window's oldest live key — the next eviction victim — or {@code null}
+     * when the window is empty. Read under the writer lock so it is consistent with
+     * any in-flight mutation. Added for the undo seam (consolidation 2026-08-12,
+     * D-2): {@code TreeContext.add} peeks the victim BEFORE the add so a
+     * window-evicting insert can record what it displaced.
+     */
+    public K peekOldest() {
+        synchronized (lock) {
+            java.util.Iterator<K> it = liveOrder.iterator();
+            return it.hasNext() ? it.next() : null;
+        }
+    }
 
     private boolean evictOldest() {
         if (liveOrder.size() != size) resyncLiveOrder();   // safety net after wholesale rebuilds

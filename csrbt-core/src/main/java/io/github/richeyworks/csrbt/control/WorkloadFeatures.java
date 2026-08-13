@@ -42,7 +42,10 @@ public record WorkloadFeatures(
      */
     @Override
     public String toString() {
-        return String.format(
+        // Locale.ROOT: this line is DESIGN §12's splice-ready observability record — a
+        // comma-decimal default locale would corrupt the key=value floats (bug audit
+        // 2026-08-12, B4).
+        return String.format(java.util.Locale.ROOT,
                 "read=%.4f write=%.4f skew=%.4f depth=%.4f rotPerWrite=%.4f n=%d growth=%.4f",
                 readFraction, writeFraction, accessSkew, meanSearchDepth,
                 rotationsPerWrite, size, growthRate);

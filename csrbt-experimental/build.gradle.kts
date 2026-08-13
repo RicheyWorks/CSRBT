@@ -5,10 +5,11 @@
 plugins {
     `java-library`
     `maven-publish`
+    signing
 }
 
 group = "io.github.richeyworks"
-version = "0.1.0"
+version = "0.2.0"
 
 java {
     withSourcesJar()
@@ -51,6 +52,50 @@ listOf(
     }
 }
 
+// ADR-016 polish: the ecology field-day demo — narrated plain-English report on stdout
+// plus docs/ecology-lab-session.json for docs/ecology-lab.html. Deterministic (seeded).
+tasks.register<JavaExec>("ecologyFieldDay") {
+    group = "verification"
+    description = "Run the ecology field day: narrated report + docs/ecology-lab-session.json."
+    mainClass = "io.github.richeyworks.csrbt.experimental.ecology.EcologyFieldDay"
+    classpath = sourceSets["main"].runtimeClasspath
+    workingDir = rootDir
+    systemProperty("log4j2.loggerContextFactory",
+            "org.apache.logging.log4j.simple.SimpleLoggerContextFactory")
+    systemProperty("org.apache.logging.log4j.simplelog.level", "WARN")
+    systemProperty("org.apache.logging.log4j.simplelog.StatusLogger.level", "OFF")
+}
+
+// Your workload as an ecosystem: replay a CSV op trace through the instruments.
+// ./gradlew ecologyTrace -Ptrace=path/to/trace.csv   (default: docs/sample-trace.csv)
+tasks.register<JavaExec>("ecologyTrace") {
+    group = "verification"
+    description = "Replay an op trace (op,key CSV) through the ecology instruments."
+    mainClass = "io.github.richeyworks.csrbt.experimental.ecology.WorkloadTrace"
+    classpath = sourceSets["main"].runtimeClasspath
+    workingDir = rootDir
+    args((project.findProperty("trace") as String?) ?: "docs/sample-trace.csv")
+    systemProperty("log4j2.loggerContextFactory",
+            "org.apache.logging.log4j.simple.SimpleLoggerContextFactory")
+    systemProperty("org.apache.logging.log4j.simplelog.level", "WARN")
+    systemProperty("org.apache.logging.log4j.simplelog.StatusLogger.level", "OFF")
+}
+
+// The classroom seam (ADR-019): run a plain-text experiment spec.
+// ./gradlew ecologyExperiment -Pspec=path/to/experiment.eco   (default: docs/sample-experiment.eco)
+tasks.register<JavaExec>("ecologyExperiment") {
+    group = "verification"
+    description = "Run a classroom experiment spec (.eco): phases, models, crosses, graded hypotheses."
+    mainClass = "io.github.richeyworks.csrbt.experimental.ecology.ExperimentLab"
+    classpath = sourceSets["main"].runtimeClasspath
+    workingDir = rootDir
+    args((project.findProperty("spec") as String?) ?: "docs/sample-experiment.eco")
+    systemProperty("log4j2.loggerContextFactory",
+            "org.apache.logging.log4j.simple.SimpleLoggerContextFactory")
+    systemProperty("org.apache.logging.log4j.simplelog.level", "WARN")
+    systemProperty("org.apache.logging.log4j.simplelog.StatusLogger.level", "OFF")
+}
+
 publishing {
     publications {
         create<MavenPublication>("maven") {
@@ -78,5 +123,39 @@ publishing {
                 }
             }
         }
+    }
+}
+
+// Phase 9 release prep: Central requires a javadoc jar per artifact.
+java {
+    withJavadocJar()
+}
+
+tasks.javadoc {
+    (options as StandardJavadocDocletOptions).apply {
+        encoding = "UTF-8"
+        addStringOption("Xdoclint:none", "-quiet")
+    }
+}
+
+// Phase 9 release prep: PGP signing + a local staging layout for the Central Portal bundle.
+// Signing activates ONLY when SIGNING_KEY is present in the environment, so everyday local
+// builds stay signature-free. Stage with: ./gradlew publishMavenPublicationToStagingRepository
+publishing {
+    repositories {
+        maven {
+            name = "staging"
+            url = uri(layout.buildDirectory.dir("staging-deploy"))
+        }
+    }
+}
+
+signing {
+    val key = providers.environmentVariable("SIGNING_KEY").orNull
+    val pass = providers.environmentVariable("SIGNING_PASSWORD").orNull
+    isRequired = key != null
+    if (key != null) {
+        useInMemoryPgpKeys(key, pass)
+        sign(publishing.publications["maven"])
     }
 }

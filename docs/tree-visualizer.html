@@ -1,0 +1,487 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CSRBT — Interactive Tree Visualizer</title>
+<style>
+  :root{
+    --bg:#12151c; --panel:#191d27; --panel2:#20252f; --line:#2b3340;
+    --ink:#e8ecf1; --dim:#8b97a6; --faint:#5a6675;
+    --teal:#43c0b6; --amber:#e6b34a; --rose:#ef5f63; --violet:#a983f0; --blue:#5b9bd5; --green:#4bbf73;
+    --mono:"SF Mono",ui-monospace,"JetBrains Mono",Menlo,Consolas,monospace;
+    --sans:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--sans);font-size:14px;-webkit-font-smoothing:antialiased}
+  .wrap{max-width:1240px;margin:0 auto;padding:18px 18px 50px}
+  header{display:flex;flex-wrap:wrap;align-items:baseline;gap:10px 14px;margin-bottom:4px}
+  h1{font-size:19px;margin:0;font-weight:650;letter-spacing:.2px}
+  .sub{color:var(--dim);font-size:12.5px}
+  .repo{font-family:var(--mono);font-size:11.5px;color:var(--faint);margin-left:auto}
+  .desc{font-size:12.5px;color:var(--dim);line-height:1.55;margin:4px 0 0}
+  .desc b{color:var(--ink)}
+  .bar{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin:13px 0;padding:11px 13px;background:var(--panel);border:1px solid var(--line);border-radius:10px}
+  .seg{display:inline-flex;background:var(--panel2);border:1px solid var(--line);border-radius:8px;overflow:hidden;flex-wrap:wrap}
+  .seg button{background:transparent;border:0;color:var(--dim);padding:7px 12px;font-size:12.5px;font-family:var(--sans);cursor:pointer;border-right:1px solid var(--line);transition:.12s}
+  .seg button:last-child{border-right:0}
+  .seg button.on{background:var(--teal);color:#042320;font-weight:600}
+  .seg button.cmp.on{background:var(--violet);color:#170a26}
+  .seg button:hover:not(.on){color:var(--ink);background:#252c37}
+  input[type=number],input[type=text]{background:var(--panel2);border:1px solid var(--line);color:var(--ink);border-radius:7px;padding:6px 9px;width:78px;font-family:var(--mono);font-size:13px}
+  .btn{background:var(--panel2);border:1px solid var(--line);color:var(--ink);padding:6px 11px;border-radius:7px;cursor:pointer;font-size:12.5px;font-family:var(--sans);transition:.12s}
+  .btn:hover{border-color:var(--teal);color:#fff}
+  .btn.mini{padding:4px 9px;font-size:11.5px}
+  .btn.ins{border-color:#2c6e5f}.btn.del{border-color:#7a3436}.btn.sea{border-color:#3a5a80}
+  .lbl{font-size:11px;color:var(--faint);text-transform:uppercase;letter-spacing:.6px}
+  .grid{display:grid;grid-template-columns:1fr 300px;gap:14px}
+  @media(max-width:900px){.grid{grid-template-columns:1fr}}
+  .card{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:12px}
+  .card h2{font-size:11.5px;text-transform:uppercase;letter-spacing:.7px;color:var(--dim);margin:0 0 10px;font-weight:600}
+  canvas{display:block;background:var(--panel2);border:1px solid var(--line);border-radius:8px;width:100%}
+  .stat{display:flex;justify-content:space-between;align-items:baseline;padding:6px 0;border-bottom:1px solid var(--line);font-size:12.5px}
+  .stat:last-child{border-bottom:0}
+  .stat .k{color:var(--dim)} .stat .v{font-family:var(--mono);font-weight:650;font-size:15px}
+  .stat .v small{font-size:11px;color:var(--faint);font-weight:400}
+  .os{margin-top:10px;padding-top:10px;border-top:1px solid var(--line)}
+  .os-row{display:flex;align-items:center;gap:7px;margin-bottom:7px;font-size:12px;color:var(--dim)}
+  .os-row .out{margin-left:auto;font-family:var(--mono);color:var(--teal);font-weight:650}
+  .cmpGrid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:14px}
+  @media(max-width:760px){.cmpGrid{grid-template-columns:1fr}}
+  .cmpCard{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:11px}
+  .cmpCard.win{border-color:var(--teal);box-shadow:0 0 0 1px rgba(67,192,182,.3)}
+  .cmpCard h3{margin:0 0 6px;font-size:13px;font-weight:650;display:flex;align-items:center;gap:8px}
+  .cmpCard h3 .badge{margin-left:auto;font-family:var(--mono);font-size:10.5px;color:var(--faint)}
+  .cmpStats{display:flex;gap:12px;font-family:var(--mono);font-size:11.5px;color:var(--dim);margin-top:7px}
+  .cmpStats b{color:var(--ink)}
+  .foot{margin-top:20px;color:var(--faint);font-size:11.5px;line-height:1.6}
+  .kbd{font-family:var(--mono);background:var(--panel2);border:1px solid var(--line);border-radius:4px;padding:1px 5px;font-size:11px;color:var(--dim)}
+  .msg{font-family:var(--mono);font-size:12px;color:var(--amber);min-height:16px;margin-left:6px}
+  #compareWrap{display:none} #compareWrap.on{display:block}
+  .legend{display:flex;gap:14px;flex-wrap:wrap;margin-top:8px;font-size:11px;color:var(--dim)}
+  .legend i{display:inline-block;width:10px;height:10px;border-radius:50%;margin-right:5px;vertical-align:middle;border:1px solid #0006}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <h1>CSRBT Interactive Tree Visualizer</h1>
+    <span class="sub">insert, delete, search — watch each strategy rebalance live</span>
+    <span class="repo">RicheyWorks/CSRBT · core/strategy</span>
+  </header>
+  <p class="desc" id="stratDesc"></p>
+
+  <div class="bar">
+    <div class="seg" id="stratSeg"></div>
+    <input type="number" id="keyIn" placeholder="key" value="42">
+    <button class="btn ins" id="bIns">Insert</button>
+    <button class="btn del" id="bDel">Delete</button>
+    <button class="btn sea" id="bSea">Search</button>
+    <span class="msg" id="msg"></span>
+  </div>
+  <div class="bar">
+    <span class="lbl">Bulk</span>
+    <button class="btn mini" id="bRand">+ Random</button>
+    <button class="btn mini" id="bRand10">+ 10 random</button>
+    <button class="btn mini" id="bAsc">Insert 1‥20 ascending</button>
+    <button class="btn mini" id="bClear">Clear</button>
+    <span style="margin-left:auto"></span>
+    <span class="lbl">Morph to</span>
+    <div class="seg" id="morphSeg"></div>
+  </div>
+
+  <div class="grid" id="singleWrap">
+    <div class="card">
+      <h2>Tree</h2>
+      <canvas id="tree" height="440"></canvas>
+      <div class="legend">
+        <span><i style="background:#e5484d"></i>red node (RB)</span>
+        <span><i style="background:#2a2f3a;border-color:#556"></i>black node</span>
+        <span><i style="background:var(--amber)"></i>last touched</span>
+        <span><i style="background:var(--blue)"></i>search path</span>
+      </div>
+    </div>
+    <div class="card">
+      <h2>Metrics</h2>
+      <div class="stat"><span class="k">Nodes</span><span class="v" id="mN">0</span></div>
+      <div class="stat"><span class="k">Height</span><span class="v" id="mH">0</span></div>
+      <div class="stat"><span class="k">Optimal ⌈log₂n⌉</span><span class="v" id="mOpt">0</span></div>
+      <div class="stat"><span class="k">Rotations (total)</span><span class="v" id="mRot">0</span></div>
+      <div class="os">
+        <div class="lbl" style="margin-bottom:8px">Order statistics <span style="text-transform:none;color:var(--faint)">— O(log n) via subtree-size augment</span></div>
+        <div class="os-row">select k-th <input type="number" id="selK" value="1" style="width:60px"> <span class="out" id="selOut">—</span></div>
+        <div class="os-row">rank of <input type="number" id="rnkK" value="42" style="width:60px"> <span class="out" id="rnkOut">—</span></div>
+        <div class="os-row">median <span class="out" id="medOut">—</span></div>
+      </div>
+    </div>
+  </div>
+
+  <div id="compareWrap">
+    <div class="cmpGrid" id="cmpGrid"></div>
+    <p class="desc" style="margin-top:12px">All four strategies receive the <b>same operations</b>. The <span style="color:var(--teal)">teal</span> card has the lowest height. This is the project's thesis made visible — no single tree wins every workload, which is why CSRBT morphs between them. Try <b>Insert 1‥20 ascending</b>: AVL and WB stay short, Red-Black stays within 2×optimal, and <b>Splay collapses to a spine</b> (the exact degenerate case the audit flagged, where the engine's recursive health-gate validators would overflow the stack at large n).</p>
+  </div>
+
+  <div class="foot">
+    <b style="color:var(--dim)">Faithful to the engine.</b> The balancing here is reimplemented from <span class="kbd">csrbt-core/strategy</span>: Red-Black (CLRS insert/delete fixup), AVL (height rebalance), <span class="kbd">WeightBalancedStrategy</span> BB[Δ,Γ] with the shipped <b>Δ=3, Γ=2</b>, and Splay (splay-on-access). Every node carries an intrinsic <b>subtree size</b>, maintained through rotations, which powers the O(log n) select/rank/median — CSRBT's headline feature. The JS core was fuzz-tested (4000 mixed ops/strategy) against a sorted-set oracle with full invariant and order-statistic checks before shipping.
+    <span style="color:var(--faint)">Keys: <span class="kbd">1‑4</span> strategy · <span class="kbd">5</span> compare · <span class="kbd">Enter</span> insert · <span class="kbd">Del</span> delete.</span>
+  </div>
+</div>
+
+<script>
+"use strict";
+// CSRBT core — faithful JS reimplementation of the four strategies for the visualizer.
+// Sentinel NIL, subtree-size augmentation for order statistics, per-strategy fixup.
+"use strict";
+function makeTree(strategy){
+  const NIL = {key:null,left:null,right:null,parent:null,red:false,size:0,h:0,nil:true};
+  NIL.left=NIL.right=NIL.parent=NIL;
+  const T={NIL,root:NIL,strategy,rotations:0,cmp:(a,b)=>a-b};
+  T.node=(k)=>({key:k,left:NIL,right:NIL,parent:NIL,red:true,size:1,h:1,nil:false});
+  return T;
+}
+const sz=n=>n.size, ht=n=>n.h;
+function recalc(n,NIL){ if(n===NIL)return; n.size=1+n.left.size+n.right.size; n.h=1+Math.max(n.left.h,n.right.h); }
+function rotateLeft(T,x){
+  const NIL=T.NIL, y=x.right, p=x.parent;
+  x.right=y.left; if(y.left!==NIL)y.left.parent=x;
+  y.left=x; x.parent=y;
+  y.parent=p;
+  if(p===NIL)T.root=y; else if(p.left===x)p.left=y; else p.right=y;
+  recalc(x,NIL); recalc(y,NIL);
+  T.rotations++;
+}
+function rotateRight(T,x){
+  const NIL=T.NIL, y=x.left, p=x.parent;
+  x.left=y.right; if(y.right!==NIL)y.right.parent=x;
+  y.right=x; x.parent=y;
+  y.parent=p;
+  if(p===NIL)T.root=y; else if(p.left===x)p.left=y; else p.right=y;
+  recalc(x,NIL); recalc(y,NIL);
+  T.rotations++;
+}
+// generic BST insert; returns node or null on dup. Increments size along path.
+function bstInsert(T,key){
+  const NIL=T.NIL; let p=NIL, cur=T.root;
+  while(cur!==NIL){ p=cur; const c=T.cmp(key,cur.key); if(c===0)return null; cur=c<0?cur.left:cur.right; }
+  const n=T.node(key); n.parent=p;
+  if(p===NIL)T.root=n; else if(T.cmp(key,p.key)<0)p.left=n; else p.right=n;
+  for(let a=p;a!==NIL;a=a.parent){ a.size++; a.h=1+Math.max(a.left.h,a.right.h); }
+  return n;
+}
+function find(T,key){ const NIL=T.NIL; let cur=T.root; while(cur!==NIL){ const c=T.cmp(key,cur.key); if(c===0)return cur; cur=c<0?cur.left:cur.right; } return NIL; }
+
+// ---------- Red-Black ----------
+function rbFixInsert(T,z){
+  const NIL=T.NIL;
+  while(z.parent.red){
+    if(z.parent===z.parent.parent.left){
+      const y=z.parent.parent.right;
+      if(y.red){ z.parent.red=false; y.red=false; z.parent.parent.red=true; z=z.parent.parent; }
+      else { if(z===z.parent.right){ z=z.parent; rotateLeft(T,z); } z.parent.red=false; z.parent.parent.red=true; rotateRight(T,z.parent.parent); }
+    } else {
+      const y=z.parent.parent.left;
+      if(y.red){ z.parent.red=false; y.red=false; z.parent.parent.red=true; z=z.parent.parent; }
+      else { if(z===z.parent.left){ z=z.parent; rotateRight(T,z); } z.parent.red=false; z.parent.parent.red=true; rotateLeft(T,z.parent.parent); }
+    }
+  }
+  T.root.red=false;
+}
+function rbTransplant(T,u,v){ const NIL=T.NIL; if(u.parent===NIL)T.root=v; else if(u===u.parent.left)u.parent.left=v; else u.parent.right=v; v.parent=u.parent; }
+function subtreeMin(T,x){ const NIL=T.NIL; while(x.left!==NIL)x=x.left; return x; }
+function rbDelete(T,z){
+  const NIL=T.NIL; let y=z, yRed=y.red, x;
+  if(z.left===NIL){ x=z.right; rbTransplant(T,z,z.right); }
+  else if(z.right===NIL){ x=z.left; rbTransplant(T,z,z.left); }
+  else { y=subtreeMin(T,z.right); yRed=y.red; x=y.right;
+    if(y.parent===z){ x.parent=y; } else { rbTransplant(T,y,y.right); y.right=z.right; y.right.parent=y; }
+    rbTransplant(T,z,y); y.left=z.left; y.left.parent=y; y.red=z.red;
+  }
+  // fix sizes/heights from x.parent up
+  for(let a=(x.parent);a!==NIL;a=a.parent)recalc(a,NIL);
+  // also recompute along y if moved
+  if(!yRed)rbDeleteFixup(T,x);
+  // final size/height sweep to be safe
+  fixUpPath(T,x);
+}
+function fixUpPath(T,x){ const NIL=T.NIL; let a=x===NIL?NIL:x; while(a!==NIL){recalc(a,NIL);a=a.parent;} }
+function rbDeleteFixup(T,x){
+  const NIL=T.NIL;
+  while(x!==T.root && !x.red){
+    if(x===x.parent.left){
+      let w=x.parent.right;
+      if(w.red){ w.red=false; x.parent.red=true; rotateLeft(T,x.parent); w=x.parent.right; }
+      if(!w.left.red && !w.right.red){ w.red=true; x=x.parent; }
+      else { if(!w.right.red){ w.left.red=false; w.red=true; rotateRight(T,w); w=x.parent.right; }
+        w.red=x.parent.red; x.parent.red=false; w.right.red=false; rotateLeft(T,x.parent); x=T.root; }
+    } else {
+      let w=x.parent.left;
+      if(w.red){ w.red=false; x.parent.red=true; rotateRight(T,x.parent); w=x.parent.left; }
+      if(!w.right.red && !w.left.red){ w.red=true; x=x.parent; }
+      else { if(!w.left.red){ w.right.red=false; w.red=true; rotateLeft(T,w); w=x.parent.left; }
+        w.red=x.parent.red; x.parent.red=false; w.left.red=false; rotateRight(T,x.parent); x=T.root; }
+    }
+  }
+  x.red=false;
+}
+
+// ---------- AVL ----------
+function avlRebalanceUp(T,start){
+  const NIL=T.NIL; let cur=start;
+  while(cur!==NIL){
+    recalc(cur,NIL);
+    const bf=cur.left.h-cur.right.h;
+    if(bf>1){ if(cur.left.left.h < cur.left.right.h) rotateLeft(T,cur.left); rotateRight(T,cur); cur=cur.parent; }
+    else if(bf<-1){ if(cur.right.right.h < cur.right.left.h) rotateRight(T,cur.right); rotateLeft(T,cur); cur=cur.parent; }
+    else cur=cur.parent;
+  }
+}
+
+// ---------- Weight-Balanced BB[Δ,Γ] ----------
+function wbRebalanceUp(T,start,D,G){
+  const NIL=T.NIL; let cur=start;
+  while(cur!==NIL){
+    recalc(cur,NIL);
+    const sl=cur.left.size, sr=cur.right.size, par=cur.parent;
+    if(sl+sr>1 && sr>D*sl){ // right heavy
+      if(cur.right.left.size < G*cur.right.right.size) rotateLeft(T,cur);
+      else { rotateRight(T,cur.right); rotateLeft(T,cur); }
+      cur=par;
+    } else if(sl+sr>1 && sl>D*sr){ // left heavy
+      if(cur.left.right.size < G*cur.left.left.size) rotateRight(T,cur);
+      else { rotateLeft(T,cur.left); rotateRight(T,cur); }
+      cur=par;
+    } else cur=cur.parent;
+  }
+}
+
+// ---------- Splay ----------
+function splay(T,x){
+  const NIL=T.NIL;
+  while(x.parent!==NIL){
+    const p=x.parent, g=p.parent;
+    if(g===NIL){ if(x===p.left)rotateRight(T,p); else rotateLeft(T,p); }
+    else if(x===p.left && p===g.left){ rotateRight(T,g); rotateRight(T,p); }
+    else if(x===p.right && p===g.right){ rotateLeft(T,g); rotateLeft(T,p); }
+    else if(x===p.right && p===g.left){ rotateLeft(T,p); rotateRight(T,g); }
+    else { rotateRight(T,p); rotateLeft(T,g); }
+  }
+}
+
+// ---------- public ops (dispatch by strategy) ----------
+function insert(T,key){
+  const n=bstInsert(T,key); if(n===null)return false;
+  const s=T.strategy;
+  if(s==="RB"){ rbFixInsert(T,n); }
+  else if(s==="AVL"){ n.red=false; avlRebalanceUp(T,n.parent); }
+  else if(s==="WB"){ n.red=false; wbRebalanceUp(T,n.parent,3,2); }
+  else if(s==="Splay"){ n.red=false; splay(T,n); }
+  return true;
+}
+function search(T,key){
+  const NIL=T.NIL; const hit=find(T,key);
+  if(T.strategy==="Splay"){ if(hit!==NIL) splay(T,hit); }
+  return hit!==NIL;
+}
+function remove(T,key){
+  const NIL=T.NIL; const z=find(T,key); if(z===NIL)return false;
+  if(T.strategy==="RB"){ rbDelete(T,z); }
+  else { // AVL/WB/Splay: BST delete then rebalance from parent of spliced node
+    let start;
+    if(z.left===NIL || z.right===NIL){ const child=z.left!==NIL?z.left:z.right; const p=z.parent;
+      if(child!==NIL)child.parent=p; if(p===NIL)T.root=child; else if(p.left===z)p.left=child; else p.right=child; start=p;
+    } else { const succ=subtreeMin(T,z.right); const p=succ.parent;
+      z.key=succ.key; // copy key
+      const child=succ.right; if(child!==NIL)child.parent=p; if(p.left===succ)p.left=child; else p.right=child; start=p;
+    }
+    for(let a=start;a!==NIL;a=a.parent)recalc(a,NIL);
+    if(T.strategy==="AVL")avlRebalanceUp(T,start);
+    else if(T.strategy==="WB")wbRebalanceUp(T,start,3,2);
+    else if(T.strategy==="Splay" && start!==NIL)splay(T,start);
+  }
+  return true;
+}
+// order statistics
+function selectK(T,k){ // 1-indexed
+  const NIL=T.NIL; let x=T.root; if(k<1||k>x.size)return null;
+  while(x!==NIL){ const r=x.left.size+1; if(k===r)return x.key; if(k<r)x=x.left; else {k-=r; x=x.right;} }
+  return null;
+}
+function rankOf(T,key){ // # of keys <= key present; returns index if present else null
+  const NIL=T.NIL; let x=T.root, rank=0;
+  while(x!==NIL){ const c=T.cmp(key,x.key); if(c===0)return rank+x.left.size+1; if(c<0)x=x.left; else {rank+=x.left.size+1; x=x.right;} }
+  return null;
+}
+function inorder(T){ const NIL=T.NIL,out=[]; (function go(n){ if(n===NIL)return; go(n.left); out.push(n.key); go(n.right); })(T.root); return out; }
+function height(T){ return T.root.h; }
+
+// ---------- invariant checkers (for tests) ----------
+function checkBST(T){ const a=inorder(T); for(let i=1;i<a.length;i++)if(a[i]<=a[i-1])return "BST order broken at "+i; return null; }
+function checkSize(T){ const NIL=T.NIL; let err=null; (function go(n){ if(n===NIL||err)return; go(n.left); go(n.right); if(n.size!==1+n.left.size+n.right.size)err="size wrong at "+n.key; })(T.root); return err; }
+function checkRB(T){ const NIL=T.NIL; if(T.root.red)return "root red";
+  let bh=-1, err=null;
+  (function go(n,b){ if(err)return; if(n===NIL){ if(bh<0)bh=b; else if(b!==bh)err="black-height mismatch"; return; }
+    if(n.red && (n.left.red||n.right.red))err="red-red at "+n.key;
+    go(n.left,b+(n.red?0:1)); go(n.right,b+(n.red?0:1)); })(T.root,0);
+  return err;
+}
+function checkAVL(T){ const NIL=T.NIL; let err=null; (function go(n){ if(n===NIL||err)return; go(n.left); go(n.right); if(Math.abs(n.left.h-n.right.h)>1)err="AVL bf>1 at "+n.key; })(T.root); return err; }
+function checkWB(T,D){ const NIL=T.NIL; let err=null; (function go(n){ if(n===NIL||err)return; go(n.left); go(n.right); const sl=n.left.size,sr=n.right.size; if(sl+sr>1 && (sl>D*sr||sr>D*sl))err="WB Δ broken at "+n.key; })(T.root); return err; }
+
+
+// ---------- app state ----------
+const STRATS=[
+  {id:"RB", name:"Red-Black", desc:"Colors nodes red/black and rebalances so no root-to-leaf path is more than twice any other. Height ≤ 2·log₂(n+1). Few rotations per write — the general-purpose default."},
+  {id:"AVL", name:"AVL", desc:"Keeps every node's subtree heights within 1 (|balance factor| ≤ 1). The most rigidly balanced — shortest searches, but the most rotations per write."},
+  {id:"Splay", name:"Splay", desc:"Splays every accessed node to the root, so recently-used keys stay shallow. Great for skewed/temporal workloads — but no height guarantee: ascending inserts build an O(n) spine."},
+  {id:"WB", name:"Weight-Balanced", desc:"BB[Δ,Γ] with Δ=3, Γ=2 (the shipped default): at each node neither subtree may exceed Δ× the other, by subtree size. Balances by weight, not height — and its size metadata is exactly what powers order statistics."},
+];
+let curStrat="RB", compareMode=false;
+let keys=[]; // current key set (sorted invariant not required)
+let T=makeTree("RB");
+let CT={}; // compare trees
+const msg=(t,c)=>{const m=document.getElementById("msg");m.textContent=t;m.style.color=c||"var(--amber)";};
+
+function rebuildInto(strat, ks){ const t=makeTree(strat); const order=[...ks].sort((a,b)=>a-b); for(const k of order)insert(t,k); return t; }
+function morphTo(strat){
+  // faithful: engine rebuilds the candidate from the in-order key list
+  T=rebuildInto(strat, keys); curStrat=strat;
+  document.querySelectorAll("#stratSeg button").forEach(b=>b.classList.toggle("on",b.dataset.id===strat));
+  document.getElementById("stratDesc").innerHTML="<b>"+STRATS.find(s=>s.id===strat).name+".</b> "+STRATS.find(s=>s.id===strat).desc;
+  layout(T); const opt=Math.max(0,Math.ceil(Math.log2(keys.length+1)));
+  msg("morphed → "+strat+" (rebuilt from "+keys.length+" keys, height "+height(T)+" vs optimal "+opt+")","var(--teal)");
+}
+function setStrat(strat){ if(compareMode)setCompare(false); morphTo(strat); }
+
+// ---------- layout (inorder x, depth y) ----------
+function layout(t){
+  const NIL=t.NIL; let idx=0; const nodes=[];
+  (function go(n,depth){ if(n===NIL)return; go(n.left,depth+1); n._i=idx++; n._d=depth; nodes.push(n); go(n.right,depth+1); })(t.root,0);
+  t._nodes=nodes; t._count=idx; t._depth=nodes.reduce((m,n)=>Math.max(m,n._d),0)+1;
+}
+
+// ---------- canvas draw with animation ----------
+const cv=document.getElementById("tree"), cx=cv.getContext("2d");
+function fit(){ cv.width=cv.clientWidth*devicePixelRatio; cv.height=440*devicePixelRatio; cx.setTransform(devicePixelRatio,0,0,devicePixelRatio,0,0); }
+addEventListener("resize",fit);
+let highlightKey=null, pathKeys=new Set(), hlUntil=0;
+function drawTree(t,ctx,W,H,opts={}){
+  ctx.clearRect(0,0,W,H);
+  const NIL=t.NIL; if(t._count===0){ ctx.fillStyle="#5a6675"; ctx.font="13px system-ui"; ctx.textAlign="center"; ctx.fillText("empty — insert a key",W/2,H/2); return; }
+  const n=t._count, depth=t._depth;
+  const padX=26, padY=26;
+  const r=Math.max(7, Math.min(opts.maxR||18, (W-2*padX)/(n*2.1), (H-2*padY)/(depth*2.4)));
+  const gx=(W-2*padX)/Math.max(1,n-1);
+  const gy=(H-2*padY-r)/Math.max(1,depth-1);
+  const X=i=> n===1? W/2 : padX+i*gx;
+  const Y=d=> padY+d*gy;
+  // targets + ease
+  for(const nd of t._nodes){ const tx=X(nd._i), ty=Y(nd._d); if(nd._x==null){nd._x=tx;nd._y=ty;} else {nd._x+=(tx-nd._x)*0.28; nd._y+=(ty-nd._y)*0.28;} }
+  // edges
+  ctx.strokeStyle="#3a4351"; ctx.lineWidth=1.4;
+  for(const nd of t._nodes){ for(const c of [nd.left,nd.right]){ if(c!==NIL){ ctx.beginPath(); ctx.moveTo(nd._x,nd._y); ctx.lineTo(c._x,c._y); ctx.stroke(); } } }
+  // nodes
+  const showColor=(opts.strat||curStrat)==="RB";
+  ctx.font=(r>10?"12px ":"10px ")+"var(--mono),monospace"; ctx.textAlign="center"; ctx.textBaseline="middle";
+  const now=performance.now();
+  for(const nd of t._nodes){
+    let fill, stroke="#0006", tcol="#0a0d12";
+    if(showColor){ fill=nd.red?"#e5484d":"#2a2f3a"; stroke=nd.red?"#f2777a":"#59647a"; tcol=nd.red?"#fff":"#cdd6e2"; }
+    else { fill="#2c6e5f"; stroke="#43c0b6"; tcol="#eafffb"; }
+    if(pathKeys.has(nd.key) && now<hlUntil){ stroke="#5b9bd5"; ctx.lineWidth=2.4; } else ctx.lineWidth=1.4;
+    if(nd.key===highlightKey && now<hlUntil){ fill="#e6b34a"; stroke="#f3c968"; tcol="#241a04"; }
+    ctx.beginPath(); ctx.arc(nd._x,nd._y,r,0,7); ctx.fillStyle=fill; ctx.fill(); ctx.strokeStyle=stroke; ctx.stroke();
+    if(r>8){ ctx.fillStyle=tcol; ctx.fillText(String(nd.key),nd._x,nd._y); }
+  }
+}
+
+// ---------- metrics + order stats ----------
+function refreshMetrics(){
+  const n=keys.length, opt=Math.max(0,Math.ceil(Math.log2(n+1)));
+  document.getElementById("mN").textContent=n;
+  document.getElementById("mH").innerHTML=height(T)+(n?' <small>('+(height(T)/Math.max(1,opt)).toFixed(1)+'× optimal)</small>':'');
+  document.getElementById("mOpt").textContent=opt;
+  document.getElementById("mRot").textContent=T.rotations;
+  const sk=+document.getElementById("selK").value; const sv=selectK(T,sk); document.getElementById("selOut").textContent=sv==null?"—":sv;
+  const rk=+document.getElementById("rnkK").value; const rv=rankOf(T,rk); document.getElementById("rnkOut").textContent=rv==null?"absent":("#"+rv);
+  document.getElementById("medOut").textContent = n? selectK(T,Math.floor((n+1)/2)) : "—";
+}
+
+// ---------- ops ----------
+function doInsert(k){ if(k==null||isNaN(k))return; if(compareMode){ let added=false; for(const s in CT){ if(insert(CT[s],k))added=true; } if(added){keys.push(k);} msg(added?"inserted "+k+" into all 4":k+" already present"); afterCompare(); }
+  else { const ok=insert(T,k); if(ok){keys.push(k); highlightKey=k; pathKeys.clear(); hlUntil=performance.now()+900; layout(T); msg("inserted "+k,"var(--green)"); } else msg(k+" already present"); refreshMetrics(); } }
+function doDelete(k){ if(k==null||isNaN(k))return; if(compareMode){ let rm=false; for(const s in CT){ if(remove(CT[s],k))rm=true; } if(rm)keys=keys.filter(x=>x!==k); msg(rm?"deleted "+k+" from all 4":k+" not found"); afterCompare(); }
+  else { const ok=remove(T,k); if(ok){keys=keys.filter(x=>x!==k); highlightKey=null; layout(T); msg("deleted "+k,"var(--rose)"); } else msg(k+" not found"); refreshMetrics(); } }
+function doSearch(k){ if(k==null||isNaN(k))return; if(compareMode){ for(const s in CT)search(CT[s],k); afterCompare(); msg("searched "+k+" (splay moves it to root)"); }
+  else { const path=searchPath(T,k); pathKeys=new Set(path); highlightKey=find(T,k)!==T.NIL?k:null; hlUntil=performance.now()+1100; const hit=search(T,k); if(T.strategy==="Splay"&&hit)layout(T); msg(hit?"found "+k+(T.strategy==="Splay"?" — splayed to root":""):k+" not found",hit?"var(--blue)":"var(--faint)"); refreshMetrics(); } }
+function searchPath(t,key){ const NIL=t.NIL,p=[]; let cur=t.root; while(cur!==NIL){ p.push(cur.key); const c=t.cmp(key,cur.key); if(c===0)break; cur=c<0?cur.left:cur.right; } return p; }
+
+// ---------- compare ----------
+function setCompare(on){
+  compareMode=on;
+  document.getElementById("singleWrap").style.display=on?"none":"grid";
+  document.getElementById("compareWrap").classList.toggle("on",on);
+  document.querySelectorAll("#stratSeg button").forEach(b=>b.classList.toggle("on",!on&&b.dataset.id===curStrat));
+  document.getElementById("cmpBtn").classList.toggle("on",on);
+  if(on){ CT={}; for(const s of STRATS)CT[s.id]=rebuildInto(s.id,keys); buildCmp(); document.getElementById("stratDesc").innerHTML="<b>Compare mode.</b> Same operations feed all four strategies at once. Lowest height wins — but which one wins depends on the workload."; afterCompare(); }
+  else { morphTo(curStrat); }
+}
+let cmpCanvases={};
+function buildCmp(){ const g=document.getElementById("cmpGrid"); g.innerHTML=""; cmpCanvases={};
+  for(const s of STRATS){ const c=document.createElement("div"); c.className="cmpCard"; c.id="cc-"+s.id;
+    c.innerHTML=`<h3>${s.name}<span class="badge"></span></h3><canvas height="200"></canvas><div class="cmpStats"></div>`;
+    g.appendChild(c); const cvv=c.querySelector("canvas"); cmpCanvases[s.id]={el:cvv,ctx:cvv.getContext("2d")}; }
+  for(const s in cmpCanvases){ const o=cmpCanvases[s]; o.el.width=o.el.clientWidth*devicePixelRatio; o.el.height=200*devicePixelRatio; o.ctx.setTransform(devicePixelRatio,0,0,devicePixelRatio,0,0); }
+}
+function afterCompare(){ for(const s of STRATS)layout(CT[s.id]);
+  let best=Infinity; for(const s of STRATS)best=Math.min(best,height(CT[s.id]));
+  for(const s of STRATS){ const t=CT[s.id]; const card=document.getElementById("cc-"+s.id); const h=height(t);
+    card.classList.toggle("win", keys.length>0 && h===best);
+    card.querySelector(".badge").textContent="h="+h;
+    card.querySelector(".cmpStats").innerHTML=`<span>height <b>${h}</b></span><span>nodes <b>${t._count}</b></span><span>rotations <b>${t.rotations}</b></span>`;
+  }
+}
+
+// ---------- render loop ----------
+function frame(){
+  if(compareMode){ for(const s of STRATS){ const o=cmpCanvases[s.id]; if(o) drawTree(CT[s.id],o.ctx,o.el.clientWidth,200,{maxR:12,strat:s.id}); } }
+  else drawTree(T,cx,cv.clientWidth,440,{});
+  requestAnimationFrame(frame);
+}
+
+// ---------- UI wiring ----------
+const seg=document.getElementById("stratSeg");
+STRATS.forEach((s,i)=>{ const b=document.createElement("button"); b.textContent=(i+1)+" "+s.name; b.dataset.id=s.id; if(i===0)b.classList.add("on"); b.onclick=()=>setStrat(s.id); seg.appendChild(b); });
+const cmpBtn=document.createElement("button"); cmpBtn.textContent="⊞ Compare all"; cmpBtn.className="cmp"; cmpBtn.id="cmpBtn"; cmpBtn.onclick=()=>setCompare(!compareMode); seg.appendChild(cmpBtn);
+const mseg=document.getElementById("morphSeg");
+STRATS.forEach(s=>{ const b=document.createElement("button"); b.textContent=s.id; b.dataset.id=s.id; b.onclick=()=>{ if(compareMode)setCompare(false); morphTo(s.id); refreshMetrics(); }; mseg.appendChild(b); });
+
+const keyIn=document.getElementById("keyIn");
+const rndKey=()=>Math.floor(Math.random()*100);
+document.getElementById("bIns").onclick=()=>{ doInsert(parseInt(keyIn.value)); };
+document.getElementById("bDel").onclick=()=>{ doDelete(parseInt(keyIn.value)); };
+document.getElementById("bSea").onclick=()=>{ doSearch(parseInt(keyIn.value)); };
+document.getElementById("bRand").onclick=()=>{ let k,g=0; do{k=rndKey();}while(keys.includes(k)&&g++<50); keyIn.value=k; doInsert(k); };
+document.getElementById("bRand10").onclick=()=>{ for(let i=0;i<10;i++){ let k,g=0; do{k=rndKey();}while(keys.includes(k)&&g++<50); doInsert(k);} };
+document.getElementById("bAsc").onclick=()=>{ doClear(); for(let i=1;i<=20;i++)doInsert(i); msg("inserted 1‥20 ascending — compare the shapes","var(--amber)"); };
+function doClear(){ keys=[]; if(compareMode){ for(const s of STRATS)CT[s.id]=makeTree(s.id); afterCompare(); } else { T=makeTree(curStrat); layout(T); refreshMetrics(); } msg("cleared"); }
+document.getElementById("bClear").onclick=doClear;
+document.getElementById("selK").oninput=refreshMetrics;
+document.getElementById("rnkK").oninput=refreshMetrics;
+keyIn.addEventListener("keydown",e=>{ if(e.key==="Enter")document.getElementById("bIns").click(); });
+addEventListener("keydown",e=>{
+  if(e.target.tagName==="INPUT")return;
+  if(e.key>="1"&&e.key<="4"){ setStrat(STRATS[+e.key-1].id); refreshMetrics(); }
+  else if(e.key==="5"){ setCompare(!compareMode); }
+  else if(e.key==="Enter"){ doInsert(parseInt(keyIn.value)); }
+  else if(e.key==="Delete"||e.key==="Backspace"){ doDelete(parseInt(keyIn.value)); }
+});
+
+// ---------- boot ----------
+fit();
+document.getElementById("stratDesc").innerHTML="<b>Red-Black.</b> "+STRATS[0].desc;
+[42,17,66,9,23,50,88,4,13,30,58,71,95].forEach(k=>{ if(insert(T,k))keys.push(k); });
+layout(T); refreshMetrics();
+requestAnimationFrame(frame);
+</script>
+</body>
+</html>

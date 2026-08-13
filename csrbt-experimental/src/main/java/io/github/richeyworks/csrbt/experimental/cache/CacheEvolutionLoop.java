@@ -252,6 +252,13 @@ public final class CacheEvolutionLoop {
                 int slot = nursery.indexOf(body);
                 nursery.set(slot, primary);                // the deposed primary joins the nursery
                 primary = body;                            // O(1) swap — promotion is a pointer
+                // The champion leaves the trial pool NOW, not at the next beginGeneration
+                // (bug audit 2026-08-12, C-4): onTrial still holding this body meant every
+                // lookup() between generations processed the primary twice — a fresh-key
+                // miss was recorded as miss+hit (hit rate floored near 50%), probation
+                // hits double-counted (promotion after half the genome's promoteAfter),
+                // and recency double-bumped.
+                onTrial.remove(body);
                 primaryGenome = winner;
                 opsSinceLastPromotion = 0;
                 winStreak = 0;
