@@ -106,7 +106,8 @@ public final class MorphController<K> {
         for (int i = 0; i < ranked.size(); i++) {
             StrategyScorer.Score s = ranked.get(i);
             if (i > 0) scores.append(", ");
-            scores.append(s.strategy()).append(':').append(String.format("%.4f", s.estimatedCost()));
+            scores.append(s.strategy()).append(':')
+                  .append(String.format(java.util.Locale.ROOT, "%.4f", s.estimatedCost()));   // B4: locale-safe
         }
         scores.append(']');
         logger.info("event=morph_eval {} scores={} decision={} from={} to={} morphed={} healthPassed={} buildNanos={}",

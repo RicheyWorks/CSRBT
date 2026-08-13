@@ -243,20 +243,27 @@ public class TreeEcology {
         if (root.isNil() || context.getSize() == 0) return 0.0;
 
         int    n    = context.getSize();
-        int    h    = root.getHeight();
+        // Measured height, not the cached one (bug audit 2026-08-12, E-1): only
+        // AVL/Hybrid maintain node height caches up the path, so under Red-Black/
+        // Splay/WB the cache is stale — a perfect 7-node RB tree reported h=2
+        // (true 3), driving efficiency and density above 1 and rKScore to 2.5+
+        // against its documented [-1, +1] range.
+        int    h    = measuredHeight(root);
         double logN = Math.log(n + 1) / Math.log(2);
 
-        // hMin = floor(log2(n+1)) for a perfect tree
-        double hMin = Math.floor(logN);
+        // hMin = ceil(log2(n+1)): the true minimum height for ANY n (floor is only
+        // right when n = 2^k − 1 and charged optimally-balanced trees imbalance).
+        double hMin = Math.ceil(logN);
         // hAVL ≈ 1.44·log2(n) — theoretical AVL worst case
         double hAVL = 1.44 * logN;
 
-        // Balance efficiency: 1.0 = perfect, 0.0 = maximally unbalanced
-        double efficiency = 1.0 - Math.min(1.0, (h - hMin) / Math.max(1, hAVL - hMin));
+        // Balance efficiency: 1.0 = perfect, 0.0 = maximally unbalanced (clamped).
+        double efficiency = 1.0
+                - Math.min(1.0, Math.max(0.0, h - hMin) / Math.max(1, hAVL - hMin));
 
-        // Density: actual nodes / theoretical maximum for this height
+        // Density: actual nodes / theoretical maximum for this height (clamped).
         double maxNodes = Math.pow(2, h) - 1;
-        double density  = n / maxNodes;
+        double density  = Math.min(1.0, n / maxNodes);
 
         // Evenness of subtree sizes (Shannon evenness repurposed)
         double evenness = shannonEvenness();
@@ -465,5 +472,27 @@ public class TreeEcology {
             if (ancestors.contains(y)) return y;
         }
         return context.getTree().getRoot();
+    }
+
+    /**
+     * Actual tree height by an iterative walk (nodes on the longest root-to-leaf path;
+     * single node = 1). Cached node heights are maintained only by the AVL/Hybrid
+     * strategies, so metrics must never trust them across strategies (E-1).
+     */
+    private static int measuredHeight(TreeNode1<Integer> root) {
+        if (root == null || root.isNil()) return 0;
+        Deque<TreeNode1<Integer>> nodes = new ArrayDeque<>();
+        Deque<Integer> depths = new ArrayDeque<>();
+        nodes.push(root);
+        depths.push(1);
+        int max = 0;
+        while (!nodes.isEmpty()) {
+            TreeNode1<Integer> n = nodes.pop();
+            int d = depths.pop();
+            if (d > max) max = d;
+            if (!n.getLeft().isNil())  { nodes.push(n.getLeft());  depths.push(d + 1); }
+            if (!n.getRight().isNil()) { nodes.push(n.getRight()); depths.push(d + 1); }
+        }
+        return max;
     }
 }

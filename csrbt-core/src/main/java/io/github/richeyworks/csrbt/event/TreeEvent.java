@@ -71,6 +71,9 @@ public sealed interface TreeEvent<K> {
      * through the MorphPolicy gates). {@code cost} is {@code NaN} where no score exists
      * (TRIED, and DISQUALIFIED before scoring).
      */
+    // pulls: the arm's pull count for V3 bandit trials; V4 population trials pass the
+    // GENERATION here instead — which is what the visualizer renders ("g<pulls>") and
+    // depends on. Documented rather than changed (bug audit 2026-08-12, B7).
     record Trial<K>(String arm, String phase, double cost, int pulls) implements TreeEvent<K> { }
 
     /**

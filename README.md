@@ -4,7 +4,7 @@
 [![license: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 [![Java 17](https://img.shields.io/badge/Java-17-orange.svg)](https://openjdk.org/projects/jdk/17/)
 [![build: Gradle](https://img.shields.io/badge/build-Gradle-02303A.svg)](https://gradle.org/)
-![version 0.1.0](https://img.shields.io/badge/version-0.1.0-informational.svg)
+![version 0.2.0](https://img.shields.io/badge/version-0.2.0-informational.svg)
 
 CSRBT is a Java ordered-set engine whose balancing strategy is pluggable and can
 adapt to the workload hitting it. A single, generic ordered-set API
@@ -32,7 +32,7 @@ through the `RankedSet` seam. A `NavigableSet` adapter (ADR-009) makes the whole
 a drop-in for `TreeSet` call sites. Adaptation decisions are observable end to end:
 structured events, JSON tree export, and a session recorder feed a zero-dependency
 visualizer (`demo/visualizer.html`) that **replays the controller's own decisions** —
-load `docs/arena-session.json` and watch it morph RB → Splay → RB on a live workload,
+load `docs/arena-session.json` and watch it morph RB → Hybrid → Splay → Hybrid on a live workload,
 or `docs/arena-search-session.json` and watch the evolution machine itself: genomes
 born, gate-killed, culled, and one promoted.
 **ADR-011, the evolution machine, is complete**: the strategy family gained its first
@@ -61,8 +61,9 @@ ADR-012 are all Accepted** (ADR-011's verdict:
 [`docs/CHANGELOG-2026-06-10-adr011-v5-experiment.md`](docs/CHANGELOG-2026-06-10-adr011-v5-experiment.md);
 ADR-012's disposition:
 [`docs/CHANGELOG-2026-06-11-adr012-disposition.md`](docs/CHANGELOG-2026-06-11-adr012-disposition.md)).
-The suite is **583 tests** (JUnit 5 + jqwik properties), green through
-`./gradlew build`, run by CI on JDK 17 and 21 (ADR-013).
+The suite is **806 tests** (JUnit 5 + jqwik properties), green through
+`./gradlew build`, run by CI on JDK 17 and 21 (ADR-013) — including the 2026-08-12
+hardening day's probe tests, every one shown failing before its fix counted.
 
 ## Architecture
 
@@ -252,22 +253,30 @@ navigable.subSet("apple", true, "pear", false);   // live, read-only range view
   inserts, deletes, rotations, and strategy morphs; `size()` is O(1) off the same
   augment (ADR-009 P1).
 - **`NavigableSet` adapter** — `NavigableOrderedSet<K>` is a drop-in for `TreeSet`
-  call sites: floor/ceiling/higher/lower ride the rank machinery in O(log n), range
-  and descending views are live and compose, and view mutators refuse loudly rather
-  than rot quietly (ADR-009 P2).
+  call sites: floor/ceiling/higher/lower are native single-descent primitives on
+  `OrderedSet` itself, each answered in ONE guarded acquisition (ADR-021 — atomic
+  under the concurrent-read model, where the old count-then-select composition could
+  answer wrong under a racing writer); range and descending views are live and
+  compose, and view mutators refuse loudly rather than rot quietly (ADR-009 P2).
 - **Interval queries** — overlap and stabbing queries via a pluggable interval
   augmentor; tags survive morphs and snapshots.
 - **Sliding-window / bounded set** — optional capacity (`setMaxSize`) that evicts
   the oldest-inserted key first, with order statistics kept exact on the
   survivors (streaming-percentile use case).
 - **Undo / redo + checkpoints** — O(1)-per-op inverse-command history with named
-  save points.
+  save points; a window-evicting add records its victim, so undo restores the
+  evicted key too (2026-08-12 consolidation).
 - **Persistence** — human-readable text snapshots (no Java serialization) over any key
   type through a pluggable `KeySerializer<K>` (`OrderedSet<K>` snapshots via
   `saveSnapshot`/`loadOrderedSet`; the `int` `TreeContext` path is the built-in
-  `KeySerializer.INTEGER`, byte-identical to the legacy format).
+  `KeySerializer.INTEGER`, byte-identical to the legacy format). Hardened
+  2026-08-12: saves are atomic (temp file + rename — a failed save leaves the
+  previous snapshot intact), a truncated file is refused by the header size rather
+  than loaded as a smaller tree, and string keys with control characters round-trip.
 - **Diagnostics & evolution** — red-black validity checks, self-repair, workload
-  scoring, and head-to-head strategy benchmarking.
+  scoring, and head-to-head strategy benchmarking (realized-depth scoring, warmed
+  median-of-3 timing, and searches through each strategy's own path so Splay
+  actually splays — ADR-022).
 - **Adaptive control plane** — an O(1)-per-op workload monitor, a transparent cost-model
   strategy scorer, an anti-thrash morph policy, and the `MorphController` that runs them on
   a cadence and drives the health-gated `setStrategy`. As of ADR-002 step 6 Phase D this is
@@ -426,7 +435,9 @@ Run the full suite after any change to the engine or strategies. CI runs the sam
 `StampedLock`; public reads are **torn-read-free** — `contains`/`inOrder` run optimistically
 with a step-bounded walk and are discarded unless the stamp validates, order statistics hold
 the shared read lock, and facade reads never splay (Splay's move-to-root adaptivity lives on
-the write path). Reads are safe, not lock-free — a read overlapping a write may briefly take
+the write path). Navigation (`floor`/`ceiling`/`lower`/`higher`, `countUpTo`,
+`countBetween`) is **atomic per call** — one descent under one guarded acquisition
+(ADR-021), so a racing writer can never slip between the pieces of an answer. Reads are safe, not lock-free — a read overlapping a write may briefly take
 the shared lock; when reads must be wait-free, reach for the ensemble's `READ_REPLICA` mode
 (ADR-004 R2) or the persistent engine (ADR-005), both below. Accessors such as
 `getTree()`/`getEngine()` still expose live internal structure that bypasses the guard — they
@@ -652,11 +663,67 @@ held for two months fired on 2026-07-18, and the module now publishes alongside 
 (`./gradlew publishToMavenLocal`). Engine selection history:
 [`SuperBeefSort/docs/adr-fifth-engine-candidates.md`](https://github.com/RicheyWorks/SuperBeefSort/blob/main/docs/adr-fifth-engine-candidates.md).
 
+## The ecology layer (2026-08)
+
+The experimental module now carries a full community-ecology instrument suite over the
+engine family — standard field-course models, applied where each engine's structure
+genuinely carries them. Keys are species, access frequency is abundance, time is counted
+in operations, and every index is oracle-tested and deterministic.
+
+| Instrument | Model | Over |
+|---|---|---|
+| `EcologyRecorder` | abundance / demography / growth recording | any engine's op stream |
+| `CommunityMetrics` | Shannon, Simpson, Hill numbers, rank-abundance fits, Chao1, rarefaction | any abundance distribution |
+| `BetaDiversity` | Jaccard, Sørensen, Bray-Curtis, Renkonen, Pianka, Whittaker | windows, communities, generations |
+| `LifeTable` / `LogisticGrowth` | Deevey survivorship, Verhulst growth | key lifespans, population series |
+| `EnsembleCommunity` | Levins metapopulation | ensemble members as patches |
+| `SnapshotLineage` | descent with modification | persistent-engine snapshots as strata |
+| `RangeQuadrats` | quadrat dispersion (Morisita) | any engine's key space |
+| `CacheIsland` | island biogeography | the cache at carrying capacity |
+
+Three ways in: **`./gradlew ecologyFieldDay`** runs a narrated six-station survey and
+feeds the interactive lab page (`docs/ecology-lab.html` — live terrarium included);
+**`./gradlew ecologyTrace -Ptrace=your.csv`** replays *your own workload* through the
+same instruments (`op,key` per line — see `docs/sample-trace.csv`); and
+`docs/ECOLOGY-FIELD-GUIDE.md` is the plain-language walkthrough.
+
+The layer has already earned findings in the house tradition: the founding audit showed
+the old structural indices were provably constant (H' ≡ ln S, subtree Pianka ≡ 0 — the
+BST invariant itself; `docs/AUDIT-2026-08-09-ecology-module.md`), and the pre-registered
+early-warning experiment (`EarlyWarningExperimentTest`) shows window turnover detects
+abrupt workload shifts at lag 0 with zero false positives, and baseline displacement
+(1 − Renkonen) warns of gradual drift ~5 windows before the new regime establishes —
+the perception seam ADR-012's re-arming triggers were waiting for. ADR-018 then closed
+the loop: an EWS-triggered morpher raced against best-fixed across block lengths puts
+the **amortization frontier at B\* ≈ 128k-op regime blocks** (2.24× worse at 2k —
+E3c stands — monotone to a ~1% win at 256k), giving re-arming trigger #1 its number.
+Provenance: ADR-015 through ADR-020 and the 2026-08-09/10 changelogs.
+
 ## Design history
 
 **Design & direction**
 - [`docs/DESIGN-adaptive-engine.md`](docs/DESIGN-adaptive-engine.md) — the target
   architecture: two-plane design, control loop, and acceptance goals (G1–G9).
+- **2026-08-12 — the hardening day**: five adversarial audit passes over every
+  subsystem, 26 probe-verified fixes (every defect shown failing before its fix
+  counted), two ADRs fired from the findings, and the canonical replay artifacts
+  regenerated byte-reproducibly. The audits:
+  [`model-domain`](docs/AUDIT-2026-08-12-model-domain.md) (classroom theory bench +
+  EcologyRecorder bounds), [`deep-sweep`](docs/AUDIT-2026-08-12-deep-sweep.md)
+  (persistence, health gate, cloner, API surface),
+  [`fourth-pass`](docs/AUDIT-2026-08-12-fourth-pass.md) (ensemble resilience, the
+  evolution machine's graveyard, genome-controller metrics), plus the
+  [`consolidation`](docs/CHANGELOG-2026-08-12-consolidation.md) and
+  [`ADR-021/022`](docs/CHANGELOG-2026-08-12-adr021-adr022.md) changelogs.
+- [`docs/ADR-022-battle-methodology-2026-08-12.md`](docs/ADR-022-battle-methodology-2026-08-12.md)
+  — **Accepted, decided same day**: the battle runner benchmarks what it claims —
+  realized search depth, the strategy's own search path, warmed median timing; the
+  rotation score term removed once the live meter (T-1) showed it double-charging
+  self-adjustment. Historical tournament rankings do not carry over.
+- [`docs/ADR-021-atomic-navigation-2026-08-12.md`](docs/ADR-021-atomic-navigation-2026-08-12.md)
+  — **Accepted**: navigation as single-acquisition primitives on `OrderedSet`; the
+  `NavigableSet` adapter rebased on them, closing the multi-epoch composition race
+  (deep-sweep finding D-1).
 - [`docs/ADR-012-ecology-turn-2026-06-10.md`](docs/ADR-012-ecology-turn-2026-06-10.md)
   — **Accepted (disposition 2026-06-11)**: the ecology turn — the non-stationary axis
   V5 never tested, instruments before mechanisms, honest scope (general principles of

@@ -1,0 +1,10 @@
+cross,phenotype,expectedRatioPart
+Rr x Rr,R_,3
+Rr x Rr,rr,1
+Bb x Bb,BB,1
+Bb x Bb,Bb,2
+Bb x Bb,bb,1
+RrPp x RrPp,R_P_,9
+RrPp x RrPp,R_pp,3
+RrPp x RrPp,rrP_,3
+RrPp x RrPp,rrpp,1

@@ -1,0 +1,55 @@
+# ── Sample classroom experiment ───────────────────────────────────────────────
+# Run me:   ./gradlew ecologyExperiment
+# Or yours: ./gradlew ecologyExperiment -Pspec=path/to/your.eco
+# Then drop docs/ecology-experiment-session.json onto docs/ecology-lab.html.
+
+name: meadow disturbance study
+keys: 100
+seed: 42
+window: 250
+
+# The story: even grazing, then a bloom concentrates traffic, then seasonal churn.
+phase: graze   uniform 2000
+phase: bloom   hot 2000 5 90
+phase: seasons churn 1500 55
+
+# Abiotic setup — a small, somewhat isolated pond with helpful wind.
+factor: area 0.5
+factor: wind 1.3
+factor: distance 0.8
+
+# Theory bench (factors above are applied to rates and capacities).
+model: logistic 0.15 120 5 60
+model: island 0.4 0.1 100 0 40
+model: competition 0.4 100 0.4 80 0.7 1.1 5 5 80
+model: hardyweinberg 298 489 213
+model: eulerlotka 1.0:0 0.8:1.5 0.5:2.0 0.2:1.0
+model: markrecapture 120 90 30       # the bean lab: marked, caught, recaptured
+
+# Entered field data — your own observations, graded by the same instruments.
+# name=count, or bare names that tally like clipboard marks (great for ethograms).
+data: pondA cattail=18 duckweed=44 frogbit=3 azolla=9 rush=6
+data: pondB duckweed=51 azolla=2 lily=12 rush=6
+data: coop  peck peck peck flap strut peck dustbathe flap
+
+# Field notebook — qualitative observations travel with the run.
+note: sampled both ponds after two dry weeks
+note(bloom): five keys took nearly all the traffic, as designed
+note(coop): tallied one hen for ten minutes before feeding
+
+# Tree thinking — a phylogeny in standard Newick, drawn and counted.
+tree: pondlife (Porifera,(Cnidaria,((Mollusca,Annelida),(Arthropoda,(Echinodermata,Chordata)))));
+
+# The famous crosses.
+cross: Rr x Rr observed 5474 1850    # Mendel's seed shape (his actual 1866 counts)
+cross: Bb x Bb incomplete            # blue Andalusian chickens: 1:2:1, not 3:1
+cross: RrPp x RrPp                   # chicken combs: walnut/rose/pea/single
+
+# Hypotheses — written BEFORE the run; the runner grades them.
+expect: evenness(graze) > 0.9
+expect: hill1(bloom) < 20
+expect: brayCurtis(graze, bloom) > 0.5
+expect: evenness(bloom) > 0.9        # deliberately wrong — see what REFUTED looks like
+expect: jaccard(pondA, pondB) <= 0.5 # entered data grades exactly like phases
+expect: evenness(bloom) is uneven    # qualitative — graded against the report's bands
+expect: survivorship is type3        # the census's Deevey type, in words

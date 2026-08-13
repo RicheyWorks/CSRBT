@@ -262,6 +262,50 @@ public class HybridStrategy<K> implements TreeStrategy<K> {
         deleteCount = 0;
     }
 
+    // ── Policy identity + invariant (bug audit 2026-08-12, C-2 / H-2) ─────────
+
+    /**
+     * Hybrid is parameterized by {@code depthThreshold}, so policy identity must
+     * compare it — exactly the trap {@link TreeStrategy#samePolicyAs}'s javadoc
+     * names (class identity alone made {@code Hybrid(4) → Hybrid(64)} a silent
+     * no-op and refused a real re-parameterizing morph).
+     */
+    @Override
+    public boolean samePolicyAs(TreeStrategy<K> other) {
+        return other instanceof HybridStrategy<?> h && h.depthThreshold == depthThreshold;
+    }
+
+    /**
+     * Hybrid's own structural invariant: |balance factor| &le; 1 at depths within
+     * {@code depthThreshold}, &le; 2 below it — the documented relaxation. The
+     * generic health gate used to demand strict AVL balance from every Hybrid,
+     * so a finite-threshold Hybrid with legitimate |bf| = 2 nodes was permanently
+     * "unhealthy" (every selfRepair paid a futile O(n) rebuild and reported
+     * FAILURE). Heights are recomputed here, not read from the cache.
+     */
+    @Override
+    public java.util.List<String> validateInvariant(MutableTree<K> tree) {
+        java.util.List<String> failures = new java.util.ArrayList<>();
+        TreeNode1<K> root = tree.getRoot();
+        if (root == null || root.isNil()) return failures;
+        checkBalance(root, failures);
+        return failures;
+    }
+
+    /** Post-order: returns actual height; appends a failure per out-of-tolerance node. */
+    private int checkBalance(TreeNode1<K> n, java.util.List<String> failures) {
+        if (n.isNil()) return 0;
+        int lh = checkBalance(n.getLeft(), failures);
+        int rh = checkBalance(n.getRight(), failures);
+        int bf = lh - rh;
+        int tolerance = (n.depth() <= depthThreshold) ? 1 : 2;
+        if (Math.abs(bf) > tolerance && failures.size() < 8) {
+            failures.add("hybrid balance: node " + n.getData() + " |bf|=" + Math.abs(bf)
+                    + " exceeds tolerance " + tolerance + " at depth " + n.depth());
+        }
+        return Math.max(lh, rh) + 1;
+    }
+
     // ── Accessors for live counters (no snapshot needed) ──────────────────────
 
     public int getAvlRotationCount() { return avlRotationCount; }

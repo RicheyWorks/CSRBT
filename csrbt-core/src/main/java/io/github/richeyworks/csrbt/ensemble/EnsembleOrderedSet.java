@@ -495,6 +495,13 @@ public final class EnsembleOrderedSet<K> implements OrderedCollection<K>, AutoCl
             }
 
             if (failures == recipients.size()) {
+                // Quarantine the failed non-primaries BEFORE throwing (bug audit
+                // 2026-08-12, E-D): a member that threw mid-write may be half-applied,
+                // and leaving it ACTIVE is silent permanent divergence — the exact fault
+                // class the quarantine loop below exists for, which this throw used to
+                // skip. The primary cannot be quarantined; its own half-applied risk is
+                // bounded by the next health check / vote.
+                quarantineFailedRecipients(recipients, outcomes, op);
                 Throwable cause = outcomes.isEmpty() ? null : outcomes.get(0).cause();
                 throw new IllegalStateException(op + " failed on every recipient member; write did not commit", cause);
             }
@@ -511,6 +518,9 @@ public final class EnsembleOrderedSet<K> implements OrderedCollection<K>, AutoCl
                     }
                 }
                 if (replacement == null) {
+                    // Same discipline as the total-failure path (E-D): flag the failed
+                    // non-primaries before throwing.
+                    quarantineFailedRecipients(recipients, outcomes, op);
                     Throwable cause = null;
                     for (int i = 0; i < recipients.size(); i++) {
                         if (recipients.get(i) == servingPrimary) { cause = outcomes.get(i).cause(); break; }
@@ -877,10 +887,27 @@ public final class EnsembleOrderedSet<K> implements OrderedCollection<K>, AutoCl
     @Override
     public void close() { executor.shutdown(); }
 
+    /** Quarantine every failed non-primary recipient (E-D helper; caller holds the write lock). */
+    private void quarantineFailedRecipients(List<EnsembleMember<K>> recipients,
+                                            List<MemberExecutor.Outcome> outcomes, String op) {
+        for (int i = 0; i < recipients.size(); i++) {
+            if (!outcomes.get(i).failed()) continue;
+            EnsembleMember<K> failed = recipients.get(i);
+            if (failed == primary) continue;                     // the primary cannot be quarantined
+            if (failed.state() == EnsembleMember.State.ACTIVE) {
+                failed.setState(EnsembleMember.State.QUARANTINED);
+                if (events != null) emit(new TreeEvent.Quarantine<>(failed.strategyName()));
+            }
+        }
+    }
+
     @Override
     public String toString() {
+        // primary.set().size() directly — size() routes through read()/vote() in VERIFIED
+        // mode, and a diagnostic string must never run a vote or quarantine members
+        // (bug audit 2026-08-12, E-E).
         return "EnsembleOrderedSet[primary=" + primary.strategyName()
-                + ", members=" + members.size() + ", n=" + size() + ", mode=" + mode
+                + ", members=" + members.size() + ", n=" + primary.set().size() + ", mode=" + mode
                 + (mode == EnsembleMode.VERIFIED && verifyEvery > 1
                         ? ", verifyEvery=" + verifyEvery : "")
                 + "]";
@@ -907,6 +934,7 @@ public final class EnsembleOrderedSet<K> implements OrderedCollection<K>, AutoCl
                 throw new IllegalStateException("cannot quarantine the serving primary; fail over first");
             }
             if (member.state() == EnsembleMember.State.RETIRED) return false;
+            if (member.state() == EnsembleMember.State.QUARANTINED) return false;   // idempotent (E-F)
             member.setState(EnsembleMember.State.QUARANTINED);
             if (events != null) emit(new TreeEvent.Quarantine<>(member.strategyName()));
             return true;
@@ -1027,18 +1055,52 @@ public final class EnsembleOrderedSet<K> implements OrderedCollection<K>, AutoCl
      * escalates to {@link #voteLocked}, where no write can be concurrent, skew is therefore
      * impossible, and dissent is genuine. All quarantine/failover decisions live only there.
      */
+    /**
+     * A member's "answer" when the query THREW on it (bug audit 2026-08-12, E-A): a
+     * divergent member can make an order-statistics query throw ({@code rank} of a key
+     * it silently lost, {@code select} past its smaller size) instead of returning a
+     * wrong value. The vote used to let that exception propagate to the caller — the
+     * 2/3 healthy majority was never consulted, and the dissenter stayed ACTIVE — so
+     * the fault-masking VERIFIED exists for failed exactly when the divergence was
+     * loudest. Wrapping the throw as a first-class answer lets a lone thrower be
+     * outvoted and quarantined like any other dissenter; if the MAJORITY throws, the
+     * majority's exception is the answer and is rethrown. Equality is by exception
+     * class — the tally's notion of "the same answer".
+     */
+    private static final class Thrown {
+        final RuntimeException cause;
+        Thrown(RuntimeException cause) { this.cause = cause; }
+        @Override public boolean equals(Object o) {
+            return o instanceof Thrown t && t.cause.getClass() == cause.getClass();
+        }
+        @Override public int hashCode() { return cause.getClass().hashCode(); }
+    }
+
+    private <R> Object applyOrThrown(Function<RankedSet<K>, R> fn, RankedSet<K> set) {
+        try {
+            return fn.apply(set);
+        } catch (RuntimeException e) {
+            return new Thrown(e);
+        }
+    }
+
     private <R> R vote(Function<RankedSet<K>, R> fn) {
         if (optimisticVotesOverride != null ? optimisticVotesOverride : OPTIMISTIC_VOTES) {
-            R first = null;
+            Object first = null;
             int voters = 0;
             boolean unanimous = true;
             for (EnsembleMember<K> m : members) {
                 if (!m.isActive() || !m.isExact()) continue;   // volatile reads; a stale view only causes escalation
-                R a = fn.apply(m.set());
+                Object a = applyOrThrown(fn, m.set());
                 if (voters++ == 0) first = a;
                 else if (!Objects.equals(first, a)) { unanimous = false; break; }
             }
-            if (unanimous && voters > 0) return first;   // the common, healthy case — lock-free
+            if (unanimous && voters > 0 && !(first instanceof Thrown)) {
+                @SuppressWarnings("unchecked")
+                R r = (R) first;
+                return r;   // the common, healthy case — lock-free
+            }
+            // A throw anywhere escalates: adjudicate (and quarantine) under the lock.
         }
         return voteLocked(fn);
     }
@@ -1046,18 +1108,18 @@ public final class EnsembleOrderedSet<K> implements OrderedCollection<K>, AutoCl
     private <R> R voteLocked(Function<RankedSet<K>, R> fn) {
         synchronized (writeLock) {
             List<EnsembleMember<K>> voters = new ArrayList<>();
-            List<R> answers = new ArrayList<>();
+            List<Object> answers = new ArrayList<>();
             for (EnsembleMember<K> m : members) {
                 if (!m.isActive() || !m.isExact()) continue;   // a sampled shadow can never vote (E5)
                 voters.add(m);
-                answers.add(fn.apply(m.set()));
+                answers.add(applyOrThrown(fn, m.set()));
             }
             if (voters.isEmpty()) return fn.apply(primary.set());
 
             // Tally distinct answers (equals-based; answers may be null, e.g. minimum() on empty).
-            List<R> distinct = new ArrayList<>();
+            List<Object> distinct = new ArrayList<>();
             List<Integer> counts = new ArrayList<>();
-            for (R a : answers) {
+            for (Object a : answers) {
                 int idx = -1;
                 for (int j = 0; j < distinct.size(); j++) {
                     if (Objects.equals(distinct.get(j), a)) { idx = j; break; }
@@ -1076,7 +1138,7 @@ public final class EnsembleOrderedSet<K> implements OrderedCollection<K>, AutoCl
             if (!decisive) {
                 return fn.apply(primary.set());   // no majority -> cannot adjudicate; serve the primary
             }
-            R winner = distinct.get(topIdx);
+            Object winner = distinct.get(topIdx);
 
             // Identify dissenters; fail over first if the primary itself dissents.
             List<EnsembleMember<K>> dissenters = new ArrayList<>();
@@ -1087,7 +1149,7 @@ public final class EnsembleOrderedSet<K> implements OrderedCollection<K>, AutoCl
                     if (voters.get(i) == primary) primaryDissents = true;
                 }
             }
-            if (dissenters.isEmpty()) return winner;   // unanimous -- the common, healthy case
+            if (dissenters.isEmpty()) return unwrap(winner);   // unanimous -- the common, healthy case
 
             if (primaryDissents) {
                 for (int i = 0; i < voters.size(); i++) {
@@ -1115,7 +1177,15 @@ public final class EnsembleOrderedSet<K> implements OrderedCollection<K>, AutoCl
             q.append(']');
             logger.warn("event=verified_dissent winnerVotes={} of {} quarantined={} failedOver={}",
                     topCount, voters.size(), q, primaryDissents);
-            return winner;
+            return unwrap(winner);
         }
+    }
+
+    /** The majority's answer — or, if the majority THREW, the majority's exception (E-A). */
+    private static <R> R unwrap(Object winner) {
+        if (winner instanceof Thrown t) throw t.cause;
+        @SuppressWarnings("unchecked")
+        R r = (R) winner;
+        return r;
     }
 }

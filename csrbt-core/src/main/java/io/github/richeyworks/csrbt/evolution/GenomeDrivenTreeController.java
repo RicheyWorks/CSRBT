@@ -2,6 +2,7 @@ package io.github.richeyworks.csrbt.evolution;
 
 import io.github.richeyworks.csrbt.TreeContext;
 import io.github.richeyworks.csrbt.TreeEngineRegistry;
+import io.github.richeyworks.csrbt.TreeNode1;
 import io.github.richeyworks.csrbt.strategy.*;
 import io.github.richeyworks.csrbt.control.RollingWorkloadMonitor;
 import io.github.richeyworks.csrbt.control.WorkloadMonitor;
@@ -149,7 +150,12 @@ public class GenomeDrivenTreeController {
         if (controlPolicy == null) throw new IllegalArgumentException("controlPolicy cannot be null");
         this.context            = context;
         this.genome             = genome;
-        this.activeStrategyType = genome.getPreferredStructure();
+        // The incumbent is what the TREE runs, not what the genome wishes (bug audit
+        // 2026-08-12, G-B): initializing from the genome's preference meant a
+        // genome/context mismatch (reachable via breedWith) reported the preferred
+        // strategy as "active", every evaluation saw best == current, and the tree was
+        // never morphed to the strategy the controller believed was running.
+        this.activeStrategyType = inferStructureType(context);
         this.morphController = new MorphController<>(
                 context, workloadMonitor, new CostModelStrategyScorer(), controlPolicy);
 
@@ -386,7 +392,7 @@ public class GenomeDrivenTreeController {
         int n = context.getSize();
         if (n == 0) return;
 
-        int actualHeight = context.getTree().getRoot().getHeight();
+        int actualHeight = measuredHeight();   // G-D: never trust the cached height
         double avgDepth  = actualHeight == 0 ? 0.0 : (double) actualHeight / Math.max(1, log2ceil(n));
 
         int rotDelta = Math.max(0, context.getRotationCount() - rotationsAtLastWindow);
@@ -411,13 +417,24 @@ public class GenomeDrivenTreeController {
     private double computeEntropy() {
         if (windowFill < 2) return 0.5;
 
+        // Bucket by the window's OBSERVED key range, not the absolute int range (bug
+        // audit 2026-08-12, G-A): with 2^32/8 ≈ 5.4e8-wide absolute buckets, every
+        // realistic workload — uniform-random in [0, 1e6) and a single hot key alike —
+        // landed in bucket 0 and read entropy 0.0, blinding the Splay locality signal
+        // this metric is documented as ("the primary signal for Splay preference").
         final int BUCKETS = 8;
-        int[] counts = new int[BUCKETS];
-        long range   = (long) Integer.MAX_VALUE - Integer.MIN_VALUE;
-
+        long min = Long.MAX_VALUE, max = Long.MIN_VALUE;
         for (int i = 0; i < windowFill; i++) {
-            long shifted = (long) recentValues[i] - Integer.MIN_VALUE;
-            int  bucket  = (int) Math.min(BUCKETS - 1, (shifted * BUCKETS) / range);
+            min = Math.min(min, recentValues[i]);
+            max = Math.max(max, recentValues[i]);
+        }
+        long span = max - min + 1;
+        if (span <= 1) return 0.0;   // one distinct key: genuinely zero entropy
+
+        int[] counts = new int[BUCKETS];
+        for (int i = 0; i < windowFill; i++) {
+            long shifted = (long) recentValues[i] - min;
+            int  bucket  = (int) Math.min(BUCKETS - 1, (shifted * BUCKETS) / span);
             counts[bucket]++;
         }
 
@@ -435,7 +452,7 @@ public class GenomeDrivenTreeController {
     private double computeFragmentation() {
         int n = context.getSize();
         if (n < 2) return 0.0;
-        int actualHeight = context.getTree().getRoot().getHeight();
+        int actualHeight = measuredHeight();   // G-D: never trust the cached height
         if (actualHeight == 0) return 0.0;
         double idealHeight = log2ceil(n);
         return Math.max(0.0, Math.min(1.0, 1.0 - (idealHeight / actualHeight)));
@@ -443,7 +460,9 @@ public class GenomeDrivenTreeController {
 
     // ── Access window ─────────────────────────────────────────────────────────
 
-    /** Records any access (insert, search, or delete target) into rolling window. */
+    /** Records an access (insert or search) into the rolling window. Deletes do NOT
+     *  feed the window — the entropy signal reads insert/search locality only (doc
+     *  drift noted in the 2026-08-12 fourth-pass audit; behavior unchanged). */
     private void recordAccess(int value) {
         recentValues[windowHead] = value;
         windowHead = (windowHead + 1) % WINDOW_SIZE;
@@ -546,6 +565,41 @@ public class GenomeDrivenTreeController {
             case "HybridStrategy" -> TreeGenome.hybridGenome();
             default               -> TreeGenome.redBlackGenome();
         };
+    }
+
+    /** The installed strategy's structure type — the honest incumbent (G-B). */
+    private static TreeGenome.StructureType inferStructureType(TreeContext context) {
+        return switch (context.getTree().getStrategy().getClass().getSimpleName()) {
+            case "AVLStrategy"    -> TreeGenome.StructureType.AVL;
+            case "SplayStrategy"  -> TreeGenome.StructureType.SPLAY;
+            case "HybridStrategy" -> TreeGenome.StructureType.HYBRID;
+            default               -> TreeGenome.StructureType.RED_BLACK;
+        };
+    }
+
+    /**
+     * Actual tree height by an iterative walk (single node = 1). Cached node heights
+     * are maintained only by AVL/Hybrid — under Red-Black/Splay/WB they go stale, the
+     * bug class already confirmed in {@code TreeEcology.rKScore} (bug audit 2026-08-12,
+     * G-D): a 500-key sequential RB tree cached height 9 against a real 15, reading
+     * fragmentation 0.0 and biasing performance memory toward RB.
+     */
+    private int measuredHeight() {
+        TreeNode1<Integer> root = context.getTree().getRoot();
+        if (root == null || root.isNil()) return 0;
+        java.util.ArrayDeque<TreeNode1<Integer>> nodes = new java.util.ArrayDeque<>();
+        java.util.ArrayDeque<Integer> depths = new java.util.ArrayDeque<>();
+        nodes.push(root);
+        depths.push(1);
+        int max = 0;
+        while (!nodes.isEmpty()) {
+            TreeNode1<Integer> n = nodes.pop();
+            int d = depths.pop();
+            if (d > max) max = d;
+            if (!n.getLeft().isNil())  { nodes.push(n.getLeft());  depths.push(d + 1); }
+            if (!n.getRight().isNil()) { nodes.push(n.getRight()); depths.push(d + 1); }
+        }
+        return max;
     }
 
     // ── Helpers ───────────────────────────────────────────────────────────────
@@ -656,7 +710,10 @@ public class GenomeDrivenTreeController {
     /** The control-plane workload monitor fed by every op (observation-only in D3). */
     public WorkloadMonitor getWorkloadMonitor() { return workloadMonitor; }
 
-    /** Toggle the control-plane re-point (ADR-002 step 6 Phase D). Default OFF. */
+    /** Toggle the control-plane re-point (ADR-002 step 6 Phase D). Default ON —
+     *  the field and its pinning test agree; this doc used to say OFF (drift noted
+     *  in the 2026-08-12 fourth-pass audit). Turn OFF to use the legacy
+     *  genome-metrics path (stress/entropy/fragmentation). */
     public void    setUseControlPlane(boolean on) { this.useControlPlane = on; }
     public boolean isUseControlPlane()            { return useControlPlane; }
 }

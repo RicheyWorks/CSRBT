@@ -38,8 +38,20 @@ public final class TreeExport {
 
     private TreeExport() { }
 
-    /** Render the set's current state as JSON per the class schema. */
+    /** Render the set's current state as JSON per the class schema (live meters included). */
     public static <K> String toJson(OrderedSet<K> set) {
+        return toJson(set, true);
+    }
+
+    /**
+     * As {@link #toJson(OrderedSet)}, with the wall-clock meters optionally zeroed
+     * (B3, consolidation 2026-08-12): the meters were the ONLY nondeterministic bytes
+     * in an otherwise fully deterministic recorded session, so regenerating a canonical
+     * replay file always produced spurious VCS diffs and defeated byte-level
+     * verification. {@link TreeSessionRecorder} passes {@code false}; zeros keep the
+     * schema intact for the visualizer.
+     */
+    public static <K> String toJson(OrderedSet<K> set, boolean includeMeters) {
         Objects.requireNonNull(set, "set cannot be null");
         StringBuilder sb = new StringBuilder(256);
         sb.append("{\n");
@@ -48,8 +60,10 @@ public final class TreeExport {
         sb.append("  \"size\": ").append(set.size()).append(",\n");
         TreeNode1<K> root = set.getEngine().getRoot();
         sb.append("  \"height\": ").append(depthOf(root)).append(",\n");
-        sb.append("  \"meters\": { \"avgInsertMs\": ").append(round(set.avgInsertTimeMs()))
-          .append(", \"avgDeleteMs\": ").append(round(set.avgDeleteTimeMs())).append(" },\n");
+        sb.append("  \"meters\": { \"avgInsertMs\": ")
+          .append(includeMeters ? round(set.avgInsertTimeMs()) : "0")
+          .append(", \"avgDeleteMs\": ")
+          .append(includeMeters ? round(set.avgDeleteTimeMs()) : "0").append(" },\n");
         sb.append("  \"root\": ");
         node(sb, root, 1, 1);
         sb.append("\n}");

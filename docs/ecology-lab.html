@@ -1,0 +1,1596 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Ecology Field Day — CSRBT Living-Systems Lab</title>
+<style>
+  /* ── tokens (validated dark palette; see docs/ECOLOGY-FIELD-GUIDE.md) ────── */
+  :root {
+    color-scheme: dark;
+    --page:       #0d0d0d;
+    --surface-1:  #1a1a19;
+    --ink:        #ffffff;
+    --ink-2:      #c3c2b7;
+    --muted:      #898781;
+    --grid:       #2c2c2a;
+    --baseline:   #383835;
+    --ring:       rgba(255,255,255,0.10);
+    --s1: #3987e5;   /* series 1 — blue   */
+    --s2: #d95926;   /* series 2 — orange */
+    --s3: #199e70;   /* series 3 — aqua   */
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; background: var(--page); color: var(--ink);
+    font: 15px/1.5 system-ui, -apple-system, "Segoe UI", sans-serif;
+  }
+  header { max-width: 1060px; margin: 0 auto; padding: 40px 20px 8px; }
+  h1 { font-size: 28px; margin: 0 0 4px; letter-spacing: -0.02em; }
+  .sub { color: var(--ink-2); margin: 0 0 10px; }
+  .drophint {
+    display: inline-flex; gap: 8px; align-items: center; font-size: 13px;
+    color: var(--muted); border: 1px dashed var(--baseline); border-radius: 999px;
+    padding: 4px 14px; margin-top: 6px;
+  }
+  body.dragging .drophint { border-color: var(--s1); color: var(--s1); }
+  main { max-width: 1060px; margin: 0 auto; padding: 12px 20px 80px; display: grid; gap: 18px; }
+  .card {
+    background: var(--surface-1); border: 1px solid var(--ring); border-radius: 16px;
+    padding: 20px 22px 16px;
+  }
+  .card h2 { font-size: 17px; margin: 0 0 2px; }
+  .card .whatis { color: var(--muted); font-size: 13px; margin: 0 0 12px; }
+  .reading { color: var(--ink-2); font-size: 14px; margin: 10px 0 4px; }
+  .reading b { color: var(--ink); font-weight: 600; }
+  .tiles { display: flex; flex-wrap: wrap; gap: 10px; margin: 12px 0 4px; }
+  .tile {
+    background: var(--page); border: 1px solid var(--ring); border-radius: 12px;
+    padding: 8px 14px; min-width: 110px;
+  }
+  .tile .v { font-size: 22px; font-weight: 650; }
+  .tile .l { font-size: 12px; color: var(--muted); }
+  .chip {
+    display: inline-block; font-size: 12px; border-radius: 999px; padding: 2px 10px;
+    border: 1px solid var(--ring); color: var(--ink-2); margin-left: 6px; vertical-align: 2px;
+  }
+  .legend { display: flex; gap: 16px; font-size: 13px; color: var(--ink-2); margin: 6px 2px; }
+  .legend .sw { display: inline-block; width: 10px; height: 10px; border-radius: 3px; margin-right: 6px; }
+  .facets { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+  @media (max-width: 760px) { .facets { grid-template-columns: 1fr; } }
+  .facet h3, .h3 { font-size: 13px; color: var(--ink-2); font-weight: 600; margin: 8px 0 2px; }
+  .controls { display: flex; flex-wrap: wrap; gap: 18px; margin: 8px 0 6px; }
+  .controls label { font-size: 13px; color: var(--ink-2); display: flex; flex-direction: column; gap: 2px; }
+  .controls output { color: var(--ink); font-weight: 600; }
+  input[type=range] { width: 180px; accent-color: var(--s1); }
+  svg { display: block; width: 100%; height: auto; }
+  svg text { font: 11px system-ui, sans-serif; fill: var(--muted); }
+  svg .axis-label { font-variant-numeric: tabular-nums; }
+  .gridline { stroke: var(--grid); stroke-width: 1; }
+  .baseline { stroke: var(--baseline); stroke-width: 1; }
+  details { margin-top: 10px; font-size: 13px; color: var(--ink-2); }
+  details summary { cursor: pointer; color: var(--muted); }
+  table { border-collapse: collapse; margin-top: 8px; font-variant-numeric: tabular-nums; }
+  td, th { border: 1px solid var(--grid); padding: 3px 10px; font-size: 12px; text-align: right; }
+  th { color: var(--muted); font-weight: 600; }
+  #tooltip {
+    position: fixed; pointer-events: none; z-index: 10; display: none;
+    background: var(--page); border: 1px solid var(--ring); border-radius: 10px;
+    padding: 6px 12px; font-size: 12.5px; color: var(--ink-2); max-width: 260px;
+    box-shadow: 0 6px 24px rgba(0,0,0,.5);
+  }
+  #tooltip b { color: var(--ink); }
+  .grow-line { animation: draw 1s ease forwards; }
+  @keyframes draw { from { stroke-dashoffset: var(--len); } to { stroke-dashoffset: 0; } }
+  .grow-bar { transform-origin: bottom; animation: rise .5s ease backwards; }
+  @keyframes rise { from { transform: scaleY(0); } }
+  @media (prefers-reduced-motion: reduce) { .grow-line, .grow-bar { animation: none; } }
+  textarea, input[type=text], input[type=number], select {
+    background: var(--page); color: var(--ink); border: 1px solid var(--baseline);
+    border-radius: 8px; padding: 6px 10px; font: 13px system-ui, sans-serif;
+  }
+  textarea { width: 100%; min-height: 90px; }
+  input[type=number] { width: 84px; } input[type=text] { width: 110px; }
+  .wb-error { color: #e66767; font-size: 13px; margin: 6px 0; }
+  .wb-btn { background: var(--page); color: var(--ink); border: 1px solid var(--baseline);
+    border-radius: 8px; padding: 6px 14px; font: 600 13px system-ui, sans-serif; cursor: pointer; }
+  .wb-btn:hover { border-color: var(--s1); color: var(--s1); }
+  .wb-btn.good:hover { border-color: var(--s3); color: var(--s3); }
+  .wb-btn.bad:hover { border-color: #e66767; color: #e66767; }
+  .clado text { fill: var(--ink); font: 12.5px system-ui, sans-serif; }
+  .clado .clade-label { fill: var(--ink-2); font-size: 11px; }
+  .clado line { stroke: var(--s1); stroke-width: 1.6; }
+  .flashcard { border: 1px solid var(--baseline); border-radius: 12px; padding: 18px 22px;
+    margin: 10px 0; font-size: 16px; }
+  .flashcard .answer { color: var(--s3); font-weight: 600; margin-top: 8px; }
+  .keytrail { color: var(--muted); font-size: 12.5px; margin: 6px 0; }
+  .punnett { border-collapse: collapse; margin: 10px 0; }
+  .punnett td, .punnett th { border: 1px solid var(--baseline); padding: 6px 12px;
+    text-align: center; font-variant-numeric: tabular-nums; font-size: 13px; }
+  .punnett th { background: var(--page); color: var(--ink-2); }
+  footer { max-width: 1060px; margin: 0 auto; padding: 0 20px 40px; color: var(--muted); font-size: 13px; }
+  footer code { color: var(--ink-2); }
+</style>
+</head>
+<body>
+<header>
+  <h1>🌿 Ecology Field Day</h1>
+  <p class="sub">The CSRBT engine family, surveyed with the instruments of a field ecologist.
+     Keys are species · touches are abundance · time is measured in operations.</p>
+  <span class="drophint">📄 drop a session anywhere to reload — <code>&nbsp;./gradlew ecologyFieldDay&nbsp;</code>
+     or replay your own trace: <code>&nbsp;./gradlew ecologyTrace -Ptrace=your.csv</code></span>
+</header>
+<main>
+  <section class="card" id="terrarium"></section>
+  <section class="card" id="workbench"></section>
+  <div id="main" style="display:contents"></div>
+</main>
+<footer>
+  Every number here is deterministic — seeded streams, op-indexed clocks — and every index is
+  oracle-tested. Provenance: <code>ADR-015</code> through <code>ADR-020</code> (the classroom seam:
+  <code>.eco</code> protocols, entered data, Punnett squares, phylogenies), the 2026-08-09 audits, and
+  <code>docs/ESSAY-the-ecology-of-a-tree.md</code> for the whole story.
+</footer>
+<div id="tooltip"></div>
+
+<script>
+const SESSION = {
+  "meadow": { "phases": [{ "name": "Even grazing", "richness": 100, "total": 2100, "shannon": 4.605170, "evenness": 1.000000, "hill1": 100.000000, "chao1": 100.000000, "bestFit": "UNIFORM", "rank": [21,21,21,21,21,21,21,21,21,21,21,21,21,21,21,21,21,21,21,21,21,21,21,21,21,21,21,21,21,21,21,21,21,21,21,21,21,21,21,21], "rarefaction": [[105,66.1238],[210,89.1798],[315,96.7635],[420,99.1006],[525,99.7700],[630,99.9465],[735,99.9888],[840,99.9979],[945,99.9997],[1050,100.0000],[1155,100.0000],[1260,100.0000],[1365,100.0000],[1470,100.0000],[1575,100.0000],[1680,100.0000],[1785,100.0000],[1890,100.0000],[1995,100.0000],[2100,100.0000]] },{ "name": "Hot-patch grazing", "richness": 100, "total": 2100, "shannon": 2.400097, "evenness": 0.521174, "hill1": 11.024241, "chao1": 103.500000, "bestFit": "BROKEN_STICK", "rank": [383,359,357,357,354,7,6,6,6,6,6,6,6,5,5,5,5,5,5,5,5,5,5,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,3], "rarefaction": [[105,18.5341],[210,30.2815],[315,40.4683],[420,49.2949],[525,56.9378],[630,63.5526],[735,69.2755],[840,74.2255],[945,78.5061],[1050,82.2072],[1155,85.4064],[1260,88.1703],[1365,90.5564],[1470,92.6135],[1575,94.3836],[1680,95.9021],[1785,97.1993],[1890,98.3008],[1995,99.2282],[2100,100.0000]] }], "pianka": 0.259104, "brayCurtis": 0.811905 },
+  "demography": { "classWidth": 311, "cohort": 1134, "meanAge": 228.275132, "medianAge": 164, "type": "TYPE_II", "survivorship": [1.000000,0.261905,0.068783,0.014109,0.003527,0.000882], "deaths": [837,219,62,12,3,1] },
+  "growth": { "series": [[64,48],[128,86],[192,104],[256,102],[320,118],[384,112],[448,126],[512,124],[576,126],[640,128],[704,130],[768,138],[832,128],[896,118],[960,130],[1024,128],[1088,128],[1152,134],[1216,136],[1280,128],[1344,136],[1408,136],[1472,138],[1536,138],[1600,128],[1664,124],[1728,118],[1792,130],[1856,140],[1920,136],[1984,140],[2048,128],[2112,134],[2176,132],[2240,134],[2304,124],[2368,124]], "r": 0.002602, "K": 138.500000, "n0": 87.468914, "r2": 0.472000 },
+  "archipelago": { "timeline": [{ "survey": 1, "occupancy": 0.666667 },{ "survey": 2, "occupancy": 1.000000 },{ "survey": 3, "occupancy": 0.666667 },{ "survey": 4, "occupancy": 1.000000 },{ "survey": 5, "occupancy": 0.666667 },{ "survey": 6, "occupancy": 1.000000 }], "extinctions": 3, "recolonizations": 3, "levins": 0, "observed": 1, "diversity": 1.098612 },
+  "fossils": { "turnover": 0.333333, "meanContent": 0.800000, "meanStructural": 0.575000, "generations": [{ "g": 0, "size": 40, "inherited": 0.800000, "structural": 0.575000, "gains": 8, "losses": 8 },{ "g": 1, "size": 40, "inherited": 0.800000, "structural": 0.575000, "gains": 8, "losses": 8 },{ "g": 2, "size": 40, "inherited": 0.800000, "structural": 0.575000, "gains": 8, "losses": 8 },{ "g": 3, "size": 40, "inherited": 0.800000, "structural": 0.575000, "gains": 8, "losses": 8 },{ "g": 4, "size": 40, "inherited": 0.800000, "structural": 0.575000, "gains": 8, "losses": 8 },{ "g": 5, "size": 40 }] },
+  "grid": { "clustered": { "counts": [30,0,0,0,0,0,0,0,0,10,20,0,0,0,0,0,0,0,0,30], "dispersion": 22.163743, "morisita": 5.518102 }, "clusteredLeaves": { "fanout": 4, "counts": [2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,4], "fill": 0.511364 }, "spread": { "counts": [5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5], "dispersion": 0.000000, "morisita": 0.808081 }, "spreadLeaves": { "fanout": 4, "counts": [2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,4], "fill": 0.510204 } },
+  "island": { "capacity": 12, "timeline": [{ "survey": 2, "richness": 12, "turnover": 3.000000 },{ "survey": 3, "richness": 12, "turnover": 6.000000 },{ "survey": 4, "richness": 12, "turnover": 6.000000 },{ "survey": 5, "richness": 12, "turnover": 6.000000 },{ "survey": 6, "richness": 12, "turnover": 6.000000 },{ "survey": 7, "richness": 12, "turnover": 6.000000 },{ "survey": 8, "richness": 12, "turnover": 6.000000 },{ "survey": 9, "richness": 12, "turnover": 6.000000 }], "immigrations": 54, "extinctions": 42, "residenceAges": [17,16,15,14,13,12,17,16,15,14,13,12,17,16,15,14,13,12,17,16,15,14,13,12,17,16,15,14,13,12,17,16,15,14,13,12,17,16,15,14,13,12] }
+};
+
+/* ── plain-English readings (same thresholds as FieldReport.java) ─────────── */
+const evenness = j => j >= .85 ? "very even — no key dominates"
+                  : j >= .55 ? "moderately even — some keys busier than others"
+                  : j >= .30 ? "uneven — a few hot keys carry most of the traffic"
+                  : "strongly dominated — a handful of keys get nearly all the attention";
+const dispersion = i => i < .7 ? "regular — spaced out more evenly than chance"
+                   : i <= 1.5 ? "random — no detectable pattern (Poisson-like)"
+                   : "clumped — bunched into patches";
+const overlap = o => o >= .8 ? "high overlap — nearly the same resources"
+                 : o >= .4 ? "partial overlap" : "little overlap — effectively separate niches";
+const turnoverR = b => b <= .2 ? "nearly identical" : b <= .6 ? "moderate turnover"
+                  : "major turnover — substantially a different community";
+const survType = t => t === "TYPE_I" ? "Type I — most survive to old age, then die together (large mammals)"
+                 : t === "TYPE_II" ? "Type II — steady, age-independent death rate (songbirds)"
+                 : "Type III — heavy early mortality, survivors persist (oysters)";
+const chaoRead = (s, c) => (c - s) < .5 ? `Chao1 says the survey is complete (≈ ${fmt(c,0)})`
+                 : `Chao1 estimates ≈ ${fmt(c,0)} — about ${fmt(c - s,0)} rare keys unseen`;
+const fmt = (x, d=2) => Number(x).toLocaleString("en-US", {maximumFractionDigits: d});
+
+/* ── tiny chart kit (thin marks, rounded data-ends, hover layer) ──────────── */
+const tip = document.getElementById("tooltip");
+function showTip(ev, html) {
+  tip.innerHTML = html; tip.style.display = "block";
+  const pad = 14, w = tip.offsetWidth;
+  tip.style.left = Math.min(ev.clientX + pad, innerWidth - w - 8) + "px";
+  tip.style.top = (ev.clientY + pad) + "px";
+}
+function hideTip() { tip.style.display = "none"; }
+
+function svgEl(w, h) {
+  const s = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+  s.setAttribute("viewBox", `0 0 ${w} ${h}`);
+  return s;
+}
+function el(tag, attrs) {
+  const n = document.createElementNS("http://www.w3.org/2000/svg", tag);
+  for (const k in attrs) n.setAttribute(k, attrs[k]);
+  return n;
+}
+const M = { l: 42, r: 10, t: 12, b: 34 };
+
+function frame(svg, w, h, yTicks, yMax, xLabel) {
+  const iw = w - M.l - M.r, ih = h - M.t - M.b;
+  for (let i = 0; i <= yTicks; i++) {
+    const y = M.t + ih - ih * i / yTicks;
+    svg.append(el("line", { x1: M.l, x2: w - M.r, y1: y, y2: y, class: "gridline" }));
+    const t = el("text", { x: M.l - 6, y: y + 3.5, "text-anchor": "end", class: "axis-label" });
+    t.textContent = fmt(yMax * i / yTicks, yMax <= 2 ? 2 : yMax < 10 ? 1 : 0);
+    svg.append(t);
+  }
+  svg.append(el("line", { x1: M.l, x2: w - M.r, y1: M.t + ih, y2: M.t + ih, class: "baseline" }));
+  if (xLabel) {
+    const t = el("text", { x: M.l + iw / 2, y: h - 4, "text-anchor": "middle" });
+    t.textContent = xLabel; svg.append(t);
+  }
+  return { iw, ih };
+}
+
+/* rounded-top bar anchored to the baseline (4px data-end radius, 2px gaps) */
+function barPath(x, y, w, h, r) {
+  r = Math.min(r, w / 2, h);
+  return `M${x},${y + h} V${y + r} Q${x},${y} ${x + r},${y} H${x + w - r} Q${x + w},${y} ${x + w},${y + r} V${y + h} Z`;
+}
+
+function barChart(parent, values, { w = 480, h = 190, color = "var(--s1)", xLabel, tipFn, animate = true }) {
+  const yMax = Math.max(1, ...values) * 1.05;
+  const svg = svgEl(w, h);
+  const { iw, ih } = frame(svg, w, h, 4, yMax, xLabel);
+  const n = values.length, gap = 2;
+  const bw = Math.max(1, iw / n - gap);
+  values.forEach((v, i) => {
+    const bh = ih * v / yMax;
+    const x = M.l + i * iw / n + gap / 2, y = M.t + ih - bh;
+    if (v > 0) {
+      const p = el("path", { d: barPath(x, y, bw, bh, 4), fill: color });
+      if (animate) { p.classList.add("grow-bar"); p.style.animationDelay = (i * 12) + "ms"; }
+      svg.append(p);
+    }
+    const hit = el("rect", { x: M.l + i * iw / n, y: M.t, width: iw / n, height: ih, fill: "transparent" });
+    hit.addEventListener("mousemove", ev => showTip(ev, tipFn(i, v)));
+    hit.addEventListener("mouseleave", hideTip);
+    svg.append(hit);
+  });
+  parent.append(svg);
+}
+
+function lineChart(parent, seriesList, { w = 980, h = 230, yMax, xTicks, xLabel, tipFn, step = false, animate = true }) {
+  seriesList = seriesList.filter(s => s.pts && s.pts.length);   // hardening: never chart nothing
+  if (!seriesList.length) return;
+  yMax = yMax ?? Math.max(...seriesList.flatMap(s => s.pts.map(p => p[1]))) * 1.08;
+  const svg = svgEl(w, h);
+  const { iw, ih } = frame(svg, w, h, 4, yMax, xLabel);
+  const xs = seriesList[0].pts.map(p => p[0]);
+  const xMin = Math.min(...xs), xMax = Math.max(...xs);
+  const X = v => M.l + iw * (v - xMin) / Math.max(1, xMax - xMin);
+  const Y = v => M.t + ih - ih * Math.min(v, yMax) / yMax;
+  (xTicks ?? []).forEach(v => {
+    const t = el("text", { x: X(v), y: M.t + ih + 13, "text-anchor": "middle", class: "axis-label" });
+    t.textContent = fmt(v, 0); svg.append(t);
+  });
+  for (const s of seriesList) {
+    let d = "";
+    s.pts.forEach((p, i) => {
+      const x = X(p[0]), y = Y(p[1]);
+      d += i === 0 ? `M${x},${y}` : step ? `H${x} V${y}` : `L${x},${y}`;
+    });
+    const path = el("path", { d, fill: "none", stroke: s.color, "stroke-width": 2,
+                              "stroke-linejoin": "round", "stroke-linecap": "round" });
+    if (s.dash) path.setAttribute("stroke-dasharray", "5 4");
+    else if (animate) {
+      path.classList.add("grow-line");
+      const len = 3000; path.style.setProperty("--len", len);
+      path.setAttribute("stroke-dasharray", len);
+    }
+    svg.append(path);
+  }
+  const cross = el("line", { y1: M.t, y2: M.t + ih, class: "baseline", "stroke-dasharray": "3 3", opacity: 0 });
+  svg.append(cross);
+  const dots = seriesList.map(s => { const c = el("circle", { r: 4, fill: s.color, opacity: 0 }); svg.append(c); return c; });
+  const hit = el("rect", { x: M.l, y: M.t, width: iw, height: ih, fill: "transparent" });
+  hit.addEventListener("mousemove", ev => {
+    const box = svg.getBoundingClientRect();
+    const fx = xMin + (ev.clientX - box.left - M.l * box.width / w) / (iw * box.width / w) * (xMax - xMin);
+    let bi = 0;
+    xs.forEach((v, i) => { if (Math.abs(v - fx) < Math.abs(xs[bi] - fx)) bi = i; });
+    cross.setAttribute("x1", X(xs[bi])); cross.setAttribute("x2", X(xs[bi]));
+    cross.setAttribute("opacity", 1);
+    seriesList.forEach((s, si) => {
+      dots[si].setAttribute("cx", X(s.pts[bi][0]));
+      dots[si].setAttribute("cy", Y(s.pts[bi][1]));
+      dots[si].setAttribute("opacity", 1);
+    });
+    showTip(ev, tipFn(bi));
+  });
+  hit.addEventListener("mouseleave", () => {
+    hideTip(); cross.setAttribute("opacity", 0); dots.forEach(d => d.setAttribute("opacity", 0));
+  });
+  svg.append(hit);
+  parent.append(svg);
+}
+
+/* ── page assembly ────────────────────────────────────────────────────────── */
+function card(emoji, title, whatis) {
+  const c = document.createElement("section");
+  c.className = "card";
+  c.innerHTML = `<h2>${emoji} ${title}</h2><p class="whatis">${whatis}</p>`;
+  document.getElementById("main").append(c);
+  return c;
+}
+const tile = (v, l) => `<div class="tile"><div class="v">${v}</div><div class="l">${l}</div></div>`;
+function dataTable(card, headers, rows) {
+  const d = document.createElement("details");
+  d.innerHTML = `<summary>Data table</summary><table><tr>${headers.map(h => `<th>${h}</th>`).join("")}</tr>` +
+    rows.map(r => `<tr>${r.map(x => `<td>${x}</td>`).join("")}</tr>`).join("") + "</table>";
+  card.append(d);
+}
+
+function render(S) {
+  document.getElementById("main").innerHTML = "";
+  renderStations(S);
+  if (!document.getElementById("main").children.length) {
+    document.getElementById("main").innerHTML =
+      '<section class="card"><h2>🤔 Nothing to chart in that session</h2>' +
+      '<p class="reading">The JSON parsed, but no known stations (meadow, drift, demography, growth, archipelago, fossils, grid, island) were present.</p></section>';
+  }
+}
+
+function renderStations(S) {
+
+  /* The meadow — diversity (field day: two phases; trace: one) */
+  if (S.meadow && S.meadow.phases) {
+    const m = S.meadow;
+    const c = card("🌾", "The Meadow — diversity of the access community",
+      "Species = keys, abundance = touches. Shannon H′, Pielou J′, the effective-species (Hill) number, " +
+      "and Chao1's how-much-did-we-miss estimate — the numbers the structural indices provably cannot vary on.");
+    for (const p of m.phases) {
+      c.insertAdjacentHTML("beforeend",
+        `<div class="tiles">${tile(fmt(p.evenness), `J′ — ${p.name.toLowerCase()}`)}
+         ${tile(fmt(p.hill1, 1), "effective species")}${tile(fmt(p.chao1, 0), "Chao1 est. richness")}
+         ${tile(p.bestFit.replace("_", " ").toLowerCase(), "curve shape")}</div>
+         <p class="reading"><b>${p.name}:</b> ${evenness(p.evenness)}. ${chaoRead(p.richness, p.chao1)}.</p>`);
+    }
+    const f = document.createElement("div"); f.className = "facets";
+    for (const p of m.phases) {
+      const facet = document.createElement("div"); facet.className = "facet";
+      facet.innerHTML = `<h3>${p.name} — touches per key (rank order)</h3>`;
+      barChart(facet, p.rank, { w: 480, h: 180, xLabel: "rank",
+        tipFn: (i, v) => `rank <b>${i + 1}</b> · <b>${fmt(v, 0)}</b> touches` });
+      f.append(facet);
+    }
+    c.append(f);
+    /* rarefaction curves — species vs sampling effort */
+    const hasRarefaction = m.phases.some(p => p.rarefaction && p.rarefaction.length);
+    if (hasRarefaction) {
+    const rc = document.createElement("div");
+    rc.innerHTML = `<p class="h3">Rarefaction — species found vs survey effort (the curve flattening means the survey saturated)</p>`;
+    if (m.phases.length > 1) {
+      rc.insertAdjacentHTML("beforeend",
+        `<div class="legend">${m.phases.map((p, i) =>
+          `<span><span class="sw" style="background:var(--s${i + 1})"></span>${p.name}</span>`).join("")}</div>`);
+    }
+    lineChart(rc, m.phases.map((p, i) => ({ color: `var(--s${i + 1})`, pts: p.rarefaction })),
+      { w: 980, h: 190, xLabel: "individuals sampled",
+        tipFn: bi => m.phases.map((p, i) =>
+          `<b>${p.name}</b>: ${fmt(p.rarefaction[bi][1], 1)} species at ${fmt(p.rarefaction[bi][0], 0)} draws`).join("<br>") });
+    c.append(rc);
+    }
+    if (m.pianka !== undefined) {
+      c.insertAdjacentHTML("beforeend",
+        `<p class="reading">Between regimes: Pianka overlap <b>${fmt(m.pianka)}</b> — ${overlap(m.pianka)};
+         Bray–Curtis <b>${fmt(m.brayCurtis)}</b> — ${turnoverR(m.brayCurtis)}.</p>`);
+    }
+    dataTable(c, ["community", "richness", "touches", "H′", "J′", "eff. species", "Chao1"],
+      m.phases.map(p => [p.name, p.richness, p.total, fmt(p.shannon), fmt(p.evenness), fmt(p.hill1, 1), fmt(p.chao1, 0)]));
+  }
+
+  /* The drift — trace sessions: workload change over the run */
+  if (S.drift) {
+    const d = S.drift;
+    const peak = d.bray.indexOf(Math.max(...d.bray));
+    const c = card("🌊", "The Drift — how the workload changed while it ran",
+      `Bray–Curtis turnover between consecutive ${d.windowOps}-op windows. Spikes are regime shifts — ` +
+      "the early-warning experiment shows abrupt shifts land in exactly one window (lag 0).");
+    c.insertAdjacentHTML("beforeend",
+      `<p class="reading">Sharpest change at window <b>${peak + 1} → ${peak + 2}</b> ` +
+      `(Bray–Curtis <b>${fmt(d.bray[peak])}</b>: ${turnoverR(d.bray[peak])}).</p>`);
+    barChart(c, d.bray, { w: 980, h: 180, color: "var(--s2)", xLabel: "window transition",
+      tipFn: (i, v) => `window <b>${i + 1} → ${i + 2}</b> · Bray–Curtis <b>${fmt(v)}</b><br>${turnoverR(v)}` });
+    dataTable(c, ["transition", "Bray–Curtis"], d.bray.map((v, i) => [`${i + 1} → ${i + 2}`, fmt(v)]));
+  }
+
+  /* The census — survivorship + growth */
+  if (S.demography || S.growth) {
+    const d = S.demography, g = S.growth;
+    const c = card("📋", "The Census — who lives how long, and how the population grew",
+      "Inserts are births, removes are deaths, ages count in operations. Cohort life table + Verhulst logistic fit.");
+    const tiles = [];
+    if (d) tiles.push(tile(fmt(d.cohort, 0), "completed lives"), tile(fmt(d.meanAge, 0) + " ops", "mean age at death"));
+    if (g) tiles.push(tile(fmt(g.r, 4), "growth rate r (per op)"), tile("≈ " + fmt(g.K, 0) + " keys", "carrying capacity K"));
+    c.insertAdjacentHTML("beforeend", `<div class="tiles">${tiles.join("")}</div>` +
+      (d ? `<p class="reading">${survType(d.type)}.</p>` : ""));
+    const f = document.createElement("div"); f.className = "facets";
+    if (d) {
+      const sv = document.createElement("div"); sv.className = "facet";
+      sv.innerHTML = "<h3>Survivorship l<sub>x</sub> — share of the cohort alive entering each age class</h3>";
+      lineChart(sv, [{ color: "var(--s1)", pts: d.survivorship.map((l, x) => [x * d.classWidth, l]) }],
+        { w: 480, h: 190, yMax: 1.05, step: true, xLabel: "age (ops)",
+          xTicks: d.survivorship.map((_, x) => x * d.classWidth).filter((_, i) => i % 2 === 0),
+          tipFn: i => `age class <b>${fmt(i * d.classWidth, 0)}–${fmt((i + 1) * d.classWidth, 0)} ops</b><br>` +
+                      `surviving: <b>${fmt(d.survivorship[i] * 100, 0)}%</b> · deaths here: <b>${d.deaths[i]}</b>` });
+      f.append(sv);
+    }
+    if (g) {
+      const gr = document.createElement("div"); gr.className = "facet";
+      gr.innerHTML = "<h3>Population over time — observed vs fitted logistic</h3>";
+      const fit = t => g.K / (1 + ((g.K - g.n0) / g.n0) * Math.exp(-g.r * t));
+      gr.insertAdjacentHTML("beforeend",
+        `<div class="legend"><span><span class="sw" style="background:var(--s1)"></span>observed</span>
+         <span><span class="sw" style="background:var(--s2)"></span>logistic fit (R² ${fmt(g.r2)})</span></div>`);
+      lineChart(gr, [
+          { color: "var(--s1)", pts: g.series },
+          { color: "var(--s2)", dash: true, pts: g.series.map(p => [p[0], fit(p[0])]) }],
+        { w: 480, h: 172, xLabel: "operations",
+          tipFn: i => `op <b>${fmt(g.series[i][0], 0)}</b><br>observed: <b>${fmt(g.series[i][1], 0)}</b> · fit: <b>${fmt(fit(g.series[i][0]), 0)}</b>` });
+      f.append(gr);
+    }
+    c.append(f);
+    if (d) dataTable(c, ["age class start", "surviving %", "deaths"],
+      d.survivorship.map((l, x) => [fmt(x * d.classWidth, 0), fmt(l * 100, 1), d.deaths[x]]));
+  }
+
+  /* The archipelago */
+  if (S.archipelago) {
+    const a = S.archipelago;
+    const c = card("🏝️", "The Archipelago — ensemble members as habitat patches",
+      "Quarantine is a local extinction; healing from the primary is recolonization. Levins model vs direct measurement.");
+    c.insertAdjacentHTML("beforeend",
+      `<div class="tiles">${tile(a.extinctions, "local extinctions")}${tile(a.recolonizations, "recolonizations")}
+       ${tile(fmt(a.levins * 100, 0) + "%", "Levins predicted occupancy")}${tile(fmt(a.observed * 100, 0) + "%", "observed occupancy")}</div>
+       <p class="reading">${Math.abs(a.levins - a.observed) <= 0.15
+          ? "<b>Model and observation agree</b> — the event record captures the dynamics."
+          : "<b>Model and observation disagree</b> — with balanced storm/recovery cycles the ratio estimator predicts an empty archipelago while every patch is occupied. That gap is the lesson: survey design matters, and events between surveys are invisible."}</p>`);
+    const w = document.createElement("div");
+    w.innerHTML = "<p class='h3'>Patch occupancy through the storm cycles</p>";
+    lineChart(w, [{ color: "var(--s3)", pts: a.timeline.map(p => [p.survey, p.occupancy]) }],
+      { w: 980, h: 180, yMax: 1.0, step: true, xLabel: "survey",
+        xTicks: a.timeline.map(p => p.survey),
+        tipFn: i => `survey <b>${a.timeline[i].survey}</b> · occupancy <b>${fmt(a.timeline[i].occupancy * 100, 0)}%</b>` });
+    c.append(w);
+    dataTable(c, ["survey", "occupancy %"], a.timeline.map(p => [p.survey, fmt(p.occupancy * 100, 0)]));
+  }
+
+  /* The fossil record */
+  if (S.fossils) {
+    const f = S.fossils;
+    const c = card("🦴", "The Fossil Record — strata of the persistent engine",
+      "Each snapshot is a preserved stratum later edits cannot rewrite: inherited, gained, and lost per generation.");
+    c.insertAdjacentHTML("beforeend",
+      `<div class="tiles">${tile(f.generations.length, "strata on record")}
+       ${tile(fmt(f.turnover * 100, 0) + "%", "avg turnover per generation")}
+       ${f.meanContent !== undefined ? tile(fmt(f.meanContent * 100, 0) + "%", "keys inherited / generation") : ""}
+       ${f.meanStructural !== undefined ? tile(fmt(f.meanStructural * 100, 0) + "%", "physical nodes inherited") : ""}</div>` +
+      (f.meanStructural !== undefined ?
+        `<p class="reading"><b>Two kinds of heredity:</b> ${fmt(f.meanContent * 100, 0)}% of keys survive a generation,
+         but only ${fmt(f.meanStructural * 100, 0)}% of the physical nodes — the gap is the price of path copying:
+         every edit rewrites its ancestors even though their keys persist.</p>` : ""));
+    const gens = f.generations.filter(g => g.inherited !== undefined);
+    const w = document.createElement("div");
+    w.innerHTML = "<p class='h3'>Inherited fraction, each stratum → the next</p>";
+    barChart(w, gens.map(g => g.inherited), { w: 980, h: 170, color: "var(--s1)", xLabel: "stratum transition",
+      tipFn: i => `stratum <b>${gens[i].g} → ${gens[i].g + 1}</b><br>keys inherited <b>${fmt(gens[i].inherited * 100, 0)}%</b>` +
+                  (gens[i].structural !== undefined ? ` · physical nodes <b>${fmt(gens[i].structural * 100, 0)}%</b>` : "") +
+                  `<br>gained <b>${gens[i].gains}</b> · lost <b>${gens[i].losses}</b>` });
+    c.append(w);
+    dataTable(c, ["transition", "inherited %", "gained", "lost"],
+      gens.map(g => [`${g.g} → ${g.g + 1}`, fmt(g.inherited * 100, 0), g.gains, g.losses]));
+  }
+
+  /* The survey grid */
+  if (S.grid) {
+    const g = S.grid;
+    const c = card("🗺️", "The Survey Grid — quadrat sampling over the key space",
+      "A field grid over the key range: individuals per quadrat, then the classic dispersion verdicts.");
+    const f = document.createElement("div"); f.className = "facets";
+    const entries = [["clustered", g.spread ? "Patchy planting" : "Keys at trace end", "var(--s2)"],
+                     ["spread", "Evenly sown", "var(--s3)"]];
+    for (const [key, label, color] of entries) {
+      const q = g[key];
+      if (!q) continue;
+      const facet = document.createElement("div"); facet.className = "facet";
+      facet.innerHTML = `<h3>${label} — individuals per quadrat
+        <span class="chip">${dispersion(q.dispersion).split(" — ")[0]}</span></h3>`;
+      barChart(facet, q.counts, { w: 480, h: 170, color,
+        xLabel: "quadrat", tipFn: (i, v) => `quadrat <b>${i + 1}</b> · <b>${v}</b> individuals` });
+      facet.insertAdjacentHTML("beforeend",
+        `<p class="reading">variance/mean <b>${fmt(q.dispersion)}</b> · Morisita <b>${fmt(q.morisita)}</b>: ${dispersion(q.dispersion)}.</p>`);
+      const lv = g[key + "Leaves"];
+      if (lv) {
+        const fillRead = lv.fill >= .85 ? "tightly packed" : lv.fill >= .6 ? "healthy fill (~ln 2 steady state)" : "sparse pages";
+        facet.insertAdjacentHTML("beforeend",
+          `<h3>… and the engine's own pages <span class="chip">${lv.counts.length} leaves · ${fmt(lv.fill * 100, 0)}% full — ${fillRead}</span></h3>`);
+        barChart(facet, lv.counts, { w: 480, h: 120, color: "var(--s1)", xLabel: "leaf (chain order)",
+          tipFn: (i, v) => `leaf <b>${i + 1}</b> · <b>${v}</b> of ${lv.fanout} keys` });
+      }
+      f.append(facet);
+    }
+    c.append(f);
+  }
+
+  /* Theory bench — models run by the experiment engine */
+  if (S.models && S.models.length) {
+    const c = card("📐", "The Theory Bench — what the models say",
+      "Trajectories and statistics from the classical models, with the spec's abiotic factors already applied to the rates.");
+    const f = document.createElement("div"); f.className = "facets";
+    for (const m of S.models) {
+      const facet = document.createElement("div"); facet.className = "facet";
+      facet.innerHTML = `<h3>${m.label}</h3>`;
+      if (m.kind === "hardyweinberg") {
+        const st = m.stats;
+        facet.insertAdjacentHTML("beforeend",
+          `<div class="tiles">${tile(fmt(st.p, 3), "allele freq p")}${tile(fmt(st.q, 3), "allele freq q")}
+           ${tile(fmt(st.chi2, 2), "χ² (df 1)")}</div>
+           <p class="reading">${st.inEquilibrium ? "✅ consistent with Hardy–Weinberg equilibrium"
+                                                 : "❌ significantly out of equilibrium"}.
+           Observed AA/Aa/aa: <b>${st.observed.join(" / ")}</b> · expected: <b>${st.expected.map(e => fmt(e, 0)).join(" / ")}</b></p>`);
+      } else if (m.kind === "eulerlotka") {
+        const st = m.stats;
+        facet.insertAdjacentHTML("beforeend",
+          `<div class="tiles">${tile(fmt(st.R0, 2), "net reproductive rate R₀")}${tile(fmt(st.T, 2), "generation time T")}
+           ${tile(fmt(st.rExact, 4), "intrinsic r (Euler–Lotka)")}</div>`);
+        barChart(facet, m.series.map(p => p[1]), { w: 480, h: 130, color: "var(--s3)",
+          xLabel: "age x", tipFn: (i, v) => `age <b>${i}</b> · l<sub>x</sub>m<sub>x</sub> = <b>${fmt(v, 3)}</b>` });
+      } else if (m.kind === "markrecapture") {
+        const st = m.stats;
+        facet.insertAdjacentHTML("beforeend",
+          `<div class="tiles">${st.lincolnPetersen !== null ? tile(fmt(st.lincolnPetersen, 0), "Lincoln–Petersen N̂") : ""}
+           ${tile(fmt(st.chapman, 0), "Chapman N̂")}${tile(`${fmt(st.low95, 0)}–${fmt(st.high95, 0)}`, "95% CI")}</div>
+           <p class="reading">marked <b>${st.marked}</b>, caught <b>${st.caught}</b>, recaptured <b>${st.recaptured}</b>.
+           Assumes a closed population, no lost marks, equal catchability — say so in your write-up.</p>`);
+      } else if (m.series2) {
+        facet.insertAdjacentHTML("beforeend",
+          `<div class="legend"><span><span class="sw" style="background:var(--s1)"></span>${m.seriesLabel}</span>
+           <span><span class="sw" style="background:var(--s2)"></span>${m.series2Label}</span></div>`);
+        lineChart(facet, [
+            { color: "var(--s1)", pts: m.series },
+            { color: "var(--s2)", pts: m.series2 }],
+          { w: 480, h: 170, xLabel: "t",
+            tipFn: i => `t=<b>${fmt(m.series[i][0], 0)}</b> · ${m.seriesLabel}: <b>${fmt(m.series[i][1], 1)}</b>` +
+                        ` · ${m.series2Label}: <b>${fmt(m.series2[i][1], 1)}</b>` });
+      } else {
+        if (m.equilibrium !== undefined) {
+          facet.insertAdjacentHTML("beforeend",
+            `<div class="tiles">${tile(fmt(m.equilibrium, 2), "equilibrium")}</div>`);
+        }
+        lineChart(facet, [{ color: "var(--s1)", pts: m.series }],
+          { w: 480, h: 160, xLabel: "t",
+            tipFn: i => `t=<b>${fmt(m.series[i][0], 0)}</b> · <b>${fmt(m.series[i][1], 2)}</b>` });
+      }
+      f.append(facet);
+    }
+    c.append(f);
+  }
+
+  /* Punnett squares */
+  if (S.crosses && S.crosses.length) {
+    const c = card("🌱", "The Greenhouse & Coop — Punnett squares",
+      "The famous crosses drawn out: gametes along the edges, offspring in the cells, colors by phenotype. " +
+      "χ² verdicts grade any observed counts against the Mendelian ratio.");
+    const f = document.createElement("div"); f.className = "facets";
+    for (const cr of S.crosses) {
+      const facet = document.createElement("div"); facet.className = "facet";
+      const ratio = Object.entries(cr.phenotypes).map(([k, v]) => `${v} ${k}`).join(" : ");
+      facet.innerHTML = `<h3>${cr.label} <span class="chip">${cr.dominance.toLowerCase()} dominance</span></h3>`;
+      facet.insertAdjacentHTML("beforeend", punnettHtml(cr.g1, cr.g2, cr.square, cr.dominance === "INCOMPLETE"));
+      facet.insertAdjacentHTML("beforeend", `<p class="reading">phenotype ratio: <b>${ratio}</b>` +
+        (cr.chi2 !== undefined ? ` · observed χ² = <b>${fmt(cr.chi2, 3)}</b> — ${cr.consistent
+          ? "✅ consistent with the Mendelian ratio" : "❌ significantly off the ratio"}` : "") + `</p>`);
+      f.append(facet);
+    }
+    c.append(f);
+  }
+
+  /* Entered field data (ADR-020) */
+  if (S.entered && S.entered.length) {
+    const c = card("📓", "The Entered Data — your own observations, same instruments",
+      "Field counts, ethogram tallies, and surveys from data: lines in the protocol — graded by the exact " +
+      "indices the simulated phases get.");
+    const f = document.createElement("div"); f.className = "facets";
+    for (const d of S.entered) {
+      const facet = document.createElement("div"); facet.className = "facet";
+      facet.innerHTML = `<h3>${d.name} <span class="chip">${d.total} records</span></h3>
+        <div class="tiles">${tile(d.richness, "kinds")}${tile(fmt(d.shannon, 2), "Shannon H′")}
+        ${tile(fmt(d.evenness, 2), "evenness J′")}${tile(fmt(d.chao1, 0), "Chao1 est.")}</div>`;
+      barChart(facet, d.counts, { w: 480, h: 130, color: "var(--s3)", xLabel: "kind",
+        tipFn: (i, v) => `<b>${d.labels[i]}</b> · <b>${v}</b>` });
+      f.append(facet);
+    }
+    c.append(f);
+  }
+
+  /* Field notebook */
+  if (S.notes && S.notes.length) {
+    const c = card("📔", "The Field Notebook — qualitative observations, kept with the run",
+      "note: lines from the protocol. Numbers say how much; the notebook says what it was like out there.");
+    for (const n of S.notes) {
+      c.insertAdjacentHTML("beforeend",
+        `<p class="reading">${n.about ? `<span class="chip">${n.about}</span> ` : "• "}${n.text}</p>`);
+    }
+  }
+
+  /* Phylogenies */
+  if (S.trees && S.trees.length) {
+    const c = card("🌳", "Tree Thinking — phylogenies in this experiment",
+      "tree: lines in standard Newick, drawn as cladograms. A search tree orders keys; a phylogeny is a " +
+      "hypothesis of descent — same picture, different meaning.");
+    const f = document.createElement("div"); f.className = "facets";
+    for (const t of S.trees) {
+      const facet = document.createElement("div"); facet.className = "facet";
+      const leaves = countLeaves(t.root);
+      facet.innerHTML = `<h3>${t.label} <span class="chip">${leaves} taxa</span></h3>`;
+      drawCladogram(facet, t.root);
+      f.append(facet);
+    }
+    c.append(f);
+  }
+
+  /* Hypotheses */
+  if (S.hypotheses && S.hypotheses.length) {
+    const c = card("🎯", "The Hypotheses — graded by the run",
+      "Written before the experiment ran; the run decides. That order is the whole discipline.");
+    for (const h of S.hypotheses) {
+      const mark = h.verdict === "CONFIRMED" ? "✅" : h.verdict === "REFUTED" ? "❌" : "⚠";
+      const obs = h.observed === undefined ? "" :
+        typeof h.observed === "string"
+          ? ` (observed <b>"${h.observed}"</b>${h.value !== undefined ? ` — ${fmt(h.value, 4)}` : ""})`
+          : ` (observed ${fmt(h.observed, 4)})`;
+      c.insertAdjacentHTML("beforeend",
+        `<p class="reading">${mark} <b>${h.verdict}</b> — <code>${h.expr}</code>${obs}</p>`);
+    }
+  }
+
+  /* The island */
+  if (S.island) {
+    const isl = S.island;
+    const c = card("🌋", "The Island — the cache at carrying capacity",
+      "A bounded habitat: admissions immigrate, evictions go locally extinct. The MacArthur–Wilson signature: richness flat, composition churning.");
+    c.insertAdjacentHTML("beforeend",
+      `<div class="tiles">${tile(isl.capacity, "capacity (island area)")}${tile(isl.immigrations, "immigrations")}
+       ${tile(isl.extinctions, "extinctions")}${tile(fmt(isl.timeline.at(-1).turnover, 1), "turnover / interval")}</div>
+       <p class="reading"><b>The equilibrium signature:</b> a full island that is never the same island twice.</p>`);
+    const f = document.createElement("div"); f.className = "facets";
+    const r = document.createElement("div"); r.className = "facet";
+    r.innerHTML = "<h3>Residents (species richness) — flat at capacity</h3>";
+    lineChart(r, [{ color: "var(--s1)", pts: isl.timeline.map(p => [p.survey, p.richness]) }],
+      { w: 480, h: 160, yMax: isl.capacity * 1.15, step: true, xLabel: "survey",
+        xTicks: isl.timeline.map(p => p.survey),
+        tipFn: i => `survey <b>${isl.timeline[i].survey}</b> · residents <b>${isl.timeline[i].richness}</b> of ${isl.capacity}` });
+    f.append(r);
+    const t = document.createElement("div"); t.className = "facet";
+    t.innerHTML = "<h3>Turnover per interval — the churn underneath</h3>";
+    barChart(t, isl.timeline.map(p => p.turnover), { w: 480, h: 160, color: "var(--s2)", xLabel: "survey interval",
+      tipFn: (i, v) => `interval <b>${i + 1}</b> · turnover <b>${fmt(v, 1)}</b> (arrivals + departures) ⁄ 2` });
+    f.append(t);
+    c.append(f);
+    const ages = isl.residenceAges;
+    if (ages && ages.length) {
+      const bins = 8, maxAge = Math.max(...ages), wBin = Math.max(1, Math.ceil((maxAge + 1) / bins));
+      const hist = Array.from({ length: bins }, () => 0);
+      ages.forEach(a => hist[Math.min(bins - 1, Math.floor(a / wBin))]++);
+      const hDiv = document.createElement("div");
+      hDiv.innerHTML = "<p class='h3'>How long residents lasted (ops between arrival and departure)</p>";
+      barChart(hDiv, hist, { w: 980, h: 150, color: "var(--s3)", xLabel: "residence time (ops, binned)",
+        tipFn: (i, v) => `${fmt(i * wBin, 0)}–${fmt((i + 1) * wBin, 0)} ops · <b>${v}</b> residents` });
+      c.append(hDiv);
+    }
+    dataTable(c, ["survey", "residents", "turnover"],
+      isl.timeline.map(p => [p.survey, p.richness, fmt(p.turnover, 1)]));
+  }
+}
+
+/* ── the terrarium: a live, seeded, pokeable ecosystem ────────────────────── */
+function mulberry32(seed) {
+  return function() {
+    seed |= 0; seed = seed + 0x6D2B79F5 | 0;
+    let t = Math.imul(seed ^ seed >>> 15, 1 | seed);
+    t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t;
+    return ((t ^ t >>> 14) >>> 0) / 4294967296;
+  };
+}
+function jsShannon(counts) {
+  const n = counts.reduce((a, b) => a + b, 0);
+  if (!n) return 0;
+  return -counts.reduce((h, c) => c > 0 ? h + (c / n) * Math.log(c / n) : h, 0);
+}
+function jsChao1(counts) {
+  const s = counts.filter(c => c > 0).length;
+  const f1 = counts.filter(c => c === 1).length, f2 = counts.filter(c => c === 2).length;
+  if (!f1) return s;
+  return f2 > 0 ? s + f1 * f1 / (2 * f2) : s + f1 * (f1 - 1) / 2;
+}
+
+/* ── phylogeny helpers: Newick parsing + SVG cladograms (ADR-020) ─────────── */
+function jsNewick(str) {
+  let s = str.trim();
+  if (s.endsWith(";")) s = s.slice(0, -1).trim();
+  if (!s) throw new Error("empty tree");
+  let i = 0;
+  function node() {
+    const children = [];
+    if (s[i] === "(") {
+      i++;
+      for (;;) {
+        children.push(node());
+        if (i >= s.length) throw new Error("unbalanced '('");
+        if (s[i] === ",") { i++; continue; }
+        if (s[i] === ")") { i++; break; }
+        throw new Error(`expected ',' or ')' at index ${i}`);
+      }
+    }
+    const start = i;
+    while (i < s.length && !",():;".includes(s[i])) i++;
+    const name = s.slice(start, i).trim();
+    let length;
+    if (s[i] === ":") {
+      i++;
+      const ls = i;
+      while (i < s.length && !",()".includes(s[i])) i++;
+      length = Number(s.slice(ls, i));
+      if (!Number.isFinite(length)) throw new Error(`bad branch length '${s.slice(ls, i)}'`);
+    }
+    if (!children.length && !name) throw new Error(`missing name at index ${start}`);
+    return { name, length, children: children.length ? children : undefined };
+  }
+  const root = node();
+  if (i !== s.length) throw new Error(`trailing characters: '${s.slice(i)}'`);
+  return root;
+}
+function countLeaves(n) { return n.children ? n.children.reduce((s, c) => s + countLeaves(c), 0) : 1; }
+function treeDepth(n) { return n.children ? 1 + Math.max(...n.children.map(treeDepth)) : 1; }
+
+function drawCladogram(parent, root) {
+  const leaves = countLeaves(root), depth = treeDepth(root);
+  const rowH = 24, colW = Math.max(46, Math.min(90, 360 / Math.max(1, depth - 1)));
+  const labelW = 150, w = (depth - 1) * colW + labelW + 24, h = leaves * rowH + 12;
+  let nextRow = 0;
+  const svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+  svg.setAttribute("viewBox", `0 0 ${w} ${h}`);
+  svg.setAttribute("class", "clado");
+  svg.style.width = "100%"; svg.style.maxWidth = w + "px";
+  const line = (x1, y1, x2, y2) => {
+    const l = document.createElementNS("http://www.w3.org/2000/svg", "line");
+    l.setAttribute("x1", x1); l.setAttribute("y1", y1);
+    l.setAttribute("x2", x2); l.setAttribute("y2", y2);
+    svg.append(l);
+  };
+  const text = (x, y, str, cls) => {
+    const t = document.createElementNS("http://www.w3.org/2000/svg", "text");
+    t.setAttribute("x", x); t.setAttribute("y", y);
+    if (cls) t.setAttribute("class", cls);
+    t.textContent = str;
+    svg.append(t);
+  };
+  (function place(n, d) {
+    const x = 8 + d * colW;
+    if (!n.children) {
+      const lx = 8 + (depth - 1) * colW;                            // leaves align right
+      const y = 8 + nextRow++ * rowH + rowH / 2;
+      text(lx + 6, y + 4, n.name);
+      return { x: lx, y };
+    }
+    const kids = n.children.map(c => place(c, d + 1));
+    const y = kids.reduce((s, k) => s + k.y, 0) / kids.length;
+    for (const k of kids) { line(x, k.y, k.x, k.y); }               // horizontal to child
+    line(x, kids[0].y, x, kids.at(-1).y);                           // vertical connector
+    if (n.name) text(x + 4, kids.at(-1).y + 14, n.name, "clade-label");
+    return { x, y };
+  })(root, 0);
+  parent.append(svg);
+}
+
+function setupTerrarium() {
+  const t = document.getElementById("terrarium");
+  t.innerHTML = `
+    <h2>🫙 The Terrarium — a live ecosystem you can poke</h2>
+    <p class="whatis">Same instruments, running right here on a seeded stream (seed 42 — reproducible like everything else).
+       Drag the sliders and watch diversity, dominance, and island turnover respond instantly.</p>
+    <div class="facets">
+      <div class="facet">
+        <h3>Meadow — who gets the traffic</h3>
+        <div class="controls">
+          <label>hot-key share <output id="o-hot">60%</output>
+            <input type="range" id="c-hot" min="0" max="95" step="5" value="60"></label>
+          <label>hot set size <output id="o-set">5</output>
+            <input type="range" id="c-set" min="1" max="20" step="1" value="5"></label>
+        </div>
+        <div id="t-meadow-tiles" class="tiles"></div>
+        <p class="reading" id="t-meadow-read"></p>
+        <div id="t-meadow-chart"></div>
+      </div>
+      <div class="facet">
+        <h3>Island — a habitat with a hard ceiling</h3>
+        <div class="controls">
+          <label>island capacity <output id="o-cap">12</output>
+            <input type="range" id="c-cap" min="4" max="32" step="1" value="12"></label>
+        </div>
+        <div id="t-island-tiles" class="tiles"></div>
+        <p class="reading" id="t-island-read"></p>
+        <div id="t-island-chart"></div>
+      </div>
+    </div>`;
+  const rerun = () => { runMeadow(); runIsland(); };
+  for (const id of ["c-hot", "c-set", "c-cap"]) {
+    document.getElementById(id).addEventListener("input", rerun);
+  }
+
+  function runMeadow() {
+    const hotShare = +document.getElementById("c-hot").value;
+    const hotSet = +document.getElementById("c-set").value;
+    document.getElementById("o-hot").textContent = hotShare + "%";
+    document.getElementById("o-set").textContent = hotSet;
+    const rnd = mulberry32(42);
+    const counts = new Array(100).fill(0);
+    for (let i = 0; i < 4000; i++) {
+      const key = rnd() * 100 < hotShare ? Math.floor(rnd() * hotSet) : Math.floor(rnd() * 100);
+      counts[key]++;
+    }
+    const H = jsShannon(counts);
+    const S = counts.filter(c => c > 0).length;
+    const J = S > 1 ? H / Math.log(S) : 1;
+    document.getElementById("t-meadow-tiles").innerHTML =
+      tile(fmt(J), "evenness J′") + tile(fmt(Math.exp(H), 1), "effective species") +
+      tile(fmt(jsChao1(counts), 0), "Chao1 est.");
+    document.getElementById("t-meadow-read").textContent = evenness(J) + ".";
+    const rank = counts.filter(c => c > 0).sort((a, b) => b - a).slice(0, 40);
+    const holder = document.getElementById("t-meadow-chart");
+    holder.innerHTML = "";
+    barChart(holder, rank, { w: 480, h: 150, xLabel: "rank", animate: false,
+      tipFn: (i, v) => `rank <b>${i + 1}</b> · <b>${v}</b> touches` });
+  }
+
+  function runIsland() {
+    const cap = +document.getElementById("c-cap").value;
+    document.getElementById("o-cap").textContent = cap;
+    const rnd = mulberry32(7);
+    const order = [];                      // LRU order, most-recent first
+    const birth = new Map();
+    const ages = [];
+    let imm = 0, ext = 0;
+    const timeline = [];
+    let lastImm = 0, lastExt = 0;
+    for (let op = 1; op <= 800; op++) {
+      const key = rnd() < 0.5 ? Math.floor(rnd() * 20) : Math.floor(rnd() * 80);
+      const idx = order.indexOf(key);
+      if (idx >= 0) order.splice(idx, 1);
+      else { imm++; birth.set(key, op); }
+      order.unshift(key);
+      if (order.length > cap) {
+        const evicted = order.pop();
+        ext++; ages.push(op - birth.get(evicted));
+        birth.delete(evicted);
+      }
+      if (op % 80 === 0) {
+        timeline.push([op, (imm - lastImm + ext - lastExt) / 2]);
+        lastImm = imm; lastExt = ext;
+      }
+    }
+    document.getElementById("t-island-tiles").innerHTML =
+      tile(order.length + "/" + cap, "residents / capacity") + tile(imm, "immigrations") +
+      tile(ext, "extinctions") + tile(ages.length ? fmt(ages.reduce((a, b) => a + b, 0) / ages.length, 0) + " ops" : "—", "mean residence");
+    document.getElementById("t-island-read").textContent =
+      (order.length >= cap ? "full house — every new arrival displaces a resident."
+                           : "room to spare — the island is below capacity.") +
+      " Watch turnover fall as capacity grows: a bigger island loses fewer residents.";
+    const holder = document.getElementById("t-island-chart");
+    holder.innerHTML = "";
+    barChart(holder, timeline.map(p => p[1]), { w: 480, h: 150, color: "var(--s2)",
+      xLabel: "interval (80 ops each)", animate: false,
+      tipFn: (i, v) => `ops ${i * 80 + 1}–${(i + 1) * 80} · turnover <b>${fmt(v, 1)}</b>` });
+  }
+
+  rerun();
+}
+
+/* ── genetics kit (mirrors MendelianGenetics.java / PopulationGenetics.java) ── */
+const CHI_CRIT = [3.841, 5.991, 7.815, 9.488, 11.070, 12.592, 14.067, 15.507];
+function jsCross(p1, p2, incomplete) {
+  const loci = g => {
+    if (!g || g.length % 2 || g.length > 6) throw Error("genotype must be 1–3 letter pairs (Aa, AaBb)");
+    const out = [];
+    for (let i = 0; i < g.length; i += 2) {
+      const a = g[i], b = g[i + 1];
+      if (!/[a-z]/i.test(a) || a.toLowerCase() !== b.toLowerCase())
+        throw Error(`locus "${a}${b}" must be two of the same letter`);
+      out.push(a + b);
+    }
+    return out;
+  };
+  const l1 = loci(p1), l2 = loci(p2);
+  if (l1.length !== l2.length) throw Error("parents need the same number of loci");
+  l1.forEach((p, i) => {
+    if (p[0].toLowerCase() !== l2[i][0].toLowerCase()) throw Error(`locus ${i + 1} letters differ between parents`);
+  });
+  const gam = ls => {
+    const out = [], n = ls.length;
+    for (let m = 0; m < (1 << n); m++) {
+      let g = "";
+      for (let i = 0; i < n; i++) g += ls[i][(m >> (n - 1 - i)) & 1];
+      out.push(g);
+    }
+    return out;
+  };
+  const g1 = gam(l1), g2 = gam(l2);
+  const comb = (a, b) => {
+    let s = "";
+    for (let i = 0; i < a.length; i++) {
+      const x = a[i], y = b[i];
+      s += (x === x.toLowerCase() && y !== y.toLowerCase()) ? y + x : x + y;
+    }
+    return s;
+  };
+  const pheno = g => {
+    if (incomplete) return g;
+    let s = "";
+    for (let i = 0; i < g.length; i += 2) {
+      const hasDom = /[A-Z]/.test(g[i]) || /[A-Z]/.test(g[i + 1]);
+      const L = g[i].toLowerCase();
+      s += hasDom ? L.toUpperCase() + "_" : L + L;
+    }
+    return s;
+  };
+  const square = [], phen = {};
+  for (const r of g1) {
+    const row = [];
+    for (const c of g2) {
+      const g = comb(r, c);
+      row.push(g);
+      phen[pheno(g)] = (phen[pheno(g)] || 0) + 1;
+    }
+    square.push(row);
+  }
+  return { g1, g2, square, phen, pheno };
+}
+function punnettHtml(g1, g2, square, incomplete) {
+  const phenOf = g => {
+    if (incomplete) return g;
+    let s = "";
+    for (let i = 0; i < g.length; i += 2) {
+      const hasDom = /[A-Z]/.test(g[i]) || /[A-Z]/.test(g[i + 1]);
+      const L = g[i].toLowerCase();
+      s += hasDom ? L.toUpperCase() + "_" : L + L;
+    }
+    return s;
+  };
+  const phenIdx = {};
+  const tint = ["rgba(57,135,229,.28)", "rgba(217,89,38,.28)", "rgba(25,158,112,.28)", "transparent"];
+  let h = '<table class="punnett"><tr><th></th>' + g2.map(g => `<th>${g}</th>`).join("") + "</tr>";
+  for (let r = 0; r < square.length; r++) {
+    h += `<tr><th>${g1[r]}</th>`;
+    for (const cell of square[r]) {
+      const p = phenOf(cell);
+      if (!(p in phenIdx)) phenIdx[p] = Object.keys(phenIdx).length;
+      h += `<td style="background:${tint[Math.min(phenIdx[p], 3)]}">${cell}</td>`;
+    }
+    h += "</tr>";
+  }
+  return h + "</table>";
+}
+function jsChiFit(observed, ratio) {
+  const n = observed.reduce((a, b) => a + b, 0), rs = ratio.reduce((a, b) => a + b, 0);
+  if (!n) throw Error("no offspring counted");
+  let chi = 0;
+  for (let i = 0; i < observed.length; i++) {
+    const e = ratio[i] / rs * n;
+    chi += (observed[i] - e) ** 2 / e;
+  }
+  const df = observed.length - 1;
+  return { chi, df, crit: CHI_CRIT[df - 1], ok: chi <= CHI_CRIT[df - 1] };
+}
+
+/* ── the workbench: enter your own data, run your own theory ─────────────── */
+function setupWorkbench() {
+  const w = document.getElementById("workbench");
+  w.innerHTML = `
+    <h2>🔬 The Workbench — bring your own data</h2>
+    <p class="whatis">Field counts, genotype tallies, crosses, and theory curves — typed straight in,
+       computed instantly, same equations as the engine. For files and graded hypotheses, write a spec:
+       <code>./gradlew ecologyExperiment -Pspec=your.eco</code> exports CSVs (Excel-ready) and a printable report.</p>
+    <div class="facets">
+      <div class="facet">
+        <h3>Field data — species counts</h3>
+        <p class="whatis">One per line: <code>name count</code>, <code>name,count</code> (paste from a
+        spreadsheet), or a bare <code>name</code> — repeats tally like clipboard marks. Junk lines are
+        skipped and reported.</p>
+        <textarea id="wb-field">robin 34
+sparrow 21
+wren 8
+finch 3
+thrush 1</textarea>
+        <div id="wb-field-out"></div>
+      </div>
+      <div class="facet">
+        <h3>Compare two sites — β diversity</h3>
+        <p class="whatis">Same entry rules. Counts give Bray–Curtis; names alone give Jaccard/Sørensen.</p>
+        <div style="display:flex;gap:10px">
+          <textarea id="wb-siteA" style="min-height:70px">cattail 18
+duckweed 44
+frogbit 3
+azolla 9
+rush 6</textarea>
+          <textarea id="wb-siteB" style="min-height:70px">duckweed 51
+azolla 2
+lily 12
+rush 6</textarea>
+        </div>
+        <div id="wb-sites-out"></div>
+      </div>
+      <div class="facet">
+        <h3>Mark–recapture — the bean lab</h3>
+        <p class="whatis">Mark M, release, catch C, count R marked. Lincoln–Petersen and Chapman with a 95% CI.</p>
+        <div class="controls">
+          <label>marked M <input type="number" id="wb-mrm" value="120" min="1"></label>
+          <label>caught C <input type="number" id="wb-mrc" value="90" min="1"></label>
+          <label>recaptured R <input type="number" id="wb-mrr" value="30" min="0"></label>
+        </div>
+        <div id="wb-mr-out"></div>
+      </div>
+      <div class="facet">
+        <h3>Quadrat counts — dispersion</h3>
+        <p class="whatis">Individuals per quadrat, separated by spaces or commas.</p>
+        <textarea id="wb-quad" style="min-height:48px">12 0 3 45 2 0 0 28 1 0</textarea>
+        <div id="wb-quad-out"></div>
+      </div>
+      <div class="facet">
+        <h3>Hardy–Weinberg — genotype counts</h3>
+        <div class="controls">
+          <label>AA <input type="number" id="wb-aa" value="298" min="0"></label>
+          <label>Aa <input type="number" id="wb-ab" value="489" min="0"></label>
+          <label>aa <input type="number" id="wb-bb" value="213" min="0"></label>
+        </div>
+        <div id="wb-hw-out"></div>
+      </div>
+      <div class="facet">
+        <h3>Punnett builder — the greenhouse &amp; the coop</h3>
+        <div class="controls">
+          <label>preset
+            <select id="wb-preset">
+              <option value="">— pick a famous cross —</option>
+              <option value="Rr|Rr|0|5474 1850">Mendel's peas: seed shape (his 1866 counts)</option>
+              <option value="RrYy|RrYy|0|315 108 101 32">Mendel's dihybrid: shape × color</option>
+              <option value="Bb|Bb|1|">Blue Andalusian chickens (incomplete)</option>
+              <option value="RrPp|RrPp|0|">Chicken combs: walnut/rose/pea/single</option>
+              <option value="Aa|aa|0|">Test cross (reveal the hidden genotype)</option>
+            </select></label>
+          <label>parent 1 <input type="text" id="wb-p1" value="Rr"></label>
+          <label>parent 2 <input type="text" id="wb-p2" value="Rr"></label>
+          <label>incomplete dominance <input type="checkbox" id="wb-inc"></label>
+          <label>observed counts (optional) <input type="text" id="wb-obs" value="5474 1850" style="width:150px"></label>
+        </div>
+        <div id="wb-punnett-out"></div>
+      </div>
+      <div class="facet">
+        <h3>Dichotomous key — identify by yes/no</h3>
+        <p class="whatis">The classic ID tool. One couplet per line:
+        <code>question | yes-target | no-target</code>, targets are a line number or <code>=Answer</code>.
+        Edit the box to build your own key.</p>
+        <textarea id="wb-key" style="min-height:70px">Is the comb flattened or compact, not one upright blade? | 2 | =Single comb (rrpp)
+Does it have a broad bumpy walnut-like surface? | =Walnut comb (R_P_) | 3
+Is it one long low ridge rather than three small ridges? | =Rose comb (R_pp) | =Pea comb (rrP_)</textarea>
+        <div id="wb-key-out"></div>
+      </div>
+      <div class="facet">
+        <h3>Tree thinking — draw a phylogeny</h3>
+        <p class="whatis">Standard Newick, same as every phylogenetics course and paper. Paste any tree
+        from a handout; internal labels and branch lengths are fine.</p>
+        <textarea id="wb-newick" style="min-height:56px">(Porifera,(Cnidaria,((Mollusca,Annelida),(Arthropoda,(Echinodermata,Chordata)))));</textarea>
+        <div id="wb-tree-out"></div>
+      </div>
+    </div>
+    <h3 class="h3" style="margin-top:16px">Practical trainer — species names, bones, phyla</h3>
+    <p class="whatis">Flashcard drill for lab practicals. One card per line as <code>prompt = answer</code>;
+       pick a preset or paste your own study list (specimen stations, muscle origins, anything).
+       Shuffling is seeded, so a study session reproduces.</p>
+    <div class="controls">
+      <label>preset
+        <select id="wb-deck">
+          <option value="bones">Skeleton — the bone practical</option>
+          <option value="species">Model organisms — binomial names</option>
+          <option value="phyla">March through the animal phyla</option>
+          <option value="custom">— my own list (edit below) —</option>
+        </select></label>
+      <label>seed <input type="number" id="wb-deckseed" value="42"></label>
+      <label>flip (answer → prompt) <input type="checkbox" id="wb-deckflip"></label>
+      <button class="wb-btn" id="wb-deckstart" type="button">start drill</button>
+    </div>
+    <textarea id="wb-decklist" style="min-height:70px"></textarea>
+    <div id="wb-deck-out"></div>
+    <h3 class="h3" style="margin-top:16px">Theory bench — pick a model, set the habitat</h3>
+    <div class="controls">
+      <label>model
+        <select id="wb-model">
+          <option value="logistic">logistic growth</option>
+          <option value="exponential">exponential growth</option>
+          <option value="levins">Levins metapopulation</option>
+          <option value="island">island colonization</option>
+          <option value="competition">L–V competition</option>
+          <option value="predation">L–V predation</option>
+        </select></label>
+      <span id="wb-params"></span>
+      <label>area <input type="number" id="wb-area" value="1" step="0.1" min="0.1"></label>
+      <label>temperature <input type="number" id="wb-temp" value="1" step="0.1" min="0"></label>
+      <label>wind <input type="number" id="wb-wind" value="1" step="0.1" min="0"></label>
+      <label>distance <input type="number" id="wb-dist" value="0" step="0.1" min="0"></label>
+    </div>
+    <div id="wb-theory-out"></div>
+    <h3 class="h3" style="margin-top:16px">Transfer to a protocol — store, re-run, export</h3>
+    <p class="whatis">Everything typed above, rewritten as <code>.eco</code> lines. Paste them into a file and
+       <code>./gradlew ecologyExperiment -Pspec=your.eco</code> re-runs the same data forever — graded
+       hypotheses, Excel-ready CSVs, a printable report. That is the storage format.</p>
+    <button class="wb-btn" id="wb-eco-build" type="button">build .eco lines from my entries</button>
+    <textarea id="wb-eco-out" readonly style="min-height:120px;margin-top:8px" spellcheck="false"></textarea>`;
+
+  const on = (id, fn) => document.getElementById(id).addEventListener("input", fn);
+
+  /* shared entry parser (mirrors FieldData): name count | name,count | bare-name tally */
+  function parseCounts(text) {
+    const counts = {}, order = [];
+    let skipped = 0, auto = 0;
+    for (const raw of text.split("\n")) {
+      const line = raw.split("#")[0].trim();
+      if (!line) continue;
+      let name, n;
+      const csv = line.split(/[,\t]/).map(s => s.trim()).filter(Boolean);
+      const toks = line.split(/\s+/);
+      const last = Number(toks[toks.length - 1]);
+      if (csv.length === 2 && Number.isFinite(Number(csv[1]))) { name = csv[0]; n = Number(csv[1]); }
+      else if (toks.length > 1 && Number.isFinite(last)) { name = toks.slice(0, -1).join(" "); n = last; }
+      else if (toks.length === 1 && Number.isFinite(last)) { name = "sp" + (++auto); n = last; }
+      else { name = line; n = 1; }                                  // bare name → tally mark
+      if (!name || !Number.isFinite(n) || n <= 0 || !Number.isInteger(n)) { skipped++; continue; }
+      if (!(name in counts)) order.push(name);
+      counts[name] = (counts[name] || 0) + n;
+    }
+    return { counts, order, skipped };
+  }
+  const ecoName = s => s.replace(/\s+/g, "-").replace(/=/g, "-");
+
+  /* field data */
+  function runField() {
+    const out = document.getElementById("wb-field-out");
+    const { counts, skipped } = parseCounts(document.getElementById("wb-field").value);
+    const vals = Object.values(counts).filter(c => c > 0);
+    const N = vals.reduce((a, b) => a + b, 0);
+    if (!N) { out.innerHTML = '<p class="wb-error">no usable counts yet</p>'; return; }
+    const H = jsShannon(vals);
+    const S = vals.length, J = S > 1 ? H / Math.log(S) : 1;
+    out.innerHTML =
+      `<div class="tiles">${tile(S, "species")}${tile(fmt(H, 2), "Shannon H′")}${tile(fmt(J, 2), "evenness J′")}
+       ${tile(fmt(Math.exp(H), 1), "effective species")}${tile(fmt(jsChao1(vals), 0), "Chao1 est.")}</div>
+       <p class="reading">${evenness(J)}.${skipped ? ` <span class="wb-error">(${skipped} line(s) skipped)</span>` : ""}</p>`;
+    const holder = document.createElement("div");
+    barChart(holder, vals.slice().sort((a, b) => b - a), { w: 480, h: 120, animate: false,
+      xLabel: "rank", tipFn: (i, v) => `rank <b>${i + 1}</b> · <b>${v}</b>` });
+    out.append(holder);
+  }
+
+  /* quadrats */
+  function runQuad() {
+    const out = document.getElementById("wb-quad-out");
+    const counts = document.getElementById("wb-quad").value.split(/[\s,]+/)
+        .map(Number).filter(n => Number.isFinite(n) && n >= 0);
+    if (counts.length < 2) { out.innerHTML = '<p class="wb-error">need at least two quadrats</p>'; return; }
+    const N = counts.reduce((a, b) => a + b, 0), q = counts.length, mean = N / q;
+    const varr = counts.reduce((s, c) => s + (c - mean) ** 2, 0) / (q - 1);
+    const id = mean ? varr / mean : 0;
+    const mor = N > 1 ? q * counts.reduce((s, c) => s + c * (c - 1), 0) / (N * (N - 1)) : 1;
+    out.innerHTML =
+      `<div class="tiles">${tile(fmt(id, 2), "variance/mean")}${tile(fmt(mor, 2), "Morisita")}</div>
+       <p class="reading">${dispersion(id)}.</p>`;
+    const holder = document.createElement("div");
+    barChart(holder, counts, { w: 480, h: 110, color: "var(--s2)", animate: false,
+      xLabel: "quadrat", tipFn: (i, v) => `quadrat <b>${i + 1}</b> · <b>${v}</b>` });
+    out.append(holder);
+  }
+
+  /* Hardy–Weinberg */
+  function runHw() {
+    const out = document.getElementById("wb-hw-out");
+    const AA = +document.getElementById("wb-aa").value, Ab = +document.getElementById("wb-ab").value,
+          bb = +document.getElementById("wb-bb").value;
+    const n = AA + Ab + bb;
+    if (!n || AA < 0 || Ab < 0 || bb < 0) { out.innerHTML = '<p class="wb-error">enter non-negative counts</p>'; return; }
+    const p = (2 * AA + Ab) / (2 * n), q = 1 - p;
+    const e = [p * p * n, 2 * p * q * n, q * q * n];
+    let chi = 0;
+    [AA, Ab, bb].forEach((o, i) => { if (e[i] > 0) chi += (o - e[i]) ** 2 / e[i]; });
+    out.innerHTML =
+      `<div class="tiles">${tile(fmt(p, 3), "p")}${tile(fmt(q, 3), "q")}${tile(fmt(chi, 2), "χ² (df 1)")}</div>
+       <p class="reading">${chi <= CHI_CRIT[0] ? "✅ consistent with equilibrium" : "❌ significantly out of equilibrium"}
+       — expected ${e.map(x => fmt(x, 0)).join(" / ")}.</p>`;
+  }
+
+  /* Punnett builder */
+  function runPunnett() {
+    const out = document.getElementById("wb-punnett-out");
+    try {
+      const inc = document.getElementById("wb-inc").checked;
+      const cr = jsCross(document.getElementById("wb-p1").value.trim(),
+                         document.getElementById("wb-p2").value.trim(), inc);
+      const ratio = Object.entries(cr.phen).map(([k, v]) => `${v} ${k}`).join(" : ");
+      let html = punnettHtml(cr.g1, cr.g2, cr.square, inc) +
+        `<p class="reading">phenotype ratio: <b>${ratio}</b></p>`;
+      const obsRaw = document.getElementById("wb-obs").value.trim();
+      if (obsRaw) {
+        const obs = obsRaw.split(/[\s,]+/).map(Number).filter(n => Number.isFinite(n) && n >= 0);
+        const expected = Object.values(cr.phen);
+        if (obs.length === expected.length) {
+          const fit = jsChiFit(obs, expected);
+          html += `<p class="reading">observed vs expected: χ² = <b>${fmt(fit.chi, 3)}</b> (df ${fit.df},
+            critical ${fit.crit}) — ${fit.ok ? "✅ consistent with the Mendelian ratio"
+                                             : "❌ significantly off the ratio"}.</p>`;
+        } else {
+          html += `<p class="wb-error">observed needs ${expected.length} counts (one per phenotype, in ratio order)</p>`;
+        }
+      }
+      out.innerHTML = html;
+    } catch (err) {
+      out.innerHTML = `<p class="wb-error">${err.message}</p>`;
+    }
+  }
+  document.getElementById("wb-preset").addEventListener("change", ev => {
+    if (!ev.target.value) return;
+    const [p1, p2, inc, obs] = ev.target.value.split("|");
+    document.getElementById("wb-p1").value = p1;
+    document.getElementById("wb-p2").value = p2;
+    document.getElementById("wb-inc").checked = inc === "1";
+    document.getElementById("wb-obs").value = obs;
+    runPunnett();
+  });
+
+  /* compare two sites — β diversity on your own entries */
+  function runSites() {
+    const out = document.getElementById("wb-sites-out");
+    const A = parseCounts(document.getElementById("wb-siteA").value);
+    const B = parseCounts(document.getElementById("wb-siteB").value);
+    const sa = new Set(A.order), sb = new Set(B.order);
+    if (!sa.size || !sb.size) { out.innerHTML = '<p class="wb-error">enter counts for both sites</p>'; return; }
+    const shared = [...sa].filter(x => sb.has(x));
+    const union = sa.size + sb.size - shared.length;
+    const j = union ? shared.length / union : 0;
+    const sor = 2 * shared.length / (sa.size + sb.size);
+    let sumMin = 0, sumTot = 0;
+    for (const k of new Set([...sa, ...sb])) {
+      const a = A.counts[k] || 0, b = B.counts[k] || 0;
+      sumMin += Math.min(a, b); sumTot += a + b;
+    }
+    const bc = sumTot ? 1 - 2 * sumMin / sumTot : 0;
+    const word = bc <= 0.2 ? "nearly identical communities" :
+                 bc <= 0.6 ? "moderate turnover" : "major turnover — substantially different communities";
+    out.innerHTML =
+      `<div class="tiles">${tile(fmt(j, 2), "Jaccard")}${tile(fmt(sor, 2), "Sørensen")}${tile(fmt(bc, 2), "Bray–Curtis")}</div>
+       <p class="reading">share <b>${shared.length}</b> of <b>${union}</b> kinds — ${word}.
+       ${shared.length ? `Shared: ${shared.join(", ")}.` : ""}</p>`;
+  }
+
+  /* mark–recapture — Lincoln–Petersen + Chapman (mirrors MarkRecapture.java) */
+  function runMR() {
+    const out = document.getElementById("wb-mr-out");
+    const M = +document.getElementById("wb-mrm").value, C = +document.getElementById("wb-mrc").value,
+          R = +document.getElementById("wb-mrr").value;
+    if (!(M > 0) || !(C > 0) || R < 0 || R > Math.min(M, C)) {
+      out.innerHTML = '<p class="wb-error">need M &gt; 0, C &gt; 0, 0 ≤ R ≤ min(M, C)</p>'; return;
+    }
+    const lp = R > 0 ? M * C / R : null;
+    const chap = (M + 1) * (C + 1) / (R + 1) - 1;
+    const varc = (M + 1) * (C + 1) * (M - R) * (C - R) / ((R + 1) ** 2 * (R + 2));
+    const half = 1.96 * Math.sqrt(varc);
+    out.innerHTML =
+      `<div class="tiles">${lp !== null ? tile(fmt(lp, 0), "Lincoln–Petersen N̂") : ""}
+       ${tile(fmt(chap, 0), "Chapman N̂")}${tile(`${fmt(Math.max(0, chap - half), 0)}–${fmt(chap + half, 0)}`, "95% CI")}</div>
+       <p class="reading">${lp === null ? "R = 0: Lincoln–Petersen is undefined; Chapman still estimates. " : ""}
+       Assumes a closed population, no lost marks, equal catchability.</p>`;
+  }
+
+  /* dichotomous key — build and walk */
+  function runKey() {
+    const out = document.getElementById("wb-key-out");
+    const couplets = [], errs = [];
+    document.getElementById("wb-key").value.split("\n").forEach((raw, i) => {
+      const line = raw.trim();
+      if (!line) return;
+      const p = line.split("|").map(s => s.trim());
+      if (p.length !== 3 || p.some(x => !x)) { errs.push(`line ${i + 1}: need question | yes | no`); return; }
+      couplets.push({ q: p[0], yes: p[1], no: p[2] });
+    });
+    if (errs.length) { out.innerHTML = errs.map(e => `<p class="wb-error">${e}</p>`).join(""); return; }
+    if (!couplets.length) { out.innerHTML = '<p class="wb-error">no couplets yet</p>'; return; }
+    const trail = [];
+    function goto(target) {
+      if (target.startsWith("=")) {
+        out.innerHTML = `${trailHtml()}<p class="reading">🔎 identification: <b>${target.slice(1)}</b></p>`;
+        addRestart(); return;
+      }
+      const n = Number(target);
+      if (!Number.isInteger(n) || n < 1 || n > couplets.length) {
+        out.innerHTML = `${trailHtml()}<p class="wb-error">bad target '${target}' — use a line number or =Answer</p>`;
+        addRestart(); return;
+      }
+      const c = couplets[n - 1];
+      out.innerHTML = `${trailHtml()}<p class="reading"><b>${n}.</b> ${c.q}</p>`;
+      const yes = document.createElement("button");
+      yes.className = "wb-btn good"; yes.type = "button"; yes.textContent = "yes";
+      yes.addEventListener("click", () => { trail.push(`${n}: yes`); goto(c.yes); });
+      const no = document.createElement("button");
+      no.className = "wb-btn bad"; no.type = "button"; no.textContent = "no";
+      no.style.marginLeft = "8px"; no.type = "button";
+      no.addEventListener("click", () => { trail.push(`${n}: no`); goto(c.no); });
+      out.append(yes, no);
+    }
+    function trailHtml() {
+      return trail.length ? `<p class="keytrail">${trail.join(" → ")}</p>` : "";
+    }
+    function addRestart() {
+      const b = document.createElement("button");
+      b.className = "wb-btn"; b.type = "button"; b.textContent = "start over";
+      b.addEventListener("click", () => { trail.length = 0; goto("1"); });
+      out.append(b);
+    }
+    goto("1");
+  }
+
+  /* tree thinking — Newick in, cladogram out */
+  function runTree() {
+    const out = document.getElementById("wb-tree-out");
+    try {
+      const root = jsNewick(document.getElementById("wb-newick").value);
+      out.innerHTML = `<div class="tiles">${tile(countLeaves(root), "taxa")}${tile(treeDepth(root), "depth")}</div>`;
+      drawCladogram(out, root);
+    } catch (err) {
+      out.innerHTML = `<p class="wb-error">${err.message}</p>`;
+    }
+  }
+
+  /* practical trainer — seeded flashcards for lab practicals */
+  const DECKS = {
+    bones: [
+      "longest, strongest bone (thigh) = femur", "kneecap = patella",
+      "upper arm bone = humerus", "forearm bone on the thumb side = radius",
+      "forearm bone on the little-finger side = ulna", "shoulder blade = scapula",
+      "collarbone = clavicle", "shin bone = tibia", "slender bone beside the shin = fibula",
+      "breastbone = sternum", "lower jaw = mandible", "wrist bones = carpals",
+      "ankle bones = tarsals", "finger and toe bones = phalanges", "hip bones = pelvis",
+    ],
+    species: [
+      "fruit fly = Drosophila melanogaster", "house mouse = Mus musculus",
+      "human = Homo sapiens", "thale cress = Arabidopsis thaliana",
+      "nematode worm (model organism) = Caenorhabditis elegans", "zebrafish = Danio rerio",
+      "baker's yeast = Saccharomyces cerevisiae", "gut bacterium (model organism) = Escherichia coli",
+      "garden pea (Mendel's plant) = Pisum sativum", "domestic chicken = Gallus gallus",
+    ],
+    phyla: [
+      "sponges = Porifera", "jellyfish, corals, anemones = Cnidaria",
+      "flatworms = Platyhelminthes", "roundworms = Nematoda",
+      "segmented worms = Annelida", "snails, clams, squid = Mollusca",
+      "insects, spiders, crustaceans = Arthropoda", "sea stars, urchins = Echinodermata",
+      "vertebrates and relatives = Chordata",
+    ],
+  };
+  function fillDeck() {
+    const kind = document.getElementById("wb-deck").value;
+    if (kind !== "custom") document.getElementById("wb-decklist").value = DECKS[kind].join("\n");
+  }
+  function startDrill() {
+    const out = document.getElementById("wb-deck-out");
+    const flip = document.getElementById("wb-deckflip").checked;
+    const cards = [];
+    for (const raw of document.getElementById("wb-decklist").value.split("\n")) {
+      const line = raw.trim();
+      if (!line) continue;
+      const eq = line.indexOf("=");
+      if (eq <= 0) continue;
+      const a = line.slice(0, eq).trim(), b = line.slice(eq + 1).trim();
+      if (a && b) cards.push(flip ? { q: b, a: a } : { q: a, a: b });
+    }
+    if (!cards.length) { out.innerHTML = '<p class="wb-error">no cards — one per line as prompt = answer</p>'; return; }
+    const rnd = mulberry32(+document.getElementById("wb-deckseed").value || 42);
+    for (let i = cards.length - 1; i > 0; i--) {                     // seeded Fisher–Yates
+      const j = Math.floor(rnd() * (i + 1));
+      [cards[i], cards[j]] = [cards[j], cards[i]];
+    }
+    let idx = 0, right = 0, seen = 0;
+    const missed = [];
+    function show() {
+      if (idx >= cards.length) {
+        if (missed.length) {
+          out.innerHTML = `<p class="reading">score so far: <b>${right}/${seen}</b> — reviewing the
+            <b>${missed.length}</b> you missed.</p>`;
+          cards.length = 0; cards.push(...missed.splice(0));
+          idx = 0;
+          card();
+          return;
+        }
+        out.innerHTML = `<p class="reading">🏁 done — <b>${right}/${seen}</b> right. Change the seed to
+          reshuffle, or flip the deck and go the other way.</p>`;
+        return;
+      }
+      card();
+    }
+    function card() {
+      const c = cards[idx];
+      out.innerHTML = `<div class="flashcard">card ${idx + 1} of ${cards.length} · score ${right}/${seen}
+        <div style="margin-top:8px;font-weight:600">${c.q}</div><div id="wb-card-a"></div></div>`;
+      const reveal = document.createElement("button");
+      reveal.className = "wb-btn"; reveal.type = "button"; reveal.textContent = "reveal";
+      reveal.addEventListener("click", () => {
+        document.getElementById("wb-card-a").innerHTML = `<div class="answer">${c.a}</div>`;
+        reveal.remove();
+        const good = document.createElement("button");
+        good.className = "wb-btn good"; good.type = "button"; good.textContent = "✓ got it";
+        good.addEventListener("click", () => { right++; seen++; idx++; show(); });
+        const bad = document.createElement("button");
+        bad.className = "wb-btn bad"; bad.type = "button"; bad.textContent = "✗ missed";
+        bad.style.marginLeft = "8px";
+        bad.addEventListener("click", () => { seen++; missed.push(c); idx++; show(); });
+        out.querySelector(".flashcard").append(good, bad);
+      });
+      out.querySelector(".flashcard").append(reveal);
+    }
+    show();
+  }
+
+  /* transfer — rebuild the current entries as .eco protocol lines */
+  function buildEco() {
+    const lines = ["# built by the Workbench — paste into your .eco protocol",
+                   "name: my workbench experiment", "keys: 100", "seed: 42", "window: 250", ""];
+    const dataLine = (label, parsed) => "data: " + label + " " + parsed.order
+        .map(n => parsed.counts[n] === 1 ? ecoName(n) : `${ecoName(n)}=${parsed.counts[n]}`).join(" ");
+    const field = parseCounts(document.getElementById("wb-field").value);
+    if (field.order.length) lines.push(dataLine("myfield", field));
+    const A = parseCounts(document.getElementById("wb-siteA").value);
+    const B = parseCounts(document.getElementById("wb-siteB").value);
+    if (A.order.length) lines.push(dataLine("siteA", A));
+    if (B.order.length) lines.push(dataLine("siteB", B));
+    lines.push("", `model: hardyweinberg ${+document.getElementById("wb-aa").value || 0} ` +
+        `${+document.getElementById("wb-ab").value || 0} ${+document.getElementById("wb-bb").value || 0}`);
+    lines.push(`model: markrecapture ${+document.getElementById("wb-mrm").value || 1} ` +
+        `${+document.getElementById("wb-mrc").value || 1} ${+document.getElementById("wb-mrr").value || 0}`);
+    const kind = document.getElementById("wb-model").value;
+    const mp = MODEL_PARAMS[kind].map((_, i) => +document.getElementById("wb-mp" + i).value);
+    lines.push(`model: ${kind} ${mp.join(" ")}`);
+    const factors = [["area", "wb-area", 1], ["temperature", "wb-temp", 1],
+                     ["wind", "wb-wind", 1], ["distance", "wb-dist", 0]];
+    for (const [nameF, id, neutral] of factors) {
+      const v = +document.getElementById(id).value;
+      if (Number.isFinite(v) && v !== neutral) lines.push(`factor: ${nameF} ${v}`);
+    }
+    const p1 = document.getElementById("wb-p1").value.trim(), p2 = document.getElementById("wb-p2").value.trim();
+    if (p1 && p2) {
+      let cr = `cross: ${p1} x ${p2}`;
+      if (document.getElementById("wb-inc").checked) cr += " incomplete";
+      const obs = document.getElementById("wb-obs").value.trim();
+      if (obs) cr += " observed " + obs.split(/[\s,]+/).filter(Boolean).join(" ");
+      lines.push(cr);
+    }
+    const nwk = document.getElementById("wb-newick").value.trim();
+    if (nwk) {
+      try { jsNewick(nwk); lines.push(`tree: mytree ${nwk.replace(/\s+/g, "")}`); } catch {}
+    }
+    lines.push("", "# suggested hypotheses — edit BEFORE you run; that's the discipline");
+    if (field.order.length) {
+      const vals = Object.values(field.counts), H = jsShannon(vals), S = vals.length;
+      const J = S > 1 ? H / Math.log(S) : 1;
+      const band = J >= 0.85 ? "very-even" : J >= 0.55 ? "moderate" : J >= 0.3 ? "uneven" : "dominated";
+      lines.push(`expect: evenness(myfield) is ${band}`);
+    }
+    if (A.order.length && B.order.length) lines.push("expect: turnover(siteA, siteB) is moderate");
+    document.getElementById("wb-eco-out").value = lines.join("\n");
+  }
+
+  /* theory bench */
+  const MODEL_PARAMS = {
+    logistic:    [["r", 0.15], ["K", 120], ["N₀", 5], ["steps", 60]],
+    exponential: [["r", 0.1], ["N₀", 5], ["steps", 40]],
+    levins:      [["c", 0.4], ["e", 0.1], ["p₀", 0.05], ["steps", 40]],
+    island:      [["c", 0.3], ["e", 0.1], ["pool", 100], ["S₀", 0], ["steps", 40]],
+    competition: [["r₁", 0.4], ["K₁", 100], ["r₂", 0.4], ["K₂", 80], ["α₁₂", 0.7], ["α₂₁", 1.1], ["N₁", 5], ["N₂", 5], ["steps", 80]],
+    predation:   [["r", 0.5], ["a", 0.02], ["b", 0.3], ["m", 0.4], ["N₀", 40], ["P₀", 9], ["steps", 200]],
+  };
+  function buildParams() {
+    const kind = document.getElementById("wb-model").value;
+    document.getElementById("wb-params").innerHTML = MODEL_PARAMS[kind].map(([n, v], i) =>
+      `<label>${n} <input type="number" class="wb-mp" id="wb-mp${i}" value="${v}" step="any"></label>`).join("");
+    for (const el of document.querySelectorAll(".wb-mp")) el.addEventListener("input", runTheory);
+    runTheory();
+  }
+  function runTheory() {
+    const out = document.getElementById("wb-theory-out");
+    const kind = document.getElementById("wb-model").value;
+    const p = MODEL_PARAMS[kind].map((_, i) => +document.getElementById("wb-mp" + i).value);
+    const area = Math.max(0.1, +document.getElementById("wb-area").value || 1);
+    const temp = Math.max(0, +document.getElementById("wb-temp").value || 0);
+    const wind = Math.max(0, +document.getElementById("wb-wind").value || 0);
+    const dist = Math.max(0, +document.getElementById("wb-dist").value || 0);
+    const col = c => c * wind * temp * Math.exp(-dist);
+    const ext = e => e / area;
+    const steps = Math.max(1, Math.min(2000, Math.round(p[p.length - 1])));
+    let series = [], series2 = null, note = "";
+    if (kind === "logistic") {
+      const r = p[0] * temp, K = p[1] * area, n0 = p[2];
+      for (let t = 0; t <= steps; t++) series.push([t, n0 <= 0 ? 0 : K / (1 + ((K - n0) / n0) * Math.exp(-r * t))]);
+      note = `effective r=${fmt(r, 3)}, K=${fmt(K, 0)}`;
+    } else if (kind === "exponential") {
+      const r = p[0] * temp;
+      for (let t = 0; t <= steps; t++) series.push([t, p[1] * Math.exp(r * t)]);
+      note = `effective r=${fmt(r, 3)}`;
+    } else if (kind === "levins") {
+      const c = col(p[0]), e = ext(p[1]);
+      let occ = Math.min(1, Math.max(0, p[2]));
+      for (let t = 0; t <= steps; t++) {
+        series.push([t, occ]);
+        occ = Math.min(1, Math.max(0, occ + c * occ * (1 - occ) - e * occ));
+      }
+      note = `effective c=${fmt(c, 3)}, e=${fmt(e, 3)}, p* = ${fmt(c > 0 ? Math.max(0, 1 - e / c) : 0, 3)}`;
+    } else if (kind === "island") {
+      const c = col(p[0]), e = ext(p[1]), sStar = c + e > 0 ? c / (c + e) * p[2] : 0;
+      for (let t = 0; t <= steps; t++) series.push([t, sStar + (p[3] - sStar) * Math.exp(-(c + e) * t)]);
+      note = `effective c=${fmt(c, 3)}, e=${fmt(e, 3)}, S* = ${fmt(sStar, 1)}`;
+    } else if (kind === "competition") {
+      const r1 = p[0] * temp, k1 = p[1] * area, r2 = p[2] * temp, k2 = p[3] * area;
+      let x = Math.max(0, p[6]), y = Math.max(0, p[7]);
+      series2 = [];
+      for (let t = 0; t <= steps; t++) {
+        series.push([t, x]); series2.push([t, y]);
+        for (let s2 = 0; s2 < 10; s2++) {
+          const dx = r1 * x * (1 - (x + p[4] * y) / k1) * 0.1;
+          const dy = r2 * y * (1 - (y + p[5] * x) / k2) * 0.1;
+          x = Math.max(0, x + dx); y = Math.max(0, y + dy);
+        }
+      }
+      note = `effective K₁=${fmt(k1, 0)}, K₂=${fmt(k2, 0)}`;
+    } else {
+      const r = p[0] * temp;
+      let n = Math.max(0, p[4]), pr = Math.max(0, p[5]);
+      series2 = [];
+      for (let t = 0; t <= steps; t++) {
+        series.push([t, n]); series2.push([t, pr]);
+        for (let s2 = 0; s2 < 100; s2++) {
+          const dn = (r * n - p[1] * n * pr) * 0.01;
+          const dp = (p[2] * p[1] * n * pr - p[3] * pr) * 0.01;
+          n = Math.max(0, n + dn); pr = Math.max(0, pr + dp);
+        }
+      }
+      note = `effective r=${fmt(r, 3)}`;
+    }
+    out.innerHTML = `<p class="reading">${note} <span class="chip">habitat: area ${area} · temp ${temp} · wind ${wind} · distance ${dist}</span></p>`;
+    const holder = document.createElement("div");
+    if (series2) {
+      out.insertAdjacentHTML("beforeend",
+        `<div class="legend"><span><span class="sw" style="background:var(--s1)"></span>${kind === "predation" ? "prey" : "species 1"}</span>
+         <span><span class="sw" style="background:var(--s2)"></span>${kind === "predation" ? "predator" : "species 2"}</span></div>`);
+      lineChart(holder, [{ color: "var(--s1)", pts: series }, { color: "var(--s2)", pts: series2 }],
+        { w: 980, h: 190, xLabel: "t", animate: false,
+          tipFn: i => `t=<b>${fmt(series[i][0], 0)}</b> · <b>${fmt(series[i][1], 1)}</b> / <b>${fmt(series2[i][1], 1)}</b>` });
+    } else {
+      lineChart(holder, [{ color: "var(--s1)", pts: series }],
+        { w: 980, h: 190, xLabel: "t", animate: false,
+          tipFn: i => `t=<b>${fmt(series[i][0], 0)}</b> · <b>${fmt(series[i][1], 2)}</b>` });
+    }
+    out.append(holder);
+  }
+
+  on("wb-field", runField); on("wb-quad", runQuad);
+  on("wb-aa", runHw); on("wb-ab", runHw); on("wb-bb", runHw);
+  on("wb-p1", runPunnett); on("wb-p2", runPunnett); on("wb-obs", runPunnett);
+  document.getElementById("wb-inc").addEventListener("change", runPunnett);
+  document.getElementById("wb-model").addEventListener("change", buildParams);
+  for (const id of ["wb-area", "wb-temp", "wb-wind", "wb-dist"]) on(id, runTheory);
+  on("wb-siteA", runSites); on("wb-siteB", runSites);
+  on("wb-mrm", runMR); on("wb-mrc", runMR); on("wb-mrr", runMR);
+  on("wb-key", runKey); on("wb-newick", runTree);
+  document.getElementById("wb-deck").addEventListener("change", fillDeck);
+  document.getElementById("wb-deckstart").addEventListener("click", startDrill);
+  document.getElementById("wb-eco-build").addEventListener("click", buildEco);
+  runField(); runQuad(); runHw(); runPunnett(); buildParams();
+  runSites(); runMR(); runKey(); runTree(); fillDeck();
+}
+
+/* ── session loading ──────────────────────────────────────────────────────── */
+setupTerrarium();
+setupWorkbench();
+if (SESSION) render(SESSION);
+else document.getElementById("main").innerHTML =
+  '<section class="card"><h2>No session embedded</h2><p class="reading">Run <b>./gradlew ecologyFieldDay</b> (or <b>ecologyTrace</b>), then drop the generated JSON onto this page.</p></section>';
+
+addEventListener("dragover", ev => { ev.preventDefault(); document.body.classList.add("dragging"); });
+addEventListener("dragleave", () => document.body.classList.remove("dragging"));
+addEventListener("drop", ev => {
+  ev.preventDefault(); document.body.classList.remove("dragging");
+  const file = ev.dataTransfer.files[0];
+  if (!file) return;
+  file.text().then(t => {
+    try { render(JSON.parse(t)); }
+    catch (e) {
+      document.getElementById("main").insertAdjacentHTML("afterbegin",
+        `<section class="card"><h2>⚠️ Could not read that file</h2><p class="reading">${e.message}</p></section>`);
+    }
+  });
+});
+</script>
+</body>
+</html>

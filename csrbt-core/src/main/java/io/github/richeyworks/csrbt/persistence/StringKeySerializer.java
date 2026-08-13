@@ -13,6 +13,9 @@ package io.github.richeyworks.csrbt.persistence;
  *   ';' -&gt; %3B
  *   '#' -&gt; %23
  *   '|' -&gt; %7C
+ *   any control character &lt; 0x20 -&gt; %XX   (the format is LINE-based: an unescaped
+ *                                          '\n' or '\r' would split the data line —
+ *                                          bug audit 2026-08-12, P-1)
  * </pre>
  *
  * <p>Only those ASCII characters are ever encoded, so decoding is a plain two-hex {@code %XX}
@@ -43,7 +46,16 @@ final class StringKeySerializer implements KeySerializer<String> {
                 case ';': b.append("%3B"); break;
                 case '#': b.append("%23"); break;
                 case '|': b.append("%7C"); break;
-                default:  b.append(c);
+                default:
+                    if (c < 0x20) {
+                        // Line terminators (and any other control char) would break the
+                        // line-based snapshot format — percent-encode them (P-1).
+                        b.append('%');
+                        b.append(Character.toUpperCase(Character.forDigit((c >> 4) & 0xF, 16)));
+                        b.append(Character.toUpperCase(Character.forDigit(c & 0xF, 16)));
+                    } else {
+                        b.append(c);
+                    }
             }
         }
         return b.toString();

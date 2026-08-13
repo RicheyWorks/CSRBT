@@ -46,21 +46,15 @@ public final class NavigableOrderedSet<K> extends AbstractSet<K> implements Navi
     /** The backing {@link OrderedSet} — the mutation point for every read-only view. */
     public OrderedSet<K> base() { return set; }
 
-    // ── Counting helpers (the whole adapter is these two + select) ───────────────
-
-    /** Keys {@code <= key} (0 on empty; O(log n) via countInRange from the minimum). */
-    private int countAtMost(K key) {
-        if (set.isEmpty()) return 0;
-        return set.countInRange(set.minimum(), key);   // lo > hi counts 0, so key < min is free
-    }
-
-    /** Keys {@code < key}. */
-    private int countLess(K key) {
-        return countAtMost(key) - (set.contains(key) ? 1 : 0);
-    }
+    // ── Counting helpers ─────────────────────────────────────────────────────────
+    // ADR-021: every count is ONE guarded acquisition on the base set. The old
+    // compositions (countInRange-from-minimum, then contains, then select) spanned
+    // multiple lock epochs, so a write landing between them made read-only navigation
+    // throw or answer wrong under the advertised concurrent-read model (deep-sweep
+    // audit 2026-08-12, D-1: 399 exceptions / 1,870 contract violations in 3.7M calls).
 
     int countUpTo(K key, boolean inclusive) {          // package: views size themselves with this
-        return inclusive ? countAtMost(key) : countLess(key);
+        return set.countUpTo(key, inclusive);
     }
 
     // ── Set ───────────────────────────────────────────────────────────────────────
@@ -127,32 +121,31 @@ public final class NavigableOrderedSet<K> extends AbstractSet<K> implements Navi
 
     // ── NavigableSet navigation ───────────────────────────────────────────────────
 
+    // ADR-021: each navigation call is a single atomic descent on the base set —
+    // no count/select composition, no lock-epoch gap for a writer to slip into.
+
     @Override
     public K lower(K k) {                              // greatest key < k
         Objects.requireNonNull(k);
-        int c = countLess(k);
-        return c > 0 ? set.select(c) : null;
+        return set.lower(k);
     }
 
     @Override
     public K floor(K k) {                              // greatest key <= k
         Objects.requireNonNull(k);
-        int c = countAtMost(k);
-        return c > 0 ? set.select(c) : null;
+        return set.floor(k);
     }
 
     @Override
     public K ceiling(K k) {                            // least key >= k
         Objects.requireNonNull(k);
-        int c = countLess(k);
-        return c < set.size() ? set.select(c + 1) : null;
+        return set.ceiling(k);
     }
 
     @Override
     public K higher(K k) {                             // least key > k
         Objects.requireNonNull(k);
-        int c = countAtMost(k);
-        return c < set.size() ? set.select(c + 1) : null;
+        return set.higher(k);
     }
 
     @Override
@@ -243,9 +236,8 @@ public final class NavigableOrderedSet<K> extends AbstractSet<K> implements Navi
 
         @Override
         public int size() {
-            int upTo   = hi == null ? b.size() : b.countUpTo(hi, hiInc);
-            int before = lo == null ? 0        : b.countUpTo(lo, !loInc);
-            return Math.max(0, upTo - before);
+            // ADR-021: both bound counts run under ONE guarded acquisition on the base.
+            return b.set.countBetween(lo, loInc, hi, hiInc);
         }
 
         @Override public boolean isEmpty() { return size() == 0; }

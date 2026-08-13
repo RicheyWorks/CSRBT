@@ -230,7 +230,8 @@ public class PolicyEvolutionControllerTest {
 
         String json = recorder.toJson();
         assertTrue(json.contains("\"type\": \"Lineage\""), "births must be in the session");
-        assertTrue(json.contains("\"op\": \"founder\""));
+        assertTrue(json.contains("\"breedOp\": \"founder\""),
+                "the Lineage operator uses its own key — a duplicate \"op\" key destroyed the op counter (bug audit 2026-08-12, B1)");
         assertTrue(json.contains("\"type\": \"Trial\""));
         assertTrue(json.contains("\"phase\": \"CULLED\""), "selection deaths must be visible");
         assertFalse(json.contains("NaN"), "JSON must stay parseable");

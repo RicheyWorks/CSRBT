@@ -202,7 +202,19 @@ public class TreeGenome implements Cloneable {
         );
 
         if (RNG.nextDouble() < child.morphTraits.getMutationRate()) {
-            child = child.mutatedCopy();
+            // In-womb trait mutation must not rewrite the child's provenance (bug audit
+            // 2026-08-12, G-C): mutatedCopy() re-frames the copy as a MUTATED child of
+            // the intermediate — losing both real parents (parentA became a phantom
+            // UUID matching neither), the CROSSED origin, and double-bumping the
+            // generation. Mutate the traits, then restore the crossover frame.
+            TreeGenome mutated = child.mutatedCopy();
+            mutated.parentAId  = parentA.genomeId;
+            mutated.parentBId  = parentB.genomeId;
+            mutated.origin     = GenomeOrigin.CROSSED;
+            mutated.generation = childGeneration;
+            mutated.lineageTag = child.lineageTag + "*";
+            mutated.notes      = normalizeNotes(child.notes + " (trait mutation at birth)");
+            child = mutated;
         }
 
         return child;
@@ -1786,8 +1798,20 @@ public class TreeGenome implements Cloneable {
         return lineageTag.trim();
     }
 
+    /** Cap for the free-text provenance note — see below. */
+    private static final int MAX_NOTES_LENGTH = 512;
+
+    /**
+     * Trim and CAP the provenance note (bug audit 2026-08-12, G-F): every stagnation
+     * mutation and morph appended " | Mutated from &lt;uuid&gt;", so a long-lived tree's
+     * genome accumulated an O(ops) note (11.7k chars after 20k ops) with O(len) copy
+     * cost per mutation. The tail is kept — the recent history is the useful part.
+     */
     private static String normalizeNotes(String notes) {
-        return notes == null ? "" : notes.trim();
+        if (notes == null) return "";
+        String trimmed = notes.trim();
+        if (trimmed.length() <= MAX_NOTES_LENGTH) return trimmed;
+        return "…" + trimmed.substring(trimmed.length() - MAX_NOTES_LENGTH);
     }
 
     private static <T> T randomEnum(T[] values) {

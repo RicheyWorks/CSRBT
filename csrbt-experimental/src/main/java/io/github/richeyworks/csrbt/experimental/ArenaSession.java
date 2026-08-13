@@ -31,14 +31,23 @@ public final class ArenaSession {
         GenomeDrivenTreeController controller = new GenomeDrivenTreeController(
                 ctx, TreeGenome.redBlackGenome(), new MorphPolicy(0, 0.10, 1));
 
-        // Regime 1 — uniform build-up: mixed keys, no skew. The controller holds RB.
+        // Narrative aligned with the RECORDED story (B6, consolidation 2026-08-12): the
+        // old comments promised "hold RB / RB→Splay / Splay→RB", but the session this
+        // code deterministically produces morphs RB→Hybrid at op 20 (mid build-up),
+        // Hybrid→Splay at 64, and Splay→Hybrid at 280, ending on Hybrid. The comments
+        // now tell that story rather than one the tuning never delivered.
+
+        // Regime 1 — uniform build-up: mixed keys. The eager policy (0-cooldown, 10%
+        // margin) already prefers Hybrid over RB mid-stream: RB → Hybrid at op 20.
         for (int i = 0; i < 64; i++) controller.add(i * 7919 % 997);
 
-        // Regime 2 — hot-key reads: one key dominates (skew→1, reads→1). Expect RB → Splay.
+        // Regime 2 — hot-key reads: one key dominates (skew→1, reads→1): Hybrid → Splay
+        // at op 64, right at the regime boundary.
         for (int i = 0; i < 600; i++) controller.contains(7 * 7919 % 997);
 
-        // Regime 3 — heavy writes flush the read window. Expect Splay → RB. (The morph
-        // lands a couple hundred writes in; 1,200 keeps the final snapshot replay-sized.)
+        // Regime 3 — heavy writes flush the read window: Splay → Hybrid at op 280; the
+        // session ends on Hybrid (the write-heavy compromise, not a return to RB).
+        // (1,200 keeps the final snapshot replay-sized.)
         for (int i = 0; i < 1_200; i++) controller.add(1_000 + i);
 
         System.out.println(recorder.toJson());

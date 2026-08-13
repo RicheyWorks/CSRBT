@@ -175,6 +175,51 @@ public final class PersistentTreeEngine<K> implements TreeEngine<K> {
         /** @return all keys in ascending order. */
         public List<K> inOrder() { return inOrderOf(root); }
 
+        /**
+         * The number of this snapshot's nodes that are <em>physically shared</em> with
+         * {@code other} — reference identity, not key equality. Under path copying this
+         * is the true structural-inheritance measure: an edit copies the root-to-site
+         * path (plus any rebalance copies) and shares everything else, so two adjacent
+         * versions share almost all nodes while a rebuilt tree with identical keys
+         * shares none. The count is symmetric (it is the size of the identity
+         * intersection of the two node sets).
+         *
+         * <p>Cost: one full walk of {@code other} to collect identities, then a
+         * <em>pruned</em> walk of this tree — nodes are immutable, so a shared node's
+         * entire subtree is shared and is counted from its {@code count} field without
+         * descent. Both walks are iterative (explicit stack), safe at any height.</p>
+         */
+        public int sharedNodeCount(Snapshot<K> other) {
+            Objects.requireNonNull(other, "other snapshot");
+            if (root == null || other.root == null) return 0;
+
+            // Identity set of other's nodes (iterative pre-order walk).
+            java.util.Set<Node<K>> theirs =
+                    java.util.Collections.newSetFromMap(new java.util.IdentityHashMap<>());
+            Deque<Node<K>> stack = new ArrayDeque<>();
+            stack.push(other.root);
+            while (!stack.isEmpty()) {
+                Node<K> n = stack.pop();
+                theirs.add(n);
+                if (n.left != null) stack.push(n.left);
+                if (n.right != null) stack.push(n.right);
+            }
+
+            // Pruned walk of this tree: a shared node's whole subtree is shared.
+            int shared = 0;
+            stack.push(root);
+            while (!stack.isEmpty()) {
+                Node<K> n = stack.pop();
+                if (theirs.contains(n)) {
+                    shared += n.count;      // immutable ⇒ entire subtree is shared
+                    continue;
+                }
+                if (n.left != null) stack.push(n.left);
+                if (n.right != null) stack.push(n.right);
+            }
+            return shared;
+        }
+
         /** ith smallest key (1-indexed). @throws IndexOutOfBoundsException if out of [1,size]. */
         public K select(int rank) { return selectOf(root, rank); }
 

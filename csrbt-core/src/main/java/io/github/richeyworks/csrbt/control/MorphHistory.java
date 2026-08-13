@@ -36,7 +36,12 @@ public record MorphHistory(int opsSinceLastMorph, StrategyId lastWinner, int win
      */
     public MorphHistory observed(StrategyId topCandidate, int opsElapsed) {
         int streak = (topCandidate != null && topCandidate == lastWinner) ? winStreak + 1 : 1;
-        return new MorphHistory(opsSinceLastMorph + Math.max(0, opsElapsed), topCandidate, streak);
+        // Saturating add (bug audit 2026-08-12, B5): ~2.1B held ops used to overflow the
+        // clock negative, and a negative clock never clears the cooldown gate again —
+        // the controller could permanently freeze on a long-lived hold.
+        int clock = (int) Math.min(Integer.MAX_VALUE,
+                (long) opsSinceLastMorph + Math.max(0, opsElapsed));
+        return new MorphHistory(clock, topCandidate, streak);
     }
 
     /** Reset after a committed morph: cooldown clock to zero and the streak cleared. */

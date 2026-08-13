@@ -50,7 +50,7 @@ public final class TreeSessionRecorder<K> implements TreeEventListener<K> {
         // BEFORE its first decision. Not a decision: decisionCount() stays 0.
         events.append("    { \"op\": 0, \"type\": \"Start\",\n      \"counts\": "
                 + "{ \"inserts\": 0, \"removes\": 0, \"evicts\": 0 },\n      \"state\": ")
-              .append(TreeExport.toJson(set))
+              .append(TreeExport.toJson(set, false))
               .append(" }");
     }
 
@@ -70,24 +70,29 @@ public final class TreeSessionRecorder<K> implements TreeEventListener<K> {
         } else if (e instanceof TreeEvent.Evict) {
             ops++; evicts++;
         } else if (e instanceof TreeEvent.Morph<K> m) {
-            decision("Morph", "\"from\": \"" + m.fromStrategy() + "\", \"to\": \""
-                    + m.toStrategy() + "\", \"committed\": " + m.committed());
+            decision("Morph", "\"from\": \"" + esc(m.fromStrategy()) + "\", \"to\": \""
+                    + esc(m.toStrategy()) + "\", \"committed\": " + m.committed());
         } else if (e instanceof TreeEvent.Repair<K> r) {
             decision("Repair", "\"healthy\": " + r.healthy());
         } else if (e instanceof TreeEvent.Trial<K> t) {
             // ADR-011 V3: search-trial decision points (additive to session format v1).
             // cost is NaN where no score exists — rendered as null, since JSON has no NaN.
-            decision("Trial", "\"arm\": \"" + t.arm() + "\", \"phase\": \"" + t.phase()
+            decision("Trial", "\"arm\": \"" + esc(t.arm()) + "\", \"phase\": \"" + esc(t.phase())
                     + "\", \"cost\": " + (Double.isNaN(t.cost()) ? "null"
                             : String.format(java.util.Locale.ROOT, "%.4f", t.cost()))
                     + ", \"pulls\": " + t.pulls());
         } else if (e instanceof TreeEvent.Lineage<K> l) {
             // ADR-011 V4: births in the population search (deaths are Trial decisions).
+            // "breedOp", not "op" (bug audit 2026-08-12, B1): decision() already writes
+            // the running op counter as "op", and a second "op" key in the same object
+            // made last-wins JSON parsers (JSON.parse, Jackson, Python) silently replace
+            // the counter with the operator string — every birth's position in the
+            // replay was destroyed.
             decision("Lineage", "\"generation\": " + l.generation()
-                    + ", \"child\": \"" + l.child() + "\", \"parentA\": "
-                    + (l.parentA() == null ? "null" : "\"" + l.parentA() + "\"")
-                    + ", \"parentB\": " + (l.parentB() == null ? "null" : "\"" + l.parentB() + "\"")
-                    + ", \"op\": \"" + l.op() + "\"");
+                    + ", \"child\": \"" + esc(l.child()) + "\", \"parentA\": "
+                    + (l.parentA() == null ? "null" : "\"" + esc(l.parentA()) + "\"")
+                    + ", \"parentB\": " + (l.parentB() == null ? "null" : "\"" + esc(l.parentB()) + "\"")
+                    + ", \"breedOp\": \"" + esc(l.op()) + "\"");
         } else if (e instanceof TreeEvent.Diversity<K> d) {
             // ADR-012 E2: per-generation population diversity (spread NaN → null, as Trial cost).
             decision("Diversity", "\"generation\": " + d.generation()
@@ -101,6 +106,32 @@ public final class TreeSessionRecorder<K> implements TreeEventListener<K> {
         // Other ensemble lifecycle events: out of scope for v1 single-set sessions.
     }
 
+    /**
+     * JSON string escaping for event payloads (bug audit 2026-08-12, B2): this recorder
+     * is a public listener API, and an arm/genome/strategy name containing a quote,
+     * backslash, or control character used to corrupt the whole session file (the
+     * sibling {@code TreeExport} escapes its keys; event strings were the gap).
+     */
+    private static String esc(String s) {
+        if (s == null) return "";
+        StringBuilder out = new StringBuilder(s.length());
+        for (int i = 0; i < s.length(); i++) {
+            char c = s.charAt(i);
+            switch (c) {
+                case '"'  -> out.append("\\\"");
+                case '\\' -> out.append("\\\\");
+                case '\n' -> out.append("\\n");
+                case '\r' -> out.append("\\r");
+                case '\t' -> out.append("\\t");
+                default -> {
+                    if (c < 0x20) out.append(String.format(java.util.Locale.ROOT, "\\u%04x", (int) c));
+                    else out.append(c);
+                }
+            }
+        }
+        return out.toString();
+    }
+
     private void decision(String type, String fields) {
         if (events.length() > 0) events.append(",\n");
         events.append("    { \"op\": ").append(ops)
@@ -109,7 +140,7 @@ public final class TreeSessionRecorder<K> implements TreeEventListener<K> {
               .append(", \"removes\": ").append(removes)
               .append(", \"evicts\": ").append(evicts)
               .append(" },\n      \"state\": ")
-              .append(TreeExport.toJson(set))
+              .append(TreeExport.toJson(set, false))
               .append(" }");
         inserts = removes = evicts = 0;
         decisions++;
@@ -124,6 +155,6 @@ public final class TreeSessionRecorder<K> implements TreeEventListener<K> {
     /** Render the session (v1 schema); callable repeatedly — the final state is live. */
     public synchronized String toJson() {
         return "{\n  \"version\": 1,\n  \"events\": [\n" + events
-                + "\n  ],\n  \"final\": " + TreeExport.toJson(set) + "\n}";
+                + "\n  ],\n  \"final\": " + TreeExport.toJson(set, false) + "\n}";
     }
 }

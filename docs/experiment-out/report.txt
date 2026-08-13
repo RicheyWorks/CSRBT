@@ -1,0 +1,97 @@
+🧪 ECOLOGY EXPERIMENT — meadow disturbance study
+   100 keys, seed 42, window 250 ops, 3 phase(s), 6 model(s), 7 hypothesis(es)
+   entered: 3 dataset(s), 3 note(s), 1 tree(s)
+   environment: area=0.50 temperature=1.00 wind=1.30 distance=0.80
+
+── PHASE · graze (uniform, 2000 ops) ──
+  100 distinct keys, 2000 touches recorded.
+  Diversity H' = 4.580, evenness J' = 0.99: very even — no key dominates the community.
+  of 100 keys present, the community behaves like about 97.5 equally-common ones.
+  the rank–abundance curve follows a geometric series — classic niche preemption, where each species takes a fixed share of what is left.
+  the survey looks complete — Chao1 estimates ≈ 100 keys and we saw all 100.
+── PHASE · bloom (hot, 2000 ops) ──
+  87 distinct keys, 2000 touches recorded.
+  Diversity H' = 2.210, evenness J' = 0.49: uneven — a few hot keys carry most of the traffic.
+  of 87 keys present, the community behaves like about 9.1 equally-common ones.
+  the rank–abundance curve fits MacArthur's broken stick — resources divided about as evenly as random splitting allows.
+  we saw 87 keys, but Chao1 estimates ≈ 95 — roughly 8 rare keys likely went unseen.
+── PHASE · seasons (churn, 1500 ops) ──
+  923 distinct keys, 1500 touches recorded.
+  Diversity H' = 6.780, evenness J' = 0.99: very even — no key dominates the community.
+  of 923 keys present, the community behaves like about 880.0 equally-common ones.
+  the rank–abundance curve follows a geometric series — classic niche preemption, where each species takes a fixed share of what is left.
+  we saw 923 keys, but Chao1 estimates ≈ 1027 — roughly 104 rare keys likely went unseen.
+  graze → bloom: Bray–Curtis 0.85 (major turnover — this is substantially a different community); Pianka 0.23 (little overlap — effectively separate niches).
+  bloom → seasons: Bray–Curtis 0.95 (major turnover — this is substantially a different community); Pianka 0.05 (little overlap — effectively separate niches).
+
+── ENTERED DATA · pondA (5 kinds, 80 records) ──
+  5 distinct keys, 80 touches recorded.
+  Diversity H' = 1.228, evenness J' = 0.76: moderately even — some keys are busier than others.
+  of 5 keys present, the community behaves like about 3.4 equally-common ones.
+  the rank–abundance curve follows a geometric series — classic niche preemption, where each species takes a fixed share of what is left.
+  the survey looks complete — Chao1 estimates ≈ 5 keys and we saw all 5.
+── ENTERED DATA · pondB (4 kinds, 71 records) ──
+  4 distinct keys, 71 touches recorded.
+  Diversity H' = 0.847, evenness J' = 0.61: moderately even — some keys are busier than others.
+  of 4 keys present, the community behaves like about 2.3 equally-common ones.
+  the rank–abundance curve follows a geometric series — classic niche preemption, where each species takes a fixed share of what is left.
+  the survey looks complete — Chao1 estimates ≈ 4 keys and we saw all 4.
+── ENTERED DATA · coop (4 kinds, 8 records) ──
+  4 distinct keys, 8 touches recorded.
+  Diversity H' = 1.213, evenness J' = 0.88: very even — no key dominates the community.
+  of 4 keys present, the community behaves like about 3.4 equally-common ones.
+  the rank–abundance curve follows a geometric series — classic niche preemption, where each species takes a fixed share of what is left.
+  we saw 4 keys, but Chao1 estimates ≈ 6 — roughly 2 rare keys likely went unseen.
+  pondA ↔ pondB: Jaccard 0.50, Sørensen 0.67 — share 3 of 6 kinds; Bray–Curtis 0.31 (moderate turnover — a noticeable shift in who is common).
+  pondB ↔ coop: Jaccard 0.00, Sørensen 0.00 — share 0 of 8 kinds; Bray–Curtis 1.00 (major turnover — this is substantially a different community).
+
+── THE CENSUS — lifespans in this experiment ──
+  Cohort of 676 completed lives; mean age 820 ops, median 206.
+  Survivorship: Type III — heavy early mortality, but survivors persist (think oysters: many spawned, few make it).
+
+── FIELD NOTEBOOK ──
+  • sampled both ponds after two dry weeks
+  [bloom] five keys took nearly all the traffic, as designed
+  [coop] tallied one hen for ten minutes before feeding
+
+── TREE THINKING — phylogenies in this experiment ──
+  pondlife — 7 taxa, depth 6:
+    ┐
+    ├─ Porifera
+    └─ ┐
+       ├─ Cnidaria
+       └─ ┐
+          ├─ ┐
+          │  ├─ Mollusca
+          │  └─ Annelida
+          └─ ┐
+             ├─ Arthropoda
+             └─ ┐
+                ├─ Echinodermata
+                └─ Chordata
+
+── THEORY BENCH ──
+  Logistic growth (r=0.150, K=60): carrying capacity K = 60.000, 60 steps.
+  Island richness (c=0.234, e=0.200, pool=100): equilibrium S* = 53.880, 40 steps.
+  Lotka–Volterra competition (K1=50, K2=40, α12=0.70, α21=1.10)
+  Hardy–Weinberg: p=0.543 q=0.458, χ²=0.221 (df 1, critical 3.841) → consistent with equilibrium.
+  Euler–Lotka: R0=2.400, T=1.58, r≈0.5529 (ln R0/T), r=0.5947 (exact).
+  Mark–recapture (M=120, C=90, R=30): Lincoln–Petersen N̂=360.0, Chapman N̂=354.2 (95% CI 268.0–440.4).
+
+── PUNNETT SQUARES ──
+  Rr × Rr (complete dominance): 2×2 square
+    phenotypes: {R_=3, rr=1}
+    observed vs expected: χ²=0.263 (df 1, critical 3.841) → consistent with the Mendelian ratio.
+  Bb × Bb (incomplete dominance): 2×2 square
+    phenotypes: {BB=1, Bb=2, bb=1}
+  RrPp × RrPp (complete dominance): 4×4 square
+    phenotypes: {R_P_=9, R_pp=3, rrP_=3, rrpp=1}
+
+── HYPOTHESES (pre-registered, graded by the run) ──
+  ✅ CONFIRMED  evenness(graze) > 0.9                    (observed 0.9944)
+  ✅ CONFIRMED  hill1(bloom) < 20                        (observed 9.1112)
+  ✅ CONFIRMED  brayCurtis(graze, bloom) > 0.5           (observed 0.8505)
+  ❌ REFUTED    evenness(bloom) > 0.9                    (observed 0.4947)
+  ✅ CONFIRMED  jaccard(pondA, pondB) <= 0.5             (observed 0.5000)
+  ✅ CONFIRMED  evenness(bloom) is uneven                (observed 0.4947 → "uneven")
+  ✅ CONFIRMED  survivorship is type3                    (observed "type3")
