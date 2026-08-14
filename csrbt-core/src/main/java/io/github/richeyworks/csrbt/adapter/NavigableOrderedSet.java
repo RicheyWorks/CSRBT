@@ -46,16 +46,13 @@ public final class NavigableOrderedSet<K> extends AbstractSet<K> implements Navi
     /** The backing {@link OrderedSet} — the mutation point for every read-only view. */
     public OrderedSet<K> base() { return set; }
 
-    // ── Counting helpers ─────────────────────────────────────────────────────────
-    // ADR-021: every count is ONE guarded acquisition on the base set. The old
-    // compositions (countInRange-from-minimum, then contains, then select) spanned
-    // multiple lock epochs, so a write landing between them made read-only navigation
-    // throw or answer wrong under the advertised concurrent-read model (deep-sweep
-    // audit 2026-08-12, D-1: 399 exceptions / 1,870 contract violations in 3.7M calls).
-
-    int countUpTo(K key, boolean inclusive) {          // package: views size themselves with this
-        return set.countUpTo(key, inclusive);
-    }
+    // ── Counting ─────────────────────────────────────────────────────────────────
+    // ADR-021: every count is ONE guarded acquisition on the base set (views size
+    // themselves with countBetween). The old compositions (countInRange-from-minimum,
+    // then contains, then select) spanned multiple lock epochs, so a write landing
+    // between them made read-only navigation throw or answer wrong under the
+    // advertised concurrent-read model (deep-sweep audit 2026-08-12, D-1:
+    // 399 exceptions / 1,870 contract violations in 3.7M calls).
 
     // ── Set ───────────────────────────────────────────────────────────────────────
 
@@ -107,16 +104,23 @@ public final class NavigableOrderedSet<K> extends AbstractSet<K> implements Navi
 
     @Override public Comparator<? super K> comparator() { return set.comparator(); }
 
+    // first()/last()/pollFirst()/pollLast() each make ONE base-set call and branch on
+    // its null result — the old isEmpty()-then-minimum() composition spanned two lock
+    // epochs, so a writer emptying the set in between made first() return null
+    // (SortedSet.first() must never return null; ADR-021 follow-up, 2026-08-14).
+
     @Override
     public K first() {
-        if (set.isEmpty()) throw new NoSuchElementException("empty set");
-        return set.minimum();
+        K k = set.minimum();                           // null iff empty — one acquisition
+        if (k == null) throw new NoSuchElementException("empty set");
+        return k;
     }
 
     @Override
     public K last() {
-        if (set.isEmpty()) throw new NoSuchElementException("empty set");
-        return set.maximum();
+        K k = set.maximum();
+        if (k == null) throw new NoSuchElementException("empty set");
+        return k;
     }
 
     // ── NavigableSet navigation ───────────────────────────────────────────────────
@@ -150,16 +154,16 @@ public final class NavigableOrderedSet<K> extends AbstractSet<K> implements Navi
 
     @Override
     public K pollFirst() {
-        if (set.isEmpty()) return null;
         K k = set.minimum();
+        if (k == null) return null;
         set.remove(k);
         return k;
     }
 
     @Override
     public K pollLast() {
-        if (set.isEmpty()) return null;
         K k = set.maximum();
+        if (k == null) return null;
         set.remove(k);
         return k;
     }
@@ -168,9 +172,11 @@ public final class NavigableOrderedSet<K> extends AbstractSet<K> implements Navi
 
     @Override
     public Iterator<K> descendingIterator() {
+        // Same snapshot semantics as iterator(), and remove() delegates to the live
+        // base set the same way (TreeSet supports remove() on both directions).
         List<K> snap = new ArrayList<>(set.inOrder());
         Collections.reverse(snap);
-        return Collections.unmodifiableList(snap).iterator();
+        return new SnapshotIterator(snap);
     }
 
     @Override public NavigableSet<K> descendingSet() { return new Desc<>(this); }
@@ -251,14 +257,11 @@ public final class NavigableOrderedSet<K> extends AbstractSet<K> implements Navi
         }
 
         private List<K> snapshot() {
-            if (b.set.isEmpty()) return List.of();
-            K loEff = lo != null ? lo : b.set.minimum();
-            K hiEff = hi != null ? hi : b.set.maximum();
-            if (cmp(loEff, hiEff) > 0) return List.of();
-            List<K> keys = b.set.rangeQuery(loEff, hiEff);     // inclusive both ends
-            List<K> out = new ArrayList<>(keys.size());
-            for (K k : keys) if (inRange(k)) out.add(k);
-            return out;
+            // ONE guarded acquisition (ADR-021 follow-up, 2026-08-14). The old
+            // isEmpty → minimum → maximum → rangeQuery composition spanned four lock
+            // epochs; a writer emptying the set between the first two made minimum()
+            // return null and the comparator NPE out of a read-only iterator.
+            return b.set.rangeSnapshot(lo, loInc, hi, hiInc);
         }
 
         @Override public Iterator<K> iterator() {
@@ -273,9 +276,16 @@ public final class NavigableOrderedSet<K> extends AbstractSet<K> implements Navi
 
         @Override public Comparator<? super K> comparator() { return b.comparator(); }
 
+        // first/last and in-view navigation are each ONE base navigation call: the
+        // view's bound is folded into the query BEFORE navigating (min/max of the two
+        // constraints), instead of navigating first and patching out-of-view answers
+        // with a second acquisition (ADR-021 follow-up, 2026-08-14 — the old
+        // lastOrNull()/firstOrNull() fallback was a second lock epoch, so a writer
+        // between the two could produce answers from two different tree states).
+
         @Override
         public K first() {
-            K k = lo == null ? (b.isEmpty() ? null : b.first())
+            K k = lo == null ? b.set.minimum()          // null iff empty — one acquisition
                              : (loInc ? b.ceiling(lo) : b.higher(lo));
             if (k == null || !belowHigh(k)) throw new NoSuchElementException("empty view");
             return k;
@@ -283,49 +293,62 @@ public final class NavigableOrderedSet<K> extends AbstractSet<K> implements Navi
 
         @Override
         public K last() {
-            K k = hi == null ? (b.isEmpty() ? null : b.last())
+            K k = hi == null ? b.set.maximum()
                              : (hiInc ? b.floor(hi) : b.lower(hi));
             if (k == null || !aboveLow(k)) throw new NoSuchElementException("empty view");
             return k;
         }
 
-        private K firstOrNull() { try { return first(); } catch (NoSuchElementException e) { return null; } }
-        private K lastOrNull()  { try { return last();  } catch (NoSuchElementException e) { return null; } }
-
         @Override
-        public K lower(K k) {
+        public K lower(K k) {                          // greatest view-key < k
             Objects.requireNonNull(k);
-            K r = b.lower(k);
-            if (r == null) return null;
-            if (!belowHigh(r)) r = lastOrNull();       // largest in view is still < k here
-            return (r != null && inRange(r)) ? r : null;
+            K bound = k; boolean inc = false;          // request: (k, exclusive)
+            if (hi != null) {
+                int c = cmp(hi, k);
+                if (c < 0) { bound = hi; inc = hiInc; }   // hi-bound is the tighter cap
+                // c == 0: strict beats inclusive — keep (k, exclusive)
+            }
+            K r = inc ? b.floor(bound) : b.lower(bound);
+            return (r != null && aboveLow(r)) ? r : null;
         }
 
         @Override
-        public K floor(K k) {
+        public K floor(K k) {                          // greatest view-key <= k
             Objects.requireNonNull(k);
-            K r = b.floor(k);
-            if (r == null) return null;
-            if (!belowHigh(r)) r = lastOrNull();
-            return (r != null && inRange(r)) ? r : null;
+            K bound = k; boolean inc = true;           // request: (k, inclusive)
+            if (hi != null) {
+                int c = cmp(hi, k);
+                if (c < 0)      { bound = hi; inc = hiInc; }
+                else if (c == 0) { inc = hiInc; }      // equal caps: inclusive only if both are
+            }
+            K r = inc ? b.floor(bound) : b.lower(bound);
+            return (r != null && aboveLow(r)) ? r : null;
         }
 
         @Override
-        public K ceiling(K k) {
+        public K ceiling(K k) {                        // least view-key >= k
             Objects.requireNonNull(k);
-            K r = b.ceiling(k);
-            if (r == null) return null;
-            if (!aboveLow(r)) r = firstOrNull();       // smallest in view is still > k here
-            return (r != null && inRange(r)) ? r : null;
+            K bound = k; boolean inc = true;
+            if (lo != null) {
+                int c = cmp(lo, k);
+                if (c > 0)      { bound = lo; inc = loInc; }   // lo-bound is the tighter floor
+                else if (c == 0) { inc = loInc; }
+            }
+            K r = inc ? b.ceiling(bound) : b.higher(bound);
+            return (r != null && belowHigh(r)) ? r : null;
         }
 
         @Override
-        public K higher(K k) {
+        public K higher(K k) {                         // least view-key > k
             Objects.requireNonNull(k);
-            K r = b.higher(k);
-            if (r == null) return null;
-            if (!aboveLow(r)) r = firstOrNull();
-            return (r != null && inRange(r)) ? r : null;
+            K bound = k; boolean inc = false;
+            if (lo != null) {
+                int c = cmp(lo, k);
+                if (c > 0) { bound = lo; inc = loInc; }
+                // c == 0: strict beats inclusive — keep (k, exclusive)
+            }
+            K r = inc ? b.ceiling(bound) : b.higher(bound);
+            return (r != null && belowHigh(r)) ? r : null;
         }
 
         // Mutators: refuse loudly rather than rot quietly.
@@ -342,14 +365,23 @@ public final class NavigableOrderedSet<K> extends AbstractSet<K> implements Navi
             Objects.requireNonNull(from);
             Objects.requireNonNull(to);
             if (cmp(from, to) > 0) throw new IllegalArgumentException("fromElement > toElement");
-            if (!inRangeForBound(from) || !inRangeForBound(to)) {
+            if (!inRangeForBound(from, fromInc) || !inRangeForBound(to, toInc)) {
                 throw new IllegalArgumentException("sub-range bounds outside view range");
             }
             return new Range<>(b, from, fromInc, to, toInc);
         }
 
-        /** Bound checks admit the view's own endpoints, like {@code TreeSet} sub-views. */
-        private boolean inRangeForBound(K k) {
+        /**
+         * Bound admission for sub-view construction — {@code TreeSet}/{@code TreeMap}
+         * parity ({@code NavigableSubMap.inRange(key, inclusive)}): an EXCLUSIVE new
+         * bound may sit on the view's own endpoint (closed-range check), but an
+         * INCLUSIVE new bound must lie inside the view's real range. Before 2026-08-14
+         * this admitted endpoints unconditionally, so re-admitting an exclusive
+         * endpoint inclusively (e.g. {@code headSet(10,false).headSet(10,true)}) let
+         * the child view escape the parent's range instead of throwing.
+         */
+        private boolean inRangeForBound(K k, boolean inclusive) {
+            if (inclusive) return inRange(k);
             boolean okLow  = lo == null || cmp(k, lo) >= 0;
             boolean okHigh = hi == null || cmp(k, hi) <= 0;
             return okLow && okHigh;
@@ -358,14 +390,18 @@ public final class NavigableOrderedSet<K> extends AbstractSet<K> implements Navi
         @Override
         public NavigableSet<K> headSet(K to, boolean inclusive) {
             Objects.requireNonNull(to);
-            if (!inRangeForBound(to)) throw new IllegalArgumentException("toElement outside view range");
+            if (!inRangeForBound(to, inclusive)) {
+                throw new IllegalArgumentException("toElement outside view range");
+            }
             return new Range<>(b, lo, loInc, to, inclusive);
         }
 
         @Override
         public NavigableSet<K> tailSet(K from, boolean inclusive) {
             Objects.requireNonNull(from);
-            if (!inRangeForBound(from)) throw new IllegalArgumentException("fromElement outside view range");
+            if (!inRangeForBound(from, inclusive)) {
+                throw new IllegalArgumentException("fromElement outside view range");
+            }
             return new Range<>(b, from, inclusive, hi, hiInc);
         }
 

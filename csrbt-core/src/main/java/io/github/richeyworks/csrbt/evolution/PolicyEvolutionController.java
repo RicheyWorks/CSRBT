@@ -437,6 +437,14 @@ public final class PolicyEvolutionController<K> {
 
     private void emit(TreeEvent<K> e) {
         TreeEventListener<K> l = events;
-        if (l != null) l.onEvent(e);
+        if (l == null) return;
+        try {
+            l.onEvent(e);
+        } catch (RuntimeException listenerFault) {
+            // M-1 hardening (same as OrderedSet.emit): observability must never break
+            // the control plane. An unhardened emit let a throwing listener abort
+            // beginGeneration/endTrial mid-slot, leaving the controller inconsistent
+            // (generation counter bumped, trial partially recorded).
+        }
     }
 }

@@ -328,9 +328,7 @@ public class TreeNode1<K> implements Comparable<TreeNode1<K>>, Cloneable {
         if (child != null && !child.isNil()) {
             child.parent = this;
         }
-        recomputeAugmentAndPropagate();
-        updateBlackHeight();
-        updateHeight();
+        recomputeAugmentAndPropagate();   // refreshes size, augment, black-height AND height to root
     }
 
     public void setRight(TreeNode1<K> child) {
@@ -338,9 +336,7 @@ public class TreeNode1<K> implements Comparable<TreeNode1<K>>, Cloneable {
         if (child != null && !child.isNil()) {
             child.parent = this;
         }
-        recomputeAugmentAndPropagate();
-        updateBlackHeight();
-        updateHeight();
+        recomputeAugmentAndPropagate();   // refreshes size, augment, black-height AND height to root
     }
 
     /**
@@ -483,11 +479,21 @@ public class TreeNode1<K> implements Comparable<TreeNode1<K>>, Cloneable {
     }
 
     private void recomputeAugmentAndPropagate() {
+        // Heights and black-heights ride the same walk as sizes/augments. Before
+        // 2026-08-14 this walk refreshed only size + augment, so any tree wired
+        // top-down or in arbitrary order (snapshot deserialization, two-pass deep
+        // copy) converged to correct sizes but STALE cached heights — and
+        // AVL/Hybrid then computed balance factors from those stale values,
+        // violating their own invariant on the next insert.
         recomputeAugment();
+        updateBlackHeight();
+        updateHeight();
         TreeNode1<K> current = this;
         while (current.parent != null) {
             current = current.parent;
             current.recomputeAugment();
+            current.updateBlackHeight();
+            current.updateHeight();
         }
     }
 

@@ -51,6 +51,11 @@ public final class PhyloTree {
     }
 
     private static Node parseNode(String s, int[] pos) {
+        // Skip leading whitespace: published Newick very commonly puts a space after
+        // each comma ("(A, (B,C));"), and ADR-020 promises trees transfer from any
+        // handout. Without this, the space fell into the label scan, which stopped at
+        // '(' with an empty trimmed name and threw a confusingly selective error.
+        while (pos[0] < s.length() && Character.isWhitespace(s.charAt(pos[0]))) pos[0]++;
         List<Node> children = new ArrayList<>();
         if (pos[0] < s.length() && s.charAt(pos[0]) == '(') {
             pos[0]++;                                     // consume '('
@@ -135,7 +140,15 @@ public final class PhyloTree {
     private static String trimmed(double v) {
         String s = String.format(Locale.ROOT, "%.6f", v);
         s = s.replaceAll("0+$", "");
-        return s.endsWith(".") ? s.substring(0, s.length() - 1) : s;
+        if (s.endsWith(".")) s = s.substring(0, s.length() - 1);
+        // %.6f destroys values it cannot represent (1e-7 → "0", and molecular trees
+        // routinely carry branch lengths that small), silently breaking the
+        // "round-trips modulo whitespace" contract. If the fixed-point form does not
+        // parse back to the same double, fall back to Double.toString, which is exact.
+        if (Double.parseDouble(s.isEmpty() ? "0" : s) != v) {
+            return Double.toString(v);
+        }
+        return s;
     }
 
     /** A printable cladogram for the narrated report. */

@@ -40,7 +40,8 @@ public class SplayStrategy<K> implements TreeStrategy<K> {
             y = x;
             cmp = newNode.compareTo(x);
             if (cmp == 0) {
-                logger.warn("Splay duplicate insert skipped: {}", newNode.getData());
+                // DEBUG, not WARN — hot-path + battle-timing fairness (see RedBlackStrategy).
+                logger.debug("Splay duplicate insert skipped: {}", newNode.getData());
                 splay(tree, x);               // duplicate touch still bubbles — abort UNLINKED
                 return;
             }

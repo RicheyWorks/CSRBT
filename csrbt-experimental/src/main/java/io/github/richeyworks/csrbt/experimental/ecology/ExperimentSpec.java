@@ -189,7 +189,12 @@ public final class ExperimentSpec {
             if (key.startsWith("note")) {                 // note: text  |  note(target): text
                 String about = null;
                 if (key.startsWith("note(") && key.endsWith(")")) {
-                    about = key.substring(5, key.length() - 1).trim();
+                    // Extract the target from the ORIGINAL line, not the lowercased key:
+                    // phase/dataset names are stored case-sensitively, so a lowercased
+                    // target ("note(Bloom):" → "bloom") could never attach to phase
+                    // "Bloom" — it drew a problem AND rendered detached as "[bloom]".
+                    String origKey = line.substring(0, colon).trim();
+                    about = origKey.substring(5, origKey.length() - 1).trim();
                 } else if (!key.equals("note")) {
                     problems.add(raw.trim() + "  (unknown directive '" + key + "')");
                     continue;
@@ -414,7 +419,15 @@ public final class ExperimentSpec {
         if (open < 0 || close < open) throw new IllegalArgumentException("expect needs metric(phase...)");
         String metric = val.substring(0, open).trim().toLowerCase(Locale.ROOT);
         String[] args = val.substring(open + 1, close).split(",");
-        for (int i = 0; i < args.length; i++) args[i] = args[i].trim();
+        for (int i = 0; i < args.length; i++) {
+            args[i] = args[i].trim();
+            // "richness() > 1" used to slip through: "".split(",") yields one empty
+            // arg, satisfying wantArgs == 1, and only degraded to UNGRADEABLE at run
+            // time. Malformed hypotheses are parse-time spec problems (ADR-020).
+            if (args[i].isEmpty()) {
+                throw new IllegalArgumentException("expect has a blank phase/dataset name");
+            }
+        }
         String rest = val.substring(close + 1).trim();
         String[] tail = rest.split("\\s+");
         if (tail.length != 2) throw new IllegalArgumentException("expect needs: metric(...) <op> <value>");

@@ -22,10 +22,16 @@ import java.util.TreeMap;
  * observes the public {@code members()} surface.</p>
  *
  * <p>Levins (1969) metapopulation model: dp/dt = c&#xB7;p(1&#x2212;p) &#x2212; e&#xB7;p, equilibrium
- * occupancy p* = 1 &#x2212; e/c. Here the rate constants are estimated by the ratio of
- * observed event totals (a documented simplification — the ratio e/c is what p* needs),
- * so {@link #levinsEquilibrium()} is the model's prediction from the observed record,
- * comparable against {@link #occupancy()}, the direct measurement.</p>
+ * occupancy p* = 1 &#x2212; e/c. The rate constants are estimated per unit of exposure:
+ * e&#x302; = extinctions / occupied patch-samples, and c&#x302; from recolonizations per empty
+ * patch-sample divided by mean occupancy (observed colonization rate per empty patch
+ * is c&#xB7;p). The earlier event-total ratio (e/c &#x2248; extinctions/recolonizations) was
+ * structurally degenerate: any record where every extinction is eventually healed —
+ * exactly the steady-state regime the model describes — has equal totals and pinned
+ * p* = 0 regardless of true occupancy, the "index that cannot vary" category error
+ * ADR-015 exists to eliminate. {@link #levinsEquilibrium()} is the model's prediction
+ * from the observed record, comparable against {@link #occupancy()}, the direct
+ * measurement.</p>
  *
  * <p>Community structure: the "species" of a member is its strategy name (RedBlack, AVL,
  * Splay, engine labels). {@link #strategyAbundance()} is the abundance distribution of
@@ -43,6 +49,8 @@ public final class EnsembleCommunity<K> {
     private long samples = 0;
     private long extinctions = 0;      // ACTIVE → QUARANTINED/RETIRED transitions
     private long recolonizations = 0;  // QUARANTINED/RETIRED → ACTIVE transitions
+    private long occupiedPatchSamples = 0;   // exposure: patch-samples that began occupied
+    private long emptyPatchSamples = 0;      // exposure: patch-samples that began empty
 
     /** Takes the baseline sample at construction (no events counted for it). */
     public EnsembleCommunity(EnsembleOrderedSet<K> ensemble) {
@@ -71,6 +79,7 @@ public final class EnsembleCommunity<K> {
             }
             boolean wasOccupied = before == EnsembleMember.State.ACTIVE;
             boolean isOccupied  = now == EnsembleMember.State.ACTIVE;
+            if (wasOccupied) occupiedPatchSamples++; else emptyPatchSamples++;   // exposure first
             if (wasOccupied && !isOccupied) { extinctions++; transitions++; }
             if (!wasOccupied && isOccupied) { recolonizations++; transitions++; }
             lastState.put(m, now);
@@ -101,16 +110,30 @@ public final class EnsembleCommunity<K> {
     public long recolonizations() { return recolonizations; }
 
     /**
-     * Levins equilibrium occupancy p* = 1 &#x2212; e/c with the rate ratio estimated from
-     * observed event totals. No recolonizations observed &#x2192; 0 (a metapopulation with
-     * extinction and no colonization empties); no events at all &#x2192; 1 (no observed
-     * extinction pressure). Clamped to [0, 1].
+     * Levins equilibrium occupancy p* = 1 &#x2212; e&#x302;/c&#x302; with rates estimated per unit of
+     * exposure from the sampled record:
+     * e&#x302; = extinctions / occupied patch-samples (extinction probability per occupied
+     * patch per sample), and c&#x302; = (recolonizations / empty patch-samples) / p&#x304;, since
+     * the observed colonization rate per empty patch is c&#xB7;p (p&#x304; = mean occupancy over
+     * the record). No extinctions observed &#x2192; 1 (no observed extinction pressure); no
+     * recolonizations observed &#x2192; 0 (a metapopulation with extinction and no
+     * colonization empties). Clamped to [0, 1].
+     *
+     * <p>Before 2026-08-14 this used the cumulative event-total ratio
+     * (1 &#x2212; extinctions/recolonizations), which pins p* = 0 on any record where
+     * every extinction is eventually healed — the steady-state regime itself — while
+     * observed occupancy sits near 1: an index that cannot vary (ADR-015 EC-1 class).</p>
      */
     public double levinsEquilibrium() {
-        if (recolonizations == 0) {
-            return extinctions == 0 ? 1.0 : 0.0;
-        }
-        double p = 1.0 - (double) extinctions / recolonizations;
+        if (extinctions == 0) return 1.0;
+        if (recolonizations == 0) return 0.0;
+        // Both events observed ⇒ both exposure counters are positive (an extinction
+        // requires an occupied before-state, a recolonization an empty one).
+        double eHat = (double) extinctions / occupiedPatchSamples;
+        double meanOccupancy = (double) occupiedPatchSamples
+                / (occupiedPatchSamples + emptyPatchSamples);
+        double cHat = ((double) recolonizations / emptyPatchSamples) / meanOccupancy;
+        double p = 1.0 - eHat / cHat;
         return Math.max(0.0, Math.min(1.0, p));
     }
 

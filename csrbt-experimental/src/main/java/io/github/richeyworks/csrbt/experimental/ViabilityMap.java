@@ -28,9 +28,9 @@ import java.util.TreeSet;
  * map clean; (5, 3) is V1's in-bounds-but-unsound finding; (2, 1) died on the record in
  * {@code docs/arena-search-session.json}. This is mutational robustness made literal.</p>
  *
- * <p>Run from the repo root after compiling (writes the heatmap artifact the visualizer
- * renders — drop the file onto {@code demo/visualizer.html}):</p>
- * <pre>{@code java -cp build/classes experimental.ViabilityMap [docs/viability-map.json]}</pre>
+ * <p>Run from the repo root (writes the heatmap artifact the visualizer renders — drop
+ * the file onto {@code demo/visualizer.html}):</p>
+ * <pre>{@code ./gradlew :csrbt-experimental:viabilityMap}</pre>
  */
 public final class ViabilityMap {
 

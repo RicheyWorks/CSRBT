@@ -64,7 +64,11 @@ public final class FieldData {
             String line = (hash < 0 ? raw : raw.substring(0, hash)).trim();
             if (line.isEmpty()) continue;
             // Normalize the three separators to one: first comma or tab, else last space.
-            String[] parts = line.split("[,\\t]");
+            // Limit -1 keeps trailing empty fields, so "oak," is seen as a comma line
+            // with an empty count (a reportable problem) rather than falling through
+            // to bare-name handling of the raw line and silently tallying "oak,".
+            String[] parts = line.split("[,\\t]", -1);
+            boolean commaOrTab = parts.length > 1;
             if (parts.length == 1) parts = line.split("\\s+(?=\\S+$)");   // "name count"
             if (parts.length == 1) {
                 addToken(parts[0].trim(), counts, problems);
@@ -82,8 +86,14 @@ public final class FieldData {
                 if (n <= 0) { problems.add(raw.trim() + "  (count must be positive)"); continue; }
                 counts.merge(name, n, Long::sum);
             } catch (NumberFormatException bad) {
-                // Whole line might itself be a multi-word bare name ("great blue heron").
-                addToken(line.replaceAll("\\s+", "-"), counts, problems);
+                if (commaOrTab) {
+                    // An explicit comma/tab separator means the second field IS the
+                    // count — a bad one is reported, never guessed.
+                    problems.add(raw.trim() + "  (count '" + num + "' is not an integer)");
+                } else {
+                    // Whole line might itself be a multi-word bare name ("great blue heron").
+                    addToken(line.replaceAll("\\s+", "-"), counts, problems);
+                }
             }
         }
         return new Parsed(counts, problems);
@@ -107,11 +117,17 @@ public final class FieldData {
         }
     }
 
-    /** The inverse of token form: a ready-to-paste {@code data:} directive line. */
+    /**
+     * The inverse of token form: a ready-to-paste {@code data:} directive line.
+     * Names containing whitespace or {@code =} (legal in table form: "great heron,5")
+     * are hyphen-normalized the same way multi-word bare names already are — emitting
+     * them verbatim into the whitespace-tokenized token form re-parsed as different
+     * species with different counts, silently ("great heron=5" → {great=1, heron=5}).
+     */
     public static String toEcoLine(String label, Map<String, Long> counts) {
         StringBuilder sb = new StringBuilder("data: ").append(label);
         for (Map.Entry<String, Long> e : counts.entrySet()) {
-            sb.append(' ').append(e.getKey());
+            sb.append(' ').append(e.getKey().replaceAll("[\\s=]+", "-"));
             if (e.getValue() != 1) sb.append('=').append(e.getValue());
         }
         return sb.toString();

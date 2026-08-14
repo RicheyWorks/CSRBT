@@ -329,8 +329,18 @@ public class GenomeDrivenTreeController {
         // ── REAL REBUILD ──────────────────────────────────────────────────────
         // setStrategy does: inOrderTraversal → clear → re-insert all values.
         // No data is lost; every node is rebalanced under the new rules.
-        context.setStrategy(newStrategy);
+        // setStrategy can REFUSE (health-gate failure, same-policy no-op) — commit
+        // controller/genome state only on a real morph, or the incumbent lies, the
+        // cooldown clock starts for a morph that never happened, and morphLog records
+        // a phantom (the read-side desync class G-B fixed, now closed on the write
+        // side too; MorphController already checked this verdict correctly).
+        boolean applied = context.setStrategy(newStrategy);
         // ─────────────────────────────────────────────────────────────────────
+        if (!applied) {
+            logger.warn("Morph {} → {} refused by the engine (health gate or same policy) — "
+                    + "controller state unchanged.", from, type);
+            return;
+        }
 
         activeStrategyType = type;
         genome.setPreferredStructure(type);

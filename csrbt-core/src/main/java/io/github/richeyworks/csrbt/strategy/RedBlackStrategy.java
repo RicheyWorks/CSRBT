@@ -29,7 +29,12 @@ public class RedBlackStrategy<K> implements TreeStrategy<K> {
             y = x;
             cmp = newNode.compareTo(x);
             if (cmp == 0) {
-                logger.warn("Duplicate insert skipped for value: {}", newNode.getData());
+                // DEBUG, not WARN: per-op logging on the insert hot path (hardening rule
+                // M-3), and under the test config (root=WARN, console) a WARN here made
+                // RB/Splay/Hybrid pay console-write cost per duplicate while AVL (silent
+                // duplicate handling) paid nothing — a systematic timing bias in
+                // duplicate-heavy battle workloads (ADR-022 fairness).
+                logger.debug("Duplicate insert skipped for value: {}", newNode.getData());
                 return;                    // abort UNLINKED — addIfAbsent reads this back
             }
             x = (cmp < 0) ? x.getLeft() : x.getRight();

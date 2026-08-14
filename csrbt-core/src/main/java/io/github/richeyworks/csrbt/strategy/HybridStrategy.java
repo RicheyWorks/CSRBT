@@ -79,7 +79,8 @@ public class HybridStrategy<K> implements TreeStrategy<K> {
             y = x;
             cmp = newNode.compareTo(x);
             if (cmp == 0) {
-                logger.warn("Hybrid duplicate insert skipped: {}", newNode.getData());
+                // DEBUG, not WARN — hot-path + battle-timing fairness (see RedBlackStrategy).
+                logger.debug("Hybrid duplicate insert skipped: {}", newNode.getData());
                 recordAccess(newNode.getData());
                 return;                    // abort UNLINKED — addIfAbsent reads this back
             }

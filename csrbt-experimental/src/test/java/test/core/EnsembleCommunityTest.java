@@ -88,14 +88,16 @@ class EnsembleCommunityTest {
         assertEquals(1, eco.recolonizations());
         assertEquals(1.0, eco.occupancy(), EPS);
         assertEquals(3, eco.strategyRichness());
-        // Levins with e/c = 1/1: p* = 1 − 1 = 0 — the model says this extinction
-        // pressure exactly cancels this colonization rate; the direct measurement
-        // (occupancy 1.0) is the comparison the instrument exists to expose.
-        assertEquals(0.0, eco.levinsEquilibrium(), EPS);
+        // Per-exposure rates (2026-08-14): ê = 1 extinction / 5 occupied patch-samples
+        // = 0.2; observed colonization per empty patch-sample = 1/1, divided by mean
+        // occupancy p̄ = 5/6 gives ĉ = 1.2; p* = 1 − 0.2/1.2 = 5/6. The healed record
+        // now predicts high occupancy, agreeing with the direct measurement (1.0) —
+        // the old event-total ratio pinned p* = 0 on every fully-healed record.
+        assertEquals(5.0 / 6.0, eco.levinsEquilibrium(), EPS);
     }
 
     @Test
-    @DisplayName("Levins ratio from the instrument: balanced cycles pin p* at 0; excess extinction clamps")
+    @DisplayName("Levins rates from the instrument: healed cycles predict high p*; excess extinction lowers it")
     void levinsRatioFromInstrument() {
         EnsembleOrderedSet<Integer> e = ensemble();
         EnsembleCommunity<Integer> eco = new EnsembleCommunity<>(e);
@@ -113,14 +115,18 @@ class EnsembleCommunityTest {
         }
         assertEquals(4, eco.extinctions());
         assertEquals(4, eco.recolonizations());
-        assertEquals(0.0, eco.levinsEquilibrium(), EPS); // e/c = 1 → p* = 0 exactly
+        // Exposure record: 20 occupied + 4 empty patch-samples. ê = 4/20 = 0.2;
+        // ĉ = (4/4) / (20/24) = 1.2; p* = 1 − 0.2/1.2 = 5/6 — a fully-healed record
+        // predicts high occupancy (the old event-total ratio degenerated to 0 here).
+        assertEquals(5.0 / 6.0, eco.levinsEquilibrium(), EPS);
 
-        // A fifth extinction with no recolonization: e/c = 5/4 → raw p* < 0, clamped.
+        // A fifth extinction with no recolonization: pressure up, prediction down.
+        // ê = 5/23; ĉ = (4/4) / (23/27) = 27/23; p* = 1 − 5/27 = 22/27.
         e.quarantine(patch);
         eco.sample();
         assertEquals(5, eco.extinctions());
         assertEquals(4, eco.recolonizations());
-        assertEquals(0.0, eco.levinsEquilibrium(), EPS);
+        assertEquals(22.0 / 27.0, eco.levinsEquilibrium(), EPS);
         assertEquals(2.0 / 3.0, eco.occupancy(), EPS); // and the direct measurement moved
     }
 

@@ -75,3 +75,17 @@ should win. Decision: the rotation term is removed from `compositeScore`
 live meter and the corrected score, the tournament verdicts finally match the
 workload design: Splay wins both locality workloads on realized depth, the strict
 balancers win the uniform/sequential/delete ones.
+
+## Follow-up note (2026-08-14)
+
+- The probe test (`BattleMethodologyProbeTest`, commit f735749) pins the
+  deterministic ingredients — depth dominance, rotation dominance, fairness (identical
+  hits/finalSize) — but **no test pins a rank or win**: the "Splay wins both locality
+  workloads" verdict above is documentation, verified live on 2026-08-14 (LOCALITY_BURST
+  20k/seed 7: Splay depth 7.19 vs best-other 10.15, ranked #1), not probe-pinned. Rank
+  folds in wall time and is flaky on slow runners; this is deliberate.
+- Two fairness leaks in the timed path were closed the same day: the duplicate-insert
+  WARN in RedBlack/Splay/Hybrid (AVL was silent — console-write cost per duplicate for
+  three of four competitors under the test config's WARN root) is now DEBUG, and the
+  discarded pure-search result gained a volatile sink so the JIT cannot eliminate
+  RedBlack/AVL's descents while Splay/Hybrid keep their side-effectful ones.

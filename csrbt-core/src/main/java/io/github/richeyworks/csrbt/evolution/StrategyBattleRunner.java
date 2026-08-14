@@ -216,11 +216,20 @@ public class StrategyBattleRunner {
 
     private record PassResult(int hits, long depthSum, int searchOps) { }
 
+    /**
+     * JMH-blackhole stand-in: every strategy search result folds into this volatile,
+     * so the JIT cannot dead-code-eliminate the pure descents (RedBlack/AVL searches
+     * have no side effects; without a sink they could be optimized away, and the
+     * "same extra cost for all" fairness claim would silently stop holding).
+     */
+    private static volatile long searchSink;
+
     /** One full workload pass. Search = measuring walk + the strategy's own search. */
     private static PassResult runPass(TreeContext ctx, List<int[]> ops) {
         int hits = 0;
         long depthSum = 0;
         int searchOps = 0;
+        long sink = 0;
         for (int[] op : ops) {
             int type  = op[0];   // 0=insert, 1=search, 2=delete
             int value = op[1];
@@ -236,11 +245,13 @@ public class StrategyBattleRunner {
                     // …then the STRATEGY'S search, so a self-adjusting strategy adjusts
                     // (SplayStrategy splays the accessed key toward the root; a plain
                     // descent for everyone else — the same extra cost for all).
-                    ctx.getTree().getStrategy().search(ctx.getTree(), value);
+                    var found = ctx.getTree().getStrategy().search(ctx.getTree(), value);
+                    sink += (found != null && !found.isNil()) ? 1 : 0;
                 }
                 case 2 -> ctx.remove(value);
             }
         }
+        searchSink += sink;   // volatile write — the observable the JIT must preserve
         return new PassResult(hits, depthSum, searchOps);
     }
 
@@ -261,8 +272,9 @@ public class StrategyBattleRunner {
             }
 
             case SEQUENTIAL -> {
-                // Insert 0..n/2 in order, then search randomly
-                int half = opCount / 2;
+                // Insert 0..n/2 in order, then search randomly. Floor of 1 keeps
+                // nextInt(half) legal for degenerate opCount (nextInt(0) throws).
+                int half = Math.max(1, opCount / 2);
                 for (int i = 0; i < half; i++) ops.add(new int[]{0, i});
                 for (int i = half; i < opCount; i++) ops.add(new int[]{1, rng.nextInt(half)});
             }
@@ -328,8 +340,9 @@ public class StrategyBattleRunner {
             }
 
             case DELETE_HEAVY -> {
-                // Insert 500, then delete most, then search survivors
-                int inserts = Math.min(500, opCount / 3);
+                // Insert 500, then delete most, then search survivors. Floor of 1
+                // keeps nextInt(inserts) legal for degenerate opCount (< 3).
+                int inserts = Math.max(1, Math.min(500, opCount / 3));
                 List<Integer> pool = new ArrayList<>();
                 for (int i = 0; i < inserts; i++) {
                     pool.add(i);

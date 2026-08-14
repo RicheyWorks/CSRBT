@@ -340,6 +340,51 @@ public class OrderedSet<K> implements SelfHealingTree, OrderedCollection<K>, Ran
     }
 
     /**
+     * In-order keys inside the given bounds — {@code null} bound = unbounded on that
+     * side — collected in ONE guarded acquisition: the bound resolution and the whole
+     * walk share a single optimistic stamp (locked fallback). This is the adapter's
+     * view-iteration primitive (ADR-021 follow-up, 2026-08-14): view snapshots used to
+     * compose {@code isEmpty → minimum → maximum → rangeQuery} across four lock epochs,
+     * so a writer emptying the set between epochs made a read-only view iterator throw
+     * NPE out of {@code iterator()} — violating the adapter's never-throws contract.
+     */
+    public List<K> rangeSnapshot(K lo, boolean loInclusive, K hi, boolean hiInclusive) {
+        if (!OPTIMISTIC_READS) return rangeSnapshotReadOnly(lo, loInclusive, hi, hiInclusive, false);
+        return guardedRead(() -> rangeSnapshotReadOnly(lo, loInclusive, hi, hiInclusive, true),
+                           () -> rangeSnapshotReadOnly(lo, loInclusive, hi, hiInclusive, false));
+    }
+
+    /** Pruned in-order walk; same step budget and torn diversion as {@code inOrderReadOnly}. */
+    private List<K> rangeSnapshotReadOnly(K lo, boolean loInclusive, K hi, boolean hiInclusive,
+                                          boolean bounded) {
+        List<K> out = new ArrayList<>();
+        long budget = bounded ? 4L * Math.max(16, size) + 64 : Long.MAX_VALUE;
+        Deque<TreeNode1<K>> stack = new ArrayDeque<>();
+        TreeNode1<K> cur = tree.getRoot();
+        while (cur != null && (!cur.isNil() || !stack.isEmpty())) {
+            if (--budget < 0) throw TornReadException.INSTANCE;
+            if (!cur.isNil()) {
+                stack.push(cur);
+                // Descend left only while this subtree can still hold in-range keys:
+                // if cur <= lo, everything to the left is < lo and can be pruned.
+                int cLo = (lo == null) ? 1 : cur.compareKeyTo(lo);   // >0 means cur > lo
+                cur = cLo > 0 ? cur.getLeft() : tree.getNIL();
+            } else {
+                cur = stack.pop();
+                int cLo = (lo == null) ? 1  : cur.compareKeyTo(lo);
+                int cHi = (hi == null) ? -1 : cur.compareKeyTo(hi);
+                boolean above = cLo > 0 || (cLo == 0 && loInclusive);
+                boolean below = cHi < 0 || (cHi == 0 && hiInclusive);
+                if (above && below) out.add(cur.getData());
+                // Symmetric prune: if cur >= hi, everything to the right is > hi.
+                cur = cHi < 0 ? cur.getRight() : tree.getNIL();
+            }
+        }
+        if (cur == null) throw TornReadException.INSTANCE;   // torn pointer — divert
+        return out;
+    }
+
+    /**
      * One navigation descent, {@link #findReadOnly}'s concurrency discipline: step-bounded
      * when optimistic, torn-pointer diversion, no mutation. {@code lessSide} picks
      * floor/lower vs ceiling/higher; {@code inclusive} picks floor/ceiling vs lower/higher.

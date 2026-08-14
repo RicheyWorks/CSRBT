@@ -65,17 +65,29 @@ public final class ParallelMemberExecutor implements MemberExecutor {
 
         List<Outcome> outcomes = new ArrayList<>(n);
         outcomes.add(first);
+        boolean interrupted = false;
         for (Future<Outcome> f : futures) {
-            try {
-                outcomes.add(f.get());
-            } catch (InterruptedException e) {
-                Thread.currentThread().interrupt();
-                throw new IllegalStateException("interrupted while waiting for member fan-out", e);
-            } catch (java.util.concurrent.ExecutionException e) {
-                // applyOne never throws, so this is an executor-level failure; surface it as the member's.
-                outcomes.add(Outcome.failed(e.getCause() != null ? e.getCause() : e));
+            while (true) {
+                try {
+                    outcomes.add(f.get());
+                    break;
+                } catch (InterruptedException e) {
+                    // A submitted task keeps running and mutating its member whether we
+                    // wait or not — throwing here abandoned the remaining futures, so the
+                    // write was reported failed while an unknown subset of members had
+                    // applied it, all still ACTIVE (the silent-divergence class E-D closed
+                    // for throwing members). Finish collecting uninterruptibly so the
+                    // caller's quarantine bookkeeping sees every outcome, then restore
+                    // the interrupt flag for the caller.
+                    interrupted = true;
+                } catch (java.util.concurrent.ExecutionException e) {
+                    // applyOne never throws, so this is an executor-level failure; surface it as the member's.
+                    outcomes.add(Outcome.failed(e.getCause() != null ? e.getCause() : e));
+                    break;
+                }
             }
         }
+        if (interrupted) Thread.currentThread().interrupt();
         return outcomes;
     }
 

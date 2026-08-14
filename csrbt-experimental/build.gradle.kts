@@ -39,10 +39,18 @@ tasks.test {
 listOf(
     "arenaSession" to "io.github.richeyworks.csrbt.experimental.ArenaSession",
     "searchArenaSession" to "io.github.richeyworks.csrbt.experimental.SearchArenaSession",
+    // Third recorder — was skipped when its siblings got tasks post-Ant, leaving its
+    // javadoc's stale `java -cp build/classes experimental.ViabilityMap` the only
+    // (broken) run instruction for regenerating docs/viability-map.json.
+    "viabilityMap" to "io.github.richeyworks.csrbt.experimental.ViabilityMap",
 ).forEach { (taskName, mainCls) ->
     tasks.register<JavaExec>(taskName) {
         group = "verification"
-        description = "Record the ${if (taskName == "arenaSession") "controller" else "evolution-machine search"} replay session for demo/visualizer.html."
+        description = when (taskName) {
+            "arenaSession" -> "Record the controller replay session for demo/visualizer.html."
+            "searchArenaSession" -> "Record the evolution-machine search replay session for demo/visualizer.html."
+            else -> "Regenerate the genome-viability heatmap (docs/viability-map.json) for demo/visualizer.html."
+        }
         mainClass = mainCls
         classpath = sourceSets["main"].runtimeClasspath
         systemProperty("log4j2.loggerContextFactory",
