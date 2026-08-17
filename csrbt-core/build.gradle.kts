@@ -21,6 +21,13 @@ java {
 // auto-provisioning plumbing for contributors whose default JDK is newer.
 tasks.withType<JavaCompile>().configureEach {
     options.release = 17
+    // Sources are UTF-8 (box drawing, arrows, J', H' live in comments AND in string
+    // literals). javac's default source encoding is the platform default charset, which
+    // is UTF-8 only from JDK 18 on (JEP 400) — on the JDK 17 this build still supports,
+    // a windows-1252 host decodes "→" as "â†’" and bakes that into the constants. Pinning
+    // it makes compiled behaviour identical on every host. The javadoc tasks already pin
+    // theirs; -docencoding follows -encoding, so the generated HTML is UTF-8 too.
+    options.encoding = "UTF-8"
 }
 
 dependencies {

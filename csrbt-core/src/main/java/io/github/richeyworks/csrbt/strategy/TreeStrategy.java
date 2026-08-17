@@ -53,39 +53,82 @@ public interface TreeStrategy<K> {
 
     // ── Which caches a rotation refreshes, and which it does NOT ──────────────
     //
-    // Both rotations link through the *Local setters, which recompute size, augment,
-    // height and black-height for the TOUCHED nodes only — they never walk to the
-    // root. That is what keeps a rotation O(1) and an insert O(height) instead of
-    // O(height²); insert/delete BST links still use the propagating
-    // setLeft/setRight. The consequences differ per cached quantity:
+    // The rotation PRIMITIVES (rotateLeftLocal / rotateRightLocal) link through the
+    // *Local node setters, which recompute size, augment, height and black-height for
+    // the TOUCHED nodes only — they never walk to the root. That is what keeps a
+    // rotation O(1) and an insert O(height) instead of O(height²); insert/delete BST
+    // links still use the propagating setLeft/setRight. Per cached quantity:
     //
-    //   size / augmentedValue — CORRECT for every node afterwards. A rotation permutes
-    //       a local pair (x, y) without changing which keys live under any ancestor, so
-    //       no ancestor's subtree size or subtree augment can change. The ancestor that
-    //       adopts the new subtree root keeps exactly the same descendants, which is why
-    //       it too is linked locally. Order statistics therefore stay exact.
+    //   size / augmentedValue — CORRECT for every node after a primitive rotation. A
+    //       rotation permutes a local pair (x, y) without changing which keys live under
+    //       any ancestor, so no ancestor's subtree size or subtree augment can change.
+    //       The ancestor that adopts the new subtree root keeps exactly the same
+    //       descendants, which is why it too is linked locally. Order statistics stay
+    //       exact, and no propagation is ever owed for them.
     //
-    //   height / blackHeight — MAY GO STALE for ancestors. A rotation can change the
-    //       height of the rotated subtree's root, and that genuinely propagates upward,
-    //       but nothing here propagates it. AVLStrategy and HybridStrategy mask this:
-    //       their rebalance passes call TreeNode1.refreshHeight() on every node from the
-    //       modification point up to the root after rotating, so the cache is current by
-    //       the time they read a balance factor. RedBlackStrategy and
-    //       WeightBalancedStrategy do not rebalance by height and never refresh it, so on
-    //       those strategies TreeNode1.getHeight() / getBlackHeight() on an ANCESTOR of a
-    //       rotation can read high until the next propagating link refreshes that path.
-    //       (Reproduced in AUDIT-2026-08-17 finding 21: an RB node reporting height 5
-    //       where the real height is 4.) Callers wanting a trustworthy height on those
-    //       strategies must recompute it — TreeNode1.refreshHeight() bottom-up, or an
-    //       O(n) walk — rather than trust the cached accessor.
+    //   height — NOT ancestor-invariant. A rotation can change the height of the rotated
+    //       subtree's root, and that genuinely propagates upward. rotateLeft/rotateRight
+    //       (the ones without "Local") therefore run TreeNode1.refreshHeightUpward()
+    //       when it does — a fixed-point climb that stops at the first ancestor whose
+    //       height recomputes unchanged. ADR-023 measured it: 1–3 levels on uniform and
+    //       mixed add/remove streams, a full-height climb on monotone inserts, where the
+    //       BST link has just pushed +1 up the whole spine and the rebalancing rotation
+    //       takes it straight back off.
     //
-    // Propagating heights from here was deliberately deferred (AUDIT-2026-08-14 F-1):
-    // it would restore the O(height) rotation cost this design exists to remove, and no
-    // in-tree consumer needs an ancestor height mid-rotation. The limitation is documented
-    // rather than fixed; do not "fix" it by switching to the propagating setters without
-    // re-measuring the insert path.
+    //   blackHeight — MAY GO STALE for ancestors, and the climb deliberately does not
+    //       carry it. Rotation is not even its main source: setColor/flipColor update the
+    //       recoloured node alone, and the RB insert/delete fixups recolour O(log n) nodes
+    //       per write, so chasing black-height exactly would mean a climb per recolour on
+    //       the hottest path in the engine. The cached value is informational bookkeeping
+    //       on every strategy anyway (AVL/Splay/WeightBalanced colour every node black);
+    //       the exact, invariant-checking answer is TreeNode1.blackHeight(), and red-black
+    //       validity is TreeDiagnostics' job. See TreeNode1.getBlackHeight().
+    //
+    // Which pair to call, if you are writing a strategy: rotateLeft/rotateRight, always,
+    // unless you can prove your rebalance pass already refreshes every node from the
+    // rotation point to the root — the three strategies that call the *Local primitives
+    // each carry that proof in a comment at the call site. The safe choice is the one
+    // without the suffix, exactly as with TreeNode1.setLeft vs setLeftLocal.
 
+    /**
+     * Left rotation about {@code x} that leaves every ancestor's cached
+     * {@linkplain TreeNode1#getHeight() height} exact (ADR-023).
+     *
+     * <p>Delegates to {@link #rotateLeftLocal} and then, only if the rotation actually moved
+     * the height of the subtree {@code x}'s old parent adopts, carries the change up with
+     * {@link TreeNode1#refreshHeightUpward()}. Subtree size and the augment payload need no
+     * such walk — they are ancestor-invariant under rotation.</p>
+     */
     default void rotateLeft(MutableTree<K> tree, TreeNode1<K> x) {
+        TreeNode1<K> parent = x.getParent();                       // capture BEFORE relinking
+        boolean carry = parent != null && !parent.isNil();         // a root rotation has no ancestors
+        int wasHeight = carry ? parent.getHeight() : 0;
+        rotateLeftLocal(tree, x);
+        if (carry && parent.getHeight() != wasHeight) parent.refreshHeightUpward();
+    }
+
+    /**
+     * Right rotation about {@code y} that leaves every ancestor's cached height exact —
+     * {@link #rotateLeft}'s mirror image, same contract.
+     */
+    default void rotateRight(MutableTree<K> tree, TreeNode1<K> y) {
+        TreeNode1<K> parent = y.getParent();
+        boolean carry = parent != null && !parent.isNil();
+        int wasHeight = carry ? parent.getHeight() : 0;
+        rotateRightLocal(tree, y);
+        if (carry && parent.getHeight() != wasHeight) parent.refreshHeightUpward();
+    }
+
+    /**
+     * The left-rotation PRIMITIVE: relinks and recomputes the touched nodes only, never
+     * walking to the root — the rotation counterpart of {@link TreeNode1#setLeftLocal}.
+     *
+     * <p>Leaves size and augment exact for every node (they cannot change) and every
+     * ancestor's cached height <b>possibly stale</b>. Call it only from a rebalance pass
+     * that itself refreshes heights from the rotation point to the root; otherwise call
+     * {@link #rotateLeft}. See the note above this method for the full rule.</p>
+     */
+    default void rotateLeftLocal(MutableTree<K> tree, TreeNode1<K> x) {
         TreeNode1<K> y      = x.getRight();
         TreeNode1<K> nil    = tree.getNIL();
         TreeNode1<K> parent = x.getParent();     // capture BEFORE relinking
@@ -107,7 +150,8 @@ public interface TreeStrategy<K> {
         tree.onRotation();   // meter structural churn (see MutableTree#onRotation)
     }
 
-    default void rotateRight(MutableTree<K> tree, TreeNode1<K> y) {
+    /** Right-side counterpart of {@link #rotateLeftLocal}; same staleness contract. */
+    default void rotateRightLocal(MutableTree<K> tree, TreeNode1<K> y) {
         TreeNode1<K> x      = y.getLeft();
         TreeNode1<K> nil    = tree.getNIL();
         TreeNode1<K> parent = y.getParent();     // capture BEFORE relinking

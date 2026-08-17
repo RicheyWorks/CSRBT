@@ -1,6 +1,7 @@
 package io.github.richeyworks.csrbt.ensemble;
 
 import io.github.richeyworks.csrbt.OrderedSet;
+import io.github.richeyworks.csrbt.control.WorkloadFeatures;
 import io.github.richeyworks.csrbt.interfaces.RankedSet;
 
 import java.util.concurrent.atomic.AtomicInteger;
@@ -103,6 +104,108 @@ public final class EnsembleMember<K> {
     void enterRead()      { epochReaders.getAndIncrement(); }
     void exitRead()       { epochReaders.getAndDecrement(); }
     int  activeReaders()  { return epochReaders.get(); }
+
+    // -- Per-member rotation meter (ADR-024) --
+
+    /**
+     * Minimum writes a member must have <em>actually received</em> in an evaluation window before
+     * its own rotations-per-write ratio counts as an observation.
+     *
+     * <p>The ratio's relative standard error falls as {@code 1/sqrt(w)}, so at {@code w = 8} a
+     * single rebalancing cascade (a Red-Black delete fixup performs up to three rotations) moves
+     * it by well under the {@link io.github.richeyworks.csrbt.control.MorphPolicy} default
+     * improvement margin, while at {@code w = 2} one cascade can double it. Below this floor the
+     * member has no measurement of its own and {@link #rotationsPerWrite()} says so
+     * ({@code NaN}) rather than reporting a ratio built from a handful of samples — the same
+     * "no observation is not a cheap observation" discipline
+     * {@link io.github.richeyworks.csrbt.evolution.Fitness#informative(long)} applies to size.</p>
+     */
+    public static final long MIN_METERED_WRITES = 8L;
+
+    /** Engine rotation counter captured before the in-flight write; {@code -1} when unmetered. */
+    private long rotationMark = -1L;
+    private long meteredRotations;
+    private long meteredWrites;
+
+    /**
+     * Capture this member's rotation counter before a write is applied to it. Package-private:
+     * only {@link EnsembleOrderedSet}'s fan-out knows which members a write actually reaches,
+     * which is exactly what makes the denominator honest for a sampled shadow.
+     */
+    void markRotations() {
+        rotationMark = (set instanceof OrderedSet<K> os) ? os.rotationCount() : -1L;
+    }
+
+    /**
+     * Fold the rotations this member performed across the write just applied to it. Clamped at
+     * zero per {@link OrderedSet#rotationCount()} — a morph or self-repair swaps the engine and
+     * resets the counter, which would otherwise read as a negative delta. Never called for a
+     * write the member did not receive, or for one that threw (a half-applied write's churn is
+     * not a measurement of the policy).
+     */
+    void foldRotations() {
+        long before = rotationMark;
+        rotationMark = -1L;
+        if (before < 0L) return;                                  // engine-tier: no counter
+        long after = (set instanceof OrderedSet<K> os) ? os.rotationCount() : -1L;
+        if (after < 0L) return;
+        meteredRotations += Math.max(0L, after - before);
+        meteredWrites++;
+    }
+
+    /** Clear the meter — the evaluation window's boundary; the controllers own the cadence. */
+    void resetRotationMeter() {
+        rotationMark = -1L;
+        meteredRotations = 0L;
+        meteredWrites = 0L;
+    }
+
+    /** Rotations this member performed across the writes it received since the last reset. */
+    public long meteredRotations() { return meteredRotations; }
+
+    /**
+     * Writes this member <em>actually received</em> since the last reset — not the stream's write
+     * count. In {@link EnsembleMode#SAMPLED_SHADOW} a shadow takes every {@code sampleEvery}-th
+     * write, so this is the only denominator that turns its rotation count into a rate comparable
+     * with a full-stream member's.
+     */
+    public long meteredWrites() { return meteredWrites; }
+
+    /**
+     * This member's own realized rotations per write it received, or {@code NaN} when that is not
+     * an observation — fewer than {@link #MIN_METERED_WRITES} received writes, or an ENGINE-tier
+     * member, which has no rotation counter at all.
+     *
+     * <p>ADR-024: this is the per-member refinement ADR-011 held. Rotations-per-write is an
+     * <em>intensive</em> quantity — a property of the policy, not of the stream's length — so
+     * normalizing a shadow's rotations by the writes it saw makes it directly comparable with the
+     * primary's rate even though the two saw different numbers of writes.</p>
+     */
+    public double rotationsPerWrite() {
+        return meteredWrites >= MIN_METERED_WRITES
+                ? (double) meteredRotations / meteredWrites
+                : Double.NaN;
+    }
+
+    /**
+     * {@code stream} with this member's own realized churn substituted for the stream-wide
+     * {@link WorkloadFeatures#rotationsPerWrite()}, so {@code Fitness}'s write term prices the
+     * member on the rotations <em>it</em> paid. Returns {@code stream} unchanged when this member
+     * has no own measurement (see {@link #rotationsPerWrite()}), which is exactly the
+     * primary-metered behavior that preceded ADR-024 — the refinement can never make the signal
+     * worse than the number it replaces.
+     *
+     * <p>Comparability is the <em>caller's</em> job: a cost priced on a member's own churn and one
+     * priced on the stream's are two different measurements, so the controllers price every side
+     * of a comparison per-member or none of them (ADR-024 §Decision, clause 3).</p>
+     */
+    public WorkloadFeatures pricedFeatures(WorkloadFeatures stream) {
+        double own = rotationsPerWrite();
+        if (Double.isNaN(own)) return stream;
+        return new WorkloadFeatures(stream.readFraction(), stream.writeFraction(),
+                stream.accessSkew(), stream.meanSearchDepth(), own, stream.size(),
+                stream.growthRate());
+    }
 
     @Override
     public String toString() {

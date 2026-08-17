@@ -16,7 +16,8 @@ java {
 }
 
 tasks.withType<JavaCompile>().configureEach {
-    options.release = 17 // see csrbt-core/build.gradle.kts
+    options.release = 17     // see csrbt-core/build.gradle.kts
+    options.encoding = "UTF-8" // ditto — TreeEcology's report is built from UTF-8 literals
 }
 
 dependencies {

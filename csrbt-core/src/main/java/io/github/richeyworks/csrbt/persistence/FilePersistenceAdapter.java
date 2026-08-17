@@ -10,6 +10,7 @@ import io.github.richeyworks.csrbt.augment.IntervalAugmentor;
 import io.github.richeyworks.csrbt.ensemble.EnsembleOrderedSet;
 import io.github.richeyworks.csrbt.interfaces.RankedSet;
 import io.github.richeyworks.csrbt.interfaces.TreePersistenceAdapter;
+import io.github.richeyworks.csrbt.interfaces.TreePersistenceAdapter.SaveResult;
 import io.github.richeyworks.csrbt.strategy.AVLStrategy;
 import io.github.richeyworks.csrbt.strategy.HybridStrategy;
 import io.github.richeyworks.csrbt.strategy.RedBlackStrategy;
@@ -43,6 +44,12 @@ import java.util.*;
  * {@link #loadOrderedSet(String, KeySerializer, java.util.Comparator)} persist any key type
  * {@code K} (the interval augmentor stays {@code Integer}, so the generic path records
  * {@code AUGMENTOR=DEFAULT} while per-node tags still round-trip).</p>
+ *
+ * <p><b>ADR-025:</b> every {@code saveSnapshot} shape has a {@code trySaveSnapshot} twin that
+ * returns a {@link SaveResult} instead of only logging. The {@code void} shapes are unchanged and
+ * now delegate to the reporting ones, discarding the answer — so a full disk, a revoked
+ * permission, an I/O error mid-write, and a commit rename that cannot publish are all detectable
+ * without changing a single existing call site.</p>
  */
 public class FilePersistenceAdapter implements TreePersistenceAdapter {
 
@@ -51,6 +58,14 @@ public class FilePersistenceAdapter implements TreePersistenceAdapter {
     private static final String EXT      = ".rbt";
     private static final String VERSION  = "CSRBT-1.0";
 
+    /**
+     * Prepare the snapshot directory. A failure here is logged and the adapter is still
+     * constructed — deliberately, so that a snapshot directory which becomes writable later (a
+     * mount that has not come up yet) does not make the adapter unusable for the life of the
+     * process. It does mean every save until then fails; since ADR-025 the caller can see that,
+     * as a {@code FAILED} {@link SaveResult} carrying the {@code NoSuchFileException}, instead of
+     * having to read the log.
+     */
     public FilePersistenceAdapter() {
         try {
             Files.createDirectories(Paths.get(DIR));
@@ -103,41 +118,83 @@ public class FilePersistenceAdapter implements TreePersistenceAdapter {
         }
     }
 
-    @Override
-    public void saveSnapshot(String name, TreeContext snapshot) {
-        Path path = snapshotPath(name);
+    /** The body of one snapshot file: everything written between open and the commit rename. */
+    @FunctionalInterface
+    private interface SnapshotBody {
+        void writeTo(BufferedWriter writer) throws IOException;
+    }
+
+    /**
+     * The one staging-and-commit routine every save path runs (ADR-025): open the per-call
+     * staging file, write {@code body}, close it, publish it with the atomic rename, and report
+     * what happened.
+     *
+     * <p>This is where {@code void saveSnapshot}'s log-and-swallow used to live, four times over.
+     * The behavior is unchanged — the same ERROR line, the same "previous file left intact"
+     * guarantee, the same staging-file cleanup — but the outcome is now a value the caller may
+     * have, instead of something only the log knows. A caller that ignores the value sees exactly
+     * the pre-ADR-025 behavior, which is what keeps {@code saveSnapshot} honest as a delegate.</p>
+     *
+     * <p>Only {@link IOException} becomes a {@link SaveResult}. An unencodable key
+     * ({@code ';'} in a serialized token) is an {@link IllegalArgumentException} and still
+     * propagates: it is deterministic, retrying will not fix it, and the caller must change the
+     * serializer, not the disk. The staging file is cleaned up on that path too.</p>
+     */
+    private SaveResult stageAndCommit(String name, Path path, SnapshotBody body, String detail) {
         Path tmp = tempPathFor(path);
         boolean committed = false;
         try {
             try (BufferedWriter writer = Files.newBufferedWriter(tmp)) {
-                // Header: VERSION|TIMESTAMP|STRATEGY|SIZE|AUGMENTOR
-                writer.write(String.join("|",
-                        VERSION,
-                        Instant.now().toString(),
-                        snapshot.getTree().getStrategy().getClass().getSimpleName(),
-                        String.valueOf(snapshot.getSize()),
-                        augmentorToken(snapshot)
-                ));
-                writer.newLine();
-
-                // Pre-order serialization (int keys via the built-in Integer serializer)
-                StringBuilder sb = new StringBuilder();
-                serializePreOrder(snapshot.getTree().getRoot(), snapshot.getTree().getNIL(), sb,
-                        KeySerializer.INTEGER);
-                writer.write(sb.toString());
-                writer.newLine();
+                body.writeTo(writer);
             }
             commitAtomically(tmp, path);   // writer closed above; rename is the commit
             committed = true;
-            logger.info("Snapshot '{}' saved → {}", name, path);
+            logger.info("Snapshot '{}' saved{} → {}", name, detail, path);
+            return SaveResult.saved(name);
         } catch (IOException e) {
             logger.error("Failed to save snapshot '{}' — previous file (if any) left intact",
                     name, e);
+            return SaveResult.failed(name, e);
         } finally {
             if (!committed) {
                 try { Files.deleteIfExists(tmp); } catch (IOException ignored) { }
             }
         }
+    }
+
+    @Override
+    public void saveSnapshot(String name, TreeContext snapshot) {
+        trySaveSnapshot(name, snapshot);   // ADR-025: same work; the outcome is simply discarded
+    }
+
+    /**
+     * {@link #saveSnapshot(String, TreeContext)} with the outcome reported (ADR-025).
+     *
+     * @return {@link SaveResult#saved} once the snapshot is committed, or
+     *         {@link SaveResult#failed} carrying the {@code IOException} — in which case nothing
+     *         was published and the previous snapshot of this name, if any, is untouched
+     */
+    @Override
+    public SaveResult trySaveSnapshot(String name, TreeContext snapshot) {
+        Path path = snapshotPath(name);
+        return stageAndCommit(name, path, writer -> {
+            // Header: VERSION|TIMESTAMP|STRATEGY|SIZE|AUGMENTOR
+            writer.write(String.join("|",
+                    VERSION,
+                    Instant.now().toString(),
+                    snapshot.getTree().getStrategy().getClass().getSimpleName(),
+                    String.valueOf(snapshot.getSize()),
+                    augmentorToken(snapshot)
+            ));
+            writer.newLine();
+
+            // Pre-order serialization (int keys via the built-in Integer serializer)
+            StringBuilder sb = new StringBuilder();
+            serializePreOrder(snapshot.getTree().getRoot(), snapshot.getTree().getNIL(), sb,
+                    KeySerializer.INTEGER);
+            writer.write(sb.toString());
+            writer.newLine();
+        }, "");
     }
 
     /**
@@ -368,19 +425,21 @@ public class FilePersistenceAdapter implements TreePersistenceAdapter {
      * after load to recompute augmented values from them.
      */
     public <K> void saveSnapshot(String name, OrderedSet<K> set, KeySerializer<K> keySerializer) {
+        trySaveSnapshot(name, set, keySerializer);   // ADR-025
+    }
+
+    /** {@link #saveSnapshot(String, OrderedSet, KeySerializer)} with the outcome reported (ADR-025). */
+    public <K> SaveResult trySaveSnapshot(String name, OrderedSet<K> set, KeySerializer<K> keySerializer) {
         if (set == null)            throw new IllegalArgumentException("set must not be null");
         if (keySerializer == null)  throw new IllegalArgumentException("keySerializer must not be null");
         Path path = snapshotPath(name);
         RedBlackTree<K> engine = set.getEngine();
-        Path tmp = tempPathFor(path);
-        boolean committed = false;
-        try {
-            try (BufferedWriter writer = Files.newBufferedWriter(tmp)) {
-
+        String strategy = engine.getStrategy().getClass().getSimpleName();
+        return stageAndCommit(name, path, writer -> {
             writer.write(String.join("|",
                     VERSION,
                     Instant.now().toString(),
-                    engine.getStrategy().getClass().getSimpleName(),
+                    strategy,
                     String.valueOf(set.size()),
                     "DEFAULT"
             ));
@@ -390,19 +449,7 @@ public class FilePersistenceAdapter implements TreePersistenceAdapter {
             serializePreOrder(engine.getRoot(), engine.getNIL(), sb, keySerializer);
             writer.write(sb.toString());
             writer.newLine();
-            }
-            commitAtomically(tmp, path);   // D-3: rename is the commit
-            committed = true;
-            logger.info("Snapshot '{}' saved (generic, strategy={}) → {}",
-                    name, engine.getStrategy().getClass().getSimpleName(), path);
-        } catch (IOException e) {
-            logger.error("Failed to save snapshot '{}' — previous file (if any) left intact",
-                    name, e);
-        } finally {
-            if (!committed) {
-                try { Files.deleteIfExists(tmp); } catch (IOException ignored) { }
-            }
-        }
+        }, " (generic, strategy=" + strategy + ")");
     }
 
     /**
@@ -513,13 +560,20 @@ public class FilePersistenceAdapter implements TreePersistenceAdapter {
      */
     public <K> void saveSnapshot(String name, PersistentTreeEngine.Snapshot<K> snapshot,
                                  KeySerializer<K> keySerializer) {
+        trySaveSnapshot(name, snapshot, keySerializer);   // ADR-025
+    }
+
+    /**
+     * {@link #saveSnapshot(String, PersistentTreeEngine.Snapshot, KeySerializer)} with the outcome
+     * reported (ADR-025). The {@code ';'}-key {@link IllegalArgumentException} still propagates —
+     * see {@link #stageAndCommit} for why a contract violation is not a {@link SaveResult}.
+     */
+    public <K> SaveResult trySaveSnapshot(String name, PersistentTreeEngine.Snapshot<K> snapshot,
+                                          KeySerializer<K> keySerializer) {
         if (snapshot == null)      throw new IllegalArgumentException("snapshot must not be null");
         if (keySerializer == null) throw new IllegalArgumentException("keySerializer must not be null");
         Path path = snapshotPath(name);
-        Path tmp = tempPathFor(path);
-        boolean committed = false;
-        try {
-            try (BufferedWriter writer = Files.newBufferedWriter(tmp)) {
+        return stageAndCommit(name, path, writer -> {
             writer.write(String.join("|",
                     VERSION,
                     Instant.now().toString(),
@@ -540,19 +594,7 @@ public class FilePersistenceAdapter implements TreePersistenceAdapter {
             }
             writer.write(sb.toString());
             writer.newLine();
-            }
-            commitAtomically(tmp, path);   // D-3: rename is the commit
-            committed = true;
-            logger.info("Snapshot '{}' saved (persistent, n={}) → {}", name, snapshot.size(), path);
-        } catch (IOException e) {
-            logger.error("Failed to save snapshot '{}' — previous file (if any) left intact",
-                    name, e);
-        } finally {
-            // Also cleans up after the loud IllegalArgumentException for ';' keys.
-            if (!committed) {
-                try { Files.deleteIfExists(tmp); } catch (IOException ignored) { }
-            }
-        }
+        }, " (persistent, n=" + snapshot.size() + ")");
     }
 
     /**
@@ -691,12 +733,30 @@ public class FilePersistenceAdapter implements TreePersistenceAdapter {
      * configuration, like the comparator), and {@link #loadEnsemble} reads both.
      */
     public <K> void saveSnapshot(String name, EnsembleOrderedSet<K> ensemble, KeySerializer<K> keySerializer) {
+        trySaveSnapshot(name, ensemble, keySerializer);   // ADR-025
+    }
+
+    /**
+     * {@link #saveSnapshot(String, EnsembleOrderedSet, KeySerializer)} with the outcome reported
+     * (ADR-025).
+     *
+     * <p><b>There is no save fan-out to be partially failed.</b> An ensemble snapshot is the
+     * <em>primary's</em> snapshot — one file, one staging write, one atomic commit — because every
+     * ACTIVE mirror is an exact copy of it and persisting K member trees would store the same keys
+     * K times. So this method's outcome is exactly the single underlying save's outcome; there is
+     * no state in which some members were persisted and others were not, and none of the members
+     * is mutated by a save at all. The read side ({@link #loadEnsemble}) is where an ensemble-wide
+     * partial <em>could</em> exist, and it already refuses before touching the target
+     * (validate-then-mutate, audit 2026-08-17 finding 4) and reports with a {@code boolean}.</p>
+     */
+    public <K> SaveResult trySaveSnapshot(String name, EnsembleOrderedSet<K> ensemble,
+                                          KeySerializer<K> keySerializer) {
         if (ensemble == null) throw new IllegalArgumentException("ensemble must not be null");
         RankedSet<K> primarySet = ensemble.primary().set();
         if (primarySet instanceof OrderedSet<K> os) {
-            saveSnapshot(name, os, keySerializer);
+            return trySaveSnapshot(name, os, keySerializer);
         } else if (primarySet instanceof PersistentRankedSet<K> prs) {
-            saveSnapshot(name, prs.engine().snapshot(), keySerializer);
+            return trySaveSnapshot(name, prs.engine().snapshot(), keySerializer);
         } else {
             throw new IllegalArgumentException(
                     "no persistence path for primary backing " + primarySet.getClass().getSimpleName());

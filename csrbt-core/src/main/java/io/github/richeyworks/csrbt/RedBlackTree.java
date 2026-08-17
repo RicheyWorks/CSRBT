@@ -159,6 +159,7 @@ public class RedBlackTree<K> implements TreeEngine<K>, MutableTree<K> {
     @Override
     public void onRotation() { rotationCount++; }
 
+
     /** Total primitive rotations performed by this engine instance (see {@link #onRotation()}). */
     public long rotationCount() { return rotationCount; }
 

@@ -10,7 +10,8 @@ group = "io.github.richeyworks"
 version = "0.1.0"
 
 tasks.withType<JavaCompile>().configureEach {
-    options.release = 17 // see csrbt-core/build.gradle.kts
+    options.release = 17       // see csrbt-core/build.gradle.kts
+    options.encoding = "UTF-8" // ditto — covers compileJmhJava, which `check` depends on
 }
 
 dependencies {

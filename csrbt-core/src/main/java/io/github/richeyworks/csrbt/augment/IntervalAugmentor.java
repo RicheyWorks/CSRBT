@@ -92,7 +92,7 @@ public class IntervalAugmentor implements TreeNode1.Augmentor<Integer> {
      *
      * Correctness argument (CLRS Theorem 14.2):
      *   If we go left, either we find an overlap there, or the right subtree
-     *   cannot contain any overlap either (because max(left) < i.lo).
+     *   cannot contain any overlap either (because {@code max(left) < i.lo}).
      *   So we never miss a valid answer.
      */
     public static TreeNode1<Integer> intervalSearch(TreeContext context, int qlo, int qhi) {
@@ -147,7 +147,7 @@ public class IntervalAugmentor implements TreeNode1.Augmentor<Integer> {
 
     /**
      * "Stabbing query" — find all intervals containing a single point p.
-     * [lo, hi] contains p iff lo <= p <= hi.
+     * {@code [lo, hi]} contains p iff {@code lo <= p <= hi}.
      * Equivalent to intervalSearchAll(p, p).
      */
     public static List<int[]> stabQuery(TreeContext context, int p) {

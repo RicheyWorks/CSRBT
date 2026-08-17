@@ -13,13 +13,15 @@ import java.util.*;
  *
  * Maps classical CS tree properties onto biological frameworks:
  *
- *   Shannon (1948)           → diversity of key distribution
- *   MacArthur & Wilson (1967)→ species-area relationship on subtrees
- *   Pianka (1973)            → niche overlap between left/right subtrees
- *   MacArthur (1958)         → broken-stick model for subtree size distribution
- *   MacArthur & Wilson (1967)→ r/K selection → strategy classification
- *   Margulis (1967)          → endosymbiosis → tree merging
- *   Mitochondrial Eve        → deepest common ancestor of all leaves
+ * <pre>
+ *   Shannon (1948)            → diversity of key distribution
+ *   MacArthur &amp; Wilson (1967) → species-area relationship on subtrees
+ *   Pianka (1973)             → niche overlap between left/right subtrees
+ *   MacArthur (1958)          → broken-stick model for subtree size distribution
+ *   MacArthur &amp; Wilson (1967) → r/K selection → strategy classification
+ *   Margulis (1967)           → endosymbiosis → tree merging
+ *   Mitochondrial Eve         → deepest common ancestor of all leaves
+ * </pre>
  *
  * None of this is metaphor for metaphor's sake — each mapping is
  * structurally faithful to the original biological model.
@@ -50,8 +52,17 @@ public class TreeEcology {
      * H' = 0      → one value dominates (monoculture tree)
      * H' = ln(S)  → perfectly even distribution across S distinct values
      *
-     * In CLRS terms: the frequencyMap in TreeContext IS the species
-     * abundance distribution.  High diversity ↔ uniform key space coverage.
+     * <p><b>Read this before quoting the number.</b> The sample is the tree's stored keys,
+     * and the tree is a <i>set</i>: every key is present exactly once, so every "species"
+     * has abundance 1 and this returns ln n for every tree of size n — the top of its own
+     * scale, always. That is the arithmetically correct H' of a perfectly even sample; it
+     * is not a measurement of the workload. Ecologically the stored key set is a
+     * <i>species list</i> (incidence data), and abundance-based indices are not defined on
+     * incidence data (Magurran 2004, ch. 2). To get diversity that varies, count key
+     * <i>touches</i> rather than keys — {@code EcologyRecorder} feeds
+     * {@link io.github.richeyworks.csrbt.experimental.ecology.CommunityMetrics#shannon(Map)}
+     * with exactly that abundance distribution (ADR-015, which exists because of this
+     * defect: audit 2026-08-09 EC-1).</p>
      */
     public double shannonDiversity() {
         List<Integer> values = diagnostics.inOrderTraversal();
@@ -70,10 +81,55 @@ public class TreeEcology {
     }
 
     /**
-     * Shannon evenness J' = H' / ln(S)
-     * J' = 1.0 → perfectly even; J' → 0 → one species dominates.
-     * Normalizes diversity by the theoretical maximum.
+     * Pielou's evenness J' = H' / ln(S) (Pielou 1966) over the tree's stored keys —
+     * <b>identically 1.0, and therefore not a measurement.</b>
+     *
+     * <p>The formula is right; the sample is wrong. J' is defined on a species-abundance
+     * vector — individuals counted per species. A duplicate-free BST is not that: it is a
+     * <i>species list</i> (incidence data), every key present exactly once, so S = n,
+     * H' = ln n, and J' = 1 for every tree that has ever existed. Ecology draws the same
+     * line: incidence data supports richness and the incidence-based similarity indices
+     * (Jaccard, Sørensen, Chao2), but abundance-based diversity and evenness are simply
+     * undefined on it (Magurran, <i>Measuring Biological Diversity</i>, 2004, ch. 2). An
+     * index that cannot vary carries no information — its own H' is zero.</p>
+     *
+     * <p>This was found by the 2026-08-09 ecology audit (EC-1/EC-3), confirmed by the
+     * 2026-08-12 deep sweep (E-1), and is settled here by making the API say so rather
+     * than by re-pointing a named index at some other partition. Redefining J' over depth
+     * strata was measured and rejected: it does vary, but it runs backwards — a 15-node
+     * spine, the worst shape a BST can take, reads J' = 1.000 (one node per stratum, a
+     * perfectly even canopy) while a perfect 15-node tree reads 0.820 and a perfect
+     * 1023-node tree 0.599, so "most even" would name the most pathological tree, and the
+     * usable range would be a size-dependent 0.6–1.0. Calling that "Shannon evenness"
+     * would repeat exactly the fault the sixth pass diagnosed in {@code rKScore} — a named
+     * index quietly meaning something other than its name.</p>
+     *
+     * <p>Two honest instruments replace it, and neither is a rename of this one:</p>
+     * <ul>
+     *   <li><b>Community evenness</b> — count key <i>touches</i>, not keys:
+     *       {@code EcologyRecorder} accumulates a real abundance distribution and
+     *       {@link io.github.richeyworks.csrbt.experimental.ecology.CommunityMetrics#pielouEvenness(Map)}
+     *       computes the same Pielou J' on it, where it varies as ecology intends
+     *       (uniform scans → J' near 1, hot-key workloads → J' near 0.5). That layer
+     *       (ADR-015) exists because of this defect.</li>
+     *   <li><b>Structural evenness</b> — {@link #subtreeEvenness()}, the abundance-weighted
+     *       mean evenness of the two-daughter splits, in the spirit of MacArthur's broken
+     *       stick (1957). That is what {@code rKScore()} uses, and what
+     *       {@code ecologyReport()} prints.</li>
+     * </ul>
+     *
+     * <p>The return value is unchanged (1.0 for any non-empty tree, and for the empty one)
+     * so that no existing caller's arithmetic moves; what changes is that the API, and the
+     * report, stop presenting it as something the tree was measured for.</p>
+     *
+     * @deprecated structurally constant at 1.0 on a duplicate-free BST, so it measures
+     *             nothing. For community evenness use
+     *             {@link io.github.richeyworks.csrbt.experimental.ecology.CommunityMetrics#pielouEvenness(Map)}
+     *             over access abundances; for structural evenness use
+     *             {@link #subtreeEvenness()}.
+     * @return 1.0, always
      */
+    @Deprecated
     public double shannonEvenness() {
         int S = speciesRichness();
         if (S <= 1) return 1.0;
@@ -91,7 +147,7 @@ public class TreeEcology {
     // ── MacArthur-Wilson Species-Area Relationship ────────────────────────────
 
     /**
-     * S = c · A^z   (MacArthur & Wilson 1967, p.8)
+     * S = c · A^z   (MacArthur &amp; Wilson 1967, p.8)
      *
      * Predicts how many distinct values to expect in a subtree of size A.
      * Deviation from this prediction reveals how "island-like" vs
@@ -110,8 +166,8 @@ public class TreeEcology {
      * log(S2/S1) / log(A2/A1) = z  (rearranged from S = cA^z)
      *
      * A z near 0.30 means the tree's structure follows typical island dynamics.
-     * z >> 0.30 suggests extreme fragmentation (very uneven subtrees).
-     * z << 0.30 suggests mainland-like (subtrees very similar in composition).
+     * {@code z >> 0.30} suggests extreme fragmentation (very uneven subtrees).
+     * {@code z << 0.30} suggests mainland-like (subtrees very similar in composition).
      */
     public double empiricalZValue() {
         TreeNode1<Integer> root = context.getTree().getRoot();
@@ -220,7 +276,7 @@ public class TreeEcology {
 
     /**
      * r/K selection score for the current tree state.
-     * (MacArthur & Wilson 1967; Pianka 1970)
+     * (MacArthur &amp; Wilson 1967; Pianka 1970)
      *
      *   r-selected traits  (fast, opportunistic, low equilibrium):
      *     − High imbalance relative to optimal height
@@ -459,14 +515,24 @@ public class TreeEcology {
 
     // ── Full Report ───────────────────────────────────────────────────────────
 
+    /**
+     * The full plain-English report, as printed for classroom use.
+     *
+     * <p>The Shannon block reports H' and richness but <b>no species evenness</b>: on a
+     * duplicate-free BST J' is identically 1.0 (see {@link #shannonEvenness()}), and a
+     * constant printed next to real numbers reads as a measurement. The block says so in
+     * words instead, and the evenness that <i>is</i> measured — {@link #subtreeEvenness()},
+     * the structural split evenness that {@link #rKScore()} weighs — is reported in the
+     * r/K block where it is actually used, labelled for what it is (audit 2026-08-09 EC-3).</p>
+     */
     public String ecologyReport() {
         int    n       = context.getSize();
         double shannon = shannonDiversity();
         double maxH    = n > 1 ? Math.log(n) : 1.0;
-        double even    = shannonEvenness();
         int    rich    = speciesRichness();
         double overlap = nicheOverlap();
         double rk      = rKScore();
+        double splitJ  = subtreeEvenness();
         double z       = empiricalZValue();
         TreeNode1<Integer> eve  = mitoEve();
 
@@ -485,8 +551,15 @@ public class TreeEcology {
             "║ n = %-5d                                            ║%n" +
             "╠══ Shannon Diversity (1948) ═══════════════════════════╣%n" +
             "║  H'        = %.4f  (max H' for n=%d = %.4f)     %n" +
-            "║  Evenness  = %.4f  (J'=1 → perfectly even)       %n" +
             "║  Richness  = %d distinct values                    %n" +
+            "║  Evenness  — not reported here, and not because it was%n" +
+            "║    forgotten. The tree is a SET: every key is stored once,%n" +
+            "║    so every species has abundance 1. That is a species%n" +
+            "║    list, not an abundance sample — richness S = n and%n" +
+            "║    H' = ln n follow by construction, and Pielou's J' is%n" +
+            "║    1.0 for every tree that has ever existed. Evenness needs%n" +
+            "║    counts of key TOUCHES: run the workload instruments%n" +
+            "║    (EcologyRecorder → CommunityMetrics.pielouEvenness).%n" +
             "╠══ MacArthur-Wilson (1967) ═════════════════════════════╣%n" +
             "║  Predicted S (n=%d, z=0.30) = %.2f              %n" +
             "║  Empirical z               = %.4f               %n" +
@@ -497,6 +570,9 @@ public class TreeEcology {
             "╠══ r/K Selection (MacArthur & Pianka 1970) ════════════╣%n" +
             "║  Score     = %+.4f                               %n" +
             "║  Class     → %s%n" +
+            "║  Split J'  = %.4f  (structural evenness of the subtree%n" +
+            "║    splits — 1 = every split halves the population, 0 = every%n" +
+            "║    split strands one side; 25%% of the score above)     %n" +
             "╠══ Mitochondrial Eve (bottleneck) ══════════════════════╣%n" +
             "║  Eve node  = %-6d  depth = %d                    %n" +
             "║    (depth=0→diverse pop, depth>0→bottleneck)          %n" +
@@ -505,12 +581,11 @@ public class TreeEcology {
             "╚══════════════════════════════════════════════════════╝%n",
             n,
             shannon, n, maxH,
-            even,
             rich,
             n, speciesAreaPrediction(n),
             Double.isNaN(z) ? 0.0 : z,
             overlap,
-            rk, rKLabel(),
+            rk, rKLabel(), splitJ,
             eve.isNil() ? -1 : eve.getData(), eve.isNil() ? -1 : eve.depth(),
             stickStr
         );

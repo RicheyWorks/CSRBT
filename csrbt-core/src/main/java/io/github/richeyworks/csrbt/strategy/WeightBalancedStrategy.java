@@ -155,6 +155,11 @@ public class WeightBalancedStrategy<K> implements TreeStrategy<K> {
      * the mutable mirror of ADR-005's {@code balance()} applied per rebuilt level.
      * Subtree sizes are already correct along the path (the propagating setters updated
      * them before this walk; rotations keep them correct as we go).
+     *
+     * <p>This walk steers by SIZE, not height, so — unlike AVL's and Hybrid's — it never
+     * refreshes a height and owes every ancestor of every rotation it fires the ADR-023
+     * height climb. Hence the height-carrying {@code rotateLeft}/{@code rotateRight} here
+     * rather than the {@code *Local} primitives.</p>
      */
     private void rebalanceUp(MutableTree<K> tree, TreeNode1<K> start) {
         TreeNode1<K> cur = start;

@@ -18,7 +18,7 @@ package io.github.richeyworks.csrbt.control;
  *   <li><b>Single-writer.</b> Following the engine's concurrency model (DESIGN §4),
  *       implementations need not be thread-safe; record/snapshot are expected to run
  *       under the facade's single write lock.</li>
- *   <li><b>Effective mutations.</b> For {@link #size()} accuracy, {@code recordAdd}/
+ *   <li><b>Effective mutations.</b> For {@link WorkloadFeatures#size()} accuracy, {@code recordAdd}/
  *       {@code recordRemove} should be called when a key is actually inserted/removed
  *       (not for no-op duplicate adds or absent removes). The op-mix, skew, depth and
  *       rotation features remain valid regardless.</li>

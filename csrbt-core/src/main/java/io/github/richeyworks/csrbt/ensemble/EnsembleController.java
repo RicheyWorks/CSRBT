@@ -154,10 +154,14 @@ public final class EnsembleController<K> {
      * a rotation-thrashing policy won whenever its tree was momentarily shallower.
      *
      * <p>The meter is the primary's because the primary is the member that receives every write
-     * (shadows see a sampled stream), so its delta is the <em>stream's</em> realized churn. Clamped
-     * at zero per {@link io.github.richeyworks.csrbt.OrderedSet#rotationCount()}: a morph or
-     * self-repair swaps the engine and resets the counter, which would otherwise read as a negative
-     * delta.</p>
+     * (shadows see a sampled stream), so its delta is the <em>stream's</em> realized churn — which
+     * is exactly what {@link WorkloadFeatures#rotationsPerWrite()} is defined to be. Per-member
+     * churn is metered separately by the ensemble's fan-out (ADR-024) and reported on the
+     * {@code event=morph_eval} line; it does not feed {@link StrategyScorer}, which is a pure
+     * function of one {@link WorkloadFeatures} vector by construction (ADR-002 step 6) and has no
+     * per-member term to give it. Clamped at zero per
+     * {@link io.github.richeyworks.csrbt.OrderedSet#rotationCount()}: a morph or self-repair swaps
+     * the engine and resets the counter, which would otherwise read as a negative delta.</p>
      */
     private static <K> int rotationsSince(EnsembleMember<K> m, long before) {
         if (before < 0L) return 0;                       // engine-tier member: no rotation meter
@@ -240,6 +244,9 @@ public final class EnsembleController<K> {
         }
 
         emitMorphEval(f, available, current, to, promoted);
+        // ADR-024: this evaluation is this controller's measurement window, so the per-member
+        // rotation meters it just reported are cleared for the next one.
+        ensemble.resetRotationMeters();
         return new PromotionResult(promoted, current, to, reason);
     }
 
@@ -275,7 +282,13 @@ public final class EnsembleController<K> {
                 f, scores, meters(), promoted ? "PROMOTE" : "HOLD", from, to, promoted);
     }
 
-    /** Per-member realized meters (ADR-003 E2): node height, size, avg insert/delete time. */
+    /**
+     * Per-member realized meters (ADR-003 E2): node height, size, avg insert/delete time, and the
+     * ADR-024 per-member rotation meter — {@code rot/w} is the member's own realized rotations per
+     * write <em>it</em> received this window ({@code NaN} until
+     * {@link EnsembleMember#MIN_METERED_WRITES} of them), with the received-write count beside it,
+     * so a rotation-thrashing member and a rotation-cheap one are distinguishable from one log line.
+     */
     private String meters() {
         List<EnsembleMember<K>> members = ensemble.members();
         EnsembleMember<K> prim = ensemble.primary();
@@ -283,9 +296,11 @@ public final class EnsembleController<K> {
         for (int i = 0; i < members.size(); i++) {
             EnsembleMember<K> m = members.get(i);
             if (i > 0) sb.append(", ");
-            sb.append(String.format("%s{h=%d n=%d insMs=%.4f delMs=%.4f%s}",
+            sb.append(String.format(java.util.Locale.ROOT,
+                    "%s{h=%d n=%d insMs=%.4f delMs=%.4f rot/w=%.4f over %dw%s}",
                     m.strategyName(), height(m), m.set().size(),
                     m.set().avgInsertTimeMs(), m.set().avgDeleteTimeMs(),
+                    m.rotationsPerWrite(), m.meteredWrites(),
                     m == prim ? " *primary" : ""));
         }
         return sb.append(']').toString();

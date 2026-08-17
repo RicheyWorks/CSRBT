@@ -52,7 +52,7 @@ public class OrderStatisticsOps<K> {
      * Returns the node with the ith smallest key (1-indexed).
      *
      * @param rank  1-indexed rank (1 = minimum, n = maximum)
-     * @throws IndexOutOfBoundsException if rank < 1 or rank > n
+     * @throws IndexOutOfBoundsException if {@code rank < 1} or {@code rank > n}
      */
     public TreeNode1<K> select(int rank) {
         int n = subtreeSize(tree.getRoot());
@@ -146,7 +146,7 @@ public class OrderStatisticsOps<K> {
     }
 
     /**
-     * Predecessor of value x: the node with the largest key < x.
+     * Predecessor of value x: the node with the largest key {@code < x}.
      * O(log n).
      */
     public TreeNode1<K> predecessor(K value) {

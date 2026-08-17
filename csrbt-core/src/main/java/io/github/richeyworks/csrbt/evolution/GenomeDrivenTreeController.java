@@ -29,7 +29,7 @@ import java.util.*;
  *   2. REAL HYBRID  — HybridStrategy is a first-class TreeStrategy with AVL
  *                     rebalancing + RB recolor pass.  Not "RB pretending".
  *
- *   3. PERFORMANCE  — Map<StructureType, PerformanceRecord> tracks avg depth,
+ *   3. PERFORMANCE  — {@code Map<StructureType, PerformanceRecord>} tracks avg depth,
  *                     rotation rate, and op timing per strategy.  The genome's
  *                     fitness recommendation is biased by historical data.
  *

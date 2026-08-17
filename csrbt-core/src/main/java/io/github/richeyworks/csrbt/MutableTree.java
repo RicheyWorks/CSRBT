@@ -29,10 +29,17 @@ public interface MutableTree<K> {
     /** The shared sentinel leaf. Never {@code null}; never reassigned. */
     TreeNode1<K> getNIL();
 
-    /** Left rotation about {@code x} (CLRS LEFT-ROTATE). */
+    /**
+     * Left rotation about {@code x} (CLRS LEFT-ROTATE), height-carrying.
+     *
+     * <p>Routes to {@code TreeStrategy.rotateLeft}, the variant that leaves every ancestor's
+     * cached {@code TreeNode1.getHeight()} exact (ADR-023) — so an out-of-band rotation through
+     * this engine-level seam is safe on any strategy, including the ones whose own rebalance
+     * passes call the cheaper {@code rotateLeftLocal} primitive.</p>
+     */
     void rotateLeft(TreeNode1<K> x);
 
-    /** Right rotation about {@code y} (CLRS RIGHT-ROTATE). */
+    /** Right rotation about {@code y} (CLRS RIGHT-ROTATE); {@link #rotateLeft}'s mirror. */
     void rotateRight(TreeNode1<K> y);
 
     /**

@@ -214,6 +214,11 @@ public class HybridStrategy<K> implements TreeStrategy<K> {
     // ── AVL rebalance (Phase 1) ───────────────────────────────────────────────
 
     private void avlRebalanceUp(MutableTree<K> tree, TreeNode1<K> start) {
+        // ADR-023: the *Local rotation primitives are correct here for AVLStrategy's reason —
+        // this walk refreshes every node from the modification point to the root, so it owes
+        // no ancestor any height propagation. Phase 2 (rbRecolorPathUp) only changes colours,
+        // which no height depends on. A rotation added outside this walk must use the
+        // height-carrying rotateLeft/rotateRight.
         TreeNode1<K> cur = start;
         while (cur != null && !cur.isNil()) {
             // Keep cached heights current along the path (see AVLStrategy note).
@@ -236,19 +241,19 @@ public class HybridStrategy<K> implements TreeStrategy<K> {
 
             if (bf > tolerance) {
                 if (balanceFactor(cur.getLeft()) < 0) {
-                    rotateLeft(tree, cur.getLeft());
+                    rotateLeftLocal(tree, cur.getLeft());
                     avlRotationCount++;
                 }
-                rotateRight(tree, cur);
+                rotateRightLocal(tree, cur);
                 avlRotationCount++;
                 cur = cur.getParent();
                 grantOverRotatedTriangle(cur);
             } else if (bf < -tolerance) {
                 if (balanceFactor(cur.getRight()) > 0) {
-                    rotateRight(tree, cur.getRight());
+                    rotateRightLocal(tree, cur.getRight());
                     avlRotationCount++;
                 }
-                rotateLeft(tree, cur);
+                rotateLeftLocal(tree, cur);
                 avlRotationCount++;
                 cur = cur.getParent();
                 grantOverRotatedTriangle(cur);

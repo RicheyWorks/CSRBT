@@ -205,18 +205,29 @@ public class TreeNode1<K> implements Comparable<TreeNode1<K>>, Cloneable {
     }
 
     /**
-     * The CACHED black-height, which is <b>not</b> guaranteed current for every node — read
-     * {@link #getHeight()} first; the same staleness rule and the same recompute advice apply
-     * verbatim, because both caches are refreshed together by the same link setters and skipped
-     * together by the {@code *Local} ones a rotation uses.
+     * The CACHED black-height, which — unlike {@link #getHeight()} — is <b>not</b> guaranteed
+     * current for every node, and is deliberately left that way (ADR-023).
      *
-     * <p>Two extra caveats specific to this quantity. It is informational bookkeeping on every
-     * strategy: {@code updateBlackHeight} records {@code (isBlack() ? 1 : 0) + max(left, right)}
-     * without enforcing the red-black invariant, because AVL/Splay/Hybrid colour every node black
-     * and legitimately have unequal subtree black-heights. And the exact, invariant-checking
-     * answer is {@link #blackHeight()} (no {@code get}) — an O(subtree) recursive walk that
-     * throws {@link IllegalStateException} on a genuine violation. Red-black validity itself is
-     * checked by {@code TreeDiagnostics}, never by this accessor.</p>
+     * <p><b>What it is.</b> Informational bookkeeping on every strategy: {@code updateBlackHeight}
+     * records {@code (isBlack() ? 1 : 0) + max(left, right)} without enforcing the red-black
+     * invariant, because AVL/Splay/Hybrid colour every node black and legitimately have unequal
+     * subtree black-heights. The exact, invariant-checking answer is {@link #blackHeight()} (no
+     * {@code get}) — an O(subtree) recursive walk that throws {@link IllegalStateException} on a
+     * genuine violation. Red-black validity itself is checked by {@code TreeDiagnostics}, never by
+     * this accessor.</p>
+     *
+     * <p><b>Where it goes stale.</b> The link setters and the {@code *Local} ones both refresh it
+     * for the nodes they touch, and the propagating {@link #setLeft}/{@link #setRight} carry it to
+     * the root — but {@link #setColor} and {@link #flipColor} update the recoloured node alone, and
+     * the ADR-023 rotation climb carries height only. Recolouring, not rotation, is the dominant
+     * source: the RB insert and delete fixups recolour O(log n) nodes per write, so making this
+     * exact would mean a propagation walk per recolour on the hottest path in the engine, for a
+     * quantity with no consumer that needs it. Measured residue after ADR-023: 0% of nodes on
+     * RedBlack under insert-only streams, 2.7% under mixed add/remove, and 0.2&ndash;8.5% on
+     * AVL/Hybrid/WeightBalanced, essentially always off by exactly 1.</p>
+     *
+     * <p><b>If you need an exact value</b>, call {@link #blackHeight()}, or recompute the subtree
+     * bottom-up yourself. Do not infer red-black validity from this field.</p>
      */
     public int getBlackHeight() {
         return blackHeight;
@@ -238,39 +249,38 @@ public class TreeNode1<K> implements Comparable<TreeNode1<K>>, Cloneable {
     }
 
     /**
-     * The CACHED subtree height (leaf = 1, NIL = 0). Unlike {@link #getSize()}, this is
-     * <b>not</b> maintained on every structural change — it can read high for a node that is an
-     * ancestor of a rotation, and how long it stays wrong depends on the strategy.
+     * The subtree height: 1 for a leaf, 0 for NIL. <b>Exact for every node</b>, like
+     * {@link #getSize()} — the cache is maintained on every structural change, including
+     * rotations, on every strategy (ADR-023).
      *
-     * <p><b>What is exact.</b> The propagating {@link #setLeft}/{@link #setRight} links used by
-     * the insert/delete BST descents recompute height on every node they touch on the way up, so
-     * after a rotation-free write every height on the modified path is current. A node's own
-     * height is also exact immediately after {@link #refreshHeight()}.</p>
+     * <p><b>How it is maintained.</b> Two mechanisms meet here. The propagating
+     * {@link #setLeft}/{@link #setRight} links used by the insert/delete BST descents recompute
+     * height on every node from the link to the root. Rotations link through the {@code *Local}
+     * setters, which recompute the touched nodes only — so where a rotation moves the height of
+     * the subtree it rearranges, {@code TreeStrategy.rotateLeft}/{@code rotateRight} carry the
+     * change up with {@link #refreshHeightUpward()}, a fixed-point climb that stops at the first
+     * ancestor whose height recomputes unchanged. {@code AVLStrategy}, {@code HybridStrategy} and
+     * {@code SplayStrategy} instead call the {@code rotateLeftLocal}/{@code rotateRightLocal}
+     * primitives, because their own passes already refresh every node from the rotation point to
+     * the root; the result is the same and the walk is not paid twice. See the rotation notes on
+     * {@link io.github.richeyworks.csrbt.strategy.TreeStrategy} for the rule a new strategy has to
+     * follow.</p>
      *
-     * <p><b>What may be stale.</b> Rotations link through the {@code *Local} setters, which
-     * recompute size, augment, height and black-height for the touched nodes only and never walk
-     * to the root — that is what keeps a rotation O(1) (see the rotation notes on
-     * {@link io.github.richeyworks.csrbt.strategy.TreeStrategy}). A rotation can change the
-     * rotated subtree root's height, and that genuinely propagates upward, but nothing propagates
-     * it. Subtree size and the augment payload are unaffected: a rotation permutes a local pair
-     * without changing which keys live under any ancestor, so order statistics stay exact.</p>
+     * <p><b>History.</b> Until ADR-023 this accessor could read high for any ANCESTOR of a
+     * rotation under {@code RedBlackStrategy} and {@code WeightBalancedStrategy} — the two that do
+     * not rebalance by height (AUDIT-2026-08-17 finding 21; AUDIT-2026-08-14 F-1 deferred the fix
+     * on cost grounds). It was not a rare corner: the root alone was wrong after 98.7% of ascending
+     * and 59.7% of random Red-Black inserts, and after 74.3% of ascending WeightBalanced inserts
+     * with errors up to 8. Code written against that caveat — recomputing before reading — is still
+     * correct, just no longer necessary.</p>
      *
-     * <p><b>Under which strategies.</b> {@code AVLStrategy} and {@code HybridStrategy} mask the
-     * staleness — their rebalance passes call {@link #refreshHeight()} on every node from the
-     * modification point up to the root after rotating, so a height read through them is current.
-     * {@code RedBlackStrategy} and {@code WeightBalancedStrategy} do not rebalance by height and
-     * never refresh it, so on those an ANCESTOR of a rotation can report a height above the real
-     * one until the next propagating link refreshes that path. (AUDIT-2026-08-17 finding 21
-     * reproduced an RB node reporting 5 where the real height was 4.)</p>
-     *
-     * <p><b>If you need an exact value.</b> Do not trust this accessor on RB or WB. Recompute:
-     * call {@link #refreshHeight()} on every node of the affected subtree in post-order (children
-     * before parent, exactly the discipline the AVL/Hybrid rebalance passes follow), which leaves
-     * this cache correct and lets subsequent reads use the accessor again; or, if you only want
-     * the number and not a repaired cache, take it from a structural walk of
-     * {@link #getLeft()}/{@link #getRight()} without consulting the cache at all. Propagating
-     * heights from the rotations themselves was deliberately deferred (AUDIT-2026-08-14 F-1): it
-     * would restore the O(height) rotation cost this design exists to remove.</p>
+     * <p><b>Cost, so that nobody re-litigates it by guess.</b> The climb is free on uniform and
+     * mixed add/remove streams (1&ndash;3 levels; unmeasurable end to end) and free on AVL, Hybrid
+     * and Splay, which skip it. It costs about +27% of write time in exactly one place: Red-Black
+     * under a MONOTONE insert stream, where the BST link has just pushed +1 up the whole spine and
+     * the rebalancing rotation takes it straight back off, so the climb runs the full height every
+     * time. For bulk-loading known-sorted data prefer {@code OrderedSet.buildFromSorted}, which is
+     * O(n) and rotation-free. ADR-023 has the tables.</p>
      */
     public int getHeight() {
         return height;
@@ -298,6 +308,38 @@ public class TreeNode1<K> implements Comparable<TreeNode1<K>>, Cloneable {
         int leftHeight = left.getHeight();
         int rightHeight = right.getHeight();
         height = 1 + Math.max(leftHeight, rightHeight);
+    }
+
+    /**
+     * Refresh the cached {@linkplain #getHeight() height} of every STRICT ancestor of this node,
+     * stopping at the first ancestor whose recomputed height is unchanged (ADR-023).
+     *
+     * <p>This is the propagation that {@link #setLeftLocal}/{@link #setRightLocal} deliberately
+     * skip and that rotations therefore have to make up for. It touches neither size nor the
+     * augment payload — both are ancestor-invariant under a rotation — and it is a
+     * <b>fixed-point climb</b>, not an unconditional walk to the root: a node's cached height is a
+     * pure function of its two children's cached heights, so once a level recomputes to the value
+     * it already held, no ancestor above it can change either. On uniform and mixed add/remove
+     * workloads that exits after 1&ndash;3 levels; on a monotone (sorted) insert stream, where the
+     * BST link has just pushed +1 up the whole spine and the rebalancing rotation takes it back
+     * off, it runs the full height. ADR-023 has the measured distribution.</p>
+     *
+     * <p>Correct only if this node's own height is already current (the {@code *Local} setters
+     * leave it so) and every ancestor's was current before the change — which is the invariant the
+     * rotation bodies and {@link #recomputeAugmentAndPropagate} jointly maintain. Callers should
+     * invoke it only when this node's height actually moved; otherwise the first comparison exits
+     * on the value the caller just wrote and the climb is skipped.</p>
+     *
+     * <p>Black-height is deliberately NOT carried on this walk — see {@link #getBlackHeight()}.</p>
+     */
+    public void refreshHeightUpward() {
+        TreeNode1<K> current = parent;
+        while (current != null && current != nilSentinel) {
+            int cached = current.height;
+            current.updateHeight();
+            if (current.height == cached) return;
+            current = current.parent;
+        }
     }
 
     public int depth() {

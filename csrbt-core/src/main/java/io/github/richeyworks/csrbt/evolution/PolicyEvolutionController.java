@@ -58,6 +58,13 @@ import java.util.Set;
  * earns its keep: an unsound candidate fails the gate or its own invariant and is discarded
  * — recorded, visible in the arena, harmless (ADR-011 §3 V4).</p>
  *
+ * <p><b>Per-member pricing (ADR-024).</b> Each body's fitness write term is the churn <em>its own</em>
+ * engine paid, per write <em>it</em> received — but only when every body in the generation and the
+ * incumbent have an own-churn observation. The generation ranks its bodies against each other and
+ * against the throne in one pool, and a pool mixing per-member costs with stream-priced ones would
+ * rank two different measurements side by side, so the choice is all-or-nothing per generation;
+ * short of evidence, everyone falls back to the stream's number (the S6-12 behavior).</p>
+ *
  * <p><b>Determinism.</b> All randomness flows from one constructor-seeded {@link Random};
  * the same seed and call/op sequence reproduce the same lineages, scores aside. No
  * background threads; no RNG in selection (cost order, ties to insertion order).</p>
@@ -163,8 +170,10 @@ public final class PolicyEvolutionController<K> {
      * was decided purely by the structural read term — a genome that thrashed rotations survived
      * whenever its tree was momentarily shallower.
      *
-     * <p>Metered on the primary because the primary receives every write while nursery shadows see
-     * a sampled stream: this is the <em>stream's</em> realized churn. Clamped at zero per
+     * <p>Metered on the primary because the primary receives every write: this is the
+     * <em>stream's</em> realized churn, which is what {@link WorkloadFeatures#rotationsPerWrite()}
+     * is defined to carry. Per-member churn is metered separately by the ensemble's fan-out and
+     * consumed in {@link #endGeneration} (ADR-024). Clamped at zero per
      * {@link io.github.richeyworks.csrbt.OrderedSet#rotationCount()} — a morph swaps the engine and
      * resets the counter.</p>
      */
@@ -253,6 +262,10 @@ public final class PolicyEvolutionController<K> {
             }
         }
         if (onTrial.isEmpty()) throw new IllegalStateException("no candidate survived materialization");
+        // ADR-024: the generation owns the per-member rotation meters. Reset after materialization,
+        // so each body is priced on the churn it paid running THIS generation's genome — the
+        // setStrategy calls above have just swapped engines, and anything older is another genome's.
+        ensemble.resetRotationMeters();
         generationOpen = true;
         logger.info("event=generation_begin gen={} onTrial={} parents={} dead={}",
                 generation, onTrial.values(), parents.size(), dead.size());
@@ -275,6 +288,7 @@ public final class PolicyEvolutionController<K> {
         Map<PolicyGenome, EnsembleMember<K>> bodies = new LinkedHashMap<>();
         int deaths = 0;
         int uninformative = 0;
+        Map<PolicyGenome, EnsembleMember<K>> judged = new LinkedHashMap<>();
         for (Map.Entry<EnsembleMember<K>, PolicyGenome> t : onTrial.entrySet()) {
             OrderedSet<K> set = t.getKey().orderedSet();
             PolicyGenome g = t.getValue();
@@ -297,9 +311,25 @@ public final class PolicyEvolutionController<K> {
                         generation, g, set.size(), Fitness.MIN_INFORMATIVE_SIZE);
                 continue;
             }
-            double cost = Fitness.evaluate(f, Fitness.meanDepth(set.getEngine()), set.size()).cost();
+            judged.put(g, t.getKey());
+        }
+
+        // 1b. ADR-024: price every body on the rotations ITS OWN engine paid, per write IT
+        //     received — but only if EVERY body in this generation and the incumbent have an
+        //     own-churn observation. V4 ranks the bodies against each other AND against the
+        //     throne in one pool, so a pool holding some per-member costs and some stream-priced
+        //     ones would rank two different measurements side by side. All or nothing.
+        boolean perMemberChurn = !Double.isNaN(ensemble.primary().rotationsPerWrite());
+        for (EnsembleMember<K> body : judged.values()) {
+            if (Double.isNaN(body.rotationsPerWrite())) { perMemberChurn = false; break; }
+        }
+        for (Map.Entry<PolicyGenome, EnsembleMember<K>> t : judged.entrySet()) {
+            PolicyGenome g = t.getKey();
+            OrderedSet<K> set = t.getValue().orderedSet();
+            WorkloadFeatures bodyF = perMemberChurn ? t.getValue().pricedFeatures(f) : f;
+            double cost = Fitness.evaluate(bodyF, Fitness.meanDepth(set.getEngine()), set.size()).cost();
             scored.put(g, cost);
-            bodies.put(g, t.getKey());
+            bodies.put(g, t.getValue());
             emit(new TreeEvent.Trial<>(g.toString(), "SCORED", cost, generation));
         }
         // Death is by genome VALUE, and duplicate bodies of the same genome can sit in
@@ -340,7 +370,8 @@ public final class PolicyEvolutionController<K> {
                 survivorSpread(), deaths, culled));
 
         // 3. Promotion = selection pressure on the throne (the V3 gate math, verbatim).
-        double incumbentCost = incumbentCost(f);
+        double incumbentCost = incumbentCost(perMemberChurn
+                ? ensemble.primary().pricedFeatures(f) : f);
         // The other half of finding 8: an incumbent with no measurable shape scores ~0 and can
         // never be beaten (or, worse, is beaten by an equally shapeless candidate). Uncomparable
         // is a hold. An engine-tier primary is a different case — legitimately unscored at +∞,
@@ -376,9 +407,10 @@ public final class PolicyEvolutionController<K> {
 
         List<PolicyGenome> survivors = parents.stream().map(Scored::genome).toList();
         double bestCost = parents.isEmpty() ? Double.NaN : parents.get(0).cost();
-        logger.info("event=generation_eval gen={} evaluated={} deaths={} unmeasured={} survivors={} best={} incumbent={} decision={} lineages={} spread={}",
+        logger.info("event=generation_eval gen={} evaluated={} deaths={} unmeasured={} survivors={} best={} incumbent={} churn={} decision={} lineages={} spread={}",
                 generation, scored.size(), deaths, uninformative, survivors,
                 String.format("%.4f", bestCost), String.format("%.4f", incumbentCost),
+                perMemberChurn ? "per-member" : "stream(" + String.format("%.4f", f.rotationsPerWrite()) + ")",
                 promoted ? "PROMOTE" : "HOLD",
                 survivorLineages(), String.format("%.2f", survivorSpread()));
         return new GenerationResult(generation, scored.size(), deaths, survivors,

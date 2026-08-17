@@ -329,19 +329,21 @@ public final class EnsembleOrderedSet<K> implements OrderedCollection<K>, AutoCl
 
     @Override
     public boolean add(K value) {
-        return write("add", true, s -> s.add(value));
+        return write("add", true, true, s -> s.add(value));
     }
 
     @Override
     public boolean remove(K value) {
-        return write("remove", true, s -> s.remove(value));
+        return write("remove", true, true, s -> s.remove(value));
     }
 
     @Override
     public void clear() {
         // Never sampled: a skipped clear would leave a shadow holding keys the logical set dropped
         // wholesale. (An emptied shadow that was already inexact stays inexact -- harmless.)
-        write("clear", false, s -> { s.clear(); return true; });
+        // Never metered either (ADR-024): a clear is a wholesale reset, not a keyed mutation, and
+        // folding it in as a zero-rotation write would dilute every member's realized churn.
+        write("clear", false, false, s -> { s.clear(); return true; });
     }
 
     /**
@@ -447,10 +449,23 @@ public final class EnsembleOrderedSet<K> implements OrderedCollection<K>, AutoCl
     }
 
     /** Dispatch a write: READ_REPLICA uses the left-right two-phase protocol (ADR-004 R2). */
-    private boolean write(String op, boolean sampleable, Function<RankedSet<K>, Boolean> fn) {
+    private boolean write(String op, boolean sampleable, boolean metered,
+                          Function<RankedSet<K>, Boolean> fn) {
         return (mode == EnsembleMode.READ_REPLICA)
-                ? replicaWrite(op, fn)
-                : fanOutWrite(op, sampleable, fn);
+                ? replicaWrite(op, metered, fn)
+                : fanOutWrite(op, sampleable, metered, fn);
+    }
+
+    /**
+     * Clear every member's per-member rotation meter (ADR-024). The controllers call this at their
+     * own evaluation-window boundary, so each window prices a member on the churn it paid
+     * <em>during that window</em> — the same rolling-window discipline the {@code WorkloadMonitor}
+     * gets from its decay, without inventing a second decay constant for the members.
+     */
+    public void resetRotationMeters() {
+        synchronized (writeLock) {
+            for (EnsembleMember<K> m : members) m.resetRotationMeter();
+        }
     }
 
     /**
@@ -465,11 +480,19 @@ public final class EnsembleOrderedSet<K> implements OrderedCollection<K>, AutoCl
      * {@code sampleable}), where non-primary members receive only every {@code sampleEvery}-th
      * write; a skipped member is marked inexact on its first miss and is a shadow from then on.</p>
      *
+     * <p>When {@code metered}, each recipient's rotation counter is read either side of its own
+     * apply and folded into its {@linkplain EnsembleMember#rotationsPerWrite() per-member meter}
+     * (ADR-024). This is the only place in the codebase that knows <em>which</em> members a write
+     * actually reached, which is precisely what makes a sampled shadow's rotations-per-write
+     * comparable with a full-stream member's: the denominator is the writes it received, not the
+     * writes the stream carried.</p>
+     *
      * @throws IllegalStateException if the ensemble is {@linkplain #close() closed}, if every
      *                               recipient failed, or if the primary failed with no exact
      *                               survivor (shadows cannot fail over) — the write did not commit
      */
-    private boolean fanOutWrite(String op, boolean sampleable, Function<RankedSet<K>, Boolean> fn) {
+    private boolean fanOutWrite(String op, boolean sampleable, boolean metered,
+                                Function<RankedSet<K>, Boolean> fn) {
         synchronized (writeLock) {
             requireOpen(op);
             EnsembleMember<K> servingPrimary = primary;
@@ -486,6 +509,7 @@ public final class EnsembleOrderedSet<K> implements OrderedCollection<K>, AutoCl
                 if (!m.isActive()) continue;
                 if (m == servingPrimary || shadowsReceive) {
                     recipients.add(m);
+                    if (metered) m.markRotations();   // ADR-024: only the members that receive it
                 } else if (m.isExact()) {
                     m.setExact(false);            // first skipped write: an exact mirror becomes a shadow
                 }
@@ -499,8 +523,9 @@ public final class EnsembleOrderedSet<K> implements OrderedCollection<K>, AutoCl
                 if (o.failed()) {
                     failures++;
                     if (recipients.get(i) == servingPrimary) primaryFailed = true;
-                } else if (recipients.get(i) == servingPrimary) {
-                    primaryChanged = o.changed();
+                } else {
+                    if (metered) recipients.get(i).foldRotations();
+                    if (recipients.get(i) == servingPrimary) primaryChanged = o.changed();
                 }
             }
             if (failures == 0) {                                          // the common, healthy case
@@ -639,7 +664,7 @@ public final class EnsembleOrderedSet<K> implements OrderedCollection<K>, AutoCl
      * @throws IllegalStateException if no exact ACTIVE non-serving member committed the write —
      *                               READ_REPLICA cannot flip, so the write must fail loudly
      */
-    private boolean replicaWrite(String op, Function<RankedSet<K>, Boolean> fn) {
+    private boolean replicaWrite(String op, boolean metered, Function<RankedSet<K>, Boolean> fn) {
         synchronized (writeLock) {
             requireOpen(op);
             EnsembleMember<K> serving = primary;
@@ -651,6 +676,7 @@ public final class EnsembleOrderedSet<K> implements OrderedCollection<K>, AutoCl
                 throw new IllegalStateException(
                         op + ": READ_REPLICA needs a second ACTIVE member to flip to; write did not commit");
             }
+            if (metered) for (EnsembleMember<K> m : others) m.markRotations();   // ADR-024
             List<MemberExecutor.Outcome> outcomes = executor.apply(others, m -> fn.apply(m.set()));
 
             EnsembleMember<K> newServing = null;
@@ -659,7 +685,10 @@ public final class EnsembleOrderedSet<K> implements OrderedCollection<K>, AutoCl
             for (int i = 0; i < others.size(); i++) {
                 if (outcomes.get(i).failed()) {
                     failures++;
-                } else if (newServing == null && others.get(i).isExact()) {
+                    continue;
+                }
+                if (metered) others.get(i).foldRotations();
+                if (newServing == null && others.get(i).isExact()) {
                     newServing = others.get(i);
                     changed = outcomes.get(i).changed();
                 }
@@ -683,7 +712,9 @@ public final class EnsembleOrderedSet<K> implements OrderedCollection<K>, AutoCl
             this.primary = newServing;     // flip: new readers go to the freshly written side
             drainReaders(serving);         // wait out readers still inside the old side's epoch
             try {
+                if (metered) serving.markRotations();
                 fn.apply(serving.set());   // bring the old side up to date — no reader can see this
+                if (metered) serving.foldRotations();
             } catch (Throwable t) {
                 if (serving.state() != EnsembleMember.State.RETIRED) {
                     serving.setState(EnsembleMember.State.QUARANTINED);

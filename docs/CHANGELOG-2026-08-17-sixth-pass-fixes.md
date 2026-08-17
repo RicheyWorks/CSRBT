@@ -468,9 +468,13 @@ remain self-contained with no new dependencies.
 
 ## Still open / deliberately deferred
 
-- **Rotations still use the non-propagating local link setters** (AUDIT-2026-08-14 F-1). S6-21 corrected the
+- ~~**Rotations still use the non-propagating local link setters**~~ (AUDIT-2026-08-14 F-1). S6-21 corrected the
   documentation rather than the hot path; making `height` / `blackHeight` ancestor-exact would cost a
-  propagation walk per rotation.
+  propagation walk per rotation. **CLOSED same day by ADR-023** — the propagation walk was measured rather
+  than assumed: `height` is now ancestor-exact on every strategy, inside the measurement noise on thirteen of fourteen
+  strategy × workload cells and +27% on the fourteenth (Red-Black, monotone inserts); `blackHeight` stays
+  inexact on purpose, because its dominant source is recolouring rather than rotation. See
+  `docs/ADR-023-rotation-cache-propagation-2026-08-17.md`.
 - **`shannonEvenness()` remains identically 1.0 on a duplicate-free BST** (EC-3 / E-1). S6-27 stopped
   *depending* on it in `rKScore`; the metric itself is still reported as-is.
 - **`GenomeDrivenTreeController`'s literal-0 rotation feed** stays pinned by `ControllerConvergenceTest` G5

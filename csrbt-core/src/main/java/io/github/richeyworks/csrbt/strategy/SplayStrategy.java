@@ -146,6 +146,15 @@ public class SplayStrategy<K> implements TreeStrategy<K> {
      * null out the subtree root's parent before handing off to splay.
      */
     private void splay(MutableTree<K> tree, TreeNode1<K> x) {
+        // ADR-023: the *Local rotation primitives are correct here, by the structure of
+        // splaying rather than by an explicit refresh pass. This loop runs until x is the tree
+        // root; each zig / zig-zig / zig-zag recomputes the new subtree root and the parent
+        // that adopts it, bottom-up, and the next iteration recomputes that parent again from
+        // one level higher — so when the loop ends, every node on the original access path
+        // (the only nodes whose subtrees changed) has been recomputed after all of its
+        // descendants were final. Paying the height-carrying climb per rotation here would
+        // also be the most expensive place to pay it: splaying fires ~20 rotations per
+        // operation, and ADR-023 measured that variant at +25%/+30% on Splay alone.
         while (x.getParent() != null && !x.getParent().isNil()) {
             TreeNode1<K> p = x.getParent();
             TreeNode1<K> g = p.getParent();
@@ -154,28 +163,28 @@ public class SplayStrategy<K> implements TreeStrategy<K> {
 
             if (pIsRoot) {
                 // ── Zig ──────────────────────────────────────────────────────
-                if (x == p.getLeft()) rotateRight(tree, p);
-                else                  rotateLeft(tree, p);
+                if (x == p.getLeft()) rotateRightLocal(tree, p);
+                else                  rotateLeftLocal(tree, p);
 
             } else if (x == p.getLeft() && p == g.getLeft()) {
                 // ── Zig-Zig (LL): rotate grandparent first, then parent ───────
-                rotateRight(tree, g);
-                rotateRight(tree, p);
+                rotateRightLocal(tree, g);
+                rotateRightLocal(tree, p);
 
             } else if (x == p.getRight() && p == g.getRight()) {
                 // ── Zig-Zig (RR) ─────────────────────────────────────────────
-                rotateLeft(tree, g);
-                rotateLeft(tree, p);
+                rotateLeftLocal(tree, g);
+                rotateLeftLocal(tree, p);
 
             } else if (x == p.getRight() && p == g.getLeft()) {
                 // ── Zig-Zag (LR): rotate parent left, then grandparent right ──
-                rotateLeft(tree, p);
-                rotateRight(tree, g);
+                rotateLeftLocal(tree, p);
+                rotateRightLocal(tree, g);
 
             } else {
                 // ── Zig-Zag (RL): rotate parent right, then grandparent left ──
-                rotateRight(tree, p);
-                rotateLeft(tree, g);
+                rotateRightLocal(tree, p);
+                rotateLeftLocal(tree, g);
             }
         }
     }

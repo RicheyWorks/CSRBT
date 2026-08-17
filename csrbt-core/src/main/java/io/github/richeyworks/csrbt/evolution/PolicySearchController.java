@@ -52,10 +52,13 @@ import java.util.Objects;
  * arm-keyed here (the {@code StrategyId}-keyed {@link io.github.richeyworks.csrbt.control.MorphHistory} cannot name
  * a grid point — the parameterized-identity consequence ADR-011 §4 predicted).</p>
  *
- * <p><b>Comparable fitness.</b> Trial and incumbent are scored against the <em>same</em>
- * {@link WorkloadFeatures} snapshot; only the structural term ({@link Fitness#meanDepth})
- * and size differ. The realized write term is the stream's, not per-member — honest, since
- * shadows see a sampled stream; per-member rotation meters are a held refinement.</p>
+ * <p><b>Comparable fitness (ADR-024).</b> Trial and incumbent are scored against the same
+ * {@link WorkloadFeatures} snapshot, except for the write term: each is priced on the rotations
+ * <em>its own</em> engine paid per write <em>it</em> received
+ * ({@link EnsembleMember#rotationsPerWrite()}), so a rotation-thrashing arm and a rotation-cheap
+ * one no longer look identical. Both sides are priced per-member or neither is — see
+ * {@link #priceComparably} — because a cost built from a member's own churn and one built from
+ * the stream's are two different measurements.</p>
  *
  * <p>{@link TreeEvent.Trial} events (TRIED / SCORED / DISQUALIFIED / SELECTED) are emitted
  * to a registered listener, so a {@code TreeSessionRecorder} can replay the search in the
@@ -131,9 +134,11 @@ public final class PolicySearchController<K> {
      * was decided purely by the structural read term — an arm that thrashed rotations won whenever
      * its tree was momentarily shallower.
      *
-     * <p>Metered on the primary because the primary receives every write while a shadow sees a
-     * sampled stream: this is the <em>stream's</em> realized churn, which is exactly what the class
-     * doc says the write term is. Clamped at zero per
+     * <p>Metered on the primary because the primary receives every write: this is the
+     * <em>stream's</em> realized churn, the number {@link WorkloadFeatures#rotationsPerWrite()} is
+     * defined to carry. Per-member churn is metered separately by the ensemble's fan-out and
+     * consumed in {@link #endTrial} (ADR-024); the monitor's vector stays the stream's, because a
+     * single monitor cannot describe several members at once. Clamped at zero per
      * {@link io.github.richeyworks.csrbt.OrderedSet#rotationCount()} — a morph swaps the engine and
      * resets the counter.</p>
      */
@@ -176,6 +181,10 @@ public final class PolicySearchController<K> {
                     || trialSet.setStrategy(candidate);             // health gate, V1 hook included
             if (accepted) {
                 currentArm = arm;
+                // ADR-024: the window owns the per-member meters. Reset here, not at endTrial, so
+                // a member is priced on the churn it paid WHILE this arm was on trial — the morph
+                // above has just swapped the trial engine, so anything older belongs to another arm.
+                ensemble.resetRotationMeters();
                 logger.info("event=trial_begin {} arms={}", sel, bandit.statsLine());
                 emit(new TreeEvent.Trial<>(arm.toString(), "TRIED", Double.NaN, sel.pulls()));
                 return arm;
@@ -235,10 +244,21 @@ public final class PolicySearchController<K> {
                     + " (need >= " + Fitness.MIN_INFORMATIVE_SIZE + " to compare)");
         }
 
+        // 2b. Price each side on ITS OWN realized churn where both sides have one (ADR-024).
+        //     Both members are captured HERE, before step 4 may promote: a promotion reassigns
+        //     trialMember (to the deposed throne, or to null when there is no strategy-backed slot
+        //     left) and changes ensemble.primary(), and the log line below must report the evidence
+        //     the decision was actually made on, not the post-swap line-up.
+        EnsembleMember<K> scoredTrial = trialMember;
+        EnsembleMember<K> incumbentMember = ensemble.primary();
+        WorkloadFeatures trialF = priceComparably(f, scoredTrial, incumbentMember);
+        WorkloadFeatures incumbentF = priceComparably(f, incumbentMember, scoredTrial);
+
         Fitness.Evaluation armEval = Fitness.evaluate(
-                f, Fitness.meanDepth(trialSet.getEngine()), trialSet.size());
+                trialF, Fitness.meanDepth(trialSet.getEngine()), trialSet.size());
         double incumbentCost = (primarySet == null) ? Double.POSITIVE_INFINITY
-                : Fitness.evaluate(f, Fitness.meanDepth(primarySet.getEngine()), primarySet.size()).cost();
+                : Fitness.evaluate(incumbentF, Fitness.meanDepth(primarySet.getEngine()),
+                                   primarySet.size()).cost();
         bandit.recordCost(arm, armEval.cost());
         emit(new TreeEvent.Trial<>(arm.toString(), "SCORED", armEval.cost(), bandit.pulls(arm)));
 
@@ -268,10 +288,53 @@ public final class PolicySearchController<K> {
             }
         }
 
-        logger.info("event=trial_eval arm={} cost={} incumbent={} streak={} ops={} decision={} arms={}",
+        logger.info("event=trial_eval arm={} cost={} incumbent={} churn={} streak={} ops={} decision={} arms={}",
                 arm, String.format("%.4f", armEval.cost()), String.format("%.4f", incumbentCost),
+                churnLine(scoredTrial, incumbentMember, f),
                 winStreak, opsSinceLastPromotion, promoted ? "PROMOTE" : "HOLD", bandit.statsLine());
         return new TrialResult(arm, true, armEval.cost(), incumbentCost, promoted, reason);
+    }
+
+    /**
+     * The features {@code m} is priced on, given that it is being compared with {@code against}
+     * (ADR-024, the comparability clause).
+     *
+     * <p>The write term is {@code writeFraction × rotationsPerWrite}. Substituting a member's own
+     * churn for the stream's on <em>one</em> side of a comparison changes what the two numbers
+     * mean, and the {@link MorphPolicy} gate reads their ratio — so a per-member price is used
+     * only when <b>both</b> members have an own-churn observation
+     * ({@link EnsembleMember#rotationsPerWrite()} non-{@code NaN}: at least
+     * {@link EnsembleMember#MIN_METERED_WRITES} writes actually received). When either side is
+     * short of evidence, both fall back to the stream's number — the primary-metered behavior of
+     * sixth-pass fix S6-12, which stays the floor this refinement is measured against.</p>
+     *
+     * <p><b>The shadow case, stated.</b> A {@code SAMPLED_SHADOW} genuinely does not see the whole
+     * stream, so its rotation <em>count</em> is not comparable with a full-stream member's. Its
+     * rotation <em>rate</em> is: the meter's denominator is the writes the member actually
+     * received, so a shadow that took 80 of 4 000 writes and paid 40 rotations is priced at 0.5
+     * rotations/write — the same unit, and the same number, as a primary that paid 2 000 rotations
+     * over all 4 000. What sampling does change is the shadow's key <em>distribution</em> (a
+     * thinned stream is sparser, so its deletes miss more often); that residual is a caveat
+     * recorded in ADR-024, not something the rate normalization can remove.</p>
+     */
+    private static <K> WorkloadFeatures priceComparably(WorkloadFeatures stream,
+                                                        EnsembleMember<K> m,
+                                                        EnsembleMember<K> against) {
+        if (Double.isNaN(against.rotationsPerWrite())) return stream;
+        return m.pricedFeatures(stream);
+    }
+
+    /** The churn evidence behind one evaluation, for the {@code event=trial_eval} line. */
+    private static <K> String churnLine(EnsembleMember<K> trial, EnsembleMember<K> incumbent,
+                                        WorkloadFeatures stream) {
+        boolean perMember = !Double.isNaN(trial.rotationsPerWrite())
+                && !Double.isNaN(incumbent.rotationsPerWrite());
+        return String.format(java.util.Locale.ROOT,
+                "%s(trial=%.4f/%dw incumbent=%.4f/%dw stream=%.4f)",
+                perMember ? "per-member" : "stream",
+                trial.rotationsPerWrite(), trial.meteredWrites(),
+                incumbent.rotationsPerWrite(), incumbent.meteredWrites(),
+                stream.rotationsPerWrite());
     }
 
     /** The member currently serving as the trial slot (changes on promotion). */

@@ -6,8 +6,12 @@ import io.github.richeyworks.csrbt.TreeNode1;
 /**
  * AVL tree strategy backed by the shared MutableTree / TreeNode1 skeleton.
  *
- * Height is maintained automatically by TreeNode1.setLeft() / setRight(),
- * so we only need to read node.getHeight() here — no manual tracking.
+ * Height is maintained by TreeNode1.setLeft() / setRight() on the BST link, and by this
+ * strategy's own rebalanceUp() walk, which calls refreshHeight() on every node from the
+ * modification point to the root — so we only need to read node.getHeight() here. That
+ * walk is also why this strategy rotates through the rotateLeftLocal / rotateRightLocal
+ * primitives rather than the height-carrying pair (ADR-023): it already owes no ancestor
+ * a height propagation. A rotation added OUTSIDE that walk must use rotateLeft/rotateRight.
  *
  * Balance factor:  bf = height(left) − height(right)
  *   bf ∈ {-1, 0, 1}  → balanced
@@ -123,6 +127,11 @@ public class AVLStrategy<K> implements TreeStrategy<K> {
      * new parent (the subtree root that took its place) and keep ascending.
      */
     private void rebalanceUp(MutableTree<K> tree, TreeNode1<K> start) {
+        // ADR-023: the *Local rotation primitives are the right ones HERE, and only here.
+        // This walk runs to the root calling refreshHeight() on every node it passes, so
+        // every ancestor of every rotation it fires is recomputed bottom-up before the walk
+        // returns; the height-carrying rotateLeft/rotateRight would repeat that work. Any
+        // rotation added OUTSIDE this walk must use the non-Local pair.
         TreeNode1<K> cur = start;
         while (cur != null && !cur.isNil()) {
             // Refresh this node's height from its (already-correct, lower-on-path)
@@ -136,10 +145,10 @@ public class AVLStrategy<K> implements TreeStrategy<K> {
                 // Left-heavy
                 if (balanceFactor(cur.getLeft()) < 0) {
                     // Left-Right case: first rotate left child left
-                    rotateLeft(tree, cur.getLeft());
+                    rotateLeftLocal(tree, cur.getLeft());
                 }
                 // Left-Left (or just-fixed LR) case
-                rotateRight(tree, cur);
+                rotateRightLocal(tree, cur);
                 // After rotateRight, cur slid DOWN — its new parent is the
                 // subtree root; continue ascending from there.
                 cur = cur.getParent();   // new subtree root
@@ -148,10 +157,10 @@ public class AVLStrategy<K> implements TreeStrategy<K> {
                 // Right-heavy
                 if (balanceFactor(cur.getRight()) > 0) {
                     // Right-Left case: first rotate right child right
-                    rotateRight(tree, cur.getRight());
+                    rotateRightLocal(tree, cur.getRight());
                 }
                 // Right-Right (or just-fixed RL) case
-                rotateLeft(tree, cur);
+                rotateLeftLocal(tree, cur);
                 cur = cur.getParent();   // new subtree root
             }
 
