@@ -4,7 +4,7 @@
 [![license: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 [![Java 17](https://img.shields.io/badge/Java-17-orange.svg)](https://openjdk.org/projects/jdk/17/)
 [![build: Gradle](https://img.shields.io/badge/build-Gradle-02303A.svg)](https://gradle.org/)
-![version 0.2.0](https://img.shields.io/badge/version-0.2.0-informational.svg)
+![version 0.2.1](https://img.shields.io/badge/version-0.2.1-informational.svg)
 
 CSRBT is a Java ordered-set engine whose balancing strategy is pluggable and can
 adapt to the workload hitting it. A single, generic ordered-set API
@@ -61,9 +61,10 @@ ADR-012 are all Accepted** (ADR-011's verdict:
 [`docs/CHANGELOG-2026-06-10-adr011-v5-experiment.md`](docs/CHANGELOG-2026-06-10-adr011-v5-experiment.md);
 ADR-012's disposition:
 [`docs/CHANGELOG-2026-06-11-adr012-disposition.md`](docs/CHANGELOG-2026-06-11-adr012-disposition.md)).
-The suite is **806 tests** (JUnit 5 + jqwik properties), green through
-`./gradlew build`, run by CI on JDK 17 and 21 (ADR-013) — including the 2026-08-12
-hardening day's probe tests, every one shown failing before its fix counted.
+The suite is **1063 tests** (JUnit 5 + jqwik properties) with **zero javadoc warnings**,
+green through `./gradlew build`, run by CI on JDK 17 and 21 (ADR-013) — including the
+2026-08-12 hardening day's and 2026-08-17 sixth/seventh passes' probe tests, every one
+shown failing before its fix counted.
 
 ## Architecture
 
@@ -704,6 +705,45 @@ Provenance: ADR-015 through ADR-020 and the 2026-08-09/10 changelogs.
 **Design & direction**
 - [`docs/DESIGN-adaptive-engine.md`](docs/DESIGN-adaptive-engine.md) — the target
   architecture: two-plane design, control loop, and acceptance goals (G1–G9).
+- **2026-08-17 — the sixth pass and the four ADRs it fired**: 34 confirmed findings
+  ([`sixth-pass`](docs/AUDIT-2026-08-17-sixth-pass.md), fixes in the
+  [`changelog`](docs/CHANGELOG-2026-08-17-sixth-pass-fixes.md)), then the held items
+  that survived it, each settled by measurement rather than intuition. The S1 tier is
+  the reason 0.2.1 exists: a restored checkpoint crashed the next write on all three
+  strategies, Red-Black's `fixDelete` recolored the shared NIL sentinel and could empty
+  the tree, and two load paths accepted truncated snapshots — one of them after wiping
+  its destination.
+- **2026-08-17 — the seventh pass**: the consolidation session
+  ([`changelog`](docs/CHANGELOG-2026-08-17-seventh-pass.md)) — the four ADRs' slices
+  built, an adversarial hunt over the freshly-changed surface, an edge-case sweep that
+  added 81 tests, and all three HTML pages driven in headless Chromium rather than
+  reasoned about. Its constructor-to-constructor
+  [`wiring audit`](docs/AUDIT-2026-08-17-wiring-seventh-pass.md) returned the verdict
+  that the new surface is completely wired — every ADR-023/024/025/026 seam reachable,
+  implemented, and consumed by the thing its ADR says consumes it — with seven findings
+  disposed on the way, including two published indices that were provably constant and
+  are now deprecated rather than printed as measurements.
+- [`docs/ADR-026-snapshot-load-signaling-2026-08-17.md`](docs/ADR-026-snapshot-load-signaling-2026-08-17.md)
+  — **Accepted**: the read side of ADR-025. `loadSnapshot` answered `null` for nine
+  different things — one of which, "there is no snapshot", is the only one for which
+  "start fresh" is right; additive `tryLoad*` twins now separate absent from corrupt
+  from unreadable, and `listSnapshots`'s empty list from an unreadable directory.
+- [`docs/ADR-025-snapshot-failure-signaling-2026-08-17.md`](docs/ADR-025-snapshot-failure-signaling-2026-08-17.md)
+  — **Accepted**: `saveSnapshot` logged and swallowed its `IOException` behind a `void`
+  return. `void` stays; an additive `trySaveSnapshot` returns a `SaveResult`, so the
+  unchecked-exception option is opt-in at the call site instead of imposed on a
+  published API.
+- [`docs/ADR-024-per-member-rotation-metering-2026-08-17.md`](docs/ADR-024-per-member-rotation-metering-2026-08-17.md)
+  — **Accepted**: the ensemble's fitness write term priced every member on the
+  primary's churn, so a rotation-thrashing member and a rotation-cheap one were
+  identical by construction. Each member now meters its own rotations over the writes
+  it actually received, under an explicit comparability rule.
+- [`docs/ADR-023-rotation-cache-propagation-2026-08-17.md`](docs/ADR-023-rotation-cache-propagation-2026-08-17.md)
+  — **Accepted**: rotations left the cached `height` stale for ancestors — the root's
+  was wrong on 98.7% of Red-Black ascending inserts. Exactness costs less than the
+  measurement noise on thirteen of fourteen strategy × workload cells and +27% on the
+  fourteenth; `blackHeight` stays inexact on purpose, because rotation is not its
+  dominant source.
 - **2026-08-12 — the hardening day**: five adversarial audit passes over every
   subsystem, 26 probe-verified fixes (every defect shown failing before its fix
   counted), two ADRs fired from the findings, and the canonical replay artifacts

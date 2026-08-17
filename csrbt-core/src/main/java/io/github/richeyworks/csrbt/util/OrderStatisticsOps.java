@@ -117,6 +117,12 @@ public class OrderStatisticsOps<K> {
     /**
      * kth percentile node (0–100).
      * percentile(50) == median().
+     *
+     * <p>The derived rank is clamped to [1, n], so a {@code pct} outside 0–100 saturates at the
+     * minimum or the maximum instead of throwing. That is deliberate and is the rule the other
+     * two {@code RankedSet} implementations state explicitly — an out-of-range percentile must
+     * not make one engine throw where its peers answer, because VERIFIED voting compares
+     * thrown-exception classes.</p>
      */
     public TreeNode1<K> percentile(int pct) {
         int n = subtreeSize(tree.getRoot());

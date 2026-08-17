@@ -123,6 +123,27 @@ public class TreeNode1<K> implements Comparable<TreeNode1<K>>, Cloneable {
         return new TreeNode1<>(data, nil);
     }
 
+    /**
+     * Create a node and stamp {@code augment} into its {@link #augmentedValue} slot.
+     *
+     * @deprecated The value does not last. This factory uses the two-argument constructor, which
+     *     installs the {@linkplain #defaultAugmentor() default augmentor} and has already run it
+     *     ({@code augmentedValue = 1}) before the assignment here overwrites it — so the caller's
+     *     value survives only until the next re-augment, which is the very next structural link
+     *     the node takes part in. Measured: {@code createNodeWithAugment(42, nil, 999)} reads back
+     *     999, and after one {@code setLeft} it reads 2. Nothing in this repository has ever called
+     *     it, so nothing has ever depended on that (wiring audit 2026-08-17, seventh pass, "needs
+     *     routing"); it predates the intrinsic {@link #size} field that freed the augment slot for
+     *     custom augmentors, and it would be a trap for the first caller.
+     *
+     *     <p>It is not removed because it is {@code public} on a published 0.2.0 module and
+     *     deleting it would force 0.3.0. The way to put a durable payload in the slot is to supply
+     *     the augmentor that <em>computes</em> it — {@link #TreeNode1(Object, TreeNode1, Augmentor)}
+     *     for one node, or {@link io.github.richeyworks.csrbt.OrderedSet#setAugmentor} /
+     *     {@link io.github.richeyworks.csrbt.interfaces.AugmentedTree#setAugmentor} for a whole
+     *     tree — because an augmentor is re-applied on every link and a stamped constant is not.
+     */
+    @Deprecated
     public static <K> TreeNode1<K> createNodeWithAugment(K data, TreeNode1<K> nil, int augment) {
         TreeNode1<K> node = new TreeNode1<>(data, nil);
         node.augmentedValue = augment;

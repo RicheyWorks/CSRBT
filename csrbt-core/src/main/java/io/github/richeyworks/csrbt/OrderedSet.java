@@ -81,17 +81,54 @@ public class OrderedSet<K> implements SelfHealingTree, OrderedCollection<K>, Ran
     public void setEventListener(TreeEventListener<K> listener) { this.events = listener; }
 
     /**
+     * The thread currently inside {@link #emit}, or {@code null}. Written and read only under
+     * {@code lock} (every mutator and {@code emit} itself hold it), so no volatile is needed.
+     * See {@link #refuseReentrantWrite}.
+     */
+    private Thread emittingThread;
+
+    /**
      * Forward to the listener, swallowing anything it throws (hardening M-1): emit is called on the
      * write path under the write stamp, after the mutation has committed — a throwing listener must
      * not convert a successful insert into an apparent failure or poison every subsequent write.
      * Call only after a null check.
+     *
+     * <p>The listener runs with the write stamp still held, so the mutator's thread is recorded
+     * for the duration — see {@link #refuseReentrantWrite} for what that buys.</p>
      */
     private void emit(TreeEvent<K> e) {
+        Thread outer = emittingThread;
+        emittingThread = Thread.currentThread();
         try {
             events.onEvent(e);
         } catch (RuntimeException listenerFault) {
             // Observability must never break the data plane; the listener contract says fast +
             // non-throwing, and a violation is the listener's bug, not this write's.
+        } finally {
+            emittingThread = outer;
+        }
+    }
+
+    /**
+     * Refuse a mutation issued from inside a {@link TreeEventListener} callback (edge-case pass
+     * 2026-08-17). {@link TreeEventListener} already forbids reentry ("reentry can deadlock"), and
+     * that is exactly what happened: {@link #emit} runs with {@code readGuard}'s write stamp held,
+     * and a {@link StampedLock} is <em>not</em> reentrant, so a listener calling back into
+     * {@code add}/{@code remove}/{@code clear}/… parked the mutating thread against itself
+     * <b>forever</b> — no exception, no stack overflow, no progress, and the monitor still held so
+     * every other writer blocked behind it.
+     *
+     * <p>Documented or not, a silent permanent hang is the worst way to report a contract
+     * violation, and it is the one failure this class cannot recover from. The listener's own
+     * exceptions are already swallowed (M-1); this makes its reentry equally survivable by naming
+     * it. Costs one field read per mutator, inside the monitor the mutator already holds, and the
+     * field is only ever non-null while a registered listener is actually running.</p>
+     */
+    private void refuseReentrantWrite(String op) {
+        if (emittingThread == Thread.currentThread()) {
+            throw new IllegalStateException(
+                    op + ": a TreeEventListener must not call back into the set it is observing "
+                    + "(the write lock is held for the callback and is not reentrant)");
         }
     }
 
@@ -147,14 +184,24 @@ public class OrderedSet<K> implements SelfHealingTree, OrderedCollection<K>, Ran
      *
      * @throws IllegalStateException    if this set is not empty
      * @throws IllegalArgumentException if the list is not strictly ascending under this set's comparator
+     * @throws NullPointerException     if the list, or any key in it, is null — checked here rather
+     *         than left to the comparator (edge-case pass 2026-08-17): a ONE-element list never
+     *         reaches the ascending comparison, so {@code buildFromSorted(List.of-with-null)} used
+     *         to link a null key in as a real element and only blow up on some later read, far from
+     *         the caller that caused it. That is the {@link #add} hole (audit 2026-08-17, item 1)
+     *         on the bulk path.
      */
     public void buildFromSorted(List<K> ascendingDistinct) {
+        java.util.Objects.requireNonNull(ascendingDistinct, "ascendingDistinct cannot be null");
         synchronized (lock) {
+            refuseReentrantWrite("buildFromSorted");
             if (size != 0) {
                 throw new IllegalStateException("buildFromSorted requires an empty set (size=" + size + ")");
             }
-            for (int i = 1; i < ascendingDistinct.size(); i++) {
-                if (keyOrder.compare(ascendingDistinct.get(i - 1), ascendingDistinct.get(i)) >= 0) {
+            for (int i = 0; i < ascendingDistinct.size(); i++) {
+                java.util.Objects.requireNonNull(ascendingDistinct.get(i),
+                        "buildFromSorted keys cannot be null; null at index " + i);
+                if (i > 0 && keyOrder.compare(ascendingDistinct.get(i - 1), ascendingDistinct.get(i)) >= 0) {
                     throw new IllegalArgumentException(
                             "buildFromSorted requires a strictly ascending (sorted, distinct) list; "
                             + "violation at index " + i);
@@ -204,6 +251,7 @@ public class OrderedSet<K> implements SelfHealingTree, OrderedCollection<K>, Ran
     public boolean add(K value) {
         java.util.Objects.requireNonNull(value, "value cannot be null");
         synchronized (lock) {
+            refuseReentrantWrite("add");
             long ws = readGuard.writeLock();   // the insert descent may splay (duplicate touch): writes mutate
             try {
                 long start = System.nanoTime();
@@ -239,6 +287,7 @@ public class OrderedSet<K> implements SelfHealingTree, OrderedCollection<K>, Ran
     public boolean remove(K value) {
         java.util.Objects.requireNonNull(value, "value cannot be null");
         synchronized (lock) {
+            refuseReentrantWrite("remove");
             long ws = readGuard.writeLock();
             try {
                 long start = System.nanoTime();
@@ -472,6 +521,7 @@ public class OrderedSet<K> implements SelfHealingTree, OrderedCollection<K>, Ran
 
     public void clear() {
         synchronized (lock) {
+            refuseReentrantWrite("clear");
             long ws = readGuard.writeLock();
             try {
                 tree.setRoot(tree.getNIL());
@@ -635,7 +685,12 @@ public class OrderedSet<K> implements SelfHealingTree, OrderedCollection<K>, Ran
 
     public K median() { return lockedRead(() -> keyOrNull(os.median())); }
 
-    /** kth-percentile key (0-100), or {@code null} if empty. */
+    /**
+     * kth-percentile key (0-100), or {@code null} if empty. The resulting rank is <b>clamped</b> to
+     * {@code [1, n]}, so {@code pct} outside 0-100 saturates at the minimum or the maximum rather
+     * than throwing — the same rule {@code BPlusTreeEngine} and {@code PersistentRankedSet} state,
+     * which is what keeps a VERIFIED vote unanimous on an out-of-range argument.
+     */
     public K percentile(int pct) { return lockedRead(() -> keyOrNull(os.percentile(pct))); }
 
     /**
@@ -667,6 +722,7 @@ public class OrderedSet<K> implements SelfHealingTree, OrderedCollection<K>, Ran
     /** Set the bounded-set capacity (0 = unbounded); evicts oldest-inserted keys down to it. */
     public void setMaxSize(int n) {
         synchronized (lock) {
+            refuseReentrantWrite("setMaxSize");
             long ws = readGuard.writeLock();
             try {
                 this.maxSize = Math.max(0, n);
@@ -717,6 +773,7 @@ public class OrderedSet<K> implements SelfHealingTree, OrderedCollection<K>, Ran
 
     public void setAugmentor(TreeNode1.Augmentor<K> augmentor) {
         synchronized (lock) {
+            refuseReentrantWrite("setAugmentor");
             long ws = readGuard.writeLock();
             try {
                 this.augmentor = (augmentor != null) ? augmentor : TreeNode1.<K>defaultAugmentor();
@@ -758,6 +815,7 @@ public class OrderedSet<K> implements SelfHealingTree, OrderedCollection<K>, Ran
      */
     public boolean setStrategy(TreeStrategy<K> newStrategy) {
         synchronized (lock) {
+            refuseReentrantWrite("setStrategy");
             // Same-policy no-op: parameter-aware (ADR-011 V3) — class identity alone would
             // make WB(3,2) -> WB(4,2) a silent refusal of a real morph.
             if (newStrategy == null || newStrategy.samePolicyAs(tree.getStrategy())) {
@@ -813,6 +871,7 @@ public class OrderedSet<K> implements SelfHealingTree, OrderedCollection<K>, Ran
     @Override
     public boolean selfRepair() {
         synchronized (lock) {
+            refuseReentrantWrite("selfRepair");
             TreeStrategy<K> strategy = tree.getStrategy();
             TreeSet<K> sorted = new TreeSet<>(keyOrder);
             sorted.addAll(tree.inOrder());
@@ -866,6 +925,7 @@ public class OrderedSet<K> implements SelfHealingTree, OrderedCollection<K>, Ran
      */
     public void resyncFromEngine() {
         synchronized (lock) {
+            refuseReentrantWrite("resyncFromEngine");
             long ws = readGuard.writeLock();
             try {
                 List<K> keys = tree.inOrder();

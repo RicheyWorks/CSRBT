@@ -96,6 +96,7 @@ public class IntervalAugmentor implements TreeNode1.Augmentor<Integer> {
      *   So we never miss a valid answer.
      */
     public static TreeNode1<Integer> intervalSearch(TreeContext context, int qlo, int qhi) {
+        requireQuery(qlo, qhi);
         TreeNode1<Integer> x = context.getTree().getRoot();
 
         while (!x.isNil()) {
@@ -123,6 +124,7 @@ public class IntervalAugmentor implements TreeNode1.Augmentor<Integer> {
      * The O(n) DFS is acceptable for "find all" since output size k can be O(n).
      */
     public static List<int[]> intervalSearchAll(TreeContext context, int qlo, int qhi) {
+        requireQuery(qlo, qhi);
         List<int[]> results = new ArrayList<>();
         Stack<TreeNode1<Integer>> stack = new Stack<>();
         TreeNode1<Integer> root = context.getTree().getRoot();
@@ -155,6 +157,24 @@ public class IntervalAugmentor implements TreeNode1.Augmentor<Integer> {
     }
 
     // ── Helpers ───────────────────────────────────────────────────────────────
+
+    /**
+     * Reject an inverted query range, the way {@link #insertInterval} rejects an inverted
+     * <em>stored</em> one — and the way {@code GenericIntervalAugmentor.requireQuery} already
+     * rejected both (edge-case pass 2026-08-17). {@code [qlo, qhi]} with {@code qlo > qhi} is not
+     * an empty range here the way it is for {@code countInRange}: the overlap test
+     * {@code lo <= qhi && qlo <= hi} is <em>satisfied</em> by exactly the intervals that straddle
+     * the inversion, so {@code intervalSearchAll(9, 3)} answered with a subset of the tree rather
+     * than with nothing or with a complaint. Same defect class as the parity findings the sixth
+     * pass closed: two implementations of one operation, one of them right.
+     *
+     * @throws IllegalArgumentException if {@code qlo > qhi}
+     */
+    private static void requireQuery(int qlo, int qhi) {
+        if (qlo > qhi) {
+            throw new IllegalArgumentException("Invalid query interval: lo=" + qlo + " > hi=" + qhi);
+        }
+    }
 
     /**
      * Two intervals [a.lo, a.hi] and [qlo, qhi] overlap iff:

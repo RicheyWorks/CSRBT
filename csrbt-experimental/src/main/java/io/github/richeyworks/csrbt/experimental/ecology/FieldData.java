@@ -74,8 +74,27 @@ public final class FieldData {
      * table — so pasting rows from two different datasets merges them, exactly as repeating
      * a name already adds.</p>
      *
+     * <p><b>A bare name may carry its count.</b> A single-token line goes through the same
+     * {@code name=count} reader the token form uses, so {@code oak=5} on a line means five oaks —
+     * which matters because {@code name=count} is exactly what {@link #toEcoLine} and the lab
+     * page's "build .eco lines" button emit, and a student who copies that output back into the
+     * table would otherwise get a species literally named {@code oak=5}.</p>
+     *
+     * <p><b>A bare number is reported, not guessed.</b> A line that is nothing but a number is
+     * the one shape whose meaning cannot be recovered — a count with the name missing, or a
+     * species named by a number — so it is reported with both fixes rather than silently read
+     * one way (audit 2026-08-17, seventh pass, item B; see {@link #bareNumberProblem}). Write
+     * {@code sp1,12} for a count of twelve, or {@code 12,1} for one sighting of a species called
+     * {@code 12}.</p>
+     *
      * <p>Everything else keeps the house rule: a line that does not fit one of those shapes
      * is <b>reported</b> in {@link Parsed#problems()} with its reason, never guessed at.</p>
+     *
+     * <p><b>Mirrored by the lab page.</b> {@code docs/ecology-lab.html}'s {@code parseCounts} is
+     * a transliteration of this method — same shapes, same problems, same wording — and the two
+     * are held to it by a differential test over a random corpus
+     * ({@code FieldDataJsMirrorTest}), because the page is where most students meet this
+     * format.</p>
      */
     public static Parsed parseLines(List<String> lines) {
         LinkedHashMap<String, Long> counts = new LinkedHashMap<>();
@@ -92,7 +111,9 @@ public final class FieldData {
             boolean commaOrTab = parts.length > 1;
             if (parts.length == 1) parts = line.split("\\s+(?=\\S+$)");   // "name count"
             if (parts.length == 1) {
-                addToken(parts[0].trim(), counts, problems);
+                String token = parts[0].trim();
+                if (BARE_NUMBER.matcher(token).matches()) { problems.add(bareNumberProblem(token)); continue; }
+                addToken(token, counts, problems);
                 continue;
             }
             if (parts.length == 3) {
@@ -111,7 +132,9 @@ public final class FieldData {
             if (name.isEmpty()) { problems.add(raw.trim() + "  (empty name)"); continue; }
             try {
                 long n = Long.parseLong(num);
-                if (n <= 0) { problems.add(raw.trim() + "  (count must be positive)"); continue; }
+                // Same condition as addToken's, so the same sentence: a student who writes
+                // "robin,0" on one line and "robin=0" on another is told the same thing twice.
+                if (n <= 0) { problems.add(raw.trim() + "  " + NON_POSITIVE); continue; }
                 counts.merge(name, n, Long::sum);
             } catch (NumberFormatException bad) {
                 if (commaOrTab) {
@@ -168,6 +191,43 @@ public final class FieldData {
         return out.toArray(new String[0]);
     }
 
+    /**
+     * A table line that is nothing but a number, sign optional. {@code \p{Nd}} rather than
+     * {@code [0-9]} because that is the digit set {@link Long#parseLong} itself accepts
+     * ({@code Character.digit}), so the "is this a number?" question is answered the same way
+     * here as where the count is actually parsed.
+     */
+    private static final java.util.regex.Pattern BARE_NUMBER =
+            java.util.regex.Pattern.compile("[+-]?\\p{Nd}+");
+
+    /**
+     * One sentence for one condition, used by both entry forms. The table form used to say only
+     * "count must be positive" while the token form explained the fix, so the same mistake was
+     * reported two different ways depending on which separator the student typed.
+     */
+    private static final String NON_POSITIVE =
+            "(count must be positive — omit a name to record absence)";
+
+    /**
+     * The report for a table line that is nothing but a number.
+     *
+     * <p>Such a line is genuinely ambiguous and this parser will not guess which way it goes.
+     * Read as a name it makes a species literally called {@code 12} with abundance 1, so a pasted
+     * count column becomes N species of abundance 1 — a community whose evenness J′ is exactly
+     * 1.0000 by construction, which is a silently perfect and completely wrong answer. Read as a
+     * count it needs a name, and inventing one ({@code sp1}, {@code sp2}, …) puts a fabricated
+     * identifier into the student's own data: it flows out through {@link #toEcoLine} into the
+     * {@code .eco} protocol and the exports, it renumbers when lines are reordered, and it
+     * collides silently with a real species that happens to be called {@code sp1}. Neither
+     * reading can be recovered downstream, so the line is reported with the two one-character
+     * fixes — the house rule, applied to an ambiguity rather than to a malformation
+     * (audit 2026-08-17, seventh pass, item B).</p>
+     */
+    private static String bareNumberProblem(String token) {
+        return token + "  (a bare number is ambiguous — write \"name," + token
+                + "\" for a count, or \"" + token + ",1\" for a species named " + token + ")";
+    }
+
     private static void addToken(String token, Map<String, Long> counts, List<String> problems) {
         int eq = token.indexOf('=');
         if (eq < 0) {
@@ -179,7 +239,7 @@ public final class FieldData {
         if (name.isEmpty()) { problems.add(token + "  (empty name)"); return; }
         try {
             long n = Long.parseLong(num);
-            if (n <= 0) { problems.add(token + "  (count must be positive — omit a name to record absence)"); return; }
+            if (n <= 0) { problems.add(token + "  " + NON_POSITIVE); return; }
             counts.merge(name, n, Long::sum);
         } catch (NumberFormatException bad) {
             problems.add(token + "  (count '" + num + "' is not an integer)");

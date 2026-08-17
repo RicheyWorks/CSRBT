@@ -138,6 +138,62 @@ class FieldDataTest {
                 "the too-many-fields message names every accepted shape: " + p.problems().get(6));
     }
 
+    @Test
+    @DisplayName("a table line may carry its count with '=' — the shape toEcoLine itself emits")
+    void tableFormReadsTheEcoLineShape() {
+        // The lab page's "build .eco lines" button and FieldData.toEcoLine both write name=count,
+        // so a student who copies that output back into the table must get their counts back
+        // (audit 2026-08-17, seventh pass, item B).
+        FieldData.Parsed p = FieldData.parseLines(List.of("oak=5", "maple=3", "birch", "oak=2"));
+        assertEquals(7L, p.counts().get("oak"), "repeats add, exactly as the token form does");
+        assertEquals(3L, p.counts().get("maple"));
+        assertEquals(1L, p.counts().get("birch"));
+        assertEquals(0, p.problems().size(), p.problems().toString());
+
+        // ...and a bad one in that shape is reported, not tallied under a name containing '='.
+        FieldData.Parsed bad = FieldData.parseLines(List.of("=5", "oak=", "fern=zero", "moss=0"));
+        assertEquals(0, bad.counts().size(), "nothing guessed: " + bad.counts());
+        assertEquals(4, bad.problems().size(), bad.problems().toString());
+        assertTrue(bad.problems().get(0).contains("empty name"), bad.problems().get(0));
+        assertTrue(bad.problems().get(1).contains("count '' is not an integer"), bad.problems().get(1));
+    }
+
+    @Test
+    @DisplayName("a bare number is reported as ambiguous, with both ways to write what was meant")
+    void bareNumbersAreReportedNotGuessed() {
+        FieldData.Parsed p = FieldData.parseLines(List.of("12", "0", "-5", "+7"));
+        assertEquals(0, p.counts().size(),
+                "read as names these become four species of abundance 1, whose evenness J' is "
+                        + "exactly 1.0000 by construction — silently perfect and wrong: " + p.counts());
+        assertEquals(4, p.problems().size(), p.problems().toString());
+        for (String problem : p.problems()) {
+            assertTrue(problem.contains("a bare number is ambiguous"), problem);
+        }
+        assertTrue(p.problems().get(0).contains("\"name,12\""), p.problems().get(0));
+        assertTrue(p.problems().get(0).contains("\"12,1\""), p.problems().get(0));
+
+        // Both escapes named in the message actually work.
+        assertEquals(Map.of("sp1", 12L), FieldData.parseLines(List.of("sp1,12")).counts());
+        assertEquals(Map.of("12", 1L), FieldData.parseLines(List.of("12,1")).counts());
+        // A number that is part of a real shape is untouched — this is not a ban on digits.
+        assertEquals(Map.of("plot 12", 4L), FieldData.parseLines(List.of("plot 12,4")).counts());
+        assertEquals(Map.of("12", 9L), FieldData.parseLines(List.of("12 9")).counts(),
+                "\"name count\" is two fields, so a numeric name there is explicit, not ambiguous");
+        assertEquals(Map.of("12.5", 1L), FieldData.parseLines(List.of("12.5")).counts(),
+                "only whole numbers are ambiguous; anything else is a name");
+    }
+
+    @Test
+    @DisplayName("one condition, one sentence: both entry forms report a non-positive count the same way")
+    void bothFormsWordTheSameProblemTheSameWay() {
+        String table = FieldData.parseLines(List.of("robin,0")).problems().get(0);
+        String token = FieldData.parseTokens("robin=0").problems().get(0);
+        assertEquals(table.substring(table.indexOf("(")), token.substring(token.indexOf("(")),
+                "the table form used to say only 'count must be positive' while the token form "
+                        + "explained the fix — same mistake, two different answers");
+        assertTrue(table.contains("omit a name to record absence"), table);
+    }
+
     // ── MarkRecapture ─────────────────────────────────────────────────────────
 
     @Test

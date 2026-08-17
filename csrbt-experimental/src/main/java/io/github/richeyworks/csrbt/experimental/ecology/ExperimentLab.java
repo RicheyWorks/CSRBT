@@ -35,10 +35,27 @@ public final class ExperimentLab {
 
     private ExperimentLab() {}
 
+    /**
+     * {@code ExperimentLab <spec.eco> [session.json] [exportDir]}.
+     *
+     * <p>With no output paths given, the results land <b>beside the spec that produced them</b>:
+     * {@code mine.eco} writes {@code mine-session.json} and {@code mine-out/}. The defaults used to
+     * be the shipped sample's own paths — {@code docs/ecology-experiment-session.json} and
+     * {@code docs/experiment-out/} — for <em>every</em> spec, so the invocation the lab page prints
+     * for students, {@code ./gradlew ecologyExperiment -Pspec=your.eco}, silently overwrote both
+     * checked-in sample artifacts with the student's own run (frontend verification 2026-08-17,
+     * J4). Deriving from the input makes the student path safe by construction rather than by
+     * remembering to pass a third argument.</p>
+     *
+     * <p>Regenerating the shipped sample still works and is still exact: it passes its output paths
+     * explicitly (see the {@code ecologyExperiment} Gradle task, which supplies them when no
+     * {@code -Pspec} is given). Naming the destination is now how you say "overwrite the shipped
+     * bundle", which is the operation that deserves to be explicit.</p>
+     */
     public static void main(String[] args) throws IOException {
         Path in = Path.of(args.length > 0 ? args[0] : "docs/sample-experiment.eco");
-        Path out = Path.of(args.length > 1 ? args[1] : "docs/ecology-experiment-session.json");
-        Path exportDir = Path.of(args.length > 2 ? args[2] : "docs/experiment-out");
+        Path out = args.length > 1 ? Path.of(args[1]) : siblingOf(in, "-session.json");
+        Path exportDir = args.length > 2 ? Path.of(args[2]) : siblingOf(in, "-out");
         ExperimentSpec spec = ExperimentSpec.parse(Files.readAllLines(in));
         Map<String, String> files = runWithExports(spec);
         System.out.println(files.get("report.txt"));
@@ -50,6 +67,19 @@ public final class ExperimentLab {
         System.out.println("session written → " + out + "  (drop it onto docs/ecology-lab.html)");
         System.out.println("export bundle  → " + exportDir
                 + "  (CSVs open in Excel/Sheets; report.html prints to PDF)");
+    }
+
+    /**
+     * {@code plots/spring.eco} + {@code "-out"} → {@code plots/spring-out}: the spec's own name,
+     * with its {@code .eco} suffix replaced, in the spec's own directory. A spec with no directory
+     * part resolves against the working directory, so nothing ever escapes to a fixed location.
+     */
+    private static Path siblingOf(Path spec, String suffix) {
+        String file = spec.getFileName().toString();
+        int dot = file.lastIndexOf('.');
+        String stem = dot > 0 ? file.substring(0, dot) : file;
+        Path dir = spec.getParent();
+        return dir == null ? Path.of(stem + suffix) : dir.resolve(stem + suffix);
     }
 
     /**
@@ -348,9 +378,27 @@ public final class ExperimentLab {
             report.append("── THEORY BENCH ──\n");
             sep(json, first);
             json.append("  \"models\": [");
-            for (int m = 0; m < spec.models().size(); m++) {
-                if (m > 0) json.append(',');
-                appendModel(report, json, spec.models().get(m), env, exports);
+            int emitted = 0;
+            for (ExperimentSpec.Model model : spec.models()) {
+                // ExperimentSpec probes every trajectory at parse time, but on the RAW parameters:
+                // the `factor:` knobs are applied here (env.growth / env.capacity / env.colonization),
+                // so a factor line can push an in-range model out of it. Report it where the reader
+                // is already looking and emit no model object — the S6-16 shape, and the only shape
+                // that keeps session.json parseable, since a non-finite point renders as the bare
+                // token Infinity or NaN (frontend verification 2026-08-17, J1). Built aside so a
+                // skipped model cannot leave a dangling comma in the array.
+                StringBuilder one = new StringBuilder();
+                int reportMark = report.length();
+                try {
+                    appendModel(report, one, model, env, exports);
+                } catch (IllegalArgumentException unrepresentable) {
+                    report.setLength(reportMark);
+                    report.append("  ⚠ ").append(model.kind()).append(": ")
+                          .append(unrepresentable.getMessage()).append('\n');
+                    continue;
+                }
+                if (emitted++ > 0) json.append(',');
+                json.append(one);
             }
             json.append("]");
             report.append('\n');
@@ -708,10 +756,33 @@ public final class ExperimentLab {
         json.append(" }");
     }
 
+    /**
+     * The single choke point where a {@code double} becomes JSON — and therefore the right place to
+     * refuse the two values that are not JSON at all.
+     *
+     * <p>{@code %.4f} renders a non-finite double as the bare token {@code Infinity} or {@code NaN}.
+     * Neither is valid JSON, so one such point anywhere in any series makes the whole
+     * {@code session.json} unparseable and the lab page cannot open the session at all — the
+     * failure mode behind the K&nbsp;&#x2264;&nbsp;0 {@code NaN} and the {@code exponential}
+     * {@code Infinity} alike. {@link TheoreticalModels} now reports an unrepresentable trajectory
+     * at source and {@code ExperimentLab} omits the model, so nothing should reach here; this is
+     * the backstop that makes "the export is always parseable" a property of the exporter rather
+     * than a property of every producer remembering. It throws rather than encoding a substitute,
+     * because by construction a value arriving here is a defect in the model that produced it, and
+     * a loud failure at the emitter is strictly better than an artifact no consumer can read.</p>
+     *
+     * @throws IllegalStateException if any point is not finite
+     */
     private static void appendSeries(StringBuilder json, String prefix, double[][] series) {
         json.append(prefix);
         for (int i = 0; i < series.length; i++) {
             if (i > 0) json.append(',');
+            if (!Double.isFinite(series[i][1])) {
+                throw new IllegalStateException("refusing to write a non-finite value into"
+                        + " session.json: series point " + i + " (t=" + series[i][0] + ") is "
+                        + series[i][1] + " — 'Infinity'/'NaN' are not JSON tokens and would make"
+                        + " the whole session unreadable");
+            }
             json.append(String.format(Locale.ROOT, "[%.0f,%.4f]", series[i][0], series[i][1]));
         }
         json.append(']');

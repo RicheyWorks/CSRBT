@@ -59,13 +59,73 @@ public interface TreePersistenceAdapter {
     /**
      * Retrieve a previously saved snapshot by name.
      * Returns null if not found.
+     *
+     * <p>{@code null} is also what a snapshot that <em>was</em> found but could not be used looks
+     * like — see {@link #tryLoadSnapshot} for the version that says which.</p>
      */
     TreeContext loadSnapshot(String name);
 
     /**
+     * Retrieve a previously saved snapshot and report the outcome (ADR-026).
+     *
+     * <p>The read-side twin of {@link #trySaveSnapshot}, and the answer to the question a bare
+     * {@code null} cannot: was there no snapshot ({@link LoadStatus#ABSENT} — start fresh), was
+     * there one that is not usable ({@link LoadStatus#MALFORMED} — do not start fresh, and do not
+     * overwrite it), or could the file not be read at all ({@link LoadStatus#FAILED} — retry, or
+     * fail over; the snapshot may be perfectly good).</p>
+     *
+     * <p>The default implementation calls {@link #loadSnapshot} and reports {@link
+     * LoadStatus#LOADED} for a non-null return, {@link LoadStatus#UNREPORTED} for {@code null}.
+     * That asymmetry with {@code trySaveSnapshot}'s default is deliberate and is the honest
+     * reading of each: a {@code void} save says nothing at all, whereas a load that hands back a
+     * context has demonstrably loaded one. Only the {@code null} is ambiguous, so only the
+     * {@code null} is unreported. Overriding this is how an adapter opts in to naming the
+     * reason.</p>
+     *
+     * <p>Argument validation is unchanged: a malformed snapshot name still throws, because that is
+     * a caller defect — deterministic, not retryable, and fixed by changing code rather than by
+     * changing the disk.</p>
+     *
+     * @return the outcome; never {@code null}
+     */
+    default LoadResult<TreeContext> tryLoadSnapshot(String name) {
+        TreeContext loaded = loadSnapshot(name);
+        return loaded != null ? LoadResult.loaded(name, loaded) : LoadResult.unreported(name);
+    }
+
+    /**
      * List all saved snapshot names.
+     *
+     * <p>An empty list is also what an unreadable snapshot directory looks like — see
+     * {@link #tryListSnapshots} for the version that says which.</p>
      */
     java.util.List<String> listSnapshots();
+
+    /**
+     * List all saved snapshot names and report the outcome (ADR-026).
+     *
+     * <p>{@link #listSnapshots} returns {@code []} both for "there are no snapshots" and for "the
+     * directory could not be read", which are different facts about the world. This reports
+     * {@link LoadStatus#LOADED} with the (possibly empty) list when the directory was read, and
+     * {@link LoadStatus#FAILED} carrying the {@code IOException} when it was not.</p>
+     *
+     * <p>The default implementation infers what it honestly can from {@link #listSnapshots}: a
+     * non-empty list was certainly read, an empty one might not have been.</p>
+     *
+     * @return the outcome; never {@code null}
+     */
+    default LoadResult<java.util.List<String>> tryListSnapshots() {
+        java.util.List<String> names = listSnapshots();
+        return names != null && !names.isEmpty()
+                ? LoadResult.loaded(ALL_SNAPSHOTS, names)
+                : LoadResult.unreported(ALL_SNAPSHOTS);
+    }
+
+    /**
+     * The {@link LoadResult#name()} a listing carries, since it asks about the whole snapshot
+     * directory rather than one named snapshot (ADR-026).
+     */
+    String ALL_SNAPSHOTS = "*";
 
     /**
      * Delete a named snapshot.
@@ -158,6 +218,158 @@ public interface TreePersistenceAdapter {
         @Override
         public String toString() {
             return "SaveResult[" + name + " " + status + ": " + detail + "]";
+        }
+    }
+
+    /**
+     * What a load is known to have done (ADR-026).
+     *
+     * <p>The states are the ones a caller <em>acts</em> on, which is the only test a signal has to
+     * pass. {@link #ABSENT} is the single case in which "there is no checkpoint, start fresh" is
+     * the right move; the published {@code null} return meant it and eight other things at once.
+     * {@link #MALFORMED} and {@link #FAILED} are kept apart for exactly the reason ADR-025 kept
+     * "the volume is full, retry" apart from "this configuration can never work": one is worth
+     * retrying and one is worth telling an operator about.</p>
+     */
+    enum LoadStatus {
+        /** The snapshot was read and passed every gate; the value is present. */
+        LOADED,
+        /** There is no snapshot of that name. Nothing is wrong. */
+        ABSENT,
+        /**
+         * The snapshot exists and is not usable — a truncated or tampered file, a header that does
+         * not parse, a tree that failed the structural gate. Deterministic: rereading it produces
+         * the same answer. The file is left on disk exactly as it was found.
+         */
+        MALFORMED,
+        /** An {@code IOException} prevented reading. The snapshot itself may be perfectly good. */
+        FAILED,
+        /** The adapter does not report load outcomes — it may have been absent, it may not. */
+        UNREPORTED
+    }
+
+    /**
+     * The outcome of one {@code tryLoad…} call — a value, not a process: store it, log it, branch
+     * on it (ADR-026).
+     *
+     * <p>Why a result object rather than the published {@code null}: the read side decides
+     * <em>what state the caller runs on</em>. Falling back to an empty set is correct when there is
+     * no snapshot and is silent data loss when the snapshot is merely unreadable, and a bare
+     * {@code null} cannot tell those apart. Two compact-constructor invariants make the states
+     * unfakeable — a {@link LoadStatus#LOADED} result carries its value and no other status may, a
+     * {@link LoadStatus#FAILED} result carries its cause and no other status may — so the signal
+     * can never be a bare boolean in disguise.</p>
+     *
+     * @param <T>    what was being loaded — a {@code TreeContext}, an {@code OrderedSet}, a
+     *               {@code PersistentTreeEngine}, an {@code EnsembleOrderedSet}, or the name list
+     * @param name   the snapshot name that was asked for, or {@link #ALL_SNAPSHOTS} for a listing
+     * @param status what is known to have happened
+     * @param detail a one-line, human-readable explanation (never {@code null})
+     * @param value  what was loaded on {@link LoadStatus#LOADED}, else {@code null}
+     * @param cause  the I/O failure behind a {@link LoadStatus#FAILED}, else {@code null}
+     */
+    record LoadResult<T>(String name, LoadStatus status, T value, String detail, IOException cause) {
+
+        public LoadResult {
+            Objects.requireNonNull(name, "name cannot be null");
+            Objects.requireNonNull(status, "status cannot be null");
+            Objects.requireNonNull(detail, "detail cannot be null");
+            if ((status == LoadStatus.LOADED) != (value != null)) {
+                throw new IllegalArgumentException(
+                        "a LOADED result carries its value and no other status may: " + status);
+            }
+            if ((status == LoadStatus.FAILED) != (cause != null)) {
+                throw new IllegalArgumentException(
+                        "a FAILED result carries its cause and no other status may: " + status);
+            }
+        }
+
+        /** The snapshot was read and validated. */
+        public static <T> LoadResult<T> loaded(String name, T value) {
+            Objects.requireNonNull(value, "a loaded result must carry what it loaded");
+            return new LoadResult<>(name, LoadStatus.LOADED, value, "loaded", null);
+        }
+
+        /** There is no snapshot of that name — the one case where starting fresh is right. */
+        public static <T> LoadResult<T> absent(String name) {
+            return new LoadResult<>(name, LoadStatus.ABSENT, null, "no snapshot of that name", null);
+        }
+
+        /**
+         * The snapshot exists and cannot be used; the file is untouched.
+         *
+         * @param why which gate rejected it, in enough detail to act on
+         */
+        public static <T> LoadResult<T> malformed(String name, String why) {
+            Objects.requireNonNull(why, "a malformed result must say what is wrong");
+            return new LoadResult<>(name, LoadStatus.MALFORMED, null, why, null);
+        }
+
+        /** An I/O failure prevented the read. */
+        public static <T> LoadResult<T> failed(String name, IOException cause) {
+            Objects.requireNonNull(cause, "a failed load must carry its cause");
+            return new LoadResult<>(name, LoadStatus.FAILED, null,
+                    cause.getClass().getSimpleName() + ": " + cause.getMessage(), cause);
+        }
+
+        /** The adapter does not report load outcomes (the {@code null}-only default). */
+        public static <T> LoadResult<T> unreported(String name) {
+            return new LoadResult<>(name, LoadStatus.UNREPORTED, null,
+                    "adapter does not report load outcomes", null);
+        }
+
+        /** True only when the value is present. */
+        public boolean loaded() { return status == LoadStatus.LOADED; }
+
+        /** True only when there is known to be no snapshot of this name. */
+        public boolean absent() { return status == LoadStatus.ABSENT; }
+
+        /** True only when the snapshot was found and rejected. */
+        public boolean malformed() { return status == LoadStatus.MALFORMED; }
+
+        /** True only when the read is known to have failed. */
+        public boolean failed() { return status == LoadStatus.FAILED; }
+
+        /**
+         * The loaded value, or {@code fallback} for every other status — the one-liner for the
+         * "fall back, rebuild" caller.
+         *
+         * @param fallback what to use when nothing was loaded; may be {@code null}
+         * @return the value on {@link LoadStatus#LOADED}, else {@code fallback}
+         */
+        public T orElse(T fallback) {
+            return status == LoadStatus.LOADED ? value : fallback;
+        }
+
+        /**
+         * Escalate a known non-answer to an exception, for callers that would rather not branch —
+         * the "unchecked exception" option, opt-in at the call site instead of imposed on every
+         * caller of a published API.
+         *
+         * <p>{@link LoadStatus#MALFORMED} escalates alongside {@link LoadStatus#FAILED}: both mean
+         * the caller does not have the data and something is wrong. {@link LoadStatus#ABSENT} does
+         * not — "there is no snapshot" is an answer the caller asked for and can act on. A
+         * MALFORMED result has no {@code cause} to carry (nothing threw; the file simply is not a
+         * snapshot), so one is synthesized from the detail rather than inventing a second exception
+         * type for callers to catch.</p>
+         *
+         * @return {@code this} when the load did not fail
+         * @throws UncheckedIOException when it did
+         */
+        public LoadResult<T> orThrow() {
+            if (status == LoadStatus.FAILED) {
+                throw new UncheckedIOException("snapshot '" + name + "' could not be read: " + detail, cause);
+            }
+            if (status == LoadStatus.MALFORMED) {
+                throw new UncheckedIOException("snapshot '" + name + "' is not usable: " + detail,
+                        new IOException(detail));
+            }
+            return this;
+        }
+
+        @Override
+        public String toString() {
+            return "LoadResult[" + name + " " + status + ": " + detail + "]";
         }
     }
 }

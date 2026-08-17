@@ -163,3 +163,24 @@ tests and zero consumers** — dead weight.
 **Not audited here:** SmokeHouse's own log/compaction seams (covered by the 2026-07 Phase-4 debug
 audit, `SmokeHouse/docs/phase4-audit-debug-report.md`) and SBS sort strategies (DifferentialTest
 regime). This audit is the CSRBT surface and its feeding only.
+
+---
+
+## Corrections
+
+Findings above are left exactly as they were recorded; corrections are appended here, dated, the
+way `CHANGELOG-2026-07-14-scorer-recalibration.md` records its own.
+
+**[2026-08-17, from the seventh-pass wiring audit] §4, the `buildAllFromSorted` row is wrong on
+both columns.** It reads `BulkBuildTest | BulkBuildFeeder ensemble path`. There is **no type named
+`BulkBuildFeeder`** anywhere in the repository, and `BulkBuildTest`'s four tests plus its property
+never mention an ensemble — they cover `OrderedSet`/engine bulk build only. At the time this table
+was written `EnsembleOrderedSet.buildAllFromSorted` had **zero production callers and zero test
+references** across both modules and the JMH rig; it was public, gated, documented, and completely
+uncovered, and this row is why nobody noticed. The capability itself was fine — probed across
+MIRROR, VERIFIED, a strategy+persistent-engine mix, a bounded window, parallel fan-out and a closed
+ensemble, every member ended an exact mirror — so it was a missing test, not a missing wire. The
+coverage the row claimed now exists as `SeventhPassWiringTest$EnsembleBulkBuild` (four tests); see
+`AUDIT-2026-08-17-wiring-seventh-pass.md` finding 5. Read the row as
+`buildAllFromSorted | SeventhPassWiringTest$EnsembleBulkBuild (from 2026-08-17) | no in-repo feeder
+— public API for library callers`.

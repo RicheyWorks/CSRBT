@@ -207,7 +207,7 @@ public final class ExperimentSpec {
                 switch (key) {
                     case "name" -> name = val;
                     case "keys" -> keys = parseBounded(val, 2, 1_000_000, "keys");
-                    case "seed" -> seed = Long.parseLong(val);
+                    case "seed" -> seed = parseWholeNumber(val, "seed");
                     case "window" -> window = parseBounded(val, 16, 1_000_000, "window");
                     case "phase" -> phases.add(parsePhase(val));
                     case "model" -> models.add(parseModel(val));
@@ -300,9 +300,28 @@ public final class ExperimentSpec {
     }
 
     private static int parseBounded(String v, int lo, int hi, String what) {
-        int x = Integer.parseInt(v);
+        long x = parseWholeNumber(v, what);
         if (x < lo || x > hi) throw new IllegalArgumentException(what + " out of range [" + lo + ", " + hi + "]");
-        return x;
+        return (int) x;
+    }
+
+    /**
+     * A whole number written by a student, with a message a student can act on (edge-case pass
+     * 2026-08-17). {@code Long.parseLong}'s own text is {@code For input string: ""}, which is
+     * what {@code keys:}, {@code seed:} and {@code window:} used to print into the report's
+     * {@code ⚠ spec:} list — the one place in this layer that leaked a JDK exception message
+     * instead of saying what was wrong with the line. Everything else here already reports in
+     * plain English; this closes the exception.
+     */
+    private static long parseWholeNumber(String v, String what) {
+        String t = v.trim();
+        if (t.isEmpty()) throw new IllegalArgumentException(what + " needs a whole number");
+        try {
+            return Long.parseLong(t);
+        } catch (NumberFormatException bad) {
+            throw new IllegalArgumentException(
+                    what + " must be a whole number, not '" + t + "'");
+        }
     }
 
     private static Phase parsePhase(String val) {
@@ -370,12 +389,39 @@ public final class ExperimentSpec {
         }
         // Validate the domain of the value-sensitive models now — a parseable line whose
         // numbers are out of range (markrecapture R > min(M,C), hardyweinberg negative
-        // counts) is a spec problem, reported like any other, not a crash inside run().
+        // counts, a carrying capacity of zero) is a spec problem, reported like any other,
+        // not a crash inside run() and not a NaN in the export (edge-case pass 2026-08-17:
+        // `model: logistic 0.15 0 5 60` wrote the bare token NaN into session.json, which
+        // is invalid JSON, so the lab page could not load the session at all).
+        //
+        // The trajectory models are probed over their REAL step count, not over a single point.
+        // Whether a run leaves the range of a double is a property of how long it runs — `model:
+        // exponential 0.7 1 1200` is finite for a thousand steps and Infinity after step 1014 —
+        // so a one-point probe cannot see it, and an Infinity in a series is exactly as fatal to
+        // session.json as the NaN this probe was built for (frontend verification 2026-08-17, J1).
+        // The probe runs on the RAW parameters; `factor:` lines are applied later, in
+        // ExperimentLab, so a factor-amplified overflow is caught there instead — same message,
+        // reported into the report rather than the spec list.
+        int steps = hasSteps ? (int) params[want - 1] : 0;
         switch (kind) {
             case "markrecapture" ->
                     MarkRecapture.estimate((long) params[0], (long) params[1], (long) params[2]);
             case "hardyweinberg" ->
                     PopulationGenetics.hardyWeinberg((long) params[0], (long) params[1], (long) params[2]);
+            case "levins" ->
+                    TheoreticalModels.levinsTrajectory(params[0], params[1], params[2], steps);
+            case "logistic" ->
+                    TheoreticalModels.logisticTrajectory(params[0], params[1], params[2], steps);
+            case "island" ->
+                    TheoreticalModels.islandTrajectory(params[0], params[1], params[2], params[3], steps);
+            case "exponential" ->
+                    TheoreticalModels.exponentialTrajectory(params[0], params[1], steps);
+            case "competition" ->
+                    TheoreticalModels.competitionTrajectories(params[0], params[1], params[2],
+                            params[3], params[4], params[5], params[6], params[7], steps);
+            case "predation" ->
+                    TheoreticalModels.predationTrajectories(params[0], params[1], params[2],
+                            params[3], params[4], params[5], steps);
             default -> { }
         }
         return new Model(kind, params);

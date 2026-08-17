@@ -56,9 +56,13 @@ import java.util.Objects;
  * {@link WorkloadFeatures} snapshot, except for the write term: each is priced on the rotations
  * <em>its own</em> engine paid per write <em>it</em> received
  * ({@link EnsembleMember#rotationsPerWrite()}), so a rotation-thrashing arm and a rotation-cheap
- * one no longer look identical. Both sides are priced per-member or neither is — see
- * {@link #priceComparably} — because a cost built from a member's own churn and one built from
- * the stream's are two different measurements.</p>
+ * one no longer look identical. Both sides are priced per-member or neither is, because a cost
+ * built from a member's own churn and one built from the stream's are two different
+ * measurements — and that rule holds over the whole {@link PolicyBandit} scoreboard the gate
+ * reads, not merely within one window: the gate compares {@code bandit.meanCost(winner)}, a mean
+ * over every window an arm has run, against an incumbent priced from the current one. Each window
+ * is therefore recorded on both bases and {@link PolicyBandit#perMemberBasis()} names the one
+ * every live scored arm actually has (audit 2026-08-17, seventh pass, item C).</p>
  *
  * <p>{@link TreeEvent.Trial} events (TRIED / SCORED / DISQUALIFIED / SELECTED) are emitted
  * to a registered listener, so a {@code TreeSessionRecorder} can replay the search in the
@@ -149,10 +153,27 @@ public final class PolicySearchController<K> {
         return (int) Math.max(0L, Math.min(Integer.MAX_VALUE, after - before));
     }
 
+    /**
+     * Membership test recorded as a read with its <em>realized</em> search depth where one exists,
+     * exactly as {@code EnsembleController.contains} does — one walk answers the query and measures
+     * it ({@link EnsembleOrderedSet#searchDepth}).
+     *
+     * <p>This facade advertises itself as mirroring {@code EnsembleController}, but until the
+     * seventh-pass audit it fed the monitor a literal {@code 0} depth for every read (finding 6) —
+     * the read-side twin of the literal-{@code 0} rotation feed sixth-pass fix S6-12 removed from
+     * this very class. Nothing inside V3 reads {@code meanSearchDepth} ({@link Fitness} measures
+     * depth structurally, because shadows do not serve reads), so the defect was silent here; it
+     * was not silent for a caller who hands one {@link WorkloadMonitor} to this controller and to
+     * anything that reads the vector — a {@code CostModelStrategyScorer}, an
+     * {@code EnsembleController} — because the constant zeros diluted that monitor's depth EWMA.
+     * Vote semantics are untouched: {@code searchDepth} counts toward the VERIFIED stride exactly
+     * like {@code contains}, and voted / replica / engine-served reads still record an honest
+     * zero rather than a fabricated number.</p>
+     */
     public boolean contains(K key) {
-        boolean present = ensemble.contains(key);
-        monitor.recordSearch(Objects.hashCode(key), 0);
-        return present;
+        int d = ensemble.searchDepth(key);
+        monitor.recordSearch(Objects.hashCode(key), d >= 0 ? d : ~d);
+        return d >= 0;
     }
 
     // ── The search loop ─────────────────────────────────────────────────────────
@@ -251,16 +272,34 @@ public final class PolicySearchController<K> {
         //     the decision was actually made on, not the post-swap line-up.
         EnsembleMember<K> scoredTrial = trialMember;
         EnsembleMember<K> incumbentMember = ensemble.primary();
-        WorkloadFeatures trialF = priceComparably(f, scoredTrial, incumbentMember);
-        WorkloadFeatures incumbentF = priceComparably(f, incumbentMember, scoredTrial);
 
-        Fitness.Evaluation armEval = Fitness.evaluate(
-                trialF, Fitness.meanDepth(trialSet.getEngine()), trialSet.size());
+        // 2c. The comparability rule holds over the POOL the decision reads, not just within this
+        //     window (audit 2026-08-17, seventh pass, item C — reproduced end to end). Step 4
+        //     gates on bandit.meanCost(winner), a mean over EVERY window that arm has run, while
+        //     the incumbent below is priced from this one. A generation shorter than the shadow's
+        //     sampling stride sits below MIN_METERED_WRITES and is stream-priced; the next may be
+        //     per-member-priced; a single running mean silently averaged the two and then compared
+        //     the blend against a single-basis incumbent. So each window is recorded on BOTH bases
+        //     and the bandit names the one every live scored arm actually has.
+        double armDepth = Fitness.meanDepth(trialSet.getEngine());
+        long   armSize  = trialSet.size();
+        boolean windowPerMember = !Double.isNaN(scoredTrial.rotationsPerWrite())
+                && !Double.isNaN(incumbentMember.rotationsPerWrite());
+        double armStreamCost = Fitness.evaluate(f, armDepth, armSize).cost();
+        double armOwnCost = windowPerMember
+                ? Fitness.evaluate(scoredTrial.pricedFeatures(f), armDepth, armSize).cost()
+                : Double.NaN;
+        bandit.recordCost(arm, armStreamCost, armOwnCost);
+
+        // One basis for the whole comparison: the arm's mean, the incumbent's price, the SCORED
+        // event and the reported TrialResult all read it.
+        boolean perMemberBasis = bandit.perMemberBasis();
+        double armCost = perMemberBasis ? armOwnCost : armStreamCost;
         double incumbentCost = (primarySet == null) ? Double.POSITIVE_INFINITY
-                : Fitness.evaluate(incumbentF, Fitness.meanDepth(primarySet.getEngine()),
+                : Fitness.evaluate(perMemberBasis ? incumbentMember.pricedFeatures(f) : f,
+                                   Fitness.meanDepth(primarySet.getEngine()),
                                    primarySet.size()).cost();
-        bandit.recordCost(arm, armEval.cost());
-        emit(new TreeEvent.Trial<>(arm.toString(), "SCORED", armEval.cost(), bandit.pulls(arm)));
+        emit(new TreeEvent.Trial<>(arm.toString(), "SCORED", armCost, bandit.pulls(arm)));
 
         // 3. Win-streak bookkeeping (arm-keyed; MorphHistory can't name a grid point).
         PolicyGenome winner = bandit.bestArm();
@@ -282,56 +321,38 @@ public final class PolicySearchController<K> {
                 winStreak = 0;
                 lastWinner = null;
                 reason = "promoted " + arm + " (sync-on-promote)";
-                emit(new TreeEvent.Trial<>(arm.toString(), "SELECTED", armEval.cost(), bandit.pulls(arm)));
+                emit(new TreeEvent.Trial<>(arm.toString(), "SELECTED", armCost, bandit.pulls(arm)));
             } else {
                 reason = "promote refused by ensemble";
             }
         }
 
         logger.info("event=trial_eval arm={} cost={} incumbent={} churn={} streak={} ops={} decision={} arms={}",
-                arm, String.format("%.4f", armEval.cost()), String.format("%.4f", incumbentCost),
-                churnLine(scoredTrial, incumbentMember, f),
+                arm, String.format("%.4f", armCost), String.format("%.4f", incumbentCost),
+                churnLine(scoredTrial, incumbentMember, f, perMemberBasis),
                 winStreak, opsSinceLastPromotion, promoted ? "PROMOTE" : "HOLD", bandit.statsLine());
-        return new TrialResult(arm, true, armEval.cost(), incumbentCost, promoted, reason);
+        return new TrialResult(arm, true, armCost, incumbentCost, promoted, reason);
     }
 
     /**
-     * The features {@code m} is priced on, given that it is being compared with {@code against}
-     * (ADR-024, the comparability clause).
+     * The churn evidence behind one evaluation, for the {@code event=trial_eval} line: this
+     * window's two rates and the stream's, plus the basis the decision was actually taken on.
      *
-     * <p>The write term is {@code writeFraction × rotationsPerWrite}. Substituting a member's own
-     * churn for the stream's on <em>one</em> side of a comparison changes what the two numbers
-     * mean, and the {@link MorphPolicy} gate reads their ratio — so a per-member price is used
-     * only when <b>both</b> members have an own-churn observation
-     * ({@link EnsembleMember#rotationsPerWrite()} non-{@code NaN}: at least
-     * {@link EnsembleMember#MIN_METERED_WRITES} writes actually received). When either side is
-     * short of evidence, both fall back to the stream's number — the primary-metered behavior of
-     * sixth-pass fix S6-12, which stays the floor this refinement is measured against.</p>
-     *
-     * <p><b>The shadow case, stated.</b> A {@code SAMPLED_SHADOW} genuinely does not see the whole
-     * stream, so its rotation <em>count</em> is not comparable with a full-stream member's. Its
-     * rotation <em>rate</em> is: the meter's denominator is the writes the member actually
-     * received, so a shadow that took 80 of 4 000 writes and paid 40 rotations is priced at 0.5
-     * rotations/write — the same unit, and the same number, as a primary that paid 2 000 rotations
-     * over all 4 000. What sampling does change is the shadow's key <em>distribution</em> (a
-     * thinned stream is sparser, so its deletes miss more often); that residual is a caveat
-     * recorded in ADR-024, not something the rate normalization can remove.</p>
+     * <p>{@code basis} is the {@linkplain PolicyBandit#perMemberBasis() bandit's}, not this
+     * window's, and the two can differ: a window in which both members have an own-churn
+     * observation is still priced on the stream when some earlier window of a live arm was not,
+     * because the gate compares a <em>mean over windows</em> against this window's incumbent.
+     * That is the pool form of ADR-024 clause 3, and printing both makes it readable from the log
+     * rather than inferable from the source.</p>
      */
-    private static <K> WorkloadFeatures priceComparably(WorkloadFeatures stream,
-                                                        EnsembleMember<K> m,
-                                                        EnsembleMember<K> against) {
-        if (Double.isNaN(against.rotationsPerWrite())) return stream;
-        return m.pricedFeatures(stream);
-    }
-
-    /** The churn evidence behind one evaluation, for the {@code event=trial_eval} line. */
     private static <K> String churnLine(EnsembleMember<K> trial, EnsembleMember<K> incumbent,
-                                        WorkloadFeatures stream) {
-        boolean perMember = !Double.isNaN(trial.rotationsPerWrite())
+                                        WorkloadFeatures stream, boolean basis) {
+        boolean windowPerMember = !Double.isNaN(trial.rotationsPerWrite())
                 && !Double.isNaN(incumbent.rotationsPerWrite());
         return String.format(java.util.Locale.ROOT,
-                "%s(trial=%.4f/%dw incumbent=%.4f/%dw stream=%.4f)",
-                perMember ? "per-member" : "stream",
+                "%s(window=%s trial=%.4f/%dw incumbent=%.4f/%dw stream=%.4f)",
+                basis ? "per-member" : "stream",
+                windowPerMember ? "per-member" : "stream",
                 trial.rotationsPerWrite(), trial.meteredWrites(),
                 incumbent.rotationsPerWrite(), incumbent.meteredWrites(),
                 stream.rotationsPerWrite());

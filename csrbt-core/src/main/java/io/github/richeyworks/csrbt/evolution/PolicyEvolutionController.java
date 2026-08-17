@@ -65,6 +65,14 @@ import java.util.Set;
  * rank two different measurements side by side, so the choice is all-or-nothing per generation;
  * short of evidence, everyone falls back to the stream's number (the S6-12 behavior).</p>
  *
+ * <p>That pool reaches <em>back</em>: (μ+λ) selection ranks this generation's bodies against
+ * surviving parents still carrying the cost they were scored at, possibly generations ago and
+ * possibly under the other regime (audit 2026-08-17, seventh pass, item C). Every score therefore
+ * carries both prices and the basis is chosen for the pool as a whole — per-member only when this
+ * generation qualifies <em>and</em> every carried-over parent has an own-churn price. The
+ * {@code event=generation_eval} line names the basis actually used, and says when the generation
+ * could have been priced per-member but the pool could not.</p>
+ *
  * <p><b>Determinism.</b> All randomness flows from one constructor-seeded {@link Random};
  * the same seed and call/op sequence reproduce the same lineages, scores aside. No
  * background threads; no RNG in selection (cost order, ties to insertion order).</p>
@@ -97,7 +105,18 @@ public final class PolicyEvolutionController<K> {
 
     private volatile TreeEventListener<K> events;
 
-    private record Scored(PolicyGenome genome, double cost) { }
+    /**
+     * One genome's cost on <em>both</em> ADR-024 bases: {@code streamCost} priced on the stream's
+     * rotations-per-write (always defined) and {@code ownCost} priced on the body's own realized
+     * churn ({@code NaN} when its generation had no own-churn observation for every body and the
+     * throne). Surviving parents carry their score forward across generations, and the pricing
+     * regime is a property of the generation, so a single number could not stay comparable with
+     * the pool it is ranked in — keeping both is what lets the pool pick one basis for everyone.
+     */
+    private record Scored(PolicyGenome genome, double streamCost, double ownCost) {
+        boolean hasOwnCost()             { return !Double.isNaN(ownCost); }
+        double cost(boolean perMember)   { return perMember ? ownCost : streamCost; }
+    }
 
     /** One generation's verdict, explainable in one line. */
     public record GenerationResult(int generation, int evaluated, int deaths,
@@ -184,10 +203,17 @@ public final class PolicyEvolutionController<K> {
         return (int) Math.max(0L, Math.min(Integer.MAX_VALUE, after - before));
     }
 
+    /**
+     * Membership test recorded with its <em>realized</em> search depth where one exists — the same
+     * {@link EnsembleOrderedSet#searchDepth} walk {@code EnsembleController} and
+     * {@link PolicySearchController} use (audit 2026-08-17 seventh pass, finding 6; this facade is
+     * "the V3 facade, verbatim", and V3 fed a literal {@code 0}). Voted / replica / engine-served
+     * reads still record an honest zero; the VERIFIED stride is unaffected.
+     */
     public boolean contains(K key) {
-        boolean present = ensemble.contains(key);
-        monitor.recordSearch(Objects.hashCode(key), 0);
-        return present;
+        int d = ensemble.searchDepth(key);
+        monitor.recordSearch(Objects.hashCode(key), d >= 0 ? d : ~d);
+        return d >= 0;
     }
 
     // ── The generation ───────────────────────────────────────────────────────────
@@ -284,7 +310,7 @@ public final class PolicyEvolutionController<K> {
         WorkloadFeatures f = monitor.snapshot();
 
         // 1. Judgment: each materialized genome against its own invariant, then the scorer.
-        Map<PolicyGenome, Double> scored = new LinkedHashMap<>();
+        Map<PolicyGenome, Scored> scored = new LinkedHashMap<>();
         Map<PolicyGenome, EnsembleMember<K>> bodies = new LinkedHashMap<>();
         int deaths = 0;
         int uninformative = 0;
@@ -326,11 +352,20 @@ public final class PolicyEvolutionController<K> {
         for (Map.Entry<PolicyGenome, EnsembleMember<K>> t : judged.entrySet()) {
             PolicyGenome g = t.getKey();
             OrderedSet<K> set = t.getValue().orderedSet();
-            WorkloadFeatures bodyF = perMemberChurn ? t.getValue().pricedFeatures(f) : f;
-            double cost = Fitness.evaluate(bodyF, Fitness.meanDepth(set.getEngine()), set.size()).cost();
-            scored.put(g, cost);
+            double depth = Fitness.meanDepth(set.getEngine());
+            long   size  = set.size();
+            // Both prices, always. The pool the ranking reads reaches back across generations
+            // (surviving parents keep the cost they were scored at), and the pricing regime is a
+            // property of the generation, not of the run — so a cost that carries only one basis
+            // cannot be compared with one carried in from a generation priced the other way.
+            double streamCost = Fitness.evaluate(f, depth, size).cost();
+            double ownCost = perMemberChurn
+                    ? Fitness.evaluate(t.getValue().pricedFeatures(f), depth, size).cost()
+                    : Double.NaN;
+            scored.put(g, new Scored(g, streamCost, ownCost));
             bodies.put(g, t.getValue());
-            emit(new TreeEvent.Trial<>(g.toString(), "SCORED", cost, generation));
+            emit(new TreeEvent.Trial<>(g.toString(), "SCORED",
+                    perMemberChurn ? ownCost : streamCost, generation));
         }
         // Death is by genome VALUE, and duplicate bodies of the same genome can sit in
         // one trial (elite + bred copies): if ANY body's invariant failed, the genome is
@@ -346,21 +381,32 @@ public final class PolicyEvolutionController<K> {
         //    used to re-enter the pool here — resurrecting it into parents, the elite slot,
         //    and the next trial list. "DISQUALIFIED = dead permanently" applies to the pool
         //    refill exactly as it already does to every breeding path.
-        Map<PolicyGenome, Double> pool = new LinkedHashMap<>(scored);
+        Map<PolicyGenome, Scored> pool = new LinkedHashMap<>(scored);
         for (Scored p : parents) {
-            if (!dead.contains(p.genome())) pool.putIfAbsent(p.genome(), p.cost());
+            if (!dead.contains(p.genome())) pool.putIfAbsent(p.genome(), p);
         }
-        List<Map.Entry<PolicyGenome, Double>> ranked = new ArrayList<>(pool.entrySet());
-        ranked.sort(Map.Entry.comparingByValue());
+        // 2b. The comparability rule holds over the POOL, not just within this generation (audit
+        //     2026-08-17, seventh pass, item C). `perMemberChurn` is decided per generation, but
+        //     the pool also holds surviving parents scored in EARLIER generations — a generation
+        //     in which any body received fewer than MIN_METERED_WRITES writes is stream-priced,
+        //     the next may be per-member-priced, and sorting the two against each other ranks two
+        //     different measurements. Carrying both prices makes the whole pool rankable on
+        //     whichever basis every entry in it has; short of that it is the stream's, which is
+        //     the number the refinement replaced, so this can never make the signal worse.
+        boolean poolBasis = perMemberChurn && pool.values().stream().allMatch(Scored::hasOwnCost);
+        java.util.Comparator<Scored> byCost =
+                java.util.Comparator.comparingDouble(s -> s.cost(poolBasis));
+        List<Scored> ranked = new ArrayList<>(pool.values());
+        ranked.sort(byCost);
         parents.clear();
         int culled = 0;
         for (int i = 0; i < ranked.size(); i++) {
             if (i < mu) {
-                parents.add(new Scored(ranked.get(i).getKey(), ranked.get(i).getValue()));
+                parents.add(ranked.get(i));
             } else {
                 culled++;
-                emit(new TreeEvent.Trial<>(ranked.get(i).getKey().toString(), "CULLED",
-                        ranked.get(i).getValue(), generation));
+                emit(new TreeEvent.Trial<>(ranked.get(i).genome().toString(), "CULLED",
+                        ranked.get(i).cost(poolBasis), generation));
             }
         }
 
@@ -369,8 +415,9 @@ public final class PolicyEvolutionController<K> {
         emit(new TreeEvent.Diversity<>(generation, parents.size(), survivorLineages(),
                 survivorSpread(), deaths, culled));
 
-        // 3. Promotion = selection pressure on the throne (the V3 gate math, verbatim).
-        double incumbentCost = incumbentCost(perMemberChurn
+        // 3. Promotion = selection pressure on the throne (the V3 gate math, verbatim). The throne
+        //    is priced on the pool's basis, because it is compared against the pool's winner.
+        double incumbentCost = incumbentCost(poolBasis
                 ? ensemble.primary().pricedFeatures(f) : f);
         // The other half of finding 8: an incumbent with no measurable shape scores ~0 and can
         // never be beaten (or, worse, is beaten by an equally shapeless candidate). Uncomparable
@@ -386,7 +433,7 @@ public final class PolicyEvolutionController<K> {
             lastWinner = winner;
             EnsembleMember<K> body = bodies.get(winner);
             if (body != null && incumbentComparable
-                    && policy.shouldMorph(-incumbentCost, -parents.get(0).cost(),
+                    && policy.shouldMorph(-incumbentCost, -parents.get(0).cost(poolBasis),
                                           opsSinceLastPromotion, winStreak)) {
                 EnsembleMember<K> deposed = ensemble.primary();
                 promoted = ensemble.promote(body);
@@ -398,7 +445,7 @@ public final class PolicyEvolutionController<K> {
                     lastWinner = null;
                     reason = "promoted " + winner + " (generation " + generation + ")";
                     emit(new TreeEvent.Trial<>(winner.toString(), "SELECTED",
-                            pool.get(winner), generation));
+                            pool.get(winner).cost(poolBasis), generation));
                 } else {
                     reason = "promote refused by ensemble";
                 }
@@ -406,11 +453,13 @@ public final class PolicyEvolutionController<K> {
         }
 
         List<PolicyGenome> survivors = parents.stream().map(Scored::genome).toList();
-        double bestCost = parents.isEmpty() ? Double.NaN : parents.get(0).cost();
+        double bestCost = parents.isEmpty() ? Double.NaN : parents.get(0).cost(poolBasis);
         logger.info("event=generation_eval gen={} evaluated={} deaths={} unmeasured={} survivors={} best={} incumbent={} churn={} decision={} lineages={} spread={}",
                 generation, scored.size(), deaths, uninformative, survivors,
                 String.format("%.4f", bestCost), String.format("%.4f", incumbentCost),
-                perMemberChurn ? "per-member" : "stream(" + String.format("%.4f", f.rotationsPerWrite()) + ")",
+                poolBasis ? "per-member" : "stream(" + String.format("%.4f", f.rotationsPerWrite())
+                        + (perMemberChurn ? "; this generation could be per-member, the pool could not" : "")
+                        + ")",
                 promoted ? "PROMOTE" : "HOLD",
                 survivorLineages(), String.format("%.2f", survivorSpread()));
         return new GenerationResult(generation, scored.size(), deaths, survivors,

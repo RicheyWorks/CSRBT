@@ -327,13 +327,34 @@ public final class EnsembleOrderedSet<K> implements OrderedCollection<K>, AutoCl
 
     // ── Writes: fan out to every active member via the MemberExecutor (E1 seq / E5 parallel) ──
 
+    /**
+     * Fan a key insert out to every recipient member.
+     *
+     * @throws NullPointerException if {@code value} is null — checked <em>before</em> the fan-out
+     *         (edge-case pass 2026-08-17), which is the whole point. Every member's own {@code add}
+     *         throws NPE on a null key (finding 14 / S6-44 made that uniform), and the ADR-003
+     *         write-failure rule reads a member that throws as a <em>member</em> fault: one
+     *         {@code add(null)} therefore QUARANTINED every non-primary member for a caller
+     *         argument error, and in {@link EnsembleMode#READ_REPLICA} left the ensemble with no
+     *         second ACTIVE member — permanently unable to accept any further write. It also
+     *         surfaced as {@code IllegalStateException} where every other implementation throws
+     *         NPE. A caller argument is not a member failure; it is refused here, touching nothing.
+     */
     @Override
     public boolean add(K value) {
+        Objects.requireNonNull(value, "value cannot be null");
         return write("add", true, true, s -> s.add(value));
     }
 
+    /**
+     * Fan a key removal out to every recipient member.
+     *
+     * @throws NullPointerException if {@code value} is null (see {@link #add} for why this is
+     *         checked before the fan-out rather than left to the members)
+     */
     @Override
     public boolean remove(K value) {
+        Objects.requireNonNull(value, "value cannot be null");
         return write("remove", true, true, s -> s.remove(value));
     }
 
@@ -359,8 +380,17 @@ public final class EnsembleOrderedSet<K> implements OrderedCollection<K>, AutoCl
      *
      * @throws IllegalStateException if the ensemble is closed, non-empty, not in an all-exact mode,
      *                               or a member build fails
+     * @throws NullPointerException  if the list, or any key in it, is null — validated here, before
+     *                               any member is touched, for the same reason {@link #add} checks
+     *                               (edge-case pass 2026-08-17); a one-element null list used to be
+     *                               built into every member as a real element
      */
     public void buildAllFromSorted(List<K> ascendingDistinct) {
+        Objects.requireNonNull(ascendingDistinct, "ascendingDistinct cannot be null");
+        for (int i = 0; i < ascendingDistinct.size(); i++) {
+            Objects.requireNonNull(ascendingDistinct.get(i),
+                    "buildAllFromSorted keys cannot be null; null at index " + i);
+        }
         synchronized (writeLock) {
             requireOpen("buildAllFromSorted");
             if (mode != EnsembleMode.MIRROR && mode != EnsembleMode.VERIFIED) {

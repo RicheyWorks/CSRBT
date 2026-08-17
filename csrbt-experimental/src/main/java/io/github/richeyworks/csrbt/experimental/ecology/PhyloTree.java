@@ -19,7 +19,8 @@ import java.util.Locale;
  * so rather than blur it.</p>
  *
  * <p>Parsing follows the house rule: malformed input throws with a reason (unbalanced
- * parentheses, empty subtree, trailing junk) — never a guessed tree.</p>
+ * parentheses, empty subtree, trailing junk, a branch length that is not a finite number)
+ * — never a guessed tree.</p>
  */
 public final class PhyloTree {
 
@@ -77,11 +78,21 @@ public final class PhyloTree {
             pos[0]++;
             int ls = pos[0];
             while (pos[0] < s.length() && ",()".indexOf(s.charAt(pos[0])) < 0) pos[0]++;
+            String raw = s.substring(ls, pos[0]).trim();
             try {
-                length = Double.parseDouble(s.substring(ls, pos[0]).trim());
+                length = Double.parseDouble(raw);
             } catch (NumberFormatException bad) {
+                throw new IllegalArgumentException("bad branch length '" + raw + "'");
+            }
+            // A non-finite length is reported, not carried (edge-case pass 2026-08-17).
+            // Double.parseDouble happily accepts "Infinity" and overflows "1e400" to it, and NaN
+            // is this class's own marker for "no branch length" — so both used to be swallowed:
+            // an infinite length round-tripped into json() as the bare token Infinity, which is
+            // NOT valid JSON, so one over-large number in a student's tree: line made the whole
+            // session.json unreadable to the lab page; a literal NaN was silently dropped instead.
+            if (!Double.isFinite(length)) {
                 throw new IllegalArgumentException(
-                        "bad branch length '" + s.substring(ls, pos[0]) + "'");
+                        "branch length '" + raw + "' is not a finite number");
             }
         }
         if (children.isEmpty() && name.isEmpty()) {

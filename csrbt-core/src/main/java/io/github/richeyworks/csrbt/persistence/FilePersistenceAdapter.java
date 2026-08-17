@@ -10,6 +10,8 @@ import io.github.richeyworks.csrbt.augment.IntervalAugmentor;
 import io.github.richeyworks.csrbt.ensemble.EnsembleOrderedSet;
 import io.github.richeyworks.csrbt.interfaces.RankedSet;
 import io.github.richeyworks.csrbt.interfaces.TreePersistenceAdapter;
+import io.github.richeyworks.csrbt.interfaces.TreePersistenceAdapter.LoadResult;
+import io.github.richeyworks.csrbt.interfaces.TreePersistenceAdapter.LoadStatus;
 import io.github.richeyworks.csrbt.interfaces.TreePersistenceAdapter.SaveResult;
 import io.github.richeyworks.csrbt.strategy.AVLStrategy;
 import io.github.richeyworks.csrbt.strategy.HybridStrategy;
@@ -50,6 +52,14 @@ import java.util.*;
  * now delegate to the reporting ones, discarding the answer — so a full disk, a revoked
  * permission, an I/O error mid-write, and a commit rename that cannot publish are all detectable
  * without changing a single existing call site.</p>
+ *
+ * <p><b>ADR-026:</b> the read side has the same twins. Every load shape returns a
+ * {@link LoadResult} that separates the nine reasons a load used to answer {@code null} into the
+ * four a caller acts on — {@link LoadStatus#ABSENT} (start fresh), {@link LoadStatus#MALFORMED}
+ * (the file is there and unusable; do not start fresh and do not overwrite it),
+ * {@link LoadStatus#FAILED} (an {@code IOException}; retry or fail over), and
+ * {@link LoadStatus#LOADED}. The published {@code null} / {@code false} / empty-list returns are
+ * unchanged and now delegate to the reporting twins.</p>
  */
 public class FilePersistenceAdapter implements TreePersistenceAdapter {
 
@@ -213,7 +223,7 @@ public class FilePersistenceAdapter implements TreePersistenceAdapter {
                 sb.append("#;");
                 continue;
             }
-            sb.append(ks.serialize(cur.getData()))
+            sb.append(requireEncodableKey(ks.serialize(cur.getData()), cur.getData()))
               .append(",")
               .append(cur.getColor().name());
             // Optional third field: per-node tag (e.g. interval high endpoint).
@@ -240,14 +250,82 @@ public class FilePersistenceAdapter implements TreePersistenceAdapter {
         }
     }
 
+    /**
+     * Enforce {@link KeySerializer}'s token contract on the pre-order path, at save time
+     * (edge-case pass 2026-08-17).
+     *
+     * <p>The flat persistent path already refuses a token containing {@code ';'} with the reasoning
+     * "silently dropping a KEY (unlike a tag) would corrupt the set on reload" — but the pre-order
+     * path, which reserves {@code ','} as well (the record is {@code DATA,COLOR[,TAG]}), checked
+     * nothing. A serializer emitting either character wrote a file that looked fine and only
+     * surfaced on load, as an {@code ArrayIndexOutOfBoundsException} reported as MALFORMED: the
+     * caller learned its snapshot was unreadable, in a different process, with no hint that its own
+     * serializer was the cause. This is the same deterministic caller defect the flat path names,
+     * so it is named the same way and at the same moment.</p>
+     *
+     * @throws IllegalArgumentException if the token cannot survive a round trip through the format
+     */
+    private static <K> String requireEncodableKey(String token, K key) {
+        String why = null;
+        if (token == null || token.isEmpty())              why = "is empty (an empty token means NIL)";
+        else if (token.equals("#"))                        why = "is \"#\" (the NIL marker)";
+        else if (token.indexOf(';') >= 0)                  why = "contains ';' (the node separator)";
+        else if (token.indexOf(',') >= 0)                  why = "contains ',' (the field separator)";
+        else if (token.chars().anyMatch(c -> c < 0x20))    why = "contains a control character";
+        if (why != null) {
+            throw new IllegalArgumentException("key " + key + " serializes to a token that " + why
+                    + " and cannot be persisted: '" + token + "'");
+        }
+        return token;
+    }
+
     // ── Load ─────────────────────────────────────────────────────────────────
+
+    /**
+     * The terminal catch every load path shares (ADR-026). The line between the two reportable
+     * failures is the line the code already caught on: an {@link IOException} is the
+     * <em>environment</em> — retryable, and the snapshot itself may be fine — while anything else
+     * escaping the decoder is the <em>file</em>, which will decode exactly the same way next time.
+     *
+     * <p>The ERROR line is the pre-ADR-026 one, unchanged.</p>
+     */
+    private <T> LoadResult<T> loadFailure(String name, Exception e) {
+        logger.error("Failed to load snapshot '{}'", name, e);
+        return e instanceof IOException io
+                ? LoadResult.failed(name, io)
+                : LoadResult.malformed(name, "unreadable content: " + e);
+    }
+
+    /**
+     * The same non-{@code LOADED} outcome, retyped for a caller that was building something else —
+     * a persistent engine out of a key list, an ensemble out of an {@code OrderedSet}. Never called
+     * with a {@code LOADED} result, whose value is of the wrong type by construction.
+     */
+    private static <T, U> LoadResult<U> propagate(LoadResult<T> outcome) {
+        return new LoadResult<>(outcome.name(), outcome.status(), null,
+                outcome.detail(), outcome.cause());
+    }
 
     @Override
     public TreeContext loadSnapshot(String name) {
+        // ADR-026: same work, same log lines; the outcome is simply discarded.
+        return tryLoadSnapshot(name).value();
+    }
+
+    /**
+     * {@link #loadSnapshot(String)} with the outcome reported (ADR-026).
+     *
+     * @return {@link LoadResult#loaded} carrying the restored context;
+     *         {@link LoadResult#absent} when there is no such snapshot;
+     *         {@link LoadResult#malformed} naming the gate that rejected the file, which is left on
+     *         disk untouched; or {@link LoadResult#failed} carrying the {@code IOException}
+     */
+    @Override
+    public LoadResult<TreeContext> tryLoadSnapshot(String name) {
         Path path = snapshotPath(name);
         if (!Files.exists(path)) {
             logger.warn("Snapshot '{}' not found at {}", name, path);
-            return null;
+            return LoadResult.absent(name);
         }
 
         try (BufferedReader reader = Files.newBufferedReader(path)) {
@@ -255,13 +333,14 @@ public class FilePersistenceAdapter implements TreePersistenceAdapter {
             String headerLine = reader.readLine();
             if (headerLine == null) {
                 logger.warn("Snapshot '{}' is empty — no header line.", name);
-                return null;
+                return LoadResult.malformed(name, "empty file — no header line");
             }
             String[] header = headerLine.split("\\|");
             if (header.length < 4) {
                 logger.warn("Snapshot '{}' has a malformed header ({} fields, need 4): {}",
                         name, header.length, headerLine);
-                return null;
+                return LoadResult.malformed(name,
+                        "malformed header (" + header.length + " fields, need 4)");
             }
             String version      = header[0];
             String strategyName = header[2];
@@ -274,7 +353,7 @@ public class FilePersistenceAdapter implements TreePersistenceAdapter {
                 declaredSize = Integer.parseInt(header[3].trim());
             } catch (NumberFormatException e) {
                 logger.warn("Snapshot '{}' has a non-numeric size field: '{}'", name, header[3]);
-                return null;
+                return LoadResult.malformed(name, "non-numeric size field: '" + header[3] + "'");
             }
 
             TreeStrategy<Integer> strategy = resolveStrategy(strategyName);
@@ -284,7 +363,7 @@ public class FilePersistenceAdapter implements TreePersistenceAdapter {
             String dataLine = reader.readLine();
             if (dataLine == null) {
                 logger.warn("Snapshot '{}' has a header but no node data line.", name);
-                return null;
+                return LoadResult.malformed(name, "header present, no node data line");
             }
             String[] tokens = dataLine.split(";");
             TreeNode1<Integer> root  = deserializePreOrder(tokens, context.getTree().getNIL(),
@@ -303,7 +382,7 @@ public class FilePersistenceAdapter implements TreePersistenceAdapter {
             if (actualSize != declaredSize) {
                 logger.error("Snapshot '{}' size mismatch: header={}, parsed={} — refusing "
                         + "(truncated or tampered file).", name, declaredSize, actualSize);
-                return null;
+                return LoadResult.malformed(name, sizeMismatchDetail(declaredSize, actualSize));
             }
             context.forceSizeInternal(actualSize);
 
@@ -315,7 +394,7 @@ public class FilePersistenceAdapter implements TreePersistenceAdapter {
             if (!failures.isEmpty()) {
                 logger.error("Snapshot '{}' failed structural validation, refusing to load: {}",
                         name, failures);
-                return null;
+                return LoadResult.malformed(name, structuralDetail(failures));
             }
 
             // Restore the augmentor identity (5th header field, absent in legacy
@@ -326,12 +405,22 @@ public class FilePersistenceAdapter implements TreePersistenceAdapter {
             }
 
             logger.info("Snapshot '{}' loaded. strategy={} size={}", name, strategyName, actualSize);
-            return context;
+            return LoadResult.loaded(name, context);
 
         } catch (Exception e) {
-            logger.error("Failed to load snapshot '{}'", name, e);
-            return null;
+            return loadFailure(name, e);
         }
+    }
+
+    /** The MALFORMED detail for the P-2 declared-size tripwire, worded identically on all paths. */
+    private static String sizeMismatchDetail(int declared, int parsed) {
+        return "size mismatch: header=" + declared + ", parsed=" + parsed
+                + " (truncated or tampered file)";
+    }
+
+    /** The MALFORMED detail for the M-2 structural gate, worded identically on all paths. */
+    private static String structuralDetail(Object failures) {
+        return "failed structural validation: " + failures;
     }
 
     /**
@@ -458,29 +547,44 @@ public class FilePersistenceAdapter implements TreePersistenceAdapter {
      * by the caller (comparators are not serialized) and must match the one used when saving.
      * The engine is rebuilt wholesale and the set's size/window are resynced via
      * {@link OrderedSet#resyncFromEngine()}. Returns {@code null} if the file is missing or
-     * malformed.
+     * malformed — see {@link #tryLoadOrderedSet} for the version that says which.
      */
     public <K> OrderedSet<K> loadOrderedSet(String name, KeySerializer<K> keySerializer,
                                             Comparator<? super K> keyOrder) {
+        // ADR-026: same work, same log lines; the outcome is simply discarded.
+        return tryLoadOrderedSet(name, keySerializer, keyOrder).value();
+    }
+
+    /**
+     * {@link #loadOrderedSet(String, KeySerializer, Comparator)} with the outcome reported
+     * (ADR-026).
+     *
+     * @return {@link LoadResult#loaded} carrying the restored set; {@link LoadResult#absent};
+     *         {@link LoadResult#malformed} naming the gate that rejected the file; or
+     *         {@link LoadResult#failed} carrying the {@code IOException}
+     */
+    public <K> LoadResult<OrderedSet<K>> tryLoadOrderedSet(String name, KeySerializer<K> keySerializer,
+                                                           Comparator<? super K> keyOrder) {
         if (keySerializer == null) throw new IllegalArgumentException("keySerializer must not be null");
         if (keyOrder == null)      throw new IllegalArgumentException("keyOrder must not be null");
         Path path = snapshotPath(name);
         if (!Files.exists(path)) {
             logger.warn("Snapshot '{}' not found at {}", name, path);
-            return null;
+            return LoadResult.absent(name);
         }
 
         try (BufferedReader reader = Files.newBufferedReader(path)) {
             String headerLine = reader.readLine();
             if (headerLine == null) {
                 logger.warn("Snapshot '{}' is empty — no header line.", name);
-                return null;
+                return LoadResult.malformed(name, "empty file — no header line");
             }
             String[] header = headerLine.split("\\|");
             if (header.length < 4) {
                 logger.warn("Snapshot '{}' has a malformed header ({} fields, need 4): {}",
                         name, header.length, headerLine);
-                return null;
+                return LoadResult.malformed(name,
+                        "malformed header (" + header.length + " fields, need 4)");
             }
             String version      = header[0];
             String strategyName = header[2];
@@ -493,7 +597,7 @@ public class FilePersistenceAdapter implements TreePersistenceAdapter {
                 declaredSize = Integer.parseInt(header[3].trim());
             } catch (NumberFormatException e) {
                 logger.warn("Snapshot '{}' has a non-numeric size field: '{}'", name, header[3]);
-                return null;
+                return LoadResult.malformed(name, "non-numeric size field: '" + header[3] + "'");
             }
 
             TreeStrategy<K> strategy = resolveStrategy(strategyName);
@@ -503,7 +607,7 @@ public class FilePersistenceAdapter implements TreePersistenceAdapter {
             String dataLine = reader.readLine();
             if (dataLine == null) {
                 logger.warn("Snapshot '{}' has a header but no node data line.", name);
-                return null;
+                return LoadResult.malformed(name, "header present, no node data line");
             }
             String[] tokens = dataLine.split(";");
             TreeNode1<K> root = deserializePreOrder(tokens, engine.getNIL(), keySerializer);
@@ -518,7 +622,7 @@ public class FilePersistenceAdapter implements TreePersistenceAdapter {
                 // truncated file parses cleanly, and the header size is the tripwire.
                 logger.error("Snapshot '{}' size mismatch: header={}, parsed={} — refusing "
                         + "(truncated or tampered file).", name, declaredSize, actualSize);
-                return null;
+                return LoadResult.malformed(name, sizeMismatchDetail(declaredSize, actualSize));
             }
 
             // Hardening M-2: refuse a restored tree that violates ordering or the strategy's own
@@ -527,15 +631,14 @@ public class FilePersistenceAdapter implements TreePersistenceAdapter {
             if (!failures.isEmpty()) {
                 logger.error("Snapshot '{}' failed structural validation, refusing to load: {}",
                         name, failures);
-                return null;
+                return LoadResult.malformed(name, structuralDetail(failures));
             }
 
             logger.info("Snapshot '{}' loaded (generic). strategy={} size={}", name, strategyName, actualSize);
-            return set;
+            return LoadResult.loaded(name, set);
 
         } catch (Exception e) {
-            logger.error("Failed to load snapshot '{}'", name, e);
-            return null;
+            return loadFailure(name, e);
         }
     }
 
@@ -543,6 +646,12 @@ public class FilePersistenceAdapter implements TreePersistenceAdapter {
     public <K extends Comparable<? super K>> OrderedSet<K> loadOrderedSet(String name,
                                                                           KeySerializer<K> keySerializer) {
         return loadOrderedSet(name, keySerializer, Comparator.<K>naturalOrder());
+    }
+
+    /** Natural-order convenience overload of {@link #tryLoadOrderedSet} for {@link Comparable} keys. */
+    public <K extends Comparable<? super K>> LoadResult<OrderedSet<K>> tryLoadOrderedSet(
+            String name, KeySerializer<K> keySerializer) {
+        return tryLoadOrderedSet(name, keySerializer, Comparator.<K>naturalOrder());
     }
 
     // ── Persistent-engine snapshot I/O (ADR-005 P3) ─────────────────────────────
@@ -604,30 +713,56 @@ public class FilePersistenceAdapter implements TreePersistenceAdapter {
      * and must match the one used when saving. Returns {@code null} if the file is missing,
      * malformed, or not a persistent snapshot — including a file whose key count disagrees with
      * its header (P-2's tripwire, see {@link #readFlatKeys}) or whose keys are not strictly
-     * ascending (the M-2 gate the other two paths apply via {@code validateRestored}).
+     * ascending (the M-2 gate the other two paths apply via {@code validateRestored}). See
+     * {@link #tryLoadPersistent} for the version that says which of those it was.
      */
     public <K> PersistentTreeEngine<K> loadPersistent(String name, KeySerializer<K> keySerializer,
                                                       Comparator<? super K> keyOrder) {
+        // ADR-026: same work, same log lines; the outcome is simply discarded.
+        return tryLoadPersistent(name, keySerializer, keyOrder).value();
+    }
+
+    /**
+     * {@link #loadPersistent(String, KeySerializer, Comparator)} with the outcome reported
+     * (ADR-026).
+     *
+     * <p>"Not a persistent snapshot" is reported {@link LoadStatus#MALFORMED} rather than
+     * {@link LoadStatus#ABSENT}: the file is there, it is simply the wrong format for this reader,
+     * and telling the caller it is absent would invite exactly the overwrite that destroys it.</p>
+     *
+     * @return {@link LoadResult#loaded} carrying the replayed engine; {@link LoadResult#absent};
+     *         {@link LoadResult#malformed} naming the gate that rejected the file; or
+     *         {@link LoadResult#failed} carrying the {@code IOException}
+     */
+    public <K> LoadResult<PersistentTreeEngine<K>> tryLoadPersistent(
+            String name, KeySerializer<K> keySerializer, Comparator<? super K> keyOrder) {
         if (keySerializer == null) throw new IllegalArgumentException("keySerializer must not be null");
         if (keyOrder == null)      throw new IllegalArgumentException("keyOrder must not be null");
-        List<K> keys = readFlatKeys(name, keySerializer);
-        if (keys == null) return null;
+        LoadResult<List<K>> read = readFlatKeys(name, keySerializer);
+        if (!read.loaded()) return propagate(read);
+        List<K> keys = read.value();
         String orderFailure = flatOrderFailure(keys, keyOrder);
         if (orderFailure != null) {
             logger.error("Snapshot '{}' failed structural validation, refusing to load: {}",
                     name, orderFailure);
-            return null;
+            return LoadResult.malformed(name, structuralDetail(orderFailure));
         }
         PersistentTreeEngine<K> engine = new PersistentTreeEngine<>(keyOrder);
         for (K k : keys) engine.add(k);
         logger.info("Snapshot '{}' loaded (persistent). size={}", name, engine.size());
-        return engine;
+        return LoadResult.loaded(name, engine);
     }
 
     /** Natural-order convenience overload for {@link Comparable} keys. */
     public <K extends Comparable<? super K>> PersistentTreeEngine<K> loadPersistent(
             String name, KeySerializer<K> keySerializer) {
         return loadPersistent(name, keySerializer, Comparator.<K>naturalOrder());
+    }
+
+    /** Natural-order convenience overload of {@link #tryLoadPersistent} for {@link Comparable} keys. */
+    public <K extends Comparable<? super K>> LoadResult<PersistentTreeEngine<K>> tryLoadPersistent(
+            String name, KeySerializer<K> keySerializer) {
+        return tryLoadPersistent(name, keySerializer, Comparator.<K>naturalOrder());
     }
 
     /**
@@ -648,27 +783,28 @@ public class FilePersistenceAdapter implements TreePersistenceAdapter {
     }
 
     /**
-     * Parse a flat persistent snapshot's keys, or {@code null} if the file is missing, is not a
-     * persistent snapshot, or is malformed — which now includes a key count that disagrees with
-     * the header's declared size (the P-2 tripwire; see the refusal below).
+     * Parse a flat persistent snapshot's keys, reporting why not when it cannot (ADR-026): the file
+     * is missing, is not a persistent snapshot, or is malformed — which includes a key count that
+     * disagrees with the header's declared size (the P-2 tripwire; see the refusal below).
      */
-    private <K> List<K> readFlatKeys(String name, KeySerializer<K> ks) {
+    private <K> LoadResult<List<K>> readFlatKeys(String name, KeySerializer<K> ks) {
         Path path = snapshotPath(name);
         if (!Files.exists(path)) {
             logger.warn("Snapshot '{}' not found at {}", name, path);
-            return null;
+            return LoadResult.absent(name);
         }
         try (BufferedReader reader = Files.newBufferedReader(path)) {
             String headerLine = reader.readLine();
             if (headerLine == null) {
                 logger.warn("Snapshot '{}' is empty — no header line.", name);
-                return null;
+                return LoadResult.malformed(name, "empty file — no header line");
             }
             String[] header = headerLine.split("\\|");
             if (header.length < 4 || !PERSISTENT_LABEL.equals(header[2])) {
                 logger.warn("Snapshot '{}' is not a persistent snapshot (strategy='{}').",
                         name, header.length >= 3 ? header[2] : "?");
-                return null;
+                return LoadResult.malformed(name, "not a persistent snapshot (strategy='"
+                        + (header.length >= 3 ? header[2] : "?") + "')");
             }
             if (!VERSION.equals(header[0])) {
                 logger.warn("Snapshot '{}' version mismatch (file='{}', expected='{}') — attempting load anyway.",
@@ -679,12 +815,12 @@ public class FilePersistenceAdapter implements TreePersistenceAdapter {
                 declaredSize = Integer.parseInt(header[3].trim());
             } catch (NumberFormatException e) {
                 logger.warn("Snapshot '{}' has a non-numeric size field: '{}'", name, header[3]);
-                return null;
+                return LoadResult.malformed(name, "non-numeric size field: '" + header[3] + "'");
             }
             String dataLine = reader.readLine();
             if (dataLine == null) {
                 logger.warn("Snapshot '{}' has a header but no key data line.", name);
-                return null;
+                return LoadResult.malformed(name, "header present, no key data line");
             }
             List<K> keys = new ArrayList<>();
             for (String token : dataLine.split(";")) {
@@ -698,12 +834,11 @@ public class FilePersistenceAdapter implements TreePersistenceAdapter {
             if (keys.size() != declaredSize) {
                 logger.error("Snapshot '{}' size mismatch: header={}, parsed={} — refusing "
                         + "(truncated or tampered file).", name, declaredSize, keys.size());
-                return null;
+                return LoadResult.malformed(name, sizeMismatchDetail(declaredSize, keys.size()));
             }
-            return keys;
+            return LoadResult.loaded(name, keys);
         } catch (Exception e) {
-            logger.error("Failed to load snapshot '{}'", name, e);
-            return null;
+            return loadFailure(name, e);
         }
     }
 
@@ -781,40 +916,87 @@ public class FilePersistenceAdapter implements TreePersistenceAdapter {
      * validated (size tripwire + M-2 structural gate) before any key reaches the target.</p>
      *
      * @return {@code true} if the snapshot was found and replayed; {@code false} if missing or
-     *         malformed (the target is left untouched in that case)
+     *         malformed (the target is left untouched in that case) — see {@link #tryLoadEnsemble}
+     *         for the version that says which
+     * @throws IllegalArgumentException if {@code target} or {@code keySerializer} is {@code null},
+     *         or the name escapes the snapshot directory — caller defects, thrown before any I/O
      */
     public <K> boolean loadEnsemble(String name, KeySerializer<K> keySerializer, EnsembleOrderedSet<K> target) {
-        if (target == null) throw new IllegalArgumentException("target must not be null");
-        List<K> keys;
+        // ADR-026: same work, same log lines; the outcome is simply narrowed to a boolean.
+        return tryLoadEnsemble(name, keySerializer, target).loaded();
+    }
+
+    /**
+     * {@link #loadEnsemble} with the outcome reported (ADR-026).
+     *
+     * <p>The "target left untouched" guarantee is unchanged and is what makes the distinction
+     * worth having: on {@link LoadStatus#MALFORMED} or {@link LoadStatus#FAILED} the ensemble still
+     * holds whatever it held before the call, so a caller that branches on the status can keep
+     * serving from memory instead of concluding the snapshot was simply absent.</p>
+     *
+     * <p>Argument validation happens <b>before any I/O</b> and on <b>both</b> branches
+     * (audit 2026-08-17 seventh pass, finding 1). The {@code keySerializer} used to be checked
+     * only inside {@link #tryLoadOrderedSet}, i.e. only on the structured branch: a {@code null}
+     * serializer against a {@value #PERSISTENT_LABEL} snapshot reached {@code readFlatKeys},
+     * NPE'd on the first key token, and came back {@link LoadStatus#MALFORMED} — the adapter
+     * blaming a perfectly good file for the caller's defect, which is exactly the kind of wrong
+     * answer ADR-026 exists to remove. A caller defect is deterministic and is fixed by changing
+     * code, not by changing the disk, so it throws.</p>
+     *
+     * @return {@link LoadResult#loaded} carrying {@code target} itself once replayed;
+     *         {@link LoadResult#absent}; {@link LoadResult#malformed}; or {@link LoadResult#failed}
+     * @throws IllegalArgumentException if {@code target} or {@code keySerializer} is {@code null}
+     */
+    public <K> LoadResult<EnsembleOrderedSet<K>> tryLoadEnsemble(
+            String name, KeySerializer<K> keySerializer, EnsembleOrderedSet<K> target) {
+        if (target == null)        throw new IllegalArgumentException("target must not be null");
+        if (keySerializer == null) throw new IllegalArgumentException("keySerializer must not be null");
+        LoadResult<List<K>> read;
         if (PERSISTENT_LABEL.equals(snapshotStrategy(name))) {
-            keys = readFlatKeys(name, keySerializer);              // ADR-005 P3 flat format
-            if (keys != null) {
+            read = readFlatKeys(name, keySerializer);              // ADR-005 P3 flat format
+            if (read.loaded()) {
                 // The flat format carries no structure to validate, so the ordering gate is the
                 // one the other path gets from validateRestored: duplicate or inverted keys mean
                 // the replay would land fewer keys than the file claims.
-                String orderFailure = flatOrderFailure(keys, target.comparator());
+                String orderFailure = flatOrderFailure(read.value(), target.comparator());
                 if (orderFailure != null) {
                     logger.error("Snapshot '{}' failed structural validation, refusing to load "
                             + "(ensemble left untouched): {}", name, orderFailure);
-                    return false;
+                    return LoadResult.malformed(name, structuralDetail(orderFailure));
                 }
             }
         } else {
-            OrderedSet<K> loaded = loadOrderedSet(name, keySerializer, target.comparator());
-            keys = loaded == null ? null : loaded.inOrder();
+            LoadResult<OrderedSet<K>> loaded = tryLoadOrderedSet(name, keySerializer, target.comparator());
+            read = loaded.loaded() ? LoadResult.loaded(name, loaded.value().inOrder())
+                                   : propagate(loaded);
         }
-        if (keys == null) return false;                            // nothing has touched target yet
+        if (!read.loaded()) return propagate(read);                // nothing has touched target yet
         target.clear();
-        for (K k : keys) target.add(k);
+        for (K k : read.value()) target.add(k);
         logger.info("Snapshot '{}' replayed into ensemble ({} members, n={}).",
                 name, target.members().size(), target.size());
-        return true;
+        return LoadResult.loaded(name, target);
     }
 
     // ── List / Delete ─────────────────────────────────────────────────────────
 
     @Override
     public List<String> listSnapshots() {
+        // ADR-026: same work, same log line; an unreadable directory still reads as empty here.
+        return tryListSnapshots().orElse(Collections.emptyList());
+    }
+
+    /**
+     * {@link #listSnapshots()} with the outcome reported (ADR-026).
+     *
+     * @return {@link LoadResult#loaded} carrying the names — possibly an empty list, which then
+     *         genuinely means "no snapshots" — or {@link LoadResult#failed} carrying the
+     *         {@code IOException} the directory read threw (a missing or unreadable snapshot
+     *         directory arrives here as a {@code NoSuchFileException}, which is a fact about the
+     *         filesystem and not a claim that there are no snapshots)
+     */
+    @Override
+    public LoadResult<List<String>> tryListSnapshots() {
         // try-with-resources: Files.list holds an open directory handle (hygiene,
         // bug audit 2026-08-12).
         try (java.util.stream.Stream<java.nio.file.Path> paths = Files.list(Paths.get(DIR))) {
@@ -824,10 +1006,10 @@ public class FilePersistenceAdapter implements TreePersistenceAdapter {
                      String filename = p.getFileName().toString();
                      names.add(filename.substring(0, filename.length() - EXT.length()));
                  });
-            return names;
+            return LoadResult.loaded(ALL_SNAPSHOTS, names);
         } catch (IOException e) {
             logger.error("Failed to list snapshots", e);
-            return Collections.emptyList();
+            return LoadResult.failed(ALL_SNAPSHOTS, e);
         }
     }
 

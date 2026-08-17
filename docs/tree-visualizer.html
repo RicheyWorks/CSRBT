@@ -362,7 +362,11 @@ function layout(t){
 
 // ---------- canvas draw with animation ----------
 const cv=document.getElementById("tree"), cx=cv.getContext("2d");
-function fit(){ cv.width=cv.clientWidth*devicePixelRatio; cv.height=440*devicePixelRatio; cx.setTransform(devicePixelRatio,0,0,devicePixelRatio,0,0); }
+// Sizing a hidden canvas from its clientWidth writes a 0-wide backing store. In compare
+// mode #singleWrap is display:none, so a resize there used to zero the single-tree canvas
+// and setCompare(false) never re-fit it — coming back from compare mode after a resize
+// left a blank tree panel until the next resize. Measure only when we can see it.
+function fit(){ const w=cv.clientWidth; if(!w)return false; cv.width=w*devicePixelRatio; cv.height=440*devicePixelRatio; cx.setTransform(devicePixelRatio,0,0,devicePixelRatio,0,0); return true; }
 // frame() draws the compare canvases at their *current* clientWidth, but their backing
 // stores were sized once in buildCmp — so a resize in compare mode clipped (and blurred)
 // every tree until compare mode was toggled off and on. Both paths refit together now.
@@ -433,7 +437,9 @@ function setCompare(on){
   document.querySelectorAll("#stratSeg button").forEach(b=>b.classList.toggle("on",!on&&b.dataset.id===curStrat));
   document.getElementById("cmpBtn").classList.toggle("on",on);
   if(on){ CT={}; for(const s of STRATS)CT[s.id]=rebuildInto(s.id,keys); buildCmp(); document.getElementById("stratDesc").innerHTML="<b>Compare mode.</b> Same operations feed all four strategies at once. Lowest height wins — but which one wins depends on the workload."; afterCompare(); }
-  else { morphTo(curStrat); }
+  // Each panel is measurable only while it is the visible one, so each direction refits
+  // the panel it just revealed — buildCmp() does that for compare, fit() for single.
+  else { fit(); morphTo(curStrat); }
 }
 let cmpCanvases={};
 function buildCmp(){ const g=document.getElementById("cmpGrid"); g.innerHTML=""; cmpCanvases={};
@@ -444,6 +450,7 @@ function buildCmp(){ const g=document.getElementById("cmpGrid"); g.innerHTML="";
 }
 function fitCmp(){
   for(const s in cmpCanvases){ const o=cmpCanvases[s];
+    if(!o.el.clientWidth) continue;                 // hidden (single-tree mode) — same reason as fit()
     const w=Math.round(o.el.clientWidth*devicePixelRatio), h=Math.round(200*devicePixelRatio);
     if(o.el.width!==w||o.el.height!==h){ o.el.width=w; o.el.height=h; }
     o.ctx.setTransform(devicePixelRatio,0,0,devicePixelRatio,0,0); }

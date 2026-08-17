@@ -219,7 +219,12 @@ function barPath(x, y, w, h, r) {
 }
 
 function barChart(parent, values, { w = 480, h = 190, color = "var(--s1)", xLabel, tipFn, animate = true }) {
-  const yMax = Math.max(1, ...values) * 1.05;
+  /* The same axis floor lineChart got in S6-22, for the same reason: one non-finite
+     entry (a station that omitted a number, an overflowed model) made `yMax` NaN and
+     every gridline label printed "NaN" over an otherwise empty chart. Non-finite bars
+     are already skipped by the `v > 0` test below, so the axis is all that was left. */
+  const finite = values.filter(v => Number.isFinite(v));
+  const yMax = Math.max(1, ...finite) * 1.05;
   const svg = svgEl(w, h);
   const { iw, ih } = frame(svg, w, h, 4, yMax, xLabel);
   const n = values.length, gap = 2;
@@ -241,7 +246,13 @@ function barChart(parent, values, { w = 480, h = 190, color = "var(--s1)", xLabe
 }
 
 function lineChart(parent, seriesList, { w = 980, h = 230, yMax, xTicks, xLabel, tipFn, step = false, animate = true }) {
-  seriesList = seriesList.filter(s => s.pts && s.pts.length);   // hardening: never chart nothing
+  /* Never chart nothing — and never chart a lie. A series carrying one non-finite
+     point reached the DOM as "M42,NaN…"; SVG rejects the whole `d` at the first bad
+     number, so the curve vanished with nothing but a console error to show for it,
+     while the tiles beside it kept reporting numbers. Dropping the series makes the
+     absence visible, and the callers that own the inputs (the Theory Bench) say why. */
+  const finitePts = s => s.pts.every(p => Number.isFinite(p[0]) && Number.isFinite(p[1]));
+  seriesList = seriesList.filter(s => s.pts && s.pts.length && finitePts(s));
   if (!seriesList.length) return;
   /* Floor the axis the way barChart does. An all-zero series (logistic/exponential N₀ = 0,
      Levins p₀ = 0 — natural "start from nothing" inputs) would otherwise give yMax === 0,
@@ -428,7 +439,11 @@ function renderStations(S) {
     if (g) {
       const gr = document.createElement("div"); gr.className = "facet";
       gr.innerHTML = "<h3>Population over time — observed vs fitted logistic</h3>";
-      const fit = t => g.K / (1 + ((g.K - g.n0) / g.n0) * Math.exp(-g.r * t));
+      /* Mirrors LogisticGrowth.Fit.predict — including the `n₀ <= 0 → 0` guard it
+         opens with, which this copy had dropped. Without it a fit reporting n₀ = 0
+         (an all-zero population series) evaluates 0/0 for every t, and the fitted
+         curve reached the chart as "M42,NaN…" beside a perfectly drawn observed one. */
+      const fit = t => g.n0 > 0 ? g.K / (1 + ((g.K - g.n0) / g.n0) * Math.exp(-g.r * t)) : 0;
       gr.insertAdjacentHTML("beforeend",
         `<div class="legend"><span><span class="sw" style="background:var(--s1)"></span>observed</span>
          <span><span class="sw" style="background:var(--s2)"></span>logistic fit (R² ${fmt(g.r2)})</span></div>`);
@@ -1220,34 +1235,118 @@ Is it one long low ridge rather than three small ridges? | =Rose comb (R_pp) | =
     return out;
   }
 
-  /* Shared entry parser (mirrors FieldData.parseLines): name count | name,count |
-     bare-name tally. House rule — a line that cannot be parsed is *reported* with its
-     reason, exactly as the Java oracle reports it, never silently guessed at. */
+  /* ── FieldData.parseLines, transliterated ──────────────────────────────────────────────
+     Everything from here to parseCounts() mirrors the Java oracle line for line, including
+     its problem wording, and the pair is held to it by a differential test over a random
+     corpus (FieldDataJsMirrorTest). The 2026-08-17 seventh-pass audit found the splitters
+     were an exact mirror but the surrounding bare-token logic was not: `oak=5` — the shape
+     toEcoLine and this page's own "build .eco lines" button emit — parsed here as a species
+     LITERALLY NAMED "oak=5" with count 1, and a bare number was auto-named sp1/sp2/… here
+     while Java read it as a species name. Both are fixed on the side that was wrong, and
+     these three helpers exist because JS's defaults quietly differ from Java's. */
+
+  /* Java's String.trim() strips every char <= U+0020 and only those; JS's trim() strips
+     Unicode whitespace instead — it takes U+00A0, Java does not. Blank-line and field-edge
+     decisions have to agree, so use Java's rule. */
+  function jTrim(s) {
+    let a = 0, b = s.length;
+    while (a < b && s.charCodeAt(a) <= 0x20) a++;
+    while (b > a && s.charCodeAt(b - 1) <= 0x20) b--;
+    return s.slice(a, b);
+  }
+  const jSpace = c => c === " " || c === "\t" || c === "\n" || c === "\v" || c === "\f" || c === "\r";
+
+  /* Java: line.split("\\s+(?=\\S+$)") on an already-trimmed line — i.e. split at the LAST run
+     of Java whitespace, which is what a "name count" line means. Written out rather than
+     regex'd because JS's \s is wider than Java's and JS's `.` refuses U+2028/U+2029. */
+  function splitAtLastSpace(line) {
+    let i = line.length - 1;
+    while (i >= 0 && !jSpace(line[i])) i--;
+    if (i < 0) return [line];
+    let j = i;
+    while (j >= 0 && jSpace(line[j])) j--;
+    return [line.slice(0, j + 1), line.slice(i + 1)];
+  }
+
+  /* Java's Long.parseLong accepts an optional ASCII sign then any Unicode decimal digits
+     (Character.digit, not just 0-9), and rejects anything outside the signed 64-bit range.
+     asciiDigits() folds Nd digits down so BigInt can answer the range question. */
+  const ND = /^[+-]?\p{Nd}+$/u;
+  function asciiDigits(s) {
+    return s.replace(/\p{Nd}/gu, ch => {
+      const cp = ch.codePointAt(0);
+      for (let v = 0; v <= 9; v++) {
+        if (!/\p{Nd}/u.test(String.fromCodePoint(cp - v - 1))) return String(v);
+      }
+      return ch;
+    });
+  }
+  /* Long.parseLong walks the string with charAt/Character.digit(char), so a decimal digit
+     outside the BMP (𝟏 = U+1D7CF, a surrogate pair) is never a digit to it — while \p{Nd},
+     which ND and the oracle's own BARE_NUMBER share, does match it as one code point. That
+     asymmetry is the oracle's, so mirror it here: without this, "oak,𝟏𝟐" counted twelve oaks
+     on the page and was reported as "not an integer" in Java. */
+  const ASTRAL = /[\u{10000}-\u{10FFFF}]/u;
+  function parseLong(s) {                 // the numeric value, or null when Java would throw
+    if (!ND.test(s) || ASTRAL.test(s)) return null;
+    const v = BigInt(asciiDigits(s));
+    if (v < -(2n ** 63n) || v > 2n ** 63n - 1n) return null;   // Long overflow → not an integer
+    return Number(v);
+  }
+
+  const NON_POSITIVE = "count must be positive — omit a name to record absence";
+
+  /* Shared entry parser — the exact mirror of FieldData.parseLines: name count | name,count |
+     dataset,name,count | name=count | bare-name tally. House rule — a line that cannot be
+     parsed is *reported* with its reason, in the oracle's own words, never silently guessed
+     at, and a bare number (ambiguous: a count with no name, or a species named by a number)
+     is reported rather than resolved one way. */
   function parseCounts(text) {
     const counts = {}, order = [], problems = [];
-    let auto = 0;
     const add = (name, n) => {
       if (!(name in counts)) order.push(name);
       counts[name] = (counts[name] || 0) + n;
     };
-    const reject = (line, why) => problems.push(`${line}  (${why})`);
-    const wholeNumber = s => /^[+-]?\d+$/.test(s);
+    const reject = (subject, why) => problems.push(`${subject}  (${why})`);
+
+    /* FieldData.addToken: name[=count]. A bare token tallies 1; name=count sets the count and
+       reports a bad one. This is what makes `oak=5` — toEcoLine's own output — round-trip. */
+    const addToken = token => {
+      const eq = token.indexOf("=");
+      if (eq < 0) { add(token, 1); return; }
+      const name = jTrim(token.slice(0, eq)), num = jTrim(token.slice(eq + 1));
+      if (!name) { reject(token, "empty name"); return; }
+      const n = parseLong(num);
+      if (n === null) { reject(token, `count '${num}' is not an integer`); return; }
+      if (n <= 0) { reject(token, NON_POSITIVE); return; }
+      add(name, n);
+    };
+
     for (const raw of text.split("\n")) {
-      const line = raw.split("#")[0].trim();
+      const hash = raw.indexOf("#");
+      const line = jTrim(hash < 0 ? raw : raw.slice(0, hash));
       if (!line) continue;
-      const fields = splitCsvLine(line);
-      const separated = fields.length > 1;              // an explicit comma or tab
-      let parts = separated ? fields.map(s => s.trim()) : null;
-      if (!separated) {
-        const m = line.match(/^(.*\S)\s+(\S+)$/);       // "name count" — split at the last space
-        if (m) parts = [m[1].trim(), m[2].trim()];
-      }
-      if (!parts) {                                     // a single bare token
-        if (wholeNumber(line)) {                        // a count column with no names
-          const n = Number(line);
-          if (n <= 0) { reject(line, "count must be positive — omit a name to record absence"); continue; }
-          add("sp" + (++auto), n);
-        } else add(line, 1);                            // bare name → tally mark
+      /* Line-level problems quote raw.trim(), token-level problems quote the token — that is
+         what the oracle does, and a student matching a message against what they typed wants
+         the line they actually typed, comment and all. */
+      const whole = jTrim(raw);
+      let parts = splitCsvLine(line);
+      const separated = parts.length > 1;               // an explicit comma or tab
+      if (parts.length === 1) parts = splitAtLastSpace(line);
+      if (parts.length === 1) {                         // a single bare token
+        const token = jTrim(parts[0]);
+        if (ND.test(token)) {
+          /* Ambiguous, and unrecoverable downstream either way: read as a name it makes a
+             species called "12" with abundance 1, so a pasted count column becomes N species
+             of abundance 1 and J' comes out exactly 1.0000; read as a count it needs a name,
+             and inventing sp1/sp2/… writes a fabricated identifier into the student's own
+             data — it renumbers when lines move and collides with a real species called sp1.
+             So report it with both one-character fixes. */
+          reject(token, `a bare number is ambiguous — write "name,${token}" for a count, `
+                      + `or "${token},1" for a species named ${token}`);
+          continue;
+        }
+        addToken(token);
         continue;
       }
       /* Three fields is the shape FieldData.toCsv writes (dataset,name,count) — the only
@@ -1257,25 +1356,29 @@ Is it one long low ridge rather than three small ridges? | =Rose comb (R_pp) | =
          reported as a bad count. Mirrors FieldData.parseLines. */
       if (parts.length === 3) parts = [parts[1], parts[2]];
       if (parts.length !== 2) {
-        reject(line, "want: name,count or dataset,name,count or name count or a bare name");
+        reject(whole, "want: name,count or dataset,name,count or name count or a bare name");
         continue;
       }
-      const name = parts[0], num = parts[1];
-      if (!name) { reject(line, "empty name"); continue; }
-      if (!wholeNumber(num)) {
+      const name = jTrim(parts[0]), num = jTrim(parts[1]);
+      if (!name) { reject(whole, "empty name"); continue; }
+      const n = parseLong(num);
+      if (n === null) {
         /* An explicit separator means the second field IS the count, so a bad one is
            reported. Without one the whole line may be a multi-word bare name. */
-        if (separated) reject(line, `count '${num}' is not a whole number`);
-        else add(line.replace(/\s+/g, "-"), 1);
+        if (separated) reject(whole, `count '${num}' is not an integer`);
+        else addToken(line.replace(/[ \t\n\v\f\r]+/g, "-"));
         continue;
       }
-      const n = Number(num);
-      if (n <= 0) { reject(line, "count must be positive — omit a name to record absence"); continue; }
+      if (n <= 0) { reject(whole, NON_POSITIVE); continue; }
       add(name, n);
     }
     return { counts, order, problems, skipped: problems.length };
   }
-  const ecoName = s => s.replace(/\s+/g, "-").replace(/=/g, "-");
+  /* FieldData.toEcoLine's own normalization: ONE run of whitespace-or-'=' becomes ONE hyphen
+     (Java's `replaceAll("[\\s=]+", "-")`, and Java's narrower \s). Running the two replacements
+     in sequence turned a mixed run into two hyphens — `"a= b",5` round-tripped as `a--b` here
+     and `a-b` in the engine, so the same data grew a different species name on each side. */
+  const ecoName = s => s.replace(/[ \t\n\v\f\r=]+/g, "-");
   /* Problem lines are shown verbatim with their reason — the same contract as
      FieldData.Parsed.problems, so the page and the engine say the same thing. */
   const problemHtml = problems => !problems.length ? "" :
@@ -1659,14 +1762,63 @@ Is it one long low ridge rather than three small ridges? | =Rose comb (R_pp) | =
     for (const el of document.querySelectorAll(".wb-mp")) el.addEventListener("input", runTheory);
     runTheory();
   }
+  /* Read one field as a number, or report it. `+el.value` turned a blank box — and, in
+     Chromium, an unparseable one, whose `.value` reads back as "" — into 0 without a
+     word, which is how "K" quietly became 0 and the chart quietly became "M42,NaN…".
+     House rule: reported, never guessed. */
+  function numField(id, label, problems) {
+    const el = document.getElementById(id);
+    const raw = String(el.value).trim();
+    if (el.validity && el.validity.badInput) {
+      problems.push(`${label} is not a number`); return NaN;
+    }
+    if (raw === "") { problems.push(`${label} is empty — type a number`); return NaN; }
+    const v = Number(raw);
+    if (!Number.isFinite(v)) { problems.push(`${label} is '${raw}', which is not a number`); return NaN; }
+    return v;
+  }
+  const theoryProblems = problems =>
+    `<p class="wb-error">this model cannot be drawn from those numbers:</p>` +
+    `<ul class="wb-error" style="margin:2px 0 0 -8px">` +
+    problems.map(p => `<li>${esc(p)}</li>`).join("") + "</ul>";
+
   function runTheory() {
     const out = document.getElementById("wb-theory-out");
     const kind = document.getElementById("wb-model").value;
-    const p = MODEL_PARAMS[kind].map((_, i) => +document.getElementById("wb-mp" + i).value);
-    const area = Math.max(0.1, +document.getElementById("wb-area").value || 1);
-    const temp = Math.max(0, +document.getElementById("wb-temp").value || 0);
-    const wind = Math.max(0, +document.getElementById("wb-wind").value || 0);
-    const dist = Math.max(0, +document.getElementById("wb-dist").value || 0);
+    /* Domain checks are TheoreticalModels' own, with its wording — the page computes
+       its own curves, so it has to refuse exactly what the oracle refuses. `model:
+       logistic 0.15 0 5 60` and a competition run with K₁ = 0 are IllegalArgumentException
+       in Java (they used to export literal NaN, which is why the exporter now refuses
+       them); here they used to reach the chart as an invalid path and vanish silently. */
+    const problems = [];
+    const names = MODEL_PARAMS[kind].map(([n]) => n);
+    const p = names.map((n, i) => numField("wb-mp" + i, n, problems));
+    const area = numField("wb-area", "area", problems);
+    const temp = numField("wb-temp", "temperature", problems);
+    const wind = numField("wb-wind", "wind", problems);
+    const dist = numField("wb-dist", "distance", problems);
+    if (Number.isFinite(area) && !(area > 0)) problems.push("area must be > 0");
+    for (const [v, n] of [[temp, "temperature"], [wind, "wind"], [dist, "distance"]]) {
+      if (Number.isFinite(v) && v < 0) problems.push(`${n} must be >= 0`);
+    }
+    if (Number.isFinite(p[p.length - 1]) && p[p.length - 1] < 0) problems.push("steps must be >= 0");
+    if (kind === "logistic" && Number.isFinite(p[1]) && !(p[1] > 0)) {
+      problems.push("carrying capacity K must be > 0");
+    }
+    if (kind === "competition") {
+      if (Number.isFinite(p[1]) && !(p[1] > 0)) problems.push("carrying capacity K₁ must be > 0");
+      if (Number.isFinite(p[3]) && !(p[3] > 0)) problems.push("carrying capacity K₂ must be > 0");
+    }
+    /* Levins and island share a colonization/extinction pair, and a negative rate is not a
+       slower process — it reverses it. e < 0 makes 1 - e/c exceed 1, which the [0,1] clamp
+       then hides behind a confident p* = 1.0000, and in island a negative rate turns decay
+       toward equilibrium into growth away from it. Java refuses both (seventh pass, J5);
+       the page computes its own curves, so it refuses them here too. */
+    if (kind === "levins" || kind === "island") {
+      if (Number.isFinite(p[0]) && p[0] < 0) problems.push("colonization rate c must be >= 0");
+      if (Number.isFinite(p[1]) && p[1] < 0) problems.push("extinction rate e must be >= 0");
+    }
+    if (problems.length) { out.innerHTML = theoryProblems(problems); return; }
     const col = c => c * wind * temp * Math.exp(-dist);
     const ext = e => e / area;
     const steps = Math.max(1, Math.min(2000, Math.round(p[p.length - 1])));
@@ -1718,7 +1870,18 @@ Is it one long low ridge rather than three small ridges? | =Rose comb (R_pp) | =
       }
       note = `effective r=${fmt(r, 3)}`;
     }
-    out.innerHTML = `<p class="reading">${note} <span class="chip">habitat: area ${area} · temp ${temp} · wind ${wind} · distance ${dist}</span></p>`;
+    /* A trajectory can leave the range of a double even when every input was legal:
+       `exponential` with r = 100 overflows by t ≈ 8, and the chart then printed an "∞"
+       axis with the whole curve flat on the baseline — a wrong answer, delivered
+       confidently. Report it instead. (The same input makes the Java exporter write
+       a literal `Infinity` into session.json; that half is filed separately.) */
+    if (![...series, ...(series2 ?? [])].every(pt => Number.isFinite(pt[1]))) {
+      out.innerHTML = theoryProblems([
+        "the population overflows the range of a number before the last step — " +
+        "lower the rate or the number of steps"]);
+      return;
+    }
+    out.innerHTML = `<p class="reading">${note} <span class="chip">habitat: area ${esc(area)} · temp ${esc(temp)} · wind ${esc(wind)} · distance ${esc(dist)}</span></p>`;
     const holder = document.createElement("div");
     if (series2) {
       out.insertAdjacentHTML("beforeend",

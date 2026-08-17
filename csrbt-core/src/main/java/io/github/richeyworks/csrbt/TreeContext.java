@@ -98,15 +98,58 @@ public class TreeContext implements AugmentedTree<Integer>, SelfHealingTree, Ord
     private boolean historyRecording = true;
 
     // -- Constructor --
+
+    /** A context whose snapshots go through the built-in {@link FilePersistenceAdapter}. */
     public TreeContext(TreeStrategy<Integer> strategy) {
+        this(strategy, new FilePersistenceAdapter());
+    }
+
+    /**
+     * A context whose snapshots go through {@code persistenceAdapter} (wiring audit 2026-08-17,
+     * seventh pass, "needs routing").
+     *
+     * <p>{@link TreePersistenceAdapter} is a published seam whose {@code default} methods exist
+     * specifically so third parties can implement it (ADR-025/026), but this facade — the seam's
+     * main in-repo consumer — hard-wired {@code new FilePersistenceAdapter()} and offered no way
+     * to supply another one, so the seam could not actually be used where it matters. This
+     * overload and {@link #setPersistenceAdapter} are the wire; both are purely additive, so the
+     * published 0.2.0 surface is unchanged and the one-argument constructor still behaves exactly
+     * as it always has.</p>
+     *
+     * @param strategy           the balancing strategy for the backing set
+     * @param persistenceAdapter the adapter {@link #saveSnapshot} and {@link #loadSnapshot} use
+     * @throws NullPointerException if either argument is {@code null}
+     */
+    public TreeContext(TreeStrategy<Integer> strategy, TreePersistenceAdapter persistenceAdapter) {
+        Objects.requireNonNull(strategy, "strategy cannot be null");
         logger.info("=== TREE CONTEXT INITIALIZED [strategy={}] ===",
                 strategy.getClass().getSimpleName());
         this.set                = OrderedSet.withNaturalOrder(strategy);
-        this.persistenceAdapter = new FilePersistenceAdapter();
+        this.persistenceAdapter = Objects.requireNonNull(
+                persistenceAdapter, "persistenceAdapter cannot be null");
         this.diagnostics        = new TreeDiagnostics(this);
         this.cloner             = new TreeCloner(this);
         this.history            = new TreeHistory(this);
     }
+
+    /**
+     * Replace the adapter {@link #saveSnapshot} and {@link #loadSnapshot} go through.
+     *
+     * <p>The setter form of the two-argument constructor, for a context that is already built —
+     * a snapshot round-trip is deserialized into a context this caller did not construct
+     * ({@code FilePersistenceAdapter} builds one itself), so injection at construction alone
+     * would not reach every instance. Not thread-safe with an in-flight save or load; set it
+     * before the context is shared, like {@link OrderedSet#setEventListener} and the other
+     * install-once collaborator seams.</p>
+     *
+     * @throws NullPointerException if {@code adapter} is {@code null}
+     */
+    public void setPersistenceAdapter(TreePersistenceAdapter adapter) {
+        this.persistenceAdapter = Objects.requireNonNull(adapter, "adapter cannot be null");
+    }
+
+    /** The adapter this context's {@link #saveSnapshot} / {@link #loadSnapshot} go through. */
+    public TreePersistenceAdapter getPersistenceAdapter() { return persistenceAdapter; }
 
     // -- Core operations --
 
@@ -246,15 +289,82 @@ public class TreeContext implements AugmentedTree<Integer>, SelfHealingTree, Ord
 
     // -- Persistence --
 
+    /**
+     * Persist this context under {@code name}, best-effort: the signature and the
+     * "a failed save leaves the previous snapshot intact" behavior are unchanged.
+     *
+     * <p>ADR-025 gave the adapter a save outcome and ADR-026 migrated
+     * {@link #loadSnapshot(String)} onto its read-side twin; this — the save-side twin in the
+     * same facade — was left behind (audit 2026-08-17 seventh pass, finding 2). It logged
+     * {@code "Snapshot saved: 'x'"} <em>unconditionally</em>, so a full volume, a revoked
+     * permission or a commit that could not be published produced an ERROR from the adapter
+     * followed immediately by this facade announcing success. That is the same defect ADR-026
+     * fixed on the read side ("not found" for a file that was found), pointed the other way, and
+     * it is worse: the caller walks away believing state is durable.</p>
+     *
+     * <p>The outcome is now read and reported honestly. Callers that need to <em>act</em> on it
+     * should go to the adapter's {@link TreePersistenceAdapter#trySaveSnapshot} directly — this
+     * facade method stays {@code void} because its return type is published 0.2.0 API.</p>
+     */
     public void saveSnapshot(String name) {
-        persistenceAdapter.saveSnapshot(name, cloner.snapshot());
-        logger.info("Snapshot saved: '{}'", name);
+        TreePersistenceAdapter.SaveResult outcome =
+                persistenceAdapter.trySaveSnapshot(name, cloner.snapshot());
+        switch (outcome.status()) {
+            case SAVED -> logger.info("Snapshot saved: '{}'", name);
+            case FAILED -> logger.error("Snapshot '{}' was NOT saved ({}) — any previous snapshot "
+                    + "of this name is intact; this context is unchanged.", name, outcome.detail());
+            case UNREPORTED -> logger.info("Snapshot '{}' submitted; this adapter does not report "
+                    + "whether it was saved.", name);
+        }
     }
 
+    /**
+     * Replace this context's contents with a named snapshot, or leave them alone if it cannot be
+     * loaded.
+     *
+     * <p>ADR-026: the reason is now reported instead of guessed. This used to log
+     * "Snapshot 'x' not found." for every {@code null} the adapter returned — including a truncated
+     * file, a tree that failed the structural gate, and an I/O error, i.e. eight cases in which the
+     * snapshot demonstrably <em>was</em> found. The live context is left untouched either way; only
+     * the sentence changed.</p>
+     *
+     * <h2>The sliding window survives the load</h2>
+     * <p>A load pours the snapshot's <em>contents</em> into this context; it does not reconfigure it.
+     * The {@linkplain OrderedSet#setMaxSize sliding-window bound} therefore stays this context's own,
+     * and the loaded keys are evicted down to it exactly as an insert would be — the window caps what
+     * can exist, so a snapshot load can no more exceed it than an {@link #add} can. This is the same
+     * rule {@link OrderedSet#resyncFromEngine} enforces for a checkpoint restore (audit 2026-08-17,
+     * finding 20) and {@code TreeCloner.cloneContextLike} for a clone (finding 19); the snapshot path
+     * was the third member of that family and was missed.</p>
+     *
+     * <p>Before this, adopting the deserialized context's set wholesale adopted its bound too — and
+     * that set was built fresh by the adapter with {@code maxSize == 0}, so a load <em>destroyed</em>
+     * a live bound permanently: a context bounded to 3 came back reporting {@code maxSize == 0} and
+     * then grew without limit.</p>
+     *
+     * <p>A load does not <em>restore</em> a bound either, and deliberately so: the snapshot format
+     * has never recorded one (the header is {@code VERSION|TIMESTAMP|STRATEGY|SIZE|AUGMENTOR}), so
+     * there is nothing on disk to restore. Adding a field would change the file shape for a value
+     * that every 0.2.0 snapshot lacks — the live bound would still have to be the fallback — and it
+     * would make a load able to silently <em>unbound</em> a bounded context, which is the direction
+     * that loses data. The bound is a property of the container, not of the payload.</p>
+     */
     public void loadSnapshot(String name) {
-        TreeContext snapshot = persistenceAdapter.loadSnapshot(name);
+        TreePersistenceAdapter.LoadResult<TreeContext> outcome =
+                persistenceAdapter.tryLoadSnapshot(name);
+        TreeContext snapshot = outcome.value();
         if (snapshot == null) {
-            logger.warn("Snapshot '{}' not found.", name);
+            if (outcome.absent()) {
+                logger.warn("Snapshot '{}' not found.", name);
+            } else if (outcome.malformed()) {
+                logger.error("Snapshot '{}' was found but cannot be used ({}) — this context is "
+                        + "unchanged and the file is left in place.", name, outcome.detail());
+            } else if (outcome.failed()) {
+                logger.error("Snapshot '{}' could not be read ({}) — this context is unchanged; "
+                        + "the snapshot itself may be fine.", name, outcome.detail());
+            } else {
+                logger.warn("Snapshot '{}' was not loaded; this adapter does not say why.", name);
+            }
             return;
         }
         synchronized (lock) {
@@ -262,7 +372,14 @@ public class TreeContext implements AugmentedTree<Integer>, SelfHealingTree, Ord
             // rebuilt wholesale and its set's size/window resynced via
             // forceSizeInternal. Adopt that set outright, then copy the Integer-only
             // extras. (frequencyMap is preserved; history/snapshots are not wiped.)
+            int liveWindow     = set.getMaxSize();      // this context's bound, NOT the snapshot's
             this.set           = snapshot.set;
+            // Carry the live bound onto the adopted set and evict to it, exactly as
+            // resyncFromEngine does for a checkpoint restore (finding 20). setMaxSize is the
+            // one eviction path, so the survivors are the same ones an over-bound restore
+            // keeps: FIFO after a wholesale rebuild is the ascending fallback, i.e. the
+            // largest maxSize keys. A no-op when this context is unbounded.
+            this.set.setMaxSize(liveWindow);
             this.rotationCount = snapshot.rotationCount;
             this.frequencyMap.clear();
             this.frequencyMap.putAll(snapshot.frequencyMap);

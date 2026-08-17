@@ -9,7 +9,7 @@ plugins {
 }
 
 group = "io.github.richeyworks"
-version = "0.2.0"
+version = "0.2.1"
 
 java {
     withSourcesJar()
@@ -54,6 +54,10 @@ listOf(
         }
         mainClass = mainCls
         classpath = sourceSets["main"].runtimeClasspath
+        // All three read and write paths relative to the repo root (docs/…, demo/…), exactly as
+        // the ecology tasks below do. Without this, Gradle runs them in the module directory and
+        // `./gradlew viabilityMap` failed outright with NoSuchFileException: docs/viability-map.json.
+        workingDir = rootDir
         systemProperty("log4j2.loggerContextFactory",
                 "org.apache.logging.log4j.simple.SimpleLoggerContextFactory")
         systemProperty("org.apache.logging.log4j.simplelog.level", "WARN")
@@ -98,7 +102,16 @@ tasks.register<JavaExec>("ecologyExperiment") {
     mainClass = "io.github.richeyworks.csrbt.experimental.ecology.ExperimentLab"
     classpath = sourceSets["main"].runtimeClasspath
     workingDir = rootDir
-    args((project.findProperty("spec") as String?) ?: "docs/sample-experiment.eco")
+    // With no -Pspec this regenerates the SHIPPED sample bundle, so it names those outputs
+    // explicitly. With -Pspec the student's results land beside their own spec (ExperimentLab
+    // derives them), instead of overwriting docs/ecology-experiment-session.json and
+    // docs/experiment-out/ — which the invocation printed on the lab page used to do silently.
+    val specPath = project.findProperty("spec") as String?
+    if (specPath == null) {
+        args("docs/sample-experiment.eco", "docs/ecology-experiment-session.json", "docs/experiment-out")
+    } else {
+        args(specPath)
+    }
     systemProperty("log4j2.loggerContextFactory",
             "org.apache.logging.log4j.simple.SimpleLoggerContextFactory")
     systemProperty("org.apache.logging.log4j.simplelog.level", "WARN")

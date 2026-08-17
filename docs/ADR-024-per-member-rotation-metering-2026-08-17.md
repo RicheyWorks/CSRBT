@@ -113,3 +113,78 @@ verified red by reverting the corresponding fix in isolation.
 - **The window is a hard reset, not a decay.** A window in which a member happens to receive
   fewer than eight writes falls back to the stream's number rather than carrying the previous
   window's rate forward. That is the conservative direction and it is pinned.
+
+---
+
+## Amendment, same day — clause 3 holds over the pool, not only within a window
+
+The seventh-pass audit (item C) read clause 3 back against the code and found the rule enforced
+where it was written and not where it is *used*. **Reproduced end to end**, so this is an amendment
+rather than a note.
+
+**What was wrong.** "Both sides per-member or neither" was decided per evaluation window, but
+neither controller's decision reads only one window.
+
+- **V3.** `PolicySearchController` gates on `policy.shouldMorph(-incumbentCost, -bandit.meanCost(winner), …)`.
+  `meanCost` is a running mean over **every window that arm has run**, while `incumbentCost` is
+  priced from the current one. A `SAMPLED_SHADOW` at `shadowSampleRate(0.1)` takes 1 write in 10,
+  so a 70-op window leaves it at 7 received writes — below `MIN_METERED_WRITES` — and is
+  stream-priced, while the next 3 000-op window clears the floor and was priced per-member. The
+  mean then averaged the two and was compared against a single-basis incumbent.
+- **V4.** `PolicyEvolutionController` ranks this generation's bodies against surviving parents
+  still carrying the cost they were scored at, generations ago and possibly under the other
+  regime; the (μ+λ) pool is `new LinkedHashMap<>(scored)` plus `pool.putIfAbsent(p.genome(), p.cost())`.
+
+**Measured.** Splay incumbent, Red-Black laboratory at sample rate 0.1, `Random(11)`, one 70-op
+window then one 3 000-op window:
+
+```
+window 1  lab received 7 writes   -> STREAM priced      armCost 1.3724
+window 2  lab received 300 writes -> PER-MEMBER priced  armCost 0.6897   incumbent 10.4777
+bandit mean fed to shouldMorph = 1.0311   (the mean of one stream price and one per-member price)
+
+improvement fraction, mixed mean          0.9016   -> HOLD
+improvement fraction, window 2's own price 0.9342  -> PROMOTE
+```
+
+At `MorphPolicy(0, 0.9179, 1)` — a margin inside that band — the live run holds and the throne
+stays Splay. A genuinely cheaper policy was kept off the throne because the gate's numerator was a
+blend of two different measurements. The promotion decision was being taken on incomparable numbers,
+which is precisely what clause 3 exists to prevent.
+
+**The amendment.** *Every recorded cost carries both prices, and a comparison is taken on the basis
+every participant in it has.*
+
+- `PolicyBandit` keeps two means per arm: `meanStreamCost` (always defined) and `meanOwnChurnCost`
+  (defined only while **every** pull of that arm carried an own-churn price). `perMemberBasis()` is
+  true only when every live scored arm has the second, and `meanCost`, `select()`, `bestArm()` and
+  `statsLine()` all read the basis it names — so the whole scoreboard sits on one basis at a time.
+  `recordCost(arm, cost)` keeps its published meaning and now says, honestly, "no own-churn price".
+- `PolicySearchController` evaluates each window on both bases, records both, and prices the
+  incumbent — and reports `TrialResult.armCost` — on the bandit's basis rather than the window's.
+- `PolicyEvolutionController`'s `Scored` carries both costs; the pool's basis is per-member only
+  when this generation qualifies **and** every carried-over parent has an own-churn price, and the
+  throne is priced on that same basis.
+
+Short of that evidence everything falls back to the stream's number, which is exactly S6-12's
+behaviour — so clause 3's closing sentence still holds unchanged: **the refinement can never make
+the signal worse than the number it replaces.** The `event=trial_eval` churn field now prints the
+basis the decision used *and* the basis this window alone would have supported, so the two can be
+told apart from one log line.
+
+*Tests:* `SeventhPassClosureTest$PoolWideComparability` (6), each verified red by reverting the
+corresponding fix in isolation.
+
+## Held, honestly — added by the amendment
+
+- **The basis is the run's, not the window's.** One live scored arm that has ever been through an
+  unmeterable window puts the whole V3 scoreboard on the stream basis for the rest of the run,
+  because the mean it would otherwise be ranked on has no single meaning. That is the conservative
+  direction and it is pinned, but it does mean a long run with one early short window never uses
+  the refinement. Re-basing would require the bandit to keep per-window costs rather than running
+  means, which is a bigger change than the defect justifies; revisit if a real run is measured
+  losing signal to it.
+- **A carried-over parent is never re-priced.** V4 could in principle re-score a surviving parent
+  on the current generation's basis, but only bodies materialized *this* generation have an engine
+  to measure; a parent without a body has no own churn to read. Carrying both prices is what makes
+  the pool rankable without inventing one.

@@ -165,10 +165,38 @@ public class TreeEcology {
      * Computes the z-value empirically from the actual left/right subtree data.
      * log(S2/S1) / log(A2/A1) = z  (rearranged from S = cA^z)
      *
-     * A z near 0.30 means the tree's structure follows typical island dynamics.
-     * {@code z >> 0.30} suggests extreme fragmentation (very uneven subtrees).
-     * {@code z << 0.30} suggests mainland-like (subtrees very similar in composition).
+     * <p><b>Read this before quoting the number: it is 1.0, always.</b> The species-area
+     * relationship needs two "islands" whose species count S is genuinely smaller than their
+     * area A. A BST is a <i>set</i>, so every subtree's distinct-value count equals its node
+     * count: S1 = A1 and S2 = A2 by construction, and
+     * {@code log(S2/S1)/log(A2/A1) = log(A2/A1)/log(A2/A1) = 1} for every tree that has ever
+     * existed — measured over 40 random Red-Black and Splay trees of 3–300 keys plus every
+     * shipped fixture, the only two values this method can return are {@code 1.0} and
+     * {@code NaN} (an empty subtree, or A1 == A2, where the ratio is undefined). Against the
+     * bands the formula is usually read with — z ≈ 0.30 islands, z &gt; 0.35 fragmented — that
+     * constant reads "extreme fragmentation" for a perfectly balanced tree just as loudly as
+     * for a spine.</p>
+     *
+     * <p>This is the same defect as {@link #shannonEvenness()} and for the same reason, and
+     * {@code EcologyRecorder}'s own class javadoc has named it since ADR-015 ("empirical z ≡ 1").
+     * The cure is the same too: the varying quantity is <i>access</i>, not membership. Rarefaction
+     * — richness as a function of sampling effort — is the species-area curve's honest analogue
+     * over an abundance distribution; see
+     * {@link io.github.richeyworks.csrbt.experimental.ecology.CommunityMetrics#rarefiedRichness(Map, long)}
+     * and {@link io.github.richeyworks.csrbt.experimental.ecology.CommunityMetrics#chao1(Map)}
+     * fed by {@code EcologyRecorder}, where the number moves with the workload.</p>
+     *
+     * <p>The return value is unchanged so that no existing caller's arithmetic moves; what
+     * changes is that the API, and the report, stop presenting it as a measurement.</p>
+     *
+     * @deprecated structurally constant on a duplicate-free BST (1.0 whenever it is defined at
+     *             all), so it measures nothing about the tree. For a sampling-effort view of
+     *             richness use
+     *             {@link io.github.richeyworks.csrbt.experimental.ecology.CommunityMetrics#rarefiedRichness(Map, long)}
+     *             over access abundances.
+     * @return 1.0 whenever both subtrees are non-empty and of different sizes; {@code NaN} otherwise
      */
+    @Deprecated
     public double empiricalZValue() {
         TreeNode1<Integer> root = context.getTree().getRoot();
         if (root.isNil()) return 0.0;
@@ -199,7 +227,36 @@ public class TreeEcology {
      *
      * MacArthur's warblers maintained O ≈ 0.3–0.5 — enough overlap to share
      * the same tree, enough separation to avoid competitive exclusion.
+     *
+     * <p><b>Read this before quoting the number: it is 0.0, always.</b> Pianka's index is a
+     * sum over shared resource axes, and the two subtrees of a BST share none: every key in the
+     * left subtree sorts below the root and every key in the right subtree above it, so the two
+     * utilization vectors have <i>disjoint support by the search-tree invariant</i>. Every term
+     * of the numerator is {@code pL·pR} with one factor zero, so O ≡ 0 for every tree that has
+     * ever existed — measured over 40 random Red-Black and Splay trees of 3–300 keys and every
+     * shipped fixture, the set of values this method returns has exactly one element. Read
+     * against the bands above, a perfectly balanced tree and a spine both report "complete
+     * partitioning", and MacArthur's 0.3–0.5 is unreachable by construction rather than
+     * informative.</p>
+     *
+     * <p>Same defect and same cure as {@link #shannonEvenness()} and {@link #empiricalZValue()};
+     * {@code EcologyRecorder}'s class javadoc has named this one since ADR-015 ("Pianka overlap
+     * between disjoint-by-construction subtrees ≡ 0"). Overlap becomes a real measurement when
+     * the two communities are <i>access</i> distributions that can genuinely share keys — two
+     * workload phases, two recorder windows, two entered datasets — which is what
+     * {@link io.github.richeyworks.csrbt.experimental.ecology.BetaDiversity#pianka(Map, Map)}
+     * computes, and what {@code ExperimentLab} prints per consecutive phase pair.</p>
+     *
+     * <p>The return value is unchanged so that no existing caller's arithmetic moves; what
+     * changes is that the API, and the report, stop presenting it as a measurement.</p>
+     *
+     * @deprecated structurally constant at 0.0 — the subtrees of a BST are disjoint by the
+     *             search-tree invariant, so there is no niche to overlap. Use
+     *             {@link io.github.richeyworks.csrbt.experimental.ecology.BetaDiversity#pianka(Map, Map)}
+     *             over two access-abundance distributions.
+     * @return 0.0, always
      */
+    @Deprecated
     public double nicheOverlap() {
         TreeNode1<Integer> root = context.getTree().getRoot();
         if (root.isNil()) return 0.0;
@@ -502,10 +559,32 @@ public class TreeEcology {
      * Applied to tree insertions/deletions:
      *   I = insert rate  (avgInsertTimeMs inverse)
      *   E = delete rate  (avgDeleteTimeMs inverse)
-     *   P = total values ever inserted  (auditLog size proxy)
+     *   P = species pool, supplied by the caller
      *
      * Returns predicted equilibrium tree size.
+     *
+     * <p><b>Read this before quoting the number: it is not deterministic.</b> I and E are
+     * reciprocals of <i>wall-clock</i> mean latencies, so the same op stream replayed on the
+     * same tree returns a different equilibrium on a busy machine than on an idle one — and
+     * this repo's house rule since audit EC-2 is that deterministic meters decide. It is also
+     * a category error: the ratio of two <i>latencies</i> is not a ratio of immigration and
+     * extinction <i>rates</i>, and nothing in the tree limits occupancy to P, so the value
+     * simply tracks whichever of add/remove happened to run faster.</p>
+     *
+     * <p>{@link io.github.richeyworks.csrbt.experimental.ecology.LogisticGrowth} is the
+     * deterministic replacement named at EC-2: it fits r and the carrying capacity K to the
+     * op-indexed population series {@code EcologyRecorder} records, so time is the op index
+     * and nothing reads a clock. For an immigration/extinction equilibrium proper, use
+     * {@link io.github.richeyworks.csrbt.experimental.ecology.TheoreticalModels#islandEquilibrium(double, double, double)}
+     * with rates you actually measured.</p>
+     *
+     * @deprecated derives its rates from wall-clock latencies, so it is nondeterministic and
+     *             not comparable across runs (audit EC-2). Use
+     *             {@link io.github.richeyworks.csrbt.experimental.ecology.LogisticGrowth#fit(java.util.List)}
+     *             over {@code EcologyRecorder.populationSeries()}, or
+     *             {@link io.github.richeyworks.csrbt.experimental.ecology.TheoreticalModels#islandEquilibrium(double, double, double)}.
      */
+    @Deprecated
     public double colonizationEquilibrium(int speciesPool) {
         double insertRate = context.avgInsertTimeMs() == 0 ? 1.0 : 1.0 / context.avgInsertTimeMs();
         double deleteRate = context.avgDeleteTimeMs() == 0 ? 0.1 : 1.0 / context.avgDeleteTimeMs();
@@ -524,16 +603,23 @@ public class TreeEcology {
      * words instead, and the evenness that <i>is</i> measured — {@link #subtreeEvenness()},
      * the structural split evenness that {@link #rKScore()} weighs — is reported in the
      * r/K block where it is actually used, labelled for what it is (audit 2026-08-09 EC-3).</p>
+     *
+     * <p>The MacArthur-Wilson and Pianka blocks now say the same kind of thing for the same
+     * kind of reason (audit 2026-08-17 seventh pass, finding 3). {@link #empiricalZValue()} is
+     * 1.0 on every tree and {@link #nicheOverlap()} is 0.0 on every tree — both constants of the
+     * search-tree invariant, not measurements — and they were still being printed to four
+     * decimal places, each with an interpretation band beside it, in a report written for a
+     * classroom. They are replaced by the reason, exactly as evenness was; the one number in
+     * that block that <i>is</i> a function of the tree, the species-area <em>prediction</em>
+     * {@code S = c·n^z}, is kept and labelled as a prediction.</p>
      */
     public String ecologyReport() {
         int    n       = context.getSize();
         double shannon = shannonDiversity();
         double maxH    = n > 1 ? Math.log(n) : 1.0;
         int    rich    = speciesRichness();
-        double overlap = nicheOverlap();
         double rk      = rKScore();
         double splitJ  = subtreeEvenness();
-        double z       = empiricalZValue();
         TreeNode1<Integer> eve  = mitoEve();
 
         Map<Integer, int[]> stick = brokenStickDeviation();
@@ -562,11 +648,24 @@ public class TreeEcology {
             "║    (EcologyRecorder → CommunityMetrics.pielouEvenness).%n" +
             "╠══ MacArthur-Wilson (1967) ═════════════════════════════╣%n" +
             "║  Predicted S (n=%d, z=0.30) = %.2f              %n" +
-            "║  Empirical z               = %.4f               %n" +
-            "║    (z≈0.30=islands, z<0.25=mainland, z>0.35=fragmented)%n" +
+            "║    (a prediction from n alone, not a measurement of%n" +
+            "║    this tree — the canonical island z, applied to n)  %n" +
+            "║  Empirical z — not reported here. Same reason as evenness:%n" +
+            "║    the tree is a SET, so each subtree's species count S%n" +
+            "║    equals its area A, and log(S2/S1)/log(A2/A1) is 1.0 for%n" +
+            "║    every tree that has ever existed. Species-area needs a%n" +
+            "║    sample where S grows slower than A: run the workload%n" +
+            "║    instruments (EcologyRecorder → CommunityMetrics%n" +
+            "║    .rarefiedRichness), where richness answers to effort.%n" +
             "╠══ Pianka Niche Overlap (1973) ═════════════════════════╣%n" +
-            "║  O_LR      = %.4f  (left ↔ right subtree)       %n" +
-            "║    (O=1→identical niches, O=0→complete partitioning)  %n" +
+            "║  O_LR      — not reported here. The left subtree holds only%n" +
+            "║    keys below the root and the right only keys above it, so%n" +
+            "║    the two utilization vectors share no resource axis and%n" +
+            "║    Pianka's O is 0.0 for every tree that has ever existed —%n" +
+            "║    a fact about binary search trees, not about this one.%n" +
+            "║    Overlap measures something when both communities are%n" +
+            "║    TOUCH counts that can share keys: two workload phases,%n" +
+            "║    two recorder windows (BetaDiversity.pianka).        %n" +
             "╠══ r/K Selection (MacArthur & Pianka 1970) ════════════╣%n" +
             "║  Score     = %+.4f                               %n" +
             "║  Class     → %s%n" +
@@ -583,8 +682,6 @@ public class TreeEcology {
             shannon, n, maxH,
             rich,
             n, speciesAreaPrediction(n),
-            Double.isNaN(z) ? 0.0 : z,
-            overlap,
             rk, rKLabel(), splitJ,
             eve.isNil() ? -1 : eve.getData(), eve.isNil() ? -1 : eve.depth(),
             stickStr

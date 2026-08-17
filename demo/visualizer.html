@@ -415,6 +415,15 @@ function loadFile(file) {
         return;
       }
       if (obj && obj.version === 1 && Array.isArray(obj.events)) {   // a recorded session
+        // Validate before mutating, the way the persistence adapter does: enterReplay
+        // installs the chip bar and clears the tree before it lays out its first frame,
+        // so a session missing `final` (or an event missing its `state`) used to leave a
+        // replay bar over a wiped stage and report a raw "Cannot read properties of
+        // undefined" instead of saying what was wrong with the file.
+        if (!obj.final || !obj.events.every(e => e && e.state)) {
+          throw new Error("that session is incomplete — every event needs a \"state\" "
+                        + "and the file needs a \"final\" state");
+        }
         enterReplay(obj);
         return;
       }
