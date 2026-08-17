@@ -51,14 +51,39 @@ public interface TreeStrategy<K> {
     // ── Rotations: structurally identical across all three algorithms ─────────
     // AVLStrategy no longer needs to call `new RedBlackStrategy().rotateLeft()`
 
-    // Rotations use the *Local link variants: a rotation rearranges a local
-    // pair (x, y) but does not change the subtree-size of any ancestor, so the
-    // augment must be recomputed only for the touched nodes, never propagated to
-    // the root. The ancestor that adopts the new subtree root keeps the same set
-    // of descendants (augment unchanged), so it is linked locally too. This is
-    // what drops a rotation from O(height) to O(1) and an insert from O(height²)
-    // to O(height). Insert/delete BST links still use the propagating
-    // setLeft/setRight, which is where ancestor counts genuinely change.
+    // ── Which caches a rotation refreshes, and which it does NOT ──────────────
+    //
+    // Both rotations link through the *Local setters, which recompute size, augment,
+    // height and black-height for the TOUCHED nodes only — they never walk to the
+    // root. That is what keeps a rotation O(1) and an insert O(height) instead of
+    // O(height²); insert/delete BST links still use the propagating
+    // setLeft/setRight. The consequences differ per cached quantity:
+    //
+    //   size / augmentedValue — CORRECT for every node afterwards. A rotation permutes
+    //       a local pair (x, y) without changing which keys live under any ancestor, so
+    //       no ancestor's subtree size or subtree augment can change. The ancestor that
+    //       adopts the new subtree root keeps exactly the same descendants, which is why
+    //       it too is linked locally. Order statistics therefore stay exact.
+    //
+    //   height / blackHeight — MAY GO STALE for ancestors. A rotation can change the
+    //       height of the rotated subtree's root, and that genuinely propagates upward,
+    //       but nothing here propagates it. AVLStrategy and HybridStrategy mask this:
+    //       their rebalance passes call TreeNode1.refreshHeight() on every node from the
+    //       modification point up to the root after rotating, so the cache is current by
+    //       the time they read a balance factor. RedBlackStrategy and
+    //       WeightBalancedStrategy do not rebalance by height and never refresh it, so on
+    //       those strategies TreeNode1.getHeight() / getBlackHeight() on an ANCESTOR of a
+    //       rotation can read high until the next propagating link refreshes that path.
+    //       (Reproduced in AUDIT-2026-08-17 finding 21: an RB node reporting height 5
+    //       where the real height is 4.) Callers wanting a trustworthy height on those
+    //       strategies must recompute it — TreeNode1.refreshHeight() bottom-up, or an
+    //       O(n) walk — rather than trust the cached accessor.
+    //
+    // Propagating heights from here was deliberately deferred (AUDIT-2026-08-14 F-1):
+    // it would restore the O(height) rotation cost this design exists to remove, and no
+    // in-tree consumer needs an ancestor height mid-rotation. The limitation is documented
+    // rather than fixed; do not "fix" it by switching to the propagating setters without
+    // re-measuring the insert path.
 
     default void rotateLeft(MutableTree<K> tree, TreeNode1<K> x) {
         TreeNode1<K> y      = x.getRight();

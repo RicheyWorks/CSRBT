@@ -222,10 +222,24 @@ public final class ExperimentLab {
             for (int i = 1; i < windows.size(); i++) {
                 bray[i - 1] = BetaDiversity.brayCurtis(windows.get(i - 1), windows.get(i));
             }
+            // The recorder retains only its most recent windows and evicts the rest, so a
+            // position in that list is NOT its window number in the run. Labelling the
+            // retained list from 1 made end-of-run drift read as opening drift (audit
+            // 2026-08-17 finding 28): with window 50 and a 5000-op phase, 100 windows
+            // close, 36 are dropped, and row "1->2" was really windows 37→38.
+            long dropped = global.evictedWindowCount();
+            if (dropped > 0) {
+                report.append(String.format(Locale.ROOT,
+                        "  Drift: %d windows of %d ops closed, the most recent %d kept — "
+                        + "windows 1–%d were dropped, so this series starts at window %d.%n%n",
+                        global.closedWindowCount(), spec.window(), windows.size(),
+                        dropped, dropped + 1));
+            }
             if (exports != null) {
                 for (int i = 0; i < bray.length; i++) {
+                    long from = dropped + i + 1;        // absolute window number, 1-based
                     ExperimentExport.row(exports, "drift.csv", "transition,brayCurtis",
-                            (i + 1) + "->" + (i + 2),
+                            from + "->" + (from + 1),
                             String.format(Locale.ROOT, "%.6f", bray[i]));
                 }
             }

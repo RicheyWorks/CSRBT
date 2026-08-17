@@ -163,6 +163,16 @@ const chaoRead = (s, c) => (c - s) < .5 ? `Chao1 says the survey is complete (�
                  : `Chao1 estimates ≈ ${fmt(c,0)} — about ${fmt(c - s,0)} rare keys unseen`;
 const fmt = (x, d=2) => Number(x).toLocaleString("en-US", {maximumFractionDigits: d});
 
+/* Every string that reaches innerHTML from outside this file — a dropped .eco session,
+   a textarea, a thrown message quoting either — goes through here first. `ExperimentLab`
+   escapes for JSON, not for HTML (the same module's ExperimentExport.escapeHtml proves
+   the codebase knows the difference), so a note like "nesting <in the hedge>" would
+   otherwise parse as an unknown element and vanish — and a shared protocol would be a
+   script-injection vector for whoever drops it in. */
+const esc = s => String(s ?? "")
+  .replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;")
+  .replace(/"/g, "&quot;").replace(/'/g, "&#39;");
+
 /* ── tiny chart kit (thin marks, rounded data-ends, hover layer) ──────────── */
 const tip = document.getElementById("tooltip");
 function showTip(ev, html) {
@@ -233,7 +243,11 @@ function barChart(parent, values, { w = 480, h = 190, color = "var(--s1)", xLabe
 function lineChart(parent, seriesList, { w = 980, h = 230, yMax, xTicks, xLabel, tipFn, step = false, animate = true }) {
   seriesList = seriesList.filter(s => s.pts && s.pts.length);   // hardening: never chart nothing
   if (!seriesList.length) return;
+  /* Floor the axis the way barChart does. An all-zero series (logistic/exponential N₀ = 0,
+     Levins p₀ = 0 — natural "start from nothing" inputs) would otherwise give yMax === 0,
+     Y(v) would evaluate 0/0, and the curve would silently vanish as "M40,NaN…". */
   yMax = yMax ?? Math.max(...seriesList.flatMap(s => s.pts.map(p => p[1]))) * 1.08;
+  if (!(yMax > 0)) yMax = 1;                                    // flat-at-zero draws on the baseline
   const svg = svgEl(w, h);
   const { iw, ih } = frame(svg, w, h, 4, yMax, xLabel);
   const xs = seriesList[0].pts.map(p => p[0]);
@@ -253,12 +267,20 @@ function lineChart(parent, seriesList, { w = 980, h = 230, yMax, xTicks, xLabel,
     const path = el("path", { d, fill: "none", stroke: s.color, "stroke-width": 2,
                               "stroke-linejoin": "round", "stroke-linecap": "round" });
     if (s.dash) path.setAttribute("stroke-dasharray", "5 4");
-    else if (animate) {
-      path.classList.add("grow-line");
-      const len = 3000; path.style.setProperty("--len", len);
-      path.setAttribute("stroke-dasharray", len);
-    }
     svg.append(path);
+    if (!s.dash && animate) {
+      /* Measure the path instead of assuming 3000 user units — a long trace draws a
+         path longer than that and would sit permanently inside the dash gap. The
+         dasharray is removed once the draw-on finishes so nothing is left masked. */
+      let len = 0;
+      try { len = path.getTotalLength(); } catch (e) { len = 0; }
+      if (!(len > 0)) len = 3000;                               // measurement unavailable
+      path.classList.add("grow-line");
+      path.style.setProperty("--len", len);
+      path.setAttribute("stroke-dasharray", len);
+      path.addEventListener("animationend", () => path.removeAttribute("stroke-dasharray"),
+                            { once: true });
+    }
   }
   const cross = el("line", { y1: M.t, y2: M.t + ih, class: "baseline", "stroke-dasharray": "3 3", opacity: 0 });
   svg.append(cross);
@@ -272,8 +294,9 @@ function lineChart(parent, seriesList, { w = 980, h = 230, yMax, xTicks, xLabel,
     cross.setAttribute("x1", X(xs[bi])); cross.setAttribute("x2", X(xs[bi]));
     cross.setAttribute("opacity", 1);
     seriesList.forEach((s, si) => {
-      dots[si].setAttribute("cx", X(s.pts[bi][0]));
-      dots[si].setAttribute("cy", Y(s.pts[bi][1]));
+      const pt = s.pts[bi] ?? s.pts[s.pts.length - 1];          // series of unequal length
+      dots[si].setAttribute("cx", X(pt[0]));
+      dots[si].setAttribute("cy", Y(pt[1]));
       dots[si].setAttribute("opacity", 1);
     });
     showTip(ev, tipFn(bi));
@@ -293,11 +316,12 @@ function card(emoji, title, whatis) {
   document.getElementById("main").append(c);
   return c;
 }
-const tile = (v, l) => `<div class="tile"><div class="v">${v}</div><div class="l">${l}</div></div>`;
+/* Tiles and table cells only ever carry values, never markup — so both escape. */
+const tile = (v, l) => `<div class="tile"><div class="v">${esc(v)}</div><div class="l">${esc(l)}</div></div>`;
 function dataTable(card, headers, rows) {
   const d = document.createElement("details");
   d.innerHTML = `<summary>Data table</summary><table><tr>${headers.map(h => `<th>${h}</th>`).join("")}</tr>` +
-    rows.map(r => `<tr>${r.map(x => `<td>${x}</td>`).join("")}</tr>`).join("") + "</table>";
+    rows.map(r => `<tr>${r.map(x => `<td>${esc(x)}</td>`).join("")}</tr>`).join("") + "</table>";
   card.append(d);
 }
 
@@ -314,41 +338,45 @@ function render(S) {
 function renderStations(S) {
 
   /* The meadow — diversity (field day: two phases; trace: one) */
-  if (S.meadow && S.meadow.phases) {
+  if (S.meadow && S.meadow.phases && S.meadow.phases.length) {
     const m = S.meadow;
     const c = card("🌾", "The Meadow — diversity of the access community",
       "Species = keys, abundance = touches. Shannon H′, Pielou J′, the effective-species (Hill) number, " +
       "and Chao1's how-much-did-we-miss estimate — the numbers the structural indices provably cannot vary on.");
     for (const p of m.phases) {
       c.insertAdjacentHTML("beforeend",
-        `<div class="tiles">${tile(fmt(p.evenness), `J′ — ${p.name.toLowerCase()}`)}
+        `<div class="tiles">${tile(fmt(p.evenness), `J′ — ${String(p.name ?? "").toLowerCase()}`)}
          ${tile(fmt(p.hill1, 1), "effective species")}${tile(fmt(p.chao1, 0), "Chao1 est. richness")}
-         ${tile(p.bestFit.replace("_", " ").toLowerCase(), "curve shape")}</div>
-         <p class="reading"><b>${p.name}:</b> ${evenness(p.evenness)}. ${chaoRead(p.richness, p.chao1)}.</p>`);
+         ${tile(String(p.bestFit ?? "—").replace("_", " ").toLowerCase(), "curve shape")}</div>
+         <p class="reading"><b>${esc(p.name)}:</b> ${evenness(p.evenness)}. ${chaoRead(p.richness, p.chao1)}.</p>`);
     }
     const f = document.createElement("div"); f.className = "facets";
     for (const p of m.phases) {
       const facet = document.createElement("div"); facet.className = "facet";
-      facet.innerHTML = `<h3>${p.name} — touches per key (rank order)</h3>`;
-      barChart(facet, p.rank, { w: 480, h: 180, xLabel: "rank",
+      facet.innerHTML = `<h3>${esc(p.name)} — touches per key (rank order)</h3>`;
+      barChart(facet, p.rank ?? [], { w: 480, h: 180, xLabel: "rank",
         tipFn: (i, v) => `rank <b>${i + 1}</b> · <b>${fmt(v, 0)}</b> touches` });
       f.append(facet);
     }
     c.append(f);
-    /* rarefaction curves — species vs sampling effort */
-    const hasRarefaction = m.phases.some(p => p.rarefaction && p.rarefaction.length);
-    if (hasRarefaction) {
+    /* rarefaction curves — species vs sampling effort. lineChart drops empty series, so
+       the tooltip has to read the same filtered list — walking m.phases would throw on
+       every mousemove for a phase whose rarefaction is []. */
+    const rPhases = m.phases.filter(p => p.rarefaction && p.rarefaction.length);
+    if (rPhases.length) {
     const rc = document.createElement("div");
     rc.innerHTML = `<p class="h3">Rarefaction — species found vs survey effort (the curve flattening means the survey saturated)</p>`;
-    if (m.phases.length > 1) {
+    if (rPhases.length > 1) {
       rc.insertAdjacentHTML("beforeend",
-        `<div class="legend">${m.phases.map((p, i) =>
-          `<span><span class="sw" style="background:var(--s${i + 1})"></span>${p.name}</span>`).join("")}</div>`);
+        `<div class="legend">${rPhases.map((p, i) =>
+          `<span><span class="sw" style="background:var(--s${i + 1})"></span>${esc(p.name)}</span>`).join("")}</div>`);
     }
-    lineChart(rc, m.phases.map((p, i) => ({ color: `var(--s${i + 1})`, pts: p.rarefaction })),
+    lineChart(rc, rPhases.map((p, i) => ({ color: `var(--s${i + 1})`, pts: p.rarefaction })),
       { w: 980, h: 190, xLabel: "individuals sampled",
-        tipFn: bi => m.phases.map((p, i) =>
-          `<b>${p.name}</b>: ${fmt(p.rarefaction[bi][1], 1)} species at ${fmt(p.rarefaction[bi][0], 0)} draws`).join("<br>") });
+        tipFn: bi => rPhases.map(p => {
+          const q = p.rarefaction[bi] ?? p.rarefaction[p.rarefaction.length - 1];
+          return `<b>${esc(p.name)}</b>: ${fmt(q[1], 1)} species at ${fmt(q[0], 0)} draws`;
+        }).join("<br>") });
     c.append(rc);
     }
     if (m.pianka !== undefined) {
@@ -361,11 +389,11 @@ function renderStations(S) {
   }
 
   /* The drift — trace sessions: workload change over the run */
-  if (S.drift) {
+  if (S.drift && S.drift.bray && S.drift.bray.length) {
     const d = S.drift;
     const peak = d.bray.indexOf(Math.max(...d.bray));
     const c = card("🌊", "The Drift — how the workload changed while it ran",
-      `Bray–Curtis turnover between consecutive ${d.windowOps}-op windows. Spikes are regime shifts — ` +
+      `Bray–Curtis turnover between consecutive ${esc(d.windowOps)}-op windows. Spikes are regime shifts — ` +
       "the early-warning experiment shows abrupt shifts land in exactly one window (lag 0).");
     c.insertAdjacentHTML("beforeend",
       `<p class="reading">Sharpest change at window <b>${peak + 1} → ${peak + 2}</b> ` +
@@ -376,8 +404,9 @@ function renderStations(S) {
   }
 
   /* The census — survivorship + growth */
-  if (S.demography || S.growth) {
-    const d = S.demography, g = S.growth;
+  if ((S.demography && S.demography.survivorship) || (S.growth && S.growth.series)) {
+    const d = S.demography && S.demography.survivorship ? S.demography : null;
+    const g = S.growth && S.growth.series ? S.growth : null;
     const c = card("📋", "The Census — who lives how long, and how the population grew",
       "Inserts are births, removes are deaths, ages count in operations. Cohort life table + Verhulst logistic fit.");
     const tiles = [];
@@ -393,7 +422,7 @@ function renderStations(S) {
         { w: 480, h: 190, yMax: 1.05, step: true, xLabel: "age (ops)",
           xTicks: d.survivorship.map((_, x) => x * d.classWidth).filter((_, i) => i % 2 === 0),
           tipFn: i => `age class <b>${fmt(i * d.classWidth, 0)}–${fmt((i + 1) * d.classWidth, 0)} ops</b><br>` +
-                      `surviving: <b>${fmt(d.survivorship[i] * 100, 0)}%</b> · deaths here: <b>${d.deaths[i]}</b>` });
+                      `surviving: <b>${fmt(d.survivorship[i] * 100, 0)}%</b> · deaths here: <b>${(d.deaths ?? [])[i] ?? "—"}</b>` });
       f.append(sv);
     }
     if (g) {
@@ -412,32 +441,52 @@ function renderStations(S) {
     }
     c.append(f);
     if (d) dataTable(c, ["age class start", "surviving %", "deaths"],
-      d.survivorship.map((l, x) => [fmt(x * d.classWidth, 0), fmt(l * 100, 1), d.deaths[x]]));
+      d.survivorship.map((l, x) => [fmt(x * d.classWidth, 0), fmt(l * 100, 1), (d.deaths ?? [])[x] ?? "—"]));
   }
 
   /* The archipelago */
-  if (S.archipelago) {
+  if (S.archipelago && S.archipelago.timeline && S.archipelago.timeline.length) {
     const a = S.archipelago;
     const c = card("🏝️", "The Archipelago — ensemble members as habitat patches",
       "Quarantine is a local extinction; healing from the primary is recolonization. Levins model vs direct measurement.");
+    /* The verdict uses FieldReport.LEVINS_AGREEMENT = 0.15, the same band the printed
+       report uses — the page must not grade more leniently than the oracle. The prose
+       below therefore explains the numbers instead of widening the band: `levins` is a
+       rate estimate averaged over the whole event record, while `observed` is a single
+       snapshot (the last survey), so a run that happens to end on a peak can miss by
+       less than one patch and still be scored a disagreement. */
+    const occ = a.timeline.map(p => p.occupancy);
+    const lo = Math.min(...occ), hi = Math.max(...occ);
+    const swing = hi - lo, gap = a.observed - a.levins;
+    const dir = gap > 0 ? "below" : "above";
     c.insertAdjacentHTML("beforeend",
       `<div class="tiles">${tile(a.extinctions, "local extinctions")}${tile(a.recolonizations, "recolonizations")}
        ${tile(fmt(a.levins * 100, 0) + "%", "Levins predicted occupancy")}${tile(fmt(a.observed * 100, 0) + "%", "observed occupancy")}</div>
-       <p class="reading">${Math.abs(a.levins - a.observed) <= 0.15
-          ? "<b>Model and observation agree</b> — the event record captures the dynamics."
-          : "<b>Model and observation disagree</b> — with balanced storm/recovery cycles the ratio estimator predicts an empty archipelago while every patch is occupied. That gap is the lesson: survey design matters, and events between surveys are invisible."}</p>`);
+       <p class="reading">${Math.abs(gap) <= 0.15
+          ? `<b>Model and observation agree</b> — Levins predicts <b>${fmt(a.levins * 100, 0)}%</b> patch
+             occupancy from the event record and the last survey found <b>${fmt(a.observed * 100, 0)}%</b>,
+             inside the ±15-point band the field report uses. The event record captures the dynamics.`
+          : `<b>Model and observation disagree</b> — Levins predicts <b>${fmt(a.levins * 100, 0)}%</b> patch
+             occupancy from the whole event record, but the last survey found
+             <b>${fmt(a.observed * 100, 0)}%</b>: the model reads <b>${fmt(Math.abs(gap) * 100, 0)} points
+             ${dir}</b> the snapshot. Across these <b>${a.timeline.length}</b> surveys occupancy swung between
+             <b>${fmt(lo * 100, 0)}%</b> and <b>${fmt(hi * 100, 0)}%</b> — a
+             <b>${fmt(swing * 100, 0)}-point</b> range, wider than the ±15-point agreement band, so a run
+             that ends on a peak is scored as disagreement even when nothing is wrong. That gap is the
+             lesson: the model averages the storm cycle, the tile above reports one moment, and events
+             between surveys are invisible.`}</p>`);
     const w = document.createElement("div");
     w.innerHTML = "<p class='h3'>Patch occupancy through the storm cycles</p>";
     lineChart(w, [{ color: "var(--s3)", pts: a.timeline.map(p => [p.survey, p.occupancy]) }],
       { w: 980, h: 180, yMax: 1.0, step: true, xLabel: "survey",
         xTicks: a.timeline.map(p => p.survey),
-        tipFn: i => `survey <b>${a.timeline[i].survey}</b> · occupancy <b>${fmt(a.timeline[i].occupancy * 100, 0)}%</b>` });
+        tipFn: i => `survey <b>${esc(a.timeline[i].survey)}</b> · occupancy <b>${fmt(a.timeline[i].occupancy * 100, 0)}%</b>` });
     c.append(w);
     dataTable(c, ["survey", "occupancy %"], a.timeline.map(p => [p.survey, fmt(p.occupancy * 100, 0)]));
   }
 
   /* The fossil record */
-  if (S.fossils) {
+  if (S.fossils && S.fossils.generations && S.fossils.generations.length) {
     const f = S.fossils;
     const c = card("🦴", "The Fossil Record — strata of the persistent engine",
       "Each snapshot is a preserved stratum later edits cannot rewrite: inherited, gained, and lost per generation.");
@@ -454,9 +503,9 @@ function renderStations(S) {
     const w = document.createElement("div");
     w.innerHTML = "<p class='h3'>Inherited fraction, each stratum → the next</p>";
     barChart(w, gens.map(g => g.inherited), { w: 980, h: 170, color: "var(--s1)", xLabel: "stratum transition",
-      tipFn: i => `stratum <b>${gens[i].g} → ${gens[i].g + 1}</b><br>keys inherited <b>${fmt(gens[i].inherited * 100, 0)}%</b>` +
+      tipFn: i => `stratum <b>${esc(gens[i].g)} → ${esc(Number(gens[i].g) + 1)}</b><br>keys inherited <b>${fmt(gens[i].inherited * 100, 0)}%</b>` +
                   (gens[i].structural !== undefined ? ` · physical nodes <b>${fmt(gens[i].structural * 100, 0)}%</b>` : "") +
-                  `<br>gained <b>${gens[i].gains}</b> · lost <b>${gens[i].losses}</b>` });
+                  `<br>gained <b>${esc(gens[i].gains)}</b> · lost <b>${esc(gens[i].losses)}</b>` });
     c.append(w);
     dataTable(c, ["transition", "inherited %", "gained", "lost"],
       gens.map(g => [`${g.g} → ${g.g + 1}`, fmt(g.inherited * 100, 0), g.gains, g.losses]));
@@ -472,21 +521,21 @@ function renderStations(S) {
                      ["spread", "Evenly sown", "var(--s3)"]];
     for (const [key, label, color] of entries) {
       const q = g[key];
-      if (!q) continue;
+      if (!q || !q.counts) continue;
       const facet = document.createElement("div"); facet.className = "facet";
       facet.innerHTML = `<h3>${label} — individuals per quadrat
         <span class="chip">${dispersion(q.dispersion).split(" — ")[0]}</span></h3>`;
       barChart(facet, q.counts, { w: 480, h: 170, color,
-        xLabel: "quadrat", tipFn: (i, v) => `quadrat <b>${i + 1}</b> · <b>${v}</b> individuals` });
+        xLabel: "quadrat", tipFn: (i, v) => `quadrat <b>${i + 1}</b> · <b>${esc(v)}</b> individuals` });
       facet.insertAdjacentHTML("beforeend",
         `<p class="reading">variance/mean <b>${fmt(q.dispersion)}</b> · Morisita <b>${fmt(q.morisita)}</b>: ${dispersion(q.dispersion)}.</p>`);
       const lv = g[key + "Leaves"];
-      if (lv) {
+      if (lv && lv.counts) {
         const fillRead = lv.fill >= .85 ? "tightly packed" : lv.fill >= .6 ? "healthy fill (~ln 2 steady state)" : "sparse pages";
         facet.insertAdjacentHTML("beforeend",
           `<h3>… and the engine's own pages <span class="chip">${lv.counts.length} leaves · ${fmt(lv.fill * 100, 0)}% full — ${fillRead}</span></h3>`);
         barChart(facet, lv.counts, { w: 480, h: 120, color: "var(--s1)", xLabel: "leaf (chain order)",
-          tipFn: (i, v) => `leaf <b>${i + 1}</b> · <b>${v}</b> of ${lv.fanout} keys` });
+          tipFn: (i, v) => `leaf <b>${i + 1}</b> · <b>${esc(v)}</b> of ${esc(lv.fanout)} keys` });
       }
       f.append(facet);
     }
@@ -500,7 +549,7 @@ function renderStations(S) {
     const f = document.createElement("div"); f.className = "facets";
     for (const m of S.models) {
       const facet = document.createElement("div"); facet.className = "facet";
-      facet.innerHTML = `<h3>${m.label}</h3>`;
+      facet.innerHTML = `<h3>${esc(m.label)}</h3>`;
       if (m.kind === "hardyweinberg") {
         const st = m.stats;
         facet.insertAdjacentHTML("beforeend",
@@ -508,7 +557,7 @@ function renderStations(S) {
            ${tile(fmt(st.chi2, 2), "χ² (df 1)")}</div>
            <p class="reading">${st.inEquilibrium ? "✅ consistent with Hardy–Weinberg equilibrium"
                                                  : "❌ significantly out of equilibrium"}.
-           Observed AA/Aa/aa: <b>${st.observed.join(" / ")}</b> · expected: <b>${st.expected.map(e => fmt(e, 0)).join(" / ")}</b></p>`);
+           Observed AA/Aa/aa: <b>${esc(st.observed.join(" / "))}</b> · expected: <b>${st.expected.map(e => fmt(e, 0)).join(" / ")}</b></p>`);
       } else if (m.kind === "eulerlotka") {
         const st = m.stats;
         facet.insertAdjacentHTML("beforeend",
@@ -521,18 +570,18 @@ function renderStations(S) {
         facet.insertAdjacentHTML("beforeend",
           `<div class="tiles">${st.lincolnPetersen !== null ? tile(fmt(st.lincolnPetersen, 0), "Lincoln–Petersen N̂") : ""}
            ${tile(fmt(st.chapman, 0), "Chapman N̂")}${tile(`${fmt(st.low95, 0)}–${fmt(st.high95, 0)}`, "95% CI")}</div>
-           <p class="reading">marked <b>${st.marked}</b>, caught <b>${st.caught}</b>, recaptured <b>${st.recaptured}</b>.
+           <p class="reading">marked <b>${esc(st.marked)}</b>, caught <b>${esc(st.caught)}</b>, recaptured <b>${esc(st.recaptured)}</b>.
            Assumes a closed population, no lost marks, equal catchability — say so in your write-up.</p>`);
       } else if (m.series2) {
         facet.insertAdjacentHTML("beforeend",
-          `<div class="legend"><span><span class="sw" style="background:var(--s1)"></span>${m.seriesLabel}</span>
-           <span><span class="sw" style="background:var(--s2)"></span>${m.series2Label}</span></div>`);
+          `<div class="legend"><span><span class="sw" style="background:var(--s1)"></span>${esc(m.seriesLabel)}</span>
+           <span><span class="sw" style="background:var(--s2)"></span>${esc(m.series2Label)}</span></div>`);
         lineChart(facet, [
             { color: "var(--s1)", pts: m.series },
             { color: "var(--s2)", pts: m.series2 }],
           { w: 480, h: 170, xLabel: "t",
-            tipFn: i => `t=<b>${fmt(m.series[i][0], 0)}</b> · ${m.seriesLabel}: <b>${fmt(m.series[i][1], 1)}</b>` +
-                        ` · ${m.series2Label}: <b>${fmt(m.series2[i][1], 1)}</b>` });
+            tipFn: i => `t=<b>${fmt(m.series[i][0], 0)}</b> · ${esc(m.seriesLabel)}: <b>${fmt(m.series[i][1], 1)}</b>` +
+                        ` · ${esc(m.series2Label)}: <b>${fmt(m.series2[i][1], 1)}</b>` });
       } else {
         if (m.equilibrium !== undefined) {
           facet.insertAdjacentHTML("beforeend",
@@ -555,8 +604,8 @@ function renderStations(S) {
     const f = document.createElement("div"); f.className = "facets";
     for (const cr of S.crosses) {
       const facet = document.createElement("div"); facet.className = "facet";
-      const ratio = Object.entries(cr.phenotypes).map(([k, v]) => `${v} ${k}`).join(" : ");
-      facet.innerHTML = `<h3>${cr.label} <span class="chip">${cr.dominance.toLowerCase()} dominance</span></h3>`;
+      const ratio = Object.entries(cr.phenotypes ?? {}).map(([k, v]) => `${esc(v)} ${esc(k)}`).join(" : ");
+      facet.innerHTML = `<h3>${esc(cr.label)} <span class="chip">${esc(String(cr.dominance ?? "").toLowerCase())} dominance</span></h3>`;
       facet.insertAdjacentHTML("beforeend", punnettHtml(cr.g1, cr.g2, cr.square, cr.dominance === "INCOMPLETE"));
       facet.insertAdjacentHTML("beforeend", `<p class="reading">phenotype ratio: <b>${ratio}</b>` +
         (cr.chi2 !== undefined ? ` · observed χ² = <b>${fmt(cr.chi2, 3)}</b> — ${cr.consistent
@@ -574,11 +623,11 @@ function renderStations(S) {
     const f = document.createElement("div"); f.className = "facets";
     for (const d of S.entered) {
       const facet = document.createElement("div"); facet.className = "facet";
-      facet.innerHTML = `<h3>${d.name} <span class="chip">${d.total} records</span></h3>
+      facet.innerHTML = `<h3>${esc(d.name)} <span class="chip">${esc(d.total)} records</span></h3>
         <div class="tiles">${tile(d.richness, "kinds")}${tile(fmt(d.shannon, 2), "Shannon H′")}
         ${tile(fmt(d.evenness, 2), "evenness J′")}${tile(fmt(d.chao1, 0), "Chao1 est.")}</div>`;
-      barChart(facet, d.counts, { w: 480, h: 130, color: "var(--s3)", xLabel: "kind",
-        tipFn: (i, v) => `<b>${d.labels[i]}</b> · <b>${v}</b>` });
+      barChart(facet, d.counts ?? [], { w: 480, h: 130, color: "var(--s3)", xLabel: "kind",
+        tipFn: (i, v) => `<b>${esc((d.labels ?? [])[i] ?? i + 1)}</b> · <b>${esc(v)}</b>` });
       f.append(facet);
     }
     c.append(f);
@@ -590,7 +639,7 @@ function renderStations(S) {
       "note: lines from the protocol. Numbers say how much; the notebook says what it was like out there.");
     for (const n of S.notes) {
       c.insertAdjacentHTML("beforeend",
-        `<p class="reading">${n.about ? `<span class="chip">${n.about}</span> ` : "• "}${n.text}</p>`);
+        `<p class="reading">${n.about ? `<span class="chip">${esc(n.about)}</span> ` : "• "}${esc(n.text)}</p>`);
     }
   }
 
@@ -601,9 +650,10 @@ function renderStations(S) {
       "hypothesis of descent — same picture, different meaning.");
     const f = document.createElement("div"); f.className = "facets";
     for (const t of S.trees) {
+      if (!t || !t.root) continue;
       const facet = document.createElement("div"); facet.className = "facet";
       const leaves = countLeaves(t.root);
-      facet.innerHTML = `<h3>${t.label} <span class="chip">${leaves} taxa</span></h3>`;
+      facet.innerHTML = `<h3>${esc(t.label)} <span class="chip">${leaves} taxa</span></h3>`;
       drawCladogram(facet, t.root);
       f.append(facet);
     }
@@ -618,21 +668,22 @@ function renderStations(S) {
       const mark = h.verdict === "CONFIRMED" ? "✅" : h.verdict === "REFUTED" ? "❌" : "⚠";
       const obs = h.observed === undefined ? "" :
         typeof h.observed === "string"
-          ? ` (observed <b>"${h.observed}"</b>${h.value !== undefined ? ` — ${fmt(h.value, 4)}` : ""})`
+          ? ` (observed <b>&quot;${esc(h.observed)}&quot;</b>${h.value !== undefined ? ` — ${fmt(h.value, 4)}` : ""})`
           : ` (observed ${fmt(h.observed, 4)})`;
       c.insertAdjacentHTML("beforeend",
-        `<p class="reading">${mark} <b>${h.verdict}</b> — <code>${h.expr}</code>${obs}</p>`);
+        `<p class="reading">${mark} <b>${esc(h.verdict)}</b> — <code>${esc(h.expr)}</code>${obs}</p>`);
     }
   }
 
   /* The island */
-  if (S.island) {
+  if (S.island && S.island.timeline && S.island.timeline.length) {
     const isl = S.island;
     const c = card("🌋", "The Island — the cache at carrying capacity",
       "A bounded habitat: admissions immigrate, evictions go locally extinct. The MacArthur–Wilson signature: richness flat, composition churning.");
+    const lastSurvey = isl.timeline.at(-1) ?? {};              // guarded like S.meadow.phases above
     c.insertAdjacentHTML("beforeend",
       `<div class="tiles">${tile(isl.capacity, "capacity (island area)")}${tile(isl.immigrations, "immigrations")}
-       ${tile(isl.extinctions, "extinctions")}${tile(fmt(isl.timeline.at(-1).turnover, 1), "turnover / interval")}</div>
+       ${tile(isl.extinctions, "extinctions")}${tile(lastSurvey.turnover === undefined ? "—" : fmt(lastSurvey.turnover, 1), "turnover / interval")}</div>
        <p class="reading"><b>The equilibrium signature:</b> a full island that is never the same island twice.</p>`);
     const f = document.createElement("div"); f.className = "facets";
     const r = document.createElement("div"); r.className = "facet";
@@ -640,7 +691,7 @@ function renderStations(S) {
     lineChart(r, [{ color: "var(--s1)", pts: isl.timeline.map(p => [p.survey, p.richness]) }],
       { w: 480, h: 160, yMax: isl.capacity * 1.15, step: true, xLabel: "survey",
         xTicks: isl.timeline.map(p => p.survey),
-        tipFn: i => `survey <b>${isl.timeline[i].survey}</b> · residents <b>${isl.timeline[i].richness}</b> of ${isl.capacity}` });
+        tipFn: i => `survey <b>${esc(isl.timeline[i].survey)}</b> · residents <b>${esc(isl.timeline[i].richness)}</b> of ${esc(isl.capacity)}` });
     f.append(r);
     const t = document.createElement("div"); t.className = "facet";
     t.innerHTML = "<h3>Turnover per interval — the churn underneath</h3>";
@@ -874,7 +925,25 @@ function setupTerrarium() {
 }
 
 /* ── genetics kit (mirrors MendelianGenetics.java / PopulationGenetics.java) ── */
-const CHI_CRIT = [3.841, 5.991, 7.815, 9.488, 11.070, 12.592, 14.067, 15.507];
+/* χ² critical values at α = 0.05, df 1‥30 — the table has to cover every df this page
+   can actually produce. jsCross permits 3 loci, and an incomplete-dominance trihybrid
+   has 27 phenotype classes (df = 26); the old 8-entry table made `chi <= undefined`
+   false, so a perfect Mendelian fit printed "critical undefined — ❌ significantly off
+   the ratio". Anything past the table is answered by the Wilson–Hilferty approximation
+   and labelled as an approximation rather than rendered as `undefined`. */
+const CHI_CRIT = [
+   3.841,  5.991,  7.815,  9.488, 11.070, 12.592, 14.067, 15.507, 16.919, 18.307,
+  19.675, 21.026, 22.362, 23.685, 24.996, 26.296, 27.587, 28.869, 30.144, 31.410,
+  32.671, 33.924, 35.172, 36.415, 37.652, 38.885, 40.113, 41.337, 42.557, 43.773,
+];
+/** χ²₀.₀₅ for a given df: tabulated where we have it, Wilson–Hilferty beyond. */
+function chiCritical(df) {
+  if (!Number.isInteger(df) || df < 1) return null;
+  if (df <= CHI_CRIT.length) return { value: CHI_CRIT[df - 1], exact: true };
+  const z = 1.6448536269514722;                       // the 95th percentile of N(0,1)
+  const t = 1 - 2 / (9 * df) + z * Math.sqrt(2 / (9 * df));
+  return { value: df * t * t * t, exact: false };
+}
 function jsCross(p1, p2, incomplete) {
   const loci = g => {
     if (!g || g.length % 2 || g.length > 6) throw Error("genotype must be 1–3 letter pairs (Aa, AaBb)");
@@ -932,6 +1001,22 @@ function jsCross(p1, p2, incomplete) {
   }
   return { g1, g2, square, phen, pheno };
 }
+/* A generated phenotype scale. The four-entry list this replaced had `transparent` in
+   slot 4 and was clamped with Math.min(idx, 3), so an incomplete-dominance dihybrid
+   (9 phenotype classes) coloured three and left six blank — false exactly where the
+   "colors by phenotype" claim matters most. A trihybrid can reach 27 classes, so the
+   scale cycles nine widely-spaced hues (the first three are the page's own --s1/--s2/--s3)
+   across three lightness bands: neighbouring classes never share a hue, and a repeated
+   hue always differs in lightness, which is the channel that survives colour-blindness.
+   Alphas stay low so the white cell text keeps its contrast on the dark page. */
+const PHEN_HUES = [212, 22, 160, 276, 47, 330, 190, 88, 300];
+function phenTint(i) {
+  if (!(i >= 0)) return "transparent";
+  const hue = PHEN_HUES[i % PHEN_HUES.length];
+  const band = Math.floor(i / PHEN_HUES.length) % 3;
+  const light = [58, 78, 40][band], alpha = [0.30, 0.22, 0.44][band];
+  return `hsla(${hue}, 62%, ${light}%, ${alpha})`;
+}
 function punnettHtml(g1, g2, square, incomplete) {
   const phenOf = g => {
     if (incomplete) return g;
@@ -944,14 +1029,13 @@ function punnettHtml(g1, g2, square, incomplete) {
     return s;
   };
   const phenIdx = {};
-  const tint = ["rgba(57,135,229,.28)", "rgba(217,89,38,.28)", "rgba(25,158,112,.28)", "transparent"];
-  let h = '<table class="punnett"><tr><th></th>' + g2.map(g => `<th>${g}</th>`).join("") + "</tr>";
+  let h = '<table class="punnett"><tr><th></th>' + g2.map(g => `<th>${esc(g)}</th>`).join("") + "</tr>";
   for (let r = 0; r < square.length; r++) {
-    h += `<tr><th>${g1[r]}</th>`;
+    h += `<tr><th>${esc(g1[r])}</th>`;
     for (const cell of square[r]) {
       const p = phenOf(cell);
       if (!(p in phenIdx)) phenIdx[p] = Object.keys(phenIdx).length;
-      h += `<td style="background:${tint[Math.min(phenIdx[p], 3)]}">${cell}</td>`;
+      h += `<td style="background:${phenTint(phenIdx[p])}">${esc(cell)}</td>`;
     }
     h += "</tr>";
   }
@@ -966,7 +1050,9 @@ function jsChiFit(observed, ratio) {
     chi += (observed[i] - e) ** 2 / e;
   }
   const df = observed.length - 1;
-  return { chi, df, crit: CHI_CRIT[df - 1], ok: chi <= CHI_CRIT[df - 1] };
+  const crit = chiCritical(df);
+  if (!crit) return { chi, df, crit: null, exact: false, ok: null };   // reported, never guessed
+  return { chi, df, crit: crit.value, exact: crit.exact, ok: chi <= crit.value };
 }
 
 /* ── the workbench: enter your own data, run your own theory ─────────────── */
@@ -1113,42 +1199,103 @@ Is it one long low ridge rather than three small ridges? | =Rose comb (R_pp) | =
 
   const on = (id, fn) => document.getElementById(id).addEventListener("input", fn);
 
-  /* shared entry parser (mirrors FieldData): name count | name,count | bare-name tally */
+  /* RFC-4180 field splitter — the exact semantics of ExperimentExport.splitCsv (plus tab
+     as a separator, which the table form also accepts). Without it a quoted spreadsheet
+     name splits on the comma inside its own quotes, and the engine's own FieldData.toCsv
+     rows (`site,"a,b",3`) cannot be pasted back into the tool that wrote them. */
+  function splitCsvLine(line) {
+    const out = [];
+    let cur = "", quoted = false;
+    for (let i = 0; i < line.length; i++) {
+      const ch = line[i];
+      if (quoted) {
+        if (ch === '"' && line[i + 1] === '"') { cur += '"'; i++; }
+        else if (ch === '"') quoted = false;
+        else cur += ch;
+      } else if (ch === '"') quoted = true;
+      else if (ch === "," || ch === "\t") { out.push(cur); cur = ""; }
+      else cur += ch;
+    }
+    out.push(cur);
+    return out;
+  }
+
+  /* Shared entry parser (mirrors FieldData.parseLines): name count | name,count |
+     bare-name tally. House rule — a line that cannot be parsed is *reported* with its
+     reason, exactly as the Java oracle reports it, never silently guessed at. */
   function parseCounts(text) {
-    const counts = {}, order = [];
-    let skipped = 0, auto = 0;
+    const counts = {}, order = [], problems = [];
+    let auto = 0;
+    const add = (name, n) => {
+      if (!(name in counts)) order.push(name);
+      counts[name] = (counts[name] || 0) + n;
+    };
+    const reject = (line, why) => problems.push(`${line}  (${why})`);
+    const wholeNumber = s => /^[+-]?\d+$/.test(s);
     for (const raw of text.split("\n")) {
       const line = raw.split("#")[0].trim();
       if (!line) continue;
-      let name, n;
-      const csv = line.split(/[,\t]/).map(s => s.trim()).filter(Boolean);
-      const toks = line.split(/\s+/);
-      const last = Number(toks[toks.length - 1]);
-      if (csv.length === 2 && Number.isFinite(Number(csv[1]))) { name = csv[0]; n = Number(csv[1]); }
-      else if (toks.length > 1 && Number.isFinite(last)) { name = toks.slice(0, -1).join(" "); n = last; }
-      else if (toks.length === 1 && Number.isFinite(last)) { name = "sp" + (++auto); n = last; }
-      else { name = line; n = 1; }                                  // bare name → tally mark
-      if (!name || !Number.isFinite(n) || n <= 0 || !Number.isInteger(n)) { skipped++; continue; }
-      if (!(name in counts)) order.push(name);
-      counts[name] = (counts[name] || 0) + n;
+      const fields = splitCsvLine(line);
+      const separated = fields.length > 1;              // an explicit comma or tab
+      let parts = separated ? fields.map(s => s.trim()) : null;
+      if (!separated) {
+        const m = line.match(/^(.*\S)\s+(\S+)$/);       // "name count" — split at the last space
+        if (m) parts = [m[1].trim(), m[2].trim()];
+      }
+      if (!parts) {                                     // a single bare token
+        if (wholeNumber(line)) {                        // a count column with no names
+          const n = Number(line);
+          if (n <= 0) { reject(line, "count must be positive — omit a name to record absence"); continue; }
+          add("sp" + (++auto), n);
+        } else add(line, 1);                            // bare name → tally mark
+        continue;
+      }
+      /* Three fields is the shape FieldData.toCsv writes (dataset,name,count) — the only
+         shape that carries a dataset label, so accepting it costs no ambiguity: a
+         two-field row is always name,count. Drop the label (this table has no column for
+         it) and judge the rest normally, so a bad count in an export row is still
+         reported as a bad count. Mirrors FieldData.parseLines. */
+      if (parts.length === 3) parts = [parts[1], parts[2]];
+      if (parts.length !== 2) {
+        reject(line, "want: name,count or dataset,name,count or name count or a bare name");
+        continue;
+      }
+      const name = parts[0], num = parts[1];
+      if (!name) { reject(line, "empty name"); continue; }
+      if (!wholeNumber(num)) {
+        /* An explicit separator means the second field IS the count, so a bad one is
+           reported. Without one the whole line may be a multi-word bare name. */
+        if (separated) reject(line, `count '${num}' is not a whole number`);
+        else add(line.replace(/\s+/g, "-"), 1);
+        continue;
+      }
+      const n = Number(num);
+      if (n <= 0) { reject(line, "count must be positive — omit a name to record absence"); continue; }
+      add(name, n);
     }
-    return { counts, order, skipped };
+    return { counts, order, problems, skipped: problems.length };
   }
   const ecoName = s => s.replace(/\s+/g, "-").replace(/=/g, "-");
+  /* Problem lines are shown verbatim with their reason — the same contract as
+     FieldData.Parsed.problems, so the page and the engine say the same thing. */
+  const problemHtml = problems => !problems.length ? "" :
+    `<p class="wb-error">${problems.length} line(s) not counted:</p><ul class="wb-error" style="margin:2px 0 0 -8px">` +
+    problems.slice(0, 6).map(p => `<li>${esc(p)}</li>`).join("") +
+    (problems.length > 6 ? `<li>… and ${problems.length - 6} more</li>` : "") + "</ul>";
 
   /* field data */
   function runField() {
     const out = document.getElementById("wb-field-out");
-    const { counts, skipped } = parseCounts(document.getElementById("wb-field").value);
+    const { counts, problems } = parseCounts(document.getElementById("wb-field").value);
     const vals = Object.values(counts).filter(c => c > 0);
     const N = vals.reduce((a, b) => a + b, 0);
-    if (!N) { out.innerHTML = '<p class="wb-error">no usable counts yet</p>'; return; }
+    if (!N) { out.innerHTML = '<p class="wb-error">no usable counts yet</p>' + problemHtml(problems); return; }
     const H = jsShannon(vals);
     const S = vals.length, J = S > 1 ? H / Math.log(S) : 1;
     out.innerHTML =
       `<div class="tiles">${tile(S, "species")}${tile(fmt(H, 2), "Shannon H′")}${tile(fmt(J, 2), "evenness J′")}
        ${tile(fmt(Math.exp(H), 1), "effective species")}${tile(fmt(jsChao1(vals), 0), "Chao1 est.")}</div>
-       <p class="reading">${evenness(J)}.${skipped ? ` <span class="wb-error">(${skipped} line(s) skipped)</span>` : ""}</p>`;
+       <p class="reading">${evenness(J)}.</p>${problemHtml(problems)}`;
     const holder = document.createElement("div");
     barChart(holder, vals.slice().sort((a, b) => b - a), { w: 480, h: 120, animate: false,
       xLabel: "rank", tipFn: (i, v) => `rank <b>${i + 1}</b> · <b>${v}</b>` });
@@ -1198,7 +1345,7 @@ Is it one long low ridge rather than three small ridges? | =Rose comb (R_pp) | =
       const inc = document.getElementById("wb-inc").checked;
       const cr = jsCross(document.getElementById("wb-p1").value.trim(),
                          document.getElementById("wb-p2").value.trim(), inc);
-      const ratio = Object.entries(cr.phen).map(([k, v]) => `${v} ${k}`).join(" : ");
+      const ratio = Object.entries(cr.phen).map(([k, v]) => `${v} ${esc(k)}`).join(" : ");
       let html = punnettHtml(cr.g1, cr.g2, cr.square, inc) +
         `<p class="reading">phenotype ratio: <b>${ratio}</b></p>`;
       const obsRaw = document.getElementById("wb-obs").value.trim();
@@ -1207,16 +1354,20 @@ Is it one long low ridge rather than three small ridges? | =Rose comb (R_pp) | =
         const expected = Object.values(cr.phen);
         if (obs.length === expected.length) {
           const fit = jsChiFit(obs, expected);
-          html += `<p class="reading">observed vs expected: χ² = <b>${fmt(fit.chi, 3)}</b> (df ${fit.df},
-            critical ${fit.crit}) — ${fit.ok ? "✅ consistent with the Mendelian ratio"
-                                             : "❌ significantly off the ratio"}.</p>`;
+          html += fit.crit === null
+            ? `<p class="wb-error">observed χ² = ${fmt(fit.chi, 3)}, but there is no critical value for
+               df ${fit.df} — the fit cannot be graded, so it is not being graded.</p>`
+            : `<p class="reading">observed vs expected: χ² = <b>${fmt(fit.chi, 3)}</b> (df ${fit.df},
+               critical ${fit.exact ? "" : "≈ "}${fmt(fit.crit, 3)}${fit.exact ? "" : ", Wilson–Hilferty approximation"})
+               — ${fit.ok ? "✅ consistent with the Mendelian ratio"
+                          : "❌ significantly off the ratio"}.</p>`;
         } else {
           html += `<p class="wb-error">observed needs ${expected.length} counts (one per phenotype, in ratio order)</p>`;
         }
       }
       out.innerHTML = html;
     } catch (err) {
-      out.innerHTML = `<p class="wb-error">${err.message}</p>`;
+      out.innerHTML = `<p class="wb-error">${esc(err.message)}</p>`;
     }
   }
   document.getElementById("wb-preset").addEventListener("change", ev => {
@@ -1235,7 +1386,10 @@ Is it one long low ridge rather than three small ridges? | =Rose comb (R_pp) | =
     const A = parseCounts(document.getElementById("wb-siteA").value);
     const B = parseCounts(document.getElementById("wb-siteB").value);
     const sa = new Set(A.order), sb = new Set(B.order);
-    if (!sa.size || !sb.size) { out.innerHTML = '<p class="wb-error">enter counts for both sites</p>'; return; }
+    const siteProblems = problemHtml([...A.problems, ...B.problems]);
+    if (!sa.size || !sb.size) {
+      out.innerHTML = '<p class="wb-error">enter counts for both sites</p>' + siteProblems; return;
+    }
     const shared = [...sa].filter(x => sb.has(x));
     const union = sa.size + sb.size - shared.length;
     const j = union ? shared.length / union : 0;
@@ -1251,7 +1405,7 @@ Is it one long low ridge rather than three small ridges? | =Rose comb (R_pp) | =
     out.innerHTML =
       `<div class="tiles">${tile(fmt(j, 2), "Jaccard")}${tile(fmt(sor, 2), "Sørensen")}${tile(fmt(bc, 2), "Bray–Curtis")}</div>
        <p class="reading">share <b>${shared.length}</b> of <b>${union}</b> kinds — ${word}.
-       ${shared.length ? `Shared: ${shared.join(", ")}.` : ""}</p>`;
+       ${shared.length ? `Shared: ${esc(shared.join(", "))}.` : ""}</p>${siteProblems}`;
   }
 
   /* mark–recapture — Lincoln–Petersen + Chapman (mirrors MarkRecapture.java) */
@@ -1284,17 +1438,17 @@ Is it one long low ridge rather than three small ridges? | =Rose comb (R_pp) | =
       if (p.length !== 3 || p.some(x => !x)) { errs.push(`line ${i + 1}: need question | yes | no`); return; }
       couplets.push({ q: p[0], yes: p[1], no: p[2] });
     });
-    if (errs.length) { out.innerHTML = errs.map(e => `<p class="wb-error">${e}</p>`).join(""); return; }
+    if (errs.length) { out.innerHTML = errs.map(e => `<p class="wb-error">${esc(e)}</p>`).join(""); return; }
     if (!couplets.length) { out.innerHTML = '<p class="wb-error">no couplets yet</p>'; return; }
     const trail = [];
     function goto(target) {
       if (target.startsWith("=")) {
-        out.innerHTML = `${trailHtml()}<p class="reading">🔎 identification: <b>${target.slice(1)}</b></p>`;
+        out.innerHTML = `${trailHtml()}<p class="reading">🔎 identification: <b>${esc(target.slice(1))}</b></p>`;
         addRestart(); return;
       }
       const n = Number(target);
       if (!Number.isInteger(n) || n < 1 || n > couplets.length) {
-        out.innerHTML = `${trailHtml()}<p class="wb-error">bad target '${target}' — use a line number or =Answer</p>`;
+        out.innerHTML = `${trailHtml()}<p class="wb-error">bad target '${esc(target)}' — use a line number or =Answer</p>`;
         addRestart(); return;
       }
       /* Cycle guard: a key like "1 | 1 | 1" would walk forever. A dichotomous key
@@ -1304,7 +1458,7 @@ Is it one long low ridge rather than three small ridges? | =Rose comb (R_pp) | =
         addRestart(); return;
       }
       const c = couplets[n - 1];
-      out.innerHTML = `${trailHtml()}<p class="reading"><b>${n}.</b> ${c.q}</p>`;
+      out.innerHTML = `${trailHtml()}<p class="reading"><b>${n}.</b> ${esc(c.q)}</p>`;
       const yes = document.createElement("button");
       yes.className = "wb-btn good"; yes.type = "button"; yes.textContent = "yes";
       yes.addEventListener("click", () => { trail.push(`${n}: yes`); goto(c.yes); });
@@ -1315,7 +1469,7 @@ Is it one long low ridge rather than three small ridges? | =Rose comb (R_pp) | =
       out.append(yes, no);
     }
     function trailHtml() {
-      return trail.length ? `<p class="keytrail">${trail.join(" → ")}</p>` : "";
+      return trail.length ? `<p class="keytrail">${esc(trail.join(" → "))}</p>` : "";
     }
     function addRestart() {
       const b = document.createElement("button");
@@ -1334,7 +1488,7 @@ Is it one long low ridge rather than three small ridges? | =Rose comb (R_pp) | =
       out.innerHTML = `<div class="tiles">${tile(countLeaves(root), "taxa")}${tile(treeDepth(root), "depth")}</div>`;
       drawCladogram(out, root);
     } catch (err) {
-      out.innerHTML = `<p class="wb-error">${err.message}</p>`;
+      out.innerHTML = `<p class="wb-error">${esc(err.message)}</p>`;
     }
   }
 
@@ -1380,7 +1534,11 @@ Is it one long low ridge rather than three small ridges? | =Rose comb (R_pp) | =
       if (a && b) cards.push(flip ? { q: b, a: a } : { q: a, a: b });
     }
     if (!cards.length) { out.innerHTML = '<p class="wb-error">no cards — one per line as prompt = answer</p>'; return; }
-    const rnd = mulberry32(+document.getElementById("wb-deckseed").value || 42);
+    /* `+value || 42` sent seed 0 — a perfectly ordinary thing for a student to ask for —
+       silently back to the default deck order, because 0 is falsy. */
+    const seedText = document.getElementById("wb-deckseed").value.trim();
+    const seedNum = Number(seedText);
+    const rnd = mulberry32(seedText !== "" && Number.isFinite(seedNum) ? seedNum : 42);
     for (let i = cards.length - 1; i > 0; i--) {                     // seeded Fisher–Yates
       const j = Math.floor(rnd() * (i + 1));
       [cards[i], cards[j]] = [cards[j], cards[i]];
@@ -1390,11 +1548,22 @@ Is it one long low ridge rather than three small ridges? | =Rose comb (R_pp) | =
     function show() {
       if (idx >= cards.length) {
         if (missed.length) {
-          out.innerHTML = `<p class="reading">score so far: <b>${right}/${seen}</b> — reviewing the
-            <b>${missed.length}</b> you missed.</p>`;
-          cards.length = 0; cards.push(...missed.splice(0));
-          idx = 0;
-          card();
+          /* This used to write the message and then call card() in the same synchronous
+             turn, which overwrote it before it could ever paint — the counter just reset
+             to "card 1 of 5" with no explanation. The review round now starts on a click,
+             so the transition is actually visible. */
+          const n = missed.length;
+          out.innerHTML = `<p class="reading">end of the deck — score so far: <b>${right}/${seen}</b>.
+            <b>${n}</b> card${n === 1 ? "" : "s"} to review.</p>`;
+          const go = document.createElement("button");
+          go.className = "wb-btn"; go.type = "button";
+          go.textContent = `review the ${n} you missed`;
+          go.addEventListener("click", () => {
+            cards.length = 0; cards.push(...missed.splice(0));
+            idx = 0;
+            card();
+          });
+          out.append(go);
           return;
         }
         out.innerHTML = `<p class="reading">🏁 done — <b>${right}/${seen}</b> right. Change the seed to
@@ -1406,11 +1575,11 @@ Is it one long low ridge rather than three small ridges? | =Rose comb (R_pp) | =
     function card() {
       const c = cards[idx];
       out.innerHTML = `<div class="flashcard">card ${idx + 1} of ${cards.length} · score ${right}/${seen}
-        <div style="margin-top:8px;font-weight:600">${c.q}</div><div id="wb-card-a"></div></div>`;
+        <div style="margin-top:8px;font-weight:600">${esc(c.q)}</div><div id="wb-card-a"></div></div>`;
       const reveal = document.createElement("button");
       reveal.className = "wb-btn"; reveal.type = "button"; reveal.textContent = "reveal";
       reveal.addEventListener("click", () => {
-        document.getElementById("wb-card-a").innerHTML = `<div class="answer">${c.a}</div>`;
+        document.getElementById("wb-card-a").innerHTML = `<div class="answer">${esc(c.a)}</div>`;
         reveal.remove();
         const good = document.createElement("button");
         good.className = "wb-btn good"; good.type = "button"; good.textContent = "✓ got it";
@@ -1585,8 +1754,17 @@ Is it one long low ridge rather than three small ridges? | =Rose comb (R_pp) | =
 /* ── session loading ──────────────────────────────────────────────────────── */
 setupTerrarium();
 setupWorkbench();
-if (SESSION) render(SESSION);
-else document.getElementById("main").innerHTML =
+/* The drop handler has always had a try; the initial render had none, so a bad embed
+   left a blank page instead of an error card. Both degrade the same way now. */
+if (SESSION) {
+  try { render(SESSION); }
+  catch (e) {
+    document.getElementById("main").innerHTML =
+      `<section class="card"><h2>⚠️ Could not chart the embedded session</h2>
+       <p class="reading">${esc(e.message)}</p>
+       <p class="reading">The Terrarium and Workbench above still work — they do not read the session.</p></section>`;
+  }
+} else document.getElementById("main").innerHTML =
   '<section class="card"><h2>No session embedded</h2><p class="reading">Run <b>./gradlew ecologyFieldDay</b> (or <b>ecologyTrace</b>), then drop the generated JSON onto this page.</p></section>';
 
 addEventListener("dragover", ev => { ev.preventDefault(); document.body.classList.add("dragging"); });
@@ -1599,7 +1777,7 @@ addEventListener("drop", ev => {
     try { render(JSON.parse(t)); }
     catch (e) {
       document.getElementById("main").insertAdjacentHTML("afterbegin",
-        `<section class="card"><h2>⚠️ Could not read that file</h2><p class="reading">${e.message}</p></section>`);
+        `<section class="card"><h2>⚠️ Could not read that file</h2><p class="reading">${esc(e.message)}</p></section>`);
     }
   });
 });

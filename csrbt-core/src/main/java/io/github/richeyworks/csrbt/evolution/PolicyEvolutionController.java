@@ -135,15 +135,44 @@ public final class PolicyEvolutionController<K> {
     // ── Data plane (the V3 facade, verbatim) ─────────────────────────────────────
 
     public boolean add(K key) {
+        EnsembleMember<K> metered = ensemble.primary();
+        long rot0 = rotationMeter(metered);
         boolean changed = ensemble.add(key);
-        if (changed) monitor.recordAdd(Objects.hashCode(key));
+        if (changed) monitor.recordAdd(Objects.hashCode(key), rotationsSince(metered, rot0));
         return changed;
     }
 
     public boolean remove(K key) {
+        EnsembleMember<K> metered = ensemble.primary();
+        long rot0 = rotationMeter(metered);
         boolean changed = ensemble.remove(key);
-        if (changed) monitor.recordRemove(Objects.hashCode(key));
+        if (changed) monitor.recordRemove(Objects.hashCode(key), rotationsSince(metered, rot0));
         return changed;
+    }
+
+    /** The member's live engine rotation counter, or {@code -1} when it has none (engine-tier). */
+    private static <K> long rotationMeter(EnsembleMember<K> m) {
+        return m.isStrategyBacked() ? m.orderedSet().rotationCount() : -1L;
+    }
+
+    /**
+     * Rotations the serving primary's engine performed across one logical write — the feed
+     * {@code Fitness}'s write term never had (AUDIT_2026-07-21 <b>F-E1</b>, sixth-pass finding 12).
+     * This facade used to call the {@link WorkloadMonitor} one-arg defaults, i.e. pass a literal 0,
+     * so {@code writeCost = writeFraction × rotationsPerWrite} was identically 0.0 and V4 selection
+     * was decided purely by the structural read term — a genome that thrashed rotations survived
+     * whenever its tree was momentarily shallower.
+     *
+     * <p>Metered on the primary because the primary receives every write while nursery shadows see
+     * a sampled stream: this is the <em>stream's</em> realized churn. Clamped at zero per
+     * {@link io.github.richeyworks.csrbt.OrderedSet#rotationCount()} — a morph swaps the engine and
+     * resets the counter.</p>
+     */
+    private static <K> int rotationsSince(EnsembleMember<K> m, long before) {
+        if (before < 0L) return 0;                       // engine-tier member: no rotation meter
+        long after = rotationMeter(m);
+        if (after < 0L) return 0;
+        return (int) Math.max(0L, Math.min(Integer.MAX_VALUE, after - before));
     }
 
     public boolean contains(K key) {
@@ -245,6 +274,7 @@ public final class PolicyEvolutionController<K> {
         Map<PolicyGenome, Double> scored = new LinkedHashMap<>();
         Map<PolicyGenome, EnsembleMember<K>> bodies = new LinkedHashMap<>();
         int deaths = 0;
+        int uninformative = 0;
         for (Map.Entry<EnsembleMember<K>, PolicyGenome> t : onTrial.entrySet()) {
             OrderedSet<K> set = t.getKey().orderedSet();
             PolicyGenome g = t.getValue();
@@ -253,6 +283,18 @@ public final class PolicyEvolutionController<K> {
             if (!violations.isEmpty()) {
                 kill(g, "own invariant failed under live churn: " + violations.get(0));
                 deaths++;
+                continue;
+            }
+            if (!Fitness.informative(set.size())) {
+                // Sixth-pass finding 8: an empty or single-keyed body — the SAMPLED_SHADOW norm at
+                // a low sample rate — costs exactly 0.0, which is not a cheap genome but the
+                // absence of a measurement. Scoring it put a free 0.0 at the head of the pool,
+                // where it out-selected every real parent and could be promoted onto the throne.
+                // No observation: the genome is neither scored nor killed (it is not unsound, just
+                // unmeasured) and can be materialized and judged again next generation.
+                uninformative++;
+                logger.info("event=generation_uninformative gen={} genome={} size={} minSize={}",
+                        generation, g, set.size(), Fitness.MIN_INFORMATIVE_SIZE);
                 continue;
             }
             double cost = Fitness.evaluate(f, Fitness.meanDepth(set.getEngine()), set.size()).cost();
@@ -299,15 +341,22 @@ public final class PolicyEvolutionController<K> {
 
         // 3. Promotion = selection pressure on the throne (the V3 gate math, verbatim).
         double incumbentCost = incumbentCost(f);
+        // The other half of finding 8: an incumbent with no measurable shape scores ~0 and can
+        // never be beaten (or, worse, is beaten by an equally shapeless candidate). Uncomparable
+        // is a hold. An engine-tier primary is a different case — legitimately unscored at +∞,
+        // auto-losing the margin gate (MorphPolicy V-B) — and stays promotable-against.
+        boolean incumbentComparable = !ensemble.primary().isStrategyBacked()
+                || Fitness.informative(ensemble.primary().orderedSet().size());
         boolean promoted = false;
-        String reason = "hold";
+        String reason = incumbentComparable ? "hold" : "hold; incumbent too small to compare";
         if (!parents.isEmpty()) {
             PolicyGenome winner = parents.get(0).genome();
             winStreak = winner.equals(lastWinner) ? winStreak + 1 : 1;
             lastWinner = winner;
             EnsembleMember<K> body = bodies.get(winner);
-            if (body != null && policy.shouldMorph(-incumbentCost, -parents.get(0).cost(),
-                                                   opsSinceLastPromotion, winStreak)) {
+            if (body != null && incumbentComparable
+                    && policy.shouldMorph(-incumbentCost, -parents.get(0).cost(),
+                                          opsSinceLastPromotion, winStreak)) {
                 EnsembleMember<K> deposed = ensemble.primary();
                 promoted = ensemble.promote(body);
                 if (promoted) {
@@ -327,8 +376,8 @@ public final class PolicyEvolutionController<K> {
 
         List<PolicyGenome> survivors = parents.stream().map(Scored::genome).toList();
         double bestCost = parents.isEmpty() ? Double.NaN : parents.get(0).cost();
-        logger.info("event=generation_eval gen={} evaluated={} deaths={} survivors={} best={} incumbent={} decision={} lineages={} spread={}",
-                generation, scored.size(), deaths, survivors,
+        logger.info("event=generation_eval gen={} evaluated={} deaths={} unmeasured={} survivors={} best={} incumbent={} decision={} lineages={} spread={}",
+                generation, scored.size(), deaths, uninformative, survivors,
                 String.format("%.4f", bestCost), String.format("%.4f", incumbentCost),
                 promoted ? "PROMOTE" : "HOLD",
                 survivorLineages(), String.format("%.2f", survivorSpread()));

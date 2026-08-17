@@ -204,6 +204,20 @@ public class TreeNode1<K> implements Comparable<TreeNode1<K>>, Cloneable {
         return (isBlack() ? 1 : 0) + leftBH;
     }
 
+    /**
+     * The CACHED black-height, which is <b>not</b> guaranteed current for every node — read
+     * {@link #getHeight()} first; the same staleness rule and the same recompute advice apply
+     * verbatim, because both caches are refreshed together by the same link setters and skipped
+     * together by the {@code *Local} ones a rotation uses.
+     *
+     * <p>Two extra caveats specific to this quantity. It is informational bookkeeping on every
+     * strategy: {@code updateBlackHeight} records {@code (isBlack() ? 1 : 0) + max(left, right)}
+     * without enforcing the red-black invariant, because AVL/Splay/Hybrid colour every node black
+     * and legitimately have unequal subtree black-heights. And the exact, invariant-checking
+     * answer is {@link #blackHeight()} (no {@code get}) — an O(subtree) recursive walk that
+     * throws {@link IllegalStateException} on a genuine violation. Red-black validity itself is
+     * checked by {@code TreeDiagnostics}, never by this accessor.</p>
+     */
     public int getBlackHeight() {
         return blackHeight;
     }
@@ -223,6 +237,41 @@ public class TreeNode1<K> implements Comparable<TreeNode1<K>>, Cloneable {
         blackHeight = (isBlack() ? 1 : 0) + Math.max(leftBH, rightBH);
     }
 
+    /**
+     * The CACHED subtree height (leaf = 1, NIL = 0). Unlike {@link #getSize()}, this is
+     * <b>not</b> maintained on every structural change — it can read high for a node that is an
+     * ancestor of a rotation, and how long it stays wrong depends on the strategy.
+     *
+     * <p><b>What is exact.</b> The propagating {@link #setLeft}/{@link #setRight} links used by
+     * the insert/delete BST descents recompute height on every node they touch on the way up, so
+     * after a rotation-free write every height on the modified path is current. A node's own
+     * height is also exact immediately after {@link #refreshHeight()}.</p>
+     *
+     * <p><b>What may be stale.</b> Rotations link through the {@code *Local} setters, which
+     * recompute size, augment, height and black-height for the touched nodes only and never walk
+     * to the root — that is what keeps a rotation O(1) (see the rotation notes on
+     * {@link io.github.richeyworks.csrbt.strategy.TreeStrategy}). A rotation can change the
+     * rotated subtree root's height, and that genuinely propagates upward, but nothing propagates
+     * it. Subtree size and the augment payload are unaffected: a rotation permutes a local pair
+     * without changing which keys live under any ancestor, so order statistics stay exact.</p>
+     *
+     * <p><b>Under which strategies.</b> {@code AVLStrategy} and {@code HybridStrategy} mask the
+     * staleness — their rebalance passes call {@link #refreshHeight()} on every node from the
+     * modification point up to the root after rotating, so a height read through them is current.
+     * {@code RedBlackStrategy} and {@code WeightBalancedStrategy} do not rebalance by height and
+     * never refresh it, so on those an ANCESTOR of a rotation can report a height above the real
+     * one until the next propagating link refreshes that path. (AUDIT-2026-08-17 finding 21
+     * reproduced an RB node reporting 5 where the real height was 4.)</p>
+     *
+     * <p><b>If you need an exact value.</b> Do not trust this accessor on RB or WB. Recompute:
+     * call {@link #refreshHeight()} on every node of the affected subtree in post-order (children
+     * before parent, exactly the discipline the AVL/Hybrid rebalance passes follow), which leaves
+     * this cache correct and lets subsequent reads use the accessor again; or, if you only want
+     * the number and not a repaired cache, take it from a structural walk of
+     * {@link #getLeft()}/{@link #getRight()} without consulting the cache at all. Propagating
+     * heights from the rotations themselves was deliberately deferred (AUDIT-2026-08-14 F-1): it
+     * would restore the O(height) rotation cost this design exists to remove.</p>
+     */
     public int getHeight() {
         return height;
     }

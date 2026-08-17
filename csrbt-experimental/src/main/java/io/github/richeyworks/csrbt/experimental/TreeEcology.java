@@ -234,9 +234,26 @@ public class TreeEcology {
      *     − Low variance (even subtree sizes)
      *     → Maps to: AVL tree behavior
      *
-     * Returns score in [−1.0, +1.0]:
-     *   −1.0 = strongly r-selected (fast, chaotic, imbalanced)
-     *   +1.0 = strongly K-selected (stable, dense, balanced)
+     * Three measured terms, each in [0, 1]: balance efficiency (40%), density (35%),
+     * and the evenness of the subtree-size splits (25%).
+     *
+     * The third term used to be shannonEvenness(), commented "evenness of subtree sizes"
+     * — which it never was. It reads the KEY frequency distribution, and on a
+     * duplicate-free BST every key has abundance 1, so H' = ln n with S = n and the term
+     * is identically 1.0 (audit 2026-08-09 EC-3, deep-sweep E-1). A constant +0.25 on
+     * every tree put a hard floor at −0.5, so rKLabel()'s "strongly r-selected" branch
+     * was dead code: a maximally right-skewed 15-node tree — the worst shape a BST can
+     * take — scored −0.4997 and read "weakly r-selected" (audit 2026-08-17, finding 27).
+     * {@link #subtreeEvenness()} measures what the comment always claimed, so the whole
+     * documented range is reachable and the weights and bands keep their calibration:
+     * a spine now scores −1.0, while an ordinary Red-Black tree stays in the middle
+     * bands its labels name (dropping the term instead and reweighting the survivors
+     * would push a healthy sorted-insert RB tree to −0.96, "splay-like" — trading one
+     * wrong label for another).
+     *
+     * Returns score in [−1.0, +1.0], both ends reachable:
+     *   −1.0 = strongly r-selected (a degenerate spine: no balance, no density, no split)
+     *   +1.0 = strongly K-selected (a perfect tree: minimal height, every slot filled)
      */
     public double rKScore() {
         TreeNode1<Integer> root = context.getTree().getRoot();
@@ -265,12 +282,71 @@ public class TreeEcology {
         double maxNodes = Math.pow(2, h) - 1;
         double density  = Math.min(1.0, n / maxNodes);
 
-        // Evenness of subtree sizes (Shannon evenness repurposed)
-        double evenness = shannonEvenness();
+        // Evenness of the subtree-size splits — the structural reading the third term
+        // always claimed and never made (finding 27).
+        double evenness = subtreeEvenness();
 
         // Weighted K-score
         double raw = (0.4 * efficiency) + (0.35 * density) + (0.25 * evenness);
         return (raw * 2.0) - 1.0; // rescale to [−1, +1]
+    }
+
+    /**
+     * Evenness of the subtree-size splits — Shannon evenness asked of tree STRUCTURE
+     * instead of key frequency.
+     *
+     * At every branching node the two daughter subtrees are the "abundances" of a
+     * two-species community: J' = H'/ln 2 is 1.0 when they are the same size and 0.0
+     * when one side is empty. Each split is weighted by how many nodes it divides, so
+     * the root's split counts for more than a leaf's parent — the same logic as
+     * MacArthur's broken stick, where the big pieces carry the signal.
+     *
+     * 1.0 → every split halves the population (a perfect tree)
+     * 0.0 → every split strands one side (a degenerate spine)
+     *
+     * Unlike {@link #shannonEvenness()}, which is identically 1.0 on a duplicate-free
+     * BST, this varies with the thing r/K selection is actually about. An empty or
+     * single-node tree has nothing to split, and reads 1.0.
+     */
+    public double subtreeEvenness() {
+        TreeNode1<Integer> root = context.getTree().getRoot();
+        if (root == null || root.isNil()) return 1.0;
+
+        // Preorder (parents before children), so a single reverse pass sizes every
+        // subtree by traversal. Node caches are not trusted here for the same reason
+        // measuredHeight() exists (E-1).
+        List<TreeNode1<Integer>> order = new ArrayList<>();
+        Deque<TreeNode1<Integer>> stack = new ArrayDeque<>();
+        stack.push(root);
+        while (!stack.isEmpty()) {
+            TreeNode1<Integer> n = stack.pop();
+            order.add(n);
+            if (!n.getLeft().isNil())  stack.push(n.getLeft());
+            if (!n.getRight().isNil()) stack.push(n.getRight());
+        }
+
+        Map<TreeNode1<Integer>, Integer> sizes = new IdentityHashMap<>();
+        double weighted = 0, weight = 0;
+        for (int i = order.size() - 1; i >= 0; i--) {
+            TreeNode1<Integer> n = order.get(i);
+            int left  = sizes.getOrDefault(n.getLeft(), 0);
+            int right = sizes.getOrDefault(n.getRight(), 0);
+            sizes.put(n, 1 + left + right);
+            int split = left + right;
+            if (split == 0) continue;                  // a leaf divides nothing
+            weighted += split * splitEvenness(left, right);
+            weight   += split;
+        }
+        return weight == 0 ? 1.0 : weighted / weight;
+    }
+
+    /** J' = H'/ln 2 for one two-daughter split: 1.0 even, 0.0 with a side left empty. */
+    private static double splitEvenness(int left, int right) {
+        double total = left + right;
+        double h = 0;
+        if (left  > 0) { double p = left  / total; h -= p * Math.log(p); }
+        if (right > 0) { double p = right / total; h -= p * Math.log(p); }
+        return h / Math.log(2);
     }
 
     public String rKLabel() {

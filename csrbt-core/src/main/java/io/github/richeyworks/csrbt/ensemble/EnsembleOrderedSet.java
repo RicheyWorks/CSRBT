@@ -73,8 +73,15 @@ public final class EnsembleOrderedSet<K> implements OrderedCollection<K>, AutoCl
      * default) follows the process-global kill switch; a builder-set value pins this ensemble's
      * vote path regardless of what other code does to the static. Set via
      * {@link Builder#optimisticVotes(boolean)}.
+     *
+     * <p><b>final, and set through the constructor</b> (AUDIT_2026-07-21 <b>F-P2</b> / sixth-pass
+     * finding 39). It used to be a plain field assigned <em>after</em> construction in
+     * {@code build()}: under unsafe publication a reader could observe {@code null} and fall back
+     * to the process-global static that this per-instance pin exists precisely to escape. Final
+     * fields are safely published by the JVM's freeze at constructor exit, so the pin now holds
+     * for every reader of a correctly-constructed ensemble.</p>
      */
-    private Boolean optimisticVotesOverride;
+    private final Boolean optimisticVotesOverride;
 
     private final List<EnsembleMember<K>> members;
     private final Comparator<? super K> keyOrder;
@@ -89,6 +96,7 @@ public final class EnsembleOrderedSet<K> implements OrderedCollection<K>, AutoCl
     /** Sliding-window capacity shared by every member (0 = unbounded); see {@link #setMaxSize}. */
     private volatile int windowMaxSize;
     private long writeOps;                    // logical add/remove counter; guarded by writeLock
+    private volatile boolean closed;          // lifecycle latch; set under writeLock by close()
     private volatile boolean overCeiling;     // latched breach flag; reset when back under
     private volatile EnsembleMember<K> primary;
     private volatile EnsembleMode mode = EnsembleMode.MIRROR;
@@ -121,7 +129,8 @@ public final class EnsembleOrderedSet<K> implements OrderedCollection<K>, AutoCl
 
     private EnsembleOrderedSet(List<EnsembleMember<K>> members, Comparator<? super K> keyOrder,
                                MemberExecutor executor, int sampleEvery, int rebuildEvery,
-                               long memoryCeilingBytes, int verifyEvery) {
+                               long memoryCeilingBytes, int verifyEvery,
+                               Boolean optimisticVotesOverride) {
         this.members = members;
         this.keyOrder = keyOrder;
         this.executor = executor;
@@ -129,6 +138,7 @@ public final class EnsembleOrderedSet<K> implements OrderedCollection<K>, AutoCl
         this.rebuildEvery = rebuildEvery;
         this.memoryCeilingBytes = memoryCeilingBytes;
         this.verifyEvery = verifyEvery;
+        this.optimisticVotesOverride = optimisticVotesOverride;
         this.primary = members.get(0);
     }
 
@@ -309,9 +319,8 @@ public final class EnsembleOrderedSet<K> implements OrderedCollection<K>, AutoCl
                     : MemberExecutor.sequential();
             int sampleEvery = Math.max(1, (int) Math.round(1.0 / shadowSampleRate));
             EnsembleOrderedSet<K> ens = new EnsembleOrderedSet<>(ms, keyOrder, exec, sampleEvery,
-                    rebuildEvery, memoryCeilingBytes, verifyEvery);
+                    rebuildEvery, memoryCeilingBytes, verifyEvery, optimisticVotesOverride);
             ens.mode = mode;
-            ens.optimisticVotesOverride = optimisticVotesOverride;
             return ens;
         }
     }
@@ -346,10 +355,12 @@ public final class EnsembleOrderedSet<K> implements OrderedCollection<K>, AutoCl
      * bypasses the per-write cadence/events of the {@code add} path -- it is a one-shot initial load,
      * not a logical write stream. Runs under the writer lock, so it is linearizable against writes.</p>
      *
-     * @throws IllegalStateException if the ensemble is non-empty, not in an all-exact mode, or a member build fails
+     * @throws IllegalStateException if the ensemble is closed, non-empty, not in an all-exact mode,
+     *                               or a member build fails
      */
     public void buildAllFromSorted(List<K> ascendingDistinct) {
         synchronized (writeLock) {
+            requireOpen("buildAllFromSorted");
             if (mode != EnsembleMode.MIRROR && mode != EnsembleMode.VERIFIED) {
                 throw new IllegalStateException("buildAllFromSorted requires MIRROR or VERIFIED mode; was " + mode);
             }
@@ -409,10 +420,12 @@ public final class EnsembleOrderedSet<K> implements OrderedCollection<K>, AutoCl
      * subsequent evictions can diverge from the primary's until the next health cadence
      * re-verifies it — windowed ensembles pair best with a periodic {@code checkHealth}.</p>
      *
-     * @throws IllegalStateException if any member is engine-tier (no window; see {@link #supportsWindow})
+     * @throws IllegalStateException if the ensemble is closed, or any member is engine-tier
+     *                               (no window; see {@link #supportsWindow})
      */
     public void setMaxSize(int n) {
         synchronized (writeLock) {
+            requireOpen("setMaxSize");
             for (EnsembleMember<K> m : members) {
                 if (!m.isStrategyBacked()) {
                     throw new IllegalStateException("setMaxSize requires every member to be "
@@ -452,11 +465,13 @@ public final class EnsembleOrderedSet<K> implements OrderedCollection<K>, AutoCl
      * {@code sampleable}), where non-primary members receive only every {@code sampleEvery}-th
      * write; a skipped member is marked inexact on its first miss and is a shadow from then on.</p>
      *
-     * @throws IllegalStateException if every recipient failed, or the primary failed with no exact
+     * @throws IllegalStateException if the ensemble is {@linkplain #close() closed}, if every
+     *                               recipient failed, or if the primary failed with no exact
      *                               survivor (shadows cannot fail over) — the write did not commit
      */
     private boolean fanOutWrite(String op, boolean sampleable, Function<RankedSet<K>, Boolean> fn) {
         synchronized (writeLock) {
+            requireOpen(op);
             EnsembleMember<K> servingPrimary = primary;
             boolean sampling   = sampleable && mode == EnsembleMode.SAMPLED_SHADOW;
             boolean rebuilding = sampleable && mode == EnsembleMode.REBUILD_SHADOW;
@@ -626,6 +641,7 @@ public final class EnsembleOrderedSet<K> implements OrderedCollection<K>, AutoCl
      */
     private boolean replicaWrite(String op, Function<RankedSet<K>, Boolean> fn) {
         synchronized (writeLock) {
+            requireOpen(op);
             EnsembleMember<K> serving = primary;
             List<EnsembleMember<K>> others = new ArrayList<>();
             for (EnsembleMember<K> m : members) {
@@ -881,11 +897,40 @@ public final class EnsembleOrderedSet<K> implements OrderedCollection<K>, AutoCl
     public int verifyEvery() { return verifyEvery; }
 
     /**
-     * Release the fan-out executor's threads (E5). Safe to skip — the parallel pool uses daemon
-     * threads — and a no-op for the sequential default. The ensemble must not be written after close.
+     * Release the fan-out executor's threads (E5) and latch this ensemble closed. Safe to skip —
+     * the parallel pool uses daemon threads — and a no-op for the sequential default. Idempotent.
+     *
+     * <p><b>Serialized on the write lock</b> (sixth-pass audit finding 10). It used to take no lock
+     * at all, so it could shut the pool down <em>in the middle of</em> a fan-out: the drained
+     * {@code FutureTask}s were never run and never cancelled, and the writer parked forever in
+     * {@code Future.get} <em>while holding {@code writeLock}</em> — a permanent ensemble deadlock,
+     * with every other writer BLOCKED behind it. Closing under the lock means a fan-out is never
+     * interrupted mid-flight: {@code close()} waits out the write in progress, and every write that
+     * follows is refused deterministically instead of racing a dying pool.</p>
+     *
+     * <p>The javadoc's "must not be written after close" is now enforced, not advisory: {@code add},
+     * {@code remove}, {@code clear}, {@code buildAllFromSorted} and {@code setMaxSize} throw
+     * {@link IllegalStateException} on a closed ensemble. Reads keep working — the members are still
+     * there — so a closed ensemble is a frozen snapshot, not a corpse.</p>
      */
     @Override
-    public void close() { executor.shutdown(); }
+    public void close() {
+        synchronized (writeLock) {
+            if (closed) return;
+            closed = true;
+            executor.shutdown();
+        }
+    }
+
+    /** True once {@link #close()} has run; writes are refused from then on. */
+    public boolean isClosed() { return closed; }
+
+    /** Refuse a write on a closed ensemble; callers hold {@code writeLock}. */
+    private void requireOpen(String op) {
+        if (closed) {
+            throw new IllegalStateException(op + ": ensemble is closed and must not be written");
+        }
+    }
 
     /** Quarantine every failed non-primary recipient (E-D helper; caller holds the write lock). */
     private void quarantineFailedRecipients(List<EnsembleMember<K>> recipients,

@@ -173,7 +173,14 @@ public final class PhyloTree {
         }
     }
 
-    /** The lab page's schema: nested {@code {name, length?, children?}} objects. */
+    /**
+     * The lab page's schema: nested {@code {name, length?, children?}} objects.
+     * Branch lengths are written with the same exactness rule {@link #newick()} uses —
+     * {@code %.6f} alone printed a 1e-7 branch as {@code 0.000000}, and a JSON export
+     * that quietly zeroes a molecular branch length is no better than a Newick one
+     * (F-6, AUDIT-2026-08-14). {@code Double.toString}'s scientific form
+     * ({@code 1.0E-7}) is a valid JSON number.
+     */
     public String json() {
         StringBuilder sb = new StringBuilder();
         json(root, sb);
@@ -183,7 +190,7 @@ public final class PhyloTree {
     private static void json(Node n, StringBuilder sb) {
         sb.append("{ \"name\": \"").append(WorkloadTrace.escapeJson(n.name())).append('"');
         if (!Double.isNaN(n.length())) {
-            sb.append(String.format(Locale.ROOT, ", \"length\": %.6f", n.length()));
+            sb.append(", \"length\": ").append(trimmed(n.length()));
         }
         if (!n.isLeaf()) {
             sb.append(", \"children\": [");

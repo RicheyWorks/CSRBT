@@ -71,6 +71,20 @@ public class TreeCloner {
         }
     }
 
+    /**
+     * A fresh context configured like the source: same balancing policy (a fresh
+     * instance — see {@link #freshStrategyLike}) and the same sliding-window bound
+     * (audit 2026-08-17, finding 19). A bare {@code new TreeContext(strategy)} left
+     * every clone unbounded, so a "fully independent deep copy" of a bounded context
+     * silently grew past the bound its source enforced. The bound is installed before
+     * any node is copied in, so the copy is capped on the way in like any other write.
+     */
+    private TreeContext cloneContextLike() {
+        TreeContext clone = new TreeContext(freshStrategyLike(context.getTree().getStrategy()));
+        clone.setMaxSize(context.getMaxSize());
+        return clone;
+    }
+
     // ── Public API ────────────────────────────────────────────────────────────
 
     /**
@@ -78,7 +92,7 @@ public class TreeCloner {
      * No references are shared with the original.
      */
     public TreeContext snapshot() {
-        TreeContext clone    = new TreeContext(freshStrategyLike(context.getTree().getStrategy()));
+        TreeContext clone    = cloneContextLike();
         TreeNode1<Integer> origNil = context.getTree().getNIL();
         TreeNode1<Integer> cloneNil = clone.getTree().getNIL();
 
@@ -178,7 +192,7 @@ public class TreeCloner {
      * Good for visualizing the top of a large tree without copying everything.
      */
     public TreeContext shallowClone(int maxDepth) {
-        TreeContext clone    = new TreeContext(freshStrategyLike(context.getTree().getStrategy()));
+        TreeContext clone    = cloneContextLike();
         TreeNode1<Integer> origNil  = context.getTree().getNIL();
         TreeNode1<Integer> cloneNil = clone.getTree().getNIL();
 
@@ -261,6 +275,14 @@ public class TreeCloner {
         copy.setColor(orig.getColor());
         copy.setLastRotation(orig.getLastRotation());
         copy.setAugmentedValue(orig.getAugmentedValue());
+        // The GENERIC augment slot travels too (audit 2026-08-17, finding 6): omitting it
+        // made every clone entry point — snapshot, deployCloneArmy, mutantClone,
+        // shallowClone and TreeHistory.saveCheckpoint — silently drop typed augment
+        // payloads (e.g. GenericIntervalAugmentor's {hi, maxHi}), so a cloned interval
+        // tree answered stabQuery with degenerate [lo, lo] points and no error.
+        // A reference copy is the contract TreeNode1.deepCopy already follows: ref-slot
+        // payloads are immutable, replaced by the augmentor rather than mutated.
+        copy.setAugmentedRef(orig.getAugmentedRef());
         copy.setTag(orig.getTag());
         copy.setPathCompressed(orig.isPathCompressed());
     }

@@ -30,3 +30,6 @@ snapshots/
 
 # Scratch
 *.tmp
+
+# Agent scratch drop-box (the sandbox cannot delete; it moves files here instead)
+_to_delete/

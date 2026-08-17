@@ -70,6 +70,7 @@ public final class EcologyRecorder implements WorkloadMonitor {
     private final Map<Integer, Long> cumulative = new LinkedHashMap<>();
     private Map<Integer, Long> currentWindow = new LinkedHashMap<>();
     private final Deque<Map<Integer, Long>> closedWindows = new ArrayDeque<>();
+    private long closedWindowCount = 0;   // every window ever closed, evicted ones included
 
     // Demography: birth op of currently-alive keys; completed lifespans of dead ones.
     private final Map<Integer, Long> birthOps = new HashMap<>();
@@ -153,11 +154,31 @@ public final class EcologyRecorder implements WorkloadMonitor {
         return Collections.unmodifiableMap(currentWindow);
     }
 
-    /** Closed windows, oldest &#x2192; newest, each an independent per-key tally. */
+    /**
+     * Closed windows, oldest &#x2192; newest, each an independent per-key tally. This is the
+     * RETAINED tail: once {@code maxWindows} is exceeded the oldest are evicted, so
+     * element 0 is window number {@link #evictedWindowCount()} + 1 of the run, not
+     * window 1. Anything that labels, charts, or exports these positions must offset
+     * them by {@link #evictedWindowCount()} — labelling the retained list from 1 reads
+     * end-of-run drift as opening drift (audit 2026-08-17 finding 28).
+     */
     public List<Map<Integer, Long>> closedWindows() {
         List<Map<Integer, Long>> out = new ArrayList<>(closedWindows.size());
         for (Map<Integer, Long> w : closedWindows) out.add(Collections.unmodifiableMap(w));
         return out;
+    }
+
+    /** Windows closed over the whole run, including those the retention cap dropped. */
+    public long closedWindowCount() {
+        return closedWindowCount;
+    }
+
+    /**
+     * Windows dropped by the retention cap — the offset between a position in
+     * {@link #closedWindows()} and that window's true number in the run.
+     */
+    public long evictedWindowCount() {
+        return closedWindowCount - closedWindows.size();
     }
 
     /** Completed lifespans (keys removed after an observed insert), in death order. */
@@ -199,6 +220,7 @@ public final class EcologyRecorder implements WorkloadMonitor {
     private void maybeRollWindow() {
         if (opIndex - windowStartOp < windowOps) return;
         closedWindows.addLast(currentWindow);
+        closedWindowCount++;
         if (closedWindows.size() > maxWindows) closedWindows.removeFirst();
         currentWindow = new LinkedHashMap<>();
         windowStartOp = opIndex;

@@ -45,12 +45,15 @@ public final class LogisticGrowth {
      * distinct t; throws {@link IllegalArgumentException} otherwise.
      *
      * <p><b>Plateau caveat:</b> K&#x302; is estimated as max(N) plus a nudge, which is only
-     * sane when the series actually reached its plateau. Fitting a ramp-only record
-     * (series truncated mid-growth) underestimates K and overestimates r — often with
-     * a deceptively high R&#xB2; ({@code EcologyFieldDay.census()} guards this by fitting
-     * only plateaued runs; callers via {@code WorkloadTrace} get no such guard). If the
-     * last samples are still climbing, treat the fit as a lower bound on K, not an
-     * estimate of it.</p>
+     * sane when the samples handed in actually reached the plateau. Fitting a ramp-only
+     * record (series truncated mid-growth) underestimates K and overestimates r — often
+     * with a deceptively high R&#xB2;. No caller is guarded against this: {@code WorkloadTrace}
+     * passes the series through whole, and {@code EcologyFieldDay.census()} deliberately
+     * truncates to t &#x2264; 1200 for the opposite reason — it wants the colonization ramp,
+     * because plateau-noise logits would swamp it. That slice happens to reach the
+     * plateau on its seeded run, so K&#x302; there is sound; tighten the cutoff and it stops
+     * being, silently. If the last samples handed in are still climbing, treat the fit
+     * as a lower bound on K, not an estimate of it.</p>
      */
     public static Fit fit(List<long[]> series) {
         long maxN = 0;

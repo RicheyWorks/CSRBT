@@ -424,9 +424,25 @@ public final class NavigableOrderedSet<K> extends AbstractSet<K> implements Navi
         @Override public int size() { return asc.size(); }
         @Override public boolean isEmpty() { return asc.isEmpty(); }
         @Override public boolean contains(Object o) { return asc.contains(o); }
-        @Override public Iterator<K> iterator() { return asc.descendingIterator(); }
-        @Override public Iterator<K> descendingIterator() { return asc.iterator(); }
+
+        // Both iterators are wrapped read-only (audit 2026-08-17, finding 7). The wrapped
+        // set may be the BASE adapter, whose iterators remove from the live set by design
+        // (TreeSet parity, F-3); handing one out unwrapped let AbstractCollection.retainAll
+        // and AbstractSet.removeAll mutate the base THROUGH a view that advertises itself
+        // read-only — descendingSet().retainAll(List.of(1)) emptied the base. Range already
+        // hands out unmodifiable-list iterators for the same reason.
+        @Override public Iterator<K> iterator() { return readOnly(asc.descendingIterator()); }
+        @Override public Iterator<K> descendingIterator() { return readOnly(asc.iterator()); }
         @Override public NavigableSet<K> descendingSet() { return asc; }
+
+        /** Delegating iterator whose {@code remove()} refuses, like every other Desc mutator. */
+        private Iterator<K> readOnly(Iterator<K> it) {
+            return new Iterator<K>() {
+                @Override public boolean hasNext() { return it.hasNext(); }
+                @Override public K next()          { return it.next(); }
+                @Override public void remove()     { throw new UnsupportedOperationException(READ_ONLY); }
+            };
+        }
 
         @Override public Comparator<? super K> comparator() {
             return Collections.reverseOrder(asc.comparator());

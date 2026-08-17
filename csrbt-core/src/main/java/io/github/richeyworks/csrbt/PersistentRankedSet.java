@@ -4,6 +4,7 @@ import io.github.richeyworks.csrbt.interfaces.RankedSet;
 
 import java.util.Comparator;
 import java.util.List;
+import java.util.concurrent.atomic.LongAdder;
 
 /**
  * {@link RankedSet} adapter over the weight-balanced {@link PersistentTreeEngine} (ADR-005 P3):
@@ -20,7 +21,13 @@ import java.util.List;
  *
  * <p>Concurrency is inherited, not added: the engine's readers are wait-free by construction, so
  * a member backed by this adapter is the one kind whose reads need no guard at all — under
- * READ_REPLICA its epoch machinery is simply belt over suspenders.</p>
+ * READ_REPLICA its epoch machinery is simply belt over suspenders. Writes are the exception:
+ * the engine reports change only as a size delta, and a delta read across two concurrent
+ * mutators is not a delta at all (audit 2026-08-17, finding 13 — 4 threads x 20 000 adds
+ * over-reported {@code true} by up to 42 %, and that boolean is what VERIFIED voting compares).
+ * So the adapter's own {@code writeLock} makes each check-and-mutate atomic — one extra monitor
+ * on top of the engine's, never held during a read — and the write meters are {@link LongAdder}s
+ * so a concurrent {@link #avgInsertTimeMs()} sees consistent, non-torn totals.</p>
  */
 public final class PersistentRankedSet<K> implements RankedSet<K> {
 
@@ -30,8 +37,11 @@ public final class PersistentRankedSet<K> implements RankedSet<K> {
     private final PersistentTreeEngine<K> engine;
     private final Comparator<? super K> keyOrder;
 
-    private long totalInsertTime = 0, totalDeleteTime = 0;
-    private int insertCount = 0, deleteCount = 0;
+    /** Serializes this adapter's check-and-mutate pairs; never held across a read. */
+    private final Object writeLock = new Object();
+
+    private final LongAdder totalInsertTime = new LongAdder(), totalDeleteTime = new LongAdder();
+    private final LongAdder insertCount = new LongAdder(), deleteCount = new LongAdder();
 
     public PersistentRankedSet(Comparator<? super K> keyOrder) {
         if (keyOrder == null) throw new IllegalArgumentException("keyOrder cannot be null");
@@ -49,36 +59,47 @@ public final class PersistentRankedSet<K> implements RankedSet<K> {
 
     // -- OrderedCollection --
 
+    /**
+     * @return {@code true} iff this call is the one that inserted {@code value}. The engine
+     *         publishes change only through its size, so the read-mutate-read triple runs under
+     *         {@link #writeLock} — outside it, two concurrent inserters each see the other's
+     *         delta and both claim the insert (finding 13).
+     */
     @Override
     public boolean add(K value) {
-        int before = engine.size();
-        long start = System.nanoTime();
-        engine.add(value);
-        boolean changed = engine.size() != before;
-        if (changed) {
-            totalInsertTime += System.nanoTime() - start;
-            insertCount++;
+        synchronized (writeLock) {
+            int before = engine.size();
+            long start = System.nanoTime();
+            engine.add(value);
+            long elapsed = System.nanoTime() - start;
+            if (engine.size() == before) return false;
+            totalInsertTime.add(elapsed);
+            insertCount.increment();
+            return true;
         }
-        return changed;
     }
 
+    /** @return {@code true} iff this call is the one that removed {@code value} (see {@link #add}). */
     @Override
     public boolean remove(K value) {
-        int before = engine.size();
-        long start = System.nanoTime();
-        engine.remove(value);
-        boolean changed = engine.size() != before;
-        if (changed) {
-            totalDeleteTime += System.nanoTime() - start;
-            deleteCount++;
+        synchronized (writeLock) {
+            int before = engine.size();
+            long start = System.nanoTime();
+            engine.remove(value);
+            long elapsed = System.nanoTime() - start;
+            if (engine.size() == before) return false;
+            totalDeleteTime.add(elapsed);
+            deleteCount.increment();
+            return true;
         }
-        return changed;
     }
 
     @Override public boolean contains(K value) { return engine.contains(value); }
     @Override public int size()                { return engine.size(); }
     @Override public List<K> inOrder()         { return engine.inOrder(); }
-    @Override public void clear()              { engine.clear(); }
+
+    /** Under {@link #writeLock} too, so a concurrent add/remove still measures a true delta. */
+    @Override public void clear() { synchronized (writeLock) { engine.clear(); } }
 
     // -- Order statistics (OrderedSet parity) --
 
@@ -118,12 +139,14 @@ public final class PersistentRankedSet<K> implements RankedSet<K> {
 
     @Override
     public double avgInsertTimeMs() {
-        return insertCount == 0 ? 0 : (totalInsertTime / 1_000_000.0) / insertCount;
+        long n = insertCount.sum();
+        return n == 0 ? 0 : (totalInsertTime.sum() / 1_000_000.0) / n;
     }
 
     @Override
     public double avgDeleteTimeMs() {
-        return deleteCount == 0 ? 0 : (totalDeleteTime / 1_000_000.0) / deleteCount;
+        long n = deleteCount.sum();
+        return n == 0 ? 0 : (totalDeleteTime.sum() / 1_000_000.0) / n;
     }
 
     @Override public int height() { return engine.height(); }

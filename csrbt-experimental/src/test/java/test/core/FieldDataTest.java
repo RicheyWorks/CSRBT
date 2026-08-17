@@ -7,6 +7,7 @@ import io.github.richeyworks.csrbt.experimental.ecology.PhyloTree;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -77,6 +78,64 @@ class FieldDataTest {
     void csvExport() {
         String csv = FieldData.toCsv("site", Map.of("a,b", 3L));
         assertEquals("site,\"a,b\",3\n", csv);
+    }
+
+    @Test
+    @DisplayName("toCsv round-trips through parseLines — quoted names and the dataset column")
+    void csvRoundTrip() {
+        LinkedHashMap<String, Long> counts = new LinkedHashMap<>();
+        counts.put("oak, white", 12L);
+        counts.put("maple", 5L);
+        counts.put("say \"ash\"", 2L);
+        String csv = FieldData.toCsv("plotA", counts);
+
+        FieldData.Parsed back = FieldData.parseLines(List.of(csv.split("\n")));
+        assertEquals(List.of(), back.problems(),
+                "the tool must be able to read its own export (audit 2026-08-17, item 4)");
+        assertEquals(counts, back.counts());
+        assertEquals(List.copyOf(counts.keySet()), List.copyOf(back.counts().keySet()),
+                "first-seen order survives the round trip");
+    }
+
+    @Test
+    @DisplayName("a quoted comma inside a name is one field, not a malformed line")
+    void quotedNamesParse() {
+        FieldData.Parsed p = FieldData.parseLines(List.of(
+                "\"oak, white\",12", "\"a \"\"quoted\"\" name\",4", "plain,7"));
+        assertEquals(0, p.problems().size());
+        assertEquals(12L, p.counts().get("oak, white"));
+        assertEquals(4L, p.counts().get("a \"quoted\" name"));
+        assertEquals(7L, p.counts().get("plain"));
+    }
+
+    @Test
+    @DisplayName("the dataset column is optional: name,count and dataset,name,count both land")
+    void datasetColumnIsOptional() {
+        FieldData.Parsed p = FieldData.parseLines(List.of(
+                "robin,34", "plotA,robin,6", "plotA,wren,5"));
+        assertEquals(0, p.problems().size());
+        assertEquals(40L, p.counts().get("robin"), "the label is dropped; the counts merge");
+        assertEquals(5L, p.counts().get("wren"));
+        // A two-field row is ALWAYS name,count — never re-read as dataset,name — so the
+        // format stays unambiguous with the export shape supported.
+        assertEquals(2, p.counts().size());
+    }
+
+    @Test
+    @DisplayName("real user error is still reported, never guessed — including inside export rows")
+    void malformedRowsAreStillReported() {
+        FieldData.Parsed p = FieldData.parseLines(List.of(
+                "robin,0",            // non-positive count
+                ",5",                 // empty name
+                "wren,x",             // count is not an integer
+                "oak,",               // empty count
+                "plotA,wren,x",       // export row with a bad count
+                "plotA,,5",           // export row with an empty name
+                "a,b,c,d"));          // too many fields for any shape
+        assertEquals(0, p.counts().size(), "nothing malformed was guessed into the table");
+        assertEquals(7, p.problems().size());
+        assertTrue(p.problems().get(6).contains("dataset,name,count"),
+                "the too-many-fields message names every accepted shape: " + p.problems().get(6));
     }
 
     // ── MarkRecapture ─────────────────────────────────────────────────────────

@@ -103,15 +103,45 @@ public final class PolicySearchController<K> {
     // ── Data plane (mirrors EnsembleController: apply + feed the monitor) ──────────
 
     public boolean add(K key) {
+        EnsembleMember<K> metered = ensemble.primary();
+        long rot0 = rotationMeter(metered);
         boolean changed = ensemble.add(key);
-        if (changed) monitor.recordAdd(Objects.hashCode(key));
+        if (changed) monitor.recordAdd(Objects.hashCode(key), rotationsSince(metered, rot0));
         return changed;
     }
 
     public boolean remove(K key) {
+        EnsembleMember<K> metered = ensemble.primary();
+        long rot0 = rotationMeter(metered);
         boolean changed = ensemble.remove(key);
-        if (changed) monitor.recordRemove(Objects.hashCode(key));
+        if (changed) monitor.recordRemove(Objects.hashCode(key), rotationsSince(metered, rot0));
         return changed;
+    }
+
+    /** The member's live engine rotation counter, or {@code -1} when it has none (engine-tier). */
+    private static <K> long rotationMeter(EnsembleMember<K> m) {
+        return m.isStrategyBacked() ? m.orderedSet().rotationCount() : -1L;
+    }
+
+    /**
+     * Rotations the serving primary's engine performed across one logical write — the feed
+     * {@code Fitness}'s write term never had (AUDIT_2026-07-21 <b>F-E1</b>, sixth-pass finding 12).
+     * This facade used to call the {@link WorkloadMonitor} one-arg defaults, i.e. pass a literal 0,
+     * so {@code writeCost = writeFraction × rotationsPerWrite} was identically 0.0 and V3 promotion
+     * was decided purely by the structural read term — an arm that thrashed rotations won whenever
+     * its tree was momentarily shallower.
+     *
+     * <p>Metered on the primary because the primary receives every write while a shadow sees a
+     * sampled stream: this is the <em>stream's</em> realized churn, which is exactly what the class
+     * doc says the write term is. Clamped at zero per
+     * {@link io.github.richeyworks.csrbt.OrderedSet#rotationCount()} — a morph swaps the engine and
+     * resets the counter.</p>
+     */
+    private static <K> int rotationsSince(EnsembleMember<K> m, long before) {
+        if (before < 0L) return 0;                       // engine-tier member: no rotation meter
+        long after = rotationMeter(m);
+        if (after < 0L) return 0;
+        return (int) Math.max(0L, Math.min(Integer.MAX_VALUE, after - before));
     }
 
     public boolean contains(K key) {
@@ -183,10 +213,30 @@ public final class PolicySearchController<K> {
         }
 
         // 2. Score the arm and the incumbent on the same features; reward the bandit.
-        Fitness.Evaluation armEval = Fitness.evaluate(
-                f, Fitness.meanDepth(trialSet.getEngine()), trialSet.size());
         OrderedSet<K> primarySet = ensemble.primary().isStrategyBacked()
                 ? ensemble.primary().orderedSet() : null;
+
+        // 2a. ...but only if the window produced an OBSERVATION (finding 8). A trial shadow that
+        //     is empty or single-keyed — the SAMPLED_SHADOW norm at a low sample rate — costs
+        //     exactly 0.0, which beat every possible incumbent and, once recorded, pinned the arm
+        //     as bestArm() forever at meanCost 0. The same hole opens from the other side when the
+        //     INCUMBENT has no measurable shape. An uninformative window is not a cheap arm; it is
+        //     no measurement. Record nothing, promote nothing, leave the arm exactly as it was.
+        //     (An engine-tier primary is a different case: it is legitimately unscored, +∞, and
+        //     auto-loses the margin gate — MorphPolicy V-B. That is preserved below.)
+        boolean trialInformative = Fitness.informative(trialSet.size());
+        boolean primaryInformative = primarySet == null || Fitness.informative(primarySet.size());
+        if (!trialInformative || !primaryInformative) {
+            long primarySize = primarySet == null ? -1L : primarySet.size();
+            logger.info("event=trial_eval arm={} verdict=UNINFORMATIVE trialSize={} primarySize={} minSize={} arms={}",
+                    arm, trialSet.size(), primarySize, Fitness.MIN_INFORMATIVE_SIZE, bandit.statsLine());
+            return new TrialResult(arm, false, Double.NaN, Double.NaN, false,
+                    "uninformative trial: trialSize=" + trialSet.size() + " primarySize=" + primarySize
+                    + " (need >= " + Fitness.MIN_INFORMATIVE_SIZE + " to compare)");
+        }
+
+        Fitness.Evaluation armEval = Fitness.evaluate(
+                f, Fitness.meanDepth(trialSet.getEngine()), trialSet.size());
         double incumbentCost = (primarySet == null) ? Double.POSITIVE_INFINITY
                 : Fitness.evaluate(f, Fitness.meanDepth(primarySet.getEngine()), primarySet.size()).cost();
         bandit.recordCost(arm, armEval.cost());

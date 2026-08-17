@@ -22,7 +22,8 @@ public final class EnsembleMember<K> {
     public enum State { ACTIVE, QUARANTINED, RETIRED }
 
     private final RankedSet<K> set;
-    private final String strategyName;
+    /** Fixed label for an ENGINE-tier member; strategy-backed members resolve their own name. */
+    private final String label;
     private volatile State state = State.ACTIVE;
     private volatile boolean exact = true;
 
@@ -43,7 +44,7 @@ public final class EnsembleMember<K> {
     /** ADR-005 P3: any {@link RankedSet} backing, labeled (engine members have no strategy). */
     EnsembleMember(RankedSet<K> set, String label) {
         this.set = set;
-        this.strategyName = label;
+        this.label = label;
     }
 
     /** The backing set — an exact mirror of the logical set while {@code ACTIVE}. */
@@ -59,13 +60,24 @@ public final class EnsembleMember<K> {
      */
     public OrderedSet<K> orderedSet() {
         if (!(set instanceof OrderedSet)) {
-            throw new IllegalStateException(strategyName + " is an engine-tier member with no strategy facade");
+            throw new IllegalStateException(label + " is an engine-tier member with no strategy facade");
         }
         return (OrderedSet<K>) set;
     }
 
-    /** Label for the backing structure, e.g. {@code "SplayStrategy"} or {@code "PersistentTreeEngine"}. */
-    public String strategyName() { return strategyName; }
+    /**
+     * Label for the backing structure, e.g. {@code "SplayStrategy"} or {@code "PersistentTreeEngine"}.
+     *
+     * <p>Resolved <em>at call time</em> from the backing set's current strategy (sixth-pass audit
+     * finding 18): a member's strategy is not fixed for life — {@code OrderedSet.setStrategy} is how
+     * the evolution controllers materialize candidates on a member ({@code PolicySearchController
+     * .beginTrial}, {@code PolicyEvolutionController.beginGeneration}), so a name frozen at
+     * construction reported the strategy a member <em>used to</em> run. ENGINE-tier members have no
+     * strategy and keep their construction label.</p>
+     */
+    public String strategyName() {
+        return (set instanceof OrderedSet<K> os) ? os.getStrategy().getClass().getSimpleName() : label;
+    }
 
     public State state() { return state; }
 
@@ -94,7 +106,7 @@ public final class EnsembleMember<K> {
 
     @Override
     public String toString() {
-        return "EnsembleMember[" + strategyName + ", " + state + (exact ? "" : ", shadow")
+        return "EnsembleMember[" + strategyName() + ", " + state + (exact ? "" : ", shadow")
                 + ", n=" + set.size() + "]";
     }
 }

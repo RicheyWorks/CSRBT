@@ -19,8 +19,10 @@ import java.util.Map;
  *       exactly as a student would keep it on a clipboard: tally marks.</li>
  *   <li><b>Table form</b> (many lines, used for pasting from a spreadsheet or CSV):
  *       one observation per line as {@code name,count}, {@code name<TAB>count},
- *       {@code name count}, or just {@code name} (one sighting). {@code #} comments
- *       and blank lines are ignored.</li>
+ *       {@code name count}, just {@code name} (one sighting), or a
+ *       {@code dataset,name,count} row straight out of {@link #toCsv}. Comma/tab fields
+ *       are RFC-4180 quoted, so {@code "oak, white",12} is one species. {@code #}
+ *       comments and blank lines are ignored.</li>
  * </ul>
  *
  * <p>Both parsers follow the house rule: a malformed token or line is <b>reported,
@@ -53,8 +55,27 @@ public final class FieldData {
 
     /**
      * Table form: one observation per line — {@code name,count}, {@code name<TAB>count},
-     * {@code name count}, or a bare {@code name} (counts 1). Repeated names add.
-     * {@code #} starts a comment; blank lines are skipped.
+     * {@code name count}, a bare {@code name} (counts 1), or a {@code dataset,name,count}
+     * row exactly as {@link #toCsv} writes one. Repeated names add. {@code #} starts a
+     * comment; blank lines are skipped.
+     *
+     * <p><b>Quoting.</b> Comma/tab fields are split RFC-4180-style by {@link #splitFields},
+     * so a name that contains a comma round-trips as long as it is quoted the way
+     * {@code toCsv} quotes it: {@code "oak, white",12} is one name and one count, not a
+     * malformed three-field line. Without this the tool could not read its own export
+     * (audit 2026-08-17, item 4); an <em>unquoted</em> comma is still a field separator,
+     * because that is what CSV means — {@code oak, white,12} is three fields and is read
+     * as an export row.</p>
+     *
+     * <p><b>The dataset column.</b> Only the three-field shape carries one, which is the
+     * only shape {@code toCsv} emits; a two-field row is always {@code name,count} and is
+     * never re-read as {@code dataset,name}, so nothing here has to guess which of the two
+     * a caller meant. The label itself is dropped — {@link Parsed} is a single name → count
+     * table — so pasting rows from two different datasets merges them, exactly as repeating
+     * a name already adds.</p>
+     *
+     * <p>Everything else keeps the house rule: a line that does not fit one of those shapes
+     * is <b>reported</b> in {@link Parsed#problems()} with its reason, never guessed at.</p>
      */
     public static Parsed parseLines(List<String> lines) {
         LinkedHashMap<String, Long> counts = new LinkedHashMap<>();
@@ -63,19 +84,26 @@ public final class FieldData {
             int hash = raw.indexOf('#');
             String line = (hash < 0 ? raw : raw.substring(0, hash)).trim();
             if (line.isEmpty()) continue;
-            // Normalize the three separators to one: first comma or tab, else last space.
-            // Limit -1 keeps trailing empty fields, so "oak," is seen as a comma line
-            // with an empty count (a reportable problem) rather than falling through
-            // to bare-name handling of the raw line and silently tallying "oak,".
-            String[] parts = line.split("[,\\t]", -1);
+            // Normalize the three separators to one: comma/tab fields (quote-aware, so an
+            // empty trailing field survives — "oak," is a comma line with an empty count,
+            // a reportable problem, not a bare name literally spelled "oak,"), else the
+            // last space in a "name count" line.
+            String[] parts = splitFields(line);
             boolean commaOrTab = parts.length > 1;
             if (parts.length == 1) parts = line.split("\\s+(?=\\S+$)");   // "name count"
             if (parts.length == 1) {
                 addToken(parts[0].trim(), counts, problems);
                 continue;
             }
+            if (parts.length == 3) {
+                // dataset,name,count — toCsv's own row shape. Drop the label and judge the
+                // remaining pair by the normal rules, so a bad count in an export row is
+                // still reported as a bad count rather than as an unrecognizable line.
+                parts = new String[]{ parts[1], parts[2] };
+            }
             if (parts.length != 2) {
-                problems.add(raw.trim() + "  (want: name,count or name count or a bare name)");
+                problems.add(raw.trim()
+                        + "  (want: name,count or dataset,name,count or name count or a bare name)");
                 continue;
             }
             String name = parts[0].trim();
@@ -97,6 +125,47 @@ public final class FieldData {
             }
         }
         return new Parsed(counts, problems);
+    }
+
+    /**
+     * Split one table line into fields with {@link ExperimentExport#splitCsv}'s RFC-4180
+     * semantics — {@code "} opens/closes a quoted field, {@code ""} inside one is a literal
+     * quote — plus TAB as a second separator, which the table form has always accepted.
+     * Empty trailing fields survive (the old {@code split("[,\t]", -1)} kept them too), so
+     * {@code "oak,"} still reaches the empty-count problem instead of being tallied as a
+     * species literally named {@code oak,}.
+     *
+     * <p>Kept here rather than folded into {@code ExperimentExport.splitCsv} because that
+     * method is the exact inverse of {@code ExperimentExport.csv} and must stay
+     * comma-only; this one is the table form's reader, and the two are pinned to each
+     * other by {@code FieldDataTest} rather than by sharing code.</p>
+     */
+    static String[] splitFields(String line) {
+        List<String> out = new java.util.ArrayList<>();
+        StringBuilder cur = new StringBuilder();
+        boolean quoted = false;
+        for (int i = 0; i < line.length(); i++) {
+            char c = line.charAt(i);
+            if (quoted) {
+                if (c == '"' && i + 1 < line.length() && line.charAt(i + 1) == '"') {
+                    cur.append('"');
+                    i++;
+                } else if (c == '"') {
+                    quoted = false;
+                } else {
+                    cur.append(c);
+                }
+            } else if (c == '"') {
+                quoted = true;
+            } else if (c == ',' || c == '\t') {
+                out.add(cur.toString());
+                cur.setLength(0);
+            } else {
+                cur.append(c);
+            }
+        }
+        out.add(cur.toString());
+        return out.toArray(new String[0]);
     }
 
     private static void addToken(String token, Map<String, Long> counts, List<String> problems) {
@@ -133,7 +202,11 @@ public final class FieldData {
         return sb.toString();
     }
 
-    /** CSV rows ({@code dataset,name,count}, no header) — Excel/Sheets/R ready. */
+    /**
+     * CSV rows ({@code dataset,name,count}, no header) — Excel/Sheets/R ready, and readable
+     * back by {@link #parseLines}, quoted names included (the dataset label is dropped on
+     * the way in). The row shape is unchanged; only the reader learned to accept it.
+     */
     public static String toCsv(String dataset, Map<String, Long> counts) {
         StringBuilder sb = new StringBuilder();
         for (Map.Entry<String, Long> e : counts.entrySet()) {

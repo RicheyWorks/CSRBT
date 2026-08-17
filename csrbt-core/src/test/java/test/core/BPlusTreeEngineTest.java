@@ -169,8 +169,16 @@ public class BPlusTreeEngineTest {
                     "successor of an absent key throws, like OrderedSet");
             assertNull(tree.successor(20), "null at the top extreme");
             assertNull(tree.predecessor(10), "null at the bottom extreme");
-            assertFalse(tree.contains(null), "contains(null) is false, never a throw");
-            assertThrows(IllegalArgumentException.class, () -> tree.add(null));
+            // Null-argument parity (audit 2026-08-17, finding 14): every key-taking method
+            // throws NPE, exactly as OrderedSet and PersistentRankedSet do. This assertion
+            // used to pin the opposite (contains(null) → false, add(null) → IAE), which is
+            // precisely the divergence that quarantines a healthy B+tree member on the first
+            // ensemble.contains(null) — VERIFIED voting compares thrown-exception classes.
+            assertThrows(NullPointerException.class, () -> tree.contains(null));
+            assertThrows(NullPointerException.class, () -> tree.add(null));
+            assertThrows(NullPointerException.class, () -> tree.remove(null));
+            assertThrows(NullPointerException.class, () -> tree.countInRange(null, 20));
+            assertThrows(NullPointerException.class, () -> tree.rangeQuery(10, null));
             assertThrows(IllegalArgumentException.class, () ->
                     new BPlusTreeEngine<Integer>(3, Comparator.naturalOrder()));
         }

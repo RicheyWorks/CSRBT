@@ -15,10 +15,8 @@ import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.Deque;
-import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
-import java.util.Map;
 import java.util.TreeSet;
 import java.util.concurrent.locks.StampedLock;
 import java.util.function.Supplier;
@@ -196,8 +194,15 @@ public class OrderedSet<K> implements SelfHealingTree, OrderedCollection<K>, Ran
 
     // -- Core ordered-set operations --
 
-    /** @return {@code true} if the key was inserted; {@code false} if already present. */
+    /**
+     * @return {@code true} if the key was inserted; {@code false} if already present.
+     * @throws NullPointerException if {@code value} is null — checked here, not left to the
+     *         comparator (audit 2026-08-17, item 1): on an EMPTY set the insert descent stops at
+     *         the root NIL without ever comparing, so a null key used to be linked in as a real
+     *         element and only blew up on some later read, far from the caller that caused it.
+     */
     public boolean add(K value) {
+        java.util.Objects.requireNonNull(value, "value cannot be null");
         synchronized (lock) {
             long ws = readGuard.writeLock();   // the insert descent may splay (duplicate touch): writes mutate
             try {
@@ -227,8 +232,12 @@ public class OrderedSet<K> implements SelfHealingTree, OrderedCollection<K>, Ran
         }
     }
 
-    /** @return {@code true} if the key was present and removed; {@code false} otherwise. */
+    /**
+     * @return {@code true} if the key was present and removed; {@code false} otherwise.
+     * @throws NullPointerException if {@code value} is null (see {@link #add}).
+     */
     public boolean remove(K value) {
+        java.util.Objects.requireNonNull(value, "value cannot be null");
         synchronized (lock) {
             long ws = readGuard.writeLock();
             try {
@@ -253,8 +262,13 @@ public class OrderedSet<K> implements SelfHealingTree, OrderedCollection<K>, Ran
      * stamp, locked retry on any suspicion. Never splays — the engine-level
      * {@code tree.contains} (which lets a splay strategy move the key to the root) is reserved
      * for the write path, where the monitor already serializes it.
+     *
+     * @throws NullPointerException if {@code value} is null (see {@link #add}) — on an empty set
+     *         the descent answered {@code false} instead of throwing, and VERIFIED voting compares
+     *         thrown-exception classes.
      */
     public boolean contains(K value) {
+        java.util.Objects.requireNonNull(value, "value cannot be null");
         if (!OPTIMISTIC_READS) return tree.contains(value);
         return guardedRead(
                 () -> !findReadOnly(value, true).isNil(),
@@ -269,9 +283,13 @@ public class OrderedSet<K> implements SelfHealingTree, OrderedCollection<K>, Ran
      * walked either way. One walk answers both questions, which is exactly what a
      * {@link io.github.richeyworks.csrbt.control.WorkloadMonitor} caller needs to feed
      * {@code recordSearch(keyHash, depthTouched)} honestly instead of with a zero. Same concurrency
-     * contract as {@link #contains}: optimistic + validated, locked fallback, never splays.
+     * contract as {@link #contains}: optimistic + validated, locked fallback, never splays — and
+     * the same null contract, enforced here rather than by the comparator.
+     *
+     * @throws NullPointerException if {@code value} is null (see {@link #add}).
      */
     public int searchDepth(K value) {
+        java.util.Objects.requireNonNull(value, "value cannot be null");
         if (!OPTIMISTIC_READS) return searchDepthReadOnly(value, false);
         return guardedRead(
                 () -> searchDepthReadOnly(value, true),
@@ -574,17 +592,42 @@ public class OrderedSet<K> implements SelfHealingTree, OrderedCollection<K>, Ran
     // (OrderStatisticsOps never splays or mutates) but not step-bounded, so they run only on a
     // consistent tree. Their documented exceptions (out-of-range rank, absent key) propagate.
 
+    // Keyed reads null-check up front (audit 2026-08-17, item 1): the walks reach a comparison
+    // only on a non-empty tree, so on an empty set rank/successor/predecessor used to report
+    // "absent key" (NoSuchElementException) for a null argument while a populated set reported
+    // NullPointerException. Explicit checks make the thrown class size-independent, which is what
+    // RankedSet's voting-parity clause and EnsembleOrderedSet.Thrown actually compare.
+
     /** ith smallest key (1-indexed). @throws IndexOutOfBoundsException if out of [1,size]. */
     public K select(int rank) { return lockedRead(() -> os.select(rank).getData()); }
 
-    /** 1-indexed rank of a key. @throws java.util.NoSuchElementException if absent. */
-    public int rank(K value) { return lockedRead(() -> os.rank(value)); }
+    /**
+     * 1-indexed rank of a key.
+     * @throws java.util.NoSuchElementException if absent.
+     * @throws NullPointerException if {@code value} is null (see {@link #add}).
+     */
+    public int rank(K value) {
+        java.util.Objects.requireNonNull(value, "value cannot be null");
+        return lockedRead(() -> os.rank(value));
+    }
 
-    /** Smallest key strictly greater than {@code value}, or {@code null} if none. @throws if absent. */
-    public K successor(K value) { return lockedRead(() -> keyOrNull(os.successor(value))); }
+    /**
+     * Smallest key strictly greater than {@code value}, or {@code null} if none. @throws if absent.
+     * @throws NullPointerException if {@code value} is null (see {@link #add}).
+     */
+    public K successor(K value) {
+        java.util.Objects.requireNonNull(value, "value cannot be null");
+        return lockedRead(() -> keyOrNull(os.successor(value)));
+    }
 
-    /** Largest key strictly less than {@code value}, or {@code null} if none. @throws if absent. */
-    public K predecessor(K value) { return lockedRead(() -> keyOrNull(os.predecessor(value))); }
+    /**
+     * Largest key strictly less than {@code value}, or {@code null} if none. @throws if absent.
+     * @throws NullPointerException if {@code value} is null (see {@link #add}).
+     */
+    public K predecessor(K value) {
+        java.util.Objects.requireNonNull(value, "value cannot be null");
+        return lockedRead(() -> keyOrNull(os.predecessor(value)));
+    }
 
     public K minimum() { return lockedRead(() -> isEmpty() ? null : os.minimum().getData()); }
 
@@ -595,11 +638,27 @@ public class OrderedSet<K> implements SelfHealingTree, OrderedCollection<K>, Ran
     /** kth-percentile key (0-100), or {@code null} if empty. */
     public K percentile(int pct) { return lockedRead(() -> keyOrNull(os.percentile(pct))); }
 
-    /** Count of keys in the closed range [lo, hi]. */
-    public int countInRange(K lo, K hi) { return lockedRead(() -> os.countInRange(lo, hi)); }
+    /**
+     * Count of keys in the closed range [lo, hi]. Both bounds are required — the unbounded-side
+     * form is {@link #countBetween}, whose {@code null} means "unbounded" by contract.
+     * @throws NullPointerException if either bound is null (see {@link #add}).
+     */
+    public int countInRange(K lo, K hi) {
+        java.util.Objects.requireNonNull(lo, "lo cannot be null");
+        java.util.Objects.requireNonNull(hi, "hi cannot be null");
+        return lockedRead(() -> os.countInRange(lo, hi));
+    }
 
-    /** Keys in [lo, hi], ascending. */
-    public List<K> rangeQuery(K lo, K hi) { return lockedRead(() -> os.rangeQuery(lo, hi)); }
+    /**
+     * Keys in [lo, hi], ascending. Both bounds are required — the unbounded-side form is
+     * {@link #rangeSnapshot}, whose {@code null} means "unbounded" by contract.
+     * @throws NullPointerException if either bound is null (see {@link #add}).
+     */
+    public List<K> rangeQuery(K lo, K hi) {
+        java.util.Objects.requireNonNull(lo, "lo cannot be null");
+        java.util.Objects.requireNonNull(hi, "hi cannot be null");
+        return lockedRead(() -> os.rangeQuery(lo, hi));
+    }
 
     private K keyOrNull(TreeNode1<K> node) { return (node == null || node.isNil()) ? null : node.getData(); }
 
@@ -704,9 +763,9 @@ public class OrderedSet<K> implements SelfHealingTree, OrderedCollection<K>, Ran
             if (newStrategy == null || newStrategy.samePolicyAs(tree.getStrategy())) {
                 return false;
             }
-            Map<K, String> keyTags = captureKeyTags();
-            Map<K, Object> keyRefs = captureKeyRefs();
-            List<K> elements = new ArrayList<>(keyTags.keySet());   // ascending, distinct
+            List<CapturedNode<K>> captured = captureNodeState();
+            List<K> elements = new ArrayList<>(captured.size());    // ascending, distinct
+            for (CapturedNode<K> c : captured) elements.add(c.key());
 
             RedBlackTree<K> candidate = new RedBlackTree<>(newStrategy, keyOrder);
             for (K v : elements) candidate.add(v);
@@ -729,8 +788,7 @@ public class OrderedSet<K> implements SelfHealingTree, OrderedCollection<K>, Ran
                 this.os   = new OrderStatisticsOps<>(candidate);
                 this.size = elements.size();
                 if (!isDefaultAugmentor()) reapplyAugmentor();
-                restoreTags(keyTags);
-                restoreRefs(keyRefs);
+                restoreNodeState(captured);
                 resyncLiveOrder();
             } finally {
                 readGuard.unlockWrite(ws);
@@ -759,8 +817,7 @@ public class OrderedSet<K> implements SelfHealingTree, OrderedCollection<K>, Ran
             TreeSet<K> sorted = new TreeSet<>(keyOrder);
             sorted.addAll(tree.inOrder());
             List<K> elements = new ArrayList<>(sorted);
-            Map<K, String> keyTags = captureKeyTags();
-            Map<K, Object> keyRefs = captureKeyRefs();
+            List<CapturedNode<K>> captured = captureNodeState();
 
             RedBlackTree<K> rebuilt = new RedBlackTree<>(strategy, keyOrder);
             for (K v : elements) rebuilt.add(v);
@@ -771,8 +828,7 @@ public class OrderedSet<K> implements SelfHealingTree, OrderedCollection<K>, Ran
                 this.os   = new OrderStatisticsOps<>(rebuilt);
                 this.size = elements.size();
                 if (!isDefaultAugmentor()) reapplyAugmentor();
-                restoreTags(keyTags);
-                restoreRefs(keyRefs);
+                restoreNodeState(captured);
                 resyncLiveOrder();
             } finally {
                 readGuard.unlockWrite(ws);
@@ -800,6 +856,13 @@ public class OrderedSet<K> implements SelfHealingTree, OrderedCollection<K>, Ran
      * net {@code resyncLiveOrder} applies after a morph. Lets the {@code TreeContext}
      * adapter honour its {@code forceSizeInternal} contract while {@code OrderedSet}
      * owns the engine, size, and window.
+     *
+     * <p>An active window is <em>enforced</em>, not merely recorded (audit 2026-08-17,
+     * finding 20): a rebuild that installed more than {@code maxSize} keys is evicted
+     * down to the bound here, exactly as {@link #setMaxSize} and {@link #add} do. The
+     * window caps what can exist, so a checkpoint restore or snapshot load can no more
+     * exceed it than an insert can — before this, an over-bound restore survived until
+     * the next single {@code add}, which then evicted the whole excess at once.</p>
      */
     public void resyncFromEngine() {
         synchronized (lock) {
@@ -809,6 +872,13 @@ public class OrderedSet<K> implements SelfHealingTree, OrderedCollection<K>, Ran
                 this.size = keys.size();
                 liveOrder.clear();
                 liveOrder.addAll(keys);
+                // FIFO order after a wholesale rebuild is the ascending fallback above, so
+                // evicting the oldest keeps the LAST maxSize keys -- the same survivors an
+                // undo's replay-in-ascending-order restore produces (D-2), keeping the two
+                // restore paths consistent.
+                while (maxSize > 0 && size > maxSize) {
+                    if (!evictOldest()) break;
+                }
             } finally {
                 readGuard.unlockWrite(ws);
             }
@@ -833,66 +903,61 @@ public class OrderedSet<K> implements SelfHealingTree, OrderedCollection<K>, Ran
 
     // -- Internal --
 
-    /** In-order snapshot of every key and its tag ({@link LinkedHashMap} keeps ascending order). */
-    private Map<K, String> captureKeyTags() {
-        Map<K, String> out = new LinkedHashMap<>();
-        Deque<TreeNode1<K>> stack = new ArrayDeque<>();
-        TreeNode1<K> cur = tree.getRoot();
-        while (!stack.isEmpty() || !cur.isNil()) {
-            while (!cur.isNil()) { stack.push(cur); cur = cur.getLeft(); }
-            cur = stack.pop();
-            out.put(cur.getData(), cur.getTag());
-            cur = cur.getRight();
-        }
-        return out;
-    }
-
-    /** Re-apply captured tags after a rebuild, re-augmenting so tag-derived values propagate. */
-    private void restoreTags(Map<K, String> keyTags) {
-        for (Map.Entry<K, String> e : keyTags.entrySet()) {
-            String tag = e.getValue();
-            if (tag == null || tag.isEmpty()) continue;
-            TreeNode1<K> n = tree.getStrategy().search(tree, e.getKey());
-            if (!n.isNil()) {
-                n.setTag(tag);
-                n.reaugment();
-            }
-        }
-    }
+    /**
+     * One node's non-structural state, captured in ascending key order: the key itself, its
+     * {@link TreeNode1#getTag() tag}, and its generic augment payload
+     * ({@link TreeNode1#getAugmentedRef()}). Either payload may be absent.
+     */
+    private record CapturedNode<K>(K key, String tag, Object ref) { }
 
     /**
-     * In-order snapshot of every key's generic augment slot, {@link TreeNode1#getAugmentedRef()};
-     * only non-null entries are captured, so trees that never used the ref slot pay one traversal
-     * and an empty map. The ref-slot counterpart of {@link #captureKeyTags()}.
+     * In-order snapshot of every node's key, tag and generic augment payload — everything a
+     * rebuild has to carry across.
+     *
+     * <p>A LIST in traversal order, not a map (audit 2026-08-17, finding 11). The morph used
+     * to rebuild its candidate from a equals-keyed map's key set, i.e. keyed by
+     * {@code equals}/{@code hashCode} rather than by this set's {@link #keyOrder}: keys that
+     * are {@code equals} but compare non-zero collapsed into one entry and the extras were
+     * silently dropped from the rebuilt tree — invisibly to the health gate, whose contents
+     * clause compares the candidate against that same collapsed list. The in-order walk is
+     * already ascending and comparator-distinct (it is the engine's own ordering), so a list
+     * is both faithful and free: unlike a comparator-keyed map it adds no comparisons to the
+     * morph, which is metered as the switching bill in ADR-018's amortization frontier.</p>
      */
-    private Map<K, Object> captureKeyRefs() {
-        Map<K, Object> out = new LinkedHashMap<>();
+    private List<CapturedNode<K>> captureNodeState() {
+        List<CapturedNode<K>> out = new ArrayList<>(size);
         Deque<TreeNode1<K>> stack = new ArrayDeque<>();
         TreeNode1<K> cur = tree.getRoot();
         while (!stack.isEmpty() || !cur.isNil()) {
             while (!cur.isNil()) { stack.push(cur); cur = cur.getLeft(); }
             cur = stack.pop();
-            if (cur.getAugmentedRef() != null) out.put(cur.getData(), cur.getAugmentedRef());
+            out.add(new CapturedNode<>(cur.getData(), cur.getTag(), cur.getAugmentedRef()));
             cur = cur.getRight();
         }
         return out;
     }
 
     /**
-     * Re-apply captured generic augment payloads after a rebuild, re-augmenting per node.
-     * Restoring a payload whose derived part (e.g. subtree max-hi) is stale for the NEW tree
-     * shape is safe: {@code reaugment()} recomputes the derived part on every node up to the
-     * root, and payloads carry their semantic part (e.g. this node's own hi) immutably. The
-     * final propagation pass from each restored node leaves every derived value correct —
-     * the same argument {@link #restoreTags} relies on for tag-derived int augments.
+     * Re-apply captured tags and generic augment payloads after a rebuild, re-augmenting each
+     * touched node so tag- and ref-derived values propagate to the root.
+     *
+     * <p>Restoring a payload whose derived part (e.g. subtree max-hi) is stale for the NEW
+     * tree shape is safe: {@code reaugment()} recomputes the derived part on every node up to
+     * the root, and payloads carry their semantic part (e.g. this node's own hi) immutably, so
+     * the propagation pass from each restored node leaves every derived value correct — the
+     * same argument tag-derived int augments rely on. Nodes carrying neither payload are
+     * skipped, so a tree that never used tags or the ref slot pays one traversal and nothing
+     * else.</p>
      */
-    private void restoreRefs(Map<K, Object> keyRefs) {
-        for (Map.Entry<K, Object> e : keyRefs.entrySet()) {
-            TreeNode1<K> n = tree.getStrategy().search(tree, e.getKey());
-            if (!n.isNil()) {
-                n.setAugmentedRef(e.getValue());
-                n.reaugment();
-            }
+    private void restoreNodeState(List<CapturedNode<K>> captured) {
+        for (CapturedNode<K> c : captured) {
+            boolean hasTag = c.tag() != null && !c.tag().isEmpty();
+            if (!hasTag && c.ref() == null) continue;
+            TreeNode1<K> n = tree.getStrategy().search(tree, c.key());
+            if (n.isNil()) continue;
+            if (hasTag)         n.setTag(c.tag());
+            if (c.ref() != null) n.setAugmentedRef(c.ref());
+            n.reaugment();
         }
     }
 }

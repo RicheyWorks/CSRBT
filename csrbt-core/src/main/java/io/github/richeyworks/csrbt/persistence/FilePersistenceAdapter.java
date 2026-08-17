@@ -62,15 +62,36 @@ public class FilePersistenceAdapter implements TreePersistenceAdapter {
 
     // ── Save ─────────────────────────────────────────────────────────────────
 
+    /** Distinguishes this JVM's staging files from any other process writing the same directory. */
+    private static final long PID = ProcessHandle.current().pid();
+
+    /** Distinguishes concurrent saves inside this JVM (see {@link #tempPathFor}). */
+    private static final java.util.concurrent.atomic.AtomicLong TMP_SEQ =
+            new java.util.concurrent.atomic.AtomicLong();
+
     /**
      * D-3 (consolidation 2026-08-12): every save writes a sibling {@code .tmp} file and
      * commits with an atomic rename, so a failed save (I/O error, unencodable key) can
      * never truncate or half-write the target — the previous snapshot, if any, survives
      * intact. Before this, {@code Files.newBufferedWriter(path)} truncated the target at
      * OPEN, so a save that later failed had already destroyed the prior good file.
+     *
+     * <p>The staging name is unique <em>per save call</em>: {@code <name>.rbt.<pid>.<seq>.tmp}
+     * (audit 2026-08-17, finding 5). It used to be derived from the target name alone, so two
+     * saves of the same snapshot name — two threads, or two JVMs sharing the directory —
+     * opened, truncated and wrote the <em>same</em> staging file, and one {@code commitAtomically}
+     * renamed a file the other was still writing: 4 of 25 measured rounds committed a target
+     * that {@code loadOrderedSet} then refused, destroying the previously-good snapshot. A
+     * per-name lock would only have covered one JVM; a unique name covers both cases.</p>
+     *
+     * <p>What this now guarantees: each save's bytes are written to a file only that call
+     * touches, and the rename publishes them in one step. Concurrent saves of one name still
+     * race to <em>commit</em> — the target ends up as one of the snapshots, whichever renamed
+     * last — but it is always exactly one complete, loadable snapshot, never a blend.</p>
      */
     private static Path tempPathFor(Path target) {
-        return target.resolveSibling(target.getFileName() + ".tmp");
+        return target.resolveSibling(target.getFileName()
+                + "." + PID + "." + TMP_SEQ.incrementAndGet() + ".tmp");
     }
 
     private static void commitAtomically(Path tmp, Path target) throws IOException {
@@ -539,7 +560,9 @@ public class FilePersistenceAdapter implements TreePersistenceAdapter {
      * {@link PersistentTreeEngine}, replaying the stored ascending keys (O(n log n), balanced by
      * construction). The comparator is supplied by the caller — comparators are not serialized —
      * and must match the one used when saving. Returns {@code null} if the file is missing,
-     * malformed, or not a persistent snapshot.
+     * malformed, or not a persistent snapshot — including a file whose key count disagrees with
+     * its header (P-2's tripwire, see {@link #readFlatKeys}) or whose keys are not strictly
+     * ascending (the M-2 gate the other two paths apply via {@code validateRestored}).
      */
     public <K> PersistentTreeEngine<K> loadPersistent(String name, KeySerializer<K> keySerializer,
                                                       Comparator<? super K> keyOrder) {
@@ -547,6 +570,12 @@ public class FilePersistenceAdapter implements TreePersistenceAdapter {
         if (keyOrder == null)      throw new IllegalArgumentException("keyOrder must not be null");
         List<K> keys = readFlatKeys(name, keySerializer);
         if (keys == null) return null;
+        String orderFailure = flatOrderFailure(keys, keyOrder);
+        if (orderFailure != null) {
+            logger.error("Snapshot '{}' failed structural validation, refusing to load: {}",
+                    name, orderFailure);
+            return null;
+        }
         PersistentTreeEngine<K> engine = new PersistentTreeEngine<>(keyOrder);
         for (K k : keys) engine.add(k);
         logger.info("Snapshot '{}' loaded (persistent). size={}", name, engine.size());
@@ -559,7 +588,28 @@ public class FilePersistenceAdapter implements TreePersistenceAdapter {
         return loadPersistent(name, keySerializer, Comparator.<K>naturalOrder());
     }
 
-    /** Parse a flat persistent snapshot's keys, or {@code null} if missing/malformed/wrong format. */
+    /**
+     * Strictly-ascending gate for the flat format — the counterpart of {@code validateRestored}'s
+     * ordering clause on the two structured paths. The file records a <em>set</em> in ascending
+     * order, so a duplicate or an inversion means the file is malformed; replaying it would
+     * silently produce fewer keys than the header declares.
+     *
+     * @return a failure message, or {@code null} when the keys are strictly ascending.
+     */
+    private static <K> String flatOrderFailure(List<K> keys, Comparator<? super K> order) {
+        for (int i = 1; i < keys.size(); i++) {
+            if (order.compare(keys.get(i - 1), keys.get(i)) >= 0) {
+                return "restored keys not strictly ascending at index " + i;
+            }
+        }
+        return null;
+    }
+
+    /**
+     * Parse a flat persistent snapshot's keys, or {@code null} if the file is missing, is not a
+     * persistent snapshot, or is malformed — which now includes a key count that disagrees with
+     * the header's declared size (the P-2 tripwire; see the refusal below).
+     */
     private <K> List<K> readFlatKeys(String name, KeySerializer<K> ks) {
         Path path = snapshotPath(name);
         if (!Files.exists(path)) {
@@ -582,6 +632,13 @@ public class FilePersistenceAdapter implements TreePersistenceAdapter {
                 logger.warn("Snapshot '{}' version mismatch (file='{}', expected='{}') — attempting load anyway.",
                         name, header[0], VERSION);
             }
+            int declaredSize;
+            try {
+                declaredSize = Integer.parseInt(header[3].trim());
+            } catch (NumberFormatException e) {
+                logger.warn("Snapshot '{}' has a non-numeric size field: '{}'", name, header[3]);
+                return null;
+            }
             String dataLine = reader.readLine();
             if (dataLine == null) {
                 logger.warn("Snapshot '{}' has a header but no key data line.", name);
@@ -590,6 +647,16 @@ public class FilePersistenceAdapter implements TreePersistenceAdapter {
             List<K> keys = new ArrayList<>();
             for (String token : dataLine.split(";")) {
                 if (!token.isEmpty()) keys.add(ks.deserialize(token));
+            }
+            // Same refusal the int and generic paths make (P-2), which this third path was
+            // missing (audit 2026-08-17, finding 3): a truncated data line parses cleanly into
+            // a shorter key list — and its trailing partial token deserializes into a
+            // valid-but-wrong key ("12" out of "123") — so the header size field is the only
+            // tripwire. It is not advisory here either.
+            if (keys.size() != declaredSize) {
+                logger.error("Snapshot '{}' size mismatch: header={}, parsed={} — refusing "
+                        + "(truncated or tampered file).", name, declaredSize, keys.size());
+                return null;
             }
             return keys;
         } catch (Exception e) {
@@ -645,6 +712,14 @@ public class FilePersistenceAdapter implements TreePersistenceAdapter {
      * comparator, and executor are runtime configuration and are not serialized); its comparator
      * must match the one used when saving.
      *
+     * <p>Validate-then-mutate (audit 2026-08-17, finding 4): every check — file present, header
+     * well-formed, declared size matched, keys strictly ascending — happens on the parsed key
+     * list <em>before</em> {@code target.clear()}, so the contract below holds literally. Until
+     * this was fixed, the flat branch cleared the target and replayed a truncated key list,
+     * returning {@code true}: a 300-key snapshot wiped the destination and refilled it with 118.
+     * The structured branch parses into a throwaway {@code OrderedSet} that is itself fully
+     * validated (size tripwire + M-2 structural gate) before any key reaches the target.</p>
+     *
      * @return {@code true} if the snapshot was found and replayed; {@code false} if missing or
      *         malformed (the target is left untouched in that case)
      */
@@ -653,11 +728,22 @@ public class FilePersistenceAdapter implements TreePersistenceAdapter {
         List<K> keys;
         if (PERSISTENT_LABEL.equals(snapshotStrategy(name))) {
             keys = readFlatKeys(name, keySerializer);              // ADR-005 P3 flat format
+            if (keys != null) {
+                // The flat format carries no structure to validate, so the ordering gate is the
+                // one the other path gets from validateRestored: duplicate or inverted keys mean
+                // the replay would land fewer keys than the file claims.
+                String orderFailure = flatOrderFailure(keys, target.comparator());
+                if (orderFailure != null) {
+                    logger.error("Snapshot '{}' failed structural validation, refusing to load "
+                            + "(ensemble left untouched): {}", name, orderFailure);
+                    return false;
+                }
+            }
         } else {
             OrderedSet<K> loaded = loadOrderedSet(name, keySerializer, target.comparator());
             keys = loaded == null ? null : loaded.inOrder();
         }
-        if (keys == null) return false;
+        if (keys == null) return false;                            // nothing has touched target yet
         target.clear();
         for (K k : keys) target.add(k);
         logger.info("Snapshot '{}' replayed into ensemble ({} members, n={}).",

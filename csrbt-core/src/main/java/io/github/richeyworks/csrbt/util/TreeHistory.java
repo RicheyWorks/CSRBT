@@ -325,11 +325,20 @@ public class TreeHistory {
      *  re-record history. */
     private void restoreFrom(TreeContext snap) {
         TreeContext fresh = new TreeCloner(snap).snapshot();
-        context.getTree().setRoot(
+        TreeNode1<Integer> nil = context.getTree().getNIL();
+        TreeNode1<Integer> restoredRoot =
             fresh.getTree().getRoot() != null
-                ? fresh.getTree().getRoot().deepCopy(context.getTree().getNIL())
-                : context.getTree().getNIL()
-        );
+                ? fresh.getTree().getRoot().deepCopy(nil)
+                : nil;
+        context.getTree().setRoot(restoredRoot);
+        // The root's parent is the sentinel, never null (audit 2026-08-17, finding 1):
+        // deepCopy leaves the copied root parentless, and every other rebuild path
+        // (FilePersistenceAdapter, TreeCloner) performs this link. Without it the next
+        // insert's fixup reads a null parent and NPEs in TreeStrategy.rotateLeft.
+        if (restoredRoot != nil) restoredRoot.setParent(nil);
+        // resyncFromEngine recomputes size + FIFO window AND evicts down to the window
+        // bound, so a restore whose before-state exceeds maxSize restores at most
+        // maxSize keys — this class's documented sliding-window contract (finding 20).
         context.forceSizeInternal(fresh.getSize());
         // deepCopy rebuilds nodes with the default (size) augmentor; re-apply the
         // checkpoint's augmentor so non-size augmentation (e.g. interval max-hi) is

@@ -223,6 +223,10 @@ public class RedBlackStrategy<K> implements TreeStrategy<K> {
      *   Case 4 — w is BLACK, w's far child RED:
      *     Recolor w = parent's color, parent + far child BLACK, rotate parent.
      *     Extra black is resolved — loop ends.
+     *
+     * Every case assumes CLRS's precondition {@code w != T.nil}, which holds only on a
+     * red-black-VALID tree; {@link #cannotRebalance} is the tripwire for trees that
+     * arrived by another route. See its javadoc (audit 2026-08-17, finding 2).
      */
     private void fixDelete(MutableTree<K> tree, TreeNode1<K> x, TreeNode1<K> parent) {
         // `parent` is x's parent, threaded in by the caller so this works even
@@ -241,6 +245,8 @@ public class RedBlackStrategy<K> implements TreeStrategy<K> {
                     tree.rotateLeft(parent);
                     w = parent.getRight();   // new sibling after rotation (parent unchanged)
                 }
+
+                if (cannotRebalance(w)) { x = tree.getRoot(); break; }
 
                 if (w.getLeft().isBlack() && w.getRight().isBlack()) {
                     // Case 2: sibling's children both BLACK → push black up
@@ -276,6 +282,8 @@ public class RedBlackStrategy<K> implements TreeStrategy<K> {
                     w = parent.getLeft();
                 }
 
+                if (cannotRebalance(w)) { x = tree.getRoot(); break; }
+
                 if (w.getRight().isBlack() && w.getLeft().isBlack()) {
                     // Case 2
                     w.setColor(TreeNode1.Color.RED);
@@ -299,8 +307,38 @@ public class RedBlackStrategy<K> implements TreeStrategy<K> {
                 }
             }
         }
-        // x absorbed the extra black
-        x.setColor(TreeNode1.Color.BLACK);
+        // x absorbed the extra black. Never write the sentinel: NIL is BLACK by
+        // construction and is shared by every node in the tree, so a colour write
+        // through it is a write to every "empty child" at once.
+        if (!x.isNil()) x.setColor(TreeNode1.Color.BLACK);
+    }
+
+    /**
+     * Sentinel tripwire for the delete fixup (audit 2026-08-17, finding 2).
+     *
+     * <p>CLRS's fixup assumes the sibling {@code w} is a real node — guaranteed only
+     * because a doubly-black {@code x} implies a non-empty sibling subtree <em>on a
+     * valid red-black tree</em>. Nothing enforces validity here: a tree can arrive by
+     * a structural route that never ran the RB fixups at all (a depth-truncated
+     * {@code TreeCloner.shallowClone}, a hand-wired snapshot, a morph target built by
+     * another strategy). With {@code w == NIL} the case-2 branch recoloured the shared
+     * per-tree sentinel RED and the follow-on rotation wrote {@code NIL.left} /
+     * {@code NIL.parent} and called {@code setRoot(NIL)} — emptying the whole tree with
+     * no exception at the API boundary.</p>
+     *
+     * <p>So a NIL sibling is treated as "cannot rebalance further": there is no sibling
+     * subtree to borrow blackness from, and the caller stops the loop instead of
+     * recolouring or rotating the sentinel. Contents are untouched; only the colouring of
+     * an already-invalid tree stays imperfect. On a valid tree this is one predictable,
+     * never-taken branch — free on the hot path.</p>
+     *
+     * @return {@code true} when {@code w} is the sentinel and the fixup must stop.
+     */
+    private boolean cannotRebalance(TreeNode1<K> w) {
+        if (!w.isNil()) return false;
+        logger.warn("fixDelete: sibling is the NIL sentinel — this tree is not red-black "
+                + "valid; ending the fixup without writing the sentinel.");
+        return true;
     }
 
     // ── Search ────────────────────────────────────────────────────────────────

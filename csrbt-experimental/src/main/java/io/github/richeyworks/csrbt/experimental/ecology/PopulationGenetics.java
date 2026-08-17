@@ -1,5 +1,7 @@
 package io.github.richeyworks.csrbt.experimental.ecology;
 
+import java.util.Locale;
+
 /**
  * Population-genetics equations for the classroom seam (ADR-019) — the Hardy–Weinberg
  * toolkit a genetics or ecology course leans on, as pure oracle-testable functions.
@@ -60,12 +62,28 @@ public final class PopulationGenetics {
      * of survivorship l&#x2093; and fecundity m&#x2093; (age = array index), the net reproductive
      * rate R&#x2080; = &#x3A3; l&#x2093;m&#x2093;, generation time T = &#x3A3; x&#xB7;l&#x2093;m&#x2093; / R&#x2080;, the first-order
      * intrinsic rate r &#x2248; ln R&#x2080; / T, and the exact r solving the Euler–Lotka equation
-     * &#x3A3; e^(&#x2212;rx) l&#x2093;m&#x2093; = 1 by bisection (the left side is strictly decreasing in r).
+     * &#x3A3; e^(&#x2212;rx) l&#x2093;m&#x2093; = 1 by bisection (the left side is non-increasing in r).
      * Requires R&#x2080; &gt; 0 (some reproduction somewhere) and equal-length schedules.
+     * Schedules for which no r solves the equation are reported, never approximated —
+     * see {@link #eulerLotka(double[], double[])}.
      */
     public record LifeTableRates(double r0, double generationTime,
                                  double rApprox, double rExact) {}
 
+    /**
+     * Widest |r| the bracket search will consider. Past this the exponential
+     * e^(&#x2212;rx) has left the double range entirely (e^700 &#x2248; 1e304), so a root beyond
+     * it cannot be located at all — and no life table a course hands out comes close:
+     * r = &#xB1;700 per age class is R&#x2080; of 1e304 or 1e&#x2212;304 in one generation.
+     */
+    public static final double R_BRACKET_CAP = 700.0;
+
+    /**
+     * @throws IllegalArgumentException if the schedules disagree in length, are empty,
+     *         carry a negative l&#x2093;m&#x2093;, have R&#x2080; = 0, or admit no intrinsic rate at all
+     *         (all reproduction at age 0 with R&#x2080; &#x2260; 1 — that term is never discounted
+     *         by r, so &#x3A3; e^(&#x2212;rx) l&#x2093;m&#x2093; can never reach 1)
+     */
     public static LifeTableRates eulerLotka(double[] lx, double[] mx) {
         if (lx.length != mx.length || lx.length == 0) {
             throw new IllegalArgumentException("lx and mx must be equal-length and non-empty");
@@ -81,14 +99,47 @@ public final class PopulationGenetics {
         double t = weighted / r0;
         double rApprox = t == 0 ? 0.0 : Math.log(r0) / t;
 
-        // Bisection on f(r) = Σ e^(−rx) lx mx − 1, strictly decreasing in r.
+        // Σ e^(−rx) lx mx at r = 0 IS R0, so an exactly-replacing schedule solves the
+        // equation at r = 0 — exactly, and without a search that would have to bisect
+        // a flat function when all the reproduction sits at age 0.
+        double rExact = r0 == 1.0 ? 0.0 : solveEulerLotka(lx, mx);
+        return new LifeTableRates(r0, t, rApprox, rExact);
+    }
+
+    /**
+     * Bisection on f(r) = &#x3A3; e^(&#x2212;rx) l&#x2093;m&#x2093; &#x2212; 1, non-increasing in r, over a bracket
+     * expanded until it actually contains the root.
+     *
+     * <p>The bracket used to be a hardcoded [&#x2212;5, +5] with no containment check, so any
+     * schedule whose root lay outside it got the nearest endpoint back, labelled "exact"
+     * (audit 2026-08-17 #16: l&#x2093; = {1,1}, m&#x2093; = {0,250} has r = ln 250 = 5.5215 and the
+     * bisection reported 5.0000, side by side with a correct r &#x2248; 5.5215). A schedule with
+     * no root at all — all reproduction at age 0, where e^(&#x2212;r&#xB7;0) = 1 leaves the term
+     * untouched by r — now says so instead of returning a bracket end.</p>
+     */
+    private static double solveEulerLotka(double[] lx, double[] mx) {
         double lo = -5, hi = 5;
+        while (eulerLotkaSum(lx, mx, hi) > 1.0 && hi < R_BRACKET_CAP) {
+            hi = Math.min(hi * 2, R_BRACKET_CAP);
+        }
+        while (eulerLotkaSum(lx, mx, lo) < 1.0 && lo > -R_BRACKET_CAP) {
+            lo = Math.max(lo * 2, -R_BRACKET_CAP);
+        }
+        boolean high = eulerLotkaSum(lx, mx, hi) > 1.0;
+        if (high || eulerLotkaSum(lx, mx, lo) < 1.0) {
+            throw new IllegalArgumentException(String.format(Locale.ROOT,
+                    "no intrinsic rate r fits this schedule: Σ e^(−rx)·lx·mx is still %s 1 "
+                    + "at r = %+.0f, so it never crosses 1. This happens when the reproduction "
+                    + "sits at age 0, which r cannot discount (e^0 = 1) — such a schedule has "
+                    + "a solution only when R0 is exactly 1.",
+                    high ? "above" : "below", high ? R_BRACKET_CAP : -R_BRACKET_CAP));
+        }
         for (int i = 0; i < 200; i++) {
             double mid = (lo + hi) / 2;
             if (eulerLotkaSum(lx, mx, mid) > 1.0) lo = mid;
             else hi = mid;
         }
-        return new LifeTableRates(r0, t, rApprox, (lo + hi) / 2);
+        return (lo + hi) / 2;
     }
 
     private static double eulerLotkaSum(double[] lx, double[] mx, double r) {

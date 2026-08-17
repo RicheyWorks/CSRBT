@@ -96,6 +96,12 @@ const meta = document.getElementById("meta"), drop = document.getElementById("dr
 let nodes = new Map();      // key -> {x,y,r,red, fx,fy,fr,fred,falpha, tx,ty,tr,tred,talpha, alpha}
 let edges = [];             // [{from,to}] of the CURRENT target state
 let animStart = 0;
+let lastState = null;       // the state currently laid out — re-laid out on resize
+
+// Dropped files are data, not markup: anything from one that reaches innerHTML escapes.
+const esc = s => String(s ?? "")
+  .replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;")
+  .replace(/"/g, "&quot;").replace(/'/g, "&#39;");
 
 function flatten(state) {
   // -> list of {key,color,size,depth,inorder,parent}; x = in-order index, y = depth.
@@ -126,10 +132,11 @@ function enterHeatmap(m) {
   edges = [];
   heatmap = m;
   for (const b of document.querySelectorAll("header button")) b.classList.remove("active");
+  lastState = null;
   const viable = m.cells.filter(c => c.firstViolationOp.every(o => o < 0)).length;
   meta.innerHTML = `<b>viability map</b> &nbsp; ${m.cells.length} cells &nbsp; ` +
                    `<b>${viable}</b> viable &nbsp; ${m.cells.length - viable} unsound &nbsp; ` +
-                   `(${m.ops} ops × ${m.seeds.length} seeds, invariant every ${m.checkEvery})`;
+                   `(${esc(m.ops)} ops × ${m.seeds.length} seeds, invariant every ${esc(m.checkEvery)})`;
   draw();
 }
 
@@ -297,6 +304,7 @@ function stopPlay() {
 
 function applyState(state) {
   heatmap = null;
+  lastState = state;
   const flat = flatten(state);
   const maxDepth = Math.max(1, state.height || Math.max(...flat.map(n => n.depth)));
   const n = Math.max(1, flat.length);
@@ -320,8 +328,10 @@ function applyState(state) {
       node = { x: p ? p.x : tx, y: p ? p.y : ty - 30, r: 0, red: f.red, alpha: 0 };
       nodes.set(f.key, node);
     }
+    // `exiting: false` matters: a key removed and re-added inside one DURATION keeps the
+    // flag set at the exit branch below, and frame() would delete the live node at t === 1.
     Object.assign(node, { fx: node.x, fy: node.y, fr: node.r, fred: node.red, falpha: node.alpha,
-                          tx, ty, tr, tred: f.red, talpha: 1, label: f.key });
+                          tx, ty, tr, tred: f.red, talpha: 1, label: f.key, exiting: false });
   }
   for (const [key, node] of nodes) {                     // exiting: shrink and fade in place
     if (!seen.has(key)) {
@@ -330,8 +340,8 @@ function applyState(state) {
     }
   }
   edges = flat.filter(f => f.parent !== null).map(f => ({ from: f.parent, to: f.key }));
-  meta.innerHTML = `<b>${state.strategy}</b> &nbsp; n=<b>${state.size}</b> &nbsp; ` +
-                   `height=<b>${state.height}</b> &nbsp; ` +
+  meta.innerHTML = `<b>${esc(state.strategy)}</b> &nbsp; n=<b>${esc(state.size)}</b> &nbsp; ` +
+                   `height=<b>${esc(state.height)}</b> &nbsp; ` +
                    `avg insert <b>${(state.meters?.avgInsertMs ?? 0).toFixed(4)}</b> ms`;
   animStart = performance.now();
   requestAnimationFrame(frame);
@@ -428,7 +438,13 @@ window.addEventListener("drop", e => {
   drop.style.display = "none";
   if (e.dataTransfer.files[0]) loadFile(e.dataTransfer.files[0]);
 });
-window.addEventListener("resize", () => { animStart = performance.now() - DURATION; frame(performance.now()); });
+// tx/ty are computed in applyState against cv.clientWidth, so a resize has to re-lay out —
+// re-running frame() alone leaves the tree packed into (or clipped by) the old width.
+window.addEventListener("resize", () => {
+  if (heatmap) { draw(); return; }                       // the heatmap re-measures every draw
+  if (lastState) applyState(lastState);                  // re-lay out, tweening to the new width
+  else { animStart = performance.now() - DURATION; frame(performance.now()); }
+});
 
 loadState("RB", document.getElementById("b-RB"));
 </script>

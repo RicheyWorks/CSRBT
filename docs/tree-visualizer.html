@@ -96,7 +96,8 @@
       <canvas id="tree" height="440"></canvas>
       <div class="legend">
         <span><i style="background:#e5484d"></i>red node (RB)</span>
-        <span><i style="background:#2a2f3a;border-color:#556"></i>black node</span>
+        <span><i style="background:#2a2f3a;border-color:#556"></i>black node (RB)</span>
+        <span><i style="background:#2c6e5f;border-color:#43c0b6"></i>node in AVL / WB / Splay (these strategies don't colour nodes)</span>
         <span><i style="background:var(--amber)"></i>last touched</span>
         <span><i style="background:var(--blue)"></i>search path</span>
       </div>
@@ -362,14 +363,23 @@ function layout(t){
 // ---------- canvas draw with animation ----------
 const cv=document.getElementById("tree"), cx=cv.getContext("2d");
 function fit(){ cv.width=cv.clientWidth*devicePixelRatio; cv.height=440*devicePixelRatio; cx.setTransform(devicePixelRatio,0,0,devicePixelRatio,0,0); }
-addEventListener("resize",fit);
+// frame() draws the compare canvases at their *current* clientWidth, but their backing
+// stores were sized once in buildCmp — so a resize in compare mode clipped (and blurred)
+// every tree until compare mode was toggled off and on. Both paths refit together now.
+function fitAll(){ fit(); fitCmp(); }
+addEventListener("resize",fitAll);
 let highlightKey=null, pathKeys=new Set(), hlUntil=0;
 function drawTree(t,ctx,W,H,opts={}){
   ctx.clearRect(0,0,W,H);
   const NIL=t.NIL; if(t._count===0){ ctx.fillStyle="#5a6675"; ctx.font="13px system-ui"; ctx.textAlign="center"; ctx.fillText("empty — insert a key",W/2,H/2); return; }
   const n=t._count, depth=t._depth;
   const padX=26, padY=26;
-  const r=Math.max(7, Math.min(opts.maxR||18, (W-2*padX)/(n*2.1), (H-2*padY)/(depth*2.4)));
+  // Crowding-aware radius, ported from demo/visualizer.html's crowdCap: the old floor of 7
+  // ignored n entirely, so from ~42 nodes on a ~620px canvas (5 clicks of "+10 random")
+  // neighbouring circles overlapped. Big trees now shrink toward dots instead — and at that
+  // size the r>8 guard below correctly drops the key labels rather than stacking them.
+  const crowdCap=Math.max(2.2, Math.min(opts.maxR||18, ((W-2*padX)/Math.max(1,n))*1.15));
+  const r=Math.max(2.2, Math.min(crowdCap, opts.maxR||18, (W-2*padX)/(n*2.1), (H-2*padY)/(depth*2.4)));
   const gx=(W-2*padX)/Math.max(1,n-1);
   const gy=(H-2*padY-r)/Math.max(1,depth-1);
   const X=i=> n===1? W/2 : padX+i*gx;
@@ -430,7 +440,13 @@ function buildCmp(){ const g=document.getElementById("cmpGrid"); g.innerHTML="";
   for(const s of STRATS){ const c=document.createElement("div"); c.className="cmpCard"; c.id="cc-"+s.id;
     c.innerHTML=`<h3>${s.name}<span class="badge"></span></h3><canvas height="200"></canvas><div class="cmpStats"></div>`;
     g.appendChild(c); const cvv=c.querySelector("canvas"); cmpCanvases[s.id]={el:cvv,ctx:cvv.getContext("2d")}; }
-  for(const s in cmpCanvases){ const o=cmpCanvases[s]; o.el.width=o.el.clientWidth*devicePixelRatio; o.el.height=200*devicePixelRatio; o.ctx.setTransform(devicePixelRatio,0,0,devicePixelRatio,0,0); }
+  fitCmp();
+}
+function fitCmp(){
+  for(const s in cmpCanvases){ const o=cmpCanvases[s];
+    const w=Math.round(o.el.clientWidth*devicePixelRatio), h=Math.round(200*devicePixelRatio);
+    if(o.el.width!==w||o.el.height!==h){ o.el.width=w; o.el.height=h; }
+    o.ctx.setTransform(devicePixelRatio,0,0,devicePixelRatio,0,0); }
 }
 function afterCompare(){ for(const s of STRATS)layout(CT[s.id]);
   let best=Infinity; for(const s of STRATS)best=Math.min(best,height(CT[s.id]));
@@ -477,7 +493,7 @@ addEventListener("keydown",e=>{
 });
 
 // ---------- boot ----------
-fit();
+fitAll();
 document.getElementById("stratDesc").innerHTML="<b>Red-Black.</b> "+STRATS[0].desc;
 [42,17,66,9,23,50,88,4,13,30,58,71,95].forEach(k=>{ if(insert(T,k))keys.push(k); });
 layout(T); refreshMetrics();

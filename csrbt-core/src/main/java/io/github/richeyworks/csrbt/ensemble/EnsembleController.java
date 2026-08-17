@@ -38,10 +38,13 @@ import java.util.Objects;
  * and folded into the monitor (the read/write mix and hot-key skew the scorer needs). Reads are
  * served by the current primary; a promotion changes which member that is, transparently.</p>
  *
- * <p>Only strategies actually present as ensemble members are promotable: the scorer's ranking is
- * filtered to available members before the policy sees it, so a strategy the ensemble does not
- * carry (e.g. a scored-but-absent Hybrid) can never win the gate, and the policy still compares
- * against the genuinely cheapest <em>available</em> candidate. Exactly one
+ * <p>Only strategies an ensemble member is <em>currently running</em>, in the {@code ACTIVE} state,
+ * are promotable: the scorer's ranking is filtered against a per-evaluation index of live members
+ * before the policy sees it, so a strategy the ensemble does not carry (e.g. a scored-but-absent
+ * Hybrid) and a member this controller's own {@link #checkHealth()} quarantined or retired can
+ * never win the gate, and the policy still compares against the genuinely cheapest
+ * <em>available</em> candidate. Strategy identity is read from each member at use time, never
+ * cached, because the ADR-011 controllers morph members by design. Exactly one
  * {@code event=morph_eval} line is emitted per evaluation (ADR-003 E2 / DESIGN section 12), carrying
  * the workload vector, the per-member meters, and the decision.</p>
  *
@@ -57,9 +60,6 @@ public final class EnsembleController<K> {
     private final StrategyScorer        scorer;
     private final MorphPolicy           policy;
 
-    /** StrategyId -> the member backing it, for O(1) decision -> member resolution. */
-    private final Map<StrategyId, EnsembleMember<K>> byStrategy;
-
     private MorphHistory history = MorphHistory.initial();
 
     public EnsembleController(EnsembleOrderedSet<K> ensemble, WorkloadMonitor monitor,
@@ -68,7 +68,6 @@ public final class EnsembleController<K> {
         this.monitor    = Objects.requireNonNull(monitor,  "monitor cannot be null");
         this.scorer     = Objects.requireNonNull(scorer,   "scorer cannot be null");
         this.policy     = Objects.requireNonNull(policy,   "policy cannot be null");
-        this.byStrategy = indexMembers(ensemble);
     }
 
     /** Convenience: the transparent cost-model scorer + DESIGN section 3.3 default anti-thrash policy. */
@@ -77,40 +76,94 @@ public final class EnsembleController<K> {
     }
 
     /**
-     * Map each member to the {@link StrategyId} whose strategy class it carries (unknown ids
-     * skipped). ENGINE-tier members (ADR-005 P3) carry no strategy and are skipped here too: the
-     * cost-model scorer cannot rank them, so they are never promoted <em>automatically</em> —
-     * they still serve, vote, heal, and fail over, and can be promoted explicitly.
+     * The {@link StrategyId} {@code m} is running <em>right now</em>, or {@code null} when it has
+     * none the scorer can name. ENGINE-tier members (ADR-005 P3) carry no strategy at all: the
+     * cost-model scorer cannot rank them, so they are never promoted <em>automatically</em> — they
+     * still serve, vote, heal, and fail over, and can be promoted explicitly.
+     *
+     * <p>Resolved per call rather than cached (sixth-pass audit finding 18). The old constructor-time
+     * index froze each member's strategy class forever, but {@code PolicySearchController.beginTrial}
+     * and {@code PolicyEvolutionController.beginGeneration} both {@code setStrategy} on members by
+     * design — so the index named the strategy a member <em>used to</em> run, and every
+     * {@code event=morph_eval} line, every promotion message, and {@link #currentPrimaryId()}
+     * reported it.</p>
      */
-    private static <K> Map<StrategyId, EnsembleMember<K>> indexMembers(EnsembleOrderedSet<K> ens) {
+    private StrategyId idOf(EnsembleMember<K> m) {
+        if (m == null || !m.isStrategyBacked()) return null;
+        Class<?> memberStrategy = m.orderedSet().getStrategy().getClass();
+        for (StrategyId id : StrategyId.values()) {
+            if (id.newStrategy().getClass() == memberStrategy) return id;
+        }
+        return null;
+    }
+
+    /**
+     * StrategyId -&gt; the first {@code ACTIVE} member currently running it, rebuilt per evaluation.
+     *
+     * <p>Liveness is part of the index, not an afterthought (sixth-pass audit finding 9):
+     * {@link EnsembleOrderedSet#promote} throws for a non-{@code ACTIVE} member and
+     * {@link EnsembleOrderedSet#retire}'s contract says a retired member is never promoted, yet
+     * {@link #checkHealth()} retires members itself. A quarantined or retired member left in the
+     * candidate set made every subsequent {@code evaluateAndMaybePromote} throw; a dead member is a
+     * hold, not a crash.</p>
+     */
+    private Map<StrategyId, EnsembleMember<K>> liveIndex() {
         Map<StrategyId, EnsembleMember<K>> map = new EnumMap<>(StrategyId.class);
-        for (EnsembleMember<K> m : ens.members()) {
-            if (!m.isStrategyBacked()) continue;
-            Class<?> memberStrategy = m.orderedSet().getStrategy().getClass();
-            for (StrategyId id : StrategyId.values()) {
-                if (id.newStrategy().getClass() == memberStrategy) {
-                    map.putIfAbsent(id, m);
-                    break;
-                }
-            }
+        for (EnsembleMember<K> m : ensemble.members()) {
+            if (!m.isActive()) continue;
+            StrategyId id = idOf(m);
+            if (id != null) map.putIfAbsent(id, m);
         }
         return map;
     }
 
     // -- Data-plane facade: apply to the ensemble and feed the monitor --
 
-    /** Add {@code key}; on an effective insert, record it in the monitor's op stream. */
+    /**
+     * Add {@code key}; on an effective insert, record it in the monitor's op stream together with
+     * the rotations the write actually cost (see {@link #rotationsSince}).
+     */
     public boolean add(K key) {
+        EnsembleMember<K> metered = ensemble.primary();
+        long rot0 = rotationMeter(metered);
         boolean changed = ensemble.add(key);
-        if (changed) monitor.recordAdd(Objects.hashCode(key));
+        if (changed) monitor.recordAdd(Objects.hashCode(key), rotationsSince(metered, rot0));
         return changed;
     }
 
-    /** Remove {@code key}; on an effective delete, record it in the monitor's op stream. */
+    /** Remove {@code key}; on an effective delete, record it (with its realized rotations). */
     public boolean remove(K key) {
+        EnsembleMember<K> metered = ensemble.primary();
+        long rot0 = rotationMeter(metered);
         boolean changed = ensemble.remove(key);
-        if (changed) monitor.recordRemove(Objects.hashCode(key));
+        if (changed) monitor.recordRemove(Objects.hashCode(key), rotationsSince(metered, rot0));
         return changed;
+    }
+
+    /** The member's live engine rotation counter, or {@code -1} when it has none (engine-tier). */
+    private static <K> long rotationMeter(EnsembleMember<K> m) {
+        return m.isStrategyBacked() ? m.orderedSet().rotationCount() : -1L;
+    }
+
+    /**
+     * Rotations the serving primary's engine performed across one logical write —
+     * {@code rotationsPerWrite}'s missing feed (AUDIT_2026-07-21 <b>F-E1</b>, re-raised as
+     * sixth-pass finding 12). Every production caller used to pass the {@code WorkloadMonitor}
+     * one-arg default (a literal 0), so {@code writeCost = writeFraction × rotationsPerWrite} was
+     * identically 0.0 and ADR-011 V3/V4 promotion was decided purely by the structural read term —
+     * a rotation-thrashing policy won whenever its tree was momentarily shallower.
+     *
+     * <p>The meter is the primary's because the primary is the member that receives every write
+     * (shadows see a sampled stream), so its delta is the <em>stream's</em> realized churn. Clamped
+     * at zero per {@link io.github.richeyworks.csrbt.OrderedSet#rotationCount()}: a morph or
+     * self-repair swaps the engine and resets the counter, which would otherwise read as a negative
+     * delta.</p>
+     */
+    private static <K> int rotationsSince(EnsembleMember<K> m, long before) {
+        if (before < 0L) return 0;                       // engine-tier member: no rotation meter
+        long after = rotationMeter(m);
+        if (after < 0L) return 0;
+        return (int) Math.max(0L, Math.min(Integer.MAX_VALUE, after - before));
     }
 
     /**
@@ -138,12 +191,24 @@ public final class EnsembleController<K> {
      */
     public PromotionResult evaluateAndMaybePromote(int opsElapsed) {
         WorkloadFeatures f = monitor.snapshot();
-        StrategyId current = currentPrimaryId();
+        Map<StrategyId, EnsembleMember<K>> live = liveIndex();
+        StrategyId current = idOf(ensemble.primary());
 
-        // Restrict the ranking to strategies the ensemble can actually serve.
+        // Restrict the ranking to strategies the ensemble can actually serve RIGHT NOW: a member
+        // this controller's own checkHealth quarantined or retired is not a promotion target
+        // (finding 9), and a member that was morphed behind the controller's back answers for the
+        // strategy it is running now, not the one it was built with (finding 18).
         List<StrategyScorer.Score> available = new ArrayList<>();
         for (StrategyScorer.Score s : scorer.score(f)) {
-            if (byStrategy.containsKey(s.strategy())) available.add(s);
+            if (live.containsKey(s.strategy())) {
+                available.add(s);
+                continue;
+            }
+            EnsembleMember<K> dead = memberCarrying(s.strategy());
+            if (dead != null) {
+                logger.info("event=morph_candidate_skipped strategy={} member={} state={} reason=not-active",
+                        s.strategy(), dead.strategyName(), dead.state());
+            }
         }
 
         MorphPolicy.Decision decision = policy.evaluate(current, available, f, history);
@@ -155,8 +220,8 @@ public final class EnsembleController<K> {
 
         if (decision == MorphPolicy.Decision.MORPH && !available.isEmpty()) {
             StrategyId candidate = available.get(0).strategy();
-            EnsembleMember<K> target = byStrategy.get(candidate);
-            boolean swapped = target != null && ensemble.promote(target);
+            EnsembleMember<K> target = live.get(candidate);
+            boolean swapped = target != null && target.isActive() && ensemble.promote(target);
             if (swapped) {
                 promoted = true;
                 to       = candidate;
@@ -183,9 +248,13 @@ public final class EnsembleController<K> {
 
     /** The {@link StrategyId} of the member currently serving reads, or {@code null} if unmapped. */
     public StrategyId currentPrimaryId() {
-        EnsembleMember<K> p = ensemble.primary();
-        for (Map.Entry<StrategyId, EnsembleMember<K>> e : byStrategy.entrySet()) {
-            if (e.getValue() == p) return e.getKey();
+        return idOf(ensemble.primary());
+    }
+
+    /** Any member (whatever its state) currently running {@code id}'s strategy, or {@code null}. */
+    private EnsembleMember<K> memberCarrying(StrategyId id) {
+        for (EnsembleMember<K> m : ensemble.members()) {
+            if (idOf(m) == id) return m;
         }
         return null;
     }
@@ -387,14 +456,6 @@ public final class EnsembleController<K> {
         for (EnsembleMember<K> m : ensemble.members()) {
             if (m == exclude || !m.isActive() || !m.isExact()) continue;
             if (isHealthy(m, m.set().inOrder())) return m;
-        }
-        return null;
-    }
-
-    /** The StrategyId backing {@code m}, or null if unmapped. */
-    private StrategyId idOf(EnsembleMember<K> m) {
-        for (Map.Entry<StrategyId, EnsembleMember<K>> e : byStrategy.entrySet()) {
-            if (e.getValue() == m) return e.getKey();
         }
         return null;
     }

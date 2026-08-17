@@ -43,6 +43,38 @@ public final class Fitness {
     private Fitness() { }   // static utility; not instantiable
 
     /**
+     * Smallest element count at which a tree has a <em>shape</em> — the minimum size for which
+     * {@link #evaluate} produces a number that means anything.
+     *
+     * <p>For {@code n ≤ 1} every arrangement of the keys is the same arrangement, so the read term
+     * is structure-free and {@link #evaluate} zeroes it (and {@code meanDepth} of an empty tree is
+     * 0 anyway). That is honest arithmetic and a trap for the caller: a cost of exactly 0.0 beats
+     * every possible incumbent.</p>
+     */
+    public static final long MIN_INFORMATIVE_SIZE = 2L;
+
+    /**
+     * Whether a candidate of {@code size} elements produced an <b>observation</b> — a cost that may
+     * be recorded against an arm and compared with an incumbent (sixth-pass audit finding 8).
+     *
+     * <p>The ADR-011 controllers score a trial shadow against the serving primary. On the documented
+     * {@link io.github.richeyworks.csrbt.ensemble.EnsembleMode#SAMPLED_SHADOW} path the shadow is
+     * legitimately tiny — at {@code shadowSampleRate(0.02)} against a 40-key primary it is
+     * <em>empty</em> — and an empty tree costs exactly 0.0. That number used to be treated as a
+     * measurement: it beat the incumbent's 0.5497 on the very first trial, and because the bandit
+     * kept {@code meanCost = 0.0} for that arm it stayed {@code bestArm()} forever, so no other arm
+     * could ever win. The cure is not to clamp the number — a trial that saw no data must record
+     * <em>no observation at all</em>, leaving the arm untried and the incumbent unchallenged until
+     * there is something real to compare.</p>
+     *
+     * @param size the candidate's element count
+     * @return {@code true} when the cost from a tree this size is comparable
+     */
+    public static boolean informative(long size) {
+        return size >= MIN_INFORMATIVE_SIZE;
+    }
+
+    /**
      * One fitness evaluation: the named inputs it was computed from, the two partial
      * costs, and the total. Lower cost = fitter. A value, not a process — store it,
      * log it, compare it.
@@ -71,6 +103,11 @@ public final class Fitness {
 
     /**
      * Evaluate fitness from the realized meters and a structural depth measurement.
+     *
+     * <p>The number returned is only an <em>observation</em> when {@link #informative(long)} accepts
+     * {@code size}; below that the read term is structure-free and the total collapses toward 0,
+     * which is the absence of a tree, not the measurement of a good one. Callers that compare or
+     * record costs must gate on {@code informative} first.</p>
      *
      * @param features  the live workload snapshot (read/write mix, realized rotations)
      * @param meanDepth average nodes-on-path of the candidate's tree, typically from

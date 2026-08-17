@@ -132,6 +132,9 @@ public final class EcologyFieldDay {
         LifeTable table = LifeTable.fromLifespans(census.lifespans(), 6);
         // Fit the colonization phase (t ≤ 1200) — the standard practice: the logistic
         // model describes growth toward K; plateau-noise logits would swamp the ramp.
+        // LogisticGrowth.fit estimates K̂ as max(N)+nudge and guards no caller, so this
+        // cutoff is only sound because the seeded run above has already plateaued by
+        // t = 1200; tighten it and K̂ is silently underestimated (and r overestimated).
         List<long[]> ramp = new ArrayList<>();
         for (long[] s : census.populationSeries()) {
             if (s[0] <= 1200) ramp.add(s);

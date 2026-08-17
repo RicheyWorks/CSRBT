@@ -26,7 +26,12 @@ import java.util.Objects;
  * median/percentile return {@code null} on empty; successor/predecessor throw
  * {@link NoSuchElementException} on an absent argument and return {@code null} at the
  * extremes; {@code select}/{@code rank} throw on out-of-range/absent; {@code percentile}
- * clamps to [1, n]; {@code countInRange}/{@code rangeQuery} are empty for {@code lo > hi}.</p>
+ * clamps to [1, n]; {@code countInRange}/{@code rangeQuery} are empty for {@code lo > hi}.
+ * A {@code null} key argument is rejected with {@link NullPointerException} on <em>every</em>
+ * method that takes one — the other engines all throw NPE (their comparators do), and VERIFIED
+ * voting compares thrown-exception classes, so an engine that answered {@code false}/{@code 0}
+ * where its peers threw would be voted down and quarantined for one bad caller argument
+ * (audit 2026-08-17, finding 14).</p>
  *
  * <p><b>Concurrency:</b> every public method is {@code synchronized} — the coarsest correct
  * answer. Unlike {@code OrderedSet} (R1 stamped reads) or the persistent engine (immutable),
@@ -137,7 +142,7 @@ public final class BPlusTreeEngine<K> implements RankedSet<K> {
 
     @Override
     public synchronized boolean add(K value) {
-        if (value == null) throw new IllegalArgumentException("value cannot be null");
+        Objects.requireNonNull(value, "value cannot be null");   // NPE parity (finding 14)
         long start = System.nanoTime();
         if (root == null) root = new Leaf();
         Split s = insert(root, value);
@@ -201,7 +206,7 @@ public final class BPlusTreeEngine<K> implements RankedSet<K> {
 
     @Override
     public synchronized boolean remove(K value) {
-        if (value == null) throw new IllegalArgumentException("value cannot be null");
+        Objects.requireNonNull(value, "value cannot be null");   // NPE parity (finding 14)
         if (root == null) return false;
         long start = System.nanoTime();
         delete(root, value);
@@ -326,8 +331,9 @@ public final class BPlusTreeEngine<K> implements RankedSet<K> {
 
     @Override
     public synchronized boolean contains(K value) {
+        Objects.requireNonNull(value, "value cannot be null");   // NPE parity (finding 14)
         Node n = root;
-        if (n == null || value == null) return false;
+        if (n == null) return false;
         while (n instanceof BPlusTreeEngine.Internal) {
             Internal in = (Internal) n;
             n = in.children.get(childIndex(in, value));
@@ -435,7 +441,9 @@ public final class BPlusTreeEngine<K> implements RankedSet<K> {
 
     @Override
     public synchronized int countInRange(K lo, K hi) {
-        if (lo == null || hi == null || root == null || keyOrder.compare(lo, hi) > 0) return 0;
+        Objects.requireNonNull(lo, "lo");                        // NPE parity (finding 14)
+        Objects.requireNonNull(hi, "hi");
+        if (root == null || keyOrder.compare(lo, hi) > 0) return 0;
         return countAtMost(hi) - countBelow(lo);
     }
 
@@ -467,8 +475,10 @@ public final class BPlusTreeEngine<K> implements RankedSet<K> {
 
     @Override
     public synchronized List<K> rangeQuery(K lo, K hi) {
+        Objects.requireNonNull(lo, "lo");                        // NPE parity (finding 14)
+        Objects.requireNonNull(hi, "hi");
         List<K> out = new ArrayList<>();
-        if (lo == null || hi == null || root == null || keyOrder.compare(lo, hi) > 0) return out;
+        if (root == null || keyOrder.compare(lo, hi) > 0) return out;
         Node n = root;
         while (n instanceof BPlusTreeEngine.Internal) {
             Internal in = (Internal) n;
