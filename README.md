@@ -639,9 +639,9 @@ profile → born-optimal → drift → morph-evaluation session to JSON that
 
 ## The ecosystem (2026-07)
 
-CSRBT is the index engine of a six-engine organism, each engine its own repo, composed by
-nested Gradle composite builds — clone them as siblings and every build resolves the live
-sources:
+CSRBT is the index engine of a fourteen-engine organism, each engine its own repo, composed
+by nested Gradle composite builds — clone them as siblings and every build resolves the live
+sources. The founding six:
 
 | Engine | Role |
 |---|---|
@@ -658,6 +658,7 @@ log) · [Twine](https://github.com/RicheyWorks/Twine) (crash-atomic batches) ·
 [SmokeSignal](https://github.com/RicheyWorks/SmokeSignal) (loopback wire protocol) ·
 [Jerky](https://github.com/RicheyWorks/Jerky) (compressed cold archives).
 Engine 12: [WholeHog](https://github.com/RicheyWorks/WholeHog) — the integration organism: all of them, composed and asserted together.
+Engines 13–14 (2026-08-19): [Rub](https://github.com/RicheyWorks/Rub) (observability — the tail watcher promoted to an organ) · [Sizzle](https://github.com/RicheyWorks/Sizzle) (chaos — deterministic fault injection at the write seam).
 
 Brine is `csrbt-experimental`'s first external consumer — the publication trigger ADR-013 §4
 held for two months fired on 2026-07-18, and the module now publishes alongside `csrbt-core`
