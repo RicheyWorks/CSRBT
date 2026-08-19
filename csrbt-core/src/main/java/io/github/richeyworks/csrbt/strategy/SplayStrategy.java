@@ -52,9 +52,9 @@ public class SplayStrategy<K> implements TreeStrategy<K> {
         if (y.isNil()) {
             tree.setRoot(newNode);
         } else if (cmp < 0) {
-            y.safeSetLeft(newNode);
+            y.linkLeft(newNode);       // ADR-028: the splay below is the only height maintainer
         } else {
-            y.safeSetRight(newNode);
+            y.linkRight(newNode);
         }
 
         splay(tree, newNode);
@@ -146,6 +146,11 @@ public class SplayStrategy<K> implements TreeStrategy<K> {
      * null out the subtree root's parent before handing off to splay.
      */
     private void splay(MutableTree<K> tree, TreeNode1<K> x) {
+        // ADR-028: this loop is also the ONLY height maintainer on the splay write path —
+        // insert links with linkLeft/linkRight, which propagate size and augment but no height.
+        // The bottom-up argument below covers that too: the link parent is the first node the
+        // first rotation recomputes, and every node above it follows.
+        //
         // ADR-023: the *Local rotation primitives are correct here, by the structure of
         // splaying rather than by an explicit refresh pass. This loop runs until x is the tree
         // root; each zig / zig-zig / zig-zag recomputes the new subtree root and the parent

@@ -68,7 +68,11 @@ public class WeightBalancedStrategy<K> implements TreeStrategy<K> {
 
     // ── Insert ────────────────────────────────────────────────────────────────
 
-    /** Standard BST link (sizes propagate via the structural setters); fixInsert rebalances. */
+    /**
+     * Standard BST link (sizes propagate via the structural setters); fixInsert rebalances.
+     * The link is {@code linkLeft}/{@code linkRight}: height is not maintained here but once
+     * per write, at the end of {@link #fixInsert} (ADR-028).
+     */
     @Override
     public void insert(MutableTree<K> tree, TreeNode1<K> node) {
         TreeNode1<K> nil    = tree.getNIL();
@@ -89,15 +93,17 @@ public class WeightBalancedStrategy<K> implements TreeStrategy<K> {
         if (parent.isNil()) {
             tree.setRoot(node);
         } else if (node.compareTo(parent) < 0) {
-            parent.setLeft(node);
+            parent.linkLeft(node);
         } else {
-            parent.setRight(node);
+            parent.linkRight(node);
         }
     }
 
     @Override
     public void fixInsert(MutableTree<K> tree, TreeNode1<K> node) {
-        rebalanceUp(tree, node.getParent());
+        // ADR-028: one height climb per write — from the newly linked node, unconditional
+        // through the adopter of the highest rotation the repair pass fired.
+        node.repairHeightUpward(rebalanceUp(tree, node.getParent()));
     }
 
     // ── Delete (CLRS transplant shape, identical to AVLStrategy's) ───────────────
@@ -105,6 +111,9 @@ public class WeightBalancedStrategy<K> implements TreeStrategy<K> {
     @Override
     public void delete(MutableTree<K> tree, TreeNode1<K> node) {
         TreeNode1<K> rebalanceFrom;
+        // ADR-028: the spliced-in successor is a second origin of height change (see
+        // RedBlackStrategy.delete) and gets its own repair below.
+        TreeNode1<K> spliced = null;
 
         if (node.getLeft().isNil()) {
             rebalanceFrom = node.getParent();
@@ -121,17 +130,21 @@ public class WeightBalancedStrategy<K> implements TreeStrategy<K> {
             if (successor.getParent() != node) {
                 transplant(tree, successor, successor.getRight());
                 // Local link: successor's stale parent pointer would make a propagating
-                // setRight walk a cyclic chain (see AVLStrategy for the full note).
+                // linkRight walk a cyclic chain (see AVLStrategy for the full note).
                 successor.setRightLocal(node.getRight());
                 successor.getRight().setParent(successor);
             }
             transplant(tree, node, successor);
-            successor.setLeft(node.getLeft());
+            successor.linkLeft(node.getLeft());
             successor.getLeft().setParent(successor);
             successor.setColor(TreeNode1.Color.BLACK);
+            spliced = successor;
         }
 
-        rebalanceUp(tree, rebalanceFrom);
+        TreeNode1<K> rotationMark = rebalanceUp(tree, rebalanceFrom);
+        // ADR-028: rebalanceFrom is the deepest node this write structurally touched.
+        if (rebalanceFrom != null) rebalanceFrom.repairHeightUpward(rotationMark);
+        if (spliced != null && spliced != rebalanceFrom) spliced.repairHeightUpward(null);
     }
 
     // ── Search ────────────────────────────────────────────────────────────────
@@ -157,11 +170,19 @@ public class WeightBalancedStrategy<K> implements TreeStrategy<K> {
      * them before this walk; rotations keep them correct as we go).
      *
      * <p>This walk steers by SIZE, not height, so — unlike AVL's and Hybrid's — it never
-     * refreshes a height and owes every ancestor of every rotation it fires the ADR-023
-     * height climb. Hence the height-carrying {@code rotateLeft}/{@code rotateRight} here
-     * rather than the {@code *Local} primitives.</p>
+     * refreshes a height. Under ADR-023 it therefore rotated through the height-carrying
+     * {@code rotateLeft}/{@code rotateRight}, paying one fixed-point climb per rotation on top
+     * of the one the BST link had already paid. ADR-028 collapsed the two into one: the
+     * rotations here are the {@code *Local} primitives and the caller
+     * ({@link #fixInsert} / {@link #delete}) ends the write with a single
+     * {@link TreeNode1#repairHeightUpward(TreeNode1)} from its anchor, for which this walk
+     * returns the mark.</p>
+     *
+     * @return the adopter of the highest rotation this pass fired, or {@code null} if it fired
+     *         none — the {@code unconditionalThrough} argument of that single repair
      */
-    private void rebalanceUp(MutableTree<K> tree, TreeNode1<K> start) {
+    private TreeNode1<K> rebalanceUp(MutableTree<K> tree, TreeNode1<K> start) {
+        TreeNode1<K> rotationMark = null;
         TreeNode1<K> cur = start;
         while (cur != null && !cur.isNil()) {
             int sl = size(cur.getLeft());
@@ -171,22 +192,25 @@ public class WeightBalancedStrategy<K> implements TreeStrategy<K> {
                 if (sr > delta * sl) {                     // right too heavy
                     TreeNode1<K> r = cur.getRight();
                     if (size(r.getLeft()) >= ratio * size(r.getRight())) {
-                        rotateRight(tree, r);              // inner grandchild heavy: double
+                        rotateRightLocal(tree, r);         // inner grandchild heavy: double
                     }
-                    rotateLeft(tree, cur);
+                    rotateLeftLocal(tree, cur);
+                    rotationMark = rotationAdopter(cur);
                     cur = cur.getParent();                 // cur slid down; new subtree root
 
                 } else if (sl > delta * sr) {              // left too heavy (mirror)
                     TreeNode1<K> l = cur.getLeft();
                     if (size(l.getRight()) >= ratio * size(l.getLeft())) {
-                        rotateLeft(tree, l);
+                        rotateLeftLocal(tree, l);
                     }
-                    rotateRight(tree, cur);
+                    rotateRightLocal(tree, cur);
+                    rotationMark = rotationAdopter(cur);
                     cur = cur.getParent();
                 }
             }
             cur = cur.getParent();
         }
+        return rotationMark;
     }
 
     // ── Strategy-supplied invariant (the health gate's hook, ADR-011 V1) ─────────
@@ -229,9 +253,9 @@ public class WeightBalancedStrategy<K> implements TreeStrategy<K> {
         if (uParent == null || uParent.isNil()) {
             tree.setRoot(v);
         } else if (u == uParent.getLeft()) {
-            uParent.setLeft(v);
+            uParent.linkLeft(v);
         } else {
-            uParent.setRight(v);
+            uParent.linkRight(v);
         }
         if (v != null && !v.isNil()) {
             v.setParent(uParent);

@@ -543,14 +543,15 @@ public class GenomeDrivenTreeController {
             case AVL            -> new AVLStrategy<>();
             case SPLAY          -> new SplayStrategy<>();
             case HYBRID         -> new HybridStrategy<>();
-            // These are NOT red-black strategies. PERSISTENT_TREE is a standalone
-            // TreeEngine (build it via TreeEngineRegistry.create); FIBONACCI_HEAP
-            // and VAN_EMDE_BOAS are intentionally unsupported (non-ordered-map
-            // contracts). Failing loudly here beats the old silent null, which
-            // setStrategy() swallowed as a no-op morph.
+            // These are NOT red-black strategies. PERSISTENT_TREE and B_PLUS_TREE are
+            // standalone TreeEngines (build them via TreeEngineRegistry.create);
+            // FIBONACCI_HEAP and VAN_EMDE_BOAS are intentionally unsupported
+            // (non-ordered-map contracts). Failing loudly here beats the old silent
+            // null, which setStrategy() swallowed as a no-op morph.
             case FIBONACCI_HEAP,
                  VAN_EMDE_BOAS,
-                 PERSISTENT_TREE ->
+                 PERSISTENT_TREE,
+                 B_PLUS_TREE ->
                     throw new UnsupportedOperationException(
                         type + " is not a red-black strategy. "
                       + TreeEngineRegistry.capability(type).note);

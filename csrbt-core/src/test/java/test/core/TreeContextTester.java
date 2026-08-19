@@ -400,13 +400,15 @@ public class TreeContextTester {
         }
 
         @Test
-        @DisplayName("RB family + persistent are supported")
+        @DisplayName("RB family + persistent + B+ tree are supported")
         void expectedSupported() {
             assertTrue(TreeEngineRegistry.isSupported(StructureType.RED_BLACK));
             assertTrue(TreeEngineRegistry.isSupported(StructureType.AVL));
             assertTrue(TreeEngineRegistry.isSupported(StructureType.SPLAY));
             assertTrue(TreeEngineRegistry.isSupported(StructureType.HYBRID));
             assertTrue(TreeEngineRegistry.isSupported(StructureType.PERSISTENT_TREE));
+            // ADR-029 fires ADR-008 D3: the large-n engine has its registry slot.
+            assertTrue(TreeEngineRegistry.isSupported(StructureType.B_PLUS_TREE));
         }
 
         @Test

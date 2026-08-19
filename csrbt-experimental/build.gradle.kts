@@ -9,20 +9,23 @@ plugins {
 }
 
 group = "io.github.richeyworks"
-version = "0.2.1"
+version = "0.2.0"
 
 java {
     withSourcesJar()
 }
 
 tasks.withType<JavaCompile>().configureEach {
-    options.release = 17     // see csrbt-core/build.gradle.kts
-    options.encoding = "UTF-8" // ditto — TreeEcology's report is built from UTF-8 literals
+    options.release = 17 // see csrbt-core/build.gradle.kts
 }
 
 dependencies {
     api(project(":csrbt-core")) // experimental types expose core types (TreeContext, genomes)
     implementation(libs.log4j.api)
+    // ADR-019 §2.6 held trigger fired: native workbook.xlsx / report.pptx in the
+    // experiment export bundle (OfficeExport). implementation scope — no POI type
+    // leaks into this module's API; rides the published POM as a runtime dependency.
+    implementation(libs.poi.ooxml)
 
     testImplementation(platform(libs.junit.bom))
     testImplementation(libs.junit.jupiter)
@@ -54,10 +57,6 @@ listOf(
         }
         mainClass = mainCls
         classpath = sourceSets["main"].runtimeClasspath
-        // All three read and write paths relative to the repo root (docs/…, demo/…), exactly as
-        // the ecology tasks below do. Without this, Gradle runs them in the module directory and
-        // `./gradlew viabilityMap` failed outright with NoSuchFileException: docs/viability-map.json.
-        workingDir = rootDir
         systemProperty("log4j2.loggerContextFactory",
                 "org.apache.logging.log4j.simple.SimpleLoggerContextFactory")
         systemProperty("org.apache.logging.log4j.simplelog.level", "WARN")
@@ -102,16 +101,7 @@ tasks.register<JavaExec>("ecologyExperiment") {
     mainClass = "io.github.richeyworks.csrbt.experimental.ecology.ExperimentLab"
     classpath = sourceSets["main"].runtimeClasspath
     workingDir = rootDir
-    // With no -Pspec this regenerates the SHIPPED sample bundle, so it names those outputs
-    // explicitly. With -Pspec the student's results land beside their own spec (ExperimentLab
-    // derives them), instead of overwriting docs/ecology-experiment-session.json and
-    // docs/experiment-out/ — which the invocation printed on the lab page used to do silently.
-    val specPath = project.findProperty("spec") as String?
-    if (specPath == null) {
-        args("docs/sample-experiment.eco", "docs/ecology-experiment-session.json", "docs/experiment-out")
-    } else {
-        args(specPath)
-    }
+    args((project.findProperty("spec") as String?) ?: "docs/sample-experiment.eco")
     systemProperty("log4j2.loggerContextFactory",
             "org.apache.logging.log4j.simple.SimpleLoggerContextFactory")
     systemProperty("org.apache.logging.log4j.simplelog.level", "WARN")

@@ -81,6 +81,20 @@ public class OrderedSet<K> implements SelfHealingTree, OrderedCollection<K>, Ran
     public void setEventListener(TreeEventListener<K> listener) { this.events = listener; }
 
     /**
+     * The registered structured-event listener, or {@code null} when this set is unobserved.
+     *
+     * <p>The reader half of {@link #setEventListener}, added so a caller that <em>replaces</em> a
+     * set can carry its observer across (audit 2026-08-18, item A): {@code TreeContext.loadSnapshot}
+     * adopts the deserialized context's set wholesale, and without a way to read the live
+     * listener back it had no way to re-attach it — the registration was silently dropped and
+     * every subsequent event went nowhere. The same shape as reading {@link #getMaxSize()} before
+     * the adoption and re-applying it afterwards.</p>
+     *
+     * @return the listener registered by {@link #setEventListener}, or {@code null}
+     */
+    public TreeEventListener<K> getEventListener() { return events; }
+
+    /**
      * The thread currently inside {@link #emit}, or {@code null}. Written and read only under
      * {@code lock} (every mutator and {@code emit} itself hold it), so no volatile is needed.
      * See {@link #refuseReentrantWrite}.

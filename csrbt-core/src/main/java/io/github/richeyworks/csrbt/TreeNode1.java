@@ -238,9 +238,11 @@ public class TreeNode1<K> implements Comparable<TreeNode1<K>>, Cloneable {
      * this accessor.</p>
      *
      * <p><b>Where it goes stale.</b> The link setters and the {@code *Local} ones both refresh it
-     * for the nodes they touch, and the propagating {@link #setLeft}/{@link #setRight} carry it to
-     * the root — but {@link #setColor} and {@link #flipColor} update the recoloured node alone, and
-     * the ADR-023 rotation climb carries height only. Recolouring, not rotation, is the dominant
+     * for the nodes they touch, and the propagating {@link #setLeft}/{@link #setRight} — and the
+     * write path's {@link #linkLeft}/{@link #linkRight}, which drop only the height leg — carry it
+     * to the root; but {@link #setColor} and {@link #flipColor} update the recoloured node alone,
+     * and neither the ADR-023 rotation climb nor the ADR-028 per-write repair carries anything but
+     * height. Recolouring, not rotation, is the dominant
      * source: the RB insert and delete fixups recolour O(log n) nodes per write, so making this
      * exact would mean a propagation walk per recolour on the hottest path in the engine, for a
      * quantity with no consumer that needs it. Measured residue after ADR-023: 0% of nodes on
@@ -274,16 +276,21 @@ public class TreeNode1<K> implements Comparable<TreeNode1<K>>, Cloneable {
      * {@link #getSize()} — the cache is maintained on every structural change, including
      * rotations, on every strategy (ADR-023).
      *
-     * <p><b>How it is maintained.</b> Two mechanisms meet here. The propagating
-     * {@link #setLeft}/{@link #setRight} links used by the insert/delete BST descents recompute
-     * height on every node from the link to the root. Rotations link through the {@code *Local}
-     * setters, which recompute the touched nodes only — so where a rotation moves the height of
-     * the subtree it rearranges, {@code TreeStrategy.rotateLeft}/{@code rotateRight} carry the
-     * change up with {@link #refreshHeightUpward()}, a fixed-point climb that stops at the first
-     * ancestor whose height recomputes unchanged. {@code AVLStrategy}, {@code HybridStrategy} and
-     * {@code SplayStrategy} instead call the {@code rotateLeftLocal}/{@code rotateRightLocal}
-     * primitives, because their own passes already refresh every node from the rotation point to
-     * the root; the result is the same and the walk is not paid twice. See the rotation notes on
+     * <p><b>How it is maintained: once per write.</b> The engine's five strategies link with
+     * {@link #linkLeft}/{@link #linkRight}, which carry size, augment and black-height to the
+     * root but no height at all, and rotate with the {@code TreeStrategy} {@code *Local}
+     * primitives, which recompute the touched nodes only. Every write then ends with exactly one
+     * height pass: {@code RedBlackStrategy} and {@code WeightBalancedStrategy} call
+     * {@link #repairHeightUpward(TreeNode1)} from the write's anchor, while {@code AVLStrategy},
+     * {@code HybridStrategy} and {@code SplayStrategy} need no call at all — their own passes
+     * (the AVL rebalance walk; splaying to the root) already recompute every node from the
+     * modification point to the root, because they steer by those very heights (ADR-028).</p>
+     *
+     * <p>Off the write path the propagating {@link #setLeft}/{@link #setRight} remain fully
+     * height-maintaining, walking to the root like they always did — which is what keeps trees
+     * wired top-down or in arbitrary order (snapshot deserialization, two-pass deep copy) exact
+     * without any repair call of their own (AUDIT-2026-08-14 F-1). Those setters, not the
+     * {@code link*} pair, are the safe default; see the rotation and linking notes on
      * {@link io.github.richeyworks.csrbt.strategy.TreeStrategy} for the rule a new strategy has to
      * follow.</p>
      *
@@ -295,13 +302,15 @@ public class TreeNode1<K> implements Comparable<TreeNode1<K>>, Cloneable {
      * with errors up to 8. Code written against that caveat — recomputing before reading — is still
      * correct, just no longer necessary.</p>
      *
-     * <p><b>Cost, so that nobody re-litigates it by guess.</b> The climb is free on uniform and
-     * mixed add/remove streams (1&ndash;3 levels; unmeasurable end to end) and free on AVL, Hybrid
-     * and Splay, which skip it. It costs about +27% of write time in exactly one place: Red-Black
-     * under a MONOTONE insert stream, where the BST link has just pushed +1 up the whole spine and
-     * the rebalancing rotation takes it straight back off, so the climb runs the full height every
-     * time. For bulk-loading known-sorted data prefer {@code OrderedSet.buildFromSorted}, which is
-     * O(n) and rotation-free. ADR-023 has the tables.</p>
+     * <p><b>Cost, so that nobody re-litigates it by guess.</b> Exactness is now free on every
+     * measured strategy &times; workload cell. The expensive case used to be Red-Black under a
+     * MONOTONE insert stream, where ADR-023 maintained height twice per write in opposite
+     * directions — 27.7 levels up at link time, 22.7 back down at rotation time — and paid about
+     * +22% of write time for it. ADR-028 collapsed that to one pass: 6.0 levels per operation on
+     * the same workload, and wall clock back at the pre-ADR-023 figure (+0.5%, inside a &plusmn;6%
+     * noise floor). Uniform and mixed add/remove streams sit at 3.6 levels. For bulk-loading
+     * known-sorted data {@code OrderedSet.buildFromSorted} is still the right answer — it is O(n)
+     * and rotation-free. ADR-023 and ADR-028 have the tables.</p>
      */
     public int getHeight() {
         return height;
@@ -346,8 +355,11 @@ public class TreeNode1<K> implements Comparable<TreeNode1<K>>, Cloneable {
      * off, it runs the full height. ADR-023 has the measured distribution.</p>
      *
      * <p>Correct only if this node's own height is already current (the {@code *Local} setters
-     * leave it so) and every ancestor's was current before the change — which is the invariant the
-     * rotation bodies and {@link #recomputeAugmentAndPropagate} jointly maintain. Callers should
+     * leave it so), every ancestor's was current before the change, and the change ORIGINATED
+     * here — a second, higher origin (a rotation) is invisible from below and would let the climb
+     * stop short. That is the precondition {@code TreeStrategy.rotateLeft}/{@code rotateRight}
+     * satisfy by construction, since they climb from the rotation itself; a whole write has more
+     * than one origin and uses {@link #repairHeightUpward(TreeNode1)} instead. Callers should
      * invoke it only when this node's height actually moved; otherwise the first comparison exits
      * on the value the caller just wrote and the climb is skipped.</p>
      *
@@ -359,6 +371,56 @@ public class TreeNode1<K> implements Comparable<TreeNode1<K>>, Cloneable {
             int cached = current.height;
             current.updateHeight();
             if (current.height == cached) return;
+            current = current.parent;
+        }
+    }
+
+    /**
+     * The single per-write height repair (ADR-028): recompute THIS node's cached height, then
+     * climb its strict ancestors recomputing each, stopping at the first ancestor <em>above the
+     * write's last rotation</em> whose height comes out unchanged.
+     *
+     * <p>Called once, at the end of a write, from the write's <b>anchor</b> — the deepest node
+     * the write structurally touched (the newly linked node for an insert; the parent of the
+     * spliced-out position for a delete). The engine's write paths link through
+     * {@link #linkLeft}/{@link #linkRight} and rotate through the {@code TreeStrategy}
+     * {@code *Local} primitives, so between the link and this call the only nodes whose cached
+     * height can disagree with their children are strict ancestors of that anchor: a rotation is
+     * always fired either at an ancestor of the anchor or at a child of one, and both shapes
+     * recompute their touched triple bottom-up from children that are themselves anchor-free and
+     * therefore exact.</p>
+     *
+     * <p><b>Why the stop needs {@code unconditionalThrough}.</b> A pure fixed-point climb is
+     * correct only for a change that ORIGINATES at the anchor — the link's — because the climb
+     * then sees it at every level until it dies out. A rotation introduces a second origin
+     * higher up: it changes the height of the subtree it rearranges without that change being
+     * visible at any node below it, so a climb that has already reached its fixed point lower
+     * down would stop short and leave everything above the rotation stale (measured: a
+     * weight-balanced ascending build goes wrong at n = 38). Passing the ancestor that ADOPTED
+     * the write's last — that is, highest — rotated subtree makes the climb unconditional up to
+     * and including that node, which is the last node the write wrote a height into; from its
+     * parent upward the fixed-point stop is exact again. Pass {@code null} when the write
+     * rotated nothing, and the climb is a pure fixed point from the anchor.</p>
+     *
+     * <p>On a monotone Red-Black insert stream that is a handful of levels: the BST link no
+     * longer pushed the change up the spine and the rebalancing rotation sits two levels above
+     * the new leaf, where it has already put the subtree height back. Before ADR-028 the same
+     * write paid a 27.7-level link walk and a 22.7-level rotation climb. Safe on the sentinel
+     * (NIL's height is 0 and it has no parent), so a delete that empties the tree can call it
+     * unconditionally.</p>
+     *
+     * @param unconditionalThrough the ancestor that adopted this write's highest rotated
+     *                             subtree, or {@code null} when the write rotated nothing
+     */
+    public void repairHeightUpward(TreeNode1<K> unconditionalThrough) {
+        refreshHeight();
+        boolean armed = unconditionalThrough == null;
+        TreeNode1<K> current = parent;
+        while (current != null && current != nilSentinel) {
+            int cached = current.height;
+            current.updateHeight();
+            if (armed && current.height == cached) return;
+            if (current == unconditionalThrough) armed = true;
             current = current.parent;
         }
     }
@@ -481,6 +543,44 @@ public class TreeNode1<K> implements Comparable<TreeNode1<K>>, Cloneable {
         updateHeight();
     }
 
+    /**
+     * Link {@code child} as the left child on a WRITE PATH — the BST-descent link an
+     * insert or a delete makes (ADR-028).
+     *
+     * <p>Recomputes size, augment and black-height for this node and for every ancestor,
+     * exactly like {@link #setLeft}, and deliberately touches the cached
+     * {@linkplain #getHeight() height} <b>nowhere</b>: not here and not above. Height is
+     * restored <em>once per write</em>, by a single fixed-point
+     * {@link #repairHeightUpward(TreeNode1)} from the write's anchor after the rebalancing pass has
+     * finished — which is what stops the engine from pushing a height change up the whole
+     * spine at link time and then taking it straight back off at rotation time (ADR-023
+     * measured 26.7 levels up and 22.7 levels back down per Red-Black monotone insert).</p>
+     *
+     * <p><b>Use {@link #setLeft} unless you are inside such a write.</b> A caller that links
+     * with this and never runs the repair leaves every ancestor's cached height stale — the
+     * exact defect AUDIT-2026-08-14 F-1 recorded for arbitrary-order reconstruction (snapshot
+     * deserialization, two-pass deep copy), which is why those paths keep using the
+     * propagating {@link #setLeft}/{@link #setRight} and are unaffected by this pair. The
+     * suffix-free setters remain the safe default, exactly as with
+     * {@link #setLeft} vs {@link #setLeftLocal}.</p>
+     */
+    public void linkLeft(TreeNode1<K> child) {
+        left = child;
+        if (child != null && !child.isNil()) {
+            child.parent = this;
+        }
+        recomputeAugmentAndPropagateWithoutHeight();
+    }
+
+    /** Right-side counterpart of {@link #linkLeft}; same contract. */
+    public void linkRight(TreeNode1<K> child) {
+        right = child;
+        if (child != null && !child.isNil()) {
+            child.parent = this;
+        }
+        recomputeAugmentAndPropagateWithoutHeight();
+    }
+
     public void safeSetLeft(TreeNode1<K> child) {
         setLeft(child != null ? child : nilSentinel);
     }
@@ -590,13 +690,37 @@ public class TreeNode1<K> implements Comparable<TreeNode1<K>>, Cloneable {
         recomputeAugmentAndPropagate();
     }
 
+    /**
+     * {@link #recomputeAugmentAndPropagate} minus the height leg — the walk
+     * {@link #linkLeft}/{@link #linkRight} run on the write path (ADR-028). Size, augment and
+     * black-height still ride it to the root; height is the business of the single per-write
+     * {@link #repairHeightUpward(TreeNode1)}, so that a monotone insert stream maintains it once
+     * instead of twice in opposite directions.
+     */
+    private void recomputeAugmentAndPropagateWithoutHeight() {
+        recomputeAugment();
+        updateBlackHeight();
+        TreeNode1<K> current = this;
+        while (current.parent != null) {
+            current = current.parent;
+            current.recomputeAugment();
+            current.updateBlackHeight();
+        }
+    }
+
     private void recomputeAugmentAndPropagate() {
         // Heights and black-heights ride the same walk as sizes/augments. Before
         // 2026-08-14 this walk refreshed only size + augment, so any tree wired
         // top-down or in arbitrary order (snapshot deserialization, two-pass deep
         // copy) converged to correct sizes but STALE cached heights — and
         // AVL/Hybrid then computed balance factors from those stale values,
-        // violating their own invariant on the next insert.
+        // violating their own invariant on the next insert (AUDIT-2026-08-14 F-1).
+        //
+        // ADR-028 moved the ENGINE's write paths off this walk and onto
+        // linkLeft/linkRight + one repairHeightUpward per write, but deliberately left
+        // the height leg here: arbitrary-order wiring has no "end of write" to hang a
+        // single repair on, and this unconditional walk is what makes it converge from
+        // any order. Reconstruction keeps paying it; the hot path no longer does.
         recomputeAugment();
         updateBlackHeight();
         updateHeight();

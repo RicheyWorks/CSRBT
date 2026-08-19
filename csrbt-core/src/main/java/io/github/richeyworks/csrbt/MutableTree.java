@@ -33,9 +33,11 @@ public interface MutableTree<K> {
      * Left rotation about {@code x} (CLRS LEFT-ROTATE), height-carrying.
      *
      * <p>Routes to {@code TreeStrategy.rotateLeft}, the variant that leaves every ancestor's
-     * cached {@code TreeNode1.getHeight()} exact (ADR-023) — so an out-of-band rotation through
-     * this engine-level seam is safe on any strategy, including the ones whose own rebalance
-     * passes call the cheaper {@code rotateLeftLocal} primitive.</p>
+     * cached {@code TreeNode1.getHeight()} exact by itself (ADR-023) — so an out-of-band rotation
+     * through this engine-level seam is safe on any strategy, with no surrounding write to repair
+     * after it. The strategies' own rebalance passes do not come through here: they call the
+     * cheaper {@code rotateLeftLocal} primitive and settle height once per write instead
+     * (ADR-028). This seam is for rotations fired from outside a write.</p>
      */
     void rotateLeft(TreeNode1<K> x);
 

@@ -6,12 +6,14 @@ import io.github.richeyworks.csrbt.TreeNode1;
 /**
  * AVL tree strategy backed by the shared MutableTree / TreeNode1 skeleton.
  *
- * Height is maintained by TreeNode1.setLeft() / setRight() on the BST link, and by this
- * strategy's own rebalanceUp() walk, which calls refreshHeight() on every node from the
- * modification point to the root — so we only need to read node.getHeight() here. That
- * walk is also why this strategy rotates through the rotateLeftLocal / rotateRightLocal
- * primitives rather than the height-carrying pair (ADR-023): it already owes no ancestor
- * a height propagation. A rotation added OUTSIDE that walk must use rotateLeft/rotateRight.
+ * Height is maintained entirely by this strategy's own rebalanceUp() walk, which calls
+ * refreshHeight() on every node from the modification point to the root — so we only need to
+ * read node.getHeight() here. That walk is why this strategy rotates through the
+ * rotateLeftLocal / rotateRightLocal primitives rather than the height-carrying pair
+ * (ADR-023): it already owes no ancestor a height propagation. It is also why the BST link
+ * below is linkLeft/linkRight rather than setLeft/setRight — the propagating setters would
+ * refresh every height from the link to the root a second time, for nothing (ADR-028).
+ * A rotation added OUTSIDE that walk must use rotateLeft/rotateRight.
  *
  * Balance factor:  bf = height(left) − height(right)
  *   bf ∈ {-1, 0, 1}  → balanced
@@ -48,9 +50,9 @@ public class AVLStrategy<K> implements TreeStrategy<K> {
         if (parent.isNil()) {
             tree.setRoot(node);
         } else if (node.compareTo(parent) < 0) {
-            parent.setLeft(node);
+            parent.linkLeft(node);
         } else {
-            parent.setRight(node);
+            parent.linkRight(node);
         }
     }
 
@@ -88,14 +90,14 @@ public class AVLStrategy<K> implements TreeStrategy<K> {
                 // Detach successor from its current position
                 transplant(tree, successor, successor.getRight());
                 // Local link: successor's parent pointer is still stale and points
-                // into node.getRight()'s subtree here, so a propagating setRight
+                // into node.getRight()'s subtree here, so a propagating linkRight
                 // would walk a cyclic parent chain and loop forever. transplant
-                // below fixes the parent; setLeft then propagates the augment up.
+                // below fixes the parent; linkLeft then propagates the augment up.
                 successor.setRightLocal(node.getRight());
                 successor.getRight().setParent(successor);
             }
             transplant(tree, node, successor);
-            successor.setLeft(node.getLeft());
+            successor.linkLeft(node.getLeft());
             successor.getLeft().setParent(successor);
             successor.setColor(TreeNode1.Color.BLACK);
         }
@@ -135,9 +137,9 @@ public class AVLStrategy<K> implements TreeStrategy<K> {
         TreeNode1<K> cur = start;
         while (cur != null && !cur.isNil()) {
             // Refresh this node's height from its (already-correct, lower-on-path)
-            // children before reading balance factors. Insertion/deletion only
-            // updates the immediate parent's height, leaving ancestors stale; the
-            // upward walk fixes each node so the parent's bf is computed correctly.
+            // children before reading balance factors. The BST link maintains no height at
+            // all (ADR-028: linkLeft/linkRight), so this walk is the sole maintainer on the
+            // AVL write path — it fixes each node bottom-up so the parent's bf is correct.
             cur.refreshHeight();
             int bf = balanceFactor(cur);
 
@@ -190,9 +192,9 @@ public class AVLStrategy<K> implements TreeStrategy<K> {
         if (uParent == null || uParent.isNil()) {
             tree.setRoot(v);
         } else if (u == uParent.getLeft()) {
-            uParent.setLeft(v);
+            uParent.linkLeft(v);
         } else {
-            uParent.setRight(v);
+            uParent.linkRight(v);
         }
         if (v != null && !v.isNil()) {
             v.setParent(uParent);

@@ -10,9 +10,11 @@ import io.github.richeyworks.csrbt.augment.IntervalAugmentor;
 import io.github.richeyworks.csrbt.ensemble.EnsembleOrderedSet;
 import io.github.richeyworks.csrbt.interfaces.RankedSet;
 import io.github.richeyworks.csrbt.interfaces.TreePersistenceAdapter;
+import io.github.richeyworks.csrbt.interfaces.TreePersistenceAdapter.DeleteResult;
 import io.github.richeyworks.csrbt.interfaces.TreePersistenceAdapter.LoadResult;
 import io.github.richeyworks.csrbt.interfaces.TreePersistenceAdapter.LoadStatus;
 import io.github.richeyworks.csrbt.interfaces.TreePersistenceAdapter.SaveResult;
+import io.github.richeyworks.csrbt.interfaces.TreePersistenceAdapter.SaveStatus;
 import io.github.richeyworks.csrbt.strategy.AVLStrategy;
 import io.github.richeyworks.csrbt.strategy.HybridStrategy;
 import io.github.richeyworks.csrbt.strategy.RedBlackStrategy;
@@ -60,6 +62,18 @@ import java.util.*;
  * {@link LoadStatus#FAILED} (an {@code IOException}; retry or fail over), and
  * {@link LoadStatus#LOADED}. The published {@code null} / {@code false} / empty-list returns are
  * unchanged and now delegate to the reporting twins.</p>
+ *
+ * <p><b>ADR-026 amendment (2026-08-18):</b> {@link #tryDeleteSnapshot} finishes the set.
+ * {@link #deleteSnapshot} answered {@code false} both for "there was nothing to delete" and for
+ * "the delete failed and the file is still there"; the twin separates them, and
+ * {@link DeleteResult#gone()} is the one-liner for the caller — a retention sweep, a
+ * delete-before-re-save — that only wants to know the name is free.</p>
+ *
+ * <p>The same amendment closes ADR-025's held {@code fsync} item as an <em>option</em>:
+ * {@link #FilePersistenceAdapter(boolean)} forces each committed snapshot and its directory entry
+ * to stable storage, so a caller who needs {@link SaveStatus#SAVED} to mean "survives a power cut"
+ * rather than "the filesystem has it" can pay the measured ~0.4–0.6 ms per save for it. The
+ * default is unchanged and free.</p>
  */
 public class FilePersistenceAdapter implements TreePersistenceAdapter {
 
@@ -69,21 +83,78 @@ public class FilePersistenceAdapter implements TreePersistenceAdapter {
     private static final String VERSION  = "CSRBT-1.0";
 
     /**
+     * Whether a committed save is forced to stable storage before it reports {@link SaveResult}.
+     * Off by default: see {@link #FilePersistenceAdapter(boolean)} for what it costs and buys.
+     */
+    private final boolean fsyncOnCommit;
+
+    /**
      * Prepare the snapshot directory. A failure here is logged and the adapter is still
      * constructed — deliberately, so that a snapshot directory which becomes writable later (a
      * mount that has not come up yet) does not make the adapter unusable for the life of the
      * process. It does mean every save until then fails; since ADR-025 the caller can see that,
      * as a {@code FAILED} {@link SaveResult} carrying the {@code NoSuchFileException}, instead of
      * having to read the log.
+     *
+     * <p>Equivalent to {@code new FilePersistenceAdapter(false)}: saves are published with an
+     * atomic rename and <em>not</em> forced to stable storage, which is what every save has done
+     * since 0.1.0.</p>
      */
     public FilePersistenceAdapter() {
+        this(false);
+    }
+
+    /**
+     * As {@link #FilePersistenceAdapter()}, choosing what {@link SaveStatus#SAVED} is allowed to
+     * mean (ADR-026 amendment, 2026-08-18 — ADR-025's held {@code fsync} item).
+     *
+     * <p><b>{@code false} (the default, and the pre-0.2.1 behavior).</b> A save stages to a
+     * sibling file and publishes it with an atomic rename. That is enough to survive a process
+     * crash, a thrown exception, a killed JVM: the target is always either the complete new
+     * snapshot or the complete previous one. It is <em>not</em> enough to survive a power cut or a
+     * kernel panic, because neither the staging file's contents nor the renamed directory entry
+     * has been forced out of the page cache. {@code SAVED} here means <b>the filesystem has
+     * it</b>.</p>
+     *
+     * <p><b>{@code true}.</b> The staged file is forced with {@code FileChannel.force} before the
+     * commit rename, and the snapshot directory is forced after it, so the publish itself is
+     * durable and not just the bytes. {@code SAVED} here means <b>it survives a power cut</b>.</p>
+     *
+     * <p><b>What it costs</b>, measured on this repo's own save path (ext4 on a virtio disk, 200
+     * saves per configuration after warm-up): a 100-key snapshot goes from 0.16–0.27 ms to
+     * 0.53–0.59 ms per save, and a 10,000-key snapshot from 0.30–0.32 ms to 0.83–0.98 ms — about
+     * +0.4 ms and +0.6 ms, a 2–3× multiple on the whole save. The surcharge is roughly constant in
+     * the payload, because it is two device flushes rather than proportional work; on rotating or
+     * networked storage a flush is milliseconds, so the multiple grows rather than shrinks. That
+     * is why this is a choice and not a default: making every existing caller pay it silently is
+     * the kind of uncompiled behavior change ADR-025 refused when it declined to throw from
+     * {@code saveSnapshot}.</p>
+     *
+     * <p><b>One honest limit.</b> If the directory force itself fails — a platform that will not
+     * open a directory for reading, notably Windows — the save still reports {@link
+     * SaveStatus#SAVED} and the failure is logged at DEBUG. The file's own contents are on stable
+     * storage and the rename has been published by then; reporting {@code FAILED} would claim
+     * "nothing was written", which is the one thing that is certainly untrue. On such a platform
+     * {@code SAVED} is back to meaning what it means with the flag off.</p>
+     *
+     * @param fsyncOnCommit force each committed snapshot, and the directory entry publishing it,
+     *                      to stable storage before reporting success
+     */
+    public FilePersistenceAdapter(boolean fsyncOnCommit) {
+        this.fsyncOnCommit = fsyncOnCommit;
         try {
             Files.createDirectories(Paths.get(DIR));
-            logger.debug("Snapshot directory ready: {}", DIR);
+            logger.debug("Snapshot directory ready: {} (fsyncOnCommit={})", DIR, fsyncOnCommit);
         } catch (IOException e) {
             logger.error("Failed to create snapshot directory", e);
         }
     }
+
+    /**
+     * Whether this adapter forces committed snapshots to stable storage — i.e. whether
+     * {@link SaveStatus#SAVED} means "it survives a power cut" or "the filesystem has it".
+     */
+    public boolean isFsyncOnCommit() { return fsyncOnCommit; }
 
     // ── Save ─────────────────────────────────────────────────────────────────
 
@@ -117,6 +188,31 @@ public class FilePersistenceAdapter implements TreePersistenceAdapter {
     private static Path tempPathFor(Path target) {
         return target.resolveSibling(target.getFileName()
                 + "." + PID + "." + TMP_SEQ.incrementAndGet() + ".tmp");
+    }
+
+    /**
+     * Force the directory entry the commit rename just created (ADR-026 amendment). Without this
+     * the file's contents are durable but the name pointing at them may not be, which after a
+     * power cut can leave the previous snapshot — or nothing — under the name that reported
+     * {@link SaveStatus#SAVED}.
+     *
+     * <p>A failure here is logged at DEBUG and swallowed <em>on purpose</em>. By the time it is
+     * called the rename has already published the snapshot, so the two things a
+     * {@link SaveResult#failed} promises — nothing was published, the previous snapshot is intact
+     * — are both false. Platforms that will not open a directory for reading (Windows) therefore
+     * get the non-fsync guarantee for the publish step and say so in the log, rather than a save
+     * that reports a failure it did not have.</p>
+     */
+    private static void forceDirectoryOf(Path target) {
+        Path dir = target.getParent();
+        if (dir == null) return;
+        try (java.nio.channels.FileChannel channel =
+                     java.nio.channels.FileChannel.open(dir, StandardOpenOption.READ)) {
+            channel.force(true);
+        } catch (IOException e) {
+            logger.debug("Could not force snapshot directory {} — the snapshot's contents are on "
+                    + "stable storage, its directory entry may not be", dir, e);
+        }
     }
 
     private static void commitAtomically(Path tmp, Path target) throws IOException {
@@ -157,8 +253,22 @@ public class FilePersistenceAdapter implements TreePersistenceAdapter {
             try (BufferedWriter writer = Files.newBufferedWriter(tmp)) {
                 body.writeTo(writer);
             }
+            // Force the staged bytes before publishing them, so the rename can never make a
+            // snapshot visible whose contents the disk has not got yet. Done by reopening the
+            // closed staging file rather than by syncing the writer's own descriptor, which
+            // leaves the encode-and-write path above byte-for-byte and character-for-character
+            // what it has always been — including Files.newBufferedWriter's strict UTF-8
+            // encoder, which refuses (rather than substitutes) an unencodable tag. Measured at
+            // roughly the same price as syncing the descriptor: two flushes either way.
+            if (fsyncOnCommit) {
+                try (java.nio.channels.FileChannel staged =
+                             java.nio.channels.FileChannel.open(tmp, StandardOpenOption.WRITE)) {
+                    staged.force(true);
+                }
+            }
             commitAtomically(tmp, path);   // writer closed above; rename is the commit
             committed = true;
+            if (fsyncOnCommit) forceDirectoryOf(path);
             logger.info("Snapshot '{}' saved{} → {}", name, detail, path);
             return SaveResult.saved(name);
         } catch (IOException e) {
@@ -1015,11 +1125,34 @@ public class FilePersistenceAdapter implements TreePersistenceAdapter {
 
     @Override
     public boolean deleteSnapshot(String name) {
+        // ADR-026 amendment: same work, same log line; the outcome is simply narrowed back to
+        // "did this call remove one", which is exactly what the published boolean meant.
+        return tryDeleteSnapshot(name).deleted();
+    }
+
+    /**
+     * {@link #deleteSnapshot(String)} with the outcome reported (ADR-026 amendment, 2026-08-18).
+     *
+     * <p>{@link Files#deleteIfExists} already draws the line this needs: {@code true} removed a
+     * file, {@code false} found none, and an {@code IOException} means the entry is still there.
+     * The published {@code boolean} folded the last two together.</p>
+     *
+     * @return {@link DeleteResult#deleted} when this call removed the snapshot;
+     *         {@link DeleteResult#absent} when there was none of that name — in which case the
+     *         name is free, which is what a retention sweep is really asking; or
+     *         {@link DeleteResult#failed} carrying the {@code IOException}, in which case the
+     *         snapshot is still on disk
+     * @throws IllegalArgumentException if {@code name} is empty or escapes the snapshot directory
+     */
+    @Override
+    public DeleteResult tryDeleteSnapshot(String name) {
+        Path path = snapshotPath(name);          // caller defects still throw, before any I/O
         try {
-            return Files.deleteIfExists(snapshotPath(name));
+            return Files.deleteIfExists(path) ? DeleteResult.deleted(name)
+                                              : DeleteResult.absent(name);
         } catch (IOException e) {
             logger.error("Failed to delete snapshot '{}'", name, e);
-            return false;
+            return DeleteResult.failed(name, e);
         }
     }
 

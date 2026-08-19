@@ -139,9 +139,9 @@ public class HybridStrategy<K> implements TreeStrategy<K> {
         if (y.isNil()) {
             tree.setRoot(newNode);
         } else if (cmp < 0) {
-            y.safeSetLeft(newNode);
+            y.linkLeft(newNode);       // ADR-028: avlRebalanceUp is the only height maintainer
         } else {
-            y.safeSetRight(newNode);
+            y.linkRight(newNode);
         }
 
         insertCount++;
@@ -177,14 +177,14 @@ public class HybridStrategy<K> implements TreeStrategy<K> {
             if (successor.getParent() != z) {
                 transplant(tree, successor, successor.getRight());
                 // Local link: successor's parent pointer is still stale and points
-                // into z.getRight()'s subtree here, so a propagating setRight would
+                // into z.getRight()'s subtree here, so a propagating linkRight would
                 // walk a cyclic parent chain and loop forever. transplant below
-                // fixes the parent; setLeft then propagates the augment up.
+                // fixes the parent; linkLeft then propagates the augment up.
                 successor.setRightLocal(z.getRight());
                 successor.getRight().setParent(successor);
             }
             transplant(tree, z, successor);
-            successor.setLeft(z.getLeft());
+            successor.linkLeft(z.getLeft());
             successor.getLeft().setParent(successor);
             successor.setColor(z.getColor());
         }
@@ -218,7 +218,9 @@ public class HybridStrategy<K> implements TreeStrategy<K> {
         // this walk refreshes every node from the modification point to the root, so it owes
         // no ancestor any height propagation. Phase 2 (rbRecolorPathUp) only changes colours,
         // which no height depends on. A rotation added outside this walk must use the
-        // height-carrying rotateLeft/rotateRight.
+        // height-carrying rotateLeft/rotateRight. ADR-028: since the BST link no longer
+        // maintains height either (linkLeft/linkRight), this walk is its SOLE maintainer on
+        // the hybrid write path — which is why it refreshes before reading any balance factor.
         TreeNode1<K> cur = start;
         while (cur != null && !cur.isNil()) {
             // Keep cached heights current along the path (see AVLStrategy note).
@@ -477,9 +479,9 @@ public class HybridStrategy<K> implements TreeStrategy<K> {
         if (uParent == null || uParent.isNil()) {
             tree.setRoot(v);
         } else if (u == uParent.getLeft()) {
-            uParent.setLeft(v);
+            uParent.linkLeft(v);
         } else {
-            uParent.setRight(v);
+            uParent.linkRight(v);
         }
         v.setParent(uParent != null ? uParent : tree.getNIL());
     }

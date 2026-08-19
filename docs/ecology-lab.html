@@ -118,7 +118,8 @@
   <p class="sub">The CSRBT engine family, surveyed with the instruments of a field ecologist.
      Keys are species · touches are abundance · time is measured in operations.</p>
   <span class="drophint">📄 drop a session anywhere to reload — <code>&nbsp;./gradlew ecologyFieldDay&nbsp;</code>
-     or replay your own trace: <code>&nbsp;./gradlew ecologyTrace -Ptrace=your.csv</code></span>
+     or replay your own trace: <code>&nbsp;./gradlew ecologyTrace -Ptrace=your.csv</code>
+     · drop an <code>&nbsp;.eco&nbsp;</code> protocol to read it back into the Workbench</span>
 </header>
 <main>
   <section class="card" id="terrarium"></section>
@@ -128,7 +129,8 @@
 <footer>
   Every number here is deterministic — seeded streams, op-indexed clocks — and every index is
   oracle-tested. Provenance: <code>ADR-015</code> through <code>ADR-020</code> (the classroom seam:
-  <code>.eco</code> protocols, entered data, Punnett squares, phylogenies), the 2026-08-09 audits, and
+  <code>.eco</code> protocols, entered data, Punnett squares, phylogenies), <code>ADR-027</code>
+  (reading a protocol back in), the 2026-08-09 audits, and
   <code>docs/ESSAY-the-ecology-of-a-tree.md</code> for the whole story.
 </footer>
 <div id="tooltip"></div>
@@ -751,48 +753,222 @@ function jsChao1(counts) {
   return f2 > 0 ? s + f1 * f1 / (2 * f2) : s + f1 * (f1 - 1) / 2;
 }
 
-/* ── phylogeny helpers: Newick parsing + SVG cladograms (ADR-020) ─────────── */
-function jsNewick(str) {
-  let s = str.trim();
-  if (s.endsWith(";")) s = s.slice(0, -1).trim();
-  if (!s) throw new Error("empty tree");
-  let i = 0;
-  function node() {
-    /* Skip leading whitespace — handouts commonly write "(A, (B,C));" — mirrors
-       the Java parser (PhyloTree.parseNode) exactly. */
-    while (i < s.length && /\s/.test(s[i])) i++;
-    const children = [];
-    if (s[i] === "(") {
-      i++;
-      for (;;) {
-        children.push(node());
-        if (i >= s.length) throw new Error("unbalanced '('");
-        if (s[i] === ",") { i++; continue; }
-        if (s[i] === ")") { i++; break; }
-        throw new Error(`expected ',' or ')' at index ${i}`);
-      }
-    }
-    const start = i;
-    while (i < s.length && !",():;".includes(s[i])) i++;
-    const name = s.slice(start, i).trim();
-    let length;
-    if (s[i] === ":") {
-      i++;
-      const ls = i;
-      while (i < s.length && !",()".includes(s[i])) i++;
-      const lenText = s.slice(ls, i).trim();
-      /* Number("") is 0 and passes isFinite — reject empty lengths explicitly so
-         "(A:,B);" is an error here exactly as in the Java oracle. */
-      length = lenText ? Number(lenText) : NaN;
-      if (!Number.isFinite(length)) throw new Error(`bad branch length '${s.slice(ls, i)}'`);
-    }
-    if (!children.length && !name) throw new Error(`missing name at index ${start}`);
-    return { name, length, children: children.length ? children : undefined };
+/* ── Java-semantics helpers, shared by the oracle mirrors below (ADR-027) ─── */
+
+/* Thrown by every mirrored oracle check in this file, and by nothing else. `ExperimentSpec`
+   wraps each directive in `catch (RuntimeException)`; this class is what that catch means
+   here, so a genuine bug in this page surfaces as a page error instead of being filed away
+   as one of the student's own spec problems. */
+class SpecError extends Error {}
+const jFail = msg => { throw new SpecError(msg); };
+
+/* Java's String.trim() strips every char <= U+0020 and only those; JS's trim() strips
+   Unicode whitespace instead, so the two disagree on U+00A0 among others. There is a
+   second copy of this inside setupWorkbench on purpose: FieldDataJsMirrorTest lifts that
+   parser out of this file by source range, so its helpers have to live inside that range. */
+function jTrimJ(s) {
+  let a = 0, b = s.length;
+  while (a < b && s.charCodeAt(a) <= 0x20) a++;
+  while (b > a && s.charCodeAt(b - 1) <= 0x20) b--;
+  return s.slice(a, b);
+}
+
+/* Java's Character.isWhitespace — a third set, different again from both jTrimJ's and JS's
+   \s: it takes U+001C–U+001F and the Unicode separators, and it deliberately excludes the
+   non-breaking spaces U+00A0, U+2007 and U+202F, which JS's \s does take. PhyloTree skips
+   exactly this set between Newick tokens, so the mirror below skips exactly this set. */
+function jIsWhitespace(ch) {
+  const c = ch.charCodeAt(0);
+  if (c === 0x20 || (c >= 0x09 && c <= 0x0d) || (c >= 0x1c && c <= 0x1f)) return true;
+  if (c === 0xa0 || c === 0x2007 || c === 0x202f) return false;
+  return /[\p{Zs}\u2028\u2029]/u.test(ch);
+}
+
+/* Double.parseDouble, transliterated — and it is nothing like JS's Number(). Number("0x10")
+   is 16 where Java refuses it outright (a hex literal needs a binary exponent, 0x1p4);
+   Number("1f") is NaN where Java reads 1.0 (the float suffix is part of the grammar);
+   Number("") is 0 where Java throws. Every number in a `.eco` file except keys:, seed: and
+   window: goes through Double.parseDouble in the oracle, so it goes through this here —
+   including the two exception messages, which the importer reports verbatim.
+   *Residual:* a hex literal with more than thirteen significant hex digits is rounded once
+   here and once in Java, so the two can differ in the last bit; no other shape can. */
+const J_DEC = /^[+-]?(?:\d+\.?\d*|\.\d+)(?:[eE][+-]?\d+)?[fFdD]?$/;
+const J_HEX = /^([+-]?)0[xX]([0-9a-fA-F]*)\.?([0-9a-fA-F]*)[pP]([+-]?\d+)[fFdD]?$/;
+function jParseDouble(raw) {
+  const s = jTrimJ(String(raw));
+  if (s === "") jFail("empty String");
+  if (/^[+-]?NaN$/.test(s)) return NaN;
+  if (/^[+-]?Infinity$/.test(s)) return s[0] === "-" ? -Infinity : Infinity;
+  if (J_DEC.test(s)) return Number(s.replace(/[fFdD]$/, ""));
+  const hex = J_HEX.exec(s);
+  if (!hex || (!hex[2] && !hex[3])) jFail(`For input string: "${s}"`);
+  const value = Number("0x" + hex[2] + hex[3]) * Math.pow(2, Number(hex[4]) - 4 * hex[3].length);
+  return hex[1] === "-" ? -value : value;
+}
+
+/* Double.toString — Java's spelling of a double, which is not JS's. Java writes 1.0E7 where
+   JS writes 10000000, always keeps a digit on both sides of the point, and switches to the
+   exponent form outside [1e-3, 1e7). It reaches a student only inside oracle problem
+   messages ("island colonization with c=0.4 e=-0.1 leaves the range …"), and the importer
+   compares those verbatim, so the spelling is part of the mirror. */
+/* The digits Java would print, which are not always JS's. Both engines start from the
+   shortest decimal that round-trips, but Java's spec (JDK 19+) adds one clause: when that
+   shortest rendering has a single digit, the two-digit renderings are considered too and
+   the one closest to the actual value wins. That is why Double.MIN_VALUE prints as
+   4.9E-324 in Java and 5e-324 in JS — both round-trip, and 4.9 is nearer. Ten values in a
+   67,000-value probe of the two formatters differed, every one of them a subnormal below
+   1e-322, and this closes all ten. The comparison is done on the exact-enough 18-digit
+   rendering, put on a common integer grid so it is decided by arithmetic and not by the
+   very floating point under discussion. */
+function jShortestDecimal(a) {
+  const [mant, ex] = a.toExponential().split("e");
+  let digits = mant.replace(".", ""), exp = Number(ex);
+  if (digits.length === 1) {
+    const [m2, e2] = a.toExponential(1).split("e");
+    const twoDigits = m2.replace(".", ""), twoExp = Number(e2);
+    const [mr, er] = a.toExponential(17).split("e");
+    const grid = Number(er) - 17;
+    const ref = BigInt(mr.replace(".", ""));
+    const one = BigInt(digits) * 10n ** BigInt(exp - grid);
+    const two = BigInt(twoDigits) * 10n ** BigInt(twoExp - 1 - grid);
+    const far = v => v < 0n ? -v : v;
+    if (far(ref - two) < far(ref - one)) { digits = twoDigits; exp = twoExp; }
   }
-  const root = node();
-  if (i !== s.length) throw new Error(`trailing characters: '${s.slice(i)}'`);
+  return [digits, exp];
+}
+function jDoubleToString(d) {
+  if (Number.isNaN(d)) return "NaN";
+  if (d === Infinity) return "Infinity";
+  if (d === -Infinity) return "-Infinity";
+  if (d === 0) return Object.is(d, -0) ? "-0.0" : "0.0";
+  const neg = d < 0, a = Math.abs(d);
+  let [digits, exp] = jShortestDecimal(a);
+  let body;
+  if (a >= 1e-3 && a < 1e7) {
+    if (exp >= 0) {
+      const ip = digits.length >= exp + 1 ? digits.slice(0, exp + 1) : digits.padEnd(exp + 1, "0");
+      body = ip + "." + (digits.slice(exp + 1) || "0");
+    } else {
+      body = "0." + "0".repeat(-exp - 1) + digits;
+    }
+  } else {
+    body = digits[0] + "." + (digits.slice(1) || "0") + "E" + exp;
+  }
+  return neg ? "-" + body : body;
+}
+
+/* Java's `(long) someDouble` and `(int) someDouble`: NaN becomes 0 and everything out of
+   range saturates at the type's own ends, rather than JS's silent wrap-to-anything. */
+const J_LONG_MIN = -(2n ** 63n), J_LONG_MAX = 2n ** 63n - 1n;
+function jLongCast(d) {
+  if (Number.isNaN(d)) return 0n;
+  if (d >= 9223372036854775808) return J_LONG_MAX;
+  if (d <= -9223372036854775808) return J_LONG_MIN;
+  return BigInt(Math.trunc(d));
+}
+function jIntCast(d) {
+  if (Number.isNaN(d)) return 0;
+  if (d >= 2147483647) return 2147483647;
+  if (d <= -2147483648) return -2147483648;
+  return Math.trunc(d);
+}
+
+/* Java's String.split(regex) with the default limit drops every trailing empty field, which
+   JS's split never does: "1.0:".split(":") is one field in Java and two in JS, and that one
+   difference decides whether `model: eulerlotka 1.0:` is reported or silently accepted. */
+function jSplit(s, re) {
+  const parts = s.split(re);
+  /* ...except when the separator never matched: Java then hands back the input itself, so
+     "".split(",") is one empty field in Java and would be no fields at all if the trailing
+     rule were applied blindly. That difference decides whether `expect: richness() > 1` is
+     reported as a blank community name (Java) or as the wrong argument count. */
+  if (parts.length === 1) return parts;
+  while (parts.length && parts[parts.length - 1] === "") parts.pop();
+  return parts;
+}
+/* Java's \s inside a regex is exactly these six characters — JS's is much wider. */
+const J_WS = /[ \t\n\v\f\r]+/;
+const jSplitWs = s => jSplit(s, J_WS);
+/* Java's String.split(regex, 2): the first field, then everything after the first match. */
+function jSplitWs2(s) {
+  const m = J_WS.exec(s);
+  return m ? [s.slice(0, m.index), s.slice(m.index + m[0].length)] : [s];
+}
+/* Java's String.equalsIgnoreCase, which compares char by char in both directions. */
+function jEqualsIgnoreCase(a, b) {
+  if (a.length !== b.length) return false;
+  for (let i = 0; i < a.length; i++) {
+    if (a[i] === b[i]) continue;
+    if (a[i].toUpperCase() === b[i].toUpperCase()) continue;
+    if (a[i].toLowerCase() === b[i].toLowerCase()) continue;
+    return false;
+  }
+  return true;
+}
+/* Java's String.substring, which refuses an impossible range instead of quietly swapping
+   the ends the way JS's substring does. The oracle can reach one (a `note(…):` target whose
+   key changes length when it is lowercased), and it does not catch it there. */
+function jSubstring(s, from, to) {
+  if (from < 0 || to > s.length || from > to) {
+    throw new RangeError(`begin ${from}, end ${to}, length ${s.length}`);
+  }
+  return s.slice(from, to);
+}
+
+/* ── phylogeny helpers: Newick parsing + SVG cladograms (ADR-020) ─────────── */
+
+/* PhyloTree.parse, transliterated. What stood here was a paraphrase, and the differences
+   were all in the sentence a student reads: it said "trailing characters:" where the oracle
+   says "trailing characters after tree:", "missing name at index N" where the oracle says
+   "empty node (missing name) at index N", quoted an *untrimmed* branch length back at the
+   student, folded the oracle's separate non-finite refusal into its bad-number one, and used
+   JS's whitespace set and JS's Number() where the oracle uses Character.isWhitespace and
+   Double.parseDouble. The `.eco` importer below has to report `tree:` problems in the
+   oracle's own words, so the page has one Newick parser now rather than two that disagree. */
+function jsNewick(str) {
+  let s = jTrimJ(String(str));
+  if (s.endsWith(";")) s = jTrimJ(s.slice(0, -1));
+  if (s === "") jFail("empty tree");
+  const pos = [0];
+  const root = newickNode(s, pos);
+  if (pos[0] !== s.length) jFail(`trailing characters after tree: '${s.slice(pos[0])}'`);
   return root;
 }
+function newickNode(s, pos) {
+  /* Published Newick very commonly puts a space after each comma ("(A, (B,C));"), and
+     ADR-020 promises trees transfer from any handout. */
+  while (pos[0] < s.length && jIsWhitespace(s[pos[0]])) pos[0]++;
+  const children = [];
+  if (pos[0] < s.length && s[pos[0]] === "(") {
+    pos[0]++;
+    for (;;) {
+      children.push(newickNode(s, pos));
+      if (pos[0] >= s.length) jFail("unbalanced '('");
+      const c = s[pos[0]];
+      if (c === ",") { pos[0]++; continue; }
+      if (c === ")") { pos[0]++; break; }
+      jFail(`expected ',' or ')' at index ${pos[0]}`);
+    }
+  }
+  const start = pos[0];
+  while (pos[0] < s.length && ",():;".indexOf(s[pos[0]]) < 0) pos[0]++;
+  const name = jTrimJ(s.slice(start, pos[0]));
+  let length;
+  if (pos[0] < s.length && s[pos[0]] === ":") {
+    pos[0]++;
+    const ls = pos[0];
+    while (pos[0] < s.length && ",()".indexOf(s[pos[0]]) < 0) pos[0]++;
+    const rawLen = jTrimJ(s.slice(ls, pos[0]));
+    try { length = jParseDouble(rawLen); }
+    catch (bad) { jFail(`bad branch length '${rawLen}'`); }
+    /* A non-finite length is reported, not carried: Double.parseDouble accepts "Infinity"
+       and overflows "1e400" to it, and NaN is the oracle's own marker for "no length". */
+    if (!Number.isFinite(length)) jFail(`branch length '${rawLen}' is not a finite number`);
+  }
+  if (!children.length && name === "") jFail(`empty node (missing name) at index ${start}`);
+  return { name, length, children: children.length ? children : undefined };
+}
+
 function countLeaves(n) { return n.children ? n.children.reduce((s, c) => s + countLeaves(c), 0) : 1; }
 function treeDepth(n) { return n.children ? 1 + Math.max(...n.children.map(treeDepth)) : 1; }
 
@@ -1210,7 +1386,22 @@ Is it one long low ridge rather than three small ridges? | =Rose comb (R_pp) | =
        <code>./gradlew ecologyExperiment -Pspec=your.eco</code> re-runs the same data forever — graded
        hypotheses, Excel-ready CSVs, a printable report. That is the storage format.</p>
     <button class="wb-btn" id="wb-eco-build" type="button">build .eco lines from my entries</button>
-    <textarea id="wb-eco-out" readonly style="min-height:120px;margin-top:8px" spellcheck="false"></textarea>`;
+    <textarea id="wb-eco-out" readonly style="min-height:120px;margin-top:8px" spellcheck="false"></textarea>
+    <div id="wb-eco-left"></div>
+    <h3 class="h3" style="margin-top:16px">Import a protocol — read an <code>.eco</code> file back in</h3>
+    <p class="whatis">The same road, travelled the other way. Paste a protocol below — or drop a
+       <code>.eco</code> file anywhere on this page — and it is read with the engine's own rules:
+       every entry the Workbench can hold is loaded into the boxes above, everything else is listed
+       exactly as it was read, and every line the engine would refuse is reported here with the
+       reason the engine would give. Nothing is guessed at and nothing is dropped in silence, so
+       this is also how to check a protocol you wrote without a JDK anywhere near you.</p>
+    <textarea id="wb-eco-in" spellcheck="false" placeholder="name: my pond study
+data: pondA cattail=18 duckweed=44 frogbit=3
+model: logistic 0.15 120 5 60
+cross: Rr x Rr observed 5474 1850
+expect: evenness(pondA) is moderate"></textarea>
+    <button class="wb-btn" id="wb-eco-import" type="button">import these .eco lines</button>
+    <div id="wb-eco-in-out"></div>`;
 
   const on = (id, fn) => document.getElementById(id).addEventListener("input", fn);
 
@@ -1282,16 +1473,23 @@ Is it one long low ridge rather than three small ridges? | =Rose comb (R_pp) | =
     });
   }
   /* Long.parseLong walks the string with charAt/Character.digit(char), so a decimal digit
-     outside the BMP (𝟏 = U+1D7CF, a surrogate pair) is never a digit to it — while \p{Nd},
-     which ND and the oracle's own BARE_NUMBER share, does match it as one code point. That
-     asymmetry is the oracle's, so mirror it here: without this, "oak,𝟏𝟐" counted twelve oaks
-     on the page and was reported as "not an integer" in Java. */
+     outside the BMP (𝟏 = U+1D7CF, a surrogate pair) is never a digit to it — while \p{Nd} matches
+     it as one code point. The oracle used to answer "is this a number?" both ways at once;
+     it now uses Character.digit everywhere (FieldData.digitsOnly), so a supplementary-plane
+     run is a species NAME on both sides, not an ambiguous bare number. Mirror that here. */
   const ASTRAL = /[\u{10000}-\u{10FFFF}]/u;
-  function parseLong(s) {                 // the numeric value, or null when Java would throw
+  function parseLongBig(s) {              // the exact value, or null when Java would throw
     if (!ND.test(s) || ASTRAL.test(s)) return null;
     const v = BigInt(asciiDigits(s));
     if (v < -(2n ** 63n) || v > 2n ** 63n - 1n) return null;   // Long overflow → not an integer
-    return Number(v);
+    return v;
+  }
+  /* The same answer as a JS number — what a count table holds. Above 2^53 that is the
+     correctly-rounded double rather than the exact long; the accept/reject decision, which
+     is the half that could corrupt data, is exact on both sides either way. */
+  function parseLong(s) {
+    const v = parseLongBig(s);
+    return v === null ? null : Number(v);
   }
 
   const NON_POSITIVE = "count must be positive — omit a name to record absence";
@@ -1301,8 +1499,18 @@ Is it one long low ridge rather than three small ridges? | =Rose comb (R_pp) | =
      parsed is *reported* with its reason, in the oracle's own words, never silently guessed
      at, and a bare number (ambiguous: a count with no name, or a species named by a number)
      is reported rather than resolved one way. */
-  function parseCounts(text) {
-    const counts = {}, order = [], problems = [];
+  /* FieldData's token half, which both of its entry faces share: the table form
+     (parseLines, below) and the token form (parseTokens, which reads a `.eco` `data:` line
+     for the importer). Splitting it out is what keeps those two from drifting apart the way
+     the page and the oracle did before the seventh pass.
+
+     The table is a null-prototype object on purpose. A plain `{}` inherits `constructor`,
+     `toString` and the rest, so `name in counts` was already true for a species called
+     `constructor` before a single one was counted — it never entered `order`, and
+     `counts[name] || 0` added a count to a *function*. Java's LinkedHashMap has no such
+     keys, so that was a silent divergence over ordinary English words. */
+  function countsBag() {
+    const counts = Object.create(null), order = [], problems = [];
     const add = (name, n) => {
       if (!(name in counts)) order.push(name);
       counts[name] = (counts[name] || 0) + n;
@@ -1321,6 +1529,11 @@ Is it one long low ridge rather than three small ridges? | =Rose comb (R_pp) | =
       if (n <= 0) { reject(token, NON_POSITIVE); return; }
       add(name, n);
     };
+    return { counts, order, problems, add, reject, addToken };
+  }
+
+  function parseCounts(text) {
+    const { counts, order, problems, add, reject, addToken } = countsBag();
 
     for (const raw of text.split("\n")) {
       const hash = raw.indexOf("#");
@@ -1335,7 +1548,7 @@ Is it one long low ridge rather than three small ridges? | =Rose comb (R_pp) | =
       if (parts.length === 1) parts = splitAtLastSpace(line);
       if (parts.length === 1) {                         // a single bare token
         const token = jTrim(parts[0]);
-        if (ND.test(token)) {
+        if (ND.test(token) && !ASTRAL.test(token)) {
           /* Ambiguous, and unrecoverable downstream either way: read as a name it makes a
              species called "12" with abundance 1, so a pasted count column becomes N species
              of abundance 1 and J' comes out exactly 1.0000; read as a count it needs a name,
@@ -1385,6 +1598,776 @@ Is it one long low ridge rather than three small ridges? | =Rose comb (R_pp) | =
     `<p class="wb-error">${problems.length} line(s) not counted:</p><ul class="wb-error" style="margin:2px 0 0 -8px">` +
     problems.slice(0, 6).map(p => `<li>${esc(p)}</li>`).join("") +
     (problems.length > 6 ? `<li>… and ${problems.length - 6} more</li>` : "") + "</ul>";
+
+
+  /* ══ ExperimentSpec.parse, transliterated (ADR-027) ═══════════════════════════════════
+     The reverse of the transfer box below: a `.eco` protocol read back into the Workbench.
+     A student with no JDK could write a protocol on this page but had no way to check one,
+     so everything from here to parseEco() mirrors `ExperimentSpec` — every directive, every
+     bound, every domain probe it runs on a model before accepting it, and every problem
+     message word for word, including the ones that come from `TheoreticalModels`,
+     `PopulationGenetics`, `MarkRecapture`, `MendelianGenetics` and `PhyloTree` underneath
+     it. The pair is held to that claim by a differential test the same way `parseCounts` is
+     held to `FieldData.parseLines` (seventh pass, item B): a comment cannot keep a mirror
+     in place, so this one is measured against the compiled oracle over the sample protocol,
+     a hand-built protocol per directive, and a randomized corpus of malformed lines.
+
+     Deliberate difference from the oracle, and the only one: `ExperimentSpec` catches
+     `RuntimeException` around each directive, which would also swallow a genuine bug in the
+     parser itself. Here only `SpecError` — thrown by the mirrored checks and by nothing
+     else — is filed as a student's spec problem. A real fault in this page stays a page
+     error, where it is visible and where the differential test counts it as a divergence. */
+
+  /* FieldData.parseTokens: one line of whitespace-separated `name[=count]` tokens, which is
+     the shape a `data:` line carries. Same token half as the table form above, so a tally
+     (`peck peck flap`) and a count (`oak=5`) mean here exactly what they mean there. */
+  function parseTokens(s) {
+    const bag = countsBag();
+    for (const token of jSplitWs(jTrimJ(s))) {
+      if (token === "") continue;
+      bag.addToken(token);
+    }
+    return bag;
+  }
+
+  /* ── TheoreticalModels, the parts ExperimentSpec probes a model with ──────────────── */
+
+  /* TheoreticalModels.fmt — rates read back the way a student wrote them. */
+  const tmFmt = v => (Number.isInteger(v) && Math.abs(v) < 1e15)
+      ? String(jLongCast(v)) : jDoubleToString(v);
+
+  function tmRates(c, e) {
+    if (!(c >= 0)) {
+      jFail("colonization rate c must be >= 0 (a rate is a fraction of patches per survey "
+          + "interval), got " + tmFmt(c));
+    }
+    if (!(e >= 0)) {
+      jFail("extinction rate e must be >= 0 (a rate is a fraction of patches per survey "
+          + "interval), got " + tmFmt(e));
+    }
+  }
+
+  /* The one place a trajectory becomes an answer: every point must be a real number, or the
+     run is a question about the input rather than a curve. Reported, never clamped. */
+  function tmRepresentable(model, params, series) {
+    for (const point of series) {
+      if (!Number.isFinite(point[1])) {
+        jFail(model + " with " + params
+            + " leaves the range of a double at step " + jIntCast(point[0]) + " ("
+            + (Number.isNaN(point[1]) ? "the value there is not a number"
+                                      : "the value there is past ±1.8e308")
+            + ") — shorten the run or use gentler rates");
+      }
+    }
+    return series;
+  }
+
+  function tmLevins(c, e, p0, steps) {
+    if (steps < 0) jFail("steps must be >= 0");
+    tmRates(c, e);
+    const out = [];
+    let p = Math.max(0.0, Math.min(1.0, p0));
+    for (let t = 0; t <= steps; t++) {
+      out.push([t, p]);
+      p += c * p * (1.0 - p) - e * p;
+      p = Math.max(0.0, Math.min(1.0, p));
+    }
+    return tmRepresentable("Levins occupancy", "c=" + tmFmt(c) + " e=" + tmFmt(e), out);
+  }
+
+  function tmLogistic(r, k, n0, steps) {
+    if (steps < 0) jFail("steps must be >= 0");
+    if (!(k > 0)) jFail("carrying capacity K must be > 0");
+    const out = [];
+    for (let t = 0; t <= steps; t++) {
+      out.push([t, n0 <= 0 ? 0.0 : k / (1.0 + ((k - n0) / n0) * Math.exp(-r * t))]);
+    }
+    return tmRepresentable("logistic growth", "r=" + tmFmt(r) + " K=" + tmFmt(k), out);
+  }
+
+  function tmIslandEquilibrium(c, e, pool) {
+    tmRates(c, e);
+    if (c + e <= 0) return 0.0;
+    return c / (c + e) * pool;
+  }
+
+  function tmIsland(c, e, pool, s0, steps) {
+    if (steps < 0) jFail("steps must be >= 0");
+    tmRates(c, e);
+    const sStar = tmIslandEquilibrium(c, e, pool);
+    const out = [];
+    for (let t = 0; t <= steps; t++) out.push([t, sStar + (s0 - sStar) * Math.exp(-(c + e) * t)]);
+    return tmRepresentable("island colonization", "c=" + tmFmt(c) + " e=" + tmFmt(e), out);
+  }
+
+  function tmExponential(r, n0, steps) {
+    if (steps < 0) jFail("steps must be >= 0");
+    const out = [];
+    for (let t = 0; t <= steps; t++) out.push([t, n0 * Math.exp(r * t)]);
+    return tmRepresentable("exponential growth", "r=" + tmFmt(r) + " N0=" + tmFmt(n0), out);
+  }
+
+  function tmCompetition(r1, k1, r2, k2, a12, a21, n1, n2, steps) {
+    if (steps < 0) jFail("steps must be >= 0");
+    if (!(k1 > 0)) jFail("carrying capacity K1 must be > 0");
+    if (!(k2 > 0)) jFail("carrying capacity K2 must be > 0");
+    const s1 = [], s2 = [];
+    let x = Math.max(0, n1), y = Math.max(0, n2);
+    for (let t = 0; t <= steps; t++) {
+      s1.push([t, x]); s2.push([t, y]);
+      for (let sub = 0; sub < 10; sub++) {
+        const dx = r1 * x * (1 - (x + a12 * y) / k1) * 0.1;
+        const dy = r2 * y * (1 - (y + a21 * x) / k2) * 0.1;
+        x = Math.max(0, x + dx);
+        y = Math.max(0, y + dy);
+      }
+    }
+    const params = "r1=" + tmFmt(r1) + " K1=" + tmFmt(k1) + " r2=" + tmFmt(r2) + " K2=" + tmFmt(k2);
+    /* Both series are one answer, and the oracle checks species 1 in full before it looks at
+       species 2 — so the step it names is the first bad point of the FIRST series, not the
+       earlier of the two. Checking them in that order is the difference between agreeing
+       with the oracle's message and merely agreeing with its verdict. */
+    tmRepresentable("Lotka–Volterra competition", params, s1);
+    tmRepresentable("Lotka–Volterra competition", params, s2);
+  }
+
+  function tmPredation(r, a, b, m, n0, p0, steps) {
+    if (steps < 0) jFail("steps must be >= 0");
+    const prey = [], pred = [];
+    let n = Math.max(0, n0), p = Math.max(0, p0);
+    for (let t = 0; t <= steps; t++) {
+      prey.push([t, n]); pred.push([t, p]);
+      for (let sub = 0; sub < 100; sub++) {
+        const dn = (r * n - a * n * p) * 0.01;
+        const dp = (b * a * n * p - m * p) * 0.01;
+        n = Math.max(0, n + dn);
+        p = Math.max(0, p + dp);
+      }
+    }
+    const params = "r=" + tmFmt(r) + " a=" + tmFmt(a) + " b=" + tmFmt(b) + " m=" + tmFmt(m);
+    tmRepresentable("Lotka–Volterra predation", params, prey);
+    tmRepresentable("Lotka–Volterra predation", params, pred);
+  }
+
+  /* ── PopulationGenetics / MarkRecapture / MendelianGenetics: their refusals ────────── */
+
+  function pgHardyWeinberg(aa, ab, bb) {
+    if (aa < 0n || ab < 0n || bb < 0n) jFail("genotype counts must be non-negative");
+    /* Java sums three longs, so three enormous counts can wrap; asIntN reproduces that
+       rather than answering a question the oracle would not have answered. */
+    if (BigInt.asIntN(64, aa + ab + bb) === 0n) jFail("no individuals in the sample");
+  }
+
+  function pgEulerLotka(lx, mx) {
+    if (lx.length !== mx.length || lx.length === 0) {
+      jFail("lx and mx must be equal-length and non-empty");
+    }
+    let r0 = 0;
+    for (let x = 0; x < lx.length; x++) {
+      const lm = lx[x] * mx[x];
+      if (lm < 0) jFail("lx·mx must be non-negative at age " + x);
+      r0 += lm;
+    }
+    if (r0 <= 0) jFail("R0 must be > 0 (no reproduction in schedule)");
+    /* Only the bracket check can refuse a schedule; the 200 bisection steps after it
+       produce a value the spec does not keep, so the mirror stops at the refusal. */
+    if (r0 !== 1.0) {
+      const sum = r => {
+        let s = 0;
+        for (let x = 0; x < lx.length; x++) s += Math.exp(-r * x) * lx[x] * mx[x];
+        return s;
+      };
+      let lo = -5, hi = 5;
+      while (sum(hi) > 1.0 && hi < 700.0) hi = Math.min(hi * 2, 700.0);
+      while (sum(lo) < 1.0 && lo > -700.0) lo = Math.max(lo * 2, -700.0);
+      const high = sum(hi) > 1.0;
+      if (high || sum(lo) < 1.0) {
+        jFail("no intrinsic rate r fits this schedule: Σ e^(−rx)·lx·mx is still "
+            + (high ? "above" : "below") + " 1 at r = " + (high ? "+700" : "-700")
+            + ", so it never crosses 1. This happens when the reproduction sits at age 0, "
+            + "which r cannot discount (e^0 = 1) — such a schedule has a solution only "
+            + "when R0 is exactly 1.");
+      }
+    }
+  }
+
+  function mrEstimate(marked, caught, recaptured) {
+    if (marked <= 0n || caught <= 0n) jFail("marked and caught must be positive");
+    const min = marked < caught ? marked : caught;
+    if (recaptured < 0n || recaptured > min) {
+      jFail("recaptured must be in [0, min(marked, caught)]");
+    }
+  }
+
+  /* Character.isLetter / Character.toLowerCase on one UTF-16 unit, which is the granularity
+     MendelianGenetics works at. *Residual:* a char whose JS lowercase is more than one unit
+     (U+0130) is folded to its first unit, which is what Character.toLowerCase returns for
+     the cases that arise; a genotype written in astral letters is rejected by both sides. */
+  const jIsLetter = ch => /\p{L}/u.test(ch);
+  const jLowerChar = ch => ch.toLowerCase()[0] ?? ch;
+
+  function mgSplitLoci(genotype) {
+    if (genotype.length < 2 || genotype.length % 2 !== 0) {
+      jFail("genotype must be letter pairs, e.g. Aa or AaBb");
+    }
+    const loci = genotype.length / 2;
+    if (loci > 3) jFail("at most 3 loci");
+    const out = [];
+    for (let i = 0; i < loci; i++) {
+      const pair = genotype.slice(i * 2, i * 2 + 2);
+      const a = pair[0], b = pair[1];
+      if (!jIsLetter(a) || !jIsLetter(b) || jLowerChar(a) !== jLowerChar(b)) {
+        jFail("locus '" + pair + "' must be two of the same letter");
+      }
+      out.push(pair);
+    }
+    return out;
+  }
+
+  /* MendelianGenetics.cross's refusals. The Punnett box above keeps its own wording, which
+     is written for someone typing into that box; a `cross:` line is graded by the engine,
+     so its problems have to read the way the engine's do. */
+  function mgCrossCheck(parent1, parent2) {
+    const l1 = mgSplitLoci(parent1), l2 = mgSplitLoci(parent2);
+    if (l1.length !== l2.length) jFail("parents must have the same loci count");
+    for (let i = 0; i < l1.length; i++) {
+      if (jLowerChar(l1[i][0]) !== jLowerChar(l2[i][0])) {
+        jFail("locus " + (i + 1) + " letters differ between parents");
+      }
+    }
+  }
+
+  /* ── the spec parser itself ───────────────────────────────────────────────────────── */
+
+  const stripEcoComment = l => { const h = l.indexOf("#"); return h < 0 ? l : l.slice(0, h); };
+
+  function specWholeNumber(v, what) {
+    const t = jTrimJ(v);
+    if (t === "") jFail(what + " needs a whole number");
+    const x = parseLongBig(t);
+    if (x === null) jFail(what + " must be a whole number, not '" + t + "'");
+    return x;
+  }
+  function specBounded(v, lo, hi, what) {
+    const x = specWholeNumber(v, what);
+    if (x < BigInt(lo) || x > BigInt(hi)) jFail(what + " out of range [" + lo + ", " + hi + "]");
+    return Number(x);
+  }
+
+  function specPhase(val) {
+    const p = jSplitWs(val);
+    if (p.length < 3) jFail("phase needs: <name> <kind> <ops> ...");
+    const ops = specBounded(p[2], 1, 10000000, "phase ops");
+    switch (p[1].toLowerCase()) {
+      case "uniform":
+        return { name: p[0], kind: "UNIFORM", ops, hotSetSize: 0, hotSharePct: 0, addPct: 0 };
+      case "hot":
+        if (p.length < 5) jFail("hot needs: <ops> <hotSetSize> <hotShare%>");
+        return { name: p[0], kind: "HOT", ops,
+                 hotSetSize: specBounded(p[3], 1, 1000000, "hotSetSize"),
+                 hotSharePct: specBounded(p[4], 0, 100, "hotShare%"), addPct: 0 };
+      case "churn":
+        if (p.length < 4) jFail("churn needs: <ops> <addPercent>");
+        return { name: p[0], kind: "CHURN", ops, hotSetSize: 0, hotSharePct: 0,
+                 addPct: specBounded(p[3], 0, 100, "addPercent") };
+      default:
+        jFail("unknown phase kind '" + p[1] + "'");
+    }
+  }
+
+  /* Every one of these four tables is looked up with a token straight out of the student's
+     file, so each lookup goes through `own()`. A plain `table[key]` finds Object.prototype's
+     members too: `model: constructor 1 2 3` would have found a *function* where an arity
+     belongs and reported "model constructor needs function Object() { [native code] }1
+     parameters" instead of "unknown model 'constructor'". Same shape as the `{}`-vs-
+     `Object.create(null)` defect in the count table above. */
+  const own = (table, key) => Object.hasOwn(table, key) ? table[key] : undefined;
+
+  /* How many numbers each model wants, and what they mean — the theory bench's contract. */
+  const SPEC_MODEL_ARITY = {
+    levins: 4, logistic: 4, island: 5, exponential: 3,
+    competition: 9, predation: 7, hardyweinberg: 3, markrecapture: 3,
+  };
+
+  function specModel(val) {
+    const p = jSplitWs(val);
+    const kind = p[0].toLowerCase();
+    if (kind === "eulerlotka") {                 // variable-length lx:mx pairs, age = index
+      if (p.length < 3) jFail("eulerlotka needs >= 2 lx:mx pairs");
+      const params = [];
+      for (let i = 1; i < p.length; i++) {
+        const pair = jSplit(p[i], ":");
+        if (pair.length !== 2) jFail("pairs are lx:mx, got '" + p[i] + "'");
+        params.push(jParseDouble(pair[0]), jParseDouble(pair[1]));
+      }
+      const ages = params.length / 2, lx = [], mx = [];
+      for (let i = 0; i < ages; i++) { lx.push(params[i * 2]); mx.push(params[i * 2 + 1]); }
+      pgEulerLotka(lx, mx);
+      return { kind, params };
+    }
+    const want = own(SPEC_MODEL_ARITY, kind);
+    if (want === undefined) jFail("unknown model '" + p[0] + "'");
+    if (p.length !== want + 1) jFail("model " + p[0] + " needs " + want + " parameters");
+    const params = [];
+    for (let i = 0; i < want; i++) params.push(jParseDouble(p[i + 1]));
+    const hasSteps = kind !== "hardyweinberg" && kind !== "markrecapture";
+    if (hasSteps && (params[want - 1] < 0 || params[want - 1] > 100000)) {
+      jFail("steps out of range [0, 100000]");
+    }
+    /* The domain probe. A line that parses but whose numbers are out of range is a spec
+       problem here, exactly as it is in the oracle — and the trajectory models are probed
+       over their REAL step count, because whether a run leaves the range of a double is a
+       property of how long it runs, not of any single point. */
+    const steps = hasSteps ? jIntCast(params[want - 1]) : 0;
+    switch (kind) {
+      case "markrecapture":
+        mrEstimate(jLongCast(params[0]), jLongCast(params[1]), jLongCast(params[2])); break;
+      case "hardyweinberg":
+        pgHardyWeinberg(jLongCast(params[0]), jLongCast(params[1]), jLongCast(params[2])); break;
+      case "levins": tmLevins(params[0], params[1], params[2], steps); break;
+      case "logistic": tmLogistic(params[0], params[1], params[2], steps); break;
+      case "island": tmIsland(params[0], params[1], params[2], params[3], steps); break;
+      case "exponential": tmExponential(params[0], params[1], steps); break;
+      case "competition":
+        tmCompetition(params[0], params[1], params[2], params[3], params[4],
+                      params[5], params[6], params[7], steps); break;
+      case "predation":
+        tmPredation(params[0], params[1], params[2], params[3], params[4], params[5], steps); break;
+    }
+    return { kind, params };
+  }
+
+  function specCross(val) {
+    const p = jSplitWs(val);
+    if (p.length < 3 || !jEqualsIgnoreCase(p[1], "x")) {
+      jFail("cross needs: <parent1> x <parent2> [incomplete] [observed n...]");
+    }
+    let dominance = "COMPLETE", observed = null, i = 3;
+    if (i < p.length && jEqualsIgnoreCase(p[i], "incomplete")) { dominance = "INCOMPLETE"; i++; }
+    if (i < p.length) {
+      if (!jEqualsIgnoreCase(p[i], "observed")) jFail("unexpected token '" + p[i] + "'");
+      const n = p.length - i - 1;
+      if (n < 2) jFail("observed needs >= 2 counts");
+      observed = [];
+      for (let j = 0; j < n; j++) {
+        const v = parseLongBig(p[i + 1 + j]);
+        if (v === null) jFail('For input string: "' + p[i + 1 + j] + '"');
+        observed.push(v);
+      }
+    }
+    mgCrossCheck(p[0], p[2]);
+    return { parent1: p[0], parent2: p[2], dominance, observed };
+  }
+
+  /* " is " inside parentheses would be part of a community name — that is not the keyword. */
+  function specIndexOfIs(s) {
+    const i = s.indexOf(" is ");
+    if (i < 0) return -1;
+    const open = s.indexOf("("), close = s.indexOf(")");
+    return (open >= 0 && close > open && i > open && i < close) ? -1 : i;
+  }
+
+  const SPEC_NUMERIC_ARGS = {
+    richness: 1, shannon: 1, evenness: 1, hill1: 1, chao1: 1,
+    braycurtis: 2, pianka: 2, jaccard: 2, sorensen: 2,
+  };
+  const SPEC_WORDS = {
+    evenness: ["very-even", "moderate", "uneven", "dominated"],
+    turnover: ["low", "moderate", "major"],
+    overlap: ["high", "partial", "little"],
+    fit: ["geometric", "brokenstick", "uniform"],
+    survivorship: ["type1", "type2", "type3"],
+  };
+  const SPEC_WORD_ARGS = { evenness: 1, fit: 1, turnover: 2, overlap: 2, survivorship: 0 };
+
+  function specExpect(val) {
+    const isAt = specIndexOfIs(val);
+    if (isAt >= 0) return specQualitative(val, isAt);
+    const open = val.indexOf("("), close = val.indexOf(")");
+    if (open < 0 || close < open) jFail("expect needs metric(phase...)");
+    const metric = jTrimJ(val.slice(0, open)).toLowerCase();
+    const args = jSplit(val.slice(open + 1, close), ",");
+    for (let i = 0; i < args.length; i++) {
+      args[i] = jTrimJ(args[i]);
+      if (args[i] === "") jFail("expect has a blank phase/dataset name");
+    }
+    const tail = jSplitWs(jTrimJ(val.slice(close + 1)));
+    if (tail.length !== 2) jFail("expect needs: metric(...) <op> <value>");
+    const op = tail[0];
+    if (op !== "<" && op !== ">" && op !== "<=" && op !== ">=") {
+      jFail("operator must be < > <= >= (or 'is <word>')");
+    }
+    const wantArgs = own(SPEC_NUMERIC_ARGS, metric);
+    if (wantArgs === undefined) jFail("unknown metric '" + metric + "'");
+    if (args.length !== wantArgs) {
+      jFail(metric + " takes " + wantArgs + " community name(s)");
+    }
+    return { raw: val, metric, phaseArgs: args, op, value: jParseDouble(tail[1]), word: null };
+  }
+
+  function specQualitative(val, isAt) {
+    const left = jTrimJ(val.slice(0, isAt));
+    const word = jTrimJ(val.slice(isAt + 4)).toLowerCase();
+    let metric, args;
+    const open = left.indexOf("(");
+    if (open >= 0) {
+      const close = left.indexOf(")");
+      if (close < open) jFail("unbalanced parentheses");
+      metric = jTrimJ(left.slice(0, open)).toLowerCase();
+      args = jSplit(left.slice(open + 1, close), ",").map(jTrimJ);
+    } else {
+      metric = left.toLowerCase();
+      args = [];
+    }
+    const wantArgs = own(SPEC_WORD_ARGS, metric);
+    if (wantArgs === undefined) {
+      jFail("unknown qualitative metric '" + metric
+          + "' (evenness, turnover, overlap, fit, survivorship)");
+    }
+    if (args.length !== wantArgs) jFail(metric + " takes " + wantArgs + " community name(s)");
+    const words = own(SPEC_WORDS, metric);
+    if (!words.includes(word)) {
+      jFail("'" + word + "' is not a " + metric + " band — one of [" + words.join(", ") + "]");
+    }
+    return { raw: val, metric, phaseArgs: args, op: "is", value: NaN, word };
+  }
+
+  function specData(val, problems) {
+    const parts = jSplitWs2(val);
+    if (parts.length < 2) jFail("data needs: <label> <name[=count]> ...");
+    if (parts[0].indexOf("=") >= 0) jFail("first token is the dataset label, not a count");
+    const parsed = parseTokens(parts[1]);
+    for (const p of parsed.problems) problems.push("data " + parts[0] + ": " + p);
+    if (!parsed.order.length) jFail("dataset '" + parts[0] + "' has no valid counts");
+    return { name: parts[0], counts: parsed.counts, order: parsed.order };
+  }
+
+  function specTree(val) {
+    const parts = jSplitWs2(val);
+    if (parts.length < 2) jFail("tree needs: <label> <newick>");
+    return { label: parts[0], tree: jsNewick(parts[1]), newick: parts[1] };
+  }
+
+  function parseEco(lines) {
+    let name = "unnamed experiment", keys = 100, window = 250, seed = 42n;
+    const phases = [], models = [], crosses = [], expectations = [],
+          datasets = [], notes = [], trees = [], problems = [];
+    let area = 1, temperature = 1, wind = 1, distance = 0;
+
+    for (const raw of lines) {
+      const line = jTrimJ(stripEcoComment(raw));
+      if (line === "") continue;
+      const colon = line.indexOf(":");
+      if (colon < 0) { problems.push(jTrimJ(raw) + "  (no directive)"); continue; }
+      const origKey = jTrimJ(line.slice(0, colon));
+      const key = origKey.toLowerCase();
+      const val = jTrimJ(line.slice(colon + 1));
+      if (key.startsWith("note")) {              // note: text  |  note(target): text
+        let about = null;
+        if (key.startsWith("note(") && key.endsWith(")")) {
+          /* The target comes from the ORIGINAL line, not the lowercased key: phase and
+             dataset names are stored case-sensitively. */
+          about = jTrimJ(jSubstring(origKey, 5, origKey.length - 1));
+        } else if (key !== "note") {
+          problems.push(jTrimJ(raw) + "  (unknown directive '" + key + "')");
+          continue;
+        }
+        if (val === "") { problems.push(jTrimJ(raw) + "  (empty note)"); continue; }
+        notes.push({ about, text: val });
+        continue;
+      }
+      try {
+        switch (key) {
+          case "name": name = val; break;
+          case "keys": keys = specBounded(val, 2, 1000000, "keys"); break;
+          case "seed": seed = specWholeNumber(val, "seed"); break;
+          case "window": window = specBounded(val, 16, 1000000, "window"); break;
+          case "phase": phases.push(specPhase(val)); break;
+          case "model": models.push(specModel(val)); break;
+          case "cross": crosses.push(specCross(val)); break;
+          case "expect": expectations.push(specExpect(val)); break;
+          case "data": datasets.push(specData(val, problems)); break;
+          case "tree": trees.push(specTree(val)); break;
+          case "factor": {
+            const f = jSplitWs(val);
+            if (f.length !== 2) jFail("factor needs: <name> <value>");
+            const fv = jParseDouble(f[1]);
+            switch (f[0].toLowerCase()) {
+              case "area": area = fv; break;
+              case "temperature": temperature = fv; break;
+              case "wind": wind = fv; break;
+              case "distance": distance = fv; break;
+              default: jFail("unknown factor '" + f[0]
+                  + "' (area, temperature, wind, distance)");
+            }
+            break;
+          }
+          default: problems.push(jTrimJ(raw) + "  (unknown directive '" + key + "')");
+        }
+      } catch (bad) {
+        if (!(bad instanceof SpecError)) throw bad;
+        problems.push(jTrimJ(raw) + "  (" + bad.message + ")");
+      }
+    }
+    // Community names must be unique — expectations address them by name.
+    for (let i = 0; i < phases.length; i++) {
+      for (let j = i + 1; j < phases.length; j++) {
+        if (phases[i].name === phases[j].name) {
+          problems.push("duplicate phase name '" + phases[i].name + "'");
+        }
+      }
+    }
+    const phaseNames = new Set(phases.map(p => p.name));
+    const datasetNames = new Set();
+    for (const d of datasets) {
+      if (phaseNames.has(d.name)) {
+        problems.push("dataset '" + d.name + "' collides with a phase name");
+      } else if (datasetNames.has(d.name)) {
+        problems.push("duplicate dataset name '" + d.name + "'");
+      } else {
+        datasetNames.add(d.name);
+      }
+    }
+    for (const n of notes) {
+      if (n.about !== null && !phaseNames.has(n.about) && !datasetNames.has(n.about)) {
+        problems.push("note targets unknown phase/dataset '" + n.about + "'");
+      }
+    }
+    let environment;
+    try {
+      if (area <= 0) jFail("area must be > 0");
+      if (temperature < 0 || wind < 0 || distance < 0) {
+        jFail("temperature, wind, distance must be >= 0");
+      }
+      environment = { area, temperature, wind, distance };
+    } catch (bad) {
+      if (!(bad instanceof SpecError)) throw bad;
+      problems.push("factors: " + bad.message + " — using neutral environment");
+      environment = { area: 1, temperature: 1, wind: 1, distance: 0 };
+    }
+    return { name, keys, seed, window, phases, models, crosses, expectations,
+             datasets, notes, trees, problems, environment };
+  }
+  /* ══ end of the ExperimentSpec mirror ═════════════════════════════════════════════ */
+
+  /* ══ the import path: a .eco protocol back into the Workbench (ADR-027) ══════════════ */
+
+  /* Which box a dataset lands in. The transfer button writes exactly these three labels, so
+     a protocol this page produced round-trips into the boxes it came from; any other dataset
+     fills the free boxes in file order, and the report names the box it went to. Three boxes
+     is the whole capacity — a fourth dataset is listed, not silently merged into a third. */
+  const ECO_BOXES = [["myfield", "wb-field", "the field-data box"],
+                     ["siteA", "wb-siteA", "site A"],
+                     ["siteB", "wb-siteB", "site B"]];
+
+  /* A count table written back as lines the field boxes read exactly: RFC-4180
+     `name,count`, quoted when the name carries a comma, a quote or a tab. `name count`
+     would have been prettier and wrong — a dataset name may already contain a comma
+     (`data: p oak,white=12` is one species), and the space form would then split it. */
+  const csvField = s => /["\t,]/.test(s) ? '"' + s.replace(/"/g, '""') + '"' : s;
+  const countsAsLines = d => d.order.map(n => csvField(n) + "," + d.counts[n]).join("\n");
+  const countsTotal = d => d.order.reduce((s, n) => s + d.counts[n], 0);
+  const plural = (n, word) => `${n} ${word}${n === 1 ? "" : "s"}`;
+
+  /* A model line the way its own directive is written, so the report quotes the file rather
+     than a flattened version of it — `eulerlotka` carries lx:mx pairs, not eight numbers. */
+  function ecoModelLine(m) {
+    const p = m.params.map(v => tmFmt(v));
+    if (m.kind !== "eulerlotka") return `model: ${m.kind} ${p.join(" ")}`;
+    const pairs = [];
+    for (let i = 0; i < p.length; i += 2) pairs.push(p[i] + ":" + p[i + 1]);
+    return `model: eulerlotka ${pairs.join(" ")}`;
+  }
+
+  /* Put a number in a numeric box, and say whether the box could hold it. `input
+     type=number` silently empties itself when handed something it cannot represent, so the
+     answer has to be read back rather than assumed. */
+  function setNumberBox(id, v) {
+    const el = document.getElementById(id);
+    el.value = Number.isFinite(v) ? String(v) : "";
+    return el.value !== "";
+  }
+
+  function importEco(text) {
+    const out = document.getElementById("wb-eco-in-out");
+    let spec;
+    try {
+      spec = parseEco(String(text).split("\n"));
+    } catch (bad) {
+      /* parseEco only escapes like this for a shape the oracle does not catch either. */
+      out.innerHTML = `<p class="wb-error">that protocol could not be read at all — ${esc(bad.message)}</p>`;
+      return null;
+    }
+    const loaded = [];
+    /* Every entry that was read but has nowhere to go is [what it said, why it stayed here].
+       Carrying the reason separately is what lets three phases share one sentence instead of
+       printing it three times — the list still names all three. */
+    const shown = [];
+    const lineCount = String(text).split("\n").filter(l => jTrimJ(stripEcoComment(l)) !== "").length;
+
+    /* ── the protocol header: read, and honestly not ours ── */
+    shown.push([`<b>name:</b> ${esc(spec.name)}`,
+                "the Workbench has no protocol name; the transfer box above always writes "
+                + "<code>my workbench experiment</code>"]);
+    shown.push([`<b>keys: ${spec.keys} · seed: ${spec.seed} · window: ${spec.window}</b>`,
+                "these set up the simulated tree, which needs the engine "
+                + "(<code>./gradlew ecologyExperiment</code>); nothing in a browser runs against a tree"]);
+
+    /* ── data: → the three count boxes ── */
+    const slotFor = new Array(ECO_BOXES.length).fill(null);
+    const spill = [];
+    for (const d of spec.datasets) {                       // pass 1: a box's own label wins
+      const i = ECO_BOXES.findIndex((b, k) => b[0] === d.name && slotFor[k] === null);
+      if (i >= 0) slotFor[i] = d; else spill.push(d);
+    }
+    for (const d of spill) {                               // pass 2: file order into what is left
+      const i = slotFor.indexOf(null);
+      if (i >= 0) slotFor[i] = d;
+      else shown.push([`<b>data: ${esc(d.name)}</b> — ${esc(plural(d.order.length, "kind"))},
+                        ${esc(String(countsTotal(d)))} counted`,
+                       "the Workbench has three count boxes and all three were already filled"]);
+    }
+    ECO_BOXES.forEach(([, id, human], i) => {
+      const d = slotFor[i];
+      if (!d) return;
+      document.getElementById(id).value = countsAsLines(d);
+      loaded.push(`<b>data: ${esc(d.name)}</b> → ${human} — ${esc(plural(d.order.length, "kind"))},
+                   ${esc(String(countsTotal(d)))} counted`);
+    });
+
+    /* ── model: → the genotype boxes, the bean lab, the theory bench ── */
+    const ONE_MODEL = "the theory bench draws one model at a time, and it is drawing the first "
+                    + "one in this file";
+    let tookHw = false, tookMr = false, tookTheory = false;
+    for (const m of spec.models) {
+      const written = ecoModelLine(m);
+      if (m.kind === "hardyweinberg") {
+        if (tookHw) {
+          shown.push([`<b>${esc(written)}</b>`,
+                      "the genotype boxes hold one census, and they already hold the first one "
+                      + "in this file"]);
+          continue;
+        }
+        tookHw = true;
+        const [aa, ab, bb] = m.params.map(v => Number(jLongCast(v)));
+        setNumberBox("wb-aa", aa); setNumberBox("wb-ab", ab); setNumberBox("wb-bb", bb);
+        loaded.push(`<b>${esc(written)}</b> → the Hardy–Weinberg boxes (AA ${aa}, Aa ${ab}, aa ${bb})`);
+      } else if (m.kind === "markrecapture") {
+        if (tookMr) {
+          shown.push([`<b>${esc(written)}</b>`,
+                      "the mark–recapture boxes hold one pair, and they already hold the first "
+                      + "one in this file"]);
+          continue;
+        }
+        tookMr = true;
+        const [mm, cc, rr] = m.params.map(v => Number(jLongCast(v)));
+        setNumberBox("wb-mrm", mm); setNumberBox("wb-mrc", cc); setNumberBox("wb-mrr", rr);
+        loaded.push(`<b>${esc(written)}</b> → the mark–recapture boxes (M ${mm}, C ${cc}, R ${rr})`);
+      } else if (Object.hasOwn(MODEL_PARAMS, m.kind)) {
+        if (tookTheory) { shown.push([`<b>${esc(written)}</b>`, ONE_MODEL]); continue; }
+        tookTheory = true;
+        document.getElementById("wb-model").value = m.kind;
+        buildParams();                                     // rebuild the parameter boxes for this model
+        const refused = [];
+        m.params.forEach((v, i) => {
+          if (!setNumberBox("wb-mp" + i, v)) refused.push(MODEL_PARAMS[m.kind][i][0]);
+        });
+        loaded.push(`<b>${esc(written)}</b> → the theory bench`
+            + (refused.length ? ` — except ${esc(refused.join(", "))}, which the boxes cannot hold` : ""));
+      } else {
+        shown.push([`<b>${esc(written)}</b>`,
+                    `the theory bench has no ${esc(m.kind)} station; the engine runs it and the `
+                    + "report prints it"]);
+      }
+    }
+
+    /* ── factor: → the habitat knobs. Set all four every time, including the ones the file
+       leaves out: an absent factor is the neutral value, and leaving a knob where the last
+       import put it would quietly change the model this file describes. ── */
+    const env = spec.environment;
+    const noRoom = [["wb-area", "area", env.area], ["wb-temp", "temperature", env.temperature],
+                    ["wb-wind", "wind", env.wind], ["wb-dist", "distance", env.distance]]
+        .filter(([id, , v]) => !setNumberBox(id, v)).map(([, n]) => n);
+    loaded.push(`<b>the habitat</b> → area ${esc(String(env.area))}, temperature ${esc(String(env.temperature))},
+                 wind ${esc(String(env.wind))}, distance ${esc(String(env.distance))}`
+        + (noRoom.length ? ` — except ${esc(noRoom.join(", "))}, which the boxes cannot hold` : ""));
+
+    /* ── cross: → the Punnett builder ── */
+    spec.crosses.forEach((c, i) => {
+      const inc = c.dominance === "INCOMPLETE";
+      const written = `cross: ${c.parent1} x ${c.parent2}${inc ? " incomplete" : ""}`
+          + (c.observed ? " observed " + c.observed.join(" ") : "");
+      if (i > 0) {
+        shown.push([`<b>${esc(written)}</b>`,
+                    "the Punnett builder shows one cross at a time, and it is showing the first "
+                    + "one in this file"]);
+        return;
+      }
+      document.getElementById("wb-p1").value = c.parent1;
+      document.getElementById("wb-p2").value = c.parent2;
+      document.getElementById("wb-inc").checked = inc;
+      document.getElementById("wb-obs").value = c.observed ? c.observed.join(" ") : "";
+      loaded.push(`<b>${esc(written)}</b> → the Punnett builder`);
+    });
+
+    /* ── tree: → the cladogram box ── */
+    spec.trees.forEach((t, i) => {
+      if (i > 0) {
+        shown.push([`<b>tree: ${esc(t.label)}</b>`,
+                    "the tree box draws one phylogeny at a time, and it is drawing the first "
+                    + "one in this file"]);
+        return;
+      }
+      document.getElementById("wb-newick").value = t.newick;
+      loaded.push(`<b>tree: ${esc(t.label)}</b> → the tree box — ${countLeaves(t.tree)} taxa,
+                   depth ${treeDepth(t.tree)}`);
+    });
+
+    /* ── the three kinds the Workbench has no control for, listed rather than dropped ── */
+    for (const p of spec.phases) {
+      shown.push([`<b>phase: ${esc(p.name)} ${esc(p.kind.toLowerCase())} ${p.ops}</b>`,
+                  "a phase is traffic against a live tree, and there is no tree in a browser; "
+                  + "the engine runs it"]);
+    }
+    for (const n of spec.notes) {
+      shown.push([`<b>note${n.about === null ? "" : "(" + esc(n.about) + ")"}:</b> ${esc(n.text)}`,
+                  "the field notebook travels with the file and with the run; the Workbench has "
+                  + "no notebook of its own"]);
+    }
+    for (const e of spec.expectations) {
+      shown.push([`<b>expect: ${esc(e.raw)}</b>`,
+                  "read and checked for shape; grading one needs the run it was registered against"]);
+    }
+
+    /* ── redraw everything the boxes above feed ── */
+    runField(); runSites(); runHw(); runMR(); runPunnett(); runTree(); runTheory();
+
+    /* Consecutive entries that stayed here for the same reason print that reason once, with
+       every entry still named under it. Repeating one sentence per phase and per note buried
+       the list it was explaining. */
+    const grouped = [];
+    for (const [body, reason] of shown) {
+      const last = grouped[grouped.length - 1];
+      if (last && last.reason === reason) last.bodies.push(body);
+      else grouped.push({ reason, bodies: [body] });
+    }
+    const list = (items, cls) => `<ul class="${cls}" style="margin:2px 0 8px -8px">`
+        + items.map(t => `<li>${t}</li>`).join("") + "</ul>";
+    out.innerHTML =
+      `<p class="reading">Read <b>${lineCount}</b> line(s): <b>${loaded.length}</b> loaded into the
+       Workbench, <b>${shown.length}</b> read but shown here only, <b>${spec.problems.length}</b>
+       ${spec.problems.length === 1 ? "problem" : "problems"}.</p>`
+      + (loaded.length ? `<p class="h3">Loaded into the Workbench</p>` + list(loaded, "reading") : "")
+      + (grouped.length
+          ? `<p class="h3">Read, and shown here only — no Workbench control holds these</p>`
+            + list(grouped.map(g => g.bodies.join("<br>") + `<br><span style="color:var(--muted)">— ${g.reason}</span>`), "reading")
+          : "")
+      + (spec.problems.length
+          ? `<p class="wb-error">Problems — the engine would refuse these lines, in its own words:</p>`
+            + list(spec.problems.map(p => esc(p)), "wb-error")
+          : `<p class="reading">✅ No problems: every line in this protocol is one the engine accepts.</p>`);
+    return spec;
+  }
 
   /* field data */
   function runField() {
@@ -1702,26 +2685,75 @@ Is it one long low ridge rather than three small ridges? | =Rose comb (R_pp) | =
   function buildEco() {
     const lines = ["# built by the Workbench — paste into your .eco protocol",
                    "name: my workbench experiment", "keys: 100", "seed: 42", "window: 250", ""];
+    const left = [];
+
+    /* One rule for every line this button writes: build the candidate, hand it to the same
+       transliterated `ExperimentSpec` the import box below uses, and keep it only if the
+       engine would accept it. `runTheory` was hardened in the seventh pass and this button
+       was not, so a blank or zero K still wrote `model: logistic 0.15 0 5 60` into the
+       protocol — the literal line the chart above refuses to draw and the engine reports as
+       a `⚠ spec:` problem — and the same `+el.value` read turned an empty genotype census
+       into `model: hardyweinberg 0 0 0`, which is "no individuals in the sample". The page
+       was contradicting itself in the one artefact a student is told to save.
+
+       Refusing is the only option that does not guess: clamping K to 1 would answer a
+       question the student did not ask, and emitting the line anyway is what was wrong. The
+       refusal travels *with* the protocol as a `#` comment, because a comment is legal
+       `.eco`, survives the copy-paste into a file, and is the only part of a protocol that
+       can explain an absence. It is also shown under the button, where the fix is. */
+    const keep = line => {
+      const problems = parseEco([line]).problems;
+      if (!problems.length) { lines.push(line); return true; }
+      for (const p of problems) left.push(p);
+      return false;
+    };
+    /* One box as a number, or null — the `numField` discipline, without the UI wording:
+       `+el.value` reads a blank box, and in Chromium an unparseable one, as 0. */
+    const boxNum = id => {
+      const el = document.getElementById(id);
+      if (el.validity && el.validity.badInput) return null;
+      const raw = String(el.value).trim();
+      if (raw === "") return null;
+      const v = Number(raw);
+      return Number.isFinite(v) ? v : null;
+    };
+
     const dataLine = (label, parsed) => "data: " + label + " " + parsed.order
         .map(n => parsed.counts[n] === 1 ? ecoName(n) : `${ecoName(n)}=${parsed.counts[n]}`).join(" ");
     const field = parseCounts(document.getElementById("wb-field").value);
-    if (field.order.length) lines.push(dataLine("myfield", field));
+    if (field.order.length) keep(dataLine("myfield", field));
     const A = parseCounts(document.getElementById("wb-siteA").value);
     const B = parseCounts(document.getElementById("wb-siteB").value);
-    if (A.order.length) lines.push(dataLine("siteA", A));
-    if (B.order.length) lines.push(dataLine("siteB", B));
-    lines.push("", `model: hardyweinberg ${+document.getElementById("wb-aa").value || 0} ` +
-        `${+document.getElementById("wb-ab").value || 0} ${+document.getElementById("wb-bb").value || 0}`);
-    lines.push(`model: markrecapture ${+document.getElementById("wb-mrm").value || 1} ` +
-        `${+document.getElementById("wb-mrc").value || 1} ${+document.getElementById("wb-mrr").value || 0}`);
+    if (A.order.length) keep(dataLine("siteA", A));
+    if (B.order.length) keep(dataLine("siteB", B));
+    lines.push("");
+
+    const hw = ["wb-aa", "wb-ab", "wb-bb"].map(boxNum);
+    if (hw.some(v => v === null)) {
+      left.push("model: hardyweinberg — a genotype box is empty or is not a number");
+    } else {
+      keep(`model: hardyweinberg ${hw.join(" ")}`);
+    }
+    const mr = ["wb-mrm", "wb-mrc", "wb-mrr"].map(boxNum);
+    if (mr.some(v => v === null)) {
+      left.push("model: markrecapture — marked, caught or recaptured is empty or is not a number");
+    } else {
+      keep(`model: markrecapture ${mr.join(" ")}`);
+    }
     const kind = document.getElementById("wb-model").value;
-    const mp = MODEL_PARAMS[kind].map((_, i) => +document.getElementById("wb-mp" + i).value);
-    lines.push(`model: ${kind} ${mp.join(" ")}`);
+    const mp = MODEL_PARAMS[kind].map((_, i) => boxNum("wb-mp" + i));
+    if (mp.some(v => v === null)) {
+      const empty = MODEL_PARAMS[kind].filter((_, i) => mp[i] === null).map(([n]) => n);
+      left.push(`model: ${kind} — ${empty.join(", ")} ${empty.length === 1 ? "is" : "are"} empty or not a number`);
+    } else {
+      keep(`model: ${kind} ${mp.join(" ")}`);
+    }
     const factors = [["area", "wb-area", 1], ["temperature", "wb-temp", 1],
                      ["wind", "wb-wind", 1], ["distance", "wb-dist", 0]];
     for (const [nameF, id, neutral] of factors) {
-      const v = +document.getElementById(id).value;
-      if (Number.isFinite(v) && v !== neutral) lines.push(`factor: ${nameF} ${v}`);
+      const v = boxNum(id);
+      if (v === null) left.push(`factor: ${nameF} — the box is empty or is not a number, so no factor line was written`);
+      else if (v !== neutral) keep(`factor: ${nameF} ${v}`);
     }
     const p1 = document.getElementById("wb-p1").value.trim(), p2 = document.getElementById("wb-p2").value.trim();
     if (p1 && p2) {
@@ -1729,21 +2761,31 @@ Is it one long low ridge rather than three small ridges? | =Rose comb (R_pp) | =
       if (document.getElementById("wb-inc").checked) cr += " incomplete";
       const obs = document.getElementById("wb-obs").value.trim();
       if (obs) cr += " observed " + obs.split(/[\s,]+/).filter(Boolean).join(" ");
-      lines.push(cr);
+      keep(cr);
     }
     const nwk = document.getElementById("wb-newick").value.trim();
-    if (nwk) {
-      try { jsNewick(nwk); lines.push(`tree: mytree ${nwk.replace(/\s+/g, "")}`); } catch {}
-    }
+    if (nwk) keep(`tree: mytree ${nwk.replace(/\s+/g, "")}`);
+
     lines.push("", "# suggested hypotheses — edit BEFORE you run; that's the discipline");
     if (field.order.length) {
       const vals = Object.values(field.counts), H = jsShannon(vals), S = vals.length;
       const J = S > 1 ? H / Math.log(S) : 1;
       const band = J >= 0.85 ? "very-even" : J >= 0.55 ? "moderate" : J >= 0.3 ? "uneven" : "dominated";
-      lines.push(`expect: evenness(myfield) is ${band}`);
+      keep(`expect: evenness(myfield) is ${band}`);
     }
-    if (A.order.length && B.order.length) lines.push("expect: turnover(siteA, siteB) is moderate");
+    if (A.order.length && B.order.length) keep("expect: turnover(siteA, siteB) is moderate");
+
+    if (left.length) {
+      lines.push("", "# left out on purpose — the engine would refuse these, and a protocol",
+                     "# that said nothing about them would be a quieter kind of wrong:");
+      for (const l of left) lines.push("#   " + l.replace(/[\r\n]+/g, " "));
+    }
     document.getElementById("wb-eco-out").value = lines.join("\n");
+    document.getElementById("wb-eco-left").innerHTML = !left.length ? "" :
+      `<p class="wb-error">${left.length} entr${left.length === 1 ? "y" : "ies"} could not be written as
+       a protocol line, and ${left.length === 1 ? "it is" : "they are"} named in the box above as a
+       comment:</p><ul class="wb-error" style="margin:2px 0 0 -8px">`
+      + left.map(l => `<li>${esc(l)}</li>`).join("") + "</ul>";
   }
 
   /* theory bench */
@@ -1910,11 +2952,23 @@ Is it one long low ridge rather than three small ridges? | =Rose comb (R_pp) | =
   document.getElementById("wb-deck").addEventListener("change", fillDeck);
   document.getElementById("wb-deckstart").addEventListener("click", startDrill);
   document.getElementById("wb-eco-build").addEventListener("click", buildEco);
+  document.getElementById("wb-eco-import").addEventListener("click",
+      () => importEco(document.getElementById("wb-eco-in").value));
+  /* A dropped `.eco` file lands in the box first, so what was imported is on screen next to
+     the report about it — the same file, readable and editable, not a filename in a toast. */
+  ecoDrop = text => {
+    const box = document.getElementById("wb-eco-in");
+    box.value = text;
+    importEco(text);
+    document.getElementById("wb-eco-in-out").scrollIntoView({ block: "center" });
+  };
   runField(); runQuad(); runHw(); runPunnett(); buildParams();
   runSites(); runMR(); runKey(); runTree(); fillDeck();
 }
 
 /* ── session loading ──────────────────────────────────────────────────────── */
+/* setupWorkbench's own importer, published for the drop handler at the foot of this file. */
+let ecoDrop = null;
 setupTerrarium();
 setupWorkbench();
 /* The drop handler has always had a try; the initial render had none, so a bad embed
@@ -1937,10 +2991,20 @@ addEventListener("drop", ev => {
   const file = ev.dataTransfer.files[0];
   if (!file) return;
   file.text().then(t => {
+    /* Two kinds of file can be dropped now: a session to chart, and a `.eco` protocol to
+       import. The extension decides, because a protocol and a session are never confusable
+       by content and guessing between them is exactly the habit this page does not have. */
+    if (/\.eco$/i.test(file.name) && ecoDrop) { ecoDrop(t); return; }
     try { render(JSON.parse(t)); }
     catch (e) {
+      /* "Unexpected token 'n'" is true and useless when what was dropped is plainly a
+         protocol that simply was not named `.eco`. Say which door it wants. */
+      const looksEco = /^[ \t]*(name|keys|seed|window|phase|model|cross|expect|data|note|tree|factor)\b[^:\n]*:/m.test(t);
       document.getElementById("main").insertAdjacentHTML("afterbegin",
-        `<section class="card"><h2>⚠️ Could not read that file</h2><p class="reading">${esc(e.message)}</p></section>`);
+        `<section class="card"><h2>⚠️ Could not read that file</h2><p class="reading">${esc(e.message)}</p>`
+        + (looksEco ? `<p class="reading">It reads like an <code>.eco</code> protocol rather than a session.
+           Rename it to end in <code>.eco</code> and drop it again, or paste it into the Workbench's
+           <b>Import a protocol</b> box.</p>` : "") + `</section>`);
     }
   });
 });

@@ -70,10 +70,14 @@ public interface TreeStrategy<K> {
     //       subtree's root, and that genuinely propagates upward. rotateLeft/rotateRight
     //       (the ones without "Local") therefore run TreeNode1.refreshHeightUpward()
     //       when it does — a fixed-point climb that stops at the first ancestor whose
-    //       height recomputes unchanged. ADR-023 measured it: 1–3 levels on uniform and
-    //       mixed add/remove streams, a full-height climb on monotone inserts, where the
-    //       BST link has just pushed +1 up the whole spine and the rebalancing rotation
-    //       takes it straight back off.
+    //       height recomputes unchanged. That pair is the SELF-CONTAINED one: an
+    //       out-of-band rotation through it leaves every ancestor exact on its own, with
+    //       no help from a surrounding write, which is what MutableTree.rotateLeft
+    //       promises. None of the five strategies here uses it any more (ADR-028): a
+    //       whole write is cheaper to fix once at the end than a rotation at a time —
+    //       ADR-023 measured the per-rotation climb at 22.7 levels per monotone Red-Black
+    //       insert ON TOP OF the 27.7 the BST link had just walked in the opposite
+    //       direction, for +22% of write time on that one cell.
     //
     //   blackHeight — MAY GO STALE for ancestors, and the climb deliberately does not
     //       carry it. Rotation is not even its main source: setColor/flipColor update the
@@ -84,11 +88,50 @@ public interface TreeStrategy<K> {
     //       the exact, invariant-checking answer is TreeNode1.blackHeight(), and red-black
     //       validity is TreeDiagnostics' job. See TreeNode1.getBlackHeight().
     //
-    // Which pair to call, if you are writing a strategy: rotateLeft/rotateRight, always,
-    // unless you can prove your rebalance pass already refreshes every node from the
-    // rotation point to the root — the three strategies that call the *Local primitives
-    // each carry that proof in a comment at the call site. The safe choice is the one
-    // without the suffix, exactly as with TreeNode1.setLeft vs setLeftLocal.
+    // ── How the five strategies here maintain height, since ADR-028 ───────────────
+    //
+    // Once per write, never twice. The BST-descent links go through TreeNode1.linkLeft /
+    // linkRight (size, augment and black-height to the root; no height anywhere), the
+    // rotations go through the *Local primitives, and the write ends with ONE height pass:
+    //
+    //   RedBlack, WeightBalanced — TreeNode1.repairHeightUpward(mark) from the write's
+    //       anchor (the newly linked node on insert; the parent of the spliced-out position
+    //       on delete), with `mark` = rotationAdopter(...) of the highest rotation the
+    //       rebalance fired, because a rotation is a second origin of height change that a
+    //       climb from below cannot see. A delete that splices the in-order successor into
+    //       the removed node's place adds a third origin and repairs it explicitly.
+    //
+    //   AVL, Hybrid, Splay — nothing extra. Their own passes already recompute every node
+    //       from the modification point to the root (they steer by those heights, or, for
+    //       Splay, rotate all the way to the root); the link no longer duplicates that walk.
+    //
+    // Which pair to call, if you are writing a strategy: rotateLeft/rotateRight and
+    // setLeft/setRight, always, unless you can prove your write repairs height itself — the
+    // strategies here each carry that proof in a comment at the call site. The safe choice
+    // is the suffix-free, propagating one, exactly as with TreeNode1.setLeft vs setLeftLocal:
+    // it costs a walk and is never wrong.
+
+    /**
+     * The ancestor that adopted the subtree a rotation about {@code rotated} has just
+     * rearranged — the {@code unconditionalThrough} mark for the write's single
+     * {@link TreeNode1#repairHeightUpward(TreeNode1)} (ADR-028).
+     *
+     * <p>Read it AFTER the rotation, when {@code rotated} has slid down and its parent is the
+     * new subtree root: the adopter is that root's parent, and it is the highest node the
+     * rotation wrote a height into. Returns {@code null} when the rotation was at the tree root
+     * — the repair then climbs the anchor's whole ancestor path, which is both correct and the
+     * shortest it can be, since a root rotation has no ancestors to leave stale.</p>
+     *
+     * <p>A strategy that keeps a running mark across a rebalance pass should overwrite it after
+     * every rotation: the passes here all walk upward, so the last rotation is the highest one
+     * and its adopter is the mark the repair needs.</p>
+     */
+    default TreeNode1<K> rotationAdopter(TreeNode1<K> rotated) {
+        TreeNode1<K> subtreeRoot = rotated.getParent();
+        if (subtreeRoot == null || subtreeRoot.isNil()) return null;
+        TreeNode1<K> adopter = subtreeRoot.getParent();
+        return (adopter == null || adopter.isNil()) ? null : adopter;
+    }
 
     /**
      * Left rotation about {@code x} that leaves every ancestor's cached

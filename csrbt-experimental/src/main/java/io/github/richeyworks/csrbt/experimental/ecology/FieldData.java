@@ -85,7 +85,9 @@ public final class FieldData {
      * species named by a number — so it is reported with both fixes rather than silently read
      * one way (audit 2026-08-17, seventh pass, item B; see {@link #bareNumberProblem}). Write
      * {@code sp1,12} for a count of twelve, or {@code 12,1} for one sighting of a species called
-     * {@code 12}.</p>
+     * {@code 12}. What counts as a number here is {@link Long#parseLong}'s own definition, so this
+     * shape and the count field below can never disagree about what a digit is
+     * (see {@link #isBareNumber}).</p>
      *
      * <p>Everything else keeps the house rule: a line that does not fit one of those shapes
      * is <b>reported</b> in {@link Parsed#problems()} with its reason, never guessed at.</p>
@@ -112,7 +114,7 @@ public final class FieldData {
             if (parts.length == 1) parts = line.split("\\s+(?=\\S+$)");   // "name count"
             if (parts.length == 1) {
                 String token = parts[0].trim();
-                if (BARE_NUMBER.matcher(token).matches()) { problems.add(bareNumberProblem(token)); continue; }
+                if (isBareNumber(token)) { problems.add(bareNumberProblem(token)); continue; }
                 addToken(token, counts, problems);
                 continue;
             }
@@ -192,13 +194,45 @@ public final class FieldData {
     }
 
     /**
-     * A table line that is nothing but a number, sign optional. {@code \p{Nd}} rather than
-     * {@code [0-9]} because that is the digit set {@link Long#parseLong} itself accepts
-     * ({@code Character.digit}), so the "is this a number?" question is answered the same way
-     * here as where the count is actually parsed.
+     * Is this table line nothing but a number, sign optional?
+     *
+     * <p><b>One definition of "digit", and it is {@link Long#parseLong}'s</b> (audit 2026-08-18,
+     * item C). This used to be the regex {@code [+-]?\p{Nd}+}, which is <em>almost</em>
+     * {@code parseLong}'s digit set: {@code parseLong} calls {@code Character.digit}, which for
+     * radix 10 accepts exactly the {@code Nd} category, so Arabic-Indic {@code ١٢} is twelve to
+     * both. But {@code parseLong} walks the string with {@code charAt}, one {@code char} at a
+     * time, while a regex walks it by <em>code point</em> — so a decimal digit outside the BMP
+     * ({@code 𝟏} is U+1D7CF, a surrogate pair) is a digit to the regex and two non-digits to
+     * {@code parseLong}. The oracle answered "is this a number?" one way here and the other way
+     * eleven lines up, in {@code parseLines}, where the count is actually read.</p>
+     *
+     * <p><b>Why {@code parseLong}'s answer is the honest one.</b> The whole worth of the bare-number
+     * report is that its two suggested fixes work. Under the old rule a line reading {@code 𝟏𝟐} was
+     * reported as <em>ambiguous</em> — "write {@code name,𝟏𝟐} for a count, or {@code 𝟏𝟐,1} for a
+     * species named {@code 𝟏𝟐}" — and a student who took the first suggestion got
+     * {@code count '𝟏𝟐' is not an integer} back. The parser was telling them to write something it
+     * would then refuse, and its premise was false: {@code 𝟏𝟐} is not ambiguous at all, because
+     * only one of the two readings is available. Now both paths agree it is not a number, so a
+     * lone {@code 𝟏𝟐} tallies as a species named {@code 𝟏𝟐} — the reading the old message itself
+     * offered — and {@code oak,𝟏𝟐}, where the second field <em>is</em> a count, keeps reporting a
+     * count that is not an integer. Same question, same answer, either way round.</p>
+     *
+     * <p><b>Range is a different question and is deliberately left alone.</b> This asks whether the
+     * line is a number, not whether it fits in a {@code long}: {@code 9223372036854775808} is still
+     * a bare number here and still "not an integer" as a count, because it genuinely is a number
+     * and genuinely is one this program cannot store — two true statements about two different
+     * properties. What was wrong was disagreeing about the digits themselves.</p>
      */
-    private static final java.util.regex.Pattern BARE_NUMBER =
-            java.util.regex.Pattern.compile("[+-]?\\p{Nd}+");
+    private static boolean isBareNumber(String token) {
+        int i = (token.startsWith("+") || token.startsWith("-")) ? 1 : 0;
+        if (i >= token.length()) return false;                     // "+" and "-" are not numbers
+        for (; i < token.length(); i++) {
+            // Character.digit(char, 10), which is the scan Long.parseLong performs — chars, not
+            // code points, and so never a supplementary-plane digit.
+            if (Character.digit(token.charAt(i), 10) < 0) return false;
+        }
+        return true;
+    }
 
     /**
      * One sentence for one condition, used by both entry forms. The table form used to say only

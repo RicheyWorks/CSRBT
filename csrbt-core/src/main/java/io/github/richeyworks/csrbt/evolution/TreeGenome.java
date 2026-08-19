@@ -39,7 +39,9 @@ public class TreeGenome implements Cloneable {
         FIBONACCI_HEAP,
         VAN_EMDE_BOAS,
         PERSISTENT_TREE,
-        HYBRID
+        HYBRID,
+        /** ADR-029 (fires ADR-008 D3): the large-n cache-friendly engine's registry slot. */
+        B_PLUS_TREE
     }
 
     public enum AdaptationMode {
@@ -349,7 +351,8 @@ public class TreeGenome implements Cloneable {
                 || preferredStructure == StructureType.AVL
                 || preferredStructure == StructureType.SPLAY
                 || preferredStructure == StructureType.PERSISTENT_TREE
-                || preferredStructure == StructureType.HYBRID;
+                || preferredStructure == StructureType.HYBRID
+                || preferredStructure == StructureType.B_PLUS_TREE;
     }
 
     public boolean prefersPriorityFamily() {
@@ -435,8 +438,9 @@ public class TreeGenome implements Cloneable {
         double veb = fitnessFor(StructureType.VAN_EMDE_BOAS);
         double persistent = fitnessFor(StructureType.PERSISTENT_TREE);
         double hybrid = fitnessFor(StructureType.HYBRID);
+        double bPlus = fitnessFor(StructureType.B_PLUS_TREE);
 
-        return new ScoreCard(rb, avl, splay, fib, veb, persistent, hybrid);
+        return new ScoreCard(rb, avl, splay, fib, veb, persistent, hybrid, bPlus);
     }
 
     public StructureType recommendedStructure() {
@@ -461,6 +465,7 @@ public class TreeGenome implements Cloneable {
             case VAN_EMDE_BOAS -> score = vanEmdeBoasFitness();
             case PERSISTENT_TREE -> score = persistentFitness();
             case HYBRID -> score = hybridFitness();
+            case B_PLUS_TREE -> score = bPlusFitness();
             default -> score = 0.0;
         }
 
@@ -504,6 +509,10 @@ public class TreeGenome implements Cloneable {
                     "weighted toward historical branching, version retention, and memory-oriented persistence. ");
             case HYBRID -> sb.append(
                     "weighted toward mixed capability balance, compromise behavior, and structural flexibility. ");
+            case B_PLUS_TREE -> sb.append(
+                    "weighted toward cache-line locality, ordered bulk scans and rank/select over " +
+                    "large runs, and a disk-page-ready layout; modest below ~10⁵ keys where " +
+                    "pointer BSTs have better constants (ADR-008). ");
             default -> sb.append("generic evaluation. ");
         }
 
@@ -729,6 +738,41 @@ public class TreeGenome implements Cloneable {
         return clamp(memory + structure + ecology + adaptation);
     }
 
+    /**
+     * ADR-029 (fires ADR-008 D3): the B+ tree's fitness model. What the structure is
+     * actually good at — wide cache-line-friendly nodes (locality exploitation),
+     * ordered scans and rank/select over large runs, and a disk-page-ready layout
+     * (persistence weight, at a discount: D2 pages-to-disk is still held) — and what
+     * it is not: a priority queue, or a win at small n where pointer BSTs have better
+     * constants (ADR-008's ~10⁵-key caveat keeps the aspirational bias modest).
+     */
+    private double bPlusFitness() {
+        double locality = clamp(
+                (capabilityProfile.getLocalityExploitationWeight() * 0.16) +
+                (workloadTraits.getLocalityPreference() * 0.06)
+        );
+
+        double orderedBulk = clamp(
+                (capabilityProfile.getOrderedSearchWeight() * 0.14) +
+                (workloadTraits.getOrderStatisticPreference() * 0.08) +
+                (capabilityProfile.getRankSelectWeight() * 0.06)
+        );
+
+        double diskReady = clamp(
+                (capabilityProfile.getPersistenceWeight() * 0.10) +
+                ((1.0 - workloadTraits.getPriorityQueuePreference()) * 0.05)
+        );
+
+        double discipline = clamp(
+                (balanceTraits.getBalancePreference() * 0.06) +
+                ((1.0 - balanceTraits.getFragmentationTolerance()) * 0.03)
+        );
+
+        double adaptation = adaptationMode == AdaptationMode.SPEED_FOCUSED ? 0.04 : 0.0;
+
+        return clamp(locality + orderedBulk + diskReady + discipline + adaptation);
+    }
+
     private double hybridFitness() {
         ScoreCard base = new ScoreCard(
                 redBlackFitness(),
@@ -737,7 +781,8 @@ public class TreeGenome implements Cloneable {
                 fibonacciFitness(),
                 vanEmdeBoasFitness(),
                 persistentFitness(),
-                0.0
+                0.0,
+                bPlusFitness()
         );
 
         double spreadPenalty = clamp(base.range() * 0.25);
@@ -972,14 +1017,17 @@ public class TreeGenome implements Cloneable {
         private final double vanEmdeBoas;
         private final double persistent;
         private final double hybrid;
+        private final double bPlusTree;
 
+        /** ADR-029: the card carries all eight declared structures (0.3.0 API change). */
         public ScoreCard(double redBlack,
                          double avl,
                          double splay,
                          double fibonacci,
                          double vanEmdeBoas,
                          double persistent,
-                         double hybrid) {
+                         double hybrid,
+                         double bPlusTree) {
             this.redBlack = clamp(redBlack);
             this.avl = clamp(avl);
             this.splay = clamp(splay);
@@ -987,6 +1035,7 @@ public class TreeGenome implements Cloneable {
             this.vanEmdeBoas = clamp(vanEmdeBoas);
             this.persistent = clamp(persistent);
             this.hybrid = clamp(hybrid);
+            this.bPlusTree = clamp(bPlusTree);
         }
 
         public StructureType bestStructure() {
@@ -1015,6 +1064,10 @@ public class TreeGenome implements Cloneable {
             }
             if (hybrid > bestScore) {
                 best = StructureType.HYBRID;
+                bestScore = hybrid;
+            }
+            if (bPlusTree > bestScore) {
+                best = StructureType.B_PLUS_TREE;
             }
 
             return best;
@@ -1029,18 +1082,20 @@ public class TreeGenome implements Cloneable {
                 case VAN_EMDE_BOAS -> vanEmdeBoas;
                 case PERSISTENT_TREE -> persistent;
                 case HYBRID -> hybrid;
+                case B_PLUS_TREE -> bPlusTree;
             };
         }
 
         public double average() {
-            return (redBlack + avl + splay + fibonacci + vanEmdeBoas + persistent + hybrid) / 7.0;
+            return (redBlack + avl + splay + fibonacci + vanEmdeBoas + persistent + hybrid
+                    + bPlusTree) / 8.0;
         }
 
         public double range() {
             double min = Math.min(Math.min(Math.min(redBlack, avl), Math.min(splay, fibonacci)),
-                    Math.min(Math.min(vanEmdeBoas, persistent), hybrid));
+                    Math.min(Math.min(vanEmdeBoas, persistent), Math.min(hybrid, bPlusTree)));
             double max = Math.max(Math.max(Math.max(redBlack, avl), Math.max(splay, fibonacci)),
-                    Math.max(Math.max(vanEmdeBoas, persistent), hybrid));
+                    Math.max(Math.max(vanEmdeBoas, persistent), Math.max(hybrid, bPlusTree)));
             return max - min;
         }
 
@@ -1054,6 +1109,7 @@ public class TreeGenome implements Cloneable {
                     ", VAN_EMDE_BOAS=" + format(vanEmdeBoas) +
                     ", PERSISTENT_TREE=" + format(persistent) +
                     ", HYBRID=" + format(hybrid) +
+                    ", B_PLUS_TREE=" + format(bPlusTree) +
                     '}';
         }
     }

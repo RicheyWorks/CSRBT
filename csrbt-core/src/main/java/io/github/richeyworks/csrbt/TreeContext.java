@@ -8,6 +8,7 @@ import io.github.richeyworks.csrbt.persistence.FilePersistenceAdapter;
 import io.github.richeyworks.csrbt.strategy.AVLStrategy;
 import io.github.richeyworks.csrbt.strategy.TreeStrategy;
 import io.github.richeyworks.csrbt.control.StrategyMorphTarget;
+import io.github.richeyworks.csrbt.event.TreeEventListener;
 import io.github.richeyworks.csrbt.util.*;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -348,6 +349,22 @@ public class TreeContext implements AugmentedTree<Integer>, SelfHealingTree, Ord
      * that every 0.2.0 snapshot lacks — the live bound would still have to be the fallback — and it
      * would make a load able to silently <em>unbound</em> a bounded context, which is the direction
      * that loses data. The bound is a property of the container, not of the payload.</p>
+     *
+     * <h2>The event listener survives the load</h2>
+     * <p>Same mechanism, same rule (audit 2026-08-18, item A). A
+     * {@linkplain OrderedSet#setEventListener structured-event listener} registered on this
+     * context's set is an observer <em>of this context</em>; the snapshot brings none, so adopting
+     * the deserialized set wholesale used to unregister it silently — and silently is the whole
+     * problem: an unobserved set is indistinguishable from an idle one, so a session recorder or a
+     * {@code TreeExport} feed simply stopped receiving events with no error anywhere. The live
+     * listener is captured before the adoption and re-attached after it, exactly as the window
+     * bound is.</p>
+     *
+     * <p>It is re-attached <em>after</em> the window eviction, so the load itself emits nothing.
+     * A load is a wholesale replacement of contents, not a stream of mutations: no
+     * {@code Insert} is emitted for the keys it brings in, so emitting {@code Evict} for the ones
+     * an over-tight bound then drops would report half of a change the listener never saw the
+     * other half of. The listener resumes at the next real mutation.</p>
      */
     public void loadSnapshot(String name) {
         TreePersistenceAdapter.LoadResult<TreeContext> outcome =
@@ -373,6 +390,7 @@ public class TreeContext implements AugmentedTree<Integer>, SelfHealingTree, Ord
             // forceSizeInternal. Adopt that set outright, then copy the Integer-only
             // extras. (frequencyMap is preserved; history/snapshots are not wiped.)
             int liveWindow     = set.getMaxSize();      // this context's bound, NOT the snapshot's
+            TreeEventListener<Integer> liveListener = set.getEventListener();   // ditto: the observer
             this.set           = snapshot.set;
             // Carry the live bound onto the adopted set and evict to it, exactly as
             // resyncFromEngine does for a checkpoint restore (finding 20). setMaxSize is the
@@ -380,9 +398,26 @@ public class TreeContext implements AugmentedTree<Integer>, SelfHealingTree, Ord
             // keeps: FIFO after a wholesale rebuild is the ascending fallback, i.e. the
             // largest maxSize keys. A no-op when this context is unbounded.
             this.set.setMaxSize(liveWindow);
+            // …and carry the observer across, for the same reason and by the same mechanism.
+            // Re-attached AFTER the eviction above deliberately: a load is a wholesale content
+            // replacement, not a stream of mutations, and it emits no Insert for the keys it
+            // brings in — emitting Evicts for the keys the bound then drops would describe half
+            // of a change the listener never saw the other half of. The listener resumes with
+            // the next real mutation.
+            this.set.setEventListener(liveListener);
             this.rotationCount = snapshot.rotationCount;
             this.frequencyMap.clear();
             this.frequencyMap.putAll(snapshot.frequencyMap);
+            // The engine was replaced wholesale; reset the (default-off) stress signal so a
+            // red-red counter describing a tree that no longer exists cannot trip a spurious
+            // morph one insert later. Verbatim the reason selfRepair gives for the same three
+            // lines, and the same three lines clear() uses — loadSnapshot was the member of that
+            // family that cleared frequencyMap and stopped (audit 2026-08-18, item A). The
+            // snapshot's own copies are empty (a deserialized context performs no adds), so
+            // "clear" and "adopt the snapshot's" are the same value here, exactly as they are
+            // for frequencyMap above.
+            this.recentInsertions.clear();
+            this.stressEvents.clear();
             logger.info("Snapshot '{}' loaded. size={}", name, set.size());
         }
     }

@@ -193,6 +193,14 @@ is a shape for which the library already ships an O(n) rotation-free path.**
 
 ## Held
 
+> **Closed by [ADR-028](ADR-028-one-climb-per-write-2026-08-17.md) (same day).** Bullet 1 —
+> maintaining height once per write — was attempted and landed: the link setters no longer
+> carry height, each write ends in a single fixed-point climb, and Red-Black monotone insert
+> goes from +21.7% to +1.1% against the pre-ADR-023 engine. The specific prediction that it
+> would end up *faster* than before ADR-023 was **not** confirmed — it lands at parity, and
+> ADR-028 records that as an overclaim here. The black-height bullet stands unchanged.
+
+
 **Maintain height once per write instead of twice.** The measurement above shows the engine pushes
 a height change up the whole spine at BST-link time (26.7 levels/op on a monotone Red-Black stream)
 and then takes it back off at rotation time (22.7 levels/op) — while the tree's actual height

@@ -44,9 +44,9 @@ public class RedBlackStrategy<K> implements TreeStrategy<K> {
         if (y.isNil()) {
             tree.setRoot(newNode);
         } else if (cmp < 0) {
-            y.safeSetLeft(newNode);
+            y.linkLeft(newNode);        // ADR-028: height is repaired once, at the end of fixInsert
         } else {
-            y.safeSetRight(newNode);
+            y.linkRight(newNode);
         }
 
         newNode.setColor(TreeNode1.Color.RED);
@@ -72,6 +72,12 @@ public class RedBlackStrategy<K> implements TreeStrategy<K> {
      */
     @Override
     public void fixInsert(MutableTree<K> tree, TreeNode1<K> node) {
+        // ADR-028: the newly linked node is this write's height anchor. The BST link above
+        // used linkLeft/linkRight (no height propagation) and the fixup below rotates through
+        // the *Local primitives, so the whole write maintains height exactly once — the
+        // repairHeightUpward() climb at the bottom of this method.
+        final TreeNode1<K> anchor = node;
+        TreeNode1<K> rotationMark = null;   // adopter of the highest rotation this fixup fires
         while (node != null && node.getParent() != null
                 && !node.getParent().isNil() && node.getParent().isRed()) {
             TreeNode1<K> parent      = node.getParent();
@@ -92,7 +98,8 @@ public class RedBlackStrategy<K> implements TreeStrategy<K> {
                     if (node == parent.getRight()) {
                         // Case 2: inner grandchild → rotate to straighten
                         node = parent;
-                        tree.rotateLeft(node);
+                        rotateLeftLocal(tree, node);
+                        rotationMark = rotationAdopter(node);
                         // refresh after rotation
                         parent      = node.getParent();
                         grandparent = node.getGrandparent();
@@ -100,7 +107,8 @@ public class RedBlackStrategy<K> implements TreeStrategy<K> {
                     // Case 3: outer grandchild → recolor + rotate grandparent
                     parent.setColor(TreeNode1.Color.BLACK);
                     grandparent.setColor(TreeNode1.Color.RED);
-                    tree.rotateRight(grandparent);
+                    rotateRightLocal(tree, grandparent);
+                    rotationMark = rotationAdopter(grandparent);
                 }
 
             } else {
@@ -118,7 +126,8 @@ public class RedBlackStrategy<K> implements TreeStrategy<K> {
                     if (node == parent.getLeft()) {
                         // Case 2: inner grandchild → rotate to straighten
                         node = parent;
-                        tree.rotateRight(node);
+                        rotateRightLocal(tree, node);
+                        rotationMark = rotationAdopter(node);
                         // refresh after rotation
                         parent      = node.getParent();
                         grandparent = node.getGrandparent();
@@ -126,12 +135,14 @@ public class RedBlackStrategy<K> implements TreeStrategy<K> {
                     // Case 3: outer grandchild → recolor + rotate grandparent
                     parent.setColor(TreeNode1.Color.BLACK);
                     grandparent.setColor(TreeNode1.Color.RED);
-                    tree.rotateLeft(grandparent);
+                    rotateLeftLocal(tree, grandparent);
+                    rotationMark = rotationAdopter(grandparent);
                 }
             }
         }
         // Invariant: root is always BLACK
         tree.getRoot().setColor(TreeNode1.Color.BLACK);
+        anchor.repairHeightUpward(rotationMark);   // ADR-028: the one height climb this write pays
     }
 
     // ── Delete ────────────────────────────────────────────────────────────────
@@ -158,6 +169,10 @@ public class RedBlackStrategy<K> implements TreeStrategy<K> {
         // so fixDelete must not rely on x.getParent() when x is NIL. CLRS sets
         // T.nil.p; here we thread that value through instead.
         TreeNode1<K> xParent;
+        // ADR-028: when the successor is spliced into z's place it becomes a SECOND origin of
+        // height change — one the climb from xParent cannot see, because nothing between the
+        // two writes a height. It gets its own (near-always one-level) repair below.
+        TreeNode1<K> spliced = null;
 
         if (z.getLeft().isNil()) {
             // Case A: no left child
@@ -186,22 +201,29 @@ public class RedBlackStrategy<K> implements TreeStrategy<K> {
                 transplant(tree, y, y.getRight());
                 // Local link (no upward augment walk): at this point y's own
                 // parent pointer is still stale and points INTO z.getRight()'s
-                // subtree, so a propagating setRight would walk a temporarily
+                // subtree, so a propagating linkRight would walk a temporarily
                 // cyclic parent chain (y → … → z.right → y) and loop forever.
                 // transplant(z, y) below fixes y.parent, and the subsequent
-                // propagating setLeft refreshes the augment up to the root.
+                // linkLeft refreshes the augment up to the root.
                 y.setRightLocal(z.getRight());
                 y.getRight().setParent(y);
             }
             transplant(tree, z, y);
-            y.setLeft(z.getLeft());
+            y.linkLeft(z.getLeft());
             y.getLeft().setParent(y);
             y.setColor(z.getColor());
+            spliced = y;
         }
 
+        TreeNode1<K> rotationMark = null;
         if (yOrigColor == TreeNode1.Color.BLACK) {
-            fixDelete(tree, x, xParent);
+            rotationMark = fixDelete(tree, x, xParent);
         }
+        // ADR-028: xParent is the deepest node this write structurally touched, so one climb
+        // from it — unconditional through the highest rotation the fixup fired, fixed-point
+        // above that — restores every cached height this write disturbed.
+        if (xParent != null) xParent.repairHeightUpward(rotationMark);
+        if (spliced != null && spliced != xParent) spliced.repairHeightUpward(null);
     }
 
     /**
@@ -228,7 +250,8 @@ public class RedBlackStrategy<K> implements TreeStrategy<K> {
      * red-black-VALID tree; {@link #cannotRebalance} is the tripwire for trees that
      * arrived by another route. See its javadoc (audit 2026-08-17, finding 2).
      */
-    private void fixDelete(MutableTree<K> tree, TreeNode1<K> x, TreeNode1<K> parent) {
+    private TreeNode1<K> fixDelete(MutableTree<K> tree, TreeNode1<K> x, TreeNode1<K> parent) {
+        TreeNode1<K> rotationMark = null;   // ADR-028: adopter of the highest rotation fired
         // `parent` is x's parent, threaded in by the caller so this works even
         // when x is the shared NIL sentinel (whose own parent pointer is never
         // stored). Once x advances to a real node we re-read parent from it.
@@ -242,7 +265,8 @@ public class RedBlackStrategy<K> implements TreeStrategy<K> {
                     // Case 1: sibling RED → recolor + rotate to get BLACK sibling
                     w.setColor(TreeNode1.Color.BLACK);
                     parent.setColor(TreeNode1.Color.RED);
-                    tree.rotateLeft(parent);
+                    rotateLeftLocal(tree, parent);
+                    rotationMark = rotationAdopter(parent);
                     w = parent.getRight();   // new sibling after rotation (parent unchanged)
                 }
 
@@ -259,14 +283,16 @@ public class RedBlackStrategy<K> implements TreeStrategy<K> {
                         // Case 3: far child BLACK, near child RED → straighten
                         w.getLeft().setColor(TreeNode1.Color.BLACK);
                         w.setColor(TreeNode1.Color.RED);
-                        tree.rotateRight(w);
+                        rotateRightLocal(tree, w);
+                        rotationMark = rotationAdopter(w);
                         w = parent.getRight();
                     }
                     // Case 4: far child RED → absorb extra black via rotation
                     w.setColor(parent.getColor());
                     parent.setColor(TreeNode1.Color.BLACK);
                     w.getRight().setColor(TreeNode1.Color.BLACK);
-                    tree.rotateLeft(parent);
+                    rotateLeftLocal(tree, parent);
+                    rotationMark = rotationAdopter(parent);
                     x = tree.getRoot();   // done
                 }
 
@@ -278,7 +304,8 @@ public class RedBlackStrategy<K> implements TreeStrategy<K> {
                     // Case 1
                     w.setColor(TreeNode1.Color.BLACK);
                     parent.setColor(TreeNode1.Color.RED);
-                    tree.rotateRight(parent);
+                    rotateRightLocal(tree, parent);
+                    rotationMark = rotationAdopter(parent);
                     w = parent.getLeft();
                 }
 
@@ -295,14 +322,16 @@ public class RedBlackStrategy<K> implements TreeStrategy<K> {
                         // Case 3
                         w.getRight().setColor(TreeNode1.Color.BLACK);
                         w.setColor(TreeNode1.Color.RED);
-                        tree.rotateLeft(w);
+                        rotateLeftLocal(tree, w);
+                        rotationMark = rotationAdopter(w);
                         w = parent.getLeft();
                     }
                     // Case 4
                     w.setColor(parent.getColor());
                     parent.setColor(TreeNode1.Color.BLACK);
                     w.getLeft().setColor(TreeNode1.Color.BLACK);
-                    tree.rotateRight(parent);
+                    rotateRightLocal(tree, parent);
+                    rotationMark = rotationAdopter(parent);
                     x = tree.getRoot();   // done
                 }
             }
@@ -311,6 +340,7 @@ public class RedBlackStrategy<K> implements TreeStrategy<K> {
         // construction and is shared by every node in the tree, so a colour write
         // through it is a write to every "empty child" at once.
         if (!x.isNil()) x.setColor(TreeNode1.Color.BLACK);
+        return rotationMark;
     }
 
     /**
@@ -367,9 +397,9 @@ public class RedBlackStrategy<K> implements TreeStrategy<K> {
         if (uParent == null || uParent.isNil()) {
             tree.setRoot(v);
         } else if (u == uParent.getLeft()) {
-            uParent.setLeft(v);
+            uParent.linkLeft(v);
         } else {
-            uParent.setRight(v);
+            uParent.linkRight(v);
         }
         // Always set v's parent (even if v is NIL — fixDelete needs the pointer)
         v.setParent(uParent);

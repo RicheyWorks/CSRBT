@@ -83,6 +83,28 @@ public final class BPlusTreeEngine<K> implements RankedSet<K> {
         return new BPlusTreeEngine<>(fanout, Comparator.naturalOrder());
     }
 
+    /**
+     * This engine seen through the {@link io.github.richeyworks.csrbt.interfaces.TreeEngine}
+     * seam — ADR-029 (fires ADR-008 D3): the registry builds {@code TreeEngine}s, but this
+     * class implements {@link RankedSet}, whose {@code boolean add/remove} (the VERIFIED
+     * voting requirement) collide with {@code TreeEngine}'s {@code void} signatures, so one
+     * class cannot implement both. The view is a thin live delegate — same object, same
+     * synchronization, no copying — mirroring how {@code PersistentRankedSet} carries the
+     * persistent engine across the opposite seam.
+     */
+    public io.github.richeyworks.csrbt.interfaces.TreeEngine<K> asTreeEngine() {
+        BPlusTreeEngine<K> self = this;
+        return new io.github.richeyworks.csrbt.interfaces.TreeEngine<>() {
+            @Override public void add(K value)         { self.add(value); }
+            @Override public void remove(K value)      { self.remove(value); }
+            @Override public boolean contains(K value) { return self.contains(value); }
+            @Override public List<K> inOrder()         { return self.inOrder(); }
+            @Override public int size()                { return self.size(); }
+            @Override public void clear()              { self.clear(); }
+            @Override public String toString()         { return "TreeEngine[" + self + "]"; }
+        };
+    }
+
     /** Node capacity in use. */
     public int fanout() { return fanout; }
 

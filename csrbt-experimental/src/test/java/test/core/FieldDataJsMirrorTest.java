@@ -57,6 +57,9 @@ class FieldDataJsMirrorTest {
     private static final String[] AWKWARD = {
         // the six divergent families from the audit's table
         "oak=5", "12", "0", "-5", "=5", "oak=",
+        // supplementary-plane digits: Character.digit(char) is not \p{Nd} — both sides must
+        // now read these as a NAME, not an ambiguous bare number (eighth pass, item C)
+        "\uD835\uDFCF\uD835\uDFD0", "oak,\uD835\uDFCF\uD835\uDFD0", "\uD835\uDFCF\uD835\uDFD0,3", "\uD835\uDFCF\uD835\uDFD0=4",
         // the ordinary shapes
         "oak,5", "oak\t5", "oak 5", "great blue heron", "plotA,robin,6", "plain,7",
         // RFC-4180

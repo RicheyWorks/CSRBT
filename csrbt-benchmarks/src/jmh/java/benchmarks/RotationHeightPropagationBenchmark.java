@@ -25,26 +25,36 @@ import java.util.Random;
 import java.util.concurrent.TimeUnit;
 
 /**
- * ADR-023's cost model, as a rig the next person can re-run instead of re-deriving.
+ * The ADR-023 / ADR-028 cost model, as a rig the next person can re-run instead of re-deriving.
  *
- * <p>Rotations carry the cached height to every ancestor with a fixed-point climb
- * ({@code TreeNode1.refreshHeightUpward}). The climb's length is a property of the WORKLOAD
- * SHAPE, not of the tree size, which is why the three shapes below are the parameter and why a
- * single "insert throughput" number would hide the whole effect:</p>
+ * <p>Keeping {@code TreeNode1.getHeight()} exact costs a walk, and the walk's length is a
+ * property of the WORKLOAD SHAPE, not of the tree size — which is why the three shapes below are
+ * the parameter and why a single "insert throughput" number would hide the whole effect. Extra
+ * height recomputes per operation, RedBlack at n = 100k, measured with a counter in
+ * {@code TreeNode1} (ADR-028's table has all five strategies):</p>
  *
  * <ul>
- *   <li>{@code SORTED} — monotone inserts. Every BST link pushes +1 up the whole spine and the
- *       rebalancing rotation takes it straight back off, so the climb runs the full height:
- *       ADR-023 measured 22.7 levels per rotation on RedBlack. This is the expensive cell.</li>
- *   <li>{@code RANDOM} — uniform inserts. 1.2 levels per operation; the climb exits almost
- *       immediately.</li>
- *   <li>{@code MIXED} — 65/35 add/remove. 0.8 levels per operation.</li>
+ *   <li>{@code SORTED} — monotone inserts, the expensive cell. Under ADR-023 the BST link pushed
+ *       +1 up the whole spine (27.7 levels) and the rebalancing rotation's climb took it straight
+ *       back off (22.7), i.e. height was maintained twice per write in opposite directions, for
+ *       +22% of write time. ADR-028 maintains it once — 6.0 levels — and the cell is back at its
+ *       pre-ADR-023 wall clock.</li>
+ *   <li>{@code RANDOM} — uniform inserts. 14.9 levels under ADR-023, 3.6 under ADR-028; the
+ *       difference was never measurable end to end in either direction.</li>
+ *   <li>{@code MIXED} — 65/35 add/remove. 16.2 levels, then 3.6.</li>
  * </ul>
  *
- * <p>{@code AVL}, {@code HYBRID} and {@code SPLAY} are included as controls: they call the
- * {@code rotate*Local} primitives because their own passes already refresh heights to the root,
- * so they should show no climb cost at all in any shape. If a future change makes them move,
- * something has broken the reasoning in {@code TreeStrategy}'s rotation notes.</p>
+ * <p>{@code AVL}, {@code HYBRID} and {@code SPLAY} are included as controls: their own passes
+ * already recompute every height from the modification point to the root, so they neither climb
+ * after a rotation (ADR-023) nor repair after a write (ADR-028), and they should not move in any
+ * shape. If a future change makes them move, something has broken the reasoning in
+ * {@code TreeStrategy}'s rotation and linking notes.</p>
+ *
+ * <p><b>What this rig cannot do by itself.</b> A JMH run measures one library version. The A/B
+ * numbers in ADR-023 and ADR-028 come from loading two or three versions behind isolated class
+ * loaders and interleaving their passes inside one JVM, so drift, GC and frequency scaling hit
+ * every arm equally; this benchmark is the workload definition that harness drives, and the
+ * absolute per-shape figure to compare a candidate against.</p>
  *
  * <p>Whole-workload timing on purpose (one {@code @Benchmark} call = one full build), because
  * the quantity of interest is amortized write cost over a shape, not a single insert.</p>

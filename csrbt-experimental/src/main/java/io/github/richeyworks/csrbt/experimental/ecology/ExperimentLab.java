@@ -61,12 +61,37 @@ public final class ExperimentLab {
         System.out.println(files.get("report.txt"));
         Files.writeString(out, files.get("session.json"));
         Files.createDirectories(exportDir);
-        for (Map.Entry<String, String> f : files.entrySet()) {
-            Files.writeString(exportDir.resolve(f.getKey()), f.getValue());
+        for (Map.Entry<String, byte[]> f : runWithAllExports(spec, files).entrySet()) {
+            Files.write(exportDir.resolve(f.getKey()), f.getValue());
         }
         System.out.println("session written → " + out + "  (drop it onto docs/ecology-lab.html)");
         System.out.println("export bundle  → " + exportDir
-                + "  (CSVs open in Excel/Sheets; report.html prints to PDF)");
+                + "  (CSVs open in Excel/Sheets; report.html prints to PDF; "
+                + "workbook.xlsx/report.pptx open natively)");
+    }
+
+    /**
+     * The full bundle including the native Office files (ADR-030, firing ADR-019 §2.6's held
+     * trigger): every {@link #runWithExports} entry UTF-8 encoded, byte-identical to before,
+     * plus {@code workbook.xlsx} (one typed sheet per CSV) and {@code report.pptx} (title,
+     * phases table, graded hypotheses, field notebook) — both built by {@link OfficeExport}
+     * verbatim from the text bundle. The Office files are structurally deterministic (same
+     * sheets/cells/slides/text every run) but not byte-pinned: OOXML zip metadata carries
+     * wall-clock timestamps.
+     */
+    public static Map<String, byte[]> runWithAllExports(ExperimentSpec spec) {
+        return runWithAllExports(spec, runWithExports(spec));
+    }
+
+    private static Map<String, byte[]> runWithAllExports(ExperimentSpec spec,
+                                                         Map<String, String> text) {
+        Map<String, byte[]> all = new LinkedHashMap<>();
+        for (Map.Entry<String, String> e : text.entrySet()) {
+            all.put(e.getKey(), e.getValue().getBytes(java.nio.charset.StandardCharsets.UTF_8));
+        }
+        all.put("workbook.xlsx", OfficeExport.workbook(text));
+        all.put("report.pptx", OfficeExport.slides(spec, text));
+        return all;
     }
 
     /**

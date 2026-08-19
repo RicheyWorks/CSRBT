@@ -7,7 +7,10 @@ plugins {
 }
 
 group = "io.github.richeyworks"
-version = "0.1.0"
+// No `version` here on purpose. This module is never published (see the header), so a version
+// would be a coordinate nothing consumes — and the one that used to sit here proved it by
+// reading "0.1.0" through the whole of 0.2.0 and 0.2.1. A number no release step touches is a
+// number that only ever goes stale; asserting nothing is the honest and self-maintaining state.
 
 tasks.withType<JavaCompile>().configureEach {
     options.release = 17       // see csrbt-core/build.gradle.kts

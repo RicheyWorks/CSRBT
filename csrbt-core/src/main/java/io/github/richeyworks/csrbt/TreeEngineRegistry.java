@@ -77,6 +77,14 @@ public final class TreeEngineRegistry {
                      + "O(1) snapshots, wait-free reads (ADR-005).",
                        PersistentTreeEngine::withNaturalOrder));
 
+        // ADR-029 fires ADR-008 D3 ahead of D2 (owner's call): the slot exists while the
+        // engine is still in-memory, so the note is honest about where it wins today.
+        MAP.put(StructureType.B_PLUS_TREE,
+                engine("B+ tree — shallow wide nodes, cache-line-friendly scans; the large-n "
+                     + "engine (in-memory today; pointer BSTs have better constants below "
+                     + "~10⁵ keys). Disk pages are ADR-008 D2, still held (ADR-029).",
+                       () -> BPlusTreeEngine.<Integer>withNaturalOrder().asTreeEngine()));
+
         MAP.put(StructureType.FIBONACCI_HEAP, unsupported(
                 "Priority-queue contract (insert / extract-min / decrease-key). "
               + "Not an ordered map, so it does not fit the OrderedCollection/TreeEngine API."));
