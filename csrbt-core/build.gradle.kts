@@ -9,7 +9,7 @@ plugins {
 // Package relocation (core.* -> io.github.richeyworks.csrbt.*) — ADR-013 §3's held
 // trigger, fired 2026-06-11 for the v0.1.0 release.
 group = "io.github.richeyworks"
-version = "0.2.1"
+version = "0.3.0"
 
 java {
     withSourcesJar()
