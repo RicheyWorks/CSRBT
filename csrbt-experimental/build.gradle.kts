@@ -101,7 +101,18 @@ tasks.register<JavaExec>("ecologyExperiment") {
     mainClass = "io.github.richeyworks.csrbt.experimental.ecology.ExperimentLab"
     classpath = sourceSets["main"].runtimeClasspath
     workingDir = rootDir
-    args((project.findProperty("spec") as String?) ?: "docs/sample-experiment.eco")
+    // J4 (frontend verification 2026-08-17): with no -Pspec, this task regenerates the SHIPPED
+    // sample and must say so by passing the canonical output paths EXPLICITLY — naming the
+    // destination is how you say "overwrite the checked-in bundle". A student's own spec gets
+    // ExperimentLab's safe default: outputs beside their spec, never the shipped artifacts.
+    // (Tenth-pass finding: the correction merge had dropped these arguments.)
+    val specArg = project.findProperty("spec") as String?
+    if (specArg == null) {
+        args("docs/sample-experiment.eco",
+                "docs/ecology-experiment-session.json", "docs/experiment-out")
+    } else {
+        args(specArg)
+    }
     systemProperty("log4j2.loggerContextFactory",
             "org.apache.logging.log4j.simple.SimpleLoggerContextFactory")
     systemProperty("org.apache.logging.log4j.simplelog.level", "WARN")
