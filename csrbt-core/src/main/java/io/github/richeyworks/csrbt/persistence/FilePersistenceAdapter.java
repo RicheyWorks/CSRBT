@@ -27,6 +27,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import java.io.*;
+import java.nio.charset.CharacterCodingException;
 import java.nio.file.*;
 import java.time.Instant;
 import java.util.*;
@@ -145,8 +146,67 @@ public class FilePersistenceAdapter implements TreePersistenceAdapter {
         try {
             Files.createDirectories(Paths.get(DIR));
             logger.debug("Snapshot directory ready: {} (fsyncOnCommit={})", DIR, fsyncOnCommit);
+            sweepOrphanStaging();                              // C9 (tenth pass): reclaim dead .tmp files
         } catch (IOException e) {
             logger.error("Failed to create snapshot directory", e);
+        }
+    }
+
+    /**
+     * Reclaim staging files a dead process left behind (tenth-pass C9). A {@code kill -9} between
+     * a staging file's creation and {@code stageAndCommit}'s cleanup leaks a full-snapshot-sized
+     * {@code <name>.rbt.<pid>.<seq>.tmp} forever; a crash-looping service would fill the volume.
+     * On construction we sweep any staging file whose owning PID is no longer a live process — our
+     * own in-flight staging (this PID, alive) and any other <em>live</em> process's staging are
+     * left untouched, so a directory shared by two running JVMs is safe.
+     */
+    private void sweepOrphanStaging() {
+        Path dir = Paths.get(DIR);
+        try (var listing = Files.list(dir)) {
+            for (Path p : listing.toList()) {
+                long pid = stagingPid(p.getFileName().toString());
+                if (pid < 0 || pid == PID) {
+                    continue;                                  // not our staging pattern, or ours in flight
+                }
+                if (ProcessHandle.of(pid).map(ProcessHandle::isAlive).orElse(false)) {
+                    continue;                                  // a live process (maybe another JVM) owns it
+                }
+                try {
+                    if (Files.deleteIfExists(p)) {
+                        logger.debug("Swept orphan staging file {} (owning pid {} is gone)", p, pid);
+                    }
+                } catch (IOException cannotSweep) {
+                    logger.debug("Could not sweep orphan staging file {}", p, cannotSweep);
+                }
+            }
+        } catch (IOException cannotScan) {
+            logger.debug("Could not scan {} for orphan staging files", dir, cannotScan);
+        }
+    }
+
+    /**
+     * The owning PID encoded in a staging file name {@code <name>.rbt.<pid>.<seq>.tmp}, or
+     * {@code -1} if the name is not one of ours. Parsed from the end so a snapshot name that itself
+     * contains dots does not confuse the split.
+     */
+    private static long stagingPid(String fileName) {
+        if (!fileName.endsWith(".tmp")) {
+            return -1;
+        }
+        String body = fileName.substring(0, fileName.length() - ".tmp".length());
+        int seqDot = body.lastIndexOf('.');
+        if (seqDot < 0) {
+            return -1;
+        }
+        int pidDot = body.lastIndexOf('.', seqDot - 1);
+        if (pidDot < 0) {
+            return -1;
+        }
+        try {
+            Long.parseLong(body.substring(seqDot + 1));        // the <seq> field must be numeric
+            return Long.parseLong(body.substring(pidDot + 1, seqDot));
+        } catch (NumberFormatException notOurs) {
+            return -1;
         }
     }
 
@@ -215,13 +275,36 @@ public class FilePersistenceAdapter implements TreePersistenceAdapter {
         }
     }
 
-    private static void commitAtomically(Path tmp, Path target) throws IOException {
+    private void commitAtomically(Path tmp, Path target) throws IOException {
         try {
-            Files.move(tmp, target, StandardCopyOption.ATOMIC_MOVE,
-                    StandardCopyOption.REPLACE_EXISTING);
-        } catch (AtomicMoveNotSupportedException e) {
-            Files.move(tmp, target, StandardCopyOption.REPLACE_EXISTING);
+            moveIntoPlace(tmp, target);
+        } catch (AtomicMoveNotSupportedException noAtomic) {
+            // Tenth-pass C8: the previous silent fallback here was a non-atomic
+            // REPLACE_EXISTING move. On a filesystem that genuinely cannot rename atomically
+            // (some FUSE/CIFS/NFS mounts), that fallback overwrites the target in place, so a
+            // crash mid-copy leaves the target half-written — destroying the previous good
+            // snapshot while stageAndCommit still reports SAVED. Both of SAVED's promises
+            // (published in one step, previous snapshot intact) become false. A filesystem
+            // without atomic rename cannot honor SAVED as defined, so we refuse loudly instead:
+            // the exception propagates to stageAndCommit's IOException handler, which reports
+            // FAILED, leaves the previous snapshot untouched, and cleans up the staging file.
+            // The caller learns their storage can't provide atomic snapshots (the cause is the
+            // AtomicMoveNotSupportedException) and can relocate the vault rather than silently
+            // risk it.
+            throw new IOException("atomic rename is not supported on the filesystem backing "
+                    + target + "; refusing the save rather than risk the previous snapshot with a "
+                    + "non-atomic publish", noAtomic);
         }
+    }
+
+    /**
+     * The publish rename, isolated behind a seam so a test can simulate a filesystem without
+     * atomic move (tenth-pass C8) — the ordinary path always takes the atomic branch on the
+     * platforms this ships to. Overriding it is a test affordance, not a public extension point.
+     */
+    protected void moveIntoPlace(Path tmp, Path target) throws IOException {
+        Files.move(tmp, target, StandardCopyOption.ATOMIC_MOVE,
+                StandardCopyOption.REPLACE_EXISTING);
     }
 
     /** The body of one snapshot file: everything written between open and the commit rename. */
@@ -389,6 +472,30 @@ public class FilePersistenceAdapter implements TreePersistenceAdapter {
         return token;
     }
 
+    /**
+     * The flat persistent path's key contract (tenth-pass C7). That writer checked only {@code ';'},
+     * so a key that serialized to an empty token (silently dropped on load, then caught only as a
+     * size mismatch) or held a control character such as {@code '\n'} (which splits the single data
+     * line, truncating the key list) reported {@link SaveStatus#SAVED} yet could never load — the
+     * "{@code trySave} never lies" contract, broken. The flat format reserves fewer characters than
+     * the pre-order one — {@code ','} and {@code '#'} are ordinary keys here, only {@code ';'} and
+     * the line structure are special — so it gets its own gate rather than borrowing the stricter
+     * {@link #requireEncodableKey}, which would reject keys the flat format round-trips fine.
+     *
+     * @throws IllegalArgumentException if the token cannot survive the flat round trip
+     */
+    private static <K> String requireFlatEncodableKey(String token, K key) {
+        String why = null;
+        if (token == null || token.isEmpty())           why = "is empty (an empty token is dropped on load)";
+        else if (token.indexOf(';') >= 0)               why = "contains ';' (the key separator)";
+        else if (token.chars().anyMatch(c -> c < 0x20)) why = "contains a control character";
+        if (why != null) {
+            throw new IllegalArgumentException("key " + key + " serializes to a token that " + why
+                    + " and cannot be persisted: '" + token + "'");
+        }
+        return token;
+    }
+
     // ── Load ─────────────────────────────────────────────────────────────────
 
     /**
@@ -400,7 +507,24 @@ public class FilePersistenceAdapter implements TreePersistenceAdapter {
      * <p>The ERROR line is the pre-ADR-026 one, unchanged.</p>
      */
     private <T> LoadResult<T> loadFailure(String name, Exception e) {
+        // Tenth-pass C12: a load opens the file directly (no exists() pre-check), so a snapshot
+        // that a concurrent delete or retention sweep removed surfaces here as a NoSuchFileException
+        // — which is ABSENT ("start fresh"), not a failure. Classified first, and logged as absent
+        // rather than error, so the missing-file path stays quiet and race-free.
+        if (e instanceof NoSuchFileException) {
+            logger.warn("Snapshot '{}' not found — absent", name);
+            return LoadResult.absent(name);
+        }
         logger.error("Failed to load snapshot '{}'", name, e);
+        // Tenth-pass C5/C6: the remaining throwables that are deterministic properties of the FILE,
+        // not of the retryable environment, must be classified before the generic "IOException =
+        // FAILED = retry me" rule — otherwise a caller retries a permanently-broken file forever.
+        if (e instanceof CharacterCodingException) {
+            return LoadResult.malformed(name, "not valid UTF-8 — the file is corrupt: " + e);
+        }
+        if (e instanceof TrailingTokensException) {
+            return LoadResult.malformed(name, e.getMessage());   // C6: data past the end of the tree
+        }
         return e instanceof IOException io
                 ? LoadResult.failed(name, io)
                 : LoadResult.malformed(name, "unreadable content: " + e);
@@ -433,11 +557,9 @@ public class FilePersistenceAdapter implements TreePersistenceAdapter {
     @Override
     public LoadResult<TreeContext> tryLoadSnapshot(String name) {
         Path path = snapshotPath(name);
-        if (!Files.exists(path)) {
-            logger.warn("Snapshot '{}' not found at {}", name, path);
-            return LoadResult.absent(name);
-        }
-
+        // C12: open directly, no exists() pre-check — a file removed between check and open used to
+        // surface as a retryable FAILED; a missing file is now a NoSuchFileException that
+        // loadFailure classifies as ABSENT, closing the TOCTOU window.
         try (BufferedReader reader = Files.newBufferedReader(path)) {
             // ── Header line: VERSION|TIMESTAMP|STRATEGY|SIZE ──────────────────
             String headerLine = reader.readLine();
@@ -548,7 +670,16 @@ public class FilePersistenceAdapter implements TreePersistenceAdapter {
                 return List.of("restored keys not strictly ascending at index " + i);
             }
         }
-        return StrategyHealthCheck.validate(engine, strategy, restoredInOrder);
+        try {
+            return StrategyHealthCheck.validate(engine, strategy, restoredInOrder);
+        } catch (StackOverflowError deep) {
+            // Tenth-pass C1: the health check's structural walks recurse to tree height, so a
+            // degenerate (e.g. right-spine splay) snapshot overflows the stack — an Error that
+            // slips past the caller's catch(Exception) and kills the thread. A snapshot that
+            // cannot even be validated without blowing the stack is, for load purposes,
+            // malformed — report it as such rather than crashing the caller.
+            return List.of("restored tree too deep to validate safely (possible corruption)");
+        }
     }
 
     /**
@@ -560,32 +691,58 @@ public class FilePersistenceAdapter implements TreePersistenceAdapter {
     private <K> TreeNode1<K> deserializePreOrder(String[] tokens, TreeNode1<K> nil, KeySerializer<K> ks) {
         int[] index = {0};
         TreeNode1<K> root = parseToken(tokens, index, nil, ks);
-        if (root == nil) return nil;
 
-        Deque<Frame<K>> stack = new ArrayDeque<>();
-        stack.push(new Frame<>(root));
+        if (root != nil) {
+            Deque<Frame<K>> stack = new ArrayDeque<>();
+            stack.push(new Frame<>(root));
 
-        while (!stack.isEmpty() && index[0] < tokens.length) {
-            Frame<K> f = stack.peek();
-            TreeNode1<K> child = parseToken(tokens, index, nil, ks);
+            while (!stack.isEmpty() && index[0] < tokens.length) {
+                Frame<K> f = stack.peek();
+                TreeNode1<K> child = parseToken(tokens, index, nil, ks);
 
-            if (f.childrenDone == 0) {
-                f.childrenDone = 1;
-                if (child != nil) {
-                    f.node.setLeft(child);
-                    child.setParent(f.node);
-                    stack.push(new Frame<>(child));
-                }
-            } else {
-                stack.pop();   // this node's children are now both consumed
-                if (child != nil) {
-                    f.node.setRight(child);
-                    child.setParent(f.node);
-                    stack.push(new Frame<>(child));
+                if (f.childrenDone == 0) {
+                    f.childrenDone = 1;
+                    if (child != nil) {
+                        f.node.setLeft(child);
+                        child.setParent(f.node);
+                        stack.push(new Frame<>(child));
+                    }
+                } else {
+                    stack.pop();   // this node's children are now both consumed
+                    if (child != nil) {
+                        f.node.setRight(child);
+                        child.setParent(f.node);
+                        stack.push(new Frame<>(child));
+                    }
                 }
             }
         }
+
+        // Tenth-pass C6: a well-formed pre-order stream ends exactly when the tree is complete
+        // (the stack empties). Any non-empty token past that point is not a bigger tree — it is
+        // concatenated or torn data appended to a valid snapshot — and loading the prefix while
+        // dropping the tail would silently accept a corrupt file. Refuse. (Trailing empties, from
+        // a terminal newline or split artifacts, are benign and skipped.)
+        rejectTrailingTokens(tokens, index[0]);
         return root;
+    }
+
+    /** C6 gate: fail if any token at or after {@code from} is non-empty. */
+    private static void rejectTrailingTokens(String[] tokens, int from) {
+        for (int i = from; i < tokens.length; i++) {
+            if (!tokens[i].isEmpty()) {
+                throw new TrailingTokensException("unconsumed data after the node stream: token "
+                        + i + " of " + tokens.length + " is '" + tokens[i] + "' (corrupt or "
+                        + "concatenated snapshot)");
+            }
+        }
+    }
+
+    /** A committed snapshot with tokens past the end of its tree is corrupt, not a larger tree
+     *  (tenth-pass C6). Unchecked so the reconstruction stays a pure walk; {@link #loadFailure}
+     *  maps it to {@link LoadStatus#MALFORMED}. */
+    private static final class TrailingTokensException extends RuntimeException {
+        TrailingTokensException(String message) { super(message); }
     }
 
     /** Parse one token, advancing {@code index}, returning {@code nil} for "#". */
@@ -678,10 +835,7 @@ public class FilePersistenceAdapter implements TreePersistenceAdapter {
         if (keySerializer == null) throw new IllegalArgumentException("keySerializer must not be null");
         if (keyOrder == null)      throw new IllegalArgumentException("keyOrder must not be null");
         Path path = snapshotPath(name);
-        if (!Files.exists(path)) {
-            logger.warn("Snapshot '{}' not found at {}", name, path);
-            return LoadResult.absent(name);
-        }
+        // C12: open directly (see tryLoadSnapshot) — a missing file is ABSENT via loadFailure.
 
         try (BufferedReader reader = Files.newBufferedReader(path)) {
             String headerLine = reader.readLine();
@@ -804,12 +958,7 @@ public class FilePersistenceAdapter implements TreePersistenceAdapter {
 
             StringBuilder sb = new StringBuilder();
             for (K k : snapshot.inOrder()) {
-                String token = keySerializer.serialize(k);
-                if (token.indexOf(';') >= 0) {
-                    throw new IllegalArgumentException(
-                            "key serializes to a token containing ';' and cannot be persisted: " + token);
-                }
-                sb.append(token).append(';');
+                sb.append(requireFlatEncodableKey(keySerializer.serialize(k), k)).append(';');
             }
             writer.write(sb.toString());
             writer.newLine();
@@ -899,10 +1048,7 @@ public class FilePersistenceAdapter implements TreePersistenceAdapter {
      */
     private <K> LoadResult<List<K>> readFlatKeys(String name, KeySerializer<K> ks) {
         Path path = snapshotPath(name);
-        if (!Files.exists(path)) {
-            logger.warn("Snapshot '{}' not found at {}", name, path);
-            return LoadResult.absent(name);
-        }
+        // C12: open directly (see tryLoadSnapshot) — a missing file is ABSENT via loadFailure.
         try (BufferedReader reader = Files.newBufferedReader(path)) {
             String headerLine = reader.readLine();
             if (headerLine == null) {

@@ -56,6 +56,18 @@ public class TreeHistory {
         this.context = context;
     }
 
+    /**
+     * Discard the undo/redo command history (tenth-pass C3). Every command's inverse is
+     * relative to the content set that produced it; a wholesale content replacement
+     * (loadSnapshot) makes those inverses meaningless — replaying one deletes a key the
+     * snapshot legitimately brought in. Named checkpoints are kept: a saved TreeContext is
+     * still a valid thing to restore after a load.
+     */
+    public void clearUndoRedo() {
+        undoStack.clear();
+        redoStack.clear();
+    }
+
     // ── Command record ────────────────────────────────────────────────────────
 
     /**
@@ -326,9 +338,14 @@ public class TreeHistory {
     private void restoreFrom(TreeContext snap) {
         TreeContext fresh = new TreeCloner(snap).snapshot();
         TreeNode1<Integer> nil = context.getTree().getNIL();
+        // Tenth-pass C2: rebase onto this context's NIL with the ITERATIVE two-pass copy, not
+        // the recursive TreeNode1.deepCopy — a deep/degenerate (e.g. right-spine splay)
+        // checkpoint made deepCopy overflow the stack on restore, even though every other
+        // rebuild path (TreeCloner, FilePersistenceAdapter) is iterative for exactly this reason.
+        TreeNode1<Integer> freshRoot = fresh.getTree().getRoot();
         TreeNode1<Integer> restoredRoot =
-            fresh.getTree().getRoot() != null
-                ? fresh.getTree().getRoot().deepCopy(nil)
+            freshRoot != null
+                ? TreeCloner.deepCopyTwoPass(freshRoot, fresh.getTree().getNIL(), nil)
                 : nil;
         context.getTree().setRoot(restoredRoot);
         // The root's parent is the sentinel, never null (audit 2026-08-17, finding 1):

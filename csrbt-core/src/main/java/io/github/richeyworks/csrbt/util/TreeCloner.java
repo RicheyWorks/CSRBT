@@ -227,7 +227,7 @@ public class TreeCloner {
      *               Because pass 1 is complete, every lookup is guaranteed to
      *               hit — no NIL fallback from an unvisited child.
      */
-    private TreeNode1<Integer> deepCopyTwoPass(TreeNode1<Integer> origRoot,
+    public static TreeNode1<Integer> deepCopyTwoPass(TreeNode1<Integer> origRoot,
                                        TreeNode1<Integer> origNil,
                                        TreeNode1<Integer> cloneNil) {
 
@@ -271,7 +271,7 @@ public class TreeCloner {
      * Copies all non-structural fields from orig → copy.
      * Structural fields (left, right, parent) are handled separately in pass 2.
      */
-    private void copyNodeFields(TreeNode1<Integer> orig, TreeNode1<Integer> copy) {
+    private static void copyNodeFields(TreeNode1<Integer> orig, TreeNode1<Integer> copy) {
         copy.setColor(orig.getColor());
         copy.setLastRotation(orig.getLastRotation());
         copy.setAugmentedValue(orig.getAugmentedValue());

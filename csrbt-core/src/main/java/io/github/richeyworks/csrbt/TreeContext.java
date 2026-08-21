@@ -388,7 +388,8 @@ public class TreeContext implements AugmentedTree<Integer>, SelfHealingTree, Ord
             // The snapshot was deserialized into its own TreeContext: its engine was
             // rebuilt wholesale and its set's size/window resynced via
             // forceSizeInternal. Adopt that set outright, then copy the Integer-only
-            // extras. (frequencyMap is preserved; history/snapshots are not wiped.)
+            // extras. (frequencyMap is preserved; named checkpoints survive; the undo/redo
+            // command history is discarded below — C3 — because its inverses no longer apply.)
             int liveWindow     = set.getMaxSize();      // this context's bound, NOT the snapshot's
             TreeEventListener<Integer> liveListener = set.getEventListener();   // ditto: the observer
             this.set           = snapshot.set;
@@ -418,6 +419,12 @@ public class TreeContext implements AugmentedTree<Integer>, SelfHealingTree, Ord
             // for frequencyMap above.
             this.recentInsertions.clear();
             this.stressEvents.clear();
+            // Tenth-pass C3: a load is a wholesale content replacement, so the undo/redo
+            // command history (whose inverses are relative to the pre-load contents) is now
+            // meaningless — a later undo would replay "inverse of ADD(k)" against a snapshot
+            // that legitimately contains k and silently delete it. Discard it, exactly as a
+            // fresh rebuild demands. Named checkpoints survive (still valid to restore).
+            this.history.clearUndoRedo();
             logger.info("Snapshot '{}' loaded. size={}", name, set.size());
         }
     }

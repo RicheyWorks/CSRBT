@@ -223,9 +223,14 @@ public class GenomeDrivenTreeController {
         lastControlEvalOpCount = opCount;
         MorphController.MorphResult r = morphController.evaluateAndMaybeMorph(current, opsElapsed);
         if (r.morphed()) {
+            TreeGenome.StructureType from = activeStrategyType;
             activeStrategyType = StrategyIdBridge.toStructureType(r.to());
             morphCount++;
             lastMorphOpCount = opCount;
+            // Tenth-pass C13: this path bumped morphCount but never recorded the morph, so
+            // getMorphCount() and getMorphLog() disagreed — the audit log missed every
+            // control-plane morph. Record it, matching the genome path's morphLog entry.
+            morphLog.add(new MorphEvent(from, activeStrategyType, lastMorphPressure, opCount));
         }
     }
 
@@ -258,11 +263,16 @@ public class GenomeDrivenTreeController {
                 double candidateScore = combinedScore(chosen);
                 int    opsSinceMorph  = opCount - lastMorphOpCount;
                 if (morphPolicy.shouldMorph(currentScore, candidateScore, opsSinceMorph, candidateStreak)) {
-                    applyStructure(chosen);          // sets lastMorphOpCount
-                    candidateStreak = 0;
-                    lastCandidate   = null;
-                    decision = "MORPH";
-                    to       = chosen;
+                    // Tenth-pass C10: gate the decision on the ACTUAL morph verdict. A refused
+                    // setStrategy (health gate / same policy) used to still log decision=MORPH,
+                    // reset the stability streak, and point the audit line at a `to` that never
+                    // happened — a phantom morph. Commit those only on a real morph.
+                    if (applyStructure(chosen)) {    // sets lastMorphOpCount on success
+                        candidateStreak = 0;
+                        lastCandidate   = null;
+                        decision = "MORPH";
+                        to       = chosen;
+                    }
                 }
             }
         } else {
@@ -298,9 +308,11 @@ public class GenomeDrivenTreeController {
                 fmt(lastMorphPressure), scores, decision, from, to);
     }
 
-    public void forceMorph() {
+    /** Force a morph to the memory-biased best structure. Returns the morph verdict (C10): a
+     *  health-gate or same-policy refusal answers {@code false} and changes no controller state. */
+    public boolean forceMorph() {
         TreeGenome.StructureType chosen = chooseStrategyWithMemory();
-        applyStructure(chosen);
+        return applyStructure(chosen);
     }
 
     // ── Morph with real rebuild ───────────────────────────────────────────────
@@ -315,11 +327,11 @@ public class GenomeDrivenTreeController {
      *
      * This is explicit here so it is never accidentally bypassed.
      */
-    private void applyStructure(TreeGenome.StructureType type) {
+    private boolean applyStructure(TreeGenome.StructureType type) {
         TreeStrategy<Integer> newStrategy = buildStrategy(type);
         if (newStrategy == null) {
             logger.warn("No strategy for {} — morph skipped.", type);
-            return;
+            return false;
         }
 
         TreeGenome.StructureType from = activeStrategyType;
@@ -339,7 +351,7 @@ public class GenomeDrivenTreeController {
         if (!applied) {
             logger.warn("Morph {} → {} refused by the engine (health gate or same policy) — "
                     + "controller state unchanged.", from, type);
-            return;
+            return false;
         }
 
         activeStrategyType = type;
@@ -351,6 +363,7 @@ public class GenomeDrivenTreeController {
 
         morphLog.add(new MorphEvent(from, type, lastMorphPressure, opCount));
         logger.info("Morph complete. treeSize={}, morphCount={}", context.getSize(), morphCount);
+        return true;
     }
 
     // ── Memory-biased strategy selection ─────────────────────────────────────
@@ -537,7 +550,9 @@ public class GenomeDrivenTreeController {
 
     // ── Strategy factory ──────────────────────────────────────────────────────
 
-    private static TreeStrategy<Integer> buildStrategy(TreeGenome.StructureType type) {
+    // Non-static and protected so a test can inject a strategy the health gate will refuse,
+    // exercising the C10 verdict path; production callers use it exactly as before.
+    protected TreeStrategy<Integer> buildStrategy(TreeGenome.StructureType type) {
         return switch (type) {
             case RED_BLACK      -> new RedBlackStrategy<>();
             case AVL            -> new AVLStrategy<>();

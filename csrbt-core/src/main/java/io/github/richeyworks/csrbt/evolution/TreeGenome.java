@@ -774,19 +774,32 @@ public class TreeGenome implements Cloneable {
     }
 
     private double hybridFitness() {
-        ScoreCard base = new ScoreCard(
+        // Tenth-pass C11: HYBRID's fitness is "central and even across the real structures", so it
+        // is derived from the OTHER seven scores' spread and centrality. This used to build a
+        // ScoreCard with 0.0 in HYBRID's own slot and take its range()/average() — but those
+        // aggregate all eight slots, so the placeholder 0.0 became the range's minimum (inflating
+        // the spread penalty) and dragged the average down (deflating centrality). HYBRID was
+        // structurally under-scored and could practically never be recommended. Compute the spread
+        // and centrality over the seven real scores directly, with no phantom slot.
+        double[] real = {
                 redBlackFitness(),
                 avlFitness(),
                 splayFitness(),
                 fibonacciFitness(),
                 vanEmdeBoasFitness(),
                 persistentFitness(),
-                0.0,
                 bPlusFitness()
-        );
-
-        double spreadPenalty = clamp(base.range() * 0.25);
-        double centrality = clamp(base.average() * 0.85);
+        };
+        double min = real[0];
+        double max = real[0];
+        double sum = 0.0;
+        for (double v : real) {
+            min = Math.min(min, v);
+            max = Math.max(max, v);
+            sum += v;
+        }
+        double spreadPenalty = clamp((max - min) * 0.25);
+        double centrality = clamp((sum / real.length) * 0.85);
 
         double flexibilityBonus = clamp(
                 (capabilityProfile.getIntervalQueryWeight() * 0.06) +
@@ -1829,6 +1842,12 @@ public class TreeGenome implements Cloneable {
     // -------------------------------------------------
 
     private static double clamp(double value) {
+        // Tenth-pass C4: NaN slipped through (NaN is neither < nor >), so a NaN trait survived
+        // validate() and poisoned every fitness comparison into silently answering RED_BLACK.
+        // A non-finite trait is a caller defect, not a value to clamp.
+        if (Double.isNaN(value)) {
+            throw new IllegalArgumentException("trait value must be a number, not NaN");
+        }
         if (value < MIN_TRAIT) return MIN_TRAIT;
         if (value > MAX_TRAIT) return MAX_TRAIT;
         return value;
