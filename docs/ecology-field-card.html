@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Ecology Field Card — CSRBT</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&family=Newsreader:opsz,wght@6..72,400;6..72,500;6..72,600&family=JetBrains+Mono:wght@400;500&display=swap">
+<style>
+  :root {
+    color-scheme: light;
+    --page:#F5F1E6; --surface:#FFFDF7; --ink:#23281F; --ink-2:#4B5344; --muted:#8B8B7B;
+    --border:#E3DCC9; --rule:#C7C0AC; --s1:#2E7D4F; --s2:#C0592B; --s3:#2B6C8F;
+    --soft:#E9F0E7; --soft-2:#F3EEE0; --shadow:0 1px 2px rgba(35,40,31,.05),0 12px 32px rgba(35,40,31,.06);
+    --head:"Fraunces",Georgia,serif; --body:"Newsreader",Georgia,"Times New Roman",serif;
+    --mono:"JetBrains Mono",ui-monospace,Menlo,monospace;
+  }
+  * { box-sizing:border-box; }
+  body { margin:0; background:var(--page); color:var(--ink); font:16px/1.5 var(--body);
+    -webkit-font-smoothing:antialiased; text-rendering:optimizeLegibility; }
+  .wrap { max-width:900px; margin:0 auto; padding:0 26px; }
+  a { color:var(--s1); text-underline-offset:2px; }
+
+  .kit-nav { display:flex; flex-wrap:wrap; gap:8px; padding:14px 0 0; }
+  .kit-nav a { font-family:var(--mono); font-size:12.5px; letter-spacing:.02em; text-decoration:none;
+    color:var(--ink-2); background:var(--surface); border:1px solid var(--border); border-radius:999px;
+    padding:6px 14px; box-shadow:var(--shadow); }
+  .kit-nav a:hover { border-color:var(--s1); color:var(--s1); }
+
+  .masthead { padding:26px 0 6px; }
+  .masthead::before { content:""; display:block; width:52px; height:3px; background:var(--s1); border-radius:2px; margin:0 0 16px; }
+  .eyebrow { font-family:var(--mono); font-size:12px; letter-spacing:.18em; text-transform:uppercase; color:var(--s1); margin:0 0 12px; }
+  h1 { font-family:var(--head); font-weight:700; font-size:clamp(30px,5vw,44px); line-height:1.05; letter-spacing:-0.02em; margin:0 0 10px; }
+  .dek { font-size:17px; color:var(--ink-2); margin:0; max-width:66ch; }
+
+  .mapping { background:var(--soft); border-left:3px solid var(--s1); border-radius:0 10px 10px 0;
+    padding:11px 16px; margin:18px 0 4px; font-size:15.5px; }
+  .mapping b { font-family:var(--head); }
+
+  .grid { columns:2; column-gap:22px; margin-top:14px; }
+  @media (max-width:680px){ .grid { columns:1; } }
+  .block { break-inside:avoid; margin:0 0 16px; }
+  .block h2 { font-family:var(--head); font-weight:600; font-size:16px; margin:0 0 2px; letter-spacing:-0.01em; }
+  .block .tool { font-family:var(--mono); font-size:11px; color:var(--s3); letter-spacing:.02em; }
+  table { border-collapse:collapse; width:100%; font-size:13.5px; margin-top:6px; }
+  td, th { border:1px solid var(--rule); padding:5px 8px; text-align:left; vertical-align:top; line-height:1.4; }
+  th { background:var(--soft); font-family:var(--head); font-weight:600; font-size:12.5px; }
+  .m { font-family:var(--mono); font-size:12px; color:var(--ink); white-space:nowrap; }
+  .band { color:var(--ink-2); }
+  .band em { font-style:normal; color:var(--s1); font-weight:600; }
+
+  footer { margin:22px 0 50px; padding-top:16px; border-top:1px solid var(--border); color:var(--muted); font-size:13px; }
+  footer a { font-weight:500; }
+
+  @media print {
+    :root { --page:#fff; --surface:#fff; --soft:#f2f6f1; --soft-2:#f6f4ee; --shadow:none; }
+    body { font-size:9.5pt; background:#fff; } .wrap { max-width:none; padding:0; }
+    .kit-nav { display:none; } a { color:inherit; text-decoration:none; }
+    .grid { columns:2; column-gap:16px; } .block { break-inside:avoid; }
+    h1 { font-size:22pt; } .masthead { padding:0 0 4px; }
+  }
+</style>
+</head>
+<body>
+
+<nav class="kit-nav">
+  <a href="ecology.html">Overview</a>
+  <a href="ecology-lab.html">Interactive Lab</a>
+  <a href="ecology-lab-manual.html">Lab Manual</a>
+  <a href="ecology-field-guide.html">Field Guide</a>
+  <a href="eco-protocol-reference.html">.eco Reference</a>
+</nav>
+
+<div class="wrap">
+  <div class="masthead">
+    <p class="eyebrow">CSRBT · quick reference</p>
+    <h1>Ecology Field Card</h1>
+    <p class="dek">Every metric, what it tells you, its interpretation band, and the Workbench tool that
+       computes it — one card to keep on the bench. Print it double-sided.</p>
+    <div class="mapping"><b>The mapping:</b> keys are <b>species</b>, how often a key is touched is that
+      species' <b>abundance</b>, inserts and removes are <b>births and deaths</b>, and time is counted in
+      <b>operations</b> — so every number reproduces exactly. Your own entered field data reads the same way.</div>
+  </div>
+
+  <div class="grid">
+
+    <div class="block">
+      <h2>Diversity &amp; evenness</h2>
+      <span class="tool">tool: Field data — species counts</span>
+      <table>
+        <tr><th>Metric</th><th>Reads</th></tr>
+        <tr><td class="m">Richness&nbsp;S</td><td class="band">count of species/categories — more is richer</td></tr>
+        <tr><td class="m">Shannon&nbsp;H′</td><td class="band">diversity (richness weighted by evenness) — higher is more diverse</td></tr>
+        <tr><td class="m">Pielou&nbsp;J′</td><td class="band"><em>~1</em> even · <em>~0.5</em> uneven · <em>~0</em> one type dominates</td></tr>
+        <tr><td class="m">Hill&nbsp;N₁</td><td class="band">effective species — "100 present, behaves like 11"</td></tr>
+        <tr><td class="m">Simpson</td><td class="band">dominance — higher = one type carries more</td></tr>
+        <tr><td class="m">Chao1</td><td class="band">estimated true richness, incl. rare unseen species</td></tr>
+      </table>
+    </div>
+
+    <div class="block">
+      <h2>Spatial pattern</h2>
+      <span class="tool">tool: Quadrat grid — dispersion</span>
+      <table>
+        <tr><th>Metric</th><th>Reads</th></tr>
+        <tr><td class="m">Var / mean</td><td class="band"><em>≈1</em> random · <em>&lt;1</em> regular (even) · <em>&gt;1</em> clumped (patchy)</td></tr>
+        <tr><td class="m">Morisita</td><td class="band">same reading, robust to sample size</td></tr>
+      </table>
+    </div>
+
+    <div class="block">
+      <h2>Demography</h2>
+      <span class="tool">from lifespans / population series</span>
+      <table>
+        <tr><th>Metric</th><th>Reads</th></tr>
+        <tr><td class="m">Survivorship</td><td class="band"><em>I</em> live long, die together · <em>II</em> constant risk · <em>III</em> die young, survivors persist</td></tr>
+        <tr><td class="m">Logistic&nbsp;r</td><td class="band">intrinsic growth rate (per op)</td></tr>
+        <tr><td class="m">Logistic&nbsp;K</td><td class="band">carrying capacity — the ceiling reached</td></tr>
+      </table>
+    </div>
+
+    <div class="block">
+      <h2>Between two sites — β diversity</h2>
+      <span class="tool">tool: Compare two sites</span>
+      <table>
+        <tr><th>Metric</th><th>Reads</th></tr>
+        <tr><td class="m">Jaccard</td><td class="band">fraction of species shared (presence) — <em>higher</em> = more shared</td></tr>
+        <tr><td class="m">Sørensen</td><td class="band">shared, weighting common presence — <em>higher</em> = more shared</td></tr>
+        <tr><td class="m">Bray–Curtis</td><td class="band">abundance-weighted difference — <em>higher</em> = more different</td></tr>
+      </table>
+    </div>
+
+    <div class="block">
+      <h2>Islands (MacArthur &amp; Wilson)</h2>
+      <span class="tool">tool: Terrarium island · .eco island</span>
+      <table>
+        <tr><th>Metric</th><th>Reads</th></tr>
+        <tr><td class="m">Ŝ (equilibrium)</td><td class="band">species number where immigration rate = extinction rate</td></tr>
+        <tr><td class="m">Turnover</td><td class="band">(immigrations + extinctions) / 2 at equilibrium</td></tr>
+        <tr><td class="m">Area effect</td><td class="band">bigger island → lower extinction → <em>higher Ŝ</em></td></tr>
+        <tr><td class="m">Distance effect</td><td class="band">closer island → higher immigration → <em>higher Ŝ</em></td></tr>
+      </table>
+    </div>
+
+    <div class="block">
+      <h2>Genetics</h2>
+      <span class="tool">tool: Punnett builder · χ² · Hardy–Weinberg</span>
+      <table>
+        <tr><th>Cross / test</th><th>Expected</th></tr>
+        <tr><td class="m">Monohybrid F2</td><td class="band">3 : 1</td></tr>
+        <tr><td class="m">Dihybrid F2</td><td class="band">9 : 3 : 3 : 1</td></tr>
+        <tr><td class="m">Incomplete dom.</td><td class="band">1 : 2 : 1 (three phenotypes)</td></tr>
+        <tr><td class="m">Test cross</td><td class="band">reveals a hidden heterozygote</td></tr>
+        <tr><td class="m">Hardy–Weinberg</td><td class="band">p² : 2pq : q² — χ² tests equilibrium</td></tr>
+        <tr><td class="m">χ² goodness-of-fit</td><td class="band">tests observed counts vs the expected ratio</td></tr>
+      </table>
+    </div>
+
+    <div class="block">
+      <h2>Population size</h2>
+      <span class="tool">tool: Mark–recapture</span>
+      <table>
+        <tr><th>Method</th><th>Estimate</th></tr>
+        <tr><td class="m">Lincoln–Petersen</td><td class="band">N̂ ≈ (M × C) / R &nbsp;— marked, caught, recaptured</td></tr>
+      </table>
+    </div>
+
+    <div class="block">
+      <h2>Reading numbers in words</h2>
+      <span class="tool">FieldReport — fixed, tested thresholds</span>
+      <table>
+        <tr><th>The report says…</th><th>means</th></tr>
+        <tr><td class="band">"uneven"</td><td class="band">a few hot species carry most of it</td></tr>
+        <tr><td class="band">"clumped"</td><td class="band">individuals bunched in patches</td></tr>
+        <tr><td class="band">"type III"</td><td class="band">heavy early mortality, survivors persist</td></tr>
+      </table>
+    </div>
+
+  </div>
+
+  <footer>
+    Every number here is seeded and oracle-tested, so it reproduces and you can cite it. Full detail in the
+    <a href="ecology-field-guide.html">Field Guide</a>; run the instruments in the
+    <a href="ecology-lab.html">Interactive Lab</a>; ready-to-run exercises in the
+    <a href="ecology-lab-manual.html">Lab Manual</a>. MIT-licensed · © 2026 Richmond.
+  </footer>
+</div>
+</body>
+</html>

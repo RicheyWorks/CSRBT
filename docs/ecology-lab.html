@@ -139,23 +139,36 @@
   @keyframes rise { from { transform: scaleY(0); } }
   @media (prefers-reduced-motion: reduce) { .grow-line, .grow-bar { animation: none; } }
 
-  /* form fields */
+  /* form fields — tablet-first: 16px type (no mobile auto-zoom), ≥44px touch targets, roomy padding */
   textarea, input[type=text], input[type=number], select {
-    background: var(--surface-1); color: var(--ink); border: 1px solid var(--baseline);
-    border-radius: 8px; padding: 7px 10px; font: 13px var(--font-body);
+    background: var(--surface-1); color: var(--ink); border: 1.5px solid var(--baseline);
+    border-radius: 10px; padding: 10px 13px; font: 16px var(--font-body);
+    min-height: 44px; transition: border-color .15s ease, box-shadow .15s ease;
   }
-  textarea { width: 100%; min-height: 90px; font-family: var(--font-mono); font-size: 12.5px; }
-  input[type=number] { width: 84px; } input[type=text] { width: 110px; }
-  textarea:focus, input:focus, select:focus { outline: 2px solid var(--s1); outline-offset: 1px; border-color: var(--s1); }
-  .wb-error { color: var(--danger); font-size: 13px; margin: 6px 0; }
+  textarea { width: 100%; min-height: 120px; font-family: var(--font-mono); font-size: 15px; line-height: 1.6; }
+  input[type=number] { width: 104px; } input[type=text] { width: 132px; }
+  select { padding-right: 30px; }
+  textarea:focus, input:focus, select:focus { outline: none; border-color: var(--s1);
+    box-shadow: 0 0 0 3px rgba(46,125,79,.18); }
+  input[type=range] { min-height: 44px; touch-action: pan-x; }
+  input[type=checkbox] { width: 22px; height: 22px; accent-color: var(--s1); }
+  .wb-error { color: var(--danger); font-size: 14px; margin: 8px 0; }
 
-  /* workbench buttons */
-  .wb-btn { background: var(--surface-1); color: var(--ink); border: 1px solid var(--baseline);
-    border-radius: 8px; padding: 7px 15px; font: 700 13px var(--font-body); cursor: pointer;
-    transition: border-color .12s ease, color .12s ease, background .12s ease; }
+  /* workbench buttons — big, smooth, touch-friendly */
+  .wb-btn { background: var(--surface-1); color: var(--ink); border: 1.5px solid var(--baseline);
+    border-radius: 10px; padding: 11px 20px; font: 700 15px var(--font-body); cursor: pointer;
+    min-height: 44px; touch-action: manipulation; -webkit-tap-highlight-color: transparent;
+    transition: border-color .15s ease, color .15s ease, background .15s ease, transform .1s ease; }
   .wb-btn:hover { border-color: var(--s1); color: var(--s1); background: var(--accent-soft); }
+  .wb-btn:active { transform: scale(.98); }
   .wb-btn.good:hover { border-color: var(--s1); color: var(--s1); }
   .wb-btn.bad:hover { border-color: var(--danger); color: var(--danger); background: #F6E7E5; }
+  @media (pointer: coarse) {
+    .controls { gap: 20px; }
+    .controls label { font-size: 15px; gap: 6px; }
+    input[type=range] { width: 230px; }
+    td, th { padding: 8px 12px; font-size: 14px; }
+  }
 
   /* cladogram */
   .clado text { fill: var(--ink); font: 12.5px var(--font-body); }
@@ -199,7 +212,7 @@
 <header>
   <h1>🌿 Ecology Field Day</h1>
   <p class="sub">Field-ecology instruments for <b>students, TAs, and researchers</b> — measure real field data, or a living data structure, with the same tools you'd take into the meadow: diversity indices, survivorship curves, quadrat dispersion, island turnover, Punnett squares, and more. Keys are species &middot; touches are abundance &middot; time is counted in operations. No install needed for the Workbench below — and everything prints clean for a lab report.</p>
-  <p style="margin:2px 0 12px"><a href="ecology-lab-manual.html" style="display:inline-flex;gap:8px;align-items:center;font-weight:700;color:var(--s1);text-decoration:none;border:1px solid var(--ring);background:var(--surface-1);border-radius:12px;padding:9px 16px;box-shadow:var(--shadow)">Field &amp; Lab Manual — five ready-to-run labs: behavior, genetics, biodiversity, populations &rarr;</a></p>
+  <p style="margin:2px 0 12px"><a href="ecology-lab-manual.html" style="display:inline-flex;gap:8px;align-items:center;font-weight:700;color:var(--s1);text-decoration:none;border:1px solid var(--ring);background:var(--surface-1);border-radius:12px;padding:9px 16px;box-shadow:var(--shadow)">Field &amp; Lab Manual — six ready-to-run labs: behavior, genetics, biodiversity, populations, islands &rarr;</a></p>
   <span class="drophint">📄 drop a session anywhere to reload — <code>&nbsp;./gradlew ecologyFieldDay&nbsp;</code>
      or replay your own trace: <code>&nbsp;./gradlew ecologyTrace -Ptrace=your.csv</code>
      · drop an <code>&nbsp;.eco&nbsp;</code> protocol to read it back into the Workbench</span>

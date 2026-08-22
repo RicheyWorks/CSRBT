@@ -1,0 +1,463 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Field Notebook — tap-to-tally field data</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,600;9..144,700&family=Nunito+Sans:wght@400;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap">
+<style>
+  :root {
+    color-scheme: light;
+    --page:#F5F1E6; --surface:#FFFDF7; --surface-2:#F3EEE0; --ink:#23281F; --ink-2:#4B5344;
+    --muted:#8B8B7B; --border:#E3DCC9; --s1:#2E7D4F; --s1-deep:#236240; --s2:#C0592B; --s3:#2B6C8F;
+    --soft:#E9F0E7; --danger:#B23A32;
+    --shadow:0 1px 2px rgba(35,40,31,.06),0 10px 28px rgba(35,40,31,.08);
+    --head:"Fraunces",Georgia,serif;
+    --body:"Nunito Sans",system-ui,-apple-system,sans-serif;
+    --mono:"JetBrains Mono",ui-monospace,Menlo,monospace;
+  }
+  * { box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
+  html, body { height:100%; }
+  body { margin:0; background:var(--page); color:var(--ink); font:16px/1.5 var(--body);
+    -webkit-font-smoothing:antialiased; overscroll-behavior-y:contain; }
+
+  .app { max-width:860px; margin:0 auto; padding:14px 16px calc(96px + env(safe-area-inset-bottom)); }
+
+  /* header */
+  .top { display:flex; align-items:baseline; justify-content:space-between; gap:10px; padding:6px 2px 12px; }
+  .brand { font-family:var(--head); font-weight:700; font-size:22px; letter-spacing:-0.01em; }
+  .brand span { color:var(--s1); }
+  .top a { font-family:var(--mono); font-size:11.5px; color:var(--muted); text-decoration:none; }
+  .top a:hover { color:var(--s1); }
+
+  /* tab bar (bottom, thumb-reach) */
+  .tabbar { position:fixed; left:0; right:0; bottom:0; z-index:20;
+    background:color-mix(in srgb, var(--surface) 94%, transparent); backdrop-filter:blur(10px);
+    border-top:1px solid var(--border); padding:8px max(10px, env(safe-area-inset-left)) calc(8px + env(safe-area-inset-bottom)); }
+  .tabbar .row { max-width:860px; margin:0 auto; display:grid; grid-template-columns:repeat(4,1fr); gap:6px; }
+  .tab { display:flex; flex-direction:column; align-items:center; gap:2px; border:0; background:none;
+    font:700 12px var(--body); color:var(--muted); padding:8px 4px; border-radius:12px; cursor:pointer;
+    min-height:54px; touch-action:manipulation; transition:background .15s ease, color .15s ease; }
+  .tab .ico { font-size:22px; line-height:1; }
+  .tab.on { color:var(--s1); background:var(--soft); }
+  .tab:active { transform:scale(.96); }
+
+  .pane { display:none; animation:fade .18s ease; }
+  .pane.on { display:block; }
+  @keyframes fade { from { opacity:0; transform:translateY(4px);} to { opacity:1; transform:none;} }
+  @media (prefers-reduced-motion: reduce){ .pane { animation:none; } }
+
+  h2 { font-family:var(--head); font-weight:600; font-size:20px; margin:6px 0 2px; }
+  .hint { color:var(--muted); font-size:14px; margin:0 0 12px; }
+
+  .card { background:var(--surface); border:1px solid var(--border); border-radius:16px;
+    padding:16px; box-shadow:var(--shadow); margin-bottom:14px; }
+
+  /* big tally buttons */
+  .tally-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(150px,1fr)); gap:10px; }
+  .tally { position:relative; border:1.5px solid var(--border); background:var(--surface); border-radius:16px;
+    min-height:88px; padding:12px 12px 10px; cursor:pointer; text-align:left; touch-action:manipulation;
+    font-family:var(--body); transition:border-color .12s ease, background .12s ease, transform .08s ease;
+    box-shadow:var(--shadow); }
+  .tally:active { transform:scale(.97); background:var(--soft); border-color:var(--s1); }
+  .tally .name { font-weight:800; font-size:16px; color:var(--ink); word-break:break-word; }
+  .tally .count { font-family:var(--head); font-weight:700; font-size:30px; color:var(--s1);
+    font-variant-numeric:tabular-nums; line-height:1.1; margin-top:4px; }
+  .tally .x { position:absolute; top:6px; right:8px; border:0; background:none; color:var(--muted);
+    font-size:15px; padding:6px; cursor:pointer; border-radius:8px; }
+  .tally .x:hover { color:var(--danger); }
+  .tally.bump .count { animation:pop .25s ease; }
+  @keyframes pop { 40% { transform:scale(1.25);} }
+
+  .addrow { display:flex; gap:8px; margin-top:12px; flex-wrap:wrap; }
+  input[type=text], input[type=number] {
+    background:var(--surface); color:var(--ink); border:1.5px solid var(--border); border-radius:12px;
+    padding:11px 14px; font:16px var(--body); min-height:48px; }
+  input:focus { outline:none; border-color:var(--s1); box-shadow:0 0 0 3px rgba(46,125,79,.18); }
+  input[type=text] { flex:1; min-width:150px; }
+  input[type=number] { width:110px; }
+
+  .btn { border:0; border-radius:12px; padding:12px 20px; font:800 15px var(--body); cursor:pointer;
+    min-height:48px; touch-action:manipulation; transition:transform .1s ease, background .15s ease; }
+  .btn:active { transform:scale(.97); }
+  .btn-go { background:var(--s1); color:#fff; }
+  .btn-go:hover { background:var(--s1-deep); }
+  .btn-soft { background:var(--soft); color:var(--s1); }
+  .btn-ghost { background:none; border:1.5px solid var(--border); color:var(--ink-2); }
+  .btn-ghost:hover { border-color:var(--s1); color:var(--s1); }
+  .btn-row { display:flex; gap:8px; flex-wrap:wrap; margin-top:12px; }
+
+  /* results */
+  .tiles { display:flex; flex-wrap:wrap; gap:8px; margin:12px 0 2px; }
+  .tile { background:var(--surface-2); border:1px solid var(--border); border-radius:12px; padding:9px 14px; min-width:96px; }
+  .tile .v { font-family:var(--head); font-weight:700; font-size:22px; font-variant-numeric:tabular-nums; }
+  .tile .l { font-size:11.5px; color:var(--muted); }
+  .reading { background:var(--soft); border-left:3px solid var(--s1); border-radius:0 10px 10px 0;
+    padding:10px 14px; margin:10px 0 2px; font-size:15px; color:var(--ink-2); }
+  .reading b { color:var(--ink); }
+
+  .bars { display:grid; gap:6px; margin-top:10px; }
+  .bar { display:grid; grid-template-columns:110px 1fr 52px; gap:8px; align-items:center; font-size:13.5px; }
+  .bar .nm { font-weight:700; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+  .bar .tr { display:block; background:var(--surface-2); border:1px solid var(--border); border-radius:8px; height:20px; overflow:hidden; }
+  .bar .fl { display:block; height:100%; background:var(--s1); border-radius:7px 0 0 7px; transition:width .4s ease; }
+  .bar .pc { text-align:right; font-variant-numeric:tabular-nums; color:var(--ink-2); }
+
+  /* timer */
+  .timerbox { display:flex; align-items:center; gap:14px; flex-wrap:wrap; }
+  .clock { font-family:var(--mono); font-weight:500; font-size:34px; font-variant-numeric:tabular-nums; }
+  .clock.warn { color:var(--s2); }
+  .scanflash { display:none; font-weight:800; color:var(--s2); font-size:15px; animation:pop .5s ease; }
+  .scanflash.on { display:inline; }
+
+  /* quadrats */
+  .quads { display:grid; grid-template-columns:repeat(auto-fill,minmax(120px,1fr)); gap:10px; }
+  .quad { background:var(--surface); border:1.5px solid var(--border); border-radius:14px; padding:10px; text-align:center; box-shadow:var(--shadow); }
+  .quad .ql { font-family:var(--mono); font-size:11px; color:var(--muted); }
+  .quad .qv { font-family:var(--head); font-weight:700; font-size:26px; font-variant-numeric:tabular-nums; margin:2px 0 6px; }
+  .quad .qb { display:flex; gap:6px; justify-content:center; }
+  .step { width:44px; height:44px; border-radius:12px; border:1.5px solid var(--border); background:var(--surface);
+    font:800 20px var(--body); color:var(--s1); cursor:pointer; touch-action:manipulation; }
+  .step:active { transform:scale(.94); background:var(--soft); }
+
+  /* mark-recapture steppers */
+  .mr { display:grid; grid-template-columns:repeat(auto-fit,minmax(170px,1fr)); gap:10px; }
+  .mrbox { background:var(--surface); border:1.5px solid var(--border); border-radius:16px; padding:14px; text-align:center; box-shadow:var(--shadow); }
+  .mrbox .l { font-weight:800; font-size:13px; color:var(--ink-2); }
+  .mrbox .v { font-family:var(--head); font-weight:700; font-size:34px; font-variant-numeric:tabular-nums; margin:4px 0 8px; }
+  .mrbox .qb { display:flex; gap:8px; justify-content:center; }
+
+  /* export */
+  pre.export { font-family:var(--mono); font-size:13px; line-height:1.6; background:var(--surface);
+    border:1px solid var(--border); border-radius:12px; padding:13px 14px; overflow-x:auto; white-space:pre-wrap; word-break:break-word; }
+  .toast { position:fixed; left:50%; bottom:calc(104px + env(safe-area-inset-bottom)); transform:translateX(-50%) translateY(8px);
+    background:var(--ink); color:#F5F1E6; font-weight:700; font-size:14px; border-radius:999px; padding:10px 18px;
+    opacity:0; pointer-events:none; transition:opacity .2s ease, transform .2s ease; z-index:30; }
+  .toast.on { opacity:1; transform:translateX(-50%); }
+
+  @media (min-width:700px){ .tally { min-height:104px; } .tally .count { font-size:36px; } }
+  @media print { .tabbar, .btn, .addrow, .top a { display:none !important; } body { background:#fff; } .pane { display:block !important; } }
+</style>
+</head>
+<body>
+
+<div class="app">
+  <div class="top">
+    <div class="brand">Field <span>Notebook</span></div>
+    <a href="ecology.html">part of the ecology kit →</a>
+  </div>
+
+  <!-- ETHOGRAM -->
+  <section class="pane on" id="p-etho">
+    <h2>Ethogram — tap to score behavior</h2>
+    <p class="hint">Big buttons for the field: tap a behavior each time you see it (focal) or at each scan.
+      The timer flashes every scan interval. Undo takes back the last tap.</p>
+
+    <div class="card">
+      <div class="timerbox">
+        <span class="clock" id="clock">00:00</span>
+        <button class="btn btn-go" id="tstart" type="button">Start</button>
+        <button class="btn btn-ghost" id="treset" type="button">Reset</button>
+        <label style="font-size:14px;color:var(--ink-2);display:flex;align-items:center;gap:8px">
+          scan every <input type="number" id="scanSec" value="30" min="0" style="width:84px"> s
+        </label>
+        <span class="scanflash" id="scanflash">👀 SCAN NOW</span>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="tally-grid" id="ethoGrid"></div>
+      <div class="addrow">
+        <input type="text" id="ethoNew" placeholder="add a behavior (e.g. forage)" autocomplete="off">
+        <button class="btn btn-soft" id="ethoAdd" type="button">Add</button>
+        <button class="btn btn-ghost" id="ethoUndo" type="button">↩ Undo</button>
+      </div>
+    </div>
+
+    <div class="card" id="ethoResults"></div>
+  </section>
+
+  <!-- QUADRATS -->
+  <section class="pane" id="p-quad">
+    <h2>Quadrats — count per frame</h2>
+    <p class="hint">One box per quadrat: tap + for every individual inside the frame. Dispersion updates live —
+      random, regular, or clumped.</p>
+    <div class="card">
+      <div class="quads" id="quadGrid"></div>
+      <div class="btn-row">
+        <button class="btn btn-soft" id="quadAdd" type="button">+ Add quadrat</button>
+        <button class="btn btn-ghost" id="quadClear" type="button">Clear</button>
+      </div>
+    </div>
+    <div class="card" id="quadResults"></div>
+  </section>
+
+  <!-- SPECIES -->
+  <section class="pane" id="p-spec">
+    <h2>Species counts — the site survey</h2>
+    <p class="hint">Add each species you find, then tap its card once per individual. Diversity updates live.</p>
+    <div class="card">
+      <div class="tally-grid" id="specGrid"></div>
+      <div class="addrow">
+        <input type="text" id="specNew" placeholder="add a species (e.g. clover)" autocomplete="off">
+        <button class="btn btn-soft" id="specAdd" type="button">Add</button>
+        <button class="btn btn-ghost" id="specUndo" type="button">↩ Undo</button>
+      </div>
+    </div>
+    <div class="card" id="specResults"></div>
+  </section>
+
+  <!-- MARK-RECAPTURE + EXPORT -->
+  <section class="pane" id="p-more">
+    <h2>Mark–recapture</h2>
+    <p class="hint">Lincoln–Petersen: mark M, release, catch C, count recaptures R.</p>
+    <div class="card">
+      <div class="mr">
+        <div class="mrbox"><div class="l">Marked (M)</div><div class="v" id="mrM">0</div>
+          <div class="qb"><button class="step" data-mr="M" data-d="-1" type="button">−</button><button class="step" data-mr="M" data-d="1" type="button">+</button></div></div>
+        <div class="mrbox"><div class="l">2nd catch (C)</div><div class="v" id="mrC">0</div>
+          <div class="qb"><button class="step" data-mr="C" data-d="-1" type="button">−</button><button class="step" data-mr="C" data-d="1" type="button">+</button></div></div>
+        <div class="mrbox"><div class="l">Recaptured (R)</div><div class="v" id="mrR">0</div>
+          <div class="qb"><button class="step" data-mr="R" data-d="-1" type="button">−</button><button class="step" data-mr="R" data-d="1" type="button">+</button></div></div>
+      </div>
+      <div class="reading" id="mrOut" style="margin-top:12px">Enter your catches — the estimate appears here.</div>
+    </div>
+
+    <h2 style="margin-top:18px">Take it home</h2>
+    <p class="hint">Everything you tallied, as <code>.eco</code> protocol lines — copy them into a file and the
+      engine can re-run and grade your day (see the <a href="eco-protocol-reference.html">.eco reference</a>).</p>
+    <div class="card">
+      <pre class="export" id="ecoOut"># tally something first — your .eco lines appear here</pre>
+      <div class="btn-row">
+        <button class="btn btn-go" id="ecoCopy" type="button">Copy .eco lines</button>
+        <button class="btn btn-ghost" onclick="window.print()" type="button">Print / save PDF</button>
+      </div>
+    </div>
+  </section>
+</div>
+
+<div class="tabbar"><div class="row">
+  <button class="tab on" data-pane="p-etho" type="button"><span class="ico">🐦</span>Ethogram</button>
+  <button class="tab" data-pane="p-quad" type="button"><span class="ico">🌱</span>Quadrats</button>
+  <button class="tab" data-pane="p-spec" type="button"><span class="ico">🔍</span>Species</button>
+  <button class="tab" data-pane="p-more" type="button"><span class="ico">🎒</span>More</button>
+</div></div>
+
+<div class="toast" id="toast">Copied</div>
+
+<script>
+(function(){
+  "use strict";
+  var $ = function(id){ return document.getElementById(id); };
+  function buzz(){ try { navigator.vibrate && navigator.vibrate(8); } catch(e){} }
+  function toast(msg){ var t=$("toast"); t.textContent=msg; t.classList.add("on");
+    clearTimeout(t._h); t._h=setTimeout(function(){ t.classList.remove("on"); },1400); }
+
+  /* tabs */
+  document.querySelectorAll(".tab").forEach(function(tb){
+    tb.addEventListener("click", function(){
+      document.querySelectorAll(".tab").forEach(function(x){ x.classList.remove("on"); });
+      document.querySelectorAll(".pane").forEach(function(x){ x.classList.remove("on"); });
+      tb.classList.add("on"); $(tb.dataset.pane).classList.add("on"); buzz();
+    });
+  });
+
+  /* ---------- math (same formulas as the kit; ln-based Shannon) ---------- */
+  function shannon(counts){ var N=0,i; for(i=0;i<counts.length;i++) N+=counts[i]; if(!N) return 0;
+    var H=0; for(i=0;i<counts.length;i++){ if(counts[i]>0){ var p=counts[i]/N; H-=p*Math.log(p);} } return H; }
+  function evenness(counts){ var S=counts.filter(function(c){return c>0;}).length;
+    return S>1 ? shannon(counts)/Math.log(S) : 1; }
+  function hill1(counts){ return Math.exp(shannon(counts)); }
+  function evenRead(J,S){ if(S<2) return "only one category so far — tally more to read evenness.";
+    if(J>=0.85) return "<b>even</b> — effort/individuals spread evenly across categories.";
+    if(J>=0.6) return "<b>moderately even</b> — some categories busier than others.";
+    return "<b>uneven</b> — a few categories carry most of it."; }
+  function dispersion(counts){ var n=counts.length; if(n<2) return null;
+    var mean=counts.reduce(function(a,b){return a+b;},0)/n;
+    if(!mean) return null;
+    var v=0,i; for(i=0;i<n;i++) v+=(counts[i]-mean)*(counts[i]-mean); v/=(n-1);
+    var I=v/mean;
+    var N=counts.reduce(function(a,b){return a+b;},0), sum=0;
+    for(i=0;i<n;i++) sum+=counts[i]*(counts[i]-1);
+    var mor=(N>1)? n*sum/(N*(N-1)) : null;
+    return {mean:mean, vmr:I, morisita:mor}; }
+  function dispRead(I){ if(I===null) return "";
+    if(I<0.7) return "<b>regular</b> — more even spacing than chance (think competition or territories).";
+    if(I<=1.4) return "<b>random</b> — no detectable pattern at this grain.";
+    return "<b>clumped</b> — individuals bunched into patches (patchy resources, clustered arrivals)."; }
+
+  /* ---------- generic tally boards ---------- */
+  function board(gridId, newId, addId, undoId, resultsId, opts){
+    var items=[], history=[], grid=$(gridId);
+    function esc(s){ return s.replace(/[&<>"']/g, function(c){ return {"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#39;"}[c]; }); }
+    function render(){
+      grid.innerHTML="";
+      items.forEach(function(it, idx){
+        var b=document.createElement("button");
+        b.type="button"; b.className="tally";
+        b.innerHTML='<span class="x" data-x="'+idx+'">✕</span><div class="name">'+esc(it.name)+'</div><div class="count">'+it.n+'</div>';
+        b.addEventListener("click", function(ev){
+          if(ev.target && ev.target.dataset && ev.target.dataset.x!==undefined){
+            items.splice(idx,1); history=history.filter(function(h){return h!==it;}); render(); results(); return; }
+          it.n++; history.push(it); buzz();
+          b.classList.remove("bump"); void b.offsetWidth; b.classList.add("bump");
+          b.querySelector(".count").textContent=it.n; results();
+        });
+        grid.appendChild(b);
+      });
+    }
+    function results(){
+      var live=items.filter(function(i){return i.n>0;});
+      var counts=live.map(function(i){return i.n;});
+      var N=counts.reduce(function(a,b){return a+b;},0);
+      var box=$(resultsId);
+      if(!N){ box.innerHTML='<p class="hint" style="margin:0">'+opts.empty+'</p>'; return; }
+      var H=shannon(counts), J=evenness(counts), N1=hill1(counts);
+      var html='<div class="tiles">'
+        +'<div class="tile"><div class="v">'+N+'</div><div class="l">'+opts.unit+'</div></div>'
+        +'<div class="tile"><div class="v">'+live.length+'</div><div class="l">'+opts.cats+'</div></div>'
+        +'<div class="tile"><div class="v">'+H.toFixed(2)+'</div><div class="l">Shannon H′</div></div>'
+        +'<div class="tile"><div class="v">'+J.toFixed(2)+'</div><div class="l">evenness J′</div></div>'
+        +'<div class="tile"><div class="v">'+N1.toFixed(1)+'</div><div class="l">effective ('+opts.effLabel+')</div></div></div>'
+        +'<div class="reading">'+opts.readPrefix+' '+evenRead(J,live.length)+'</div><div class="bars">';
+      live.slice().sort(function(a,b){return b.n-a.n;}).forEach(function(it){
+        var pc=100*it.n/N;
+        html+='<div class="bar"><span class="nm">'+esc(it.name)+'</span><span class="tr"><span class="fl" style="width:'+pc.toFixed(1)+'%"></span></span><span class="pc">'+pc.toFixed(0)+'%</span></div>';
+      });
+      box.innerHTML=html+"</div>"; refreshEco();
+    }
+    function add(){
+      var v=$(newId).value.trim().toLowerCase().replace(/\s+/g,"-");
+      if(!v) return;
+      if(!items.some(function(i){return i.name===v;})) items.push({name:v,n:0});
+      $(newId).value=""; render(); results();
+    }
+    $(addId).addEventListener("click", add);
+    $(newId).addEventListener("keydown", function(e){ if(e.key==="Enter") add(); });
+    $(undoId).addEventListener("click", function(){
+      var last=history.pop(); if(last && last.n>0){ last.n--; render(); results(); buzz(); } });
+    opts.seed.forEach(function(n){ items.push({name:n,n:0}); });
+    render(); results();
+    return { data:function(){ return items.filter(function(i){return i.n>0;}); } };
+  }
+
+  var etho = board("ethoGrid","ethoNew","ethoAdd","ethoUndo","ethoResults",
+    { seed:["forage","rest","groom","vigilance","locomote"], unit:"observations", cats:"behaviors",
+      effLabel:"behaviors", readPrefix:"Activity budget:", empty:"Tap a behavior to start the budget." });
+  var spec = board("specGrid","specNew","specAdd","specUndo","specResults",
+    { seed:["species-a","species-b"], unit:"individuals", cats:"species",
+      effLabel:"species", readPrefix:"Community:", empty:"Add your species, then tap once per individual." });
+
+  /* ---------- timer ---------- */
+  var t0=null, tick=null, lastFlash=0, running=false;
+  function fmt(s){ var m=Math.floor(s/60), r=Math.floor(s%60);
+    return (m<10?"0":"")+m+":"+(r<10?"0":"")+r; }
+  function beep(){ try{ var C=window.AudioContext||window.webkitAudioContext; if(!C) return;
+      var ctx=beep._c||(beep._c=new C()), o=ctx.createOscillator(), g=ctx.createGain();
+      o.frequency.value=880; g.gain.value=0.08; o.connect(g); g.connect(ctx.destination);
+      o.start(); o.stop(ctx.currentTime+0.15); }catch(e){} }
+  $("tstart").addEventListener("click", function(){
+    if(running){ clearInterval(tick); running=false; this.textContent="Start"; return; }
+    running=true; this.textContent="Pause"; if(t0===null) t0=Date.now(); else t0=Date.now()-(t0stop||0);
+    var self=this;
+    tick=setInterval(function(){
+      var el=(Date.now()-t0)/1000; t0stop=el*1000; $("clock").textContent=fmt(el);
+      var iv=parseInt($("scanSec").value,10)||0;
+      if(iv>0){ var k=Math.floor(el/iv);
+        if(k>lastFlash){ lastFlash=k; beep(); try{navigator.vibrate&&navigator.vibrate([60,40,60]);}catch(e){}
+          $("scanflash").classList.add("on"); $("clock").classList.add("warn");
+          setTimeout(function(){ $("scanflash").classList.remove("on"); $("clock").classList.remove("warn"); },1500); } }
+    },250);
+  });
+  var t0stop=0;
+  $("treset").addEventListener("click", function(){
+    clearInterval(tick); running=false; t0=null; t0stop=0; lastFlash=0;
+    $("clock").textContent="00:00"; $("tstart").textContent="Start"; });
+
+  /* ---------- quadrats ---------- */
+  var quads=[];
+  function renderQuads(){
+    var g=$("quadGrid"); g.innerHTML="";
+    quads.forEach(function(q,i){
+      var d=document.createElement("div"); d.className="quad";
+      d.innerHTML='<div class="ql">Q'+(i+1)+'</div><div class="qv">'+q+'</div>'
+        +'<div class="qb"><button class="step" data-q="'+i+'" data-d="-1" type="button">−</button>'
+        +'<button class="step" data-q="'+i+'" data-d="1" type="button">+</button></div>';
+      g.appendChild(d);
+    });
+    g.querySelectorAll(".step").forEach(function(b){
+      b.addEventListener("click", function(){
+        var i=+b.dataset.q, d=+b.dataset.d;
+        quads[i]=Math.max(0,quads[i]+d); buzz(); renderQuads(); quadResults();
+      });
+    });
+  }
+  function quadResults(){
+    var box=$("quadResults"), tot=quads.reduce(function(a,b){return a+b;},0);
+    if(quads.length<2 || !tot){ box.innerHTML='<p class="hint" style="margin:0">Add at least two quadrats and count something — dispersion appears here.</p>'; return; }
+    var d=dispersion(quads);
+    box.innerHTML='<div class="tiles">'
+      +'<div class="tile"><div class="v">'+quads.length+'</div><div class="l">quadrats</div></div>'
+      +'<div class="tile"><div class="v">'+tot+'</div><div class="l">individuals</div></div>'
+      +'<div class="tile"><div class="v">'+d.mean.toFixed(2)+'</div><div class="l">mean / quadrat</div></div>'
+      +'<div class="tile"><div class="v">'+d.vmr.toFixed(2)+'</div><div class="l">variance / mean</div></div>'
+      +(d.morisita!==null?'<div class="tile"><div class="v">'+d.morisita.toFixed(2)+'</div><div class="l">Morisita</div></div>':"")
+      +'</div><div class="reading">Pattern reads '+dispRead(d.vmr)+'</div>';
+    refreshEco();
+  }
+  $("quadAdd").addEventListener("click", function(){ quads.push(0); renderQuads(); quadResults(); buzz(); });
+  $("quadClear").addEventListener("click", function(){ quads=[]; renderQuads(); quadResults(); });
+  quads=[0,0,0,0]; renderQuads(); quadResults();
+
+  /* ---------- mark-recapture ---------- */
+  var mr={M:0,C:0,R:0};
+  document.querySelectorAll("[data-mr]").forEach(function(b){
+    b.addEventListener("click", function(){
+      var k=b.dataset.mr, d=+b.dataset.d;
+      mr[k]=Math.max(0,mr[k]+d); if(k==="R") mr.R=Math.min(mr.R,mr.C);
+      $("mr"+k).textContent=mr[k]; buzz(); mrOut(); });
+  });
+  function mrOut(){
+    var o=$("mrOut");
+    if(mr.M>0&&mr.C>0&&mr.R>0){
+      var N=(mr.M*mr.C)/mr.R;
+      o.innerHTML="Lincoln–Petersen estimate: <b>N̂ ≈ "+Math.round(N)+"</b> &nbsp;( "+mr.M+" × "+mr.C+" ÷ "+mr.R
+        +" ). Assumes a closed population, marks kept, and even mixing.";
+    } else if(mr.M>0&&mr.C>0&&mr.R===0){
+      o.innerHTML="No recaptures yet — the estimate is undefined (R must be ≥ 1). Catch more, or mark more.";
+    } else { o.textContent="Enter your catches — the estimate appears here."; }
+    refreshEco();
+  }
+
+  /* ---------- .eco export ---------- */
+  function refreshEco(){
+    var lines=[];
+    var e=etho.data(); if(e.length) lines.push("data: focal "+e.map(function(i){return i.name+"="+i.n;}).join(" "));
+    var s=spec.data(); if(s.length) lines.push("data: site "+s.map(function(i){return i.name+"="+i.n;}).join(" "));
+    if(quads.length>1 && quads.some(function(q){return q>0;}))
+      lines.push("# quadrat counts (per frame): "+quads.join(" "));
+    if(mr.M>0&&mr.C>0&&mr.R>0) lines.push("model: markrecapture "+mr.M+" "+mr.C+" "+mr.R);
+    if(lines.length){
+      lines.unshift("# Field Notebook export — paste into your .eco protocol");
+      lines.push("note: tallied in the field with the Field Notebook");
+    }
+    $("ecoOut").textContent = lines.length ? lines.join("\n") : "# tally something first — your .eco lines appear here";
+  }
+  $("ecoCopy").addEventListener("click", function(){
+    var text=$("ecoOut").textContent;
+    function done(){ toast("Copied — paste into a .eco file"); buzz(); }
+    try {
+      if(navigator.clipboard&&navigator.clipboard.writeText) navigator.clipboard.writeText(text).then(done, function(){ fallback(); });
+      else fallback();
+    } catch(e){ fallback(); }
+    function fallback(){ var ta=document.createElement("textarea"); ta.value=text; ta.style.position="fixed"; ta.style.opacity="0";
+      document.body.appendChild(ta); ta.select(); try{ document.execCommand("copy"); done(); }catch(e){ toast("Select & copy manually"); }
+      document.body.removeChild(ta); }
+  });
+  refreshEco();
+})();
+</script>
+</body>
+</html>

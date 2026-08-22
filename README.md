@@ -700,7 +700,7 @@ clean for a lab report — no install required:
 - [**`docs/ecology-lab.html`**](docs/ecology-lab.html) — the **Interactive Lab**: a live terrarium
   plus a browser Workbench that runs every instrument on your own pasted field data.
 - [**`docs/ecology-lab-manual.html`**](docs/ecology-lab-manual.html) — the **Field & Lab Manual**:
-  five ready-to-run labs (behavior, genetics, biodiversity, mark–recapture, Hardy–Weinberg) with
+  six ready-to-run labs (behavior, genetics, biodiversity, mark–recapture, Hardy–Weinberg, island biogeography) with
   printable data sheets, procedures, and `.eco` pre-registration.
 - [**`docs/ecology-field-guide.html`**](docs/ecology-field-guide.html) — the **Field Guide**: the
   plain-language reference behind the instruments, station by station (also

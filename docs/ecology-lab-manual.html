@@ -193,6 +193,7 @@ the thinking.</p>
     <li><a href="#lab-biodiversity">Biodiversity &amp; Community — quadrats &amp; diversity</a> <span class="for">· ecology</span></li>
     <li><a href="#lab-markrecapture">Population Size — mark &amp; recapture</a> <span class="for">· field methods</span></li>
     <li><a href="#lab-hardyweinberg">Population Genetics — Hardy–Weinberg</a> <span class="for">· evolution</span></li>
+    <li><a href="#lab-island">Island Biogeography — the MacArthur–Wilson equilibrium</a> <span class="for">· biogeography</span></li>
   </ol>
 </div>
 
@@ -535,6 +536,89 @@ data: verge clover=14 grass=20 plantain=18 vetch=12 yarrow=9
   <h3>Pre-register it (optional)</h3>
   <pre><span class="c"># your three genotype counts: AA, Aa, aa</span>
 <span class="k">model:</span> hardyweinberg 298 489 213</pre>
+</section>
+
+<!-- ───────────────────────── LAB 6 — ISLAND BIOGEOGRAPHY ───────────────────────── -->
+<section class="lab" id="lab-island">
+  <div class="lab-head">
+    <span class="lab-num">Lab 6</span>
+    <h2>Island Biogeography: the MacArthur–Wilson Equilibrium</h2>
+    <p class="lab-for">For: ecology &amp; biogeography students · setting: the Interactive Lab's live island (no fieldwork needed) · ~45 min</p>
+  </div>
+
+  <div class="obj">
+    <b>You will be able to:</b>
+    <ul>
+      <li>Explain equilibrium species richness as the crossing of an <b>immigration</b> curve and an <b>extinction</b> curve.</li>
+      <li>Predict — then measure — the <b>area effect</b> (bigger island, more species) and the <b>turnover signature</b> (richness flat while composition churns).</li>
+      <li>Run the Levins/island theory bench in an <code>.eco</code> protocol and compare model to measurement.</li>
+    </ul>
+  </div>
+
+  <h3>Background</h3>
+  <p>MacArthur and Wilson's insight <span class="cite">(1967)</span> was that an island's species count is
+  not a fixed inventory but a <b>dynamic equilibrium</b>. New species arrive from the mainland at an
+  immigration rate that <em>falls</em> as the island fills (fewer arrivals are new); resident species go
+  extinct at a rate that <em>rises</em> as more are packed in. Where the two curves cross, richness Ŝ holds
+  steady — but the <em>identity</em> of the residents keeps changing. That churn at constant richness is the
+  theory's signature, and its two famous predictions follow from moving the curves: a <b>bigger island</b>
+  lowers extinction (curve down → higher Ŝ); a <b>nearer island</b> raises immigration (curve up → higher Ŝ).</p>
+
+  <div style="margin:16px 0">
+    <p class="cap" style="font-family:var(--mono);font-size:11.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);margin-bottom:6px">The equilibrium, drawn</p>
+    <svg viewBox="0 0 460 210" role="img" aria-label="Immigration falls and extinction rises as species accumulate; their crossing sets equilibrium richness S-hat" style="max-width:460px;width:100%;display:block;background:var(--surface);border:1px solid var(--border);border-radius:10px">
+      <line x1="46" y1="170" x2="430" y2="170" stroke="#C7C0AC" stroke-width="1.5"/>
+      <line x1="46" y1="170" x2="46" y2="18" stroke="#C7C0AC" stroke-width="1.5"/>
+      <path d="M 50 34 Q 200 60 400 158" fill="none" stroke="#2E7D4F" stroke-width="2.5"/>
+      <path d="M 50 162 Q 240 150 400 40" fill="none" stroke="#C0592B" stroke-width="2.5"/>
+      <circle cx="253" cy="107" r="5" fill="#23281F"/>
+      <line x1="253" y1="107" x2="253" y2="170" stroke="#8B8B7B" stroke-width="1" stroke-dasharray="4 4"/>
+      <text x="70" y="30" font-family="Georgia,serif" font-size="13" fill="#2E7D4F">immigration (falls as island fills)</text>
+      <text x="240" y="34" font-family="Georgia,serif" font-size="13" fill="#C0592B" text-anchor="start">extinction (rises with crowding)</text>
+      <text x="253" y="188" font-family="Georgia,serif" font-size="13" fill="#23281F" text-anchor="middle">Ŝ — equilibrium richness</text>
+      <text x="30" y="100" font-family="Georgia,serif" font-size="12" fill="#8B8B7B" transform="rotate(-90 30 100)">rate</text>
+      <text x="420" y="186" font-family="Georgia,serif" font-size="12" fill="#8B8B7B" text-anchor="end">species present →</text>
+    </svg>
+  </div>
+
+  <h3>What you need</h3>
+  <ul>
+    <li>The <a href="ecology-lab.html">Interactive Lab</a>'s <b>Terrarium — Island</b> panel (its capacity slider is your island's area), or the <span class="tool">.eco</span> island model.</li>
+  </ul>
+
+  <h3>Procedure</h3>
+  <ol class="steps">
+    <li><b>Predict first.</b> Write down: what should happen to richness and to turnover when the island's capacity is doubled? Halved?</li>
+    <li><b>Baseline.</b> In the Terrarium's island panel, set capacity to 12. Record richness (residents/capacity), immigrations, extinctions, and the turnover reading on the data sheet.</li>
+    <li><b>The area experiment.</b> Step capacity through 6, 12, 24 (and further if you like). At each setting, record the same four numbers. Watch the turnover fall as capacity grows — a bigger island loses fewer residents.</li>
+    <li><b>The signature.</b> At a fixed capacity, watch the composition churn while richness stays pinned at capacity: the island is "full," yet never the same island twice. Note one resident that appears and disappears.</li>
+    <li><b>Model vs. measurement.</b> Run the theory bench with an <code>.eco</code> protocol (below): the <code>island</code> model predicts an equilibrium richness from c and e; <code>factor: area</code> and <code>factor: distance</code> move it exactly as the curves say. Compare the model's Ŝ against what the live island measured — and if they disagree, say why (survey cadence is the usual suspect).</li>
+  </ol>
+
+  <div class="sheet">
+    <p class="cap">Data sheet — the area experiment</p>
+    <table>
+      <tr><th class="num">Capacity (area)</th><th class="num">Richness at equilibrium</th><th class="num">Immigrations</th><th class="num">Extinctions</th><th class="num">Turnover / interval</th></tr>
+      <tr><td class="num">6</td><td class="num"></td><td class="num"></td><td class="num"></td><td class="num"></td></tr>
+      <tr><td class="num">12</td><td class="num"></td><td class="num"></td><td class="num"></td><td class="num"></td></tr>
+      <tr><td class="num">24</td><td class="num"></td><td class="num"></td><td class="num"></td><td class="num"></td></tr>
+      <tr><td class="num">48</td><td class="num"></td><td class="num"></td><td class="num"></td><td class="num"></td></tr>
+    </table>
+  </div>
+
+  <h3>Analysis &amp; questions</h3>
+  <ol class="q">
+    <li>Sketch the two rate curves from your data: which one did changing the capacity move, and how did Ŝ respond?</li>
+    <li>Richness held flat at equilibrium while composition churned. Why is "the island is full" and "the island is unchanging" not the same claim?</li>
+    <li>Name a real system that behaves like this island besides an island — a habitat fragment, a gut microbiome, a city's food carts — and say what plays the role of area and distance.</li>
+  </ol>
+
+  <h3>Pre-register it (optional)</h3>
+  <pre><span class="c"># c, e, mainland pool, S0, steps — with the abiotic knobs</span>
+<span class="k">factor:</span> area 0.5          <span class="c"># halve the island…</span>
+<span class="k">factor:</span> distance 1.5      <span class="c"># …and push it further out</span>
+<span class="k">model:</span> island 0.4 0.1 100 0 40
+<span class="c"># prediction: lower equilibrium richness than the area-1.0 run — the two-curve logic, graded</span></pre>
 </section>
 
 <footer>
