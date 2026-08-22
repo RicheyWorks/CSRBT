@@ -1,0 +1,536 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Field & Lab Manual — Ecology Field Day</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&family=Newsreader:opsz,wght@6..72,400;6..72,500;6..72,600&family=JetBrains+Mono:wght@400;500&display=swap">
+<style>
+  :root {
+    color-scheme: light;
+    --page:      #F5F1E6;
+    --surface:   #FFFDF7;
+    --ink:       #23281F;
+    --ink-2:     #4B5344;
+    --muted:     #8B8B7B;
+    --border:    #E3DCC9;
+    --rule:      #C7C0AC;
+    --s1: #2E7D4F;   /* field green */
+    --s2: #C0592B;   /* clay        */
+    --s3: #2B6C8F;   /* slate       */
+    --soft:   #E9F0E7;
+    --soft-2: #F3EEE0;
+    --shadow: 0 1px 2px rgba(35,40,31,.05), 0 12px 32px rgba(35,40,31,.06);
+    --head: "Fraunces", Georgia, serif;
+    --body: "Newsreader", Georgia, "Times New Roman", serif;
+    --mono: "JetBrains Mono", ui-monospace, Menlo, monospace;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; background: var(--page); color: var(--ink);
+    font: 18px/1.62 var(--body); -webkit-font-smoothing: antialiased; text-rendering: optimizeLegibility;
+  }
+  .wrap { max-width: 820px; margin: 0 auto; padding: 0 26px; }
+  a { color: var(--s1); text-underline-offset: 2px; }
+
+  /* masthead */
+  .masthead { padding: 52px 0 24px; }
+  .masthead::before { content: ""; display: block; width: 52px; height: 3px; background: var(--s1); border-radius: 2px; margin-bottom: 20px; }
+  .eyebrow { font-family: var(--mono); font-size: 12px; letter-spacing: .18em; text-transform: uppercase; color: var(--s1); margin: 0 0 12px; }
+  h1 { font-family: var(--head); font-weight: 600; font-size: clamp(34px, 6vw, 52px); line-height: 1.04; letter-spacing: -0.02em; margin: 0 0 14px; }
+  .dek { font-size: 20px; color: var(--ink-2); margin: 0 0 6px; max-width: 60ch; }
+  .byline { font-family: var(--mono); font-size: 12.5px; color: var(--muted); margin-top: 18px; }
+
+  h2 { font-family: var(--head); font-weight: 600; font-size: 27px; letter-spacing: -0.015em; line-height: 1.12; margin: 0; }
+  h3 { font-family: var(--head); font-weight: 600; font-size: 19px; margin: 26px 0 6px; color: var(--ink); }
+  p { margin: 0 0 14px; }
+  strong, b { font-weight: 600; }
+  .lead { font-size: 19px; }
+
+  .rule { border: 0; border-top: 1px solid var(--border); margin: 34px 0; }
+
+  /* intro cards */
+  .kit {
+    background: var(--surface); border: 1px solid var(--border); border-radius: 14px;
+    padding: 22px 24px; box-shadow: var(--shadow); margin: 22px 0;
+  }
+  .kit h3 { margin-top: 0; }
+  .who { display: grid; grid-template-columns: repeat(auto-fit, minmax(210px,1fr)); gap: 12px; margin: 20px 0 4px; }
+  .who .card { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 15px 17px; box-shadow: var(--shadow); }
+  .who .card b { font-family: var(--head); }
+  .who .card span { display: block; color: var(--ink-2); font-size: 15.5px; margin-top: 3px; }
+
+  /* contents */
+  .toc { background: var(--soft-2); border: 1px solid var(--border); border-radius: 14px; padding: 18px 22px; margin: 24px 0; }
+  .toc h3 { margin: 0 0 8px; }
+  .toc ol { margin: 0; padding-left: 20px; }
+  .toc li { margin: 5px 0; }
+  .toc a { color: var(--ink); }
+  .toc .for { color: var(--muted); font-size: 15px; }
+
+  /* labs */
+  .lab { margin: 0; padding: 40px 0 8px; }
+  .lab-head { border-top: 3px solid var(--s1); padding-top: 16px; margin-bottom: 12px; }
+  .lab-num { font-family: var(--mono); font-size: 12px; letter-spacing: .14em; text-transform: uppercase; color: var(--s1); }
+  .lab-for { font-family: var(--mono); font-size: 12.5px; color: var(--muted); margin: 6px 0 0; }
+
+  .obj { background: var(--soft); border-left: 3px solid var(--s1); border-radius: 0 10px 10px 0; padding: 12px 18px; margin: 16px 0; }
+  .obj b { font-family: var(--head); }
+  .obj ul { margin: 6px 0 0; padding-left: 20px; }
+  .obj li { margin: 3px 0; font-size: 16.5px; }
+
+  ul, ol { margin: 0 0 14px; padding-left: 22px; }
+  li { margin: 5px 0; }
+  .steps > li { margin: 9px 0; }
+  .cite { font-variant: small-caps; letter-spacing: .01em; color: var(--ink-2); }
+
+  code { font-family: var(--mono); font-size: .82em; background: var(--soft-2); border: 1px solid var(--border); border-radius: 5px; padding: 1px 5px; }
+  .tool { font-family: var(--mono); font-size: .8em; color: var(--s3); background: #EAF0F4; border: 1px solid #cfe0ea; border-radius: 5px; padding: 1px 6px; white-space: nowrap; }
+  pre { font-family: var(--mono); font-size: 13px; line-height: 1.6; background: var(--surface); color: var(--ink);
+        border: 1px solid var(--border); border-radius: 10px; padding: 14px 16px; overflow-x: auto; box-shadow: var(--shadow); }
+  pre .c { color: var(--muted); }
+  pre .k { color: var(--s1); }
+
+  /* data sheets */
+  .sheet { margin: 16px 0; }
+  .sheet .cap { font-family: var(--mono); font-size: 11.5px; letter-spacing: .1em; text-transform: uppercase; color: var(--muted); margin-bottom: 6px; }
+  table { border-collapse: collapse; width: 100%; font-family: var(--body); font-size: 15.5px; }
+  th, td { border: 1px solid var(--rule); padding: 7px 10px; text-align: left; vertical-align: top; }
+  th { background: var(--soft); font-family: var(--head); font-weight: 600; font-size: 14.5px; }
+  td.fill { height: 30px; }
+  td.num, th.num { text-align: right; font-variant-numeric: tabular-nums; }
+
+  .q { counter-reset: q; margin: 10px 0 0; padding: 0; list-style: none; }
+  .q li { counter-increment: q; margin: 8px 0; padding-left: 34px; position: relative; }
+  .q li::before { content: "Q" counter(q); position: absolute; left: 0; top: 0; font-family: var(--mono); font-size: 12px;
+    color: var(--s1); background: var(--soft); border: 1px solid var(--border); border-radius: 6px; padding: 1px 5px; }
+
+  .tip { border: 1px dashed var(--rule); border-radius: 10px; padding: 11px 16px; margin: 16px 0; color: var(--ink-2); font-size: 16px; background: var(--surface); }
+  .tip b { color: var(--s2); font-family: var(--head); }
+
+  footer { margin: 40px 0 60px; padding-top: 18px; border-top: 1px solid var(--border); color: var(--muted); font-size: 14px; }
+  footer code { color: var(--ink-2); }
+
+  /* Print — hand it out. Each lab starts a fresh page; data sheets stay whole. */
+  @media print {
+    :root { --page:#fff; --surface:#fff; --soft:#f2f6f1; --soft-2:#f6f4ee; --shadow:none; }
+    body { font-size: 11.5pt; background:#fff; }
+    .wrap { max-width: none; padding: 0; }
+    a { color: inherit; text-decoration: none; }
+    .toc { break-after: page; }
+    .lab { break-before: page; padding-top: 8px; }
+    .lab, .kit, .sheet, table, pre, .obj { break-inside: avoid; }
+    .tool { color:#2B6C8F; background:none; border-color:#cfe0ea; }
+    td.fill { height: 26px; }
+    h1 { font-size: 30pt; }
+  }
+  @media (max-width: 560px) { body { font-size: 17px; } .wrap { padding: 0 18px; } }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<div class="masthead">
+  <p class="eyebrow">CSRBT · Living-Systems Lab</p>
+  <h1>Field &amp; Lab Manual</h1>
+  <p class="dek">Ready-to-run biology labs — behavior, genetics, biodiversity, populations — built on the
+     browser <a href="ecology-lab.html">Ecology Field Day</a> workbench. No install, real methods, reproducible numbers,
+     and every page prints clean for a report.</p>
+  <p class="byline">For students · teachers &amp; TAs · field researchers &nbsp;·&nbsp; pairs with <code>ecology-lab.html</code> and <code>ECOLOGY-FIELD-GUIDE.md</code></p>
+</div>
+
+<p class="lead">Each lab below is a complete exercise: what you're testing, the background and its
+citations, the field kit you'll carry, a step-by-step procedure that names the exact workbench tool
+for every calculation, a data sheet you can print and write on, analysis questions, and — for a
+graded, pre-registered version — an <code>.eco</code> protocol you commit to <em>before</em> you
+collect data. The workbench does the arithmetic and narrates each number in plain language; you do
+the thinking.</p>
+
+<div class="who">
+  <div class="card"><b>The field behaviorist</b><span>Score an ethogram in the field, turn it into an activity budget and a diversity reading before you leave the site.</span></div>
+  <div class="card"><b>The genetics student</b><span>Cross peas or fruit flies, tally the F2, and test your ratio against Mendel with a real χ².</span></div>
+  <div class="card"><b>The ecology student</b><span>Run quadrats, measure diversity, and compare two habitats — the standard community toolkit.</span></div>
+  <div class="card"><b>The teacher / TA</b><span>Hand these out as-is. Pre-register the class's hypotheses; every seeded number regrades identically.</span></div>
+</div>
+
+<div class="kit">
+  <h3>How the workbench works (read once)</h3>
+  <p>Open <a href="ecology-lab.html">Ecology Field Day</a> in any browser — nothing to install. Scroll to
+  <b>The Workbench — bring your own data</b>. Every box takes plain text you can paste from a phone,
+  a clipboard, or a spreadsheet, and computes the moment you type. Two entry habits cover everything:</p>
+  <ul>
+    <li><b>Counts</b> — one <code>label&nbsp;number</code> per line (<code>forage 42</code>), or paste two spreadsheet columns.</li>
+    <li><b>Tally marks</b> — bare repeated words count themselves (<code>peck peck flap peck</code>), exactly like clipboard ticks.</li>
+  </ul>
+  <p style="margin-bottom:0">When you're done, the workbench's <b>transfer box</b> rewrites what you typed as
+  <code>.eco</code> lines — so a session in the browser becomes a stored, re-runnable protocol.</p>
+</div>
+
+<div class="toc">
+  <h3>The labs</h3>
+  <ol>
+    <li><a href="#lab-behavior">Behavioral Observation — ethograms &amp; activity budgets</a> <span class="for">· animal behavior</span></li>
+    <li><a href="#lab-genetics">Mendelian Genetics — peas &amp; fruit flies</a> <span class="for">· heredity</span></li>
+    <li><a href="#lab-biodiversity">Biodiversity &amp; Community — quadrats &amp; diversity</a> <span class="for">· ecology</span></li>
+    <li><a href="#lab-markrecapture">Population Size — mark &amp; recapture</a> <span class="for">· field methods</span></li>
+    <li><a href="#lab-hardyweinberg">Population Genetics — Hardy–Weinberg</a> <span class="for">· evolution</span></li>
+  </ol>
+</div>
+
+<!-- ───────────────────────── LAB 1 — BEHAVIOR ───────────────────────── -->
+<section class="lab" id="lab-behavior">
+  <div class="lab-head">
+    <span class="lab-num">Lab 1</span>
+    <h2>Behavioral Observation: Ethograms &amp; Activity Budgets</h2>
+    <p class="lab-for">For: animal-behavior students, field assistants · setting: any observable animal (campus squirrels, a feeder, an enclosure, video) · ~60–90 min</p>
+  </div>
+
+  <div class="obj">
+    <b>You will be able to:</b>
+    <ul>
+      <li>Build an <b>ethogram</b> — a catalogue of defined, mutually-exclusive behaviors.</li>
+      <li>Sample behavior with a named method (<b>focal-animal</b> and <b>scan</b> sampling) and know when each is honest.</li>
+      <li>Turn tallies into an <b>activity budget</b> and read its <b>behavioral diversity</b> and <b>evenness</b>.</li>
+    </ul>
+  </div>
+
+  <h3>Background</h3>
+  <p>An <b>ethogram</b> is the vocabulary of a behavioral study: a short list of behaviors, each defined
+  so precisely that two observers score the same act the same way. How you sample matters as much as what
+  you see <span class="cite">(Altmann 1974)</span>. In <b>focal-animal sampling</b> you fix on one
+  individual and record everything it does for a set window; in <b>scan sampling</b> you sweep the whole
+  group at fixed instants and record what each animal is doing right then. Focal sampling gives true time
+  budgets and sequences but only for one animal at a time; scan sampling covers the group but misses brief
+  acts. An <b>activity budget</b> is the proportion of time (or of scan points) spent in each behavior —
+  and because it is just an abundance distribution over categories, the same diversity mathematics that
+  describes a meadow describes a behavioral repertoire: <b>Shannon H′</b> <span class="cite">(Shannon 1948)</span>
+  measures how varied the behavior is, and <b>Pielou's J′</b> <span class="cite">(Pielou 1966)</span> whether
+  time is spread evenly or dominated by one activity.</p>
+
+  <h3>What you need (field kit)</h3>
+  <ul>
+    <li>A clipboard or phone, a timer/stopwatch, and a pre-written <b>ethogram</b> (4–8 behaviors).</li>
+    <li>A tally sheet (the data sheet below) — one column per behavior.</li>
+    <li>A subject you can watch without disturbing it; decide your sampling rule <em>before</em> you start.</li>
+  </ul>
+
+  <h3>Procedure</h3>
+  <ol class="steps">
+    <li><b>Define the ethogram.</b> Agree on 4–8 behaviors and a one-line definition for each (e.g. <em>forage, rest, groom, vigilance, locomote, social</em>). Ambiguity here is the biggest source of error.</li>
+    <li><b>Choose a method.</b> For one animal's time budget, do <b>focal sampling</b> for a fixed 10-minute window, noting each behavior change. For a group snapshot, do <b>scan sampling</b> every 30&nbsp;s for 10&nbsp;minutes.</li>
+    <li><b>Score.</b> Make a tally mark in the matching column each time you record a behavior (focal: each change; scan: each animal at each scan).</li>
+    <li><b>Compute the activity budget.</b> In the workbench <span class="tool">Field data — species counts</span>, enter one line per behavior as <code>behavior&nbsp;count</code> (or paste your tally marks straight in). Read off the proportions, <b>Shannon H′</b>, and <b>evenness J′</b>. The tool narrates it: <em>"uneven — a few hot keys carry most of the traffic"</em> means one behavior dominates the budget.</li>
+    <li><b>Compare two contexts</b> (optional). Score the same animal in two settings (fed vs. unfed, morning vs. afternoon) and put each budget into <span class="tool">Compare two sites</span> to get <b>Bray–Curtis</b> dissimilarity — how much the budget shifted.</li>
+  </ol>
+
+  <div class="tip"><b>Teaching note.</b> Inter-observer reliability is the lesson hiding here: have two students score the same 10 minutes independently, then compare their two budgets in <span class="tool">Compare two sites</span>. A high Bray–Curtis between observers means the ethogram needs tighter definitions, not the animal.</div>
+
+  <div class="sheet">
+    <p class="cap">Data sheet — focal / scan tally (photocopy per subject)</p>
+    <table>
+      <tr><th>Behavior (from ethogram)</th><th>Tally marks</th><th class="num">Count</th><th class="num">% of total</th></tr>
+      <tr><td class="fill"></td><td class="fill"></td><td class="num"></td><td class="num"></td></tr>
+      <tr><td class="fill"></td><td></td><td class="num"></td><td class="num"></td></tr>
+      <tr><td class="fill"></td><td></td><td class="num"></td><td class="num"></td></tr>
+      <tr><td class="fill"></td><td></td><td class="num"></td><td class="num"></td></tr>
+      <tr><td class="fill"></td><td></td><td class="num"></td><td class="num"></td></tr>
+      <tr><td class="fill"></td><td></td><td class="num"></td><td class="num"></td></tr>
+      <tr><th>Total observations</th><td></td><td class="num"></td><td class="num">100%</td></tr>
+    </table>
+  </div>
+
+  <h3>Analysis &amp; questions</h3>
+  <ol class="q">
+    <li>Which behavior dominated the budget? Is J′ closer to 1 (even) or 0 (dominated) — and does that match what you saw?</li>
+    <li>Would focal and scan sampling of the same animal give the same budget? Which brief behaviors does scan sampling systematically miss?</li>
+    <li>If two contexts differed, what is the Bray–Curtis between their budgets, and what biological factor best explains the shift?</li>
+  </ol>
+
+  <h3>Pre-register it (optional, for a graded lab)</h3>
+  <pre><span class="c"># commit your prediction before you watch — the engine grades it</span>
+data: morning forage=42 rest=30 groom=12 vigilance=8 locomote=15
+data: afternoon forage=20 rest=51 groom=9 vigilance=6 locomote=14
+<span class="k">expect:</span> evenness(morning) is uneven
+<span class="k">expect:</span> brayCurtis(morning, afternoon) &gt; 0.3</pre>
+</section>
+
+<!-- ───────────────────────── LAB 2 — GENETICS ───────────────────────── -->
+<section class="lab" id="lab-genetics">
+  <div class="lab-head">
+    <span class="lab-num">Lab 2</span>
+    <h2>Mendelian Genetics: Peas &amp; Fruit Flies</h2>
+    <p class="lab-for">For: intro genetics students · works for a virtual cross, a Drosophila vial count, or a pea-plant dataset · ~60 min</p>
+  </div>
+
+  <div class="obj">
+    <b>You will be able to:</b>
+    <ul>
+      <li>Predict offspring ratios with a <b>Punnett square</b> for monohybrid, dihybrid, and test crosses.</li>
+      <li>Tally an F2 phenotype count and <b>test it against the expected ratio with a χ² goodness-of-fit test</b>.</li>
+      <li>Recognise <b>incomplete dominance</b> and <b>two-gene interaction</b> when the classic ratios don't appear.</li>
+    </ul>
+  </div>
+
+  <h3>Background</h3>
+  <p>Mendel crossed true-breeding pea plants and counted the offspring <span class="cite">(Mendel 1866)</span>.
+  A single trait (seed shape) in an F1 × F1 cross gives the famous <b>3:1</b> ratio; two traits at once give
+  <b>9:3:3:1</b>. His actual seed-shape count was 5474 round to 1850 wrinkled — and the point of the lab is
+  not to admire the ratio but to <em>test</em> your own counts against it. The tool for that is the <b>χ²
+  goodness-of-fit test</b>: it asks whether the difference between what you counted and what the ratio
+  predicts is small enough to be chance. Fruit flies (<em>Drosophila</em>) run the same logic on a fast
+  life cycle — a monohybrid vestigial-wing cross or a dihybrid body-colour × wing cross gives the same
+  3:1 and 9:3:3:1 you can put a χ² on. Not every cross is 3:1: when heterozygotes look like neither parent
+  (the blue Andalusian chicken) you have <b>incomplete dominance</b> and a 1:2:1 <em>phenotype</em> ratio;
+  when two genes interact (comb shape) you get modified dihybrid ratios.</p>
+
+  <h3>What you need</h3>
+  <ul>
+    <li>Your cross's parent genotypes, and an F2 <b>phenotype tally</b> — from a real vial/plot count, a class dataset, or a simulated cross.</li>
+    <li>The workbench <span class="tool">Punnett builder — the greenhouse &amp; the coop</span>.</li>
+  </ul>
+
+  <h3>Procedure</h3>
+  <ol class="steps">
+    <li><b>Predict.</b> In the <span class="tool">Punnett builder</span>, set <code>parent 1</code> and <code>parent 2</code> to your genotypes — one letter-pair per gene: <code>Rr</code> for a monohybrid, <code>RrYy</code> for a dihybrid, <code>Aa × aa</code> for a test cross. The square and the expected ratio appear instantly.</li>
+    <li><b>Try the famous ones.</b> The <code>preset</code> menu loads them exactly: <em>Mendel's peas: seed shape</em> (Rr × Rr, with his 1866 counts), <em>Mendel's dihybrid: shape × colour</em> (RrYy × RrYy, 315&nbsp;108&nbsp;101&nbsp;32), the <em>Blue Andalusian</em> (tick <code>incomplete dominance</code>), the <em>walnut-comb</em> two-gene cross, and a <em>test cross</em>.</li>
+    <li><b>Test your data.</b> Type your own F2 counts into <code>observed counts</code> (space-separated, in the ratio's order). The tool computes <b>χ²</b> and tells you whether to reject the ratio. Mendel's 5474&nbsp;1850 against 3:1 is the worked example.</li>
+    <li><b>Interpret dominance.</b> If your F2 shows three phenotypes in ~1:2:1 rather than 3:1, re-run with <code>incomplete dominance</code> ticked and compare.</li>
+  </ol>
+
+  <div class="tip"><b>Fly-room tip.</b> The white-eye gene in <em>Drosophila</em> is X-linked, so a reciprocal cross gives different results in sons and daughters — count the sexes separately and run each as its own cross. For an autosomal trait (vestigial wings, ebony body), a straight F1 × F1 monohybrid and the 3:1 χ² is the right model.</div>
+
+  <div class="sheet">
+    <p class="cap">Data sheet — F2 phenotype tally</p>
+    <table>
+      <tr><th>Cross (parents)</th><td class="fill" colspan="3"></td></tr>
+      <tr><th>Phenotype class</th><th>Tally</th><th class="num">Observed</th><th class="num">Expected (ratio ×)</th></tr>
+      <tr><td class="fill"></td><td class="fill"></td><td class="num"></td><td class="num"></td></tr>
+      <tr><td class="fill"></td><td></td><td class="num"></td><td class="num"></td></tr>
+      <tr><td class="fill"></td><td></td><td class="num"></td><td class="num"></td></tr>
+      <tr><td class="fill"></td><td></td><td class="num"></td><td class="num"></td></tr>
+      <tr><th>Total</th><td></td><td class="num"></td><td class="num"></td></tr>
+      <tr><th>χ² (from the tool)</th><td colspan="2"></td><th class="num">reject ratio?</th></tr>
+    </table>
+  </div>
+
+  <h3>Analysis &amp; questions</h3>
+  <ol class="q">
+    <li>What ratio did your Punnett square predict, and what χ² did your counts give? Do you reject the ratio, or is the deviation just chance?</li>
+    <li>Mendel's dihybrid counts (315 108 101 32) test against 9:3:3:1 — does the tool reject it? What does that say about his data (or about linkage)?</li>
+    <li>Your F2 came out roughly 1:2:1 across three visible phenotypes. Which inheritance pattern is this, and how did ticking <em>incomplete dominance</em> change the expected numbers?</li>
+  </ol>
+
+  <h3>Pre-register it (optional, for a graded lab)</h3>
+  <pre><span class="c"># declare the cross and your prediction; the engine runs the χ²</span>
+<span class="k">cross:</span> Rr x Rr observed 5474 1850          <span class="c"># monohybrid, vs 3:1</span>
+<span class="k">cross:</span> RrYy x RrYy observed 315 108 101 32   <span class="c"># dihybrid, vs 9:3:3:1</span>
+<span class="k">expect:</span> the 3:1 cross is not rejected at p &gt; 0.05</pre>
+</section>
+
+<!-- ───────────────────────── LAB 3 — BIODIVERSITY ───────────────────────── -->
+<section class="lab" id="lab-biodiversity">
+  <div class="lab-head">
+    <span class="lab-num">Lab 3</span>
+    <h2>Biodiversity &amp; Community: Quadrats &amp; Diversity</h2>
+    <p class="lab-for">For: ecology students · setting: a lawn, forest floor, tide pool, or leaf-litter tray · ~90 min incl. fieldwork</p>
+  </div>
+
+  <div class="obj">
+    <b>You will be able to:</b>
+    <ul>
+      <li>Sample a community with <b>quadrats</b> and measure its <b>spatial dispersion</b> (random / regular / clumped).</li>
+      <li>Compute <b>species richness</b>, <b>Shannon diversity</b>, and <b>evenness</b> from your counts.</li>
+      <li>Compare two habitats with <b>β-diversity</b> (Jaccard, Sørensen, Bray–Curtis).</li>
+    </ul>
+  </div>
+
+  <h3>Background</h3>
+  <p>A <b>quadrat</b> is a fixed-area frame you drop to count what's inside — the oldest quantitative method
+  in field ecology. Laid across a site, the counts per quadrat reveal <b>spatial pattern</b>: a
+  variance-to-mean ratio near 1 is random, below 1 is regular (even spacing), above 1 is clumped
+  <span class="cite">(Morisita 1959)</span>. Pooling the counts gives the community's <b>diversity</b>:
+  <b>richness</b> (how many species), <b>Shannon H′</b> (richness weighted by evenness), and <b>Pielou's
+  J′</b>. To compare two habitats you use <b>β-diversity</b>: <b>Jaccard</b> and <b>Sørensen</b> ask what
+  fraction of species are shared; <b>Bray–Curtis</b> weighs abundances too.</p>
+
+  <h3>What you need</h3>
+  <ul>
+    <li>A quadrat (a bent coat-hanger square, a hula-hoop, or a taped 0.5&nbsp;m frame) and a field notebook.</li>
+    <li>Two sites to compare, and a rule for placing quadrats (random or on a transect) fixed <em>before</em> you start.</li>
+    <li>The workbench <span class="tool">Quadrat grid — dispersion</span>, <span class="tool">Field data — species counts</span>, and <span class="tool">Compare two sites</span>.</li>
+  </ul>
+
+  <h3>Procedure</h3>
+  <ol class="steps">
+    <li><b>Place and count.</b> Drop the quadrat at your placement points (aim for ≥10 per site). Record how many individuals of each species fall inside each quadrat.</li>
+    <li><b>Dispersion.</b> Put your per-quadrat totals (one number per quadrat) into <span class="tool">Quadrat grid</span>. Read the variance/mean ratio and the Morisita index — is the community random, regular, or clumped?</li>
+    <li><b>Diversity.</b> Pool the counts per species and enter them as <code>species&nbsp;count</code> lines in <span class="tool">Field data</span>. Record richness, H′, and J′.</li>
+    <li><b>Compare.</b> Do the same at the second site, then paste both species lists into <span class="tool">Compare two sites</span>. Record Jaccard, Sørensen, and Bray–Curtis.</li>
+  </ol>
+
+  <div class="sheet">
+    <p class="cap">Data sheet — quadrat counts (per site)</p>
+    <table>
+      <tr><th>Quadrat #</th><th>Species observed &amp; counts</th><th class="num">Total in quadrat</th></tr>
+      <tr><td class="num">1</td><td class="fill"></td><td class="num"></td></tr>
+      <tr><td class="num">2</td><td></td><td class="num"></td></tr>
+      <tr><td class="num">3</td><td></td><td class="num"></td></tr>
+      <tr><td class="num">4</td><td></td><td class="num"></td></tr>
+      <tr><td class="num">…</td><td></td><td class="num"></td></tr>
+      <tr><th>Site totals</th><td>richness = _____ H′ = _____ J′ = _____</td><td class="num"></td></tr>
+    </table>
+  </div>
+
+  <h3>Analysis &amp; questions</h3>
+  <ol class="q">
+    <li>Is your community clumped, regular, or random? Name one biological reason for that pattern (patchy resources, competition, dispersal).</li>
+    <li>Which site was more diverse — and was it richness, evenness, or both that made the difference?</li>
+    <li>Your two sites share many species but one is dominated by a single one. How do Sørensen (presence only) and Bray–Curtis (abundance) disagree, and why?</li>
+  </ol>
+
+  <h3>Pre-register it (optional)</h3>
+  <pre>data: lawn  clover=22 grass=61 plantain=9 dandelion=8
+data: verge clover=14 grass=20 plantain=18 vetch=12 yarrow=9
+<span class="k">expect:</span> evenness(verge) &gt; evenness(lawn)
+<span class="k">expect:</span> jaccard(lawn, verge) &lt;= 0.6</pre>
+</section>
+
+<!-- ───────────────────────── LAB 4 — MARK-RECAPTURE ───────────────────────── -->
+<section class="lab" id="lab-markrecapture">
+  <div class="lab-head">
+    <span class="lab-num">Lab 4</span>
+    <h2>Population Size: Mark &amp; Recapture</h2>
+    <p class="lab-for">For: field-methods students · setting: beans in a bag, woodlice under boards, a pond-net survey, or a simulation · ~45 min</p>
+  </div>
+
+  <div class="obj">
+    <b>You will be able to:</b>
+    <ul>
+      <li>Estimate an unseen population size with the <b>Lincoln–Petersen</b> index.</li>
+      <li>State the method's <b>assumptions</b> and predict how breaking each one biases the estimate.</li>
+    </ul>
+  </div>
+
+  <h3>Background</h3>
+  <p>You can't count every animal, so you count twice and use the overlap. Capture a sample, <b>mark</b> them
+  (<em>M</em>), release them, and later capture a second sample (<em>C</em>) — the number in it already
+  marked (<em>R</em>) tells you how big the whole population is. If marked animals mixed back in evenly,
+  the marked fraction of the second catch equals the marked fraction of the population, giving the
+  <b>Lincoln–Petersen estimate</b> N ≈ (M × C) / R. It rests on assumptions: the population is closed
+  (no births, deaths, or movement between catches), marks don't fall off or change behaviour, and marked
+  animals mix back in randomly.</p>
+
+  <h3>What you need</h3>
+  <ul>
+    <li>A "population" you can sample twice — a bag of dried beans (mark with a marker), or a real closed site.</li>
+    <li>The workbench <span class="tool">Mark–recapture calculator</span>.</li>
+  </ul>
+
+  <h3>Procedure</h3>
+  <ol class="steps">
+    <li><b>First catch.</b> Grab a handful, count and mark them (<em>M</em>), return them, and mix well.</li>
+    <li><b>Second catch.</b> Grab another handful. Count the total caught (<em>C</em>) and how many carry a mark (<em>R</em>).</li>
+    <li><b>Estimate.</b> Enter <em>M</em>, <em>C</em>, <em>R</em> in the <span class="tool">Mark–recapture calculator</span> and read the population estimate. If you know the true count (you can, with beans), compare.</li>
+    <li><b>Break an assumption.</b> Repeat but mix poorly, or add unmarked beans between catches, and watch the estimate bias.</li>
+  </ol>
+
+  <div class="sheet">
+    <p class="cap">Data sheet — mark &amp; recapture</p>
+    <table>
+      <tr><th>Trial</th><th class="num">Marked (M)</th><th class="num">2nd catch (C)</th><th class="num">Recaptured (R)</th><th class="num">Estimate N̂</th><th class="num">True N</th></tr>
+      <tr><td>good mixing</td><td class="num"></td><td class="num"></td><td class="num"></td><td class="num"></td><td class="num"></td></tr>
+      <tr><td>poor mixing</td><td class="num"></td><td class="num"></td><td class="num"></td><td class="num"></td><td class="num"></td></tr>
+      <tr><td>immigration added</td><td class="num"></td><td class="num"></td><td class="num"></td><td class="num"></td><td class="num"></td></tr>
+    </table>
+  </div>
+
+  <h3>Analysis &amp; questions</h3>
+  <ol class="q">
+    <li>How close was your estimate to the true count? Which direction was the error?</li>
+    <li>You added unmarked individuals between catches (immigration). Did the estimate go up or down, and why does the math do that?</li>
+    <li>Name a real animal for which "the population is closed between catches" is a bad assumption, and what you'd do instead.</li>
+  </ol>
+
+  <h3>Pre-register it (optional)</h3>
+  <pre><span class="c"># M marked, C caught, R recaptured, then steps</span>
+<span class="k">model:</span> markrecapture 120 90 30
+<span class="c"># estimate ≈ (120 × 90) / 30 = 360</span></pre>
+</section>
+
+<!-- ───────────────────────── LAB 5 — HARDY-WEINBERG ───────────────────────── -->
+<section class="lab" id="lab-hardyweinberg">
+  <div class="lab-head">
+    <span class="lab-num">Lab 5</span>
+    <h2>Population Genetics: Hardy–Weinberg</h2>
+    <p class="lab-for">For: evolution students · setting: a class genotype census (PTC tasting, ear lobes) or a published dataset · ~45 min</p>
+  </div>
+
+  <div class="obj">
+    <b>You will be able to:</b>
+    <ul>
+      <li>Estimate <b>allele frequencies</b> from a genotype census.</li>
+      <li>Test whether a population is in <b>Hardy–Weinberg equilibrium</b> and interpret a departure.</li>
+    </ul>
+  </div>
+
+  <h3>Background</h3>
+  <p>In an idealised population — large, randomly mating, no selection, mutation, or migration — allele
+  frequencies stay put and genotype frequencies settle at <b>p² : 2pq : q²</b>. That is the null model
+  evolution is measured against: if <em>p</em> is the frequency of allele <em>A</em> and <em>q</em> of
+  <em>a</em>, then a population at equilibrium has p² homozygous dominant, 2pq heterozygous, q² homozygous
+  recessive. Counting the three genotypes lets you estimate <em>p</em> and <em>q</em> and then <b>test</b>
+  whether the observed genotype counts match the p²:2pq:q² expectation with a χ². A significant departure
+  is the interesting result — it says one of the idealised conditions is being broken.</p>
+
+  <h3>What you need</h3>
+  <ul>
+    <li>A genotype census — counts of the three genotypes (AA, Aa, aa) from a class survey or a dataset.</li>
+    <li>The workbench <span class="tool">Genotype census — Hardy–Weinberg</span>.</li>
+  </ul>
+
+  <h3>Procedure</h3>
+  <ol class="steps">
+    <li><b>Census.</b> Tally your three genotype counts. (For a recessive phenotype like PTC non-tasting, aa is directly countable; the class can estimate the rest.)</li>
+    <li><b>Compute.</b> Enter the three counts in <span class="tool">Genotype census</span>. Read the estimated allele frequencies <em>p</em> and <em>q</em>, the expected genotype counts, and the χ² against equilibrium.</li>
+    <li><b>Interpret.</b> Decide whether the population is at equilibrium, and if not, which assumption is the likeliest culprit.</li>
+  </ol>
+
+  <div class="sheet">
+    <p class="cap">Data sheet — genotype census</p>
+    <table>
+      <tr><th>Genotype</th><th class="num">Observed</th><th class="num">Freq</th><th class="num">Expected (HWE)</th></tr>
+      <tr><td>AA (homozygous dominant)</td><td class="num"></td><td class="num"></td><td class="num"></td></tr>
+      <tr><td>Aa (heterozygous)</td><td class="num"></td><td class="num"></td><td class="num"></td></tr>
+      <tr><td>aa (homozygous recessive)</td><td class="num"></td><td class="num"></td><td class="num"></td></tr>
+      <tr><th>Totals · p = ____ q = ____</th><td class="num"></td><td class="num">1.0</td><td class="num"></td></tr>
+    </table>
+  </div>
+
+  <h3>Analysis &amp; questions</h3>
+  <ol class="q">
+    <li>What are your estimated <em>p</em> and <em>q</em>? Do the observed genotype counts match p²:2pq:q²?</li>
+    <li>If the χ² says the population departs from equilibrium, which Hardy–Weinberg assumption is the most plausible one to be broken here, and why?</li>
+    <li>Why is Hardy–Weinberg most useful as a <em>null</em> model — i.e., why is the departure more scientifically interesting than the fit?</li>
+  </ol>
+
+  <h3>Pre-register it (optional)</h3>
+  <pre><span class="c"># your three genotype counts: AA, Aa, aa</span>
+<span class="k">model:</span> hardyweinberg 298 489 213</pre>
+</section>
+
+<footer>
+  <p><b>Reproducibility, so you can cite it.</b> Every calculation here runs on the same oracle-tested
+  instruments as the engine — seeded streams and an operation-indexed clock, so a graded
+  <code>.eco</code> protocol regrades to the same numbers every time. The instruments and their sources
+  are catalogued in <code>ECOLOGY-FIELD-GUIDE.md</code>; the whole story is
+  <code>ESSAY-the-ecology-of-a-tree.md</code>. The workbench that runs these labs is
+  <a href="ecology-lab.html">ecology-lab.html</a> — no install, and it prints clean, just like this manual.</p>
+  <p style="margin-bottom:0"><b>Methods cited:</b> Altmann 1974 (sampling) · Shannon 1948 · Pielou 1966 ·
+  Morisita 1959 (dispersion) · Mendel 1866 · Lincoln–Petersen · Hardy 1908 &amp; Weinberg 1908. MIT-licensed · © 2026 Richmond.</p>
+</footer>
+
+</div>
+</body>
+</html>
