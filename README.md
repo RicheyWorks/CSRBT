@@ -693,8 +693,9 @@ in operations, and every index is oracle-tested and deterministic.
 | `RangeQuadrats` | quadrat dispersion (Morisita) | any engine's key space |
 | `CacheIsland` | island biogeography | the cache at carrying capacity |
 
-**The science kit — three pages, no install required.** They cross-link and each prints clean
-for a lab report:
+**Start here: [`docs/ecology.html`](docs/ecology.html)** — the science-kit hub, a single front door
+to everything below. Then the **four pages** it links, which cross-link each other and each print
+clean for a lab report — no install required:
 
 - [**`docs/ecology-lab.html`**](docs/ecology-lab.html) — the **Interactive Lab**: a live terrarium
   plus a browser Workbench that runs every instrument on your own pasted field data.

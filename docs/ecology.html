@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>The Living-Systems Lab — CSRBT</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&family=Newsreader:opsz,wght@6..72,400;6..72,500;6..72,600&family=JetBrains+Mono:wght@400;500&display=swap">
+<style>
+  :root {
+    color-scheme: light;
+    --page:#F5F1E6; --surface:#FFFDF7; --ink:#23281F; --ink-2:#4B5344; --muted:#8B8B7B;
+    --border:#E3DCC9; --rule:#C7C0AC; --s1:#2E7D4F; --s2:#C0592B; --s3:#2B6C8F;
+    --soft:#E9F0E7; --soft-2:#F3EEE0; --shadow:0 1px 2px rgba(35,40,31,.05),0 12px 32px rgba(35,40,31,.06);
+    --head:"Fraunces",Georgia,serif; --body:"Newsreader",Georgia,"Times New Roman",serif;
+    --mono:"JetBrains Mono",ui-monospace,Menlo,monospace;
+  }
+  * { box-sizing:border-box; }
+  body { margin:0; background:var(--page); color:var(--ink); font:18px/1.62 var(--body);
+    -webkit-font-smoothing:antialiased; text-rendering:optimizeLegibility; }
+  .wrap { max-width:900px; margin:0 auto; padding:0 26px; }
+  a { color:var(--s1); text-underline-offset:2px; }
+
+  /* hero */
+  .hero { padding:64px 0 30px; position:relative; overflow:hidden; }
+  .hero::before { content:""; position:absolute; inset:-40% -20% auto -20%; height:70%; z-index:0; pointer-events:none;
+    background:radial-gradient(55% 70% at 22% 6%, rgba(46,125,79,.10), transparent 62%),
+               radial-gradient(45% 60% at 85% 0%, rgba(43,108,143,.08), transparent 65%); }
+  .hero > * { position:relative; z-index:1; }
+  .eyebrow { font-family:var(--mono); font-size:12px; letter-spacing:.18em; text-transform:uppercase; color:var(--s1); margin:0 0 14px; }
+  h1 { font-family:var(--head); font-weight:700; font-size:clamp(38px,7vw,64px); line-height:1.02; letter-spacing:-0.025em; margin:0 0 16px; max-width:16ch; }
+  .dek { font-size:21px; color:var(--ink-2); margin:0; max-width:60ch; }
+  .thesis { font-family:var(--head); font-weight:500; font-size:22px; line-height:1.35; color:var(--ink);
+    border-left:3px solid var(--s1); padding:6px 0 6px 20px; margin:24px 0 0; max-width:44ch; }
+
+  h2 { font-family:var(--head); font-weight:600; font-size:26px; letter-spacing:-0.015em; margin:0 0 4px; }
+  .section-tag { font-family:var(--mono); font-size:12px; letter-spacing:.16em; text-transform:uppercase; color:var(--muted); margin:0 0 10px; }
+  section { padding:34px 0; border-top:1px solid var(--border); }
+  section:first-of-type { border-top:0; }
+  p { margin:0 0 14px; } .lead { font-size:19px; color:var(--ink-2); max-width:62ch; }
+
+  /* the four kit cards */
+  .kit { display:grid; grid-template-columns:repeat(auto-fit, minmax(255px,1fr)); gap:14px; margin-top:22px; }
+  .card { display:flex; flex-direction:column; background:var(--surface); border:1px solid var(--border);
+    border-radius:16px; padding:22px 22px 20px; box-shadow:var(--shadow); text-decoration:none; color:var(--ink);
+    transition:transform .12s ease, border-color .12s ease; }
+  .card:hover { transform:translateY(-3px); border-color:var(--s1); text-decoration:none; }
+  .card .step { font-family:var(--mono); font-size:11px; letter-spacing:.12em; text-transform:uppercase; color:var(--s1); }
+  .card h3 { font-family:var(--head); font-weight:600; font-size:21px; margin:4px 0 6px; letter-spacing:-0.01em; }
+  .card p { color:var(--ink-2); font-size:15.5px; line-height:1.5; flex:1; margin:0 0 12px; }
+  .card .go { font-family:var(--mono); font-size:12.5px; color:var(--s1); font-weight:500; }
+
+  /* personas */
+  .who { display:grid; grid-template-columns:repeat(auto-fit, minmax(220px,1fr)); gap:12px; margin-top:18px; }
+  .who .p { background:var(--surface); border:1px solid var(--border); border-radius:12px; padding:15px 17px; box-shadow:var(--shadow); }
+  .who .p b { font-family:var(--head); }
+  .who .p span { display:block; color:var(--ink-2); font-size:15px; margin-top:3px; }
+
+  /* instruments table */
+  table { border-collapse:collapse; width:100%; font-family:var(--body); font-size:15.5px; margin-top:16px; }
+  th, td { border:1px solid var(--rule); padding:7px 11px; text-align:left; vertical-align:top; }
+  th { background:var(--soft); font-family:var(--head); font-weight:600; font-size:14.5px; }
+  td .sci { color:var(--muted); font-size:13.5px; }
+
+  pre { font-family:var(--mono); font-size:13px; line-height:1.62; background:var(--surface); color:var(--ink);
+    border:1px solid var(--border); border-radius:10px; padding:14px 16px; overflow-x:auto; box-shadow:var(--shadow); margin:14px 0; }
+  pre .c { color:var(--muted); } pre .k { color:var(--s1); }
+  code { font-family:var(--mono); font-size:.82em; background:var(--soft-2); border:1px solid var(--border); border-radius:5px; padding:1px 5px; }
+
+  .tip { border:1px dashed var(--rule); border-radius:10px; padding:12px 16px; margin:14px 0 0; color:var(--ink-2); font-size:16px; background:var(--surface); }
+  .tip b { color:var(--s2); font-family:var(--head); }
+
+  footer { padding:30px 0 64px; border-top:1px solid var(--border); color:var(--muted); font-size:14px; }
+  footer code { color:var(--ink-2); font-family:var(--mono); }
+
+  @media print {
+    :root { --page:#fff; --surface:#fff; --soft:#f2f6f1; --soft-2:#f6f4ee; --shadow:none; }
+    body { font-size:11.5pt; background:#fff; } .wrap { max-width:none; padding:0; }
+    .hero::before { display:none; } a { color:inherit; text-decoration:none; }
+    .card, table, pre { break-inside:avoid; }
+  }
+  @media (max-width:560px){ body{font-size:17px;} .wrap{padding:0 18px;} }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<div class="hero">
+  <p class="eyebrow">CSRBT · the ecology layer</p>
+  <h1>The Living-Systems Lab</h1>
+  <p class="dek">Real field-ecology instruments — diversity indices, life tables, quadrat grids, island
+     counts, genetics — running on a data structure, and on <em>your own</em> field data. For students,
+     teachers, and researchers. No install for the browser tools; everything prints clean for a lab report.</p>
+  <p class="thesis">A data structure under a workload behaves like a habitat under an ecology.</p>
+</div>
+
+<section>
+  <p class="section-tag">Start here · the four-page kit</p>
+  <h2>Four surfaces, one science</h2>
+  <p class="lead">Move from doing, to structured labs, to the reference behind the numbers, to the exact
+     protocol grammar — each one click from the others.</p>
+  <div class="kit">
+    <a class="card" href="ecology-lab.html">
+      <span class="step">do it live</span>
+      <h3>Interactive Lab</h3>
+      <p>A live terrarium plus a browser Workbench that runs every instrument on your own pasted field
+         counts, a genotype census, or a cross — computed instantly, narrated in plain language.</p>
+      <span class="go">Open the lab →</span>
+    </a>
+    <a class="card" href="ecology-lab-manual.html">
+      <span class="step">run a lab</span>
+      <h3>Field &amp; Lab Manual</h3>
+      <p>Five ready-to-run, print-first labs — behavior, genetics, biodiversity, mark–recapture,
+         Hardy–Weinberg — with objectives, procedures, printable data sheets, and pre-registration.</p>
+      <span class="go">Browse the labs →</span>
+    </a>
+    <a class="card" href="ecology-field-guide.html">
+      <span class="step">understand it</span>
+      <h3>Field Guide</h3>
+      <p>The plain-language reference behind the instruments, station by station — what each one
+         measures, the code, and how to read the result. Biology first.</p>
+      <span class="go">Read the guide →</span>
+    </a>
+    <a class="card" href="eco-protocol-reference.html">
+      <span class="step">the format</span>
+      <h3>.eco Reference</h3>
+      <p>Every keyword of the plain-text experiment format, the grading legend, and the
+         browser → file → grade → export round-trip that ties the whole kit together.</p>
+      <span class="go">See the grammar →</span>
+    </a>
+  </div>
+</section>
+
+<section>
+  <p class="section-tag">Who it's for</p>
+  <h2>Bring your own data — or explore the demo</h2>
+  <div class="who">
+    <div class="p"><b>Students</b><span>Run a real lab end to end, pre-register a hypothesis, and hand in a clean report.</span></div>
+    <div class="p"><b>Teachers &amp; TAs</b><span>Print the manual as-is; every seeded number regrades identically for fair marking.</span></div>
+    <div class="p"><b>Field researchers</b><span>Score an ethogram or a quadrat survey and get the diversity reading before you leave the site.</span></div>
+  </div>
+</section>
+
+<section>
+  <p class="section-tag">The instruments</p>
+  <h2>Standard field methods, oracle-tested</h2>
+  <p class="lead">Keys are species, touches are abundance, births and deaths are inserts and removes, and
+     time is counted in operations — so every number reproduces exactly. The same math describes your
+     entered field data.</p>
+  <table>
+    <tr><th>Station</th><th>Measures</th><th>Method</th></tr>
+    <tr><td>The meadow</td><td>Diversity &amp; evenness</td><td>Shannon, Simpson, Hill, Pielou <span class="sci">(1948–73)</span></td></tr>
+    <tr><td>The census</td><td>Survivorship &amp; growth</td><td>Deevey life tables, logistic growth <span class="sci">(1838, 1947)</span></td></tr>
+    <tr><td>The archipelago</td><td>Metapopulation</td><td>Levins patch dynamics <span class="sci">(1969)</span></td></tr>
+    <tr><td>The survey grid</td><td>Spatial pattern</td><td>Quadrat dispersion, Morisita <span class="sci">(1959)</span></td></tr>
+    <tr><td>The island</td><td>Turnover at capacity</td><td>MacArthur–Wilson biogeography <span class="sci">(1967)</span></td></tr>
+    <tr><td>Genetics bench</td><td>Heredity</td><td>Punnett squares, χ², Hardy–Weinberg, mark–recapture</td></tr>
+  </table>
+  <p style="margin-top:14px">The full catalogue, station by station, is in the
+     <a href="ecology-field-guide.html">Field Guide</a>.</p>
+</section>
+
+<section>
+  <p class="section-tag">Run it</p>
+  <h2>From the build, or from the browser</h2>
+  <p class="lead">Clone the ecosystem repos as siblings, then from <code>CSRBT/</code>:</p>
+<pre><span class="k">./gradlew</span> ecologyFieldDay                 <span class="c"># narrated six-station survey → feeds the lab page</span>
+<span class="k">./gradlew</span> ecologyTrace   -Ptrace=your.csv  <span class="c"># replay your own op,key workload</span>
+<span class="k">./gradlew</span> ecologyExperiment -Pspec=your.eco <span class="c"># run &amp; grade a pre-registered protocol</span></pre>
+  <p>Sample inputs to copy from: <code>docs/sample-trace.csv</code> and
+     <code>docs/sample-experiment.eco</code> (a complete worked protocol, with one deliberately-wrong
+     hypothesis so you can see what REFUTED looks like).</p>
+  <div class="tip"><b>No build?</b> You never need Gradle to use the science. The
+     <a href="ecology-lab.html">Interactive Lab</a> and the <a href="ecology-lab-manual.html">Lab Manual</a>
+     run entirely in a browser, and the lab's transfer box hands you a <code>.eco</code> protocol to
+     keep — see the <a href="eco-protocol-reference.html">.eco Reference</a>.</p>
+</section>
+
+<footer>
+  <p>Everything here is deterministic — seeded streams, an operation-indexed clock — and every index is
+     tested against a hand-computed oracle, so you can cite the numbers. Provenance: <code>ADR-015</code>
+     through <code>ADR-020</code>, the 2026-08-09 audits, and <code>ESSAY-the-ecology-of-a-tree.md</code>
+     for the whole story. Part of the <a href="https://github.com/RicheyWorks/CSRBT">CSRBT</a> engine.
+     MIT-licensed · © 2026 Richmond.</p>
+</footer>
+
+</div>
+</body>
+</html>
