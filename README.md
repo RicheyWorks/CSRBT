@@ -693,11 +693,22 @@ in operations, and every index is oracle-tested and deterministic.
 | `RangeQuadrats` | quadrat dispersion (Morisita) | any engine's key space |
 | `CacheIsland` | island biogeography | the cache at carrying capacity |
 
-Three ways in: **`./gradlew ecologyFieldDay`** runs a narrated six-station survey and
-feeds the interactive lab page (`docs/ecology-lab.html` — live terrarium included);
-**`./gradlew ecologyTrace -Ptrace=your.csv`** replays *your own workload* through the
-same instruments (`op,key` per line — see `docs/sample-trace.csv`); and
-`docs/ECOLOGY-FIELD-GUIDE.md` is the plain-language walkthrough.
+**The science kit — three pages, no install required.** They cross-link and each prints clean
+for a lab report:
+
+- [**`docs/ecology-lab.html`**](docs/ecology-lab.html) — the **Interactive Lab**: a live terrarium
+  plus a browser Workbench that runs every instrument on your own pasted field data.
+- [**`docs/ecology-lab-manual.html`**](docs/ecology-lab-manual.html) — the **Field & Lab Manual**:
+  five ready-to-run labs (behavior, genetics, biodiversity, mark–recapture, Hardy–Weinberg) with
+  printable data sheets, procedures, and `.eco` pre-registration.
+- [**`docs/ecology-field-guide.html`**](docs/ecology-field-guide.html) — the **Field Guide**: the
+  plain-language reference behind the instruments, station by station (also
+  [`ECOLOGY-FIELD-GUIDE.md`](docs/ECOLOGY-FIELD-GUIDE.md) as Markdown).
+
+And from the build: **`./gradlew ecologyFieldDay`** prints the narrated six-station survey and feeds
+the lab page; **`./gradlew ecologyTrace -Ptrace=your.csv`** replays *your own workload* through the
+same instruments (`op,key` per line — see `docs/sample-trace.csv`); **`./gradlew ecologyExperiment
+-Pspec=your.eco`** runs and grades a pre-registered protocol.
 
 The layer has already earned findings in the house tradition: the founding audit showed
 the old structural indices were provably constant (H' ≡ ln S, subtree Pianka ≡ 0 — the

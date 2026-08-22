@@ -37,8 +37,15 @@
     -webkit-font-smoothing: antialiased; text-rendering: optimizeLegibility;
   }
 
+  /* shared science-kit nav — wiring between the three pages */
+  .kit-nav { max-width: 1060px; margin: 0 auto; padding: 16px 20px 0; display: flex; flex-wrap: wrap; gap: 8px; }
+  .kit-nav a { font-family: var(--font-mono); font-size: 12.5px; text-decoration: none; color: var(--ink-2);
+    background: var(--surface-1); border: 1px solid var(--ring); border-radius: 999px; padding: 6px 14px; box-shadow: var(--shadow); }
+  .kit-nav a:hover { border-color: var(--s1); color: var(--s1); }
+  .kit-nav a[aria-current="page"] { background: var(--s1); color: #fff; border-color: var(--s1); }
+
   /* header */
-  header { max-width: 1060px; margin: 0 auto; padding: 44px 20px 8px; }
+  header { max-width: 1060px; margin: 0 auto; padding: 20px 20px 8px; }
   header::before {
     content: ""; display: block; width: 46px; height: 3px; border-radius: 2px;
     background: var(--s1); margin: 0 0 16px;
@@ -182,6 +189,11 @@
 </style>
 </head>
 <body>
+<nav class="kit-nav">
+  <a href="ecology-lab.html" aria-current="page">Interactive Lab</a>
+  <a href="ecology-lab-manual.html">Lab Manual</a>
+  <a href="ecology-field-guide.html">Field Guide</a>
+</nav>
 <header>
   <h1>🌿 Ecology Field Day</h1>
   <p class="sub">Field-ecology instruments for <b>students, TAs, and researchers</b> — measure real field data, or a living data structure, with the same tools you'd take into the meadow: diversity indices, survivorship curves, quadrat dispersion, island turnover, Punnett squares, and more. Keys are species &middot; touches are abundance &middot; time is counted in operations. No install needed for the Workbench below — and everything prints clean for a lab report.</p>

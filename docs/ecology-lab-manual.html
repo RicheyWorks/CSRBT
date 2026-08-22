@@ -35,8 +35,16 @@
   .wrap { max-width: 820px; margin: 0 auto; padding: 0 26px; }
   a { color: var(--s1); text-underline-offset: 2px; }
 
+  /* shared science-kit nav — the wiring between the three pages */
+  .kit-nav { display:flex; flex-wrap:wrap; gap:8px; padding:14px 0 0; }
+  .kit-nav a { font-family:var(--mono); font-size:12.5px; letter-spacing:.02em; text-decoration:none;
+    color:var(--ink-2); background:var(--surface); border:1px solid var(--border); border-radius:999px;
+    padding:6px 14px; box-shadow:var(--shadow); }
+  .kit-nav a:hover { border-color:var(--s1); color:var(--s1); }
+  .kit-nav a[aria-current="page"] { background:var(--s1); color:#fff; border-color:var(--s1); }
+
   /* masthead */
-  .masthead { padding: 52px 0 24px; }
+  .masthead { padding: 20px 0 24px; }
   .masthead::before { content: ""; display: block; width: 52px; height: 3px; background: var(--s1); border-radius: 2px; margin-bottom: 20px; }
   .eyebrow { font-family: var(--mono); font-size: 12px; letter-spacing: .18em; text-transform: uppercase; color: var(--s1); margin: 0 0 12px; }
   h1 { font-family: var(--head); font-weight: 600; font-size: clamp(34px, 6vw, 52px); line-height: 1.04; letter-spacing: -0.02em; margin: 0 0 14px; }
@@ -118,6 +126,7 @@
     :root { --page:#fff; --surface:#fff; --soft:#f2f6f1; --soft-2:#f6f4ee; --shadow:none; }
     body { font-size: 11.5pt; background:#fff; }
     .wrap { max-width: none; padding: 0; }
+    .kit-nav { display: none; }
     a { color: inherit; text-decoration: none; }
     .toc { break-after: page; }
     .lab { break-before: page; padding-top: 8px; }
@@ -131,6 +140,12 @@
 </head>
 <body>
 <div class="wrap">
+
+<nav class="kit-nav">
+  <a href="ecology-lab.html">Interactive Lab</a>
+  <a href="ecology-lab-manual.html" aria-current="page">Lab Manual</a>
+  <a href="ecology-field-guide.html">Field Guide</a>
+</nav>
 
 <div class="masthead">
   <p class="eyebrow">CSRBT · Living-Systems Lab</p>
