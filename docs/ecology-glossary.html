@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Ecology Glossary — CSRBT</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&family=Newsreader:opsz,wght@6..72,400;6..72,500;6..72,600&family=JetBrains+Mono:wght@400;500&display=swap">
+<style>
+  :root {
+    color-scheme: light;
+    --page:#F5F1E6; --surface:#FFFDF7; --ink:#23281F; --ink-2:#4B5344; --muted:#8B8B7B;
+    --border:#E3DCC9; --rule:#C7C0AC; --s1:#2E7D4F; --s2:#C0592B; --s3:#2B6C8F;
+    --soft:#E9F0E7; --soft-2:#F3EEE0; --shadow:0 1px 2px rgba(35,40,31,.05),0 12px 32px rgba(35,40,31,.06);
+    --head:"Fraunces",Georgia,serif; --body:"Newsreader",Georgia,"Times New Roman",serif;
+    --mono:"JetBrains Mono",ui-monospace,Menlo,monospace;
+  }
+  * { box-sizing:border-box; }
+  body { margin:0; background:var(--page); color:var(--ink); font:17px/1.55 var(--body);
+    -webkit-font-smoothing:antialiased; text-rendering:optimizeLegibility; }
+  .wrap { max-width:900px; margin:0 auto; padding:0 26px; }
+  a { color:var(--s1); text-underline-offset:2px; }
+
+  .kit-nav { display:flex; flex-wrap:wrap; gap:8px; padding:14px 0 0; }
+  .kit-nav a { font-family:var(--mono); font-size:12.5px; letter-spacing:.02em; text-decoration:none;
+    color:var(--ink-2); background:var(--surface); border:1px solid var(--border); border-radius:999px;
+    padding:6px 14px; box-shadow:var(--shadow); }
+  .kit-nav a:hover { border-color:var(--s1); color:var(--s1); }
+
+  .masthead { padding:26px 0 8px; }
+  .masthead::before { content:""; display:block; width:52px; height:3px; background:var(--s1); border-radius:2px; margin:0 0 16px; }
+  .eyebrow { font-family:var(--mono); font-size:12px; letter-spacing:.18em; text-transform:uppercase; color:var(--s1); margin:0 0 12px; }
+  h1 { font-family:var(--head); font-weight:700; font-size:clamp(30px,5vw,46px); line-height:1.05; letter-spacing:-0.02em; margin:0 0 10px; }
+  .dek { font-size:17.5px; color:var(--ink-2); margin:0 0 8px; max-width:64ch; }
+
+  h2 { font-family:var(--head); font-weight:600; font-size:20px; letter-spacing:-0.01em; margin:26px 0 8px;
+    border-top:3px solid var(--s1); padding-top:12px; }
+
+  dl { margin:0; columns:2; column-gap:26px; }
+  @media (max-width:700px){ dl { columns:1; } }
+  .entry { break-inside:avoid; margin:0 0 13px; }
+  dt { font-family:var(--head); font-weight:600; font-size:16.5px; }
+  dt .who { font-family:var(--mono); font-size:11px; color:var(--muted); font-weight:400; margin-left:4px; }
+  dd { margin:2px 0 0; color:var(--ink-2); font-size:15px; line-height:1.5; }
+  dd b { color:var(--ink); }
+  code { font-family:var(--mono); font-size:.82em; background:var(--soft-2); border:1px solid var(--border); border-radius:5px; padding:1px 5px; }
+
+  footer { margin:30px 0 56px; padding-top:16px; border-top:1px solid var(--border); color:var(--muted); font-size:13.5px; }
+  footer a { font-weight:500; }
+
+  @media print {
+    :root { --page:#fff; --surface:#fff; --soft-2:#f6f4ee; --shadow:none; }
+    body { font-size:10pt; background:#fff; } .wrap { max-width:none; padding:0; }
+    .kit-nav { display:none; } a { color:inherit; text-decoration:none; }
+    dl { columns:2; } h2 { break-after:avoid; }
+  }
+</style>
+</head>
+<body>
+
+<nav class="kit-nav">
+  <a href="ecology.html">Overview</a>
+  <a href="ecology-lab.html">Interactive Lab</a>
+  <a href="ecology-lab-manual.html">Lab Manual</a>
+  <a href="ecology-field-guide.html">Field Guide</a>
+  <a href="eco-protocol-reference.html">.eco Reference</a>
+</nav>
+
+<div class="wrap">
+  <div class="masthead">
+    <p class="eyebrow">CSRBT · quick reference</p>
+    <h1>Ecology Glossary</h1>
+    <p class="dek">Every term the science kit uses, in plain words — the vocabulary for the labs, the
+       workbench readouts, and the field guide. Attributions name the originator where a term has one.</p>
+  </div>
+
+  <h2>Community &amp; diversity</h2>
+  <dl>
+    <div class="entry"><dt>Abundance</dt><dd>How many individuals of a species there are — or, in the kit's
+      mapping, how many times a key is touched. The distribution of abundances is what most diversity
+      metrics read.</dd></div>
+    <div class="entry"><dt>Richness (S)</dt><dd>The simplest diversity number: how many different species
+      (or categories) are present at all.</dd></div>
+    <div class="entry"><dt>Shannon index (H′) <span class="who">Shannon 1948</span></dt><dd>Diversity as
+      information: high when there are many species <b>and</b> their abundances are even. Rises with both
+      richness and evenness.</dd></div>
+    <div class="entry"><dt>Evenness (J′) <span class="who">Pielou 1966</span></dt><dd>How equally the
+      individuals are shared out, from 0 (one species dominates) to 1 (perfectly even). H′ divided by its
+      maximum possible value.</dd></div>
+    <div class="entry"><dt>Simpson index <span class="who">Simpson 1949</span></dt><dd>The chance two
+      randomly-drawn individuals are the same species — a <b>dominance</b> reading; less sensitive to rare
+      species than Shannon.</dd></div>
+    <div class="entry"><dt>Hill number (N₁) <span class="who">Hill 1973</span></dt><dd>Diversity converted
+      into an <b>effective species count</b>: "100 species present, but the community behaves like 11
+      equally-common ones." The friendliest single figure.</dd></div>
+    <div class="entry"><dt>Chao1</dt><dd>An estimate of <b>true</b> richness including species your survey
+      likely missed, computed from how many species you saw only once or twice.</dd></div>
+    <div class="entry"><dt>Rank–abundance curve</dt><dd>Species plotted from most to least abundant. Its
+      shape is diagnostic: the geometric series suggests niche preemption; MacArthur's broken stick suggests
+      even sharing.</dd></div>
+    <div class="entry"><dt>Rarefaction</dt><dd>The fair way to compare richness between surveys of
+      different effort: how many species would you have seen at the <b>same</b> sample size?</dd></div>
+  </dl>
+
+  <h2>Comparing communities — β diversity</h2>
+  <dl>
+    <div class="entry"><dt>Jaccard index</dt><dd>Of all species found in either of two sites, the fraction
+      found in <b>both</b>. Presence-only; abundances ignored.</dd></div>
+    <div class="entry"><dt>Sørensen index</dt><dd>Like Jaccard but weights shared species more heavily.
+      Also presence-only.</dd></div>
+    <div class="entry"><dt>Bray–Curtis dissimilarity</dt><dd>Difference between two communities counting
+      <b>abundances</b>, 0 (identical) to 1 (nothing shared). The kit's shift detector reads consecutive
+      windows with it.</dd></div>
+    <div class="entry"><dt>Renkonen index</dt><dd>A proportion-based similarity that stays fair when two
+      samples have very different sizes — the fix for the classic unequal-effort mistake.</dd></div>
+    <div class="entry"><dt>Turnover</dt><dd>How much a community's membership changes between two looks —
+      between windows, generations, or survey intervals.</dd></div>
+  </dl>
+
+  <h2>Populations &amp; demography</h2>
+  <dl>
+    <div class="entry"><dt>Life table <span class="who">Deevey 1947</span></dt><dd>A cohort's survival
+      bookkeeping: of those born, how many are still alive at each age. Summarized by survivorship type.</dd></div>
+    <div class="entry"><dt>Survivorship types I / II / III</dt><dd><b>I</b>: live long, die together
+      (humans, batch purges). <b>II</b>: constant risk at every age (songbirds). <b>III</b>: most die young,
+      survivors persist (oysters, fast-evicting caches).</dd></div>
+    <div class="entry"><dt>Logistic growth <span class="who">Verhulst 1838</span></dt><dd>Growth that
+      starts fast and levels off at a ceiling: rate <b>r</b>, carrying capacity <b>K</b>.</dd></div>
+    <div class="entry"><dt>Carrying capacity (K)</dt><dd>The population ceiling an environment supports —
+      the plateau of the logistic curve, or a cache's capacity.</dd></div>
+    <div class="entry"><dt>Lincoln–Petersen estimate</dt><dd>Population size from mark–recapture:
+      N̂ ≈ (marked × second catch) ÷ recaptured. Assumes a closed population, kept marks, even mixing.</dd></div>
+    <div class="entry"><dt>Euler–Lotka equation</dt><dd>Combines age-specific survival (lx) and
+      reproduction (mx) into the population's net reproductive rate R₀ and intrinsic growth rate r.</dd></div>
+  </dl>
+
+  <h2>Space &amp; islands</h2>
+  <dl>
+    <div class="entry"><dt>Quadrat</dt><dd>A fixed-area frame you drop and count inside — field ecology's
+      oldest quantitative method. Counts per quadrat reveal spatial pattern.</dd></div>
+    <div class="entry"><dt>Transect</dt><dd>A line laid across a habitat, sampled at intervals — the
+      standard way to place quadrats objectively.</dd></div>
+    <div class="entry"><dt>Index of dispersion</dt><dd>Variance ÷ mean of quadrat counts: ≈1 random,
+      &lt;1 regular (even spacing), &gt;1 clumped (patches).</dd></div>
+    <div class="entry"><dt>Morisita index <span class="who">Morisita 1959</span></dt><dd>The same
+      random/regular/clumped reading, robust to how many individuals you counted.</dd></div>
+    <div class="entry"><dt>Island biogeography <span class="who">MacArthur &amp; Wilson 1967</span></dt>
+      <dd>Species number on an island as a <b>dynamic equilibrium</b>: immigration falls as the island
+      fills, extinction rises, and richness settles where the curves cross — while composition keeps
+      churning.</dd></div>
+    <div class="entry"><dt>Metapopulation <span class="who">Levins 1969</span></dt><dd>A population of
+      populations: habitat patches winking out (local extinction) and being recolonized from neighbors or a
+      mainland. Equilibrium occupancy p* = 1 − e/c.</dd></div>
+  </dl>
+
+  <h2>Genetics</h2>
+  <dl>
+    <div class="entry"><dt>Punnett square</dt><dd>The grid of all gamete combinations from two parents —
+      the prediction a cross's counts are tested against.</dd></div>
+    <div class="entry"><dt>Monohybrid / dihybrid cross</dt><dd>One gene (F2 expects 3:1) or two genes at
+      once (F2 expects 9:3:3:1) — Mendel's two famous ratios.</dd></div>
+    <div class="entry"><dt>Test cross</dt><dd>Crossing against a homozygous recessive to reveal whether a
+      dominant-phenotype individual is AA or Aa.</dd></div>
+    <div class="entry"><dt>Incomplete dominance</dt><dd>Heterozygotes look like neither parent (the blue
+      Andalusian chicken): the F2 shows 1:2:1 across three phenotypes.</dd></div>
+    <div class="entry"><dt>χ² goodness-of-fit</dt><dd>The test for "do my observed counts match the
+      expected ratio, or is the difference more than chance?" — the lab's verdict-maker.</dd></div>
+    <div class="entry"><dt>Hardy–Weinberg equilibrium <span class="who">1908</span></dt><dd>The null model
+      of population genetics: with no evolution acting, genotypes settle at p² : 2pq : q². A measured
+      departure is the interesting result.</dd></div>
+  </dl>
+
+  <h2>The kit's own terms</h2>
+  <dl>
+    <div class="entry"><dt>Operation time</dt><dd>The kit's clock: time counted in operations, never
+      wall-clock — so every number reproduces exactly, run after run.</dd></div>
+    <div class="entry"><dt>Keys are species</dt><dd>The founding mapping: stored keys are the species
+      list; how often the workload touches a key is its abundance; inserts and removes are births and
+      deaths. <b>Membership is the habitat. Access is the ecology.</b></dd></div>
+    <div class="entry"><dt><code>.eco</code> protocol</dt><dd>A plain-text experiment file — phases,
+      models, your own data, and hypotheses committed <b>before</b> the run — that the engine runs and
+      grades. See the <a href="eco-protocol-reference.html">.eco Reference</a>.</dd></div>
+    <div class="entry"><dt>Pre-registration</dt><dd>Writing the hypothesis down before collecting or
+      running the data, so the test can't quietly move after the fact. <code>expect:</code> lines are
+      pre-registration made executable.</dd></div>
+    <div class="entry"><dt>FieldReport bands</dt><dd>The fixed, tested thresholds that turn a number into
+      a sentence ("uneven — a few hot keys carry most of the traffic"). Narration and grading share one
+      source of truth.</dd></div>
+    <div class="entry"><dt>Oracle test</dt><dd>A test that checks the instrument against a hand-computed
+      answer — why the kit's numbers can be cited.</dd></div>
+  </dl>
+
+  <footer>
+    Deeper treatment of every instrument: the <a href="ecology-field-guide.html">Field Guide</a>. One-page
+    bands-and-tools summary: the <a href="ecology-field-card.html">Field Card</a>. MIT-licensed · © 2026 Richmond.
+  </footer>
+</div>
+</body>
+</html>

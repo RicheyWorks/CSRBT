@@ -1,0 +1,272 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Protocol Library — ready-made .eco experiments</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&family=Newsreader:opsz,wght@6..72,400;6..72,500;6..72,600&family=JetBrains+Mono:wght@400;500&display=swap">
+<style>
+  :root {
+    color-scheme: light;
+    --page:#F5F1E6; --surface:#FFFDF7; --ink:#23281F; --ink-2:#4B5344; --muted:#8B8B7B;
+    --border:#E3DCC9; --rule:#C7C0AC; --s1:#2E7D4F; --s1-deep:#236240; --s2:#C0592B; --s3:#2B6C8F;
+    --soft:#E9F0E7; --soft-2:#F3EEE0; --shadow:0 1px 2px rgba(35,40,31,.05),0 12px 32px rgba(35,40,31,.06);
+    --head:"Fraunces",Georgia,serif; --body:"Newsreader",Georgia,"Times New Roman",serif;
+    --mono:"JetBrains Mono",ui-monospace,Menlo,monospace;
+  }
+  * { box-sizing:border-box; }
+  body { margin:0; background:var(--page); color:var(--ink); font:17.5px/1.6 var(--body);
+    -webkit-font-smoothing:antialiased; text-rendering:optimizeLegibility; }
+  .wrap { max-width:840px; margin:0 auto; padding:0 26px; }
+  a { color:var(--s1); text-underline-offset:2px; }
+
+  .kit-nav { display:flex; flex-wrap:wrap; gap:8px; padding:14px 0 0; }
+  .kit-nav a { font-family:var(--mono); font-size:12.5px; letter-spacing:.02em; text-decoration:none;
+    color:var(--ink-2); background:var(--surface); border:1px solid var(--border); border-radius:999px;
+    padding:6px 14px; box-shadow:var(--shadow); }
+  .kit-nav a:hover { border-color:var(--s1); color:var(--s1); }
+
+  .masthead { padding:26px 0 6px; }
+  .masthead::before { content:""; display:block; width:52px; height:3px; background:var(--s1); border-radius:2px; margin:0 0 16px; }
+  .eyebrow { font-family:var(--mono); font-size:12px; letter-spacing:.18em; text-transform:uppercase; color:var(--s1); margin:0 0 12px; }
+  h1 { font-family:var(--head); font-weight:700; font-size:clamp(30px,5vw,46px); line-height:1.05; letter-spacing:-0.02em; margin:0 0 10px; }
+  .dek { font-size:18px; color:var(--ink-2); margin:0 0 6px; max-width:62ch; }
+  .howto { background:var(--soft); border-left:3px solid var(--s1); border-radius:0 10px 10px 0;
+    padding:11px 16px; margin:16px 0 4px; font-size:15.5px; color:var(--ink-2); }
+  .howto code { font-family:var(--mono); font-size:.85em; background:var(--soft-2); border:1px solid var(--border); border-radius:5px; padding:1px 5px; }
+
+  .proto { padding:30px 0 4px; }
+  .proto-head { border-top:3px solid var(--s1); padding-top:14px; }
+  .proto-num { font-family:var(--mono); font-size:12px; letter-spacing:.14em; text-transform:uppercase; color:var(--s1); }
+  h2 { font-family:var(--head); font-weight:600; font-size:24px; letter-spacing:-0.015em; margin:2px 0 6px; }
+  .for { font-family:var(--mono); font-size:12.5px; color:var(--muted); margin:0 0 10px; }
+  p { margin:0 0 12px; }
+
+  .protobox { position:relative; background:var(--surface); border:1px solid var(--border); border-radius:12px;
+    box-shadow:var(--shadow); overflow:hidden; margin:12px 0; }
+  .protobar { display:flex; align-items:center; justify-content:space-between; gap:10px;
+    padding:8px 10px 8px 14px; border-bottom:1px solid var(--border); background:var(--soft-2); }
+  .protobar .fn { font-family:var(--mono); font-size:12px; color:var(--ink-2); }
+  .copy { border:0; border-radius:8px; background:var(--s1); color:#fff; font:700 13px var(--body);
+    padding:8px 15px; cursor:pointer; min-height:36px; touch-action:manipulation; transition:background .15s ease, transform .1s ease; }
+  .copy:hover { background:var(--s1-deep); } .copy:active { transform:scale(.97); }
+  pre { margin:0; font-family:var(--mono); font-size:13px; line-height:1.62; color:var(--ink);
+    padding:14px 16px; overflow-x:auto; }
+  pre .c { color:var(--muted); } pre .k { color:var(--s1); } pre .r { color:var(--s2); }
+
+  .toast { position:fixed; left:50%; bottom:26px; transform:translateX(-50%) translateY(8px);
+    background:var(--ink); color:#F5F1E6; font-weight:700; font-family:var(--body); font-size:14px;
+    border-radius:999px; padding:10px 18px; opacity:0; pointer-events:none; transition:opacity .2s ease, transform .2s ease; z-index:30; }
+  .toast.on { opacity:1; transform:translateX(-50%); }
+
+  footer { margin:34px 0 56px; padding-top:16px; border-top:1px solid var(--border); color:var(--muted); font-size:13.5px; }
+  footer a { font-weight:500; }
+
+  @media print {
+    :root { --page:#fff; --surface:#fff; --soft:#f2f6f1; --soft-2:#f6f4ee; --shadow:none; }
+    body { font-size:10.5pt; background:#fff; } .wrap { max-width:none; padding:0; }
+    .kit-nav, .copy { display:none; } a { color:inherit; text-decoration:none; }
+    .proto, .protobox { break-inside:avoid; }
+  }
+</style>
+</head>
+<body>
+
+<nav class="kit-nav">
+  <a href="ecology.html">Overview</a>
+  <a href="ecology-lab.html">Interactive Lab</a>
+  <a href="ecology-lab-manual.html">Lab Manual</a>
+  <a href="ecology-field-guide.html">Field Guide</a>
+  <a href="eco-protocol-reference.html">.eco Reference</a>
+</nav>
+
+<div class="wrap">
+  <div class="masthead">
+    <p class="eyebrow">CSRBT · ready to run</p>
+    <h1>Protocol Library</h1>
+    <p class="dek">Five complete <code>.eco</code> experiments, ready to copy, edit, and run — each with its
+       hypotheses pre-registered, each graded by the engine. Swap in your own data and predictions.</p>
+    <div class="howto"><b>To run one:</b> copy it into a file (say <code>my-study.eco</code>) and run
+      <code>./gradlew ecologyExperiment -Pspec=my-study.eco</code> from <code>CSRBT/</code>. The report
+      grades every <code>expect:</code> line ✅/❌/⚠ and exports CSVs plus a printable
+      <code>report.html</code>. Grammar: the <a href="eco-protocol-reference.html">.eco Reference</a>.
+      No build? The <a href="ecology-lab.html">Interactive Lab</a> reads dropped <code>.eco</code> files
+      into its Workbench.</div>
+  </div>
+
+  <!-- 1 -->
+  <section class="proto">
+    <div class="proto-head">
+      <span class="proto-num">Protocol 1 · community dynamics</span>
+      <h2>Meadow disturbance</h2>
+      <p class="for">the classic three-act workload: even grazing → a bloom concentrates traffic → seasonal churn</p>
+    </div>
+    <p>The canonical demo, trimmed to its point: watch diversity collapse when five keys take 90% of the
+    traffic, and prove the two regimes are different communities. One hypothesis is deliberately wrong so
+    you can see what ❌ REFUTED looks like.</p>
+    <div class="protobox">
+      <div class="protobar"><span class="fn">meadow-disturbance.eco</span><button class="copy" type="button">Copy</button></div>
+<pre><span class="k">name:</span> meadow disturbance study
+<span class="k">keys:</span> 100
+<span class="k">seed:</span> 42
+<span class="k">window:</span> 250
+
+<span class="k">phase:</span> graze   uniform 2000        <span class="c"># even grazing</span>
+<span class="k">phase:</span> bloom   hot 2000 5 90        <span class="c"># 5 keys carry 90% of the traffic</span>
+<span class="k">phase:</span> seasons churn 1500 55        <span class="c"># turnover: births and deaths</span>
+
+<span class="k">expect:</span> evenness(graze) &gt; 0.9
+<span class="k">expect:</span> hill1(bloom) &lt; 20
+<span class="k">expect:</span> brayCurtis(graze, bloom) &gt; 0.5
+<span class="k">expect:</span> evenness(bloom) &gt; 0.9        <span class="r"># deliberately wrong → REFUTED</span>
+<span class="k">expect:</span> evenness(bloom) is uneven</pre>
+    </div>
+  </section>
+
+  <!-- 2 -->
+  <section class="proto">
+    <div class="proto-head">
+      <span class="proto-num">Protocol 2 · field botany</span>
+      <h2>Two-pond comparison</h2>
+      <p class="for">your own species counts, compared site against site — swap in real field data</p>
+    </div>
+    <p>Pure entered data, no simulation: two plant surveys, narrated by the same instruments and compared
+    pairwise. Replace the counts with your own sites and commit your similarity prediction before you look.</p>
+    <div class="protobox">
+      <div class="protobar"><span class="fn">two-ponds.eco</span><button class="copy" type="button">Copy</button></div>
+<pre><span class="k">name:</span> two-pond floristic comparison
+<span class="k">seed:</span> 7
+
+<span class="k">data:</span> pondA cattail=18 duckweed=44 frogbit=3 azolla=9 rush=6
+<span class="k">data:</span> pondB duckweed=51 azolla=2 lily=12 rush=6
+
+<span class="k">note:</span> sampled both ponds after two dry weeks
+<span class="k">note(pondA):</span> heavy duckweed mat on the north edge
+
+<span class="k">expect:</span> jaccard(pondA, pondB) &lt;= 0.5     <span class="c"># under half the flora shared</span>
+<span class="k">expect:</span> evenness(pondA) is uneven          <span class="c"># duckweed dominates</span>
+<span class="k">expect:</span> brayCurtis(pondA, pondB) &gt; 0.4</pre>
+    </div>
+  </section>
+
+  <!-- 3 -->
+  <section class="proto">
+    <div class="proto-head">
+      <span class="proto-num">Protocol 3 · animal behavior</span>
+      <h2>Activity budget, two contexts</h2>
+      <p class="for">an ethogram scored morning vs. afternoon — pairs with the Field Notebook's export</p>
+    </div>
+    <p>Score the same animal in two contexts (the <a href="field-notebook.html">Field Notebook</a>'s
+    tally screen exports these <code>data:</code> lines directly), then test whether the budget really
+    shifted. Bare tokens tally like clipboard marks, so a raw scan record works too.</p>
+    <div class="protobox">
+      <div class="protobar"><span class="fn">activity-budget.eco</span><button class="copy" type="button">Copy</button></div>
+<pre><span class="k">name:</span> squirrel activity budget, two contexts
+<span class="k">seed:</span> 11
+
+<span class="k">data:</span> morning   forage=42 rest=30 groom=12 vigilance=8 locomote=15
+<span class="k">data:</span> afternoon forage=20 rest=51 groom=9 vigilance=6 locomote=14
+<span class="k">data:</span> scans     forage forage rest forage vigilance rest forage   <span class="c"># raw tallies work too</span>
+
+<span class="k">note:</span> focal animal, 10-minute windows, 30 s scans
+<span class="k">note(afternoon):</span> heat of the day — resting up
+
+<span class="k">expect:</span> evenness(morning) is uneven
+<span class="k">expect:</span> brayCurtis(morning, afternoon) &gt; 0.3   <span class="c"># the budget shifted</span></pre>
+    </div>
+  </section>
+
+  <!-- 4 -->
+  <section class="proto">
+    <div class="proto-num" style="display:none"></div>
+    <div class="proto-head">
+      <span class="proto-num">Protocol 4 · genetics</span>
+      <h2>Mendel's bench</h2>
+      <p class="for">peas, flies, chickens — the famous crosses with χ² verdicts, plus Hardy–Weinberg</p>
+    </div>
+    <p>The complete genetics bench: Mendel's own 1866 counts against 3:1 and 9:3:3:1, incomplete dominance,
+    the two-gene comb cross, a class genotype census against equilibrium, and a bean-lab mark–recapture.
+    Swap in your own F2 counts.</p>
+    <div class="protobox">
+      <div class="protobar"><span class="fn">mendels-bench.eco</span><button class="copy" type="button">Copy</button></div>
+<pre><span class="k">name:</span> the genetics bench
+<span class="k">seed:</span> 1866
+
+<span class="k">cross:</span> Rr x Rr observed 5474 1850      <span class="c"># Mendel's seed shape → χ² vs 3:1</span>
+<span class="k">cross:</span> RrYy x RrYy observed 315 108 101 32   <span class="c"># his dihybrid → vs 9:3:3:1</span>
+<span class="k">cross:</span> Bb x Bb incomplete              <span class="c"># blue Andalusian: 1:2:1</span>
+<span class="k">cross:</span> RrPp x RrPp                     <span class="c"># walnut/rose/pea/single combs</span>
+<span class="k">cross:</span> Aa x aa                         <span class="c"># test cross</span>
+
+<span class="k">model:</span> hardyweinberg 298 489 213      <span class="c"># class census: AA Aa aa</span>
+<span class="k">model:</span> markrecapture 120 90 30        <span class="c"># the bean lab</span>
+
+<span class="k">note:</span> replace observed counts with your own vial or plot tallies</pre>
+    </div>
+  </section>
+
+  <!-- 5 -->
+  <section class="proto">
+    <div class="proto-head">
+      <span class="proto-num">Protocol 5 · biogeography</span>
+      <h2>The shrinking island</h2>
+      <p class="for">MacArthur–Wilson on the theory bench — area and distance move the equilibrium</p>
+    </div>
+    <p>Two runs of the island model under different abiotic settings. Run it once as-is, then flip to the
+    small-and-far block and watch the equilibrium richness drop exactly as the crossing rate-curves predict
+    (Lab 6 in the <a href="ecology-lab-manual.html">manual</a> walks the theory).</p>
+    <div class="protobox">
+      <div class="protobar"><span class="fn">shrinking-island.eco</span><button class="copy" type="button">Copy</button></div>
+<pre><span class="k">name:</span> island equilibrium vs area and distance
+<span class="k">seed:</span> 1967
+
+<span class="c"># baseline island</span>
+<span class="k">factor:</span> area 1.0
+<span class="k">factor:</span> distance 1.0
+<span class="k">model:</span> island 0.4 0.1 100 0 40       <span class="c"># c, e, mainland pool, S0, steps</span>
+<span class="k">model:</span> logistic 0.15 120 5 60
+
+<span class="c"># …then re-run with the island half the size and further out:</span>
+<span class="c">#   factor: area 0.5</span>
+<span class="c">#   factor: distance 1.5</span>
+<span class="c"># prediction: extinction up, immigration down → lower equilibrium richness</span>
+
+<span class="k">note:</span> compare the two runs' island curves — the two-curve logic, on the bench</pre>
+    </div>
+  </section>
+
+  <footer>
+    The complete worked example (with entered data, notes, a phylogeny, and every model) ships in the repo
+    as <code>docs/sample-experiment.eco</code>. Grammar reference:
+    <a href="eco-protocol-reference.html">the .eco Reference</a> · run results land as CSVs + a printable
+    report. MIT-licensed · © 2026 Richmond.
+  </footer>
+</div>
+
+<div class="toast" id="toast">Copied</div>
+
+<script>
+(function(){
+  "use strict";
+  var toast=document.getElementById("toast");
+  function show(msg){ toast.textContent=msg; toast.classList.add("on");
+    clearTimeout(toast._h); toast._h=setTimeout(function(){ toast.classList.remove("on"); },1500); }
+  document.querySelectorAll(".copy").forEach(function(btn){
+    btn.addEventListener("click", function(){
+      var pre=btn.closest(".protobox").querySelector("pre");
+      var text=pre.textContent;
+      function done(){ show("Copied — save as a .eco file"); }
+      function fallback(){ var ta=document.createElement("textarea"); ta.value=text; ta.style.position="fixed";
+        ta.style.opacity="0"; document.body.appendChild(ta); ta.select();
+        try{ document.execCommand("copy"); done(); }catch(e){ show("Select & copy manually"); }
+        document.body.removeChild(ta); }
+      try{ if(navigator.clipboard&&navigator.clipboard.writeText) navigator.clipboard.writeText(text).then(done, fallback);
+        else fallback(); }catch(e){ fallback(); }
+    });
+  });
+})();
+</script>
+</body>
+</html>
