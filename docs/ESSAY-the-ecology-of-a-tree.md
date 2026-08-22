@@ -6,6 +6,11 @@ riding them to the one number its old negative results had been waiting for. Seq
 "The machine that said no." Everything below has a receipt in this repository — an ADR,
 a changelog, a pinned test, or a session file you can drop onto a web page.*
 
+> **Read it typeset** at [`ecology-essay.html`](ecology-essay.html). This essay is the narrative
+> behind the **[Ecology science kit](ecology.html)** — start at the [hub](ecology.html) for the
+> [Interactive Lab](ecology-lab.html), [Lab Manual](ecology-lab-manual.html), and
+> [Field Guide](ecology-field-guide.html).
+
 ---
 
 ## After the no

@@ -708,6 +708,9 @@ clean for a lab report — no install required:
 - [**`docs/eco-protocol-reference.html`**](docs/eco-protocol-reference.html) — the **`.eco` Reference**:
   every keyword of the plain-text experiment format, and the browser → file → grade → export
   round-trip (worked example in [`sample-experiment.eco`](docs/sample-experiment.eco)).
+- [**`docs/ecology-essay.html`**](docs/ecology-essay.html) — **The ecology of a tree**: the essay
+  behind the layer — the audit that found constants where instruments should be, and the ride to the
+  128k-op amortization frontier (also [`ESSAY-the-ecology-of-a-tree.md`](docs/ESSAY-the-ecology-of-a-tree.md)).
 
 And from the build: **`./gradlew ecologyFieldDay`** prints the narrated six-station survey and feeds
 the lab page; **`./gradlew ecologyTrace -Ptrace=your.csv`** replays *your own workload* through the

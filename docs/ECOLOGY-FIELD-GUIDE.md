@@ -3,6 +3,12 @@
 *A plain-language guide to the ecology instruments, written for the reader who thinks
 in biology first and Java second.*
 
+> **Also available as a typeset, print-friendly page.** This guide is part of the
+> **[Ecology science kit](ecology.html)** — a live [Interactive Lab](ecology-lab.html), a
+> [Lab Manual](ecology-lab-manual.html), the [Field Guide](ecology-field-guide.html), the
+> [`.eco` reference](eco-protocol-reference.html), and the [essay](ecology-essay.html). Start at the
+> [hub](ecology.html).
+
 The idea behind this whole layer is one sentence: **a data structure under a workload
 behaves like a habitat under an ecology**, and the same instruments field ecologists
 use — diversity indices, quadrat grids, life tables, island counts — measure real,
