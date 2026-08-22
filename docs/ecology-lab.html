@@ -4,119 +4,187 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Ecology Field Day — CSRBT Living-Systems Lab</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&family=Nunito+Sans:wght@400;600;700&display=swap">
 <style>
-  /* ── tokens (validated dark palette; see docs/ECOLOGY-FIELD-GUIDE.md) ────── */
+  /* ── Field-guide theme: light, warm, print-friendly. Every token NAME is kept so the
+        chart/workbench JS (which reads var(--...)) restyles automatically. ───────────── */
   :root {
-    color-scheme: dark;
-    --page:       #0d0d0d;
-    --surface-1:  #1a1a19;
-    --ink:        #ffffff;
-    --ink-2:      #c3c2b7;
-    --muted:      #898781;
-    --grid:       #2c2c2a;
-    --baseline:   #383835;
-    --ring:       rgba(255,255,255,0.10);
-    --s1: #3987e5;   /* series 1 — blue   */
-    --s2: #d95926;   /* series 2 — orange */
-    --s3: #199e70;   /* series 3 — aqua   */
+    color-scheme: light;
+    --page:       #F5F1E6;   /* herbarium paper */
+    --surface-1:  #FFFDF7;   /* specimen card   */
+    --ink:        #23281F;   /* botanical near-black */
+    --ink-2:      #4B5344;   /* secondary text (olive) */
+    --muted:      #8B8B7B;   /* labels, axes (sage-gray) */
+    --grid:       #E7E1D1;   /* faint gridlines */
+    --baseline:   #C7C0AC;   /* baselines, input borders */
+    --ring:       #E3DCC9;   /* card borders (warm) */
+    --s1: #2E7D4F;   /* field green  */
+    --s2: #C0592B;   /* clay / rust  */
+    --s3: #2B6C8F;   /* slate blue   */
+    --danger: #B23A32;
+    --accent-soft: #E9F0E7;
+    --shadow: 0 1px 2px rgba(35,40,31,.05), 0 10px 30px rgba(35,40,31,.06);
+    --font-head: "Fraunces", Georgia, "Times New Roman", serif;
+    --font-body: "Nunito Sans", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+    --font-mono: ui-monospace, "SFMono-Regular", Menlo, Consolas, monospace;
   }
   * { box-sizing: border-box; }
   body {
     margin: 0; background: var(--page); color: var(--ink);
-    font: 15px/1.5 system-ui, -apple-system, "Segoe UI", sans-serif;
+    font: 15px/1.6 var(--font-body);
+    -webkit-font-smoothing: antialiased; text-rendering: optimizeLegibility;
   }
-  header { max-width: 1060px; margin: 0 auto; padding: 40px 20px 8px; }
-  h1 { font-size: 28px; margin: 0 0 4px; letter-spacing: -0.02em; }
-  .sub { color: var(--ink-2); margin: 0 0 10px; }
+
+  /* header */
+  header { max-width: 1060px; margin: 0 auto; padding: 44px 20px 8px; }
+  header::before {
+    content: ""; display: block; width: 46px; height: 3px; border-radius: 2px;
+    background: var(--s1); margin: 0 0 16px;
+  }
+  h1 { font-family: var(--font-head); font-size: 33px; font-weight: 600; margin: 0 0 6px;
+       letter-spacing: -0.015em; line-height: 1.1; }
+  .sub { color: var(--ink-2); margin: 0 0 12px; max-width: 68ch; font-size: 15.5px; }
+  .sub b { color: var(--ink); font-weight: 700; }
   .drophint {
-    display: inline-flex; gap: 8px; align-items: center; font-size: 13px;
-    color: var(--muted); border: 1px dashed var(--baseline); border-radius: 999px;
-    padding: 4px 14px; margin-top: 6px;
+    display: inline-flex; gap: 8px; align-items: center; flex-wrap: wrap; font-size: 12.5px;
+    color: var(--ink-2); background: var(--surface-1);
+    border: 1px solid var(--ring); border-radius: 12px; padding: 8px 14px; margin-top: 6px;
   }
-  body.dragging .drophint { border-color: var(--s1); color: var(--s1); }
-  main { max-width: 1060px; margin: 0 auto; padding: 12px 20px 80px; display: grid; gap: 18px; }
+  .drophint code { font-family: var(--font-mono); font-size: 12px; background: var(--accent-soft);
+    color: var(--s1); border-radius: 5px; padding: 1px 5px; }
+  body.dragging .drophint { border-color: var(--s1); color: var(--s1); box-shadow: var(--shadow); }
+
+  /* layout + cards */
+  main { max-width: 1060px; margin: 0 auto; padding: 14px 20px 80px; display: grid; gap: 18px; }
   .card {
-    background: var(--surface-1); border: 1px solid var(--ring); border-radius: 16px;
-    padding: 20px 22px 16px;
+    background: var(--surface-1); border: 1px solid var(--ring); border-radius: 14px;
+    padding: 22px 24px 18px; box-shadow: var(--shadow);
   }
-  .card h2 { font-size: 17px; margin: 0 0 2px; }
-  .card .whatis { color: var(--muted); font-size: 13px; margin: 0 0 12px; }
-  .reading { color: var(--ink-2); font-size: 14px; margin: 10px 0 4px; }
-  .reading b { color: var(--ink); font-weight: 600; }
-  .tiles { display: flex; flex-wrap: wrap; gap: 10px; margin: 12px 0 4px; }
+  .card h2 { font-family: var(--font-head); font-size: 20px; font-weight: 600; margin: 0 0 3px;
+    letter-spacing: -0.01em; }
+  .card .whatis { color: var(--muted); font-size: 13px; font-style: italic; margin: 0 0 14px; }
+
+  /* the narrated "reading" — the friendly TA voice, made a soft callout */
+  .reading {
+    color: var(--ink-2); font-size: 14.5px; line-height: 1.55;
+    background: var(--accent-soft); border-left: 3px solid var(--s1);
+    border-radius: 0 8px 8px 0; padding: 9px 14px; margin: 12px 0 4px;
+  }
+  .reading b { color: var(--ink); font-weight: 700; }
+
+  /* stat tiles */
+  .tiles { display: flex; flex-wrap: wrap; gap: 10px; margin: 14px 0 4px; }
   .tile {
     background: var(--page); border: 1px solid var(--ring); border-radius: 12px;
-    padding: 8px 14px; min-width: 110px;
+    padding: 10px 15px; min-width: 112px;
   }
-  .tile .v { font-size: 22px; font-weight: 650; }
-  .tile .l { font-size: 12px; color: var(--muted); }
+  .tile .v { font-size: 23px; font-weight: 700; color: var(--ink); font-variant-numeric: tabular-nums;
+    font-family: var(--font-head); }
+  .tile .l { font-size: 12px; color: var(--muted); margin-top: 1px; }
+
   .chip {
     display: inline-block; font-size: 12px; border-radius: 999px; padding: 2px 10px;
-    border: 1px solid var(--ring); color: var(--ink-2); margin-left: 6px; vertical-align: 2px;
+    border: 1px solid var(--ring); background: var(--accent-soft); color: var(--s1);
+    margin-left: 6px; vertical-align: 2px; font-weight: 600;
   }
-  .legend { display: flex; gap: 16px; font-size: 13px; color: var(--ink-2); margin: 6px 2px; }
+  .legend { display: flex; flex-wrap: wrap; gap: 16px; font-size: 13px; color: var(--ink-2); margin: 6px 2px; }
   .legend .sw { display: inline-block; width: 10px; height: 10px; border-radius: 3px; margin-right: 6px; }
   .facets { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
   @media (max-width: 760px) { .facets { grid-template-columns: 1fr; } }
-  .facet h3, .h3 { font-size: 13px; color: var(--ink-2); font-weight: 600; margin: 8px 0 2px; }
-  .controls { display: flex; flex-wrap: wrap; gap: 18px; margin: 8px 0 6px; }
-  .controls label { font-size: 13px; color: var(--ink-2); display: flex; flex-direction: column; gap: 2px; }
-  .controls output { color: var(--ink); font-weight: 600; }
+  .facet h3, .h3 { font-size: 13px; color: var(--ink-2); font-weight: 700; margin: 8px 0 2px;
+    text-transform: uppercase; letter-spacing: .04em; }
+
+  /* controls */
+  .controls { display: flex; flex-wrap: wrap; gap: 18px; margin: 10px 0 6px; }
+  .controls label { font-size: 13px; color: var(--ink-2); display: flex; flex-direction: column; gap: 3px; }
+  .controls output { color: var(--s1); font-weight: 700; font-variant-numeric: tabular-nums; }
   input[type=range] { width: 180px; accent-color: var(--s1); }
+
+  /* charts (SVG) */
   svg { display: block; width: 100%; height: auto; }
-  svg text { font: 11px system-ui, sans-serif; fill: var(--muted); }
+  svg text { font: 11px var(--font-body); fill: var(--muted); }
   svg .axis-label { font-variant-numeric: tabular-nums; }
   .gridline { stroke: var(--grid); stroke-width: 1; }
   .baseline { stroke: var(--baseline); stroke-width: 1; }
+
   details { margin-top: 10px; font-size: 13px; color: var(--ink-2); }
-  details summary { cursor: pointer; color: var(--muted); }
+  details summary { cursor: pointer; color: var(--s1); font-weight: 600; }
+
+  /* tables */
   table { border-collapse: collapse; margin-top: 8px; font-variant-numeric: tabular-nums; }
-  td, th { border: 1px solid var(--grid); padding: 3px 10px; font-size: 12px; text-align: right; }
-  th { color: var(--muted); font-weight: 600; }
+  td, th { border: 1px solid var(--grid); padding: 4px 11px; font-size: 12.5px; text-align: right; }
+  th { color: var(--ink-2); font-weight: 700; background: var(--page); }
+
   #tooltip {
     position: fixed; pointer-events: none; z-index: 10; display: none;
-    background: var(--page); border: 1px solid var(--ring); border-radius: 10px;
-    padding: 6px 12px; font-size: 12.5px; color: var(--ink-2); max-width: 260px;
-    box-shadow: 0 6px 24px rgba(0,0,0,.5);
+    background: var(--ink); border: 1px solid var(--ink); border-radius: 10px;
+    padding: 7px 12px; font-size: 12.5px; color: #F5F1E6; max-width: 260px;
+    box-shadow: 0 8px 28px rgba(35,40,31,.28);
   }
-  #tooltip b { color: var(--ink); }
+  #tooltip b { color: #fff; }
+
+  /* motion */
   .grow-line { animation: draw 1s ease forwards; }
   @keyframes draw { from { stroke-dashoffset: var(--len); } to { stroke-dashoffset: 0; } }
   .grow-bar { transform-origin: bottom; animation: rise .5s ease backwards; }
   @keyframes rise { from { transform: scaleY(0); } }
   @media (prefers-reduced-motion: reduce) { .grow-line, .grow-bar { animation: none; } }
+
+  /* form fields */
   textarea, input[type=text], input[type=number], select {
-    background: var(--page); color: var(--ink); border: 1px solid var(--baseline);
-    border-radius: 8px; padding: 6px 10px; font: 13px system-ui, sans-serif;
+    background: var(--surface-1); color: var(--ink); border: 1px solid var(--baseline);
+    border-radius: 8px; padding: 7px 10px; font: 13px var(--font-body);
   }
-  textarea { width: 100%; min-height: 90px; }
+  textarea { width: 100%; min-height: 90px; font-family: var(--font-mono); font-size: 12.5px; }
   input[type=number] { width: 84px; } input[type=text] { width: 110px; }
-  .wb-error { color: #e66767; font-size: 13px; margin: 6px 0; }
-  .wb-btn { background: var(--page); color: var(--ink); border: 1px solid var(--baseline);
-    border-radius: 8px; padding: 6px 14px; font: 600 13px system-ui, sans-serif; cursor: pointer; }
-  .wb-btn:hover { border-color: var(--s1); color: var(--s1); }
-  .wb-btn.good:hover { border-color: var(--s3); color: var(--s3); }
-  .wb-btn.bad:hover { border-color: #e66767; color: #e66767; }
-  .clado text { fill: var(--ink); font: 12.5px system-ui, sans-serif; }
+  textarea:focus, input:focus, select:focus { outline: 2px solid var(--s1); outline-offset: 1px; border-color: var(--s1); }
+  .wb-error { color: var(--danger); font-size: 13px; margin: 6px 0; }
+
+  /* workbench buttons */
+  .wb-btn { background: var(--surface-1); color: var(--ink); border: 1px solid var(--baseline);
+    border-radius: 8px; padding: 7px 15px; font: 700 13px var(--font-body); cursor: pointer;
+    transition: border-color .12s ease, color .12s ease, background .12s ease; }
+  .wb-btn:hover { border-color: var(--s1); color: var(--s1); background: var(--accent-soft); }
+  .wb-btn.good:hover { border-color: var(--s1); color: var(--s1); }
+  .wb-btn.bad:hover { border-color: var(--danger); color: var(--danger); background: #F6E7E5; }
+
+  /* cladogram */
+  .clado text { fill: var(--ink); font: 12.5px var(--font-body); }
   .clado .clade-label { fill: var(--ink-2); font-size: 11px; }
   .clado line { stroke: var(--s1); stroke-width: 1.6; }
-  .flashcard { border: 1px solid var(--baseline); border-radius: 12px; padding: 18px 22px;
-    margin: 10px 0; font-size: 16px; }
-  .flashcard .answer { color: var(--s3); font-weight: 600; margin-top: 8px; }
+
+  /* flashcards + keys + punnett */
+  .flashcard { border: 1px solid var(--ring); background: var(--page); border-radius: 12px;
+    padding: 18px 22px; margin: 10px 0; font-size: 16px; }
+  .flashcard .answer { color: var(--s1); font-weight: 700; margin-top: 8px; }
   .keytrail { color: var(--muted); font-size: 12.5px; margin: 6px 0; }
   .punnett { border-collapse: collapse; margin: 10px 0; }
-  .punnett td, .punnett th { border: 1px solid var(--baseline); padding: 6px 12px;
+  .punnett td, .punnett th { border: 1px solid var(--baseline); padding: 7px 13px;
     text-align: center; font-variant-numeric: tabular-nums; font-size: 13px; }
-  .punnett th { background: var(--page); color: var(--ink-2); }
-  footer { max-width: 1060px; margin: 0 auto; padding: 0 20px 40px; color: var(--muted); font-size: 13px; }
-  footer code { color: var(--ink-2); }
+  .punnett th { background: var(--accent-soft); color: var(--ink); font-weight: 700; }
+
+  footer { max-width: 1060px; margin: 0 auto; padding: 8px 20px 44px; color: var(--muted); font-size: 12.5px;
+    border-top: 1px solid var(--ring); margin-top: 8px; }
+  footer code { color: var(--ink-2); font-family: var(--font-mono); }
+
+  /* Print — clean output for lab reports (no shadows, avoid splitting a card across pages) */
+  @media print {
+    :root { --page: #ffffff; --surface-1: #ffffff; --shadow: none; }
+    body { background: #fff; }
+    .drophint { display: none; }
+    .card { break-inside: avoid; box-shadow: none; border: 1px solid #d5d0c2; }
+    .reading { background: #f3f6f2; }
+    header::before { background: #2E7D4F; }
+    a { color: inherit; text-decoration: underline; }
+  }
 </style>
 </head>
 <body>
 <header>
   <h1>🌿 Ecology Field Day</h1>
-  <p class="sub">The CSRBT engine family, surveyed with the instruments of a field ecologist.
-     Keys are species · touches are abundance · time is measured in operations.</p>
+  <p class="sub">Field-ecology instruments for <b>students, TAs, and researchers</b> — measure real field data, or a living data structure, with the same tools you'd take into the meadow: diversity indices, survivorship curves, quadrat dispersion, island turnover, Punnett squares, and more. Keys are species &middot; touches are abundance &middot; time is counted in operations. No install needed for the Workbench below — and everything prints clean for a lab report.</p>
   <span class="drophint">📄 drop a session anywhere to reload — <code>&nbsp;./gradlew ecologyFieldDay&nbsp;</code>
      or replay your own trace: <code>&nbsp;./gradlew ecologyTrace -Ptrace=your.csv</code>
      · drop an <code>&nbsp;.eco&nbsp;</code> protocol to read it back into the Workbench</span>

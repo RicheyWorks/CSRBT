@@ -6,6 +6,9 @@
 [![build: Gradle](https://img.shields.io/badge/build-Gradle-02303A.svg)](https://gradle.org/)
 ![version 0.2.1](https://img.shields.io/badge/version-0.2.1-informational.svg)
 
+> **New here — or not a coder?** Start with the [plain-English guide to the whole ecosystem →](https://github.com/RicheyWorks/WholeHog/blob/main/ECOSYSTEM.md): what all of this is, what you'd actually use it for, and how to get it running even if you've never written a line of code.
+
+
 CSRBT is a Java ordered-set engine whose balancing strategy is pluggable and can
 adapt to the workload hitting it. A single, generic ordered-set API
 (`OrderedSet<K>`, over any `Comparable` key or a custom `Comparator`) is backed by
@@ -360,6 +363,13 @@ encodes the dependency direction: `experimental → core`, `benchmarks → both`
 The build is **Gradle 9.5** (ADR-013) with a **JDK 17 toolchain** — Gradle fetches
 a matching JDK if your default differs. Dependencies resolve from Maven Central;
 nothing is vendored.
+
+**Never set up a project like this before?** You don't need to know Java or Gradle. Open [Claude](https://claude.ai) or ChatGPT and paste:
+
+> *“Walk me through installing Java 17 and running `RicheyWorks/CSRBT` from GitHub, one step at a time. I'm on Windows (or Mac) and I've never done this — keep it simple.”*
+
+It will take you the rest of the way. The full newcomer guide lives in [ECOSYSTEM.md](https://github.com/RicheyWorks/WholeHog/blob/main/ECOSYSTEM.md).
+
 
 ```
 ./gradlew build                      # compile everything, run the full suite
