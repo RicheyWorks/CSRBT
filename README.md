@@ -704,6 +704,9 @@ for a lab report:
 - [**`docs/ecology-field-guide.html`**](docs/ecology-field-guide.html) — the **Field Guide**: the
   plain-language reference behind the instruments, station by station (also
   [`ECOLOGY-FIELD-GUIDE.md`](docs/ECOLOGY-FIELD-GUIDE.md) as Markdown).
+- [**`docs/eco-protocol-reference.html`**](docs/eco-protocol-reference.html) — the **`.eco` Reference**:
+  every keyword of the plain-text experiment format, and the browser → file → grade → export
+  round-trip (worked example in [`sample-experiment.eco`](docs/sample-experiment.eco)).
 
 And from the build: **`./gradlew ecologyFieldDay`** prints the narrated six-station survey and feeds
 the lab page; **`./gradlew ecologyTrace -Ptrace=your.csv`** replays *your own workload* through the
