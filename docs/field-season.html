@@ -200,7 +200,10 @@
       </div>
 
       <label class="f" style="margin-bottom:4px">Q4 · How many voles live here (Lincoln–Petersen)?
-        <input type="number" id="q4" min="1" placeholder="N̂ = (M × C) ÷ R"></label>
+        <span style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
+          <input type="number" id="q4" min="1" placeholder="N̂ = (M × C) ÷ R">
+          <button class="btn btn-soft" id="q4calc" type="button" style="display:none">🧮 compute from my last session</button>
+        </span></label>
       <p class="fine" id="mrHelp"></p>
 
       <div class="btn-row">
@@ -393,6 +396,11 @@
     $("mrHelp").textContent = last
       ? "Your last session: M="+last.M+", C="+last.C+", R="+last.R+".  N̂ = (M × C) ÷ R."
       : "You never completed a mark + recapture pair — Q4 will be a guess.";
+    var cb=$("q4calc");
+    if(last && last.R>0){
+      cb.style.display="inline-flex";
+      cb.onclick=function(){ $("q4").value=Math.round(last.M*last.C/last.R); buzz(); };
+    } else cb.style.display="none";
     render();
   }
   $("fileBtn").addEventListener("click",showReport);

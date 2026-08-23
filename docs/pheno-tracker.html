@@ -331,7 +331,15 @@
     var box=$("scorePanel");
     var p=S.plants.find(function(x){return x.id===S.sel;});
     if(!p){ box.innerHTML='<p class="hint" style="margin:0">Pick a plant above.</p>'; return; }
-    var html='<h2 style="margin-top:0;font-size:17px">'+esc(S.name)+' #'+p.id+'</h2>';
+    var idx=S.plants.indexOf(p);
+    var html='<div style="display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:6px">'
+      +'<button class="btn btn-ghost" id="pPrev" type="button" '+(idx===0?"disabled":"")+' style="min-height:44px;padding:8px 16px">← #'+(idx>0?S.plants[idx-1].id:"")+'</button>'
+      +'<h2 style="margin:0;font-size:17px;text-align:center">'+esc(S.name)+' #'+p.id
+      +' <span style="display:inline-flex;gap:6px;vertical-align:middle;margin-left:6px">'
+      +'<button class="kbtn'+(p.mark==="keep"?" k":"")+'" id="pKeep" type="button">⭐</button>'
+      +'<button class="kbtn'+(p.mark==="cull"?" c":"")+'" id="pCull" type="button">✕</button></span></h2>'
+      +'<button class="btn btn-ghost" id="pNext" type="button" '+(idx===S.plants.length-1?"disabled":"")+' style="min-height:44px;padding:8px 16px">#'+(idx<S.plants.length-1?S.plants[idx+1].id:"")+' →</button>'
+      +'</div>';
     S.traits.forEach(function(t){
       html+='<div class="traitrow"><span class="tn">'+esc(t.n)+' <span class="w">×'+t.w+'</span></span><span class="seg" data-t="'+esc(t.n)+'">';
       for(var v=1;v<=5;v++) html+='<button type="button" data-v="'+v+'" class="'+(p.scores[t.n]===v?"on":"")+'">'+v+'</button>';
@@ -351,6 +359,14 @@
       });
     });
     $("pNote").addEventListener("input",function(){ p.note=this.value; save(); ecoOut(); });
+    if($("pPrev")) $("pPrev").addEventListener("click",function(){
+      if(idx>0){ S.sel=S.plants[idx-1].id; renderPlants(); renderScorePanel(); buzz(); } });
+    if($("pNext")) $("pNext").addEventListener("click",function(){
+      if(idx<S.plants.length-1){ S.sel=S.plants[idx+1].id; renderPlants(); renderScorePanel(); buzz(); } });
+    $("pKeep").addEventListener("click",function(){
+      p.mark=(p.mark==="keep")?"":"keep"; save(); buzz(); renderPlants(); renderScorePanel(); renderSelect(); });
+    $("pCull").addEventListener("click",function(){
+      p.mark=(p.mark==="cull")?"":"cull"; save(); buzz(); renderPlants(); renderScorePanel(); renderSelect(); });
   }
 
   /* ---------- SELECT ---------- */
