@@ -693,24 +693,52 @@ in operations, and every index is oracle-tested and deterministic.
 | `RangeQuadrats` | quadrat dispersion (Morisita) | any engine's key space |
 | `CacheIsland` | island biogeography | the cache at carrying capacity |
 
-**Start here: [`docs/ecology.html`](docs/ecology.html)** — the science-kit hub, a single front door
-to everything below. Then the **four pages** it links, which cross-link each other and each print
-clean for a lab report — no install required:
+**Start here: [`docs/ecology.html`](docs/ecology.html)** — the science-kit hub, a single front
+door to everything below. Every page cross-links the others and prints clean for a lab report —
+no install required.
+
+**The reference shelf** — read, look up, cite:
 
 - [**`docs/ecology-lab.html`**](docs/ecology-lab.html) — the **Interactive Lab**: a live terrarium
-  plus a browser Workbench that runs every instrument on your own pasted field data.
+  plus a browser Workbench that runs every instrument on your own field data, entered through
+  tap-friendly chip editors and steppers (the pasted-text form is still there under "edit as text").
 - [**`docs/ecology-lab-manual.html`**](docs/ecology-lab-manual.html) — the **Field & Lab Manual**:
-  six ready-to-run labs (behavior, genetics, biodiversity, mark–recapture, Hardy–Weinberg, island biogeography) with
-  printable data sheets, procedures, and `.eco` pre-registration.
+  six ready-to-run labs (behavior, genetics, biodiversity, mark–recapture, Hardy–Weinberg, island
+  biogeography) with printable data sheets, procedures, and `.eco` pre-registration.
 - [**`docs/ecology-field-guide.html`**](docs/ecology-field-guide.html) — the **Field Guide**: the
   plain-language reference behind the instruments, station by station (also
   [`ECOLOGY-FIELD-GUIDE.md`](docs/ECOLOGY-FIELD-GUIDE.md) as Markdown).
 - [**`docs/eco-protocol-reference.html`**](docs/eco-protocol-reference.html) — the **`.eco` Reference**:
   every keyword of the plain-text experiment format, and the browser → file → grade → export
   round-trip (worked example in [`sample-experiment.eco`](docs/sample-experiment.eco)).
+- [**`docs/ecology-glossary.html`**](docs/ecology-glossary.html) — the **Glossary**: every term the
+  kit uses, defined in a sentence and linked to the tool that computes it; and
+  [**`docs/eco-protocol-library.html`**](docs/eco-protocol-library.html) — five complete, copyable
+  `.eco` experiments; and [**`docs/ecology-field-card.html`**](docs/ecology-field-card.html) — every
+  metric on one printable bench card.
 - [**`docs/ecology-essay.html`**](docs/ecology-essay.html) — **The ecology of a tree**: the essay
   behind the layer — the audit that found constants where instruments should be, and the ride to the
   128k-op amortization frontier (also [`ESSAY-the-ecology-of-a-tree.md`](docs/ESSAY-the-ecology-of-a-tree.md)).
+
+**The field tools** — tablet-first apps and games where the data entry is taps, the display is
+live, and every export carries site, observer, and date plus a CSV for Excel/R:
+
+- [**`docs/field-notebook.html`**](docs/field-notebook.html) — **Field Notebook**: tap-to-tally
+  ethograms with a scan timer, quadrat counts, species lists, and mark–recapture, with live
+  diversity readings; long-press any tally card to rename it in place.
+- [**`docs/farm-scout.html`**](docs/farm-scout.html) — **Farm Scout**: field science for growers —
+  pest scouting against thresholds with a dispersion verdict, pollinator health counts, a
+  germination tester, and a crop-rotation checker by plant family.
+- [**`docs/pheno-tracker.html`**](docs/pheno-tracker.html) — **Pheno Tracker**: a breeder's
+  selection bench for any crop — weighted trait scoring with one-tap program presets, a ranked
+  board with a real selection-differential readout, mother plants and planned crosses, and a χ²
+  segregation checker.
+- [**`docs/field-season.html`**](docs/field-season.html) — **Field Season**: the sampling game — a
+  hidden meadow, twelve field days, weather, and a peer-reviewed report; same season number means
+  the same meadow, so a class can compare strategies fairly.
+- [**`docs/food-web.html`**](docs/food-web.html) — **Food Web Builder**: tap a food web into being
+  (food first, then eater), watch trophic levels lay themselves out, then long-press any species to
+  run the knockout test and see exactly which others starve.
 
 And from the build: **`./gradlew ecologyFieldDay`** prints the narrated six-station survey and feeds
 the lab page; **`./gradlew ecologyTrace -Ptrace=your.csv`** replays *your own workload* through the
