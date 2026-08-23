@@ -51,7 +51,7 @@
     padding:16px; box-shadow:var(--shadow); margin-bottom:14px; }
   .fine { font-size:12.5px; color:var(--muted); margin-top:10px; line-height:1.5; }
 
-  input[type=text], input[type=number], select {
+  input[type=text], input[type=number], input[type=date], select {
     background:var(--surface); color:var(--ink); border:1.5px solid var(--border); border-radius:12px;
     padding:11px 14px; font:16px var(--body); min-height:48px; }
   input:focus, select:focus { outline:none; border-color:var(--s1); box-shadow:0 0 0 3px rgba(46,125,79,.18); }
@@ -158,6 +158,12 @@
           <input type="number" id="runN" value="8" min="1" max="200"></label>
         <button class="btn btn-soft" id="runMake" type="button">Set plants</button>
       </div>
+      <div class="btn-row">
+        <label class="f">scored by
+          <input type="text" id="runObs" placeholder="your name" style="width:170px" autocomplete="off"></label>
+        <label class="f">date
+          <input type="date" id="runDate"></label>
+      </div>
       <p class="fine">"Set plants" renumbers to #1…#N and keeps any scores already entered for existing
         numbers. Individual plants can be culled later without renumbering.</p>
     </div>
@@ -169,6 +175,10 @@
         <label class="f">trait <input type="text" id="traitNew" placeholder="e.g. aroma" style="width:160px"></label>
         <label class="f">weight <input type="number" id="traitW" value="1" min="0.5" max="5" step="0.5"></label>
         <button class="btn btn-soft" id="traitAdd" type="button">Add trait</button>
+      </div>
+      <div class="btn-row">
+        <button class="btn btn-ghost" id="presetFruit" type="button">🍎 fruit program</button>
+        <button class="btn btn-ghost" id="presetFlower" type="button">🌸 flower program</button>
       </div>
       <p class="fine">Weight 2 counts double in the total. Typical fruit program: flavor ×2, texture,
         yield, disease resistance ×1.5, storage. Typical flower program: aroma ×2, structure, vigor,
@@ -227,6 +237,7 @@
       <pre class="export" id="ecoOut"># score something first — your run export appears here</pre>
       <div class="btn-row">
         <button class="btn btn-go" id="ecoCopy" type="button">Copy run export</button>
+        <button class="btn btn-soft" id="csvCopy" type="button">Copy CSV (for Excel/R)</button>
         <button class="btn btn-ghost" onclick="window.print()" type="button">Print / save PDF</button>
       </div>
       <p class="fine">The export carries every plant's scores, notes, keep/cull calls, and the selection
@@ -264,6 +275,8 @@
   try { var saved=localStorage.getItem(KEY); if(saved){ var p=JSON.parse(saved);
     if(p&&p.plants&&p.traits){ S=p; S.sel=null; } } } catch(e){}
   function save(){ try{ localStorage.setItem(KEY, JSON.stringify(S)); }catch(e){} }
+  if(!S.date){ try{ S.date=new Date().toISOString().slice(0,10); }catch(e){ S.date=""; } }
+  if(S.obs===undefined) S.obs="";
 
   document.querySelectorAll(".tab").forEach(function(tb){
     tb.addEventListener("click",function(){
@@ -287,6 +300,8 @@
   function renderRun(){
     $("runName").value=S.name;
     $("runN").value=S.plants.length;
+    $("runObs").value=S.obs||"";
+    $("runDate").value=S.date||"";
     var c=$("traitChips"); c.innerHTML="";
     S.traits.forEach(function(t,idx){
       var d=document.createElement("span"); d.className="chipT";
@@ -296,6 +311,8 @@
     });
   }
   $("runName").addEventListener("input",function(){ S.name=this.value; save(); ecoOut(); });
+  $("runObs").addEventListener("input",function(){ S.obs=this.value; save(); ecoOut(); });
+  $("runDate").addEventListener("input",function(){ S.date=this.value; save(); ecoOut(); });
   $("runMake").addEventListener("click",function(){
     var n=Math.max(1,Math.min(200,parseInt($("runN").value,10)||1));
     var old=S.plants;
@@ -303,6 +320,12 @@
     for(var i=1;i<=n;i++){ var prev=old.find(function(p){return p.id===i;}); S.plants.push(prev||blank(i)); }
     S.sel=null; save(); renderAll(); toast(n+" plants in the run"); buzz();
   });
+  $("presetFruit").addEventListener("click",function(){
+    S.traits=[{n:"flavor",w:2},{n:"texture",w:1},{n:"yield",w:1},{n:"disease-resistance",w:1.5},{n:"storage",w:1}];
+    save(); renderAll(); toast("Fruit-program traits loaded"); buzz(); });
+  $("presetFlower").addEventListener("click",function(){
+    S.traits=[{n:"aroma",w:2},{n:"structure",w:1},{n:"vigor",w:1},{n:"resin",w:1},{n:"mold-resistance",w:1.5},{n:"ripening-speed",w:1}];
+    save(); renderAll(); toast("Flower-program traits loaded"); buzz(); });
   $("traitAdd").addEventListener("click",function(){
     var n=$("traitNew").value.trim().toLowerCase(); var w=parseFloat($("traitW").value)||1;
     if(!n) return;
@@ -452,6 +475,10 @@
   /* ---------- export ---------- */
   function ecoOut(){
     var lines=["# Pheno Tracker export — "+(S.name||"run")];
+    var meta=[];
+    if(S.obs) meta.push("scored by "+S.obs);
+    if(S.date) meta.push(S.date);
+    if(meta.length) lines.push("# "+meta.join(" — "));
     var sp=scoredPlants();
     if(sp.length){
       lines.push("# plant scores (weighted mean of "+S.traits.map(function(t){return t.n+"×"+t.w;}).join(", ")+")");
@@ -476,6 +503,27 @@
   $("ecoCopy").addEventListener("click",function(){
     var text=$("ecoOut").textContent;
     function done(){ toast("Copied — the run, on the record"); buzz(); }
+    function fb(){ var ta=document.createElement("textarea"); ta.value=text; ta.style.position="fixed"; ta.style.opacity="0";
+      document.body.appendChild(ta); ta.select(); try{document.execCommand("copy");done();}catch(e){toast("Select & copy manually");}
+      document.body.removeChild(ta); }
+    try{ if(navigator.clipboard&&navigator.clipboard.writeText) navigator.clipboard.writeText(text).then(done,fb); else fb(); }catch(e){ fb(); }
+  });
+  $("csvCopy").addEventListener("click",function(){
+    function cell(s){ s=String(s==null?"":s); return /[",\n]/.test(s) ? '"'+s.replace(/"/g,'""')+'"' : s; }
+    var sp=scoredPlants();
+    if(!sp.length){ toast("Score something first"); return; }
+    var head=["plant"].concat(S.traits.map(function(t){return t.n+" (x"+t.w+")";})).concat(["weighted total","mark","note"]);
+    var rows=[head.map(cell).join(",")];
+    var meta=["run "+(S.name||"")]; if(S.obs) meta.push("scored by "+S.obs); if(S.date) meta.push(S.date);
+    rows.unshift("# "+meta.join(" — "));
+    sp.slice().sort(function(a,b){return totalOf(b)-totalOf(a);}).forEach(function(p){
+      var r=["#"+p.id];
+      S.traits.forEach(function(t){ r.push(p.scores[t.n]||""); });
+      r.push(totalOf(p).toFixed(2), p.mark||"", p.note?p.note.replace(/\n/g," "):"");
+      rows.push(r.map(cell).join(","));
+    });
+    var text=rows.join("\n");
+    function done(){ toast("CSV copied — paste into Excel or read.csv it"); buzz(); }
     function fb(){ var ta=document.createElement("textarea"); ta.value=text; ta.style.position="fixed"; ta.style.opacity="0";
       document.body.appendChild(ta); ta.select(); try{document.execCommand("copy");done();}catch(e){toast("Select & copy manually");}
       document.body.removeChild(ta); }

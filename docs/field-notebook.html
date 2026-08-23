@@ -72,7 +72,9 @@
   @keyframes pop { 40% { transform:scale(1.25);} }
 
   .addrow { display:flex; gap:8px; margin-top:12px; flex-wrap:wrap; }
-  input[type=text], input[type=number] {
+  .sess { display:grid; grid-template-columns:repeat(auto-fit,minmax(170px,1fr)); gap:10px; }
+  label.f { display:flex; flex-direction:column; gap:5px; font-size:13.5px; font-weight:700; color:var(--ink-2); }
+  input[type=text], input[type=number], input[type=date] {
     background:var(--surface); color:var(--ink); border:1.5px solid var(--border); border-radius:12px;
     padding:11px 14px; font:16px var(--body); min-height:48px; }
   input:focus { outline:none; border-color:var(--s1); box-shadow:0 0 0 3px rgba(46,125,79,.18); }
@@ -153,7 +155,7 @@
   <section class="pane on" id="p-etho">
     <h2>Ethogram — tap to score behavior</h2>
     <p class="hint">Big buttons for the field: tap a behavior each time you see it (focal) or at each scan.
-      The timer flashes every scan interval. Undo takes back the last tap.</p>
+      The timer flashes every scan interval. Undo takes back the last tap. <b>Hold a card to rename it.</b></p>
 
     <div class="card">
       <div class="timerbox">
@@ -225,6 +227,16 @@
       <div class="reading" id="mrOut" style="margin-top:12px">Enter your catches — the estimate appears here.</div>
     </div>
 
+    <h2 style="margin-top:18px">Session</h2>
+    <p class="hint">Who, where, when — stamped onto the export and CSV so the data sheet stands on its own in a lab report.</p>
+    <div class="card">
+      <div class="sess">
+        <label class="f">site<input type="text" id="sSite" placeholder="e.g. oak ridge, plot 3" autocomplete="off"></label>
+        <label class="f">observer<input type="text" id="sObs" placeholder="your name" autocomplete="off"></label>
+        <label class="f">date<input type="date" id="sDate"></label>
+      </div>
+    </div>
+
     <h2 style="margin-top:18px">Take it home</h2>
     <p class="hint">Everything you tallied, as <code>.eco</code> protocol lines — copy them into a file and the
       engine can re-run and grade your day (see the <a href="eco-protocol-reference.html">.eco reference</a>).</p>
@@ -232,6 +244,7 @@
       <pre class="export" id="ecoOut"># tally something first — your .eco lines appear here</pre>
       <div class="btn-row">
         <button class="btn btn-go" id="ecoCopy" type="button">Copy .eco lines</button>
+        <button class="btn btn-soft" id="csvCopy" type="button">Copy CSV (for Excel/R)</button>
         <button class="btn btn-ghost" onclick="window.print()" type="button">Print / save PDF</button>
       </div>
     </div>
@@ -263,6 +276,34 @@
     btn.addEventListener("click", function(e){
       if(repeated){ repeated=false; e.stopImmediatePropagation(); e.preventDefault(); return; }
       fire(); });
+  }
+  /* long-press a tally card to rename it (the release click is swallowed, so no stray count) */
+  function renameable(card, nameEl, current, commit){
+    var t=null, renamed=false;
+    card.addEventListener("pointerdown", function(){
+      renamed=false;
+      t=setTimeout(function(){
+        renamed=true; buzz();
+        var inp=document.createElement("input");
+        inp.type="text"; inp.value=current(); inp.setAttribute("autocomplete","off");
+        inp.style.cssText="width:100%;font:800 15px inherit;border:1.5px solid var(--s1);border-radius:8px;padding:6px 8px;background:var(--surface);color:var(--ink)";
+        nameEl.textContent=""; nameEl.appendChild(inp);
+        inp.focus(); inp.select();
+        function done(){ var v=inp.value.trim().toLowerCase().replace(/\s+/g,"-");
+          commit(v||current()); }
+        inp.addEventListener("blur", done);
+        inp.addEventListener("keydown", function(e){
+          if(e.key==="Enter"){ e.preventDefault(); inp.blur(); }
+          if(e.key==="Escape"){ inp.value=current(); inp.blur(); } });
+        inp.addEventListener("pointerdown", function(e){ e.stopPropagation(); });
+        inp.addEventListener("click", function(e){ e.stopPropagation(); });
+      }, 550);
+    });
+    ["pointerup","pointerleave","pointercancel"].forEach(function(ev){
+      card.addEventListener(ev, function(){ clearTimeout(t); }); });
+    card.addEventListener("click", function(e){
+      if(renamed){ renamed=false; e.stopImmediatePropagation(); e.preventDefault(); }
+    }, true);
   }
   function toast(msg){ var t=$("toast"); t.textContent=msg; t.classList.add("on");
     clearTimeout(t._h); t._h=setTimeout(function(){ t.classList.remove("on"); },1400); }
@@ -310,6 +351,17 @@
         var b=document.createElement("button");
         b.type="button"; b.className="tally";
         b.innerHTML='<span class="x" data-x="'+idx+'">✕</span><div class="name">'+esc(it.name)+'</div><div class="count">'+it.n+'</div>';
+        renameable(b, b.querySelector(".name"),
+          function(){ return it.name; },
+          function(v){
+            if(v!==it.name){
+              var dup=items.find(function(o){ return o!==it && o.name===v; });
+              if(dup){ dup.n+=it.n; items.splice(items.indexOf(it),1);
+                history=history.map(function(h){ return h===it? dup : h; }); }
+              else it.name=v;
+            }
+            render(); results();
+          });
         b.addEventListener("click", function(ev){
           if(ev.target && ev.target.dataset && ev.target.dataset.x!==undefined){
             items.splice(idx,1); history=history.filter(function(h){return h!==it;}); render(); results(); return; }
@@ -446,6 +498,13 @@
     refreshEco();
   }
 
+  /* ---------- session metadata ---------- */
+  try{ $("sDate").value = new Date().toISOString().slice(0,10); }catch(e){}
+  function sess(){
+    return { site:$("sSite").value.trim(), obs:$("sObs").value.trim(), date:$("sDate").value };
+  }
+  ["sSite","sObs","sDate"].forEach(function(id){ $(id).addEventListener("input",function(){ refreshEco(); }); });
+
   /* ---------- .eco export ---------- */
   function refreshEco(){
     var lines=[];
@@ -455,11 +514,40 @@
       lines.push("# quadrat counts (per frame): "+quads.join(" "));
     if(mr.M>0&&mr.C>0&&mr.R>0) lines.push("model: markrecapture "+mr.M+" "+mr.C+" "+mr.R);
     if(lines.length){
+      var m=sess(), meta=[];
+      if(m.site) meta.push("site "+m.site);
+      if(m.obs) meta.push("observer "+m.obs);
+      if(m.date) meta.push(m.date);
+      if(meta.length) lines.unshift("# "+meta.join(" — "));
       lines.unshift("# Field Notebook export — paste into your .eco protocol");
       lines.push("note: tallied in the field with the Field Notebook");
     }
     $("ecoOut").textContent = lines.length ? lines.join("\n") : "# tally something first — your .eco lines appear here";
   }
+  function copyText(text, msg){
+    function done(){ toast(msg); buzz(); }
+    function fb(){ var ta=document.createElement("textarea"); ta.value=text; ta.style.position="fixed"; ta.style.opacity="0";
+      document.body.appendChild(ta); ta.select(); try{ document.execCommand("copy"); done(); }catch(e){ toast("Select & copy manually"); }
+      document.body.removeChild(ta); }
+    try{ if(navigator.clipboard&&navigator.clipboard.writeText) navigator.clipboard.writeText(text).then(done, fb);
+      else fb(); }catch(e){ fb(); }
+  }
+  function csvCell(s){ s=String(s); return /[",\n]/.test(s) ? '"'+s.replace(/"/g,'""')+'"' : s; }
+  $("csvCopy").addEventListener("click", function(){
+    var rows=[["section","item","count"]];
+    var m=sess();
+    if(m.site) rows.push(["session","site", m.site]);
+    if(m.obs) rows.push(["session","observer", m.obs]);
+    if(m.date) rows.push(["session","date", m.date]);
+    etho.data().forEach(function(i){ rows.push(["ethogram", i.name, i.n]); });
+    spec.data().forEach(function(i){ rows.push(["species", i.name, i.n]); });
+    quads.forEach(function(q,i){ if(quads.length>1) rows.push(["quadrat","Q"+(i+1), q]); });
+    if(mr.M>0) rows.push(["markrecapture","marked", mr.M]);
+    if(mr.C>0) rows.push(["markrecapture","caught", mr.C]);
+    if(mr.R>0) rows.push(["markrecapture","recaptured", mr.R]);
+    copyText(rows.map(function(r){ return r.map(csvCell).join(","); }).join("\n"),
+      "CSV copied — paste into Excel, Sheets, or R");
+  });
   $("ecoCopy").addEventListener("click", function(){
     var text=$("ecoOut").textContent;
     function done(){ toast("Copied — paste into a .eco file"); buzz(); }

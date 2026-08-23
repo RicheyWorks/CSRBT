@@ -50,12 +50,14 @@
   .card { background:var(--surface); border:1px solid var(--border); border-radius:16px;
     padding:16px; box-shadow:var(--shadow); margin-bottom:14px; }
 
-  input[type=text], input[type=number], select {
+  input[type=text], input[type=number], input[type=date], select {
     background:var(--surface); color:var(--ink); border:1.5px solid var(--border); border-radius:12px;
     padding:11px 14px; font:16px var(--body); min-height:48px; }
   input:focus, select:focus { outline:none; border-color:var(--s1); box-shadow:0 0 0 3px rgba(46,125,79,.18); }
   input[type=number] { width:110px; }
   label.f { display:flex; flex-direction:column; gap:5px; font-size:13.5px; font-weight:700; color:var(--ink-2); }
+  .sess { display:grid; grid-template-columns:repeat(auto-fit,minmax(170px,1fr)); gap:10px; }
+  .sess input { width:100%; }
 
   .btn { border:0; border-radius:12px; padding:12px 20px; font:800 15px var(--body); cursor:pointer;
     min-height:48px; touch-action:manipulation; transition:transform .1s ease, background .15s ease; }
@@ -172,7 +174,8 @@
   <section class="pane" id="p-poll">
     <h2>Pollinator count — ten minutes by the blossoms</h2>
     <p class="hint">Stand by a flowering patch for a set time and tap each visit by type. Diversity — not
-      just the total — is the health signal: a patch worked only by one species is fragile.</p>
+      just the total — is the health signal: a patch worked only by one species is fragile.
+      <b>Hold a card to rename it.</b></p>
     <div class="card">
       <div class="tally-grid" id="poGrid"></div>
       <div class="addrow">
@@ -217,11 +220,22 @@
         classic soil-builders to slot between heavy feeders.</p>
     </div>
 
+    <h2 style="margin-top:18px">Field day</h2>
+    <p class="hint">Which field, who walked it, when — stamped onto the export so the record stands on its own.</p>
+    <div class="card">
+      <div class="sess">
+        <label class="f">field / block<input type="text" id="sSite" placeholder="e.g. north block" autocomplete="off"></label>
+        <label class="f">scouted by<input type="text" id="sObs" placeholder="your name" autocomplete="off"></label>
+        <label class="f">date<input type="date" id="sDate"></label>
+      </div>
+    </div>
+
     <h2 style="margin-top:18px">Take it home</h2>
     <div class="card">
       <pre class="export" id="ecoOut"># scout something first — your field-day export appears here</pre>
       <div class="btn-row">
         <button class="btn btn-go" id="ecoCopy" type="button">Copy field-day export</button>
+        <button class="btn btn-soft" id="csvCopy" type="button">Copy CSV (for Excel/R)</button>
         <button class="btn btn-ghost" onclick="window.print()" type="button">Print / save PDF</button>
       </div>
       <p class="fine">The export is <code>.eco</code>-compatible <code>data:</code> lines plus notes — drop it
@@ -255,6 +269,33 @@
     btn.addEventListener("click", function(e){
       if(repeated){ repeated=false; e.stopImmediatePropagation(); e.preventDefault(); return; }
       fire(); });
+  }
+  /* long-press a tally card to rename it (the release click is swallowed) */
+  function renameable(card, nameEl, current, commit){
+    var t=null, renamed=false;
+    card.addEventListener("pointerdown", function(){
+      renamed=false;
+      t=setTimeout(function(){
+        renamed=true; buzz();
+        var inp=document.createElement("input");
+        inp.type="text"; inp.value=current();
+        inp.style.cssText="width:100%;font:800 15px inherit;border:1.5px solid var(--s1);border-radius:8px;padding:6px 8px;background:var(--surface);color:var(--ink)";
+        nameEl.textContent=""; nameEl.appendChild(inp);
+        inp.focus(); inp.select();
+        function done(){ var v=inp.value.trim().toLowerCase().replace(/\s+/g,"-"); commit(v||current()); }
+        inp.addEventListener("blur", done);
+        inp.addEventListener("keydown", function(e){
+          if(e.key==="Enter"){ e.preventDefault(); inp.blur(); }
+          if(e.key==="Escape"){ inp.value=current(); inp.blur(); } });
+        inp.addEventListener("pointerdown", function(e){ e.stopPropagation(); });
+        inp.addEventListener("click", function(e){ e.stopPropagation(); });
+      }, 550);
+    });
+    ["pointerup","pointerleave","pointercancel"].forEach(function(ev){
+      card.addEventListener(ev, function(){ clearTimeout(t); }); });
+    card.addEventListener("click", function(e){
+      if(renamed){ renamed=false; e.stopImmediatePropagation(); e.preventDefault(); }
+    }, true);
   }
   function toast(m){ var t=$("toast"); t.textContent=m; t.classList.add("on");
     clearTimeout(t._h); t._h=setTimeout(function(){t.classList.remove("on");},1500); }
@@ -332,6 +373,17 @@
     po.forEach(function(it,idx){
       var b=document.createElement("button"); b.type="button"; b.className="tally";
       b.innerHTML='<span class="x" data-x="1">✕</span><div class="name">'+esc(it.name)+'</div><div class="count">'+it.n+'</div>';
+      renameable(b, b.querySelector(".name"),
+        function(){ return it.name; },
+        function(v){
+          if(v!==it.name){
+            var dup=po.find(function(o){ return o!==it && o.name===v; });
+            if(dup){ dup.n+=it.n; po.splice(po.indexOf(it),1);
+              poHist=poHist.map(function(h){ return h===it? dup : h; }); }
+            else it.name=v;
+          }
+          poRender(); poOut();
+        });
       b.addEventListener("click",function(ev){
         if(ev.target&&ev.target.dataset&&ev.target.dataset.x){ po.splice(idx,1); poHist=poHist.filter(function(h){return h!==it;}); poRender(); poOut(); return; }
         it.n++; poHist.push(it); buzz();
@@ -437,6 +489,13 @@
   $("bedAdd").addEventListener("click",function(){ beds.push({name:"Bed "+(beds.length+1),y2:"",y1:"",plan:""}); bedRender(); buzz(); });
   bedRender();
 
+  /* ---------- field-day metadata ---------- */
+  try{ $("sDate").value = new Date().toISOString().slice(0,10); }catch(e){}
+  function sess(){
+    return { site:$("sSite").value.trim(), obs:$("sObs").value.trim(), date:$("sDate").value };
+  }
+  ["sSite","sObs","sDate"].forEach(function(id){ $(id).addEventListener("input",function(){ ecoOut(); }); });
+
   /* ---------- export ---------- */
   var ecoTimer=null;
   function ecoOutSoon(){ clearTimeout(ecoTimer); ecoTimer=setTimeout(ecoOut,300); }
@@ -446,15 +505,42 @@
     if(tot){ lines.push("# pest scouting — "+($("scPest").value||"unnamed")+" — counts per stop:");
       lines.push("#   "+pts.join(" "));
       var d=disp(pts); if(d) lines.push("note: scouting avg "+d.mean.toFixed(1)+"/plant, spread "+d.vmr.toFixed(2)); }
-    var live=po.filter(function(i){return i.n>0;});
+    var live=(po||[]).filter(function(i){return i.n>0;});
     if(live.length) lines.push("data: pollinators "+live.map(function(i){return i.name+"="+i.n;}).join(" "));
     var sown=parseInt($("gSown").value,10)||0, up=parseInt($("gUp").value,10)||0;
     if(sown) lines.push("note: germination test "+up+"/"+sown+" = "+Math.round(100*Math.min(up,sown)/sown)+"%");
-    beds.forEach(function(b){ if(b.plan) lines.push("note: "+b.name.toLowerCase()+" planned "+famLabel(b.plan)
+    (beds||[]).forEach(function(b){ if(b.plan) lines.push("note: "+b.name.toLowerCase()+" planned "+famLabel(b.plan)
       +((b.plan!=="cover"&&(b.plan===b.y1||b.plan===b.y2))?" (ROTATION CONFLICT)":"")); });
-    if(lines.length){ lines.unshift("# Farm Scout export — .eco-compatible"); }
+    if(lines.length){
+      var m=sess(), meta=[];
+      if(m.site) meta.push("field "+m.site);
+      if(m.obs) meta.push("scouted by "+m.obs);
+      if(m.date) meta.push(m.date);
+      if(meta.length) lines.unshift("# "+meta.join(" — "));
+      lines.unshift("# Farm Scout export — .eco-compatible");
+    }
     $("ecoOut").textContent = lines.length?lines.join("\n"):"# scout something first — your field-day export appears here";
   }
+  function csvCell(s){ s=String(s); return /[",\n]/.test(s) ? '"'+s.replace(/"/g,'""')+'"' : s; }
+  $("csvCopy").addEventListener("click",function(){
+    var rows=[["section","item","value"]];
+    var m=sess();
+    if(m.site) rows.push(["session","field", m.site]);
+    if(m.obs) rows.push(["session","scouted-by", m.obs]);
+    if(m.date) rows.push(["session","date", m.date]);
+    rows.push(["scouting","crop-pest", $("scPest").value||""]);
+    pts.forEach(function(p,i){ rows.push(["scouting","stop-"+(i+1), p]); });
+    po.filter(function(i){return i.n>0;}).forEach(function(i){ rows.push(["pollinators", i.name, i.n]); });
+    var sown=parseInt($("gSown").value,10)||0, up=parseInt($("gUp").value,10)||0;
+    if(sown){ rows.push(["germination","sown",sown]); rows.push(["germination","germinated",Math.min(up,sown)]); }
+    beds.forEach(function(b){ if(b.plan) rows.push(["rotation", b.name, famLabel(b.plan)]); });
+    var text=rows.map(function(r){ return r.map(csvCell).join(","); }).join("\n");
+    function done(){ toast("CSV copied — paste into Excel, Sheets, or R"); buzz(); }
+    function fb(){ var ta=document.createElement("textarea"); ta.value=text; ta.style.position="fixed"; ta.style.opacity="0";
+      document.body.appendChild(ta); ta.select(); try{document.execCommand("copy");done();}catch(e){toast("Select & copy manually");}
+      document.body.removeChild(ta); }
+    try{ if(navigator.clipboard&&navigator.clipboard.writeText) navigator.clipboard.writeText(text).then(done,fb); else fb(); }catch(e){ fb(); }
+  });
   $("ecoCopy").addEventListener("click",function(){
     var text=$("ecoOut").textContent;
     function done(){ toast("Copied — your field day, on the record"); buzz(); }
