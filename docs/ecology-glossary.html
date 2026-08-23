@@ -65,6 +65,7 @@
   <a href="ecology-lab-manual.html">Lab Manual</a>
   <a href="ecology-field-guide.html">Field Guide</a>
   <a href="eco-protocol-reference.html">.eco Reference</a>
+  <a href="ecology.html#field-tools">Field Tools</a>
 </nav>
 
 <div class="wrap">
@@ -152,6 +153,36 @@
     <div class="entry"><dt>Metapopulation <span class="who">Levins 1969</span></dt><dd>A population of
       populations: habitat patches winking out (local extinction) and being recolonized from neighbors or a
       mainland. Equilibrium occupancy p* = 1 − e/c.</dd></div>
+  </dl>
+
+  <h2>Food webs</h2>
+  <dl>
+    <div class="entry"><dt>Food web</dt><dd>The whole set of feeding links in a community — who eats whom.
+      Drawn as arrows that point from the food to the eater, i.e. <b>in the direction the energy travels</b>.
+      Build one by tapping in the <a href="food-web.html">Food Web Builder</a>.</dd></div>
+    <div class="entry"><dt>Trophic level</dt><dd>How many feeding steps a species sits above the producers.
+      Producers are level 1; a consumer's level is one more than its highest-level food. Fractional levels
+      are used in the literature when a species eats at several levels (omnivory) — the builder rounds to
+      the longest path, which is the teaching convention.</dd></div>
+    <div class="entry"><dt>Producer / consumer</dt><dd>A producer makes its own food (plants, algae — the
+      base of every web); a consumer eats something else. A consumer with no incoming arrow has no food
+      source and cannot persist — the builder flags it.</dd></div>
+    <div class="entry"><dt>Food-chain length</dt><dd>The longest path from a producer to a top predator.
+      Real chains are short — usually 3–5 levels — because roughly 90% of the energy is lost at each
+      transfer, so there is little left to support a sixth.</dd></div>
+    <div class="entry"><dt>Connectance <span class="who">L/S²</span></dt><dd>Realized feeding links divided
+      by all possible ones. Published webs mostly fall between ≈0.05 and ≈0.3; much lower usually means an
+      under-sampled web, much higher means links that aren't really there.</dd></div>
+    <div class="entry"><dt>Keystone species <span class="who">Paine 1969</span></dt><dd>A species whose
+      effect on the community is large out of proportion to its abundance — remove it and the web
+      restructures. Paine found it by physically removing sea stars from tidal plots; the builder's
+      knockout test is the same experiment, done cheaply.</dd></div>
+    <div class="entry"><dt>Secondary extinction</dt><dd>A species lost <em>because</em> another was lost —
+      it had no remaining food path. Counting them after a knockout is the standard robustness measure
+      for a web.</dd></div>
+    <div class="entry"><dt>Trophic cascade</dt><dd>The knock-on effect of changing one level that ripples
+      down the others — wolves → elk → willows is the famous case. A cascade is about <em>abundances</em>
+      shifting; a secondary extinction is the harder version, where the species goes to zero.</dd></div>
   </dl>
 
   <h2>Genetics</h2>
