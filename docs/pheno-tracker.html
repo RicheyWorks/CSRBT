@@ -115,6 +115,16 @@
     width:44px; height:40px; cursor:pointer; touch-action:manipulation; }
   .kbtn.k { border-color:var(--gold); background:#FBF3DD; }
   .kbtn.c { border-color:var(--danger); background:var(--danger-bg); }
+  .kbtn.m { border-color:var(--s1); background:var(--soft); }
+  .momchip { display:inline-flex; align-items:center; gap:7px; background:var(--soft); border:1.5px solid var(--s1);
+    border-radius:999px; padding:8px 14px; font-weight:800; font-size:14.5px; margin:3px 4px 3px 0; }
+  .momchip .sc { font-family:var(--mono); font-size:12px; color:var(--s1-deep); font-weight:500; }
+  .crossrow { display:flex; align-items:center; gap:10px; padding:9px 4px; border-bottom:1px solid var(--border); font-size:15px; }
+  .crossrow:last-child { border-bottom:0; }
+  .crossrow .cx { font-weight:800; }
+  .crossrow .cx .sym { color:var(--muted); font-weight:500; padding:0 3px; }
+  .crossrow button { margin-left:auto; border:0; background:none; color:var(--muted); font-size:15px; padding:8px 10px; cursor:pointer; min-height:44px; }
+  .crossrow button:hover { color:var(--danger); }
 
   .tiles { display:flex; flex-wrap:wrap; gap:8px; margin:12px 0 2px; }
   .tile { background:var(--surface-2); border:1px solid var(--border); border-radius:12px; padding:9px 14px; min-width:96px; }
@@ -211,6 +221,22 @@
       quantitative-genetics number: how far your keepers sit above the run.</p>
     <div class="card" id="rankBoard"></div>
     <div class="card" id="selStats"></div>
+
+    <h2 style="margin-top:18px">Mothers &amp; planned crosses</h2>
+    <p class="hint">A keeper you hold in veg and cut clones from is a <b>mother</b> — tap 🌿 on the board
+      to promote one. Plan next season's crosses here; both ride along in the export.</p>
+    <div class="card" id="momBoard"></div>
+    <div class="card">
+      <div class="btn-row" style="margin-top:0">
+        <label class="f">seed parent ♀<select id="crossA"></select></label>
+        <label class="f">pollen parent ♂<select id="crossB"></select></label>
+        <button class="btn btn-soft" id="crossAdd" type="button">Plan cross</button>
+      </div>
+      <div id="crossList" style="margin-top:6px"></div>
+      <p class="fine">Honest note: a clone is a genetic copy — cloning a mother preserves her pheno but
+        doesn't advance the line. Only the seed run from a cross does, and <b>R&nbsp;=&nbsp;h²&nbsp;×&nbsp;S</b>
+        applies to that seed run, not to the copies.</p>
+    </div>
   </section>
 
   <!-- SEGREGATION + EXPORT -->
@@ -277,6 +303,7 @@
   function save(){ try{ localStorage.setItem(KEY, JSON.stringify(S)); }catch(e){} }
   if(!S.date){ try{ S.date=new Date().toISOString().slice(0,10); }catch(e){ S.date=""; } }
   if(S.obs===undefined) S.obs="";
+  if(!S.crosses) S.crosses=[];
 
   document.querySelectorAll(".tab").forEach(function(tb){
     tb.addEventListener("click",function(){
@@ -344,7 +371,7 @@
       var d=document.createElement("button"); d.type="button";
       d.className="plant"+(S.sel===p.id?" sel":"")+(p.mark==="keep"?" keep":"")+(p.mark==="cull"?" cull":"");
       var t=totalOf(p);
-      d.innerHTML=(p.mark==="keep"?'<span class="badge">⭐</span>':p.mark==="cull"?'<span class="badge">✕</span>':"")
+      d.innerHTML=((p.mark==="keep"||p.mom)?'<span class="badge">'+(p.mark==="keep"?"⭐":"")+(p.mom?"🌿":"")+'</span>':p.mark==="cull"?'<span class="badge">✕</span>':"")
         +'<div class="pid">#'+p.id+'</div><div class="pscore">'+(t!==null?t.toFixed(2):"—")+'</div>';
       d.addEventListener("click",function(){ S.sel=p.id; renderPlants(); renderScorePanel(); buzz(); });
       g.appendChild(d);
@@ -397,7 +424,7 @@
     var board=$("rankBoard"), stats=$("selStats");
     var sp=scoredPlants();
     if(!sp.length){ board.innerHTML='<p class="hint" style="margin:0">Score some plants first — the board builds itself.</p>';
-      stats.innerHTML=""; ecoOut(); return; }
+      stats.innerHTML=""; renderMoms(); ecoOut(); return; }
     var ranked=sp.slice().sort(function(a,b){ return totalOf(b)-totalOf(a); });
     var max=totalOf(ranked[0]);
     var html="";
@@ -410,6 +437,7 @@
         +'<span class="sc">'+t.toFixed(2)+'</span>'
         +'<span style="display:flex;gap:6px">'
         +'<button class="kbtn'+(p.mark==="keep"?" k":"")+'" data-id="'+p.id+'" data-m="keep" type="button">⭐</button>'
+        +'<button class="kbtn'+(p.mom?" m":"")+'" data-id="'+p.id+'" data-m="mom" type="button" title="mother plant">🌿</button>'
         +'<button class="kbtn'+(p.mark==="cull"?" c":"")+'" data-id="'+p.id+'" data-m="cull" type="button">✕</button>'
         +'</span></div>';
     });
@@ -417,7 +445,8 @@
     board.querySelectorAll(".kbtn").forEach(function(b){
       b.addEventListener("click",function(){
         var p=S.plants.find(function(x){return x.id===+b.dataset.id;});
-        p.mark=(p.mark===b.dataset.m)? "" : b.dataset.m;
+        if(b.dataset.m==="mom"){ p.mom=!p.mom; if(p.mom&&p.mark==="cull") p.mark=""; }
+        else { p.mark=(p.mark===b.dataset.m)? "" : b.dataset.m; if(p.mark==="cull") p.mom=false; }
         save(); buzz(); renderPlants(); renderSelect();
       });
     });
@@ -440,8 +469,58 @@
     } else {
       shtml+='</div><div class="verdict">Mark keepers with ⭐ to get the selection readout.</div>';
     }
-    stats.innerHTML=shtml; ecoOut();
+    stats.innerHTML=shtml; renderMoms(); ecoOut();
   }
+
+  /* ---------- mothers & planned crosses ---------- */
+  function moms(){ return S.plants.filter(function(p){ return p.mom; }); }
+  function renderMoms(){
+    var mb=$("momBoard");
+    var ms=moms();
+    if(!ms.length){
+      mb.innerHTML='<p class="hint" style="margin:0">No mothers yet — tap 🌿 next to a keeper on the board above.</p>';
+    } else {
+      mb.innerHTML=ms.map(function(p){
+        var t=totalOf(p);
+        return '<span class="momchip">🌿 #'+p.id+(t!==null?' <span class="sc">'+t.toFixed(2)+'</span>':'')+'</span>';
+      }).join("")
+      +'<p class="fine" style="margin-top:8px">'+ms.length+' mother'+(ms.length>1?'s':'')+' held in veg. '
+      +'Label the physical plants — tags outlast memory.</p>';
+    }
+    // parent pickers: mothers first, then keepers, then any scored plant
+    var pool=S.plants.filter(function(p){ return p.mom || p.mark==="keep" || totalOf(p)!==null; });
+    var opts=pool.map(function(p){
+      var t=totalOf(p);
+      return '<option value="'+p.id+'">#'+p.id+(p.mom?" 🌿":p.mark==="keep"?" ⭐":"")+(t!==null?" — "+t.toFixed(2):"")+'</option>';
+    }).join("");
+    var a=$("crossA").value, b=$("crossB").value;
+    $("crossA").innerHTML=opts; $("crossB").innerHTML=opts;
+    if(pool.some(function(p){return String(p.id)===a;})) $("crossA").value=a;
+    if(pool.some(function(p){return String(p.id)===b;})) $("crossB").value=b;
+    // planned crosses (drop any whose parents left the run)
+    S.crosses=S.crosses.filter(function(c){
+      return S.plants.some(function(p){return p.id===c.a;}) && S.plants.some(function(p){return p.id===c.b;}); });
+    var cl=$("crossList");
+    if(!S.crosses.length){ cl.innerHTML='<p class="hint" style="margin:0">No crosses planned yet.</p>'; }
+    else {
+      cl.innerHTML="";
+      S.crosses.forEach(function(c,idx){
+        var row=document.createElement("div"); row.className="crossrow";
+        row.innerHTML='<span class="cx">♀ #'+c.a+' <span class="sym">×</span> ♂ #'+c.b+'</span>'
+          +'<button type="button" title="remove">✕</button>';
+        row.querySelector("button").addEventListener("click",function(){
+          S.crosses.splice(idx,1); save(); renderMoms(); ecoOut(); });
+        cl.appendChild(row);
+      });
+    }
+  }
+  $("crossAdd").addEventListener("click",function(){
+    var a=parseInt($("crossA").value,10), b=parseInt($("crossB").value,10);
+    if(!a||!b){ toast("Score or keep some plants first"); return; }
+    if(a===b){ toast("Selfing? Pick two different plants"); return; }
+    if(S.crosses.some(function(c){return c.a===a&&c.b===b;})){ toast("Already planned"); return; }
+    S.crosses.push({a:a,b:b}); save(); buzz(); renderMoms(); ecoOut(); toast("Cross planned — ♀ #"+a+" × ♂ #"+b);
+  });
 
   /* ---------- SEGREGATION ---------- */
   var RATIOS=[["3:1",3,1,"a single dominant gene"],["1:1",1,1,"a testcross-style split"],
@@ -496,6 +575,9 @@
           +" — selection differential "+(mK-mAll>=0?"+":"")+(mK-mAll).toFixed(2)+" on 1-5");
       }
     }
+    var ms=moms();
+    if(ms.length) lines.push("note: mothers in veg "+ms.map(function(p){return "#"+p.id;}).join(" ")+" — clone stock, pheno preserved not advanced");
+    S.crosses.forEach(function(c){ lines.push("note: planned cross female #"+c.a+" x male #"+c.b); });
     var a=parseInt($("segA").value,10)||0, b=parseInt($("segB").value,10)||0;
     if(a+b>=4) lines.push("cross: Aa x Aa observed "+a+" "+b+"   # "+($("segTrait").value||"trait")+" — χ² vs 3:1 in a graded protocol");
     $("ecoOut").textContent = lines.length>1 ? lines.join("\n") : "# score something first — your run export appears here";
@@ -519,9 +601,10 @@
     sp.slice().sort(function(a,b){return totalOf(b)-totalOf(a);}).forEach(function(p){
       var r=["#"+p.id];
       S.traits.forEach(function(t){ r.push(p.scores[t.n]||""); });
-      r.push(totalOf(p).toFixed(2), p.mark||"", p.note?p.note.replace(/\n/g," "):"");
+      r.push(totalOf(p).toFixed(2), (p.mark||"")+(p.mom?(p.mark?"+":"")+"mother":""), p.note?p.note.replace(/\n/g," "):"");
       rows.push(r.map(cell).join(","));
     });
+    S.crosses.forEach(function(c){ rows.push("# planned cross: female #"+c.a+" x male #"+c.b); });
     var text=rows.join("\n");
     function done(){ toast("CSV copied — paste into Excel or read.csv it"); buzz(); }
     function fb(){ var ta=document.createElement("textarea"); ta.value=text; ta.style.position="fixed"; ta.style.opacity="0";
