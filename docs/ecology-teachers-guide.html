@@ -1,0 +1,667 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>The Teacher's Guide — running a term on the ecology kit</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&family=Newsreader:opsz,ital,wght@6..72,0,400;6..72,0,500;6..72,0,600;6..72,1,400&family=JetBrains+Mono:wght@400;500&display=swap">
+<style>
+  :root {
+    color-scheme: light;
+    --page:#F5F1E6; --surface:#FFFDF7; --ink:#23281F; --ink-2:#4B5344; --muted:#8B8B7B;
+    --border:#E3DCC9; --rule:#C7C0AC; --s1:#2E7D4F; --s1-deep:#236240; --s2:#C0592B; --s3:#2B6C8F;
+    --soft:#E9F0E7; --soft-2:#F3EEE0; --warn:#F6EAD8;
+    --shadow:0 1px 2px rgba(35,40,31,.05),0 12px 32px rgba(35,40,31,.06);
+    --head:"Fraunces",Georgia,serif; --body:"Newsreader",Georgia,"Times New Roman",serif;
+    --mono:"JetBrains Mono",ui-monospace,Menlo,monospace;
+  }
+  * { box-sizing:border-box; }
+  body { margin:0; background:var(--page); color:var(--ink); font:18px/1.62 var(--body);
+    -webkit-font-smoothing:antialiased; text-rendering:optimizeLegibility; }
+  .wrap { max-width:860px; margin:0 auto; padding:0 26px; }
+  a { color:var(--s1); text-underline-offset:2px; }
+
+  .kit-nav { display:flex; flex-wrap:wrap; gap:8px; padding:14px 0 0; }
+  .kit-nav a { font-family:var(--mono); font-size:12.5px; letter-spacing:.02em; text-decoration:none;
+    color:var(--ink-2); background:var(--surface); border:1px solid var(--border); border-radius:999px;
+    padding:9px 15px; box-shadow:var(--shadow); display:inline-flex; align-items:center; min-height:40px; }
+  .kit-nav a:hover { border-color:var(--s1); color:var(--s1); }
+  .kit-nav a[aria-current="page"] { background:var(--s1); color:#fff; border-color:var(--s1); }
+
+  .masthead { padding:26px 0 10px; }
+  .masthead::before { content:""; display:block; width:52px; height:3px; background:var(--s1); border-radius:2px; margin:0 0 18px; }
+  .eyebrow { font-family:var(--mono); font-size:12px; letter-spacing:.18em; text-transform:uppercase; color:var(--s1); margin:0 0 12px; }
+  h1 { font-family:var(--head); font-weight:700; font-size:clamp(34px,6vw,54px); line-height:1.03; letter-spacing:-0.022em; margin:0 0 14px; max-width:18ch; }
+  .dek { font-size:20px; color:var(--ink-2); margin:0; max-width:62ch; }
+  .byline { font-family:var(--mono); font-size:12.5px; color:var(--muted); margin-top:18px; }
+
+  h2 { font-family:var(--head); font-weight:600; font-size:27px; letter-spacing:-0.015em; line-height:1.14; margin:0; }
+  h3 { font-family:var(--head); font-weight:600; font-size:19px; margin:26px 0 6px; }
+  h4 { font-family:var(--head); font-weight:600; font-size:16.5px; margin:18px 0 4px; color:var(--ink); }
+  p { margin:0 0 14px; } strong,b { font-weight:600; }
+  ul,ol { margin:0 0 14px; padding-left:22px; } li { margin:5px 0; }
+  .lead { font-size:19.5px; color:var(--ink-2); }
+  section { padding:34px 0 4px; }
+  .sec-head { border-top:3px solid var(--s1); padding-top:15px; margin-bottom:6px; }
+  .sec-num { font-family:var(--mono); font-size:12px; letter-spacing:.14em; text-transform:uppercase; color:var(--s1); }
+
+  /* the 90-second answer */
+  .answer { background:var(--surface); border:1px solid var(--border); border-left:4px solid var(--s1);
+    border-radius:0 14px 14px 0; padding:20px 24px; margin:24px 0; box-shadow:var(--shadow); }
+  .answer h3 { margin-top:0; }
+  .answer .qa { margin:0 0 12px; }
+  .answer .q { font-family:var(--head); font-weight:600; color:var(--ink); }
+  .answer .a { color:var(--ink-2); }
+
+  .toc { background:var(--soft-2); border:1px solid var(--border); border-radius:14px; padding:18px 22px; margin:24px 0; }
+  .toc h3 { margin:0 0 8px; }
+  .toc ol { margin:0; padding-left:20px; } .toc li { margin:5px 0; } .toc a { color:var(--ink); }
+  .toc .for { color:var(--muted); font-size:15px; }
+
+  table { border-collapse:collapse; width:100%; font-size:15px; margin:6px 0 4px; }
+  th,td { border:1px solid var(--rule); padding:7px 10px; text-align:left; vertical-align:top; line-height:1.45; }
+  th { background:var(--soft); font-family:var(--head); font-weight:600; font-size:14px; }
+  td.c,th.c { text-align:center; }
+  .tw { overflow-x:auto; -webkit-overflow-scrolling:touch; margin:12px 0; }
+  .yes { color:var(--s1); font-weight:600; } .no { color:var(--muted); }
+
+  /* week plan */
+  .weeks { display:grid; gap:10px; margin:16px 0; }
+  .wk { display:grid; grid-template-columns:74px 1fr; gap:14px; background:var(--surface);
+    border:1px solid var(--border); border-radius:12px; padding:13px 16px; box-shadow:var(--shadow); }
+  .wk .n { font-family:var(--mono); font-size:11.5px; letter-spacing:.08em; text-transform:uppercase; color:var(--s1); padding-top:3px; }
+  .wk b { font-family:var(--head); font-size:16.5px; }
+  .wk p { margin:3px 0 0; font-size:15.5px; color:var(--ink-2); }
+  @media (max-width:520px){ .wk { grid-template-columns:1fr; gap:4px; } }
+
+  .note { border-left:3px solid var(--s3); background:var(--surface); border:1px solid var(--border);
+    border-radius:0 10px 10px 0; padding:12px 16px; margin:14px 0; font-size:16px; color:var(--ink-2); }
+  .note b { font-family:var(--head); color:var(--ink); }
+  .warn { border-left:3px solid var(--s2); background:var(--warn); border:1px solid var(--border);
+    border-radius:0 10px 10px 0; padding:12px 16px; margin:14px 0; font-size:16px; color:var(--ink-2); }
+  .warn b { font-family:var(--head); color:var(--ink); }
+  .pull { font-family:var(--head); font-weight:500; font-size:23px; line-height:1.3; color:var(--ink);
+    border-left:3px solid var(--s1); padding:4px 0 4px 22px; margin:26px 0; max-width:40ch; }
+
+  .cards { display:grid; grid-template-columns:repeat(auto-fit,minmax(240px,1fr)); gap:12px; margin:16px 0; }
+  .card { background:var(--surface); border:1px solid var(--border); border-radius:12px; padding:15px 18px; box-shadow:var(--shadow); }
+  .card b { font-family:var(--head); display:block; margin-bottom:3px; }
+  .card span { color:var(--ink-2); font-size:15.5px; }
+
+  code { font-family:var(--mono); font-size:.8em; background:var(--soft-2); border:1px solid var(--border); border-radius:5px; padding:1px 5px; }
+  .cite { font-variant:small-caps; letter-spacing:.01em; color:var(--ink-2); }
+  .chk { list-style:none; padding-left:0; }
+  .chk li { padding-left:26px; position:relative; margin:6px 0; }
+  .chk li::before { content:"☐"; position:absolute; left:2px; color:var(--s1); font-size:17px; }
+
+  footer { margin:44px 0 60px; padding-top:18px; border-top:1px solid var(--border); color:var(--muted); font-size:14px; line-height:1.6; }
+  footer a { font-weight:500; }
+
+  @media print {
+    :root { --page:#fff; --surface:#fff; --soft:#f2f6f1; --soft-2:#f6f4ee; --warn:#faf3e8; --shadow:none; }
+    body { font-size:10.5pt; background:#fff; } .wrap { max-width:none; padding:0; }
+    .kit-nav { display:none; } a { color:inherit; text-decoration:none; }
+    section { break-inside:auto; } .sec-head { break-after:avoid; }
+    .answer, .wk, .card, table, .note, .warn { break-inside:avoid; }
+    h2,h3,h4 { break-after:avoid; } p { orphans:3; widows:3; }
+    .tw { overflow:visible; }
+  }
+  @media (max-width:560px){ body{font-size:17px;} .wrap{padding:0 18px;} }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<nav class="kit-nav">
+  <a href="ecology.html">Overview</a>
+  <a href="ecology-lab.html">Interactive Lab</a>
+  <a href="ecology-lab-manual.html">Lab Manual</a>
+  <a href="ecology-teachers-guide.html" aria-current="page">Teacher's Guide</a>
+  <a href="ecology-field-guide.html">Field Guide</a>
+  <a href="eco-protocol-reference.html">.eco Reference</a>
+  <a href="ecology.html#field-tools">Field Tools</a>
+</nav>
+
+<div class="masthead">
+  <p class="eyebrow">CSRBT · the ecology kit</p>
+  <h1>The Teacher's Guide</h1>
+  <p class="dek">Seven labs, five field apps, and one honest idea about how science actually works.
+    This is the document that tells you how to run them with thirty students, six tablets, and a
+    building that only lets you outside twice a term.</p>
+  <p class="byline">For the teacher deciding on a Tuesday whether to use this on Monday.</p>
+</div>
+
+<div class="answer">
+  <h3>The ninety-second answer</h3>
+  <div class="qa"><span class="q">Do I need to install anything?</span>
+    <span class="a">No. Every page is a single file that opens in a browser — phone, tablet, Chromebook,
+    the ancient desktop in the back. No accounts, no logins, no student data leaves the device.</span></div>
+  <div class="qa"><span class="q">Does it need internet in the field?</span>
+    <span class="a">Only to load the page the first time. After that a tablet in airplane mode in the
+    middle of a field works fine. Nothing is uploaded; nothing needs a signal.</span></div>
+  <div class="qa"><span class="q">What does it cost?</span>
+    <span class="a">Nothing. MIT-licensed. The most expensive lab needs a bag of dried beans and a
+    coat-hanger bent into a square.</span></div>
+  <div class="qa"><span class="q">Can I use just one lab?</span>
+    <span class="a">Yes, and you probably should. <a href="#one-lab">Start with the one-period lab</a>
+    — it needs no equipment and no fieldwork, and it tells you in fifty minutes whether the rest of
+    this is for you.</span></div>
+  <div class="qa"><span class="q">Do students need to be good at math?</span>
+    <span class="a">No. The tools compute Shannon's H′ and a χ² for them and say the result in a
+    sentence. The teaching happens in the argument about what the number means — which is the part
+    worth class time anyway.</span></div>
+  <div class="qa" style="margin-bottom:0"><span class="q">What if it rains?</span>
+    <span class="a">Three of the seven labs need no fieldwork at all, and one of them is a game about
+    losing days to rain. <a href="#wrong">There's a plan.</a></span></div>
+</div>
+
+<div class="toc">
+  <h3>What's in here</h3>
+  <ol>
+    <li><a href="#three-ways">Three ways in</a> <span class="for">· one lab, one unit, or a term</span></li>
+    <li><a href="#at-a-glance">The seven labs at a glance</a> <span class="for">· time, cost, fieldwork, what it teaches</span></li>
+    <li><a href="#sequence">A twelve-week sequence</a> <span class="for">· and why this order</span></li>
+    <li><a href="#logistics">Thirty students, six tablets</a> <span class="for">· grouping, rotation, pooling data</span></li>
+    <li><a href="#prep">Prep checklists</a> <span class="for">· the week before, the day before, ten minutes before</span></li>
+    <li><a href="#assessment">Assessment</a> <span class="for">· three rubrics, and what an A looks like</span></li>
+    <li><a href="#wrong">When it goes wrong</a> <span class="for">· rain, bad data, the group that finished early</span></li>
+    <li><a href="#differentiation">Reaching everyone</a> <span class="for">· the struggler, the sprinter, the one who's hooked</span></li>
+    <li><a href="#uncertainty">Teaching uncertainty honestly</a> <span class="for">· the thread through all of it</span></li>
+    <li><a href="#limits">What this kit can't do</a> <span class="for">· read before you commit</span></li>
+  </ol>
+</div>
+
+<section id="three-ways">
+  <div class="sec-head"><span class="sec-num">One</span><h2>Three ways in</h2></div>
+  <p class="lead">Pick by how much room you have, not by how much you like the idea.</p>
+
+  <div class="cards">
+    <div class="card"><b>One period</b><span>Lab 7, <a href="ecology-lab-manual.html#lab-foodweb">Food
+      Webs</a>. No equipment, no fieldwork, no prep beyond opening a page. Students build a web by
+      tapping, then break it and watch what starves. If a single lesson is going to convince you,
+      it's this one.</span></div>
+    <div class="card"><b>One unit</b><span>Three labs that share a spine: Biodiversity (3) →
+      Mark–Recapture (4) → Food Webs (7). Two weeks. The through-line is <em>you cannot count
+      everything, so how do you know anything?</em></span></div>
+    <div class="card"><b>A term</b><span>All seven, in the <a href="#sequence">sequence below</a>,
+      with the field apps carrying data collection and the workbench carrying the analysis. Twelve
+      weeks with room to breathe.</span></div>
+  </div>
+
+  <p id="one-lab"><b>If you only ever run one thing</b>, run the food-web knockout. Students name
+  eight organisms from a habitat they know, draw the feeding arrows, then long-press a species and
+  watch the cascade. It stages Robert Paine's 1966 sea-star removal <span class="cite">(Paine 1966,
+  1969)</span> — the experiment that gave us the word <em>keystone</em> — in a form that fits between
+  a bell and a bell. Students who have argued about which removal will hurt most, and then been
+  wrong, do not forget what a keystone species is.</p>
+</section>
+
+<section id="at-a-glance">
+  <div class="sec-head"><span class="sec-num">Two</span><h2>The seven labs at a glance</h2></div>
+  <p class="lead">Everything you need to slot a lab into a week you already planned.</p>
+
+  <div class="tw">
+  <table>
+    <tr>
+      <th>Lab</th><th>Fits the unit</th><th class="c">Time</th><th class="c">Outside?</th>
+      <th>You must supply</th><th>The idea it carries</th>
+    </tr>
+    <tr>
+      <td><b>1.</b> <a href="ecology-lab-manual.html#lab-behavior">Behavioral Observation</a></td>
+      <td>Animal behavior</td><td class="c">60–90 min</td><td class="c"><span class="no">optional</span></td>
+      <td>An animal to watch — a feeder, campus squirrels, a video</td>
+      <td>How you sample decides what you see</td>
+    </tr>
+    <tr>
+      <td><b>2.</b> <a href="ecology-lab-manual.html#lab-genetics">Mendelian Genetics</a></td>
+      <td>Heredity</td><td class="c">60 min</td><td class="c"><span class="no">no</span></td>
+      <td>A cross to count — vials, pea data, or the built-in classics</td>
+      <td>A ratio is a prediction you can be wrong about</td>
+    </tr>
+    <tr>
+      <td><b>3.</b> <a href="ecology-lab-manual.html#lab-biodiversity">Biodiversity &amp; Community</a></td>
+      <td>Ecology</td><td class="c">90 min</td><td class="c"><span class="yes">yes</span></td>
+      <td>A quadrat (bent coat-hanger), two patches of ground</td>
+      <td>Diversity is two things, and they disagree</td>
+    </tr>
+    <tr>
+      <td><b>4.</b> <a href="ecology-lab-manual.html#lab-markrecapture">Mark &amp; Recapture</a></td>
+      <td>Field methods</td><td class="c">45 min</td><td class="c"><span class="no">optional</span></td>
+      <td>A bag of dried beans and a marker</td>
+      <td>You can measure what you cannot count</td>
+    </tr>
+    <tr>
+      <td><b>5.</b> <a href="ecology-lab-manual.html#lab-hardyweinberg">Hardy–Weinberg</a></td>
+      <td>Evolution</td><td class="c">45 min</td><td class="c"><span class="no">no</span></td>
+      <td>A class trait census — ear lobes, tongue rolling</td>
+      <td>The null model is the interesting one</td>
+    </tr>
+    <tr>
+      <td><b>6.</b> <a href="ecology-lab-manual.html#lab-island">Island Biogeography</a></td>
+      <td>Biogeography</td><td class="c">45 min</td><td class="c"><span class="no">no</span></td>
+      <td>Nothing — the island runs in the browser</td>
+      <td>Steady numbers can hide total churn</td>
+    </tr>
+    <tr>
+      <td><b>7.</b> <a href="ecology-lab-manual.html#lab-foodweb">Food Webs</a></td>
+      <td>Community ecology</td><td class="c">50 min</td><td class="c"><span class="no">no</span></td>
+      <td>Nothing</td>
+      <td>Importance isn't the same as abundance</td>
+    </tr>
+  </table>
+  </div>
+
+  <div class="note"><b>Read the "optional" column carefully.</b> Labs 1 and 4 are marked optional
+  rather than no because they are <em>better</em> outside but they genuinely work inside. Lab 1 runs
+  on a five-minute video of a bird feeder. Lab 4 runs on beans in a paper bag, and the beans version
+  has a teaching advantage the field version doesn't: you know the true population, so students can
+  see exactly how wrong their estimate was.</div>
+
+  <p><b>On standards.</b> The labs map cleanly onto the ecosystem, heredity, and evolution strands of
+  most frameworks — NGSS's life-science lines on ecosystem dynamics, inheritance, and natural
+  selection; AP Biology's heredity and ecology units; IB Biology's ecology and genetics topics. I've
+  deliberately not printed specific standard codes, because they get renumbered and a guide with
+  stale codes is worse than one with none. Map them against your own framework once; it takes ten
+  minutes and it'll be right.</p>
+</section>
+
+<section id="sequence">
+  <div class="sec-head"><span class="sec-num">Three</span><h2>A twelve-week sequence</h2></div>
+  <p class="lead">The order isn't the order of the manual. It's built so each lab needs a skill the
+    one before it taught, and so the two fieldwork days land where the weather is likeliest to hold.</p>
+
+  <div class="weeks">
+    <div class="wk"><span class="n">Week 1</span><div><b>Food Webs — the hook</b>
+      <p>Lab 7. No equipment. Students build a web of a habitat they already know and break it. Ends
+      with the first argument of the term: <em>was the species you removed important, or just
+      common?</em> You are teaching the distinction on day one and coming back to it all term.</p></div></div>
+
+    <div class="wk"><span class="n">Week 2</span><div><b>Sampling, before any data exists</b>
+      <p><a href="field-season.html">Field Season</a>, the game. Every student gets the same hidden
+      meadow (same season number = same world), twelve field days, and weather that takes some of them
+      away. They file a report and it gets graded against the truth. They will lose. Then you compare
+      strategies across the room and the phrase "sampling effort" means something.</p></div></div>
+
+    <div class="wk"><span class="n">Week 3</span><div><b>Behavioral observation</b>
+      <p>Lab 1, indoors on video first. Build the ethogram as a class — this is where students learn
+      that a definition is an instrument. Then the <a href="field-notebook.html">Field Notebook</a>
+      does the scan timer and the tallies.</p></div></div>
+
+    <div class="wk"><span class="n">Week 4</span><div><b>Behavior, outside — first field day</b>
+      <p>Same lab, real animals, groups of three. The comparison that makes the lesson: their video
+      budget versus their live budget. Which behaviors did scan sampling miss?</p></div></div>
+
+    <div class="wk"><span class="n">Weeks 5–6</span><div><b>Biodiversity &amp; community — second field day</b>
+      <p>Lab 3 across two weeks: quadrats and counts in week 5, analysis and the two-site comparison
+      in week 6. This is the term's biggest field day; put it where your weather is best. The payoff
+      is watching Sørensen and Bray–Curtis disagree about the same two sites, and having to say why.</p></div></div>
+
+    <div class="wk"><span class="n">Week 7</span><div><b>Mark &amp; recapture</b>
+      <p>Lab 4 with beans, indoors. Because you know the true number, every group's error is visible
+      and comparable. Then break an assumption on purpose — add unmarked beans between catches — and
+      watch the estimate move in the direction the math demands.</p></div></div>
+
+    <div class="wk"><span class="n">Week 8</span><div><b>Island biogeography</b>
+      <p>Lab 6, browser only. Halve the island, double it, watch equilibrium richness follow the
+      curves. The moment worth waiting for: richness holds steady while the residents keep changing.
+      "Full" and "unchanging" turn out to be different claims.</p></div></div>
+
+    <div class="wk"><span class="n">Week 9</span><div><b>Mendelian genetics</b>
+      <p>Lab 2. Punnett prediction first, counting second, χ² last. Then hand them Mendel's own
+      dihybrid numbers and let them notice the fit is <em>suspiciously</em> good — a door into what
+      honest data looks like.</p></div></div>
+
+    <div class="wk"><span class="n">Week 10</span><div><b>Hardy–Weinberg</b>
+      <p>Lab 5 on a class census. The teaching move is refusing to let "it doesn't fit" be a failure:
+      a departure from equilibrium is the finding. Which assumption broke, and how would you check?</p></div></div>
+
+    <div class="wk"><span class="n">Week 11</span><div><b>Independent investigation</b>
+      <p>Groups choose a question and a method from anything they've used. They pre-register it as an
+      <a href="eco-protocol-reference.html"><code>.eco</code></a> protocol — hypothesis committed
+      <em>before</em> the run — and the engine grades the prediction, not the vibe.</p></div></div>
+
+    <div class="wk"><span class="n">Week 12</span><div><b>Present and defend</b>
+      <p>Every page in the kit prints clean, so a report is a printout plus an argument. Groups
+      present; the audience's job is to find the weakest inference. Give points for finding one.</p></div></div>
+  </div>
+
+  <div class="note"><b>Why the game comes second.</b> It's tempting to save Field Season as a reward
+  for the end of term. Don't. It's the cheapest possible way to make a class feel the cost of a bad
+  sampling plan, and everything after week 2 is easier because they've already paid that cost once
+  where it didn't count.</div>
+
+  <p class="pull">Students who have been wrong on the record, early, argue better for the rest of the term.</p>
+</section>
+
+<section id="logistics">
+  <div class="sec-head"><span class="sec-num">Four</span><h2>Thirty students, six tablets</h2></div>
+  <p class="lead">The real constraint is rarely the science. It's that you have half the devices you'd
+    like and forty-five minutes that includes getting coats on.</p>
+
+  <h3>Group size</h3>
+  <p><b>Three is the number.</b> One student taps, one calls out what they see, one keeps time and
+  watches for mistakes — and they rotate roles each session so nobody spends the term as the
+  secretary. Pairs work but leave nobody to catch errors. Fours reliably produce one passenger.</p>
+  <p>Thirty students, groups of three, is ten devices. If you have six, run <b>six field groups and
+  four analysis groups</b> and swap them halfway: the analysis groups work last session's data in the
+  <a href="ecology-lab.html">workbench</a> while the field groups collect. It also means two rounds
+  of data instead of one, which makes the pooling step below far more interesting.</p>
+
+  <h3>The pooling move</h3>
+  <p>This is the highest-value ten minutes in the whole kit, and it's easy to skip. Every app exports
+  a CSV. Have each group paste theirs into one shared sheet, then put the pooled numbers on the board
+  next to each group's own.</p>
+  <ul>
+    <li>Small samples swing wildly; the pooled estimate doesn't. Students <em>see</em> sample size
+      working instead of being told about it.</li>
+    <li>Outlier groups become a conversation instead of an embarrassment: <em>why did group 4 get
+      double? Different patch, or different counting rule?</em></li>
+    <li>It's how real field data gets made, which is the point.</li>
+  </ul>
+
+  <h3>Tablets in the field</h3>
+  <ul>
+    <li><b>Load the page indoors before you leave.</b> Once it's open it needs no signal.</li>
+    <li><b>Turn on airplane mode.</b> Doubles the battery and removes the notification problem.</li>
+    <li><b>Fill in the Session card first</b> — site, observer, date. It rides onto every export, and
+      six untitled exports at 3pm are indistinguishable from each other.</li>
+    <li><b>Screen brightness all the way up.</b> The warm paper palette is readable in sun; the
+      default half-brightness is not.</li>
+    <li><b>One device per group, not per student.</b> The arguing is the learning.</li>
+  </ul>
+
+  <div class="warn"><b>The one thing that loses data.</b> Only Pheno Tracker saves between sessions;
+  the other apps hold everything in the page. A closed tab is gone. Make "copy the export before you
+  close anything" the last step of every field session, and paste it somewhere — a shared doc, an
+  email to yourself, anywhere. Every app has a Copy button for exactly this reason.</div>
+</section>
+
+<section id="prep">
+  <div class="sec-head"><span class="sec-num">Five</span><h2>Prep checklists</h2></div>
+  <p class="lead">Photocopy these. They are the difference between a field day and a field trip.</p>
+
+  <h4>The week before</h4>
+  <ul class="chk">
+    <li>Walk the site yourself. Ten minutes. Is there actually anything living in it?</li>
+    <li>Run the lab once, alone, on your own phone — the whole thing, including the export.</li>
+    <li>Check the weather and pick your rain-day alternative now, not on the morning.</li>
+    <li>Buy the consumables: dried beans (Lab 4), coat hangers (Lab 3). That's the list.</li>
+    <li>Print the data sheets from the <a href="ecology-lab-manual.html">Lab Manual</a> — every lab
+      has one and they're built to print.</li>
+  </ul>
+
+  <h4>The day before</h4>
+  <ul class="chk">
+    <li>Charge the tablets. All of them. Yes, including that one.</li>
+    <li>Open the lab page on each device once so it's cached.</li>
+    <li>Bend the quadrats. A bent coat hanger is a quadrat; a hula hoop is a quadrat.</li>
+    <li>Decide group membership yourself. Self-selected groups on a field day cost you fifteen minutes.</li>
+    <li>Write the sampling rule on the board — where quadrats go, how long a focal sample runs.
+      Decided in advance, it's a method; decided in the field, it's a bias.</li>
+  </ul>
+
+  <h4>Ten minutes before</h4>
+  <ul class="chk">
+    <li>Airplane mode on, brightness up, page already open.</li>
+    <li>Session card filled: site, observer, date.</li>
+    <li>Everyone can state the question in one sentence before anyone counts anything.</li>
+    <li>Name the stopping rule — "we come back at ten past" — out loud.</li>
+  </ul>
+</section>
+
+<section id="assessment">
+  <div class="sec-head"><span class="sec-num">Six</span><h2>Assessment</h2></div>
+  <p class="lead">The kit computes the numbers, which means you cannot grade arithmetic any more —
+    and shouldn't have been. Grade the three things the tool can't do for them.</p>
+
+  <h3>Rubric 1 — Data quality</h3>
+  <p class="lead" style="font-size:16.5px">Did they collect something worth analysing?</p>
+  <div class="tw"><table>
+    <tr><th style="width:16%">Level</th><th>What it looks like</th></tr>
+    <tr><td><b>Exemplary</b></td><td>Method stated before collection and followed. Sampling rule
+      explicit enough that another group could repeat it. Session metadata complete. Anomalies noted
+      at the time — "quadrat 6 was half on the path" — rather than quietly dropped.</td></tr>
+    <tr><td><b>Proficient</b></td><td>Method stated and mostly followed. Data complete and legible.
+      Minor gaps acknowledged.</td></tr>
+    <tr><td><b>Developing</b></td><td>Method emerged during collection rather than before it. Data
+      complete but unrepeatable — you couldn't tell from the sheet where the quadrats went.</td></tr>
+    <tr><td><b>Beginning</b></td><td>Data thin or invented. Suspiciously round numbers, or a tally
+      that doesn't match the time spent.</td></tr>
+  </table></div>
+
+  <h3>Rubric 2 — Interpretation</h3>
+  <p class="lead" style="font-size:16.5px">Do they know what their own number means?</p>
+  <div class="tw"><table>
+    <tr><th style="width:16%">Level</th><th>What it looks like</th></tr>
+    <tr><td><b>Exemplary</b></td><td>States the number, says what it means biologically, and names a
+      mechanism that would produce it. Distinguishes what the data show from what they suspect.
+      Notices when two indices disagree and explains why they can.</td></tr>
+    <tr><td><b>Proficient</b></td><td>Reports and correctly interprets the number. Offers a plausible
+      biological explanation.</td></tr>
+    <tr><td><b>Developing</b></td><td>Reports the number and re-states the tool's sentence in their own
+      words without adding biology.</td></tr>
+    <tr><td><b>Beginning</b></td><td>Reports the number with no interpretation, or an interpretation
+      the number doesn't support.</td></tr>
+  </table></div>
+
+  <h3>Rubric 3 — Honest uncertainty</h3>
+  <p class="lead" style="font-size:16.5px">This is the one worth the most marks.</p>
+  <div class="tw"><table>
+    <tr><th style="width:16%">Level</th><th>What it looks like</th></tr>
+    <tr><td><b>Exemplary</b></td><td>Names the specific limitation that matters most for <em>this</em>
+      result — not a generic "we could have used more samples." Says which assumption is shakiest and
+      what they'd measure next to test it. Reports a result that went against their prediction without
+      dressing it up.</td></tr>
+    <tr><td><b>Proficient</b></td><td>Identifies real limitations relevant to their method. Doesn't
+      overclaim.</td></tr>
+    <tr><td><b>Developing</b></td><td>Generic limitations that would apply to any experiment.</td></tr>
+    <tr><td><b>Beginning</b></td><td>Claims certainty the data can't carry, or hides a result that
+      didn't work.</td></tr>
+  </table></div>
+
+  <h3>What an A actually looks like</h3>
+  <p>Two students, same lab, same site. Here is the difference, in their own closing sentences:</p>
+  <div class="cards">
+    <div class="card"><b>A solid B</b><span>"The verge had higher diversity (H′ = 1.57) than the lawn
+      (H′ = 1.05), because the lawn is mowed and the verge isn't. More species can survive in the
+      verge."</span></div>
+    <div class="card"><b>An A</b><span>"The verge had higher H′ (1.57 vs 1.05), but almost all of that
+      gap is evenness, not richness — five species against four. The lawn's problem isn't that
+      species are missing, it's that grass is 61% of it. If mowing is the cause I'd expect the
+      difference to shrink at the unmowed edge, which is the thing I'd measure next. Our two sites
+      were also sampled twenty minutes apart in different light, which I don't think matters for
+      plants but would for the pollinator count we did after."</span></div>
+  </div>
+  <p>The A doesn't have better data or more words. It decomposes its own number, commits to a testable
+  consequence, and volunteers a weakness nobody asked about. That's the behaviour to reward, and once
+  you've read one aloud, the rest of the class starts producing it.</p>
+
+  <div class="note"><b>The pre-registration option.</b> For a graded investigation, have groups write
+  an <a href="eco-protocol-reference.html"><code>.eco</code></a> protocol that commits to a hypothesis
+  before they collect — the engine then grades the prediction against the result. It removes the
+  temptation to discover the hypothesis after seeing the data, which is a habit worth breaking early
+  and a real problem in professional science too.</div>
+</section>
+
+<section id="wrong">
+  <div class="sec-head"><span class="sec-num">Seven</span><h2>When it goes wrong</h2></div>
+  <p class="lead">It will. Most of these are better lessons than the plan was.</p>
+
+  <h4>It's raining</h4>
+  <p>Swap to Lab 6 (island), Lab 7 (food webs), or Lab 5 (Hardy–Weinberg) — none need to go outside.
+  Or run <a href="field-season.html">Field Season</a>, where losing days to weather is the mechanic
+  and the lesson. Say out loud that this is what field seasons are actually like; it isn't a
+  consolation prize, it's the discipline.</p>
+
+  <h4>A group's data is obviously wrong</h4>
+  <p>Four hundred aphids on one leaf, or a tally that couldn't have happened in ten minutes. Don't
+  discard it quietly — that teaches exactly the wrong thing. Put it on the board with the others and
+  ask the room: <em>what would have to be true for this to be right?</em> Usually the group finds the
+  answer themselves (they counted a colony as individuals; they double-tapped). A group that
+  diagnoses its own bad data has learned more than a group whose data was fine.</p>
+
+  <h4>A group finished in fifteen minutes</h4>
+  <p>They sampled too little, and the fix is a question, not more worksheets: <em>how confident are
+  you? Would another three quadrats change your answer?</em> Send them to find out. If they come
+  back with a changed answer, they've discovered sampling effort by themselves. If it doesn't change,
+  they've discovered saturation — also a real result, and they can now say why they're confident.</p>
+
+  <h4>The numbers don't fit the expected ratio</h4>
+  <p>Good. This is the single best teaching moment the kit produces, and the instinct to treat it as a
+  failed lab is the one to resist. A χ² that rejects 3:1 means something: linkage, a mis-scored
+  phenotype, a small sample, or a real biological surprise. Make them argue for one and say how they'd
+  distinguish it from the others. The tool states the small-sample caveat itself, which gives you an
+  opening.</p>
+
+  <h4>Two groups at the same site got different answers</h4>
+  <p>Almost always sampling variance, occasionally a real difference in microhabitat, sometimes
+  different counting rules. Work through those three in order as a class. This is the pooling
+  conversation and it's worth more than either group's individual result.</p>
+
+  <h4>A student loses their data</h4>
+  <p>Closed the tab, no export. It happens once per class per term. It's recoverable as a lesson —
+  have them redo a short version and they will never skip an export again — but you can prevent most
+  of it by making "copy the export" the ritual last step. See the warning in
+  <a href="#logistics">section four</a>.</p>
+</section>
+
+<section id="differentiation">
+  <div class="sec-head"><span class="sec-num">Eight</span><h2>Reaching everyone</h2></div>
+
+  <h4>The student who's struggling</h4>
+  <p>Give them the tally role first — it's concrete, it's essential, and it produces something the
+  group visibly needs. The apps are tap-only with no typing and no arithmetic, so the barrier to
+  contributing is genuinely low. Then move them to interpretation with a scaffold: "the number is
+  ___, which means ___, and I think that's because ___." Most students who "can't do the maths" can
+  do the science once the maths stops being the gate.</p>
+
+  <h4>The student who's ahead</h4>
+  <p>Don't give them more counting. Give them a harder question:</p>
+  <ul>
+    <li>Take the CSV into a spreadsheet or R and check the tool's number by hand.</li>
+    <li>Run the same site twice a week apart and argue about what changed.</li>
+    <li>In the food-web builder, find the <em>minimum</em> set of removals that collapses the web.</li>
+    <li>In Field Season, beat their own score on the same season number — same world, better strategy.</li>
+  </ul>
+
+  <h4>The student who's hooked</h4>
+  <p>Point them at the <a href="ecology-field-guide.html">Field Guide</a> for where each method comes
+  from, the <a href="ecology-essay.html">essay</a> for why any of this exists, and the
+  <a href="eco-protocol-reference.html"><code>.eco</code></a> format for running a graded experiment
+  of their own design. The <a href="pheno-tracker.html">Pheno Tracker</a> and
+  <a href="farm-scout.html">Farm Scout</a> are the same science pointed at plant breeding and
+  agriculture — a real answer to "what would I do with this."</p>
+
+  <h4>Language and access</h4>
+  <p>Every reading in the kit is plain-language first and technical second; the tools narrate results
+  in sentences, not just numbers. Ethogram and species names are student-entered, so they can be in
+  any language. Every page prints clean if a student works better on paper than on a screen.</p>
+</section>
+
+<section id="uncertainty">
+  <div class="sec-head"><span class="sec-num">Nine</span><h2>Teaching uncertainty honestly</h2></div>
+  <p class="lead">If the kit has a thesis, this is it, and it's the reason the tools are built the way
+    they are.</p>
+
+  <p>A textbook lab tends to have a right answer in the back. The student's job is to arrive at it,
+  and a result that misses is a failed lab. This trains a habit that is precisely backwards from
+  science: it teaches that unexpected results mean you did something wrong.</p>
+
+  <p>Every lab here is built the other way. The quadrat data is whatever was actually in the grass.
+  The χ² either fits or it doesn't. The knockout takes down whichever species it takes down. There is
+  no back of the book — and so "my result disagrees with my prediction" becomes the start of the
+  interesting part rather than the end of the lab.</p>
+
+  <p class="pull">A number without a stated uncertainty is a rumour with decimal places.</p>
+
+  <p>The tools try to model this rather than just permit it. They state caveats alongside results
+  instead of burying them:</p>
+  <ul>
+    <li>The χ² checker names the small-sample problem when your run is small.</li>
+    <li>The breeding bench reports selection differential S and then says plainly that the response
+      you actually get is <b>R = h² × S</b> — and that it can't know your h².</li>
+    <li>The pest scout's action thresholds are labelled placeholders, because real ones are local.</li>
+    <li>The food-web knockout says its count is a lower bound on disruption, not a prediction of what
+      would literally die.</li>
+    <li>Lab 7 carries no <code>.eco</code> pre-registration block, and says why: the format has no
+      food-web keyword, and inventing one that graded nothing would be worse than the gap.</li>
+  </ul>
+
+  <p><b>Use those out loud.</b> When a tool volunteers its own limitation, point at it: <em>this is
+  what it looks like when something is honest about what it doesn't know.</em> Then hold student work
+  to the same standard — which is what rubric 3 is for. Students imitate the epistemics they're
+  handed. Hand them good ones.</p>
+
+  <div class="note"><b>One phrase worth stealing.</b> When a group reports a result, ask "how would
+  you know if you were wrong?" It works on every lab in this kit, it takes four seconds, and after a
+  few weeks they start answering it before you ask.</div>
+</section>
+
+<section id="limits">
+  <div class="sec-head"><span class="sec-num">Ten</span><h2>What this kit can't do</h2></div>
+  <p class="lead">Read this before you build a term around it. A guide that only sells you the
+    upside isn't a guide.</p>
+
+  <ul>
+    <li><b>It isn't a gradebook or an LMS.</b> No accounts, no roster, no submission portal, no
+      analytics on who did what. Students export and hand in; you grade the way you already grade.
+      For a lot of teachers this is a feature — no student data leaves the device, so there's nothing
+      to review with your privacy office — but if you wanted automatic submission tracking, it isn't
+      here.</li>
+    <li><b>It won't identify species for you.</b> No image recognition, no built-in field guide of
+      local flora. Students name what they see, in whatever words they have. Pair it with a regional
+      guide or a naming key if identification is part of your objective.</li>
+    <li><b>Most of it doesn't save.</b> Only the Pheno Tracker persists between sessions. The rest
+      lives in the open page, by design — nothing to sync, nothing to leak, nothing to administer —
+      but it means the export step is not optional.</li>
+    <li><b>It isn't a curriculum.</b> There are no lecture slides, no reading assignments, no
+      homework sets, no answer key. It's laboratory and fieldwork infrastructure; the course around
+      it is yours.</li>
+    <li><b>The statistics are introductory.</b> χ² goodness-of-fit, diversity indices,
+      Lincoln–Petersen, a selection differential. There's no ANOVA, no regression, no mixed models.
+      That's the right level for an intro course and the wrong level for an undergraduate research
+      project — though the CSV export drops straight into R or Python when a student outgrows it.</li>
+    <li><b>It's a hand-built project, not a product.</b> No support line, no institutional contract,
+      no guaranteed maintenance window. It's MIT-licensed, so it's yours to keep and modify, and it
+      will keep working offline for as long as browsers open HTML files. But plan accordingly.</li>
+  </ul>
+
+  <div class="note"><b>What it does do well</b>, to be fair to it: it removes the arithmetic barrier
+  between a student and a real analysis, it makes data collection fast enough to do twice, and it
+  is honest about its own limits in a way that gives you something to teach with.</div>
+</section>
+
+<section>
+  <div class="sec-head"><span class="sec-num">Last</span><h2>Start here on Monday</h2></div>
+  <p class="lead">If you've read this far, the smallest real step is one period and no equipment.</p>
+  <ol>
+    <li>Open the <a href="food-web.html">Food Web Builder</a> yourself tonight. Tap the pond preset,
+      long-press the minnow, watch what starves. Five minutes.</li>
+    <li>Print <a href="ecology-lab-manual.html#lab-foodweb">Lab 7</a> — it prints as a clean handout
+      with its data sheets.</li>
+    <li>Run it Monday. Groups of three, one device each, the predict-then-knockout procedure.</li>
+    <li>Ask the closing question and let them fight about it: <em>was the species you removed
+      important, or just common?</em></li>
+  </ol>
+  <p>If that period goes well, come back to <a href="#sequence">the twelve-week sequence</a>. If it
+  doesn't, you've lost fifty minutes and gained a food-web lesson that didn't need a photocopier.</p>
+</section>
+
+<footer>
+  <p>Part of the CSRBT ecology kit — start at the <a href="ecology.html">Overview</a>, run the labs
+  from the <a href="ecology-lab-manual.html">Field &amp; Lab Manual</a>, look terms up in the
+  <a href="ecology-glossary.html">Glossary</a>, and keep the
+  <a href="ecology-field-card.html">Field Card</a> on the bench. Every page here works offline and
+  prints clean. MIT-licensed · © 2026 Richmond.</p>
+  <p>Methods and their sources are catalogued in the <a href="ecology-field-guide.html">Field
+  Guide</a>; the reasoning behind the whole layer is in <a href="ecology-essay.html">The ecology of a
+  tree</a>. Paine's keystone experiments: <span class="cite">Paine 1966, 1969</span>. Trophic
+  transfer efficiency: <span class="cite">Lindeman 1942</span>. Behavioural sampling methods:
+  <span class="cite">Altmann 1974</span>.</p>
+</footer>
+
+</div>
+</body>
+</html>

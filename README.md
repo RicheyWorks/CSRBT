@@ -702,6 +702,10 @@ no install required.
 - [**`docs/ecology-lab.html`**](docs/ecology-lab.html) — the **Interactive Lab**: a live terrarium
   plus a browser Workbench that runs every instrument on your own field data, entered through
   tap-friendly chip editors and steppers (the pasted-text form is still there under "edit as text").
+- [**`docs/ecology-teachers-guide.html`**](docs/ecology-teachers-guide.html) — the **Teacher's
+  Guide**: how to actually run a term on this — a twelve-week sequence, logistics for thirty students
+  on six tablets, prep checklists, three assessment rubrics, what to do when it rains, and an honest
+  list of what the kit can't do. Start here if you're teaching with it.
 - [**`docs/ecology-lab-manual.html`**](docs/ecology-lab-manual.html) — the **Field & Lab Manual**:
   seven ready-to-run labs (behavior, genetics, biodiversity, mark–recapture, Hardy–Weinberg, island
   biogeography, food webs) with printable data sheets, procedures, and `.eco` pre-registration — each
