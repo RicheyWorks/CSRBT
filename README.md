@@ -703,8 +703,9 @@ no install required.
   plus a browser Workbench that runs every instrument on your own field data, entered through
   tap-friendly chip editors and steppers (the pasted-text form is still there under "edit as text").
 - [**`docs/ecology-lab-manual.html`**](docs/ecology-lab-manual.html) — the **Field & Lab Manual**:
-  six ready-to-run labs (behavior, genetics, biodiversity, mark–recapture, Hardy–Weinberg, island
-  biogeography) with printable data sheets, procedures, and `.eco` pre-registration.
+  seven ready-to-run labs (behavior, genetics, biodiversity, mark–recapture, Hardy–Weinberg, island
+  biogeography, food webs) with printable data sheets, procedures, and `.eco` pre-registration — each
+  wired to the tablet app that collects its data.
 - [**`docs/ecology-field-guide.html`**](docs/ecology-field-guide.html) — the **Field Guide**: the
   plain-language reference behind the instruments, station by station (also
   [`ECOLOGY-FIELD-GUIDE.md`](docs/ECOLOGY-FIELD-GUIDE.md) as Markdown).

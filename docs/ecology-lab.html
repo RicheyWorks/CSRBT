@@ -40,7 +40,8 @@
   /* shared science-kit nav — wiring between the three pages */
   .kit-nav { max-width: 1060px; margin: 0 auto; padding: 16px 20px 0; display: flex; flex-wrap: wrap; gap: 8px; }
   .kit-nav a { font-family: var(--font-mono); font-size: 12.5px; text-decoration: none; color: var(--ink-2);
-    background: var(--surface-1); border: 1px solid var(--ring); border-radius: 999px; padding: 6px 14px; box-shadow: var(--shadow); }
+    background: var(--surface-1); border: 1px solid var(--ring); border-radius: 999px; padding: 9px 15px;
+    box-shadow: var(--shadow); display: inline-flex; align-items: center; min-height: 40px; }
   .kit-nav a:hover { border-color: var(--s1); color: var(--s1); }
   .kit-nav a[aria-current="page"] { background: var(--s1); color: #fff; border-color: var(--s1); }
 
@@ -64,7 +65,20 @@
   body.dragging .drophint { border-color: var(--s1); color: var(--s1); box-shadow: var(--shadow); }
 
   /* layout + cards */
-  main { max-width: 1060px; margin: 0 auto; padding: 14px 20px 80px; display: grid; gap: 18px; }
+  /* minmax(0,1fr), not the implicit `auto`: an auto grid track's minimum is min-content,
+     so one wide child (a viewBox'd SVG, a nowrap row) stretched every card past the viewport. */
+  main { max-width: 1060px; margin: 0 auto; padding: 14px 20px 80px; display: grid;
+         grid-template-columns: minmax(0, 1fr); gap: 18px; }
+  main > .card { min-width: 0; }
+  /* a <select> takes its min-content from the longest <option>, which pushed the preset
+     pickers ("— pick a famous cross —" …) past a phone's viewport; clamp and let the
+     flex label shrink around it. */
+  select { max-width: 100%; }
+  label { min-width: 0; }
+  /* generated result tables scroll inside their own panel rather than the page */
+  details > table, .card details table { display: block; overflow-x: auto;
+    -webkit-overflow-scrolling: touch; max-width: 100%; }
+  @media print { details > table, .card details table { display: table; overflow: visible; } }
   .card {
     background: var(--surface-1); border: 1px solid var(--ring); border-radius: 14px;
     padding: 22px 24px 18px; box-shadow: var(--shadow);
@@ -98,8 +112,12 @@
   }
   .legend { display: flex; flex-wrap: wrap; gap: 16px; font-size: 13px; color: var(--ink-2); margin: 6px 2px; }
   .legend .sw { display: inline-block; width: 10px; height: 10px; border-radius: 3px; margin-right: 6px; }
-  .facets { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
-  @media (max-width: 760px) { .facets { grid-template-columns: 1fr; } }
+  /* minmax(0,…) not 1fr: a 1fr track's automatic minimum is min-content, and an SVG with a
+     viewBox but no width attribute reports its viewBox width as intrinsic — which pushed the
+     whole card past the viewport on phones and tablets. minmax(0,…) lets the track shrink. */
+  .facets { display: grid; grid-template-columns: minmax(0,1fr) minmax(0,1fr); gap: 16px; }
+  .facet { min-width: 0; }
+  @media (max-width: 760px) { .facets { grid-template-columns: minmax(0,1fr); } }
   .facet h3, .h3 { font-size: 13px; color: var(--ink-2); font-weight: 700; margin: 8px 0 2px;
     text-transform: uppercase; letter-spacing: .04em; }
 
@@ -110,7 +128,7 @@
   input[type=range] { width: 180px; accent-color: var(--s1); }
 
   /* charts (SVG) */
-  svg { display: block; width: 100%; height: auto; }
+  svg { display: block; width: 100%; max-width: 100%; height: auto; }
   svg text { font: 11px var(--font-body); fill: var(--muted); }
   svg .axis-label { font-variant-numeric: tabular-nums; }
   .gridline { stroke: var(--grid); stroke-width: 1; }
@@ -213,7 +231,7 @@
 <header>
   <h1>🌿 Ecology Field Day</h1>
   <p class="sub">Field-ecology instruments for <b>students, TAs, and researchers</b> — measure real field data, or a living data structure, with the same tools you'd take into the meadow: diversity indices, survivorship curves, quadrat dispersion, island turnover, Punnett squares, and more. Keys are species &middot; touches are abundance &middot; time is counted in operations. No install needed for the Workbench below — and everything prints clean for a lab report.</p>
-  <p style="margin:2px 0 12px"><a href="ecology-lab-manual.html" style="display:inline-flex;gap:8px;align-items:center;font-weight:700;color:var(--s1);text-decoration:none;border:1px solid var(--ring);background:var(--surface-1);border-radius:12px;padding:9px 16px;box-shadow:var(--shadow)">Field &amp; Lab Manual — six ready-to-run labs: behavior, genetics, biodiversity, populations, islands &rarr;</a></p>
+  <p style="margin:2px 0 12px"><a href="ecology-lab-manual.html" style="display:inline-flex;gap:8px;align-items:center;font-weight:700;color:var(--s1);text-decoration:none;border:1px solid var(--ring);background:var(--surface-1);border-radius:12px;padding:9px 16px;box-shadow:var(--shadow)">Field &amp; Lab Manual — seven ready-to-run labs: behavior, genetics, biodiversity, populations, islands, food webs &rarr;</a></p>
   <span class="drophint">📄 drop a session anywhere to reload — <code>&nbsp;./gradlew ecologyFieldDay&nbsp;</code>
      or replay your own trace: <code>&nbsp;./gradlew ecologyTrace -Ptrace=your.csv</code>
      · drop an <code>&nbsp;.eco&nbsp;</code> protocol to read it back into the Workbench</span>
@@ -3178,6 +3196,17 @@ addEventListener("drop", ev => {
     function announce(ta){ ta.dispatchEvent(new Event("input",{bubbles:true})); }
 
     /* ---- name/count chip editor over a "name count"-lines textarea ---- */
+    /* The raw-text fallback is flex-basis:100%, which only lands on its own line if the
+       parent flex row actually wraps. Two of the Workbench panels use nowrap rows, which
+       shoved "edit as text" off the right edge of the page. Opt the parent into wrapping. */
+    function unwrapRow(node){
+      try {
+        var p = node.parentElement;
+        if (p && getComputedStyle(p).display.indexOf("flex") >= 0
+              && getComputedStyle(p).flexWrap === "nowrap") p.style.flexWrap = "wrap";
+      } catch(e) {}
+    }
+
     function chipify(id, namePh){
       var ta=document.getElementById(id); if(!ta) return;
       var wrap=document.createElement("div"); wrap.className="fe-wrap";
@@ -3186,6 +3215,7 @@ addEventListener("drop", ev => {
       details.innerHTML="<summary>✎ edit as text (paste from a spreadsheet)</summary>";
       ta.parentNode.insertBefore(details, ta.nextSibling);
       details.appendChild(ta);
+      unwrapRow(details);
       var items=[], silent=false;
       function parse(){
         items=[];
@@ -3258,6 +3288,7 @@ addEventListener("drop", ev => {
       details.innerHTML="<summary>✎ edit as text (numbers, space-separated)</summary>";
       ta.parentNode.insertBefore(details, ta.nextSibling);
       details.appendChild(ta);
+      unwrapRow(details);
       var q=[], silent=false;
       function parse(){ q=ta.value.split(/[\s,]+/).map(Number)
         .filter(function(n){return Number.isFinite(n)&&n>=0;}).map(Math.round); }

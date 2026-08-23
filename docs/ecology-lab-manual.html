@@ -39,7 +39,7 @@
   .kit-nav { display:flex; flex-wrap:wrap; gap:8px; padding:14px 0 0; }
   .kit-nav a { font-family:var(--mono); font-size:12.5px; letter-spacing:.02em; text-decoration:none;
     color:var(--ink-2); background:var(--surface); border:1px solid var(--border); border-radius:999px;
-    padding:6px 14px; box-shadow:var(--shadow); }
+    padding:9px 15px; box-shadow:var(--shadow); display:inline-flex; align-items:center; min-height:40px; }
   .kit-nav a:hover { border-color:var(--s1); color:var(--s1); }
   .kit-nav a[aria-current="page"] { background:var(--s1); color:#fff; border-color:var(--s1); }
 
@@ -95,14 +95,17 @@
   .cite { font-variant: small-caps; letter-spacing: .01em; color: var(--ink-2); }
 
   code { font-family: var(--mono); font-size: .82em; background: var(--soft-2); border: 1px solid var(--border); border-radius: 5px; padding: 1px 5px; }
-  .tool { font-family: var(--mono); font-size: .8em; color: var(--s3); background: #EAF0F4; border: 1px solid #cfe0ea; border-radius: 5px; padding: 1px 6px; white-space: nowrap; }
+  .tool { font-family: var(--mono); font-size: .8em; color: var(--s3); background: #EAF0F4; border: 1px solid #cfe0ea; border-radius: 5px; padding: 1px 6px; white-space: nowrap; overflow-wrap: anywhere; }
+  @media (max-width: 560px) { .tool { white-space: normal; } }
   pre { font-family: var(--mono); font-size: 13px; line-height: 1.6; background: var(--surface); color: var(--ink);
         border: 1px solid var(--border); border-radius: 10px; padding: 14px 16px; overflow-x: auto; box-shadow: var(--shadow); }
   pre .c { color: var(--muted); }
   pre .k { color: var(--s1); }
 
   /* data sheets */
-  .sheet { margin: 16px 0; }
+  /* the sheet is the scroll container: wide data tables scroll inside it rather than
+     pushing the whole page sideways on a phone. Print is unaffected (see @media print). */
+  .sheet { margin: 16px 0; overflow-x: auto; -webkit-overflow-scrolling: touch; }
   .sheet .cap { font-family: var(--mono); font-size: 11.5px; letter-spacing: .1em; text-transform: uppercase; color: var(--muted); margin-bottom: 6px; }
   table { border-collapse: collapse; width: 100%; font-family: var(--body); font-size: 15.5px; }
   th, td { border: 1px solid var(--rule); padding: 7px 10px; text-align: left; vertical-align: top; }
@@ -115,6 +118,11 @@
   .q li::before { content: "Q" counter(q); position: absolute; left: 0; top: 0; font-family: var(--mono); font-size: 12px;
     color: var(--s1); background: var(--soft); border: 1px solid var(--border); border-radius: 6px; padding: 1px 5px; }
 
+  .collect { display:flex; gap:10px; align-items:flex-start; background:var(--surface);
+    border:1px solid var(--border); border-left:3px solid var(--s3); border-radius:0 10px 10px 0;
+    padding:11px 16px; margin:14px 0; font-size:16px; color:var(--ink-2); }
+  .collect .ico { font-size:19px; line-height:1.3; }
+  .collect b { font-family:var(--head); color:var(--ink); }
   .tip { border: 1px dashed var(--rule); border-radius: 10px; padding: 11px 16px; margin: 16px 0; color: var(--ink-2); font-size: 16px; background: var(--surface); }
   .tip b { color: var(--s2); font-family: var(--head); }
 
@@ -131,6 +139,7 @@
     .toc { break-after: page; }
     .lab { break-before: page; padding-top: 8px; }
     .lab, .kit, .sheet, table, pre, .obj { break-inside: avoid; }
+    .sheet { overflow: visible; }
     .tool { color:#2B6C8F; background:none; border-color:#cfe0ea; }
     td.fill { height: 26px; }
     h1 { font-size: 30pt; }
@@ -195,6 +204,7 @@ the thinking.</p>
     <li><a href="#lab-markrecapture">Population Size — mark &amp; recapture</a> <span class="for">· field methods</span></li>
     <li><a href="#lab-hardyweinberg">Population Genetics — Hardy–Weinberg</a> <span class="for">· evolution</span></li>
     <li><a href="#lab-island">Island Biogeography — the MacArthur–Wilson equilibrium</a> <span class="for">· biogeography</span></li>
+    <li><a href="#lab-foodweb">Food Webs — who eats whom, and what happens when one is gone</a> <span class="for">· community ecology</span></li>
   </ol>
 </div>
 
@@ -234,6 +244,11 @@ the thinking.</p>
     <li>A tally sheet (the data sheet below) — one column per behavior.</li>
     <li>A subject you can watch without disturbing it; decide your sampling rule <em>before</em> you start.</li>
   </ul>
+  <div class="collect"><span class="ico">📓</span><div><b>Collect it on a tablet.</b> The
+    <a href="field-notebook.html">Field Notebook</a>'s <b>Ethogram</b> tab is this lab's tally sheet: one big
+    button per behavior, a scan-sample timer that beeps and buzzes at your interval, undo for the miscount, and
+    a live activity budget with H′ and J′ as you tap. Long-press a card to fix a behavior's name without losing
+    its count. Fill the Session card so site, observer, and date land on the export.</div></div>
 
   <h3>Procedure</h3>
   <ol class="steps">
@@ -309,6 +324,10 @@ data: afternoon forage=20 rest=51 groom=9 vigilance=6 locomote=14
     <li>Your cross's parent genotypes, and an F2 <b>phenotype tally</b> — from a real vial/plot count, a class dataset, or a simulated cross.</li>
     <li>The workbench <span class="tool">Punnett builder — the greenhouse &amp; the coop</span>.</li>
   </ul>
+  <div class="collect"><span class="ico">🌱</span><div><b>Counting at the bench?</b> The
+    <a href="pheno-tracker.html">Pheno Tracker</a>'s <b>Segregation</b> tab runs the same χ² against 3:1, 1:1,
+    9:7, 13:3 and 15:1 from two tallied counts — useful when you are scoring vials or plants in front of you
+    rather than typing a finished dataset. It states the small-run caveat with the verdict.</div></div>
 
   <h3>Procedure</h3>
   <ol class="steps">
@@ -380,6 +399,11 @@ data: afternoon forage=20 rest=51 groom=9 vigilance=6 locomote=14
     <li>Two sites to compare, and a rule for placing quadrats (random or on a transect) fixed <em>before</em> you start.</li>
     <li>The workbench <span class="tool">Quadrat grid — dispersion</span>, <span class="tool">Field data — species counts</span>, and <span class="tool">Compare two sites</span>.</li>
   </ul>
+  <div class="collect"><span class="ico">📓</span><div><b>Collect it on a tablet.</b> The
+    <a href="field-notebook.html">Field Notebook</a> carries this whole lab outdoors: <b>Quadrats</b> for the
+    per-frame counts (with a dispersion verdict as you go) and <b>Species</b> for the site tallies, both reading
+    out live. Your day exports as <code>.eco</code> lines <em>and</em> as CSV for Excel or R — so the numbers you
+    paste into the workbench are the ones you actually counted.</div></div>
 
   <h3>Procedure</h3>
   <ol class="steps">
@@ -446,6 +470,11 @@ data: verge clover=14 grass=20 plantain=18 vetch=12 yarrow=9
     <li>A "population" you can sample twice — a bag of dried beans (mark with a marker), or a real closed site.</li>
     <li>The workbench <span class="tool">Mark–recapture calculator</span>.</li>
   </ul>
+  <div class="collect"><span class="ico">📓</span><div><b>Collect it on a tablet.</b> The
+    <a href="field-notebook.html">Field Notebook</a>'s <b>More</b> tab has M / C / R steppers with a live
+    Lincoln–Petersen estimate — hold a button to run the count up fast. For practice before the real thing,
+    <a href="field-season.html">Field Season</a> hides a vole population behind a twelve-day budget and grades
+    the estimate you file against the truth.</div></div>
 
   <h3>Procedure</h3>
   <ol class="steps">
@@ -620,6 +649,137 @@ data: verge clover=14 grass=20 plantain=18 vetch=12 yarrow=9
 <span class="k">factor:</span> distance 1.5      <span class="c"># …and push it further out</span>
 <span class="k">model:</span> island 0.4 0.1 100 0 40
 <span class="c"># prediction: lower equilibrium richness than the area-1.0 run — the two-curve logic, graded</span></pre>
+</section>
+
+<!-- ───────────────────── LAB 7 — FOOD WEBS ───────────────────── -->
+<section class="lab" id="lab-foodweb">
+  <div class="lab-head">
+    <span class="lab-num">Lab 7</span>
+    <h2>Food Webs: Who Eats Whom, and What Happens When One Is Gone</h2>
+    <p class="lab-for">For: ecology and general-biology students · works from a field survey, a reading, or a
+      local habitat you know · ~50 min, no equipment</p>
+  </div>
+
+  <div class="obj">
+    <b>You will be able to:</b>
+    <ul>
+      <li>Build a food web from feeding observations and assign every species a <b>trophic level</b>.</li>
+      <li>Compute and interpret <b>connectance</b> and <b>food-chain length</b>, and say why real chains are short.</li>
+      <li>Run a <b>knockout experiment</b> — remove one species, count the <b>secondary extinctions</b> — and use the
+        result to argue whether that species is a <b>keystone</b>.</li>
+      <li>Explain why a web can look robust and still collapse from one well-chosen loss.</li>
+    </ul>
+  </div>
+
+  <h3>Background</h3>
+  <p>A food web is a map of feeding links, drawn with the arrow pointing <em>from the food to the eater</em> —
+  the direction the energy travels. Stack the species by how many feeding steps separate them from the
+  producers and you get the familiar pyramid: producers at level 1, herbivores at 2, and so on. The pyramid
+  is short for a physical reason. Lindeman's classic measurement <span class="cite">(1942)</span> found that
+  only about a tenth of the energy at one level ends up in the next; after four or five steps there is
+  essentially nothing left to support another predator. That is why "level 8" appears in no real ecosystem.</p>
+
+  <p>Webs also differ in how <em>densely</em> they are connected. <b>Connectance</b> is realized links divided by
+  all possible ones, L/S², and published webs mostly land between about 0.05 and 0.3. That number matters
+  because it hints at redundancy: if a consumer has four foods, losing one is an inconvenience; if it has one,
+  losing it is fatal.</p>
+
+  <p>Which brings us to the experiment this lab is really about. In 1963–69 Robert Paine did something simple
+  and violent on the rocky shore at Mukkaw Bay: he pried the ochre sea stars off a stretch of coast and threw
+  them into the water, month after month, and watched what happened <span class="cite">(Paine 1966, 1969)</span>.
+  The mussels the sea star had been eating took over. Within a couple of years the plot fell from fifteen
+  species to about eight. The sea star was not abundant and was not obviously important — and removing it
+  restructured the entire community. Paine called such a species a <b>keystone</b>, after the wedge-shaped
+  stone that holds an arch up while carrying little weight itself.</p>
+
+  <p>You cannot pry sea stars off a shore in a fifty-minute class. You <em>can</em> run Paine's logic on a web you
+  built yourself, which is what the knockout test does: delete a species, then repeatedly delete any consumer
+  left with no food path, and count what falls. Those follow-on losses are <b>secondary extinctions</b>, and
+  counting them is the standard way ecologists measure a web's robustness today.</p>
+
+  <div class="tip"><b>Honest framing.</b> A knockout counts species that lose <em>every</em> food path — the
+  harshest, simplest version of the question. Real communities are messier: survivors switch prey, populations
+  crash without vanishing, and effects ripple through abundances long before anything goes extinct (that softer
+  version is a <b>trophic cascade</b>). Treat the count as a lower bound on disruption, not a prediction of
+  what would literally die.</p>
+
+  <h3>What you need</h3>
+  <ul>
+    <li>A habitat you can describe: a pond, a meadow, a hedgerow, a rocky shore, a compost heap — real
+      observations if you have them, a reading or a field guide if you don't.</li>
+    <li>The <a href="food-web.html">Food Web Builder</a> — no install, works on a tablet.</li>
+  </ul>
+  <div class="collect"><span class="ico">🕸️</span><div><b>Build it by tapping.</b> Add each species
+    as producer or consumer, then tap the <b>food first and its eater second</b> to draw the arrow (tap the same
+    pair again to erase). Trophic levels lay themselves out as you go, a consumer with no food source is flagged
+    with a dashed outline, and a long-press on any species runs the knockout test — previewed first, committed
+    with one tap, undone with one. Two starter webs (pond, meadow) get a class moving in seconds.</div></div>
+
+  <h3>Procedure</h3>
+  <ol class="steps">
+    <li><b>List the cast.</b> Name 8–12 organisms from your habitat and sort each into producer or consumer.
+      Aim for at least two producers — a web resting on one plant is a special case, not a typical one.</li>
+    <li><b>Draw the links you can defend.</b> Add an arrow only where you have a reason: you saw it, you read
+      it, or the organism's biology makes it near-certain. Write the reason next to the link on your data
+      sheet. Guessed arrows inflate connectance and make the web look more robust than it is.</li>
+    <li><b>Record the baseline.</b> Note species (S), links (L), connectance, longest chain, and which species
+      sit at the top with nothing eating them.</li>
+    <li><b>Predict before you break.</b> Pick three species: one you expect to matter enormously, one you
+      expect not to matter, and one you're unsure about. Write down, <em>before testing</em>, how many
+      secondary extinctions each will cause.</li>
+    <li><b>Run the knockouts.</b> Long-press each in turn, record the actual count, then undo. Every prediction
+      you got wrong is the interesting part of this lab — keep those.</li>
+    <li><b>Find the keystone.</b> Which removal did the most damage relative to how unremarkable the species
+      seemed? That mismatch — small presence, large consequence — is the keystone signature.</li>
+    <li><b>Stress the web (optional).</b> Add one plausible missing link to your least-connected consumer and
+      re-run its predator's knockout. Notice how a single extra food path can absorb a loss — this is
+      redundancy, and it is why connectance matters.</li>
+  </ol>
+
+  <div class="sheet">
+    <p class="cap">Data sheet — the knockout experiment</p>
+    <table>
+      <tr><th>Species removed</th><th class="num">Predicted losses</th><th class="num">Actual losses</th><th>Which species starved</th><th>Why you think so</th></tr>
+      <tr><td class="fill"></td><td class="num"></td><td class="num"></td><td class="fill"></td><td class="fill"></td></tr>
+      <tr><td class="fill"></td><td class="num"></td><td class="num"></td><td class="fill"></td><td class="fill"></td></tr>
+      <tr><td class="fill"></td><td class="num"></td><td class="num"></td><td class="fill"></td><td class="fill"></td></tr>
+    </table>
+  </div>
+
+  <div class="sheet">
+    <p class="cap">Data sheet — the web itself</p>
+    <table>
+      <tr><th class="num">Species (S)</th><th class="num">Links (L)</th><th class="num">Connectance L/S²</th><th class="num">Longest chain</th><th class="num">Producers</th><th>Top predator(s)</th></tr>
+      <tr><td class="num"></td><td class="num"></td><td class="num"></td><td class="num"></td><td class="num"></td><td class="fill"></td></tr>
+    </table>
+  </div>
+
+  <h3>Analysis &amp; questions</h3>
+  <ol class="q">
+    <li>What was your connectance, and how does it sit against the 0.05–0.3 range of published webs? If it is
+      low, is that your habitat or your sampling effort — and how would you tell the difference?</li>
+    <li>Which prediction were you most wrong about, and what did the web know that you didn't? (Look at how
+      many food paths that species was carrying.)</li>
+    <li>Your keystone candidate: state the case for calling it one, then the strongest case against.
+      Paine's definition rests on impact being disproportionate to <em>abundance</em> — does your web
+      contain the information needed to judge that, or would you need to go back and measure something else?</li>
+    <li>Remove a producer instead of a predator. Why does the damage travel differently, and which
+      direction does it travel?</li>
+    <li>Your longest chain: is it 3, 4, or 5 levels? Use the ~10% energy-transfer figure to estimate how much
+      of the producers' energy reaches your top predator, and say what that implies about how many of them
+      the habitat can hold.</li>
+  </ol>
+
+  <h3>Take it further</h3>
+  <p>Copy the CSV export — it is a <code>food,eater</code> edge list, the standard input format for network
+  analysis — and open it in R with <code>igraph</code> or Python with <code>networkx</code> to compute
+  degree distributions and centrality. A student who has built the web by hand first understands what those
+  numbers are describing.</p>
+
+  <div class="tip"><b>Note on <code>.eco</code>.</b> Unlike the other seven labs, this one has no pre-registration
+  block: the <code>.eco</code> format has no food-web keyword, because the engine carries no food-web instrument.
+  The builder computes its numbers in the browser from standard published definitions. Saying so is cheaper
+  than inventing a keyword that grades nothing.</p>
 </section>
 
 <footer>
