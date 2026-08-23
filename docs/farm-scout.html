@@ -1,0 +1,456 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Farm Scout — field science for growers</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,600;9..144,700&family=Nunito+Sans:wght@400;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap">
+<style>
+  :root {
+    color-scheme: light;
+    --page:#F5F1E6; --surface:#FFFDF7; --surface-2:#F3EEE0; --ink:#23281F; --ink-2:#4B5344;
+    --muted:#8B8B7B; --border:#E3DCC9; --s1:#2E7D4F; --s1-deep:#236240; --s2:#C0592B; --s3:#2B6C8F;
+    --soft:#E9F0E7; --warn-bg:#F6EAD8; --danger:#B23A32; --danger-bg:#F6E7E5;
+    --shadow:0 1px 2px rgba(35,40,31,.06),0 10px 28px rgba(35,40,31,.08);
+    --head:"Fraunces",Georgia,serif;
+    --body:"Nunito Sans",system-ui,-apple-system,sans-serif;
+    --mono:"JetBrains Mono",ui-monospace,Menlo,monospace;
+  }
+  * { box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
+  body { margin:0; background:var(--page); color:var(--ink); font:16px/1.5 var(--body);
+    -webkit-font-smoothing:antialiased; overscroll-behavior-y:contain; }
+  .app { max-width:860px; margin:0 auto; padding:14px 16px calc(96px + env(safe-area-inset-bottom)); }
+
+  .top { display:flex; align-items:baseline; justify-content:space-between; gap:10px; padding:6px 2px 12px; }
+  .brand { font-family:var(--head); font-weight:700; font-size:22px; letter-spacing:-0.01em; }
+  .brand span { color:var(--s2); }
+  .top a { font-family:var(--mono); font-size:11.5px; color:var(--muted); text-decoration:none; }
+  .top a:hover { color:var(--s1); }
+
+  .tabbar { position:fixed; left:0; right:0; bottom:0; z-index:20;
+    background:color-mix(in srgb, var(--surface) 94%, transparent); backdrop-filter:blur(10px);
+    border-top:1px solid var(--border); padding:8px max(10px, env(safe-area-inset-left)) calc(8px + env(safe-area-inset-bottom)); }
+  .tabbar .row { max-width:860px; margin:0 auto; display:grid; grid-template-columns:repeat(4,1fr); gap:6px; }
+  .tab { display:flex; flex-direction:column; align-items:center; gap:2px; border:0; background:none;
+    font:700 12px var(--body); color:var(--muted); padding:8px 4px; border-radius:12px; cursor:pointer;
+    min-height:54px; touch-action:manipulation; transition:background .15s ease, color .15s ease; }
+  .tab .ico { font-size:22px; line-height:1; }
+  .tab.on { color:var(--s1); background:var(--soft); }
+  .tab:active { transform:scale(.96); }
+
+  .pane { display:none; animation:fade .18s ease; }
+  .pane.on { display:block; }
+  @keyframes fade { from{opacity:0;transform:translateY(4px);} to{opacity:1;transform:none;} }
+  @media (prefers-reduced-motion: reduce){ .pane{animation:none;} }
+
+  h2 { font-family:var(--head); font-weight:600; font-size:20px; margin:6px 0 2px; }
+  .hint { color:var(--muted); font-size:14px; margin:0 0 12px; }
+  .card { background:var(--surface); border:1px solid var(--border); border-radius:16px;
+    padding:16px; box-shadow:var(--shadow); margin-bottom:14px; }
+
+  input[type=text], input[type=number], select {
+    background:var(--surface); color:var(--ink); border:1.5px solid var(--border); border-radius:12px;
+    padding:11px 14px; font:16px var(--body); min-height:48px; }
+  input:focus, select:focus { outline:none; border-color:var(--s1); box-shadow:0 0 0 3px rgba(46,125,79,.18); }
+  input[type=number] { width:110px; }
+  label.f { display:flex; flex-direction:column; gap:5px; font-size:13.5px; font-weight:700; color:var(--ink-2); }
+
+  .btn { border:0; border-radius:12px; padding:12px 20px; font:800 15px var(--body); cursor:pointer;
+    min-height:48px; touch-action:manipulation; transition:transform .1s ease, background .15s ease; }
+  .btn:active { transform:scale(.97); }
+  .btn-go { background:var(--s1); color:#fff; } .btn-go:hover { background:var(--s1-deep); }
+  .btn-soft { background:var(--soft); color:var(--s1); }
+  .btn-ghost { background:none; border:1.5px solid var(--border); color:var(--ink-2); }
+  .btn-ghost:hover { border-color:var(--s1); color:var(--s1); }
+  .btn-row { display:flex; gap:8px; flex-wrap:wrap; margin-top:12px; align-items:center; }
+
+  .quads { display:grid; grid-template-columns:repeat(auto-fill,minmax(120px,1fr)); gap:10px; }
+  .quad { background:var(--surface); border:1.5px solid var(--border); border-radius:14px; padding:10px; text-align:center; box-shadow:var(--shadow); }
+  .quad .ql { font-family:var(--mono); font-size:11px; color:var(--muted); }
+  .quad .qv { font-family:var(--head); font-weight:700; font-size:26px; font-variant-numeric:tabular-nums; margin:2px 0 6px; }
+  .quad .qb { display:flex; gap:6px; justify-content:center; }
+  .step { width:44px; height:44px; border-radius:12px; border:1.5px solid var(--border); background:var(--surface);
+    font:800 20px var(--body); color:var(--s1); cursor:pointer; touch-action:manipulation; }
+  .step:active { transform:scale(.94); background:var(--soft); }
+
+  .tiles { display:flex; flex-wrap:wrap; gap:8px; margin:12px 0 2px; }
+  .tile { background:var(--surface-2); border:1px solid var(--border); border-radius:12px; padding:9px 14px; min-width:96px; }
+  .tile .v { font-family:var(--head); font-weight:700; font-size:22px; font-variant-numeric:tabular-nums; }
+  .tile .l { font-size:11.5px; color:var(--muted); }
+
+  .verdict { border-radius:12px; padding:13px 16px; margin:12px 0 2px; font-size:15.5px; line-height:1.5;
+    border-left:4px solid var(--s1); background:var(--soft); color:var(--ink-2); }
+  .verdict b { color:var(--ink); }
+  .verdict.warn { border-left-color:var(--s2); background:var(--warn-bg); }
+  .verdict.act  { border-left-color:var(--danger); background:var(--danger-bg); }
+
+  .tally-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(150px,1fr)); gap:10px; }
+  .tally { position:relative; border:1.5px solid var(--border); background:var(--surface); border-radius:16px;
+    min-height:88px; padding:12px 12px 10px; cursor:pointer; text-align:left; touch-action:manipulation;
+    font-family:var(--body); transition:transform .08s ease, background .12s ease, border-color .12s ease; box-shadow:var(--shadow); }
+  .tally:active { transform:scale(.97); background:var(--soft); border-color:var(--s1); }
+  .tally .name { font-weight:800; font-size:16px; word-break:break-word; }
+  .tally .count { font-family:var(--head); font-weight:700; font-size:30px; color:var(--s1); font-variant-numeric:tabular-nums; margin-top:4px; }
+  .tally .x { position:absolute; top:6px; right:8px; border:0; background:none; color:var(--muted); font-size:15px; padding:6px; cursor:pointer; }
+  .tally .x:hover { color:var(--danger); }
+  .tally.bump .count { animation:pop .25s ease; }
+  @keyframes pop { 40%{transform:scale(1.25);} }
+  .addrow { display:flex; gap:8px; margin-top:12px; flex-wrap:wrap; }
+  .addrow input[type=text] { flex:1; min-width:150px; }
+
+  .bars { display:grid; gap:6px; margin-top:10px; }
+  .bar { display:grid; grid-template-columns:110px 1fr 52px; gap:8px; align-items:center; font-size:13.5px; }
+  .bar .nm { font-weight:700; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+  .bar .tr { display:block; background:var(--surface-2); border:1px solid var(--border); border-radius:8px; height:20px; overflow:hidden; }
+  .bar .fl { display:block; height:100%; background:var(--s1); border-radius:7px 0 0 7px; transition:width .4s ease; }
+  .bar .pc { text-align:right; font-variant-numeric:tabular-nums; color:var(--ink-2); }
+
+  .beds { display:grid; grid-template-columns:repeat(auto-fill,minmax(200px,1fr)); gap:10px; }
+  .bed { background:var(--surface); border:1.5px solid var(--border); border-radius:14px; padding:12px; box-shadow:var(--shadow); }
+  .bed .bh { display:flex; justify-content:space-between; align-items:center; margin-bottom:8px; }
+  .bed .bn { font-family:var(--head); font-weight:700; font-size:16px; }
+  .bed .x { border:0; background:none; color:var(--muted); cursor:pointer; padding:4px 6px; font-size:14px; }
+  .bed .x:hover { color:var(--danger); }
+  .bed label { display:block; font-size:12px; font-weight:700; color:var(--muted); margin:6px 0 3px; }
+  .bed select { width:100%; min-height:44px; font-size:15px; }
+  .flag { margin-top:8px; font-size:13.5px; border-radius:9px; padding:8px 10px; line-height:1.4; }
+  .flag.ok { background:var(--soft); color:var(--s1-deep); }
+  .flag.bad { background:var(--danger-bg); color:var(--danger); font-weight:700; }
+
+  pre.export { font-family:var(--mono); font-size:13px; line-height:1.6; background:var(--surface);
+    border:1px solid var(--border); border-radius:12px; padding:13px 14px; overflow-x:auto; white-space:pre-wrap; word-break:break-word; }
+  .toast { position:fixed; left:50%; bottom:calc(104px + env(safe-area-inset-bottom)); transform:translateX(-50%) translateY(8px);
+    background:var(--ink); color:#F5F1E6; font-weight:700; font-size:14px; border-radius:999px; padding:10px 18px;
+    opacity:0; pointer-events:none; transition:opacity .2s ease, transform .2s ease; z-index:30; }
+  .toast.on { opacity:1; transform:translateX(-50%); }
+
+  .fine { font-size:12.5px; color:var(--muted); margin-top:10px; line-height:1.5; }
+
+  @media print { .tabbar, .btn, .addrow, .top a { display:none !important; } body{background:#fff;} .pane{display:block !important;} }
+</style>
+</head>
+<body>
+
+<div class="app">
+  <div class="top">
+    <div class="brand">Farm <span>Scout</span></div>
+    <a href="ecology.html">part of the ecology kit →</a>
+  </div>
+
+  <!-- SCOUT -->
+  <section class="pane on" id="p-scout">
+    <h2>Pest scouting — walk the W</h2>
+    <p class="hint">Walk your field in a W pattern, stop at 10+ points, and count pests on one plant (or
+      leaf) per stop. Tap + at each point. The verdict compares your average to your action threshold —
+      and the spread tells you whether to spot-treat or treat the whole block.</p>
+
+    <div class="card">
+      <div class="btn-row" style="margin-top:0">
+        <label class="f">crop / pest
+          <input type="text" id="scPest" value="aphids on kale" style="width:210px"></label>
+        <label class="f">action threshold (avg per plant)
+          <input type="number" id="scThresh" value="5" min="0" step="0.5"></label>
+      </div>
+      <p class="fine">Thresholds vary by crop, pest, and region — use the number from your local extension
+        service or agronomist. The default is only a placeholder.</p>
+    </div>
+
+    <div class="card">
+      <div class="quads" id="scGrid"></div>
+      <div class="btn-row">
+        <button class="btn btn-soft" id="scAdd" type="button">+ Add sample point</button>
+        <button class="btn btn-ghost" id="scClear" type="button">Clear</button>
+      </div>
+    </div>
+
+    <div class="card" id="scResults"></div>
+  </section>
+
+  <!-- POLLINATORS -->
+  <section class="pane" id="p-poll">
+    <h2>Pollinator count — ten minutes by the blossoms</h2>
+    <p class="hint">Stand by a flowering patch for a set time and tap each visit by type. Diversity — not
+      just the total — is the health signal: a patch worked only by one species is fragile.</p>
+    <div class="card">
+      <div class="tally-grid" id="poGrid"></div>
+      <div class="addrow">
+        <input type="text" id="poNew" placeholder="add a visitor type (e.g. hoverfly)" autocomplete="off">
+        <button class="btn btn-soft" id="poAdd" type="button">Add</button>
+        <button class="btn btn-ghost" id="poUndo" type="button">↩ Undo</button>
+      </div>
+    </div>
+    <div class="card" id="poResults"></div>
+  </section>
+
+  <!-- GERMINATION -->
+  <section class="pane" id="p-germ">
+    <h2>Germination test — know your seed lot</h2>
+    <p class="hint">Sow a counted sample on damp paper towel, wait the packet's days, count sprouts.
+      The tester gives the lot's rate and how much to over-sow for the stand you want.</p>
+    <div class="card">
+      <div class="btn-row" style="margin-top:0">
+        <label class="f">seeds tested <input type="number" id="gSown" value="40" min="1"></label>
+        <label class="f">germinated <input type="number" id="gUp" value="33" min="0"></label>
+        <label class="f">plants you want <input type="number" id="gWant" value="120" min="1"></label>
+      </div>
+      <div class="card" style="margin:12px 0 0" id="gOut"></div>
+      <p class="fine">Rule of thumb: below ~70%, sow thick or buy fresh seed; below ~50%, the lot is
+        usually not worth the bed space. Old seed of onions, parsnip, and lettuce fades fastest.</p>
+    </div>
+  </section>
+
+  <!-- ROTATION -->
+  <section class="pane" id="p-rot">
+    <h2>Rotation check — don't feed last year's problems</h2>
+    <p class="hint">Soil pests and diseases follow plant <b>families</b>, not crop names. Set what each bed
+      grew the last two seasons and what you're planning — the checker flags any family returning within
+      the 3-year rule and suggests what's safe.</p>
+    <div class="card">
+      <div class="beds" id="bedGrid"></div>
+      <div class="btn-row">
+        <button class="btn btn-soft" id="bedAdd" type="button">+ Add bed</button>
+      </div>
+      <p class="fine">The classic guidance is 3–4 years before a family repeats in the same soil — longest
+        for potatoes/tomatoes (Solanaceae) and the cabbage tribe (Brassicaceae). Legumes (Fabaceae) are the
+        classic soil-builders to slot between heavy feeders.</p>
+    </div>
+
+    <h2 style="margin-top:18px">Take it home</h2>
+    <div class="card">
+      <pre class="export" id="ecoOut"># scout something first — your field-day export appears here</pre>
+      <div class="btn-row">
+        <button class="btn btn-go" id="ecoCopy" type="button">Copy field-day export</button>
+        <button class="btn btn-ghost" onclick="window.print()" type="button">Print / save PDF</button>
+      </div>
+      <p class="fine">The export is <code>.eco</code>-compatible <code>data:</code> lines plus notes — drop it
+        into the <a href="ecology-lab.html">Interactive Lab</a> or a protocol file and the same instruments
+        that grade the science labs read your farm day.</p>
+    </div>
+  </section>
+</div>
+
+<div class="tabbar"><div class="row">
+  <button class="tab on" data-pane="p-scout" type="button"><span class="ico">🐛</span>Scout</button>
+  <button class="tab" data-pane="p-poll" type="button"><span class="ico">🐝</span>Pollinators</button>
+  <button class="tab" data-pane="p-germ" type="button"><span class="ico">🌱</span>Germination</button>
+  <button class="tab" data-pane="p-rot" type="button"><span class="ico">🧑‍🌾</span>Rotation</button>
+</div></div>
+
+<div class="toast" id="toast">Copied</div>
+
+<script>
+(function(){
+  "use strict";
+  var $=function(id){return document.getElementById(id);};
+  function buzz(){ try{ navigator.vibrate&&navigator.vibrate(8);}catch(e){} }
+  function toast(m){ var t=$("toast"); t.textContent=m; t.classList.add("on");
+    clearTimeout(t._h); t._h=setTimeout(function(){t.classList.remove("on");},1500); }
+  function esc(s){ return s.replace(/[&<>"']/g,function(c){return {"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#39;"}[c];}); }
+
+  document.querySelectorAll(".tab").forEach(function(tb){
+    tb.addEventListener("click",function(){
+      document.querySelectorAll(".tab").forEach(function(x){x.classList.remove("on");});
+      document.querySelectorAll(".pane").forEach(function(x){x.classList.remove("on");});
+      tb.classList.add("on"); $(tb.dataset.pane).classList.add("on"); buzz();
+    });
+  });
+
+  /* shared math */
+  function shannon(c){ var N=0,i; for(i=0;i<c.length;i++)N+=c[i]; if(!N)return 0;
+    var H=0; for(i=0;i<c.length;i++){ if(c[i]>0){var p=c[i]/N; H-=p*Math.log(p);} } return H; }
+  function evenness(c){ var S=c.filter(function(x){return x>0;}).length; return S>1?shannon(c)/Math.log(S):1; }
+  function disp(c){ var n=c.length; if(n<2)return null;
+    var m=c.reduce(function(a,b){return a+b;},0)/n; if(!m)return null;
+    var v=0,i; for(i=0;i<n;i++)v+=(c[i]-m)*(c[i]-m); v/=(n-1); return {mean:m,vmr:v/m}; }
+
+  /* ---------- SCOUT ---------- */
+  var pts=[0,0,0,0,0,0,0,0,0,0];
+  function scRender(){
+    var g=$("scGrid"); g.innerHTML="";
+    pts.forEach(function(q,i){
+      var d=document.createElement("div"); d.className="quad";
+      d.innerHTML='<div class="ql">stop '+(i+1)+'</div><div class="qv">'+q+'</div>'
+        +'<div class="qb"><button class="step" data-i="'+i+'" data-d="-1" type="button">−</button>'
+        +'<button class="step" data-i="'+i+'" data-d="1" type="button">+</button></div>';
+      g.appendChild(d);
+    });
+    g.querySelectorAll(".step").forEach(function(b){
+      b.addEventListener("click",function(){
+        var i=+b.dataset.i,d=+b.dataset.d; pts[i]=Math.max(0,pts[i]+d); buzz(); scRender(); scOut();
+      });
+    });
+  }
+  function scOut(){
+    var box=$("scResults"), tot=pts.reduce(function(a,b){return a+b;},0);
+    var th=parseFloat($("scThresh").value)||0;
+    if(pts.length<2||!tot){ box.innerHTML='<p class="hint" style="margin:0">Count at least a few stops — the verdict appears here.</p>'; ecoOut(); return; }
+    var d=disp(pts);
+    var html='<div class="tiles">'
+      +'<div class="tile"><div class="v">'+pts.length+'</div><div class="l">stops</div></div>'
+      +'<div class="tile"><div class="v">'+tot+'</div><div class="l">pests counted</div></div>'
+      +'<div class="tile"><div class="v">'+d.mean.toFixed(1)+'</div><div class="l">avg / plant</div></div>'
+      +'<div class="tile"><div class="v">'+d.vmr.toFixed(2)+'</div><div class="l">spread (var/mean)</div></div></div>';
+    var over=th>0&&d.mean>=th;
+    var clumped=d.vmr>1.4, regular=d.vmr<0.7;
+    var patt = clumped ? "the infestation is <b>patchy</b> — hotspots, not a blanket"
+             : regular ? "counts are strikingly <b>uniform</b> across stops"
+             : "the infestation is spread fairly <b>evenly</b>";
+    if(th>0){
+      if(over&&clumped) html+='<div class="verdict warn"><b>At threshold, but patchy.</b> Average '+d.mean.toFixed(1)+' ≥ '+th+', and '+patt+'. Walk back to the hot stops first — <b>spot treatment</b> may be all this needs. Re-scout in a few days.</div>';
+      else if(over) html+='<div class="verdict act"><b>Action threshold reached.</b> Average '+d.mean.toFixed(1)+' ≥ '+th+' and '+patt+' — a whole-block response is justified. Check beneficials before you spray.</div>';
+      else if(clumped) html+='<div class="verdict warn"><b>Below threshold, but clumped.</b> Average '+d.mean.toFixed(1)+' &lt; '+th+', yet '+patt+'. Mark the hotspots and re-scout them sooner than the rest.</div>';
+      else html+='<div class="verdict"><b>Below threshold.</b> Average '+d.mean.toFixed(1)+' &lt; '+th+' and '+patt+'. Keep scouting on your regular walk — no action indicated.</div>';
+    } else {
+      html+='<div class="verdict">'+ (clumped?'<b>Patchy.</b> ':regular?'<b>Uniform.</b> ':'<b>Even.</b> ') + patt +'. Set an action threshold above to get a treat/don\'t-treat read.</div>';
+    }
+    box.innerHTML=html; ecoOut();
+  }
+  $("scAdd").addEventListener("click",function(){ pts.push(0); scRender(); scOut(); buzz(); });
+  $("scClear").addEventListener("click",function(){ pts=[0,0,0,0,0,0,0,0,0,0]; scRender(); scOut(); });
+  $("scThresh").addEventListener("input",scOut); $("scPest").addEventListener("input",ecoOutSoon);
+  scRender(); scOut();
+
+  /* ---------- POLLINATORS ---------- */
+  var po=[{name:"honeybee",n:0},{name:"bumblebee",n:0},{name:"hoverfly",n:0},{name:"butterfly",n:0}], poHist=[];
+  function poRender(){
+    var g=$("poGrid"); g.innerHTML="";
+    po.forEach(function(it,idx){
+      var b=document.createElement("button"); b.type="button"; b.className="tally";
+      b.innerHTML='<span class="x" data-x="1">✕</span><div class="name">'+esc(it.name)+'</div><div class="count">'+it.n+'</div>';
+      b.addEventListener("click",function(ev){
+        if(ev.target&&ev.target.dataset&&ev.target.dataset.x){ po.splice(idx,1); poHist=poHist.filter(function(h){return h!==it;}); poRender(); poOut(); return; }
+        it.n++; poHist.push(it); buzz();
+        b.classList.remove("bump"); void b.offsetWidth; b.classList.add("bump");
+        b.querySelector(".count").textContent=it.n; poOut();
+      });
+      g.appendChild(b);
+    });
+  }
+  function poOut(){
+    var live=po.filter(function(i){return i.n>0;}), c=live.map(function(i){return i.n;});
+    var N=c.reduce(function(a,b){return a+b;},0), box=$("poResults");
+    if(!N){ box.innerHTML='<p class="hint" style="margin:0">Tap each visit — the reading appears here.</p>'; ecoOut(); return; }
+    var H=shannon(c), J=evenness(c), eff=Math.exp(H);
+    var read = live.length===1 ? '<b>One visitor type only.</b> All the work is on one species — great to have, fragile to rely on. Diversify bloom to spread the risk.'
+      : J>=0.7 ? '<b>Healthy spread.</b> Visits are shared across types — a resilient pollination service.'
+      : '<b>Dominated.</b> One type is doing most of the work; the others are occasional. More variety of flower shapes and bloom times usually broadens the crew.';
+    var html='<div class="tiles">'
+      +'<div class="tile"><div class="v">'+N+'</div><div class="l">visits</div></div>'
+      +'<div class="tile"><div class="v">'+live.length+'</div><div class="l">visitor types</div></div>'
+      +'<div class="tile"><div class="v">'+eff.toFixed(1)+'</div><div class="l">effective types</div></div>'
+      +'<div class="tile"><div class="v">'+J.toFixed(2)+'</div><div class="l">evenness</div></div></div>'
+      +'<div class="verdict">'+read+'</div><div class="bars">';
+    live.slice().sort(function(a,b){return b.n-a.n;}).forEach(function(it){
+      var pc=100*it.n/N;
+      html+='<div class="bar"><span class="nm">'+esc(it.name)+'</span><span class="tr"><span class="fl" style="width:'+pc.toFixed(1)+'%"></span></span><span class="pc">'+pc.toFixed(0)+'%</span></div>';
+    });
+    box.innerHTML=html+'</div>'; ecoOut();
+  }
+  function poAdd(){
+    var v=$("poNew").value.trim().toLowerCase().replace(/\s+/g,"-"); if(!v)return;
+    if(!po.some(function(i){return i.name===v;})) po.push({name:v,n:0});
+    $("poNew").value=""; poRender(); poOut();
+  }
+  $("poAdd").addEventListener("click",poAdd);
+  $("poNew").addEventListener("keydown",function(e){ if(e.key==="Enter")poAdd(); });
+  $("poUndo").addEventListener("click",function(){ var l=poHist.pop(); if(l&&l.n>0){l.n--; poRender(); poOut(); buzz();} });
+  poRender(); poOut();
+
+  /* ---------- GERMINATION ---------- */
+  function gOut(){
+    var sown=parseInt($("gSown").value,10)||0, up=parseInt($("gUp").value,10)||0, want=parseInt($("gWant").value,10)||0;
+    up=Math.min(up,sown);
+    var box=$("gOut");
+    if(!sown){ box.innerHTML='<p class="hint" style="margin:0">Enter your test counts.</p>'; ecoOut(); return; }
+    var r=up/sown, pct=(100*r);
+    var sow = (r>0&&want>0) ? Math.ceil(want/r) : null;
+    var read = r>=0.85 ? '<b>Strong lot.</b> Sow at normal spacing.'
+      : r>=0.7 ? '<b>Decent lot.</b> Sow a touch thick and thin to stand.'
+      : r>=0.5 ? '<b>Weak lot.</b> Sow heavily, or use it for cut-and-come-again where stand doesn\'t matter.'
+      : '<b>Poor lot.</b> Usually not worth the bed space — buy fresh seed.';
+    box.innerHTML='<div class="tiles">'
+      +'<div class="tile"><div class="v">'+pct.toFixed(0)+'%</div><div class="l">germination</div></div>'
+      +(sow!==null?'<div class="tile"><div class="v">'+sow+'</div><div class="l">seeds to sow for '+want+' plants</div></div>':'')
+      +'</div><div class="verdict'+(r<0.5?' act':r<0.7?' warn':'')+'">'+read+'</div>';
+    ecoOut();
+  }
+  ["gSown","gUp","gWant"].forEach(function(id){ $(id).addEventListener("input",gOut); });
+  gOut();
+
+  /* ---------- ROTATION ---------- */
+  var FAMS=[
+    ["","— family —"],
+    ["solanaceae","Solanaceae — tomato, pepper, potato, eggplant"],
+    ["brassicaceae","Brassicaceae — cabbage, broccoli, kale, radish"],
+    ["cucurbitaceae","Cucurbitaceae — squash, cucumber, melon"],
+    ["fabaceae","Fabaceae — beans, peas (soil builders)"],
+    ["alliaceae","Alliaceae — onion, garlic, leek"],
+    ["apiaceae","Apiaceae — carrot, parsnip, celery"],
+    ["asteraceae","Asteraceae — lettuce, sunflower"],
+    ["amaranthaceae","Amaranthaceae — beet, chard, spinach"],
+    ["poaceae","Poaceae — corn (heavy feeder)"],
+    ["cover","Cover crop / rest"]
+  ];
+  var beds=[{name:"Bed 1",y2:"",y1:"",plan:""},{name:"Bed 2",y2:"",y1:"",plan:""}];
+  function famSel(val){ return '<select>'+FAMS.map(function(f){
+      return '<option value="'+f[0]+'"'+(f[0]===val?" selected":"")+'>'+f[1]+'</option>'; }).join("")+'</select>'; }
+  function famLabel(k){ for(var i=0;i<FAMS.length;i++) if(FAMS[i][0]===k) return FAMS[i][1].split(" — ")[0]; return k; }
+  function bedRender(){
+    var g=$("bedGrid"); g.innerHTML="";
+    beds.forEach(function(b,idx){
+      var d=document.createElement("div"); d.className="bed";
+      var conflict = b.plan && b.plan!=="cover" && (b.plan===b.y1 || b.plan===b.y2);
+      var okAlt = FAMS.filter(function(f){ return f[0]&&f[0]!==b.y1&&f[0]!==b.y2; }).slice(0,3)
+        .map(function(f){return famLabel(f[0]);}).join(", ");
+      d.innerHTML='<div class="bh"><span class="bn">'+esc(b.name)+'</span><button class="x" data-x="'+idx+'" type="button">✕</button></div>'
+        +'<label>two seasons ago</label>'+famSel(b.y2)
+        +'<label>last season</label>'+famSel(b.y1)
+        +'<label>planned now</label>'+famSel(b.plan)
+        +(b.plan ? (conflict
+            ? '<div class="flag bad">⚠ '+famLabel(b.plan)+' again within 3 years — soil pests & disease carry over. Try: '+okAlt+'.'
+            : '<div class="flag ok">✓ Clean rotation for this bed.'+ (b.plan==="fabaceae" ? " Legumes will feed the soil for the next heavy feeder." : "") +'</div>')
+          : "");
+      var sels=d.querySelectorAll("select");
+      sels[0].addEventListener("change",function(){ b.y2=this.value; bedRender(); ecoOut(); });
+      sels[1].addEventListener("change",function(){ b.y1=this.value; bedRender(); ecoOut(); });
+      sels[2].addEventListener("change",function(){ b.plan=this.value; bedRender(); ecoOut(); });
+      d.querySelector(".x").addEventListener("click",function(){ beds.splice(idx,1); bedRender(); ecoOut(); });
+      g.appendChild(d);
+    });
+  }
+  $("bedAdd").addEventListener("click",function(){ beds.push({name:"Bed "+(beds.length+1),y2:"",y1:"",plan:""}); bedRender(); buzz(); });
+  bedRender();
+
+  /* ---------- export ---------- */
+  var ecoTimer=null;
+  function ecoOutSoon(){ clearTimeout(ecoTimer); ecoTimer=setTimeout(ecoOut,300); }
+  function ecoOut(){
+    var lines=[];
+    var tot=pts.reduce(function(a,b){return a+b;},0);
+    if(tot){ lines.push("# pest scouting — "+($("scPest").value||"unnamed")+" — counts per stop:");
+      lines.push("#   "+pts.join(" "));
+      var d=disp(pts); if(d) lines.push("note: scouting avg "+d.mean.toFixed(1)+"/plant, spread "+d.vmr.toFixed(2)); }
+    var live=po.filter(function(i){return i.n>0;});
+    if(live.length) lines.push("data: pollinators "+live.map(function(i){return i.name+"="+i.n;}).join(" "));
+    var sown=parseInt($("gSown").value,10)||0, up=parseInt($("gUp").value,10)||0;
+    if(sown) lines.push("note: germination test "+up+"/"+sown+" = "+Math.round(100*Math.min(up,sown)/sown)+"%");
+    beds.forEach(function(b){ if(b.plan) lines.push("note: "+b.name.toLowerCase()+" planned "+famLabel(b.plan)
+      +((b.plan!=="cover"&&(b.plan===b.y1||b.plan===b.y2))?" (ROTATION CONFLICT)":"")); });
+    if(lines.length){ lines.unshift("# Farm Scout export — .eco-compatible"); }
+    $("ecoOut").textContent = lines.length?lines.join("\n"):"# scout something first — your field-day export appears here";
+  }
+  $("ecoCopy").addEventListener("click",function(){
+    var text=$("ecoOut").textContent;
+    function done(){ toast("Copied — your field day, on the record"); buzz(); }
+    function fb(){ var ta=document.createElement("textarea"); ta.value=text; ta.style.position="fixed"; ta.style.opacity="0";
+      document.body.appendChild(ta); ta.select(); try{document.execCommand("copy");done();}catch(e){toast("Select & copy manually");}
+      document.body.removeChild(ta); }
+    try{ if(navigator.clipboard&&navigator.clipboard.writeText) navigator.clipboard.writeText(text).then(done,fb); else fb(); }catch(e){ fb(); }
+  });
+  ecoOut();
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,474 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Pheno Tracker — the breeder's selection bench</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,600;9..144,700&family=Nunito+Sans:wght@400;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap">
+<style>
+  :root {
+    color-scheme: light;
+    --page:#F5F1E6; --surface:#FFFDF7; --surface-2:#F3EEE0; --ink:#23281F; --ink-2:#4B5344;
+    --muted:#8B8B7B; --border:#E3DCC9; --s1:#2E7D4F; --s1-deep:#236240; --s2:#C0592B; --s3:#2B6C8F;
+    --soft:#E9F0E7; --warn-bg:#F6EAD8; --danger:#B23A32; --danger-bg:#F6E7E5; --gold:#B8860B;
+    --shadow:0 1px 2px rgba(35,40,31,.06),0 10px 28px rgba(35,40,31,.08);
+    --head:"Fraunces",Georgia,serif;
+    --body:"Nunito Sans",system-ui,-apple-system,sans-serif;
+    --mono:"JetBrains Mono",ui-monospace,Menlo,monospace;
+  }
+  * { box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
+  body { margin:0; background:var(--page); color:var(--ink); font:16px/1.5 var(--body);
+    -webkit-font-smoothing:antialiased; overscroll-behavior-y:contain; }
+  .app { max-width:900px; margin:0 auto; padding:14px 16px calc(96px + env(safe-area-inset-bottom)); }
+
+  .top { display:flex; align-items:baseline; justify-content:space-between; gap:10px; padding:6px 2px 12px; }
+  .brand { font-family:var(--head); font-weight:700; font-size:22px; letter-spacing:-0.01em; }
+  .brand span { color:var(--s3); }
+  .top a { font-family:var(--mono); font-size:11.5px; color:var(--muted); text-decoration:none; }
+  .top a:hover { color:var(--s1); }
+
+  .tabbar { position:fixed; left:0; right:0; bottom:0; z-index:20;
+    background:color-mix(in srgb, var(--surface) 94%, transparent); backdrop-filter:blur(10px);
+    border-top:1px solid var(--border); padding:8px max(10px, env(safe-area-inset-left)) calc(8px + env(safe-area-inset-bottom)); }
+  .tabbar .row { max-width:900px; margin:0 auto; display:grid; grid-template-columns:repeat(4,1fr); gap:6px; }
+  .tab { display:flex; flex-direction:column; align-items:center; gap:2px; border:0; background:none;
+    font:700 12px var(--body); color:var(--muted); padding:8px 4px; border-radius:12px; cursor:pointer;
+    min-height:54px; touch-action:manipulation; transition:background .15s ease, color .15s ease; }
+  .tab .ico { font-size:22px; line-height:1; }
+  .tab.on { color:var(--s1); background:var(--soft); }
+  .tab:active { transform:scale(.96); }
+
+  .pane { display:none; animation:fade .18s ease; }
+  .pane.on { display:block; }
+  @keyframes fade { from{opacity:0;transform:translateY(4px);} to{opacity:1;transform:none;} }
+  @media (prefers-reduced-motion: reduce){ .pane{animation:none;} }
+
+  h2 { font-family:var(--head); font-weight:600; font-size:20px; margin:6px 0 2px; }
+  .hint { color:var(--muted); font-size:14px; margin:0 0 12px; }
+  .card { background:var(--surface); border:1px solid var(--border); border-radius:16px;
+    padding:16px; box-shadow:var(--shadow); margin-bottom:14px; }
+  .fine { font-size:12.5px; color:var(--muted); margin-top:10px; line-height:1.5; }
+
+  input[type=text], input[type=number], select {
+    background:var(--surface); color:var(--ink); border:1.5px solid var(--border); border-radius:12px;
+    padding:11px 14px; font:16px var(--body); min-height:48px; }
+  input:focus, select:focus { outline:none; border-color:var(--s1); box-shadow:0 0 0 3px rgba(46,125,79,.18); }
+  input[type=number] { width:96px; }
+  label.f { display:flex; flex-direction:column; gap:5px; font-size:13.5px; font-weight:700; color:var(--ink-2); }
+
+  .btn { border:0; border-radius:12px; padding:12px 20px; font:800 15px var(--body); cursor:pointer;
+    min-height:48px; touch-action:manipulation; transition:transform .1s ease, background .15s ease; }
+  .btn:active { transform:scale(.97); }
+  .btn-go { background:var(--s1); color:#fff; } .btn-go:hover { background:var(--s1-deep); }
+  .btn-soft { background:var(--soft); color:var(--s1); }
+  .btn-ghost { background:none; border:1.5px solid var(--border); color:var(--ink-2); }
+  .btn-ghost:hover { border-color:var(--s1); color:var(--s1); }
+  .btn-row { display:flex; gap:8px; flex-wrap:wrap; margin-top:12px; align-items:end; }
+
+  /* trait chips */
+  .chips { display:flex; flex-wrap:wrap; gap:8px; }
+  .chipT { display:flex; align-items:center; gap:8px; background:var(--surface); border:1.5px solid var(--border);
+    border-radius:999px; padding:7px 8px 7px 14px; font-weight:800; font-size:14px; }
+  .chipT .w { font-family:var(--mono); font-size:11.5px; color:var(--s3); font-weight:500; }
+  .chipT button { border:0; background:none; color:var(--muted); font-size:14px; cursor:pointer; padding:4px 6px; }
+  .chipT button:hover { color:var(--danger); }
+
+  /* plant grid */
+  .plants { display:grid; grid-template-columns:repeat(auto-fill,minmax(108px,1fr)); gap:9px; }
+  .plant { position:relative; border:1.5px solid var(--border); background:var(--surface); border-radius:14px;
+    min-height:76px; padding:10px 8px 8px; cursor:pointer; text-align:center; touch-action:manipulation;
+    box-shadow:var(--shadow); transition:transform .08s ease, border-color .12s ease, background .12s ease; }
+  .plant:active { transform:scale(.96); }
+  .plant.sel { border-color:var(--s1); background:var(--soft); }
+  .plant .pid { font-family:var(--head); font-weight:700; font-size:17px; }
+  .plant .pscore { font-family:var(--mono); font-size:12px; color:var(--ink-2); margin-top:2px; }
+  .plant .badge { position:absolute; top:-7px; right:-6px; font-size:15px; }
+  .plant.keep { border-color:var(--gold); }
+  .plant.cull { opacity:.45; }
+
+  /* score panel */
+  .traitrow { display:grid; grid-template-columns:minmax(90px,1fr) auto; gap:8px; align-items:center; margin:10px 0; }
+  .traitrow .tn { font-weight:800; font-size:14.5px; }
+  .traitrow .tn .w { font-family:var(--mono); font-size:11px; color:var(--s3); font-weight:500; }
+  .seg { display:flex; gap:5px; }
+  .seg button { width:44px; height:44px; border-radius:11px; border:1.5px solid var(--border); background:var(--surface);
+    font:800 16px var(--body); color:var(--muted); cursor:pointer; touch-action:manipulation;
+    transition:background .12s ease, color .12s ease, border-color .12s ease; }
+  .seg button.on { background:var(--s1); border-color:var(--s1); color:#fff; }
+  .seg button:active { transform:scale(.94); }
+  textarea.note { width:100%; min-height:64px; background:var(--surface); color:var(--ink);
+    border:1.5px solid var(--border); border-radius:12px; padding:10px 13px; font:15px var(--body); }
+  textarea.note:focus { outline:none; border-color:var(--s1); box-shadow:0 0 0 3px rgba(46,125,79,.18); }
+
+  /* select board */
+  .rankrow { display:grid; grid-template-columns:auto minmax(70px,auto) 1fr auto auto; gap:10px; align-items:center;
+    padding:9px 4px; border-bottom:1px solid var(--border); }
+  .rankrow:last-child { border-bottom:0; }
+  .rankrow .rk { font-family:var(--mono); font-size:12px; color:var(--muted); width:26px; text-align:right; }
+  .rankrow .pid { font-family:var(--head); font-weight:700; font-size:16px; white-space:nowrap; }
+  .rankrow .tr { display:block; background:var(--surface-2); border:1px solid var(--border); border-radius:8px; height:18px; overflow:hidden; }
+  .rankrow .fl { display:block; height:100%; background:var(--s1); border-radius:7px 0 0 7px; transition:width .3s ease; }
+  .rankrow .sc { font-family:var(--mono); font-size:13px; font-variant-numeric:tabular-nums; color:var(--ink-2); width:44px; text-align:right; }
+  .kbtn { border:1.5px solid var(--border); background:var(--surface); border-radius:10px; font-size:17px;
+    width:44px; height:40px; cursor:pointer; touch-action:manipulation; }
+  .kbtn.k { border-color:var(--gold); background:#FBF3DD; }
+  .kbtn.c { border-color:var(--danger); background:var(--danger-bg); }
+
+  .tiles { display:flex; flex-wrap:wrap; gap:8px; margin:12px 0 2px; }
+  .tile { background:var(--surface-2); border:1px solid var(--border); border-radius:12px; padding:9px 14px; min-width:96px; }
+  .tile .v { font-family:var(--head); font-weight:700; font-size:22px; font-variant-numeric:tabular-nums; }
+  .tile .l { font-size:11.5px; color:var(--muted); }
+  .verdict { border-radius:12px; padding:13px 16px; margin:12px 0 2px; font-size:15.5px; line-height:1.5;
+    border-left:4px solid var(--s1); background:var(--soft); color:var(--ink-2); }
+  .verdict b { color:var(--ink); }
+  .verdict.warn { border-left-color:var(--s2); background:var(--warn-bg); }
+
+  pre.export { font-family:var(--mono); font-size:13px; line-height:1.6; background:var(--surface);
+    border:1px solid var(--border); border-radius:12px; padding:13px 14px; overflow-x:auto; white-space:pre-wrap; word-break:break-word; }
+  .toast { position:fixed; left:50%; bottom:calc(104px + env(safe-area-inset-bottom)); transform:translateX(-50%) translateY(8px);
+    background:var(--ink); color:#F5F1E6; font-weight:700; font-size:14px; border-radius:999px; padding:10px 18px;
+    opacity:0; pointer-events:none; transition:opacity .2s ease, transform .2s ease; z-index:30; }
+  .toast.on { opacity:1; transform:translateX(-50%); }
+
+  @media print { .tabbar,.btn,.btn-row,.top a,.seg { display:none !important; } body{background:#fff;} .pane{display:block !important;} }
+</style>
+</head>
+<body>
+
+<div class="app">
+  <div class="top">
+    <div class="brand">Pheno <span>Tracker</span></div>
+    <a href="ecology.html">part of the ecology kit →</a>
+  </div>
+
+  <!-- RUN -->
+  <section class="pane on" id="p-run">
+    <h2>The run — cross, plants, traits</h2>
+    <p class="hint">Name the cross, add your plants, and set the traits you'll score with a weight for how
+      much each matters to <em>your</em> program. Works for any crop — apples, tomatoes, hops, hemp or
+      cannabis where legal. Your run saves in this browser; export before you clear it.</p>
+
+    <div class="card">
+      <div class="btn-row" style="margin-top:0">
+        <label class="f">cross / cultivar
+          <input type="text" id="runName" value="Cross A" style="width:200px"></label>
+        <label class="f">plants in run
+          <input type="number" id="runN" value="8" min="1" max="200"></label>
+        <button class="btn btn-soft" id="runMake" type="button">Set plants</button>
+      </div>
+      <p class="fine">"Set plants" renumbers to #1…#N and keeps any scores already entered for existing
+        numbers. Individual plants can be culled later without renumbering.</p>
+    </div>
+
+    <div class="card">
+      <h2 style="margin-top:0;font-size:17px">Traits &amp; weights</h2>
+      <div class="chips" id="traitChips"></div>
+      <div class="btn-row">
+        <label class="f">trait <input type="text" id="traitNew" placeholder="e.g. aroma" style="width:160px"></label>
+        <label class="f">weight <input type="number" id="traitW" value="1" min="0.5" max="5" step="0.5"></label>
+        <button class="btn btn-soft" id="traitAdd" type="button">Add trait</button>
+      </div>
+      <p class="fine">Weight 2 counts double in the total. Typical fruit program: flavor ×2, texture,
+        yield, disease resistance ×1.5, storage. Typical flower program: aroma ×2, structure, vigor,
+        resin, mold resistance ×1.5, ripening speed.</p>
+    </div>
+
+    <div class="card">
+      <div class="btn-row" style="margin-top:0">
+        <button class="btn btn-ghost" id="runReset" type="button">Clear whole run</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- SCORE -->
+  <section class="pane" id="p-score">
+    <h2>Score — plant by plant</h2>
+    <p class="hint">Tap a plant, then rate each trait 1–5. Come back each check-in and adjust — the board
+      always shows the current picture. Notes hold the phenotype description ("short internodes, grape
+      candy nose").</p>
+    <div class="card">
+      <div class="plants" id="plantGrid"></div>
+    </div>
+    <div class="card" id="scorePanel"><p class="hint" style="margin:0">Pick a plant above.</p></div>
+  </section>
+
+  <!-- SELECT -->
+  <section class="pane" id="p-sel">
+    <h2>Selection board</h2>
+    <p class="hint">Ranked by weighted score. Tap ⭐ to keep, ✕ to cull. The readout below is the real
+      quantitative-genetics number: how far your keepers sit above the run.</p>
+    <div class="card" id="rankBoard"></div>
+    <div class="card" id="selStats"></div>
+  </section>
+
+  <!-- SEGREGATION + EXPORT -->
+  <section class="pane" id="p-seg">
+    <h2>Segregation check</h2>
+    <p class="hint">Counting a yes/no trait across the run — purple stems, resistance, early ripening?
+      Enter the two counts and test the classic ratios: a fit to 3:1 says single dominant gene, 1:1 says a
+      testcross-style split, 9:7 hints at two complementary genes.</p>
+    <div class="card">
+      <div class="btn-row" style="margin-top:0">
+        <label class="f">trait <input type="text" id="segTrait" value="purple stems" style="width:170px"></label>
+        <label class="f">showing it <input type="number" id="segA" value="9" min="0"></label>
+        <label class="f">not showing <input type="number" id="segB" value="3" min="0"></label>
+      </div>
+      <div id="segOut"></div>
+      <p class="fine">χ² with 1 degree of freedom; the p&nbsp;&lt;&nbsp;0.05 cutoff is 3.84. Small runs are
+        weak evidence either way — a clean call usually needs 30+ plants. The
+        <a href="eco-protocol-reference.html">.eco</a> <code>cross:</code> line runs the same test in a
+        graded protocol.</p>
+    </div>
+
+    <h2 style="margin-top:18px">Take it home</h2>
+    <div class="card">
+      <pre class="export" id="ecoOut"># score something first — your run export appears here</pre>
+      <div class="btn-row">
+        <button class="btn btn-go" id="ecoCopy" type="button">Copy run export</button>
+        <button class="btn btn-ghost" onclick="window.print()" type="button">Print / save PDF</button>
+      </div>
+      <p class="fine">The export carries every plant's scores, notes, keep/cull calls, and the selection
+        stats — paste it into your breeding log, or the <code>data:</code> lines into an
+        <a href="eco-protocol-reference.html">.eco protocol</a>.</p>
+    </div>
+  </section>
+</div>
+
+<div class="tabbar"><div class="row">
+  <button class="tab on" data-pane="p-run" type="button"><span class="ico">🧬</span>Run</button>
+  <button class="tab" data-pane="p-score" type="button"><span class="ico">📋</span>Score</button>
+  <button class="tab" data-pane="p-sel" type="button"><span class="ico">⭐</span>Select</button>
+  <button class="tab" data-pane="p-seg" type="button"><span class="ico">🎯</span>Segregation</button>
+</div></div>
+
+<div class="toast" id="toast">Saved</div>
+
+<script>
+(function(){
+  "use strict";
+  var $=function(id){return document.getElementById(id);};
+  function buzz(){ try{ navigator.vibrate&&navigator.vibrate(8);}catch(e){} }
+  function toast(m){ var t=$("toast"); t.textContent=m; t.classList.add("on");
+    clearTimeout(t._h); t._h=setTimeout(function(){t.classList.remove("on");},1400); }
+  function esc(s){ return String(s).replace(/[&<>"']/g,function(c){return {"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#39;"}[c];}); }
+
+  /* ---------- state (best-effort persistence; export is the durable path) ---------- */
+  var KEY="phenoTrackerRun1";
+  var S={ name:"Cross A",
+    traits:[{n:"vigor",w:1},{n:"structure",w:1},{n:"aroma",w:2},{n:"resistance",w:1.5}],
+    plants:[], sel:null };
+  function blank(i){ return {id:i, scores:{}, note:"", mark:""}; }   // mark: "", "keep", "cull"
+  for(var i=1;i<=8;i++) S.plants.push(blank(i));
+  try { var saved=localStorage.getItem(KEY); if(saved){ var p=JSON.parse(saved);
+    if(p&&p.plants&&p.traits){ S=p; S.sel=null; } } } catch(e){}
+  function save(){ try{ localStorage.setItem(KEY, JSON.stringify(S)); }catch(e){} }
+
+  document.querySelectorAll(".tab").forEach(function(tb){
+    tb.addEventListener("click",function(){
+      document.querySelectorAll(".tab").forEach(function(x){x.classList.remove("on");});
+      document.querySelectorAll(".pane").forEach(function(x){x.classList.remove("on");});
+      tb.classList.add("on"); $(tb.dataset.pane).classList.add("on"); buzz();
+      renderAll();
+    });
+  });
+
+  /* ---------- scoring math ---------- */
+  function totalOf(p){
+    var sum=0, wsum=0;
+    S.traits.forEach(function(t){ var v=p.scores[t.n];
+      if(v){ sum+=v*t.w; wsum+=t.w; } });
+    return wsum? sum/wsum : null;                     // weighted mean, 1–5 scale
+  }
+  function scoredPlants(){ return S.plants.filter(function(p){ return totalOf(p)!==null; }); }
+
+  /* ---------- RUN ---------- */
+  function renderRun(){
+    $("runName").value=S.name;
+    $("runN").value=S.plants.length;
+    var c=$("traitChips"); c.innerHTML="";
+    S.traits.forEach(function(t,idx){
+      var d=document.createElement("span"); d.className="chipT";
+      d.innerHTML=esc(t.n)+' <span class="w">×'+t.w+'</span><button type="button" data-i="'+idx+'">✕</button>';
+      d.querySelector("button").addEventListener("click",function(){ S.traits.splice(idx,1); save(); renderAll(); });
+      c.appendChild(d);
+    });
+  }
+  $("runName").addEventListener("input",function(){ S.name=this.value; save(); ecoOut(); });
+  $("runMake").addEventListener("click",function(){
+    var n=Math.max(1,Math.min(200,parseInt($("runN").value,10)||1));
+    var old=S.plants;
+    S.plants=[];
+    for(var i=1;i<=n;i++){ var prev=old.find(function(p){return p.id===i;}); S.plants.push(prev||blank(i)); }
+    S.sel=null; save(); renderAll(); toast(n+" plants in the run"); buzz();
+  });
+  $("traitAdd").addEventListener("click",function(){
+    var n=$("traitNew").value.trim().toLowerCase(); var w=parseFloat($("traitW").value)||1;
+    if(!n) return;
+    if(!S.traits.some(function(t){return t.n===n;})) S.traits.push({n:n,w:w});
+    $("traitNew").value=""; save(); renderAll();
+  });
+  $("runReset").addEventListener("click",function(){
+    if(!confirm("Clear the whole run? Export first if you want to keep it.")) return;
+    S.plants=S.plants.map(function(p){ return blank(p.id); }); S.sel=null; save(); renderAll();
+  });
+
+  /* ---------- SCORE ---------- */
+  function renderPlants(){
+    var g=$("plantGrid"); g.innerHTML="";
+    S.plants.forEach(function(p){
+      var d=document.createElement("button"); d.type="button";
+      d.className="plant"+(S.sel===p.id?" sel":"")+(p.mark==="keep"?" keep":"")+(p.mark==="cull"?" cull":"");
+      var t=totalOf(p);
+      d.innerHTML=(p.mark==="keep"?'<span class="badge">⭐</span>':p.mark==="cull"?'<span class="badge">✕</span>':"")
+        +'<div class="pid">#'+p.id+'</div><div class="pscore">'+(t!==null?t.toFixed(2):"—")+'</div>';
+      d.addEventListener("click",function(){ S.sel=p.id; renderPlants(); renderScorePanel(); buzz(); });
+      g.appendChild(d);
+    });
+  }
+  function renderScorePanel(){
+    var box=$("scorePanel");
+    var p=S.plants.find(function(x){return x.id===S.sel;});
+    if(!p){ box.innerHTML='<p class="hint" style="margin:0">Pick a plant above.</p>'; return; }
+    var html='<h2 style="margin-top:0;font-size:17px">'+esc(S.name)+' #'+p.id+'</h2>';
+    S.traits.forEach(function(t){
+      html+='<div class="traitrow"><span class="tn">'+esc(t.n)+' <span class="w">×'+t.w+'</span></span><span class="seg" data-t="'+esc(t.n)+'">';
+      for(var v=1;v<=5;v++) html+='<button type="button" data-v="'+v+'" class="'+(p.scores[t.n]===v?"on":"")+'">'+v+'</button>';
+      html+='</span></div>';
+    });
+    html+='<label class="f" style="margin-top:10px">phenotype notes'
+      +'<textarea class="note" id="pNote" placeholder="internodes, nose, leaf shape…">'+esc(p.note)+'</textarea></label>';
+    box.innerHTML=html;
+    box.querySelectorAll(".seg").forEach(function(seg){
+      var tn=seg.dataset.t;
+      seg.querySelectorAll("button").forEach(function(b){
+        b.addEventListener("click",function(){
+          var v=+b.dataset.v;
+          p.scores[tn]=(p.scores[tn]===v)? undefined : v;   // tap again to unset
+          if(p.scores[tn]===undefined) delete p.scores[tn];
+          save(); buzz(); renderPlants(); renderScorePanel(); });
+      });
+    });
+    $("pNote").addEventListener("input",function(){ p.note=this.value; save(); ecoOut(); });
+  }
+
+  /* ---------- SELECT ---------- */
+  function renderSelect(){
+    var board=$("rankBoard"), stats=$("selStats");
+    var sp=scoredPlants();
+    if(!sp.length){ board.innerHTML='<p class="hint" style="margin:0">Score some plants first — the board builds itself.</p>';
+      stats.innerHTML=""; ecoOut(); return; }
+    var ranked=sp.slice().sort(function(a,b){ return totalOf(b)-totalOf(a); });
+    var max=totalOf(ranked[0]);
+    var html="";
+    ranked.forEach(function(p,i){
+      var t=totalOf(p), pc=100*t/5;
+      html+='<div class="rankrow">'
+        +'<span class="rk">'+(i+1)+'</span>'
+        +'<span class="pid">#'+p.id+'</span>'
+        +'<span class="tr"><span class="fl" style="width:'+pc.toFixed(1)+'%"></span></span>'
+        +'<span class="sc">'+t.toFixed(2)+'</span>'
+        +'<span style="display:flex;gap:6px">'
+        +'<button class="kbtn'+(p.mark==="keep"?" k":"")+'" data-id="'+p.id+'" data-m="keep" type="button">⭐</button>'
+        +'<button class="kbtn'+(p.mark==="cull"?" c":"")+'" data-id="'+p.id+'" data-m="cull" type="button">✕</button>'
+        +'</span></div>';
+    });
+    board.innerHTML=html;
+    board.querySelectorAll(".kbtn").forEach(function(b){
+      b.addEventListener("click",function(){
+        var p=S.plants.find(function(x){return x.id===+b.dataset.id;});
+        p.mark=(p.mark===b.dataset.m)? "" : b.dataset.m;
+        save(); buzz(); renderPlants(); renderSelect();
+      });
+    });
+    var keepers=sp.filter(function(p){return p.mark==="keep";});
+    var mAll=sp.reduce(function(a,p){return a+totalOf(p);},0)/sp.length;
+    var shtml='<div class="tiles">'
+      +'<div class="tile"><div class="v">'+sp.length+'</div><div class="l">scored</div></div>'
+      +'<div class="tile"><div class="v">'+mAll.toFixed(2)+'</div><div class="l">run mean</div></div>'
+      +'<div class="tile"><div class="v">'+keepers.length+'</div><div class="l">keepers</div></div>';
+    if(keepers.length){
+      var mK=keepers.reduce(function(a,p){return a+totalOf(p);},0)/keepers.length;
+      var Sdiff=mK-mAll;
+      shtml+='<div class="tile"><div class="v">'+mK.toFixed(2)+'</div><div class="l">keeper mean</div></div>'
+        +'<div class="tile"><div class="v">'+(Sdiff>=0?"+":"")+Sdiff.toFixed(2)+'</div><div class="l">selection differential S</div></div></div>'
+        +'<div class="verdict"><b>Selection differential S = '+(Sdiff>=0?"+":"")+Sdiff.toFixed(2)+'</b> on the 1–5 scale — your keepers stand that far above the run average. '
+        +'How much of it you keep in the next generation depends on heritability: expected response '
+        +'<b>R = h² × S</b>. Highly heritable traits (many aroma and pigment traits) hold most of it; '
+        +'environment-heavy traits (yield) hold less. Clone your keepers before crossing to confirm the pheno is stable.</div>';
+      if(keepers.length===1) shtml+='<div class="verdict warn"><b>One keeper.</b> Bold — but a single plant is also a single point of failure. Many programs keep a backup runner-up until the winner proves out in clone.</div>';
+    } else {
+      shtml+='</div><div class="verdict">Mark keepers with ⭐ to get the selection readout.</div>';
+    }
+    stats.innerHTML=shtml; ecoOut();
+  }
+
+  /* ---------- SEGREGATION ---------- */
+  var RATIOS=[["3:1",3,1,"a single dominant gene"],["1:1",1,1,"a testcross-style split"],
+              ["9:7",9,7,"two complementary genes"],["13:3",13,3,"dominant suppression"],["15:1",15,1,"duplicate genes"]];
+  function chi(a,b,ra,rb){ var n=a+b; if(!n) return null;
+    var ea=n*ra/(ra+rb), eb=n*rb/(ra+rb);
+    if(ea===0||eb===0) return null;
+    return (a-ea)*(a-ea)/ea + (b-eb)*(b-eb)/eb; }
+  function segOut(){
+    var a=parseInt($("segA").value,10)||0, b=parseInt($("segB").value,10)||0, n=a+b, box=$("segOut");
+    if(n<4){ box.innerHTML='<div class="verdict">Enter your counts — at least a handful of plants.</div>'; ecoOut(); return; }
+    var rows=RATIOS.map(function(r){ var x=chi(a,b,r[1],r[2]); return {r:r, x:x}; })
+      .filter(function(o){return o.x!==null;})
+      .sort(function(p,q){return p.x-q.x;});
+    var best=rows[0], fits=rows.filter(function(o){return o.x<3.841;});
+    var html='<div class="tiles">'
+      +'<div class="tile"><div class="v">'+a+' : '+b+'</div><div class="l">observed ('+n+' plants)</div></div>'
+      +'<div class="tile"><div class="v">'+best.r[0]+'</div><div class="l">closest ratio</div></div>'
+      +'<div class="tile"><div class="v">'+best.x.toFixed(2)+'</div><div class="l">χ² (cutoff 3.84)</div></div></div>';
+    if(fits.length===0)
+      html+='<div class="verdict warn"><b>No classic ratio fits</b> (all χ² ≥ 3.84). Could be linkage, incomplete penetrance, a mis-scored trait — or just a small run.</div>';
+    else {
+      html+='<div class="verdict"><b>Consistent with '+best.r[0]+'</b> — '+best.r[3]+' (χ² '+best.x.toFixed(2)+' &lt; 3.84).';
+      if(fits.length>1) html+=' Also compatible: '+fits.slice(1).map(function(o){return o.r[0];}).join(", ")+' — a bigger run separates them.';
+      html+='</div>';
+    }
+    box.innerHTML=html; ecoOut();
+  }
+  ["segA","segB","segTrait"].forEach(function(id){ $(id).addEventListener("input",segOut); });
+
+  /* ---------- export ---------- */
+  function ecoOut(){
+    var lines=["# Pheno Tracker export — "+(S.name||"run")];
+    var sp=scoredPlants();
+    if(sp.length){
+      lines.push("# plant scores (weighted mean of "+S.traits.map(function(t){return t.n+"×"+t.w;}).join(", ")+")");
+      sp.slice().sort(function(a,b){return totalOf(b)-totalOf(a);}).forEach(function(p){
+        var mark=p.mark==="keep"?" KEEP":p.mark==="cull"?" cull":"";
+        lines.push("#   #"+p.id+"  "+totalOf(p).toFixed(2)+mark+(p.note?"  — "+p.note.replace(/\n/g," "):""));
+      });
+      var keepers=sp.filter(function(p){return p.mark==="keep";});
+      var mAll=sp.reduce(function(a,p){return a+totalOf(p);},0)/sp.length;
+      lines.push("data: "+(S.name||"run").toLowerCase().replace(/[^a-z0-9]+/g,"-")+" "+sp.map(function(p){
+        return "p"+p.id+"="+Math.round(totalOf(p)*100); }).join(" "));
+      if(keepers.length){
+        var mK=keepers.reduce(function(a,p){return a+totalOf(p);},0)/keepers.length;
+        lines.push("note: keepers "+keepers.map(function(p){return "#"+p.id;}).join(" ")
+          +" — selection differential "+(mK-mAll>=0?"+":"")+(mK-mAll).toFixed(2)+" on 1-5");
+      }
+    }
+    var a=parseInt($("segA").value,10)||0, b=parseInt($("segB").value,10)||0;
+    if(a+b>=4) lines.push("cross: Aa x Aa observed "+a+" "+b+"   # "+($("segTrait").value||"trait")+" — χ² vs 3:1 in a graded protocol");
+    $("ecoOut").textContent = lines.length>1 ? lines.join("\n") : "# score something first — your run export appears here";
+  }
+  $("ecoCopy").addEventListener("click",function(){
+    var text=$("ecoOut").textContent;
+    function done(){ toast("Copied — the run, on the record"); buzz(); }
+    function fb(){ var ta=document.createElement("textarea"); ta.value=text; ta.style.position="fixed"; ta.style.opacity="0";
+      document.body.appendChild(ta); ta.select(); try{document.execCommand("copy");done();}catch(e){toast("Select & copy manually");}
+      document.body.removeChild(ta); }
+    try{ if(navigator.clipboard&&navigator.clipboard.writeText) navigator.clipboard.writeText(text).then(done,fb); else fb(); }catch(e){ fb(); }
+  });
+
+  function renderAll(){ renderRun(); renderPlants(); renderScorePanel(); renderSelect(); segOut(); ecoOut(); }
+  renderAll();
+})();
+</script>
+</body>
+</html>
