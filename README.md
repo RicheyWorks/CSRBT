@@ -728,6 +728,13 @@ no install required.
 **The field tools** — tablet-first apps and games where the data entry is taps, the display is
 live, and every export carries site, observer, and date plus a CSV for Excel/R:
 
+- [**`docs/stand-sheet.html`**](docs/stand-sheet.html) — **Stand Sheet**: graduate-level forest plot
+  work in one page — a tap-down tree key covering the Pacific Northwest through Tahoe to Utah (34
+  species with field characters, look-alikes, autecology and documented interactions), tree height
+  from clinometer angles, a stem tally computing basal area, QMD, SDI and importance values live,
+  line-intercept coarse woody debris, photo-anchored notes, and an interaction recorder that exports
+  a food-web edge list. **The species list is a swappable JSON pack** — export the current one, or
+  copy the built-in prompt, hand it to an AI, and paste back a pack for any biome.
 - [**`docs/field-notebook.html`**](docs/field-notebook.html) — **Field Notebook**: tap-to-tally
   ethograms with a scan timer, quadrat counts, species lists, and mark–recapture, with live
   diversity readings; long-press any tally card to rename it in place.

@@ -1,0 +1,1580 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Stand Sheet — field tree ID &amp; plot recorder</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,600;9..144,700&family=Nunito+Sans:wght@400;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap">
+<style>
+  :root {
+    color-scheme: light;
+    --page:#F5F1E6; --surface:#FFFDF7; --surface-2:#F3EEE0; --ink:#23281F; --ink-2:#4B5344;
+    --muted:#8B8B7B; --border:#E3DCC9; --s1:#2E7D4F; --s1-deep:#236240; --s2:#C0592B; --s3:#2B6C8F;
+    --soft:#E9F0E7; --warn-bg:#F6EAD8; --danger:#B23A32; --danger-bg:#F6E7E5; --gold:#B8860B;
+    --shadow:0 1px 2px rgba(35,40,31,.06),0 10px 28px rgba(35,40,31,.08);
+    --head:"Fraunces",Georgia,serif;
+    --body:"Nunito Sans",system-ui,-apple-system,sans-serif;
+    --mono:"JetBrains Mono",ui-monospace,Menlo,monospace;
+  }
+  * { box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
+  body { margin:0; background:var(--page); color:var(--ink); font:16px/1.5 var(--body);
+    -webkit-font-smoothing:antialiased; overscroll-behavior-y:contain; }
+  .app { max-width:960px; margin:0 auto; padding:14px 16px calc(104px + env(safe-area-inset-bottom)); }
+
+  .top { display:flex; align-items:baseline; justify-content:space-between; gap:10px; padding:6px 2px 12px; flex-wrap:wrap; }
+  .brand { font-family:var(--head); font-weight:700; font-size:22px; letter-spacing:-0.01em; }
+  .brand span { color:var(--s1); }
+  .top a { font-family:var(--mono); font-size:11.5px; color:var(--muted); text-decoration:none;
+    display:inline-flex; align-items:center; min-height:44px; padding:0 6px; margin:-10px -6px; touch-action:manipulation; }
+  .top a:hover { color:var(--s1); }
+
+  .tabbar { position:fixed; left:0; right:0; bottom:0; z-index:20;
+    background:color-mix(in srgb, var(--surface) 94%, transparent); backdrop-filter:blur(10px);
+    border-top:1px solid var(--border); padding:8px max(8px, env(safe-area-inset-left)) calc(8px + env(safe-area-inset-bottom)); }
+  .tabbar .row { max-width:960px; margin:0 auto; display:grid; grid-template-columns:repeat(6,1fr); gap:4px; }
+  .tab { display:flex; flex-direction:column; align-items:center; gap:2px; border:0; background:none;
+    font:700 10.5px var(--body); color:var(--muted); padding:7px 2px; border-radius:12px; cursor:pointer;
+    min-height:54px; touch-action:manipulation; transition:background .15s ease, color .15s ease; }
+  .tab .ico { font-size:20px; line-height:1; }
+  .tab.on { color:var(--s1); background:var(--soft); }
+  .tab:active { transform:scale(.96); }
+
+  .pane { display:none; animation:fade .18s ease; }
+  .pane.on { display:block; }
+  @keyframes fade { from{opacity:0;transform:translateY(4px);} to{opacity:1;transform:none;} }
+  @media (prefers-reduced-motion: reduce){ .pane{animation:none;} }
+
+  h2 { font-family:var(--head); font-weight:600; font-size:20px; margin:6px 0 2px; }
+  h3 { font-family:var(--head); font-weight:600; font-size:16.5px; margin:16px 0 4px; }
+  .hint { color:var(--muted); font-size:14px; margin:0 0 12px; }
+  .card { background:var(--surface); border:1px solid var(--border); border-radius:16px;
+    padding:16px; box-shadow:var(--shadow); margin-bottom:14px; }
+  .fine { font-size:12.5px; color:var(--muted); margin-top:10px; line-height:1.55; }
+
+  input[type=text], input[type=number], input[type=date], select, textarea {
+    background:var(--surface); color:var(--ink); border:1.5px solid var(--border); border-radius:12px;
+    padding:11px 14px; font:16px var(--body); min-height:48px; max-width:100%; }
+  textarea { min-height:80px; line-height:1.5; width:100%; }
+  input:focus, select:focus, textarea:focus { outline:none; border-color:var(--s1); box-shadow:0 0 0 3px rgba(46,125,79,.18); }
+  input[type=number] { width:110px; }
+  select { max-width:100%; }
+  label.f { display:flex; flex-direction:column; gap:5px; font-size:13px; font-weight:700; color:var(--ink-2); min-width:0; }
+  .grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(150px,1fr)); gap:10px; }
+  .grid label.f input, .grid label.f select { width:100%; }
+
+  .btn { border:0; border-radius:12px; padding:12px 18px; font:800 15px var(--body); cursor:pointer;
+    min-height:48px; touch-action:manipulation; transition:transform .1s ease, background .15s ease; }
+  .btn:active { transform:scale(.97); }
+  .btn-go { background:var(--s1); color:#fff; } .btn-go:hover { background:var(--s1-deep); }
+  .btn-soft { background:var(--soft); color:var(--s1); }
+  .btn-ghost { background:none; border:1.5px solid var(--border); color:var(--ink-2); }
+  .btn-ghost:hover { border-color:var(--s1); color:var(--s1); }
+  .btn-row { display:flex; gap:8px; flex-wrap:wrap; margin-top:12px; align-items:end; }
+
+  /* key chooser */
+  .kstep { margin:14px 0 4px; }
+  .klab { font-family:var(--mono); font-size:11px; letter-spacing:.12em; text-transform:uppercase; color:var(--s1); margin-bottom:7px; }
+  .kopts { display:flex; flex-wrap:wrap; gap:8px; }
+  .kopt { border:1.5px solid var(--border); background:var(--surface); border-radius:14px; padding:11px 15px;
+    font:700 14.5px var(--body); color:var(--ink-2); cursor:pointer; min-height:48px; touch-action:manipulation;
+    display:inline-flex; flex-direction:column; align-items:flex-start; gap:1px; }
+  .kopt small { font-weight:400; font-size:11.5px; color:var(--muted); font-family:var(--mono); }
+  .kopt.on { border-color:var(--s1); background:var(--soft); color:var(--s1); }
+  .kopt:active { transform:scale(.97); }
+
+  .splist { display:grid; grid-template-columns:repeat(auto-fill,minmax(228px,1fr)); gap:10px; margin-top:12px; }
+  .sp { text-align:left; border:1.5px solid var(--border); background:var(--surface); border-radius:14px;
+    padding:12px 14px; cursor:pointer; box-shadow:var(--shadow); touch-action:manipulation;
+    transition:border-color .12s ease, transform .08s ease; }
+  .sp:hover { border-color:var(--s1); } .sp:active { transform:scale(.98); }
+  .sp b { font-family:var(--head); font-size:16.5px; display:block; }
+  .sp i { font-style:italic; color:var(--ink-2); font-size:13.5px; display:block; margin-top:1px; }
+  .sp .tag { font-family:var(--mono); font-size:10.5px; color:var(--muted); margin-top:5px; display:block; }
+
+  .spcard { border-left:4px solid var(--s1); }
+  .spcard h3 { margin-top:0; font-size:21px; }
+  .spcard .sci { font-style:italic; color:var(--ink-2); font-size:15px; margin:-2px 0 10px; }
+  .kv { margin:10px 0; }
+  .kv .k { font-family:var(--mono); font-size:10.5px; letter-spacing:.1em; text-transform:uppercase; color:var(--s1); }
+  .kv .v { font-size:15.5px; color:var(--ink-2); line-height:1.55; margin-top:2px; }
+  .kv.trick { background:var(--soft); border-radius:10px; padding:10px 13px; }
+  .kv.trick .k { color:var(--s1-deep); }
+  .kv.look { background:var(--warn-bg); border-radius:10px; padding:10px 13px; }
+  .kv.look .k { color:var(--s2); }
+  .ilist { margin:4px 0 0; padding-left:20px; } .ilist li { margin:4px 0; font-size:15px; color:var(--ink-2); }
+
+  .tiles { display:flex; flex-wrap:wrap; gap:8px; margin:12px 0 2px; }
+  .tile { background:var(--surface-2); border:1px solid var(--border); border-radius:12px; padding:9px 14px; min-width:92px; }
+  .tile .v { font-family:var(--head); font-weight:700; font-size:21px; font-variant-numeric:tabular-nums; }
+  .tile .l { font-size:11px; color:var(--muted); }
+
+  .verdict { border-radius:12px; padding:13px 16px; margin:12px 0 2px; font-size:15.5px; line-height:1.55;
+    border-left:4px solid var(--s1); background:var(--soft); color:var(--ink-2); }
+  .verdict b { color:var(--ink); }
+  .verdict.warn { border-left-color:var(--s2); background:var(--warn-bg); }
+
+  .tw { overflow-x:auto; -webkit-overflow-scrolling:touch; margin:10px 0; }
+  table { border-collapse:collapse; width:100%; font-size:14px; }
+  th,td { border:1px solid var(--border); padding:6px 9px; text-align:left; vertical-align:top; white-space:nowrap; }
+  th { background:var(--soft); font-family:var(--head); font-weight:600; font-size:13px; }
+  td.n, th.n { text-align:right; font-variant-numeric:tabular-nums; font-family:var(--mono); font-size:13px; }
+  tr.del td { opacity:.45; }
+
+  .rowlist { display:grid; gap:8px; margin-top:10px; }
+  .row2 { display:flex; align-items:center; gap:10px; background:var(--surface); border:1px solid var(--border);
+    border-radius:12px; padding:10px 13px; font-size:15px; }
+  .row2 .g { flex:1; min-width:0; }
+  .row2 .g b { font-family:var(--head); font-size:15.5px; }
+  .row2 .g span { display:block; color:var(--muted); font-size:12.5px; font-family:var(--mono); margin-top:1px;
+    overflow:hidden; text-overflow:ellipsis; }
+  .row2 button { border:0; background:none; color:var(--muted); font-size:15px; padding:9px 11px;
+    cursor:pointer; min-height:44px; min-width:44px; }
+  .row2 button:hover { color:var(--danger); }
+
+  /* histogram */
+  .hist { display:grid; gap:5px; margin-top:8px; }
+  .hbar { display:grid; grid-template-columns:76px 1fr 44px; gap:8px; align-items:center; font-size:13px; }
+  .hbar .hl { font-family:var(--mono); font-size:11.5px; color:var(--ink-2); }
+  .hbar .ht { display:block; background:var(--surface-2); border:1px solid var(--border); border-radius:7px; height:19px; overflow:hidden; }
+  .hbar .hf { display:block; height:100%; background:var(--s1); border-radius:6px 0 0 6px; transition:width .35s ease; }
+  .hbar .hn { text-align:right; font-family:var(--mono); font-size:12.5px; color:var(--ink-2); }
+
+  /* photos */
+  .photos { display:grid; grid-template-columns:repeat(auto-fill,minmax(180px,1fr)); gap:12px; margin-top:12px; }
+  .ph { background:var(--surface); border:1px solid var(--border); border-radius:14px; overflow:hidden; box-shadow:var(--shadow); }
+  .ph img { display:block; width:100%; height:150px; object-fit:cover; background:var(--surface-2); }
+  .ph .meta { padding:10px 12px; }
+  .ph .meta b { font-family:var(--head); font-size:14.5px; display:block; }
+  .ph .meta code { font-family:var(--mono); font-size:10.5px; color:var(--muted); word-break:break-all; }
+  .ph textarea { min-height:56px; font-size:14px; margin-top:7px; padding:8px 10px; min-height:0; }
+  .ph .pb { display:flex; gap:6px; margin-top:7px; }
+  .ph .pb button { flex:1; font-size:12.5px; padding:8px 6px; min-height:40px; }
+  .drop { border:2px dashed var(--border); border-radius:14px; padding:22px 16px; text-align:center; color:var(--muted); }
+  .drop.on { border-color:var(--s1); background:var(--soft); color:var(--s1); }
+
+  pre.export { background:#23281F; color:#E8E4D5; border-radius:12px; padding:14px 16px; overflow-x:auto;
+    font:12.5px/1.65 var(--mono); max-height:340px; }
+  pre.schema { background:var(--surface-2); color:var(--ink); border:1px solid var(--border); border-radius:12px;
+    padding:13px 15px; overflow-x:auto; font:12px/1.6 var(--mono); }
+
+  .toast { position:fixed; left:50%; bottom:84px; transform:translateX(-50%) translateY(90px); z-index:30;
+    background:var(--ink); color:#F5F1E6; border-radius:999px; padding:10px 22px; font:700 14px var(--body);
+    transition:transform .25s ease; pointer-events:none; max-width:88vw; text-align:center; }
+  .toast.on { transform:translateX(-50%) translateY(0); }
+
+  @media print {
+    .tabbar, .btn, .kopts, .drop, .top a, .noprint { display:none !important; }
+    body { background:#fff; } .pane { display:block !important; }
+    .app { padding-bottom:0; } .card { break-inside:avoid; } table { font-size:10pt; }
+    pre.export { background:#fff; color:#000; border:1px solid #ccc; max-height:none; }
+  }
+
+  .rail { margin:26px 0 4px; }
+  .rail .rl { font-family:var(--mono); font-size:11px; letter-spacing:.14em; text-transform:uppercase;
+    color:var(--muted); margin:0 2px 8px; }
+  .rail .chips { display:flex; flex-wrap:wrap; gap:8px; }
+  .rail a { display:inline-flex; align-items:center; gap:7px; text-decoration:none; font:700 13.5px var(--body);
+    color:var(--ink-2); background:var(--surface); border:1px solid var(--border); border-radius:999px;
+    padding:9px 15px; min-height:44px; box-shadow:var(--shadow); touch-action:manipulation; }
+  .rail a:hover { border-color:var(--s1); color:var(--s1); }
+  .rail a[aria-current="page"] { background:var(--soft); border-color:var(--s1); color:var(--s1); }
+  .rail a.ref { font-weight:600; color:var(--muted); background:none; box-shadow:none; }
+  .rail a.ref:hover { color:var(--s1); }
+  @media print { .rail { display:none !important; } }
+</style>
+</head>
+<body>
+<div class="app">
+  <div class="top">
+    <div class="brand">🌲 Stand <span>Sheet</span></div>
+    <a href="ecology.html">part of the ecology kit →</a>
+  </div>
+
+  <!-- ===================== ID ===================== -->
+  <section class="pane on" id="p-id">
+    <h2>Identify</h2>
+    <p class="hint">Work down the characters you can see. Every step narrows the list; skip any step you're
+      unsure of and the list just stays longer.</p>
+
+    <div class="card">
+      <div class="kstep">
+        <div class="klab">1 · Region</div>
+        <div class="kopts" id="kReg"></div>
+      </div>
+      <div class="kstep">
+        <div class="klab">2 · What are the leaves?</div>
+        <div class="kopts" id="kLeaf"></div>
+      </div>
+      <div class="kstep" id="kSubWrap" style="display:none">
+        <div class="klab">3 · Narrow it</div>
+        <div class="kopts" id="kSub"></div>
+      </div>
+      <div class="btn-row">
+        <button class="btn btn-ghost" id="kReset" type="button">↺ Start over</button>
+        <label class="f" style="flex:1;min-width:150px">search by name
+          <input type="text" id="kSearch" placeholder="pine, Abies, madrone…" autocomplete="off"></label>
+      </div>
+    </div>
+
+    <div id="kCount" class="hint"></div>
+    <div class="splist" id="kList"></div>
+    <div id="kDetail"></div>
+
+    <h2 style="margin-top:22px">Species packs</h2>
+    <p class="hint">The species list is data, not code. Swap in any biome — or have an AI write you one.</p>
+    <div class="card">
+      <div class="tiles" id="packStats"></div>
+      <div class="btn-row">
+        <button class="btn btn-soft" id="packCopyPrompt" type="button">Copy the AI prompt</button>
+        <button class="btn btn-ghost" id="packExport" type="button">Export current pack</button>
+        <button class="btn btn-ghost" id="packToggle" type="button">Paste a pack…</button>
+      </div>
+      <div id="packBox" style="display:none;margin-top:12px">
+        <textarea id="packIn" placeholder='Paste a pack here — {"region":{...},"species":[...]} — then Load.'></textarea>
+        <div class="btn-row">
+          <button class="btn btn-go" id="packLoad" type="button">Load pack</button>
+          <button class="btn btn-ghost" id="packSchema" type="button">Show the schema</button>
+        </div>
+        <div id="packMsg"></div>
+        <div id="schemaBox" style="display:none;margin-top:10px"></div>
+      </div>
+      <p class="fine">Packs merge — loading a Sonoran or Appalachian pack adds its region to the filter above
+        without touching what's already here. The plot maths (DBH, basal area, density) is biome-agnostic;
+        the identification characters and interactions come entirely from the pack.</p>
+    </div>
+  </section>
+
+  <!-- ===================== TREES ===================== -->
+  <section class="pane" id="p-trees">
+    <h2>Tally</h2>
+    <p class="hint">One row per stem. Everything below the table recomputes as you add.</p>
+
+    <div class="card">
+      <div class="grid">
+        <label class="f">species<select id="tSp"></select></label>
+        <label class="f">DBH (cm)<input type="number" id="tDbh" min="0" step="0.1" placeholder="1.37 m"></label>
+        <label class="f">height (m)<input type="number" id="tHt" min="0" step="0.1" placeholder="optional"></label>
+        <label class="f">crown class<select id="tCc">
+          <option value="D">dominant</option><option value="C" selected>codominant</option>
+          <option value="I">intermediate</option><option value="S">suppressed</option>
+          <option value="O">open-grown</option></select></label>
+        <label class="f">status<select id="tSt">
+          <option value="L" selected>live</option>
+          <option value="S1">snag — decay 1 (recent, bark on)</option>
+          <option value="S2">snag — decay 2 (loose bark)</option>
+          <option value="S3">snag — decay 3 (bark gone, top broken)</option>
+          <option value="S4">snag — decay 4 (soft, stub)</option>
+          <option value="S5">snag — decay 5 (crumbling)</option></select></label>
+        <label class="f">note<input type="text" id="tNote" placeholder="cavity, fire scar, mistletoe…" autocomplete="off"></label>
+      </div>
+      <div class="btn-row">
+        <button class="btn btn-go" id="tAdd" type="button">Add stem</button>
+        <button class="btn btn-ghost" id="tUndo" type="button">↩ Undo</button>
+        <button class="btn btn-ghost" id="htToggle" type="button">📐 Height from angles</button>
+      </div>
+      <p class="fine">Enter a circumference instead if that's what your tape gives:
+        DBH = C ÷ π. <b>Measure at 1.37 m</b> on the uphill side; for a fork below breast height, record
+        each stem separately and say so in the note.</p>
+    </div>
+
+    <div class="card" id="htCard" style="display:none">
+      <h3 style="margin-top:0">Height from two angles</h3>
+      <p class="hint">The standard clinometer method. Works on slopes, which the single-angle shortcut does not.</p>
+      <div class="grid">
+        <label class="f">horizontal distance (m)<input type="number" id="hD" min="0" step="0.1" placeholder="to the stem"></label>
+        <label class="f">units<select id="hU"><option value="deg">degrees</option><option value="pct">percent</option></select></label>
+        <label class="f">angle to TOP<input type="number" id="hT" step="0.1" placeholder="e.g. 42"></label>
+        <label class="f">angle to BASE<input type="number" id="hB" step="0.1" placeholder="e.g. -8"></label>
+      </div>
+      <div id="hOut"></div>
+      <div class="btn-row">
+        <button class="btn btn-soft" id="hUse" type="button">Use this height ↑</button>
+      </div>
+      <p class="fine"><b>Sign convention:</b> looking up is positive, looking down is negative. Standing
+        below the tree you'll read a negative base angle; standing above it, positive — and then the tree's
+        height is the <em>difference</em>, which is why both readings matter.
+        <b>Distance must be horizontal</b>, not slope distance: on a 20% slope, slope distance overestimates
+        by about 2%. <b>Leaning stems</b> break the method entirely — sight from a direction perpendicular
+        to the lean, or measure the stem length and note it.</p>
+    </div>
+
+    <div class="card" id="tStats"></div>
+    <div class="card"><h3 style="margin-top:0">Diameter distribution</h3><div id="tHist"></div></div>
+    <div class="card"><h3 style="margin-top:0">Stems</h3><div class="tw" id="tTable"></div></div>
+  </section>
+
+  <!-- ===================== PLOT ===================== -->
+  <section class="pane" id="p-plot">
+    <h2>Plot &amp; site</h2>
+    <p class="hint">The metadata that makes the numbers mean something a year from now.</p>
+
+    <div class="card">
+      <h3 style="margin-top:0">Header</h3>
+      <div class="grid">
+        <label class="f">plot ID<input type="text" id="sPlot" placeholder="e.g. TAH-04" autocomplete="off"></label>
+        <label class="f">observer<input type="text" id="sObs" autocomplete="off"></label>
+        <label class="f">date<input type="date" id="sDate"></label>
+        <label class="f">latitude<input type="text" id="sLat" placeholder="39.0968" autocomplete="off"></label>
+        <label class="f">longitude<input type="text" id="sLon" placeholder="-120.0324" autocomplete="off"></label>
+        <label class="f">elevation (m)<input type="number" id="sElev" step="1"></label>
+      </div>
+    </div>
+
+    <div class="card">
+      <h3 style="margin-top:0">Plot geometry</h3>
+      <div class="grid">
+        <label class="f">design<select id="sDesign">
+          <option value="circ">fixed-radius circle</option>
+          <option value="rect">rectangle / belt</option></select></label>
+        <label class="f" id="wRad">radius (m)<input type="number" id="sRad" step="0.1" value="11.28"></label>
+        <label class="f" id="wLen" style="display:none">length (m)<input type="number" id="sLen" step="0.1" value="20"></label>
+        <label class="f" id="wWid" style="display:none">width (m)<input type="number" id="sWid" step="0.1" value="20"></label>
+        <label class="f">min DBH tallied (cm)<input type="number" id="sMin" step="0.1" value="5"></label>
+      </div>
+      <div id="sArea" class="verdict"></div>
+      <p class="fine">11.28 m radius = 400 m² = 0.04 ha, the common US fixed plot. 5.64 m = 100 m². State your
+        minimum tallied diameter — expansion factors are meaningless without it.</p>
+    </div>
+
+    <div class="card">
+      <h3 style="margin-top:0">Physiography</h3>
+      <div class="grid">
+        <label class="f">aspect (°)<input type="number" id="sAsp" min="0" max="360" step="1"></label>
+        <label class="f">slope (%)<input type="number" id="sSlope" min="0" step="1"></label>
+        <label class="f">slope position<select id="sPos">
+          <option value="">—</option><option>ridge</option><option>upper slope</option>
+          <option>mid slope</option><option>lower slope</option><option>toe / bench</option>
+          <option>valley bottom</option><option>flat</option></select></label>
+        <label class="f">soil texture<select id="sSoil">
+          <option value="">—</option><option>sand</option><option>loamy sand</option><option>sandy loam</option>
+          <option>loam</option><option>silt loam</option><option>clay loam</option><option>clay</option>
+          <option>organic</option><option>rocky / skeletal</option></select></label>
+        <label class="f">parent material<input type="text" id="sParent" placeholder="granodiorite, basalt, dolomite…" autocomplete="off"></label>
+        <label class="f">moisture class<select id="sMoist">
+          <option value="">—</option><option>xeric</option><option>subxeric</option><option>mesic</option>
+          <option>subhygric</option><option>hygric</option><option>riparian</option></select></label>
+      </div>
+      <div id="sHeatload" class="fine"></div>
+    </div>
+
+    <div class="card">
+      <h3 style="margin-top:0">Structure &amp; ground</h3>
+      <div class="grid">
+        <label class="f">canopy cover (%)<input type="number" id="sCan" min="0" max="100" step="1"></label>
+        <label class="f">shrub cover (%)<input type="number" id="sShrub" min="0" max="100" step="1"></label>
+        <label class="f">herb cover (%)<input type="number" id="sHerb" min="0" max="100" step="1"></label>
+        <label class="f">bare / rock (%)<input type="number" id="sBare" min="0" max="100" step="1"></label>
+        <label class="f">litter depth (cm)<input type="number" id="sLit" min="0" step="0.5"></label>
+        <label class="f">browse line height (m)<input type="number" id="sBrowse" min="0" step="0.1"></label>
+      </div>
+      <h3>Coarse woody debris — line intercept</h3>
+      <div class="grid">
+        <label class="f">transect length (m)<input type="number" id="cwdL" step="1" value="30"></label>
+        <label class="f">intersect diameters (cm)<input type="text" id="cwdD" placeholder="12 8 31 45 9" autocomplete="off"></label>
+      </div>
+      <div id="cwdOut"></div>
+      <p class="fine">van Wagner's line-intercept: <b>V (m³/ha) = π²·Σd² / (8L)</b>, d in cm at the point the
+        transect crosses each piece, L in m. Assumes pieces are randomly oriented — if the blowdown is all
+        lying one way, run transects in several directions and say so.</p>
+      <h3>Disturbance evidence</h3>
+      <div class="kopts" id="sDist"></div>
+      <label class="f" style="margin-top:12px">stand notes
+        <textarea id="sNotes" placeholder="Age structure, evident history, management, anything a returning crew needs."></textarea></label>
+    </div>
+
+    <h2 style="margin-top:22px">Take it home</h2>
+    <div class="card">
+      <pre class="export" id="ecoOut"># tally a stem or two — the field sheet builds itself</pre>
+      <div class="btn-row">
+        <button class="btn btn-go" id="ecoCopy" type="button">Copy field sheet</button>
+        <button class="btn btn-soft" id="csvCopy" type="button">Copy stem CSV</button>
+        <button class="btn btn-soft" id="webCopy" type="button">Copy interaction edges</button>
+        <button class="btn btn-ghost" onclick="window.print()" type="button">Print / save PDF</button>
+      </div>
+      <p class="fine">The stem CSV is one row per tree with the derived basal area; the interaction export is a
+        <code>food,eater</code> edge list that drops straight into the
+        <a href="food-web.html">Food Web Builder</a>, igraph, or networkx.</p>
+    </div>
+  </section>
+
+  <!-- ===================== NOTES / PHOTOS ===================== -->
+  <section class="pane" id="p-notes">
+    <h2>Photo notes</h2>
+    <p class="hint">Shoot the character, not the tree: bark, a cone, the underside of a spray, the needle
+      attachment. Then write what you saw while you are still standing in front of it.</p>
+
+    <div class="card">
+      <div class="drop" id="phDrop">
+        <p style="margin:0 0 10px"><b>Add photos</b> — camera or gallery, or drop files here.</p>
+        <input type="file" id="phIn" accept="image/*" multiple style="display:none">
+        <div class="btn-row" style="justify-content:center;margin-top:0">
+          <button class="btn btn-go" id="phPick" type="button">📷 Add photos</button>
+        </div>
+      </div>
+      <p class="fine"><b>How the photos are handled, plainly:</b> they are held in this page for the session
+        and never uploaded anywhere. Closing the tab discards them — the originals stay in your camera roll,
+        which is where they belong. What the export carries is the <em>filename</em>, so your notes and your
+        photos match up later. Give a stem a voucher number and write it on the flagging too.</p>
+    </div>
+
+    <div class="photos" id="phList"></div>
+  </section>
+
+  <!-- ===================== INTERACTIONS ===================== -->
+  <section class="pane" id="p-web">
+    <h2>Interactions</h2>
+    <p class="hint">What is doing what to what. A stand is a set of relationships and this is where you record
+      them — observed, inferred, or read.</p>
+
+    <div class="card">
+      <div class="grid">
+        <label class="f">actor / partner A<input type="text" id="iA" placeholder="Clark's nutcracker" autocomplete="off"></label>
+        <label class="f">interaction<select id="iT"></select></label>
+        <label class="f">recipient / partner B<input type="text" id="iB" placeholder="whitebark pine" autocomplete="off"></label>
+        <label class="f">evidence<select id="iE">
+          <option value="obs">observed directly</option>
+          <option value="sign">sign / damage / structure</option>
+          <option value="inf">inferred from context</option>
+          <option value="lit">from the literature</option></select></label>
+        <label class="f">confidence<select id="iC">
+          <option value="3">high</option><option value="2" selected>medium</option><option value="1">low</option></select></label>
+        <label class="f">note<input type="text" id="iN" placeholder="what you actually saw" autocomplete="off"></label>
+      </div>
+      <div class="btn-row">
+        <button class="btn btn-go" id="iAdd" type="button">Record interaction</button>
+        <button class="btn btn-ghost" id="iFromSp" type="button">✚ Pull known links for tallied species</button>
+      </div>
+      <p class="fine">Recording the <b>evidence class</b> and <b>confidence</b> separately is the point. A
+        nutcracker you watched cache a seed and a mutualism you know from a paper are both worth having on
+        the sheet, and they are not the same observation. Keep them distinguishable and your own data stays
+        honest when someone else reads it.</p>
+    </div>
+
+    <div class="card" id="iStats"></div>
+    <div class="card"><h3 style="margin-top:0">Recorded</h3><div class="rowlist" id="iList"></div></div>
+  </section>
+
+  <!-- ===================== METHOD ===================== -->
+  <section class="pane" id="p-method">
+    <h2>Method notes</h2>
+    <p class="hint">Every formula this page uses, its source, and where it breaks. Print this with the sheet
+      and the numbers are defensible.</p>
+
+    <div class="card">
+      <h3 style="margin-top:0">Per-stem</h3>
+      <div class="tw"><table>
+        <tr><th>Quantity</th><th>Formula</th><th>Watch out</th></tr>
+        <tr><td>Basal area</td><td>BA = π(DBH/2)² &nbsp;→&nbsp; m² = 0.00007854 · DBH²<sub>cm</sub></td>
+          <td>Measured at 1.37 m, uphill side. Forks below that are separate stems.</td></tr>
+        <tr><td>Height</td><td>H = D·(tan θ<sub>top</sub> − tan θ<sub>base</sub>)</td>
+          <td>Horizontal distance, not slope distance. Leaning stems invalidate it.</td></tr>
+        <tr><td>DBH from tape</td><td>DBH = C / π</td><td>Only if the tape is a circumference tape.</td></tr>
+      </table></div>
+
+      <h3>Stand-level</h3>
+      <div class="tw"><table>
+        <tr><th>Quantity</th><th>Formula</th><th>Watch out</th></tr>
+        <tr><td>Expansion factor</td><td>EF = 10,000 / plot area (m²)</td><td>Per-hectare from one plot is an estimate with no variance. Run several.</td></tr>
+        <tr><td>Density</td><td>N/ha = stems · EF</td><td>Meaningless without the minimum tallied DBH.</td></tr>
+        <tr><td>Basal area</td><td>BA/ha = ΣBA · EF</td><td>Live and dead reported separately here.</td></tr>
+        <tr><td>Quadratic mean diameter</td><td>QMD = √(ΣDBH² / n)</td><td>Always ≥ arithmetic mean; the gap widens with variance.</td></tr>
+        <tr><td>Stand Density Index <span class="fine">(Reineke 1933)</span></td><td>SDI = N · (QMD/25)<sup>1.605</sup></td>
+          <td>Metric form, 25 cm reference. Derived for even-aged single-species stands — treat it as indicative in mixed uneven-aged forest.</td></tr>
+        <tr><td>Importance value <span class="fine">(Curtis &amp; McIntosh 1951)</span></td>
+          <td>IV = (rel. density + rel. dominance) / 2</td>
+          <td>The full index includes relative <em>frequency</em>, which needs multiple plots. This two-part version is labelled as such in the export.</td></tr>
+        <tr><td>Coarse woody debris <span class="fine">(van Wagner 1968)</span></td><td>V = π²·Σd² / (8L)</td>
+          <td>Assumes random piece orientation.</td></tr>
+        <tr><td>Heat load <span class="fine">(McCune &amp; Keon 2002)</span></td>
+          <td>folded aspect = |180 − |aspect − 225||</td>
+          <td>A southwest-maximum index; 0 = coolest NE, 180 = hottest SW. The full equation also uses latitude and slope.</td></tr>
+      </table></div>
+
+      <div class="verdict warn"><b>One plot is an anecdote.</b> Every per-hectare number on this page is a
+        point estimate from a single sample with no confidence interval attached. That is a property of your
+        design, not of the arithmetic. Three plots give you a mean and a spread; ten give you something you
+        can defend in a methods section. The page will happily compute a precise-looking BA/ha from four
+        stems — precision is not accuracy, and the decimals are not evidence.</div>
+    </div>
+
+    <div class="card">
+      <h3 style="margin-top:0">On the identification characters</h3>
+      <p style="font-size:15.5px;color:var(--ink-2)">The key here is a field aid, not a flora. It is built on
+      the characters that hold up in bad light with cold hands — silhouette, needle attachment, bark, the one
+      cone character that settles it. It will not resolve hybrids, and several of the hard pairs in this
+      region (Abies concolor × magnifica around Tahoe, Pinus edulis × monophylla in western Utah, whitebark
+      × limber pine) genuinely do intergrade. Where the key says two species are hard to separate, believe
+      it, record both possibilities, take a voucher, and settle it with a regional flora.</p>
+      <p style="font-size:15.5px;color:var(--ink-2);margin-bottom:0">Nomenclature follows common current usage;
+      it moves. <i>Juniperus grandis</i> was split from <i>J. occidentalis</i>; <i>Callitropsis</i> /
+      <i>Xanthocyparis</i> / <i>Cupressus nootkatensis</i> remains unsettled. Record what you saw and which
+      authority you used.</p>
+    </div>
+  </section>
+
+
+<div class="rail">
+  <p class="rl">The field kit</p>
+  <div class="chips">
+    <a href="field-notebook.html"><span>📓</span>Field Notebook</a>
+    <a href="farm-scout.html"><span>🧑‍🌾</span>Farm Scout</a>
+    <a href="pheno-tracker.html"><span>🌱</span>Pheno Tracker</a>
+    <a href="food-web.html"><span>🕸️</span>Food Web Builder</a>
+    <a href="stand-sheet.html" aria-current="page"><span>🌲</span>Stand Sheet</a>
+    <a href="field-season.html"><span>🎯</span>Field Season</a>
+    <a class="ref" href="ecology.html">← kit hub</a>
+    <a class="ref" href="ecology-field-card.html">field card</a>
+    <a class="ref" href="ecology-glossary.html">glossary</a>
+  </div>
+</div>
+
+<div class="tabbar"><div class="row">
+  <button class="tab on" data-pane="p-id" type="button"><span class="ico">🔍</span>ID</button>
+  <button class="tab" data-pane="p-trees" type="button"><span class="ico">🌲</span>Tally</button>
+  <button class="tab" data-pane="p-plot" type="button"><span class="ico">📋</span>Plot</button>
+  <button class="tab" data-pane="p-notes" type="button"><span class="ico">📷</span>Photos</button>
+  <button class="tab" data-pane="p-web" type="button"><span class="ico">🕸️</span>Web</button>
+  <button class="tab" data-pane="p-method" type="button"><span class="ico">📐</span>Method</button>
+</div></div>
+
+<div class="toast" id="toast">Saved</div>
+<script>
+/* ---------------------------------------------------------------------------
+   Regional conifer + hardwood set, Pacific Northwest -> Sierra/Tahoe -> Utah.
+   Fields: id, sci, com, grp, reg[], leaf, dbh (typical mature range cm),
+   key (diagnostic characters), trick (the one field shortcut), look (confusions),
+   eco (autecology a plot ecologist needs), inter (documented interactions).
+   Regions: pnwW = PNW westside, pnwE = PNW eastside/N Rockies,
+            sier = Sierra Nevada / Tahoe, gb = Great Basin / Utah / Colorado Plateau.
+--------------------------------------------------------------------------- */
+var SPECIES = [
+/* ---- Douglas-fir ---- */
+{id:"psme", sci:"Pseudotsuga menziesii", com:"Douglas-fir", grp:"df", reg:["pnwW","pnwE","sier","gb"],
+ leaf:"single", dbh:"50-200+",
+ key:"Needles single, soft, flat, spirally all round the twig, leaving small oval scars. Bud sharply pointed, papery, reddish-brown - unlike any true fir. Cones hang DOWN and stay whole.",
+ trick:"The three-pointed bract between every cone scale - the mouse's back legs and tail. Nothing else in North America has it. One cone on the ground settles the question.",
+ look:"True firs (upright cones that shatter, blunt resinous buds); grand fir (needles in flat rows, not all round).",
+ eco:"The matrix species west of the Cascades and a major seral dominant east. Thick corky bark makes mature trees fire-survivors; regeneration needs disturbance. var. glauca in the Rockies/Utah is slower, shorter, more drought-hardy.",
+ inter:["ectomycorrhizal with a large fungal guild - the hub species in most PNW mycorrhizal-network work","Douglas-fir beetle (Dendroctonus pseudotsugae) attacks stressed and downed stems","dwarf mistletoe Arceuthobium douglasii","truffle sporocarps eaten by northern flying squirrel"]},
+
+/* ---- True firs ---- */
+{id:"abgr", sci:"Abies grandis", com:"grand fir", grp:"fir", reg:["pnwW","pnwE"],
+ leaf:"single", dbh:"40-120",
+ key:"Needles flat, blunt or notched, in two distinct flat rows like a comb - a sprig lies flat on your palm. Two white stomatal bands beneath. Circular flat scars when pulled.",
+ trick:"Lay a twig on your hand: grand fir is flat and two-ranked. Silver fir bristles forward and up.",
+ look:"Pacific silver fir (needles forward-pointing, dark, upswept); white fir (longer, bluer, more upcurved).",
+ eco:"Shade-tolerant, moist to mesic sites, low to mid elevation. Thin bark - fire-sensitive. A classic fire-exclusion increaser in dry interior forests, where it now underplants old ponderosa.",
+ inter:["fir engraver (Scolytus ventralis)","Armillaria and Indian paint fungus (Echinodontium tinctorium) heart rot - a major cavity source"]},
+
+{id:"abam", sci:"Abies amabilis", com:"Pacific silver fir", grp:"fir", reg:["pnwW"],
+ leaf:"single", dbh:"40-110",
+ key:"Needles dark glossy above, chalk-white beneath, the upper ones pressed forward along the twig so the shoot looks brushed toward the tip. Bark smooth grey with resin blisters, chalky when young.",
+ trick:"Look down the top of the shoot: the needles sweep forward and hide the twig. Grand fir never does this.",
+ look:"Grand fir (flat two-ranked); subalpine fir (needles all round, narrower crown).",
+ eco:"Cool, wet, snowy mid-to-upper montane west of the Cascade crest. Very shade-tolerant, long-lived understory bank - can sit suppressed for a century and release.",
+ inter:["ectomycorrhizal","balsam woolly adelgid (introduced) on some stands"]},
+
+{id:"abla", sci:"Abies lasiocarpa", com:"subalpine fir", grp:"fir", reg:["pnwE","sier","gb"],
+ leaf:"single", dbh:"25-70",
+ key:"Narrow spire crown that sheds snow - unmistakable at distance. Needles crowded, upswept all round the shoot, blue-green. Bark smooth grey with blisters even on old stems.",
+ trick:"The silhouette. A steeple with branches to the ground at treeline is subalpine fir; a broader cone with drooping top is Engelmann spruce.",
+ look:"Engelmann spruce (sharp square needles that roll, pegged twigs).",
+ eco:"Upper subalpine, cold and snowy, to treeline where it forms krummholz. Very shade-tolerant, thin-barked, fire-killed. Layering (branch rooting) is common at treeline.",
+ inter:["western balsam bark beetle","spruce budworm defoliation shared with Engelmann spruce"]},
+
+{id:"abco", sci:"Abies concolor", com:"white fir", grp:"fir", reg:["sier","gb","pnwE"],
+ leaf:"single", dbh:"50-150",
+ key:"Needles long (4-6 cm), blue-grey, curving UP from both sides of the twig like a bottle brush parted underneath. Cones upright, olive to purple, disintegrate on the tree.",
+ trick:"Longest, bluest needles of any fir in the Sierra, and they twist up from the underside of the branch.",
+ look:"Red fir (shorter, four-sided, hugging the twig); grand fir (shorter, flat rows).",
+ eco:"Mid-montane, shade-tolerant. The signature fire-exclusion increaser of the Sierra mixed conifer - dense white fir ladders under old pines are the fuel problem in one sentence.",
+ inter:["fir engraver","dwarf mistletoe Arceuthobium abietinum","heart rots creating cavity habitat"]},
+
+{id:"abma", sci:"Abies magnifica", com:"red fir", grp:"fir", reg:["sier"],
+ leaf:"single", dbh:"60-150",
+ key:"Needles short, four-sided in cross-section, curving up and hugging the shoot so it looks like a bottlebrush. Bark deep red-brown and furrowed on old trees. Big upright barrel cones high in the crown.",
+ trick:"Roll a needle: red fir is four-sided and won't lie flat, white fir is flatter and much longer.",
+ look:"White fir at the elevational overlap - hybrids/intermediates (A. x shastensis) are real and awkward.",
+ eco:"Upper montane snow belt, roughly 1800-2700 m in the Tahoe basin. Forms near-pure dense stands; deep snowpack limits understory. Long-lived, moderately shade-tolerant.",
+ inter:["red fir dwarf mistletoe","Cytospora canker","snowshoe hare browse on regeneration"]},
+
+/* ---- Spruce ---- */
+{id:"pisi", sci:"Picea sitchensis", com:"Sitka spruce", grp:"spruce", reg:["pnwW"],
+ leaf:"single", dbh:"60-250",
+ key:"Needles very sharp, flattened, standing out all round the twig - painful to grip. Twigs rough with woody pegs where needles have fallen. Papery loose bark scales.",
+ trick:"Shake hands with the branch. If it hurts, it's a spruce; on the outer coast it is this one.",
+ look:"Engelmann spruce (inland, four-sided needles, less brutally sharp).",
+ eco:"Fog belt, within a few km of salt water and up valley bottoms. Fast, huge, shallow-rooted. Nurse-log regeneration is the norm - colonnades of stems on a vanished log are diagnostic of the type.",
+ inter:["Sitka spruce weevil kills leaders and forks stems","nurse-log seedbed dependence - a facilitation link worth recording","bear stripping of bark on young stands"]},
+
+{id:"pien", sci:"Picea engelmannii", com:"Engelmann spruce", grp:"spruce", reg:["pnwE","sier","gb"],
+ leaf:"single", dbh:"40-100",
+ key:"Needles four-sided - roll one between finger and thumb and it turns squarely. Sharp but not vicious. Twigs rough-pegged. Crown a narrow cone, often with a drooping leader.",
+ trick:"Roll it. Spruce rolls (square), fir doesn't (flat). Then check the twig: pegs mean spruce.",
+ look:"Subalpine fir - they grow interlocked; blue spruce (stiffer, bluer, sharper, lower elevation).",
+ eco:"Cold upper montane and subalpine, often with subalpine fir as the classic spruce-fir type. Shade-tolerant, shallow-rooted, windthrow-prone once the stand is opened.",
+ inter:["spruce beetle (Dendroctonus rufipennis) - landscape-scale outbreaks in blowdown","western spruce budworm","red squirrel cone caching (middens)"]},
+
+{id:"pipu", sci:"Picea pungens", com:"blue spruce", grp:"spruce", reg:["gb"],
+ leaf:"single", dbh:"40-90",
+ key:"Stiff, very sharp, distinctly blue-glaucous four-sided needles standing straight out. Branches stiffly horizontal in whorls.",
+ trick:"The sharpest thing you will grab in a Utah riparian corridor, and the bluest.",
+ look:"Engelmann spruce (softer, less blue, higher).",
+ eco:"Streamsides and moist canyon bottoms in the Rockies and Wasatch, 1800-3000 m. Fire-sensitive, moderately shade-tolerant, rarely forms extensive stands.",
+ inter:["spruce beetle","cytospora canker common on stressed stems"]},
+
+/* ---- Hemlock ---- */
+{id:"tshe", sci:"Tsuga heterophylla", com:"western hemlock", grp:"hemlock", reg:["pnwW","pnwE"],
+ leaf:"single", dbh:"40-150",
+ key:"Needles flat, blunt, of clearly UNEVEN lengths in the same spray, two white bands beneath. Small papery cones under 2.5 cm. Leading shoot droops.",
+ trick:"The nodding leader you can see from 50 m, plus needles of mixed lengths - heterophylla means exactly that.",
+ look:"Mountain hemlock (needles all round the twig, bluish, cones long); grand fir (even, longer needles).",
+ eco:"The climax dominant of the westside lowland-montane. Extremely shade-tolerant; regenerates almost exclusively on nurse logs and rotten wood. Thin bark, fire-intolerant.",
+ inter:["obligate nurse-log/decayed-wood seedbed - record as facilitation","dwarf mistletoe Arceuthobium tsugense","Heterobasidion and Armillaria root disease centres"]},
+
+{id:"tsme", sci:"Tsuga mertensiana", com:"mountain hemlock", grp:"hemlock", reg:["pnwW","pnwE","sier"],
+ leaf:"single", dbh:"30-90",
+ key:"Needles blue-green, plump, radiating ALL round the shoot so twigs look like bottle brushes. Cones long (3-7 cm) for a hemlock. Leader droops.",
+ trick:"A hemlock whose shoots are round, not flat, is this one. Star-shaped needle clusters on the short shoots.",
+ look:"Western hemlock (flat sprays); spruce (sharp, pegged).",
+ eco:"Cold, deep-snow upper montane to subalpine. Slow, long-lived, shade-tolerant. Snow-press shapes the krummholz form near treeline.",
+ inter:["ectomycorrhizal","laminated root rot in some stands"]},
+
+/* ---- Pines: 2-needle ---- */
+{id:"pico", sci:"Pinus contorta", com:"lodgepole pine", grp:"pine", reg:["pnwW","pnwE","sier","gb"],
+ leaf:"fasc2", dbh:"20-50",
+ key:"Two short (3-7 cm) stiff twisted needles per bundle. Thin flaky bark you can peel with a thumbnail. Small hard asymmetric cones, often persistent for decades.",
+ trick:"Two needles, thin bark, straight skinny stem in a dense even-aged thicket. If the cone is sealed shut with resin, it is serotinous - note it, it tells you the fire regime.",
+ look:"Ponderosa/Jeffrey (3 long needles, thick plated bark); shore pine (var. contorta - same species, coastal, gnarled).",
+ eco:"Broadest range of any western pine. Serotiny is variable and locally patterned - Rocky Mountain var. latifolia is often serotinous, Sierra/Cascade var. murrayana usually not. Even-aged post-fire cohorts, self-thinning, short-lived.",
+ inter:["mountain pine beetle (Dendroctonus ponderosae) - the outbreak agent of the last decades","serotinous cone bank released by crown fire - a disturbance-dependent regeneration link","red squirrel cone predation","snowshoe hare browse"]},
+
+{id:"pied", sci:"Pinus edulis", com:"twoneedle pinyon", grp:"pine", reg:["gb"],
+ leaf:"fasc2", dbh:"15-40",
+ key:"Two stout curved needles per bundle, 2-4 cm. Small rounded resinous cones with big wingless edible seeds. Short, rounded, many-stemmed crown.",
+ trick:"Two needles and a nut. Where it meets singleleaf pinyon in western Utah, count needles on ten fascicles - both occur and they hybridise.",
+ look:"Singleleaf pinyon (one needle); junipers (scale leaves, berry cones).",
+ eco:"Pinyon-juniper woodland with Utah juniper, 1500-2300 m on the Colorado Plateau. Drought-adapted; the 2002-2003 drought/beetle event killed pinyon at landscape scale and is the reference mortality episode for the type.",
+ inter:["pinyon jay caches seeds - a dispersal mutualism the tree depends on","pinyon ips (Ips confusus) drove the 2002-03 mortality","dwarf mistletoe Arceuthobium divaricatum","seeds a keystone food resource for many vertebrates"]},
+
+/* ---- Pines: 3-needle ---- */
+{id:"pipo", sci:"Pinus ponderosa", com:"ponderosa pine", grp:"pine", reg:["pnwE","pnwW","sier","gb"],
+ leaf:"fasc3", dbh:"50-150",
+ key:"Three long needles (12-25 cm) per bundle. Mature bark in flat orange jigsaw plates; young trees dark and furrowed ('blackjacks'). Cone prickles point OUT.",
+ trick:"Put your nose in a bark furrow on a sunny day: vanilla or butterscotch. Then grasp a cone - ponderosa is prickly.",
+ look:"Jeffrey pine, closely - see the cone-prickle and smell test. Overlap in the Sierra is real.",
+ eco:"The dry-forest matrix species. Thick bark and self-pruning made it the survivor of frequent low-severity fire; a century of exclusion has replaced open park-like stands with dense fir understories. Old trees are yellow-barked and flat-topped.",
+ inter:["western pine beetle (Dendroctonus brevicomis) in old and stressed trees","Abert's squirrel dependence in parts of its range","dwarf mistletoe Arceuthobium campylopodum","frequent-fire regime dependence - a disturbance interaction worth recording explicitly"]},
+
+{id:"pije", sci:"Pinus jeffreyi", com:"Jeffrey pine", grp:"pine", reg:["sier"],
+ leaf:"fasc3", dbh:"50-150",
+ key:"Three needles, blue-green, slightly stouter than ponderosa. Bark furrows smell of pineapple or vanilla. Cones larger (12-25 cm) with prickles curved IN.",
+ trick:"Gentle Jeffrey, prickly ponderosa - close your hand on the cone. Jeffrey does not bite.",
+ look:"Ponderosa. Where both occur, use the cone; needle characters overlap too much to trust.",
+ eco:"Takes over from ponderosa on higher, colder, and serpentine or ultramafic soils around Tahoe. Fire-adapted, thick-barked, drought-hardy.",
+ inter:["Jeffrey pine beetle (Dendroctonus jeffreyi) - host-specific","dwarf mistletoe","ozone injury is a documented stressor in Sierra populations"]},
+
+/* ---- Pines: 5-needle ---- */
+{id:"pila", sci:"Pinus lambertiana", com:"sugar pine", grp:"pine", reg:["sier","pnwW"],
+ leaf:"fasc5", dbh:"60-200",
+ key:"Five needles per bundle, 5-10 cm, twisted, with fine white lines. Enormous cones (25-50 cm) hanging like pendulums from the tips of long horizontal limbs.",
+ trick:"The longest cone in the world hanging off a branch that looks like an outstretched arm. Visible from a road at 60 km/h.",
+ look:"Western white pine (much smaller cones, narrower crown).",
+ eco:"Scattered emergent in Sierra mixed conifer. Long-lived, fire-tolerant when large. White pine blister rust plus a century of high-grading has thinned the big cohort - note rust cankers when you see them.",
+ inter:["white pine blister rust (Cronartium ribicola, introduced) - alternate host Ribes","mountain pine beetle","seeds cached by birds and rodents"]},
+
+{id:"pimo", sci:"Pinus monticola", com:"western white pine", grp:"pine", reg:["pnwW","pnwE","sier"],
+ leaf:"fasc5", dbh:"40-120",
+ key:"Five slender blue-green needles, 5-10 cm. Cones 15-25 cm, slightly curved, hanging. Bark breaking into small square-ish plates on old stems. Narrow open crown with regular whorls.",
+ trick:"Five needles plus a narrow crown of tidy branch whorls. The cone is a sugar pine's in miniature.",
+ look:"Sugar pine (giant cones); whitebark (cones stay closed, high elevation, shrubby).",
+ eco:"Mesic montane, formerly a major component of northern Idaho and Cascade forests. Blister rust caused catastrophic 20th-century decline; rust-resistant planting stock is a live management story.",
+ inter:["white pine blister rust - the dominant demographic driver","mountain pine beetle","ectomycorrhizal"]},
+
+{id:"pial", sci:"Pinus albicaulis", com:"whitebark pine", grp:"pine", reg:["pnwE","sier","gb"],
+ leaf:"fasc5", dbh:"25-70",
+ key:"Five stiff needles clustered toward branch tips like a bottle brush. Pale, smooth whitish bark. Purple cones that do NOT open and are usually shredded before you find one whole.",
+ trick:"At treeline, five needles and no intact cones on the ground: the birds took them. Often multi-stemmed from a cached seed cluster.",
+ look:"Limber pine - genuinely difficult. Limber cones open and fall whole; whitebark cones disintegrate on the tree.",
+ eco:"Subalpine and treeline keystone, listed as threatened under the ESA in 2022. Declining from blister rust, mountain pine beetle, and fire exclusion together.",
+ inter:["obligate seed dispersal by Clark's nutcracker (Nucifraga columbiana) - the textbook coevolved mutualism; the cones cannot open themselves","seeds a high-fat autumn resource for grizzly bear and red squirrel","white pine blister rust","facilitates other subalpine species as a nurse tree"]},
+
+{id:"pifl", sci:"Pinus flexilis", com:"limber pine", grp:"pine", reg:["gb","pnwE","sier"],
+ leaf:"fasc5", dbh:"30-80",
+ key:"Five needles clustered at branch ends. Young twigs so flexible you can tie one in a loose knot without snapping it. Cones 7-15 cm, opening normally and falling intact.",
+ trick:"Bend a pencil-thick twig into a circle. Limber pine takes it. That plus intact cones separates it from whitebark.",
+ look:"Whitebark pine (see above); bristlecone (much shorter foxtail needles).",
+ eco:"Dry rocky ridges, wide elevational range, often on sites nothing else will hold. Very long-lived; a drought and cold stress specialist.",
+ inter:["Clark's nutcracker caching - facultative here, not obligate","white pine blister rust","mountain pine beetle at lower elevations"]},
+
+{id:"pilo", sci:"Pinus longaeva", com:"Great Basin bristlecone pine", grp:"pine", reg:["gb"],
+ leaf:"fasc5", dbh:"50-250",
+ key:"Five very short (2-4 cm) needles packed densely along the last 10-15 cm of twig - a foxtail or bottlebrush. Cones with a slender incurved bristle on each scale. Ancient stems mostly dead wood with a thin living cambium strip.",
+ trick:"The foxtail branch is unmistakable. Unlike Rocky Mountain bristlecone (P. aristata), needles here are usually free of white resin flecks.",
+ look:"Limber pine (longer needles, not foxtailed).",
+ eco:"Dolomite and limestone substrates, 2800-3500 m, Great Basin ranges. The oldest known non-clonal organisms - individuals exceeding 4,800 years. Strip-bark growth and erosion-resistant wood are why the dendro record is so long.",
+ inter:["very few - low productivity and resinous wood limit both herbivory and decay","the dendrochronological record itself is the reason most plots here exist"]},
+
+/* ---- Larch ---- */
+{id:"laoc", sci:"Larix occidentalis", com:"western larch", grp:"larch", reg:["pnwE"],
+ leaf:"tuft", dbh:"40-120",
+ key:"DECIDUOUS conifer. Soft pale-green needles in tufts of 15-30 on short woody spur shoots; bare in winter, gold in October. Very thick furrowed bark; long clean bole with a small crown.",
+ trick:"A conifer with no needles in November, or a hillside of gold among green in autumn. Nothing else in the interior Northwest does this.",
+ look:"Nothing, once you accept a conifer can be deciduous. Subalpine larch (L. lyallii) is higher and woolly-twigged.",
+ eco:"Fire-dependent seral dominant of the interior Northwest. Thickest bark of any western conifer plus self-pruning makes big trees remarkably fire-resistant; seedlings need mineral seedbed and full light.",
+ inter:["western spruce budworm and larch casebearer defoliation","larch dwarf mistletoe","cavity excavation in old stems - important wildlife tree"]},
+
+/* ---- Scale-leaved ---- */
+{id:"thpl", sci:"Thuja plicata", com:"western redcedar", grp:"cedar", reg:["pnwW","pnwE"],
+ leaf:"scale", dbh:"60-300+",
+ key:"Flat fern-like sprays of scale leaves. Turn a spray over: white stomatal marks form butterflies or a hazy W on each scale. Stringy fibrous cinnamon bark; fluted swelling buttressed base.",
+ trick:"Flip the spray and look for butterflies. Crushed foliage smells of pineapple.",
+ look:"Alaska yellow-cedar (drooping, prickly to the touch, no butterflies); incense-cedar (longer scales, not westside).",
+ eco:"Moist to wet sites, floodplain to lower montane. Extremely shade-tolerant, very long-lived, decay-resistant heartwood so snags and logs persist for centuries - which is why it dominates the coarse woody debris pool.",
+ inter:["decay-resistant CWD persists for centuries, structuring the nurse-log seedbed for hemlock and spruce","heavy elk and deer browse on regeneration limits recruitment","culturally central to Northwest Coast peoples - culturally modified trees are recordable features"]},
+
+{id:"cade", sci:"Calocedrus decurrens", com:"incense-cedar", grp:"cedar", reg:["sier","pnwW"],
+ leaf:"scale", dbh:"50-150",
+ key:"Scale leaves long and pressed flat, the spray looking like overlapping wine glasses held to the light. Cones tiny, duck-bill shaped, opening into three parts. Bright cinnamon fibrous bark.",
+ trick:"Hold a spray to the sky - the wine-glass outline of each scale is diagnostic. Crushed foliage smells sharply of shoe polish or pencil shavings.",
+ look:"Western redcedar (butterflies beneath, shorter scales); junipers (berry cones).",
+ eco:"Sierra mixed conifer, drought-tolerant and moderately shade-tolerant. Thick bark; survives moderate fire. Increasing with fire exclusion alongside white fir.",
+ inter:["incense-cedar mistletoe (Phoradendron)","pocket dry rot creating cavity habitat"]},
+
+{id:"juos", sci:"Juniperus osteosperma", com:"Utah juniper", grp:"cedar", reg:["gb"],
+ leaf:"scale", dbh:"15-50",
+ key:"Short, usually single-stemmed but low-branching, rounded shrubby crown. Scale leaves in threes, yellow-green. Berry cones red-brown under a blue bloom, 6-9 mm, usually one seed. Shredding grey bark.",
+ trick:"The other half of pinyon-juniper. If the berries are reddish-brown and it is a Utah plateau, this is it.",
+ look:"Rocky Mountain juniper (bluer berries, more erect, moister sites); singleleaf pinyon (needles, not scales).",
+ eco:"The most abundant tree in Utah. Drought-hardy, deep and wide rooting. Post-settlement expansion into sagebrush steppe is one of the biggest vegetation changes in the Great Basin - stand age structure is the evidence, so core or count whorls where you can.",
+ inter:["berries dispersed by Townsend's solitaire, robins, coyote and jackrabbit","mistletoe Phoradendron juniperinum","facilitates shrub and grass establishment beneath the canopy - a nurse-plant interaction, and the opposite where it excludes understory by interception"]},
+
+{id:"jusc", sci:"Juniperus scopulorum", com:"Rocky Mountain juniper", grp:"cedar", reg:["gb","pnwE"],
+ leaf:"scale", dbh:"20-60",
+ key:"More upright and tree-like than Utah juniper, often with a single defined trunk. Scale leaves in opposite pairs, blue-green. Berries distinctly blue with a waxy bloom, two seeds, maturing in the second year.",
+ trick:"Blue berries and an upright form on a moister site. Utah juniper is brownish-berried and squat.",
+ look:"Utah juniper; eastern redcedar does not occur here.",
+ eco:"Canyon slopes, rimrock, and moister sites than Utah juniper, often above or interfingered with it. Slow, long-lived, fire-sensitive.",
+ inter:["frugivore dispersal - solitaires and waxwings","cedar-apple rust alternates with Rosaceae"]},
+
+{id:"juoc", sci:"Juniperus grandis", com:"Sierra juniper", grp:"cedar", reg:["sier"],
+ leaf:"scale", dbh:"40-200",
+ key:"Massive, short, wind-sculpted trunk far out of proportion to its height. Deeply furrowed cinnamon bark. Scale leaves grey-green; berry cones blue-black.",
+ trick:"A tree on granite that is wider than it is tall, with a trunk like a barrel and half its crown dead. Tahoe ridgelines.",
+ look:"Utah juniper (smaller, plateau country).",
+ eco:"Exposed granite, rimrock and glaciated ridges of the Sierra. Extremely long-lived; individuals over 2,000 years documented. Fire-sensitive but occupies sites with little fuel continuity.",
+ inter:["frugivore-dispersed","very slow decay - standing dead persists for centuries as a structural feature"]},
+
+/* ---- Broadleaf ---- */
+{id:"potr", sci:"Populus tremuloides", com:"quaking aspen", grp:"broad", reg:["pnwE","sier","gb","pnwW"],
+ leaf:"broad", dbh:"20-60",
+ key:"Smooth chalk-white to greenish bark with black scars; rounded leaves on FLATTENED petioles that make the whole canopy tremble in the least wind. Bark photosynthesises - scrape gently and it is green beneath.",
+ trick:"The sound before the sight. A flattened leaf stalk, rolled between fingers, is the confirmation.",
+ look:"Black cottonwood (much larger, deeply furrowed bark, round petiole).",
+ eco:"The most widely distributed tree in North America and the dominant hardwood of Utah's mountains. Clonal - a stand is often ONE genet with thousands of stems, regenerating by root suckering after fire or cutting. Pando in Fishlake NF is the reference clone. Sudden Aspen Decline and chronic ungulate browse both suppress recruitment; record browse height class.",
+ inter:["ungulate browse (elk, deer, cattle) is the dominant recruitment control - measure the browse line","clonal root suckering - the regeneration mechanism, disturbance-triggered","aspen bark beetles, Cytospora and sooty-bark canker","cavity-nesting birds excavate the soft wood - a keystone structure for secondary cavity users","understory productivity beneath aspen is the highest of any western forest type"]},
+
+{id:"potr2", sci:"Populus trichocarpa", com:"black cottonwood", grp:"broad", reg:["pnwW","pnwE"],
+ leaf:"broad", dbh:"50-200",
+ key:"Big triangular to heart-shaped leaves, glossy dark above, silvery-white and often rust-stained beneath. Deeply furrowed grey bark on old stems. Sticky, strongly balsam-scented buds.",
+ trick:"Smell a broken bud in spring - balsam, unmistakable. Or look for the two-tone leaf litter.",
+ look:"Quaking aspen (small, white-barked); bigleaf maple (opposite, palmate leaves).",
+ eco:"Floodplains and riparian corridors, fast and short-lived. Recruitment is flood-dependent - it needs bare wet alluvium, so regulated rivers lose their cottonwood cohorts. Note channel position and stand age.",
+ inter:["beaver cutting and coppice response","flood-disturbance-dependent recruitment","riparian bird nesting structure","leaf litter subsidy to stream detrital food webs"]},
+
+{id:"alru", sci:"Alnus rubra", com:"red alder", grp:"broad", reg:["pnwW"],
+ leaf:"broad", dbh:"20-60",
+ key:"Smooth pale grey bark blotched with white lichen. Leaves oval, sharply double-toothed, with the margin distinctly ROLLED under. Small woody cone-like fruits persist all winter.",
+ trick:"Roll the leaf edge under with a fingernail - it is already rolled. And the little cones on the ground under a smooth grey trunk.",
+ look:"Birch (peeling bark, no rolled margin); bigleaf maple (opposite leaves).",
+ eco:"Fast pioneer on disturbance and streamsides west of the Cascades. Short-lived (about 100 years), then overtopped by conifers.",
+ inter:["nitrogen fixation via Frankia actinorhizal symbiosis - it fertilises the site and raises stream nitrogen, a facilitation link with real biogeochemical consequences","litter subsidy alters stream invertebrate communities","browse by deer and elk on regeneration"]},
+
+{id:"acma", sci:"Acer macrophyllum", com:"bigleaf maple", grp:"broad", reg:["pnwW"],
+ leaf:"broad", dbh:"40-120",
+ key:"Enormous five-lobed leaves, up to 30 cm across - the largest maple leaf. Leaves OPPOSITE. Often multi-stemmed from a stool, limbs carrying heavy moss and licorice fern.",
+ trick:"The size of the leaf and the weight of the epiphytes. Opposite branching rules out alder and cottonwood at a glance.",
+ look:"Vine maple (shrubby, smaller leaves with more lobes).",
+ eco:"Moist lowland forest and riparian edges, moderately shade-tolerant, sprouts vigorously after damage.",
+ inter:["canopy epiphyte mats support their own invertebrate community and canopy soil, with the maple growing adventitious roots INTO its own epiphyte mats","nectar source for early-season pollinators","seed predation by rodents"]},
+
+{id:"quga", sci:"Quercus garryana", com:"Oregon white oak", grp:"broad", reg:["pnwW"],
+ leaf:"broad", dbh:"30-100",
+ key:"Deeply round-lobed leaves, glossy dark green above, paler below. Rough grey-brown checked bark. Gnarled spreading crown when open-grown, tall and narrow when crowded.",
+ trick:"The only native deciduous oak over most of its PNW range - a lobed oak leaf west of the Cascades is this.",
+ look:"California black oak (bristle-tipped lobes, further south).",
+ eco:"Oak savanna and prairie edge, historically maintained by Indigenous burning. Fire exclusion has let Douglas-fir overtop and kill open-grown oaks - the encroachment is measurable in the age structure.",
+ inter:["acorn crop supports jays, woodpeckers, deer and historically people - a mast interaction with strong interannual variance","acorn woodpecker granaries","gall wasps in remarkable diversity","Douglas-fir encroachment is the competitive interaction that defines its conservation status"]},
+
+{id:"arme", sci:"Arbutus menziesii", com:"Pacific madrone", grp:"broad", reg:["pnwW"],
+ leaf:"broad", dbh:"25-80",
+ key:"Evergreen broadleaf. Thin orange-red bark peeling in papery curls to reveal smooth green-bronze wood beneath. Thick leathery oval leaves. Orange-red berries in autumn.",
+ trick:"There is nothing else like a madrone trunk. Cold and smooth to the touch even in sun.",
+ look:"Manzanita (a shrub with the same bark, much smaller leaves).",
+ eco:"Dry rocky slopes and rain-shadow sites, drought-tolerant, sprouts from a burl after fire. Sensitive to root disturbance and to Phytophthora.",
+ inter:["berries taken by band-tailed pigeon, waxwings, robins - autumn frugivory","ectomycorrhizal, and shares fungal partners with Douglas-fir - a documented network link","burl sprouting after fire"]},
+
+{id:"acgr", sci:"Acer grandidentatum", com:"bigtooth maple", grp:"broad", reg:["gb"],
+ leaf:"broad", dbh:"15-40",
+ key:"Small maple, leaves opposite with a few large blunt teeth or lobes. Often multi-stemmed and shrubby. Brilliant red and orange in autumn.",
+ trick:"Utah's autumn colour. A small opposite-leaved tree in a canyon bottom with big blunt lobes.",
+ look:"Rocky Mountain maple (more sharply toothed, more shrubby).",
+ eco:"Canyon and foothill slopes of the Wasatch and Great Basin ranges, often with Gambel oak. Fire and cutting produce dense sprout clumps.",
+ inter:["sprouts clonally after disturbance","browse by deer","early nectar source"]},
+
+{id:"quga2", sci:"Quercus gambelii", com:"Gambel oak", grp:"broad", reg:["gb"],
+ leaf:"broad", dbh:"10-40",
+ key:"Deeply lobed deciduous oak leaves with rounded lobes. Usually a dense clonal thicket of small stems rather than a single tree; occasionally reaches tree size on good sites.",
+ trick:"Waist-to-head-high oak thicket on a Utah foothill is Gambel oak by default.",
+ look:"Bigtooth maple (opposite, maple-shaped); other oaks are rare here.",
+ eco:"Foothill zone across Utah and the Southwest, strongly clonal via rhizomes with clones estimated in the thousands of years. Vigorous resprouting makes it near-immortal to fire.",
+ inter:["acorn mast supports deer, turkey, bear, jays","clonal rhizomatous spread - the regeneration mode","nitrogen-rich litter improves soil beneath clones"]}
+];
+</script>
+<script>
+(function(){
+  "use strict";
+  function $(id){ return document.getElementById(id); }
+  function buzz(){ try{ if(navigator.vibrate) navigator.vibrate(8); }catch(e){} }
+  function toast(m){ var t=$("toast"); t.textContent=m; t.classList.add("on");
+    clearTimeout(t._h); t._h=setTimeout(function(){t.classList.remove("on");},1700); }
+  function esc(s){ return String(s==null?"":s).replace(/[&<>"']/g,function(c){
+    return {"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#39;"}[c]; }); }
+  function num(id){ var v=parseFloat(($(id)||{}).value); return isFinite(v)?v:null; }
+  function val(id){ return (($(id)||{}).value||"").trim(); }
+
+  /* ---------- regions & leaf classes (extensible by packs) ---------- */
+  var REGIONS = [
+    {id:"pnwW", name:"PNW westside",  sub:"coast → Cascade crest"},
+    {id:"pnwE", name:"PNW eastside",  sub:"east Cascades / N Rockies"},
+    {id:"sier", name:"Sierra / Tahoe", sub:"Sierra Nevada"},
+    {id:"gb",   name:"Great Basin / Utah", sub:"Wasatch, Plateau, ranges"}
+  ];
+  var LEAF = [
+    {id:"fasc", name:"Needles in bundles", sub:"pines — count them"},
+    {id:"single", name:"Needles single", sub:"fir, spruce, hemlock, Douglas-fir"},
+    {id:"scale", name:"Scale-like", sub:"cedars, junipers"},
+    {id:"tuft", name:"Tufts on spurs", sub:"larch — deciduous"},
+    {id:"broad", name:"Broad leaves", sub:"hardwoods"}
+  ];
+  var SUBS = {
+    fasc:[{id:"fasc2",name:"2 per bundle"},{id:"fasc3",name:"3 per bundle"},{id:"fasc5",name:"5 per bundle"}],
+    single:[{id:"df",name:"Douglas-fir",sub:"3-pointed bracts"},{id:"fir",name:"True fir",sub:"upright cones"},
+            {id:"spruce",name:"Spruce",sub:"square, sharp, pegged"},{id:"hemlock",name:"Hemlock",sub:"drooping leader"}],
+    scale:[{id:"cedar",name:"all scale-leaved"}],
+    tuft:[{id:"larch",name:"larch"}],
+    broad:[{id:"broad",name:"all broadleaf"}]
+  };
+  var INTER_TYPES = [
+    {id:"herb", n:"herbivory / browse", dir:"eats"},
+    {id:"seedpred", n:"seed predation", dir:"eats"},
+    {id:"disp", n:"seed dispersal (mutualism)", dir:"disperses"},
+    {id:"poll", n:"pollination", dir:"pollinates"},
+    {id:"myco", n:"mycorrhizal symbiosis", dir:"exchanges with"},
+    {id:"nfix", n:"nitrogen fixation", dir:"fixes N for"},
+    {id:"path", n:"pathogen / disease", dir:"infects"},
+    {id:"para", n:"parasitism (e.g. mistletoe)", dir:"parasitises"},
+    {id:"cav", n:"cavity excavation / use", dir:"nests in"},
+    {id:"epi", n:"epiphyte / substrate use", dir:"grows on"},
+    {id:"pred", n:"predation", dir:"eats"},
+    {id:"comp", n:"competition", dir:"competes with"},
+    {id:"facil", n:"facilitation / nurse", dir:"facilitates"},
+    {id:"decomp", n:"decomposition", dir:"decomposes"},
+    {id:"dist", n:"disturbance dependence", dir:"is regenerated by"}
+  ];
+  var DISTURB = ["fire scars","recent fire","windthrow","insect mortality","pathogen centre","logging stumps",
+                 "grazing","browse line","road / edge","flood scour","avalanche path","drought mortality","none evident"];
+
+  /* ---------- state ---------- */
+  var stems=[], hist=[], inters=[], photos=[], distSel={}, seq=1;
+  var kReg=null, kLeaf=null, kSub=null, kQ="";
+
+  /* ---------- helpers ---------- */
+  function spById(id){ for(var i=0;i<SPECIES.length;i++) if(SPECIES[i].id===id) return SPECIES[i]; return null; }
+  function baOf(d){ return 0.00007854*d*d; }              // m^2 from DBH cm
+  function plotArea(){
+    if(val("sDesign")==="rect"){ var l=num("sLen")||0, w=num("sWid")||0; return l*w; }
+    var r=num("sRad")||0; return Math.PI*r*r;
+  }
+  function ef(){ var a=plotArea(); return a>0 ? 10000/a : 0; }
+
+  /* ================= IDENTIFY ================= */
+  function renderKey(){
+    var kr=$("kReg"); kr.innerHTML="";
+    var all=document.createElement("button");
+    all.type="button"; all.className="kopt"+(kReg===null?" on":"");
+    all.innerHTML="<span>All regions</span><small>"+SPECIES.length+" species</small>";
+    all.addEventListener("click",function(){ kReg=null; renderKey(); });
+    kr.appendChild(all);
+    REGIONS.forEach(function(r){
+      var n=SPECIES.filter(function(s){return s.reg.indexOf(r.id)>=0;}).length;
+      var b=document.createElement("button"); b.type="button";
+      b.className="kopt"+(kReg===r.id?" on":"");
+      b.innerHTML="<span>"+esc(r.name)+"</span><small>"+esc(r.sub)+" · "+n+"</small>";
+      b.addEventListener("click",function(){ kReg=(kReg===r.id?null:r.id); renderKey(); buzz(); });
+      kr.appendChild(b);
+    });
+    var kl=$("kLeaf"); kl.innerHTML="";
+    LEAF.forEach(function(l){
+      var b=document.createElement("button"); b.type="button";
+      b.className="kopt"+(kLeaf===l.id?" on":"");
+      b.innerHTML="<span>"+esc(l.name)+"</span><small>"+esc(l.sub)+"</small>";
+      b.addEventListener("click",function(){
+        if(kLeaf===l.id){ kLeaf=null; kSub=null; } else { kLeaf=l.id; kSub=null; }
+        renderKey(); buzz(); });
+      kl.appendChild(b);
+    });
+    var subs = kLeaf ? (SUBS[kLeaf]||[]) : [];
+    $("kSubWrap").style.display = subs.length>1 ? "" : "none";
+    var ks=$("kSub"); ks.innerHTML="";
+    subs.forEach(function(s){
+      var b=document.createElement("button"); b.type="button";
+      b.className="kopt"+(kSub===s.id?" on":"");
+      b.innerHTML="<span>"+esc(s.n||s.name)+"</span>"+(s.sub?"<small>"+esc(s.sub)+"</small>":"");
+      b.addEventListener("click",function(){ kSub=(kSub===s.id?null:s.id); renderKey(); buzz(); });
+      ks.appendChild(b);
+    });
+    renderList();
+  }
+
+  function matches(s){
+    if(kReg && s.reg.indexOf(kReg)<0) return false;
+    if(kLeaf){
+      if(kLeaf==="fasc"){ if(String(s.leaf).indexOf("fasc")!==0) return false; }
+      else if(s.leaf!==kLeaf) return false;
+    }
+    if(kSub){
+      if(kSub.indexOf("fasc")===0){ if(s.leaf!==kSub) return false; }
+      else if(s.grp!==kSub) return false;
+    }
+    if(kQ){
+      var hay=(s.com+" "+s.sci+" "+s.grp).toLowerCase();
+      if(hay.indexOf(kQ)<0) return false;
+    }
+    return true;
+  }
+
+  function renderList(){
+    var hits=SPECIES.filter(matches);
+    $("kCount").innerHTML = hits.length===SPECIES.length
+      ? "<b>"+hits.length+"</b> species in the loaded packs — narrow with the filters above."
+      : "<b>"+hits.length+"</b> match"+(hits.length===1?"":"es")+".";
+    var L=$("kList"); L.innerHTML="";
+    hits.sort(function(a,b){ return a.com.localeCompare(b.com); }).forEach(function(s){
+      var b=document.createElement("button"); b.type="button"; b.className="sp";
+      var rn=s.reg.map(function(r){ var f=REGIONS.filter(function(x){return x.id===r;})[0]; return f?f.name:r; });
+      b.innerHTML="<b>"+esc(s.com)+"</b><i>"+esc(s.sci)+"</i><span class='tag'>"+esc(rn.join(" · "))+"</span>";
+      b.addEventListener("click",function(){ showSp(s); buzz(); });
+      L.appendChild(b);
+    });
+    if(!hits.length) L.innerHTML="<p class='hint'>Nothing matches. Loosen a filter, or load a pack for this biome.</p>";
+  }
+
+  function showSp(s){
+    var d=$("kDetail");
+    var h='<div class="card spcard"><h3>'+esc(s.com)+'</h3><p class="sci">'+esc(s.sci)+'</p>'
+      +'<div class="kv"><div class="k">Key characters</div><div class="v">'+esc(s.key)+'</div></div>'
+      +'<div class="kv trick"><div class="k">The field shortcut</div><div class="v">'+esc(s.trick)+'</div></div>'
+      +'<div class="kv look"><div class="k">Confused with</div><div class="v">'+esc(s.look)+'</div></div>'
+      +'<div class="kv"><div class="k">Ecology</div><div class="v">'+esc(s.eco)+'</div></div>';
+    if(s.dbh) h+='<div class="kv"><div class="k">Typical mature DBH</div><div class="v">'+esc(s.dbh)+' cm</div></div>';
+    if(s.inter && s.inter.length){
+      h+='<div class="kv"><div class="k">Documented interactions</div><ul class="ilist">';
+      s.inter.forEach(function(i){ h+='<li>'+esc(i)+'</li>'; });
+      h+='</ul></div>';
+    }
+    h+='<div class="btn-row noprint">'
+      +'<button class="btn btn-go" data-tally="'+esc(s.id)+'" type="button">Tally a stem of this →</button>'
+      +'<button class="btn btn-soft" data-links="'+esc(s.id)+'" type="button">Add its interactions →</button>'
+      +'<button class="btn btn-ghost" data-close="1" type="button">Close</button></div></div>';
+    d.innerHTML=h;
+    d.querySelector("[data-close]").addEventListener("click",function(){ d.innerHTML=""; });
+    d.querySelector("[data-tally]").addEventListener("click",function(){
+      $("tSp").value=s.id; showPane("p-trees"); $("tDbh").focus(); toast("Species set — enter DBH"); });
+    d.querySelector("[data-links]").addEventListener("click",function(){ addKnown([s]); });
+    d.scrollIntoView({behavior:"smooth",block:"nearest"});
+  }
+  $("kSearch").addEventListener("input",function(){ kQ=this.value.trim().toLowerCase(); renderList(); });
+  $("kReset").addEventListener("click",function(){ kReg=null;kLeaf=null;kSub=null;kQ="";$("kSearch").value="";
+    $("kDetail").innerHTML=""; renderKey(); });
+
+  /* ================= SPECIES PACKS ================= */
+  var PACK_SCHEMA = {
+    region: {id:"string, short slug", name:"string", sub:"string, one-line qualifier"},
+    species: [{
+      id:"string, unique slug", sci:"string, binomial", com:"string, common name",
+      grp:"one of: pine fir spruce hemlock df larch cedar broad  (or your own group id)",
+      reg:["array of region ids this occurs in"],
+      leaf:"one of: fasc2 fasc3 fasc5 single scale tuft broad",
+      dbh:"string, typical mature DBH range in cm, e.g. 40-120",
+      key:"string, the characters you can actually see in the field",
+      trick:"string, the single shortcut that settles it",
+      look:"string, what it gets confused with and how to separate them",
+      eco:"string, autecology a plot ecologist needs — tolerance, fire, regeneration, successional role",
+      inter:["array of strings, documented ecological interactions"]
+    }]
+  };
+  function packPrompt(){
+    return "Write a species pack for a field tree-identification app, as strict JSON, no prose around it.\n\n"
+      + "Biome/region: <NAME THE REGION — e.g. Appalachian cove hardwood, Sonoran desert, boreal Alaska>\n\n"
+      + "Return exactly this shape:\n"
+      + JSON.stringify(PACK_SCHEMA, null, 2) + "\n\n"
+      + "Rules:\n"
+      + "- 15-35 species that a field ecologist would actually meet there, common ones first.\n"
+      + "- `key` must use characters visible without a hand lens in poor light: silhouette, leaf/needle\n"
+      + "  attachment, bark, cone or fruit. No microscopic or floral-dissection characters.\n"
+      + "- `trick` is ONE sentence: the shortcut an experienced person uses. It should be the thing you\n"
+      + "  would say out loud to a student holding the branch.\n"
+      + "- `look` must name the real confusion species and give the separating character. If two species\n"
+      + "  genuinely intergrade, SAY SO rather than inventing a clean split.\n"
+      + "- `eco` should cover shade tolerance, fire response, regeneration requirement and successional\n"
+      + "  role where known — the things that explain why the stem is standing where it is.\n"
+      + "- `inter` should list real, documented interactions: herbivores, seed dispersers, mycorrhizal\n"
+      + "  status, pathogens, cavity use, facilitation. Name organisms where they are known.\n"
+      + "- Use `leaf` values from the enum above; if the biome needs a form that isn't there (succulent,\n"
+      + "  palm, grass), use `broad` and say so in `key`.\n"
+      + "- Do not invent species, ranges, or interactions. If you are unsure of a character, leave it out\n"
+      + "  rather than guessing — a confident wrong key character is worse than a missing one.\n";
+  }
+  function packStats(){
+    var byReg={}; SPECIES.forEach(function(s){ s.reg.forEach(function(r){ byReg[r]=(byReg[r]||0)+1; }); });
+    var h='<div class="tile"><div class="v">'+SPECIES.length+'</div><div class="l">species loaded</div></div>'
+      +'<div class="tile"><div class="v">'+REGIONS.length+'</div><div class="l">regions</div></div>'
+      +'<div class="tile"><div class="v">'+SPECIES.reduce(function(a,s){return a+(s.inter?s.inter.length:0);},0)
+      +'</div><div class="l">known interactions</div></div>';
+    $("packStats").innerHTML=h;
+  }
+  function validatePack(o){
+    var errs=[];
+    if(!o || typeof o!=="object") return ["not an object"];
+    var sp=o.species;
+    if(!Array.isArray(sp)||!sp.length) errs.push("`species` must be a non-empty array");
+    if(o.region){
+      if(!o.region.id) errs.push("`region.id` missing");
+      if(!o.region.name) errs.push("`region.name` missing");
+    }
+    var LEAFOK={fasc2:1,fasc3:1,fasc5:1,single:1,scale:1,tuft:1,broad:1};
+    (sp||[]).forEach(function(s,i){
+      var w="species["+i+"]"+(s&&s.com?" ("+s.com+")":"");
+      if(!s.id) errs.push(w+": missing id");
+      if(!s.sci) errs.push(w+": missing sci");
+      if(!s.com) errs.push(w+": missing com");
+      if(!s.leaf || !LEAFOK[s.leaf]) errs.push(w+": leaf must be one of "+Object.keys(LEAFOK).join(", "));
+      if(!Array.isArray(s.reg)||!s.reg.length) errs.push(w+": reg must be a non-empty array");
+      if(!s.key) errs.push(w+": missing key characters");
+      if(s.inter && !Array.isArray(s.inter)) errs.push(w+": inter must be an array");
+    });
+    return errs;
+  }
+  $("packToggle").addEventListener("click",function(){
+    var b=$("packBox"); b.style.display = b.style.display==="none" ? "" : "none"; });
+  $("packSchema").addEventListener("click",function(){
+    var b=$("schemaBox");
+    if(b.style.display!==""){ b.style.display=""; b.innerHTML='<pre class="schema">'+esc(JSON.stringify(PACK_SCHEMA,null,2))+'</pre>'; }
+    else { b.style.display="none"; }
+  });
+  $("packCopyPrompt").addEventListener("click",function(){
+    copyText(packPrompt(),"Prompt copied — paste it to any AI, then bring the JSON back"); });
+  $("packExport").addEventListener("click",function(){
+    copyText(JSON.stringify({regions:REGIONS, species:SPECIES}, null, 1), "Pack exported to clipboard"); });
+  $("packLoad").addEventListener("click",function(){
+    var raw=val("packIn"); var m=$("packMsg");
+    if(!raw){ m.innerHTML='<div class="verdict warn">Nothing pasted.</div>'; return; }
+    var o; try{ o=JSON.parse(raw); }
+    catch(e){ m.innerHTML='<div class="verdict warn"><b>That isn\'t valid JSON.</b> '+esc(e.message)
+      +'<br>If an AI wrapped it in prose or a code fence, paste only the part from the first <code>{</code> to the last <code>}</code>.</div>'; return; }
+    if(Array.isArray(o)) o={species:o};
+    var errs=validatePack(o);
+    if(errs.length){
+      m.innerHTML='<div class="verdict warn"><b>Pack rejected — '+errs.length+' problem'
+        +(errs.length===1?"":"s")+':</b><ul class="ilist">'
+        +errs.slice(0,10).map(function(e){return "<li>"+esc(e)+"</li>";}).join("")
+        +(errs.length>10?"<li>…and "+(errs.length-10)+" more</li>":"")
+        +'</ul>Nothing was loaded — your existing species are untouched.</div>'; return; }
+    var regs = o.regions ? o.regions : (o.region ? [o.region] : []);
+    var addedR=0;
+    regs.forEach(function(r){
+      if(!REGIONS.some(function(x){return x.id===r.id;})){ REGIONS.push({id:r.id,name:r.name,sub:r.sub||""}); addedR++; } });
+    var addedS=0, repl=0;
+    o.species.forEach(function(s){
+      if(!s.inter) s.inter=[]; if(!s.grp) s.grp=s.leaf;
+      var ix=-1; for(var i=0;i<SPECIES.length;i++) if(SPECIES[i].id===s.id){ ix=i; break; }
+      if(ix>=0){ SPECIES[ix]=s; repl++; } else { SPECIES.push(s); addedS++; }
+    });
+    m.innerHTML='<div class="verdict"><b>Loaded.</b> '+addedS+' species added'
+      +(repl?", "+repl+" replaced":"")+(addedR?", "+addedR+" new region"+(addedR===1?"":"s"):"")
+      +'. The filters and the tally list now include them.</div>';
+    $("packIn").value="";
+    renderKey(); packStats(); fillSpeciesSelect(); buzz(); toast("Pack loaded — "+SPECIES.length+" species");
+  });
+
+  /* ================= HEIGHT ================= */
+  $("htToggle").addEventListener("click",function(){
+    var c=$("htCard"); c.style.display = c.style.display==="none" ? "" : "none";
+    if(c.style.display==="") $("hD").focus(); });
+  function height(){
+    var D=num("hD"), t=num("hT"), b=num("hB"), u=val("hU");
+    if(D===null||t===null||b===null||D<=0) return null;
+    if(u==="pct") return D*(t-b)/100;
+    var R=Math.PI/180;
+    return D*(Math.tan(t*R)-Math.tan(b*R));
+  }
+  function hOut(){
+    var h=height(), box=$("hOut");
+    if(h===null){ box.innerHTML='<div class="verdict">Enter a horizontal distance and both angles.</div>'; return; }
+    if(h<=0){ box.innerHTML='<div class="verdict warn"><b>That gives '+h.toFixed(1)+' m.</b> Check the signs — '
+      +'looking up is positive, down is negative. Standing below a tree, the base angle is usually negative.</div>'; return; }
+    var t=num("hT"), b=num("hB"), D=num("hD");
+    var warn="";
+    if(Math.abs(t)>70) warn+=" You're at "+t+"° to the top — that steep an angle makes small aiming errors expensive. Back off to roughly one tree-height away.";
+    if(D<h*0.5) warn+=" Your distance is less than half the height; the standard advice is to stand about one tree-height back.";
+    box.innerHTML='<div class="tiles">'
+      +'<div class="tile"><div class="v">'+h.toFixed(1)+' m</div><div class="l">total height</div></div>'
+      +'<div class="tile"><div class="v">'+(h*3.28084).toFixed(0)+' ft</div><div class="l">for US protocols</div></div>'
+      +'<div class="tile"><div class="v">'+D.toFixed(1)+' m</div><div class="l">horizontal distance</div></div></div>'
+      +'<div class="verdict'+(warn?" warn":"")+'"><b>H = D · (tan θ<sub>top</sub> − tan θ<sub>base</sub>)</b> = '
+      +D.toFixed(1)+' · (tan '+t+' − tan '+b+') = <b>'+h.toFixed(2)+' m</b>.'+esc(warn)+'</div>';
+  }
+  ["hD","hT","hB","hU"].forEach(function(id){ $(id).addEventListener("input",hOut); });
+  $("hUse").addEventListener("click",function(){
+    var h=height(); if(h===null||h<=0){ toast("Nothing to use yet"); return; }
+    $("tHt").value=h.toFixed(1); toast("Height "+h.toFixed(1)+" m copied to the tally"); buzz(); });
+
+  /* ================= TALLY ================= */
+  function fillSpeciesSelect(){
+    var sel=$("tSp"), cur=sel.value;
+    sel.innerHTML="";
+    SPECIES.slice().sort(function(a,b){return a.com.localeCompare(b.com);}).forEach(function(s){
+      var o=document.createElement("option"); o.value=s.id; o.textContent=s.com+" — "+s.sci; sel.appendChild(o); });
+    var o2=document.createElement("option"); o2.value="__unk"; o2.textContent="unknown / not in pack"; sel.appendChild(o2);
+    if(cur) sel.value=cur;
+  }
+  $("tAdd").addEventListener("click",function(){
+    var d=num("tDbh");
+    if(d===null||d<=0){ toast("A stem needs a DBH"); $("tDbh").focus(); return; }
+    var mn=num("sMin");
+    var sid=val("tSp"), sp=spById(sid);
+    stems.push({n:seq++, sp:sid, com:sp?sp.com:"unknown", sci:sp?sp.sci:"", d:d,
+      h:num("tHt"), cc:val("tCc"), st:val("tSt"), note:val("tNote")});
+    hist.push("stem");
+    $("tDbh").value=""; $("tHt").value=""; $("tNote").value=""; $("tDbh").focus();
+    buzz(); renderTally();
+    if(mn!==null && d<mn) toast("Added — but "+d+" cm is below your "+mn+" cm minimum");
+    else toast("Stem "+(seq-1)+" recorded");
+  });
+  $("tUndo").addEventListener("click",function(){
+    if(!stems.length){ toast("Nothing to undo"); return; }
+    stems.pop(); seq=Math.max(1,seq-1); renderTally(); buzz(); });
+
+  function renderTally(){
+    var live=stems.filter(function(s){return s.st==="L";});
+    var dead=stems.filter(function(s){return s.st!=="L";});
+    var E=ef(), A=plotArea();
+    var box=$("tStats");
+    if(!stems.length){ box.innerHTML='<p class="hint" style="margin:0">No stems yet. The stand table builds itself as you tally.</p>';
+      $("tHist").innerHTML=""; $("tTable").innerHTML=""; ecoOut(); return; }
+    var baL=live.reduce(function(a,s){return a+baOf(s.d);},0);
+    var baD=dead.reduce(function(a,s){return a+baOf(s.d);},0);
+    var sumSq=live.reduce(function(a,s){return a+s.d*s.d;},0);
+    var qmd=live.length?Math.sqrt(sumSq/live.length):0;
+    var nHa=live.length*E, sdi=qmd>0?nHa*Math.pow(qmd/25,1.605):0;
+    var hs=live.filter(function(s){return s.h;});
+    var topH=hs.length?hs.slice().sort(function(a,b){return b.h-a.h;}).slice(0,Math.max(1,Math.round(hs.length*0.2)))
+      .reduce(function(a,s,i,arr){return a+s.h/arr.length;},0):0;
+
+    var h='<div class="tiles">'
+      +'<div class="tile"><div class="v">'+live.length+'</div><div class="l">live stems</div></div>'
+      +'<div class="tile"><div class="v">'+dead.length+'</div><div class="l">snags</div></div>'
+      +'<div class="tile"><div class="v">'+Math.round(nHa)+'</div><div class="l">live stems/ha</div></div>'
+      +'<div class="tile"><div class="v">'+(baL*E).toFixed(1)+'</div><div class="l">live BA m²/ha</div></div>'
+      +'<div class="tile"><div class="v">'+(baD*E).toFixed(1)+'</div><div class="l">snag BA m²/ha</div></div>'
+      +'<div class="tile"><div class="v">'+qmd.toFixed(1)+'</div><div class="l">QMD cm</div></div>'
+      +'<div class="tile"><div class="v">'+Math.round(sdi)+'</div><div class="l">SDI (Reineke)</div></div>';
+    if(topH) h+='<div class="tile"><div class="v">'+topH.toFixed(1)+'</div><div class="l">top height m</div></div>';
+    h+='</div>';
+
+    /* composition + importance value */
+    var by={};
+    live.forEach(function(s){ var k=s.sp; if(!by[k]) by[k]={com:s.com,sci:s.sci,n:0,ba:0}; by[k].n++; by[k].ba+=baOf(s.d); });
+    var rows=Object.keys(by).map(function(k){ var o=by[k];
+      o.rd=100*o.n/live.length; o.rdom=100*o.ba/(baL||1); o.iv=(o.rd+o.rdom)/2; return o; })
+      .sort(function(a,b){return b.iv-a.iv;});
+    h+='<h3>Composition</h3><div class="tw"><table><tr><th>Species</th><th class="n">n</th>'
+      +'<th class="n">BA m²/ha</th><th class="n">rel. dens %</th><th class="n">rel. dom %</th><th class="n">IV</th></tr>';
+    rows.forEach(function(o){
+      h+='<tr><td>'+esc(o.com)+'</td><td class="n">'+o.n+'</td><td class="n">'+(o.ba*E).toFixed(2)
+        +'</td><td class="n">'+o.rd.toFixed(1)+'</td><td class="n">'+o.rdom.toFixed(1)
+        +'</td><td class="n">'+o.iv.toFixed(1)+'</td></tr>';
+    });
+    h+='</table></div>';
+    if(rows.length){
+      var dom=rows[0];
+      h+='<div class="verdict"><b>'+esc(dom.com)+' leads on importance value ('+dom.iv.toFixed(1)+')</b>';
+      if(dom.rdom-dom.rd>12) h+=' — but on dominance, not numbers: it holds '+dom.rdom.toFixed(0)
+        +'% of the basal area from '+dom.rd.toFixed(0)+'% of the stems. That is the signature of a few big old trees over a younger understory of something else.';
+      else if(dom.rd-dom.rdom>12) h+=' — on numbers rather than size: '+dom.rd.toFixed(0)
+        +'% of stems but only '+dom.rdom.toFixed(0)+'% of the basal area. Small stems, likely an ingrowth cohort.';
+      else h+=' and it leads on both stems and basal area.';
+      h+=' IV here is the two-part form — relative frequency needs more than one plot.</div>';
+    }
+    box.innerHTML=h;
+    renderHist(live); renderTable();
+    ecoOut();
+  }
+
+  function renderHist(live){
+    var box=$("tHist");
+    if(!live.length){ box.innerHTML=""; return; }
+    var W=10, bins={}, mx=0;
+    live.forEach(function(s){ var b=Math.floor(s.d/W)*W; bins[b]=(bins[b]||0)+1; if(bins[b]>mx) mx=bins[b]; });
+    var keys=Object.keys(bins).map(Number).sort(function(a,b){return a-b;});
+    var h='<div class="hist">';
+    for(var v=keys[0]; v<=keys[keys.length-1]; v+=W){
+      var n=bins[v]||0;
+      h+='<div class="hbar"><span class="hl">'+v+'–'+(v+W)+' cm</span>'
+        +'<span class="ht"><span class="hf" style="width:'+(mx?100*n/mx:0)+'%"></span></span>'
+        +'<span class="hn">'+n+'</span></div>';
+    }
+    h+='</div>';
+    if(keys.length>=3){
+      var first=bins[keys[0]]||0, last=bins[keys[keys.length-1]]||0;
+      var peakV=keys[0], peakN=0;
+      keys.forEach(function(k){ if(bins[k]>peakN){peakN=bins[k];peakV=k;} });
+      var reverseJ = peakV===keys[0] && first>last*1.5;
+      h+='<div class="verdict'+(reverseJ?"":" warn")+'">'
+        +(reverseJ
+          ? '<b>Reverse-J.</b> Small stems outnumber large ones steeply — the signature of continuous or repeated recruitment. A stand like this is replacing itself.'
+          : '<b>Not a reverse-J</b> — the peak is in the '+peakV+'–'+(peakV+W)+' cm class. A single-peaked distribution usually means one cohort established together, so look for the disturbance that let it in. With '
+            +live.length+' stem'+(live.length===1?"":"s")+' this shape may also just be small-sample noise.')
+        +'</div>';
+    }
+    box.innerHTML=h;
+  }
+
+  function renderTable(){
+    var h='<table><tr><th class="n">#</th><th>Species</th><th class="n">DBH</th><th class="n">Ht</th>'
+      +'<th>Crown</th><th>Status</th><th class="n">BA m²</th><th>Note</th><th></th></tr>';
+    stems.forEach(function(s,i){
+      h+='<tr'+(s.st!=="L"?' class="del"':'')+'><td class="n">'+s.n+'</td><td>'+esc(s.com)+'</td>'
+        +'<td class="n">'+s.d.toFixed(1)+'</td><td class="n">'+(s.h?s.h.toFixed(1):"—")+'</td>'
+        +'<td>'+esc(s.cc)+'</td><td>'+esc(s.st)+'</td><td class="n">'+baOf(s.d).toFixed(4)+'</td>'
+        +'<td>'+esc(s.note||"")+'</td>'
+        +'<td class="noprint"><button data-rm="'+i+'" style="border:0;background:none;color:var(--muted);cursor:pointer;padding:6px 8px;min-height:40px">✕</button></td></tr>';
+    });
+    h+='</table>';
+    var box=$("tTable"); box.innerHTML=h;
+    box.querySelectorAll("[data-rm]").forEach(function(b){
+      b.addEventListener("click",function(){ stems.splice(+b.dataset.rm,1); renderTally(); buzz(); }); });
+  }
+
+  /* ================= PLOT / SITE ================= */
+  try{ $("sDate").value=new Date().toISOString().slice(0,10); }catch(e){}
+  $("sDesign").addEventListener("change",function(){
+    var r=this.value==="rect";
+    $("wRad").style.display=r?"none":""; $("wLen").style.display=r?"":"none"; $("wWid").style.display=r?"":"none";
+    siteOut(); });
+  function siteOut(){
+    var A=plotArea();
+    $("sArea").innerHTML = A>0
+      ? '<b>'+A.toFixed(0)+' m² = '+(A/10000).toFixed(4)+' ha.</b> Expansion factor '+(10000/A).toFixed(1)
+        +' — every stem you tally stands for '+(10000/A).toFixed(1)+' per hectare.'
+      : 'Set the plot dimensions — nothing scales to a hectare without them.';
+    var a=num("sAsp"), sl=num("sSlope");
+    if(a!==null){
+      var folded=Math.abs(180-Math.abs(a-225));
+      var band = folded<45?"cool — a northeast-facing site, the moist end of the local gradient"
+        : folded<90?"intermediate"
+        : folded<135?"warm" : "hot — southwest exposure, the drought end of the local gradient";
+      $("sHeatload").innerHTML='<b>Folded aspect '+folded.toFixed(0)+'°</b> ('+band+')'
+        +(sl!==null?' on a '+sl+'% slope':'')
+        +'. McCune &amp; Keon fold aspect about the SW–NE axis so it can be used as a continuous variable; the full heat-load equation also takes latitude and slope.';
+    } else $("sHeatload").innerHTML="";
+    cwdOut(); ecoOut();
+  }
+  ["sRad","sLen","sWid","sAsp","sSlope","sMin"].forEach(function(id){ $(id).addEventListener("input",siteOut); });
+  ["sPlot","sObs","sDate","sLat","sLon","sElev","sPos","sSoil","sParent","sMoist","sCan","sShrub","sHerb",
+   "sBare","sLit","sBrowse","sNotes"].forEach(function(id){ $(id).addEventListener("input",ecoOut); });
+
+  function cwdOut(){
+    var L=num("cwdL"), raw=val("cwdD");
+    var ds=raw.split(/[\s,]+/).map(Number).filter(function(x){return isFinite(x)&&x>0;});
+    var box=$("cwdOut");
+    if(!L||!ds.length){ box.innerHTML=""; return; }
+    var sum=ds.reduce(function(a,d){return a+d*d;},0);
+    var V=Math.PI*Math.PI*sum/(8*L);
+    box.innerHTML='<div class="tiles"><div class="tile"><div class="v">'+ds.length+'</div><div class="l">pieces crossed</div></div>'
+      +'<div class="tile"><div class="v">'+V.toFixed(1)+'</div><div class="l">m³/ha</div></div>'
+      +'<div class="tile"><div class="v">'+L+'</div><div class="l">transect m</div></div></div>'
+      +'<div class="verdict">V = π²·Σd²/(8L) = π²·'+sum.toFixed(0)+'/(8·'+L+') = <b>'+V.toFixed(1)+' m³/ha</b>. '
+      +(V>200?'That is a heavy fuel and habitat load — check for recent mortality or blowdown.'
+        :V<20?'Low — either a young stand, a clean one, or a short transect.'
+        :'Within the range typical of managed and mid-seral western stands.')+'</div>';
+    ecoOut();
+  }
+  ["cwdL","cwdD"].forEach(function(id){ $(id).addEventListener("input",cwdOut); });
+
+  (function(){ var box=$("sDist");
+    DISTURB.forEach(function(d){
+      var b=document.createElement("button"); b.type="button"; b.className="kopt";
+      b.innerHTML="<span>"+esc(d)+"</span>";
+      b.addEventListener("click",function(){
+        if(distSel[d]){ delete distSel[d]; b.classList.remove("on"); }
+        else { distSel[d]=1; b.classList.add("on"); }
+        buzz(); ecoOut(); });
+      box.appendChild(b);
+    });
+  })();
+
+  /* ================= PHOTOS ================= */
+  function addPhotos(files){
+    var added=0;
+    Array.prototype.slice.call(files).forEach(function(f){
+      if(!/^image\//.test(f.type)) return;
+      var url=URL.createObjectURL(f);
+      photos.push({name:f.name||("photo-"+(photos.length+1)), url:url,
+        when:(f.lastModified? new Date(f.lastModified).toISOString().slice(0,16).replace("T"," ") : ""),
+        voucher:"", note:""});
+      added++;
+    });
+    if(added){ renderPhotos(); buzz(); toast(added+" photo"+(added===1?"":"s")+" added"); }
+  }
+  $("phPick").addEventListener("click",function(){ $("phIn").click(); });
+  $("phIn").addEventListener("change",function(){ addPhotos(this.files); this.value=""; });
+  var dz=$("phDrop");
+  ["dragenter","dragover"].forEach(function(e){ dz.addEventListener(e,function(ev){
+    ev.preventDefault(); dz.classList.add("on"); }); });
+  ["dragleave","drop"].forEach(function(e){ dz.addEventListener(e,function(ev){
+    ev.preventDefault(); dz.classList.remove("on"); }); });
+  dz.addEventListener("drop",function(ev){ if(ev.dataTransfer&&ev.dataTransfer.files) addPhotos(ev.dataTransfer.files); });
+
+  function renderPhotos(){
+    var L=$("phList"); L.innerHTML="";
+    if(!photos.length){ L.innerHTML='<p class="hint">No photos yet.</p>'; ecoOut(); return; }
+    photos.forEach(function(p,i){
+      var d=document.createElement("div"); d.className="ph";
+      d.innerHTML='<img src="'+p.url+'" alt="field photo '+(i+1)+'">'
+        +'<div class="meta"><b>'+esc(p.voucher||("photo "+(i+1)))+'</b>'
+        +'<code>'+esc(p.name)+(p.when?" · "+esc(p.when):"")+'</code>'
+        +'<input type="text" class="pv" placeholder="voucher / stem #" value="'+esc(p.voucher)+'" '
+        +'style="width:100%;margin-top:7px;min-height:40px;padding:8px 10px;font-size:14px">'
+        +'<textarea class="pn" placeholder="What character does this show? What did you conclude?">'+esc(p.note)+'</textarea>'
+        +'<div class="pb noprint"><button class="btn btn-ghost pid" type="button">Link species</button>'
+        +'<button class="btn btn-ghost prm" type="button">Remove</button></div></div>';
+      d.querySelector(".pv").addEventListener("input",function(){ p.voucher=this.value; ecoOut(); });
+      d.querySelector(".pn").addEventListener("input",function(){ p.note=this.value; ecoOut(); });
+      d.querySelector(".prm").addEventListener("click",function(){
+        try{ URL.revokeObjectURL(p.url); }catch(e){}
+        photos.splice(i,1); renderPhotos(); });
+      d.querySelector(".pid").addEventListener("click",function(){
+        var sp=spById(val("tSp"));
+        if(!sp){ toast("Pick a species on the Tally tab first"); return; }
+        p.note=(p.note?p.note+" ":"")+"[ID: "+sp.com+" ("+sp.sci+")]";
+        renderPhotos(); toast("Linked to "+sp.com); buzz(); });
+      L.appendChild(d);
+    });
+    ecoOut();
+  }
+
+  /* ================= INTERACTIONS ================= */
+  (function(){ var s=$("iT");
+    INTER_TYPES.forEach(function(t){ var o=document.createElement("option");
+      o.value=t.id; o.textContent=t.n; s.appendChild(o); }); })();
+  function typeOf(id){ for(var i=0;i<INTER_TYPES.length;i++) if(INTER_TYPES[i].id===id) return INTER_TYPES[i];
+    return {id:id,n:id,dir:"interacts with"}; }
+  $("iAdd").addEventListener("click",function(){
+    var a=val("iA"), b=val("iB");
+    if(!a||!b){ toast("Both partners are needed"); return; }
+    inters.push({a:a,t:val("iT"),b:b,e:val("iE"),c:+val("iC"),n:val("iN")});
+    $("iA").value=""; $("iB").value=""; $("iN").value=""; $("iA").focus();
+    buzz(); renderInter(); toast("Recorded");
+  });
+  function addKnown(list){
+    var n=0;
+    list.forEach(function(sp){
+      (sp.inter||[]).forEach(function(txt){
+        if(inters.some(function(x){return x.b===sp.com && x.n===txt;})) return;
+        var t="comp";
+        if(/disperс|disperse|cach|nutcracker|jay|frugivor/i.test(txt)) t="disp";
+        else if(/beetle|budworm|adelgid|weevil|defoliat|browse|herbivor|graz/i.test(txt)) t="herb";
+        else if(/rust|rot|canker|pathogen|disease|Armillaria|Phytophthora|blight/i.test(txt)) t="path";
+        else if(/mistletoe|parasit/i.test(txt)) t="para";
+        else if(/mycorrhiz|Frankia|fungal/i.test(txt)) t="myco";
+        else if(/nitrogen/i.test(txt)) t="nfix";
+        else if(/cavity|nest|excavat/i.test(txt)) t="cav";
+        else if(/nurse|facilitat/i.test(txt)) t="facil";
+        else if(/seed predation|cone predation|seed.*eaten|squirrel/i.test(txt)) t="seedpred";
+        else if(/fire|serotin|flood|disturbance|suckering|sprout/i.test(txt)) t="dist";
+        else if(/epiphyt/i.test(txt)) t="epi";
+        else if(/decay|decompos|CWD/i.test(txt)) t="decomp";
+        var actor=txt.split(/[—(-]/)[0].trim().slice(0,60) || "partner";
+        inters.push({a:actor, t:t, b:sp.com, e:"lit", c:2, n:txt});
+        n++;
+      });
+    });
+    if(n){ renderInter(); showPane("p-web"); buzz(); toast(n+" known link"+(n===1?"":"s")+" added — marked as literature"); }
+    else toast("Those are already on the sheet");
+  }
+  $("iFromSp").addEventListener("click",function(){
+    var ids={}; stems.forEach(function(s){ if(s.sp!=="__unk") ids[s.sp]=1; });
+    var list=Object.keys(ids).map(spById).filter(Boolean);
+    if(!list.length){ toast("Tally some stems first"); return; }
+    addKnown(list);
+  });
+  function renderInter(){
+    var box=$("iStats"), L=$("iList");
+    if(!inters.length){ box.innerHTML='<p class="hint" style="margin:0">Nothing recorded yet. Tap “pull known links” to seed the sheet from the species you have tallied.</p>';
+      L.innerHTML=""; ecoOut(); return; }
+    var byT={}, byE={};
+    inters.forEach(function(x){ byT[x.t]=(byT[x.t]||0)+1; byE[x.e]=(byE[x.e]||0)+1; });
+    var nodes={}; inters.forEach(function(x){ nodes[x.a]=1; nodes[x.b]=1; });
+    var direct=(byE.obs||0)+(byE.sign||0);
+    box.innerHTML='<div class="tiles">'
+      +'<div class="tile"><div class="v">'+inters.length+'</div><div class="l">links</div></div>'
+      +'<div class="tile"><div class="v">'+Object.keys(nodes).length+'</div><div class="l">taxa involved</div></div>'
+      +'<div class="tile"><div class="v">'+Object.keys(byT).length+'</div><div class="l">interaction types</div></div>'
+      +'<div class="tile"><div class="v">'+direct+'</div><div class="l">seen in the field</div></div></div>'
+      +'<div class="verdict'+(direct?"":" warn")+'">'
+      +(direct? '<b>'+direct+' of '+inters.length+' link'+(inters.length===1?"":"s")+' rest on something you saw</b> — observation or physical sign. The rest are inference or literature, which is fine as long as the sheet keeps them apart. It does.'
+             : '<b>Nothing here was observed directly yet.</b> Every link is inferred or cited. That is a legitimate starting web — but the sheet will say so in the export, and so should you.')
+      +'</div>';
+    L.innerHTML="";
+    inters.forEach(function(x,i){
+      var t=typeOf(x.t);
+      var d=document.createElement("div"); d.className="row2";
+      d.innerHTML='<div class="g"><b>'+esc(x.a)+' <span style="color:var(--muted);font-weight:400">'+esc(t.dir)+'</span> '+esc(x.b)+'</b>'
+        +'<span>'+esc(t.n)+' · '+esc({obs:"observed",sign:"sign",inf:"inferred",lit:"literature"}[x.e]||x.e)
+        +' · confidence '+(["","low","medium","high"][x.c]||x.c)+(x.n?" · "+esc(x.n):"")+'</span></div>'
+        +'<button type="button" class="noprint">✕</button>';
+      d.querySelector("button").addEventListener("click",function(){ inters.splice(i,1); renderInter(); buzz(); });
+      L.appendChild(d);
+    });
+    ecoOut();
+  }
+
+  /* ================= EXPORTS ================= */
+  function copyText(text,msg){
+    function done(){ toast(msg); buzz(); }
+    function fb(){ var ta=document.createElement("textarea"); ta.value=text; ta.style.position="fixed"; ta.style.opacity="0";
+      document.body.appendChild(ta); ta.select();
+      try{ document.execCommand("copy"); done(); }catch(e){ toast("Select & copy manually"); }
+      document.body.removeChild(ta); }
+    try{ if(navigator.clipboard&&navigator.clipboard.writeText) navigator.clipboard.writeText(text).then(done,fb); else fb(); }
+    catch(e){ fb(); }
+  }
+  function cell(s){ s=String(s==null?"":s); return /[",\n]/.test(s) ? '"'+s.replace(/"/g,'""')+'"' : s; }
+
+  function ecoOut(){
+    var L=[], A=plotArea(), E=ef();
+    var pid=val("sPlot")||"unnamed-plot";
+    L.push("# Stand Sheet — "+pid);
+    var meta=[]; if(val("sObs")) meta.push("observer "+val("sObs"));
+    if(val("sDate")) meta.push(val("sDate"));
+    if(val("sLat")&&val("sLon")) meta.push(val("sLat")+", "+val("sLon"));
+    if(num("sElev")!==null) meta.push(num("sElev")+" m");
+    if(meta.length) L.push("# "+meta.join(" — "));
+    if(A>0) L.push("# plot: "+(val("sDesign")==="rect"?"rectangle "+val("sLen")+"×"+val("sWid")+" m"
+      :"circle r="+val("sRad")+" m")+" = "+A.toFixed(0)+" m² ("+(A/10000).toFixed(4)+" ha), EF "+E.toFixed(1)
+      +(num("sMin")!==null?", min DBH "+num("sMin")+" cm":""));
+    var phys=[];
+    if(num("sAsp")!==null) phys.push("aspect "+num("sAsp")+"°");
+    if(num("sSlope")!==null) phys.push("slope "+num("sSlope")+"%");
+    if(val("sPos")) phys.push(val("sPos"));
+    if(val("sMoist")) phys.push(val("sMoist"));
+    if(val("sSoil")) phys.push(val("sSoil"));
+    if(val("sParent")) phys.push(val("sParent"));
+    if(phys.length) L.push("# site: "+phys.join(" · "));
+    var cov=[];
+    ["sCan|canopy","sShrub|shrub","sHerb|herb","sBare|bare"].forEach(function(p){
+      var q=p.split("|"); if(num(q[0])!==null) cov.push(q[1]+" "+num(q[0])+"%"); });
+    if(num("sLit")!==null) cov.push("litter "+num("sLit")+" cm");
+    if(num("sBrowse")!==null) cov.push("browse line "+num("sBrowse")+" m");
+    if(cov.length) L.push("# cover: "+cov.join(" · "));
+    var ds=Object.keys(distSel); if(ds.length) L.push("# disturbance: "+ds.join(", "));
+
+    var live=stems.filter(function(s){return s.st==="L";});
+    if(stems.length){
+      var baL=live.reduce(function(a,s){return a+baOf(s.d);},0);
+      var qmd=live.length?Math.sqrt(live.reduce(function(a,s){return a+s.d*s.d;},0)/live.length):0;
+      L.push("");
+      L.push("# stand: "+live.length+" live stems, "+(stems.length-live.length)+" snags");
+      if(E) L.push("# "+Math.round(live.length*E)+" stems/ha, "+(baL*E).toFixed(1)+" m² BA/ha, QMD "
+        +qmd.toFixed(1)+" cm, SDI "+Math.round(live.length*E*Math.pow(qmd/25,1.605)));
+      var by={}; live.forEach(function(s){ if(!by[s.com]) by[s.com]={n:0,ba:0}; by[s.com].n++; by[s.com].ba+=baOf(s.d); });
+      L.push("data: "+pid.toLowerCase().replace(/[^a-z0-9]+/g,"-")+" "
+        +Object.keys(by).map(function(k){ return k.replace(/\s+/g,"-")+"="+by[k].n; }).join(" "));
+      Object.keys(by).sort(function(a,b){return by[b].ba-by[a].ba;}).forEach(function(k){
+        L.push("#   "+k+": "+by[k].n+" stems, "+(by[k].ba*E).toFixed(2)+" m²/ha");
+      });
+    }
+    var cl=num("cwdL"), cd=val("cwdD").split(/[\s,]+/).map(Number).filter(function(x){return isFinite(x)&&x>0;});
+    if(cl&&cd.length){
+      var V=Math.PI*Math.PI*cd.reduce(function(a,d){return a+d*d;},0)/(8*cl);
+      L.push("note: coarse woody debris "+V.toFixed(1)+" m3/ha from "+cd.length+" intersects on "+cl+" m (van Wagner line-intercept)");
+    }
+    if(inters.length){
+      L.push("");
+      L.push("# interactions ("+inters.length+")");
+      inters.forEach(function(x){ var t=typeOf(x.t);
+        L.push("note: "+x.a+" "+t.dir+" "+x.b+"   # "+t.n+", "
+          +({obs:"observed",sign:"sign",inf:"inferred",lit:"literature"}[x.e]||x.e)
+          +", confidence "+(["","low","medium","high"][x.c]||x.c)+(x.n?" — "+x.n:""));
+      });
+    }
+    var withNotes=photos.filter(function(p){return p.note||p.voucher;});
+    if(withNotes.length){
+      L.push("");
+      L.push("# photo notes ("+withNotes.length+" of "+photos.length+" images; images are not stored by this page)");
+      withNotes.forEach(function(p){
+        L.push("#   "+(p.voucher?"["+p.voucher+"] ":"")+p.name+(p.when?" ("+p.when+")":"")+(p.note?" — "+p.note.replace(/\n/g," "):""));
+      });
+    }
+    if(val("sNotes")) { L.push(""); L.push("# notes: "+val("sNotes").replace(/\n/g," / ")); }
+    if(stems.length||inters.length||photos.length) {
+      L.push("");
+      L.push("# One plot is a point estimate with no variance. Per-hectare values above scale a single sample.");
+    }
+    $("ecoOut").textContent = L.length>1 ? L.join("\n") : "# tally a stem or two — the field sheet builds itself";
+  }
+  $("ecoCopy").addEventListener("click",function(){ copyText($("ecoOut").textContent,"Field sheet copied"); });
+  $("csvCopy").addEventListener("click",function(){
+    if(!stems.length){ toast("No stems to export"); return; }
+    var E=ef();
+    var rows=[["plot","stem","common","scientific","dbh_cm","height_m","crown_class","status","ba_m2","ba_m2_ha","note"]
+      .map(cell).join(",")];
+    var pid=val("sPlot")||"unnamed-plot";
+    stems.forEach(function(s){
+      rows.push([pid,s.n,s.com,s.sci,s.d,(s.h==null?"":s.h),s.cc,s.st,
+        baOf(s.d).toFixed(5),(baOf(s.d)*E).toFixed(4),s.note||""].map(cell).join(","));
+    });
+    copyText(rows.join("\n"),"Stem CSV copied — "+stems.length+" rows");
+  });
+  $("webCopy").addEventListener("click",function(){
+    if(!inters.length){ toast("No interactions recorded"); return; }
+    var rows=[["food","eater","interaction","evidence","confidence","note"].map(cell).join(",")];
+    inters.forEach(function(x){
+      var t=typeOf(x.t), food=x.b, eater=x.a;
+      if(t.id==="facil"||t.id==="myco"||t.id==="nfix"||t.id==="dist"||t.id==="epi"){ food=x.a; eater=x.b; }
+      rows.push([food,eater,t.n,{obs:"observed",sign:"sign",inf:"inferred",lit:"literature"}[x.e]||x.e,
+        (["","low","medium","high"][x.c]||x.c), x.n||""].map(cell).join(","));
+    });
+    copyText(rows.join("\n"),"Edge list copied — paste into the Food Web Builder");
+  });
+
+  /* ================= TABS ================= */
+  function showPane(id){
+    document.querySelectorAll(".tab").forEach(function(t){ t.classList.toggle("on", t.dataset.pane===id); });
+    document.querySelectorAll(".pane").forEach(function(p){ p.classList.toggle("on", p.id===id); });
+    window.scrollTo(0,0);
+  }
+  document.querySelectorAll(".tab").forEach(function(tb){
+    tb.addEventListener("click",function(){ showPane(tb.dataset.pane); buzz(); }); });
+
+  /* ================= BOOT ================= */
+  renderKey(); packStats(); fillSpeciesSelect(); siteOut(); renderTally(); renderPhotos(); renderInter();
+})();
+</script>
+
+</body>
+</html>
