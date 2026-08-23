@@ -3105,5 +3105,190 @@ addEventListener("drop", ev => {
   });
 });
 </script>
+
+<style>
+  /* ── friendly entry layer (progressive enhancement over the textareas) ────────── */
+  .fe-wrap { margin: 4px 0 6px; }
+  .fe-chips { display:flex; flex-wrap:wrap; gap:8px; }
+  .fe-chip { display:inline-flex; align-items:center; gap:7px; background:var(--surface-1);
+    border:1.5px solid var(--ring); border-radius:999px; padding:5px 6px 5px 13px;
+    box-shadow:var(--shadow); animation:fe-in .15s ease; }
+  @keyframes fe-in { from{opacity:0;transform:scale(.92);} to{opacity:1;transform:none;} }
+  @media (prefers-reduced-motion:reduce){ .fe-chip{animation:none;} }
+  .fe-chip .fe-name { font-weight:800; font-size:14px; color:var(--ink); }
+  .fe-chip .fe-count { font-family:var(--font-mono); font-size:14px; min-width:26px; text-align:center;
+    font-variant-numeric:tabular-nums; color:var(--s1); font-weight:700; }
+  .fe-chip button { width:34px; height:34px; border-radius:999px; border:1.5px solid var(--ring);
+    background:var(--surface-1); color:var(--s1); font:800 16px var(--font-body); cursor:pointer;
+    touch-action:manipulation; -webkit-tap-highlight-color:transparent; }
+  .fe-chip button:active { transform:scale(.92); background:var(--accent-soft); }
+  .fe-chip .fe-x { color:var(--muted); border-color:transparent; background:none; width:28px; }
+  .fe-chip .fe-x:hover { color:#B23A32; }
+  .fe-add { display:flex; gap:8px; margin-top:10px; flex-wrap:wrap; align-items:center; }
+  .fe-add input[type=text] { flex:1; min-width:140px; font-size:16px; min-height:44px; }
+  .fe-add input[type=number] { width:84px; font-size:16px; min-height:44px; }
+  .fe-add .fe-addbtn { border:0; border-radius:10px; background:var(--s1); color:#fff;
+    font:800 14px var(--font-body); padding:0 18px; min-height:44px; cursor:pointer; touch-action:manipulation; }
+  .fe-add .fe-addbtn:active { transform:scale(.96); }
+  .fe-raw { margin-top:8px; font-size:12.5px; }
+  .fe-raw summary { cursor:pointer; color:var(--muted); font-family:var(--font-mono); }
+  .fe-raw summary:hover { color:var(--s1); }
+  .fe-raw[open] summary { margin-bottom:6px; }
+  .fe-empty { color:var(--muted); font-size:13px; font-style:italic; }
+  .fe-quads { display:flex; flex-wrap:wrap; gap:8px; }
+  .fe-quad { display:flex; flex-direction:column; align-items:center; gap:4px; background:var(--surface-1);
+    border:1.5px solid var(--ring); border-radius:12px; padding:8px 10px; box-shadow:var(--shadow); }
+  .fe-quad .fe-ql { font-family:var(--font-mono); font-size:10.5px; color:var(--muted); }
+  .fe-quad .fe-qv { font-family:var(--font-head); font-weight:700; font-size:20px; font-variant-numeric:tabular-nums; }
+  .fe-quad .fe-qb { display:flex; gap:5px; }
+  .fe-quad .fe-qb button { width:38px; height:38px; border-radius:10px; border:1.5px solid var(--ring);
+    background:var(--surface-1); color:var(--s1); font:800 17px var(--font-body); cursor:pointer; touch-action:manipulation; }
+  .fe-quad .fe-qb button:active { transform:scale(.92); background:var(--accent-soft); }
+</style>
+<script>
+/* ── friendly entry: chip editors + hold-to-repeat, layered over the existing textareas.
+      The textarea stays the source of truth: every widget change rewrites it and fires the
+      'input' event the lab already listens to, so all computation code is untouched. ── */
+(function () {
+  "use strict";
+  try {
+    /* hold-to-repeat: after 350 ms a held button fires every 90 ms; the trailing click is
+       swallowed so a long press never over-counts by one. */
+    function holdable(btn, fire) {
+      var t=null, iv=null, repeated=false;
+      function stop(){ clearTimeout(t); clearInterval(iv); t=iv=null; }
+      btn.addEventListener("pointerdown", function(){
+        repeated=false;
+        t=setTimeout(function(){ iv=setInterval(function(){ repeated=true; fire(); },90); },350);
+      });
+      ["pointerup","pointerleave","pointercancel"].forEach(function(ev){ btn.addEventListener(ev,stop); });
+      btn.addEventListener("click", function(e){
+        if(repeated){ repeated=false; e.stopImmediatePropagation(); e.preventDefault(); return; }
+        fire();
+      });
+    }
+    function esc(s){ return String(s).replace(/[&<>"']/g,function(c){
+      return {"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#39;"}[c]; }); }
+    function announce(ta){ ta.dispatchEvent(new Event("input",{bubbles:true})); }
+
+    /* ---- name/count chip editor over a "name count"-lines textarea ---- */
+    function chipify(id, namePh){
+      var ta=document.getElementById(id); if(!ta) return;
+      var wrap=document.createElement("div"); wrap.className="fe-wrap";
+      ta.parentNode.insertBefore(wrap, ta);
+      var details=document.createElement("details"); details.className="fe-raw";
+      details.innerHTML="<summary>✎ edit as text (paste from a spreadsheet)</summary>";
+      ta.parentNode.insertBefore(details, ta.nextSibling);
+      details.appendChild(ta);
+      var items=[], silent=false;
+      function parse(){
+        items=[];
+        ta.value.split("\n").forEach(function(raw){
+          var line=raw.split("#")[0].trim(); if(!line) return;
+          var m=line.match(/^(.*?)[,\t ]+(\d+(?:\.\d+)?)$/);
+          if(m && m[1].trim()){ push(m[1].trim(), Math.round(+m[2])); }
+          else if(!/^\d+(\.\d+)?$/.test(line)){ line.split(/[\s,]+/).forEach(function(tok){ if(tok) push(tok,1); }); }
+        });
+      }
+      function push(name,n){
+        var f=items.find(function(i){return i.name===name;});
+        if(f) f.n+=n; else items.push({name:name,n:n});
+      }
+      function serialize(){
+        silent=true;
+        ta.value=items.filter(function(i){return i.n>0;})
+          .map(function(i){return i.name+" "+i.n;}).join("\n");
+        announce(ta); silent=false;
+      }
+      function render(){
+        var h='<div class="fe-chips">';
+        if(!items.length) h+='<span class="fe-empty">nothing yet — add below, or paste as text</span>';
+        items.forEach(function(it,idx){
+          h+='<span class="fe-chip"><span class="fe-name">'+esc(it.name)+'</span>'
+            +'<button type="button" data-i="'+idx+'" data-d="-1">−</button>'
+            +'<span class="fe-count">'+it.n+'</span>'
+            +'<button type="button" data-i="'+idx+'" data-d="1">+</button>'
+            +'<button type="button" class="fe-x" data-x="'+idx+'">✕</button></span>';
+        });
+        h+='</div><div class="fe-add">'
+          +'<input type="text" placeholder="'+namePh+'" autocomplete="off">'
+          +'<input type="number" value="1" min="1">'
+          +'<button type="button" class="fe-addbtn">Add</button></div>';
+        wrap.innerHTML=h;
+        wrap.querySelectorAll(".fe-chip button[data-d]").forEach(function(b){
+          holdable(b, function(){
+            var it=items[+b.dataset.i]; if(!it) return;
+            it.n=Math.max(0,it.n+(+b.dataset.d));
+            if(it.n===0){ items.splice(+b.dataset.i,1); serialize(); render(); }
+            else { b.parentNode.querySelector(".fe-count").textContent=it.n; serialize(); }
+          });
+        });
+        wrap.querySelectorAll(".fe-x").forEach(function(b){
+          b.addEventListener("click", function(){ items.splice(+b.dataset.x,1); serialize(); render(); });
+        });
+        var nameIn=wrap.querySelector('input[type=text]'),
+            numIn=wrap.querySelector('input[type=number]'),
+            addBtn=wrap.querySelector(".fe-addbtn");
+        function add(){
+          var v=nameIn.value.trim(); if(!v) { nameIn.focus(); return; }
+          push(v, Math.max(1, Math.round(+numIn.value||1)));
+          nameIn.value=""; numIn.value=1; serialize(); render();
+          wrap.querySelector('input[type=text]').focus();
+        }
+        addBtn.addEventListener("click", add);
+        nameIn.addEventListener("keydown", function(e){ if(e.key==="Enter"){ e.preventDefault(); add(); } });
+        numIn.addEventListener("keydown", function(e){ if(e.key==="Enter"){ e.preventDefault(); add(); } });
+      }
+      ta.addEventListener("input", function(){ if(!silent){ parse(); render(); } });
+      parse(); render();
+    }
+
+    /* ---- quadrat stepper row over the numbers textarea ---- */
+    function quadify(id){
+      var ta=document.getElementById(id); if(!ta) return;
+      var wrap=document.createElement("div"); wrap.className="fe-wrap";
+      ta.parentNode.insertBefore(wrap, ta);
+      var details=document.createElement("details"); details.className="fe-raw";
+      details.innerHTML="<summary>✎ edit as text (numbers, space-separated)</summary>";
+      ta.parentNode.insertBefore(details, ta.nextSibling);
+      details.appendChild(ta);
+      var q=[], silent=false;
+      function parse(){ q=ta.value.split(/[\s,]+/).map(Number)
+        .filter(function(n){return Number.isFinite(n)&&n>=0;}).map(Math.round); }
+      function serialize(){ silent=true; ta.value=q.join(" "); announce(ta); silent=false; }
+      function render(){
+        var h='<div class="fe-quads">';
+        q.forEach(function(v,i){
+          h+='<span class="fe-quad"><span class="fe-ql">Q'+(i+1)+'</span>'
+            +'<span class="fe-qv">'+v+'</span><span class="fe-qb">'
+            +'<button type="button" data-i="'+i+'" data-d="-1">−</button>'
+            +'<button type="button" data-i="'+i+'" data-d="1">+</button></span></span>';
+        });
+        h+='</div><div class="fe-add">'
+          +'<button type="button" class="fe-addbtn">+ quadrat</button>'
+          +(q.length?'<button type="button" class="fe-addbtn" style="background:var(--baseline);color:var(--ink)">remove last</button>':"")
+          +'</div>';
+        wrap.innerHTML=h;
+        wrap.querySelectorAll(".fe-quad button").forEach(function(b){
+          holdable(b, function(){
+            var i=+b.dataset.i; q[i]=Math.max(0,q[i]+(+b.dataset.d));
+            b.parentNode.parentNode.querySelector(".fe-qv").textContent=q[i]; serialize();
+          });
+        });
+        var btns=wrap.querySelectorAll(".fe-add .fe-addbtn");
+        btns[0].addEventListener("click", function(){ q.push(0); serialize(); render(); });
+        if(btns[1]) btns[1].addEventListener("click", function(){ q.pop(); serialize(); render(); });
+      }
+      ta.addEventListener("input", function(){ if(!silent){ parse(); render(); } });
+      parse(); render();
+    }
+
+    chipify("wb-field", "add a species (e.g. robin)");
+    chipify("wb-siteA", "site A species");
+    chipify("wb-siteB", "site B species");
+    quadify("wb-quad");
+  } catch (e) { /* the textareas keep working untouched */ }
+})();
+</script>
 </body>
 </html>

@@ -245,6 +245,17 @@
   "use strict";
   var $=function(id){return document.getElementById(id);};
   function buzz(){ try{ navigator.vibrate&&navigator.vibrate(8);}catch(e){} }
+  /* hold a stepper to count fast: 350 ms then every 90 ms; trailing click swallowed. */
+  function holdable(btn, fire){
+    var t=null, iv=null, repeated=false;
+    function stop(){ clearTimeout(t); clearInterval(iv); t=iv=null; }
+    btn.addEventListener("pointerdown", function(){ repeated=false;
+      t=setTimeout(function(){ iv=setInterval(function(){ repeated=true; fire(); },90); },350); });
+    ["pointerup","pointerleave","pointercancel"].forEach(function(ev){ btn.addEventListener(ev,stop); });
+    btn.addEventListener("click", function(e){
+      if(repeated){ repeated=false; e.stopImmediatePropagation(); e.preventDefault(); return; }
+      fire(); });
+  }
   function toast(m){ var t=$("toast"); t.textContent=m; t.classList.add("on");
     clearTimeout(t._h); t._h=setTimeout(function(){t.classList.remove("on");},1500); }
   function esc(s){ return s.replace(/[&<>"']/g,function(c){return {"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#39;"}[c];}); }
@@ -277,8 +288,10 @@
       g.appendChild(d);
     });
     g.querySelectorAll(".step").forEach(function(b){
-      b.addEventListener("click",function(){
-        var i=+b.dataset.i,d=+b.dataset.d; pts[i]=Math.max(0,pts[i]+d); buzz(); scRender(); scOut();
+      holdable(b, function(){
+        var i=+b.dataset.i,d=+b.dataset.d; pts[i]=Math.max(0,pts[i]+d); buzz();
+        b.parentNode.parentNode.querySelector(".qv").textContent=pts[i];   // inline: no re-render mid-hold
+        scOut();
       });
     });
   }
@@ -349,9 +362,10 @@
     box.innerHTML=html+'</div>'; ecoOut();
   }
   function poAdd(){
-    var v=$("poNew").value.trim().toLowerCase().replace(/\s+/g,"-"); if(!v)return;
+    var v=$("poNew").value.trim().toLowerCase().replace(/\s+/g,"-"); if(!v){ $("poNew").focus(); return; }
     if(!po.some(function(i){return i.name===v;})) po.push({name:v,n:0});
     $("poNew").value=""; poRender(); poOut();
+    $("poNew").focus();                                  // keep the keyboard up
   }
   $("poAdd").addEventListener("click",poAdd);
   $("poNew").addEventListener("keydown",function(e){ if(e.key==="Enter")poAdd(); });

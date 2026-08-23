@@ -252,6 +252,18 @@
   "use strict";
   var $ = function(id){ return document.getElementById(id); };
   function buzz(){ try { navigator.vibrate && navigator.vibrate(8); } catch(e){} }
+  /* hold a stepper to count fast: after 350 ms it repeats every 90 ms; the trailing click is
+     swallowed so a long press never over-counts. */
+  function holdable(btn, fire){
+    var t=null, iv=null, repeated=false;
+    function stop(){ clearTimeout(t); clearInterval(iv); t=iv=null; }
+    btn.addEventListener("pointerdown", function(){ repeated=false;
+      t=setTimeout(function(){ iv=setInterval(function(){ repeated=true; fire(); },90); },350); });
+    ["pointerup","pointerleave","pointercancel"].forEach(function(ev){ btn.addEventListener(ev,stop); });
+    btn.addEventListener("click", function(e){
+      if(repeated){ repeated=false; e.stopImmediatePropagation(); e.preventDefault(); return; }
+      fire(); });
+  }
   function toast(msg){ var t=$("toast"); t.textContent=msg; t.classList.add("on");
     clearTimeout(t._h); t._h=setTimeout(function(){ t.classList.remove("on"); },1400); }
 
@@ -330,9 +342,10 @@
     }
     function add(){
       var v=$(newId).value.trim().toLowerCase().replace(/\s+/g,"-");
-      if(!v) return;
+      if(!v){ $(newId).focus(); return; }
       if(!items.some(function(i){return i.name===v;})) items.push({name:v,n:0});
       $(newId).value=""; render(); results();
+      $(newId).focus();                                  // keep the keyboard up for the next one
     }
     $(addId).addEventListener("click", add);
     $(newId).addEventListener("keydown", function(e){ if(e.key==="Enter") add(); });
@@ -388,9 +401,11 @@
       g.appendChild(d);
     });
     g.querySelectorAll(".step").forEach(function(b){
-      b.addEventListener("click", function(){
+      holdable(b, function(){
         var i=+b.dataset.q, d=+b.dataset.d;
-        quads[i]=Math.max(0,quads[i]+d); buzz(); renderQuads(); quadResults();
+        quads[i]=Math.max(0,quads[i]+d); buzz();
+        b.parentNode.parentNode.querySelector(".qv").textContent=quads[i];
+        quadResults();
       });
     });
   }
@@ -414,7 +429,7 @@
   /* ---------- mark-recapture ---------- */
   var mr={M:0,C:0,R:0};
   document.querySelectorAll("[data-mr]").forEach(function(b){
-    b.addEventListener("click", function(){
+    holdable(b, function(){
       var k=b.dataset.mr, d=+b.dataset.d;
       mr[k]=Math.max(0,mr[k]+d); if(k==="R") mr.R=Math.min(mr.R,mr.C);
       $("mr"+k).textContent=mr[k]; buzz(); mrOut(); });
