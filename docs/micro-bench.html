@@ -221,6 +221,140 @@
   .rail a[aria-current="page"] { background:var(--soft); border-color:var(--s1); color:var(--s1); }
   .rail a.ref { font-weight:600; color:var(--muted); background:none; box-shadow:none; }
   @media print { .rail { display:none !important; } }
+
+  /* ============ Field Entry Kit v1.1.0 ============
+     Large-target, high-contrast entry controls. Sizing is driven by --tap
+     rather than per-component numbers so one token retunes the whole kit for
+     gloves, cold hands or a wall-mounted tablet. */
+  :root {
+    --tap: 60px;            /* primary control height  */
+    --tap-sm: 48px;         /* secondary control height */
+    --fek-r: 16px;
+    --ramp-0:#2B6C8F; --ramp-1:#3E8C8C; --ramp-2:#2E7D4F;
+    --ramp-3:#B8860B; --ramp-4:#C0592B; --ramp-5:#B23A32;
+    --fek-line:#C7C0AC;
+  }
+  .fek-lab { display:block; font:800 15px var(--body); color:var(--ink-2);
+    letter-spacing:.01em; margin:0 0 6px; }
+  .fek-lab .u { font:600 12.5px var(--mono); color:var(--muted); margin-left:6px; }
+  .fek-help { font-size:13.5px; color:var(--muted); line-height:1.5; margin:6px 0 0; }
+  .fek-row { margin:0 0 20px; }
+
+  /* --- stepper: the workhorse numeric entry --- */
+  .fek-step { display:flex; align-items:stretch; gap:0; border:2px solid var(--border);
+    border-radius:var(--fek-r); overflow:hidden; background:var(--surface); max-width:340px; }
+  .fek-step button { border:0; background:var(--surface-2); color:var(--ink);
+    font:800 30px var(--body); line-height:1; width:calc(var(--tap) + 8px); min-height:var(--tap);
+    cursor:pointer; touch-action:manipulation; transition:background .12s; }
+  .fek-step button:hover { background:var(--soft); color:var(--s1); }
+  .fek-step button:active { background:var(--s1); color:#fff; }
+  .fek-step .val { flex:1; min-width:0; text-align:center; border:0; background:none;
+    font:800 30px var(--head); color:var(--ink); font-variant-numeric:tabular-nums;
+    -moz-appearance:textfield; padding:0 4px; }
+  .fek-step .val::-webkit-outer-spin-button,
+  .fek-step .val::-webkit-inner-spin-button { -webkit-appearance:none; margin:0; }
+  .fek-step .val:focus { outline:none; background:var(--soft); }
+
+  /* --- segmented ordinal dial with a colour ramp --- */
+  .fek-dial { display:flex; flex-wrap:wrap; gap:8px; }
+  .fek-dial button { flex:1 1 auto; min-width:72px; min-height:var(--tap);
+    border:2px solid var(--border); border-radius:var(--fek-r); background:var(--surface);
+    font:800 17px var(--body); color:var(--ink-2); cursor:pointer; touch-action:manipulation;
+    display:flex; flex-direction:column; align-items:center; justify-content:center; gap:2px;
+    padding:6px 8px; transition:transform .08s, border-color .12s, background .12s; }
+  .fek-dial button small { font:600 11px var(--mono); color:var(--muted); letter-spacing:.02em; }
+  .fek-dial button:active { transform:scale(.96); }
+  .fek-dial button.on { color:#fff; border-color:transparent; }
+  .fek-dial button.on small { color:rgba(255,255,255,.85); }
+  .fek-dial button.on[data-r="0"]{background:var(--ramp-0);}
+  .fek-dial button.on[data-r="1"]{background:var(--ramp-1);}
+  .fek-dial button.on[data-r="2"]{background:var(--ramp-2);}
+  .fek-dial button.on[data-r="3"]{background:var(--ramp-3);}
+  .fek-dial button.on[data-r="4"]{background:var(--ramp-4);}
+  .fek-dial button.on[data-r="5"]{background:var(--ramp-5);}
+
+  /* --- field: a typed value from an instrument readout ---
+     A stepper is the wrong control for a number you READ off a machine to three
+     decimals: you would tap two thousand times to reach 1.842. This is a plain
+     numeric entry sized like the rest of the kit, with the unit shown and the
+     decimal keypad requested, and nothing that pretends the value is scrollable. */
+  .fek-field { display:flex; align-items:stretch; gap:0; border:2px solid var(--border);
+    border-radius:var(--fek-r); overflow:hidden; background:var(--surface); max-width:340px; }
+  .fek-field input { flex:1; min-width:0; border:0; background:none; text-align:right;
+    font:800 26px var(--head); color:var(--ink); font-variant-numeric:tabular-nums;
+    -moz-appearance:textfield; padding:0 12px; min-height:var(--tap); }
+  .fek-field input::-webkit-outer-spin-button,
+  .fek-field input::-webkit-inner-spin-button { -webkit-appearance:none; margin:0; }
+  .fek-field input:focus { outline:none; background:var(--soft); }
+  .fek-field input::placeholder { color:var(--muted); font-weight:600; font-size:20px; }
+  .fek-field .u { display:flex; align-items:center; padding:0 14px; background:var(--surface-2);
+    font:700 13px var(--mono); color:var(--muted); border-left:2px solid var(--border); white-space:nowrap; }
+  .fek-field.empty { border-style:dashed; }
+
+  /* --- big toggle chips --- */
+  .fek-chips { display:flex; flex-wrap:wrap; gap:9px; }
+  .fek-chip { min-height:var(--tap-sm); border:2px solid var(--border); border-radius:999px;
+    background:var(--surface); font:800 15.5px var(--body); color:var(--ink-2);
+    padding:0 20px; cursor:pointer; touch-action:manipulation; display:inline-flex;
+    align-items:center; gap:8px; transition:transform .08s, border-color .12s, background .12s; }
+  .fek-chip:active { transform:scale(.96); }
+  .fek-chip.on { border-color:var(--s1); background:var(--soft); color:var(--s1-deep); }
+  .fek-chip.on::before { content:"\2713"; font-size:17px; }
+
+  /* --- slider with a live bubble --- */
+  .fek-slide { display:flex; align-items:center; gap:14px; }
+  .fek-slide input[type=range] { flex:1; min-width:0; height:var(--tap-sm); -webkit-appearance:none;
+    background:transparent; cursor:pointer; touch-action:manipulation; }
+  .fek-slide input[type=range]::-webkit-slider-runnable-track { height:14px; border-radius:8px;
+    background:linear-gradient(90deg,var(--ramp-0),var(--ramp-2),var(--ramp-3),var(--ramp-5)); }
+  .fek-slide input[type=range]::-moz-range-track { height:14px; border-radius:8px;
+    background:linear-gradient(90deg,var(--ramp-0),var(--ramp-2),var(--ramp-3),var(--ramp-5)); }
+  .fek-slide input[type=range]::-webkit-slider-thumb { -webkit-appearance:none; width:34px; height:34px;
+    border-radius:50%; background:#fff; border:3px solid var(--ink); margin-top:-10px;
+    box-shadow:0 2px 6px rgba(35,40,31,.3); }
+  .fek-slide input[type=range]::-moz-range-thumb { width:34px; height:34px; border-radius:50%;
+    background:#fff; border:3px solid var(--ink); box-shadow:0 2px 6px rgba(35,40,31,.3); }
+  .fek-slide .bub { font:800 26px var(--head); font-variant-numeric:tabular-nums; color:var(--ink);
+    min-width:86px; text-align:right; }
+  .fek-slide .bub span { font:600 13px var(--mono); color:var(--muted); margin-left:3px; }
+
+  /* --- big picker: replaces <select> for long lists --- */
+  .fek-pick { border:2px solid var(--border); border-radius:var(--fek-r); background:var(--surface);
+    overflow:hidden; }
+  .fek-pick .search { width:100%; border:0; border-bottom:2px solid var(--border);
+    font:700 17px var(--body); padding:0 16px; min-height:var(--tap); background:var(--surface-2); }
+  .fek-pick .search:focus { outline:none; background:var(--soft); }
+  .fek-pick .opts { max-height:264px; overflow-y:auto; -webkit-overflow-scrolling:touch; }
+  .fek-pick .opt { display:block; width:100%; text-align:left; border:0; border-bottom:1px solid var(--border);
+    background:none; font:700 16.5px var(--body); color:var(--ink); min-height:var(--tap-sm);
+    padding:10px 16px; cursor:pointer; touch-action:manipulation; }
+  .fek-pick .opt small { display:block; font:400 12.5px var(--mono); color:var(--muted); margin-top:2px; }
+  .fek-pick .opt:hover { background:var(--soft); }
+  .fek-pick .opt.on { background:var(--s1); color:#fff; }
+  .fek-pick .opt.on small { color:rgba(255,255,255,.85); }
+  .fek-pick .none { padding:16px; color:var(--muted); font-size:14px; }
+
+  /* --- readout tiles, sized to be read at arm's length --- */
+  .fek-tiles { display:grid; grid-template-columns:repeat(auto-fit,minmax(148px,1fr)); gap:11px; margin:14px 0 2px; }
+  .fek-tile { border:2px solid var(--border); border-radius:var(--fek-r); padding:13px 15px; background:var(--surface); }
+  .fek-tile .v { font:800 30px var(--head); font-variant-numeric:tabular-nums; line-height:1.05; color:var(--ink); }
+  .fek-tile .l { font:700 12px var(--body); color:var(--muted); margin-top:4px; letter-spacing:.02em; }
+  .fek-tile.good { border-color:var(--ramp-2); } .fek-tile.good .v { color:var(--ramp-2); }
+  .fek-tile.warn { border-color:var(--ramp-3); } .fek-tile.warn .v { color:#8a6508; }
+  .fek-tile.bad  { border-color:var(--ramp-5); } .fek-tile.bad  .v { color:var(--ramp-5); }
+  .fek-tile.cold { border-color:var(--ramp-0); } .fek-tile.cold .v { color:var(--ramp-0); }
+
+  /* --- banner: the verdict, big --- */
+  .fek-banner { border-radius:var(--fek-r); padding:16px 19px; margin:14px 0; font-size:16px;
+    line-height:1.55; border-left:7px solid var(--ramp-2); background:var(--soft); color:var(--ink-2); }
+  .fek-banner b { font-family:var(--head); color:var(--ink); font-size:17.5px; display:block; margin-bottom:4px; }
+  .fek-banner.warn { border-left-color:var(--ramp-3); background:var(--warn-bg); }
+  .fek-banner.bad  { border-left-color:var(--ramp-5); background:var(--danger-bg); }
+  .fek-banner.cold { border-left-color:var(--ramp-0); background:#E6EEF3; }
+
+  @media (max-width:420px){ :root { --tap:56px; --tap-sm:46px; } .fek-step .val { font-size:26px; } }
+  @media print { .fek-step button, .fek-pick .search { display:none; } }
+
 </style>
 </head>
 <body>
@@ -237,13 +371,12 @@
       discarded, and why, is part of the result.</p>
 
     <div class="card">
-      <div class="btn-row" style="margin-top:0">
-        <label class="f">dilution 10⁻ⁿ<input type="number" id="plN" min="0" step="1" style="width:96px" placeholder="5"></label>
-        <label class="f">volume plated (mL)<input type="number" id="plV" min="0" step="0.01" value="0.1" style="width:120px"></label>
-        <label class="f">colonies<input type="number" id="plC" min="0" step="1" style="width:110px"></label>
-        <label class="f">plate label<input type="text" id="plL" style="width:120px" placeholder="TSA-A" autocomplete="off"></label>
+      <div id="plEntry"></div>
+      <div class="btn-row">
+        <label class="f">plate label<input type="text" id="plL" style="width:150px" placeholder="TSA-A" autocomplete="off"></label>
         <button class="btn btn-soft" id="plAdd" type="button">Add plate</button>
       </div>
+      <input type="hidden" id="plN"><input type="hidden" id="plV" value="0.1"><input type="hidden" id="plC">
       <div class="rowlist" id="plList"></div>
     </div>
     <div class="card" id="plOut"></div>
@@ -256,12 +389,9 @@
     <p class="hint">Work out which dilution will land in the countable window <em>before</em> you pour, not
       after you have wasted a set of plates.</p>
     <div class="card">
-      <div class="grid">
-        <label class="f">estimated titre (CFU/mL)<input type="number" id="dEst" min="0" step="1000" placeholder="1e8"></label>
-        <label class="f">volume plated (mL)<input type="number" id="dVol" min="0" step="0.01" value="0.1"></label>
-        <label class="f">transfer volume (mL)<input type="number" id="dTr" min="0" step="0.1" value="1"></label>
-        <label class="f">diluent volume (mL)<input type="number" id="dBl" min="0" step="0.1" value="9"></label>
-      </div>
+      <div id="dilEntry"></div>
+      <input type="hidden" id="dEst"><input type="hidden" id="dVol" value="0.1">
+      <input type="hidden" id="dTr" value="1"><input type="hidden" id="dBl" value="9">
       <div id="dilOut"></div>
     </div>
   </section>
@@ -272,10 +402,10 @@
     <p class="hint">Enter time and OD, then mark the points you judge to be in exponential phase. The fit
       uses only those.</p>
     <div class="card">
-      <div class="btn-row" style="margin-top:0">
-        <label class="f">time (h)<input type="number" id="grT" step="0.1" style="width:110px"></label>
-        <label class="f">OD₆₀₀<input type="number" id="grO" step="0.001" style="width:110px"></label>
-        <button class="btn btn-soft" id="grAdd" type="button">Add</button>
+      <div id="grEntry"></div>
+      <input type="hidden" id="grT"><input type="hidden" id="grO">
+      <div class="btn-row">
+        <button class="btn btn-soft" id="grAdd" type="button">Add reading</button>
         <button class="btn btn-ghost" id="grClear" type="button">Clear</button>
         <button class="btn btn-ghost" id="grDemo" type="button">Worked example</button>
       </div>
@@ -297,15 +427,16 @@
       <div class="btn-row">
         <label class="f">antimicrobial<input type="text" id="zDrug" style="width:150px" autocomplete="off"></label>
         <label class="f">disc content<input type="text" id="zCont" style="width:110px" placeholder="30 µg" autocomplete="off"></label>
-        <label class="f">zone (mm)<input type="number" id="zMm" min="0" step="0.5" style="width:110px"></label>
-        <button class="btn btn-soft" id="zAdd" type="button">Add</button>
+      </div>
+      <div id="zEntry"></div>
+      <input type="hidden" id="zMm">
+      <div class="btn-row">
+        <button class="btn btn-soft" id="zAdd" type="button">Add zone</button>
       </div>
       <h3>Breakpoints — from your current table</h3>
-      <div class="btn-row" style="margin-top:0">
-        <label class="f">S if ≥ (mm)<input type="number" id="zS" min="0" step="0.5" style="width:110px"></label>
-        <label class="f">R if ≤ (mm)<input type="number" id="zR" min="0" step="0.5" style="width:110px"></label>
-        <label class="f">source &amp; year<input type="text" id="zSrc" placeholder="CLSI M100, 2026" autocomplete="off"></label>
-      </div>
+      <div id="bpEntry"></div>
+      <input type="hidden" id="zS"><input type="hidden" id="zR">
+      <label class="f" style="margin-bottom:14px">source &amp; year<input type="text" id="zSrc" placeholder="CLSI M100, 2026" autocomplete="off"></label>
       <div class="rowlist" id="zList"></div>
       <div id="zOut"></div>
     </div>
@@ -315,6 +446,24 @@
   <!-- ============ METHOD ============ -->
   <section class="pane" id="p-met">
     <h2>Method</h2>
+
+    <div class="card">
+      <h3 style="margin-top:0">What the entry layer records &mdash; and what it does not</h3>
+      <p>The controls are the shared <b>Field Entry Kit</b>, and this page splits its numbers the same way
+        Cell Bench does.</p>
+      <p><b>A stepper for a number you set; a field for a number you read.</b> The dilution exponent, the
+        plated volume, the transfer and diluent volumes are <em>settings</em> &mdash; you choose them, so
+        they get steppers you can hold to run. The colony count, the OD&#8326;&#8320;&#8320;, the zone
+        diameter and the breakpoints you copy out of a table are <em>readings</em> &mdash; they get plain
+        typed entries at full precision, with the decimal keypad and nothing rounded on the way in. An
+        OD of 0.482 is three taps, not four hundred and eighty-two.</p>
+      <p><b>Blank still means blank.</b> The dilution exponent starts unrecorded rather than at 10&#8304;,
+        because an undiluted plate is a real choice and an unfilled field is not. Tap once and it starts at
+        10&#8315;&#8309;, which is a plausible working dilution rather than a meaningless zero.</p>
+      <p><b>The breakpoint fields are typed for the same reason the page ships no breakpoints.</b> They are
+        transcribed from the edition in front of you, and the edition is recorded beside them. A control
+        that let you scroll to a number would invite you to guess at one.</p>
+    </div>
 
     <div class="card">
       <h3 style="margin-top:0">What a colony count actually counts</h3>
@@ -421,11 +570,286 @@
 </div></div>
 <div class="toast" id="toast">Saved</div>
 <script>
+
+/* ---- Field Entry Kit v1.1.0 : constructors return {el, get, set} ---- */
+var FEK = (function(){
+  function el(t,c,h){ var e=document.createElement(t); if(c) e.className=c;
+    if(h!=null) e.innerHTML=h; return e; }
+  function buzz(m){ try{ if(navigator.vibrate) navigator.vibrate(m||8);}catch(e){} }
+
+  function step(o){
+    o=o||{}; var min=(o.min==null?-Infinity:o.min), max=(o.max==null?Infinity:o.max);
+    var stepv=o.step||1, dec=o.dec==null?(String(stepv).split(".")[1]||"").length:o.dec;
+    var v=o.value==null?0:o.value;
+    var wrap=el("div","fek-row"), lab=el("label","fek-lab",
+      (o.label||"")+(o.unit?'<span class="u">'+o.unit+'</span>':""));
+    var box=el("div","fek-step");
+    var minus=el("button",null,"&minus;"), inp=el("input"), plus=el("button",null,"+");
+    minus.type="button"; plus.type="button"; inp.type="number"; inp.className="val";
+    inp.setAttribute("inputmode","decimal");
+    if(o.label) inp.setAttribute("aria-label",o.label);
+    /* nullable: the control can hold "not recorded", which is not the same as
+       zero. Aspect 0 is north; a duff depth of 0 cm is an observation. An empty
+       nullable stepper reports null and the first bump starts from o.start. */
+    var nullable = !!o.nullable;
+    if(nullable && o.value==null) v=null;
+    function clamp(x){ return Math.min(max,Math.max(min,x)); }
+    function render(){
+      if(v==null){ inp.value=""; wrap.classList.add("is-empty"); box.classList.add("empty"); return; }
+      wrap.classList.remove("is-empty"); box.classList.remove("empty");
+      inp.value=(dec?v.toFixed(dec):String(v));
+    }
+    function set(x,quiet){
+      if(nullable && (x==null || x==="" || (typeof x==="number" && !isFinite(x)))) v=null;
+      else v=clamp(isFinite(x)?x:0);
+      render(); if(!quiet&&o.onchange) o.onchange(v);
+    }
+    function bump(d){
+      if(v==null) set(clamp(o.start==null?0:o.start));
+      else set(+(v+d*stepv).toFixed(6));
+      buzz();
+    }
+    function clear(){ if(nullable) set(null); }
+    minus.addEventListener("click",function(){ bump(-1); });
+    plus.addEventListener("click",function(){ bump(1); });
+    var hold;
+    function holdOn(d){ return function(){ clearInterval(hold);
+      hold=setInterval(function(){ bump(d); },110); }; }
+    function holdOff(){ clearInterval(hold); }
+    minus.addEventListener("pointerdown",holdOn(-1)); plus.addEventListener("pointerdown",holdOn(1));
+    ["pointerup","pointerleave","pointercancel"].forEach(function(ev){
+      minus.addEventListener(ev,holdOff); plus.addEventListener(ev,holdOff); });
+    inp.addEventListener("input",function(){
+      if(nullable && inp.value===""){ v=null; box.classList.add("empty");
+        if(o.onchange) o.onchange(null); return; }
+      var x=parseFloat(inp.value);
+      if(isFinite(x)){ v=clamp(x); box.classList.remove("empty"); if(o.onchange) o.onchange(v); } });
+    inp.addEventListener("blur",render);
+    box.appendChild(minus); box.appendChild(inp); box.appendChild(plus);
+    wrap.appendChild(lab); wrap.appendChild(box);
+    if(o.help) wrap.appendChild(el("p","fek-help",o.help));
+    render();
+    return { el:wrap, get:function(){return v;}, set:function(x){set(x,true);},
+             clear:clear, nullable:nullable };
+  }
+
+  /* field: a value typed from an instrument readout. No steppers — see the CSS note. */
+  function field(o){
+    o=o||{};
+    var min=(o.min==null?-Infinity:o.min), max=(o.max==null?Infinity:o.max);
+    var dec=(o.dec==null?3:o.dec), v=(o.value==null?null:o.value);
+    var wrap=el("div","fek-row"), lab=el("label","fek-lab",
+      (o.label||"")+(o.unit?'<span class="u">'+o.unit+'</span>':""));
+    var box=el("div","fek-field"), inp=el("input");
+    inp.type="number"; inp.setAttribute("inputmode","decimal");
+    if(o.step!=null) inp.step=o.step;
+    inp.placeholder = o.placeholder==null ? "—" : o.placeholder;
+    if(o.label) inp.setAttribute("aria-label",o.label);
+    function paint(){ box.classList.toggle("empty", v==null); }
+    function set(x,quiet){
+      if(x==null || x===""){ v=null; inp.value=""; }
+      else { var n=parseFloat(x);
+        v = isFinite(n) ? Math.min(max,Math.max(min,n)) : null;
+        inp.value = (v==null?"":String(v)); }
+      paint(); if(!quiet&&o.onchange) o.onchange(v);
+    }
+    inp.addEventListener("input",function(){
+      if(inp.value===""){ v=null; paint(); if(o.onchange) o.onchange(null); return; }
+      var n=parseFloat(inp.value);
+      if(isFinite(n)){ v=Math.min(max,Math.max(min,n)); paint(); if(o.onchange) o.onchange(v); } });
+    inp.addEventListener("blur",function(){
+      if(v!=null && isFinite(v)) inp.value = (dec==null?String(v):String(+v.toFixed(dec)));
+      paint(); });
+    box.appendChild(inp);
+    if(o.unitBox!==false && o.unit) box.appendChild(el("div","u",o.unit));
+    wrap.appendChild(lab); wrap.appendChild(box);
+    if(o.help) wrap.appendChild(el("p","fek-help",o.help));
+    set(v,true);
+    return { el:wrap, get:function(){return v;}, set:function(x){set(x,true);},
+             clear:function(){ set(null,true); }, nullable:true };
+  }
+
+  function dial(o){
+    o=o||{}; var opts=o.options||[], cur=o.value==null?null:o.value;
+    var wrap=el("div","fek-row"), lab=el("label","fek-lab",o.label||"");
+    var box=el("div","fek-dial"), btns=[];
+    opts.forEach(function(op,i){
+      var b=el("button",null,'<span>'+op.label+'</span>'+(op.sub?'<small>'+op.sub+'</small>':""));
+      b.type="button";
+      b.setAttribute("data-r", op.ramp==null ? String(Math.min(5,Math.round(i*5/Math.max(1,opts.length-1)))) : String(op.ramp));
+      b.addEventListener("click",function(){
+        cur = (cur===op.value && o.clearable!==false) ? null : op.value;
+        paint(); buzz(); if(o.onchange) o.onchange(cur);
+      });
+      btns.push(b); box.appendChild(b);
+    });
+    function paint(){ btns.forEach(function(b,i){ b.classList.toggle("on", opts[i].value===cur); }); }
+    paint();
+    wrap.appendChild(lab); wrap.appendChild(box);
+    if(o.help) wrap.appendChild(el("p","fek-help",o.help));
+    return { el:wrap, get:function(){return cur;},
+             set:function(x){ cur=x; paint(); } };
+  }
+
+  function chips(o){
+    o=o||{}; var opts=o.options||[], sel={};
+    (o.value||[]).forEach(function(v){ sel[v]=1; });
+    var wrap=el("div","fek-row"), lab=el("label","fek-lab",o.label||"");
+    var box=el("div","fek-chips"), btns=[];
+    opts.forEach(function(op){
+      var b=el("button","fek-chip",op.label); b.type="button";
+      b.addEventListener("click",function(){
+        if(o.single){ sel={}; sel[op.value]=1; }
+        else if(sel[op.value]) delete sel[op.value]; else sel[op.value]=1;
+        paint(); buzz(); if(o.onchange) o.onchange(Object.keys(sel));
+      });
+      btns.push(b); box.appendChild(b);
+    });
+    function paint(){ btns.forEach(function(b,i){ b.classList.toggle("on",!!sel[opts[i].value]); }); }
+    paint();
+    wrap.appendChild(lab); wrap.appendChild(box);
+    if(o.help) wrap.appendChild(el("p","fek-help",o.help));
+    return { el:wrap, get:function(){return Object.keys(sel);},
+             set:function(a){ sel={}; (a||[]).forEach(function(v){sel[v]=1;}); paint(); } };
+  }
+
+  function slider(o){
+    o=o||{};
+    var nullable=!!o.nullable;
+    var v = (nullable && o.value==null) ? null : (o.value==null?(o.min||0):o.value);
+    var wrap=el("div","fek-row"), lab=el("label","fek-lab",o.label||"");
+    var box=el("div","fek-slide"), r=el("input"), bub=el("div","bub");
+    r.type="range"; r.min=o.min==null?0:o.min; r.max=o.max==null?100:o.max;
+    r.step=o.step||1; r.value=v;
+    if(o.label) r.setAttribute("aria-label",o.label);
+    function paint(){
+      if(v==null){ bub.innerHTML='<span style="opacity:.6">not recorded</span>'; return; }
+      bub.innerHTML=(o.fmt?o.fmt(v):v)+(o.unit?'<span>'+o.unit+'</span>':"");
+    }
+    r.addEventListener("input",function(){ v=parseFloat(r.value); paint(); if(o.onchange) o.onchange(v); });
+    if(nullable && v==null) r.value = (o.min==null?0:o.min);
+    paint();
+    box.appendChild(r); box.appendChild(bub);
+    wrap.appendChild(lab); wrap.appendChild(box);
+    if(o.help) wrap.appendChild(el("p","fek-help",o.help));
+    return { el:wrap, get:function(){return v;},
+             set:function(x){ v=(nullable&&x==null)?null:x; if(x!=null) r.value=x; paint(); },
+             clear:function(){ if(nullable){ v=null; paint(); } }, nullable:nullable };
+  }
+
+  function picker(o){
+    o=o||{}; var opts=o.options||[], cur=o.value==null?null:o.value, q="";
+    var wrap=el("div","fek-row"), lab=el("label","fek-lab",o.label||"");
+    var box=el("div","fek-pick"), s=el("input","search"), list=el("div","opts");
+    s.type="text"; s.placeholder=o.placeholder||"type to filter…";
+    s.setAttribute("autocomplete","off");
+    if(o.label) s.setAttribute("aria-label",o.label+" filter");
+    function paint(){
+      list.innerHTML="";
+      var qq=q.toLowerCase();
+      var shown=opts.filter(function(op){
+        return !qq || (op.label+" "+(op.sub||"")).toLowerCase().indexOf(qq)>=0; });
+      if(!shown.length){ list.appendChild(el("div","none","No match. Clear the filter to see all "+opts.length+".")); return; }
+      shown.slice(0,200).forEach(function(op){
+        var b=el("button","opt"+(op.value===cur?" on":""),
+          op.label+(op.sub?'<small>'+op.sub+'</small>':""));
+        b.type="button";
+        b.addEventListener("click",function(){ cur=op.value; paint(); buzz(); if(o.onchange) o.onchange(cur); });
+        list.appendChild(b);
+      });
+    }
+    s.addEventListener("input",function(){ q=s.value; paint(); });
+    box.appendChild(s); box.appendChild(list);
+    wrap.appendChild(lab); wrap.appendChild(box);
+    if(o.help) wrap.appendChild(el("p","fek-help",o.help));
+    paint();
+    return { el:wrap, get:function(){return cur;}, set:function(x){ cur=x; paint(); } };
+  }
+
+  function tiles(list){
+    var box=el("div","fek-tiles");
+    (list||[]).forEach(function(t){
+      box.appendChild(el("div","fek-tile"+(t.tone?" "+t.tone:""),
+        '<div class="v">'+t.v+'</div><div class="l">'+t.l+'</div>'));
+    });
+    return box;
+  }
+  function banner(title,body,tone){
+    return el("div","fek-banner"+(tone?" "+tone:""),"<b>"+title+"</b>"+body);
+  }
+  function mount(host,parts){
+    var h=typeof host==="string"?document.getElementById(host):host;
+    h.innerHTML=""; parts.forEach(function(p){ h.appendChild(p.el||p); }); return h;
+  }
+  return { version:"1.1.0", step:step, field:field, dial:dial, chips:chips, slider:slider,
+           picker:picker, tiles:tiles, banner:banner, mount:mount, buzz:buzz };
+})();
+
+</script>
+<script>
 (function(){
   "use strict";
   var $=function(i){return document.getElementById(i);};
   var val=function(i){var e=$(i);return e?String(e.value||"").trim():"";};
   var nv=function(i){var e=$(i);var v=parseFloat(e&&e.value);return isFinite(v)?v:NaN;};
+
+  /* ---------------- Field Entry Kit v1.1 ----------------
+     Same rule as Cell Bench: a stepper for a number you SET, a field for a
+     number you READ. A dilution exponent, a plated volume, a transfer volume
+     are settings — steppers. A colony count, an OD600, a zone diameter, a
+     breakpoint copied out of a table are readings — typed fields, at full
+     precision, with nothing rounded on the way in.
+     Everything writes through to the hidden field nv() already reads, so an
+     untouched entry stays NaN rather than reading as a recorded zero. */
+  function push(id,v){
+    var e=$(id); if(!e) return;
+    e.value=(v==null?"":String(v));
+    e.dispatchEvent(new Event("input",{bubbles:true}));
+    e.dispatchEvent(new Event("change",{bubbles:true}));
+  }
+
+  var PLN=FEK.step({ label:"dilution", unit:"10⁻ⁿ", min:0, max:12, step:1, dec:0,
+    nullable:true, start:5,
+    onchange:function(v){ push("plN",v); },
+    help:"The exponent, not the factor: 5 means the 10⁻⁵ tube." });
+  var PLV=FEK.step({ label:"volume plated", unit:"mL", value:0.1, min:0.001, max:10, step:0.05, dec:3,
+    onchange:function(v){ push("plV",v); },
+    help:"0.1 mL spread, 1.0 mL pour. The volume is in the denominator, so getting it wrong scales every count." });
+  var PLC=FEK.field({ label:"colonies", dec:0, step:1, min:0,
+    onchange:function(v){ push("plC",v); },
+    help:"What you counted, including a plate you are about to discard — which plates you threw out, and why, is part of the result." });
+  FEK.mount("plEntry",[PLN,PLV,PLC]);
+
+  var DEST=FEK.field({ label:"estimated titre", unit:"CFU/mL", dec:0, step:1000, min:0,
+    onchange:function(v){ push("dEst",v); },
+    help:"A guess is fine — that is the point of planning the series before you pour." });
+  var DVOL=FEK.step({ label:"volume plated", unit:"mL", value:0.1, min:0.001, max:10, step:0.05, dec:3,
+    onchange:function(v){ push("dVol",v); } });
+  var DTR=FEK.step({ label:"transfer volume", unit:"mL", value:1, min:0.01, max:100, step:0.5, dec:2,
+    onchange:function(v){ push("dTr",v); } });
+  var DBL=FEK.step({ label:"diluent volume", unit:"mL", value:9, min:0.01, max:1000, step:0.5, dec:2,
+    onchange:function(v){ push("dBl",v); },
+    help:"1 into 9 is a ten-fold step. 1 into 99 is a hundred-fold — fewer tubes, and fewer chances to pipette wrong." });
+  FEK.mount("dilEntry",[DEST,DVOL,DTR,DBL]);
+
+  var GRT=FEK.field({ label:"time", unit:"h", dec:2, step:0.1, min:0,
+    onchange:function(v){ push("grT",v); } });
+  var GRO=FEK.field({ label:"OD₆₀₀", unit:"AU", dec:3, step:0.001, min:0, max:5,
+    onchange:function(v){ push("grO",v); },
+    help:"As the spectrophotometer reads it. Above about 0.8 the relationship with cell number stops being linear — the Method tab has the detail." });
+  FEK.mount("grEntry",[GRT,GRO]);
+
+  var ZMM=FEK.field({ label:"zone diameter", unit:"mm", dec:1, step:0.5, min:0,
+    onchange:function(v){ push("zMm",v); },
+    help:"Including the disc, measured across the whole zone of inhibition." });
+  FEK.mount("zEntry",[ZMM]);
+
+  var ZS=FEK.field({ label:"susceptible if ≥", unit:"mm", dec:1, step:0.5, min:0,
+    onchange:function(v){ push("zS",v); } });
+  var ZR=FEK.field({ label:"resistant if ≤", unit:"mm", dec:1, step:0.5, min:0,
+    onchange:function(v){ push("zR",v); },
+    help:"Copied from the table in front of you, not remembered. These are typed fields for the same reason the page ships no breakpoints of its own." });
+  FEK.mount("bpEntry",[ZS,ZR]);
   function esc(s){return String(s==null?"":s).replace(/[&<>"]/g,function(c){
     return {"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;"}[c];});}
   function buzz(m){try{if(navigator.vibrate)navigator.vibrate(m||8);}catch(e){}}
@@ -445,7 +869,7 @@
     var n=nv("plN"), v=nv("plV"), c=nv("plC");
     if(!isFinite(n)||!isFinite(v)||!isFinite(c)||v<=0){toast("Need dilution, volume and colonies");return;}
     plates.push({n:n,v:v,c:c,label:val("plL")});
-    $("plC").value=""; $("plL").value="";
+    PLC.clear(); push("plC",null); $("plL").value="";
     renderPl(); buzz(12);
   });
   function cfu(p){ return p.c/(p.v*Math.pow(10,-p.n)); }
@@ -560,7 +984,7 @@
     if(!isFinite(t)||!isFinite(od)){toast("Need time and OD");return;}
     if(od<=0){toast("OD must be above zero to take a log");return;}
     pts.push({t:t,od:od,use:true}); pts.sort(function(a,b){return a.t-b.t;});
-    $("grT").value=""; $("grO").value=""; renderGr(); buzz(12);
+    GRT.clear(); GRO.clear(); push("grT",null); push("grO",null); renderGr(); buzz(12);
   });
   $("grClear").addEventListener("click",function(){ pts=[]; renderGr(); });
   $("grDemo").addEventListener("click",function(){
@@ -632,7 +1056,7 @@
     var d=val("zDrug"), mm=nv("zMm");
     if(!d||!isFinite(mm)){toast("Need an antimicrobial and a zone");return;}
     zones.push({drug:d,cont:val("zCont"),mm:mm});
-    $("zDrug").value=""; $("zCont").value=""; $("zMm").value="";
+    $("zDrug").value=""; $("zCont").value=""; ZMM.clear(); push("zMm",null);
     renderZ(); buzz(12);
   });
   function renderZ(){

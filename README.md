@@ -866,7 +866,15 @@ live, and every export carries site, observer, and date plus a CSV for Excel/R:
   fit, and no OD&rarr;cells conversion offered at all. Disc diffusion that **ships no breakpoints**: S/I/R
   comes only from the table you enter, with its edition recorded, because those tables are revised annually
   and a stale &ldquo;susceptible&rdquo; is worse than no answer. CFU is explained as colony-forming units,
-  with the great plate count anomaly stated.
+  with the great plate count anomaly stated.  **Migrated to the Field Entry Kit (v1.1.0).** The same split Cell Bench established: the dilution
+  exponent and the plated, transfer and diluent volumes are *settings*, so they get steppers; the colony
+  count, the OD₆₀₀, the zone diameter and the breakpoints you transcribe out of a table are *readings*, so
+  they get typed fields at full precision — an OD of 0.482 is three taps, not four hundred and eighty-two.
+  The dilution exponent starts genuinely unrecorded and its first tap lands on 10⁻⁵, a plausible working
+  dilution, rather than on a meaningless zero. The breakpoint fields are typed for the same reason the page
+  ships no breakpoints of its own: they are transcribed from the edition in front of you, and a control you
+  could scroll would invite you to guess. 61/61 verified.
+
 - [**`docs/collection-sheet.html`**](docs/collection-sheet.html) — **Collection Sheet**: the
   mycologist's field app, and deliberately not a botany reskin. Half of what identifies a fungus is gone
   within a day of collecting it, so the form captures what disappears — substrate and host tree and
