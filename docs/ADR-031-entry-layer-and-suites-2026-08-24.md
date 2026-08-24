@@ -1,6 +1,6 @@
 # ADR-031: A shared entry layer, and three domain suites
 
-**Status:** Accepted — FEK v1, Soil Bench and CP Bench built and verified; Suite B specified, not built
+**Status:** Accepted, and fully implemented — FEK v1.0.0 with four field pages migrated to it, all three suites built with front doors, and the honesty gate applied throughout. All eight actions closed.
 **Date:** 2026-08-24
 **Deciders:** Richmond
 **Supersedes:** nothing. **Touches:** every instrument in `CSRBT/docs/`
@@ -277,7 +277,12 @@ be stated in each page rather than hidden.
        **built and verified 116/116** — the suite now has its bench and its printable card, matching
        botany and mycology
 5. [x] Build Suite B: `breeding-bench.html` — **built and verified 85/85**, reusing Selection Log's engine
-6. [x] Add a **Suites** section to the kit hub and a nav chip; per-suite hubs still to do
+6. [x] Add a **Suites** section to the kit hub and a nav chip, and build the **per-suite hubs**:
+       `cp-suite.html`, `soil-suite.html`, `breeding-suite.html`, **verified 122/122**. Each opens on a
+       numbered path through the work in the order mistakes actually happen, lists the instruments the
+       suite uses (including ones it borrows from the wider kit), and closes with a *what this suite will
+       and will not tell you* panel naming its own refusals. The hub's suite cards now lead to these front
+       doors rather than straight to a bench; the benches stay reachable from the bench group.
 7. [x] Migrate Stand Sheet, Relevé, Collection Sheet and Ethogram to FEK. **All four migrated and
        verified**: Stand Sheet 76/76, Relevé 66/66, Collection Sheet 72/72, Ethogram 71/71. v1.0.0
        covered every control the four needed, so no bump; three design decisions the migrations forced

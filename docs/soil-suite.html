@@ -1,0 +1,275 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Soil &amp; compost — a CSRBT suite</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&family=Newsreader:opsz,wght@6..72,400;6..72,500;6..72,600&family=JetBrains+Mono:wght@400;500&display=swap">
+<style>
+  :root {
+    color-scheme: light;
+    --page:#F5F1E6; --surface:#FFFDF7; --ink:#23281F; --ink-2:#4B5344; --muted:#8B8B7B;
+    --border:#E3DCC9; --rule:#C7C0AC; --s1:#2E7D4F; --s2:#C0592B; --s3:#2B6C8F;
+    --soft:#E9F0E7; --soft-2:#F3EEE0; --shadow:0 1px 2px rgba(35,40,31,.05),0 12px 32px rgba(35,40,31,.06);
+    --head:"Fraunces",Georgia,serif; --body:"Newsreader",Georgia,"Times New Roman",serif;
+    --mono:"JetBrains Mono",ui-monospace,Menlo,monospace;
+  }
+  * { box-sizing:border-box; }
+  body { margin:0; background:var(--page); color:var(--ink); font:18px/1.62 var(--body);
+    -webkit-font-smoothing:antialiased; text-rendering:optimizeLegibility; }
+  .wrap { max-width:900px; margin:0 auto; padding:0 26px; }
+  a { color:var(--s1); text-underline-offset:2px; }
+
+  /* shared science-kit nav — bidirectional wiring across the kit */
+  .kit-nav { display:flex; flex-wrap:wrap; gap:8px; padding:16px 0 0; }
+  .kit-nav a { font-family:var(--mono); font-size:12.5px; letter-spacing:.02em; text-decoration:none;
+    color:var(--ink-2); background:var(--surface); border:1px solid var(--border); border-radius:999px;
+    padding:9px 15px; box-shadow:var(--shadow); display:inline-flex; align-items:center; min-height:40px; }
+  .kit-nav a:hover { border-color:var(--s1); color:var(--s1); }
+  .kit-nav a[aria-current="page"] { background:var(--s1); color:#fff; border-color:var(--s1); }
+
+  /* hero */
+  .hero { padding:64px 0 30px; position:relative; overflow:hidden; }
+  .hero::before { content:""; position:absolute; inset:-40% -20% auto -20%; height:70%; z-index:0; pointer-events:none;
+    background:radial-gradient(55% 70% at 22% 6%, rgba(46,125,79,.10), transparent 62%),
+               radial-gradient(45% 60% at 85% 0%, rgba(43,108,143,.08), transparent 65%); }
+  .hero > * { position:relative; z-index:1; }
+  .eyebrow { font-family:var(--mono); font-size:12px; letter-spacing:.18em; text-transform:uppercase; color:var(--s1); margin:0 0 14px; }
+  h1 { font-family:var(--head); font-weight:700; font-size:clamp(38px,7vw,64px); line-height:1.02; letter-spacing:-0.025em; margin:0 0 16px; max-width:16ch; }
+  .dek { font-size:21px; color:var(--ink-2); margin:0; max-width:60ch; }
+  .thesis { font-family:var(--head); font-weight:500; font-size:22px; line-height:1.35; color:var(--ink);
+    border-left:3px solid var(--s1); padding:6px 0 6px 20px; margin:24px 0 0; max-width:44ch; }
+
+  h2 { font-family:var(--head); font-weight:600; font-size:26px; letter-spacing:-0.015em; margin:0 0 4px; }
+  .section-tag { font-family:var(--mono); font-size:12px; letter-spacing:.16em; text-transform:uppercase; color:var(--muted); margin:0 0 10px; }
+  section { padding:34px 0; border-top:1px solid var(--border); }
+  section:first-of-type { border-top:0; }
+  p { margin:0 0 14px; } .lead { font-size:19px; color:var(--ink-2); max-width:62ch; }
+
+
+  .group { font-family:var(--head); font-weight:600; font-size:19px; margin:30px 0 2px;
+    padding-top:16px; border-top:1px solid var(--border); }
+  .group:first-of-type { border-top:0; padding-top:0; margin-top:22px; }
+  .grouplead { color:var(--ink-2); font-size:16.5px; margin:0 0 4px; max-width:64ch; }
+  /* the four kit cards */
+  .kit { display:grid; grid-template-columns:repeat(auto-fit, minmax(255px,1fr)); gap:14px; margin-top:22px; }
+  .card { display:flex; flex-direction:column; background:var(--surface); border:1px solid var(--border);
+    border-radius:16px; padding:22px 22px 20px; box-shadow:var(--shadow); text-decoration:none; color:var(--ink);
+    transition:transform .12s ease, border-color .12s ease; }
+  .card:hover { transform:translateY(-3px); border-color:var(--s1); text-decoration:none; }
+  .card .step { font-family:var(--mono); font-size:11px; letter-spacing:.12em; text-transform:uppercase; color:var(--s1); }
+  .card h3 { font-family:var(--head); font-weight:600; font-size:21px; margin:4px 0 6px; letter-spacing:-0.01em; }
+  .card p { color:var(--ink-2); font-size:15.5px; line-height:1.5; flex:1; margin:0 0 12px; }
+  .card .go { font-family:var(--mono); font-size:12.5px; color:var(--s1); font-weight:500; }
+
+  /* personas */
+  .who { display:grid; grid-template-columns:repeat(auto-fit, minmax(220px,1fr)); gap:12px; margin-top:18px; }
+  .who .p { background:var(--surface); border:1px solid var(--border); border-radius:12px; padding:15px 17px; box-shadow:var(--shadow); }
+  .who .p b { font-family:var(--head); }
+  .who .p span { display:block; color:var(--ink-2); font-size:15px; margin-top:3px; }
+
+  /* instruments table */
+  table { border-collapse:collapse; width:100%; font-family:var(--body); font-size:15.5px; margin-top:16px; }
+  th, td { border:1px solid var(--rule); padding:7px 11px; text-align:left; vertical-align:top; }
+  th { background:var(--soft); font-family:var(--head); font-weight:600; font-size:14.5px; }
+  td .sci { color:var(--muted); font-size:13.5px; }
+
+  pre { font-family:var(--mono); font-size:13px; line-height:1.62; background:var(--surface); color:var(--ink);
+    border:1px solid var(--border); border-radius:10px; padding:14px 16px; overflow-x:auto; box-shadow:var(--shadow); margin:14px 0; }
+  pre .c { color:var(--muted); } pre .k { color:var(--s1); }
+  code { font-family:var(--mono); font-size:.82em; background:var(--soft-2); border:1px solid var(--border); border-radius:5px; padding:1px 5px; }
+
+  .tip { border:1px dashed var(--rule); border-radius:10px; padding:12px 16px; margin:14px 0 0; color:var(--ink-2); font-size:16px; background:var(--surface); }
+  .tip b { color:var(--s2); font-family:var(--head); }
+
+  footer { padding:30px 0 64px; border-top:1px solid var(--border); color:var(--muted); font-size:14px; }
+  footer code { color:var(--ink-2); font-family:var(--mono); }
+
+  @media print {
+    :root { --page:#fff; --surface:#fff; --soft:#f2f6f1; --soft-2:#f6f4ee; --shadow:none; }
+    body { font-size:11.5pt; background:#fff; } .wrap { max-width:none; padding:0; }
+    .hero::before { display:none; } .kit-nav { display:none; } a { color:inherit; text-decoration:none; }
+    .card, table, pre { break-inside:avoid; }
+  }
+  @media (max-width:560px){ body{font-size:17px;} .wrap{padding:0 18px;} }
+</style>
+
+<style>
+  /* ---- suite hub additions ---- */
+  .path { counter-reset: st; margin:22px 0 6px; }
+  .st { position:relative; background:var(--surface); border:1px solid var(--border);
+    border-left:3px solid var(--s1); border-radius:0 14px 14px 0; padding:15px 19px 15px 62px;
+    margin:0 0 11px; box-shadow:var(--shadow); }
+  .st::before { counter-increment: st; content: counter(st);
+    position:absolute; left:16px; top:15px; width:30px; height:30px; border-radius:50%;
+    background:var(--s1); color:#fff; font:700 15px var(--mono);
+    display:flex; align-items:center; justify-content:center; }
+  .st b { font-family:var(--head); font-weight:600; font-size:18px; display:block; margin-bottom:3px; }
+  .st p { margin:0; color:var(--ink-2); font-size:15.5px; line-height:1.55; }
+  .st .to { font-family:var(--mono); font-size:12.5px; color:var(--s1); font-weight:500;
+    display:inline-block; margin-top:7px; text-decoration:none; }
+  .st .to:hover { text-decoration:underline; }
+
+  .refuse { border:2px solid var(--s3); background:#EAF1F5; border-radius:14px;
+    padding:18px 22px; margin:22px 0; }
+  .refuse b { font-family:var(--head); display:block; font-size:19px; margin-bottom:7px; color:var(--s3); }
+  .refuse p { margin:0 0 10px; color:var(--ink-2); font-size:16px; line-height:1.6; }
+  .refuse p:last-child { margin-bottom:0; }
+  .refuse .num { font-family:var(--mono); font-size:12px; color:var(--s3);
+    letter-spacing:.1em; text-transform:uppercase; display:block; margin-bottom:2px; }
+
+  .ships { display:grid; grid-template-columns:repeat(auto-fit,minmax(260px,1fr)); gap:12px; margin:16px 0 6px; }
+  .sh { background:var(--surface); border:1px solid var(--border); border-radius:13px;
+    padding:13px 16px; box-shadow:var(--shadow); }
+  .sh .k { font-family:var(--mono); font-size:10.5px; letter-spacing:.1em; text-transform:uppercase;
+    color:var(--s1); display:block; margin-bottom:3px; }
+  .sh b { font-family:var(--head); font-size:16.5px; display:block; }
+  .sh span { display:block; color:var(--ink-2); font-size:15px; line-height:1.5; margin-top:4px; }
+  .sh.no .k { color:var(--s2); } .sh.no { border-left:3px solid var(--s2); }
+
+  footer { margin:48px 0 64px; padding-top:18px; border-top:1px solid var(--border);
+    color:var(--muted); font-size:14.5px; line-height:1.65; }
+  footer a { font-weight:500; }
+  @media print { .kit-nav { display:none; } }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<nav class="kit-nav">
+  <a href="ecology.html">Kit hub</a>
+  <a href="cp-suite.html">Carnivorous plants</a>
+  <a href="soil-suite.html" aria-current="page">Soil &amp; compost</a>
+  <a href="breeding-suite.html">Vegetable breeding</a>
+  <a href="adr-031.html">ADR-031</a>
+</nav>
+
+<header class="hero">
+  <p class="section-tag">CSRBT · a suite · soil &amp; compost</p>
+  <h1>Soil &amp; compost</h1>
+  <p class="lead">Making soil, and knowing whether what you made is finished. A compost log read against the standard you choose rather than a feeling, a C:N calculator that works on dry mass because buckets lie, a mix designer that admits its indices are ranks, and the USDA texture key you can run with wet fingers.</p>
+</header>
+
+<section id="start">
+  <p class="section-tag">Start here</p>
+  <h2>From feedstock to a medium you trust</h2>
+  <p class="lead">The order matters here too: a pile judged finished by look is the commonest way a good compost becomes a bad potting mix.</p>
+  <div class="path">
+    <div class="st">
+      <b>Get the C:N right before you build the pile</b>
+      <p>On <b>dry mass and nitrogen</b>, not by volume — bulk density varies eight-fold across feedstocks and wet material is mostly water. The calculator also names the mistake almost everyone makes: averaging the individual ratios instead of dividing total carbon by total nitrogen.</p>
+      <a class="to" href="soil-bench.html">Soil Bench · Recipe &rarr;</a>
+    </div>
+    <div class="st">
+      <b>Log the pile against a published standard</b>
+      <p>55 °C for 3 days in-vessel or static aerated pile; 15 days with 5 turnings for a windrow — both from 40 CFR 503 Appendix B and concurred by the USDA NOP. The chart draws the 55 °C line and the 66 °C thermophile die-off line, and ticks turnings beneath it, so "finished" is a reading rather than an opinion.</p>
+      <a class="to" href="soil-bench.html">Soil Bench · Compost &rarr;</a>
+    </div>
+    <div class="st">
+      <b>Design the mix by parts</b>
+      <p>With the indices stated as ordinal ranks rather than measurements, and a <b>nutrient-free flag</b> for anyone who also grows carnivorous plants. Feedstock values are editable per ingredient, because published C:N for the same material varies by a factor of two.</p>
+      <a class="to" href="soil-bench.html">Soil Bench · Mix &rarr;</a>
+    </div>
+    <div class="st">
+      <b>Read the texture with your hands</b>
+      <p>The USDA ribbon-and-grit key as a stepped dial. It costs nothing, takes a minute, and tells you more about how a soil will behave than most of what you could pay a lab for.</p>
+      <a class="to" href="soil-bench.html">Soil Bench · Texture &rarr;</a>
+    </div>
+    <div class="st">
+      <b>Take it to the field</b>
+      <p>Soil texture, moisture class and duff depth are recorded on the field instruments too — the same vocabulary, so a stand described in the woods and a mix designed at the bench are talking about the same thing.</p>
+      <a class="to" href="stand-sheet.html">Stand Sheet &rarr;</a>
+    </div>
+  </div>
+</section>
+
+<section id="instruments">
+  <p class="section-tag">Everything in this suite</p>
+  <h2>The bench, and where it meets the field</h2>
+  <p class="lead">One bench does the making. Three field instruments record soil in situ using the same terms, so the two halves of the vocabulary do not drift apart.</p>
+  <div class="kit">
+    <a class="card" href="soil-bench.html">
+      <span class="step">tablet app · the bench</span>
+      <h3>Soil Bench</h3>
+      <p>Compost logged against 40 CFR 503 and the USDA NOP with the die-off line drawn, C:N on dry mass, a parts-based mix designer with a nutrient-free flag, and the USDA texture-by-feel key. The first instrument built on the Field Entry Kit. 64/64 verified.</p>
+      <span class="go">Open the bench &rarr;</span>
+    </a>
+    <a class="card" href="stand-sheet.html">
+      <span class="step">tablet app · in the field</span>
+      <h3>Stand Sheet</h3>
+      <p>Forest plot work, including soil texture, moisture class, slope position, litter depth and line-intercept coarse woody debris — the quantitative version of the CWD estimate the bench takes by eye. On the Field Entry Kit. 76/76 verified.</p>
+      <span class="go">Open the sheet &rarr;</span>
+    </a>
+    <a class="card" href="releve.html">
+      <span class="step">tablet app · in the field</span>
+      <h3>Relevé</h3>
+      <p>Vegetation plots with the same soil and moisture vocabulary, plus bare ground and litter cover — because what grows on a soil is data about the soil. On the Field Entry Kit. 66/66 verified.</p>
+      <span class="go">Open the sheet &rarr;</span>
+    </a>
+    <a class="card" href="cp-bench.html">
+      <span class="step">suite · next door</span>
+      <h3>CP Bench</h3>
+      <p>If you are mixing nutrient-free media, the carnivorous-plant bench is where the water quality that matters for them is logged. The mix designer's nutrient-free flag exists for exactly this hand-off.</p>
+      <span class="go">Open the bench &rarr;</span>
+    </a>
+  </div>
+</section>
+
+<section id="honesty">
+  <p class="section-tag">Before you trust a number</p>
+  <h2>What this suite will and will not tell you</h2>
+  <p class="lead">Compost is unusually well served by published standards, so most of this bench sits in the first bucket. The exceptions are named.</p>
+  <div class="ships">
+    <div class="sh">
+      <span class="k">ships · regulation</span>
+      <b>PFRP time and temperature</b>
+      <span>40 CFR 503 Appendix B: 55 °C for 3 days in-vessel or static aerated pile; 55 °C for 15 days with 5 turnings for a windrow. Cited, not paraphrased.</span>
+    </div>
+    <div class="sh">
+      <span class="k">ships · standard</span>
+      <b>USDA NOP compost requirements</b>
+      <span>Initial C:N of 25:1 to 40:1, and the same temperature-and-turning requirements, stated as the NOP states them.</span>
+    </div>
+    <div class="sh">
+      <span class="k">ships · arithmetic</span>
+      <b>C:N of a blend</b>
+      <span>Total carbon over total nitrogen on dry mass — a calculation, checkable by hand, with the averaging mistake named beside it.</span>
+    </div>
+    <div class="sh">
+      <span class="k">ships · standard</span>
+      <b>Texture by feel</b>
+      <span>The USDA ribbon-and-grit key, which is a defined procedure with a defined outcome.</span>
+    </div>
+    <div class="sh">
+      <span class="k">labelled a convention</span>
+      <b>Mix indices</b>
+      <span>Drainage, water-holding and aeration are ordinal <em>ranks</em> on this page, and it says so. They are not measurements and must not be averaged.</span>
+    </div>
+    <div class="sh no">
+      <span class="k">editable, not asserted</span>
+      <b>Feedstock C:N values</b>
+      <span>Published values for the same material differ by a factor of two, so every ingredient's value is editable and the default is a starting point.</span>
+    </div>
+  </div>
+
+  <div class="refuse">
+    <b>Where a standard ends and judgement begins</b>
+    <p><span class="num">What the standard covers</span>40 CFR 503 and the NOP tell you when a pile has been hot enough for long enough to reduce pathogens. That is a well-defined question with a published answer, and the bench holds you to it.</p>
+    <p><span class="num">What it does not cover</span>Whether the compost is <em>mature</em> — stable, finished, safe to pot into. Time-and-temperature is a pathogen criterion, not a maturity criterion, and a pile can satisfy the first while failing the second badly enough to stunt everything you plant in it.</p>
+    <p><span class="num">What this bench does about it</span>Says so, rather than letting a green temperature chart imply an answer to a question it never asked. Maturity is assessed by bioassay, respirometry or a seedling test, none of which a phone can do — so the bench points at the gap instead of papering over it.</p>
+    <p>The same three-way gate governs every page here: ship it with a source, ship it labelled a convention, or refuse and take your value instead. <a href="adr-031.html">ADR-031</a> has the reasoning.</p>
+  </div>
+</section>
+
+<footer>
+  <p><b>Soil &amp; compost</b> — a CSRBT suite. Dry mass, published standards, and ranks called ranks.</p>
+  <p>Part of the <a href="ecology.html">CSRBT science kit</a> &mdash; twenty-two instruments organised by
+    method, with three suites organised by what you grow. The rule every page in the kit applies when
+    deciding which numbers it is allowed to print is written down in <a href="adr-031.html">ADR-031</a>.
+    Sibling suites: <a href="cp-suite.html">Carnivorous plants</a> and <a href="breeding-suite.html">Vegetable breeding</a>.</p>
+</footer>
+</div>
+</body>
+</html>

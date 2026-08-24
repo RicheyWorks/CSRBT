@@ -798,6 +798,19 @@ live, and every export carries site, observer, and date plus a CSV for Excel/R:
   when you have many entries. **Seed** does germination with the binomial standard error
   &radic;(p(1&minus;p)/n), so a 90% germination on 100 seeds is reported as 90&nbsp;&plusmn;&nbsp;3%, and gives
   storage as a range labelled a convention. 85/85 verified.
+- **The three suite front doors** — [`docs/cp-suite.html`](docs/cp-suite.html),
+  [`docs/soil-suite.html`](docs/soil-suite.html) and
+  [`docs/breeding-suite.html`](docs/breeding-suite.html). The kit is organised by *method*; a suite is
+  organised by *what you grow*. Each front door opens on a **numbered path through the work in the order
+  mistakes actually happen** — water before media for carnivorous plants, C:N before the pile for compost,
+  population before selection for breeding — then lists every instrument the suite uses, including the ones
+  it borrows from the wider kit, and closes with a **what this suite will and will not tell you** panel that
+  sorts its own figures into shipped-with-a-source, shipped-as-a-labelled-convention, and refused. Each ends
+  by naming the thing it cannot resolve for you: for carnivorous plants, that no citable dormancy schedule
+  exists; for compost, that time-and-temperature is a *pathogen* criterion and not a maturity one, so a
+  green chart must not be read as "finished"; for breeding, that selection intensity and effective
+  population size pull against each other and no tool can settle the balance — so the bench shows both
+  numbers at once, while you are choosing, rather than three generations later. 122/122 verified.
 - [**`docs/cp-bench.html`**](docs/cp-bench.html) — **CP Bench**, the carnivorous-plant suite, second
   instrument on the Field Entry Kit. **Water first**, because it kills more carnivorous plants than anything
   else: TDS logged per source against the published **&lt;160&nbsp;ppm** guidance (with the stricter ~50&nbsp;ppm

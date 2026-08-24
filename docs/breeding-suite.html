@@ -1,0 +1,280 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Vegetable breeding — a CSRBT suite</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&family=Newsreader:opsz,wght@6..72,400;6..72,500;6..72,600&family=JetBrains+Mono:wght@400;500&display=swap">
+<style>
+  :root {
+    color-scheme: light;
+    --page:#F5F1E6; --surface:#FFFDF7; --ink:#23281F; --ink-2:#4B5344; --muted:#8B8B7B;
+    --border:#E3DCC9; --rule:#C7C0AC; --s1:#2E7D4F; --s2:#C0592B; --s3:#2B6C8F;
+    --soft:#E9F0E7; --soft-2:#F3EEE0; --shadow:0 1px 2px rgba(35,40,31,.05),0 12px 32px rgba(35,40,31,.06);
+    --head:"Fraunces",Georgia,serif; --body:"Newsreader",Georgia,"Times New Roman",serif;
+    --mono:"JetBrains Mono",ui-monospace,Menlo,monospace;
+  }
+  * { box-sizing:border-box; }
+  body { margin:0; background:var(--page); color:var(--ink); font:18px/1.62 var(--body);
+    -webkit-font-smoothing:antialiased; text-rendering:optimizeLegibility; }
+  .wrap { max-width:900px; margin:0 auto; padding:0 26px; }
+  a { color:var(--s1); text-underline-offset:2px; }
+
+  /* shared science-kit nav — bidirectional wiring across the kit */
+  .kit-nav { display:flex; flex-wrap:wrap; gap:8px; padding:16px 0 0; }
+  .kit-nav a { font-family:var(--mono); font-size:12.5px; letter-spacing:.02em; text-decoration:none;
+    color:var(--ink-2); background:var(--surface); border:1px solid var(--border); border-radius:999px;
+    padding:9px 15px; box-shadow:var(--shadow); display:inline-flex; align-items:center; min-height:40px; }
+  .kit-nav a:hover { border-color:var(--s1); color:var(--s1); }
+  .kit-nav a[aria-current="page"] { background:var(--s1); color:#fff; border-color:var(--s1); }
+
+  /* hero */
+  .hero { padding:64px 0 30px; position:relative; overflow:hidden; }
+  .hero::before { content:""; position:absolute; inset:-40% -20% auto -20%; height:70%; z-index:0; pointer-events:none;
+    background:radial-gradient(55% 70% at 22% 6%, rgba(46,125,79,.10), transparent 62%),
+               radial-gradient(45% 60% at 85% 0%, rgba(43,108,143,.08), transparent 65%); }
+  .hero > * { position:relative; z-index:1; }
+  .eyebrow { font-family:var(--mono); font-size:12px; letter-spacing:.18em; text-transform:uppercase; color:var(--s1); margin:0 0 14px; }
+  h1 { font-family:var(--head); font-weight:700; font-size:clamp(38px,7vw,64px); line-height:1.02; letter-spacing:-0.025em; margin:0 0 16px; max-width:16ch; }
+  .dek { font-size:21px; color:var(--ink-2); margin:0; max-width:60ch; }
+  .thesis { font-family:var(--head); font-weight:500; font-size:22px; line-height:1.35; color:var(--ink);
+    border-left:3px solid var(--s1); padding:6px 0 6px 20px; margin:24px 0 0; max-width:44ch; }
+
+  h2 { font-family:var(--head); font-weight:600; font-size:26px; letter-spacing:-0.015em; margin:0 0 4px; }
+  .section-tag { font-family:var(--mono); font-size:12px; letter-spacing:.16em; text-transform:uppercase; color:var(--muted); margin:0 0 10px; }
+  section { padding:34px 0; border-top:1px solid var(--border); }
+  section:first-of-type { border-top:0; }
+  p { margin:0 0 14px; } .lead { font-size:19px; color:var(--ink-2); max-width:62ch; }
+
+
+  .group { font-family:var(--head); font-weight:600; font-size:19px; margin:30px 0 2px;
+    padding-top:16px; border-top:1px solid var(--border); }
+  .group:first-of-type { border-top:0; padding-top:0; margin-top:22px; }
+  .grouplead { color:var(--ink-2); font-size:16.5px; margin:0 0 4px; max-width:64ch; }
+  /* the four kit cards */
+  .kit { display:grid; grid-template-columns:repeat(auto-fit, minmax(255px,1fr)); gap:14px; margin-top:22px; }
+  .card { display:flex; flex-direction:column; background:var(--surface); border:1px solid var(--border);
+    border-radius:16px; padding:22px 22px 20px; box-shadow:var(--shadow); text-decoration:none; color:var(--ink);
+    transition:transform .12s ease, border-color .12s ease; }
+  .card:hover { transform:translateY(-3px); border-color:var(--s1); text-decoration:none; }
+  .card .step { font-family:var(--mono); font-size:11px; letter-spacing:.12em; text-transform:uppercase; color:var(--s1); }
+  .card h3 { font-family:var(--head); font-weight:600; font-size:21px; margin:4px 0 6px; letter-spacing:-0.01em; }
+  .card p { color:var(--ink-2); font-size:15.5px; line-height:1.5; flex:1; margin:0 0 12px; }
+  .card .go { font-family:var(--mono); font-size:12.5px; color:var(--s1); font-weight:500; }
+
+  /* personas */
+  .who { display:grid; grid-template-columns:repeat(auto-fit, minmax(220px,1fr)); gap:12px; margin-top:18px; }
+  .who .p { background:var(--surface); border:1px solid var(--border); border-radius:12px; padding:15px 17px; box-shadow:var(--shadow); }
+  .who .p b { font-family:var(--head); }
+  .who .p span { display:block; color:var(--ink-2); font-size:15px; margin-top:3px; }
+
+  /* instruments table */
+  table { border-collapse:collapse; width:100%; font-family:var(--body); font-size:15.5px; margin-top:16px; }
+  th, td { border:1px solid var(--rule); padding:7px 11px; text-align:left; vertical-align:top; }
+  th { background:var(--soft); font-family:var(--head); font-weight:600; font-size:14.5px; }
+  td .sci { color:var(--muted); font-size:13.5px; }
+
+  pre { font-family:var(--mono); font-size:13px; line-height:1.62; background:var(--surface); color:var(--ink);
+    border:1px solid var(--border); border-radius:10px; padding:14px 16px; overflow-x:auto; box-shadow:var(--shadow); margin:14px 0; }
+  pre .c { color:var(--muted); } pre .k { color:var(--s1); }
+  code { font-family:var(--mono); font-size:.82em; background:var(--soft-2); border:1px solid var(--border); border-radius:5px; padding:1px 5px; }
+
+  .tip { border:1px dashed var(--rule); border-radius:10px; padding:12px 16px; margin:14px 0 0; color:var(--ink-2); font-size:16px; background:var(--surface); }
+  .tip b { color:var(--s2); font-family:var(--head); }
+
+  footer { padding:30px 0 64px; border-top:1px solid var(--border); color:var(--muted); font-size:14px; }
+  footer code { color:var(--ink-2); font-family:var(--mono); }
+
+  @media print {
+    :root { --page:#fff; --surface:#fff; --soft:#f2f6f1; --soft-2:#f6f4ee; --shadow:none; }
+    body { font-size:11.5pt; background:#fff; } .wrap { max-width:none; padding:0; }
+    .hero::before { display:none; } .kit-nav { display:none; } a { color:inherit; text-decoration:none; }
+    .card, table, pre { break-inside:avoid; }
+  }
+  @media (max-width:560px){ body{font-size:17px;} .wrap{padding:0 18px;} }
+</style>
+
+<style>
+  /* ---- suite hub additions ---- */
+  .path { counter-reset: st; margin:22px 0 6px; }
+  .st { position:relative; background:var(--surface); border:1px solid var(--border);
+    border-left:3px solid var(--s1); border-radius:0 14px 14px 0; padding:15px 19px 15px 62px;
+    margin:0 0 11px; box-shadow:var(--shadow); }
+  .st::before { counter-increment: st; content: counter(st);
+    position:absolute; left:16px; top:15px; width:30px; height:30px; border-radius:50%;
+    background:var(--s1); color:#fff; font:700 15px var(--mono);
+    display:flex; align-items:center; justify-content:center; }
+  .st b { font-family:var(--head); font-weight:600; font-size:18px; display:block; margin-bottom:3px; }
+  .st p { margin:0; color:var(--ink-2); font-size:15.5px; line-height:1.55; }
+  .st .to { font-family:var(--mono); font-size:12.5px; color:var(--s1); font-weight:500;
+    display:inline-block; margin-top:7px; text-decoration:none; }
+  .st .to:hover { text-decoration:underline; }
+
+  .refuse { border:2px solid var(--s3); background:#EAF1F5; border-radius:14px;
+    padding:18px 22px; margin:22px 0; }
+  .refuse b { font-family:var(--head); display:block; font-size:19px; margin-bottom:7px; color:var(--s3); }
+  .refuse p { margin:0 0 10px; color:var(--ink-2); font-size:16px; line-height:1.6; }
+  .refuse p:last-child { margin-bottom:0; }
+  .refuse .num { font-family:var(--mono); font-size:12px; color:var(--s3);
+    letter-spacing:.1em; text-transform:uppercase; display:block; margin-bottom:2px; }
+
+  .ships { display:grid; grid-template-columns:repeat(auto-fit,minmax(260px,1fr)); gap:12px; margin:16px 0 6px; }
+  .sh { background:var(--surface); border:1px solid var(--border); border-radius:13px;
+    padding:13px 16px; box-shadow:var(--shadow); }
+  .sh .k { font-family:var(--mono); font-size:10.5px; letter-spacing:.1em; text-transform:uppercase;
+    color:var(--s1); display:block; margin-bottom:3px; }
+  .sh b { font-family:var(--head); font-size:16.5px; display:block; }
+  .sh span { display:block; color:var(--ink-2); font-size:15px; line-height:1.5; margin-top:4px; }
+  .sh.no .k { color:var(--s2); } .sh.no { border-left:3px solid var(--s2); }
+
+  footer { margin:48px 0 64px; padding-top:18px; border-top:1px solid var(--border);
+    color:var(--muted); font-size:14.5px; line-height:1.65; }
+  footer a { font-weight:500; }
+  @media print { .kit-nav { display:none; } }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<nav class="kit-nav">
+  <a href="ecology.html">Kit hub</a>
+  <a href="cp-suite.html">Carnivorous plants</a>
+  <a href="soil-suite.html">Soil &amp; compost</a>
+  <a href="breeding-suite.html" aria-current="page">Vegetable breeding</a>
+  <a href="adr-031.html">ADR-031</a>
+</nav>
+
+<header class="hero">
+  <p class="section-tag">CSRBT · a suite · vegetable breeding</p>
+  <h1>Vegetable breeding</h1>
+  <p class="lead">Saving seed that stays what it was, and selecting for what you actually want without inbreeding your way into a corner. Population floors with the reason behind them, isolation distances cited where a source exists and refused where none does, selection intensity, replicated trials with a real error term, and germination reported with the uncertainty the sample size gives it.</p>
+</header>
+
+<section id="start">
+  <p class="section-tag">Start here</p>
+  <h2>One season, in the order it happens</h2>
+  <p class="lead">Population before selection, because the hardest lesson in this suite is that the two pull against each other.</p>
+  <div class="path">
+    <div class="st">
+      <b>Decide how many plants you are growing</b>
+      <p>At least <b>20 for an inbreeder, 100 for an outbreeder</b>, per variety — and the two halves fail differently. Twenty beans is about catching off-types; a hundred brassicas is about the recessive load heterozygosity has been hiding. The bench carries the mating system for 28 crops so you are not guessing which rule applies.</p>
+      <a class="to" href="breeding-bench.html">Breeding Bench · Population &rarr;</a>
+    </div>
+    <div class="st">
+      <b>Work out what your effective population actually is</b>
+      <p>Nₑ = 4NₘN_f/(Nₘ+N_f). Fifty plants of which five set the pollen is not a population of fifty. The bench prints the inbreeding that costs you per generation and where it lands after ten, and flags when the rarer sex is what caps you.</p>
+      <a class="to" href="breeding-bench.html">Breeding Bench · Population &rarr;</a>
+    </div>
+    <div class="st">
+      <b>Isolate — or accept that you did not</b>
+      <p>The bench cites a distance for the four crops where one is citable and refuses the rest. It <em>does</em> ship the species traps, which are definitional and cost whole crops: every cabbage, kale, broccoli, cauliflower, kohlrabi and Brussels sprout is one species; carrot crosses with wild Queen Anne's lace; beet and chard are the same plant.</p>
+      <a class="to" href="breeding-bench.html">Breeding Bench · Isolation &rarr;</a>
+    </div>
+    <div class="st">
+      <b>Select, and see what it costs</b>
+      <p>Intensity i from the proportion you keep, and R = i·h²·σ printed as a hypothesis the next generation will test — with h² labelled an assumption rather than a measurement. The harder you select, the fewer parents you keep, and the faster you inbreed. The page says it where the number appears.</p>
+      <a class="to" href="breeding-bench.html">Breeding Bench · Selection &rarr;</a>
+    </div>
+    <div class="st">
+      <b>Trial your lines against each other properly</b>
+      <p>A randomised complete block analysis with LSD and CV% from the error mean square — and the multiple-comparison trap stated on the same screen, because LSD lies when you have many entries.</p>
+      <a class="to" href="breeding-bench.html">Breeding Bench · Trial &rarr;</a>
+    </div>
+    <div class="st">
+      <b>Test the seed and report the error bar</b>
+      <p>90 out of 100 is 90 ± 3%, not 90%. Storage life is given as a range labelled a convention.</p>
+      <a class="to" href="breeding-bench.html">Breeding Bench · Seed &rarr;</a>
+    </div>
+  </div>
+</section>
+
+<section id="instruments">
+  <p class="section-tag">Everything in this suite</p>
+  <h2>The bench, and the instruments it borrows from</h2>
+  <p class="lead">Breeding reuses more of the kit than the other two suites, because selection, phenology and field scouting are the same measurements pointed at a crop.</p>
+  <div class="kit">
+    <a class="card" href="breeding-bench.html">
+      <span class="step">tablet app · the bench</span>
+      <h3>Breeding Bench</h3>
+      <p>Population floors and effective population size, isolation cited or refused, selection intensity, randomised complete block trials with LSD and CV%, and germination with its binomial error. On the Field Entry Kit. 85/85 verified.</p>
+      <span class="go">Open the bench &rarr;</span>
+    </a>
+    <a class="card" href="selection-log.html">
+      <span class="step">instrument · the engine</span>
+      <h3>Selection Log</h3>
+      <p>The measured version of a selection episode: differential S, intensity i and gradient β on population moments, with β = i shown explicitly as proof that a univariate analysis has not separated direct from indirect selection. Parent–offspring heritability from mid-parent regression.</p>
+      <span class="go">Open the log &rarr;</span>
+    </a>
+    <a class="card" href="pheno-tracker.html">
+      <span class="step">instrument · scoring</span>
+      <h3>Pheno Tracker</h3>
+      <p>Weighted trait scoring with program presets, a ranked board with a real selection-differential readout, mother plants and planned crosses, and a χ² segregation checker for when you want to know whether a ratio is what you think it is.</p>
+      <span class="go">Open the tracker &rarr;</span>
+    </a>
+    <a class="card" href="farm-scout.html">
+      <span class="step">instrument · the field</span>
+      <h3>Farm Scout</h3>
+      <p>Pest scouting against thresholds with a dispersion verdict, pollinator counts, a germination tester, and a rotation checker by plant family — the family logic that also decides what can cross with what.</p>
+      <span class="go">Open the scout &rarr;</span>
+    </a>
+  </div>
+</section>
+
+<section id="honesty">
+  <p class="section-tag">Before you trust a number</p>
+  <h2>What this suite will and will not tell you</h2>
+  <p class="lead">This is the suite where the refusal is most likely to annoy you, and most likely to be right.</p>
+  <div class="ships">
+    <div class="sh">
+      <span class="k">ships · the rule</span>
+      <b>Population minimums</b>
+      <span>20 inbreeding, 100 outbreeding, per variety — with the mating system and pollination vector carried for 28 crops so the right rule gets applied.</span>
+    </div>
+    <div class="sh">
+      <span class="k">ships · arithmetic</span>
+      <b>Effective population size</b>
+      <span>Nₑ and ΔF are formulas, not estimates. Check them by hand if you like; the bench shows its working.</span>
+    </div>
+    <div class="sh">
+      <span class="k">ships · definitional</span>
+      <b>The species traps</b>
+      <span>That all <i>B. oleracea</i> is one species, that carrot crosses with Queen Anne's lace, that beet and chard are the same plant. Taxonomy, not opinion — and each costs a whole crop.</span>
+    </div>
+    <div class="sh">
+      <span class="k">ships · statistics</span>
+      <b>LSD, CV% and binomial error</b>
+      <span>Standard analyses with their assumptions and failure modes printed beside the number, including where LSD stops being trustworthy.</span>
+    </div>
+    <div class="sh">
+      <span class="k">labelled an assumption</span>
+      <b>Heritability in R = i·h²·σ</b>
+      <span>h² is something you supply or assume, so the response is printed as a hypothesis the next generation will test — never as a forecast.</span>
+    </div>
+    <div class="sh no">
+      <span class="k">refuses</span>
+      <b>Isolation distances</b>
+      <span>Except for the four crops with a citable source (NMSU H-262). The rest are regionally assigned and revised, so the bench takes yours and records the provenance.</span>
+    </div>
+  </div>
+
+  <div class="refuse">
+    <b>The tension this suite will not resolve for you</b>
+    <p><span class="num">The trade-off</span>Selection intensity and population size pull in opposite directions. Keeping the best 10% of a hundred plants gives you a strong selection differential and ten parents — which is an effective population small enough to accumulate inbreeding at over a percent a generation.</p>
+    <p><span class="num">Why no tool can settle it</span>The right balance depends on how much genetic variation your population has left, how fast you need the trait, whether you can bring in unrelated material later, and what you are willing to lose. Those are your circumstances, not a calculation.</p>
+    <p><span class="num">What the bench does instead</span>Shows both numbers on the same screen, at the same time, so the cost is visible while you are choosing rather than three generations later when the vigour has gone. Naming a trade-off honestly is worth more than resolving it dishonestly.</p>
+    <p>Isolation distances get the same treatment for the same reason, under the three-way gate in <a href="adr-031.html">ADR-031</a>: a fact with a source ships, a convention ships labelled, and a number nobody has measured is yours to supply.</p>
+  </div>
+</section>
+
+<footer>
+  <p><b>Vegetable breeding</b> — a CSRBT suite. Population before selection, and every number with its uncertainty attached.</p>
+  <p>Part of the <a href="ecology.html">CSRBT science kit</a> &mdash; twenty-two instruments organised by
+    method, with three suites organised by what you grow. The rule every page in the kit applies when
+    deciding which numbers it is allowed to print is written down in <a href="adr-031.html">ADR-031</a>.
+    Sibling suites: <a href="cp-suite.html">Carnivorous plants</a> and <a href="soil-suite.html">Soil &amp; compost</a>.</p>
+</footer>
+</div>
+</body>
+</html>

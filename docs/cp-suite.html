@@ -1,0 +1,268 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Carnivorous plants — a CSRBT suite</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&family=Newsreader:opsz,wght@6..72,400;6..72,500;6..72,600&family=JetBrains+Mono:wght@400;500&display=swap">
+<style>
+  :root {
+    color-scheme: light;
+    --page:#F5F1E6; --surface:#FFFDF7; --ink:#23281F; --ink-2:#4B5344; --muted:#8B8B7B;
+    --border:#E3DCC9; --rule:#C7C0AC; --s1:#2E7D4F; --s2:#C0592B; --s3:#2B6C8F;
+    --soft:#E9F0E7; --soft-2:#F3EEE0; --shadow:0 1px 2px rgba(35,40,31,.05),0 12px 32px rgba(35,40,31,.06);
+    --head:"Fraunces",Georgia,serif; --body:"Newsreader",Georgia,"Times New Roman",serif;
+    --mono:"JetBrains Mono",ui-monospace,Menlo,monospace;
+  }
+  * { box-sizing:border-box; }
+  body { margin:0; background:var(--page); color:var(--ink); font:18px/1.62 var(--body);
+    -webkit-font-smoothing:antialiased; text-rendering:optimizeLegibility; }
+  .wrap { max-width:900px; margin:0 auto; padding:0 26px; }
+  a { color:var(--s1); text-underline-offset:2px; }
+
+  /* shared science-kit nav — bidirectional wiring across the kit */
+  .kit-nav { display:flex; flex-wrap:wrap; gap:8px; padding:16px 0 0; }
+  .kit-nav a { font-family:var(--mono); font-size:12.5px; letter-spacing:.02em; text-decoration:none;
+    color:var(--ink-2); background:var(--surface); border:1px solid var(--border); border-radius:999px;
+    padding:9px 15px; box-shadow:var(--shadow); display:inline-flex; align-items:center; min-height:40px; }
+  .kit-nav a:hover { border-color:var(--s1); color:var(--s1); }
+  .kit-nav a[aria-current="page"] { background:var(--s1); color:#fff; border-color:var(--s1); }
+
+  /* hero */
+  .hero { padding:64px 0 30px; position:relative; overflow:hidden; }
+  .hero::before { content:""; position:absolute; inset:-40% -20% auto -20%; height:70%; z-index:0; pointer-events:none;
+    background:radial-gradient(55% 70% at 22% 6%, rgba(46,125,79,.10), transparent 62%),
+               radial-gradient(45% 60% at 85% 0%, rgba(43,108,143,.08), transparent 65%); }
+  .hero > * { position:relative; z-index:1; }
+  .eyebrow { font-family:var(--mono); font-size:12px; letter-spacing:.18em; text-transform:uppercase; color:var(--s1); margin:0 0 14px; }
+  h1 { font-family:var(--head); font-weight:700; font-size:clamp(38px,7vw,64px); line-height:1.02; letter-spacing:-0.025em; margin:0 0 16px; max-width:16ch; }
+  .dek { font-size:21px; color:var(--ink-2); margin:0; max-width:60ch; }
+  .thesis { font-family:var(--head); font-weight:500; font-size:22px; line-height:1.35; color:var(--ink);
+    border-left:3px solid var(--s1); padding:6px 0 6px 20px; margin:24px 0 0; max-width:44ch; }
+
+  h2 { font-family:var(--head); font-weight:600; font-size:26px; letter-spacing:-0.015em; margin:0 0 4px; }
+  .section-tag { font-family:var(--mono); font-size:12px; letter-spacing:.16em; text-transform:uppercase; color:var(--muted); margin:0 0 10px; }
+  section { padding:34px 0; border-top:1px solid var(--border); }
+  section:first-of-type { border-top:0; }
+  p { margin:0 0 14px; } .lead { font-size:19px; color:var(--ink-2); max-width:62ch; }
+
+
+  .group { font-family:var(--head); font-weight:600; font-size:19px; margin:30px 0 2px;
+    padding-top:16px; border-top:1px solid var(--border); }
+  .group:first-of-type { border-top:0; padding-top:0; margin-top:22px; }
+  .grouplead { color:var(--ink-2); font-size:16.5px; margin:0 0 4px; max-width:64ch; }
+  /* the four kit cards */
+  .kit { display:grid; grid-template-columns:repeat(auto-fit, minmax(255px,1fr)); gap:14px; margin-top:22px; }
+  .card { display:flex; flex-direction:column; background:var(--surface); border:1px solid var(--border);
+    border-radius:16px; padding:22px 22px 20px; box-shadow:var(--shadow); text-decoration:none; color:var(--ink);
+    transition:transform .12s ease, border-color .12s ease; }
+  .card:hover { transform:translateY(-3px); border-color:var(--s1); text-decoration:none; }
+  .card .step { font-family:var(--mono); font-size:11px; letter-spacing:.12em; text-transform:uppercase; color:var(--s1); }
+  .card h3 { font-family:var(--head); font-weight:600; font-size:21px; margin:4px 0 6px; letter-spacing:-0.01em; }
+  .card p { color:var(--ink-2); font-size:15.5px; line-height:1.5; flex:1; margin:0 0 12px; }
+  .card .go { font-family:var(--mono); font-size:12.5px; color:var(--s1); font-weight:500; }
+
+  /* personas */
+  .who { display:grid; grid-template-columns:repeat(auto-fit, minmax(220px,1fr)); gap:12px; margin-top:18px; }
+  .who .p { background:var(--surface); border:1px solid var(--border); border-radius:12px; padding:15px 17px; box-shadow:var(--shadow); }
+  .who .p b { font-family:var(--head); }
+  .who .p span { display:block; color:var(--ink-2); font-size:15px; margin-top:3px; }
+
+  /* instruments table */
+  table { border-collapse:collapse; width:100%; font-family:var(--body); font-size:15.5px; margin-top:16px; }
+  th, td { border:1px solid var(--rule); padding:7px 11px; text-align:left; vertical-align:top; }
+  th { background:var(--soft); font-family:var(--head); font-weight:600; font-size:14.5px; }
+  td .sci { color:var(--muted); font-size:13.5px; }
+
+  pre { font-family:var(--mono); font-size:13px; line-height:1.62; background:var(--surface); color:var(--ink);
+    border:1px solid var(--border); border-radius:10px; padding:14px 16px; overflow-x:auto; box-shadow:var(--shadow); margin:14px 0; }
+  pre .c { color:var(--muted); } pre .k { color:var(--s1); }
+  code { font-family:var(--mono); font-size:.82em; background:var(--soft-2); border:1px solid var(--border); border-radius:5px; padding:1px 5px; }
+
+  .tip { border:1px dashed var(--rule); border-radius:10px; padding:12px 16px; margin:14px 0 0; color:var(--ink-2); font-size:16px; background:var(--surface); }
+  .tip b { color:var(--s2); font-family:var(--head); }
+
+  footer { padding:30px 0 64px; border-top:1px solid var(--border); color:var(--muted); font-size:14px; }
+  footer code { color:var(--ink-2); font-family:var(--mono); }
+
+  @media print {
+    :root { --page:#fff; --surface:#fff; --soft:#f2f6f1; --soft-2:#f6f4ee; --shadow:none; }
+    body { font-size:11.5pt; background:#fff; } .wrap { max-width:none; padding:0; }
+    .hero::before { display:none; } .kit-nav { display:none; } a { color:inherit; text-decoration:none; }
+    .card, table, pre { break-inside:avoid; }
+  }
+  @media (max-width:560px){ body{font-size:17px;} .wrap{padding:0 18px;} }
+</style>
+
+<style>
+  /* ---- suite hub additions ---- */
+  .path { counter-reset: st; margin:22px 0 6px; }
+  .st { position:relative; background:var(--surface); border:1px solid var(--border);
+    border-left:3px solid var(--s1); border-radius:0 14px 14px 0; padding:15px 19px 15px 62px;
+    margin:0 0 11px; box-shadow:var(--shadow); }
+  .st::before { counter-increment: st; content: counter(st);
+    position:absolute; left:16px; top:15px; width:30px; height:30px; border-radius:50%;
+    background:var(--s1); color:#fff; font:700 15px var(--mono);
+    display:flex; align-items:center; justify-content:center; }
+  .st b { font-family:var(--head); font-weight:600; font-size:18px; display:block; margin-bottom:3px; }
+  .st p { margin:0; color:var(--ink-2); font-size:15.5px; line-height:1.55; }
+  .st .to { font-family:var(--mono); font-size:12.5px; color:var(--s1); font-weight:500;
+    display:inline-block; margin-top:7px; text-decoration:none; }
+  .st .to:hover { text-decoration:underline; }
+
+  .refuse { border:2px solid var(--s3); background:#EAF1F5; border-radius:14px;
+    padding:18px 22px; margin:22px 0; }
+  .refuse b { font-family:var(--head); display:block; font-size:19px; margin-bottom:7px; color:var(--s3); }
+  .refuse p { margin:0 0 10px; color:var(--ink-2); font-size:16px; line-height:1.6; }
+  .refuse p:last-child { margin-bottom:0; }
+  .refuse .num { font-family:var(--mono); font-size:12px; color:var(--s3);
+    letter-spacing:.1em; text-transform:uppercase; display:block; margin-bottom:2px; }
+
+  .ships { display:grid; grid-template-columns:repeat(auto-fit,minmax(260px,1fr)); gap:12px; margin:16px 0 6px; }
+  .sh { background:var(--surface); border:1px solid var(--border); border-radius:13px;
+    padding:13px 16px; box-shadow:var(--shadow); }
+  .sh .k { font-family:var(--mono); font-size:10.5px; letter-spacing:.1em; text-transform:uppercase;
+    color:var(--s1); display:block; margin-bottom:3px; }
+  .sh b { font-family:var(--head); font-size:16.5px; display:block; }
+  .sh span { display:block; color:var(--ink-2); font-size:15px; line-height:1.5; margin-top:4px; }
+  .sh.no .k { color:var(--s2); } .sh.no { border-left:3px solid var(--s2); }
+
+  footer { margin:48px 0 64px; padding-top:18px; border-top:1px solid var(--border);
+    color:var(--muted); font-size:14.5px; line-height:1.65; }
+  footer a { font-weight:500; }
+  @media print { .kit-nav { display:none; } }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<nav class="kit-nav">
+  <a href="ecology.html">Kit hub</a>
+  <a href="cp-suite.html" aria-current="page">Carnivorous plants</a>
+  <a href="soil-suite.html">Soil &amp; compost</a>
+  <a href="breeding-suite.html">Vegetable breeding</a>
+  <a href="adr-031.html">ADR-031</a>
+</nav>
+
+<header class="hero">
+  <p class="section-tag">CSRBT · a suite · carnivorous plants</p>
+  <h1>Carnivorous plants</h1>
+  <p class="lead">Two instruments and one rule. A bench that logs the water, the media, the plants and the crosses, and a printable card that teaches you to read what you are looking at. Everything here refuses to invent a number it cannot source — which in this group matters more than it sounds, because the numbers in circulation are mostly grower folklore that nobody has ever measured.</p>
+</header>
+
+<section id="start">
+  <p class="section-tag">Start here</p>
+  <h2>The order that keeps plants alive</h2>
+  <p class="lead">Not the order the tabs happen to be in. This is the order in which mistakes actually kill plants, commonest first.</p>
+  <div class="path">
+    <div class="st">
+      <b>Fix the water before anything else</b>
+      <p>More carnivorous plants die of dissolved solids than of every other cause combined, and it is slow enough that people blame the light. Log your source against the published guidance, and read the <b>tray accumulation arithmetic</b> — ten top-ups at 50 ppm leaves as much dissolved solid in the pot as one watering at 500. That is how growers using genuinely good water still lose plants.</p>
+      <a class="to" href="cp-bench.html">CP Bench · Water &rarr;</a>
+    </div>
+    <div class="st">
+      <b>Mix a medium with nothing in it</b>
+      <p>Nutrient-free is the whole requirement, and it is easier to get wrong than to get right — coir carries salts, most bagged mixes are fertilised, and "peat" at a garden centre often is not. Build by parts, with the nutrient-free flag on.</p>
+      <a class="to" href="cp-bench.html">CP Bench · Media &rarr;</a>
+    </div>
+    <div class="st">
+      <b>Learn to read the plant you have</b>
+      <p>Before logging a genus, be able to defend it. Five trap mechanisms drawn, the pitcher parts a description names, eighteen genera with one tell each, and the six confusions that cost growers plants — including the one where a dewy-looking plant wants dry alkaline scrub, not a wet peat tray.</p>
+      <a class="to" href="cp-characters.html">CP Characters &rarr;</a>
+    </div>
+    <div class="st">
+      <b>Log the plants, with provenance</b>
+      <p>One record per plant, with where it came from stated by name. Several taxa in this group are legally protected and the group is heavily poached, so "bought online" is not provenance and the log has a field that says so.</p>
+      <a class="to" href="cp-bench.html">CP Bench · Plants &rarr;</a>
+    </div>
+    <div class="st">
+      <b>Track dormancy against your own target</b>
+      <p>The bench asks you for the temperature and the duration rather than supplying one, records it beside the data, and tracks the season against it. Section five of the card explains why it works that way.</p>
+      <a class="to" href="cp-bench.html">CP Bench · Dormancy &rarr;</a>
+    </div>
+    <div class="st">
+      <b>Record crosses through to germination</b>
+      <p>Pod parent first, by convention, enforced. A cross is not a result until something germinates, and the log carries it that far.</p>
+      <a class="to" href="cp-bench.html">CP Bench · Crosses &rarr;</a>
+    </div>
+  </div>
+</section>
+
+<section id="instruments">
+  <p class="section-tag">Everything in this suite</p>
+  <h2>Two instruments, one method</h2>
+  <p class="lead">The bench is for recording; the card is for reading. Both are one self-contained file that works offline in a greenhouse with no signal.</p>
+  <div class="kit">
+    <a class="card" href="cp-bench.html">
+      <span class="step">tablet app · log it</span>
+      <h3>CP Bench</h3>
+      <p>Six benches over one collection: water quality with the tray-accumulation arithmetic, nutrient-free media by parts, a per-plant log with a provenance field, a dormancy tracker that takes your target instead of inventing one, and a cross log through to germination. 78/78 verified.</p>
+      <span class="go">Open the bench &rarr;</span>
+    </a>
+    <a class="card" href="cp-characters.html">
+      <span class="step">print &amp; keep · read it</span>
+      <h3>CP Characters</h3>
+      <p>The five-step test for what carnivory even is, five trap mechanisms drawn, eight pitcher parts, the fast traps timed against published measurements, an interactive genus key, eighteen genera with one tell each, and the CITES listings named taxon by taxon. 116/116 verified.</p>
+      <span class="go">Open the card &rarr;</span>
+    </a>
+  </div>
+</section>
+
+<section id="honesty">
+  <p class="section-tag">Before you trust a number</p>
+  <h2>What this suite will and will not tell you</h2>
+  <p class="lead">Every figure on both pages falls into one of three buckets, and the pages say which. This is the shortest useful summary of the whole suite.</p>
+  <div class="ships">
+    <div class="sh">
+      <span class="k">ships · sourced</span>
+      <b>Water quality guidance</b>
+      <span>The published &lt;160 ppm figure, cited. The stricter ~50 ppm hobby target is labelled a convention, because that is what it is.</span>
+    </div>
+    <div class="sh">
+      <span class="k">ships · measured</span>
+      <b>Trap mechanics, timed</b>
+      <span>Two touches within ~30 s to close a flytrap, five or more to switch on its digestive genes, a bladderwort door open in under 0.5 ms — each with its paper named in the row.</span>
+    </div>
+    <div class="sh">
+      <span class="k">ships · definitional</span>
+      <b>CITES listings</b>
+      <span>Appendix I species named individually, Appendix II genera stated, the #4 annotation explained. These are legal facts, not estimates.</span>
+    </div>
+    <div class="sh">
+      <span class="k">ships · arithmetic</span>
+      <b>Tray accumulation</b>
+      <span>Not a claim about your plants — a multiplication you can check. n top-ups at c ppm is the same dissolved load as one at n×c.</span>
+    </div>
+    <div class="sh no">
+      <span class="k">refuses</span>
+      <b>Dormancy temperatures</b>
+      <span>No per-genus number, anywhere on either page. You enter yours and it is recorded with the data.</span>
+    </div>
+    <div class="sh no">
+      <span class="k">refuses</span>
+      <b>Dormancy durations and photoperiods</b>
+      <span>Same reason. The <em>fact</em> that a temperate genus needs a dormancy is well established and does ship — the schedule is not.</span>
+    </div>
+  </div>
+
+  <div class="refuse">
+    <b>Why the refusals are the point</b>
+    <p><span class="num">The research finding</span>Building this suite, the most consequential result was a negative one. There is no citable source for per-genus dormancy temperatures, durations or photoperiods. What exists is a large, confident, mutually inconsistent body of grower convention — regionally assigned, revised whenever somebody's plants die, and repeated between forums until it reads like established fact.</p>
+    <p><span class="num">What a lesser tool would do</span>Print a table anyway. It would look authoritative, it would be wrong in ways nobody could trace, and every record logged against it would inherit the error silently.</p>
+    <p><span class="num">What this one does</span>Takes your value, records where it came from, and tracks against it. You keep the ability to say what your number was and where you got it — which is the only thing that makes two seasons of your own data comparable, and the only honest position when the literature has nothing to offer.</p>
+    <p>That distinction — between a fact with a source, a convention worth labelling, and a number nobody has measured — is written down as a three-way gate in <a href="adr-031.html">ADR-031</a> and applied by every page in the kit.</p>
+  </div>
+</section>
+
+<footer>
+  <p><b>Carnivorous plants</b> — a CSRBT suite. Water first, provenance always, and no invented numbers.</p>
+  <p>Part of the <a href="ecology.html">CSRBT science kit</a> &mdash; twenty-two instruments organised by
+    method, with three suites organised by what you grow. The rule every page in the kit applies when
+    deciding which numbers it is allowed to print is written down in <a href="adr-031.html">ADR-031</a>.
+    Sibling suites: <a href="soil-suite.html">Soil &amp; compost</a> and <a href="breeding-suite.html">Vegetable breeding</a>.</p>
+</footer>
+</div>
+</body>
+</html>
