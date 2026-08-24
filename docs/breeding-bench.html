@@ -1,0 +1,1255 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Breeding Bench</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,600;9..144,700&family=Nunito+Sans:wght@400;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap">
+<style>
+  :root {
+    color-scheme: light;
+    --page:#F5F1E6; --surface:#FFFDF7; --surface-2:#F3EEE0; --ink:#23281F; --ink-2:#4B5344;
+    --muted:#8B8B7B; --border:#E3DCC9; --s1:#2E7D4F; --s1-deep:#236240; --s2:#C0592B; --s3:#2B6C8F;
+    --soft:#E9F0E7; --warn-bg:#F6EAD8; --danger:#B23A32; --danger-bg:#F6E7E5; --gold:#B8860B;
+    --shadow:0 1px 2px rgba(35,40,31,.06),0 10px 28px rgba(35,40,31,.08);
+    --head:"Fraunces",Georgia,serif;
+    --body:"Nunito Sans",system-ui,-apple-system,sans-serif;
+    --mono:"JetBrains Mono",ui-monospace,Menlo,monospace;
+  }
+  * { box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
+  body { margin:0; background:var(--page); color:var(--ink); font:16px/1.5 var(--body);
+    -webkit-font-smoothing:antialiased; overscroll-behavior-y:contain; }
+  .app { max-width:960px; margin:0 auto; padding:14px 16px calc(104px + env(safe-area-inset-bottom)); }
+  .top { display:flex; align-items:baseline; justify-content:space-between; gap:10px; padding:6px 2px 12px; flex-wrap:wrap; }
+  .brand { font-family:var(--head); font-weight:700; font-size:22px; letter-spacing:-0.01em; }
+  .brand span { color:var(--s1); }
+  .top a { font-family:var(--mono); font-size:11.5px; color:var(--muted); text-decoration:none;
+    display:inline-flex; align-items:center; min-height:44px; padding:0 6px; margin:-10px -6px; touch-action:manipulation; }
+  .top a:hover { color:var(--s1); }
+
+  .tabbar { position:fixed; left:0; right:0; bottom:0; z-index:20;
+    background:color-mix(in srgb, var(--surface) 94%, transparent); backdrop-filter:blur(10px);
+    border-top:1px solid var(--border); padding:8px max(8px, env(safe-area-inset-left)) calc(8px + env(safe-area-inset-bottom)); }
+  .tabbar .row { max-width:960px; margin:0 auto; display:grid; grid-template-columns:repeat(6,1fr); gap:4px; }
+  .tab { display:flex; flex-direction:column; align-items:center; gap:2px; border:0; background:none;
+    font:700 10.5px var(--body); color:var(--muted); padding:7px 1px; border-radius:12px; cursor:pointer;
+    min-height:54px; touch-action:manipulation; transition:background .15s ease, color .15s ease; }
+  .tab .ico { font-size:20px; line-height:1; }
+  .tab.on { color:var(--s1); background:var(--soft); }
+  .tab:active { transform:scale(.96); }
+  .pane { display:none; animation:fade .18s ease; }
+  .pane.on { display:block; }
+  @keyframes fade { from{opacity:0;transform:translateY(4px);} to{opacity:1;transform:none;} }
+  @media (prefers-reduced-motion: reduce){ .pane{animation:none;} }
+
+  h2 { font-family:var(--head); font-weight:600; font-size:20px; margin:6px 0 2px; }
+  h3 { font-family:var(--head); font-weight:600; font-size:16.5px; margin:16px 0 4px; }
+  .hint { color:var(--muted); font-size:14px; margin:0 0 12px; }
+  .card { background:var(--surface); border:1px solid var(--border); border-radius:16px;
+    padding:16px; box-shadow:var(--shadow); margin-bottom:14px; }
+  .fine { font-size:12.5px; color:var(--muted); margin-top:10px; line-height:1.55; }
+
+  input[type=text], input[type=number], input[type=date], select, textarea {
+    background:var(--surface); color:var(--ink); border:1.5px solid var(--border); border-radius:12px;
+    padding:11px 14px; font:16px var(--body); min-height:48px; max-width:100%; }
+  textarea { min-height:78px; line-height:1.5; width:100%; }
+  input:focus, select:focus, textarea:focus { outline:none; border-color:var(--s1); box-shadow:0 0 0 3px rgba(46,125,79,.18); }
+  input[type=number] { width:110px; }
+  label.f { display:flex; flex-direction:column; gap:5px; font-size:13px; font-weight:700; color:var(--ink-2); min-width:0; }
+  .grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(150px,1fr)); gap:10px; }
+  .grid label.f input, .grid label.f select { width:100%; }
+
+  .btn { border:0; border-radius:12px; padding:12px 18px; font:800 15px var(--body); cursor:pointer;
+    min-height:48px; touch-action:manipulation; transition:transform .1s ease, background .15s ease; }
+  .btn:active { transform:scale(.97); }
+  .btn-go { background:var(--s1); color:#fff; } .btn-go:hover { background:var(--s1-deep); }
+  .btn-soft { background:var(--soft); color:var(--s1); }
+  .btn-ghost { background:none; border:1.5px solid var(--border); color:var(--ink-2); }
+  .btn-ghost:hover { border-color:var(--s1); color:var(--s1); }
+  .btn-row { display:flex; gap:8px; flex-wrap:wrap; margin-top:12px; align-items:end; }
+
+  .kopts { display:flex; flex-wrap:wrap; gap:8px; }
+  .kopt { border:1.5px solid var(--border); background:var(--surface); border-radius:14px; padding:10px 14px;
+    font:700 14px var(--body); color:var(--ink-2); cursor:pointer; min-height:46px; touch-action:manipulation;
+    display:inline-flex; flex-direction:column; align-items:flex-start; gap:1px; }
+  .kopt small { font-weight:400; font-size:11px; color:var(--muted); font-family:var(--mono); }
+  .kopt.on { border-color:var(--s1); background:var(--soft); color:var(--s1); }
+
+  .covscale { display:flex; flex-wrap:wrap; gap:6px; margin-top:6px; }
+  .cv { border:1.5px solid var(--border); background:var(--surface); border-radius:11px; min-width:52px;
+    padding:8px 6px; font:800 15px var(--body); color:var(--ink-2); cursor:pointer; min-height:52px;
+    display:flex; flex-direction:column; align-items:center; justify-content:center; gap:1px; touch-action:manipulation; }
+  .cv small { font:400 9.5px var(--mono); color:var(--muted); }
+  .cv.on { border-color:var(--s1); background:var(--soft); color:var(--s1); }
+  .cv.on small { color:var(--s1-deep); }
+
+  .tiles { display:flex; flex-wrap:wrap; gap:8px; margin:12px 0 2px; }
+  .tile { background:var(--surface-2); border:1px solid var(--border); border-radius:12px; padding:9px 14px; min-width:96px; }
+  .tile .v { font-family:var(--head); font-weight:700; font-size:21px; font-variant-numeric:tabular-nums; }
+  .tile .l { font-size:11px; color:var(--muted); }
+  .verdict { border-radius:12px; padding:13px 16px; margin:12px 0 2px; font-size:15.5px; line-height:1.55;
+    border-left:4px solid var(--s1); background:var(--soft); color:var(--ink-2); }
+  .verdict b { color:var(--ink); }
+  .verdict.warn { border-left-color:var(--s2); background:var(--warn-bg); }
+  .verdict.act { border-left-color:var(--danger); background:var(--danger-bg); }
+
+  .tw { overflow-x:auto; -webkit-overflow-scrolling:touch; margin:10px 0; }
+  table { border-collapse:collapse; width:100%; font-size:14px; }
+  th,td { border:1px solid var(--border); padding:6px 9px; text-align:left; vertical-align:top; white-space:nowrap; }
+  th { background:var(--soft); font-family:var(--head); font-weight:600; font-size:13px; }
+  td.n, th.n { text-align:right; font-variant-numeric:tabular-nums; font-family:var(--mono); font-size:13px; }
+  td i { font-style:italic; color:var(--ink-2); }
+
+  .rowlist { display:grid; gap:8px; margin-top:10px; }
+  .row2 { display:flex; align-items:center; gap:10px; background:var(--surface); border:1px solid var(--border);
+    border-radius:12px; padding:10px 13px; font-size:15px; }
+  .row2.inv { border-left:3px solid var(--danger); }
+  .row2 .g { flex:1; min-width:0; }
+  .row2 .g b { font-family:var(--head); font-size:15.5px; }
+  .row2 .g b i { font-style:italic; font-weight:400; color:var(--ink-2); font-size:14px; }
+  .row2 .g span { display:block; color:var(--muted); font-size:12.5px; font-family:var(--mono); margin-top:1px;
+    overflow:hidden; text-overflow:ellipsis; }
+  .row2 .cov { font-family:var(--head); font-weight:700; font-size:17px; color:var(--s1); min-width:46px; text-align:right; }
+  .row2 button { border:0; background:none; color:var(--muted); font-size:15px; padding:9px 11px; cursor:pointer; min-height:44px; min-width:44px; }
+  .row2 button:hover { color:var(--danger); }
+
+  .bars { display:grid; gap:6px; margin-top:10px; }
+  .bar { display:grid; grid-template-columns:132px 1fr 54px; gap:8px; align-items:center; font-size:13.5px; }
+  .bar .nm { font-weight:700; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+  .bar .tr { display:block; background:var(--surface-2); border:1px solid var(--border); border-radius:8px; height:20px; overflow:hidden; }
+  .bar .fl { display:block; height:100%; background:var(--s1); border-radius:7px 0 0 7px; transition:width .4s ease; }
+  .bar .fl.inv { background:var(--s2); }
+  .bar .pc { text-align:right; font-variant-numeric:tabular-nums; color:var(--ink-2); font-family:var(--mono); font-size:12.5px; }
+
+  .label { background:#fff; border:1px solid var(--ink); border-radius:2px; padding:14px 16px; margin-top:10px;
+    font:12.5px/1.5 var(--body); color:#000; max-width:440px; }
+  .label .inst { font-family:var(--head); font-weight:700; font-size:12px; letter-spacing:.06em;
+    text-transform:uppercase; text-align:center; border-bottom:1px solid #000; padding-bottom:5px; margin-bottom:7px; }
+  .label .sci { font-style:italic; font-weight:700; font-size:14px; }
+  .label .row { margin:3px 0; }
+  .label .k { font-weight:700; }
+  .label .coll { margin-top:8px; padding-top:6px; border-top:1px solid #999; display:flex; justify-content:space-between; }
+
+  pre.export { background:#23281F; color:#E8E4D5; border-radius:12px; padding:14px 16px; overflow-x:auto;
+    font:12.5px/1.65 var(--mono); max-height:340px; }
+  code { font-family:var(--mono); font-size:.82em; background:var(--surface-2); border:1px solid var(--border); border-radius:5px; padding:1px 5px; }
+
+  .toast { position:fixed; left:50%; bottom:84px; transform:translateX(-50%) translateY(90px); z-index:30;
+    background:var(--ink); color:#F5F1E6; border-radius:999px; padding:10px 22px; font:700 14px var(--body);
+    transition:transform .25s ease; pointer-events:none; max-width:88vw; text-align:center; }
+  .toast.on { transform:translateX(-50%) translateY(0); }
+
+  @media print {
+    .tabbar, .btn, .kopts, .covscale, .top a, .noprint { display:none !important; }
+    body { background:#fff; } .pane { display:block !important; }
+    .app { padding-bottom:0; } .card { break-inside:avoid; } table { font-size:10pt; }
+    pre.export { background:#fff; color:#000; border:1px solid #ccc; max-height:none; }
+    .label { break-inside:avoid; page-break-inside:avoid; }
+  }
+
+
+  /* ---- fungal additions ---- */
+  .sw { display:flex; flex-wrap:wrap; gap:7px; margin-top:6px; }
+  .swc { border:1.5px solid var(--border); background:var(--surface); border-radius:12px; padding:7px 11px 8px;
+    font:700 12.5px var(--body); color:var(--ink-2); cursor:pointer; min-height:56px; touch-action:manipulation;
+    display:flex; flex-direction:column; align-items:center; gap:5px; min-width:74px; }
+  .swc .chip { width:44px; height:18px; border-radius:5px; border:1px solid rgba(35,40,31,.28); display:block; }
+  .swc.on { border-color:var(--s1); background:var(--soft); color:var(--s1); }
+
+  .chk { display:flex; flex-wrap:wrap; gap:7px; margin-top:6px; }
+  .ck { border:1.5px solid var(--border); background:var(--surface); border-radius:999px; padding:9px 14px;
+    font:700 13.5px var(--body); color:var(--ink-2); cursor:pointer; min-height:44px; touch-action:manipulation; }
+  .ck.on { border-color:var(--s1); background:var(--soft); color:var(--s1); }
+  .ck.on::before { content:"\2713 "; }
+
+  .rg { display:grid; gap:9px; margin-top:8px; }
+  .rgi { border:1px solid var(--border); background:var(--surface); border-radius:13px; padding:11px 13px; }
+  .rgi .hd { display:flex; align-items:center; justify-content:space-between; gap:9px; flex-wrap:wrap; }
+  .rgi .nm { font-family:var(--head); font-weight:700; font-size:15px; }
+  .rgi .nm em { font-style:normal; font-family:var(--mono); font-size:11.5px; color:var(--muted); margin-left:6px; }
+  .rgi .wh { font-size:12.5px; color:var(--muted); line-height:1.5; margin-top:5px; }
+  .rgi input[type=text] { width:100%; margin-top:8px; min-height:44px; }
+  .rgi.haz { border-left:3px solid var(--s2); }
+
+  .guild { display:inline-block; font:700 10.5px var(--mono); letter-spacing:.05em; text-transform:uppercase;
+    border-radius:999px; padding:3px 9px; border:1px solid var(--border); background:var(--surface-2); color:var(--ink-2); }
+  .guild.ecm { border-color:var(--s1); color:var(--s1); background:var(--soft); }
+  .guild.woodsap, .guild.littersap { border-color:var(--s3); color:var(--s3); background:#E6EEF3; }
+  .guild.par { border-color:var(--danger); color:var(--danger); background:var(--danger-bg); }
+  .guild.lich { border-color:var(--gold); color:#7a5c07; background:#F5EFD9; }
+  .guild.myco { border-color:var(--s2); color:var(--s2); background:var(--warn-bg); }
+  .guild.mixed { border-style:dashed; }
+
+  .mx td.h0 { color:var(--muted); }
+  .mx td.h1 { background:#EDF4EA; font-weight:700; }
+  .mx td.h2 { background:var(--s1); color:#fff; font-weight:700; }
+
+  .never { border:2px solid var(--danger); background:var(--danger-bg); border-radius:14px; padding:15px 17px;
+    margin:14px 0; font-size:15px; line-height:1.6; color:var(--ink); }
+  .never b { font-family:var(--head); display:block; font-size:16px; margin-bottom:5px; color:var(--danger); }
+
+  .drylog { display:grid; grid-template-columns:repeat(auto-fit,minmax(128px,1fr)); gap:9px; margin-top:8px; }
+
+
+  /* ---- bench additions ---- */
+  .stat { display:grid; grid-template-columns:repeat(auto-fit,minmax(132px,1fr)); gap:9px; margin:12px 0 2px; }
+  .st { background:var(--surface-2); border:1px solid var(--border); border-radius:12px; padding:10px 13px; }
+  .st .v { font-family:var(--head); font-weight:700; font-size:22px; font-variant-numeric:tabular-nums; line-height:1.1; }
+  .st .l { font-size:11px; color:var(--muted); margin-top:2px; line-height:1.35; }
+  .st.hi .v { color:var(--s1); } .st.bad .v { color:var(--danger); } .st.warnv .v { color:var(--s2); }
+  .eq { font-family:var(--mono); font-size:12.5px; background:var(--surface-2); border:1px solid var(--border);
+    border-radius:9px; padding:9px 12px; margin:9px 0; color:var(--ink-2); overflow-x:auto; }
+  .scat { display:block; width:100%; height:auto; background:var(--surface); border:1px solid var(--border);
+    border-radius:12px; margin-top:10px; }
+  .warnbox { border:2px solid var(--s2); background:var(--warn-bg); border-radius:14px; padding:14px 17px;
+    margin:14px 0; font-size:15px; line-height:1.6; }
+  .warnbox b { font-family:var(--head); display:block; font-size:16px; margin-bottom:4px; color:var(--s2); }
+  .refuse { border:2px solid var(--danger); background:var(--danger-bg); border-radius:14px; padding:15px 18px;
+    margin:14px 0; font-size:15px; line-height:1.6; }
+  .refuse b { font-family:var(--head); display:block; font-size:16px; margin-bottom:4px; color:var(--danger); }
+  td.ok { color:var(--s1); font-weight:700; } td.no { color:var(--danger); font-weight:700; }
+
+
+  /* ============ Field Entry Kit v1.0.0 ============
+     Large-target, high-contrast entry controls. Sizing is driven by --tap
+     rather than per-component numbers so one token retunes the whole kit for
+     gloves, cold hands or a wall-mounted tablet. */
+  :root {
+    --tap: 60px;            /* primary control height  */
+    --tap-sm: 48px;         /* secondary control height */
+    --fek-r: 16px;
+    --ramp-0:#2B6C8F; --ramp-1:#3E8C8C; --ramp-2:#2E7D4F;
+    --ramp-3:#B8860B; --ramp-4:#C0592B; --ramp-5:#B23A32;
+    --fek-line:#C7C0AC;
+  }
+  .fek-lab { display:block; font:800 15px var(--body); color:var(--ink-2);
+    letter-spacing:.01em; margin:0 0 6px; }
+  .fek-lab .u { font:600 12.5px var(--mono); color:var(--muted); margin-left:6px; }
+  .fek-help { font-size:13.5px; color:var(--muted); line-height:1.5; margin:6px 0 0; }
+  .fek-row { margin:0 0 20px; }
+
+  /* --- stepper: the workhorse numeric entry --- */
+  .fek-step { display:flex; align-items:stretch; gap:0; border:2px solid var(--border);
+    border-radius:var(--fek-r); overflow:hidden; background:var(--surface); max-width:340px; }
+  .fek-step button { border:0; background:var(--surface-2); color:var(--ink);
+    font:800 30px var(--body); line-height:1; width:calc(var(--tap) + 8px); min-height:var(--tap);
+    cursor:pointer; touch-action:manipulation; transition:background .12s; }
+  .fek-step button:hover { background:var(--soft); color:var(--s1); }
+  .fek-step button:active { background:var(--s1); color:#fff; }
+  .fek-step .val { flex:1; min-width:0; text-align:center; border:0; background:none;
+    font:800 30px var(--head); color:var(--ink); font-variant-numeric:tabular-nums;
+    -moz-appearance:textfield; padding:0 4px; }
+  .fek-step .val::-webkit-outer-spin-button,
+  .fek-step .val::-webkit-inner-spin-button { -webkit-appearance:none; margin:0; }
+  .fek-step .val:focus { outline:none; background:var(--soft); }
+
+  /* --- segmented ordinal dial with a colour ramp --- */
+  .fek-dial { display:flex; flex-wrap:wrap; gap:8px; }
+  .fek-dial button { flex:1 1 auto; min-width:72px; min-height:var(--tap);
+    border:2px solid var(--border); border-radius:var(--fek-r); background:var(--surface);
+    font:800 17px var(--body); color:var(--ink-2); cursor:pointer; touch-action:manipulation;
+    display:flex; flex-direction:column; align-items:center; justify-content:center; gap:2px;
+    padding:6px 8px; transition:transform .08s, border-color .12s, background .12s; }
+  .fek-dial button small { font:600 11px var(--mono); color:var(--muted); letter-spacing:.02em; }
+  .fek-dial button:active { transform:scale(.96); }
+  .fek-dial button.on { color:#fff; border-color:transparent; }
+  .fek-dial button.on small { color:rgba(255,255,255,.85); }
+  .fek-dial button.on[data-r="0"]{background:var(--ramp-0);}
+  .fek-dial button.on[data-r="1"]{background:var(--ramp-1);}
+  .fek-dial button.on[data-r="2"]{background:var(--ramp-2);}
+  .fek-dial button.on[data-r="3"]{background:var(--ramp-3);}
+  .fek-dial button.on[data-r="4"]{background:var(--ramp-4);}
+  .fek-dial button.on[data-r="5"]{background:var(--ramp-5);}
+
+  /* --- big toggle chips --- */
+  .fek-chips { display:flex; flex-wrap:wrap; gap:9px; }
+  .fek-chip { min-height:var(--tap-sm); border:2px solid var(--border); border-radius:999px;
+    background:var(--surface); font:800 15.5px var(--body); color:var(--ink-2);
+    padding:0 20px; cursor:pointer; touch-action:manipulation; display:inline-flex;
+    align-items:center; gap:8px; transition:transform .08s, border-color .12s, background .12s; }
+  .fek-chip:active { transform:scale(.96); }
+  .fek-chip.on { border-color:var(--s1); background:var(--soft); color:var(--s1-deep); }
+  .fek-chip.on::before { content:"\2713"; font-size:17px; }
+
+  /* --- slider with a live bubble --- */
+  .fek-slide { display:flex; align-items:center; gap:14px; }
+  .fek-slide input[type=range] { flex:1; min-width:0; height:var(--tap-sm); -webkit-appearance:none;
+    background:transparent; cursor:pointer; touch-action:manipulation; }
+  .fek-slide input[type=range]::-webkit-slider-runnable-track { height:14px; border-radius:8px;
+    background:linear-gradient(90deg,var(--ramp-0),var(--ramp-2),var(--ramp-3),var(--ramp-5)); }
+  .fek-slide input[type=range]::-moz-range-track { height:14px; border-radius:8px;
+    background:linear-gradient(90deg,var(--ramp-0),var(--ramp-2),var(--ramp-3),var(--ramp-5)); }
+  .fek-slide input[type=range]::-webkit-slider-thumb { -webkit-appearance:none; width:34px; height:34px;
+    border-radius:50%; background:#fff; border:3px solid var(--ink); margin-top:-10px;
+    box-shadow:0 2px 6px rgba(35,40,31,.3); }
+  .fek-slide input[type=range]::-moz-range-thumb { width:34px; height:34px; border-radius:50%;
+    background:#fff; border:3px solid var(--ink); box-shadow:0 2px 6px rgba(35,40,31,.3); }
+  .fek-slide .bub { font:800 26px var(--head); font-variant-numeric:tabular-nums; color:var(--ink);
+    min-width:86px; text-align:right; }
+  .fek-slide .bub span { font:600 13px var(--mono); color:var(--muted); margin-left:3px; }
+
+  /* --- big picker: replaces <select> for long lists --- */
+  .fek-pick { border:2px solid var(--border); border-radius:var(--fek-r); background:var(--surface);
+    overflow:hidden; }
+  .fek-pick .search { width:100%; border:0; border-bottom:2px solid var(--border);
+    font:700 17px var(--body); padding:0 16px; min-height:var(--tap); background:var(--surface-2); }
+  .fek-pick .search:focus { outline:none; background:var(--soft); }
+  .fek-pick .opts { max-height:264px; overflow-y:auto; -webkit-overflow-scrolling:touch; }
+  .fek-pick .opt { display:block; width:100%; text-align:left; border:0; border-bottom:1px solid var(--border);
+    background:none; font:700 16.5px var(--body); color:var(--ink); min-height:var(--tap-sm);
+    padding:10px 16px; cursor:pointer; touch-action:manipulation; }
+  .fek-pick .opt small { display:block; font:400 12.5px var(--mono); color:var(--muted); margin-top:2px; }
+  .fek-pick .opt:hover { background:var(--soft); }
+  .fek-pick .opt.on { background:var(--s1); color:#fff; }
+  .fek-pick .opt.on small { color:rgba(255,255,255,.85); }
+  .fek-pick .none { padding:16px; color:var(--muted); font-size:14px; }
+
+  /* --- readout tiles, sized to be read at arm's length --- */
+  .fek-tiles { display:grid; grid-template-columns:repeat(auto-fit,minmax(148px,1fr)); gap:11px; margin:14px 0 2px; }
+  .fek-tile { border:2px solid var(--border); border-radius:var(--fek-r); padding:13px 15px; background:var(--surface); }
+  .fek-tile .v { font:800 30px var(--head); font-variant-numeric:tabular-nums; line-height:1.05; color:var(--ink); }
+  .fek-tile .l { font:700 12px var(--body); color:var(--muted); margin-top:4px; letter-spacing:.02em; }
+  .fek-tile.good { border-color:var(--ramp-2); } .fek-tile.good .v { color:var(--ramp-2); }
+  .fek-tile.warn { border-color:var(--ramp-3); } .fek-tile.warn .v { color:#8a6508; }
+  .fek-tile.bad  { border-color:var(--ramp-5); } .fek-tile.bad  .v { color:var(--ramp-5); }
+  .fek-tile.cold { border-color:var(--ramp-0); } .fek-tile.cold .v { color:var(--ramp-0); }
+
+  /* --- banner: the verdict, big --- */
+  .fek-banner { border-radius:var(--fek-r); padding:16px 19px; margin:14px 0; font-size:16px;
+    line-height:1.55; border-left:7px solid var(--ramp-2); background:var(--soft); color:var(--ink-2); }
+  .fek-banner b { font-family:var(--head); color:var(--ink); font-size:17.5px; display:block; margin-bottom:4px; }
+  .fek-banner.warn { border-left-color:var(--ramp-3); background:var(--warn-bg); }
+  .fek-banner.bad  { border-left-color:var(--ramp-5); background:var(--danger-bg); }
+  .fek-banner.cold { border-left-color:var(--ramp-0); background:#E6EEF3; }
+
+  @media (max-width:420px){ :root { --tap:56px; --tap-sm:46px; } .fek-step .val { font-size:26px; } }
+  @media print { .fek-step button, .fek-pick .search { display:none; } }
+
+  .rail { margin:26px 0 4px; }
+  .rail .rl { font-family:var(--mono); font-size:11px; letter-spacing:.14em; text-transform:uppercase; color:var(--muted); margin:0 2px 8px; }
+  .rail .chips { display:flex; flex-wrap:wrap; gap:8px; }
+  .rail a { display:inline-flex; align-items:center; gap:7px; text-decoration:none; font:700 13.5px var(--body);
+    color:var(--ink-2); background:var(--surface); border:1px solid var(--border); border-radius:999px;
+    padding:9px 15px; min-height:44px; box-shadow:var(--shadow); touch-action:manipulation; }
+  .rail a:hover { border-color:var(--s1); color:var(--s1); }
+  .rail a[aria-current="page"] { background:var(--soft); border-color:var(--s1); color:var(--s1); }
+  .rail a.ref { font-weight:600; color:var(--muted); background:none; box-shadow:none; }
+  @media print { .rail { display:none !important; } }
+</style>
+</head>
+<body>
+<div class="app">
+  <div class="top">
+    <div class="brand">🥕 Breeding <span>Bench</span></div>
+    <a href="ecology.html">part of the science kit →</a>
+  </div>
+
+  <!-- ============ POPULATION ============ -->
+  <section class="pane on" id="p-pop">
+    <h2>Population</h2>
+    <p class="hint">How many plants you keep seed from decides whether the variety survives contact with
+      you. This is the number most seed savers get wrong.</p>
+    <div class="card">
+      <div id="popPick"></div>
+      <div id="popN"></div>
+    </div>
+    <div class="card" id="popOut"></div>
+    <div class="card" id="neOut"></div>
+  </section>
+
+  <!-- ============ ISOLATION ============ -->
+  <section class="pane" id="p-iso">
+    <h2>Isolation</h2>
+    <p class="hint">What else is flowering nearby, and how far away it needs to be.</p>
+    <div class="card" id="isoRefuse"></div>
+    <div class="card">
+      <div id="isoPick"></div>
+      <div id="isoEntry"></div>
+    </div>
+    <div class="card" id="isoOut"></div>
+  </section>
+
+  <!-- ============ SELECT ============ -->
+  <section class="pane" id="p-sel">
+    <h2>Selection</h2>
+    <p class="hint">Save seed from the best plants and the population moves. This is how far, and how fast.</p>
+    <div class="card">
+      <h3 style="margin-top:0">Truncation selection</h3>
+      <div id="selEntry"></div>
+    </div>
+    <div class="card" id="selOut"></div>
+    <div class="card">
+      <h3 style="margin-top:0">Roguing log</h3>
+      <p class="hint" style="margin-bottom:8px">Pulling off-types before they shed pollen is selection too,
+        and it is the half people forget to write down.</p>
+      <div id="rogEntry"></div>
+      <div class="btn-row">
+        <button class="btn btn-go" id="rAdd" type="button">Log roguing</button>
+        <button class="btn btn-ghost" id="rUndo" type="button">↩ Undo</button>
+      </div>
+      <div class="rowlist" id="rList"></div>
+      <div id="rogOut"></div>
+    </div>
+  </section>
+
+  <!-- ============ TRIAL ============ -->
+  <section class="pane" id="p-tri">
+    <h2>Variety trial</h2>
+    <p class="hint">Replicated and blocked, or it is a garden anecdote. Enter one plot yield at a time.</p>
+    <div class="card">
+      <div id="triEntry"></div>
+      <div class="btn-row">
+        <button class="btn btn-go" id="tAdd" type="button">Add plot</button>
+        <button class="btn btn-ghost" id="tUndo" type="button">↩ Undo</button>
+        <button class="btn btn-ghost" id="tClear" type="button">Clear trial</button>
+        <button class="btn btn-ghost" id="tDemo" type="button">Worked example</button>
+      </div>
+    </div>
+    <div class="card" id="triOut"></div>
+    <div class="card" id="triTable"></div>
+  </section>
+
+  <!-- ============ SEED ============ -->
+  <section class="pane" id="p-seed">
+    <h2>Seed</h2>
+    <p class="hint">A germination test is the only thing that tells you what you actually have in the jar.</p>
+    <div class="card">
+      <h3 style="margin-top:0">Germination test</h3>
+      <div id="germEntry"></div>
+      <div id="germOut"></div>
+    </div>
+    <div class="card">
+      <h3 style="margin-top:0">Storage</h3>
+      <div id="storEntry"></div>
+      <div id="storOut"></div>
+    </div>
+  </section>
+
+  <!-- ============ METHOD ============ -->
+  <section class="pane" id="p-met">
+    <h2>Method</h2>
+
+    <div class="card">
+      <h3 style="margin-top:0">Minimum population</h3>
+      <p class="fine" style="margin-top:0">The rule this page applies is <b>seed saved from at least 20
+        inbreeding or 100 outbreeding individuals per variety</b>. Both halves matter, and they fail
+        differently.</p>
+      <p class="fine">For an <b>inbreeder</b> — beans, peas, lettuce, tomatoes — the plants are already
+        near-homozygous, so a small sample loses little. Twenty is about avoiding a bottleneck and catching
+        the occasional off-type, not about inbreeding.</p>
+      <p class="fine">For an <b>outbreeder</b> — corn, brassicas, carrots, onions, beets — the plants carry
+        a load of recessive alleles that heterozygosity has been hiding. Sample too few and you force those
+        into the open. <b>Corn, carrots and onions are the classic sufferers</b>, and sweet corn wants at
+        least <b>100 plants and preferably 200 or more</b>.</p>
+      <div class="fek-banner warn"><b>The floor is a floor, not a target.</b> It is the point below which
+        you are actively damaging the variety. If you are trying to conserve diversity rather than merely
+        maintain it, more is better with no sharp upper limit, and the honest advice for a home grower is to
+        grow as many as the space allows.</div>
+    </div>
+
+    <div class="card">
+      <h3 style="margin-top:0">Effective population size</h3>
+      <p class="fine" style="margin-top:0">The number that governs inbreeding is not how many plants you
+        grew but <b>N<sub>e</sub></b>, the effective population size — and unequal contribution pushes it
+        below the headcount. With N<sub>m</sub> pollen parents and N<sub>f</sub> seed parents contributing
+        equally within each group:</p>
+      <div class="eq">N<sub>e</sub> = 4 N<sub>m</sub> N<sub>f</sub> / (N<sub>m</sub> + N<sub>f</sub>)</div>
+      <p class="fine">The consequence is unforgiving. Ten pollen parents and ninety seed parents is a hundred
+        plants and an N<sub>e</sub> of 36. <b>The rarer sex caps you.</b></p>
+      <p class="fine">Inbreeding then accumulates each generation at</p>
+      <div class="eq">&Delta;F = 1 / (2 N<sub>e</sub>)</div>
+      <p class="fine">so N<sub>e</sub> = 20 adds <b>2.5% per generation</b> and compounds. Ten generations of
+        that is a different variety, and the decline shows up first as vigour and seed set rather than as the
+        trait you were watching.</p>
+      <p class="fine">These formulas assume an idealised population — random mating, non-overlapping
+        generations, no selection. Real seed saving violates all three, so read N<sub>e</sub> as an optimistic
+        upper bound rather than a measurement.</p>
+    </div>
+
+    <div class="card">
+      <h3 style="margin-top:0">Isolation</h3>
+      <p class="fine" style="margin-top:0">Two distances on this page are cited: <b>two miles for sweet
+        corn</b> and <b>half a mile between squash varieties of the same species</b> (NMSU H-262). Everything
+        else is <b>yours to enter</b>, and that is deliberate.</p>
+      <p class="fine">Published isolation tables disagree with each other by an order of magnitude, because
+        the right distance depends on pollinator pressure, wind, intervening barriers, the size of both
+        populations, and — most of all — on <b>what the seed is for</b>. Seed you will sow yourself next year
+        tolerates contamination that certified seed production does not. A page that printed one number for
+        all of that would be confidently wrong most of the time.</p>
+      <p class="fine">Distance is not the only tool. <b>Time isolation</b> — staggering sowings so two
+        varieties do not flower together — works where space does not. Bagging and hand-pollination is
+        absolute where it is practical. A hedge or a building between two plots is worth more than the same
+        distance across open ground.</p>
+      <p class="fine">Note the species traps this page carries in its crop notes, because they cause more
+        surprise crosses than distance ever does: all of cabbage, broccoli, kale, collards, kohlrabi, Brussels
+        sprouts and cauliflower are <i>one species</i>; the three common squash species do not cross with each
+        other but do cross freely within themselves; carrot crosses with the Queen Anne's lace in the verge;
+        and beetroot, chard and sugar beet are one species.</p>
+    </div>
+
+    <div class="card">
+      <h3 style="margin-top:0">Selection</h3>
+      <p class="fine" style="margin-top:0">Saving seed from the best <b>p</b> proportion of a population is
+        <b>truncation selection</b>, and its intensity follows from p alone:</p>
+      <div class="eq">i = &phi;(x) / p, &nbsp; where x = &Phi;<sup>-1</sup>(1 &minus; p)</div>
+      <p class="fine">Keeping the top 10% gives i &asymp; 1.755; the top 50% gives i &asymp; 0.798. Then the
+        expected response is</p>
+      <div class="eq">R = i &times; h&sup2; &times; &sigma;<sub>P</sub></div>
+      <p class="fine">the same breeder's equation the <a href="selection-log.html">Selection Log</a> uses on
+        wild populations, and it carries the same warnings. h&sup2; is a property of <em>this</em> population
+        in <em>this</em> environment; a field estimate is inflated by the environment parents and offspring
+        share; and the predicted response frequently fails to appear.</p>
+      <div class="fek-banner warn"><b>Intensity fights population size, and the fight is the whole craft.</b>
+        Selecting the top 5% of 100 plants leaves you five parents. That is a strong selection differential
+        and an N<sub>e</sub> around 5, which adds 10% inbreeding in one generation. The gain you make on the
+        trait is paid for in vigour you will notice two generations later. Grow a bigger population, or select
+        less hard.</div>
+      <p class="fine"><b>Roguing</b> — pulling off-types before they shed pollen — is selection with the same
+        arithmetic, applied in the negative. It is also the step most often left out of the record, which is
+        why it has a log here.</p>
+    </div>
+
+    <div class="card">
+      <h3 style="margin-top:0">Trials</h3>
+      <p class="fine" style="margin-top:0">The trial analysis is a <b>randomised complete block design</b>.
+        Blocks absorb the field gradient — the wet corner, the shaded end — so that what is left is the
+        difference between varieties rather than the difference between places.</p>
+      <div class="eq">LSD<sub>0.05</sub> = t<sub>0.025, df</sub> &times; &radic;(2 &times; MSE / r)</div>
+      <p class="fine">Two entry means differing by more than the LSD are conventionally called different.
+        <b>CV%</b> = 100&radic;MSE / grand mean measures how noisy the trial was; for vegetable yield trials
+        a CV under roughly <b>15%</b> is conventionally considered acceptable and above 25% suggests the
+        trial cannot answer the question. Both of those are conventions, not thresholds.</p>
+      <div class="fek-banner bad"><b>The LSD lies when you have many entries.</b> It is a pairwise test at
+        5%, so across ten entries there are forty-five comparisons and you should expect two apparent
+        differences from noise alone. Use it to compare each entry against a named control, which is one
+        comparison per entry, and treat "these two middling entries differ" as a hypothesis rather than a
+        result. One site and one season is one site and one season, whatever the LSD says.</div>
+      <p class="fine">A trial with <b>one replicate</b> has no error term and no LSD, because there is
+        nothing to estimate the noise from. The page will compute means and refuse the rest.</p>
+    </div>
+
+    <div class="card">
+      <h3 style="margin-top:0">Seed</h3>
+      <p class="fine" style="margin-top:0">A germination test is a proportion, so it carries a binomial
+        standard error <code>SE = &radic;(p(1&minus;p)/n)</code>. Testing 20 seeds and getting 18 up is
+        90%&nbsp;&plusmn;&nbsp;6.7% — that is a real interval, and it is why 100 seeds is the usual test size
+        where you can spare them.</p>
+      <p class="fine">Storage life: <b>most high-quality, correctly stored seed stays viable at least
+        3&ndash;5 years</b> — a <b>range</b>, not a constant, and one that varies enormously by species. Onion,
+        parsnip and leek are short-lived and worth retesting annually; brassicas, tomatoes and cucurbits often
+        run far longer than five years. The rule of thumb that matters more than any number is that
+        <b>cool and dry beats either alone</b>, and that seed put away damp does not keep however cold it is.</p>
+      <p class="fine">This page does not predict your seed's remaining life from a stored curve, because that
+        depends on your moisture content and your storage temperature. It tracks the test results you actually
+        got, which is the thing that answers the question.</p>
+    </div>
+
+    <div class="card">
+      <h3 style="margin-top:0">Sources</h3>
+      <p class="fine" style="margin-top:0">Population floor: Learn Seed Saving. Sweet corn population and
+        the two cited isolation distances: NMSU Extension H-262. Effective population size, &Delta;F,
+        truncation-selection intensity, the breeder's equation and the RCBD analysis are standard quantitative
+        genetics and experimental design. Everything labelled a <em>convention</em> on this page is a working
+        rule of thumb rather than a sourced threshold — see <a href="adr-031.html">ADR-031</a> for the rule
+        this kit applies when deciding which numbers it is allowed to ship.</p>
+    </div>
+  </section>
+
+  <div class="rail">
+    <p class="rl">The bench</p>
+    <div class="chips">
+      <a href="breeding-bench.html" aria-current="page"><span>🥕</span>Breeding Bench</a>
+      <a href="pheno-tracker.html"><span>🧬</span>Pheno Tracker</a>
+      <a href="selection-log.html"><span>📏</span>Selection Log</a>
+      <a href="cp-bench.html"><span>🫙</span>CP Bench</a>
+      <a href="soil-bench.html"><span>🪱</span>Soil Bench</a>
+      <a href="farm-scout.html"><span>🧑‍🌾</span>Farm Scout</a>
+      <a class="ref" href="ecology.html">← kit hub</a>
+      <a class="ref" href="adr-031.html">ADR-031</a>
+    </div>
+  </div>
+</div>
+
+<div class="tabbar"><div class="row">
+  <button class="tab on" data-pane="p-pop" type="button"><span class="ico">👥</span>Population</button>
+  <button class="tab" data-pane="p-iso" type="button"><span class="ico">📐</span>Isolation</button>
+  <button class="tab" data-pane="p-sel" type="button"><span class="ico">🎯</span>Selection</button>
+  <button class="tab" data-pane="p-tri" type="button"><span class="ico">🔬</span>Trial</button>
+  <button class="tab" data-pane="p-seed" type="button"><span class="ico">🌾</span>Seed</button>
+  <button class="tab" data-pane="p-met" type="button"><span class="ico">📖</span>Method</button>
+</div></div>
+<div class="toast" id="toast">Saved</div>
+<script>
+
+/* ---- Field Entry Kit v1.0.0 : constructors return {el, get, set} ---- */
+var FEK = (function(){
+  function el(t,c,h){ var e=document.createElement(t); if(c) e.className=c;
+    if(h!=null) e.innerHTML=h; return e; }
+  function buzz(m){ try{ if(navigator.vibrate) navigator.vibrate(m||8);}catch(e){} }
+
+  function step(o){
+    o=o||{}; var min=(o.min==null?-Infinity:o.min), max=(o.max==null?Infinity:o.max);
+    var stepv=o.step||1, dec=o.dec==null?(String(stepv).split(".")[1]||"").length:o.dec;
+    var v=o.value==null?0:o.value;
+    var wrap=el("div","fek-row"), lab=el("label","fek-lab",
+      (o.label||"")+(o.unit?'<span class="u">'+o.unit+'</span>':""));
+    var box=el("div","fek-step");
+    var minus=el("button",null,"&minus;"), inp=el("input"), plus=el("button",null,"+");
+    minus.type="button"; plus.type="button"; inp.type="number"; inp.className="val";
+    inp.setAttribute("inputmode","decimal");
+    if(o.label) inp.setAttribute("aria-label",o.label);
+    function clamp(x){ return Math.min(max,Math.max(min,x)); }
+    function render(){ inp.value=(dec?v.toFixed(dec):String(v)); }
+    function set(x,quiet){ v=clamp(isFinite(x)?x:0); render(); if(!quiet&&o.onchange) o.onchange(v); }
+    function bump(d){ set(+(v+d*stepv).toFixed(6)); buzz(); }
+    minus.addEventListener("click",function(){ bump(-1); });
+    plus.addEventListener("click",function(){ bump(1); });
+    var hold;
+    function holdOn(d){ return function(){ clearInterval(hold);
+      hold=setInterval(function(){ bump(d); },110); }; }
+    function holdOff(){ clearInterval(hold); }
+    minus.addEventListener("pointerdown",holdOn(-1)); plus.addEventListener("pointerdown",holdOn(1));
+    ["pointerup","pointerleave","pointercancel"].forEach(function(ev){
+      minus.addEventListener(ev,holdOff); plus.addEventListener(ev,holdOff); });
+    inp.addEventListener("input",function(){ var x=parseFloat(inp.value);
+      if(isFinite(x)){ v=clamp(x); if(o.onchange) o.onchange(v); } });
+    inp.addEventListener("blur",render);
+    box.appendChild(minus); box.appendChild(inp); box.appendChild(plus);
+    wrap.appendChild(lab); wrap.appendChild(box);
+    if(o.help) wrap.appendChild(el("p","fek-help",o.help));
+    render();
+    return { el:wrap, get:function(){return v;}, set:function(x){set(x,true);} };
+  }
+
+  function dial(o){
+    o=o||{}; var opts=o.options||[], cur=o.value==null?null:o.value;
+    var wrap=el("div","fek-row"), lab=el("label","fek-lab",o.label||"");
+    var box=el("div","fek-dial"), btns=[];
+    opts.forEach(function(op,i){
+      var b=el("button",null,'<span>'+op.label+'</span>'+(op.sub?'<small>'+op.sub+'</small>':""));
+      b.type="button";
+      b.setAttribute("data-r", op.ramp==null ? String(Math.min(5,Math.round(i*5/Math.max(1,opts.length-1)))) : String(op.ramp));
+      b.addEventListener("click",function(){
+        cur = (cur===op.value && o.clearable!==false) ? null : op.value;
+        paint(); buzz(); if(o.onchange) o.onchange(cur);
+      });
+      btns.push(b); box.appendChild(b);
+    });
+    function paint(){ btns.forEach(function(b,i){ b.classList.toggle("on", opts[i].value===cur); }); }
+    paint();
+    wrap.appendChild(lab); wrap.appendChild(box);
+    if(o.help) wrap.appendChild(el("p","fek-help",o.help));
+    return { el:wrap, get:function(){return cur;},
+             set:function(x){ cur=x; paint(); } };
+  }
+
+  function chips(o){
+    o=o||{}; var opts=o.options||[], sel={};
+    (o.value||[]).forEach(function(v){ sel[v]=1; });
+    var wrap=el("div","fek-row"), lab=el("label","fek-lab",o.label||"");
+    var box=el("div","fek-chips"), btns=[];
+    opts.forEach(function(op){
+      var b=el("button","fek-chip",op.label); b.type="button";
+      b.addEventListener("click",function(){
+        if(o.single){ sel={}; sel[op.value]=1; }
+        else if(sel[op.value]) delete sel[op.value]; else sel[op.value]=1;
+        paint(); buzz(); if(o.onchange) o.onchange(Object.keys(sel));
+      });
+      btns.push(b); box.appendChild(b);
+    });
+    function paint(){ btns.forEach(function(b,i){ b.classList.toggle("on",!!sel[opts[i].value]); }); }
+    paint();
+    wrap.appendChild(lab); wrap.appendChild(box);
+    if(o.help) wrap.appendChild(el("p","fek-help",o.help));
+    return { el:wrap, get:function(){return Object.keys(sel);},
+             set:function(a){ sel={}; (a||[]).forEach(function(v){sel[v]=1;}); paint(); } };
+  }
+
+  function slider(o){
+    o=o||{}; var v=o.value==null?(o.min||0):o.value;
+    var wrap=el("div","fek-row"), lab=el("label","fek-lab",o.label||"");
+    var box=el("div","fek-slide"), r=el("input"), bub=el("div","bub");
+    r.type="range"; r.min=o.min==null?0:o.min; r.max=o.max==null?100:o.max;
+    r.step=o.step||1; r.value=v;
+    if(o.label) r.setAttribute("aria-label",o.label);
+    function paint(){ bub.innerHTML=(o.fmt?o.fmt(v):v)+(o.unit?'<span>'+o.unit+'</span>':""); }
+    r.addEventListener("input",function(){ v=parseFloat(r.value); paint(); if(o.onchange) o.onchange(v); });
+    paint();
+    box.appendChild(r); box.appendChild(bub);
+    wrap.appendChild(lab); wrap.appendChild(box);
+    if(o.help) wrap.appendChild(el("p","fek-help",o.help));
+    return { el:wrap, get:function(){return v;}, set:function(x){ v=x; r.value=x; paint(); } };
+  }
+
+  function picker(o){
+    o=o||{}; var opts=o.options||[], cur=o.value==null?null:o.value, q="";
+    var wrap=el("div","fek-row"), lab=el("label","fek-lab",o.label||"");
+    var box=el("div","fek-pick"), s=el("input","search"), list=el("div","opts");
+    s.type="text"; s.placeholder=o.placeholder||"type to filter…";
+    s.setAttribute("autocomplete","off");
+    if(o.label) s.setAttribute("aria-label",o.label+" filter");
+    function paint(){
+      list.innerHTML="";
+      var qq=q.toLowerCase();
+      var shown=opts.filter(function(op){
+        return !qq || (op.label+" "+(op.sub||"")).toLowerCase().indexOf(qq)>=0; });
+      if(!shown.length){ list.appendChild(el("div","none","No match. Clear the filter to see all "+opts.length+".")); return; }
+      shown.slice(0,200).forEach(function(op){
+        var b=el("button","opt"+(op.value===cur?" on":""),
+          op.label+(op.sub?'<small>'+op.sub+'</small>':""));
+        b.type="button";
+        b.addEventListener("click",function(){ cur=op.value; paint(); buzz(); if(o.onchange) o.onchange(cur); });
+        list.appendChild(b);
+      });
+    }
+    s.addEventListener("input",function(){ q=s.value; paint(); });
+    box.appendChild(s); box.appendChild(list);
+    wrap.appendChild(lab); wrap.appendChild(box);
+    if(o.help) wrap.appendChild(el("p","fek-help",o.help));
+    paint();
+    return { el:wrap, get:function(){return cur;}, set:function(x){ cur=x; paint(); } };
+  }
+
+  function tiles(list){
+    var box=el("div","fek-tiles");
+    (list||[]).forEach(function(t){
+      box.appendChild(el("div","fek-tile"+(t.tone?" "+t.tone:""),
+        '<div class="v">'+t.v+'</div><div class="l">'+t.l+'</div>'));
+    });
+    return box;
+  }
+  function banner(title,body,tone){
+    return el("div","fek-banner"+(tone?" "+tone:""),"<b>"+title+"</b>"+body);
+  }
+  function mount(host,parts){
+    var h=typeof host==="string"?document.getElementById(host):host;
+    h.innerHTML=""; parts.forEach(function(p){ h.appendChild(p.el||p); }); return h;
+  }
+  return { version:"1.0.0", step:step, dial:dial, chips:chips, slider:slider,
+           picker:picker, tiles:tiles, banner:banner, mount:mount, buzz:buzz };
+})();
+</script>
+<script>
+/* ---------------------------------------------------------------------------
+   Suite B data.
+
+   MATING SYSTEM is established biology and ships (gate 1). It drives the
+   minimum-population rule: >=20 individuals for inbreeders, >=100 for
+   outbreeders (Learn Seed Saving).
+
+   ISOLATION DISTANCE mostly does NOT ship. Published tables disagree by an
+   order of magnitude, and the right number depends on pollinator pressure,
+   wind, barriers, and whether you are maintaining a variety for yourself or
+   producing seed someone else will rely on. Two figures are cited and ship
+   with their source (NMSU H-262); everything else is grower-entered, exactly
+   like the breakpoints in Micro Bench. ADR-031 gate 3.
+--------------------------------------------------------------------------- */
+var CROPS = [
+ {id:"tom",  n:"tomato",            sys:"self",  pol:"self",   note:"Modern varieties have short styles and rarely outcross; some heirlooms and potato-leaf types outcross more."},
+ {id:"pep",  n:"pepper",            sys:"mixed", pol:"insect", note:"Self-fertile but bees cross them readily. Treat as an outcrosser if hot and sweet types are near each other."},
+ {id:"bean", n:"bean, common",      sys:"self",  pol:"self",   note:"Cleistogamous - it pollinates before the flower opens. One of the easiest seeds to save true."},
+ {id:"pea",  n:"pea",               sys:"self",  pol:"self",   note:"As reliable as beans. Peas and beans do not cross with each other."},
+ {id:"let",  n:"lettuce",           sys:"self",  pol:"self",   note:"Self-pollinating; bolting plants need space and time but not much isolation."},
+ {id:"egg",  n:"eggplant",          sys:"mixed", pol:"insect", note:"Mostly selfing, with meaningful insect outcrossing."},
+ {id:"okra", n:"okra",              sys:"mixed", pol:"insect", note:"Partially outcrossing; bees work the large flowers hard."},
+ {id:"soy",  n:"soybean",           sys:"self",  pol:"self",   note:"Highly self-pollinated."},
+ {id:"corn", n:"corn, sweet",       sys:"cross", pol:"wind",   minN:100, pref:200, iso:3200,
+  isoNote:"two miles", isoSrc:"NMSU H-262",
+  note:"Wind-pollinated and promiscuous. Also the crop where inbreeding depression bites hardest and fastest."},
+ {id:"sqp",  n:"squash, C. pepo",   sys:"cross", pol:"insect", iso:800, isoNote:"half a mile", isoSrc:"NMSU H-262",
+  note:"Crosses freely with other C. pepo - courgette, acorn, delicata, most pumpkins - but not with other Cucurbita species."},
+ {id:"sqm",  n:"squash, C. maxima", sys:"cross", pol:"insect", iso:800, isoNote:"half a mile", isoSrc:"NMSU H-262",
+  note:"Hubbard, buttercup, kabocha. Crosses within C. maxima only."},
+ {id:"sqo",  n:"squash, C. moschata",sys:"cross",pol:"insect", iso:800, isoNote:"half a mile", isoSrc:"NMSU H-262",
+  note:"Butternut and its relatives. Crosses within C. moschata only."},
+ {id:"cuc",  n:"cucumber",          sys:"cross", pol:"insect", note:"Does not cross with melon or squash despite the family."},
+ {id:"mel",  n:"melon",             sys:"cross", pol:"insect", note:"Cantaloupe, honeydew and Armenian cucumber are all C. melo and cross freely."},
+ {id:"wat",  n:"watermelon",        sys:"cross", pol:"insect", note:"Citrullus - does not cross with any Cucumis or Cucurbita."},
+ {id:"bra",  n:"brassica, B. oleracea",sys:"cross",pol:"insect",
+  note:"Cabbage, broccoli, kale, collards, kohlrabi, Brussels sprouts and cauliflower are ONE species and cross freely with each other."},
+ {id:"brar", n:"brassica, B. rapa", sys:"cross", pol:"insect", note:"Turnip, pak choi, mizuna, broccoli raab. Crosses within B. rapa."},
+ {id:"car",  n:"carrot",            sys:"cross", pol:"insect",
+  note:"Crosses with wild Queen Anne's lace, which grows in most road verges. Flagged as highly susceptible to inbreeding depression."},
+ {id:"oni",  n:"onion",             sys:"cross", pol:"insect", note:"Flagged as highly susceptible to inbreeding depression."},
+ {id:"beet", n:"beet / chard",      sys:"cross", pol:"wind",   note:"Beetroot, sugar beet and chard are one species. Wind-pollinated, so distances are large."},
+ {id:"spin", n:"spinach",           sys:"cross", pol:"wind",   note:"Dioecious and wind-pollinated - you need both sexes and real distance."},
+ {id:"rad",  n:"radish",            sys:"cross", pol:"insect", note:"Self-incompatible; needs a real population, not a few plants."},
+ {id:"sun",  n:"sunflower",         sys:"cross", pol:"insect", note:"Largely self-incompatible."},
+ {id:"cel",  n:"celery",            sys:"cross", pol:"insect", note:"Crosses with celeriac - same species."},
+ {id:"leek", n:"leek",              sys:"cross", pol:"insect", note:"Crosses with other A. ampeloprasum including elephant garlic."},
+ {id:"amar", n:"amaranth",          sys:"cross", pol:"wind",   note:"Grain and vegetable types cross; wind-pollinated."},
+ {id:"buck", n:"buckwheat",         sys:"cross", pol:"insect", note:"Self-incompatible with two flower morphs - needs a population."},
+ {id:"parsl",n:"parsley",           sys:"cross", pol:"insect", note:"Crosses with other parsley types; biennial."}
+];
+
+var PURPOSE = [
+ {value:"maintain", label:"Maintain a variety",  sub:"keep it true",   ramp:2},
+ {value:"conserve", label:"Conserve diversity",  sub:"keep the range", ramp:3},
+ {value:"breed",    label:"Actively breed",      sub:"move a trait",   ramp:4}
+];
+var PURPOSE_NOTE = {
+ maintain:"Enough plants to avoid drifting away from the variety and to avoid inbreeding depression. The published floor applies directly.",
+ conserve:"You are trying to keep rare alleles that a small sample would lose by chance. Larger than maintenance, and the published floor is a minimum rather than a target.",
+ breed:"You are deliberately narrowing the population to move a trait, which costs diversity on purpose. The floor still applies to whatever you keep, or the next generation inbreeds."
+};
+</script>
+<script>
+(function(){
+  "use strict";
+  var $=function(i){return document.getElementById(i);};
+  function esc(s){return String(s==null?"":s).replace(/[&<>"]/g,function(c){
+    return {"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;"}[c];});}
+  var tt;function toast(m){var t=$("toast");t.textContent=m;t.classList.add("on");
+    clearTimeout(tt);tt=setTimeout(function(){t.classList.remove("on");},1700);}
+  function f(x,d){return isFinite(x)?x.toFixed(d==null?1:d):"—";}
+  function cropBy(id){for(var i=0;i<CROPS.length;i++) if(CROPS[i].id===id) return CROPS[i]; return null;}
+
+  /* ------------------------------------------------------------- stats --- */
+  /* Acklam's inverse normal CDF; |error| < 1.15e-9 */
+  function qnorm(p){
+    if(p<=0||p>=1) return NaN;
+    var a=[-3.969683028665376e+01,2.209460984245205e+02,-2.759285104469687e+02,
+            1.383577518672690e+02,-3.066479806614716e+01,2.506628277459239e+00],
+        b=[-5.447609879822406e+01,1.615858368580409e+02,-1.556989798598866e+02,
+            6.680131188771972e+01,-1.328068155288572e+01],
+        c=[-7.784894002430293e-03,-3.223964580411365e-01,-2.400758277161838e+00,
+           -2.549732539343734e+00,4.374664141464968e+00,2.938163982698783e+00],
+        d=[7.784695709041462e-03,3.224671290700398e-01,2.445134137142996e+00,
+           3.754408661907416e+00];
+    var pl=0.02425, q, r;
+    if(p<pl){ q=Math.sqrt(-2*Math.log(p));
+      return (((((c[0]*q+c[1])*q+c[2])*q+c[3])*q+c[4])*q+c[5])/((((d[0]*q+d[1])*q+d[2])*q+d[3])*q+1); }
+    if(p>1-pl){ q=Math.sqrt(-2*Math.log(1-p));
+      return -(((((c[0]*q+c[1])*q+c[2])*q+c[3])*q+c[4])*q+c[5])/((((d[0]*q+d[1])*q+d[2])*q+d[3])*q+1); }
+    q=p-0.5; r=q*q;
+    return (((((a[0]*r+a[1])*r+a[2])*r+a[3])*r+a[4])*r+a[5])*q/
+           (((((b[0]*r+b[1])*r+b[2])*r+b[3])*r+b[4])*r+1);
+  }
+  function dnorm(x){ return Math.exp(-x*x/2)/Math.sqrt(2*Math.PI); }
+  /* selection intensity for truncation at proportion p saved */
+  function intensity(p){ if(!(p>0&&p<1)) return NaN; return dnorm(qnorm(1-p))/p; }
+  /* two-tailed t at alpha=.05; table for small df, normal approx beyond */
+  var TT={1:12.706,2:4.303,3:3.182,4:2.776,5:2.571,6:2.447,7:2.365,8:2.306,9:2.262,10:2.228,
+          11:2.201,12:2.179,13:2.160,14:2.145,15:2.131,16:2.120,17:2.110,18:2.101,19:2.093,20:2.086,
+          21:2.080,22:2.074,23:2.069,24:2.064,25:2.060,26:2.056,27:2.052,28:2.048,29:2.045,30:2.042,
+          40:2.021,50:2.009,60:2.000,80:1.990,100:1.984,120:1.980};
+  function tcrit(df){
+    if(df<1) return NaN;
+    if(TT[df]) return TT[df];
+    var ks=Object.keys(TT).map(Number).sort(function(a,b){return a-b;});
+    if(df>120) return 1.960;
+    for(var i=0;i<ks.length-1;i++){
+      if(df>ks[i]&&df<ks[i+1]){
+        var t=(df-ks[i])/(ks[i+1]-ks[i]);
+        return TT[ks[i]]+t*(TT[ks[i+1]]-TT[ks[i]]);
+      }
+    }
+    return 1.960;
+  }
+  function mean(a){var s=0;a.forEach(function(v){s+=v;});return a.length?s/a.length:NaN;}
+
+  /* =========================================================== POPULATION = */
+  var cropCtl,purpCtl,nCtl,nmCtl,nfCtl;
+  function popUI(){
+    cropCtl=FEK.picker({label:"Crop",placeholder:"filter 28 crops…",
+      options:CROPS.map(function(c){ return {value:c.id,label:c.n,
+        sub:(c.sys==="self"?"self-pollinating":c.sys==="cross"?"cross-pollinating":"mixed")+
+            " · "+(c.pol==="wind"?"wind":c.pol==="insect"?"insect":"self")}; }),
+      onchange:popOut});
+    purpCtl=FEK.dial({label:"What the seed is for",options:PURPOSE,value:"maintain",clearable:false,
+      onchange:popOut});
+    nCtl=FEK.step({label:"Plants you plan to save seed from",unit:"plants",value:20,min:1,max:2000,step:5,
+      help:"The headcount, before accounting for who actually contributed pollen."});
+    nmCtl=FEK.step({label:"Pollen parents contributing",unit:"plants",value:20,min:1,max:2000,step:5});
+    nfCtl=FEK.step({label:"Seed parents contributing",unit:"plants",value:20,min:1,max:2000,step:5});
+    FEK.mount("popPick",[cropCtl,purpCtl]);
+    FEK.mount("popN",[nCtl,nmCtl,nfCtl]);
+    ["popN"].forEach(function(id){ $(id).addEventListener("click",function(){ setTimeout(popOut,0); }); });
+    $("popN").addEventListener("input",popOut);
+  }
+  function minFor(c){
+    if(!c) return null;
+    if(c.minN) return {n:c.minN, pref:c.pref, why:"cited for this crop"};
+    if(c.sys==="cross") return {n:100, why:"outbreeder"};
+    if(c.sys==="mixed") return {n:100, why:"treated as an outbreeder — it outcrosses enough to matter"};
+    return {n:20, why:"inbreeder"};
+  }
+  function popOut(){
+    var box=$("popOut"), c=cropBy(cropCtl.get()), N=nCtl.get(), purp=purpCtl.get();
+    if(!c){ box.innerHTML='<p class="fine" style="margin:0">Pick a crop.</p>'; $("neOut").innerHTML=""; return; }
+    var m=minFor(c);
+    var ok=N>=m.n, great=m.pref? N>=m.pref : N>=m.n*2;
+    box.innerHTML='<h3 style="margin-top:0">'+esc(c.n)+'</h3>';
+    box.appendChild(FEK.tiles([
+      {v:N, l:"you plan to keep", tone:ok?"good":"bad"},
+      {v:m.n+(m.pref?" ("+m.pref+")":""), l:"published minimum"+(m.pref?" (preferred)":"")},
+      {v:c.sys==="self"?"self":c.sys==="cross"?"cross":"mixed", l:"mating system"},
+      {v:c.pol==="wind"?"wind":c.pol==="insect"?"insect":"self", l:"pollinated by"}
+    ]));
+    if(!ok) box.appendChild(FEK.banner("Below the published minimum of "+m.n+".",
+      "The rule is at least 20 individuals for an inbreeder and 100 for an outbreeder; this crop is "+
+      esc(m.why)+". At "+N+" you are "+(m.n-N)+" short. "+
+      (c.sys!=="self"
+        ? "For an outbreeder that is not a rounding error: the plants carry recessive alleles that heterozygosity has been hiding, and a small sample forces them into the open as lost vigour and poor seed set."
+        : "For an inbreeder the cost is milder — mostly a bottleneck and a lost chance to spot off-types — but the floor exists for a reason."),"bad"));
+    else if(great) box.appendChild(FEK.banner("Comfortably above the floor.",
+      "At "+N+" against a minimum of "+m.n+" you have room for roguing and for losses without dropping under.","good"));
+    else box.appendChild(FEK.banner("Just above the floor.",
+      "You meet the minimum of "+m.n+", but it is a <b>floor, not a target</b> — the point below which you "+
+      "actively damage the variety. Losses, poor germination and roguing all eat into it, so plan a margin.","warn"));
+    box.appendChild(FEK.banner(PURPOSE.filter(function(p){return p.value===purp;})[0].label,
+      PURPOSE_NOTE[purp],"cold"));
+    if(c.note) box.appendChild(FEK.banner("About "+esc(c.n),esc(c.note),"cold"));
+    neOut();
+  }
+  function neOut(){
+    var box=$("neOut"), nm=nmCtl.get(), nf=nfCtl.get();
+    if(!(nm>0&&nf>0)){ box.innerHTML=""; return; }
+    var Ne=4*nm*nf/(nm+nf), dF=1/(2*Ne);
+    box.innerHTML='<h3 style="margin-top:0">Effective population size</h3>';
+    box.appendChild(FEK.tiles([
+      {v:f(Ne,1), l:"Nₑ", tone:Ne>=100?"good":(Ne>=20?"warn":"bad")},
+      {v:f(dF*100,2)+"%", l:"ΔF per generation", tone:dF*100<=0.5?"good":(dF*100<=2.5?"warn":"bad")},
+      {v:f(dF*100*10,1)+"%", l:"after 10 generations", tone:dF*100*10<=5?"good":"warn"},
+      {v:nm+" / "+nf, l:"pollen / seed parents"}
+    ]));
+    box.appendChild(FEK.banner("Nₑ = 4 × "+nm+" × "+nf+" / ("+nm+" + "+nf+") = "+f(Ne,1),
+      (Math.abs(nm-nf)>Math.max(nm,nf)*0.25
+        ? "<b>The rarer sex is capping you.</b> "+nm+" pollen parents and "+nf+" seed parents is "+(nm+nf)+
+          " plants but an effective size of "+f(Ne,1)+". Balancing the two contributions is the cheapest way "+
+          "to raise Nₑ — it costs no extra ground."
+        : "Contributions are reasonably balanced, so Nₑ is close to the headcount. That is the best case, "+
+          "and it still assumes random mating and equal contribution within each group.")+
+      " ΔF = 1/(2Nₑ) = "+f(dF*100,2)+"% inbreeding added per generation, compounding.",
+      Ne>=100?"good":(Ne>=20?"warn":"bad")));
+    if(Ne<20) box.appendChild(FEK.banner("Nₑ under 20 is a salvage situation.",
+      "At this effective size you add "+f(dF*100,1)+"% inbreeding every generation. Decline shows up first "+
+      "as vigour and seed set rather than as the trait you were watching, and by the time it is obvious it "+
+      "is several generations deep. Widen the parent pool or bring in unrelated seed of the same variety.","bad"));
+  }
+
+  /* ============================================================ ISOLATION = */
+  var isoCrop,isoDist,isoUse;
+  function isoUI(){
+    $("isoRefuse").innerHTML="";
+    $("isoRefuse").appendChild(FEK.banner("Most isolation distances are yours to enter, not mine to supply.",
+      "Two are cited here and ship with their source. Every other published table disagrees with every other "+
+      "published table by an order of magnitude, because the right distance depends on pollinator pressure, "+
+      "wind, barriers, population size, and above all on whether the seed is for your own garden or for "+
+      "someone else to rely on. Enter the figure you are working to and the page records it with the source. "+
+      "(<a href=\"adr-031.html\">ADR-031</a>, gate 3.)","bad"));
+    isoCrop=FEK.picker({label:"Crop",placeholder:"filter…",
+      options:CROPS.map(function(c){ return {value:c.id,label:c.n,
+        sub:c.iso?("cited: "+c.isoNote+" · "+c.isoSrc):"no cited distance — enter yours"}; }),
+      onchange:isoOut});
+    isoDist=FEK.step({label:"Distance to the nearest other variety",unit:"m",value:100,min:0,max:5000,step:25});
+    isoUse=FEK.chips({label:"What the seed is for",single:true,value:["own"],
+      options:[{value:"own",label:"My own garden"},{value:"share",label:"Sharing / selling"}],
+      onchange:isoOut});
+    FEK.mount("isoPick",[isoCrop]); FEK.mount("isoEntry",[isoDist,isoUse]);
+    $("isoEntry").addEventListener("click",function(){ setTimeout(isoOut,0); });
+    $("isoEntry").addEventListener("input",isoOut);
+  }
+  function isoOut(){
+    var box=$("isoOut"), c=cropBy(isoCrop.get()), d=isoDist.get(), use=(isoUse.get()[0]||"own");
+    if(!c){ box.innerHTML='<p class="fine" style="margin:0">Pick a crop.</p>'; return; }
+    box.innerHTML='<h3 style="margin-top:0">'+esc(c.n)+'</h3>';
+    var tiles=[{v:f(d,0)+" m", l:"your distance"},
+               {v:c.pol==="wind"?"wind":c.pol==="insect"?"insect":"self", l:"pollen travels by"},
+               {v:c.sys==="self"?"self":c.sys==="cross"?"cross":"mixed", l:"mating system"}];
+    if(c.iso) tiles.push({v:c.isoNote, l:"cited ("+c.isoSrc+")", tone:d>=c.iso?"good":"bad"});
+    box.appendChild(FEK.tiles(tiles));
+    if(c.iso){
+      box.appendChild(FEK.banner(
+        d>=c.iso ? ("Meets the cited "+c.isoNote+".")
+                 : ("Short of the cited "+c.isoNote+" ("+c.iso+" m)."),
+        "This is one of the two distances on this page with a source: <b>"+esc(c.isoSrc)+"</b>. "+
+        (d>=c.iso ? "That figure is for producing seed that stays true; for your own garden you may accept less, and you should say so in the record."
+                  : "You are "+f(c.iso-d,0)+" m short. Consider time isolation — staggering sowings so the two do not flower together — or bagging and hand-pollinating, either of which beats distance."),
+        d>=c.iso?"good":"bad"));
+    } else {
+      box.appendChild(FEK.banner("No cited distance for this crop.",
+        "Enter the figure you are working to and record where it came from. As orientation rather than "+
+        "instruction: <b>wind-pollinated</b> crops need far more distance than insect-pollinated ones, and "+
+        "<b>self-pollinating</b> crops need very little. This crop is "+
+        (c.pol==="wind"?"<b>wind</b>-pollinated and "+(c.sys==="cross"?"an outcrosser — the demanding combination.":"")
+         :c.pol==="insect"?"<b>insect</b>-pollinated.":"<b>self</b>-pollinating, the easy case.")+"","warn"));
+    }
+    if(use==="share") box.appendChild(FEK.banner("Seed you are sharing or selling.",
+      "Someone else will sow this and will not know what went wrong if it comes out crossed. That is the case "+
+      "for the full distance, for bagging, or for not saving that variety this year.","warn"));
+    else box.appendChild(FEK.banner("Seed for your own garden.",
+      "A little contamination is recoverable — you will see the off-types next year and can rogue them. "+
+      "Record the distance you actually used so that next year's surprises have an explanation.","cold"));
+    if(c.note) box.appendChild(FEK.banner("Watch out",esc(c.note),"cold"));
+  }
+
+  /* ============================================================ SELECTION = */
+  var selN,selK,selH2,selSD, rogN,rogWhy;
+  function selUI(){
+    selN=FEK.step({label:"Plants grown",unit:"plants",value:100,min:2,max:5000,step:10});
+    selK=FEK.step({label:"Plants kept as parents",unit:"plants",value:10,min:1,max:5000,step:1});
+    selH2=FEK.slider({label:"Heritability h² you are assuming",min:0,max:1,step:0.05,value:0.35,
+      fmt:function(v){return v.toFixed(2);},
+      help:"A guess unless you have measured it. Selection Log measures it properly from parent–offspring pairs."});
+    selSD=FEK.step({label:"Phenotypic SD of the trait",unit:"units",value:10,min:0.01,max:10000,step:1,
+      help:"In whatever units the trait is measured — grams, days, centimetres."});
+    FEK.mount("selEntry",[selN,selK,selH2,selSD]);
+    $("selEntry").addEventListener("click",function(){ setTimeout(selOut,0); });
+    $("selEntry").addEventListener("input",selOut);
+    rogN=FEK.step({label:"Plants rogued",unit:"plants",value:1,min:1,max:1000,step:1});
+    rogWhy=FEK.chips({label:"Why",single:true,value:["offtype"],
+      options:[{value:"offtype",label:"Off-type"},{value:"disease",label:"Disease"},
+               {value:"bolt",label:"Bolted early"},{value:"weak",label:"Weak"},{value:"other",label:"Other"}]});
+    FEK.mount("rogEntry",[rogN,rogWhy]);
+  }
+  function selOut(){
+    var box=$("selOut"), N=selN.get(), K=selK.get(), h2=selH2.get(), sd=selSD.get();
+    if(K>N){ box.innerHTML='<h3 style="margin-top:0">Response</h3>';
+      box.appendChild(FEK.banner("You cannot keep more parents than you grew.",
+        "Kept ("+K+") exceeds grown ("+N+"). Fix one of them.","bad")); return; }
+    var p=K/N, i=intensity(p), R=i*h2*sd;
+    var Ne=K, dF=1/(2*Ne);
+    box.innerHTML='<h3 style="margin-top:0">Response</h3>';
+    box.appendChild(FEK.tiles([
+      {v:f(p*100,1)+"%", l:"proportion kept"},
+      {v:f(i,3), l:"intensity i", tone:i>1.5?"good":""},
+      {v:f(R,2), l:"expected R per generation", tone:"good"},
+      {v:K, l:"Nₑ if these are the only parents", tone:K>=100?"good":(K>=20?"warn":"bad")},
+      {v:f(dF*100,2)+"%", l:"ΔF per generation", tone:dF*100<=0.5?"good":(dF*100<=2.5?"warn":"bad")}
+    ]));
+    box.appendChild(FEK.banner("Keeping the top "+f(p*100,1)+"% gives i = "+f(i,3)+".",
+      "R = i × h² × σ<sub>P</sub> = "+f(i,3)+" × "+f(h2,2)+" × "+f(sd,2)+" = <b>"+f(R,2)+
+      "</b> units per generation, if h² is right and the environment does not move.","good"));
+    if(K<20) box.appendChild(FEK.banner("Selecting this hard costs you a population.",
+      "Keeping "+K+" parents is an effective size around "+K+", which adds <b>"+f(dF*100,1)+
+      "% inbreeding in one generation</b>. You will see the gain on the trait and pay for it in vigour and "+
+      "seed set two generations later. Grow more plants, or select less hard — those are the only two levers.","bad"));
+    else if(K<100) box.appendChild(FEK.banner("Watch the population cost.",
+      "Keeping "+K+" parents adds "+f(dF*100,2)+"% inbreeding per generation. That is survivable for an "+
+      "inbreeder and worth watching for an outcrosser.","warn"));
+    box.appendChild(FEK.banner("h² here is an assumption, not a measurement.",
+      "Unless you measured it from parent–offspring pairs, the response above is only as good as the number "+
+      "you dialled in. <a href=\"selection-log.html\">Selection Log</a> measures it properly, and prints the "+
+      "reasons a field h² is usually an overestimate.","cold"));
+  }
+  var rogues=[];
+  $("rAdd").addEventListener("click",function(){
+    rogues.push({n:rogN.get(),why:rogWhy.get()[0]||"other"});
+    rogList(); rogOut(); FEK.buzz(12); toast("Logged"); });
+  $("rUndo").addEventListener("click",function(){
+    if(!rogues.length){toast("Nothing to undo");return;} rogues.pop(); rogList(); rogOut(); });
+  function rogList(){
+    var box=$("rList");
+    if(!rogues.length){ box.innerHTML='<p class="fine" style="margin:0">Nothing rogued yet.</p>'; return; }
+    var LAB={offtype:"Off-type",disease:"Disease",bolt:"Bolted early",weak:"Weak",other:"Other"};
+    box.innerHTML=rogues.slice().reverse().map(function(r){
+      return '<div class="row2"><div class="g"><b>'+esc(LAB[r.why]||r.why)+'</b><span>removed before flowering</span></div>'+
+        '<span class="cov">'+r.n+'</span></div>'; }).join("");
+  }
+  function rogOut(){
+    var box=$("rogOut");
+    if(!rogues.length){ box.innerHTML=""; return; }
+    var tot=rogues.reduce(function(a,r){return a+r.n;},0);
+    var N=selN.get(), left=N-tot;
+    box.innerHTML="";
+    box.appendChild(FEK.tiles([
+      {v:tot, l:"rogued in total"},
+      {v:left, l:"left standing", tone:left>0?"":"bad"},
+      {v:N?f(tot/N*100,1)+"%":"—", l:"of the population"}
+    ]));
+    box.appendChild(FEK.banner("Roguing is selection.",
+      "Removing "+tot+" plants before they shed pollen changes the parent pool exactly as saving seed from "+
+      "the best does — and it lowers the effective population size by the same arithmetic. "+
+      (left>0 && left<20
+        ? "<b>You are down to "+left+" plants standing.</b> That is below the inbreeder floor, let alone the outbreeder one."
+        : "Recording it is what makes next year's population maths honest."),
+      (left>0&&left<20)?"bad":"good"));
+  }
+
+  /* ================================================================ TRIAL = */
+  var plots=[], tEnt,tBlk,tYld;
+  function triUI(){
+    tEnt=FEK.step({label:"Entry (variety number)",unit:"",value:1,min:1,max:99,step:1});
+    tBlk=FEK.step({label:"Block",unit:"",value:1,min:1,max:20,step:1});
+    tYld=FEK.step({label:"Plot yield",unit:"kg",value:0,min:0,max:100000,step:0.5,dec:2});
+    FEK.mount("triEntry",[tEnt,tBlk,tYld]);
+  }
+  $("tAdd").addEventListener("click",function(){
+    plots.push({e:tEnt.get(),b:tBlk.get(),y:tYld.get()});
+    triOut(); FEK.buzz(12); toast("Plot added"); });
+  $("tUndo").addEventListener("click",function(){
+    if(!plots.length){toast("Nothing to undo");return;} plots.pop(); triOut(); });
+  $("tClear").addEventListener("click",function(){ plots=[]; triOut(); });
+  $("tDemo").addEventListener("click",function(){
+    /* 4 entries x 3 blocks. Entry means 10/12/11/14, block effects 0/-1/+1, plus a
+       residual matrix whose row and column sums are both zero -- so the entry and
+       block means stay exact while SSE = 1.00 and the analysis is not degenerate. */
+    plots=[];
+    var em=[10,12,11,14], be=[0,-1,1];
+    var res=[[0.5,-0.5,0],[-0.5,0.5,0],[0,0,0],[0,0,0]];
+    for(var e=1;e<=4;e++) for(var b=1;b<=3;b++)
+      plots.push({e:e,b:b,y:+(em[e-1]+be[b-1]+res[e-1][b-1]).toFixed(2)});
+    triOut(); toast("4 entries × 3 blocks loaded"); FEK.buzz(14); });
+
+  function rcbd(){
+    if(!plots.length) return null;
+    var ents=[],blks=[];
+    plots.forEach(function(p){ if(ents.indexOf(p.e)<0) ents.push(p.e);
+                               if(blks.indexOf(p.b)<0) blks.push(p.b); });
+    ents.sort(function(a,b){return a-b;}); blks.sort(function(a,b){return a-b;});
+    var t=ents.length, r=blks.length, n=plots.length;
+    if(n!==t*r) return {incomplete:true,t:t,r:r,n:n,ents:ents,blks:blks};
+    var G=0; plots.forEach(function(p){ G+=p.y; });
+    var gm=G/n;
+    var em={},bm={};
+    ents.forEach(function(e){ em[e]=mean(plots.filter(function(p){return p.e===e;}).map(function(p){return p.y;})); });
+    blks.forEach(function(b){ bm[b]=mean(plots.filter(function(p){return p.b===b;}).map(function(p){return p.y;})); });
+    var ssT=0,ssB=0,ssTot=0;
+    ents.forEach(function(e){ ssT+=r*Math.pow(em[e]-gm,2); });
+    blks.forEach(function(b){ ssB+=t*Math.pow(bm[b]-gm,2); });
+    plots.forEach(function(p){ ssTot+=Math.pow(p.y-gm,2); });
+    var ssE=ssTot-ssT-ssB;
+    var dfE=(t-1)*(r-1);
+    var mse=dfE>0?ssE/dfE:NaN;
+    var lsd=dfE>0?tcrit(dfE)*Math.sqrt(2*mse/r):NaN;
+    var cv=gm?100*Math.sqrt(mse)/gm:NaN;
+    return {t:t,r:r,n:n,ents:ents,blks:blks,gm:gm,em:em,bm:bm,
+            ssT:ssT,ssB:ssB,ssE:ssE,dfE:dfE,mse:mse,lsd:lsd,cv:cv};
+  }
+  function triOut(){
+    var box=$("triOut"), tbl=$("triTable"), a=rcbd();
+    if(!a){ box.innerHTML='<h3 style="margin-top:0">Analysis</h3>'+
+      '<p class="fine" style="margin:0">Add some plots.</p>'; tbl.innerHTML=""; return; }
+    box.innerHTML='<h3 style="margin-top:0">Analysis</h3>';
+    if(a.incomplete){
+      box.appendChild(FEK.banner("The design is not complete.",
+        "You have "+a.n+" plots across "+a.t+" entries and "+a.r+" blocks, which needs "+(a.t*a.r)+
+        ". A randomised complete block analysis needs every entry in every block. Fill the gaps, or "+
+        "analyse it as something else.","bad"));
+      tbl.innerHTML=""; return;
+    }
+    if(a.r<2){
+      box.appendChild(FEK.tiles([{v:a.t,l:"entries"},{v:a.r,l:"blocks",tone:"bad"},
+                                 {v:f(a.gm,2),l:"grand mean"}]));
+      box.appendChild(FEK.banner("One replicate is not a trial.",
+        "With a single block there is no error term, so there is no LSD and no way to tell a real difference "+
+        "from noise. The entry means below are just the plot yields. Two blocks is the bare minimum and three "+
+        "is where it starts being worth the ground.","bad"));
+    } else {
+      box.appendChild(FEK.tiles([
+        {v:a.t, l:"entries"},
+        {v:a.r, l:"blocks"},
+        {v:f(a.gm,2)+" kg", l:"grand mean"},
+        {v:f(a.mse,3), l:"MSE"},
+        {v:f(a.lsd,2)+" kg", l:"LSD₀.₀₅", tone:"good"},
+        {v:f(a.cv,1)+"%", l:"CV", tone:a.cv<=15?"good":(a.cv<=25?"warn":"bad")}
+      ]));
+      box.appendChild(FEK.banner("LSD₀.₀₅ = "+f(a.lsd,2)+" kg",
+        "t<sub>0.025,"+a.dfE+"</sub> × √(2 × "+f(a.mse,3)+" / "+a.r+"). Two entry means differing by more "+
+        "than this are conventionally called different — one comparison at a time.","good"));
+      if(a.cv>25) box.appendChild(FEK.banner("CV of "+f(a.cv,1)+"% is high.",
+        "Above roughly 25% the trial is too noisy to separate anything but very large differences. Look for "+
+        "the cause — plot size, edge effects, uneven establishment — before trusting any comparison.","bad"));
+      else if(a.cv>15) box.appendChild(FEK.banner("CV of "+f(a.cv,1)+"% is on the high side.",
+        "Under about 15% is the conventional target for a vegetable yield trial. These are conventions, not "+
+        "thresholds.","warn"));
+      else box.appendChild(FEK.banner("CV of "+f(a.cv,1)+"% is tidy.",
+        "Under the conventional 15% target for a yield trial, so the LSD is doing real work.","good"));
+      if(a.t>4) box.appendChild(FEK.banner("With "+a.t+" entries there are "+(a.t*(a.t-1)/2)+" pairwise comparisons.",
+        "At 5% each you should expect roughly "+f(a.t*(a.t-1)/2*0.05,1)+" apparent differences from noise "+
+        "alone. Compare each entry against a named control instead, and treat any other difference as a "+
+        "hypothesis for next season.","bad"));
+    }
+    /* table */
+    var srt=a.ents.slice().sort(function(x,y){ return a.em[y]-a.em[x]; });
+    var best=a.em[srt[0]];
+    var h='<h3 style="margin-top:0">Entry means</h3><div class="tw"><table>'+
+      '<tr><th>entry</th><th class="n">mean</th><th class="n">vs best</th>'+
+      (a.r>=2?'<th class="n">differs from best?</th>':'')+'</tr>';
+    srt.forEach(function(e){
+      var d=best-a.em[e];
+      h+='<tr><td>Entry '+e+'</td><td class="n">'+f(a.em[e],2)+'</td><td class="n">'+
+         (d>0?"−"+f(d,2):"—")+'</td>'+
+         (a.r>=2?('<td class="'+(d>a.lsd?"no":"ok")+'">'+(d>a.lsd?"yes":(d>0?"no":"—"))+'</td>'):'')+
+         '</tr>';
+    });
+    h+='</table></div>';
+    h+='<div class="tw"><table><tr><th>block</th><th class="n">mean</th></tr>';
+    a.blks.forEach(function(b){ h+='<tr><td>Block '+b+'</td><td class="n">'+f(a.bm[b],2)+'</td></tr>'; });
+    h+='</table></div>';
+    h+='<p class="fine">Block means are shown because a big spread between them is the design earning its '+
+       'keep — that is the field gradient being taken out of the entry comparison rather than left in it.</p>';
+    tbl.innerHTML=h;
+  }
+
+  /* ================================================================= SEED = */
+  var gN,gUp,sYear,sCrop;
+  function seedUI(){
+    gN=FEK.step({label:"Seeds tested",unit:"seeds",value:100,min:1,max:1000,step:10});
+    gUp=FEK.step({label:"Seeds germinated",unit:"seeds",value:0,min:0,max:1000,step:1});
+    FEK.mount("germEntry",[gN,gUp]);
+    $("germEntry").addEventListener("click",function(){ setTimeout(germOut,0); });
+    $("germEntry").addEventListener("input",germOut);
+    sYear=FEK.step({label:"Seasons in storage",unit:"years",value:1,min:0,max:30,step:1});
+    sCrop=FEK.picker({label:"Crop",placeholder:"filter…",
+      options:CROPS.map(function(c){ return {value:c.id,label:c.n}; }), onchange:storOut});
+    FEK.mount("storEntry",[sCrop,sYear]);
+    $("storEntry").addEventListener("click",function(){ setTimeout(storOut,0); });
+    $("storEntry").addEventListener("input",storOut);
+  }
+  function germOut(){
+    var box=$("germOut"), n=gN.get(), k=gUp.get();
+    if(k>n){ box.innerHTML=""; box.appendChild(FEK.banner("More germinated than you sowed.",
+      "You entered "+k+" up from "+n+" sown.","bad")); return; }
+    var p=k/n, se=Math.sqrt(p*(1-p)/n);
+    box.innerHTML="";
+    box.appendChild(FEK.tiles([
+      {v:f(p*100,1)+"%", l:"germination", tone:p>=0.8?"good":(p>=0.5?"warn":"bad")},
+      {v:"±"+f(se*100,1)+"%", l:"binomial SE", tone:se*100<=5?"good":"warn"},
+      {v:n, l:"seeds tested", tone:n>=100?"good":"warn"},
+      {v:f(Math.max(0,(p-1.96*se)*100),1)+"–"+f(Math.min(100,(p+1.96*se)*100),1)+"%", l:"95% interval"}
+    ]));
+    if(n<50) box.appendChild(FEK.banner("Only "+n+" seeds tested.",
+      "The interval above is wide for a reason: a proportion from a small sample moves a lot. One hundred "+
+      "seeds is the usual test size where you can spare them; 20 will tell you whether the lot is alive but "+
+      "not much more.","warn"));
+    box.appendChild(FEK.banner("Sowing rate follows from this.",
+      "At "+f(p*100,1)+"% you need about "+f(1/Math.max(p,0.01),1)+" seeds per plant wanted, before "+
+      "field losses. A germination test in a warm tray flatters what happens in cold spring ground.","cold"));
+  }
+  function storOut(){
+    var box=$("storOut"), y=sYear.get(), c=cropBy(sCrop.get());
+    box.innerHTML="";
+    box.appendChild(FEK.tiles([{v:y, l:"seasons stored", tone:y<=3?"good":(y<=5?"warn":"bad")}]));
+    box.appendChild(FEK.banner(
+      y<=3 ? "Inside the conventional window." : y<=5 ? "At the edge of the conventional window."
+           : "Past the conventional window.",
+      "The working figure is that <b>most high-quality, correctly stored seed stays viable at least "+
+      "3–5 years</b>. That is a <b>range and a convention</b>, not a shelf life: onion, parsnip and leek are "+
+      "notoriously short-lived, while brassicas, tomatoes and cucurbits often run well past five years. "+
+      (y>3?"Run a germination test before you commit ground to it.":"A test still costs nothing but a week.")+
+      (c?" This page holds no species-specific longevity figure for "+esc(c.n)+" — that varies too much by "+
+         "storage moisture and temperature to ship a number for.":""),
+      y<=3?"good":(y<=5?"warn":"bad")));
+    box.appendChild(FEK.banner("Cool and dry beats either alone.",
+      "Seed put away damp does not keep however cold it is, and the usual rule of thumb is that the sum of "+
+      "temperature in °F and relative humidity should stay under about 100. That is a rule of thumb.","cold"));
+  }
+
+  /* ---------------------------------------------------------------- tabs - */
+  document.querySelectorAll(".tab").forEach(function(tb){
+    tb.addEventListener("click",function(){
+      document.querySelectorAll(".tab").forEach(function(t){t.classList.toggle("on",t===tb);});
+      document.querySelectorAll(".pane").forEach(function(p){p.classList.toggle("on",p.id===tb.dataset.pane);});
+      window.scrollTo(0,0); FEK.buzz();
+    });
+  });
+  popUI(); popOut(); isoUI(); isoOut(); selUI(); selOut(); rogList(); rogOut();
+  triUI(); triOut(); seedUI(); germOut(); storOut();
+})();
+</script>
+</body>
+</html>

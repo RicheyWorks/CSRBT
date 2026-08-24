@@ -768,6 +768,28 @@ live, and every export carries site, observer, and date plus a CSV for Excel/R:
   flagged, from a single parent), and **R&nbsp;=&nbsp;h&sup2;S** printed as a hypothesis the next generation
   will test rather than a forecast. Trait distributions before and after the episode, a fitness-on-trait
   scatter, and a per-individual CSV shaped for the multiple regression the page deliberately does not attempt.
+- [**`docs/breeding-bench.html`**](docs/breeding-bench.html) — **Breeding Bench**, the vegetable-breeding
+  suite, third instrument on the Field Entry Kit. Six benches over one seed crop. **Population** applies the
+  rule that seed be saved from at least **20 inbreeding or 100 outbreeding individuals**, per crop, from a
+  28-crop table carrying mating system and pollination vector — and explains why the two halves fail
+  differently: for an inbreeder twenty is about off-types, for an outbreeder a hundred is about the recessive
+  load heterozygosity has been hiding. **Effective population size** Nₑ&nbsp;=&nbsp;4NₘNₑ/(Nₘ+Nₑ)
+  with &Delta;F&nbsp;=&nbsp;1/(2Nₑ) per generation and its ten-generation accumulation, flagging when the
+  rarer sex is what caps you. **Isolation** ships a distance only for the four crops where one is citable
+  (NMSU H-262: two miles for corn, half a mile for three *Cucurbita*) and **refuses the rest outright** — the
+  numbers in circulation are regionally assigned and revised, so the page takes yours and records provenance.
+  It does ship the species traps, which are definitional and cost people whole crops: all cabbage, kale,
+  broccoli, cauliflower, kohlrabi and Brussels sprouts are **one species**; carrot crosses with wild Queen
+  Anne's lace; beet and chard are the same plant. **Selection** computes intensity
+  *i*&nbsp;=&nbsp;&phi;(&Phi;&#8315;&sup1;(1&minus;p))/p from the proportion kept and prints
+  R&nbsp;=&nbsp;*i*&nbsp;h&sup2;&nbsp;&sigma; as a hypothesis, with h&sup2; **labelled an assumption rather
+  than a measurement** and the tension named in plain terms: the harder you select, the fewer parents you
+  keep, and the faster you inbreed. A roguing log reads across to the population floor. **Trial** runs a
+  randomised complete block analysis — LSD&nbsp;=&nbsp;t&#8320;&#46;&#8320;&#8322;&#8325;&nbsp;&radic;(2&nbsp;MSE/r)
+  and CV% from the error mean square — and states the multiple-comparison trap on the same screen: LSD lies
+  when you have many entries. **Seed** does germination with the binomial standard error
+  &radic;(p(1&minus;p)/n), so a 90% germination on 100 seeds is reported as 90&nbsp;&plusmn;&nbsp;3%, and gives
+  storage as a range labelled a convention. 85/85 verified.
 - [**`docs/cp-bench.html`**](docs/cp-bench.html) — **CP Bench**, the carnivorous-plant suite, second
   instrument on the Field Entry Kit. **Water first**, because it kills more carnivorous plants than anything
   else: TDS logged per source against the published **&lt;160&nbsp;ppm** guidance (with the stricter ~50&nbsp;ppm
