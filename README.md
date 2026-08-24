@@ -775,7 +775,18 @@ live, and every export carries site, observer, and date plus a CSV for Excel/R:
   from indirect selection. **Parent&ndash;offspring heritability** from mid-parent regression (doubled, and
   flagged, from a single parent), and **R&nbsp;=&nbsp;h&sup2;S** printed as a hypothesis the next generation
   will test rather than a forecast. Trait distributions before and after the episode, a fitness-on-trait
-  scatter, and a per-individual CSV shaped for the multiple regression the page deliberately does not attempt.
+  scatter, and a per-individual CSV shaped for the multiple regression the page deliberately does not attempt.  **Migrated to the Field Entry Kit (v1.1.0).** Three of the choices are about the data rather than the
+  ergonomics. **Survival is two taps reading *died* / *survived*, not a box you type 0 or 1 into** — a
+  stray keystroke in a numeric box turns a death into a survival and nothing about the record looks wrong
+  afterwards. **An unrecorded count is not a zero**: count steppers start empty, because zero recruits is a
+  real observation and not-having-checked is not, and averaging the two together biases every estimate on
+  the page downward; the first tap starts at 1, since 0 is a value you should have to choose. **A trait
+  value is typed, not stepped** — a bill depth comes off calipers, and rounding at entry would inflate the
+  repeatability that everything downstream is bounded by. The migration also surfaced a real defect: 
+  changing the fitness component used to silently reinterpret values recorded under the previous one, so a
+  1 meaning *survived* became one recruited offspring. It now keeps them, says so, and offers to clear.
+  75/75 verified.
+
 - [**`docs/breeding-bench.html`**](docs/breeding-bench.html) — **Breeding Bench**, the vegetable-breeding
   suite, third instrument on the Field Entry Kit. Six benches over one seed crop. **Population** applies the
   rule that seed be saved from at least **20 inbreeding or 100 outbreeding individuals**, per crop, from a

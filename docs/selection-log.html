@@ -229,6 +229,140 @@
   .rail a[aria-current="page"] { background:var(--soft); border-color:var(--s1); color:var(--s1); }
   .rail a.ref { font-weight:600; color:var(--muted); background:none; box-shadow:none; }
   @media print { .rail { display:none !important; } }
+
+  /* ============ Field Entry Kit v1.1.0 ============
+     Large-target, high-contrast entry controls. Sizing is driven by --tap
+     rather than per-component numbers so one token retunes the whole kit for
+     gloves, cold hands or a wall-mounted tablet. */
+  :root {
+    --tap: 60px;            /* primary control height  */
+    --tap-sm: 48px;         /* secondary control height */
+    --fek-r: 16px;
+    --ramp-0:#2B6C8F; --ramp-1:#3E8C8C; --ramp-2:#2E7D4F;
+    --ramp-3:#B8860B; --ramp-4:#C0592B; --ramp-5:#B23A32;
+    --fek-line:#C7C0AC;
+  }
+  .fek-lab { display:block; font:800 15px var(--body); color:var(--ink-2);
+    letter-spacing:.01em; margin:0 0 6px; }
+  .fek-lab .u { font:600 12.5px var(--mono); color:var(--muted); margin-left:6px; }
+  .fek-help { font-size:13.5px; color:var(--muted); line-height:1.5; margin:6px 0 0; }
+  .fek-row { margin:0 0 20px; }
+
+  /* --- stepper: the workhorse numeric entry --- */
+  .fek-step { display:flex; align-items:stretch; gap:0; border:2px solid var(--border);
+    border-radius:var(--fek-r); overflow:hidden; background:var(--surface); max-width:340px; }
+  .fek-step button { border:0; background:var(--surface-2); color:var(--ink);
+    font:800 30px var(--body); line-height:1; width:calc(var(--tap) + 8px); min-height:var(--tap);
+    cursor:pointer; touch-action:manipulation; transition:background .12s; }
+  .fek-step button:hover { background:var(--soft); color:var(--s1); }
+  .fek-step button:active { background:var(--s1); color:#fff; }
+  .fek-step .val { flex:1; min-width:0; text-align:center; border:0; background:none;
+    font:800 30px var(--head); color:var(--ink); font-variant-numeric:tabular-nums;
+    -moz-appearance:textfield; padding:0 4px; }
+  .fek-step .val::-webkit-outer-spin-button,
+  .fek-step .val::-webkit-inner-spin-button { -webkit-appearance:none; margin:0; }
+  .fek-step .val:focus { outline:none; background:var(--soft); }
+
+  /* --- segmented ordinal dial with a colour ramp --- */
+  .fek-dial { display:flex; flex-wrap:wrap; gap:8px; }
+  .fek-dial button { flex:1 1 auto; min-width:72px; min-height:var(--tap);
+    border:2px solid var(--border); border-radius:var(--fek-r); background:var(--surface);
+    font:800 17px var(--body); color:var(--ink-2); cursor:pointer; touch-action:manipulation;
+    display:flex; flex-direction:column; align-items:center; justify-content:center; gap:2px;
+    padding:6px 8px; transition:transform .08s, border-color .12s, background .12s; }
+  .fek-dial button small { font:600 11px var(--mono); color:var(--muted); letter-spacing:.02em; }
+  .fek-dial button:active { transform:scale(.96); }
+  .fek-dial button.on { color:#fff; border-color:transparent; }
+  .fek-dial button.on small { color:rgba(255,255,255,.85); }
+  .fek-dial button.on[data-r="0"]{background:var(--ramp-0);}
+  .fek-dial button.on[data-r="1"]{background:var(--ramp-1);}
+  .fek-dial button.on[data-r="2"]{background:var(--ramp-2);}
+  .fek-dial button.on[data-r="3"]{background:var(--ramp-3);}
+  .fek-dial button.on[data-r="4"]{background:var(--ramp-4);}
+  .fek-dial button.on[data-r="5"]{background:var(--ramp-5);}
+
+  /* --- field: a typed value from an instrument readout ---
+     A stepper is the wrong control for a number you READ off a machine to three
+     decimals: you would tap two thousand times to reach 1.842. This is a plain
+     numeric entry sized like the rest of the kit, with the unit shown and the
+     decimal keypad requested, and nothing that pretends the value is scrollable. */
+  .fek-field { display:flex; align-items:stretch; gap:0; border:2px solid var(--border);
+    border-radius:var(--fek-r); overflow:hidden; background:var(--surface); max-width:340px; }
+  .fek-field input { flex:1; min-width:0; border:0; background:none; text-align:right;
+    font:800 26px var(--head); color:var(--ink); font-variant-numeric:tabular-nums;
+    -moz-appearance:textfield; padding:0 12px; min-height:var(--tap); }
+  .fek-field input::-webkit-outer-spin-button,
+  .fek-field input::-webkit-inner-spin-button { -webkit-appearance:none; margin:0; }
+  .fek-field input:focus { outline:none; background:var(--soft); }
+  .fek-field input::placeholder { color:var(--muted); font-weight:600; font-size:20px; }
+  .fek-field .u { display:flex; align-items:center; padding:0 14px; background:var(--surface-2);
+    font:700 13px var(--mono); color:var(--muted); border-left:2px solid var(--border); white-space:nowrap; }
+  .fek-field.empty { border-style:dashed; }
+
+  /* --- big toggle chips --- */
+  .fek-chips { display:flex; flex-wrap:wrap; gap:9px; }
+  .fek-chip { min-height:var(--tap-sm); border:2px solid var(--border); border-radius:999px;
+    background:var(--surface); font:800 15.5px var(--body); color:var(--ink-2);
+    padding:0 20px; cursor:pointer; touch-action:manipulation; display:inline-flex;
+    align-items:center; gap:8px; transition:transform .08s, border-color .12s, background .12s; }
+  .fek-chip:active { transform:scale(.96); }
+  .fek-chip.on { border-color:var(--s1); background:var(--soft); color:var(--s1-deep); }
+  .fek-chip.on::before { content:"\2713"; font-size:17px; }
+
+  /* --- slider with a live bubble --- */
+  .fek-slide { display:flex; align-items:center; gap:14px; }
+  .fek-slide input[type=range] { flex:1; min-width:0; height:var(--tap-sm); -webkit-appearance:none;
+    background:transparent; cursor:pointer; touch-action:manipulation; }
+  .fek-slide input[type=range]::-webkit-slider-runnable-track { height:14px; border-radius:8px;
+    background:linear-gradient(90deg,var(--ramp-0),var(--ramp-2),var(--ramp-3),var(--ramp-5)); }
+  .fek-slide input[type=range]::-moz-range-track { height:14px; border-radius:8px;
+    background:linear-gradient(90deg,var(--ramp-0),var(--ramp-2),var(--ramp-3),var(--ramp-5)); }
+  .fek-slide input[type=range]::-webkit-slider-thumb { -webkit-appearance:none; width:34px; height:34px;
+    border-radius:50%; background:#fff; border:3px solid var(--ink); margin-top:-10px;
+    box-shadow:0 2px 6px rgba(35,40,31,.3); }
+  .fek-slide input[type=range]::-moz-range-thumb { width:34px; height:34px; border-radius:50%;
+    background:#fff; border:3px solid var(--ink); box-shadow:0 2px 6px rgba(35,40,31,.3); }
+  .fek-slide .bub { font:800 26px var(--head); font-variant-numeric:tabular-nums; color:var(--ink);
+    min-width:86px; text-align:right; }
+  .fek-slide .bub span { font:600 13px var(--mono); color:var(--muted); margin-left:3px; }
+
+  /* --- big picker: replaces <select> for long lists --- */
+  .fek-pick { border:2px solid var(--border); border-radius:var(--fek-r); background:var(--surface);
+    overflow:hidden; }
+  .fek-pick .search { width:100%; border:0; border-bottom:2px solid var(--border);
+    font:700 17px var(--body); padding:0 16px; min-height:var(--tap); background:var(--surface-2); }
+  .fek-pick .search:focus { outline:none; background:var(--soft); }
+  .fek-pick .opts { max-height:264px; overflow-y:auto; -webkit-overflow-scrolling:touch; }
+  .fek-pick .opt { display:block; width:100%; text-align:left; border:0; border-bottom:1px solid var(--border);
+    background:none; font:700 16.5px var(--body); color:var(--ink); min-height:var(--tap-sm);
+    padding:10px 16px; cursor:pointer; touch-action:manipulation; }
+  .fek-pick .opt small { display:block; font:400 12.5px var(--mono); color:var(--muted); margin-top:2px; }
+  .fek-pick .opt:hover { background:var(--soft); }
+  .fek-pick .opt.on { background:var(--s1); color:#fff; }
+  .fek-pick .opt.on small { color:rgba(255,255,255,.85); }
+  .fek-pick .none { padding:16px; color:var(--muted); font-size:14px; }
+
+  /* --- readout tiles, sized to be read at arm's length --- */
+  .fek-tiles { display:grid; grid-template-columns:repeat(auto-fit,minmax(148px,1fr)); gap:11px; margin:14px 0 2px; }
+  .fek-tile { border:2px solid var(--border); border-radius:var(--fek-r); padding:13px 15px; background:var(--surface); }
+  .fek-tile .v { font:800 30px var(--head); font-variant-numeric:tabular-nums; line-height:1.05; color:var(--ink); }
+  .fek-tile .l { font:700 12px var(--body); color:var(--muted); margin-top:4px; letter-spacing:.02em; }
+  .fek-tile.good { border-color:var(--ramp-2); } .fek-tile.good .v { color:var(--ramp-2); }
+  .fek-tile.warn { border-color:var(--ramp-3); } .fek-tile.warn .v { color:#8a6508; }
+  .fek-tile.bad  { border-color:var(--ramp-5); } .fek-tile.bad  .v { color:var(--ramp-5); }
+  .fek-tile.cold { border-color:var(--ramp-0); } .fek-tile.cold .v { color:var(--ramp-0); }
+
+  /* --- banner: the verdict, big --- */
+  .fek-banner { border-radius:var(--fek-r); padding:16px 19px; margin:14px 0; font-size:16px;
+    line-height:1.55; border-left:7px solid var(--ramp-2); background:var(--soft); color:var(--ink-2); }
+  .fek-banner b { font-family:var(--head); color:var(--ink); font-size:17.5px; display:block; margin-bottom:4px; }
+  .fek-banner.warn { border-left-color:var(--ramp-3); background:var(--warn-bg); }
+  .fek-banner.bad  { border-left-color:var(--ramp-5); background:var(--danger-bg); }
+  .fek-banner.cold { border-left-color:var(--ramp-0); background:#E6EEF3; }
+
+  @media (max-width:420px){ :root { --tap:56px; --tap-sm:46px; } .fek-step .val { font-size:26px; } }
+  @media print { .fek-step button, .fek-pick .search { display:none; } }
+
 </style>
 </head>
 <body>
@@ -248,9 +382,9 @@
       <div class="grid">
         <label class="f">ID / band<input type="text" id="iId" placeholder="AB-1042" autocomplete="off"></label>
         <label class="f">cohort / year<input type="text" id="iCoh" placeholder="2026" autocomplete="off"></label>
-        <label class="f">sex<select id="iSex"><option value="">—</option><option>F</option><option>M</option><option>unknown</option></select></label>
-        <label class="f">age class<select id="iAge"><option value="">—</option><option>juvenile</option><option>subadult</option><option>adult</option><option>unknown</option></select></label>
       </div>
+      <div id="indEntry" style="margin-top:16px"></div>
+      <input type="hidden" id="iSex"><input type="hidden" id="iAge">
       <label class="f" style="margin-top:10px">natural history note<textarea id="iNote" placeholder="Caught in mist-net 3 at 06:40. Bill tip worn. Feeding on hard seed at the ridge — not seen at the seep with the others."></textarea></label>
       <div class="btn-row">
         <button class="btn btn-go" id="iAdd" type="button">Add individual</button>
@@ -262,14 +396,10 @@
       <h3 style="margin-top:0">Fitness</h3>
       <p class="hint" style="margin-bottom:8px">A selection episode needs a <b>fitness component</b> and an
         <b>interval</b>. Say which, then record the outcome per individual.</p>
-      <div class="grid">
-        <label class="f">fitness component<select id="fComp">
-          <option value="surv">survived the episode (0/1)</option>
-          <option value="recr">offspring recruited (count)</option>
-          <option value="mate">matings obtained (count)</option>
-        </select></label>
-        <label class="f">episode<input type="text" id="fEp" placeholder="drought, Jun–Dec 2026" autocomplete="off"></label>
-      </div>
+      <div id="fitEntry"></div>
+      <div id="fCompWarn"></div>
+      <input type="hidden" id="fComp" value="surv">
+      <label class="f" style="margin-bottom:14px">episode<input type="text" id="fEp" placeholder="drought, Jun–Dec 2026" autocomplete="off"></label>
       <div class="rowlist" id="iList"></div>
     </div>
   </section>
@@ -282,13 +412,12 @@
       further down this page.</p>
 
     <div class="card">
+      <div id="meaEntry"></div>
       <div class="grid">
-        <label class="f">individual<select id="mInd"></select></label>
-        <label class="f">trait<select id="mTrait"></select></label>
-        <label class="f">value<input type="number" id="mVal" step="0.01"></label>
         <label class="f">occasion / replicate<input type="text" id="mOcc" placeholder="rep 1" autocomplete="off"></label>
         <label class="f">measurer<input type="text" id="mWho" autocomplete="off"></label>
       </div>
+      <input type="hidden" id="mInd"><input type="hidden" id="mTrait"><input type="hidden" id="mVal">
       <div class="btn-row">
         <button class="btn btn-go" id="mAdd" type="button">Add measurement</button>
         <button class="btn btn-ghost" id="mUndo" type="button">↩ Undo</button>
@@ -315,7 +444,8 @@
     <p class="hint">Choose a trait and the page measures selection on it &mdash; the differential, the
       intensity, and the gradient &mdash; then tells you what each one is and is not entitled to say.</p>
     <div class="card">
-      <label class="f">trait<select id="sTrait"></select></label>
+      <div id="sTraitEntry"></div>
+      <input type="hidden" id="sTrait">
       <div id="selOut"></div>
     </div>
     <div class="card" id="distBox"></div>
@@ -329,11 +459,8 @@
       on mid-parent estimates h&sup2; for the trait in <em>this</em> population, in <em>this</em> environment.</p>
 
     <div class="card">
-      <div class="grid">
-        <label class="f">offspring<select id="pOff"></select></label>
-        <label class="f">dam<select id="pDam"></select></label>
-        <label class="f">sire<select id="pSire"></select></label>
-      </div>
+      <div id="pedEntry"></div>
+      <input type="hidden" id="pOff"><input type="hidden" id="pDam"><input type="hidden" id="pSire">
       <div class="btn-row">
         <button class="btn btn-go" id="pAdd" type="button">Link parents</button>
         <button class="btn btn-ghost" id="pUndo" type="button">↩ Undo</button>
@@ -342,7 +469,8 @@
     </div>
 
     <div class="card">
-      <label class="f">trait<select id="hTrait"></select></label>
+      <div id="hTraitEntry"></div>
+      <input type="hidden" id="hTrait">
       <div id="herOut"></div>
     </div>
     <div class="card" id="predBox"></div>
@@ -363,6 +491,33 @@
   <section class="pane" id="p-met">
     <h2>Method</h2>
     <p class="hint">What each number means, what it assumes, and the ways it is routinely misread.</p>
+
+    <div class="card">
+      <h3 style="margin-top:0">What the entry layer records &mdash; and what it does not</h3>
+      <p>The controls are the shared <b>Field Entry Kit</b>. Three choices on this page are about the data
+        rather than the ergonomics.</p>
+      <p><b>Survival is two taps, not a box you type 0 or 1 into.</b> When the fitness component is
+        survival, each individual gets a two-way dial reading <em>died</em> / <em>survived</em>. Typing a
+        bare 0 or 1 into a numeric box is a well-known source of silent error &mdash; a stray keystroke
+        turns a death into a survival and nothing about the record looks wrong afterwards. Naming the two
+        outcomes makes the mistake visible.</p>
+      <p><b>An unrecorded count is not a zero.</b> When the component is a count, each individual gets a
+        stepper that starts <em>empty</em>. Zero recruits is a real and important observation; not having
+        checked yet is not, and averaging the two together would quietly bias every selection estimate on
+        the page downward. The first tap starts at 1 rather than 0, because 0 is a value you should have
+        to choose.</p>
+      <p><b>A trait value is typed, not stepped.</b> A bill depth is a number you read off calipers, so it
+        gets a plain field at full precision. Nothing is rounded on the way in &mdash; the repeatability
+        analysis is computed from exactly what you recorded, and rounding at entry would inflate it.</p>
+      <p><b>Changing the fitness component does not reinterpret what you already recorded.</b> A 1 entered
+        as <em>survived</em> is not one recruited offspring. Switching the component keeps your values
+        &mdash; losing data is worse &mdash; but says plainly that they were entered under a different
+        definition, and offers to clear them. Silently carrying them over would put a fabricated fitness
+        value into the differential, the intensity, the gradient and the predicted response, all at once
+        and all invisibly.</p>
+      <p>Age class is a dial because it is ordinal, and left blank means left blank: an unrecorded age is
+        not the same as an age you determined to be <em>unknown</em>, and both are available.</p>
+    </div>
 
     <div class="card">
       <h3 style="margin-top:0">What this page is for</h3>
@@ -497,6 +652,223 @@
 </div></div>
 <div class="toast" id="toast">Saved</div>
 <script>
+
+/* ---- Field Entry Kit v1.1.0 : constructors return {el, get, set} ---- */
+var FEK = (function(){
+  function el(t,c,h){ var e=document.createElement(t); if(c) e.className=c;
+    if(h!=null) e.innerHTML=h; return e; }
+  function buzz(m){ try{ if(navigator.vibrate) navigator.vibrate(m||8);}catch(e){} }
+
+  function step(o){
+    o=o||{}; var min=(o.min==null?-Infinity:o.min), max=(o.max==null?Infinity:o.max);
+    var stepv=o.step||1, dec=o.dec==null?(String(stepv).split(".")[1]||"").length:o.dec;
+    var v=o.value==null?0:o.value;
+    var wrap=el("div","fek-row"), lab=el("label","fek-lab",
+      (o.label||"")+(o.unit?'<span class="u">'+o.unit+'</span>':""));
+    var box=el("div","fek-step");
+    var minus=el("button",null,"&minus;"), inp=el("input"), plus=el("button",null,"+");
+    minus.type="button"; plus.type="button"; inp.type="number"; inp.className="val";
+    inp.setAttribute("inputmode","decimal");
+    if(o.label) inp.setAttribute("aria-label",o.label);
+    /* nullable: the control can hold "not recorded", which is not the same as
+       zero. Aspect 0 is north; a duff depth of 0 cm is an observation. An empty
+       nullable stepper reports null and the first bump starts from o.start. */
+    var nullable = !!o.nullable;
+    if(nullable && o.value==null) v=null;
+    function clamp(x){ return Math.min(max,Math.max(min,x)); }
+    function render(){
+      if(v==null){ inp.value=""; wrap.classList.add("is-empty"); box.classList.add("empty"); return; }
+      wrap.classList.remove("is-empty"); box.classList.remove("empty");
+      inp.value=(dec?v.toFixed(dec):String(v));
+    }
+    function set(x,quiet){
+      if(nullable && (x==null || x==="" || (typeof x==="number" && !isFinite(x)))) v=null;
+      else v=clamp(isFinite(x)?x:0);
+      render(); if(!quiet&&o.onchange) o.onchange(v);
+    }
+    function bump(d){
+      if(v==null) set(clamp(o.start==null?0:o.start));
+      else set(+(v+d*stepv).toFixed(6));
+      buzz();
+    }
+    function clear(){ if(nullable) set(null); }
+    minus.addEventListener("click",function(){ bump(-1); });
+    plus.addEventListener("click",function(){ bump(1); });
+    var hold;
+    function holdOn(d){ return function(){ clearInterval(hold);
+      hold=setInterval(function(){ bump(d); },110); }; }
+    function holdOff(){ clearInterval(hold); }
+    minus.addEventListener("pointerdown",holdOn(-1)); plus.addEventListener("pointerdown",holdOn(1));
+    ["pointerup","pointerleave","pointercancel"].forEach(function(ev){
+      minus.addEventListener(ev,holdOff); plus.addEventListener(ev,holdOff); });
+    inp.addEventListener("input",function(){
+      if(nullable && inp.value===""){ v=null; box.classList.add("empty");
+        if(o.onchange) o.onchange(null); return; }
+      var x=parseFloat(inp.value);
+      if(isFinite(x)){ v=clamp(x); box.classList.remove("empty"); if(o.onchange) o.onchange(v); } });
+    inp.addEventListener("blur",render);
+    box.appendChild(minus); box.appendChild(inp); box.appendChild(plus);
+    wrap.appendChild(lab); wrap.appendChild(box);
+    if(o.help) wrap.appendChild(el("p","fek-help",o.help));
+    render();
+    return { el:wrap, get:function(){return v;}, set:function(x){set(x,true);},
+             clear:clear, nullable:nullable };
+  }
+
+  /* field: a value typed from an instrument readout. No steppers — see the CSS note. */
+  function field(o){
+    o=o||{};
+    var min=(o.min==null?-Infinity:o.min), max=(o.max==null?Infinity:o.max);
+    var dec=(o.dec==null?3:o.dec), v=(o.value==null?null:o.value);
+    var wrap=el("div","fek-row"), lab=el("label","fek-lab",
+      (o.label||"")+(o.unit?'<span class="u">'+o.unit+'</span>':""));
+    var box=el("div","fek-field"), inp=el("input");
+    inp.type="number"; inp.setAttribute("inputmode","decimal");
+    if(o.step!=null) inp.step=o.step;
+    inp.placeholder = o.placeholder==null ? "—" : o.placeholder;
+    if(o.label) inp.setAttribute("aria-label",o.label);
+    function paint(){ box.classList.toggle("empty", v==null); }
+    function set(x,quiet){
+      if(x==null || x===""){ v=null; inp.value=""; }
+      else { var n=parseFloat(x);
+        v = isFinite(n) ? Math.min(max,Math.max(min,n)) : null;
+        inp.value = (v==null?"":String(v)); }
+      paint(); if(!quiet&&o.onchange) o.onchange(v);
+    }
+    inp.addEventListener("input",function(){
+      if(inp.value===""){ v=null; paint(); if(o.onchange) o.onchange(null); return; }
+      var n=parseFloat(inp.value);
+      if(isFinite(n)){ v=Math.min(max,Math.max(min,n)); paint(); if(o.onchange) o.onchange(v); } });
+    inp.addEventListener("blur",function(){
+      if(v!=null && isFinite(v)) inp.value = (dec==null?String(v):String(+v.toFixed(dec)));
+      paint(); });
+    box.appendChild(inp);
+    if(o.unitBox!==false && o.unit) box.appendChild(el("div","u",o.unit));
+    wrap.appendChild(lab); wrap.appendChild(box);
+    if(o.help) wrap.appendChild(el("p","fek-help",o.help));
+    set(v,true);
+    return { el:wrap, get:function(){return v;}, set:function(x){set(x,true);},
+             clear:function(){ set(null,true); }, nullable:true };
+  }
+
+  function dial(o){
+    o=o||{}; var opts=o.options||[], cur=o.value==null?null:o.value;
+    var wrap=el("div","fek-row"), lab=el("label","fek-lab",o.label||"");
+    var box=el("div","fek-dial"), btns=[];
+    opts.forEach(function(op,i){
+      var b=el("button",null,'<span>'+op.label+'</span>'+(op.sub?'<small>'+op.sub+'</small>':""));
+      b.type="button";
+      b.setAttribute("data-r", op.ramp==null ? String(Math.min(5,Math.round(i*5/Math.max(1,opts.length-1)))) : String(op.ramp));
+      b.addEventListener("click",function(){
+        cur = (cur===op.value && o.clearable!==false) ? null : op.value;
+        paint(); buzz(); if(o.onchange) o.onchange(cur);
+      });
+      btns.push(b); box.appendChild(b);
+    });
+    function paint(){ btns.forEach(function(b,i){ b.classList.toggle("on", opts[i].value===cur); }); }
+    paint();
+    wrap.appendChild(lab); wrap.appendChild(box);
+    if(o.help) wrap.appendChild(el("p","fek-help",o.help));
+    return { el:wrap, get:function(){return cur;},
+             set:function(x){ cur=x; paint(); } };
+  }
+
+  function chips(o){
+    o=o||{}; var opts=o.options||[], sel={};
+    (o.value||[]).forEach(function(v){ sel[v]=1; });
+    var wrap=el("div","fek-row"), lab=el("label","fek-lab",o.label||"");
+    var box=el("div","fek-chips"), btns=[];
+    opts.forEach(function(op){
+      var b=el("button","fek-chip",op.label); b.type="button";
+      b.addEventListener("click",function(){
+        if(o.single){ sel={}; sel[op.value]=1; }
+        else if(sel[op.value]) delete sel[op.value]; else sel[op.value]=1;
+        paint(); buzz(); if(o.onchange) o.onchange(Object.keys(sel));
+      });
+      btns.push(b); box.appendChild(b);
+    });
+    function paint(){ btns.forEach(function(b,i){ b.classList.toggle("on",!!sel[opts[i].value]); }); }
+    paint();
+    wrap.appendChild(lab); wrap.appendChild(box);
+    if(o.help) wrap.appendChild(el("p","fek-help",o.help));
+    return { el:wrap, get:function(){return Object.keys(sel);},
+             set:function(a){ sel={}; (a||[]).forEach(function(v){sel[v]=1;}); paint(); } };
+  }
+
+  function slider(o){
+    o=o||{};
+    var nullable=!!o.nullable;
+    var v = (nullable && o.value==null) ? null : (o.value==null?(o.min||0):o.value);
+    var wrap=el("div","fek-row"), lab=el("label","fek-lab",o.label||"");
+    var box=el("div","fek-slide"), r=el("input"), bub=el("div","bub");
+    r.type="range"; r.min=o.min==null?0:o.min; r.max=o.max==null?100:o.max;
+    r.step=o.step||1; r.value=v;
+    if(o.label) r.setAttribute("aria-label",o.label);
+    function paint(){
+      if(v==null){ bub.innerHTML='<span style="opacity:.6">not recorded</span>'; return; }
+      bub.innerHTML=(o.fmt?o.fmt(v):v)+(o.unit?'<span>'+o.unit+'</span>':"");
+    }
+    r.addEventListener("input",function(){ v=parseFloat(r.value); paint(); if(o.onchange) o.onchange(v); });
+    if(nullable && v==null) r.value = (o.min==null?0:o.min);
+    paint();
+    box.appendChild(r); box.appendChild(bub);
+    wrap.appendChild(lab); wrap.appendChild(box);
+    if(o.help) wrap.appendChild(el("p","fek-help",o.help));
+    return { el:wrap, get:function(){return v;},
+             set:function(x){ v=(nullable&&x==null)?null:x; if(x!=null) r.value=x; paint(); },
+             clear:function(){ if(nullable){ v=null; paint(); } }, nullable:nullable };
+  }
+
+  function picker(o){
+    o=o||{}; var opts=o.options||[], cur=o.value==null?null:o.value, q="";
+    var wrap=el("div","fek-row"), lab=el("label","fek-lab",o.label||"");
+    var box=el("div","fek-pick"), s=el("input","search"), list=el("div","opts");
+    s.type="text"; s.placeholder=o.placeholder||"type to filter…";
+    s.setAttribute("autocomplete","off");
+    if(o.label) s.setAttribute("aria-label",o.label+" filter");
+    function paint(){
+      list.innerHTML="";
+      var qq=q.toLowerCase();
+      var shown=opts.filter(function(op){
+        return !qq || (op.label+" "+(op.sub||"")).toLowerCase().indexOf(qq)>=0; });
+      if(!shown.length){ list.appendChild(el("div","none","No match. Clear the filter to see all "+opts.length+".")); return; }
+      shown.slice(0,200).forEach(function(op){
+        var b=el("button","opt"+(op.value===cur?" on":""),
+          op.label+(op.sub?'<small>'+op.sub+'</small>':""));
+        b.type="button";
+        b.addEventListener("click",function(){ cur=op.value; paint(); buzz(); if(o.onchange) o.onchange(cur); });
+        list.appendChild(b);
+      });
+    }
+    s.addEventListener("input",function(){ q=s.value; paint(); });
+    box.appendChild(s); box.appendChild(list);
+    wrap.appendChild(lab); wrap.appendChild(box);
+    if(o.help) wrap.appendChild(el("p","fek-help",o.help));
+    paint();
+    return { el:wrap, get:function(){return cur;}, set:function(x){ cur=x; paint(); } };
+  }
+
+  function tiles(list){
+    var box=el("div","fek-tiles");
+    (list||[]).forEach(function(t){
+      box.appendChild(el("div","fek-tile"+(t.tone?" "+t.tone:""),
+        '<div class="v">'+t.v+'</div><div class="l">'+t.l+'</div>'));
+    });
+    return box;
+  }
+  function banner(title,body,tone){
+    return el("div","fek-banner"+(tone?" "+tone:""),"<b>"+title+"</b>"+body);
+  }
+  function mount(host,parts){
+    var h=typeof host==="string"?document.getElementById(host):host;
+    h.innerHTML=""; parts.forEach(function(p){ h.appendChild(p.el||p); }); return h;
+  }
+  return { version:"1.1.0", step:step, field:field, dial:dial, chips:chips, slider:slider,
+           picker:picker, tiles:tiles, banner:banner, mount:mount, buzz:buzz };
+})();
+
+</script>
+<script>
 (function(){
   "use strict";
   var $=function(i){return document.getElementById(i);};
@@ -578,20 +950,117 @@
   }
 
   /* -------------------------------------------------------- individuals */
+  /* ------------------------------------------- Field Entry Kit v1.1 ----
+     Individuals are a growing list, so they get filterable pickers. Traits are
+     a short list you want to see all of at once, so they get chips. Sex and age
+     class are dials — age is ordinal and the ramp says so. The trait value is a
+     number you READ off calipers, so it is a typed field, not a stepper.
+     Everything writes through to the hidden field the rest of the page reads. */
+  function push(id,v){
+    var e=$(id); if(!e) return;
+    e.value=(v==null?"":String(v));
+    e.dispatchEvent(new Event("input",{bubbles:true}));
+    e.dispatchEvent(new Event("change",{bubbles:true}));
+  }
+  var MIND=null, POFF=null, PDAM=null, PSIRE=null;
+  var MTRAIT=null, STRAIT=null, HTRAIT=null;
+
+  var ISEX=FEK.dial({ label:"sex",
+    options:[{value:"F",label:"F",ramp:0},{value:"M",label:"M",ramp:2},
+             {value:"unknown",label:"unknown",ramp:3}],
+    onchange:function(v){ push("iSex",v); } });
+  var IAGE=FEK.dial({ label:"age class",
+    options:[{value:"juvenile",label:"juvenile",ramp:0},{value:"subadult",label:"subadult",ramp:1},
+             {value:"adult",label:"adult",ramp:2},{value:"unknown",label:"unknown",ramp:4}],
+    onchange:function(v){ push("iAge",v); },
+    help:"Left blank is left blank — an unrecorded age is not the same as an unknown one, and <em>unknown</em> is a determination you made." });
+  FEK.mount("indEntry",[ISEX,IAGE]);
+
+  var FCOMP=FEK.chips({ label:"fitness component", single:true, value:["surv"],
+    options:[{value:"surv",label:"survived the episode"},
+             {value:"recr",label:"offspring recruited"},
+             {value:"mate",label:"matings obtained"}],
+    onchange:function(a){ var v=a[0]||"surv"; push("fComp",v); fCompWarn(); },
+    help:"This decides how fitness is recorded per individual below: survival becomes a two-way tap, a count becomes a stepper." });
+  FEK.mount("fitEntry",[FCOMP]);
+
+  /* Changing the component does NOT reinterpret what you already recorded on
+     your behalf. A 1 entered as "survived" is not one recruited offspring, and
+     silently treating it as such would put a fabricated fitness value into every
+     estimate downstream. The values are kept — losing data is worse — but the
+     page says plainly that they were entered under a different component and
+     offers to clear them. */
+  var fCompLast="surv";
+  function fCompWarn(){
+    var box=$("fCompWarn"); if(!box) return;
+    var now=val("fComp")||"surv";
+    var recorded=inds.filter(function(i){ return i.fit!=null; }).length;
+    if(now===fCompLast || !recorded){ fCompLast=now; box.innerHTML=""; return; }
+    box.innerHTML='<div class="fek-banner warn"><b>'+recorded+' value'+(recorded===1?"":"s")+
+      ' were recorded under a different fitness component.</b>'+
+      'They have been kept, not reinterpreted — a 1 entered as <em>survived</em> is not one recruited '+
+      'offspring. Check each one against the component now selected, or clear them and start the episode '+
+      'again. <button class="btn btn-ghost" id="fCompClear" type="button" '+
+      'style="margin-top:10px">Clear all recorded fitness</button></div>';
+    var b=$("fCompClear");
+    if(b) b.addEventListener("click",function(){
+      inds.forEach(function(i){ i.fit=null; });
+      fCompLast=now; box.innerHTML=""; renderAll(); toast("Fitness cleared");
+    });
+    fCompLast=now;
+  }
+
+  var MVAL=FEK.field({ label:"value", dec:4, step:0.01,
+    onchange:function(v){ push("mVal",v); },
+    help:"As the calipers read it. Nothing is rounded on the way in — repeatability is computed from what you actually recorded." });
+
+  function indOptions(){
+    return inds.map(function(i){
+      return {value:i.id, label:esc(i.label), sub:esc(i.coh?i.coh:"") }; });
+  }
+  function traitOptions(){
+    return TRAITS.map(function(t){
+      return {value:t.id, label:esc(t.name)+(t.unit?" ("+esc(t.unit)+")":"")}; });
+  }
   function fillSelects(){
-    [["mInd",true],["pOff",true],["pDam",true],["pSire",true]].forEach(function(p){
-      var s=$(p[0]), keep=s.value; s.innerHTML="";
-      var o=document.createElement("option"); o.value=""; o.textContent="— pick —"; s.appendChild(o);
-      inds.forEach(function(i){ var e=document.createElement("option"); e.value=i.id;
-        e.textContent=i.label+(i.coh?" ("+i.coh+")":""); s.appendChild(e); });
-      if(keep&&s.querySelector('option[value="'+keep+'"]')) s.value=keep;
-    });
-    ["mTrait","sTrait","hTrait"].forEach(function(id){
-      var s=$(id), keep=s.value; s.innerHTML="";
-      TRAITS.forEach(function(t){ var e=document.createElement("option"); e.value=t.id;
-        e.textContent=t.name+(t.unit?" ("+t.unit+")":""); s.appendChild(e); });
-      if(keep&&s.querySelector('option[value="'+keep+'"]')) s.value=keep;
-    });
+    var opts=indOptions();
+    var keep={mInd:MIND&&MIND.get(), pOff:POFF&&POFF.get(),
+              pDam:PDAM&&PDAM.get(), pSire:PSIRE&&PSIRE.get()};
+    var have=function(k){ return opts.some(function(o){ return o.value===k; }); };
+    function pick(label, id, cur){
+      return FEK.picker({ label:label, options:opts, value:have(cur)?cur:null,
+        placeholder: inds.length? "type an ID to filter…" : "no individuals yet",
+        onchange:function(v){ push(id,v); } });
+    }
+    MIND=pick("individual","mInd",keep.mInd);
+    FEK.mount("meaEntry",[MIND,MTRAITHOST(),MVAL]);
+    POFF=pick("offspring","pOff",keep.pOff);
+    PDAM=pick("dam","pDam",keep.pDam);
+    PSIRE=pick("sire","pSire",keep.pSire);
+    FEK.mount("pedEntry",[POFF,PDAM,PSIRE]);
+    fillTraits();
+  }
+  function MTRAITHOST(){ return { el: (MTRAIT ? MTRAIT.el : document.createElement("div")) }; }
+  function fillTraits(){
+    var opts=traitOptions();
+    var cur={m:MTRAIT&&MTRAIT.get()&&MTRAIT.get()[0], s:STRAIT&&STRAIT.get()&&STRAIT.get()[0],
+             h:HTRAIT&&HTRAIT.get()&&HTRAIT.get()[0]};
+    var first=(TRAITS[0]||{}).id;
+    var have=function(k){ return opts.some(function(o){ return o.value===k; }); };
+    function chips(label,id,curv,extra){
+      var v=have(curv)?curv:first;
+      var c=FEK.chips({ label:label, single:true, value:v?[v]:[], options:opts,
+        onchange:function(a){ push(id, a[0]||""); }, help:extra });
+      push(id, v||"");
+      return c;
+    }
+    MTRAIT=chips("trait","mTrait",cur.m);
+    STRAIT=chips("trait","sTrait",cur.s,
+      "Selection is measured one trait at a time here, which is exactly why the gradient below equals the intensity — see the Method tab.");
+    HTRAIT=chips("trait","hTrait",cur.h);
+    if(MIND) FEK.mount("meaEntry",[MIND,MTRAIT,MVAL]);
+    FEK.mount("sTraitEntry",[STRAIT]);
+    FEK.mount("hTraitEntry",[HTRAIT]);
   }
   $("iAdd").addEventListener("click",function(){
     var lab=val("iId"); if(!lab){ toast("Give it an ID"); return; }
@@ -619,15 +1088,23 @@
       bits.push(nm+" meas.");
       d.innerHTML='<div class="g"><b>'+esc(i.label)+'</b><span>'+esc(bits.join(" · "))+
         (i.note?' — '+esc(i.note.slice(0,60)):'')+'</span></div>';
-      var inp=document.createElement("input");
-      inp.type="number"; inp.step=comp==="surv"?"1":"1"; inp.min="0";
-      if(comp==="surv"){ inp.max="1"; inp.placeholder="0/1"; } else inp.placeholder="n";
-      inp.style.width="86px"; inp.style.minHeight="44px";
-      inp.value = (i.fit==null?"":i.fit);
-      inp.addEventListener("input",function(){
-        var v=parseFloat(inp.value); i.fit=isFinite(v)?v:null; renderSel(); renderPred(); ecoOut();
-      });
-      d.appendChild(inp);
+      /* Survival is binary, so it is two taps rather than a box you type 0 or 1
+         into — typing 0/1 is where silent data errors come from. A count gets a
+         nullable stepper: unrecorded and zero are different answers, and only
+         one of them means the animal produced nothing. */
+      var ctl;
+      if(comp==="surv"){
+        ctl=FEK.dial({ clearable:true,
+          options:[{value:"0",label:"died",ramp:5},{value:"1",label:"survived",ramp:2}],
+          value:(i.fit==null?null:String(i.fit)),
+          onchange:function(v){ i.fit = (v==null?null:+v); renderSel(); renderPred(); ecoOut(); } });
+      } else {
+        ctl=FEK.step({ min:0, max:99, step:1, dec:0, nullable:true, start:1,
+          value:(i.fit==null?null:i.fit),
+          onchange:function(v){ i.fit=v; renderSel(); renderPred(); ecoOut(); } });
+      }
+      ctl.el.style.margin="0"; ctl.el.style.minWidth="0";
+      d.appendChild(ctl.el);
       var x=document.createElement("button"); x.type="button"; x.textContent="✕";
       x.addEventListener("click",function(){
         inds=inds.filter(function(y){return y!==i;});
@@ -668,7 +1145,7 @@
     if(!ind){toast("Pick an individual");return;}
     if(!isFinite(v)){toast("Enter a value");return;}
     meas.push({ind:ind,trait:tr,v:v,occ:val("mOcc"),who:val("mWho")});
-    $("mVal").value=""; renderAll(); buzz(12);
+    MVAL.clear(); push("mVal",null); renderAll(); buzz(12);
     toast("Recorded "+f(v,2)+" for "+(indBy(ind)||{}).label);
   });
   $("mUndo").addEventListener("click",function(){
@@ -955,7 +1432,9 @@
   function ecoOut(){
     var L=[];
     L.push("# selection log");
-    L.push("# episode: "+(val("fEp")||"unnamed")+"   fitness: "+$("fComp").selectedOptions[0].textContent);
+    var fcl={surv:"survived the episode (0/1)",recr:"offspring recruited (count)",
+             mate:"matings obtained (count)"}[val("fComp")]||val("fComp");
+    L.push("# episode: "+(val("fEp")||"unnamed")+"   fitness: "+fcl);
     L.push("# "+inds.length+" individuals, "+meas.length+" measurements, "+ped.length+" parent links");
     L.push("");
     TRAITS.forEach(function(t){
@@ -1006,7 +1485,8 @@
       meas.push({ind:id,trait:"t1",v:+(d[1]+((seq%3)-1)*0.05).toFixed(2),occ:"rep 2",who:"obs B"});
     });
     $("fEp").value="worked example — drought";
-    $("sTrait").value="t1"; $("mTrait").value="t1"; $("hTrait").value="t1";
+    if(MTRAIT) MTRAIT.set(["t1"]); if(STRAIT) STRAIT.set(["t1"]); if(HTRAIT) HTRAIT.set(["t1"]);
+    push("sTrait","t1"); push("mTrait","t1"); push("hTrait","t1");
     renderAll(); toast("Worked example loaded — 12 individuals, bill depth, survival"); buzz(14);
   });
 
