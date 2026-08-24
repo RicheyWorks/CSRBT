@@ -75,7 +75,7 @@
     border-radius:999px; padding:7px 8px 7px 14px; font-weight:800; font-size:14px; }
   .chipT .w { font-family:var(--mono); font-size:11.5px; color:var(--s3); font-weight:500; }
   .chipT button { border:0; background:none; color:var(--muted); font-size:14px; cursor:pointer;
-    min-width:36px; min-height:36px; padding:6px 8px; touch-action:manipulation; }
+    min-width:44px; min-height:44px; padding:6px 8px; touch-action:manipulation; }
   .chipT button:hover { color:var(--danger); }
 
   /* plant grid */
@@ -160,6 +160,140 @@
   .rail a.ref { font-weight:600; color:var(--muted); background:none; box-shadow:none; }
   .rail a.ref:hover { color:var(--s1); }
   @media print { .rail { display:none !important; } }
+
+  /* ============ Field Entry Kit v1.1.0 ============
+     Large-target, high-contrast entry controls. Sizing is driven by --tap
+     rather than per-component numbers so one token retunes the whole kit for
+     gloves, cold hands or a wall-mounted tablet. */
+  :root {
+    --tap: 60px;            /* primary control height  */
+    --tap-sm: 48px;         /* secondary control height */
+    --fek-r: 16px;
+    --ramp-0:#2B6C8F; --ramp-1:#3E8C8C; --ramp-2:#2E7D4F;
+    --ramp-3:#B8860B; --ramp-4:#C0592B; --ramp-5:#B23A32;
+    --fek-line:#C7C0AC;
+  }
+  .fek-lab { display:block; font:800 15px var(--body); color:var(--ink-2);
+    letter-spacing:.01em; margin:0 0 6px; }
+  .fek-lab .u { font:600 12.5px var(--mono); color:var(--muted); margin-left:6px; }
+  .fek-help { font-size:13.5px; color:var(--muted); line-height:1.5; margin:6px 0 0; }
+  .fek-row { margin:0 0 20px; }
+
+  /* --- stepper: the workhorse numeric entry --- */
+  .fek-step { display:flex; align-items:stretch; gap:0; border:2px solid var(--border);
+    border-radius:var(--fek-r); overflow:hidden; background:var(--surface); max-width:340px; }
+  .fek-step button { border:0; background:var(--surface-2); color:var(--ink);
+    font:800 30px var(--body); line-height:1; width:calc(var(--tap) + 8px); min-height:var(--tap);
+    cursor:pointer; touch-action:manipulation; transition:background .12s; }
+  .fek-step button:hover { background:var(--soft); color:var(--s1); }
+  .fek-step button:active { background:var(--s1); color:#fff; }
+  .fek-step .val { flex:1; min-width:0; text-align:center; border:0; background:none;
+    font:800 30px var(--head); color:var(--ink); font-variant-numeric:tabular-nums;
+    -moz-appearance:textfield; padding:0 4px; }
+  .fek-step .val::-webkit-outer-spin-button,
+  .fek-step .val::-webkit-inner-spin-button { -webkit-appearance:none; margin:0; }
+  .fek-step .val:focus { outline:none; background:var(--soft); }
+
+  /* --- segmented ordinal dial with a colour ramp --- */
+  .fek-dial { display:flex; flex-wrap:wrap; gap:8px; }
+  .fek-dial button { flex:1 1 auto; min-width:72px; min-height:var(--tap);
+    border:2px solid var(--border); border-radius:var(--fek-r); background:var(--surface);
+    font:800 17px var(--body); color:var(--ink-2); cursor:pointer; touch-action:manipulation;
+    display:flex; flex-direction:column; align-items:center; justify-content:center; gap:2px;
+    padding:6px 8px; transition:transform .08s, border-color .12s, background .12s; }
+  .fek-dial button small { font:600 11px var(--mono); color:var(--muted); letter-spacing:.02em; }
+  .fek-dial button:active { transform:scale(.96); }
+  .fek-dial button.on { color:#fff; border-color:transparent; }
+  .fek-dial button.on small { color:rgba(255,255,255,.85); }
+  .fek-dial button.on[data-r="0"]{background:var(--ramp-0);}
+  .fek-dial button.on[data-r="1"]{background:var(--ramp-1);}
+  .fek-dial button.on[data-r="2"]{background:var(--ramp-2);}
+  .fek-dial button.on[data-r="3"]{background:var(--ramp-3);}
+  .fek-dial button.on[data-r="4"]{background:var(--ramp-4);}
+  .fek-dial button.on[data-r="5"]{background:var(--ramp-5);}
+
+  /* --- field: a typed value from an instrument readout ---
+     A stepper is the wrong control for a number you READ off a machine to three
+     decimals: you would tap two thousand times to reach 1.842. This is a plain
+     numeric entry sized like the rest of the kit, with the unit shown and the
+     decimal keypad requested, and nothing that pretends the value is scrollable. */
+  .fek-field { display:flex; align-items:stretch; gap:0; border:2px solid var(--border);
+    border-radius:var(--fek-r); overflow:hidden; background:var(--surface); max-width:340px; }
+  .fek-field input { flex:1; min-width:0; border:0; background:none; text-align:right;
+    font:800 26px var(--head); color:var(--ink); font-variant-numeric:tabular-nums;
+    -moz-appearance:textfield; padding:0 12px; min-height:var(--tap); }
+  .fek-field input::-webkit-outer-spin-button,
+  .fek-field input::-webkit-inner-spin-button { -webkit-appearance:none; margin:0; }
+  .fek-field input:focus { outline:none; background:var(--soft); }
+  .fek-field input::placeholder { color:var(--muted); font-weight:600; font-size:20px; }
+  .fek-field .u { display:flex; align-items:center; padding:0 14px; background:var(--surface-2);
+    font:700 13px var(--mono); color:var(--muted); border-left:2px solid var(--border); white-space:nowrap; }
+  .fek-field.empty { border-style:dashed; }
+
+  /* --- big toggle chips --- */
+  .fek-chips { display:flex; flex-wrap:wrap; gap:9px; }
+  .fek-chip { min-height:var(--tap-sm); border:2px solid var(--border); border-radius:999px;
+    background:var(--surface); font:800 15.5px var(--body); color:var(--ink-2);
+    padding:0 20px; cursor:pointer; touch-action:manipulation; display:inline-flex;
+    align-items:center; gap:8px; transition:transform .08s, border-color .12s, background .12s; }
+  .fek-chip:active { transform:scale(.96); }
+  .fek-chip.on { border-color:var(--s1); background:var(--soft); color:var(--s1-deep); }
+  .fek-chip.on::before { content:"\2713"; font-size:17px; }
+
+  /* --- slider with a live bubble --- */
+  .fek-slide { display:flex; align-items:center; gap:14px; }
+  .fek-slide input[type=range] { flex:1; min-width:0; height:var(--tap-sm); -webkit-appearance:none;
+    background:transparent; cursor:pointer; touch-action:manipulation; }
+  .fek-slide input[type=range]::-webkit-slider-runnable-track { height:14px; border-radius:8px;
+    background:linear-gradient(90deg,var(--ramp-0),var(--ramp-2),var(--ramp-3),var(--ramp-5)); }
+  .fek-slide input[type=range]::-moz-range-track { height:14px; border-radius:8px;
+    background:linear-gradient(90deg,var(--ramp-0),var(--ramp-2),var(--ramp-3),var(--ramp-5)); }
+  .fek-slide input[type=range]::-webkit-slider-thumb { -webkit-appearance:none; width:34px; height:34px;
+    border-radius:50%; background:#fff; border:3px solid var(--ink); margin-top:-10px;
+    box-shadow:0 2px 6px rgba(35,40,31,.3); }
+  .fek-slide input[type=range]::-moz-range-thumb { width:34px; height:34px; border-radius:50%;
+    background:#fff; border:3px solid var(--ink); box-shadow:0 2px 6px rgba(35,40,31,.3); }
+  .fek-slide .bub { font:800 26px var(--head); font-variant-numeric:tabular-nums; color:var(--ink);
+    min-width:86px; text-align:right; }
+  .fek-slide .bub span { font:600 13px var(--mono); color:var(--muted); margin-left:3px; }
+
+  /* --- big picker: replaces <select> for long lists --- */
+  .fek-pick { border:2px solid var(--border); border-radius:var(--fek-r); background:var(--surface);
+    overflow:hidden; }
+  .fek-pick .search { width:100%; border:0; border-bottom:2px solid var(--border);
+    font:700 17px var(--body); padding:0 16px; min-height:var(--tap); background:var(--surface-2); }
+  .fek-pick .search:focus { outline:none; background:var(--soft); }
+  .fek-pick .opts { max-height:264px; overflow-y:auto; -webkit-overflow-scrolling:touch; }
+  .fek-pick .opt { display:block; width:100%; text-align:left; border:0; border-bottom:1px solid var(--border);
+    background:none; font:700 16.5px var(--body); color:var(--ink); min-height:var(--tap-sm);
+    padding:10px 16px; cursor:pointer; touch-action:manipulation; }
+  .fek-pick .opt small { display:block; font:400 12.5px var(--mono); color:var(--muted); margin-top:2px; }
+  .fek-pick .opt:hover { background:var(--soft); }
+  .fek-pick .opt.on { background:var(--s1); color:#fff; }
+  .fek-pick .opt.on small { color:rgba(255,255,255,.85); }
+  .fek-pick .none { padding:16px; color:var(--muted); font-size:14px; }
+
+  /* --- readout tiles, sized to be read at arm's length --- */
+  .fek-tiles { display:grid; grid-template-columns:repeat(auto-fit,minmax(148px,1fr)); gap:11px; margin:14px 0 2px; }
+  .fek-tile { border:2px solid var(--border); border-radius:var(--fek-r); padding:13px 15px; background:var(--surface); }
+  .fek-tile .v { font:800 30px var(--head); font-variant-numeric:tabular-nums; line-height:1.05; color:var(--ink); }
+  .fek-tile .l { font:700 12px var(--body); color:var(--muted); margin-top:4px; letter-spacing:.02em; }
+  .fek-tile.good { border-color:var(--ramp-2); } .fek-tile.good .v { color:var(--ramp-2); }
+  .fek-tile.warn { border-color:var(--ramp-3); } .fek-tile.warn .v { color:#8a6508; }
+  .fek-tile.bad  { border-color:var(--ramp-5); } .fek-tile.bad  .v { color:var(--ramp-5); }
+  .fek-tile.cold { border-color:var(--ramp-0); } .fek-tile.cold .v { color:var(--ramp-0); }
+
+  /* --- banner: the verdict, big --- */
+  .fek-banner { border-radius:var(--fek-r); padding:16px 19px; margin:14px 0; font-size:16px;
+    line-height:1.55; border-left:7px solid var(--ramp-2); background:var(--soft); color:var(--ink-2); }
+  .fek-banner b { font-family:var(--head); color:var(--ink); font-size:17.5px; display:block; margin-bottom:4px; }
+  .fek-banner.warn { border-left-color:var(--ramp-3); background:var(--warn-bg); }
+  .fek-banner.bad  { border-left-color:var(--ramp-5); background:var(--danger-bg); }
+  .fek-banner.cold { border-left-color:var(--ramp-0); background:#E6EEF3; }
+
+  @media (max-width:420px){ :root { --tap:56px; --tap-sm:46px; } .fek-step .val { font-size:26px; } }
+  @media print { .fek-step button, .fek-pick .search { display:none; } }
+
 </style>
 </head>
 <body>
@@ -181,8 +315,10 @@
       <div class="btn-row" style="margin-top:0">
         <label class="f">cross / cultivar
           <input type="text" id="runName" value="Cross A" style="width:200px"></label>
-        <label class="f">plants in run
-          <input type="number" id="runN" value="8" min="1" max="200"></label>
+      </div>
+      <div id="runEntry"></div>
+      <input type="hidden" id="runN" value="8">
+      <div class="btn-row">
         <button class="btn btn-soft" id="runMake" type="button">Set plants</button>
       </div>
       <div class="btn-row">
@@ -200,7 +336,10 @@
       <div class="chips" id="traitChips"></div>
       <div class="btn-row">
         <label class="f">trait <input type="text" id="traitNew" placeholder="e.g. aroma" style="width:160px"></label>
-        <label class="f">weight <input type="number" id="traitW" value="1" min="0.5" max="5" step="0.5"></label>
+      </div>
+      <div id="wEntry"></div>
+      <input type="hidden" id="traitW" value="1">
+      <div class="btn-row">
         <button class="btn btn-soft" id="traitAdd" type="button">Add trait</button>
       </div>
       <div class="btn-row">
@@ -244,9 +383,9 @@
       to promote one. Plan next season's crosses here; both ride along in the export.</p>
     <div class="card" id="momBoard"></div>
     <div class="card">
+      <div id="crossEntry"></div>
+      <input type="hidden" id="crossA"><input type="hidden" id="crossB">
       <div class="btn-row" style="margin-top:0">
-        <label class="f">seed parent ♀<select id="crossA"></select></label>
-        <label class="f">pollen parent ♂<select id="crossB"></select></label>
         <button class="btn btn-soft" id="crossAdd" type="button">Plan cross</button>
       </div>
       <div id="crossList" style="margin-top:6px"></div>
@@ -265,14 +404,29 @@
     <div class="card">
       <div class="btn-row" style="margin-top:0">
         <label class="f">trait <input type="text" id="segTrait" value="purple stems" style="width:170px"></label>
-        <label class="f">showing it <input type="number" id="segA" value="9" min="0"></label>
-        <label class="f">not showing <input type="number" id="segB" value="3" min="0"></label>
       </div>
+      <div id="segEntry"></div>
+      <input type="hidden" id="segA" value="9"><input type="hidden" id="segB" value="3">
       <div id="segOut"></div>
       <p class="fine">χ² with 1 degree of freedom; the p&nbsp;&lt;&nbsp;0.05 cutoff is 3.84. Small runs are
         weak evidence either way — a clean call usually needs 30+ plants. The
         <a href="eco-protocol-reference.html">.eco</a> <code>cross:</code> line runs the same test in a
         graded protocol.</p>
+    </div>
+
+    <div class="card">
+      <h2 style="margin-top:0;font-size:17px">What the entry layer records</h2>
+      <p class="fine" style="margin-top:0">The controls are the shared <b>Field Entry Kit</b>. The 1&ndash;5
+        trait rating is the most-tapped control in the whole kit &mdash; traits times plants, every
+        check-in &mdash; so it is an <b>ordinal dial</b>: 1 reads cool, 5 reads hot, and the colour carries
+        an order that a row of identical numbered buttons cannot. <b>Tap a score again to unset it.</b>
+        That matters more than it sounds: an unscored trait is <em>dropped</em> from the weighted total
+        rather than counted as a 1, so a plant you have not finished scoring does not silently rank below
+        one you scored badly.</p>
+      <p class="fine">Segregation counts are <b>typed fields</b> &mdash; they are tallies you already
+        counted, not values you dial up. Parent pickers offer only plants that are scored, kept, or
+        promoted to mothers, and each option shows its weighted total, so a cross is planned against the
+        number rather than against a memory of which one smelled good.</p>
     </div>
 
     <h2 style="margin-top:18px">Take it home</h2>
@@ -322,6 +476,223 @@
 
 <div class="toast" id="toast">Saved</div>
 
+<script>
+
+/* ---- Field Entry Kit v1.1.0 : constructors return {el, get, set} ---- */
+var FEK = (function(){
+  function el(t,c,h){ var e=document.createElement(t); if(c) e.className=c;
+    if(h!=null) e.innerHTML=h; return e; }
+  function buzz(m){ try{ if(navigator.vibrate) navigator.vibrate(m||8);}catch(e){} }
+
+  function step(o){
+    o=o||{}; var min=(o.min==null?-Infinity:o.min), max=(o.max==null?Infinity:o.max);
+    var stepv=o.step||1, dec=o.dec==null?(String(stepv).split(".")[1]||"").length:o.dec;
+    var v=o.value==null?0:o.value;
+    var wrap=el("div","fek-row"), lab=el("label","fek-lab",
+      (o.label||"")+(o.unit?'<span class="u">'+o.unit+'</span>':""));
+    var box=el("div","fek-step");
+    var minus=el("button",null,"&minus;"), inp=el("input"), plus=el("button",null,"+");
+    minus.type="button"; plus.type="button"; inp.type="number"; inp.className="val";
+    inp.setAttribute("inputmode","decimal");
+    if(o.label) inp.setAttribute("aria-label",o.label);
+    /* nullable: the control can hold "not recorded", which is not the same as
+       zero. Aspect 0 is north; a duff depth of 0 cm is an observation. An empty
+       nullable stepper reports null and the first bump starts from o.start. */
+    var nullable = !!o.nullable;
+    if(nullable && o.value==null) v=null;
+    function clamp(x){ return Math.min(max,Math.max(min,x)); }
+    function render(){
+      if(v==null){ inp.value=""; wrap.classList.add("is-empty"); box.classList.add("empty"); return; }
+      wrap.classList.remove("is-empty"); box.classList.remove("empty");
+      inp.value=(dec?v.toFixed(dec):String(v));
+    }
+    function set(x,quiet){
+      if(nullable && (x==null || x==="" || (typeof x==="number" && !isFinite(x)))) v=null;
+      else v=clamp(isFinite(x)?x:0);
+      render(); if(!quiet&&o.onchange) o.onchange(v);
+    }
+    function bump(d){
+      if(v==null) set(clamp(o.start==null?0:o.start));
+      else set(+(v+d*stepv).toFixed(6));
+      buzz();
+    }
+    function clear(){ if(nullable) set(null); }
+    minus.addEventListener("click",function(){ bump(-1); });
+    plus.addEventListener("click",function(){ bump(1); });
+    var hold;
+    function holdOn(d){ return function(){ clearInterval(hold);
+      hold=setInterval(function(){ bump(d); },110); }; }
+    function holdOff(){ clearInterval(hold); }
+    minus.addEventListener("pointerdown",holdOn(-1)); plus.addEventListener("pointerdown",holdOn(1));
+    ["pointerup","pointerleave","pointercancel"].forEach(function(ev){
+      minus.addEventListener(ev,holdOff); plus.addEventListener(ev,holdOff); });
+    inp.addEventListener("input",function(){
+      if(nullable && inp.value===""){ v=null; box.classList.add("empty");
+        if(o.onchange) o.onchange(null); return; }
+      var x=parseFloat(inp.value);
+      if(isFinite(x)){ v=clamp(x); box.classList.remove("empty"); if(o.onchange) o.onchange(v); } });
+    inp.addEventListener("blur",render);
+    box.appendChild(minus); box.appendChild(inp); box.appendChild(plus);
+    wrap.appendChild(lab); wrap.appendChild(box);
+    if(o.help) wrap.appendChild(el("p","fek-help",o.help));
+    render();
+    return { el:wrap, get:function(){return v;}, set:function(x){set(x,true);},
+             clear:clear, nullable:nullable };
+  }
+
+  /* field: a value typed from an instrument readout. No steppers — see the CSS note. */
+  function field(o){
+    o=o||{};
+    var min=(o.min==null?-Infinity:o.min), max=(o.max==null?Infinity:o.max);
+    var dec=(o.dec==null?3:o.dec), v=(o.value==null?null:o.value);
+    var wrap=el("div","fek-row"), lab=el("label","fek-lab",
+      (o.label||"")+(o.unit?'<span class="u">'+o.unit+'</span>':""));
+    var box=el("div","fek-field"), inp=el("input");
+    inp.type="number"; inp.setAttribute("inputmode","decimal");
+    if(o.step!=null) inp.step=o.step;
+    inp.placeholder = o.placeholder==null ? "—" : o.placeholder;
+    if(o.label) inp.setAttribute("aria-label",o.label);
+    function paint(){ box.classList.toggle("empty", v==null); }
+    function set(x,quiet){
+      if(x==null || x===""){ v=null; inp.value=""; }
+      else { var n=parseFloat(x);
+        v = isFinite(n) ? Math.min(max,Math.max(min,n)) : null;
+        inp.value = (v==null?"":String(v)); }
+      paint(); if(!quiet&&o.onchange) o.onchange(v);
+    }
+    inp.addEventListener("input",function(){
+      if(inp.value===""){ v=null; paint(); if(o.onchange) o.onchange(null); return; }
+      var n=parseFloat(inp.value);
+      if(isFinite(n)){ v=Math.min(max,Math.max(min,n)); paint(); if(o.onchange) o.onchange(v); } });
+    inp.addEventListener("blur",function(){
+      if(v!=null && isFinite(v)) inp.value = (dec==null?String(v):String(+v.toFixed(dec)));
+      paint(); });
+    box.appendChild(inp);
+    if(o.unitBox!==false && o.unit) box.appendChild(el("div","u",o.unit));
+    wrap.appendChild(lab); wrap.appendChild(box);
+    if(o.help) wrap.appendChild(el("p","fek-help",o.help));
+    set(v,true);
+    return { el:wrap, get:function(){return v;}, set:function(x){set(x,true);},
+             clear:function(){ set(null,true); }, nullable:true };
+  }
+
+  function dial(o){
+    o=o||{}; var opts=o.options||[], cur=o.value==null?null:o.value;
+    var wrap=el("div","fek-row"), lab=el("label","fek-lab",o.label||"");
+    var box=el("div","fek-dial"), btns=[];
+    opts.forEach(function(op,i){
+      var b=el("button",null,'<span>'+op.label+'</span>'+(op.sub?'<small>'+op.sub+'</small>':""));
+      b.type="button";
+      b.setAttribute("data-r", op.ramp==null ? String(Math.min(5,Math.round(i*5/Math.max(1,opts.length-1)))) : String(op.ramp));
+      b.addEventListener("click",function(){
+        cur = (cur===op.value && o.clearable!==false) ? null : op.value;
+        paint(); buzz(); if(o.onchange) o.onchange(cur);
+      });
+      btns.push(b); box.appendChild(b);
+    });
+    function paint(){ btns.forEach(function(b,i){ b.classList.toggle("on", opts[i].value===cur); }); }
+    paint();
+    wrap.appendChild(lab); wrap.appendChild(box);
+    if(o.help) wrap.appendChild(el("p","fek-help",o.help));
+    return { el:wrap, get:function(){return cur;},
+             set:function(x){ cur=x; paint(); } };
+  }
+
+  function chips(o){
+    o=o||{}; var opts=o.options||[], sel={};
+    (o.value||[]).forEach(function(v){ sel[v]=1; });
+    var wrap=el("div","fek-row"), lab=el("label","fek-lab",o.label||"");
+    var box=el("div","fek-chips"), btns=[];
+    opts.forEach(function(op){
+      var b=el("button","fek-chip",op.label); b.type="button";
+      b.addEventListener("click",function(){
+        if(o.single){ sel={}; sel[op.value]=1; }
+        else if(sel[op.value]) delete sel[op.value]; else sel[op.value]=1;
+        paint(); buzz(); if(o.onchange) o.onchange(Object.keys(sel));
+      });
+      btns.push(b); box.appendChild(b);
+    });
+    function paint(){ btns.forEach(function(b,i){ b.classList.toggle("on",!!sel[opts[i].value]); }); }
+    paint();
+    wrap.appendChild(lab); wrap.appendChild(box);
+    if(o.help) wrap.appendChild(el("p","fek-help",o.help));
+    return { el:wrap, get:function(){return Object.keys(sel);},
+             set:function(a){ sel={}; (a||[]).forEach(function(v){sel[v]=1;}); paint(); } };
+  }
+
+  function slider(o){
+    o=o||{};
+    var nullable=!!o.nullable;
+    var v = (nullable && o.value==null) ? null : (o.value==null?(o.min||0):o.value);
+    var wrap=el("div","fek-row"), lab=el("label","fek-lab",o.label||"");
+    var box=el("div","fek-slide"), r=el("input"), bub=el("div","bub");
+    r.type="range"; r.min=o.min==null?0:o.min; r.max=o.max==null?100:o.max;
+    r.step=o.step||1; r.value=v;
+    if(o.label) r.setAttribute("aria-label",o.label);
+    function paint(){
+      if(v==null){ bub.innerHTML='<span style="opacity:.6">not recorded</span>'; return; }
+      bub.innerHTML=(o.fmt?o.fmt(v):v)+(o.unit?'<span>'+o.unit+'</span>':"");
+    }
+    r.addEventListener("input",function(){ v=parseFloat(r.value); paint(); if(o.onchange) o.onchange(v); });
+    if(nullable && v==null) r.value = (o.min==null?0:o.min);
+    paint();
+    box.appendChild(r); box.appendChild(bub);
+    wrap.appendChild(lab); wrap.appendChild(box);
+    if(o.help) wrap.appendChild(el("p","fek-help",o.help));
+    return { el:wrap, get:function(){return v;},
+             set:function(x){ v=(nullable&&x==null)?null:x; if(x!=null) r.value=x; paint(); },
+             clear:function(){ if(nullable){ v=null; paint(); } }, nullable:nullable };
+  }
+
+  function picker(o){
+    o=o||{}; var opts=o.options||[], cur=o.value==null?null:o.value, q="";
+    var wrap=el("div","fek-row"), lab=el("label","fek-lab",o.label||"");
+    var box=el("div","fek-pick"), s=el("input","search"), list=el("div","opts");
+    s.type="text"; s.placeholder=o.placeholder||"type to filter…";
+    s.setAttribute("autocomplete","off");
+    if(o.label) s.setAttribute("aria-label",o.label+" filter");
+    function paint(){
+      list.innerHTML="";
+      var qq=q.toLowerCase();
+      var shown=opts.filter(function(op){
+        return !qq || (op.label+" "+(op.sub||"")).toLowerCase().indexOf(qq)>=0; });
+      if(!shown.length){ list.appendChild(el("div","none","No match. Clear the filter to see all "+opts.length+".")); return; }
+      shown.slice(0,200).forEach(function(op){
+        var b=el("button","opt"+(op.value===cur?" on":""),
+          op.label+(op.sub?'<small>'+op.sub+'</small>':""));
+        b.type="button";
+        b.addEventListener("click",function(){ cur=op.value; paint(); buzz(); if(o.onchange) o.onchange(cur); });
+        list.appendChild(b);
+      });
+    }
+    s.addEventListener("input",function(){ q=s.value; paint(); });
+    box.appendChild(s); box.appendChild(list);
+    wrap.appendChild(lab); wrap.appendChild(box);
+    if(o.help) wrap.appendChild(el("p","fek-help",o.help));
+    paint();
+    return { el:wrap, get:function(){return cur;}, set:function(x){ cur=x; paint(); } };
+  }
+
+  function tiles(list){
+    var box=el("div","fek-tiles");
+    (list||[]).forEach(function(t){
+      box.appendChild(el("div","fek-tile"+(t.tone?" "+t.tone:""),
+        '<div class="v">'+t.v+'</div><div class="l">'+t.l+'</div>'));
+    });
+    return box;
+  }
+  function banner(title,body,tone){
+    return el("div","fek-banner"+(tone?" "+tone:""),"<b>"+title+"</b>"+body);
+  }
+  function mount(host,parts){
+    var h=typeof host==="string"?document.getElementById(host):host;
+    h.innerHTML=""; parts.forEach(function(p){ h.appendChild(p.el||p); }); return h;
+  }
+  return { version:"1.1.0", step:step, field:field, dial:dial, chips:chips, slider:slider,
+           picker:picker, tiles:tiles, banner:banner, mount:mount, buzz:buzz };
+})();
+
+</script>
 <script>
 (function(){
   "use strict";
@@ -430,24 +801,25 @@
       +'<button class="kbtn'+(p.mark==="cull"?" c":"")+'" id="pCull" type="button">✕</button></span></h2>'
       +'<button class="btn btn-ghost" id="pNext" type="button" '+(idx===S.plants.length-1?"disabled":"")+' style="min-height:44px;padding:8px 16px">#'+(idx<S.plants.length-1?S.plants[idx+1].id:"")+' →</button>'
       +'</div>';
-    S.traits.forEach(function(t){
-      html+='<div class="traitrow"><span class="tn">'+esc(t.n)+' <span class="w">×'+t.w+'</span></span><span class="seg" data-t="'+esc(t.n)+'">';
-      for(var v=1;v<=5;v++) html+='<button type="button" data-v="'+v+'" class="'+(p.scores[t.n]===v?"on":"")+'">'+v+'</button>';
-      html+='</span></div>';
-    });
-    html+='<label class="f" style="margin-top:10px">phenotype notes'
+    html+='<div id="scoreDials"></div>'
+      +'<label class="f" style="margin-top:10px">phenotype notes'
       +'<textarea class="note" id="pNote" placeholder="internodes, nose, leaf shape…">'+esc(p.note)+'</textarea></label>';
     box.innerHTML=html;
-    box.querySelectorAll(".seg").forEach(function(seg){
-      var tn=seg.dataset.t;
-      seg.querySelectorAll("button").forEach(function(b){
-        b.addEventListener("click",function(){
-          var v=+b.dataset.v;
-          p.scores[tn]=(p.scores[tn]===v)? undefined : v;   // tap again to unset
-          if(p.scores[tn]===undefined) delete p.scores[tn];
-          save(); buzz(); renderPlants(); renderScorePanel(); });
+    var dials=S.traits.map(function(t){
+      return FEK.dial({
+        label: esc(t.n)+'<span class="u">×'+t.w+'</span>',
+        clearable:true,
+        value: (p.scores[t.n]==null? null : String(p.scores[t.n])),
+        options:[{value:"1",label:"1",ramp:0},{value:"2",label:"2",ramp:1},
+                 {value:"3",label:"3",ramp:2},{value:"4",label:"4",ramp:3},
+                 {value:"5",label:"5",ramp:5}],
+        onchange:(function(tn){ return function(v){
+          if(v==null) delete p.scores[tn]; else p.scores[tn]=+v;
+          save(); renderPlants(); renderSelect(); ecoOut();
+        }; })(t.n)
       });
     });
+    FEK.mount("scoreDials", dials);
     $("pNote").addEventListener("input",function(){ p.note=this.value; save(); ecoOut(); });
     if($("pPrev")) $("pPrev").addEventListener("click",function(){
       if(idx>0){ S.sel=S.plants[idx-1].id; renderPlants(); renderScorePanel(); buzz(); } });
@@ -529,14 +901,7 @@
     }
     // parent pickers: mothers first, then keepers, then any scored plant
     var pool=S.plants.filter(function(p){ return p.mom || p.mark==="keep" || totalOf(p)!==null; });
-    var opts=pool.map(function(p){
-      var t=totalOf(p);
-      return '<option value="'+p.id+'">#'+p.id+(p.mom?" 🌿":p.mark==="keep"?" ⭐":"")+(t!==null?" — "+t.toFixed(2):"")+'</option>';
-    }).join("");
-    var a=$("crossA").value, b=$("crossB").value;
-    $("crossA").innerHTML=opts; $("crossB").innerHTML=opts;
-    if(pool.some(function(p){return String(p.id)===a;})) $("crossA").value=a;
-    if(pool.some(function(p){return String(p.id)===b;})) $("crossB").value=b;
+    fillCrossPickers(pool);
     // planned crosses (drop any whose parents left the run)
     S.crosses=S.crosses.filter(function(c){
       return S.plants.some(function(p){return p.id===c.a;}) && S.plants.some(function(p){return p.id===c.b;}); });
@@ -652,6 +1017,55 @@
       document.body.removeChild(ta); }
     try{ if(navigator.clipboard&&navigator.clipboard.writeText) navigator.clipboard.writeText(text).then(done,fb); else fb(); }catch(e){ fb(); }
   });
+
+  /* ------------------------------- Field Entry Kit v1.1 -------------------
+     The 1–5 trait rating is the most-tapped control in the whole kit — traits
+     times plants, every check-in — so it gets the ordinal dial and its ramp:
+     1 reads cool, 5 reads hot, and the colour carries the order that a row of
+     identical numbered buttons cannot. Tap a selected score again to unset it,
+     which is what the dial's clearable mode already does, and matters because
+     an unscored trait is dropped from the weighted total rather than counted
+     as a 1. */
+  function push(id,v){
+    var e=$(id); if(!e) return;
+    e.value=(v==null?"":String(v));
+    e.dispatchEvent(new Event("input",{bubbles:true}));
+    e.dispatchEvent(new Event("change",{bubbles:true}));
+  }
+  var RUNN=FEK.step({ label:"plants in run", value:8, min:1, max:200, step:1, dec:0,
+    onchange:function(v){ push("runN",v); },
+    help:"Set plants renumbers to #1…#N and keeps scores already entered for existing numbers." });
+  FEK.mount("runEntry",[RUNN]);
+
+  var TRAITW=FEK.step({ label:"weight", unit:"×", value:1, min:0.5, max:5, step:0.5, dec:1,
+    onchange:function(v){ push("traitW",v); },
+    help:"Weight 2 counts double in the total. Weighting is a statement about what you are breeding for — write it down before you score, not after you see the board." });
+  FEK.mount("wEntry",[TRAITW]);
+
+  var SEGA=FEK.field({ label:"showing it", value:9, dec:0, step:1, min:0,
+    onchange:function(v){ push("segA",v); } });
+  var SEGB=FEK.field({ label:"not showing", value:3, dec:0, step:1, min:0,
+    onchange:function(v){ push("segB",v); },
+    help:"Counted across the run. χ² is only as good as the count — a clean call usually needs 30+ plants." });
+  FEK.mount("segEntry",[SEGA,SEGB]);
+
+  var CROSSA=null, CROSSB=null;
+  function fillCrossPickers(pool){
+    var opts=pool.map(function(p){
+      var t=totalOf(p);
+      return { value:String(p.id), label:"#"+p.id+(p.mom?" 🌿":p.mark==="keep"?" ⭐":""),
+               sub:(t!==null? t.toFixed(2) : "unscored") };
+    });
+    var ka=CROSSA&&CROSSA.get(), kb=CROSSB&&CROSSB.get();
+    var have=function(k){ return opts.some(function(o){ return o.value===k; }); };
+    CROSSA=FEK.picker({ label:"seed parent ♀", options:opts, value:have(ka)?ka:null,
+      placeholder: opts.length? "type a number…" : "score or keep a plant first",
+      onchange:function(v){ push("crossA",v); } });
+    CROSSB=FEK.picker({ label:"pollen parent ♂", options:opts, value:have(kb)?kb:null,
+      placeholder: opts.length? "type a number…" : "score or keep a plant first",
+      onchange:function(v){ push("crossB",v); } });
+    FEK.mount("crossEntry",[CROSSA,CROSSB]);
+  }
 
   function renderAll(){ renderRun(); renderPlants(); renderScorePanel(); renderSelect(); segOut(); ecoOut(); }
   renderAll();

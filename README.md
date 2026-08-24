@@ -701,7 +701,15 @@ no install required.
 
 - [**`docs/ecology-lab.html`**](docs/ecology-lab.html) — the **Interactive Lab**: a live terrarium
   plus a browser Workbench that runs every instrument on your own field data, entered through
-  tap-friendly chip editors and steppers (the pasted-text form is still there under "edit as text").
+  tap-friendly chip editors and steppers (the pasted-text form is still there under "edit as text").  **Touch targets brought to the kit's own 44px floor.** The Lab was not migrated to the Field Entry Kit
+  — measured at phone width its inputs were already 44px, and it is a desk-read interactive document rather
+  than a gloved-thumb field app, so wrapping every parameter in a 60px control would have been consistency
+  for its own sake. What the measurement *did* find was **76 buttons under 44px**: the +/− on tally chips,
+  the quadrat steppers and the ✕ removers, all hardcoded at 34–38px. Those are the most-tapped controls on
+  the page — a tally +/− gets pressed hundreds of times in a lab session — so it was exactly the wrong place
+  to save eight pixels. They now come off a single `--fe-tap` token, the same discipline FEK applies on the
+  tablet apps.
+
 - [**`docs/ecology-teachers-guide.html`**](docs/ecology-teachers-guide.html) — the **Teacher's
   Guide**: how to actually run a term on this — a twelve-week sequence, logistics for thirty students
   on six tablets, prep checklists, three assessment rubrics, what to do when it rains, and an honest
@@ -956,16 +964,40 @@ live, and every export carries site, observer, and date plus a CSV for Excel/R:
 - [**`docs/field-notebook.html`**](docs/field-notebook.html) — **Field Notebook**: tap-to-tally
   ethograms with a scan timer, quadrat counts, species lists, and mark–recapture, with live
   diversity readings; long-press any tally card to rename it in place.
+  **Migrated to the Field Entry Kit (v1.1.0).** The scan interval is a stepper with 0 documented as *off*,
+  and the helper states the thing that makes point sampling valid: the interval has to be fixed before you
+  start, because changing it mid-session makes the samples non-comparable.
 - [**`docs/farm-scout.html`**](docs/farm-scout.html) — **Farm Scout**: field science for growers —
   pest scouting against thresholds with a dispersion verdict, pollinator health counts, a
   germination tester, and a crop-rotation checker by plant family.
+  **Migrated to the Field Entry Kit (v1.1.0).** Same split as the benches: the action threshold and the
+  stand you are aiming for are choices, so they step; seeds tested and seeds germinated are tallies you
+  already made, so they are typed. Rotation history is a **picker per season with the crops shown under
+  each family**, because the mistake that tab exists to catch is not forgetting a name — it is not
+  realising kale and radish are the same family as last year's cabbage. 45/45 verified, including 33 of 40
+  reading 83% and 146 seeds to sow for a 120-plant stand.
 - [**`docs/pheno-tracker.html`**](docs/pheno-tracker.html) — **Pheno Tracker**: a breeder's
   selection bench for any crop — weighted trait scoring with one-tap program presets, a ranked
   board with a real selection-differential readout, mother plants and planned crosses, and a χ²
-  segregation checker.
+  segregation checker.  **Migrated to the Field Entry Kit (v1.1.0).** The 1–5 trait rating is the most-tapped control in the
+  whole kit — traits × plants, every check-in — so it is now an **ordinal dial**: 1 reads cool, 5 reads hot,
+  and the colour carries an order a row of identical numbered buttons cannot. Tapping a score again unsets
+  it, which matters because **an unscored trait is dropped from the weighted total rather than counted as a
+  1** — a plant you have not finished scoring does not silently rank below one you scored badly.
+  Segregation counts are typed fields (tallies you already counted), and the parent pickers offer only
+  plants that are scored, kept or promoted to mothers, each showing its weighted total, so a cross is
+  planned against the number rather than a memory of which one smelled good. 56/56 verified, including the
+  selection differential against an independently computed S = +1.44.
+
 - [**`docs/field-season.html`**](docs/field-season.html) — **Field Season**: the sampling game — a
   hidden meadow, twelve field days, weather, and a peer-reviewed report; same season number means
   the same meadow, so a class can compare strategies fairly.
+  **Migrated to the Field Entry Kit (v1.1.0).** Evenness and spatial pattern are **ordinal dials** whose
+  ramps run with the gradient — even→uneven, regular→clumped — rather than three identical buttons, and the
+  pattern dial names the evidence that points to the answer (variance-to-mean above 1). Richness is a
+  nullable stepper that starts unrecorded and lands on 8 rather than 0 on the first tap. The season number
+  and the Lincoln–Petersen estimate are typed: one is an identifier, the other is the result of arithmetic
+  the student did, and the page says it is not going to do that silently for them.
 - [**`docs/food-web.html`**](docs/food-web.html) — **Food Web Builder**: tap a food web into being
   (food first, then eater), watch trophic levels lay themselves out, then long-press any species to
   run the knockout test and see exactly which others starve.
