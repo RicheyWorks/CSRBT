@@ -1019,6 +1019,26 @@ the **amortization frontier at B\* ≈ 128k-op regime blocks** (2.24× worse at 
 E3c stands — monotone to a ~1% win at 256k), giving re-arming trigger #1 its number.
 Provenance: ADR-015 through ADR-020 and the 2026-08-09/10 changelogs.
 
+## Verifying the science kit
+
+The kit has no build step, so it has no CI — which for a long time meant its tests lived
+on whatever machine last wrote them. They live in the repo now:
+
+```
+python3 tools/verify/run_all.py
+```
+
+**27 jobs, 1,454 checks**, exiting non-zero if anything fails. Five kit-wide audits measure
+what the browser actually renders — 44 px touch targets, keyboard reachability and visible
+focus, WCAG AA contrast, print fidelity and ink cost — and twenty-two per-page suites drive
+the instruments and check what they compute. Needs only `playwright` and Chromium; see
+[`tools/verify/README.md`](tools/verify/README.md) for the conventions, including why a
+suite asserts an invariant rather than a frozen count.
+
+A sixth tool, `tools/audit_claims.py`, finds numbers in prose carrying no visible
+provenance. It is a finder rather than a gate: it always exits zero and prints a worklist,
+so the runner names it but does not run it.
+
 ## Design history
 
 **Design & direction**

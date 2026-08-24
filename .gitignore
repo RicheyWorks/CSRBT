@@ -37,3 +37,7 @@ _to_delete/
 # Merge/patch leftovers — never source, and they get swept into the sources jar
 *.orig
 *.rej
+
+# Python bytecode from the verification harness
+__pycache__/
+*.pyc
