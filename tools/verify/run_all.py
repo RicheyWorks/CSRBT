@@ -24,6 +24,8 @@ AUDITS = [
     ("audit_focus",    "keyboard reach, visible focus, accessible names"),
     ("audit_contrast", "WCAG AA colour contrast"),
     ("audit_print",    "print fidelity"),
+    ("audit_offline",  "works with no signal, and does not hang on one bar"),
+    ("audit_frontend", "duplicate ids, dead links, iOS zoom, JS and console errors"),
     ("fek_lint",       "FEK misconfiguration"),
 ]
 # A finder, not a gate: it reports a worklist and always exits zero, so running

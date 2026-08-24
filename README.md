@@ -1028,9 +1028,10 @@ on whatever machine last wrote them. They live in the repo now:
 python3 tools/verify/run_all.py
 ```
 
-**27 jobs, 1,454 checks**, exiting non-zero if anything fails. Five kit-wide audits measure
+**29 jobs, 1,595 checks**, exiting non-zero if anything fails. Seven kit-wide audits measure
 what the browser actually renders — 44 px touch targets, keyboard reachability and visible
-focus, WCAG AA contrast, print fidelity and ink cost — and twenty-two per-page suites drive
+focus, WCAG AA contrast, print fidelity and ink cost, behaviour with the network gone, and the
+front-end faults that belong to no single page — and twenty-three per-page suites drive
 the instruments and check what they compute. Needs only `playwright` and Chromium; see
 [`tools/verify/README.md`](tools/verify/README.md) for the conventions, including why a
 suite asserts an invariant rather than a frozen count.

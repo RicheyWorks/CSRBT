@@ -2,7 +2,7 @@
 
     python3 tools/verify/run_all.py
 
-That runs every audit and every page suite — **27 jobs, 1,454 checks** — and exits
+That runs every audit and every page suite — **29 jobs, 1,595 checks** — and exits
 non-zero if anything fails. On a laptop it takes a few minutes; `-j 4` speeds it up
 at the cost of four browsers at once.
 

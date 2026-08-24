@@ -6,7 +6,15 @@
 <title>ADR-031 Entry Layer and Suites</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,ital,wght@9..144,0,500;9..144,0,600;9..144,0,700;9..144,1,500&family=Newsreader:opsz,ital,wght@6..72,0,400;6..72,0,500;6..72,0,600;6..72,1,400&family=JetBrains+Mono:wght@400;500&display=swap">
+<!-- Webfonts load without blocking first paint: a stylesheet request that
+     hangs (one bar of signal) otherwise holds the page blank indefinitely,
+     which breaks the offline constraint in ADR-031. See tools/audit_offline.py. -->
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,ital,wght@9..144,0,500;9..144,0,600;9..144,0,700;9..144,1,500&family=Newsreader:opsz,ital,wght@6..72,0,400;6..72,0,500;6..72,0,600;6..72,1,400&family=JetBrains+Mono:wght@400;500&display=swap" media="print" data-webfont>
+<noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,ital,wght@9..144,0,500;9..144,0,600;9..144,0,700;9..144,1,500&family=Newsreader:opsz,ital,wght@6..72,0,400;6..72,0,500;6..72,0,600;6..72,1,400&family=JetBrains+Mono:wght@400;500&display=swap"></noscript>
+<script>(function(){var l=document.querySelector('link[data-webfont]');if(!l)return;
+  var on=function(){l.media="all";};
+  if(l.sheet){on();}else{l.addEventListener("load",on);l.addEventListener("error",function(){});}
+})();</script>
 <style>
   :root {
     color-scheme: light;
@@ -494,6 +502,43 @@ as guessing at one. Where the intent was real but undeclared, the fix was to dec
 of these was run against a canary page with faults deliberately seeded &mdash; and for the contrast tool,
 against ratios computed independently in Python, including the pair at 4.54:1 that must pass and the pair
 at 4.48:1 that must fail. A clean sweep from a tool that has never been shown to fail is not evidence.</p>
+<h2>Follow-on: the constraint nobody had tested</h2>
+<p>The constraints table at the top of this record calls offline operation non-negotiable:
+&ldquo;pages must work offline in a field with no signal.&rdquo; Every page is a single self-contained
+file, so it looked satisfied by construction. Every page also opened with a render-blocking
+<code>&lt;link rel=stylesheet&gt;</code> to a webfont CDN, and no one had ever loaded one of these pages
+with the network actually gone.</p>
+<p>With no signal at all it was fine: DNS fails, Chromium paints straight through, 60&ndash;200&nbsp;ms.
+The failure was the other case &mdash; the request accepted and never answered, which is one bar of
+signal rather than none. Measured on the Relevé sheet: <strong>no first paint after thirty seconds</strong>,
+with 441 characters of document sitting in the DOM and nothing whatsoever on screen. A field kit that
+shows a white rectangle for half a minute when the signal is weak is not a field kit.</p>
+<p>The webfont link now carries <code>media=&quot;print&quot;</code> and is promoted to
+<code>all</code> by a four-line script once it has actually arrived, with a
+<code>&lt;noscript&gt;</code> copy for scripting-off readers. Online the cost is a brief flash of
+fallback text; offline the page simply works. Hanging request, after: <strong>paints at 180&nbsp;ms with
+11,058 characters visible</strong>. The online path was checked too, by fulfilling the request with a
+probe stylesheet and confirming the link is promoted and the rule applies &mdash; a fix that quietly
+stopped loading the fonts would have passed every offline test.</p>
+<p>Two things this cost, both worth recording. The audit lied about paint timing twice before it was
+right, and both times the lie was in the harness: first a route pattern of <code>**://*/**</code> that
+matched the <code>file://</code> navigation and aborted the page under test, then a broad
+<code>https://**</code> interceptor whose own latency lands on first paint when the intercepted request
+is render-blocking &mdash; which had the audit reporting a twelve-second blank screen that no real
+device sees. The fix in both cases was to stop modelling the thing and use the browser's own offline
+mode. Measured side by side on a page that does block: real offline 28&nbsp;ms, narrow route 44&nbsp;ms,
+broad route never paints. That comparison is now an assertion in the suite rather than a comment,
+because the reasoning is only as good as the day it was true.</p>
+<p>The sweep also revived <code>audit_frontend.py</code>, which had been sitting in <code>docs/</code>
+with the container path of the session that wrote it baked in &mdash; so it ran nowhere, and nobody
+could have known. Moved to <code>tools/</code>, made relative to the checkout, and wired into the
+runner. Its first honest run reported five pages referencing element ids that do not exist at load;
+all five turned out to be controls built on demand, and one of them, on the CP bench, was three ids
+emitted by a factory as <code>id=&quot;'+id+'&quot;</code> inside an <code>innerHTML</code> template
+&mdash; present, wired, working, and invisible to a text search. The check moved from the markup to
+the live DOM, and then narrowed again to the case that is actually a defect: a bare dereference of an
+id that is absent at load. That reports zero on this kit, and the seven remaining flags are external
+citations doing exactly what citations do.</p>
 <h2>Follow-on: auditing the gate the gate was written for</h2>
 <p>ADR-031's third decision was a rule about numbers, and rules about numbers decay quietly. A fourth tool,
 <code>audit_claims.py</code>, looks for the numbers that took none of the gate's three routes: a claim
