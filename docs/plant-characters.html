@@ -1,0 +1,474 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Plant Characters — the botanist's keying card</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,ital,wght@9..144,0,500;9..144,0,600;9..144,0,700;9..144,1,500&family=Newsreader:opsz,ital,wght@6..72,0,400;6..72,0,500;6..72,0,600;6..72,1,400&family=JetBrains+Mono:wght@400;500&display=swap">
+<style>
+  :root {
+    color-scheme: light;
+    --page:#F5F1E6; --surface:#FFFDF7; --ink:#23281F; --ink-2:#4B5344; --muted:#8B8B7B;
+    --border:#E3DCC9; --rule:#C7C0AC; --s1:#2E7D4F; --s1-deep:#236240; --s2:#C0592B; --s3:#2B6C8F;
+    --soft:#E9F0E7; --soft-2:#F3EEE0; --warn:#F6EAD8; --gold:#B8860B;
+    --shadow:0 1px 2px rgba(35,40,31,.05),0 12px 32px rgba(35,40,31,.06);
+    --head:"Fraunces",Georgia,serif; --body:"Newsreader",Georgia,"Times New Roman",serif;
+    --mono:"JetBrains Mono",ui-monospace,Menlo,monospace;
+  }
+  * { box-sizing:border-box; }
+  body { margin:0; background:var(--page); color:var(--ink); font:18px/1.62 var(--body);
+    -webkit-font-smoothing:antialiased; text-rendering:optimizeLegibility; }
+  .wrap { max-width:900px; margin:0 auto; padding:0 26px; }
+  a { color:var(--s1); text-underline-offset:2px; }
+
+  .kit-nav { display:flex; flex-wrap:wrap; gap:8px; padding:14px 0 0; }
+  .kit-nav a { font-family:var(--mono); font-size:12.5px; letter-spacing:.02em; text-decoration:none;
+    color:var(--ink-2); background:var(--surface); border:1px solid var(--border); border-radius:999px;
+    padding:9px 15px; box-shadow:var(--shadow); display:inline-flex; align-items:center; min-height:40px; }
+  .kit-nav a:hover { border-color:var(--s1); color:var(--s1); }
+  .kit-nav a[aria-current="page"] { background:var(--s1); color:#fff; border-color:var(--s1); }
+
+  .masthead { padding:26px 0 8px; }
+  .masthead::before { content:""; display:block; width:52px; height:3px; background:var(--s1); border-radius:2px; margin:0 0 18px; }
+  .eyebrow { font-family:var(--mono); font-size:12px; letter-spacing:.18em; text-transform:uppercase; color:var(--s1); margin:0 0 12px; }
+  h1 { font-family:var(--head); font-weight:700; font-size:clamp(34px,6vw,54px); line-height:1.03; letter-spacing:-0.022em; margin:0 0 14px; max-width:18ch; }
+  .dek { font-size:20px; color:var(--ink-2); margin:0; max-width:62ch; }
+
+  h2 { font-family:var(--head); font-weight:600; font-size:27px; letter-spacing:-0.015em; margin:0; }
+  h3 { font-family:var(--head); font-weight:600; font-size:19px; margin:24px 0 6px; }
+  p { margin:0 0 14px; } strong,b { font-weight:600; } i,em { font-style:italic; }
+  ul,ol { margin:0 0 14px; padding-left:22px; } li { margin:6px 0; }
+  .lead { font-size:19px; color:var(--ink-2); }
+  section { padding:34px 0 6px; }
+  .sec-head { border-top:3px solid var(--s1); padding-top:15px; margin-bottom:8px; }
+  .sec-num { font-family:var(--mono); font-size:12px; letter-spacing:.14em; text-transform:uppercase; color:var(--s1); }
+
+  .toc { background:var(--soft-2); border:1px solid var(--border); border-radius:14px; padding:18px 22px; margin:24px 0; }
+  .toc h3 { margin:0 0 8px; }
+  .toc ol { margin:0; padding-left:20px; } .toc li { margin:5px 0; } .toc a { color:var(--ink); }
+  .toc .for { color:var(--muted); font-size:15px; }
+
+  /* glyph grid */
+  .glyphs { display:grid; grid-template-columns:repeat(auto-fill,minmax(168px,1fr)); gap:12px; margin:16px 0; }
+  .gl { background:var(--surface); border:1px solid var(--border); border-radius:14px; padding:12px 14px 14px;
+        box-shadow:var(--shadow); break-inside:avoid; }
+  .gl .art { display:flex; justify-content:center; margin-bottom:6px; }
+  .gl svg { width:76px; height:64px; display:block; }
+  .gl b { font-family:var(--head); font-size:16px; display:block; }
+  .gl span { display:block; color:var(--ink-2); font-size:14.5px; line-height:1.45; margin-top:3px; }
+
+  /* family cards */
+  .fams { display:grid; grid-template-columns:repeat(auto-fill,minmax(300px,1fr)); gap:13px; margin:18px 0; }
+  .fam { background:var(--surface); border:1px solid var(--border); border-left:3px solid var(--s1);
+         border-radius:0 14px 14px 0; padding:14px 17px; box-shadow:var(--shadow); break-inside:avoid; }
+  .fam .fh b { font-family:var(--head); font-size:19px; }
+  .fam .fh span { font-family:var(--mono); font-size:11px; color:var(--muted); display:block; margin-top:1px; }
+  .fam p { font-size:15px; line-height:1.5; margin:9px 0 0; color:var(--ink-2); }
+  .fam .lab { font-family:var(--mono); font-size:10px; letter-spacing:.1em; text-transform:uppercase;
+              color:var(--s1); display:block; margin-bottom:2px; }
+  .fam .ft { background:var(--soft); border-radius:9px; padding:9px 12px; }
+  .fam .ft .lab { color:var(--s1-deep); }
+  .fam .fe .lab { color:var(--muted); }
+
+  table { border-collapse:collapse; width:100%; font-size:15px; margin:8px 0; }
+  th,td { border:1px solid var(--rule); padding:7px 10px; text-align:left; vertical-align:top; line-height:1.45; }
+  th { background:var(--soft); font-family:var(--head); font-weight:600; font-size:14px; }
+  .tw { overflow-x:auto; -webkit-overflow-scrolling:touch; margin:12px 0; }
+
+  .note { border-left:3px solid var(--s3); background:var(--surface); border:1px solid var(--border);
+    border-radius:0 10px 10px 0; padding:12px 16px; margin:16px 0; font-size:16px; color:var(--ink-2); }
+  .note b { font-family:var(--head); color:var(--ink); }
+  .warn { border-left:3px solid var(--s2); background:var(--warn); border:1px solid var(--border);
+    border-radius:0 10px 10px 0; padding:12px 16px; margin:16px 0; font-size:16px; color:var(--ink-2); }
+  .warn b { font-family:var(--head); color:var(--ink); }
+  .pull { font-family:var(--head); font-weight:500; font-size:23px; line-height:1.3; color:var(--ink);
+    border-left:3px solid var(--s1); padding:4px 0 4px 22px; margin:26px 0; max-width:40ch; }
+  .chk { list-style:none; padding-left:0; }
+  .chk li { padding-left:26px; position:relative; margin:7px 0; }
+  .chk li::before { content:"\2610"; position:absolute; left:2px; color:var(--s1); font-size:17px; }
+  code { font-family:var(--mono); font-size:.8em; background:var(--soft-2); border:1px solid var(--border); border-radius:5px; padding:1px 5px; }
+  .cite { font-variant:small-caps; letter-spacing:.01em; color:var(--ink-2); }
+
+  footer { margin:44px 0 60px; padding-top:18px; border-top:1px solid var(--border); color:var(--muted); font-size:14px; line-height:1.6; }
+  footer a { font-weight:500; }
+
+  @media print {
+    :root { --page:#fff; --surface:#fff; --soft:#f2f6f1; --soft-2:#f6f4ee; --warn:#faf3e8; --shadow:none; }
+    body { font-size:10pt; background:#fff; } .wrap { max-width:none; padding:0; }
+    .kit-nav { display:none; } a { color:inherit; text-decoration:none; }
+    .gl, .fam, table, .note, .warn { break-inside:avoid; }
+    .glyphs { grid-template-columns:repeat(4,1fr); gap:8px; }
+    .fams { grid-template-columns:repeat(2,1fr); gap:8px; }
+    h2,h3 { break-after:avoid; } .sec-head { break-before:page; }
+    section:first-of-type .sec-head { break-before:auto; }
+  }
+  @media (max-width:560px){ body{font-size:17px;} .wrap{padding:0 18px;} }
+
+  /* interactive family key */
+  .keybox { background:var(--surface); border:1px solid var(--border); border-radius:16px;
+    padding:18px 20px; box-shadow:var(--shadow); margin:18px 0; }
+  .kq { margin:0 0 14px; }
+  .kq:last-child { margin-bottom:0; }
+  .kq .ql { font-family:var(--mono); font-size:11px; letter-spacing:.11em; text-transform:uppercase;
+    color:var(--s1); margin-bottom:7px; }
+  .kopts { display:flex; flex-wrap:wrap; gap:7px; }
+  .kopt { border:1.5px solid var(--border); background:var(--surface); border-radius:12px; padding:9px 14px;
+    font:600 15px var(--body); color:var(--ink-2); cursor:pointer; min-height:44px; font-family:var(--body); }
+  .kopt:hover { border-color:var(--s1); }
+  .kopt.on { border-color:var(--s1); background:var(--soft); color:var(--s1-deep); font-weight:700; }
+  .tellwrap { display:flex; flex-wrap:wrap; gap:6px; }
+  .tell { border:1.5px solid var(--border); background:var(--surface); border-radius:999px; padding:7px 13px;
+    font:600 13.5px var(--body); color:var(--ink-2); cursor:pointer; min-height:40px; }
+  .tell.on { border-color:var(--s2); background:var(--warn); color:var(--s2); font-weight:700; }
+  .kres { margin-top:8px; }
+  .cand { background:var(--surface); border:1px solid var(--border); border-left:3px solid var(--s1);
+    border-radius:0 12px 12px 0; padding:12px 15px; margin:9px 0; }
+  .cand.part { border-left-color:var(--rule); opacity:.82; }
+  .cand .ch { display:flex; align-items:baseline; justify-content:space-between; gap:10px; flex-wrap:wrap; }
+  .cand .ch b { font-family:var(--head); font-size:18px; }
+  .cand .sc { font-family:var(--mono); font-size:11.5px; color:var(--muted); white-space:nowrap; }
+  .cand p { font-size:15px; margin:5px 0 0; color:var(--ink-2); }
+  .cand .miss { font-size:13.5px; color:var(--s2); margin-top:5px; }
+  .kbtns { display:flex; gap:8px; flex-wrap:wrap; margin-top:14px; }
+  .kbtn { border:0; border-radius:11px; padding:11px 17px; font:800 14.5px var(--body); cursor:pointer; min-height:44px; }
+  .kbtn-go { background:var(--s1); color:#fff; } .kbtn-ghost { background:none; border:1.5px solid var(--border); color:var(--ink-2); }
+  @media print { .keybox { display:none !important; } }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<nav class="kit-nav">
+  <a href="ecology.html">Overview</a>
+  <a href="ecology-lab-manual.html">Lab Manual</a>
+  <a href="ecology-teachers-guide.html">Teacher's Guide</a>
+  <a href="plant-characters.html" aria-current="page">Plant Characters</a>
+  <a href="ecology-field-guide.html">Field Guide</a>
+  <a href="ecology.html#field-tools">Field Tools</a>
+</nav>
+
+<div class="masthead">
+  <p class="eyebrow">CSRBT · the ecology kit · botany</p>
+  <h1>Plant Characters</h1>
+  <p class="dek">The vocabulary a flora assumes you already have, drawn rather than defined — and the
+    twenty families worth knowing on sight, each with the one thing that gives it away. Built to print
+    and go in the back of a plant press.</p>
+</div>
+
+<div class="toc">
+  <h3>On this card</h3>
+  <ol>
+    <li><a href="#process">Keying a plant you don't know</a> <span class="for">· the order of operations</span></li>
+    <li><a href="#leaves">Leaves</a> <span class="for">· arrangement, shape, margin, division, venation</span></li>
+    <li><a href="#flowers">Flowers &amp; inflorescences</a> <span class="for">· the characters keys actually use</span></li>
+    <li><a href="#gsr">Grass, sedge or rush</a> <span class="for">· settle it in ten seconds</span></li>
+    <li><a href="#key">Work out the family</a> <span class="for">· an interactive character key</span></li>
+    <li><a href="#families">Twenty families on sight</a> <span class="for">· with the giveaway for each</span></li>
+    <li><a href="#voucher">Making a specimen worth keeping</a> <span class="for">· pressing, labels, ethics</span></li>
+  </ol>
+</div>
+
+<section id="process">
+  <div class="sec-head"><span class="sec-num">One</span><h2>Keying a plant you don't know</h2></div>
+  <p class="lead">Most failed identifications are not failures of knowledge. They are failures of
+    <em>looking</em> — the key asked a question about a part nobody examined.</p>
+
+  <p>Work in this order, and write each answer down before moving on. Committing to a character before
+  you know where it leads is the whole discipline; deciding what you saw <em>after</em> you have a
+  candidate in mind is how confirmation bias gets into a dataset.</p>
+
+  <ol>
+    <li><b>Habit and habitat first.</b> Woody or herbaceous? Annual, biennial or perennial? Wet or dry,
+      shade or sun, what substrate? Half the flora is eliminated before you touch the plant.</li>
+    <li><b>Is it a monocot or a dicot?</b> Parallel veins, parts in threes, no true bark, scattered
+      vascular bundles — versus netted veins and parts in fours or fives. This is the biggest single fork.</li>
+    <li><b>Leaf arrangement, at a node you can see.</b> Alternate, opposite, whorled, basal. Check
+      several nodes: arrangement can change up a stem.</li>
+    <li><b>Simple or compound</b> — and prove it with the axillary bud, not by eye.</li>
+    <li><b>Then the flower</b>, because that is where the keys live: symmetry, part numbers, fusion,
+      ovary position, inflorescence type.</li>
+    <li><b>Fruit if you can get it.</b> An astonishing number of couplets need mature fruit. A specimen
+      without it may be unkeyable.</li>
+  </ol>
+
+  <div class="warn"><b>Sterile material is often unidentifiable, and that is not your fault.</b>
+  Many genera — <i>Carex</i>, <i>Salix</i>, <i>Astragalus</i>, most Brassicaceae — simply cannot be
+  keyed to species without flowers or fruit. Record it as <code>Carex sp.</code> and come back when it
+  is fertile. A confident wrong name is far more expensive than an honest genus.</div>
+
+  <p class="pull">Record what you saw, then what you concluded. They are different columns.</p>
+</section>
+
+<section id="leaves">
+  <div class="sec-head"><span class="sec-num">Two</span><h2>Leaves</h2></div>
+  <p class="lead">The characters you can read without a flower, which is most of the time.</p>
+
+  <h3>Arrangement</h3>
+  <p>Check at a node partway up the stem — the lowest and uppermost nodes are the least reliable.</p>
+  <div class="glyphs"><div class="gl"><div class="art"><svg viewBox="0 0 76 64" role="img" aria-hidden="true"><line x1="38" y1="6" x2="38" y2="58" stroke="#8B7355" stroke-width="2.2" stroke-linecap="round"/><g transform="translate(24,18) rotate(-20)"><ellipse rx="11" ry="5.5" fill="#EFF5EC" stroke="#2E7D4F" stroke-width="1.6"/></g><g transform="translate(52,32) rotate(20)"><ellipse rx="11" ry="5.5" fill="#EFF5EC" stroke="#2E7D4F" stroke-width="1.6"/></g><g transform="translate(24,46) rotate(-20)"><ellipse rx="11" ry="5.5" fill="#EFF5EC" stroke="#2E7D4F" stroke-width="1.6"/></g></svg></div><b>Alternate</b><span>One leaf per node, staggered up the stem. The commonest state — and the first thing to check, because it splits the flora roughly in half.</span></div><div class="gl"><div class="art"><svg viewBox="0 0 76 64" role="img" aria-hidden="true"><line x1="38" y1="6" x2="38" y2="58" stroke="#8B7355" stroke-width="2.2" stroke-linecap="round"/><g transform="translate(23,20) rotate(-15)"><ellipse rx="11" ry="5.5" fill="#EFF5EC" stroke="#2E7D4F" stroke-width="1.6"/></g><g transform="translate(53,20) rotate(15)"><ellipse rx="11" ry="5.5" fill="#EFF5EC" stroke="#2E7D4F" stroke-width="1.6"/></g><g transform="translate(23,44) rotate(-15)"><ellipse rx="11" ry="5.5" fill="#EFF5EC" stroke="#2E7D4F" stroke-width="1.6"/></g><g transform="translate(53,44) rotate(15)"><ellipse rx="11" ry="5.5" fill="#EFF5EC" stroke="#2E7D4F" stroke-width="1.6"/></g></svg></div><b>Opposite</b><span>Two leaves per node, facing. In the western flora think <i>maples, dogwoods, mints, madders</i> — the mnemonic <b>MADCap Horse</b> covers most woody cases.</span></div><div class="gl"><div class="art"><svg viewBox="0 0 76 64" role="img" aria-hidden="true"><line x1="38" y1="6" x2="38" y2="58" stroke="#8B7355" stroke-width="2.2" stroke-linecap="round"/><g transform="translate(22,32) rotate(0)"><ellipse rx="11" ry="5" fill="#EFF5EC" stroke="#2E7D4F" stroke-width="1.6"/></g><g transform="translate(54,32) rotate(0)"><ellipse rx="11" ry="5" fill="#EFF5EC" stroke="#2E7D4F" stroke-width="1.6"/></g><g transform="translate(38,18) rotate(0)"><ellipse rx="5" ry="11" fill="#EFF5EC" stroke="#2E7D4F" stroke-width="1.6"/></g><g transform="translate(38,46) rotate(0)"><ellipse rx="5" ry="11" fill="#EFF5EC" stroke="#2E7D4F" stroke-width="1.6"/></g></svg></div><b>Whorled</b><span>Three or more at a node. Uncommon enough that it is nearly diagnostic when you see it.</span></div><div class="gl"><div class="art"><svg viewBox="0 0 76 64" role="img" aria-hidden="true"><line x1="38" y1="10" x2="38" y2="40" stroke="#8B7355" stroke-width="2.2" stroke-linecap="round"/><g transform="translate(20,46) rotate(-12)"><ellipse rx="13" ry="5.5" fill="#EFF5EC" stroke="#2E7D4F" stroke-width="1.6"/></g><g transform="translate(56,46) rotate(12)"><ellipse rx="13" ry="5.5" fill="#EFF5EC" stroke="#2E7D4F" stroke-width="1.6"/></g><g transform="translate(26,53) rotate(-4)"><ellipse rx="13" ry="5" fill="#EFF5EC" stroke="#2E7D4F" stroke-width="1.6"/></g><g transform="translate(50,53) rotate(4)"><ellipse rx="13" ry="5" fill="#EFF5EC" stroke="#2E7D4F" stroke-width="1.6"/></g></svg></div><b>Basal / rosette</b><span>Leaves crowded at ground level, stem leaves reduced or absent. Note whether the flowering stem is leafless (a <i>scape</i>) — that is a real character.</span></div></div>
+
+  <h3>Shape</h3>
+  <p>Shape terms describe the <em>outline</em>. Say where the blade is widest — that is what separates
+  most of the confusable pairs.</p>
+  <div class="glyphs"><div class="gl"><div class="art"><svg viewBox="0 0 76 64" role="img" aria-hidden="true"><line x1="38" y1="58" x2="38" y2="44" stroke="#8B7355" stroke-width="2.2" stroke-linecap="round"/><path d="M38 8 C56 20 54 40 38 46 C22 40 20 20 38 8Z" fill="#EFF5EC" stroke="#2E7D4F" stroke-width="1.6"/></svg></div><b>Ovate</b><span>Egg-shaped, widest below the middle.</span></div><div class="gl"><div class="art"><svg viewBox="0 0 76 64" role="img" aria-hidden="true"><line x1="38" y1="58" x2="38" y2="50" stroke="#8B7355" stroke-width="2.2" stroke-linecap="round"/><path d="M38 10 C54 20 58 40 38 50 C18 40 22 20 38 10Z" fill="#EFF5EC" stroke="#2E7D4F" stroke-width="1.6"/></svg></div><b>Obovate</b><span>Egg-shaped but widest <i>above</i> the middle. Say the shape, then check which end is fat.</span></div><div class="gl"><div class="art"><svg viewBox="0 0 76 64" role="img" aria-hidden="true"><line x1="38" y1="58" x2="38" y2="50" stroke="#8B7355" stroke-width="2.2" stroke-linecap="round"/><path d="M38 6 C48 24 47 42 38 52 C29 42 28 24 38 6Z" fill="#EFF5EC" stroke="#2E7D4F" stroke-width="1.6"/></svg></div><b>Lanceolate</b><span>Lance-shaped, several times longer than wide, widest below middle.</span></div><div class="gl"><div class="art"><svg viewBox="0 0 76 64" role="img" aria-hidden="true"><line x1="38" y1="58" x2="38" y2="52" stroke="#8B7355" stroke-width="2.2" stroke-linecap="round"/><path d="M38 6 C42 24 42 38 38 52 C34 38 34 24 38 6Z" fill="#EFF5EC" stroke="#2E7D4F" stroke-width="1.6"/></svg></div><b>Linear</b><span>Long and narrow with parallel sides. Most grasses, many sedges.</span></div><div class="gl"><div class="art"><svg viewBox="0 0 76 64" role="img" aria-hidden="true"><line x1="38" y1="58" x2="38" y2="48" stroke="#8B7355" stroke-width="2.2" stroke-linecap="round"/><path d="M38 48 C16 36 14 16 26 12 C33 10 37 15 38 19 C39 15 43 10 50 12 C62 16 60 36 38 48Z" fill="#EFF5EC" stroke="#2E7D4F" stroke-width="1.6"/></svg></div><b>Cordate</b><span>Heart-shaped base with a notch at the petiole.</span></div><div class="gl"><div class="art"><svg viewBox="0 0 76 64" role="img" aria-hidden="true"><line x1="38" y1="58" x2="38" y2="46" stroke="#8B7355" stroke-width="2.2" stroke-linecap="round"/><path d="M38 46 C18 44 14 22 30 18 C38 16 38 24 38 26 C38 24 38 16 46 18 C62 22 58 44 38 46Z" fill="#EFF5EC" stroke="#2E7D4F" stroke-width="1.6"/></svg></div><b>Reniform</b><span>Kidney-shaped — wider than long, notched base.</span></div></div>
+
+  <h3>Margin</h3>
+  <div class="glyphs"><div class="gl"><div class="art"><svg viewBox="0 0 76 64" role="img" aria-hidden="true"><path d="M38 6 C30 22 30 42 38 56" fill="none" stroke="#4B5344" stroke-width="1.4" opacity=".45"/><path d="M38 6 C56 22 56 42 38 56 C38 40 38 22 38 6Z" fill="#EFF5EC" stroke="#2E7D4F" stroke-width="1.7"/></svg></div><b>Entire</b><span>Smooth, untoothed. Say it out loud — beginners under-record entire margins.</span></div><div class="gl"><div class="art"><svg viewBox="0 0 76 64" role="img" aria-hidden="true"><path d="M38 6 C30 22 30 42 38 56" fill="none" stroke="#4B5344" stroke-width="1.4" opacity=".45"/><path d="M38 6 L48 14 L44 18 L54 24 L48 28 L56 34 L48 40 L54 46 L44 50 L46 54 L38 56Z" fill="#EFF5EC" stroke="#2E7D4F" stroke-width="1.7"/></svg></div><b>Serrate</b><span>Sharp teeth pointing <i>forward</i> toward the tip, like a saw.</span></div><div class="gl"><div class="art"><svg viewBox="0 0 76 64" role="img" aria-hidden="true"><path d="M38 6 C30 22 30 42 38 56" fill="none" stroke="#4B5344" stroke-width="1.4" opacity=".45"/><path d="M38 6 L50 12 L44 17 L54 22 L46 28 L56 33 L46 39 L54 45 L44 50 L50 55 L38 56Z" fill="#EFF5EC" stroke="#2E7D4F" stroke-width="1.7"/></svg></div><b>Dentate</b><span>Sharp teeth pointing <i>outward</i>, perpendicular to the margin.</span></div><div class="gl"><div class="art"><svg viewBox="0 0 76 64" role="img" aria-hidden="true"><path d="M38 6 C30 22 30 42 38 56" fill="none" stroke="#4B5344" stroke-width="1.4" opacity=".45"/><path d="M38 6 C50 8 50 18 44 18 C54 20 54 30 46 31 C56 33 55 43 46 44 C54 47 50 55 38 56Z" fill="#EFF5EC" stroke="#2E7D4F" stroke-width="1.7"/></svg></div><b>Crenate</b><span>Rounded, scalloped teeth.</span></div><div class="gl"><div class="art"><svg viewBox="0 0 76 64" role="img" aria-hidden="true"><path d="M38 6 C30 22 30 42 38 56" fill="none" stroke="#4B5344" stroke-width="1.4" opacity=".45"/><path d="M38 6 C54 8 52 20 42 20 C56 24 54 36 42 36 C54 40 50 54 38 56Z" fill="#EFF5EC" stroke="#2E7D4F" stroke-width="1.7"/></svg></div><b>Lobed</b><span>Indentations cutting less than halfway to the midrib.</span></div><div class="gl"><div class="art"><svg viewBox="0 0 76 64" role="img" aria-hidden="true"><path d="M38 6 C30 22 30 42 38 56" fill="none" stroke="#4B5344" stroke-width="1.4" opacity=".45"/><path d="M38 6 L54 10 L38 18 L56 22 L38 30 L56 34 L38 42 L54 46 L38 52 L38 56Z" fill="#EFF5EC" stroke="#2E7D4F" stroke-width="1.7"/></svg></div><b>Pinnatifid</b><span>Cut more than halfway to the midrib but not to it — still one leaf, not compound.</span></div></div>
+
+  <h3>Simple or compound</h3>
+  <p>The commonest beginner error in the whole discipline is calling leaflets leaves. The test is not
+  size or shape — it is the <b>axillary bud</b>, which sits in the angle where a true leaf meets the
+  stem and never at the base of a leaflet. A whole leaf also abscises as a unit.</p>
+  <div class="glyphs"><div class="gl"><div class="art"><svg viewBox="0 0 76 64" role="img" aria-hidden="true"><line x1="38" y1="58" x2="38" y2="46" stroke="#8B7355" stroke-width="2.2" stroke-linecap="round"/><path d="M38 10 C54 22 52 40 38 46 C24 40 22 22 38 10Z" fill="#EFF5EC" stroke="#2E7D4F" stroke-width="1.6"/></svg></div><b>Simple</b><span>One blade. The test is the <b>axillary bud</b>: a bud sits where a true leaf meets the stem, never at the base of a leaflet.</span></div><div class="gl"><div class="art"><svg viewBox="0 0 76 64" role="img" aria-hidden="true"><line x1="38" y1="58" x2="38" y2="10" stroke="#8B7355" stroke-width="2.2" stroke-linecap="round"/><g transform="translate(25,18) rotate(-18)"><ellipse rx="8" ry="4" fill="#EFF5EC" stroke="#2E7D4F" stroke-width="1.6"/></g><g transform="translate(51,18) rotate(18)"><ellipse rx="8" ry="4" fill="#EFF5EC" stroke="#2E7D4F" stroke-width="1.6"/></g><g transform="translate(25,30) rotate(-18)"><ellipse rx="8" ry="4" fill="#EFF5EC" stroke="#2E7D4F" stroke-width="1.6"/></g><g transform="translate(51,30) rotate(18)"><ellipse rx="8" ry="4" fill="#EFF5EC" stroke="#2E7D4F" stroke-width="1.6"/></g><g transform="translate(25,42) rotate(-18)"><ellipse rx="8" ry="4" fill="#EFF5EC" stroke="#2E7D4F" stroke-width="1.6"/></g><g transform="translate(51,42) rotate(18)"><ellipse rx="8" ry="4" fill="#EFF5EC" stroke="#2E7D4F" stroke-width="1.6"/></g><g transform="translate(38,12) rotate(0)"><ellipse rx="6" ry="7" fill="#EFF5EC" stroke="#2E7D4F" stroke-width="1.6"/></g></svg></div><b>Pinnately compound</b><span>Leaflets along an axis, feather-fashion. Ash, walnut, most <i>Astragalus</i>.</span></div><div class="gl"><div class="art"><svg viewBox="0 0 76 64" role="img" aria-hidden="true"><line x1="38" y1="58" x2="38" y2="12" stroke="#8B7355" stroke-width="2.2" stroke-linecap="round"/><line x1="38" y1="24" x2="22" y2="18" stroke="#8B7355" stroke-width="1.4" stroke-linecap="round"/><line x1="38" y1="24" x2="54" y2="18" stroke="#8B7355" stroke-width="1.4" stroke-linecap="round"/><line x1="38" y1="38" x2="22" y2="32" stroke="#8B7355" stroke-width="1.4" stroke-linecap="round"/><line x1="38" y1="38" x2="54" y2="32" stroke="#8B7355" stroke-width="1.4" stroke-linecap="round"/><line x1="38" y1="50" x2="22" y2="44" stroke="#8B7355" stroke-width="1.4" stroke-linecap="round"/><line x1="38" y1="50" x2="54" y2="44" stroke="#8B7355" stroke-width="1.4" stroke-linecap="round"/><g transform="translate(16,20) rotate(0)"><ellipse rx="3.6" ry="2" fill="#EFF5EC" stroke="#2E7D4F" stroke-width="1.6"/></g><g transform="translate(22,17) rotate(0)"><ellipse rx="3.6" ry="2" fill="#EFF5EC" stroke="#2E7D4F" stroke-width="1.6"/></g><g transform="translate(28,15) rotate(0)"><ellipse rx="3.6" ry="2" fill="#EFF5EC" stroke="#2E7D4F" stroke-width="1.6"/></g><g transform="translate(16,34) rotate(0)"><ellipse rx="3.6" ry="2" fill="#EFF5EC" stroke="#2E7D4F" stroke-width="1.6"/></g><g transform="translate(22,31) rotate(0)"><ellipse rx="3.6" ry="2" fill="#EFF5EC" stroke="#2E7D4F" stroke-width="1.6"/></g><g transform="translate(28,29) rotate(0)"><ellipse rx="3.6" ry="2" fill="#EFF5EC" stroke="#2E7D4F" stroke-width="1.6"/></g><g transform="translate(16,46) rotate(0)"><ellipse rx="3.6" ry="2" fill="#EFF5EC" stroke="#2E7D4F" stroke-width="1.6"/></g><g transform="translate(22,43) rotate(0)"><ellipse rx="3.6" ry="2" fill="#EFF5EC" stroke="#2E7D4F" stroke-width="1.6"/></g><g transform="translate(28,41) rotate(0)"><ellipse rx="3.6" ry="2" fill="#EFF5EC" stroke="#2E7D4F" stroke-width="1.6"/></g><g transform="translate(60,20) rotate(0)"><ellipse rx="3.6" ry="2" fill="#EFF5EC" stroke="#2E7D4F" stroke-width="1.6"/></g><g transform="translate(54,17) rotate(0)"><ellipse rx="3.6" ry="2" fill="#EFF5EC" stroke="#2E7D4F" stroke-width="1.6"/></g><g transform="translate(48,15) rotate(0)"><ellipse rx="3.6" ry="2" fill="#EFF5EC" stroke="#2E7D4F" stroke-width="1.6"/></g><g transform="translate(60,34) rotate(0)"><ellipse rx="3.6" ry="2" fill="#EFF5EC" stroke="#2E7D4F" stroke-width="1.6"/></g><g transform="translate(54,31) rotate(0)"><ellipse rx="3.6" ry="2" fill="#EFF5EC" stroke="#2E7D4F" stroke-width="1.6"/></g><g transform="translate(48,29) rotate(0)"><ellipse rx="3.6" ry="2" fill="#EFF5EC" stroke="#2E7D4F" stroke-width="1.6"/></g><g transform="translate(60,46) rotate(0)"><ellipse rx="3.6" ry="2" fill="#EFF5EC" stroke="#2E7D4F" stroke-width="1.6"/></g><g transform="translate(54,43) rotate(0)"><ellipse rx="3.6" ry="2" fill="#EFF5EC" stroke="#2E7D4F" stroke-width="1.6"/></g><g transform="translate(48,41) rotate(0)"><ellipse rx="3.6" ry="2" fill="#EFF5EC" stroke="#2E7D4F" stroke-width="1.6"/></g></svg></div><b>Bipinnately compound</b><span>The divisions are themselves divided. Many Apiaceae and Fabaceae.</span></div><div class="gl"><div class="art"><svg viewBox="0 0 76 64" role="img" aria-hidden="true"><line x1="38" y1="58" x2="38" y2="38" stroke="#8B7355" stroke-width="2.2" stroke-linecap="round"/><g transform="translate(38,16) rotate(0)"><ellipse rx="5" ry="12" fill="#EFF5EC" stroke="#2E7D4F" stroke-width="1.6"/></g><g transform="translate(22,22) rotate(-40)"><ellipse rx="5" ry="11" fill="#EFF5EC" stroke="#2E7D4F" stroke-width="1.6"/></g><g transform="translate(54,22) rotate(40)"><ellipse rx="5" ry="11" fill="#EFF5EC" stroke="#2E7D4F" stroke-width="1.6"/></g><g transform="translate(15,34) rotate(-70)"><ellipse rx="4.5" ry="9" fill="#EFF5EC" stroke="#2E7D4F" stroke-width="1.6"/></g><g transform="translate(61,34) rotate(70)"><ellipse rx="4.5" ry="9" fill="#EFF5EC" stroke="#2E7D4F" stroke-width="1.6"/></g></svg></div><b>Palmately compound</b><span>Leaflets radiating from one point. <i>Lupinus</i>, buckeye.</span></div><div class="gl"><div class="art"><svg viewBox="0 0 76 64" role="img" aria-hidden="true"><line x1="38" y1="58" x2="38" y2="36" stroke="#8B7355" stroke-width="2.2" stroke-linecap="round"/><g transform="translate(38,20) rotate(0)"><ellipse rx="6" ry="11" fill="#EFF5EC" stroke="#2E7D4F" stroke-width="1.6"/></g><g transform="translate(21,30) rotate(-35)"><ellipse rx="6" ry="10" fill="#EFF5EC" stroke="#2E7D4F" stroke-width="1.6"/></g><g transform="translate(55,30) rotate(35)"><ellipse rx="6" ry="10" fill="#EFF5EC" stroke="#2E7D4F" stroke-width="1.6"/></g></svg></div><b>Trifoliate</b><span>Three leaflets. Clovers, poison oak, <i>Rubus</i> — worth its own name because it is so common.</span></div></div>
+
+  <h3>Venation</h3>
+  <div class="glyphs"><div class="gl"><div class="art"><svg viewBox="0 0 76 64" role="img" aria-hidden="true"><path d="M38 8 C56 22 54 42 38 52 C22 42 20 22 38 8Z" fill="#EFF5EC" stroke="#2E7D4F" stroke-width="1.6"/><line x1="38" y1="10" x2="38" y2="52" stroke="#2E7D4F" stroke-width="1.5"/><path d="M38 20 Q29 17 24 13" fill="none" stroke="#2E7D4F" stroke-width="1"/><path d="M38 20 Q46 17 52 13" fill="none" stroke="#2E7D4F" stroke-width="1"/><path d="M38 30 Q28 27 22 23" fill="none" stroke="#2E7D4F" stroke-width="1"/><path d="M38 30 Q47 27 54 23" fill="none" stroke="#2E7D4F" stroke-width="1"/><path d="M38 40 Q30 37 25 33" fill="none" stroke="#2E7D4F" stroke-width="1"/><path d="M38 40 Q45 37 51 33" fill="none" stroke="#2E7D4F" stroke-width="1"/></svg></div><b>Pinnate venation</b><span>One midrib with side veins branching off. Most dicots.</span></div><div class="gl"><div class="art"><svg viewBox="0 0 76 64" role="img" aria-hidden="true"><path d="M38 50 C14 38 14 16 30 12 C36 10 38 16 38 20 C38 16 40 10 46 12 C62 16 62 38 38 50Z" fill="#EFF5EC" stroke="#2E7D4F" stroke-width="1.6"/><line x1="38" y1="50" x2="38" y2="18" stroke="#2E7D4F" stroke-width="1.1"/><line x1="38" y1="50" x2="22" y2="22" stroke="#2E7D4F" stroke-width="1.1"/><line x1="38" y1="50" x2="54" y2="22" stroke="#2E7D4F" stroke-width="1.1"/><line x1="38" y1="50" x2="17" y2="33" stroke="#2E7D4F" stroke-width="1.1"/><line x1="38" y1="50" x2="59" y2="33" stroke="#2E7D4F" stroke-width="1.1"/></svg></div><b>Palmate venation</b><span>Several main veins from the blade base. Maples, currants, many Malvaceae.</span></div><div class="gl"><div class="art"><svg viewBox="0 0 76 64" role="img" aria-hidden="true"><path d="M38 6 C44 24 44 40 38 58 C32 40 32 24 38 6Z" fill="#EFF5EC" stroke="#2E7D4F" stroke-width="1.6"/><path d="M38 8 C34 24 34 40 38 56" fill="none" stroke="#2E7D4F" stroke-width=".9"/><path d="M38 8 C36 24 36 40 38 56" fill="none" stroke="#2E7D4F" stroke-width=".9"/><path d="M38 8 C40 24 40 40 38 56" fill="none" stroke="#2E7D4F" stroke-width=".9"/><path d="M38 8 C42 24 42 40 38 56" fill="none" stroke="#2E7D4F" stroke-width=".9"/></svg></div><b>Parallel venation</b><span>Veins running the length of the blade without a dominant midrib. The monocot signature — grasses, sedges, lilies, orchids.</span></div></div>
+</section>
+
+<section id="flowers">
+  <div class="sec-head"><span class="sec-num">Three</span><h2>Flowers &amp; inflorescences</h2></div>
+  <p class="lead">Floras key on flowers because flower structure is conservative — it changes slowly
+    and so it tracks relatedness better than leaves, which respond to whatever the site is doing.</p>
+
+  <h3>How the flowers are arranged</h3>
+  <div class="glyphs"><div class="gl"><div class="art"><svg viewBox="0 0 76 64" role="img" aria-hidden="true"><line x1="38" y1="58" x2="38" y2="8" stroke="#8B7355" stroke-width="2.2" stroke-linecap="round"/><line x1="38" y1="50" x2="27" y2="46" stroke="#8B7355" stroke-width="1.5" stroke-linecap="round"/><circle cx="27" cy="46" r="3.6" fill="#C0592B" opacity=".9"/><line x1="38" y1="50" x2="49" y2="46" stroke="#8B7355" stroke-width="1.5" stroke-linecap="round"/><circle cx="49" cy="46" r="3.6" fill="#C0592B" opacity=".9"/><line x1="38" y1="40" x2="27" y2="36" stroke="#8B7355" stroke-width="1.5" stroke-linecap="round"/><circle cx="27" cy="36" r="3.6" fill="#C0592B" opacity=".9"/><line x1="38" y1="40" x2="49" y2="36" stroke="#8B7355" stroke-width="1.5" stroke-linecap="round"/><circle cx="49" cy="36" r="3.6" fill="#C0592B" opacity=".9"/><line x1="38" y1="30" x2="27" y2="26" stroke="#8B7355" stroke-width="1.5" stroke-linecap="round"/><circle cx="27" cy="26" r="3.6" fill="#C0592B" opacity=".9"/><line x1="38" y1="30" x2="49" y2="26" stroke="#8B7355" stroke-width="1.5" stroke-linecap="round"/><circle cx="49" cy="26" r="3.6" fill="#C0592B" opacity=".9"/><line x1="38" y1="20" x2="27" y2="16" stroke="#8B7355" stroke-width="1.5" stroke-linecap="round"/><circle cx="27" cy="16" r="3.6" fill="#C0592B" opacity=".9"/><line x1="38" y1="20" x2="49" y2="16" stroke="#8B7355" stroke-width="1.5" stroke-linecap="round"/><circle cx="49" cy="16" r="3.6" fill="#C0592B" opacity=".9"/><circle cx="38" cy="10" r="3.4" fill="#C0592B" opacity=".9"/></svg></div><b>Raceme</b><span>Stalked flowers along an unbranched axis, opening bottom-up. Mustards are the classic.</span></div><div class="gl"><div class="art"><svg viewBox="0 0 76 64" role="img" aria-hidden="true"><line x1="38" y1="58" x2="38" y2="8" stroke="#8B7355" stroke-width="2.2" stroke-linecap="round"/><circle cx="32" cy="48" r="4" fill="#C0592B" opacity=".9"/><circle cx="44" cy="48" r="4" fill="#C0592B" opacity=".9"/><circle cx="32" cy="40" r="4" fill="#C0592B" opacity=".9"/><circle cx="44" cy="40" r="4" fill="#C0592B" opacity=".9"/><circle cx="32" cy="32" r="4" fill="#C0592B" opacity=".9"/><circle cx="44" cy="32" r="4" fill="#C0592B" opacity=".9"/><circle cx="32" cy="24" r="4" fill="#C0592B" opacity=".9"/><circle cx="44" cy="24" r="4" fill="#C0592B" opacity=".9"/><circle cx="32" cy="16" r="4" fill="#C0592B" opacity=".9"/><circle cx="44" cy="16" r="4" fill="#C0592B" opacity=".9"/></svg></div><b>Spike</b><span>Like a raceme but the flowers are <i>stalkless</i> against the axis.</span></div><div class="gl"><div class="art"><svg viewBox="0 0 76 64" role="img" aria-hidden="true"><line x1="38" y1="58" x2="38" y2="8" stroke="#8B7355" stroke-width="2.2" stroke-linecap="round"/><line x1="38" y1="50" x2="21" y2="42" stroke="#8B7355" stroke-width="1.4" stroke-linecap="round"/><circle cx="21" cy="42" r="3" fill="#C0592B" opacity=".9"/><circle cx="16" cy="46" r="3" fill="#C0592B" opacity=".9"/><circle cx="26" cy="46" r="3" fill="#C0592B" opacity=".9"/><line x1="38" y1="50" x2="55" y2="42" stroke="#8B7355" stroke-width="1.4" stroke-linecap="round"/><circle cx="55" cy="42" r="3" fill="#C0592B" opacity=".9"/><circle cx="50" cy="46" r="3" fill="#C0592B" opacity=".9"/><circle cx="60" cy="46" r="3" fill="#C0592B" opacity=".9"/><line x1="38" y1="38" x2="25" y2="30" stroke="#8B7355" stroke-width="1.4" stroke-linecap="round"/><circle cx="25" cy="30" r="3" fill="#C0592B" opacity=".9"/><circle cx="20" cy="34" r="3" fill="#C0592B" opacity=".9"/><circle cx="30" cy="34" r="3" fill="#C0592B" opacity=".9"/><line x1="38" y1="38" x2="51" y2="30" stroke="#8B7355" stroke-width="1.4" stroke-linecap="round"/><circle cx="51" cy="30" r="3" fill="#C0592B" opacity=".9"/><circle cx="46" cy="34" r="3" fill="#C0592B" opacity=".9"/><circle cx="56" cy="34" r="3" fill="#C0592B" opacity=".9"/><line x1="38" y1="26" x2="29" y2="18" stroke="#8B7355" stroke-width="1.4" stroke-linecap="round"/><circle cx="29" cy="18" r="3" fill="#C0592B" opacity=".9"/><circle cx="24" cy="22" r="3" fill="#C0592B" opacity=".9"/><circle cx="34" cy="22" r="3" fill="#C0592B" opacity=".9"/><line x1="38" y1="26" x2="47" y2="18" stroke="#8B7355" stroke-width="1.4" stroke-linecap="round"/><circle cx="47" cy="18" r="3" fill="#C0592B" opacity=".9"/><circle cx="42" cy="22" r="3" fill="#C0592B" opacity=".9"/><circle cx="52" cy="22" r="3" fill="#C0592B" opacity=".9"/><circle cx="38" cy="10" r="3" fill="#C0592B" opacity=".9"/></svg></div><b>Panicle</b><span>A branched raceme. Most grasses in flower.</span></div><div class="gl"><div class="art"><svg viewBox="0 0 76 64" role="img" aria-hidden="true"><line x1="38" y1="58" x2="38" y2="34" stroke="#8B7355" stroke-width="2.2" stroke-linecap="round"/><line x1="38" y1="34" x2="14" y2="18" stroke="#8B7355" stroke-width="1.4" stroke-linecap="round"/><circle cx="14" cy="18" r="3.8" fill="#C0592B" opacity=".9"/><line x1="38" y1="34" x2="22" y2="12" stroke="#8B7355" stroke-width="1.4" stroke-linecap="round"/><circle cx="22" cy="12" r="3.8" fill="#C0592B" opacity=".9"/><line x1="38" y1="34" x2="30" y2="8" stroke="#8B7355" stroke-width="1.4" stroke-linecap="round"/><circle cx="30" cy="8" r="3.8" fill="#C0592B" opacity=".9"/><line x1="38" y1="34" x2="38" y2="7" stroke="#8B7355" stroke-width="1.4" stroke-linecap="round"/><circle cx="38" cy="7" r="3.8" fill="#C0592B" opacity=".9"/><line x1="38" y1="34" x2="46" y2="8" stroke="#8B7355" stroke-width="1.4" stroke-linecap="round"/><circle cx="46" cy="8" r="3.8" fill="#C0592B" opacity=".9"/><line x1="38" y1="34" x2="54" y2="12" stroke="#8B7355" stroke-width="1.4" stroke-linecap="round"/><circle cx="54" cy="12" r="3.8" fill="#C0592B" opacity=".9"/><line x1="38" y1="34" x2="62" y2="18" stroke="#8B7355" stroke-width="1.4" stroke-linecap="round"/><circle cx="62" cy="18" r="3.8" fill="#C0592B" opacity=".9"/></svg></div><b>Umbel</b><span>All the stalks arising from one point like an umbrella's ribs. Apiaceae is named for it.</span></div><div class="gl"><div class="art"><svg viewBox="0 0 76 64" role="img" aria-hidden="true"><line x1="38" y1="58" x2="38" y2="30" stroke="#8B7355" stroke-width="2.2" stroke-linecap="round"/><circle cx="38" cy="22" r="15" fill="#EFF5EC" stroke="#2E7D4F" stroke-width="1.6"/><ellipse cx="51" cy="22" rx="7" ry="3.4" fill="#C0592B" opacity=".85" transform="rotate(0 38 22)"/><ellipse cx="51" cy="22" rx="7" ry="3.4" fill="#C0592B" opacity=".85" transform="rotate(45 38 22)"/><ellipse cx="51" cy="22" rx="7" ry="3.4" fill="#C0592B" opacity=".85" transform="rotate(90 38 22)"/><ellipse cx="51" cy="22" rx="7" ry="3.4" fill="#C0592B" opacity=".85" transform="rotate(135 38 22)"/><ellipse cx="51" cy="22" rx="7" ry="3.4" fill="#C0592B" opacity=".85" transform="rotate(180 38 22)"/><ellipse cx="51" cy="22" rx="7" ry="3.4" fill="#C0592B" opacity=".85" transform="rotate(225 38 22)"/><ellipse cx="51" cy="22" rx="7" ry="3.4" fill="#C0592B" opacity=".85" transform="rotate(270 38 22)"/><ellipse cx="51" cy="22" rx="7" ry="3.4" fill="#C0592B" opacity=".85" transform="rotate(315 38 22)"/><circle cx="38" cy="22" r="6" fill="#B8860B"/></svg></div><b>Head (capitulum)</b><span>Many stalkless flowers packed onto a common receptacle and surrounded by bracts, the whole thing masquerading as one flower. Asteraceae.</span></div><div class="gl"><div class="art"><svg viewBox="0 0 76 64" role="img" aria-hidden="true"><line x1="38" y1="58" x2="38" y2="30" stroke="#8B7355" stroke-width="2.2" stroke-linecap="round"/><circle cx="38" cy="26" r="4.4" fill="#C0592B" opacity=".9"/><line x1="34" y1="30" x2="20" y2="20" stroke="#8B7355" stroke-width="1.5" stroke-linecap="round"/><circle cx="20" cy="18" r="3.8" fill="#C0592B" opacity=".9"/><line x1="42" y1="30" x2="56" y2="20" stroke="#8B7355" stroke-width="1.5" stroke-linecap="round"/><circle cx="56" cy="18" r="3.8" fill="#C0592B" opacity=".9"/><line x1="20" y1="20" x2="12" y2="12" stroke="#8B7355" stroke-width="1.3" stroke-linecap="round"/><circle cx="12" cy="10" r="3" fill="#C0592B" opacity=".9"/><line x1="56" y1="20" x2="64" y2="12" stroke="#8B7355" stroke-width="1.3" stroke-linecap="round"/><circle cx="64" cy="10" r="3" fill="#C0592B" opacity=".9"/></svg></div><b>Cyme</b><span>The <i>central</i> flower opens first and growth continues from the sides. The opposite developmental order to a raceme.</span></div></div>
+
+  <h3>Symmetry and ovary position</h3>
+  <p>These two characters do more work in keys than almost anything else. Ovary position in particular
+  is worth learning to see: cut a flower in half lengthways with a thumbnail and look at where the
+  sepals and petals attach relative to the ovary.</p>
+  <div class="glyphs"><div class="gl"><div class="art"><svg viewBox="0 0 76 64" role="img" aria-hidden="true"><ellipse cx="38" cy="20" rx="7" ry="3.6" fill="#C0592B" opacity=".8" transform="rotate(0 38 32)"/><ellipse cx="38" cy="20" rx="7" ry="3.6" fill="#C0592B" opacity=".8" transform="rotate(72 38 32)"/><ellipse cx="38" cy="20" rx="7" ry="3.6" fill="#C0592B" opacity=".8" transform="rotate(144 38 32)"/><ellipse cx="38" cy="20" rx="7" ry="3.6" fill="#C0592B" opacity=".8" transform="rotate(216 38 32)"/><ellipse cx="38" cy="20" rx="7" ry="3.6" fill="#C0592B" opacity=".8" transform="rotate(288 38 32)"/><circle cx="38" cy="32" r="5.5" fill="#B8860B"/></svg></div><b>Actinomorphic</b><span>Radially symmetric — many planes of symmetry. Rose, lily, buttercup.</span></div><div class="gl"><div class="art"><svg viewBox="0 0 76 64" role="img" aria-hidden="true"><path d="M38 32 C20 26 18 12 30 12 C36 12 38 18 38 22 C38 18 40 12 46 12 C58 12 56 26 38 32Z" fill="#C0592B" opacity=".85"/><path d="M38 32 C26 38 24 50 38 52 C52 50 50 38 38 32Z" fill="#C0592B" opacity=".6"/><circle cx="38" cy="32" r="4.5" fill="#B8860B"/></svg></div><b>Zygomorphic</b><span>Bilaterally symmetric — one plane only. Pea, mint, snapdragon, orchid. Nearly always a pollinator-specialisation signal.</span></div><div class="gl"><div class="art"><svg viewBox="0 0 76 64" role="img" aria-hidden="true"><path d="M14 34 C20 20 56 20 62 34" fill="none" stroke="#4B5344" stroke-width="1.8"/><ellipse cx="38" cy="30" rx="9" ry="11" fill="#EFF5EC" stroke="#2E7D4F" stroke-width="1.8"/><line x1="38" y1="19" x2="38" y2="10" stroke="#2E7D4F" stroke-width="1.8"/><text x="38" y="52" font-size="9" text-anchor="middle" fill="#4B5344" font-family="monospace">ovary above</text></svg></div><b>Superior ovary</b><span>The other parts attach <i>below</i> the ovary; the ovary sits free in the flower's cup.</span></div><div class="gl"><div class="art"><svg viewBox="0 0 76 64" role="img" aria-hidden="true"><path d="M14 26 C20 12 56 12 62 26" fill="none" stroke="#4B5344" stroke-width="1.8"/><ellipse cx="38" cy="34" rx="11" ry="9" fill="#EFF5EC" stroke="#2E7D4F" stroke-width="1.8"/><line x1="38" y1="25" x2="38" y2="14" stroke="#2E7D4F" stroke-width="1.8"/><text x="38" y="54" font-size="9" text-anchor="middle" fill="#4B5344" font-family="monospace">ovary below</text></svg></div><b>Inferior ovary</b><span>The other parts attach <i>above</i> the ovary, which is fused into the receptacle — look for a swelling below the petals. Apiaceae, Asteraceae, Onagraceae.</span></div></div>
+
+  <div class="note"><b>The floral formula, in one line.</b> Botanists compress a flower to something
+  like <code>K5 C5 A&infin; G(5)</code> — K for calyx (sepals), C for corolla (petals), A for androecium
+  (stamens), G for gynoecium (carpels). A number is the count, &infin; means many, brackets mean fused,
+  and a line under G means an inferior ovary. Writing one forces you to look at every whorl, which is
+  precisely the point.</div>
+</section>
+
+<section id="gsr">
+  <div class="sec-head"><span class="sec-num">Four</span><h2>Grass, sedge or rush</h2></div>
+  <p class="lead">Three families that look alike at forty paces and are not remotely closely related in
+    the way beginners assume. The rhyme is genuinely reliable.</p>
+
+  <p class="pull">Sedges have edges, rushes are round, grasses have nodes from their tips to the ground.</p>
+
+  <div class="tw"><table>
+    <tr><th></th><th>Grass · Poaceae</th><th>Sedge · Cyperaceae</th><th>Rush · Juncaceae</th></tr>
+    <tr><td><b>Stem section</b></td><td>Round, usually <b>hollow</b> between nodes</td>
+      <td>Usually <b>triangular</b>, solid</td><td>Round, pith-filled</td></tr>
+    <tr><td><b>Nodes</b></td><td>Swollen, solid, obvious joints</td><td>Not swollen</td><td>Not swollen</td></tr>
+    <tr><td><b>Leaf ranks</b></td><td>Two-ranked (opposite sides)</td><td>Three-ranked (spiralling)</td><td>Basal, round or channelled</td></tr>
+    <tr><td><b>Sheath</b></td><td><b>Open</b>, split down one side</td><td><b>Closed</b>, a tube</td><td>Open</td></tr>
+    <tr><td><b>Ligule</b></td><td>Present — and the key character</td><td>Usually absent</td><td>Absent</td></tr>
+    <tr><td><b>Flower</b></td><td>Spikelets, no perianth</td><td>Scales; <i>Carex</i> has a perigynium</td>
+      <td>Six tepals — a real, tiny lily flower</td></tr>
+    <tr><td><b>Fruit</b></td><td>Caryopsis (grain)</td><td>Achene, three-angled or lens-shaped</td><td>Capsule, many seeds</td></tr>
+  </table></div>
+
+  <div class="note"><b>The ten-second test.</b> Roll the stem between finger and thumb well below the
+  inflorescence. Sharp corners: sedge. Round and jointed with a papery collar where the blade leaves
+  the stem: grass. Round, smooth, pithy, with a flower that has actual tepals: rush. If it is round and
+  jointed but you feel no ligule, look again — you are probably above the collar.</div>
+</section>
+
+
+<section id="key">
+  <div class="sec-head"><span class="sec-num">Five</span><h2>Work out the family</h2></div>
+  <p class="lead">Answer only what you can actually see. Every answer narrows the list; leaving one blank
+    just keeps it longer. This suggests <em>candidates to check in a flora</em> — it is not a determination.</p>
+
+  <div class="keybox" id="keybox"></div>
+
+  <div class="warn"><b>What this can and cannot do.</b> It matches the characters you enter against the
+  states each family is <em>known to show</em>, so a family stays on the list unless something genuinely
+  rules it out. That makes it forgiving — and it means a top-ranked family is a hypothesis, not an answer.
+  Families are variable: Ranunculaceae will hand you a bilateral flower, some Asteraceae have opposite
+  leaves, Rosaceae switches between superior and inferior ovaries. Take the candidates to a regional flora
+  and key properly. And note the corollary — if <em>nothing</em> scores well, you have probably mis-scored
+  a character rather than found something new.</div>
+</section>
+
+<section id="families">
+  <div class="sec-head"><span class="sec-num">Six</span><h2>Twenty families on sight</h2></div>
+  <p class="lead">Experienced botanists do not key from scratch. They recognise a family in a second,
+    which reduces a flora of several thousand species to a few dozen — and <em>then</em> they key.
+    This is that shortcut, for the western North American flora.</p>
+  <div class="fams"><div class="fam"><div class="fh"><b>Asteraceae</b><span>sunflower family</span></div><p class="fc">Heads of many tiny flowers wearing one flower's costume, wrapped in bracts (the <i>involucre</i>). Ray flowers around the edge, disc flowers in the middle — or only one kind. Inferior ovary; the pappus becomes the parachute.</p><p class="ft"><span class="lab">In the field</span>Count the flowers in a 'flower'. If a daisy comes apart into dozens of tubes, you are here. The largest family in most western floras.</p><p class="fe"><span class="lab">Western examples</span><i>Balsamorhiza</i>, <i>Artemisia</i>, <i>Ericameria</i>, <i>Achillea</i>, <i>Erigeron</i></p></div><div class="fam"><div class="fh"><b>Poaceae</b><span>grass family</span></div><p class="fc">Round hollow stems with swollen, closed nodes. Leaves two-ranked with a split sheath and a <b>ligule</b> where blade meets sheath. Flowers reduced to spikelets with bracts, no perianth.</p><p class="ft"><span class="lab">In the field</span>Roll the stem: grasses are round and the nodes are solid and jointed. Then look for the ligule — its shape and size key more grasses than anything else.</p><p class="fe"><span class="lab">Western examples</span><i>Pseudoroegneria spicata</i>, <i>Bromus tectorum</i>, <i>Achnatherum</i>, <i>Calamagrostis</i></p></div><div class="fam"><div class="fh"><b>Cyperaceae</b><span>sedge family</span></div><p class="fc">Stems usually solid and <b>triangular</b> in section, leaves three-ranked, sheaths closed. Achenes; <i>Carex</i> has the perigynium, a sac around the achene.</p><p class="ft"><span class="lab">In the field</span><b>Sedges have edges</b> — roll the stem between finger and thumb and feel the three corners. Then check for perigynia, which settle <i>Carex</i>.</p><p class="fe"><span class="lab">Western examples</span><i>Carex</i>, <i>Eleocharis</i>, <i>Schoenoplectus</i></p></div><div class="fam"><div class="fh"><b>Juncaceae</b><span>rush family</span></div><p class="fc">Stems round and usually pith-filled; leaves round or channelled. Flowers small but genuinely lily-like — six tepals, three or six stamens, a capsule.</p><p class="ft"><span class="lab">In the field</span><b>Rushes are round</b>. The giveaway is that the flower, under a lens, has real tepals — grasses and sedges do not.</p><p class="fe"><span class="lab">Western examples</span><i>Juncus</i>, <i>Luzula</i></p></div><div class="fam"><div class="fh"><b>Fabaceae</b><span>pea family</span></div><p class="fc">Zygomorphic flower of banner, two wings, and a fused keel; fruit a legume splitting along two sutures. Leaves usually compound with stipules. Most fix nitrogen via root nodules.</p><p class="ft"><span class="lab">In the field</span>The pea flower is unmistakable once seen. Failing flowers, look for compound leaves plus a pod — and dig a root to look for nodules.</p><p class="fe"><span class="lab">Western examples</span><i>Lupinus</i>, <i>Astragalus</i>, <i>Trifolium</i>, <i>Cytisus scoparius</i> (invasive)</p></div><div class="fam"><div class="fh"><b>Brassicaceae</b><span>mustard family</span></div><p class="fc">Four petals in a cross, six stamens with four long and two short (<i>tetradynamous</i>), fruit a silique or silicle splitting to leave a papery partition. Peppery smell and taste.</p><p class="ft"><span class="lab">In the field</span>Four petals, a cross, and a mustard smell when you crush a leaf. Then look at fruit shape — long silique or short silicle — because that is where the keys go.</p><p class="fe"><span class="lab">Western examples</span><i>Arabis</i>, <i>Draba</i>, <i>Descurainia</i>, <i>Lepidium</i></p></div><div class="fam"><div class="fh"><b>Rosaceae</b><span>rose family</span></div><p class="fc">Five petals, many stamens, often five sepals plus an epicalyx; a hypanthium is usually present. Stipules on the leaves. Fruit type varies enormously — pome, drupe, achene, aggregate.</p><p class="ft"><span class="lab">In the field</span>Five petals with a boss of many stamens, plus stipules. The family is held together by flower structure, not by fruit.</p><p class="fe"><span class="lab">Western examples</span><i>Purshia</i>, <i>Cercocarpus</i>, <i>Amelanchier</i>, <i>Rubus</i>, <i>Potentilla</i></p></div><div class="fam"><div class="fh"><b>Apiaceae</b><span>carrot family</span></div><p class="fc">Compound umbels, hollow ribbed stems, sheathing petiole bases, leaves usually much divided. Tiny five-petalled flowers with an inferior ovary; fruit a schizocarp splitting into two.</p><p class="ft"><span class="lab">In the field</span>An umbel over a sheathing leaf base. <b>Never taste to identify</b> — this family holds both wild carrot and water hemlock, the most toxic plant in North America.</p><p class="fe"><span class="lab">Western examples</span><i>Lomatium</i>, <i>Heracleum</i>, <i>Perideridia</i>, <i>Cicuta</i> (deadly)</p></div><div class="fam"><div class="fh"><b>Lamiaceae</b><span>mint family</span></div><p class="fc"><b>Square stems, opposite leaves, aromatic.</b> Two-lipped zygomorphic corolla, four nutlets in the fruit.</p><p class="ft"><span class="lab">In the field</span>Roll the stem and smell your fingers. Square plus opposite plus a smell is the family in three seconds — but square stems alone are not enough.</p><p class="fe"><span class="lab">Western examples</span><i>Monardella</i>, <i>Prunella</i>, <i>Mentha</i>, <i>Salvia</i></p></div><div class="fam"><div class="fh"><b>Ranunculaceae</b><span>buttercup family</span></div><p class="fc">Parts usually many and free — many stamens, many pistils. Sepals often petal-like. Leaves commonly divided, often with a sheathing base. Considered an 'primitive' floral arrangement.</p><p class="ft"><span class="lab">In the field</span>Everything numerous and nothing fused. If the flower looks like a scatter of separate parts, start here.</p><p class="fe"><span class="lab">Western examples</span><i>Ranunculus</i>, <i>Delphinium</i>, <i>Aquilegia</i>, <i>Clematis</i>, <i>Anemone</i></p></div><div class="fam"><div class="fh"><b>Ericaceae</b><span>heath family</span></div><p class="fc">Woody, usually evergreen, thick leathery leaves. Urn- or bell-shaped fused corolla; anthers opening by pores, often with awns. Almost always on acid soils, and heavily dependent on ericoid or arbutoid mycorrhizae.</p><p class="ft"><span class="lab">In the field</span>An urn-shaped flower on a leathery evergreen shrub. In the PNW that is salal, huckleberry, manzanita, kinnikinnick.</p><p class="fe"><span class="lab">Western examples</span><i>Gaultheria shallon</i>, <i>Vaccinium</i>, <i>Arctostaphylos</i></p></div><div class="fam"><div class="fh"><b>Polygonaceae</b><span>buckwheat family</span></div><p class="fc">Swollen nodes; many genera have an <b>ocrea</b>, a papery sheath wrapping the stem at the node. Perianth of tepals, not differentiated into sepals and petals; fruit a three-angled achene.</p><p class="ft"><span class="lab">In the field</span>Look at the node for a papery collar. <i>Eriogonum</i> lacks it but is unmistakable in the Great Basin — dense involucres of tiny flowers on a wiry shrub.</p><p class="fe"><span class="lab">Western examples</span><i>Eriogonum</i>, <i>Rumex</i>, <i>Polygonum</i></p></div><div class="fam"><div class="fh"><b>Amaranthaceae</b><span>goosefoot family</span></div><p class="fc">Includes the old Chenopodiaceae. Small greenish flowers without petals; leaves often mealy, fleshy, or scurfy; many are halophytes with C4 photosynthesis.</p><p class="ft"><span class="lab">In the field</span>Grey, mealy, saline-flat shrubs with unshowy flowers. In the Great Basin this family <i>is</i> the valley bottom.</p><p class="fe"><span class="lab">Western examples</span><i>Atriplex</i>, <i>Sarcobatus</i>, <i>Krascheninnikovia</i>, <i>Salsola</i> (invasive)</p></div><div class="fam"><div class="fh"><b>Boraginaceae</b><span>borage family</span></div><p class="fc">Coiled inflorescence (a <b>scorpioid cyme</b>) unrolling as it flowers; rough bristly hairs; four nutlets whose sculpturing is the main key character.</p><p class="ft"><span class="lab">In the field</span>The fiddlehead-shaped flowering coil plus sandpaper texture. Then collect ripe nutlets, because the keys need them.</p><p class="fe"><span class="lab">Western examples</span><i>Cryptantha</i>, <i>Mertensia</i>, <i>Amsinckia</i>, <i>Hackelia</i></p></div><div class="fam"><div class="fh"><b>Plantaginaceae</b><span>plantain family</span></div><p class="fc">Much broader than it used to be — now holds most former Scrophulariaceae including the penstemons. Zygomorphic tubular corolla, usually four or five lobes, ovary superior, fruit a capsule.</p><p class="ft"><span class="lab">In the field</span>In the West: a tubular two-lipped flower on a herb, with a superior ovary and a capsule, is usually here. <i>Penstemon</i> has the sterile fifth stamen — the 'beard tongue'.</p><p class="fe"><span class="lab">Western examples</span><i>Penstemon</i>, <i>Castilleja</i> (in Orobanchaceae now), <i>Veronica</i>, <i>Plantago</i></p></div><div class="fam"><div class="fh"><b>Onagraceae</b><span>evening primrose family</span></div><p class="fc">Flower parts usually in <b>fours</b>, with a long hypanthium above an obviously <b>inferior</b> ovary — the flower sits on a long slender 'stalk' that is actually the ovary.</p><p class="ft"><span class="lab">In the field</span>Count to four, then look for the swollen inferior ovary below a long floral tube.</p><p class="fe"><span class="lab">Western examples</span><i>Chamerion angustifolium</i> (fireweed), <i>Oenothera</i>, <i>Epilobium</i>, <i>Clarkia</i></p></div><div class="fam"><div class="fh"><b>Caryophyllaceae</b><span>pink family</span></div><p class="fc">Opposite leaves with <b>swollen nodes</b>, stems often jointed like a firecracker; petals frequently notched or fringed; free-central placentation in the capsule.</p><p class="ft"><span class="lab">In the field</span>Opposite leaves and conspicuously swollen joints. Petals that look snipped with scissors seal it.</p><p class="fe"><span class="lab">Western examples</span><i>Silene</i>, <i>Cerastium</i>, <i>Stellaria</i>, <i>Arenaria</i></p></div><div class="fam"><div class="fh"><b>Salicaceae</b><span>willow family</span></div><p class="fc">Dioecious catkins, no showy perianth, seeds with cottony hairs. <i>Salix</i> has one bud scale like a hood; <i>Populus</i> has several.</p><p class="ft"><span class="lab">In the field</span>One cap-like bud scale means willow. Riparian, and the genus is notoriously hard — collect both catkins and mature leaves or do not bother keying to species.</p><p class="fe"><span class="lab">Western examples</span><i>Salix</i>, <i>Populus</i></p></div><div class="fam"><div class="fh"><b>Saxifragaceae</b><span>saxifrage family</span></div><p class="fc">Often basal rosettes on rock or moist ledges, five petals, a partly inferior ovary with two beaked carpels that look like little horns.</p><p class="ft"><span class="lab">In the field</span>Two horns on the ripening fruit, on a rosette plant from a wet cliff.</p><p class="fe"><span class="lab">Western examples</span><i>Saxifraga</i>, <i>Heuchera</i>, <i>Tiarella</i>, <i>Micranthes</i></p></div><div class="fam"><div class="fh"><b>Liliaceae s.l.</b><span>lily group family</span></div><p class="fc">Now split into many families (Melanthiaceae, Themidaceae, Asparagaceae…), but in the field: monocot, parts in threes, parallel veins, showy tepals.</p><p class="ft"><span class="lab">In the field</span>Threes and parallel veins with a showy flower. Then accept that the family name has probably changed since your flora was printed, and record the genus.</p><p class="fe"><span class="lab">Western examples</span><i>Trillium</i>, <i>Calochortus</i>, <i>Erythronium</i>, <i>Maianthemum</i></p></div></div>
+  <div class="warn"><b>Family limits move.</b> Molecular phylogenetics has redrawn a great deal since
+  the floras on most shelves were printed: Scrophulariaceae was dismembered (penstemons to
+  Plantaginaceae, paintbrushes to Orobanchaceae), Chenopodiaceae folded into Amaranthaceae, Liliaceae
+  split many ways. Record the <b>genus and species</b>, note which flora and edition you keyed with,
+  and let the family follow whatever your regional authority currently says.</div>
+</section>
+
+<section id="voucher">
+  <div class="sec-head"><span class="sec-num">Seven</span><h2>Making a specimen worth keeping</h2></div>
+  <p class="lead">A voucher is what turns your observation into a claim someone else can check in fifty
+    years. An unvouchered record is a memory.</p>
+
+  <h3>What makes it valid</h3>
+  <ul class="chk">
+    <li><b>Fertile material.</b> Flowers, fruit, or both. Without them the specimen may be unkeyable
+      and therefore unverifiable — which is the whole purpose gone.</li>
+    <li><b>Enough of the plant.</b> For herbs, the <em>whole plant including roots or the rhizome base</em>
+      — underground parts carry real characters. For woody plants, a shoot showing leaf arrangement,
+      a node, and reproductive parts.</li>
+    <li><b>More than one, where the population can spare it.</b> Duplicates let you send material to
+      a specialist and keep a copy.</li>
+    <li><b>Notes taken alive.</b> Flower colour, scent, exudate, height, habit — everything that dies
+      in the press. This is the part nobody can reconstruct later.</li>
+  </ul>
+
+  <h3>What goes on the label</h3>
+  <p>The label is the specimen. A perfectly pressed plant with a bad label is decoration.</p>
+  <ul>
+    <li>Scientific name, and who determined it (<i>det.</i>) and when</li>
+    <li>Country, state, county, and a locality description precise enough to relocate</li>
+    <li>Latitude and longitude with the datum, plus a coordinate uncertainty</li>
+    <li>Elevation, habitat, associated species, aspect and slope</li>
+    <li>Description of the living plant — colour, height, abundance, phenology</li>
+    <li>Collector name and <b>collection number</b>, and the date</li>
+  </ul>
+  <p>The <a href="stand-sheet.html">Stand Sheet</a> and the <a href="releve.html">Relev&eacute;</a> both
+  generate this block from what you have already entered, so the label is a by-product of the plot
+  rather than a second job at the end of the day.</p>
+
+  <h3>Pressing, briefly</h3>
+  <ul>
+    <li>Arrange <em>before</em> you close the press. Show one leaf underside. Fold long stems in a V or
+      N rather than cutting them.</li>
+    <li>Thick fruits, bulbs and cones: slice in half and press both faces.</li>
+    <li>Change the newsprint daily for the first few days. Wet specimens mould, and a mouldy sheet can
+      spread through a cabinet.</li>
+    <li>Succulents and orchids need killing first (a brief alcohol dip) or they keep growing in the press.</li>
+  </ul>
+
+  <div class="warn"><b>Before you collect anything.</b> Get permission — most public land requires a
+  permit, and collecting is prohibited outright in many reserves and all national parks without one.
+  Never collect a rare, listed, or locally uncommon plant; photograph it and record the population
+  instead. The usual field ethic is to take no more than one in twenty individuals present, and none
+  at all from a population under about fifty plants. For anything you suspect is rare, the record
+  belongs to your state Natural Heritage Program, not to your press.</div>
+</section>
+
+<footer>
+  <p>Part of the CSRBT ecology kit — the reference shelf starts at the <a href="ecology.html">Overview</a>.
+  Record vegetation with the <a href="releve.html">Relev&eacute;</a>, run forest plots with the
+  <a href="stand-sheet.html">Stand Sheet</a>, and look terms up in the
+  <a href="ecology-glossary.html">Glossary</a>. Prints clean — this card is meant for the back of a
+  plant press. MIT-licensed &middot; &copy; 2026 Richmond.</p>
+  <p>The morphological vocabulary here follows standard usage as found in regional floras; for the
+  western flora the working references are the <span class="cite">Jepson Manual</span> (California),
+  <span class="cite">Flora of the Pacific Northwest</span> (Hitchcock &amp; Cronquist), and
+  <span class="cite">A Utah Flora</span> (Welsh et al.). Family circumscriptions follow current
+  APG-based practice, which continues to move — see the note in section five.</p>
+</footer>
+
+</div>
+
+<script>
+(function(){
+  "use strict";
+  var DATA = {"F": [{"n": "Asteraceae", "habit": ["herb", "woody"], "arr": ["alt", "opp", "basal"], "leaf": ["simple", "compound"], "sym": ["radial", "bilateral"], "petals": ["5", "many"], "ovary": ["inf"], "tells": ["head", "involucre", "pappus"], "diag": "Heads of many tiny flowers inside a ring of bracts. Pull one apart \u2014 dozens of tubes."}, {"n": "Poaceae", "habit": ["herb"], "arr": ["alt"], "leaf": ["simple"], "sym": ["reduced"], "petals": ["0"], "ovary": ["sup"], "tells": ["ligule", "roundstem", "jointed", "opensheath"], "diag": "Round jointed stem, split sheath, and a ligule at the blade base."}, {"n": "Cyperaceae", "habit": ["herb"], "arr": ["alt"], "leaf": ["simple"], "sym": ["reduced"], "petals": ["0"], "ovary": ["sup"], "tells": ["triangular", "closedsheath", "perigynium"], "diag": "Sedges have edges \u2014 roll the stem and feel three corners."}, {"n": "Juncaceae", "habit": ["herb"], "arr": ["basal", "alt"], "leaf": ["simple"], "sym": ["radial"], "petals": ["3"], "ovary": ["sup"], "tells": ["tepals", "roundstem", "capsule"], "diag": "Round pithy stem, but the tiny flower has real tepals \u2014 a miniature lily."}, {"n": "Fabaceae", "habit": ["herb", "woody"], "arr": ["alt"], "leaf": ["compound"], "sym": ["bilateral"], "petals": ["5"], "ovary": ["sup"], "tells": ["peaflower", "stipules", "legume", "nodules"], "diag": "Banner, wings and keel; a pod that splits along two sutures."}, {"n": "Brassicaceae", "habit": ["herb"], "arr": ["alt", "basal"], "leaf": ["simple", "compound"], "sym": ["radial"], "petals": ["4"], "ovary": ["sup"], "tells": ["silique", "peppery", "cross"], "diag": "Four petals in a cross, six stamens (four long, two short), a silique."}, {"n": "Rosaceae", "habit": ["woody", "herb"], "arr": ["alt"], "leaf": ["simple", "compound"], "sym": ["radial"], "petals": ["5"], "ovary": ["sup", "inf"], "tells": ["stipules", "hypanthium", "manystamens"], "diag": "Five petals with a boss of many stamens, plus stipules and a hypanthium."}, {"n": "Apiaceae", "habit": ["herb"], "arr": ["alt"], "leaf": ["compound"], "sym": ["radial"], "petals": ["5"], "ovary": ["inf"], "tells": ["umbel", "sheath", "hollowstem"], "diag": "Compound umbel over a sheathing petiole base. Never taste to identify."}, {"n": "Lamiaceae", "habit": ["herb", "woody"], "arr": ["opp"], "leaf": ["simple"], "sym": ["bilateral"], "petals": ["5"], "ovary": ["sup"], "tells": ["squarestem", "aromatic", "nutlets4"], "diag": "Square stem, opposite leaves, aromatic, two-lipped corolla, four nutlets."}, {"n": "Ranunculaceae", "habit": ["herb"], "arr": ["alt", "basal", "opp"], "leaf": ["simple", "compound"], "sym": ["radial", "bilateral"], "petals": ["5", "many", "0"], "ovary": ["sup"], "tells": ["manystamens", "manypistils", "petaloidsepals"], "diag": "Everything numerous and nothing fused \u2014 a scatter of separate parts."}, {"n": "Ericaceae", "habit": ["woody"], "arr": ["alt"], "leaf": ["simple"], "sym": ["radial"], "petals": ["5", "4"], "ovary": ["sup", "inf"], "tells": ["urnflower", "leathery", "acidsoil"], "diag": "Urn- or bell-shaped fused corolla on a leathery evergreen shrub."}, {"n": "Polygonaceae", "habit": ["herb", "woody"], "arr": ["alt"], "leaf": ["simple"], "sym": ["radial"], "petals": ["0", "3"], "ovary": ["sup"], "tells": ["ocrea", "swollennode", "achene3"], "diag": "Papery ocrea sheathing the node; tepals rather than sepals and petals."}, {"n": "Amaranthaceae", "habit": ["herb", "woody"], "arr": ["alt", "opp"], "leaf": ["simple"], "sym": ["reduced"], "petals": ["0"], "ovary": ["sup"], "tells": ["mealy", "greenish", "halophyte"], "diag": "Small green petal-less flowers on a mealy or fleshy plant, often on salty ground."}, {"n": "Boraginaceae", "habit": ["herb"], "arr": ["alt"], "leaf": ["simple"], "sym": ["radial"], "petals": ["5"], "ovary": ["sup"], "tells": ["coil", "bristly", "nutlets4"], "diag": "Flowering coil unrolling like a fiddlehead; sandpaper hairs; four nutlets."}, {"n": "Plantaginaceae", "habit": ["herb"], "arr": ["opp", "alt", "basal"], "leaf": ["simple"], "sym": ["bilateral", "radial"], "petals": ["5", "4"], "ovary": ["sup"], "tells": ["tubular", "capsule"], "diag": "Tubular two-lipped corolla, superior ovary, capsule. Penstemon's fifth stamen is bearded."}, {"n": "Onagraceae", "habit": ["herb", "woody"], "arr": ["alt", "opp"], "leaf": ["simple"], "sym": ["radial", "bilateral"], "petals": ["4"], "ovary": ["inf"], "tells": ["inferior4", "hypanthium"], "diag": "Parts in fours over a long hypanthium and an obviously inferior ovary."}, {"n": "Caryophyllaceae", "habit": ["herb"], "arr": ["opp"], "leaf": ["simple"], "sym": ["radial"], "petals": ["5", "0"], "ovary": ["sup"], "tells": ["swollennode", "notchedpetals"], "diag": "Opposite leaves at conspicuously swollen joints; petals often notched."}, {"n": "Salicaceae", "habit": ["woody"], "arr": ["alt"], "leaf": ["simple"], "sym": ["reduced"], "petals": ["0"], "ovary": ["sup"], "tells": ["catkin", "dioecious", "cottonyseed"], "diag": "Catkins, no showy perianth, cottony seeds. One bud scale means willow."}, {"n": "Saxifragaceae", "habit": ["herb"], "arr": ["basal", "alt"], "leaf": ["simple"], "sym": ["radial"], "petals": ["5"], "ovary": ["sup", "inf"], "tells": ["twohorns", "rosette"], "diag": "Rosette on wet rock; the ripening fruit has two little horns."}, {"n": "Liliaceae s.l.", "habit": ["herb"], "arr": ["whorl", "alt", "basal"], "leaf": ["simple"], "sym": ["radial"], "petals": ["3"], "ovary": ["sup", "inf"], "tells": ["tepals", "parallel", "monocot"], "diag": "Monocot: parts in threes, parallel veins, showy tepals."}], "CHARS": [{"k": "habit", "q": "Habit", "opts": [["herb", "Herbaceous"], ["woody", "Woody"]]}, {"k": "arr", "q": "Leaf arrangement", "opts": [["alt", "Alternate"], ["opp", "Opposite"], ["whorl", "Whorled"], ["basal", "Basal / rosette"]]}, {"k": "leaf", "q": "Leaf division", "opts": [["simple", "Simple"], ["compound", "Compound"]]}, {"k": "sym", "q": "Flower symmetry", "opts": [["radial", "Radial"], ["bilateral", "Bilateral"], ["reduced", "Reduced / no showy perianth"]]}, {"k": "petals", "q": "Petals or tepals", "opts": [["0", "None / greenish"], ["3", "Three"], ["4", "Four"], ["5", "Five"], ["many", "Many"]]}, {"k": "ovary", "q": "Ovary position", "opts": [["sup", "Superior"], ["inf", "Inferior"]]}], "TELLS": [["squarestem", "Square stem"], ["aromatic", "Strongly aromatic"], ["milkysap", "Milky or coloured sap"], ["umbel", "Umbel"], ["head", "Head of many tiny flowers"], ["ocrea", "Papery sheath at the node"], ["peaflower", "Pea-shaped flower"], ["stipules", "Stipules present"], ["swollennode", "Swollen nodes"], ["ligule", "Ligule at blade base"], ["triangular", "Triangular stem"], ["roundstem", "Round stem"], ["tepals", "Tepals, not sepals+petals"], ["urnflower", "Urn or bell corolla"], ["silique", "Long slender pod (silique)"], ["hypanthium", "Hypanthium / floral cup"], ["manystamens", "Many stamens"], ["nutlets4", "Four nutlets"], ["coil", "Coiled inflorescence"], ["catkin", "Catkins"], ["parallel", "Parallel leaf veins"], ["bristly", "Rough / bristly hairs"], ["mealy", "Mealy or scurfy surface"], ["leathery", "Leathery evergreen leaves"]]};
+  var picked = {}, tells = {};
+  function esc(x){ return String(x==null?"":x).replace(/[&<>"']/g,function(c){
+    return {"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#39;"}[c]; }); }
+
+  function render(){
+    var h = "";
+    DATA.CHARS.forEach(function(c){
+      h += '<div class="kq"><div class="ql">' + esc(c.q) + '</div><div class="kopts">';
+      c.opts.forEach(function(o){
+        h += '<button type="button" class="kopt' + (picked[c.k]===o[0]?" on":"") +
+             '" data-c="' + esc(c.k) + '" data-v="' + esc(o[0]) + '">' + esc(o[1]) + '</button>';
+      });
+      h += '</div></div>';
+    });
+    h += '<div class="kq"><div class="ql">Anything else you can see</div><div class="tellwrap">';
+    DATA.TELLS.forEach(function(t){
+      h += '<button type="button" class="tell' + (tells[t[0]]?" on":"") +
+           '" data-t="' + esc(t[0]) + '">' + esc(t[1]) + '</button>';
+    });
+    h += '</div></div><div class="kbtns"><button type="button" class="kbtn kbtn-ghost" id="kclear">Start over</button></div>';
+    h += '<div class="kres" id="kres"></div>';
+    var box = document.getElementById("keybox");
+    box.innerHTML = h;
+    box.querySelectorAll("[data-c]").forEach(function(b){
+      b.addEventListener("click", function(){
+        picked[b.dataset.c] = (picked[b.dataset.c]===b.dataset.v) ? null : b.dataset.v;
+        render();
+      });
+    });
+    box.querySelectorAll("[data-t]").forEach(function(b){
+      b.addEventListener("click", function(){
+        if(tells[b.dataset.t]) delete tells[b.dataset.t]; else tells[b.dataset.t]=1;
+        render();
+      });
+    });
+    document.getElementById("kclear").addEventListener("click", function(){
+      picked = {}; tells = {}; render();
+    });
+    score();
+  }
+
+  function score(){
+    var asked = DATA.CHARS.filter(function(c){ return picked[c.k]; });
+    var tkeys = Object.keys(tells);
+    var box = document.getElementById("kres");
+    if(!asked.length && !tkeys.length){
+      box.innerHTML = '<p class="fine" style="margin-top:12px">Answer a character or two and candidates appear here.</p>';
+      return;
+    }
+    var labelOf = {};
+    DATA.CHARS.forEach(function(c){ c.opts.forEach(function(o){ labelOf[c.k+":"+o[0]] = o[1]; }); });
+    var tellLabel = {}; DATA.TELLS.forEach(function(t){ tellLabel[t[0]] = t[1]; });
+
+    var rows = DATA.F.map(function(f){
+      var hit = 0, miss = [];
+      asked.forEach(function(c){
+        var v = picked[c.k];
+        if((f[c.k]||[]).indexOf(v) >= 0) hit++;
+        else miss.push(c.q.toLowerCase() + " — this family shows " +
+              (f[c.k]||[]).map(function(x){ return labelOf[c.k+":"+x] || x; }).join(" or ").toLowerCase());
+      });
+      var tHit = 0, tMiss = 0;
+      tkeys.forEach(function(t){ if(f.tells.indexOf(t) >= 0) tHit++; else tMiss++; });
+      return { f:f, hit:hit, miss:miss, tHit:tHit, tMiss:tMiss,
+               total: asked.length, score: hit + tHit*1.5 - miss.length*2 };
+    }).sort(function(a,b){ return b.score - a.score; });
+
+    var clean = rows.filter(function(r){ return !r.miss.length; });
+    var show = (clean.length ? clean : rows).slice(0, 6);
+    var h = "";
+    if(!clean.length){
+      h += '<div class="note" style="margin-top:14px"><b>Nothing matches every character.</b> ' +
+           'The closest families are below with the conflict named. Usually that means one character was ' +
+           'mis-scored — check the flower again, or the node — rather than that you have found something new.</div>';
+    } else {
+      h += '<p class="fine" style="margin:14px 0 4px"><b>' + clean.length + '</b> famil' +
+           (clean.length===1?"y is":"ies are") + ' consistent with all ' + asked.length +
+           ' character' + (asked.length===1?"":"s") + ' you scored' +
+           (tkeys.length ? ', ranked by how many of your extra observations they also explain.' : '.') + '</p>';
+    }
+    show.forEach(function(r){
+      var extras = tkeys.filter(function(t){ return r.f.tells.indexOf(t) >= 0; })
+                        .map(function(t){ return tellLabel[t]; });
+      h += '<div class="cand' + (r.miss.length ? " part" : "") + '"><div class="ch"><b>' + esc(r.f.n) + '</b>' +
+           '<span class="sc">' + r.hit + '/' + r.total + ' characters' +
+           (extras.length ? ' · ' + extras.length + ' extra' : '') + '</span></div>' +
+           '<p>' + esc(r.f.diag) + '</p>';
+      if(extras.length) h += '<p class="fine" style="margin-top:5px">Also explains: ' + esc(extras.join(", ")) + '</p>';
+      if(r.miss.length) h += '<div class="miss">Conflict: ' + esc(r.miss[0]) + '</div>';
+      h += '</div>';
+    });
+    box.innerHTML = h;
+  }
+  render();
+})();
+</script>
+
+</body>
+</html>

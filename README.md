@@ -717,7 +717,8 @@ no install required.
   every keyword of the plain-text experiment format, and the browser → file → grade → export
   round-trip (worked example in [`sample-experiment.eco`](docs/sample-experiment.eco)).
 - [**`docs/ecology-glossary.html`**](docs/ecology-glossary.html) — the **Glossary**: every term the
-  kit uses, defined in a sentence and linked to the tool that computes it; and
+  kit uses, defined in a sentence and linked to the tool that computes it &mdash; 64 entries in eight
+  sections, including botany and vegetation sampling; and
   [**`docs/eco-protocol-library.html`**](docs/eco-protocol-library.html) — five complete, copyable
   `.eco` experiments; and [**`docs/ecology-field-card.html`**](docs/ecology-field-card.html) — every
   metric on one printable bench card.
@@ -728,6 +729,24 @@ no install required.
 **The field tools** — tablet-first apps and games where the data entry is taps, the display is
 live, and every export carries site, observer, and date plus a CSV for Excel/R:
 
+- [**`docs/releve.html`**](docs/releve.html) — **Relev&eacute;**: the botanist's vegetation plot sheet —
+  cover by stratum on Braun-Blanquet, Daubenmire or direct percent; Shannon and evenness computed on
+  **cover** rather than counts; Floristic Quality Assessment (mean C, FQI, adjusted FQI) that refuses to
+  invent coefficients of conservatism and takes them from your regional list instead; non-native load
+  flagged by cover; **line-point intercept** with the transect planned before you walk it and cover
+  reported with a binomial standard error; **wetland indicator status and the prevalence index**, weighted
+  by cover, with the &le;3.0 threshold stated as one of three delineation criteria rather than a verdict;
+  per-species phenophase; a functional-group spectrum by growth form; and voucher records that render as
+  printable herbarium labels with locality, habitat and associates filled from the plot. 49 western
+  understory taxa, and any flora can be loaded.
+- [**`docs/plant-characters.html`**](docs/plant-characters.html) — **Plant Characters**: the keying
+  vocabulary a flora assumes you already have, **drawn rather than defined** — 34 inline-SVG morphology
+  glyphs for leaf arrangement, shape, margin, division, venation, inflorescence, symmetry and ovary
+  position — plus twenty plant families with the single character that gives each away, the
+  grass/sedge/rush test, and a voucher protocol with the collecting ethics stated. An **interactive family
+  key** takes six characters plus any dead-giveaway tells and ranks the twenty families, naming the
+  conflict when a family is ruled out and reporting a top rank as a hypothesis to confirm against a flora,
+  never an identification. Prints for the back of a plant press.
 - [**`docs/stand-sheet.html`**](docs/stand-sheet.html) — **Stand Sheet**: graduate-level forest plot
   work in one page — a tap-down tree key covering the Pacific Northwest through Tahoe to Utah (34
   species with field characters, look-alikes, autecology and documented interactions), tree height

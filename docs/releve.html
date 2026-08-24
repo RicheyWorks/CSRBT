@@ -1,0 +1,1242 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Relevé — vegetation plot &amp; floristic quality</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,600;9..144,700&family=Nunito+Sans:wght@400;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap">
+<style>
+  :root {
+    color-scheme: light;
+    --page:#F5F1E6; --surface:#FFFDF7; --surface-2:#F3EEE0; --ink:#23281F; --ink-2:#4B5344;
+    --muted:#8B8B7B; --border:#E3DCC9; --s1:#2E7D4F; --s1-deep:#236240; --s2:#C0592B; --s3:#2B6C8F;
+    --soft:#E9F0E7; --warn-bg:#F6EAD8; --danger:#B23A32; --danger-bg:#F6E7E5; --gold:#B8860B;
+    --shadow:0 1px 2px rgba(35,40,31,.06),0 10px 28px rgba(35,40,31,.08);
+    --head:"Fraunces",Georgia,serif;
+    --body:"Nunito Sans",system-ui,-apple-system,sans-serif;
+    --mono:"JetBrains Mono",ui-monospace,Menlo,monospace;
+  }
+  * { box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
+  body { margin:0; background:var(--page); color:var(--ink); font:16px/1.5 var(--body);
+    -webkit-font-smoothing:antialiased; overscroll-behavior-y:contain; }
+  .app { max-width:960px; margin:0 auto; padding:14px 16px calc(104px + env(safe-area-inset-bottom)); }
+  .top { display:flex; align-items:baseline; justify-content:space-between; gap:10px; padding:6px 2px 12px; flex-wrap:wrap; }
+  .brand { font-family:var(--head); font-weight:700; font-size:22px; letter-spacing:-0.01em; }
+  .brand span { color:var(--s1); }
+  .top a { font-family:var(--mono); font-size:11.5px; color:var(--muted); text-decoration:none;
+    display:inline-flex; align-items:center; min-height:44px; padding:0 6px; margin:-10px -6px; touch-action:manipulation; }
+  .top a:hover { color:var(--s1); }
+
+  .tabbar { position:fixed; left:0; right:0; bottom:0; z-index:20;
+    background:color-mix(in srgb, var(--surface) 94%, transparent); backdrop-filter:blur(10px);
+    border-top:1px solid var(--border); padding:8px max(8px, env(safe-area-inset-left)) calc(8px + env(safe-area-inset-bottom)); }
+  .tabbar .row { max-width:960px; margin:0 auto; display:grid; grid-template-columns:repeat(6,1fr); gap:4px; }
+  .tab { display:flex; flex-direction:column; align-items:center; gap:2px; border:0; background:none;
+    font:700 10.5px var(--body); color:var(--muted); padding:7px 1px; border-radius:12px; cursor:pointer;
+    min-height:54px; touch-action:manipulation; transition:background .15s ease, color .15s ease; }
+  .tab .ico { font-size:20px; line-height:1; }
+  .tab.on { color:var(--s1); background:var(--soft); }
+  .tab:active { transform:scale(.96); }
+  .pane { display:none; animation:fade .18s ease; }
+  .pane.on { display:block; }
+  @keyframes fade { from{opacity:0;transform:translateY(4px);} to{opacity:1;transform:none;} }
+  @media (prefers-reduced-motion: reduce){ .pane{animation:none;} }
+
+  h2 { font-family:var(--head); font-weight:600; font-size:20px; margin:6px 0 2px; }
+  h3 { font-family:var(--head); font-weight:600; font-size:16.5px; margin:16px 0 4px; }
+  .hint { color:var(--muted); font-size:14px; margin:0 0 12px; }
+  .card { background:var(--surface); border:1px solid var(--border); border-radius:16px;
+    padding:16px; box-shadow:var(--shadow); margin-bottom:14px; }
+  .fine { font-size:12.5px; color:var(--muted); margin-top:10px; line-height:1.55; }
+
+  input[type=text], input[type=number], input[type=date], select, textarea {
+    background:var(--surface); color:var(--ink); border:1.5px solid var(--border); border-radius:12px;
+    padding:11px 14px; font:16px var(--body); min-height:48px; max-width:100%; }
+  textarea { min-height:78px; line-height:1.5; width:100%; }
+  input:focus, select:focus, textarea:focus { outline:none; border-color:var(--s1); box-shadow:0 0 0 3px rgba(46,125,79,.18); }
+  input[type=number] { width:110px; }
+  label.f { display:flex; flex-direction:column; gap:5px; font-size:13px; font-weight:700; color:var(--ink-2); min-width:0; }
+  .grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(150px,1fr)); gap:10px; }
+  .grid label.f input, .grid label.f select { width:100%; }
+
+  .btn { border:0; border-radius:12px; padding:12px 18px; font:800 15px var(--body); cursor:pointer;
+    min-height:48px; touch-action:manipulation; transition:transform .1s ease, background .15s ease; }
+  .btn:active { transform:scale(.97); }
+  .btn-go { background:var(--s1); color:#fff; } .btn-go:hover { background:var(--s1-deep); }
+  .btn-soft { background:var(--soft); color:var(--s1); }
+  .btn-ghost { background:none; border:1.5px solid var(--border); color:var(--ink-2); }
+  .btn-ghost:hover { border-color:var(--s1); color:var(--s1); }
+  .btn-row { display:flex; gap:8px; flex-wrap:wrap; margin-top:12px; align-items:end; }
+
+  .kopts { display:flex; flex-wrap:wrap; gap:8px; }
+  .kopt { border:1.5px solid var(--border); background:var(--surface); border-radius:14px; padding:10px 14px;
+    font:700 14px var(--body); color:var(--ink-2); cursor:pointer; min-height:46px; touch-action:manipulation;
+    display:inline-flex; flex-direction:column; align-items:flex-start; gap:1px; }
+  .kopt small { font-weight:400; font-size:11px; color:var(--muted); font-family:var(--mono); }
+  .kopt.on { border-color:var(--s1); background:var(--soft); color:var(--s1); }
+
+  .covscale { display:flex; flex-wrap:wrap; gap:6px; margin-top:6px; }
+  .cv { border:1.5px solid var(--border); background:var(--surface); border-radius:11px; min-width:52px;
+    padding:8px 6px; font:800 15px var(--body); color:var(--ink-2); cursor:pointer; min-height:52px;
+    display:flex; flex-direction:column; align-items:center; justify-content:center; gap:1px; touch-action:manipulation; }
+  .cv small { font:400 9.5px var(--mono); color:var(--muted); }
+  .cv.on { border-color:var(--s1); background:var(--soft); color:var(--s1); }
+  .cv.on small { color:var(--s1-deep); }
+
+  .tiles { display:flex; flex-wrap:wrap; gap:8px; margin:12px 0 2px; }
+  .tile { background:var(--surface-2); border:1px solid var(--border); border-radius:12px; padding:9px 14px; min-width:96px; }
+  .tile .v { font-family:var(--head); font-weight:700; font-size:21px; font-variant-numeric:tabular-nums; }
+  .tile .l { font-size:11px; color:var(--muted); }
+  .verdict { border-radius:12px; padding:13px 16px; margin:12px 0 2px; font-size:15.5px; line-height:1.55;
+    border-left:4px solid var(--s1); background:var(--soft); color:var(--ink-2); }
+  .verdict b { color:var(--ink); }
+  .verdict.warn { border-left-color:var(--s2); background:var(--warn-bg); }
+  .verdict.act { border-left-color:var(--danger); background:var(--danger-bg); }
+
+  .tw { overflow-x:auto; -webkit-overflow-scrolling:touch; margin:10px 0; }
+  table { border-collapse:collapse; width:100%; font-size:14px; }
+  th,td { border:1px solid var(--border); padding:6px 9px; text-align:left; vertical-align:top; white-space:nowrap; }
+  th { background:var(--soft); font-family:var(--head); font-weight:600; font-size:13px; }
+  td.n, th.n { text-align:right; font-variant-numeric:tabular-nums; font-family:var(--mono); font-size:13px; }
+  td i { font-style:italic; color:var(--ink-2); }
+
+  .rowlist { display:grid; gap:8px; margin-top:10px; }
+  .row2 { display:flex; align-items:center; gap:10px; background:var(--surface); border:1px solid var(--border);
+    border-radius:12px; padding:10px 13px; font-size:15px; }
+  .row2.inv { border-left:3px solid var(--danger); }
+  .row2 .g { flex:1; min-width:0; }
+  .row2 .g b { font-family:var(--head); font-size:15.5px; }
+  .row2 .g b i { font-style:italic; font-weight:400; color:var(--ink-2); font-size:14px; }
+  .row2 .g span { display:block; color:var(--muted); font-size:12.5px; font-family:var(--mono); margin-top:1px;
+    overflow:hidden; text-overflow:ellipsis; }
+  .row2 .cov { font-family:var(--head); font-weight:700; font-size:17px; color:var(--s1); min-width:46px; text-align:right; }
+  .row2 button { border:0; background:none; color:var(--muted); font-size:15px; padding:9px 11px; cursor:pointer; min-height:44px; min-width:44px; }
+  .row2 button:hover { color:var(--danger); }
+
+  .bars { display:grid; gap:6px; margin-top:10px; }
+  .bar { display:grid; grid-template-columns:132px 1fr 54px; gap:8px; align-items:center; font-size:13.5px; }
+  .bar .nm { font-weight:700; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+  .bar .tr { display:block; background:var(--surface-2); border:1px solid var(--border); border-radius:8px; height:20px; overflow:hidden; }
+  .bar .fl { display:block; height:100%; background:var(--s1); border-radius:7px 0 0 7px; transition:width .4s ease; }
+  .bar .fl.inv { background:var(--s2); }
+  .bar .pc { text-align:right; font-variant-numeric:tabular-nums; color:var(--ink-2); font-family:var(--mono); font-size:12.5px; }
+
+  .label { background:#fff; border:1px solid var(--ink); border-radius:2px; padding:14px 16px; margin-top:10px;
+    font:12.5px/1.5 var(--body); color:#000; max-width:440px; }
+  .label .inst { font-family:var(--head); font-weight:700; font-size:12px; letter-spacing:.06em;
+    text-transform:uppercase; text-align:center; border-bottom:1px solid #000; padding-bottom:5px; margin-bottom:7px; }
+  .label .sci { font-style:italic; font-weight:700; font-size:14px; }
+  .label .row { margin:3px 0; }
+  .label .k { font-weight:700; }
+  .label .coll { margin-top:8px; padding-top:6px; border-top:1px solid #999; display:flex; justify-content:space-between; }
+
+  pre.export { background:#23281F; color:#E8E4D5; border-radius:12px; padding:14px 16px; overflow-x:auto;
+    font:12.5px/1.65 var(--mono); max-height:340px; }
+  code { font-family:var(--mono); font-size:.82em; background:var(--surface-2); border:1px solid var(--border); border-radius:5px; padding:1px 5px; }
+
+  .toast { position:fixed; left:50%; bottom:84px; transform:translateX(-50%) translateY(90px); z-index:30;
+    background:var(--ink); color:#F5F1E6; border-radius:999px; padding:10px 22px; font:700 14px var(--body);
+    transition:transform .25s ease; pointer-events:none; max-width:88vw; text-align:center; }
+  .toast.on { transform:translateX(-50%) translateY(0); }
+
+  @media print {
+    .tabbar, .btn, .kopts, .covscale, .top a, .noprint { display:none !important; }
+    body { background:#fff; } .pane { display:block !important; }
+    .app { padding-bottom:0; } .card { break-inside:avoid; } table { font-size:10pt; }
+    pre.export { background:#fff; color:#000; border:1px solid #ccc; max-height:none; }
+    .label { break-inside:avoid; page-break-inside:avoid; }
+  }
+
+  .rail { margin:26px 0 4px; }
+  .rail .rl { font-family:var(--mono); font-size:11px; letter-spacing:.14em; text-transform:uppercase; color:var(--muted); margin:0 2px 8px; }
+  .rail .chips { display:flex; flex-wrap:wrap; gap:8px; }
+  .rail a { display:inline-flex; align-items:center; gap:7px; text-decoration:none; font:700 13.5px var(--body);
+    color:var(--ink-2); background:var(--surface); border:1px solid var(--border); border-radius:999px;
+    padding:9px 15px; min-height:44px; box-shadow:var(--shadow); touch-action:manipulation; }
+  .rail a:hover { border-color:var(--s1); color:var(--s1); }
+  .rail a[aria-current="page"] { background:var(--soft); border-color:var(--s1); color:var(--s1); }
+  .rail a.ref { font-weight:600; color:var(--muted); background:none; box-shadow:none; }
+  @media print { .rail { display:none !important; } }
+</style>
+</head>
+<body>
+<div class="app">
+  <div class="top">
+    <div class="brand">🌾 Relev<span>é</span></div>
+    <a href="ecology.html">part of the ecology kit →</a>
+  </div>
+
+  <!-- ============ RECORD ============ -->
+  <section class="pane on" id="p-rec">
+    <h2>Record cover</h2>
+    <p class="hint">One row per species per stratum. Pick the species, pick the layer, tap the cover class.</p>
+
+    <div class="card">
+      <div class="grid">
+        <label class="f">species<select id="rSp"></select></label>
+        <label class="f">or type a name<input type="text" id="rFree" placeholder="not in the pack" autocomplete="off"></label>
+        <label class="f">stratum<select id="rStr"></select></label>
+        <label class="f">phenophase<select id="rPhen"></select></label>
+      </div>
+      <h3>Cover</h3>
+      <div class="covscale" id="rCov"></div>
+      <div class="btn-row">
+        <button class="btn btn-go" id="rAdd" type="button">Add record</button>
+        <button class="btn btn-ghost" id="rUndo" type="button">↩ Undo</button>
+      </div>
+      <p class="fine" id="rScaleNote"></p>
+    </div>
+
+    <div class="card" id="rStrataBox"></div>
+    <div class="card"><h3 style="margin-top:0">Records</h3><div class="rowlist" id="rList"></div></div>
+  </section>
+
+  <!-- ============ PLOT ============ -->
+  <section class="pane" id="p-plot">
+    <h2>Plot</h2>
+    <p class="hint">A relevé is only comparable to another relevé if the method is stated. State it here.</p>
+    <div class="card">
+      <div class="grid">
+        <label class="f">plot ID<input type="text" id="sPlot" placeholder="WAS-12" autocomplete="off"></label>
+        <label class="f">recorder<input type="text" id="sObs" autocomplete="off"></label>
+        <label class="f">date<input type="date" id="sDate"></label>
+        <label class="f">latitude<input type="text" id="sLat" placeholder="40.5853" autocomplete="off"></label>
+        <label class="f">longitude<input type="text" id="sLon" placeholder="-111.6383" autocomplete="off"></label>
+        <label class="f">elevation (m)<input type="number" id="sElev" step="1"></label>
+        <label class="f">plot size (m²)<input type="number" id="sArea" step="1" value="100"></label>
+        <label class="f">community / association<input type="text" id="sComm" placeholder="Artemisia tridentata / Pseudoroegneria" autocomplete="off"></label>
+      </div>
+      <h3>Cover scale</h3>
+      <div class="kopts" id="sScale"></div>
+      <h3>Physiography</h3>
+      <div class="grid">
+        <label class="f">aspect (°)<input type="number" id="sAsp" min="0" max="360"></label>
+        <label class="f">slope (%)<input type="number" id="sSlope" min="0"></label>
+        <label class="f">soil<input type="text" id="sSoil" placeholder="texture / parent material" autocomplete="off"></label>
+        <label class="f">moisture<select id="sMoist"><option value="">—</option><option>xeric</option>
+          <option>subxeric</option><option>mesic</option><option>subhygric</option><option>hygric</option>
+          <option>saturated</option></select></label>
+        <label class="f">bare ground (%)<input type="number" id="sBare" min="0" max="100"></label>
+        <label class="f">litter (%)<input type="number" id="sLitter" min="0" max="100"></label>
+      </div>
+      <label class="f" style="margin-top:12px">stand notes
+        <textarea id="sNotes" placeholder="Management, disturbance, grazing evidence, anything a returning crew needs."></textarea></label>
+    </div>
+
+    <h2 style="margin-top:20px">Species pack</h2>
+    <div class="card">
+      <div class="tiles" id="packStats"></div>
+      <div class="btn-row">
+        <button class="btn btn-soft" id="packPrompt" type="button">Copy the AI prompt</button>
+        <button class="btn btn-ghost" id="packExport" type="button">Export pack</button>
+        <button class="btn btn-ghost" id="packToggle" type="button">Paste a pack…</button>
+      </div>
+      <div id="packBox" style="display:none;margin-top:12px">
+        <textarea id="packIn" placeholder='{"species":[{"id":"…","sci":"…","com":"…","fam":"…","gf":"forb","nat":"native","reg":["…"],"c":null,"note":"…"}]}'></textarea>
+        <div class="btn-row"><button class="btn btn-go" id="packLoad" type="button">Load pack</button></div>
+        <div id="packMsg"></div>
+      </div>
+      <p class="fine">Any regional flora can be loaded — the analysis is flora-agnostic. <b>C-values are
+        deliberately blank in the shipped pack:</b> coefficients of conservatism are assigned by regional
+        expert panels, so they must come from your state's published FQA list. Enter them per species on
+        the Analysis tab, or include them in a pack.</p>
+    </div>
+  </section>
+
+  <!-- ============ ANALYSIS ============ -->
+  <section class="pane" id="p-an">
+    <h2>Analysis</h2>
+    <p class="hint">Diversity is computed on <b>cover</b>, not counts — the right currency for vegetation.</p>
+    <div class="card" id="anStats"></div>
+    <div class="card"><h3 style="margin-top:0">Cover by species</h3><div id="anBars"></div></div>
+    <div class="card"><h3 style="margin-top:0">Functional groups</h3><div id="anFunc"></div></div>
+    <div class="card">
+      <h3 style="margin-top:0">Floristic Quality Assessment</h3>
+      <div id="anFqa"></div>
+      <div id="cEditor"></div>
+    </div>
+    <div class="card">
+      <h3 style="margin-top:0">Wetland indicator status</h3>
+      <div id="anWet"></div>
+      <div id="wEditor"></div>
+    </div>
+  </section>
+
+
+  <!-- ============ LINE-POINT INTERCEPT ============ -->
+  <section class="pane" id="p-lpi">
+    <h2>Line-point intercept</h2>
+    <p class="hint">The quantitative method behind most rangeland monitoring. Drop a pin at fixed intervals
+      along a tape; record what it touches. Cover is then a count, not a guess.</p>
+
+    <div class="card">
+      <div class="grid">
+        <label class="f">transect length (m)<input type="number" id="lLen" value="25" step="1"></label>
+        <label class="f">interval (m)<input type="number" id="lInt" value="0.5" step="0.1"></label>
+        <label class="f">transects<input type="number" id="lNum" value="1" min="1" step="1"></label>
+      </div>
+      <div id="lPlan" class="verdict"></div>
+      <h3>Record a hit</h3>
+      <div class="grid">
+        <label class="f">species / cover type<select id="lSp"></select></label>
+        <label class="f">layer<select id="lLayer">
+          <option value="top">top canopy hit</option>
+          <option value="lower">lower canopy hit</option>
+          <option value="basal">basal / ground surface</option></select></label>
+      </div>
+      <div class="btn-row">
+        <button class="btn btn-go" id="lAdd" type="button">+ hit</button>
+        <button class="btn btn-ghost" id="lUndo" type="button">↩ Undo</button>
+        <button class="btn btn-soft" id="lMiss" type="button">No hit (bare)</button>
+      </div>
+      <p class="fine"><b>Only the FIRST hit at each point counts as top canopy.</b> Record lower hits
+        separately if your protocol wants foliar layers; record the ground surface (bare soil, litter,
+        rock, moss, biocrust) as the basal hit. Cover for a species = its top-canopy hits ÷ points read.</p>
+    </div>
+
+    <div class="card" id="lStats"></div>
+    <div class="card"><h3 style="margin-top:0">Hits</h3><div class="rowlist" id="lList"></div></div>
+  </section>
+
+  <!-- ============ VOUCHERS ============ -->
+  <section class="pane" id="p-vou">
+    <h2>Vouchers</h2>
+    <p class="hint">The specimen is the evidence. The label is the specimen.</p>
+    <div class="card">
+      <div class="grid">
+        <label class="f">species<select id="vSp"></select></label>
+        <label class="f">collection no.<input type="text" id="vNum" placeholder="RJ-2026-014" autocomplete="off"></label>
+        <label class="f">duplicates<input type="number" id="vDup" min="1" value="1"></label>
+        <label class="f">material<select id="vMat">
+          <option value="fl">in flower</option><option value="fr">in fruit</option>
+          <option value="ff">flower &amp; fruit</option><option value="st">sterile — vegetative only</option></select></label>
+        <label class="f">phenophase<select id="vPhen"></select></label>
+        <label class="f">abundance here<select id="vAb"><option value="">—</option><option>rare</option>
+          <option>occasional</option><option>frequent</option><option>abundant</option><option>dominant</option></select></label>
+      </div>
+      <label class="f" style="margin-top:10px">notes on the LIVING plant — what the press will destroy
+        <textarea id="vNote" placeholder="Flower colour, scent, height, exudate, habit, substrate."></textarea></label>
+      <div class="btn-row"><button class="btn btn-go" id="vAdd" type="button">Record voucher</button></div>
+      <p class="fine">Permission first. Never collect a rare or listed plant — photograph it and report the
+        population to your state Natural Heritage Program. The usual ethic is no more than one in twenty
+        individuals, and nothing from a population under about fifty.</p>
+    </div>
+    <div class="card"><h3 style="margin-top:0">Specimens &amp; labels</h3><div id="vList"></div></div>
+  </section>
+
+  <!-- ============ METHOD ============ -->
+  <section class="pane" id="p-met">
+    <h2>Method</h2>
+    <p class="hint">The scales, the formulas, and where each one stops being trustworthy.</p>
+    <div class="card">
+      <h3 style="margin-top:0">Cover scales</h3>
+      <div class="tw"><table id="mScales"></table></div>
+      <p class="fine">Cover classes are <b>ordinal</b>. Averaging class numbers is meaningless; this page
+        converts each class to its <b>midpoint percentage</b> first and works with those, which is standard
+        practice — and still approximate, because a midpoint is not a measurement. Two observers on the
+        same plot commonly differ by a class, so a single-class difference between plots is not a result.</p>
+      <h3>Cover can exceed 100%</h3>
+      <p style="font-size:15.5px;color:var(--ink-2)">Layers overlap, so total cover summed across strata
+        routinely passes 100% in a forest. That is correct, not an error. Within one stratum, a total far
+        above 100% usually means overlapping canopies of individual plants — also legitimate — but a total
+        far above 200% is worth re-checking.</p>
+      <h3>Diversity on cover</h3>
+      <div class="tw"><table>
+        <tr><th>Quantity</th><th>Formula</th><th>Watch out</th></tr>
+        <tr><td>Shannon H′</td><td>−Σ p<sub>i</sub> ln p<sub>i</sub>, p<sub>i</sub> = cover<sub>i</sub> / Σcover</td>
+          <td>Cover-based, so it weights biomass rather than individuals. Not comparable to a count-based H′.</td></tr>
+        <tr><td>Pielou J′</td><td>H′ / ln S</td><td>Needs S ≥ 2.</td></tr>
+        <tr><td>Richness S</td><td>count of taxa</td><td>Strongly effort- and plot-size-dependent. Always report plot size with it.</td></tr>
+      </table></div>
+      <h3>Floristic Quality Assessment</h3>
+      <div class="tw"><table>
+        <tr><th>Quantity</th><th>Formula</th><th>Watch out</th></tr>
+        <tr><td>Mean C</td><td>ΣC / N</td><td>Reported here for natives only, which is the usual convention. Say which convention you used.</td></tr>
+        <tr><td>FQI <span class="fine">(Swink &amp; Wilhelm 1979)</span></td><td>mean C × √N</td>
+          <td>Rises with richness, so it is sensitive to plot size and survey effort. Never compare an FQI across different plot sizes.</td></tr>
+        <tr><td>Adjusted FQI <span class="fine">(Miller &amp; Wardrop 2006)</span></td>
+          <td>100 × (meanC<sub>nat</sub>/10) × (√N<sub>nat</sub> / √N<sub>total</sub>)</td>
+          <td>Bounded 0–100 and less effort-sensitive; penalises non-native load explicitly.</td></tr>
+        <tr><td>Coefficient of conservatism</td><td>assigned 0–10 by regional panel</td>
+          <td><b>Not computable from data.</b> It is expert judgement about a species' fidelity to intact habitat, and it is region-specific. Use your state's published list.</td></tr>
+      </table></div>
+      <div class="verdict warn"><b>FQA is a screening tool, not a verdict.</b> It was built to compare
+        sites within one region using one C-value list, on plots of the same size, surveyed with the same
+        effort. It travels badly across regions and across survey designs. A high FQI does not certify a
+        site and a low one does not condemn it — both are hypotheses about condition that need the rest of
+        your field notes to interpret.</div>
+      <h3>Line-point intercept</h3>
+      <div class="tw"><table>
+        <tr><th>Quantity</th><th>Formula</th><th>Watch out</th></tr>
+        <tr><td>Foliar cover</td><td>top-canopy hits ÷ points read × 100</td>
+          <td>Only the first hit at a point is top canopy. Counting every layer as cover double-counts.</td></tr>
+        <tr><td>Ground cover</td><td>basal hits ÷ points read × 100</td>
+          <td>Bare soil, litter, rock, moss and biocrust are cover types too — record them or your denominator lies.</td></tr>
+        <tr><td>Precision</td><td>≈ √(p(1−p)/n)</td>
+          <td>Binomial. At 100 points a 20% cover estimate carries roughly ±4 percentage points of standard error — before observer error.</td></tr>
+      </table></div>
+      <p class="fine">LPI is repeatable in a way ocular cover never is: two observers on the same
+        transect will agree far more closely than two observers eyeballing the same quadrat. It is also
+        slower, and it under-detects rare species — which is why most protocols run LPI for cover
+        <em>and</em> a species inventory for richness.</p>
+
+      <h3>Wetland indicator status &amp; prevalence index</h3>
+      <div class="tw"><table>
+        <tr><th>Status</th><th>Meaning</th><th class="n">Weight</th></tr>
+        <tr><td>OBL</td><td>Obligate — almost always in wetlands</td><td class="n">1</td></tr>
+        <tr><td>FACW</td><td>Facultative wetland — usually</td><td class="n">2</td></tr>
+        <tr><td>FAC</td><td>Facultative — equally likely either way</td><td class="n">3</td></tr>
+        <tr><td>FACU</td><td>Facultative upland — usually not</td><td class="n">4</td></tr>
+        <tr><td>UPL</td><td>Obligate upland — almost never</td><td class="n">5</td></tr>
+      </table></div>
+      <p style="font-size:15.5px;color:var(--ink-2)"><b>Prevalence index = Σ(cover<sub>i</sub> × weight<sub>i</sub>)
+        ÷ Σcover<sub>i</sub></b>, computed over all strata. An index of <b>3.0 or below</b> is the
+        threshold the Corps method treats as indicating hydrophytic vegetation.</p>
+      <div class="verdict warn"><b>This is the vegetation indicator only.</b> A wetland determination
+        needs all three: hydrophytic vegetation, hydric soil, <em>and</em> wetland hydrology. A prevalence
+        index below 3.0 satisfies one of the three and settles nothing on its own. Indicator statuses are
+        regional and are revised — take them from the current National Wetland Plant List for your region,
+        which is why this page asks you for them rather than shipping a list that will go stale.</div>
+
+      <h3>What this page is not</h3>
+      <p style="font-size:15.5px;color:var(--ink-2)">It records one relevé at a time. It does not do
+        classification, ordination, or indicator-species analysis — those need many plots and a statistics
+        package. Export the CSV and take it to R (<code>vegan</code>) or Python when you have a matrix worth
+        ordinating. What this gives you is a clean, method-stated, defensible plot record to feed it.</p>
+    </div>
+
+    <h2 style="margin-top:20px">Take it home</h2>
+    <div class="card">
+      <pre class="export" id="ecoOut"># record a species or two — the sheet builds itself</pre>
+      <div class="btn-row">
+        <button class="btn btn-go" id="ecoCopy" type="button">Copy relevé sheet</button>
+        <button class="btn btn-soft" id="csvCopy" type="button">Copy species CSV</button>
+        <button class="btn btn-soft" id="matCopy" type="button">Copy vegan-style matrix row</button>
+        <button class="btn btn-ghost" onclick="window.print()" type="button">Print / save PDF</button>
+      </div>
+      <p class="fine">The matrix row is one plot's cover values with species as columns — stack several and
+        you have the community matrix <code>vegan</code> expects.</p>
+    </div>
+  </section>
+
+  <div class="rail">
+    <p class="rl">The field kit</p>
+    <div class="chips">
+      <a href="field-notebook.html"><span>📓</span>Field Notebook</a>
+      <a href="stand-sheet.html"><span>🌲</span>Stand Sheet</a>
+      <a href="releve.html" aria-current="page"><span>🌾</span>Relevé</a>
+      <a href="plant-characters.html"><span>🌱</span>Plant Characters</a>
+      <a href="food-web.html"><span>🕸️</span>Food Web Builder</a>
+      <a class="ref" href="ecology.html">← kit hub</a>
+      <a class="ref" href="ecology-glossary.html">glossary</a>
+    </div>
+  </div>
+</div>
+
+<div class="tabbar"><div class="row">
+  <button class="tab on" data-pane="p-rec" type="button"><span class="ico">🌾</span>Record</button>
+  <button class="tab" data-pane="p-plot" type="button"><span class="ico">📋</span>Plot</button>
+  <button class="tab" data-pane="p-lpi" type="button"><span class="ico">📏</span>LPI</button>
+  <button class="tab" data-pane="p-an" type="button"><span class="ico">📊</span>Analysis</button>
+  <button class="tab" data-pane="p-vou" type="button"><span class="ico">🗂️</span>Vouchers</button>
+  <button class="tab" data-pane="p-met" type="button"><span class="ico">📐</span>Method</button>
+</div></div>
+<div class="toast" id="toast">Saved</div>
+<script>
+/* ---------------------------------------------------------------------------
+   Understory / non-tree vascular flora, PNW -> Sierra/Tahoe -> Great Basin.
+   fam = family, gf = growth form, nat = native|intro|invasive, c = coefficient
+   of conservatism (NULL by design — C-values are assigned by regional expert
+   panels and MUST come from your state's FQA list, not from software).
+--------------------------------------------------------------------------- */
+var FLORA = [
+/* --- PNW westside understory --- */
+{id:"gash",sci:"Gaultheria shallon",com:"salal",fam:"Ericaceae",gf:"shrub",nat:"native",reg:["pnwW"],c:null,
+ note:"Thick leathery evergreen leaves, urn flowers. Forms dense low thickets; a dominant of the westside understory."},
+{id:"bene",sci:"Berberis nervosa",com:"dwarf Oregon-grape",fam:"Berberidaceae",gf:"shrub",nat:"native",reg:["pnwW"],c:null,
+ note:"Holly-like pinnate evergreen leaves with 9-19 leaflets, from a low woody base. Syn. Mahonia nervosa."},
+{id:"pomu",sci:"Polystichum munitum",com:"sword fern",fam:"Dryopteridaceae",gf:"fern",nat:"native",reg:["pnwW"],c:null,
+ note:"Once-pinnate fronds; each pinna has a forward-pointing basal lobe — the 'hilt' of the sword."},
+{id:"oxor",sci:"Oxalis oregana",com:"redwood sorrel",fam:"Oxalidaceae",gf:"forb",nat:"native",reg:["pnwW"],c:null,
+ note:"Clover-like trifoliate leaves that fold down in direct sun. Deep-shade carpet former."},
+{id:"rusp",sci:"Rubus spectabilis",com:"salmonberry",fam:"Rosaceae",gf:"shrub",nat:"native",reg:["pnwW"],c:null,
+ note:"Trifoliate leaves, magenta flowers, weak prickles. Riparian and disturbance thickets."},
+{id:"ruar",sci:"Rubus armeniacus",com:"Himalayan blackberry",fam:"Rosaceae",gf:"shrub",nat:"invasive",reg:["pnwW","pnwE"],c:null,
+ note:"Five leaflets, stout arching angled canes with broad-based prickles. The dominant lowland invader west of the Cascades."},
+{id:"vapa",sci:"Vaccinium parvifolium",com:"red huckleberry",fam:"Ericaceae",gf:"shrub",nat:"native",reg:["pnwW"],c:null,
+ note:"Bright green strongly angled twigs, tiny thin leaves, translucent red berries. Very often rooted on a nurse log or stump."},
+{id:"acci",sci:"Acer circinatum",com:"vine maple",fam:"Sapindaceae",gf:"shrub",nat:"native",reg:["pnwW"],c:null,
+ note:"Opposite, nearly circular 7-9 lobed leaves. Sprawling multi-stemmed; layers where stems touch ground."},
+{id:"trov",sci:"Trillium ovatum",com:"western trillium",fam:"Melanthiaceae",gf:"forb",nat:"native",reg:["pnwW"],c:null,
+ note:"Three net-veined bracts, three petals, three sepals. Slow to reach flowering — picking the leaves can kill the plant."},
+{id:"titr",sci:"Tiarella trifoliata",com:"foamflower",fam:"Saxifragaceae",gf:"forb",nat:"native",reg:["pnwW"],c:null,
+ note:"Maple-like or trifoliate basal leaves, airy raceme of tiny white flowers, two unequal horned carpels."},
+{id:"actr",sci:"Achlys triphylla",com:"vanilla leaf",fam:"Berberidaceae",gf:"forb",nat:"native",reg:["pnwW"],c:null,
+ note:"Three broad fan-shaped leaflets on one long petiole. Smells of vanilla when dried — not when fresh."},
+{id:"hehe",sci:"Hedera helix",com:"English ivy",fam:"Araliaceae",gf:"vine",nat:"invasive",reg:["pnwW"],c:null,
+ note:"Evergreen climber; juvenile leaves lobed, adult leaves entire and only these flower. Kills host trees by loading and shading."},
+{id:"cysc",sci:"Cytisus scoparius",com:"Scotch broom",fam:"Fabaceae",gf:"shrub",nat:"invasive",reg:["pnwW","pnwE"],c:null,
+ note:"Green ridged broom-like stems, small trifoliate leaves, yellow pea flowers, exploding pods. Nitrogen-fixing, so it changes the soil it invades."},
+{id:"ptaq",sci:"Pteridium aquilinum",com:"bracken",fam:"Dennstaedtiaceae",gf:"fern",nat:"native",reg:["pnwW","pnwE","sier","gb"],c:null,
+ note:"Coarse three-parted triangular fronds from deep rhizomes. Fire- and disturbance-favoured; allelopathic and carcinogenic to livestock."},
+{id:"atfi",sci:"Athyrium filix-femina",com:"lady fern",fam:"Athyriaceae",gf:"fern",nat:"native",reg:["pnwW","pnwE","sier"],c:null,
+ note:"Twice-pinnate lacy fronds tapering at BOTH ends, in a vase-shaped clump. Moist sites."},
+{id:"madi",sci:"Maianthemum dilatatum",com:"false lily-of-the-valley",fam:"Asparagaceae",gf:"forb",nat:"native",reg:["pnwW"],c:null,
+ note:"Glossy heart-shaped leaves with parallel-arching veins, from spreading rhizomes; short white raceme."},
+
+/* --- PNW eastside / interior --- */
+{id:"putr",sci:"Purshia tridentata",com:"antelope bitterbrush",fam:"Rosaceae",gf:"shrub",nat:"native",reg:["pnwE","sier","gb"],c:null,
+ note:"Tiny wedge leaves with three teeth at the tip, grey-hairy beneath. Critical mule deer winter browse; actinorhizal nitrogen fixer."},
+{id:"syal",sci:"Symphoricarpos albus",com:"common snowberry",fam:"Caprifoliaceae",gf:"shrub",nat:"native",reg:["pnwW","pnwE"],c:null,
+ note:"Opposite oval leaves, often lobed on sprouts; waxy white berries persisting into winter."},
+{id:"caru",sci:"Calamagrostis rubescens",com:"pinegrass",fam:"Poaceae",gf:"graminoid",nat:"native",reg:["pnwE"],c:null,
+ note:"Flat lax blades, rhizomatous, often flowering only after disturbance. The understory matrix grass of dry interior conifer forest."},
+{id:"aruv",sci:"Arctostaphylos uva-ursi",com:"kinnikinnick",fam:"Ericaceae",gf:"shrub",nat:"native",reg:["pnwE","sier","gb","pnwW"],c:null,
+ note:"Prostrate mat of small spoon-shaped evergreen leaves, red bark, urn flowers, mealy red drupes."},
+{id:"basa",sci:"Balsamorhiza sagittata",com:"arrowleaf balsamroot",fam:"Asteraceae",gf:"forb",nat:"native",reg:["pnwE","gb"],c:null,
+ note:"Large silvery arrow-shaped basal leaves, big yellow heads. Deep taproot; a bunchgrass-steppe indicator."},
+{id:"brte",sci:"Bromus tectorum",com:"cheatgrass",fam:"Poaceae",gf:"graminoid",nat:"invasive",reg:["pnwE","sier","gb","pnwW"],c:null,
+ note:"Soft-hairy annual, drooping one-sided purple panicle, dead by early summer. Has re-written the Great Basin fire regime by supplying continuous fine fuel."},
+{id:"pssp",sci:"Pseudoroegneria spicata",com:"bluebunch wheatgrass",fam:"Poaceae",gf:"graminoid",nat:"native",reg:["pnwE","gb","sier"],c:null,
+ note:"Tight blue-green bunch, spike with widely spaced spikelets and divergent awns. THE native bunchgrass benchmark for steppe condition."},
+{id:"artr",sci:"Artemisia tridentata",com:"big sagebrush",fam:"Asteraceae",gf:"shrub",nat:"native",reg:["pnwE","sier","gb"],c:null,
+ note:"Wedge leaves with three blunt teeth, silvery, strongly aromatic. Does NOT resprout after fire — stand age is fire history. Subspecies matter ecologically."},
+{id:"lupi",sci:"Lupinus spp.",com:"lupine",fam:"Fabaceae",gf:"forb",nat:"native",reg:["pnwW","pnwE","sier","gb"],c:null,
+ note:"Palmately compound leaves, pea flowers in racemes. Nitrogen-fixing; species-level ID usually needs flowers and pods."},
+
+/* --- Sierra / Tahoe --- */
+{id:"ceco",sci:"Ceanothus cordulatus",com:"mountain whitethorn",fam:"Rhamnaceae",gf:"shrub",nat:"native",reg:["sier"],c:null,
+ note:"Rigid whitish spine-tipped branches, small three-veined leaves. Actinorhizal N-fixer; seedbank fire-cued, so it flushes after burns."},
+{id:"arpa",sci:"Arctostaphylos patula",com:"greenleaf manzanita",fam:"Ericaceae",gf:"shrub",nat:"native",reg:["sier","gb"],c:null,
+ note:"Smooth red-purple bark, round bright green vertical leaves. Burl-sprouting after fire in much of its range."},
+{id:"chfo",sci:"Chamaebatia foliolosa",com:"mountain misery",fam:"Rosaceae",gf:"shrub",nat:"native",reg:["sier"],c:null,
+ note:"Low fern-like finely 3-pinnate leaves, intensely resinous and sticky-aromatic. Carpets Sierra mixed conifer floors."},
+{id:"coco",sci:"Corylus cornuta",com:"beaked hazelnut",fam:"Betulaceae",gf:"shrub",nat:"native",reg:["pnwW","sier"],c:null,
+ note:"Doubly serrate soft-hairy round leaves, catkins in late winter, nut in a long beaked husk."},
+
+/* --- Great Basin / Utah --- */
+{id:"erna",sci:"Ericameria nauseosa",com:"rubber rabbitbrush",fam:"Asteraceae",gf:"shrub",nat:"native",reg:["gb","pnwE","sier"],c:null,
+ note:"Flexible white-felted stems, narrow leaves, dense yellow disc-only heads in late summer. Increases with disturbance."},
+{id:"chvi",sci:"Chrysothamnus viscidiflorus",com:"yellow rabbitbrush",fam:"Asteraceae",gf:"shrub",nat:"native",reg:["gb","pnwE"],c:null,
+ note:"Smaller and greener than rubber rabbitbrush, twisted leaves, sticky. Resprouts after fire, unlike sagebrush."},
+{id:"atco",sci:"Atriplex confertifolia",com:"shadscale",fam:"Amaranthaceae",gf:"shrub",nat:"native",reg:["gb"],c:null,
+ note:"Spiny grey scurfy shrub, round leaves, four-winged bracts on the fruit. Salt-desert shrubland dominant."},
+{id:"save",sci:"Sarcobatus vermiculatus",com:"greasewood",fam:"Sarcobataceae",gf:"shrub",nat:"native",reg:["gb"],c:null,
+ note:"Fleshy linear leaves, white bark, stiff thorns. Phreatophyte — its presence flags shallow saline groundwater."},
+{id:"achy",sci:"Eriocoma hymenoides",com:"Indian ricegrass",fam:"Poaceae",gf:"graminoid",nat:"native",reg:["gb"],c:null,
+ note:"Delicate widely-forking panicle, plump shiny black seed in a hairy lemma. Sand specialist; syn. Achnatherum hymenoides."},
+{id:"plja",sci:"Pleuraphis jamesii",com:"galleta",fam:"Poaceae",gf:"graminoid",nat:"native",reg:["gb"],c:null,
+ note:"Rhizomatous, zigzag spike of three-spikelet clusters, wiry and tough. Colorado Plateau warm-season grass."},
+{id:"elel",sci:"Elymus elymoides",com:"squirreltail",fam:"Poaceae",gf:"graminoid",nat:"native",reg:["gb","pnwE","sier"],c:null,
+ note:"Bristly spike that breaks apart into barbed awns. Tolerates disturbance better than most natives — often the last native standing against cheatgrass."},
+{id:"pose",sci:"Poa secunda",com:"Sandberg bluegrass",fam:"Poaceae",gf:"graminoid",nat:"native",reg:["gb","pnwE","sier"],c:null,
+ note:"Small early bunchgrass, boat-tipped leaves, narrow panicle; goes dormant by midsummer."},
+{id:"krla",sci:"Krascheninnikovia lanata",com:"winterfat",fam:"Amaranthaceae",gf:"shrub",nat:"native",reg:["gb"],c:null,
+ note:"White woolly throughout, linear rolled leaves, silky fruiting spikes. High-value winter browse."},
+{id:"epvi",sci:"Ephedra viridis",com:"Mormon tea",fam:"Ephedraceae",gf:"shrub",nat:"native",reg:["gb"],c:null,
+ note:"Broom of bright green jointed photosynthetic stems, leaves reduced to scales at the nodes. A gymnosperm, not a flowering plant."},
+{id:"amut",sci:"Amelanchier utahensis",com:"Utah serviceberry",fam:"Rosaceae",gf:"shrub",nat:"native",reg:["gb"],c:null,
+ note:"Round toothed leaves toothed mostly above the middle, white five-petalled flowers, pome fruit."},
+{id:"cele",sci:"Cercocarpus ledifolius",com:"curl-leaf mountain mahogany",fam:"Rosaceae",gf:"shrub",nat:"native",reg:["gb","sier","pnwE"],c:null,
+ note:"Thick resinous inrolled evergreen leaves; fruit with a long twisted feathery plume. Actinorhizal N-fixer; extremely long-lived and slow."},
+{id:"syor",sci:"Symphoricarpos oreophilus",com:"mountain snowberry",fam:"Caprifoliaceae",gf:"shrub",nat:"native",reg:["gb","sier"],c:null,
+ note:"Opposite oval leaves, pink tubular flowers, white berries. Common Wasatch and montane understory."},
+{id:"erio",sci:"Eriogonum spp.",com:"wild buckwheat",fam:"Polygonaceae",gf:"forb",nat:"native",reg:["gb","sier","pnwE"],c:null,
+ note:"Enormous western genus. Involucres of tiny flowers, often basal rosettes, no ocrea. Many narrow endemics — key carefully before reporting."},
+{id:"pens",sci:"Penstemon spp.",com:"penstemon",fam:"Plantaginaceae",gf:"forb",nat:"native",reg:["gb","sier","pnwE","pnwW"],c:null,
+ note:"Opposite leaves, tubular two-lipped flowers, and the sterile bearded fifth stamen that names the genus."},
+{id:"astr",sci:"Astragalus spp.",com:"milkvetch",fam:"Fabaceae",gf:"forb",nat:"native",reg:["gb","sier","pnwE"],c:null,
+ note:"Pinnate leaves, pea flowers, inflated or grooved pods. Vast genus with many Utah endemics and several selenium accumulators."},
+{id:"satr",sci:"Salsola tragus",com:"Russian thistle",fam:"Amaranthaceae",gf:"forb",nat:"invasive",reg:["gb","pnwE"],c:null,
+ note:"Spiny bushy annual that breaks off and tumbles. Ruderal on disturbed and saline ground."},
+{id:"hagl",sci:"Halogeton glomeratus",com:"halogeton",fam:"Amaranthaceae",gf:"forb",nat:"invasive",reg:["gb"],c:null,
+ note:"Fleshy blue-green club-shaped leaves each tipped with a fine bristle. Accumulates soluble oxalates — has killed sheep in quantity."},
+{id:"brdi",sci:"Bromus diandrus",com:"ripgut brome",fam:"Poaceae",gf:"graminoid",nat:"invasive",reg:["sier","gb","pnwW"],c:null,
+ note:"Large coarse annual brome with very long rough awns that injure grazing stock."},
+{id:"cest",sci:"Centaurea stoebe",com:"spotted knapweed",fam:"Asteraceae",gf:"forb",nat:"invasive",reg:["pnwE","gb","sier"],c:null,
+ note:"Dissected leaves, pink-purple heads with dark-tipped bracts. Aggressive rangeland invader; noxious in most western states."}
+];
+</script>
+<script>
+(function(){
+  "use strict";
+  function $(id){ return document.getElementById(id); }
+  function buzz(){ try{ if(navigator.vibrate) navigator.vibrate(8); }catch(e){} }
+  function toast(m){ var t=$("toast"); t.textContent=m; t.classList.add("on");
+    clearTimeout(t._h); t._h=setTimeout(function(){t.classList.remove("on");},1700); }
+  function esc(s){ return String(s==null?"":s).replace(/[&<>"']/g,function(c){
+    return {"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#39;"}[c]; }); }
+  function num(id){ var v=parseFloat(($(id)||{}).value); return isFinite(v)?v:null; }
+  function val(id){ return (($(id)||{}).value||"").trim(); }
+
+  /* ---------- scales ---------- */
+  var SCALES = {
+    bb:{ name:"Braun-Blanquet", sub:"the classic relevé scale",
+      classes:[["r","solitary",0.1],["+","<1%",0.5],["1","1–5%",3],["2","5–25%",15],
+               ["3","25–50%",37.5],["4","50–75%",62.5],["5","75–100%",87.5]] },
+    db:{ name:"Daubenmire", sub:"6 classes, US rangeland standard",
+      classes:[["1","0–5%",2.5],["2","5–25%",15],["3","25–50%",37.5],
+               ["4","50–75%",62.5],["5","75–95%",85],["6","95–100%",97.5]] },
+    pc:{ name:"Direct %", sub:"ocular estimate, any value",
+      classes:[["<1","trace",0.5],["1","1%",1],["3","3%",3],["5","5%",5],["10","10%",10],["20","20%",20],
+               ["30","30%",30],["40","40%",40],["50","50%",50],["60","60%",60],["75","75%",75],["90","90%",90],["100","100%",100]] }
+  };
+  var STRATA = [
+    {id:"T1",n:"T1 · overstory tree",sub:">10 m"},
+    {id:"T2",n:"T2 · subcanopy tree",sub:"5–10 m"},
+    {id:"S1",n:"S1 · tall shrub",sub:"2–5 m"},
+    {id:"S2",n:"S2 · low shrub",sub:"<2 m"},
+    {id:"H",n:"H · herb / graminoid",sub:"field layer"},
+    {id:"B",n:"B · bryophyte / lichen",sub:"ground layer"}
+  ];
+  var PHENO = [["veg","vegetative"],["bud","budding"],["fl","flowering"],["ffr","flower & fruit"],
+               ["fr","fruiting"],["dis","dispersing"],["sen","senescent"],["dor","dormant"]];
+
+  var recs=[], vouchers=[], scale="bb", curCov=null;
+  var lpi=[], wet={};   /* lpi: {sp,layer}; wet: sci -> OBL|FACW|FAC|FACU|UPL */
+  var WET=[["OBL","obligate wetland",1],["FACW","facultative wetland",2],["FAC","facultative",3],
+           ["FACU","facultative upland",4],["UPL","obligate upland",5]];
+  var GROUND=[["__bare","bare soil"],["__litter","litter"],["__rock","rock"],
+              ["__moss","moss / biocrust"],["__wood","woody debris"]];
+
+  /* ---------- boot selects ---------- */
+  function fillSpecies(){
+    [["rSp",true],["vSp",false]].forEach(function(p){
+      var sel=$(p[0]), cur=sel.value; sel.innerHTML="";
+      FLORA.slice().sort(function(a,b){return a.com.localeCompare(b.com);}).forEach(function(s){
+        var o=document.createElement("option"); o.value=s.id;
+        o.textContent=s.com+" — "+s.sci; sel.appendChild(o); });
+      var o2=document.createElement("option"); o2.value="__free"; o2.textContent="— type a name instead —";
+      sel.appendChild(o2);
+      if(cur) sel.value=cur;
+    });
+  }
+  (function(){ var s=$("rStr");
+    STRATA.forEach(function(t){ var o=document.createElement("option"); o.value=t.id;
+      o.textContent=t.n+" ("+t.sub+")"; s.appendChild(o); }); s.value="H"; })();
+  (function(){ [["vPhen","fl"],["rPhen","veg"]].forEach(function(q){
+      var s=$(q[0]); if(!s) return;
+      PHENO.forEach(function(p){ var o=document.createElement("option"); o.value=p[0]; o.textContent=p[1]; s.appendChild(o); });
+      s.value=q[1]; }); })();
+  function phenName(k){ for(var i=0;i<PHENO.length;i++) if(PHENO[i][0]===k) return PHENO[i][1]; return k; }
+  try{ $("sDate").value=new Date().toISOString().slice(0,10); }catch(e){}
+
+  function renderScalePicker(){
+    var box=$("sScale"); box.innerHTML="";
+    Object.keys(SCALES).forEach(function(k){
+      var b=document.createElement("button"); b.type="button";
+      b.className="kopt"+(scale===k?" on":"");
+      b.innerHTML="<span>"+esc(SCALES[k].name)+"</span><small>"+esc(SCALES[k].sub)+"</small>";
+      b.addEventListener("click",function(){
+        if(recs.length && !confirm("Changing scale keeps your records but re-labels them against the new scale. Continue?")) return;
+        scale=k; curCov=null; renderScalePicker(); renderCov(); renderAll(); buzz(); });
+      box.appendChild(b);
+    });
+    $("rScaleNote").innerHTML="Recording on the <b>"+esc(SCALES[scale].name)
+      +"</b> scale. Each class is converted to its midpoint percentage for every calculation — see the Method tab.";
+    renderScaleTable();
+  }
+  function renderCov(){
+    var box=$("rCov"); box.innerHTML="";
+    SCALES[scale].classes.forEach(function(c){
+      var b=document.createElement("button"); b.type="button";
+      b.className="cv"+(curCov===c[0]?" on":"");
+      b.innerHTML="<span>"+esc(c[0])+"</span><small>"+esc(c[1])+"</small>";
+      b.addEventListener("click",function(){ curCov=c[0]; renderCov(); buzz(); });
+      box.appendChild(b);
+    });
+  }
+  function renderScaleTable(){
+    var t=$("mScales");
+    var h="<tr><th>Class</th><th>Range</th><th class='n'>Midpoint used</th></tr>";
+    SCALES[scale].classes.forEach(function(c){
+      h+="<tr><td><b>"+esc(c[0])+"</b></td><td>"+esc(c[1])+"</td><td class='n'>"+c[2]+"%</td></tr>"; });
+    t.innerHTML=h;
+  }
+  function mid(cls){
+    var cs=SCALES[scale].classes;
+    for(var i=0;i<cs.length;i++) if(cs[i][0]===cls) return cs[i][2];
+    var v=parseFloat(cls); return isFinite(v)?v:0;
+  }
+  function spById(id){ for(var i=0;i<FLORA.length;i++) if(FLORA[i].id===id) return FLORA[i]; return null; }
+
+  /* ---------- record ---------- */
+  $("rAdd").addEventListener("click",function(){
+    if(curCov===null){ toast("Tap a cover class"); return; }
+    var free=val("rFree"), sid=val("rSp"), sp=spById(sid);
+    var com, sci, fam="", gf="", nat="unknown", c=null;
+    if(free || sid==="__free"){
+      if(!free){ toast("Type the name, or pick from the list"); $("rFree").focus(); return; }
+      com=free; sci=free;
+    } else if(sp){ com=sp.com; sci=sp.sci; fam=sp.fam; gf=sp.gf; nat=sp.nat; c=(sp.c==null?null:sp.c); }
+    else { toast("Pick a species"); return; }
+    var str=val("rStr");
+    var ph=val("rPhen");
+    var dup=recs.filter(function(r){ return r.sci===sci && r.str===str; })[0];
+    if(dup){ dup.cls=curCov; dup.ph=ph; toast(com+" in "+str+" updated to "+curCov); }
+    else { recs.push({sci:sci,com:com,fam:fam,gf:gf,nat:nat,c:c,str:str,cls:curCov,ph:ph}); toast(com+" · "+str+" · "+curCov); }
+    $("rFree").value=""; curCov=null; renderCov(); buzz(); renderAll();
+  });
+  $("rUndo").addEventListener("click",function(){
+    if(!recs.length){ toast("Nothing to undo"); return; } recs.pop(); renderAll(); buzz(); });
+
+  function renderRecords(){
+    var L=$("rList");
+    if(!recs.length){ L.innerHTML='<p class="hint" style="margin:0">No records yet.</p>'; return; }
+    L.innerHTML="";
+    var order={}; STRATA.forEach(function(s,i){ order[s.id]=i; });
+    recs.slice().sort(function(a,b){ return (order[a.str]-order[b.str]) || (mid(b.cls)-mid(a.cls)); })
+      .forEach(function(r){
+        var i=recs.indexOf(r);
+        var d=document.createElement("div"); d.className="row2"+(r.nat==="invasive"?" inv":"");
+        d.innerHTML='<div class="g"><b>'+esc(r.com)+' <i>'+esc(r.sci)+'</i></b>'
+          +'<span>'+esc(r.str)+(r.fam?" · "+esc(r.fam):"")+(r.gf?" · "+esc(r.gf):"")
+          +(r.nat!=="unknown"?" · "+esc(r.nat):"")+(r.ph?" · "+esc(phenName(r.ph)):"")
+          +(r.c!=null?" · C="+r.c:"")+(wet[r.sci]?" · "+esc(wet[r.sci]):"")+'</span></div>'
+          +'<div class="cov">'+esc(r.cls)+'</div><button type="button" class="noprint">✕</button>';
+        d.querySelector("button").addEventListener("click",function(){ recs.splice(i,1); renderAll(); buzz(); });
+        L.appendChild(d);
+      });
+  }
+  function renderStrata(){
+    var box=$("rStrataBox");
+    if(!recs.length){ box.innerHTML='<p class="hint" style="margin:0">Cover totals by stratum appear here.</p>'; return; }
+    var by={};
+    recs.forEach(function(r){ by[r.str]=(by[r.str]||0)+mid(r.cls); });
+    var h='<h3 style="margin-top:0">Cover by stratum</h3><div class="bars">';
+    var mx=Math.max.apply(null,Object.keys(by).map(function(k){return by[k];}).concat([100]));
+    STRATA.forEach(function(s){
+      if(!by[s.id]) return;
+      h+='<div class="bar"><span class="nm">'+esc(s.id)+' '+esc(s.sub)+'</span>'
+        +'<span class="tr"><span class="fl" style="width:'+Math.min(100,100*by[s.id]/mx)+'%"></span></span>'
+        +'<span class="pc">'+by[s.id].toFixed(0)+'%</span></div>';
+    });
+    var tot=Object.keys(by).reduce(function(a,k){return a+by[k];},0);
+    h+='</div><div class="verdict">Total across strata <b>'+tot.toFixed(0)+'%</b>. '
+      +(tot>100?'Above 100% is expected and correct — layers overlap.':'A layered stand will usually exceed 100% once the canopy is recorded.')
+      +'</div>';
+    box.innerHTML=h;
+  }
+
+  /* ---------- analysis ---------- */
+  function taxa(){
+    var by={};
+    recs.forEach(function(r){
+      if(!by[r.sci]) by[r.sci]={sci:r.sci,com:r.com,fam:r.fam,gf:r.gf,nat:r.nat,c:r.c,cov:0,strata:[]};
+      by[r.sci].cov+=mid(r.cls);
+      if(by[r.sci].strata.indexOf(r.str)<0) by[r.sci].strata.push(r.str);
+      if(by[r.sci].c==null && r.c!=null) by[r.sci].c=r.c;
+    });
+    return Object.keys(by).map(function(k){return by[k];});
+  }
+  function renderAnalysis(){
+    var T=taxa(), box=$("anStats");
+    if(!T.length){ box.innerHTML='<p class="hint" style="margin:0">Record some cover — the analysis builds itself.</p>';
+      $("anBars").innerHTML=""; $("anFqa").innerHTML=""; $("cEditor").innerHTML=""; return; }
+    var tot=T.reduce(function(a,t){return a+t.cov;},0);
+    var H=0; T.forEach(function(t){ var p=t.cov/tot; if(p>0) H-=p*Math.log(p); });
+    var S=T.length, J=S>1?H/Math.log(S):1;
+    var nInv=T.filter(function(t){return t.nat==="invasive";}).length;
+    var invCov=T.filter(function(t){return t.nat==="invasive";}).reduce(function(a,t){return a+t.cov;},0);
+    var fams={}; T.forEach(function(t){ if(t.fam) fams[t.fam]=1; });
+    var h='<div class="tiles">'
+      +'<div class="tile"><div class="v">'+S+'</div><div class="l">taxa</div></div>'
+      +'<div class="tile"><div class="v">'+Object.keys(fams).length+'</div><div class="l">families</div></div>'
+      +'<div class="tile"><div class="v">'+H.toFixed(2)+'</div><div class="l">Shannon H′</div></div>'
+      +'<div class="tile"><div class="v">'+J.toFixed(2)+'</div><div class="l">evenness J′</div></div>'
+      +'<div class="tile"><div class="v">'+Math.exp(H).toFixed(1)+'</div><div class="l">effective taxa</div></div>'
+      +'<div class="tile"><div class="v">'+nInv+'</div><div class="l">non-native taxa</div></div></div>';
+    var domin=T.slice().sort(function(a,b){return b.cov-a.cov;})[0];
+    h+='<div class="verdict"><b>'+esc(domin.com)+'</b> carries the most cover ('
+      +(100*domin.cov/tot).toFixed(0)+'% of the recorded total). '
+      +(J>=0.8?'Evenness J′ '+J.toFixed(2)+' — cover is spread across the flora rather than concentrated.'
+       :J>=0.6?'Evenness J′ '+J.toFixed(2)+' — moderately dominated.'
+       :'Evenness J′ '+J.toFixed(2)+' — strongly dominated by a few taxa, which is itself the finding.')
+      +'</div>';
+    if(nInv){
+      h+='<div class="verdict '+(invCov/tot>0.25?"act":"warn")+'"><b>'+nInv+' non-native taxon'
+        +(nInv===1?"":"s")+' holding '+(100*invCov/tot).toFixed(0)+'% of recorded cover.</b> '
+        +(invCov/tot>0.25?'Above a quarter of the cover — at this level the invasion is structuring the community, not riding along in it.'
+          :'Present but not yet dominant. Note which stratum they occupy: an invader in the herb layer under intact canopy is a different problem from one in the open.')
+        +'</div>';
+    }
+    box.innerHTML=h;
+
+    var B='<div class="bars">'; var mx=T.reduce(function(a,t){return Math.max(a,t.cov);},0);
+    T.slice().sort(function(a,b){return b.cov-a.cov;}).forEach(function(t){
+      B+='<div class="bar"><span class="nm" title="'+esc(t.sci)+'">'+esc(t.com)+'</span>'
+        +'<span class="tr"><span class="fl'+(t.nat==="invasive"?" inv":"")+'" style="width:'+(100*t.cov/mx)+'%"></span></span>'
+        +'<span class="pc">'+t.cov.toFixed(1)+'%</span></div>';
+    });
+    $("anBars").innerHTML=B+'</div><p class="fine">Bars are summed midpoint cover across strata. Orange = non-native.</p>';
+    renderFunc(T); renderFQA(T); renderWet(T);
+  }
+
+  function renderFunc(T){
+    var byG={}, byN={}, tot=0;
+    T.forEach(function(t){ var g=t.gf||"unrecorded";
+      byG[g]=(byG[g]||0)+t.cov; byN[t.nat]=(byN[t.nat]||0)+t.cov; tot+=t.cov; });
+    var h='<div class="bars">';
+    Object.keys(byG).sort(function(a,b){return byG[b]-byG[a];}).forEach(function(g){
+      h+='<div class="bar"><span class="nm">'+esc(g)+'</span>'
+        +'<span class="tr"><span class="fl" style="width:'+(100*byG[g]/tot)+'%"></span></span>'
+        +'<span class="pc">'+(100*byG[g]/tot).toFixed(0)+'%</span></div>';
+    });
+    h+='</div>';
+    var g=Object.keys(byG).sort(function(a,b){return byG[b]-byG[a];})[0];
+    var reads={shrub:"a shrub-dominated structure",graminoid:"a grass-dominated structure",
+      forb:"a forb-dominated structure",tree:"a treed structure",fern:"a fern-dominated understory"};
+    h+='<div class="verdict"><b>'+(100*byG[g]/tot).toFixed(0)+'% of cover is '+esc(g)+'</b> — '
+      +(reads[g]||"that functional group leads")+'. The growth-form spectrum is often more comparable '
+      +'between distant sites than the species list, because different floras converge on the same forms.</div>';
+    var nonNat=(byN.invasive||0)+(byN.intro||0);
+    if(nonNat>0) h+='<div class="verdict warn"><b>'+(100*nonNat/tot).toFixed(0)
+      +'% of cover is non-native.</b> Compare that with the taxon count — a few non-native species '
+      +'holding most of the cover is a different problem from many holding little.</div>';
+    $("anFunc").innerHTML=h;
+  }
+
+  function renderWet(T){
+    var scored=T.filter(function(t){ return wet[t.sci]; });
+    var box=$("anWet");
+    if(!scored.length){
+      box.innerHTML='<div class="verdict warn"><b>No indicator statuses entered.</b> Wetland indicator '
+        +'status is regional and revised periodically, so this page will not ship a list that goes stale — '
+        +'take yours from the current National Wetland Plant List for your region and enter it below. '
+        +'The prevalence index then computes itself.</div>';
+    } else {
+      var W={}; WET.forEach(function(w){ W[w[0]]=w[2]; });
+      var numr=0, den=0;
+      scored.forEach(function(t){ numr+=t.cov*W[wet[t.sci]]; den+=t.cov; });
+      var PI=den?numr/den:0;
+      var hyd=PI<=3.0;
+      box.innerHTML='<div class="tiles">'
+        +'<div class="tile"><div class="v">'+PI.toFixed(2)+'</div><div class="l">prevalence index</div></div>'
+        +'<div class="tile"><div class="v">'+scored.length+'/'+T.length+'</div><div class="l">taxa scored</div></div>'
+        +'<div class="tile"><div class="v">'+(hyd?"≤ 3.0":"> 3.0")+'</div><div class="l">vs threshold</div></div></div>'
+        +'<div class="verdict'+(hyd?"":" warn")+'"><b>Prevalence index '+PI.toFixed(2)+'</b> — '
+        +(hyd?'at or below 3.0, which is the Corps threshold for <em>hydrophytic vegetation</em>.'
+             :'above 3.0, so the vegetation does not by itself indicate a wetland.')
+        +' <b>This is one of three criteria.</b> A determination also needs hydric soil and wetland '
+        +'hydrology; nothing here settles that.'
+        +(scored.length<T.length?' Only '+scored.length+' of '+T.length+' taxa are scored, so the index is partial.':'')
+        +'</div>';
+    }
+    var E='<h3>Indicator status</h3><p class="fine" style="margin-top:0">From the current regional '
+      +'National Wetland Plant List. Blank means unscored, and unscored taxa are left out of the index.</p>'
+      +'<div class="tw"><table><tr><th>Taxon</th><th>Status</th></tr>';
+    T.slice().sort(function(a,b){return a.com.localeCompare(b.com);}).forEach(function(t){
+      E+='<tr><td>'+esc(t.com)+'<br><i>'+esc(t.sci)+'</i></td><td><select data-w="'+esc(t.sci)+'" '
+        +'style="min-height:40px;padding:6px 8px;font-size:14px"><option value="">—</option>';
+      WET.forEach(function(w){
+        E+='<option value="'+w[0]+'"'+(wet[t.sci]===w[0]?" selected":"")+'>'+w[0]+' — '+w[1]+'</option>'; });
+      E+='</select></td></tr>';
+    });
+    $("wEditor").innerHTML=E+'</table></div>';
+    $("wEditor").querySelectorAll("[data-w]").forEach(function(sel){
+      sel.addEventListener("change",function(){
+        if(sel.value) wet[sel.dataset.w]=sel.value; else delete wet[sel.dataset.w];
+        renderAnalysis(); renderRecords(); ecoOut();
+      });
+    });
+  }
+
+  function renderFQA(T){
+    var nat=T.filter(function(t){return t.nat==="native";});
+    var withC=nat.filter(function(t){return t.c!=null;});
+    var box=$("anFqa");
+    if(!withC.length){
+      box.innerHTML='<div class="verdict warn"><b>No C-values entered yet.</b> Floristic Quality '
+        +'Assessment needs a coefficient of conservatism for each native taxon, and those are assigned by '
+        +'regional expert panels — this page will not invent them. Get your state or region\'s published '
+        +'FQA list and enter the values below; they are stored with the plot.</div>';
+    } else {
+      var sumC=withC.reduce(function(a,t){return a+t.c;},0);
+      var meanC=sumC/withC.length;
+      var N=withC.length, Ntot=T.length;
+      var fqi=meanC*Math.sqrt(N);
+      var adj=100*(meanC/10)*(Math.sqrt(N)/Math.sqrt(Ntot));
+      var pctNon=100*(Ntot-nat.length)/Ntot;
+      var read = meanC>=4.5?'Mean C at or above about 4.5 is commonly treated as indicating remnant natural quality worth conserving'
+        : meanC>=3.5?'Mean C in the 3.5–4.5 band typically indicates a site with natural character but some degradation'
+        : 'Mean C below about 3.5 usually indicates a heavily altered or ruderal assemblage';
+      box.innerHTML='<div class="tiles">'
+        +'<div class="tile"><div class="v">'+meanC.toFixed(2)+'</div><div class="l">mean C (native)</div></div>'
+        +'<div class="tile"><div class="v">'+fqi.toFixed(1)+'</div><div class="l">FQI</div></div>'
+        +'<div class="tile"><div class="v">'+adj.toFixed(1)+'</div><div class="l">adjusted FQI</div></div>'
+        +'<div class="tile"><div class="v">'+N+'/'+nat.length+'</div><div class="l">natives scored</div></div>'
+        +'<div class="tile"><div class="v">'+pctNon.toFixed(0)+'%</div><div class="l">non-native taxa</div></div></div>'
+        +'<div class="verdict"><b>Mean C '+meanC.toFixed(2)+', FQI '+fqi.toFixed(1)+'.</b> '+read
+        +' — <em>in the region those C-values came from</em>. These thresholds are conventions from the '
+        +'Midwestern literature and are not universal; check what your own regional programme uses.'
+        +(N<nat.length?' Only '+N+' of '+nat.length+' natives have a C-value, so this is a partial score.':'')
+        +'</div>';
+    }
+    var E='<h3>C-values</h3><p class="fine" style="margin-top:0">From your regional FQA list. Leave blank '
+      +'if unknown — a blank is honest, a guess is not.</p><div class="tw"><table>'
+      +'<tr><th>Taxon</th><th>Family</th><th>Status</th><th class="n">C</th></tr>';
+    T.slice().sort(function(a,b){return a.com.localeCompare(b.com);}).forEach(function(t){
+      E+='<tr><td>'+esc(t.com)+'<br><i>'+esc(t.sci)+'</i></td><td>'+esc(t.fam||"—")+'</td>'
+        +'<td>'+esc(t.nat)+'</td><td class="n">'
+        +(t.nat==="native"
+          ? '<input type="number" min="0" max="10" step="1" data-c="'+esc(t.sci)+'" value="'
+            +(t.c==null?"":t.c)+'" style="width:64px;min-height:40px;padding:6px 8px;font-size:14px">'
+          : '<span class="fine">n/a</span>')
+        +'</td></tr>';
+    });
+    $("cEditor").innerHTML=E+'</table></div>';
+    $("cEditor").querySelectorAll("[data-c]").forEach(function(inp){
+      inp.addEventListener("change",function(){
+        var v=inp.value===""?null:Math.max(0,Math.min(10,parseInt(inp.value,10)));
+        if(inp.value!=="" && !isFinite(v)) return;
+        recs.forEach(function(r){ if(r.sci===inp.dataset.c) r.c=v; });
+        renderAnalysis(); ecoOut();
+      });
+    });
+  }
+
+  /* ---------- vouchers ---------- */
+  $("vAdd").addEventListener("click",function(){
+    var sp=spById(val("vSp"));
+    var name = sp? sp.sci : val("rFree")||"undetermined";
+    var com = sp? sp.com : "";
+    if(!val("vNum")){ toast("A collection number is what makes it citable"); $("vNum").focus(); return; }
+    vouchers.push({sci:name, com:com, fam:sp?sp.fam:"", num:val("vNum"), dup:num("vDup")||1,
+      mat:val("vMat"), phen:val("vPhen"), ab:val("vAb"), note:val("vNote")});
+    $("vNum").value=""; $("vNote").value="";
+    buzz(); renderVouchers(); ecoOut();
+    toast("Voucher recorded"+(val("vMat")==="st"?" — sterile, may not be keyable":""));
+  });
+  function renderVouchers(){
+    var L=$("vList");
+    if(!vouchers.length){ L.innerHTML='<p class="hint" style="margin:0">No specimens yet.</p>'; return; }
+    var MAT={fl:"in flower",fr:"in fruit",ff:"flower & fruit",st:"sterile — vegetative only"};
+    var PH={}; PHENO.forEach(function(p){ PH[p[0]]=p[1]; });
+    L.innerHTML="";
+    vouchers.forEach(function(v,i){
+      var loc=[val("sLat"),val("sLon")].filter(Boolean).join(", ");
+      var d=document.createElement("div");
+      d.innerHTML='<div class="row2"'+(v.mat==="st"?' style="border-left:3px solid var(--s2)"':'')+'>'
+        +'<div class="g"><b><i>'+esc(v.sci)+'</i>'+(v.com?" — "+esc(v.com):"")+'</b>'
+        +'<span>'+esc(v.num)+' · '+esc(MAT[v.mat]||v.mat)+' · '+esc(PH[v.phen]||v.phen)
+        +' · '+v.dup+' sheet'+(v.dup===1?"":"s")+(v.ab?" · "+esc(v.ab):"")+'</span></div>'
+        +'<button type="button" class="noprint">✕</button></div>'
+        +'<div class="label"><div class="inst">Flora of '+esc(val("sComm")?"the study area":"the study area")+'</div>'
+        +'<div class="sci">'+esc(v.sci)+'</div>'
+        +(v.com?'<div class="row">'+esc(v.com)+'</div>':'')
+        +(v.fam?'<div class="row"><span class="k">Family:</span> '+esc(v.fam)+'</div>':'')
+        +'<div class="row"><span class="k">Locality:</span> '+esc(val("sPlot")||"plot")
+        +(loc?'; '+esc(loc):'')+(num("sElev")!==null?'; '+num("sElev")+' m':'')+'</div>'
+        +'<div class="row"><span class="k">Habitat:</span> '+esc(val("sComm")||"—")
+        +(val("sMoist")?'; '+esc(val("sMoist")):'')+(num("sAsp")!==null?'; aspect '+num("sAsp")+'°':'')
+        +(num("sSlope")!==null?', slope '+num("sSlope")+'%':'')+(val("sSoil")?'; '+esc(val("sSoil")):'')+'</div>'
+        +'<div class="row"><span class="k">Associates:</span> '+esc(topAssoc(v.sci))+'</div>'
+        +'<div class="row"><span class="k">Notes:</span> '+esc(v.note||"—")
+        +' ['+esc(MAT[v.mat]||v.mat)+', '+esc(PH[v.phen]||v.phen)+(v.ab?", "+esc(v.ab):"")+']</div>'
+        +'<div class="coll"><span>'+esc(val("sObs")||"collector")+' <b>'+esc(v.num)+'</b></span>'
+        +'<span>'+esc(val("sDate")||"")+'</span></div></div>';
+      d.querySelector("button").addEventListener("click",function(){ vouchers.splice(i,1); renderVouchers(); ecoOut(); buzz(); });
+      L.appendChild(d);
+    });
+  }
+  function topAssoc(exclude){
+    var T=taxa().filter(function(t){return t.sci!==exclude;})
+      .sort(function(a,b){return b.cov-a.cov;}).slice(0,5)
+      .map(function(t){return t.sci;});
+    return T.length?T.join(", "):"—";
+  }
+
+  /* ---------- packs ---------- */
+  function packStats(){
+    var f={}, n={};
+    FLORA.forEach(function(s){ f[s.fam]=1; n[s.nat]=(n[s.nat]||0)+1; });
+    $("packStats").innerHTML='<div class="tile"><div class="v">'+FLORA.length+'</div><div class="l">taxa in pack</div></div>'
+      +'<div class="tile"><div class="v">'+Object.keys(f).length+'</div><div class="l">families</div></div>'
+      +'<div class="tile"><div class="v">'+(n.invasive||0)+'</div><div class="l">flagged non-native</div></div>'
+      +'<div class="tile"><div class="v">'+FLORA.filter(function(s){return s.c!=null;}).length+'</div><div class="l">with C-values</div></div>';
+  }
+  function packPromptText(){
+    return "Write a flora pack for a vegetation relevé app, as strict JSON, no prose around it.\n\n"
+      +"Region: <NAME THE REGION>\n\nShape:\n"
+      +JSON.stringify({species:[{id:"slug",sci:"Genus species",com:"common name",fam:"Family",
+        gf:"one of: tree shrub forb graminoid fern vine bryophyte lichen succulent",
+        nat:"one of: native intro invasive", reg:["region ids"], c:null,
+        note:"field characters that separate it from look-alikes, plus why it matters ecologically"}]},null,2)
+      +"\n\nRules:\n"
+      +"- 30-60 taxa an ecologist would actually record there: the dominants, the diagnostics, and the\n"
+      +"  problem invaders. Understory and non-tree species especially.\n"
+      +"- `note` must give characters visible in the field, not a taxonomic description.\n"
+      +"- Mark `nat` honestly. Flag as invasive only what is genuinely invasive in that region.\n"
+      +"- LEAVE `c` AS null. Coefficients of conservatism are assigned by regional expert panels and\n"
+      +"  must not be invented; the user supplies them from their state's published FQA list.\n"
+      +"- Do not invent species or ranges. Omit what you are unsure of.\n";
+  }
+  $("packToggle").addEventListener("click",function(){
+    var b=$("packBox"); b.style.display = b.style.display==="none" ? "" : "none"; });
+  $("packPrompt").addEventListener("click",function(){ copyText(packPromptText(),"Prompt copied"); });
+  $("packExport").addEventListener("click",function(){ copyText(JSON.stringify({species:FLORA},null,1),"Pack exported"); });
+  $("packLoad").addEventListener("click",function(){
+    var raw=val("packIn"), m=$("packMsg");
+    if(!raw){ m.innerHTML='<div class="verdict warn">Nothing pasted.</div>'; return; }
+    var o; try{ o=JSON.parse(raw); }
+    catch(e){ m.innerHTML='<div class="verdict warn"><b>Not valid JSON.</b> '+esc(e.message)
+      +' If an AI wrapped it in prose, paste only from the first { to the last }.</div>'; return; }
+    if(Array.isArray(o)) o={species:o};
+    var errs=[], GF={tree:1,shrub:1,forb:1,graminoid:1,fern:1,vine:1,bryophyte:1,lichen:1,succulent:1};
+    var NAT={native:1,intro:1,invasive:1};
+    if(!o.species || !o.species.length) errs.push("`species` must be a non-empty array");
+    (o.species||[]).forEach(function(s,i){
+      var w="species["+i+"]"+(s&&s.com?" ("+s.com+")":"");
+      if(!s.id) errs.push(w+": missing id");
+      if(!s.sci) errs.push(w+": missing sci");
+      if(!s.com) errs.push(w+": missing com");
+      if(!s.gf||!GF[s.gf]) errs.push(w+": gf must be one of "+Object.keys(GF).join(", "));
+      if(!s.nat||!NAT[s.nat]) errs.push(w+": nat must be native, intro or invasive");
+      if(s.c!=null && (typeof s.c!=="number"||s.c<0||s.c>10)) errs.push(w+": c must be null or 0-10");
+    });
+    if(errs.length){
+      m.innerHTML='<div class="verdict warn"><b>Rejected — '+errs.length+' problem'+(errs.length===1?"":"s")+':</b><ul>'
+        +errs.slice(0,10).map(function(e){return "<li>"+esc(e)+"</li>";}).join("")
+        +(errs.length>10?"<li>…and "+(errs.length-10)+" more</li>":"")
+        +'</ul>Nothing loaded — your flora is untouched.</div>'; return; }
+    var add=0, rep=0;
+    o.species.forEach(function(s){
+      if(s.c===undefined) s.c=null; if(!s.reg) s.reg=[];
+      var ix=-1; for(var i=0;i<FLORA.length;i++) if(FLORA[i].id===s.id){ ix=i; break; }
+      if(ix>=0){ FLORA[ix]=s; rep++; } else { FLORA.push(s); add++; }
+    });
+    m.innerHTML='<div class="verdict"><b>Loaded.</b> '+add+' taxa added'+(rep?", "+rep+" replaced":"")+'.</div>';
+    $("packIn").value=""; fillSpecies(); fillLpiSelect(); packStats(); buzz(); toast(FLORA.length+" taxa in pack");
+  });
+
+  /* ---------- line-point intercept ---------- */
+  function fillLpiSelect(){
+    var sel=$("lSp"); if(!sel) return;
+    var cur=sel.value; sel.innerHTML="";
+    FLORA.slice().sort(function(a,b){return a.com.localeCompare(b.com);}).forEach(function(sp){
+      var o=document.createElement("option"); o.value=sp.id; o.textContent=sp.com; sel.appendChild(o); });
+    var g=document.createElement("optgroup"); g.label="ground cover";
+    GROUND.forEach(function(x){ var o=document.createElement("option"); o.value=x[0]; o.textContent=x[1]; g.appendChild(o); });
+    sel.appendChild(g);
+    if(cur) sel.value=cur;
+  }
+  function lpiPoints(){
+    var L=num("lLen"), I=num("lInt"), N=num("lNum")||1;
+    if(!L||!I||I<=0) return 0;
+    return Math.floor(L/I+1e-9)*N;
+  }
+  function lpiPlan(){
+    var pts=lpiPoints(), box=$("lPlan"); if(!box) return;
+    if(!pts){ box.innerHTML="Set a length and interval."; return; }
+    var se=Math.sqrt(0.2*0.8/pts)*100;
+    box.innerHTML='<b>'+pts+' points</b> ('+num("lNum")+' transect'+(num("lNum")===1?"":"s")
+      +' × '+Math.floor(num("lLen")/num("lInt"))+'). At this many points a 20% cover estimate carries about '
+      +'±'+se.toFixed(1)+' percentage points of binomial standard error — before observer error. '
+      +(pts<50?'Under 50 points is quick but coarse.':pts>=100?'100+ points is the usual monitoring standard.':'');
+  }
+  ["lLen","lInt","lNum"].forEach(function(id){ var e=$(id); if(e) e.addEventListener("input",function(){ lpiPlan(); renderLpi(); }); });
+  function lpiName(id){
+    for(var i=0;i<GROUND.length;i++) if(GROUND[i][0]===id) return GROUND[i][1];
+    var sp=spById(id); return sp?sp.com:id;
+  }
+  var lAdd=$("lAdd");
+  if(lAdd){
+    lAdd.addEventListener("click",function(){
+      lpi.push({sp:val("lSp"), layer:val("lLayer")}); buzz(); renderLpi(); });
+    $("lMiss").addEventListener("click",function(){
+      lpi.push({sp:"__bare", layer:"basal"}); buzz(); renderLpi(); toast("Bare recorded"); });
+    $("lUndo").addEventListener("click",function(){
+      if(!lpi.length){ toast("Nothing to undo"); return; } lpi.pop(); renderLpi(); buzz(); });
+  }
+  function renderLpi(){
+    var box=$("lStats"), L=$("lList"); if(!box) return;
+    var pts=lpiPoints();
+    if(!lpi.length){ box.innerHTML='<p class="hint" style="margin:0">No hits recorded yet.</p>';
+      L.innerHTML=""; ecoOut(); return; }
+    var top={}, basal={}, nTop=0;
+    lpi.forEach(function(h){
+      if(h.layer==="top"){ top[h.sp]=(top[h.sp]||0)+1; nTop++; }
+      else if(h.layer==="basal") basal[h.sp]=(basal[h.sp]||0)+1;
+    });
+    var denom = pts || nTop || 1;
+    var foliar = 100*nTop/denom;
+    var bare = 100*(basal["__bare"]||0)/denom;
+    var h='<div class="tiles">'
+      +'<div class="tile"><div class="v">'+lpi.length+'</div><div class="l">hits recorded</div></div>'
+      +'<div class="tile"><div class="v">'+pts+'</div><div class="l">points planned</div></div>'
+      +'<div class="tile"><div class="v">'+foliar.toFixed(0)+'%</div><div class="l">total foliar cover</div></div>'
+      +'<div class="tile"><div class="v">'+bare.toFixed(0)+'%</div><div class="l">bare ground</div></div></div>';
+    if(pts && lpi.length<pts)
+      h+='<div class="verdict warn"><b>'+(pts-lpi.length)+' points still to read.</b> Cover percentages '
+        +'below use the planned '+pts+'-point denominator, so they are partial until the transect is finished.</div>';
+    var keys=Object.keys(top).sort(function(a,b){return top[b]-top[a];});
+    if(keys.length){
+      h+='<h3>Top-canopy cover</h3><div class="bars">';
+      keys.forEach(function(k){
+        var pc=100*top[k]/denom;
+        h+='<div class="bar"><span class="nm">'+esc(lpiName(k))+'</span>'
+          +'<span class="tr"><span class="fl" style="width:'+Math.min(100,pc)+'%"></span></span>'
+          +'<span class="pc">'+pc.toFixed(1)+'%</span></div>';
+      });
+      h+='</div>';
+    }
+    var bk=Object.keys(basal);
+    if(bk.length){
+      h+='<h3>Ground surface</h3><div class="bars">';
+      bk.sort(function(a,b){return basal[b]-basal[a];}).forEach(function(k){
+        var pc=100*basal[k]/denom;
+        h+='<div class="bar"><span class="nm">'+esc(lpiName(k))+'</span>'
+          +'<span class="tr"><span class="fl'+(k==="__bare"?" inv":"")+'" style="width:'+Math.min(100,pc)+'%"></span></span>'
+          +'<span class="pc">'+pc.toFixed(1)+'%</span></div>';
+      });
+      h+='</div>';
+    }
+    box.innerHTML=h;
+    L.innerHTML="";
+    lpi.slice().reverse().slice(0,40).forEach(function(x){
+      var i=lpi.lastIndexOf(x);
+      var d=document.createElement("div"); d.className="row2";
+      d.innerHTML='<div class="g"><b>'+esc(lpiName(x.sp))+'</b><span>'+esc(x.layer)+'</span></div>'
+        +'<button type="button" class="noprint">✕</button>';
+      d.querySelector("button").addEventListener("click",function(){ lpi.splice(i,1); renderLpi(); buzz(); });
+      L.appendChild(d);
+    });
+    if(lpi.length>40) L.innerHTML+='<p class="fine">Showing the most recent 40 of '+lpi.length+'.</p>';
+    ecoOut();
+  }
+
+  /* ---------- export ---------- */
+  function copyText(text,msg){
+    function done(){ toast(msg); buzz(); }
+    function fb(){ var ta=document.createElement("textarea"); ta.value=text; ta.style.position="fixed"; ta.style.opacity="0";
+      document.body.appendChild(ta); ta.select();
+      try{ document.execCommand("copy"); done(); }catch(e){ toast("Select & copy manually"); }
+      document.body.removeChild(ta); }
+    try{ if(navigator.clipboard&&navigator.clipboard.writeText) navigator.clipboard.writeText(text).then(done,fb); else fb(); }
+    catch(e){ fb(); }
+  }
+  function cell(s){ s=String(s==null?"":s); return /[",\n]/.test(s)?'"'+s.replace(/"/g,'""')+'"':s; }
+
+  function ecoOut(){
+    var L=[], pid=val("sPlot")||"unnamed-releve";
+    L.push("# Relevé — "+pid);
+    var m=[]; if(val("sObs")) m.push("recorder "+val("sObs"));
+    if(val("sDate")) m.push(val("sDate"));
+    if(val("sLat")&&val("sLon")) m.push(val("sLat")+", "+val("sLon"));
+    if(num("sElev")!==null) m.push(num("sElev")+" m");
+    if(m.length) L.push("# "+m.join(" — "));
+    L.push("# method: "+SCALES[scale].name+" cover scale, class midpoints used for all calculations"
+      +(num("sArea")!==null?"; plot "+num("sArea")+" m²":""));
+    if(val("sComm")) L.push("# community: "+val("sComm"));
+    var ph=[]; if(num("sAsp")!==null) ph.push("aspect "+num("sAsp")+"°");
+    if(num("sSlope")!==null) ph.push("slope "+num("sSlope")+"%");
+    if(val("sMoist")) ph.push(val("sMoist")); if(val("sSoil")) ph.push(val("sSoil"));
+    if(num("sBare")!==null) ph.push("bare "+num("sBare")+"%");
+    if(num("sLitter")!==null) ph.push("litter "+num("sLitter")+"%");
+    if(ph.length) L.push("# site: "+ph.join(" · "));
+
+    var T=taxa();
+    if(T.length){
+      var tot=T.reduce(function(a,t){return a+t.cov;},0);
+      var H=0; T.forEach(function(t){ var p=t.cov/tot; if(p>0) H-=p*Math.log(p); });
+      var S=T.length, J=S>1?H/Math.log(S):1;
+      L.push("");
+      L.push("# "+S+" taxa, Shannon H' "+H.toFixed(2)+" (on cover), evenness J' "+J.toFixed(2));
+      var byStr={}; recs.forEach(function(r){ (byStr[r.str]=byStr[r.str]||[]).push(r); });
+      STRATA.forEach(function(s){
+        if(!byStr[s.id]) return;
+        L.push("# "+s.id+" ("+s.sub+"):");
+        byStr[s.id].sort(function(a,b){return mid(b.cls)-mid(a.cls);}).forEach(function(r){
+          L.push("#   "+r.sci+"  "+r.cls+"  ("+mid(r.cls)+"%)"
+            +(r.ph?"  "+phenName(r.ph):"")
+            +(wet[r.sci]?"  "+wet[r.sci]:"")
+            +(r.nat==="invasive"?"  [NON-NATIVE]":""));
+        });
+      });
+      L.push("data: "+pid.toLowerCase().replace(/[^a-z0-9]+/g,"-")+" "
+        +T.map(function(t){ return t.sci.replace(/\s+/g,"-")+"="+Math.round(t.cov*10); }).join(" "));
+      L.push("# (data: line carries cover x10 as integers so the workbench's diversity instruments can read it)");
+      var withC=T.filter(function(t){return t.nat==="native"&&t.c!=null;});
+      if(withC.length){
+        var meanC=withC.reduce(function(a,t){return a+t.c;},0)/withC.length;
+        L.push("note: FQA mean C "+meanC.toFixed(2)+" over "+withC.length+" scored natives, FQI "
+          +(meanC*Math.sqrt(withC.length)).toFixed(1)+" — C-values from the recorder's regional list");
+      }
+      var inv=T.filter(function(t){return t.nat==="invasive";});
+      if(inv.length) L.push("note: non-native taxa present — "+inv.map(function(t){return t.sci;}).join(", "));
+    }
+    var scoredW=T.filter(function(t){ return wet[t.sci]; });
+    if(scoredW.length){
+      var W={}; WET.forEach(function(w){ W[w[0]]=w[2]; });
+      var nu=0, de=0; scoredW.forEach(function(t){ nu+=t.cov*W[wet[t.sci]]; de+=t.cov; });
+      var PI=de?nu/de:0;
+      L.push("note: wetland prevalence index "+PI.toFixed(2)+" over "+scoredW.length+" scored taxa ("
+        +(PI<=3?"<=3.0, hydrophytic vegetation indicator met":">3.0, indicator not met")
+        +") — vegetation criterion only; soil and hydrology not assessed here");
+    }
+    if(lpi.length){
+      var pts=lpiPoints()||lpi.filter(function(x){return x.layer==="top";}).length||1;
+      var tc={}; lpi.forEach(function(x){ if(x.layer==="top") tc[x.sp]=(tc[x.sp]||0)+1; });
+      L.push("");
+      L.push("# line-point intercept: "+lpi.length+" hits over "+pts+" points ("
+        +num("lNum")+" x "+num("lLen")+" m at "+num("lInt")+" m)");
+      Object.keys(tc).sort(function(a,b){return tc[b]-tc[a];}).forEach(function(k){
+        L.push("#   "+lpiName(k)+"  "+tc[k]+"/"+pts+"  "+(100*tc[k]/pts).toFixed(1)+"%");
+      });
+    }
+    if(vouchers.length){
+      L.push("");
+      L.push("# vouchers ("+vouchers.length+")");
+      vouchers.forEach(function(v){
+        L.push("#   "+v.num+"  "+v.sci+"  ["+v.mat+", "+v.phen+", "+v.dup+" sheet"+(v.dup===1?"":"s")+"]"
+          +(v.note?" — "+v.note.replace(/\n/g," "):""));
+      });
+    }
+    if(val("sNotes")){ L.push(""); L.push("# notes: "+val("sNotes").replace(/\n/g," / ")); }
+    if(T.length){ L.push(""); L.push("# Cover classes are ordinal; midpoints are approximations, and observer"
+      +" difference of one class is normal. One relevé does not describe a community type."); }
+    $("ecoOut").textContent = L.length>2 ? L.join("\n") : "# record a species or two — the sheet builds itself";
+  }
+  $("ecoCopy").addEventListener("click",function(){ copyText($("ecoOut").textContent,"Relevé sheet copied"); });
+  $("csvCopy").addEventListener("click",function(){
+    if(!recs.length){ toast("Nothing recorded"); return; }
+    var pid=val("sPlot")||"unnamed-releve";
+    var rows=[["plot","scientific","common","family","growth_form","status","stratum","cover_class",
+      "cover_pct","phenophase","wetland_status","c_value"].map(cell).join(",")];
+    recs.forEach(function(r){
+      rows.push([pid,r.sci,r.com,r.fam,r.gf,r.nat,r.str,r.cls,mid(r.cls),
+        (r.ph?phenName(r.ph):""),(wet[r.sci]||""),(r.c==null?"":r.c)].map(cell).join(","));
+    });
+    copyText(rows.join("\n"),"Species CSV copied — "+recs.length+" rows");
+  });
+  $("matCopy").addEventListener("click",function(){
+    var T=taxa();
+    if(!T.length){ toast("Nothing recorded"); return; }
+    T.sort(function(a,b){return a.sci.localeCompare(b.sci);});
+    var head=["plot"].concat(T.map(function(t){return t.sci;}));
+    var row=[val("sPlot")||"unnamed-releve"].concat(T.map(function(t){return t.cov.toFixed(1);}));
+    copyText(head.map(cell).join(",")+"\n"+row.map(cell).join(","),
+      "Matrix row copied — stack plots for vegan");
+  });
+
+  /* ---------- tabs & boot ---------- */
+  function showPane(id){
+    document.querySelectorAll(".tab").forEach(function(t){ t.classList.toggle("on", t.dataset.pane===id); });
+    document.querySelectorAll(".pane").forEach(function(p){ p.classList.toggle("on", p.id===id); });
+    window.scrollTo(0,0);
+  }
+  document.querySelectorAll(".tab").forEach(function(tb){
+    tb.addEventListener("click",function(){ showPane(tb.dataset.pane); buzz(); }); });
+  ["sPlot","sObs","sDate","sLat","sLon","sElev","sArea","sComm","sAsp","sSlope","sSoil","sMoist",
+   "sBare","sLitter","sNotes"].forEach(function(id){
+     var e=$(id); if(e) e.addEventListener("input",function(){ ecoOut(); renderVouchers(); }); });
+
+  function renderAll(){ renderRecords(); renderStrata(); renderAnalysis(); ecoOut(); }
+  fillSpecies(); fillLpiSelect(); renderScalePicker(); renderCov(); packStats();
+  renderVouchers(); lpiPlan(); renderLpi(); renderAll();
+})();
+</script>
+</body>
+</html>
