@@ -10,9 +10,9 @@
 <style>
   :root {
     color-scheme: light;
-    --page:#F5F1E6; --surface:#FFFDF7; --ink:#23281F; --ink-2:#4B5344; --muted:#8B8B7B;
-    --border:#E3DCC9; --rule:#C7C0AC; --s1:#2E7D4F; --s1-deep:#236240; --s2:#C0592B; --s3:#2B6C8F;
-    --soft:#E9F0E7; --soft-2:#F3EEE0; --warn:#F6EAD8; --gold:#B8860B;
+    --page:#F5F1E6; --surface:#FFFDF7; --ink:#23281F; --ink-2:#4B5344; --muted:#6B6B5E;
+    --border:#E3DCC9; --rule:#C7C0AC; --s1:#2C784C; --s1-deep:#236240; --s2:#A94F26; --s3:#2B6C8F;
+    --soft:#E9F0E7; --soft-2:#F3EEE0; --warn:#F6EAD8; --gold:#8A6408;
     --shadow:0 1px 2px rgba(35,40,31,.05),0 12px 32px rgba(35,40,31,.06);
     --head:"Fraunces",Georgia,serif; --body:"Newsreader",Georgia,"Times New Roman",serif;
     --mono:"JetBrains Mono",ui-monospace,Menlo,monospace;
@@ -162,6 +162,12 @@
   .kbtn { border:0; border-radius:11px; padding:11px 17px; font:800 14.5px var(--body); cursor:pointer; min-height:44px; }
   .kbtn-go { background:var(--s1); color:#fff; } .kbtn-ghost { background:none; border:1.5px solid var(--border); color:var(--ink-2); }
   @media print { .keybox { display:none !important; } }
+
+  /* WCAG 1.4.11 non-text contrast: the visible edge of a control you are meant
+     to write in is the only thing telling you where to write, so it carries the
+     3:1 floor. Decorative card borders are not controls and stay quiet. */
+  input:not([type=checkbox]):not([type=radio]):not([type=range]):not([type=color]),
+  select, textarea { border-color: #8E8160; }
 </style>
 </head>
 <body>
@@ -189,7 +195,7 @@
     </div>
   </div>
 <h1>ADR-031: A shared entry layer, and three domain suites</h1>
-<p><strong>Status:</strong> Accepted, and fully implemented &mdash; FEK now at <strong>v1.1.0</strong> across eight consumers, all three suites built with front doors, and the honesty gate applied throughout. All eight actions closed; v1.1 recorded below as a follow-on.</p>
+<p><strong>Status:</strong> Accepted, and fully implemented &mdash; FEK now at <strong>v1.1.1</strong> across fourteen consumers, all three suites built with front doors, and the honesty gate applied throughout. All eight actions closed; v1.1 recorded below as a follow-on.</p>
 <p><strong>Date:</strong> 2026-08-24</p>
 <p><strong>Deciders:</strong> Richmond</p>
 <p><strong>Supersedes:</strong> nothing. <strong>Touches:</strong> every instrument in <code>CSRBT/docs/</code></p>
@@ -440,7 +446,103 @@ an ectomycorrhizal fungus a guessed host is worse than a recorded uncertainty.</
 <p><strong>Defaults are for fields where blank is not a state</strong> (Ethogram). Interval and session
 length ship filled in at 30&nbsp;s and 10&nbsp;min, which no other numeric field on any migrated page
 does. A scan sample with no interval is not an under-specified design; it is not a design at all.</p>
-<h2>Follow-on: FEK v1.1.0</h2>
+<h2>Follow-on: measuring the kit instead of trusting it</h2>
+<p>Three audits now live in <code>tools/</code>, and each one was written because a belief about the kit
+turned out to be untested rather than true.</p>
+<p><code>audit_targets.py</code> walks every page at phone width and fails anything interactive under
+44&nbsp;px. It found 143 controls below the floor &mdash; and found them on pages whose own suites were
+green, because each suite only measured the page it covered.</p>
+<p><code>audit_focus.py</code> asks four questions of every focusable control: can it be reached by
+keyboard at all, does anything visible change when it takes focus, does it have an accessible name, and
+does a positive <code>tabindex</code> break the tab order around it. It found seven controls that a
+screen reader announced as nothing but their type &mdash; three count boxes reading only
+&ldquo;spin button&rdquo;, two textareas, and two inputs in the tree visualiser whose labels were bare
+text nodes rather than <code>&lt;label for&gt;</code>.</p>
+<p><code>audit_contrast.py</code> computes what the browser actually paints, not what the token file
+claims, and measures it against WCAG&nbsp;AA. It found <strong>1,397</strong> failures. That number is
+alarming and then, on inspection, reassuring: the 1,339 text failures collapsed to sixteen colour pairs,
+and those to four foreground tokens. The sage-gray <code>--muted</code> accounted for a thousand of them
+at 2.98&ndash;3.40:1; the field green <code>--s1</code> for another 286, all of them near misses in the
+4.34&ndash;4.47 band. Fixing four token values, each moved only far enough down in lightness to clear the
+threshold with hue and saturation held exactly, cleared every one.</p>
+<p>The remaining 58 were the visible edges of inputs, at 1.35:1. Those did <em>not</em> get a token
+change. WCAG&nbsp;1.4.11 asks for 3:1 on the boundary of a control, because that boundary is what tells
+you where to write; it does not ask it of decorative card borders, and darkening
+<code>--border</code> globally to satisfy a rule it is not subject to would have muddied every card in
+the kit to fix something else. The rule is scoped to form controls instead.</p>
+<p><code>audit_print.py</code> asks what comes out of the printer, since several of these pages exist
+to be printed, folded, and carried into a field with no signal. Every page already shipped an
+<code>@media&nbsp;print</code> block, so the question was never whether print had been considered. It found
+that the tree visualiser &mdash; dark by design on screen &mdash; was reaching paper at
+<strong>104% ink coverage</strong>, because only <code>body</code> was being reset while every panel kept
+its own near-black fill. That page is token-driven, so paper now gets its own token block rather than a
+pile of per-rule overrides, and each accent is the same hue darkened only far enough to clear 4.5:1 on
+white, so the four strategies stay tellable apart in the printout. Coverage is now 0.1%. It also found
+the two-angle height method on the Stand Sheet &mdash; sign convention, horizontal versus slope distance,
+what a leaning stem does to the method &mdash; collapsed shut and never printing, which is precisely the
+content you want on paper while standing under the tree.</p>
+<p>The interesting part of that audit was what it should <em>not</em> report. A navigation rail suppressed
+in print is correct. So is a grid of export buttons, which on paper is a grid of dead buttons. So is one
+arm of a mutually exclusive pair of views. Three times the tool was tempting to bend until it read zero;
+bending it would have produced a tool nobody would trust and everybody would ignore. Instead it exempts
+two things it can measure &mdash; a block whose text lives mostly inside three or more links is
+navigation, a block whose text is mostly button labels is a control panel &mdash; and otherwise it reads
+intent that the document states out loud: <code>.noprint</code>, or
+<code>data-print=&quot;mode&quot;</code> on one arm of a set. Reading a declared intent is not the same
+as guessing at one. Where the intent was real but undeclared, the fix was to declare it.</p>
+<p>The honest caveat: an audit that reports zero is only as good as its ability to report non-zero. Each
+of these was run against a canary page with faults deliberately seeded &mdash; and for the contrast tool,
+against ratios computed independently in Python, including the pair at 4.54:1 that must pass and the pair
+at 4.48:1 that must fail. A clean sweep from a tool that has never been shown to fail is not evidence.</p>
+<h2>Follow-on: auditing the gate the gate was written for</h2>
+<p>ADR-031's third decision was a rule about numbers, and rules about numbers decay quietly. A fourth tool,
+<code>audit_claims.py</code>, looks for the numbers that took none of the gate's three routes: a claim
+carrying a physical unit or a comparison, in running prose, with no citation, no named standard, no
+convention label and no refusal panel around it.</p>
+<p>It is a <em>finder</em>, not a gate, and the distinction is doing real work. It cannot tell a sourced
+number from an unsourced one &mdash; only whether provenance is visible near the claim. Every line it
+prints is a question. It exits zero always, because a tool that fails a build on a judgement call trains
+people to stop reading it.</p>
+<p>Four claims failed the gate and were changed:</p>
+<ul>
+<li><strong>The ten-percent rule.</strong> The glossary asserted that &ldquo;roughly 90% of the energy is
+lost at each transfer&rdquo; as though it were a constant. Lindeman's 1942 paper &mdash; the source of the
+figure &mdash; reported transfer efficiencies from <strong>0.1% to 37.5%</strong>, and never called it a
+law. The entry now names Lindeman, labels 10% a teaching convention, gives the real spread, and says that
+an argument built on it is only as strong as the efficiency you assumed.</li>
+<li><strong>The countable window.</strong> Micro Bench used 30&ndash;300 colonies per plate without saying
+whose window that is. There is no single answer: FDA BAM and USP&nbsp;&lt;1227&gt; specify 25&ndash;250 for
+bacteria, USP drops to 8&ndash;80 for fungi, and ASTM gives 20&ndash;200 for spread plates against
+30&ndash;300 for pour plates &mdash; which matters here, because this bench offers both plating methods and
+applies one window to both. The page now names the standards and declares that simplification as
+deliberate.</li>
+<li><strong>Observer error in cover.</strong> The Stand Sheet claimed trained observers disagree
+&ldquo;by 10&ndash;20 percentage points&rdquo;, unsourced. Morrison's 2016 review in the
+<em>Journal of Plant Ecology</em> puts it as a coefficient of variation of roughly 25&ndash;50% even for
+abundant species, with a third to a half of class estimates landing one class apart. Note that this is a
+different <em>shape</em> of error, not just a different size: proportional, so worst in relative terms on
+the sparse species. The old figure was wrong in kind as well as in provenance.</li>
+<li><strong>Two rules of thumb</strong> &mdash; a builder's bucket at 20&nbsp;L and a barrow at 85&nbsp;L,
+and the 30&nbsp;s / 5&nbsp;min spot-test reading times &mdash; now say that is what they are, and say how
+to replace the guess with your own measurement.</li>
+</ul>
+<p>The most useful thing the slice produced was a bug in its own tool. The first version looked for
+provenance in &ldquo;the nearest section&rdquo;, which on a page with no section wrapper resolves to
+<code>&lt;body&gt;</code> &mdash; so a single citation anywhere on a page silently cleared every other
+number on it. Its own canary caught it: three claims seeded, one genuinely unsourced, and the tool reported
+none of the three. With the neighbourhood bounded to the block, its parent, and a card only while that card
+is still small enough to count as nearby, the kit-wide count went from 35 to <strong>70</strong>. Half the
+claims had been hidden by the very citations that made the page look careful.</p>
+<p>That leaves roughly seventy lines to triage, and an honest accounting says most of them are fine: a
+number shown with its own derivation carries its provenance inline, and <code>DBH&nbsp;=&nbsp;C&nbsp;&divide;&nbsp;&pi;</code>,
+a 45&deg; slope being 100%, and a Poisson CV of 1/&radic;N need no citation because the reader can check
+them without going anywhere. The tool cannot see that, and an attempt to teach it &mdash; marking those
+blocks <code>data-claim=&quot;definitional&quot;</code> in the markup &mdash; was reverted after the
+insertion landed attributes on a <code>&lt;script&gt;</code> and a <code>&lt;button&gt;</code>, because
+several of these pages build their prose from JS template strings and a text search finds the template,
+not the rendering. Tuned to miss nothing, a finder shows you things you must dismiss. That is the correct
+direction for the error to run, and the list is a worklist rather than a defect count.</p>
+<h2>Follow-on: FEK v1.1</h2>
 <p>The record predicted one v1.1 candidate and got two. Both came from real pages refusing to fit v1.0.</p>
 <h3><code>nullable</code> on <code>step</code> and <code>slider</code> &mdash; predicted</h3>
 <p>Four migrated pages were carrying the same workaround: a FEK control writing through to a hidden field

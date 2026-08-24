@@ -16,12 +16,12 @@
     --surface-1:  #FFFDF7;   /* specimen card   */
     --ink:        #23281F;   /* botanical near-black */
     --ink-2:      #4B5344;   /* secondary text (olive) */
-    --muted:      #8B8B7B;   /* labels, axes (sage-gray) */
+    --muted:      #6B6B5E;   /* labels, axes (sage-gray) */
     --grid:       #E7E1D1;   /* faint gridlines */
     --baseline:   #C7C0AC;   /* baselines, input borders */
     --ring:       #E3DCC9;   /* card borders (warm) */
-    --s1: #2E7D4F;   /* field green  */
-    --s2: #C0592B;   /* clay / rust  */
+    --s1: #2C784C;   /* field green  */
+    --s2: #A94F26;   /* clay / rust  */
     --s3: #2B6C8F;   /* slate blue   */
     --danger: #B23A32;
     --accent-soft: #E9F0E7;
@@ -167,7 +167,7 @@
   input[type=number] { width: 104px; } input[type=text] { width: 132px; }
   select { padding-right: 30px; }
   textarea:focus, input:focus, select:focus { outline: none; border-color: var(--s1);
-    box-shadow: 0 0 0 3px rgba(46,125,79,.18); }
+    box-shadow: 0 0 0 3px rgba(44,120,76,.18); }
   input[type=range] { min-height: 44px; touch-action: pan-x; }
   input[type=checkbox] { width: 22px; height: 22px; accent-color: var(--s1); }
   .wb-error { color: var(--danger); font-size: 14px; margin: 8px 0; }
@@ -214,7 +214,7 @@
     .drophint { display: none; }
     .card { break-inside: avoid; box-shadow: none; border: 1px solid #d5d0c2; }
     .reading { background: #f3f6f2; }
-    header::before { background: #2E7D4F; }
+    header::before { background: #2C784C; }
     a { color: inherit; text-decoration: underline; }
   }
 </style>
@@ -239,7 +239,7 @@
   <h1>🌿 Ecology Field Day</h1>
   <p class="sub">Field-ecology instruments for <b>students, TAs, and researchers</b> — measure real field data, or a living data structure, with the same tools you'd take into the meadow: diversity indices, survivorship curves, quadrat dispersion, island turnover, Punnett squares, and more. Keys are species &middot; touches are abundance &middot; time is counted in operations. No install needed for the Workbench below — and everything prints clean for a lab report.</p>
   <p style="margin:2px 0 12px"><a href="ecology-lab-manual.html" style="display:inline-flex;gap:8px;align-items:center;font-weight:700;color:var(--s1);text-decoration:none;border:1px solid var(--ring);background:var(--surface-1);border-radius:12px;padding:9px 16px;box-shadow:var(--shadow)">Field &amp; Lab Manual — seven ready-to-run labs: behavior, genetics, biodiversity, populations, islands, food webs &rarr;</a></p>
-  <span class="drophint">📄 drop a session anywhere to reload — <code>&nbsp;./gradlew ecologyFieldDay&nbsp;</code>
+  <span class="drophint" data-print="chrome">📄 drop a session anywhere to reload — <code>&nbsp;./gradlew ecologyFieldDay&nbsp;</code>
      or replay your own trace: <code>&nbsp;./gradlew ecologyTrace -Ptrace=your.csv</code>
      · drop an <code>&nbsp;.eco&nbsp;</code> protocol to read it back into the Workbench</span>
 </header>
@@ -3181,6 +3181,12 @@ addEventListener("drop", ev => {
   .fe-quad .fe-qb button { width:var(--fe-tap); height:var(--fe-tap); border-radius:10px; border:1.5px solid var(--ring);
     background:var(--surface-1); color:var(--s1); font:800 17px var(--font-body); cursor:pointer; touch-action:manipulation; }
   .fe-quad .fe-qb button:active { transform:scale(.92); background:var(--accent-soft); }
+
+  /* WCAG 1.4.11 non-text contrast: the visible edge of a control you are meant
+     to write in is the only thing telling you where to write, so it carries the
+     3:1 floor. Decorative card borders are not controls and stay quiet. */
+  input:not([type=checkbox]):not([type=radio]):not([type=range]):not([type=color]),
+  select, textarea { border-color: #8E8160; }
 </style>
 <script>
 /* ── friendly entry: chip editors + hold-to-repeat, layered over the existing textareas.

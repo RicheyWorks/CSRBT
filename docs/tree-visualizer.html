@@ -7,7 +7,7 @@
 <style>
   :root{
     --tap:44px;--bg:#12151c; --panel:#191d27; --panel2:#20252f; --line:#2b3340;
-    --ink:#e8ecf1; --dim:#8b97a6; --faint:#5a6675;
+    --ink:#e8ecf1; --dim:#8b97a6; --faint:#7a8798;
     --teal:#43c0b6; --amber:#e6b34a; --rose:#ef5f63; --violet:#a983f0; --blue:#5b9bd5; --green:#4bbf73;
     --mono:"SF Mono",ui-monospace,"JetBrains Mono",Menlo,Consolas,monospace;
     --sans:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
@@ -63,11 +63,31 @@
 
   /* Print: hand the tree to a class. Controls and the tooltip are screen-only. */
   @media print {
-    body { background:#fff; }
+    /* This page is dark by design on screen. Printed, that design costs a
+       cartridge: measured at 104% ink coverage, because every panel carries its
+       own near-black fill and only `body` was being reset. The palette is
+       token-driven, so paper gets its own token block rather than a pile of
+       per-rule overrides -- and each accent is the same hue darkened only far
+       enough to clear 4.5:1 on white, so the four strategies stay
+       distinguishable from one another in the printout. */
+    :root {
+      --bg:#fff; --panel:#fff; --panel2:#fff; --line:#9aa3b0;
+      --ink:#11141a; --dim:#687688; --faint:#697688;
+      --teal:#2b817b; --amber:#986d15; --rose:#e7171d;
+      --violet:#8955ea; --blue:#3078ba; --green:#2f844d;
+    }
+    html, body { background:#fff !important; color:#11141a; }
+    .bar, .seg, .card, canvas, .panel { background:#fff !important; }
     .seg, .controls, button, input, select, .tip, #tip { display:none !important; }
-    svg, .panel, .card { break-inside:avoid; }
+    svg, .panel, .card, .stat { break-inside:avoid; }
     a { color:inherit; text-decoration:none; }
   }
+
+  /* WCAG 1.4.11 non-text contrast: the visible edge of a control you are meant
+     to write in is the only thing telling you where to write, so it carries the
+     3:1 floor. Decorative card borders are not controls and stay quiet. */
+  input:not([type=checkbox]):not([type=radio]):not([type=range]):not([type=color]),
+  select, textarea { border-color: #8E8160; }
 </style>
 </head>
 <body>
@@ -125,7 +145,7 @@
     </div>
   </div>
 
-  <div id="compareWrap">
+  <div id="compareWrap" data-print="mode">
     <div class="cmpGrid" id="cmpGrid"></div>
     <p class="desc" style="margin-top:12px">All four strategies receive the <b>same operations</b>. The <span style="color:var(--teal)">teal</span> card has the lowest height. This is the project's thesis made visible — no single tree wins every workload, which is why CSRBT morphs between them. Try <b>Insert 1‥20 ascending</b>: AVL and WB stay short, Red-Black stays within 2×optimal, and <b>Splay collapses to a spine</b> (the exact degenerate case the audit flagged, where the engine's recursive health-gate validators would overflow the stack at large n).</p>
   </div>
@@ -383,7 +403,7 @@ addEventListener("resize",fitAll);
 let highlightKey=null, pathKeys=new Set(), hlUntil=0;
 function drawTree(t,ctx,W,H,opts={}){
   ctx.clearRect(0,0,W,H);
-  const NIL=t.NIL; if(t._count===0){ ctx.fillStyle="#5a6675"; ctx.font="13px system-ui"; ctx.textAlign="center"; ctx.fillText("empty — insert a key",W/2,H/2); return; }
+  const NIL=t.NIL; if(t._count===0){ ctx.fillStyle="#7a8798"; ctx.font="13px system-ui"; ctx.textAlign="center"; ctx.fillText("empty — insert a key",W/2,H/2); return; }
   const n=t._count, depth=t._depth;
   const padX=26, padY=26;
   // Crowding-aware radius, ported from demo/visualizer.html's crowdCap: the old floor of 7

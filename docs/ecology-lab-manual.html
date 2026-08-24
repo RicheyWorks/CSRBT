@@ -14,11 +14,11 @@
     --surface:   #FFFDF7;
     --ink:       #23281F;
     --ink-2:     #4B5344;
-    --muted:     #8B8B7B;
+    --muted:     #6B6B5E;
     --border:    #E3DCC9;
     --rule:      #C7C0AC;
-    --s1: #2E7D4F;   /* field green */
-    --s2: #C0592B;   /* clay        */
+    --s1: #2C784C;   /* field green */
+    --s2: #A94F26;   /* clay        */
     --s3: #2B6C8F;   /* slate       */
     --soft:   #E9F0E7;
     --soft-2: #F3EEE0;
@@ -145,6 +145,12 @@
     h1 { font-size: 30pt; }
   }
   @media (max-width: 560px) { body { font-size: 17px; } .wrap { padding: 0 18px; } }
+
+  /* WCAG 1.4.11 non-text contrast: the visible edge of a control you are meant
+     to write in is the only thing telling you where to write, so it carries the
+     3:1 floor. Decorative card borders are not controls and stay quiet. */
+  input:not([type=checkbox]):not([type=radio]):not([type=range]):not([type=color]),
+  select, textarea { border-color: #8E8160; }
 </style>
 </head>
 <body>
@@ -606,15 +612,15 @@ data: verge clover=14 grass=20 plantain=18 vetch=12 yarrow=9
     <svg viewBox="0 0 460 210" role="img" aria-label="Immigration falls and extinction rises as species accumulate; their crossing sets equilibrium richness S-hat" style="max-width:460px;width:100%;display:block;background:var(--surface);border:1px solid var(--border);border-radius:10px">
       <line x1="46" y1="170" x2="430" y2="170" stroke="#C7C0AC" stroke-width="1.5"/>
       <line x1="46" y1="170" x2="46" y2="18" stroke="#C7C0AC" stroke-width="1.5"/>
-      <path d="M 50 34 Q 200 60 400 158" fill="none" stroke="#2E7D4F" stroke-width="2.5"/>
-      <path d="M 50 162 Q 240 150 400 40" fill="none" stroke="#C0592B" stroke-width="2.5"/>
+      <path d="M 50 34 Q 200 60 400 158" fill="none" stroke="#2C784C" stroke-width="2.5"/>
+      <path d="M 50 162 Q 240 150 400 40" fill="none" stroke="#A94F26" stroke-width="2.5"/>
       <circle cx="253" cy="107" r="5" fill="#23281F"/>
-      <line x1="253" y1="107" x2="253" y2="170" stroke="#8B8B7B" stroke-width="1" stroke-dasharray="4 4"/>
-      <text x="70" y="30" font-family="Georgia,serif" font-size="13" fill="#2E7D4F">immigration (falls as island fills)</text>
-      <text x="240" y="34" font-family="Georgia,serif" font-size="13" fill="#C0592B" text-anchor="start">extinction (rises with crowding)</text>
+      <line x1="253" y1="107" x2="253" y2="170" stroke="#6B6B5E" stroke-width="1" stroke-dasharray="4 4"/>
+      <text x="70" y="30" font-family="Georgia,serif" font-size="13" fill="#2C784C">immigration (falls as island fills)</text>
+      <text x="240" y="34" font-family="Georgia,serif" font-size="13" fill="#A94F26" text-anchor="start">extinction (rises with crowding)</text>
       <text x="253" y="188" font-family="Georgia,serif" font-size="13" fill="#23281F" text-anchor="middle">Ŝ — equilibrium richness</text>
-      <text x="30" y="100" font-family="Georgia,serif" font-size="12" fill="#8B8B7B" transform="rotate(-90 30 100)">rate</text>
-      <text x="420" y="186" font-family="Georgia,serif" font-size="12" fill="#8B8B7B" text-anchor="end">species present →</text>
+      <text x="30" y="100" font-family="Georgia,serif" font-size="12" fill="#6B6B5E" transform="rotate(-90 30 100)">rate</text>
+      <text x="420" y="186" font-family="Georgia,serif" font-size="12" fill="#6B6B5E" text-anchor="end">species present →</text>
     </svg>
   </div>
 

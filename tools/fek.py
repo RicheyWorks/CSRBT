@@ -5,7 +5,7 @@ Single source of truth. Emitted inline into every page that uses it, because
 every page in this kit must stay one self-contained file (artifact CSP, offline
 in the field, printable). Bump VERSION on any change and re-emit consumers.
 """
-VERSION = "1.1.0"
+VERSION = "1.1.1"
 
 CSS = """
   /* ============ Field Entry Kit v%s ============
@@ -51,7 +51,7 @@ CSS = """
   .fek-dial button small { font:600 11px var(--mono); color:var(--muted); letter-spacing:.02em; }
   .fek-dial button:active { transform:scale(.96); }
   .fek-dial button.on { color:#fff; border-color:transparent; }
-  .fek-dial button.on small { color:rgba(255,255,255,.85); }
+  .fek-dial button.on small { color:rgba(255,255,255,.92); }
   .fek-dial button.on[data-r="0"]{background:var(--ramp-0);}
   .fek-dial button.on[data-r="1"]{background:var(--ramp-1);}
   .fek-dial button.on[data-r="2"]{background:var(--ramp-2);}
@@ -117,7 +117,7 @@ CSS = """
   .fek-pick .opt small { display:block; font:400 12.5px var(--mono); color:var(--muted); margin-top:2px; }
   .fek-pick .opt:hover { background:var(--soft); }
   .fek-pick .opt.on { background:var(--s1); color:#fff; }
-  .fek-pick .opt.on small { color:rgba(255,255,255,.85); }
+  .fek-pick .opt.on small { color:rgba(255,255,255,.92); }
   .fek-pick .none { padding:16px; color:var(--muted); font-size:14px; }
 
   /* --- readout tiles, sized to be read at arm's length --- */

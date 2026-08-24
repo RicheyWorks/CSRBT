@@ -10,8 +10,8 @@
 <style>
   :root {
     color-scheme: light;
-    --page:#F5F1E6; --surface:#FFFDF7; --ink:#23281F; --ink-2:#4B5344; --muted:#8B8B7B;
-    --border:#E3DCC9; --rule:#C7C0AC; --s1:#2E7D4F; --s2:#C0592B; --s3:#2B6C8F;
+    --page:#F5F1E6; --surface:#FFFDF7; --ink:#23281F; --ink-2:#4B5344; --muted:#6B6B5E;
+    --border:#E3DCC9; --rule:#C7C0AC; --s1:#2C784C; --s2:#A94F26; --s3:#2B6C8F;
     --soft:#E9F0E7; --soft-2:#F3EEE0; --shadow:0 1px 2px rgba(35,40,31,.05),0 12px 32px rgba(35,40,31,.06);
     --head:"Fraunces",Georgia,serif; --body:"Newsreader",Georgia,"Times New Roman",serif;
     --mono:"JetBrains Mono",ui-monospace,Menlo,monospace;
@@ -55,6 +55,12 @@
     .kit-nav { display:none; } a { color:inherit; text-decoration:none; }
     dl { columns:2; } h2 { break-after:avoid; }
   }
+
+  /* WCAG 1.4.11 non-text contrast: the visible edge of a control you are meant
+     to write in is the only thing telling you where to write, so it carries the
+     3:1 floor. Decorative card borders are not controls and stay quiet. */
+  input:not([type=checkbox]):not([type=radio]):not([type=range]):not([type=color]),
+  select, textarea { border-color: #8E8160; }
 </style>
 </head>
 <body>
@@ -175,8 +181,16 @@
       base of every web); a consumer eats something else. A consumer with no incoming arrow has no food
       source and cannot persist — the builder flags it.</dd></div>
     <div class="entry"><dt>Food-chain length</dt><dd>The longest path from a producer to a top predator.
-      Real chains are short — usually 3–5 levels — because roughly 90% of the energy is lost at each
-      transfer, so there is little left to support a sixth.</dd></div>
+      Real chains are short — usually 3–5 levels — because most of the energy entering a level never
+      leaves it as the next level's flesh.</dd></div>
+    <div class="entry"><dt>Trophic transfer efficiency <span class="who">Lindeman 1942</span></dt><dd>The
+      share of one level's energy that becomes the next level's biomass. You will be taught <b>10%</b>, and
+      it is a useful number to think with, but treat it as a teaching convention rather than a constant:
+      Lindeman's own paper — the source of the figure — reported efficiencies from <b>0.1% to 37.5%</b>,
+      and it has never been a law. Later measurements run roughly 1% for animals eating tough,
+      poorly-digestible plant material up to about 40% for zooplankton grazing phytoplankton. If you are
+      using it to argue that a chain cannot be longer than <i>n</i> levels, the argument is only as strong
+      as the efficiency you assumed, so state the assumption.</dd></div>
     <div class="entry"><dt>Connectance <span class="who">L/S²</span></dt><dd>Realized feeding links divided
       by all possible ones. Published webs mostly fall between ≈0.05 and ≈0.3; much lower usually means an
       under-sampled web, much higher means links that aren't really there.</dd></div>

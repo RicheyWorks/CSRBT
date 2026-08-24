@@ -10,9 +10,9 @@
 <style>
   :root {
     color-scheme: light;
-    --page:#F5F1E6; --surface:#FFFDF7; --ink:#23281F; --ink-2:#4B5344; --muted:#8B8B7B;
-    --border:#E3DCC9; --rule:#C7C0AC; --s1:#2E7D4F; --s1-deep:#236240; --s2:#C0592B; --s3:#2B6C8F;
-    --soft:#E9F0E7; --soft-2:#F3EEE0; --warn:#F6EAD8; --gold:#B8860B;
+    --page:#F5F1E6; --surface:#FFFDF7; --ink:#23281F; --ink-2:#4B5344; --muted:#6B6B5E;
+    --border:#E3DCC9; --rule:#C7C0AC; --s1:#2C784C; --s1-deep:#236240; --s2:#A94F26; --s3:#2B6C8F;
+    --soft:#E9F0E7; --soft-2:#F3EEE0; --warn:#F6EAD8; --gold:#8A6408;
     --shadow:0 1px 2px rgba(35,40,31,.05),0 12px 32px rgba(35,40,31,.06);
     --head:"Fraunces",Georgia,serif; --body:"Newsreader",Georgia,"Times New Roman",serif;
     --mono:"JetBrains Mono",ui-monospace,Menlo,monospace;
@@ -159,6 +159,12 @@
   .kbtn { border:0; border-radius:11px; padding:11px 17px; font:800 14.5px var(--body); cursor:pointer; min-height:44px; }
   .kbtn-go { background:var(--s1); color:#fff; } .kbtn-ghost { background:none; border:1.5px solid var(--border); color:var(--ink-2); }
   @media print { .keybox { display:none !important; } }
+
+  /* WCAG 1.4.11 non-text contrast: the visible edge of a control you are meant
+     to write in is the only thing telling you where to write, so it carries the
+     3:1 floor. Decorative card borders are not controls and stay quiet. */
+  input:not([type=checkbox]):not([type=radio]):not([type=range]):not([type=color]),
+  select, textarea { border-color: #8E8160; }
 </style>
 </head>
 <body>
@@ -354,7 +360,11 @@ If they disagree, re-key from the print.</div>
 <p>A spot test is a character like any other &mdash; it narrows a set, and it is worth nothing without the
 substrate, the print and the morphology beside it. Record where you put the drop, what happened, and
 how fast. <b>Blank is not negative:</b> a test you did not run and a test that produced no reaction are
-different results and belong in different columns.</p>
+different results and belong in different columns. The reading times below &mdash; 30&nbsp;s, 5&nbsp;min
+&mdash; are the customary ones in the keys, not measured optima: they exist so that two people reading the
+same reagent read it at the same moment. Use whatever your key specifies if it says otherwise, and record
+which you used, because a colour called at 30&nbsp;s and the same colour called at 5&nbsp;min are not the
+same observation.</p>
 <div class="tw"><table><tr><th>reagent</th><th>put it on</th><th>what it separates</th><th>hazard</th></tr>
 <tr><td><b>KOH 3&ndash;10%</b><br><span style="font-family:var(--mono);font-size:11.5px;color:var(--muted)">potassium hydroxide</span></td><td>cap cuticle, cut flesh</td><td>A sectional character in <i>Cortinarius</i>; standard on bolete caps; separates the yellow-staining <i>Agaricus</i> group. Read at 30 s and again at 5 min.</td><td>caustic — eye protection, always</td></tr>
 <tr><td><b>NH<sub>4</sub>OH</b><br><span style="font-family:var(--mono);font-size:11.5px;color:var(--muted)">ammonia</span></td><td>cap cuticle, flesh, tubes</td><td>Watch for a <b>flash</b> in the first seconds — blue-green on some boletes — then record the settled colour as a separate result.</td><td>fumes — work outdoors or ventilated</td></tr>

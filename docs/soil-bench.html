@@ -11,8 +11,8 @@
   :root {
     color-scheme: light;
     --page:#F5F1E6; --surface:#FFFDF7; --surface-2:#F3EEE0; --ink:#23281F; --ink-2:#4B5344;
-    --muted:#8B8B7B; --border:#E3DCC9; --s1:#2E7D4F; --s1-deep:#236240; --s2:#C0592B; --s3:#2B6C8F;
-    --soft:#E9F0E7; --warn-bg:#F6EAD8; --danger:#B23A32; --danger-bg:#F6E7E5; --gold:#B8860B;
+    --muted:#6B6B5E; --border:#E3DCC9; --s1:#2C784C; --s1-deep:#236240; --s2:#A94F26; --s3:#2B6C8F;
+    --soft:#E9F0E7; --warn-bg:#F6EAD8; --danger:#B23A32; --danger-bg:#F6E7E5; --gold:#8A6408;
     --shadow:0 1px 2px rgba(35,40,31,.06),0 10px 28px rgba(35,40,31,.08);
     --head:"Fraunces",Georgia,serif;
     --body:"Nunito Sans",system-ui,-apple-system,sans-serif;
@@ -55,7 +55,7 @@
     background:var(--surface); color:var(--ink); border:1.5px solid var(--border); border-radius:12px;
     padding:11px 14px; font:16px var(--body); min-height:48px; max-width:100%; }
   textarea { min-height:78px; line-height:1.5; width:100%; }
-  input:focus, select:focus, textarea:focus { outline:none; border-color:var(--s1); box-shadow:0 0 0 3px rgba(46,125,79,.18); }
+  input:focus, select:focus, textarea:focus { outline:none; border-color:var(--s1); box-shadow:0 0 0 3px rgba(44,120,76,.18); }
   input[type=number] { width:110px; }
   label.f { display:flex; flex-direction:column; gap:5px; font-size:13px; font-weight:700; color:var(--ink-2); min-width:0; }
   .grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(150px,1fr)); gap:10px; }
@@ -212,7 +212,7 @@
   td.ok { color:var(--s1); font-weight:700; } td.no { color:var(--danger); font-weight:700; }
 
 
-  /* ============ Field Entry Kit v1.1.0 ============
+  /* ============ Field Entry Kit v1.1.1 ============
      Large-target, high-contrast entry controls. Sizing is driven by --tap
      rather than per-component numbers so one token retunes the whole kit for
      gloves, cold hands or a wall-mounted tablet. */
@@ -220,8 +220,8 @@
     --tap: 60px;            /* primary control height  */
     --tap-sm: 48px;         /* secondary control height */
     --fek-r: 16px;
-    --ramp-0:#2B6C8F; --ramp-1:#3E8C8C; --ramp-2:#2E7D4F;
-    --ramp-3:#B8860B; --ramp-4:#C0592B; --ramp-5:#B23A32;
+    --ramp-0:#2B6C8F; --ramp-1:#3E8C8C; --ramp-2:#2C784C;
+    --ramp-3:#8A6408; --ramp-4:#A94F26; --ramp-5:#B23A32;
     --fek-line:#C7C0AC;
   }
   .fek-lab { display:block; font:800 15px var(--body); color:var(--ink-2);
@@ -255,7 +255,7 @@
   .fek-dial button small { font:600 11px var(--mono); color:var(--muted); letter-spacing:.02em; }
   .fek-dial button:active { transform:scale(.96); }
   .fek-dial button.on { color:#fff; border-color:transparent; }
-  .fek-dial button.on small { color:rgba(255,255,255,.85); }
+  .fek-dial button.on small { color:rgba(255,255,255,.92); }
   .fek-dial button.on[data-r="0"]{background:var(--ramp-0);}
   .fek-dial button.on[data-r="1"]{background:var(--ramp-1);}
   .fek-dial button.on[data-r="2"]{background:var(--ramp-2);}
@@ -321,7 +321,7 @@
   .fek-pick .opt small { display:block; font:400 12.5px var(--mono); color:var(--muted); margin-top:2px; }
   .fek-pick .opt:hover { background:var(--soft); }
   .fek-pick .opt.on { background:var(--s1); color:#fff; }
-  .fek-pick .opt.on small { color:rgba(255,255,255,.85); }
+  .fek-pick .opt.on small { color:rgba(255,255,255,.92); }
   .fek-pick .none { padding:16px; color:var(--muted); font-size:14px; }
 
   /* --- readout tiles, sized to be read at arm's length --- */
@@ -355,6 +355,12 @@
   .rail a[aria-current="page"] { background:var(--soft); border-color:var(--s1); color:var(--s1); }
   .rail a.ref { font-weight:600; color:var(--muted); background:none; box-shadow:none; }
   @media print { .rail { display:none !important; } }
+
+  /* WCAG 1.4.11 non-text contrast: the visible edge of a control you are meant
+     to write in is the only thing telling you where to write, so it carries the
+     3:1 floor. Decorative card borders are not controls and stay quiet. */
+  input:not([type=checkbox]):not([type=radio]):not([type=range]):not([type=color]),
+  select, textarea { border-color: #8E8160; }
 </style>
 </head>
 <body>
@@ -563,7 +569,7 @@
 <div class="toast" id="toast">Saved</div>
 <script>
 
-/* ---- Field Entry Kit v1.1.0 : constructors return {el, get, set} ---- */
+/* ---- Field Entry Kit v1.1.1 : constructors return {el, get, set} ---- */
 var FEK = (function(){
   function el(t,c,h){ var e=document.createElement(t); if(c) e.className=c;
     if(h!=null) e.innerHTML=h; return e; }
@@ -997,23 +1003,23 @@ var TEXNOTE = {
     function Y(t){ return H-P-(t-lo)/(hi-lo)*(H-P-18); }
     var path=readings.map(function(r,i){ return (i?"L":"M")+X(i).toFixed(1)+","+Y(r.t).toFixed(1); }).join(" ");
     var dots=readings.map(function(r,i){
-      var c=r.t>66?"#B23A32":(r.t>=55?"#2E7D4F":"#2B6C8F");
+      var c=r.t>66?"#B23A32":(r.t>=55?"#2C784C":"#2B6C8F");
       return '<circle cx="'+X(i).toFixed(1)+'" cy="'+Y(r.t).toFixed(1)+'" r="5" fill="'+c+'"/>'+
         (r.turn?'<line x1="'+X(i).toFixed(1)+'" y1="'+(H-P)+'" x2="'+X(i).toFixed(1)+'" y2="'+(H-P+9)+
-          '" stroke="#C0592B" stroke-width="3"/>':"");
+          '" stroke="#A94F26" stroke-width="3"/>':"");
     }).join("");
     box.innerHTML='<h3 style="margin-top:0">Temperature</h3>'+
       '<svg class="scat" viewBox="0 0 '+W+' '+H+'" role="img" aria-label="pile temperature by day">'+
       '<rect x="'+P+'" y="'+Y(66).toFixed(1)+'" width="'+(W-P-16)+'" height="'+(Y(55)-Y(66)).toFixed(1)+
-        '" fill="#2E7D4F" fill-opacity=".10"/>'+
+        '" fill="#2C784C" fill-opacity=".10"/>'+
       '<line x1="'+P+'" y1="'+Y(55).toFixed(1)+'" x2="'+(W-16)+'" y2="'+Y(55).toFixed(1)+
-        '" stroke="#2E7D4F" stroke-width="2" stroke-dasharray="6 4"/>'+
+        '" stroke="#2C784C" stroke-width="2" stroke-dasharray="6 4"/>'+
       '<line x1="'+P+'" y1="'+Y(66).toFixed(1)+'" x2="'+(W-16)+'" y2="'+Y(66).toFixed(1)+
         '" stroke="#B23A32" stroke-width="2" stroke-dasharray="6 4"/>'+
       '<path d="'+path+'" fill="none" stroke="#23281F" stroke-width="2.5"/>'+dots+
-      '<text x="'+(P+6)+'" y="'+(Y(55)-7).toFixed(1)+'" font-size="12" fill="#2E7D4F" font-family="monospace">55 °C — the threshold</text>'+
+      '<text x="'+(P+6)+'" y="'+(Y(55)-7).toFixed(1)+'" font-size="12" fill="#2C784C" font-family="monospace">55 °C — the threshold</text>'+
       '<text x="'+(P+6)+'" y="'+(Y(66)-7).toFixed(1)+'" font-size="12" fill="#B23A32" font-family="monospace">66 °C — thermophiles die off</text>'+
-      '<text x="'+(W/2)+'" y="'+(H-8)+'" text-anchor="middle" font-size="12" fill="#8B8B7B" font-family="monospace">reading number — orange ticks are turnings</text>'+
+      '<text x="'+(W/2)+'" y="'+(H-8)+'" text-anchor="middle" font-size="12" fill="#6B6B5E" font-family="monospace">reading number — orange ticks are turnings</text>'+
       '</svg>';
   }
 
@@ -1025,7 +1031,7 @@ var TEXNOTE = {
         sub:(m.k==="green"?"green":"brown")+" · C:N "+m.cn+" · "+Math.round(m.moist*100)+"% moisture"}; }),
       onchange:function(v){ sel=v; typical(); }});
     volCtl=FEK.step({label:"Volume",unit:"litres",value:50,min:1,max:5000,step:5,
-      help:"A builder's bucket is about 20 L; a wheelbarrow about 85 L."});
+      help:"Rule of thumb, not a measurement: a builder's bucket is about 20 L and a builder's wheelbarrow about 85 L, but both vary by a good margin between makes. If the ratio matters to you, measure your own once with a marked jug and use that number instead."});
     FEK.mount("rPick",[pk]); FEK.mount("rAmt",[volCtl]);
   }
   function feedBy(id){ for(var i=0;i<FEED.length;i++) if(FEED[i].id===id) return FEED[i]; return null; }
@@ -1159,7 +1165,7 @@ var TEXNOTE = {
     ks.forEach(function(k){ var c=compBy(k), w=mix[k]/tot;
       wat+=c.wat*w; air+=c.air*w; cec+=c.cec*w; nut+=c.nut*w; maxNut=Math.max(maxNut,c.nut); });
     var bar='<div style="display:flex;height:34px;border-radius:10px;overflow:hidden;border:2px solid var(--border);margin:10px 0">';
-    var pal=["#2E7D4F","#2B6C8F","#C0592B","#B8860B","#3E8C8C","#7A5C9E","#B23A32","#5A7D2E"];
+    var pal=["#2C784C","#2B6C8F","#A94F26","#8A6408","#3E8C8C","#7A5C9E","#B23A32","#5A7D2E"];
     ks.forEach(function(k,i){
       bar+='<div title="'+esc(compBy(k).n)+'" style="width:'+(mix[k]/tot*100)+
         '%;background:'+pal[i%pal.length]+'"></div>'; });

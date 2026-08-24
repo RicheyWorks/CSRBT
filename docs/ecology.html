@@ -10,8 +10,8 @@
 <style>
   :root {
     color-scheme: light;
-    --page:#F5F1E6; --surface:#FFFDF7; --ink:#23281F; --ink-2:#4B5344; --muted:#8B8B7B;
-    --border:#E3DCC9; --rule:#C7C0AC; --s1:#2E7D4F; --s2:#C0592B; --s3:#2B6C8F;
+    --page:#F5F1E6; --surface:#FFFDF7; --ink:#23281F; --ink-2:#4B5344; --muted:#6B6B5E;
+    --border:#E3DCC9; --rule:#C7C0AC; --s1:#2C784C; --s2:#A94F26; --s3:#2B6C8F;
     --soft:#E9F0E7; --soft-2:#F3EEE0; --shadow:0 1px 2px rgba(35,40,31,.05),0 12px 32px rgba(35,40,31,.06);
     --head:"Fraunces",Georgia,serif; --body:"Newsreader",Georgia,"Times New Roman",serif;
     --mono:"JetBrains Mono",ui-monospace,Menlo,monospace;
@@ -33,7 +33,7 @@
   /* hero */
   .hero { padding:64px 0 30px; position:relative; overflow:hidden; }
   .hero::before { content:""; position:absolute; inset:-40% -20% auto -20%; height:70%; z-index:0; pointer-events:none;
-    background:radial-gradient(55% 70% at 22% 6%, rgba(46,125,79,.10), transparent 62%),
+    background:radial-gradient(55% 70% at 22% 6%, rgba(44,120,76,.10), transparent 62%),
                radial-gradient(45% 60% at 85% 0%, rgba(43,108,143,.08), transparent 65%); }
   .hero > * { position:relative; z-index:1; }
   .eyebrow { font-family:var(--mono); font-size:12px; letter-spacing:.18em; text-transform:uppercase; color:var(--s1); margin:0 0 14px; }
@@ -94,6 +94,12 @@
     .card, table, pre { break-inside:avoid; }
   }
   @media (max-width:560px){ body{font-size:17px;} .wrap{padding:0 18px;} }
+
+  /* WCAG 1.4.11 non-text contrast: the visible edge of a control you are meant
+     to write in is the only thing telling you where to write, so it carries the
+     3:1 floor. Decorative card borders are not controls and stay quiet. */
+  input:not([type=checkbox]):not([type=radio]):not([type=range]):not([type=color]),
+  select, textarea { border-color: #8E8160; }
 </style>
 </head>
 <body>

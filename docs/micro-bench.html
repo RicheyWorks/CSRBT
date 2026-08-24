@@ -11,8 +11,8 @@
   :root {
     color-scheme: light;
     --page:#F5F1E6; --surface:#FFFDF7; --surface-2:#F3EEE0; --ink:#23281F; --ink-2:#4B5344;
-    --muted:#8B8B7B; --border:#E3DCC9; --s1:#2E7D4F; --s1-deep:#236240; --s2:#C0592B; --s3:#2B6C8F;
-    --soft:#E9F0E7; --warn-bg:#F6EAD8; --danger:#B23A32; --danger-bg:#F6E7E5; --gold:#B8860B;
+    --muted:#6B6B5E; --border:#E3DCC9; --s1:#2C784C; --s1-deep:#236240; --s2:#A94F26; --s3:#2B6C8F;
+    --soft:#E9F0E7; --warn-bg:#F6EAD8; --danger:#B23A32; --danger-bg:#F6E7E5; --gold:#8A6408;
     --shadow:0 1px 2px rgba(35,40,31,.06),0 10px 28px rgba(35,40,31,.08);
     --head:"Fraunces",Georgia,serif;
     --body:"Nunito Sans",system-ui,-apple-system,sans-serif;
@@ -55,7 +55,7 @@
     background:var(--surface); color:var(--ink); border:1.5px solid var(--border); border-radius:12px;
     padding:11px 14px; font:16px var(--body); min-height:48px; max-width:100%; }
   textarea { min-height:78px; line-height:1.5; width:100%; }
-  input:focus, select:focus, textarea:focus { outline:none; border-color:var(--s1); box-shadow:0 0 0 3px rgba(46,125,79,.18); }
+  input:focus, select:focus, textarea:focus { outline:none; border-color:var(--s1); box-shadow:0 0 0 3px rgba(44,120,76,.18); }
   input[type=number] { width:110px; }
   label.f { display:flex; flex-direction:column; gap:5px; font-size:13px; font-weight:700; color:var(--ink-2); min-width:0; }
   .grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(150px,1fr)); gap:10px; }
@@ -222,7 +222,7 @@
   .rail a.ref { font-weight:600; color:var(--muted); background:none; box-shadow:none; }
   @media print { .rail { display:none !important; } }
 
-  /* ============ Field Entry Kit v1.1.0 ============
+  /* ============ Field Entry Kit v1.1.1 ============
      Large-target, high-contrast entry controls. Sizing is driven by --tap
      rather than per-component numbers so one token retunes the whole kit for
      gloves, cold hands or a wall-mounted tablet. */
@@ -230,8 +230,8 @@
     --tap: 60px;            /* primary control height  */
     --tap-sm: 48px;         /* secondary control height */
     --fek-r: 16px;
-    --ramp-0:#2B6C8F; --ramp-1:#3E8C8C; --ramp-2:#2E7D4F;
-    --ramp-3:#B8860B; --ramp-4:#C0592B; --ramp-5:#B23A32;
+    --ramp-0:#2B6C8F; --ramp-1:#3E8C8C; --ramp-2:#2C784C;
+    --ramp-3:#8A6408; --ramp-4:#A94F26; --ramp-5:#B23A32;
     --fek-line:#C7C0AC;
   }
   .fek-lab { display:block; font:800 15px var(--body); color:var(--ink-2);
@@ -265,7 +265,7 @@
   .fek-dial button small { font:600 11px var(--mono); color:var(--muted); letter-spacing:.02em; }
   .fek-dial button:active { transform:scale(.96); }
   .fek-dial button.on { color:#fff; border-color:transparent; }
-  .fek-dial button.on small { color:rgba(255,255,255,.85); }
+  .fek-dial button.on small { color:rgba(255,255,255,.92); }
   .fek-dial button.on[data-r="0"]{background:var(--ramp-0);}
   .fek-dial button.on[data-r="1"]{background:var(--ramp-1);}
   .fek-dial button.on[data-r="2"]{background:var(--ramp-2);}
@@ -331,7 +331,7 @@
   .fek-pick .opt small { display:block; font:400 12.5px var(--mono); color:var(--muted); margin-top:2px; }
   .fek-pick .opt:hover { background:var(--soft); }
   .fek-pick .opt.on { background:var(--s1); color:#fff; }
-  .fek-pick .opt.on small { color:rgba(255,255,255,.85); }
+  .fek-pick .opt.on small { color:rgba(255,255,255,.92); }
   .fek-pick .none { padding:16px; color:var(--muted); font-size:14px; }
 
   /* --- readout tiles, sized to be read at arm's length --- */
@@ -355,6 +355,12 @@
   @media (max-width:420px){ :root { --tap:56px; --tap-sm:46px; } .fek-step .val { font-size:26px; } }
   @media print { .fek-step button, .fek-pick .search { display:none; } }
 
+
+  /* WCAG 1.4.11 non-text contrast: the visible edge of a control you are meant
+     to write in is the only thing telling you where to write, so it carries the
+     3:1 floor. Decorative card borders are not controls and stay quiet. */
+  input:not([type=checkbox]):not([type=radio]):not([type=range]):not([type=color]),
+  select, textarea { border-color: #8E8160; }
 </style>
 </head>
 <body>
@@ -495,6 +501,16 @@
         (too numerous to count) and excluded from the mean. This page shows them, marks them, and leaves them
         out of the arithmetic rather than silently dropping them — a run where every plate was TNTC is a
         result about your dilution series, and it should be visible.</p>
+      <p class="fine"><b>Whose window is it?</b> There is no single countable range, and it is worth
+        knowing that before someone tells you your plate was out of spec. FDA BAM and USP&nbsp;&lt;1227&gt;
+        both specify <b>25&ndash;250</b> for bacteria; USP drops to <b>8&ndash;80</b> for fungi; ASTM gives
+        <b>20&ndash;200</b> for spread plates and <b>30&ndash;300</b> for pour plates; Breed and Dotterrer,
+        who measured it in 1916, found 50&ndash;200 gave the most repeatable answers. This page uses
+        <b>30&ndash;300</b>, which is the general-purpose teaching convention, and it applies that one
+        window to both plating methods on this bench even though ASTM would narrow it for the spread
+        plate. That is a simplification, and it is a deliberate one rather than an oversight. If you are
+        working to a named standard, use its window and not ours &mdash; the reasoning above about Poisson
+        error below the floor and crowding bias above the ceiling holds whichever numbers you pick.</p>
       <p class="fine">Where two adjacent dilutions are both countable, the convention is to use both and
         average the computed CFU/mL. If they disagree by more than about a factor of two, something is wrong
         with the series rather than with the organism, and the page says so.</p>
@@ -571,7 +587,7 @@
 <div class="toast" id="toast">Saved</div>
 <script>
 
-/* ---- Field Entry Kit v1.1.0 : constructors return {el, get, set} ---- */
+/* ---- Field Entry Kit v1.1.1 : constructors return {el, get, set} ---- */
 var FEK = (function(){
   function el(t,c,h){ var e=document.createElement(t); if(c) e.className=c;
     if(h!=null) e.innerHTML=h; return e; }
