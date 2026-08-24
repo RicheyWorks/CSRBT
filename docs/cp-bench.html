@@ -1,0 +1,1309 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>CP Bench</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,600;9..144,700&family=Nunito+Sans:wght@400;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap">
+<style>
+  :root {
+    color-scheme: light;
+    --page:#F5F1E6; --surface:#FFFDF7; --surface-2:#F3EEE0; --ink:#23281F; --ink-2:#4B5344;
+    --muted:#8B8B7B; --border:#E3DCC9; --s1:#2E7D4F; --s1-deep:#236240; --s2:#C0592B; --s3:#2B6C8F;
+    --soft:#E9F0E7; --warn-bg:#F6EAD8; --danger:#B23A32; --danger-bg:#F6E7E5; --gold:#B8860B;
+    --shadow:0 1px 2px rgba(35,40,31,.06),0 10px 28px rgba(35,40,31,.08);
+    --head:"Fraunces",Georgia,serif;
+    --body:"Nunito Sans",system-ui,-apple-system,sans-serif;
+    --mono:"JetBrains Mono",ui-monospace,Menlo,monospace;
+  }
+  * { box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
+  body { margin:0; background:var(--page); color:var(--ink); font:16px/1.5 var(--body);
+    -webkit-font-smoothing:antialiased; overscroll-behavior-y:contain; }
+  .app { max-width:960px; margin:0 auto; padding:14px 16px calc(104px + env(safe-area-inset-bottom)); }
+  .top { display:flex; align-items:baseline; justify-content:space-between; gap:10px; padding:6px 2px 12px; flex-wrap:wrap; }
+  .brand { font-family:var(--head); font-weight:700; font-size:22px; letter-spacing:-0.01em; }
+  .brand span { color:var(--s1); }
+  .top a { font-family:var(--mono); font-size:11.5px; color:var(--muted); text-decoration:none;
+    display:inline-flex; align-items:center; min-height:44px; padding:0 6px; margin:-10px -6px; touch-action:manipulation; }
+  .top a:hover { color:var(--s1); }
+
+  .tabbar { position:fixed; left:0; right:0; bottom:0; z-index:20;
+    background:color-mix(in srgb, var(--surface) 94%, transparent); backdrop-filter:blur(10px);
+    border-top:1px solid var(--border); padding:8px max(8px, env(safe-area-inset-left)) calc(8px + env(safe-area-inset-bottom)); }
+  .tabbar .row { max-width:960px; margin:0 auto; display:grid; grid-template-columns:repeat(6,1fr); gap:4px; }
+  .tab { display:flex; flex-direction:column; align-items:center; gap:2px; border:0; background:none;
+    font:700 10.5px var(--body); color:var(--muted); padding:7px 1px; border-radius:12px; cursor:pointer;
+    min-height:54px; touch-action:manipulation; transition:background .15s ease, color .15s ease; }
+  .tab .ico { font-size:20px; line-height:1; }
+  .tab.on { color:var(--s1); background:var(--soft); }
+  .tab:active { transform:scale(.96); }
+  .pane { display:none; animation:fade .18s ease; }
+  .pane.on { display:block; }
+  @keyframes fade { from{opacity:0;transform:translateY(4px);} to{opacity:1;transform:none;} }
+  @media (prefers-reduced-motion: reduce){ .pane{animation:none;} }
+
+  h2 { font-family:var(--head); font-weight:600; font-size:20px; margin:6px 0 2px; }
+  h3 { font-family:var(--head); font-weight:600; font-size:16.5px; margin:16px 0 4px; }
+  .hint { color:var(--muted); font-size:14px; margin:0 0 12px; }
+  .card { background:var(--surface); border:1px solid var(--border); border-radius:16px;
+    padding:16px; box-shadow:var(--shadow); margin-bottom:14px; }
+  .fine { font-size:12.5px; color:var(--muted); margin-top:10px; line-height:1.55; }
+
+  input[type=text], input[type=number], input[type=date], select, textarea {
+    background:var(--surface); color:var(--ink); border:1.5px solid var(--border); border-radius:12px;
+    padding:11px 14px; font:16px var(--body); min-height:48px; max-width:100%; }
+  textarea { min-height:78px; line-height:1.5; width:100%; }
+  input:focus, select:focus, textarea:focus { outline:none; border-color:var(--s1); box-shadow:0 0 0 3px rgba(46,125,79,.18); }
+  input[type=number] { width:110px; }
+  label.f { display:flex; flex-direction:column; gap:5px; font-size:13px; font-weight:700; color:var(--ink-2); min-width:0; }
+  .grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(150px,1fr)); gap:10px; }
+  .grid label.f input, .grid label.f select { width:100%; }
+
+  .btn { border:0; border-radius:12px; padding:12px 18px; font:800 15px var(--body); cursor:pointer;
+    min-height:48px; touch-action:manipulation; transition:transform .1s ease, background .15s ease; }
+  .btn:active { transform:scale(.97); }
+  .btn-go { background:var(--s1); color:#fff; } .btn-go:hover { background:var(--s1-deep); }
+  .btn-soft { background:var(--soft); color:var(--s1); }
+  .btn-ghost { background:none; border:1.5px solid var(--border); color:var(--ink-2); }
+  .btn-ghost:hover { border-color:var(--s1); color:var(--s1); }
+  .btn-row { display:flex; gap:8px; flex-wrap:wrap; margin-top:12px; align-items:end; }
+
+  .kopts { display:flex; flex-wrap:wrap; gap:8px; }
+  .kopt { border:1.5px solid var(--border); background:var(--surface); border-radius:14px; padding:10px 14px;
+    font:700 14px var(--body); color:var(--ink-2); cursor:pointer; min-height:46px; touch-action:manipulation;
+    display:inline-flex; flex-direction:column; align-items:flex-start; gap:1px; }
+  .kopt small { font-weight:400; font-size:11px; color:var(--muted); font-family:var(--mono); }
+  .kopt.on { border-color:var(--s1); background:var(--soft); color:var(--s1); }
+
+  .covscale { display:flex; flex-wrap:wrap; gap:6px; margin-top:6px; }
+  .cv { border:1.5px solid var(--border); background:var(--surface); border-radius:11px; min-width:52px;
+    padding:8px 6px; font:800 15px var(--body); color:var(--ink-2); cursor:pointer; min-height:52px;
+    display:flex; flex-direction:column; align-items:center; justify-content:center; gap:1px; touch-action:manipulation; }
+  .cv small { font:400 9.5px var(--mono); color:var(--muted); }
+  .cv.on { border-color:var(--s1); background:var(--soft); color:var(--s1); }
+  .cv.on small { color:var(--s1-deep); }
+
+  .tiles { display:flex; flex-wrap:wrap; gap:8px; margin:12px 0 2px; }
+  .tile { background:var(--surface-2); border:1px solid var(--border); border-radius:12px; padding:9px 14px; min-width:96px; }
+  .tile .v { font-family:var(--head); font-weight:700; font-size:21px; font-variant-numeric:tabular-nums; }
+  .tile .l { font-size:11px; color:var(--muted); }
+  .verdict { border-radius:12px; padding:13px 16px; margin:12px 0 2px; font-size:15.5px; line-height:1.55;
+    border-left:4px solid var(--s1); background:var(--soft); color:var(--ink-2); }
+  .verdict b { color:var(--ink); }
+  .verdict.warn { border-left-color:var(--s2); background:var(--warn-bg); }
+  .verdict.act { border-left-color:var(--danger); background:var(--danger-bg); }
+
+  .tw { overflow-x:auto; -webkit-overflow-scrolling:touch; margin:10px 0; }
+  table { border-collapse:collapse; width:100%; font-size:14px; }
+  th,td { border:1px solid var(--border); padding:6px 9px; text-align:left; vertical-align:top; white-space:nowrap; }
+  th { background:var(--soft); font-family:var(--head); font-weight:600; font-size:13px; }
+  td.n, th.n { text-align:right; font-variant-numeric:tabular-nums; font-family:var(--mono); font-size:13px; }
+  td i { font-style:italic; color:var(--ink-2); }
+
+  .rowlist { display:grid; gap:8px; margin-top:10px; }
+  .row2 { display:flex; align-items:center; gap:10px; background:var(--surface); border:1px solid var(--border);
+    border-radius:12px; padding:10px 13px; font-size:15px; }
+  .row2.inv { border-left:3px solid var(--danger); }
+  .row2 .g { flex:1; min-width:0; }
+  .row2 .g b { font-family:var(--head); font-size:15.5px; }
+  .row2 .g b i { font-style:italic; font-weight:400; color:var(--ink-2); font-size:14px; }
+  .row2 .g span { display:block; color:var(--muted); font-size:12.5px; font-family:var(--mono); margin-top:1px;
+    overflow:hidden; text-overflow:ellipsis; }
+  .row2 .cov { font-family:var(--head); font-weight:700; font-size:17px; color:var(--s1); min-width:46px; text-align:right; }
+  .row2 button { border:0; background:none; color:var(--muted); font-size:15px; padding:9px 11px; cursor:pointer; min-height:44px; min-width:44px; }
+  .row2 button:hover { color:var(--danger); }
+
+  .bars { display:grid; gap:6px; margin-top:10px; }
+  .bar { display:grid; grid-template-columns:132px 1fr 54px; gap:8px; align-items:center; font-size:13.5px; }
+  .bar .nm { font-weight:700; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+  .bar .tr { display:block; background:var(--surface-2); border:1px solid var(--border); border-radius:8px; height:20px; overflow:hidden; }
+  .bar .fl { display:block; height:100%; background:var(--s1); border-radius:7px 0 0 7px; transition:width .4s ease; }
+  .bar .fl.inv { background:var(--s2); }
+  .bar .pc { text-align:right; font-variant-numeric:tabular-nums; color:var(--ink-2); font-family:var(--mono); font-size:12.5px; }
+
+  .label { background:#fff; border:1px solid var(--ink); border-radius:2px; padding:14px 16px; margin-top:10px;
+    font:12.5px/1.5 var(--body); color:#000; max-width:440px; }
+  .label .inst { font-family:var(--head); font-weight:700; font-size:12px; letter-spacing:.06em;
+    text-transform:uppercase; text-align:center; border-bottom:1px solid #000; padding-bottom:5px; margin-bottom:7px; }
+  .label .sci { font-style:italic; font-weight:700; font-size:14px; }
+  .label .row { margin:3px 0; }
+  .label .k { font-weight:700; }
+  .label .coll { margin-top:8px; padding-top:6px; border-top:1px solid #999; display:flex; justify-content:space-between; }
+
+  pre.export { background:#23281F; color:#E8E4D5; border-radius:12px; padding:14px 16px; overflow-x:auto;
+    font:12.5px/1.65 var(--mono); max-height:340px; }
+  code { font-family:var(--mono); font-size:.82em; background:var(--surface-2); border:1px solid var(--border); border-radius:5px; padding:1px 5px; }
+
+  .toast { position:fixed; left:50%; bottom:84px; transform:translateX(-50%) translateY(90px); z-index:30;
+    background:var(--ink); color:#F5F1E6; border-radius:999px; padding:10px 22px; font:700 14px var(--body);
+    transition:transform .25s ease; pointer-events:none; max-width:88vw; text-align:center; }
+  .toast.on { transform:translateX(-50%) translateY(0); }
+
+  @media print {
+    .tabbar, .btn, .kopts, .covscale, .top a, .noprint { display:none !important; }
+    body { background:#fff; } .pane { display:block !important; }
+    .app { padding-bottom:0; } .card { break-inside:avoid; } table { font-size:10pt; }
+    pre.export { background:#fff; color:#000; border:1px solid #ccc; max-height:none; }
+    .label { break-inside:avoid; page-break-inside:avoid; }
+  }
+
+
+  /* ---- fungal additions ---- */
+  .sw { display:flex; flex-wrap:wrap; gap:7px; margin-top:6px; }
+  .swc { border:1.5px solid var(--border); background:var(--surface); border-radius:12px; padding:7px 11px 8px;
+    font:700 12.5px var(--body); color:var(--ink-2); cursor:pointer; min-height:56px; touch-action:manipulation;
+    display:flex; flex-direction:column; align-items:center; gap:5px; min-width:74px; }
+  .swc .chip { width:44px; height:18px; border-radius:5px; border:1px solid rgba(35,40,31,.28); display:block; }
+  .swc.on { border-color:var(--s1); background:var(--soft); color:var(--s1); }
+
+  .chk { display:flex; flex-wrap:wrap; gap:7px; margin-top:6px; }
+  .ck { border:1.5px solid var(--border); background:var(--surface); border-radius:999px; padding:9px 14px;
+    font:700 13.5px var(--body); color:var(--ink-2); cursor:pointer; min-height:44px; touch-action:manipulation; }
+  .ck.on { border-color:var(--s1); background:var(--soft); color:var(--s1); }
+  .ck.on::before { content:"\2713 "; }
+
+  .rg { display:grid; gap:9px; margin-top:8px; }
+  .rgi { border:1px solid var(--border); background:var(--surface); border-radius:13px; padding:11px 13px; }
+  .rgi .hd { display:flex; align-items:center; justify-content:space-between; gap:9px; flex-wrap:wrap; }
+  .rgi .nm { font-family:var(--head); font-weight:700; font-size:15px; }
+  .rgi .nm em { font-style:normal; font-family:var(--mono); font-size:11.5px; color:var(--muted); margin-left:6px; }
+  .rgi .wh { font-size:12.5px; color:var(--muted); line-height:1.5; margin-top:5px; }
+  .rgi input[type=text] { width:100%; margin-top:8px; min-height:44px; }
+  .rgi.haz { border-left:3px solid var(--s2); }
+
+  .guild { display:inline-block; font:700 10.5px var(--mono); letter-spacing:.05em; text-transform:uppercase;
+    border-radius:999px; padding:3px 9px; border:1px solid var(--border); background:var(--surface-2); color:var(--ink-2); }
+  .guild.ecm { border-color:var(--s1); color:var(--s1); background:var(--soft); }
+  .guild.woodsap, .guild.littersap { border-color:var(--s3); color:var(--s3); background:#E6EEF3; }
+  .guild.par { border-color:var(--danger); color:var(--danger); background:var(--danger-bg); }
+  .guild.lich { border-color:var(--gold); color:#7a5c07; background:#F5EFD9; }
+  .guild.myco { border-color:var(--s2); color:var(--s2); background:var(--warn-bg); }
+  .guild.mixed { border-style:dashed; }
+
+  .mx td.h0 { color:var(--muted); }
+  .mx td.h1 { background:#EDF4EA; font-weight:700; }
+  .mx td.h2 { background:var(--s1); color:#fff; font-weight:700; }
+
+  .never { border:2px solid var(--danger); background:var(--danger-bg); border-radius:14px; padding:15px 17px;
+    margin:14px 0; font-size:15px; line-height:1.6; color:var(--ink); }
+  .never b { font-family:var(--head); display:block; font-size:16px; margin-bottom:5px; color:var(--danger); }
+
+  .drylog { display:grid; grid-template-columns:repeat(auto-fit,minmax(128px,1fr)); gap:9px; margin-top:8px; }
+
+
+  /* ---- bench additions ---- */
+  .stat { display:grid; grid-template-columns:repeat(auto-fit,minmax(132px,1fr)); gap:9px; margin:12px 0 2px; }
+  .st { background:var(--surface-2); border:1px solid var(--border); border-radius:12px; padding:10px 13px; }
+  .st .v { font-family:var(--head); font-weight:700; font-size:22px; font-variant-numeric:tabular-nums; line-height:1.1; }
+  .st .l { font-size:11px; color:var(--muted); margin-top:2px; line-height:1.35; }
+  .st.hi .v { color:var(--s1); } .st.bad .v { color:var(--danger); } .st.warnv .v { color:var(--s2); }
+  .eq { font-family:var(--mono); font-size:12.5px; background:var(--surface-2); border:1px solid var(--border);
+    border-radius:9px; padding:9px 12px; margin:9px 0; color:var(--ink-2); overflow-x:auto; }
+  .scat { display:block; width:100%; height:auto; background:var(--surface); border:1px solid var(--border);
+    border-radius:12px; margin-top:10px; }
+  .warnbox { border:2px solid var(--s2); background:var(--warn-bg); border-radius:14px; padding:14px 17px;
+    margin:14px 0; font-size:15px; line-height:1.6; }
+  .warnbox b { font-family:var(--head); display:block; font-size:16px; margin-bottom:4px; color:var(--s2); }
+  .refuse { border:2px solid var(--danger); background:var(--danger-bg); border-radius:14px; padding:15px 18px;
+    margin:14px 0; font-size:15px; line-height:1.6; }
+  .refuse b { font-family:var(--head); display:block; font-size:16px; margin-bottom:4px; color:var(--danger); }
+  td.ok { color:var(--s1); font-weight:700; } td.no { color:var(--danger); font-weight:700; }
+
+
+  /* ============ Field Entry Kit v1.0.0 ============
+     Large-target, high-contrast entry controls. Sizing is driven by --tap
+     rather than per-component numbers so one token retunes the whole kit for
+     gloves, cold hands or a wall-mounted tablet. */
+  :root {
+    --tap: 60px;            /* primary control height  */
+    --tap-sm: 48px;         /* secondary control height */
+    --fek-r: 16px;
+    --ramp-0:#2B6C8F; --ramp-1:#3E8C8C; --ramp-2:#2E7D4F;
+    --ramp-3:#B8860B; --ramp-4:#C0592B; --ramp-5:#B23A32;
+    --fek-line:#C7C0AC;
+  }
+  .fek-lab { display:block; font:800 15px var(--body); color:var(--ink-2);
+    letter-spacing:.01em; margin:0 0 6px; }
+  .fek-lab .u { font:600 12.5px var(--mono); color:var(--muted); margin-left:6px; }
+  .fek-help { font-size:13.5px; color:var(--muted); line-height:1.5; margin:6px 0 0; }
+  .fek-row { margin:0 0 20px; }
+
+  /* --- stepper: the workhorse numeric entry --- */
+  .fek-step { display:flex; align-items:stretch; gap:0; border:2px solid var(--border);
+    border-radius:var(--fek-r); overflow:hidden; background:var(--surface); max-width:340px; }
+  .fek-step button { border:0; background:var(--surface-2); color:var(--ink);
+    font:800 30px var(--body); line-height:1; width:calc(var(--tap) + 8px); min-height:var(--tap);
+    cursor:pointer; touch-action:manipulation; transition:background .12s; }
+  .fek-step button:hover { background:var(--soft); color:var(--s1); }
+  .fek-step button:active { background:var(--s1); color:#fff; }
+  .fek-step .val { flex:1; min-width:0; text-align:center; border:0; background:none;
+    font:800 30px var(--head); color:var(--ink); font-variant-numeric:tabular-nums;
+    -moz-appearance:textfield; padding:0 4px; }
+  .fek-step .val::-webkit-outer-spin-button,
+  .fek-step .val::-webkit-inner-spin-button { -webkit-appearance:none; margin:0; }
+  .fek-step .val:focus { outline:none; background:var(--soft); }
+
+  /* --- segmented ordinal dial with a colour ramp --- */
+  .fek-dial { display:flex; flex-wrap:wrap; gap:8px; }
+  .fek-dial button { flex:1 1 auto; min-width:72px; min-height:var(--tap);
+    border:2px solid var(--border); border-radius:var(--fek-r); background:var(--surface);
+    font:800 17px var(--body); color:var(--ink-2); cursor:pointer; touch-action:manipulation;
+    display:flex; flex-direction:column; align-items:center; justify-content:center; gap:2px;
+    padding:6px 8px; transition:transform .08s, border-color .12s, background .12s; }
+  .fek-dial button small { font:600 11px var(--mono); color:var(--muted); letter-spacing:.02em; }
+  .fek-dial button:active { transform:scale(.96); }
+  .fek-dial button.on { color:#fff; border-color:transparent; }
+  .fek-dial button.on small { color:rgba(255,255,255,.85); }
+  .fek-dial button.on[data-r="0"]{background:var(--ramp-0);}
+  .fek-dial button.on[data-r="1"]{background:var(--ramp-1);}
+  .fek-dial button.on[data-r="2"]{background:var(--ramp-2);}
+  .fek-dial button.on[data-r="3"]{background:var(--ramp-3);}
+  .fek-dial button.on[data-r="4"]{background:var(--ramp-4);}
+  .fek-dial button.on[data-r="5"]{background:var(--ramp-5);}
+
+  /* --- big toggle chips --- */
+  .fek-chips { display:flex; flex-wrap:wrap; gap:9px; }
+  .fek-chip { min-height:var(--tap-sm); border:2px solid var(--border); border-radius:999px;
+    background:var(--surface); font:800 15.5px var(--body); color:var(--ink-2);
+    padding:0 20px; cursor:pointer; touch-action:manipulation; display:inline-flex;
+    align-items:center; gap:8px; transition:transform .08s, border-color .12s, background .12s; }
+  .fek-chip:active { transform:scale(.96); }
+  .fek-chip.on { border-color:var(--s1); background:var(--soft); color:var(--s1-deep); }
+  .fek-chip.on::before { content:"\2713"; font-size:17px; }
+
+  /* --- slider with a live bubble --- */
+  .fek-slide { display:flex; align-items:center; gap:14px; }
+  .fek-slide input[type=range] { flex:1; min-width:0; height:var(--tap-sm); -webkit-appearance:none;
+    background:transparent; cursor:pointer; touch-action:manipulation; }
+  .fek-slide input[type=range]::-webkit-slider-runnable-track { height:14px; border-radius:8px;
+    background:linear-gradient(90deg,var(--ramp-0),var(--ramp-2),var(--ramp-3),var(--ramp-5)); }
+  .fek-slide input[type=range]::-moz-range-track { height:14px; border-radius:8px;
+    background:linear-gradient(90deg,var(--ramp-0),var(--ramp-2),var(--ramp-3),var(--ramp-5)); }
+  .fek-slide input[type=range]::-webkit-slider-thumb { -webkit-appearance:none; width:34px; height:34px;
+    border-radius:50%; background:#fff; border:3px solid var(--ink); margin-top:-10px;
+    box-shadow:0 2px 6px rgba(35,40,31,.3); }
+  .fek-slide input[type=range]::-moz-range-thumb { width:34px; height:34px; border-radius:50%;
+    background:#fff; border:3px solid var(--ink); box-shadow:0 2px 6px rgba(35,40,31,.3); }
+  .fek-slide .bub { font:800 26px var(--head); font-variant-numeric:tabular-nums; color:var(--ink);
+    min-width:86px; text-align:right; }
+  .fek-slide .bub span { font:600 13px var(--mono); color:var(--muted); margin-left:3px; }
+
+  /* --- big picker: replaces <select> for long lists --- */
+  .fek-pick { border:2px solid var(--border); border-radius:var(--fek-r); background:var(--surface);
+    overflow:hidden; }
+  .fek-pick .search { width:100%; border:0; border-bottom:2px solid var(--border);
+    font:700 17px var(--body); padding:0 16px; min-height:var(--tap); background:var(--surface-2); }
+  .fek-pick .search:focus { outline:none; background:var(--soft); }
+  .fek-pick .opts { max-height:264px; overflow-y:auto; -webkit-overflow-scrolling:touch; }
+  .fek-pick .opt { display:block; width:100%; text-align:left; border:0; border-bottom:1px solid var(--border);
+    background:none; font:700 16.5px var(--body); color:var(--ink); min-height:var(--tap-sm);
+    padding:10px 16px; cursor:pointer; touch-action:manipulation; }
+  .fek-pick .opt small { display:block; font:400 12.5px var(--mono); color:var(--muted); margin-top:2px; }
+  .fek-pick .opt:hover { background:var(--soft); }
+  .fek-pick .opt.on { background:var(--s1); color:#fff; }
+  .fek-pick .opt.on small { color:rgba(255,255,255,.85); }
+  .fek-pick .none { padding:16px; color:var(--muted); font-size:14px; }
+
+  /* --- readout tiles, sized to be read at arm's length --- */
+  .fek-tiles { display:grid; grid-template-columns:repeat(auto-fit,minmax(148px,1fr)); gap:11px; margin:14px 0 2px; }
+  .fek-tile { border:2px solid var(--border); border-radius:var(--fek-r); padding:13px 15px; background:var(--surface); }
+  .fek-tile .v { font:800 30px var(--head); font-variant-numeric:tabular-nums; line-height:1.05; color:var(--ink); }
+  .fek-tile .l { font:700 12px var(--body); color:var(--muted); margin-top:4px; letter-spacing:.02em; }
+  .fek-tile.good { border-color:var(--ramp-2); } .fek-tile.good .v { color:var(--ramp-2); }
+  .fek-tile.warn { border-color:var(--ramp-3); } .fek-tile.warn .v { color:#8a6508; }
+  .fek-tile.bad  { border-color:var(--ramp-5); } .fek-tile.bad  .v { color:var(--ramp-5); }
+  .fek-tile.cold { border-color:var(--ramp-0); } .fek-tile.cold .v { color:var(--ramp-0); }
+
+  /* --- banner: the verdict, big --- */
+  .fek-banner { border-radius:var(--fek-r); padding:16px 19px; margin:14px 0; font-size:16px;
+    line-height:1.55; border-left:7px solid var(--ramp-2); background:var(--soft); color:var(--ink-2); }
+  .fek-banner b { font-family:var(--head); color:var(--ink); font-size:17.5px; display:block; margin-bottom:4px; }
+  .fek-banner.warn { border-left-color:var(--ramp-3); background:var(--warn-bg); }
+  .fek-banner.bad  { border-left-color:var(--ramp-5); background:var(--danger-bg); }
+  .fek-banner.cold { border-left-color:var(--ramp-0); background:#E6EEF3; }
+
+  @media (max-width:420px){ :root { --tap:56px; --tap-sm:46px; } .fek-step .val { font-size:26px; } }
+  @media print { .fek-step button, .fek-pick .search { display:none; } }
+
+  .rail { margin:26px 0 4px; }
+  .rail .rl { font-family:var(--mono); font-size:11px; letter-spacing:.14em; text-transform:uppercase; color:var(--muted); margin:0 2px 8px; }
+  .rail .chips { display:flex; flex-wrap:wrap; gap:8px; }
+  .rail a { display:inline-flex; align-items:center; gap:7px; text-decoration:none; font:700 13.5px var(--body);
+    color:var(--ink-2); background:var(--surface); border:1px solid var(--border); border-radius:999px;
+    padding:9px 15px; min-height:44px; box-shadow:var(--shadow); touch-action:manipulation; }
+  .rail a:hover { border-color:var(--s1); color:var(--s1); }
+  .rail a[aria-current="page"] { background:var(--soft); border-color:var(--s1); color:var(--s1); }
+  .rail a.ref { font-weight:600; color:var(--muted); background:none; box-shadow:none; }
+  @media print { .rail { display:none !important; } }
+</style>
+</head>
+<body>
+<div class="app">
+  <div class="top">
+    <div class="brand">🫙 CP <span>Bench</span></div>
+    <a href="ecology.html">part of the science kit →</a>
+  </div>
+
+  <!-- ============ WATER ============ -->
+  <section class="pane on" id="p-wat">
+    <h2>Water</h2>
+    <p class="hint">Water kills more carnivorous plants than any other single cause, and it does it slowly
+      enough that the grower blames something else.</p>
+
+    <div class="card">
+      <h3 style="margin-top:0">Test a source</h3>
+      <div id="wEntry"></div>
+      <div class="btn-row">
+        <button class="btn btn-go" id="wAdd" type="button">Log reading</button>
+        <button class="btn btn-ghost" id="wUndo" type="button">↩ Undo</button>
+      </div>
+      <div id="wOut"></div>
+    </div>
+
+    <div class="card">
+      <h3 style="margin-top:0">Tray accumulation</h3>
+      <p class="hint" style="margin-bottom:10px">Water leaves a tray by evaporation. The dissolved solids
+        do not &mdash; they stay in the pot. This is the arithmetic of that.</p>
+      <div id="wAccum"></div>
+      <div id="wAccumOut"></div>
+    </div>
+
+    <div class="card"><h3 style="margin-top:0">Readings</h3><div class="rowlist" id="wList"></div></div>
+  </section>
+
+  <!-- ============ MIX ============ -->
+  <section class="pane" id="p-mix">
+    <h2>Media</h2>
+    <p class="hint">Build a mix by parts. Every component here is nutrient-free except one, and the page
+      says so loudly if that one gets in.</p>
+    <div class="card">
+      <div id="mPresets"></div>
+    </div>
+    <div class="card">
+      <div id="mGrid"></div>
+      <div class="btn-row">
+        <button class="btn btn-ghost" id="mClear" type="button">Clear mix</button>
+        <button class="btn btn-ghost" id="mCopy" type="button">Copy recipe</button>
+      </div>
+    </div>
+    <div class="card" id="mOut"></div>
+  </section>
+
+  <!-- ============ PLANTS ============ -->
+  <section class="pane" id="p-pl">
+    <h2>Plants</h2>
+    <p class="hint">One record per plant. What you want two years from now is the history, not today's photo.</p>
+
+    <div class="card">
+      <div id="pNew"></div>
+      <div class="btn-row">
+        <button class="btn btn-go" id="pAdd" type="button">Add plant</button>
+      </div>
+    </div>
+
+    <div class="card">
+      <h3 style="margin-top:0">Log an observation</h3>
+      <div id="pObs"></div>
+      <div class="btn-row">
+        <button class="btn btn-go" id="oAdd" type="button">Log it</button>
+        <button class="btn btn-ghost" id="oUndo" type="button">↩ Undo</button>
+      </div>
+    </div>
+
+    <div class="card" id="pOut"></div>
+    <div class="card"><h3 style="margin-top:0">Collection</h3><div class="rowlist" id="pList"></div></div>
+  </section>
+
+  <!-- ============ SEASON ============ -->
+  <section class="pane" id="p-sea">
+    <h2>Dormancy</h2>
+    <p class="hint">Set your own target, then log temperatures against it.</p>
+
+    <div class="card" id="sRefuse"></div>
+
+    <div class="card">
+      <h3 style="margin-top:0">Your target</h3>
+      <div id="sTarget"></div>
+    </div>
+
+    <div class="card">
+      <h3 style="margin-top:0">Log a temperature</h3>
+      <div id="sEntry"></div>
+      <div class="btn-row">
+        <button class="btn btn-go" id="sAdd" type="button">Log</button>
+        <button class="btn btn-ghost" id="sUndo" type="button">↩ Undo</button>
+        <button class="btn btn-ghost" id="sDemo" type="button">Worked example</button>
+      </div>
+    </div>
+
+    <div class="card" id="sOut"></div>
+    <div class="card" id="sChart"></div>
+  </section>
+
+  <!-- ============ CROSSES ============ -->
+  <section class="pane" id="p-cro">
+    <h2>Crosses</h2>
+    <p class="hint">Pollination through to germination. Record the pod parent first &mdash; that is the
+      convention, and getting it backwards makes the record useless later.</p>
+
+    <div class="card">
+      <div id="cNew"></div>
+      <div class="btn-row">
+        <button class="btn btn-go" id="cAdd" type="button">Record cross</button>
+        <button class="btn btn-ghost" id="cUndo" type="button">↩ Undo</button>
+      </div>
+    </div>
+
+    <div class="card">
+      <h3 style="margin-top:0">Update a cross</h3>
+      <div id="cUpd"></div>
+      <div class="btn-row">
+        <button class="btn btn-soft" id="cSave" type="button">Save to cross</button>
+      </div>
+    </div>
+
+    <div class="card" id="cOut"></div>
+    <div class="card"><h3 style="margin-top:0">Crosses</h3><div class="rowlist" id="cList"></div></div>
+  </section>
+
+  <!-- ============ METHOD ============ -->
+  <section class="pane" id="p-met">
+    <h2>Method</h2>
+
+    <div class="card">
+      <h3 style="margin-top:0">Why water is the whole game</h3>
+      <p class="fine" style="margin-top:0">Carnivory is an adaptation to soils so poor in nutrients that
+        catching animals is a cheaper way to get nitrogen than absorbing it through roots. The corollary is
+        that these plants have no mechanism for dealing with dissolved minerals arriving at the root, because
+        in their habitat there are none. Tap water at 300&nbsp;ppm is not slightly worse than rainwater; it is
+        a different environment.</p>
+      <p class="fine">The published figure this page uses is <b>TDS best below 160&nbsp;ppm</b>
+        (California Carnivores). Many growers work to a much stricter target of around <b>50&nbsp;ppm</b>,
+        and reverse-osmosis output is typically well under that. The 50&nbsp;ppm figure is a
+        <b>convention</b> rather than a sourced threshold, and this page labels it as one.</p>
+      <p class="fine">A TDS meter measures <em>total</em> dissolved solids by electrical conductivity. It
+        does not tell you <em>which</em> solids, and that matters: 100&nbsp;ppm of calcium bicarbonate is a
+        different problem from 100&nbsp;ppm of sodium chloride. For growing purposes the total is a good
+        enough proxy, but it is a proxy.</p>
+    </div>
+
+    <div class="card">
+      <h3 style="margin-top:0">The tray arithmetic</h3>
+      <p class="fine" style="margin-top:0">This is the calculation most growers never make. A pot standing
+        in a tray loses water almost entirely to evaporation and transpiration. Both processes leave the
+        dissolved solids behind. So if you top the tray up <b>n</b> times with water at <b>C</b> ppm without
+        ever flushing, the solids in the pot accumulate:</p>
+      <div class="eq">solids after n top-ups &asymp; n &times; C&nbsp;ppm&nbsp;&times;&nbsp;(tray volume)</div>
+      <p class="fine">Ten top-ups with 50&nbsp;ppm water puts as much dissolved solid into the pot as one
+        watering at 500&nbsp;ppm would. That is why growers who use good water and still lose plants are
+        usually growers who never flush.</p>
+      <div class="fek-banner warn"><b>Read the number as an upper bound.</b> The estimate assumes every
+        dissolved solid stays in the pot and stays soluble. In reality some precipitates out of solution,
+        some is taken up, some is bound to the peat, and rain flushes outdoor pots for you. It is a
+        <em>ceiling</em> on accumulation, and its job is to tell you roughly how often to flush &mdash; not
+        to predict a concentration you could measure.</p>
+      </div>
+      <p class="fine">Flushing means pouring clean water through the top of the pot until it runs freely from
+        the bottom, several times, and emptying the tray. Doing that periodically resets the arithmetic.</p>
+    </div>
+
+    <div class="card">
+      <h3 style="margin-top:0">Why the dormancy numbers are not in this app</h3>
+      <p class="fine" style="margin-top:0">The <b>fact</b> that a genus contains temperate species requiring
+        a winter dormancy is well established, and this page ships it. The <b>numbers</b> — how cold, for how
+        many weeks, at what photoperiod — are not here, and their absence is deliberate.</p>
+      <p class="fine">Researching this before building the page turned up no citable primary source for
+        per-genus dormancy temperatures or durations. Figures circulate widely in the hobby, they disagree
+        with each other, and they are usually stated without provenance. Under the honesty rule this kit
+        works to (<a href="adr-031.html">ADR-031</a>, gate 3), a number that is regionally variable,
+        unsourceable and consequential does not get shipped in software.</p>
+      <p class="fine">So the Season tab asks for <em>your</em> target — from your society, your climate, your
+        supplier, or your own successful previous winters — records it alongside the data, and tracks
+        against it. That is worse for a beginner who wanted to be told, and better for anyone who later has
+        to explain why they did what they did.</p>
+    </div>
+
+    <div class="card">
+      <h3 style="margin-top:0">Media</h3>
+      <p class="fine" style="margin-top:0">The preset mixes are <b>hobby conventions</b>: widely used, widely
+        agreed, and not standards. They are a starting point to adapt to your climate, your pots and your
+        watering habits — a mix that works in a humid greenhouse will dry too fast on a windowsill.</p>
+      <p class="fine">Two things are not conventions and matter more than the ratio. <b>Every component must
+        be nutrient-free</b> — no fertiliser, no wetting agents, no lime. And <b>sand must be silica</b>:
+        play sand and builder's sand are frequently calcareous, which raises pH and releases calcium, and
+        that will kill the plant slowly enough that you blame the light.</p>
+    </div>
+
+    <div class="card">
+      <h3 style="margin-top:0">Feeding</h3>
+      <p class="fine" style="margin-top:0">Plants in good light with reasonable prey access generally do not
+        need feeding. Where growers do feed, one published protocol is a very dilute foliar feed &mdash;
+        <b>&frac14; teaspoon of MaxSea per gallon, monthly, on the leaves only</b> (California Carnivores).
+        That is <b>one vendor's protocol</b>, not a standard, and it is genus-dependent: a regime that suits
+        <i>Nepenthes</i> can burn a <i>Dionaea</i>. Root fertilising is how most people kill temperate
+        species.</p>
+    </div>
+
+    <div class="card">
+      <h3 style="margin-top:0">Where plants come from</h3>
+      <p class="fine" style="margin-top:0">Carnivorous plants are among the most heavily poached plant groups
+        there are, and habitat loss has done the rest. Several taxa are legally protected: <i>Sarracenia
+        oreophila</i> and <i>S.&nbsp;alabamensis</i> are US federally listed, <i>Dionaea</i> poaching is a
+        felony in North Carolina, and <i>Nepenthes</i> are on CITES with several species on Appendix I.</p>
+      <p class="fine">The practical rule is simple and it costs nothing: <b>buy from nurseries that propagate
+        their own stock</b>, and keep the provenance in the record. This page has a source field on every
+        plant for exactly that reason. Divisions and seed-grown plants from known cultivated parents are
+        better material anyway — they are adapted to cultivation rather than to a bog.</p>
+      <p class="fine">If you have a wild-collected plant of unknown legality, that is a fact worth recording
+        honestly rather than losing.</p>
+    </div>
+
+    <div class="card">
+      <h3 style="margin-top:0">What this page does not do</h3>
+      <p class="fine" style="margin-top:0">It gives no light, humidity or temperature recommendations by
+        species, for the same reason it gives no dormancy numbers. It does not identify plants or verify
+        hybrid parentage — a cross record is a record of what <em>you did</em>, and a hybrid's identity rests
+        on that record being honest. And it does not track pesticide applications, which are genus-specific
+        and where the wrong product kills the plant faster than the pest.</p>
+    </div>
+  </section>
+
+  <div class="rail">
+    <p class="rl">The bench</p>
+    <div class="chips">
+      <a href="cp-bench.html" aria-current="page"><span>🫙</span>CP Bench</a>
+      <a href="soil-bench.html"><span>🪱</span>Soil Bench</a>
+      <a href="pheno-tracker.html"><span>🧬</span>Pheno Tracker</a>
+      <a href="farm-scout.html"><span>🧑‍🌾</span>Farm Scout</a>
+      <a href="plant-characters.html"><span>🌿</span>Plant Characters</a>
+      <a class="ref" href="ecology.html">← kit hub</a>
+      <a class="ref" href="adr-031.html">ADR-031</a>
+    </div>
+  </div>
+</div>
+
+<div class="tabbar"><div class="row">
+  <button class="tab on" data-pane="p-wat" type="button"><span class="ico">💧</span>Water</button>
+  <button class="tab" data-pane="p-mix" type="button"><span class="ico">🪴</span>Media</button>
+  <button class="tab" data-pane="p-pl" type="button"><span class="ico">🌱</span>Plants</button>
+  <button class="tab" data-pane="p-sea" type="button"><span class="ico">❄️</span>Dormancy</button>
+  <button class="tab" data-pane="p-cro" type="button"><span class="ico">🌸</span>Crosses</button>
+  <button class="tab" data-pane="p-met" type="button"><span class="ico">📖</span>Method</button>
+</div></div>
+<div class="toast" id="toast">Saved</div>
+<script>
+
+/* ---- Field Entry Kit v1.0.0 : constructors return {el, get, set} ---- */
+var FEK = (function(){
+  function el(t,c,h){ var e=document.createElement(t); if(c) e.className=c;
+    if(h!=null) e.innerHTML=h; return e; }
+  function buzz(m){ try{ if(navigator.vibrate) navigator.vibrate(m||8);}catch(e){} }
+
+  function step(o){
+    o=o||{}; var min=(o.min==null?-Infinity:o.min), max=(o.max==null?Infinity:o.max);
+    var stepv=o.step||1, dec=o.dec==null?(String(stepv).split(".")[1]||"").length:o.dec;
+    var v=o.value==null?0:o.value;
+    var wrap=el("div","fek-row"), lab=el("label","fek-lab",
+      (o.label||"")+(o.unit?'<span class="u">'+o.unit+'</span>':""));
+    var box=el("div","fek-step");
+    var minus=el("button",null,"&minus;"), inp=el("input"), plus=el("button",null,"+");
+    minus.type="button"; plus.type="button"; inp.type="number"; inp.className="val";
+    inp.setAttribute("inputmode","decimal");
+    if(o.label) inp.setAttribute("aria-label",o.label);
+    function clamp(x){ return Math.min(max,Math.max(min,x)); }
+    function render(){ inp.value=(dec?v.toFixed(dec):String(v)); }
+    function set(x,quiet){ v=clamp(isFinite(x)?x:0); render(); if(!quiet&&o.onchange) o.onchange(v); }
+    function bump(d){ set(+(v+d*stepv).toFixed(6)); buzz(); }
+    minus.addEventListener("click",function(){ bump(-1); });
+    plus.addEventListener("click",function(){ bump(1); });
+    var hold;
+    function holdOn(d){ return function(){ clearInterval(hold);
+      hold=setInterval(function(){ bump(d); },110); }; }
+    function holdOff(){ clearInterval(hold); }
+    minus.addEventListener("pointerdown",holdOn(-1)); plus.addEventListener("pointerdown",holdOn(1));
+    ["pointerup","pointerleave","pointercancel"].forEach(function(ev){
+      minus.addEventListener(ev,holdOff); plus.addEventListener(ev,holdOff); });
+    inp.addEventListener("input",function(){ var x=parseFloat(inp.value);
+      if(isFinite(x)){ v=clamp(x); if(o.onchange) o.onchange(v); } });
+    inp.addEventListener("blur",render);
+    box.appendChild(minus); box.appendChild(inp); box.appendChild(plus);
+    wrap.appendChild(lab); wrap.appendChild(box);
+    if(o.help) wrap.appendChild(el("p","fek-help",o.help));
+    render();
+    return { el:wrap, get:function(){return v;}, set:function(x){set(x,true);} };
+  }
+
+  function dial(o){
+    o=o||{}; var opts=o.options||[], cur=o.value==null?null:o.value;
+    var wrap=el("div","fek-row"), lab=el("label","fek-lab",o.label||"");
+    var box=el("div","fek-dial"), btns=[];
+    opts.forEach(function(op,i){
+      var b=el("button",null,'<span>'+op.label+'</span>'+(op.sub?'<small>'+op.sub+'</small>':""));
+      b.type="button";
+      b.setAttribute("data-r", op.ramp==null ? String(Math.min(5,Math.round(i*5/Math.max(1,opts.length-1)))) : String(op.ramp));
+      b.addEventListener("click",function(){
+        cur = (cur===op.value && o.clearable!==false) ? null : op.value;
+        paint(); buzz(); if(o.onchange) o.onchange(cur);
+      });
+      btns.push(b); box.appendChild(b);
+    });
+    function paint(){ btns.forEach(function(b,i){ b.classList.toggle("on", opts[i].value===cur); }); }
+    paint();
+    wrap.appendChild(lab); wrap.appendChild(box);
+    if(o.help) wrap.appendChild(el("p","fek-help",o.help));
+    return { el:wrap, get:function(){return cur;},
+             set:function(x){ cur=x; paint(); } };
+  }
+
+  function chips(o){
+    o=o||{}; var opts=o.options||[], sel={};
+    (o.value||[]).forEach(function(v){ sel[v]=1; });
+    var wrap=el("div","fek-row"), lab=el("label","fek-lab",o.label||"");
+    var box=el("div","fek-chips"), btns=[];
+    opts.forEach(function(op){
+      var b=el("button","fek-chip",op.label); b.type="button";
+      b.addEventListener("click",function(){
+        if(o.single){ sel={}; sel[op.value]=1; }
+        else if(sel[op.value]) delete sel[op.value]; else sel[op.value]=1;
+        paint(); buzz(); if(o.onchange) o.onchange(Object.keys(sel));
+      });
+      btns.push(b); box.appendChild(b);
+    });
+    function paint(){ btns.forEach(function(b,i){ b.classList.toggle("on",!!sel[opts[i].value]); }); }
+    paint();
+    wrap.appendChild(lab); wrap.appendChild(box);
+    if(o.help) wrap.appendChild(el("p","fek-help",o.help));
+    return { el:wrap, get:function(){return Object.keys(sel);},
+             set:function(a){ sel={}; (a||[]).forEach(function(v){sel[v]=1;}); paint(); } };
+  }
+
+  function slider(o){
+    o=o||{}; var v=o.value==null?(o.min||0):o.value;
+    var wrap=el("div","fek-row"), lab=el("label","fek-lab",o.label||"");
+    var box=el("div","fek-slide"), r=el("input"), bub=el("div","bub");
+    r.type="range"; r.min=o.min==null?0:o.min; r.max=o.max==null?100:o.max;
+    r.step=o.step||1; r.value=v;
+    if(o.label) r.setAttribute("aria-label",o.label);
+    function paint(){ bub.innerHTML=(o.fmt?o.fmt(v):v)+(o.unit?'<span>'+o.unit+'</span>':""); }
+    r.addEventListener("input",function(){ v=parseFloat(r.value); paint(); if(o.onchange) o.onchange(v); });
+    paint();
+    box.appendChild(r); box.appendChild(bub);
+    wrap.appendChild(lab); wrap.appendChild(box);
+    if(o.help) wrap.appendChild(el("p","fek-help",o.help));
+    return { el:wrap, get:function(){return v;}, set:function(x){ v=x; r.value=x; paint(); } };
+  }
+
+  function picker(o){
+    o=o||{}; var opts=o.options||[], cur=o.value==null?null:o.value, q="";
+    var wrap=el("div","fek-row"), lab=el("label","fek-lab",o.label||"");
+    var box=el("div","fek-pick"), s=el("input","search"), list=el("div","opts");
+    s.type="text"; s.placeholder=o.placeholder||"type to filter…";
+    s.setAttribute("autocomplete","off");
+    if(o.label) s.setAttribute("aria-label",o.label+" filter");
+    function paint(){
+      list.innerHTML="";
+      var qq=q.toLowerCase();
+      var shown=opts.filter(function(op){
+        return !qq || (op.label+" "+(op.sub||"")).toLowerCase().indexOf(qq)>=0; });
+      if(!shown.length){ list.appendChild(el("div","none","No match. Clear the filter to see all "+opts.length+".")); return; }
+      shown.slice(0,200).forEach(function(op){
+        var b=el("button","opt"+(op.value===cur?" on":""),
+          op.label+(op.sub?'<small>'+op.sub+'</small>':""));
+        b.type="button";
+        b.addEventListener("click",function(){ cur=op.value; paint(); buzz(); if(o.onchange) o.onchange(cur); });
+        list.appendChild(b);
+      });
+    }
+    s.addEventListener("input",function(){ q=s.value; paint(); });
+    box.appendChild(s); box.appendChild(list);
+    wrap.appendChild(lab); wrap.appendChild(box);
+    if(o.help) wrap.appendChild(el("p","fek-help",o.help));
+    paint();
+    return { el:wrap, get:function(){return cur;}, set:function(x){ cur=x; paint(); } };
+  }
+
+  function tiles(list){
+    var box=el("div","fek-tiles");
+    (list||[]).forEach(function(t){
+      box.appendChild(el("div","fek-tile"+(t.tone?" "+t.tone:""),
+        '<div class="v">'+t.v+'</div><div class="l">'+t.l+'</div>'));
+    });
+    return box;
+  }
+  function banner(title,body,tone){
+    return el("div","fek-banner"+(tone?" "+tone:""),"<b>"+title+"</b>"+body);
+  }
+  function mount(host,parts){
+    var h=typeof host==="string"?document.getElementById(host):host;
+    h.innerHTML=""; parts.forEach(function(p){ h.appendChild(p.el||p); }); return h;
+  }
+  return { version:"1.0.0", step:step, dial:dial, chips:chips, slider:slider,
+           picker:picker, tiles:tiles, banner:banner, mount:mount, buzz:buzz };
+})();
+</script>
+<script>
+/* ---------------------------------------------------------------------------
+   Suite A data. Note carefully what is here and what is not.
+
+   GENERA carry a `dorm` flag — whether the genus contains temperate species
+   that undergo a winter dormancy. That is a well-established qualitative fact
+   and it ships (gate 1). The NUMBERS behind it — how cold, how long, what
+   photoperiod — do not ship, because the sources disagree and none is citable.
+   The Season tab takes them from the grower. See ADR-031 gate 3.
+
+   MIXES are hobby conventions, widely agreed and low-stakes. They ship
+   LABELLED as conventions (gate 2), not as requirements.
+--------------------------------------------------------------------------- */
+var GENERA = [
+ {id:"sarr", n:"Sarracenia",   com:"North American pitcher plants", dorm:"all",     trap:"pitchers"},
+ {id:"dion", n:"Dionaea",      com:"Venus flytrap",                 dorm:"all",     trap:"traps"},
+ {id:"darl", n:"Darlingtonia", com:"cobra lily",                    dorm:"all",     trap:"pitchers"},
+ {id:"dros", n:"Drosera",      com:"sundews",                       dorm:"some",    trap:"leaves"},
+ {id:"ping", n:"Pinguicula",   com:"butterworts",                   dorm:"some",    trap:"leaves"},
+ {id:"aldr", n:"Aldrovanda",   com:"waterwheel plant",              dorm:"all",     trap:"whorls"},
+ {id:"utri", n:"Utricularia",  com:"bladderworts",                  dorm:"some",    trap:"bladders"},
+ {id:"nepe", n:"Nepenthes",    com:"tropical pitcher plants",       dorm:"none",    trap:"pitchers"},
+ {id:"ceph", n:"Cephalotus",   com:"Albany pitcher plant",          dorm:"rest",    trap:"pitchers"},
+ {id:"heli", n:"Heliamphora",  com:"sun pitchers",                  dorm:"none",    trap:"pitchers"},
+ {id:"genl", n:"Genlisea",     com:"corkscrew plants",              dorm:"none",    trap:"traps"},
+ {id:"bybl", n:"Byblis",       com:"rainbow plants",                dorm:"some",    trap:"leaves"},
+ {id:"drph", n:"Drosophyllum", com:"dewy pine",                     dorm:"rest",    trap:"leaves"},
+ {id:"rori", n:"Roridula",     com:"",                              dorm:"none",    trap:"leaves"},
+ {id:"broc", n:"Brocchinia",   com:"carnivorous bromeliad",         dorm:"none",    trap:"tank"}
+];
+var DORM_NOTE = {
+ all:"Every species in this genus that is in cultivation is temperate and goes dormant.",
+ some:"The genus spans temperate and tropical species. Whether <em>your</em> plant needs a dormancy depends on which one it is.",
+ none:"No true winter dormancy in cultivation.",
+ rest:"Not a true dormancy, but growth slows markedly in a cool season and growers usually reduce water."
+};
+
+/* Media components. nut = nutrient load, 0-3. A carnivorous mix needs every
+   component at 0. */
+var CPCOMP = [
+ {id:"peat", n:"sphagnum peat",        wat:5, air:2, nut:0, note:"The default acid base. Must be unfertilised — check the bag for wetting agents."},
+ {id:"lfs",  n:"long-fibre sphagnum",  wat:5, air:3, nut:0, note:"Airier than milled peat; the usual base for Nepenthes and Heliamphora."},
+ {id:"live", n:"live sphagnum",        wat:5, air:3, nut:0, note:"A living top dressing. Tells you about water quality by dying first."},
+ {id:"perl", n:"perlite",              wat:1, air:5, nut:0, note:"Rinse it. The dust is both a lung irritant and a source of fines that clog a mix."},
+ {id:"sand", n:"silica sand, coarse",  wat:1, air:4, nut:0, note:"Silica only. Play sand and builder's sand are frequently calcareous and will raise pH."},
+ {id:"pumi", n:"pumice",               wat:2, air:5, nut:0, note:"Heavier than perlite and it stays put rather than floating to the surface."},
+ {id:"bark", n:"orchid bark",          wat:2, air:5, nut:0, note:"Epiphytic Nepenthes component. Breaks down and needs repotting on a cycle."},
+ {id:"aps",  n:"calcined clay / APS",  wat:3, air:4, nut:0, note:"Fired clay granules. Inert and structurally stable, unlike bark."},
+ {id:"lava", n:"lava rock",            wat:2, air:5, nut:0, note:"Inert, sharp, permanent. Good in the bottom third of a deep pot."},
+ {id:"coir", n:"coconut coir",         wat:5, air:2, nut:1, note:"Carries salts unless very thoroughly rinsed, and batches vary. Contentious among growers for that reason."}
+];
+
+/* Hobby-convention mixes. Gate 2 -- widely used, not a standard. */
+var PRESETS = [
+ {n:"Sarracenia · Dionaea", parts:{peat:1,perl:1},        note:"The near-universal default for temperate American pitchers and flytraps."},
+ {n:"Sarracenia, sand variant", parts:{peat:2,sand:1},    note:"Heavier and holds more water; common where summers are hot."},
+ {n:"Drosera, temperate",  parts:{peat:1,sand:1},         note:"Mineral-leaning; many temperate sundews grow lean."},
+ {n:"Nepenthes, highland", parts:{lfs:2,perl:1,bark:1},   note:"Open and fast-draining — these are epiphytes and rot in a dense mix."},
+ {n:"Cephalotus",          parts:{peat:1,perl:1,sand:1},  note:"Drainage matters more than water retention here."},
+ {n:"Heliamphora",         parts:{lfs:1,perl:1},          note:"Very airy, constantly damp, never stagnant."},
+ {n:"Utricularia, terrestrial", parts:{peat:1,sand:1},    note:"Keep it wet; terrestrial bladderworts are effectively bog plants."}
+];
+</script>
+<script>
+(function(){
+  "use strict";
+  var $=function(i){return document.getElementById(i);};
+  function esc(s){return String(s==null?"":s).replace(/[&<>"]/g,function(c){
+    return {"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;"}[c];});}
+  var tt;function toast(m){var t=$("toast");t.textContent=m;t.classList.add("on");
+    clearTimeout(tt);tt=setTimeout(function(){t.classList.remove("on");},1700);}
+  function f(x,d){return isFinite(x)?x.toFixed(d==null?1:d):"—";}
+  function copyText(s,m){function ok(){toast(m||"Copied");FEK.buzz();}
+    if(navigator.clipboard&&navigator.clipboard.writeText){
+      navigator.clipboard.writeText(s).then(ok,function(){lg(s,ok);});} else lg(s,ok);}
+  function lg(s,ok){var a=document.createElement("textarea");a.value=s;a.style.position="fixed";
+    a.style.opacity="0";document.body.appendChild(a);a.select();
+    try{document.execCommand("copy");ok();}catch(e){toast("Copy failed");}document.body.removeChild(a);}
+  function genBy(id){for(var i=0;i<GENERA.length;i++) if(GENERA[i].id===id) return GENERA[i]; return null;}
+  function compBy(id){for(var i=0;i<CPCOMP.length;i++) if(CPCOMP[i].id===id) return CPCOMP[i]; return null;}
+
+  /* ========================================================== WATER ===== */
+  var waters=[], wSrc, wTds;
+  var SOURCES=[{value:"ro",label:"RO / DI"},{value:"rain",label:"Rain"},
+               {value:"dist",label:"Distilled"},{value:"tap",label:"Tap"},{value:"well",label:"Well"},
+               {value:"other",label:"Other"}];
+  function waterUI(){
+    wSrc=FEK.chips({label:"Source",single:true,value:["ro"],options:SOURCES});
+    wTds=FEK.step({label:"TDS",unit:"ppm",value:20,min:0,max:2000,step:5,
+      help:"Hold the buttons to move quickly. Meters drift — calibrate yours occasionally."});
+    FEK.mount("wEntry",[wSrc,wTds]);
+  }
+  $("wAdd").addEventListener("click",function(){
+    var s=wSrc.get()[0]||"other";
+    waters.push({src:s,tds:wTds.get()});
+    waterOut(); waterList(); accumOut(); FEK.buzz(14);
+    toast("Logged "+wTds.get()+" ppm");
+  });
+  $("wUndo").addEventListener("click",function(){
+    if(!waters.length){toast("Nothing to undo");return;}
+    waters.pop(); waterOut(); waterList(); accumOut(); toast("Undone");
+  });
+  function verdict(tds){
+    if(tds<=50) return {tone:"good",t:"Excellent — "+tds+" ppm.",
+      b:"Comfortably inside the stricter ~50 ppm target most growers work to. That figure is a hobby "+
+        "<b>convention</b> rather than a sourced threshold, but nothing in cultivation is hurt by water this clean."};
+    if(tds<=160) return {tone:"warn",t:"Usable — "+tds+" ppm.",
+      b:"Under the published guidance that TDS is best below <b>160 ppm</b>, so this will grow plants. It is "+
+        "above the ~50 ppm many growers aim for, which matters most in a tray you rarely flush — see the "+
+        "accumulation figure below."};
+    return {tone:"bad",t:"Too high — "+tds+" ppm.",
+      b:"Above the published 160 ppm guidance. Carnivorous plants have no mechanism for excluding dissolved "+
+        "minerals at the root, so this does damage slowly and the cause is usually mistaken for something "+
+        "else. Rain, RO or distilled water is the fix; there is no amendment that removes dissolved solids."};
+  }
+  function waterOut(){
+    var box=$("wOut");
+    if(!waters.length){ box.innerHTML=""; return; }
+    var last=waters[waters.length-1];
+    var v=verdict(last.tds);
+    box.innerHTML="";
+    box.appendChild(FEK.tiles([
+      {v:last.tds+" ppm", l:"latest reading", tone:last.tds<=50?"good":(last.tds<=160?"warn":"bad")},
+      {v:waters.length, l:"readings logged"},
+      {v:(SOURCES.filter(function(s){return s.value===last.src;})[0]||{label:"?"}).label, l:"source"}
+    ]));
+    box.appendChild(FEK.banner(v.t,v.b,v.tone));
+    /* RO membrane creep */
+    var ro=waters.filter(function(w){return w.src==="ro";});
+    if(ro.length>=3){
+      var first=ro[0].tds, latest=ro[ro.length-1].tds;
+      if(latest>first+15) box.appendChild(FEK.banner("RO output has climbed from "+first+" to "+latest+" ppm.",
+        "A rising output TDS on the same system is the standard sign that the membrane or the DI resin is "+
+        "spent. Compare against your feed water: it is the <em>rejection rate</em> that has fallen, not the "+
+        "source that has changed.","warn"));
+    }
+  }
+  function waterList(){
+    var box=$("wList");
+    if(!waters.length){ box.innerHTML='<p class="fine" style="margin:0">No readings yet.</p>'; return; }
+    box.innerHTML=waters.slice().reverse().map(function(w){
+      var s=(SOURCES.filter(function(x){return x.value===w.src;})[0]||{label:"?"}).label;
+      return '<div class="row2'+(w.tds>160?' inv':'')+'"><div class="g"><b>'+esc(s)+
+        '</b><span>'+(w.tds<=50?"inside the 50 ppm convention":(w.tds<=160?"under the 160 ppm guidance":"above the 160 ppm guidance"))+
+        '</span></div><span class="cov">'+w.tds+' ppm</span></div>';
+    }).join("");
+  }
+  var aTds,aTop,aVol;
+  function accumUI(){
+    aTds=FEK.step({label:"Water TDS",unit:"ppm",value:50,min:0,max:2000,step:5});
+    aTop=FEK.step({label:"Top-ups since the last flush",unit:"times",value:10,min:0,max:200,step:1});
+    aVol=FEK.step({label:"Water added each top-up",unit:"mL",value:250,min:10,max:5000,step:50});
+    [aTds,aTop,aVol].forEach(function(c){ var o=c.el.querySelector("input");
+      if(o) o.addEventListener("input",accumOut); });
+    FEK.mount("wAccum",[aTds,aTop,aVol]);
+    /* the FEK stepper buttons need a change hook too */
+    ["wAccum"].forEach(function(id){
+      $(id).addEventListener("click",function(){ setTimeout(accumOut,0); }); });
+  }
+  function accumOut(){
+    var box=$("wAccumOut");
+    var c=aTds.get(), n=aTop.get(), v=aVol.get();
+    var mgPerTop = c * (v/1000);           /* ppm = mg/L, so mg = ppm * litres */
+    var totalMg = mgPerTop * n;
+    var equiv = n * c;                      /* ppm-equivalent of a single watering */
+    box.innerHTML="";
+    box.appendChild(FEK.tiles([
+      {v:f(totalMg,0)+" mg", l:"dissolved solids left in the pot", tone:equiv>500?"bad":(equiv>250?"warn":"good")},
+      {v:f(equiv,0)+" ppm", l:"same as one watering at", tone:equiv>500?"bad":(equiv>250?"warn":"good")},
+      {v:f(n*v/1000,1)+" L", l:"water evaporated"}
+    ]));
+    box.appendChild(FEK.banner(
+      n+" top-ups at "+c+" ppm is equivalent to a single watering at "+f(equiv,0)+" ppm.",
+      (equiv>160
+        ? "That is past the published 160 ppm guidance — for the pot, not for the bottle. This is how growers "+
+          "using genuinely good water still lose plants: the water is fine and the tray is not. <b>Flush the "+
+          "pots.</b>"
+        : "Still inside the published 160 ppm guidance even after this many top-ups. Flushing periodically "+
+          "anyway costs nothing and resets the count.")+
+      " Treat the figure as an <b>upper bound</b> — some solids precipitate, some are taken up, and outdoor "+
+      "pots get flushed by rain.", equiv>160?"bad":"good"));
+  }
+
+  /* ============================================================ MIX ===== */
+  var mix={};
+  function presetUI(){
+    var host=$("mPresets"); host.innerHTML="";
+    var lab=document.createElement("label"); lab.className="fek-lab";
+    lab.innerHTML="Start from a convention <span class=\"u\">hobby practice, not a standard</span>";
+    host.appendChild(lab);
+    var box=document.createElement("div"); box.className="fek-chips";
+    PRESETS.forEach(function(p){
+      var b=document.createElement("button"); b.type="button"; b.className="fek-chip";
+      b.textContent=p.n;
+      b.addEventListener("click",function(){ mix={}; for(var k in p.parts) mix[k]=p.parts[k];
+        mixUI(); mixOut(p); FEK.buzz(12); toast("Loaded "+p.n); });
+      box.appendChild(b);
+    });
+    host.appendChild(box);
+    var h=document.createElement("p"); h.className="fek-help";
+    h.innerHTML="These are <b>widely used hobby conventions</b>, not requirements. Adapt them to your "+
+      "climate, pots and watering habits — a mix that works in a humid greenhouse dries too fast on a windowsill.";
+    host.appendChild(h);
+  }
+  function mixUI(){
+    var host=$("mGrid"); host.innerHTML="";
+    var lab=document.createElement("label"); lab.className="fek-lab";
+    lab.textContent="Tap to add a part · right-click or long-press to remove";
+    host.appendChild(lab);
+    var g=document.createElement("div"); g.className="fek-dial";
+    g.style.display="grid"; g.style.gridTemplateColumns="repeat(auto-fill,minmax(160px,1fr))";
+    CPCOMP.forEach(function(c){
+      var b=document.createElement("button"); b.type="button";
+      b.setAttribute("data-r", c.nut===0?"2":"4");
+      b.innerHTML='<span>'+esc(c.n)+'</span><small>'+(mix[c.id]||0)+' parts'+(c.nut?' · nutrients':'')+'</small>';
+      if(mix[c.id]) b.classList.add("on");
+      b.addEventListener("click",function(){ mix[c.id]=(mix[c.id]||0)+1; mixUI(); mixOut(); FEK.buzz(); });
+      b.addEventListener("contextmenu",function(e){ e.preventDefault();
+        if(mix[c.id]){ mix[c.id]--; if(!mix[c.id]) delete mix[c.id]; mixUI(); mixOut(); } });
+      g.appendChild(b);
+    });
+    host.appendChild(g);
+  }
+  $("mClear").addEventListener("click",function(){ mix={}; mixUI(); mixOut(); });
+  $("mCopy").addEventListener("click",function(){
+    var ks=Object.keys(mix); if(!ks.length){toast("Empty mix");return;}
+    var tot=ks.reduce(function(a,k){return a+mix[k];},0);
+    copyText("Carnivorous plant mix — "+tot+" parts\n"+ks.map(function(k){
+      return mix[k]+" part"+(mix[k]===1?"":"s")+" "+compBy(k).n; }).join("\n"),"Recipe copied");
+  });
+  function mixOut(preset){
+    var box=$("mOut"), ks=Object.keys(mix);
+    if(!ks.length){ box.innerHTML='<h3 style="margin-top:0">The mix</h3>'+
+      '<p class="fine" style="margin:0">Pick a convention above, or build one component at a time.</p>'; return; }
+    var tot=ks.reduce(function(a,k){return a+mix[k];},0);
+    var wat=0,air=0,nut=0;
+    ks.forEach(function(k){ var c=compBy(k), w=mix[k]/tot; wat+=c.wat*w; air+=c.air*w; nut+=c.nut*w; });
+    var pal=["#2E7D4F","#2B6C8F","#B8860B","#3E8C8C","#C0592B","#7A5C9E","#5A7D2E","#B23A32"];
+    var bar='<div style="display:flex;height:34px;border-radius:10px;overflow:hidden;border:2px solid var(--border);margin:10px 0">';
+    ks.forEach(function(k,i){ bar+='<div title="'+esc(compBy(k).n)+'" style="width:'+(mix[k]/tot*100)+
+      '%;background:'+pal[i%pal.length]+'"></div>'; });
+    bar+='</div>';
+    var rows=ks.map(function(k,i){ var c=compBy(k);
+      return '<tr><td><span style="display:inline-block;width:11px;height:11px;border-radius:3px;background:'+
+        pal[i%pal.length]+';margin-right:7px"></span>'+esc(c.n)+'</td><td class="n">'+mix[k]+'</td>'+
+        '<td class="n">'+Math.round(mix[k]/tot*100)+'%</td><td>'+esc(c.note)+'</td></tr>'; }).join("");
+    box.innerHTML='<h3 style="margin-top:0">The mix — '+tot+' parts</h3>'+bar+
+      '<div class="tw"><table><tr><th>component</th><th class="n">parts</th><th class="n">share</th><th>note</th></tr>'+
+      rows+'</table></div>';
+    box.appendChild(FEK.tiles([
+      {v:f(wat,1)+" / 5", l:"water holding"},
+      {v:f(air,1)+" / 5", l:"aeration", tone:air>=3?"good":"warn"},
+      {v:f(nut,2)+" / 5", l:"nutrient load", tone:nut===0?"good":"bad"}
+    ]));
+    if(nut>0) box.appendChild(FEK.banner("This mix is not nutrient-free.",
+      "Every component in a carnivorous mix must score zero. Coconut coir carries salts unless very "+
+      "thoroughly rinsed and batches vary, which is why it is contentious. Remove it, or be certain of "+
+      "your rinsing.","bad"));
+    else box.appendChild(FEK.banner("Nutrient-free.",
+      "Every component scores zero. The other half of the requirement is the water, and the Water tab is "+
+      "where that lives.","good"));
+    if(preset) box.appendChild(FEK.banner("Loaded: "+preset.n,
+      esc(preset.note)+" This is a <b>hobby convention</b> — a starting point, not a specification.","cold"));
+    box.appendChild(FEK.banner("Sand must be silica.",
+      "Play sand and builder's sand are frequently calcareous. They raise pH and release calcium, and the "+
+      "plant declines slowly enough that the light or the water usually gets the blame.","warn"));
+  }
+
+  /* ========================================================= PLANTS ===== */
+  var plants=[], obs=[], pGen,pName,pSrc, oPick,oKind,oCount;
+  var OBS=[{value:"count",label:"Trap count"},{value:"grow",label:"New growth"},
+           {value:"flower",label:"Flowering"},{value:"divide",label:"Divided"},
+           {value:"repot",label:"Repotted"},{value:"pest",label:"Pest"},{value:"loss",label:"Lost it"}];
+  function plantUI(){
+    pGen=FEK.picker({label:"Genus",placeholder:"filter 15 genera…",
+      options:GENERA.map(function(g){ return {value:g.id,label:g.n,
+        sub:(g.com||"")+" · "+(g.dorm==="all"?"dormancy: all cultivated species":
+             g.dorm==="some"?"dormancy: some species":
+             g.dorm==="rest"?"cool rest, not true dormancy":"no winter dormancy")}; })});
+    pName=document.createElement("div"); pName.className="fek-row";
+    pName.innerHTML='<label class="fek-lab" for="pnm">Name or clone</label>'+
+      '<input id="pnm" type="text" placeholder="S. flava var. rubricorpora &lsquo;Claret&rsquo;" '+
+      'autocomplete="off" style="width:100%;min-height:var(--tap);font:700 17px var(--body);'+
+      'border:2px solid var(--border);border-radius:var(--fek-r);padding:0 15px;background:var(--surface);color:var(--ink)">';
+    pSrc=document.createElement("div"); pSrc.className="fek-row";
+    pSrc.innerHTML='<label class="fek-lab" for="psr">Source <span class="u">provenance matters — see Method</span></label>'+
+      '<input id="psr" type="text" placeholder="nursery, division from X, seed-grown" '+
+      'autocomplete="off" style="width:100%;min-height:var(--tap);font:700 17px var(--body);'+
+      'border:2px solid var(--border);border-radius:var(--fek-r);padding:0 15px;background:var(--surface);color:var(--ink)">';
+    FEK.mount("pNew",[pGen,{el:pName},{el:pSrc}]);
+  }
+  function obsUI(){
+    oPick=FEK.picker({label:"Plant",placeholder:"filter…",
+      options:plants.map(function(p,i){ return {value:String(i),label:p.name||("plant "+(i+1)),
+        sub:(genBy(p.gen)||{n:"?"}).n}; })});
+    oKind=FEK.chips({label:"What happened",single:true,value:["count"],options:OBS});
+    oCount=FEK.step({label:"Count (for trap counts)",unit:"",value:0,min:0,max:999,step:1});
+    FEK.mount("pObs",[oPick,oKind,oCount]);
+  }
+  $("pAdd").addEventListener("click",function(){
+    var g=pGen.get(); if(!g){toast("Pick a genus");return;}
+    var nm=($("pnm")||{}).value||"", sr=($("psr")||{}).value||"";
+    plants.push({gen:g,name:nm.trim()||((genBy(g)||{}).n+" sp."),src:sr.trim()});
+    if($("pnm")) $("pnm").value=""; if($("psr")) $("psr").value="";
+    obsUI(); plantList(); plantOut(); FEK.buzz(14); toast("Added");
+  });
+  $("oAdd").addEventListener("click",function(){
+    var i=oPick.get(); if(i==null){toast("Pick a plant");return;}
+    obs.push({p:+i,kind:oKind.get()[0]||"count",n:oCount.get(),t:obs.length});
+    plantOut(); plantList(); FEK.buzz(12); toast("Logged");
+  });
+  $("oUndo").addEventListener("click",function(){
+    if(!obs.length){toast("Nothing to undo");return;} obs.pop(); plantOut(); plantList(); });
+  function plantList(){
+    var box=$("pList");
+    if(!plants.length){ box.innerHTML='<p class="fine" style="margin:0">No plants yet.</p>'; return; }
+    box.innerHTML="";
+    plants.forEach(function(p,i){
+      var g=genBy(p.gen)||{n:"?"};
+      var mine=obs.filter(function(o){return o.p===i;});
+      var counts=mine.filter(function(o){return o.kind==="count";});
+      var latest=counts.length?counts[counts.length-1].n:null;
+      var d=document.createElement("div"); d.className="row2";
+      d.innerHTML='<div class="g"><b>'+esc(p.name)+'</b><span>'+esc(g.n)+
+        (p.src?' · '+esc(p.src):' · <b>no source recorded</b>')+' · '+mine.length+' observations</span></div>'+
+        (latest!=null?'<span class="cov">'+latest+'</span>':'');
+      var x=document.createElement("button"); x.type="button"; x.textContent="✕";
+      x.addEventListener("click",function(){
+        plants.splice(i,1); obs=obs.filter(function(o){return o.p!==i;})
+          .map(function(o){ return o.p>i?{p:o.p-1,kind:o.kind,n:o.n,t:o.t}:o; });
+        obsUI(); plantList(); plantOut(); });
+      d.appendChild(x); box.appendChild(d);
+    });
+  }
+  function plantOut(){
+    var box=$("pOut");
+    if(!plants.length){ box.innerHTML=""; return; }
+    var noSrc=plants.filter(function(p){return !p.src;}).length;
+    var lost=obs.filter(function(o){return o.kind==="loss";}).length;
+    box.innerHTML='<h3 style="margin-top:0">Collection</h3>';
+    box.appendChild(FEK.tiles([
+      {v:plants.length, l:"plants"},
+      {v:obs.length, l:"observations"},
+      {v:noSrc, l:"without a source", tone:noSrc?"warn":"good"},
+      {v:lost, l:"losses recorded", tone:lost?"warn":""}
+    ]));
+    /* trap-count trend for the picked plant */
+    var i=oPick&&oPick.get();
+    if(i!=null){
+      var series=obs.filter(function(o){return o.p===+i&&o.kind==="count";}).map(function(o){return o.n;});
+      if(series.length>=2){
+        var first=series[0], last=series[series.length-1];
+        var W=560,H=170,P=36;
+        var lo=Math.min.apply(null,series), hi=Math.max.apply(null,series);
+        if(hi===lo) hi=lo+1;
+        var pts=series.map(function(v,k){
+          return (k?"L":"M")+(P+k/(series.length-1)*(W-P-16)).toFixed(1)+","+
+                 (H-P-(v-lo)/(hi-lo)*(H-P-16)).toFixed(1); }).join(" ");
+        box.innerHTML+='<svg class="scat" viewBox="0 0 '+W+' '+H+'" role="img" aria-label="trap count over time">'+
+          '<path d="'+pts+'" fill="none" stroke="#2E7D4F" stroke-width="2.5"/>'+
+          '<text x="'+(W/2)+'" y="'+(H-8)+'" text-anchor="middle" font-size="12" fill="#8B8B7B" '+
+          'font-family="monospace">'+esc(plants[+i].name)+' — trap count across '+series.length+' observations</text>'+
+          '</svg>';
+        box.appendChild(FEK.banner(
+          last>first?("Up from "+first+" to "+last+"."):(last<first?("Down from "+first+" to "+last+"."):"Holding at "+last+"."),
+          "A trap or pitcher count is a crude proxy for vigour and it is strongly seasonal — a temperate "+
+          "species shedding pitchers in autumn is behaving correctly, not declining. The comparison worth "+
+          "making is against the same plant at the same point last year.", last>=first?"good":"warn"));
+      }
+    }
+    if(noSrc) box.appendChild(FEK.banner(noSrc+" plant"+(noSrc===1?"":"s")+" with no source recorded.",
+      "Provenance is worth keeping. Several carnivorous taxa are legally protected and the group is heavily "+
+      "poached, so knowing a plant was nursery-propagated is worth having written down — see Method.","warn"));
+  }
+
+  /* ======================================================== DORMANCY ==== */
+  var temps=[], dTemp,dWeeks,dGen, sTemp;
+  function refuseUI(){
+    var box=$("sRefuse"); box.innerHTML="";
+    box.appendChild(FEK.banner("This page will not tell you your dormancy temperature.",
+      "Researching it before building this turned up <b>no citable source</b> for per-genus dormancy "+
+      "temperatures, durations or photoperiods. Numbers circulate widely in the hobby, disagree with each "+
+      "other, and are usually given without provenance. Under this kit's honesty rule "+
+      "(<a href=\"adr-031.html\">ADR-031</a>, gate 3) a number that is variable, unsourceable and "+
+      "consequential does not get shipped in software. Set <em>your</em> target below — from your society, "+
+      "your climate, or your own previous winters — and the page tracks against it and keeps it with the "+
+      "data.","bad"));
+  }
+  function seasonUI(){
+    dGen=FEK.picker({label:"Genus (for the dormancy note only)",placeholder:"filter…",
+      options:GENERA.map(function(g){ return {value:g.id,label:g.n,sub:g.com||""}; }),
+      onchange:function(){ seasonOut(); }});
+    dTemp=FEK.step({label:"Your target: stay at or below",unit:"°C",value:10,min:-20,max:25,step:1,
+      help:"Whatever figure you are working to. It gets recorded alongside the data."});
+    dWeeks=FEK.step({label:"Your target: for at least",unit:"weeks",value:12,min:1,max:30,step:1});
+    FEK.mount("sTarget",[dGen,dTemp,dWeeks]);
+    sTemp=FEK.step({label:"Temperature today",unit:"°C",value:8,min:-25,max:35,step:1});
+    FEK.mount("sEntry",[sTemp]);
+    $("sTarget").addEventListener("click",function(){ setTimeout(seasonOut,0); });
+  }
+  $("sAdd").addEventListener("click",function(){
+    temps.push(sTemp.get()); seasonOut(); seasonChart(); FEK.buzz(12);
+    toast("Logged "+sTemp.get()+" °C"); });
+  $("sUndo").addEventListener("click",function(){
+    if(!temps.length){toast("Nothing to undo");return;} temps.pop(); seasonOut(); seasonChart(); });
+  $("sDemo").addEventListener("click",function(){
+    temps=[12,10,9,7,5,4,6,8,3,2,4,5,7,6,9,11,8,6,4,3,5,7,9,12,14,11,9,7,6,8,
+           5,4,3,6,8,10,7,5,4,6,9,11,13,10,8,6,5,7,9,12,14,16,13,11,9,12,15,17];
+    seasonOut(); seasonChart(); toast(temps.length+" daily readings loaded"); FEK.buzz(14); });
+  function seasonOut(){
+    var box=$("sOut");
+    var g=dGen&&dGen.get()? genBy(dGen.get()) : null;
+    box.innerHTML='<h3 style="margin-top:0">Progress against your target</h3>';
+    if(g){
+      box.appendChild(FEK.banner(g.n+" — "+
+        (g.dorm==="all"?"needs a dormancy":g.dorm==="some"?"depends on the species":
+         g.dorm==="rest"?"a cool rest, not a true dormancy":"no winter dormancy"),
+        DORM_NOTE[g.dorm]+" That much is well established and this page ships it. The numbers are still yours "+
+        "to set.", g.dorm==="none"?"cold":"good"));
+    }
+    if(!temps.length){ box.innerHTML+='<p class="fine" style="margin:0">Log a temperature or two.</p>'; return; }
+    var target=dTemp.get(), weeks=dWeeks.get(), needDays=weeks*7;
+    var atOrBelow=temps.filter(function(t){return t<=target;}).length;
+    /* longest unbroken run at or below target */
+    var run=0,best=0;
+    temps.forEach(function(t){ if(t<=target){ run++; best=Math.max(best,run);} else run=0; });
+    var pct=Math.min(100,atOrBelow/needDays*100);
+    box.appendChild(FEK.tiles([
+      {v:atOrBelow+" / "+needDays, l:"days at or below "+target+" °C",
+       tone:atOrBelow>=needDays?"good":"warn"},
+      {v:best, l:"longest unbroken run"},
+      {v:temps.length, l:"readings"},
+      {v:f(pct,0)+"%", l:"of your target", tone:pct>=100?"good":(pct>=60?"warn":"cold")}
+    ]));
+    if(atOrBelow>=needDays)
+      box.appendChild(FEK.banner("Your target is met.",
+        "You logged "+atOrBelow+" days at or below "+target+" °C against a target of "+weeks+
+        " weeks. That is <em>your</em> target met on <em>your</em> record — this page has no opinion on "+
+        "whether it was the right number.","good"));
+    else
+      box.appendChild(FEK.banner((needDays-atOrBelow)+" days short of your target.",
+        "Counting days at or below "+target+" °C, not consecutive days — dormancy is generally treated as "+
+        "cumulative cold rather than an unbroken run, but if you work to an unbroken run instead, your "+
+        "longest so far is "+best+" days.","warn"));
+    var warm=temps.filter(function(t){return t>target+8;}).length;
+    if(warm>3) box.appendChild(FEK.banner(warm+" readings well above your target.",
+      "Repeated warm spells during a dormancy period can bring a plant part-way out and are hard on it. "+
+      "Whether that matters at your numbers is a judgement this page cannot make for you.","warn"));
+  }
+  function seasonChart(){
+    var box=$("sChart");
+    if(temps.length<2){ box.innerHTML=""; return; }
+    var W=620,H=210,P=38, target=dTemp.get();
+    var lo=Math.min.apply(null,temps.concat([target]))-2, hi=Math.max.apply(null,temps.concat([target]))+2;
+    function X(i){ return P+i/(temps.length-1)*(W-P-16); }
+    function Y(t){ return H-P-(t-lo)/(hi-lo)*(H-P-16); }
+    var path=temps.map(function(t,i){ return (i?"L":"M")+X(i).toFixed(1)+","+Y(t).toFixed(1); }).join(" ");
+    var dots=temps.map(function(t,i){
+      return '<circle cx="'+X(i).toFixed(1)+'" cy="'+Y(t).toFixed(1)+'" r="3.2" fill="'+
+        (t<=target?"#2B6C8F":"#C0592B")+'"/>'; }).join("");
+    box.innerHTML='<h3 style="margin-top:0">Temperature against your target</h3>'+
+      '<svg class="scat" viewBox="0 0 '+W+' '+H+'" role="img" aria-label="daily temperature against the dormancy target">'+
+      '<rect x="'+P+'" y="'+Y(target).toFixed(1)+'" width="'+(W-P-16)+'" height="'+(H-P-Y(target)).toFixed(1)+
+        '" fill="#2B6C8F" fill-opacity=".10"/>'+
+      '<line x1="'+P+'" y1="'+Y(target).toFixed(1)+'" x2="'+(W-16)+'" y2="'+Y(target).toFixed(1)+
+        '" stroke="#2B6C8F" stroke-width="2" stroke-dasharray="6 4"/>'+
+      '<path d="'+path+'" fill="none" stroke="#23281F" stroke-width="1.8"/>'+dots+
+      '<text x="'+(P+6)+'" y="'+(Y(target)-7).toFixed(1)+'" font-size="12" fill="#2B6C8F" '+
+      'font-family="monospace">your target: '+target+' °C</text>'+
+      '<text x="'+(W/2)+'" y="'+(H-8)+'" text-anchor="middle" font-size="12" fill="#8B8B7B" '+
+      'font-family="monospace">reading number — blue is at or below target</text></svg>';
+  }
+
+  /* ========================================================= CROSSES ==== */
+  var crosses=[], xPod,xPol,xNote, uPick,uSeed,uGerm;
+  function crossUI(){
+    function txt(id,lab,ph){
+      var d=document.createElement("div"); d.className="fek-row";
+      d.innerHTML='<label class="fek-lab" for="'+id+'">'+lab+'</label>'+
+        '<input id="'+id+'" type="text" placeholder="'+ph+'" autocomplete="off" '+
+        'style="width:100%;min-height:var(--tap);font:700 17px var(--body);border:2px solid var(--border);'+
+        'border-radius:var(--fek-r);padding:0 15px;background:var(--surface);color:var(--ink)">';
+      return {el:d};
+    }
+    xPod=txt("xpod","Pod parent <span class=\"u\">seed bearer — written first</span>","S. leucophylla &lsquo;Tarnok&rsquo;");
+    xPol=txt("xpol","Pollen parent","S. flava var. ornata");
+    xNote=txt("xnote","Note","hand-pollinated, bagged");
+    FEK.mount("cNew",[xPod,xPol,xNote]);
+    updUI();
+  }
+  function updUI(){
+    uPick=FEK.picker({label:"Cross",placeholder:"filter…",
+      options:crosses.map(function(c,i){ return {value:String(i),label:c.pod+" × "+c.pol,
+        sub:(c.seed?c.seed+" seed":"no seed recorded")+(c.germ?", "+c.germ+" germinated":"")}; })});
+    uSeed=FEK.step({label:"Seed collected",unit:"count",value:0,min:0,max:9999,step:5});
+    uGerm=FEK.step({label:"Seedlings germinated",unit:"count",value:0,min:0,max:9999,step:1});
+    FEK.mount("cUpd",[uPick,uSeed,uGerm]);
+  }
+  $("cAdd").addEventListener("click",function(){
+    var pod=($("xpod")||{}).value||"", pol=($("xpol")||{}).value||"";
+    if(!pod.trim()||!pol.trim()){toast("Both parents, please");return;}
+    crosses.push({pod:pod.trim(),pol:pol.trim(),note:(($("xnote")||{}).value||"").trim(),seed:0,germ:0});
+    ["xpod","xpol","xnote"].forEach(function(i){ if($(i)) $(i).value=""; });
+    updUI(); crossList(); crossOut(); FEK.buzz(14); toast("Recorded");
+  });
+  $("cUndo").addEventListener("click",function(){
+    if(!crosses.length){toast("Nothing to undo");return;} crosses.pop(); updUI(); crossList(); crossOut(); });
+  $("cSave").addEventListener("click",function(){
+    var i=uPick.get(); if(i==null){toast("Pick a cross");return;}
+    crosses[+i].seed=uSeed.get(); crosses[+i].germ=uGerm.get();
+    updUI(); crossList(); crossOut(); FEK.buzz(14); toast("Saved");
+  });
+  function crossList(){
+    var box=$("cList");
+    if(!crosses.length){ box.innerHTML='<p class="fine" style="margin:0">No crosses yet.</p>'; return; }
+    box.innerHTML=crosses.slice().reverse().map(function(c){
+      var r=c.seed?Math.round(c.germ/c.seed*1000)/10:null;
+      return '<div class="row2"><div class="g"><b>'+esc(c.pod)+' × '+esc(c.pol)+'</b><span>'+
+        (c.seed?c.seed+" seed":"no seed recorded")+(c.germ?" · "+c.germ+" germinated":"")+
+        (c.note?" · "+esc(c.note):"")+'</span></div>'+
+        (r!=null?'<span class="cov">'+r+'%</span>':'')+'</div>';
+    }).join("");
+  }
+  function crossOut(){
+    var box=$("cOut");
+    if(!crosses.length){ box.innerHTML=""; return; }
+    var withSeed=crosses.filter(function(c){return c.seed>0;});
+    var totSeed=withSeed.reduce(function(a,c){return a+c.seed;},0);
+    var totGerm=withSeed.reduce(function(a,c){return a+c.germ;},0);
+    box.innerHTML='<h3 style="margin-top:0">Crosses</h3>';
+    box.appendChild(FEK.tiles([
+      {v:crosses.length, l:"crosses recorded"},
+      {v:withSeed.length, l:"set seed", tone:withSeed.length?"good":"warn"},
+      {v:totSeed, l:"seed collected"},
+      {v:totSeed?f(totGerm/totSeed*100,1)+"%":"—", l:"germination overall",
+       tone:totSeed&&totGerm/totSeed>0.3?"good":""}
+    ]));
+    box.appendChild(FEK.banner("A germination percentage is about your method as much as the seed.",
+      "Stratification requirement and duration, sowing depth, light, and how fresh the seed was all move it, "+
+      "and they are species-specific. This page records what you got; it does not tell you what to expect, "+
+      "for the same reason it does not tell you a dormancy temperature.","cold"));
+    box.appendChild(FEK.banner("The pod parent is written first.",
+      "That is the horticultural convention, and it is not cosmetic — reciprocal crosses can differ, and a "+
+      "hybrid's registered identity rests on the record being the right way round. This page cannot verify "+
+      "parentage; it records what you say you did.","warn"));
+  }
+
+  /* ------------------------------------------------------------ tabs --- */
+  document.querySelectorAll(".tab").forEach(function(tb){
+    tb.addEventListener("click",function(){
+      document.querySelectorAll(".tab").forEach(function(t){t.classList.toggle("on",t===tb);});
+      document.querySelectorAll(".pane").forEach(function(p){p.classList.toggle("on",p.id===tb.dataset.pane);});
+      window.scrollTo(0,0); FEK.buzz();
+    });
+  });
+  waterUI(); accumUI(); accumOut(); waterList();
+  presetUI(); mixUI(); mixOut();
+  plantUI(); obsUI(); plantList(); plantOut();
+  refuseUI(); seasonUI(); seasonOut();
+  crossUI(); crossList(); crossOut();
+})();
+</script>
+</body>
+</html>

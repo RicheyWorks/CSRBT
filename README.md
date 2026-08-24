@@ -768,6 +768,19 @@ live, and every export carries site, observer, and date plus a CSV for Excel/R:
   flagged, from a single parent), and **R&nbsp;=&nbsp;h&sup2;S** printed as a hypothesis the next generation
   will test rather than a forecast. Trait distributions before and after the episode, a fitness-on-trait
   scatter, and a per-individual CSV shaped for the multiple regression the page deliberately does not attempt.
+- [**`docs/cp-bench.html`**](docs/cp-bench.html) — **CP Bench**, the carnivorous-plant suite, second
+  instrument on the Field Entry Kit. **Water first**, because it kills more carnivorous plants than anything
+  else: TDS logged per source against the published **&lt;160&nbsp;ppm** guidance (with the stricter ~50&nbsp;ppm
+  hobby target labelled a convention), RO membrane creep flagged when output climbs, and the **tray
+  accumulation arithmetic** &mdash; ten top-ups at 50&nbsp;ppm leaves as much dissolved solid in the pot as one
+  watering at 500, which is how growers using genuinely good water still lose plants. Nutrient-free media by
+  parts with the standard mixes offered as **hobby conventions rather than requirements** and coir flagged for
+  its salts; a per-plant log with a provenance field, because several taxa are legally protected and the group
+  is heavily poached; and a cross log through to germination with the pod-parent-first convention enforced.
+  **The Dormancy tab ships no numbers**: research found no citable source for per-genus dormancy temperatures,
+  durations or photoperiods, so the page takes your target, records it with the data, and tracks against it.
+  The *fact* that a genus needs a dormancy is well established and does ship &mdash; the distinction is
+  ADR-031's gate system doing its job.
 - [**`docs/soil-bench.html`**](docs/soil-bench.html) — **Soil Bench**: compost, mixes and texture, and the
   first instrument built on the **Field Entry Kit** (see
   [`ADR-031`](docs/ADR-031-entry-layer-and-suites-2026-08-24.md)). The compost log tracks a pile against the

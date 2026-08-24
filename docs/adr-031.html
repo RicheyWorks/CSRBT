@@ -113,8 +113,8 @@
   .adr-meta .k { font-family:var(--mono); font-size:10.5px; letter-spacing:.13em; text-transform:uppercase; color:var(--muted); }
   .adr-meta .v { font-family:var(--head); font-weight:600; font-size:16px; margin-top:3px; line-height:1.35; }
   .status { display:inline-block; font-family:var(--mono); font-size:11px; letter-spacing:.1em;
-    text-transform:uppercase; border-radius:999px; padding:4px 12px; border:1.5px solid var(--s2);
-    color:var(--s2); background:var(--warn); }
+    text-transform:uppercase; border-radius:999px; padding:4px 12px; border:1.5px solid var(--s1);
+    color:var(--s1-deep); background:var(--soft); }
   h3 { border-top:1px solid var(--border); padding-top:16px; }
   h4 { font-family:var(--head); font-weight:600; font-size:16.5px; margin:20px 0 4px; color:var(--ink); }
   hr { border:0; border-top:3px solid var(--s1); margin:38px 0 4px; }
@@ -126,6 +126,8 @@
   ol.act li.todo::marker { color:var(--s2); }
   ol.act li.done::before { content:"\2713 "; color:var(--s1); font-weight:700; }
   ol.act li.todo::before { content:"\25A2 "; color:var(--s2); font-weight:700; }
+  ol.act li.part::before { content:"\25D0 "; color:var(--s3); font-weight:700; }
+  ol.act li.part { color:var(--ink-2); }
   table td strong, table th { font-weight:600; }
   .tw table { font-size:14.5px; }
   .tw th { white-space:nowrap; }
@@ -165,7 +167,9 @@
 <body>
 <nav class="kit-nav">
   <a href="ecology.html">Overview</a>
+  <a href="ecology.html#suites">Suites</a>
   <a href="soil-bench.html">Soil Bench</a>
+  <a href="cp-bench.html">CP Bench</a>
   <a href="ecology.html#field-tools">Field Tools</a>
 </nav>
 
@@ -173,18 +177,18 @@
   <div class="masthead">
     <p class="eyebrow">CSRBT · architecture decision record</p>
     <h1>A shared entry layer, and three domain suites</h1>
-    <p class="dek">Nineteen instruments in, data entry has been re-invented nineteen times and the hub has
+    <p class="dek">Nineteen instruments in, data entry had been re-invented nineteen times and the hub had
       outgrown a flat list. This record proposes one versioned entry layer, suite-level packaging, and a
       written test for which numbers the kit is allowed to ship.</p>
     <div class="adr-meta">
-      <div><span class="k">Status</span><span class="v"><span class="status">Proposed</span></span></div>
+      <div><span class="k">Status</span><span class="v"><span class="status">Accepted</span></span></div>
       <div><span class="k">Date</span><span class="v">24 August 2026</span></div>
-      <div><span class="k">Built this slice</span><span class="v">FEK v1.0.0 · Soil Bench</span></div>
-      <div><span class="k">Verified</span><span class="v">64 / 64 checks</span></div>
+      <div><span class="k">Built</span><span class="v">FEK v1.0.0 · Soil Bench · CP Bench</span></div>
+      <div><span class="k">Verified</span><span class="v">142 checks across the two benches</span></div>
     </div>
   </div>
 <h1>ADR-031: A shared entry layer, and three domain suites</h1>
-<p><strong>Status:</strong> Proposed — Field Entry Kit v1 and Soil Bench built and verified; suites A and B specified, not built</p>
+<p><strong>Status:</strong> Accepted — FEK v1, Soil Bench and CP Bench built and verified; Suite B specified, not built</p>
 <p><strong>Date:</strong> 2026-08-24</p>
 <p><strong>Deciders:</strong> Richmond</p>
 <p><strong>Supersedes:</strong> nothing. <strong>Touches:</strong> every instrument in <code>CSRBT/docs/</code></p>
@@ -403,9 +407,9 @@
 <ol start="1" class="act"><li class="done">Build FEK v1.0.0 — seven components, one sizing token, six-stop ramp</li></ol>
 <ol start="2" class="act"><li class="done">Build Soil Bench on FEK v1 as the proving consumer — 64/64 verified</li></ol>
 <ol start="3" class="act"><li class="done">Write the honesty test down as a three-way gate</li></ol>
-<ol start="4" class="act"><li class="todo">Build Suite A: <code>cp-bench.html</code> + <code>cp-characters.html</code></li></ol>
+<ol start="4" class="act"><li class="part">Build Suite A: <code>cp-bench.html</code> <strong>built and verified 78/78</strong>; <code>cp-characters.html</code> still to do</li></ol>
 <ol start="5" class="act"><li class="todo">Build Suite B: <code>breeding-bench.html</code>, reusing Selection Log's engine</li></ol>
-<ol start="6" class="act"><li class="todo">Add a <strong>Suites</strong> section to the kit hub; give each suite its own hub and rail</li></ol>
+<ol start="6" class="act"><li class="done">Add a <strong>Suites</strong> section to the kit hub and a nav chip; per-suite hubs still to do</li></ol>
 <ol start="7" class="act"><li class="todo">Migrate Stand Sheet, Relevé, Collection Sheet and Ethogram to FEK; bump to v1.1 if the migration</li></ol>
 <p>       shows up missing components (a date entry and a multi-row table editor are the likely gaps)</p>
 <ol start="8" class="act"><li class="todo">Add FEK version assertions to every migrated page's test suite</li></ol>
@@ -468,12 +472,13 @@
 <p><a href="https://www.californiacarnivores.com/blogs/growing-tips/76003845-general-carnivorous-plant-growing-tips">California Carnivores — growing tips</a> ·</p>
 <p><a href="https://www.nrcs.usda.gov/resources/education-and-teaching-materials/soil-texture-calculator">NRCS soil texture calculator</a></p>
   <footer>
-    <p><b>ADR-031</b> — part of the CSRBT ecology kit. Proving consumer:
-    <a href="soil-bench.html">Soil Bench</a>. Hub: <a href="ecology.html">the kit</a>.
+    <p><b>ADR-031</b> — part of the CSRBT ecology kit. Proving consumers:
+    <a href="soil-bench.html">Soil Bench</a> and <a href="cp-bench.html">CP Bench</a>.
+    Hub: <a href="ecology.html">the kit</a>.
     Markdown source: <code>docs/ADR-031-entry-layer-and-suites-2026-08-24.md</code>.</p>
     <p>Research was gathered on 24 August 2026 and every finding is tagged with the honesty gate it falls
     under. Where a source could not be found — carnivorous-plant dormancy above all — that absence is
-    recorded as the finding rather than filled in.</p>
+    recorded as the finding rather than filled in, and CP Bench's Dormancy tab is the result.</p>
   </footer>
 </div>
 </body>

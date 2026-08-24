@@ -1,6 +1,6 @@
 # ADR-031: A shared entry layer, and three domain suites
 
-**Status:** Proposed — Field Entry Kit v1 and Soil Bench built and verified; suites A and B specified, not built
+**Status:** Accepted — FEK v1, Soil Bench and CP Bench built and verified; Suite B specified, not built
 **Date:** 2026-08-24
 **Deciders:** Richmond
 **Supersedes:** nothing. **Touches:** every instrument in `CSRBT/docs/`
@@ -273,9 +273,9 @@ be stated in each page rather than hidden.
 1. [x] Build FEK v1.0.0 — seven components, one sizing token, six-stop ramp
 2. [x] Build Soil Bench on FEK v1 as the proving consumer — 64/64 verified
 3. [x] Write the honesty test down as a three-way gate
-4. [ ] Build Suite A: `cp-bench.html` + `cp-characters.html`
+4. [~] Build Suite A: `cp-bench.html` **built and verified 78/78**; `cp-characters.html` still to do
 5. [ ] Build Suite B: `breeding-bench.html`, reusing Selection Log's engine
-6. [ ] Add a **Suites** section to the kit hub; give each suite its own hub and rail
+6. [x] Add a **Suites** section to the kit hub and a nav chip; per-suite hubs still to do
 7. [ ] Migrate Stand Sheet, Relevé, Collection Sheet and Ethogram to FEK; bump to v1.1 if the migration
        shows up missing components (a date entry and a multi-row table editor are the likely gaps)
 8. [ ] Add FEK version assertions to every migrated page's test suite
