@@ -1,0 +1,980 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>CP Characters — carnivorous plants, drawn</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,ital,wght@9..144,0,500;9..144,0,600;9..144,0,700;9..144,1,500&family=Newsreader:opsz,ital,wght@6..72,0,400;6..72,0,500;6..72,0,600;6..72,1,400&family=JetBrains+Mono:wght@400;500&display=swap">
+<style>
+  :root {
+    color-scheme: light;
+    --page:#F5F1E6; --surface:#FFFDF7; --ink:#23281F; --ink-2:#4B5344; --muted:#8B8B7B;
+    --border:#E3DCC9; --rule:#C7C0AC; --s1:#2E7D4F; --s1-deep:#236240; --s2:#C0592B; --s3:#2B6C8F;
+    --soft:#E9F0E7; --soft-2:#F3EEE0; --warn:#F6EAD8; --gold:#B8860B;
+    --shadow:0 1px 2px rgba(35,40,31,.05),0 12px 32px rgba(35,40,31,.06);
+    --head:"Fraunces",Georgia,serif; --body:"Newsreader",Georgia,"Times New Roman",serif;
+    --mono:"JetBrains Mono",ui-monospace,Menlo,monospace;
+  }
+  * { box-sizing:border-box; }
+  body { margin:0; background:var(--page); color:var(--ink); font:18px/1.62 var(--body);
+    -webkit-font-smoothing:antialiased; text-rendering:optimizeLegibility; }
+  .wrap { max-width:900px; margin:0 auto; padding:0 26px; }
+  a { color:var(--s1); text-underline-offset:2px; }
+
+  .kit-nav { display:flex; flex-wrap:wrap; gap:8px; padding:14px 0 0; }
+  .kit-nav a { font-family:var(--mono); font-size:12.5px; letter-spacing:.02em; text-decoration:none;
+    color:var(--ink-2); background:var(--surface); border:1px solid var(--border); border-radius:999px;
+    padding:9px 15px; box-shadow:var(--shadow); display:inline-flex; align-items:center; min-height:40px; }
+  .kit-nav a:hover { border-color:var(--s1); color:var(--s1); }
+  .kit-nav a[aria-current="page"] { background:var(--s1); color:#fff; border-color:var(--s1); }
+
+  .masthead { padding:26px 0 8px; }
+  .masthead::before { content:""; display:block; width:52px; height:3px; background:var(--s1); border-radius:2px; margin:0 0 18px; }
+  .eyebrow { font-family:var(--mono); font-size:12px; letter-spacing:.18em; text-transform:uppercase; color:var(--s1); margin:0 0 12px; }
+  h1 { font-family:var(--head); font-weight:700; font-size:clamp(34px,6vw,54px); line-height:1.03; letter-spacing:-0.022em; margin:0 0 14px; max-width:18ch; }
+  .dek { font-size:20px; color:var(--ink-2); margin:0; max-width:62ch; }
+
+  h2 { font-family:var(--head); font-weight:600; font-size:27px; letter-spacing:-0.015em; margin:0; }
+  h3 { font-family:var(--head); font-weight:600; font-size:19px; margin:24px 0 6px; }
+  p { margin:0 0 14px; } strong,b { font-weight:600; } i,em { font-style:italic; }
+  ul,ol { margin:0 0 14px; padding-left:22px; } li { margin:6px 0; }
+  .lead { font-size:19px; color:var(--ink-2); }
+  section { padding:34px 0 6px; }
+  .sec-head { border-top:3px solid var(--s1); padding-top:15px; margin-bottom:8px; }
+  .sec-num { font-family:var(--mono); font-size:12px; letter-spacing:.14em; text-transform:uppercase; color:var(--s1); }
+
+  .toc { background:var(--soft-2); border:1px solid var(--border); border-radius:14px; padding:18px 22px; margin:24px 0; }
+  .toc h3 { margin:0 0 8px; }
+  .toc ol { margin:0; padding-left:20px; } .toc li { margin:5px 0; } .toc a { color:var(--ink); }
+  .toc .for { color:var(--muted); font-size:15px; }
+
+  /* glyph grid */
+  .glyphs { display:grid; grid-template-columns:repeat(auto-fill,minmax(168px,1fr)); gap:12px; margin:16px 0; }
+  .gl { background:var(--surface); border:1px solid var(--border); border-radius:14px; padding:12px 14px 14px;
+        box-shadow:var(--shadow); break-inside:avoid; }
+  .gl .art { display:flex; justify-content:center; margin-bottom:6px; }
+  .gl svg { width:76px; height:64px; display:block; }
+  .gl b { font-family:var(--head); font-size:16px; display:block; }
+  .gl span { display:block; color:var(--ink-2); font-size:14.5px; line-height:1.45; margin-top:3px; }
+
+  /* family cards */
+  .fams { display:grid; grid-template-columns:repeat(auto-fill,minmax(300px,1fr)); gap:13px; margin:18px 0; }
+  .fam { background:var(--surface); border:1px solid var(--border); border-left:3px solid var(--s1);
+         border-radius:0 14px 14px 0; padding:14px 17px; box-shadow:var(--shadow); break-inside:avoid; }
+  .fam .fh b { font-family:var(--head); font-size:19px; }
+  .fam .fh span { font-family:var(--mono); font-size:11px; color:var(--muted); display:block; margin-top:1px; }
+  .fam p { font-size:15px; line-height:1.5; margin:9px 0 0; color:var(--ink-2); }
+  .fam .lab { font-family:var(--mono); font-size:10px; letter-spacing:.1em; text-transform:uppercase;
+              color:var(--s1); display:block; margin-bottom:2px; }
+  .fam .ft { background:var(--soft); border-radius:9px; padding:9px 12px; }
+  .fam .ft .lab { color:var(--s1-deep); }
+  .fam .fe .lab { color:var(--muted); }
+
+  table { border-collapse:collapse; width:100%; font-size:15px; margin:8px 0; }
+  th,td { border:1px solid var(--rule); padding:7px 10px; text-align:left; vertical-align:top; line-height:1.45; }
+  th { background:var(--soft); font-family:var(--head); font-weight:600; font-size:14px; }
+  .tw { overflow-x:auto; -webkit-overflow-scrolling:touch; margin:12px 0; }
+
+  .note { border-left:3px solid var(--s3); background:var(--surface); border:1px solid var(--border);
+    border-radius:0 10px 10px 0; padding:12px 16px; margin:16px 0; font-size:16px; color:var(--ink-2); }
+  .note b { font-family:var(--head); color:var(--ink); }
+  .warn { border-left:3px solid var(--s2); background:var(--warn); border:1px solid var(--border);
+    border-radius:0 10px 10px 0; padding:12px 16px; margin:16px 0; font-size:16px; color:var(--ink-2); }
+  .warn b { font-family:var(--head); color:var(--ink); }
+  .pull { font-family:var(--head); font-weight:500; font-size:23px; line-height:1.3; color:var(--ink);
+    border-left:3px solid var(--s1); padding:4px 0 4px 22px; margin:26px 0; max-width:40ch; }
+  .chk { list-style:none; padding-left:0; }
+  .chk li { padding-left:26px; position:relative; margin:7px 0; }
+  .chk li::before { content:"\2610"; position:absolute; left:2px; color:var(--s1); font-size:17px; }
+  code { font-family:var(--mono); font-size:.8em; background:var(--soft-2); border:1px solid var(--border); border-radius:5px; padding:1px 5px; }
+  .cite { font-variant:small-caps; letter-spacing:.01em; color:var(--ink-2); }
+
+  footer { margin:44px 0 60px; padding-top:18px; border-top:1px solid var(--border); color:var(--muted); font-size:14px; line-height:1.6; }
+  footer a { font-weight:500; }
+
+  @media print {
+    :root { --page:#fff; --surface:#fff; --soft:#f2f6f1; --soft-2:#f6f4ee; --warn:#faf3e8; --shadow:none; }
+    body { font-size:10pt; background:#fff; } .wrap { max-width:none; padding:0; }
+    .kit-nav { display:none; } a { color:inherit; text-decoration:none; }
+    .gl, .fam, table, .note, .warn { break-inside:avoid; }
+    .glyphs { grid-template-columns:repeat(4,1fr); gap:8px; }
+    .fams { grid-template-columns:repeat(2,1fr); gap:8px; }
+    h2,h3 { break-after:avoid; } .sec-head { break-before:page; }
+    section:first-of-type .sec-head { break-before:auto; }
+  }
+  @media (max-width:560px){ body{font-size:17px;} .wrap{padding:0 18px;} }
+
+
+  /* ---- carnivorous-plant additions ---- */
+  .traps { display:grid; grid-template-columns:repeat(auto-fill,minmax(240px,1fr)); gap:13px; margin:18px 0; }
+  .tr { background:var(--surface); border:1px solid var(--border); border-radius:14px; padding:13px 15px 15px;
+    box-shadow:var(--shadow); break-inside:avoid; }
+  .tr .art { display:flex; justify-content:center; margin-bottom:7px; }
+  .tr svg { width:112px; height:96px; display:block; }
+  .tr b { font-family:var(--head); font-size:17px; display:block; }
+  .tr .gen { font-family:var(--mono); font-size:10.5px; letter-spacing:.06em; color:var(--muted);
+    display:block; margin:2px 0 6px; }
+  .tr p { font-size:14.5px; line-height:1.5; margin:0; color:var(--ink-2); }
+
+  .anat { display:grid; grid-template-columns:repeat(auto-fill,minmax(178px,1fr)); gap:12px; margin:16px 0; }
+  .an { background:var(--surface); border:1px solid var(--border); border-radius:14px; padding:12px 14px 14px;
+    box-shadow:var(--shadow); break-inside:avoid; }
+  .an .art { display:flex; justify-content:center; margin-bottom:6px; }
+  .an svg { width:82px; height:72px; display:block; }
+  .an b { font-family:var(--head); font-size:16px; display:block; }
+  .an span { display:block; color:var(--ink-2); font-size:14.5px; line-height:1.45; margin-top:3px; }
+
+  .gate { border:2px solid var(--s3); background:#EAF1F5; border-radius:14px; padding:17px 20px;
+    margin:22px 0; font-size:17px; line-height:1.6; color:var(--ink); }
+  .gate b { font-family:var(--head); display:block; font-size:19px; margin-bottom:6px; color:var(--s3); }
+
+  .never { border:2px solid var(--s2); background:var(--warn); border-radius:14px; padding:17px 20px;
+    margin:22px 0; font-size:17px; line-height:1.6; color:var(--ink); }
+  .never b { font-family:var(--head); display:block; font-size:19px; margin-bottom:6px; color:var(--s2); }
+
+  .conf { display:grid; grid-template-columns:repeat(auto-fill,minmax(320px,1fr)); gap:13px; margin:18px 0; }
+  .cf { background:var(--surface); border:1px solid var(--border); border-left:3px solid var(--s2);
+    border-radius:0 14px 14px 0; padding:14px 17px; box-shadow:var(--shadow); break-inside:avoid; }
+  .cf b { font-family:var(--head); font-size:17px; }
+  .cf p { font-size:15px; line-height:1.5; margin:8px 0 0; color:var(--ink-2); }
+  .cf .sep { display:block; font-family:var(--mono); font-size:10.5px; letter-spacing:.1em;
+    text-transform:uppercase; color:var(--s2); margin:9px 0 2px; }
+  .cf .cost { display:block; font-family:var(--mono); font-size:10.5px; letter-spacing:.1em;
+    text-transform:uppercase; color:var(--muted); margin:9px 0 2px; }
+  @media print { .conf { grid-template-columns:repeat(2,1fr); } .traps { grid-template-columns:repeat(3,1fr); } }
+
+  /* timings table with the source in the row */
+  .src { font-family:var(--mono); font-size:10.5px; color:var(--muted); white-space:nowrap; }
+
+  /* interactive genus key */
+  .keybox { background:var(--surface); border:1px solid var(--border); border-radius:16px;
+    padding:18px 20px; box-shadow:var(--shadow); margin:18px 0; }
+  .kq { margin:0 0 14px; }
+  .kq:last-child { margin-bottom:0; }
+  .kq .ql { font-family:var(--mono); font-size:11px; letter-spacing:.11em; text-transform:uppercase;
+    color:var(--s1); margin-bottom:7px; }
+  .kopts { display:flex; flex-wrap:wrap; gap:7px; }
+  .kopt { border:1.5px solid var(--border); background:var(--surface); border-radius:12px; padding:9px 14px;
+    font:600 15px var(--body); color:var(--ink-2); cursor:pointer; min-height:44px; font-family:var(--body); }
+  .kopt:hover { border-color:var(--s1); }
+  .kopt.on { border-color:var(--s1); background:var(--soft); color:var(--s1-deep); font-weight:700; }
+  .kres { margin-top:8px; }
+  .cand { background:var(--surface); border:1px solid var(--border); border-left:3px solid var(--s1);
+    border-radius:0 12px 12px 0; padding:12px 15px; margin:9px 0; }
+  .cand.part { border-left-color:var(--rule); opacity:.82; }
+  .cand .ch { display:flex; align-items:baseline; justify-content:space-between; gap:10px; flex-wrap:wrap; }
+  .cand .ch b { font-family:var(--head); font-size:18px; font-style:italic; }
+  .cand .sc { font-family:var(--mono); font-size:11.5px; color:var(--muted); white-space:nowrap; }
+  .cand p { font-size:15px; margin:5px 0 0; color:var(--ink-2); }
+  .cand .miss { font-size:13.5px; color:var(--s2); margin-top:5px; }
+  .kbtns { display:flex; gap:8px; flex-wrap:wrap; margin-top:14px; }
+  .kbtn { border:0; border-radius:11px; padding:11px 17px; font:800 14.5px var(--body); cursor:pointer; min-height:44px; }
+  .kbtn-go { background:var(--s1); color:#fff; } .kbtn-ghost { background:none; border:1.5px solid var(--border); color:var(--ink-2); }
+  @media print { .keybox { display:none !important; } }
+
+  /* genus tells */
+  .gens { display:grid; grid-template-columns:repeat(auto-fill,minmax(300px,1fr)); gap:13px; margin:18px 0; }
+  .gn { background:var(--surface); border:1px solid var(--border); border-left:3px solid var(--s1);
+    border-radius:0 14px 14px 0; padding:14px 17px; box-shadow:var(--shadow); break-inside:avoid; }
+  .gn .gh b { font-family:var(--head); font-size:19px; font-style:italic; }
+  .gn .gh span { font-family:var(--mono); font-size:11px; color:var(--muted); display:block; margin-top:1px; }
+  .gn p { font-size:15px; line-height:1.5; margin:9px 0 0; color:var(--ink-2); }
+  .gn .lab { font-family:var(--mono); font-size:10px; letter-spacing:.1em; text-transform:uppercase;
+    color:var(--s1); display:block; margin-bottom:2px; }
+  .gn .tl { background:var(--soft); border-radius:9px; padding:9px 12px; }
+  .gn .tl .lab { color:var(--s1-deep); }
+  .gn.proto { border-left-color:var(--s3); }
+  .gn.proto .tl { background:#EAF1F5; } .gn.proto .tl .lab { color:var(--s3); }
+  @media print { .gens { grid-template-columns:repeat(2,1fr); } }
+</style></head>
+<body>
+<div class="wrap">
+<nav class="kit-nav">
+  <a href="ecology.html">Overview</a>
+  <a href="ecology-lab.html">Interactive Lab</a>
+  <a href="ecology-lab-manual.html">Lab Manual</a>
+  <a href="ecology-teachers-guide.html">Teacher's Guide</a>
+  <a href="ecology-field-guide.html">Field Guide</a>
+  <a href="ecology-field-card.html">Field Card</a>
+  <a href="ecology-glossary.html">Glossary</a>
+  <a href="plant-characters.html">Plant Characters</a>
+  <a href="fungal-characters.html">Fungal Characters</a>
+  <a href="cp-characters.html" aria-current="page">CP Characters</a>
+  <a href="eco-protocol-reference.html">.eco Reference</a>
+  <a href="ecology.html#suites">Suites</a>
+  <a href="ecology.html#field-tools">Field Tools</a>
+</nav>
+
+<div class="masthead">
+  <p class="eyebrow">CSRBT &middot; the ecology kit &middot; carnivorous plants</p>
+  <h1>CP Characters</h1>
+  <p class="dek">The vocabulary a carnivorous-plant key assumes you already have, drawn rather than defined
+    &mdash; five trap mechanisms, the pitcher parts that do the work, the fast traps timed against published
+    measurements, eighteen genera with the one thing that gives each away, and the confusions that cost
+    growers plants. The companion card to <a href="cp-bench.html">CP Bench</a>, built to print and go on
+    the greenhouse wall.</p>
+</div>
+
+<div class="toc">
+  <h3>On this card</h3>
+  <ol>
+    <li><a href="#criterion">What makes a plant carnivorous</a> <span class="for">&middot; five steps, and the boundary cases</span></li>
+    <li><a href="#traps">The five trap mechanisms</a> <span class="for">&middot; drawn, with who uses each</span></li>
+    <li><a href="#anatomy">Pitcher anatomy</a> <span class="for">&middot; the parts a description names</span></li>
+    <li><a href="#sticky">Glands, tentacles and mucilage</a> <span class="for">&middot; the flypaper vocabulary</span></li>
+    <li><a href="#timing">The fast traps, timed</a> <span class="for">&middot; measured numbers with sources</span></li>
+    <li><a href="#key">Work out the genus</a> <span class="for">&middot; an interactive character key</span></li>
+    <li><a href="#genera">Eighteen genera on sight</a> <span class="for">&middot; one tell each</span></li>
+    <li><a href="#confuse">The pairs that get confused</a> <span class="for">&middot; and what each mistake costs</span></li>
+    <li><a href="#legal">Provenance, CITES and where the field stops</a> <span class="for">&middot; before you collect anything</span></li>
+  </ol>
+</div>
+
+<section id="criterion">
+<div class="sec-head"><p class="sec-num">One</p><h2>What makes a plant carnivorous</h2></div>
+<p class="lead">The question is older than it looks, and the answer is a checklist rather than a vibe. A plant
+  is carnivorous if it does all five of these. Drop any one and you are in the interesting territory at the
+  edge, which is where several famous plants actually live.</p>
+
+<div class="tw"><table>
+  <tr><th style="width:12%">Step</th><th>What the plant must do</th><th>Where it is usually tested</th></tr>
+  <tr><td><b>1 Attract</b></td><td>Draw prey to the trap &mdash; nectar, scent, colour, UV patterning, or a
+    deceptive landing surface.</td><td>Choice experiments; nectary anatomy.</td></tr>
+  <tr><td><b>2 Capture</b></td><td>Retain the prey once it arrives, by adhesive, by geometry, by a moving
+    part, or by a surface it cannot walk back up.</td><td>Direct observation. The easy one.</td></tr>
+  <tr><td><b>3 Kill</b></td><td>The prey dies as a consequence of the trap.</td><td>Direct observation.</td></tr>
+  <tr><td><b>4 Digest</b></td><td>Break the prey down &mdash; the plant's own enzymes, or a partner
+    organism's.</td><td>Enzyme assays; whether the plant makes its own protease.</td></tr>
+  <tr><td><b>5 Absorb</b></td><td>Take up the released nutrients, and gain a measurable benefit.</td>
+    <td><sup>15</sup>N tracer work: how much of the plant's nitrogen came from prey.</td></tr>
+</table></div>
+
+<div class="gate">
+  <b>Step 4 is where the arguments happen</b>
+  <i>Roridula</i>, from the South African Cape, catches insects on the stickiest leaves of any plant on
+  Earth &mdash; and produces <b>no digestive enzymes of its own</b>. Its glands secrete <em>resin</em>, not
+  mucilage, and enzymes and nutrients cannot diffuse through resin. What digests the prey is a resident
+  assassin bug, <i>Pameridea</i>, which walks the sticky leaves unharmed, eats the catch, and defecates on
+  the leaf. The plant absorbs the frass through gaps in an unusually thin cuticle, and gets about
+  <b>70% of its nitrogen</b> from prey that way &mdash; comparable to a sundew. So: it fails step 4 alone
+  and passes it in partnership. Most authors now call it carnivorous by mutualism. Whether you agree is
+  less interesting than knowing exactly which step is in dispute.
+</div>
+
+<p>The same test sorts the other boundary cases. <b><i>Triphyophyllum</i></b> is carnivorous only during one
+  juvenile phase, growing glandular leaves for a few weeks and then never again. <b><i>Philcoxia</i></b>
+  holds sticky leaves <em>underground</em>, buried in white sand, and catches nematodes &mdash; confirmed
+  by feeding it <sup>15</sup>N-labelled worms. The bromeliads <b><i>Brocchinia reducta</i></b> and
+  <b><i>Catopsis berteroniana</i></b> pass on attraction, capture and absorption but lean heavily on
+  bacteria for digestion. <b><i>Ibicella</i></b> and <b><i>Proboscidea</i></b> are sticky and murderous and
+  appear to absorb nothing at all &mdash; they fail step 5, which is the step that makes carnivory pay.</p>
+
+<p class="pull">A plant that catches insects is not carnivorous. A plant that <em>profits</em> from catching
+  them is.</p>
+</section>
+
+<section id="traps">
+<div class="sec-head"><p class="sec-num">Two</p><h2>The five trap mechanisms</h2></div>
+<p class="lead">Carnivory has evolved independently at least a dozen times in the flowering plants, and it
+  keeps arriving at the same five solutions. Learn the mechanism and the genus follows; learn the genus
+  first and you will be memorising rather than reading.</p>
+
+<div class="traps">
+  <div class="tr">
+    <div class="art"><svg viewBox="0 0 112 96" role="img" aria-label="Pitfall trap: a tapering tube with a lid held above the mouth and a slippery rim">
+      <path d="M34 26 Q30 60 40 84 Q56 92 72 84 Q82 60 78 26 Z" fill="#FFFDF7" stroke="#23281F" stroke-width="2.2"/>
+      <ellipse cx="56" cy="26" rx="22" ry="7" fill="#E9F0E7" stroke="#23281F" stroke-width="2.2"/>
+      <ellipse cx="56" cy="26" rx="15" ry="4.4" fill="#F3EEE0" stroke="#8B8B7B" stroke-width="1.2"/>
+      <path d="M30 20 Q56 2 82 20" fill="#E9F0E7" stroke="#2E7D4F" stroke-width="2.4" stroke-linecap="round"/>
+      <path d="M36 62 Q56 70 76 62" fill="none" stroke="#2B6C8F" stroke-width="1.6" stroke-dasharray="3 3"/>
+      <circle cx="52" cy="41" r="3" fill="#C0592B"/>
+      <path d="M52 34 L52 38" stroke="#C0592B" stroke-width="1.6" stroke-linecap="round"/>
+    </svg></div>
+    <b>Pitfall</b>
+    <span class="gen">Sarracenia · Nepenthes · Darlingtonia · Heliamphora · Cephalotus · Brocchinia</span>
+    <p>A rolled leaf makes a container. Nectar on the rim brings prey to a surface that stops holding
+      &mdash; wet peristome, loose wax crystals, downward hairs &mdash; and geometry does the rest. No
+      moving parts, and by far the commonest solution.</p>
+  </div>
+
+  <div class="tr">
+    <div class="art"><svg viewBox="0 0 112 96" role="img" aria-label="Flypaper trap: a leaf bearing stalked tentacles tipped with mucilage droplets, one bending inward">
+      <path d="M14 68 Q56 54 98 68 Q56 78 14 68 Z" fill="#E9F0E7" stroke="#23281F" stroke-width="2.2"/>
+      <g stroke="#23281F" stroke-width="1.8" stroke-linecap="round">
+        <path d="M24 64 L20 40"/><path d="M38 60 L36 34"/><path d="M56 58 L56 30"/>
+        <path d="M74 60 L78 36"/><path d="M88 64 L92 44"/>
+      </g>
+      <g fill="#2B6C8F"><circle cx="20" cy="38" r="4"/><circle cx="36" cy="32" r="4.4"/>
+        <circle cx="56" cy="28" r="4.6"/><circle cx="78" cy="34" r="4.4"/><circle cx="92" cy="42" r="4"/></g>
+      <path d="M64 59 Q76 46 66 30" fill="none" stroke="#C0592B" stroke-width="2" stroke-linecap="round"/>
+      <circle cx="66" cy="28" r="4" fill="#C0592B"/>
+    </svg></div>
+    <b>Flypaper &mdash; adhesive</b>
+    <span class="gen">Drosera · Pinguicula · Drosophyllum · Byblis · Philcoxia · (Roridula)</span>
+    <p>Stalked glands hold droplets of mucilage that are mostly water and behave like glue. In
+      <i>Drosera</i> the tentacles and often the whole leaf then <b>bend inward</b> over minutes to hours;
+      in <i>Drosophyllum</i> and <i>Byblis</i> nothing moves at all, and the glue alone does the work.</p>
+  </div>
+
+  <div class="tr">
+    <div class="art"><svg viewBox="0 0 112 96" role="img" aria-label="Snap trap: two hinged lobes with interlocking marginal spines and trigger hairs on the inner face">
+      <path d="M56 76 Q22 68 18 34 Q40 24 56 44 Z" fill="#E9F0E7" stroke="#23281F" stroke-width="2.2"/>
+      <path d="M56 76 Q90 68 94 34 Q72 24 56 44 Z" fill="#FFFDF7" stroke="#23281F" stroke-width="2.2"/>
+      <g stroke="#23281F" stroke-width="1.7" stroke-linecap="round">
+        <path d="M19 32 L11 24"/><path d="M22 44 L13 39"/><path d="M28 56 L20 54"/><path d="M38 65 L32 68"/>
+        <path d="M93 32 L101 24"/><path d="M90 44 L99 39"/><path d="M84 56 L92 54"/><path d="M74 65 L80 68"/>
+      </g>
+      <g stroke="#C0592B" stroke-width="1.8" stroke-linecap="round">
+        <path d="M34 46 L32 38"/><path d="M42 56 L41 47"/><path d="M78 46 L80 38"/>
+      </g>
+      <path d="M56 76 L56 90" stroke="#2E7D4F" stroke-width="3" stroke-linecap="round"/>
+    </svg></div>
+    <b>Snap trap</b>
+    <span class="gen">Dionaea · Aldrovanda</span>
+    <p>Two lobes hinged on the midrib, fringed with interlocking spines, carrying <b>trigger hairs</b> on the
+      inner face. Two touches within about thirty seconds and the lobes invert in a fraction of a second.
+      Only two genera on Earth do this, and they are each other's closest relatives.</p>
+  </div>
+
+  <div class="tr">
+    <div class="art"><svg viewBox="0 0 112 96" role="img" aria-label="Suction trap: a bladder on a stalk with a hinged door and trigger bristles, water rushing in">
+      <path d="M40 20 Q84 20 88 50 Q84 80 40 80 Q30 50 40 20 Z" fill="#FFFDF7" stroke="#23281F" stroke-width="2.2"/>
+      <path d="M40 32 L26 40 L26 60 L40 68 Z" fill="#E9F0E7" stroke="#23281F" stroke-width="2.2"/>
+      <g stroke="#C0592B" stroke-width="1.8" stroke-linecap="round">
+        <path d="M28 38 L16 32"/><path d="M27 46 L14 44"/><path d="M27 56 L14 58"/><path d="M28 63 L16 68"/>
+      </g>
+      <path d="M4 50 L22 50" stroke="#2B6C8F" stroke-width="2.6" stroke-linecap="round"/>
+      <path d="M16 44 L23 50 L16 56" fill="none" stroke="#2B6C8F" stroke-width="2.6"
+        stroke-linecap="round" stroke-linejoin="round"/>
+      <path d="M88 50 L104 50" stroke="#2E7D4F" stroke-width="2.6" stroke-linecap="round"/>
+    </svg></div>
+    <b>Suction &mdash; bladder</b>
+    <span class="gen">Utricularia</span>
+    <p>The bladder pumps water <em>out</em> until its walls are under tension and the inside is below ambient
+      pressure. A bristle is knocked, the door buckles inward, and water &mdash; carrying whatever was
+      outside &mdash; is pulled in. The fastest movement known in the plant kingdom.</p>
+  </div>
+
+  <div class="tr">
+    <div class="art"><svg viewBox="0 0 112 96" role="img" aria-label="Lobster-pot trap: a Y-shaped tube lined with inward-pointing hairs that permit entry but not return">
+      <path d="M56 88 L56 52" stroke="#23281F" stroke-width="9" stroke-linecap="round" fill="none"/>
+      <path d="M56 88 L56 52" stroke="#FFFDF7" stroke-width="4.6" stroke-linecap="round" fill="none"/>
+      <path d="M56 54 Q40 40 22 30" stroke="#23281F" stroke-width="9" stroke-linecap="round" fill="none"/>
+      <path d="M56 54 Q40 40 22 30" stroke="#FFFDF7" stroke-width="4.6" stroke-linecap="round" fill="none"/>
+      <path d="M56 54 Q72 40 90 30" stroke="#23281F" stroke-width="9" stroke-linecap="round" fill="none"/>
+      <path d="M56 54 Q72 40 90 30" stroke="#FFFDF7" stroke-width="4.6" stroke-linecap="round" fill="none"/>
+      <g stroke="#C0592B" stroke-width="1.5" stroke-linecap="round">
+        <path d="M30 32 L34 38"/><path d="M40 39 L43 45"/><path d="M82 32 L78 38"/><path d="M72 39 L69 45"/>
+        <path d="M53 62 L57 67"/><path d="M53 72 L57 77"/>
+      </g>
+      <circle cx="24" cy="29" r="3" fill="#2B6C8F"/>
+    </svg></div>
+    <b>Lobster-pot &mdash; eel trap</b>
+    <span class="gen">Genlisea · Sarracenia psittacina &amp; S. minor · Darlingtonia (partly)</span>
+    <p>A tube lined with hairs all pointing one way. Entering is easy, reversing is not, and the prey walks
+      itself to the digestive end. <i>Genlisea</i> runs its Y-shaped traps <b>underground</b> and takes
+      protozoa rather than insects &mdash; a whole trap type built for prey you need a microscope to see.</p>
+  </div>
+</div>
+
+<div class="note">
+  <b>Trap type is not a taxonomic rank.</b> <i>Sarracenia psittacina</i> is a pitfall genus running a
+  lobster pot; <i>Darlingtonia</i> uses downward hairs and translucent windows to do lobster-pot work inside
+  a pitcher. The mechanisms are engineering solutions, and one plant may use two. Record the mechanism you
+  actually observed, not the one the genus is famous for.
+</div>
+</section>
+
+<section id="anatomy">
+<div class="sec-head"><p class="sec-num">Three</p><h2>Pitcher anatomy</h2></div>
+<p class="lead">A pitcher description will name these parts and assume you can find them. Most are visible on
+  a plant on a windowsill; all of them are doing a job.</p>
+
+<div class="anat">
+  <div class="an">
+    <div class="art"><svg viewBox="0 0 82 72" role="img" aria-label="Peristome: the ribbed collar around the pitcher mouth">
+      <path d="M22 30 Q20 56 30 66 Q41 70 52 66 Q62 56 60 30 Z" fill="#FFFDF7" stroke="#C7C0AC" stroke-width="1.6"/>
+      <ellipse cx="41" cy="28" rx="21" ry="8" fill="none" stroke="#C0592B" stroke-width="3"/>
+      <g stroke="#C0592B" stroke-width="1.3">
+        <path d="M23 26 L26 32"/><path d="M31 22 L32 31"/><path d="M41 20 L41 30"/>
+        <path d="M51 22 L50 31"/><path d="M59 26 L56 32"/>
+      </g>
+    </svg></div>
+    <b>Peristome</b>
+    <span>The collar around the mouth, usually ribbed and nectar-bearing. In <i>Nepenthes</i> it becomes
+      frictionless when wet &mdash; the single most important capture surface on the plant.</span>
+  </div>
+
+  <div class="an">
+    <div class="art"><svg viewBox="0 0 82 72" role="img" aria-label="Operculum: the lid held above the pitcher mouth">
+      <path d="M24 34 Q22 58 32 68 Q41 71 50 68 Q60 58 58 34 Z" fill="#FFFDF7" stroke="#C7C0AC" stroke-width="1.6"/>
+      <ellipse cx="41" cy="33" rx="17" ry="6" fill="none" stroke="#C7C0AC" stroke-width="1.4"/>
+      <path d="M16 22 Q41 2 66 22 Q41 14 16 22 Z" fill="#E9F0E7" stroke="#2E7D4F" stroke-width="2.2"/>
+      <path d="M41 22 L41 30" stroke="#2E7D4F" stroke-width="1.8"/>
+    </svg></div>
+    <b>Operculum / lid</b>
+    <span>Held above the mouth. Keeps rain out in <i>Sarracenia</i> and <i>Nepenthes</i>; in
+      <i>S. purpurea</i> it does not, and the pitcher deliberately fills with water.</span>
+  </div>
+
+  <div class="an">
+    <div class="art"><svg viewBox="0 0 82 72" role="img" aria-label="Ala: the wing running down the front of an upright pitcher">
+      <path d="M28 14 Q24 48 34 66 Q41 69 48 66 Q58 48 54 14 Z" fill="#FFFDF7" stroke="#C7C0AC" stroke-width="1.6"/>
+      <path d="M34 16 Q22 40 34 66 Q30 40 34 16 Z" fill="#E9F0E7" stroke="#2B6C8F" stroke-width="2"/>
+    </svg></div>
+    <b>Ala / wing</b>
+    <span>The flange down the front seam of an upright pitcher. A walking surface that leads prey up to the
+      mouth &mdash; and a character that separates <i>Sarracenia</i> species.</span>
+  </div>
+
+  <div class="an">
+    <div class="art"><svg viewBox="0 0 82 72" role="img" aria-label="Areoles: translucent windows in the hood of a pitcher">
+      <path d="M18 40 Q14 20 34 12 Q58 8 64 26 Q66 42 52 46 Q30 50 18 40 Z" fill="#FFFDF7" stroke="#23281F" stroke-width="1.8"/>
+      <g fill="#F3EEE0" stroke="#B8860B" stroke-width="1.1">
+        <ellipse cx="30" cy="24" rx="5" ry="4"/><ellipse cx="44" cy="20" rx="5" ry="4"/>
+        <ellipse cx="55" cy="28" rx="4.4" ry="3.6"/><ellipse cx="38" cy="33" rx="4.4" ry="3.6"/>
+      </g>
+      <path d="M34 46 Q36 62 30 68" fill="none" stroke="#C7C0AC" stroke-width="1.6"/>
+    </svg></div>
+    <b>Areoles / fenestrations</b>
+    <span>Translucent patches in a closed hood. A trapped insect flies at the light, hits chlorophyll-free
+      tissue, and falls. <i>Darlingtonia</i> and <i>S. minor</i> both use them.</span>
+  </div>
+
+  <div class="an">
+    <div class="art"><svg viewBox="0 0 82 72" role="img" aria-label="Tendril: the coiled stalk between leaf blade and Nepenthes pitcher">
+      <path d="M6 16 Q26 10 40 18" fill="#E9F0E7" stroke="#23281F" stroke-width="1.8"/>
+      <path d="M40 18 Q54 24 50 34 Q46 42 56 44" fill="none" stroke="#2E7D4F" stroke-width="2.4" stroke-linecap="round"/>
+      <path d="M50 46 Q46 66 56 70 Q66 72 72 62 Q74 48 66 44 Z" fill="#FFFDF7" stroke="#23281F" stroke-width="1.8"/>
+      <ellipse cx="60" cy="45" rx="11" ry="4" fill="#E9F0E7" stroke="#C0592B" stroke-width="1.8"/>
+    </svg></div>
+    <b>Tendril</b>
+    <span>In <i>Nepenthes</i> the pitcher hangs from the <em>tip</em> of the leaf on a tendril &mdash; the
+      blade above it is a photosynthetic petiole. Upper pitchers coil the tendril to climb.</span>
+  </div>
+
+  <div class="an">
+    <div class="art"><svg viewBox="0 0 82 72" role="img" aria-label="Phyllodia: flat non-pitcher leaves produced alongside or instead of traps">
+      <path d="M10 60 Q22 26 36 60 Q23 66 10 60 Z" fill="#E9F0E7" stroke="#2E7D4F" stroke-width="1.8"/>
+      <path d="M23 30 L23 60" stroke="#2E7D4F" stroke-width="1.2"/>
+      <path d="M48 16 Q44 46 54 62 Q61 66 68 62 Q78 46 74 16 Z" fill="#FFFDF7" stroke="#C7C0AC" stroke-width="1.6"/>
+      <ellipse cx="61" cy="16" rx="13" ry="4.6" fill="none" stroke="#C7C0AC" stroke-width="1.4"/>
+    </svg></div>
+    <b>Phyllodia</b>
+    <span>Flat, trapless leaves. <i>Sarracenia flava</i> and <i>S. oreophila</i> make them late in the
+      season; <i>Cephalotus</i> makes them alongside pitchers all year. Not a sign of ill health.</span>
+  </div>
+
+  <div class="an">
+    <div class="art"><svg viewBox="0 0 82 72" role="img" aria-label="Retentive and waxy zones: the two inner surfaces of a pitcher wall">
+      <path d="M24 8 Q20 46 32 66 Q41 70 50 66 Q62 46 58 8 Z" fill="#FFFDF7" stroke="#23281F" stroke-width="1.8"/>
+      <path d="M23 14 Q41 20 59 14 L58 34 Q41 40 24 34 Z" fill="#F3EEE0" stroke="none"/>
+      <g stroke="#8B8B7B" stroke-width="0.9"><path d="M28 20 L34 24"/><path d="M40 22 L46 26"/><path d="M50 20 L55 24"/></g>
+      <path d="M24 36 Q41 42 58 36 Q56 58 41 66 Q28 58 24 36 Z" fill="#E9F0E7" stroke="none"/>
+      <g stroke="#2E7D4F" stroke-width="1.2" stroke-linecap="round">
+        <path d="M31 42 L29 48"/><path d="M41 45 L40 51"/><path d="M51 42 L53 48"/><path d="M36 54 L35 60"/><path d="M47 54 L48 60"/></g>
+    </svg></div>
+    <b>Waxy &amp; retentive zones</b>
+    <span>Below the mouth, a band of detachable wax crystals no insect foot can grip; below that, downward
+      hairs or a digestive surface. Two different mechanisms, stacked.</span>
+  </div>
+
+  <div class="an">
+    <div class="art"><svg viewBox="0 0 82 72" role="img" aria-label="Nectar spoon: the small nectar-bearing appendage at the back of a Heliamphora pitcher">
+      <path d="M22 22 Q18 50 30 66 Q41 70 52 66 Q64 50 60 22 Z" fill="#FFFDF7" stroke="#23281F" stroke-width="1.8"/>
+      <ellipse cx="41" cy="22" rx="19" ry="6.6" fill="#E9F0E7" stroke="#23281F" stroke-width="1.6"/>
+      <path d="M46 16 Q52 4 60 8 Q64 14 56 18 Z" fill="#F6EAD8" stroke="#C0592B" stroke-width="1.8"/>
+      <path d="M60 40 L66 44" stroke="#2B6C8F" stroke-width="2" stroke-linecap="round"/>
+    </svg></div>
+    <b>Nectar spoon &amp; drainage slit</b>
+    <span><i>Heliamphora</i> only. A tiny nectar-bearing spoon at the rear, and a slit part-way up the
+      pitcher that fixes the water level &mdash; a plant that plumbed an overflow.</span>
+  </div>
+</div>
+</section>
+
+<section id="sticky">
+<div class="sec-head"><p class="sec-num">Four</p><h2>Glands, tentacles and mucilage</h2></div>
+<p class="lead">Flypaper plants are described in gland language, and two distinctions carry most of the
+  weight: whether a gland is <em>stalked</em> or <em>sessile</em>, and whether the leaf <em>moves</em>.</p>
+
+<div class="tw"><table>
+  <tr><th style="width:22%">Term</th><th>What it means</th><th>Where you see it</th></tr>
+  <tr><td><b>Stalked gland<br><span class="cite">tentacle</span></b></td>
+    <td>A gland raised on a stalk, tipped with a mucilage droplet. Captures.</td>
+    <td>All of <i>Drosera</i>, <i>Byblis</i>, <i>Drosophyllum</i>; the long glands of <i>Pinguicula</i>.</td></tr>
+  <tr><td><b>Sessile gland</b></td>
+    <td>Flush with the leaf surface, no stalk. Secretes enzymes and reabsorbs the digest.</td>
+    <td><i>Pinguicula</i> especially &mdash; the greasy feel of a butterwort leaf is the sessile layer.</td></tr>
+  <tr><td><b>Mucilage</b></td>
+    <td>A polysaccharide gel that is mostly water. Sticky because it is viscoelastic, not because it
+      cures.</td><td>Everything above except <i>Roridula</i>, which secretes resin instead.</td></tr>
+  <tr><td><b>Snap tentacle</b></td>
+    <td>A tentacle that flicks a captured insect toward the leaf centre in seconds rather than bending over
+      minutes.</td><td>Australian pygmy and some tuberous <i>Drosera</i> &mdash; <i>D. glanduligera</i> is
+      the standard example.</td></tr>
+  <tr><td><b>Circinate vernation</b></td>
+    <td>New leaves emerge coiled like a fern crozier and unroll.</td>
+    <td>Many <i>Drosera</i> and <i>Drosophyllum</i> &mdash; but <i>Drosophyllum</i> uncoils
+      <b>outward</b>, the opposite way, which is diagnostic.</td></tr>
+  <tr><td><b>Leaf-margin rolling</b></td>
+    <td>The edge of the blade curls over a catch, bringing more sessile glands into contact.</td>
+    <td><i>Pinguicula</i>. Slow, subtle, and easy to miss unless you look along the leaf edge.</td></tr>
+</table></div>
+
+<div class="note">
+  <b>Wet does not mean healthy, and dry does not mean dead.</b> Mucilage production drops in low humidity,
+  in strong airflow, and in a plant that has just fed. A sundew with no visible dew has usually been
+  <em>moved</em> rather than damaged, and reruns its glands within a few days of stable conditions. Record
+  the conditions before you record the plant.
+</div>
+</section>
+
+<section id="timing">
+<div class="sec-head"><p class="sec-num">Five</p><h2>The fast traps, timed</h2></div>
+<p class="lead">These are the numbers that get quoted wrongly. Every figure in this table is a published
+  measurement with its source named, because the interesting thing about a flytrap is not that it is fast
+  &mdash; it is that it <em>counts</em>.</p>
+
+<h3>Dionaea muscipula &mdash; the counting trap</h3>
+<div class="tw"><table>
+  <tr><th style="width:26%">Stimuli</th><th>What happens</th><th style="width:22%">Source</th></tr>
+  <tr><td><b>1 touch</b></td><td>One action potential. Nothing visible. The trap holds the charge.</td>
+    <td class="src">Böhm et al. 2016</td></tr>
+  <tr><td><b>2 touches within ~30 s</b></td><td><b>The trap closes</b>, in 100&ndash;300 ms in an adult
+    trap.</td><td class="src">Poppinga et al. 2022</td></tr>
+  <tr><td><b>3&ndash;4</b></td><td>The lobes seal and tighten; touch hormone signalling ramps up.</td>
+    <td class="src">Böhm et al. 2016</td></tr>
+  <tr><td><b>5 or more</b></td><td><b>Digestive enzyme genes switch on</b> across roughly 37,000 glands,
+    and sodium uptake begins.</td><td class="src">Böhm et al. 2016</td></tr>
+</table></div>
+
+<div class="tw"><table>
+  <tr><th style="width:34%">Event</th><th>Measured</th><th style="width:22%">Source</th></tr>
+  <tr><td>Snap, adult trap</td><td><b>100&ndash;300 ms</b></td><td class="src">Poppinga et al. 2022</td></tr>
+  <tr><td>Reopening after a <em>failed</em> closure</td><td><b>16&ndash;44 h</b>, smaller traps
+    faster</td><td class="src">Poppinga et al. 2022</td></tr>
+  <tr><td>Full cycle after a meal</td><td><b>~7 days</b> on average</td><td class="src">Poppinga et al. 2022</td></tr>
+  <tr><td>Autonomous firing from heat</td><td>above <b>40&nbsp;°C</b></td><td class="src">Poppinga et al. 2022</td></tr>
+</table></div>
+
+<div class="warn">
+  <b>Why "don't poke the traps" is real advice and not folklore.</b> A closure that catches nothing still
+  costs the plant the full snap and 16 to 44 hours shut &mdash; and a trap that never reaches five signals
+  never earns anything back. A trap only has a handful of cycles in it before it dies back. This is also
+  why the number to record in a log is <em>closures</em>, not <em>feedings</em>: they are different events
+  with different costs, and only one of them is nutrition.
+</div>
+
+<h3>Utricularia &mdash; the fastest movement in the plant kingdom</h3>
+<div class="tw"><table>
+  <tr><th style="width:34%">Event</th><th>Measured</th><th style="width:22%">Source</th></tr>
+  <tr><td>Door opens</td><td><b>under 0.5 ms</b></td><td class="src">Poppinga et al. 2016</td></tr>
+  <tr><td>Prey swirling inside</td><td>by <b>1.1 ms</b></td><td class="src">Poppinga et al. 2016</td></tr>
+  <tr><td>Door fully reclosed</td><td>by <b>6.4 ms</b></td><td class="src">Poppinga et al. 2016</td></tr>
+  <tr><td>Peak water speed in the aspiration zone</td><td><b>~1.5 m s<sup>&minus;1</sup></b>, accelerating
+    at up to 600&nbsp;<i>g</i></td><td class="src">Poppinga et al. 2016</td></tr>
+  <tr><td>Bladder underpressure when set</td><td><b>0.12&ndash;0.14 bar</b> below ambient
+    <span class="cite">(U. stellaris, U. vulgaris)</span></td><td class="src">Poppinga et al. 2016</td></tr>
+</table></div>
+
+<div class="gate">
+  <b>What this card will not give you</b>
+  There is no table here of dormancy temperatures, photoperiods or durations by genus, and none in
+  <a href="cp-bench.html">CP Bench</a> either. Searching for one turns up plenty of numbers and no citable
+  source &mdash; they are grower conventions passed between forums, regionally assigned, and revised
+  whenever someone's plants die. The <em>fact</em> that a temperate genus needs a dormancy is well
+  established and does ship. The specific numbers are yours to enter and record with your data. That is
+  <a href="adr-031.html">ADR-031</a>'s honesty gate working as designed, and the distinction is the whole
+  point of it.
+</div>
+</section>
+
+<section id="key">
+<div class="sec-head"><p class="sec-num">Six</p><h2>Work out the genus</h2></div>
+<p class="lead">Answer what you can see and skip what you cannot. Every answer narrows the list; skipping one
+  just leaves it longer. This is a character key, not a dichotomous one &mdash; there is no wrong turn to
+  get stuck down.</p>
+
+<div class="keybox" id="keybox">
+  <div class="kq">
+    <p class="ql">1 &middot; What kind of trap?</p>
+    <div class="kopts" id="qTrap"></div>
+  </div>
+  <div class="kq">
+    <p class="ql">2 &middot; Where is it growing?</p>
+    <div class="kopts" id="qHabit"></div>
+  </div>
+  <div class="kq">
+    <p class="ql">3 &middot; Does the trap visibly move when it catches something?</p>
+    <div class="kopts" id="qMove"></div>
+  </div>
+  <div class="kq">
+    <p class="ql">4 &middot; Where in the world &mdash; native range, not your greenhouse</p>
+    <div class="kopts" id="qReg"></div>
+  </div>
+  <div class="kbtns">
+    <button class="kbtn kbtn-ghost" id="kReset" type="button">&#8635; Start over</button>
+  </div>
+  <div class="kres" id="kRes"></div>
+</div>
+
+<div class="note">
+  <b>The key answers "which genus", never "which species".</b> Several of these genera hybridise freely
+  &mdash; <i>Sarracenia</i> notoriously, <i>Nepenthes</i> nearly as much &mdash; and a plant bought from a
+  nursery is more likely to be a hybrid than not. A genus you can defend beats a species you guessed, and
+  <a href="cp-bench.html">CP Bench</a> takes <code>Sarracenia</code>&nbsp;sp. as a perfectly good record.
+</div>
+</section>
+
+<section id="genera">
+<div class="sec-head"><p class="sec-num">Seven</p><h2>Eighteen genera on sight</h2></div>
+<p class="lead">One tell each &mdash; the thing that settles it in the field, followed by what you actually
+  need to know if you are going to keep the plant alive. The three marked in blue are the boundary cases
+  from section one.</p>
+<div class="gens" id="genCards"></div>
+</section>
+
+<section id="confuse">
+<div class="sec-head"><p class="sec-num">Eight</p><h2>The pairs that get confused</h2></div>
+<p class="lead">Six confusions worth being able to settle cold. Two of them are identification errors that
+  cost nothing but embarrassment; four of them kill plants, and the cost is named on each card.</p>
+
+<div class="conf">
+  <div class="cf">
+    <b><i>Drosophyllum</i> &nbsp;vs&nbsp; <i>Drosera</i></b>
+    <p>Both are covered in glistening stalked glands, and a photograph of the leaves alone will not separate
+      them.</p>
+    <span class="sep">Separate them by</span>
+    <p>New leaves. <i>Drosophyllum</i> uncoils <b>outward</b>, away from the crown — every other circinate
+      leaf in the group coils inward. And the tentacles never move.</p>
+    <span class="cost">What the mistake costs</span>
+    <p>The plant. <i>Drosophyllum</i> grows in dry alkaline Iberian scrub, resents root disturbance
+      absolutely, and rots within weeks in the wet peat tray a sundew wants. Sow it where it will stay.</p>
+  </div>
+
+  <div class="cf">
+    <b>Temperate <i>Pinguicula</i> &nbsp;vs&nbsp; Mexican <i>Pinguicula</i></b>
+    <p>Both are flat greasy rosettes for most of the year, and nurseries often sell them under the same
+      care label.</p>
+    <span class="sep">Separate them by</span>
+    <p>What they do in autumn. Temperate species pull into a tight scaly <b>hibernaculum</b> and want to
+      stay wet and cold. Mexicans switch to a <b>succulent, gland-free winter rosette</b> and want to go
+      nearly dry.</p>
+    <span class="cost">What the mistake costs</span>
+    <p>The plant, either way. A wet Mexican in winter rots at the crown; a dried-out temperate hibernaculum
+      never breaks.</p>
+  </div>
+
+  <div class="cf">
+    <b><i>Nepenthes</i> lower &nbsp;vs&nbsp; upper pitcher</b>
+    <p>Not two plants — <b>one plant</b>. Lowers sit on the ground, squat and heavily winged; uppers hang
+      from a climbing stem, funnel-shaped and often wingless, with the tendril coiled around a support.</p>
+    <span class="sep">Separate them by</span>
+    <p>Nothing: check the stem. If it is climbing, you are looking at uppers. Several species were named
+      twice from the two forms before anyone grew one on.</p>
+    <span class="cost">What the mistake costs</span>
+    <p>An identification, and sometimes a purchase. Judge from lowers plus the leaf and stem, never from an
+      upper pitcher photograph alone.</p>
+  </div>
+
+  <div class="cf">
+    <b><i>Sarracenia</i> species &nbsp;vs&nbsp; the hybrid soup</b>
+    <p>All eight species cross freely, hybrids are fertile, and complex nursery crosses dominate the trade.
+      A trumpet with a hooded top is not automatically <i>S.&nbsp;flava</i> × anything you can name.</p>
+    <span class="sep">Separate them by</span>
+    <p>Refusing to. Record the genus, photograph the pitcher, the lid from above, the flower and the whole
+      plant, and let it be <i>Sarracenia</i> sp. or "unnamed hybrid" until a flower and a locality say
+      otherwise.</p>
+    <span class="cost">What the mistake costs</span>
+    <p>Your data. A misapplied species name propagates into every record, label and seed packet that follows
+      it, and is far harder to withdraw than it was to write.</p>
+  </div>
+
+  <div class="cf">
+    <b><i>Aldrovanda</i> &nbsp;vs&nbsp; aquatic <i>Utricularia</i></b>
+    <p>Both float rootlessly in the same still, acidic water, and both look at arm's length like a scruffy
+      strand of pondweed.</p>
+    <span class="sep">Separate them by</span>
+    <p>Trap shape under a hand lens. <i>Aldrovanda</i> has <b>whorled snap traps</b> like tiny green
+      clamshells; <i>Utricularia</i> has <b>bladders</b>, ovoid and stalked, often visibly dark with
+      catch.</p>
+    <span class="cost">What the mistake costs</span>
+    <p>Potentially a legal problem. <i>Aldrovanda</i> is declining globally and protected in much of its
+      range — worth knowing before you net a handful.</p>
+  </div>
+
+  <div class="cf">
+    <b>Carnivorous &nbsp;vs&nbsp; merely sticky</b>
+    <p><i>Ibicella</i>, <i>Proboscidea</i>, many <i>Silene</i> and <i>Plumbago</i>, and a great many
+      ordinary glandular-hairy plants catch insects on their stems and do nothing whatsoever with them.</p>
+    <span class="sep">Separate them by</span>
+    <p>The five-step test in section one. Sticky is step 2. Carnivory needs 4 and 5 as well, and those are
+      the steps you cannot see by looking.</p>
+    <span class="cost">What the mistake costs</span>
+    <p>Nothing but a claim you cannot support — which is enough. "Glandular and insect-trapping" is an
+      honest field note; "carnivorous" is a conclusion that needs enzyme or tracer work behind it.</p>
+  </div>
+</div>
+</section>
+
+<section id="legal">
+<div class="sec-head"><p class="sec-num">Nine</p><h2>Provenance, CITES and where the field stops</h2></div>
+<p class="lead">This is the group where the ethics are not an afterthought. Carnivorous plants are heavily
+  poached, several are protected by international treaty, and their habitats are among the most reduced
+  ecosystems on the continent. Read this section before you take anything.</p>
+
+<div class="never">
+  <b>Do not collect wild carnivorous plants.</b>
+  Longleaf pine savanna, the habitat of most North American <i>Sarracenia</i>, is estimated to have been
+  reduced to a small fraction of its historical extent, and the remnant populations are small enough that
+  individual plants matter. Everything worth growing is available nursery-propagated, from seed or tissue
+  culture, at a price far below what a collected plant costs the population. Photograph it, log the
+  locality, and report anything notable to the state Natural Heritage Program.
+</div>
+
+<h3>What CITES actually lists</h3>
+<p>Two levels, and the distinction matters if you ever move a plant across a border.</p>
+<div class="tw"><table>
+  <tr><th style="width:22%">Appendix</th><th>Taxa</th><th>What it means in practice</th></tr>
+  <tr><td><b>Appendix I</b></td>
+    <td><i>Sarracenia oreophila</i>; <i>S. rubra</i> subsp. <i>jonesii</i>; <i>S. rubra</i> subsp.
+      <i>alabamensis</i>; <i>Nepenthes rajah</i>; <i>N. khasiana</i></td>
+    <td>Commercial international trade in wild-collected material is prohibited outright. Artificially
+      propagated material is treated differently, but permits are still involved.</td></tr>
+  <tr><td><b>Appendix II</b></td>
+    <td><i>Dionaea muscipula</i>; <b>all</b> <i>Nepenthes</i> and <b>all</b> <i>Sarracenia</i> not listed
+      above</td>
+    <td>Trade is permitted with documentation. The <b>#4 annotation</b> exempts seeds, spores and pollen,
+      and <em>in vitro</em> seedling or tissue cultures in sterile containers.</td></tr>
+</table></div>
+<p class="fine">Listings are amended at the Conference of the Parties and national law is frequently
+  stricter than the treaty. This table is a starting point for a conversation with your own authority, not
+  a substitute for checking the current appendices before you ship anything.</p>
+
+<h3>What to record when you do collect &mdash; seed, or a nursery plant</h3>
+<ul class="chk">
+  <li><b>Where it came from</b>, by name: the nursery, the seed bank, the friend, the society seed exchange
+    with its lot number. "Bought online" is not provenance.</li>
+  <li><b>Whether it is wild-collected, ex-situ propagated, or of unknown origin</b> &mdash; and say unknown
+    when it is unknown, because the alternative is inventing a lineage.</li>
+  <li><b>The name as you received it</b>, verbatim, including a cultivar name in single quotes and any
+    'cf.' or 'aff.' the seller used. Then your own determination, separately, dated.</li>
+  <li><b>The date acquired</b>, which becomes the anchor for every growth record afterwards.</li>
+  <li><b>A photograph on arrival</b>, before your conditions have changed anything.</li>
+</ul>
+
+<div class="note">
+  <b>Where this card stops and the bench begins.</b> Everything here is identification and vocabulary. Water
+  chemistry, media by parts, the tray-accumulation arithmetic that kills plants of people using good water,
+  the per-plant log with its provenance field, and the dormancy tracker that asks you for a target instead
+  of inventing one all live in <a href="cp-bench.html">CP Bench</a>. Print this; run that.
+</div>
+</section>
+
+<footer>
+  <p><b>CP Characters</b> &mdash; part of the CSRBT ecology kit. Companion to
+    <a href="cp-bench.html">CP Bench</a>; built on the same honesty rule as the rest of the kit, set out in
+    <a href="adr-031.html">ADR-031</a>. Sibling cards:
+    <a href="plant-characters.html">Plant Characters</a> and
+    <a href="fungal-characters.html">Fungal Characters</a>.</p>
+  <p><b>Sources for the measured figures.</b> Böhm, Scherzer, Krol et al. (2016), <i>Current Biology</i>,
+    on action-potential counting, trap closure and the induction of digestive gland genes, as summarised by
+    the Biocenter of the University of Würzburg. Poppinga, Hartmeyer, Masselter et al. (2016),
+    <i>AoB PLANTS</i>, on <i>Utricularia</i> suction-trap timing, water velocity and bladder underpressure.
+    Poppinga, Bauer, Speck et al. (2022), <i>Frontiers in Plant Science</i>, on flytrap snap duration, the
+    ~30&nbsp;s stimulus window and reopening times. Barry Rice's Carnivorous Plant FAQ for the
+    <i>Roridula</i>&ndash;<i>Pameridea</i> mutualism and the CITES listings. Where no citable source exists
+    &mdash; dormancy schedules above all &mdash; this card says so rather than filling the gap.</p>
+</footer>
+</div>
+<script>
+/* Eighteen genera. Characters are the ones you can check in front of the plant.
+   trap:   pit | fly | snap | suck | pot
+   moves:  y (visibly moves on capture) | n
+   habit:  bog | water | dry | climb | under
+   region: na | sa | sea | aus | afr | eur   (several allowed) */
+var GENERA = [
+ {g:"Sarracenia", fam:"Sarraceniaceae", n:"~8 spp · SE North America",
+  trap:["pit","pot"], moves:"n", habit:["bog"], region:["na"],
+  tell:"An <b>upright</b> pitcher with a <b>wing down the front seam</b> and a lid held over the mouth. The only pitcher genus native to the North American bog, and the flower — nodding, with an umbrella-shaped style — is unmistakable even without a pitcher.",
+  more:"S. purpurea and S. rosea are the decumbent exceptions and hold rainwater on purpose. S. psittacina runs a lobster pot lying flat in the sphagnum."},
+ {g:"Darlingtonia", fam:"Sarraceniaceae", n:"1 sp · N California, S Oregon",
+  trap:["pit","pot"], moves:"n", habit:["bog"], region:["na"],
+  tell:"A hooded dome with a <b>forked, tongue-like appendage</b> hanging below the entrance and <b>translucent windows</b> in the hood. The mouth faces down and sideways, so the pitcher never fills with rain.",
+  more:"Grows in serpentine seeps fed by cold groundwater — the roots want cold water even when the crown is hot, which is why it is the hardest North American pitcher to keep."},
+ {g:"Heliamphora", fam:"Sarraceniaceae", n:"~23 spp · Guayana Highlands",
+  trap:["pit"], moves:"n", habit:["bog"], region:["sa"],
+  tell:"A funnel with a tiny <b>nectar spoon</b> at the back of the rim and a <b>drainage slit</b> part-way up the side that sets the water level. No true lid.",
+  more:"Tepui endemics: cool nights, constant humidity, extremely poor quartzite sand. Digestive enzymes are weak to absent in several species; bacteria do much of the work."},
+ {g:"Cephalotus", fam:"Cephalotaceae", n:"1 sp · SW Western Australia",
+  trap:["pit"], moves:"n", habit:["bog"], region:["aus"],
+  tell:"A <b>squat ground pitcher</b> the size of a thumbnail with <b>ribbed teeth</b> around the rim, produced <b>alongside ordinary flat leaves</b> on the same plant. Its own family, and no close relatives.",
+  more:"The flat leaves are not a sign of decline — this species runs both leaf types normally, in a ratio that shifts with light."},
+ {g:"Nepenthes", fam:"Nepenthaceae", n:"~180 spp · SE Asia to Madagascar",
+  trap:["pit"], moves:"n", habit:["climb"], region:["sea"],
+  tell:"The pitcher hangs from a <b>tendril at the tip of the leaf</b> — the green blade above it is a flattened petiole, not the leaf that made the trap. Vining, often epiphytic.",
+  more:"Lower and upper pitchers on one plant can differ so completely that they were described as separate species. Judge from lowers plus the leaf, never from an upper alone."},
+ {g:"Dionaea", fam:"Droseraceae", n:"1 sp · Carolina coastal plain",
+  trap:["snap"], moves:"y", habit:["bog"], region:["na"],
+  tell:"Two hinged lobes with <b>interlocking marginal spines</b> and <b>three trigger hairs</b> on each inner face. Nothing else on Earth looks like it except <i>Aldrovanda</i>, which is aquatic.",
+  more:"Native range is a roughly 100 km radius around Wilmington, North Carolina. Every plant in the trade is nursery-propagated; wild collection is a felony in NC."},
+ {g:"Aldrovanda", fam:"Droseraceae", n:"1 sp · Old World, scattered",
+  trap:["snap"], moves:"y", habit:["water"], region:["eur","afr","aus","sea"],
+  tell:"A <b>free-floating, rootless</b> whorled shoot with snap traps 2–3 mm across — a flytrap that went underwater and shrank. Looks like a bedraggled aquatic <i>Elodea</i> until you look closely.",
+  more:"Globally declining and locally protected across much of its range. Overwinters as a turion that sinks."},
+ {g:"Drosera", fam:"Droseraceae", n:"~250 spp · every continent but Antarctica",
+  trap:["fly"], moves:"y", habit:["bog","dry"], region:["na","sa","sea","aus","afr","eur"],
+  tell:"<b>Stalked tentacles tipped with droplets</b>, on a leaf that <b>bends</b> over the catch. The movement is the genus: give it an hour and come back.",
+  more:"The largest carnivorous genus after Utricularia, spanning bog rosettes, tuberous Australians that summer-dormant, pygmies that make gemmae, and the South African giants."},
+ {g:"Drosophyllum", fam:"Drosophyllaceae", n:"1 sp · Iberia, Morocco",
+  trap:["fly"], moves:"n", habit:["dry"], region:["eur","afr"],
+  tell:"Sundew-like glands on <b>rush-like leaves that uncoil OUTWARD</b> — the reverse of every other circinate leaf — on a plant growing in <b>dry alkaline scrub</b>, not bog. Nothing moves when it catches.",
+  more:"The habitat is the tell that saves the plant: treated like a sundew, in a wet tray of pure peat, it dies. Sharp drainage, near-neutral mineral soil, and never repotted."},
+ {g:"Byblis", fam:"Byblidaceae", n:"~8 spp · Australia, New Guinea",
+  trap:["fly"], moves:"n", habit:["dry","bog"], region:["aus"],
+  tell:"Fine <b>linear leaves covered in both stalked and sessile glands</b> that <b>never move</b>, on a plant whose flowers have <b>five curved stamens to one side</b>. The rainbow plant.",
+  more:"Annual and perennial species need quite different treatment; the annuals are fire-followers whose seed wants smoke."},
+ {g:"Pinguicula", fam:"Lentibulariaceae", n:"~115 spp · N hemisphere, C & S America",
+  trap:["fly"], moves:"y", habit:["bog","dry"], region:["na","sa","eur","afr"],
+  tell:"A <b>flat rosette of greasy, butter-feeling leaves</b> with no visible tentacles at arm's length. The margin can <b>roll slowly</b> over a catch. The greasiness is a layer of sessile glands.",
+  more:"Temperate species form a tight non-carnivorous winter bud (a hibernaculum); Mexican species form a succulent, gland-free winter rosette and want to go nearly dry. Treating one like the other kills it."},
+ {g:"Utricularia", fam:"Lentibulariaceae", n:"~230 spp · worldwide",
+  trap:["suck"], moves:"y", habit:["water","bog"], region:["na","sa","sea","aus","afr","eur"],
+  tell:"<b>No true roots</b>, and <b>bladders</b> — from 0.2 to 5 mm — on the stolons or among the leaves. Aquatic species are visibly beaded; terrestrial ones hide the bladders in the substrate and look like a small weed until they flower.",
+  more:"The largest carnivorous genus. The showy epiphytic section Orchidioides is grown for flowers by people who never see a trap."},
+ {g:"Genlisea", fam:"Lentibulariaceae", n:"~30 spp · S America, Africa",
+  trap:["pot"], moves:"n", habit:["under"], region:["sa","afr"],
+  tell:"Above ground, a dull rosette of spatulate leaves. Below, <b>white Y-shaped subterranean traps</b> with spiral arms lined by inward hairs, hunting <b>protozoa</b>. You must unpot it to see the trap at all.",
+  more:"Holds the smallest known angiosperm genome. The traps are modified leaves, not roots — the plant has no roots."},
+ {g:"Brocchinia", fam:"Bromeliaceae", n:"1–2 carnivorous spp · Guayana",
+  trap:["pit"], moves:"n", habit:["bog"], region:["sa"],
+  tell:"A <b>bromeliad</b> — upright yellow-green tank of overlapping leaves with loose reflective wax and a UV-bright interior. A tank bromeliad that crossed the line, growing beside <i>Heliamphora</i>.",
+  more:"Digestion is largely microbial. It passes attraction, capture and absorption cleanly; step 4 is delegated."},
+ {g:"Catopsis", fam:"Bromeliaceae", n:"1 carnivorous sp · Florida to Brazil",
+  trap:["pit"], moves:"n", habit:["climb"], region:["na","sa"],
+  tell:"An <b>epiphytic bromeliad</b> with a heavy white powdery bloom on the leaves, perched high in the canopy. The powder is the slip surface.",
+  more:"Evidence for carnivory here is weaker than for Brocchinia — attraction and capture are clear, absorption less so."},
+ {g:"Roridula", fam:"Roridulaceae", n:"2 spp · SW Cape, South Africa",
+  trap:["fly"], moves:"n", habit:["dry"], region:["afr"], proto:true,
+  tell:"A woody shrub with <b>resin</b>-tipped glands so strong they hold small birds — and <b>assassin bugs walking on the leaves unharmed</b>. If the bugs are there, so is the identification.",
+  more:"Produces no digestive enzymes. The bugs eat the catch and the plant absorbs their frass through a thin cuticle, taking ~70% of its nitrogen from prey."},
+ {g:"Triphyophyllum", fam:"Dioncophyllaceae", n:"1 sp · W Africa",
+  trap:["fly"], moves:"n", habit:["climb"], region:["afr"], proto:true,
+  tell:"A liana that is <b>carnivorous only in one juvenile phase</b>, producing glandular leaves for a few weeks and then never again. Adult plants climb with hooked leaf tips and catch nothing.",
+  more:"Carnivory appears to be triggered by phosphorus starvation — the rare case of a plant that switches the whole syndrome on and off."},
+ {g:"Philcoxia", fam:"Plantaginaceae", n:"~7 spp · Brazilian campos rupestres",
+  trap:["fly"], moves:"n", habit:["under"], region:["sa"], proto:true,
+  tell:"Tiny <b>sticky peltate leaves held just under the surface of white sand</b>, catching <b>nematodes</b>. Above ground it looks like a small scrophulariaceous weed with nothing to declare.",
+  more:"Carnivory confirmed by feeding 15N-labelled nematodes and recovering the label in the leaves — the standard proof of step 5."}
+];
+
+</script>
+<script>
+(function(){
+  "use strict";
+  function $(id){ return document.getElementById(id); }
+
+  var TRAPS=[["pit","a pitcher or tube you could pour water into"],
+             ["fly","sticky glands, droplets, a leaf that glistens"],
+             ["snap","two lobes that clap shut"],
+             ["suck","small bladders on stolons or among leaves"],
+             ["pot","a tube lined with inward hairs, hard to see into"]];
+  var HABITS=[["bog","wet peat, sphagnum, a seep or a bog"],
+              ["water","free-floating in open water"],
+              ["dry","dry soil, sand, rock or scrub"],
+              ["climb","climbing, or perched on another plant"],
+              ["under","the trap itself is underground"]];
+  var MOVES=[["y","yes — it bends, rolls or snaps"],["n","no — the glue or the shape does all the work"]];
+  var REGS=[["na","North America"],["sa","South America"],["sea","SE Asia"],
+            ["aus","Australia / New Guinea"],["afr","Africa"],["eur","Europe / Mediterranean"]];
+
+  var A={trap:null,habit:null,moves:null,region:null};
+
+  function opts(host, list, key){
+    var box=$(host); box.innerHTML="";
+    list.forEach(function(o){
+      var b=document.createElement("button"); b.type="button";
+      b.className="kopt"+(A[key]===o[0]?" on":"");
+      b.textContent=o[1];
+      b.addEventListener("click",function(){
+        A[key] = (A[key]===o[0]) ? null : o[0];
+        paint();
+      });
+      box.appendChild(b);
+    });
+  }
+
+  function has(arr,v){ return arr.indexOf(v)>=0; }
+
+  function score(g){
+    var hit=0, tot=0, miss=[];
+    if(A.trap){ tot++; if(has(g.trap,A.trap)) hit++; else miss.push("trap type"); }
+    if(A.habit){ tot++; if(has(g.habit,A.habit)) hit++; else miss.push("where it grows"); }
+    if(A.moves){ tot++; if(g.moves===A.moves) hit++; else miss.push("whether the trap moves"); }
+    if(A.region){ tot++; if(has(g.region,A.region)) hit++; else miss.push("native range"); }
+    return {hit:hit, tot:tot, miss:miss};
+  }
+
+  function paint(){
+    opts("qTrap",TRAPS,"trap"); opts("qHabit",HABITS,"habit");
+    opts("qMove",MOVES,"moves"); opts("qReg",REGS,"region");
+    var box=$("kRes");
+    var asked=[A.trap,A.habit,A.moves,A.region].filter(Boolean).length;
+    if(!asked){ box.innerHTML='<p class="fine" style="margin:6px 0 0">Answer anything above and the '
+      +'candidates appear here, best match first.</p>'; return; }
+    var rows=GENERA.map(function(g){ var s=score(g); return {g:g,s:s}; })
+      .filter(function(r){ return r.s.hit>0; })
+      .sort(function(a,b){
+        if(b.s.hit!==a.s.hit) return b.s.hit-a.s.hit;
+        return a.g.g.localeCompare(b.g.g); });
+    /* Every option belongs to at least one genus, so rows is never empty while
+       any question is answered — there is no unreachable "no match" state to
+       render. What IS reachable, and common, is a set of answers no single
+       genus satisfies; that is reported in the header and each card says
+       which character it disagrees on. */
+    var full=rows.filter(function(r){ return r.s.hit===r.s.tot; });
+    var head='<p class="fine" style="margin:10px 0 4px">'
+      +(full.length? '<b>'+full.length+'</b> genus'+(full.length===1?"":"es")+' match'+(full.length===1?"es":"")+' everything you answered'
+        : '<b>No genus matches all of that</b>, which is itself information — either an answer is wrong '
+          +'(the commonest is <em>where it grows</em>, judged from a pot rather than a native range) or '
+          +'you have something outside the eighteen here. The closest partial matches are below')
+      +'. '+asked+' of 4 characters used.</p>';
+    var h=head;
+    rows.slice(0,8).forEach(function(r){
+      var part = r.s.hit<r.s.tot;
+      h+='<div class="cand'+(part?" part":"")+'">'
+        +'<div class="ch"><b>'+r.g.g+'</b><span class="sc">'+r.s.hit+'/'+r.s.tot+' &middot; '
+        +r.g.n+'</span></div>'
+        +'<p>'+r.g.tell+'</p>'
+        +(part?'<p class="miss">Disagrees on: '+r.s.miss.join(", ")+'</p>':'')
+        +'</div>';
+    });
+    if(rows.length>8) h+='<p class="fine">'+(rows.length-8)+' weaker matches not shown. '
+      +'Answer another character to narrow it.</p>';
+    box.innerHTML=h;
+  }
+
+  $("kReset").addEventListener("click",function(){
+    A={trap:null,habit:null,moves:null,region:null}; paint(); });
+
+  /* ---- genus cards ---- */
+  (function(){
+    var box=$("genCards"); var h="";
+    GENERA.slice().sort(function(a,b){ return a.g.localeCompare(b.g); }).forEach(function(g){
+      h+='<div class="gn'+(g.proto?" proto":"")+'">'
+        +'<div class="gh"><b>'+g.g+'</b><span>'+g.fam+' &middot; '+g.n+'</span></div>'
+        +'<p class="tl"><span class="lab">'+(g.proto?"the tell &middot; boundary case":"the tell")+'</span>'
+        +g.tell+'</p>'
+        +'<p>'+g.more+'</p></div>';
+    });
+    box.innerHTML=h;
+  })();
+
+  paint();
+})();
+</script>
+</body>
+</html>

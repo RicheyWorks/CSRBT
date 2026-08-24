@@ -861,6 +861,27 @@ live, and every export carries site, observer, and date plus a CSV for Excel/R:
   entered on the Site tab, with **host uncertain** a first-class option, because for an ectomycorrhizal
   fungus a guessed host is worse than a recorded uncertainty. Effort-corrected tiles appear only once area
   or search time is entered. 72/72 verified.
+- [**`docs/cp-characters.html`**](docs/cp-characters.html) — **CP Characters**: the carnivorous-plant
+  reference card, companion to CP Bench. Opens with the **five-step test** — attract, capture, kill, digest,
+  absorb — and uses it to sort the boundary cases rather than assert them: *Roridula* secretes **resin, not
+  mucilage**, produces no digestive enzymes of its own, and passes step 4 only in partnership with a
+  resident assassin bug whose frass it absorbs for ~70% of its nitrogen; *Triphyophyllum* is carnivorous for
+  a few weeks of its juvenile life and never again; *Philcoxia* holds sticky leaves under white sand and
+  eats nematodes; *Ibicella* is sticky and murderous and fails step 5, which is the step that makes
+  carnivory pay. Then the **five trap mechanisms drawn** as inline SVG — pitfall, flypaper, snap, suction,
+  lobster-pot — with the note that trap type is not a taxonomic rank, since *Sarracenia psittacina* is a
+  pitfall genus running a lobster pot. **Eight pitcher parts** drawn: peristome, operculum, ala,
+  fenestrations, tendril, phyllodia, the stacked waxy and retentive zones, and *Heliamphora*'s nectar spoon
+  and drainage slit. **The fast traps timed against published measurements**, every figure carrying its
+  source in the row: a flytrap closes on **two touches within ~30 s** in **100–300 ms**, reopens in
+  **16–44 h** if it caught nothing, and switches on digestive genes across ~37,000 glands only at **five or
+  more** signals — which is why *closures* and *feedings* are different things to log. A bladderwort door
+  opens in **under 0.5 ms** and has fully reclosed by **6.4 ms**, pulling water at **~1.5 m s⁻¹** from a
+  bladder held **0.12–0.14 bar** below ambient. An **interactive genus key** over four characters that
+  ranks partial matches and names which character each one disagrees on, **eighteen genera** with one tell
+  each, **six confusion pairs** each stating what the mistake costs — four of them cost the plant — and the
+  **CITES listings named taxon by taxon**, Appendix I species individually and the #4 annotation explained.
+  Like the bench, it **ships no dormancy schedule** and says why. 116/116 verified.
 - [**`docs/plant-characters.html`**](docs/plant-characters.html) — **Plant Characters**: the keying
   vocabulary a flora assumes you already have, **drawn rather than defined** — 34 inline-SVG morphology
   glyphs for leaf arrangement, shape, margin, division, venation, inflorescence, symmetry and ovary

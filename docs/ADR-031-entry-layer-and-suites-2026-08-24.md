@@ -273,7 +273,9 @@ be stated in each page rather than hidden.
 1. [x] Build FEK v1.0.0 — seven components, one sizing token, six-stop ramp
 2. [x] Build Soil Bench on FEK v1 as the proving consumer — 64/64 verified
 3. [x] Write the honesty test down as a three-way gate
-4. [~] Build Suite A: `cp-bench.html` **built and verified 78/78**; `cp-characters.html` still to do
+4. [x] Build Suite A: `cp-bench.html` **built and verified 78/78** and `cp-characters.html`
+       **built and verified 116/116** — the suite now has its bench and its printable card, matching
+       botany and mycology
 5. [x] Build Suite B: `breeding-bench.html` — **built and verified 85/85**, reusing Selection Log's engine
 6. [x] Add a **Suites** section to the kit hub and a nav chip; per-suite hubs still to do
 7. [x] Migrate Stand Sheet, Relevé, Collection Sheet and Ethogram to FEK. **All four migrated and
