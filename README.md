@@ -1039,6 +1039,21 @@ A sixth tool, `tools/audit_claims.py`, finds numbers in prose carrying no visibl
 provenance. It is a finder rather than a gate: it always exits zero and prints a worklist,
 so the runner names it but does not run it.
 
+## Publishing the kit
+
+Each page is a standalone file that links to its neighbours by filename. Published as
+Artifacts they each get their own origin, so those filenames have to become artifact URLs
+or every link in the kit is dead:
+
+```
+python3 tools/publish.py           # rewrite every page into build/publish/
+python3 tools/publish.py --check   # report unmapped pages and dead links, write nothing
+```
+
+The page-to-artifact map is [`tools/artifact_map.json`](tools/artifact_map.json). It is the
+only record of where the published kit lives, and for a long time it existed only in a
+scratch directory — the same problem the test suites had, with the same fix.
+
 ## Design history
 
 **Design & direction**
