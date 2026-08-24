@@ -1483,7 +1483,7 @@ Is it one long low ridge rather than three small ridges? | =Rose comb (R_pp) | =
       <label>flip (answer → prompt) <input type="checkbox" id="wb-deckflip"></label>
       <button class="wb-btn" id="wb-deckstart" type="button">start drill</button>
     </div>
-    <textarea id="wb-decklist" style="min-height:70px"></textarea>
+    <textarea id="wb-decklist" aria-label="drill list - one card per line" style="min-height:70px"></textarea>
     <div id="wb-deck-out"></div>
     <h3 class="h3" style="margin-top:16px">Theory bench — pick a model, set the habitat</h3>
     <div class="controls">
@@ -1508,7 +1508,7 @@ Is it one long low ridge rather than three small ridges? | =Rose comb (R_pp) | =
        <code>./gradlew ecologyExperiment -Pspec=your.eco</code> re-runs the same data forever — graded
        hypotheses, Excel-ready CSVs, a printable report. That is the storage format.</p>
     <button class="wb-btn" id="wb-eco-build" type="button">build .eco lines from my entries</button>
-    <textarea id="wb-eco-out" readonly style="min-height:120px;margin-top:8px" spellcheck="false"></textarea>
+    <textarea id="wb-eco-out" readonly aria-label=".eco lines built from your entries" style="min-height:120px;margin-top:8px" spellcheck="false"></textarea>
     <div id="wb-eco-left"></div>
     <h3 class="h3" style="margin-top:16px">Import a protocol — read an <code>.eco</code> file back in</h3>
     <p class="whatis">The same road, travelled the other way. Paste a protocol below — or drop a
@@ -3220,7 +3220,8 @@ addEventListener("drop", ev => {
       } catch(e) {}
     }
 
-    function chipify(id, namePh){
+    function chipify(id, namePh, countLbl){
+      countLbl = countLbl || "count";
       var ta=document.getElementById(id); if(!ta) return;
       var wrap=document.createElement("div"); wrap.className="fe-wrap";
       ta.parentNode.insertBefore(wrap, ta);
@@ -3260,8 +3261,8 @@ addEventListener("drop", ev => {
             +'<button type="button" class="fe-x" data-x="'+idx+'">✕</button></span>';
         });
         h+='</div><div class="fe-add">'
-          +'<input type="text" placeholder="'+namePh+'" autocomplete="off">'
-          +'<input type="number" value="1" min="1">'
+          +'<input type="text" placeholder="'+namePh+'" aria-label="'+namePh+'" autocomplete="off">'
+          +'<input type="number" value="1" min="1" aria-label="'+countLbl+'">'
           +'<button type="button" class="fe-addbtn">Add</button></div>';
         wrap.innerHTML=h;
         wrap.querySelectorAll(".fe-chip button[data-d]").forEach(function(b){
@@ -3334,8 +3335,8 @@ addEventListener("drop", ev => {
     }
 
     chipify("wb-field", "add a species (e.g. robin)");
-    chipify("wb-siteA", "site A species");
-    chipify("wb-siteB", "site B species");
+    chipify("wb-siteA", "site A species", "site A count");
+    chipify("wb-siteB", "site B species", "site B count");
     quadify("wb-quad");
 
     /* ---- −/+ steppers around bare number inputs (census + mark-recapture) ---- */
