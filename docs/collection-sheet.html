@@ -202,6 +202,122 @@
   .rail a[aria-current="page"] { background:var(--soft); border-color:var(--s1); color:var(--s1); }
   .rail a.ref { font-weight:600; color:var(--muted); background:none; box-shadow:none; }
   @media print { .rail { display:none !important; } }
+
+  /* ============ Field Entry Kit v1.0.0 ============
+     Large-target, high-contrast entry controls. Sizing is driven by --tap
+     rather than per-component numbers so one token retunes the whole kit for
+     gloves, cold hands or a wall-mounted tablet. */
+  :root {
+    --tap: 60px;            /* primary control height  */
+    --tap-sm: 48px;         /* secondary control height */
+    --fek-r: 16px;
+    --ramp-0:#2B6C8F; --ramp-1:#3E8C8C; --ramp-2:#2E7D4F;
+    --ramp-3:#B8860B; --ramp-4:#C0592B; --ramp-5:#B23A32;
+    --fek-line:#C7C0AC;
+  }
+  .fek-lab { display:block; font:800 15px var(--body); color:var(--ink-2);
+    letter-spacing:.01em; margin:0 0 6px; }
+  .fek-lab .u { font:600 12.5px var(--mono); color:var(--muted); margin-left:6px; }
+  .fek-help { font-size:13.5px; color:var(--muted); line-height:1.5; margin:6px 0 0; }
+  .fek-row { margin:0 0 20px; }
+
+  /* --- stepper: the workhorse numeric entry --- */
+  .fek-step { display:flex; align-items:stretch; gap:0; border:2px solid var(--border);
+    border-radius:var(--fek-r); overflow:hidden; background:var(--surface); max-width:340px; }
+  .fek-step button { border:0; background:var(--surface-2); color:var(--ink);
+    font:800 30px var(--body); line-height:1; width:calc(var(--tap) + 8px); min-height:var(--tap);
+    cursor:pointer; touch-action:manipulation; transition:background .12s; }
+  .fek-step button:hover { background:var(--soft); color:var(--s1); }
+  .fek-step button:active { background:var(--s1); color:#fff; }
+  .fek-step .val { flex:1; min-width:0; text-align:center; border:0; background:none;
+    font:800 30px var(--head); color:var(--ink); font-variant-numeric:tabular-nums;
+    -moz-appearance:textfield; padding:0 4px; }
+  .fek-step .val::-webkit-outer-spin-button,
+  .fek-step .val::-webkit-inner-spin-button { -webkit-appearance:none; margin:0; }
+  .fek-step .val:focus { outline:none; background:var(--soft); }
+
+  /* --- segmented ordinal dial with a colour ramp --- */
+  .fek-dial { display:flex; flex-wrap:wrap; gap:8px; }
+  .fek-dial button { flex:1 1 auto; min-width:72px; min-height:var(--tap);
+    border:2px solid var(--border); border-radius:var(--fek-r); background:var(--surface);
+    font:800 17px var(--body); color:var(--ink-2); cursor:pointer; touch-action:manipulation;
+    display:flex; flex-direction:column; align-items:center; justify-content:center; gap:2px;
+    padding:6px 8px; transition:transform .08s, border-color .12s, background .12s; }
+  .fek-dial button small { font:600 11px var(--mono); color:var(--muted); letter-spacing:.02em; }
+  .fek-dial button:active { transform:scale(.96); }
+  .fek-dial button.on { color:#fff; border-color:transparent; }
+  .fek-dial button.on small { color:rgba(255,255,255,.85); }
+  .fek-dial button.on[data-r="0"]{background:var(--ramp-0);}
+  .fek-dial button.on[data-r="1"]{background:var(--ramp-1);}
+  .fek-dial button.on[data-r="2"]{background:var(--ramp-2);}
+  .fek-dial button.on[data-r="3"]{background:var(--ramp-3);}
+  .fek-dial button.on[data-r="4"]{background:var(--ramp-4);}
+  .fek-dial button.on[data-r="5"]{background:var(--ramp-5);}
+
+  /* --- big toggle chips --- */
+  .fek-chips { display:flex; flex-wrap:wrap; gap:9px; }
+  .fek-chip { min-height:var(--tap-sm); border:2px solid var(--border); border-radius:999px;
+    background:var(--surface); font:800 15.5px var(--body); color:var(--ink-2);
+    padding:0 20px; cursor:pointer; touch-action:manipulation; display:inline-flex;
+    align-items:center; gap:8px; transition:transform .08s, border-color .12s, background .12s; }
+  .fek-chip:active { transform:scale(.96); }
+  .fek-chip.on { border-color:var(--s1); background:var(--soft); color:var(--s1-deep); }
+  .fek-chip.on::before { content:"\2713"; font-size:17px; }
+
+  /* --- slider with a live bubble --- */
+  .fek-slide { display:flex; align-items:center; gap:14px; }
+  .fek-slide input[type=range] { flex:1; min-width:0; height:var(--tap-sm); -webkit-appearance:none;
+    background:transparent; cursor:pointer; touch-action:manipulation; }
+  .fek-slide input[type=range]::-webkit-slider-runnable-track { height:14px; border-radius:8px;
+    background:linear-gradient(90deg,var(--ramp-0),var(--ramp-2),var(--ramp-3),var(--ramp-5)); }
+  .fek-slide input[type=range]::-moz-range-track { height:14px; border-radius:8px;
+    background:linear-gradient(90deg,var(--ramp-0),var(--ramp-2),var(--ramp-3),var(--ramp-5)); }
+  .fek-slide input[type=range]::-webkit-slider-thumb { -webkit-appearance:none; width:34px; height:34px;
+    border-radius:50%; background:#fff; border:3px solid var(--ink); margin-top:-10px;
+    box-shadow:0 2px 6px rgba(35,40,31,.3); }
+  .fek-slide input[type=range]::-moz-range-thumb { width:34px; height:34px; border-radius:50%;
+    background:#fff; border:3px solid var(--ink); box-shadow:0 2px 6px rgba(35,40,31,.3); }
+  .fek-slide .bub { font:800 26px var(--head); font-variant-numeric:tabular-nums; color:var(--ink);
+    min-width:86px; text-align:right; }
+  .fek-slide .bub span { font:600 13px var(--mono); color:var(--muted); margin-left:3px; }
+
+  /* --- big picker: replaces <select> for long lists --- */
+  .fek-pick { border:2px solid var(--border); border-radius:var(--fek-r); background:var(--surface);
+    overflow:hidden; }
+  .fek-pick .search { width:100%; border:0; border-bottom:2px solid var(--border);
+    font:700 17px var(--body); padding:0 16px; min-height:var(--tap); background:var(--surface-2); }
+  .fek-pick .search:focus { outline:none; background:var(--soft); }
+  .fek-pick .opts { max-height:264px; overflow-y:auto; -webkit-overflow-scrolling:touch; }
+  .fek-pick .opt { display:block; width:100%; text-align:left; border:0; border-bottom:1px solid var(--border);
+    background:none; font:700 16.5px var(--body); color:var(--ink); min-height:var(--tap-sm);
+    padding:10px 16px; cursor:pointer; touch-action:manipulation; }
+  .fek-pick .opt small { display:block; font:400 12.5px var(--mono); color:var(--muted); margin-top:2px; }
+  .fek-pick .opt:hover { background:var(--soft); }
+  .fek-pick .opt.on { background:var(--s1); color:#fff; }
+  .fek-pick .opt.on small { color:rgba(255,255,255,.85); }
+  .fek-pick .none { padding:16px; color:var(--muted); font-size:14px; }
+
+  /* --- readout tiles, sized to be read at arm's length --- */
+  .fek-tiles { display:grid; grid-template-columns:repeat(auto-fit,minmax(148px,1fr)); gap:11px; margin:14px 0 2px; }
+  .fek-tile { border:2px solid var(--border); border-radius:var(--fek-r); padding:13px 15px; background:var(--surface); }
+  .fek-tile .v { font:800 30px var(--head); font-variant-numeric:tabular-nums; line-height:1.05; color:var(--ink); }
+  .fek-tile .l { font:700 12px var(--body); color:var(--muted); margin-top:4px; letter-spacing:.02em; }
+  .fek-tile.good { border-color:var(--ramp-2); } .fek-tile.good .v { color:var(--ramp-2); }
+  .fek-tile.warn { border-color:var(--ramp-3); } .fek-tile.warn .v { color:#8a6508; }
+  .fek-tile.bad  { border-color:var(--ramp-5); } .fek-tile.bad  .v { color:var(--ramp-5); }
+  .fek-tile.cold { border-color:var(--ramp-0); } .fek-tile.cold .v { color:var(--ramp-0); }
+
+  /* --- banner: the verdict, big --- */
+  .fek-banner { border-radius:var(--fek-r); padding:16px 19px; margin:14px 0; font-size:16px;
+    line-height:1.55; border-left:7px solid var(--ramp-2); background:var(--soft); color:var(--ink-2); }
+  .fek-banner b { font-family:var(--head); color:var(--ink); font-size:17.5px; display:block; margin-bottom:4px; }
+  .fek-banner.warn { border-left-color:var(--ramp-3); background:var(--warn-bg); }
+  .fek-banner.bad  { border-left-color:var(--ramp-5); background:var(--danger-bg); }
+  .fek-banner.cold { border-left-color:var(--ramp-0); background:#E6EEF3; }
+
+  @media (max-width:420px){ :root { --tap:56px; --tap-sm:46px; } .fek-step .val { font-size:26px; } }
+  @media print { .fek-step button, .fek-pick .search { display:none; } }
+
 </style>
 </head>
 <body>
@@ -218,20 +334,19 @@
       was growing on and out of what, then tap the characters you actually observed.</p>
 
     <div class="card">
+      <div id="genEntry"></div>
       <div class="grid">
-        <label class="f">genus<select id="cGen"></select></label>
         <label class="f">working name<input type="text" id="cName" placeholder="Suillus cf. brevipes" autocomplete="off"></label>
         <label class="f">collection no.<input type="text" id="cNum" placeholder="RCW-2026-041" autocomplete="off"></label>
-        <label class="f">fruit bodies counted<input type="number" id="cN" min="1" step="1" value="1"></label>
       </div>
+      <div id="cnEntry" style="margin-top:14px"></div>
+      <input type="hidden" id="cGen"><input type="hidden" id="cN" value="1">
       <p class="fine" id="cGenTell"></p>
 
       <h3>Substrate — what is it coming out of</h3>
       <div class="kopts" id="cSub"></div>
-      <div class="grid" style="margin-top:10px">
-        <label class="f">host / associated tree<select id="cHost"></select></label>
-        <label class="f">distance to host stem (m)<input type="number" id="cDist" min="0" step="0.1"></label>
-      </div>
+      <div id="hostEntry" style="margin-top:10px"></div>
+      <input type="hidden" id="cHost"><input type="hidden" id="cDist">
       <p class="fine">Substrate and host are the two characters a herbarium cannot recover later and a
         photograph rarely shows. For an ectomycorrhizal fungus the host <em>is</em> half the identification.</p>
 
@@ -244,12 +359,9 @@
       <h3>Field characters observed</h3>
       <div class="chk" id="cChars"></div>
 
-      <div class="grid" style="margin-top:12px">
-        <label class="f">cap width (mm)<input type="number" id="cCap" min="0" step="1"></label>
-        <label class="f">stipe length (mm)<input type="number" id="cStL" min="0" step="1"></label>
-        <label class="f">stipe width (mm)<input type="number" id="cStW" min="0" step="1"></label>
-        <label class="f">fresh mass (g, optional)<input type="number" id="cMass" min="0" step="0.1"></label>
-      </div>
+      <div id="dimEntry" style="margin-top:12px"></div>
+      <input type="hidden" id="cCap"><input type="hidden" id="cStL">
+      <input type="hidden" id="cStW"><input type="hidden" id="cMass">
       <div class="grid" style="margin-top:10px">
         <label class="f">odour<input type="text" id="cOdour" placeholder="raphanoid / farinaceous / none" autocomplete="off"></label>
         <label class="f">colour change on cutting<input type="text" id="cBruise" placeholder="blue in 5 s, then fading" autocomplete="off"></label>
@@ -281,23 +393,17 @@
         <label class="f">date<input type="date" id="sDate"></label>
         <label class="f">latitude<input type="text" id="sLat" placeholder="45.3736" autocomplete="off"></label>
         <label class="f">longitude<input type="text" id="sLon" placeholder="-121.6960" autocomplete="off"></label>
-        <label class="f">elevation (m)<input type="number" id="sElev" step="1"></label>
-        <label class="f">area searched (m²)<input type="number" id="sArea" step="1" placeholder="1000"></label>
-        <label class="f">search time (min)<input type="number" id="sMin" step="1" placeholder="90"></label>
       </div>
       <h3>Stand</h3>
       <div class="grid">
         <label class="f">forest / vegetation type<input type="text" id="sVeg" placeholder="Tsuga heterophylla / Pseudotsuga zone" autocomplete="off"></label>
         <label class="f">dominant trees<input type="text" id="sTrees" placeholder="PSME, TSHE, THPL" autocomplete="off"></label>
-        <label class="f">stand age class<select id="sAge">
-          <option value="">—</option><option>regeneration</option><option>young</option>
-          <option>mature</option><option>old-growth</option><option>post-fire</option><option>mixed</option></select></label>
-        <label class="f">duff depth (cm)<input type="number" id="sDuff" step="0.5"></label>
-        <label class="f">coarse woody debris<select id="sCwd">
-          <option value="">—</option><option>none</option><option>sparse</option>
-          <option>moderate</option><option>abundant</option></select></label>
+
         <label class="f">disturbance<input type="text" id="sDist" placeholder="salvage-logged 2019; light ground fire" autocomplete="off"></label>
       </div>
+      <div id="siteEntry" style="margin-top:14px"></div>
+      <input type="hidden" id="sElev"><input type="hidden" id="sArea"><input type="hidden" id="sMin">
+      <input type="hidden" id="sAge"><input type="hidden" id="sDuff"><input type="hidden" id="sCwd">
       <p class="fine">Dominant trees are not scenery. Enter them, and the host column on the Analysis tab
         becomes a testable association rather than an anecdote.</p>
     </div>
@@ -308,12 +414,10 @@
         soil-wetting rain, within a temperature window. Record the trigger, not just the day you walked.</p>
       <div class="grid">
         <label class="f">last wetting rain — date<input type="date" id="wDate"></label>
-        <label class="f">that event (mm)<input type="number" id="wMm" min="0" step="1"></label>
-        <label class="f">7-day total (mm)<input type="number" id="w7" min="0" step="1"></label>
-        <label class="f">30-day total (mm)<input type="number" id="w30" min="0" step="1"></label>
-        <label class="f">soil temp at 10 cm (°C)<input type="number" id="wT" step="0.1"></label>
-        <label class="f">air temp (°C)<input type="number" id="wAir" step="0.1"></label>
       </div>
+      <div id="wxEntry"></div>
+      <input type="hidden" id="wMm"><input type="hidden" id="w7"><input type="hidden" id="w30">
+      <input type="hidden" id="wT"><input type="hidden" id="wAir">
       <div id="wOut"></div>
       <p class="fine">The lag window this page reads against &mdash; a wetting event of <b>≥25 mm</b> and a
         flush <b>7&ndash;21 days</b> later &mdash; is a <b>placeholder rule of thumb</b>, not a calibrated model.
@@ -329,16 +433,13 @@
     <p class="hint">Choose a collection, then record the two things that cannot be got from a photograph.</p>
 
     <div class="card">
-      <label class="f">collection<select id="pPick"></select></label>
+      <div id="pPickEntry"></div>
+      <input type="hidden" id="pPick">
 
       <h3>Spore print</h3>
       <div class="sw" id="pSw"></div>
-      <div class="grid" style="margin-top:11px">
-        <label class="f">print duration (h)<input type="number" id="pHrs" min="0" step="0.5" placeholder="6"></label>
-        <label class="f">on<select id="pOn">
-          <option value="">—</option><option>white paper</option><option>black paper</option>
-          <option>half black / half white</option><option>glass slide</option><option>foil</option></select></label>
-      </div>
+      <div id="prtEntry" style="margin-top:11px"></div>
+      <input type="hidden" id="pHrs"><input type="hidden" id="pOn">
       <div id="pPrintNote"></div>
       <p class="fine">A print from a young cap can read paler than the true colour, and a thin print reads
         paler than a thick one. Judge the colour where the deposit is heaviest, in daylight, against white.</p>
@@ -396,20 +497,18 @@
       with what the dried specimen will have lost.</p>
 
     <div class="card">
+      <div id="vPickEntry"></div>
       <div class="grid">
-        <label class="f">collection<select id="vPick"></select></label>
         <label class="f">herbarium / fungarium<input type="text" id="vHerb" placeholder="OSC" autocomplete="off"></label>
         <label class="f">accession<input type="text" id="vAcc" autocomplete="off"></label>
         <label class="f">determiner<input type="text" id="vDet" autocomplete="off"></label>
       </div>
+      <input type="hidden" id="vPick">
       <h3>Drying log</h3>
-      <div class="drylog">
-        <label class="f">start time<input type="text" id="vT0" placeholder="18:40" autocomplete="off"></label>
-        <label class="f">dryer temp (°C)<input type="number" id="vTemp" step="1" placeholder="43"></label>
-        <label class="f">hours to dry<input type="number" id="vHrs" step="0.5"></label>
-        <label class="f">sliced?<select id="vSlice"><option value="">—</option><option>whole</option><option>halved</option><option>sliced</option></select></label>
-        <label class="f">DNA subsample<select id="vDna"><option value="">—</option><option>taken — silica</option><option>taken — dried tissue</option><option>none</option></select></label>
-      </div>
+      <label class="f" style="margin:0 0 16px;max-width:340px">start time<input type="text" id="vT0" placeholder="18:40" autocomplete="off"></label>
+      <div id="dryEntry"></div>
+      <input type="hidden" id="vTemp"><input type="hidden" id="vHrs">
+      <input type="hidden" id="vSlice"><input type="hidden" id="vDna">
       <div class="btn-row">
         <button class="btn btn-go" id="vAdd" type="button">Make voucher label</button>
       </div>
@@ -450,6 +549,26 @@
       exactly the gap between "the key came out at X" and "therefore I ate it". Use this sheet to
       record and to identify. Take the eating question to a regional expert with the specimen in
       hand, and to a poison centre if anyone has already eaten something.
+    </div>
+
+    <div class="card">
+      <h3 style="margin-top:0">What the entry layer records &mdash; and what it does not</h3>
+      <p>The controls are the shared <b>Field Entry Kit</b>, sized for a gloved thumb on a wet tablet.
+        Three of its choices are about the record rather than the ergonomics.</p>
+      <p><b>The genus picker shows the guild as a subtitle.</b> That guild is what the pack carries for
+        the genus &mdash; a prior to check against the substrate you actually saw, not a result. Mixed
+        genera say so on their own tell.</p>
+      <p><b>The host list is your stand, not a region.</b> Enter dominant trees on the Site tab and the
+        host picker becomes that list; leave it empty and you get a Pacific Northwest default, which is a
+        convenience and nothing more. <em>Host uncertain</em> is a first-class option, because a guessed
+        host is worse than a recorded uncertainty &mdash; for an ectomycorrhizal fungus the host is half
+        the identification.</p>
+      <p><b>Blank still means blank.</b> Duff depth, area searched, search time, rainfall and every
+        temperature start unrecorded and stay out of the export until you touch them. A duff depth of
+        0&nbsp;cm on bare mineral soil is a real observation; no duff reading at all is not, and the two
+        must not collapse into each other. The effort-corrected tiles on the Analysis tab appear only
+        once area or time is entered, for the same reason: collections per hour computed from an
+        unrecorded search time would be a fabrication.</p>
     </div>
 
     <div class="card">
@@ -720,6 +839,157 @@ var GENERA = [
 ];
 </script>
 <script>
+
+/* ---- Field Entry Kit v1.0.0 : constructors return {el, get, set} ---- */
+var FEK = (function(){
+  function el(t,c,h){ var e=document.createElement(t); if(c) e.className=c;
+    if(h!=null) e.innerHTML=h; return e; }
+  function buzz(m){ try{ if(navigator.vibrate) navigator.vibrate(m||8);}catch(e){} }
+
+  function step(o){
+    o=o||{}; var min=(o.min==null?-Infinity:o.min), max=(o.max==null?Infinity:o.max);
+    var stepv=o.step||1, dec=o.dec==null?(String(stepv).split(".")[1]||"").length:o.dec;
+    var v=o.value==null?0:o.value;
+    var wrap=el("div","fek-row"), lab=el("label","fek-lab",
+      (o.label||"")+(o.unit?'<span class="u">'+o.unit+'</span>':""));
+    var box=el("div","fek-step");
+    var minus=el("button",null,"&minus;"), inp=el("input"), plus=el("button",null,"+");
+    minus.type="button"; plus.type="button"; inp.type="number"; inp.className="val";
+    inp.setAttribute("inputmode","decimal");
+    if(o.label) inp.setAttribute("aria-label",o.label);
+    function clamp(x){ return Math.min(max,Math.max(min,x)); }
+    function render(){ inp.value=(dec?v.toFixed(dec):String(v)); }
+    function set(x,quiet){ v=clamp(isFinite(x)?x:0); render(); if(!quiet&&o.onchange) o.onchange(v); }
+    function bump(d){ set(+(v+d*stepv).toFixed(6)); buzz(); }
+    minus.addEventListener("click",function(){ bump(-1); });
+    plus.addEventListener("click",function(){ bump(1); });
+    var hold;
+    function holdOn(d){ return function(){ clearInterval(hold);
+      hold=setInterval(function(){ bump(d); },110); }; }
+    function holdOff(){ clearInterval(hold); }
+    minus.addEventListener("pointerdown",holdOn(-1)); plus.addEventListener("pointerdown",holdOn(1));
+    ["pointerup","pointerleave","pointercancel"].forEach(function(ev){
+      minus.addEventListener(ev,holdOff); plus.addEventListener(ev,holdOff); });
+    inp.addEventListener("input",function(){ var x=parseFloat(inp.value);
+      if(isFinite(x)){ v=clamp(x); if(o.onchange) o.onchange(v); } });
+    inp.addEventListener("blur",render);
+    box.appendChild(minus); box.appendChild(inp); box.appendChild(plus);
+    wrap.appendChild(lab); wrap.appendChild(box);
+    if(o.help) wrap.appendChild(el("p","fek-help",o.help));
+    render();
+    return { el:wrap, get:function(){return v;}, set:function(x){set(x,true);} };
+  }
+
+  function dial(o){
+    o=o||{}; var opts=o.options||[], cur=o.value==null?null:o.value;
+    var wrap=el("div","fek-row"), lab=el("label","fek-lab",o.label||"");
+    var box=el("div","fek-dial"), btns=[];
+    opts.forEach(function(op,i){
+      var b=el("button",null,'<span>'+op.label+'</span>'+(op.sub?'<small>'+op.sub+'</small>':""));
+      b.type="button";
+      b.setAttribute("data-r", op.ramp==null ? String(Math.min(5,Math.round(i*5/Math.max(1,opts.length-1)))) : String(op.ramp));
+      b.addEventListener("click",function(){
+        cur = (cur===op.value && o.clearable!==false) ? null : op.value;
+        paint(); buzz(); if(o.onchange) o.onchange(cur);
+      });
+      btns.push(b); box.appendChild(b);
+    });
+    function paint(){ btns.forEach(function(b,i){ b.classList.toggle("on", opts[i].value===cur); }); }
+    paint();
+    wrap.appendChild(lab); wrap.appendChild(box);
+    if(o.help) wrap.appendChild(el("p","fek-help",o.help));
+    return { el:wrap, get:function(){return cur;},
+             set:function(x){ cur=x; paint(); } };
+  }
+
+  function chips(o){
+    o=o||{}; var opts=o.options||[], sel={};
+    (o.value||[]).forEach(function(v){ sel[v]=1; });
+    var wrap=el("div","fek-row"), lab=el("label","fek-lab",o.label||"");
+    var box=el("div","fek-chips"), btns=[];
+    opts.forEach(function(op){
+      var b=el("button","fek-chip",op.label); b.type="button";
+      b.addEventListener("click",function(){
+        if(o.single){ sel={}; sel[op.value]=1; }
+        else if(sel[op.value]) delete sel[op.value]; else sel[op.value]=1;
+        paint(); buzz(); if(o.onchange) o.onchange(Object.keys(sel));
+      });
+      btns.push(b); box.appendChild(b);
+    });
+    function paint(){ btns.forEach(function(b,i){ b.classList.toggle("on",!!sel[opts[i].value]); }); }
+    paint();
+    wrap.appendChild(lab); wrap.appendChild(box);
+    if(o.help) wrap.appendChild(el("p","fek-help",o.help));
+    return { el:wrap, get:function(){return Object.keys(sel);},
+             set:function(a){ sel={}; (a||[]).forEach(function(v){sel[v]=1;}); paint(); } };
+  }
+
+  function slider(o){
+    o=o||{}; var v=o.value==null?(o.min||0):o.value;
+    var wrap=el("div","fek-row"), lab=el("label","fek-lab",o.label||"");
+    var box=el("div","fek-slide"), r=el("input"), bub=el("div","bub");
+    r.type="range"; r.min=o.min==null?0:o.min; r.max=o.max==null?100:o.max;
+    r.step=o.step||1; r.value=v;
+    if(o.label) r.setAttribute("aria-label",o.label);
+    function paint(){ bub.innerHTML=(o.fmt?o.fmt(v):v)+(o.unit?'<span>'+o.unit+'</span>':""); }
+    r.addEventListener("input",function(){ v=parseFloat(r.value); paint(); if(o.onchange) o.onchange(v); });
+    paint();
+    box.appendChild(r); box.appendChild(bub);
+    wrap.appendChild(lab); wrap.appendChild(box);
+    if(o.help) wrap.appendChild(el("p","fek-help",o.help));
+    return { el:wrap, get:function(){return v;}, set:function(x){ v=x; r.value=x; paint(); } };
+  }
+
+  function picker(o){
+    o=o||{}; var opts=o.options||[], cur=o.value==null?null:o.value, q="";
+    var wrap=el("div","fek-row"), lab=el("label","fek-lab",o.label||"");
+    var box=el("div","fek-pick"), s=el("input","search"), list=el("div","opts");
+    s.type="text"; s.placeholder=o.placeholder||"type to filter…";
+    s.setAttribute("autocomplete","off");
+    if(o.label) s.setAttribute("aria-label",o.label+" filter");
+    function paint(){
+      list.innerHTML="";
+      var qq=q.toLowerCase();
+      var shown=opts.filter(function(op){
+        return !qq || (op.label+" "+(op.sub||"")).toLowerCase().indexOf(qq)>=0; });
+      if(!shown.length){ list.appendChild(el("div","none","No match. Clear the filter to see all "+opts.length+".")); return; }
+      shown.slice(0,200).forEach(function(op){
+        var b=el("button","opt"+(op.value===cur?" on":""),
+          op.label+(op.sub?'<small>'+op.sub+'</small>':""));
+        b.type="button";
+        b.addEventListener("click",function(){ cur=op.value; paint(); buzz(); if(o.onchange) o.onchange(cur); });
+        list.appendChild(b);
+      });
+    }
+    s.addEventListener("input",function(){ q=s.value; paint(); });
+    box.appendChild(s); box.appendChild(list);
+    wrap.appendChild(lab); wrap.appendChild(box);
+    if(o.help) wrap.appendChild(el("p","fek-help",o.help));
+    paint();
+    return { el:wrap, get:function(){return cur;}, set:function(x){ cur=x; paint(); } };
+  }
+
+  function tiles(list){
+    var box=el("div","fek-tiles");
+    (list||[]).forEach(function(t){
+      box.appendChild(el("div","fek-tile"+(t.tone?" "+t.tone:""),
+        '<div class="v">'+t.v+'</div><div class="l">'+t.l+'</div>'));
+    });
+    return box;
+  }
+  function banner(title,body,tone){
+    return el("div","fek-banner"+(tone?" "+tone:""),"<b>"+title+"</b>"+body);
+  }
+  function mount(host,parts){
+    var h=typeof host==="string"?document.getElementById(host):host;
+    h.innerHTML=""; parts.forEach(function(p){ h.appendChild(p.el||p); }); return h;
+  }
+  return { version:"1.0.0", step:step, dial:dial, chips:chips, slider:slider,
+           picker:picker, tiles:tiles, banner:banner, mount:mount, buzz:buzz };
+})();
+
+</script>
+<script>
 (function(){
   "use strict";
   var $ = function(id){ return document.getElementById(id); };
@@ -818,17 +1088,106 @@ var GENERA = [
   function habLabel(k){ for(var i=0;i<HABITS.length;i++) if(HABITS[i][0]===k) return HABITS[i][1]; return ""; }
   function hymLabel(k){ for(var i=0;i<HYMS.length;i++) if(HYMS[i][0]===k) return HYMS[i][1]; return ""; }
 
-  /* -------------------------------------------------------------- record UI */
-  function fillGenera(){
-    var s=$("cGen"); s.innerHTML="";
-    var o=document.createElement("option"); o.value=""; o.textContent="— pick a genus —"; s.appendChild(o);
-    PACK.slice().sort(function(a,b){ return a.gen.localeCompare(b.gen); }).forEach(function(g){
-      var e=document.createElement("option"); e.value=g.id;
-      e.textContent=g.gen+"  ·  "+GUILD[g.guild][0]+(g.mixed?" (mixed)":"");
-      s.appendChild(e);
-    });
-    var u=document.createElement("option"); u.value="__other"; u.textContent="not in the pack"; s.appendChild(u);
+  /* ------------------------------------------------- Field Entry Kit (FEK v1)
+     Every control writes through to the hidden field the rest of the page
+     already reads, so an untouched optional field stays empty rather than
+     reading as a recorded zero. A duff depth of 0 cm is a real observation;
+     no duff reading at all is not. */
+  function push(id,v){
+    var e=$(id); if(!e) return;
+    e.value=(v==null?"":String(v));
+    e.dispatchEvent(new Event("input",{bubbles:true}));
+    e.dispatchEvent(new Event("change",{bubbles:true}));
   }
+  var GENPICK=null, HOSTPICK=null, PPICK=null, VPICK=null;
+
+  function fillGenera(){
+    var cur=GENPICK?GENPICK.get():null;
+    var opts=PACK.slice().sort(function(a,b){ return a.gen.localeCompare(b.gen); })
+      .map(function(g){ return {value:g.id, label:esc(g.gen),
+        sub:esc(GUILD[g.guild][0])+(g.mixed?" · mixed":"")}; });
+    opts.push({value:"__other", label:"not in the pack", sub:"working name only"});
+    GENPICK=FEK.picker({ label:"genus", options:opts, value:cur,
+      placeholder:"type a genus to filter…",
+      onchange:function(v){ push("cGen",v); genTell(); },
+      help:"The subtitle is the trophic guild the pack carries for that genus &mdash; a prior to check, not a result." });
+    FEK.mount("genEntry",[GENPICK]);
+  }
+  var CN=FEK.step({ label:"fruit bodies counted", value:1, min:1, max:500, step:1, dec:0,
+    onchange:function(v){ push("cN",v); },
+    help:"How many bodies this collection represents, not how many you saw. One collection is one taxon in one spot." });
+  FEK.mount("cnEntry",[CN]);
+
+  var CDIST=FEK.step({ label:"distance to host stem", unit:"m", value:0, min:0, max:60, step:0.5, dec:1,
+    onchange:function(v){ push("cDist",v); } });
+  var CCAP=FEK.step({ label:"cap width", unit:"mm", value:0, min:0, max:600, step:5, dec:0,
+    onchange:function(v){ push("cCap",v); } });
+  var CSTL=FEK.step({ label:"stipe length", unit:"mm", value:0, min:0, max:600, step:5, dec:0,
+    onchange:function(v){ push("cStL",v); } });
+  var CSTW=FEK.step({ label:"stipe width", unit:"mm", value:0, min:0, max:200, step:1, dec:0,
+    onchange:function(v){ push("cStW",v); } });
+  var CMASS=FEK.step({ label:"fresh mass", unit:"g", value:0, min:0, max:5000, step:5, dec:1,
+    onchange:function(v){ push("cMass",v); },
+    help:"Optional, and worth having: fresh mass is the one dimension the dried specimen destroys." });
+  FEK.mount("dimEntry",[CCAP,CSTL,CSTW,CMASS]);
+
+  var SELEV=FEK.step({ label:"elevation", unit:"m", value:0, min:-100, max:5000, step:50, dec:0,
+    onchange:function(v){ push("sElev",v); } });
+  var SAREA=FEK.step({ label:"area searched", unit:"m²", value:0, min:0, max:100000, step:100, dec:0,
+    onchange:function(v){ push("sArea",v); } });
+  var SMIN=FEK.step({ label:"search time", unit:"min", value:0, min:0, max:600, step:15, dec:0,
+    onchange:function(v){ push("sMin",v); },
+    help:"Area and time are what turn a species list into an effort-corrected one. Without them, two surveys cannot be compared." });
+  var SAGE=FEK.dial({ label:"stand age class",
+    options:[{value:"regeneration",label:"regen",ramp:0},{value:"young",label:"young",ramp:1},
+             {value:"mature",label:"mature",ramp:2},{value:"old-growth",label:"old-growth",ramp:3},
+             {value:"post-fire",label:"post-fire",ramp:5},{value:"mixed",label:"mixed",ramp:4}],
+    onchange:function(v){ push("sAge",v); } });
+  var SDUFF=FEK.step({ label:"duff depth", unit:"cm", value:0, min:0, max:40, step:0.5, dec:1,
+    onchange:function(v){ push("sDuff",v); } });
+  var SCWD=FEK.dial({ label:"coarse woody debris",
+    options:[{value:"none",label:"none",ramp:0},{value:"sparse",label:"sparse",ramp:1},
+             {value:"moderate",label:"moderate",ramp:3},{value:"abundant",label:"abundant",ramp:5}],
+    onchange:function(v){ push("sCwd",v); },
+    help:"Ordinal by eye. Stand Sheet does it quantitatively by line intercept if you need a volume." });
+  FEK.mount("siteEntry",[SELEV,SAREA,SMIN,SAGE,SDUFF,SCWD]);
+
+  var WMM=FEK.step({ label:"that event", unit:"mm", value:0, min:0, max:400, step:5, dec:0,
+    onchange:function(v){ push("wMm",v); } });
+  var W7=FEK.step({ label:"7-day total", unit:"mm", value:0, min:0, max:800, step:5, dec:0,
+    onchange:function(v){ push("w7",v); } });
+  var W30=FEK.step({ label:"30-day total", unit:"mm", value:0, min:0, max:2000, step:10, dec:0,
+    onchange:function(v){ push("w30",v); } });
+  var WT=FEK.step({ label:"soil temp at 10 cm", unit:"°C", value:0, min:-10, max:40, step:0.5, dec:1,
+    onchange:function(v){ push("wT",v); } });
+  var WAIR=FEK.step({ label:"air temp", unit:"°C", value:0, min:-30, max:50, step:1, dec:1,
+    onchange:function(v){ push("wAir",v); } });
+  FEK.mount("wxEntry",[WMM,W7,W30,WT,WAIR]);
+
+  var PHRS=FEK.step({ label:"print duration", unit:"h", value:0, min:0, max:48, step:0.5, dec:1,
+    onchange:function(v){ push("pHrs",v); } });
+  var PON=FEK.dial({ label:"printed on",
+    options:[{value:"white paper",label:"white paper"},{value:"black paper",label:"black paper"},
+             {value:"half black / half white",label:"half & half"},
+             {value:"glass slide",label:"glass slide"},{value:"foil",label:"foil"}],
+    onchange:function(v){ push("pOn",v); },
+    help:"Half black, half white is the honest surface: a white print is invisible on white paper and a dark one washes out on black." });
+  FEK.mount("prtEntry",[PHRS,PON]);
+
+  var VTEMP=FEK.step({ label:"dryer temp", unit:"°C", value:43, min:20, max:70, step:1, dec:0,
+    onchange:function(v){ push("vTemp",v); } });
+  var VHRS=FEK.step({ label:"hours to dry", unit:"h", value:0, min:0, max:96, step:0.5, dec:1,
+    onchange:function(v){ push("vHrs",v); } });
+  var VSLICE=FEK.dial({ label:"sliced?",
+    options:[{value:"whole",label:"whole"},{value:"halved",label:"halved"},{value:"sliced",label:"sliced"}],
+    onchange:function(v){ push("vSlice",v); } });
+  var VDNA=FEK.dial({ label:"DNA subsample",
+    options:[{value:"taken — silica",label:"silica",ramp:2},
+             {value:"taken — dried tissue",label:"dried tissue",ramp:3},
+             {value:"none",label:"none",ramp:5}],
+    onchange:function(v){ push("vDna",v); },
+    help:"Take it before the dryer. Above about 50 °C the DNA begins to degrade." });
+  FEK.mount("dryEntry",[VTEMP,VHRS,VSLICE,VDNA]);
   function genTell(){
     var g=gById(val("cGen")); var box=$("cGenTell");
     if(!g){ box.innerHTML=""; return; }
@@ -839,15 +1198,20 @@ var GENERA = [
       (g.mixed?'<br><b>Mixed genus.</b> The guild shown is a prior, not a result — confirm it at species level before it goes in an analysis.':'');
   }
   function fillHosts(){
-    var s=$("cHost"); var keep=s.value; s.innerHTML="";
-    var o=document.createElement("option"); o.value=""; o.textContent="— none / not applicable —"; s.appendChild(o);
+    var keep=HOSTPICK?HOSTPICK.get():null;
     var list = val("sTrees").split(/[,;]+/).map(function(x){return x.trim();}).filter(Boolean);
-    if(!list.length) list = ["Pseudotsuga menziesii","Tsuga heterophylla","Thuja plicata","Pinus contorta",
+    var fromStand = list.length>0;
+    if(!fromStand) list = ["Pseudotsuga menziesii","Tsuga heterophylla","Thuja plicata","Pinus contorta",
       "Pinus ponderosa","Abies concolor","Picea engelmannii","Populus tremuloides","Quercus gambelii",
       "Alnus rubra","Betula","Salix"];
-    list.forEach(function(t){ var e=document.createElement("option"); e.value=t; e.textContent=t; s.appendChild(e); });
-    var x=document.createElement("option"); x.value="__unknown"; x.textContent="host uncertain"; s.appendChild(x);
-    if(keep) s.value=keep;
+    var opts=list.map(function(t){ return {value:t, label:esc(t),
+      sub: fromStand ? "from your stand list" : ""}; });
+    opts.push({value:"__unknown", label:"host uncertain", sub:"recorded as uncertain, not guessed"});
+    HOSTPICK=FEK.picker({ label:"host / associated tree", options:opts, value:keep,
+      placeholder:"type to filter…",
+      onchange:function(v){ push("cHost",v); },
+      help:"Enter the dominant trees on the Site tab and this list becomes your own stand rather than a regional default." });
+    FEK.mount("hostEntry",[HOSTPICK,CDIST]);
   }
   function chipRow(host, list, key){
     var box=$(host); box.innerHTML="";
@@ -874,8 +1238,12 @@ var GENERA = [
     });
   }
   function clearForm(){
-    ["cName","cNum","cCap","cStL","cStW","cMass","cOdour","cBruise","cNotes","cDist"].forEach(function(i){ $(i).value=""; });
-    $("cN").value="1"; $("cGen").value=""; $("cHost").value="";
+    ["cName","cNum","cOdour","cBruise","cNotes"].forEach(function(i){ $(i).value=""; });
+    [CCAP,CSTL,CSTW,CMASS,CDIST].forEach(function(k){ k.set(0); });
+    ["cCap","cStL","cStW","cMass","cDist"].forEach(function(i){ $(i).value=""; });
+    CN.set(1); push("cN",1);
+    if(GENPICK) GENPICK.set(null); push("cGen","");
+    if(HOSTPICK) HOSTPICK.set(null); push("cHost","");
     f={sub:"",hab:"",hym:"",chars:{}};
     ["cSub","cHab","cHym"].forEach(function(id){
       Array.prototype.forEach.call($(id).children,function(c){ c.classList.remove("on"); }); });
@@ -929,17 +1297,18 @@ var GENERA = [
 
   /* ------------------------------------------------------------- prints tab */
   function fillPicks(){
-    [["pPick",renderPrint],["vPick",null]].forEach(function(pair){
-      var s=$(pair[0]); var keep=s.value; s.innerHTML="";
-      if(!cols.length){
-        var o=document.createElement("option"); o.value=""; o.textContent="— no collections yet —"; s.appendChild(o); return;
-      }
-      cols.forEach(function(c){
-        var e=document.createElement("option"); e.value=String(c.n);
-        e.textContent = (c.num?c.num+" · ":"#"+c.n+" · ")+c.name; s.appendChild(e);
-      });
-      if(keep && s.querySelector('option[value="'+keep+'"]')) s.value=keep;
-    });
+    var opts=cols.map(function(c){
+      return {value:String(c.n), label:esc(c.num?c.num:"#"+c.n), sub:esc(c.name)}; });
+    var keepP=PPICK?PPICK.get():null, keepV=VPICK?VPICK.get():null;
+    var have=function(k){ return opts.some(function(o){ return o.value===k; }); };
+    PPICK=FEK.picker({ label:"collection", options:opts, value:have(keepP)?keepP:null,
+      placeholder: cols.length?"type a number or name…":"no collections yet",
+      onchange:function(v){ push("pPick",v); renderPrint(); } });
+    FEK.mount("pPickEntry",[PPICK]);
+    VPICK=FEK.picker({ label:"collection", options:opts, value:have(keepV)?keepV:null,
+      placeholder: cols.length?"type a number or name…":"no collections yet",
+      onchange:function(v){ push("vPick",v); } });
+    FEK.mount("vPickEntry",[VPICK]);
   }
   function curCol(sel){ var n=parseInt(val(sel),10); for(var i=0;i<cols.length;i++) if(cols[i].n===n) return cols[i]; return null; }
 
@@ -979,7 +1348,9 @@ var GENERA = [
       el.classList.toggle("on", !!c && c.print===PRINTS[i][0]); });
     Array.prototype.forEach.call($("pRg").querySelectorAll("input[data-rg]"),function(i){
       i.value = c ? (c.rg[i.getAttribute("data-rg")]||"") : ""; });
+    PHRS.set(c && c.prtHrs ? parseFloat(c.prtHrs) : 0);
     $("pHrs").value = c ? (c.prtHrs||"") : "";
+    PON.set(c ? (c.prtOn||null) : null);
     $("pOn").value  = c ? (c.prtOn||"")  : "";
     if(!c){ box.innerHTML=""; return; }
     if(!c.print){ box.innerHTML=""; return; }
@@ -1003,7 +1374,6 @@ var GENERA = [
       esc(prtLabel(c.print))+'; '+esc(g.gen)+' gives '+esc(prtLabel(g.prt))+'. Either the print or the genus is '+
       'wrong, and the print is the harder evidence. Re-key the collection from the print colour.</div>';
   }
-  $("pPick").addEventListener("change",renderPrint);
   $("pSave").addEventListener("click",function(){
     var c=curCol("pPick"); if(!c){ toast("Pick a collection first"); return; }
     c.prtHrs=val("pHrs"); c.prtOn=val("pOn");
@@ -1408,7 +1778,6 @@ var GENERA = [
   document.querySelectorAll(".tab").forEach(function(tb){
     tb.addEventListener("click",function(){ showPane(tb.dataset.pane); buzz(); }); });
 
-  $("cGen").addEventListener("change",genTell);
   $("cAdd").addEventListener("click",addCol);
   $("cClear").addEventListener("click",function(){ clearForm(); toast("Form cleared"); });
   $("cUndo").addEventListener("click",function(){

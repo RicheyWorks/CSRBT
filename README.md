@@ -746,7 +746,11 @@ live, and every export carries site, observer, and date plus a CSV for Excel/R:
   by cover, with the &le;3.0 threshold stated as one of three delineation criteria rather than a verdict;
   per-species phenophase; a functional-group spectrum by growth form; and voucher records that render as
   printable herbarium labels with locality, habitat and associates filled from the plot. 49 western
-  understory taxa, and any flora can be loaded.
+  understory taxa, and any flora can be loaded. **On the Field Entry Kit** (ADR-031 action 7): the cover
+  dial is coloured by class *midpoint* rather than by position, so Braun-Blanquet 2 and Daubenmire 2 —
+  both a 15% midpoint — read as the same colour and switching scale mid-survey cannot silently change what
+  a colour means. Strata, moisture and the eight-point aspect are dials for the same reason: all ordinal.
+  66/66 verified.
 - [**`docs/ethogram.html`**](docs/ethogram.html) — **Ethogram**: behavioural sampling built on
   Altmann's distinctions rather than a tally counter. You declare the **sampling rule** (ad libitum, focal,
   scan, behaviour) and the **recording rule** (continuous, instantaneous, one-zero) and the recorder changes
@@ -757,7 +761,11 @@ live, and every export carries site, observer, and date plus a CSV for Excel/R:
   with the first-order Markov assumption stated and thin rows flagged, event rates per observed minute,
   **Cohen's &kappa;** with a confusion matrix that names your commonest disagreement, and a pseudoreplication
   warning when everything came from one animal. Ethograms are validated, swappable JSON packs whose importer
-  rejects definitions written in terms of motivation rather than posture.
+  rejects definitions written in terms of motivation rather than posture. **On the Field Entry Kit**: the
+  interval and session-length steppers ship filled in at 30 s and 10 min — the only pre-filled numeric
+  fields across the four migrated pages, because a scan sample with no interval is not an under-specified
+  design but no design at all. State versus event is a dial, since the choice decides what the data can
+  answer. 71/71 verified.
 - [**`docs/selection-log.html`**](docs/selection-log.html) — **Selection Log**: evolution measured in the
   field, on marked individuals, the way a long-term study measures it. Repeated morphometrics give a
   **repeatability (ICC)** first, because random measurement error attenuates every gradient downstream by
@@ -847,7 +855,12 @@ live, and every export carries site, observer, and date plus a CSV for Excel/R:
   taxa sit in mixed genera; and a **host × taxon matrix** whose single-host flag is explicitly a prompt
   rather than a finding. Vouchers render a fungarium label with a drying log. **There is no edibility
   field, no taste field and no "safe" flag** — the Method tab explains why, and the pack importer rejects
-  any file that tries to add one. 65 genera, swappable like the others.
+  any file that tries to add one. 65 genera, swappable like the others. **On the Field Entry Kit**: the
+  genus picker carries the pack's trophic guild as the option subtitle — a prior to check against the
+  substrate you saw, not a result — and the host picker becomes *your* stand once dominant trees are
+  entered on the Site tab, with **host uncertain** a first-class option, because for an ectomycorrhizal
+  fungus a guessed host is worse than a recorded uncertainty. Effort-corrected tiles appear only once area
+  or search time is entered. 72/72 verified.
 - [**`docs/plant-characters.html`**](docs/plant-characters.html) — **Plant Characters**: the keying
   vocabulary a flora assumes you already have, **drawn rather than defined** — 34 inline-SVG morphology
   glyphs for leaf arrangement, shape, margin, division, venation, inflorescence, symmetry and ovary

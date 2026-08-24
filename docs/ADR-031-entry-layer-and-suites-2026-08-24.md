@@ -276,17 +276,17 @@ be stated in each page rather than hidden.
 4. [~] Build Suite A: `cp-bench.html` **built and verified 78/78**; `cp-characters.html` still to do
 5. [x] Build Suite B: `breeding-bench.html` — **built and verified 85/85**, reusing Selection Log's engine
 6. [x] Add a **Suites** section to the kit hub and a nav chip; per-suite hubs still to do
-7. [~] Migrate Stand Sheet, Relevé, Collection Sheet and Ethogram to FEK. **Stand Sheet migrated and
-       verified 76/76** — tally (species picker, DBH and height steppers, crown-class and status dials),
-       plot geometry, physiography, cover and the clinometer card. Relevé, Collection Sheet and Ethogram
-       still to do. v1.0.0 covered every control the migration needed, so no bump; the one design decision
-       it forced is recorded below.
-8. [~] Add FEK version assertions to every migrated page's test suite. **Stand Sheet asserts
-       `FEK.version === "1.0.0"`**; the remaining three follow with their migrations.
+7. [x] Migrate Stand Sheet, Relevé, Collection Sheet and Ethogram to FEK. **All four migrated and
+       verified**: Stand Sheet 76/76, Relevé 66/66, Collection Sheet 72/72, Ethogram 71/71. v1.0.0
+       covered every control the four needed, so no bump; three design decisions the migrations forced
+       are recorded below.
+8. [x] Add FEK version assertions to every migrated page's test suite. All four assert
+       `FEK.version === "1.0.0"` and that no legacy `<select>` survives.
 
-### What the Stand Sheet migration decided
+### What the migrations decided
 
-The old sheet took aspect as a free 0–360 number. A hand compass read on a slope does not give a degree,
+**Aspect is eight compass points, not a free 0–360 field** (Stand Sheet, then Relevé). The old sheet took
+aspect as a free 0–360 number. A hand compass read on a slope does not give a degree,
 and storing 227° when the observer read "southwest" is a precision that was never measured — the same
 failure the honesty gate exists to prevent, arriving through the entry layer rather than through a
 published figure. Aspect is now an eight-point dial coloured along the heat-load axis. Nothing is lost:
@@ -294,11 +294,28 @@ the value exists to be folded, and |180 − |aspect − 225|| is identical wheth
 point or a degree. Cover moved to 5% steps for the same reason, since ocular estimates disagree between
 observers by 10–20 points.
 
-The migration also had to preserve the difference between *zero* and *not recorded* — aspect 0° is north.
+**Zero and *not recorded* stay distinguishable** (all four). Aspect 0° is north.
 FEK controls have no null state, so each writes through to the field the export already reads, and that
 field stays empty until the control is touched. Any page migrating to FEK with optional numeric fields
 needs the same treatment; a `nullable` option on `FEK.step` and `FEK.slider` is the obvious v1.1 candidate
 if a third page needs it.
+
+**The cover dial is coloured by midpoint, not by position** (Relevé). Cover classes are ordinal and a row
+of identical buttons hides that. The ramp is keyed to the class midpoint, so Braun-Blanquet 2 and
+Daubenmire 2 — both 5–25%, both a midpoint of 15% — read as the same colour, and switching scale
+mid-survey cannot silently change what a colour means. The same reasoning put strata, moisture, stand age
+and coarse woody debris on dials rather than chips: all ordinal.
+
+**A prior is labelled as a prior** (Collection Sheet). The genus picker shows the pack's trophic guild as
+the option subtitle. That is a prior to check against the substrate actually observed, not a result, and
+mixed genera say so. The host picker takes the dominant trees entered on the Site tab when they exist and
+falls back to a regional default otherwise — labelled as such — and *host uncertain* is a first-class
+option, because for an ectomycorrhizal fungus a guessed host is worse than a recorded uncertainty.
+
+**Defaults are for fields where blank is not a state** (Ethogram). Interval and session length ship filled
+in at 30 s and 10 min, which every other numeric field on every migrated page does not. The reason is not
+convenience: a scan sample with no interval is not an under-specified design, it is not a design at all.
+Everywhere else, blank means blank.
 
 ---
 
