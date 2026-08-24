@@ -1,6 +1,6 @@
 # ADR-031: A shared entry layer, and three domain suites
 
-**Status:** Accepted, and fully implemented — FEK v1.0.0 with four field pages migrated to it, all three suites built with front doors, and the honesty gate applied throughout. All eight actions closed.
+**Status:** Accepted, and fully implemented — FEK now at v1.1.0 across eight consumers, all three suites built with front doors, and the honesty gate applied throughout. All eight actions closed; v1.1 recorded below as a follow-on.
 **Date:** 2026-08-24
 **Deciders:** Richmond
 **Supersedes:** nothing. **Touches:** every instrument in `CSRBT/docs/`
@@ -323,6 +323,37 @@ option, because for an ectomycorrhizal fungus a guessed host is worse than a rec
 in at 30 s and 10 min, which every other numeric field on every migrated page does not. The reason is not
 convenience: a scan sample with no interval is not an under-specified design, it is not a design at all.
 Everywhere else, blank means blank.
+
+
+## Follow-on: FEK v1.1.0
+
+The record predicted one v1.1 candidate and got two. Both came from real pages refusing to fit v1.0.
+
+**`nullable` on `step` and `slider`** — predicted. Four migrated pages were carrying the same workaround:
+a FEK control writing through to a hidden field so that "not recorded" stayed distinguishable from a
+recorded zero. v1.1 puts that in the component. A nullable stepper starts empty, renders dashed, reports
+`null`, and takes an optional `start` so the first tap lands somewhere plausible rather than at zero — a
+cell cycle length starts at 24 h, not 0 h, because zero is never the value you meant. A nullable slider
+says *not recorded* in words instead of parking its bubble at the minimum.
+
+One semantic is worth stating because it caught me while migrating Cell Bench: `nullable:true` with an
+explicit `value:0` is a **recorded zero**, not null. That is the correct reading — passing a value means
+you meant that value — and omitting `value` is what starts a control empty. There is now a test pinning
+it, since the failure is silent and looks like a framework bug.
+
+**`FEK.field`** — not predicted, and the more interesting of the two. Cell Bench has twenty-three numeric
+entries and roughly half of them are absorbances, extinction coefficients and stock densities. Those are
+not values you *set*; they are values you *read* off an instrument to three or six significant figures,
+and a stepper is the wrong control for them by an enormous margin — reaching 1.842 at a step of 0.001 is
+two thousand taps. v1.1 adds a plain typed entry, sized off the same `--tap` token as everything else,
+requesting the decimal keypad, showing its unit, dashed when empty, and offering no arrows to imply the
+value is scrollable. Nothing is rounded on the way in.
+
+The general rule the kit now follows: **a stepper for a number you set, a field for a number you read.**
+
+No consumer needed a change beyond re-emitting, because v1.1 is additive — every v1.0 constructor keeps
+its signature and behaviour, which the FEK test suite asserts directly (50 of its 55 checks predate v1.1
+and still pass unchanged).
 
 ---
 

@@ -847,6 +847,16 @@ live, and every export carries site, observer, and date plus a CSV for Excel/R:
   curves that **refuse to extrapolate** past the top standard; Beer&ndash;Lambert and A260/A280 framed as
   conventions; and a mitotic index whose phase-duration step prints the four assumptions it rests on,
   including the one that is reliably false.
+  **Migrated to the Field Entry Kit, and the page that grew it a new component (FEK v1.1.0).** Twenty-three
+  numeric entries, and roughly half of them are values you *read* off an instrument rather than values you
+  *set* — an absorbance of 1.842 at a step of 0.001 is two thousand taps on a stepper. So v1.1 adds
+  **`FEK.field`**: a plain typed entry at the same size as the rest of the kit, decimal keypad requested,
+  unit shown, dashed when empty, and no arrows implying the value is scrollable. The rule the kit now
+  follows is *a stepper for a number you set, a field for a number you read*. v1.1 also adds **`nullable`**
+  to the stepper and slider, so elapsed time, confluency and cell cycle length start genuinely unrecorded
+  rather than at a zero that looks like data — and a first tap on an empty cycle-length stepper starts at a
+  plausible 24 h, because zero is never the value you meant. 74/74 verified.
+
 - [**`docs/micro-bench.html`**](docs/micro-bench.html) — **Micro Bench**: plate counts with the
   **30&ndash;300 rule enforced** &mdash; TFTC and TNTC plates are shown and marked and left out of the mean
   rather than dropped silently, a run with no countable plate says so instead of quoting a number, and two

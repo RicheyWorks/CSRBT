@@ -189,7 +189,7 @@
     </div>
   </div>
 <h1>ADR-031: A shared entry layer, and three domain suites</h1>
-<p><strong>Status:</strong> Accepted, and fully implemented &mdash; FEK v1.0.0 with four field pages migrated to it, all three suites built with front doors, and the honesty gate applied throughout. All eight actions closed.</p>
+<p><strong>Status:</strong> Accepted, and fully implemented &mdash; FEK now at <strong>v1.1.0</strong> across eight consumers, all three suites built with front doors, and the honesty gate applied throughout. All eight actions closed; v1.1 recorded below as a follow-on.</p>
 <p><strong>Date:</strong> 2026-08-24</p>
 <p><strong>Deciders:</strong> Richmond</p>
 <p><strong>Supersedes:</strong> nothing. <strong>Touches:</strong> every instrument in <code>CSRBT/docs/</code></p>
@@ -440,6 +440,33 @@ an ectomycorrhizal fungus a guessed host is worse than a recorded uncertainty.</
 <p><strong>Defaults are for fields where blank is not a state</strong> (Ethogram). Interval and session
 length ship filled in at 30&nbsp;s and 10&nbsp;min, which no other numeric field on any migrated page
 does. A scan sample with no interval is not an under-specified design; it is not a design at all.</p>
+<h2>Follow-on: FEK v1.1.0</h2>
+<p>The record predicted one v1.1 candidate and got two. Both came from real pages refusing to fit v1.0.</p>
+<h3><code>nullable</code> on <code>step</code> and <code>slider</code> &mdash; predicted</h3>
+<p>Four migrated pages were carrying the same workaround: a FEK control writing through to a hidden field
+so that <em>not recorded</em> stayed distinguishable from a recorded zero. v1.1 puts that in the component.
+A nullable stepper starts empty, renders dashed, reports <code>null</code>, and takes an optional
+<code>start</code> so the first tap lands somewhere plausible rather than at zero &mdash; a cell cycle
+length starts at 24&nbsp;h, not 0&nbsp;h, because zero is never the value you meant. A nullable slider says
+<em>not recorded</em> in words instead of parking its bubble at the minimum.</p>
+<p>One semantic is worth stating because it caught me while migrating Cell Bench:
+<code>nullable:true</code> with an explicit <code>value:0</code> is a <strong>recorded zero</strong>, not
+null. That is the correct reading &mdash; passing a value means you meant that value &mdash; and omitting
+<code>value</code> is what starts a control empty. There is now a test pinning it, since the failure is
+silent and looks like a framework bug.</p>
+<h3><code>FEK.field</code> &mdash; not predicted</h3>
+<p>The more interesting of the two. Cell Bench has twenty-three numeric entries and roughly half are
+absorbances, extinction coefficients and stock densities. Those are not values you <em>set</em>; they are
+values you <em>read</em> off an instrument to three or six significant figures, and a stepper is the wrong
+control for them by an enormous margin &mdash; reaching 1.842 at a step of 0.001 is two thousand taps.
+v1.1 adds a plain typed entry, sized off the same <code>--tap</code> token as everything else, requesting
+the decimal keypad, showing its unit, dashed when empty, and offering no arrows to imply the value is
+scrollable. Nothing is rounded on the way in.</p>
+<p class="pull">A stepper for a number you set, a field for a number you read.</p>
+<p>No consumer needed a change beyond re-emitting, because v1.1 is additive &mdash; every v1.0 constructor
+keeps its signature and behaviour, which the FEK test suite asserts directly (50 of its 55 checks predate
+v1.1 and still pass unchanged).</p>
+
 <hr>
 <h2>Appendix A — Research findings</h2>
 <p>Gathered 2026-08-24. Marked with the gate each finding falls under.</p>

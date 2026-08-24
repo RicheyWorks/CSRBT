@@ -203,7 +203,7 @@
   .rail a.ref { font-weight:600; color:var(--muted); background:none; box-shadow:none; }
   @media print { .rail { display:none !important; } }
 
-  /* ============ Field Entry Kit v1.0.0 ============
+  /* ============ Field Entry Kit v1.1.0 ============
      Large-target, high-contrast entry controls. Sizing is driven by --tap
      rather than per-component numbers so one token retunes the whole kit for
      gloves, cold hands or a wall-mounted tablet. */
@@ -253,6 +253,24 @@
   .fek-dial button.on[data-r="3"]{background:var(--ramp-3);}
   .fek-dial button.on[data-r="4"]{background:var(--ramp-4);}
   .fek-dial button.on[data-r="5"]{background:var(--ramp-5);}
+
+  /* --- field: a typed value from an instrument readout ---
+     A stepper is the wrong control for a number you READ off a machine to three
+     decimals: you would tap two thousand times to reach 1.842. This is a plain
+     numeric entry sized like the rest of the kit, with the unit shown and the
+     decimal keypad requested, and nothing that pretends the value is scrollable. */
+  .fek-field { display:flex; align-items:stretch; gap:0; border:2px solid var(--border);
+    border-radius:var(--fek-r); overflow:hidden; background:var(--surface); max-width:340px; }
+  .fek-field input { flex:1; min-width:0; border:0; background:none; text-align:right;
+    font:800 26px var(--head); color:var(--ink); font-variant-numeric:tabular-nums;
+    -moz-appearance:textfield; padding:0 12px; min-height:var(--tap); }
+  .fek-field input::-webkit-outer-spin-button,
+  .fek-field input::-webkit-inner-spin-button { -webkit-appearance:none; margin:0; }
+  .fek-field input:focus { outline:none; background:var(--soft); }
+  .fek-field input::placeholder { color:var(--muted); font-weight:600; font-size:20px; }
+  .fek-field .u { display:flex; align-items:center; padding:0 14px; background:var(--surface-2);
+    font:700 13px var(--mono); color:var(--muted); border-left:2px solid var(--border); white-space:nowrap; }
+  .fek-field.empty { border-style:dashed; }
 
   /* --- big toggle chips --- */
   .fek-chips { display:flex; flex-wrap:wrap; gap:9px; }
@@ -840,7 +858,7 @@ var GENERA = [
 </script>
 <script>
 
-/* ---- Field Entry Kit v1.0.0 : constructors return {el, get, set} ---- */
+/* ---- Field Entry Kit v1.1.0 : constructors return {el, get, set} ---- */
 var FEK = (function(){
   function el(t,c,h){ var e=document.createElement(t); if(c) e.className=c;
     if(h!=null) e.innerHTML=h; return e; }
@@ -857,10 +875,28 @@ var FEK = (function(){
     minus.type="button"; plus.type="button"; inp.type="number"; inp.className="val";
     inp.setAttribute("inputmode","decimal");
     if(o.label) inp.setAttribute("aria-label",o.label);
+    /* nullable: the control can hold "not recorded", which is not the same as
+       zero. Aspect 0 is north; a duff depth of 0 cm is an observation. An empty
+       nullable stepper reports null and the first bump starts from o.start. */
+    var nullable = !!o.nullable;
+    if(nullable && o.value==null) v=null;
     function clamp(x){ return Math.min(max,Math.max(min,x)); }
-    function render(){ inp.value=(dec?v.toFixed(dec):String(v)); }
-    function set(x,quiet){ v=clamp(isFinite(x)?x:0); render(); if(!quiet&&o.onchange) o.onchange(v); }
-    function bump(d){ set(+(v+d*stepv).toFixed(6)); buzz(); }
+    function render(){
+      if(v==null){ inp.value=""; wrap.classList.add("is-empty"); box.classList.add("empty"); return; }
+      wrap.classList.remove("is-empty"); box.classList.remove("empty");
+      inp.value=(dec?v.toFixed(dec):String(v));
+    }
+    function set(x,quiet){
+      if(nullable && (x==null || x==="" || (typeof x==="number" && !isFinite(x)))) v=null;
+      else v=clamp(isFinite(x)?x:0);
+      render(); if(!quiet&&o.onchange) o.onchange(v);
+    }
+    function bump(d){
+      if(v==null) set(clamp(o.start==null?0:o.start));
+      else set(+(v+d*stepv).toFixed(6));
+      buzz();
+    }
+    function clear(){ if(nullable) set(null); }
     minus.addEventListener("click",function(){ bump(-1); });
     plus.addEventListener("click",function(){ bump(1); });
     var hold;
@@ -870,14 +906,54 @@ var FEK = (function(){
     minus.addEventListener("pointerdown",holdOn(-1)); plus.addEventListener("pointerdown",holdOn(1));
     ["pointerup","pointerleave","pointercancel"].forEach(function(ev){
       minus.addEventListener(ev,holdOff); plus.addEventListener(ev,holdOff); });
-    inp.addEventListener("input",function(){ var x=parseFloat(inp.value);
-      if(isFinite(x)){ v=clamp(x); if(o.onchange) o.onchange(v); } });
+    inp.addEventListener("input",function(){
+      if(nullable && inp.value===""){ v=null; box.classList.add("empty");
+        if(o.onchange) o.onchange(null); return; }
+      var x=parseFloat(inp.value);
+      if(isFinite(x)){ v=clamp(x); box.classList.remove("empty"); if(o.onchange) o.onchange(v); } });
     inp.addEventListener("blur",render);
     box.appendChild(minus); box.appendChild(inp); box.appendChild(plus);
     wrap.appendChild(lab); wrap.appendChild(box);
     if(o.help) wrap.appendChild(el("p","fek-help",o.help));
     render();
-    return { el:wrap, get:function(){return v;}, set:function(x){set(x,true);} };
+    return { el:wrap, get:function(){return v;}, set:function(x){set(x,true);},
+             clear:clear, nullable:nullable };
+  }
+
+  /* field: a value typed from an instrument readout. No steppers — see the CSS note. */
+  function field(o){
+    o=o||{};
+    var min=(o.min==null?-Infinity:o.min), max=(o.max==null?Infinity:o.max);
+    var dec=(o.dec==null?3:o.dec), v=(o.value==null?null:o.value);
+    var wrap=el("div","fek-row"), lab=el("label","fek-lab",
+      (o.label||"")+(o.unit?'<span class="u">'+o.unit+'</span>':""));
+    var box=el("div","fek-field"), inp=el("input");
+    inp.type="number"; inp.setAttribute("inputmode","decimal");
+    if(o.step!=null) inp.step=o.step;
+    inp.placeholder = o.placeholder==null ? "—" : o.placeholder;
+    if(o.label) inp.setAttribute("aria-label",o.label);
+    function paint(){ box.classList.toggle("empty", v==null); }
+    function set(x,quiet){
+      if(x==null || x===""){ v=null; inp.value=""; }
+      else { var n=parseFloat(x);
+        v = isFinite(n) ? Math.min(max,Math.max(min,n)) : null;
+        inp.value = (v==null?"":String(v)); }
+      paint(); if(!quiet&&o.onchange) o.onchange(v);
+    }
+    inp.addEventListener("input",function(){
+      if(inp.value===""){ v=null; paint(); if(o.onchange) o.onchange(null); return; }
+      var n=parseFloat(inp.value);
+      if(isFinite(n)){ v=Math.min(max,Math.max(min,n)); paint(); if(o.onchange) o.onchange(v); } });
+    inp.addEventListener("blur",function(){
+      if(v!=null && isFinite(v)) inp.value = (dec==null?String(v):String(+v.toFixed(dec)));
+      paint(); });
+    box.appendChild(inp);
+    if(o.unitBox!==false && o.unit) box.appendChild(el("div","u",o.unit));
+    wrap.appendChild(lab); wrap.appendChild(box);
+    if(o.help) wrap.appendChild(el("p","fek-help",o.help));
+    set(v,true);
+    return { el:wrap, get:function(){return v;}, set:function(x){set(x,true);},
+             clear:function(){ set(null,true); }, nullable:true };
   }
 
   function dial(o){
@@ -925,19 +1001,27 @@ var FEK = (function(){
   }
 
   function slider(o){
-    o=o||{}; var v=o.value==null?(o.min||0):o.value;
+    o=o||{};
+    var nullable=!!o.nullable;
+    var v = (nullable && o.value==null) ? null : (o.value==null?(o.min||0):o.value);
     var wrap=el("div","fek-row"), lab=el("label","fek-lab",o.label||"");
     var box=el("div","fek-slide"), r=el("input"), bub=el("div","bub");
     r.type="range"; r.min=o.min==null?0:o.min; r.max=o.max==null?100:o.max;
     r.step=o.step||1; r.value=v;
     if(o.label) r.setAttribute("aria-label",o.label);
-    function paint(){ bub.innerHTML=(o.fmt?o.fmt(v):v)+(o.unit?'<span>'+o.unit+'</span>':""); }
+    function paint(){
+      if(v==null){ bub.innerHTML='<span style="opacity:.6">not recorded</span>'; return; }
+      bub.innerHTML=(o.fmt?o.fmt(v):v)+(o.unit?'<span>'+o.unit+'</span>':"");
+    }
     r.addEventListener("input",function(){ v=parseFloat(r.value); paint(); if(o.onchange) o.onchange(v); });
+    if(nullable && v==null) r.value = (o.min==null?0:o.min);
     paint();
     box.appendChild(r); box.appendChild(bub);
     wrap.appendChild(lab); wrap.appendChild(box);
     if(o.help) wrap.appendChild(el("p","fek-help",o.help));
-    return { el:wrap, get:function(){return v;}, set:function(x){ v=x; r.value=x; paint(); } };
+    return { el:wrap, get:function(){return v;},
+             set:function(x){ v=(nullable&&x==null)?null:x; if(x!=null) r.value=x; paint(); },
+             clear:function(){ if(nullable){ v=null; paint(); } }, nullable:nullable };
   }
 
   function picker(o){
@@ -984,7 +1068,7 @@ var FEK = (function(){
     var h=typeof host==="string"?document.getElementById(host):host;
     h.innerHTML=""; parts.forEach(function(p){ h.appendChild(p.el||p); }); return h;
   }
-  return { version:"1.0.0", step:step, dial:dial, chips:chips, slider:slider,
+  return { version:"1.1.0", step:step, field:field, dial:dial, chips:chips, slider:slider,
            picker:picker, tiles:tiles, banner:banner, mount:mount, buzz:buzz };
 })();
 
