@@ -48,6 +48,11 @@
   section:first-of-type { border-top:0; }
   p { margin:0 0 14px; } .lead { font-size:19px; color:var(--ink-2); max-width:62ch; }
 
+
+  .group { font-family:var(--head); font-weight:600; font-size:19px; margin:30px 0 2px;
+    padding-top:16px; border-top:1px solid var(--border); }
+  .group:first-of-type { border-top:0; padding-top:0; margin-top:22px; }
+  .grouplead { color:var(--ink-2); font-size:16.5px; margin:0 0 4px; max-width:64ch; }
   /* the four kit cards */
   .kit { display:grid; grid-template-columns:repeat(auto-fit, minmax(255px,1fr)); gap:14px; margin-top:22px; }
   .card { display:flex; flex-direction:column; background:var(--surface); border:1px solid var(--border);
@@ -99,8 +104,11 @@
   <a href="ecology-lab.html">Interactive Lab</a>
   <a href="ecology-lab-manual.html">Lab Manual</a>
   <a href="ecology-teachers-guide.html">Teacher's Guide</a>
-  <a href="plant-characters.html">Plant Characters</a>
   <a href="ecology-field-guide.html">Field Guide</a>
+  <a href="ecology-field-card.html">Field Card</a>
+  <a href="ecology-glossary.html">Glossary</a>
+  <a href="plant-characters.html">Plant Characters</a>
+  <a href="fungal-characters.html">Fungal Characters</a>
   <a href="eco-protocol-reference.html">.eco Reference</a>
   <a href="ecology.html#field-tools">Field Tools</a>
 </nav>
@@ -154,23 +162,12 @@
 
 <section id="field-tools">
   <p class="section-tag">Take it to the field</p>
-  <h2>Tools for the bench and the meadow</h2>
+  <h2>Fourteen instruments, one method</h2>
+  <p class="lead">Every one of these records real data, states how it was collected, and says what its numbers are worth &mdash; including where they stop being worth anything.</p>
+  <h3 class="group">Record it — tablet apps for the field</h3>
+  <p class="grouplead">Big targets, 16px inputs, bottom tab bars. Every one exports a CSV for Excel or R and an <code>.eco</code> block for the Workbench, and every one states its method so two people's data are comparable.</p>
   <div class="kit">
-    <a class="card" href="farm-scout.html">
-      <span class="step">tablet app · for growers</span>
-      <h3>Farm Scout</h3>
-      <p>Field science for a farm or garden: pest scouting with a treat/spot-treat verdict, a pollinator
-         health count, a germination tester, and a crop-rotation checker by plant family.</p>
-      <span class="go">Open Farm Scout →</span>
-    </a>
-    <a class="card" href="pheno-tracker.html">
-      <span class="step">tablet app · for breeders</span>
-      <h3>Pheno Tracker</h3>
-      <p>Run a pheno hunt like a program: weighted trait scoring plant by plant, a ranked selection board
-         with a real selection-differential readout, and a segregation checker with χ² verdicts.</p>
-      <span class="go">Open Pheno Tracker →</span>
-    </a>
-    <a class="card" href="field-notebook.html">
+<a class="card" href="field-notebook.html">
       <span class="step">tablet app</span>
       <h3>Field Notebook</h3>
       <p>Tap-to-tally data collection for a tablet in the field: score an ethogram with a scan timer,
@@ -178,69 +175,7 @@
          <code>.eco</code> lines.</p>
       <span class="go">Open the notebook →</span>
     </a>
-    <a class="card" href="ecology-teachers-guide.html">
-      <span class="step">for teachers</span>
-      <h3>Teacher's Guide</h3>
-      <p>How to actually run a term on this: a twelve-week sequence, thirty students on six tablets,
-         prep checklists, three rubrics, what to do when it rains — and an honest list of what the
-         kit can't do.</p>
-      <span class="go">Plan a term →</span>
-    </a>
-    <a class="card" href="plant-characters.html">
-      <span class="step">print &amp; keep · botany</span>
-      <h3>Plant Characters</h3>
-      <p>The keying vocabulary a flora assumes you have, drawn rather than defined &mdash; 34 morphology
-         glyphs &mdash; plus twenty plant families with the one character that gives each away, the
-         grass/sedge/rush test, and how to make a specimen worth keeping.</p>
-      <span class="go">Open the card →</span>
-    </a>
-    <a class="card" href="collection-sheet.html">
-      <span class="step">tablet app · mycology</span>
-      <h3>Collection Sheet</h3>
-      <p>Macrofungal collections recorded where the characters still exist: substrate and host, habit and
-         hymenophore, a spore-print colour picker, eight macrochemical spot tests, a drying log and a
-         fungarium label &mdash; with richness, Chao1, guild spectrum and a host&nbsp;&times;&nbsp;taxon
-         matrix computed live. No edibility field, by design.</p>
-      <span class="go">Open the sheet &rarr;</span>
-    </a>
-    <a class="card" href="fungal-characters.html">
-      <span class="step">print &amp; keep · mycology</span>
-      <h3>Fungal Characters</h3>
-      <p>The vocabulary a mycological key assumes you have, drawn rather than defined &mdash; 36 glyphs,
-         the spore-print colour chart, the reagent table, fifty-one genera with the one tell each, and the
-         six confusions worth settling cold.</p>
-      <span class="go">Open the card &rarr;</span>
-    </a>
-    <a class="card" href="ecology-field-card.html">
-      <span class="step">print &amp; keep</span>
-      <h3>Field Card</h3>
-      <p>Every metric on one printable card — what it tells you, its interpretation bands, and which
-         tool computes it. The bench reference for every lab.</p>
-      <span class="go">Print the card →</span>
-    </a>
-    <a class="card" href="eco-protocol-library.html">
-      <span class="step">ready to run</span>
-      <h3>Protocol Library</h3>
-      <p>Five complete <code>.eco</code> experiments — meadow disturbance, two ponds, an activity budget,
-         Mendel's bench, the shrinking island — copy, edit, run, graded.</p>
-      <span class="go">Browse protocols →</span>
-    </a>
-    <a class="card" href="field-season.html">
-      <span class="step">play · learn sampling</span>
-      <h3>Field Season</h3>
-      <p>The sampling game: a hidden meadow, twelve field days, rain, and a peer-reviewed report at the
-         end. Same season number = same meadow, so a class can compare strategies fairly.</p>
-      <span class="go">Start a season →</span>
-    </a>
-    <a class="card" href="releve.html">
-      <span class="step">tablet app · vegetation</span>
-      <h3>Relev&eacute;</h3>
-      <p>The botanist's plot sheet: cover by stratum on Braun-Blanquet, Daubenmire or direct percent,
-         diversity computed on cover rather than counts, Floristic Quality Assessment, and voucher records
-         that print as herbarium labels. 49 western taxa, and any flora can be loaded.</p>
-      <span class="go">Record a plot →</span>
-    </a>
-    <a class="card" href="stand-sheet.html">
+<a class="card" href="stand-sheet.html">
       <span class="step">tablet app · forest plots</span>
       <h3>Stand Sheet</h3>
       <p>Graduate-level forest plot work in one page: a tap-down tree key for the Pacific Northwest through
@@ -249,19 +184,103 @@
          swappable pack — any biome.</p>
       <span class="go">Run a plot →</span>
     </a>
-    <a class="card" href="food-web.html">
+<a class="card" href="releve.html">
+      <span class="step">tablet app · vegetation</span>
+      <h3>Relev&eacute;</h3>
+      <p>The botanist's plot sheet: cover by stratum on Braun-Blanquet, Daubenmire or direct percent,
+         diversity computed on cover rather than counts, Floristic Quality Assessment, and voucher records
+         that print as herbarium labels. 49 western taxa, and any flora can be loaded.</p>
+      <span class="go">Record a plot →</span>
+    </a>
+<a class="card" href="collection-sheet.html">
+      <span class="step">tablet app · mycology</span>
+      <h3>Collection Sheet</h3>
+      <p>Macrofungal collections recorded where the characters still exist: substrate and host, habit and
+         hymenophore, a spore-print colour picker, eight macrochemical spot tests, a drying log and a
+         fungarium label &mdash; with richness, Chao1, guild spectrum and a host&nbsp;&times;&nbsp;taxon
+         matrix computed live. No edibility field, by design.</p>
+      <span class="go">Open the sheet &rarr;</span>
+    </a>
+<a class="card" href="farm-scout.html">
+      <span class="step">tablet app · for growers</span>
+      <h3>Farm Scout</h3>
+      <p>Field science for a farm or garden: pest scouting with a treat/spot-treat verdict, a pollinator
+         health count, a germination tester, and a crop-rotation checker by plant family.</p>
+      <span class="go">Open Farm Scout →</span>
+    </a>
+<a class="card" href="pheno-tracker.html">
+      <span class="step">tablet app · for breeders</span>
+      <h3>Pheno Tracker</h3>
+      <p>Run a pheno hunt like a program: weighted trait scoring plant by plant, a ranked selection board
+         with a real selection-differential readout, and a segregation checker with χ² verdicts.</p>
+      <span class="go">Open Pheno Tracker →</span>
+    </a>
+  </div>
+  <h3 class="group">Print it — cards for the basket and the press</h3>
+  <p class="grouplead">Built to be printed, folded, and carried where a tablet dies. No interactivity is load-bearing: the interactive keys disappear cleanly on paper and what remains is the reference.</p>
+  <div class="kit">
+<a class="card" href="plant-characters.html">
+      <span class="step">print &amp; keep · botany</span>
+      <h3>Plant Characters</h3>
+      <p>The keying vocabulary a flora assumes you have, drawn rather than defined &mdash; 34 morphology
+         glyphs &mdash; plus twenty plant families with the one character that gives each away, the
+         grass/sedge/rush test, and how to make a specimen worth keeping.</p>
+      <span class="go">Open the card →</span>
+    </a>
+<a class="card" href="fungal-characters.html">
+      <span class="step">print &amp; keep · mycology</span>
+      <h3>Fungal Characters</h3>
+      <p>The vocabulary a mycological key assumes you have, drawn rather than defined &mdash; 36 glyphs,
+         the spore-print colour chart, the reagent table, fifty-one genera with the one tell each, and the
+         six confusions worth settling cold.</p>
+      <span class="go">Open the card &rarr;</span>
+    </a>
+<a class="card" href="ecology-field-card.html">
+      <span class="step">print &amp; keep</span>
+      <h3>Field Card</h3>
+      <p>Every metric on one printable card — what it tells you, its interpretation bands, and which
+         tool computes it. The bench reference for every lab.</p>
+      <span class="go">Print the card →</span>
+    </a>
+  </div>
+  <h3 class="group">Teach it, run it, play it</h3>
+  <p class="grouplead">The material around the instruments — how to run a term on this, protocols ready to paste, every term defined, and two games that teach a method by making you feel it go wrong.</p>
+  <div class="kit">
+<a class="card" href="ecology-teachers-guide.html">
+      <span class="step">for teachers</span>
+      <h3>Teacher's Guide</h3>
+      <p>How to actually run a term on this: a twelve-week sequence, thirty students on six tablets,
+         prep checklists, three rubrics, what to do when it rains — and an honest list of what the
+         kit can't do.</p>
+      <span class="go">Plan a term →</span>
+    </a>
+<a class="card" href="eco-protocol-library.html">
+      <span class="step">ready to run</span>
+      <h3>Protocol Library</h3>
+      <p>Five complete <code>.eco</code> experiments — meadow disturbance, two ponds, an activity budget,
+         Mendel's bench, the shrinking island — copy, edit, run, graded.</p>
+      <span class="go">Browse protocols →</span>
+    </a>
+<a class="card" href="ecology-glossary.html">
+      <span class="step">look it up</span>
+      <h3>Glossary</h3>
+      <p>Every term the kit uses, in plain words — from Shannon and survivorship types to
+         pre-registration and the keys-are-species mapping.</p>
+      <span class="go">Open the glossary →</span>
+    </a>
+<a class="card" href="food-web.html">
       <span class="step">build · break · learn</span>
       <h3>Food Web Builder</h3>
       <p>Tap a food web into being — who eats whom, trophic levels computed live — then long-press any
          species to run the knockout test and watch which others starve. Keystones, found by breaking things.</p>
       <span class="go">Build a web →</span>
     </a>
-    <a class="card" href="ecology-glossary.html">
-      <span class="step">look it up</span>
-      <h3>Glossary</h3>
-      <p>Every term the kit uses, in plain words — from Shannon and survivorship types to
-         pre-registration and the keys-are-species mapping.</p>
-      <span class="go">Open the glossary →</span>
+<a class="card" href="field-season.html">
+      <span class="step">play · learn sampling</span>
+      <h3>Field Season</h3>
+      <p>The sampling game: a hidden meadow, twelve field days, rain, and a peer-reviewed report at the
+         end. Same season number = same meadow, so a class can compare strategies fairly.</p>
+      <span class="go">Start a season →</span>
     </a>
   </div>
 </section>

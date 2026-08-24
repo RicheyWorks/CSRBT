@@ -69,8 +69,11 @@
   <a href="ecology-lab.html">Interactive Lab</a>
   <a href="ecology-lab-manual.html">Lab Manual</a>
   <a href="ecology-teachers-guide.html">Teacher's Guide</a>
-  <a href="plant-characters.html">Plant Characters</a>
   <a href="ecology-field-guide.html">Field Guide</a>
+  <a href="ecology-field-card.html" aria-current="page">Field Card</a>
+  <a href="ecology-glossary.html">Glossary</a>
+  <a href="plant-characters.html">Plant Characters</a>
+  <a href="fungal-characters.html">Fungal Characters</a>
   <a href="eco-protocol-reference.html">.eco Reference</a>
   <a href="ecology.html#field-tools">Field Tools</a>
 </nav>
@@ -79,8 +82,9 @@
   <div class="masthead">
     <p class="eyebrow">CSRBT · quick reference</p>
     <h1>Ecology Field Card</h1>
-    <p class="dek">Every metric, what it tells you, its interpretation band, and the Workbench tool that
-       computes it — one card to keep on the bench. Print it double-sided.</p>
+    <p class="dek">Every metric the kit computes — what it tells you, its interpretation band, and the
+       tool that produces it — across the Workbench, the forest and vegetation plots, and the fungal
+       survey. One card to keep on the bench. Print it double-sided.</p>
     <div class="mapping"><b>The mapping:</b> keys are <b>species</b>, how often a key is touched is that
       species' <b>abundance</b>, inserts and removes are <b>births and deaths</b>, and time is counted in
       <b>operations</b> — so every number reproduces exactly. Your own entered field data reads the same way.</div>
@@ -98,7 +102,7 @@
         <tr><td class="m">Pielou&nbsp;J′</td><td class="band"><em>~1</em> even · <em>~0.5</em> uneven · <em>~0</em> one type dominates</td></tr>
         <tr><td class="m">Hill&nbsp;N₁</td><td class="band">effective species — "100 present, behaves like 11"</td></tr>
         <tr><td class="m">Simpson</td><td class="band">dominance — higher = one type carries more</td></tr>
-        <tr><td class="m">Chao1</td><td class="band">estimated true richness, incl. rare unseen species</td></tr>
+        <tr><td class="m">Chao1</td><td class="band"><b>lower bound</b> on richness from the rare species — "at least this many", never a total</td></tr>
       </table>
     </div>
 
@@ -120,6 +124,51 @@
         <tr><td class="m">Survivorship</td><td class="band"><em>I</em> live long, die together · <em>II</em> constant risk · <em>III</em> die young, survivors persist</td></tr>
         <tr><td class="m">Logistic&nbsp;r</td><td class="band">intrinsic growth rate (per op)</td></tr>
         <tr><td class="m">Logistic&nbsp;K</td><td class="band">carrying capacity — the ceiling reached</td></tr>
+      </table>
+    </div>
+
+    <div class="block">
+      <h2>Forest plots</h2>
+      <span class="tool">tool: Stand Sheet — stem tally &amp; plot geometry</span>
+      <table>
+        <tr><th>Metric</th><th>Reads</th></tr>
+        <tr><td class="m">Basal area BA</td><td class="band">0.00007854&nbsp;&times;&nbsp;DBH²<sub>cm</sub> per stem; summed per hectare it is the standard stocking measure</td></tr>
+        <tr><td class="m">QMD</td><td class="band">&radic;(&Sigma;DBH²/n) &mdash; the tree of average <em>basal area</em>, always &ge; mean DBH</td></tr>
+        <tr><td class="m">Reineke SDI</td><td class="band">N(QMD/25)<sup>1.605</sup> &mdash; <em>&gt;55%</em> of max means competition-driven mortality has begun</td></tr>
+        <tr><td class="m">Importance value</td><td class="band">(rel. density + rel. dominance)/2 &mdash; ranks species by presence <em>and</em> size together</td></tr>
+        <tr><td class="m">Height</td><td class="band">D(tan&nbsp;&theta;<sub>top</sub> &minus; tan&nbsp;&theta;<sub>base</sub>) &mdash; both angles, or the number is wrong on a slope</td></tr>
+        <tr><td class="m">CWD volume</td><td class="band">van Wagner &pi;²&Sigma;d²/(8L) &mdash; line-intercept, needs the full transect length</td></tr>
+        <tr><td class="m">Folded aspect</td><td class="band">|180&minus;|aspect&minus;225|| &mdash; turns a compass circle into a hot–cool gradient</td></tr>
+      </table>
+    </div>
+
+    <div class="block">
+      <h2>Vegetation plots</h2>
+      <span class="tool">tool: Relev&eacute; — cover by stratum</span>
+      <table>
+        <tr><th>Metric</th><th>Reads</th></tr>
+        <tr><td class="m">Cover class</td><td class="band"><b>ordinal</b> — convert to a class midpoint before averaging, and never average the class numbers</td></tr>
+        <tr><td class="m">Shannon on cover</td><td class="band">same formula, but p<sub>i</sub> is cover share, not count share — say which you used</td></tr>
+        <tr><td class="m">Mean C</td><td class="band">average coefficient of conservatism — <em>&lt;3.5</em> disturbed · <em>&gt;4.5</em> remnant-quality</td></tr>
+        <tr><td class="m">FQI</td><td class="band">meanC&nbsp;&times;&nbsp;&radic;N — rewards quality <em>and</em> richness; comparable only within one region's C-list</td></tr>
+        <tr><td class="m">Adjusted FQI</td><td class="band">100(meanC/10)(&radic;N<sub>nat</sub>/&radic;N<sub>tot</sub>) — 0–100, penalises non-native load</td></tr>
+        <tr><td class="m">Prevalence index</td><td class="band">&Sigma;(cover&times;weight)/&Sigma;cover — <em>&le;3.0</em> passes the hydrophyte criterion. <b>One of three</b>, not a delineation</td></tr>
+        <tr><td class="m">LPI cover</td><td class="band">hits/points, SE&nbsp;=&nbsp;&radic;(p(1&minus;p)/n) — plan the transect before walking it or n is meaningless</td></tr>
+      </table>
+    </div>
+
+    <div class="block">
+      <h2>Macrofungi</h2>
+      <span class="tool">tool: Collection Sheet — collections &amp; guild</span>
+      <table>
+        <tr><th>Metric</th><th>Reads</th></tr>
+        <tr><td class="m">S<sub>obs</sub></td><td class="band">taxa recorded — a severe undercount: a fungus that did not fruit today cannot be counted</td></tr>
+        <tr><td class="m">Chao1</td><td class="band">S<sub>obs</sub>&nbsp;+&nbsp;F₁(F₁&minus;1)/(2(F₂+1)) — a <b>lower bound</b>; a big gap means keep walking</td></tr>
+        <tr><td class="m">F₁ / F₂</td><td class="band">singletons and doubletons. <em>F₂&nbsp;=&nbsp;0</em> means Chao1 is running on the thinnest data it can</td></tr>
+        <tr><td class="m">Shannon on bodies</td><td class="band">describes the <em>display</em>, not the community — one genet can put up 200 caps</td></tr>
+        <tr><td class="m">Productivity</td><td class="band">collections or g&nbsp;fresh per m² <em>and</em> per hour — the two fail differently, record both</td></tr>
+        <tr><td class="m">Guild spectrum</td><td class="band">genus-level prior. Worthless when most taxa sit in <em>mixed</em> genera</td></tr>
+        <tr><td class="m">Single-host flag</td><td class="band">a prompt, not a finding — meaningless in a stand dominated by that host</td></tr>
       </table>
     </div>
 

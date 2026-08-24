@@ -720,8 +720,14 @@ no install required.
   kit uses, defined in a sentence and linked to the tool that computes it &mdash; 81 entries in nine
   sections, including botany, vegetation sampling and mycology; and
   [**`docs/eco-protocol-library.html`**](docs/eco-protocol-library.html) — five complete, copyable
-  `.eco` experiments; and [**`docs/ecology-field-card.html`**](docs/ecology-field-card.html) — every
-  metric on one printable bench card.
+  `.eco` experiments; and [**`docs/ecology-field-card.html`**](docs/ecology-field-card.html) — the
+  **Field Card**: 51 metrics across twelve blocks on one printable bench sheet, each with what it
+  tells you, its interpretation band, and the tool that produces it &mdash; the Workbench measures,
+  the forest-plot set (BA, QMD, Reineke SDI, importance value, clinometer height, van Wagner CWD,
+  folded aspect), the vegetation set (cover classes, Shannon on cover, mean C, FQI, adjusted FQI,
+  prevalence index, LPI with its binomial SE) and the fungal set (S<sub>obs</sub> against Chao1,
+  singletons and doubletons, productivity, guild spectrum). Every caveat that matters is printed
+  next to the number rather than left in a manual.
 - [**`docs/ecology-essay.html`**](docs/ecology-essay.html) — **The ecology of a tree**: the essay
   behind the layer — the audit that found constants where instruments should be, and the ride to the
   128k-op amortization frontier (also [`ESSAY-the-ecology-of-a-tree.md`](docs/ESSAY-the-ecology-of-a-tree.md)).
