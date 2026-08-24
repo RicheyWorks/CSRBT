@@ -717,8 +717,8 @@ no install required.
   every keyword of the plain-text experiment format, and the browser → file → grade → export
   round-trip (worked example in [`sample-experiment.eco`](docs/sample-experiment.eco)).
 - [**`docs/ecology-glossary.html`**](docs/ecology-glossary.html) — the **Glossary**: every term the
-  kit uses, defined in a sentence and linked to the tool that computes it &mdash; 64 entries in eight
-  sections, including botany and vegetation sampling; and
+  kit uses, defined in a sentence and linked to the tool that computes it &mdash; 81 entries in nine
+  sections, including botany, vegetation sampling and mycology; and
   [**`docs/eco-protocol-library.html`**](docs/eco-protocol-library.html) — five complete, copyable
   `.eco` experiments; and [**`docs/ecology-field-card.html`**](docs/ecology-field-card.html) — every
   metric on one printable bench card.
@@ -739,6 +739,18 @@ live, and every export carries site, observer, and date plus a CSV for Excel/R:
   per-species phenophase; a functional-group spectrum by growth form; and voucher records that render as
   printable herbarium labels with locality, habitat and associates filled from the plot. 49 western
   understory taxa, and any flora can be loaded.
+- [**`docs/collection-sheet.html`**](docs/collection-sheet.html) — **Collection Sheet**: the
+  mycologist's field app, and deliberately not a botany reskin. Half of what identifies a fungus is gone
+  within a day of collecting it, so the form captures what disappears — substrate and host tree and
+  distance to stem, growth habit, hymenophore, veil evidence, latex and odour and colour-change — then a
+  **spore-print colour picker** that says so when the print you recorded contradicts the genus you picked,
+  and **eight macrochemical spot tests** that keep "not tested" and "no reaction" in different columns.
+  Analysis computes observed richness against **Chao1**, because a fruiting survey undercounts badly and
+  the page says so in the readout; a **guild spectrum** that refuses to be taken seriously when too many
+  taxa sit in mixed genera; and a **host × taxon matrix** whose single-host flag is explicitly a prompt
+  rather than a finding. Vouchers render a fungarium label with a drying log. **There is no edibility
+  field, no taste field and no "safe" flag** — the Method tab explains why, and the pack importer rejects
+  any file that tries to add one. 65 genera, swappable like the others.
 - [**`docs/plant-characters.html`**](docs/plant-characters.html) — **Plant Characters**: the keying
   vocabulary a flora assumes you already have, **drawn rather than defined** — 34 inline-SVG morphology
   glyphs for leaf arrangement, shape, margin, division, venation, inflorescence, symmetry and ovary
@@ -747,6 +759,13 @@ live, and every export carries site, observer, and date plus a CSV for Excel/R:
   key** takes six characters plus any dead-giveaway tells and ranks the twenty families, naming the
   conflict when a family is ruled out and reporting a top rank as a hypothesis to confirm against a flora,
   never an identification. Prints for the back of a plant press.
+- [**`docs/fungal-characters.html`**](docs/fungal-characters.html) — **Fungal Characters**: the
+  mycological companion to Plant Characters. **36 inline-SVG glyphs** for cap shape, margin, stipe and
+  veil, hymenophore type and gill attachment; the **spore-print colour chart** with the genera behind each
+  shade; the **reagent table** with what each one separates and how it will hurt you; an **interactive
+  genus key** over fifty-one genera that names the conflicting character when it rules one out; fifty-one
+  genus cards with one tell each; and **the six confusions worth settling cold**, two of which are the ones
+  that put people in hospital. It carries no edibility information either, and says plainly why.
 - [**`docs/stand-sheet.html`**](docs/stand-sheet.html) — **Stand Sheet**: graduate-level forest plot
   work in one page — a tap-down tree key covering the Pacific Northwest through Tahoe to Utah (34
   species with field characters, look-alikes, autecology and documented interactions), tree height

@@ -1,0 +1,649 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Fungal Characters — the keying vocabulary, drawn</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,ital,wght@9..144,0,500;9..144,0,600;9..144,0,700;9..144,1,500&family=Newsreader:opsz,ital,wght@6..72,0,400;6..72,0,500;6..72,0,600;6..72,1,400&family=JetBrains+Mono:wght@400;500&display=swap">
+<style>
+  :root {
+    color-scheme: light;
+    --page:#F5F1E6; --surface:#FFFDF7; --ink:#23281F; --ink-2:#4B5344; --muted:#8B8B7B;
+    --border:#E3DCC9; --rule:#C7C0AC; --s1:#2E7D4F; --s1-deep:#236240; --s2:#C0592B; --s3:#2B6C8F;
+    --soft:#E9F0E7; --soft-2:#F3EEE0; --warn:#F6EAD8; --gold:#B8860B;
+    --shadow:0 1px 2px rgba(35,40,31,.05),0 12px 32px rgba(35,40,31,.06);
+    --head:"Fraunces",Georgia,serif; --body:"Newsreader",Georgia,"Times New Roman",serif;
+    --mono:"JetBrains Mono",ui-monospace,Menlo,monospace;
+  }
+  * { box-sizing:border-box; }
+  body { margin:0; background:var(--page); color:var(--ink); font:18px/1.62 var(--body);
+    -webkit-font-smoothing:antialiased; text-rendering:optimizeLegibility; }
+  .wrap { max-width:900px; margin:0 auto; padding:0 26px; }
+  a { color:var(--s1); text-underline-offset:2px; }
+
+  .kit-nav { display:flex; flex-wrap:wrap; gap:8px; padding:14px 0 0; }
+  .kit-nav a { font-family:var(--mono); font-size:12.5px; letter-spacing:.02em; text-decoration:none;
+    color:var(--ink-2); background:var(--surface); border:1px solid var(--border); border-radius:999px;
+    padding:9px 15px; box-shadow:var(--shadow); display:inline-flex; align-items:center; min-height:40px; }
+  .kit-nav a:hover { border-color:var(--s1); color:var(--s1); }
+  .kit-nav a[aria-current="page"] { background:var(--s1); color:#fff; border-color:var(--s1); }
+
+  .masthead { padding:26px 0 8px; }
+  .masthead::before { content:""; display:block; width:52px; height:3px; background:var(--s1); border-radius:2px; margin:0 0 18px; }
+  .eyebrow { font-family:var(--mono); font-size:12px; letter-spacing:.18em; text-transform:uppercase; color:var(--s1); margin:0 0 12px; }
+  h1 { font-family:var(--head); font-weight:700; font-size:clamp(34px,6vw,54px); line-height:1.03; letter-spacing:-0.022em; margin:0 0 14px; max-width:18ch; }
+  .dek { font-size:20px; color:var(--ink-2); margin:0; max-width:62ch; }
+
+  h2 { font-family:var(--head); font-weight:600; font-size:27px; letter-spacing:-0.015em; margin:0; }
+  h3 { font-family:var(--head); font-weight:600; font-size:19px; margin:24px 0 6px; }
+  p { margin:0 0 14px; } strong,b { font-weight:600; } i,em { font-style:italic; }
+  ul,ol { margin:0 0 14px; padding-left:22px; } li { margin:6px 0; }
+  .lead { font-size:19px; color:var(--ink-2); }
+  section { padding:34px 0 6px; }
+  .sec-head { border-top:3px solid var(--s1); padding-top:15px; margin-bottom:8px; }
+  .sec-num { font-family:var(--mono); font-size:12px; letter-spacing:.14em; text-transform:uppercase; color:var(--s1); }
+
+  .toc { background:var(--soft-2); border:1px solid var(--border); border-radius:14px; padding:18px 22px; margin:24px 0; }
+  .toc h3 { margin:0 0 8px; }
+  .toc ol { margin:0; padding-left:20px; } .toc li { margin:5px 0; } .toc a { color:var(--ink); }
+  .toc .for { color:var(--muted); font-size:15px; }
+
+  /* glyph grid */
+  .glyphs { display:grid; grid-template-columns:repeat(auto-fill,minmax(168px,1fr)); gap:12px; margin:16px 0; }
+  .gl { background:var(--surface); border:1px solid var(--border); border-radius:14px; padding:12px 14px 14px;
+        box-shadow:var(--shadow); break-inside:avoid; }
+  .gl .art { display:flex; justify-content:center; margin-bottom:6px; }
+  .gl svg { width:76px; height:64px; display:block; }
+  .gl b { font-family:var(--head); font-size:16px; display:block; }
+  .gl span { display:block; color:var(--ink-2); font-size:14.5px; line-height:1.45; margin-top:3px; }
+
+  /* family cards */
+  .fams { display:grid; grid-template-columns:repeat(auto-fill,minmax(300px,1fr)); gap:13px; margin:18px 0; }
+  .fam { background:var(--surface); border:1px solid var(--border); border-left:3px solid var(--s1);
+         border-radius:0 14px 14px 0; padding:14px 17px; box-shadow:var(--shadow); break-inside:avoid; }
+  .fam .fh b { font-family:var(--head); font-size:19px; }
+  .fam .fh span { font-family:var(--mono); font-size:11px; color:var(--muted); display:block; margin-top:1px; }
+  .fam p { font-size:15px; line-height:1.5; margin:9px 0 0; color:var(--ink-2); }
+  .fam .lab { font-family:var(--mono); font-size:10px; letter-spacing:.1em; text-transform:uppercase;
+              color:var(--s1); display:block; margin-bottom:2px; }
+  .fam .ft { background:var(--soft); border-radius:9px; padding:9px 12px; }
+  .fam .ft .lab { color:var(--s1-deep); }
+  .fam .fe .lab { color:var(--muted); }
+
+  table { border-collapse:collapse; width:100%; font-size:15px; margin:8px 0; }
+  th,td { border:1px solid var(--rule); padding:7px 10px; text-align:left; vertical-align:top; line-height:1.45; }
+  th { background:var(--soft); font-family:var(--head); font-weight:600; font-size:14px; }
+  .tw { overflow-x:auto; -webkit-overflow-scrolling:touch; margin:12px 0; }
+
+  .note { border-left:3px solid var(--s3); background:var(--surface); border:1px solid var(--border);
+    border-radius:0 10px 10px 0; padding:12px 16px; margin:16px 0; font-size:16px; color:var(--ink-2); }
+  .note b { font-family:var(--head); color:var(--ink); }
+  .warn { border-left:3px solid var(--s2); background:var(--warn); border:1px solid var(--border);
+    border-radius:0 10px 10px 0; padding:12px 16px; margin:16px 0; font-size:16px; color:var(--ink-2); }
+  .warn b { font-family:var(--head); color:var(--ink); }
+  .pull { font-family:var(--head); font-weight:500; font-size:23px; line-height:1.3; color:var(--ink);
+    border-left:3px solid var(--s1); padding:4px 0 4px 22px; margin:26px 0; max-width:40ch; }
+  .chk { list-style:none; padding-left:0; }
+  .chk li { padding-left:26px; position:relative; margin:7px 0; }
+  .chk li::before { content:"\2610"; position:absolute; left:2px; color:var(--s1); font-size:17px; }
+  code { font-family:var(--mono); font-size:.8em; background:var(--soft-2); border:1px solid var(--border); border-radius:5px; padding:1px 5px; }
+  .cite { font-variant:small-caps; letter-spacing:.01em; color:var(--ink-2); }
+
+  footer { margin:44px 0 60px; padding-top:18px; border-top:1px solid var(--border); color:var(--muted); font-size:14px; line-height:1.6; }
+  footer a { font-weight:500; }
+
+  @media print {
+    :root { --page:#fff; --surface:#fff; --soft:#f2f6f1; --soft-2:#f6f4ee; --warn:#faf3e8; --shadow:none; }
+    body { font-size:10pt; background:#fff; } .wrap { max-width:none; padding:0; }
+    .kit-nav { display:none; } a { color:inherit; text-decoration:none; }
+    .gl, .fam, table, .note, .warn { break-inside:avoid; }
+    .glyphs { grid-template-columns:repeat(4,1fr); gap:8px; }
+    .fams { grid-template-columns:repeat(2,1fr); gap:8px; }
+    h2,h3 { break-after:avoid; } .sec-head { break-before:page; }
+    section:first-of-type .sec-head { break-before:auto; }
+  }
+  @media (max-width:560px){ body{font-size:17px;} .wrap{padding:0 18px;} }
+
+
+  /* ---- fungal additions ---- */
+  .prints { display:grid; grid-template-columns:repeat(auto-fill,minmax(212px,1fr)); gap:11px; margin:16px 0; }
+  .pc2 { background:var(--surface); border:1px solid var(--border); border-radius:13px; padding:11px 13px 13px;
+    box-shadow:var(--shadow); break-inside:avoid; }
+  .pc2 .chip { display:block; height:26px; border-radius:6px; border:1px solid rgba(35,40,31,.3); margin-bottom:8px; }
+  .pc2 b { font-family:var(--head); font-size:16px; display:block; }
+  .pc2 span { display:block; color:var(--ink-2); font-size:14px; line-height:1.45; margin-top:3px; }
+  .pc2 span i { font-style:italic; }
+
+  .never { border:2px solid var(--s2); background:var(--warn); border-radius:14px; padding:17px 20px;
+    margin:22px 0; font-size:17px; line-height:1.6; color:var(--ink); }
+  .never b { font-family:var(--head); display:block; font-size:19px; margin-bottom:6px; color:var(--s2); }
+
+  .conf { display:grid; grid-template-columns:repeat(auto-fill,minmax(320px,1fr)); gap:13px; margin:18px 0; }
+  .cf { background:var(--surface); border:1px solid var(--border); border-left:3px solid var(--s2);
+    border-radius:0 14px 14px 0; padding:14px 17px; box-shadow:var(--shadow); break-inside:avoid; }
+  .cf b { font-family:var(--head); font-size:17px; }
+  .cf p { font-size:15px; line-height:1.5; margin:8px 0 0; color:var(--ink-2); }
+  .cf .sep { display:block; font-family:var(--mono); font-size:10.5px; letter-spacing:.1em;
+    text-transform:uppercase; color:var(--s2); margin:9px 0 2px; }
+  @media print { .conf { grid-template-columns:repeat(2,1fr); } .prints { grid-template-columns:repeat(4,1fr); } }
+
+  /* interactive family key */
+  .keybox { background:var(--surface); border:1px solid var(--border); border-radius:16px;
+    padding:18px 20px; box-shadow:var(--shadow); margin:18px 0; }
+  .kq { margin:0 0 14px; }
+  .kq:last-child { margin-bottom:0; }
+  .kq .ql { font-family:var(--mono); font-size:11px; letter-spacing:.11em; text-transform:uppercase;
+    color:var(--s1); margin-bottom:7px; }
+  .kopts { display:flex; flex-wrap:wrap; gap:7px; }
+  .kopt { border:1.5px solid var(--border); background:var(--surface); border-radius:12px; padding:9px 14px;
+    font:600 15px var(--body); color:var(--ink-2); cursor:pointer; min-height:44px; font-family:var(--body); }
+  .kopt:hover { border-color:var(--s1); }
+  .kopt.on { border-color:var(--s1); background:var(--soft); color:var(--s1-deep); font-weight:700; }
+  .tellwrap { display:flex; flex-wrap:wrap; gap:6px; }
+  .tell { border:1.5px solid var(--border); background:var(--surface); border-radius:999px; padding:7px 13px;
+    font:600 13.5px var(--body); color:var(--ink-2); cursor:pointer; min-height:40px; }
+  .tell.on { border-color:var(--s2); background:var(--warn); color:var(--s2); font-weight:700; }
+  .kres { margin-top:8px; }
+  .cand { background:var(--surface); border:1px solid var(--border); border-left:3px solid var(--s1);
+    border-radius:0 12px 12px 0; padding:12px 15px; margin:9px 0; }
+  .cand.part { border-left-color:var(--rule); opacity:.82; }
+  .cand .ch { display:flex; align-items:baseline; justify-content:space-between; gap:10px; flex-wrap:wrap; }
+  .cand .ch b { font-family:var(--head); font-size:18px; }
+  .cand .sc { font-family:var(--mono); font-size:11.5px; color:var(--muted); white-space:nowrap; }
+  .cand p { font-size:15px; margin:5px 0 0; color:var(--ink-2); }
+  .cand .miss { font-size:13.5px; color:var(--s2); margin-top:5px; }
+  .kbtns { display:flex; gap:8px; flex-wrap:wrap; margin-top:14px; }
+  .kbtn { border:0; border-radius:11px; padding:11px 17px; font:800 14.5px var(--body); cursor:pointer; min-height:44px; }
+  .kbtn-go { background:var(--s1); color:#fff; } .kbtn-ghost { background:none; border:1.5px solid var(--border); color:var(--ink-2); }
+  @media print { .keybox { display:none !important; } }
+</style>
+</head>
+<body>
+<nav class="kit-nav">
+  <a href="ecology.html">Overview</a>
+  <a href="ecology-lab-manual.html">Lab Manual</a>
+  <a href="plant-characters.html">Plant Characters</a>
+  <a href="fungal-characters.html" aria-current="page">Fungal Characters</a>
+  <a href="collection-sheet.html">Collection Sheet</a>
+  <a href="ecology.html#field-tools">Field Tools</a>
+</nav>
+
+<div class="masthead">
+  <p class="eyebrow">CSRBT · the ecology kit · mycology</p>
+  <h1>Fungal Characters</h1>
+  <p class="dek">The vocabulary a mycological key assumes you already have, drawn rather than defined &mdash;
+    the spore print chart, the spot tests, fifty-one genera with the one thing that gives each away, and the
+    six confusions worth being able to settle cold. Built to print and go in the lid of a collecting basket.</p>
+</div>
+
+<div class="toc">
+  <h3>On this card</h3>
+  <ol>
+    <li><a href="#process">Working out what you have</a> <span class="for">· the order of operations</span></li>
+    <li><a href="#form">Cap, margin, stipe and veil</a> <span class="for">· shapes, and the two veils</span></li>
+    <li><a href="#hymen">The spore-bearing surface</a> <span class="for">· hymenophore and gill attachment</span></li>
+    <li><a href="#print">The spore print</a> <span class="for">· the colour chart, and how to take one</span></li>
+    <li><a href="#chem">Macrochemical spot tests</a> <span class="for">· eight reagents and what each is for</span></li>
+    <li><a href="#key">Work out the genus</a> <span class="for">· an interactive character key</span></li>
+    <li><a href="#genera">Fifty-one genera on sight</a> <span class="for">· one tell each</span></li>
+    <li><a href="#confuse">The pairs that get confused</a> <span class="for">· including the dangerous ones</span></li>
+    <li><a href="#voucher">Collecting, drying, and where the field stops</a> <span class="for">· making a specimen that lasts</span></li>
+  </ol>
+</div>
+
+<section id="process">
+<div class="sec-head"><p class="sec-num">One</p><h2>Working out what you have</h2></div>
+<p class="lead">The order matters. Characters that vanish are recorded first, characters that keep are recorded last.</p>
+
+<p>A fungus is not a plant, and the sequence a botanist uses does not transfer. Half of what identifies a
+fruit body is gone within a day of collecting it: latex dries, odour fades, colour changes stop
+changing, viscidity disappears, and the spore print you did not take cannot be taken later. The other
+half &mdash; where it grew, what it grew on, what tree it grew near &mdash; cannot be recovered from the
+specimen at all, at any point, by anyone.</p>
+
+<ol>
+  <li><b>Record the site before you touch the fungus.</b> Substrate, host tree, habit, and whether it is
+    on wood or merely near wood. A fruit body arising from buried wood looks terrestrial and is not.</li>
+  <li><b>Photograph in place</b>, then in section. Include the base and a scale.</li>
+  <li><b>Lift the whole fruit body</b>, base included. Do not cut. The volva, the bulb and the rhizomorphs
+    live below the litter line, and they are frequently the deciding characters.</li>
+  <li><b>Describe it fresh</b>: cap, margin, hymenophore, gill attachment, stipe, veil remnants, odour, and
+    what the flesh does when cut &mdash; latex, colour change, and how fast.</li>
+  <li><b>Set a spore print</b> the moment you get back. Hours, not minutes.</li>
+  <li><b>Then</b> run spot tests, then key, then dry.</li>
+</ol>
+
+<div class="note"><b>The single most common mistake</b> is keying first and printing afterwards. The print
+is the hardest macroscopic evidence there is, and it will overturn a key result rather than confirm one.
+Take it before you commit to a name.</div>
+
+<p class="pull">What a herbarium sheet cannot recover, your notes must carry.</p>
+
+</section>
+
+<section id="form">
+<div class="sec-head"><p class="sec-num">Two</p><h2>Cap, margin, stipe and veil</h2></div>
+<p class="lead">The shapes a key names, drawn. Shape changes with age &mdash; describe what you have and say how old it is.</p>
+
+<h3>Cap shape, in profile</h3>
+<p>Cap shape is a stage as much as a character. An ovoid cap becomes campanulate, then convex, then plane,
+then depressed, and a key that says &ldquo;convex&rdquo; usually means &ldquo;convex at maturity&rdquo;. Record
+the range across the collection rather than one cap.</p>
+<div class="glyphs">
+<div class="gl"><div class="art"><svg viewBox="0 0 100 80" xmlns="http://www.w3.org/2000/svg" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round" ><path d="M16,50 C24,26 76,26 84,50"/><path d="M16,50 L84,50" stroke-width="1.4" opacity=".55"/><path d="M45,50 L45,74 L55,74 L55,50"/></svg></div><b>convex</b><span>The commonest shape: a smooth dome, higher than half a sphere is not.</span></div>
+<div class="gl"><div class="art"><svg viewBox="0 0 100 80" xmlns="http://www.w3.org/2000/svg" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round" ><path d="M16,46 C34,36 66,36 84,46"/><path d="M16,46 L84,46" stroke-width="1.4" opacity=".55"/><path d="M45,50 L45,74 L55,74 L55,50"/></svg></div><b>plane / applanate</b><span>Flat across the top, with at most a slight rise. Often an aged convex cap.</span></div>
+<div class="gl"><div class="art"><svg viewBox="0 0 100 80" xmlns="http://www.w3.org/2000/svg" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round" ><path d="M16,50 C28,32 38,30 43,29 L50,16 L57,29 C62,30 72,32 84,50"/><path d="M16,50 L84,50" stroke-width="1.4" opacity=".55"/><path d="M45,50 L45,74 L55,74 L55,50"/></svg></div><b>umbonate</b><span>A distinct raised boss at the centre, like a nipple on a dome.</span></div>
+<div class="gl"><div class="art"><svg viewBox="0 0 100 80" xmlns="http://www.w3.org/2000/svg" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round" ><path d="M16,44 C28,26 40,32 46,37 C48,39 52,39 54,37 C60,32 72,26 84,44"/><path d="M16,44 L84,44" stroke-width="1.4" opacity=".55"/><path d="M45,50 L45,74 L55,74 L55,50"/></svg></div><b>depressed</b><span>Sunken in the middle but not yet funnel-shaped.</span></div>
+<div class="gl"><div class="art"><svg viewBox="0 0 100 80" xmlns="http://www.w3.org/2000/svg" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round" ><path d="M16,32 C26,50 40,52 46,54 L50,56 L54,54 C60,52 74,50 84,32"/><path d="M45,50 L45,74 L55,74 L55,50"/></svg></div><b>infundibuliform</b><span>A true funnel — the depression runs down into the stipe.</span></div>
+<div class="gl"><div class="art"><svg viewBox="0 0 100 80" xmlns="http://www.w3.org/2000/svg" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round" ><path d="M28,54 C28,22 38,16 50,16 C62,16 72,22 72,54"/><path d="M28,54 L72,54" stroke-width="1.4" opacity=".55"/><path d="M45,50 L45,74 L55,74 L55,50"/></svg></div><b>campanulate</b><span>Bell-shaped: taller than wide, with the margin flaring out.</span></div>
+<div class="gl"><div class="art"><svg viewBox="0 0 100 80" xmlns="http://www.w3.org/2000/svg" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round" ><path d="M28,54 L50,14 L72,54"/><path d="M28,54 L72,54" stroke-width="1.4" opacity=".55"/><path d="M45,50 L45,74 L55,74 L55,50"/></svg></div><b>conical</b><span>Straight-sided cone, margin not flared.</span></div>
+<div class="gl"><div class="art"><svg viewBox="0 0 100 80" xmlns="http://www.w3.org/2000/svg" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round" ><path d="M32,56 C30,20 40,14 50,14 C60,14 70,20 68,56"/><path d="M45,50 L45,74 L55,74 L55,50"/></svg></div><b>ovoid</b><span>Egg-shaped, margin still pressed to the stipe — a young cap.</span></div>
+<div class="gl"><div class="art"><svg viewBox="0 0 100 80" xmlns="http://www.w3.org/2000/svg" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round" ><path d="M16,48 C30,28 42,32 46,36 L50,40 L54,36 C58,32 70,28 84,48"/><path d="M16,48 L84,48" stroke-width="1.4" opacity=".55"/><path d="M45,50 L45,74 L55,74 L55,50"/></svg></div><b>umbilicate</b><span>A small sharp navel at the centre, as if pushed in with a thumb.</span></div>
+</div>
+<h3>The margin</h3>
+<p>The edge of the cap carries evidence about the veil and about the flesh. Striations mean the flesh is
+thin enough to see the gills through; appendiculate fragments mean a partial veil tore there.</p>
+<div class="glyphs">
+<div class="gl"><div class="art"><svg viewBox="0 0 100 80" xmlns="http://www.w3.org/2000/svg" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round" ><path d="M16,48 C26,28 74,28 84,48"/><path d="M16,48 L84,48" stroke-width="1.3" opacity=".45"/><path d="M20,44 L18,50 M28,38 L26,45 M36,34 L35,42 M44,32 L44,40 M56,32 L56,40 M64,34 L65,42 M72,38 L74,45 M80,44 L82,50" stroke-width="1.1"/><path d="M45,50 L45,74 L55,74 L55,50"/></svg></div><b>striate</b><span>Fine radial lines at the edge — you are seeing the gills through thin flesh.</span></div>
+<div class="gl"><div class="art"><svg viewBox="0 0 100 80" xmlns="http://www.w3.org/2000/svg" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round" ><path d="M16,48 C26,28 74,28 84,48"/><path d="M16,48 L84,48" stroke-width="1.3" opacity=".45"/><path d="M26,40 L24,49 M38,34 L37,45 M50,32 L50,44 M62,34 L63,45 M74,40 L76,49" stroke-width="2.2"/><path d="M45,50 L45,74 L55,74 L55,50"/></svg></div><b>sulcate</b><span>Deep grooves, not fine lines — the margin is pleated.</span></div>
+<div class="gl"><div class="art"><svg viewBox="0 0 100 80" xmlns="http://www.w3.org/2000/svg" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round" ><path d="M16,48 C26,28 74,28 84,48"/><path d="M16,48 L84,48" stroke-width="1.3" opacity=".45"/><path d="M18,48 L17,55 M24,48 L23,56 M31,48 L31,54 M69,48 L69,54 M76,48 L77,56 M82,48 L83,55" stroke-width="1.7"/><path d="M45,50 L45,74 L55,74 L55,50"/></svg></div><b>appendiculate</b><span>Torn veil fragments hanging from the cap edge like a fringe.</span></div>
+<div class="gl"><div class="art"><svg viewBox="0 0 100 80" xmlns="http://www.w3.org/2000/svg" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round" ><path d="M16,48 C26,28 74,28 84,48"/><path d="M16,48 L84,48" stroke-width="1.3" opacity=".45"/><path d="M18,47 C14,52 18,56 23,52 M82,47 C86,52 82,56 77,52" stroke-width="2"/><path d="M45,50 L45,74 L55,74 L55,50"/></svg></div><b>inrolled</b><span>The edge curls under, sometimes for the life of the fruit body.</span></div>
+<div class="gl"><div class="art"><svg viewBox="0 0 100 80" xmlns="http://www.w3.org/2000/svg" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round" ><path d="M16,48 C26,28 74,28 84,48"/><path d="M16,48 L84,48" stroke-width="1.3" opacity=".45"/><path d="M45,50 L45,74 L55,74 L55,50"/></svg></div><b>plane / straight</b><span>Neither curled nor grooved — the default, and worth stating as an observation.</span></div>
+</div>
+<h3>Stipe and veil</h3>
+<p>Two veils may be present. A <b>universal veil</b> encloses the whole young fruit body and leaves a volva,
+a rim, or warts on the cap. A <b>partial veil</b> runs from cap margin to stipe and leaves a ring, a ring
+zone, or a cortina. They are different structures with different diagnostic weight, and the universal
+veil is the one that is buried.</p>
+<div class="glyphs">
+<div class="gl"><div class="art"><svg viewBox="0 0 100 80" xmlns="http://www.w3.org/2000/svg" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round" ><path d="M20,44 C28,24 72,24 80,44"/><path d="M20,44 L80,44" stroke-width="1.4" opacity=".5"/><path d="M44,44 L44,70 M56,44 L56,70"/><path d="M12,72 L88,72" stroke-width="1.3" opacity=".45"/><path d="M38,62 C36,74 40,78 50,78 C60,78 64,74 62,62" stroke-width="2.3"/></svg></div><b>volva</b><span>A sac at the base, left by a universal veil. It is often under the duff — dig, do not cut.</span></div>
+<div class="gl"><div class="art"><svg viewBox="0 0 100 80" xmlns="http://www.w3.org/2000/svg" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round" ><path d="M20,44 C28,24 72,24 80,44"/><path d="M20,44 L80,44" stroke-width="1.4" opacity=".5"/><path d="M44,44 L44,66 M56,44 L56,66"/><path d="M12,72 L88,72" stroke-width="1.3" opacity=".45"/><path d="M36,64 C34,74 40,77 50,77 C60,77 66,74 64,64" stroke-width="2.3"/><path d="M34,66 L66,66" stroke-width="1.7"/></svg></div><b>bulbous with a rim</b><span>A swollen base finished with a distinct gutter or flange.</span></div>
+<div class="gl"><div class="art"><svg viewBox="0 0 100 80" xmlns="http://www.w3.org/2000/svg" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round" ><path d="M20,44 C28,24 72,24 80,44"/><path d="M20,44 L80,44" stroke-width="1.4" opacity=".5"/><path d="M44,44 L44,72 M56,44 L56,72"/><path d="M12,72 L88,72" stroke-width="1.3" opacity=".45"/><path d="M36,54 C42,58 58,58 64,54 C60,52 40,52 36,54 Z" stroke-width="2"/></svg></div><b>membranous ring</b><span>A skirt of tissue left where the partial veil tore away from the cap margin.</span></div>
+<div class="gl"><div class="art"><svg viewBox="0 0 100 80" xmlns="http://www.w3.org/2000/svg" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round" ><path d="M20,44 C28,24 72,24 80,44"/><path d="M20,44 L80,44" stroke-width="1.4" opacity=".5"/><path d="M44,44 L44,72 M56,44 L56,72"/><path d="M12,72 L88,72" stroke-width="1.3" opacity=".45"/><path d="M24,44 L44,56 M32,44 L46,57 M40,44 L48,58 M60,44 L54,58 M68,44 L56,57 M76,44 L58,56" stroke-width="1" opacity=".85" stroke-dasharray="2 2.5"/></svg></div><b>cortina</b><span>A cobweb of fine threads from cap margin to stipe — gone within a day.</span></div>
+<div class="gl"><div class="art"><svg viewBox="0 0 100 80" xmlns="http://www.w3.org/2000/svg" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round" ><path d="M20,44 C28,24 72,24 80,44"/><path d="M20,44 L80,44" stroke-width="1.4" opacity=".5"/><path d="M44,44 L44,72 M56,44 L56,72"/><path d="M12,72 L88,72" stroke-width="1.3" opacity=".45"/><path d="M44,55 L56,55 M44,58 L56,58" stroke-width="1.5" stroke-dasharray="2 2"/></svg></div><b>ring zone</b><span>No skirt, only a band of fibres — and often rusty spore dust caught in it.</span></div>
+<div class="gl"><div class="art"><svg viewBox="0 0 100 80" xmlns="http://www.w3.org/2000/svg" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round" ><path d="M20,44 C28,24 72,24 80,44"/><path d="M20,44 L80,44" stroke-width="1.4" opacity=".5"/><path d="M44,44 L44,72 M56,44 L56,72"/><path d="M12,72 L88,72" stroke-width="1.3" opacity=".45"/><path d="M45,50 l3,2 M53,52 l3,2 M45,57 l3,2 M53,59 l3,2 M45,64 l3,2 M53,66 l3,2" stroke-width="2.2"/></svg></div><b>scabers</b><span>Tufted dark points on a pale stipe. In the field this alone says <i>Leccinum</i>.</span></div>
+<div class="gl"><div class="art"><svg viewBox="0 0 100 80" xmlns="http://www.w3.org/2000/svg" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round" ><path d="M20,44 C28,24 72,24 80,44"/><path d="M20,44 L80,44" stroke-width="1.4" opacity=".5"/><path d="M44,44 L44,72 M56,44 L56,72"/><path d="M12,72 L88,72" stroke-width="1.3" opacity=".45"/><path d="M44,50 L56,50 M44,57 L56,57 M44,64 L56,64 M47,44 L47,72 M50,44 L50,72 M53,44 L53,72" stroke-width="1" opacity=".8"/></svg></div><b>reticulate</b><span>A raised net over the stipe surface, not a pattern of dots.</span></div>
+<div class="gl"><div class="art"><svg viewBox="0 0 100 80" xmlns="http://www.w3.org/2000/svg" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round" ><path d="M20,44 C28,24 72,24 80,44"/><path d="M20,44 L80,44" stroke-width="1.4" opacity=".5"/><path d="M44,44 L46,72 M56,44 L54,72"/><path d="M12,72 L88,72" stroke-width="1.3" opacity=".45"/><path d="M46,72 C47,80 49,84 50,88 C51,84 53,80 54,72" stroke-width="1.9"/></svg></div><b>rooting pseudorhiza</b><span>A carrot-like extension going down into the soil — collect it or lose the character.</span></div>
+<div class="gl"><div class="art"><svg viewBox="0 0 100 80" xmlns="http://www.w3.org/2000/svg" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round" ><path d="M14,30 L14,66" stroke-width="2.6" opacity=".6"/><path d="M16,38 C34,30 64,32 76,44 C64,52 34,52 16,48 Z"/><path d="M16,48 C34,52 62,52 76,44" stroke-width="1.3" opacity=".5"/><path d="M22,49 L22,54 M30,50 L30,56 M38,51 L38,56 M46,51 L46,56 M54,50 L54,55 M62,49 L62,53"/></svg></div><b>lateral / absent stipe</b><span>The cap attaches at its side, or directly to the wood. Shelving fungi.</span></div>
+</div>
+<div class="warn"><b>Dig, do not cut.</b> A collection taken with a knife at the litter line is missing the
+character that separates the most dangerous genus in the northern hemisphere from its harmless neighbours.
+Lift the whole thing, then put the duff back.</div>
+
+</section>
+
+<section id="hymen">
+<div class="sec-head"><p class="sec-num">Three</p><h2>The spore-bearing surface</h2></div>
+<p class="lead">What is under the cap, and how it meets the stipe. This is where keys start.</p>
+
+<h3>Hymenophore type</h3>
+<p>The first branch of almost every macrofungal key. Feel it as well as look at it: the difference between
+a gill and a fold, and between a bolete's tubes and a polypore's, is textural.</p>
+<div class="glyphs">
+<div class="gl"><div class="art"><svg viewBox="0 0 100 80" xmlns="http://www.w3.org/2000/svg" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round" ><path d="M14,26 L86,26 L86,36 L14,36 Z"/><path d="M22,36 L22,58 M30,36 L30,58 M38,36 L38,58 M46,36 L46,58 M54,36 L54,58 M62,36 L62,58 M70,36 L70,58 M78,36 L78,58"/></svg></div><b>gills</b><span>Blades hanging from the flesh, thin and knife-like in section.</span></div>
+<div class="gl"><div class="art"><svg viewBox="0 0 100 80" xmlns="http://www.w3.org/2000/svg" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round" ><path d="M14,26 L86,26 L86,36 L14,36 Z"/><path d="M14,54 L86,54"/><path d="M22,36 L22,54 M30,36 L30,54 M38,36 L38,54 M46,36 L46,54 M54,36 L54,54 M62,36 L62,54 M70,36 L70,54 M78,36 L78,54" stroke-width="1.5"/></svg></div><b>pores / tubes</b><span>A layer of tubes; you see their mouths. Boletes have soft separable tubes, polypores hard fused ones.</span></div>
+<div class="gl"><div class="art"><svg viewBox="0 0 100 80" xmlns="http://www.w3.org/2000/svg" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round" ><path d="M14,26 L86,26 L86,36 L14,36 Z"/><path d="M20,36 L24,58 L28,36 M32,36 L36,56 L40,36 M44,36 L48,58 L52,36 M56,36 L60,55 L64,36 M68,36 L72,57 L76,36"/></svg></div><b>teeth / spines</b><span>Free-hanging spines, each one tapering to a point.</span></div>
+<div class="gl"><div class="art"><svg viewBox="0 0 100 80" xmlns="http://www.w3.org/2000/svg" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round" ><path d="M14,26 L86,26 L86,36 L14,36 Z"/><path d="M20,36 C21,44 19,48 21,54 M34,36 C35,42 30,44 33,54 M48,36 C49,44 46,46 48,54 M62,36 C63,42 59,46 62,54 M76,36 C77,44 74,48 76,54" stroke-width="3.4"/><path d="M27,44 C29,48 32,48 34,45 M55,45 C57,49 60,49 62,46" stroke-width="2"/></svg></div><b>ridges / false gills</b><span>Blunt forking folds, thicker than a gill and running into each other.</span></div>
+<div class="gl"><div class="art"><svg viewBox="0 0 100 80" xmlns="http://www.w3.org/2000/svg" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round" ><path d="M14,26 L86,26 L86,36 L14,36 Z"/><path d="M16,44 C30,40 44,48 58,43 C70,39 80,45 86,42" stroke-width="1.6"/><path d="M20,52 C34,48 48,55 62,50 C72,47 80,52 86,50" stroke-width="1.4" opacity=".6"/></svg></div><b>smooth or veined</b><span>No projections at all — at most shallow wrinkles. Chanterelle relatives, crusts, cups.</span></div>
+<div class="gl"><div class="art"><svg viewBox="0 0 100 80" xmlns="http://www.w3.org/2000/svg" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round" ><path d="M14,26 L86,26 L86,36 L14,36 Z"/><path d="M20,36 L20,48 L30,48 L30,38 L40,38 L40,52 L52,52 L52,40 L62,40 L62,50 L74,50 L74,38 L82,38 L82,54" stroke-width="1.7"/></svg></div><b>maze-like / daedaloid</b><span>Pores stretched and joined into winding slots — between pores and gills.</span></div>
+<div class="gl"><div class="art"><svg viewBox="0 0 100 80" xmlns="http://www.w3.org/2000/svg" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round" ><path d="M50,16 C70,16 82,32 82,46 C82,62 68,70 50,70 C32,70 18,62 18,46 C18,32 30,16 50,16 Z"/><path d="M50,24 C61,24 70,34 70,44 C70,55 61,60 50,60 C39,60 30,55 30,44 C30,34 39,24 50,24 Z" stroke-width="1.3" stroke-dasharray="3 3"/><path d="M44,18 C46,13 54,13 56,18" stroke-width="1.8"/></svg></div><b>enclosed gleba</b><span>The spore mass matures sealed inside — puffballs, earthstars, false truffles.</span></div>
+</div>
+<h3>Gill attachment</h3>
+<p>Slice the fruit body vertically through the stipe and look at the junction from the side. Attachment
+changes as the cap expands, so read it on a mature but not collapsing specimen, and say which.</p>
+<div class="glyphs">
+<div class="gl"><div class="art"><svg viewBox="0 0 100 80" xmlns="http://www.w3.org/2000/svg" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round" ><path d="M8,48 C22,24 62,24 80,44"/><path d="M68,44 L68,76 M80,44 L80,76"/><path d="M12,54 L62,50 M62,50 L62,58" stroke-width="2.4" stroke="currentColor"/></svg></div><b>free</b><span>The gills stop short of the stipe — a clear gutter runs all the way round.</span></div>
+<div class="gl"><div class="art"><svg viewBox="0 0 100 80" xmlns="http://www.w3.org/2000/svg" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round" ><path d="M8,48 C22,24 62,24 80,44"/><path d="M68,44 L68,76 M80,44 L80,76"/><path d="M12,54 L67,47" stroke-width="2.4" stroke="currentColor"/></svg></div><b>adnexed</b><span>Gills reach the stipe but touch it only by a narrow point.</span></div>
+<div class="gl"><div class="art"><svg viewBox="0 0 100 80" xmlns="http://www.w3.org/2000/svg" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round" ><path d="M8,48 C22,24 62,24 80,44"/><path d="M68,44 L68,76 M80,44 L80,76"/><path d="M12,52 L67,52" stroke-width="2.4" stroke="currentColor"/></svg></div><b>adnate</b><span>Gills meet the stipe squarely, along their full depth.</span></div>
+<div class="gl"><div class="art"><svg viewBox="0 0 100 80" xmlns="http://www.w3.org/2000/svg" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round" ><path d="M8,48 C22,24 62,24 80,44"/><path d="M68,44 L68,76 M80,44 L80,76"/><path d="M12,52 C36,52 54,55 61,50 L67,57" stroke-width="2.4" stroke="currentColor"/></svg></div><b>sinuate / emarginate</b><span>A notch just before the stipe, then a short tooth running down it.</span></div>
+<div class="gl"><div class="art"><svg viewBox="0 0 100 80" xmlns="http://www.w3.org/2000/svg" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round" ><path d="M8,48 C22,24 62,24 80,44"/><path d="M68,44 L68,76 M80,44 L80,76"/><path d="M12,50 C36,52 56,58 67,68" stroke-width="2.4" stroke="currentColor"/></svg></div><b>decurrent</b><span>Gills run down the stipe instead of stopping at it.</span></div>
+<div class="gl"><div class="art"><svg viewBox="0 0 100 80" xmlns="http://www.w3.org/2000/svg" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round" ><path d="M8,48 C22,24 62,24 80,44"/><path d="M68,44 L68,76 M80,44 L80,76"/><path d="M12,54 L63,50" stroke-width="2.4" stroke="currentColor"/><path d="M68,50 L68,58" stroke-width="1.4" stroke-dasharray="3 3"/></svg></div><b>seceding</b><span>Attached when young, then torn free, leaving a mark on the stipe.</span></div>
+</div>
+<div class="note"><b>Gill spacing, edge and colour</b> are worth recording alongside attachment: crowded
+against distant; entire against serrate or fringed; and whether the edge is a different colour from the
+face. The last of those is often a genus-level character and it is easy to miss without a lens.</div>
+
+</section>
+
+<section id="print">
+<div class="sec-head"><p class="sec-num">Four</p><h2>The spore print</h2></div>
+<p class="lead">The single most informative macroscopic character on an agaric, and the one most often skipped.</p>
+
+<p>Cut the stipe flush, set the cap gills-down on paper, cover it with a bowl to stop draughts, and leave
+it for several hours &mdash; overnight is normal. Half black and half white paper reads both pale and dark
+prints. A thin print, or a print from a young cap, reads paler than the truth, so judge the colour where
+the deposit is heaviest, in daylight, against white.</p>
+
+<p>For a bolete, stand a slice of the tube layer on edge rather than printing the whole cap. For a
+<i>Coprinopsis</i>, print it immediately or not at all &mdash; the gills are dissolving as you carry it.</p>
+<div class="prints">
+<div class="pc2"><span class="chip" style="background:#FFFFFF"></span><b>white</b><span><i>Amanita</i>, <i>Tricholoma</i>, <i>Hygrophorus</i>, <i>Clitocybe</i>, <i>Marasmius</i>, <i>Mycena</i>, <i>Lepiota</i>, <i>Armillaria</i>, <i>Laccaria</i>, most polypores</span></div>
+<div class="pc2"><span class="chip" style="background:#F0E5C6"></span><b>cream / pale buff</b><span><i>Russula</i> and <i>Lactarius</i> run white through cream to deep ochre, and the exact shade is a key character in both — match it against a printed chart, not against memory.</span></div>
+<div class="pc2"><span class="chip" style="background:#BCAFC0"></span><b>lilac-grey</b><span><i>Pleurotus</i> can throw a faintly lilac print on white paper. Easy to miss and easy to over-read.</span></div>
+<div class="pc2"><span class="chip" style="background:#E7BCAE"></span><b>pink / salmon</b><span><i>Pluteus</i> on wood, <i>Entoloma</i> on soil, <i>Volvariella</i> with a volva, <i>Clitopilus</i> with decurrent gills. A pink print puts you in a small, well-bounded set.</span></div>
+<div class="pc2"><span class="chip" style="background:#B5722C"></span><b>rusty ochre</b><span><i>Cortinarius</i> above all, plus <i>Gymnopilus</i> and <i>Galerina</i> on wood and <i>Phaeocollybia</i> with its rooting base.</span></div>
+<div class="pc2"><span class="chip" style="background:#B99A6B"></span><b>clay-brown</b><span><i>Hebeloma</i>, and <i>Inocybe</i> at the duller end. Clay is not rust and not chocolate; judge it on white.</span></div>
+<div class="pc2"><span class="chip" style="background:#6E6836"></span><b>olive-brown</b><span>The boletes: <i>Boletus</i>, <i>Suillus</i>, <i>Leccinum</i>. Take the print by standing a tube slice on paper, not a whole cap.</span></div>
+<div class="pc2"><span class="chip" style="background:#6E4B2A"></span><b>brown</b><span><i>Crepidotus</i> on wood with no stipe at all; <i>Ganoderma</i> dusts everything below it brown, which is often how you find it.</span></div>
+<div class="pc2"><span class="chip" style="background:#4E3A4A"></span><b>purple-brown</b><span><i>Hypholoma</i> and <i>Stropharia</i>. Against black paper it reads dark; against white the purple shows.</span></div>
+<div class="pc2"><span class="chip" style="background:#3B2A20"></span><b>chocolate</b><span><i>Agaricus</i>. Free gills that go pink then chocolate, and a ring — the print settles it.</span></div>
+<div class="pc2"><span class="chip" style="background:#191512"></span><b>black</b><span><i>Coprinopsis</i> and <i>Coprinellus</i> as the gills dissolve, <i>Panaeolus</i> from mottled gills, <i>Gomphidius</i> from decurrent ones.</span></div>
+<div class="pc2"><span class="chip" style="background:#87995A"></span><b>dull green</b><span><i>Chlorophyllum molybdites</i>. A lepiotoid mushroom on a lawn whose mature print is green is that until proved otherwise, and it is the most common cause of mushroom poisoning in North America.</span></div>
+</div>
+<div class="warn"><b>When the print contradicts the key, the print wins.</b> A key result is an inference
+from characters you judged. A print is a physical measurement of the thing that defines the fungus.
+If they disagree, re-key from the print.</div>
+
+</section>
+
+<section id="chem">
+<div class="sec-head"><p class="sec-num">Five</p><h2>Macrochemical spot tests</h2></div>
+<p class="lead">Reagents separate species within a genus. Almost none of them separate genera, and none identifies anything alone.</p>
+
+<p>A spot test is a character like any other &mdash; it narrows a set, and it is worth nothing without the
+substrate, the print and the morphology beside it. Record where you put the drop, what happened, and
+how fast. <b>Blank is not negative:</b> a test you did not run and a test that produced no reaction are
+different results and belong in different columns.</p>
+<div class="tw"><table><tr><th>reagent</th><th>put it on</th><th>what it separates</th><th>hazard</th></tr>
+<tr><td><b>KOH 3&ndash;10%</b><br><span style="font-family:var(--mono);font-size:11.5px;color:var(--muted)">potassium hydroxide</span></td><td>cap cuticle, cut flesh</td><td>A sectional character in <i>Cortinarius</i>; standard on bolete caps; separates the yellow-staining <i>Agaricus</i> group. Read at 30 s and again at 5 min.</td><td>caustic — eye protection, always</td></tr>
+<tr><td><b>NH<sub>4</sub>OH</b><br><span style="font-family:var(--mono);font-size:11.5px;color:var(--muted)">ammonia</span></td><td>cap cuticle, flesh, tubes</td><td>Watch for a <b>flash</b> in the first seconds — blue-green on some boletes — then record the settled colour as a separate result.</td><td>fumes — work outdoors or ventilated</td></tr>
+<tr><td><b>FeSO<sub>4</sub></b><br><span style="font-family:var(--mono);font-size:11.5px;color:var(--muted)">iron salts, crystal or solution</span></td><td>stipe flesh</td><td>The classic <i>Russula</i> test: salmon, green, or nothing. A slow reaction is still a reaction — give it two minutes before recording negative.</td><td>low hazard; stains</td></tr>
+<tr><td><b>Melzer's</b><br><span style="font-family:var(--mono);font-size:11.5px;color:var(--muted)">iodine + chloral hydrate</span></td><td>spores, flesh (mostly on a slide)</td><td>Amyloid reads blue-black, dextrinoid red-brown, inamyloid nothing at all. Chiefly a microscopy reagent.</td><td>contains chloral hydrate — controlled in some jurisdictions</td></tr>
+<tr><td><b>Guaiac</b><br><span style="font-family:var(--mono);font-size:11.5px;color:var(--muted)">guaiacol tincture</span></td><td>stipe flesh</td><td>An oxidase test used throughout <i>Russula</i>. Record the <b>speed</b> as well as the intensity: slow-and-weak is a different result from instant-and-blue.</td><td>flammable; degrades — make it fresh</td></tr>
+<tr><td><b>Phenol</b><br><span style="font-family:var(--mono);font-size:11.5px;color:var(--muted)">carbolic acid</span></td><td>flesh of the stipe base</td><td>Wine to purple-brown on many <i>Agaricus</i>. Reads over several minutes.</td><td>toxic by skin absorption and vapour</td></tr>
+<tr><td><b>&alpha;-Naphthol</b></td><td>flesh</td><td>Purple on some <i>Agaricus</i>; used alongside phenol, not instead of it.</td><td>harmful; handle as toxic</td></tr>
+<tr><td><b>Syringaldazine</b></td><td>pore surface, flesh of polypores</td><td>A laccase test — a rough bench proxy for white rot against brown rot.</td><td>low hazard</td></tr>
+</table></div>
+<div class="warn"><b>Handling.</b> KOH is caustic and will damage an eye instantly. Phenol is toxic by skin
+absorption and by vapour. Melzer's contains chloral hydrate and is controlled in some jurisdictions. Use
+dropper bottles rather than open dishes, wear eye protection, work with ventilation, and never carry
+reagents loose in a basket with your specimens.</div>
+
+</section>
+
+<section id="key">
+<div class="sec-head"><p class="sec-num">Six</p><h2>Work out the genus</h2></div>
+<p class="lead">Answer what you can see. Leave anything you are unsure of blank &mdash; the ranking gets better with more answers, not with guesses.</p>
+
+<div class="keybox" id="fkey">
+  <div id="fkq"></div>
+  <div class="kq">
+    <p class="ql">Dead giveaways — tap any you noticed</p>
+    <div class="tellwrap" id="fktell"></div>
+  </div>
+  <div style="display:flex;gap:9px;flex-wrap:wrap;margin-top:14px">
+    <button class="kopt" id="fkreset" type="button" style="font-weight:700">Start over</button>
+  </div>
+  <div id="fkout" style="margin-top:18px"></div>
+</div>
+<p class="fine" style="color:var(--muted);font-size:14.5px">The key ranks fifty-one genera and genus groups
+on set membership: a character that matches adds, a dead giveaway adds more, and a character that
+contradicts subtracts. It is deliberately forgiving, because field characters are read imperfectly &mdash;
+which also means a top rank is a <b>hypothesis to test against a flora or a monograph</b>, never an
+identification. When a genus is ruled out, the key names the character that ruled it out, so you can go
+back and check whether you read that character correctly.</p>
+
+</section>
+
+<section id="genera">
+<div class="sec-head"><p class="sec-num">Seven</p><h2>Fifty-one genera on sight</h2></div>
+<p class="lead">One line each: the character that gives it away in the field, before you open a key at all.</p>
+<div class="fams">
+<div class="fam"><div class="fh"><b>Amanita</b><span>gills · soil or duff · print white or cream</span></div><div class="ft" style="margin-top:10px"><span class="lab">the tell</span>Free white gills, a white print, and a universal veil that leaves either a sac or warts. Dig the base out whole — the volva is often entirely below the duff, and cutting the stipe destroys the character that matters most.</div></div>
+<div class="fam"><div class="fh"><b>Russula</b><span>gills · soil or duff · print white or cream</span></div><div class="ft" style="margin-top:10px"><span class="lab">the tell</span>The stipe snaps clean like a stick of chalk instead of tearing into fibres. No latex, no veil, no ring.</div></div>
+<div class="fam"><div class="fh"><b>Lactarius</b><span>gills · soil or duff · print white or cream</span></div><div class="ft" style="margin-top:10px"><span class="lab">the tell</span>Cut a gill and it bleeds. Note the latex colour, whether it changes in the air, and whether it stains the gills.</div></div>
+<div class="fam"><div class="fh"><b>Tricholoma</b><span>gills · soil or duff · print white or cream</span></div><div class="ft" style="margin-top:10px"><span class="lab">the tell</span>Fleshy, terrestrial, white-printed, with sinuate gills and no veil remnants at all. Odour is the working character in the genus.</div></div>
+<div class="fam"><div class="fh"><b>Hygrophorus</b><span>gills · soil or duff · print white or cream</span></div><div class="ft" style="margin-top:10px"><span class="lab">the tell</span>Thick, waxy, widely spaced gills that feel greasy between finger and thumb, running slightly down the stipe.</div></div>
+<div class="fam"><div class="fh"><b>Clitocybe</b><span>gills · leaf or needle litter · print white or cream</span></div><div class="ft" style="margin-top:10px"><span class="lab">the tell</span>Funnel-shaped cap, decurrent gills, white print, in litter. A large and genuinely difficult genus.</div></div>
+<div class="fam"><div class="fh"><b>Laccaria</b><span>gills · soil or duff · print white or cream</span></div><div class="ft" style="margin-top:10px"><span class="lab">the tell</span>Thick, widely spaced, flesh-pink gills over a fibrous twisted stipe; common on disturbed ground and roadsides.</div></div>
+<div class="fam"><div class="fh"><b>Armillaria</b><span>gills · a living tree or its roots · print white or cream</span></div><div class="ft" style="margin-top:10px"><span class="lab">the tell</span>Black shoestring rhizomorphs under the bark, a ring, and dense clusters at the root collar of a tree it is killing.</div></div>
+<div class="fam"><div class="fh"><b>Lepiota / Macrolepiota</b><span>gills · leaf or needle litter · print white or cream</span></div><div class="ft" style="margin-top:10px"><span class="lab">the tell</span>Scaly cap, free white gills, and a ring that slides up and down a smooth stipe.</div></div>
+<div class="fam"><div class="fh"><b>Chlorophyllum</b><span>gills · leaf or needle litter · print dull green</span></div><div class="ft" style="margin-top:10px"><span class="lab">the tell</span>Lepiota-like in every respect except the mature print, which is dull green. Always print a lawn lepiotoid.</div></div>
+<div class="fam"><div class="fh"><b>Agaricus</b><span>gills · leaf or needle litter · print —</span></div><div class="ft" style="margin-top:10px"><span class="lab">the tell</span>Free gills pink then chocolate, a ring, a chocolate print, and no volva. Check the base anyway.</div></div>
+<div class="fam"><div class="fh"><b>Pluteus</b><span>gills · dead wood · print pink or salmon</span></div><div class="ft" style="margin-top:10px"><span class="lab">the tell</span>Pink print, free gills, on wood, with neither ring nor volva. That combination is the genus.</div></div>
+<div class="fam"><div class="fh"><b>Entoloma</b><span>gills · soil or duff · print pink or salmon</span></div><div class="ft" style="margin-top:10px"><span class="lab">the tell</span>Pink print from a terrestrial mushroom with attached gills. A hard genus that needs a scope for species.</div></div>
+<div class="fam"><div class="fh"><b>Cortinarius</b><span>gills · soil or duff · print rusty ochre</span></div><div class="ft" style="margin-top:10px"><span class="lab">the tell</span>A cobwebby cortina when young, a rusty band on the stipe when older, and a rusty print. The largest agaric genus there is.</div></div>
+<div class="fam"><div class="fh"><b>Inocybe</b><span>gills · soil or duff · print clay or dull brown</span></div><div class="ft" style="margin-top:10px"><span class="lab">the tell</span>Radially fibrillose cap that splits at the margin, dull brown print, and a sharp spermatic odour.</div></div>
+<div class="fam"><div class="fh"><b>Hebeloma</b><span>gills · soil or duff · print clay or dull brown</span></div><div class="ft" style="margin-top:10px"><span class="lab">the tell</span>Pale viscid cap, clay-brown print, beaded gill edges when young, and a cut-radish odour.</div></div>
+<div class="fam"><div class="fh"><b>Gymnopilus</b><span>gills · dead wood · print rusty ochre</span></div><div class="ft" style="margin-top:10px"><span class="lab">the tell</span>Orange, bitter, clustered on wood, rusty print, usually with a ring zone.</div></div>
+<div class="fam"><div class="fh"><b>Hypholoma</b><span>gills · dead wood · print purple-brown or chocolate</span></div><div class="ft" style="margin-top:10px"><span class="lab">the tell</span>Tight clusters on conifer stumps, greenish-yellow tones, purple-brown print.</div></div>
+<div class="fam"><div class="fh"><b>Coprinopsis / Coprinellus</b><span>gills · leaf or needle litter · print black</span></div><div class="ft" style="margin-top:10px"><span class="lab">the tell</span>The gills autodigest into black ink from the margin inward. Take the print early or not at all.</div></div>
+<div class="fam"><div class="fh"><b>Pleurotus</b><span>gills · dead wood · print white or cream</span></div><div class="ft" style="margin-top:10px"><span class="lab">the tell</span>Decurrent gills on a lateral or absent stipe, shelving from hardwood.</div></div>
+<div class="fam"><div class="fh"><b>Crepidotus</b><span>gills · dead wood · print plain brown</span></div><div class="ft" style="margin-top:10px"><span class="lab">the tell</span>A small sessile shell with no stipe whatever, and a brown print. That pairing is diagnostic.</div></div>
+<div class="fam"><div class="fh"><b>Mycena</b><span>gills · dead wood · print white or cream</span></div><div class="ft" style="margin-top:10px"><span class="lab">the tell</span>Small, conic to bell-shaped, translucent-striate and fragile, in troops on wood or litter.</div></div>
+<div class="fam"><div class="fh"><b>Marasmius</b><span>gills · leaf or needle litter · print white or cream</span></div><div class="ft" style="margin-top:10px"><span class="lab">the tell</span>A wiry tough stipe, and a dried cap that revives when wetted instead of rotting.</div></div>
+<div class="fam"><div class="fh"><b>Suillus</b><span>pores or tubes · soil or duff · print olive-brown</span></div><div class="ft" style="margin-top:10px"><span class="lab">the tell</span>A glutinous cap, often a ring or a glandular-dotted stipe, always with a pine or larch. Among the most host-specific fungi you will find.</div></div>
+<div class="fam"><div class="fh"><b>Boletus s.l.</b><span>pores or tubes · soil or duff · print olive-brown</span></div><div class="ft" style="margin-top:10px"><span class="lab">the tell</span>A soft tube layer that peels cleanly away from the cap flesh — that is what separates a bolete from a polypore.</div></div>
+<div class="fam"><div class="fh"><b>Leccinum</b><span>pores or tubes · soil or duff · print olive-brown</span></div><div class="ft" style="margin-top:10px"><span class="lab">the tell</span>Dark tufted scabers on a pale stipe. In the field this character alone is enough.</div></div>
+<div class="fam"><div class="fh"><b>Trametes</b><span>pores or tubes · dead wood · print no print / not applicable</span></div><div class="ft" style="margin-top:10px"><span class="lab">the tell</span>A thin, flexible, zonate bracket with small round pores; white rot in the wood behind it.</div></div>
+<div class="fam"><div class="fh"><b>Ganoderma</b><span>pores or tubes · a living tree or its roots · print plain brown</span></div><div class="ft" style="margin-top:10px"><span class="lab">the tell</span>A varnished, laccate crust, and brown spore dust settled on everything below it.</div></div>
+<div class="fam"><div class="fh"><b>Laetiporus</b><span>pores or tubes · a living tree or its roots · print no print / not applicable</span></div><div class="ft" style="margin-top:10px"><span class="lab">the tell</span>Bright orange overlapping shelves on heartwood, causing a brown cubical rot in a living tree.</div></div>
+<div class="fam"><div class="fh"><b>Fomitopsis</b><span>pores or tubes · dead wood · print no print / not applicable</span></div><div class="ft" style="margin-top:10px"><span class="lab">the tell</span>A hard perennial hoof on conifer wood, with brown cubical rot beneath it.</div></div>
+<div class="fam"><div class="fh"><b>Phaeolus</b><span>pores or tubes · a living tree or its roots · print no print / not applicable</span></div><div class="ft" style="margin-top:10px"><span class="lab">the tell</span>A velvety yellow-to-rust rosette at the base of a conifer — root and butt rot, usually Douglas-fir.</div></div>
+<div class="fam"><div class="fh"><b>Albatrellus</b><span>pores or tubes · soil or duff · print white or cream</span></div><div class="ft" style="margin-top:10px"><span class="lab">the tell</span>A fleshy stalked polypore growing out of soil rather than wood, under conifers. Unusual and memorable.</div></div>
+<div class="fam"><div class="fh"><b>Hydnum</b><span>teeth or spines · soil or duff · print white or cream</span></div><div class="ft" style="margin-top:10px"><span class="lab">the tell</span>Soft spines under a chanterelle-like cap; flesh pale and brittle.</div></div>
+<div class="fam"><div class="fh"><b>Sarcodon</b><span>teeth or spines · soil or duff · print clay or dull brown</span></div><div class="ft" style="margin-top:10px"><span class="lab">the tell</span>A coarse scaly cap over brown spines, usually bitter, under conifers.</div></div>
+<div class="fam"><div class="fh"><b>Hericium</b><span>teeth or spines · dead wood · print white or cream</span></div><div class="ft" style="margin-top:10px"><span class="lab">the tell</span>A cascade of white spines from a wound or a broken limb on hardwood.</div></div>
+<div class="fam"><div class="fh"><b>Cantharellus</b><span>blunt ridges / false gills · soil or duff · print white or cream</span></div><div class="ft" style="margin-top:10px"><span class="lab">the tell</span>Blunt forking ridges running down the stipe — press one and it does not break like a gill. Apricot odour.</div></div>
+<div class="fam"><div class="fh"><b>Craterellus</b><span>blunt ridges / false gills · soil or duff · print white or cream</span></div><div class="ft" style="margin-top:10px"><span class="lab">the tell</span>A hollow trumpet with a nearly smooth or shallowly wrinkled outer surface.</div></div>
+<div class="fam"><div class="fh"><b>Stereum</b><span>smooth, veined or pitted · dead wood · print white or cream</span></div><div class="ft" style="margin-top:10px"><span class="lab">the tell</span>A thin leathery bracket whose underside is smooth — no pores, no teeth, no gills.</div></div>
+<div class="fam"><div class="fh"><b>Xylaria</b><span>smooth, veined or pitted · dead wood · print no print / not applicable</span></div><div class="ft" style="margin-top:10px"><span class="lab">the tell</span>Black carbonaceous clubs or fingers, white inside when cut.</div></div>
+<div class="fam"><div class="fh"><b>Lycoperdon / Calvatia</b><span>enclosed gleba · leaf or needle litter · print no print / not applicable</span></div><div class="ft" style="margin-top:10px"><span class="lab">the tell</span>The spore mass matures sealed inside and leaves through an apical pore or a collapsing wall.</div></div>
+<div class="fam"><div class="fh"><b>Geastrum</b><span>enclosed gleba · leaf or needle litter · print no print / not applicable</span></div><div class="ft" style="margin-top:10px"><span class="lab">the tell</span>The outer wall splits into rays and folds back, lifting the spore sac clear of the ground.</div></div>
+<div class="fam"><div class="fh"><b>Rhizopogon</b><span>enclosed gleba · soil or duff · print no print / not applicable</span></div><div class="ft" style="margin-top:10px"><span class="lab">the tell</span>Hypogeous, potato-like, with rhizomorphs strapped across the skin. No stipe, no gills, always with a conifer.</div></div>
+<div class="fam"><div class="fh"><b>Morchella</b><span>smooth, veined or pitted · soil or duff · print no print / not applicable</span></div><div class="ft" style="margin-top:10px"><span class="lab">the tell</span>A pitted head continuous with the stipe, and a single clean hollow from the tip to the base when sliced lengthwise.</div></div>
+<div class="fam"><div class="fh"><b>Gyromitra</b><span>smooth, veined or pitted · soil or duff · print no print / not applicable</span></div><div class="ft" style="margin-top:10px"><span class="lab">the tell</span>A brain-like or saddle-like convoluted head whose interior is chambered — not one clean hollow.</div></div>
+<div class="fam"><div class="fh"><b>Peziza</b><span>smooth, veined or pitted · soil or duff · print no print / not applicable</span></div><div class="ft" style="margin-top:10px"><span class="lab">the tell</span>A brittle stalkless cup, brown outside and smooth within, on soil, burns or wood chips.</div></div>
+<div class="fam"><div class="fh"><b>Usnea</b><span>none — a lichen or a crust · bark or rock, in place · print no print / not applicable</span></div><div class="ft" style="margin-top:10px"><span class="lab">the tell</span>Pendulous and pale; pull a strand apart and an elastic white cord runs down the middle.</div></div>
+<div class="fam"><div class="fh"><b>Letharia</b><span>none — a lichen or a crust · bark or rock, in place · print no print / not applicable</span></div><div class="ft" style="margin-top:10px"><span class="lab">the tell</span>Chartreuse-yellow shrubby tufts on conifer bark. The colour is the identification.</div></div>
+<div class="fam"><div class="fh"><b>Cladonia</b><span>none — a lichen or a crust · soil or duff · print no print / not applicable</span></div><div class="ft" style="margin-top:10px"><span class="lab">the tell</span>A squamulose mat sending up podetia — stalks, cups, or red-tipped clubs.</div></div>
+<div class="fam"><div class="fh"><b>Peltigera</b><span>none — a lichen or a crust · soil or duff · print no print / not applicable</span></div><div class="ft" style="margin-top:10px"><span class="lab">the tell</span>Broad floppy lobes with raised veins and rhizines on the underside.</div></div>
+<div class="fam"><div class="fh"><b>Hypomyces</b><span>none — a lichen or a crust · another fungus · print no print / not applicable</span></div><div class="ft" style="margin-top:10px"><span class="lab">the tell</span>A pimpled coloured crust that has swallowed its host's gills entirely.</div></div>
+<div class="fam"><div class="fh"><b>Asterophora</b><span>gills · another fungus · print white or cream</span></div><div class="ft" style="margin-top:10px"><span class="lab">the tell</span>Small pale fruit bodies growing straight out of a rotting Russula or Lactarius.</div></div>
+</div>
+<div class="note"><b>A tell is a starting point, not a determination.</b> Each of these gets you to a genus
+quickly and honestly. Getting from a genus to a species is a different job, and for a good third of the
+genera above it is a job for a microscope &mdash; see section nine.</div>
+
+</section>
+
+<section id="confuse">
+<div class="sec-head"><p class="sec-num">Eight</p><h2>The pairs that get confused</h2></div>
+<p class="lead">Six separations worth being able to make cold. Two of them are the ones that put people in hospital.</p>
+<div class="conf">
+<div class="cf"><b>Amanita against Agaricus and the lepiotoids</b><p>All three can be a white mushroom with free gills and a ring on a stipe.</p><span class="sep">how to settle it</span><p>Take a print and dig the base. <i>Agaricus</i> prints chocolate and has no volva. Lepiotoids print white (or green in <i>Chlorophyllum</i>) and have a sliding ring on a smooth stipe. <i>Amanita</i> prints white and has a universal veil at the base — a sac, a rim, or warts — which is frequently buried. A knife-cut collection throws that character away, and it is the character that matters most in the whole of mycology.</p></div>
+<div class="cf"><b>Gills against false gills against folds</b><p>Chanterelles are called chanterelles because of what is under the cap, and people read it wrong.</p><span class="sep">how to settle it</span><p>A true gill is a thin blade with two free faces; run a fingernail across it and it breaks cleanly. A false gill is a blunt fold of the cap flesh itself, forking and running into its neighbours; it deforms rather than breaks. <i>Cantharellus</i> and <i>Craterellus</i> have folds. <i>Hygrophoropsis</i> has true gills, and so do the <i>Omphalotus</i> species that are confused with them.</p></div>
+<div class="cf"><b>Bolete against polypore</b><p>Both have pores. The distinction is textural, not visual.</p><span class="sep">how to settle it</span><p>In a bolete the tube layer is soft and lifts cleanly away from the cap flesh as a mat. In a polypore the tubes are fused to a tough or woody context and cannot be separated. Boletes are almost all terrestrial and ectomycorrhizal; polypores are almost all on wood and saprotrophic or parasitic. <i>Albatrellus</i> is the fleshy stalked exception that proves the rule.</p></div>
+<div class="cf"><b>Morchella against Gyromitra and Verpa</b><p>Three spring ascomycetes that a photograph will not separate.</p><span class="sep">how to settle it</span><p>Slice it lengthwise. <i>Morchella</i> is one clean hollow from the tip of the pitted head to the base of the stipe, and the head is fused to the stipe along its length. <i>Verpa</i> hangs from the stipe apex like a thimble and the stipe is stuffed with cottony tissue. <i>Gyromitra</i> is convoluted rather than pitted and the interior is chambered. Gyromitrin, in the last of those, is not neutralised by any reliable field or kitchen procedure.</p></div>
+<div class="cf"><b>Galerina against anything small and brown on wood</b><p>Small brown mushrooms on wood are the classic hard case, and one of the genera in that group carries amatoxins.</p><span class="sep">how to settle it</span><p>This is the situation where a field key stops being useful. A rusty-brown print, a ring, and a wood substrate narrows it, but the genus contains species separated on microscopic characters. Collect it, print it, dry it, and take it to someone with a scope.</p></div>
+<div class="cf"><b>Chlorophyllum molybdites on a lawn</b><p>It looks like a parasol mushroom and is the most frequent cause of mushroom poisoning in North America.</p><span class="sep">how to settle it</span><p>The separating character is the mature spore print, which is dull green rather than white — and it will read white from a young cap. Any large scaly lepiotoid from a lawn or a park gets a full-length print from a mature cap before it gets a name.</p></div>
+</div><div class="never">
+<b>Nothing on this card tells you whether a fungus is edible.</b>
+There is no edibility column, and that is a decision rather than an oversight. The genera that kill people
+sit alongside harmless ones and are separated by characters &mdash; a volva under the duff, a green tint in a
+mature print, an amyloid reaction on a slide &mdash; that a printed card cannot verify on your behalf.
+People are poisoned in the gap between &ldquo;the key came out at X&rdquo; and &ldquo;therefore I ate it&rdquo;,
+and that gap does not close by reading more carefully. Use this card to <em>identify</em>. Take the eating
+question to a regional expert with the specimen in hand, and to a poison centre if anyone has already eaten
+something.
+</div>
+</section>
+
+<section id="voucher">
+<div class="sec-head"><p class="sec-num">Nine</p><h2>Collecting, drying, and where the field stops</h2></div>
+<p class="lead">How to make a specimen that is still worth something in ten years, and an honest account of what this card cannot do.</p>
+
+<h3>Collecting</h3>
+<p>A fruit body is the reproductive organ of a mycelium that may be decades old and hectares wide, so
+picking it is closer to picking an apple than to pulling a plant. The litter layer it sits in is not:
+raking duff damages the thing you came to study. Lift the whole fruit body including the stipe base, put
+the duff back, and leave undersized and overmature bodies where they are. Take what you will actually
+describe and dry &mdash; a basket that rots in the car is a loss with nothing to set against it.</p>
+<p>Get permission on private land. Check the rules before collecting in a National Park, a Wilderness or a
+research natural area, where collecting is often restricted or prohibited outright. Record locality
+precisely enough that the collection can be relocated, and blur or withhold coordinates publicly for
+rare taxa.</p>
+
+<h3>Drying</h3>
+<p>Fungi rot faster than they dry unless you help. Halve or slice anything thicker than a thumb, spread it
+in a single layer, and run air over it warm rather than hot.</p>
+<ul class="chk">
+  <li><b>40&ndash;45&nbsp;°C with airflow</b> is the usual working compromise. It is a starting point to adapt,
+    not a standard.</li>
+  <li>Above about <b>50&nbsp;°C</b> the DNA in the tissue degrades and the specimen cooks rather than dries.
+    If you may ever want to sequence it, stay below that.</li>
+  <li>Below about <b>35&nbsp;°C</b> a fleshy cap can spoil before it is dry.</li>
+  <li>Take a <b>DNA subsample into silica</b> before drying if you can. It costs a minute and it is the
+    difference between a specimen that can be sequenced cleanly and one that cannot.</li>
+  <li>Dry it until it snaps rather than bends, then seal it against reabsorption and against insects.</li>
+</ul>
+
+<h3>The label</h3>
+<p>The label carries what the dried specimen lost. At minimum: collector, number, date, locality with
+coordinates and elevation, habitat and the dominant trees, substrate and host, habit, fresh dimensions,
+odour, colour changes on cutting, spore print colour, any spot tests, and the determiner. A dried
+<i>Russula</i> without a note of its print colour and its iron reaction is close to worthless; with them
+it is a usable record.</p>
+
+<h3>Where the field stops</h3>
+<p>A large share of the genera on this card cannot be taken to species in the field by anyone.
+<i>Cortinarius</i>, <i>Inocybe</i>, <i>Russula</i>, <i>Entoloma</i>, <i>Mycena</i>, <i>Galerina</i> and most
+crusts need spore measurements and ornamentation, the amyloid or dextrinoid reaction in Melzer's,
+cystidia, pileipellis structure, clamp connections &mdash; and increasingly, sequencing. Several of them
+contain species complexes that were only separated once sequencing arrived, which means field guides
+older than about fifteen years apply names that have since been split.</p>
+<p>That is not a reason to stop at the genus. It is a reason to write <code>cf.</code> or <code>aff.</code>
+in front of a species epithet and let the determination happen where it can be made. Everything this card
+teaches you to record is what makes that later determination possible.</p>
+
+<div class="note"><b>The companion app.</b> <a href="collection-sheet.html">Collection Sheet</a> records all
+of this on a tablet in the field &mdash; substrate and host, habit, hymenophore, veil characters, the spore
+print with a colour picker, spot tests, drying log &mdash; and computes richness, Chao1, guild spectrum and
+a host association matrix from the collections. It carries no edibility field either.</div>
+
+</section>
+
+<footer>
+  <p><b>Fungal Characters</b> — part of the CSRBT ecology kit. Companion app:
+  <a href="collection-sheet.html">Collection Sheet</a>. Botanical equivalent:
+  <a href="plant-characters.html">Plant Characters</a>. Terms:
+  <a href="ecology-glossary.html">Glossary</a>. Hub: <a href="ecology.html">the kit</a>.</p>
+  <p>Drawn glyphs are schematic and deliberately so: they show the character a key names, not a portrait of
+  a species. Guild assignments are genus-level priors. No part of this card carries edibility information,
+  and none should be inferred from it.</p>
+</footer>
+</div>
+
+<script>
+var FK = [{"g": "Amanita", "hym": ["gills"], "sub": ["soil"], "prt": ["whitecream"], "veil": ["volva"], "stipe": ["central"], "flesh": ["fibrous"], "tells": ["volva"], "diag": "Free white gills, a white print, and a universal veil that leaves either a sac or warts. Dig the base out whole — the volva is often entirely below the duff, and cutting the stipe destroys the character that matters most."}, {"g": "Russula", "hym": ["gills"], "sub": ["soil"], "prt": ["whitecream"], "veil": ["none"], "stipe": ["central"], "flesh": ["brittle"], "tells": ["chalk"], "diag": "The stipe snaps clean like a stick of chalk instead of tearing into fibres. No latex, no veil, no ring."}, {"g": "Lactarius", "hym": ["gills"], "sub": ["soil"], "prt": ["whitecream"], "veil": ["none"], "stipe": ["central"], "flesh": ["latex"], "tells": ["latex"], "diag": "Cut a gill and it bleeds. Note the latex colour, whether it changes in the air, and whether it stains the gills."}, {"g": "Tricholoma", "hym": ["gills"], "sub": ["soil"], "prt": ["whitecream"], "veil": ["none"], "stipe": ["central"], "flesh": ["fibrous"], "tells": [], "diag": "Fleshy, terrestrial, white-printed, with sinuate gills and no veil remnants at all. Odour is the working character in the genus."}, {"g": "Hygrophorus", "hym": ["gills"], "sub": ["soil"], "prt": ["whitecream"], "veil": ["none"], "stipe": ["central"], "flesh": ["waxy"], "tells": [], "diag": "Thick, waxy, widely spaced gills that feel greasy between finger and thumb, running slightly down the stipe."}, {"g": "Clitocybe", "hym": ["gills"], "sub": ["litter"], "prt": ["whitecream"], "veil": ["none"], "stipe": ["central"], "flesh": ["fibrous"], "tells": [], "diag": "Funnel-shaped cap, decurrent gills, white print, in litter. A large and genuinely difficult genus."}, {"g": "Laccaria", "hym": ["gills"], "sub": ["soil"], "prt": ["whitecream"], "veil": ["none"], "stipe": ["central"], "flesh": ["fibrous"], "tells": [], "diag": "Thick, widely spaced, flesh-pink gills over a fibrous twisted stipe; common on disturbed ground and roadsides."}, {"g": "Armillaria", "hym": ["gills"], "sub": ["living"], "prt": ["whitecream"], "veil": ["ring"], "stipe": ["central"], "flesh": ["fibrous"], "tells": ["rhizo"], "diag": "Black shoestring rhizomorphs under the bark, a ring, and dense clusters at the root collar of a tree it is killing."}, {"g": "Lepiota / Macrolepiota", "hym": ["gills"], "sub": ["litter"], "prt": ["whitecream"], "veil": ["ring"], "stipe": ["central"], "flesh": ["fibrous"], "tells": [], "diag": "Scaly cap, free white gills, and a ring that slides up and down a smooth stipe."}, {"g": "Chlorophyllum", "hym": ["gills"], "sub": ["litter"], "prt": ["green"], "veil": ["ring"], "stipe": ["central"], "flesh": ["fibrous"], "tells": [], "diag": "Lepiota-like in every respect except the mature print, which is dull green. Always print a lawn lepiotoid."}, {"g": "Agaricus", "hym": ["gills"], "sub": ["litter"], "prt": ["choc"], "veil": ["ring"], "stipe": ["central"], "flesh": ["fibrous"], "tells": [], "diag": "Free gills pink then chocolate, a ring, a chocolate print, and no volva. Check the base anyway."}, {"g": "Pluteus", "hym": ["gills"], "sub": ["wood"], "prt": ["pink"], "veil": ["none"], "stipe": ["central"], "flesh": ["fibrous"], "tells": [], "diag": "Pink print, free gills, on wood, with neither ring nor volva. That combination is the genus."}, {"g": "Entoloma", "hym": ["gills"], "sub": ["soil"], "prt": ["pink"], "veil": ["none"], "stipe": ["central"], "flesh": ["fibrous"], "tells": [], "diag": "Pink print from a terrestrial mushroom with attached gills. A hard genus that needs a scope for species."}, {"g": "Cortinarius", "hym": ["gills"], "sub": ["soil"], "prt": ["rust"], "veil": ["cortina"], "stipe": ["central"], "flesh": ["fibrous"], "tells": ["cortina"], "diag": "A cobwebby cortina when young, a rusty band on the stipe when older, and a rusty print. The largest agaric genus there is."}, {"g": "Inocybe", "hym": ["gills"], "sub": ["soil"], "prt": ["clay"], "veil": ["none"], "stipe": ["central"], "flesh": ["fibrous"], "tells": ["spermatic"], "diag": "Radially fibrillose cap that splits at the margin, dull brown print, and a sharp spermatic odour."}, {"g": "Hebeloma", "hym": ["gills"], "sub": ["soil"], "prt": ["clay"], "veil": ["none"], "stipe": ["central"], "flesh": ["fibrous"], "tells": ["radish"], "diag": "Pale viscid cap, clay-brown print, beaded gill edges when young, and a cut-radish odour."}, {"g": "Gymnopilus", "hym": ["gills"], "sub": ["wood"], "prt": ["rust"], "veil": ["zone"], "stipe": ["central"], "flesh": ["fibrous"], "tells": [], "diag": "Orange, bitter, clustered on wood, rusty print, usually with a ring zone."}, {"g": "Hypholoma", "hym": ["gills"], "sub": ["wood"], "prt": ["purple"], "veil": ["zone"], "stipe": ["central"], "flesh": ["fibrous"], "tells": [], "diag": "Tight clusters on conifer stumps, greenish-yellow tones, purple-brown print."}, {"g": "Coprinopsis / Coprinellus", "hym": ["gills"], "sub": ["litter"], "prt": ["black"], "veil": ["zone"], "stipe": ["central"], "flesh": ["fibrous"], "tells": ["deliq"], "diag": "The gills autodigest into black ink from the margin inward. Take the print early or not at all."}, {"g": "Pleurotus", "hym": ["gills"], "sub": ["wood"], "prt": ["whitecream"], "veil": ["none"], "stipe": ["lateral"], "flesh": ["fibrous"], "tells": [], "diag": "Decurrent gills on a lateral or absent stipe, shelving from hardwood."}, {"g": "Crepidotus", "hym": ["gills"], "sub": ["wood"], "prt": ["brown"], "veil": ["none"], "stipe": ["lateral"], "flesh": ["fibrous"], "tells": [], "diag": "A small sessile shell with no stipe whatever, and a brown print. That pairing is diagnostic."}, {"g": "Mycena", "hym": ["gills"], "sub": ["wood"], "prt": ["whitecream"], "veil": ["none"], "stipe": ["central"], "flesh": ["fibrous"], "tells": [], "diag": "Small, conic to bell-shaped, translucent-striate and fragile, in troops on wood or litter."}, {"g": "Marasmius", "hym": ["gills"], "sub": ["litter"], "prt": ["whitecream"], "veil": ["none"], "stipe": ["central"], "flesh": ["tough"], "tells": [], "diag": "A wiry tough stipe, and a dried cap that revives when wetted instead of rotting."}, {"g": "Suillus", "hym": ["pores"], "sub": ["soil"], "prt": ["olive"], "veil": ["ring"], "stipe": ["central"], "flesh": ["fibrous"], "tells": ["glutpine"], "diag": "A glutinous cap, often a ring or a glandular-dotted stipe, always with a pine or larch. Among the most host-specific fungi you will find."}, {"g": "Boletus s.l.", "hym": ["pores"], "sub": ["soil"], "prt": ["olive"], "veil": ["none"], "stipe": ["central"], "flesh": ["fibrous"], "tells": [], "diag": "A soft tube layer that peels cleanly away from the cap flesh — that is what separates a bolete from a polypore."}, {"g": "Leccinum", "hym": ["pores"], "sub": ["soil"], "prt": ["olive"], "veil": ["none"], "stipe": ["scabers"], "flesh": ["fibrous"], "tells": ["scabers"], "diag": "Dark tufted scabers on a pale stipe. In the field this character alone is enough."}, {"g": "Trametes", "hym": ["pores"], "sub": ["wood"], "prt": ["none"], "veil": ["none"], "stipe": ["lateral"], "flesh": ["tough"], "tells": [], "diag": "A thin, flexible, zonate bracket with small round pores; white rot in the wood behind it."}, {"g": "Ganoderma", "hym": ["pores"], "sub": ["living"], "prt": ["brown"], "veil": ["none"], "stipe": ["lateral"], "flesh": ["tough"], "tells": ["varnish"], "diag": "A varnished, laccate crust, and brown spore dust settled on everything below it."}, {"g": "Laetiporus", "hym": ["pores"], "sub": ["living"], "prt": ["none"], "veil": ["none"], "stipe": ["lateral"], "flesh": ["fibrous"], "tells": ["orange"], "diag": "Bright orange overlapping shelves on heartwood, causing a brown cubical rot in a living tree."}, {"g": "Fomitopsis", "hym": ["pores"], "sub": ["wood"], "prt": ["none"], "veil": ["none"], "stipe": ["lateral"], "flesh": ["tough"], "tells": [], "diag": "A hard perennial hoof on conifer wood, with brown cubical rot beneath it."}, {"g": "Phaeolus", "hym": ["pores"], "sub": ["living"], "prt": ["none"], "veil": ["none"], "stipe": ["central"], "flesh": ["fibrous"], "tells": [], "diag": "A velvety yellow-to-rust rosette at the base of a conifer — root and butt rot, usually Douglas-fir."}, {"g": "Albatrellus", "hym": ["pores"], "sub": ["soil"], "prt": ["whitecream"], "veil": ["none"], "stipe": ["central"], "flesh": ["fibrous"], "tells": [], "diag": "A fleshy stalked polypore growing out of soil rather than wood, under conifers. Unusual and memorable."}, {"g": "Hydnum", "hym": ["teeth"], "sub": ["soil"], "prt": ["whitecream"], "veil": ["none"], "stipe": ["central"], "flesh": ["brittle"], "tells": [], "diag": "Soft spines under a chanterelle-like cap; flesh pale and brittle."}, {"g": "Sarcodon", "hym": ["teeth"], "sub": ["soil"], "prt": ["clay"], "veil": ["none"], "stipe": ["central"], "flesh": ["tough"], "tells": [], "diag": "A coarse scaly cap over brown spines, usually bitter, under conifers."}, {"g": "Hericium", "hym": ["teeth"], "sub": ["wood"], "prt": ["whitecream"], "veil": ["none"], "stipe": ["lateral"], "flesh": ["fibrous"], "tells": [], "diag": "A cascade of white spines from a wound or a broken limb on hardwood."}, {"g": "Cantharellus", "hym": ["ridges"], "sub": ["soil"], "prt": ["whitecream"], "veil": ["none"], "stipe": ["central"], "flesh": ["fibrous"], "tells": ["apricot"], "diag": "Blunt forking ridges running down the stipe — press one and it does not break like a gill. Apricot odour."}, {"g": "Craterellus", "hym": ["ridges"], "sub": ["soil"], "prt": ["whitecream"], "veil": ["none"], "stipe": ["central"], "flesh": ["fibrous"], "tells": [], "diag": "A hollow trumpet with a nearly smooth or shallowly wrinkled outer surface."}, {"g": "Stereum", "hym": ["smooth"], "sub": ["wood"], "prt": ["whitecream"], "veil": ["none"], "stipe": ["lateral"], "flesh": ["tough"], "tells": [], "diag": "A thin leathery bracket whose underside is smooth — no pores, no teeth, no gills."}, {"g": "Xylaria", "hym": ["smooth"], "sub": ["wood"], "prt": ["none"], "veil": ["none"], "stipe": ["central"], "flesh": ["tough"], "tells": [], "diag": "Black carbonaceous clubs or fingers, white inside when cut."}, {"g": "Lycoperdon / Calvatia", "hym": ["gleba"], "sub": ["litter"], "prt": ["none"], "veil": ["none"], "stipe": ["central"], "flesh": ["fibrous"], "tells": [], "diag": "The spore mass matures sealed inside and leaves through an apical pore or a collapsing wall."}, {"g": "Geastrum", "hym": ["gleba"], "sub": ["litter"], "prt": ["none"], "veil": ["none"], "stipe": ["central"], "flesh": ["tough"], "tells": [], "diag": "The outer wall splits into rays and folds back, lifting the spore sac clear of the ground."}, {"g": "Rhizopogon", "hym": ["gleba"], "sub": ["soil"], "prt": ["none"], "veil": ["none"], "stipe": ["central"], "flesh": ["fibrous"], "tells": [], "diag": "Hypogeous, potato-like, with rhizomorphs strapped across the skin. No stipe, no gills, always with a conifer."}, {"g": "Morchella", "hym": ["smooth"], "sub": ["soil"], "prt": ["none"], "veil": ["none"], "stipe": ["central"], "flesh": ["fibrous"], "tells": ["hollow"], "diag": "A pitted head continuous with the stipe, and a single clean hollow from the tip to the base when sliced lengthwise."}, {"g": "Gyromitra", "hym": ["smooth"], "sub": ["soil"], "prt": ["none"], "veil": ["none"], "stipe": ["central"], "flesh": ["fibrous"], "tells": [], "diag": "A brain-like or saddle-like convoluted head whose interior is chambered — not one clean hollow."}, {"g": "Peziza", "hym": ["smooth"], "sub": ["soil"], "prt": ["none"], "veil": ["none"], "stipe": ["central"], "flesh": ["brittle"], "tells": [], "diag": "A brittle stalkless cup, brown outside and smooth within, on soil, burns or wood chips."}, {"g": "Usnea", "hym": ["none"], "sub": ["bark"], "prt": ["none"], "veil": ["none"], "stipe": ["central"], "flesh": ["tough"], "tells": ["cord"], "diag": "Pendulous and pale; pull a strand apart and an elastic white cord runs down the middle."}, {"g": "Letharia", "hym": ["none"], "sub": ["bark"], "prt": ["none"], "veil": ["none"], "stipe": ["lateral"], "flesh": ["tough"], "tells": [], "diag": "Chartreuse-yellow shrubby tufts on conifer bark. The colour is the identification."}, {"g": "Cladonia", "hym": ["none"], "sub": ["soil"], "prt": ["none"], "veil": ["none"], "stipe": ["central"], "flesh": ["tough"], "tells": [], "diag": "A squamulose mat sending up podetia — stalks, cups, or red-tipped clubs."}, {"g": "Peltigera", "hym": ["none"], "sub": ["soil"], "prt": ["none"], "veil": ["none"], "stipe": ["lateral"], "flesh": ["tough"], "tells": [], "diag": "Broad floppy lobes with raised veins and rhizines on the underside."}, {"g": "Hypomyces", "hym": ["none"], "sub": ["fungus"], "prt": ["none"], "veil": ["none"], "stipe": ["central"], "flesh": ["tough"], "tells": [], "diag": "A pimpled coloured crust that has swallowed its host's gills entirely."}, {"g": "Asterophora", "hym": ["gills"], "sub": ["fungus"], "prt": ["whitecream"], "veil": ["none"], "stipe": ["central"], "flesh": ["fibrous"], "tells": [], "diag": "Small pale fruit bodies growing straight out of a rotting Russula or Lactarius."}];
+var FQ = [["hym", "The spore-bearing surface", [["gills", "gills"], ["pores", "pores or tubes"], ["teeth", "teeth or spines"], ["ridges", "blunt ridges / false gills"], ["smooth", "smooth, veined or pitted"], ["gleba", "enclosed gleba"], ["none", "none — a lichen or a crust"]]], ["sub", "Growing out of", [["soil", "soil or duff"], ["wood", "dead wood"], ["litter", "leaf or needle litter"], ["living", "a living tree or its roots"], ["bark", "bark or rock, in place"], ["fungus", "another fungus"]]], ["prt", "Spore print", [["whitecream", "white or cream"], ["pink", "pink or salmon"], ["rust", "rusty ochre"], ["clay", "clay or dull brown"], ["olive", "olive-brown"], ["purple", "purple-brown or chocolate"], ["brown", "plain brown"], ["black", "black"], ["green", "dull green"], ["none", "no print / not applicable"]]], ["veil", "Veil evidence", [["volva", "a volva or sac at the base"], ["ring", "a membranous ring"], ["cortina", "a cobwebby cortina"], ["zone", "a ring zone only"], ["none", "none"]]], ["stipe", "Stipe", [["central", "central"], ["lateral", "lateral or absent"], ["scabers", "with scabers"], ["rooting", "with a rooting base"]]], ["flesh", "Flesh", [["brittle", "brittle, snaps like chalk"], ["latex", "bleeds latex"], ["fibrous", "fibrous, tears"], ["tough", "tough or leathery"], ["waxy", "waxy and greasy"]]]];
+var FT = [["volva", "a sac or volva at the base"], ["chalk", "the stipe snaps like chalk"], ["latex", "it bleeds latex"], ["cortina", "a cobwebby veil"], ["rhizo", "black shoestring rhizomorphs"], ["scabers", "scabers on the stipe"], ["deliq", "the gills are dissolving"], ["glutpine", "glutinous cap, under pine"], ["apricot", "smells of apricot"], ["spermatic", "a sharp spermatic odour"], ["radish", "smells of cut radish"], ["hollow", "one clean hollow, tip to base"], ["cord", "an elastic central cord"], ["varnish", "a varnished crust"], ["orange", "bright orange shelves on heartwood"]];
+</script>
+<script>
+(function(){
+  var picked = {}, tells = {};
+  function el(id){ return document.getElementById(id); }
+  function esc(s){ return String(s==null?"":s).replace(/[&<>"]/g,function(c){
+    return {"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;"}[c]; }); }
+
+  function render(){
+    var q = el("fkq"); q.innerHTML = "";
+    FQ.forEach(function(Q){
+      var k=Q[0], label=Q[1], opts=Q[2];
+      var d=document.createElement("div"); d.className="kq";
+      var p=document.createElement("p"); p.className="ql"; p.textContent=label; d.appendChild(p);
+      var w=document.createElement("div"); w.className="kopts";
+      opts.forEach(function(o){
+        var b=document.createElement("button"); b.type="button"; b.className="kopt"+(picked[k]===o[0]?" on":"");
+        b.textContent=o[1];
+        b.addEventListener("click",function(){
+          if(picked[k]===o[0]) delete picked[k]; else picked[k]=o[0];
+          render(); score();
+        });
+        w.appendChild(b);
+      });
+      d.appendChild(w); q.appendChild(d);
+    });
+    var tw = el("fktell"); tw.innerHTML="";
+    FT.forEach(function(t){
+      var b=document.createElement("button"); b.type="button"; b.className="tell"+(tells[t[0]]?" on":"");
+      b.textContent=t[1];
+      b.addEventListener("click",function(){
+        if(tells[t[0]]) delete tells[t[0]]; else tells[t[0]]=1;
+        render(); score();
+      });
+      tw.appendChild(b);
+    });
+  }
+
+  function optLabel(k,v){
+    for(var i=0;i<FQ.length;i++) if(FQ[i][0]===k){
+      var o=FQ[i][2]; for(var j=0;j<o.length;j++) if(o[j][0]===v) return o[j][1];
+    }
+    return v;
+  }
+  function qLabel(k){ for(var i=0;i<FQ.length;i++) if(FQ[i][0]===k) return FQ[i][1]; return k; }
+  function tellLabel(k){ for(var i=0;i<FT.length;i++) if(FT[i][0]===k) return FT[i][1]; return k; }
+
+  function score(){
+    var out = el("fkout");
+    var asked = Object.keys(picked), tk = Object.keys(tells);
+    if(!asked.length && !tk.length){
+      out.innerHTML = '<p style="color:var(--muted);font-size:15px;margin:0">'+
+        'Answer anything above and the ranking appears. Two or three characters is usually enough to '+
+        'get the genus into the top few.</p>';
+      return;
+    }
+    var rows = FK.map(function(f){
+      var hit=0, miss=[];
+      asked.forEach(function(k){
+        var v=picked[k];
+        if((f[k]||[]).indexOf(v)>=0) hit++;
+        else miss.push(qLabel(k).toLowerCase()+" — you chose &ldquo;"+esc(optLabel(k,v))+
+             "&rdquo;, this genus shows &ldquo;"+esc(optLabel(k,(f[k]||["—"])[0]))+"&rdquo;");
+      });
+      var tHit=0, tMiss=0;
+      tk.forEach(function(t){ if(f.tells.indexOf(t)>=0) tHit++; else tMiss++; });
+      return { f:f, hit:hit, miss:miss, tHit:tHit, tMiss:tMiss,
+               score: hit + tHit*1.5 - miss.length*2 };
+    }).sort(function(a,b){ return b.score-a.score; });
+
+    var best = rows[0];
+    var clean = rows.filter(function(r){ return r.miss.length===0 && r.tMiss===0; });
+    var h = "";
+    if(!clean.length){
+      h += '<div class="warn" style="margin-top:0"><b>Nothing matches every character.</b> '+
+        'Either one of the characters was read differently than the key expects, or the genus is not '+
+        'among the fifty-one here — which is likely, since there are thousands. The closest candidates '+
+        'are below, each with the character that ruled it out.</div>';
+    }
+    var show = (clean.length?clean:rows).slice(0,6);
+    show.forEach(function(r){
+      var tot = asked.length + tk.length;
+      h += '<div class="cand'+(r.miss.length||r.tMiss?' part':'')+'">'+
+        '<div class="ch"><b>'+esc(r.f.g)+'</b><span class="sc">'+(r.hit+r.tHit)+' of '+tot+' matched</span></div>'+
+        '<p>'+r.f.diag+'</p>';
+      if(r.miss.length) h += '<p class="miss"><b>Conflict:</b> '+r.miss.join('; ')+'.</p>';
+      if(r.tMiss) h += '<p class="miss">You reported '+r.tMiss+' giveaway'+(r.tMiss===1?"":"s")+
+        ' this genus does not show.</p>';
+      h += '</div>';
+    });
+    if(clean.length===1){
+      h += '<div class="note"><b>One genus matches everything you entered</b> — which makes it the '+
+        'hypothesis to test, not the answer. Take a spore print if you have not, check the base of the '+
+        'stipe, and confirm against a monograph or a regional key before the name goes on a label.</div>';
+    } else if(clean.length>1){
+      h += '<div class="note"><b>'+clean.length+' genera match everything you entered.</b> Add a character '+
+        '— the spore print separates more of these than anything else — or work through the tells above.</div>';
+    }
+    out.innerHTML = h;
+  }
+
+  el("fkreset").addEventListener("click",function(){ picked={}; tells={}; render(); score(); });
+  render(); score();
+})();
+</script>
+</body>
+</html>

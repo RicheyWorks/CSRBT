@@ -1,0 +1,1430 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Collection Sheet — macrofungi records, spore prints &amp; guild</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,600;9..144,700&family=Nunito+Sans:wght@400;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap">
+<style>
+  :root {
+    color-scheme: light;
+    --page:#F5F1E6; --surface:#FFFDF7; --surface-2:#F3EEE0; --ink:#23281F; --ink-2:#4B5344;
+    --muted:#8B8B7B; --border:#E3DCC9; --s1:#2E7D4F; --s1-deep:#236240; --s2:#C0592B; --s3:#2B6C8F;
+    --soft:#E9F0E7; --warn-bg:#F6EAD8; --danger:#B23A32; --danger-bg:#F6E7E5; --gold:#B8860B;
+    --shadow:0 1px 2px rgba(35,40,31,.06),0 10px 28px rgba(35,40,31,.08);
+    --head:"Fraunces",Georgia,serif;
+    --body:"Nunito Sans",system-ui,-apple-system,sans-serif;
+    --mono:"JetBrains Mono",ui-monospace,Menlo,monospace;
+  }
+  * { box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
+  body { margin:0; background:var(--page); color:var(--ink); font:16px/1.5 var(--body);
+    -webkit-font-smoothing:antialiased; overscroll-behavior-y:contain; }
+  .app { max-width:960px; margin:0 auto; padding:14px 16px calc(104px + env(safe-area-inset-bottom)); }
+  .top { display:flex; align-items:baseline; justify-content:space-between; gap:10px; padding:6px 2px 12px; flex-wrap:wrap; }
+  .brand { font-family:var(--head); font-weight:700; font-size:22px; letter-spacing:-0.01em; }
+  .brand span { color:var(--s1); }
+  .top a { font-family:var(--mono); font-size:11.5px; color:var(--muted); text-decoration:none;
+    display:inline-flex; align-items:center; min-height:44px; padding:0 6px; margin:-10px -6px; touch-action:manipulation; }
+  .top a:hover { color:var(--s1); }
+
+  .tabbar { position:fixed; left:0; right:0; bottom:0; z-index:20;
+    background:color-mix(in srgb, var(--surface) 94%, transparent); backdrop-filter:blur(10px);
+    border-top:1px solid var(--border); padding:8px max(8px, env(safe-area-inset-left)) calc(8px + env(safe-area-inset-bottom)); }
+  .tabbar .row { max-width:960px; margin:0 auto; display:grid; grid-template-columns:repeat(6,1fr); gap:4px; }
+  .tab { display:flex; flex-direction:column; align-items:center; gap:2px; border:0; background:none;
+    font:700 10.5px var(--body); color:var(--muted); padding:7px 1px; border-radius:12px; cursor:pointer;
+    min-height:54px; touch-action:manipulation; transition:background .15s ease, color .15s ease; }
+  .tab .ico { font-size:20px; line-height:1; }
+  .tab.on { color:var(--s1); background:var(--soft); }
+  .tab:active { transform:scale(.96); }
+  .pane { display:none; animation:fade .18s ease; }
+  .pane.on { display:block; }
+  @keyframes fade { from{opacity:0;transform:translateY(4px);} to{opacity:1;transform:none;} }
+  @media (prefers-reduced-motion: reduce){ .pane{animation:none;} }
+
+  h2 { font-family:var(--head); font-weight:600; font-size:20px; margin:6px 0 2px; }
+  h3 { font-family:var(--head); font-weight:600; font-size:16.5px; margin:16px 0 4px; }
+  .hint { color:var(--muted); font-size:14px; margin:0 0 12px; }
+  .card { background:var(--surface); border:1px solid var(--border); border-radius:16px;
+    padding:16px; box-shadow:var(--shadow); margin-bottom:14px; }
+  .fine { font-size:12.5px; color:var(--muted); margin-top:10px; line-height:1.55; }
+
+  input[type=text], input[type=number], input[type=date], select, textarea {
+    background:var(--surface); color:var(--ink); border:1.5px solid var(--border); border-radius:12px;
+    padding:11px 14px; font:16px var(--body); min-height:48px; max-width:100%; }
+  textarea { min-height:78px; line-height:1.5; width:100%; }
+  input:focus, select:focus, textarea:focus { outline:none; border-color:var(--s1); box-shadow:0 0 0 3px rgba(46,125,79,.18); }
+  input[type=number] { width:110px; }
+  label.f { display:flex; flex-direction:column; gap:5px; font-size:13px; font-weight:700; color:var(--ink-2); min-width:0; }
+  .grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(150px,1fr)); gap:10px; }
+  .grid label.f input, .grid label.f select { width:100%; }
+
+  .btn { border:0; border-radius:12px; padding:12px 18px; font:800 15px var(--body); cursor:pointer;
+    min-height:48px; touch-action:manipulation; transition:transform .1s ease, background .15s ease; }
+  .btn:active { transform:scale(.97); }
+  .btn-go { background:var(--s1); color:#fff; } .btn-go:hover { background:var(--s1-deep); }
+  .btn-soft { background:var(--soft); color:var(--s1); }
+  .btn-ghost { background:none; border:1.5px solid var(--border); color:var(--ink-2); }
+  .btn-ghost:hover { border-color:var(--s1); color:var(--s1); }
+  .btn-row { display:flex; gap:8px; flex-wrap:wrap; margin-top:12px; align-items:end; }
+
+  .kopts { display:flex; flex-wrap:wrap; gap:8px; }
+  .kopt { border:1.5px solid var(--border); background:var(--surface); border-radius:14px; padding:10px 14px;
+    font:700 14px var(--body); color:var(--ink-2); cursor:pointer; min-height:46px; touch-action:manipulation;
+    display:inline-flex; flex-direction:column; align-items:flex-start; gap:1px; }
+  .kopt small { font-weight:400; font-size:11px; color:var(--muted); font-family:var(--mono); }
+  .kopt.on { border-color:var(--s1); background:var(--soft); color:var(--s1); }
+
+  .covscale { display:flex; flex-wrap:wrap; gap:6px; margin-top:6px; }
+  .cv { border:1.5px solid var(--border); background:var(--surface); border-radius:11px; min-width:52px;
+    padding:8px 6px; font:800 15px var(--body); color:var(--ink-2); cursor:pointer; min-height:52px;
+    display:flex; flex-direction:column; align-items:center; justify-content:center; gap:1px; touch-action:manipulation; }
+  .cv small { font:400 9.5px var(--mono); color:var(--muted); }
+  .cv.on { border-color:var(--s1); background:var(--soft); color:var(--s1); }
+  .cv.on small { color:var(--s1-deep); }
+
+  .tiles { display:flex; flex-wrap:wrap; gap:8px; margin:12px 0 2px; }
+  .tile { background:var(--surface-2); border:1px solid var(--border); border-radius:12px; padding:9px 14px; min-width:96px; }
+  .tile .v { font-family:var(--head); font-weight:700; font-size:21px; font-variant-numeric:tabular-nums; }
+  .tile .l { font-size:11px; color:var(--muted); }
+  .verdict { border-radius:12px; padding:13px 16px; margin:12px 0 2px; font-size:15.5px; line-height:1.55;
+    border-left:4px solid var(--s1); background:var(--soft); color:var(--ink-2); }
+  .verdict b { color:var(--ink); }
+  .verdict.warn { border-left-color:var(--s2); background:var(--warn-bg); }
+  .verdict.act { border-left-color:var(--danger); background:var(--danger-bg); }
+
+  .tw { overflow-x:auto; -webkit-overflow-scrolling:touch; margin:10px 0; }
+  table { border-collapse:collapse; width:100%; font-size:14px; }
+  th,td { border:1px solid var(--border); padding:6px 9px; text-align:left; vertical-align:top; white-space:nowrap; }
+  th { background:var(--soft); font-family:var(--head); font-weight:600; font-size:13px; }
+  td.n, th.n { text-align:right; font-variant-numeric:tabular-nums; font-family:var(--mono); font-size:13px; }
+  td i { font-style:italic; color:var(--ink-2); }
+
+  .rowlist { display:grid; gap:8px; margin-top:10px; }
+  .row2 { display:flex; align-items:center; gap:10px; background:var(--surface); border:1px solid var(--border);
+    border-radius:12px; padding:10px 13px; font-size:15px; }
+  .row2.inv { border-left:3px solid var(--danger); }
+  .row2 .g { flex:1; min-width:0; }
+  .row2 .g b { font-family:var(--head); font-size:15.5px; }
+  .row2 .g b i { font-style:italic; font-weight:400; color:var(--ink-2); font-size:14px; }
+  .row2 .g span { display:block; color:var(--muted); font-size:12.5px; font-family:var(--mono); margin-top:1px;
+    overflow:hidden; text-overflow:ellipsis; }
+  .row2 .cov { font-family:var(--head); font-weight:700; font-size:17px; color:var(--s1); min-width:46px; text-align:right; }
+  .row2 button { border:0; background:none; color:var(--muted); font-size:15px; padding:9px 11px; cursor:pointer; min-height:44px; min-width:44px; }
+  .row2 button:hover { color:var(--danger); }
+
+  .bars { display:grid; gap:6px; margin-top:10px; }
+  .bar { display:grid; grid-template-columns:132px 1fr 54px; gap:8px; align-items:center; font-size:13.5px; }
+  .bar .nm { font-weight:700; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+  .bar .tr { display:block; background:var(--surface-2); border:1px solid var(--border); border-radius:8px; height:20px; overflow:hidden; }
+  .bar .fl { display:block; height:100%; background:var(--s1); border-radius:7px 0 0 7px; transition:width .4s ease; }
+  .bar .fl.inv { background:var(--s2); }
+  .bar .pc { text-align:right; font-variant-numeric:tabular-nums; color:var(--ink-2); font-family:var(--mono); font-size:12.5px; }
+
+  .label { background:#fff; border:1px solid var(--ink); border-radius:2px; padding:14px 16px; margin-top:10px;
+    font:12.5px/1.5 var(--body); color:#000; max-width:440px; }
+  .label .inst { font-family:var(--head); font-weight:700; font-size:12px; letter-spacing:.06em;
+    text-transform:uppercase; text-align:center; border-bottom:1px solid #000; padding-bottom:5px; margin-bottom:7px; }
+  .label .sci { font-style:italic; font-weight:700; font-size:14px; }
+  .label .row { margin:3px 0; }
+  .label .k { font-weight:700; }
+  .label .coll { margin-top:8px; padding-top:6px; border-top:1px solid #999; display:flex; justify-content:space-between; }
+
+  pre.export { background:#23281F; color:#E8E4D5; border-radius:12px; padding:14px 16px; overflow-x:auto;
+    font:12.5px/1.65 var(--mono); max-height:340px; }
+  code { font-family:var(--mono); font-size:.82em; background:var(--surface-2); border:1px solid var(--border); border-radius:5px; padding:1px 5px; }
+
+  .toast { position:fixed; left:50%; bottom:84px; transform:translateX(-50%) translateY(90px); z-index:30;
+    background:var(--ink); color:#F5F1E6; border-radius:999px; padding:10px 22px; font:700 14px var(--body);
+    transition:transform .25s ease; pointer-events:none; max-width:88vw; text-align:center; }
+  .toast.on { transform:translateX(-50%) translateY(0); }
+
+  @media print {
+    .tabbar, .btn, .kopts, .covscale, .top a, .noprint { display:none !important; }
+    body { background:#fff; } .pane { display:block !important; }
+    .app { padding-bottom:0; } .card { break-inside:avoid; } table { font-size:10pt; }
+    pre.export { background:#fff; color:#000; border:1px solid #ccc; max-height:none; }
+    .label { break-inside:avoid; page-break-inside:avoid; }
+  }
+
+
+  /* ---- fungal additions ---- */
+  .sw { display:flex; flex-wrap:wrap; gap:7px; margin-top:6px; }
+  .swc { border:1.5px solid var(--border); background:var(--surface); border-radius:12px; padding:7px 11px 8px;
+    font:700 12.5px var(--body); color:var(--ink-2); cursor:pointer; min-height:56px; touch-action:manipulation;
+    display:flex; flex-direction:column; align-items:center; gap:5px; min-width:74px; }
+  .swc .chip { width:44px; height:18px; border-radius:5px; border:1px solid rgba(35,40,31,.28); display:block; }
+  .swc.on { border-color:var(--s1); background:var(--soft); color:var(--s1); }
+
+  .chk { display:flex; flex-wrap:wrap; gap:7px; margin-top:6px; }
+  .ck { border:1.5px solid var(--border); background:var(--surface); border-radius:999px; padding:9px 14px;
+    font:700 13.5px var(--body); color:var(--ink-2); cursor:pointer; min-height:44px; touch-action:manipulation; }
+  .ck.on { border-color:var(--s1); background:var(--soft); color:var(--s1); }
+  .ck.on::before { content:"\2713 "; }
+
+  .rg { display:grid; gap:9px; margin-top:8px; }
+  .rgi { border:1px solid var(--border); background:var(--surface); border-radius:13px; padding:11px 13px; }
+  .rgi .hd { display:flex; align-items:center; justify-content:space-between; gap:9px; flex-wrap:wrap; }
+  .rgi .nm { font-family:var(--head); font-weight:700; font-size:15px; }
+  .rgi .nm em { font-style:normal; font-family:var(--mono); font-size:11.5px; color:var(--muted); margin-left:6px; }
+  .rgi .wh { font-size:12.5px; color:var(--muted); line-height:1.5; margin-top:5px; }
+  .rgi input[type=text] { width:100%; margin-top:8px; min-height:44px; }
+  .rgi.haz { border-left:3px solid var(--s2); }
+
+  .guild { display:inline-block; font:700 10.5px var(--mono); letter-spacing:.05em; text-transform:uppercase;
+    border-radius:999px; padding:3px 9px; border:1px solid var(--border); background:var(--surface-2); color:var(--ink-2); }
+  .guild.ecm { border-color:var(--s1); color:var(--s1); background:var(--soft); }
+  .guild.woodsap, .guild.littersap { border-color:var(--s3); color:var(--s3); background:#E6EEF3; }
+  .guild.par { border-color:var(--danger); color:var(--danger); background:var(--danger-bg); }
+  .guild.lich { border-color:var(--gold); color:#7a5c07; background:#F5EFD9; }
+  .guild.myco { border-color:var(--s2); color:var(--s2); background:var(--warn-bg); }
+  .guild.mixed { border-style:dashed; }
+
+  .mx td.h0 { color:var(--muted); }
+  .mx td.h1 { background:#EDF4EA; font-weight:700; }
+  .mx td.h2 { background:var(--s1); color:#fff; font-weight:700; }
+
+  .never { border:2px solid var(--danger); background:var(--danger-bg); border-radius:14px; padding:15px 17px;
+    margin:14px 0; font-size:15px; line-height:1.6; color:var(--ink); }
+  .never b { font-family:var(--head); display:block; font-size:16px; margin-bottom:5px; color:var(--danger); }
+
+  .drylog { display:grid; grid-template-columns:repeat(auto-fit,minmax(128px,1fr)); gap:9px; margin-top:8px; }
+
+  .rail { margin:26px 0 4px; }
+  .rail .rl { font-family:var(--mono); font-size:11px; letter-spacing:.14em; text-transform:uppercase; color:var(--muted); margin:0 2px 8px; }
+  .rail .chips { display:flex; flex-wrap:wrap; gap:8px; }
+  .rail a { display:inline-flex; align-items:center; gap:7px; text-decoration:none; font:700 13.5px var(--body);
+    color:var(--ink-2); background:var(--surface); border:1px solid var(--border); border-radius:999px;
+    padding:9px 15px; min-height:44px; box-shadow:var(--shadow); touch-action:manipulation; }
+  .rail a:hover { border-color:var(--s1); color:var(--s1); }
+  .rail a[aria-current="page"] { background:var(--soft); border-color:var(--s1); color:var(--s1); }
+  .rail a.ref { font-weight:600; color:var(--muted); background:none; box-shadow:none; }
+  @media print { .rail { display:none !important; } }
+</style>
+</head>
+<body>
+<div class="app">
+  <div class="top">
+    <div class="brand">🍄 Collection <span>Sheet</span></div>
+    <a href="ecology.html">part of the ecology kit →</a>
+  </div>
+
+  <!-- ============ RECORD ============ -->
+  <section class="pane on" id="p-rec">
+    <h2>Record a collection</h2>
+    <p class="hint">One collection = one taxon, one substrate, one spot. Pick the genus, say what it
+      was growing on and out of what, then tap the characters you actually observed.</p>
+
+    <div class="card">
+      <div class="grid">
+        <label class="f">genus<select id="cGen"></select></label>
+        <label class="f">working name<input type="text" id="cName" placeholder="Suillus cf. brevipes" autocomplete="off"></label>
+        <label class="f">collection no.<input type="text" id="cNum" placeholder="RCW-2026-041" autocomplete="off"></label>
+        <label class="f">fruit bodies counted<input type="number" id="cN" min="1" step="1" value="1"></label>
+      </div>
+      <p class="fine" id="cGenTell"></p>
+
+      <h3>Substrate — what is it coming out of</h3>
+      <div class="kopts" id="cSub"></div>
+      <div class="grid" style="margin-top:10px">
+        <label class="f">host / associated tree<select id="cHost"></select></label>
+        <label class="f">distance to host stem (m)<input type="number" id="cDist" min="0" step="0.1"></label>
+      </div>
+      <p class="fine">Substrate and host are the two characters a herbarium cannot recover later and a
+        photograph rarely shows. For an ectomycorrhizal fungus the host <em>is</em> half the identification.</p>
+
+      <h3>Growth habit</h3>
+      <div class="kopts" id="cHab"></div>
+
+      <h3>Hymenophore — the spore-bearing surface</h3>
+      <div class="kopts" id="cHym"></div>
+
+      <h3>Field characters observed</h3>
+      <div class="chk" id="cChars"></div>
+
+      <div class="grid" style="margin-top:12px">
+        <label class="f">cap width (mm)<input type="number" id="cCap" min="0" step="1"></label>
+        <label class="f">stipe length (mm)<input type="number" id="cStL" min="0" step="1"></label>
+        <label class="f">stipe width (mm)<input type="number" id="cStW" min="0" step="1"></label>
+        <label class="f">fresh mass (g, optional)<input type="number" id="cMass" min="0" step="0.1"></label>
+      </div>
+      <div class="grid" style="margin-top:10px">
+        <label class="f">odour<input type="text" id="cOdour" placeholder="raphanoid / farinaceous / none" autocomplete="off"></label>
+        <label class="f">colour change on cutting<input type="text" id="cBruise" placeholder="blue in 5 s, then fading" autocomplete="off"></label>
+      </div>
+      <label class="f" style="margin-top:10px">notes<textarea id="cNotes" placeholder="Cap viscid when wet, margin appendiculate. Duff 4 cm deep. Three older bodies within 1 m, not collected."></textarea></label>
+
+      <div class="btn-row">
+        <button class="btn btn-go" id="cAdd" type="button">Add collection</button>
+        <button class="btn btn-ghost" id="cClear" type="button">Clear form</button>
+        <button class="btn btn-ghost" id="cUndo" type="button">↩ Undo last</button>
+      </div>
+      <p class="fine">There is no taste field and no edibility field. That is deliberate &mdash; see <b>Method</b>.</p>
+    </div>
+
+    <div class="card"><h3 style="margin-top:0">Collections</h3><div class="rowlist" id="cList"></div></div>
+  </section>
+
+  <!-- ============ SITE ============ -->
+  <section class="pane" id="p-site">
+    <h2>Site &amp; weather</h2>
+    <p class="hint">A fungal survey without the stand it was walked in, and without the rain that
+      triggered it, is a list of names rather than data.</p>
+
+    <div class="card">
+      <h3 style="margin-top:0">Where</h3>
+      <div class="grid">
+        <label class="f">site name<input type="text" id="sSite" placeholder="Bear Cr. old-growth" autocomplete="off"></label>
+        <label class="f">collector<input type="text" id="sObs" autocomplete="off"></label>
+        <label class="f">date<input type="date" id="sDate"></label>
+        <label class="f">latitude<input type="text" id="sLat" placeholder="45.3736" autocomplete="off"></label>
+        <label class="f">longitude<input type="text" id="sLon" placeholder="-121.6960" autocomplete="off"></label>
+        <label class="f">elevation (m)<input type="number" id="sElev" step="1"></label>
+        <label class="f">area searched (m²)<input type="number" id="sArea" step="1" placeholder="1000"></label>
+        <label class="f">search time (min)<input type="number" id="sMin" step="1" placeholder="90"></label>
+      </div>
+      <h3>Stand</h3>
+      <div class="grid">
+        <label class="f">forest / vegetation type<input type="text" id="sVeg" placeholder="Tsuga heterophylla / Pseudotsuga zone" autocomplete="off"></label>
+        <label class="f">dominant trees<input type="text" id="sTrees" placeholder="PSME, TSHE, THPL" autocomplete="off"></label>
+        <label class="f">stand age class<select id="sAge">
+          <option value="">—</option><option>regeneration</option><option>young</option>
+          <option>mature</option><option>old-growth</option><option>post-fire</option><option>mixed</option></select></label>
+        <label class="f">duff depth (cm)<input type="number" id="sDuff" step="0.5"></label>
+        <label class="f">coarse woody debris<select id="sCwd">
+          <option value="">—</option><option>none</option><option>sparse</option>
+          <option>moderate</option><option>abundant</option></select></label>
+        <label class="f">disturbance<input type="text" id="sDist" placeholder="salvage-logged 2019; light ground fire" autocomplete="off"></label>
+      </div>
+      <p class="fine">Dominant trees are not scenery. Enter them, and the host column on the Analysis tab
+        becomes a testable association rather than an anecdote.</p>
+    </div>
+
+    <div class="card">
+      <h3 style="margin-top:0">Antecedent moisture</h3>
+      <p class="hint" style="margin-bottom:8px">Most temperate macrofungi fruit on a lag after a
+        soil-wetting rain, within a temperature window. Record the trigger, not just the day you walked.</p>
+      <div class="grid">
+        <label class="f">last wetting rain — date<input type="date" id="wDate"></label>
+        <label class="f">that event (mm)<input type="number" id="wMm" min="0" step="1"></label>
+        <label class="f">7-day total (mm)<input type="number" id="w7" min="0" step="1"></label>
+        <label class="f">30-day total (mm)<input type="number" id="w30" min="0" step="1"></label>
+        <label class="f">soil temp at 10 cm (°C)<input type="number" id="wT" step="0.1"></label>
+        <label class="f">air temp (°C)<input type="number" id="wAir" step="0.1"></label>
+      </div>
+      <div id="wOut"></div>
+      <p class="fine">The lag window this page reads against &mdash; a wetting event of <b>≥25 mm</b> and a
+        flush <b>7&ndash;21 days</b> later &mdash; is a <b>placeholder rule of thumb</b>, not a calibrated model.
+        Lags differ by guild, genus, elevation and soil. Replace the numbers with your own once you have
+        two seasons of your own site's data; until then treat the readout as a prompt to think, not a
+        prediction.</p>
+    </div>
+  </section>
+
+  <!-- ============ PRINTS ============ -->
+  <section class="pane" id="p-prt">
+    <h2>Spore print &amp; spot tests</h2>
+    <p class="hint">Choose a collection, then record the two things that cannot be got from a photograph.</p>
+
+    <div class="card">
+      <label class="f">collection<select id="pPick"></select></label>
+
+      <h3>Spore print</h3>
+      <div class="sw" id="pSw"></div>
+      <div class="grid" style="margin-top:11px">
+        <label class="f">print duration (h)<input type="number" id="pHrs" min="0" step="0.5" placeholder="6"></label>
+        <label class="f">on<select id="pOn">
+          <option value="">—</option><option>white paper</option><option>black paper</option>
+          <option>half black / half white</option><option>glass slide</option><option>foil</option></select></label>
+      </div>
+      <div id="pPrintNote"></div>
+      <p class="fine">A print from a young cap can read paler than the true colour, and a thin print reads
+        paler than a thick one. Judge the colour where the deposit is heaviest, in daylight, against white.</p>
+
+      <h3>Macrochemical spot tests</h3>
+      <p class="hint" style="margin-bottom:6px">Record what you saw and where you put it. Blank means
+        not tested &mdash; which is not the same as negative, and the export keeps them apart.</p>
+      <div class="rg" id="pRg"></div>
+
+      <div class="btn-row">
+        <button class="btn btn-go" id="pSave" type="button">Save to collection</button>
+      </div>
+      <p class="fine">These reagents separate species <em>within</em> a genus. Almost none of them
+        separate genera, and none of them identifies anything on its own.</p>
+    </div>
+
+    <div class="card noprint">
+      <h3 style="margin-top:0">Handling</h3>
+      <p class="fine" style="margin-top:0">KOH is caustic and will damage an eye instantly. Phenol is
+        toxic by skin absorption and by vapour. Melzer's reagent contains chloral hydrate and is
+        controlled in some jurisdictions. Work outdoors or with ventilation, use dropper bottles
+        rather than open dishes, wear eye protection, and do not carry reagents loose in a basket
+        with your specimens.</p>
+    </div>
+  </section>
+
+  <!-- ============ ANALYSIS ============ -->
+  <section class="pane" id="p-an">
+    <h2>Analysis</h2>
+    <p class="hint">What the sheet can say once the collections are in it &mdash; and, as importantly,
+      what it cannot.</p>
+    <div class="card" id="anBox"></div>
+    <div class="card" id="anGuild"></div>
+    <div class="card" id="anHost"></div>
+    <div class="card noprint">
+      <h3 style="margin-top:0">Export</h3>
+      <div class="btn-row">
+        <button class="btn btn-go" id="csvCopy" type="button">Copy collections CSV</button>
+        <button class="btn btn-soft" id="ecoCopy" type="button">Copy field sheet</button>
+        <button class="btn btn-ghost" id="matCopy" type="button">Copy host × taxon matrix</button>
+        <button class="btn btn-ghost" id="packExport" type="button">Export genus pack</button>
+        <button class="btn btn-ghost" id="packPrompt" type="button">Copy the AI prompt</button>
+        <label class="btn btn-ghost" style="display:inline-flex;align-items:center">Import pack
+          <input type="file" id="packFile" accept=".json,application/json" style="display:none"></label>
+      </div>
+      <p class="fine" id="packStat"></p>
+      <pre class="export" id="ecoOut"># add a collection or two — the sheet builds itself</pre>
+    </div>
+  </section>
+
+  <!-- ============ VOUCHERS ============ -->
+  <section class="pane" id="p-vou">
+    <h2>Vouchers &amp; drying</h2>
+    <p class="hint">A fungal voucher is a race against rot. Describe it fresh, dry it fast, label it
+      with what the dried specimen will have lost.</p>
+
+    <div class="card">
+      <div class="grid">
+        <label class="f">collection<select id="vPick"></select></label>
+        <label class="f">herbarium / fungarium<input type="text" id="vHerb" placeholder="OSC" autocomplete="off"></label>
+        <label class="f">accession<input type="text" id="vAcc" autocomplete="off"></label>
+        <label class="f">determiner<input type="text" id="vDet" autocomplete="off"></label>
+      </div>
+      <h3>Drying log</h3>
+      <div class="drylog">
+        <label class="f">start time<input type="text" id="vT0" placeholder="18:40" autocomplete="off"></label>
+        <label class="f">dryer temp (°C)<input type="number" id="vTemp" step="1" placeholder="43"></label>
+        <label class="f">hours to dry<input type="number" id="vHrs" step="0.5"></label>
+        <label class="f">sliced?<select id="vSlice"><option value="">—</option><option>whole</option><option>halved</option><option>sliced</option></select></label>
+        <label class="f">DNA subsample<select id="vDna"><option value="">—</option><option>taken — silica</option><option>taken — dried tissue</option><option>none</option></select></label>
+      </div>
+      <div class="btn-row">
+        <button class="btn btn-go" id="vAdd" type="button">Make voucher label</button>
+      </div>
+      <p class="fine">Above about 50&nbsp;°C the DNA in the tissue begins to degrade and the specimen
+        cooks rather than dries; below about 35&nbsp;°C a fleshy cap can spoil before it is dry.
+        <b>40&ndash;45&nbsp;°C with airflow</b> is the usual working compromise &mdash; a starting point to
+        adapt, not a standard.</p>
+    </div>
+
+    <div class="card"><h3 style="margin-top:0">Labels</h3><div id="vList"></div></div>
+
+    <div class="card noprint">
+      <h3 style="margin-top:0">Collecting ethics</h3>
+      <p class="fine" style="margin-top:0">A fruit body is the reproductive organ of a mycelium that
+        may be decades old and hectares wide, so picking it is closer to picking an apple than to
+        pulling a plant &mdash; but the litter layer it sits in is not. Lift the whole fruit body,
+        <b>including the stipe base</b>, because the volva, the bulb and the rhizomorphs are diagnostic
+        and a knife-cut collection throws them away. Then put the duff back. Leave undersized and
+        overmature bodies. Take what you will actually describe and dry &mdash; a basket of collections
+        that rot in the car is a loss with no offsetting record. Get permission on private land, and
+        check the rules before collecting in a National Park, a Wilderness, or a research natural area,
+        where collecting is often restricted or prohibited outright. Record locality precisely enough
+        that the collection can be relocated, and blur or withhold coordinates publicly for rare taxa.</p>
+    </div>
+  </section>
+
+  <!-- ============ METHOD ============ -->
+  <section class="pane" id="p-met">
+    <h2>Method</h2>
+    <p class="hint">Every number this page produces, and what each one is worth.</p>
+
+    <div class="never">
+      <b>This tool will never tell you whether a fungus is edible.</b>
+      There is no edibility field, no "safe" flag, and no taste test, and that is a design decision
+      rather than an omission. Lethal species sit inside genera that also contain harmless ones and
+      are separated by characters &mdash; a volva under the duff, a green tint in a mature print, a
+      microscopic reaction &mdash; that a field app cannot verify on your behalf. Deaths happen in
+      exactly the gap between "the key came out at X" and "therefore I ate it". Use this sheet to
+      record and to identify. Take the eating question to a regional expert with the specimen in
+      hand, and to a poison centre if anyone has already eaten something.
+    </div>
+
+    <div class="card">
+      <h3 style="margin-top:0">Guild</h3>
+      <p class="fine" style="margin-top:0">Guild is assigned here <b>at genus level</b>, which is the
+        level a field sheet can honestly work at. Roughly: <b>ectomycorrhizal</b> fungi trade
+        soil nutrients for host carbon and fruit near a compatible tree; <b>saprotrophs</b> decay dead
+        material, and it matters whether that is wood or litter, because the two respond to different
+        weather; <b>parasites</b> take carbon from a living host; <b>mycoparasites</b> take it from another
+        fungus; <b>lichenised</b> fungi carry their own photobiont. Genera flagged
+        <span class="guild mixed">mixed</span> contain species in more than one guild &mdash; <i>Ramaria</i>,
+        <i>Clitocybe</i>, <i>Mycena</i>, <i>Morchella</i>, <i>Laetiporus</i>, <i>Hericium</i>,
+        <i>Fomitopsis</i> &mdash; and for those the guild column is a prior to be overturned by the
+        species, not a result. A guild spectrum computed from mostly-mixed genera is not evidence.</p>
+      <p class="fine">The strongest field evidence for ectomycorrhizal status is not the genus at all:
+        it is a fruit body arising from soil within the rooting zone of a compatible host with no
+        wood beneath it. That is why substrate, host and distance-to-stem are on the record form.</p>
+    </div>
+
+    <div class="card">
+      <h3 style="margin-top:0">Richness, and how badly a fruiting survey undercounts it</h3>
+      <p class="fine" style="margin-top:0">Observed richness <b>S<sub>obs</sub></b> is the number of
+        distinct taxa you recorded. It is an underestimate of the fruiting community and a severe
+        underestimate of the mycelial one: a fungus that did not fruit on the day you walked is
+        invisible to this method, and sequencing of the same soil routinely returns several times as
+        many species as a season of fruit-body surveys.</p>
+      <p class="fine"><b>Chao1</b> estimates how many taxa the survey missed, from how many you saw exactly
+        once and exactly twice. With F<sub>1</sub> singletons and F<sub>2</sub> doubletons the
+        bias-corrected form is<br>
+        <code>Chao1 = S_obs + F1·(F1−1) / (2·(F2+1))</code><br>
+        A large gap between S<sub>obs</sub> and Chao1 means the survey is nowhere near saturation. It
+        does not mean the estimate is precise: Chao1 is a <b>lower bound</b> on true richness, it assumes
+        your samples are independent, and a single walk through a stand badly violates that. Read it as
+        "at least this many, and keep walking", never as a total.</p>
+      <p class="fine"><b>Shannon H′</b> is computed on fruit-body counts with natural logs,
+        <code>H′ = −Σ p_i ln p_i</code>, and <b>Pielou J′ = H′ / ln S</b>. Counts of fruit bodies are a
+        proxy for abundance with a known bias: one <i>Armillaria</i> genet can put up two hundred caps
+        while a <i>Cortinarius</i> puts up two, so H′ on this data describes the <em>display</em>, not
+        the community.</p>
+      <p class="fine"><b>Productivity</b> is collections and fresh mass per unit of searched area, and per
+        unit of search time. Both are worth recording because they fail differently: area-based figures
+        need an honestly bounded search area, and time-based figures are comparable only between
+        searchers of similar experience and speed.</p>
+    </div>
+
+    <div class="card">
+      <h3 style="margin-top:0">Host association</h3>
+      <p class="fine" style="margin-top:0">The host table cross-tabulates taxon against the host you
+        recorded. A taxon whose collections all fall under one host is <b>flagged</b>, but the flag is a
+        prompt, not a finding: with three collections under one host in a stand that is 90% that host,
+        you have learned nothing about specificity, only about the stand. The comparison that means
+        something is a taxon found repeatedly under a minority host, or absent from an abundant one.
+        Record the stand composition on the Site tab so that comparison is possible at all.</p>
+    </div>
+
+    <div class="card">
+      <h3 style="margin-top:0">Spore print</h3>
+      <p class="fine" style="margin-top:0">The print is the single most informative macroscopic character
+        on an agaric, and it is the one most often skipped because it costs hours. Colour groups here run
+        white &rarr; cream &rarr; pink &rarr; ochre/rust &rarr; clay &rarr; brown &rarr; purple-brown &rarr;
+        chocolate &rarr; black, plus olive-brown for the boletes and the notorious dull green of
+        <i>Chlorophyllum molybdites</i>. When a print colour contradicts the genus you picked, the page
+        says so &mdash; that contradiction is the point of taking the print.</p>
+    </div>
+
+    <div class="card">
+      <h3 style="margin-top:0">Microscopy, and where this sheet stops</h3>
+      <p class="fine" style="margin-top:0">A large share of the genera in this pack cannot be taken to
+        species in the field by anyone. <i>Cortinarius</i>, <i>Inocybe</i>, <i>Russula</i>,
+        <i>Entoloma</i>, <i>Mycena</i> and most crusts need spore measurements and ornamentation, the
+        amyloid or dextrinoid reaction in Melzer's, cystidia, pileipellis structure, and often
+        sequencing. This sheet is built to capture the characters that <b>disappear on drying</b> &mdash;
+        latex, odour, colour change, substrate, host, habit, print &mdash; so that the microscope work
+        has something to sit on later. Record a working name with <code>cf.</code> or
+        <code>aff.</code> and let the determination happen at the scope.</p>
+    </div>
+
+    <div class="card">
+      <h3 style="margin-top:0">The genus pack is swappable</h3>
+      <p class="fine" style="margin-top:0">The 65 genera loaded here cover the Pacific Northwest through
+        the Sierra to the Great Basin. They are <b>data, not code</b>: export the pack from the Analysis
+        tab to see the schema, edit it, and import it back. Import validates every field and refuses the
+        whole file with a list of what is wrong rather than half-loading it. <b>Copy the AI prompt</b>
+        produces a prompt carrying the schema and the honesty constraints, so you can have a pack built
+        for the Gulf Coast, for Fennoscandia, or for a single research site &mdash; then check it, because
+        a generated pack is a draft.</p>
+    </div>
+  </section>
+
+  <div class="rail">
+    <p class="rl">The field kit</p>
+    <div class="chips">
+      <a href="field-notebook.html"><span>📓</span>Field Notebook</a>
+      <a href="stand-sheet.html"><span>🌲</span>Stand Sheet</a>
+      <a href="releve.html"><span>🌾</span>Relevé</a>
+      <a href="plant-characters.html"><span>🌱</span>Plant Characters</a>
+      <a href="collection-sheet.html" aria-current="page"><span>🍄</span>Collection Sheet</a>
+      <a href="fungal-characters.html"><span>🔬</span>Fungal Characters</a>
+      <a href="food-web.html"><span>🕸️</span>Food Web Builder</a>
+      <a class="ref" href="ecology.html">← kit hub</a>
+      <a class="ref" href="ecology-glossary.html">glossary</a>
+    </div>
+  </div>
+</div>
+
+<div class="tabbar"><div class="row">
+  <button class="tab on" data-pane="p-rec" type="button"><span class="ico">🍄</span>Record</button>
+  <button class="tab" data-pane="p-site" type="button"><span class="ico">📋</span>Site</button>
+  <button class="tab" data-pane="p-prt" type="button"><span class="ico">🎨</span>Prints</button>
+  <button class="tab" data-pane="p-an" type="button"><span class="ico">📊</span>Analysis</button>
+  <button class="tab" data-pane="p-vou" type="button"><span class="ico">🗂️</span>Vouchers</button>
+  <button class="tab" data-pane="p-met" type="button"><span class="ico">📐</span>Method</button>
+</div></div>
+<div class="toast" id="toast">Saved</div>
+<script>
+/* ---------------------------------------------------------------------------
+   Macrofungal genus pack — Pacific Northwest -> Sierra/Tahoe -> Great Basin.
+   guild is assigned AT GENUS LEVEL. Genera marked mixed:1 contain species in
+   more than one guild and must be confirmed at species level before the guild
+   column means anything. There is deliberately no edibility field: see Method.
+     grp   : agaric|bolete|polypore|tooth|coral|crust|cup|puffball|truffle|
+             morel|jelly|lichen|other
+     guild : ecm|woodsap|littersap|par|lich|myco|unk
+     prt   : usual spore print key (see PRINTS), null where not applicable
+--------------------------------------------------------------------------- */
+var GENERA = [
+/* ---- ectomycorrhizal ---- */
+{id:"amani",gen:"Amanita",grp:"agaric",guild:"ecm",prt:"white",host:"broad — conifers and hardwoods",
+ tell:"Universal veil leaves a volva, a sac or warts on the cap; free white gills, white print.",sub:"soil"},
+{id:"russu",gen:"Russula",grp:"agaric",guild:"ecm",prt:"cream",host:"broad",
+ tell:"Flesh snaps like chalk — no fibrous tearing, no latex. Stipe breaks like a stick of chalk.",sub:"soil"},
+{id:"lacta",gen:"Lactarius",grp:"agaric",guild:"ecm",prt:"cream",host:"broad",
+ tell:"Bleeds latex from a cut gill. Colour and colour-change of the latex is the first character.",sub:"soil"},
+{id:"corti",gen:"Cortinarius",grp:"agaric",guild:"ecm",prt:"rust",host:"broad",
+ tell:"Cobwebby cortina between cap edge and stipe, later a rusty band from the falling print.",sub:"soil"},
+{id:"inocy",gen:"Inocybe",grp:"agaric",guild:"ecm",prt:"dbrown",host:"broad",
+ tell:"Radially fibrillose cap that splits at the margin; sharp spermatic odour.",sub:"soil"},
+{id:"hebel",gen:"Hebeloma",grp:"agaric",guild:"ecm",prt:"clay",host:"broad",
+ tell:"Pale viscid cap, raphanoid (cut-radish) odour, clay-brown print, gills often beaded when young.",sub:"soil"},
+{id:"trich",gen:"Tricholoma",grp:"agaric",guild:"ecm",prt:"white",host:"conifers mainly",
+ tell:"Fleshy, terrestrial, sinuate (notched) gills, white print, no ring or volva.",sub:"soil"},
+{id:"hygro",gen:"Hygrophorus",grp:"agaric",guild:"ecm",prt:"white",host:"conifers mainly",
+ tell:"Thick, waxy, widely spaced gills running slightly down the stipe.",sub:"soil"},
+{id:"suill",gen:"Suillus",grp:"bolete",guild:"ecm",prt:"olive",host:"Pinaceae — often one host genus",
+ tell:"Glutinous cap, often a ring or a glandular-dotted stipe; among the most host-specific ECM fungi.",sub:"soil"},
+{id:"bolet",gen:"Boletus s.l.",grp:"bolete",guild:"ecm",prt:"olive",host:"broad",
+ tell:"Tube layer peels cleanly away from the cap flesh.",sub:"soil"},
+{id:"lecci",gen:"Leccinum",grp:"bolete",guild:"ecm",prt:"olive",host:"birch, aspen, conifers",
+ tell:"Stipe covered in scabers — dark tufted points on a pale ground.",sub:"soil"},
+{id:"chroo",gen:"Chroogomphus",grp:"agaric",guild:"ecm",mixed:1,prt:"dbrown",host:"pines, with Suillus",
+ tell:"Decurrent gills, ochre-orange flesh, always near Suillus and pine; the association is parasitic on the ECM partner.",sub:"soil"},
+{id:"gomph",gen:"Gomphidius",grp:"agaric",guild:"ecm",mixed:1,prt:"black",host:"pines/spruce, with Suillus",
+ tell:"Glutinous cap, thick decurrent gills, and a smoky-black print.",sub:"soil"},
+{id:"canth",gen:"Cantharellus",grp:"other",guild:"ecm",prt:"cream",host:"conifers and oak",
+ tell:"Blunt forking false gills that run down the stipe — ridges, not blades. Apricot odour.",sub:"soil"},
+{id:"crate",gen:"Craterellus",grp:"other",guild:"ecm",prt:"cream",host:"conifers, hardwoods",
+ tell:"Hollow trumpet with a nearly smooth or shallowly wrinkled outer surface.",sub:"soil"},
+{id:"hydnu",gen:"Hydnum",grp:"tooth",guild:"ecm",prt:"cream",host:"conifers",
+ tell:"Chanterelle-like flesh but the underside carries soft spines.",sub:"soil"},
+{id:"sarco",gen:"Sarcodon",grp:"tooth",guild:"ecm",prt:"dbrown",host:"conifers",
+ tell:"Coarse scaly cap over brown spines; bitter.",sub:"soil"},
+{id:"lacca",gen:"Laccaria",grp:"agaric",guild:"ecm",prt:"white",host:"broad, incl. disturbed ground",
+ tell:"Thick, widely spaced, flesh-pink gills and a fibrous twisted stipe.",sub:"soil"},
+{id:"rhizo",gen:"Rhizopogon",grp:"truffle",guild:"ecm",prt:null,host:"Pinaceae, strongly",
+ tell:"Hypogeous potato-like ball with rhizomorphs strapped across the skin; no stipe, no gills.",sub:"soil (hypogeous)"},
+{id:"tuber",gen:"Tuber",grp:"truffle",guild:"ecm",prt:null,host:"oak, conifers",
+ tell:"Hypogeous, firm, with marbled sterile veins through the gleba.",sub:"soil (hypogeous)"},
+{id:"thele",gen:"Thelephora",grp:"crust",guild:"ecm",prt:null,host:"conifers",
+ tell:"Leathery brown fans or coral-like tufts growing up over litter and stems.",sub:"soil/litter"},
+{id:"ramar",gen:"Ramaria",grp:"coral",guild:"ecm",mixed:1,prt:"ochre",host:"conifers",
+ tell:"Branched coral from a fleshy base — soil-dwellers are usually ECM, wood-dwellers saprotrophic.",sub:"soil or wood"},
+{id:"albat",gen:"Albatrellus",grp:"polypore",guild:"ecm",prt:"white",host:"conifers",
+ tell:"A fleshy stalked polypore growing from soil, not wood — unusual for a pored fungus.",sub:"soil"},
+{id:"phaeo",gen:"Phaeocollybia",grp:"agaric",guild:"ecm",prt:"rust",host:"conifers",
+ tell:"A long carrot-like rooting pseudorhiza below a slippery conic cap.",sub:"soil"},
+
+/* ---- wood saprotrophs ---- */
+{id:"pleur",gen:"Pleurotus",grp:"agaric",guild:"woodsap",prt:"white",host:"hardwood, esp. cottonwood/aspen",
+ tell:"Decurrent gills on a lateral or absent stipe, shelving from wood.",sub:"wood"},
+{id:"trame",gen:"Trametes",grp:"polypore",guild:"woodsap",prt:"white",host:"hardwood",
+ tell:"Thin flexible zonate bracket, white rot, small round pores.",sub:"wood"},
+{id:"fomit",gen:"Fomitopsis",grp:"polypore",guild:"woodsap",mixed:1,prt:"white",host:"conifers",
+ tell:"Hard perennial hoof; brown cubical rot in the wood below it.",sub:"wood"},
+{id:"ganod",gen:"Ganoderma",grp:"polypore",guild:"par",mixed:1,prt:"brown",host:"hardwood, some conifers",
+ tell:"Laccate varnished crust; brown spore dust settles on everything above it.",sub:"wood/root"},
+{id:"laeti",gen:"Laetiporus",grp:"polypore",guild:"par",mixed:1,prt:"white",host:"oak, conifers",
+ tell:"Bright orange overlapping shelves; brown rot of heartwood in a living tree.",sub:"wood/heartwood"},
+{id:"phaes",gen:"Phaeolus",grp:"polypore",guild:"par",prt:"white",host:"conifer roots, esp. Douglas-fir",
+ tell:"Velvety yellow-to-rust rosette at the base of a conifer — butt and root brown rot.",sub:"root/base"},
+{id:"gymnp",gen:"Gymnopilus",grp:"agaric",guild:"woodsap",prt:"rust",host:"conifer and hardwood",
+ tell:"Orange, bitter, on wood, with a rusty print and often a ring zone.",sub:"wood"},
+{id:"hypho",gen:"Hypholoma",grp:"agaric",guild:"woodsap",prt:"pbrown",host:"conifers",
+ tell:"Dense clusters on stumps; greenish-yellow tones, purple-brown print.",sub:"wood"},
+{id:"plute",gen:"Pluteus",grp:"agaric",guild:"woodsap",prt:"pink",host:"hardwood, rotten wood",
+ tell:"Free gills turning pink, pink print, on wood, with neither ring nor volva.",sub:"wood"},
+{id:"mycen",gen:"Mycena",grp:"agaric",guild:"woodsap",mixed:1,prt:"white",host:"wood and litter",
+ tell:"Small, conic to bell-shaped, translucent-striate, fragile, in troops.",sub:"wood/litter"},
+{id:"panel",gen:"Panellus",grp:"agaric",guild:"woodsap",prt:"white",host:"hardwood",
+ tell:"Small lateral-stiped shelf with a gelatinous layer in the cap.",sub:"wood"},
+{id:"crepi",gen:"Crepidotus",grp:"agaric",guild:"woodsap",prt:"brown",host:"wood, twigs",
+ tell:"Sessile shell with no stipe at all, and a brown print — that combination.",sub:"wood"},
+{id:"xylar",gen:"Xylaria",grp:"other",guild:"woodsap",prt:null,host:"hardwood",
+ tell:"Black carbonaceous clubs or fingers, white inside.",sub:"wood"},
+{id:"stere",gen:"Stereum",grp:"crust",guild:"woodsap",prt:"white",host:"hardwood and conifer",
+ tell:"Thin leathery bracket with a smooth underside — no pores, no teeth.",sub:"wood"},
+{id:"schiz",gen:"Schizophyllum",grp:"agaric",guild:"woodsap",prt:"white",host:"hardwood",
+ tell:"Hairy white fan whose gill-like folds are split lengthwise.",sub:"wood"},
+{id:"flamm",gen:"Flammulina",grp:"agaric",guild:"woodsap",prt:"white",host:"hardwood, esp. cottonwood",
+ tell:"Viscid orange cap over a velvety blackening stipe; fruits in cold weather.",sub:"wood"},
+{id:"heric",gen:"Hericium",grp:"tooth",guild:"woodsap",mixed:1,prt:"white",host:"hardwood wounds",
+ tell:"Cascade of white spines from a wound or a broken limb.",sub:"wood"},
+{id:"armil",gen:"Armillaria",grp:"agaric",guild:"par",prt:"white",host:"conifers and hardwoods",
+ tell:"Black shoestring rhizomorphs under the bark, a ring, and dense clusters at a root collar.",sub:"root/wood"},
+{id:"heter",gen:"Heterobasidion",grp:"polypore",guild:"par",prt:"white",host:"conifer stumps and roots",
+ tell:"Crust-to-bracket at stump bases with a brown upper surface and a white pore layer.",sub:"root/stump"},
+
+/* ---- litter and soil saprotrophs ---- */
+{id:"agari",gen:"Agaricus",grp:"agaric",guild:"littersap",prt:"choc",host:"grass, litter, soil",
+ tell:"Free gills going pink then chocolate, a ring, and a chocolate-brown print.",sub:"soil"},
+{id:"copri",gen:"Coprinopsis / Coprinellus",grp:"agaric",guild:"littersap",prt:"black",host:"dung, wood chips, soil",
+ tell:"Gills autodigest into black ink from the margin inward.",sub:"soil/dung/wood"},
+{id:"lepio",gen:"Lepiota / Macrolepiota",grp:"agaric",guild:"littersap",prt:"white",host:"litter, lawns",
+ tell:"Scaly cap over free white gills with a movable ring on a smooth stipe.",sub:"soil/litter"},
+{id:"chlor",gen:"Chlorophyllum",grp:"agaric",guild:"littersap",prt:"green",host:"lawns, disturbed soil",
+ tell:"Lepiota-like but the mature print is dull green — take a print before you decide anything.",sub:"soil"},
+{id:"maras",gen:"Marasmius",grp:"agaric",guild:"littersap",prt:"white",host:"leaf and needle litter",
+ tell:"Wiry tough stipe; a dried cap revives when wetted instead of rotting.",sub:"litter"},
+{id:"clito",gen:"Clitocybe",grp:"agaric",guild:"littersap",mixed:1,prt:"white",host:"litter, duff",
+ tell:"Funnel-shaped cap with decurrent gills and a white print.",sub:"litter"},
+{id:"lycop",gen:"Lycoperdon / Calvatia",grp:"puffball",guild:"littersap",prt:null,host:"soil, litter, pasture",
+ tell:"Gleba matures to powder and leaves through an apical pore or a collapsing wall.",sub:"soil"},
+{id:"morch",gen:"Morchella",grp:"morel",guild:"littersap",mixed:1,prt:null,host:"burns, riparian, orchards",
+ tell:"Pitted hollow head continuous with a hollow stipe — one hollow from tip to base.",sub:"soil"},
+{id:"psath",gen:"Psathyrella",grp:"agaric",guild:"littersap",prt:"dbrown",host:"litter, wood debris",
+ tell:"Very fragile, hygrophanous, striate, with a dark brown print.",sub:"litter/wood"},
+{id:"gymno",gen:"Gymnopus",grp:"agaric",guild:"littersap",prt:"white",host:"leaf and needle litter",
+ tell:"Tough pliant stipe in litter; cap pliant not brittle.",sub:"litter"},
+{id:"geast",gen:"Geastrum",grp:"puffball",guild:"littersap",prt:null,host:"duff, dry soil",
+ tell:"Outer wall splits into rays and folds back, lifting the spore sac.",sub:"soil"},
+{id:"pezi_",gen:"Peziza",grp:"cup",guild:"littersap",prt:null,host:"soil, burns, wood chips",
+ tell:"Brittle stalkless cup, brown outside, smooth inside.",sub:"soil"},
+{id:"panae",gen:"Panaeolus",grp:"agaric",guild:"littersap",prt:"black",host:"dung, manured grass",
+ tell:"Gills mottled black-and-grey as the spores ripen unevenly.",sub:"dung/grass"},
+{id:"strop",gen:"Stropharia",grp:"agaric",guild:"littersap",prt:"pbrown",host:"wood chips, pasture",
+ tell:"Viscid cap, membranous ring, purple-brown print.",sub:"soil/chips"},
+{id:"gyrom",gen:"Gyromitra",grp:"cup",guild:"littersap",mixed:1,prt:null,host:"conifer duff, burns",
+ tell:"Brain-like or saddle-like convoluted cap; interior chambered, not one clean hollow.",sub:"soil"},
+
+/* ---- lichenised ---- */
+{id:"letha",gen:"Letharia",grp:"lichen",guild:"lich",prt:null,host:"conifer bark and wood",
+ tell:"Chartreuse-yellow shrubby tufts on conifer bark — the colour is unmistakable.",sub:"bark"},
+{id:"clado",gen:"Cladonia",grp:"lichen",guild:"lich",prt:null,host:"soil, duff, rotten wood",
+ tell:"Squamulose mat sending up podetia — stalks, cups or red-tipped clubs.",sub:"soil/wood"},
+{id:"usnea",gen:"Usnea",grp:"lichen",guild:"lich",prt:null,host:"conifer branches",
+ tell:"Pendulous and pale; pull it apart and an elastic white cord runs down the centre.",sub:"bark"},
+{id:"pelti",gen:"Peltigera",grp:"lichen",guild:"lich",prt:null,host:"soil, moss, duff",
+ tell:"Broad floppy lobes with raised veins and rhizines on the underside.",sub:"soil/moss"},
+{id:"xanth",gen:"Xanthoria",grp:"lichen",guild:"lich",prt:null,host:"nutrient-rich rock and bark",
+ tell:"Orange foliose rosettes where birds perch or where dust settles.",sub:"rock/bark"},
+
+/* ---- mycoparasites ---- */
+{id:"hypom",gen:"Hypomyces",grp:"other",guild:"myco",prt:null,host:"other fungi (Russula, Lactarius)",
+ tell:"A pimpled coloured crust that has swallowed its host's gills entirely.",sub:"other fungi"},
+{id:"aster",gen:"Asterophora",grp:"agaric",guild:"myco",prt:"white",host:"blackening Russula/Lactarius",
+ tell:"Small pale fruit bodies growing out of a rotting mushroom.",sub:"other fungi"}
+];
+</script>
+<script>
+(function(){
+  "use strict";
+  var $ = function(id){ return document.getElementById(id); };
+  var val = function(id){ var e=$(id); return e ? String(e.value||"").trim() : ""; };
+  var num = function(id){ var e=$(id); var v=parseFloat(e&&e.value); return isFinite(v)?v:0; };
+  function esc(s){ return String(s==null?"":s).replace(/[&<>"]/g,function(c){
+    return {"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;"}[c]; }); }
+  function buzz(ms){ try{ if(navigator.vibrate) navigator.vibrate(ms||8); }catch(e){} }
+  var tt;
+  function toast(m){ var t=$("toast"); t.textContent=m; t.classList.add("on");
+    clearTimeout(tt); tt=setTimeout(function(){ t.classList.remove("on"); },1700); }
+  function copyText(s,m){
+    function ok(){ toast(m||"Copied"); buzz(); }
+    if(navigator.clipboard && navigator.clipboard.writeText){
+      navigator.clipboard.writeText(s).then(ok,function(){ legacy(s,ok); });
+    } else legacy(s,ok);
+  }
+  function legacy(s,ok){
+    var a=document.createElement("textarea"); a.value=s;
+    a.style.position="fixed"; a.style.opacity="0"; document.body.appendChild(a);
+    a.select(); try{ document.execCommand("copy"); ok(); }catch(e){ toast("Copy failed — select the text"); }
+    document.body.removeChild(a);
+  }
+  function cell(v){ v=String(v==null?"":v); return /[",\n]/.test(v) ? '"'+v.replace(/"/g,'""')+'"' : v; }
+
+  /* ------------------------------------------------------------------ data */
+  var SUBS = [
+    ["soil","soil / duff"],["conwood","conifer wood"],["hwwood","hardwood wood"],
+    ["chips","chips / bark mulch"],["living","living tree, base or root"],["litter","leaf or needle litter"],
+    ["moss","moss"],["dung","dung"],["burn","burned ground"],["fungus","another fungus"],
+    ["bark","bark or rock (in place)"],["other","other"]
+  ];
+  var HABITS = [
+    ["sol","solitary"],["scat","scattered"],["greg","gregarious"],
+    ["caes","caespitose",'clustered from one base'],["troop","troop"],["ring","fairy ring"],
+    ["imbr","imbricate / shelving"]
+  ];
+  var HYMS = [
+    ["gills","gills"],["pores","pores / tubes"],["teeth","teeth / spines"],
+    ["ridges","ridges / false gills"],["smooth","smooth or veined"],["maze","maze-like"],
+    ["gleba","enclosed gleba"],["none","no hymenium visible"]
+  ];
+  var CHARS = [
+    "volva or sac at base","warts or patches on cap","membranous ring","cortina (cobwebby veil)",
+    "ring zone only","bulbous base","rooting base","scabers on stipe","reticulate stipe",
+    "latex when cut","flesh brittle and chalky","viscid or slimy cap","hygrophanous cap",
+    "striate margin","decurrent gills","free gills","sinuate gills","gills mottled",
+    "gills deliquescing","rhizomorphs present","tubes separable from cap","staining blue",
+    "staining red","blackening with age","waxy gills","stipe hollow"
+  ];
+  /* spore print series — index is used only to judge how far an observed print
+     is from the one the chosen genus usually gives. */
+  var PRINTS = [
+    ["white","white","#FFFFFF"],["cream","cream / pale buff","#F0E5C6"],
+    ["lilac","lilac-grey","#BCAFC0"],["pink","pink / salmon","#E7BCAE"],
+    ["rust","rusty ochre","#B5722C"],["clay","clay-brown","#B99A6B"],
+    ["olive","olive-brown","#6E6836"],["brown","brown","#6E4B2A"],
+    ["pbrown","purple-brown","#4E3A4A"],["choc","chocolate","#3B2A20"],
+    ["dbrown","dull dark brown","#4A3826"],["black","black","#191512"],
+    ["green","dull green","#87995A"]
+  ];
+  var SERIES = ["white","cream","lilac","pink","rust","clay","olive","brown","pbrown","dbrown","choc","black"];
+  var REAGENTS = [
+    ["koh","KOH 3&ndash;10%","potassium hydroxide",1,
+     "On cap cuticle and on cut flesh. A sectional character in <i>Cortinarius</i>, a standard one on bolete caps, and it separates the yellow-staining <i>Agaricus</i> group. Caustic &mdash; goggles."],
+    ["nh3","NH<sub>4</sub>OH","ammonia",1,
+     "Watch for a <i>flash</i> in the first seconds &mdash; blue-green on some boletes &mdash; then note the settled colour separately. Fumes."],
+    ["fe","FeSO<sub>4</sub>","iron salts",0,
+     "The classic <i>Russula</i> test: rub a crystal on stipe flesh and read salmon, green, or nothing. Slow reactions still count."],
+    ["melz","Melzer's","iodine / chloral hydrate",1,
+     "Amyloid reads blue-black, dextrinoid red-brown, inamyloid nothing. Mostly a slide reagent. Contains chloral hydrate &mdash; controlled in some jurisdictions."],
+    ["gua","Guaiac","guaiacol tincture",0,
+     "An oxidase test used in <i>Russula</i>. Record both the <b>speed</b> and the intensity: slow-and-weak is a different result from instant-and-blue."],
+    ["phen","Phenol","carbolic acid",1,
+     "On <i>Agaricus</i> flesh, wine to purple-brown. Toxic through skin and by vapour &mdash; ventilate."],
+    ["nap","&alpha;-Naphthol","",1,
+     "Purple on some <i>Agaricus</i>; used alongside phenol rather than instead of it."],
+    ["syr","Syringaldazine","",0,
+     "A laccase test on polypores &mdash; a rough proxy for white rot versus brown rot at the bench."]
+  ];
+  var GUILD = {
+    ecm:["ectomycorrhizal","ecm"], woodsap:["saprotroph — wood","woodsap"],
+    littersap:["saprotroph — litter/soil","littersap"], par:["parasite","par"],
+    lich:["lichenised","lich"], myco:["mycoparasite","myco"], unk:["unrecorded","unk"]
+  };
+
+  var PACK = GENERA.slice();
+  var packName = "PNW → Sierra → Great Basin (built in)";
+  var cols = [], vouchers = [];
+  var seq = 1;
+  var f = { sub:"", hab:"", hym:"", chars:{} };
+
+  function gById(id){ for(var i=0;i<PACK.length;i++) if(PACK[i].id===id) return PACK[i]; return null; }
+  function prtLabel(k){ for(var i=0;i<PRINTS.length;i++) if(PRINTS[i][0]===k) return PRINTS[i][1]; return ""; }
+  function subLabel(k){ for(var i=0;i<SUBS.length;i++) if(SUBS[i][0]===k) return SUBS[i][1]; return ""; }
+  function habLabel(k){ for(var i=0;i<HABITS.length;i++) if(HABITS[i][0]===k) return HABITS[i][1]; return ""; }
+  function hymLabel(k){ for(var i=0;i<HYMS.length;i++) if(HYMS[i][0]===k) return HYMS[i][1]; return ""; }
+
+  /* -------------------------------------------------------------- record UI */
+  function fillGenera(){
+    var s=$("cGen"); s.innerHTML="";
+    var o=document.createElement("option"); o.value=""; o.textContent="— pick a genus —"; s.appendChild(o);
+    PACK.slice().sort(function(a,b){ return a.gen.localeCompare(b.gen); }).forEach(function(g){
+      var e=document.createElement("option"); e.value=g.id;
+      e.textContent=g.gen+"  ·  "+GUILD[g.guild][0]+(g.mixed?" (mixed)":"");
+      s.appendChild(e);
+    });
+    var u=document.createElement("option"); u.value="__other"; u.textContent="not in the pack"; s.appendChild(u);
+  }
+  function genTell(){
+    var g=gById(val("cGen")); var box=$("cGenTell");
+    if(!g){ box.innerHTML=""; return; }
+    box.innerHTML = '<span class="guild '+GUILD[g.guild][1]+(g.mixed?" mixed":"")+'">'+esc(GUILD[g.guild][0])+
+      (g.mixed?" · mixed":"")+'</span> &nbsp;<b>'+esc(g.gen)+'</b> — '+esc(g.tell)+
+      '<br><b>usual substrate</b> '+esc(g.sub)+' &nbsp;·&nbsp; <b>host</b> '+esc(g.host)+
+      (g.prt?' &nbsp;·&nbsp; <b>print</b> '+esc(prtLabel(g.prt)):'')+
+      (g.mixed?'<br><b>Mixed genus.</b> The guild shown is a prior, not a result — confirm it at species level before it goes in an analysis.':'');
+  }
+  function fillHosts(){
+    var s=$("cHost"); var keep=s.value; s.innerHTML="";
+    var o=document.createElement("option"); o.value=""; o.textContent="— none / not applicable —"; s.appendChild(o);
+    var list = val("sTrees").split(/[,;]+/).map(function(x){return x.trim();}).filter(Boolean);
+    if(!list.length) list = ["Pseudotsuga menziesii","Tsuga heterophylla","Thuja plicata","Pinus contorta",
+      "Pinus ponderosa","Abies concolor","Picea engelmannii","Populus tremuloides","Quercus gambelii",
+      "Alnus rubra","Betula","Salix"];
+    list.forEach(function(t){ var e=document.createElement("option"); e.value=t; e.textContent=t; s.appendChild(e); });
+    var x=document.createElement("option"); x.value="__unknown"; x.textContent="host uncertain"; s.appendChild(x);
+    if(keep) s.value=keep;
+  }
+  function chipRow(host, list, key){
+    var box=$(host); box.innerHTML="";
+    list.forEach(function(it){
+      var b=document.createElement("button"); b.type="button"; b.className="kopt";
+      b.innerHTML = esc(it[1]) + (it[2]?'<small>'+esc(it[2])+'</small>':'');
+      b.addEventListener("click",function(){
+        f[key] = (f[key]===it[0]) ? "" : it[0];
+        Array.prototype.forEach.call(box.children,function(c,i){ c.classList.toggle("on", list[i][0]===f[key]); });
+        buzz();
+      });
+      box.appendChild(b);
+    });
+  }
+  function charRow(){
+    var box=$("cChars"); box.innerHTML="";
+    CHARS.forEach(function(c){
+      var b=document.createElement("button"); b.type="button"; b.className="ck"; b.textContent=c;
+      b.addEventListener("click",function(){
+        if(f.chars[c]) delete f.chars[c]; else f.chars[c]=1;
+        b.classList.toggle("on", !!f.chars[c]); buzz();
+      });
+      box.appendChild(b);
+    });
+  }
+  function clearForm(){
+    ["cName","cNum","cCap","cStL","cStW","cMass","cOdour","cBruise","cNotes","cDist"].forEach(function(i){ $(i).value=""; });
+    $("cN").value="1"; $("cGen").value=""; $("cHost").value="";
+    f={sub:"",hab:"",hym:"",chars:{}};
+    ["cSub","cHab","cHym"].forEach(function(id){
+      Array.prototype.forEach.call($(id).children,function(c){ c.classList.remove("on"); }); });
+    Array.prototype.forEach.call($("cChars").children,function(c){ c.classList.remove("on"); });
+    genTell();
+  }
+
+  function addCol(){
+    var gid=val("cGen"), g=gById(gid);
+    var nm=val("cName");
+    if(!gid && !nm){ toast("Pick a genus or type a working name"); return; }
+    var c = {
+      n: seq++,
+      gid: gid, gen: g?g.gen:(gid==="__other"?"(not in pack)":""),
+      guild: g?g.guild:"unk", mixed: g&&g.mixed?1:0,
+      name: nm || (g?g.gen+" sp.":"unnamed"),
+      num: val("cNum"), count: Math.max(1, Math.round(num("cN"))||1),
+      sub: f.sub, host: val("cHost"), dist: val("cDist"),
+      hab: f.hab, hym: f.hym, chars: Object.keys(f.chars),
+      cap: val("cCap"), stL: val("cStL"), stW: val("cStW"), mass: num("cMass"),
+      odour: val("cOdour"), bruise: val("cBruise"), notes: val("cNotes"),
+      print:"", prtHrs:"", prtOn:"", rg:{}
+    };
+    cols.push(c); clearForm(); renderAll(); buzz(14);
+    toast("Collection "+c.n+" added — "+c.name);
+  }
+
+  function renderCols(){
+    var box=$("cList");
+    if(!cols.length){ box.innerHTML='<p class="fine" style="margin:0">Nothing recorded yet.</p>'; return; }
+    box.innerHTML="";
+    cols.slice().reverse().forEach(function(c){
+      var d=document.createElement("div"); d.className="row2";
+      var bits=[];
+      if(c.sub) bits.push(subLabel(c.sub));
+      if(c.host && c.host!=="__unknown") bits.push("under "+c.host);
+      if(c.hab) bits.push(habLabel(c.hab));
+      if(c.hym) bits.push(hymLabel(c.hym));
+      if(c.print) bits.push("print "+prtLabel(c.print));
+      if(c.chars.length) bits.push(c.chars.length+" characters");
+      d.innerHTML = '<div class="g"><b>'+esc(c.num?c.num+" · ":"")+'<i>'+esc(c.name)+'</i></b>'+
+        '<span>'+esc(bits.join(" · ")||"no characters recorded")+'</span></div>'+
+        '<span class="guild '+GUILD[c.guild][1]+(c.mixed?" mixed":"")+'">'+esc(GUILD[c.guild][0].split(" — ")[0])+'</span>'+
+        '<span class="cov">'+c.count+'</span>';
+      var b=document.createElement("button"); b.type="button"; b.title="remove"; b.textContent="✕";
+      b.addEventListener("click",function(){
+        cols=cols.filter(function(x){ return x!==c; }); renderAll(); toast("Removed "+c.name); });
+      d.appendChild(b); box.appendChild(d);
+    });
+  }
+
+  /* ------------------------------------------------------------- prints tab */
+  function fillPicks(){
+    [["pPick",renderPrint],["vPick",null]].forEach(function(pair){
+      var s=$(pair[0]); var keep=s.value; s.innerHTML="";
+      if(!cols.length){
+        var o=document.createElement("option"); o.value=""; o.textContent="— no collections yet —"; s.appendChild(o); return;
+      }
+      cols.forEach(function(c){
+        var e=document.createElement("option"); e.value=String(c.n);
+        e.textContent = (c.num?c.num+" · ":"#"+c.n+" · ")+c.name; s.appendChild(e);
+      });
+      if(keep && s.querySelector('option[value="'+keep+'"]')) s.value=keep;
+    });
+  }
+  function curCol(sel){ var n=parseInt(val(sel),10); for(var i=0;i<cols.length;i++) if(cols[i].n===n) return cols[i]; return null; }
+
+  function swatches(){
+    var box=$("pSw"); box.innerHTML="";
+    PRINTS.forEach(function(p){
+      var b=document.createElement("button"); b.type="button"; b.className="swc";
+      b.innerHTML='<span class="chip" style="background:'+p[2]+'"></span>'+esc(p[1]);
+      b.addEventListener("click",function(){
+        var c=curCol("pPick"); if(!c){ toast("Pick a collection first"); return; }
+        c.print = (c.print===p[0]) ? "" : p[0];
+        renderPrint(); renderCols(); buzz();
+      });
+      box.appendChild(b);
+    });
+  }
+  function reagentRows(){
+    var box=$("pRg"); box.innerHTML="";
+    REAGENTS.forEach(function(r){
+      var d=document.createElement("div"); d.className="rgi"+(r[3]?" haz":"");
+      d.innerHTML='<div class="hd"><span class="nm">'+r[1]+(r[2]?'<em>'+esc(r[2])+'</em>':'')+'</span>'+
+        (r[3]?'<span class="guild par">hazard</span>':'')+'</div>'+
+        '<div class="wh">'+r[4]+'</div>';
+      var i=document.createElement("input"); i.type="text"; i.placeholder="what you saw, and where — blank means not tested";
+      i.addEventListener("input",function(){
+        var c=curCol("pPick"); if(!c) return;
+        if(i.value.trim()) c.rg[r[0]]=i.value.trim(); else delete c.rg[r[0]];
+        ecoOut();
+      });
+      i.setAttribute("data-rg", r[0]);
+      d.appendChild(i); box.appendChild(d);
+    });
+  }
+  function renderPrint(){
+    var c=curCol("pPick"), box=$("pPrintNote");
+    Array.prototype.forEach.call($("pSw").children,function(el,i){
+      el.classList.toggle("on", !!c && c.print===PRINTS[i][0]); });
+    Array.prototype.forEach.call($("pRg").querySelectorAll("input[data-rg]"),function(i){
+      i.value = c ? (c.rg[i.getAttribute("data-rg")]||"") : ""; });
+    $("pHrs").value = c ? (c.prtHrs||"") : "";
+    $("pOn").value  = c ? (c.prtOn||"")  : "";
+    if(!c){ box.innerHTML=""; return; }
+    if(!c.print){ box.innerHTML=""; return; }
+    var g = gById(c.gid);
+    if(c.print==="green"){
+      box.innerHTML='<div class="verdict act"><b>A dull green print.</b> Among the lepiotoid mushrooms that '+
+        'means <i>Chlorophyllum molybdites</i> until proved otherwise. Note it on the label and treat every '+
+        'other character as secondary until the print is confirmed on a mature cap.</div>';
+      return;
+    }
+    if(!g || !g.prt){ box.innerHTML=''; return; }
+    var a=SERIES.indexOf(c.print), b=SERIES.indexOf(g.prt);
+    if(a<0||b<0){ box.innerHTML=''; return; }
+    var d=Math.abs(a-b);
+    if(d===0){ box.innerHTML='<div class="verdict"><b>Consistent.</b> '+esc(g.gen)+
+      ' usually gives a '+esc(prtLabel(g.prt))+' print, and that is what you have.</div>'; return; }
+    if(d<=1){ box.innerHTML='<div class="verdict warn"><b>One step off.</b> You recorded '+esc(prtLabel(c.print))+
+      '; '+esc(g.gen)+' usually gives '+esc(prtLabel(g.prt))+'. A thin print, or one from a young cap, '+
+      'commonly reads a shade pale. Take a second print from a mature cap before you decide it means anything.</div>'; return; }
+    box.innerHTML='<div class="verdict act"><b>That is a contradiction, not a shade.</b> You recorded '+
+      esc(prtLabel(c.print))+'; '+esc(g.gen)+' gives '+esc(prtLabel(g.prt))+'. Either the print or the genus is '+
+      'wrong, and the print is the harder evidence. Re-key the collection from the print colour.</div>';
+  }
+  $("pPick").addEventListener("change",renderPrint);
+  $("pSave").addEventListener("click",function(){
+    var c=curCol("pPick"); if(!c){ toast("Pick a collection first"); return; }
+    c.prtHrs=val("pHrs"); c.prtOn=val("pOn");
+    renderCols(); ecoOut(); toast("Saved to "+c.name); buzz(14);
+  });
+
+  /* ------------------------------------------------------------ weather box */
+  function weatherOut(){
+    var box=$("wOut"), wd=val("wDate"), sd=val("sDate"), mm=num("wMm");
+    if(!wd || !sd){ box.innerHTML=""; return; }
+    var d0=new Date(wd+"T00:00:00"), d1=new Date(sd+"T00:00:00");
+    if(isNaN(d0)||isNaN(d1)){ box.innerHTML=""; return; }
+    var days=Math.round((d1-d0)/86400000);
+    var wet = mm>=25, inWin = days>=7 && days<=21;
+    var cls = (wet && inWin) ? "" : "warn";
+    var msg;
+    if(days<0) { cls="act"; msg="The wetting rain you entered falls <b>after</b> the survey date. Check the two dates."; }
+    else if(wet && inWin) msg="<b>"+days+" days</b> after a "+mm+" mm event — inside the 7–21 day placeholder window. "+
+      "If the flush is thin anyway, temperature or a dry antecedent month is the likelier constraint than this rain.";
+    else if(wet) msg="<b>"+days+" days</b> after a "+mm+" mm event — outside the 7–21 day placeholder window. "+
+      (days<7?"Early: many taxa will not have primordia up yet.":"Late: an early flush may already have collapsed, which biases what you can find.");
+    else msg="<b>"+days+" days</b> after only "+mm+" mm. Below the 25 mm placeholder, that may not have wetted the soil at all — "+
+      "check the 30-day total before reading anything into a poor catch.";
+    var t=val("wT");
+    if(t!==""){ msg += " Soil at 10 cm reads "+t+" °C; record it every visit and the lag becomes fittable to your own site."; }
+    box.innerHTML='<div class="verdict '+cls+'">'+msg+'</div>';
+  }
+  ["wDate","wMm","w7","w30","wT","wAir","sDate"].forEach(function(id){
+    var e=$(id); if(e) e.addEventListener("input",weatherOut); });
+
+  /* -------------------------------------------------------------- analysis */
+  function taxa(){
+    var m={}, order=[];
+    cols.forEach(function(c){
+      var k=c.name.toLowerCase();
+      if(!m[k]){ m[k]={name:c.name,guild:c.guild,mixed:c.mixed,gen:c.gen,cols:0,bodies:0,mass:0,hosts:{}}; order.push(k); }
+      var t=m[k]; t.cols++; t.bodies+=c.count; t.mass+=(c.mass||0);
+      var h=(c.host&&c.host!=="__unknown")?c.host:"(none recorded)";
+      t.hosts[h]=(t.hosts[h]||0)+1;
+    });
+    return order.map(function(k){ return m[k]; });
+  }
+  function chao1(T){
+    var f1=0,f2=0;
+    T.forEach(function(t){ if(t.bodies===1) f1++; else if(t.bodies===2) f2++; });
+    return { f1:f1, f2:f2, est: T.length + (f1*(f1-1))/(2*(f2+1)) };
+  }
+  function shannon(T){
+    var N=0; T.forEach(function(t){ N+=t.bodies; });
+    if(!N) return {h:0,j:0,n:0};
+    var h=0; T.forEach(function(t){ var p=t.bodies/N; if(p>0) h-=p*Math.log(p); });
+    return { h:h, j:(T.length>1? h/Math.log(T.length):0), n:N };
+  }
+  function tile(v,l){ return '<div class="tile"><div class="v">'+v+'</div><div class="l">'+l+'</div></div>'; }
+
+  function renderAnalysis(){
+    var box=$("anBox"), T=taxa();
+    if(!T.length){ box.innerHTML='<h3 style="margin-top:0">Analysis</h3><p class="fine" style="margin:0">Record a collection and the numbers appear.</p>';
+      $("anGuild").innerHTML=""; $("anHost").innerHTML=""; return; }
+    var C=chao1(T), S=shannon(T);
+    var area=num("sArea"), mins=num("sMin");
+    var mass=0; cols.forEach(function(c){ mass+=(c.mass||0); });
+    var h='<h3 style="margin-top:0">Richness &amp; diversity</h3><div class="tiles">';
+    h+= tile(cols.length,"collections");
+    h+= tile(S.n,"fruit bodies");
+    h+= tile(T.length,"taxa S<sub>obs</sub>");
+    h+= tile(C.est.toFixed(1),"Chao1");
+    h+= tile(C.f1+" / "+C.f2,"singletons / doubletons");
+    h+= tile(S.h.toFixed(3),"Shannon H′");
+    h+= tile(S.j?S.j.toFixed(3):"—","Pielou J′");
+    if(area>0) h+= tile((cols.length/area*100).toFixed(2),"collections / 100 m²");
+    if(area>0 && mass>0) h+= tile((mass/area).toFixed(2),"g fresh / m²");
+    if(mins>0) h+= tile((cols.length/(mins/60)).toFixed(1),"collections / hour");
+    h+='</div>';
+    var gap = C.est - T.length;
+    if(C.f2===0 && C.f1>0){
+      h+='<div class="verdict warn"><b>No doubletons.</b> With '+C.f1+' singleton'+(C.f1===1?"":"s")+
+        ' and nothing seen exactly twice, Chao1 is running on the thinnest data it can run on. '+
+        'Treat '+C.est.toFixed(1)+' as "more than '+T.length+'" and no more precise than that.</div>';
+    } else if(gap >= T.length*0.5){
+      h+='<div class="verdict warn"><b>Nowhere near saturation.</b> Chao1 puts at least '+
+        Math.round(gap)+' more taxa in this stand than you found. That is normal for one walk: '+
+        'a fungus that did not fruit today cannot be counted, and Chao1 is a lower bound, not a total.</div>';
+    } else {
+      h+='<div class="verdict"><b>Chao1 '+C.est.toFixed(1)+' against '+T.length+' observed.</b> '+
+        'The gap is modest, but a modest gap is not saturation: Chao1 is a <b>lower bound</b>, it assumes '+
+        'independent samples, and one walk through a stand violates that. Read it as \u201cat least this '+
+        'many\u201d — sequencing the same soil would still return several times this many species.</div>';
+    }
+    if(area<=0) h+='<p class="fine">Enter the area searched on the Site tab and the per-area figures appear. '+
+      'An honestly bounded search area is what makes two surveys comparable.</p>';
+    box.innerHTML=h;
+
+    /* guild spectrum */
+    var gc={}, gt={};
+    cols.forEach(function(c){ gc[c.guild]=(gc[c.guild]||0)+c.count; });
+    T.forEach(function(t){ gt[t.guild]=(gt[t.guild]||0)+1; });
+    var totB=0; for(var k in gc) totB+=gc[k];
+    var order=["ecm","woodsap","littersap","par","myco","lich","unk"];
+    var g2='<h3 style="margin-top:0">Guild spectrum</h3><div class="bars">';
+    var any=false;
+    order.forEach(function(k){
+      if(!gc[k]) return; any=true;
+      var pc=totB?gc[k]/totB*100:0;
+      g2+='<div class="bar"><span class="nm">'+esc(GUILD[k][0])+'</span>'+
+          '<span class="tr"><span class="fl'+(k==="par"?" inv":"")+'" style="width:'+pc.toFixed(1)+'%"></span></span>'+
+          '<span class="pc">'+pc.toFixed(0)+'%</span></div>';
+    });
+    g2+='</div>';
+    var mixedN=0; T.forEach(function(t){ if(t.mixed) mixedN++; });
+    var tb='<div class="tw"><table><tr><th>guild</th><th class="n">taxa</th><th class="n">bodies</th></tr>';
+    order.forEach(function(k){ if(!gc[k]&&!gt[k]) return;
+      tb+='<tr><td>'+esc(GUILD[k][0])+'</td><td class="n">'+(gt[k]||0)+'</td><td class="n">'+(gc[k]||0)+'</td></tr>'; });
+    tb+='</table></div>';
+    g2+=tb;
+    if(mixedN){
+      g2+='<div class="verdict warn"><b>'+mixedN+' of '+T.length+' taxa sit in a mixed genus.</b> '+
+        'Their guild here is the genus prior, not an observation. Until those are determined to species, '+
+        'this spectrum is a sketch — say so if it goes in a report.</div>';
+    } else {
+      g2+='<p class="fine">Guild is assigned at genus level. It is a good prior for unambiguous genera '+
+        'and worthless for mixed ones; the Method tab lists which is which.</p>';
+    }
+    $("anGuild").innerHTML=g2;
+
+    /* host matrix */
+    var hosts={}, hOrder=[];
+    T.forEach(function(t){ for(var hh in t.hosts){ if(!hosts[hh]){ hosts[hh]=1; hOrder.push(hh); } } });
+    hOrder.sort(function(a,b){ if(a==="(none recorded)") return 1; if(b==="(none recorded)") return -1; return a.localeCompare(b); });
+    var m='<h3 style="margin-top:0">Host association</h3>';
+    if(hOrder.length===1 && hOrder[0]==="(none recorded)"){
+      m+='<p class="fine" style="margin:0">No hosts recorded yet. For an ectomycorrhizal fungus the host is '+
+         'half the identification and all of the ecology — pick it on the record form.</p>';
+    } else {
+      m+='<div class="tw"><table class="mx"><tr><th>taxon</th>';
+      hOrder.forEach(function(hh){ m+='<th class="n">'+esc(hh)+'</th>'; });
+      m+='<th class="n">flag</th></tr>';
+      T.slice().sort(function(a,b){ return a.name.localeCompare(b.name); }).forEach(function(t){
+        m+='<tr><td><i>'+esc(t.name)+'</i></td>';
+        var best=0,bestH="",named=0;
+        hOrder.forEach(function(hh){
+          var v=t.hosts[hh]||0;
+          if(hh!=="(none recorded)"){ named+=v; if(v>best){ best=v; bestH=hh; } }
+          m+='<td class="n '+(v===0?"h0":(v===best&&best>0&&hh!=="(none recorded)"?"h2":"h1"))+'">'+(v||"·")+'</td>';
+        });
+        var flag = (named>=3 && best===named) ? "single host ×"+named : "";
+        m+='<td class="n">'+esc(flag||"·")+'</td></tr>';
+      });
+      m+='</table></div>';
+      m+='<p class="fine">A flag means every recorded collection of that taxon came from one host, at least '+
+         'three times. In a stand dominated by that host it tells you nothing. It is worth following up only '+
+         'when the host is a <em>minority</em> of the stand — which is why the Site tab asks for the dominants.</p>';
+    }
+    $("anHost").innerHTML=m;
+  }
+
+  /* -------------------------------------------------------------- vouchers */
+  function voucherLabel(c){
+    var site=val("sSite"), obs=val("sObs"), dt=val("sDate");
+    var g=gById(c.gid);
+    var bits=[];
+    if(c.sub) bits.push(subLabel(c.sub));
+    if(c.host && c.host!=="__unknown") bits.push("with "+c.host);
+    if(c.hab) bits.push(habLabel(c.hab));
+    var h='<div class="label">';
+    h+='<div class="inst">'+esc(val("vHerb")||"Fungarium")+'</div>';
+    h+='<div class="sci">'+esc(c.name)+'</div>';
+    if(g) h+='<div class="row">'+esc(GUILD[g.guild][0])+(g.mixed?" (genus-level, mixed)":" (genus-level)")+'</div>';
+    h+='<div class="row"><span class="k">Locality:</span> '+esc(site||"—")+
+       (val("sLat")?', '+esc(val("sLat"))+', '+esc(val("sLon")):'')+
+       (val("sElev")?', '+esc(val("sElev"))+' m':'')+'</div>';
+    h+='<div class="row"><span class="k">Habitat:</span> '+esc(val("sVeg")||"—")+
+       (val("sTrees")?'; '+esc(val("sTrees")):'')+'</div>';
+    h+='<div class="row"><span class="k">Substrate:</span> '+esc(bits.join(", ")||"not recorded")+'</div>';
+    if(c.print) h+='<div class="row"><span class="k">Spore print:</span> '+esc(prtLabel(c.print))+
+      (c.prtHrs?' ('+esc(c.prtHrs)+' h'+(c.prtOn?', '+esc(c.prtOn):'')+')':'')+'</div>';
+    var fresh=[];
+    if(c.cap) fresh.push("cap "+c.cap+" mm");
+    if(c.stL) fresh.push("stipe "+c.stL+(c.stW?"×"+c.stW:"")+" mm");
+    if(c.odour) fresh.push("odour "+c.odour);
+    if(c.bruise) fresh.push("cut: "+c.bruise);
+    if(fresh.length) h+='<div class="row"><span class="k">Fresh:</span> '+esc(fresh.join("; "))+'</div>';
+    if(c.chars.length) h+='<div class="row"><span class="k">Characters:</span> '+esc(c.chars.join("; "))+'</div>';
+    var rgk=Object.keys(c.rg);
+    if(rgk.length){
+      var rs=rgk.map(function(k){ var r=REAGENTS.filter(function(x){return x[0]===k;})[0];
+        return (r?r[1].replace(/<[^>]+>/g,""):k)+" "+c.rg[k]; });
+      h+='<div class="row"><span class="k">Spot tests:</span> '+esc(rs.join("; "))+'</div>';
+    }
+    var dry=[];
+    if(val("vT0")) dry.push("started "+val("vT0"));
+    if(val("vTemp")) dry.push(val("vTemp")+" °C");
+    if(val("vHrs")) dry.push(val("vHrs")+" h");
+    if(val("vSlice")) dry.push(val("vSlice"));
+    if(val("vDna")) dry.push("DNA: "+val("vDna"));
+    if(dry.length) h+='<div class="row"><span class="k">Dried:</span> '+esc(dry.join(", "))+'</div>';
+    if(c.notes) h+='<div class="row">'+esc(c.notes)+'</div>';
+    h+='<div class="coll"><span>'+esc(obs||"collector")+
+       (c.num?' &nbsp;'+esc(c.num):'')+'</span><span>'+esc(dt||"")+'</span></div>';
+    if(val("vDet")) h+='<div class="row" style="margin-top:5px"><span class="k">Det.:</span> '+esc(val("vDet"))+
+       (val("vAcc")?' &nbsp;·&nbsp; '+esc(val("vAcc")):'')+'</div>';
+    h+='</div>';
+    return h;
+  }
+  function renderVouchers(){
+    var box=$("vList");
+    if(!vouchers.length){ box.innerHTML='<p class="fine" style="margin:0">No labels yet. Pick a collection above and make one.</p>'; return; }
+    box.innerHTML = vouchers.map(function(n){
+      for(var i=0;i<cols.length;i++) if(cols[i].n===n) return voucherLabel(cols[i]);
+      return ""; }).join("");
+  }
+  $("vAdd").addEventListener("click",function(){
+    var c=curCol("vPick"); if(!c){ toast("Pick a collection first"); return; }
+    if(vouchers.indexOf(c.n)<0) vouchers.push(c.n);
+    renderVouchers(); toast("Label made for "+c.name); buzz(14);
+  });
+  ["vHerb","vAcc","vDet","vT0","vTemp","vHrs","vSlice","vDna"].forEach(function(id){
+    var e=$(id); if(e) e.addEventListener("input",renderVouchers); });
+
+  /* --------------------------------------------------------------- exports */
+  function ecoOut(){
+    var L=[];
+    L.push("# macrofungal collection sheet");
+    L.push("# site: "+(val("sSite")||"unnamed")+"   collector: "+(val("sObs")||"—")+"   date: "+(val("sDate")||"—"));
+    if(val("sLat")) L.push("# "+val("sLat")+", "+val("sLon")+(val("sElev")?"  "+val("sElev")+" m":""));
+    if(val("sVeg")||val("sTrees")) L.push("# stand: "+val("sVeg")+(val("sTrees")?"  ["+val("sTrees")+"]":"")+
+      (val("sAge")?"  "+val("sAge"):""));
+    if(num("sArea")) L.push("# searched: "+val("sArea")+" m²"+(val("sMin")?" in "+val("sMin")+" min":""));
+    if(val("wDate")) L.push("# last wetting rain: "+val("wDate")+"  "+val("wMm")+" mm"+
+      (val("w30")?"   30-day "+val("w30")+" mm":"")+(val("wT")?"   soil "+val("wT")+" °C":""));
+    L.push("");
+    if(!cols.length){ L.push("# no collections yet"); $("ecoOut").textContent=L.join("\n"); return; }
+    cols.forEach(function(c){
+      L.push("collection "+(c.num||("#"+c.n))+"  "+c.name);
+      L.push("  genus     "+(c.gen||"—")+"   guild "+GUILD[c.guild][0]+(c.mixed?" (mixed genus)":""));
+      L.push("  bodies    "+c.count+(c.mass?"   "+c.mass+" g fresh":""));
+      L.push("  substrate "+(subLabel(c.sub)||"—")+(c.host&&c.host!=="__unknown"?"   host "+c.host:"")+
+             (c.dist?"   "+c.dist+" m from stem":""));
+      if(c.hab||c.hym) L.push("  habit     "+(habLabel(c.hab)||"—")+"   hymenophore "+(hymLabel(c.hym)||"—"));
+      var sz=[]; if(c.cap) sz.push("cap "+c.cap+" mm"); if(c.stL) sz.push("stipe "+c.stL+(c.stW?"×"+c.stW:"")+" mm");
+      if(sz.length) L.push("  size      "+sz.join("   "));
+      if(c.print) L.push("  print     "+prtLabel(c.print)+(c.prtHrs?"   "+c.prtHrs+" h":"")+(c.prtOn?"   on "+c.prtOn:""));
+      if(c.odour) L.push("  odour     "+c.odour);
+      if(c.bruise) L.push("  cut       "+c.bruise);
+      if(c.chars.length) L.push("  characters "+c.chars.join("; "));
+      Object.keys(c.rg).forEach(function(k){
+        var r=REAGENTS.filter(function(x){return x[0]===k;})[0];
+        L.push("  "+((r?r[1].replace(/<[^>]+>/g,""):k)+"          ").slice(0,10)+c.rg[k]);
+      });
+      if(c.notes) L.push("  notes     "+c.notes);
+      L.push("");
+    });
+    var T=taxa(), C=chao1(T), S=shannon(T);
+    L.push("# "+cols.length+" collections   "+S.n+" fruit bodies   "+T.length+" taxa");
+    L.push("# Chao1 "+C.est.toFixed(1)+" (F1="+C.f1+", F2="+C.f2+") — a lower bound, not a total");
+    L.push("# Shannon H' "+S.h.toFixed(3)+(S.j?"   Pielou J' "+S.j.toFixed(3):""));
+    L.push("# no edibility is recorded or implied anywhere in this file");
+    $("ecoOut").textContent=L.join("\n");
+  }
+  $("ecoCopy").addEventListener("click",function(){ ecoOut(); copyText($("ecoOut").textContent,"Field sheet copied"); });
+  $("csvCopy").addEventListener("click",function(){
+    if(!cols.length){ toast("Nothing recorded"); return; }
+    var site=val("sSite")||"unnamed";
+    var head=["site","date","collection_no","working_name","genus","guild","mixed_genus","fruit_bodies",
+      "substrate","host","dist_to_stem_m","habit","hymenophore","cap_mm","stipe_len_mm","stipe_wid_mm",
+      "fresh_g","spore_print","print_hours","odour","cut_reaction","characters"];
+    REAGENTS.forEach(function(r){ head.push("rg_"+r[0]); });
+    head.push("notes");
+    var rows=[head.map(cell).join(",")];
+    cols.forEach(function(c){
+      var r=[site,val("sDate"),c.num,c.name,c.gen,GUILD[c.guild][0],(c.mixed?"yes":"no"),c.count,
+        subLabel(c.sub),(c.host==="__unknown"?"uncertain":c.host),c.dist,habLabel(c.hab),hymLabel(c.hym),
+        c.cap,c.stL,c.stW,(c.mass||""),prtLabel(c.print),c.prtHrs,c.odour,c.bruise,c.chars.join("; ")];
+      REAGENTS.forEach(function(rg){ r.push(c.rg[rg[0]]||""); });
+      r.push(c.notes);
+      rows.push(r.map(cell).join(","));
+    });
+    copyText(rows.join("\n"),"CSV copied — "+cols.length+" collections");
+  });
+  $("matCopy").addEventListener("click",function(){
+    var T=taxa(); if(!T.length){ toast("Nothing recorded"); return; }
+    var hosts={}, hO=[];
+    T.forEach(function(t){ for(var h in t.hosts){ if(!hosts[h]){hosts[h]=1;hO.push(h);} } });
+    hO.sort();
+    var rows=[["taxon","guild"].concat(hO).map(cell).join(",")];
+    T.slice().sort(function(a,b){return a.name.localeCompare(b.name);}).forEach(function(t){
+      rows.push([t.name,GUILD[t.guild][0]].concat(hO.map(function(h){ return t.hosts[h]||0; })).map(cell).join(","));
+    });
+    copyText(rows.join("\n"),"Host × taxon matrix copied");
+  });
+
+  /* ------------------------------------------------------------- pack I/O */
+  var PACK_FIELDS = ["id","gen","grp","guild","tell","sub","host"];
+  var OK_GRP = ["agaric","bolete","polypore","tooth","coral","crust","cup","puffball","truffle","morel","jelly","lichen","other"];
+  var OK_GUILD = ["ecm","woodsap","littersap","par","lich","myco","unk"];
+  var OK_PRT = PRINTS.map(function(p){ return p[0]; });
+  function packStats(){
+    var g={}; PACK.forEach(function(x){ g[x.guild]=(g[x.guild]||0)+1; });
+    var mx=PACK.filter(function(x){return x.mixed;}).length;
+    $("packStat").textContent = PACK.length+" genera loaded — "+packName+
+      "  ·  "+(g.ecm||0)+" ectomycorrhizal, "+((g.woodsap||0)+(g.littersap||0))+" saprotrophic, "+
+      (g.par||0)+" parasitic, "+(g.lich||0)+" lichenised, "+(g.myco||0)+" mycoparasitic  ·  "+mx+" flagged mixed";
+  }
+  $("packExport").addEventListener("click",function(){
+    copyText(JSON.stringify({name:packName,version:1,genera:PACK},null,1),"Genus pack copied as JSON");
+  });
+  $("packPrompt").addEventListener("click",function(){
+    var p = [
+"Build a macrofungal genus pack for a field collection sheet.",
+"",
+"REGION: <name the region, forest types and elevation band>",
+"",
+"Return ONLY a JSON object, no prose around it:",
+'{ "name": "<region name>", "version": 1, "genera": [ ... ] }',
+"",
+"Each entry in genera[] must have exactly these fields:",
+'  id     string, 5 lowercase letters/digits, unique in the file',
+'  gen    string, the genus name as a fieldworker writes it (a pair like',
+'         "Coprinopsis / Coprinellus" is fine where the field character is shared)',
+'  grp    one of: '+OK_GRP.join(", "),
+'  guild  one of: '+OK_GUILD.join(", "),
+'         ecm = ectomycorrhizal, woodsap = wood saprotroph,',
+'         littersap = litter/soil saprotroph, par = parasite of a living host,',
+'         lich = lichenised, myco = parasite of another fungus, unk = unknown',
+'  mixed  1 if the genus contains species in more than one guild, otherwise omit',
+'  prt    usual spore print, one of: '+OK_PRT.join(", ")+' — or null where',
+'         a print is not applicable (truffles, puffballs, lichens, ascomycetes)',
+'  host   string: the host or substrate association as a fieldworker states it',
+'  tell   string, ONE sentence: the single character that gives the genus away',
+'         in the field. Not a description — the thing you look for first.',
+'  sub    string: usual substrate (soil, wood, litter, dung, bark, other fungi)',
+"",
+"HONESTY CONSTRAINTS — these are not optional:",
+"1. Do NOT include any edibility, toxicity, palatability or 'safe' field, and",
+"   do not put edibility into tell or host. The sheet refuses to carry it.",
+"2. Set mixed:1 wherever the genus really is mixed. Do not tidy a genus into a",
+"   single guild to make the data look cleaner. Ramaria, Clitocybe, Mycena,",
+"   Morchella, Entoloma, Laetiporus, Hericium and Fomitopsis are the usual cases.",
+"3. tell must be a character that is visible in the field without a microscope",
+"   and without chemicals. If the genus genuinely cannot be recognised that way,",
+"   say so in tell rather than inventing a character.",
+"4. Include the common and the ecologically important genera, not the rarities.",
+"   40-80 entries is the useful range.",
+"",
+"Then list separately, outside the JSON, any genus you were unsure about and why."
+    ].join("\n");
+    copyText(p,"AI prompt copied — paste it into any assistant");
+  });
+  $("packFile").addEventListener("change",function(ev){
+    var file=ev.target.files && ev.target.files[0]; if(!file) return;
+    var rd=new FileReader();
+    rd.onload=function(){
+      var errs=[], data;
+      try{ data=JSON.parse(rd.result); }
+      catch(e){ toast("Not valid JSON"); alert("That file is not valid JSON:\n\n"+e.message); ev.target.value=""; return; }
+      var list = data && data.genera;
+      if(!list || !list.length || typeof list.length!=="number"){
+        alert("The file has no genera array. Export the built-in pack to see the shape."); ev.target.value=""; return; }
+      var ids={};
+      for(var i=0;i<list.length;i++){
+        var g=list[i], w="genus "+(i+1)+" ("+((g&&g.gen)||"unnamed")+"): ";
+        if(!g || typeof g!=="object"){ errs.push(w+"not an object"); continue; }
+        PACK_FIELDS.forEach(function(k){
+          if(typeof g[k]!=="string" || !g[k].trim()) errs.push(w+"missing or non-string field '"+k+"'"); });
+        if(typeof g.id==="string"){
+          if(!/^[a-z0-9_]{3,8}$/.test(g.id)) errs.push(w+"id '"+g.id+"' must be 3-8 lowercase letters, digits or _");
+          else if(ids[g.id]) errs.push(w+"duplicate id '"+g.id+"'"); else ids[g.id]=1;
+        }
+        if(g.grp && OK_GRP.indexOf(g.grp)<0) errs.push(w+"grp '"+g.grp+"' is not one of "+OK_GRP.join(", "));
+        if(g.guild && OK_GUILD.indexOf(g.guild)<0) errs.push(w+"guild '"+g.guild+"' is not one of "+OK_GUILD.join(", "));
+        if(g.prt!=null && OK_PRT.indexOf(g.prt)<0) errs.push(w+"prt '"+g.prt+"' is not a known print colour");
+        if(g.mixed!=null && g.mixed!==0 && g.mixed!==1) errs.push(w+"mixed must be 0, 1 or absent");
+        ["edible","edibility","toxic","toxicity","safe","poisonous"].forEach(function(bad){
+          if(g[bad]!=null) errs.push(w+"field '"+bad+"' is not accepted — this sheet does not carry edibility"); });
+        if(typeof g.tell==="string" && /edibl|poison|toxic|choice|delicious/i.test(g.tell))
+          errs.push(w+"tell mentions edibility or toxicity — rewrite it as a field character");
+      }
+      if(errs.length){
+        toast("Pack rejected — "+errs.length+" problem"+(errs.length===1?"":"s"));
+        alert("Pack rejected. Nothing was loaded.\n\n"+errs.slice(0,25).join("\n")+
+          (errs.length>25?"\n\n… and "+(errs.length-25)+" more.":""));
+        ev.target.value=""; return;
+      }
+      PACK = list.map(function(g){
+        return {id:g.id,gen:g.gen,grp:g.grp,guild:g.guild,mixed:(g.mixed?1:0),
+                prt:(g.prt==null?null:g.prt),host:g.host,tell:g.tell,sub:g.sub};
+      });
+      packName = (data.name||file.name);
+      fillGenera(); packStats(); genTell(); renderAll();
+      toast("Loaded "+PACK.length+" genera"); buzz(14);
+      ev.target.value="";
+    };
+    rd.readAsText(file);
+  });
+
+  /* ------------------------------------------------------------ tabs & boot */
+  function showPane(id){
+    document.querySelectorAll(".tab").forEach(function(t){ t.classList.toggle("on", t.dataset.pane===id); });
+    document.querySelectorAll(".pane").forEach(function(p){ p.classList.toggle("on", p.id===id); });
+    window.scrollTo(0,0);
+  }
+  document.querySelectorAll(".tab").forEach(function(tb){
+    tb.addEventListener("click",function(){ showPane(tb.dataset.pane); buzz(); }); });
+
+  $("cGen").addEventListener("change",genTell);
+  $("cAdd").addEventListener("click",addCol);
+  $("cClear").addEventListener("click",function(){ clearForm(); toast("Form cleared"); });
+  $("cUndo").addEventListener("click",function(){
+    if(!cols.length){ toast("Nothing to undo"); return; }
+    var c=cols.pop(); vouchers=vouchers.filter(function(n){return n!==c.n;});
+    renderAll(); toast("Removed "+c.name); });
+  $("sTrees").addEventListener("input",fillHosts);
+  ["sSite","sObs","sDate","sLat","sLon","sElev","sArea","sMin","sVeg","sTrees","sAge","sDuff","sCwd","sDist"]
+    .forEach(function(id){ var e=$(id); if(e) e.addEventListener("input",function(){ ecoOut(); renderAnalysis(); renderVouchers(); }); });
+
+  function renderAll(){ renderCols(); fillPicks(); renderPrint(); renderAnalysis(); renderVouchers(); ecoOut(); }
+
+  fillGenera(); fillHosts();
+  chipRow("cSub",SUBS,"sub"); chipRow("cHab",HABITS,"hab"); chipRow("cHym",HYMS,"hym");
+  charRow(); swatches(); reagentRows(); packStats();
+  try{ $("sDate").value = new Date().toISOString().slice(0,10); }catch(e){}
+  weatherOut(); renderAll();
+})();
+</script>
+</body>
+</html>
