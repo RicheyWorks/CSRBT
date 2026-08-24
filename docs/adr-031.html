@@ -410,9 +410,22 @@
 <ol start="4" class="act"><li class="part">Build Suite A: <code>cp-bench.html</code> <strong>built and verified 78/78</strong>; <code>cp-characters.html</code> still to do</li></ol>
 <ol start="5" class="act"><li class="done">Build Suite B: <code>breeding-bench.html</code> <strong>built and verified 85/85</strong>, reusing Selection Log's engine</li></ol>
 <ol start="6" class="act"><li class="done">Add a <strong>Suites</strong> section to the kit hub and a nav chip; per-suite hubs still to do</li></ol>
-<ol start="7" class="act"><li class="todo">Migrate Stand Sheet, Relevé, Collection Sheet and Ethogram to FEK; bump to v1.1 if the migration</li></ol>
-<p>       shows up missing components (a date entry and a multi-row table editor are the likely gaps)</p>
-<ol start="8" class="act"><li class="todo">Add FEK version assertions to every migrated page's test suite</li></ol>
+<ol start="7" class="act"><li class="part">Migrate Stand Sheet, Relevé, Collection Sheet and Ethogram to FEK. <strong>Stand Sheet migrated and verified 76/76</strong> — tally (species picker, DBH and height steppers, crown-class and status dials), plot geometry, physiography, cover and the clinometer card. Relevé, Collection Sheet and Ethogram still to do. v1.0.0 covered every control the migration needed, so no bump.</li></ol>
+<ol start="8" class="act"><li class="part">Add FEK version assertions to every migrated page's test suite. <strong>Stand Sheet asserts <code>FEK.version === "1.0.0"</code></strong>; the remaining three follow with their migrations.</li></ol>
+
+<h3>What the Stand Sheet migration decided</h3>
+<p>The old sheet took aspect as a free 0&ndash;360 number. A hand compass read on a slope does not give a
+degree, and storing 227&deg; when the observer read &ldquo;southwest&rdquo; is a precision that was never
+measured &mdash; the same failure the honesty gate exists to prevent, arriving through the entry layer rather
+than through a published figure. Aspect is now an <strong>eight-point dial</strong> coloured along the
+heat-load axis. Nothing is lost: the value exists to be folded, and |180&nbsp;&minus;&nbsp;|aspect&nbsp;&minus;&nbsp;225||
+is identical whether the input was a compass point or a degree. Cover moved to <strong>5% steps</strong> for
+the same reason, since ocular estimates disagree between observers by 10&ndash;20 points.</p>
+<p>The migration also had to preserve the difference between <em>zero</em> and <em>not recorded</em> &mdash;
+aspect 0&deg; is north. FEK controls have no null state, so each writes through to the field the export
+already reads, and that field stays empty until the control is touched. Any page migrating to FEK with
+optional numeric fields needs the same treatment; a <code>nullable</code> option on <code>FEK.step</code>
+and <code>FEK.slider</code> is the obvious v1.1 candidate if a third page needs it.</p>
 <hr>
 <h2>Appendix A — Research findings</h2>
 <p>Gathered 2026-08-24. Marked with the gate each finding falls under.</p>

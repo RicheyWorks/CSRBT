@@ -183,6 +183,122 @@
   .rail a.ref { font-weight:600; color:var(--muted); background:none; box-shadow:none; }
   .rail a.ref:hover { color:var(--s1); }
   @media print { .rail { display:none !important; } }
+
+  /* ============ Field Entry Kit v1.0.0 ============
+     Large-target, high-contrast entry controls. Sizing is driven by --tap
+     rather than per-component numbers so one token retunes the whole kit for
+     gloves, cold hands or a wall-mounted tablet. */
+  :root {
+    --tap: 60px;            /* primary control height  */
+    --tap-sm: 48px;         /* secondary control height */
+    --fek-r: 16px;
+    --ramp-0:#2B6C8F; --ramp-1:#3E8C8C; --ramp-2:#2E7D4F;
+    --ramp-3:#B8860B; --ramp-4:#C0592B; --ramp-5:#B23A32;
+    --fek-line:#C7C0AC;
+  }
+  .fek-lab { display:block; font:800 15px var(--body); color:var(--ink-2);
+    letter-spacing:.01em; margin:0 0 6px; }
+  .fek-lab .u { font:600 12.5px var(--mono); color:var(--muted); margin-left:6px; }
+  .fek-help { font-size:13.5px; color:var(--muted); line-height:1.5; margin:6px 0 0; }
+  .fek-row { margin:0 0 20px; }
+
+  /* --- stepper: the workhorse numeric entry --- */
+  .fek-step { display:flex; align-items:stretch; gap:0; border:2px solid var(--border);
+    border-radius:var(--fek-r); overflow:hidden; background:var(--surface); max-width:340px; }
+  .fek-step button { border:0; background:var(--surface-2); color:var(--ink);
+    font:800 30px var(--body); line-height:1; width:calc(var(--tap) + 8px); min-height:var(--tap);
+    cursor:pointer; touch-action:manipulation; transition:background .12s; }
+  .fek-step button:hover { background:var(--soft); color:var(--s1); }
+  .fek-step button:active { background:var(--s1); color:#fff; }
+  .fek-step .val { flex:1; min-width:0; text-align:center; border:0; background:none;
+    font:800 30px var(--head); color:var(--ink); font-variant-numeric:tabular-nums;
+    -moz-appearance:textfield; padding:0 4px; }
+  .fek-step .val::-webkit-outer-spin-button,
+  .fek-step .val::-webkit-inner-spin-button { -webkit-appearance:none; margin:0; }
+  .fek-step .val:focus { outline:none; background:var(--soft); }
+
+  /* --- segmented ordinal dial with a colour ramp --- */
+  .fek-dial { display:flex; flex-wrap:wrap; gap:8px; }
+  .fek-dial button { flex:1 1 auto; min-width:72px; min-height:var(--tap);
+    border:2px solid var(--border); border-radius:var(--fek-r); background:var(--surface);
+    font:800 17px var(--body); color:var(--ink-2); cursor:pointer; touch-action:manipulation;
+    display:flex; flex-direction:column; align-items:center; justify-content:center; gap:2px;
+    padding:6px 8px; transition:transform .08s, border-color .12s, background .12s; }
+  .fek-dial button small { font:600 11px var(--mono); color:var(--muted); letter-spacing:.02em; }
+  .fek-dial button:active { transform:scale(.96); }
+  .fek-dial button.on { color:#fff; border-color:transparent; }
+  .fek-dial button.on small { color:rgba(255,255,255,.85); }
+  .fek-dial button.on[data-r="0"]{background:var(--ramp-0);}
+  .fek-dial button.on[data-r="1"]{background:var(--ramp-1);}
+  .fek-dial button.on[data-r="2"]{background:var(--ramp-2);}
+  .fek-dial button.on[data-r="3"]{background:var(--ramp-3);}
+  .fek-dial button.on[data-r="4"]{background:var(--ramp-4);}
+  .fek-dial button.on[data-r="5"]{background:var(--ramp-5);}
+
+  /* --- big toggle chips --- */
+  .fek-chips { display:flex; flex-wrap:wrap; gap:9px; }
+  .fek-chip { min-height:var(--tap-sm); border:2px solid var(--border); border-radius:999px;
+    background:var(--surface); font:800 15.5px var(--body); color:var(--ink-2);
+    padding:0 20px; cursor:pointer; touch-action:manipulation; display:inline-flex;
+    align-items:center; gap:8px; transition:transform .08s, border-color .12s, background .12s; }
+  .fek-chip:active { transform:scale(.96); }
+  .fek-chip.on { border-color:var(--s1); background:var(--soft); color:var(--s1-deep); }
+  .fek-chip.on::before { content:"\2713"; font-size:17px; }
+
+  /* --- slider with a live bubble --- */
+  .fek-slide { display:flex; align-items:center; gap:14px; }
+  .fek-slide input[type=range] { flex:1; min-width:0; height:var(--tap-sm); -webkit-appearance:none;
+    background:transparent; cursor:pointer; touch-action:manipulation; }
+  .fek-slide input[type=range]::-webkit-slider-runnable-track { height:14px; border-radius:8px;
+    background:linear-gradient(90deg,var(--ramp-0),var(--ramp-2),var(--ramp-3),var(--ramp-5)); }
+  .fek-slide input[type=range]::-moz-range-track { height:14px; border-radius:8px;
+    background:linear-gradient(90deg,var(--ramp-0),var(--ramp-2),var(--ramp-3),var(--ramp-5)); }
+  .fek-slide input[type=range]::-webkit-slider-thumb { -webkit-appearance:none; width:34px; height:34px;
+    border-radius:50%; background:#fff; border:3px solid var(--ink); margin-top:-10px;
+    box-shadow:0 2px 6px rgba(35,40,31,.3); }
+  .fek-slide input[type=range]::-moz-range-thumb { width:34px; height:34px; border-radius:50%;
+    background:#fff; border:3px solid var(--ink); box-shadow:0 2px 6px rgba(35,40,31,.3); }
+  .fek-slide .bub { font:800 26px var(--head); font-variant-numeric:tabular-nums; color:var(--ink);
+    min-width:86px; text-align:right; }
+  .fek-slide .bub span { font:600 13px var(--mono); color:var(--muted); margin-left:3px; }
+
+  /* --- big picker: replaces <select> for long lists --- */
+  .fek-pick { border:2px solid var(--border); border-radius:var(--fek-r); background:var(--surface);
+    overflow:hidden; }
+  .fek-pick .search { width:100%; border:0; border-bottom:2px solid var(--border);
+    font:700 17px var(--body); padding:0 16px; min-height:var(--tap); background:var(--surface-2); }
+  .fek-pick .search:focus { outline:none; background:var(--soft); }
+  .fek-pick .opts { max-height:264px; overflow-y:auto; -webkit-overflow-scrolling:touch; }
+  .fek-pick .opt { display:block; width:100%; text-align:left; border:0; border-bottom:1px solid var(--border);
+    background:none; font:700 16.5px var(--body); color:var(--ink); min-height:var(--tap-sm);
+    padding:10px 16px; cursor:pointer; touch-action:manipulation; }
+  .fek-pick .opt small { display:block; font:400 12.5px var(--mono); color:var(--muted); margin-top:2px; }
+  .fek-pick .opt:hover { background:var(--soft); }
+  .fek-pick .opt.on { background:var(--s1); color:#fff; }
+  .fek-pick .opt.on small { color:rgba(255,255,255,.85); }
+  .fek-pick .none { padding:16px; color:var(--muted); font-size:14px; }
+
+  /* --- readout tiles, sized to be read at arm's length --- */
+  .fek-tiles { display:grid; grid-template-columns:repeat(auto-fit,minmax(148px,1fr)); gap:11px; margin:14px 0 2px; }
+  .fek-tile { border:2px solid var(--border); border-radius:var(--fek-r); padding:13px 15px; background:var(--surface); }
+  .fek-tile .v { font:800 30px var(--head); font-variant-numeric:tabular-nums; line-height:1.05; color:var(--ink); }
+  .fek-tile .l { font:700 12px var(--body); color:var(--muted); margin-top:4px; letter-spacing:.02em; }
+  .fek-tile.good { border-color:var(--ramp-2); } .fek-tile.good .v { color:var(--ramp-2); }
+  .fek-tile.warn { border-color:var(--ramp-3); } .fek-tile.warn .v { color:#8a6508; }
+  .fek-tile.bad  { border-color:var(--ramp-5); } .fek-tile.bad  .v { color:var(--ramp-5); }
+  .fek-tile.cold { border-color:var(--ramp-0); } .fek-tile.cold .v { color:var(--ramp-0); }
+
+  /* --- banner: the verdict, big --- */
+  .fek-banner { border-radius:var(--fek-r); padding:16px 19px; margin:14px 0; font-size:16px;
+    line-height:1.55; border-left:7px solid var(--ramp-2); background:var(--soft); color:var(--ink-2); }
+  .fek-banner b { font-family:var(--head); color:var(--ink); font-size:17.5px; display:block; margin-bottom:4px; }
+  .fek-banner.warn { border-left-color:var(--ramp-3); background:var(--warn-bg); }
+  .fek-banner.bad  { border-left-color:var(--ramp-5); background:var(--danger-bg); }
+  .fek-banner.cold { border-left-color:var(--ramp-0); background:#E6EEF3; }
+
+  @media (max-width:420px){ :root { --tap:56px; --tap-sm:46px; } .fek-step .val { font-size:26px; } }
+  @media print { .fek-step button, .fek-pick .search { display:none; } }
+
 </style>
 </head>
 <body>
@@ -252,23 +368,8 @@
     <p class="hint">One row per stem. Everything below the table recomputes as you add.</p>
 
     <div class="card">
-      <div class="grid">
-        <label class="f">species<select id="tSp"></select></label>
-        <label class="f">DBH (cm)<input type="number" id="tDbh" min="0" step="0.1" placeholder="1.37 m"></label>
-        <label class="f">height (m)<input type="number" id="tHt" min="0" step="0.1" placeholder="optional"></label>
-        <label class="f">crown class<select id="tCc">
-          <option value="D">dominant</option><option value="C" selected>codominant</option>
-          <option value="I">intermediate</option><option value="S">suppressed</option>
-          <option value="O">open-grown</option></select></label>
-        <label class="f">status<select id="tSt">
-          <option value="L" selected>live</option>
-          <option value="S1">snag — decay 1 (recent, bark on)</option>
-          <option value="S2">snag — decay 2 (loose bark)</option>
-          <option value="S3">snag — decay 3 (bark gone, top broken)</option>
-          <option value="S4">snag — decay 4 (soft, stub)</option>
-          <option value="S5">snag — decay 5 (crumbling)</option></select></label>
-        <label class="f">note<input type="text" id="tNote" placeholder="cavity, fire scar, mistletoe…" autocomplete="off"></label>
-      </div>
+      <div id="tEntry"></div>
+      <label class="f" style="margin-bottom:14px">note<input type="text" id="tNote" placeholder="cavity, fire scar, mistletoe…" autocomplete="off"></label>
       <div class="btn-row">
         <button class="btn btn-go" id="tAdd" type="button">Add stem</button>
         <button class="btn btn-ghost" id="tUndo" type="button">↩ Undo</button>
@@ -282,12 +383,9 @@
     <div class="card" id="htCard" style="display:none">
       <h3 style="margin-top:0">Height from two angles</h3>
       <p class="hint">The standard clinometer method. Works on slopes, which the single-angle shortcut does not.</p>
-      <div class="grid">
-        <label class="f">horizontal distance (m)<input type="number" id="hD" min="0" step="0.1" placeholder="to the stem"></label>
-        <label class="f">units<select id="hU"><option value="deg">degrees</option><option value="pct">percent</option></select></label>
-        <label class="f">angle to TOP<input type="number" id="hT" step="0.1" placeholder="e.g. 42"></label>
-        <label class="f">angle to BASE<input type="number" id="hB" step="0.1" placeholder="e.g. -8"></label>
-      </div>
+      <div id="htEntry"></div>
+      <input type="hidden" id="hD"><input type="hidden" id="hU" value="deg">
+      <input type="hidden" id="hT"><input type="hidden" id="hB">
       <div id="hOut"></div>
       <div class="btn-row">
         <button class="btn btn-soft" id="hUse" type="button">Use this height ↑</button>
@@ -324,15 +422,12 @@
 
     <div class="card">
       <h3 style="margin-top:0">Plot geometry</h3>
-      <div class="grid">
-        <label class="f">design<select id="sDesign">
-          <option value="circ">fixed-radius circle</option>
-          <option value="rect">rectangle / belt</option></select></label>
-        <label class="f" id="wRad">radius (m)<input type="number" id="sRad" step="0.1" value="11.28"></label>
-        <label class="f" id="wLen" style="display:none">length (m)<input type="number" id="sLen" step="0.1" value="20"></label>
-        <label class="f" id="wWid" style="display:none">width (m)<input type="number" id="sWid" step="0.1" value="20"></label>
-        <label class="f">min DBH tallied (cm)<input type="number" id="sMin" step="0.1" value="5"></label>
-      </div>
+      <div id="geoEntry"></div>
+      <input type="hidden" id="sDesign" value="circ">
+      <input type="hidden" id="sRad" value="11.28">
+      <input type="hidden" id="sLen" value="20">
+      <input type="hidden" id="sWid" value="20">
+      <input type="hidden" id="sMin" value="5">
       <div id="sArea" class="verdict"></div>
       <p class="fine">11.28 m radius = 400 m² = 0.04 ha, the common US fixed plot. 5.64 m = 100 m². State your
         minimum tallied diameter — expansion factors are meaningless without it.</p>
@@ -340,38 +435,22 @@
 
     <div class="card">
       <h3 style="margin-top:0">Physiography</h3>
-      <div class="grid">
-        <label class="f">aspect (°)<input type="number" id="sAsp" min="0" max="360" step="1"></label>
-        <label class="f">slope (%)<input type="number" id="sSlope" min="0" step="1"></label>
-        <label class="f">slope position<select id="sPos">
-          <option value="">—</option><option>ridge</option><option>upper slope</option>
-          <option>mid slope</option><option>lower slope</option><option>toe / bench</option>
-          <option>valley bottom</option><option>flat</option></select></label>
-        <label class="f">soil texture<select id="sSoil">
-          <option value="">—</option><option>sand</option><option>loamy sand</option><option>sandy loam</option>
-          <option>loam</option><option>silt loam</option><option>clay loam</option><option>clay</option>
-          <option>organic</option><option>rocky / skeletal</option></select></label>
-        <label class="f">parent material<input type="text" id="sParent" placeholder="granodiorite, basalt, dolomite…" autocomplete="off"></label>
-        <label class="f">moisture class<select id="sMoist">
-          <option value="">—</option><option>xeric</option><option>subxeric</option><option>mesic</option>
-          <option>subhygric</option><option>hygric</option><option>riparian</option></select></label>
-      </div>
+      <div id="physEntry"></div>
+      <label class="f" style="margin-bottom:14px">parent material<input type="text" id="sParent" placeholder="granodiorite, basalt, dolomite…" autocomplete="off"></label>
+      <input type="hidden" id="sAsp"><input type="hidden" id="sSlope">
+      <input type="hidden" id="sPos"><input type="hidden" id="sSoil"><input type="hidden" id="sMoist">
       <div id="sHeatload" class="fine"></div>
     </div>
 
     <div class="card">
       <h3 style="margin-top:0">Structure &amp; ground</h3>
-      <div class="grid">
-        <label class="f">canopy cover (%)<input type="number" id="sCan" min="0" max="100" step="1"></label>
-        <label class="f">shrub cover (%)<input type="number" id="sShrub" min="0" max="100" step="1"></label>
-        <label class="f">herb cover (%)<input type="number" id="sHerb" min="0" max="100" step="1"></label>
-        <label class="f">bare / rock (%)<input type="number" id="sBare" min="0" max="100" step="1"></label>
-        <label class="f">litter depth (cm)<input type="number" id="sLit" min="0" step="0.5"></label>
-        <label class="f">browse line height (m)<input type="number" id="sBrowse" min="0" step="0.1"></label>
-      </div>
+      <div id="covEntry"></div>
+      <input type="hidden" id="sCan"><input type="hidden" id="sShrub"><input type="hidden" id="sHerb">
+      <input type="hidden" id="sBare"><input type="hidden" id="sLit"><input type="hidden" id="sBrowse">
       <h3>Coarse woody debris — line intercept</h3>
+      <div id="cwdEntry"></div>
+      <input type="hidden" id="cwdL" value="30">
       <div class="grid">
-        <label class="f">transect length (m)<input type="number" id="cwdL" step="1" value="30"></label>
         <label class="f">intersect diameters (cm)<input type="text" id="cwdD" placeholder="12 8 31 45 9" autocomplete="off"></label>
       </div>
       <div id="cwdOut"></div>
@@ -461,6 +540,25 @@
     <h2>Method notes</h2>
     <p class="hint">Every formula this page uses, its source, and where it breaks. Print this with the sheet
       and the numbers are defensible.</p>
+
+    <div class="card">
+      <h3 style="margin-top:0">What the entry layer records &mdash; and what it does not</h3>
+      <p>The controls on this page are the shared <b>Field Entry Kit</b>, sized so a gloved thumb on a wet
+        tablet hits them. Two of them changed what the sheet stores, and the change is deliberate.</p>
+      <p><b>Aspect is eight compass points, not a free 0&ndash;360 field.</b> A hand compass in the field,
+        read while standing on a slope, does not give you a degree. Recording 227&deg; when you read
+        "southwest" is a precision you did not measure. The eight points fold to the McCune &amp; Keon heat-load
+        axis exactly as the continuous value would &mdash; folded aspect = |180 &minus; |aspect &minus; 225||,
+        0&deg; at the cool northeast end and 180&deg; at the hot southwest &mdash; and the fold is what the
+        number is for. If you are working from a DEM rather than a compass, put the degree in the notes.</p>
+      <p><b>Cover moves in 5% steps.</b> Ocular cover estimates disagree between trained observers by
+        10&ndash;20 percentage points and cluster on multiples of five in any case; a control that offers
+        1% increments invites a false precision. Record the observer &mdash; between-observer variance is
+        usually larger than the effect you are looking for.</p>
+      <p><b>Blank still means blank.</b> Aspect, slope position, texture, moisture and every cover field
+        start unrecorded and stay out of the export until you touch them. Aspect 0&deg; is north, and this
+        sheet will not enter it on your behalf.</p>
+    </div>
 
     <div class="card">
       <h3 style="margin-top:0">Per-stem</h3>
@@ -840,6 +938,157 @@ var SPECIES = [
 ];
 </script>
 <script>
+
+/* ---- Field Entry Kit v1.0.0 : constructors return {el, get, set} ---- */
+var FEK = (function(){
+  function el(t,c,h){ var e=document.createElement(t); if(c) e.className=c;
+    if(h!=null) e.innerHTML=h; return e; }
+  function buzz(m){ try{ if(navigator.vibrate) navigator.vibrate(m||8);}catch(e){} }
+
+  function step(o){
+    o=o||{}; var min=(o.min==null?-Infinity:o.min), max=(o.max==null?Infinity:o.max);
+    var stepv=o.step||1, dec=o.dec==null?(String(stepv).split(".")[1]||"").length:o.dec;
+    var v=o.value==null?0:o.value;
+    var wrap=el("div","fek-row"), lab=el("label","fek-lab",
+      (o.label||"")+(o.unit?'<span class="u">'+o.unit+'</span>':""));
+    var box=el("div","fek-step");
+    var minus=el("button",null,"&minus;"), inp=el("input"), plus=el("button",null,"+");
+    minus.type="button"; plus.type="button"; inp.type="number"; inp.className="val";
+    inp.setAttribute("inputmode","decimal");
+    if(o.label) inp.setAttribute("aria-label",o.label);
+    function clamp(x){ return Math.min(max,Math.max(min,x)); }
+    function render(){ inp.value=(dec?v.toFixed(dec):String(v)); }
+    function set(x,quiet){ v=clamp(isFinite(x)?x:0); render(); if(!quiet&&o.onchange) o.onchange(v); }
+    function bump(d){ set(+(v+d*stepv).toFixed(6)); buzz(); }
+    minus.addEventListener("click",function(){ bump(-1); });
+    plus.addEventListener("click",function(){ bump(1); });
+    var hold;
+    function holdOn(d){ return function(){ clearInterval(hold);
+      hold=setInterval(function(){ bump(d); },110); }; }
+    function holdOff(){ clearInterval(hold); }
+    minus.addEventListener("pointerdown",holdOn(-1)); plus.addEventListener("pointerdown",holdOn(1));
+    ["pointerup","pointerleave","pointercancel"].forEach(function(ev){
+      minus.addEventListener(ev,holdOff); plus.addEventListener(ev,holdOff); });
+    inp.addEventListener("input",function(){ var x=parseFloat(inp.value);
+      if(isFinite(x)){ v=clamp(x); if(o.onchange) o.onchange(v); } });
+    inp.addEventListener("blur",render);
+    box.appendChild(minus); box.appendChild(inp); box.appendChild(plus);
+    wrap.appendChild(lab); wrap.appendChild(box);
+    if(o.help) wrap.appendChild(el("p","fek-help",o.help));
+    render();
+    return { el:wrap, get:function(){return v;}, set:function(x){set(x,true);} };
+  }
+
+  function dial(o){
+    o=o||{}; var opts=o.options||[], cur=o.value==null?null:o.value;
+    var wrap=el("div","fek-row"), lab=el("label","fek-lab",o.label||"");
+    var box=el("div","fek-dial"), btns=[];
+    opts.forEach(function(op,i){
+      var b=el("button",null,'<span>'+op.label+'</span>'+(op.sub?'<small>'+op.sub+'</small>':""));
+      b.type="button";
+      b.setAttribute("data-r", op.ramp==null ? String(Math.min(5,Math.round(i*5/Math.max(1,opts.length-1)))) : String(op.ramp));
+      b.addEventListener("click",function(){
+        cur = (cur===op.value && o.clearable!==false) ? null : op.value;
+        paint(); buzz(); if(o.onchange) o.onchange(cur);
+      });
+      btns.push(b); box.appendChild(b);
+    });
+    function paint(){ btns.forEach(function(b,i){ b.classList.toggle("on", opts[i].value===cur); }); }
+    paint();
+    wrap.appendChild(lab); wrap.appendChild(box);
+    if(o.help) wrap.appendChild(el("p","fek-help",o.help));
+    return { el:wrap, get:function(){return cur;},
+             set:function(x){ cur=x; paint(); } };
+  }
+
+  function chips(o){
+    o=o||{}; var opts=o.options||[], sel={};
+    (o.value||[]).forEach(function(v){ sel[v]=1; });
+    var wrap=el("div","fek-row"), lab=el("label","fek-lab",o.label||"");
+    var box=el("div","fek-chips"), btns=[];
+    opts.forEach(function(op){
+      var b=el("button","fek-chip",op.label); b.type="button";
+      b.addEventListener("click",function(){
+        if(o.single){ sel={}; sel[op.value]=1; }
+        else if(sel[op.value]) delete sel[op.value]; else sel[op.value]=1;
+        paint(); buzz(); if(o.onchange) o.onchange(Object.keys(sel));
+      });
+      btns.push(b); box.appendChild(b);
+    });
+    function paint(){ btns.forEach(function(b,i){ b.classList.toggle("on",!!sel[opts[i].value]); }); }
+    paint();
+    wrap.appendChild(lab); wrap.appendChild(box);
+    if(o.help) wrap.appendChild(el("p","fek-help",o.help));
+    return { el:wrap, get:function(){return Object.keys(sel);},
+             set:function(a){ sel={}; (a||[]).forEach(function(v){sel[v]=1;}); paint(); } };
+  }
+
+  function slider(o){
+    o=o||{}; var v=o.value==null?(o.min||0):o.value;
+    var wrap=el("div","fek-row"), lab=el("label","fek-lab",o.label||"");
+    var box=el("div","fek-slide"), r=el("input"), bub=el("div","bub");
+    r.type="range"; r.min=o.min==null?0:o.min; r.max=o.max==null?100:o.max;
+    r.step=o.step||1; r.value=v;
+    if(o.label) r.setAttribute("aria-label",o.label);
+    function paint(){ bub.innerHTML=(o.fmt?o.fmt(v):v)+(o.unit?'<span>'+o.unit+'</span>':""); }
+    r.addEventListener("input",function(){ v=parseFloat(r.value); paint(); if(o.onchange) o.onchange(v); });
+    paint();
+    box.appendChild(r); box.appendChild(bub);
+    wrap.appendChild(lab); wrap.appendChild(box);
+    if(o.help) wrap.appendChild(el("p","fek-help",o.help));
+    return { el:wrap, get:function(){return v;}, set:function(x){ v=x; r.value=x; paint(); } };
+  }
+
+  function picker(o){
+    o=o||{}; var opts=o.options||[], cur=o.value==null?null:o.value, q="";
+    var wrap=el("div","fek-row"), lab=el("label","fek-lab",o.label||"");
+    var box=el("div","fek-pick"), s=el("input","search"), list=el("div","opts");
+    s.type="text"; s.placeholder=o.placeholder||"type to filter…";
+    s.setAttribute("autocomplete","off");
+    if(o.label) s.setAttribute("aria-label",o.label+" filter");
+    function paint(){
+      list.innerHTML="";
+      var qq=q.toLowerCase();
+      var shown=opts.filter(function(op){
+        return !qq || (op.label+" "+(op.sub||"")).toLowerCase().indexOf(qq)>=0; });
+      if(!shown.length){ list.appendChild(el("div","none","No match. Clear the filter to see all "+opts.length+".")); return; }
+      shown.slice(0,200).forEach(function(op){
+        var b=el("button","opt"+(op.value===cur?" on":""),
+          op.label+(op.sub?'<small>'+op.sub+'</small>':""));
+        b.type="button";
+        b.addEventListener("click",function(){ cur=op.value; paint(); buzz(); if(o.onchange) o.onchange(cur); });
+        list.appendChild(b);
+      });
+    }
+    s.addEventListener("input",function(){ q=s.value; paint(); });
+    box.appendChild(s); box.appendChild(list);
+    wrap.appendChild(lab); wrap.appendChild(box);
+    if(o.help) wrap.appendChild(el("p","fek-help",o.help));
+    paint();
+    return { el:wrap, get:function(){return cur;}, set:function(x){ cur=x; paint(); } };
+  }
+
+  function tiles(list){
+    var box=el("div","fek-tiles");
+    (list||[]).forEach(function(t){
+      box.appendChild(el("div","fek-tile"+(t.tone?" "+t.tone:""),
+        '<div class="v">'+t.v+'</div><div class="l">'+t.l+'</div>'));
+    });
+    return box;
+  }
+  function banner(title,body,tone){
+    return el("div","fek-banner"+(tone?" "+tone:""),"<b>"+title+"</b>"+body);
+  }
+  function mount(host,parts){
+    var h=typeof host==="string"?document.getElementById(host):host;
+    h.innerHTML=""; parts.forEach(function(p){ h.appendChild(p.el||p); }); return h;
+  }
+  return { version:"1.0.0", step:step, dial:dial, chips:chips, slider:slider,
+           picker:picker, tiles:tiles, banner:banner, mount:mount, buzz:buzz };
+})();
+
+</script>
+<script>
 (function(){
   "use strict";
   function $(id){ return document.getElementById(id); }
@@ -998,7 +1247,7 @@ var SPECIES = [
     d.innerHTML=h;
     d.querySelector("[data-close]").addEventListener("click",function(){ d.innerHTML=""; });
     d.querySelector("[data-tally]").addEventListener("click",function(){
-      $("tSp").value=s.id; showPane("p-trees"); $("tDbh").focus(); toast("Species set — enter DBH"); });
+      if(TSP) TSP.set(s.id); showPane("p-trees"); toast("Species set — enter DBH"); });
     d.querySelector("[data-links]").addEventListener("click",function(){ addKnown([s]); });
     d.scrollIntoView({behavior:"smooth",block:"nearest"});
   }
@@ -1146,26 +1395,56 @@ var SPECIES = [
   ["hD","hT","hB","hU"].forEach(function(id){ $(id).addEventListener("input",hOut); });
   $("hUse").addEventListener("click",function(){
     var h=height(); if(h===null||h<=0){ toast("Nothing to use yet"); return; }
-    $("tHt").value=h.toFixed(1); toast("Height "+h.toFixed(1)+" m copied to the tally"); buzz(); });
+    if(THT) THT.set(+h.toFixed(1)); toast("Height "+h.toFixed(1)+" m copied to the tally"); buzz(); });
 
   /* ================= TALLY ================= */
+  /* ---- Field Entry Kit controls for the tally (FEK v1) ---- */
+  var TSP=null, TDBH=null, THT=null, TCC=null, TST=null;
+  var CROWN=[
+    {value:"D", label:"dominant",    sub:"above the canopy",  ramp:0},
+    {value:"C", label:"codominant",  sub:"forms the canopy",  ramp:1},
+    {value:"I", label:"intermediate",sub:"crowded, some light",ramp:3},
+    {value:"S", label:"suppressed",  sub:"overtopped",        ramp:4},
+    {value:"O", label:"open-grown",  sub:"no competition",    ramp:2}
+  ];
+  var STATUS=[
+    {value:"L",  label:"live",     sub:"green crown", ramp:2},
+    {value:"S1", label:"snag 1",   sub:"recent, bark on", ramp:0},
+    {value:"S2", label:"snag 2",   sub:"loose bark",  ramp:1},
+    {value:"S3", label:"snag 3",   sub:"bark gone, top broken", ramp:3},
+    {value:"S4", label:"snag 4",   sub:"soft, stub",  ramp:4},
+    {value:"S5", label:"snag 5",   sub:"crumbling",   ramp:5}
+  ];
+  function speciesOptions(){
+    var out=SPECIES.slice().sort(function(a,b){return a.com.localeCompare(b.com);})
+      .map(function(s){ return {value:s.id, label:esc(s.com), sub:esc(s.sci)}; });
+    out.push({value:"__unk", label:"unknown / not in pack", sub:"tallied, not identified"});
+    return out;
+  }
   function fillSpeciesSelect(){
-    var sel=$("tSp"), cur=sel.value;
-    sel.innerHTML="";
-    SPECIES.slice().sort(function(a,b){return a.com.localeCompare(b.com);}).forEach(function(s){
-      var o=document.createElement("option"); o.value=s.id; o.textContent=s.com+" — "+s.sci; sel.appendChild(o); });
-    var o2=document.createElement("option"); o2.value="__unk"; o2.textContent="unknown / not in pack"; sel.appendChild(o2);
-    if(cur) sel.value=cur;
+    var cur = TSP ? TSP.get() : null;
+    TSP = FEK.picker({ label:"species", options:speciesOptions(), value:cur,
+      placeholder:"type a name to filter…",
+      help:"The pack for your region loads here. An unidentified stem still counts toward density and basal area — tally it as unknown rather than guessing." });
+    TDBH = TDBH || FEK.step({ label:"DBH", unit:"cm", value:0, min:0, max:400, step:0.5, dec:1,
+      help:"Measured at 1.37 m on the uphill side. Hold − or + to run the number. A tape giving circumference: DBH = C ÷ π." });
+    THT = THT || FEK.step({ label:"height", unit:"m", value:0, min:0, max:120, step:0.5, dec:1,
+      help:"Optional. Leave at 0 and the stem still tallies; the height statistics simply skip it." });
+    TCC = TCC || FEK.dial({ label:"crown class", options:CROWN, value:"C", clearable:false });
+    TST = TST || FEK.dial({ label:"status", options:STATUS, value:"L", clearable:false });
+    FEK.mount("tEntry",[TSP,TDBH,THT,TCC,TST]);
   }
   $("tAdd").addEventListener("click",function(){
-    var d=num("tDbh");
-    if(d===null||d<=0){ toast("A stem needs a DBH"); $("tDbh").focus(); return; }
+    var d=TDBH?TDBH.get():0;
+    if(!(d>0)){ toast("A stem needs a DBH"); return; }
     var mn=num("sMin");
-    var sid=val("tSp"), sp=spById(sid);
+    var sid=TSP?TSP.get():null, sp=spById(sid);
+    if(!sid){ toast("Pick a species — or tally it as unknown"); return; }
+    var ht=THT?THT.get():0;
     stems.push({n:seq++, sp:sid, com:sp?sp.com:"unknown", sci:sp?sp.sci:"", d:d,
-      h:num("tHt"), cc:val("tCc"), st:val("tSt"), note:val("tNote")});
+      h:ht>0?ht:null, cc:TCC.get(), st:TST.get(), note:val("tNote")});
     hist.push("stem");
-    $("tDbh").value=""; $("tHt").value=""; $("tNote").value=""; $("tDbh").focus();
+    TDBH.set(0); THT.set(0); $("tNote").value="";
     buzz(); renderTally();
     if(mn!==null && d<mn) toast("Added — but "+d+" cm is below your "+mn+" cm minimum");
     else toast("Stem "+(seq-1)+" recorded");
@@ -1277,10 +1556,106 @@ var SPECIES = [
 
   /* ================= PLOT / SITE ================= */
   try{ $("sDate").value=new Date().toISOString().slice(0,10); }catch(e){}
-  $("sDesign").addEventListener("change",function(){
-    var r=this.value==="rect";
-    $("wRad").style.display=r?"none":""; $("wLen").style.display=r?"":"none"; $("wWid").style.display=r?"":"none";
-    siteOut(); });
+
+  /* Field Entry Kit controls write through to the hidden fields the rest of the
+     page already reads, so "not recorded" stays distinguishable from zero: a
+     field stays empty until you touch its control. Aspect 0 is north, not blank. */
+  function push(id,v){
+    var e=$(id); if(!e) return;
+    e.value = (v==null?"":String(v));
+    e.dispatchEvent(new Event("input",{bubbles:true}));
+    e.dispatchEvent(new Event("change",{bubbles:true}));
+  }
+  var GEO={}, PHY={}, COV={}, HT={};
+
+  GEO.design = FEK.chips({ label:"design", single:true, value:["circ"],
+    options:[{value:"circ",label:"fixed-radius circle"},{value:"rect",label:"rectangle / belt"}],
+    onchange:function(a){ push("sDesign", a[0]||"circ"); geoPaint(); } });
+  GEO.rad = FEK.step({ label:"radius", unit:"m", value:11.28, min:0, max:60, step:0.01, dec:2,
+    onchange:function(v){ push("sRad",v); },
+    help:"11.28 m = 400 m² = 0.04 ha, the common US fixed plot. 5.64 m = 100 m²." });
+  GEO.len = FEK.step({ label:"length", unit:"m", value:20, min:0, max:500, step:1, dec:0,
+    onchange:function(v){ push("sLen",v); } });
+  GEO.wid = FEK.step({ label:"width", unit:"m", value:20, min:0, max:200, step:1, dec:0,
+    onchange:function(v){ push("sWid",v); } });
+  GEO.min = FEK.step({ label:"min DBH tallied", unit:"cm", value:5, min:0, max:100, step:0.5, dec:1,
+    onchange:function(v){ push("sMin",v); },
+    help:"Expansion factors are meaningless without it — state the diameter below which you stopped tallying." });
+  function geoPaint(){
+    var rect = val("sDesign")==="rect";
+    var parts=[GEO.design].concat(rect?[GEO.len,GEO.wid]:[GEO.rad]).concat([GEO.min]);
+    FEK.mount("geoEntry",parts);
+  }
+  geoPaint();
+
+  var ASPECTS=[
+    {value:0,   label:"N",  ramp:0},{value:45,  label:"NE", ramp:0},
+    {value:90,  label:"E",  ramp:1},{value:135, label:"SE", ramp:3},
+    {value:180, label:"S",  ramp:4},{value:225, label:"SW", ramp:5},
+    {value:270, label:"W",  ramp:4},{value:315, label:"NW", ramp:2}
+  ];
+  PHY.asp = FEK.dial({ label:"aspect", options:ASPECTS, clearable:true,
+    onchange:function(v){ push("sAsp", v); },
+    help:"Eight points is what a compass gives you in the field without pretending to a precision you did not measure. The colour is the heat-load axis: SW is the drought end, NE the moist end." });
+  PHY.slope = FEK.step({ label:"slope", unit:"%", value:0, min:0, max:200, step:5, dec:0,
+    onchange:function(v){ push("sSlope",v); },
+    help:"Percent, not degrees — 100% is a 45° slope." });
+  PHY.pos = FEK.dial({ label:"slope position",
+    options:[{value:"ridge",label:"ridge"},{value:"upper slope",label:"upper"},
+             {value:"mid slope",label:"mid"},{value:"lower slope",label:"lower"},
+             {value:"toe / bench",label:"toe"},{value:"valley bottom",label:"bottom"},
+             {value:"flat",label:"flat"}],
+    onchange:function(v){ push("sPos",v); } });
+  PHY.soil = FEK.dial({ label:"soil texture",
+    options:[{value:"sand",label:"sand"},{value:"loamy sand",label:"loamy sand"},
+             {value:"sandy loam",label:"sandy loam"},{value:"loam",label:"loam"},
+             {value:"silt loam",label:"silt loam"},{value:"clay loam",label:"clay loam"},
+             {value:"clay",label:"clay"},{value:"organic",label:"organic"},
+             {value:"rocky / skeletal",label:"rocky"}],
+    onchange:function(v){ push("sSoil",v); },
+    help:"By feel. Soil Bench carries the full USDA ribbon-and-grit key if you want to work it properly." });
+  PHY.moist = FEK.dial({ label:"moisture class",
+    options:[{value:"xeric",label:"xeric",ramp:5},{value:"subxeric",label:"subxeric",ramp:4},
+             {value:"mesic",label:"mesic",ramp:2},{value:"subhygric",label:"subhygric",ramp:1},
+             {value:"hygric",label:"hygric",ramp:0},{value:"riparian",label:"riparian",ramp:0}],
+    onchange:function(v){ push("sMoist",v); },
+    help:"A relative class for this landscape, not an absolute — it means wetter or drier than the sites around it." });
+  FEK.mount("physEntry",[PHY.asp,PHY.slope,PHY.pos,PHY.soil,PHY.moist]);
+
+  function coverSlider(id,label,help){
+    return FEK.slider({ label:label, min:0, max:100, step:5, value:0, unit:"%",
+      onchange:function(v){ push(id,v); }, help:help });
+  }
+  COV.can  = coverSlider("sCan","canopy cover",
+    "Vertical projection of the tree canopy. Ocular estimates cluster on multiples of five and disagree between observers by 10–20 points — record who estimated it.");
+  COV.shrub= coverSlider("sShrub","shrub cover");
+  COV.herb = coverSlider("sHerb","herb cover");
+  COV.bare = coverSlider("sBare","bare / rock",
+    "Cover layers overlap, so these four need not sum to 100.");
+  COV.lit  = FEK.step({ label:"litter depth", unit:"cm", value:0, min:0, max:60, step:0.5, dec:1,
+    onchange:function(v){ push("sLit",v); } });
+  COV.browse= FEK.step({ label:"browse line height", unit:"m", value:0, min:0, max:5, step:0.1, dec:1,
+    onchange:function(v){ push("sBrowse",v); },
+    help:"A clean line at a consistent height is the herbivores telling you the browsing pressure." });
+  FEK.mount("covEntry",[COV.can,COV.shrub,COV.herb,COV.bare,COV.lit,COV.browse]);
+
+  var CWDL = FEK.step({ label:"transect length", unit:"m", value:30, min:1, max:200, step:5, dec:0,
+    onchange:function(v){ push("cwdL",v); } });
+  FEK.mount("cwdEntry",[CWDL]);
+
+  HT.d = FEK.step({ label:"horizontal distance", unit:"m", value:0, min:0, max:200, step:1, dec:1,
+    onchange:function(v){ push("hD",v); },
+    help:"Horizontal, not slope distance — on a 20% slope, slope distance overestimates by about 2%." });
+  HT.u = FEK.chips({ label:"angle units", single:true, value:["deg"],
+    options:[{value:"deg",label:"degrees"},{value:"pct",label:"percent"}],
+    onchange:function(a){ push("hU", a[0]||"deg"); } });
+  HT.t = FEK.step({ label:"angle to TOP", value:0, min:-90, max:90, step:1, dec:0,
+    onchange:function(v){ push("hT",v); } });
+  HT.b = FEK.step({ label:"angle to BASE", value:0, min:-90, max:90, step:1, dec:0,
+    onchange:function(v){ push("hB",v); },
+    help:"Looking up is positive, looking down negative. Standing below the tree you read a negative base angle." });
+  FEK.mount("htEntry",[HT.d,HT.u,HT.t,HT.b]);
+
   function siteOut(){
     var A=plotArea();
     $("sArea").innerHTML = A>0
@@ -1299,7 +1674,7 @@ var SPECIES = [
     } else $("sHeatload").innerHTML="";
     cwdOut(); ecoOut();
   }
-  ["sRad","sLen","sWid","sAsp","sSlope","sMin"].forEach(function(id){ $(id).addEventListener("input",siteOut); });
+  ["sDesign","sRad","sLen","sWid","sAsp","sSlope","sMin"].forEach(function(id){ $(id).addEventListener("input",siteOut); });
   ["sPlot","sObs","sDate","sLat","sLon","sElev","sPos","sSoil","sParent","sMoist","sCan","sShrub","sHerb",
    "sBare","sLit","sBrowse","sNotes"].forEach(function(id){ $(id).addEventListener("input",ecoOut); });
 
@@ -1374,7 +1749,7 @@ var SPECIES = [
         try{ URL.revokeObjectURL(p.url); }catch(e){}
         photos.splice(i,1); renderPhotos(); });
       d.querySelector(".pid").addEventListener("click",function(){
-        var sp=spById(val("tSp"));
+        var sp=spById(TSP?TSP.get():null);
         if(!sp){ toast("Pick a species on the Tally tab first"); return; }
         p.note=(p.note?p.note+" ":"")+"[ID: "+sp.com+" ("+sp.sci+")]";
         renderPhotos(); toast("Linked to "+sp.com); buzz(); });

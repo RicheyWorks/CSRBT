@@ -869,7 +869,14 @@ live, and every export carries site, observer, and date plus a CSV for Excel/R:
   from clinometer angles, a stem tally computing basal area, QMD, SDI and importance values live,
   line-intercept coarse woody debris, photo-anchored notes, and an interaction recorder that exports
   a food-web edge list. **The species list is a swappable JSON pack** — export the current one, or
-  copy the built-in prompt, hand it to an AI, and paste back a pack for any biome.
+  copy the built-in prompt, hand it to an AI, and paste back a pack for any biome. **Migrated to the
+  Field Entry Kit** (ADR-031 action 7): a filterable species picker, hold-to-repeat steppers for DBH and
+  height, coloured dials for crown class and status, and 5%-step cover sliders — every target sized for a
+  gloved thumb. The migration made one substantive change and states it in the Method tab: **aspect is now
+  eight compass points rather than a free 0–360 field**, because a hand compass read on a slope does not
+  give you a degree, and the value exists to be folded to the McCune & Keon heat-load axis, which
+  |180 − |aspect − 225|| computes identically either way. Zero and *not recorded* stay distinguishable —
+  aspect 0° is north, and the sheet will not enter it for you. 76/76 verified.
 - [**`docs/field-notebook.html`**](docs/field-notebook.html) — **Field Notebook**: tap-to-tally
   ethograms with a scan timer, quadrat counts, species lists, and mark–recapture, with live
   diversity readings; long-press any tally card to rename it in place.
