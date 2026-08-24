@@ -1,0 +1,1164 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Soil Bench — compost, C:N, mixes &amp; texture</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,600;9..144,700&family=Nunito+Sans:wght@400;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap">
+<style>
+  :root {
+    color-scheme: light;
+    --page:#F5F1E6; --surface:#FFFDF7; --surface-2:#F3EEE0; --ink:#23281F; --ink-2:#4B5344;
+    --muted:#8B8B7B; --border:#E3DCC9; --s1:#2E7D4F; --s1-deep:#236240; --s2:#C0592B; --s3:#2B6C8F;
+    --soft:#E9F0E7; --warn-bg:#F6EAD8; --danger:#B23A32; --danger-bg:#F6E7E5; --gold:#B8860B;
+    --shadow:0 1px 2px rgba(35,40,31,.06),0 10px 28px rgba(35,40,31,.08);
+    --head:"Fraunces",Georgia,serif;
+    --body:"Nunito Sans",system-ui,-apple-system,sans-serif;
+    --mono:"JetBrains Mono",ui-monospace,Menlo,monospace;
+  }
+  * { box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
+  body { margin:0; background:var(--page); color:var(--ink); font:16px/1.5 var(--body);
+    -webkit-font-smoothing:antialiased; overscroll-behavior-y:contain; }
+  .app { max-width:960px; margin:0 auto; padding:14px 16px calc(104px + env(safe-area-inset-bottom)); }
+  .top { display:flex; align-items:baseline; justify-content:space-between; gap:10px; padding:6px 2px 12px; flex-wrap:wrap; }
+  .brand { font-family:var(--head); font-weight:700; font-size:22px; letter-spacing:-0.01em; }
+  .brand span { color:var(--s1); }
+  .top a { font-family:var(--mono); font-size:11.5px; color:var(--muted); text-decoration:none;
+    display:inline-flex; align-items:center; min-height:44px; padding:0 6px; margin:-10px -6px; touch-action:manipulation; }
+  .top a:hover { color:var(--s1); }
+
+  .tabbar { position:fixed; left:0; right:0; bottom:0; z-index:20;
+    background:color-mix(in srgb, var(--surface) 94%, transparent); backdrop-filter:blur(10px);
+    border-top:1px solid var(--border); padding:8px max(8px, env(safe-area-inset-left)) calc(8px + env(safe-area-inset-bottom)); }
+  .tabbar .row { max-width:960px; margin:0 auto; display:grid; grid-template-columns:repeat(6,1fr); gap:4px; }
+  .tab { display:flex; flex-direction:column; align-items:center; gap:2px; border:0; background:none;
+    font:700 10.5px var(--body); color:var(--muted); padding:7px 1px; border-radius:12px; cursor:pointer;
+    min-height:54px; touch-action:manipulation; transition:background .15s ease, color .15s ease; }
+  .tab .ico { font-size:20px; line-height:1; }
+  .tab.on { color:var(--s1); background:var(--soft); }
+  .tab:active { transform:scale(.96); }
+  .pane { display:none; animation:fade .18s ease; }
+  .pane.on { display:block; }
+  @keyframes fade { from{opacity:0;transform:translateY(4px);} to{opacity:1;transform:none;} }
+  @media (prefers-reduced-motion: reduce){ .pane{animation:none;} }
+
+  h2 { font-family:var(--head); font-weight:600; font-size:20px; margin:6px 0 2px; }
+  h3 { font-family:var(--head); font-weight:600; font-size:16.5px; margin:16px 0 4px; }
+  .hint { color:var(--muted); font-size:14px; margin:0 0 12px; }
+  .card { background:var(--surface); border:1px solid var(--border); border-radius:16px;
+    padding:16px; box-shadow:var(--shadow); margin-bottom:14px; }
+  .fine { font-size:12.5px; color:var(--muted); margin-top:10px; line-height:1.55; }
+
+  input[type=text], input[type=number], input[type=date], select, textarea {
+    background:var(--surface); color:var(--ink); border:1.5px solid var(--border); border-radius:12px;
+    padding:11px 14px; font:16px var(--body); min-height:48px; max-width:100%; }
+  textarea { min-height:78px; line-height:1.5; width:100%; }
+  input:focus, select:focus, textarea:focus { outline:none; border-color:var(--s1); box-shadow:0 0 0 3px rgba(46,125,79,.18); }
+  input[type=number] { width:110px; }
+  label.f { display:flex; flex-direction:column; gap:5px; font-size:13px; font-weight:700; color:var(--ink-2); min-width:0; }
+  .grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(150px,1fr)); gap:10px; }
+  .grid label.f input, .grid label.f select { width:100%; }
+
+  .btn { border:0; border-radius:12px; padding:12px 18px; font:800 15px var(--body); cursor:pointer;
+    min-height:48px; touch-action:manipulation; transition:transform .1s ease, background .15s ease; }
+  .btn:active { transform:scale(.97); }
+  .btn-go { background:var(--s1); color:#fff; } .btn-go:hover { background:var(--s1-deep); }
+  .btn-soft { background:var(--soft); color:var(--s1); }
+  .btn-ghost { background:none; border:1.5px solid var(--border); color:var(--ink-2); }
+  .btn-ghost:hover { border-color:var(--s1); color:var(--s1); }
+  .btn-row { display:flex; gap:8px; flex-wrap:wrap; margin-top:12px; align-items:end; }
+
+  .kopts { display:flex; flex-wrap:wrap; gap:8px; }
+  .kopt { border:1.5px solid var(--border); background:var(--surface); border-radius:14px; padding:10px 14px;
+    font:700 14px var(--body); color:var(--ink-2); cursor:pointer; min-height:46px; touch-action:manipulation;
+    display:inline-flex; flex-direction:column; align-items:flex-start; gap:1px; }
+  .kopt small { font-weight:400; font-size:11px; color:var(--muted); font-family:var(--mono); }
+  .kopt.on { border-color:var(--s1); background:var(--soft); color:var(--s1); }
+
+  .covscale { display:flex; flex-wrap:wrap; gap:6px; margin-top:6px; }
+  .cv { border:1.5px solid var(--border); background:var(--surface); border-radius:11px; min-width:52px;
+    padding:8px 6px; font:800 15px var(--body); color:var(--ink-2); cursor:pointer; min-height:52px;
+    display:flex; flex-direction:column; align-items:center; justify-content:center; gap:1px; touch-action:manipulation; }
+  .cv small { font:400 9.5px var(--mono); color:var(--muted); }
+  .cv.on { border-color:var(--s1); background:var(--soft); color:var(--s1); }
+  .cv.on small { color:var(--s1-deep); }
+
+  .tiles { display:flex; flex-wrap:wrap; gap:8px; margin:12px 0 2px; }
+  .tile { background:var(--surface-2); border:1px solid var(--border); border-radius:12px; padding:9px 14px; min-width:96px; }
+  .tile .v { font-family:var(--head); font-weight:700; font-size:21px; font-variant-numeric:tabular-nums; }
+  .tile .l { font-size:11px; color:var(--muted); }
+  .verdict { border-radius:12px; padding:13px 16px; margin:12px 0 2px; font-size:15.5px; line-height:1.55;
+    border-left:4px solid var(--s1); background:var(--soft); color:var(--ink-2); }
+  .verdict b { color:var(--ink); }
+  .verdict.warn { border-left-color:var(--s2); background:var(--warn-bg); }
+  .verdict.act { border-left-color:var(--danger); background:var(--danger-bg); }
+
+  .tw { overflow-x:auto; -webkit-overflow-scrolling:touch; margin:10px 0; }
+  table { border-collapse:collapse; width:100%; font-size:14px; }
+  th,td { border:1px solid var(--border); padding:6px 9px; text-align:left; vertical-align:top; white-space:nowrap; }
+  th { background:var(--soft); font-family:var(--head); font-weight:600; font-size:13px; }
+  td.n, th.n { text-align:right; font-variant-numeric:tabular-nums; font-family:var(--mono); font-size:13px; }
+  td i { font-style:italic; color:var(--ink-2); }
+
+  .rowlist { display:grid; gap:8px; margin-top:10px; }
+  .row2 { display:flex; align-items:center; gap:10px; background:var(--surface); border:1px solid var(--border);
+    border-radius:12px; padding:10px 13px; font-size:15px; }
+  .row2.inv { border-left:3px solid var(--danger); }
+  .row2 .g { flex:1; min-width:0; }
+  .row2 .g b { font-family:var(--head); font-size:15.5px; }
+  .row2 .g b i { font-style:italic; font-weight:400; color:var(--ink-2); font-size:14px; }
+  .row2 .g span { display:block; color:var(--muted); font-size:12.5px; font-family:var(--mono); margin-top:1px;
+    overflow:hidden; text-overflow:ellipsis; }
+  .row2 .cov { font-family:var(--head); font-weight:700; font-size:17px; color:var(--s1); min-width:46px; text-align:right; }
+  .row2 button { border:0; background:none; color:var(--muted); font-size:15px; padding:9px 11px; cursor:pointer; min-height:44px; min-width:44px; }
+  .row2 button:hover { color:var(--danger); }
+
+  .bars { display:grid; gap:6px; margin-top:10px; }
+  .bar { display:grid; grid-template-columns:132px 1fr 54px; gap:8px; align-items:center; font-size:13.5px; }
+  .bar .nm { font-weight:700; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+  .bar .tr { display:block; background:var(--surface-2); border:1px solid var(--border); border-radius:8px; height:20px; overflow:hidden; }
+  .bar .fl { display:block; height:100%; background:var(--s1); border-radius:7px 0 0 7px; transition:width .4s ease; }
+  .bar .fl.inv { background:var(--s2); }
+  .bar .pc { text-align:right; font-variant-numeric:tabular-nums; color:var(--ink-2); font-family:var(--mono); font-size:12.5px; }
+
+  .label { background:#fff; border:1px solid var(--ink); border-radius:2px; padding:14px 16px; margin-top:10px;
+    font:12.5px/1.5 var(--body); color:#000; max-width:440px; }
+  .label .inst { font-family:var(--head); font-weight:700; font-size:12px; letter-spacing:.06em;
+    text-transform:uppercase; text-align:center; border-bottom:1px solid #000; padding-bottom:5px; margin-bottom:7px; }
+  .label .sci { font-style:italic; font-weight:700; font-size:14px; }
+  .label .row { margin:3px 0; }
+  .label .k { font-weight:700; }
+  .label .coll { margin-top:8px; padding-top:6px; border-top:1px solid #999; display:flex; justify-content:space-between; }
+
+  pre.export { background:#23281F; color:#E8E4D5; border-radius:12px; padding:14px 16px; overflow-x:auto;
+    font:12.5px/1.65 var(--mono); max-height:340px; }
+  code { font-family:var(--mono); font-size:.82em; background:var(--surface-2); border:1px solid var(--border); border-radius:5px; padding:1px 5px; }
+
+  .toast { position:fixed; left:50%; bottom:84px; transform:translateX(-50%) translateY(90px); z-index:30;
+    background:var(--ink); color:#F5F1E6; border-radius:999px; padding:10px 22px; font:700 14px var(--body);
+    transition:transform .25s ease; pointer-events:none; max-width:88vw; text-align:center; }
+  .toast.on { transform:translateX(-50%) translateY(0); }
+
+  @media print {
+    .tabbar, .btn, .kopts, .covscale, .top a, .noprint { display:none !important; }
+    body { background:#fff; } .pane { display:block !important; }
+    .app { padding-bottom:0; } .card { break-inside:avoid; } table { font-size:10pt; }
+    pre.export { background:#fff; color:#000; border:1px solid #ccc; max-height:none; }
+    .label { break-inside:avoid; page-break-inside:avoid; }
+  }
+
+
+  /* ---- fungal additions ---- */
+  .sw { display:flex; flex-wrap:wrap; gap:7px; margin-top:6px; }
+  .swc { border:1.5px solid var(--border); background:var(--surface); border-radius:12px; padding:7px 11px 8px;
+    font:700 12.5px var(--body); color:var(--ink-2); cursor:pointer; min-height:56px; touch-action:manipulation;
+    display:flex; flex-direction:column; align-items:center; gap:5px; min-width:74px; }
+  .swc .chip { width:44px; height:18px; border-radius:5px; border:1px solid rgba(35,40,31,.28); display:block; }
+  .swc.on { border-color:var(--s1); background:var(--soft); color:var(--s1); }
+
+  .chk { display:flex; flex-wrap:wrap; gap:7px; margin-top:6px; }
+  .ck { border:1.5px solid var(--border); background:var(--surface); border-radius:999px; padding:9px 14px;
+    font:700 13.5px var(--body); color:var(--ink-2); cursor:pointer; min-height:44px; touch-action:manipulation; }
+  .ck.on { border-color:var(--s1); background:var(--soft); color:var(--s1); }
+  .ck.on::before { content:"\2713 "; }
+
+  .rg { display:grid; gap:9px; margin-top:8px; }
+  .rgi { border:1px solid var(--border); background:var(--surface); border-radius:13px; padding:11px 13px; }
+  .rgi .hd { display:flex; align-items:center; justify-content:space-between; gap:9px; flex-wrap:wrap; }
+  .rgi .nm { font-family:var(--head); font-weight:700; font-size:15px; }
+  .rgi .nm em { font-style:normal; font-family:var(--mono); font-size:11.5px; color:var(--muted); margin-left:6px; }
+  .rgi .wh { font-size:12.5px; color:var(--muted); line-height:1.5; margin-top:5px; }
+  .rgi input[type=text] { width:100%; margin-top:8px; min-height:44px; }
+  .rgi.haz { border-left:3px solid var(--s2); }
+
+  .guild { display:inline-block; font:700 10.5px var(--mono); letter-spacing:.05em; text-transform:uppercase;
+    border-radius:999px; padding:3px 9px; border:1px solid var(--border); background:var(--surface-2); color:var(--ink-2); }
+  .guild.ecm { border-color:var(--s1); color:var(--s1); background:var(--soft); }
+  .guild.woodsap, .guild.littersap { border-color:var(--s3); color:var(--s3); background:#E6EEF3; }
+  .guild.par { border-color:var(--danger); color:var(--danger); background:var(--danger-bg); }
+  .guild.lich { border-color:var(--gold); color:#7a5c07; background:#F5EFD9; }
+  .guild.myco { border-color:var(--s2); color:var(--s2); background:var(--warn-bg); }
+  .guild.mixed { border-style:dashed; }
+
+  .mx td.h0 { color:var(--muted); }
+  .mx td.h1 { background:#EDF4EA; font-weight:700; }
+  .mx td.h2 { background:var(--s1); color:#fff; font-weight:700; }
+
+  .never { border:2px solid var(--danger); background:var(--danger-bg); border-radius:14px; padding:15px 17px;
+    margin:14px 0; font-size:15px; line-height:1.6; color:var(--ink); }
+  .never b { font-family:var(--head); display:block; font-size:16px; margin-bottom:5px; color:var(--danger); }
+
+  .drylog { display:grid; grid-template-columns:repeat(auto-fit,minmax(128px,1fr)); gap:9px; margin-top:8px; }
+
+
+  /* ---- bench additions ---- */
+  .stat { display:grid; grid-template-columns:repeat(auto-fit,minmax(132px,1fr)); gap:9px; margin:12px 0 2px; }
+  .st { background:var(--surface-2); border:1px solid var(--border); border-radius:12px; padding:10px 13px; }
+  .st .v { font-family:var(--head); font-weight:700; font-size:22px; font-variant-numeric:tabular-nums; line-height:1.1; }
+  .st .l { font-size:11px; color:var(--muted); margin-top:2px; line-height:1.35; }
+  .st.hi .v { color:var(--s1); } .st.bad .v { color:var(--danger); } .st.warnv .v { color:var(--s2); }
+  .eq { font-family:var(--mono); font-size:12.5px; background:var(--surface-2); border:1px solid var(--border);
+    border-radius:9px; padding:9px 12px; margin:9px 0; color:var(--ink-2); overflow-x:auto; }
+  .scat { display:block; width:100%; height:auto; background:var(--surface); border:1px solid var(--border);
+    border-radius:12px; margin-top:10px; }
+  .warnbox { border:2px solid var(--s2); background:var(--warn-bg); border-radius:14px; padding:14px 17px;
+    margin:14px 0; font-size:15px; line-height:1.6; }
+  .warnbox b { font-family:var(--head); display:block; font-size:16px; margin-bottom:4px; color:var(--s2); }
+  .refuse { border:2px solid var(--danger); background:var(--danger-bg); border-radius:14px; padding:15px 18px;
+    margin:14px 0; font-size:15px; line-height:1.6; }
+  .refuse b { font-family:var(--head); display:block; font-size:16px; margin-bottom:4px; color:var(--danger); }
+  td.ok { color:var(--s1); font-weight:700; } td.no { color:var(--danger); font-weight:700; }
+
+
+  /* ============ Field Entry Kit v1.0.0 ============
+     Large-target, high-contrast entry controls. Sizing is driven by --tap
+     rather than per-component numbers so one token retunes the whole kit for
+     gloves, cold hands or a wall-mounted tablet. */
+  :root {
+    --tap: 60px;            /* primary control height  */
+    --tap-sm: 48px;         /* secondary control height */
+    --fek-r: 16px;
+    --ramp-0:#2B6C8F; --ramp-1:#3E8C8C; --ramp-2:#2E7D4F;
+    --ramp-3:#B8860B; --ramp-4:#C0592B; --ramp-5:#B23A32;
+    --fek-line:#C7C0AC;
+  }
+  .fek-lab { display:block; font:800 15px var(--body); color:var(--ink-2);
+    letter-spacing:.01em; margin:0 0 6px; }
+  .fek-lab .u { font:600 12.5px var(--mono); color:var(--muted); margin-left:6px; }
+  .fek-help { font-size:13.5px; color:var(--muted); line-height:1.5; margin:6px 0 0; }
+  .fek-row { margin:0 0 20px; }
+
+  /* --- stepper: the workhorse numeric entry --- */
+  .fek-step { display:flex; align-items:stretch; gap:0; border:2px solid var(--border);
+    border-radius:var(--fek-r); overflow:hidden; background:var(--surface); max-width:340px; }
+  .fek-step button { border:0; background:var(--surface-2); color:var(--ink);
+    font:800 30px var(--body); line-height:1; width:calc(var(--tap) + 8px); min-height:var(--tap);
+    cursor:pointer; touch-action:manipulation; transition:background .12s; }
+  .fek-step button:hover { background:var(--soft); color:var(--s1); }
+  .fek-step button:active { background:var(--s1); color:#fff; }
+  .fek-step .val { flex:1; min-width:0; text-align:center; border:0; background:none;
+    font:800 30px var(--head); color:var(--ink); font-variant-numeric:tabular-nums;
+    -moz-appearance:textfield; padding:0 4px; }
+  .fek-step .val::-webkit-outer-spin-button,
+  .fek-step .val::-webkit-inner-spin-button { -webkit-appearance:none; margin:0; }
+  .fek-step .val:focus { outline:none; background:var(--soft); }
+
+  /* --- segmented ordinal dial with a colour ramp --- */
+  .fek-dial { display:flex; flex-wrap:wrap; gap:8px; }
+  .fek-dial button { flex:1 1 auto; min-width:72px; min-height:var(--tap);
+    border:2px solid var(--border); border-radius:var(--fek-r); background:var(--surface);
+    font:800 17px var(--body); color:var(--ink-2); cursor:pointer; touch-action:manipulation;
+    display:flex; flex-direction:column; align-items:center; justify-content:center; gap:2px;
+    padding:6px 8px; transition:transform .08s, border-color .12s, background .12s; }
+  .fek-dial button small { font:600 11px var(--mono); color:var(--muted); letter-spacing:.02em; }
+  .fek-dial button:active { transform:scale(.96); }
+  .fek-dial button.on { color:#fff; border-color:transparent; }
+  .fek-dial button.on small { color:rgba(255,255,255,.85); }
+  .fek-dial button.on[data-r="0"]{background:var(--ramp-0);}
+  .fek-dial button.on[data-r="1"]{background:var(--ramp-1);}
+  .fek-dial button.on[data-r="2"]{background:var(--ramp-2);}
+  .fek-dial button.on[data-r="3"]{background:var(--ramp-3);}
+  .fek-dial button.on[data-r="4"]{background:var(--ramp-4);}
+  .fek-dial button.on[data-r="5"]{background:var(--ramp-5);}
+
+  /* --- big toggle chips --- */
+  .fek-chips { display:flex; flex-wrap:wrap; gap:9px; }
+  .fek-chip { min-height:var(--tap-sm); border:2px solid var(--border); border-radius:999px;
+    background:var(--surface); font:800 15.5px var(--body); color:var(--ink-2);
+    padding:0 20px; cursor:pointer; touch-action:manipulation; display:inline-flex;
+    align-items:center; gap:8px; transition:transform .08s, border-color .12s, background .12s; }
+  .fek-chip:active { transform:scale(.96); }
+  .fek-chip.on { border-color:var(--s1); background:var(--soft); color:var(--s1-deep); }
+  .fek-chip.on::before { content:"\2713"; font-size:17px; }
+
+  /* --- slider with a live bubble --- */
+  .fek-slide { display:flex; align-items:center; gap:14px; }
+  .fek-slide input[type=range] { flex:1; min-width:0; height:var(--tap-sm); -webkit-appearance:none;
+    background:transparent; cursor:pointer; touch-action:manipulation; }
+  .fek-slide input[type=range]::-webkit-slider-runnable-track { height:14px; border-radius:8px;
+    background:linear-gradient(90deg,var(--ramp-0),var(--ramp-2),var(--ramp-3),var(--ramp-5)); }
+  .fek-slide input[type=range]::-moz-range-track { height:14px; border-radius:8px;
+    background:linear-gradient(90deg,var(--ramp-0),var(--ramp-2),var(--ramp-3),var(--ramp-5)); }
+  .fek-slide input[type=range]::-webkit-slider-thumb { -webkit-appearance:none; width:34px; height:34px;
+    border-radius:50%; background:#fff; border:3px solid var(--ink); margin-top:-10px;
+    box-shadow:0 2px 6px rgba(35,40,31,.3); }
+  .fek-slide input[type=range]::-moz-range-thumb { width:34px; height:34px; border-radius:50%;
+    background:#fff; border:3px solid var(--ink); box-shadow:0 2px 6px rgba(35,40,31,.3); }
+  .fek-slide .bub { font:800 26px var(--head); font-variant-numeric:tabular-nums; color:var(--ink);
+    min-width:86px; text-align:right; }
+  .fek-slide .bub span { font:600 13px var(--mono); color:var(--muted); margin-left:3px; }
+
+  /* --- big picker: replaces <select> for long lists --- */
+  .fek-pick { border:2px solid var(--border); border-radius:var(--fek-r); background:var(--surface);
+    overflow:hidden; }
+  .fek-pick .search { width:100%; border:0; border-bottom:2px solid var(--border);
+    font:700 17px var(--body); padding:0 16px; min-height:var(--tap); background:var(--surface-2); }
+  .fek-pick .search:focus { outline:none; background:var(--soft); }
+  .fek-pick .opts { max-height:264px; overflow-y:auto; -webkit-overflow-scrolling:touch; }
+  .fek-pick .opt { display:block; width:100%; text-align:left; border:0; border-bottom:1px solid var(--border);
+    background:none; font:700 16.5px var(--body); color:var(--ink); min-height:var(--tap-sm);
+    padding:10px 16px; cursor:pointer; touch-action:manipulation; }
+  .fek-pick .opt small { display:block; font:400 12.5px var(--mono); color:var(--muted); margin-top:2px; }
+  .fek-pick .opt:hover { background:var(--soft); }
+  .fek-pick .opt.on { background:var(--s1); color:#fff; }
+  .fek-pick .opt.on small { color:rgba(255,255,255,.85); }
+  .fek-pick .none { padding:16px; color:var(--muted); font-size:14px; }
+
+  /* --- readout tiles, sized to be read at arm's length --- */
+  .fek-tiles { display:grid; grid-template-columns:repeat(auto-fit,minmax(148px,1fr)); gap:11px; margin:14px 0 2px; }
+  .fek-tile { border:2px solid var(--border); border-radius:var(--fek-r); padding:13px 15px; background:var(--surface); }
+  .fek-tile .v { font:800 30px var(--head); font-variant-numeric:tabular-nums; line-height:1.05; color:var(--ink); }
+  .fek-tile .l { font:700 12px var(--body); color:var(--muted); margin-top:4px; letter-spacing:.02em; }
+  .fek-tile.good { border-color:var(--ramp-2); } .fek-tile.good .v { color:var(--ramp-2); }
+  .fek-tile.warn { border-color:var(--ramp-3); } .fek-tile.warn .v { color:#8a6508; }
+  .fek-tile.bad  { border-color:var(--ramp-5); } .fek-tile.bad  .v { color:var(--ramp-5); }
+  .fek-tile.cold { border-color:var(--ramp-0); } .fek-tile.cold .v { color:var(--ramp-0); }
+
+  /* --- banner: the verdict, big --- */
+  .fek-banner { border-radius:var(--fek-r); padding:16px 19px; margin:14px 0; font-size:16px;
+    line-height:1.55; border-left:7px solid var(--ramp-2); background:var(--soft); color:var(--ink-2); }
+  .fek-banner b { font-family:var(--head); color:var(--ink); font-size:17.5px; display:block; margin-bottom:4px; }
+  .fek-banner.warn { border-left-color:var(--ramp-3); background:var(--warn-bg); }
+  .fek-banner.bad  { border-left-color:var(--ramp-5); background:var(--danger-bg); }
+  .fek-banner.cold { border-left-color:var(--ramp-0); background:#E6EEF3; }
+
+  @media (max-width:420px){ :root { --tap:56px; --tap-sm:46px; } .fek-step .val { font-size:26px; } }
+  @media print { .fek-step button, .fek-pick .search { display:none; } }
+
+  .rail { margin:26px 0 4px; }
+  .rail .rl { font-family:var(--mono); font-size:11px; letter-spacing:.14em; text-transform:uppercase; color:var(--muted); margin:0 2px 8px; }
+  .rail .chips { display:flex; flex-wrap:wrap; gap:8px; }
+  .rail a { display:inline-flex; align-items:center; gap:7px; text-decoration:none; font:700 13.5px var(--body);
+    color:var(--ink-2); background:var(--surface); border:1px solid var(--border); border-radius:999px;
+    padding:9px 15px; min-height:44px; box-shadow:var(--shadow); touch-action:manipulation; }
+  .rail a:hover { border-color:var(--s1); color:var(--s1); }
+  .rail a[aria-current="page"] { background:var(--soft); border-color:var(--s1); color:var(--s1); }
+  .rail a.ref { font-weight:600; color:var(--muted); background:none; box-shadow:none; }
+  @media print { .rail { display:none !important; } }
+</style>
+</head>
+<body>
+<div class="app">
+  <div class="top">
+    <div class="brand">🪱 Soil <span>Bench</span></div>
+    <a href="ecology.html">part of the science kit →</a>
+  </div>
+
+  <!-- ============ COMPOST ============ -->
+  <section class="pane on" id="p-comp">
+    <h2>Compost pile</h2>
+    <p class="hint">Log the pile each time you visit it. The compliance readout tracks the temperature and
+      turning record against the standard you pick.</p>
+
+    <div class="card">
+      <div id="cSetup"></div>
+    </div>
+
+    <div class="card">
+      <h3 style="margin-top:0">Today's reading</h3>
+      <div id="cEntry"></div>
+      <div class="btn-row">
+        <button class="btn btn-go" id="cAdd" type="button">Log reading</button>
+        <button class="btn btn-ghost" id="cUndo" type="button">↩ Undo</button>
+        <button class="btn btn-ghost" id="cDemo" type="button">Worked example</button>
+      </div>
+    </div>
+
+    <div class="card" id="cOut"></div>
+    <div class="card" id="cChart"></div>
+    <div class="card"><h3 style="margin-top:0">Readings</h3><div class="rowlist" id="cList"></div></div>
+  </section>
+
+  <!-- ============ RECIPE ============ -->
+  <section class="pane" id="p-rec">
+    <h2>Build the pile</h2>
+    <p class="hint">Add what you actually have. The blend is computed on dry mass and nitrogen, not on
+      buckets &mdash; which is why a wheelbarrow of wet grass is not the same input as a wheelbarrow of straw.</p>
+
+    <div class="card">
+      <div id="rPick"></div>
+      <div id="rAmt"></div>
+      <div class="btn-row">
+        <button class="btn btn-go" id="rAdd" type="button">Add to pile</button>
+        <button class="btn btn-ghost" id="rClear" type="button">Clear pile</button>
+      </div>
+      <p class="fine" id="rTypical"></p>
+    </div>
+
+    <div class="card" id="rOut"></div>
+    <div class="card"><h3 style="margin-top:0">Ingredients</h3><div class="rowlist" id="rList"></div></div>
+  </section>
+
+  <!-- ============ MIX ============ -->
+  <section class="pane" id="p-mix">
+    <h2>Mix designer</h2>
+    <p class="hint">Potting and bed mixes by parts. Tap a component to add a part; the bar and the indices
+      update as you go.</p>
+    <div class="card">
+      <div id="mGrid"></div>
+      <div class="btn-row">
+        <button class="btn btn-ghost" id="mClear" type="button">Clear mix</button>
+        <button class="btn btn-ghost" id="mCopy" type="button">Copy recipe</button>
+      </div>
+    </div>
+    <div class="card" id="mOut"></div>
+  </section>
+
+  <!-- ============ TEXTURE ============ -->
+  <section class="pane" id="p-tex">
+    <h2>Texture by feel</h2>
+    <p class="hint">The standard field key. One question at a time, with a wet lump of soil in your hand.</p>
+    <div class="card" id="tBox"></div>
+    <div class="card" id="tOut"></div>
+  </section>
+
+  <!-- ============ METHOD ============ -->
+  <section class="pane" id="p-met">
+    <h2>Method</h2>
+
+    <div class="card">
+      <h3 style="margin-top:0">The temperature standards, and what they are for</h3>
+      <p class="fine" style="margin-top:0">Two published thresholds are in wide use and they agree with each
+        other. Both exist to <b>kill pathogens and weed seeds</b>, which is a different goal from making good
+        compost &mdash; a pile can be excellent compost without ever meeting them, and meeting them does not
+        make the compost finished.</p>
+      <div class="tw"><table>
+        <tr><th>method</th><th>requirement</th><th>source</th></tr>
+        <tr><td><b>In-vessel or static aerated pile</b></td>
+            <td>55&nbsp;°C (131&nbsp;°F) or higher for <b>3 days</b></td>
+            <td>40&nbsp;CFR&nbsp;503 App.&nbsp;B (PFRP); USDA NOP states 131&ndash;170&nbsp;°F for 3 days</td></tr>
+        <tr><td><b>Windrow</b></td>
+            <td>55&nbsp;°C or higher for <b>15 days</b>, with at least <b>5 turnings</b> in that period</td>
+            <td>40&nbsp;CFR&nbsp;503 App.&nbsp;B (PFRP); USDA NOP concurs</td></tr>
+      </table></div>
+      <p class="fine">The upper bound matters too. The thermophilic organisms doing the work operate to
+        roughly <b>65&ndash;66&nbsp;°C</b>; above that they begin to die off and the pile cooks itself into a
+        stall. NOP caps the acceptable range at 170&nbsp;°F (77&nbsp;°C) for the pathogen requirement, but a
+        pile running at 70&nbsp;°C is not a better pile, it is one that needs turning and probably water.</p>
+      <div class="fek-banner bad"><b>This page does not certify anything.</b>
+        It counts the days and turnings you logged and compares them against the numbers above. Whether a
+        given batch meets a regulatory standard depends on probe placement, how many probes, where in the
+        pile, record-keeping practice and the rules of your certifier or jurisdiction. Use this to run the
+        pile well and to see when you are off track; use your certifier's own protocol for anything that has
+        to be defended.</div>
+    </div>
+
+    <div class="card">
+      <h3 style="margin-top:0">Why the C:N calculation uses mass and not buckets</h3>
+      <p class="fine" style="margin-top:0">The ratio that matters to the organisms is carbon atoms to
+        nitrogen atoms in the <b>dry</b> material. Volume is a poor proxy because bulk density varies roughly
+        eight-fold across common feedstocks &mdash; straw is around 60&nbsp;kg/m&sup3; and fresh manure around
+        600 &mdash; and because wet material is mostly water. So each ingredient is converted:</p>
+      <div class="eq">wet mass = volume × bulk density<br>
+        dry mass = wet mass × (1 − moisture)<br>
+        N = dry mass × %N &nbsp;·&nbsp; C = N × (C:N)<br>
+        <b>blend C:N = ΣC ÷ ΣN</b></div>
+      <p class="fine">Note the last line: the blend ratio is the <b>total carbon over the total nitrogen</b>,
+        not the average of the individual ratios. Averaging the ratios is the common mistake and it gives a
+        badly wrong answer whenever the ingredients differ in nitrogen content, which is always.</p>
+      <p class="fine">The <b>25:1 to 40:1</b> target is the USDA National Organic Program's initial-ratio
+        requirement, and it lines up with the range most composting guidance gives. Below about 20:1 the
+        surplus nitrogen leaves as ammonia — that is what a pile smelling of ammonia is telling you. Above
+        about 40:1 the organisms are nitrogen-limited and the pile sits cold.</p>
+      <div class="fek-banner warn"><b>The feedstock numbers are typical values, and they vary enormously.</b>
+        Published C:N for "leaves" spans roughly 40 to 90 depending on species and how long they have lain;
+        manure depends on bedding, diet and age; food scraps depend entirely on what was in them. Every one
+        of the four fields is editable per ingredient for that reason. Treat the output as an order-of-magnitude
+        guide that tells you which way to adjust, not a specification.</div>
+    </div>
+
+    <div class="card">
+      <h3 style="margin-top:0">The moisture squeeze test</h3>
+      <p class="fine" style="margin-top:0">Composting runs on water films. The field test is to squeeze a
+        handful hard: nothing at all means too dry, one or two drops is right, a stream means too wet.
+        Conventionally that corresponds to roughly <b>50&ndash;60% moisture</b> by mass, but the squeeze is
+        the practical instrument and a moisture meter in a heterogeneous pile mostly measures where you put
+        it. Too dry stalls the pile; too wet drives out air, the pile goes anaerobic, and the smell changes
+        from earthy to sour.</p>
+    </div>
+
+    <div class="card">
+      <h3 style="margin-top:0">The mix indices are ordinal, and only comparative</h3>
+      <p class="fine" style="margin-top:0">Each component carries four scores from 0 to 5 for water holding,
+        aeration, cation exchange and nutrient content. These are <b>ranks for comparing components against
+        one another</b>, not measurements: a water score of 4 does not mean four of anything, and the
+        weighted average the page shows is an aid to reasoning, not a predicted water-holding capacity.</p>
+      <p class="fine">A mix is judged by drenching it, letting it drain, and seeing how it behaves — how fast
+        water passes, how much stays, how it re-wets after drying out, and whether it slumps in the pot after
+        a season. No index predicts the last of those, and it is often the one that decides whether a mix was
+        any good.</p>
+      <p class="fine">The <b>nutrient</b> score exists for one specific reason: growers of nutrient-intolerant
+        plants — carnivorous plants above all — need mixes whose components score <b>zero</b>. The page flags
+        a mix that is not nutrient-free so that requirement is visible rather than remembered.</p>
+    </div>
+
+    <div class="card">
+      <h3 style="margin-top:0">Texture by feel</h3>
+      <p class="fine" style="margin-top:0">The key is the standard ribbon-and-grit procedure used by soil
+        scientists and extension services, and with practice it is reliable to within one class of a
+        laboratory particle-size analysis. Two honest limits. It takes <b>calibration</b>: work through a few
+        samples of known texture before trusting your hand. And texture is only half the story — <b>structure</b>,
+        the way particles aggregate, decides how a soil actually drains and roots, and two soils of identical
+        texture can behave completely differently depending on organic matter and how they have been worked.</p>
+      <p class="fine">Texture cannot be changed by any practical amendment. Adding sand to a clay soil in
+        anything less than overwhelming quantity makes it worse, not better. Structure <em>can</em> be
+        changed, and organic matter is how.</p>
+    </div>
+
+    <div class="card">
+      <h3 style="margin-top:0">What this page deliberately does not do</h3>
+      <p class="fine" style="margin-top:0">It does not estimate microbial biomass, fungal-to-bacterial ratio,
+        or "soil life" from anything you can enter here. Those need respiration measurement, direct counts, or
+        sequencing, and the numbers that circulate for them in gardening sources are frequently invented. It
+        does not convert a compost temperature curve into a maturity or stability rating, which needs a
+        respirometry test. And it does not give a pH or nutrient recommendation, because that needs a lab
+        test on your soil and a target crop.</p>
+    </div>
+  </section>
+
+  <div class="rail">
+    <p class="rl">The bench</p>
+    <div class="chips">
+      <a href="soil-bench.html" aria-current="page"><span>🪱</span>Soil Bench</a>
+      <a href="cell-bench.html"><span>🔬</span>Cell Bench</a>
+      <a href="micro-bench.html"><span>🧫</span>Micro Bench</a>
+      <a href="farm-scout.html"><span>🧑‍🌾</span>Farm Scout</a>
+      <a href="releve.html"><span>🌾</span>Relevé</a>
+      <a class="ref" href="ecology.html">← kit hub</a>
+      <a class="ref" href="ecology-glossary.html">glossary</a>
+    </div>
+  </div>
+</div>
+
+<div class="tabbar"><div class="row">
+  <button class="tab on" data-pane="p-comp" type="button"><span class="ico">🌡️</span>Compost</button>
+  <button class="tab" data-pane="p-rec" type="button"><span class="ico">🧪</span>Recipe</button>
+  <button class="tab" data-pane="p-mix" type="button"><span class="ico">🪴</span>Mix</button>
+  <button class="tab" data-pane="p-tex" type="button"><span class="ico">✋</span>Texture</button>
+  <button class="tab" data-pane="p-met" type="button"><span class="ico">📖</span>Method</button>
+</div></div>
+<div class="toast" id="toast">Saved</div>
+<script>
+
+/* ---- Field Entry Kit v1.0.0 : constructors return {el, get, set} ---- */
+var FEK = (function(){
+  function el(t,c,h){ var e=document.createElement(t); if(c) e.className=c;
+    if(h!=null) e.innerHTML=h; return e; }
+  function buzz(m){ try{ if(navigator.vibrate) navigator.vibrate(m||8);}catch(e){} }
+
+  function step(o){
+    o=o||{}; var min=(o.min==null?-Infinity:o.min), max=(o.max==null?Infinity:o.max);
+    var stepv=o.step||1, dec=o.dec==null?(String(stepv).split(".")[1]||"").length:o.dec;
+    var v=o.value==null?0:o.value;
+    var wrap=el("div","fek-row"), lab=el("label","fek-lab",
+      (o.label||"")+(o.unit?'<span class="u">'+o.unit+'</span>':""));
+    var box=el("div","fek-step");
+    var minus=el("button",null,"&minus;"), inp=el("input"), plus=el("button",null,"+");
+    minus.type="button"; plus.type="button"; inp.type="number"; inp.className="val";
+    inp.setAttribute("inputmode","decimal");
+    if(o.label) inp.setAttribute("aria-label",o.label);
+    function clamp(x){ return Math.min(max,Math.max(min,x)); }
+    function render(){ inp.value=(dec?v.toFixed(dec):String(v)); }
+    function set(x,quiet){ v=clamp(isFinite(x)?x:0); render(); if(!quiet&&o.onchange) o.onchange(v); }
+    function bump(d){ set(+(v+d*stepv).toFixed(6)); buzz(); }
+    minus.addEventListener("click",function(){ bump(-1); });
+    plus.addEventListener("click",function(){ bump(1); });
+    var hold;
+    function holdOn(d){ return function(){ clearInterval(hold);
+      hold=setInterval(function(){ bump(d); },110); }; }
+    function holdOff(){ clearInterval(hold); }
+    minus.addEventListener("pointerdown",holdOn(-1)); plus.addEventListener("pointerdown",holdOn(1));
+    ["pointerup","pointerleave","pointercancel"].forEach(function(ev){
+      minus.addEventListener(ev,holdOff); plus.addEventListener(ev,holdOff); });
+    inp.addEventListener("input",function(){ var x=parseFloat(inp.value);
+      if(isFinite(x)){ v=clamp(x); if(o.onchange) o.onchange(v); } });
+    inp.addEventListener("blur",render);
+    box.appendChild(minus); box.appendChild(inp); box.appendChild(plus);
+    wrap.appendChild(lab); wrap.appendChild(box);
+    if(o.help) wrap.appendChild(el("p","fek-help",o.help));
+    render();
+    return { el:wrap, get:function(){return v;}, set:function(x){set(x,true);} };
+  }
+
+  function dial(o){
+    o=o||{}; var opts=o.options||[], cur=o.value==null?null:o.value;
+    var wrap=el("div","fek-row"), lab=el("label","fek-lab",o.label||"");
+    var box=el("div","fek-dial"), btns=[];
+    opts.forEach(function(op,i){
+      var b=el("button",null,'<span>'+op.label+'</span>'+(op.sub?'<small>'+op.sub+'</small>':""));
+      b.type="button";
+      b.setAttribute("data-r", op.ramp==null ? String(Math.min(5,Math.round(i*5/Math.max(1,opts.length-1)))) : String(op.ramp));
+      b.addEventListener("click",function(){
+        cur = (cur===op.value && o.clearable!==false) ? null : op.value;
+        paint(); buzz(); if(o.onchange) o.onchange(cur);
+      });
+      btns.push(b); box.appendChild(b);
+    });
+    function paint(){ btns.forEach(function(b,i){ b.classList.toggle("on", opts[i].value===cur); }); }
+    paint();
+    wrap.appendChild(lab); wrap.appendChild(box);
+    if(o.help) wrap.appendChild(el("p","fek-help",o.help));
+    return { el:wrap, get:function(){return cur;},
+             set:function(x){ cur=x; paint(); } };
+  }
+
+  function chips(o){
+    o=o||{}; var opts=o.options||[], sel={};
+    (o.value||[]).forEach(function(v){ sel[v]=1; });
+    var wrap=el("div","fek-row"), lab=el("label","fek-lab",o.label||"");
+    var box=el("div","fek-chips"), btns=[];
+    opts.forEach(function(op){
+      var b=el("button","fek-chip",op.label); b.type="button";
+      b.addEventListener("click",function(){
+        if(o.single){ sel={}; sel[op.value]=1; }
+        else if(sel[op.value]) delete sel[op.value]; else sel[op.value]=1;
+        paint(); buzz(); if(o.onchange) o.onchange(Object.keys(sel));
+      });
+      btns.push(b); box.appendChild(b);
+    });
+    function paint(){ btns.forEach(function(b,i){ b.classList.toggle("on",!!sel[opts[i].value]); }); }
+    paint();
+    wrap.appendChild(lab); wrap.appendChild(box);
+    if(o.help) wrap.appendChild(el("p","fek-help",o.help));
+    return { el:wrap, get:function(){return Object.keys(sel);},
+             set:function(a){ sel={}; (a||[]).forEach(function(v){sel[v]=1;}); paint(); } };
+  }
+
+  function slider(o){
+    o=o||{}; var v=o.value==null?(o.min||0):o.value;
+    var wrap=el("div","fek-row"), lab=el("label","fek-lab",o.label||"");
+    var box=el("div","fek-slide"), r=el("input"), bub=el("div","bub");
+    r.type="range"; r.min=o.min==null?0:o.min; r.max=o.max==null?100:o.max;
+    r.step=o.step||1; r.value=v;
+    if(o.label) r.setAttribute("aria-label",o.label);
+    function paint(){ bub.innerHTML=(o.fmt?o.fmt(v):v)+(o.unit?'<span>'+o.unit+'</span>':""); }
+    r.addEventListener("input",function(){ v=parseFloat(r.value); paint(); if(o.onchange) o.onchange(v); });
+    paint();
+    box.appendChild(r); box.appendChild(bub);
+    wrap.appendChild(lab); wrap.appendChild(box);
+    if(o.help) wrap.appendChild(el("p","fek-help",o.help));
+    return { el:wrap, get:function(){return v;}, set:function(x){ v=x; r.value=x; paint(); } };
+  }
+
+  function picker(o){
+    o=o||{}; var opts=o.options||[], cur=o.value==null?null:o.value, q="";
+    var wrap=el("div","fek-row"), lab=el("label","fek-lab",o.label||"");
+    var box=el("div","fek-pick"), s=el("input","search"), list=el("div","opts");
+    s.type="text"; s.placeholder=o.placeholder||"type to filter…";
+    s.setAttribute("autocomplete","off");
+    if(o.label) s.setAttribute("aria-label",o.label+" filter");
+    function paint(){
+      list.innerHTML="";
+      var qq=q.toLowerCase();
+      var shown=opts.filter(function(op){
+        return !qq || (op.label+" "+(op.sub||"")).toLowerCase().indexOf(qq)>=0; });
+      if(!shown.length){ list.appendChild(el("div","none","No match. Clear the filter to see all "+opts.length+".")); return; }
+      shown.slice(0,200).forEach(function(op){
+        var b=el("button","opt"+(op.value===cur?" on":""),
+          op.label+(op.sub?'<small>'+op.sub+'</small>':""));
+        b.type="button";
+        b.addEventListener("click",function(){ cur=op.value; paint(); buzz(); if(o.onchange) o.onchange(cur); });
+        list.appendChild(b);
+      });
+    }
+    s.addEventListener("input",function(){ q=s.value; paint(); });
+    box.appendChild(s); box.appendChild(list);
+    wrap.appendChild(lab); wrap.appendChild(box);
+    if(o.help) wrap.appendChild(el("p","fek-help",o.help));
+    paint();
+    return { el:wrap, get:function(){return cur;}, set:function(x){ cur=x; paint(); } };
+  }
+
+  function tiles(list){
+    var box=el("div","fek-tiles");
+    (list||[]).forEach(function(t){
+      box.appendChild(el("div","fek-tile"+(t.tone?" "+t.tone:""),
+        '<div class="v">'+t.v+'</div><div class="l">'+t.l+'</div>'));
+    });
+    return box;
+  }
+  function banner(title,body,tone){
+    return el("div","fek-banner"+(tone?" "+tone:""),"<b>"+title+"</b>"+body);
+  }
+  function mount(host,parts){
+    var h=typeof host==="string"?document.getElementById(host):host;
+    h.innerHTML=""; parts.forEach(function(p){ h.appendChild(p.el||p); }); return h;
+  }
+  return { version:"1.0.0", step:step, dial:dial, chips:chips, slider:slider,
+           picker:picker, tiles:tiles, banner:banner, mount:mount, buzz:buzz };
+})();
+</script>
+<script>
+/* ---------------------------------------------------------------------------
+   Compost feedstocks. C:N and %N are DRY-WEIGHT typical values; moisture is
+   as-received; density is loose bulk. Every one of these varies by a factor of
+   two or more in the real world -- a "typical" C:N of 60 for leaves covers oak
+   at 90 and maple at 40 -- so all four fields are editable per entry and the
+   page says so where the number appears.
+--------------------------------------------------------------------------- */
+var FEED = [
+ {id:"grass",  n:"grass clippings, fresh", cn:20,  N:2.4, moist:.80, dens:250, k:"green"},
+ {id:"food",   n:"food scraps",            cn:15,  N:2.6, moist:.80, dens:450, k:"green"},
+ {id:"veg",    n:"vegetable trimmings",    cn:25,  N:2.0, moist:.87, dens:350, k:"green"},
+ {id:"coffee", n:"coffee grounds",         cn:20,  N:2.1, moist:.65, dens:400, k:"green"},
+ {id:"manc",   n:"manure, cattle",         cn:20,  N:2.4, moist:.75, dens:600, k:"green"},
+ {id:"manh",   n:"manure, horse",          cn:25,  N:1.7, moist:.70, dens:550, k:"green"},
+ {id:"manp",   n:"manure, poultry",        cn:10,  N:5.0, moist:.55, dens:650, k:"green"},
+ {id:"alf",    n:"alfalfa / lucerne",      cn:13,  N:3.0, moist:.65, dens:250, k:"green"},
+ {id:"weeds",  n:"green weeds",            cn:20,  N:2.2, moist:.80, dens:250, k:"green"},
+ {id:"seaw",   n:"seaweed",                cn:19,  N:1.9, moist:.85, dens:500, k:"green"},
+ {id:"leaves", n:"leaves, dry fallen",     cn:60,  N:0.9, moist:.25, dens:100, k:"brown"},
+ {id:"straw",  n:"straw",                  cn:80,  N:0.7, moist:.12, dens:60,  k:"brown"},
+ {id:"hay",    n:"hay, old",               cn:32,  N:1.5, moist:.15, dens:80,  k:"brown"},
+ {id:"stalks", n:"corn stalks",            cn:60,  N:0.8, moist:.20, dens:120, k:"brown"},
+ {id:"chips",  n:"wood chips",             cn:400, N:0.15,moist:.35, dens:280, k:"brown"},
+ {id:"saw",    n:"sawdust",                cn:500, N:0.11,moist:.35, dens:250, k:"brown"},
+ {id:"card",   n:"cardboard, shredded",    cn:350, N:0.10,moist:.08, dens:100, k:"brown"},
+ {id:"paper",  n:"paper, shredded",        cn:170, N:0.20,moist:.08, dens:100, k:"brown"},
+ {id:"pine",   n:"pine needles",           cn:80,  N:0.7, moist:.25, dens:100, k:"brown"},
+ {id:"bark",   n:"bark",                   cn:180, N:0.30,moist:.35, dens:300, k:"brown"}
+];
+
+/* Potting / soil mix components. The four indices are ORDINAL 0-5 scores for
+   comparing components against each other, not measurements of any physical
+   quantity. See the Method tab. */
+var COMP = [
+ {id:"peat",  n:"sphagnum peat",       wat:5, air:2, cec:4, ph:"3.5–4.5 acid", nut:0},
+ {id:"coir",  n:"coconut coir",        wat:5, air:2, cec:3, ph:"5.5–6.8",      nut:1},
+ {id:"perl",  n:"perlite",             wat:1, air:5, cec:0, ph:"neutral",      nut:0},
+ {id:"verm",  n:"vermiculite",         wat:4, air:3, cec:4, ph:"neutral",      nut:1},
+ {id:"sand",  n:"silica sand, coarse", wat:1, air:4, cec:0, ph:"neutral",      nut:0},
+ {id:"pumi",  n:"pumice",              wat:2, air:5, cec:1, ph:"neutral",      nut:0},
+ {id:"bark2", n:"orchid bark",         wat:2, air:5, cec:1, ph:"4.5–5.5",      nut:0},
+ {id:"comp",  n:"finished compost",    wat:4, air:2, cec:5, ph:"6.5–7.5",      nut:3},
+ {id:"worm",  n:"worm castings",       wat:4, air:1, cec:5, ph:"6.5–7.0",      nut:3},
+ {id:"lsoil", n:"loam / garden soil",  wat:3, air:2, cec:3, ph:"varies",       nut:2},
+ {id:"lfm",   n:"long-fibre sphagnum", wat:5, air:3, cec:3, ph:"3.5–4.5 acid", nut:0},
+ {id:"apbark",n:"aged pine bark fines",wat:3, air:4, cec:2, ph:"4.0–5.0",      nut:0}
+];
+
+/* USDA texture-by-feel key. Terminal classes carry the USDA name. */
+var TEX = {
+  start:{q:"Wet a walnut-sized lump and knead it to a putty. Does it hold together as a ball?",
+    a:[{l:"No — it falls apart",go:"SAND"},{l:"Yes — it holds",go:"ribbon"}]},
+  ribbon:{q:"Squeeze it between thumb and forefinger to push out a ribbon. Does a ribbon form at all?",
+    a:[{l:"No ribbon",go:"LOAMY SAND"},{l:"Yes, a ribbon forms",go:"length"}]},
+  length:{q:"Let the ribbon extend until it breaks under its own weight. How long before it breaks?",
+    a:[{l:"Under 2.5 cm (1 in)",go:"feelWeak"},
+       {l:"2.5–5 cm (1–2 in)",go:"feelMed"},
+       {l:"Over 5 cm (2 in)",go:"feelStrong"}]},
+  feelWeak:{q:"Wet a pinch in your palm and rub it. How does it feel?",
+    a:[{l:"Gritty",go:"SANDY LOAM"},{l:"Smooth, floury",go:"SILT LOAM"},{l:"Neither stands out",go:"LOAM"}]},
+  feelMed:{q:"Wet a pinch in your palm and rub it. How does it feel?",
+    a:[{l:"Gritty",go:"SANDY CLAY LOAM"},{l:"Smooth, floury",go:"SILTY CLAY LOAM"},{l:"Neither stands out",go:"CLAY LOAM"}]},
+  feelStrong:{q:"Wet a pinch in your palm and rub it. How does it feel?",
+    a:[{l:"Gritty",go:"SANDY CLAY"},{l:"Smooth, floury",go:"SILTY CLAY"},{l:"Neither stands out",go:"CLAY"}]}
+};
+var TEXNOTE = {
+ "SAND":"Water runs straight through and nutrients leave with it. Organic matter is the only practical lever.",
+ "LOAMY SAND":"Still drains very fast. Holds a little more than sand once organic matter is in it.",
+ "SANDY LOAM":"Warms early, works over a wide moisture range, dries out fast in summer.",
+ "SILT LOAM":"High water-holding and easy to work, but the most prone to surface crusting and to compaction when worked wet.",
+ "LOAM":"The balanced texture most crops are described against. Not a goal you can reach by adding sand to clay.",
+ "SANDY CLAY LOAM":"Drains reasonably but the clay fraction still sets hard if worked wet.",
+ "SILTY CLAY LOAM":"Holds a lot of water and is easily compacted. Stay off it when wet.",
+ "CLAY LOAM":"Good reserves of water and nutrients; a narrow moisture window for cultivation.",
+ "SANDY CLAY":"Uncommon. Behaves as a clay with grit — the clay dominates the drainage.",
+ "SILTY CLAY":"Very high water-holding, very slow drainage, severe compaction risk.",
+ "CLAY":"Highest nutrient reserve, slowest drainage. Structure — aggregation — matters more here than texture."
+};
+</script>
+<script>
+(function(){
+  "use strict";
+  var $=function(i){return document.getElementById(i);};
+  function esc(s){return String(s==null?"":s).replace(/[&<>"]/g,function(c){
+    return {"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;"}[c];});}
+  var tt;function toast(m){var t=$("toast");t.textContent=m;t.classList.add("on");
+    clearTimeout(tt);tt=setTimeout(function(){t.classList.remove("on");},1700);}
+  function f(x,d){return isFinite(x)?x.toFixed(d==null?1:d):"—";}
+  function copyText(s,m){
+    function ok(){toast(m||"Copied");FEK.buzz();}
+    if(navigator.clipboard&&navigator.clipboard.writeText){
+      navigator.clipboard.writeText(s).then(ok,function(){lg(s,ok);});} else lg(s,ok);}
+  function lg(s,ok){var a=document.createElement("textarea");a.value=s;a.style.position="fixed";
+    a.style.opacity="0";document.body.appendChild(a);a.select();
+    try{document.execCommand("copy");ok();}catch(e){toast("Copy failed");}document.body.removeChild(a);}
+
+  /* ======================================================== COMPOST ===== */
+  var method="windrow", unitC=true, readings=[];
+  var METHODS=[{value:"vessel",label:"In-vessel",sub:"3 d @ 55°C",ramp:2},
+               {value:"aerated",label:"Static aerated",sub:"3 d @ 55°C",ramp:2},
+               {value:"windrow",label:"Windrow",sub:"15 d + 5 turns",ramp:3}];
+  var MOIST=[{value:1,label:"Bone dry",sub:"no clumping",ramp:5},
+             {value:2,label:"Dry",sub:"no drops",ramp:4},
+             {value:3,label:"Right",sub:"1–2 drops",ramp:2},
+             {value:4,label:"Wet",sub:"trickle",ramp:3},
+             {value:5,label:"Sopping",sub:"streams",ramp:5}];
+  var tempCtl, moistCtl, turnCtl;
+
+  function setup(){
+    var mMethod=FEK.dial({label:"Composting method",options:METHODS,value:method,clearable:false,
+      help:"Sets which published requirement the compliance readout below is measured against.",
+      onchange:function(v){ method=v; compOut(); }});
+    var mUnit=FEK.chips({label:"Temperature unit",single:true,value:[unitC?"C":"F"],
+      options:[{value:"C",label:"°C"},{value:"F",label:"°F"}],
+      onchange:function(a){ var was=unitC; unitC=(a[0]!=="F");
+        if(was!==unitC && tempCtl) tempCtl.set(unitC? Math.round((tempCtl.get()-32)*5/9)
+                                                   : Math.round(tempCtl.get()*9/5+32));
+        entry(); compOut(); }});
+    FEK.mount("cSetup",[mMethod,mUnit]);
+  }
+  function entry(){
+    tempCtl=FEK.step({label:"Core temperature",unit:unitC?"°C":"°F",
+      value:unitC?55:131,min:unitC?-10:14,max:unitC?90:194,step:1,
+      help:"Probe the hot centre, not the surface. Hold the buttons to run the number quickly."});
+    moistCtl=FEK.dial({label:"Squeeze test",options:MOIST,value:3,clearable:false,
+      help:"Squeeze a handful hard. One or two drops is right."});
+    turnCtl=FEK.chips({label:"Did you turn it today?",options:[{value:"turn",label:"Turned"}],value:[]});
+    FEK.mount("cEntry",[tempCtl,moistCtl,turnCtl]);
+  }
+  function toC(t){ return unitC? t : (t-32)*5/9; }
+  function dispT(c){ return unitC? c : c*9/5+32; }
+
+  $("cAdd").addEventListener("click",function(){
+    readings.push({t:toC(tempCtl.get()), m:moistCtl.get(), turn:turnCtl.get().length>0, i:readings.length});
+    turnCtl.set([]); compOut(); compList(); chart(); FEK.buzz(14);
+    toast("Logged "+f(tempCtl.get(),0)+(unitC?"°C":"°F"));
+  });
+  $("cUndo").addEventListener("click",function(){
+    if(!readings.length){toast("Nothing to undo");return;}
+    readings.pop(); compOut(); compList(); chart(); toast("Undone");
+  });
+  $("cDemo").addEventListener("click",function(){
+    readings=[];
+    var seq=[[32,3,false],[48,3,false],[58,3,false],[62,3,true],[64,2,false],[61,3,true],
+             [59,3,false],[57,3,true],[56,3,false],[58,2,true],[57,3,false],[56,3,true],
+             [55,3,false],[56,3,false],[57,3,false],[55,3,false],[54,3,false],[49,3,false]];
+    seq.forEach(function(s,i){ readings.push({t:s[0],m:s[1],turn:s[2],i:i}); });
+    compOut(); compList(); chart(); toast("18 days logged — a windrow that just misses"); FEK.buzz(14);
+  });
+
+  function compOut(){
+    var box=$("cOut");
+    if(!readings.length){ box.innerHTML='<h3 style="margin-top:0">Compliance</h3>'+
+      '<p class="fine" style="margin:0">Log a reading and the tracker starts.</p>'; return; }
+    var hot=readings.filter(function(r){return r.t>=55;}).length;
+    var turnsHot=readings.filter(function(r){return r.t>=55&&r.turn;}).length;
+    var over=readings.filter(function(r){return r.t>66;}).length;
+    var maxT=Math.max.apply(null,readings.map(function(r){return r.t;}));
+    var need = method==="windrow" ? {d:15,t:5} : {d:3,t:0};
+    var okD = hot>=need.d, okT = turnsHot>=need.t;
+    var pass = okD && okT;
+    var h='<h3 style="margin-top:0">Compliance — '+
+      esc(METHODS.filter(function(m){return m.value===method;})[0].label)+'</h3>';
+    var tiles=[
+      {v:hot+" / "+need.d, l:"days logged at ≥55 °C", tone:okD?"good":"warn"},
+      {v:readings.length, l:"readings"},
+      {v:f(dispT(maxT),0)+(unitC?"°":"°"), l:"peak", tone:maxT>66?"bad":(maxT>=55?"good":"cold")}
+    ];
+    if(need.t) tiles.splice(1,0,{v:turnsHot+" / "+need.t, l:"turnings while hot", tone:okT?"good":"warn"});
+    box.appendChild; box.innerHTML=h;
+    box.appendChild(FEK.tiles(tiles));
+    if(pass) box.appendChild(FEK.banner("The logged record meets the "+
+      (method==="windrow"?"windrow":"in-vessel / aerated-pile")+" requirement.",
+      "You recorded "+hot+" days at 55 °C or above"+(need.t?(" with "+turnsHot+" turnings in that period"):"")+
+      ". That is the pathogen-reduction threshold met <em>on this record</em> — see the caveat in Method about "+
+      "probe placement and what your certifier actually requires.","good"));
+    else {
+      var missing=[];
+      if(!okD) missing.push("<b>"+(need.d-hot)+" more day"+((need.d-hot)===1?"":"s")+"</b> at 55 °C or above");
+      if(!okT) missing.push("<b>"+(need.t-turnsHot)+" more turning"+((need.t-turnsHot)===1?"":"s")+"</b> while the pile is at 55 °C or above");
+      box.appendChild(FEK.banner("Not there yet.","Still needs "+missing.join(" and ")+
+        ". Days and turnings only count while the pile is actually at temperature.","warn"));
+    }
+    if(over) box.appendChild(FEK.banner(over+" reading"+(over===1?"":"s")+" above 66 °C.",
+      "The thermophiles doing the work die off above roughly 65–66 °C, so a pile this hot is cooking itself "+
+      "toward a stall rather than composting faster. Turn it and check the moisture. The pathogen requirement "+
+      "has an upper bound too — NOP caps the acceptable range at 77 °C.","bad"));
+    var last=readings[readings.length-1];
+    if(last.m<=2) box.appendChild(FEK.banner("Last squeeze test came out dry.",
+      "A dry pile stalls whatever the C:N. Water it as you turn — it is very hard to wet a pile from the "+
+      "top once it is built.","warn"));
+    if(last.m>=4) box.appendChild(FEK.banner("Last squeeze test came out wet.",
+      "Water displaces air, the pile goes anaerobic and the smell turns sour. Turn it and add dry browns.","warn"));
+    if(readings.length>=3 && last.t<40 && hot>0)
+      box.appendChild(FEK.banner("The pile has cooled below 40 °C.",
+        "After a hot phase this usually means the readily available food is gone or the pile has dried out. "+
+        "Turning it will tell you which: if it heats again within a day or two it was oxygen or moisture, "+
+        "if it stays cool the easy carbon is spent and it is moving into curing.","cold"));
+  }
+  function compList(){
+    var box=$("cList");
+    if(!readings.length){ box.innerHTML='<p class="fine" style="margin:0">No readings yet.</p>'; return; }
+    box.innerHTML=readings.slice().reverse().map(function(r){
+      var mm=MOIST.filter(function(m){return m.value===r.m;})[0]||{label:"?"};
+      return '<div class="row2'+(r.t>=55?'':' inv')+'"><div class="g"><b>Day '+(r.i+1)+'</b><span>'+
+        esc(mm.label)+(r.turn?' · turned':'')+(r.t>=55?' · at temperature':'')+'</span></div>'+
+        '<span class="cov">'+f(dispT(r.t),0)+(unitC?"°C":"°F")+'</span></div>';
+    }).join("");
+  }
+  function chart(){
+    var box=$("cChart");
+    if(readings.length<2){ box.innerHTML=""; return; }
+    var W=620,H=250,P=42;
+    var ts=readings.map(function(r){return r.t;});
+    var lo=Math.min(20,Math.min.apply(null,ts)-4), hi=Math.max(70,Math.max.apply(null,ts)+4);
+    function X(i){ return P+i/(readings.length-1)*(W-P-16); }
+    function Y(t){ return H-P-(t-lo)/(hi-lo)*(H-P-18); }
+    var path=readings.map(function(r,i){ return (i?"L":"M")+X(i).toFixed(1)+","+Y(r.t).toFixed(1); }).join(" ");
+    var dots=readings.map(function(r,i){
+      var c=r.t>66?"#B23A32":(r.t>=55?"#2E7D4F":"#2B6C8F");
+      return '<circle cx="'+X(i).toFixed(1)+'" cy="'+Y(r.t).toFixed(1)+'" r="5" fill="'+c+'"/>'+
+        (r.turn?'<line x1="'+X(i).toFixed(1)+'" y1="'+(H-P)+'" x2="'+X(i).toFixed(1)+'" y2="'+(H-P+9)+
+          '" stroke="#C0592B" stroke-width="3"/>':"");
+    }).join("");
+    box.innerHTML='<h3 style="margin-top:0">Temperature</h3>'+
+      '<svg class="scat" viewBox="0 0 '+W+' '+H+'" role="img" aria-label="pile temperature by day">'+
+      '<rect x="'+P+'" y="'+Y(66).toFixed(1)+'" width="'+(W-P-16)+'" height="'+(Y(55)-Y(66)).toFixed(1)+
+        '" fill="#2E7D4F" fill-opacity=".10"/>'+
+      '<line x1="'+P+'" y1="'+Y(55).toFixed(1)+'" x2="'+(W-16)+'" y2="'+Y(55).toFixed(1)+
+        '" stroke="#2E7D4F" stroke-width="2" stroke-dasharray="6 4"/>'+
+      '<line x1="'+P+'" y1="'+Y(66).toFixed(1)+'" x2="'+(W-16)+'" y2="'+Y(66).toFixed(1)+
+        '" stroke="#B23A32" stroke-width="2" stroke-dasharray="6 4"/>'+
+      '<path d="'+path+'" fill="none" stroke="#23281F" stroke-width="2.5"/>'+dots+
+      '<text x="'+(P+6)+'" y="'+(Y(55)-7).toFixed(1)+'" font-size="12" fill="#2E7D4F" font-family="monospace">55 °C — the threshold</text>'+
+      '<text x="'+(P+6)+'" y="'+(Y(66)-7).toFixed(1)+'" font-size="12" fill="#B23A32" font-family="monospace">66 °C — thermophiles die off</text>'+
+      '<text x="'+(W/2)+'" y="'+(H-8)+'" text-anchor="middle" font-size="12" fill="#8B8B7B" font-family="monospace">reading number — orange ticks are turnings</text>'+
+      '</svg>';
+  }
+
+  /* ========================================================= RECIPE ===== */
+  var pile=[], sel=null, volCtl;
+  function recipeUI(){
+    var pk=FEK.picker({label:"Feedstock",placeholder:"filter 20 materials…",
+      options:FEED.map(function(m){ return {value:m.id,label:m.n,
+        sub:(m.k==="green"?"green":"brown")+" · C:N "+m.cn+" · "+Math.round(m.moist*100)+"% moisture"}; }),
+      onchange:function(v){ sel=v; typical(); }});
+    volCtl=FEK.step({label:"Volume",unit:"litres",value:50,min:1,max:5000,step:5,
+      help:"A builder's bucket is about 20 L; a wheelbarrow about 85 L."});
+    FEK.mount("rPick",[pk]); FEK.mount("rAmt",[volCtl]);
+  }
+  function feedBy(id){ for(var i=0;i<FEED.length;i++) if(FEED[i].id===id) return FEED[i]; return null; }
+  function typical(){
+    var m=feedBy(sel); if(!m){ $("rTypical").textContent=""; return; }
+    $("rTypical").innerHTML='<b>'+esc(m.n)+'</b> — typical C:N '+m.cn+':1, '+f(m.N*100,0)+
+      '% N of dry mass, '+Math.round(m.moist*100)+'% moisture, '+m.dens+' kg/m³ loose. '+
+      'These vary by a factor of two in practice; edit any ingredient after adding it.';
+  }
+  $("rAdd").addEventListener("click",function(){
+    var m=feedBy(sel); if(!m){toast("Pick a feedstock first");return;}
+    pile.push({id:m.id,n:m.n,cn:m.cn,N:m.N,moist:m.moist,dens:m.dens,k:m.k,vol:volCtl.get()});
+    recOut(); recList(); FEK.buzz(12); toast("Added "+m.n);
+  });
+  $("rClear").addEventListener("click",function(){ pile=[]; recOut(); recList(); });
+
+  function blend(){
+    var C=0,N=0,wet=0,dry=0,vol=0,gv=0,bv=0;
+    pile.forEach(function(p){
+      var w=p.vol/1000*p.dens;          /* litres -> m3 -> kg wet */
+      var d=w*(1-p.moist);
+      var n=d*p.N;
+      C+=n*p.cn; N+=n; wet+=w; dry+=d; vol+=p.vol;
+      if(p.k==="green") gv+=p.vol; else bv+=p.vol;
+    });
+    return {C:C,N:N,cn:N>0?C/N:NaN,wet:wet,dry:dry,vol:vol,
+            moist:wet>0?(wet-dry)/wet:NaN, gv:gv, bv:bv};
+  }
+  function recOut(){
+    var box=$("rOut");
+    if(!pile.length){ box.innerHTML='<h3 style="margin-top:0">Blend</h3>'+
+      '<p class="fine" style="margin:0">Add an ingredient or two.</p>'; return; }
+    var b=blend();
+    var good = b.cn>=25 && b.cn<=40;
+    box.innerHTML='<h3 style="margin-top:0">Blend</h3>';
+    box.appendChild(FEK.tiles([
+      {v:f(b.cn,1)+":1", l:"blended C:N", tone:good?"good":(b.cn<25?"bad":"warn")},
+      {v:f(b.vol,0)+" L", l:"total volume"},
+      {v:f(b.wet,0)+" kg", l:"wet mass"},
+      {v:f(b.dry,0)+" kg", l:"dry mass"},
+      {v:f(b.moist*100,0)+"%", l:"moisture as built",
+       tone:(b.moist>=.5&&b.moist<=.65)?"good":"warn"},
+      {v:Math.round(b.gv/Math.max(1,b.vol)*100)+" / "+Math.round(b.bv/Math.max(1,b.vol)*100),
+       l:"green : brown by volume"}
+    ]));
+    if(good) box.appendChild(FEK.banner("C:N of "+f(b.cn,1)+":1 is inside the 25–40 target.",
+      "That is the USDA National Organic Program's initial-ratio requirement, and it matches the range most "+
+      "composting guidance gives. Build it, wet it to a squeeze test, and watch the temperature.","good"));
+    else if(b.cn<25) box.appendChild(FEK.banner("C:N of "+f(b.cn,1)+":1 is nitrogen-rich.",
+      "Below about 25:1 the surplus nitrogen leaves as ammonia — that smell is your nitrogen departing. Add "+
+      "browns: roughly "+f(neededBrown(b),0)+" L more of a straw-like material (C:N 80) would bring the blend "+
+      "to 30:1.","bad"));
+    else box.appendChild(FEK.banner("C:N of "+f(b.cn,1)+":1 is carbon-rich.",
+      "Above about 40:1 the organisms are nitrogen-limited and the pile will sit cold and break down slowly. "+
+      "Add greens: roughly "+f(neededGreen(b),0)+" L more of a grass-like material (C:N 20, 80% moisture) "+
+      "would bring the blend to 30:1.","warn"));
+    if(isFinite(b.moist) && (b.moist<.45 || b.moist>.68))
+      box.appendChild(FEK.banner("Moisture as built is "+f(b.moist*100,0)+"%.",
+        b.moist<.45 ? "Drier than the usual 50–60% working range — plan to water it in layers as you build, "+
+          "because wetting a finished pile from the top mostly runs off."
+        : "Wetter than the usual 50–60% working range — it will pack down and go anaerobic. Add dry browns or "+
+          "let the wet material drain first.","warn"));
+  }
+  function neededBrown(b){ /* litres of straw-like C:N 80, N .7%, moist .12, dens 60 to hit 30:1 */
+    var m={cn:80,N:0.007*100,moist:.12,dens:60};
+    var lo=0,hi=100000;
+    for(var i=0;i<60;i++){ var mid=(lo+hi)/2;
+      var w=mid/1000*m.dens, d=w*(1-m.moist), n=d*(m.N/100), C=b.C+n*m.cn, N=b.N+n;
+      if(C/N<30) lo=mid; else hi=mid; }
+    return lo;
+  }
+  function neededGreen(b){
+    var m={cn:20,N:2.4,moist:.80,dens:250};
+    var lo=0,hi=100000;
+    for(var i=0;i<60;i++){ var mid=(lo+hi)/2;
+      var w=mid/1000*m.dens, d=w*(1-m.moist), n=d*(m.N/100), C=b.C+n*m.cn, N=b.N+n;
+      if(C/N>30) lo=mid; else hi=mid; }
+    return lo;
+  }
+  function recList(){
+    var box=$("rList");
+    if(!pile.length){ box.innerHTML='<p class="fine" style="margin:0">Nothing added.</p>'; return; }
+    box.innerHTML="";
+    pile.forEach(function(p,i){
+      var d=document.createElement("div"); d.className="row2";
+      d.innerHTML='<div class="g"><b>'+esc(p.n)+'</b><span>'+f(p.vol,0)+' L · C:N '+p.cn+
+        ' · '+Math.round(p.moist*100)+'% · '+p.dens+' kg/m³</span></div>'+
+        '<span class="cov">'+(p.k==="green"?"green":"brown")+'</span>';
+      var x=document.createElement("button"); x.type="button"; x.textContent="✕";
+      x.addEventListener("click",function(){ pile.splice(i,1); recOut(); recList(); });
+      d.appendChild(x); box.appendChild(d);
+    });
+  }
+
+  /* ============================================================ MIX ===== */
+  var mix={};
+  function mixUI(){
+    var g=document.createElement("div"); g.className="fek-dial";
+    g.style.display="grid";
+    g.style.gridTemplateColumns="repeat(auto-fill,minmax(150px,1fr))";
+    COMP.forEach(function(c){
+      var b=document.createElement("button"); b.type="button";
+      b.setAttribute("data-r", String(c.nut===0?2:3));
+      b.innerHTML='<span>'+esc(c.n)+'</span><small>'+(mix[c.id]||0)+' parts</small>';
+      b.addEventListener("click",function(){ mix[c.id]=(mix[c.id]||0)+1; mixUI(); mixOut(); FEK.buzz(); });
+      b.addEventListener("contextmenu",function(e){ e.preventDefault();
+        if(mix[c.id]){ mix[c.id]--; if(!mix[c.id]) delete mix[c.id]; mixUI(); mixOut(); } });
+      if(mix[c.id]) b.classList.add("on");
+      g.appendChild(b);
+    });
+    var host=$("mGrid"); host.innerHTML="";
+    var lab=document.createElement("label"); lab.className="fek-lab";
+    lab.textContent="Tap to add a part · long-press or right-click to remove";
+    host.appendChild(lab); host.appendChild(g);
+  }
+  $("mClear").addEventListener("click",function(){ mix={}; mixUI(); mixOut(); });
+  $("mCopy").addEventListener("click",function(){
+    var ks=Object.keys(mix); if(!ks.length){toast("Empty mix");return;}
+    var tot=ks.reduce(function(a,k){return a+mix[k];},0);
+    var s=ks.map(function(k){ var c=compBy(k);
+      return mix[k]+" part"+(mix[k]===1?"":"s")+" "+c.n+"  ("+Math.round(mix[k]/tot*100)+"%)"; }).join("\n");
+    copyText("Mix recipe — "+tot+" parts total\n"+s,"Recipe copied");
+  });
+  function compBy(id){ for(var i=0;i<COMP.length;i++) if(COMP[i].id===id) return COMP[i]; return null; }
+  function mixOut(){
+    var box=$("mOut"), ks=Object.keys(mix);
+    if(!ks.length){ box.innerHTML='<h3 style="margin-top:0">The mix</h3>'+
+      '<p class="fine" style="margin:0">Tap components above to build one.</p>'; return; }
+    var tot=ks.reduce(function(a,k){return a+mix[k];},0);
+    var wat=0,air=0,cec=0,nut=0,maxNut=0;
+    ks.forEach(function(k){ var c=compBy(k), w=mix[k]/tot;
+      wat+=c.wat*w; air+=c.air*w; cec+=c.cec*w; nut+=c.nut*w; maxNut=Math.max(maxNut,c.nut); });
+    var bar='<div style="display:flex;height:34px;border-radius:10px;overflow:hidden;border:2px solid var(--border);margin:10px 0">';
+    var pal=["#2E7D4F","#2B6C8F","#C0592B","#B8860B","#3E8C8C","#7A5C9E","#B23A32","#5A7D2E"];
+    ks.forEach(function(k,i){
+      bar+='<div title="'+esc(compBy(k).n)+'" style="width:'+(mix[k]/tot*100)+
+        '%;background:'+pal[i%pal.length]+'"></div>'; });
+    bar+='</div>';
+    var rows=ks.map(function(k,i){ var c=compBy(k);
+      return '<tr><td><span style="display:inline-block;width:11px;height:11px;border-radius:3px;background:'+
+        pal[i%pal.length]+';margin-right:7px"></span>'+esc(c.n)+'</td><td class="n">'+mix[k]+'</td>'+
+        '<td class="n">'+Math.round(mix[k]/tot*100)+'%</td><td>'+esc(c.ph)+'</td></tr>'; }).join("");
+    box.innerHTML='<h3 style="margin-top:0">The mix — '+tot+' parts</h3>'+bar+
+      '<div class="tw"><table><tr><th>component</th><th class="n">parts</th><th class="n">share</th><th>pH tendency</th></tr>'+
+      rows+'</table></div>';
+    box.appendChild(FEK.tiles([
+      {v:f(wat,1)+" / 5", l:"water holding", tone:wat>=3.5?"good":(wat<2?"warn":"")},
+      {v:f(air,1)+" / 5", l:"aeration", tone:air>=3?"good":"warn"},
+      {v:f(cec,1)+" / 5", l:"cation exchange"},
+      {v:f(nut,2)+" / 5", l:"nutrient load", tone:nut===0?"good":"warn"}
+    ]));
+    if(nut===0) box.appendChild(FEK.banner("Nutrient-free.",
+      "Every component in this mix scores zero for nutrient content, which is the requirement for carnivorous "+
+      "plants and for any other nutrient-intolerant grower. Water purity is the other half of that requirement "+
+      "and it is not something this page can check.","good"));
+    else box.appendChild(FEK.banner("Carries nutrients.",
+      "This mix scores "+f(nut,2)+" for nutrient load, so it is <b>not</b> suitable for carnivorous plants or "+
+      "others intolerant of dissolved nutrients. For general growing that is exactly what you want.","warn"));
+    if(air<2.5) box.appendChild(FEK.banner("Low aeration.",
+      "A mix this dense tends to stay wet and slump in the pot. Adding a coarse component — perlite, pumice, "+
+      "bark — is the usual fix. Remember these are ordinal comparison scores, not a measured air-filled "+
+      "porosity: drench a sample and watch it drain.","warn"));
+    box.appendChild(FEK.banner("These four numbers are ranks, not measurements.",
+      "They compare components against each other on a 0–5 scale so you can reason about a change. They do "+
+      "not predict water-holding capacity, air-filled porosity or CEC in any unit, and nothing here predicts "+
+      "how the mix will slump after a season — which is often what decides whether it was any good.","cold"));
+  }
+
+  /* ======================================================== TEXTURE ===== */
+  var node="start", trail=[];
+  function texUI(){
+    var box=$("tBox"), out=$("tOut");
+    if(TEXNOTE[node]){
+      box.innerHTML="";
+      box.appendChild(FEK.banner("Texture class: "+node,
+        esc(TEXNOTE[node])+"<br><br><b>Path:</b> "+trail.map(esc).join(" → "),"good"));
+      var again=document.createElement("button");
+      again.className="btn btn-go"; again.type="button"; again.textContent="Start over";
+      again.addEventListener("click",function(){ node="start"; trail=[]; texUI(); });
+      box.appendChild(again);
+      out.innerHTML='<h3 style="margin-top:0">What it does and does not tell you</h3>'+
+        '<p class="fine" style="margin-top:0">With practice this key lands within one class of a laboratory '+
+        'particle-size analysis. Calibrate your hand on a few samples of known texture first.</p>'+
+        '<p class="fine"><b>Texture is not structure.</b> How a soil actually drains and roots depends on how '+
+        'its particles aggregate, and two soils of identical texture can behave completely differently. '+
+        'Texture cannot be changed by any practical amendment — adding sand to clay in less than overwhelming '+
+        'quantity makes it worse. Structure can be changed, and organic matter is how.</p>';
+      return;
+    }
+    var n=TEX[node]; out.innerHTML="";
+    var d=FEK.dial({label:n.q,clearable:false,
+      options:n.a.map(function(a,i){ return {value:i,label:a.l,ramp:i===0?2:(i===1?3:4)}; }),
+      onchange:function(i){ if(i==null) return; trail.push(n.a[i].l); node=n.a[i].go; texUI(); FEK.buzz(12); }});
+    box.innerHTML="";
+    if(trail.length){
+      var back=document.createElement("button");
+      back.className="btn btn-ghost"; back.type="button"; back.textContent="↩ Back a step";
+      back.style.marginBottom="14px";
+      back.addEventListener("click",function(){ trail.pop(); node="start";
+        var t=trail.slice(); trail=[];
+        t.forEach(function(lbl){ var nn=TEX[node]; for(var i=0;i<nn.a.length;i++)
+          if(nn.a[i].l===lbl){ trail.push(lbl); node=nn.a[i].go; break; } });
+        texUI(); });
+      box.appendChild(back);
+    }
+    box.appendChild(d.el);
+  }
+
+  /* ----------------------------------------------------------- tabs ---- */
+  document.querySelectorAll(".tab").forEach(function(tb){
+    tb.addEventListener("click",function(){
+      document.querySelectorAll(".tab").forEach(function(t){t.classList.toggle("on",t===tb);});
+      document.querySelectorAll(".pane").forEach(function(p){p.classList.toggle("on",p.id===tb.dataset.pane);});
+      window.scrollTo(0,0); FEK.buzz();
+    });
+  });
+  setup(); entry(); compOut(); compList();
+  recipeUI(); recOut(); recList();
+  mixUI(); mixOut(); texUI();
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,480 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>ADR-031 Entry Layer and Suites</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,ital,wght@9..144,0,500;9..144,0,600;9..144,0,700;9..144,1,500&family=Newsreader:opsz,ital,wght@6..72,0,400;6..72,0,500;6..72,0,600;6..72,1,400&family=JetBrains+Mono:wght@400;500&display=swap">
+<style>
+  :root {
+    color-scheme: light;
+    --page:#F5F1E6; --surface:#FFFDF7; --ink:#23281F; --ink-2:#4B5344; --muted:#8B8B7B;
+    --border:#E3DCC9; --rule:#C7C0AC; --s1:#2E7D4F; --s1-deep:#236240; --s2:#C0592B; --s3:#2B6C8F;
+    --soft:#E9F0E7; --soft-2:#F3EEE0; --warn:#F6EAD8; --gold:#B8860B;
+    --shadow:0 1px 2px rgba(35,40,31,.05),0 12px 32px rgba(35,40,31,.06);
+    --head:"Fraunces",Georgia,serif; --body:"Newsreader",Georgia,"Times New Roman",serif;
+    --mono:"JetBrains Mono",ui-monospace,Menlo,monospace;
+  }
+  * { box-sizing:border-box; }
+  body { margin:0; background:var(--page); color:var(--ink); font:18px/1.62 var(--body);
+    -webkit-font-smoothing:antialiased; text-rendering:optimizeLegibility; }
+  .wrap { max-width:900px; margin:0 auto; padding:0 26px; }
+  a { color:var(--s1); text-underline-offset:2px; }
+
+  .kit-nav { display:flex; flex-wrap:wrap; gap:8px; padding:14px 0 0; }
+  .kit-nav a { font-family:var(--mono); font-size:12.5px; letter-spacing:.02em; text-decoration:none;
+    color:var(--ink-2); background:var(--surface); border:1px solid var(--border); border-radius:999px;
+    padding:9px 15px; box-shadow:var(--shadow); display:inline-flex; align-items:center; min-height:40px; }
+  .kit-nav a:hover { border-color:var(--s1); color:var(--s1); }
+  .kit-nav a[aria-current="page"] { background:var(--s1); color:#fff; border-color:var(--s1); }
+
+  .masthead { padding:26px 0 8px; }
+  .masthead::before { content:""; display:block; width:52px; height:3px; background:var(--s1); border-radius:2px; margin:0 0 18px; }
+  .eyebrow { font-family:var(--mono); font-size:12px; letter-spacing:.18em; text-transform:uppercase; color:var(--s1); margin:0 0 12px; }
+  h1 { font-family:var(--head); font-weight:700; font-size:clamp(34px,6vw,54px); line-height:1.03; letter-spacing:-0.022em; margin:0 0 14px; max-width:18ch; }
+  .dek { font-size:20px; color:var(--ink-2); margin:0; max-width:62ch; }
+
+  h2 { font-family:var(--head); font-weight:600; font-size:27px; letter-spacing:-0.015em; margin:0; }
+  h3 { font-family:var(--head); font-weight:600; font-size:19px; margin:24px 0 6px; }
+  p { margin:0 0 14px; } strong,b { font-weight:600; } i,em { font-style:italic; }
+  ul,ol { margin:0 0 14px; padding-left:22px; } li { margin:6px 0; }
+  .lead { font-size:19px; color:var(--ink-2); }
+  section { padding:34px 0 6px; }
+  .sec-head { border-top:3px solid var(--s1); padding-top:15px; margin-bottom:8px; }
+  .sec-num { font-family:var(--mono); font-size:12px; letter-spacing:.14em; text-transform:uppercase; color:var(--s1); }
+
+  .toc { background:var(--soft-2); border:1px solid var(--border); border-radius:14px; padding:18px 22px; margin:24px 0; }
+  .toc h3 { margin:0 0 8px; }
+  .toc ol { margin:0; padding-left:20px; } .toc li { margin:5px 0; } .toc a { color:var(--ink); }
+  .toc .for { color:var(--muted); font-size:15px; }
+
+  /* glyph grid */
+  .glyphs { display:grid; grid-template-columns:repeat(auto-fill,minmax(168px,1fr)); gap:12px; margin:16px 0; }
+  .gl { background:var(--surface); border:1px solid var(--border); border-radius:14px; padding:12px 14px 14px;
+        box-shadow:var(--shadow); break-inside:avoid; }
+  .gl .art { display:flex; justify-content:center; margin-bottom:6px; }
+  .gl svg { width:76px; height:64px; display:block; }
+  .gl b { font-family:var(--head); font-size:16px; display:block; }
+  .gl span { display:block; color:var(--ink-2); font-size:14.5px; line-height:1.45; margin-top:3px; }
+
+  /* family cards */
+  .fams { display:grid; grid-template-columns:repeat(auto-fill,minmax(300px,1fr)); gap:13px; margin:18px 0; }
+  .fam { background:var(--surface); border:1px solid var(--border); border-left:3px solid var(--s1);
+         border-radius:0 14px 14px 0; padding:14px 17px; box-shadow:var(--shadow); break-inside:avoid; }
+  .fam .fh b { font-family:var(--head); font-size:19px; }
+  .fam .fh span { font-family:var(--mono); font-size:11px; color:var(--muted); display:block; margin-top:1px; }
+  .fam p { font-size:15px; line-height:1.5; margin:9px 0 0; color:var(--ink-2); }
+  .fam .lab { font-family:var(--mono); font-size:10px; letter-spacing:.1em; text-transform:uppercase;
+              color:var(--s1); display:block; margin-bottom:2px; }
+  .fam .ft { background:var(--soft); border-radius:9px; padding:9px 12px; }
+  .fam .ft .lab { color:var(--s1-deep); }
+  .fam .fe .lab { color:var(--muted); }
+
+  table { border-collapse:collapse; width:100%; font-size:15px; margin:8px 0; }
+  th,td { border:1px solid var(--rule); padding:7px 10px; text-align:left; vertical-align:top; line-height:1.45; }
+  th { background:var(--soft); font-family:var(--head); font-weight:600; font-size:14px; }
+  .tw { overflow-x:auto; -webkit-overflow-scrolling:touch; margin:12px 0; }
+
+  .note { border-left:3px solid var(--s3); background:var(--surface); border:1px solid var(--border);
+    border-radius:0 10px 10px 0; padding:12px 16px; margin:16px 0; font-size:16px; color:var(--ink-2); }
+  .note b { font-family:var(--head); color:var(--ink); }
+  .warn { border-left:3px solid var(--s2); background:var(--warn); border:1px solid var(--border);
+    border-radius:0 10px 10px 0; padding:12px 16px; margin:16px 0; font-size:16px; color:var(--ink-2); }
+  .warn b { font-family:var(--head); color:var(--ink); }
+  .pull { font-family:var(--head); font-weight:500; font-size:23px; line-height:1.3; color:var(--ink);
+    border-left:3px solid var(--s1); padding:4px 0 4px 22px; margin:26px 0; max-width:40ch; }
+  .chk { list-style:none; padding-left:0; }
+  .chk li { padding-left:26px; position:relative; margin:7px 0; }
+  .chk li::before { content:"\2610"; position:absolute; left:2px; color:var(--s1); font-size:17px; }
+  code { font-family:var(--mono); font-size:.8em; background:var(--soft-2); border:1px solid var(--border); border-radius:5px; padding:1px 5px; }
+  .cite { font-variant:small-caps; letter-spacing:.01em; color:var(--ink-2); }
+
+  footer { margin:44px 0 60px; padding-top:18px; border-top:1px solid var(--border); color:var(--muted); font-size:14px; line-height:1.6; }
+  footer a { font-weight:500; }
+
+  @media print {
+    :root { --page:#fff; --surface:#fff; --soft:#f2f6f1; --soft-2:#f6f4ee; --warn:#faf3e8; --shadow:none; }
+    body { font-size:10pt; background:#fff; } .wrap { max-width:none; padding:0; }
+    .kit-nav { display:none; } a { color:inherit; text-decoration:none; }
+    .gl, .fam, table, .note, .warn { break-inside:avoid; }
+    .glyphs { grid-template-columns:repeat(4,1fr); gap:8px; }
+    .fams { grid-template-columns:repeat(2,1fr); gap:8px; }
+    h2,h3 { break-after:avoid; } .sec-head { break-before:page; }
+    section:first-of-type .sec-head { break-before:auto; }
+  }
+  @media (max-width:560px){ body{font-size:17px;} .wrap{padding:0 18px;} }
+
+
+  /* ---- ADR ---- */
+  .adr-meta { display:grid; grid-template-columns:repeat(auto-fit,minmax(210px,1fr)); gap:11px; margin:22px 0 6px; }
+  .adr-meta div { background:var(--surface); border:1px solid var(--border); border-radius:12px; padding:12px 15px; box-shadow:var(--shadow); }
+  .adr-meta .k { font-family:var(--mono); font-size:10.5px; letter-spacing:.13em; text-transform:uppercase; color:var(--muted); }
+  .adr-meta .v { font-family:var(--head); font-weight:600; font-size:16px; margin-top:3px; line-height:1.35; }
+  .status { display:inline-block; font-family:var(--mono); font-size:11px; letter-spacing:.1em;
+    text-transform:uppercase; border-radius:999px; padding:4px 12px; border:1.5px solid var(--s2);
+    color:var(--s2); background:var(--warn); }
+  h3 { border-top:1px solid var(--border); padding-top:16px; }
+  h4 { font-family:var(--head); font-weight:600; font-size:16.5px; margin:20px 0 4px; color:var(--ink); }
+  hr { border:0; border-top:3px solid var(--s1); margin:38px 0 4px; }
+  ol.act { margin:0; padding-left:26px; }
+  ol.act li { margin:7px 0; }
+  ol.act li.done { color:var(--ink-2); }
+  ol.act li.done::marker { color:var(--s1); }
+  ol.act li.done b, ol.act li.done strong { color:var(--ink); }
+  ol.act li.todo::marker { color:var(--s2); }
+  ol.act li.done::before { content:"\2713 "; color:var(--s1); font-weight:700; }
+  ol.act li.todo::before { content:"\25A2 "; color:var(--s2); font-weight:700; }
+  table td strong, table th { font-weight:600; }
+  .tw table { font-size:14.5px; }
+  .tw th { white-space:nowrap; }
+  @media print { .kit-nav { display:none; } h3 { break-after:avoid; } }
+
+  /* interactive family key */
+  .keybox { background:var(--surface); border:1px solid var(--border); border-radius:16px;
+    padding:18px 20px; box-shadow:var(--shadow); margin:18px 0; }
+  .kq { margin:0 0 14px; }
+  .kq:last-child { margin-bottom:0; }
+  .kq .ql { font-family:var(--mono); font-size:11px; letter-spacing:.11em; text-transform:uppercase;
+    color:var(--s1); margin-bottom:7px; }
+  .kopts { display:flex; flex-wrap:wrap; gap:7px; }
+  .kopt { border:1.5px solid var(--border); background:var(--surface); border-radius:12px; padding:9px 14px;
+    font:600 15px var(--body); color:var(--ink-2); cursor:pointer; min-height:44px; font-family:var(--body); }
+  .kopt:hover { border-color:var(--s1); }
+  .kopt.on { border-color:var(--s1); background:var(--soft); color:var(--s1-deep); font-weight:700; }
+  .tellwrap { display:flex; flex-wrap:wrap; gap:6px; }
+  .tell { border:1.5px solid var(--border); background:var(--surface); border-radius:999px; padding:7px 13px;
+    font:600 13.5px var(--body); color:var(--ink-2); cursor:pointer; min-height:40px; }
+  .tell.on { border-color:var(--s2); background:var(--warn); color:var(--s2); font-weight:700; }
+  .kres { margin-top:8px; }
+  .cand { background:var(--surface); border:1px solid var(--border); border-left:3px solid var(--s1);
+    border-radius:0 12px 12px 0; padding:12px 15px; margin:9px 0; }
+  .cand.part { border-left-color:var(--rule); opacity:.82; }
+  .cand .ch { display:flex; align-items:baseline; justify-content:space-between; gap:10px; flex-wrap:wrap; }
+  .cand .ch b { font-family:var(--head); font-size:18px; }
+  .cand .sc { font-family:var(--mono); font-size:11.5px; color:var(--muted); white-space:nowrap; }
+  .cand p { font-size:15px; margin:5px 0 0; color:var(--ink-2); }
+  .cand .miss { font-size:13.5px; color:var(--s2); margin-top:5px; }
+  .kbtns { display:flex; gap:8px; flex-wrap:wrap; margin-top:14px; }
+  .kbtn { border:0; border-radius:11px; padding:11px 17px; font:800 14.5px var(--body); cursor:pointer; min-height:44px; }
+  .kbtn-go { background:var(--s1); color:#fff; } .kbtn-ghost { background:none; border:1.5px solid var(--border); color:var(--ink-2); }
+  @media print { .keybox { display:none !important; } }
+</style>
+</head>
+<body>
+<nav class="kit-nav">
+  <a href="ecology.html">Overview</a>
+  <a href="soil-bench.html">Soil Bench</a>
+  <a href="ecology.html#field-tools">Field Tools</a>
+</nav>
+
+<div class="wrap">
+  <div class="masthead">
+    <p class="eyebrow">CSRBT · architecture decision record</p>
+    <h1>A shared entry layer, and three domain suites</h1>
+    <p class="dek">Nineteen instruments in, data entry has been re-invented nineteen times and the hub has
+      outgrown a flat list. This record proposes one versioned entry layer, suite-level packaging, and a
+      written test for which numbers the kit is allowed to ship.</p>
+    <div class="adr-meta">
+      <div><span class="k">Status</span><span class="v"><span class="status">Proposed</span></span></div>
+      <div><span class="k">Date</span><span class="v">24 August 2026</span></div>
+      <div><span class="k">Built this slice</span><span class="v">FEK v1.0.0 · Soil Bench</span></div>
+      <div><span class="k">Verified</span><span class="v">64 / 64 checks</span></div>
+    </div>
+  </div>
+<h1>ADR-031: A shared entry layer, and three domain suites</h1>
+<p><strong>Status:</strong> Proposed — Field Entry Kit v1 and Soil Bench built and verified; suites A and B specified, not built</p>
+<p><strong>Date:</strong> 2026-08-24</p>
+<p><strong>Deciders:</strong> Richmond</p>
+<p><strong>Supersedes:</strong> nothing. <strong>Touches:</strong> every instrument in <code>CSRBT/docs/</code></p>
+<hr>
+<h2>Context</h2>
+<p>The kit is now <strong>nineteen instruments</strong> in <code>CSRBT/docs/</code>, built one slice at a time over many sessions.</p>
+<p>That growth has produced three problems that are architectural rather than cosmetic, and a fourth that is</p>
+<p>an opportunity.</p>
+<p><strong>1. Data entry was re-invented nineteen times.</strong> Every page hand-rolls its own inputs. A numeric field is</p>
+<p>a bare <code>&lt;input type=number&gt;</code> in Stand Sheet, a stepper in the Workbench, and a slider in Farm Scout. The</p>
+<p>touch-target rule (≥44 px) has been enforced by <em>testing each page separately</em> and has regressed twice —</p>
+<p>once in <code>field-notebook</code>'s <code>.top a</code>, once in the friendly-entry slice. There is no single place to change</p>
+<p>how the kit takes a number, which means "make entry bigger and clearer" is currently a nineteen-file edit</p>
+<p>with nineteen chances to miss one.</p>
+<p><strong>2. The hub is carrying more than a hub can carry.</strong> <code>#field-tools</code> reached fourteen cards, got regrouped</p>
+<p>into four groups last slice, and is now at eighteen. Adding three domain suites at four to six instruments</p>
+<p>each would take it past thirty. A flat list stops being navigation at roughly a dozen items.</p>
+<p><strong>3. The honesty pattern is real but undocumented.</strong> Four instruments already refuse to ship numbers they</p>
+<p>cannot source — coefficients of conservatism in Relevé, edibility in the fungal pair, breakpoints in Micro</p>
+<p>Bench, and now nutrient-free verification in Soil Bench. That refusal is the most distinctive thing about</p>
+<p>this kit and it exists only as a habit. New suites will get it wrong unless it is written down as a rule</p>
+<p>with a decision procedure.</p>
+<p><strong>4. The three requested domains are unusually well-suited to this treatment</strong>, because each has a small</p>
+<p>number of genuinely load-bearing numbers that growers currently keep in their heads or in a notebook, and</p>
+<p>each has a large body of folklore that is confidently wrong. Research findings are in Appendix A.</p>
+<h3>Constraints (non-negotiable, inherited)</h3>
+<div class="tw"><table><tr><th>Constraint</th><th>Consequence</th></tr>
+<tr><td><strong>One self-contained file per page</strong></td><td>No shared stylesheet, no bundler, no npm. Artifact CSP blocks external hosts; pages must work offline in a field with no signal.</td></tr>
+<tr><td><strong>Prints cleanly</strong></td><td>Interactivity is never load-bearing for the reference content.</td></tr>
+<tr><td><strong>Tablet-first</strong></td><td>16 px minimum inputs (iOS zoom), thumb-reachable, works with cold or gloved hands.</td></tr>
+<tr><td><strong>No build step</strong></td><td>The user runs PowerShell scripts; there is no CI to run a bundler.</td></tr>
+<tr><td><strong>Honest science</strong></td><td>Every number carries what it is worth. Unsourceable numbers are not shipped.</td></tr>
+</table></div>
+<hr>
+<h2>Decision</h2>
+<p>Three decisions, taken together.</p>
+<p>**D1 — Introduce a Field Entry Kit (FEK): one versioned CSS+JS component layer, generated inline into</p>
+<p>every page.** Built and shipping at v1.0.0.</p>
+<p><strong>D2 — Package new domains as suites with their own hub sections, not as more cards on the kit hub.</strong></p>
+<p><strong>D3 — Write the honesty pattern down as a three-way test that every new number must pass before it ships.</strong></p>
+<hr>
+<h2>D1 — The Field Entry Kit</h2>
+<h3>Options considered</h3>
+<h4>Option A: Keep hand-rolling per page (status quo)</h4>
+<div class="tw"><table><tr><th>Dimension</th><th>Assessment</th></tr>
+<tr><td>Complexity</td><td>Low per page, high in aggregate</td></tr>
+<tr><td>Cost</td><td>A UI change is a 19-file edit</td></tr>
+<tr><td>Scalability</td><td>Fails at ~20 pages — already failing</td></tr>
+<tr><td>Consistency</td><td>Two regressions already shipped</td></tr>
+</table></div>
+<p><strong>Pros:</strong> No new machinery. Each page can diverge where it genuinely needs to.</p>
+<p><strong>Cons:</strong> "Make entry bigger and more colourful" is unimplementable as a single change. Every new page</p>
+<p>re-litigates the same decisions and re-introduces the same bugs.</p>
+<h4>Option B: Shared external stylesheet + script</h4>
+<div class="tw"><table><tr><th>Dimension</th><th>Assessment</th></tr>
+<tr><td>Complexity</td><td>Low</td></tr>
+<tr><td>Cost</td><td>Low</td></tr>
+<tr><td>Scalability</td><td>Good</td></tr>
+<tr><td><strong>Viability</strong></td><td><strong>Zero</strong></td></tr>
+</table></div>
+<p><strong>Cons:</strong> Violates the hard constraint. The artifact CSP blocks external hosts outright, and a page that</p>
+<p>needs a sibling file is not a page you can hand someone to open in a field.</p>
+<h4>Option C: Inlined, generated, versioned component layer — <strong>chosen</strong></h4>
+<p>A Python module (<code>fek.py</code>) holds the canonical CSS and JS. Page generators inline both. The version string</p>
+<p>is embedded in the emitted JS and asserted by tests.</p>
+<div class="tw"><table><tr><th>Dimension</th><th>Assessment</th></tr>
+<tr><td>Complexity</td><td>Medium — a generator per page, already the pattern</td></tr>
+<tr><td>Cost</td><td>~15 KB per page, inlined</td></tr>
+<tr><td>Scalability</td><td>Good to ~40 pages</td></tr>
+<tr><td>Team familiarity</td><td>It is the pattern already used for glyphs and species packs</td></tr>
+</table></div>
+<p><strong>Pros:</strong> One place to change. The constraint is honoured exactly. Version-in-artifact means a page can be</p>
+<p>asked which FEK it was built against, so a rollout can be audited rather than assumed.</p>
+<p><strong>Cons:</strong> Duplicated bytes across pages. Rolling out a new FEK version means regenerating consumers — this</p>
+<p>is real work and is the main cost of the decision.</p>
+<h4>Option D: Web components</h4>
+<p><strong>Cons:</strong> Solves the reuse problem but not the distribution problem — the definitions still have to be</p>
+<p>inlined, so it buys encapsulation at the cost of a shadow-DOM styling story and worse print behaviour. The</p>
+<p>encapsulation is not worth much when every page is a single file with one author.</p>
+<h3>What v1 contains</h3>
+<p>Sizing is driven by <strong>one token</strong>, <code>--tap</code> (60 px, 56 px under 420 px width), so the whole kit retunes for</p>
+<p>gloves or a wall-mounted tablet by changing one number. Colour is a six-stop semantic ramp</p>
+<p>(<code>--ramp-0</code>…<code>--ramp-5</code>, cold→hot / low→high) used consistently for ordinal meaning rather than decoration.</p>
+<div class="tw"><table><tr><th>Component</th><th>Replaces</th><th>Why it is better for this user</th></tr>
+<tr><td><code>FEK.step</code></td><td><code>&lt;input type=number&gt;</code></td><td>60 px ± buttons, hold-to-repeat, 30 px tabular value. Usable without looking.</td></tr>
+<tr><td><code>FEK.dial</code></td><td>radio group / <code>&lt;select&gt;</code></td><td>Ordinal choices as big colour-ramped buttons; the colour <em>is</em> the scale.</td></tr>
+<tr><td><code>FEK.chips</code></td><td>checkboxes</td><td>48 px toggles, single or multi.</td></tr>
+<tr><td><code>FEK.slider</code></td><td><code>&lt;input type=range&gt;</code></td><td>34 px thumb, gradient track, 26 px live value.</td></tr>
+<tr><td><code>FEK.picker</code></td><td><code>&lt;select&gt;</code> with 20+ options</td><td>Filter box + 48 px rows. A <code>&lt;select&gt;</code> of 65 genera is unusable on a tablet.</td></tr>
+<tr><td><code>FEK.tiles</code></td><td>ad-hoc stat rows</td><td>30 px readouts, tone-coded good/warn/bad/cold.</td></tr>
+<tr><td><code>FEK.banner</code></td><td>ad-hoc verdict divs</td><td>The verdict, at 17.5 px, colour-coded to the same ramp.</td></tr>
+</table></div>
+<p><strong>"Polish by iteration" is the versioning.</strong> FEK v1 ships on Soil Bench only. Each subsequent slice migrates</p>
+<p>a batch of instruments and may bump the version; the version assertion in each page's test suite makes an</p>
+<p>incomplete rollout visible instead of silent.</p>
+<hr>
+<h2>D2 — Suite packaging</h2>
+<h3>Options considered</h3>
+<h4>Option A: More cards on the kit hub</h4>
+<p>Simple, and it is what happens by default. Fails at ~30 cards; also wrong, because a carnivorous-plant</p>
+<p>grower has no use for Relevé and should not have to scroll past it.</p>
+<h4>Option B: Separate hubs per suite, sharing FEK and the design system — <strong>chosen</strong></h4>
+<p>Each suite gets its own front door and its own rail. The kit hub gains a short <strong>"Suites"</strong> section linking</p>
+<p>to the three hubs, so the science kit stays the front door for science and the suites are front doors for</p>
+<p>practice.</p>
+<div class="tw"><table><tr><th>Dimension</th><th>Assessment</th></tr>
+<tr><td>Complexity</td><td>Medium — three more hub pages</td></tr>
+<tr><td>Cost</td><td>Low</td></tr>
+<tr><td>Discoverability</td><td>Better for a grower, one hop worse for a browser</td></tr>
+<tr><td>Cross-linking</td><td>Rails already handle this</td></tr>
+</table></div>
+<h4>Option C: One hub with audience filters</h4>
+<p>A JS filter over one card set. Rejected: it makes the <em>printed</em> hub incoherent, and the suites want their</p>
+<p>own framing text, not the same cards with some hidden.</p>
+<hr>
+<h2>D3 — The honesty test</h2>
+<p>Every number a page displays must pass one of three gates. This is the rule the kit has been following by</p>
+<p>instinct; it is now explicit.</p>
+<p>1. <strong>Ship it</strong> — the number is a <em>definition</em> or a *published standard with a citable source and a stable</p>
+<p>   value*. Examples: <code>BA = 0.00007854 × DBH²</code>; Chao1's formula; PFRP's 55 °C for 3 days; NOP's 25:1–40:1.</p>
+<p>   Cite the source next to the number.</p>
+<p>2. <strong>Ship it labelled a convention</strong> — widely used, useful, but arbitrary or contested. Examples:</p>
+<p>   Landis & Koch κ bands; A260/A280 ≈ 1.8; the 30–300 plate window; 20–50 cells per haemocytometer square;</p>
+<p>   40–45 °C for drying fungal vouchers. The word <em>conventional</em> must appear beside it.</p>
+<p>3. <strong>Refuse to ship it</strong> — regionally assigned, revised on a schedule, or safety-critical. The page takes</p>
+<p>   the user's value and records its provenance. Examples: coefficients of conservatism (regional panels);</p>
+<p>   CLSI/EUCAST breakpoints (revised annually); wetland indicator status; <strong>edibility, ever</strong>.</p>
+<p><strong>A number that fits none of the three does not go on the page.</strong> Appendix A shows this biting immediately:</p>
+<p>carnivorous-plant dormancy temperatures and photoperiods are all over the hobbyist literature with no</p>
+<p>citable primary source, so Suite A takes them per-species from the grower.</p>
+<hr>
+<h2>The three suites</h2>
+<h3>Suite C — Soil & compost — <strong>BUILT THIS SLICE</strong></h3>
+<p><code>soil-bench.html</code>, five tabs, first consumer of FEK v1. 64/64 verified.</p>
+<ul>
+<li><strong>Compost</strong> — pile log against the method you pick, live compliance against PFRP/NOP, temperature chart</li>
+</ul>
+<p>  with the 55 °C and 66 °C lines drawn, turning ticks, squeeze-test moisture, stall and over-heat warnings.</p>
+<ul>
+<li><strong>Recipe</strong> — C:N on <strong>dry mass and nitrogen</strong>, not buckets, with the "average the ratios" mistake called</li>
+</ul>
+<p>  out explicitly, plus how many litres of browns or greens would reach 30:1.</p>
+<ul>
+<li><strong>Mix</strong> — parts-based mix designer with ordinal indices, and a <strong>nutrient-free flag</strong> built for the</li>
+</ul>
+<p>  carnivorous-plant case in Suite A.</p>
+<ul>
+<li><strong>Texture</strong> — the USDA ribbon-and-grit key as a stepped colour dial, eleven terminal classes.</li>
+</ul>
+<h3>Suite A — Carnivorous plants — <em>specified, next</em></h3>
+<p><code>cp-bench.html</code> (grow log) + <code>cp-characters.html</code> (the reference card).</p>
+<div class="tw"><table><tr><th>Tab</th><th>Content</th><th>Honesty gate</th></tr>
+<tr><td>Water</td><td>TDS/ppm log per source, filter-change tracking</td><td><strong>Ship</strong>: <160 ppm cited (California Carnivores); 50 ppm as the stricter hobby target, labelled convention</td></tr>
+<tr><td>Media</td><td>Mix designer reusing Soil Bench's engine, nutrient-free enforced</td><td>Ship — it is arithmetic on parts</td></tr>
+<tr><td>Plants</td><td>Per-plant log: pitcher/trap counts, new growth, division, flowering</td><td>Ship</td></tr>
+<tr><td>Season</td><td>Dormancy tracker: entry/exit dates, chill accumulation, photoperiod</td><td><strong>Refuse</strong> — per-genus targets are grower-entered, because the hobbyist literature has no citable primary source</td></tr>
+<tr><td>Crosses</td><td>Pollination log, seed set, sowing, germination timing</td><td>Ship</td></tr>
+</table></div>
+<p>The refusal in <strong>Season</strong> is the interesting design decision: it would be easy and popular to hard-code</p>
+<p>"Sarracenia need 3 months below 10 °C". The literature does not support a single number, so the app asks</p>
+<p>for the grower's target, records it, and tracks against it.</p>
+<h3>Suite B — Vegetable breeding — <em>specified</em></h3>
+<p><code>breeding-bench.html</code>, extending Pheno Tracker rather than replacing it.</p>
+<div class="tw"><table><tr><th>Tab</th><th>Content</th><th>Honesty gate</th></tr>
+<tr><td>Population</td><td>Minimum population against the goal</td><td><strong>Ship</strong>: ≥20 inbreeders / ≥100 outbreeders; sweet corn ≥100, preferably 200+</td></tr>
+<tr><td>Isolation</td><td>Distance calculator by crop and barrier</td><td><strong>Ship</strong> where cited (corn 2 miles, squash ½ mile); <strong>refuse</strong> where it depends on local pollinators and terrain — take the grower's figure</td></tr>
+<tr><td>Selection</td><td>Roguing log, selection differential, reuses Selection Log's engine</td><td>Ship</td></tr>
+<tr><td>Trial</td><td>Replicated variety trial: plots, blocks, yield, days to maturity</td><td>Ship</td></tr>
+<tr><td>Seed</td><td>Harvest, dry-down, germination test, viability by year</td><td><strong>Convention</strong>: "3–5 years for most well-stored seed"</td></tr>
+</table></div>
+<p><strong>Suite B reuses Selection Log's mathematics directly</strong> — a vegetable breeder measuring selection on fruit</p>
+<p>size is doing exactly what the field biologist measuring selection on bill depth is doing. That reuse is</p>
+<p>the strongest argument for D1: the engine is already written and verified, and only the entry layer differs.</p>
+<hr>
+<h2>Trade-off analysis</h2>
+<p><strong>The central trade-off is duplication against distribution.</strong> Inlining FEK into every page costs ~15 KB</p>
+<p>each and makes a version bump a multi-file regeneration. The alternative — a shared file — is not available</p>
+<p>under the constraints, and every other option trades away either offline use or print fidelity. Paying the</p>
+<p>bytes is correct.</p>
+<p><strong>Second: suite hubs cost a hop and buy relevance.</strong> A biologist browsing the kit now needs one extra click</p>
+<p>to reach carnivorous-plant tools. A carnivorous-plant grower gets a front door that is entirely about their</p>
+<p>plants. The second user is the one being served.</p>
+<p><strong>Third, and most consequential: the honesty test will make some pages less immediately useful.</strong> A CP grower</p>
+<p>opening the Season tab wants to be told the dormancy temperature. Being asked for it instead is worse UX and</p>
+<p>better software, and it is the same trade already taken four times in this kit. The cost is real and should</p>
+<p>be stated in each page rather than hidden.</p>
+<hr>
+<h2>Consequences</h2>
+<p><strong>Easier</strong></p>
+<ul>
+<li>Changing how the whole kit takes a number — one file, one version bump.</li>
+<li>Building new instruments: pick components, write domain logic. Soil Bench's entry layer was assembled, not designed.</li>
+<li>Auditing a rollout: pages report their FEK version.</li>
+</ul>
+<p><strong>Harder</strong></p>
+<ul>
+<li>A FEK version bump requires regenerating consumers. This is the standing cost of D1.</li>
+<li>Pages get larger. Soil Bench is 72 KB against ~45 KB for a comparable hand-rolled page.</li>
+<li>Three more hubs to keep wired; the link sweep grows.</li>
+</ul>
+<p><strong>To revisit</strong></p>
+<ul>
+<li><strong>At ~40 pages</strong>, inlining may stop being reasonable and a two-file model (page + kit) may be worth</li>
+</ul>
+<p>  breaking the single-file constraint for — but only for pages that never need to work offline.</p>
+<ul>
+<li><strong>Migration order for FEK.</strong> Instruments with the heaviest entry burden first: Stand Sheet (stem tally),</li>
+</ul>
+<p>  Relevé (cover classes), Collection Sheet (spore print + spot tests), Ethogram (already close to FEK's</p>
+<p>  shape by hand). The reference cards do not need migrating.</p>
+<ul>
+<li><strong>Whether Pheno Tracker is absorbed into Suite B</strong> or kept as the general tool with Suite B extending it.</li>
+</ul>
+<hr>
+<h2>Action items</h2>
+<ol start="1" class="act"><li class="done">Build FEK v1.0.0 — seven components, one sizing token, six-stop ramp</li></ol>
+<ol start="2" class="act"><li class="done">Build Soil Bench on FEK v1 as the proving consumer — 64/64 verified</li></ol>
+<ol start="3" class="act"><li class="done">Write the honesty test down as a three-way gate</li></ol>
+<ol start="4" class="act"><li class="todo">Build Suite A: <code>cp-bench.html</code> + <code>cp-characters.html</code></li></ol>
+<ol start="5" class="act"><li class="todo">Build Suite B: <code>breeding-bench.html</code>, reusing Selection Log's engine</li></ol>
+<ol start="6" class="act"><li class="todo">Add a <strong>Suites</strong> section to the kit hub; give each suite its own hub and rail</li></ol>
+<ol start="7" class="act"><li class="todo">Migrate Stand Sheet, Relevé, Collection Sheet and Ethogram to FEK; bump to v1.1 if the migration</li></ol>
+<p>       shows up missing components (a date entry and a multi-row table editor are the likely gaps)</p>
+<ol start="8" class="act"><li class="todo">Add FEK version assertions to every migrated page's test suite</li></ol>
+<hr>
+<h2>Appendix A — Research findings</h2>
+<p>Gathered 2026-08-24. Marked with the gate each finding falls under.</p>
+<h3>Compost — well sourced, gate 1</h3>
+<ul>
+<li><strong>PFRP, 40 CFR 503 Appendix B</strong>: within-vessel and static aerated pile — 55 °C or higher <strong>for 3 days</strong>;</li>
+</ul>
+<p>  windrow — 55 °C or higher <strong>for 15 days</strong> with a minimum of <strong>5 turnings</strong> in that period.</p>
+<ul>
+<li><strong>USDA NOP</strong>: initial C:N <strong>25:1 to 40:1</strong>; in-vessel or static aerated pile **131–170 °F (55–77 °C) for</li>
+</ul>
+<p>  3 days<strong>; windrow, that temperature for </strong>15 days<strong>, turned at least </strong>5 times**.</p>
+<ul>
+<li><strong>Thermophilic working range</strong> 120–150 °F (48–66 °C); above ~150 °F (66 °C) thermophiles are killed off.</li>
+</ul>
+<p>  <em>Gate 2 — widely agreed, and the exact cut-off varies by source.</em></p>
+<ul>
+<li>Finished-compost C:N ~10:1, with nitrogen availability falling sharply above 25:1. <em>Gate 2.</em></li>
+</ul>
+<h3>Vegetable breeding — partially sourced</h3>
+<ul>
+<li><strong>≥20 individuals for inbreeders, ≥100 for outbreeders</strong> per variety. <em>Gate 1.</em></li>
+<li><strong>Sweet corn: at least 100 plants, preferably 200+; 2 miles isolation. Squash: ½ mile</strong> between varieties</li>
+</ul>
+<p>  of the same species. <em>Gate 1.</em></p>
+<ul>
+<li>Corn, carrots and onions flagged as most susceptible to inbreeding depression; beans and cucurbits</li>
+</ul>
+<p>  maintainable at low numbers. <em>Gate 1, qualitative.</em></p>
+<ul>
+<li>"Most high-quality, correctly stored seed viable at least 3–5 years." <em>Gate 2 — a range, not a constant.</em></li>
+<li><strong>Gap:</strong> no single source gave a complete crop × isolation × population × longevity table. Suite B ships</li>
+</ul>
+<p>  the cited rows and takes the rest from the grower.</p>
+<h3>Carnivorous plants — the gate-3 case</h3>
+<ul>
+<li><strong>Water TDS best below 160 ppm.</strong> <em>Gate 1 — cited.</em> The stricter ~50 ppm target common in the hobby is</li>
+</ul>
+<p>  <em>Gate 2</em>.</p>
+<ul>
+<li>Feeding: ¼ tsp MaxSea per gallon, monthly, foliar. <em>Gate 2 — one vendor's protocol, not a standard.</em></li>
+<li>Tray watering excluded for <em>Nepenthes</em>, <em>Cephalotus</em>, <em>Drosophyllum</em>. <em>Gate 1, qualitative.</em></li>
+<li><strong>Gap, and the important finding:</strong> the sources consulted give <strong>no</strong> citable dormancy temperatures,</li>
+</ul>
+<p>  durations, photoperiods, humidity ranges or media ratios by genus. Values circulate widely in the hobby</p>
+<p>  and disagree with each other. <strong>Gate 3 applies:</strong> Suite A will not ship them.</p>
+<h3>Soil texture — gate 1</h3>
+<ul>
+<li>The USDA ribbon-and-grit key is standard across extension services and reliable to within one class with</li>
+</ul>
+<p>  practice. Implemented as the Texture tab.</p>
+<p><strong>Sources:</strong> <a href="https://www.ecfr.gov/current/title-40/chapter-I/subchapter-O/part-503/appendix-Appendix%20B%20to%20Part%20503">40 CFR 503 App. B</a> ·</p>
+<p><a href="https://www.ams.usda.gov/sites/default/files/media/Compost_FINAL.pdf">USDA AMS compost tipsheet</a> ·</p>
+<p><a href="https://www.sustainablemarketfarming.com/tag/cn-ratios-in-compost/">Sustainable Market Farming — C:N ratios</a> ·</p>
+<p><a href="https://www.learnseedsaving.com/population-size/">Learn Seed Saving — population size</a> ·</p>
+<p><a href="https://pubs.nmsu.edu/_h/H262/index.html">NMSU H-262 — vegetable seed saving</a> ·</p>
+<p><a href="https://www.californiacarnivores.com/blogs/growing-tips/76003845-general-carnivorous-plant-growing-tips">California Carnivores — growing tips</a> ·</p>
+<p><a href="https://www.nrcs.usda.gov/resources/education-and-teaching-materials/soil-texture-calculator">NRCS soil texture calculator</a></p>
+  <footer>
+    <p><b>ADR-031</b> — part of the CSRBT ecology kit. Proving consumer:
+    <a href="soil-bench.html">Soil Bench</a>. Hub: <a href="ecology.html">the kit</a>.
+    Markdown source: <code>docs/ADR-031-entry-layer-and-suites-2026-08-24.md</code>.</p>
+    <p>Research was gathered on 24 August 2026 and every finding is tagged with the honesty gate it falls
+    under. Where a source could not be found — carnivorous-plant dormancy above all — that absence is
+    recorded as the finding rather than filled in.</p>
+  </footer>
+</div>
+</body>
+</html>

@@ -1,0 +1,691 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Micro Bench — plate counts, dilutions, growth rate &amp; zones</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,600;9..144,700&family=Nunito+Sans:wght@400;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap">
+<style>
+  :root {
+    color-scheme: light;
+    --page:#F5F1E6; --surface:#FFFDF7; --surface-2:#F3EEE0; --ink:#23281F; --ink-2:#4B5344;
+    --muted:#8B8B7B; --border:#E3DCC9; --s1:#2E7D4F; --s1-deep:#236240; --s2:#C0592B; --s3:#2B6C8F;
+    --soft:#E9F0E7; --warn-bg:#F6EAD8; --danger:#B23A32; --danger-bg:#F6E7E5; --gold:#B8860B;
+    --shadow:0 1px 2px rgba(35,40,31,.06),0 10px 28px rgba(35,40,31,.08);
+    --head:"Fraunces",Georgia,serif;
+    --body:"Nunito Sans",system-ui,-apple-system,sans-serif;
+    --mono:"JetBrains Mono",ui-monospace,Menlo,monospace;
+  }
+  * { box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
+  body { margin:0; background:var(--page); color:var(--ink); font:16px/1.5 var(--body);
+    -webkit-font-smoothing:antialiased; overscroll-behavior-y:contain; }
+  .app { max-width:960px; margin:0 auto; padding:14px 16px calc(104px + env(safe-area-inset-bottom)); }
+  .top { display:flex; align-items:baseline; justify-content:space-between; gap:10px; padding:6px 2px 12px; flex-wrap:wrap; }
+  .brand { font-family:var(--head); font-weight:700; font-size:22px; letter-spacing:-0.01em; }
+  .brand span { color:var(--s1); }
+  .top a { font-family:var(--mono); font-size:11.5px; color:var(--muted); text-decoration:none;
+    display:inline-flex; align-items:center; min-height:44px; padding:0 6px; margin:-10px -6px; touch-action:manipulation; }
+  .top a:hover { color:var(--s1); }
+
+  .tabbar { position:fixed; left:0; right:0; bottom:0; z-index:20;
+    background:color-mix(in srgb, var(--surface) 94%, transparent); backdrop-filter:blur(10px);
+    border-top:1px solid var(--border); padding:8px max(8px, env(safe-area-inset-left)) calc(8px + env(safe-area-inset-bottom)); }
+  .tabbar .row { max-width:960px; margin:0 auto; display:grid; grid-template-columns:repeat(6,1fr); gap:4px; }
+  .tab { display:flex; flex-direction:column; align-items:center; gap:2px; border:0; background:none;
+    font:700 10.5px var(--body); color:var(--muted); padding:7px 1px; border-radius:12px; cursor:pointer;
+    min-height:54px; touch-action:manipulation; transition:background .15s ease, color .15s ease; }
+  .tab .ico { font-size:20px; line-height:1; }
+  .tab.on { color:var(--s1); background:var(--soft); }
+  .tab:active { transform:scale(.96); }
+  .pane { display:none; animation:fade .18s ease; }
+  .pane.on { display:block; }
+  @keyframes fade { from{opacity:0;transform:translateY(4px);} to{opacity:1;transform:none;} }
+  @media (prefers-reduced-motion: reduce){ .pane{animation:none;} }
+
+  h2 { font-family:var(--head); font-weight:600; font-size:20px; margin:6px 0 2px; }
+  h3 { font-family:var(--head); font-weight:600; font-size:16.5px; margin:16px 0 4px; }
+  .hint { color:var(--muted); font-size:14px; margin:0 0 12px; }
+  .card { background:var(--surface); border:1px solid var(--border); border-radius:16px;
+    padding:16px; box-shadow:var(--shadow); margin-bottom:14px; }
+  .fine { font-size:12.5px; color:var(--muted); margin-top:10px; line-height:1.55; }
+
+  input[type=text], input[type=number], input[type=date], select, textarea {
+    background:var(--surface); color:var(--ink); border:1.5px solid var(--border); border-radius:12px;
+    padding:11px 14px; font:16px var(--body); min-height:48px; max-width:100%; }
+  textarea { min-height:78px; line-height:1.5; width:100%; }
+  input:focus, select:focus, textarea:focus { outline:none; border-color:var(--s1); box-shadow:0 0 0 3px rgba(46,125,79,.18); }
+  input[type=number] { width:110px; }
+  label.f { display:flex; flex-direction:column; gap:5px; font-size:13px; font-weight:700; color:var(--ink-2); min-width:0; }
+  .grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(150px,1fr)); gap:10px; }
+  .grid label.f input, .grid label.f select { width:100%; }
+
+  .btn { border:0; border-radius:12px; padding:12px 18px; font:800 15px var(--body); cursor:pointer;
+    min-height:48px; touch-action:manipulation; transition:transform .1s ease, background .15s ease; }
+  .btn:active { transform:scale(.97); }
+  .btn-go { background:var(--s1); color:#fff; } .btn-go:hover { background:var(--s1-deep); }
+  .btn-soft { background:var(--soft); color:var(--s1); }
+  .btn-ghost { background:none; border:1.5px solid var(--border); color:var(--ink-2); }
+  .btn-ghost:hover { border-color:var(--s1); color:var(--s1); }
+  .btn-row { display:flex; gap:8px; flex-wrap:wrap; margin-top:12px; align-items:end; }
+
+  .kopts { display:flex; flex-wrap:wrap; gap:8px; }
+  .kopt { border:1.5px solid var(--border); background:var(--surface); border-radius:14px; padding:10px 14px;
+    font:700 14px var(--body); color:var(--ink-2); cursor:pointer; min-height:46px; touch-action:manipulation;
+    display:inline-flex; flex-direction:column; align-items:flex-start; gap:1px; }
+  .kopt small { font-weight:400; font-size:11px; color:var(--muted); font-family:var(--mono); }
+  .kopt.on { border-color:var(--s1); background:var(--soft); color:var(--s1); }
+
+  .covscale { display:flex; flex-wrap:wrap; gap:6px; margin-top:6px; }
+  .cv { border:1.5px solid var(--border); background:var(--surface); border-radius:11px; min-width:52px;
+    padding:8px 6px; font:800 15px var(--body); color:var(--ink-2); cursor:pointer; min-height:52px;
+    display:flex; flex-direction:column; align-items:center; justify-content:center; gap:1px; touch-action:manipulation; }
+  .cv small { font:400 9.5px var(--mono); color:var(--muted); }
+  .cv.on { border-color:var(--s1); background:var(--soft); color:var(--s1); }
+  .cv.on small { color:var(--s1-deep); }
+
+  .tiles { display:flex; flex-wrap:wrap; gap:8px; margin:12px 0 2px; }
+  .tile { background:var(--surface-2); border:1px solid var(--border); border-radius:12px; padding:9px 14px; min-width:96px; }
+  .tile .v { font-family:var(--head); font-weight:700; font-size:21px; font-variant-numeric:tabular-nums; }
+  .tile .l { font-size:11px; color:var(--muted); }
+  .verdict { border-radius:12px; padding:13px 16px; margin:12px 0 2px; font-size:15.5px; line-height:1.55;
+    border-left:4px solid var(--s1); background:var(--soft); color:var(--ink-2); }
+  .verdict b { color:var(--ink); }
+  .verdict.warn { border-left-color:var(--s2); background:var(--warn-bg); }
+  .verdict.act { border-left-color:var(--danger); background:var(--danger-bg); }
+
+  .tw { overflow-x:auto; -webkit-overflow-scrolling:touch; margin:10px 0; }
+  table { border-collapse:collapse; width:100%; font-size:14px; }
+  th,td { border:1px solid var(--border); padding:6px 9px; text-align:left; vertical-align:top; white-space:nowrap; }
+  th { background:var(--soft); font-family:var(--head); font-weight:600; font-size:13px; }
+  td.n, th.n { text-align:right; font-variant-numeric:tabular-nums; font-family:var(--mono); font-size:13px; }
+  td i { font-style:italic; color:var(--ink-2); }
+
+  .rowlist { display:grid; gap:8px; margin-top:10px; }
+  .row2 { display:flex; align-items:center; gap:10px; background:var(--surface); border:1px solid var(--border);
+    border-radius:12px; padding:10px 13px; font-size:15px; }
+  .row2.inv { border-left:3px solid var(--danger); }
+  .row2 .g { flex:1; min-width:0; }
+  .row2 .g b { font-family:var(--head); font-size:15.5px; }
+  .row2 .g b i { font-style:italic; font-weight:400; color:var(--ink-2); font-size:14px; }
+  .row2 .g span { display:block; color:var(--muted); font-size:12.5px; font-family:var(--mono); margin-top:1px;
+    overflow:hidden; text-overflow:ellipsis; }
+  .row2 .cov { font-family:var(--head); font-weight:700; font-size:17px; color:var(--s1); min-width:46px; text-align:right; }
+  .row2 button { border:0; background:none; color:var(--muted); font-size:15px; padding:9px 11px; cursor:pointer; min-height:44px; min-width:44px; }
+  .row2 button:hover { color:var(--danger); }
+
+  .bars { display:grid; gap:6px; margin-top:10px; }
+  .bar { display:grid; grid-template-columns:132px 1fr 54px; gap:8px; align-items:center; font-size:13.5px; }
+  .bar .nm { font-weight:700; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+  .bar .tr { display:block; background:var(--surface-2); border:1px solid var(--border); border-radius:8px; height:20px; overflow:hidden; }
+  .bar .fl { display:block; height:100%; background:var(--s1); border-radius:7px 0 0 7px; transition:width .4s ease; }
+  .bar .fl.inv { background:var(--s2); }
+  .bar .pc { text-align:right; font-variant-numeric:tabular-nums; color:var(--ink-2); font-family:var(--mono); font-size:12.5px; }
+
+  .label { background:#fff; border:1px solid var(--ink); border-radius:2px; padding:14px 16px; margin-top:10px;
+    font:12.5px/1.5 var(--body); color:#000; max-width:440px; }
+  .label .inst { font-family:var(--head); font-weight:700; font-size:12px; letter-spacing:.06em;
+    text-transform:uppercase; text-align:center; border-bottom:1px solid #000; padding-bottom:5px; margin-bottom:7px; }
+  .label .sci { font-style:italic; font-weight:700; font-size:14px; }
+  .label .row { margin:3px 0; }
+  .label .k { font-weight:700; }
+  .label .coll { margin-top:8px; padding-top:6px; border-top:1px solid #999; display:flex; justify-content:space-between; }
+
+  pre.export { background:#23281F; color:#E8E4D5; border-radius:12px; padding:14px 16px; overflow-x:auto;
+    font:12.5px/1.65 var(--mono); max-height:340px; }
+  code { font-family:var(--mono); font-size:.82em; background:var(--surface-2); border:1px solid var(--border); border-radius:5px; padding:1px 5px; }
+
+  .toast { position:fixed; left:50%; bottom:84px; transform:translateX(-50%) translateY(90px); z-index:30;
+    background:var(--ink); color:#F5F1E6; border-radius:999px; padding:10px 22px; font:700 14px var(--body);
+    transition:transform .25s ease; pointer-events:none; max-width:88vw; text-align:center; }
+  .toast.on { transform:translateX(-50%) translateY(0); }
+
+  @media print {
+    .tabbar, .btn, .kopts, .covscale, .top a, .noprint { display:none !important; }
+    body { background:#fff; } .pane { display:block !important; }
+    .app { padding-bottom:0; } .card { break-inside:avoid; } table { font-size:10pt; }
+    pre.export { background:#fff; color:#000; border:1px solid #ccc; max-height:none; }
+    .label { break-inside:avoid; page-break-inside:avoid; }
+  }
+
+
+  /* ---- fungal additions ---- */
+  .sw { display:flex; flex-wrap:wrap; gap:7px; margin-top:6px; }
+  .swc { border:1.5px solid var(--border); background:var(--surface); border-radius:12px; padding:7px 11px 8px;
+    font:700 12.5px var(--body); color:var(--ink-2); cursor:pointer; min-height:56px; touch-action:manipulation;
+    display:flex; flex-direction:column; align-items:center; gap:5px; min-width:74px; }
+  .swc .chip { width:44px; height:18px; border-radius:5px; border:1px solid rgba(35,40,31,.28); display:block; }
+  .swc.on { border-color:var(--s1); background:var(--soft); color:var(--s1); }
+
+  .chk { display:flex; flex-wrap:wrap; gap:7px; margin-top:6px; }
+  .ck { border:1.5px solid var(--border); background:var(--surface); border-radius:999px; padding:9px 14px;
+    font:700 13.5px var(--body); color:var(--ink-2); cursor:pointer; min-height:44px; touch-action:manipulation; }
+  .ck.on { border-color:var(--s1); background:var(--soft); color:var(--s1); }
+  .ck.on::before { content:"\2713 "; }
+
+  .rg { display:grid; gap:9px; margin-top:8px; }
+  .rgi { border:1px solid var(--border); background:var(--surface); border-radius:13px; padding:11px 13px; }
+  .rgi .hd { display:flex; align-items:center; justify-content:space-between; gap:9px; flex-wrap:wrap; }
+  .rgi .nm { font-family:var(--head); font-weight:700; font-size:15px; }
+  .rgi .nm em { font-style:normal; font-family:var(--mono); font-size:11.5px; color:var(--muted); margin-left:6px; }
+  .rgi .wh { font-size:12.5px; color:var(--muted); line-height:1.5; margin-top:5px; }
+  .rgi input[type=text] { width:100%; margin-top:8px; min-height:44px; }
+  .rgi.haz { border-left:3px solid var(--s2); }
+
+  .guild { display:inline-block; font:700 10.5px var(--mono); letter-spacing:.05em; text-transform:uppercase;
+    border-radius:999px; padding:3px 9px; border:1px solid var(--border); background:var(--surface-2); color:var(--ink-2); }
+  .guild.ecm { border-color:var(--s1); color:var(--s1); background:var(--soft); }
+  .guild.woodsap, .guild.littersap { border-color:var(--s3); color:var(--s3); background:#E6EEF3; }
+  .guild.par { border-color:var(--danger); color:var(--danger); background:var(--danger-bg); }
+  .guild.lich { border-color:var(--gold); color:#7a5c07; background:#F5EFD9; }
+  .guild.myco { border-color:var(--s2); color:var(--s2); background:var(--warn-bg); }
+  .guild.mixed { border-style:dashed; }
+
+  .mx td.h0 { color:var(--muted); }
+  .mx td.h1 { background:#EDF4EA; font-weight:700; }
+  .mx td.h2 { background:var(--s1); color:#fff; font-weight:700; }
+
+  .never { border:2px solid var(--danger); background:var(--danger-bg); border-radius:14px; padding:15px 17px;
+    margin:14px 0; font-size:15px; line-height:1.6; color:var(--ink); }
+  .never b { font-family:var(--head); display:block; font-size:16px; margin-bottom:5px; color:var(--danger); }
+
+  .drylog { display:grid; grid-template-columns:repeat(auto-fit,minmax(128px,1fr)); gap:9px; margin-top:8px; }
+
+
+  /* ---- bench additions ---- */
+  .stat { display:grid; grid-template-columns:repeat(auto-fit,minmax(132px,1fr)); gap:9px; margin:12px 0 2px; }
+  .st { background:var(--surface-2); border:1px solid var(--border); border-radius:12px; padding:10px 13px; }
+  .st .v { font-family:var(--head); font-weight:700; font-size:22px; font-variant-numeric:tabular-nums; line-height:1.1; }
+  .st .l { font-size:11px; color:var(--muted); margin-top:2px; line-height:1.35; }
+  .st.hi .v { color:var(--s1); } .st.bad .v { color:var(--danger); } .st.warnv .v { color:var(--s2); }
+  .eq { font-family:var(--mono); font-size:12.5px; background:var(--surface-2); border:1px solid var(--border);
+    border-radius:9px; padding:9px 12px; margin:9px 0; color:var(--ink-2); overflow-x:auto; }
+  .scat { display:block; width:100%; height:auto; background:var(--surface); border:1px solid var(--border);
+    border-radius:12px; margin-top:10px; }
+  .warnbox { border:2px solid var(--s2); background:var(--warn-bg); border-radius:14px; padding:14px 17px;
+    margin:14px 0; font-size:15px; line-height:1.6; }
+  .warnbox b { font-family:var(--head); display:block; font-size:16px; margin-bottom:4px; color:var(--s2); }
+  .refuse { border:2px solid var(--danger); background:var(--danger-bg); border-radius:14px; padding:15px 18px;
+    margin:14px 0; font-size:15px; line-height:1.6; }
+  .refuse b { font-family:var(--head); display:block; font-size:16px; margin-bottom:4px; color:var(--danger); }
+  td.ok { color:var(--s1); font-weight:700; } td.no { color:var(--danger); font-weight:700; }
+
+  .rail { margin:26px 0 4px; }
+  .rail .rl { font-family:var(--mono); font-size:11px; letter-spacing:.14em; text-transform:uppercase; color:var(--muted); margin:0 2px 8px; }
+  .rail .chips { display:flex; flex-wrap:wrap; gap:8px; }
+  .rail a { display:inline-flex; align-items:center; gap:7px; text-decoration:none; font:700 13.5px var(--body);
+    color:var(--ink-2); background:var(--surface); border:1px solid var(--border); border-radius:999px;
+    padding:9px 15px; min-height:44px; box-shadow:var(--shadow); touch-action:manipulation; }
+  .rail a:hover { border-color:var(--s1); color:var(--s1); }
+  .rail a[aria-current="page"] { background:var(--soft); border-color:var(--s1); color:var(--s1); }
+  .rail a.ref { font-weight:600; color:var(--muted); background:none; box-shadow:none; }
+  @media print { .rail { display:none !important; } }
+</style>
+</head>
+<body>
+<div class="app">
+  <div class="top">
+    <div class="brand">🧫 Micro <span>Bench</span></div>
+    <a href="ecology.html">part of the science kit →</a>
+  </div>
+
+  <!-- ============ PLATES ============ -->
+  <section class="pane on" id="p-pl">
+    <h2>Plate counts</h2>
+    <p class="hint">Enter every plate you counted, including the ones that were unusable. Which plates you
+      discarded, and why, is part of the result.</p>
+
+    <div class="card">
+      <div class="btn-row" style="margin-top:0">
+        <label class="f">dilution 10⁻ⁿ<input type="number" id="plN" min="0" step="1" style="width:96px" placeholder="5"></label>
+        <label class="f">volume plated (mL)<input type="number" id="plV" min="0" step="0.01" value="0.1" style="width:120px"></label>
+        <label class="f">colonies<input type="number" id="plC" min="0" step="1" style="width:110px"></label>
+        <label class="f">plate label<input type="text" id="plL" style="width:120px" placeholder="TSA-A" autocomplete="off"></label>
+        <button class="btn btn-soft" id="plAdd" type="button">Add plate</button>
+      </div>
+      <div class="rowlist" id="plList"></div>
+    </div>
+    <div class="card" id="plOut"></div>
+    <div class="card" id="plNote"></div>
+  </section>
+
+  <!-- ============ DILUTION ============ -->
+  <section class="pane" id="p-dil">
+    <h2>Dilution planner</h2>
+    <p class="hint">Work out which dilution will land in the countable window <em>before</em> you pour, not
+      after you have wasted a set of plates.</p>
+    <div class="card">
+      <div class="grid">
+        <label class="f">estimated titre (CFU/mL)<input type="number" id="dEst" min="0" step="1000" placeholder="1e8"></label>
+        <label class="f">volume plated (mL)<input type="number" id="dVol" min="0" step="0.01" value="0.1"></label>
+        <label class="f">transfer volume (mL)<input type="number" id="dTr" min="0" step="0.1" value="1"></label>
+        <label class="f">diluent volume (mL)<input type="number" id="dBl" min="0" step="0.1" value="9"></label>
+      </div>
+      <div id="dilOut"></div>
+    </div>
+  </section>
+
+  <!-- ============ GROWTH ============ -->
+  <section class="pane" id="p-gr">
+    <h2>Growth curve</h2>
+    <p class="hint">Enter time and OD, then mark the points you judge to be in exponential phase. The fit
+      uses only those.</p>
+    <div class="card">
+      <div class="btn-row" style="margin-top:0">
+        <label class="f">time (h)<input type="number" id="grT" step="0.1" style="width:110px"></label>
+        <label class="f">OD₆₀₀<input type="number" id="grO" step="0.001" style="width:110px"></label>
+        <button class="btn btn-soft" id="grAdd" type="button">Add</button>
+        <button class="btn btn-ghost" id="grClear" type="button">Clear</button>
+        <button class="btn btn-ghost" id="grDemo" type="button">Worked example</button>
+      </div>
+      <div class="rowlist" id="grList"></div>
+    </div>
+    <div class="card" id="grOut"></div>
+  </section>
+
+  <!-- ============ ZONES ============ -->
+  <section class="pane" id="p-zn">
+    <h2>Disc diffusion</h2>
+    <p class="hint">Measure the zone. Interpretation needs a breakpoint table, and this page will not invent
+      one &mdash; see below.</p>
+    <div class="card">
+      <div class="grid">
+        <label class="f">organism<input type="text" id="zOrg" placeholder="E. coli ATCC 25922" autocomplete="off"></label>
+        <label class="f">medium<input type="text" id="zMed" value="Mueller-Hinton" autocomplete="off"></label>
+      </div>
+      <div class="btn-row">
+        <label class="f">antimicrobial<input type="text" id="zDrug" style="width:150px" autocomplete="off"></label>
+        <label class="f">disc content<input type="text" id="zCont" style="width:110px" placeholder="30 µg" autocomplete="off"></label>
+        <label class="f">zone (mm)<input type="number" id="zMm" min="0" step="0.5" style="width:110px"></label>
+        <button class="btn btn-soft" id="zAdd" type="button">Add</button>
+      </div>
+      <h3>Breakpoints — from your current table</h3>
+      <div class="btn-row" style="margin-top:0">
+        <label class="f">S if ≥ (mm)<input type="number" id="zS" min="0" step="0.5" style="width:110px"></label>
+        <label class="f">R if ≤ (mm)<input type="number" id="zR" min="0" step="0.5" style="width:110px"></label>
+        <label class="f">source &amp; year<input type="text" id="zSrc" placeholder="CLSI M100, 2026" autocomplete="off"></label>
+      </div>
+      <div class="rowlist" id="zList"></div>
+      <div id="zOut"></div>
+    </div>
+    <div class="card" id="zRefuse"></div>
+  </section>
+
+  <!-- ============ METHOD ============ -->
+  <section class="pane" id="p-met">
+    <h2>Method</h2>
+
+    <div class="card">
+      <h3 style="margin-top:0">What a colony count actually counts</h3>
+      <div class="eq">CFU/mL = colonies ÷ (volume plated × dilution)</div>
+      <p class="fine">The unit is a <b>colony-forming unit</b>, and the name is the caveat. A CFU is whatever
+        gave rise to one colony. A chain of eight streptococci, a clump of staphylococci, a hypha &mdash; each
+        is one CFU. Plate counts therefore <b>underestimate cell number</b> by an amount that depends on how
+        clumpy the organism is, which is why vortexing and the diluent matter and why CFU/mL should never be
+        reported as "cells per mL".</p>
+      <p class="fine">The second and larger caveat: a plate count only sees what grows <b>on that medium, at
+        that temperature, in that atmosphere, in that time</b>. For an environmental sample the culturable
+        fraction is routinely a small percentage of the cells present — the great plate count anomaly, known
+        since the 1930s and confirmed by every sequencing survey since. A plate count of a soil or water
+        sample is a count of the organisms your conditions happened to suit. Say so.</p>
+    </div>
+
+    <div class="card">
+      <h3 style="margin-top:0">The 30&ndash;300 window</h3>
+      <p class="fine" style="margin-top:0">Only plates with roughly <b>30 to 300</b> colonies are counted.
+        Both ends are real:</p>
+      <ul style="font-size:13px;color:var(--muted);line-height:1.6;margin:0 0 10px;padding-left:20px">
+        <li><b>Below 30</b> the Poisson error is large. Thirty colonies carries a CV of about 18%; ten carries
+          about 32%. The plate is not wrong, it is imprecise, and averaging several such plates is better than
+          quoting one.</li>
+        <li><b>Above 300</b> colonies merge, crowd, and compete for nutrients, so you undercount by a growing
+          and unknowable amount. This is a <b>bias</b>, not noise, and more plates will not fix it.</li>
+      </ul>
+      <p class="fine">Plates outside the window are recorded as <b>TFTC</b> (too few to count) and <b>TNTC</b>
+        (too numerous to count) and excluded from the mean. This page shows them, marks them, and leaves them
+        out of the arithmetic rather than silently dropping them — a run where every plate was TNTC is a
+        result about your dilution series, and it should be visible.</p>
+      <p class="fine">Where two adjacent dilutions are both countable, the convention is to use both and
+        average the computed CFU/mL. If they disagree by more than about a factor of two, something is wrong
+        with the series rather than with the organism, and the page says so.</p>
+    </div>
+
+    <div class="card">
+      <h3 style="margin-top:0">Growth rate from OD</h3>
+      <div class="eq">ln(OD) = ln(OD₀) + µt &nbsp;&nbsp;→&nbsp;&nbsp; µ = slope &nbsp;·&nbsp; t_d = ln2 / µ</div>
+      <p class="fine">Fitting a straight line to <b>ln(OD)</b> across the exponential phase gives the specific
+        growth rate µ in h⁻¹, and the doubling time follows. Two things to be honest about.</p>
+      <p class="fine"><b>OD is turbidity, not cells.</b> It measures light scattering, and the relationship
+        between scattering and cell number depends on cell size and shape — both of which change with growth
+        phase and medium. An OD-to-CFU conversion is specific to one strain on one instrument in one medium,
+        and it must be calibrated by you before it means anything. This page deliberately offers no such
+        conversion.</p>
+      <p class="fine"><b>OD saturates.</b> Above roughly OD 0.4&ndash;0.6 on a typical spectrophotometer,
+        multiple scattering makes the reading fall below linearity, so late points flatten for optical reasons
+        that have nothing to do with the culture. Including them drags µ down. Dilute before reading, or
+        exclude those points and say you did — which is why the phase selection here is manual rather than
+        automatic. Choosing the window is a scientific judgement and the page will not make it for you.</p>
+    </div>
+
+    <div class="card">
+      <h3 style="margin-top:0">Disc diffusion</h3>
+      <p class="fine" style="margin-top:0">Zone diameter is a measurement. <b>Susceptible / intermediate /
+        resistant is an interpretation</b>, and it comes from a breakpoint table that is specific to the
+        organism, the antimicrobial, the disc content, the medium and the method — and that is
+        <b>revised annually</b> by CLSI and EUCAST.</p>
+      <div class="refuse"><b>This page ships no breakpoints, and that is deliberate.</b>
+        A hard-coded table would be wrong within a year and dangerously wrong within a few, and software that
+        prints "susceptible" from a stale number is worse than software that prints nothing. Enter the
+        breakpoints from the table you are actually working to, and record which edition it was — the page
+        stores that alongside the result and puts it in the export. With no breakpoints entered you get the
+        measurement and nothing else, which is the honest output.</div>
+      <p class="fine">The method matters as much as the table: Mueller-Hinton at a controlled depth, a
+        0.5 McFarland inoculum within 15 minutes of preparation, discs applied within 15 minutes of
+        inoculation, 16&ndash;18 h at 35&nbsp;°C in air. Change any of those and the zone changes. A QC strain
+        run alongside is what tells you the method was in control on the day; a result from a run whose QC was
+        out of range is not a result.</p>
+    </div>
+
+    <div class="card">
+      <h3 style="margin-top:0">Controls</h3>
+      <p class="fine" style="margin-top:0">Every count needs an uninoculated control plate from the same
+        batch of medium, incubated alongside. It costs one plate and it is the only thing that distinguishes
+        "my sample contained these organisms" from "my medium did". If the negative control grows, the run is
+        void — not adjusted, void.</p>
+    </div>
+  </section>
+
+  <div class="rail">
+    <p class="rl">The bench</p>
+    <div class="chips">
+      <a href="soil-bench.html"><span>🪱</span>Soil Bench</a>
+      <a href="cell-bench.html"><span>🔬</span>Cell Bench</a>
+      <a href="micro-bench.html" aria-current="page"><span>🧫</span>Micro Bench</a>
+      <a href="selection-log.html"><span>📏</span>Selection Log</a>
+      <a href="ethogram.html"><span>🐾</span>Ethogram</a>
+      <a class="ref" href="ecology.html">← kit hub</a>
+      <a class="ref" href="ecology-glossary.html">glossary</a>
+    </div>
+  </div>
+</div>
+
+<div class="tabbar"><div class="row">
+  <button class="tab on" data-pane="p-pl" type="button"><span class="ico">🧫</span>Plates</button>
+  <button class="tab" data-pane="p-dil" type="button"><span class="ico">💧</span>Dilution</button>
+  <button class="tab" data-pane="p-gr" type="button"><span class="ico">📈</span>Growth</button>
+  <button class="tab" data-pane="p-zn" type="button"><span class="ico">⭕</span>Zones</button>
+  <button class="tab" data-pane="p-met" type="button"><span class="ico">📖</span>Method</button>
+</div></div>
+<div class="toast" id="toast">Saved</div>
+<script>
+(function(){
+  "use strict";
+  var $=function(i){return document.getElementById(i);};
+  var val=function(i){var e=$(i);return e?String(e.value||"").trim():"";};
+  var nv=function(i){var e=$(i);var v=parseFloat(e&&e.value);return isFinite(v)?v:NaN;};
+  function esc(s){return String(s==null?"":s).replace(/[&<>"]/g,function(c){
+    return {"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;"}[c];});}
+  function buzz(m){try{if(navigator.vibrate)navigator.vibrate(m||8);}catch(e){}}
+  var tt;function toast(m){var t=$("toast");t.textContent=m;t.classList.add("on");
+    clearTimeout(tt);tt=setTimeout(function(){t.classList.remove("on");},1700);}
+  function f(x,d){return isFinite(x)?x.toFixed(d==null?2:d):"—";}
+  function sup(n){return String(n).replace(/[-0-9]/g,function(c){
+    return {"-":"⁻","0":"⁰","1":"¹","2":"²","3":"³","4":"⁴","5":"⁵","6":"⁶","7":"⁷","8":"⁸","9":"⁹"}[c];});}
+  function sci(x){ if(!isFinite(x))return "—"; if(x===0)return "0";
+    var e=Math.floor(Math.log10(Math.abs(x))),m=x/Math.pow(10,e);
+    return m.toFixed(2)+"×10"+sup(e); }
+  function st(v,l,c){return '<div class="st'+(c?" "+c:"")+'"><div class="v">'+v+'</div><div class="l">'+l+'</div></div>';}
+
+  /* --------------------------------------------------------------- plates */
+  var plates=[];
+  $("plAdd").addEventListener("click",function(){
+    var n=nv("plN"), v=nv("plV"), c=nv("plC");
+    if(!isFinite(n)||!isFinite(v)||!isFinite(c)||v<=0){toast("Need dilution, volume and colonies");return;}
+    plates.push({n:n,v:v,c:c,label:val("plL")});
+    $("plC").value=""; $("plL").value="";
+    renderPl(); buzz(12);
+  });
+  function cfu(p){ return p.c/(p.v*Math.pow(10,-p.n)); }
+  function statusOf(p){ return p.c<30?"TFTC":(p.c>300?"TNTC":"countable"); }
+  function renderPl(){
+    var box=$("plList");
+    if(!plates.length){ box.innerHTML='<p class="fine" style="margin:0">No plates yet.</p>';
+      $("plOut").innerHTML=""; $("plNote").innerHTML=""; return; }
+    box.innerHTML=plates.map(function(p,i){
+      var s=statusOf(p);
+      return '<div class="row2'+(s!=="countable"?' inv':'')+'"><div class="g"><b>'+
+        esc(p.label||("10"+sup(-p.n)))+'</b><span>10'+sup(-p.n)+' · '+f(p.v,2)+' mL · '+
+        p.c+' colonies · <b>'+s+'</b></span></div><span class="cov">'+
+        (s==="countable"?sci(cfu(p)):"—")+'</span>'+
+        '<button type="button" data-i="'+i+'">✕</button></div>';
+    }).join("");
+    Array.prototype.forEach.call(box.querySelectorAll("button[data-i]"),function(b){
+      b.addEventListener("click",function(){ plates.splice(+b.getAttribute("data-i"),1); renderPl(); });
+    });
+
+    var good=plates.filter(function(p){return statusOf(p)==="countable";});
+    var o=$("plOut");
+    if(!good.length){
+      o.innerHTML='<h3 style="margin-top:0">Result</h3><div class="refuse"><b>No countable plate.</b> '+
+        'Every plate is outside the 30–300 window, so there is no defensible CFU/mL from this run. '+
+        (plates.every(function(p){return p.c>300;})
+          ? 'All plates are TNTC — the dilution series did not go far enough. Extend it by two or three more steps.'
+          : (plates.every(function(p){return p.c<30;})
+             ? 'All plates are TFTC — the series went too far, or the sample is more dilute than you expected. Plate a lower dilution.'
+             : 'Plate the dilutions between the ones that were too crowded and too sparse.'))+
+        ' Report the run as it happened rather than quoting a number from an out-of-range plate.</div>';
+      $("plNote").innerHTML=""; return;
+    }
+    var vals=good.map(cfu);
+    var mean=vals.reduce(function(a,b){return a+b;},0)/vals.length;
+    var lo=Math.min.apply(null,vals), hi=Math.max.apply(null,vals);
+    var totCol=good.reduce(function(a,p){return a+p.c;},0);
+    var cv=100/Math.sqrt(totCol);
+    var h='<h3 style="margin-top:0">Result</h3><div class="stat">'+
+      st(sci(mean),"CFU/mL (mean of countable)","hi")+
+      st(good.length+" / "+plates.length,"countable plates")+
+      st(totCol,"colonies counted")+
+      st("±"+f(cv,1)+"%","Poisson CV", cv>18?"warnv":"")+'</div>';
+    h+='<div class="tw"><table><tr><th>plate</th><th class="n">dilution</th><th class="n">colonies</th>'+
+       '<th class="n">status</th><th class="n">CFU/mL</th></tr>';
+    plates.forEach(function(p){
+      var s=statusOf(p);
+      h+='<tr><td>'+esc(p.label||"—")+'</td><td class="n">10'+sup(-p.n)+'</td><td class="n">'+p.c+
+         '</td><td class="'+(s==="countable"?"ok":"no")+'">'+s+'</td><td class="n">'+
+         (s==="countable"?sci(cfu(p)):"excluded")+'</td></tr>';
+    });
+    h+='</table></div>';
+    o.innerHTML=h;
+
+    var a=[];
+    if(plates.length>good.length) a.push('<div class="verdict warn"><b>'+(plates.length-good.length)+
+      ' plate'+(plates.length-good.length===1?"":"s")+' excluded.</b> TFTC and TNTC plates are shown above and '+
+      'left out of the mean rather than dropped silently — which plates you discarded is part of the record.</div>');
+    if(hi/lo>2) a.push('<div class="warnbox"><b>Countable plates disagree by '+f(hi/lo,1)+'×.</b> '+
+      'Adjacent dilutions should give CFU/mL within about a factor of two of each other. A larger spread '+
+      'points at the dilution series — incomplete mixing between steps, a pipetting error, or carry-over — '+
+      'rather than at the organism. Repeat the series before reporting the mean.</div>');
+    if(totCol<30) a.push('<div class="verdict warn"><b>Only '+totCol+' colonies counted in total.</b> '+
+      'Poisson precision is ±'+f(cv,1)+'%. Count more plates at the countable dilution.</div>');
+    a.push('<div class="verdict"><b>This is CFU/mL, not cells/mL.</b> A chain, a clump or a hypha gives one '+
+      'colony, so the figure underestimates cell number by an amount set by how clumpy the organism is. '+
+      'For an environmental sample it also counts only what grows on this medium under these conditions, '+
+      'which is typically a small fraction of what is present.</div>');
+    $("plNote").innerHTML=a.join("");
+  }
+
+  /* ------------------------------------------------------------ dilution */
+  function dil(){
+    var est=nv("dEst"), vol=nv("dVol"), tr=nv("dTr"), bl=nv("dBl"), o=$("dilOut");
+    if(!isFinite(est)||est<=0||!isFinite(vol)||vol<=0||!isFinite(tr)||tr<=0||!isFinite(bl)){ o.innerHTML=""; return; }
+    var step=tr/(tr+bl);
+    var perStep=-Math.log10(step);
+    var rows=[], conc=est, k=0, best=null;
+    while(k<=12){
+      var expected=conc*vol;
+      rows.push({k:k,conc:conc,exp:expected});
+      if(expected>=30&&expected<=300&&!best) best=k;
+      conc*=step; k++;
+    }
+    var h='<div class="stat">'+st("1:"+f((tr+bl)/tr,0),"each step")+
+      st(f(perStep,2),"log₁₀ per step")+
+      st(best==null?"none":("step "+best),"lands in 30–300", best==null?"bad":"hi")+'</div>';
+    h+='<div class="tw"><table><tr><th>step</th><th class="n">dilution</th><th class="n">CFU/mL</th>'+
+       '<th class="n">expected colonies</th><th class="n">plate it?</th></tr>';
+    rows.forEach(function(r){
+      var ok=r.exp>=30&&r.exp<=300;
+      h+='<tr><td>'+r.k+'</td><td class="n">10'+sup(-Math.round(r.k*perStep))+'</td><td class="n">'+
+         sci(r.conc)+'</td><td class="n">'+f(r.exp,0)+'</td><td class="'+(ok?"ok":"no")+'">'+
+         (ok?"yes":(r.exp>300?"too many":"too few"))+'</td></tr>';
+    });
+    h+='</table></div>';
+    if(best==null) h+='<div class="warnbox"><b>No step lands in the window.</b> With '+f(vol,2)+' mL plated '+
+      'and this dilution factor, no step gives 30–300 colonies. Change the plated volume, or use a smaller '+
+      'dilution factor per step so the series has finer resolution.</div>';
+    else h+='<div class="verdict"><b>Plate step '+best+' — and step '+(best+1)+' as well.</b> '+
+      'Plating two adjacent dilutions is what lets you notice a series that has gone wrong: if the two '+
+      'computed CFU/mL disagree by more than about twofold, the problem is the dilutions, not the sample. '+
+      'The estimate above is only as good as your guess at the titre, so bracket it.</div>';
+    o.innerHTML=h;
+  }
+  ["dEst","dVol","dTr","dBl"].forEach(function(i){ $(i).addEventListener("input",dil); });
+
+  /* -------------------------------------------------------------- growth */
+  var pts=[];
+  $("grAdd").addEventListener("click",function(){
+    var t=nv("grT"), od=nv("grO");
+    if(!isFinite(t)||!isFinite(od)){toast("Need time and OD");return;}
+    if(od<=0){toast("OD must be above zero to take a log");return;}
+    pts.push({t:t,od:od,use:true}); pts.sort(function(a,b){return a.t-b.t;});
+    $("grT").value=""; $("grO").value=""; renderGr(); buzz(12);
+  });
+  $("grClear").addEventListener("click",function(){ pts=[]; renderGr(); });
+  $("grDemo").addEventListener("click",function(){
+    /* OD rising by a factor of sqrt(2) each half hour -- i.e. doubling every hour --
+       from 0.05, then flattening as the reading saturates optically past ~0.5 */
+    pts=[{t:0,od:0.050,use:true},{t:0.5,od:0.071,use:true},{t:1,od:0.100,use:true},
+         {t:1.5,od:0.141,use:true},{t:2,od:0.200,use:true},{t:2.5,od:0.283,use:true},
+         {t:3,od:0.400,use:true},{t:3.5,od:0.510,use:false},{t:4,od:0.580,use:false},
+         {t:4.5,od:0.610,use:false}];
+    renderGr(); toast("Loaded — last three points excluded as optically saturated"); buzz(14);
+  });
+  function reg(xs,ys){
+    var n=xs.length; if(n<2) return null;
+    var mx=0,my=0; xs.forEach(function(v){mx+=v;}); ys.forEach(function(v){my+=v;}); mx/=n; my/=n;
+    var sxx=0,sxy=0,syy=0;
+    for(var i=0;i<n;i++){var dx=xs[i]-mx,dy=ys[i]-my;sxx+=dx*dx;sxy+=dx*dy;syy+=dy*dy;}
+    if(sxx===0) return null;
+    var b=sxy/sxx;
+    return {b:b,a:my-b*mx,r2:syy===0?1:(sxy*sxy)/(sxx*syy),n:n};
+  }
+  function renderGr(){
+    var box=$("grList");
+    if(!pts.length){ box.innerHTML='<p class="fine" style="margin:0">No points yet.</p>'; $("grOut").innerHTML=""; return; }
+    box.innerHTML=pts.map(function(p,i){
+      return '<div class="row2"><div class="g"><b>'+f(p.t,2)+' h</b><span>OD '+f(p.od,3)+
+        ' · ln(OD) '+f(Math.log(p.od),3)+'</span></div>'+
+        '<button type="button" class="'+(p.use?"":"off")+'" data-u="'+i+'" style="font-weight:700;color:'+
+        (p.use?"var(--s1)":"var(--muted)")+'">'+(p.use?"✓ in fit":"excluded")+'</button>'+
+        '<button type="button" data-d="'+i+'">✕</button></div>';
+    }).join("");
+    Array.prototype.forEach.call(box.querySelectorAll("button[data-u]"),function(b){
+      b.addEventListener("click",function(){ var i=+b.getAttribute("data-u"); pts[i].use=!pts[i].use; renderGr(); });});
+    Array.prototype.forEach.call(box.querySelectorAll("button[data-d]"),function(b){
+      b.addEventListener("click",function(){ pts.splice(+b.getAttribute("data-d"),1); renderGr(); });});
+
+    var use=pts.filter(function(p){return p.use;});
+    var o=$("grOut");
+    if(use.length<3){ o.innerHTML='<p class="fine" style="margin:0">Mark at least three points as being in '+
+      'exponential phase.</p>'; return; }
+    var g=reg(use.map(function(p){return p.t;}), use.map(function(p){return Math.log(p.od);}));
+    if(!g){ o.innerHTML=""; return; }
+    var mu=g.b, td=mu>0?Math.LN2/mu:NaN;
+    var h='<h3 style="margin-top:0">Exponential fit</h3><div class="stat">'+
+      st(f(mu,4)+" h⁻¹","specific growth rate µ","hi")+
+      st(f(td,3)+" h","doubling time","hi")+
+      st(f(td*60,1)+" min","doubling time")+
+      st(f(g.r2,4),"r²", g.r2<0.98?"warnv":"")+
+      st(use.length+" / "+pts.length,"points in fit")+'</div>';
+    h+='<div class="eq">ln(OD) = '+f(g.a,4)+' + '+f(mu,4)+'·t &nbsp;·&nbsp; t_d = ln2 ÷ '+f(mu,4)+' = '+f(td,3)+' h</div>';
+    if(mu<=0) h+='<div class="warnbox"><b>Slope is not positive.</b> The selected points are not growing, so '+
+      'there is no growth rate to report. Check which points you marked.</div>';
+    if(g.r2<0.98) h+='<div class="warnbox"><b>r² = '+f(g.r2,4)+' across the selected window.</b> A genuine '+
+      'exponential phase is very straight in ln(OD). Curvature here usually means the window includes lag at '+
+      'the start or the approach to stationary at the end — narrow it.</div>';
+    var maxUsed=Math.max.apply(null,use.map(function(p){return p.od;}));
+    if(maxUsed>0.6) h+='<div class="warnbox"><b>Points above OD 0.6 are in the fit.</b> Above roughly '+
+      '0.4–0.6 a typical spectrophotometer reads low because of multiple scattering, so those points flatten '+
+      'the line for optical reasons and push µ down. Dilute before reading, or exclude them.</div>';
+    h+='<div class="verdict"><b>µ is a rate of increase in turbidity.</b> OD measures light scattering, and '+
+      'the scattering per cell changes with cell size and shape as the culture ages. Do not convert this to '+
+      'cells/mL without your own OD-to-CFU calibration for this strain, medium and instrument — and note '+
+      'that such a calibration is not transferable to another lab.</div>';
+    o.innerHTML=h;
+  }
+
+  /* --------------------------------------------------------------- zones */
+  var zones=[];
+  $("zAdd").addEventListener("click",function(){
+    var d=val("zDrug"), mm=nv("zMm");
+    if(!d||!isFinite(mm)){toast("Need an antimicrobial and a zone");return;}
+    zones.push({drug:d,cont:val("zCont"),mm:mm});
+    $("zDrug").value=""; $("zCont").value=""; $("zMm").value="";
+    renderZ(); buzz(12);
+  });
+  function renderZ(){
+    var box=$("zList"), S=nv("zS"), R=nv("zR"), src=val("zSrc");
+    var haveBp=isFinite(S)&&isFinite(R);
+    if(!zones.length){ box.innerHTML='<p class="fine" style="margin:0">No zones recorded.</p>'; }
+    else {
+      box.innerHTML=zones.map(function(z,i){
+        var interp="—";
+        if(haveBp) interp = z.mm>=S?"S":(z.mm<=R?"R":"I");
+        return '<div class="row2"><div class="g"><b>'+esc(z.drug)+(z.cont?' '+esc(z.cont):'')+
+          '</b><span>'+f(z.mm,1)+' mm'+(haveBp?'':' · no breakpoints entered')+'</span></div>'+
+          '<span class="cov">'+interp+'</span><button type="button" data-z="'+i+'">✕</button></div>';
+      }).join("");
+      Array.prototype.forEach.call(box.querySelectorAll("button[data-z]"),function(b){
+        b.addEventListener("click",function(){ zones.splice(+b.getAttribute("data-z"),1); renderZ(); });});
+    }
+    var o=$("zOut");
+    if(!zones.length){ o.innerHTML=""; }
+    else if(!haveBp){
+      o.innerHTML='<div class="refuse"><b>Measurement only — no interpretation.</b> '+
+        'You have recorded '+zones.length+' zone'+(zones.length===1?"":"s")+' but no breakpoints. '+
+        'S/I/R cannot be derived from a zone diameter alone: it depends on the organism, the agent, the disc '+
+        'content, the medium and the method, and the table is revised every year. Enter the S and R values '+
+        'from the table you are working to, and the edition, and the interpretation appears.</div>';
+    } else if(S<=R){
+      o.innerHTML='<div class="refuse"><b>Those breakpoints are the wrong way round.</b> The susceptible '+
+        'threshold must be larger than the resistant one — a bigger zone means more susceptible. Check the row '+
+        'you are reading from the table.</div>';
+    } else {
+      o.innerHTML='<div class="verdict"><b>Interpreted against S ≥ '+f(S,1)+' mm, R ≤ '+f(R,1)+' mm'+
+        (src?', '+esc(src):'')+'.</b>'+(src?'':' <b>No source recorded</b> — put the table and its edition in '+
+        'the source field, because an interpretation without its breakpoint source is not reproducible.')+
+        ' The intermediate band is '+f(R+0.5,1)+'–'+f(S-0.5,1)+' mm.</div>';
+    }
+    $("zRefuse").innerHTML='<h3 style="margin-top:0">Why no built-in table</h3>'+
+      '<p class="fine" style="margin-top:0">Breakpoint tables are revised annually and differ between CLSI '+
+      'and EUCAST. Software that hard-codes them prints confident answers that quietly go out of date, and a '+
+      'stale “susceptible” is a worse output than no output. This page therefore asks you for the numbers and '+
+      'records which edition they came from, so the interpretation travels with its source. The same reasoning '+
+      'is why the vegetation tool refuses to ship coefficients of conservatism and the fungal tool ships no '+
+      'edibility data.</p>';
+  }
+  ["zS","zR","zSrc"].forEach(function(i){ $(i).addEventListener("input",renderZ); });
+
+  /* ---------------------------------------------------------------- tabs */
+  document.querySelectorAll(".tab").forEach(function(tb){
+    tb.addEventListener("click",function(){
+      document.querySelectorAll(".tab").forEach(function(t){t.classList.toggle("on",t===tb);});
+      document.querySelectorAll(".pane").forEach(function(p){p.classList.toggle("on",p.id===tb.dataset.pane);});
+      window.scrollTo(0,0); buzz();
+    });
+  });
+  renderPl(); renderGr(); renderZ();
+})();
+</script>
+</body>
+</html>

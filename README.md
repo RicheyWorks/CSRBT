@@ -717,17 +717,19 @@ no install required.
   every keyword of the plain-text experiment format, and the browser → file → grade → export
   round-trip (worked example in [`sample-experiment.eco`](docs/sample-experiment.eco)).
 - [**`docs/ecology-glossary.html`**](docs/ecology-glossary.html) — the **Glossary**: every term the
-  kit uses, defined in a sentence and linked to the tool that computes it &mdash; 81 entries in nine
-  sections, including botany, vegetation sampling and mycology; and
+  kit uses, defined in a sentence and linked to the tool that computes it &mdash; 113 entries in twelve
+  sections, including botany, mycology, animal behaviour, selection, and the cell and microbiology bench; and
   [**`docs/eco-protocol-library.html`**](docs/eco-protocol-library.html) — five complete, copyable
   `.eco` experiments; and [**`docs/ecology-field-card.html`**](docs/ecology-field-card.html) — the
-  **Field Card**: 51 metrics across twelve blocks on one printable bench sheet, each with what it
+  **Field Card**: 78 metrics across sixteen blocks on one printable bench sheet, each with what it
   tells you, its interpretation band, and the tool that produces it &mdash; the Workbench measures,
   the forest-plot set (BA, QMD, Reineke SDI, importance value, clinometer height, van Wagner CWD,
   folded aspect), the vegetation set (cover classes, Shannon on cover, mean C, FQI, adjusted FQI,
-  prevalence index, LPI with its binomial SE) and the fungal set (S<sub>obs</sub> against Chao1,
-  singletons and doubletons, productivity, guild spectrum). Every caveat that matters is printed
-  next to the number rather than left in a manual.
+  prevalence index, LPI with its binomial SE), the fungal set (S<sub>obs</sub> against Chao1,
+  singletons and doubletons, productivity, guild spectrum), and the biology bench &mdash; time budgets and
+  Cohen's &kappa;, selection differentials and gradients and h&sup2;, Poisson counting error, CFU/mL and the
+  30&ndash;300 rule, &micro; from ln(OD). Every caveat that matters is printed next to the number rather than
+  left in a manual.
 - [**`docs/ecology-essay.html`**](docs/ecology-essay.html) — **The ecology of a tree**: the essay
   behind the layer — the audit that found constants where instruments should be, and the ride to the
   128k-op amortization frontier (also [`ESSAY-the-ecology-of-a-tree.md`](docs/ESSAY-the-ecology-of-a-tree.md)).
@@ -745,6 +747,60 @@ live, and every export carries site, observer, and date plus a CSV for Excel/R:
   per-species phenophase; a functional-group spectrum by growth form; and voucher records that render as
   printable herbarium labels with locality, habitat and associates filled from the plot. 49 western
   understory taxa, and any flora can be loaded.
+- [**`docs/ethogram.html`**](docs/ethogram.html) — **Ethogram**: behavioural sampling built on
+  Altmann's distinctions rather than a tally counter. You declare the **sampling rule** (ad libitum, focal,
+  scan, behaviour) and the **recording rule** (continuous, instantaneous, one-zero) and the recorder changes
+  shape to match &mdash; states run on a timer one at a time, events are tapped, point samples advance with a
+  scan clock. It refuses incoherent designs out loud (scan sampling cannot be continuous) and it **will not
+  convert one-zero scores into a time budget or a rate**, because they estimate neither. Time budgets are
+  computed over *observed* time, which is why *out of sight* is a first-class state. Plus transition matrices
+  with the first-order Markov assumption stated and thin rows flagged, event rates per observed minute,
+  **Cohen's &kappa;** with a confusion matrix that names your commonest disagreement, and a pseudoreplication
+  warning when everything came from one animal. Ethograms are validated, swappable JSON packs whose importer
+  rejects definitions written in terms of motivation rather than posture.
+- [**`docs/selection-log.html`**](docs/selection-log.html) — **Selection Log**: evolution measured in the
+  field, on marked individuals, the way a long-term study measures it. Repeated morphometrics give a
+  **repeatability (ICC)** first, because random measurement error attenuates every gradient downstream by
+  roughly that factor and no sample size fixes it &mdash; the page prints the corrected β beside the raw one
+  and says to report both. Then the **differential S**, the **intensity i**, and the **gradient β** with the
+  identity β&nbsp;=&nbsp;i shown explicitly as the proof that a univariate analysis has not separated direct
+  from indirect selection. **Parent&ndash;offspring heritability** from mid-parent regression (doubled, and
+  flagged, from a single parent), and **R&nbsp;=&nbsp;h&sup2;S** printed as a hypothesis the next generation
+  will test rather than a forecast. Trait distributions before and after the episode, a fitness-on-trait
+  scatter, and a per-individual CSV shaped for the multiple regression the page deliberately does not attempt.
+- [**`docs/soil-bench.html`**](docs/soil-bench.html) — **Soil Bench**: compost, mixes and texture, and the
+  first instrument built on the **Field Entry Kit** (see
+  [`ADR-031`](docs/ADR-031-entry-layer-and-suites-2026-08-24.md)). The compost log tracks a pile against the
+  standard you choose and shows the shortfall in plain terms &mdash; **55&nbsp;°C for 3 days** in-vessel or
+  static aerated pile, **15 days with 5 turnings** for a windrow, both from 40&nbsp;CFR&nbsp;503 App.&nbsp;B and
+  concurred by the USDA NOP &mdash; with the 55&nbsp;°C threshold and the 66&nbsp;°C thermophile die-off line
+  drawn on the temperature chart and turnings ticked beneath it. The **C:N calculator works on dry mass and
+  nitrogen rather than buckets**, because bulk density varies eight-fold across feedstocks and wet material is
+  mostly water; it also names the common mistake of averaging the individual ratios instead of dividing total
+  carbon by total nitrogen, and tells you how many litres of browns or greens would reach 30:1. A parts-based
+  **mix designer** whose indices are stated to be ordinal ranks rather than measurements, carrying a
+  **nutrient-free flag** for carnivorous-plant growers, and the **USDA ribbon-and-grit texture key** as a
+  stepped colour dial. Feedstock values are editable per ingredient because published C:N for the same
+  material varies by a factor of two.
+- [**`docs/cell-bench.html`**](docs/cell-bench.html) — **Cell Bench**: the cell-biology bench with its own
+  precision on show. Haemocytometer counts report **Poisson CV = 1/&radic;N** beside every concentration and
+  say which side of the 20&ndash;50-per-square window you are on &mdash; too few is imprecise, too many is a
+  systematic *undercount* arithmetic cannot recover. Trypan blue is labelled what it is, a membrane-integrity
+  test. Seeding by C&#8321;V&#8321;&nbsp;=&nbsp;C&#8322;V&#8322; with a warning when the transfer is small
+  enough for pipetting error to dominate; doubling time that flags harvest above 80% confluency; standard
+  curves that **refuse to extrapolate** past the top standard; Beer&ndash;Lambert and A260/A280 framed as
+  conventions; and a mitotic index whose phase-duration step prints the four assumptions it rests on,
+  including the one that is reliably false.
+- [**`docs/micro-bench.html`**](docs/micro-bench.html) — **Micro Bench**: plate counts with the
+  **30&ndash;300 rule enforced** &mdash; TFTC and TNTC plates are shown and marked and left out of the mean
+  rather than dropped silently, a run with no countable plate says so instead of quoting a number, and two
+  countable dilutions disagreeing by more than about twofold is reported as a problem with the series. A
+  **dilution planner** that finds the countable step before you pour. Growth rate from the slope of
+  **ln(OD)** with the exponential window chosen by you, warning when optically saturated points are in the
+  fit, and no OD&rarr;cells conversion offered at all. Disc diffusion that **ships no breakpoints**: S/I/R
+  comes only from the table you enter, with its edition recorded, because those tables are revised annually
+  and a stale &ldquo;susceptible&rdquo; is worse than no answer. CFU is explained as colony-forming units,
+  with the great plate count anomaly stated.
 - [**`docs/collection-sheet.html`**](docs/collection-sheet.html) — **Collection Sheet**: the
   mycologist's field app, and deliberately not a botany reskin. Half of what identifies a fungus is gone
   within a day of collecting it, so the form captures what disappears — substrate and host tree and

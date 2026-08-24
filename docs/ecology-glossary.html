@@ -299,6 +299,133 @@
       The honest way to label a collection that needs a microscope.</dd></div>
   </dl>
 
+  <h2>Animal behaviour</h2>
+  <dl>
+    <div class="entry"><dt>Ethogram</dt><dd>The catalogue of behaviours a study will score, each with an
+      <b>operational definition</b> — what the observer must see, and what ends it. Definitions describe
+      posture and movement, never motivation. Build one in the
+      <a href="ethogram.html">Ethogram</a>.</dd></div>
+    <div class="entry"><dt>State vs event</dt><dd>A <b>state</b> has meaningful duration and the animal is
+      either in it or not (resting, foraging); states are mutually exclusive and you time them. An
+      <b>event</b> is a point occurrence you count (a bite, a call). Counting a state, or timing an event,
+      produces a number with no meaning.</dd></div>
+    <div class="entry"><dt>Sampling rule <span class="who">Altmann 1974</span></dt><dd>Whom you watch:
+      <b>ad libitum</b> (whatever you notice — biased, for hypothesis-generation only), <b>focal animal</b>
+      (one subject, everything it does), <b>scan</b> (everyone, at instants), <b>behaviour</b> (the whole
+      group, one chosen act every time).</dd></div>
+    <div class="entry"><dt>Recording rule</dt><dd>When you write it down: <b>continuous</b> (true durations
+      and frequencies), <b>instantaneous</b> or point (proportion of samples estimates proportion of time),
+      <b>one-zero</b> (did it occur in the interval).</dd></div>
+    <div class="entry"><dt>One-zero sampling</dt><dd>Records only whether a behaviour occurred at all in each
+      interval. <b>Biased for both duration and frequency</b> — a one-second act scores a whole interval, and
+      five occurrences score the same as one. The quantity it estimates has no biological name. Report it as
+      the proportion of intervals containing the behaviour, never as a budget or a rate.</dd></div>
+    <div class="entry"><dt>Time budget</dt><dd>The proportion of time spent in each state. Computed over
+      <b>observed</b> time, not elapsed time — which is why <i>out of sight</i> must be a scored state rather
+      than a gap in the record.</dd></div>
+    <div class="entry"><dt>Bout</dt><dd>An uninterrupted spell in one state. Mean bout length is meaningful
+      only under continuous recording, and it is entirely a function of how the state's <em>end</em> was
+      defined.</dd></div>
+    <div class="entry"><dt>Cohen's &kappa; <span class="who">Cohen 1960</span></dt><dd>Inter-observer
+      agreement corrected for chance: <code>κ = (p_o − p_e)/(1 − p_e)</code>. The
+      slight/fair/moderate/substantial bands are the <b>Landis &amp; Koch convention</b>, described as
+      arbitrary by its own authors — report κ and n, not the adjective. κ is depressed when one category
+      dominates, so read it beside the raw agreement.</dd></div>
+    <div class="entry"><dt>Transition matrix</dt><dd>How often state <i>i</i> was followed by state <i>j</i>,
+      row-normalised. A <b>first-order Markov</b> summary: it assumes the next state depends only on the
+      current one, which is usually false. The diagonal is structurally empty when states are mutually
+      exclusive.</dd></div>
+    <div class="entry"><dt>Pseudoreplication <span class="who">Hurlbert 1984</span></dt><dd>Treating repeated
+      measures on one individual as independent samples of a population. Forty scans of one animal is a
+      sample size of <b>one</b> for any question about the species. Make the individual the unit of
+      analysis.</dd></div>
+  </dl>
+
+  <h2>Evolution &amp; selection</h2>
+  <dl>
+    <div class="entry"><dt>Selection differential <b>S</b></dt><dd>Mean of the survivors or breeders (weighted
+      by fitness) minus the mean before the episode — the within-generation change in the trait mean, in the
+      trait's own units. Equivalently the covariance of the trait with relative fitness. Measure it in the
+      <a href="selection-log.html">Selection Log</a>.</dd></div>
+    <div class="entry"><dt>Intensity <b>i</b></dt><dd>S expressed in standard deviations, so selection on
+      different traits, or in different years, can be compared.</dd></div>
+    <div class="entry"><dt>Selection gradient <b>β</b> <span class="who">Lande &amp; Arnold 1983</span></dt>
+      <dd>The slope of relative fitness on the standardised trait. In a <em>multiple</em> regression it is
+      <b>direct</b> selection with correlated traits held constant. For a single trait β and i are
+      algebraically the same number — which is exactly why a univariate analysis cannot separate direct from
+      indirect selection.</dd></div>
+    <div class="entry"><dt>Relative fitness <b>w</b></dt><dd>An individual's fitness divided by the population
+      mean fitness. Dimensionless, so gradients from different episodes are comparable.</dd></div>
+    <div class="entry"><dt>Repeatability <b>R</b> (ICC)</dt><dd>The proportion of measured variance that is
+      real between-individual variation rather than measurement error, from a one-way ANOVA. It sets a
+      ceiling on everything downstream: random error <b>attenuates β toward zero</b> by roughly R, and no
+      sample size fixes it.</dd></div>
+    <div class="entry"><dt>Heritability <b>h²</b></dt><dd>The slope of offspring on <b>mid-parent</b> values
+      (against a single parent the slope is h²/2). A property of one population in one environment at one
+      time, not of a trait. Shared environment between parents and offspring inflates it, so a field estimate
+      is an upper bound on the genetic part.</dd></div>
+    <div class="entry"><dt>Breeder's equation <b>R = h²S</b></dt><dd>The predicted between-generation response
+      to selection. Frequently fails in wild populations — environmental covariance between trait and fitness,
+      selection on unmeasured correlated traits, and environmentally sensitive trait expression are the usual
+      causes. Treat it as a hypothesis the next generation tests.</dd></div>
+    <div class="entry"><dt>Selection episode</dt><dd>A defined fitness component over a defined interval —
+      survival through a drought, recruitment, matings in a season. Different components can select in
+      <b>opposite</b> directions on the same trait in the same year, so a figure quoted without its episode
+      is uninterpretable.</dd></div>
+    <div class="entry"><dt>Fluctuating selection</dt><dd>Selection that reverses between years or conditions.
+      Strong selection every single year can leave the long-run mean almost unmoved, which is why the answer
+      to "is this trait under selection" is a time series rather than one estimate.</dd></div>
+  </dl>
+
+  <h2>Cell &amp; microbiology</h2>
+  <dl>
+    <div class="entry"><dt>Poisson counting error</dt><dd>Cells and colonies land at random, so a total count
+      of N has <code>CV = 1/√N</code>. Count 100 for ±10%, 400 for ±5%. It is the floor on precision for
+      every count in the <a href="cell-bench.html">Cell Bench</a> and
+      <a href="micro-bench.html">Micro Bench</a>.</dd></div>
+    <div class="entry"><dt>Haemocytometer</dt><dd>A counting chamber of known depth.
+      <code>cells/mL = (cells ÷ squares) × chamber factor × dilution</code>, the factor being 10⁴ for a
+      standard Neubauer at 0.1 mm. Conventionally 20–50 cells per large square: fewer is imprecise, more
+      overlap and <b>undercount</b>.</dd></div>
+    <div class="entry"><dt>Trypan blue exclusion</dt><dd>A <b>membrane-integrity</b> test, not a viability
+      assay. An apoptotic cell with an intact membrane scores as live, and the dye is itself toxic, so the
+      figure partly measures how long you took.</dd></div>
+    <div class="entry"><dt>Population doubling</dt><dd><code>PD = log₂(N_f/N_i)</code>; doubling time is
+      elapsed time ÷ PD. Meaningful only inside exponential growth, and a <em>net</em> figure — death and
+      detachment inflate it.</dd></div>
+    <div class="entry"><dt>Beer&ndash;Lambert law</dt><dd><code>A = εcl</code>. Reliable only where absorbance
+      is roughly linear in concentration, conventionally below about A = 1.0; above that, stray light bends
+      the relationship and the reading falls below true.</dd></div>
+    <div class="entry"><dt>Standard curve</dt><dd>A calibration line from known concentrations. A high r²
+      says the points sit near a line; it does not validate the assay, the blank, or anything
+      <b>outside the range measured</b>. Reading an unknown past the top standard is extrapolation, not
+      measurement.</dd></div>
+    <div class="entry"><dt>A260/A280</dt><dd>Conventionally ≈1.8 for DNA and ≈2.0 for RNA, with low values
+      conventionally read as protein or phenol carry-over. pH- and buffer-sensitive, unable to distinguish
+      DNA from RNA from free nucleotides, and silent about integrity — a screen, not a verdict.</dd></div>
+    <div class="entry"><dt>Mitotic index</dt><dd>Dividing cells as a percentage of all cells. Converting phase
+      proportion to phase duration additionally assumes an <b>asynchronous</b> population in steady
+      exponential growth, an independently known cycle length, and that every phase is equally easy to see —
+      the last is reliably false, biasing prophase and telophase short.</dd></div>
+    <div class="entry"><dt>CFU</dt><dd>Colony-forming unit — whatever gave rise to one colony. A chain, a
+      clump or a hypha is one CFU, so plate counts <b>underestimate cell number</b> by an amount set by how
+      clumpy the organism is. CFU/mL is never cells/mL.</dd></div>
+    <div class="entry"><dt>30&ndash;300 rule</dt><dd>Only plates in that window are counted. Below 30 the
+      Poisson error is large; above 300 colonies merge and compete, producing a <b>bias</b> more plates
+      cannot fix. Out-of-range plates are recorded as TFTC and TNTC and excluded — visibly.</dd></div>
+    <div class="entry"><dt>Great plate count anomaly</dt><dd>The culturable fraction of an environmental
+      sample is typically a small percentage of the cells present. A plate count counts what grew on that
+      medium under those conditions, and nothing else.</dd></div>
+    <div class="entry"><dt>Specific growth rate <b>µ</b></dt><dd>The slope of <code>ln(OD)</code> against time
+      across exponential phase, in h⁻¹; doubling time is <code>ln2/µ</code>. OD is <b>turbidity</b>, not
+      cells: it saturates optically above roughly 0.4–0.6, and any OD-to-CFU conversion is specific to one
+      strain, medium and instrument.</dd></div>
+    <div class="entry"><dt>Breakpoint</dt><dd>The zone diameter or MIC dividing susceptible from resistant.
+      Specific to organism, agent, disc content, medium and method, and <b>revised annually</b> by CLSI and
+      EUCAST — which is why breakpoints are entered from your current table rather than shipped with
+      software.</dd></div>
+  </dl>
+
   <h2>Genetics</h2>
   <dl>
     <div class="entry"><dt>Punnett square</dt><dd>The grid of all gamete combinations from two parents —

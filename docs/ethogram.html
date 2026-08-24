@@ -1,0 +1,1276 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Ethogram — behaviour sampling, time budgets &amp; reliability</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,600;9..144,700&family=Nunito+Sans:wght@400;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap">
+<style>
+  :root {
+    color-scheme: light;
+    --page:#F5F1E6; --surface:#FFFDF7; --surface-2:#F3EEE0; --ink:#23281F; --ink-2:#4B5344;
+    --muted:#8B8B7B; --border:#E3DCC9; --s1:#2E7D4F; --s1-deep:#236240; --s2:#C0592B; --s3:#2B6C8F;
+    --soft:#E9F0E7; --warn-bg:#F6EAD8; --danger:#B23A32; --danger-bg:#F6E7E5; --gold:#B8860B;
+    --shadow:0 1px 2px rgba(35,40,31,.06),0 10px 28px rgba(35,40,31,.08);
+    --head:"Fraunces",Georgia,serif;
+    --body:"Nunito Sans",system-ui,-apple-system,sans-serif;
+    --mono:"JetBrains Mono",ui-monospace,Menlo,monospace;
+  }
+  * { box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
+  body { margin:0; background:var(--page); color:var(--ink); font:16px/1.5 var(--body);
+    -webkit-font-smoothing:antialiased; overscroll-behavior-y:contain; }
+  .app { max-width:960px; margin:0 auto; padding:14px 16px calc(104px + env(safe-area-inset-bottom)); }
+  .top { display:flex; align-items:baseline; justify-content:space-between; gap:10px; padding:6px 2px 12px; flex-wrap:wrap; }
+  .brand { font-family:var(--head); font-weight:700; font-size:22px; letter-spacing:-0.01em; }
+  .brand span { color:var(--s1); }
+  .top a { font-family:var(--mono); font-size:11.5px; color:var(--muted); text-decoration:none;
+    display:inline-flex; align-items:center; min-height:44px; padding:0 6px; margin:-10px -6px; touch-action:manipulation; }
+  .top a:hover { color:var(--s1); }
+
+  .tabbar { position:fixed; left:0; right:0; bottom:0; z-index:20;
+    background:color-mix(in srgb, var(--surface) 94%, transparent); backdrop-filter:blur(10px);
+    border-top:1px solid var(--border); padding:8px max(8px, env(safe-area-inset-left)) calc(8px + env(safe-area-inset-bottom)); }
+  .tabbar .row { max-width:960px; margin:0 auto; display:grid; grid-template-columns:repeat(6,1fr); gap:4px; }
+  .tab { display:flex; flex-direction:column; align-items:center; gap:2px; border:0; background:none;
+    font:700 10.5px var(--body); color:var(--muted); padding:7px 1px; border-radius:12px; cursor:pointer;
+    min-height:54px; touch-action:manipulation; transition:background .15s ease, color .15s ease; }
+  .tab .ico { font-size:20px; line-height:1; }
+  .tab.on { color:var(--s1); background:var(--soft); }
+  .tab:active { transform:scale(.96); }
+  .pane { display:none; animation:fade .18s ease; }
+  .pane.on { display:block; }
+  @keyframes fade { from{opacity:0;transform:translateY(4px);} to{opacity:1;transform:none;} }
+  @media (prefers-reduced-motion: reduce){ .pane{animation:none;} }
+
+  h2 { font-family:var(--head); font-weight:600; font-size:20px; margin:6px 0 2px; }
+  h3 { font-family:var(--head); font-weight:600; font-size:16.5px; margin:16px 0 4px; }
+  .hint { color:var(--muted); font-size:14px; margin:0 0 12px; }
+  .card { background:var(--surface); border:1px solid var(--border); border-radius:16px;
+    padding:16px; box-shadow:var(--shadow); margin-bottom:14px; }
+  .fine { font-size:12.5px; color:var(--muted); margin-top:10px; line-height:1.55; }
+
+  input[type=text], input[type=number], input[type=date], select, textarea {
+    background:var(--surface); color:var(--ink); border:1.5px solid var(--border); border-radius:12px;
+    padding:11px 14px; font:16px var(--body); min-height:48px; max-width:100%; }
+  textarea { min-height:78px; line-height:1.5; width:100%; }
+  input:focus, select:focus, textarea:focus { outline:none; border-color:var(--s1); box-shadow:0 0 0 3px rgba(46,125,79,.18); }
+  input[type=number] { width:110px; }
+  label.f { display:flex; flex-direction:column; gap:5px; font-size:13px; font-weight:700; color:var(--ink-2); min-width:0; }
+  .grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(150px,1fr)); gap:10px; }
+  .grid label.f input, .grid label.f select { width:100%; }
+
+  .btn { border:0; border-radius:12px; padding:12px 18px; font:800 15px var(--body); cursor:pointer;
+    min-height:48px; touch-action:manipulation; transition:transform .1s ease, background .15s ease; }
+  .btn:active { transform:scale(.97); }
+  .btn-go { background:var(--s1); color:#fff; } .btn-go:hover { background:var(--s1-deep); }
+  .btn-soft { background:var(--soft); color:var(--s1); }
+  .btn-ghost { background:none; border:1.5px solid var(--border); color:var(--ink-2); }
+  .btn-ghost:hover { border-color:var(--s1); color:var(--s1); }
+  .btn-row { display:flex; gap:8px; flex-wrap:wrap; margin-top:12px; align-items:end; }
+
+  .kopts { display:flex; flex-wrap:wrap; gap:8px; }
+  .kopt { border:1.5px solid var(--border); background:var(--surface); border-radius:14px; padding:10px 14px;
+    font:700 14px var(--body); color:var(--ink-2); cursor:pointer; min-height:46px; touch-action:manipulation;
+    display:inline-flex; flex-direction:column; align-items:flex-start; gap:1px; }
+  .kopt small { font-weight:400; font-size:11px; color:var(--muted); font-family:var(--mono); }
+  .kopt.on { border-color:var(--s1); background:var(--soft); color:var(--s1); }
+
+  .covscale { display:flex; flex-wrap:wrap; gap:6px; margin-top:6px; }
+  .cv { border:1.5px solid var(--border); background:var(--surface); border-radius:11px; min-width:52px;
+    padding:8px 6px; font:800 15px var(--body); color:var(--ink-2); cursor:pointer; min-height:52px;
+    display:flex; flex-direction:column; align-items:center; justify-content:center; gap:1px; touch-action:manipulation; }
+  .cv small { font:400 9.5px var(--mono); color:var(--muted); }
+  .cv.on { border-color:var(--s1); background:var(--soft); color:var(--s1); }
+  .cv.on small { color:var(--s1-deep); }
+
+  .tiles { display:flex; flex-wrap:wrap; gap:8px; margin:12px 0 2px; }
+  .tile { background:var(--surface-2); border:1px solid var(--border); border-radius:12px; padding:9px 14px; min-width:96px; }
+  .tile .v { font-family:var(--head); font-weight:700; font-size:21px; font-variant-numeric:tabular-nums; }
+  .tile .l { font-size:11px; color:var(--muted); }
+  .verdict { border-radius:12px; padding:13px 16px; margin:12px 0 2px; font-size:15.5px; line-height:1.55;
+    border-left:4px solid var(--s1); background:var(--soft); color:var(--ink-2); }
+  .verdict b { color:var(--ink); }
+  .verdict.warn { border-left-color:var(--s2); background:var(--warn-bg); }
+  .verdict.act { border-left-color:var(--danger); background:var(--danger-bg); }
+
+  .tw { overflow-x:auto; -webkit-overflow-scrolling:touch; margin:10px 0; }
+  table { border-collapse:collapse; width:100%; font-size:14px; }
+  th,td { border:1px solid var(--border); padding:6px 9px; text-align:left; vertical-align:top; white-space:nowrap; }
+  th { background:var(--soft); font-family:var(--head); font-weight:600; font-size:13px; }
+  td.n, th.n { text-align:right; font-variant-numeric:tabular-nums; font-family:var(--mono); font-size:13px; }
+  td i { font-style:italic; color:var(--ink-2); }
+
+  .rowlist { display:grid; gap:8px; margin-top:10px; }
+  .row2 { display:flex; align-items:center; gap:10px; background:var(--surface); border:1px solid var(--border);
+    border-radius:12px; padding:10px 13px; font-size:15px; }
+  .row2.inv { border-left:3px solid var(--danger); }
+  .row2 .g { flex:1; min-width:0; }
+  .row2 .g b { font-family:var(--head); font-size:15.5px; }
+  .row2 .g b i { font-style:italic; font-weight:400; color:var(--ink-2); font-size:14px; }
+  .row2 .g span { display:block; color:var(--muted); font-size:12.5px; font-family:var(--mono); margin-top:1px;
+    overflow:hidden; text-overflow:ellipsis; }
+  .row2 .cov { font-family:var(--head); font-weight:700; font-size:17px; color:var(--s1); min-width:46px; text-align:right; }
+  .row2 button { border:0; background:none; color:var(--muted); font-size:15px; padding:9px 11px; cursor:pointer; min-height:44px; min-width:44px; }
+  .row2 button:hover { color:var(--danger); }
+
+  .bars { display:grid; gap:6px; margin-top:10px; }
+  .bar { display:grid; grid-template-columns:132px 1fr 54px; gap:8px; align-items:center; font-size:13.5px; }
+  .bar .nm { font-weight:700; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+  .bar .tr { display:block; background:var(--surface-2); border:1px solid var(--border); border-radius:8px; height:20px; overflow:hidden; }
+  .bar .fl { display:block; height:100%; background:var(--s1); border-radius:7px 0 0 7px; transition:width .4s ease; }
+  .bar .fl.inv { background:var(--s2); }
+  .bar .pc { text-align:right; font-variant-numeric:tabular-nums; color:var(--ink-2); font-family:var(--mono); font-size:12.5px; }
+
+  .label { background:#fff; border:1px solid var(--ink); border-radius:2px; padding:14px 16px; margin-top:10px;
+    font:12.5px/1.5 var(--body); color:#000; max-width:440px; }
+  .label .inst { font-family:var(--head); font-weight:700; font-size:12px; letter-spacing:.06em;
+    text-transform:uppercase; text-align:center; border-bottom:1px solid #000; padding-bottom:5px; margin-bottom:7px; }
+  .label .sci { font-style:italic; font-weight:700; font-size:14px; }
+  .label .row { margin:3px 0; }
+  .label .k { font-weight:700; }
+  .label .coll { margin-top:8px; padding-top:6px; border-top:1px solid #999; display:flex; justify-content:space-between; }
+
+  pre.export { background:#23281F; color:#E8E4D5; border-radius:12px; padding:14px 16px; overflow-x:auto;
+    font:12.5px/1.65 var(--mono); max-height:340px; }
+  code { font-family:var(--mono); font-size:.82em; background:var(--surface-2); border:1px solid var(--border); border-radius:5px; padding:1px 5px; }
+
+  .toast { position:fixed; left:50%; bottom:84px; transform:translateX(-50%) translateY(90px); z-index:30;
+    background:var(--ink); color:#F5F1E6; border-radius:999px; padding:10px 22px; font:700 14px var(--body);
+    transition:transform .25s ease; pointer-events:none; max-width:88vw; text-align:center; }
+  .toast.on { transform:translateX(-50%) translateY(0); }
+
+  @media print {
+    .tabbar, .btn, .kopts, .covscale, .top a, .noprint { display:none !important; }
+    body { background:#fff; } .pane { display:block !important; }
+    .app { padding-bottom:0; } .card { break-inside:avoid; } table { font-size:10pt; }
+    pre.export { background:#fff; color:#000; border:1px solid #ccc; max-height:none; }
+    .label { break-inside:avoid; page-break-inside:avoid; }
+  }
+
+
+  /* ---- fungal additions ---- */
+  .sw { display:flex; flex-wrap:wrap; gap:7px; margin-top:6px; }
+  .swc { border:1.5px solid var(--border); background:var(--surface); border-radius:12px; padding:7px 11px 8px;
+    font:700 12.5px var(--body); color:var(--ink-2); cursor:pointer; min-height:56px; touch-action:manipulation;
+    display:flex; flex-direction:column; align-items:center; gap:5px; min-width:74px; }
+  .swc .chip { width:44px; height:18px; border-radius:5px; border:1px solid rgba(35,40,31,.28); display:block; }
+  .swc.on { border-color:var(--s1); background:var(--soft); color:var(--s1); }
+
+  .chk { display:flex; flex-wrap:wrap; gap:7px; margin-top:6px; }
+  .ck { border:1.5px solid var(--border); background:var(--surface); border-radius:999px; padding:9px 14px;
+    font:700 13.5px var(--body); color:var(--ink-2); cursor:pointer; min-height:44px; touch-action:manipulation; }
+  .ck.on { border-color:var(--s1); background:var(--soft); color:var(--s1); }
+  .ck.on::before { content:"\2713 "; }
+
+  .rg { display:grid; gap:9px; margin-top:8px; }
+  .rgi { border:1px solid var(--border); background:var(--surface); border-radius:13px; padding:11px 13px; }
+  .rgi .hd { display:flex; align-items:center; justify-content:space-between; gap:9px; flex-wrap:wrap; }
+  .rgi .nm { font-family:var(--head); font-weight:700; font-size:15px; }
+  .rgi .nm em { font-style:normal; font-family:var(--mono); font-size:11.5px; color:var(--muted); margin-left:6px; }
+  .rgi .wh { font-size:12.5px; color:var(--muted); line-height:1.5; margin-top:5px; }
+  .rgi input[type=text] { width:100%; margin-top:8px; min-height:44px; }
+  .rgi.haz { border-left:3px solid var(--s2); }
+
+  .guild { display:inline-block; font:700 10.5px var(--mono); letter-spacing:.05em; text-transform:uppercase;
+    border-radius:999px; padding:3px 9px; border:1px solid var(--border); background:var(--surface-2); color:var(--ink-2); }
+  .guild.ecm { border-color:var(--s1); color:var(--s1); background:var(--soft); }
+  .guild.woodsap, .guild.littersap { border-color:var(--s3); color:var(--s3); background:#E6EEF3; }
+  .guild.par { border-color:var(--danger); color:var(--danger); background:var(--danger-bg); }
+  .guild.lich { border-color:var(--gold); color:#7a5c07; background:#F5EFD9; }
+  .guild.myco { border-color:var(--s2); color:var(--s2); background:var(--warn-bg); }
+  .guild.mixed { border-style:dashed; }
+
+  .mx td.h0 { color:var(--muted); }
+  .mx td.h1 { background:#EDF4EA; font-weight:700; }
+  .mx td.h2 { background:var(--s1); color:#fff; font-weight:700; }
+
+  .never { border:2px solid var(--danger); background:var(--danger-bg); border-radius:14px; padding:15px 17px;
+    margin:14px 0; font-size:15px; line-height:1.6; color:var(--ink); }
+  .never b { font-family:var(--head); display:block; font-size:16px; margin-bottom:5px; color:var(--danger); }
+
+  .drylog { display:grid; grid-template-columns:repeat(auto-fit,minmax(128px,1fr)); gap:9px; margin-top:8px; }
+
+
+  /* ---- behaviour additions ---- */
+  .clock { font-family:var(--head); font-weight:700; font-size:40px; font-variant-numeric:tabular-nums;
+    letter-spacing:-0.02em; line-height:1; }
+  .clock.warn { color:var(--s2); }
+  .nowstate { display:flex; align-items:baseline; gap:10px; flex-wrap:wrap; margin-top:8px; }
+  .nowstate b { font-family:var(--head); font-size:20px; color:var(--s1); }
+  .nowstate span { font-family:var(--mono); font-size:13px; color:var(--muted); }
+
+  .bgrid { display:grid; grid-template-columns:repeat(auto-fill,minmax(136px,1fr)); gap:9px; margin-top:8px; }
+  .bb { position:relative; border:1.5px solid var(--border); background:var(--surface); border-radius:15px;
+    min-height:78px; padding:11px 12px 9px; cursor:pointer; text-align:left; touch-action:manipulation;
+    font-family:var(--body); box-shadow:var(--shadow); transition:border-color .12s, background .12s, transform .08s; }
+  .bb:active { transform:scale(.97); }
+  .bb .nm { font-weight:800; font-size:15px; display:block; line-height:1.25; }
+  .bb .cd { font:400 10.5px var(--mono); color:var(--muted); letter-spacing:.06em; }
+  .bb .ct { position:absolute; right:10px; bottom:7px; font-family:var(--head); font-weight:700;
+    font-size:19px; color:var(--s1); font-variant-numeric:tabular-nums; }
+  .bb.state { border-left:4px solid var(--s3); }
+  .bb.event { border-left:4px solid var(--s2); }
+  .bb.on { border-color:var(--s1); background:var(--soft); }
+  .bb.on .nm { color:var(--s1-deep); }
+  .bb.oz { border-color:var(--s2); background:var(--warn-bg); }
+
+  .kind { display:inline-block; font:700 10px var(--mono); letter-spacing:.08em; text-transform:uppercase;
+    border-radius:999px; padding:2px 8px; border:1px solid var(--border); }
+  .kind.state { border-color:var(--s3); color:var(--s3); background:#E6EEF3; }
+  .kind.event { border-color:var(--s2); color:var(--s2); background:var(--warn-bg); }
+
+  .subjrow { display:flex; gap:7px; flex-wrap:wrap; margin-top:8px; }
+  .sj { border:1.5px solid var(--border); background:var(--surface); border-radius:999px; padding:9px 15px;
+    font:700 14px var(--body); color:var(--ink-2); cursor:pointer; min-height:44px; touch-action:manipulation; }
+  .sj.on { border-color:var(--s1); background:var(--soft); color:var(--s1); }
+
+  .mx2 { font-variant-numeric:tabular-nums; }
+  .mx2 td.d0 { color:var(--muted); }
+  .mx2 td.d1 { background:#EDF4EA; }
+  .mx2 td.d2 { background:var(--s1); color:#fff; font-weight:700; }
+  .mx2 td.self { background:repeating-linear-gradient(45deg,var(--surface-2),var(--surface-2) 4px,var(--border) 4px,var(--border) 5px); }
+
+  .incoh { border-radius:12px; padding:13px 16px; margin:12px 0 2px; font-size:15px; line-height:1.55;
+    border-left:4px solid var(--danger); background:var(--danger-bg); color:var(--ink-2); }
+  .incoh b { font-family:var(--head); color:var(--danger); display:block; margin-bottom:3px; }
+
+  .rail { margin:26px 0 4px; }
+  .rail .rl { font-family:var(--mono); font-size:11px; letter-spacing:.14em; text-transform:uppercase; color:var(--muted); margin:0 2px 8px; }
+  .rail .chips { display:flex; flex-wrap:wrap; gap:8px; }
+  .rail a { display:inline-flex; align-items:center; gap:7px; text-decoration:none; font:700 13.5px var(--body);
+    color:var(--ink-2); background:var(--surface); border:1px solid var(--border); border-radius:999px;
+    padding:9px 15px; min-height:44px; box-shadow:var(--shadow); touch-action:manipulation; }
+  .rail a:hover { border-color:var(--s1); color:var(--s1); }
+  .rail a[aria-current="page"] { background:var(--soft); border-color:var(--s1); color:var(--s1); }
+  .rail a.ref { font-weight:600; color:var(--muted); background:none; box-shadow:none; }
+  @media print { .rail { display:none !important; } }
+</style>
+</head>
+<body>
+<div class="app">
+  <div class="top">
+    <div class="brand">🐾 Etho<span>gram</span></div>
+    <a href="ecology.html">part of the ecology kit →</a>
+  </div>
+
+  <!-- ============ RECORD ============ -->
+  <section class="pane on" id="p-rec">
+    <h2>Record</h2>
+    <p class="hint" id="recHint"></p>
+
+    <div class="card">
+      <div style="display:flex;align-items:flex-end;justify-content:space-between;gap:12px;flex-wrap:wrap">
+        <div>
+          <div class="clock" id="clock">00:00</div>
+          <div class="nowstate" id="nowState"></div>
+        </div>
+        <div class="btn-row" style="margin-top:0">
+          <button class="btn btn-go" id="rStart" type="button">Start</button>
+          <button class="btn btn-ghost" id="rStop" type="button">Stop</button>
+          <button class="btn btn-ghost" id="rUndo" type="button">↩ Undo</button>
+        </div>
+      </div>
+      <div id="scanBox"></div>
+      <h3>Focal subject</h3>
+      <div class="subjrow" id="subjRow"></div>
+    </div>
+
+    <div class="card">
+      <h3 style="margin-top:0">States <span class="kind state">one at a time</span></h3>
+      <div class="bgrid" id="stateGrid"></div>
+      <h3>Events <span class="kind event">counted</span></h3>
+      <div class="bgrid" id="eventGrid"></div>
+      <p class="fine" id="modeNote"></p>
+    </div>
+
+    <div class="card"><h3 style="margin-top:0">Log</h3><div class="rowlist" id="logList"></div></div>
+  </section>
+
+  <!-- ============ DESIGN ============ -->
+  <section class="pane" id="p-des">
+    <h2>Design</h2>
+    <p class="hint">Decide this <em>before</em> you watch anything. The sampling rule and the recording rule
+      together determine what your numbers can legitimately mean &mdash; and this page changes how the
+      recorder behaves to match.</p>
+
+    <div class="card">
+      <h3 style="margin-top:0">Sampling rule &mdash; whom you watch</h3>
+      <div class="kopts" id="dSample"></div>
+      <p class="fine" id="dSampleNote"></p>
+
+      <h3>Recording rule &mdash; when you write it down</h3>
+      <div class="kopts" id="dRecord"></div>
+      <p class="fine" id="dRecordNote"></p>
+
+      <div id="coherence"></div>
+
+      <h3>Timing</h3>
+      <div class="grid">
+        <label class="f">scan / interval (s)<input type="number" id="dScan" min="1" step="1" value="30"></label>
+        <label class="f">session length (min)<input type="number" id="dLen" min="1" step="1" value="10"></label>
+        <label class="f">observer<input type="text" id="dObs" autocomplete="off"></label>
+        <label class="f">date<input type="date" id="dDate"></label>
+        <label class="f">site<input type="text" id="dSite" placeholder="Bear Cr. meadow" autocomplete="off"></label>
+        <label class="f">study species<input type="text" id="dSp" placeholder="Marmota flaviventris" autocomplete="off"></label>
+      </div>
+      <label class="f" style="margin-top:10px">conditions<textarea id="dCond" placeholder="Overcast, 14 °C, light wind. Group of 6, two juveniles. Observed from 40 m with 10×42."></textarea></label>
+    </div>
+
+    <div class="card">
+      <h3 style="margin-top:0">Subjects</h3>
+      <p class="hint" style="margin-bottom:8px">One per individual you can tell apart. If you cannot tell
+        them apart, say so &mdash; pooled data across unidentified individuals is pseudoreplication, and the
+        Method tab explains what that costs you.</p>
+      <div class="btn-row" style="margin-top:0">
+        <label class="f" style="flex:1;min-width:170px">add subject<input type="text" id="sNew" placeholder="F-blue / juv-1 / unmarked" autocomplete="off"></label>
+        <button class="btn btn-soft" id="sAdd" type="button">Add</button>
+      </div>
+      <div class="subjrow" id="subjEdit"></div>
+    </div>
+
+    <div class="card">
+      <h3 style="margin-top:0">Ethogram</h3>
+      <p class="hint" style="margin-bottom:8px">A behaviour is only usable if another observer would score it
+        the same way. Define each one so that it can be judged in a second, without inferring motive.</p>
+      <div class="btn-row" style="margin-top:0">
+        <label class="f" style="flex:1;min-width:150px">name<input type="text" id="eName" autocomplete="off"></label>
+        <label class="f">code<input type="text" id="eCode" style="width:96px" autocomplete="off"></label>
+        <label class="f">kind<select id="eKind"><option value="state">state (duration)</option><option value="event">event (count)</option></select></label>
+        <button class="btn btn-soft" id="eAdd" type="button">Add</button>
+      </div>
+      <label class="f" style="margin-top:10px">definition<textarea id="eDesc" placeholder="Head raised above shoulder height, eyes open, not feeding or moving. Ends when the head drops or the animal moves."></textarea></label>
+      <div class="rowlist" id="ethoList"></div>
+      <p class="fine" id="ethoStat"></p>
+    </div>
+  </section>
+
+  <!-- ============ BUDGET ============ -->
+  <section class="pane" id="p-bud">
+    <h2>Time budget &amp; rates</h2>
+    <p class="hint">What the session says, computed the way the design you declared allows.</p>
+    <div class="card" id="budBox"></div>
+    <div class="card" id="rateBox"></div>
+    <div class="card" id="transBox"></div>
+    <div class="card noprint">
+      <h3 style="margin-top:0">Export</h3>
+      <div class="btn-row">
+        <button class="btn btn-go" id="csvCopy" type="button">Copy log CSV</button>
+        <button class="btn btn-soft" id="ecoCopy" type="button">Copy session sheet</button>
+        <button class="btn btn-ghost" id="budCopy" type="button">Copy budget CSV</button>
+        <button class="btn btn-ghost" id="packExport" type="button">Export ethogram</button>
+        <button class="btn btn-ghost" id="packPrompt" type="button">Copy the AI prompt</button>
+        <label class="btn btn-ghost" style="display:inline-flex;align-items:center">Import ethogram
+          <input type="file" id="packFile" accept=".json,application/json" style="display:none"></label>
+      </div>
+      <p class="fine" id="packStat"></p>
+      <pre class="export" id="ecoOut"># start a session — the sheet builds itself</pre>
+    </div>
+  </section>
+
+  <!-- ============ RELIABILITY ============ -->
+  <section class="pane" id="p-rel">
+    <h2>Inter-observer reliability</h2>
+    <p class="hint">Two observers score the same scans independently. Cohen's &kappa; asks how much they
+      agreed <em>beyond what chance alone would give</em>.</p>
+
+    <div class="card">
+      <p class="hint" style="margin-top:0">Paste each observer's sequence of behaviour codes, in the same
+        order, separated by spaces or commas. The two must be the same length.</p>
+      <label class="f">observer A<textarea id="kA" placeholder="FOR FOR VIG REST LOC FOR VIG VIG REST FOR"></textarea></label>
+      <label class="f" style="margin-top:10px">observer B<textarea id="kB" placeholder="FOR VIG VIG REST LOC FOR VIG REST REST FOR"></textarea></label>
+      <div class="btn-row">
+        <button class="btn btn-go" id="kGo" type="button">Compute &kappa;</button>
+        <button class="btn btn-ghost" id="kClear" type="button">Clear</button>
+      </div>
+      <div id="kOut"></div>
+    </div>
+
+    <div class="card" id="kMatrix"></div>
+  </section>
+
+  <!-- ============ METHOD ============ -->
+  <section class="pane" id="p-met">
+    <h2>Method</h2>
+    <p class="hint">Every number this page produces, what it rests on, and where it stops being honest.</p>
+
+    <div class="card">
+      <h3 style="margin-top:0">The four sampling rules</h3>
+      <p class="fine" style="margin-top:0">The vocabulary here follows <b>Altmann (1974)</b>, which is still the
+        paper the field argues from.</p>
+      <div class="tw"><table>
+        <tr><th>rule</th><th>what you do</th><th>what it gives you &mdash; and does not</th></tr>
+        <tr><td><b>ad libitum</b></td><td>Write down whatever you happen to notice.</td>
+          <td>Biased toward whatever is conspicuous, close, or performed by the boldest animal. Legitimate for
+            <em>generating</em> hypotheses and for building a first ethogram. <b>Never</b> a source of rates or budgets.</td></tr>
+        <tr><td><b>focal animal</b></td><td>One named subject for a fixed period; record everything it does.</td>
+          <td>The workhorse. Gives true durations and true frequencies for that individual. Costs you the rest of the group.</td></tr>
+        <tr><td><b>scan</b></td><td>At fixed instants, record what each visible subject is doing.</td>
+          <td>Group-wide time budgets cheaply. Rare and brief behaviours are almost never caught, so it is poor for events.</td></tr>
+        <tr><td><b>behaviour</b></td><td>Watch the whole group; record every occurrence of one or two chosen behaviours.</td>
+          <td>The right tool for rare, conspicuous acts &mdash; fights, copulations, provisioning. Says nothing about anything you did not choose.</td></tr>
+      </table></div>
+    </div>
+
+    <div class="card">
+      <h3 style="margin-top:0">The three recording rules</h3>
+      <div class="tw"><table>
+        <tr><th>rule</th><th>estimates</th><th>the catch</th></tr>
+        <tr><td><b>continuous</b></td><td>True duration and true frequency.</td>
+          <td>Expensive, and only honest if you can genuinely keep up. A continuous record you fell behind on is worse than a point sample.</td></tr>
+        <tr><td><b>instantaneous</b> (point)</td><td>Proportion of samples in a state &rarr; unbiased estimate of proportion of <em>time</em>.</td>
+          <td>Unbiased for states only. It cannot estimate frequency, and it will miss behaviours shorter than the interval entirely.</td></tr>
+        <tr><td><b>one-zero</b></td><td>Whether a behaviour occurred at all in each interval.</td>
+          <td><b>Biased for both.</b> It overestimates duration &mdash; a one-second act scores a whole interval &mdash; and underestimates frequency, because five occurrences score the same as one. See below.</td></tr>
+      </table></div>
+      <div class="verdict act"><b>On one-zero.</b> Altmann's critique is that a one-zero score is not an unbiased
+        estimator of duration, of frequency, or of anything else with a name; the quantity it estimates has no
+        biological meaning of its own. It survives because it is easy and because the numbers correlate with
+        duration well enough to look useful. This page will let you use it, will label every figure it produces
+        as one-zero, and <b>will not convert those figures into a time budget or a rate</b>. If you report them,
+        report them as what they are: the proportion of intervals containing the behaviour.</div>
+    </div>
+
+    <div class="card">
+      <h3 style="margin-top:0">Time budget</h3>
+      <p class="fine" style="margin-top:0">Under <b>continuous</b> recording the budget is
+        <code>Σ duration in state / total observed time</code>. Under <b>instantaneous</b> it is
+        <code>points in state / total points</code>, with a binomial standard error
+        <code>SE = √(p(1−p)/n)</code> &mdash; the same estimator a line-point intercept uses on vegetation,
+        for the same reason.</p>
+      <p class="fine"><b>Observed time is not elapsed time.</b> Any period the subject was out of sight is
+        excluded from the denominator, which is why <i>out of sight</i> is a first-class state here rather
+        than a gap in the record. A budget computed over elapsed time silently attributes the animal's
+        invisible minutes to whatever it was doing when it vanished.</p>
+      <p class="fine"><b>Bout length</b> is the mean duration of an uninterrupted spell in a state. It is
+        meaningful only under continuous recording, and it is sensitive to how you defined the state's
+        end &mdash; a definition that ends a bout at every head-turn produces many short bouts and says
+        nothing about the animal.</p>
+    </div>
+
+    <div class="card">
+      <h3 style="margin-top:0">Transitions</h3>
+      <p class="fine" style="margin-top:0">The matrix counts how often state <i>i</i> was followed by state
+        <i>j</i>, then divides each row by its total to give transition probabilities. Two honest limits.
+        First, this is a <b>first-order Markov</b> summary: it assumes where the animal goes next depends only
+        on where it is now, which is usually false &mdash; what it was doing two states ago, and for how long,
+        generally matter. Second, the diagonal is <b>structurally empty</b>, because states here are mutually
+        exclusive and a state cannot follow itself; that is a property of the coding scheme, not a finding
+        about the animal. Rows built on a handful of transitions are noise &mdash; the page marks those.</p>
+    </div>
+
+    <div class="card">
+      <h3 style="margin-top:0">Reliability</h3>
+      <p class="fine" style="margin-top:0"><b>Cohen's κ = (p<sub>o</sub> − p<sub>e</sub>) / (1 − p<sub>e</sub>)</b>,
+        where p<sub>o</sub> is the proportion of samples the two observers scored identically and
+        p<sub>e</sub> is the agreement expected if each observer had assigned categories at random with
+        their own marginal frequencies. κ = 1 is perfect; κ = 0 is chance; negative κ is worse than chance.</p>
+      <p class="fine">The bands this page prints &mdash; slight, fair, moderate, substantial, almost perfect
+        &mdash; are the <b>Landis &amp; Koch (1977) convention</b>. They are a widely used rule of thumb and
+        <b>not a statistical result</b>: the authors said as much when they proposed them. Report κ itself and
+        the number of samples, not the adjective.</p>
+      <p class="fine">κ is also depressed when one category dominates, because p<sub>e</sub> rises &mdash; two
+        observers who agree on 95% of samples can still score a low κ if 95% of samples are &ldquo;resting&rdquo;.
+        That is the <em>prevalence problem</em>, and it is a reason to read κ beside the raw agreement rather
+        than instead of it. Both are printed.</p>
+    </div>
+
+    <div class="card">
+      <h3 style="margin-top:0">Pseudoreplication, and the thing that invalidates most student data</h3>
+      <p class="fine" style="margin-top:0">If you record forty scans of one animal, your sample size for a
+        question about the <em>species</em> is one, not forty. Repeated measures on the same individual are
+        not independent, and treating them as independent is the commonest fatal error in behavioural
+        coursework. The fix is to make the <b>individual</b> the unit of analysis: compute each subject's
+        budget, then analyse across subjects. This page reports per-subject figures for exactly that reason,
+        and it will tell you when everything came from one animal.</p>
+      <p class="fine">If you genuinely cannot tell individuals apart, say so in the write-up and treat the
+        group as the unit. That is a real limitation, and stating it is worth more than a p-value built on
+        a sample size you did not have.</p>
+    </div>
+
+    <div class="card">
+      <h3 style="margin-top:0">The ethogram is a pack</h3>
+      <p class="fine" style="margin-top:0">The behaviours loaded here are a general vertebrate starting set.
+        They are <b>data, not code</b>: export from the Budget tab to see the schema, edit, and import back &mdash;
+        import validates every field and refuses the whole file with a list of what is wrong.
+        <b>Copy the AI prompt</b> produces a prompt carrying the schema and the definition-quality rules, so
+        you can have an ethogram drafted for any taxon &mdash; then check it against animals, because a
+        generated ethogram is a hypothesis about what the animal does.</p>
+    </div>
+  </section>
+
+  <div class="rail">
+    <p class="rl">The field kit</p>
+    <div class="chips">
+      <a href="field-notebook.html"><span>📓</span>Field Notebook</a>
+      <a href="ethogram.html" aria-current="page"><span>🐾</span>Ethogram</a>
+      <a href="stand-sheet.html"><span>🌲</span>Stand Sheet</a>
+      <a href="releve.html"><span>🌾</span>Relevé</a>
+      <a href="collection-sheet.html"><span>🍄</span>Collection Sheet</a>
+      <a href="soil-bench.html"><span>🪱</span>Soil Bench</a>
+      <a href="cell-bench.html"><span>🔬</span>Cell Bench</a>
+      <a href="micro-bench.html"><span>🧫</span>Micro Bench</a>
+      <a class="ref" href="ecology.html">← kit hub</a>
+      <a class="ref" href="ecology-glossary.html">glossary</a>
+    </div>
+  </div>
+</div>
+
+<div class="tabbar"><div class="row">
+  <button class="tab on" data-pane="p-rec" type="button"><span class="ico">🐾</span>Record</button>
+  <button class="tab" data-pane="p-des" type="button"><span class="ico">📐</span>Design</button>
+  <button class="tab" data-pane="p-bud" type="button"><span class="ico">📊</span>Budget</button>
+  <button class="tab" data-pane="p-rel" type="button"><span class="ico">⚖️</span>Reliability</button>
+  <button class="tab" data-pane="p-met" type="button"><span class="ico">📖</span>Method</button>
+</div></div>
+<div class="toast" id="toast">Saved</div>
+<script>
+(function(){
+  "use strict";
+  var $=function(id){return document.getElementById(id);};
+  var val=function(id){var e=$(id);return e?String(e.value||"").trim():"";};
+  var num=function(id){var e=$(id);var v=parseFloat(e&&e.value);return isFinite(v)?v:0;};
+  function esc(s){return String(s==null?"":s).replace(/[&<>"]/g,function(c){
+    return {"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;"}[c];});}
+  function buzz(ms){try{if(navigator.vibrate)navigator.vibrate(ms||8);}catch(e){}}
+  var tt; function toast(m){var t=$("toast");t.textContent=m;t.classList.add("on");
+    clearTimeout(tt);tt=setTimeout(function(){t.classList.remove("on");},1700);}
+  function copyText(s,m){
+    function ok(){toast(m||"Copied");buzz();}
+    if(navigator.clipboard&&navigator.clipboard.writeText){
+      navigator.clipboard.writeText(s).then(ok,function(){legacy(s,ok);});} else legacy(s,ok);}
+  function legacy(s,ok){var a=document.createElement("textarea");a.value=s;a.style.position="fixed";
+    a.style.opacity="0";document.body.appendChild(a);a.select();
+    try{document.execCommand("copy");ok();}catch(e){toast("Copy failed — select the text");}
+    document.body.removeChild(a);}
+  function cell(v){v=String(v==null?"":v);return /[",\n]/.test(v)?'"'+v.replace(/"/g,'""')+'"':v;}
+  function mmss(ms){var s=Math.max(0,Math.round(ms/1000));
+    return (Math.floor(s/60)<10?"0":"")+Math.floor(s/60)+":"+((s%60)<10?"0":"")+(s%60);}
+
+  /* ------------------------------------------------------------------ data */
+  var SAMPLE=[
+    ["adlib","ad libitum","whatever you notice"],
+    ["focal","focal animal","one subject, everything"],
+    ["scan","scan","everyone, at instants"],
+    ["behav","behaviour","one act, every time"]
+  ];
+  var RECORD=[
+    ["cont","continuous","true durations"],
+    ["inst","instantaneous","point samples"],
+    ["onezero","one-zero","did it occur?"]
+  ];
+  var SAMPLE_NOTE={
+    adlib:"Biased toward the conspicuous, the close and the bold. Use it to build the ethogram and to generate hypotheses — never to produce a rate or a budget.",
+    focal:"One named subject for a fixed period, recording everything. True durations and true frequencies for that individual, at the cost of the rest of the group.",
+    scan:"At each instant, what is each visible subject doing. Cheap group-wide budgets; brief and rare behaviours are almost never caught.",
+    behav:"Watch the group, record every occurrence of the one or two acts you chose. The right tool for fights, matings and provisioning; silent about everything else."
+  };
+  var RECORD_NOTE={
+    cont:"True duration and frequency — and only honest if you can keep up. A continuous record you fell behind on is worse than a point sample taken properly.",
+    inst:"Proportion of points in a state is an unbiased estimate of proportion of time. It cannot give you frequency, and behaviours shorter than the interval will be missed.",
+    onezero:"Records only whether the behaviour happened at all in each interval. Biased for duration and for frequency both — this page will not convert it into either."
+  };
+  var LK=[[0.81,"almost perfect"],[0.61,"substantial"],[0.41,"moderate"],[0.21,"fair"],[0.01,"slight"],[-99,"poor — at or below chance"]];
+
+  var DEF_ETHO=[
+    {id:"rest",code:"RST",name:"rest",kind:"state",desc:"Inactive and stationary, eyes open or closed, not feeding, moving, grooming or interacting."},
+    {id:"loc",code:"LOC",name:"locomote",kind:"state",desc:"Directed movement of the whole body from one place to another, including walking, running, swimming and flight."},
+    {id:"forage",code:"FOR",name:"forage",kind:"state",desc:"Searching for, handling, or ingesting food, including manipulating a food item without swallowing."},
+    {id:"vig",code:"VIG",name:"vigilant",kind:"state",desc:"Stationary with the head raised above shoulder height and eyes open, not feeding or manipulating anything. Ends when the head drops or the animal moves."},
+    {id:"groom",code:"GRM",name:"groom",kind:"state",desc:"Self-directed cleaning of the body surface — licking, scratching, preening, dust-bathing."},
+    {id:"social",code:"SOC",name:"social",kind:"state",desc:"Non-agonistic contact or coordinated proximity with another individual: allogrooming, huddling, play."},
+    {id:"oos",code:"OOS",name:"out of sight",kind:"state",desc:"Subject not visible to the observer. Recorded, never left as a gap — observed time excludes it."},
+    {id:"agg",code:"AGG",name:"aggress",kind:"event",desc:"A directed threat, lunge, chase, strike or bite toward another individual."},
+    {id:"sub",code:"SUB",name:"submit",kind:"event",desc:"Retreat, crouch, or appeasement posture given in response to another individual's approach or threat."},
+    {id:"voc",code:"VOC",name:"vocalize",kind:"event",desc:"Any call audible to the observer. Note call type in the session notes if it can be distinguished."},
+    {id:"alarm",code:"ALM",name:"alarm",kind:"event",desc:"An alarm call or a whole-body alarm posture given in apparent response to a disturbance."},
+    {id:"disp",code:"DSP",name:"displace",kind:"event",desc:"One individual approaches and another leaves a resource or position, without overt aggression."},
+    {id:"scm",code:"SCM",name:"scent-mark",kind:"event",desc:"Deposition of scent by rubbing, urination or defecation in a manner distinct from elimination."},
+    {id:"cop",code:"COP",name:"copulate",kind:"event",desc:"Mounting with or without intromission."},
+    {id:"prov",code:"PRV",name:"provision",kind:"event",desc:"Food transferred from one individual to another."}
+  ];
+
+  var ETHO=DEF_ETHO.slice(), packName="general vertebrate (built in)";
+  var subjects=[{id:"s1",label:"subject 1"}];
+  var curSubj="s1";
+  var D={sample:"focal", record:"cont"};
+  var running=false, t0=0, elapsed=0, tick=null;
+  var segs=[];    /* {subj,beh,t0,t1}  continuous states */
+  var evts=[];    /* {subj,beh,t}      events */
+  var pts=[];     /* {subj,beh,t,scan} instantaneous points */
+  var ozs=[];     /* {subj,beh,iv}     one-zero interval hits */
+  var open=null;  /* {subj,beh,t0} */
+  var scanN=0, ivN=0, lastScanAt=0;
+  var history=[];
+
+  function byId(id){for(var i=0;i<ETHO.length;i++) if(ETHO[i].id===id) return ETHO[i]; return null;}
+  function states(){return ETHO.filter(function(b){return b.kind==="state";});}
+  function events(){return ETHO.filter(function(b){return b.kind==="event";});}
+  function now(){return running ? (elapsed + (Date.now()-t0)) : elapsed;}
+  function subjLabel(id){for(var i=0;i<subjects.length;i++) if(subjects[i].id===id) return subjects[i].label; return id;}
+
+  /* ------------------------------------------------------------ design UI */
+  function chips(host,list,cur,cb){
+    var box=$(host); box.innerHTML="";
+    list.forEach(function(it){
+      var b=document.createElement("button"); b.type="button";
+      b.className="kopt"+(it[0]===cur?" on":"");
+      b.innerHTML=esc(it[1])+'<small>'+esc(it[2])+'</small>';
+      b.addEventListener("click",function(){ cb(it[0]); buzz(); });
+      box.appendChild(b);
+    });
+  }
+  function renderDesign(){
+    chips("dSample",SAMPLE,D.sample,function(v){D.sample=v;renderDesign();renderRecord();ecoOut();});
+    chips("dRecord",RECORD,D.record,function(v){D.record=v;renderDesign();renderRecord();renderBudget();ecoOut();});
+    $("dSampleNote").textContent=SAMPLE_NOTE[D.sample];
+    $("dRecordNote").textContent=RECORD_NOTE[D.record];
+    coherence();
+  }
+  function coherence(){
+    var box=$("coherence"), msgs=[];
+    if(D.sample==="adlib" && D.record!=="cont")
+      msgs.push("<b>Ad libitum with a fixed recording rule.</b> Ad libitum means you are not sampling on a schedule at all. If you are keeping to intervals, you are doing scan or focal sampling — say so, because ad libitum data cannot be turned into rates whatever the recording rule says.");
+    if(D.sample==="scan" && D.record==="cont")
+      msgs.push("<b>Scan sampling cannot be continuous.</b> A scan is a instantaneous read of the group at one moment. If you are watching continuously you are doing focal sampling on whoever you are looking at — and a continuous record of several animals at once is a record of none of them.");
+    if(D.sample==="behav" && D.record==="inst")
+      msgs.push("<b>Behaviour sampling with point recording defeats the purpose.</b> The reason to use behaviour sampling is to catch every occurrence of a rare act. Sampling it at instants will miss almost all of them.");
+    if(D.record==="onezero")
+      msgs.push("<b>One-zero produces a biased number.</b> It will be recorded and reported here as the proportion of intervals in which the behaviour occurred, and it will not be converted into a time budget or a rate. If your question is about time, use instantaneous; if it is about frequency, use continuous.");
+    if(D.sample==="adlib")
+      msgs.push("<b>Ad libitum is not a source of rates.</b> The Budget tab will label everything it computes from this session as unusable for a rate or a budget.");
+    box.innerHTML = msgs.length ? msgs.map(function(m){return '<div class="incoh">'+m+'</div>';}).join("") : "";
+  }
+
+  function renderSubjEdit(){
+    var box=$("subjEdit"); box.innerHTML="";
+    subjects.forEach(function(s){
+      var b=document.createElement("button"); b.type="button"; b.className="sj";
+      b.textContent=s.label+"  ✕";
+      b.addEventListener("click",function(){
+        if(subjects.length===1){toast("Keep at least one subject");return;}
+        subjects=subjects.filter(function(x){return x!==s;});
+        if(curSubj===s.id) curSubj=subjects[0].id;
+        renderSubjEdit(); renderRecord(); renderBudget(); ecoOut();
+      });
+      box.appendChild(b);
+    });
+  }
+  $("sAdd").addEventListener("click",function(){
+    var v=val("sNew"); if(!v){toast("Type a label first");return;}
+    subjects.push({id:"s"+(subjects.length+1)+"_"+ETHO.length+"_"+subjects.length, label:v});
+    $("sNew").value=""; renderSubjEdit(); renderRecord(); ecoOut(); buzz(12);
+  });
+
+  function renderEthoList(){
+    var box=$("ethoList"); box.innerHTML="";
+    ETHO.forEach(function(b){
+      var d=document.createElement("div"); d.className="row2";
+      d.innerHTML='<div class="g"><b>'+esc(b.name)+' <span class="kind '+b.kind+'">'+b.kind+'</span></b>'+
+        '<span>'+esc(b.code)+' — '+esc(b.desc||"no definition given")+'</span></div>';
+      var x=document.createElement("button"); x.type="button"; x.textContent="✕";
+      x.addEventListener("click",function(){
+        ETHO=ETHO.filter(function(y){return y!==b;});
+        renderEthoList(); renderRecord(); renderBudget(); packStats();
+      });
+      d.appendChild(x); box.appendChild(d);
+    });
+    var nd=ETHO.filter(function(b){return !b.desc||!b.desc.trim();}).length;
+    $("ethoStat").innerHTML = ETHO.length+" behaviours — "+states().length+" states, "+events().length+" events."+
+      (nd? " <b>"+nd+" without a definition.</b> An undefined behaviour cannot be checked for reliability, so κ on it means nothing." : "");
+  }
+  $("eAdd").addEventListener("click",function(){
+    var n=val("eName"); if(!n){toast("Name it first");return;}
+    var code=val("eCode")||n.slice(0,3).toUpperCase();
+    ETHO.push({id:"u"+ETHO.length+"_"+n.toLowerCase().replace(/\W+/g,""),code:code,name:n,
+               kind:$("eKind").value,desc:val("eDesc")});
+    $("eName").value=""; $("eCode").value=""; $("eDesc").value="";
+    renderEthoList(); renderRecord(); packStats(); toast("Added "+n); buzz(12);
+  });
+
+  /* ------------------------------------------------------------ recorder */
+  function renderSubjRow(){
+    var box=$("subjRow"); box.innerHTML="";
+    subjects.forEach(function(s){
+      var b=document.createElement("button"); b.type="button";
+      b.className="sj"+(s.id===curSubj?" on":"");
+      b.textContent=s.label;
+      b.addEventListener("click",function(){
+        if(open){ closeOpen(); }
+        curSubj=s.id; renderRecord(); buzz();
+      });
+      box.appendChild(b);
+    });
+  }
+  function stateCount(b){
+    if(D.record==="cont"){ var n=0; segs.forEach(function(s){ if(s.beh===b.id) n++; }); return n; }
+    if(D.record==="inst"){ var n2=0; pts.forEach(function(p){ if(p.beh===b.id) n2++; }); return n2; }
+    var n3=0; ozs.forEach(function(o){ if(o.beh===b.id) n3++; }); return n3;
+  }
+  function renderRecord(){
+    renderSubjRow();
+    var sg=$("stateGrid"); sg.innerHTML="";
+    states().forEach(function(b){
+      var btn=document.createElement("button"); btn.type="button";
+      var on = D.record==="cont" && open && open.beh===b.id && open.subj===curSubj;
+      var oz = D.record==="onezero" && ozs.some(function(o){return o.iv===ivN&&o.beh===b.id&&o.subj===curSubj;});
+      btn.className="bb state"+(on?" on":"")+(oz?" oz":"");
+      btn.innerHTML='<span class="nm">'+esc(b.name)+'</span><span class="cd">'+esc(b.code)+'</span>'+
+        '<span class="ct">'+stateCount(b)+'</span>';
+      btn.addEventListener("click",function(){ hitState(b); });
+      sg.appendChild(btn);
+    });
+    var eg=$("eventGrid"); eg.innerHTML="";
+    events().forEach(function(b){
+      var btn=document.createElement("button"); btn.type="button";
+      var oz = D.record==="onezero" && ozs.some(function(o){return o.iv===ivN&&o.beh===b.id&&o.subj===curSubj;});
+      btn.className="bb event"+(oz?" oz":"");
+      var n = D.record==="onezero" ? ozs.filter(function(o){return o.beh===b.id;}).length
+                                   : evts.filter(function(e){return e.beh===b.id;}).length;
+      btn.innerHTML='<span class="nm">'+esc(b.name)+'</span><span class="cd">'+esc(b.code)+'</span>'+
+        '<span class="ct">'+n+'</span>';
+      btn.addEventListener("click",function(){ hitEvent(b); });
+      eg.appendChild(btn);
+    });
+
+    var hint, mode;
+    if(D.record==="cont"){
+      hint="Tap a state to start it — it runs until you tap another. Tap an event each time it happens.";
+      mode="Counts on state cards are <b>bouts</b>, not time; the Budget tab has the durations.";
+    } else if(D.record==="inst"){
+      hint="At each scan, tap the one state each subject is in. Switch subject between taps.";
+      mode="Counts on state cards are <b>point samples</b>. Events cannot be rated from point sampling — the Budget tab will say so.";
+    } else {
+      hint="Within each interval, tap every behaviour that occurs at least once. The cards clear at the next interval.";
+      mode="Counts are <b>intervals containing the behaviour</b>. Not a duration, not a frequency.";
+    }
+    $("recHint").innerHTML=hint;
+    $("modeNote").innerHTML=mode;
+
+    var sb=$("scanBox");
+    if(D.record==="cont"){ sb.innerHTML=""; }
+    else {
+      sb.innerHTML='<div class="verdict" style="margin-top:12px"><b>'+
+        (D.record==="inst"?("Scan "+scanN):("Interval "+ivN))+'</b> — next in <b id="scanIn">—</b> s. '+
+        (D.record==="inst"?"Tap one state per subject.":"Tap everything that occurs.")+'</div>';
+    }
+    var ns=$("nowState");
+    if(D.record==="cont"){
+      ns.innerHTML = open
+        ? '<b>'+esc(byId(open.beh)?byId(open.beh).name:open.beh)+'</b><span>'+
+          esc(subjLabel(open.subj))+' · '+mmss(now()-open.t0)+'</span>'
+        : '<span>no state running — tap one to start</span>';
+    } else ns.innerHTML='<span>'+esc(subjLabel(curSubj))+'</span>';
+    renderLog();
+  }
+  function closeOpen(){
+    if(!open) return;
+    var t=now();
+    if(t>open.t0) segs.push({subj:open.subj,beh:open.beh,t0:open.t0,t1:t});
+    open=null;
+  }
+  function hitState(b){
+    if(!running){ toast("Press Start first"); return; }
+    if(D.record==="cont"){
+      history.push({op:"state",prev:open?{subj:open.subj,beh:open.beh,t0:open.t0}:null,segLen:segs.length});
+      closeOpen();
+      open={subj:curSubj,beh:b.id,t0:now()};
+    } else if(D.record==="inst"){
+      pts=pts.filter(function(p){return !(p.scan===scanN&&p.subj===curSubj);});
+      pts.push({subj:curSubj,beh:b.id,t:now(),scan:scanN});
+      history.push({op:"pt",scan:scanN,subj:curSubj});
+    } else {
+      var has=ozs.some(function(o){return o.iv===ivN&&o.beh===b.id&&o.subj===curSubj;});
+      if(has) ozs=ozs.filter(function(o){return !(o.iv===ivN&&o.beh===b.id&&o.subj===curSubj);});
+      else { ozs.push({subj:curSubj,beh:b.id,iv:ivN}); history.push({op:"oz",iv:ivN,subj:curSubj,beh:b.id}); }
+    }
+    renderRecord(); renderBudget(); ecoOut(); buzz(12);
+  }
+  function hitEvent(b){
+    if(!running){ toast("Press Start first"); return; }
+    if(D.record==="onezero"){
+      var has=ozs.some(function(o){return o.iv===ivN&&o.beh===b.id&&o.subj===curSubj;});
+      if(has) ozs=ozs.filter(function(o){return !(o.iv===ivN&&o.beh===b.id&&o.subj===curSubj);});
+      else { ozs.push({subj:curSubj,beh:b.id,iv:ivN}); history.push({op:"oz",iv:ivN,subj:curSubj,beh:b.id}); }
+    } else {
+      evts.push({subj:curSubj,beh:b.id,t:now()});
+      history.push({op:"evt"});
+    }
+    renderRecord(); renderBudget(); ecoOut(); buzz(12);
+  }
+  $("rUndo").addEventListener("click",function(){
+    var h=history.pop();
+    if(!h){ toast("Nothing to undo"); return; }
+    if(h.op==="evt") evts.pop();
+    else if(h.op==="pt") pts=pts.filter(function(p){return !(p.scan===h.scan&&p.subj===h.subj);});
+    else if(h.op==="oz") ozs=ozs.filter(function(o){return !(o.iv===h.iv&&o.subj===h.subj&&o.beh===h.beh);});
+    else if(h.op==="state"){ segs.length=h.segLen; open=h.prev; }
+    renderRecord(); renderBudget(); ecoOut(); toast("Undone");
+  });
+  $("rStart").addEventListener("click",function(){
+    if(running) return;
+    running=true; t0=Date.now(); lastScanAt=elapsed;
+    if(D.record!=="cont" && scanN===0){ scanN=1; ivN=1; }
+    tick=setInterval(loop,200); renderRecord(); toast("Session running"); buzz(14);
+  });
+  $("rStop").addEventListener("click",function(){
+    if(!running) return;
+    closeOpen(); elapsed=now(); running=false; clearInterval(tick); tick=null;
+    renderRecord(); renderBudget(); ecoOut(); toast("Stopped at "+mmss(elapsed)); buzz(14);
+  });
+  function loop(){
+    var t=now();
+    $("clock").textContent=mmss(t);
+    var iv=Math.max(1,Math.round(num("dScan")))*1000;
+    if(D.record!=="cont"){
+      var left=Math.max(0,Math.ceil((lastScanAt+iv-t)/1000));
+      var el=$("scanIn"); if(el) el.textContent=left;
+      if(t-lastScanAt>=iv){
+        lastScanAt+=iv;
+        if(D.record==="inst") scanN++; else ivN++;
+        $("clock").classList.add("warn");
+        setTimeout(function(){ $("clock").classList.remove("warn"); },1200);
+        buzz([40,60,40]); renderRecord();
+      }
+    }
+    if(open) { var ns=$("nowState"); if(ns&&ns.querySelector("span"))
+      ns.querySelector("span").textContent=subjLabel(open.subj)+" · "+mmss(t-open.t0); }
+  }
+  function renderLog(){
+    var box=$("logList"), rows=[];
+    segs.slice(-6).reverse().forEach(function(s){
+      rows.push(['state',subjLabel(s.subj),(byId(s.beh)||{}).name||s.beh,mmss(s.t1-s.t0)]); });
+    evts.slice(-6).reverse().forEach(function(e){
+      rows.push(['event',subjLabel(e.subj),(byId(e.beh)||{}).name||e.beh,mmss(e.t)]); });
+    pts.slice(-6).reverse().forEach(function(p){
+      rows.push(['scan '+p.scan,subjLabel(p.subj),(byId(p.beh)||{}).name||p.beh,mmss(p.t)]); });
+    ozs.slice(-6).reverse().forEach(function(o){
+      rows.push(['interval '+o.iv,subjLabel(o.subj),(byId(o.beh)||{}).name||o.beh,'1']); });
+    if(!rows.length){ box.innerHTML='<p class="fine" style="margin:0">Nothing recorded yet.</p>'; return; }
+    box.innerHTML=rows.slice(0,10).map(function(r){
+      return '<div class="row2"><div class="g"><b>'+esc(r[2])+'</b><span>'+esc(r[0])+' · '+esc(r[1])+
+             '</span></div><span class="cov">'+esc(r[3])+'</span></div>';
+    }).join("");
+  }
+
+  /* -------------------------------------------------------------- budget */
+  function observedMs(subj){
+    var tot=0;
+    segs.forEach(function(s){ if((!subj||s.subj===subj) && s.beh!=="oos") tot+=(s.t1-s.t0); });
+    return tot;
+  }
+  function tile(v,l){return '<div class="tile"><div class="v">'+v+'</div><div class="l">'+l+'</div></div>';}
+
+  function renderBudget(){
+    var box=$("budBox");
+    var adlib = D.sample==="adlib";
+    var head='<h3 style="margin-top:0">Time budget</h3>';
+    if(adlib) head+='<div class="incoh"><b>Ad libitum session.</b> Nothing below is a rate or a budget. '+
+      'Whatever you noticed is what got recorded, and what you noticed depends on what was conspicuous. '+
+      'Use these figures to build the ethogram, not to answer a question.</div>';
+
+    if(D.record==="cont"){
+      if(!segs.length && !open){ box.innerHTML=head+'<p class="fine" style="margin:0">Record a state or two.</p>';
+        $("rateBox").innerHTML=""; $("transBox").innerHTML=""; return; }
+      var obs=observedMs(), oos=0;
+      segs.forEach(function(s){ if(s.beh==="oos") oos+=(s.t1-s.t0); });
+      var per={};
+      segs.forEach(function(s){ if(s.beh==="oos") return;
+        if(!per[s.beh]) per[s.beh]={ms:0,n:0}; per[s.beh].ms+=(s.t1-s.t0); per[s.beh].n++; });
+      var h=head+'<div class="tiles">'+tile(mmss(obs+oos),"elapsed")+tile(mmss(obs),"observed")+
+        tile(mmss(oos),"out of sight")+tile(segs.length,"bouts")+'</div>';
+      h+='<div class="tw"><table><tr><th>state</th><th class="n">time</th><th class="n">% observed</th>'+
+         '<th class="n">bouts</th><th class="n">mean bout</th></tr>';
+      Object.keys(per).sort(function(a,b){return per[b].ms-per[a].ms;}).forEach(function(k){
+        var p=per[k], pc=obs?p.ms/obs*100:0;
+        h+='<tr><td>'+esc((byId(k)||{}).name||k)+'</td><td class="n">'+mmss(p.ms)+'</td>'+
+           '<td class="n">'+pc.toFixed(1)+'%</td><td class="n">'+p.n+'</td>'+
+           '<td class="n">'+mmss(p.ms/p.n)+'</td></tr>';
+      });
+      h+='</table></div>';
+      if(oos>0) h+='<p class="fine">Out-of-sight time is excluded from the denominator: percentages are of '+
+        mmss(obs)+' observed, not '+mmss(obs+oos)+' elapsed.</p>';
+      box.innerHTML=h;
+    } else if(D.record==="inst"){
+      if(!pts.length){ box.innerHTML=head+'<p class="fine" style="margin:0">Take a scan or two.</p>';
+        $("rateBox").innerHTML='<h3 style="margin-top:0">Event rates</h3>'+
+          '<div class="incoh"><b>Point sampling cannot give a rate.</b> An instantaneous sample records what '+
+          'is happening at an instant; a brief event almost never coincides with one. Event taps will be kept '+
+          'in the log, but no rate will be computed from them — use continuous or behaviour sampling for '+
+          'events.</div>';
+        $("transBox").innerHTML=""; return; }
+      var use=pts.filter(function(p){return p.beh!=="oos";});
+      var n=use.length, cnt={};
+      use.forEach(function(p){ cnt[p.beh]=(cnt[p.beh]||0)+1; });
+      var h2=head+'<div class="tiles">'+tile(pts.length,"points taken")+tile(n,"points in sight")+
+        tile(scanN,"scans")+tile(subjects.length,"subjects")+'</div>';
+      h2+='<div class="tw"><table><tr><th>state</th><th class="n">points</th><th class="n">% of time</th><th class="n">± SE</th></tr>';
+      Object.keys(cnt).sort(function(a,b){return cnt[b]-cnt[a];}).forEach(function(k){
+        var p=cnt[k]/n, se=Math.sqrt(p*(1-p)/n)*100;
+        h2+='<tr><td>'+esc((byId(k)||{}).name||k)+'</td><td class="n">'+cnt[k]+'</td>'+
+            '<td class="n">'+(p*100).toFixed(1)+'%</td><td class="n">'+se.toFixed(1)+'</td></tr>';
+      });
+      h2+='</table></div><p class="fine">Proportion of points is an unbiased estimate of proportion of time. '+
+          'SE = √(p(1−p)/n) on n = '+n+' in-sight points'+(pts.length>n?" ("+(pts.length-n)+" out-of-sight points excluded)":"")+'.</p>';
+      if(n<30) h2+='<div class="verdict warn"><b>'+n+' points is thin.</b> The standard errors above are '+
+        'honest arithmetic on a small sample, which is not the same as a reliable budget. More scans, or a shorter interval, before this goes in a report.</div>';
+      box.innerHTML=h2;
+    } else {
+      var iv=ivN||1, hits={};
+      ozs.forEach(function(o){ hits[o.beh]=(hits[o.beh]||0)+1; });
+      var h3=head+'<div class="tiles">'+tile(iv,"intervals")+tile(ozs.length,"interval-hits")+'</div>';
+      h3+='<div class="tw"><table><tr><th>behaviour</th><th class="n">intervals with it</th><th class="n">proportion</th></tr>';
+      Object.keys(hits).sort(function(a,b){return hits[b]-hits[a];}).forEach(function(k){
+        h3+='<tr><td>'+esc((byId(k)||{}).name||k)+'</td><td class="n">'+hits[k]+'</td>'+
+            '<td class="n">'+(hits[k]/iv*100).toFixed(1)+'%</td></tr>';
+      });
+      h3+='</table></div>';
+      h3+='<div class="incoh"><b>These are one-zero scores.</b> The proportion above is the proportion of '+
+          '<em>intervals containing</em> the behaviour. It is not a time budget and not a rate, it overestimates '+
+          'duration and underestimates frequency, and no arithmetic on this page will convert it into either. '+
+          'Report it as what it is.</div>';
+      box.innerHTML=h3;
+      $("rateBox").innerHTML=""; $("transBox").innerHTML=""; return;
+    }
+
+    /* rates */
+    var rb=$("rateBox");
+    if(D.record==="inst"){
+      rb.innerHTML='<h3 style="margin-top:0">Event rates</h3>'+
+        '<div class="incoh"><b>Point sampling cannot give a rate.</b> An instantaneous sample records what is '+
+        'happening at an instant; a brief event almost never coincides with one. Any event taps in this session '+
+        'are recorded in the log but no rate is computed from them — use continuous or behaviour sampling for '+
+        'events.</div>';
+    } else if(!evts.length){
+      rb.innerHTML='<h3 style="margin-top:0">Event rates</h3><p class="fine" style="margin:0">No events recorded.</p>';
+    } else {
+      var mins=observedMs()/60000 || (now()/60000);
+      var ec={}; evts.forEach(function(e){ ec[e.beh]=(ec[e.beh]||0)+1; });
+      var r='<h3 style="margin-top:0">Event rates</h3><div class="tw"><table>'+
+        '<tr><th>event</th><th class="n">n</th><th class="n">per min</th><th class="n">per hour</th></tr>';
+      Object.keys(ec).sort(function(a,b){return ec[b]-ec[a];}).forEach(function(k){
+        var rate=mins?ec[k]/mins:0;
+        r+='<tr><td>'+esc((byId(k)||{}).name||k)+'</td><td class="n">'+ec[k]+'</td>'+
+           '<td class="n">'+rate.toFixed(3)+'</td><td class="n">'+(rate*60).toFixed(1)+'</td></tr>';
+      });
+      r+='</table></div><p class="fine">Rates are per minute of <b>observed</b> time ('+mins.toFixed(1)+
+         ' min), not elapsed.</p>';
+      rb.innerHTML=r;
+    }
+
+    /* transitions */
+    var tb=$("transBox");
+    if(D.record!=="cont" || segs.length<3){ tb.innerHTML=""; }
+    else {
+      var order=[], M={};
+      var bySubj={};
+      segs.forEach(function(s){ if(s.beh==="oos") return; (bySubj[s.subj]=bySubj[s.subj]||[]).push(s); });
+      var total=0;
+      Object.keys(bySubj).forEach(function(k){
+        var arr=bySubj[k].slice().sort(function(a,b){return a.t0-b.t0;});
+        for(var i=0;i+1<arr.length;i++){
+          var a=arr[i].beh,b=arr[i+1].beh;
+          if(order.indexOf(a)<0) order.push(a);
+          if(order.indexOf(b)<0) order.push(b);
+          M[a]=M[a]||{}; M[a][b]=(M[a][b]||0)+1; total++;
+        }
+      });
+      if(!total){ tb.innerHTML=""; return; }
+      var t='<h3 style="margin-top:0">Transitions</h3><div class="tw"><table class="mx2"><tr><th>from \\ to</th>';
+      order.forEach(function(o){ t+='<th class="n">'+esc((byId(o)||{}).name||o)+'</th>'; });
+      t+='<th class="n">n</th></tr>';
+      order.forEach(function(a){
+        var row=M[a]||{}, rt=0; order.forEach(function(b){ rt+=(row[b]||0); });
+        t+='<tr><td>'+esc((byId(a)||{}).name||a)+'</td>';
+        order.forEach(function(b){
+          if(a===b){ t+='<td class="n self">—</td>'; return; }
+          var v=row[b]||0, p=rt?v/rt:0;
+          t+='<td class="n '+(v===0?"d0":(p>=0.5?"d2":"d1"))+'">'+(v?(p*100).toFixed(0)+"%":"·")+'</td>';
+        });
+        t+='<td class="n">'+rt+'</td></tr>';
+      });
+      t+='</table></div>';
+      t+='<p class="fine">Each cell is the probability that the row state was followed by the column state. '+
+         'The diagonal is struck out because states are mutually exclusive here — a state cannot follow itself, '+
+         'which is a property of the coding scheme rather than a finding.</p>';
+      var thin=order.filter(function(a){ var row=M[a]||{},rt=0; order.forEach(function(b){rt+=(row[b]||0);}); return rt>0&&rt<5; });
+      if(thin.length) t+='<div class="verdict warn"><b>Thin rows.</b> '+
+        thin.map(function(a){return esc((byId(a)||{}).name||a);}).join(", ")+
+        ' had fewer than five transitions. Those percentages are noise, not structure.</div>';
+      t+='<p class="fine">This is a first-order summary: it assumes what happens next depends only on the '+
+         'current state. That is usually false, and it is the assumption to state in a write-up.</p>';
+      tb.innerHTML=t;
+    }
+
+    /* pseudoreplication check */
+    var used={};
+    segs.forEach(function(s){used[s.subj]=1;}); evts.forEach(function(e){used[e.subj]=1;});
+    pts.forEach(function(p){used[p.subj]=1;}); ozs.forEach(function(o){used[o.subj]=1;});
+    var nsub=Object.keys(used).length;
+    if(nsub===1 && (segs.length+pts.length+evts.length+ozs.length)>3){
+      box.innerHTML += '<div class="verdict warn"><b>Everything here came from one individual.</b> '+
+        'Your sample size for any question about the species is <b>1</b>, however many records you took. '+
+        'Repeated measures on one animal are not independent. Record more subjects, and make the individual '+
+        'the unit of analysis.</div>';
+    }
+  }
+
+  /* --------------------------------------------------------- reliability */
+  function tok(s){ return s.split(/[\s,;]+/).map(function(x){return x.trim();}).filter(Boolean); }
+  $("kClear").addEventListener("click",function(){ $("kA").value=""; $("kB").value="";
+    $("kOut").innerHTML=""; $("kMatrix").innerHTML=""; });
+  $("kGo").addEventListener("click",function(){
+    var A=tok(val("kA")), B=tok(val("kB"));
+    if(!A.length||!B.length){ $("kOut").innerHTML='<div class="verdict act">Both observers need a sequence.</div>'; return; }
+    if(A.length!==B.length){
+      $("kOut").innerHTML='<div class="verdict act"><b>Different lengths.</b> Observer A has '+A.length+
+        ' codes, observer B has '+B.length+'. κ compares the same samples scored twice — line them up first.</div>';
+      $("kMatrix").innerHTML=""; return;
+    }
+    var cats=[]; A.concat(B).forEach(function(c){ if(cats.indexOf(c)<0) cats.push(c); });
+    cats.sort();
+    var n=A.length, M={}, rowT={}, colT={}, agree=0;
+    cats.forEach(function(a){ M[a]={}; rowT[a]=0; colT[a]=0; cats.forEach(function(b){ M[a][b]=0; }); });
+    for(var i=0;i<n;i++){ M[A[i]][B[i]]++; rowT[A[i]]++; colT[B[i]]++; if(A[i]===B[i]) agree++; }
+    var po=agree/n, pe=0;
+    cats.forEach(function(c){ pe += (rowT[c]/n)*(colT[c]/n); });
+    var k = (pe===1) ? 1 : (po-pe)/(1-pe);
+    var band="poor — at or below chance";
+    for(var j=0;j<LK.length;j++){ if(k>=LK[j][0]){ band=LK[j][1]; break; } }
+    var h='<div class="tiles">'+tile(k.toFixed(3),"Cohen's κ")+tile((po*100).toFixed(1)+"%","raw agreement")+
+      tile((pe*100).toFixed(1)+"%","expected by chance")+tile(n,"samples")+tile(cats.length,"categories")+'</div>';
+    h+='<div class="verdict'+(k<0.41?" warn":"")+'"><b>κ = '+k.toFixed(3)+'</b> — “'+band+'” on the '+
+       'Landis &amp; Koch convention, which is a rule of thumb its own authors described as arbitrary, not a '+
+       'statistical result. Report the number and n = '+n+', not the adjective.</div>';
+    if(pe>0.5) h+='<div class="verdict warn"><b>One category dominates.</b> Expected agreement is '+
+      (pe*100).toFixed(0)+'%, so κ is being pushed down by prevalence rather than by disagreement — the two of '+
+      'you agreed on '+(po*100).toFixed(0)+'% of samples. Read κ beside the raw agreement, not instead of it.</div>';
+    if(n<20) h+='<div class="verdict warn"><b>'+n+' samples is few</b> for a reliability estimate. '+
+      'κ on a short sequence moves a great deal for one changed code.</div>';
+    $("kOut").innerHTML=h;
+
+    var m='<h3 style="margin-top:0">Confusion matrix</h3><div class="tw"><table class="mx2"><tr><th>A \\ B</th>';
+    cats.forEach(function(c){ m+='<th class="n">'+esc(c)+'</th>'; });
+    m+='<th class="n">total</th></tr>';
+    cats.forEach(function(a){
+      m+='<tr><td>'+esc(a)+'</td>';
+      cats.forEach(function(b){
+        var v=M[a][b];
+        m+='<td class="n '+(a===b?(v?"d2":"d0"):(v?"d1":"d0"))+'">'+(v||"·")+'</td>';
+      });
+      m+='<td class="n">'+rowT[a]+'</td></tr>';
+    });
+    m+='</table></div>';
+    var worst=null;
+    cats.forEach(function(a){ cats.forEach(function(b){ if(a!==b && M[a][b]>0 && (!worst||M[a][b]>worst.v))
+      worst={a:a,b:b,v:M[a][b]}; }); });
+    if(worst) m+='<p class="fine">The commonest disagreement is <b>'+esc(worst.a)+' → '+esc(worst.b)+'</b> ('+
+      worst.v+'×). That pair of definitions is where to spend the next revision of the ethogram.</p>';
+    $("kMatrix").innerHTML=m;
+    buzz(14);
+  });
+
+  /* ------------------------------------------------------------- exports */
+  function ecoOut(){
+    var L=[];
+    L.push("# ethogram session");
+    L.push("# observer: "+(val("dObs")||"—")+"   date: "+(val("dDate")||"—")+"   site: "+(val("dSite")||"—"));
+    if(val("dSp")) L.push("# species: "+val("dSp"));
+    var sname=SAMPLE.filter(function(s){return s[0]===D.sample;})[0][1];
+    var rname=RECORD.filter(function(r){return r[0]===D.record;})[0][1];
+    L.push("# design: "+sname+" sampling, "+rname+" recording"+
+      (D.record!=="cont"?("   interval "+val("dScan")+" s"):""));
+    L.push("# subjects: "+subjects.map(function(s){return s.label;}).join(", "));
+    if(val("dCond")) L.push("# conditions: "+val("dCond"));
+    L.push("# elapsed "+mmss(now())+"   observed "+mmss(observedMs()));
+    L.push("");
+    if(D.sample==="adlib") L.push("# AD LIBITUM — not a source of rates or budgets");
+    if(D.record==="onezero") L.push("# ONE-ZERO — proportions below are intervals-containing, not time or frequency");
+    if(D.record==="cont"){
+      var obs=observedMs(), per={};
+      segs.forEach(function(s){ if(s.beh==="oos") return;
+        if(!per[s.beh])per[s.beh]={ms:0,n:0}; per[s.beh].ms+=(s.t1-s.t0); per[s.beh].n++; });
+      Object.keys(per).forEach(function(k){
+        L.push(("  "+((byId(k)||{}).name||k)+"                    ").slice(0,22)+
+          mmss(per[k].ms)+"   "+(obs?(per[k].ms/obs*100).toFixed(1):"0.0")+"%   "+per[k].n+" bouts");
+      });
+    } else if(D.record==="inst"){
+      var use=pts.filter(function(p){return p.beh!=="oos";}), n=use.length, c={};
+      use.forEach(function(p){ c[p.beh]=(c[p.beh]||0)+1; });
+      Object.keys(c).forEach(function(k){
+        var p=c[k]/n;
+        L.push(("  "+((byId(k)||{}).name||k)+"                    ").slice(0,22)+
+          c[k]+" pts   "+(p*100).toFixed(1)+"% ± "+(Math.sqrt(p*(1-p)/n)*100).toFixed(1));
+      });
+    } else {
+      var hits={}; ozs.forEach(function(o){ hits[o.beh]=(hits[o.beh]||0)+1; });
+      Object.keys(hits).forEach(function(k){
+        L.push(("  "+((byId(k)||{}).name||k)+"                    ").slice(0,22)+
+          hits[k]+"/"+(ivN||1)+" intervals   "+(hits[k]/(ivN||1)*100).toFixed(1)+"%");
+      });
+    }
+    if(evts.length && D.record==="cont"){
+      L.push("");
+      var mins=observedMs()/60000, ec={};
+      evts.forEach(function(e){ ec[e.beh]=(ec[e.beh]||0)+1; });
+      Object.keys(ec).forEach(function(k){
+        L.push(("  "+((byId(k)||{}).name||k)+"                    ").slice(0,22)+
+          ec[k]+"   "+(mins?(ec[k]/mins).toFixed(3):"—")+"/min");
+      });
+    }
+    $("ecoOut").textContent=L.join("\n");
+  }
+  $("ecoCopy").addEventListener("click",function(){ ecoOut(); copyText($("ecoOut").textContent,"Session sheet copied"); });
+  $("csvCopy").addEventListener("click",function(){
+    var rows=[["record_type","subject","behaviour","code","kind","t_start_s","t_end_s","duration_s","scan_or_interval"].map(cell).join(",")];
+    segs.forEach(function(s){ var b=byId(s.beh)||{};
+      rows.push(["state",subjLabel(s.subj),b.name||s.beh,b.code||"",b.kind||"state",
+        (s.t0/1000).toFixed(1),(s.t1/1000).toFixed(1),((s.t1-s.t0)/1000).toFixed(1),""].map(cell).join(",")); });
+    evts.forEach(function(e){ var b=byId(e.beh)||{};
+      rows.push(["event",subjLabel(e.subj),b.name||e.beh,b.code||"",b.kind||"event",
+        (e.t/1000).toFixed(1),"","",""].map(cell).join(",")); });
+    pts.forEach(function(p){ var b=byId(p.beh)||{};
+      rows.push(["point",subjLabel(p.subj),b.name||p.beh,b.code||"",b.kind||"state",
+        (p.t/1000).toFixed(1),"","",p.scan].map(cell).join(",")); });
+    ozs.forEach(function(o){ var b=byId(o.beh)||{};
+      rows.push(["one_zero",subjLabel(o.subj),b.name||o.beh,b.code||"",b.kind||"",
+        "","","",o.iv].map(cell).join(",")); });
+    if(rows.length===1){ toast("Nothing recorded"); return; }
+    copyText(rows.join("\n"),"Log CSV copied — "+(rows.length-1)+" rows");
+  });
+  $("budCopy").addEventListener("click",function(){
+    var rows=[["behaviour","kind","measure","value","denominator"].map(cell).join(",")];
+    if(D.record==="cont"){
+      var obs=observedMs(), per={};
+      segs.forEach(function(s){ if(s.beh==="oos") return;
+        if(!per[s.beh])per[s.beh]={ms:0,n:0}; per[s.beh].ms+=(s.t1-s.t0); per[s.beh].n++; });
+      Object.keys(per).forEach(function(k){ var b=byId(k)||{};
+        rows.push([b.name||k,"state","pct_observed_time",(obs?(per[k].ms/obs*100).toFixed(2):"0"),
+          (obs/1000).toFixed(1)+" s observed"].map(cell).join(",")); });
+    } else if(D.record==="inst"){
+      var use=pts.filter(function(p){return p.beh!=="oos";}), n=use.length, c={};
+      use.forEach(function(p){ c[p.beh]=(c[p.beh]||0)+1; });
+      Object.keys(c).forEach(function(k){ var b=byId(k)||{};
+        rows.push([b.name||k,"state","pct_of_points",(c[k]/n*100).toFixed(2),n+" points"].map(cell).join(",")); });
+    } else {
+      var hits={}; ozs.forEach(function(o){ hits[o.beh]=(hits[o.beh]||0)+1; });
+      Object.keys(hits).forEach(function(k){ var b=byId(k)||{};
+        rows.push([b.name||k,b.kind||"","pct_intervals_containing",
+          (hits[k]/(ivN||1)*100).toFixed(2),(ivN||1)+" intervals"].map(cell).join(",")); });
+    }
+    if(rows.length===1){ toast("Nothing to summarise"); return; }
+    copyText(rows.join("\n"),"Budget CSV copied");
+  });
+
+  /* ------------------------------------------------------------- pack I/O */
+  var PF=["id","code","name","kind","desc"];
+  function packStats(){
+    $("packStat").textContent=ETHO.length+" behaviours loaded — "+packName+"  ·  "+
+      states().length+" states, "+events().length+" events";
+  }
+  $("packExport").addEventListener("click",function(){
+    copyText(JSON.stringify({name:packName,version:1,behaviours:ETHO},null,1),"Ethogram copied as JSON"); });
+  $("packPrompt").addEventListener("click",function(){
+    copyText([
+"Draft an ethogram for behavioural sampling.",
+"",
+"SPECIES / SYSTEM: <name the taxon, the setting, and what you are studying>",
+"",
+"Return ONLY a JSON object, no prose around it:",
+'{ "name": "<species or study name>", "version": 1, "behaviours": [ ... ] }',
+"",
+"Each entry in behaviours[] must have exactly these fields:",
+'  id    string, 3-16 lowercase letters/digits/underscore, unique in the file',
+'  code  string, 2-4 characters, uppercase, unique — what goes on the tally sheet',
+'  name  string, the short label, lowercase',
+'  kind  "state" or "event"',
+'        state = has meaningful DURATION and the animal is either in it or not',
+'                (resting, foraging, vigilant). States must be MUTUALLY EXCLUSIVE',
+'                and together should cover essentially all of the observed time.',
+'        event = a point occurrence you COUNT (a bite, a call, a chase). Duration',
+'                is either negligible or not the quantity of interest.',
+'  desc  string, the operational definition: what the observer must SEE to score it,',
+'        and what ends it. One or two sentences.',
+"",
+"RULES FOR THE DEFINITIONS — these are what make the ethogram usable:",
+"1. Describe OBSERVABLE POSTURE AND MOVEMENT, never motivation or emotion.",
+'   "head raised above shoulder height, not feeding" — not "alert" or "nervous".',
+"2. Every definition must say where the behaviour ENDS, not only where it starts.",
+"3. Two observers reading the definition cold must score the same animal the same",
+"   way. If a definition needs the observer to already know the species, rewrite it.",
+"4. The states must be mutually exclusive. If two states can be true at once, either",
+"   merge them or split the dimension into two separate state sets and say so.",
+"5. INCLUDE an out-of-sight state. Time budgets are computed over observed time, and",
+"   a missing out-of-sight category silently corrupts every percentage.",
+"6. Do not invent behaviours the taxon is not known to perform. If unsure whether a",
+"   behaviour occurs, leave it out and list it separately as a question.",
+"",
+"12-25 behaviours is the useful range for a field ethogram.",
+"",
+"Then, outside the JSON, list any behaviour you were unsure about and why, and name",
+"the pairs of definitions you think are most likely to be confused by two observers."
+    ].join("\n"),"AI prompt copied — paste it into any assistant");
+  });
+  $("packFile").addEventListener("change",function(ev){
+    var f=ev.target.files&&ev.target.files[0]; if(!f) return;
+    var rd=new FileReader();
+    rd.onload=function(){
+      var errs=[], data;
+      try{ data=JSON.parse(rd.result); }
+      catch(e){ toast("Not valid JSON"); alert("That file is not valid JSON:\n\n"+e.message); ev.target.value=""; return; }
+      var list=data&&data.behaviours;
+      if(!list||typeof list.length!=="number"||!list.length){
+        alert("The file has no behaviours array. Export the built-in ethogram to see the shape."); ev.target.value=""; return; }
+      var ids={}, codes={}, nStates=0, hasOOS=false;
+      for(var i=0;i<list.length;i++){
+        var b=list[i], w="behaviour "+(i+1)+" ("+((b&&b.name)||"unnamed")+"): ";
+        if(!b||typeof b!=="object"){ errs.push(w+"not an object"); continue; }
+        PF.forEach(function(k){ if(typeof b[k]!=="string"||!b[k].trim()) errs.push(w+"missing or non-string field '"+k+"'"); });
+        if(typeof b.id==="string"){
+          if(!/^[a-z0-9_]{2,16}$/.test(b.id)) errs.push(w+"id '"+b.id+"' must be 2-16 lowercase letters, digits or _");
+          else if(ids[b.id]) errs.push(w+"duplicate id '"+b.id+"'"); else ids[b.id]=1; }
+        if(typeof b.code==="string"){
+          if(!/^[A-Z0-9]{1,5}$/.test(b.code)) errs.push(w+"code '"+b.code+"' must be 1-5 uppercase letters or digits");
+          else if(codes[b.code]) errs.push(w+"duplicate code '"+b.code+"'"); else codes[b.code]=1; }
+        if(b.kind!=="state"&&b.kind!=="event") errs.push(w+"kind must be exactly 'state' or 'event'");
+        if(b.kind==="state"){ nStates++; if(/out.?of.?sight|not visible|obscured/i.test(b.name+" "+b.desc)) hasOOS=true; }
+        if(typeof b.desc==="string"&&b.desc.trim().length<15)
+          errs.push(w+"definition is too short to be operational — say what the observer sees and what ends it");
+        if(typeof b.desc==="string"&&/\b(happy|sad|angry|nervous|curious|bored|wants?|likes?|enjoys?)\b/i.test(b.desc))
+          errs.push(w+"definition describes motivation or emotion rather than observable posture and movement");
+      }
+      if(nStates===0) errs.push("the ethogram has no states at all — a set of events alone cannot give a time budget");
+      if(nStates>0&&!hasOOS) errs.push("no out-of-sight state. Time budgets are computed over observed time; without this category every percentage is silently wrong. Add one.");
+      if(errs.length){
+        toast("Ethogram rejected — "+errs.length+" problem"+(errs.length===1?"":"s"));
+        alert("Ethogram rejected. Nothing was loaded.\n\n"+errs.slice(0,25).join("\n")+
+          (errs.length>25?"\n\n… and "+(errs.length-25)+" more.":""));
+        ev.target.value=""; return;
+      }
+      ETHO=list.map(function(b){ return {id:b.id,code:b.code,name:b.name,kind:b.kind,desc:b.desc}; });
+      packName=(data.name||f.name);
+      segs=[];evts=[];pts=[];ozs=[];open=null;history=[];
+      renderEthoList(); renderRecord(); renderBudget(); packStats(); ecoOut();
+      toast("Loaded "+ETHO.length+" behaviours"); buzz(14); ev.target.value="";
+    };
+    rd.readAsText(f);
+  });
+
+  /* ------------------------------------------------------------ tabs/boot */
+  function showPane(id){
+    document.querySelectorAll(".tab").forEach(function(t){ t.classList.toggle("on",t.dataset.pane===id); });
+    document.querySelectorAll(".pane").forEach(function(p){ p.classList.toggle("on",p.id===id); });
+    window.scrollTo(0,0);
+  }
+  document.querySelectorAll(".tab").forEach(function(tb){
+    tb.addEventListener("click",function(){ showPane(tb.dataset.pane); buzz(); }); });
+  ["dObs","dDate","dSite","dSp","dCond","dScan","dLen"].forEach(function(id){
+    var e=$(id); if(e) e.addEventListener("input",ecoOut); });
+
+  try{ $("dDate").value=new Date().toISOString().slice(0,10); }catch(e){}
+  renderDesign(); renderSubjEdit(); renderEthoList(); renderRecord(); renderBudget(); packStats(); ecoOut();
+})();
+</script>
+</body>
+</html>

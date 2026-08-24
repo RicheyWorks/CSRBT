@@ -1,0 +1,1028 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Selection Log — marked individuals, traits &amp; measured selection</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,600;9..144,700&family=Nunito+Sans:wght@400;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap">
+<style>
+  :root {
+    color-scheme: light;
+    --page:#F5F1E6; --surface:#FFFDF7; --surface-2:#F3EEE0; --ink:#23281F; --ink-2:#4B5344;
+    --muted:#8B8B7B; --border:#E3DCC9; --s1:#2E7D4F; --s1-deep:#236240; --s2:#C0592B; --s3:#2B6C8F;
+    --soft:#E9F0E7; --warn-bg:#F6EAD8; --danger:#B23A32; --danger-bg:#F6E7E5; --gold:#B8860B;
+    --shadow:0 1px 2px rgba(35,40,31,.06),0 10px 28px rgba(35,40,31,.08);
+    --head:"Fraunces",Georgia,serif;
+    --body:"Nunito Sans",system-ui,-apple-system,sans-serif;
+    --mono:"JetBrains Mono",ui-monospace,Menlo,monospace;
+  }
+  * { box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
+  body { margin:0; background:var(--page); color:var(--ink); font:16px/1.5 var(--body);
+    -webkit-font-smoothing:antialiased; overscroll-behavior-y:contain; }
+  .app { max-width:960px; margin:0 auto; padding:14px 16px calc(104px + env(safe-area-inset-bottom)); }
+  .top { display:flex; align-items:baseline; justify-content:space-between; gap:10px; padding:6px 2px 12px; flex-wrap:wrap; }
+  .brand { font-family:var(--head); font-weight:700; font-size:22px; letter-spacing:-0.01em; }
+  .brand span { color:var(--s1); }
+  .top a { font-family:var(--mono); font-size:11.5px; color:var(--muted); text-decoration:none;
+    display:inline-flex; align-items:center; min-height:44px; padding:0 6px; margin:-10px -6px; touch-action:manipulation; }
+  .top a:hover { color:var(--s1); }
+
+  .tabbar { position:fixed; left:0; right:0; bottom:0; z-index:20;
+    background:color-mix(in srgb, var(--surface) 94%, transparent); backdrop-filter:blur(10px);
+    border-top:1px solid var(--border); padding:8px max(8px, env(safe-area-inset-left)) calc(8px + env(safe-area-inset-bottom)); }
+  .tabbar .row { max-width:960px; margin:0 auto; display:grid; grid-template-columns:repeat(6,1fr); gap:4px; }
+  .tab { display:flex; flex-direction:column; align-items:center; gap:2px; border:0; background:none;
+    font:700 10.5px var(--body); color:var(--muted); padding:7px 1px; border-radius:12px; cursor:pointer;
+    min-height:54px; touch-action:manipulation; transition:background .15s ease, color .15s ease; }
+  .tab .ico { font-size:20px; line-height:1; }
+  .tab.on { color:var(--s1); background:var(--soft); }
+  .tab:active { transform:scale(.96); }
+  .pane { display:none; animation:fade .18s ease; }
+  .pane.on { display:block; }
+  @keyframes fade { from{opacity:0;transform:translateY(4px);} to{opacity:1;transform:none;} }
+  @media (prefers-reduced-motion: reduce){ .pane{animation:none;} }
+
+  h2 { font-family:var(--head); font-weight:600; font-size:20px; margin:6px 0 2px; }
+  h3 { font-family:var(--head); font-weight:600; font-size:16.5px; margin:16px 0 4px; }
+  .hint { color:var(--muted); font-size:14px; margin:0 0 12px; }
+  .card { background:var(--surface); border:1px solid var(--border); border-radius:16px;
+    padding:16px; box-shadow:var(--shadow); margin-bottom:14px; }
+  .fine { font-size:12.5px; color:var(--muted); margin-top:10px; line-height:1.55; }
+
+  input[type=text], input[type=number], input[type=date], select, textarea {
+    background:var(--surface); color:var(--ink); border:1.5px solid var(--border); border-radius:12px;
+    padding:11px 14px; font:16px var(--body); min-height:48px; max-width:100%; }
+  textarea { min-height:78px; line-height:1.5; width:100%; }
+  input:focus, select:focus, textarea:focus { outline:none; border-color:var(--s1); box-shadow:0 0 0 3px rgba(46,125,79,.18); }
+  input[type=number] { width:110px; }
+  label.f { display:flex; flex-direction:column; gap:5px; font-size:13px; font-weight:700; color:var(--ink-2); min-width:0; }
+  .grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(150px,1fr)); gap:10px; }
+  .grid label.f input, .grid label.f select { width:100%; }
+
+  .btn { border:0; border-radius:12px; padding:12px 18px; font:800 15px var(--body); cursor:pointer;
+    min-height:48px; touch-action:manipulation; transition:transform .1s ease, background .15s ease; }
+  .btn:active { transform:scale(.97); }
+  .btn-go { background:var(--s1); color:#fff; } .btn-go:hover { background:var(--s1-deep); }
+  .btn-soft { background:var(--soft); color:var(--s1); }
+  .btn-ghost { background:none; border:1.5px solid var(--border); color:var(--ink-2); }
+  .btn-ghost:hover { border-color:var(--s1); color:var(--s1); }
+  .btn-row { display:flex; gap:8px; flex-wrap:wrap; margin-top:12px; align-items:end; }
+
+  .kopts { display:flex; flex-wrap:wrap; gap:8px; }
+  .kopt { border:1.5px solid var(--border); background:var(--surface); border-radius:14px; padding:10px 14px;
+    font:700 14px var(--body); color:var(--ink-2); cursor:pointer; min-height:46px; touch-action:manipulation;
+    display:inline-flex; flex-direction:column; align-items:flex-start; gap:1px; }
+  .kopt small { font-weight:400; font-size:11px; color:var(--muted); font-family:var(--mono); }
+  .kopt.on { border-color:var(--s1); background:var(--soft); color:var(--s1); }
+
+  .covscale { display:flex; flex-wrap:wrap; gap:6px; margin-top:6px; }
+  .cv { border:1.5px solid var(--border); background:var(--surface); border-radius:11px; min-width:52px;
+    padding:8px 6px; font:800 15px var(--body); color:var(--ink-2); cursor:pointer; min-height:52px;
+    display:flex; flex-direction:column; align-items:center; justify-content:center; gap:1px; touch-action:manipulation; }
+  .cv small { font:400 9.5px var(--mono); color:var(--muted); }
+  .cv.on { border-color:var(--s1); background:var(--soft); color:var(--s1); }
+  .cv.on small { color:var(--s1-deep); }
+
+  .tiles { display:flex; flex-wrap:wrap; gap:8px; margin:12px 0 2px; }
+  .tile { background:var(--surface-2); border:1px solid var(--border); border-radius:12px; padding:9px 14px; min-width:96px; }
+  .tile .v { font-family:var(--head); font-weight:700; font-size:21px; font-variant-numeric:tabular-nums; }
+  .tile .l { font-size:11px; color:var(--muted); }
+  .verdict { border-radius:12px; padding:13px 16px; margin:12px 0 2px; font-size:15.5px; line-height:1.55;
+    border-left:4px solid var(--s1); background:var(--soft); color:var(--ink-2); }
+  .verdict b { color:var(--ink); }
+  .verdict.warn { border-left-color:var(--s2); background:var(--warn-bg); }
+  .verdict.act { border-left-color:var(--danger); background:var(--danger-bg); }
+
+  .tw { overflow-x:auto; -webkit-overflow-scrolling:touch; margin:10px 0; }
+  table { border-collapse:collapse; width:100%; font-size:14px; }
+  th,td { border:1px solid var(--border); padding:6px 9px; text-align:left; vertical-align:top; white-space:nowrap; }
+  th { background:var(--soft); font-family:var(--head); font-weight:600; font-size:13px; }
+  td.n, th.n { text-align:right; font-variant-numeric:tabular-nums; font-family:var(--mono); font-size:13px; }
+  td i { font-style:italic; color:var(--ink-2); }
+
+  .rowlist { display:grid; gap:8px; margin-top:10px; }
+  .row2 { display:flex; align-items:center; gap:10px; background:var(--surface); border:1px solid var(--border);
+    border-radius:12px; padding:10px 13px; font-size:15px; }
+  .row2.inv { border-left:3px solid var(--danger); }
+  .row2 .g { flex:1; min-width:0; }
+  .row2 .g b { font-family:var(--head); font-size:15.5px; }
+  .row2 .g b i { font-style:italic; font-weight:400; color:var(--ink-2); font-size:14px; }
+  .row2 .g span { display:block; color:var(--muted); font-size:12.5px; font-family:var(--mono); margin-top:1px;
+    overflow:hidden; text-overflow:ellipsis; }
+  .row2 .cov { font-family:var(--head); font-weight:700; font-size:17px; color:var(--s1); min-width:46px; text-align:right; }
+  .row2 button { border:0; background:none; color:var(--muted); font-size:15px; padding:9px 11px; cursor:pointer; min-height:44px; min-width:44px; }
+  .row2 button:hover { color:var(--danger); }
+
+  .bars { display:grid; gap:6px; margin-top:10px; }
+  .bar { display:grid; grid-template-columns:132px 1fr 54px; gap:8px; align-items:center; font-size:13.5px; }
+  .bar .nm { font-weight:700; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+  .bar .tr { display:block; background:var(--surface-2); border:1px solid var(--border); border-radius:8px; height:20px; overflow:hidden; }
+  .bar .fl { display:block; height:100%; background:var(--s1); border-radius:7px 0 0 7px; transition:width .4s ease; }
+  .bar .fl.inv { background:var(--s2); }
+  .bar .pc { text-align:right; font-variant-numeric:tabular-nums; color:var(--ink-2); font-family:var(--mono); font-size:12.5px; }
+
+  .label { background:#fff; border:1px solid var(--ink); border-radius:2px; padding:14px 16px; margin-top:10px;
+    font:12.5px/1.5 var(--body); color:#000; max-width:440px; }
+  .label .inst { font-family:var(--head); font-weight:700; font-size:12px; letter-spacing:.06em;
+    text-transform:uppercase; text-align:center; border-bottom:1px solid #000; padding-bottom:5px; margin-bottom:7px; }
+  .label .sci { font-style:italic; font-weight:700; font-size:14px; }
+  .label .row { margin:3px 0; }
+  .label .k { font-weight:700; }
+  .label .coll { margin-top:8px; padding-top:6px; border-top:1px solid #999; display:flex; justify-content:space-between; }
+
+  pre.export { background:#23281F; color:#E8E4D5; border-radius:12px; padding:14px 16px; overflow-x:auto;
+    font:12.5px/1.65 var(--mono); max-height:340px; }
+  code { font-family:var(--mono); font-size:.82em; background:var(--surface-2); border:1px solid var(--border); border-radius:5px; padding:1px 5px; }
+
+  .toast { position:fixed; left:50%; bottom:84px; transform:translateX(-50%) translateY(90px); z-index:30;
+    background:var(--ink); color:#F5F1E6; border-radius:999px; padding:10px 22px; font:700 14px var(--body);
+    transition:transform .25s ease; pointer-events:none; max-width:88vw; text-align:center; }
+  .toast.on { transform:translateX(-50%) translateY(0); }
+
+  @media print {
+    .tabbar, .btn, .kopts, .covscale, .top a, .noprint { display:none !important; }
+    body { background:#fff; } .pane { display:block !important; }
+    .app { padding-bottom:0; } .card { break-inside:avoid; } table { font-size:10pt; }
+    pre.export { background:#fff; color:#000; border:1px solid #ccc; max-height:none; }
+    .label { break-inside:avoid; page-break-inside:avoid; }
+  }
+
+
+  /* ---- fungal additions ---- */
+  .sw { display:flex; flex-wrap:wrap; gap:7px; margin-top:6px; }
+  .swc { border:1.5px solid var(--border); background:var(--surface); border-radius:12px; padding:7px 11px 8px;
+    font:700 12.5px var(--body); color:var(--ink-2); cursor:pointer; min-height:56px; touch-action:manipulation;
+    display:flex; flex-direction:column; align-items:center; gap:5px; min-width:74px; }
+  .swc .chip { width:44px; height:18px; border-radius:5px; border:1px solid rgba(35,40,31,.28); display:block; }
+  .swc.on { border-color:var(--s1); background:var(--soft); color:var(--s1); }
+
+  .chk { display:flex; flex-wrap:wrap; gap:7px; margin-top:6px; }
+  .ck { border:1.5px solid var(--border); background:var(--surface); border-radius:999px; padding:9px 14px;
+    font:700 13.5px var(--body); color:var(--ink-2); cursor:pointer; min-height:44px; touch-action:manipulation; }
+  .ck.on { border-color:var(--s1); background:var(--soft); color:var(--s1); }
+  .ck.on::before { content:"\2713 "; }
+
+  .rg { display:grid; gap:9px; margin-top:8px; }
+  .rgi { border:1px solid var(--border); background:var(--surface); border-radius:13px; padding:11px 13px; }
+  .rgi .hd { display:flex; align-items:center; justify-content:space-between; gap:9px; flex-wrap:wrap; }
+  .rgi .nm { font-family:var(--head); font-weight:700; font-size:15px; }
+  .rgi .nm em { font-style:normal; font-family:var(--mono); font-size:11.5px; color:var(--muted); margin-left:6px; }
+  .rgi .wh { font-size:12.5px; color:var(--muted); line-height:1.5; margin-top:5px; }
+  .rgi input[type=text] { width:100%; margin-top:8px; min-height:44px; }
+  .rgi.haz { border-left:3px solid var(--s2); }
+
+  .guild { display:inline-block; font:700 10.5px var(--mono); letter-spacing:.05em; text-transform:uppercase;
+    border-radius:999px; padding:3px 9px; border:1px solid var(--border); background:var(--surface-2); color:var(--ink-2); }
+  .guild.ecm { border-color:var(--s1); color:var(--s1); background:var(--soft); }
+  .guild.woodsap, .guild.littersap { border-color:var(--s3); color:var(--s3); background:#E6EEF3; }
+  .guild.par { border-color:var(--danger); color:var(--danger); background:var(--danger-bg); }
+  .guild.lich { border-color:var(--gold); color:#7a5c07; background:#F5EFD9; }
+  .guild.myco { border-color:var(--s2); color:var(--s2); background:var(--warn-bg); }
+  .guild.mixed { border-style:dashed; }
+
+  .mx td.h0 { color:var(--muted); }
+  .mx td.h1 { background:#EDF4EA; font-weight:700; }
+  .mx td.h2 { background:var(--s1); color:#fff; font-weight:700; }
+
+  .never { border:2px solid var(--danger); background:var(--danger-bg); border-radius:14px; padding:15px 17px;
+    margin:14px 0; font-size:15px; line-height:1.6; color:var(--ink); }
+  .never b { font-family:var(--head); display:block; font-size:16px; margin-bottom:5px; color:var(--danger); }
+
+  .drylog { display:grid; grid-template-columns:repeat(auto-fit,minmax(128px,1fr)); gap:9px; margin-top:8px; }
+
+
+  /* ---- selection additions ---- */
+  .stat { display:grid; grid-template-columns:repeat(auto-fit,minmax(130px,1fr)); gap:9px; margin:12px 0 2px; }
+  .st { background:var(--surface-2); border:1px solid var(--border); border-radius:12px; padding:10px 13px; }
+  .st .v { font-family:var(--head); font-weight:700; font-size:22px; font-variant-numeric:tabular-nums; line-height:1.1; }
+  .st .l { font-size:11px; color:var(--muted); margin-top:2px; line-height:1.35; }
+  .st.hi .v { color:var(--s1); }
+  .st.warnv .v { color:var(--s2); }
+
+  .scat { display:block; width:100%; height:auto; background:var(--surface); border:1px solid var(--border);
+    border-radius:12px; margin-top:10px; }
+
+  .hist { display:grid; gap:5px; margin-top:10px; }
+  .hb { display:grid; grid-template-columns:74px 1fr 46px; gap:8px; align-items:center; font-size:13px; }
+  .hb .lb { font-family:var(--mono); font-size:11.5px; color:var(--ink-2); text-align:right; }
+  .hb .tr { background:var(--surface-2); border:1px solid var(--border); border-radius:7px; height:17px; overflow:hidden; }
+  .hb .fl { display:block; height:100%; background:var(--s3); }
+  .hb .fl.b { background:var(--s2); }
+  .hb .n { font-family:var(--mono); font-size:12px; color:var(--muted); }
+
+  .legend { display:flex; gap:14px; flex-wrap:wrap; font-size:12.5px; color:var(--muted); margin-top:8px; }
+  .legend i { display:inline-block; width:11px; height:11px; border-radius:3px; margin-right:5px; vertical-align:-1px; }
+
+  .warnbox { border:2px solid var(--s2); background:var(--warn-bg); border-radius:14px; padding:14px 17px;
+    margin:14px 0; font-size:15px; line-height:1.6; }
+  .warnbox b { font-family:var(--head); display:block; font-size:16px; margin-bottom:4px; color:var(--s2); }
+
+  .rail { margin:26px 0 4px; }
+  .rail .rl { font-family:var(--mono); font-size:11px; letter-spacing:.14em; text-transform:uppercase; color:var(--muted); margin:0 2px 8px; }
+  .rail .chips { display:flex; flex-wrap:wrap; gap:8px; }
+  .rail a { display:inline-flex; align-items:center; gap:7px; text-decoration:none; font:700 13.5px var(--body);
+    color:var(--ink-2); background:var(--surface); border:1px solid var(--border); border-radius:999px;
+    padding:9px 15px; min-height:44px; box-shadow:var(--shadow); touch-action:manipulation; }
+  .rail a:hover { border-color:var(--s1); color:var(--s1); }
+  .rail a[aria-current="page"] { background:var(--soft); border-color:var(--s1); color:var(--s1); }
+  .rail a.ref { font-weight:600; color:var(--muted); background:none; box-shadow:none; }
+  @media print { .rail { display:none !important; } }
+</style>
+</head>
+<body>
+<div class="app">
+  <div class="top">
+    <div class="brand">📏 Selection <span>Log</span></div>
+    <a href="ecology.html">part of the ecology kit →</a>
+  </div>
+
+  <!-- ============ INDIVIDUALS ============ -->
+  <section class="pane on" id="p-ind">
+    <h2>Marked individuals</h2>
+    <p class="hint">Evolution is measured on <em>named individuals</em> followed through time. An unmarked
+      population gives you a mean that drifts for reasons you cannot separate.</p>
+
+    <div class="card">
+      <div class="grid">
+        <label class="f">ID / band<input type="text" id="iId" placeholder="AB-1042" autocomplete="off"></label>
+        <label class="f">cohort / year<input type="text" id="iCoh" placeholder="2026" autocomplete="off"></label>
+        <label class="f">sex<select id="iSex"><option value="">—</option><option>F</option><option>M</option><option>unknown</option></select></label>
+        <label class="f">age class<select id="iAge"><option value="">—</option><option>juvenile</option><option>subadult</option><option>adult</option><option>unknown</option></select></label>
+      </div>
+      <label class="f" style="margin-top:10px">natural history note<textarea id="iNote" placeholder="Caught in mist-net 3 at 06:40. Bill tip worn. Feeding on hard seed at the ridge — not seen at the seep with the others."></textarea></label>
+      <div class="btn-row">
+        <button class="btn btn-go" id="iAdd" type="button">Add individual</button>
+        <button class="btn btn-ghost" id="iUndo" type="button">↩ Undo</button>
+      </div>
+    </div>
+
+    <div class="card">
+      <h3 style="margin-top:0">Fitness</h3>
+      <p class="hint" style="margin-bottom:8px">A selection episode needs a <b>fitness component</b> and an
+        <b>interval</b>. Say which, then record the outcome per individual.</p>
+      <div class="grid">
+        <label class="f">fitness component<select id="fComp">
+          <option value="surv">survived the episode (0/1)</option>
+          <option value="recr">offspring recruited (count)</option>
+          <option value="mate">matings obtained (count)</option>
+        </select></label>
+        <label class="f">episode<input type="text" id="fEp" placeholder="drought, Jun–Dec 2026" autocomplete="off"></label>
+      </div>
+      <div class="rowlist" id="iList"></div>
+    </div>
+  </section>
+
+  <!-- ============ MEASURE ============ -->
+  <section class="pane" id="p-mea">
+    <h2>Measure</h2>
+    <p class="hint">Measure the same individual more than once, on different occasions, by different hands
+      where you can. Repeatability is not bookkeeping &mdash; it sets a ceiling on every selection estimate
+      further down this page.</p>
+
+    <div class="card">
+      <div class="grid">
+        <label class="f">individual<select id="mInd"></select></label>
+        <label class="f">trait<select id="mTrait"></select></label>
+        <label class="f">value<input type="number" id="mVal" step="0.01"></label>
+        <label class="f">occasion / replicate<input type="text" id="mOcc" placeholder="rep 1" autocomplete="off"></label>
+        <label class="f">measurer<input type="text" id="mWho" autocomplete="off"></label>
+      </div>
+      <div class="btn-row">
+        <button class="btn btn-go" id="mAdd" type="button">Add measurement</button>
+        <button class="btn btn-ghost" id="mUndo" type="button">↩ Undo</button>
+      </div>
+    </div>
+
+    <div class="card">
+      <h3 style="margin-top:0">Traits</h3>
+      <div class="btn-row" style="margin-top:0">
+        <label class="f" style="flex:1;min-width:150px">name<input type="text" id="tName" placeholder="bill depth" autocomplete="off"></label>
+        <label class="f">unit<input type="text" id="tUnit" style="width:96px" placeholder="mm" autocomplete="off"></label>
+        <button class="btn btn-soft" id="tAdd" type="button">Add trait</button>
+      </div>
+      <div class="rowlist" id="traitList"></div>
+    </div>
+
+    <div class="card" id="repBox"></div>
+    <div class="card"><h3 style="margin-top:0">Measurements</h3><div class="rowlist" id="mList"></div></div>
+  </section>
+
+  <!-- ============ SELECTION ============ -->
+  <section class="pane" id="p-sel">
+    <h2>Selection</h2>
+    <p class="hint">Choose a trait and the page measures selection on it &mdash; the differential, the
+      intensity, and the gradient &mdash; then tells you what each one is and is not entitled to say.</p>
+    <div class="card">
+      <label class="f">trait<select id="sTrait"></select></label>
+      <div id="selOut"></div>
+    </div>
+    <div class="card" id="distBox"></div>
+    <div class="card" id="gradBox"></div>
+  </section>
+
+  <!-- ============ HERITABILITY ============ -->
+  <section class="pane" id="p-her">
+    <h2>Heritability</h2>
+    <p class="hint">Parent&ndash;offspring regression. Enter who the parents are, and the slope of offspring
+      on mid-parent estimates h&sup2; for the trait in <em>this</em> population, in <em>this</em> environment.</p>
+
+    <div class="card">
+      <div class="grid">
+        <label class="f">offspring<select id="pOff"></select></label>
+        <label class="f">dam<select id="pDam"></select></label>
+        <label class="f">sire<select id="pSire"></select></label>
+      </div>
+      <div class="btn-row">
+        <button class="btn btn-go" id="pAdd" type="button">Link parents</button>
+        <button class="btn btn-ghost" id="pUndo" type="button">↩ Undo</button>
+      </div>
+      <div class="rowlist" id="pedList"></div>
+    </div>
+
+    <div class="card">
+      <label class="f">trait<select id="hTrait"></select></label>
+      <div id="herOut"></div>
+    </div>
+    <div class="card" id="predBox"></div>
+
+    <div class="card noprint">
+      <h3 style="margin-top:0">Export</h3>
+      <div class="btn-row">
+        <button class="btn btn-go" id="csvCopy" type="button">Copy measurements CSV</button>
+        <button class="btn btn-soft" id="indCopy" type="button">Copy individuals CSV</button>
+        <button class="btn btn-ghost" id="ecoCopy" type="button">Copy study sheet</button>
+        <button class="btn btn-ghost" id="demo" type="button">Load worked example</button>
+      </div>
+      <pre class="export" id="ecoOut"># add individuals and measurements — the sheet builds itself</pre>
+    </div>
+  </section>
+
+  <!-- ============ METHOD ============ -->
+  <section class="pane" id="p-met">
+    <h2>Method</h2>
+    <p class="hint">What each number means, what it assumes, and the ways it is routinely misread.</p>
+
+    <div class="card">
+      <h3 style="margin-top:0">What this page is for</h3>
+      <p class="fine" style="margin-top:0">Long-term studies of marked individuals are how selection stopped
+        being an inference and became a measurement. The design is always the same shape whatever the taxon:
+        mark individuals so you can find them again, measure traits repeatedly and carefully enough to know
+        your own error, record who survived and who bred, and link offspring to parents. Then selection is
+        the difference between the population before an episode and the individuals who got through it, and
+        heritability is the slope of offspring on parents. Everything on this page is that shape.</p>
+      <p class="fine">The measurement that carries the whole enterprise is not the fancy one. It is
+        <b>repeatability</b> &mdash; whether you can measure the same animal twice and get the same number.</p>
+    </div>
+
+    <div class="card">
+      <h3 style="margin-top:0">Repeatability</h3>
+      <p class="fine" style="margin-top:0">From a one-way ANOVA across individuals with repeated measures,
+        <code>R = s²<sub>among</sub> / (s²<sub>among</sub> + s²<sub>within</sub>)</code> &mdash; the intraclass
+        correlation. It is the proportion of the variance you measured that is real between-individual
+        variation rather than your own hand.</p>
+      <p class="fine"><b>Why it decides everything downstream.</b> Random measurement error inflates the
+        variance of a trait without adding any real covariance with fitness. The selection gradient is a
+        regression slope with trait variance in its denominator, so error <b>attenuates β toward zero</b>,
+        roughly by a factor of R. A gradient measured on a trait with R = 0.6 is on the order of 40% too
+        shallow, and no amount of sample size fixes it &mdash; more animals measured badly gives a tighter
+        confidence interval around the wrong number. This page reports R first, and prints the
+        attenuation-corrected gradient beside the raw one so you can see the size of the problem.</p>
+      <p class="fine">R below about 0.7 means the trait as you are measuring it is mostly noise. The fix is
+        method &mdash; a better landmark, a jig, a different instrument, two independent measurers &mdash; not
+        statistics.</p>
+    </div>
+
+    <div class="card">
+      <h3 style="margin-top:0">Differential, intensity, gradient</h3>
+      <p class="fine" style="margin-top:0"><b>Selection differential S</b> = mean of the survivors (or of
+        breeders, weighted by fitness) minus the mean of everyone before the episode. It is the total change
+        in the trait mean <em>within a generation</em>, and it is in the trait's own units.</p>
+      <p class="fine"><b>Intensity i</b> = S / SD, the differential in standard deviations. Use it to compare
+        selection on bill depth against selection on body mass, or this year against last.</p>
+      <p class="fine"><b>A note on divisors.</b> S here is the fitness-weighted mean minus the mean, which
+        is the <em>population</em> covariance of the trait with relative fitness. The standardization for i and
+        β therefore uses the population SD (n divisor) as well. Mixing the two conventions — a population S
+        against a sample SD — silently inflates β relative to i by n/(n−1) and breaks an identity that should
+        hold exactly. The descriptive &ldquo;SD before&rdquo; tile is the ordinary sample SD and is labelled as such.</p>
+      <p class="fine"><b>Gradient β</b> is the slope from regressing <b>relative fitness</b>
+        (w = W / mean W) on the <b>standardized trait</b> (z = (x − mean) / SD) &mdash; the Lande &amp; Arnold
+        (1983) formulation. In a multiple regression with several traits, β is <b>direct</b> selection on each
+        trait with the others held constant.</p>
+      <div class="verdict warn"><b>S and β differ, and the difference is the point.</b> S includes selection
+        acting on every correlated trait you did not measure: if larger birds survive and bill depth
+        correlates with body size, bill depth shows a differential even under no direct selection on bills at
+        all. β with body size in the model removes that. <b>This page computes univariate β only</b> &mdash;
+        one trait at a time &mdash; which is mathematically the same as the differential rescaled, and
+        therefore carries exactly the same confound. To separate direct from indirect selection you need a
+        multiple regression on all the correlated traits together, which is a desk job with the exported CSV,
+        not a field readout. The page says so beside the number rather than letting a univariate β pass for a
+        direct one.</div>
+    </div>
+
+    <div class="card">
+      <h3 style="margin-top:0">Heritability, and the equation that keeps failing</h3>
+      <p class="fine" style="margin-top:0">Regressing offspring trait values on the <b>mid-parent</b> mean
+        gives a slope that estimates <b>h²</b> directly. Against a <em>single</em> parent the slope estimates
+        <b>h²/2</b>, and this page doubles it and says that it has.</p>
+      <p class="fine">The <b>breeder's equation R = h²S</b> predicts the change in the trait mean between
+        generations. It is printed here, and it should be read with more suspicion than any other number on
+        this page:</p>
+      <ul style="font-size:13px;color:var(--muted);line-height:1.6;margin:0 0 10px;padding-left:20px">
+        <li>Parents and offspring usually share an <b>environment</b> as well as genes. Territory quality,
+          maternal condition and food supply all inflate the parent&ndash;offspring slope, so a field h² is
+          an upper bound on the genetic part unless you have cross-fostering or a pedigree model.</li>
+        <li>h² is a property of <b>one population in one environment at one time</b>, not of a trait. It
+          changes when conditions change &mdash; often exactly when selection is strongest.</li>
+        <li>Predicted responses in wild populations frequently fail to appear. The usual culprits are
+          environmental covariance between the trait and fitness, selection on an unmeasured correlated
+          trait, and the trait's environmental sensitivity moving under the same conditions that caused the
+          selection.</li>
+      </ul>
+      <p class="fine">Treat R = h²S as a hypothesis the next generation will test, and record what actually
+        happened, which is what a long-term study is for.</p>
+    </div>
+
+    <div class="card">
+      <h3 style="margin-top:0">Episodes, and what counts as an answer</h3>
+      <p class="fine" style="margin-top:0">Selection is measured <b>over a defined episode with a defined
+        fitness component</b> &mdash; survival through a drought, recruitment into the breeding population,
+        matings obtained in one season. Different components can select in <em>opposite</em> directions on
+        the same trait in the same year, and a figure quoted without its episode is uninterpretable. The
+        episode field is on the Individuals tab and it goes into every export.</p>
+      <p class="fine">One episode is an anecdote about one year. Selection in the wild reverses: a run of dry
+        years favours one extreme, a wet run favours the other, and the long-run mean can barely move while
+        every single year shows strong selection. That is why the answer to "is this trait under selection"
+        is a time series and not a p-value, and why the natural-history notes on each individual &mdash; what
+        it was eating, where, in what condition &mdash; are the part of the record that eventually explains
+        the pattern.</p>
+    </div>
+
+    <div class="card">
+      <h3 style="margin-top:0">Sample size and honesty</h3>
+      <p class="fine" style="margin-top:0">This page flags small samples rather than hiding them: gradients
+        on fewer than about 30 individuals, repeatability on fewer than about 10 individuals with repeats,
+        and parent&ndash;offspring regressions on fewer than about 20 families are all reported <em>with the
+        n beside them</em> and a note that the estimate is unstable. Nothing here computes a p-value, because
+        the number that matters in selection studies is the effect size and its uncertainty, and because a
+        significant β from a study that measured one trait badly is worse than no number at all.</p>
+    </div>
+  </section>
+
+  <div class="rail">
+    <p class="rl">The field kit</p>
+    <div class="chips">
+      <a href="field-notebook.html"><span>📓</span>Field Notebook</a>
+      <a href="soil-bench.html"><span>🪱</span>Soil Bench</a>
+      <a href="ethogram.html"><span>🐾</span>Ethogram</a>
+      <a href="selection-log.html" aria-current="page"><span>📏</span>Selection Log</a>
+      <a href="stand-sheet.html"><span>🌲</span>Stand Sheet</a>
+      <a href="releve.html"><span>🌾</span>Relevé</a>
+      <a href="collection-sheet.html"><span>🍄</span>Collection Sheet</a>
+      <a class="ref" href="ecology.html">← kit hub</a>
+      <a class="ref" href="ecology-glossary.html">glossary</a>
+    </div>
+  </div>
+</div>
+
+<div class="tabbar"><div class="row">
+  <button class="tab on" data-pane="p-ind" type="button"><span class="ico">🐦</span>Individuals</button>
+  <button class="tab" data-pane="p-mea" type="button"><span class="ico">📏</span>Measure</button>
+  <button class="tab" data-pane="p-sel" type="button"><span class="ico">📉</span>Selection</button>
+  <button class="tab" data-pane="p-her" type="button"><span class="ico">👪</span>Heritability</button>
+  <button class="tab" data-pane="p-met" type="button"><span class="ico">📖</span>Method</button>
+</div></div>
+<div class="toast" id="toast">Saved</div>
+<script>
+(function(){
+  "use strict";
+  var $=function(i){return document.getElementById(i);};
+  var val=function(i){var e=$(i);return e?String(e.value||"").trim():"";};
+  var numv=function(i){var e=$(i);var v=parseFloat(e&&e.value);return isFinite(v)?v:NaN;};
+  function esc(s){return String(s==null?"":s).replace(/[&<>"]/g,function(c){
+    return {"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;"}[c];});}
+  function buzz(m){try{if(navigator.vibrate)navigator.vibrate(m||8);}catch(e){}}
+  var tt; function toast(m){var t=$("toast");t.textContent=m;t.classList.add("on");
+    clearTimeout(tt);tt=setTimeout(function(){t.classList.remove("on");},1700);}
+  function copyText(s,m){function ok(){toast(m||"Copied");buzz();}
+    if(navigator.clipboard&&navigator.clipboard.writeText){
+      navigator.clipboard.writeText(s).then(ok,function(){lg(s,ok);});} else lg(s,ok);}
+  function lg(s,ok){var a=document.createElement("textarea");a.value=s;a.style.position="fixed";a.style.opacity="0";
+    document.body.appendChild(a);a.select();try{document.execCommand("copy");ok();}
+    catch(e){toast("Copy failed — select the text");}document.body.removeChild(a);}
+  function cell(v){v=String(v==null?"":v);return /[",\n]/.test(v)?'"'+v.replace(/"/g,'""')+'"':v;}
+  function f(x,d){ return (isFinite(x)? x.toFixed(d==null?3:d) : "—"); }
+
+  /* ------------------------------------------------------------- stats */
+  function mean(a){ if(!a.length) return NaN; var s=0; for(var i=0;i<a.length;i++) s+=a[i]; return s/a.length; }
+  function sd(a){ if(a.length<2) return NaN; var m=mean(a),s=0;
+    for(var i=0;i<a.length;i++) s+=(a[i]-m)*(a[i]-m); return Math.sqrt(s/(a.length-1)); }
+  /* Population SD (n divisor). The selection differential S is defined as the
+     fitness-weighted mean minus the mean, which IS the population covariance of
+     trait with relative fitness. Standardising with the sample SD (n-1) instead
+     would break the identity i = beta by a factor of n/(n-1). Both must use n. */
+  function sdPop(a){ if(!a.length) return NaN; var m=mean(a),s=0;
+    for(var i=0;i<a.length;i++) s+=(a[i]-m)*(a[i]-m); return Math.sqrt(s/a.length); }
+  function reg(xs,ys){
+    var n=xs.length; if(n<2) return null;
+    var mx=mean(xs),my=mean(ys),sxx=0,sxy=0,syy=0;
+    for(var i=0;i<n;i++){ var dx=xs[i]-mx, dy=ys[i]-my; sxx+=dx*dx; sxy+=dx*dy; syy+=dy*dy; }
+    if(sxx===0) return null;
+    var b=sxy/sxx, a=my-b*mx, r2=(syy===0)?1:(sxy*sxy)/(sxx*syy);
+    var se=NaN;
+    if(n>2){ var ssr=0; for(var j=0;j<n;j++){ var e=ys[j]-(a+b*xs[j]); ssr+=e*e; }
+      se=Math.sqrt((ssr/(n-2))/sxx); }
+    return {b:b,a:a,r2:r2,se:se,n:n,mx:mx,my:my};
+  }
+  /* one-way ANOVA ICC across groups of repeated measures */
+  function icc(groups){
+    var ks=Object.keys(groups).filter(function(k){return groups[k].length>=1;});
+    var withRep=ks.filter(function(k){return groups[k].length>=2;});
+    if(withRep.length<2) return null;
+    var N=0, gm=0, k=ks.length;
+    ks.forEach(function(g){ groups[g].forEach(function(v){ N++; gm+=v; }); });
+    gm/=N;
+    var ssA=0, ssW=0, sumN2=0;
+    ks.forEach(function(g){
+      var a=groups[g], m=mean(a);
+      ssA += a.length*(m-gm)*(m-gm);
+      a.forEach(function(v){ ssW += (v-m)*(v-m); });
+      sumN2 += a.length*a.length;
+    });
+    var dfA=k-1, dfW=N-k;
+    if(dfA<1||dfW<1) return null;
+    var msA=ssA/dfA, msW=ssW/dfW;
+    var n0=(N - sumN2/N)/dfA;
+    var vA=(msA-msW)/n0;
+    var R=(vA+msW)===0?NaN:vA/(vA+msW);
+    return {R:Math.max(0,Math.min(1,R)), msA:msA, msW:msW, n0:n0, k:k, N:N,
+            nRep:withRep.length, seWithin:Math.sqrt(msW)};
+  }
+
+  /* -------------------------------------------------------------- data */
+  var TRAITS=[{id:"t1",name:"bill depth",unit:"mm"},{id:"t2",name:"bill length",unit:"mm"},
+              {id:"t3",name:"tarsus",unit:"mm"},{id:"t4",name:"mass",unit:"g"}];
+  var inds=[];      /* {id,label,coh,sex,age,note,fit} */
+  var meas=[];      /* {ind,trait,v,occ,who} */
+  var ped=[];       /* {off,dam,sire} */
+  var seq=1;
+  function indBy(id){ for(var i=0;i<inds.length;i++) if(inds[i].id===id) return inds[i]; return null; }
+  function traitBy(id){ for(var i=0;i<TRAITS.length;i++) if(TRAITS[i].id===id) return TRAITS[i]; return null; }
+  /* individual's trait value = mean of its replicates */
+  function tv(indId,traitId){
+    var a=meas.filter(function(m){return m.ind===indId&&m.trait===traitId;}).map(function(m){return m.v;});
+    return a.length? mean(a) : NaN;
+  }
+
+  /* -------------------------------------------------------- individuals */
+  function fillSelects(){
+    [["mInd",true],["pOff",true],["pDam",true],["pSire",true]].forEach(function(p){
+      var s=$(p[0]), keep=s.value; s.innerHTML="";
+      var o=document.createElement("option"); o.value=""; o.textContent="— pick —"; s.appendChild(o);
+      inds.forEach(function(i){ var e=document.createElement("option"); e.value=i.id;
+        e.textContent=i.label+(i.coh?" ("+i.coh+")":""); s.appendChild(e); });
+      if(keep&&s.querySelector('option[value="'+keep+'"]')) s.value=keep;
+    });
+    ["mTrait","sTrait","hTrait"].forEach(function(id){
+      var s=$(id), keep=s.value; s.innerHTML="";
+      TRAITS.forEach(function(t){ var e=document.createElement("option"); e.value=t.id;
+        e.textContent=t.name+(t.unit?" ("+t.unit+")":""); s.appendChild(e); });
+      if(keep&&s.querySelector('option[value="'+keep+'"]')) s.value=keep;
+    });
+  }
+  $("iAdd").addEventListener("click",function(){
+    var lab=val("iId"); if(!lab){ toast("Give it an ID"); return; }
+    inds.push({id:"i"+(seq++),label:lab,coh:val("iCoh"),sex:val("iSex"),age:val("iAge"),
+               note:val("iNote"),fit:null});
+    ["iId","iNote"].forEach(function(x){$(x).value="";});
+    renderAll(); toast("Added "+lab); buzz(12);
+  });
+  $("iUndo").addEventListener("click",function(){
+    if(!inds.length){toast("Nothing to undo");return;}
+    var g=inds.pop();
+    meas=meas.filter(function(m){return m.ind!==g.id;});
+    ped=ped.filter(function(p){return p.off!==g.id&&p.dam!==g.id&&p.sire!==g.id;});
+    renderAll(); toast("Removed "+g.label);
+  });
+  function renderInds(){
+    var box=$("iList");
+    if(!inds.length){ box.innerHTML='<p class="fine" style="margin:0">No individuals yet.</p>'; return; }
+    var comp=$("fComp").value;
+    box.innerHTML="";
+    inds.forEach(function(i){
+      var d=document.createElement("div"); d.className="row2";
+      var bits=[]; if(i.coh)bits.push(i.coh); if(i.sex)bits.push(i.sex); if(i.age)bits.push(i.age);
+      var nm=meas.filter(function(m){return m.ind===i.id;}).length;
+      bits.push(nm+" meas.");
+      d.innerHTML='<div class="g"><b>'+esc(i.label)+'</b><span>'+esc(bits.join(" · "))+
+        (i.note?' — '+esc(i.note.slice(0,60)):'')+'</span></div>';
+      var inp=document.createElement("input");
+      inp.type="number"; inp.step=comp==="surv"?"1":"1"; inp.min="0";
+      if(comp==="surv"){ inp.max="1"; inp.placeholder="0/1"; } else inp.placeholder="n";
+      inp.style.width="86px"; inp.style.minHeight="44px";
+      inp.value = (i.fit==null?"":i.fit);
+      inp.addEventListener("input",function(){
+        var v=parseFloat(inp.value); i.fit=isFinite(v)?v:null; renderSel(); renderPred(); ecoOut();
+      });
+      d.appendChild(inp);
+      var x=document.createElement("button"); x.type="button"; x.textContent="✕";
+      x.addEventListener("click",function(){
+        inds=inds.filter(function(y){return y!==i;});
+        meas=meas.filter(function(m){return m.ind!==i.id;});
+        ped=ped.filter(function(p){return p.off!==i.id&&p.dam!==i.id&&p.sire!==i.id;});
+        renderAll(); toast("Removed "+i.label);
+      });
+      d.appendChild(x); box.appendChild(d);
+    });
+  }
+  $("fComp").addEventListener("change",function(){ renderInds(); renderSel(); ecoOut(); });
+  $("fEp").addEventListener("input",ecoOut);
+
+  /* ----------------------------------------------------------- measure */
+  $("tAdd").addEventListener("click",function(){
+    var n=val("tName"); if(!n){toast("Name the trait");return;}
+    TRAITS.push({id:"t"+(TRAITS.length+1)+"_"+n.replace(/\W+/g,""),name:n,unit:val("tUnit")});
+    $("tName").value=""; $("tUnit").value=""; renderAll(); toast("Added "+n); buzz(12);
+  });
+  function renderTraits(){
+    var box=$("traitList"); box.innerHTML="";
+    TRAITS.forEach(function(t){
+      var d=document.createElement("div"); d.className="row2";
+      var n=meas.filter(function(m){return m.trait===t.id;}).length;
+      d.innerHTML='<div class="g"><b>'+esc(t.name)+'</b><span>'+esc(t.unit||"no unit")+' · '+n+' measurements</span></div>';
+      var x=document.createElement("button"); x.type="button"; x.textContent="✕";
+      x.addEventListener("click",function(){
+        if(TRAITS.length===1){toast("Keep at least one trait");return;}
+        TRAITS=TRAITS.filter(function(y){return y!==t;});
+        meas=meas.filter(function(m){return m.trait!==t.id;});
+        renderAll();
+      });
+      d.appendChild(x); box.appendChild(d);
+    });
+  }
+  $("mAdd").addEventListener("click",function(){
+    var ind=val("mInd"), tr=val("mTrait"), v=numv("mVal");
+    if(!ind){toast("Pick an individual");return;}
+    if(!isFinite(v)){toast("Enter a value");return;}
+    meas.push({ind:ind,trait:tr,v:v,occ:val("mOcc"),who:val("mWho")});
+    $("mVal").value=""; renderAll(); buzz(12);
+    toast("Recorded "+f(v,2)+" for "+(indBy(ind)||{}).label);
+  });
+  $("mUndo").addEventListener("click",function(){
+    if(!meas.length){toast("Nothing to undo");return;}
+    meas.pop(); renderAll(); toast("Undone");
+  });
+  function renderMeas(){
+    var box=$("mList");
+    if(!meas.length){ box.innerHTML='<p class="fine" style="margin:0">No measurements yet.</p>'; return; }
+    box.innerHTML=meas.slice(-14).reverse().map(function(m){
+      var t=traitBy(m.trait)||{},i=indBy(m.ind)||{};
+      return '<div class="row2"><div class="g"><b>'+esc(i.label||"?")+'</b><span>'+esc(t.name||"?")+
+        (m.occ?' · '+esc(m.occ):'')+(m.who?' · '+esc(m.who):'')+'</span></div>'+
+        '<span class="cov">'+f(m.v,2)+'</span></div>';
+    }).join("");
+  }
+  function renderRep(){
+    var box=$("repBox"), tr=val("mTrait")||((TRAITS[0]||{}).id);
+    var t=traitBy(tr)||{};
+    var g={};
+    meas.filter(function(m){return m.trait===tr;}).forEach(function(m){ (g[m.ind]=g[m.ind]||[]).push(m.v); });
+    var r=icc(g);
+    var h='<h3 style="margin-top:0">Repeatability — '+esc(t.name||"")+'</h3>';
+    if(!r){ box.innerHTML=h+'<p class="fine" style="margin:0">Measure at least two individuals twice each, '+
+      'and the intraclass correlation appears here. Until then every gradient on this trait is uncorrected '+
+      'for measurement error.</p>'; return; }
+    var cls = r.R>=0.9?"hi":(r.R>=0.7?"":"warnv");
+    h+='<div class="stat">'+
+       '<div class="st '+cls+'"><div class="v">'+f(r.R,3)+'</div><div class="l">repeatability R (ICC)</div></div>'+
+       '<div class="st"><div class="v">'+r.nRep+'</div><div class="l">individuals with repeats</div></div>'+
+       '<div class="st"><div class="v">'+r.N+'</div><div class="l">measurements</div></div>'+
+       '<div class="st"><div class="v">'+f(r.seWithin,3)+'</div><div class="l">within-individual SD '+esc(t.unit||"")+'</div></div>'+
+       '</div>';
+    if(r.nRep<10) h+='<div class="verdict warn"><b>'+r.nRep+' individuals with repeats.</b> An ICC on this '+
+      'few is unstable — it moves a lot for one changed measurement. Ten or more before quoting it.</div>';
+    if(r.R<0.7) h+='<div class="warnbox"><b>R = '+f(r.R,3)+' — most of what you measured is your own hand.</b>'+
+      'Under about 0.7 the trait as measured is mostly noise, and any selection gradient computed from it is '+
+      'attenuated toward zero by roughly this factor. More individuals will not fix it; a better landmark, a '+
+      'jig, or a second measurer will. Fix the method before trusting the selection tab.</div>';
+    else h+='<p class="fine">R = '+f(r.R,3)+' means about '+f(r.R*100,0)+'% of the measured variance is real '+
+      'between-individual variation. The gradient on the Selection tab is attenuated by roughly this factor, '+
+      'and the corrected value is printed there beside the raw one.</p>';
+    box.innerHTML=h;
+  }
+  $("mTrait").addEventListener("change",renderRep);
+
+  /* --------------------------------------------------------- selection */
+  function fitVals(){
+    return inds.filter(function(i){return i.fit!=null && isFinite(i.fit);});
+  }
+  function renderSel(){
+    var box=$("selOut"), tr=val("sTrait")||((TRAITS[0]||{}).id), t=traitBy(tr)||{};
+    var rows=inds.map(function(i){ return {i:i,x:tv(i.id,tr),w:i.fit}; })
+                 .filter(function(r){ return isFinite(r.x); });
+    var withFit=rows.filter(function(r){ return r.w!=null&&isFinite(r.w); });
+    if(rows.length<2){ box.innerHTML='<p class="fine" style="margin:0">Measure the trait on at least two '+
+      'individuals.</p>'; $("distBox").innerHTML=""; $("gradBox").innerHTML=""; return; }
+    var xs=rows.map(function(r){return r.x;});
+    var mBefore=mean(xs), sdBefore=sd(xs);
+    var h='<div class="stat">'+
+      '<div class="st"><div class="v">'+rows.length+'</div><div class="l">measured</div></div>'+
+      '<div class="st"><div class="v">'+f(mBefore,3)+'</div><div class="l">mean before '+esc(t.unit||"")+'</div></div>'+
+      '<div class="st"><div class="v">'+f(sdBefore,3)+'</div><div class="l">SD before (sample, n−1)</div></div>'+
+      '<div class="st"><div class="v">'+withFit.length+'</div><div class="l">with fitness</div></div></div>';
+    if(withFit.length<2){
+      box.innerHTML=h+'<div class="verdict warn"><b>No fitness recorded yet.</b> Enter survival or offspring '+
+        'against each individual on the Individuals tab and the differential and gradient appear.</div>';
+      $("gradBox").innerHTML=""; renderDist(tr,rows,withFit); return;
+    }
+    var comp=$("fComp").value;
+    var W=withFit.map(function(r){return r.w;});
+    var mW=mean(W);
+    if(mW<=0){ box.innerHTML=h+'<div class="verdict act"><b>Mean fitness is zero.</b> Relative fitness is '+
+      'undefined — nobody survived or bred, so there is no selection to measure.</div>';
+      $("gradBox").innerHTML=""; renderDist(tr,rows,withFit); return; }
+    /* differential: fitness-weighted mean minus mean */
+    var sumWX=0,sumW=0;
+    withFit.forEach(function(r){ sumWX+=r.w*r.x; sumW+=r.w; });
+    var mAfter=sumWX/sumW;
+    var xsF=withFit.map(function(r){return r.x;});
+    var mF=mean(xsF), sdF=sdPop(xsF), sdSamp=sd(xsF);
+    var S=mAfter-mF, i_=sdF?S/sdF:NaN;
+    /* gradient: relative fitness on standardized trait */
+    var z=withFit.map(function(r){ return (r.x-mF)/sdF; });
+    var w=withFit.map(function(r){ return r.w/mW; });
+    var g=reg(z,w);
+    var beta=g?g.b:NaN;
+    h+='<div class="stat">'+
+      '<div class="st hi"><div class="v">'+f(S,3)+'</div><div class="l">differential S '+esc(t.unit||"")+'</div></div>'+
+      '<div class="st hi"><div class="v">'+f(i_,3)+'</div><div class="l">intensity i (SD units)</div></div>'+
+      '<div class="st hi"><div class="v">'+f(beta,3)+'</div><div class="l">gradient β (univariate)</div></div>'+
+      '<div class="st"><div class="v">'+(g?f(g.se,3):"—")+'</div><div class="l">SE of β</div></div>'+
+      '<div class="st"><div class="v">'+f(mAfter,3)+'</div><div class="l">mean after</div></div></div>';
+    var dir = S>0?"upward":(S<0?"downward":"flat");
+    h+='<div class="verdict"><b>i and β are the same number here, and that is not a coincidence.</b> '+
+       'For a single trait the standardized differential and the univariate gradient are algebraically '+
+       'identical — β = S/σ = i. They only diverge once you put several correlated traits in one regression, '+
+       'which is exactly the step that separates direct from indirect selection. Seeing one number twice is '+
+       'the clearest possible sign that a univariate analysis has not done that yet.</div>';
+    h+='<div class="verdict"><b>Directional selection '+dir+'</b> on '+esc(t.name)+' over '+
+       (val("fEp")?('“'+esc(val("fEp"))+'”'):'the recorded episode')+', measured on '+
+       (comp==="surv"?"survival":(comp==="recr"?"recruitment":"mating success"))+
+       '. The trait mean moved '+f(Math.abs(S),3)+' '+esc(t.unit||"units")+' ('+f(Math.abs(i_),2)+
+       ' SD) within the generation.</div>';
+    /* attenuation */
+    var gg={}; meas.filter(function(m){return m.trait===tr;}).forEach(function(m){ (gg[m.ind]=gg[m.ind]||[]).push(m.v); });
+    var rr=icc(gg);
+    if(rr && rr.R>0.05){
+      h+='<div class="verdict warn"><b>Corrected for measurement error: β ≈ '+f(beta/rr.R,3)+'.</b> '+
+        'Repeatability on this trait is '+f(rr.R,3)+', and random measurement error attenuates a gradient by '+
+        'roughly that factor. The raw β above is the one your data gives; this is what it would be if you '+
+        'could measure without error. Report the raw value and the repeatability together — never the '+
+        'corrected number alone.</div>';
+    } else {
+      h+='<div class="verdict warn"><b>No repeatability for this trait.</b> Measure some individuals twice '+
+        'and the Measure tab will tell you how much your own error is flattening this gradient.</div>';
+    }
+    if(withFit.length<30) h+='<div class="verdict warn"><b>n = '+withFit.length+'.</b> Gradients on fewer '+
+      'than about thirty individuals are unstable; the SE above is honest arithmetic on a small sample, '+
+      'not a reliable interval.</div>';
+    h+='<div class="verdict act"><b>This β is univariate.</b> One trait at a time cannot separate direct '+
+      'selection from selection on everything correlated with it. If a larger animal survives better and '+
+      'this trait scales with size, it will show a gradient under no direct selection at all. Export the CSV '+
+      'and fit all your traits together before calling this direct selection.</div>';
+    box.innerHTML=h;
+    renderDist(tr,rows,withFit);
+    renderGrad(tr,withFit,mF,sdF,mW,g);
+  }
+  function renderDist(tr,rows,withFit){
+    var box=$("distBox"), t=traitBy(tr)||{};
+    if(rows.length<3){ box.innerHTML=""; return; }
+    var xs=rows.map(function(r){return r.x;});
+    var lo=Math.min.apply(null,xs), hi=Math.max.apply(null,xs);
+    if(hi===lo){ box.innerHTML=""; return; }
+    var K=8, w=(hi-lo)/K, all=new Array(K).fill(0), sel=new Array(K).fill(0);
+    rows.forEach(function(r){ var k=Math.min(K-1,Math.floor((r.x-lo)/w)); all[k]++; });
+    withFit.filter(function(r){return r.w>0;}).forEach(function(r){
+      var k=Math.min(K-1,Math.floor((r.x-lo)/w)); sel[k]++; });
+    var mx=Math.max.apply(null,all)||1;
+    var h='<h3 style="margin-top:0">Distribution — '+esc(t.name)+'</h3><div class="hist">';
+    for(var k=0;k<K;k++){
+      var a=lo+k*w, b=a+w;
+      h+='<div class="hb"><span class="lb">'+f(a,1)+'–'+f(b,1)+'</span>'+
+         '<span class="tr"><span class="fl" style="width:'+(all[k]/mx*100).toFixed(1)+'%"></span></span>'+
+         '<span class="n">'+all[k]+(sel[k]?" / "+sel[k]:"")+'</span></div>';
+    }
+    h+='</div><div class="legend"><span><i style="background:var(--s3)"></i>all measured</span>'+
+       '<span>n / survivors-or-breeders in each bin</span></div>';
+    h+='<p class="fine">Eight equal bins across the observed range. Where the second number falls away from '+
+       'the first is where the episode acted.</p>';
+    box.innerHTML=h;
+  }
+  function renderGrad(tr,withFit,mF,sdF,mW,g){
+    var box=$("gradBox"), t=traitBy(tr)||{};
+    if(!g||withFit.length<3){ box.innerHTML=""; return; }
+    var W=560,H=260,P=44;
+    var zs=withFit.map(function(r){return (r.x-mF)/sdF;});
+    var ws=withFit.map(function(r){return r.w/mW;});
+    var zlo=Math.min.apply(null,zs), zhi=Math.max.apply(null,zs);
+    var wlo=Math.min.apply(null,ws), whi=Math.max.apply(null,ws);
+    if(zhi===zlo){ box.innerHTML=""; return; }
+    if(whi===wlo){ whi=wlo+1; }
+    function X(z){ return P+(z-zlo)/(zhi-zlo)*(W-P-14); }
+    function Y(w){ return H-P-(w-wlo)/(whi-wlo)*(H-P-14); }
+    var pts="";
+    withFit.forEach(function(r,i){
+      pts+='<circle cx="'+X(zs[i]).toFixed(1)+'" cy="'+Y(ws[i]).toFixed(1)+'" r="4.5" fill="#2B6C8F" fill-opacity=".65"/>';
+    });
+    var y1=g.a+g.b*zlo, y2=g.a+g.b*zhi;
+    var line='<line x1="'+X(zlo).toFixed(1)+'" y1="'+Y(y1).toFixed(1)+'" x2="'+X(zhi).toFixed(1)+
+             '" y2="'+Y(y2).toFixed(1)+'" stroke="#C0592B" stroke-width="2.5"/>';
+    var h='<h3 style="margin-top:0">Fitness on standardized trait</h3>'+
+      '<svg class="scat" viewBox="0 0 '+W+' '+H+'" role="img" aria-label="relative fitness against standardized '+esc(t.name)+'">'+
+      '<line x1="'+P+'" y1="'+(H-P)+'" x2="'+(W-14)+'" y2="'+(H-P)+'" stroke="#C7C0AC" stroke-width="1.4"/>'+
+      '<line x1="'+P+'" y1="14" x2="'+P+'" y2="'+(H-P)+'" stroke="#C7C0AC" stroke-width="1.4"/>'+
+      line+pts+
+      '<text x="'+(W/2)+'" y="'+(H-12)+'" text-anchor="middle" font-size="12" fill="#8B8B7B" font-family="monospace">standardized '+esc(t.name)+' (z)</text>'+
+      '<text x="14" y="'+(H/2)+'" text-anchor="middle" font-size="12" fill="#8B8B7B" font-family="monospace" transform="rotate(-90 14 '+(H/2)+')">relative fitness</text>'+
+      '<text x="'+(W-16)+'" y="26" text-anchor="end" font-size="12" fill="#C0592B" font-family="monospace">β = '+f(g.b,3)+'</text>'+
+      '</svg>'+
+      '<p class="fine">The slope of this line <em>is</em> β. r² = '+f(g.r2,3)+' on n = '+g.n+
+      ' — and a low r² is normal and not a problem: fitness is mostly determined by things other than one '+
+      'trait, which is why the slope matters and the scatter does not.</p>';
+    box.innerHTML=h;
+  }
+  $("sTrait").addEventListener("change",renderSel);
+
+  /* ------------------------------------------------------ heritability */
+  $("pAdd").addEventListener("click",function(){
+    var o=val("pOff"), d=val("pDam"), s=val("pSire");
+    if(!o){toast("Pick an offspring");return;}
+    if(!d&&!s){toast("Pick at least one parent");return;}
+    if(o===d||o===s){toast("An individual cannot be its own parent");return;}
+    ped=ped.filter(function(p){return p.off!==o;});
+    ped.push({off:o,dam:d,sire:s});
+    renderPed(); renderHer(); renderPred(); toast("Linked"); buzz(12);
+  });
+  $("pUndo").addEventListener("click",function(){
+    if(!ped.length){toast("Nothing to undo");return;} ped.pop(); renderPed(); renderHer(); renderPred(); });
+  function renderPed(){
+    var box=$("pedList");
+    if(!ped.length){ box.innerHTML='<p class="fine" style="margin:0">No parent links yet.</p>'; return; }
+    box.innerHTML=ped.map(function(p){
+      var o=indBy(p.off)||{},d=indBy(p.dam)||{},s=indBy(p.sire)||{};
+      return '<div class="row2"><div class="g"><b>'+esc(o.label||"?")+'</b><span>dam '+esc(d.label||"—")+
+        ' · sire '+esc(s.label||"—")+'</span></div></div>';
+    }).join("");
+  }
+  function renderHer(){
+    var box=$("herOut"), tr=val("hTrait")||((TRAITS[0]||{}).id), t=traitBy(tr)||{};
+    var pairs=[], single=0, midp=0;
+    ped.forEach(function(p){
+      var yo=tv(p.off,tr); if(!isFinite(yo)) return;
+      var vd=p.dam?tv(p.dam,tr):NaN, vs=p.sire?tv(p.sire,tr):NaN;
+      if(isFinite(vd)&&isFinite(vs)){ pairs.push({x:(vd+vs)/2,y:yo,mid:true}); midp++; }
+      else if(isFinite(vd)||isFinite(vs)){ pairs.push({x:isFinite(vd)?vd:vs,y:yo,mid:false}); single++; }
+    });
+    if(pairs.length<3){ box.innerHTML='<p class="fine" style="margin:0">Link at least three offspring to '+
+      'measured parents. Mid-parent pairs are worth far more than single-parent ones.</p>';
+      $("predBox").innerHTML=""; return; }
+    var useMid = midp>=3;
+    var use=pairs.filter(function(p){return p.mid===useMid;});
+    if(use.length<3) use=pairs;
+    var g=reg(use.map(function(p){return p.x;}), use.map(function(p){return p.y;}));
+    if(!g){ box.innerHTML='<p class="fine" style="margin:0">Parent values do not vary — no slope.</p>'; return; }
+    var h2 = useMid ? g.b : g.b*2;
+    var seH = useMid ? g.se : g.se*2;
+    var h='<div class="stat">'+
+      '<div class="st hi"><div class="v">'+f(Math.max(0,Math.min(1.5,h2)),3)+'</div><div class="l">h² '+
+        (useMid?"(mid-parent slope)":"(single-parent slope × 2)")+'</div></div>'+
+      '<div class="st"><div class="v">±'+f(seH,3)+'</div><div class="l">SE</div></div>'+
+      '<div class="st"><div class="v">'+f(g.r2,3)+'</div><div class="l">r²</div></div>'+
+      '<div class="st"><div class="v">'+g.n+'</div><div class="l">families</div></div></div>';
+    if(!useMid) h+='<div class="verdict warn"><b>Single-parent regression.</b> The slope of offspring on one '+
+      'parent estimates h²/2, so it has been doubled to give the figure above. That doubling assumes the '+
+      'other parent is a random draw from the population — if mating is assortative on this trait, h² is '+
+      'overestimated. Mid-parent pairs avoid the problem.</div>';
+    if(h2>1) h+='<div class="verdict act"><b>h² above 1 is impossible.</b> A heritability greater than one '+
+      'means something other than additive genetic variance is driving the parent–offspring resemblance — '+
+      'usually a shared environment, sometimes too few families. Do not report this figure; report the slope '+
+      'and say what you think is causing it.</div>';
+    if(g.n<20) h+='<div class="verdict warn"><b>'+g.n+' families.</b> Parent–offspring heritabilities are '+
+      'noisy under about twenty families; the SE above is wide for a reason.</div>';
+    h+='<div class="verdict act"><b>This is an upper bound on the genetic part.</b> Parents and offspring '+
+      'here shared an environment as well as genes — territory, food supply, maternal condition — and every '+
+      'one of those inflates the slope. Only cross-fostering or a proper pedigree model separates them. h² is '+
+      'also a property of this population in this environment, not of the trait.</div>';
+    box.innerHTML=h;
+    renderPred(h2);
+  }
+  var lastH2=null;
+  function renderPred(h2){
+    var box=$("predBox");
+    if(h2==null) h2=lastH2; else lastH2=h2;
+    if(h2==null){ box.innerHTML=""; return; }
+    var tr=val("sTrait")||((TRAITS[0]||{}).id), t=traitBy(tr)||{};
+    var htr=val("hTrait")||tr;
+    var rows=inds.map(function(i){return {x:tv(i.id,tr),w:i.fit};}).filter(function(r){return isFinite(r.x);});
+    var wf=rows.filter(function(r){return r.w!=null&&isFinite(r.w)&&r.w>=0;});
+    if(wf.length<2){ box.innerHTML=""; return; }
+    var mW=mean(wf.map(function(r){return r.w;})); if(mW<=0){ box.innerHTML=""; return; }
+    var sumWX=0,sumW=0; wf.forEach(function(r){sumWX+=r.w*r.x;sumW+=r.w;});
+    var mF=mean(wf.map(function(r){return r.x;}));
+    var S=sumWX/sumW-mF, R=h2*S;
+    var h='<h3 style="margin-top:0">Predicted response</h3>'+
+      '<div class="stat">'+
+      '<div class="st"><div class="v">'+f(S,3)+'</div><div class="l">S '+esc(t.unit||"")+'</div></div>'+
+      '<div class="st"><div class="v">'+f(h2,3)+'</div><div class="l">h²</div></div>'+
+      '<div class="st hi"><div class="v">'+f(R,3)+'</div><div class="l">R = h²S '+esc(t.unit||"")+'</div></div></div>';
+    if(htr!==tr) h+='<div class="verdict act"><b>Mismatched traits.</b> The heritability above is for '+
+      esc((traitBy(htr)||{}).name)+' but the differential is for '+esc(t.name)+
+      '. R = h²S only means anything when both refer to the same trait — set both selectors to the same one.</div>';
+    h+='<div class="verdict warn"><b>Read this as a hypothesis, not a forecast.</b> The breeder’s equation '+
+      'predicts a shift of '+f(R,3)+' '+esc(t.unit||"units")+' in the next generation. Predicted responses in '+
+      'wild populations routinely fail to appear — because parents and offspring share environments, because '+
+      'selection is acting on a correlated trait you did not measure, and because the environment that caused '+
+      'the selection also changes how the trait develops. Record what actually happens next generation. That '+
+      'comparison, not this number, is the result.</div>';
+    box.innerHTML=h;
+  }
+  $("hTrait").addEventListener("change",renderHer);
+
+  /* ------------------------------------------------------------ export */
+  function ecoOut(){
+    var L=[];
+    L.push("# selection log");
+    L.push("# episode: "+(val("fEp")||"unnamed")+"   fitness: "+$("fComp").selectedOptions[0].textContent);
+    L.push("# "+inds.length+" individuals, "+meas.length+" measurements, "+ped.length+" parent links");
+    L.push("");
+    TRAITS.forEach(function(t){
+      var xs=inds.map(function(i){return tv(i.id,t.id);}).filter(isFinite);
+      if(!xs.length) return;
+      var g={}; meas.filter(function(m){return m.trait===t.id;}).forEach(function(m){ (g[m.ind]=g[m.ind]||[]).push(m.v); });
+      var r=icc(g);
+      L.push(("  "+t.name+"                    ").slice(0,20)+"n="+xs.length+
+        "  mean "+f(mean(xs),3)+"  SD "+f(sd(xs),3)+(r?("  R="+f(r.R,3)):"  R=not measured"));
+    });
+    L.push("");
+    L.push("# no p-values are computed: effect size and its uncertainty are the quantities of interest");
+    $("ecoOut").textContent=L.join("\n");
+  }
+  $("ecoCopy").addEventListener("click",function(){ ecoOut(); copyText($("ecoOut").textContent,"Study sheet copied"); });
+  $("csvCopy").addEventListener("click",function(){
+    if(!meas.length){toast("Nothing recorded");return;}
+    var rows=[["individual","cohort","sex","age","trait","unit","value","occasion","measurer","fitness","episode"].map(cell).join(",")];
+    meas.forEach(function(m){
+      var i=indBy(m.ind)||{},t=traitBy(m.trait)||{};
+      rows.push([i.label,i.coh,i.sex,i.age,t.name,t.unit,m.v,m.occ,m.who,
+        (i.fit==null?"":i.fit),val("fEp")].map(cell).join(","));
+    });
+    copyText(rows.join("\n"),"Measurements CSV copied — "+meas.length+" rows");
+  });
+  $("indCopy").addEventListener("click",function(){
+    if(!inds.length){toast("Nothing recorded");return;}
+    var head=["individual","cohort","sex","age","fitness","dam","sire","note"];
+    TRAITS.forEach(function(t){ head.push(t.name.replace(/\s+/g,"_")); });
+    var rows=[head.map(cell).join(",")];
+    inds.forEach(function(i){
+      var p=ped.filter(function(x){return x.off===i.id;})[0]||{};
+      var r=[i.label,i.coh,i.sex,i.age,(i.fit==null?"":i.fit),
+             (p.dam?(indBy(p.dam)||{}).label:""),(p.sire?(indBy(p.sire)||{}).label:""),i.note];
+      TRAITS.forEach(function(t){ var v=tv(i.id,t.id); r.push(isFinite(v)?v.toFixed(3):""); });
+      rows.push(r.map(cell).join(","));
+    });
+    copyText(rows.join("\n"),"Individuals CSV copied — one row per individual, ready for a multiple regression");
+  });
+  $("demo").addEventListener("click",function(){
+    inds=[];meas=[];ped=[];seq=1;
+    var D=[["A1",9.6,1],["A2",9.9,1],["A3",8.4,0],["A4",8.8,0],["A5",10.2,1],["A6",9.1,1],
+           ["A7",8.2,0],["A8",10.5,1],["A9",8.9,0],["A10",9.4,1],["A11",8.6,0],["A12",10.1,1]];
+    D.forEach(function(d){
+      var id="i"+(seq++);
+      inds.push({id:id,label:d[0],coh:"2026",sex:"",age:"adult",note:"",fit:d[2]});
+      meas.push({ind:id,trait:"t1",v:d[1],occ:"rep 1",who:"obs A"});
+      meas.push({ind:id,trait:"t1",v:+(d[1]+((seq%3)-1)*0.05).toFixed(2),occ:"rep 2",who:"obs B"});
+    });
+    $("fEp").value="worked example — drought";
+    $("sTrait").value="t1"; $("mTrait").value="t1"; $("hTrait").value="t1";
+    renderAll(); toast("Worked example loaded — 12 individuals, bill depth, survival"); buzz(14);
+  });
+
+  /* -------------------------------------------------------- tabs & boot */
+  function showPane(id){
+    document.querySelectorAll(".tab").forEach(function(t){t.classList.toggle("on",t.dataset.pane===id);});
+    document.querySelectorAll(".pane").forEach(function(p){p.classList.toggle("on",p.id===id);});
+    window.scrollTo(0,0);
+  }
+  document.querySelectorAll(".tab").forEach(function(tb){
+    tb.addEventListener("click",function(){showPane(tb.dataset.pane);buzz();});});
+
+  function renderAll(){
+    fillSelects(); renderInds(); renderTraits(); renderMeas(); renderRep();
+    renderSel(); renderPed(); renderHer(); ecoOut();
+  }
+  renderAll();
+})();
+</script>
+</body>
+</html>
