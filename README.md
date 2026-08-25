@@ -9,6 +9,117 @@
 > **New here — or not a coder?** Start with the [plain-English guide to the whole ecosystem →](https://github.com/RicheyWorks/WholeHog/blob/main/ECOSYSTEM.md): what all of this is, what you'd actually use it for, and how to get it running even if you've never written a line of code.
 
 
+---
+
+<p align="center">
+  <img src="docs/media/tree-visualizer.jpg" width="820"
+       alt="The CSRBT tree visualizer: a red-black tree of thirteen nodes drawn live, with tabs for Red-Black, AVL, Splay and Weight-Balanced, a Compare-all mode, and a metrics panel showing height against optimal, rotation count, and O(log n) select / rank / median.">
+</p>
+
+<h3 align="center">A balanced tree that changes its own mind &mdash; and a field-science kit built on top of it</h3>
+
+<p align="center">
+  <b><a href="https://claude.ai/code/artifact/f6f89582-5c02-4961-ba18-30f97953995d">Open the visualizer</a></b> &nbsp;&middot;&nbsp;
+  <b><a href="https://claude.ai/code/artifact/9976d26f-d4ac-42e4-86f4-6e05ec0dde4a">Open the science kit</a></b> &nbsp;&middot;&nbsp;
+  <b><a href="https://claude.ai/code/artifact/d85bd722-b32f-4d3e-a9c6-229732d6af72">Read the honesty gate</a></b>
+</p>
+
+<p align="center"><sub>Type a key, hit insert, watch the rotations. Four strategies, the same operations,
+side by side. No install, no build, no network.</sub></p>
+
+---
+
+## Two things, one engine
+
+**The engine** is a Java ordered set whose balancing strategy is a plug &mdash; Red-Black, AVL,
+Splay, Weight-Balanced &mdash; and which can *morph between them at runtime* when the workload
+changes, validating the new tree through a health gate before it swaps. Every node carries a
+subtree size, so rank, select, median and percentile are O(log n).
+
+**The science kit** is what happens when you point that at biology. Thirty-three self-contained
+HTML pages &mdash; twenty-two field instruments and eleven reference cards &mdash; that record real
+data on a phone in a wet meadow with no signal, compute the standard indices, and print clean for a
+lab report. One file per page. No install. No build step. No network.
+
+<table>
+<tr>
+<td width="50%"><a href="https://claude.ai/code/artifact/9976d26f-d4ac-42e4-86f4-6e05ec0dde4a"><img src="docs/media/kit-hub.jpg" alt="The science-kit hub: twenty-two instruments grouped into record it, print it, at the bench, and teach it, plus three domain suites for carnivorous plants, soil and compost, and vegetable breeding."></a></td>
+<td width="50%"><a href="https://claude.ai/code/artifact/b2f9061c-d964-49b5-af31-3dbb33e2d4eb"><img src="docs/media/workbench.jpg" alt="The interactive lab workbench, where you paste your own field counts and get diversity indices, rank-abundance fits and rarefaction back."></a></td>
+</tr>
+<tr>
+<td><b>The kit hub</b> &mdash; twenty-two instruments, organised by what you are doing rather than by what it is called.</td>
+<td><b>The workbench</b> &mdash; bring your own counts. Every number comes back with what it is worth.</td>
+</tr>
+</table>
+
+<p align="center">
+  <img src="docs/media/field-instruments.jpg" width="920"
+       alt="Three field instruments on a phone: a stepwise tree key narrowing 34 species by region and leaf type; a vegetation plot recorder with a species filter and stratum picker; a microbiology plate-count bench with large stepper controls for dilution and volume plated.">
+</p>
+
+<p align="center"><sub><b>Built for a thumb, not a mouse.</b> Every control is at least 44&nbsp;px, sized from
+a single token. Blank means blank &mdash; a field you did not record and a recorded zero are different
+answers and never collapse into each other.</sub></p>
+
+## What makes it different
+
+Most teaching tools give you a number. This one tells you what the number is worth, and refuses
+to give you numbers it cannot stand behind.
+
+That refusal is written down as a rule &mdash; **[ADR-031](https://claude.ai/code/artifact/d85bd722-b32f-4d3e-a9c6-229732d6af72)**, a three-way gate every
+figure in the kit must pass:
+
+| | The gate | Example |
+|---|---|---|
+| **1** | Ship it, with a citation or a definition | Compost at 55&nbsp;°C for 3 days &mdash; *40 CFR 503 App. B*, cited on the page |
+| **2** | Ship it, labelled a convention | The 10% trophic transfer figure &mdash; Lindeman's own paper reported 0.1% to 37.5% |
+| **3** | **Refuse to ship it** | *&ldquo;Sarracenia need 3 months below 10&nbsp;°C&rdquo;* &mdash; the literature does not support a single number, so the app asks for yours and records where it came from |
+
+Four instruments refuse outright: coefficients of conservatism in the Relev&eacute;, edibility in the
+fungal pair, clinical breakpoints in Micro Bench, and nutrient-free verification in Soil Bench.
+A kit that will not tell you whether a mushroom is safe to eat is more useful than one that will.
+
+<table>
+<tr>
+<td width="50%"><a href="https://claude.ai/code/artifact/47a6369e-53b6-4a5e-acb9-b707af3f699c"><img src="docs/media/cp-characters.jpg" alt="The carnivorous-plant reference card: five trap mechanisms drawn as inline diagrams, with an interactive genus key."></a></td>
+<td width="50%"><a href="https://claude.ai/code/artifact/83012ca5-e604-4057-8b0d-07d347eb2d8e"><img src="docs/media/food-web.jpg" alt="The food-web builder: tap species into a web and get connectance, chain length and trophic levels back."></a></td>
+</tr>
+<tr>
+<td><b>Reference cards, drawn.</b> Trap mechanisms, spore prints, keying vocabulary &mdash; as diagrams, not photographs, so they print and they work offline.</td>
+<td><b>Food webs you build by tapping.</b> Connectance, chain length, and what a drawn web can and cannot tell you.</td>
+</tr>
+</table>
+
+## Verified, not asserted
+
+Nothing above is a claim about care. The kit measures itself, and the measurements run in one
+command:
+
+```
+python3 tools/verify/run_all.py     →  33 of 33 jobs green
+                                       1701 of 1701 checks passing
+```
+
+Eight kit-wide audits measure what the browser actually renders, not what the source intends:
+
+| Audit | What it asks | What it found |
+|---|---|---|
+| `audit_targets.py` | Is anything interactive under 44&nbsp;px at phone width? | 143 controls were. Now 0. |
+| `audit_contrast.py` | Does every painted colour pair clear WCAG&nbsp;AA? | 1,397 failures, from 4 tokens. Now 0. |
+| `audit_focus.py` | Keyboard reach, visible focus, accessible names | 7 controls announced as nothing but their type. Now 0. |
+| `audit_print.py` | Does the printed page still contain the document? | The visualizer printed at **104% ink coverage**. Now 0.1%. |
+| `audit_offline.py` | Does it work with no signal &mdash; and on *one bar*? | A hanging font request held every page blank for 30+ seconds. Now paints in 180&nbsp;ms. |
+| `audit_escaping.py` | Does anything you type come back as markup? | A plant named `Sarracenia <hybrid>` did. Now it does not. |
+| `audit_frontend.py` | Duplicate ids, dead links, iOS zoom, JS errors | 0 high-severity findings |
+| `audit_claims.py` | Which numbers in prose carry no visible provenance? | A worklist, not a gate &mdash; it never fails a build |
+
+Every one of those audits was checked against a page with faults deliberately seeded in it before
+its clean result was believed. A tool that has never been shown to fail is not evidence.
+
+---
+
+
+## The engine, in detail
 CSRBT is a Java ordered-set engine whose balancing strategy is pluggable and can
 adapt to the workload hitting it. A single, generic ordered-set API
 (`OrderedSet<K>`, over any `Comparable` key or a custom `Comparator`) is backed by
@@ -693,13 +804,13 @@ in operations, and every index is oracle-tested and deterministic.
 | `RangeQuadrats` | quadrat dispersion (Morisita) | any engine's key space |
 | `CacheIsland` | island biogeography | the cache at carrying capacity |
 
-**Start here: [`docs/ecology.html`](docs/ecology.html)** — the science-kit hub, a single front
+**Start here: [`docs/ecology.html`](https://claude.ai/code/artifact/9976d26f-d4ac-42e4-86f4-6e05ec0dde4a)** — the science-kit hub, a single front
 door to everything below. Every page cross-links the others and prints clean for a lab report —
 no install required.
 
 **The reference shelf** — read, look up, cite:
 
-- [**`docs/ecology-lab.html`**](docs/ecology-lab.html) — the **Interactive Lab**: a live terrarium
+- [**`docs/ecology-lab.html`**](https://claude.ai/code/artifact/b2f9061c-d964-49b5-af31-3dbb33e2d4eb) — the **Interactive Lab**: a live terrarium
   plus a browser Workbench that runs every instrument on your own field data, entered through
   tap-friendly chip editors and steppers (the pasted-text form is still there under "edit as text").  **Touch targets brought to the kit's own 44px floor.** The Lab was not migrated to the Field Entry Kit
   — measured at phone width its inputs were already 44px, and it is a desk-read interactive document rather
@@ -710,25 +821,25 @@ no install required.
   to save eight pixels. They now come off a single `--fe-tap` token, the same discipline FEK applies on the
   tablet apps.
 
-- [**`docs/ecology-teachers-guide.html`**](docs/ecology-teachers-guide.html) — the **Teacher's
+- [**`docs/ecology-teachers-guide.html`**](https://claude.ai/code/artifact/95c7a8d9-3c0b-4242-ab7e-0a9d6fc8ae55) — the **Teacher's
   Guide**: how to actually run a term on this — a twelve-week sequence, logistics for thirty students
   on six tablets, prep checklists, three assessment rubrics, what to do when it rains, and an honest
   list of what the kit can't do. Start here if you're teaching with it.
-- [**`docs/ecology-lab-manual.html`**](docs/ecology-lab-manual.html) — the **Field & Lab Manual**:
+- [**`docs/ecology-lab-manual.html`**](https://claude.ai/code/artifact/0ec3b849-297f-49e6-8de1-e4e8607ad4fe) — the **Field & Lab Manual**:
   seven ready-to-run labs (behavior, genetics, biodiversity, mark–recapture, Hardy–Weinberg, island
   biogeography, food webs) with printable data sheets, procedures, and `.eco` pre-registration — each
   wired to the tablet app that collects its data.
-- [**`docs/ecology-field-guide.html`**](docs/ecology-field-guide.html) — the **Field Guide**: the
+- [**`docs/ecology-field-guide.html`**](https://claude.ai/code/artifact/fbced263-f1bc-49f5-88f7-d6998d8b85fa) — the **Field Guide**: the
   plain-language reference behind the instruments, station by station (also
   [`ECOLOGY-FIELD-GUIDE.md`](docs/ECOLOGY-FIELD-GUIDE.md) as Markdown).
-- [**`docs/eco-protocol-reference.html`**](docs/eco-protocol-reference.html) — the **`.eco` Reference**:
+- [**`docs/eco-protocol-reference.html`**](https://claude.ai/code/artifact/c54e14b5-2345-47f2-a7a6-5f701bd023ba) — the **`.eco` Reference**:
   every keyword of the plain-text experiment format, and the browser → file → grade → export
   round-trip (worked example in [`sample-experiment.eco`](docs/sample-experiment.eco)).
-- [**`docs/ecology-glossary.html`**](docs/ecology-glossary.html) — the **Glossary**: every term the
+- [**`docs/ecology-glossary.html`**](https://claude.ai/code/artifact/f67d9ef5-dbbf-43ff-91c6-d24382d214df) — the **Glossary**: every term the
   kit uses, defined in a sentence and linked to the tool that computes it &mdash; 113 entries in twelve
   sections, including botany, mycology, animal behaviour, selection, and the cell and microbiology bench; and
-  [**`docs/eco-protocol-library.html`**](docs/eco-protocol-library.html) — five complete, copyable
-  `.eco` experiments; and [**`docs/ecology-field-card.html`**](docs/ecology-field-card.html) — the
+  [**`docs/eco-protocol-library.html`**](https://claude.ai/code/artifact/d608dd5a-abe1-4178-b8f5-291911d05ce4) — five complete, copyable
+  `.eco` experiments; and [**`docs/ecology-field-card.html`**](https://claude.ai/code/artifact/f70c3623-a7da-403b-adc3-be9e36f44642) — the
   **Field Card**: 78 metrics across sixteen blocks on one printable bench sheet, each with what it
   tells you, its interpretation band, and the tool that produces it &mdash; the Workbench measures,
   the forest-plot set (BA, QMD, Reineke SDI, importance value, clinometer height, van Wagner CWD,
@@ -738,14 +849,14 @@ no install required.
   Cohen's &kappa;, selection differentials and gradients and h&sup2;, Poisson counting error, CFU/mL and the
   30&ndash;300 rule, &micro; from ln(OD). Every caveat that matters is printed next to the number rather than
   left in a manual.
-- [**`docs/ecology-essay.html`**](docs/ecology-essay.html) — **The ecology of a tree**: the essay
+- [**`docs/ecology-essay.html`**](https://claude.ai/code/artifact/c0140e29-c835-4759-af7b-5d5bb66c38d1) — **The ecology of a tree**: the essay
   behind the layer — the audit that found constants where instruments should be, and the ride to the
   128k-op amortization frontier (also [`ESSAY-the-ecology-of-a-tree.md`](docs/ESSAY-the-ecology-of-a-tree.md)).
 
 **The field tools** — tablet-first apps and games where the data entry is taps, the display is
 live, and every export carries site, observer, and date plus a CSV for Excel/R:
 
-- [**`docs/releve.html`**](docs/releve.html) — **Relev&eacute;**: the botanist's vegetation plot sheet —
+- [**`docs/releve.html`**](https://claude.ai/code/artifact/6a9c95fd-c144-470a-937a-9af08fda1e2d) — **Relev&eacute;**: the botanist's vegetation plot sheet —
   cover by stratum on Braun-Blanquet, Daubenmire or direct percent; Shannon and evenness computed on
   **cover** rather than counts; Floristic Quality Assessment (mean C, FQI, adjusted FQI) that refuses to
   invent coefficients of conservatism and takes them from your regional list instead; non-native load
@@ -759,7 +870,7 @@ live, and every export carries site, observer, and date plus a CSV for Excel/R:
   both a 15% midpoint — read as the same colour and switching scale mid-survey cannot silently change what
   a colour means. Strata, moisture and the eight-point aspect are dials for the same reason: all ordinal.
   66/66 verified.
-- [**`docs/ethogram.html`**](docs/ethogram.html) — **Ethogram**: behavioural sampling built on
+- [**`docs/ethogram.html`**](https://claude.ai/code/artifact/3674f5ad-e8dc-42ba-9b8a-0e6de6c199c7) — **Ethogram**: behavioural sampling built on
   Altmann's distinctions rather than a tally counter. You declare the **sampling rule** (ad libitum, focal,
   scan, behaviour) and the **recording rule** (continuous, instantaneous, one-zero) and the recorder changes
   shape to match &mdash; states run on a timer one at a time, events are tapped, point samples advance with a
@@ -774,7 +885,7 @@ live, and every export carries site, observer, and date plus a CSV for Excel/R:
   fields across the four migrated pages, because a scan sample with no interval is not an under-specified
   design but no design at all. State versus event is a dial, since the choice decides what the data can
   answer. 71/71 verified.
-- [**`docs/selection-log.html`**](docs/selection-log.html) — **Selection Log**: evolution measured in the
+- [**`docs/selection-log.html`**](https://claude.ai/code/artifact/4a9cc620-ddc8-498e-b976-69afad60de88) — **Selection Log**: evolution measured in the
   field, on marked individuals, the way a long-term study measures it. Repeated morphometrics give a
   **repeatability (ICC)** first, because random measurement error attenuates every gradient downstream by
   roughly that factor and no sample size fixes it &mdash; the page prints the corrected β beside the raw one
@@ -795,7 +906,7 @@ live, and every export carries site, observer, and date plus a CSV for Excel/R:
   1 meaning *survived* became one recruited offspring. It now keeps them, says so, and offers to clear.
   75/75 verified.
 
-- [**`docs/breeding-bench.html`**](docs/breeding-bench.html) — **Breeding Bench**, the vegetable-breeding
+- [**`docs/breeding-bench.html`**](https://claude.ai/code/artifact/34e0aed2-dd77-4de6-9370-033ca179f20f) — **Breeding Bench**, the vegetable-breeding
   suite, third instrument on the Field Entry Kit. Six benches over one seed crop. **Population** applies the
   rule that seed be saved from at least **20 inbreeding or 100 outbreeding individuals**, per crop, from a
   28-crop table carrying mating system and pollination vector — and explains why the two halves fail
@@ -817,9 +928,9 @@ live, and every export carries site, observer, and date plus a CSV for Excel/R:
   when you have many entries. **Seed** does germination with the binomial standard error
   &radic;(p(1&minus;p)/n), so a 90% germination on 100 seeds is reported as 90&nbsp;&plusmn;&nbsp;3%, and gives
   storage as a range labelled a convention. 85/85 verified.
-- **The three suite front doors** — [`docs/cp-suite.html`](docs/cp-suite.html),
-  [`docs/soil-suite.html`](docs/soil-suite.html) and
-  [`docs/breeding-suite.html`](docs/breeding-suite.html). The kit is organised by *method*; a suite is
+- **The three suite front doors** — [`docs/cp-suite.html`](https://claude.ai/code/artifact/e5047243-2e14-499f-96db-de8d959f7341),
+  [`docs/soil-suite.html`](https://claude.ai/code/artifact/f0a3616b-e583-403e-aefc-1d61291425c1) and
+  [`docs/breeding-suite.html`](https://claude.ai/code/artifact/4ef21d3c-e800-47db-9637-cb913a18de0d). The kit is organised by *method*; a suite is
   organised by *what you grow*. Each front door opens on a **numbered path through the work in the order
   mistakes actually happen** — water before media for carnivorous plants, C:N before the pile for compost,
   population before selection for breeding — then lists every instrument the suite uses, including the ones
@@ -830,7 +941,7 @@ live, and every export carries site, observer, and date plus a CSV for Excel/R:
   green chart must not be read as "finished"; for breeding, that selection intensity and effective
   population size pull against each other and no tool can settle the balance — so the bench shows both
   numbers at once, while you are choosing, rather than three generations later. 122/122 verified.
-- [**`docs/cp-bench.html`**](docs/cp-bench.html) — **CP Bench**, the carnivorous-plant suite, second
+- [**`docs/cp-bench.html`**](https://claude.ai/code/artifact/7157a566-4ecf-4501-9433-fb006660ae29) — **CP Bench**, the carnivorous-plant suite, second
   instrument on the Field Entry Kit. **Water first**, because it kills more carnivorous plants than anything
   else: TDS logged per source against the published **&lt;160&nbsp;ppm** guidance (with the stricter ~50&nbsp;ppm
   hobby target labelled a convention), RO membrane creep flagged when output climbs, and the **tray
@@ -843,7 +954,7 @@ live, and every export carries site, observer, and date plus a CSV for Excel/R:
   durations or photoperiods, so the page takes your target, records it with the data, and tracks against it.
   The *fact* that a genus needs a dormancy is well established and does ship &mdash; the distinction is
   ADR-031's gate system doing its job.
-- [**`docs/soil-bench.html`**](docs/soil-bench.html) — **Soil Bench**: compost, mixes and texture, and the
+- [**`docs/soil-bench.html`**](https://claude.ai/code/artifact/7ce205cb-286c-4d44-b054-2e7d39cfeaa4) — **Soil Bench**: compost, mixes and texture, and the
   first instrument built on the **Field Entry Kit** (see
   [`ADR-031`](docs/ADR-031-entry-layer-and-suites-2026-08-24.md)). The compost log tracks a pile against the
   standard you choose and shows the shortfall in plain terms &mdash; **55&nbsp;°C for 3 days** in-vessel or
@@ -857,7 +968,7 @@ live, and every export carries site, observer, and date plus a CSV for Excel/R:
   **nutrient-free flag** for carnivorous-plant growers, and the **USDA ribbon-and-grit texture key** as a
   stepped colour dial. Feedstock values are editable per ingredient because published C:N for the same
   material varies by a factor of two.
-- [**`docs/cell-bench.html`**](docs/cell-bench.html) — **Cell Bench**: the cell-biology bench with its own
+- [**`docs/cell-bench.html`**](https://claude.ai/code/artifact/1b220c0a-0059-4c44-8f5f-43416db27566) — **Cell Bench**: the cell-biology bench with its own
   precision on show. Haemocytometer counts report **Poisson CV = 1/&radic;N** beside every concentration and
   say which side of the 20&ndash;50-per-square window you are on &mdash; too few is imprecise, too many is a
   systematic *undercount* arithmetic cannot recover. Trypan blue is labelled what it is, a membrane-integrity
@@ -876,7 +987,7 @@ live, and every export carries site, observer, and date plus a CSV for Excel/R:
   rather than at a zero that looks like data — and a first tap on an empty cycle-length stepper starts at a
   plausible 24 h, because zero is never the value you meant. 74/74 verified.
 
-- [**`docs/micro-bench.html`**](docs/micro-bench.html) — **Micro Bench**: plate counts with the
+- [**`docs/micro-bench.html`**](https://claude.ai/code/artifact/42af60da-f4b0-4890-ad6b-06ae19f30e57) — **Micro Bench**: plate counts with the
   **30&ndash;300 rule enforced** &mdash; TFTC and TNTC plates are shown and marked and left out of the mean
   rather than dropped silently, a run with no countable plate says so instead of quoting a number, and two
   countable dilutions disagreeing by more than about twofold is reported as a problem with the series. A
@@ -894,7 +1005,7 @@ live, and every export carries site, observer, and date plus a CSV for Excel/R:
   ships no breakpoints of its own: they are transcribed from the edition in front of you, and a control you
   could scroll would invite you to guess. 61/61 verified.
 
-- [**`docs/collection-sheet.html`**](docs/collection-sheet.html) — **Collection Sheet**: the
+- [**`docs/collection-sheet.html`**](https://claude.ai/code/artifact/d650aa59-5410-4935-a1a9-c50f9d00a116) — **Collection Sheet**: the
   mycologist's field app, and deliberately not a botany reskin. Half of what identifies a fungus is gone
   within a day of collecting it, so the form captures what disappears — substrate and host tree and
   distance to stem, growth habit, hymenophore, veil evidence, latex and odour and colour-change — then a
@@ -911,7 +1022,7 @@ live, and every export carries site, observer, and date plus a CSV for Excel/R:
   entered on the Site tab, with **host uncertain** a first-class option, because for an ectomycorrhizal
   fungus a guessed host is worse than a recorded uncertainty. Effort-corrected tiles appear only once area
   or search time is entered. 72/72 verified.
-- [**`docs/cp-characters.html`**](docs/cp-characters.html) — **CP Characters**: the carnivorous-plant
+- [**`docs/cp-characters.html`**](https://claude.ai/code/artifact/47a6369e-53b6-4a5e-acb9-b707af3f699c) — **CP Characters**: the carnivorous-plant
   reference card, companion to CP Bench. Opens with the **five-step test** — attract, capture, kill, digest,
   absorb — and uses it to sort the boundary cases rather than assert them: *Roridula* secretes **resin, not
   mucilage**, produces no digestive enzymes of its own, and passes step 4 only in partnership with a
@@ -932,7 +1043,7 @@ live, and every export carries site, observer, and date plus a CSV for Excel/R:
   each, **six confusion pairs** each stating what the mistake costs — four of them cost the plant — and the
   **CITES listings named taxon by taxon**, Appendix I species individually and the #4 annotation explained.
   Like the bench, it **ships no dormancy schedule** and says why. 116/116 verified.
-- [**`docs/plant-characters.html`**](docs/plant-characters.html) — **Plant Characters**: the keying
+- [**`docs/plant-characters.html`**](https://claude.ai/code/artifact/3a43b588-4ef1-438f-9d77-637c145798bb) — **Plant Characters**: the keying
   vocabulary a flora assumes you already have, **drawn rather than defined** — 34 inline-SVG morphology
   glyphs for leaf arrangement, shape, margin, division, venation, inflorescence, symmetry and ovary
   position — plus twenty plant families with the single character that gives each away, the
@@ -940,14 +1051,14 @@ live, and every export carries site, observer, and date plus a CSV for Excel/R:
   key** takes six characters plus any dead-giveaway tells and ranks the twenty families, naming the
   conflict when a family is ruled out and reporting a top rank as a hypothesis to confirm against a flora,
   never an identification. Prints for the back of a plant press.
-- [**`docs/fungal-characters.html`**](docs/fungal-characters.html) — **Fungal Characters**: the
+- [**`docs/fungal-characters.html`**](https://claude.ai/code/artifact/0db0996f-e9d8-4fd5-8eec-e7877b9284e7) — **Fungal Characters**: the
   mycological companion to Plant Characters. **36 inline-SVG glyphs** for cap shape, margin, stipe and
   veil, hymenophore type and gill attachment; the **spore-print colour chart** with the genera behind each
   shade; the **reagent table** with what each one separates and how it will hurt you; an **interactive
   genus key** over fifty-one genera that names the conflicting character when it rules one out; fifty-one
   genus cards with one tell each; and **the six confusions worth settling cold**, two of which are the ones
   that put people in hospital. It carries no edibility information either, and says plainly why.
-- [**`docs/stand-sheet.html`**](docs/stand-sheet.html) — **Stand Sheet**: graduate-level forest plot
+- [**`docs/stand-sheet.html`**](https://claude.ai/code/artifact/9f86e356-a03f-49ea-b3d6-d246710377a0) — **Stand Sheet**: graduate-level forest plot
   work in one page — a tap-down tree key covering the Pacific Northwest through Tahoe to Utah (34
   species with field characters, look-alikes, autecology and documented interactions), tree height
   from clinometer angles, a stem tally computing basal area, QMD, SDI and importance values live,
@@ -961,13 +1072,13 @@ live, and every export carries site, observer, and date plus a CSV for Excel/R:
   give you a degree, and the value exists to be folded to the McCune & Keon heat-load axis, which
   |180 − |aspect − 225|| computes identically either way. Zero and *not recorded* stay distinguishable —
   aspect 0° is north, and the sheet will not enter it for you. 76/76 verified.
-- [**`docs/field-notebook.html`**](docs/field-notebook.html) — **Field Notebook**: tap-to-tally
+- [**`docs/field-notebook.html`**](https://claude.ai/code/artifact/0ef75961-268e-4770-8dd8-0042edb44fed) — **Field Notebook**: tap-to-tally
   ethograms with a scan timer, quadrat counts, species lists, and mark–recapture, with live
   diversity readings; long-press any tally card to rename it in place.
   **Migrated to the Field Entry Kit (v1.1.0).** The scan interval is a stepper with 0 documented as *off*,
   and the helper states the thing that makes point sampling valid: the interval has to be fixed before you
   start, because changing it mid-session makes the samples non-comparable.
-- [**`docs/farm-scout.html`**](docs/farm-scout.html) — **Farm Scout**: field science for growers —
+- [**`docs/farm-scout.html`**](https://claude.ai/code/artifact/9619c5e6-cdc3-4e2a-895e-10a6e2c8f524) — **Farm Scout**: field science for growers —
   pest scouting against thresholds with a dispersion verdict, pollinator health counts, a
   germination tester, and a crop-rotation checker by plant family.
   **Migrated to the Field Entry Kit (v1.1.0).** Same split as the benches: the action threshold and the
@@ -976,7 +1087,7 @@ live, and every export carries site, observer, and date plus a CSV for Excel/R:
   each family**, because the mistake that tab exists to catch is not forgetting a name — it is not
   realising kale and radish are the same family as last year's cabbage. 45/45 verified, including 33 of 40
   reading 83% and 146 seeds to sow for a 120-plant stand.
-- [**`docs/pheno-tracker.html`**](docs/pheno-tracker.html) — **Pheno Tracker**: a breeder's
+- [**`docs/pheno-tracker.html`**](https://claude.ai/code/artifact/f21c50b3-8d78-4909-a97a-239744e38110) — **Pheno Tracker**: a breeder's
   selection bench for any crop — weighted trait scoring with one-tap program presets, a ranked
   board with a real selection-differential readout, mother plants and planned crosses, and a χ²
   segregation checker.  **Migrated to the Field Entry Kit (v1.1.0).** The 1–5 trait rating is the most-tapped control in the
@@ -989,7 +1100,7 @@ live, and every export carries site, observer, and date plus a CSV for Excel/R:
   planned against the number rather than a memory of which one smelled good. 56/56 verified, including the
   selection differential against an independently computed S = +1.44.
 
-- [**`docs/field-season.html`**](docs/field-season.html) — **Field Season**: the sampling game — a
+- [**`docs/field-season.html`**](https://claude.ai/code/artifact/70da6a2d-0ddc-418d-97ba-7e336703ef61) — **Field Season**: the sampling game — a
   hidden meadow, twelve field days, weather, and a peer-reviewed report; same season number means
   the same meadow, so a class can compare strategies fairly.
   **Migrated to the Field Entry Kit (v1.1.0).** Evenness and spatial pattern are **ordinal dials** whose
@@ -998,7 +1109,7 @@ live, and every export carries site, observer, and date plus a CSV for Excel/R:
   nullable stepper that starts unrecorded and lands on 8 rather than 0 on the first tap. The season number
   and the Lincoln–Petersen estimate are typed: one is an identifier, the other is the result of arithmetic
   the student did, and the page says it is not going to do that silently for them.
-- [**`docs/food-web.html`**](docs/food-web.html) — **Food Web Builder**: tap a food web into being
+- [**`docs/food-web.html`**](https://claude.ai/code/artifact/83012ca5-e604-4057-8b0d-07d347eb2d8e) — **Food Web Builder**: tap a food web into being
   (food first, then eater), watch trophic levels lay themselves out, then long-press any species to
   run the knockout test and see exactly which others starve.
 
