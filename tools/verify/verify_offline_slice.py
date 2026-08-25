@@ -27,11 +27,14 @@ PAINT = ("()=>{const t=performance.getEntriesByType('paint')"
          "  chars:(document.body&&document.body.innerText||'').trim().length};}")
 
 pages = sorted(glob.glob(_kit.DOCS_DIR + "*.html"))
-ck(len(pages) == 33, "all 33 pages present (%d)" % len(pages))
+ck(len(pages) >= 33, "the kit still has all its pages (%d)" % len(pages))
 
 # ---- 1. the markup says what it should ---------------------------------
 withfont = [p for p in pages if "fonts.googleapis.com/css2" in io.open(p, encoding="utf-8").read()]
-ck(len(withfont) == 32, "32 pages use webfonts (%d)" % len(withfont))
+# Not a frozen count: what matters is that every page using webfonts defers
+# them, and the per-page loop below asserts exactly that for each one.
+ck(len(withfont) >= 32, "the pages using webfonts are all checked (%d)" % len(withfont))
+ck(len(withfont) < len(pages), "at least one page needs no webfont at all")
 for path in withfont:
     nm = os.path.basename(path)
     src = io.open(path, encoding="utf-8").read()

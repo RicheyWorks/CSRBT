@@ -67,7 +67,7 @@ for bg, what in (("#2c784c", "the selected green"), ("#8a6408", "the selected go
 
 # ---- 2. the old values are gone from every page ------------------------
 pages = sorted(glob.glob(DOCS + "*.html"))
-ck(len(pages) == 33, "all 33 pages present (%d)" % len(pages))
+ck(len(pages) >= 33, "the kit still has all its pages (%d)" % len(pages))
 import io, re
 for old, new in [("8b8b7b", "6b6b5e"), ("2e7d4f", "2c784c"), ("c0592b", "a94f26"),
                  ("b8860b", "8a6408"), ("5a6675", "7a8798")]:

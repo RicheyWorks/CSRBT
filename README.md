@@ -20,6 +20,7 @@
 
 <p align="center">
   <b><a href="https://claude.ai/code/artifact/f6f89582-5c02-4961-ba18-30f97953995d">Open the visualizer</a></b> &nbsp;&middot;&nbsp;
+  <b><a href="https://claude.ai/code/artifact/876850a7-fc46-43f8-a245-20ae87d15e2a">See the bounds</a></b> &nbsp;&middot;&nbsp;
   <b><a href="https://claude.ai/code/artifact/9976d26f-d4ac-42e4-86f4-6e05ec0dde4a">Open the science kit</a></b> &nbsp;&middot;&nbsp;
   <b><a href="https://claude.ai/code/artifact/d85bd722-b32f-4d3e-a9c6-229732d6af72">Read the honesty gate</a></b>
 </p>
@@ -90,14 +91,39 @@ A kit that will not tell you whether a mushroom is safe to eat is more useful th
 </tr>
 </table>
 
+## For the mathematically inclined
+
+Every guarantee the engine rests on has a page where it is **computed from a live tree** rather
+than quoted: **[The Bounds, Drawn](https://claude.ai/code/artifact/876850a7-fc46-43f8-a245-20ae87d15e2a)**.
+
+The best moment in it takes four clicks. Build the worst case &mdash; a left-leaning path of 63
+nodes, the shape balancing exists to prevent &mdash; and splay the key at the bottom:
+
+| | |
+|---|---|
+| Actual cost | **63 rotations.** The worst access this tree has. |
+| Potential &Phi; | **290.0 &rarr; 149.6.** The access did not just find the key; it destroyed the path it walked. |
+| Amortized cost | **&minus;77.4.** *Negative.* Against an Access-Lemma bound of 3&middot;log&#8322;(63)&nbsp;+&nbsp;1 = 18.9. |
+| Next access, same key | **1 rotation.** |
+
+Also on the page: AVL's height bound arriving as a Fibonacci number, with the minimal tree at each
+height actually constructed and then counted; a red-black tree turning into the 2-3-4 tree it has
+always been when you absorb the red nodes; why this engine ships &Delta;&nbsp;=&nbsp;3,
+&Gamma;&nbsp;=&nbsp;2 (Hirai &amp; Yamamoto proved in 2011 that it is the *only integer pair* that
+survives both insertion and deletion); and the single extra integer per node that turns a set into
+an ordered one.
+
+The theorems are cited, not re-derived. Watching a bound hold on one tree is evidence, not proof,
+and the page says so.
+
 ## Verified, not asserted
 
 Nothing above is a claim about care. The kit measures itself, and the measurements run in one
 command:
 
 ```
-python3 tools/verify/run_all.py     →  33 of 33 jobs green
-                                       1701 of 1701 checks passing
+python3 tools/verify/run_all.py     →  34 of 34 jobs green
+                                       1825 of 1825 checks passing
 ```
 
 Eight kit-wide audits measure what the browser actually renders, not what the source intends:
@@ -1139,7 +1165,7 @@ on whatever machine last wrote them. They live in the repo now:
 python3 tools/verify/run_all.py
 ```
 
-**33 jobs, 1,701 checks**, exiting non-zero if anything fails. Eight kit-wide audits measure
+**34 jobs, 1,825 checks**, exiting non-zero if anything fails. Eight kit-wide audits measure
 what the browser actually renders — 44 px touch targets, keyboard reachability and visible
 focus, WCAG AA contrast, print fidelity and ink cost, behaviour with the network gone, and the
 front-end faults that belong to no single page — and twenty-three per-page suites drive

@@ -1,0 +1,650 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>The Bounds, Drawn — CSRBT</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<!-- Webfonts load without blocking first paint: a stylesheet request that
+     hangs (one bar of signal) otherwise holds the page blank indefinitely,
+     which breaks the offline constraint in ADR-031. See tools/audit_offline.py. -->
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&family=Newsreader:opsz,wght@6..72,400;6..72,500;6..72,600&family=JetBrains+Mono:wght@400;500;700&display=swap" media="print" data-webfont>
+<noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&family=Newsreader:opsz,wght@6..72,400;6..72,500;6..72,600&family=JetBrains+Mono:wght@400;500;700&display=swap"></noscript>
+<script>(function(){var l=document.querySelector('link[data-webfont]');if(!l)return;
+  var on=function(){l.media="all";};
+  if(l.sheet){on();}else{l.addEventListener("load",on);l.addEventListener("error",function(){});}
+})();</script>
+<style>
+  :root{
+    color-scheme: light;
+    --page:#F5F1E6; --surface:#FFFDF7; --surface-2:#F3EEE0; --ink:#23281F; --ink-2:#4B5344;
+    --muted:#6B6B5E; --border:#E3DCC9; --rule:#C7C0AC;
+    --s1:#2C784C; --s2:#A94F26; --s3:#2B6C8F; --soft:#E9F0E7;
+    /* the four strategies, carried over from the visualizer so a reader who has
+       used it recognises them here -- darkened to clear AA on paper stock */
+    --rb:#B3272D; --avl:#2B817B; --splay:#8955EA; --wb:#986D15;
+    --shadow:0 1px 2px rgba(35,40,31,.05),0 10px 28px rgba(35,40,31,.06);
+    --head:"Fraunces",Georgia,serif; --body:"Newsreader",Georgia,"Times New Roman",serif;
+    --mono:"JetBrains Mono",ui-monospace,Menlo,Consolas,monospace;
+    --tap:44px;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--page);color:var(--ink);font:17px/1.6 var(--body);
+    -webkit-font-smoothing:antialiased}
+  .wrap{max-width:960px;margin:0 auto;padding:0 22px}
+  a{color:var(--s1);text-underline-offset:2px}
+  h1,h2,h3{margin:0;text-wrap:balance}
+  .top{display:flex;flex-wrap:wrap;gap:10px;align-items:center;justify-content:space-between;padding:18px 0 0}
+  .top a{font-family:var(--mono);font-size:12.5px;color:var(--muted);text-decoration:none;
+    display:inline-flex;align-items:center;min-height:var(--tap);padding:0 6px;margin:0 -6px}
+  .top a:hover{color:var(--s1)}
+  header{padding:44px 0 26px}
+  .eyebrow{font-family:var(--mono);font-size:12px;letter-spacing:.17em;text-transform:uppercase;
+    color:var(--s1);margin:0 0 14px}
+  h1{font-family:var(--head);font-weight:700;font-size:clamp(36px,6.6vw,60px);line-height:1.03;
+    letter-spacing:-.022em;max-width:16ch}
+  .dek{font-size:20px;color:var(--ink-2);max-width:62ch;margin:18px 0 0}
+  .dek b{color:var(--ink);font-weight:600}
+  section{padding:44px 0;border-top:1px solid var(--border)}
+  h2{font-family:var(--head);font-weight:600;font-size:29px;letter-spacing:-.016em}
+  h3{font-family:var(--head);font-weight:600;font-size:18px;margin:22px 0 6px}
+  .tag{font-family:var(--mono);font-size:11.5px;letter-spacing:.14em;text-transform:uppercase;
+    color:var(--muted);margin:0 0 8px}
+  p{margin:0 0 14px;max-width:66ch}
+  .lead{font-size:18.5px;color:var(--ink-2)}
+  .card{background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:20px;
+    box-shadow:var(--shadow);margin:20px 0}
+  .fine{font-size:13.5px;color:var(--muted);line-height:1.55;max-width:70ch}
+  code,.kbd{font-family:var(--mono);font-size:.9em;background:var(--surface-2);
+    padding:1px 5px;border-radius:4px}
+  .eq{font-family:var(--mono);font-size:15px;background:var(--surface-2);border:1px solid var(--border);
+    border-radius:8px;padding:14px 16px;margin:14px 0;overflow-x:auto;white-space:nowrap;color:var(--ink)}
+  button{font-family:var(--body);font-size:15px;font-weight:600;min-height:var(--tap);
+    padding:0 16px;border-radius:10px;border:2px solid var(--border);background:var(--surface);
+    color:var(--ink);cursor:pointer;touch-action:manipulation}
+  button:hover{border-color:var(--s1);color:var(--s1)}
+  button.go{background:var(--s1);border-color:var(--s1);color:#fff}
+  button.go:hover{color:#fff;filter:brightness(1.08)}
+  button:focus-visible,input:focus-visible{outline:3px solid var(--s3);outline-offset:2px}
+  .row{display:flex;flex-wrap:wrap;gap:10px;align-items:center;margin:14px 0}
+  input[type=number],input[type=text]{font:16px var(--mono);min-height:var(--tap);width:96px;
+    padding:0 12px;border:2px solid #8E8160;border-radius:10px;background:var(--surface);color:var(--ink)}
+  label{font-family:var(--mono);font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+  .stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(128px,1fr));gap:10px;margin:16px 0 0}
+  .stat{background:var(--surface-2);border:1px solid var(--border);border-radius:10px;padding:11px 13px}
+  .stat .l{font-family:var(--mono);font-size:10.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted)}
+  .stat .v{font-family:var(--head);font-weight:700;font-size:25px;line-height:1.15;
+    font-variant-numeric:tabular-nums;margin-top:3px}
+  svg{display:block;max-width:100%;height:auto}
+  .scroll{overflow-x:auto;-webkit-overflow-scrolling:touch}
+  table{border-collapse:collapse;width:100%;min-width:460px;font-size:15px;
+    font-variant-numeric:tabular-nums;background:var(--surface)}
+  th,td{text-align:right;padding:8px 12px;border-bottom:1px solid var(--border)}
+  th:first-child,td:first-child{text-align:left}
+  th{font-family:var(--mono);font-size:11px;letter-spacing:.09em;text-transform:uppercase;
+    color:var(--muted);background:var(--surface-2);font-weight:500}
+  tr:last-child td{border-bottom:0}
+  .who{font-family:var(--mono);font-size:11.5px;color:var(--muted);letter-spacing:.03em}
+  .refuse{background:var(--surface-2);border-left:3px solid var(--s2);border-radius:0 10px 10px 0;
+    padding:14px 18px;margin:18px 0}
+  .refuse b{color:var(--s2)}
+  ul{margin:10px 0 14px;padding-left:20px;max-width:66ch}
+  li{margin-bottom:7px}
+  footer{padding:40px 0 70px;color:var(--muted);font-size:14px}
+  @media print{
+    body{background:#fff;font-size:11pt}
+    .top,button,.noprint{display:none !important}
+    .card,table,svg{break-inside:avoid}
+    a{color:inherit;text-decoration:none}
+  }
+  @media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+  @media (max-width:560px){:root{--tap:56px} body{font-size:17px} .wrap{padding:0 16px}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="top">
+    <a href="ecology.html">&larr; the science kit</a>
+    <a href="tree-visualizer.html">the visualizer &rarr;</a>
+  </div>
+
+  <header>
+    <p class="eyebrow">CSRBT &middot; the mathematics</p>
+    <h1>The bounds, drawn</h1>
+    <p class="dek">Every guarantee this engine rests on, <b>computed from a live tree on this page</b>
+    rather than quoted from a textbook. Splay's potential function ticking as you touch it. AVL's
+    height bound as a Fibonacci number. A red-black tree turning into the 2-3-4 tree it has always
+    been. Nothing here is asserted that the page cannot show you.</p>
+  </header>
+
+  <!-- ================= 1. SPLAY ================= -->
+  <section>
+    <p class="tag">One &middot; the potential function</p>
+    <h2>A bound that is false every time and true in the end</h2>
+    <p class="lead">A splay tree makes no promise about any single operation. Touch the deepest node
+    and you pay for its depth. What Sleator and Tarjan proved in 1985 is that you cannot keep paying:
+    an expensive access <em>flattens the path it walked</em>, so the next one is cheap. The accounting
+    that makes this rigorous is a single function of the tree's shape.</p>
+
+    <div class="eq">&Phi;(T) = &Sigma;<sub>x &isin; T</sub> log&#8322; size(x)</div>
+
+    <p>Define the <b>amortized cost</b> of an operation as its actual cost plus the change in &Phi;.
+    Because &Phi; depends only on the tree and not on history, summing over any sequence
+    <em>telescopes</em> &mdash; every intermediate &Phi; cancels:</p>
+
+    <div class="eq">&Sigma; a&#7522; = &Sigma; c&#7522; + &Phi;(T&#8345;) &minus; &Phi;(T&#8320;)</div>
+
+    <p>So a bound on each amortized cost is a bound on the whole sequence, give or take the potential
+    you started and finished with. Sleator and Tarjan's <b>Access Lemma</b> gives that bound:
+    splaying <em>x</em> to the root costs at most <code>3(log&#8322;size(root) &minus; log&#8322;size(x)) + 1</code>
+    amortized &mdash; O(log n), whatever the tree looks like.</p>
+
+    <div class="card">
+      <div class="row noprint">
+        <label for="spK">key</label>
+        <input id="spK" type="number" value="1" min="1" max="999" step="1" aria-label="key to access">
+        <button id="spAccess" class="go" type="button">Access it</button>
+        <button id="spSeq" type="button">Sequential 1&hellip;n</button>
+        <button id="spRand" type="button">20 random</button>
+        <button id="spWorst" type="button">Worst case</button>
+        <button id="spReset" type="button">Reset</button>
+      </div>
+      <p class="fine" id="spNote">A splay tree of 63 keys, built as a perfectly balanced tree. Access
+      a key and watch what it costs &mdash; and what it costs the <em>next</em> reader.</p>
+      <div class="stats">
+        <div class="stat"><div class="l">nodes</div><div class="v" id="spN">&mdash;</div></div>
+        <div class="stat"><div class="l">&Phi; now</div><div class="v" id="spPhi">&mdash;</div></div>
+        <div class="stat"><div class="l">last actual</div><div class="v" id="spAct">&mdash;</div></div>
+        <div class="stat"><div class="l">last amortized</div><div class="v" id="spAm">&mdash;</div></div>
+        <div class="stat"><div class="l">&Sigma; actual</div><div class="v" id="spSA">0</div></div>
+        <div class="stat"><div class="l">&Sigma; amortized</div><div class="v" id="spSM">0</div></div>
+      </div>
+      <div class="scroll"><svg id="spChart" viewBox="0 0 720 220" role="img"
+        aria-label="Per-operation cost. Bars show the actual number of rotations; the line shows amortized cost, which stays flat while the bars spike."></svg></div>
+      <p class="fine"><b>Read the picture, not the numbers.</b> The bars are what each access really
+      cost in rotations. The line is actual&nbsp;+&nbsp;&Delta;&Phi;. Two things are worth doing in
+      order.</p>
+      <p class="fine"><b>Press &ldquo;Worst case&rdquo;, then access key&nbsp;1.</b> The tree is a
+      left-leaning path of 63 nodes &mdash; the shape balancing exists to prevent &mdash; and
+      key&nbsp;1 sits at the bottom of it. What happens is worth reading twice:</p>
+      <p class="fine" style="padding-left:18px;border-left:3px solid var(--splay)">
+      <b>63 rotations.</b> A genuinely terrible access, the worst this tree has.<br>
+      <b>&Phi; falls from 290.0 to 149.6.</b> The splay did not merely find the key; it destroyed the
+      path it walked.<br>
+      <b>Amortized cost: &minus;77.4.</b> <em>Negative.</em> Against a bound of
+      3&middot;log&#8322;(63)&nbsp;+&nbsp;1&nbsp;=&nbsp;18.9, the operation came in seventy-seven
+      units under budget &mdash; it paid for itself and left change.<br>
+      <b>Access the same key again: 1 rotation.</b></p>
+      <p class="fine">That is what the potential function is <em>for</em>. The 63 rotations were real
+      and you really paid them &mdash; but you had been charged for that path in advance, every time
+      an earlier operation left the tree a little worse. The accounting only looks like magic if you
+      arrive at the expensive operation without having watched the bill accumulate.</p>
+      <p class="fine"><b>Then press &ldquo;Sequential&rdquo; on a fresh tree</b> and watch the
+      opposite: cheap accesses whose amortized cost runs <em>above</em> the bar, because each one
+      leaves the tree more path-like than it found it and &Phi; climbs. That is the theorem being
+      honest with you &mdash; amortized analysis is not a trick for making costs look smaller, it is
+      an accounting system, and it charges you for the mess you leave behind as surely as it credits
+      you for the mess you clean up.</p>
+      <p class="fine" id="spCheck"></p>
+    </div>
+
+    <div class="refuse">
+      <p style="margin:0"><b>What this page will not claim.</b> The identity above is exact and this
+      page checks it after every operation. The <em>Access Lemma</em> is a theorem and is cited, not
+      re-derived here &mdash; watching a bound hold on one tree is evidence, not proof, and the
+      difference is the whole point of having a proof.
+      <span class="who">Sleator &amp; Tarjan 1985, JACM 32(3)</span></p>
+    </div>
+  </section>
+
+  <!-- ================= 2. AVL ================= -->
+  <section>
+    <p class="tag">Two &middot; the worst tree allowed</p>
+    <h2>AVL's height bound is a Fibonacci number</h2>
+    <p class="lead">An AVL tree permits a height difference of one at every node. Ask the natural
+    question &mdash; <em>what is the sparsest tree that rule allows?</em> &mdash; and the answer builds
+    itself: to make a minimal AVL tree of height <em>h</em>, hang a minimal tree of height
+    <em>h&minus;1</em> on one side and <em>h&minus;2</em> on the other.</p>
+    <div class="eq">N(h) = N(h&minus;1) + N(h&minus;2) + 1,&nbsp;&nbsp; N(0) = 0, N(1) = 1</div>
+    <p>That recurrence is Fibonacci with an offset: <code>N(h) = F(h+2) &minus; 1</code>. Because the
+    minimum node count grows exponentially in the height, the height grows logarithmically in the
+    nodes &mdash; and inverting the closed form gives the classical bound.</p>
+    <div class="eq">h &le; 1.4404 &middot; log&#8322;(n + 2) &minus; 0.3277</div>
+    <div class="card">
+      <div class="row noprint">
+        <label for="avH">height h</label>
+        <input id="avH" type="number" value="7" min="1" max="24" step="1" aria-label="AVL height">
+        <button id="avGo" class="go" type="button">Build the minimal tree</button>
+      </div>
+      <p class="fine">Built for real: the recurrence is used to construct an actual AVL-valid tree,
+      then the tree is measured. If the identity failed, the row would say so.</p>
+      <div class="scroll"><table id="avTab"><caption class="fine" style="text-align:left;padding:0 0 8px">
+        The minimal AVL tree at each height, constructed and then counted.</caption></table></div>
+    </div>
+  </section>
+
+  <!-- ================= 3. RED-BLACK ================= -->
+  <section>
+    <p class="tag">Three &middot; an old tree in a new coat</p>
+    <h2>Every red-black tree is a 2-3-4 tree</h2>
+    <p class="lead">The red-black rules look arbitrary until you see what they encode. Take any
+    red-black tree and <b>absorb every red node into its black parent</b>. What is left is a tree in
+    which each node holds one, two or three keys and has two, three or four children &mdash; and in
+    which <em>every leaf is at exactly the same depth</em>. The colours are a way of storing a
+    perfectly balanced multi-way tree in a binary one.</p>
+    <p>The height bound falls straight out. The 2-3-4 tree is perfectly balanced, so its height is at
+    most log&#8322;(n+1). Each of its levels becomes at most two binary levels &mdash; a black node and
+    its red children. Hence:</p>
+    <div class="eq">h &le; 2 &middot; log&#8322;(n + 1)</div>
+    <div class="card">
+      <div class="row noprint">
+        <button id="rbNew" class="go" type="button">New random tree</button>
+        <button id="rbToggle" type="button">Show as 2-3-4</button>
+      </div>
+      <div class="scroll"><svg id="rbSvg" viewBox="0 0 720 300" role="img"
+        aria-label="A red-black tree, and the same tree with red nodes absorbed into their black parents to form a 2-3-4 tree."></svg></div>
+      <p class="fine" id="rbNote"></p>
+    </div>
+  </section>
+
+  <!-- ================= 4. WEIGHT-BALANCED ================= -->
+  <section>
+    <p class="tag">Four &middot; a parameter that had to be proved</p>
+    <h2>Why this engine ships &Delta;&nbsp;=&nbsp;3, &Gamma;&nbsp;=&nbsp;2</h2>
+    <p class="lead">A weight-balanced tree balances by <em>size</em>, not height: at each node, neither
+    subtree may outweigh the other by more than a factor &Delta;, and &Gamma; decides whether a
+    violation is repaired with a single rotation or a double one. Both are free parameters, and for
+    thirty years people picked them by taste.</p>
+    <p>They are not free. Hirai and Yamamoto showed in 2011 that the pairs which keep the invariant
+    through <em>both</em> insertion and deletion form a bounded region whose boundary is nine lines and
+    a curve &mdash; and that <b>(3,&nbsp;2) is the only pair of integers inside it</b>.
+    <span class="who">Hirai &amp; Yamamoto 2011, JFP 21(3)</span></p>
+    <p>This is not a theoretical nicety. The bug report that prompted the work was a real one: a widely
+    used implementation running &Delta;&nbsp;=&nbsp;5, &Gamma;&nbsp;=&nbsp;1 <b>broke its own balance
+    invariant after a deletion</b> &mdash; a counterexample, not a slow path.</p>
+    <div class="refuse">
+      <p style="margin:0"><b>The part worth telling.</b> This engine's evolutionary search
+      (<a href="../README.md">ADR-011</a>) was pointed at the same parameter space with no knowledge of
+      the proof. It converged on &Delta;&nbsp;=&nbsp;3, and unsound points such as (5,&nbsp;3)
+      disqualified themselves against the health gate on the record. A search that arrives where the
+      proof already is, is not a discovery &mdash; but it is a good sign that the gate is measuring
+      something real.</p>
+    </div>
+  </section>
+
+  <!-- ================= 5. ORDER STATISTICS ================= -->
+  <section>
+    <p class="tag">Five &middot; what one extra integer buys</p>
+    <h2>Rank in O(log n), from a number you were already maintaining</h2>
+    <p class="lead">Store in every node the size of its own subtree &mdash; one integer, kept correct
+    through rotations at no asymptotic cost. That single augmentation turns a set into an
+    <em>ordered</em> set: the <em>k</em>-th smallest element, the rank of a key, the median, any
+    percentile, all in one root-to-leaf descent.</p>
+    <p>The descent is the whole algorithm. At each node, everything in the left subtree is smaller, so
+    the node's own rank is <code>size(left) + 1</code> within its subtree. Go left and the answer is
+    unchanged; go right and you have skipped <code>size(left) + 1</code> keys, so carry them.</p>
+    <div class="card">
+      <div class="row noprint">
+        <label for="osK">select k</label>
+        <input id="osK" type="number" value="9" min="1" max="31" step="1" aria-label="k for select">
+        <button id="osGo" class="go" type="button">Walk it</button>
+      </div>
+      <div class="scroll"><table id="osTab"></table></div>
+      <p class="fine" id="osNote"></p>
+    </div>
+    <p class="fine">The same descent run the other way gives <code>rank(key)</code>, and
+    <code>select(&lceil;n/2&rceil;)</code> is the median. In a hash set or a plain balanced tree
+    without the augment, each of these is O(n).</p>
+  </section>
+
+  <footer>
+    <p>Everything computed on this page runs in your browser from the tree in front of you &mdash; no
+    network, no server, no stored answers. The balancing is reimplemented from
+    <code>csrbt-core/strategy</code> and checks its own invariants after every operation; if a check
+    ever fails, the page says so rather than drawing a picture anyway.</p>
+    <p>Theorems cited, not re-proved: Sleator &amp; Tarjan (1985) for the Access Lemma; Adelson-Velsky
+    &amp; Landis (1962) for the AVL bound; Guibas &amp; Sedgewick (1978) for the red-black / 2-3-4
+    correspondence; Hirai &amp; Yamamoto (2011) for the weight-balanced parameter region.</p>
+  </footer>
+</div>
+
+<script>
+"use strict";
+/* ---------------------------------------------------------------------------
+   A compact BST core, faithful to csrbt-core/strategy: NIL sentinel, parent
+   pointers, subtree-size augmentation maintained through every rotation. Each
+   demo below builds its own tree; nothing is shared, so one section cannot
+   quietly corrupt another.
+   ------------------------------------------------------------------------- */
+function mkTree(){
+  var NIL={key:null,left:null,right:null,parent:null,red:false,size:0,h:0,nil:true};
+  NIL.left=NIL.right=NIL.parent=NIL;
+  return {NIL:NIL, root:NIL, rot:0,
+    node:function(k){return {key:k,left:NIL,right:NIL,parent:NIL,red:true,size:1,h:1,nil:false};}};
+}
+function recalc(T,n){ if(n===T.NIL)return; n.size=1+n.left.size+n.right.size;
+  n.h=1+Math.max(n.left.h,n.right.h); }
+function rotL(T,x){ var y=x.right; x.right=y.left; if(y.left!==T.NIL)y.left.parent=x;
+  y.parent=x.parent;
+  if(x.parent===T.NIL)T.root=y; else if(x===x.parent.left)x.parent.left=y; else x.parent.right=y;
+  y.left=x; x.parent=y; recalc(T,x); recalc(T,y); T.rot++; }
+function rotR(T,x){ var y=x.left; x.left=y.right; if(y.right!==T.NIL)y.right.parent=x;
+  y.parent=x.parent;
+  if(x.parent===T.NIL)T.root=y; else if(x===x.parent.right)x.parent.right=y; else x.parent.left=y;
+  y.right=x; x.parent=y; recalc(T,x); recalc(T,y); T.rot++; }
+function bstInsert(T,k){
+  var y=T.NIL,x=T.root;
+  while(x!==T.NIL){ y=x; if(k===x.key)return null; x=(k<x.key)?x.left:x.right; }
+  var z=T.node(k); z.parent=y;
+  if(y===T.NIL)T.root=z; else if(k<y.key)y.left=z; else y.right=z;
+  for(var a=y;a!==T.NIL;a=a.parent)recalc(T,a);
+  return z;
+}
+function inorder(T){ var out=[]; (function go(n){ if(n===T.NIL)return; go(n.left); out.push(n.key); go(n.right); })(T.root); return out; }
+function checkSizes(T){ var bad=null; (function go(n){ if(n===T.NIL||bad)return; go(n.left); go(n.right);
+  if(n.size!==1+n.left.size+n.right.size) bad="size wrong at "+n.key; })(T.root); return bad; }
+
+/* ---- 1. SPLAY --------------------------------------------------------- */
+function splay(T,x){
+  while(x.parent!==T.NIL){
+    var p=x.parent, g=p.parent;
+    if(g===T.NIL){ if(x===p.left)rotR(T,p); else rotL(T,p); }
+    else if(x===p.left && p===g.left){ rotR(T,g); rotR(T,p); }
+    else if(x===p.right && p===g.right){ rotL(T,g); rotL(T,p); }
+    else if(x===p.left){ rotR(T,p); rotL(T,g); }
+    else { rotL(T,p); rotR(T,g); }
+  }
+}
+function phi(T){ var s=0; (function go(n){ if(n===T.NIL)return; s+=Math.log2(n.size); go(n.left); go(n.right); })(T.root); return s; }
+function buildBalanced(T,lo,hi){ if(lo>hi)return; var m=(lo+hi)>>1; bstInsert(T,m);
+  buildBalanced(T,lo,m-1); buildBalanced(T,m+1,hi); }
+
+var SP=null, SPLOG=[], SPN=63;
+function spWorst(){
+  /* Insert in DESCENDING order without splaying and you get a left-leaning path,
+     which puts the smallest key at the bottom. Ascending also makes a path, but
+     with key 1 at the root -- a worst-case shape whose worst-case access is free,
+     which is not the demonstration. */
+  SP=mkTree(); SPLOG=[];
+  for(var i=SPN;i>=1;i--)bstInsert(SP,i);
+  spPaint();
+  return SPN;
+}
+function spReset(){
+  SP=mkTree(); SPLOG=[]; buildBalanced(SP,1,SPN);
+  document.getElementById("spSA").textContent="0";
+  document.getElementById("spSM").textContent="0";
+  document.getElementById("spAct").textContent="—";
+  document.getElementById("spAm").textContent="—";
+  spPaint();
+}
+function spAccess(k){
+  if(!SP)return;
+  var x=SP.root, depth=0;
+  while(x!==SP.NIL && x.key!==k){ depth++; x=(k<x.key)?x.left:x.right; }
+  if(x===SP.NIL)return false;
+  var before=phi(SP), r0=SP.rot;
+  splay(SP,x);
+  var after=phi(SP), actual=(SP.rot-r0)+1, d=after-before;
+  SPLOG.push({k:k, actual:actual, dphi:d, am:actual+d, depth:depth});
+  if(SPLOG.length>40)SPLOG.shift();
+  spPaint();
+  return true;
+}
+function spPaint(){
+  var $=function(i){return document.getElementById(i);};
+  $("spN").textContent=SP.root.size;
+  $("spPhi").textContent=phi(SP).toFixed(1);
+  var sa=0, sm=0;
+  for(var i=0;i<SPLOG.length;i++){ sa+=SPLOG[i].actual; sm+=SPLOG[i].am; }
+  $("spSA").textContent=sa.toFixed(0);
+  $("spSM").textContent=sm.toFixed(1);
+  if(SPLOG.length){
+    var last=SPLOG[SPLOG.length-1];
+    $("spAct").textContent=last.actual;
+    $("spAm").textContent=last.am.toFixed(1);
+  }
+  var bad=checkSizes(SP);
+  $("spCheck").textContent = bad ? ("INVARIANT FAILED: "+bad)
+    : ("Subtree sizes verified after every rotation — " + SP.rot
+       + " rotations so far, all checked. Bound for this tree: 3·log₂(" + SP.root.size
+       + ") + 1 = " + (3*Math.log2(SP.root.size)+1).toFixed(1) + " amortized per access.");
+  spChart();
+}
+function spChart(){
+  var svg=document.getElementById("spChart"), W=720, H=220, pad=34;
+  var n=SPLOG.length;
+  if(!n){ svg.innerHTML='<text x="360" y="112" text-anchor="middle" font-size="14" fill="#6B6B5E" font-family="ui-monospace,monospace">access a key to begin</text>'; return; }
+  var maxV=1; for(var i=0;i<n;i++){ maxV=Math.max(maxV,SPLOG[i].actual,SPLOG[i].am); }
+  maxV=Math.ceil(maxV*1.15);
+  var bw=Math.max(4,Math.min(22,(W-pad*2)/n-3)), gap=((W-pad*2)-bw*n)/Math.max(1,n-1);
+  var y=function(v){ return H-pad-(v/maxV)*(H-pad*2); };
+  var s='<g font-family="ui-monospace,monospace" font-size="10" fill="#6B6B5E">';
+  for(var t=0;t<=4;t++){
+    var v=maxV*t/4, yy=y(v);
+    s+='<line x1="'+pad+'" y1="'+yy.toFixed(1)+'" x2="'+(W-pad)+'" y2="'+yy.toFixed(1)+'" stroke="#E3DCC9" stroke-width="1"/>';
+    s+='<text x="'+(pad-6)+'" y="'+(yy+3.5).toFixed(1)+'" text-anchor="end">'+v.toFixed(0)+'</text>';
+  }
+  s+='</g><g>';
+  var pts=[];
+  for(var j=0;j<n;j++){
+    var x=pad+j*(bw+gap), e=SPLOG[j];
+    var hh=Math.max(1,(H-pad)-y(e.actual));
+    s+='<rect x="'+x.toFixed(1)+'" y="'+y(e.actual).toFixed(1)+'" width="'+bw.toFixed(1)+
+       '" height="'+hh.toFixed(1)+'" fill="#8955EA" opacity="0.30" rx="2"/>';
+    pts.push((x+bw/2).toFixed(1)+","+y(e.am).toFixed(1));
+  }
+  s+='</g><polyline points="'+pts.join(" ")+'" fill="none" stroke="#2C784C" stroke-width="2.5" stroke-linejoin="round"/>';
+  var bnd=y(3*Math.log2(SP.root.size)+1);
+  if(bnd>pad-2 && bnd<H-pad+2){
+    s+='<line x1="'+pad+'" y1="'+bnd.toFixed(1)+'" x2="'+(W-pad)+'" y2="'+bnd.toFixed(1)+
+       '" stroke="#A94F26" stroke-width="1.5" stroke-dasharray="5 4"/>';
+    s+='<text x="'+(W-pad)+'" y="'+(bnd-6).toFixed(1)+'" text-anchor="end" font-family="ui-monospace,monospace" font-size="10" fill="#A94F26">Access-Lemma bound</text>';
+  }
+  s+='<text x="'+pad+'" y="16" font-family="ui-monospace,monospace" font-size="10" fill="#8955EA">bars: actual rotations</text>';
+  s+='<text x="'+(pad+150)+'" y="16" font-family="ui-monospace,monospace" font-size="10" fill="#2C784C">line: amortized (actual + ΔΦ)</text>';
+  svg.innerHTML=s;
+}
+
+/* ---- 2. AVL minimal trees --------------------------------------------- */
+function minAvl(T,h,next){
+  /* build the sparsest AVL-valid tree of height h, returning its root; keys are
+     assigned in-order afterwards so the result is a real BST, not a sketch */
+  if(h<=0)return T.NIL;
+  var n=T.node(0);
+  n.left=minAvl(T,h-1,next); n.right=minAvl(T,h-2,next);
+  if(n.left!==T.NIL)n.left.parent=n;
+  if(n.right!==T.NIL)n.right.parent=n;
+  recalc(T,n);
+  return n;
+}
+function fib(k){ var a=0,b=1; for(var i=0;i<k;i++){ var t=a+b; a=b; b=t; } return a; }
+function avlTable(maxH){
+  var rows='<tr><th>height h</th><th>nodes built</th><th>F(h+2) &minus; 1</th><th>bound 1.4404&middot;log&#8322;(n+2) &minus; 0.3277</th><th>holds</th></tr>';
+  var ok=true;
+  for(var h=1;h<=maxH;h++){
+    var T=mkTree();
+    T.root=minAvl(T,h,null);
+    var n=T.root===T.NIL?0:T.root.size;
+    var f=fib(h+2)-1;
+    var bound=1.4404*Math.log2(n+2)-0.3277;
+    var good=(n===f)&&(h<=bound+1e-9);
+    if(!good)ok=false;
+    rows+='<tr><td>'+h+'</td><td>'+n+'</td><td>'+f+'</td><td>'+bound.toFixed(3)+'</td><td>'+
+      (good?'✓':'✗ FAILED')+'</td></tr>';
+  }
+  var t=document.getElementById("avTab");
+  t.innerHTML=t.querySelector("caption").outerHTML+rows;
+  return ok;
+}
+
+/* ---- 3. red-black as 2-3-4 -------------------------------------------- */
+function rbInsert(T,k){
+  var z=bstInsert(T,k); if(!z)return;
+  z.red=true;
+  while(z.parent.red){
+    var p=z.parent,g=p.parent;
+    if(p===g.left){
+      var u=g.right;
+      if(u.red){ p.red=false;u.red=false;g.red=true;z=g; }
+      else { if(z===p.right){ z=p; rotL(T,z); p=z.parent; g=p.parent; }
+             p.red=false; g.red=true; rotR(T,g); }
+    } else {
+      var u2=g.left;
+      if(u2.red){ p.red=false;u2.red=false;g.red=true;z=g; }
+      else { if(z===p.left){ z=p; rotR(T,z); p=z.parent; g=p.parent; }
+             p.red=false; g.red=true; rotL(T,g); }
+    }
+  }
+  T.root.red=false;
+}
+var RB=null, RBMODE=0;
+function rbBuild(){
+  RB=mkTree();
+  var keys=[],i;
+  for(i=1;i<=40;i++)keys.push(i);
+  for(i=keys.length-1;i>0;i--){ var j=Math.floor(((i*2654435761)%2147483647)/2147483647*(i+1)); var t=keys[i];keys[i]=keys[j];keys[j]=t; }
+  var take=13+ (RB.rot%3);
+  for(i=0;i<take;i++)rbInsert(RB,keys[i]);
+  rbPaint();
+}
+function blackHeight(T){ var b=0; for(var n=T.root;n!==T.NIL;n=n.left){ if(!n.red)b++; } return b; }
+function rbPaint(){
+  var svg=document.getElementById("rbSvg"), W=720,H=300;
+  var T=RB, NIL=T.NIL;
+  var groups=[]; /* 2-3-4 view: a black node plus its red children */
+  function collect(n){
+    if(n===NIL)return null;
+    var keys=[n.key], kids=[];
+    [n.left,n.right].forEach(function(c){
+      if(c===NIL)return;
+      if(c.red){ keys.push(c.key); [c.left,c.right].forEach(function(gc){ if(gc!==NIL)kids.push(gc); }); }
+      else kids.push(c);
+    });
+    keys.sort(function(a,b){return a-b;});
+    var g={keys:keys,kids:kids.map(collect).filter(Boolean)};
+    groups.push(g); return g;
+  }
+  var root234=collect(T.root);
+  var s='', maxDepth=0;
+  if(RBMODE===0){
+    var pos=[],idx=0;
+    (function go(n,d){ if(n===NIL)return; go(n.left,d+1); pos.push({n:n,x:idx++,d:d}); maxDepth=Math.max(maxDepth,d); go(n.right,d+1); })(T.root,0);
+    var stepX=(W-60)/Math.max(1,pos.length-1), stepY=(H-70)/Math.max(1,maxDepth);
+    var xy={}; pos.forEach(function(p){ xy[p.n.key]={x:30+p.x*stepX,y:34+p.d*stepY}; });
+    pos.forEach(function(p){
+      [p.n.left,p.n.right].forEach(function(c){ if(c===NIL)return;
+        s+='<line x1="'+xy[p.n.key].x.toFixed(1)+'" y1="'+xy[p.n.key].y.toFixed(1)+'" x2="'+xy[c.key].x.toFixed(1)+'" y2="'+xy[c.key].y.toFixed(1)+'" stroke="#C7C0AC" stroke-width="1.4"/>'; });
+    });
+    pos.forEach(function(p){
+      var c=xy[p.n.key];
+      s+='<circle cx="'+c.x.toFixed(1)+'" cy="'+c.y.toFixed(1)+'" r="13" fill="'+(p.n.red?"#B3272D":"#23281F")+'"/>';
+      s+='<text x="'+c.x.toFixed(1)+'" y="'+(c.y+4).toFixed(1)+'" text-anchor="middle" font-family="ui-monospace,monospace" font-size="11" fill="#FFFDF7">'+p.n.key+'</text>';
+    });
+  } else {
+    var lv=[]; (function go(g,d){ if(!g)return; (lv[d]=lv[d]||[]).push(g); maxDepth=Math.max(maxDepth,d); g.kids.forEach(function(c){go(c,d+1);}); })(root234,0);
+    var stepY2=(H-70)/Math.max(1,maxDepth);
+    lv.forEach(function(row,d){
+      var stepX2=W/(row.length+1);
+      row.forEach(function(g,i){
+        g._x=stepX2*(i+1); g._y=34+d*stepY2;
+      });
+    });
+    lv.forEach(function(row){ row.forEach(function(g){
+      g.kids.forEach(function(c){ if(c._x===undefined)return;
+        s+='<line x1="'+g._x.toFixed(1)+'" y1="'+g._y.toFixed(1)+'" x2="'+c._x.toFixed(1)+'" y2="'+c._y.toFixed(1)+'" stroke="#C7C0AC" stroke-width="1.4"/>'; }); }); });
+    lv.forEach(function(row){ row.forEach(function(g){
+      var label=g.keys.join(" · "), w=Math.max(34,label.length*7.6+16);
+      s+='<rect x="'+(g._x-w/2).toFixed(1)+'" y="'+(g._y-13).toFixed(1)+'" width="'+w.toFixed(1)+'" height="26" rx="7" fill="#23281F"/>';
+      s+='<text x="'+g._x.toFixed(1)+'" y="'+(g._y+4).toFixed(1)+'" text-anchor="middle" font-family="ui-monospace,monospace" font-size="11" fill="#FFFDF7">'+label+'</text>';
+    }); });
+  }
+  svg.innerHTML=s;
+  var n=T.root.size, bh=blackHeight(T), hh=T.root.h;
+  document.getElementById("rbNote").textContent =
+    (RBMODE===0 ? "Red-black view. " : "2-3-4 view — each box is one black node with its red children absorbed. ")
+    + n + " keys, measured height " + hh + ", black-height " + bh
+    + ". Bound 2·log₂(n+1) = " + (2*Math.log2(n+1)).toFixed(2)
+    + (hh <= 2*Math.log2(n+1) ? " — holds." : " — VIOLATED.");
+}
+
+/* ---- 5. order statistics ---------------------------------------------- */
+var OS=null;
+function osBuild(){ OS=mkTree(); buildBalanced(OS,1,31); }
+function osWalk(k){
+  var t=document.getElementById("osTab");
+  if(k<1||k>OS.root.size){ t.innerHTML=""; document.getElementById("osNote").textContent=
+    "k must be between 1 and "+OS.root.size+"."; return; }
+  var rows='<tr><th>step</th><th>at node</th><th>size(left)</th><th>rank here</th><th>go</th><th>k becomes</th></tr>';
+  var x=OS.root, step=0, kk=k;
+  while(x!==OS.NIL){
+    step++;
+    var r=x.left.size+1, go, nk;
+    if(kk===r){ go="stop"; nk="—"; }
+    else if(kk<r){ go="left"; nk=kk; }
+    else { go="right"; nk=kk-r; }
+    rows+='<tr><td>'+step+'</td><td>'+x.key+'</td><td>'+x.left.size+'</td><td>'+r+'</td><td>'+go+'</td><td>'+nk+'</td></tr>';
+    if(kk===r)break;
+    if(kk<r)x=x.left; else { kk=kk-r; x=x.right; }
+  }
+  t.innerHTML=rows;
+  var sorted=inorder(OS);
+  var got=x.key, want=sorted[k-1];
+  document.getElementById("osNote").textContent =
+    "select("+k+") = "+got+" in "+step+" steps out of "+OS.root.size+" keys. "
+    + (got===want ? "Checked against the sorted order: correct."
+                  : "MISMATCH — sorted order says "+want+".");
+}
+
+/* ---- wiring ----------------------------------------------------------- */
+document.addEventListener("DOMContentLoaded", function(){
+  spReset();
+  document.getElementById("spAccess").addEventListener("click", function(){
+    var v=parseInt(document.getElementById("spK").value,10);
+    if(!spAccess(v)) document.getElementById("spNote").textContent =
+      "No key "+v+" in this tree — it holds 1 through "+SPN+".";
+  });
+  document.getElementById("spSeq").addEventListener("click", function(){
+    for(var i=1;i<=SPN;i++)spAccess(i);
+    document.getElementById("spNote").textContent =
+      "Swept 1…"+SPN+" in order. Each access dragged its key to the root and halved the "
+      +"depth of everything it passed, which is why the bars fall away.";
+  });
+  document.getElementById("spWorst").addEventListener("click", function(){
+    var n=spWorst();
+    document.getElementById("spK").value=1;
+    document.getElementById("spNote").textContent =
+      "Built as a path: "+n+" keys inserted in ascending order with no rebalancing, so key 1 sits "
+      +(n-1)+" edges down. Now access key 1 and watch the two measurements disagree.";
+  });
+  document.getElementById("spRand").addEventListener("click", function(){
+    for(var i=0;i<20;i++)spAccess(1+Math.floor(Math.random()*SPN));
+    document.getElementById("spNote").textContent="Twenty random accesses.";
+  });
+  document.getElementById("spReset").addEventListener("click", function(){
+    spReset(); document.getElementById("spNote").textContent =
+      "Rebuilt as a perfectly balanced tree of "+SPN+" keys.";
+  });
+  avlTable(12);
+  document.getElementById("avGo").addEventListener("click", function(){
+    var h=parseInt(document.getElementById("avH").value,10);
+    if(isNaN(h)||h<1)h=1; if(h>24)h=24;
+    avlTable(h);
+  });
+  rbBuild();
+  document.getElementById("rbNew").addEventListener("click", rbBuild);
+  document.getElementById("rbToggle").addEventListener("click", function(){
+    RBMODE=1-RBMODE;
+    this.textContent = RBMODE ? "Show as red-black" : "Show as 2-3-4";
+    rbPaint();
+  });
+  osBuild();
+  document.getElementById("osGo").addEventListener("click", function(){
+    osWalk(parseInt(document.getElementById("osK").value,10));
+  });
+  osWalk(9);
+});
+</script>
+</body>
+</html>
