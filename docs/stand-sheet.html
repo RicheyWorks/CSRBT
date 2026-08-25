@@ -198,7 +198,7 @@
   .rail a.ref:hover { color:var(--s1); }
   @media print { .rail { display:none !important; } }
 
-  /* ============ Field Entry Kit v1.2.0 ============
+  /* ============ Field Entry Kit v1.3.0 ============
      Large-target, high-contrast entry controls. Sizing is driven by --tap
      rather than per-component numbers so one token retunes the whole kit for
      gloves, cold hands or a wall-mounted tablet. */
@@ -206,7 +206,19 @@
     --tap: 60px;            /* primary control height  */
     --tap-sm: 48px;         /* secondary control height */
     --fek-r: 16px;
-    --ramp-0:#2B6C8F; --ramp-1:#3E8C8C; --ramp-2:#2C784C;
+    /* These three moved for WCAG AA and the move was made in the pages, by
+       hand, and never came back here -- because the CSS half of fek_emit was
+       dead code and nobody could tell. Source and pages agreed only by
+       ramp-1 moved here too: at its old teal, white label text on a selected
+       button measured 3.94:1 and the .92-white sub-line 3.59:1, both under AA.
+       No page had caught it because none defaulted to a ramp-1 option until the
+       deployment log did. Every ramp is now checked against both, in
+       verify_contrast_slice.
+       The pre-fix ramp values are named in verify_contrast_slice,
+       which greps for them literally across every page -- so they are not
+       repeated here, because a comment naming them is itself a page carrying
+       them, and the suite is right not to care why. */
+    --ramp-0:#2B6C8F; --ramp-1:#2F7373; --ramp-2:#2C784C;
     --ramp-3:#8A6408; --ramp-4:#A94F26; --ramp-5:#B23A32;
     --fek-line:#C7C0AC;
   }
@@ -352,6 +364,21 @@
     margin-top:12px; line-height:1.6; }
   .dwc-out b { color:var(--ink, #23281F); }
   .dwc-warn { color:var(--danger, #B23A32); }
+  /* ============ Keep (local autosave) v1.0.0 ============ */
+  .keep { display:flex; flex-wrap:wrap; align-items:center; gap:10px;
+    background:var(--surface-2, #F3EEE0); border:1px solid var(--border, #E3DCC9);
+    border-radius:12px; padding:10px 13px; margin:12px 0 2px; }
+  .keep .st { font-family:var(--mono, monospace); font-size:11.5px; color:var(--muted, #6B6B5E);
+    line-height:1.5; flex:1 1 220px; min-width:0; }
+  .keep .st b { color:var(--ink, #23281F); }
+  .keep.bad { border-color:var(--danger, #B23A32); background:var(--danger-bg, #F6E7E5); }
+  .keep.bad .st b { color:var(--danger, #B23A32); }
+  .keep button { border:1.5px solid var(--border, #E3DCC9); background:none; border-radius:10px;
+    padding:0 14px; min-height:var(--tap, 44px); font:700 13px var(--body, sans-serif);
+    color:var(--ink-2, #4B5344); cursor:pointer; touch-action:manipulation; }
+  .keep button:hover { border-color:var(--danger, #B23A32); color:var(--danger, #B23A32); }
+  .keep .note { flex:1 1 100%; font-size:12px; color:var(--muted, #6B6B5E); line-height:1.5; }
+  @media print { .keep { display:none !important; } }
 </style>
 </head>
 <body>
@@ -520,6 +547,7 @@
     <h2 style="margin-top:22px">Take it home</h2>
     <div class="card">
       <div id="dwcCoords"></div>
+      <div id="keepBox"></div>
       <pre class="export" id="ecoOut"># tally a stem or two — the field sheet builds itself</pre>
       <div class="btn-row">
         <button class="btn btn-go" id="ecoCopy" type="button">Copy field sheet</button>
@@ -674,24 +702,44 @@
 
 
 <div class="rail">
-  <p class="rl">The field kit</p>
+  <p class="rl">Record it — in the field</p>
   <div class="chips">
     <a href="field-notebook.html"><span>📓</span>Field Notebook</a>
-      <a href="ethogram.html"><span>🐾</span>Ethogram</a>
-      <a href="selection-log.html"><span>📏</span>Selection Log</a>
-    <a href="farm-scout.html"><span>🧑‍🌾</span>Farm Scout</a>
-    <a href="pheno-tracker.html"><span>🌱</span>Pheno Tracker</a>
-    <a href="food-web.html"><span>🕸️</span>Food Web Builder</a>
+    <a href="ethogram.html"><span>🐾</span>Ethogram</a>
+    <a href="selection-log.html"><span>📏</span>Selection Log</a>
     <a href="stand-sheet.html" aria-current="page"><span>🌲</span>Stand Sheet</a>
     <a href="releve.html"><span>🌾</span>Relevé</a>
-    <a href="plant-characters.html"><span>🌱</span>Plant Characters</a>
-      <a href="collection-sheet.html"><span>🍄</span>Collection Sheet</a>
-      <a href="fungal-characters.html"><span>🔬</span>Fungal Characters</a>
+    <a href="collection-sheet.html"><span>🍄</span>Collection Sheet</a>
+    <a href="farm-scout.html"><span>🧑‍🌾</span>Farm Scout</a>
+    <a href="pheno-tracker.html"><span>🌱</span>Pheno Tracker</a>
+    <a href="deployment-log.html"><span>🎙️</span>Deployment Log</a>
+  </div>
+  <p class="rl" style="margin-top:16px">At the bench</p>
+  <div class="chips">
+    <a href="cp-bench.html"><span>🫙</span>CP Bench</a>
+    <a href="soil-bench.html"><span>🪱</span>Soil Bench</a>
+    <a href="breeding-bench.html"><span>🥕</span>Breeding Bench</a>
+    <a href="cell-bench.html"><span>🔬</span>Cell Bench</a>
+    <a href="micro-bench.html"><span>🧫</span>Micro Bench</a>
+  </div>
+  <p class="rl" style="margin-top:16px">Analyse it</p>
+  <div class="chips">
+    <a href="ordination.html"><span>📉</span>Ordination</a>
+    <a href="food-web.html"><span>🕸️</span>Food Web Builder</a>
     <a href="field-season.html"><span>🎯</span>Field Season</a>
+  </div>
+  <p class="rl" style="margin-top:16px">Print it</p>
+  <div class="chips">
+    <a href="plant-characters.html"><span>🌱</span>Plant Characters</a>
+    <a href="fungal-characters.html"><span>🔬</span>Fungal Characters</a>
+    <a href="cp-characters.html"><span>🪤</span>CP Characters</a>
+  </div>
+  <div class="chips" style="margin-top:16px">
     <a class="ref" href="ecology.html">← kit hub</a>
     <a class="ref" href="ecology-field-card.html">field card</a>
     <a class="ref" href="ecology-glossary.html">glossary</a>
   </div>
+</div>
 </div>
 
 <div class="tabbar"><div class="row">
@@ -999,7 +1047,7 @@ var SPECIES = [
 </script>
 <script>
 
-/* ---- Field Entry Kit v1.2.0 : constructors return {el, get, set} ---- */
+/* ---- Field Entry Kit v1.3.0 : constructors return {el, get, set} ---- */
 var FEK = (function(){
   function el(t,c,h){ var e=document.createElement(t); if(c) e.className=c;
     if(h!=null) e.innerHTML=h; return e; }
@@ -1021,6 +1069,24 @@ var FEK = (function(){
   function escv(s){ return String(s==null?"":s).replace(/[&<>"']/g,function(c){
     return c==="&"?"&amp;":c==="<"?"&lt;":c===">"?"&gt;":c==='"'?"&quot;":"&#39;"; }); }
   function buzz(m){ try{ if(navigator.vibrate) navigator.vibrate(m||8);}catch(e){} }
+
+  /* ---- field registry (v1.3.0) ----
+     A component writes through to a hidden field via the page's own onchange.
+     That is fine going out and useless coming back: nothing could put a
+     restored value INTO the widget, so an autosaved session showed default
+     dials over correct data -- a lie on screen, which is worse than no
+     autosave. A component that declares `field:"sElev"` is registered here,
+     and FEK.setField puts a value back through the widget's own set(). Purely
+     additive: a component with no `field` behaves exactly as before. */
+  var REG = {};
+  function reg(o, h){ if(o && o.field) REG[o.field] = h; return h; }
+  function setField(id, v){
+    var h = REG[id];
+    if(!h) return false;
+    try { h.set(v); } catch(e){ return false; }
+    return true;
+  }
+  function fields(){ var out=[]; for(var k in REG) if(REG.hasOwnProperty(k)) out.push(k); return out; }
 
   function step(o){
     o=o||{}; var min=(o.min==null?-Infinity:o.min), max=(o.max==null?Infinity:o.max);
@@ -1074,8 +1140,8 @@ var FEK = (function(){
     wrap.appendChild(lab); wrap.appendChild(box);
     if(o.help) wrap.appendChild(el("p","fek-help",o.help));
     render();
-    return { el:wrap, get:function(){return v;}, set:function(x){set(x,true);},
-             clear:clear, nullable:nullable };
+    return reg(o, { el:wrap, get:function(){return v;}, set:function(x){set(x,true);},
+             clear:clear, nullable:nullable });
   }
 
   /* field: a value typed from an instrument readout. No steppers — see the CSS note. */
@@ -1110,8 +1176,8 @@ var FEK = (function(){
     wrap.appendChild(lab); wrap.appendChild(box);
     if(o.help) wrap.appendChild(el("p","fek-help",o.help));
     set(v,true);
-    return { el:wrap, get:function(){return v;}, set:function(x){set(x,true);},
-             clear:function(){ set(null,true); }, nullable:true };
+    return reg(o, { el:wrap, get:function(){return v;}, set:function(x){set(x,true);},
+             clear:function(){ set(null,true); }, nullable:true });
   }
 
   function dial(o){
@@ -1132,8 +1198,8 @@ var FEK = (function(){
     paint();
     wrap.appendChild(lab); wrap.appendChild(box);
     if(o.help) wrap.appendChild(el("p","fek-help",o.help));
-    return { el:wrap, get:function(){return cur;},
-             set:function(x){ cur=x; paint(); } };
+    return reg(o, { el:wrap, get:function(){return cur;},
+             set:function(x){ cur=x; paint(); } });
   }
 
   function chips(o){
@@ -1154,8 +1220,8 @@ var FEK = (function(){
     paint();
     wrap.appendChild(lab); wrap.appendChild(box);
     if(o.help) wrap.appendChild(el("p","fek-help",o.help));
-    return { el:wrap, get:function(){return Object.keys(sel);},
-             set:function(a){ sel={}; (a||[]).forEach(function(v){sel[v]=1;}); paint(); } };
+    return reg(o, { el:wrap, get:function(){return Object.keys(sel);},
+             set:function(a){ sel={}; (a||[]).forEach(function(v){sel[v]=1;}); paint(); } });
   }
 
   function slider(o){
@@ -1177,9 +1243,9 @@ var FEK = (function(){
     box.appendChild(r); box.appendChild(bub);
     wrap.appendChild(lab); wrap.appendChild(box);
     if(o.help) wrap.appendChild(el("p","fek-help",o.help));
-    return { el:wrap, get:function(){return v;},
+    return reg(o, { el:wrap, get:function(){return v;},
              set:function(x){ v=(nullable&&x==null)?null:x; if(x!=null) r.value=x; paint(); },
-             clear:function(){ if(nullable){ v=null; paint(); } }, nullable:nullable };
+             clear:function(){ if(nullable){ v=null; paint(); } }, nullable:nullable });
   }
 
   function picker(o){
@@ -1208,7 +1274,7 @@ var FEK = (function(){
     wrap.appendChild(lab); wrap.appendChild(box);
     if(o.help) wrap.appendChild(el("p","fek-help",o.help));
     paint();
-    return { el:wrap, get:function(){return cur;}, set:function(x){ cur=x; paint(); } };
+    return reg(o, { el:wrap, get:function(){return cur;}, set:function(x){ cur=x; paint(); } });
   }
 
   function tiles(list){
@@ -1230,8 +1296,198 @@ var FEK = (function(){
      design -- still has to escape the data inside it. A private copy of an
      escaper in one page was how the last one got lost when the kit was
      re-emitted over it. */
-  return { version:"1.2.0", esc:escv, step:step, field:field, dial:dial, chips:chips, slider:slider,
+  return { version:"1.3.0", esc:escv, setField:setField, fields:fields, step:step, field:field, dial:dial, chips:chips, slider:slider,
            picker:picker, tiles:tiles, banner:banner, mount:mount, buzz:buzz };
+})();
+
+/* ---- Keep v1.0.0 : local autosave, and honesty about what that is ---- */
+var KEEP = (function(){
+  function esc(s){ return String(s==null?"":s).replace(/[&<>"']/g,function(c){
+    return c==="&"?"&amp;":c==="<"?"&lt;":c===">"?"&gt;":c==='"'?"&quot;":"&#39;"; }); }
+
+  /* Probe rather than assume. Safari in private mode used to throw on the
+     first write; storage can also be disabled by enterprise policy or by the
+     user, and in a sandboxed frame the accessor itself throws. All three look
+     identical to a page that only wraps setItem in a try. */
+  function usable(){
+    try {
+      var k = "__keep_probe__";
+      window.localStorage.setItem(k, "1");
+      window.localStorage.removeItem(k);
+      return true;
+    } catch(e){ return false; }
+  }
+
+  function when(ts){
+    if(!ts) return "";
+    try {
+      var d = new Date(ts), now = new Date();
+      var same = d.toDateString() === now.toDateString();
+      var hm = ("0"+d.getHours()).slice(-2) + ":" + ("0"+d.getMinutes()).slice(-2);
+      return same ? ("today " + hm) : (d.toISOString().slice(0,10) + " " + hm);
+    } catch(e){ return ""; }
+  }
+
+  function wire(o){
+    o = o || {};
+    var key = o.key, host = typeof o.mount === "string" ? document.getElementById(o.mount) : o.mount;
+    var fmt = o.format == null ? 1 : o.format;
+    var ok = usable(), lastErr = null, savedAt = null, restoredFrom = null, timer = null;
+    var noun = o.noun || "your work";
+
+    function read(){
+      if(!ok) return null;
+      try {
+        var raw = window.localStorage.getItem(key);
+        if(!raw) return null;
+        var p = JSON.parse(raw);
+        /* A format stamp, so a page that changes its state shape does not
+           restore a shape it can no longer read and fail in a way the user
+           reads as data loss. */
+        if(!p || p.format !== fmt) return null;
+        return p;
+      } catch(e){ return null; }
+    }
+
+    function write(){
+      timer = null;
+      if(!ok) return;
+      var body;
+      try { body = o.snapshot(); } catch(e){ lastErr = "could not read the page state"; paint(); return; }
+      if(body == null){
+        try { window.localStorage.removeItem(key); }catch(e){}
+        savedAt = null; lastErr = null; paint(); return;
+      }
+      try {
+        window.localStorage.setItem(key, JSON.stringify({ format:fmt, at:Date.now(), body:body }));
+        savedAt = Date.now(); lastErr = null;
+      } catch(e){
+        /* Do not swallow this. A quota failure that says nothing is worse than
+           no autosave at all, because it teaches the user to trust it. */
+        lastErr = (e && e.name === "QuotaExceededError")
+          ? "this browser's storage is full" : "this browser refused the write";
+      }
+      paint();
+    }
+
+    function touch(){
+      if(!ok) return;
+      if(timer) clearTimeout(timer);
+      timer = setTimeout(write, o.debounce == null ? 500 : o.debounce);
+    }
+
+    function flush(){ if(timer){ clearTimeout(timer); } write(); }
+
+    function forget(){
+      /* Cancel the pending write first. Without this the debounced save from
+         the edit that preceded the click -- or from the click itself, on a
+         page that listens for clicks -- lands a few hundred milliseconds later
+         and puts the copy straight back, which makes the button look like it
+         did nothing. */
+      if(timer){ clearTimeout(timer); timer = null; }
+      try { window.localStorage.removeItem(key); }catch(e){}
+      savedAt = null; restoredFrom = null; lastErr = null; paint();
+      if(o.onforget) o.onforget();
+    }
+
+    function paint(){
+      if(!host) return;
+      /* noprint: this is screen chrome -- a status line about a browser and a
+         button -- and the print audit is right to count anything else that
+         vanishes on paper as content lost. */
+      host.className = "keep noprint" + ((!ok || lastErr) ? " bad" : "");
+      var msg;
+      if(!ok){
+        msg = "<b>This browser is not keeping anything.</b> Storage is unavailable here &mdash; a "
+            + "private window, or site data switched off. Nothing is being saved, so export before "
+            + "you close the tab.";
+      } else if(lastErr){
+        msg = "<b>Autosave failed &mdash; " + esc(lastErr) + ".</b> What is on screen is not saved. "
+            + "Export it now.";
+      } else if(savedAt){
+        msg = "Saved on this device <b>" + esc(when(savedAt)) + "</b>"
+            + (restoredFrom ? " &middot; restored from " + esc(when(restoredFrom)) : "") + ".";
+      } else if(restoredFrom){
+        msg = "Restored " + esc(noun) + " from <b>" + esc(when(restoredFrom)) + "</b> on this device.";
+      } else {
+        msg = "Autosave is on. " + esc(noun.charAt(0).toUpperCase() + noun.slice(1))
+            + " will still be here if you close the tab.";
+      }
+      host.innerHTML =
+        '<p class="st">' + msg + '</p>'
+        + '<button type="button" data-keep-forget>Forget this device\'s copy</button>'
+        + '<p class="note"><b>This is not a backup.</b> It is one browser on one device, and it goes '
+        + 'when site data is cleared, in a private window, or on any other machine. It exists so a '
+        + 'phone call does not cost you a morning. The exports are the durable copy.</p>';
+      var b = host.querySelector("[data-keep-forget]");
+      if(b) b.addEventListener("click", function(){
+        forget();
+        if(o.ontoast) o.ontoast("Saved copy removed from this device");
+      });
+    }
+
+    var got = read();
+    if(got){
+      var accepted = false;
+      try { accepted = o.restore(got.body) !== false; } catch(e){ accepted = false; }
+      if(accepted){ restoredFrom = got.at; }
+    }
+    paint();
+    /* A tab closing mid-debounce is exactly the case this exists for. */
+    try {
+      window.addEventListener("pagehide", function(){ if(timer) flush(); });
+      document.addEventListener("visibilitychange", function(){
+        if(document.visibilityState === "hidden" && timer) flush(); });
+    } catch(e){}
+
+    return { touch:touch, flush:flush, forget:forget, usable:function(){ return ok; },
+             restored:function(){ return restoredFrom; }, savedAt:function(){ return savedAt; },
+             error:function(){ return lastErr; } };
+  }
+
+  /* ---- generic form capture ----
+     Every page in the kit keeps its typed state in elements with ids -- real
+     inputs for text and dates, hidden write-through fields for the FEK
+     widgets. Capturing them by walking the DOM means a page that gains a field
+     does not also have to remember to add it to a list, which is how a
+     hand-maintained list of fields quietly stops covering the newest one. */
+  function formSnapshot(){
+    var out = {}, i, els = document.querySelectorAll("input[id], textarea[id]");
+    for(i=0;i<els.length;i++){
+      var e = els[i];
+      if(e.type === "file" || e.type === "button" || e.type === "submit") continue;
+      out[e.id] = (e.type === "checkbox" || e.type === "radio") ? (e.checked ? "1" : "") : e.value;
+    }
+    return out;
+  }
+  /* Restoring the hidden field is only half the job: the widget above it still
+     shows its construction default, and a correct value under a wrong-looking
+     dial is worse than no restore at all. FEK.setField (v1.3.0) puts the value
+     back through the widget for every component that declared its field. */
+  function formRestore(map){
+    if(!map) return 0;
+    var n = 0, id;
+    for(id in map){
+      if(!map.hasOwnProperty(id)) continue;
+      var e = document.getElementById(id);
+      if(!e) continue;
+      if(e.type === "checkbox" || e.type === "radio") e.checked = !!map[id];
+      else e.value = map[id];
+      if(typeof FEK !== "undefined" && FEK.setField){
+        var v = map[id];
+        if(e.type === "number" || /^-?\d+(\.\d+)?$/.test(String(v))) {
+          FEK.setField(id, v === "" ? null : parseFloat(v));
+        } else {
+          FEK.setField(id, v === "" ? null : v);
+        }
+      }
+      n++;
+    }
+    return n;
+  }
+
+  return { version:"1.0.0", wire:wire, usable:usable,
+           formSnapshot:formSnapshot, formRestore:formRestore };
 })();
 
 /* ---- Darwin Core v1.2.0 : Simple DwC, one flat table ---- */
@@ -1877,17 +2133,17 @@ var DWC = (function(){
   }
   var GEO={}, PHY={}, COV={}, HT={};
 
-  GEO.design = FEK.chips({ label:"design", single:true, value:["circ"],
+  GEO.design = FEK.chips({ field:"sDesign", label:"design", single:true, value:["circ"],
     options:[{value:"circ",label:"fixed-radius circle"},{value:"rect",label:"rectangle / belt"}],
     onchange:function(a){ push("sDesign", a[0]||"circ"); geoPaint(); } });
-  GEO.rad = FEK.step({ label:"radius", unit:"m", value:11.28, min:0, max:60, step:0.01, dec:2,
+  GEO.rad = FEK.step({ field:"sRad", label:"radius", unit:"m", value:11.28, min:0, max:60, step:0.01, dec:2,
     onchange:function(v){ push("sRad",v); },
     help:"11.28 m = 400 m² = 0.04 ha, the common US fixed plot. 5.64 m = 100 m²." });
-  GEO.len = FEK.step({ label:"length", unit:"m", value:20, min:0, max:500, step:1, dec:0,
+  GEO.len = FEK.step({ field:"sLen", label:"length", unit:"m", value:20, min:0, max:500, step:1, dec:0,
     onchange:function(v){ push("sLen",v); } });
-  GEO.wid = FEK.step({ label:"width", unit:"m", value:20, min:0, max:200, step:1, dec:0,
+  GEO.wid = FEK.step({ field:"sWid", label:"width", unit:"m", value:20, min:0, max:200, step:1, dec:0,
     onchange:function(v){ push("sWid",v); } });
-  GEO.min = FEK.step({ label:"min DBH tallied", unit:"cm", value:5, min:0, max:100, step:0.5, dec:1,
+  GEO.min = FEK.step({ field:"sMin", label:"min DBH tallied", unit:"cm", value:5, min:0, max:100, step:0.5, dec:1,
     onchange:function(v){ push("sMin",v); },
     help:"Expansion factors are meaningless without it — state the diameter below which you stopped tallying." });
   function geoPaint(){
@@ -1903,19 +2159,19 @@ var DWC = (function(){
     {value:180, label:"S",  ramp:4},{value:225, label:"SW", ramp:5},
     {value:270, label:"W",  ramp:4},{value:315, label:"NW", ramp:2}
   ];
-  PHY.asp = FEK.dial({ label:"aspect", options:ASPECTS, clearable:true,
+  PHY.asp = FEK.dial({ field:"sAsp", label:"aspect", options:ASPECTS, clearable:true,
     onchange:function(v){ push("sAsp", v); },
     help:"Eight points is what a compass gives you in the field without pretending to a precision you did not measure. The colour is the heat-load axis: SW is the drought end, NE the moist end." });
-  PHY.slope = FEK.step({ label:"slope", unit:"%", value:0, min:0, max:200, step:5, dec:0,
+  PHY.slope = FEK.step({ field:"sSlope", label:"slope", unit:"%", value:0, min:0, max:200, step:5, dec:0,
     onchange:function(v){ push("sSlope",v); },
     help:"Percent, not degrees — 100% is a 45° slope." });
-  PHY.pos = FEK.dial({ label:"slope position",
+  PHY.pos = FEK.dial({ field:"sPos", label:"slope position",
     options:[{value:"ridge",label:"ridge"},{value:"upper slope",label:"upper"},
              {value:"mid slope",label:"mid"},{value:"lower slope",label:"lower"},
              {value:"toe / bench",label:"toe"},{value:"valley bottom",label:"bottom"},
              {value:"flat",label:"flat"}],
     onchange:function(v){ push("sPos",v); } });
-  PHY.soil = FEK.dial({ label:"soil texture",
+  PHY.soil = FEK.dial({ field:"sSoil", label:"soil texture",
     options:[{value:"sand",label:"sand"},{value:"loamy sand",label:"loamy sand"},
              {value:"sandy loam",label:"sandy loam"},{value:"loam",label:"loam"},
              {value:"silt loam",label:"silt loam"},{value:"clay loam",label:"clay loam"},
@@ -1923,7 +2179,7 @@ var DWC = (function(){
              {value:"rocky / skeletal",label:"rocky"}],
     onchange:function(v){ push("sSoil",v); },
     help:"By feel. Soil Bench carries the full USDA ribbon-and-grit key if you want to work it properly." });
-  PHY.moist = FEK.dial({ label:"moisture class",
+  PHY.moist = FEK.dial({ field:"sMoist", label:"moisture class",
     options:[{value:"xeric",label:"xeric",ramp:5},{value:"subxeric",label:"subxeric",ramp:4},
              {value:"mesic",label:"mesic",ramp:2},{value:"subhygric",label:"subhygric",ramp:1},
              {value:"hygric",label:"hygric",ramp:0},{value:"riparian",label:"riparian",ramp:0}],
@@ -1941,26 +2197,26 @@ var DWC = (function(){
   COV.herb = coverSlider("sHerb","herb cover");
   COV.bare = coverSlider("sBare","bare / rock",
     "Cover layers overlap, so these four need not sum to 100.");
-  COV.lit  = FEK.step({ label:"litter depth", unit:"cm", value:0, min:0, max:60, step:0.5, dec:1,
+  COV.lit  = FEK.step({ field:"sLit", label:"litter depth", unit:"cm", value:0, min:0, max:60, step:0.5, dec:1,
     onchange:function(v){ push("sLit",v); } });
-  COV.browse= FEK.step({ label:"browse line height", unit:"m", value:0, min:0, max:5, step:0.1, dec:1,
+  COV.browse= FEK.step({ field:"sBrowse", label:"browse line height", unit:"m", value:0, min:0, max:5, step:0.1, dec:1,
     onchange:function(v){ push("sBrowse",v); },
     help:"A clean line at a consistent height is the herbivores telling you the browsing pressure." });
   FEK.mount("covEntry",[COV.can,COV.shrub,COV.herb,COV.bare,COV.lit,COV.browse]);
 
-  var CWDL = FEK.step({ label:"transect length", unit:"m", value:30, min:1, max:200, step:5, dec:0,
+  var CWDL = FEK.step({ field:"cwdL", label:"transect length", unit:"m", value:30, min:1, max:200, step:5, dec:0,
     onchange:function(v){ push("cwdL",v); } });
   FEK.mount("cwdEntry",[CWDL]);
 
-  HT.d = FEK.step({ label:"horizontal distance", unit:"m", value:0, min:0, max:200, step:1, dec:1,
+  HT.d = FEK.step({ field:"hD", label:"horizontal distance", unit:"m", value:0, min:0, max:200, step:1, dec:1,
     onchange:function(v){ push("hD",v); },
     help:"Horizontal, not slope distance — on a 20% slope, slope distance overestimates by about 2%." });
-  HT.u = FEK.chips({ label:"angle units", single:true, value:["deg"],
+  HT.u = FEK.chips({ field:"hU", label:"angle units", single:true, value:["deg"],
     options:[{value:"deg",label:"degrees"},{value:"pct",label:"percent"}],
     onchange:function(a){ push("hU", a[0]||"deg"); } });
-  HT.t = FEK.step({ label:"angle to TOP", value:0, min:-90, max:90, step:1, dec:0,
+  HT.t = FEK.step({ field:"hT", label:"angle to TOP", value:0, min:-90, max:90, step:1, dec:0,
     onchange:function(v){ push("hT",v); } });
-  HT.b = FEK.step({ label:"angle to BASE", value:0, min:-90, max:90, step:1, dec:0,
+  HT.b = FEK.step({ field:"hB", label:"angle to BASE", value:0, min:-90, max:90, step:1, dec:0,
     onchange:function(v){ push("hB",v); },
     help:"Looking up is positive, looking down negative. Standing below the tree you read a negative base angle." });
   FEK.mount("htEntry",[HT.d,HT.u,HT.t,HT.b]);
@@ -2068,17 +2324,17 @@ var DWC = (function(){
   }
 
   /* ================= INTERACTIONS ================= */
-  var ITYPE=FEK.picker({ label:"interaction", placeholder:"type to filter\u2026",
+  var ITYPE=FEK.picker({ field:"iT", label:"interaction", placeholder:"type to filter\u2026",
     options: INTER_TYPES.map(function(t){ return {value:t.id, label:t.n, sub:"A "+esc(t.dir)+" B"}; }),
     onchange:function(v){ push("iT",v); },
     help:"The subtitle reads the relationship in the direction the record stores it \u2014 A does the verb to B. If that is backwards for what you saw, swap the two partners rather than picking a different type." });
-  var IEV=FEK.dial({ label:"evidence", clearable:false, value:"obs",
+  var IEV=FEK.dial({ field:"iE", label:"evidence", clearable:false, value:"obs",
     options:[{value:"obs",label:"observed",sub:"you watched it",ramp:2},
              {value:"sign",label:"sign",sub:"damage, structure",ramp:1},
              {value:"inf",label:"inferred",sub:"from context",ramp:3},
              {value:"lit",label:"literature",sub:"someone else's",ramp:0}],
     onchange:function(v){ push("iE",v); } });
-  var ICONF=FEK.dial({ label:"confidence", clearable:false, value:"2",
+  var ICONF=FEK.dial({ field:"iC", label:"confidence", clearable:false, value:"2",
     options:[{value:"3",label:"high",ramp:2},{value:"2",label:"medium",ramp:3},{value:"1",label:"low",ramp:4}],
     onchange:function(v){ push("iC",v); },
     help:"Evidence class and confidence are separate on purpose. A mutualism you read in a paper can be high-confidence and still not something you observed \u2014 keeping the two apart is what lets someone else read your sheet honestly." });
@@ -2377,6 +2633,53 @@ var DWC = (function(){
 
   /* ================= BOOT ================= */
   renderKey(); packStats(); fillSpeciesSelect(); siteOut(); renderTally(); renderPhotos(); renderInter();
+
+  /* ---------- local autosave ----------
+     What is lost when a tab closes is a morning of typing, and until this slice
+     every one of these sheets lost it. Records and typed fields are kept; the
+     derived numbers are not, because they are recomputed on restore and a
+     stored copy could disagree with the code that would produce it now. */
+  var KEPT = KEEP.wire({
+    key: "csrbtStandSheet",
+    format: 1,
+    mount: "keepBox",
+    noun: "this stand",
+    ontoast: toast,
+    snapshot: function(){
+      var st = { stems:stems, inters:inters, dist:distSel, seq:seq };
+      var any = false, q;
+      for(q in st) if(st.hasOwnProperty(q) && st[q] && st[q].length) any = true;
+      var f = KEEP.formSnapshot(), k;
+      for(k in f) if(f.hasOwnProperty(k) && String(f[k]).trim() !== "") { any = true; break; }
+      if(!any) return null;
+      return { fields: f, state: st };
+    },
+    restore: function(b){
+      if(!b) return false;
+      KEEP.formRestore(b.fields);
+      var st = b.state || {};
+      restoreState(st);
+      return true;
+    }
+  });
+  function restoreState(b){
+      stems.length = 0; (b.stems||[]).forEach(function(r){ stems.push(r); });
+      inters.length = 0; (b.inters||[]).forEach(function(r){ inters.push(r); });
+      for(var q in distSel) if(distSel.hasOwnProperty(q)) delete distSel[q];
+      if(b.dist) for(var q2 in b.dist) if(b.dist.hasOwnProperty(q2)) distSel[q2]=b.dist[q2];
+      seq = b.seq || (stems.length+1);
+      siteOut(); renderTally(); renderInter(); ecoOut(); dwcRefresh();
+  }
+  /* One listener at the document root rather than per field: a page that grows
+     a field should not also have to remember to make it save. */
+  function fromKeepStrip(e){
+    return !!(e && e.target && e.target.closest && e.target.closest("#keepBox"));
+  }
+  document.addEventListener("input",  function(e){ if(!fromKeepStrip(e)) KEPT.touch(); }, true);
+  document.addEventListener("change", function(e){ if(!fromKeepStrip(e)) KEPT.touch(); }, true);
+  document.addEventListener("click",  function(e){
+    if(fromKeepStrip(e)) return;
+    if(e.target && e.target.closest && e.target.closest("button")) KEPT.touch(); }, true);
 })();
 </script>
 

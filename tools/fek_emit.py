@@ -24,20 +24,32 @@ spec = importlib.util.spec_from_file_location("fek", os.path.join(ROOT, "tools",
 fek = importlib.util.module_from_spec(spec)
 spec.loader.exec_module(fek)
 
-CSS_RE = re.compile(r"[ \t]*/\* =+ Field Entry Kit v[\d.]+ =+.*?\n(?=\s*/\* |\s*\.fek|\s*</style>)", re.S)
 JS_RE = re.compile(r"/\* ---- Field Entry Kit v[\d.]+ :.*?\n\}\)\(\);", re.S)
 
 
-def block_bounds(src):
-    """The CSS block runs from its banner to the last rule that belongs to it."""
-    m = re.search(r"[ \t]*/\* =+ Field Entry Kit v[\d.]+ =+", src)
-    if not m:
+def css_span(src):
+    """Where the inlined FEK stylesheet starts and ends in a page.
+
+    This used to be guessed by a lookahead for "the next non-FEK comment",
+    which was fragile, and -- worse -- main() never called it. The CSS half of
+    this regenerator was dead code from the day it was written: every bump to
+    fek.CSS since has silently failed to reach a single page, and the fifteen
+    inlined stylesheets were whatever they happened to be when last copied by
+    hand. Found when v1.3.0 left every page's CSS banner reading v1.2.0.
+
+    The boundary is now taken from the source of truth itself: the block runs
+    from its banner to the end of fek.CSS's own last rule. If that rule is not
+    in the page, the page predates it and is reported rather than guessed at.
+    """
+    start = src.find("/* ============ Field Entry Kit v")
+    if start == -1:
         return None
-    start = m.start()
-    # the kit's CSS is every rule up to the next non-FEK top-level comment
-    tail = src[m.end():]
-    end_rel = re.search(r"\n(?![ \t]*(/\*|\.fek|\s*$|[ \t]*[a-z-]+\s*\{[^}]*fek))[ \t]*/\* (?!=)", tail)
-    return start, (m.end() + end_rel.start() + 1) if end_rel else None
+    line_start = src.rfind("\n", 0, start) + 1
+    tail_rule = [l for l in fek.CSS.strip("\n").split("\n") if l.strip()][-1].strip()
+    end = src.find(tail_rule, start)
+    if end == -1:
+        return None
+    return line_start, end + len(tail_rule)
 
 
 def main(argv):
@@ -53,6 +65,11 @@ def main(argv):
         if not jm:
             drift.append((nm, "no JS block found")); continue
         out = out[:jm.start()] + fek.JS.strip("\n") + out[jm.end():]
+
+        span = css_span(out)
+        if span is None:
+            drift.append((nm, "no CSS block found -- the stylesheet cannot be regenerated")); continue
+        out = out[:span[0]] + fek.CSS.strip("\n") + out[span[1]:]
 
         stale = re.findall(r'version:"([\d.]+)"', src)
         banner = sorted(set(re.findall(r"Field Entry Kit v([\d.]+)", src)))

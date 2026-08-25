@@ -1,0 +1,1948 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Ordination — NMDS, PCoA, and what the stress is worth</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<!-- Webfonts load without blocking first paint: a stylesheet request that
+     hangs (one bar of signal) otherwise holds the page blank indefinitely,
+     which breaks the offline constraint in ADR-031. See tools/audit_offline.py. -->
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,600;9..144,700&family=Nunito+Sans:wght@400;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" media="print" data-webfont>
+<noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,600;9..144,700&family=Nunito+Sans:wght@400;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap"></noscript>
+<script>(function(){var l=document.querySelector('link[data-webfont]');if(!l)return;
+  var on=function(){l.media="all";};
+  if(l.sheet){on();}else{l.addEventListener("load",on);l.addEventListener("error",function(){});}
+})();</script>
+<style>
+  :root {
+    color-scheme: light;
+    --page:#F5F1E6; --surface:#FFFDF7; --surface-2:#F3EEE0; --ink:#23281F; --ink-2:#4B5344;
+    --muted:#6B6B5E; --border:#E3DCC9; --s1:#2C784C; --s1-deep:#236240; --s2:#A94F26; --s3:#2B6C8F;
+    --soft:#E9F0E7; --warn-bg:#F6EAD8; --danger:#B23A32; --danger-bg:#F6E7E5; --gold:#8A6408;
+    --shadow:0 1px 2px rgba(35,40,31,.06),0 10px 28px rgba(35,40,31,.08);
+    --head:"Fraunces",Georgia,serif;
+    --body:"Nunito Sans",system-ui,-apple-system,sans-serif;
+    --mono:"JetBrains Mono",ui-monospace,Menlo,monospace;
+  }
+  * { box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
+  body { margin:0; background:var(--page); color:var(--ink); font:16px/1.5 var(--body);
+    -webkit-font-smoothing:antialiased; overscroll-behavior-y:contain; }
+  .app { max-width:960px; margin:0 auto; padding:14px 16px calc(104px + env(safe-area-inset-bottom)); }
+  .top { display:flex; align-items:baseline; justify-content:space-between; gap:10px; padding:6px 2px 12px; flex-wrap:wrap; }
+  .brand { font-family:var(--head); font-weight:700; font-size:22px; letter-spacing:-0.01em; }
+  .brand span { color:var(--s1); }
+  .top a { font-family:var(--mono); font-size:11.5px; color:var(--muted); text-decoration:none;
+    display:inline-flex; align-items:center; min-height:44px; padding:0 6px; margin:-10px -6px; touch-action:manipulation; }
+  .top a:hover { color:var(--s1); }
+
+  .tabbar { position:fixed; left:0; right:0; bottom:0; z-index:20;
+    background:color-mix(in srgb, var(--surface) 94%, transparent); backdrop-filter:blur(10px);
+    border-top:1px solid var(--border); padding:8px max(8px, env(safe-area-inset-left)) calc(8px + env(safe-area-inset-bottom)); }
+  .tabbar .row { max-width:960px; margin:0 auto; display:grid; grid-template-columns:repeat(4,1fr); gap:4px; }
+  .tab { display:flex; flex-direction:column; align-items:center; gap:2px; border:0; background:none;
+    font:700 10.5px var(--body); color:var(--muted); padding:7px 1px; border-radius:12px; cursor:pointer;
+    min-height:54px; touch-action:manipulation; transition:background .15s ease, color .15s ease; }
+  .tab .ico { font-size:20px; line-height:1; }
+  .tab.on { color:var(--s1); background:var(--soft); }
+  .tab:active { transform:scale(.96); }
+  .pane { display:none; animation:fade .18s ease; }
+  .pane.on { display:block; }
+  @keyframes fade { from{opacity:0;transform:translateY(4px);} to{opacity:1;transform:none;} }
+  @media (prefers-reduced-motion: reduce){ .pane{animation:none;} }
+
+  h2 { font-family:var(--head); font-weight:600; font-size:20px; margin:6px 0 2px; }
+  h3 { font-family:var(--head); font-weight:600; font-size:16.5px; margin:16px 0 4px; }
+  .hint { color:var(--muted); font-size:14px; margin:0 0 12px; }
+  .card { background:var(--surface); border:1px solid var(--border); border-radius:16px;
+    padding:16px; box-shadow:var(--shadow); margin-bottom:14px; }
+  .fine { font-size:12.5px; color:var(--muted); margin-top:10px; line-height:1.55; }
+
+  input[type=text], input[type=number], input[type=date], select, textarea {
+    background:var(--surface); color:var(--ink); border:1.5px solid var(--border); border-radius:12px;
+    padding:11px 14px; font:16px var(--body); min-height:48px; max-width:100%; }
+  textarea { min-height:78px; line-height:1.5; width:100%; }
+  input:focus, select:focus, textarea:focus { outline:none; border-color:var(--s1); box-shadow:0 0 0 3px rgba(44,120,76,.18); }
+  input[type=number] { width:110px; }
+  label.f { display:flex; flex-direction:column; gap:5px; font-size:13px; font-weight:700; color:var(--ink-2); min-width:0; }
+  .grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(150px,1fr)); gap:10px; }
+  .grid label.f input, .grid label.f select { width:100%; }
+
+  .btn { border:0; border-radius:12px; padding:12px 18px; font:800 15px var(--body); cursor:pointer;
+    min-height:48px; touch-action:manipulation; transition:transform .1s ease, background .15s ease; }
+  .btn:active { transform:scale(.97); }
+  .btn-go { background:var(--s1); color:#fff; } .btn-go:hover { background:var(--s1-deep); }
+  .btn-soft { background:var(--soft); color:var(--s1); }
+  .btn-ghost { background:none; border:1.5px solid var(--border); color:var(--ink-2); }
+  .btn-ghost:hover { border-color:var(--s1); color:var(--s1); }
+  .btn-row { display:flex; gap:8px; flex-wrap:wrap; margin-top:12px; align-items:end; }
+
+  .kopts { display:flex; flex-wrap:wrap; gap:8px; }
+  .kopt { border:1.5px solid var(--border); background:var(--surface); border-radius:14px; padding:10px 14px;
+    font:700 14px var(--body); color:var(--ink-2); cursor:pointer; min-height:46px; touch-action:manipulation;
+    display:inline-flex; flex-direction:column; align-items:flex-start; gap:1px; }
+  .kopt small { font-weight:400; font-size:11px; color:var(--muted); font-family:var(--mono); }
+  .kopt.on { border-color:var(--s1); background:var(--soft); color:var(--s1); }
+
+    padding:8px 6px; font:800 15px var(--body); color:var(--ink-2); cursor:pointer; min-height:52px;
+    display:flex; flex-direction:column; align-items:center; justify-content:center; gap:1px; touch-action:manipulation; }
+
+  .tiles { display:flex; flex-wrap:wrap; gap:8px; margin:12px 0 2px; }
+  .tile { background:var(--surface-2); border:1px solid var(--border); border-radius:12px; padding:9px 14px; min-width:96px; }
+  .tile .v { font-family:var(--head); font-weight:700; font-size:21px; font-variant-numeric:tabular-nums; }
+  .tile .l { font-size:11px; color:var(--muted); }
+  .verdict { border-radius:12px; padding:13px 16px; margin:12px 0 2px; font-size:15.5px; line-height:1.55;
+    border-left:4px solid var(--s1); background:var(--soft); color:var(--ink-2); }
+  .verdict b { color:var(--ink); }
+  .verdict.warn { border-left-color:var(--s2); background:var(--warn-bg); }
+  .verdict.act { border-left-color:var(--danger); background:var(--danger-bg); }
+
+  .tw { overflow-x:auto; -webkit-overflow-scrolling:touch; margin:10px 0; }
+  table { border-collapse:collapse; width:100%; font-size:14px; }
+  th,td { border:1px solid var(--border); padding:6px 9px; text-align:left; vertical-align:top; white-space:nowrap; }
+  th { background:var(--soft); font-family:var(--head); font-weight:600; font-size:13px; }
+  td.n, th.n { text-align:right; font-variant-numeric:tabular-nums; font-family:var(--mono); font-size:13px; }
+  td i { font-style:italic; color:var(--ink-2); }
+
+  .rowlist { display:grid; gap:8px; margin-top:10px; }
+  .row2 { display:flex; align-items:center; gap:10px; background:var(--surface); border:1px solid var(--border);
+    border-radius:12px; padding:10px 13px; font-size:15px; }
+  .row2.inv { border-left:3px solid var(--danger); }
+  .row2 .g { flex:1; min-width:0; }
+  .row2 .g b { font-family:var(--head); font-size:15.5px; }
+  .row2 .g b i { font-style:italic; font-weight:400; color:var(--ink-2); font-size:14px; }
+  .row2 .g span { display:block; color:var(--muted); font-size:12.5px; font-family:var(--mono); margin-top:1px;
+    overflow:hidden; text-overflow:ellipsis; }
+  .row2 .cov { font-family:var(--head); font-weight:700; font-size:17px; color:var(--s1); min-width:46px; text-align:right; }
+  .row2 button { border:0; background:none; color:var(--muted); font-size:15px; padding:9px 11px; cursor:pointer; min-height:44px; min-width:44px; }
+  .row2 button:hover { color:var(--danger); }
+
+  .bars { display:grid; gap:6px; margin-top:10px; }
+  .bar { display:grid; grid-template-columns:132px 1fr 54px; gap:8px; align-items:center; font-size:13.5px; }
+  .bar .nm { font-weight:700; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+  .bar .tr { display:block; background:var(--surface-2); border:1px solid var(--border); border-radius:8px; height:20px; overflow:hidden; }
+  .bar .fl { display:block; height:100%; background:var(--s1); border-radius:7px 0 0 7px; transition:width .4s ease; }
+  .bar .fl.inv { background:var(--s2); }
+  .bar .pc { text-align:right; font-variant-numeric:tabular-nums; color:var(--ink-2); font-family:var(--mono); font-size:12.5px; }
+
+  .label { background:#fff; border:1px solid var(--ink); border-radius:2px; padding:14px 16px; margin-top:10px;
+    font:12.5px/1.5 var(--body); color:#000; max-width:440px; }
+  .label .inst { font-family:var(--head); font-weight:700; font-size:12px; letter-spacing:.06em;
+    text-transform:uppercase; text-align:center; border-bottom:1px solid #000; padding-bottom:5px; margin-bottom:7px; }
+  .label .sci { font-style:italic; font-weight:700; font-size:14px; }
+  .label .row { margin:3px 0; }
+  .label .k { font-weight:700; }
+  .label .coll { margin-top:8px; padding-top:6px; border-top:1px solid #999; display:flex; justify-content:space-between; }
+
+  pre.export { background:#23281F; color:#E8E4D5; border-radius:12px; padding:14px 16px; overflow-x:auto;
+    font:12.5px/1.65 var(--mono); max-height:340px; }
+  code { font-family:var(--mono); font-size:.82em; background:var(--surface-2); border:1px solid var(--border); border-radius:5px; padding:1px 5px; }
+
+  .toast { position:fixed; left:50%; bottom:84px; transform:translateX(-50%) translateY(90px); z-index:30;
+    background:var(--ink); color:#F5F1E6; border-radius:999px; padding:10px 22px; font:700 14px var(--body);
+    transition:transform .25s ease; pointer-events:none; max-width:88vw; text-align:center; }
+  .toast.on { transform:translateX(-50%) translateY(0); }
+
+  @media print {
+    .tabbar, .btn, .kopts, .top a, .noprint { display:none !important; }
+    body { background:#fff; } .pane { display:block !important; }
+    .app { padding-bottom:0; } .card { break-inside:avoid; } table { font-size:10pt; }
+    pre.export { background:#fff; color:#000; border:1px solid #ccc; max-height:none; }
+    .label { break-inside:avoid; page-break-inside:avoid; }
+  }
+
+  .rail { margin:26px 0 4px; }
+  .rail .rl { font-family:var(--mono); font-size:11px; letter-spacing:.14em; text-transform:uppercase; color:var(--muted); margin:0 2px 8px; }
+  .rail .chips { display:flex; flex-wrap:wrap; gap:8px; }
+  .rail a { display:inline-flex; align-items:center; gap:7px; text-decoration:none; font:700 13.5px var(--body);
+    color:var(--ink-2); background:var(--surface); border:1px solid var(--border); border-radius:999px;
+    padding:9px 15px; min-height:44px; box-shadow:var(--shadow); touch-action:manipulation; }
+  .rail a:hover { border-color:var(--s1); color:var(--s1); }
+  .rail a[aria-current="page"] { background:var(--soft); border-color:var(--s1); color:var(--s1); }
+  .rail a.ref { font-weight:600; color:var(--muted); background:none; box-shadow:none; }
+  @media print { .rail { display:none !important; } }
+
+  /* ============ Field Entry Kit v1.3.0 ============
+     Large-target, high-contrast entry controls. Sizing is driven by --tap
+     rather than per-component numbers so one token retunes the whole kit for
+     gloves, cold hands or a wall-mounted tablet. */
+  :root {
+    --tap: 60px;            /* primary control height  */
+    --tap-sm: 48px;         /* secondary control height */
+    --fek-r: 16px;
+    /* These three moved for WCAG AA and the move was made in the pages, by
+       hand, and never came back here -- because the CSS half of fek_emit was
+       dead code and nobody could tell. Source and pages agreed only by
+       ramp-1 moved here too: at its old teal, white label text on a selected
+       button measured 3.94:1 and the .92-white sub-line 3.59:1, both under AA.
+       No page had caught it because none defaulted to a ramp-1 option until the
+       deployment log did. Every ramp is now checked against both, in
+       verify_contrast_slice.
+       The pre-fix ramp values are named in verify_contrast_slice,
+       which greps for them literally across every page -- so they are not
+       repeated here, because a comment naming them is itself a page carrying
+       them, and the suite is right not to care why. */
+    --ramp-0:#2B6C8F; --ramp-1:#2F7373; --ramp-2:#2C784C;
+    --ramp-3:#8A6408; --ramp-4:#A94F26; --ramp-5:#B23A32;
+    --fek-line:#C7C0AC;
+  }
+  .fek-lab { display:block; font:800 15px var(--body); color:var(--ink-2);
+    letter-spacing:.01em; margin:0 0 6px; }
+  .fek-lab .u { font:600 12.5px var(--mono); color:var(--muted); margin-left:6px; }
+  .fek-help { font-size:13.5px; color:var(--muted); line-height:1.5; margin:6px 0 0; }
+  .fek-row { margin:0 0 20px; }
+
+  /* --- stepper: the workhorse numeric entry --- */
+  .fek-step { display:flex; align-items:stretch; gap:0; border:2px solid var(--border);
+    border-radius:var(--fek-r); overflow:hidden; background:var(--surface); max-width:340px; }
+  .fek-step button { border:0; background:var(--surface-2); color:var(--ink);
+    font:800 30px var(--body); line-height:1; width:calc(var(--tap) + 8px); min-height:var(--tap);
+    cursor:pointer; touch-action:manipulation; transition:background .12s; }
+  .fek-step button:hover { background:var(--soft); color:var(--s1); }
+  .fek-step button:active { background:var(--s1); color:#fff; }
+  .fek-step .val { flex:1; min-width:0; text-align:center; border:0; background:none;
+    font:800 30px var(--head); color:var(--ink); font-variant-numeric:tabular-nums;
+    -moz-appearance:textfield; padding:0 4px; }
+  .fek-step .val::-webkit-outer-spin-button,
+  .fek-step .val::-webkit-inner-spin-button { -webkit-appearance:none; margin:0; }
+  .fek-step .val:focus { outline:none; background:var(--soft); }
+
+  /* --- segmented ordinal dial with a colour ramp --- */
+  .fek-dial { display:flex; flex-wrap:wrap; gap:8px; }
+  .fek-dial button { flex:1 1 auto; min-width:72px; min-height:var(--tap);
+    border:2px solid var(--border); border-radius:var(--fek-r); background:var(--surface);
+    font:800 17px var(--body); color:var(--ink-2); cursor:pointer; touch-action:manipulation;
+    display:flex; flex-direction:column; align-items:center; justify-content:center; gap:2px;
+    padding:6px 8px; transition:transform .08s, border-color .12s, background .12s; }
+  .fek-dial button small { font:600 11px var(--mono); color:var(--muted); letter-spacing:.02em; }
+  .fek-dial button:active { transform:scale(.96); }
+  .fek-dial button.on { color:#fff; border-color:transparent; }
+  .fek-dial button.on small { color:rgba(255,255,255,.92); }
+  .fek-dial button.on[data-r="0"]{background:var(--ramp-0);}
+  .fek-dial button.on[data-r="1"]{background:var(--ramp-1);}
+  .fek-dial button.on[data-r="2"]{background:var(--ramp-2);}
+  .fek-dial button.on[data-r="3"]{background:var(--ramp-3);}
+  .fek-dial button.on[data-r="4"]{background:var(--ramp-4);}
+  .fek-dial button.on[data-r="5"]{background:var(--ramp-5);}
+
+  /* --- field: a typed value from an instrument readout ---
+     A stepper is the wrong control for a number you READ off a machine to three
+     decimals: you would tap two thousand times to reach 1.842. This is a plain
+     numeric entry sized like the rest of the kit, with the unit shown and the
+     decimal keypad requested, and nothing that pretends the value is scrollable. */
+  .fek-field { display:flex; align-items:stretch; gap:0; border:2px solid var(--border);
+    border-radius:var(--fek-r); overflow:hidden; background:var(--surface); max-width:340px; }
+  .fek-field input { flex:1; min-width:0; border:0; background:none; text-align:right;
+    font:800 26px var(--head); color:var(--ink); font-variant-numeric:tabular-nums;
+    -moz-appearance:textfield; padding:0 12px; min-height:var(--tap); }
+  .fek-field input::-webkit-outer-spin-button,
+  .fek-field input::-webkit-inner-spin-button { -webkit-appearance:none; margin:0; }
+  .fek-field input:focus { outline:none; background:var(--soft); }
+  .fek-field input::placeholder { color:var(--muted); font-weight:600; font-size:20px; }
+  .fek-field .u { display:flex; align-items:center; padding:0 14px; background:var(--surface-2);
+    font:700 13px var(--mono); color:var(--muted); border-left:2px solid var(--border); white-space:nowrap; }
+  .fek-field.empty { border-style:dashed; }
+
+  /* --- big toggle chips --- */
+  .fek-chips { display:flex; flex-wrap:wrap; gap:9px; }
+  .fek-chip { min-height:var(--tap-sm); border:2px solid var(--border); border-radius:999px;
+    background:var(--surface); font:800 15.5px var(--body); color:var(--ink-2);
+    padding:0 20px; cursor:pointer; touch-action:manipulation; display:inline-flex;
+    align-items:center; gap:8px; transition:transform .08s, border-color .12s, background .12s; }
+  .fek-chip:active { transform:scale(.96); }
+  .fek-chip.on { border-color:var(--s1); background:var(--soft); color:var(--s1-deep); }
+  .fek-chip.on::before { content:"\2713"; font-size:17px; }
+
+  /* --- slider with a live bubble --- */
+  .fek-slide { display:flex; align-items:center; gap:14px; }
+  .fek-slide input[type=range] { flex:1; min-width:0; height:var(--tap-sm); -webkit-appearance:none;
+    background:transparent; cursor:pointer; touch-action:manipulation; }
+  .fek-slide input[type=range]::-webkit-slider-runnable-track { height:14px; border-radius:8px;
+    background:linear-gradient(90deg,var(--ramp-0),var(--ramp-2),var(--ramp-3),var(--ramp-5)); }
+  .fek-slide input[type=range]::-moz-range-track { height:14px; border-radius:8px;
+    background:linear-gradient(90deg,var(--ramp-0),var(--ramp-2),var(--ramp-3),var(--ramp-5)); }
+  .fek-slide input[type=range]::-webkit-slider-thumb { -webkit-appearance:none; width:34px; height:34px;
+    border-radius:50%; background:#fff; border:3px solid var(--ink); margin-top:-10px;
+    box-shadow:0 2px 6px rgba(35,40,31,.3); }
+  .fek-slide input[type=range]::-moz-range-thumb { width:34px; height:34px; border-radius:50%;
+    background:#fff; border:3px solid var(--ink); box-shadow:0 2px 6px rgba(35,40,31,.3); }
+  .fek-slide .bub { font:800 26px var(--head); font-variant-numeric:tabular-nums; color:var(--ink);
+    min-width:86px; text-align:right; }
+  .fek-slide .bub span { font:600 13px var(--mono); color:var(--muted); margin-left:3px; }
+
+  /* --- big picker: replaces <select> for long lists --- */
+  .fek-pick { border:2px solid var(--border); border-radius:var(--fek-r); background:var(--surface);
+    overflow:hidden; }
+  .fek-pick .search { width:100%; border:0; border-bottom:2px solid var(--border);
+    font:700 17px var(--body); padding:0 16px; min-height:var(--tap); background:var(--surface-2); }
+  .fek-pick .search:focus { outline:none; background:var(--soft); }
+  .fek-pick .opts { max-height:264px; overflow-y:auto; -webkit-overflow-scrolling:touch; }
+  .fek-pick .opt { display:block; width:100%; text-align:left; border:0; border-bottom:1px solid var(--border);
+    background:none; font:700 16.5px var(--body); color:var(--ink); min-height:var(--tap-sm);
+    padding:10px 16px; cursor:pointer; touch-action:manipulation; }
+  .fek-pick .opt small { display:block; font:400 12.5px var(--mono); color:var(--muted); margin-top:2px; }
+  .fek-pick .opt:hover { background:var(--soft); }
+  .fek-pick .opt.on { background:var(--s1); color:#fff; }
+  .fek-pick .opt.on small { color:rgba(255,255,255,.92); }
+  .fek-pick .none { padding:16px; color:var(--muted); font-size:14px; }
+
+  /* --- readout tiles, sized to be read at arm's length --- */
+  .fek-tiles { display:grid; grid-template-columns:repeat(auto-fit,minmax(148px,1fr)); gap:11px; margin:14px 0 2px; }
+  .fek-tile { border:2px solid var(--border); border-radius:var(--fek-r); padding:13px 15px; background:var(--surface); }
+  .fek-tile .v { font:800 30px var(--head); font-variant-numeric:tabular-nums; line-height:1.05; color:var(--ink); }
+  .fek-tile .l { font:700 12px var(--body); color:var(--muted); margin-top:4px; letter-spacing:.02em; }
+  .fek-tile.good { border-color:var(--ramp-2); } .fek-tile.good .v { color:var(--ramp-2); }
+  .fek-tile.warn { border-color:var(--ramp-3); } .fek-tile.warn .v { color:#8a6508; }
+  .fek-tile.bad  { border-color:var(--ramp-5); } .fek-tile.bad  .v { color:var(--ramp-5); }
+  .fek-tile.cold { border-color:var(--ramp-0); } .fek-tile.cold .v { color:var(--ramp-0); }
+
+  /* --- banner: the verdict, big --- */
+  .fek-banner { border-radius:var(--fek-r); padding:16px 19px; margin:14px 0; font-size:16px;
+    line-height:1.55; border-left:7px solid var(--ramp-2); background:var(--soft); color:var(--ink-2); }
+  .fek-banner b { font-family:var(--head); color:var(--ink); font-size:17.5px; display:block; margin-bottom:4px; }
+  .fek-banner.warn { border-left-color:var(--ramp-3); background:var(--warn-bg); }
+  .fek-banner.bad  { border-left-color:var(--ramp-5); background:var(--danger-bg); }
+  .fek-banner.cold { border-left-color:var(--ramp-0); background:#E6EEF3; }
+
+  @media (max-width:420px){ :root { --tap:56px; --tap-sm:46px; } .fek-step .val { font-size:26px; } }
+  @media print { .fek-step button, .fek-pick .search { display:none; } }
+
+
+  /* WCAG 1.4.11 non-text contrast: the visible edge of a control you are meant
+     to write in is the only thing telling you where to write, so it carries the
+     3:1 floor. Decorative card borders are not controls and stay quiet. */
+  input:not([type=checkbox]):not([type=radio]):not([type=range]):not([type=color]),
+  select, textarea { border-color: #8E8160; }
+
+  /* ============ Ordination ============ */
+  .plot { background:var(--surface); border:1px solid var(--border); border-radius:14px;
+    padding:8px; margin:10px 0; overflow-x:auto; }
+  .plot svg { display:block; width:100%; height:auto; max-width:100%; }
+  .plot .ax { stroke:var(--border); stroke-width:1; }
+  .plot .gl { stroke:var(--border); stroke-width:1; stroke-dasharray:2 4; opacity:.7; }
+  .plot text { font-family:var(--mono); font-size:10px; fill:var(--muted); }
+  .plot text.pt { font-family:var(--body); font-size:11px; font-weight:700; fill:var(--ink-2); }
+  .plot .dot { fill:var(--s1); }
+  .plot .dot.sel { fill:var(--s2); }
+  .plot .hull { fill:none; stroke:var(--s3); stroke-width:1.5; stroke-dasharray:5 4; opacity:.75; }
+  .plot .sh { fill:var(--s3); opacity:.55; }
+  .plot .iso { stroke:var(--s2); stroke-width:2; fill:none; }
+  .plot .bar { fill:var(--s1); }
+  .plot .bar.neg { fill:var(--danger); }
+
+  .stat { display:grid; grid-template-columns:repeat(auto-fit,minmax(112px,1fr)); gap:8px; margin:10px 0 2px; }
+  .stat .k { background:var(--surface-2); border-radius:12px; padding:11px 12px; }
+  .stat .k .l { font-family:var(--mono); font-size:9.5px; letter-spacing:.09em; text-transform:uppercase;
+    color:var(--muted); display:block; margin-bottom:3px; }
+  .stat .k .v { font-family:var(--head); font-weight:600; font-size:19px; color:var(--ink); }
+  .stat .k .u { font-size:11.5px; color:var(--muted); font-family:var(--body); font-weight:400; }
+
+  textarea.mat { width:100%; min-height:150px; font:13px/1.5 var(--mono); padding:12px;
+    border:2px solid #8E8160; border-radius:12px; background:var(--surface); color:var(--ink);
+    resize:vertical; }
+  .tw { overflow-x:auto; }
+  table.dm { border-collapse:collapse; font:11.5px var(--mono); }
+  table.dm th, table.dm td { border:1px solid var(--border); padding:4px 7px; text-align:right;
+    white-space:nowrap; }
+  table.dm th { background:var(--surface-2); font-weight:600; color:var(--muted); text-align:left; }
+  /* ============ Keep (local autosave) v1.0.0 ============ */
+  .keep { display:flex; flex-wrap:wrap; align-items:center; gap:10px;
+    background:var(--surface-2, #F3EEE0); border:1px solid var(--border, #E3DCC9);
+    border-radius:12px; padding:10px 13px; margin:12px 0 2px; }
+  .keep .st { font-family:var(--mono, monospace); font-size:11.5px; color:var(--muted, #6B6B5E);
+    line-height:1.5; flex:1 1 220px; min-width:0; }
+  .keep .st b { color:var(--ink, #23281F); }
+  .keep.bad { border-color:var(--danger, #B23A32); background:var(--danger-bg, #F6E7E5); }
+  .keep.bad .st b { color:var(--danger, #B23A32); }
+  .keep button { border:1.5px solid var(--border, #E3DCC9); background:none; border-radius:10px;
+    padding:0 14px; min-height:var(--tap, 44px); font:700 13px var(--body, sans-serif);
+    color:var(--ink-2, #4B5344); cursor:pointer; touch-action:manipulation; }
+  .keep button:hover { border-color:var(--danger, #B23A32); color:var(--danger, #B23A32); }
+  .keep .note { flex:1 1 100%; font-size:12px; color:var(--muted, #6B6B5E); line-height:1.5; }
+  @media print { .keep { display:none !important; } }
+</style>
+</head>
+<body>
+<div class="app">
+  <div class="top">
+    <div class="brand">📉 <span>Ordination</span></div>
+    <a href="ecology.html">← ecology kit</a>
+  </div>
+
+  <!-- ===================== DATA ===================== -->
+  <section class="pane on" id="p-data">
+    <h2>The community matrix</h2>
+    <p class="hint">One row per site, one column per species. First column is the site name, first row is the
+      species names. Paste it from a spreadsheet, or stack the <b>matrix rows</b> the Relevé and Stand Sheet
+      already export.</p>
+
+    <div class="card">
+      <label class="f" style="font-size:13px">site &times; species matrix (CSV or tab-separated)
+        <textarea class="mat" id="raw" spellcheck="false" placeholder="site,Carex aquatilis,Salix bebbiana,Typha latifolia
+BOG-01,42,3,0
+BOG-02,31,11,2
+FEN-01,4,28,19"></textarea></label>
+      <div class="btn-row">
+        <button class="btn btn-go" id="runBtn" type="button">Read the matrix</button>
+        <button class="btn btn-soft" id="demo1" type="button">Demo: two gradients</button>
+        <button class="btn btn-soft" id="demo2" type="button">Demo: no structure at all</button>
+        <button class="btn btn-ghost" id="clearBtn" type="button">Clear</button>
+      </div>
+      <div id="parseOut"></div>
+      <div id="keepBox"></div>
+    </div>
+
+    <div class="card">
+      <h3 style="margin-top:0">Standardisation</h3>
+      <p class="hint" style="margin-bottom:10px">Both of these are on by default in R's
+        <code>vegan::metaMDS</code>, applied silently, and most people who use that function do not know
+        it happened. This page makes them switches and shows you the difference.</p>
+      <div id="tfEntry"></div>
+      <input type="hidden" id="tSqrt" value="1"><input type="hidden" id="tWis" value="1">
+      <p class="fine"><b>Square root</b> pulls in the few very abundant species so the ordination is not
+        just a map of which plot had the most stems. <b>Wisconsin double standardisation</b> divides each
+        species by its own maximum &mdash; putting a rare specialist on the same footing as a dominant
+        &mdash; then divides each site by its total, so a big plot and a small one are comparable.
+        Neither is neutral. Both change the answer.</p>
+    </div>
+
+    <div class="card">
+      <h3 style="margin-top:0">Dissimilarity</h3>
+      <div id="disEntry"></div>
+      <input type="hidden" id="dMethod" value="bray">
+      <div id="disNote"></div>
+    </div>
+  </section>
+
+  <!-- ===================== ORDINATION ===================== -->
+  <section class="pane" id="p-ord">
+    <h2>The ordination</h2>
+    <p class="hint">Sites close together held similar communities. That is the <em>only</em> thing the
+      picture says on its own &mdash; everything else is on the diagnostics tab.</p>
+
+    <div class="card">
+      <div id="methEntry"></div>
+      <input type="hidden" id="oMethod" value="nmds"><input type="hidden" id="oK" value="2">
+      <input type="hidden" id="oStarts" value="12">
+      <div id="ordStat" class="stat"></div>
+      <div id="ordVerdict"></div>
+      <div class="plot" id="ordPlot"></div>
+      <div id="axisNote"></div>
+      <div class="btn-row">
+        <button class="btn btn-go" id="runOrd" type="button">Run it again</button>
+        <button class="btn btn-soft" id="copyCoord" type="button">Copy coordinates</button>
+        <button class="btn btn-soft" id="copyDis" type="button">Copy dissimilarity matrix</button>
+        <button class="btn btn-ghost" onclick="window.print()" type="button">Print / save PDF</button>
+      </div>
+      <p class="fine">Every run starts from a different set of random configurations, so the picture may
+        come out rotated or mirrored. That is not instability &mdash; NMDS has no preferred orientation.
+        The <b>stress</b> and the <b>start agreement</b> are what tell you whether the solution is stable.</p>
+    </div>
+  </section>
+
+  <!-- ===================== DIAGNOSTICS ===================== -->
+  <section class="pane" id="p-diag">
+    <h2>Is the picture worth anything?</h2>
+    <p class="hint">A two-dimensional map of a many-dimensional dataset always draws. These are the three
+      things that say whether it drew anything real.</p>
+
+    <div class="card">
+      <h3 style="margin-top:0">Stress</h3>
+      <div id="stressBox"></div>
+      <p class="fine">Kruskal's stress formula 1: <b>&radic;( &Sigma;(d &minus; d&#770;)&sup2; &divide; &Sigma;d&sup2; )</b>,
+        where <b>d</b> is the distance between two sites in the picture and <b>d&#770;</b> is the best
+        monotone fit to their actual dissimilarity. Zero means the picture reproduces the rank order of
+        every pair exactly.</p>
+    </div>
+
+    <div class="card">
+      <h3 style="margin-top:0">Shepard diagram</h3>
+      <p class="hint">Real dissimilarity across, distance in the picture up. The step line is the monotone
+        fit. Points far off it are the pairs the ordination got wrong &mdash; a single number cannot tell
+        you <em>which</em> pairs, and this can.</p>
+      <div class="plot" id="shepPlot"></div>
+      <div id="shepNote"></div>
+    </div>
+
+    <div class="card">
+      <h3 style="margin-top:0">Start agreement</h3>
+      <div id="startBox"></div>
+      <p class="fine">NMDS descends to a local minimum. One low stress from one starting configuration is
+        not evidence that it is <em>the</em> solution. This runs many starts and compares them by
+        Procrustes rotation, which is what <code>vegan</code> does and reports.</p>
+    </div>
+
+    <div class="card">
+      <h3 style="margin-top:0">Eigenvalues (PCoA)</h3>
+      <div class="plot" id="screePlot"></div>
+      <div id="screeNote"></div>
+    </div>
+  </section>
+
+  <!-- ===================== METHOD ===================== -->
+  <section class="pane" id="p-met">
+    <h2>Method</h2>
+
+    <div class="card">
+      <h3 style="margin-top:0">What ordination is for</h3>
+      <p style="font-size:15.5px;color:var(--ink-2)">You have twenty plots and thirty species. That is a
+        thirty-dimensional space and nobody can see it. Ordination finds a two-dimensional arrangement of
+        the plots in which the ones with similar communities are close together, so that you can look at
+        the pattern and then ask what environmental variable it lines up with.</p>
+      <p style="font-size:15.5px;color:var(--ink-2)">It is <b>not</b> a test. It produces no p-value and
+        supports no claim about a difference between groups. The picture is a hypothesis-generating
+        device. Testing whether groups differ in composition is a different tool &mdash; PERMANOVA,
+        ANOSIM, or a Mantel test &mdash; and this page does not do any of them, because doing one on the
+        same data that suggested the grouping is circular.</p>
+
+      <h3>NMDS versus PCoA</h3>
+      <p style="font-size:15.5px;color:var(--ink-2)"><b>PCoA</b> (principal coordinates, Gower 1966) is an
+        eigenanalysis: it finds axes that reproduce the actual dissimilarities as faithfully as a straight
+        projection can. Its axes are ordered, each carries a share of the variation, and the answer is
+        unique.</p>
+      <p style="font-size:15.5px;color:var(--ink-2)"><b>NMDS</b> (Kruskal 1964) throws away the magnitudes
+        and keeps only the <em>rank order</em> of the dissimilarities, then searches for the arrangement
+        that reproduces that order best. It usually fits community data in two dimensions much better than
+        PCoA, because ecological dissimilarity saturates: once two plots share no species, Bray-Curtis is
+        1 whether they are ten metres or ten kilometres apart, and only the ordering was ever meaningful.
+        The price is that there is no eigenvalue, no percentage of variation, no unique answer, and no
+        interpretation for the axes themselves.</p>
+
+      <div class="verdict warn"><b>NMDS axes mean nothing.</b> They can be rotated, mirrored or swapped
+        with no change to the fit. Software that labels them <code>NMDS1</code> and <code>NMDS2</code> is
+        naming an arbitrary basis, and any sentence of the form &ldquo;axis 1 represents moisture&rdquo;
+        is about the <em>arrangement</em>, not the axis. This page draws no axis numbers on an NMDS plot
+        for that reason. What is real is which points sit near which.</p></div>
+
+      <h3>Where the stress thresholds come from</h3>
+      <p style="font-size:15.5px;color:var(--ink-2)">The &lt;&nbsp;0.05 / &lt;&nbsp;0.10 / &lt;&nbsp;0.20
+        bands this page prints are <b>a rule of thumb, not a result</b>. They come from Clarke (1993),
+        <i>Non-parametric multivariate analyses of changes in community structure</i>, Austral Ecology
+        18:117&ndash;143 &mdash; and Clarke gave them alongside an explicit warning against applying them
+        mechanically. Stress rises with the number of sites for purely geometric reasons: twenty points
+        are far harder to place than eight, so a stress of 0.15 from forty sites is a better result than
+        0.15 from ten. The page states the site count next to the band for that reason.</p>
+      <div class="verdict"><b>The gate this page applies:</b> the bands ship because they are cited and
+        labelled a convention. What does not ship is any statement that a particular stress makes your
+        conclusion sound. Nothing here knows what you concluded.</div>
+
+      <h3>Negative eigenvalues</h3>
+      <p style="font-size:15.5px;color:var(--ink-2)">Bray-Curtis is semi-metric: it can violate the
+        triangle inequality, and when it does, PCoA produces <b>negative eigenvalues</b> &mdash; axes with
+        imaginary length that cannot be drawn. They are not a bug and they are not rounding. This page
+        counts them and reports how much of the total variation they carry, because a &ldquo;62% of
+        variation explained&rdquo; computed over positive eigenvalues only, while a tenth of the variation
+        sits in negative ones, is a number that quietly means something other than what it says.</p>
+
+      <h3>What this page will not do</h3>
+      <p style="font-size:15.5px;color:var(--ink-2)">It will not run on fewer than four sites, because a
+        two-dimensional ordination of three points is exact by construction and its stress of zero says
+        nothing. It will not fit envelopes or vectors for environmental variables you have not supplied.
+        It will not name your groups.</p>
+      <p style="font-size:15.5px;color:var(--ink-2)"><b>Nothing here leaves the browser.</b> The matrix,
+        the ordination and every setting stay on your device &mdash; no request is made, and there is no
+        server to make one to. The page keeps a copy in this browser's own storage so that closing the tab
+        does not cost you the matrix, and that copy is <b>not a backup</b>: one browser, one device, gone
+        when site data is cleared. The <b>Forget this device&rsquo;s copy</b> button on the Data tab
+        removes it, and the exports are the durable path.</p>
+
+      <h3>Citations</h3>
+      <p class="fine">Kruskal, J.B. (1964) Multidimensional scaling by optimizing goodness of fit to a
+        nonmetric hypothesis. <i>Psychometrika</i> 29:1&ndash;27.<br>
+        Gower, J.C. (1966) Some distance properties of latent root and vector methods used in multivariate
+        analysis. <i>Biometrika</i> 53:325&ndash;338.<br>
+        Bray, J.R. &amp; Curtis, J.T. (1957) An ordination of the upland forest communities of southern
+        Wisconsin. <i>Ecological Monographs</i> 27:325&ndash;349.<br>
+        Clarke, K.R. (1993) Non-parametric multivariate analyses of changes in community structure.
+        <i>Australian Journal of Ecology</i> 18:117&ndash;143.<br>
+        Oksanen, J. <i>et al.</i> <code>vegan</code>: Community Ecology Package &mdash; the reference
+        implementation this page's defaults follow.</p>
+    </div>
+  </section>
+
+  <div class="rail">
+    <p class="rl">Record it — in the field</p>
+    <div class="chips">
+      <a href="field-notebook.html"><span>📓</span>Field Notebook</a>
+      <a href="ethogram.html"><span>🐾</span>Ethogram</a>
+      <a href="selection-log.html"><span>📏</span>Selection Log</a>
+      <a href="stand-sheet.html"><span>🌲</span>Stand Sheet</a>
+      <a href="releve.html"><span>🌾</span>Relevé</a>
+      <a href="collection-sheet.html"><span>🍄</span>Collection Sheet</a>
+      <a href="farm-scout.html"><span>🧑‍🌾</span>Farm Scout</a>
+      <a href="pheno-tracker.html"><span>🌱</span>Pheno Tracker</a>
+      <a href="deployment-log.html"><span>🎙️</span>Deployment Log</a>
+    </div>
+    <p class="rl" style="margin-top:16px">At the bench</p>
+    <div class="chips">
+      <a href="cp-bench.html"><span>🫙</span>CP Bench</a>
+      <a href="soil-bench.html"><span>🪱</span>Soil Bench</a>
+      <a href="breeding-bench.html"><span>🥕</span>Breeding Bench</a>
+      <a href="cell-bench.html"><span>🔬</span>Cell Bench</a>
+      <a href="micro-bench.html"><span>🧫</span>Micro Bench</a>
+    </div>
+    <p class="rl" style="margin-top:16px">Analyse it</p>
+    <div class="chips">
+      <a href="ordination.html" aria-current="page"><span>📉</span>Ordination</a>
+      <a href="food-web.html"><span>🕸️</span>Food Web Builder</a>
+      <a href="field-season.html"><span>🎯</span>Field Season</a>
+    </div>
+    <p class="rl" style="margin-top:16px">Print it</p>
+    <div class="chips">
+      <a href="plant-characters.html"><span>🌱</span>Plant Characters</a>
+      <a href="fungal-characters.html"><span>🔬</span>Fungal Characters</a>
+      <a href="cp-characters.html"><span>🪤</span>CP Characters</a>
+    </div>
+    <div class="chips" style="margin-top:16px">
+      <a class="ref" href="ecology.html">← kit hub</a>
+      <a class="ref" href="ecology-field-card.html">field card</a>
+      <a class="ref" href="ecology-glossary.html">glossary</a>
+    </div>
+  </div>
+  </div>
+</div>
+
+<div class="tabbar"><div class="row">
+  <button class="tab on" data-pane="p-data" type="button"><span class="ico">📋</span>Data</button>
+  <button class="tab" data-pane="p-ord" type="button"><span class="ico">📉</span>Ordination</button>
+  <button class="tab" data-pane="p-diag" type="button"><span class="ico">🔍</span>Diagnostics</button>
+  <button class="tab" data-pane="p-met" type="button"><span class="ico">📐</span>Method</button>
+</div></div>
+<div class="toast" id="toast">Saved</div>
+<script>
+/* ---- Field Entry Kit v1.3.0 : constructors return {el, get, set} ---- */
+var FEK = (function(){
+  function el(t,c,h){ var e=document.createElement(t); if(c) e.className=c;
+    if(h!=null) e.innerHTML=h; return e; }
+  /* Where the line falls, and why it falls there.
+     A component's OWN label is written by whoever built the page and often
+     carries deliberate markup -- "Pod parent <span class="u">seed bearer</span>".
+     That stays HTML. The label on an OPTION, a chip or a tile is data: a
+     species you typed, a cross you recorded, a source you named. v1.1 passed
+     those straight into innerHTML, so a plant named with a < became markup.
+     Escaped here rather than at each call site, because a component whose
+     safety depends on every caller remembering is a component that will bite
+     somebody. Verified against the whole kit first: no option, chip or tile
+     label anywhere passes markup on purpose. */
+  /* No object literal here on purpose: the map form needs an escaped double
+     quote as a key, and this file is a Python string emitting JavaScript, so
+     that quote has to survive two layers of escaping. It did not, and every
+     consumer got a syntax error that took FEK down with it. A chain of
+     comparisons has nothing to escape. */
+  function escv(s){ return String(s==null?"":s).replace(/[&<>"']/g,function(c){
+    return c==="&"?"&amp;":c==="<"?"&lt;":c===">"?"&gt;":c==='"'?"&quot;":"&#39;"; }); }
+  function buzz(m){ try{ if(navigator.vibrate) navigator.vibrate(m||8);}catch(e){} }
+
+  /* ---- field registry (v1.3.0) ----
+     A component writes through to a hidden field via the page's own onchange.
+     That is fine going out and useless coming back: nothing could put a
+     restored value INTO the widget, so an autosaved session showed default
+     dials over correct data -- a lie on screen, which is worse than no
+     autosave. A component that declares `field:"sElev"` is registered here,
+     and FEK.setField puts a value back through the widget's own set(). Purely
+     additive: a component with no `field` behaves exactly as before. */
+  var REG = {};
+  function reg(o, h){ if(o && o.field) REG[o.field] = h; return h; }
+  function setField(id, v){
+    var h = REG[id];
+    if(!h) return false;
+    try { h.set(v); } catch(e){ return false; }
+    return true;
+  }
+  function fields(){ var out=[]; for(var k in REG) if(REG.hasOwnProperty(k)) out.push(k); return out; }
+
+  function step(o){
+    o=o||{}; var min=(o.min==null?-Infinity:o.min), max=(o.max==null?Infinity:o.max);
+    var stepv=o.step||1, dec=o.dec==null?(String(stepv).split(".")[1]||"").length:o.dec;
+    var v=o.value==null?0:o.value;
+    var wrap=el("div","fek-row"), lab=el("label","fek-lab",
+      (o.label||"")+(o.unit?'<span class="u">'+o.unit+'</span>':""));
+    var box=el("div","fek-step");
+    var minus=el("button",null,"&minus;"), inp=el("input"), plus=el("button",null,"+");
+    minus.type="button"; plus.type="button"; inp.type="number"; inp.className="val";
+    inp.setAttribute("inputmode","decimal");
+    if(o.label) inp.setAttribute("aria-label",o.label);
+    /* nullable: the control can hold "not recorded", which is not the same as
+       zero. Aspect 0 is north; a duff depth of 0 cm is an observation. An empty
+       nullable stepper reports null and the first bump starts from o.start. */
+    var nullable = !!o.nullable;
+    if(nullable && o.value==null) v=null;
+    function clamp(x){ return Math.min(max,Math.max(min,x)); }
+    function render(){
+      if(v==null){ inp.value=""; wrap.classList.add("is-empty"); box.classList.add("empty"); return; }
+      wrap.classList.remove("is-empty"); box.classList.remove("empty");
+      inp.value=(dec?v.toFixed(dec):String(v));
+    }
+    function set(x,quiet){
+      if(nullable && (x==null || x==="" || (typeof x==="number" && !isFinite(x)))) v=null;
+      else v=clamp(isFinite(x)?x:0);
+      render(); if(!quiet&&o.onchange) o.onchange(v);
+    }
+    function bump(d){
+      if(v==null) set(clamp(o.start==null?0:o.start));
+      else set(+(v+d*stepv).toFixed(6));
+      buzz();
+    }
+    function clear(){ if(nullable) set(null); }
+    minus.addEventListener("click",function(){ bump(-1); });
+    plus.addEventListener("click",function(){ bump(1); });
+    var hold;
+    function holdOn(d){ return function(){ clearInterval(hold);
+      hold=setInterval(function(){ bump(d); },110); }; }
+    function holdOff(){ clearInterval(hold); }
+    minus.addEventListener("pointerdown",holdOn(-1)); plus.addEventListener("pointerdown",holdOn(1));
+    ["pointerup","pointerleave","pointercancel"].forEach(function(ev){
+      minus.addEventListener(ev,holdOff); plus.addEventListener(ev,holdOff); });
+    inp.addEventListener("input",function(){
+      if(nullable && inp.value===""){ v=null; box.classList.add("empty");
+        if(o.onchange) o.onchange(null); return; }
+      var x=parseFloat(inp.value);
+      if(isFinite(x)){ v=clamp(x); box.classList.remove("empty"); if(o.onchange) o.onchange(v); } });
+    inp.addEventListener("blur",render);
+    box.appendChild(minus); box.appendChild(inp); box.appendChild(plus);
+    wrap.appendChild(lab); wrap.appendChild(box);
+    if(o.help) wrap.appendChild(el("p","fek-help",o.help));
+    render();
+    return reg(o, { el:wrap, get:function(){return v;}, set:function(x){set(x,true);},
+             clear:clear, nullable:nullable });
+  }
+
+  /* field: a value typed from an instrument readout. No steppers — see the CSS note. */
+  function field(o){
+    o=o||{};
+    var min=(o.min==null?-Infinity:o.min), max=(o.max==null?Infinity:o.max);
+    var dec=(o.dec==null?3:o.dec), v=(o.value==null?null:o.value);
+    var wrap=el("div","fek-row"), lab=el("label","fek-lab",
+      (o.label||"")+(o.unit?'<span class="u">'+o.unit+'</span>':""));
+    var box=el("div","fek-field"), inp=el("input");
+    inp.type="number"; inp.setAttribute("inputmode","decimal");
+    if(o.step!=null) inp.step=o.step;
+    inp.placeholder = o.placeholder==null ? "—" : o.placeholder;
+    if(o.label) inp.setAttribute("aria-label",o.label);
+    function paint(){ box.classList.toggle("empty", v==null); }
+    function set(x,quiet){
+      if(x==null || x===""){ v=null; inp.value=""; }
+      else { var n=parseFloat(x);
+        v = isFinite(n) ? Math.min(max,Math.max(min,n)) : null;
+        inp.value = (v==null?"":String(v)); }
+      paint(); if(!quiet&&o.onchange) o.onchange(v);
+    }
+    inp.addEventListener("input",function(){
+      if(inp.value===""){ v=null; paint(); if(o.onchange) o.onchange(null); return; }
+      var n=parseFloat(inp.value);
+      if(isFinite(n)){ v=Math.min(max,Math.max(min,n)); paint(); if(o.onchange) o.onchange(v); } });
+    inp.addEventListener("blur",function(){
+      if(v!=null && isFinite(v)) inp.value = (dec==null?String(v):String(+v.toFixed(dec)));
+      paint(); });
+    box.appendChild(inp);
+    if(o.unitBox!==false && o.unit) box.appendChild(el("div","u",o.unit));
+    wrap.appendChild(lab); wrap.appendChild(box);
+    if(o.help) wrap.appendChild(el("p","fek-help",o.help));
+    set(v,true);
+    return reg(o, { el:wrap, get:function(){return v;}, set:function(x){set(x,true);},
+             clear:function(){ set(null,true); }, nullable:true });
+  }
+
+  function dial(o){
+    o=o||{}; var opts=o.options||[], cur=o.value==null?null:o.value;
+    var wrap=el("div","fek-row"), lab=el("label","fek-lab",o.label||"");
+    var box=el("div","fek-dial"), btns=[];
+    opts.forEach(function(op,i){
+      var b=el("button",null,'<span>'+escv(op.label)+'</span>'+(op.sub?'<small>'+escv(op.sub)+'</small>':""));
+      b.type="button";
+      b.setAttribute("data-r", op.ramp==null ? String(Math.min(5,Math.round(i*5/Math.max(1,opts.length-1)))) : String(op.ramp));
+      b.addEventListener("click",function(){
+        cur = (cur===op.value && o.clearable!==false) ? null : op.value;
+        paint(); buzz(); if(o.onchange) o.onchange(cur);
+      });
+      btns.push(b); box.appendChild(b);
+    });
+    function paint(){ btns.forEach(function(b,i){ b.classList.toggle("on", opts[i].value===cur); }); }
+    paint();
+    wrap.appendChild(lab); wrap.appendChild(box);
+    if(o.help) wrap.appendChild(el("p","fek-help",o.help));
+    return reg(o, { el:wrap, get:function(){return cur;},
+             set:function(x){ cur=x; paint(); } });
+  }
+
+  function chips(o){
+    o=o||{}; var opts=o.options||[], sel={};
+    (o.value||[]).forEach(function(v){ sel[v]=1; });
+    var wrap=el("div","fek-row"), lab=el("label","fek-lab",o.label||"");
+    var box=el("div","fek-chips"), btns=[];
+    opts.forEach(function(op){
+      var b=el("button","fek-chip",escv(op.label)); b.type="button";
+      b.addEventListener("click",function(){
+        if(o.single){ sel={}; sel[op.value]=1; }
+        else if(sel[op.value]) delete sel[op.value]; else sel[op.value]=1;
+        paint(); buzz(); if(o.onchange) o.onchange(Object.keys(sel));
+      });
+      btns.push(b); box.appendChild(b);
+    });
+    function paint(){ btns.forEach(function(b,i){ b.classList.toggle("on",!!sel[opts[i].value]); }); }
+    paint();
+    wrap.appendChild(lab); wrap.appendChild(box);
+    if(o.help) wrap.appendChild(el("p","fek-help",o.help));
+    return reg(o, { el:wrap, get:function(){return Object.keys(sel);},
+             set:function(a){ sel={}; (a||[]).forEach(function(v){sel[v]=1;}); paint(); } });
+  }
+
+  function slider(o){
+    o=o||{};
+    var nullable=!!o.nullable;
+    var v = (nullable && o.value==null) ? null : (o.value==null?(o.min||0):o.value);
+    var wrap=el("div","fek-row"), lab=el("label","fek-lab",o.label||"");
+    var box=el("div","fek-slide"), r=el("input"), bub=el("div","bub");
+    r.type="range"; r.min=o.min==null?0:o.min; r.max=o.max==null?100:o.max;
+    r.step=o.step||1; r.value=v;
+    if(o.label) r.setAttribute("aria-label",o.label);
+    function paint(){
+      if(v==null){ bub.innerHTML='<span style="opacity:.6">not recorded</span>'; return; }
+      bub.innerHTML=(o.fmt?o.fmt(v):v)+(o.unit?'<span>'+o.unit+'</span>':"");
+    }
+    r.addEventListener("input",function(){ v=parseFloat(r.value); paint(); if(o.onchange) o.onchange(v); });
+    if(nullable && v==null) r.value = (o.min==null?0:o.min);
+    paint();
+    box.appendChild(r); box.appendChild(bub);
+    wrap.appendChild(lab); wrap.appendChild(box);
+    if(o.help) wrap.appendChild(el("p","fek-help",o.help));
+    return reg(o, { el:wrap, get:function(){return v;},
+             set:function(x){ v=(nullable&&x==null)?null:x; if(x!=null) r.value=x; paint(); },
+             clear:function(){ if(nullable){ v=null; paint(); } }, nullable:nullable });
+  }
+
+  function picker(o){
+    o=o||{}; var opts=o.options||[], cur=o.value==null?null:o.value, q="";
+    var wrap=el("div","fek-row"), lab=el("label","fek-lab",o.label||"");
+    var box=el("div","fek-pick"), s=el("input","search"), list=el("div","opts");
+    s.type="text"; s.placeholder=o.placeholder||"type to filter…";
+    s.setAttribute("autocomplete","off");
+    if(o.label) s.setAttribute("aria-label",o.label+" filter");
+    function paint(){
+      list.innerHTML="";
+      var qq=q.toLowerCase();
+      var shown=opts.filter(function(op){
+        return !qq || (op.label+" "+(op.sub||"")).toLowerCase().indexOf(qq)>=0; });
+      if(!shown.length){ list.appendChild(el("div","none","No match. Clear the filter to see all "+opts.length+".")); return; }
+      shown.slice(0,200).forEach(function(op){
+        var b=el("button","opt"+(op.value===cur?" on":""),
+          escv(op.label)+(op.sub?'<small>'+escv(op.sub)+'</small>':""));
+        b.type="button";
+        b.addEventListener("click",function(){ cur=op.value; paint(); buzz(); if(o.onchange) o.onchange(cur); });
+        list.appendChild(b);
+      });
+    }
+    s.addEventListener("input",function(){ q=s.value; paint(); });
+    box.appendChild(s); box.appendChild(list);
+    wrap.appendChild(lab); wrap.appendChild(box);
+    if(o.help) wrap.appendChild(el("p","fek-help",o.help));
+    paint();
+    return reg(o, { el:wrap, get:function(){return cur;}, set:function(x){ cur=x; paint(); } });
+  }
+
+  function tiles(list){
+    var box=el("div","fek-tiles");
+    (list||[]).forEach(function(t){
+      box.appendChild(el("div","fek-tile"+(t.tone?" "+t.tone:""),
+        '<div class="v">'+escv(t.v)+'</div><div class="l">'+escv(t.l)+'</div>'));
+    });
+    return box;
+  }
+  function banner(title,body,tone){
+    return el("div","fek-banner"+(tone?" "+tone:""),"<b>"+title+"</b>"+body);
+  }
+  function mount(host,parts){
+    var h=typeof host==="string"?document.getElementById(host):host;
+    h.innerHTML=""; parts.forEach(function(p){ h.appendChild(p.el||p); }); return h;
+  }
+  /* Exported because a page building a component LABEL -- which stays HTML by
+     design -- still has to escape the data inside it. A private copy of an
+     escaper in one page was how the last one got lost when the kit was
+     re-emitted over it. */
+  return { version:"1.3.0", esc:escv, setField:setField, fields:fields, step:step, field:field, dial:dial, chips:chips, slider:slider,
+           picker:picker, tiles:tiles, banner:banner, mount:mount, buzz:buzz };
+})();
+
+/* ---- Keep v1.0.0 : local autosave, and honesty about what that is ---- */
+var KEEP = (function(){
+  function esc(s){ return String(s==null?"":s).replace(/[&<>"']/g,function(c){
+    return c==="&"?"&amp;":c==="<"?"&lt;":c===">"?"&gt;":c==='"'?"&quot;":"&#39;"; }); }
+
+  /* Probe rather than assume. Safari in private mode used to throw on the
+     first write; storage can also be disabled by enterprise policy or by the
+     user, and in a sandboxed frame the accessor itself throws. All three look
+     identical to a page that only wraps setItem in a try. */
+  function usable(){
+    try {
+      var k = "__keep_probe__";
+      window.localStorage.setItem(k, "1");
+      window.localStorage.removeItem(k);
+      return true;
+    } catch(e){ return false; }
+  }
+
+  function when(ts){
+    if(!ts) return "";
+    try {
+      var d = new Date(ts), now = new Date();
+      var same = d.toDateString() === now.toDateString();
+      var hm = ("0"+d.getHours()).slice(-2) + ":" + ("0"+d.getMinutes()).slice(-2);
+      return same ? ("today " + hm) : (d.toISOString().slice(0,10) + " " + hm);
+    } catch(e){ return ""; }
+  }
+
+  function wire(o){
+    o = o || {};
+    var key = o.key, host = typeof o.mount === "string" ? document.getElementById(o.mount) : o.mount;
+    var fmt = o.format == null ? 1 : o.format;
+    var ok = usable(), lastErr = null, savedAt = null, restoredFrom = null, timer = null;
+    var noun = o.noun || "your work";
+
+    function read(){
+      if(!ok) return null;
+      try {
+        var raw = window.localStorage.getItem(key);
+        if(!raw) return null;
+        var p = JSON.parse(raw);
+        /* A format stamp, so a page that changes its state shape does not
+           restore a shape it can no longer read and fail in a way the user
+           reads as data loss. */
+        if(!p || p.format !== fmt) return null;
+        return p;
+      } catch(e){ return null; }
+    }
+
+    function write(){
+      timer = null;
+      if(!ok) return;
+      var body;
+      try { body = o.snapshot(); } catch(e){ lastErr = "could not read the page state"; paint(); return; }
+      if(body == null){
+        try { window.localStorage.removeItem(key); }catch(e){}
+        savedAt = null; lastErr = null; paint(); return;
+      }
+      try {
+        window.localStorage.setItem(key, JSON.stringify({ format:fmt, at:Date.now(), body:body }));
+        savedAt = Date.now(); lastErr = null;
+      } catch(e){
+        /* Do not swallow this. A quota failure that says nothing is worse than
+           no autosave at all, because it teaches the user to trust it. */
+        lastErr = (e && e.name === "QuotaExceededError")
+          ? "this browser's storage is full" : "this browser refused the write";
+      }
+      paint();
+    }
+
+    function touch(){
+      if(!ok) return;
+      if(timer) clearTimeout(timer);
+      timer = setTimeout(write, o.debounce == null ? 500 : o.debounce);
+    }
+
+    function flush(){ if(timer){ clearTimeout(timer); } write(); }
+
+    function forget(){
+      /* Cancel the pending write first. Without this the debounced save from
+         the edit that preceded the click -- or from the click itself, on a
+         page that listens for clicks -- lands a few hundred milliseconds later
+         and puts the copy straight back, which makes the button look like it
+         did nothing. */
+      if(timer){ clearTimeout(timer); timer = null; }
+      try { window.localStorage.removeItem(key); }catch(e){}
+      savedAt = null; restoredFrom = null; lastErr = null; paint();
+      if(o.onforget) o.onforget();
+    }
+
+    function paint(){
+      if(!host) return;
+      /* noprint: this is screen chrome -- a status line about a browser and a
+         button -- and the print audit is right to count anything else that
+         vanishes on paper as content lost. */
+      host.className = "keep noprint" + ((!ok || lastErr) ? " bad" : "");
+      var msg;
+      if(!ok){
+        msg = "<b>This browser is not keeping anything.</b> Storage is unavailable here &mdash; a "
+            + "private window, or site data switched off. Nothing is being saved, so export before "
+            + "you close the tab.";
+      } else if(lastErr){
+        msg = "<b>Autosave failed &mdash; " + esc(lastErr) + ".</b> What is on screen is not saved. "
+            + "Export it now.";
+      } else if(savedAt){
+        msg = "Saved on this device <b>" + esc(when(savedAt)) + "</b>"
+            + (restoredFrom ? " &middot; restored from " + esc(when(restoredFrom)) : "") + ".";
+      } else if(restoredFrom){
+        msg = "Restored " + esc(noun) + " from <b>" + esc(when(restoredFrom)) + "</b> on this device.";
+      } else {
+        msg = "Autosave is on. " + esc(noun.charAt(0).toUpperCase() + noun.slice(1))
+            + " will still be here if you close the tab.";
+      }
+      host.innerHTML =
+        '<p class="st">' + msg + '</p>'
+        + '<button type="button" data-keep-forget>Forget this device\'s copy</button>'
+        + '<p class="note"><b>This is not a backup.</b> It is one browser on one device, and it goes '
+        + 'when site data is cleared, in a private window, or on any other machine. It exists so a '
+        + 'phone call does not cost you a morning. The exports are the durable copy.</p>';
+      var b = host.querySelector("[data-keep-forget]");
+      if(b) b.addEventListener("click", function(){
+        forget();
+        if(o.ontoast) o.ontoast("Saved copy removed from this device");
+      });
+    }
+
+    var got = read();
+    if(got){
+      var accepted = false;
+      try { accepted = o.restore(got.body) !== false; } catch(e){ accepted = false; }
+      if(accepted){ restoredFrom = got.at; }
+    }
+    paint();
+    /* A tab closing mid-debounce is exactly the case this exists for. */
+    try {
+      window.addEventListener("pagehide", function(){ if(timer) flush(); });
+      document.addEventListener("visibilitychange", function(){
+        if(document.visibilityState === "hidden" && timer) flush(); });
+    } catch(e){}
+
+    return { touch:touch, flush:flush, forget:forget, usable:function(){ return ok; },
+             restored:function(){ return restoredFrom; }, savedAt:function(){ return savedAt; },
+             error:function(){ return lastErr; } };
+  }
+
+  /* ---- generic form capture ----
+     Every page in the kit keeps its typed state in elements with ids -- real
+     inputs for text and dates, hidden write-through fields for the FEK
+     widgets. Capturing them by walking the DOM means a page that gains a field
+     does not also have to remember to add it to a list, which is how a
+     hand-maintained list of fields quietly stops covering the newest one. */
+  function formSnapshot(){
+    var out = {}, i, els = document.querySelectorAll("input[id], textarea[id]");
+    for(i=0;i<els.length;i++){
+      var e = els[i];
+      if(e.type === "file" || e.type === "button" || e.type === "submit") continue;
+      out[e.id] = (e.type === "checkbox" || e.type === "radio") ? (e.checked ? "1" : "") : e.value;
+    }
+    return out;
+  }
+  /* Restoring the hidden field is only half the job: the widget above it still
+     shows its construction default, and a correct value under a wrong-looking
+     dial is worse than no restore at all. FEK.setField (v1.3.0) puts the value
+     back through the widget for every component that declared its field. */
+  function formRestore(map){
+    if(!map) return 0;
+    var n = 0, id;
+    for(id in map){
+      if(!map.hasOwnProperty(id)) continue;
+      var e = document.getElementById(id);
+      if(!e) continue;
+      if(e.type === "checkbox" || e.type === "radio") e.checked = !!map[id];
+      else e.value = map[id];
+      if(typeof FEK !== "undefined" && FEK.setField){
+        var v = map[id];
+        if(e.type === "number" || /^-?\d+(\.\d+)?$/.test(String(v))) {
+          FEK.setField(id, v === "" ? null : parseFloat(v));
+        } else {
+          FEK.setField(id, v === "" ? null : v);
+        }
+      }
+      n++;
+    }
+    return n;
+  }
+
+  return { version:"1.0.0", wire:wire, usable:usable,
+           formSnapshot:formSnapshot, formRestore:formRestore };
+})();
+
+/* ---- Ordination v1.0.0 : NMDS (Kruskal 1964) and PCoA (Gower 1966) ---- */
+var ORD = (function(){
+  function zeros(n,m){ var A=[],i,j; for(i=0;i<n;i++){ A.push([]); for(j=0;j<m;j++) A[i].push(0);} return A; }
+
+  /* ---- transforms ---- */
+  function sqrtT(X){ return X.map(function(r){ return r.map(function(v){ return Math.sqrt(Math.max(0,v)); }); }); }
+  /* vegan's wisconsin(): species by their maximum, then sites by their total. */
+  function wisconsin(X){
+    var n=X.length, m=X[0].length, i,j, Y=zeros(n,m);
+    for(j=0;j<m;j++){ var mx=0; for(i=0;i<n;i++) mx=Math.max(mx,X[i][j]);
+      if(mx===0) mx=1; for(i=0;i<n;i++) Y[i][j]=X[i][j]/mx; }
+    for(i=0;i<n;i++){ var t=0; for(j=0;j<m;j++) t+=Y[i][j];
+      if(t===0) t=1; for(j=0;j<m;j++) Y[i][j]=Y[i][j]/t; }
+    return Y;
+  }
+
+  /* ---- dissimilarity ---- */
+  function bray(X){
+    var n=X.length, D=zeros(n,n), i,j,k;
+    for(i=0;i<n;i++) for(j=i+1;j<n;j++){
+      var num=0, den=0;
+      for(k=0;k<X[i].length;k++){ num+=Math.abs(X[i][k]-X[j][k]); den+=X[i][k]+X[j][k]; }
+      D[i][j]=D[j][i]= den===0 ? 0 : num/den;
+    }
+    return D;
+  }
+  function jaccard(X){
+    var n=X.length, D=zeros(n,n), i,j,k;
+    for(i=0;i<n;i++) for(j=i+1;j<n;j++){
+      var a=0,b=0;
+      for(k=0;k<X[i].length;k++){ var p=X[i][k]>0, q=X[j][k]>0;
+        if(p&&q) a++; if(p||q) b++; }
+      D[i][j]=D[j][i]= b===0 ? 0 : 1-a/b;
+    }
+    return D;
+  }
+  function euclid(X){
+    var n=X.length, D=zeros(n,n), i,j,k;
+    for(i=0;i<n;i++) for(j=i+1;j<n;j++){
+      var s=0; for(k=0;k<X[i].length;k++){ var d=X[i][k]-X[j][k]; s+=d*d; }
+      D[i][j]=D[j][i]=Math.sqrt(s);
+    }
+    return D;
+  }
+
+  /* ---- symmetric eigendecomposition, cyclic Jacobi ----
+     Small n (sites, not species), so O(n^3) per sweep is free and Jacobi is
+     the one algorithm short enough to read and check by hand. */
+  function jacobi(Ain, maxSweep){
+    var n=Ain.length, A=Ain.map(function(r){return r.slice();}), V=zeros(n,n), i,j,k,s;
+    for(i=0;i<n;i++) V[i][i]=1;
+    for(s=0;s<(maxSweep||100);s++){
+      var off=0;
+      for(i=0;i<n;i++) for(j=i+1;j<n;j++) off+=A[i][j]*A[i][j];
+      if(off < 1e-22) break;
+      for(i=0;i<n;i++) for(j=i+1;j<n;j++){
+        if(Math.abs(A[i][j]) < 1e-18) continue;
+        var theta=(A[j][j]-A[i][i])/(2*A[i][j]);
+        var t=(theta>=0?1:-1)/(Math.abs(theta)+Math.sqrt(theta*theta+1));
+        var c=1/Math.sqrt(t*t+1), sn=t*c;
+        for(k=0;k<n;k++){
+          var aik=A[i][k], ajk=A[j][k];
+          A[i][k]=c*aik-sn*ajk; A[j][k]=sn*aik+c*ajk;
+        }
+        for(k=0;k<n;k++){
+          var aki=A[k][i], akj=A[k][j];
+          A[k][i]=c*aki-sn*akj; A[k][j]=sn*aki+c*akj;
+          var vki=V[k][i], vkj=V[k][j];
+          V[k][i]=c*vki-sn*vkj; V[k][j]=sn*vki+c*vkj;
+        }
+      }
+    }
+    var vals=[], idx=[];
+    for(i=0;i<n;i++){ vals.push(A[i][i]); idx.push(i); }
+    idx.sort(function(a,b){ return vals[b]-vals[a]; });
+    return { values: idx.map(function(q){return vals[q];}),
+             vectors: idx.map(function(q){ return V.map(function(row){ return row[q]; }); }) };
+  }
+
+  /* ---- PCoA (Gower 1966) ---- */
+  function pcoa(D, k){
+    var n=D.length, i, j;
+    var A=zeros(n,n);
+    for(i=0;i<n;i++) for(j=0;j<n;j++) A[i][j] = -0.5*D[i][j]*D[i][j];
+    var rm=[], cm=[], gm=0;
+    for(i=0;i<n;i++){ var s=0; for(j=0;j<n;j++) s+=A[i][j]; rm.push(s/n); gm+=s; }
+    gm/=(n*n);
+    for(j=0;j<n;j++){ var s2=0; for(i=0;i<n;i++) s2+=A[i][j]; cm.push(s2/n); }
+    /* Double-centring, both terms. The column and grand-mean terms look
+       redundant next to the row term, and for the EIGENVALUES they are --
+       dropping them changes the spectrum by less than 1e-12 on any symmetric
+       input, because what they remove is a rank-one component lying in the
+       constant direction, which the spectrum never sees. The COORDINATES are
+       another matter: on random dissimilarities, row-centring alone moves a
+       point by as much as 2.5 units and breaks the identity that PCoA of a
+       Euclidean distance matrix must reproduce that matrix exactly. Do not
+       simplify this line; verify_ord.py checks the identity, not the
+       eigenvalues, for exactly this reason. */
+    var G=zeros(n,n);
+    for(i=0;i<n;i++) for(j=0;j<n;j++) G[i][j]=A[i][j]-rm[i]-cm[j]+gm;
+    var e=jacobi(G);
+    var coords=zeros(n,k);
+    for(var a=0;a<k;a++){
+      var lam=Math.max(0, e.values[a]||0), sc=Math.sqrt(lam);
+      for(i=0;i<n;i++) coords[i][a]=e.vectors[a][i]*sc;
+    }
+    var neg=0, posSum=0, absSum=0;
+    e.values.forEach(function(v){ if(v < -1e-9) neg++; if(v>0) posSum+=v; absSum+=Math.abs(v); });
+    return { coords:coords, values:e.values, negatives:neg, posSum:posSum, absSum:absSum };
+  }
+
+  /* ---- pool-adjacent-violators: isotonic regression on an ordered vector ---- */
+  function pava(y){
+    var n=y.length, v=[], w=[], i;
+    for(i=0;i<n;i++){
+      var vi=y[i], wi=1;
+      while(v.length && v[v.length-1] > vi){
+        var pv=v.pop(), pw=w.pop();
+        vi = (pv*pw + vi*wi)/(pw+wi); wi = pw+wi;
+      }
+      v.push(vi); w.push(wi);
+    }
+    var out=[], j;
+    for(i=0;i<v.length;i++) for(j=0;j<w[i];j++) out.push(v[i]);
+    return out;
+  }
+
+  function pairs(n){ var P=[],i,j; for(i=0;i<n;i++) for(j=i+1;j<n;j++) P.push([i,j]); return P; }
+
+  function configDist(Y, P){
+    return P.map(function(p){
+      var a=Y[p[0]], b=Y[p[1]], s=0;
+      for(var q=0;q<a.length;q++){ var d=a[q]-b[q]; s+=d*d; }
+      return Math.sqrt(s);
+    });
+  }
+
+  /* Kruskal's stress formula 1. */
+  function stress1(d, dh){
+    var num=0, den=0;
+    for(var i=0;i<d.length;i++){ var e=d[i]-dh[i]; num+=e*e; den+=d[i]*d[i]; }
+    return den===0 ? 0 : Math.sqrt(num/den);
+  }
+
+  function fitted(d, order){
+    var sorted = order.map(function(a){ return d[a]; });
+    var iso = pava(sorted);
+    var dh = new Array(d.length);
+    for(var i=0;i<order.length;i++) dh[order[i]] = iso[i];
+    return dh;
+  }
+
+  function rng(seed){
+    var s = seed >>> 0 || 1;
+    return function(){ s ^= s<<13; s>>>=0; s ^= s>>17; s ^= s<<5; s>>>=0; return s/4294967296; };
+  }
+
+  /* Stress-1 is scale-invariant; the gradient is not. Normalising the
+     configuration each step keeps the step size meaning the same thing
+     throughout the descent. */
+  function normScale(Y){
+    var n=Y.length, k=Y[0].length, s=0, i, j;
+    for(i=0;i<n;i++) for(j=0;j<k;j++) s+=Y[i][j]*Y[i][j];
+    s=Math.sqrt(s/n);
+    if(!(s>0)) return Y;
+    for(i=0;i<n;i++) for(j=0;j<k;j++) Y[i][j]/=s;
+    return Y;
+  }
+
+  function centre(Y){
+    var n=Y.length, k=Y[0].length, j, i;
+    for(j=0;j<k;j++){ var m=0; for(i=0;i<n;i++) m+=Y[i][j]; m/=n;
+      for(i=0;i<n;i++) Y[i][j]-=m; }
+    return Y;
+  }
+
+  function nmdsOnce(D, k, Y0, iters){
+    var n=D.length, P=pairs(n);
+    var diss=P.map(function(p){ return D[p[0]][p[1]]; });
+    var order=diss.map(function(_,i){return i;});
+    order.sort(function(a,b){ return diss[a]-diss[b] || a-b; });
+    var Y=Y0.map(function(r){ return r.slice(); });
+    centre(Y); normScale(Y);
+
+    function evalAt(C){
+      var d=configDist(C,P), dh=fitted(d, order);
+      return { d:d, dhat:dh, s:stress1(d,dh) };
+    }
+    /* Kruskal's gradient of stress-1 with respect to one point's coordinates. */
+    function grad(st){
+      var d=st.d, dh=st.dhat, S=0, num=0, i;
+      for(i=0;i<d.length;i++){ S+=d[i]*d[i]; num+=(d[i]-dh[i])*(d[i]-dh[i]); }
+      var G=zeros(n,k);
+      if(num < 1e-30 || S < 1e-30) return G;
+      for(i=0;i<P.length;i++){
+        if(d[i] < 1e-12) continue;
+        var c=(((d[i]-dh[i])/num) - (d[i]/S))*st.s;
+        var a=P[i][0], b=P[i][1];
+        for(var q=0;q<k;q++){
+          var g=c*(Y[a][q]-Y[b][q])/d[i];
+          G[a][q]+=g; G[b][q]-=g;
+        }
+      }
+      return G;
+    }
+    /* Adaptive step. A fixed step converged linearly and was still descending
+       after 6000 iterations -- which would have shipped a stress that was an
+       artefact of the iteration cap rather than a property of the data. Grow
+       the step while it helps, halve it when it does not. */
+    var st=evalAt(Y), step=0.1, it;
+    var MAXIT = iters || 500;
+    for(it=0; it<MAXIT; it++){
+      var G=grad(st), gn=0, i, q;
+      for(i=0;i<n;i++) for(q=0;q<k;q++) gn+=G[i][q]*G[i][q];
+      gn=Math.sqrt(gn);
+      if(gn < 1e-13) break;
+      var moved=false;
+      for(var tries=0; tries<24; tries++){
+        var T=zeros(n,k);
+        for(i=0;i<n;i++) for(q=0;q<k;q++) T[i][q]=Y[i][q]-step*G[i][q]/gn;
+        centre(T); normScale(T);
+        var stT=evalAt(T);
+        if(stT.s < st.s){ Y=T; st=stT; step*=1.3; moved=true; break; }
+        step*=0.5;
+        if(step < 1e-12) break;
+      }
+      if(!moved) break;
+      if(st.s < 1e-12) break;
+    }
+    return { coords:Y, stress:st.s, iters:it, d:st.d, dhat:st.dhat, diss:diss };
+  }
+
+  /* Procrustes correlation between two configurations -- how vegan decides
+     whether two random starts found the same solution. */
+  function procrustes(A, B){
+    var n=A.length, k=A[0].length, i, j, q;
+    var X=A.map(function(r){return r.slice();}), Y=B.map(function(r){return r.slice();});
+    centre(X); centre(Y);
+    function norm(M){ var s=0; M.forEach(function(r){ r.forEach(function(v){ s+=v*v; }); }); return Math.sqrt(s); }
+    var nx=norm(X)||1, ny=norm(Y)||1;
+    X=X.map(function(r){return r.map(function(v){return v/nx;});});
+    Y=Y.map(function(r){return r.map(function(v){return v/ny;});});
+    var C=zeros(k,k);
+    for(i=0;i<k;i++) for(j=0;j<k;j++){ var s=0; for(q=0;q<n;q++) s+=X[q][i]*Y[q][j]; C[i][j]=s; }
+    /* trace of the singular values of C == max attainable correlation; for
+       k<=3 get them from the eigenvalues of C'C. */
+    var CtC=zeros(k,k);
+    for(i=0;i<k;i++) for(j=0;j<k;j++){ var s2=0; for(q=0;q<k;q++) s2+=C[q][i]*C[q][j]; CtC[i][j]=s2; }
+    var e=jacobi(CtC);
+    var tr=0; e.values.forEach(function(v){ tr+=Math.sqrt(Math.max(0,v)); });
+    return Math.min(1, tr);
+  }
+
+  function nmds(D, k, starts, seed){
+    var n=D.length;
+    var p=pcoa(D,k);
+    var best=null, all=[], r=rng(seed||42), i, j, q;
+    var scale=0; p.coords.forEach(function(row){ row.forEach(function(v){ scale=Math.max(scale,Math.abs(v)); }); });
+    if(!(scale>0)) scale=1;
+    for(i=0;i<(starts||8);i++){
+      var Y0;
+      if(i===0) Y0=p.coords.map(function(r2){return r2.slice();});
+      else {
+        Y0=[];
+        for(j=0;j<n;j++){ var row=[]; for(q=0;q<k;q++) row.push((r()-0.5)*2*scale); Y0.push(row); }
+      }
+      var res=nmdsOnce(D,k,Y0);
+      all.push(res);
+      if(!best || res.stress < best.stress) best=res;
+    }
+    /* How many other starts landed on the same configuration? A single low
+       stress from one start is not evidence the solution is stable. */
+    var agree=0;
+    all.forEach(function(r2){
+      if(r2===best) return;
+      if(r2.stress < best.stress + 1e-4 && procrustes(best.coords, r2.coords) > 0.999) agree++;
+    });
+    best.starts=all.length; best.agree=agree+1;
+    best.stresses=all.map(function(r2){return r2.stress;}).sort(function(a,b){return a-b;});
+    return best;
+  }
+
+  return { sqrtT:sqrtT, wisconsin:wisconsin, bray:bray, jaccard:jaccard, euclid:euclid,
+           jacobi:jacobi, pcoa:pcoa, pava:pava, nmds:nmds, nmdsOnce:nmdsOnce,
+           procrustes:procrustes, stress1:stress1, pairs:pairs, configDist:configDist };
+})();
+</script>
+<script>
+(function(){
+  "use strict";
+  function $(id){ return document.getElementById(id); }
+  function val(id){ var e=$(id); return e ? e.value : ""; }
+  function push(id,v){ var e=$(id); if(!e) return; e.value=String(v);
+    e.dispatchEvent(new Event("input",{bubbles:true}));
+    e.dispatchEvent(new Event("change",{bubbles:true})); }
+  function buzz(){ try{ if(navigator.vibrate) navigator.vibrate(8); }catch(e){} }
+  function esc(s){ return String(s==null?"":s).replace(/[&<>"']/g,function(c){
+    return c==="&"?"&amp;":c==="<"?"&lt;":c===">"?"&gt;":c==='"'?"&quot;":"&#39;"; }); }
+  var toastT;
+  function toast(m){ var t=$("toast"); t.textContent=m; t.classList.add("on");
+    clearTimeout(toastT); toastT=setTimeout(function(){ t.classList.remove("on"); },1900); }
+  function copyText(s,msg){
+    var a=document.createElement("textarea"); a.value=s;
+    a.style.position="fixed"; a.style.opacity="0"; document.body.appendChild(a);
+    a.select();
+    var ok=false; try{ ok=document.execCommand("copy"); }catch(e){}
+    document.body.removeChild(a);
+    toast(ok ? msg : "Copy failed — select the text");
+  }
+  function svg(tag,attrs){
+    var e=document.createElementNS("http://www.w3.org/2000/svg",tag);
+    for(var k in attrs) if(attrs.hasOwnProperty(k)) e.setAttribute(k,String(attrs[k]));
+    return e;
+  }
+
+  /* ================= state ================= */
+  var M = null;   // {sites:[names], taxa:[names], X:[[..]]}
+  var RES = null; // last ordination
+
+  /* ================= demo data =================
+     Generated here, from a stated recipe with a fixed seed, rather than shipped
+     as a table of numbers with no provenance. The recipe is the point: species
+     with unimodal responses along two environmental gradients is the model the
+     whole method assumes, and the second demo is the same generator with the
+     gradients removed, which is how you can see what stress is for. */
+  function lcg(seed){ var s=seed>>>0; return function(){ s=(1664525*s+1013904223)>>>0; return s/4294967296; }; }
+  function demoGradient(seed){
+    var r=lcg(seed), i, j, nS=20, nT=24, sites=[], sp=[], X=[];
+    for(i=0;i<nS;i++) sites.push([(i%5)/4, Math.floor(i/5)/3]);
+    for(j=0;j<nT;j++) sp.push([r(), r(), 0.15+0.2*r()]);
+    for(i=0;i<nS;i++){
+      var row=[];
+      for(j=0;j<nT;j++){
+        var dx=sites[i][0]-sp[j][0], dy=sites[i][1]-sp[j][1], t=sp[j][2];
+        var mu=60*Math.exp(-(dx*dx+dy*dy)/(2*t*t));
+        var v=0, k; for(k=0;k<4;k++) v+=r();
+        row.push(Math.max(0, Math.round(mu*(1+(v/4-0.5)))));
+      }
+      X.push(row);
+    }
+    return { sites: sites.map(function(_,q){ return "S"+(q<9?"0":"")+(q+1); }),
+             taxa: sp.map(function(_,q){ return "sp"+(q<9?"0":"")+(q+1); }), X:X };
+  }
+  function demoNoise(seed){
+    var r=lcg(seed), i, j, nS=20, nT=24, X=[];
+    for(i=0;i<nS;i++){ var row=[]; for(j=0;j<nT;j++) row.push(Math.floor(r()*40)); X.push(row); }
+    return { sites: Array.apply(null,Array(nS)).map(function(_,q){ return "R"+(q<9?"0":"")+(q+1); }),
+             taxa: Array.apply(null,Array(nT)).map(function(_,q){ return "sp"+(q<9?"0":"")+(q+1); }), X:X };
+  }
+  function toCSV(d){
+    var L=[["site"].concat(d.taxa).join(",")];
+    d.sites.forEach(function(s,i){ L.push([s].concat(d.X[i]).join(",")); });
+    return L.join("\n");
+  }
+
+  /* ================= parsing ================= */
+  function parse(text){
+    var lines = String(text||"").split(/\r?\n/).filter(function(l){ return l.trim()!==""; });
+    if(lines.length < 2) return { err:"Needs a header row and at least one site row." };
+    var sep = (lines[0].indexOf("\t")>=0) ? "\t" : ",";
+    function split(l){
+      /* Minimal RFC4180: quoted fields may hold the separator. Species names
+         with commas in them are rarer than authorities with commas in them,
+         and the Relevé export quotes both. */
+      var out=[], cur="", q=false, i;
+      for(i=0;i<l.length;i++){
+        var c=l[i];
+        if(q){ if(c==='"'){ if(l[i+1]==='"'){ cur+='"'; i++; } else q=false; } else cur+=c; }
+        else if(c==='"') q=true;
+        else if(c===sep){ out.push(cur); cur=""; }
+        else cur+=c;
+      }
+      out.push(cur); return out.map(function(s){ return s.trim(); });
+    }
+    var head = split(lines[0]);
+    var taxa = head.slice(1).filter(function(t){ return t!==""; });
+    if(!taxa.length) return { err:"No species columns in the header row." };
+    var sites=[], X=[], bad=[], i;
+    for(i=1;i<lines.length;i++){
+      var f=split(lines[i]);
+      var nm=f[0]||("row "+i);
+      var row=[], j;
+      for(j=0;j<taxa.length;j++){
+        var raw=(f[j+1]==null?"":f[j+1]);
+        if(raw==="") { row.push(0); continue; }
+        var v=parseFloat(raw);
+        if(!isFinite(v)){ bad.push(nm+" / "+taxa[j]+" = " + raw); row.push(0); }
+        else row.push(v<0 ? (bad.push(nm+" / "+taxa[j]+" is negative"), 0) : v);
+      }
+      sites.push(nm); X.push(row);
+    }
+    return { sites:sites, taxa:taxa, X:X, bad:bad };
+  }
+
+  function prepare(){
+    if(!M) return null;
+    var X = M.X.map(function(r){ return r.slice(); });
+    if(val("tSqrt")==="1") X = ORD.sqrtT(X);
+    if(val("tWis")==="1")  X = ORD.wisconsin(X);
+    var m = val("dMethod");
+    return m==="jaccard" ? ORD.jaccard(X) : m==="euclid" ? ORD.euclid(X) : ORD.bray(X);
+  }
+
+  /* ================= parse report ================= */
+  function parseReport(){
+    var box=$("parseOut");
+    if(!M){ box.innerHTML=""; return; }
+    var empties=[], sums=[], i, j;
+    for(i=0;i<M.X.length;i++){
+      var t=0; for(j=0;j<M.X[i].length;j++) t+=M.X[i][j];
+      sums.push(t); if(t===0) empties.push(M.sites[i]);
+    }
+    var absent=[];
+    for(j=0;j<M.taxa.length;j++){
+      var s=0; for(i=0;i<M.X.length;i++) s+=M.X[i][j];
+      if(s===0) absent.push(M.taxa[j]);
+    }
+    var h='<div class="stat">'
+      + k("sites", M.sites.length) + k("species", M.taxa.length)
+      + k("cells recorded", M.sites.length*M.taxa.length)
+      + k("zeroes", pctZero()+"<span class=\"u\">%</span>") + '</div>';
+    if(M.sites.length < 4){
+      h += '<div class="verdict act"><b>Four sites minimum.</b> A two-dimensional ordination of three '
+        + 'points reproduces their distances exactly by construction, so its stress is zero and means '
+        + 'nothing at all. This is a refusal, not a limit of the arithmetic.</div>';
+    }
+    if(empties.length){
+      h += '<div class="verdict act"><b>' + empties.length + ' site'+(empties.length===1?"":"s")
+        + ' recorded nothing:</b> ' + esc(empties.join(", ")) + '. Bray-Curtis is undefined between two '
+        + 'empty sites &mdash; zero over zero &mdash; and this page writes 0 there rather than a NaN, '
+        + 'which puts them on top of each other in the picture. Remove them, or know that is what you '
+        + 'are looking at.</div>';
+    }
+    if(absent.length){
+      h += '<div class="verdict warn"><b>' + absent.length + ' species occur in no site.</b> They change '
+        + 'nothing in Bray-Curtis and nothing in Jaccard, but they <em>do</em> change Euclidean distance '
+        + 'if you standardise by species maximum first. Listed so the choice is yours: '
+        + esc(absent.slice(0,8).join(", ")) + (absent.length>8 ? ", &hellip;" : "") + '.</div>';
+    }
+    if(M.bad && M.bad.length){
+      h += '<div class="verdict warn"><b>' + M.bad.length + ' value'+(M.bad.length===1?"":"s")
+        + ' could not be read as a number and were taken as zero:</b> '
+        + esc(M.bad.slice(0,6).join("; ")) + (M.bad.length>6?"; &hellip;":"")
+        + '. A blank cell is a legitimate zero; a typo is not, and the page cannot tell them apart.</div>';
+    }
+    if(M.sites.length >= 4 && !empties.length){
+      h += '<div class="verdict"><b>Ready.</b> ' + M.sites.length + ' sites, ' + M.taxa.length
+        + ' species. Open the <b>Ordination</b> tab.</div>';
+    }
+    box.innerHTML=h;
+  }
+  function k(label,v){ return '<div class="k"><span class="l">'+label+'</span><span class="v">'+v+'</span></div>'; }
+  function pctZero(){
+    var z=0,n=0,i,j;
+    for(i=0;i<M.X.length;i++) for(j=0;j<M.X[i].length;j++){ n++; if(M.X[i][j]===0) z++; }
+    return n ? Math.round(100*z/n) : 0;
+  }
+
+  /* ================= running ================= */
+  function run(){
+    if(!M){ toast("Read a matrix first"); return; }
+    if(M.sites.length < 4){ toast("Four sites minimum"); return; }
+    var D=prepare();
+    var k=Math.max(2, Math.min(3, parseInt(val("oK"),10)||2));
+    var starts=Math.max(1, Math.min(50, parseInt(val("oStarts"),10)||12));
+    var p=ORD.pcoa(D,k);
+    var res;
+    if(val("oMethod")==="pcoa"){
+      var P=ORD.pairs(D.length);
+      var d=ORD.configDist(p.coords,P);
+      var diss=P.map(function(q){ return D[q[0]][q[1]]; });
+      res={ method:"pcoa", coords:p.coords, d:d, diss:diss, stress:null };
+    } else {
+      res=ORD.nmds(D, k, starts, (Date.now()&0x7fffffff)||1);
+      res.method="nmds";
+    }
+    res.D=D; res.pcoa=p; res.k=k;
+    RES=res;
+    drawOrd(); drawShepard(); drawScree(); reportStress(); reportStarts();
+  }
+
+  /* ================= plotting ================= */
+  function frame(host, w, h, pad){
+    host.innerHTML="";
+    var s=svg("svg",{viewBox:"0 0 "+w+" "+h, role:"img"});
+    host.appendChild(s);
+    return s;
+  }
+  function scaler(vals, lo, hi){
+    var mn=Math.min.apply(null,vals), mx=Math.max.apply(null,vals);
+    if(mx-mn < 1e-12){ mn-=0.5; mx+=0.5; }
+    var pad=(mx-mn)*0.08; mn-=pad; mx+=pad;
+    return function(v){ return lo + (v-mn)/(mx-mn)*(hi-lo); };
+  }
+
+  function drawOrd(){
+    var host=$("ordPlot");
+    if(!RES){ host.innerHTML=""; return; }
+    var W=680, H=440, L=44, R=18, T=18, B=40;
+    var s=frame(host,W,H);
+    var xs=RES.coords.map(function(r){return r[0];}), ys=RES.coords.map(function(r){return r[1];});
+    var sx=scaler(xs,L,W-R), sy=scaler(ys,H-B,T);
+    s.appendChild(svg("line",{x1:L,y1:H-B,x2:W-R,y2:H-B,"class":"ax"}));
+    s.appendChild(svg("line",{x1:L,y1:T,x2:L,y2:H-B,"class":"ax"}));
+    /* Origin lines, not numbered axes -- see the note the page prints below. */
+    var zx=sx(0), zy=sy(0);
+    if(zx>L && zx<W-R) s.appendChild(svg("line",{x1:zx,y1:T,x2:zx,y2:H-B,"class":"gl"}));
+    if(zy>T && zy<H-B) s.appendChild(svg("line",{x1:L,y1:zy,x2:W-R,y2:zy,"class":"gl"}));
+    RES.coords.forEach(function(c,i){
+      var x=sx(c[0]), y=sy(c[1]);
+      s.appendChild(svg("circle",{cx:x, cy:y, r:5.5, "class":"dot"}));
+      var t=svg("text",{x:x+8, y:y+4, "class":"pt"});
+      t.textContent=M.sites[i];
+      s.appendChild(t);
+    });
+    var lab=svg("text",{x:W/2, y:H-12, "text-anchor":"middle"});
+    lab.textContent = RES.method==="nmds"
+      ? "NMDS — axes are arbitrary; only the arrangement is meaningful"
+      : "PCoA axis 1 (" + pctAxis(0) + "%) horizontal, axis 2 (" + pctAxis(1) + "%) vertical";
+    s.appendChild(lab);
+
+    var stat=$("ordStat"), v=$("ordVerdict");
+    if(RES.method==="nmds"){
+      stat.innerHTML = k("stress", RES.stress.toFixed(3))
+        + k("dimensions", RES.k) + k("sites", M.sites.length)
+        + k("starts agreeing", RES.agree + '<span class="u">/' + RES.starts + '</span>');
+    } else {
+      stat.innerHTML = k("axis 1", pctAxis(0)+'<span class="u">%</span>')
+        + k("axis 2", pctAxis(1)+'<span class="u">%</span>')
+        + k("first two", (Math.round(10*(pctAxis(0)+pctAxis(1)))/10)+'<span class="u">%</span>')
+        + k("negative eigenvalues", RES.pcoa.negatives);
+    }
+    v.innerHTML = RES.method==="nmds" ? stressVerdict(RES.stress, M.sites.length) : pcoaVerdict();
+    $("axisNote").innerHTML = RES.method==="nmds"
+      ? '<p class="fine"><b>No axis numbers, on purpose.</b> An NMDS configuration can be rotated or '
+        + 'mirrored freely without changing its stress by a thousandth, so a number on the axis would be '
+        + 'a number about this run rather than about your data. Two sites near each other is the finding.</p>'
+      : '<p class="fine">PCoA axes <em>are</em> ordered and do carry a share of the variation, so they are '
+        + 'labelled. Those percentages are computed over positive eigenvalues only &mdash; see the '
+        + 'eigenvalue panel on the diagnostics tab for what that leaves out.</p>';
+  }
+  function pctAxis(i){
+    if(!RES) return 0;
+    var v=RES.pcoa.values[i]||0;
+    return RES.pcoa.posSum>0 ? Math.round(1000*Math.max(0,v)/RES.pcoa.posSum)/10 : 0;
+  }
+
+  /* Clarke (1993), quoted as the rule of thumb it is. */
+  function band(s){
+    if(s < 0.05) return ["excellent","", "the rank order of nearly every pair survives"];
+    if(s < 0.10) return ["good","", "a solid picture; small distances are trustworthy"];
+    if(s < 0.20) return ["usable","warn", "read the broad pattern, not the fine detail"];
+    if(s < 0.30) return ["could be misleading","act", "Clarke's own words for this band"];
+    return ["arbitrary","act", "close to what random points would give"];
+  }
+  function stressVerdict(s, n){
+    var b=band(s);
+    var h='<div class="verdict '+b[1]+'"><b>Stress '+s.toFixed(3)+' &mdash; &ldquo;'+b[0]+'&rdquo;</b> on '
+      + 'Clarke&rsquo;s rule of thumb ('+b[2]+'). That is <b>a convention, not a result</b>: Clarke '
+      + 'published these bands with a warning against using them mechanically, and stress rises with the '
+      + 'number of points for geometric reasons alone. This is <b>'+n+' sites</b> &mdash; the same stress '
+      + 'from more sites is a better outcome, not the same one.';
+    if(s >= 0.20){
+      h += ' <b>At this level the page will not help you read the picture.</b> The arrangement above is '
+        + 'not a faithful map of the dissimilarities, and any grouping you see in it may be an artefact '
+        + 'of forcing many dimensions into two. Try three dimensions, a different standardisation, or '
+        + 'accept that these sites may not lie on a gradient.';
+    }
+    if(s < 1e-6 && M.sites.length <= RES.k + 2){
+      h += ' <b>A stress this near zero with this few sites is not a result.</b> There are enough free '
+        + 'coordinates to place the points exactly however the ordering demands, so the fit is guaranteed '
+        + 'and carries no information.';
+    }
+    return h + '</div>';
+  }
+  function pcoaVerdict(){
+    var p=RES.pcoa, negShare = p.absSum>0 ? 100*(p.absSum-p.posSum)/p.absSum : 0;
+    var h='<div class="verdict'+(p.negatives?" warn":"")+'"><b>'+(Math.round(10*(pctAxis(0)+pctAxis(1)))/10).toFixed(1)
+      +'% of the positive variation is in these two axes.</b> ';
+    if(p.negatives){
+      h += 'But '+p.negatives+' eigenvalue'+(p.negatives===1?" is":"s are")+' <b>negative</b>, carrying '
+        + negShare.toFixed(1)+'% of the total absolute variation. That is Bray-Curtis violating the '
+        + 'triangle inequality, which it is entitled to do &mdash; it is a semi-metric. The percentage '
+        + 'above is over positive eigenvalues only, so it is larger than the share of your data these '
+        + 'axes actually capture. NMDS does not have this problem, because it never assumed the '
+        + 'dissimilarities were distances in the first place.';
+    } else {
+      h += 'No negative eigenvalues, so the dissimilarity behaved metrically on this dataset and the '
+        + 'percentage means what it appears to mean.';
+    }
+    return h+'</div>';
+  }
+
+  /* ================= Shepard diagram ================= */
+  function drawShepard(){
+    var host=$("shepPlot"), note=$("shepNote");
+    if(!RES){ host.innerHTML=""; note.innerHTML=""; return; }
+    var W=680, H=340, L=52, R=16, T=16, B=42;
+    var s=frame(host,W,H);
+    var diss=RES.diss, d=RES.d;
+    var sx=scaler(diss,L,W-R), sy=scaler(d,H-B,T);
+    s.appendChild(svg("line",{x1:L,y1:H-B,x2:W-R,y2:H-B,"class":"ax"}));
+    s.appendChild(svg("line",{x1:L,y1:T,x2:L,y2:H-B,"class":"ax"}));
+    var i;
+    for(i=0;i<diss.length;i++)
+      s.appendChild(svg("circle",{cx:sx(diss[i]), cy:sy(d[i]), r:2.6, "class":"sh"}));
+    if(RES.dhat){
+      var ord=diss.map(function(_,q){return q;});
+      ord.sort(function(a,b){ return diss[a]-diss[b] || a-b; });
+      var pts=ord.map(function(q){ return [sx(diss[q]), sy(RES.dhat[q])]; });
+      var dpath="M"+pts.map(function(p,q){
+        return (q ? "L"+p[0]+","+pts[q-1][1]+"L" : "") + p[0]+","+p[1]; }).join("");
+      s.appendChild(svg("path",{d:dpath,"class":"iso"}));
+    }
+    var xl=svg("text",{x:(L+W-R)/2, y:H-12, "text-anchor":"middle"});
+    xl.textContent="dissimilarity between two sites →";
+    s.appendChild(xl);
+    var yl=svg("text",{x:14, y:(T+H-B)/2, transform:"rotate(-90 14 "+((T+H-B)/2)+")", "text-anchor":"middle"});
+    yl.textContent="distance in the picture →";
+    s.appendChild(yl);
+    /* the worst-fitted pairs, named */
+    if(RES.dhat){
+      var P=ORD.pairs(M.sites.length);
+      var res=diss.map(function(_,q){ return { q:q, e:Math.abs(d[q]-RES.dhat[q]) }; });
+      res.sort(function(a,b){ return b.e-a.e; });
+      var worst=res.slice(0,3).filter(function(r){ return r.e > 1e-9; }).map(function(r){
+        return M.sites[P[r.q][0]] + "–" + M.sites[P[r.q][1]]; });
+      note.innerHTML = worst.length
+        ? '<p class="fine"><b>Worst-placed pairs:</b> ' + esc(worst.join(", "))
+          + '. Those are the site pairs whose spacing in the picture disagrees most with their actual '
+          + 'dissimilarity. If any of them is a comparison your argument rests on, the ordination is not '
+          + 'the evidence for it.</p>'
+        : '<p class="fine">Every pair sits on the monotone fit &mdash; a perfect ordering, which with '
+          + 'few sites is a property of the geometry rather than of the data.</p>';
+    } else {
+      note.innerHTML = '<p class="fine">PCoA fits the dissimilarities themselves, not their rank order, '
+        + 'so there is no monotone step line here &mdash; a straight line through the origin would be a '
+        + 'perfect fit. Curvature away from it is exactly the saturation problem that makes NMDS the '
+        + 'usual choice for community data.</p>';
+    }
+  }
+
+  /* ================= scree ================= */
+  function drawScree(){
+    var host=$("screePlot"), note=$("screeNote");
+    if(!RES){ host.innerHTML=""; note.innerHTML=""; return; }
+    var v=RES.pcoa.values.slice(0, Math.min(14, RES.pcoa.values.length));
+    var W=680, H=260, L=44, R=16, T=16, B=44;
+    var s=frame(host,W,H);
+    var mx=Math.max.apply(null, v.map(Math.abs)) || 1;
+    var zero = T + (H-T-B) * (Math.max.apply(null,v) / (Math.max.apply(null,v) - Math.min(0,Math.min.apply(null,v))) || 1);
+    var span=H-T-B, top=Math.max.apply(null,v), bot=Math.min(0, Math.min.apply(null,v));
+    var y0 = T + span*(top/(top-bot));
+    s.appendChild(svg("line",{x1:L,y1:y0,x2:W-R,y2:y0,"class":"ax"}));
+    var bw=(W-R-L)/v.length;
+    v.forEach(function(e,i){
+      var hgt = Math.abs(e)/(top-bot)*span;
+      var x=L+i*bw+bw*0.18, w=bw*0.64;
+      s.appendChild(svg("rect",{x:x, y: e>=0 ? y0-hgt : y0, width:w, height:Math.max(0.6,hgt),
+        "class": e<0 ? "bar neg" : "bar"}));
+      var t=svg("text",{x:x+w/2, y:H-26, "text-anchor":"middle"});
+      t.textContent=(i+1); s.appendChild(t);
+    });
+    var xl=svg("text",{x:(L+W-R)/2, y:H-8, "text-anchor":"middle"});
+    xl.textContent="principal coordinate axis — red bars are negative eigenvalues";
+    s.appendChild(xl);
+    var p=RES.pcoa;
+    note.innerHTML = p.negatives
+      ? '<p class="fine"><b>'+p.negatives+' of '+p.values.length+' eigenvalues are negative</b>, holding '
+        + (100*(p.absSum-p.posSum)/p.absSum).toFixed(1) + '% of the total absolute variation. This is what '
+        + 'a semi-metric dissimilarity looks like from the inside. Software that prints a percentage of '
+        + 'variation explained without mentioning them is not wrong so much as incomplete.</p>'
+      : '<p class="fine">No negative eigenvalues on this dataset.</p>';
+  }
+
+  function reportStress(){
+    var b=$("stressBox");
+    if(!RES){ b.innerHTML=""; return; }
+    if(RES.method!=="nmds"){
+      b.innerHTML='<div class="verdict">PCoA has no stress. It is an eigenanalysis with a closed-form '
+        + 'answer, and the equivalent question &mdash; how much of the structure is in these two axes '
+        + '&mdash; is the eigenvalue panel below.</div>';
+      return;
+    }
+    var s=RES.stress, bd=band(s), rows=[
+      ["< 0.05","excellent", s<0.05], ["< 0.10","good", s>=0.05&&s<0.10],
+      ["< 0.20","usable", s>=0.10&&s<0.20], ["< 0.30","could be misleading", s>=0.20&&s<0.30],
+      ["&ge; 0.30","arbitrary", s>=0.30]];
+    var h='<div class="stat">'+k("stress-1", s.toFixed(4))+k("band", bd[0])
+      +k("sites", M.sites.length)+k("pairs fitted", (M.sites.length*(M.sites.length-1)/2))+'</div>';
+    h+='<div class="tw"><table class="dm"><tr><th>stress</th><th>Clarke&rsquo;s word</th><th></th></tr>';
+    rows.forEach(function(r){
+      h+='<tr><th>'+r[0]+'</th><td style="text-align:left">'+r[1]+'</td><td>'
+        +(r[2]?'<b>&larr; this run</b>':'')+'</td></tr>';
+    });
+    h+='</table></div>';
+    b.innerHTML=h;
+  }
+
+  function reportStarts(){
+    var b=$("startBox");
+    if(!RES){ b.innerHTML=""; return; }
+    if(RES.method!=="nmds"){
+      b.innerHTML='<div class="verdict">PCoA has one answer and no starting configuration, so there is '
+        + 'nothing here to agree or disagree.</div>';
+      return;
+    }
+    var agree=RES.agree, n=RES.starts, worst=RES.stresses[RES.stresses.length-1];
+    var cls = agree===n ? "" : (agree >= Math.ceil(n/2) ? "warn" : "act");
+    var h='<div class="verdict '+cls+'"><b>'+agree+' of '+n+' starts converged to the same configuration.</b> ';
+    if(agree===n){
+      h += 'Every random start found the same arrangement, so this is very likely the global minimum '
+        + 'rather than one basin among many.';
+    } else if(agree*2 >= n){
+      h += 'The rest landed in other local minima, the worst at stress ' + worst.toFixed(3)
+        + '. The reported solution is the best found, and a majority agreeing is usually taken as '
+        + 'sufficient &mdash; but it is not a proof that nothing better exists.';
+    } else {
+      h += '<b>That is not a stable solution.</b> Fewer than half the starts agreed, which means the '
+        + 'stress surface has many basins and the picture you are looking at is one of them. Increase '
+        + 'the starts, or take this as a sign that two dimensions cannot hold these data.';
+    }
+    b.innerHTML = h + '</div>';
+  }
+
+  /* ================= entry layer ================= */
+  var TF, DIS, METH, KDIM, NSTA;
+  FEK.mount("tfEntry", [
+    TF = FEK.chips({ label:"transform", value:["sqrt","wis"], options:[
+      { value:"sqrt", label:"square root", sub:"pulls in the dominants" },
+      { value:"wis",  label:"Wisconsin",   sub:"species by max, then site by total" }
+    ], onchange:function(v){
+      push("tSqrt", v.indexOf("sqrt")>=0 ? 1 : 0);
+      push("tWis",  v.indexOf("wis")>=0 ? 1 : 0);
+      if(RES) run();
+    }})
+  ]);
+  FEK.mount("disEntry", [
+    DIS = FEK.dial({ field:"dMethod", label:"dissimilarity", value:"bray", clearable:false, options:[
+      { value:"bray",    label:"Bray-Curtis", sub:"abundance, the ecological default", ramp:0 },
+      { value:"jaccard", label:"Jaccard",     sub:"presence/absence only",             ramp:2 },
+      { value:"euclid",  label:"Euclidean",   sub:"straight-line, rarely right here",  ramp:4 }
+    ], onchange:function(v){ push("dMethod", v||"bray"); disNote(); if(RES) run(); }})
+  ]);
+  FEK.mount("methEntry", [
+    METH = FEK.dial({ field:"oMethod", label:"method", value:"nmds", clearable:false, options:[
+      { value:"nmds", label:"NMDS", sub:"rank order only, iterative", ramp:0 },
+      { value:"pcoa", label:"PCoA", sub:"eigenanalysis, one answer",  ramp:2 }
+    ], onchange:function(v){ push("oMethod", v||"nmds"); run(); }}),
+    KDIM = FEK.step({ field:"oK", label:"dimensions", value:2, min:2, max:3, step:1,
+      help:"Three dimensions always fit better. The question is whether the third one is signal.",
+      onchange:function(v){ push("oK", v); run(); }}),
+    NSTA = FEK.step({ field:"oStarts", label:"random starts", value:12, min:1, max:50, step:1,
+      help:"More starts, better evidence that the best one found is the best there is.",
+      onchange:function(v){ push("oStarts", v); }})
+  ]);
+
+  function disNote(){
+    var m=val("dMethod"), h="";
+    if(m==="bray"){
+      h='<p class="fine"><b>Bray-Curtis</b> (Bray &amp; Curtis 1957) is <b>&Sigma;|x&minus;y| &divide; '
+       +'&Sigma;(x+y)</b> over species. It is the standard for abundance data because it ignores joint '
+       +'absences &mdash; two bogs both lacking a desert shrub are not thereby similar. It is a '
+       +'<em>semi-metric</em>: it can break the triangle inequality, which is why PCoA on it produces '
+       +'negative eigenvalues.</p>';
+    } else if(m==="jaccard"){
+      h='<p class="fine"><b>Jaccard</b> throws the counts away and asks only which species were present. '
+       +'Use it when your abundances are not comparable between sites &mdash; different observers, '
+       +'different effort, or a species list rather than a count. It cannot see that a plot went from '
+       +'two stems to two hundred.</p>';
+    } else {
+      h='<div class="verdict warn"><b>Euclidean distance is usually the wrong choice for community data.</b> '
+       +'It treats two sites that both lack a species as evidence of similarity, and it is dominated by '
+       +'whichever species happens to be most abundant. It is here because it is the one distance everyone '
+       +'already understands, and because seeing what it does to the picture is the fastest way to '
+       +'understand why ecologists do not use it. <b>Watch the stress while you switch.</b> On most '
+       +'community data Euclidean gives a <em>lower</em> stress than Bray-Curtis, because a distance '
+       +'that saturates less is easier to fit in two dimensions. Lower stress does not mean a better '
+       +'ordination &mdash; it means the thing being fitted was a poorer question.</div>';
+    }
+    $("disNote").innerHTML=h;
+  }
+
+  /* ================= buttons ================= */
+  function load(text){
+    $("raw").value=text;
+    var p=parse(text);
+    if(p.err){ M=null; $("parseOut").innerHTML='<div class="verdict act"><b>'+esc(p.err)+'</b></div>'; return; }
+    M=p; RES=null;
+    parseReport();
+    drawOrd(); drawShepard(); drawScree(); reportStress(); reportStarts();
+  }
+  $("runBtn").addEventListener("click",function(){ load($("raw").value); buzz();
+    if(M && M.sites.length>=4){ run(); showPane("p-ord"); } });
+  $("demo1").addEventListener("click",function(){
+    load(toCSV(demoGradient(20260825))); buzz();
+    toast("Simulated: 24 species with unimodal responses on two gradients");
+    run(); showPane("p-ord"); });
+  $("demo2").addEventListener("click",function(){
+    load(toCSV(demoNoise(31415926))); buzz();
+    toast("Simulated: the same sites and species, no gradient at all");
+    run(); showPane("p-ord"); });
+  $("clearBtn").addEventListener("click",function(){
+    $("raw").value=""; M=null; RES=null; $("parseOut").innerHTML="";
+    ["ordPlot","shepPlot","screePlot","ordStat","ordVerdict","axisNote","stressBox","startBox",
+     "shepNote","screeNote"].forEach(function(id){ $(id).innerHTML=""; });
+    if(typeof KEPT!=="undefined" && KEPT) KEPT.touch();
+    buzz(); toast("Cleared"); });
+  $("runOrd").addEventListener("click",function(){ run(); buzz(); });
+  $("copyCoord").addEventListener("click",function(){
+    if(!RES){ toast("Nothing to copy"); return; }
+    var head=["site"], i;
+    for(i=0;i<RES.k;i++) head.push((RES.method==="nmds"?"NMDS":"PCoA")+(i+1));
+    var L=[head.join(",")];
+    RES.coords.forEach(function(c,q){
+      L.push([M.sites[q]].concat(c.map(function(v){ return v.toFixed(6); })).join(","));
+    });
+    if(RES.method==="nmds")
+      L.push("# NMDS axes are arbitrary: this configuration may be rotated or mirrored "
+           + "relative to another run and fit equally well. stress-1 = " + RES.stress.toFixed(4));
+    copyText(L.join("\n"), "Coordinates copied");
+  });
+  $("copyDis").addEventListener("click",function(){
+    if(!RES){ toast("Run it first"); return; }
+    var L=[[""].concat(M.sites).join(",")];
+    RES.D.forEach(function(row,i){
+      L.push([M.sites[i]].concat(row.map(function(v){ return v.toFixed(6); })).join(","));
+    });
+    copyText(L.join("\n"), "Dissimilarity matrix copied — " + M.sites.length + "×" + M.sites.length);
+  });
+
+  /* ================= tabs & boot ================= */
+  function showPane(id){
+    document.querySelectorAll(".tab").forEach(function(t){ t.classList.toggle("on", t.dataset.pane===id); });
+    document.querySelectorAll(".pane").forEach(function(p){ p.classList.toggle("on", p.id===id); });
+    window.scrollTo(0,0);
+  }
+  document.querySelectorAll(".tab").forEach(function(tb){
+    tb.addEventListener("click",function(){ showPane(tb.dataset.pane); buzz(); }); });
+  disNote();
+
+  /* ---------- local autosave ----------
+     What is worth keeping is the matrix and the choices made about it. The
+     ordination itself is not stored: it is a few hundred milliseconds to
+     recompute, it would multiply the stored size by the number of sites
+     squared, and a stored NMDS configuration would come back in a rotation the
+     next run would not reproduce, which reads as instability that is not
+     there. */
+  var KEPT = KEEP.wire({
+    key: "csrbtOrdination",
+    format: 1,
+    mount: "keepBox",
+    noun: "your matrix",
+    ontoast: toast,
+    snapshot: function(){
+      var raw = $("raw").value;
+      if(!raw.trim()) return null;
+      return { raw: raw, sqrt: val("tSqrt"), wis: val("tWis"), dis: val("dMethod"),
+               meth: val("oMethod"), k: val("oK"), starts: val("oStarts") };
+    },
+    restore: function(b){
+      if(!b || !b.raw) return false;
+      push("tSqrt", b.sqrt == null ? 1 : b.sqrt);
+      push("tWis",  b.wis  == null ? 1 : b.wis);
+      push("dMethod", b.dis || "bray");
+      push("oMethod", b.meth || "nmds");
+      push("oK", b.k || 2);
+      push("oStarts", b.starts || 12);
+      syncControls();
+      load(b.raw);
+      return true;
+    },
+    onforget: function(){}
+  });
+  /* The hidden write-through fields are the state; the widgets have to be told
+     to show it, or a restored session looks like a fresh one with the wrong
+     numbers underneath. */
+  function syncControls(){
+    if(TF)   TF.set([val("tSqrt")==="1"?"sqrt":null, val("tWis")==="1"?"wis":null].filter(Boolean));
+    if(DIS)  DIS.set(val("dMethod"));
+    if(METH) METH.set(val("oMethod"));
+    if(KDIM) KDIM.set(parseInt(val("oK"),10)||2);
+    if(NSTA) NSTA.set(parseInt(val("oStarts"),10)||12);
+  }
+  $("raw").addEventListener("input", function(){ KEPT.touch(); });
+  ["tSqrt","tWis","dMethod","oMethod","oK","oStarts"].forEach(function(id){
+    var e=$(id); if(e) e.addEventListener("change", function(){ KEPT.touch(); });
+  });
+})();
+</script>
+</body>
+</html>

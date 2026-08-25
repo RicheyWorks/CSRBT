@@ -169,7 +169,7 @@
   .rail a.ref:hover { color:var(--s1); }
   @media print { .rail { display:none !important; } }
 
-  /* ============ Field Entry Kit v1.2.0 ============
+  /* ============ Field Entry Kit v1.3.0 ============
      Large-target, high-contrast entry controls. Sizing is driven by --tap
      rather than per-component numbers so one token retunes the whole kit for
      gloves, cold hands or a wall-mounted tablet. */
@@ -177,7 +177,19 @@
     --tap: 60px;            /* primary control height  */
     --tap-sm: 48px;         /* secondary control height */
     --fek-r: 16px;
-    --ramp-0:#2B6C8F; --ramp-1:#3E8C8C; --ramp-2:#2C784C;
+    /* These three moved for WCAG AA and the move was made in the pages, by
+       hand, and never came back here -- because the CSS half of fek_emit was
+       dead code and nobody could tell. Source and pages agreed only by
+       ramp-1 moved here too: at its old teal, white label text on a selected
+       button measured 3.94:1 and the .92-white sub-line 3.59:1, both under AA.
+       No page had caught it because none defaulted to a ramp-1 option until the
+       deployment log did. Every ramp is now checked against both, in
+       verify_contrast_slice.
+       The pre-fix ramp values are named in verify_contrast_slice,
+       which greps for them literally across every page -- so they are not
+       repeated here, because a comment naming them is itself a page carrying
+       them, and the suite is right not to care why. */
+    --ramp-0:#2B6C8F; --ramp-1:#2F7373; --ramp-2:#2C784C;
     --ramp-3:#8A6408; --ramp-4:#A94F26; --ramp-5:#B23A32;
     --fek-line:#C7C0AC;
   }
@@ -308,6 +320,21 @@
      3:1 floor. Decorative card borders are not controls and stay quiet. */
   input:not([type=checkbox]):not([type=radio]):not([type=range]):not([type=color]),
   select, textarea { border-color: #8E8160; }
+  /* ============ Keep (local autosave) v1.0.0 ============ */
+  .keep { display:flex; flex-wrap:wrap; align-items:center; gap:10px;
+    background:var(--surface-2, #F3EEE0); border:1px solid var(--border, #E3DCC9);
+    border-radius:12px; padding:10px 13px; margin:12px 0 2px; }
+  .keep .st { font-family:var(--mono, monospace); font-size:11.5px; color:var(--muted, #6B6B5E);
+    line-height:1.5; flex:1 1 220px; min-width:0; }
+  .keep .st b { color:var(--ink, #23281F); }
+  .keep.bad { border-color:var(--danger, #B23A32); background:var(--danger-bg, #F6E7E5); }
+  .keep.bad .st b { color:var(--danger, #B23A32); }
+  .keep button { border:1.5px solid var(--border, #E3DCC9); background:none; border-radius:10px;
+    padding:0 14px; min-height:var(--tap, 44px); font:700 13px var(--body, sans-serif);
+    color:var(--ink-2, #4B5344); cursor:pointer; touch-action:manipulation; }
+  .keep button:hover { border-color:var(--danger, #B23A32); color:var(--danger, #B23A32); }
+  .keep .note { flex:1 1 100%; font-size:12px; color:var(--muted, #6B6B5E); line-height:1.5; }
+  @media print { .keep { display:none !important; } }
 </style>
 </head>
 <body>
@@ -323,7 +350,9 @@
     <h2>The run — cross, plants, traits</h2>
     <p class="hint">Name the cross, add your plants, and set the traits you'll score with a weight for how
       much each matters to <em>your</em> program. Works for any crop — apples, tomatoes, hops, hemp or
-      cannabis where legal. Your run saves in this browser; export before you clear it.</p>
+      cannabis where legal. Your run is kept in this browser &mdash; that is recovery from a closed tab, not a backup. Export it for anything you need to keep.</p>
+
+    <div id="keepBox"></div>
 
     <div class="card">
       <div class="btn-row" style="margin-top:0">
@@ -458,26 +487,44 @@
   </section>
 
 <div class="rail">
-  <p class="rl">The field kit</p>
+  <p class="rl">Record it — in the field</p>
   <div class="chips">
     <a href="field-notebook.html"><span>📓</span>Field Notebook</a>
-      <a href="breeding-bench.html"><span>🥕</span>Breeding Bench</a>
-      <a href="cp-bench.html"><span>🫙</span>CP Bench</a>
-      <a href="ethogram.html"><span>🐾</span>Ethogram</a>
-      <a href="selection-log.html"><span>📏</span>Selection Log</a>
-    <a href="farm-scout.html"><span>🧑‍🌾</span>Farm Scout</a>
-    <a href="pheno-tracker.html" aria-current="page"><span>🌱</span>Pheno Tracker</a>
-    <a href="food-web.html"><span>🕸️</span>Food Web Builder</a>
+    <a href="ethogram.html"><span>🐾</span>Ethogram</a>
+    <a href="selection-log.html"><span>📏</span>Selection Log</a>
     <a href="stand-sheet.html"><span>🌲</span>Stand Sheet</a>
     <a href="releve.html"><span>🌾</span>Relevé</a>
-    <a href="plant-characters.html"><span>🌱</span>Plant Characters</a>
-      <a href="collection-sheet.html"><span>🍄</span>Collection Sheet</a>
-      <a href="fungal-characters.html"><span>🔬</span>Fungal Characters</a>
+    <a href="collection-sheet.html"><span>🍄</span>Collection Sheet</a>
+    <a href="farm-scout.html"><span>🧑‍🌾</span>Farm Scout</a>
+    <a href="pheno-tracker.html" aria-current="page"><span>🌱</span>Pheno Tracker</a>
+    <a href="deployment-log.html"><span>🎙️</span>Deployment Log</a>
+  </div>
+  <p class="rl" style="margin-top:16px">At the bench</p>
+  <div class="chips">
+    <a href="cp-bench.html"><span>🫙</span>CP Bench</a>
+    <a href="soil-bench.html"><span>🪱</span>Soil Bench</a>
+    <a href="breeding-bench.html"><span>🥕</span>Breeding Bench</a>
+    <a href="cell-bench.html"><span>🔬</span>Cell Bench</a>
+    <a href="micro-bench.html"><span>🧫</span>Micro Bench</a>
+  </div>
+  <p class="rl" style="margin-top:16px">Analyse it</p>
+  <div class="chips">
+    <a href="ordination.html"><span>📉</span>Ordination</a>
+    <a href="food-web.html"><span>🕸️</span>Food Web Builder</a>
     <a href="field-season.html"><span>🎯</span>Field Season</a>
+  </div>
+  <p class="rl" style="margin-top:16px">Print it</p>
+  <div class="chips">
+    <a href="plant-characters.html"><span>🌱</span>Plant Characters</a>
+    <a href="fungal-characters.html"><span>🔬</span>Fungal Characters</a>
+    <a href="cp-characters.html"><span>🪤</span>CP Characters</a>
+  </div>
+  <div class="chips" style="margin-top:16px">
     <a class="ref" href="ecology.html">← kit hub</a>
     <a class="ref" href="ecology-field-card.html">field card</a>
     <a class="ref" href="ecology-glossary.html">glossary</a>
   </div>
+</div>
 </div>
 </div>
 
@@ -492,7 +539,7 @@
 
 <script>
 
-/* ---- Field Entry Kit v1.2.0 : constructors return {el, get, set} ---- */
+/* ---- Field Entry Kit v1.3.0 : constructors return {el, get, set} ---- */
 var FEK = (function(){
   function el(t,c,h){ var e=document.createElement(t); if(c) e.className=c;
     if(h!=null) e.innerHTML=h; return e; }
@@ -514,6 +561,24 @@ var FEK = (function(){
   function escv(s){ return String(s==null?"":s).replace(/[&<>"']/g,function(c){
     return c==="&"?"&amp;":c==="<"?"&lt;":c===">"?"&gt;":c==='"'?"&quot;":"&#39;"; }); }
   function buzz(m){ try{ if(navigator.vibrate) navigator.vibrate(m||8);}catch(e){} }
+
+  /* ---- field registry (v1.3.0) ----
+     A component writes through to a hidden field via the page's own onchange.
+     That is fine going out and useless coming back: nothing could put a
+     restored value INTO the widget, so an autosaved session showed default
+     dials over correct data -- a lie on screen, which is worse than no
+     autosave. A component that declares `field:"sElev"` is registered here,
+     and FEK.setField puts a value back through the widget's own set(). Purely
+     additive: a component with no `field` behaves exactly as before. */
+  var REG = {};
+  function reg(o, h){ if(o && o.field) REG[o.field] = h; return h; }
+  function setField(id, v){
+    var h = REG[id];
+    if(!h) return false;
+    try { h.set(v); } catch(e){ return false; }
+    return true;
+  }
+  function fields(){ var out=[]; for(var k in REG) if(REG.hasOwnProperty(k)) out.push(k); return out; }
 
   function step(o){
     o=o||{}; var min=(o.min==null?-Infinity:o.min), max=(o.max==null?Infinity:o.max);
@@ -567,8 +632,8 @@ var FEK = (function(){
     wrap.appendChild(lab); wrap.appendChild(box);
     if(o.help) wrap.appendChild(el("p","fek-help",o.help));
     render();
-    return { el:wrap, get:function(){return v;}, set:function(x){set(x,true);},
-             clear:clear, nullable:nullable };
+    return reg(o, { el:wrap, get:function(){return v;}, set:function(x){set(x,true);},
+             clear:clear, nullable:nullable });
   }
 
   /* field: a value typed from an instrument readout. No steppers — see the CSS note. */
@@ -603,8 +668,8 @@ var FEK = (function(){
     wrap.appendChild(lab); wrap.appendChild(box);
     if(o.help) wrap.appendChild(el("p","fek-help",o.help));
     set(v,true);
-    return { el:wrap, get:function(){return v;}, set:function(x){set(x,true);},
-             clear:function(){ set(null,true); }, nullable:true };
+    return reg(o, { el:wrap, get:function(){return v;}, set:function(x){set(x,true);},
+             clear:function(){ set(null,true); }, nullable:true });
   }
 
   function dial(o){
@@ -625,8 +690,8 @@ var FEK = (function(){
     paint();
     wrap.appendChild(lab); wrap.appendChild(box);
     if(o.help) wrap.appendChild(el("p","fek-help",o.help));
-    return { el:wrap, get:function(){return cur;},
-             set:function(x){ cur=x; paint(); } };
+    return reg(o, { el:wrap, get:function(){return cur;},
+             set:function(x){ cur=x; paint(); } });
   }
 
   function chips(o){
@@ -647,8 +712,8 @@ var FEK = (function(){
     paint();
     wrap.appendChild(lab); wrap.appendChild(box);
     if(o.help) wrap.appendChild(el("p","fek-help",o.help));
-    return { el:wrap, get:function(){return Object.keys(sel);},
-             set:function(a){ sel={}; (a||[]).forEach(function(v){sel[v]=1;}); paint(); } };
+    return reg(o, { el:wrap, get:function(){return Object.keys(sel);},
+             set:function(a){ sel={}; (a||[]).forEach(function(v){sel[v]=1;}); paint(); } });
   }
 
   function slider(o){
@@ -670,9 +735,9 @@ var FEK = (function(){
     box.appendChild(r); box.appendChild(bub);
     wrap.appendChild(lab); wrap.appendChild(box);
     if(o.help) wrap.appendChild(el("p","fek-help",o.help));
-    return { el:wrap, get:function(){return v;},
+    return reg(o, { el:wrap, get:function(){return v;},
              set:function(x){ v=(nullable&&x==null)?null:x; if(x!=null) r.value=x; paint(); },
-             clear:function(){ if(nullable){ v=null; paint(); } }, nullable:nullable };
+             clear:function(){ if(nullable){ v=null; paint(); } }, nullable:nullable });
   }
 
   function picker(o){
@@ -701,7 +766,7 @@ var FEK = (function(){
     wrap.appendChild(lab); wrap.appendChild(box);
     if(o.help) wrap.appendChild(el("p","fek-help",o.help));
     paint();
-    return { el:wrap, get:function(){return cur;}, set:function(x){ cur=x; paint(); } };
+    return reg(o, { el:wrap, get:function(){return cur;}, set:function(x){ cur=x; paint(); } });
   }
 
   function tiles(list){
@@ -723,8 +788,198 @@ var FEK = (function(){
      design -- still has to escape the data inside it. A private copy of an
      escaper in one page was how the last one got lost when the kit was
      re-emitted over it. */
-  return { version:"1.2.0", esc:escv, step:step, field:field, dial:dial, chips:chips, slider:slider,
+  return { version:"1.3.0", esc:escv, setField:setField, fields:fields, step:step, field:field, dial:dial, chips:chips, slider:slider,
            picker:picker, tiles:tiles, banner:banner, mount:mount, buzz:buzz };
+})();
+
+/* ---- Keep v1.0.0 : local autosave, and honesty about what that is ---- */
+var KEEP = (function(){
+  function esc(s){ return String(s==null?"":s).replace(/[&<>"']/g,function(c){
+    return c==="&"?"&amp;":c==="<"?"&lt;":c===">"?"&gt;":c==='"'?"&quot;":"&#39;"; }); }
+
+  /* Probe rather than assume. Safari in private mode used to throw on the
+     first write; storage can also be disabled by enterprise policy or by the
+     user, and in a sandboxed frame the accessor itself throws. All three look
+     identical to a page that only wraps setItem in a try. */
+  function usable(){
+    try {
+      var k = "__keep_probe__";
+      window.localStorage.setItem(k, "1");
+      window.localStorage.removeItem(k);
+      return true;
+    } catch(e){ return false; }
+  }
+
+  function when(ts){
+    if(!ts) return "";
+    try {
+      var d = new Date(ts), now = new Date();
+      var same = d.toDateString() === now.toDateString();
+      var hm = ("0"+d.getHours()).slice(-2) + ":" + ("0"+d.getMinutes()).slice(-2);
+      return same ? ("today " + hm) : (d.toISOString().slice(0,10) + " " + hm);
+    } catch(e){ return ""; }
+  }
+
+  function wire(o){
+    o = o || {};
+    var key = o.key, host = typeof o.mount === "string" ? document.getElementById(o.mount) : o.mount;
+    var fmt = o.format == null ? 1 : o.format;
+    var ok = usable(), lastErr = null, savedAt = null, restoredFrom = null, timer = null;
+    var noun = o.noun || "your work";
+
+    function read(){
+      if(!ok) return null;
+      try {
+        var raw = window.localStorage.getItem(key);
+        if(!raw) return null;
+        var p = JSON.parse(raw);
+        /* A format stamp, so a page that changes its state shape does not
+           restore a shape it can no longer read and fail in a way the user
+           reads as data loss. */
+        if(!p || p.format !== fmt) return null;
+        return p;
+      } catch(e){ return null; }
+    }
+
+    function write(){
+      timer = null;
+      if(!ok) return;
+      var body;
+      try { body = o.snapshot(); } catch(e){ lastErr = "could not read the page state"; paint(); return; }
+      if(body == null){
+        try { window.localStorage.removeItem(key); }catch(e){}
+        savedAt = null; lastErr = null; paint(); return;
+      }
+      try {
+        window.localStorage.setItem(key, JSON.stringify({ format:fmt, at:Date.now(), body:body }));
+        savedAt = Date.now(); lastErr = null;
+      } catch(e){
+        /* Do not swallow this. A quota failure that says nothing is worse than
+           no autosave at all, because it teaches the user to trust it. */
+        lastErr = (e && e.name === "QuotaExceededError")
+          ? "this browser's storage is full" : "this browser refused the write";
+      }
+      paint();
+    }
+
+    function touch(){
+      if(!ok) return;
+      if(timer) clearTimeout(timer);
+      timer = setTimeout(write, o.debounce == null ? 500 : o.debounce);
+    }
+
+    function flush(){ if(timer){ clearTimeout(timer); } write(); }
+
+    function forget(){
+      /* Cancel the pending write first. Without this the debounced save from
+         the edit that preceded the click -- or from the click itself, on a
+         page that listens for clicks -- lands a few hundred milliseconds later
+         and puts the copy straight back, which makes the button look like it
+         did nothing. */
+      if(timer){ clearTimeout(timer); timer = null; }
+      try { window.localStorage.removeItem(key); }catch(e){}
+      savedAt = null; restoredFrom = null; lastErr = null; paint();
+      if(o.onforget) o.onforget();
+    }
+
+    function paint(){
+      if(!host) return;
+      /* noprint: this is screen chrome -- a status line about a browser and a
+         button -- and the print audit is right to count anything else that
+         vanishes on paper as content lost. */
+      host.className = "keep noprint" + ((!ok || lastErr) ? " bad" : "");
+      var msg;
+      if(!ok){
+        msg = "<b>This browser is not keeping anything.</b> Storage is unavailable here &mdash; a "
+            + "private window, or site data switched off. Nothing is being saved, so export before "
+            + "you close the tab.";
+      } else if(lastErr){
+        msg = "<b>Autosave failed &mdash; " + esc(lastErr) + ".</b> What is on screen is not saved. "
+            + "Export it now.";
+      } else if(savedAt){
+        msg = "Saved on this device <b>" + esc(when(savedAt)) + "</b>"
+            + (restoredFrom ? " &middot; restored from " + esc(when(restoredFrom)) : "") + ".";
+      } else if(restoredFrom){
+        msg = "Restored " + esc(noun) + " from <b>" + esc(when(restoredFrom)) + "</b> on this device.";
+      } else {
+        msg = "Autosave is on. " + esc(noun.charAt(0).toUpperCase() + noun.slice(1))
+            + " will still be here if you close the tab.";
+      }
+      host.innerHTML =
+        '<p class="st">' + msg + '</p>'
+        + '<button type="button" data-keep-forget>Forget this device\'s copy</button>'
+        + '<p class="note"><b>This is not a backup.</b> It is one browser on one device, and it goes '
+        + 'when site data is cleared, in a private window, or on any other machine. It exists so a '
+        + 'phone call does not cost you a morning. The exports are the durable copy.</p>';
+      var b = host.querySelector("[data-keep-forget]");
+      if(b) b.addEventListener("click", function(){
+        forget();
+        if(o.ontoast) o.ontoast("Saved copy removed from this device");
+      });
+    }
+
+    var got = read();
+    if(got){
+      var accepted = false;
+      try { accepted = o.restore(got.body) !== false; } catch(e){ accepted = false; }
+      if(accepted){ restoredFrom = got.at; }
+    }
+    paint();
+    /* A tab closing mid-debounce is exactly the case this exists for. */
+    try {
+      window.addEventListener("pagehide", function(){ if(timer) flush(); });
+      document.addEventListener("visibilitychange", function(){
+        if(document.visibilityState === "hidden" && timer) flush(); });
+    } catch(e){}
+
+    return { touch:touch, flush:flush, forget:forget, usable:function(){ return ok; },
+             restored:function(){ return restoredFrom; }, savedAt:function(){ return savedAt; },
+             error:function(){ return lastErr; } };
+  }
+
+  /* ---- generic form capture ----
+     Every page in the kit keeps its typed state in elements with ids -- real
+     inputs for text and dates, hidden write-through fields for the FEK
+     widgets. Capturing them by walking the DOM means a page that gains a field
+     does not also have to remember to add it to a list, which is how a
+     hand-maintained list of fields quietly stops covering the newest one. */
+  function formSnapshot(){
+    var out = {}, i, els = document.querySelectorAll("input[id], textarea[id]");
+    for(i=0;i<els.length;i++){
+      var e = els[i];
+      if(e.type === "file" || e.type === "button" || e.type === "submit") continue;
+      out[e.id] = (e.type === "checkbox" || e.type === "radio") ? (e.checked ? "1" : "") : e.value;
+    }
+    return out;
+  }
+  /* Restoring the hidden field is only half the job: the widget above it still
+     shows its construction default, and a correct value under a wrong-looking
+     dial is worse than no restore at all. FEK.setField (v1.3.0) puts the value
+     back through the widget for every component that declared its field. */
+  function formRestore(map){
+    if(!map) return 0;
+    var n = 0, id;
+    for(id in map){
+      if(!map.hasOwnProperty(id)) continue;
+      var e = document.getElementById(id);
+      if(!e) continue;
+      if(e.type === "checkbox" || e.type === "radio") e.checked = !!map[id];
+      else e.value = map[id];
+      if(typeof FEK !== "undefined" && FEK.setField){
+        var v = map[id];
+        if(e.type === "number" || /^-?\d+(\.\d+)?$/.test(String(v))) {
+          FEK.setField(id, v === "" ? null : parseFloat(v));
+        } else {
+          FEK.setField(id, v === "" ? null : v);
+        }
+      }
+      n++;
+    }
+    return n;
+  }
+
+  return { version:"1.0.0", wire:wire, usable:usable,
+           formSnapshot:formSnapshot, formRestore:formRestore };
 })();
 
 </script>
@@ -744,9 +999,29 @@ var FEK = (function(){
     plants:[], sel:null };
   function blank(i){ return {id:i, scores:{}, note:"", mark:""}; }   // mark: "", "keep", "cull"
   for(var i=1;i<=8;i++) S.plants.push(blank(i));
-  try { var saved=localStorage.getItem(KEY); if(saved){ var p=JSON.parse(saved);
-    if(p&&p.plants&&p.traits){ S=p; S.sel=null; } } } catch(e){}
-  function save(){ try{ localStorage.setItem(KEY, JSON.stringify(S)); }catch(e){} }
+
+  /* Was: try{ setItem }catch(e){} -- which meant a full quota, a private
+     window, or storage switched off all looked exactly like a successful save.
+     KEEP probes storage at boot, surfaces a refused write, and says on the page
+     that a browser copy is not a backup. Same call sites; the difference is
+     that a failure is now visible. */
+  var KEPT = KEEP.wire({
+    key: KEY, format: 1, mount: "keepBox", noun: "this run", ontoast: toast,
+    snapshot: function(){
+      if(!S || !S.plants) return null;
+      var typed = (S.name && S.name !== "Cross A") || (S.obs && S.obs !== "")
+        || (S.crosses && S.crosses.length)
+        || S.plants.some(function(p){ return p.note || p.mark
+             || (p.scores && Object.keys(p.scores).length); });
+      return typed ? S : null;
+    },
+    restore: function(b){
+      if(!b || !b.plants || !b.traits) return false;
+      S = b; S.sel = null; return true;
+    },
+    onforget: function(){ try{ renderAll(); }catch(e){} }
+  });
+  function save(){ KEPT.touch(); }
   if(!S.date){ try{ S.date=new Date().toISOString().slice(0,10); }catch(e){ S.date=""; } }
   if(S.obs===undefined) S.obs="";
   if(!S.crosses) S.crosses=[];
@@ -1055,7 +1330,7 @@ var FEK = (function(){
     try{ if(navigator.clipboard&&navigator.clipboard.writeText) navigator.clipboard.writeText(text).then(done,fb); else fb(); }catch(e){ fb(); }
   });
 
-  /* ------------------------------- Field Entry Kit v1.2.0 -------------------
+  /* ------------------------------- Field Entry Kit -------------------
      The 1–5 trait rating is the most-tapped control in the whole kit — traits
      times plants, every check-in — so it gets the ordinal dial and its ramp:
      1 reads cool, 5 reads hot, and the colour carries the order that a row of
@@ -1069,19 +1344,19 @@ var FEK = (function(){
     e.dispatchEvent(new Event("input",{bubbles:true}));
     e.dispatchEvent(new Event("change",{bubbles:true}));
   }
-  var RUNN=FEK.step({ label:"plants in run", value:8, min:1, max:200, step:1, dec:0,
+  var RUNN=FEK.step({ field:"runN", label:"plants in run", value:8, min:1, max:200, step:1, dec:0,
     onchange:function(v){ push("runN",v); },
     help:"Set plants renumbers to #1…#N and keeps scores already entered for existing numbers." });
   FEK.mount("runEntry",[RUNN]);
 
-  var TRAITW=FEK.step({ label:"weight", unit:"×", value:1, min:0.5, max:5, step:0.5, dec:1,
+  var TRAITW=FEK.step({ field:"traitW", label:"weight", unit:"×", value:1, min:0.5, max:5, step:0.5, dec:1,
     onchange:function(v){ push("traitW",v); },
     help:"Weight 2 counts double in the total. Weighting is a statement about what you are breeding for — write it down before you score, not after you see the board." });
   FEK.mount("wEntry",[TRAITW]);
 
-  var SEGA=FEK.field({ label:"showing it", value:9, dec:0, step:1, min:0,
+  var SEGA=FEK.field({ field:"segA", label:"showing it", value:9, dec:0, step:1, min:0,
     onchange:function(v){ push("segA",v); } });
-  var SEGB=FEK.field({ label:"not showing", value:3, dec:0, step:1, min:0,
+  var SEGB=FEK.field({ field:"segB", label:"not showing", value:3, dec:0, step:1, min:0,
     onchange:function(v){ push("segB",v); },
     help:"Counted across the run. χ² is only as good as the count — a clean call usually needs 30+ plants." });
   FEK.mount("segEntry",[SEGA,SEGB]);
@@ -1095,10 +1370,10 @@ var FEK = (function(){
     });
     var ka=CROSSA&&CROSSA.get(), kb=CROSSB&&CROSSB.get();
     var have=function(k){ return opts.some(function(o){ return o.value===k; }); };
-    CROSSA=FEK.picker({ label:"seed parent ♀", options:opts, value:have(ka)?ka:null,
+    CROSSA=FEK.picker({ field:"crossA", label:"seed parent ♀", options:opts, value:have(ka)?ka:null,
       placeholder: opts.length? "type a number…" : "score or keep a plant first",
       onchange:function(v){ push("crossA",v); } });
-    CROSSB=FEK.picker({ label:"pollen parent ♂", options:opts, value:have(kb)?kb:null,
+    CROSSB=FEK.picker({ field:"crossB", label:"pollen parent ♂", options:opts, value:have(kb)?kb:null,
       placeholder: opts.length? "type a number…" : "score or keep a plant first",
       onchange:function(v){ push("crossB",v); } });
     FEK.mount("crossEntry",[CROSSA,CROSSB]);

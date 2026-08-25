@@ -80,6 +80,49 @@ Four instruments refuse outright: coefficients of conservatism in the Relev&eacu
 fungal pair, clinical breakpoints in Micro Bench, and nutrient-free verification in Soil Bench.
 A kit that will not tell you whether a mushroom is safe to eat is more useful than one that will.
 
+### The instrument that says what it cannot measure
+
+The **[Deployment Log](https://claude.ai/code/artifact/58e9b6d9-5a9b-496a-8b71-4644db78f750)** plans a recorder,
+a drone flight or an environmental logger, and computes the things worth knowing before you walk away from
+the equipment rather than after:
+
+- **What the sample rate can actually hear.** 48 kHz records nothing above 24 kHz. Above the limit sound
+  does not come out quiet — it **aliases down** and appears as a frequency that was never there, which is
+  worse than missing, because it looks like data.
+- **Where the clock will be when you come back.** An AudioMoth is accurate to ±10 ms when set and drifts up
+  to a second a day. Sound covers 343 m in a second. A fortnight's deployment is therefore up to
+  **14 seconds — 4.8 km of apparent position error** for time-of-arrival work. That one multiplication
+  settles the array question before anyone buys the second unit.
+- **Ground sample distance, image count, and the shot interval** your sensor would have to sustain.
+
+And four things it refuses. It will not give you decibels from a recorder whose gain settings are named
+rather than calibrated. It will not call a filter-converted RGB camera an NDVI sensor. It will not let a
+flight with no radiometric correction be described as comparable to another one. And it will not print a
+radiation-shield error figure, because the study it would have cited is paywalled — so the finding ships,
+the number does not, and the page asks you what shield you used instead.
+
+### A picture that always draws
+
+Give any ordination twenty plots and thirty species and it will hand you a two-dimensional map. It hands
+you one for a real environmental gradient and it hands you one for random numbers, and **the two pictures
+look equally convincing.** That is the whole problem, and it is why the
+**[Ordination](https://claude.ai/code/artifact/287e03ab-3c15-468f-a15c-6bb2d95a09c9)** page gives stress, the
+Shepard diagram, start agreement and the eigenvalue spectrum a tab of their own rather than a line of
+small print. It ships with two demos that make the argument without making it:
+
+| Demo | What it is | Stress | Starts agreeing |
+|---|---|---|---|
+| Two gradients | 24 species with unimodal responses along two environmental axes | **0.034** | 12 of 12 |
+| No structure at all | the same 20 sites and species, counts drawn at random | **0.212** | **1 of 12** |
+
+Above 0.20 the page stops helping you read the picture. The stress bands are Clarke (1993), cited and
+**labelled a rule of thumb** — printed with the site count beside them, because stress rises with the
+number of points for geometric reasons alone and a bare band hides that.
+
+It also draws **no axis numbers on an NMDS plot**. An NMDS configuration can be rotated or mirrored freely
+without changing its fit in the fourth decimal, so `NMDS1` is the name of an arbitrary basis. What is real
+is which points sit near which.
+
 ### The same rule, applied to a coordinate
 
 Three sheets now export **[Darwin Core](https://claude.ai/code/artifact/6a9c95fd-c144-470a-937a-9af08fda1e2d)** &mdash; the format GBIF, iNaturalist and every
@@ -148,8 +191,8 @@ Nothing above is a claim about care. The kit measures itself, and the measuremen
 command:
 
 ```
-python3 tools/verify/run_all.py     →  35 of 35 jobs green
-                                       1839 of 1839 checks passing
+python3 tools/verify/run_all.py     →  39 of 39 jobs green
+                                       1871 of 1871 checks passing
 ```
 
 Eight kit-wide audits measure what the browser actually renders, not what the source intends:

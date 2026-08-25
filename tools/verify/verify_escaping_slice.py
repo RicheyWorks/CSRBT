@@ -114,8 +114,9 @@ with sync_playwright() as pw:
     pg.goto(_kit.url("cp-bench.html"), wait_until="domcontentloaded")
     pg.wait_for_timeout(800)
     ck(not errs, "cp-bench loads without error (%s)" % errs[:1])
-    ck(pg.evaluate("()=>typeof FEK==='object' && FEK.version") == "1.2.0",
-       "the page's own FEK reports 1.2.0")
+    # Read, not frozen -- the ninth frozen version constant found this month.
+    ck(pg.evaluate("()=>typeof FEK==='object' && FEK.version") == FEKV,
+       "the page's own FEK reports %s" % FEKV)
 
     r = pg.evaluate("""(probe)=>{
       const host=document.createElement('div'); host.id='__esc_probe'; document.body.appendChild(host);

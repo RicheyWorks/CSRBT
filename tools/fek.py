@@ -5,7 +5,7 @@ Single source of truth. Emitted inline into every page that uses it, because
 every page in this kit must stay one self-contained file (artifact CSP, offline
 in the field, printable). Bump VERSION on any change and re-emit consumers.
 """
-VERSION = "1.2.0"
+VERSION = "1.3.0"
 
 CSS = """
   /* ============ Field Entry Kit v%s ============
@@ -16,8 +16,20 @@ CSS = """
     --tap: 60px;            /* primary control height  */
     --tap-sm: 48px;         /* secondary control height */
     --fek-r: 16px;
-    --ramp-0:#2B6C8F; --ramp-1:#3E8C8C; --ramp-2:#2E7D4F;
-    --ramp-3:#B8860B; --ramp-4:#C0592B; --ramp-5:#B23A32;
+    /* These three moved for WCAG AA and the move was made in the pages, by
+       hand, and never came back here -- because the CSS half of fek_emit was
+       dead code and nobody could tell. Source and pages agreed only by
+       ramp-1 moved here too: at its old teal, white label text on a selected
+       button measured 3.94:1 and the .92-white sub-line 3.59:1, both under AA.
+       No page had caught it because none defaulted to a ramp-1 option until the
+       deployment log did. Every ramp is now checked against both, in
+       verify_contrast_slice.
+       The pre-fix ramp values are named in verify_contrast_slice,
+       which greps for them literally across every page -- so they are not
+       repeated here, because a comment naming them is itself a page carrying
+       them, and the suite is right not to care why. */
+    --ramp-0:#2B6C8F; --ramp-1:#2F7373; --ramp-2:#2C784C;
+    --ramp-3:#8A6408; --ramp-4:#A94F26; --ramp-5:#B23A32;
     --fek-line:#C7C0AC;
   }
   .fek-lab { display:block; font:800 15px var(--body); color:var(--ink-2);
@@ -166,6 +178,24 @@ var FEK = (function(){
     return c==="&"?"&amp;":c==="<"?"&lt;":c===">"?"&gt;":c==='"'?"&quot;":"&#39;"; }); }
   function buzz(m){ try{ if(navigator.vibrate) navigator.vibrate(m||8);}catch(e){} }
 
+  /* ---- field registry (v1.3.0) ----
+     A component writes through to a hidden field via the page's own onchange.
+     That is fine going out and useless coming back: nothing could put a
+     restored value INTO the widget, so an autosaved session showed default
+     dials over correct data -- a lie on screen, which is worse than no
+     autosave. A component that declares `field:"sElev"` is registered here,
+     and FEK.setField puts a value back through the widget's own set(). Purely
+     additive: a component with no `field` behaves exactly as before. */
+  var REG = {};
+  function reg(o, h){ if(o && o.field) REG[o.field] = h; return h; }
+  function setField(id, v){
+    var h = REG[id];
+    if(!h) return false;
+    try { h.set(v); } catch(e){ return false; }
+    return true;
+  }
+  function fields(){ var out=[]; for(var k in REG) if(REG.hasOwnProperty(k)) out.push(k); return out; }
+
   function step(o){
     o=o||{}; var min=(o.min==null?-Infinity:o.min), max=(o.max==null?Infinity:o.max);
     var stepv=o.step||1, dec=o.dec==null?(String(stepv).split(".")[1]||"").length:o.dec;
@@ -218,8 +248,8 @@ var FEK = (function(){
     wrap.appendChild(lab); wrap.appendChild(box);
     if(o.help) wrap.appendChild(el("p","fek-help",o.help));
     render();
-    return { el:wrap, get:function(){return v;}, set:function(x){set(x,true);},
-             clear:clear, nullable:nullable };
+    return reg(o, { el:wrap, get:function(){return v;}, set:function(x){set(x,true);},
+             clear:clear, nullable:nullable });
   }
 
   /* field: a value typed from an instrument readout. No steppers — see the CSS note. */
@@ -254,8 +284,8 @@ var FEK = (function(){
     wrap.appendChild(lab); wrap.appendChild(box);
     if(o.help) wrap.appendChild(el("p","fek-help",o.help));
     set(v,true);
-    return { el:wrap, get:function(){return v;}, set:function(x){set(x,true);},
-             clear:function(){ set(null,true); }, nullable:true };
+    return reg(o, { el:wrap, get:function(){return v;}, set:function(x){set(x,true);},
+             clear:function(){ set(null,true); }, nullable:true });
   }
 
   function dial(o){
@@ -276,8 +306,8 @@ var FEK = (function(){
     paint();
     wrap.appendChild(lab); wrap.appendChild(box);
     if(o.help) wrap.appendChild(el("p","fek-help",o.help));
-    return { el:wrap, get:function(){return cur;},
-             set:function(x){ cur=x; paint(); } };
+    return reg(o, { el:wrap, get:function(){return cur;},
+             set:function(x){ cur=x; paint(); } });
   }
 
   function chips(o){
@@ -298,8 +328,8 @@ var FEK = (function(){
     paint();
     wrap.appendChild(lab); wrap.appendChild(box);
     if(o.help) wrap.appendChild(el("p","fek-help",o.help));
-    return { el:wrap, get:function(){return Object.keys(sel);},
-             set:function(a){ sel={}; (a||[]).forEach(function(v){sel[v]=1;}); paint(); } };
+    return reg(o, { el:wrap, get:function(){return Object.keys(sel);},
+             set:function(a){ sel={}; (a||[]).forEach(function(v){sel[v]=1;}); paint(); } });
   }
 
   function slider(o){
@@ -321,9 +351,9 @@ var FEK = (function(){
     box.appendChild(r); box.appendChild(bub);
     wrap.appendChild(lab); wrap.appendChild(box);
     if(o.help) wrap.appendChild(el("p","fek-help",o.help));
-    return { el:wrap, get:function(){return v;},
+    return reg(o, { el:wrap, get:function(){return v;},
              set:function(x){ v=(nullable&&x==null)?null:x; if(x!=null) r.value=x; paint(); },
-             clear:function(){ if(nullable){ v=null; paint(); } }, nullable:nullable };
+             clear:function(){ if(nullable){ v=null; paint(); } }, nullable:nullable });
   }
 
   function picker(o){
@@ -352,7 +382,7 @@ var FEK = (function(){
     wrap.appendChild(lab); wrap.appendChild(box);
     if(o.help) wrap.appendChild(el("p","fek-help",o.help));
     paint();
-    return { el:wrap, get:function(){return cur;}, set:function(x){ cur=x; paint(); } };
+    return reg(o, { el:wrap, get:function(){return cur;}, set:function(x){ cur=x; paint(); } });
   }
 
   function tiles(list){
@@ -374,7 +404,7 @@ var FEK = (function(){
      design -- still has to escape the data inside it. A private copy of an
      escaper in one page was how the last one got lost when the kit was
      re-emitted over it. */
-  return { version:"%s", esc:escv, step:step, field:field, dial:dial, chips:chips, slider:slider,
+  return { version:"%s", esc:escv, setField:setField, fields:fields, step:step, field:field, dial:dial, chips:chips, slider:slider,
            picker:picker, tiles:tiles, banner:banner, mount:mount, buzz:buzz };
 })();
 """ % (VERSION, VERSION)

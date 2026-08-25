@@ -1,0 +1,1682 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Deployment Log — recorders, loggers and flights, with what they can and cannot measure</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<!-- Webfonts load without blocking first paint: a stylesheet request that
+     hangs (one bar of signal) otherwise holds the page blank indefinitely,
+     which breaks the offline constraint in ADR-031. See tools/audit_offline.py. -->
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,600;9..144,700&family=Nunito+Sans:wght@400;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" media="print" data-webfont>
+<noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,600;9..144,700&family=Nunito+Sans:wght@400;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap"></noscript>
+<script>(function(){var l=document.querySelector('link[data-webfont]');if(!l)return;
+  var on=function(){l.media="all";};
+  if(l.sheet){on();}else{l.addEventListener("load",on);l.addEventListener("error",function(){});}
+})();</script>
+<style>
+  :root {
+    color-scheme: light;
+    --page:#F5F1E6; --surface:#FFFDF7; --surface-2:#F3EEE0; --ink:#23281F; --ink-2:#4B5344;
+    --muted:#6B6B5E; --border:#E3DCC9; --s1:#2C784C; --s1-deep:#236240; --s2:#A94F26; --s3:#2B6C8F;
+    --soft:#E9F0E7; --warn-bg:#F6EAD8; --danger:#B23A32; --danger-bg:#F6E7E5; --gold:#8A6408;
+    --shadow:0 1px 2px rgba(35,40,31,.06),0 10px 28px rgba(35,40,31,.08);
+    --head:"Fraunces",Georgia,serif;
+    --body:"Nunito Sans",system-ui,-apple-system,sans-serif;
+    --mono:"JetBrains Mono",ui-monospace,Menlo,monospace;
+  }
+  * { box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
+  body { margin:0; background:var(--page); color:var(--ink); font:16px/1.5 var(--body);
+    -webkit-font-smoothing:antialiased; overscroll-behavior-y:contain; }
+  .app { max-width:960px; margin:0 auto; padding:14px 16px calc(104px + env(safe-area-inset-bottom)); }
+  .top { display:flex; align-items:baseline; justify-content:space-between; gap:10px; padding:6px 2px 12px; flex-wrap:wrap; }
+  .brand { font-family:var(--head); font-weight:700; font-size:22px; letter-spacing:-0.01em; }
+  .brand span { color:var(--s1); }
+  .top a { font-family:var(--mono); font-size:11.5px; color:var(--muted); text-decoration:none;
+    display:inline-flex; align-items:center; min-height:44px; padding:0 6px; margin:-10px -6px; touch-action:manipulation; }
+  .top a:hover { color:var(--s1); }
+
+  .tabbar { position:fixed; left:0; right:0; bottom:0; z-index:20;
+    background:color-mix(in srgb, var(--surface) 94%, transparent); backdrop-filter:blur(10px);
+    border-top:1px solid var(--border); padding:8px max(8px, env(safe-area-inset-left)) calc(8px + env(safe-area-inset-bottom)); }
+  .tabbar .row { max-width:960px; margin:0 auto; display:grid; grid-template-columns:repeat(5,1fr); gap:4px; }
+  .tab { display:flex; flex-direction:column; align-items:center; gap:2px; border:0; background:none;
+    font:700 10.5px var(--body); color:var(--muted); padding:7px 1px; border-radius:12px; cursor:pointer;
+    min-height:54px; touch-action:manipulation; transition:background .15s ease, color .15s ease; }
+  .tab .ico { font-size:20px; line-height:1; }
+  .tab.on { color:var(--s1); background:var(--soft); }
+  .tab:active { transform:scale(.96); }
+  .pane { display:none; animation:fade .18s ease; }
+  .pane.on { display:block; }
+  @keyframes fade { from{opacity:0;transform:translateY(4px);} to{opacity:1;transform:none;} }
+  @media (prefers-reduced-motion: reduce){ .pane{animation:none;} }
+
+  h2 { font-family:var(--head); font-weight:600; font-size:20px; margin:6px 0 2px; }
+  h3 { font-family:var(--head); font-weight:600; font-size:16.5px; margin:16px 0 4px; }
+  .hint { color:var(--muted); font-size:14px; margin:0 0 12px; }
+  .card { background:var(--surface); border:1px solid var(--border); border-radius:16px;
+    padding:16px; box-shadow:var(--shadow); margin-bottom:14px; }
+  .fine { font-size:12.5px; color:var(--muted); margin-top:10px; line-height:1.55; }
+
+  input[type=text], input[type=number], input[type=date], select, textarea {
+    background:var(--surface); color:var(--ink); border:1.5px solid var(--border); border-radius:12px;
+    padding:11px 14px; font:16px var(--body); min-height:48px; max-width:100%; }
+  textarea { min-height:78px; line-height:1.5; width:100%; }
+  input:focus, select:focus, textarea:focus { outline:none; border-color:var(--s1); box-shadow:0 0 0 3px rgba(44,120,76,.18); }
+  input[type=number] { width:110px; }
+  label.f { display:flex; flex-direction:column; gap:5px; font-size:13px; font-weight:700; color:var(--ink-2); min-width:0; }
+  .grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(150px,1fr)); gap:10px; }
+  .grid label.f input, .grid label.f select { width:100%; }
+
+  .btn { border:0; border-radius:12px; padding:12px 18px; font:800 15px var(--body); cursor:pointer;
+    min-height:48px; touch-action:manipulation; transition:transform .1s ease, background .15s ease; }
+  .btn:active { transform:scale(.97); }
+  .btn-go { background:var(--s1); color:#fff; } .btn-go:hover { background:var(--s1-deep); }
+  .btn-soft { background:var(--soft); color:var(--s1); }
+  .btn-ghost { background:none; border:1.5px solid var(--border); color:var(--ink-2); }
+  .btn-ghost:hover { border-color:var(--s1); color:var(--s1); }
+  .btn-row { display:flex; gap:8px; flex-wrap:wrap; margin-top:12px; align-items:end; }
+
+  .kopts { display:flex; flex-wrap:wrap; gap:8px; }
+  .kopt { border:1.5px solid var(--border); background:var(--surface); border-radius:14px; padding:10px 14px;
+    font:700 14px var(--body); color:var(--ink-2); cursor:pointer; min-height:46px; touch-action:manipulation;
+    display:inline-flex; flex-direction:column; align-items:flex-start; gap:1px; }
+  .kopt small { font-weight:400; font-size:11px; color:var(--muted); font-family:var(--mono); }
+  .kopt.on { border-color:var(--s1); background:var(--soft); color:var(--s1); }
+
+    padding:8px 6px; font:800 15px var(--body); color:var(--ink-2); cursor:pointer; min-height:52px;
+    display:flex; flex-direction:column; align-items:center; justify-content:center; gap:1px; touch-action:manipulation; }
+
+  .tiles { display:flex; flex-wrap:wrap; gap:8px; margin:12px 0 2px; }
+  .tile { background:var(--surface-2); border:1px solid var(--border); border-radius:12px; padding:9px 14px; min-width:96px; }
+  .tile .v { font-family:var(--head); font-weight:700; font-size:21px; font-variant-numeric:tabular-nums; }
+  .tile .l { font-size:11px; color:var(--muted); }
+  .verdict { border-radius:12px; padding:13px 16px; margin:12px 0 2px; font-size:15.5px; line-height:1.55;
+    border-left:4px solid var(--s1); background:var(--soft); color:var(--ink-2); }
+  .verdict b { color:var(--ink); }
+  .verdict.warn { border-left-color:var(--s2); background:var(--warn-bg); }
+  .verdict.act { border-left-color:var(--danger); background:var(--danger-bg); }
+
+  .tw { overflow-x:auto; -webkit-overflow-scrolling:touch; margin:10px 0; }
+  table { border-collapse:collapse; width:100%; font-size:14px; }
+  th,td { border:1px solid var(--border); padding:6px 9px; text-align:left; vertical-align:top; white-space:nowrap; }
+  th { background:var(--soft); font-family:var(--head); font-weight:600; font-size:13px; }
+  td.n, th.n { text-align:right; font-variant-numeric:tabular-nums; font-family:var(--mono); font-size:13px; }
+  td i { font-style:italic; color:var(--ink-2); }
+
+  .rowlist { display:grid; gap:8px; margin-top:10px; }
+  .row2 { display:flex; align-items:center; gap:10px; background:var(--surface); border:1px solid var(--border);
+    border-radius:12px; padding:10px 13px; font-size:15px; }
+  .row2.inv { border-left:3px solid var(--danger); }
+  .row2 .g { flex:1; min-width:0; }
+  .row2 .g b { font-family:var(--head); font-size:15.5px; }
+  .row2 .g b i { font-style:italic; font-weight:400; color:var(--ink-2); font-size:14px; }
+  .row2 .g span { display:block; color:var(--muted); font-size:12.5px; font-family:var(--mono); margin-top:1px;
+    overflow:hidden; text-overflow:ellipsis; }
+  .row2 .cov { font-family:var(--head); font-weight:700; font-size:17px; color:var(--s1); min-width:46px; text-align:right; }
+  .row2 button { border:0; background:none; color:var(--muted); font-size:15px; padding:9px 11px; cursor:pointer; min-height:44px; min-width:44px; }
+  .row2 button:hover { color:var(--danger); }
+
+  .bars { display:grid; gap:6px; margin-top:10px; }
+  .bar { display:grid; grid-template-columns:132px 1fr 54px; gap:8px; align-items:center; font-size:13.5px; }
+  .bar .nm { font-weight:700; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+  .bar .tr { display:block; background:var(--surface-2); border:1px solid var(--border); border-radius:8px; height:20px; overflow:hidden; }
+  .bar .fl { display:block; height:100%; background:var(--s1); border-radius:7px 0 0 7px; transition:width .4s ease; }
+  .bar .fl.inv { background:var(--s2); }
+  .bar .pc { text-align:right; font-variant-numeric:tabular-nums; color:var(--ink-2); font-family:var(--mono); font-size:12.5px; }
+
+  .label { background:#fff; border:1px solid var(--ink); border-radius:2px; padding:14px 16px; margin-top:10px;
+    font:12.5px/1.5 var(--body); color:#000; max-width:440px; }
+  .label .inst { font-family:var(--head); font-weight:700; font-size:12px; letter-spacing:.06em;
+    text-transform:uppercase; text-align:center; border-bottom:1px solid #000; padding-bottom:5px; margin-bottom:7px; }
+  .label .sci { font-style:italic; font-weight:700; font-size:14px; }
+  .label .row { margin:3px 0; }
+  .label .k { font-weight:700; }
+  .label .coll { margin-top:8px; padding-top:6px; border-top:1px solid #999; display:flex; justify-content:space-between; }
+
+  pre.export { background:#23281F; color:#E8E4D5; border-radius:12px; padding:14px 16px; overflow-x:auto;
+    font:12.5px/1.65 var(--mono); max-height:340px; }
+  code { font-family:var(--mono); font-size:.82em; background:var(--surface-2); border:1px solid var(--border); border-radius:5px; padding:1px 5px; }
+
+  .toast { position:fixed; left:50%; bottom:84px; transform:translateX(-50%) translateY(90px); z-index:30;
+    background:var(--ink); color:#F5F1E6; border-radius:999px; padding:10px 22px; font:700 14px var(--body);
+    transition:transform .25s ease; pointer-events:none; max-width:88vw; text-align:center; }
+  .toast.on { transform:translateX(-50%) translateY(0); }
+
+  @media print {
+    .tabbar, .btn, .kopts, .top a, .noprint { display:none !important; }
+    body { background:#fff; } .pane { display:block !important; }
+    .app { padding-bottom:0; } .card { break-inside:avoid; } table { font-size:10pt; }
+    pre.export { background:#fff; color:#000; border:1px solid #ccc; max-height:none; }
+    .label { break-inside:avoid; page-break-inside:avoid; }
+  }
+
+  .rail { margin:26px 0 4px; }
+  .rail .rl { font-family:var(--mono); font-size:11px; letter-spacing:.14em; text-transform:uppercase; color:var(--muted); margin:0 2px 8px; }
+  .rail .chips { display:flex; flex-wrap:wrap; gap:8px; }
+  .rail a { display:inline-flex; align-items:center; gap:7px; text-decoration:none; font:700 13.5px var(--body);
+    color:var(--ink-2); background:var(--surface); border:1px solid var(--border); border-radius:999px;
+    padding:9px 15px; min-height:44px; box-shadow:var(--shadow); touch-action:manipulation; }
+  .rail a:hover { border-color:var(--s1); color:var(--s1); }
+  .rail a[aria-current="page"] { background:var(--soft); border-color:var(--s1); color:var(--s1); }
+  .rail a.ref { font-weight:600; color:var(--muted); background:none; box-shadow:none; }
+  @media print { .rail { display:none !important; } }
+
+  /* ============ Field Entry Kit v1.3.0 ============
+     Large-target, high-contrast entry controls. Sizing is driven by --tap
+     rather than per-component numbers so one token retunes the whole kit for
+     gloves, cold hands or a wall-mounted tablet. */
+  :root {
+    --tap: 60px;            /* primary control height  */
+    --tap-sm: 48px;         /* secondary control height */
+    --fek-r: 16px;
+    /* These three moved for WCAG AA and the move was made in the pages, by
+       hand, and never came back here -- because the CSS half of fek_emit was
+       dead code and nobody could tell. Source and pages agreed only by
+       ramp-1 moved here too: at its old teal, white label text on a selected
+       button measured 3.94:1 and the .92-white sub-line 3.59:1, both under AA.
+       No page had caught it because none defaulted to a ramp-1 option until the
+       deployment log did. Every ramp is now checked against both, in
+       verify_contrast_slice.
+       The pre-fix ramp values are named in verify_contrast_slice,
+       which greps for them literally across every page -- so they are not
+       repeated here, because a comment naming them is itself a page carrying
+       them, and the suite is right not to care why. */
+    --ramp-0:#2B6C8F; --ramp-1:#2F7373; --ramp-2:#2C784C;
+    --ramp-3:#8A6408; --ramp-4:#A94F26; --ramp-5:#B23A32;
+    --fek-line:#C7C0AC;
+  }
+  .fek-lab { display:block; font:800 15px var(--body); color:var(--ink-2);
+    letter-spacing:.01em; margin:0 0 6px; }
+  .fek-lab .u { font:600 12.5px var(--mono); color:var(--muted); margin-left:6px; }
+  .fek-help { font-size:13.5px; color:var(--muted); line-height:1.5; margin:6px 0 0; }
+  .fek-row { margin:0 0 20px; }
+
+  /* --- stepper: the workhorse numeric entry --- */
+  .fek-step { display:flex; align-items:stretch; gap:0; border:2px solid var(--border);
+    border-radius:var(--fek-r); overflow:hidden; background:var(--surface); max-width:340px; }
+  .fek-step button { border:0; background:var(--surface-2); color:var(--ink);
+    font:800 30px var(--body); line-height:1; width:calc(var(--tap) + 8px); min-height:var(--tap);
+    cursor:pointer; touch-action:manipulation; transition:background .12s; }
+  .fek-step button:hover { background:var(--soft); color:var(--s1); }
+  .fek-step button:active { background:var(--s1); color:#fff; }
+  .fek-step .val { flex:1; min-width:0; text-align:center; border:0; background:none;
+    font:800 30px var(--head); color:var(--ink); font-variant-numeric:tabular-nums;
+    -moz-appearance:textfield; padding:0 4px; }
+  .fek-step .val::-webkit-outer-spin-button,
+  .fek-step .val::-webkit-inner-spin-button { -webkit-appearance:none; margin:0; }
+  .fek-step .val:focus { outline:none; background:var(--soft); }
+
+  /* --- segmented ordinal dial with a colour ramp --- */
+  .fek-dial { display:flex; flex-wrap:wrap; gap:8px; }
+  .fek-dial button { flex:1 1 auto; min-width:72px; min-height:var(--tap);
+    border:2px solid var(--border); border-radius:var(--fek-r); background:var(--surface);
+    font:800 17px var(--body); color:var(--ink-2); cursor:pointer; touch-action:manipulation;
+    display:flex; flex-direction:column; align-items:center; justify-content:center; gap:2px;
+    padding:6px 8px; transition:transform .08s, border-color .12s, background .12s; }
+  .fek-dial button small { font:600 11px var(--mono); color:var(--muted); letter-spacing:.02em; }
+  .fek-dial button:active { transform:scale(.96); }
+  .fek-dial button.on { color:#fff; border-color:transparent; }
+  .fek-dial button.on small { color:rgba(255,255,255,.92); }
+  .fek-dial button.on[data-r="0"]{background:var(--ramp-0);}
+  .fek-dial button.on[data-r="1"]{background:var(--ramp-1);}
+  .fek-dial button.on[data-r="2"]{background:var(--ramp-2);}
+  .fek-dial button.on[data-r="3"]{background:var(--ramp-3);}
+  .fek-dial button.on[data-r="4"]{background:var(--ramp-4);}
+  .fek-dial button.on[data-r="5"]{background:var(--ramp-5);}
+
+  /* --- field: a typed value from an instrument readout ---
+     A stepper is the wrong control for a number you READ off a machine to three
+     decimals: you would tap two thousand times to reach 1.842. This is a plain
+     numeric entry sized like the rest of the kit, with the unit shown and the
+     decimal keypad requested, and nothing that pretends the value is scrollable. */
+  .fek-field { display:flex; align-items:stretch; gap:0; border:2px solid var(--border);
+    border-radius:var(--fek-r); overflow:hidden; background:var(--surface); max-width:340px; }
+  .fek-field input { flex:1; min-width:0; border:0; background:none; text-align:right;
+    font:800 26px var(--head); color:var(--ink); font-variant-numeric:tabular-nums;
+    -moz-appearance:textfield; padding:0 12px; min-height:var(--tap); }
+  .fek-field input::-webkit-outer-spin-button,
+  .fek-field input::-webkit-inner-spin-button { -webkit-appearance:none; margin:0; }
+  .fek-field input:focus { outline:none; background:var(--soft); }
+  .fek-field input::placeholder { color:var(--muted); font-weight:600; font-size:20px; }
+  .fek-field .u { display:flex; align-items:center; padding:0 14px; background:var(--surface-2);
+    font:700 13px var(--mono); color:var(--muted); border-left:2px solid var(--border); white-space:nowrap; }
+  .fek-field.empty { border-style:dashed; }
+
+  /* --- big toggle chips --- */
+  .fek-chips { display:flex; flex-wrap:wrap; gap:9px; }
+  .fek-chip { min-height:var(--tap-sm); border:2px solid var(--border); border-radius:999px;
+    background:var(--surface); font:800 15.5px var(--body); color:var(--ink-2);
+    padding:0 20px; cursor:pointer; touch-action:manipulation; display:inline-flex;
+    align-items:center; gap:8px; transition:transform .08s, border-color .12s, background .12s; }
+  .fek-chip:active { transform:scale(.96); }
+  .fek-chip.on { border-color:var(--s1); background:var(--soft); color:var(--s1-deep); }
+  .fek-chip.on::before { content:"\2713"; font-size:17px; }
+
+  /* --- slider with a live bubble --- */
+  .fek-slide { display:flex; align-items:center; gap:14px; }
+  .fek-slide input[type=range] { flex:1; min-width:0; height:var(--tap-sm); -webkit-appearance:none;
+    background:transparent; cursor:pointer; touch-action:manipulation; }
+  .fek-slide input[type=range]::-webkit-slider-runnable-track { height:14px; border-radius:8px;
+    background:linear-gradient(90deg,var(--ramp-0),var(--ramp-2),var(--ramp-3),var(--ramp-5)); }
+  .fek-slide input[type=range]::-moz-range-track { height:14px; border-radius:8px;
+    background:linear-gradient(90deg,var(--ramp-0),var(--ramp-2),var(--ramp-3),var(--ramp-5)); }
+  .fek-slide input[type=range]::-webkit-slider-thumb { -webkit-appearance:none; width:34px; height:34px;
+    border-radius:50%; background:#fff; border:3px solid var(--ink); margin-top:-10px;
+    box-shadow:0 2px 6px rgba(35,40,31,.3); }
+  .fek-slide input[type=range]::-moz-range-thumb { width:34px; height:34px; border-radius:50%;
+    background:#fff; border:3px solid var(--ink); box-shadow:0 2px 6px rgba(35,40,31,.3); }
+  .fek-slide .bub { font:800 26px var(--head); font-variant-numeric:tabular-nums; color:var(--ink);
+    min-width:86px; text-align:right; }
+  .fek-slide .bub span { font:600 13px var(--mono); color:var(--muted); margin-left:3px; }
+
+  /* --- big picker: replaces <select> for long lists --- */
+  .fek-pick { border:2px solid var(--border); border-radius:var(--fek-r); background:var(--surface);
+    overflow:hidden; }
+  .fek-pick .search { width:100%; border:0; border-bottom:2px solid var(--border);
+    font:700 17px var(--body); padding:0 16px; min-height:var(--tap); background:var(--surface-2); }
+  .fek-pick .search:focus { outline:none; background:var(--soft); }
+  .fek-pick .opts { max-height:264px; overflow-y:auto; -webkit-overflow-scrolling:touch; }
+  .fek-pick .opt { display:block; width:100%; text-align:left; border:0; border-bottom:1px solid var(--border);
+    background:none; font:700 16.5px var(--body); color:var(--ink); min-height:var(--tap-sm);
+    padding:10px 16px; cursor:pointer; touch-action:manipulation; }
+  .fek-pick .opt small { display:block; font:400 12.5px var(--mono); color:var(--muted); margin-top:2px; }
+  .fek-pick .opt:hover { background:var(--soft); }
+  .fek-pick .opt.on { background:var(--s1); color:#fff; }
+  .fek-pick .opt.on small { color:rgba(255,255,255,.92); }
+  .fek-pick .none { padding:16px; color:var(--muted); font-size:14px; }
+
+  /* --- readout tiles, sized to be read at arm's length --- */
+  .fek-tiles { display:grid; grid-template-columns:repeat(auto-fit,minmax(148px,1fr)); gap:11px; margin:14px 0 2px; }
+  .fek-tile { border:2px solid var(--border); border-radius:var(--fek-r); padding:13px 15px; background:var(--surface); }
+  .fek-tile .v { font:800 30px var(--head); font-variant-numeric:tabular-nums; line-height:1.05; color:var(--ink); }
+  .fek-tile .l { font:700 12px var(--body); color:var(--muted); margin-top:4px; letter-spacing:.02em; }
+  .fek-tile.good { border-color:var(--ramp-2); } .fek-tile.good .v { color:var(--ramp-2); }
+  .fek-tile.warn { border-color:var(--ramp-3); } .fek-tile.warn .v { color:#8a6508; }
+  .fek-tile.bad  { border-color:var(--ramp-5); } .fek-tile.bad  .v { color:var(--ramp-5); }
+  .fek-tile.cold { border-color:var(--ramp-0); } .fek-tile.cold .v { color:var(--ramp-0); }
+
+  /* --- banner: the verdict, big --- */
+  .fek-banner { border-radius:var(--fek-r); padding:16px 19px; margin:14px 0; font-size:16px;
+    line-height:1.55; border-left:7px solid var(--ramp-2); background:var(--soft); color:var(--ink-2); }
+  .fek-banner b { font-family:var(--head); color:var(--ink); font-size:17.5px; display:block; margin-bottom:4px; }
+  .fek-banner.warn { border-left-color:var(--ramp-3); background:var(--warn-bg); }
+  .fek-banner.bad  { border-left-color:var(--ramp-5); background:var(--danger-bg); }
+  .fek-banner.cold { border-left-color:var(--ramp-0); background:#E6EEF3; }
+
+  @media (max-width:420px){ :root { --tap:56px; --tap-sm:46px; } .fek-step .val { font-size:26px; } }
+  @media print { .fek-step button, .fek-pick .search { display:none; } }
+
+
+  /* WCAG 1.4.11 non-text contrast: the visible edge of a control you are meant
+     to write in is the only thing telling you where to write, so it carries the
+     3:1 floor. Decorative card borders are not controls and stay quiet. */
+  input:not([type=checkbox]):not([type=radio]):not([type=range]):not([type=color]),
+  select, textarea { border-color: #8E8160; }
+
+  /* ============ Keep (local autosave) v1.0.0 ============ */
+  .keep { display:flex; flex-wrap:wrap; align-items:center; gap:10px;
+    background:var(--surface-2, #F3EEE0); border:1px solid var(--border, #E3DCC9);
+    border-radius:12px; padding:10px 13px; margin:12px 0 2px; }
+  .keep .st { font-family:var(--mono, monospace); font-size:11.5px; color:var(--muted, #6B6B5E);
+    line-height:1.5; flex:1 1 220px; min-width:0; }
+  .keep .st b { color:var(--ink, #23281F); }
+  .keep.bad { border-color:var(--danger, #B23A32); background:var(--danger-bg, #F6E7E5); }
+  .keep.bad .st b { color:var(--danger, #B23A32); }
+  .keep button { border:1.5px solid var(--border, #E3DCC9); background:none; border-radius:10px;
+    padding:0 14px; min-height:var(--tap, 44px); font:700 13px var(--body, sans-serif);
+    color:var(--ink-2, #4B5344); cursor:pointer; touch-action:manipulation; }
+  .keep button:hover { border-color:var(--danger, #B23A32); color:var(--danger, #B23A32); }
+  .keep .note { flex:1 1 100%; font-size:12px; color:var(--muted, #6B6B5E); line-height:1.5; }
+  @media print { .keep { display:none !important; } }
+  /* ============ Deployment log ============ */
+  .stat { display:grid; grid-template-columns:repeat(auto-fit,minmax(118px,1fr)); gap:8px; margin:10px 0 2px; }
+  .stat .k { background:var(--surface-2); border-radius:12px; padding:11px 12px; }
+  .stat .k .l { font-family:var(--mono); font-size:9.5px; letter-spacing:.09em; text-transform:uppercase;
+    color:var(--muted); display:block; margin-bottom:3px; }
+  .stat .k .v { font-family:var(--head); font-weight:600; font-size:19px; color:var(--ink); }
+  .stat .k .u { font-size:11.5px; color:var(--muted); font-family:var(--body); font-weight:400; }
+  .stat .k.bad .v { color:var(--danger); }
+  .tw { overflow-x:auto; }
+  table.log { border-collapse:collapse; width:100%; font-size:13.5px; }
+  table.log th, table.log td { border:1px solid var(--border); padding:6px 9px; text-align:left;
+    vertical-align:top; }
+  table.log th { background:var(--surface-2); font-family:var(--mono); font-size:10.5px;
+    letter-spacing:.07em; text-transform:uppercase; color:var(--muted); font-weight:600; }
+  table.log td.n { font-family:var(--mono); text-align:right; white-space:nowrap; }
+  .ruler { height:22px; border-radius:6px; overflow:hidden; display:flex; margin:8px 0 2px;
+    border:1px solid var(--border); }
+  .ruler i { display:block; height:100%; }
+  .ruler i.on { background:var(--s1); } .ruler i.off { background:var(--surface-2); }
+  .legend { font-family:var(--mono); font-size:11px; color:var(--muted); }
+</style>
+</head>
+<body>
+<div class="app">
+  <div class="top">
+    <div class="brand">🎙️ <span>Deployment Log</span></div>
+    <a href="ecology.html">← ecology kit</a>
+  </div>
+
+  <!-- ===================== ACOUSTIC ===================== -->
+  <section class="pane on" id="p-ac">
+    <h2>Acoustic recorder</h2>
+    <p class="hint">An autonomous recorder left in a forest for a fortnight. What it can hear, how much
+      it will write, how long it will last, and how far its clock will have wandered by the time you
+      collect it.</p>
+
+    <div class="card">
+      <h3 style="margin-top:0">Deployment</h3>
+      <div class="grid">
+        <label class="f">unit ID<input type="text" id="aUnit" placeholder="AM-014" autocomplete="off"></label>
+        <label class="f">site<input type="text" id="aSite" placeholder="Sagehen, N bench" autocomplete="off"></label>
+        <label class="f">latitude<input type="text" id="aLat" placeholder="39.4318" autocomplete="off"></label>
+        <label class="f">longitude<input type="text" id="aLon" placeholder="-120.2408" autocomplete="off"></label>
+        <label class="f">deployed<input type="date" id="aStart"></label>
+        <label class="f">firmware<input type="text" id="aFw" placeholder="1.10.0" autocomplete="off"></label>
+      </div>
+      <p class="fine">Firmware is not bookkeeping. Recorder firmware has changed gain staging and filter
+        behaviour between releases, so two seasons recorded on different versions are not automatically
+        one dataset. Write it down while you can still read it off the device.</p>
+    </div>
+
+    <div class="card">
+      <h3 style="margin-top:0">What it can hear</h3>
+      <div id="acEntry"></div>
+      <input type="hidden" id="aSr" value="48000"><input type="hidden" id="aChan" value="1">
+      <input type="hidden" id="aTarget" value="bird">
+      <div id="nyqBox"></div>
+    </div>
+
+    <div class="card">
+      <h3 style="margin-top:0">Duty cycle, cards and batteries</h3>
+      <div id="dutyEntry"></div>
+      <input type="hidden" id="aOn" value="60"><input type="hidden" id="aEvery" value="600">
+      <input type="hidden" id="aDays" value="14"><input type="hidden" id="aCard" value="32">
+      <div class="ruler" id="dutyRuler"></div>
+      <p class="legend" id="dutyLegend"></p>
+      <div id="dutyStat" class="stat"></div>
+      <div id="dutyBox"></div>
+    </div>
+
+    <div class="card">
+      <h3 style="margin-top:0">Where the clock will be when you come back</h3>
+      <div id="driftStat" class="stat"></div>
+      <div id="driftBox"></div>
+      <p class="fine">Open Acoustic Devices state that an AudioMoth's time is accurate to <b>&plusmn;10&nbsp;ms</b>
+        when set, and that the clock then drifts <b>up to about one second per day</b>. Their GPS-synchronised
+        firmware reaches <b>at least 20&nbsp;&micro;s</b> between units. Those three numbers decide whether
+        your array can localise anything at all.</p>
+    </div>
+
+    <div class="card">
+      <h3 style="margin-top:0">Amplitude</h3>
+      <div id="splBox"></div>
+    </div>
+
+    <div class="card">
+      <div class="btn-row" style="margin-top:0">
+        <button class="btn btn-go" id="addAc" type="button">Log this recorder</button>
+      </div>
+      <p class="fine">Logging copies the settings <em>and</em> the caveats they imply into the log, so
+        the constraint travels with the deployment rather than living in your memory of this page.</p>
+    </div>
+  </section>
+
+  <!-- ===================== FLIGHT ===================== -->
+  <section class="pane" id="p-fl">
+    <h2>Drone flight</h2>
+    <p class="hint">Plan the flight from the sensor and the altitude, then record what would let somebody
+      else &mdash; or you, next season &mdash; believe the index you computed from it.</p>
+
+    <div class="card">
+      <h3 style="margin-top:0">Sensor and altitude</h3>
+      <div id="camEntry"></div>
+      <input type="hidden" id="fCam" value="rededge">
+      <div class="grid">
+        <label class="f">sensor width (mm)<input type="number" id="fSw" step="0.01" value="4.8"></label>
+        <label class="f">focal length (mm)<input type="number" id="fFl" step="0.01" value="5.4"></label>
+        <label class="f">image width (px)<input type="number" id="fPw" step="1" value="1280"></label>
+        <label class="f">image height (px)<input type="number" id="fPh" step="1" value="960"></label>
+      </div>
+      <div id="altEntry"></div>
+      <input type="hidden" id="fAlt" value="120"><input type="hidden" id="fFwd" value="80">
+      <input type="hidden" id="fSide" value="80"><input type="hidden" id="fArea" value="10">
+      <input type="hidden" id="fSpeed" value="6">
+      <div id="gsdStat" class="stat"></div>
+      <div id="gsdBox"></div>
+    </div>
+
+    <div class="card">
+      <h3 style="margin-top:0">Radiometric calibration</h3>
+      <p class="hint" style="margin-bottom:10px">This is the panel that decides whether your index numbers
+        mean anything across two flights.</p>
+      <div id="radEntry"></div>
+      <input type="hidden" id="fRad" value="none">
+      <div id="radBox"></div>
+    </div>
+
+    <div class="card">
+      <h3 style="margin-top:0">Flight record</h3>
+      <div class="grid">
+        <label class="f">flight ID<input type="text" id="fId" placeholder="SGH-2026-08-25-a" autocomplete="off"></label>
+        <label class="f">pilot<input type="text" id="fPilot" autocomplete="off"></label>
+        <label class="f">date<input type="date" id="fDate"></label>
+        <label class="f">local start time<input type="time" id="fTime"></label>
+        <label class="f">wind (m/s)<input type="number" id="fWind" step="0.5"></label>
+        <label class="f">cloud (oktas 0&ndash;8)<input type="number" id="fCloud" step="1" min="0" max="8"></label>
+      </div>
+      <div id="skyBox"></div>
+      <div class="btn-row">
+        <button class="btn btn-go" id="addFl" type="button">Log this flight</button>
+      </div>
+      <p class="fine">Time of day is not a nicety. Solar elevation sets the shadow fraction in every pixel,
+        and two flights over the same field at 09:00 and 13:00 differ for that reason before any plant does
+        anything. Cloud matters twice over: broken cloud changes the illumination <em>within</em> a single
+        flight, which a single before-and-after panel reading cannot correct.</p>
+    </div>
+  </section>
+
+  <!-- ===================== LOGGER ===================== -->
+  <section class="pane" id="p-lg">
+    <h2>Environmental logger</h2>
+    <p class="hint">A temperature and humidity logger is the cheapest instrument in the kit and the easiest
+      to get a confidently wrong number out of.</p>
+
+    <div class="card">
+      <h3 style="margin-top:0">Deployment</h3>
+      <div class="grid">
+        <label class="f">logger ID<input type="text" id="lUnit" placeholder="HOBO-03" autocomplete="off"></label>
+        <label class="f">position<input type="text" id="lPos" placeholder="1.5 m, N side of bole" autocomplete="off"></label>
+        <label class="f">launched<input type="date" id="lStart"></label>
+      </div>
+      <div id="logEntry"></div>
+      <input type="hidden" id="lInt" value="600"><input type="hidden" id="lDays" value="90">
+      <input type="hidden" id="lMem" value="84650">
+      <div id="logStat" class="stat"></div>
+      <div id="logBox"></div>
+    </div>
+
+    <div class="card">
+      <h3 style="margin-top:0">Shielding</h3>
+      <div id="shEntry"></div>
+      <input type="hidden" id="lShield" value="">
+      <div id="shBox"></div>
+      <div class="btn-row">
+        <button class="btn btn-go" id="addLg" type="button">Log this logger</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===================== LOG ===================== -->
+  <section class="pane" id="p-log">
+    <h2>The log</h2>
+    <p class="hint">Every deployment you record here, with the settings that make its files interpretable.</p>
+    <div class="card">
+      <div class="btn-row" style="margin-top:0">
+        <button class="btn btn-ghost" id="undo" type="button">Undo last</button>
+      </div>
+      <div class="tw" id="logTable"></div>
+      <div id="keepBox"></div>
+      <div class="btn-row">
+        <button class="btn btn-soft" id="csvCopy" type="button">Copy deployment CSV</button>
+        <button class="btn btn-soft" id="ecoCopy" type="button">Copy field sheet</button>
+        <button class="btn btn-ghost" onclick="window.print()" type="button">Print / save PDF</button>
+      </div>
+      <pre class="export" id="ecoOut"># log a deployment — the sheet builds itself</pre>
+      <p class="fine">The CSV is one row per deployment with every setting that changes how the files should
+        be read. It is the thing a reviewer asks for and the thing nobody writes down.</p>
+    </div>
+  </section>
+
+  <!-- ===================== METHOD ===================== -->
+  <section class="pane" id="p-met">
+    <h2>Method</h2>
+
+    <div class="card">
+      <h3 style="margin-top:0">What this page refuses</h3>
+
+      <h3>It will not give you decibels</h3>
+      <p style="font-size:15.5px;color:var(--ink-2)">An AudioMoth&rsquo;s gain settings are named
+        low/medium/high, not calibrated. Open Acoustic Devices are explicit that getting sound pressure
+        level out of one means calibrating <b>the whole recording chain &mdash; microphone, case, and
+        recording settings &mdash; against a calibrated meter</b>, not the microphone alone. A case change
+        alone moves the answer. So this page records your gain setting and refuses to convert anything to
+        dB&nbsp;SPL. <b>Relative amplitude between recordings made on one unit at one gain is a real
+        measurement. An absolute level is not, and the page will not print one.</b></p>
+
+      <h3>It will not call a converted RGB camera an NDVI sensor</h3>
+      <p style="font-size:15.5px;color:var(--ink-2)">NDVI is
+        <b>(NIR &minus; Red) / (NIR + Red)</b>, and a filter-converted consumer camera does not have those
+        two bands cleanly separated &mdash; it has three broad, overlapping channels and a filter in front.
+        DroneDeploy&rsquo;s own guidance is that the only appropriate index for a standard RGB camera is
+        <b>VARI</b>, a visible-band index, and that NDVI needs a sensor with real red and near-infrared
+        bands. This page names the index after the sensor you actually flew.</p>
+
+      <h3>It will not let an uncalibrated flight be compared to another one</h3>
+      <p style="font-size:15.5px;color:var(--ink-2)">Pix4D put it plainly: <em>&ldquo;Radiometric correction
+        is required to be able to compare multispectral imagery taken at different points in time under
+        different weather conditions, and to compute reliable index values.&rdquo;</em> Without it, the pixel
+        values carry the shutter speed, the ISO, the sun angle and the cloud &mdash; all of which change
+        between flights and none of which are the plant. A reflectance panel corrects to reflectance; a
+        downwelling light sensor tracks illumination changes <em>during</em> the flight, which a panel read
+        once on the ground cannot. This page states which of the two you had and refuses to describe a
+        flight with neither as comparable to anything.</p>
+
+      <h3>It will not print a radiation-shield error figure</h3>
+      <p style="font-size:15.5px;color:var(--ink-2)">A temperature logger in direct sun reads its own
+        casing, not the air, and the error is large. It is also <b>specific to the shield, the wind speed
+        and the sun angle</b>, and the study this page would have cited &mdash; which found a gill-type
+        multi-plate shelter gave the best protection of the configurations tested &mdash; is behind a
+        paywall this page cannot read. So the finding ships, the number does not, and the page asks you
+        which shield you used and records the answer. A plausible number with no source behind it is the
+        one thing this kit will not hand you.</p>
+
+      <h3>Clock drift, which is arithmetic</h3>
+      <p style="font-size:15.5px;color:var(--ink-2)">Sound travels about 343&nbsp;m/s in air at 20&nbsp;°C.
+        A recorder whose clock has drifted by one second is, for the purposes of time-of-arrival
+        localisation, wrong about where it is by <b>343 metres</b>. Over a fortnight at the stated drift
+        rate that is several kilometres. This is why arrays need GPS synchronisation and why a single
+        unit&rsquo;s file timestamps need correcting before they are joined to anything else &mdash; and
+        the page does the multiplication so the number is in front of you before you deploy, not after.</p>
+
+      <h3>Sources</h3>
+      <p class="fine">Open Acoustic Devices &mdash;
+        <a href="https://www.openacousticdevices.info/support/device-support/calibration-for-sound-pressure-level-measurement">calibration for sound pressure level measurement</a>
+        and <a href="https://www.openacousticdevices.info/support/device-support/using-multiple-audiomoths-for-sound-localisation">using multiple AudioMoths for sound localisation</a>
+        (&plusmn;10&nbsp;ms when set, up to ~1&nbsp;s/day drift, ≥20&nbsp;&micro;s with GPS sync).<br>
+        Pix4D &mdash; <a href="https://support.pix4d.com/hc/en-us/articles/360022919691">radiometric correction</a>
+        and <a href="https://support.pix4d.com/hc/en-us/articles/202557459">image acquisition plan</a>
+        (75/60% general, 80/80% agriculture, 85/85% forest and dense vegetation).<br>
+        DroneDeploy &mdash; <a href="https://help.dronedeploy.com/hc/en-us/articles/1500004964082-Camera-Filters-for-NDVI-mapping">camera filters for NDVI mapping</a>
+        (VARI for RGB; NDVI needs real NIR).<br>
+        da Cunha, A.R. (2015) Evaluation of measurement errors of temperature and relative humidity from
+        HOBO data logger under different conditions of exposure to solar radiation.
+        <i>Environmental Monitoring and Assessment</i> 187:236 &mdash; gill-type multi-plate shelter best
+        of those tested; the error magnitudes are behind a paywall and are not reproduced here.</p>
+    </div>
+  </section>
+
+  <div class="rail">
+    <p class="rl">Record it — in the field</p>
+    <div class="chips">
+      <a href="field-notebook.html"><span>📓</span>Field Notebook</a>
+      <a href="ethogram.html"><span>🐾</span>Ethogram</a>
+      <a href="selection-log.html"><span>📏</span>Selection Log</a>
+      <a href="stand-sheet.html"><span>🌲</span>Stand Sheet</a>
+      <a href="releve.html"><span>🌾</span>Relevé</a>
+      <a href="collection-sheet.html"><span>🍄</span>Collection Sheet</a>
+      <a href="farm-scout.html"><span>🧑‍🌾</span>Farm Scout</a>
+      <a href="pheno-tracker.html"><span>🌱</span>Pheno Tracker</a>
+      <a href="deployment-log.html" aria-current="page"><span>🎙️</span>Deployment Log</a>
+    </div>
+    <p class="rl" style="margin-top:16px">At the bench</p>
+    <div class="chips">
+      <a href="cp-bench.html"><span>🫙</span>CP Bench</a>
+      <a href="soil-bench.html"><span>🪱</span>Soil Bench</a>
+      <a href="breeding-bench.html"><span>🥕</span>Breeding Bench</a>
+      <a href="cell-bench.html"><span>🔬</span>Cell Bench</a>
+      <a href="micro-bench.html"><span>🧫</span>Micro Bench</a>
+    </div>
+    <p class="rl" style="margin-top:16px">Analyse it</p>
+    <div class="chips">
+      <a href="ordination.html"><span>📉</span>Ordination</a>
+      <a href="food-web.html"><span>🕸️</span>Food Web Builder</a>
+      <a href="field-season.html"><span>🎯</span>Field Season</a>
+    </div>
+    <p class="rl" style="margin-top:16px">Print it</p>
+    <div class="chips">
+      <a href="plant-characters.html"><span>🌱</span>Plant Characters</a>
+      <a href="fungal-characters.html"><span>🔬</span>Fungal Characters</a>
+      <a href="cp-characters.html"><span>🪤</span>CP Characters</a>
+    </div>
+    <div class="chips" style="margin-top:16px">
+      <a class="ref" href="ecology.html">← kit hub</a>
+      <a class="ref" href="ecology-field-card.html">field card</a>
+      <a class="ref" href="ecology-glossary.html">glossary</a>
+    </div>
+  </div>
+  </div>
+</div>
+
+<div class="tabbar"><div class="row">
+  <button class="tab on" data-pane="p-ac" type="button"><span class="ico">🎙️</span>Recorder</button>
+  <button class="tab" data-pane="p-fl" type="button"><span class="ico">🚁</span>Flight</button>
+  <button class="tab" data-pane="p-lg" type="button"><span class="ico">🌡️</span>Logger</button>
+  <button class="tab" data-pane="p-log" type="button"><span class="ico">📋</span>Log</button>
+  <button class="tab" data-pane="p-met" type="button"><span class="ico">📐</span>Method</button>
+</div></div>
+<div class="toast" id="toast">Saved</div>
+<script>
+/* ---- Field Entry Kit v1.3.0 : constructors return {el, get, set} ---- */
+var FEK = (function(){
+  function el(t,c,h){ var e=document.createElement(t); if(c) e.className=c;
+    if(h!=null) e.innerHTML=h; return e; }
+  /* Where the line falls, and why it falls there.
+     A component's OWN label is written by whoever built the page and often
+     carries deliberate markup -- "Pod parent <span class="u">seed bearer</span>".
+     That stays HTML. The label on an OPTION, a chip or a tile is data: a
+     species you typed, a cross you recorded, a source you named. v1.1 passed
+     those straight into innerHTML, so a plant named with a < became markup.
+     Escaped here rather than at each call site, because a component whose
+     safety depends on every caller remembering is a component that will bite
+     somebody. Verified against the whole kit first: no option, chip or tile
+     label anywhere passes markup on purpose. */
+  /* No object literal here on purpose: the map form needs an escaped double
+     quote as a key, and this file is a Python string emitting JavaScript, so
+     that quote has to survive two layers of escaping. It did not, and every
+     consumer got a syntax error that took FEK down with it. A chain of
+     comparisons has nothing to escape. */
+  function escv(s){ return String(s==null?"":s).replace(/[&<>"']/g,function(c){
+    return c==="&"?"&amp;":c==="<"?"&lt;":c===">"?"&gt;":c==='"'?"&quot;":"&#39;"; }); }
+  function buzz(m){ try{ if(navigator.vibrate) navigator.vibrate(m||8);}catch(e){} }
+
+  /* ---- field registry (v1.3.0) ----
+     A component writes through to a hidden field via the page's own onchange.
+     That is fine going out and useless coming back: nothing could put a
+     restored value INTO the widget, so an autosaved session showed default
+     dials over correct data -- a lie on screen, which is worse than no
+     autosave. A component that declares `field:"sElev"` is registered here,
+     and FEK.setField puts a value back through the widget's own set(). Purely
+     additive: a component with no `field` behaves exactly as before. */
+  var REG = {};
+  function reg(o, h){ if(o && o.field) REG[o.field] = h; return h; }
+  function setField(id, v){
+    var h = REG[id];
+    if(!h) return false;
+    try { h.set(v); } catch(e){ return false; }
+    return true;
+  }
+  function fields(){ var out=[]; for(var k in REG) if(REG.hasOwnProperty(k)) out.push(k); return out; }
+
+  function step(o){
+    o=o||{}; var min=(o.min==null?-Infinity:o.min), max=(o.max==null?Infinity:o.max);
+    var stepv=o.step||1, dec=o.dec==null?(String(stepv).split(".")[1]||"").length:o.dec;
+    var v=o.value==null?0:o.value;
+    var wrap=el("div","fek-row"), lab=el("label","fek-lab",
+      (o.label||"")+(o.unit?'<span class="u">'+o.unit+'</span>':""));
+    var box=el("div","fek-step");
+    var minus=el("button",null,"&minus;"), inp=el("input"), plus=el("button",null,"+");
+    minus.type="button"; plus.type="button"; inp.type="number"; inp.className="val";
+    inp.setAttribute("inputmode","decimal");
+    if(o.label) inp.setAttribute("aria-label",o.label);
+    /* nullable: the control can hold "not recorded", which is not the same as
+       zero. Aspect 0 is north; a duff depth of 0 cm is an observation. An empty
+       nullable stepper reports null and the first bump starts from o.start. */
+    var nullable = !!o.nullable;
+    if(nullable && o.value==null) v=null;
+    function clamp(x){ return Math.min(max,Math.max(min,x)); }
+    function render(){
+      if(v==null){ inp.value=""; wrap.classList.add("is-empty"); box.classList.add("empty"); return; }
+      wrap.classList.remove("is-empty"); box.classList.remove("empty");
+      inp.value=(dec?v.toFixed(dec):String(v));
+    }
+    function set(x,quiet){
+      if(nullable && (x==null || x==="" || (typeof x==="number" && !isFinite(x)))) v=null;
+      else v=clamp(isFinite(x)?x:0);
+      render(); if(!quiet&&o.onchange) o.onchange(v);
+    }
+    function bump(d){
+      if(v==null) set(clamp(o.start==null?0:o.start));
+      else set(+(v+d*stepv).toFixed(6));
+      buzz();
+    }
+    function clear(){ if(nullable) set(null); }
+    minus.addEventListener("click",function(){ bump(-1); });
+    plus.addEventListener("click",function(){ bump(1); });
+    var hold;
+    function holdOn(d){ return function(){ clearInterval(hold);
+      hold=setInterval(function(){ bump(d); },110); }; }
+    function holdOff(){ clearInterval(hold); }
+    minus.addEventListener("pointerdown",holdOn(-1)); plus.addEventListener("pointerdown",holdOn(1));
+    ["pointerup","pointerleave","pointercancel"].forEach(function(ev){
+      minus.addEventListener(ev,holdOff); plus.addEventListener(ev,holdOff); });
+    inp.addEventListener("input",function(){
+      if(nullable && inp.value===""){ v=null; box.classList.add("empty");
+        if(o.onchange) o.onchange(null); return; }
+      var x=parseFloat(inp.value);
+      if(isFinite(x)){ v=clamp(x); box.classList.remove("empty"); if(o.onchange) o.onchange(v); } });
+    inp.addEventListener("blur",render);
+    box.appendChild(minus); box.appendChild(inp); box.appendChild(plus);
+    wrap.appendChild(lab); wrap.appendChild(box);
+    if(o.help) wrap.appendChild(el("p","fek-help",o.help));
+    render();
+    return reg(o, { el:wrap, get:function(){return v;}, set:function(x){set(x,true);},
+             clear:clear, nullable:nullable });
+  }
+
+  /* field: a value typed from an instrument readout. No steppers — see the CSS note. */
+  function field(o){
+    o=o||{};
+    var min=(o.min==null?-Infinity:o.min), max=(o.max==null?Infinity:o.max);
+    var dec=(o.dec==null?3:o.dec), v=(o.value==null?null:o.value);
+    var wrap=el("div","fek-row"), lab=el("label","fek-lab",
+      (o.label||"")+(o.unit?'<span class="u">'+o.unit+'</span>':""));
+    var box=el("div","fek-field"), inp=el("input");
+    inp.type="number"; inp.setAttribute("inputmode","decimal");
+    if(o.step!=null) inp.step=o.step;
+    inp.placeholder = o.placeholder==null ? "—" : o.placeholder;
+    if(o.label) inp.setAttribute("aria-label",o.label);
+    function paint(){ box.classList.toggle("empty", v==null); }
+    function set(x,quiet){
+      if(x==null || x===""){ v=null; inp.value=""; }
+      else { var n=parseFloat(x);
+        v = isFinite(n) ? Math.min(max,Math.max(min,n)) : null;
+        inp.value = (v==null?"":String(v)); }
+      paint(); if(!quiet&&o.onchange) o.onchange(v);
+    }
+    inp.addEventListener("input",function(){
+      if(inp.value===""){ v=null; paint(); if(o.onchange) o.onchange(null); return; }
+      var n=parseFloat(inp.value);
+      if(isFinite(n)){ v=Math.min(max,Math.max(min,n)); paint(); if(o.onchange) o.onchange(v); } });
+    inp.addEventListener("blur",function(){
+      if(v!=null && isFinite(v)) inp.value = (dec==null?String(v):String(+v.toFixed(dec)));
+      paint(); });
+    box.appendChild(inp);
+    if(o.unitBox!==false && o.unit) box.appendChild(el("div","u",o.unit));
+    wrap.appendChild(lab); wrap.appendChild(box);
+    if(o.help) wrap.appendChild(el("p","fek-help",o.help));
+    set(v,true);
+    return reg(o, { el:wrap, get:function(){return v;}, set:function(x){set(x,true);},
+             clear:function(){ set(null,true); }, nullable:true });
+  }
+
+  function dial(o){
+    o=o||{}; var opts=o.options||[], cur=o.value==null?null:o.value;
+    var wrap=el("div","fek-row"), lab=el("label","fek-lab",o.label||"");
+    var box=el("div","fek-dial"), btns=[];
+    opts.forEach(function(op,i){
+      var b=el("button",null,'<span>'+escv(op.label)+'</span>'+(op.sub?'<small>'+escv(op.sub)+'</small>':""));
+      b.type="button";
+      b.setAttribute("data-r", op.ramp==null ? String(Math.min(5,Math.round(i*5/Math.max(1,opts.length-1)))) : String(op.ramp));
+      b.addEventListener("click",function(){
+        cur = (cur===op.value && o.clearable!==false) ? null : op.value;
+        paint(); buzz(); if(o.onchange) o.onchange(cur);
+      });
+      btns.push(b); box.appendChild(b);
+    });
+    function paint(){ btns.forEach(function(b,i){ b.classList.toggle("on", opts[i].value===cur); }); }
+    paint();
+    wrap.appendChild(lab); wrap.appendChild(box);
+    if(o.help) wrap.appendChild(el("p","fek-help",o.help));
+    return reg(o, { el:wrap, get:function(){return cur;},
+             set:function(x){ cur=x; paint(); } });
+  }
+
+  function chips(o){
+    o=o||{}; var opts=o.options||[], sel={};
+    (o.value||[]).forEach(function(v){ sel[v]=1; });
+    var wrap=el("div","fek-row"), lab=el("label","fek-lab",o.label||"");
+    var box=el("div","fek-chips"), btns=[];
+    opts.forEach(function(op){
+      var b=el("button","fek-chip",escv(op.label)); b.type="button";
+      b.addEventListener("click",function(){
+        if(o.single){ sel={}; sel[op.value]=1; }
+        else if(sel[op.value]) delete sel[op.value]; else sel[op.value]=1;
+        paint(); buzz(); if(o.onchange) o.onchange(Object.keys(sel));
+      });
+      btns.push(b); box.appendChild(b);
+    });
+    function paint(){ btns.forEach(function(b,i){ b.classList.toggle("on",!!sel[opts[i].value]); }); }
+    paint();
+    wrap.appendChild(lab); wrap.appendChild(box);
+    if(o.help) wrap.appendChild(el("p","fek-help",o.help));
+    return reg(o, { el:wrap, get:function(){return Object.keys(sel);},
+             set:function(a){ sel={}; (a||[]).forEach(function(v){sel[v]=1;}); paint(); } });
+  }
+
+  function slider(o){
+    o=o||{};
+    var nullable=!!o.nullable;
+    var v = (nullable && o.value==null) ? null : (o.value==null?(o.min||0):o.value);
+    var wrap=el("div","fek-row"), lab=el("label","fek-lab",o.label||"");
+    var box=el("div","fek-slide"), r=el("input"), bub=el("div","bub");
+    r.type="range"; r.min=o.min==null?0:o.min; r.max=o.max==null?100:o.max;
+    r.step=o.step||1; r.value=v;
+    if(o.label) r.setAttribute("aria-label",o.label);
+    function paint(){
+      if(v==null){ bub.innerHTML='<span style="opacity:.6">not recorded</span>'; return; }
+      bub.innerHTML=(o.fmt?o.fmt(v):v)+(o.unit?'<span>'+o.unit+'</span>':"");
+    }
+    r.addEventListener("input",function(){ v=parseFloat(r.value); paint(); if(o.onchange) o.onchange(v); });
+    if(nullable && v==null) r.value = (o.min==null?0:o.min);
+    paint();
+    box.appendChild(r); box.appendChild(bub);
+    wrap.appendChild(lab); wrap.appendChild(box);
+    if(o.help) wrap.appendChild(el("p","fek-help",o.help));
+    return reg(o, { el:wrap, get:function(){return v;},
+             set:function(x){ v=(nullable&&x==null)?null:x; if(x!=null) r.value=x; paint(); },
+             clear:function(){ if(nullable){ v=null; paint(); } }, nullable:nullable });
+  }
+
+  function picker(o){
+    o=o||{}; var opts=o.options||[], cur=o.value==null?null:o.value, q="";
+    var wrap=el("div","fek-row"), lab=el("label","fek-lab",o.label||"");
+    var box=el("div","fek-pick"), s=el("input","search"), list=el("div","opts");
+    s.type="text"; s.placeholder=o.placeholder||"type to filter…";
+    s.setAttribute("autocomplete","off");
+    if(o.label) s.setAttribute("aria-label",o.label+" filter");
+    function paint(){
+      list.innerHTML="";
+      var qq=q.toLowerCase();
+      var shown=opts.filter(function(op){
+        return !qq || (op.label+" "+(op.sub||"")).toLowerCase().indexOf(qq)>=0; });
+      if(!shown.length){ list.appendChild(el("div","none","No match. Clear the filter to see all "+opts.length+".")); return; }
+      shown.slice(0,200).forEach(function(op){
+        var b=el("button","opt"+(op.value===cur?" on":""),
+          escv(op.label)+(op.sub?'<small>'+escv(op.sub)+'</small>':""));
+        b.type="button";
+        b.addEventListener("click",function(){ cur=op.value; paint(); buzz(); if(o.onchange) o.onchange(cur); });
+        list.appendChild(b);
+      });
+    }
+    s.addEventListener("input",function(){ q=s.value; paint(); });
+    box.appendChild(s); box.appendChild(list);
+    wrap.appendChild(lab); wrap.appendChild(box);
+    if(o.help) wrap.appendChild(el("p","fek-help",o.help));
+    paint();
+    return reg(o, { el:wrap, get:function(){return cur;}, set:function(x){ cur=x; paint(); } });
+  }
+
+  function tiles(list){
+    var box=el("div","fek-tiles");
+    (list||[]).forEach(function(t){
+      box.appendChild(el("div","fek-tile"+(t.tone?" "+t.tone:""),
+        '<div class="v">'+escv(t.v)+'</div><div class="l">'+escv(t.l)+'</div>'));
+    });
+    return box;
+  }
+  function banner(title,body,tone){
+    return el("div","fek-banner"+(tone?" "+tone:""),"<b>"+title+"</b>"+body);
+  }
+  function mount(host,parts){
+    var h=typeof host==="string"?document.getElementById(host):host;
+    h.innerHTML=""; parts.forEach(function(p){ h.appendChild(p.el||p); }); return h;
+  }
+  /* Exported because a page building a component LABEL -- which stays HTML by
+     design -- still has to escape the data inside it. A private copy of an
+     escaper in one page was how the last one got lost when the kit was
+     re-emitted over it. */
+  return { version:"1.3.0", esc:escv, setField:setField, fields:fields, step:step, field:field, dial:dial, chips:chips, slider:slider,
+           picker:picker, tiles:tiles, banner:banner, mount:mount, buzz:buzz };
+})();
+
+/* ---- Keep v1.0.0 : local autosave, and honesty about what that is ---- */
+var KEEP = (function(){
+  function esc(s){ return String(s==null?"":s).replace(/[&<>"']/g,function(c){
+    return c==="&"?"&amp;":c==="<"?"&lt;":c===">"?"&gt;":c==='"'?"&quot;":"&#39;"; }); }
+
+  /* Probe rather than assume. Safari in private mode used to throw on the
+     first write; storage can also be disabled by enterprise policy or by the
+     user, and in a sandboxed frame the accessor itself throws. All three look
+     identical to a page that only wraps setItem in a try. */
+  function usable(){
+    try {
+      var k = "__keep_probe__";
+      window.localStorage.setItem(k, "1");
+      window.localStorage.removeItem(k);
+      return true;
+    } catch(e){ return false; }
+  }
+
+  function when(ts){
+    if(!ts) return "";
+    try {
+      var d = new Date(ts), now = new Date();
+      var same = d.toDateString() === now.toDateString();
+      var hm = ("0"+d.getHours()).slice(-2) + ":" + ("0"+d.getMinutes()).slice(-2);
+      return same ? ("today " + hm) : (d.toISOString().slice(0,10) + " " + hm);
+    } catch(e){ return ""; }
+  }
+
+  function wire(o){
+    o = o || {};
+    var key = o.key, host = typeof o.mount === "string" ? document.getElementById(o.mount) : o.mount;
+    var fmt = o.format == null ? 1 : o.format;
+    var ok = usable(), lastErr = null, savedAt = null, restoredFrom = null, timer = null;
+    var noun = o.noun || "your work";
+
+    function read(){
+      if(!ok) return null;
+      try {
+        var raw = window.localStorage.getItem(key);
+        if(!raw) return null;
+        var p = JSON.parse(raw);
+        /* A format stamp, so a page that changes its state shape does not
+           restore a shape it can no longer read and fail in a way the user
+           reads as data loss. */
+        if(!p || p.format !== fmt) return null;
+        return p;
+      } catch(e){ return null; }
+    }
+
+    function write(){
+      timer = null;
+      if(!ok) return;
+      var body;
+      try { body = o.snapshot(); } catch(e){ lastErr = "could not read the page state"; paint(); return; }
+      if(body == null){
+        try { window.localStorage.removeItem(key); }catch(e){}
+        savedAt = null; lastErr = null; paint(); return;
+      }
+      try {
+        window.localStorage.setItem(key, JSON.stringify({ format:fmt, at:Date.now(), body:body }));
+        savedAt = Date.now(); lastErr = null;
+      } catch(e){
+        /* Do not swallow this. A quota failure that says nothing is worse than
+           no autosave at all, because it teaches the user to trust it. */
+        lastErr = (e && e.name === "QuotaExceededError")
+          ? "this browser's storage is full" : "this browser refused the write";
+      }
+      paint();
+    }
+
+    function touch(){
+      if(!ok) return;
+      if(timer) clearTimeout(timer);
+      timer = setTimeout(write, o.debounce == null ? 500 : o.debounce);
+    }
+
+    function flush(){ if(timer){ clearTimeout(timer); } write(); }
+
+    function forget(){
+      /* Cancel the pending write first. Without this the debounced save from
+         the edit that preceded the click -- or from the click itself, on a
+         page that listens for clicks -- lands a few hundred milliseconds later
+         and puts the copy straight back, which makes the button look like it
+         did nothing. */
+      if(timer){ clearTimeout(timer); timer = null; }
+      try { window.localStorage.removeItem(key); }catch(e){}
+      savedAt = null; restoredFrom = null; lastErr = null; paint();
+      if(o.onforget) o.onforget();
+    }
+
+    function paint(){
+      if(!host) return;
+      /* noprint: this is screen chrome -- a status line about a browser and a
+         button -- and the print audit is right to count anything else that
+         vanishes on paper as content lost. */
+      host.className = "keep noprint" + ((!ok || lastErr) ? " bad" : "");
+      var msg;
+      if(!ok){
+        msg = "<b>This browser is not keeping anything.</b> Storage is unavailable here &mdash; a "
+            + "private window, or site data switched off. Nothing is being saved, so export before "
+            + "you close the tab.";
+      } else if(lastErr){
+        msg = "<b>Autosave failed &mdash; " + esc(lastErr) + ".</b> What is on screen is not saved. "
+            + "Export it now.";
+      } else if(savedAt){
+        msg = "Saved on this device <b>" + esc(when(savedAt)) + "</b>"
+            + (restoredFrom ? " &middot; restored from " + esc(when(restoredFrom)) : "") + ".";
+      } else if(restoredFrom){
+        msg = "Restored " + esc(noun) + " from <b>" + esc(when(restoredFrom)) + "</b> on this device.";
+      } else {
+        msg = "Autosave is on. " + esc(noun.charAt(0).toUpperCase() + noun.slice(1))
+            + " will still be here if you close the tab.";
+      }
+      host.innerHTML =
+        '<p class="st">' + msg + '</p>'
+        + '<button type="button" data-keep-forget>Forget this device\'s copy</button>'
+        + '<p class="note"><b>This is not a backup.</b> It is one browser on one device, and it goes '
+        + 'when site data is cleared, in a private window, or on any other machine. It exists so a '
+        + 'phone call does not cost you a morning. The exports are the durable copy.</p>';
+      var b = host.querySelector("[data-keep-forget]");
+      if(b) b.addEventListener("click", function(){
+        forget();
+        if(o.ontoast) o.ontoast("Saved copy removed from this device");
+      });
+    }
+
+    var got = read();
+    if(got){
+      var accepted = false;
+      try { accepted = o.restore(got.body) !== false; } catch(e){ accepted = false; }
+      if(accepted){ restoredFrom = got.at; }
+    }
+    paint();
+    /* A tab closing mid-debounce is exactly the case this exists for. */
+    try {
+      window.addEventListener("pagehide", function(){ if(timer) flush(); });
+      document.addEventListener("visibilitychange", function(){
+        if(document.visibilityState === "hidden" && timer) flush(); });
+    } catch(e){}
+
+    return { touch:touch, flush:flush, forget:forget, usable:function(){ return ok; },
+             restored:function(){ return restoredFrom; }, savedAt:function(){ return savedAt; },
+             error:function(){ return lastErr; } };
+  }
+
+  /* ---- generic form capture ----
+     Every page in the kit keeps its typed state in elements with ids -- real
+     inputs for text and dates, hidden write-through fields for the FEK
+     widgets. Capturing them by walking the DOM means a page that gains a field
+     does not also have to remember to add it to a list, which is how a
+     hand-maintained list of fields quietly stops covering the newest one. */
+  function formSnapshot(){
+    var out = {}, i, els = document.querySelectorAll("input[id], textarea[id]");
+    for(i=0;i<els.length;i++){
+      var e = els[i];
+      if(e.type === "file" || e.type === "button" || e.type === "submit") continue;
+      out[e.id] = (e.type === "checkbox" || e.type === "radio") ? (e.checked ? "1" : "") : e.value;
+    }
+    return out;
+  }
+  /* Restoring the hidden field is only half the job: the widget above it still
+     shows its construction default, and a correct value under a wrong-looking
+     dial is worse than no restore at all. FEK.setField (v1.3.0) puts the value
+     back through the widget for every component that declared its field. */
+  function formRestore(map){
+    if(!map) return 0;
+    var n = 0, id;
+    for(id in map){
+      if(!map.hasOwnProperty(id)) continue;
+      var e = document.getElementById(id);
+      if(!e) continue;
+      if(e.type === "checkbox" || e.type === "radio") e.checked = !!map[id];
+      else e.value = map[id];
+      if(typeof FEK !== "undefined" && FEK.setField){
+        var v = map[id];
+        if(e.type === "number" || /^-?\d+(\.\d+)?$/.test(String(v))) {
+          FEK.setField(id, v === "" ? null : parseFloat(v));
+        } else {
+          FEK.setField(id, v === "" ? null : v);
+        }
+      }
+      n++;
+    }
+    return n;
+  }
+
+  return { version:"1.0.0", wire:wire, usable:usable,
+           formSnapshot:formSnapshot, formRestore:formRestore };
+})();
+</script>
+<script>
+(function(){
+  "use strict";
+  function $(id){ return document.getElementById(id); }
+  function val(id){ var e=$(id); return e ? e.value : ""; }
+  function num(id){ var v=parseFloat(val(id)); return isFinite(v) ? v : null; }
+  function push(id,v){ var e=$(id); if(!e) return; e.value=String(v);
+    e.dispatchEvent(new Event("input",{bubbles:true}));
+    e.dispatchEvent(new Event("change",{bubbles:true})); }
+  function buzz(){ try{ if(navigator.vibrate) navigator.vibrate(8); }catch(e){} }
+  function esc(s){ return String(s==null?"":s).replace(/[&<>"']/g,function(c){
+    return c==="&"?"&amp;":c==="<"?"&lt;":c===">"?"&gt;":c==='"'?"&quot;":"&#39;"; }); }
+  var tT;
+  function toast(m){ var t=$("toast"); t.textContent=m; t.classList.add("on");
+    clearTimeout(tT); tT=setTimeout(function(){ t.classList.remove("on"); },1900); }
+  function copyText(s,msg){
+    var a=document.createElement("textarea"); a.value=s;
+    a.style.position="fixed"; a.style.opacity="0"; document.body.appendChild(a); a.select();
+    var ok=false; try{ ok=document.execCommand("copy"); }catch(e){}
+    document.body.removeChild(a); toast(ok?msg:"Copy failed — select the text");
+  }
+  function k(label,v,bad){ return '<div class="k'+(bad?" bad":"")+'"><span class="l">'+label
+    +'</span><span class="v">'+v+'</span></div>'; }
+  function cell(s){ s=String(s==null?"":s);
+    return /[",\n]/.test(s) ? '"'+s.replace(/"/g,'""')+'"' : s; }
+
+  var log = [];
+
+  /* ============ ACOUSTIC ============ */
+  /* Nyquist: a sample rate records nothing above half itself. This is not a
+     rule of thumb, it is the sampling theorem, so the page states it flatly. */
+  function nyquist(){ return (num("aSr")||0)/2; }
+
+  /* Upper limits of the calls, not of the animals -- taken as the band a survey
+     has to reach, and labelled as the convention it is. */
+  /* Two numbers per target, and both are frequencies IN THE SIGNAL, compared
+     against the Nyquist limit -- not sample rates. `need` is the band below
+     which the survey cannot work; `full` covers the high callers too. Getting
+     this wrong once demanded a 480 kHz recorder for bats, which exists nowhere:
+     a threshold no equipment can meet is not a standard, it is a bug that
+     reads like rigour. */
+  var TARGETS = [
+    { value:"bird",   label:"birds",        need:12000,  full:16000,  ramp:0,
+      note:"most passerine song sits below 10 kHz",
+      gap:"a few high trills and some insect-like song reach past 8 kHz" },
+    { value:"bat",    label:"bats",         need:48000,  full:120000, ramp:4,
+      note:"echolocation runs past 100 kHz in some genera",
+      gap:"the highest constant-frequency callers — some Rhinolophus and Myotis — call above 96 kHz" },
+    { value:"orth",   label:"orthopterans", need:30000,  full:60000,  ramp:2,
+      note:"katydids and crickets reach well into the ultrasonic",
+      gap:"several katydids call above 50 kHz" },
+    { value:"amph",   label:"amphibians",   need:6000,   full:8000,   ramp:0,
+      note:"anuran calls are low",
+      gap:"a few tree frogs carry harmonics above 6 kHz" },
+    { value:"sound",  label:"soundscape",   need:16000,  full:20000,  ramp:1,
+      note:"the audible band, as a human hears it",
+      gap:"nothing a person can hear is lost" }
+  ];
+  function targetOf(v){ for(var i=0;i<TARGETS.length;i++) if(TARGETS[i].value===v) return TARGETS[i]; return TARGETS[0]; }
+
+  function nyqOut(){
+    var sr=num("aSr")||0, ny=nyquist(), t=targetOf(val("aTarget"));
+    var h='<div class="stat">'
+      + k("sample rate", (sr/1000).toFixed(sr%1000?1:0)+'<span class="u"> kHz</span>')
+      + k("records up to", (ny/1000).toFixed(ny%1000?1:0)+'<span class="u"> kHz</span>', ny < t.need)
+      + k("minimum useful", (t.need/1000)+'<span class="u"> kHz</span>')
+      + k("full coverage", (t.full/1000)+'<span class="u"> kHz</span>')
+      + '</div>';
+    if(ny < t.need){
+      h += '<div class="verdict act"><b>This sample rate cannot survey '+esc(t.label)+'.</b> '
+        + 'Sampling at '+(sr/1000).toFixed(0)+' kHz records nothing above <b>'+(ny/1000).toFixed(1)
+        + ' kHz</b> — that is the sampling theorem, not a tuning preference, and no gain setting or '
+        + 'post-processing recovers what was never sampled. '+esc(t.note)+', so this survey needs at '
+        + 'least <b>'+(t.need*2/1000).toFixed(0)+' kHz</b>. What is above the limit does not come out '
+        + 'quiet; it aliases down and appears as a frequency that was never there, which is worse than '
+        + 'missing, because it looks like data.</div>';
+    } else if(ny < t.full){
+      h += '<div class="verdict warn"><b>Enough for most of it, and not all of it.</b> '
+        + (ny/1000).toFixed(0)+' kHz of usable band covers the '+(t.need/1000)+' kHz this survey needs, '
+        + 'but full coverage wants <b>'+(t.full/1000)+' kHz</b> — '+esc(t.gap)+'. That is a real '
+        + 'detection gap and it is not random: it removes particular species, so the absences in your '
+        + 'data will look like ecology. <b>State the sample rate beside any species list from this '
+        + 'deployment.</b>';
+      if(sr < 384000) h += ' Doubling to '+(t.full*2/1000)+' kHz costs '+((t.full*2)/sr).toFixed(1)
+        + '× the card.';
+      h += '</div>';
+    } else {
+      h += '<div class="verdict"><b>Full coverage.</b> '+(ny/1000).toFixed(0)+' kHz of usable band '
+        + 'against the '+(t.full/1000)+' kHz that covers this group completely — '+esc(t.note)+'. '
+        + 'Recording higher still is not free: it is '+(sr/(t.full*2)).toFixed(1)+'× the card and the '
+        + 'battery for band nothing you are surveying uses.</div>';
+    }
+    $("nyqBox").innerHTML=h;
+  }
+
+  function bytesPerSec(){ return (num("aSr")||0) * 2 * (num("aChan")||1); }
+
+  function dutyOut(){
+    var on=num("aOn")||0, every=num("aEvery")||0, days=num("aDays")||0, card=num("aCard")||0;
+    if(every <= 0) every = on || 1;
+    var frac = Math.min(1, on/every);
+    var recSec = days*86400*frac;
+    var bytes = recSec * bytesPerSec();
+    var gb = bytes/1e9;
+    var cardDays = bytes>0 ? (card*1e9)/(bytes/days) : 0;
+    /* the ruler: one cycle drawn to scale, so a 1-in-10 duty cycle looks like one */
+    var cells = 60, onCells = Math.max(1, Math.round(cells*frac));
+    var r=[];
+    for(var i=0;i<cells;i++) r.push('<i class="'+(i<onCells?"on":"off")+'" style="width:'+(100/cells)+'%"></i>');
+    $("dutyRuler").innerHTML = r.join("");
+    $("dutyLegend").textContent = "one " + (every>=60 ? (every/60).toFixed(every%60?1:0)+" min" : every+" s")
+      + " cycle — " + (on>=60 ? (on/60).toFixed(on%60?1:0)+" min" : on+" s") + " recording, the rest asleep";
+    $("dutyStat").innerHTML = '<div class="stat">'
+      + k("duty cycle", (100*frac).toFixed(1)+'<span class="u">%</span>')
+      + k("audio recorded", (recSec/3600).toFixed(1)+'<span class="u"> h</span>')
+      + k("card needed", gb.toFixed(2)+'<span class="u"> GB</span>', gb > card)
+      + k("card lasts", cardDays.toFixed(0)+'<span class="u"> d</span>', cardDays < days)
+      + '</div>';
+    var h="";
+    if(gb > card && card > 0){
+      h += '<div class="verdict act"><b>The card fills before you get back.</b> This schedule writes '
+        + gb.toFixed(2)+' GB and the card holds '+card+' GB — it stops after about <b>'
+        + cardDays.toFixed(0)+' days</b> of a '+days+'-day deployment. A recorder that stopped is not a '
+        + 'gap in the data you can model around: it is a gap whose start time you will have to work out '
+        + 'from the last file.</div>';
+    } else if(card > 0) {
+      h += '<div class="verdict"><b>Fits, with '+(100*(1-gb/card)).toFixed(0)+'% of the card spare.</b> '
+        + gb.toFixed(2)+' GB of '+card+' GB over '+days+' days.</div>';
+    }
+    h += '<p class="fine">Uncompressed 16-bit PCM at '+((num("aSr")||0)/1000).toFixed(0)+' kHz '
+       + (val("aChan")==="2"?"stereo":"mono")+' is <b>'+(bytesPerSec()/1e6).toFixed(2)+' MB per second</b> '
+       + 'of recording. Battery life is not computed here: it depends on the cells, the temperature and '
+       + 'the sleep current of your particular board, and a number invented for it would be worse than '
+       + 'none. Weigh a set, note the chemistry, and record what you actually got.</p>';
+    $("dutyBox").innerHTML=h;
+  }
+
+  var C_AIR = 343;      /* m/s, dry air at 20 °C */
+  var DRIFT_PER_DAY = 1;  /* s/day, Open Acoustic Devices' stated upper bound */
+  var SET_ACCURACY = 0.010; /* s, ±10 ms when the clock is set */
+
+  function driftOut(){
+    var days=num("aDays")||0;
+    var sec = days*DRIFT_PER_DAY;
+    var metres = sec*C_AIR;
+    $("driftStat").innerHTML = '<div class="stat">'
+      + k("deployment", days+'<span class="u"> d</span>')
+      + k("clock may be out by", sec.toFixed(0)+'<span class="u"> s</span>', sec > 1)
+      + k("as a distance", (metres>=1000 ? (metres/1000).toFixed(1)+'<span class="u"> km</span>'
+                                         : metres.toFixed(0)+'<span class="u"> m</span>'), metres > 50)
+      + k("with GPS sync", '20<span class="u"> µs</span>')
+      + '</div>';
+    var h='<div class="verdict'+(sec>1?" warn":"")+'"><b>By the end of '+days+' days the timestamps may be '
+      + 'wrong by up to '+sec.toFixed(0)+' second'+(sec===1?"":"s")+'.</b> ';
+    if(sec >= 1){
+      h += 'Sound covers '+C_AIR+' m in a second, so for time-of-arrival work between units that is '
+        + '<b>'+(metres>=1000?(metres/1000).toFixed(1)+' km':metres.toFixed(0)+' m')+'</b> of apparent '
+        + 'position error — larger than any array you are likely to have built. <b>An unsynchronised '
+        + 'array cannot localise.</b> For single-unit work it means your file times need correcting '
+        + 'against a known clock before they are joined to anything: a camera trap, a weather record, '
+        + 'or another unit.';
+    } else {
+      h += 'Short enough that a single unit\'s timestamps are usable as they are.';
+    }
+    h += ' The drift is roughly linear, so noting the true time at deployment <em>and</em> at collection '
+      + 'lets you interpolate the correction rather than guess it.</div>';
+    $("driftBox").innerHTML=h;
+  }
+
+  function splOut(){
+    $("splBox").innerHTML =
+      '<div class="verdict warn"><b>This page will not convert your recordings to decibels.</b> The gain '
+      + 'settings on these recorders are named, not calibrated, and the manufacturer is explicit that an '
+      + 'SPL figure requires calibrating <b>the whole chain — microphone, case and recording settings — '
+      + 'against a calibrated meter</b>. A different case gives a different answer.</div>'
+      + '<p class="fine">What you <em>can</em> do without a calibrator: compare amplitude between '
+      + 'recordings made by <b>one unit at one gain setting</b>, which is a real relative measurement and '
+      + 'is enough for most activity indices. What you cannot do is compare two units, compare across a '
+      + 'gain change, or report a level in dB SPL. Record the gain setting below so that future-you knows '
+      + 'which comparisons are allowed.</p>';
+  }
+
+  function acOut(){ nyqOut(); dutyOut(); driftOut(); }
+
+  /* ============ FLIGHT ============ */
+  var CAMS = [
+    { value:"rededge", label:"MicaSense RedEdge",  sub:"5-band multispectral", ramp:0,
+      sw:4.8,  fl:5.4,  pw:1280, ph:960,  bands:"multi" },
+    { value:"p4ms",    label:"P4 Multispectral",   sub:"5-band + RGB",         ramp:0,
+      sw:4.87, fl:5.74, pw:1600, ph:1300, bands:"multi" },
+    { value:"seq",     label:"Parrot Sequoia",     sub:"4-band multispectral", ramp:1,
+      sw:4.8,  fl:3.98, pw:1280, ph:960,  bands:"multi" },
+    { value:"conv",    label:"converted RGB",      sub:"filter swap on a consumer camera", ramp:4,
+      sw:13.2, fl:8.8,  pw:5472, ph:3648, bands:"conv" },
+    { value:"rgb",     label:"stock RGB",          sub:"an ordinary drone camera", ramp:3,
+      sw:13.2, fl:8.8,  pw:5472, ph:3648, bands:"rgb" }
+  ];
+  function camOf(v){ for(var i=0;i<CAMS.length;i++) if(CAMS[i].value===v) return CAMS[i]; return CAMS[0]; }
+
+  /* GSD in cm/px. Sensor width in mm, altitude in m, focal length in mm, image
+     width in px -- the 100 converts the metre to centimetres. */
+  function gsd(){
+    var sw=num("fSw"), alt=num("fAlt"), fl=num("fFl"), pw=num("fPw");
+    if(!sw || !alt || !fl || !pw) return null;
+    return (sw*alt*100)/(fl*pw);
+  }
+
+  function gsdOut(){
+    var g=gsd(), pw=num("fPw")||0, ph=num("fPh")||0;
+    var alt=num("fAlt")||0, fwd=(num("fFwd")||0)/100, side=(num("fSide")||0)/100;
+    var area=num("fArea")||0, speed=num("fSpeed")||0;
+    if(g==null){ $("gsdStat").innerHTML=""; $("gsdBox").innerHTML=
+      '<div class="verdict act">Sensor width, focal length, image width and altitude are all needed '
+      +'before a ground sample distance means anything.</div>'; return; }
+    var footW = g*pw/100, footH = g*ph/100;                 /* m on the ground */
+    var shotSpacing = footH*(1-fwd);                        /* along track */
+    var lineSpacing = footW*(1-side);
+    var areaM = area*10000;                                 /* ha → m² */
+    var lines = lineSpacing>0 ? Math.ceil(Math.sqrt(areaM)/lineSpacing) : 0;
+    var lineLen = Math.sqrt(areaM);
+    var shots = (shotSpacing>0 && lines>0) ? Math.ceil(lines*(lineLen/shotSpacing+1)) : 0;
+    var flightSec = speed>0 ? (lines*lineLen)/speed : 0;
+    var interval = speed>0 && shotSpacing>0 ? shotSpacing/speed : 0;
+    $("gsdStat").innerHTML = '<div class="stat">'
+      + k("GSD", g.toFixed(2)+'<span class="u"> cm/px</span>')
+      + k("footprint", footW.toFixed(0)+'×'+footH.toFixed(0)+'<span class="u"> m</span>')
+      + k("images", shots)
+      + k("shot every", interval>0 ? interval.toFixed(1)+'<span class="u"> s</span>' : "—",
+          interval > 0 && interval < 1)
+      + k("flight lines", lines)
+      + k("flying time", flightSec>0 ? (flightSec/60).toFixed(0)+'<span class="u"> min</span>' : "—")
+      + '</div>';
+    var h="";
+    /* Pix4D's own recommendations, cited as recommendations. */
+    var needF=85, needS=85;
+    if((num("fFwd")||0) < needF || (num("fSide")||0) < needS){
+      h += '<div class="verdict warn"><b>Below Pix4D&rsquo;s recommendation for vegetation.</b> They '
+        + 'suggest 75/60% as a general case, <b>80/80% over agriculture</b>, and <b>85/85% over forest '
+        + 'and dense vegetation</b> — because a canopy is a repeating texture with almost no unique '
+        + 'features, and photogrammetry matches features. You have '+(num("fFwd")||0)+'/'
+        + (num("fSide")||0)+'%. Under-overlapping a canopy does not degrade the map gracefully; it '
+        + 'produces holes.</div>';
+    } else {
+      h += '<div class="verdict"><b>'+(num("fFwd")||0)+'/'+(num("fSide")||0)+'% overlap</b> meets '
+        + 'Pix4D&rsquo;s 85/85% recommendation for forest and dense vegetation.</div>';
+    }
+    if(interval > 0 && interval < 1){
+      h += '<div class="verdict act"><b>One image every '+interval.toFixed(2)+' s.</b> Most multispectral '
+        + 'sensors cannot sustain a sub-second interval, and a missed trigger at this overlap is a hole. '
+        + 'Fly slower or higher.</div>';
+    }
+    h += '<p class="fine">GSD = sensor width × altitude ÷ (focal length × image width) — '
+      + num("fSw")+' mm × '+alt+' m ÷ ('+num("fFl")+' mm × '+pw+' px) = <b>'+g.toFixed(2)+' cm/px</b>. '
+      + 'Image counts assume a square block '+lineLen.toFixed(0)+' m on a side and no turns; a real '
+      + 'mission adds both. Flying time excludes the turns, the climb and the return, which is why it is '
+      + 'always optimistic — treat it as a floor, not a plan.</p>';
+    $("gsdBox").innerHTML=h;
+  }
+
+  var RADS = [
+    { value:"both",  label:"panel + DLS", sub:"target on the ground, sensor on top", ramp:0 },
+    { value:"panel", label:"panel only",  sub:"imaged before and after",             ramp:1 },
+    { value:"dls",   label:"DLS only",    sub:"downwelling light sensor",            ramp:2 },
+    { value:"none",  label:"neither",     sub:"camera EXIF only",                    ramp:5 }
+  ];
+  function radOut(){
+    var r=val("fRad"), cam=camOf(val("fCam")), h="";
+    if(cam.bands === "rgb"){
+      h += '<div class="verdict act"><b>A stock RGB camera has no near-infrared band, so it cannot '
+        + 'produce NDVI at all.</b> NDVI is (NIR − Red) ÷ (NIR + Red) and there is no NIR here to put in '
+        + 'it. What this sensor can support is a visible-band index such as <b>VARI</b>, which is a real '
+        + 'and useful thing — it is simply not NDVI, and calling it NDVI is how a figure ends up in a '
+        + 'thesis that no reviewer can reproduce.</div>';
+    } else if(cam.bands === "conv"){
+      h += '<div class="verdict act"><b>A filter-converted camera does not give you NDVI.</b> Swapping '
+        + 'the internal filter lets near-infrared reach a sensor whose three channels were never designed '
+        + 'to separate it: the bands overlap, the response is unknown, and the red channel is '
+        + 'contaminated. DroneDeploy&rsquo;s guidance is that the only appropriate index for a standard '
+        + 'RGB camera is VARI, and that NDVI needs a sensor with genuine red and near-infrared bands. '
+        + 'A converted camera can produce a repeatable <em>relative</em> index on one flight. It cannot '
+        + 'produce a number comparable to a published NDVI.</div>';
+    }
+    if(r==="both"){
+      h += '<div class="verdict"><b>Panel and downwelling sensor.</b> The panel ties your digital numbers '
+        + 'to reflectance; the DLS tracks illumination changing <em>during</em> the flight, which a panel '
+        + 'read once on the ground cannot. This is the combination that makes two flights comparable. '
+        + 'Record the panel serial and its calibration values — a panel is only as good as the numbers '
+        + 'that came with it, and they are specific to that panel.</div>';
+    } else if(r==="panel"){
+      h += '<div class="verdict warn"><b>Panel only.</b> Enough to convert to reflectance under steady '
+        + 'illumination, and the standard practice is to image it immediately before <em>and</em> after '
+        + 'the flight so a change shows up as a difference between the two. It cannot correct anything '
+        + 'that happened between them: broken cloud mid-flight is invisible to it. Note the sky '
+        + 'condition below, because it decides whether this correction held.</div>';
+    } else if(r==="dls"){
+      h += '<div class="verdict warn"><b>Downwelling sensor only.</b> Tracks illumination change through '
+        + 'the flight, which is the harder half — but without a panel there is no absolute tie to '
+        + 'reflectance, so values are internally consistent and not comparable to another flight or to '
+        + 'published figures.</div>';
+    } else {
+      h += '<div class="verdict act"><b>No radiometric correction.</b> Pix4D put it plainly: correction '
+        + '<em>&ldquo;is required to be able to compare multispectral imagery taken at different points in '
+        + 'time under different weather conditions, and to compute reliable index values.&rdquo;</em> '
+        + 'Without it your pixel values carry the shutter speed, the ISO, the sun angle and the cloud. '
+        + 'Those change between flights and none of them is the plant. <b>This flight can be described on '
+        + 'its own. It cannot be compared to another one</b>, and the log will record it that way.</div>';
+    }
+    $("radBox").innerHTML=h;
+  }
+
+  function skyOut(){
+    var cl=num("fCloud"), t=val("fTime"), h="";
+    if(cl!=null && cl>0 && cl<8){
+      h='<div class="verdict warn"><b>'+cl+' oktas is the hardest sky to fly in.</b> Broken cloud changes '
+        + 'the illumination between one image and the next, so a before-and-after panel reading averages '
+        + 'over a variation it never saw. Overcast (8 oktas) is diffuse and stable and is often the '
+        + '<em>better</em> condition; clear (0) is stable too. It is the in-between that produces '
+        + 'unreproducible mosaics.</div>';
+    } else if(cl===8){
+      h='<div class="verdict"><b>Fully overcast — stable, diffuse light.</b> Often the most repeatable '
+        + 'condition to fly in, and shadows are minimal.</div>';
+    } else if(cl===0){
+      h='<div class="verdict"><b>Clear sky — stable illumination, strong shadows.</b> Record the time so '
+        + 'the shadow fraction is recoverable.</div>';
+    }
+    if(t && !cl && cl!==0) h += '';
+    $("skyBox").innerHTML=h;
+  }
+  function flOut(){ gsdOut(); radOut(); skyOut(); }
+
+  /* ============ LOGGER ============ */
+  function logOut(){
+    var iv=num("lInt")||0, days=num("lDays")||0, mem=num("lMem")||0;
+    var n = iv>0 ? Math.floor(days*86400/iv) : 0;
+    var full = (iv>0 && mem>0) ? (mem*iv)/86400 : 0;
+    $("logStat").innerHTML = '<div class="stat">'
+      + k("interval", iv>=60 ? (iv/60).toFixed(iv%60?1:0)+'<span class="u"> min</span>'
+                             : iv+'<span class="u"> s</span>')
+      + k("readings", n.toLocaleString())
+      + k("memory holds", mem.toLocaleString())
+      + k("fills after", full.toFixed(0)+'<span class="u"> d</span>', full < days)
+      + '</div>';
+    var h="";
+    if(full>0 && full < days){
+      h += '<div class="verdict act"><b>Memory fills after about '+full.toFixed(0)+' days</b> of a '
+        + days+'-day deployment. Either lengthen the interval to <b>'
+        + (mem>0 ? Math.ceil(days*86400/mem/60) : 0)+' minutes</b>, or plan a mid-season download — and '
+        + 'if the logger is set to stop rather than wrap, note which, because a wrapped logger silently '
+        + 'discards the beginning of your season.</div>';
+    } else if(mem>0){
+      h += '<div class="verdict"><b>Fits.</b> '+n.toLocaleString()+' readings of '+mem.toLocaleString()
+        + ' available, filling after about '+full.toFixed(0)+' days.</div>';
+    }
+    h += '<p class="fine">A shorter interval is not automatically better. It fills memory, it flattens '
+      + 'battery, and for a variable that changes on a scale of hours it buys you nothing but file size. '
+      + 'Match the interval to the thing you are trying to see: a daily maximum needs minutes, a soil '
+      + 'temperature at depth is happy with an hour.</p>';
+    $("logBox").innerHTML=h;
+  }
+
+  var SHIELDS = [
+    { value:"gill",  label:"gill-type multi-plate", sub:"stacked louvred plates",  ramp:0 },
+    { value:"cup",   label:"improvised",            sub:"cup, tube, funnel",       ramp:2 },
+    { value:"shade", label:"natural shade only",    sub:"under canopy, no shield", ramp:3 },
+    { value:"none",  label:"none",                  sub:"exposed to sun",          ramp:5 }
+  ];
+  function shOut(){
+    var s=val("lShield"), h="";
+    if(!s){
+      h='<div class="verdict warn"><b>Record what the logger was inside.</b> It is the single largest '
+       + 'source of error in a cheap temperature record and the one nobody writes down.</div>';
+    } else if(s==="gill"){
+      h='<div class="verdict"><b>Gill-type multi-plate shelter.</b> Of the configurations da Cunha (2015) '
+       + 'tested against a psychrometer — bare in sun, a white plastic cup with air windows, and a '
+       + 'gill-type shelter — <b>the gill-type gave the best protection</b>. That is the finding; the '
+       + 'error magnitudes are behind a paywall this page cannot read, so it does not quote one.</div>';
+    } else if(s==="cup" || s==="shade"){
+      h='<div class="verdict warn"><b>Partly shielded, and the error is not knowable from here.</b> '
+       + 'da Cunha (2015) found improvised shielding measurably worse than a gill-type shelter; how much '
+       + 'worse depends on your shield, the wind and the sun angle. <b>The page will not invent a '
+       + 'correction.</b> If this record matters, run one logger in a proper shelter alongside it for a '
+       + 'week and measure your own offset — that number is real and the one you would have read here '
+       + 'would not be.</div>';
+    } else {
+      h='<div class="verdict act"><b>Unshielded in sun, this logger is reading its own casing.</b> A '
+       + 'plastic body in direct sun heats well above air temperature and the sensor reports the body. '
+       + 'This is not a small bias to note in a caption; under sun it can dominate the diurnal range you '
+       + 'are trying to measure. Shield it, or record the series as enclosure temperature and say so.</div>';
+    }
+    $("shBox").innerHTML=h;
+  }
+
+  /* ============ LOG ============ */
+  function addAc(){
+    if(!val("aUnit")){ toast("Give the unit an ID"); return; }
+    var t=targetOf(val("aTarget")), sr=num("aSr")||0;
+    log.push({ kind:"recorder", id:val("aUnit"), site:val("aSite"),
+      lat:val("aLat"), lon:val("aLon"), date:val("aStart"),
+      settings:"sr "+(sr/1000).toFixed(0)+" kHz, "+(val("aChan")==="2"?"stereo":"mono")
+        +", "+val("aOn")+" s in "+val("aEvery")+" s, "+val("aDays")+" d, fw "+(val("aFw")||"?"),
+      note:"target "+t.label+"; Nyquist "+(sr/2000).toFixed(1)+" kHz"+(sr/2 < t.full ? " (below full coverage — detection gap)" : "")+"; clock may drift up to "
+        +(num("aDays")||0)+" s; no SPL calibration" });
+    render(); buzz(); toast("Recorder logged");
+  }
+  function addFl(){
+    if(!val("fId")){ toast("Give the flight an ID"); return; }
+    var g=gsd(), cam=camOf(val("fCam")), r=val("fRad");
+    var radName = r==="both" ? "panel + DLS" : r==="panel" ? "panel only"
+                : r==="dls" ? "DLS only" : "none";
+    log.push({ kind:"flight", id:val("fId"), site:val("fPilot"),
+      lat:"", lon:"", date:val("fDate")+(val("fTime")?" "+val("fTime"):""),
+      settings:cam.label+", "+val("fAlt")+" m, GSD "+(g?g.toFixed(2):"?")+" cm/px, "
+        +val("fFwd")+"/"+val("fSide")+"% overlap",
+      note:"radiometric: "+radName
+        +(r==="none" ? " — NOT comparable between flights" : "")
+        +(cam.bands!=="multi" ? "; "+cam.label+" cannot produce NDVI" : "")
+        +(num("fCloud")!=null ? "; cloud "+num("fCloud")+" oktas" : "")
+        +(num("fWind")!=null ? "; wind "+num("fWind")+" m/s" : "") });
+    render(); buzz(); toast("Flight logged");
+  }
+  function addLg(){
+    if(!val("lUnit")){ toast("Give the logger an ID"); return; }
+    var s=val("lShield");
+    var sName = s==="gill" ? "gill-type multi-plate" : s==="cup" ? "improvised"
+              : s==="shade" ? "natural shade only" : s==="none" ? "UNSHIELDED" : "not recorded";
+    log.push({ kind:"logger", id:val("lUnit"), site:val("lPos"),
+      lat:"", lon:"", date:val("lStart"),
+      settings:"every "+((num("lInt")||0)/60).toFixed(0)+" min, "+val("lDays")+" d planned",
+      note:"shield: "+sName + (s==="none"||!s ? " — treat as enclosure temperature" : "") });
+    render(); buzz(); toast("Logger logged");
+  }
+
+  function render(){
+    var t=$("logTable");
+    if(!log.length){ t.innerHTML='<p class="hint" style="margin:0">Nothing logged yet.</p>'; ecoOut(); return; }
+    var h='<table class="log"><tr><th>kind</th><th>id</th><th>where</th><th>when</th>'
+        + '<th>settings</th><th>what it can and cannot say</th></tr>';
+    log.forEach(function(r){
+      h += '<tr><td>'+esc(r.kind)+'</td><td>'+esc(r.id)+'</td><td>'+esc(r.site||"—")+'</td>'
+        + '<td>'+esc(r.date||"—")+'</td><td>'+esc(r.settings)+'</td><td>'+esc(r.note)+'</td></tr>';
+    });
+    $("logTable").innerHTML = h+'</table>';
+    ecoOut();
+  }
+
+  function ecoOut(){
+    if(!log.length){ $("ecoOut").textContent="# log a deployment — the sheet builds itself"; return; }
+    var L=["# Deployment log — "+log.length+" deployment"+(log.length===1?"":"s")];
+    log.forEach(function(r){
+      L.push("");
+      L.push("["+r.kind+"] "+r.id+(r.site?"  @ "+r.site:"")+(r.date?"  "+r.date:""));
+      if(r.lat && r.lon) L.push("  coords   "+r.lat+", "+r.lon);
+      L.push("  settings "+r.settings);
+      L.push("  caveat   "+r.note);
+    });
+    $("ecoOut").textContent=L.join("\n");
+  }
+
+  $("addAc").addEventListener("click",addAc);
+  $("addFl").addEventListener("click",addFl);
+  $("addLg").addEventListener("click",addLg);
+  $("undo").addEventListener("click",function(){
+    if(!log.length){ toast("Nothing to undo"); return; }
+    log.pop(); render(); buzz(); toast("Removed"); });
+  $("csvCopy").addEventListener("click",function(){
+    if(!log.length){ toast("Nothing logged"); return; }
+    var rows=[["kind","id","site_or_pilot","latitude","longitude","date","settings","caveat"].map(cell).join(",")];
+    log.forEach(function(r){
+      rows.push([r.kind,r.id,r.site,r.lat,r.lon,r.date,r.settings,r.note].map(cell).join(","));
+    });
+    copyText(rows.join("\n"), "Deployment CSV copied — "+log.length+" row"+(log.length===1?"":"s"));
+  });
+  $("ecoCopy").addEventListener("click",function(){
+    copyText($("ecoOut").textContent, "Field sheet copied"); });
+
+  /* ============ entry layer ============ */
+  var SR = [
+    { value:"16000",  label:"16 kHz",  sub:"speech band",        ramp:0 },
+    { value:"48000",  label:"48 kHz",  sub:"birds, soundscape",  ramp:1 },
+    { value:"96000",  label:"96 kHz",  sub:"orthopterans",       ramp:2 },
+    { value:"192000", label:"192 kHz", sub:"most bats",          ramp:3 },
+    { value:"384000", label:"384 kHz", sub:"the high callers",   ramp:4 }
+  ];
+  FEK.mount("acEntry", [
+    FEK.dial({ field:"aSr", label:"sample rate", value:"48000", clearable:false, options:SR,
+      onchange:function(v){ push("aSr", v||"48000"); acOut(); } }),
+    FEK.dial({ field:"aChan", label:"channels", value:"1", clearable:false, options:[
+      { value:"1", label:"mono",   sub:"half the card", ramp:0 },
+      { value:"2", label:"stereo", sub:"twice the card", ramp:2 }
+    ], onchange:function(v){ push("aChan", v||"1"); acOut(); } }),
+    FEK.dial({ field:"aTarget", label:"what you are surveying", value:"bird", clearable:false,
+      options:TARGETS.map(function(t){ return { value:t.value, label:t.label, sub:t.note, ramp:t.ramp }; }),
+      onchange:function(v){ push("aTarget", v||"bird"); nyqOut(); } })
+  ]);
+  FEK.mount("dutyEntry", [
+    FEK.step({ field:"aOn", label:"record for", unit:"s", value:60, min:1, max:3600, step:5, dec:0,
+      onchange:function(v){ push("aOn", v); dutyOut(); } }),
+    FEK.step({ field:"aEvery", label:"once every", unit:"s", value:600, min:1, max:86400, step:30, dec:0,
+      onchange:function(v){ push("aEvery", v); dutyOut(); } }),
+    FEK.step({ field:"aDays", label:"deployment", unit:"days", value:14, min:1, max:365, step:1, dec:0,
+      onchange:function(v){ push("aDays", v); dutyOut(); driftOut(); } }),
+    FEK.step({ field:"aCard", label:"SD card", unit:"GB", value:32, min:1, max:1024, step:8, dec:0,
+      onchange:function(v){ push("aCard", v); dutyOut(); } })
+  ]);
+  FEK.mount("camEntry", [
+    FEK.dial({ field:"fCam", label:"sensor", value:"rededge", clearable:false,
+      options:CAMS.map(function(c){ return {value:c.value,label:c.label,sub:c.sub,ramp:c.ramp}; }),
+      onchange:function(v){
+        var c=camOf(v||"rededge");
+        push("fCam", c.value);
+        $("fSw").value=c.sw; $("fFl").value=c.fl; $("fPw").value=c.pw; $("fPh").value=c.ph;
+        flOut();
+      } })
+  ]);
+  FEK.mount("altEntry", [
+    FEK.step({ field:"fAlt", label:"altitude AGL", unit:"m", value:120, min:5, max:400, step:5, dec:0,
+      onchange:function(v){ push("fAlt", v); gsdOut(); } }),
+    FEK.slider({ field:"fFwd", label:"frontal overlap", unit:"%", min:50, max:95, step:5, value:80,
+      onchange:function(v){ push("fFwd", v); gsdOut(); } }),
+    FEK.slider({ field:"fSide", label:"side overlap", unit:"%", min:40, max:95, step:5, value:80,
+      onchange:function(v){ push("fSide", v); gsdOut(); } }),
+    FEK.step({ field:"fArea", label:"area", unit:"ha", value:10, min:0.1, max:1000, step:1, dec:1,
+      onchange:function(v){ push("fArea", v); gsdOut(); } }),
+    FEK.step({ field:"fSpeed", label:"ground speed", unit:"m/s", value:6, min:1, max:20, step:0.5, dec:1,
+      onchange:function(v){ push("fSpeed", v); gsdOut(); } })
+  ]);
+  FEK.mount("radEntry", [
+    FEK.dial({ field:"fRad", label:"radiometric calibration", value:"none", clearable:false,
+      options:RADS, onchange:function(v){ push("fRad", v||"none"); radOut(); } })
+  ]);
+  FEK.mount("logEntry", [
+    FEK.step({ field:"lInt", label:"logging interval", unit:"s", value:600, min:1, max:86400, step:60, dec:0,
+      onchange:function(v){ push("lInt", v); logOut(); } }),
+    FEK.step({ field:"lDays", label:"deployment", unit:"days", value:90, min:1, max:1095, step:5, dec:0,
+      onchange:function(v){ push("lDays", v); logOut(); } }),
+    FEK.step({ field:"lMem", label:"memory", unit:"readings", value:84650, min:100, max:4000000,
+      step:1000, dec:0, onchange:function(v){ push("lMem", v); logOut(); } })
+  ]);
+  FEK.mount("shEntry", [
+    FEK.dial({ field:"lShield", label:"radiation shield", value:null, options:SHIELDS,
+      onchange:function(v){ push("lShield", v==null?"":v); shOut(); } })
+  ]);
+
+  ["fSw","fFl","fPw","fPh"].forEach(function(id){
+    var e=$(id); if(e) e.addEventListener("input", gsdOut); });
+  ["fCloud","fTime","fWind"].forEach(function(id){
+    var e=$(id); if(e) e.addEventListener("input", skyOut); });
+
+  /* ---------- local autosave ---------- */
+  var KEPT = KEEP.wire({
+    key: "csrbtDeploymentLog", format: 1, mount: "keepBox", noun: "this log", ontoast: toast,
+    snapshot: function(){
+      var f = KEEP.formSnapshot(), any = log.length > 0, kk;
+      if(!any) for(kk in f) if(f.hasOwnProperty(kk) && /^(aUnit|aSite|fId|lUnit)$/.test(kk)
+        && String(f[kk]).trim() !== "") { any = true; break; }
+      return any ? { fields:f, log:log } : null;
+    },
+    restore: function(b){
+      if(!b) return false;
+      KEEP.formRestore(b.fields);
+      log.length = 0; (b.log||[]).forEach(function(r){ log.push(r); });
+      acOut(); flOut(); logOut(); shOut(); splOut(); render();
+      return true;
+    }
+  });
+  function fromKeepStrip(e){
+    return !!(e && e.target && e.target.closest && e.target.closest("#keepBox"));
+  }
+  document.addEventListener("input",  function(e){ if(!fromKeepStrip(e)) KEPT.touch(); }, true);
+  document.addEventListener("change", function(e){ if(!fromKeepStrip(e)) KEPT.touch(); }, true);
+  document.addEventListener("click",  function(e){
+    if(fromKeepStrip(e)) return;
+    if(e.target && e.target.closest && e.target.closest("button")) KEPT.touch(); }, true);
+
+  /* ---------- tabs & boot ---------- */
+  function showPane(id){
+    document.querySelectorAll(".tab").forEach(function(t){ t.classList.toggle("on", t.dataset.pane===id); });
+    document.querySelectorAll(".pane").forEach(function(p){ p.classList.toggle("on", p.id===id); });
+    window.scrollTo(0,0);
+  }
+  document.querySelectorAll(".tab").forEach(function(tb){
+    tb.addEventListener("click",function(){ showPane(tb.dataset.pane); buzz(); }); });
+
+  acOut(); flOut(); logOut(); shOut(); splOut(); render();
+})();
+</script>
+</body>
+</html>

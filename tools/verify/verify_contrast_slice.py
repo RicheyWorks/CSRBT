@@ -7,7 +7,7 @@ back under the threshold fails a named test rather than only a sweep.
 Every expected ratio here is computed in Python from the WCAG formula, not
 copied out of the browser.
 """
-import glob, os, colorsys
+import glob, io, os, re, colorsys
 from playwright.sync_api import sync_playwright
 import os as _os
 # The kit is checked out wherever the user keeps it; these suites used to hard-code
@@ -65,10 +65,27 @@ for bg, what in (("#2c784c", "the selected green"), ("#8a6408", "the selected go
     ck(ratio(comp(.85, bg), bg) < 4.5, "85%% white on %s did fail (%.2f:1)" % (what, ratio(comp(.85, bg), bg)))
     ck(ratio(comp(.92, bg), bg) >= 4.5, "92%% white on %s passes (%.2f:1)" % (what, ratio(comp(.92, bg), bg)))
 
+# ---- 1b. every ramp is legible with the label text drawn on it ---------
+# A selected FEK dial button paints --ramp-N and writes white on it, with a
+# .92-white sub-line. Nothing checked those pairs, so ramp-1 sat at 3.94:1 and
+# 3.59:1 for months -- invisible because no page happened to DEFAULT to a
+# ramp-1 option until the deployment log did, and an unselected button never
+# paints the ramp at all. A palette entry that is only wrong when someone
+# selects it is exactly the kind that survives review.
+_FEKSRC = io.open(_os.path.join(ROOT, "tools", "fek.py"), encoding="utf-8").read()
+_RAMPS = dict(re.findall(r"--ramp-(\d):\s*(#[0-9A-Fa-f]{6})", _FEKSRC))
+ck(len(_RAMPS) == 6, "fek.py defines six ramp steps (%d)" % len(_RAMPS))
+for _i in sorted(_RAMPS):
+    _bg = _RAMPS[_i]
+    ck(ratio("#ffffff", _bg) >= 4.5,
+       "ramp-%s (%s): white label clears AA (%.2f:1)" % (_i, _bg, ratio("#ffffff", _bg)))
+    ck(ratio(comp(.92, _bg), _bg) >= 4.5,
+       "ramp-%s (%s): the .92-white sub-line clears AA (%.2f:1)"
+       % (_i, _bg, ratio(comp(.92, _bg), _bg)))
+
 # ---- 2. the old values are gone from every page ------------------------
 pages = sorted(glob.glob(DOCS + "*.html"))
 ck(len(pages) >= 33, "the kit still has all its pages (%d)" % len(pages))
-import io, re
 for old, new in [("8b8b7b", "6b6b5e"), ("2e7d4f", "2c784c"), ("c0592b", "a94f26"),
                  ("b8860b", "8a6408"), ("5a6675", "7a8798")]:
     stale = [os.path.basename(p) for p in pages
@@ -89,8 +106,14 @@ import re as _re
 VER = _re.search(r'VERSION\s*=\s*"([\d.]+)"', src).group(1)
 ck(VER >= "1.1.1", "fek.py is at or past the version this fix landed in (%s)" % VER)
 ck("rgba(255,255,255,.85)" not in src, "fek.py no longer emits the failing .85 label")
-ck(sum(("Field Entry Kit v" + VER) in io.open(p, encoding="utf-8").read() for p in pages) == 14,
-   "all 14 FEK consumers report the version fek.py declares (%s)" % VER)
+# Not a count. "Exactly 14" was frozen here too, and broke the day a fifteenth
+# page adopted the kit -- the eighth frozen constant found this month. The
+# invariant is that no consumer is left behind by a version bump.
+_carry = [p for p in pages if "Field Entry Kit v" in io.open(p, encoding="utf-8").read()]
+_stale = [_os.path.basename(p) for p in _carry
+          if ("Field Entry Kit v" + VER) not in io.open(p, encoding="utf-8").read()]
+ck(len(_carry) >= 14, "at least the 14 known FEK consumers (%d)" % len(_carry))
+ck(not _stale, "every FEK consumer reports the version fek.py declares (%s); stale: %s" % (VER, _stale))
 
 # ---- 3. what the browser actually paints -------------------------------
 with sync_playwright() as p:

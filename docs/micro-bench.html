@@ -230,7 +230,7 @@
   .rail a.ref { font-weight:600; color:var(--muted); background:none; box-shadow:none; }
   @media print { .rail { display:none !important; } }
 
-  /* ============ Field Entry Kit v1.2.0 ============
+  /* ============ Field Entry Kit v1.3.0 ============
      Large-target, high-contrast entry controls. Sizing is driven by --tap
      rather than per-component numbers so one token retunes the whole kit for
      gloves, cold hands or a wall-mounted tablet. */
@@ -238,7 +238,19 @@
     --tap: 60px;            /* primary control height  */
     --tap-sm: 48px;         /* secondary control height */
     --fek-r: 16px;
-    --ramp-0:#2B6C8F; --ramp-1:#3E8C8C; --ramp-2:#2C784C;
+    /* These three moved for WCAG AA and the move was made in the pages, by
+       hand, and never came back here -- because the CSS half of fek_emit was
+       dead code and nobody could tell. Source and pages agreed only by
+       ramp-1 moved here too: at its old teal, white label text on a selected
+       button measured 3.94:1 and the .92-white sub-line 3.59:1, both under AA.
+       No page had caught it because none defaulted to a ramp-1 option until the
+       deployment log did. Every ramp is now checked against both, in
+       verify_contrast_slice.
+       The pre-fix ramp values are named in verify_contrast_slice,
+       which greps for them literally across every page -- so they are not
+       repeated here, because a comment naming them is itself a page carrying
+       them, and the suite is right not to care why. */
+    --ramp-0:#2B6C8F; --ramp-1:#2F7373; --ramp-2:#2C784C;
     --ramp-3:#8A6408; --ramp-4:#A94F26; --ramp-5:#B23A32;
     --fek-line:#C7C0AC;
   }
@@ -570,18 +582,45 @@
   </section>
 
   <div class="rail">
-    <p class="rl">The bench</p>
+    <p class="rl">Record it — in the field</p>
     <div class="chips">
-      <a href="breeding-bench.html"><span>🥕</span>Breeding Bench</a>
+      <a href="field-notebook.html"><span>📓</span>Field Notebook</a>
+      <a href="ethogram.html"><span>🐾</span>Ethogram</a>
+      <a href="selection-log.html"><span>📏</span>Selection Log</a>
+      <a href="stand-sheet.html"><span>🌲</span>Stand Sheet</a>
+      <a href="releve.html"><span>🌾</span>Relevé</a>
+      <a href="collection-sheet.html"><span>🍄</span>Collection Sheet</a>
+      <a href="farm-scout.html"><span>🧑‍🌾</span>Farm Scout</a>
+      <a href="pheno-tracker.html"><span>🌱</span>Pheno Tracker</a>
+      <a href="deployment-log.html"><span>🎙️</span>Deployment Log</a>
+    </div>
+    <p class="rl" style="margin-top:16px">At the bench</p>
+    <div class="chips">
       <a href="cp-bench.html"><span>🫙</span>CP Bench</a>
       <a href="soil-bench.html"><span>🪱</span>Soil Bench</a>
+      <a href="breeding-bench.html"><span>🥕</span>Breeding Bench</a>
       <a href="cell-bench.html"><span>🔬</span>Cell Bench</a>
       <a href="micro-bench.html" aria-current="page"><span>🧫</span>Micro Bench</a>
-      <a href="selection-log.html"><span>📏</span>Selection Log</a>
-      <a href="ethogram.html"><span>🐾</span>Ethogram</a>
+    </div>
+    <p class="rl" style="margin-top:16px">Analyse it</p>
+    <div class="chips">
+      <a href="ordination.html"><span>📉</span>Ordination</a>
+      <a href="food-web.html"><span>🕸️</span>Food Web Builder</a>
+      <a href="field-season.html"><span>🎯</span>Field Season</a>
+    </div>
+    <p class="rl" style="margin-top:16px">Print it</p>
+    <div class="chips">
+      <a href="plant-characters.html"><span>🌱</span>Plant Characters</a>
+      <a href="fungal-characters.html"><span>🔬</span>Fungal Characters</a>
+      <a href="cp-characters.html"><span>🪤</span>CP Characters</a>
+    </div>
+    <div class="chips" style="margin-top:16px">
       <a class="ref" href="ecology.html">← kit hub</a>
+      <a class="ref" href="ecology-field-card.html">field card</a>
       <a class="ref" href="ecology-glossary.html">glossary</a>
     </div>
+  </div>
+  </div>
   </div>
 </div>
 
@@ -595,7 +634,7 @@
 <div class="toast" id="toast">Saved</div>
 <script>
 
-/* ---- Field Entry Kit v1.2.0 : constructors return {el, get, set} ---- */
+/* ---- Field Entry Kit v1.3.0 : constructors return {el, get, set} ---- */
 var FEK = (function(){
   function el(t,c,h){ var e=document.createElement(t); if(c) e.className=c;
     if(h!=null) e.innerHTML=h; return e; }
@@ -617,6 +656,24 @@ var FEK = (function(){
   function escv(s){ return String(s==null?"":s).replace(/[&<>"']/g,function(c){
     return c==="&"?"&amp;":c==="<"?"&lt;":c===">"?"&gt;":c==='"'?"&quot;":"&#39;"; }); }
   function buzz(m){ try{ if(navigator.vibrate) navigator.vibrate(m||8);}catch(e){} }
+
+  /* ---- field registry (v1.3.0) ----
+     A component writes through to a hidden field via the page's own onchange.
+     That is fine going out and useless coming back: nothing could put a
+     restored value INTO the widget, so an autosaved session showed default
+     dials over correct data -- a lie on screen, which is worse than no
+     autosave. A component that declares `field:"sElev"` is registered here,
+     and FEK.setField puts a value back through the widget's own set(). Purely
+     additive: a component with no `field` behaves exactly as before. */
+  var REG = {};
+  function reg(o, h){ if(o && o.field) REG[o.field] = h; return h; }
+  function setField(id, v){
+    var h = REG[id];
+    if(!h) return false;
+    try { h.set(v); } catch(e){ return false; }
+    return true;
+  }
+  function fields(){ var out=[]; for(var k in REG) if(REG.hasOwnProperty(k)) out.push(k); return out; }
 
   function step(o){
     o=o||{}; var min=(o.min==null?-Infinity:o.min), max=(o.max==null?Infinity:o.max);
@@ -670,8 +727,8 @@ var FEK = (function(){
     wrap.appendChild(lab); wrap.appendChild(box);
     if(o.help) wrap.appendChild(el("p","fek-help",o.help));
     render();
-    return { el:wrap, get:function(){return v;}, set:function(x){set(x,true);},
-             clear:clear, nullable:nullable };
+    return reg(o, { el:wrap, get:function(){return v;}, set:function(x){set(x,true);},
+             clear:clear, nullable:nullable });
   }
 
   /* field: a value typed from an instrument readout. No steppers — see the CSS note. */
@@ -706,8 +763,8 @@ var FEK = (function(){
     wrap.appendChild(lab); wrap.appendChild(box);
     if(o.help) wrap.appendChild(el("p","fek-help",o.help));
     set(v,true);
-    return { el:wrap, get:function(){return v;}, set:function(x){set(x,true);},
-             clear:function(){ set(null,true); }, nullable:true };
+    return reg(o, { el:wrap, get:function(){return v;}, set:function(x){set(x,true);},
+             clear:function(){ set(null,true); }, nullable:true });
   }
 
   function dial(o){
@@ -728,8 +785,8 @@ var FEK = (function(){
     paint();
     wrap.appendChild(lab); wrap.appendChild(box);
     if(o.help) wrap.appendChild(el("p","fek-help",o.help));
-    return { el:wrap, get:function(){return cur;},
-             set:function(x){ cur=x; paint(); } };
+    return reg(o, { el:wrap, get:function(){return cur;},
+             set:function(x){ cur=x; paint(); } });
   }
 
   function chips(o){
@@ -750,8 +807,8 @@ var FEK = (function(){
     paint();
     wrap.appendChild(lab); wrap.appendChild(box);
     if(o.help) wrap.appendChild(el("p","fek-help",o.help));
-    return { el:wrap, get:function(){return Object.keys(sel);},
-             set:function(a){ sel={}; (a||[]).forEach(function(v){sel[v]=1;}); paint(); } };
+    return reg(o, { el:wrap, get:function(){return Object.keys(sel);},
+             set:function(a){ sel={}; (a||[]).forEach(function(v){sel[v]=1;}); paint(); } });
   }
 
   function slider(o){
@@ -773,9 +830,9 @@ var FEK = (function(){
     box.appendChild(r); box.appendChild(bub);
     wrap.appendChild(lab); wrap.appendChild(box);
     if(o.help) wrap.appendChild(el("p","fek-help",o.help));
-    return { el:wrap, get:function(){return v;},
+    return reg(o, { el:wrap, get:function(){return v;},
              set:function(x){ v=(nullable&&x==null)?null:x; if(x!=null) r.value=x; paint(); },
-             clear:function(){ if(nullable){ v=null; paint(); } }, nullable:nullable };
+             clear:function(){ if(nullable){ v=null; paint(); } }, nullable:nullable });
   }
 
   function picker(o){
@@ -804,7 +861,7 @@ var FEK = (function(){
     wrap.appendChild(lab); wrap.appendChild(box);
     if(o.help) wrap.appendChild(el("p","fek-help",o.help));
     paint();
-    return { el:wrap, get:function(){return cur;}, set:function(x){ cur=x; paint(); } };
+    return reg(o, { el:wrap, get:function(){return cur;}, set:function(x){ cur=x; paint(); } });
   }
 
   function tiles(list){
@@ -826,7 +883,7 @@ var FEK = (function(){
      design -- still has to escape the data inside it. A private copy of an
      escaper in one page was how the last one got lost when the kit was
      re-emitted over it. */
-  return { version:"1.2.0", esc:escv, step:step, field:field, dial:dial, chips:chips, slider:slider,
+  return { version:"1.3.0", esc:escv, setField:setField, fields:fields, step:step, field:field, dial:dial, chips:chips, slider:slider,
            picker:picker, tiles:tiles, banner:banner, mount:mount, buzz:buzz };
 })();
 
@@ -838,7 +895,7 @@ var FEK = (function(){
   var val=function(i){var e=$(i);return e?String(e.value||"").trim():"";};
   var nv=function(i){var e=$(i);var v=parseFloat(e&&e.value);return isFinite(v)?v:NaN;};
 
-  /* ---------------- Field Entry Kit v1.2.0 ----------------
+  /* ---------------- Field Entry Kit ----------------
      Same rule as Cell Bench: a stepper for a number you SET, a field for a
      number you READ. A dilution exponent, a plated volume, a transfer volume
      are settings — steppers. A colony count, an OD600, a zone diameter, a
@@ -853,45 +910,45 @@ var FEK = (function(){
     e.dispatchEvent(new Event("change",{bubbles:true}));
   }
 
-  var PLN=FEK.step({ label:"dilution", unit:"10⁻ⁿ", min:0, max:12, step:1, dec:0,
+  var PLN=FEK.step({ field:"plN", label:"dilution", unit:"10⁻ⁿ", min:0, max:12, step:1, dec:0,
     nullable:true, start:5,
     onchange:function(v){ push("plN",v); },
     help:"The exponent, not the factor: 5 means the 10⁻⁵ tube." });
-  var PLV=FEK.step({ label:"volume plated", unit:"mL", value:0.1, min:0.001, max:10, step:0.05, dec:3,
+  var PLV=FEK.step({ field:"plV", label:"volume plated", unit:"mL", value:0.1, min:0.001, max:10, step:0.05, dec:3,
     onchange:function(v){ push("plV",v); },
     help:"0.1 mL spread, 1.0 mL pour. The volume is in the denominator, so getting it wrong scales every count." });
-  var PLC=FEK.field({ label:"colonies", dec:0, step:1, min:0,
+  var PLC=FEK.field({ field:"plC", label:"colonies", dec:0, step:1, min:0,
     onchange:function(v){ push("plC",v); },
     help:"What you counted, including a plate you are about to discard — which plates you threw out, and why, is part of the result." });
   FEK.mount("plEntry",[PLN,PLV,PLC]);
 
-  var DEST=FEK.field({ label:"estimated titre", unit:"CFU/mL", dec:0, step:1000, min:0,
+  var DEST=FEK.field({ field:"dEst", label:"estimated titre", unit:"CFU/mL", dec:0, step:1000, min:0,
     onchange:function(v){ push("dEst",v); },
     help:"A guess is fine — that is the point of planning the series before you pour." });
-  var DVOL=FEK.step({ label:"volume plated", unit:"mL", value:0.1, min:0.001, max:10, step:0.05, dec:3,
+  var DVOL=FEK.step({ field:"dVol", label:"volume plated", unit:"mL", value:0.1, min:0.001, max:10, step:0.05, dec:3,
     onchange:function(v){ push("dVol",v); } });
-  var DTR=FEK.step({ label:"transfer volume", unit:"mL", value:1, min:0.01, max:100, step:0.5, dec:2,
+  var DTR=FEK.step({ field:"dTr", label:"transfer volume", unit:"mL", value:1, min:0.01, max:100, step:0.5, dec:2,
     onchange:function(v){ push("dTr",v); } });
-  var DBL=FEK.step({ label:"diluent volume", unit:"mL", value:9, min:0.01, max:1000, step:0.5, dec:2,
+  var DBL=FEK.step({ field:"dBl", label:"diluent volume", unit:"mL", value:9, min:0.01, max:1000, step:0.5, dec:2,
     onchange:function(v){ push("dBl",v); },
     help:"1 into 9 is a ten-fold step. 1 into 99 is a hundred-fold — fewer tubes, and fewer chances to pipette wrong." });
   FEK.mount("dilEntry",[DEST,DVOL,DTR,DBL]);
 
-  var GRT=FEK.field({ label:"time", unit:"h", dec:2, step:0.1, min:0,
+  var GRT=FEK.field({ field:"grT", label:"time", unit:"h", dec:2, step:0.1, min:0,
     onchange:function(v){ push("grT",v); } });
-  var GRO=FEK.field({ label:"OD₆₀₀", unit:"AU", dec:3, step:0.001, min:0, max:5,
+  var GRO=FEK.field({ field:"grO", label:"OD₆₀₀", unit:"AU", dec:3, step:0.001, min:0, max:5,
     onchange:function(v){ push("grO",v); },
     help:"As the spectrophotometer reads it. Above about 0.8 the relationship with cell number stops being linear — the Method tab has the detail." });
   FEK.mount("grEntry",[GRT,GRO]);
 
-  var ZMM=FEK.field({ label:"zone diameter", unit:"mm", dec:1, step:0.5, min:0,
+  var ZMM=FEK.field({ field:"zMm", label:"zone diameter", unit:"mm", dec:1, step:0.5, min:0,
     onchange:function(v){ push("zMm",v); },
     help:"Including the disc, measured across the whole zone of inhibition." });
   FEK.mount("zEntry",[ZMM]);
 
-  var ZS=FEK.field({ label:"susceptible if ≥", unit:"mm", dec:1, step:0.5, min:0,
+  var ZS=FEK.field({ field:"zS", label:"susceptible if ≥", unit:"mm", dec:1, step:0.5, min:0,
     onchange:function(v){ push("zS",v); } });
-  var ZR=FEK.field({ label:"resistant if ≤", unit:"mm", dec:1, step:0.5, min:0,
+  var ZR=FEK.field({ field:"zR", label:"resistant if ≤", unit:"mm", dec:1, step:0.5, min:0,
     onchange:function(v){ push("zR",v); },
     help:"Copied from the table in front of you, not remembered. These are typed fields for the same reason the page ships no breakpoints of its own." });
   FEK.mount("bpEntry",[ZS,ZR]);
