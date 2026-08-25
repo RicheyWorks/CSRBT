@@ -97,6 +97,12 @@ An `occurrenceStatus = absent` row with no declared scope is not a weaker record
 and the right thing for a reader to do with it is throw it away. A third state stays distinct too: a taxon
 marked neither found nor absent reaches **no table at all**, because "I did not decide" is not a finding.
 
+The sheets reach it. Relevé, Stand Sheet and Collection Sheet each mint their own `eventID`, and each has
+a **parent eventID** field: paste the identifier Survey Design copies for you, and those records join that
+deposit instead of floating beside it. The page refuses a list where one identifier belongs, refuses an
+event as its own parent, and never invents a parent that was left blank — a `parentEventID` pointing at an
+event nobody has is worse than none, because the reader knows a parent existed and cannot find it.
+
 It also obeys the rule most implementations miss — **nothing is inherited**. TDWG is explicit that a child
 event must not be assumed to take its parent's properties, so the scope, the effort and the dates are
 written at every level where they apply. The file is bigger. It is also readable by something that did not

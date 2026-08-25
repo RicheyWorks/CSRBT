@@ -463,6 +463,9 @@
 
     <div class="card">
       <h3 style="margin-top:0">The hierarchy</h3>
+      <p class="hint" style="margin:0 0 6px"><b>copy ID</b> puts that event's identifier on your
+        clipboard. Paste it into the <em>parent eventID</em> field on the Relev&eacute;, Stand Sheet or
+        Collection Sheet and that sheet's records join this survey.</p>
       <div class="tree" id="tree"></div>
       <div id="treeStat" class="stat"></div>
       <div id="inheritBox"></div>
@@ -1257,10 +1260,20 @@ var KEEP = (function(){
         + '<span class="ty">'+esc(e.type)+'</span>'
         + '<span class="id">'+esc(e.id)+'</span>'
         + '<span class="nm">'+esc(e.name)+(e.date?' · '+esc(e.date):'')+'</span>'
+        + '<button type="button" data-use="'+esc(e.id)+'">copy ID</button>'
         + '<button type="button" data-del="'+esc(e.id)+'">remove</button>'
         + '</div>';
     });
     t.innerHTML=h;
+    /* The ergonomic half of the join: nobody hand-transcribes an eventID
+       correctly twice, and a mistyped parentEventID is a dangling reference
+       that looks like data. */
+    Array.prototype.forEach.call(t.querySelectorAll("[data-use]"), function(b){
+      b.addEventListener("click", function(){
+        var id=b.getAttribute("data-use");
+        copyText(id, "Copied " + id + " — paste it into a field sheet's parent eventID");
+      });
+    });
     Array.prototype.forEach.call(t.querySelectorAll("[data-del]"), function(b){
       b.addEventListener("click", function(){
         var id=b.getAttribute("data-del");

@@ -349,7 +349,7 @@
      3:1 floor. Decorative card borders are not controls and stay quiet. */
   input:not([type=checkbox]):not([type=radio]):not([type=range]):not([type=color]),
   select, textarea { border-color: #8E8160; }
-  /* ============ Darwin Core export v1.2.0 ============ */
+  /* ============ Darwin Core export v1.3.0 ============ */
   .dwc-box { background:var(--surface-2, #F3EEE0); border:1px solid var(--border, #E3DCC9);
     border-radius:14px; padding:16px; margin:14px 0; }
   .dwc-box .dwc-h { font-family:var(--head, Georgia, serif); font-weight:600; font-size:16.5px;
@@ -544,6 +544,11 @@
         <textarea id="sNotes" placeholder="Age structure, evident history, management, anything a returning crew needs."></textarea></label>
     </div>
 
+      <div class="card">
+        <h3 style="margin-top:0">Part of a wider survey?</h3>
+        <label class="f">parent eventID<input type="text" id="sParentEv" placeholder="SGH2026:plot:03 — from the Survey Design page" autocomplete="off"></label>
+        <div id="parentEvBox"></div>
+      </div>
     <h2 style="margin-top:22px">Take it home</h2>
     <div class="card">
       <div id="dwcCoords"></div>
@@ -1491,7 +1496,7 @@ var KEEP = (function(){
            formSnapshot:formSnapshot, formRestore:formRestore };
 })();
 
-/* ---- Darwin Core v1.2.0 : Simple DwC, one flat table ---- */
+/* ---- Darwin Core v1.3.0 : Simple DwC, one flat table ---- */
 var DWC = (function(){
   function esc(s){ return String(s==null?"":s).replace(/[&<>"']/g,function(c){
     return c==="&"?"&amp;":c==="<"?"&lt;":c===">"?"&gt;":c==='"'?"&quot;":"&#39;"; }); }
@@ -1563,10 +1568,17 @@ var DWC = (function(){
   function extentCircle(radiusM){ return radiusM > 0 ? radiusM : 0; }
 
   /* Simple Darwin Core. Order follows GBIF's own tables: the terms it calls
-     required first, then strongly recommended, then the voucher pointer. */
+     required first, then strongly recommended, then the voucher pointer.
+
+     parentEventID (v1.3.0) is what lets a sheet's records join a survey built
+     on the Survey Design page. Without it the kit had an Event Core deposit
+     with no road to it: three sheets each minting their own eventID and no way
+     to say which survey that event belonged to. It stays empty unless the user
+     supplies a parent, because a dangling parentEventID -- a reader knowing a
+     parent existed and being unable to find it -- is worse than none. */
   var TERMS = ["occurrenceID","basisOfRecord","scientificName","eventDate","recordedBy",
     "decimalLatitude","decimalLongitude","geodeticDatum","coordinateUncertaintyInMeters",
-    "locality","locationID","eventID","habitat","taxonRank","kingdom","vernacularName",
+    "locality","locationID","eventID","parentEventID","habitat","taxonRank","kingdom","vernacularName",
     "organismQuantity","organismQuantityType","occurrenceStatus","samplingProtocol",
     "sampleSizeValue","sampleSizeUnit","verbatimElevation","identifiedBy",
     "institutionCode","collectionCode","catalogNumber","associatedTaxa","associatedSequences",
@@ -1647,7 +1659,7 @@ var DWC = (function(){
     };
   }
 
-  return { version:"1.2.0", uuid:uuid, idsAreWeak:idsAreWeak, csv:csv, cell:cell,
+  return { version:"1.3.0", uuid:uuid, idsAreWeak:idsAreWeak, csv:csv, cell:cell,
            uncertainty:uncertainty, extentSquare:extentSquare, extentCircle:extentCircle,
            TERMS:TERMS, table:table, coordControls:coordControls, esc:esc, places:places,
            hasCoord:hasCoord };
@@ -2548,7 +2560,7 @@ var DWC = (function(){
     var u=dwcRefresh();
     var plot=val("sPlot")||"", date=val("sDate")||"", A=plotArea();
     var lat=val("sLat"), lon=val("sLon");
-    var eventID = plot ? ("stand:" + plot + (date ? ":" + date : "")) : "";
+    var eventID = eventIdOf();
     var proto=dwcProtocol(), hab=dwcHabitat(), obs=val("sObs")||"";
     var ds=Object.keys(distSel);
     return stems.map(function(t){
@@ -2570,7 +2582,7 @@ var DWC = (function(){
         geodeticDatum: (lat || lon) ? DWCC.datum() : "",
         coordinateUncertaintyInMeters: (u==null ? "" : u),
         locality: val("sLoc") || "",
-        locationID: plot, eventID: eventID,
+        locationID: plot, eventID: eventID, parentEventID: parentEv(),
         habitat: hab,
         taxonRank: (t.sci && t.sci.split(" ").length > 1) ? "species" : "",
         kingdom: "Plantae",
@@ -2587,6 +2599,61 @@ var DWC = (function(){
       };
     });
   }
+
+  /* The sheet's own eventID, in one place: the row builder needs it and so
+     does the parent check, and two copies of an identifier rule is how they
+     drift apart.
+
+     Whitespace is squeezed out. A site called "Bear Cr." was minting
+     "foray:Bear Cr.:2026-06-14" -- legal Darwin Core, and an identifier with a
+     space in it breaks naive splitting, will not survive a URL, and is the
+     kind of thing that silently halves a column three tools downstream. The
+     name the user typed is preserved in locality and verbatim fields; the
+     identifier is made safe. */
+  function eventIdOf(){
+    var base = (val("sPlot") || "").trim().replace(/\s+/g, "-"), d = (val("sDate") || "").trim();
+    return base ? ("stand" + ":" + base + (d ? ":" + d : "")) : "";
+  }
+
+  /* ---------- joining a wider survey ----------
+     The sheet keeps minting its own eventID: this IS a sampling event and it
+     deserves an identifier. What a parent adds is the edge to the survey it
+     belonged to, which is exactly what parentEventID is for. Supplying one
+     does not rename anything; it says which design this sits inside. */
+  function parentEv(){ return (val("sParentEv") || "").trim(); }
+  function parentEvOut(){
+    var box = $("parentEvBox");
+    if(!box) return;
+    var p = parentEv(), own = eventIdOf();
+    if(!p){
+      box.innerHTML = '<p class="fine">Leave this blank for a standalone sheet. If this stand sheet is one '
+        + 'unit inside a designed survey, paste the <b>eventID of the plot or visit it belongs to</b> — '
+        + 'the <a href="survey-design.html">Survey Design</a> page copies one for you — and the Darwin '
+        + 'Core export will carry <code>parentEventID</code> so these records join that deposit instead '
+        + 'of floating beside it.</p>';
+      return;
+    }
+    if(/[\s,]/.test(p)){
+      box.innerHTML = '<div class="verdict act"><b>That does not look like a single eventID.</b> It has a '
+        + 'space or a comma in it. One parent, one identifier — a list here becomes a dangling reference '
+        + 'that no reader can resolve.</div>';
+      return;
+    }
+    if(own && p === own){
+      box.innerHTML = '<div class="verdict act"><b>An event cannot be its own parent.</b> This sheet '
+        + 'already mints <code>' + esc(own) + '</code> as its own eventID. The parent is the event '
+        + '<em>above</em> it — the plot or the visit this sheet is one record of.</div>';
+      return;
+    }
+    box.innerHTML = '<div class="verdict"><b>These records will join ' + esc(p) + '.</b> The export '
+      + 'writes <code>eventID = ' + esc(own || "(set the identifier above)") + '</code> and '
+      + '<code>parentEventID = ' + esc(p) + '</code>. Deposit this alongside that survey\'s Event Core '
+      + 'and Humboldt tables — on its own, a parentEventID pointing at an event nobody has is worse than '
+      + 'none, because the reader knows a parent existed and cannot find it.</div>';
+  }
+  (function(){ var e=$("sParentEv"); if(e) e.addEventListener("input", parentEvOut); })();
+  parentEvOut();
+
   $("dwcCopy").addEventListener("click",function(){
     if(!stems.length){ toast("No stems tallied"); return; }
     var rows=dwcRows();

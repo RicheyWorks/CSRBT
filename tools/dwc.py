@@ -24,7 +24,7 @@ Two decisions worth stating, both from GBIF's own guidance:
   location, so the plot's own extent goes in it before any instrument error does.
 """
 
-VERSION = "1.2.0"
+VERSION = "1.3.0"
 
 CSS = """
   /* ============ Darwin Core export v%s ============ */
@@ -117,10 +117,17 @@ var DWC = (function(){
   function extentCircle(radiusM){ return radiusM > 0 ? radiusM : 0; }
 
   /* Simple Darwin Core. Order follows GBIF's own tables: the terms it calls
-     required first, then strongly recommended, then the voucher pointer. */
+     required first, then strongly recommended, then the voucher pointer.
+
+     parentEventID (v1.3.0) is what lets a sheet's records join a survey built
+     on the Survey Design page. Without it the kit had an Event Core deposit
+     with no road to it: three sheets each minting their own eventID and no way
+     to say which survey that event belonged to. It stays empty unless the user
+     supplies a parent, because a dangling parentEventID -- a reader knowing a
+     parent existed and being unable to find it -- is worse than none. */
   var TERMS = ["occurrenceID","basisOfRecord","scientificName","eventDate","recordedBy",
     "decimalLatitude","decimalLongitude","geodeticDatum","coordinateUncertaintyInMeters",
-    "locality","locationID","eventID","habitat","taxonRank","kingdom","vernacularName",
+    "locality","locationID","eventID","parentEventID","habitat","taxonRank","kingdom","vernacularName",
     "organismQuantity","organismQuantityType","occurrenceStatus","samplingProtocol",
     "sampleSizeValue","sampleSizeUnit","verbatimElevation","identifiedBy",
     "institutionCode","collectionCode","catalogNumber","associatedTaxa","associatedSequences",

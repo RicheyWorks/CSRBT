@@ -111,6 +111,18 @@ def rows_from_click(pg, btn="#dwcCopy"):
     return pg.evaluate("() => window.__cap")
 
 
+def ready(pg, name):
+    """Wait for the page's own engine, not for a guess at how long it takes.
+
+    A fixed sleep passed alone and failed under four-way parallel load with
+    "DWC is not defined" -- a flake, which is the worst kind of check: it fails
+    on correct code often enough to teach everyone to re-run it.
+    """
+    pg.goto(url(name), wait_until="domcontentloaded")
+    pg.wait_for_function("() => typeof DWC !== 'undefined' && !!DWC.TERMS", timeout=20000)
+    pg.wait_for_timeout(150)
+
+
 VERSION = dwc_version()
 TERMS = dwc_terms()
 ck("tools/dwc.py declares a version", bool(VERSION), VERSION)
@@ -130,8 +142,7 @@ with sync_playwright() as p:
     # ================= every consumer carries the same emitter =================
     for name in ["releve.html", "stand-sheet.html", "collection-sheet.html"]:
         errs[:] = []
-        pg.goto(url(name), wait_until="domcontentloaded")
-        pg.wait_for_timeout(450)
+        ready(pg, name)
         ck("%s loads without error" % name, not errs, errs[:2])
         ck("%s carries DWC" % name, pg.evaluate("()=>typeof DWC!=='undefined'"), "")
         ck("%s DWC version matches dwc.py" % name,
@@ -155,8 +166,7 @@ with sync_playwright() as p:
 
     # ================= uncertainty arithmetic, on relevé =================
     errs[:] = []
-    pg.goto(url("releve.html"), wait_until="domcontentloaded")
-    pg.wait_for_timeout(450)
+    ready(pg, "releve.html")
     pg.click('.tab[data-pane="p-plot"]')
     pg.wait_for_timeout(250)
 
@@ -229,8 +239,7 @@ with sync_playwright() as p:
     ck("unparseable latitude is not a location", "empty" in out(), out()[:60])
 
     # ================= relevé rows =================
-    pg.goto(url("releve.html"), wait_until="domcontentloaded")
-    pg.wait_for_timeout(450)
+    ready(pg, "releve.html")
     pg.click('.tab[data-pane="p-plot"]')
     pg.wait_for_timeout(200)
     for k, v in [("sPlot", "TEST-01"), ("sObs", 'O"Brien, R'), ("sDate", "2026-08-20"),
@@ -433,6 +442,89 @@ with sync_playwright() as p:
            a["identifiedBy"] == "" and c["identifiedBy"] == "",
            (a["identifiedBy"], c["identifiedBy"]))
     ck("collection sheet raised no errors", not errs, errs[:2])
+
+    # ================= joining a wider survey =================
+    # The kit gained an Event Core deposit before it gained any way for the
+    # three sheets to reach it: each minted its own eventID and had no term to
+    # say which survey that event sat inside. parentEventID is that edge, and
+    # these checks are that it is real in the data rather than only in prose.
+    for name, fields, add_one in [
+        ("releve.html", [("sPlot", "P1"), ("sDate", "2026-06-14")], "releve"),
+        ("stand-sheet.html", [("sPlot", "TAH-04"), ("sDate", "2026-06-14")], "stand"),
+        ("collection-sheet.html", [("sSite", "Bear Cr"), ("sDate", "2026-06-14")], "foray"),
+    ]:
+        errs[:] = []
+        ready(pg, name)
+        ck("%s carries parentEventID in its term list" % name,
+           "parentEventID" in pg.evaluate("()=>DWC.TERMS"), "")
+        ck("%s parentEventID sits next to eventID" % name,
+           pg.evaluate("()=>DWC.TERMS.indexOf('parentEventID') - DWC.TERMS.indexOf('eventID')") == 1,
+           pg.evaluate("()=>DWC.TERMS.slice(DWC.TERMS.indexOf('eventID'),DWC.TERMS.indexOf('eventID')+3)"))
+        ck("%s offers a parent field" % name,
+           pg.eval_on_selector_all("#sParentEv", "e=>e.length") == 1, "")
+
+        for k, v in fields:
+            push(pg, k, v)
+        pg.wait_for_timeout(250)
+        ck("%s: a blank parent is explained, not demanded" % name,
+           "standalone sheet" in pg.inner_text("#parentEvBox"), pg.inner_text("#parentEvBox")[:70])
+
+        push(pg, "sParentEv", "a b, c")
+        ck("%s: a list where one ID belongs is refused" % name,
+           "does not look like a single eventID" in pg.inner_text("#parentEvBox"),
+           pg.inner_text("#parentEvBox")[:80])
+        ck("%s: the refusal names the consequence" % name,
+           "dangling reference" in pg.inner_text("#parentEvBox"),
+           pg.inner_text("#parentEvBox")[:160])
+
+        own = pg.evaluate("()=>document.getElementById('sParentEv') ? null : null")
+        # a sheet must refuse to be its own parent
+        own_id = {"releve": "releve:P1:2026-06-14", "stand": "stand:TAH-04:2026-06-14",
+                  "foray": "foray:Bear-Cr:2026-06-14"}[add_one]
+        push(pg, "sParentEv", own_id)
+        ck("%s: the minted eventID has no whitespace in it" % name,
+           " " not in own_id, own_id)
+        ck("%s: an event cannot be its own parent" % name,
+           "cannot be its own parent" in pg.inner_text("#parentEvBox"),
+           pg.inner_text("#parentEvBox")[:90])
+
+        push(pg, "sParentEv", "SGH2026:plot:03")
+        ck("%s: a good parent is confirmed with both IDs" % name,
+           own_id in pg.inner_text("#parentEvBox")
+           and "SGH2026:plot:03" in pg.inner_text("#parentEvBox"),
+           pg.inner_text("#parentEvBox")[:150])
+        ck("%s: and warns the parent must travel with it" % name,
+           "worse than none" in pg.inner_text("#parentEvBox"),
+           pg.inner_text("#parentEvBox")[-160:])
+        ck("%s loads clean through the join" % name, not errs, errs[:2])
+
+    # and it must reach the exported rows, not just the panel
+    ready(pg, "releve.html")
+    for k, v in [("sPlot", "P1"), ("sDate", "2026-06-14"), ("sParentEv", "SGH2026:plot:03")]:
+        push(pg, k, v)
+    pg.click('.tab[data-pane="p-rec"]')
+    pg.wait_for_timeout(250)
+    pg.fill("#rFree", "Carex aquatilis")
+    pg.evaluate("""()=>{const d=document.querySelector('#rCov .fek-dial')||document.querySelector('#rCov');
+      [...d.querySelectorAll('button')][2].click();}""")
+    pg.wait_for_timeout(180)
+    pg.click("#rAdd")
+    pg.wait_for_timeout(300)
+    rows = rows_from_click(pg)
+    ck("the parent reaches the exported row", bool(rows) and rows[0]["parentEventID"] == "SGH2026:plot:03",
+       None if not rows else rows[0].get("parentEventID"))
+    ck("the sheet keeps its own eventID as well",
+       bool(rows) and rows[0]["eventID"] == "releve:P1:2026-06-14",
+       None if not rows else rows[0].get("eventID"))
+    ck("parentEventID is a real column in the table",
+       bool(rows) and "parentEventID" in pg.evaluate("(rs)=>DWC.table(rs)", rows).split("\n")[0], "")
+
+    # no parent supplied means no parent written -- never a guess
+    push(pg, "sParentEv", "")
+    rows = rows_from_click(pg)
+    ck("no parent supplied writes an empty parentEventID, not an invented one",
+       bool(rows) and rows[0]["parentEventID"] == "",
+       None if not rows else repr(rows[0].get("parentEventID")))
 
     # ================= the zero that must never appear =================
     for name in ["releve.html", "stand-sheet.html", "collection-sheet.html"]:
