@@ -80,6 +80,28 @@ Four instruments refuse outright: coefficients of conservatism in the Relev&eacu
 fungal pair, clinical breakpoints in Micro Bench, and nutrient-free verification in Soil Bench.
 A kit that will not tell you whether a mushroom is safe to eat is more useful than one that will.
 
+### Absent, or not looked for
+
+A flat occurrence table contains what you found. It has no way of saying *I looked for this and it was not
+there* — which, for anything to do with change over time, is the more valuable half of the record. A
+species list from 2016 and one from 2026 say nothing about a decline unless both state what was searched
+for.
+
+**[Survey Design](https://claude.ai/code/artifact/448cd165-fc44-4848-8ca1-6dae082780cf)** builds a real
+sampling hierarchy in Darwin Core Event Core and declares the search in the
+**Humboldt Extension for Ecological Inventories**. Then it applies one gate:
+
+> Declare `eco:targetTaxonomicScope` and the page writes your absences. **Leave it blank and it refuses.**
+
+An `occurrenceStatus = absent` row with no declared scope is not a weaker record; it is an unreadable one,
+and the right thing for a reader to do with it is throw it away. A third state stays distinct too: a taxon
+marked neither found nor absent reaches **no table at all**, because "I did not decide" is not a finding.
+
+It also obeys the rule most implementations miss — **nothing is inherited**. TDWG is explicit that a child
+event must not be assumed to take its parent's properties, so the scope, the effort and the dates are
+written at every level where they apply. The file is bigger. It is also readable by something that did not
+build it.
+
 ### The instrument that says what it cannot measure
 
 The **[Deployment Log](https://claude.ai/code/artifact/58e9b6d9-5a9b-496a-8b71-4644db78f750)** plans a recorder,
@@ -191,8 +213,8 @@ Nothing above is a claim about care. The kit measures itself, and the measuremen
 command:
 
 ```
-python3 tools/verify/run_all.py     →  39 of 39 jobs green
-                                       1871 of 1871 checks passing
+python3 tools/verify/run_all.py     →  40 of 40 jobs green
+                                       1880 of 1880 checks passing
 ```
 
 Eight kit-wide audits measure what the browser actually renders, not what the source intends:

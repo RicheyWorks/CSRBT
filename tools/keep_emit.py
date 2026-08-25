@@ -16,7 +16,8 @@ _spec = importlib.util.spec_from_file_location("keep", os.path.join(ROOT, "tools
 keep = importlib.util.module_from_spec(_spec); _spec.loader.exec_module(keep)
 
 CONSUMERS = ["ordination.html", "releve.html", "stand-sheet.html", "collection-sheet.html",
-             "pheno-tracker.html", "deployment-log.html"]
+             "pheno-tracker.html", "deployment-log.html",
+             "survey-design.html"]
 
 JS_RE = re.compile(r"/\* ---- Keep v[\d.]+ :.*?\n\}\)\(\);", re.S)
 
