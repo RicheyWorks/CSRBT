@@ -80,6 +80,32 @@ Four instruments refuse outright: coefficients of conservatism in the Relev&eacu
 fungal pair, clinical breakpoints in Micro Bench, and nutrient-free verification in Soil Bench.
 A kit that will not tell you whether a mushroom is safe to eat is more useful than one that will.
 
+### The same rule, applied to a coordinate
+
+Three sheets now export **[Darwin Core](https://claude.ai/code/artifact/6a9c95fd-c144-470a-937a-9af08fda1e2d)** &mdash; the format GBIF, iNaturalist and every
+biodiversity data paper actually reads. Which makes `coordinateUncertaintyInMeters` the sharpest test
+the gate has faced, because **the tempting wrong answer is not a guess &mdash; it is a zero**, and zero
+reads as a claim of perfect precision.
+
+So the kit adds up only what is known: the survey extent, your GPS accuracy, the decimal places you
+actually typed, and 5,359&nbsp;m if the datum is unknown. **No component, no number** &mdash; the field
+goes out empty, and the page says why in words.
+
+The first version got this wrong in an instructive way. It treated a *blank* latitude as a coordinate
+typed to zero decimal places, and reported **55,667&nbsp;m of uncertainty for a plot nobody had located
+yet**. The arithmetic was right &mdash; half a degree of latitude really is about 55&nbsp;km &mdash; it
+just answered a question no one had asked. That is the class of bug this kit is built to catch:
+internally consistent, plausibly derived, and meaningless. Five checks in `verify_dwc.py` now hold
+the line, and the suite recomputes the whole point-radius method independently in Python, because a
+test that transcribes the code it tests agrees with every bug in it.
+
+The sheets differ where the science differs, not where it is convenient. The Relev&eacute; exports cover as
+`percentageCoverage`, never an individual count. The [Stand Sheet](https://claude.ai/code/artifact/9f86e356-a03f-49ea-b3d6-d246710377a0) exports **one row per stem**
+and puts the plot area in `sampleSizeValue`, because stems-per-hectare is a derived rate and does not
+belong in an occurrence record. The [Collection Sheet](https://claude.ai/code/artifact/d650aa59-5410-4935-a1a9-c50f9d00a116) exports a vouchered find as
+`PreservedSpecimen` and an unvouchered one as `HumanObservation` &mdash; it will not call a photograph a
+specimen, and it will not credit you with an identification you did not make.
+
 <table>
 <tr>
 <td width="50%"><a href="https://claude.ai/code/artifact/47a6369e-53b6-4a5e-acb9-b707af3f699c"><img src="docs/media/cp-characters.jpg" alt="The carnivorous-plant reference card: five trap mechanisms drawn as inline diagrams, with an interactive genus key."></a></td>
@@ -122,8 +148,8 @@ Nothing above is a claim about care. The kit measures itself, and the measuremen
 command:
 
 ```
-python3 tools/verify/run_all.py     →  34 of 34 jobs green
-                                       1825 of 1825 checks passing
+python3 tools/verify/run_all.py     →  35 of 35 jobs green
+                                       1839 of 1839 checks passing
 ```
 
 Eight kit-wide audits measure what the browser actually renders, not what the source intends:

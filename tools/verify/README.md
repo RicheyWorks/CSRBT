@@ -64,3 +64,15 @@ the kit grows, and the last one catches a real bug the frozen count never could.
 `verify_cs_science.py` was called `verify_fun.py` and pointed at
 `collection-sheet.html` the whole time, which is why nobody noticed when it stopped
 running altogether. Name a suite after the page it tests.
+
+**Capture the export at its public seam.** `verify_dwc.py` needs the rows a page
+hands to `DWC.table`, and those are built inside the page's IIFE. Rather than
+exporting a test hook from production code, the suite wraps `DWC.table` — which
+is already public — and then clicks the real button. It gets the structured rows
+*and* proves the button path works, and the page ships with no scaffolding in it.
+The same trick fits any page whose export goes through a named module function.
+
+**Recompute, do not transcribe.** `verify_dwc.py` reimplements the point-radius
+uncertainty in Python from the method, not from the JavaScript. A test that
+transcribes the implementation it is testing agrees with every bug in it. The
+55-kilometre empty-coordinate bug would have passed a transcribed test.

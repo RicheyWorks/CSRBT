@@ -26,7 +26,11 @@ PROBE = '<x-probe>p</x-probe>" data-x-probe="1'
 FEK = io.open(os.path.join(_kit.TOOLS_DIR, "fek.py"), encoding="utf-8").read()
 
 # ---- 1. the component escapes, and says which side of the line it is on ----
-ck('VERSION = "1.2.0"' in FEK, "fek.py is at 1.2.0")
+# Read the version rather than freeze it. Four suites in this kit have already
+# been ignored-then-dead because they asserted a number that a legitimate bump
+# invalidated; a version bump is not a regression.
+FEKV = re.search(r'^VERSION\s*=\s*"([\d.]+)"', FEK, re.M).group(1)
+ck(bool(FEKV), "fek.py declares a version (%s)" % FEKV)
 ck("function escv(" in FEK, "fek.py carries its own escaper")
 # The escape hatch this suite first asserted (labelHtml) was removed once it
 # turned out nothing needed it: the one caller was a COMPONENT label, which is
@@ -49,14 +53,27 @@ ck('{"&":"&amp;"' not in FEK.split("function escv")[1][:300],
 # ---- 2. every consumer actually carries 1.2.0 -----------------------------
 pages = sorted(glob.glob(_kit.DOCS_DIR + "*.html"))
 consumers = [p for p in pages if "Field Entry Kit v" in io.open(p, encoding="utf-8").read()]
-ck(len(consumers) == 14, "14 FEK consumers (%d)" % len(consumers))
+# The invariant, not the count: a page that CALLS a FEK constructor must carry
+# FEK, and a page that carries FEK must call one. That stays true as the kit
+# grows; "exactly 14" broke the day a fifteenth page adopted the kit.
+CALLS = re.compile(r"\bFEK\.(dial|picker|chips|slider|tiles|step|field|banner|mount)\(")
+for path in pages:
+    nm = os.path.basename(path)
+    src = io.open(path, encoding="utf-8").read()
+    carries, calls = path in consumers, bool(CALLS.search(src))
+    if calls or carries:
+        ck(calls == carries, "%s: carries FEK=%s but calls it=%s" % (nm, carries, calls))
+ck(len(consumers) >= 14, "at least the 14 known FEK consumers (%d)" % len(consumers))
 for path in consumers:
     nm = os.path.basename(path)
     src = io.open(path, encoding="utf-8").read()
     vers = sorted(set(re.findall(r"Field Entry Kit v([\d.]+)", src)))
-    runtime = sorted(set(re.findall(r'version:"([\d.]+)"', src)))
-    ck(vers == ["1.2.0"], "%s banner says 1.2.0 (%s)" % (nm, vers))
-    ck(runtime == ["1.2.0"], "%s runtime version agrees with its banner (%s)" % (nm, runtime))
+    # Scope the runtime read to FEK's own return object. Other inlined modules
+    # (the Darwin Core exporter, for one) declare a version:"..." of their own,
+    # and a whole-file grep reported those as FEK disagreeing with itself.
+    runtime = sorted(set(re.findall(r'version:"([\d.]+)",\s*esc:escv', src)))
+    ck(vers == [FEKV], "%s banner says %s (%s)" % (nm, FEKV, vers))
+    ck(runtime == [FEKV], "%s runtime version agrees with its banner (%s)" % (nm, runtime))
     ck("escv(op.label)" in src, "%s carries the escaping component" % nm)
 
 # ---- 3. nobody escapes twice ---------------------------------------------
