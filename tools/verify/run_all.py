@@ -35,6 +35,21 @@ FINDERS = [("audit_claims", "unsourced numeric claims (worklist only)"),
            ("publish_state", "which published artifacts are behind the repo")]
 
 TAIL = re.compile(r"(\d+)\s*/\s*(\d+)\s*$")
+# Some audits end "37/37 pages clear" -- a real score with words after it, which
+# the end-anchored pattern above cannot see, so those checks were never counted
+# and the row fell back to printing its last line instead.
+TAIL_WORDS = re.compile(r"^(\d+)\s*/\s*(\d+)\s+(?:pages?|checks?|items?|files?)\b")
+# The six newest suites report "N passed, M failed" rather than "N/M", so none
+# of their checks were reaching the kit-wide total -- the headline count was
+# short by every check written since the format changed, and said nothing about
+# it. A total that silently omits a suite is worse than no total.
+PASSFAIL = re.compile(r"^(\d+)\s+passed,\s+(\d+)\s+failed\s*$")
+# A job can exit 0 and still have spewed a traceback -- a Playwright teardown
+# race under -j 4 did exactly that. The last line was then an exception name,
+# and run_all printed it in the column where the score goes, on a row marked ok.
+# A row that cannot show a score must not be allowed to show a traceback either.
+NOISE = re.compile(r"^(Traceback \(most recent call last\)|\s+File \"|"
+                   r"[A-Za-z_][\w.]*(?:Error|Exception|Warning)\b)")
 
 
 def run(cmd, cwd):
@@ -45,10 +60,20 @@ def run(cmd, cwd):
 
 def score(out):
     for line in reversed(out.strip().split("\n")):
-        m = TAIL.search(line.strip())
+        t = line.strip()
+        pf = PASSFAIL.match(t)
+        if pf:
+            ok_n, bad_n = int(pf.group(1)), int(pf.group(2))
+            return ok_n, ok_n + bad_n
+        m = TAIL.search(t) or TAIL_WORDS.match(t)
         if m:
             return int(m.group(1)), int(m.group(2))
     return None, None
+
+
+def noisy(out):
+    """Lines that look like an unraised traceback, newest first."""
+    return [l.rstrip() for l in out.strip().split("\n") if NOISE.match(l.rstrip())]
 
 
 def main():
@@ -77,7 +102,7 @@ def main():
     print("root: %s" % ROOT)
     print("-" * 76)
 
-    results, failed = [], []
+    results, failed, noisy_jobs = [], [], []
     with cf.ThreadPoolExecutor(max_workers=max(1, a.jobs)) as ex:
         futs = {ex.submit(run, path, cwd): (kind, name, what)
                 for kind, name, what, path, cwd in jobs}
@@ -101,11 +126,23 @@ def main():
             checks += got; total += tot
             detail = "%d/%d" % (got, tot)
         else:
-            detail = (out.strip().split("\n")[-1][:34] if out.strip() else "")
+            tail = [l for l in out.strip().split("\n") if l.strip() and not NOISE.match(l)]
+            detail = (tail[-1].strip()[:34] if tail else "")
+        noise = noisy(out)
+        if noise and rc == 0:
+            mark = "ok?"                      # green, but it printed a traceback
+            noisy_jobs.append((name, noise))
         print("%-6s %-24s %-6s %-34s %5.1fs" % (mark, name, detail, what, secs))
 
     print("-" * 76)
     print("%d of %d jobs green" % (passed, len(results)))
+    if noisy_jobs:
+        print("")
+        print("%d job(s) exited 0 while printing a traceback -- green is not the whole"
+              % len(noisy_jobs))
+        print("story for these. An exception nobody raised is still an exception.")
+        for name, noise in noisy_jobs:
+            print("  %-22s %s" % (name, noise[-1][:60]))
     if total:
         print("%d of %d checks passing" % (checks, total))
     for name, what in FINDERS:

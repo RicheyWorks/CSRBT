@@ -176,8 +176,12 @@
       <button class="btn btn-ghost" onclick="window.print()" type="button">Print / save PDF</button>
     </div>
     <p class="fine">The CSV is an edge list — <code>food,eater</code> rows — the standard input for network
-      analysis in R (igraph) or Python (networkx). The connectance and chain-length numbers here use the
-      standard definitions; see the <a href="ecology-field-guide.html">field guide</a>.</p>
+      analysis in R (igraph) or Python (networkx). Connectance is <b>L/S&sup2;</b>, the directed convention.
+      Trophic level is the <b>longest-chain</b> definition — a consumer is one above the <em>highest</em>
+      thing it eats. The other standard definition is <b>prey-averaged</b> — one above the <em>mean</em> of
+      its prey — and the two give different numbers for the same web, so a level of 4 here is not
+      comparable to a prey-averaged 4 in a paper. Say which you used. More on reading a web in the
+      <a href="ecology-field-guide.html">field guide</a>.</p>
   </div>
 
 <div class="rail">
@@ -246,23 +250,70 @@
   function byId(id){ return species.find(function(s){return s.id===id;}); }
   function preyOf(id){ return links.filter(function(l){return l.pred===id;}).map(function(l){return l.prey;}); }
 
-  /* trophic levels: producers = 1; consumer = 1 + max(level of its foods); iterate for safety */
+  /* Trophic level, LONGEST-CHAIN definition: producers are 1, a consumer is
+     1 + the maximum level of its prey. There is a second standard definition --
+     prey-averaged, 1 + the MEAN of its prey -- and the two give different
+     numbers for the same web. The page says which one these are; a level of 4
+     here is not comparable to a prey-averaged 4 in a paper. */
   function levels(){
-    var lv={}, loop=false;
+    var lv={};
     species.forEach(function(s){ lv[s.id] = s.kind==="producer" ? 1 : 0; });
-    for(var pass=0; pass<species.length+1; pass++){
+    for(var pass=0; pass<species.length+2; pass++){
       var changed=false;
       species.forEach(function(s){
         if(s.kind==="producer") return;
         var ps=preyOf(s.id).map(function(p){return lv[p]||0;}).filter(function(x){return x>0;});
         if(ps.length){ var v=1+Math.max.apply(null,ps);
-          if(v>species.length+1){ loop=true; v=species.length+1; }
           if(v!==lv[s.id]){ lv[s.id]=v; changed=true; } }
       });
       if(!changed) break;
-      if(pass===species.length){ loop=true; }
     }
-    return {lv:lv, loop:loop};
+    return {lv:lv, loop:hasCycle()};
+  }
+
+  /* Connectance and longest chain each had THREE separate implementations:
+     the tile, the notes export, and the public seam. Three copies of one
+     formula is three chances to disagree, and a canary proved it: changing
+     the seam's denominator from S*S to S*(S-1) left the tile -- the only
+     thing the suite could read -- reporting the old number, so a full green
+     suite reported a broken measure as correct. One definition, three
+     callers, and the canary lands. */
+  function connectance(){ var S=species.length; return S ? links.length/(S*S) : 0; }
+  function longestChain(lv){
+    var m=0; species.forEach(function(s){ if((lv[s.id]||0)>m) m=lv[s.id]; }); return m;
+  }
+
+  /* A real cycle check, not an inference from levels overflowing.
+     The old detector watched for a trophic level growing past the species
+     count -- which only ever happens to a cycle that a producer feeds. An
+     UNFED cycle (A eats B, B eats A, nobody eats a plant) never grows at all,
+     so it went undetected AND was then reported as "no food source yet, a
+     consumer needs at least one arrow coming in" -- which was false, because
+     each of them had one. Depth-first search over prey -> predator, looking
+     for a back edge, finds both kinds. */
+  function hasCycle(){
+    var colour={};                     /* 0 unvisited, 1 on the stack, 2 done */
+    var found=false;
+    function walk(id){
+      if(colour[id]===1){ found=true; return; }
+      if(colour[id]===2) return;
+      colour[id]=1;
+      links.forEach(function(l){ if(l.prey===id) walk(l.pred); });
+      colour[id]=2;
+    }
+    species.forEach(function(s){ if(!colour[s.id]) walk(s.id); });
+    return found;
+  }
+
+  /* Two different faults that used to share one wrong message. */
+  function unfed(){    /* no incoming feeding link at all */
+    return species.filter(function(s){
+      return s.kind!=="producer" && !links.some(function(l){ return l.pred===s.id; }); });
+  }
+  function rootless(lv){  /* eats something, but nothing it eats reaches a producer */
+    return species.filter(function(s){
+      return s.kind!=="producer" && (lv[s.id]||0)===0
+          && links.some(function(l){ return l.pred===s.id; }); });
   }
 
   /* cascade: remove id, then repeatedly remove consumers left with no food */
@@ -391,21 +442,28 @@
     var S=species.length;
     if(!S){ box.innerHTML='<p class="hint" style="margin:0">Add species and arrows — the readout builds itself.</p>'; return; }
     var lv=L.lv, links_n=links.length;
-    var C=S? links_n/(S*S) : 0;
-    var maxLv=0; species.forEach(function(s){ if((lv[s.id]||0)>maxLv) maxLv=lv[s.id]; });
+    var C=connectance();
+    var maxLv=longestChain(lv);
     var basal=species.filter(function(s){return s.kind==="producer";}).length;
     var apex=species.filter(function(s){ return (lv[s.id]||0)>0 && !links.some(function(l){return l.prey===s.id;}); })
       .filter(function(s){return s.kind!=="producer";});
-    var orphans=species.filter(function(s){ return s.kind!=="producer" && (lv[s.id]||0)===0; });
+    var starved=unfed(), stranded=rootless(lv);
+    var orphans=starved.concat(stranded);
     var html='<div class="tiles">'
       +'<div class="tile"><div class="v">'+S+'</div><div class="l">species</div></div>'
       +'<div class="tile"><div class="v">'+links_n+'</div><div class="l">feeding links</div></div>'
       +'<div class="tile"><div class="v">'+C.toFixed(3)+'</div><div class="l">connectance L/S²</div></div>'
       +'<div class="tile"><div class="v">'+(maxLv||"—")+'</div><div class="l">longest chain</div></div>'
       +'<div class="tile"><div class="v">'+basal+'</div><div class="l">producers</div></div></div>';
-    if(orphans.length)
-      html+='<div class="verdict warn"><b>'+orphans.map(function(s){return esc(s.name);}).join(", ")
-        +'</b> '+(orphans.length>1?"have":"has")+' no food source yet — a consumer needs at least one arrow coming in. (Dashed outline on the web.)</div>';
+    if(starved.length)
+      html+='<div class="verdict warn"><b>'+starved.map(function(s){return esc(s.name);}).join(", ")
+        +'</b> '+(starved.length>1?"have":"has")+' no food source yet — a consumer needs at least one arrow coming in. (Dashed outline on the web.)</div>';
+    if(stranded.length)
+      html+='<div class="verdict warn"><b>'+stranded.map(function(s){return esc(s.name);}).join(", ")
+        +'</b> '+(stranded.length>1?"eat":"eats")+' something, but nothing '+(stranded.length>1?"they eat":"it eats")
+        +' leads back to a producer. Every chain has to start with something that makes its own food, so '
+        +(stranded.length>1?"these have":"this has")+' no trophic level — which is why '
+        +(stranded.length>1?"they are":"it is")+' not counted in the longest chain.</div>';
     if(L.loop)
       html+='<div class="verdict warn"><b>Loop detected</b> — somewhere A eats B and B (eventually) eats A. Real webs have very few loops (mutual predation of juveniles is the classic case); check your arrow directions.</div>';
     if(!orphans.length && !L.loop && links_n){
@@ -426,8 +484,8 @@
     if(species.length){
       lines.push("# Food Web Builder export — "+species.length+" species, "+links.length+" links");
       var L=levels();
-      lines.push("note: connectance "+(species.length?(links.length/(species.length*species.length)).toFixed(3):0)
-        +" — longest chain "+(function(){var m=0;species.forEach(function(s){if((L.lv[s.id]||0)>m)m=L.lv[s.id];});return m;})()+" levels");
+      lines.push("note: connectance "+connectance().toFixed(3)
+        +" — longest chain "+longestChain(L.lv)+" levels");
       links.forEach(function(l){ lines.push("note: "+byId(l.pred).name+" eats "+byId(l.prey).name); });
     }
     $("ecoOut").textContent = lines.length ? lines.join("\n") : "# build something first — your web export appears here";
@@ -499,6 +557,27 @@
        ["ladybird","shrew"],["spider","shrew"],["grasshopper","shrew"],["shrew","kestrel"]],
       "A meadow — the aphid feeds half this web");
   });
+
+  /* ---------- public seam ----------
+     Every other computational module in this kit -- FEK, DWC, ORD, KEEP -- is a
+     named object with a public surface. This page's graph algorithms were
+     sealed inside the closure, which is why it was the one instrument with no
+     suite naming it: there was nothing to call. These are the real functions
+     the page runs on, not a test harness bolted to the side, and `load` is the
+     same function the two preset buttons use. */
+  window.FW = {
+    version: "1.0.0",
+    levels: levels,
+    cascade: cascade,
+    connectance: connectance,
+    longestChain: longestChain,
+    species: function(){ return species.map(function(s){ return {id:s.id, name:s.name, kind:s.kind}; }); },
+    links:   function(){ return links.map(function(l){ return {prey:l.prey, pred:l.pred}; }); },
+    load:    function(sp, ln){ preset(sp, ln, sp.length + " species loaded"); },
+    /* the knockout verdict is otherwise reachable only by long-press, which
+       is why its three esc() calls went unexercised for as long as they did. */
+    knockout: knockout
+  };
 
   render();
 })();

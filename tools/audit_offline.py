@@ -153,8 +153,18 @@ def main():
         # there is no browser switch for "connected but silent", and a narrow
         # pattern was verified not to distort paint (44 ms vs 28 ms offline).
         pg = b.new_page(viewport={"width": 390, "height": 900})
-        pg.route("**://fonts.googleapis.com/**", lambda r: None)   # never answer, never fail
-        pg.route("**://fonts.gstatic.com/**", lambda r: None)
+        # Hold the route objects. unroute() alone removes the HANDLER but leaves
+        # every already-intercepted request unanswered, and Playwright then
+        # prints a CancelledError traceback at teardown. Under -j 4 that
+        # traceback became the LAST line of this job's output, and run_all --
+        # which prints the last line when it cannot parse a count -- displayed
+        # "asyncio.exceptions.CancelledError" in the column where the score
+        # goes, on a row marked ok. Answering the held routes before close is
+        # the fix here; run_all not being able to show a traceback as a score
+        # is the fix there.
+        held = []
+        pg.route("**://fonts.googleapis.com/**", lambda r: held.append(r))  # never answer
+        pg.route("**://fonts.gstatic.com/**", lambda r: held.append(r))
         try:
             pg.goto("file://" + worst, wait_until="commit", timeout=20000)
             pg.wait_for_timeout(9000)
@@ -172,6 +182,16 @@ def main():
         # Release the routes that were deliberately never answered before closing,
         # or Playwright prints a CancelledError traceback at teardown that reads
         # like a failure and is only bookkeeping.
+        # Order matters: answer the held routes FIRST. unroute() tears the
+        # handler registration down, and a route whose handler is already gone
+        # can no longer be answered -- which is why aborting after unroute left
+        # the internal future pending and the traceback still printed.
+        for r in held:
+            try:
+                r.abort()
+            except Exception:
+                pass
+        pg.wait_for_timeout(200)           # let the aborts land before unroute
         try:
             pg.unroute("**://fonts.googleapis.com/**")
             pg.unroute("**://fonts.gstatic.com/**")
