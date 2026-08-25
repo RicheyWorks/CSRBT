@@ -502,6 +502,52 @@ as guessing at one. Where the intent was real but undeclared, the fix was to dec
 of these was run against a canary page with faults deliberately seeded &mdash; and for the contrast tool,
 against ratios computed independently in Python, including the pair at 4.54:1 that must pass and the pair
 at 4.48:1 that must fail. A clean sweep from a tool that has never been shown to fail is not evidence.</p>
+<h2>Follow-on: FEK v1.2.0 &mdash; a name with a bracket in it</h2>
+<p>Type <code>Sarracenia &lt;hybrid&gt;</code> into the CP bench and it came back as markup. The cause was
+one line in FEK: <code>el(tag, class, html)</code> sets <code>innerHTML</code>, and the picker handed it
+<code>op.label</code> straight. Seventeen pages carry an <code>esc()</code> helper in nine slightly
+different versions, and the question was never whether the helper existed but whether it was reached on
+every path. It was not.</p>
+<p>The fix is in the component, not at the fourteen call sites. A component whose safety depends on every
+caller remembering is a component that will bite somebody, and fourteen callers means fourteen chances.
+The contract is now one line: <strong>an option, chip or tile label is data and is escaped; a component's
+own label is authored and stays HTML.</strong> That second half is not a loophole &mdash; pages put
+deliberate markup in their labels, and the twenty-two redundant <code>esc()</code> calls that used to
+guard option labels came out, because after the component escapes, a caller that escapes as well shows
+the reader <code>&amp;lt;</code>.</p>
+<p>Grep could not have answered this. The audit types
+<code>&lt;x-probe&gt;p&lt;/x-probe&gt;" data-x-probe="1</code> into every text field on every page, commits
+it the way a user would, and then asks the DOM one question with only one right answer: does an
+<code>x-probe</code> element exist, and did anything acquire a <code>data-x-probe</code> attribute. The
+second half matters because four of the nine <code>esc()</code> variants in this kit escape
+<code>&lt;</code> and <code>&gt;</code> but not <code>&quot;</code>, which leaves attribute context open.
+It also counts whether the probe came back as visible <em>text</em>, because a page that never rendered it
+has not been tested, and reporting that as clean would be a lie. Thirteen pages exercised and clean,
+eighteen with nothing to type into, two whose only fields are picker filters, and nothing left
+unaccounted for.</p>
+<p>Three mistakes on the way in, all mine, all caught by something.</p>
+<ul>
+<li>The escaper was first written as an object literal whose key is an escaped double quote &mdash; in a
+Python string emitting JavaScript, which is two layers of escaping. It did not survive, and every
+consumer got a syntax error that took FEK down with it. Rewritten as a chain of comparisons, which has
+nothing to escape.</li>
+<li>The helper was named <code>lab</code>, which is already a local inside <code>picker()</code> holding a
+DOM node. <em>lab is not a function.</em></li>
+<li>The one label in the kit carrying markup was moved to a new <code>labelHtml</code> escape hatch
+&mdash; and it turned out to be a <em>component</em> label, not an option label, so it had never gone
+through the escaped path at all. The hatch had no users, and an unused escape hatch is an invitation to
+route around the safe path, so it was removed and the contract got simpler. <code>FEK.esc</code> is
+exported instead, for a page building an authored label around data.</li>
+</ul>
+<p>Two things fell out of the sweep that were older than it. Fourteen suites asserted the FEK version as a
+frozen string, so a legitimate bump failed all fourteen at once &mdash; the same brittleness that had
+verify_eco ignored until it was dead. They read <code>tools/fek.py</code> now. And
+<code>verify_fek.py</code>, the FEK unit suite, was loading its harness page from <code>/tmp</code>: on a
+fresh clone it would not have loaded at all, and in the container that had one it went on asserting 1.1.0
+long after the component moved. The harness is generated from <code>tools/fek.py</code> on every run, and
+<code>tools/fek_emit.py</code> now regenerates all fourteen consumers rather than anyone patching them by
+hand &mdash; which is how their banners came to say 1.1.1 while the code inside still returned
+&ldquo;1.1.0&rdquo;.</p>
 <h2>Follow-on: the constraint nobody had tested</h2>
 <p>The constraints table at the top of this record calls offline operation non-negotiable:
 &ldquo;pages must work offline in a field with no signal.&rdquo; Every page is a single self-contained

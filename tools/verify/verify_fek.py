@@ -9,6 +9,16 @@ def _u(name):
     """file:// URL for a page in docs/, whatever the checkout is called."""
     return "file://" + _os.path.join(ROOT, "docs", name).replace(_os.sep, "/")
 
+
+def _fek_version():
+    """The version FEK actually declares, read from its source rather than frozen
+    here -- a bump is not a regression, and a suite that says otherwise gets
+    ignored."""
+    import re as _re
+    src = open(_os.path.join(ROOT, "tools", "fek.py"), encoding="utf-8").read()
+    m = _re.search(r'VERSION\s*=\s*"([\d.]+)"', src)
+    return m.group(1) if m else None
+
 P=[];F=[]
 def ck(n,c,e=""): (P if c else F).append(n+(("  << "+str(e)) if (e and not c) else ""))
 
@@ -16,9 +26,15 @@ with sync_playwright() as p:
     b=p.chromium.launch(); pg=b.new_page(viewport={"width":700,"height":900})
     pg.set_default_timeout(10000)
     errs=[]; pg.on("pageerror", lambda e: errs.append(str(e)))
-    pg.goto("file:///tmp/fek_harness.html", wait_until="domcontentloaded"); pg.wait_for_timeout(300)
+    # Built here, from tools/fek.py, so this suite can never test a stale copy
+    # of the component -- which is exactly what it was doing.
+    import importlib.util as _ilu
+    _hs = _ilu.spec_from_file_location("fek_harness", _os.path.join(ROOT, "tools", "fek_harness.py"))
+    _hm = _ilu.module_from_spec(_hs); _hs.loader.exec_module(_hm)
+    HARNESS = _hm.build()
+    pg.goto("file://" + HARNESS, wait_until="domcontentloaded"); pg.wait_for_timeout(300)
     ck("no errors", not errs, errs[:2])
-    ck("version is 1.1.0", pg.evaluate("()=>FEK.version")=="1.1.0", pg.evaluate("()=>FEK.version"))
+    ck("version matches fek.py", pg.evaluate("()=>FEK.version")==_fek_version(), pg.evaluate("()=>FEK.version"))
     ck("field is exported", pg.evaluate("()=>typeof FEK.field")=="function", "")
     for c in ("step","dial","chips","slider","picker","tiles","banner","mount","buzz"):
         ck("v1.0 component still exported: "+c, pg.evaluate("()=>typeof FEK.%s"%c)=="function", "")

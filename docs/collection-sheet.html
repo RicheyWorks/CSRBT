@@ -211,7 +211,7 @@
   .rail a.ref { font-weight:600; color:var(--muted); background:none; box-shadow:none; }
   @media print { .rail { display:none !important; } }
 
-  /* ============ Field Entry Kit v1.1.1 ============
+  /* ============ Field Entry Kit v1.2.0 ============
      Large-target, high-contrast entry controls. Sizing is driven by --tap
      rather than per-component numbers so one token retunes the whole kit for
      gloves, cold hands or a wall-mounted tablet. */
@@ -872,10 +872,27 @@ var GENERA = [
 </script>
 <script>
 
-/* ---- Field Entry Kit v1.1.1 : constructors return {el, get, set} ---- */
+/* ---- Field Entry Kit v1.2.0 : constructors return {el, get, set} ---- */
 var FEK = (function(){
   function el(t,c,h){ var e=document.createElement(t); if(c) e.className=c;
     if(h!=null) e.innerHTML=h; return e; }
+  /* Where the line falls, and why it falls there.
+     A component's OWN label is written by whoever built the page and often
+     carries deliberate markup -- "Pod parent <span class="u">seed bearer</span>".
+     That stays HTML. The label on an OPTION, a chip or a tile is data: a
+     species you typed, a cross you recorded, a source you named. v1.1 passed
+     those straight into innerHTML, so a plant named with a < became markup.
+     Escaped here rather than at each call site, because a component whose
+     safety depends on every caller remembering is a component that will bite
+     somebody. Verified against the whole kit first: no option, chip or tile
+     label anywhere passes markup on purpose. */
+  /* No object literal here on purpose: the map form needs an escaped double
+     quote as a key, and this file is a Python string emitting JavaScript, so
+     that quote has to survive two layers of escaping. It did not, and every
+     consumer got a syntax error that took FEK down with it. A chain of
+     comparisons has nothing to escape. */
+  function escv(s){ return String(s==null?"":s).replace(/[&<>"']/g,function(c){
+    return c==="&"?"&amp;":c==="<"?"&lt;":c===">"?"&gt;":c==='"'?"&quot;":"&#39;"; }); }
   function buzz(m){ try{ if(navigator.vibrate) navigator.vibrate(m||8);}catch(e){} }
 
   function step(o){
@@ -975,7 +992,7 @@ var FEK = (function(){
     var wrap=el("div","fek-row"), lab=el("label","fek-lab",o.label||"");
     var box=el("div","fek-dial"), btns=[];
     opts.forEach(function(op,i){
-      var b=el("button",null,'<span>'+op.label+'</span>'+(op.sub?'<small>'+op.sub+'</small>':""));
+      var b=el("button",null,'<span>'+escv(op.label)+'</span>'+(op.sub?'<small>'+escv(op.sub)+'</small>':""));
       b.type="button";
       b.setAttribute("data-r", op.ramp==null ? String(Math.min(5,Math.round(i*5/Math.max(1,opts.length-1)))) : String(op.ramp));
       b.addEventListener("click",function(){
@@ -998,7 +1015,7 @@ var FEK = (function(){
     var wrap=el("div","fek-row"), lab=el("label","fek-lab",o.label||"");
     var box=el("div","fek-chips"), btns=[];
     opts.forEach(function(op){
-      var b=el("button","fek-chip",op.label); b.type="button";
+      var b=el("button","fek-chip",escv(op.label)); b.type="button";
       b.addEventListener("click",function(){
         if(o.single){ sel={}; sel[op.value]=1; }
         else if(sel[op.value]) delete sel[op.value]; else sel[op.value]=1;
@@ -1053,7 +1070,7 @@ var FEK = (function(){
       if(!shown.length){ list.appendChild(el("div","none","No match. Clear the filter to see all "+opts.length+".")); return; }
       shown.slice(0,200).forEach(function(op){
         var b=el("button","opt"+(op.value===cur?" on":""),
-          op.label+(op.sub?'<small>'+op.sub+'</small>':""));
+          escv(op.label)+(op.sub?'<small>'+escv(op.sub)+'</small>':""));
         b.type="button";
         b.addEventListener("click",function(){ cur=op.value; paint(); buzz(); if(o.onchange) o.onchange(cur); });
         list.appendChild(b);
@@ -1071,7 +1088,7 @@ var FEK = (function(){
     var box=el("div","fek-tiles");
     (list||[]).forEach(function(t){
       box.appendChild(el("div","fek-tile"+(t.tone?" "+t.tone:""),
-        '<div class="v">'+t.v+'</div><div class="l">'+t.l+'</div>'));
+        '<div class="v">'+escv(t.v)+'</div><div class="l">'+escv(t.l)+'</div>'));
     });
     return box;
   }
@@ -1082,7 +1099,11 @@ var FEK = (function(){
     var h=typeof host==="string"?document.getElementById(host):host;
     h.innerHTML=""; parts.forEach(function(p){ h.appendChild(p.el||p); }); return h;
   }
-  return { version:"1.1.0", step:step, field:field, dial:dial, chips:chips, slider:slider,
+  /* Exported because a page building a component LABEL -- which stays HTML by
+     design -- still has to escape the data inside it. A private copy of an
+     escaper in one page was how the last one got lost when the kit was
+     re-emitted over it. */
+  return { version:"1.2.0", esc:escv, step:step, field:field, dial:dial, chips:chips, slider:slider,
            picker:picker, tiles:tiles, banner:banner, mount:mount, buzz:buzz };
 })();
 
@@ -1202,8 +1223,8 @@ var FEK = (function(){
   function fillGenera(){
     var cur=GENPICK?GENPICK.get():null;
     var opts=PACK.slice().sort(function(a,b){ return a.gen.localeCompare(b.gen); })
-      .map(function(g){ return {value:g.id, label:esc(g.gen),
-        sub:esc(GUILD[g.guild][0])+(g.mixed?" · mixed":"")}; });
+      .map(function(g){ return {value:g.id, label:g.gen,
+        sub:GUILD[g.guild][0]+(g.mixed?" · mixed":"")}; });
     opts.push({value:"__other", label:"not in the pack", sub:"working name only"});
     GENPICK=FEK.picker({ label:"genus", options:opts, value:cur,
       placeholder:"type a genus to filter…",
@@ -1302,7 +1323,7 @@ var FEK = (function(){
     if(!fromStand) list = ["Pseudotsuga menziesii","Tsuga heterophylla","Thuja plicata","Pinus contorta",
       "Pinus ponderosa","Abies concolor","Picea engelmannii","Populus tremuloides","Quercus gambelii",
       "Alnus rubra","Betula","Salix"];
-    var opts=list.map(function(t){ return {value:t, label:esc(t),
+    var opts=list.map(function(t){ return {value:t, label:t,
       sub: fromStand ? "from your stand list" : ""}; });
     opts.push({value:"__unknown", label:"host uncertain", sub:"recorded as uncertain, not guessed"});
     HOSTPICK=FEK.picker({ label:"host / associated tree", options:opts, value:keep,
@@ -1396,7 +1417,7 @@ var FEK = (function(){
   /* ------------------------------------------------------------- prints tab */
   function fillPicks(){
     var opts=cols.map(function(c){
-      return {value:String(c.n), label:esc(c.num?c.num:"#"+c.n), sub:esc(c.name)}; });
+      return {value:String(c.n), label:c.num?c.num:"#"+c.n, sub:c.name}; });
     var keepP=PPICK?PPICK.get():null, keepV=VPICK?VPICK.get():null;
     var have=function(k){ return opts.some(function(o){ return o.value===k; }); };
     PPICK=FEK.picker({ label:"collection", options:opts, value:have(keepP)?keepP:null,

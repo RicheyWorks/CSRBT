@@ -10,6 +10,16 @@ def _u(name):
     """file:// URL for a page in docs/, whatever the checkout is called."""
     return "file://" + _os.path.join(ROOT, "docs", name).replace(_os.sep, "/")
 
+
+def _fek_version():
+    """The version FEK actually declares, read from its source rather than frozen
+    here -- a bump is not a regression, and a suite that says otherwise gets
+    ignored."""
+    import re as _re
+    src = open(_os.path.join(ROOT, "tools", "fek.py"), encoding="utf-8").read()
+    m = _re.search(r'VERSION\s*=\s*"([\d.]+)"', src)
+    return m.group(1) if m else None
+
 P=[];F=[]
 def ck(n,c,e=""): (P if c else F).append(n+(("  << "+str(e)) if (e and not c) else ""))
 
@@ -27,7 +37,7 @@ with sync_playwright() as p:
     pg.goto(_u("releve.html"), wait_until="domcontentloaded")
     pg.wait_for_timeout(700)
     ck("no startup errors", not errs, errs[:3])
-    ck("FEK v1.1.0 present", pg.evaluate("()=>typeof FEK!=='undefined'&&FEK.version")=="1.1.0", "")
+    ck("FEK version matches fek.py", pg.evaluate("()=>typeof FEK!=='undefined'&&FEK.version")==_fek_version(), "")
     ck("6 tabs", pg.eval_on_selector_all(".tab","e=>e.length")==6, "")
     ck("no legacy select anywhere", pg.eval_on_selector_all("select","e=>e.length")==0,
        pg.eval_on_selector_all("select","e=>e.map(x=>x.id)"))

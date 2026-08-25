@@ -81,10 +81,16 @@ rgba_stale = [os.path.basename(p) for p in pages
 ck(not rgba_stale, "no page still carries the old green as rgba(): %s" % rgba_stale[:4])
 
 src = io.open(_os.path.join(ROOT, "tools", "fek.py"), encoding="utf-8").read()
-ck('VERSION = "1.1.1"' in src, "fek.py version bumped to 1.1.1")
+# Was frozen at 1.1.1 and failed the moment FEK moved to 1.2.0 -- a version bump
+# is not a contrast regression. What this slice actually cares about is that the
+# failing .85 label is gone and every consumer carries the same version fek.py
+# declares.
+import re as _re
+VER = _re.search(r'VERSION\s*=\s*"([\d.]+)"', src).group(1)
+ck(VER >= "1.1.1", "fek.py is at or past the version this fix landed in (%s)" % VER)
 ck("rgba(255,255,255,.85)" not in src, "fek.py no longer emits the failing .85 label")
-ck(sum('Field Entry Kit v1.1.1' in io.open(p, encoding="utf-8").read() for p in pages) == 14,
-   "all 14 FEK consumers report v1.1.1")
+ck(sum(("Field Entry Kit v" + VER) in io.open(p, encoding="utf-8").read() for p in pages) == 14,
+   "all 14 FEK consumers report the version fek.py declares (%s)" % VER)
 
 # ---- 3. what the browser actually paints -------------------------------
 with sync_playwright() as p:

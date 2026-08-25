@@ -26,6 +26,7 @@ AUDITS = [
     ("audit_print",    "print fidelity"),
     ("audit_offline",  "works with no signal, and does not hang on one bar"),
     ("audit_frontend", "duplicate ids, dead links, iOS zoom, JS and console errors"),
+    ("audit_escaping", "does anything you type come back as markup"),
     ("fek_lint",       "FEK misconfiguration"),
 ]
 # A finder, not a gate: it reports a worklist and always exits zero, so running

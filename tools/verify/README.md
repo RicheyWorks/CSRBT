@@ -2,7 +2,7 @@
 
     python3 tools/verify/run_all.py
 
-That runs every audit and every page suite — **29 jobs, 1,595 checks** — and exits
+That runs every audit and every page suite — **32 jobs, 1,671 checks** — and exits
 non-zero if anything fails. On a laptop it takes a few minutes; `-j 4` speeds it up
 at the cost of four browsers at once.
 
@@ -31,6 +31,7 @@ you will want to run them on their own while working:
 | `audit_focus.py` | can every control be reached by keyboard, does focus show, is it named |
 | `audit_contrast.py` | does every painted colour pair clear WCAG AA |
 | `audit_print.py` | does the printed page still contain the document, and what does it cost in ink |
+| `audit_escaping.py` | does anything you type come back as markup |
 | `audit_claims.py` | which numbers in prose carry no visible provenance |
 
 `audit_claims.py` is a **finder, not a gate**. It always exits zero and prints a

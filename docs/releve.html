@@ -163,7 +163,7 @@
   .rail a.ref { font-weight:600; color:var(--muted); background:none; box-shadow:none; }
   @media print { .rail { display:none !important; } }
 
-  /* ============ Field Entry Kit v1.1.1 ============
+  /* ============ Field Entry Kit v1.2.0 ============
      Large-target, high-contrast entry controls. Sizing is driven by --tap
      rather than per-component numbers so one token retunes the whole kit for
      gloves, cold hands or a wall-mounted tablet. */
@@ -708,10 +708,27 @@ var FLORA = [
 </script>
 <script>
 
-/* ---- Field Entry Kit v1.1.1 : constructors return {el, get, set} ---- */
+/* ---- Field Entry Kit v1.2.0 : constructors return {el, get, set} ---- */
 var FEK = (function(){
   function el(t,c,h){ var e=document.createElement(t); if(c) e.className=c;
     if(h!=null) e.innerHTML=h; return e; }
+  /* Where the line falls, and why it falls there.
+     A component's OWN label is written by whoever built the page and often
+     carries deliberate markup -- "Pod parent <span class="u">seed bearer</span>".
+     That stays HTML. The label on an OPTION, a chip or a tile is data: a
+     species you typed, a cross you recorded, a source you named. v1.1 passed
+     those straight into innerHTML, so a plant named with a < became markup.
+     Escaped here rather than at each call site, because a component whose
+     safety depends on every caller remembering is a component that will bite
+     somebody. Verified against the whole kit first: no option, chip or tile
+     label anywhere passes markup on purpose. */
+  /* No object literal here on purpose: the map form needs an escaped double
+     quote as a key, and this file is a Python string emitting JavaScript, so
+     that quote has to survive two layers of escaping. It did not, and every
+     consumer got a syntax error that took FEK down with it. A chain of
+     comparisons has nothing to escape. */
+  function escv(s){ return String(s==null?"":s).replace(/[&<>"']/g,function(c){
+    return c==="&"?"&amp;":c==="<"?"&lt;":c===">"?"&gt;":c==='"'?"&quot;":"&#39;"; }); }
   function buzz(m){ try{ if(navigator.vibrate) navigator.vibrate(m||8);}catch(e){} }
 
   function step(o){
@@ -811,7 +828,7 @@ var FEK = (function(){
     var wrap=el("div","fek-row"), lab=el("label","fek-lab",o.label||"");
     var box=el("div","fek-dial"), btns=[];
     opts.forEach(function(op,i){
-      var b=el("button",null,'<span>'+op.label+'</span>'+(op.sub?'<small>'+op.sub+'</small>':""));
+      var b=el("button",null,'<span>'+escv(op.label)+'</span>'+(op.sub?'<small>'+escv(op.sub)+'</small>':""));
       b.type="button";
       b.setAttribute("data-r", op.ramp==null ? String(Math.min(5,Math.round(i*5/Math.max(1,opts.length-1)))) : String(op.ramp));
       b.addEventListener("click",function(){
@@ -834,7 +851,7 @@ var FEK = (function(){
     var wrap=el("div","fek-row"), lab=el("label","fek-lab",o.label||"");
     var box=el("div","fek-chips"), btns=[];
     opts.forEach(function(op){
-      var b=el("button","fek-chip",op.label); b.type="button";
+      var b=el("button","fek-chip",escv(op.label)); b.type="button";
       b.addEventListener("click",function(){
         if(o.single){ sel={}; sel[op.value]=1; }
         else if(sel[op.value]) delete sel[op.value]; else sel[op.value]=1;
@@ -889,7 +906,7 @@ var FEK = (function(){
       if(!shown.length){ list.appendChild(el("div","none","No match. Clear the filter to see all "+opts.length+".")); return; }
       shown.slice(0,200).forEach(function(op){
         var b=el("button","opt"+(op.value===cur?" on":""),
-          op.label+(op.sub?'<small>'+op.sub+'</small>':""));
+          escv(op.label)+(op.sub?'<small>'+escv(op.sub)+'</small>':""));
         b.type="button";
         b.addEventListener("click",function(){ cur=op.value; paint(); buzz(); if(o.onchange) o.onchange(cur); });
         list.appendChild(b);
@@ -907,7 +924,7 @@ var FEK = (function(){
     var box=el("div","fek-tiles");
     (list||[]).forEach(function(t){
       box.appendChild(el("div","fek-tile"+(t.tone?" "+t.tone:""),
-        '<div class="v">'+t.v+'</div><div class="l">'+t.l+'</div>'));
+        '<div class="v">'+escv(t.v)+'</div><div class="l">'+escv(t.l)+'</div>'));
     });
     return box;
   }
@@ -918,7 +935,11 @@ var FEK = (function(){
     var h=typeof host==="string"?document.getElementById(host):host;
     h.innerHTML=""; parts.forEach(function(p){ h.appendChild(p.el||p); }); return h;
   }
-  return { version:"1.1.0", step:step, field:field, dial:dial, chips:chips, slider:slider,
+  /* Exported because a page building a component LABEL -- which stays HTML by
+     design -- still has to escape the data inside it. A private copy of an
+     escaper in one page was how the last one got lost when the kit was
+     re-emitted over it. */
+  return { version:"1.2.0", esc:escv, step:step, field:field, dial:dial, chips:chips, slider:slider,
            picker:picker, tiles:tiles, banner:banner, mount:mount, buzz:buzz };
 })();
 
@@ -979,7 +1000,7 @@ var FEK = (function(){
   var RSP=null, VSP=null, LSP=null;
   function floraOptions(extra){
     var out=FLORA.slice().sort(function(a,b){return a.com.localeCompare(b.com);})
-      .map(function(s){ return {value:s.id, label:esc(s.com), sub:esc(s.sci)}; });
+      .map(function(s){ return {value:s.id, label:s.com, sub:s.sci}; });
     (extra||[]).forEach(function(e){ out.unshift(e); });
     out.push({value:"__free", label:"type a name instead", sub:"not in the pack"});
     return out;
@@ -998,7 +1019,7 @@ var FEK = (function(){
       onchange:function(v){ push("vDup",v); },
       help:"How many sheets of the same gathering. Duplicates are how a determination gets checked by a second herbarium." });
     FEK.mount("vouEntry",[VSP,VDUP]);
-    var gopts=GROUND.map(function(g){ return {value:g[0], label:esc(g[1]), sub:"ground cover"}; });
+    var gopts=GROUND.map(function(g){ return {value:g[0], label:g[1], sub:"ground cover"}; });
     LSP=FEK.picker({ label:"species / cover type", options:floraOptions(gopts.reverse()), value:curL,
       placeholder:"type a name to filter…",
       onchange:function(v){ push("lSp",v); } });
@@ -1011,10 +1032,10 @@ var FEK = (function(){
     onchange:function(v){ push("rStr",v); },
     help:"Height class, not growth form: a seedling oak in the field layer is recorded in H. Recording the same species in two strata is normal and correct." });
   var RPHEN=FEK.dial({ label:"phenophase", clearable:false, value:"veg",
-    options:PHENO.map(function(p){ return {value:p[0], label:esc(p[1])}; }),
+    options:PHENO.map(function(p){ return {value:p[0], label:p[1]}; }),
     onchange:function(v){ push("rPhen",v); } });
   var VPHEN=FEK.dial({ label:"phenophase", clearable:false, value:"fl",
-    options:PHENO.map(function(p){ return {value:p[0], label:esc(p[1])}; }),
+    options:PHENO.map(function(p){ return {value:p[0], label:p[1]}; }),
     onchange:function(v){ push("vPhen",v); } });
   var VMAT=FEK.dial({ label:"material", clearable:false, value:"fl",
     options:[{value:"fl",label:"in flower",ramp:2},{value:"fr",label:"in fruit",ramp:2},
@@ -1099,7 +1120,7 @@ var FEK = (function(){
     var cs=SCALES[scale].classes;
     var opts=cs.map(function(c){
       var m=c[2], r = m<1?0 : m<5?1 : m<15?2 : m<38?3 : m<63?4 : 5;
-      return {value:c[0], label:esc(c[0]), sub:esc(c[1]), ramp:r};
+      return {value:c[0], label:c[0], sub:c[1], ramp:r};
     });
     COVDIAL=FEK.dial({ label:"cover class", options:opts, value:curCov, clearable:true,
       onchange:function(v){ curCov=v; },
@@ -1293,7 +1314,7 @@ var FEK = (function(){
       +'National Wetland Plant List. Tap a scored taxon again to clear it &mdash; blank means unscored, and '
       +'unscored taxa are left out of the index rather than treated as FAC.</p>';
     var opts=WET.map(function(w,i){
-      return {value:w[0], label:w[0], sub:esc(w[1]), ramp:[0,1,2,4,5][i]}; });
+      return {value:w[0], label:w[0], sub:w[1], ramp:[0,1,2,4,5][i]}; });
     T.slice().sort(function(a,b){return a.com.localeCompare(b.com);}).forEach(function(t){
       var row=document.createElement("div");
       row.style.cssText="padding:12px 0;border-top:1px solid var(--border)";
