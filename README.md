@@ -223,6 +223,11 @@ python3 tools/verify/run_all.py     →  40 of 40 jobs green
                                        1880 of 1880 checks passing
 ```
 
+Two of those jobs are **finders** rather than gates: `audit_claims` prints a worklist of numbers that look
+unsourced, and `publish_state` reports which published artifacts are behind the repo. A page that has never
+been stamped reports as **unknown**, not as current — the published state of a page nobody has checked is
+not a clean bill of health, and saying otherwise would be the most useful lie the tool could tell.
+
 Eight kit-wide audits measure what the browser actually renders, not what the source intends:
 
 | Audit | What it asks | What it found |

@@ -1,0 +1,14 @@
+{
+  "_comment": "sha256 of the bytes last handed to the publisher, per page. A page absent from this map has never been stamped and its published state is UNKNOWN -- which is not the same as current.",
+  "pages": {
+    "cell-bench.html": "dd3157877bd6dbd6ccfb0bff160f52a4073867dca34239c50d85c381a1d386b9",
+    "collection-sheet.html": "9594155c90450d4074a70f01a846c3fe729cda43ec42d871b7a568e14574feb6",
+    "deployment-log.html": "6061c614ab206b8c33d6687a72ae1769cbb07ceaa65c6cba4a3338baa7bafacf",
+    "ecology.html": "a71d69ad69be0f1ed0434db35761f69b99158ff8fa7eb29fedb6fd0a77a0033a",
+    "ordination.html": "3ae31cefb8748e0a4c0e42ae24679a2324765055dc639294ca7ae25a4cad4b85",
+    "pheno-tracker.html": "770477f9eac3b88e723b9d9f63e88bbdf962aebe7a6eda6137eaba95d78d8306",
+    "releve.html": "c04fc7f115806046ee90e308bafe0724528549d62b6b1f62e875f9eeeeb43107",
+    "stand-sheet.html": "2225524ac540294fd00a6a4f60cd10e54f80f0768620435abe4edb3f309d3626",
+    "survey-design.html": "1ddf7cdfdcbb6988464474eba68370844bf10d86b7780732af5dd8451210d0a0"
+  }
+}

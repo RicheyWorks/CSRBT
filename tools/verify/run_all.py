@@ -31,7 +31,8 @@ AUDITS = [
 ]
 # A finder, not a gate: it reports a worklist and always exits zero, so running
 # it here would say nothing about pass or fail. Named so it is not forgotten.
-FINDERS = [("audit_claims", "unsourced numeric claims (worklist only)")]
+FINDERS = [("audit_claims", "unsourced numeric claims (worklist only)"),
+           ("publish_state", "which published artifacts are behind the repo")]
 
 TAIL = re.compile(r"(\d+)\s*/\s*(\d+)\s*$")
 
