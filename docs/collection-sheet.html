@@ -544,10 +544,19 @@
       <div class="btn-row">
         <button class="btn btn-go" id="vAdd" type="button">Make voucher label</button>
       </div>
-      <p class="fine">Above about 50&nbsp;°C the DNA in the tissue begins to degrade and the specimen
-        cooks rather than dries; below about 35&nbsp;°C a fleshy cap can spoil before it is dry.
-        <b>40&ndash;45&nbsp;°C with airflow</b> is the usual working compromise &mdash; a starting point to
-        adapt, not a standard.</p>
+      <p class="fine"><b>40&ndash;45&nbsp;°C with airflow</b> is the usual working compromise, and it sits
+        inside the 43&ndash;50&nbsp;°C that the Fungal Diversity Survey's collection guide recommends for
+        specimens you may want to sequence. Below about 35&nbsp;°C a fleshy cap can spoil before it is dry.</p>
+      <p class="fine"><b>The upper end is less settled than it is usually stated.</b> The practitioner advice
+        &mdash; stay under 50&nbsp;°C, DNA is damaged above about 68&nbsp;°C &mdash; is what most keys and
+        forays will tell you. But Wang, Liu and Xu (<i>Scientific Reports</i>, 2017) dried mushrooms at
+        seven temperatures from 22&nbsp;°C to 93&nbsp;°C and got successful PCR at every one of them,
+        losing measurable double-stranded DNA only at 80&ndash;93&nbsp;°C; they recommend 70&nbsp;°C for
+        3&ndash;4&nbsp;hours as the most efficient compromise. This sheet keeps the lower, conventional
+        figure because it is what your herbarium will expect &mdash; but if a fleshy cap is spoiling faster
+        than it dries, the evidence says you have more headroom than the rule implies. Record the
+        temperature you actually used either way; that is the number that makes a failed extraction
+        interpretable later.</p>
     </div>
 
     <div class="card"><h3 style="margin-top:0">Labels</h3><div id="vList"></div></div>
@@ -1305,7 +1314,7 @@ var FEK = (function(){
              {value:"taken — dried tissue",label:"dried tissue",ramp:3},
              {value:"none",label:"none",ramp:5}],
     onchange:function(v){ push("vDna",v); },
-    help:"Take it before the dryer. Above about 50 °C the DNA begins to degrade." });
+    help:"Take it before the dryer. Silica beats any drying temperature for sequencing; see the Method tab on where the 50 °C figure comes from and who disagrees with it." });
   FEK.mount("dryEntry",[VTEMP,VHRS,VSLICE,VDNA]);
   function genTell(){
     var g=gById(val("cGen")); var box=$("cGenTell");

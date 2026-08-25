@@ -15,6 +15,12 @@ What counts as a claim: a number carrying a physical unit or a comparison, in
 running prose. Growing degree days, incubation temperatures, pH breakpoints,
 percentage thresholds -- the load-bearing kind in this domain.
 
+Four things are exempt, each for a stated reason: ADR-031 itself (it is the
+record OF provenance -- its whole job is to quote numbers and say where they
+stand), a number shown with its own
+derivation (the reader can check it without going anywhere), a line carrying the
+kit's own gate verdict, and lesson-plan durations in a lab header.
+
 What counts as provenance in view: an author-year citation, a `.cite`/`.src`/
 `.ref` element, the word convention/conventional/arbitrary/rule of thumb, or
 sitting inside a `.refuse` panel where the kit declines to assert at all. A block marked
@@ -59,6 +65,21 @@ PROBE = r"""
     const t = (el.textContent || '').replace(/\s+/g, ' ').trim();
     if (t.length < 12 || t.length > 400) return;
     if (!UNIT.test(t) && !CMP.test(t)) return;
+    // Three exemptions earned by working the list, not by wanting it shorter.
+    //
+    // 1. A number shown WITH its own derivation carries its provenance inline.
+    //    DBH = C/pi, CV = 1/sqrt(N), 11.28 m = 400 m2, 100% = a 45-degree slope:
+    //    the reader can check these without going anywhere, and asking for a
+    //    citation would be asking where arithmetic comes from.
+    if (/[=\u00f7\u221a\u00b1]|\bdivided by\b|\bper\b\s*\u221a/.test(t)
+        && /\d/.test(t) && /[a-zA-Z]\s*[=]|=\s*\d|\d\s*[\u00f7=]/.test(t)) return;
+    // 2. The kit's own provenance vocabulary. ADR-031 records each number's
+    //    verdict as "Gate 1 -- cited", "Gate 2", "Gate 3 -- refused"; a record
+    //    that states its gate has said where the number stands.
+    if (/\bGate\s*[123]\b/.test(t)) return;
+    // 3. Lesson metadata. "~90 min incl. fieldwork" in a lab header is how long
+    //    to book the room, not a measurement of anything.
+    if (el.classList.contains('lab-for') || el.closest('.lab-for')) return;
 
     // Provenance has to be in VIEW of the claim, not merely somewhere on the
     // page. An earlier version searched the nearest section, which on a page
@@ -100,6 +121,13 @@ def main():
         pg.route("**://fonts.gstatic.com/**", lambda r: r.abort())
         for path in pages:
             nm = os.path.basename(path)
+            # ADR-031 is the provenance record. Nearly every line in it quotes a
+            # number in order to say where that number stands -- which gate it
+            # passed, who it is cited to, why it was refused. Flagging the
+            # document that exists to answer this question is a category error,
+            # and ten of its lines were the largest single block on the list.
+            if nm == "adr-031.html":
+                rows.append((nm, [], None)); continue
             try:
                 pg.goto("file://" + path, wait_until="domcontentloaded")
                 pg.wait_for_timeout(600)
@@ -122,8 +150,13 @@ def main():
             print("    %s" % h)
         print()
     print("-" * 78)
+    broke = [nm for nm, h, e in rows if e]
+    if broke:
+        print("PAGES THAT FAILED TO LOAD: %d -- the count below is meaningless until they do"
+              % len(broke))
+        print("   " + ", ".join(broke[:6]))
     print("pages with unsourced-looking claims: %d of %d"
-          % (sum(1 for _, h, e in rows if h), len(rows)))
+          % (sum(1 for _, h, e in rows if h), len(rows) - len(broke)))
     print("claims to triage: %d" % total)
     print("(this is a finder, not a gate -- every line above is a question, not a verdict)")
     return 0

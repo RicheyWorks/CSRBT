@@ -69,8 +69,13 @@ for path in consumers:
 # ---- 4. the escape hatch stays rare --------------------------------------
 # `labelHtml:` as an object property, not the `op.labelHtml : ...` arm of the
 # ternary inside the component -- which is in all fourteen consumers by design.
+# `labelHtml:` or `.labelHtml` -- a code shape. The bare word also appears in
+# ADR-031's prose, where it is describing the hatch that was removed; a record
+# of a decision is not a caller reaching for it. (The same over-broad grep
+# caught the ADR once before, over data-claim. Twice is a pattern: match the
+# code, not the word.)
 hatch = [os.path.basename(p) for p in pages
-         if "labelHtml" in io.open(p, encoding="utf-8").read()]
+         if re.search(r"labelHtml\s*:|\.labelHtml\b", io.open(p, encoding="utf-8").read())]
 ck(not hatch, "no page reaches for an escape hatch that no longer exists (%s)" % hatch)
 # the one page that puts markup in a component label escapes the data inside it
 pt = io.open(_kit.DOCS_DIR + "pheno-tracker.html", encoding="utf-8").read()

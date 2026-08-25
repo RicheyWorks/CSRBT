@@ -1028,7 +1028,7 @@ on whatever machine last wrote them. They live in the repo now:
 python3 tools/verify/run_all.py
 ```
 
-**32 jobs, 1,671 checks**, exiting non-zero if anything fails. Eight kit-wide audits measure
+**33 jobs, 1,701 checks**, exiting non-zero if anything fails. Eight kit-wide audits measure
 what the browser actually renders — 44 px touch targets, keyboard reachability and visible
 focus, WCAG AA contrast, print fidelity and ink cost, behaviour with the network gone, and the
 front-end faults that belong to no single page — and twenty-three per-page suites drive
