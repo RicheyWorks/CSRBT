@@ -66,9 +66,15 @@ OPS = [
         "a reduction that takes the largest now takes the smallest"),
     _op("max->min2", r"Math\.max\(", "Math.min(",
         "same, in the two-argument form"),
-    _op("gte->gt", r">=", ">",
+    # The lookbehinds matter. A bare `>=` also matches inside `>>=` and `>>>=`,
+    # and a bare `<=` inside `<<=`. Mutating a shift-assign into a comparison
+    # produces a nonsense mutant, and nonsense mutants survive -- one turned up
+    # in the ordination sweep sitting inside a PRNG's `s >>>= 0` and was
+    # reported as a coverage gap. A survivor list padded with garbage is a
+    # worklist nobody finishes.
+    _op("gte->gt", r"(?<![>=!<])>=", ">",
         "an inclusive boundary becomes exclusive -- the classic off-by-one"),
-    _op("lte->lt", r"<=", "<",
+    _op("lte->lt", r"(?<![<=!>])<=", "<",
         "the other inclusive boundary"),
     _op("and->or", r"&&", "||",
         "a conjunction becomes a disjunction, so a guard stops guarding"),
@@ -280,7 +286,16 @@ def viable(text):
     return True
 
 
-def run_suite(path, cwd, timeout=420):
+# A mutant that makes a suite HANG is killed by the timeout -- correctly, since
+# a suite that normally finishes in 25 s and now does not finish at all has
+# failed by any reading. But at 420 s each, two such mutants cost fifteen
+# minutes and the sweep looks stalled rather than working. The budget is
+# measured from the suite's own clean runtime instead of guessed.
+SUITE_TIMEOUT = [150]
+
+
+def run_suite(path, cwd, timeout=None):
+    timeout = timeout or SUITE_TIMEOUT[0]
     try:
         p = subprocess.run([sys.executable, path], capture_output=True, text=True,
                            timeout=timeout, cwd=cwd)
@@ -339,6 +354,13 @@ def module_sweep(a):
     survivors = []
     tmp = scratch_root()
     t0 = time.time()
+    # Time one clean run and allow four times it. Generous enough that a slow
+    # machine does not produce false kills, tight enough that a hang is cheap.
+    _t = time.time()
+    run_suite(os.path.join(tmp, rel_suite), tmp, timeout=600)
+    SUITE_TIMEOUT[0] = max(45, int((time.time() - _t) * 4))
+    print("   (clean run %.0f s -- a mutant gets %d s before it counts as hung)"
+          % (time.time() - _t, SUITE_TIMEOUT[0]))
     try:
         tsrc = os.path.join(tmp, rel_src)
         tsuite = os.path.join(tmp, rel_suite)

@@ -240,6 +240,128 @@ with sync_playwright() as p:
        "Forget this device" in met, met[:160])
     pg.close()
 
+    # ---- four behaviours a mutation sweep found untested ----
+    pg, errs = page("ordination.html")
+
+    # The banner ESCAPES what it renders, and both esc() calls survived a
+    # mutation because nothing ever put a hostile string through them.
+    #
+    # `noun` is page-supplied and IS reachable -- checked below on both the
+    # "autosave is on" branch and the "restored from" branch, which are
+    # different esc() calls and need different setup to reach.
+    #
+    # `esc(lastErr)` is NOT reachable and is left uncovered on purpose:
+    # lastErr is assigned one of two string literals by KEEP itself and can
+    # never carry input. That mutation is an EQUIVALENT mutant, and writing a
+    # check to kill it would be scoring the metric rather than testing the
+    # module. The esc() call stays because the day lastErr carries a browser
+    # message verbatim it will matter, and a comment is cheaper than the bug.
+    inj = pg.evaluate("""()=>{
+      const k = KEEP.wire({key:"__probe", format:1, mount:"keepBox",
+        noun:"<x-keep-probe>a set</x-keep-probe>",
+        snapshot:function(){ return {v:1}; }, restore:function(){ return true; }});
+      return document.querySelector('#keepBox').innerHTML.indexOf('x-keep-probe');}""")
+    pg.wait_for_timeout(200)
+    ck("a noun containing markup does not become markup in the banner",
+       pg.eval_on_selector_all("x-keep-probe", "e=>e.length") == 0,
+       pg.eval_on_selector_all("x-keep-probe", "e=>e.length"))
+    ck("and the angle brackets survive as text, so the noun still reads",
+       "<x-keep-probe>" in pg.inner_text("#keepBox"), pg.inner_text("#keepBox")[:90])
+
+    # That probe reaches the "autosave is on" branch. The RESTORED branch is a
+    # different esc() call and needs something in storage first, or restore is
+    # never called and the branch never renders. Seeding it is the difference
+    # between exercising the escaper and walking past it.
+    restored = pg.evaluate("""()=>{
+      const key = "__probeRestore";
+      localStorage.setItem(key, JSON.stringify(
+        {format:1, at: Date.now() - 60000, body:{v:1}}));
+      const host=document.createElement('div'); host.id='__rbox';
+      document.body.appendChild(host);
+      KEEP.wire({key:key, format:1, mount:"__rbox",
+        noun:"<x-restore-probe>a set</x-restore-probe>",
+        snapshot:function(){ return {v:1}; }, restore:function(){ return true; }});
+      const out = {html: host.innerHTML, text: host.innerText};
+      host.remove(); localStorage.removeItem(key);
+      return out;}""")
+    ck("the restored-from banner actually rendered, so this check is not a no-op",
+       "Restored" in restored["text"], restored["text"][:100])
+    ck("a noun containing markup is escaped on the RESTORED path too",
+       "<x-restore-probe>" not in restored["html"].replace("&lt;", "<").replace("&gt;", ">")
+       or "&lt;x-restore-probe&gt;" in restored["html"], restored["html"][:140])
+    ck("and it survives as readable text there as well",
+       "<x-restore-probe>" in restored["text"], restored["text"][:100])
+
+    # 3. The quota message distinguishes a FULL store from a REFUSED write.
+    # They call for different actions -- delete something, versus you are in a
+    # private window -- and the classifier that tells them apart had no test.
+    # The first version of this check reimplemented the classifier in the test
+    # and compared it against itself -- a tautology that no mutation of keep.py
+    # could ever fail. Drive KEEP's own write path instead: make setItem throw
+    # with a named error and read the banner it produces.
+    # Order matters, and getting it wrong is instructive: KEEP PROBES storage at
+    # wire time, so breaking setItem first makes the probe fail and the banner
+    # reads "this browser is not keeping anything" -- correct behaviour, and a
+    # different message entirely. The classifier only runs on a write that
+    # fails AFTER a store that worked. Wire first, then break it.
+    def quota_banner(err_name):
+        return pg.evaluate("""(n)=>{
+          const host=document.createElement('div'); host.id='__qbox';
+          document.body.appendChild(host);
+          const k = KEEP.wire({key:"__q"+n, format:1, mount:"__qbox", noun:"a set",
+            snapshot:function(){ return {v:Math.random()}; },
+            restore:function(){ return false; }});
+          const real = localStorage.setItem.bind(localStorage);
+          localStorage.setItem = function(){ const e=new Error("no"); e.name=n; throw e; };
+          try {
+            k.touch(); k.flush();
+            return host.innerText;
+          } finally { localStorage.setItem = real; host.remove(); }}""", err_name)
+
+    q = quota_banner("QuotaExceededError")
+    ck("a real QuotaExceededError from setItem reports the store as FULL",
+       "storage is full" in q, q[:110])
+    sec = quota_banner("SecurityError")
+    ck("any other write failure reports a REFUSED write, not a full store",
+       "refused the write" in sec and "storage is full" not in sec, sec[:110])
+    ck("the two messages differ, so this check can tell the classifier apart "
+       "from a constant", q != sec, (q[:40], sec[:40]))
+    ck("and a failed write says outright that what is on screen is not saved",
+       "not saved" in q, q[:140])
+
+    # 4. The FEK bridge is GUARDED. formRestore pushes values back through
+    # FEK.setField when FEK is present, and must not throw on a page without
+    # it -- the guard is `typeof FEK !== "undefined" && FEK.setField`, and
+    # turning that && into || survived every check.
+    ck("formRestore is exported, so the check below is not a no-op",
+       pg.evaluate("()=>typeof KEEP.formRestore") == "function",
+       pg.evaluate("()=>typeof KEEP.formRestore"))
+    ck("formRestore still restores the input itself when FEK is absent",
+       pg.evaluate("""()=>{
+         const real = window.FEK;
+         try {
+           window.FEK = undefined;
+           const d=document.createElement('input'); d.id='__kprobe'; d.type='text';
+           document.body.appendChild(d);
+           const n = KEEP.formRestore({__kprobe:"7"});
+           const v = d.value; d.remove();
+           return (n >= 1 && v === "7");
+         } catch(e) { return "threw: " + e.message; }
+         finally { window.FEK = real; }}""") is True, "")
+    ck("and it DOES push through FEK when FEK is present",
+       pg.evaluate("""()=>{
+         const d=document.createElement('input'); d.id='__kprobe2'; d.type='text';
+         document.body.appendChild(d);
+         let seen = null;
+         const realSet = FEK.setField;
+         FEK.setField = function(id,v){ seen = [id,v]; return realSet(id,v); };
+         try { KEEP.formRestore({__kprobe2:"12"}); }
+         finally { FEK.setField = realSet; d.remove(); }
+         return seen && seen[0]==='__kprobe2' && seen[1]===12;}""") is True, "")
+    ck("and FEK is still there afterwards", pg.evaluate("()=>typeof FEK") == "object", "")
+    ck("no page errors from any of that", not errs, errs[:2])
+    pg.close()
+
     b.close()
 
 print("\n".join("PASS  " + x for x in P))

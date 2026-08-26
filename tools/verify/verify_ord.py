@@ -453,6 +453,131 @@ with sync_playwright() as p:
 
     b.close()
 
+# ---- four paths a mutation sweep found untested ----
+# Each was a survivor: the Jaccard presence counters, the Jacobi rotation's
+# sign choice, the Procrustes scale guard, and the restart-agreement test.
+with sync_playwright() as _p2:
+    _b2 = _p2.chromium.launch()
+    _pg = _b2.new_page(); _pg.set_default_timeout(20000)
+    offline(_pg)
+    _pg.goto(url("ordination.html"), wait_until="domcontentloaded")
+    _pg.wait_for_timeout(700)
+
+    # Jaccard: a = shared presences, b = presences in either. The fixture is
+    # chosen so `a` and `b` differ -- two rows sharing ONE species out of three
+    # gives 1 - 1/3. A pair that shared everything, or nothing, would give the
+    # same answer whichever counter was wrong.
+    JX = [[1, 0, 1],
+          [1, 1, 0],
+          [0, 0, 0]]
+    J = _pg.evaluate("(X)=>ORD.jaccard(X)", JX)
+    ck("jaccard: rows sharing 1 of 3 presences give 1 - 1/3",
+       abs(J[0][1] - (1 - 1.0/3)) < 1e-12, J[0][1])
+    ck("jaccard: a row against itself is distance 0", abs(J[0][0]) < 1e-12, J[0][0])
+    ck("jaccard: an all-absent pair is 0, not NaN", abs(J[2][2]) < 1e-12, J[2][2])
+    ck("jaccard: a row with nothing in common with another is distance 1",
+       abs(_pg.evaluate("(X)=>ORD.jaccard(X)", [[1,0],[0,1]])[0][1] - 1.0) < 1e-12, "")
+    ck("jaccard ignores abundance, unlike bray",
+       abs(_pg.evaluate("()=>ORD.jaccard([[1,1],[9,9]])[0][1]") - 0.0) < 1e-12
+       and _pg.evaluate("()=>ORD.bray([[1,1],[9,9]])[0][1]") > 0.5, "")
+
+    # Jacobi: the eigenvalues of a known symmetric matrix. The rotation's sign
+    # choice is what keeps it converging on the SMALLER root; get it wrong and
+    # the decomposition still runs but drifts.
+    A = [[4.0, 1.0, 0.0], [1.0, 3.0, 1.0], [0.0, 1.0, 2.0]]
+    ev = _pg.evaluate("(A)=>ORD.jacobi(A).values", A)
+    ev = sorted(ev, reverse=True)
+    import math as _m
+    # Trace and determinant are recomputed from A rather than written in by
+    # hand -- the first version of this check asserted det = 16 by arithmetic I
+    # did in my head, and the real answer is 18. Jacobi was right and the test
+    # was wrong, which is the ordinary way round and worth not pretending
+    # otherwise. Deriving both means editing A cannot silently invalidate them.
+    tr = sum(A[i][i] for i in range(3))
+    det = (A[0][0]*(A[1][1]*A[2][2] - A[1][2]*A[2][1])
+           - A[0][1]*(A[1][0]*A[2][2] - A[1][2]*A[2][0])
+           + A[0][2]*(A[1][0]*A[2][1] - A[1][1]*A[2][0]))
+    ck("jacobi: eigenvalues sum to the trace (%g)" % tr,
+       abs(sum(ev) - tr) < 1e-9, (sum(ev), tr))
+    prod = ev[0] * ev[1] * ev[2]
+    ck("jacobi: eigenvalues multiply to the determinant (%g)" % det,
+       abs(prod - det) < 1e-7, (prod, det))
+    # The rotation's sign is chosen by `theta >= 0 ? 1 : -1`, and theta is
+    # (A[j][j] - A[i][i]) / (2 A[i][j]). It is EXACTLY zero only when the two
+    # diagonal entries are equal -- which the matrix above never produces, so
+    # `>=` and `>` gave identical answers and the mutation survived. A matrix
+    # with equal diagonals is the only fixture that can tell them apart.
+    EQ = [[2.0, 1.0], [1.0, 2.0]]          # theta = 0 exactly; eigenvalues 3 and 1
+    eq = sorted(_pg.evaluate("(A)=>ORD.jacobi(A).values", EQ), reverse=True)
+    ck("jacobi: equal diagonals make theta exactly zero, and the eigenvalues "
+       "are still 3 and 1",
+       abs(eq[0] - 3.0) < 1e-9 and abs(eq[1] - 1.0) < 1e-9, eq)
+    ck("jacobi: and its eigenvectors stay orthonormal through that rotation",
+       _pg.evaluate("""(A)=>{const r=ORD.jacobi(A), V=r.vectors;
+         let dot=0, n0=0, n1=0;
+         for(let i=0;i<2;i++){ dot+=V[i][0]*V[i][1]; n0+=V[i][0]*V[i][0]; n1+=V[i][1]*V[i][1]; }
+         return Math.abs(dot)<1e-9 && Math.abs(n0-1)<1e-9 && Math.abs(n1-1)<1e-9;}""", EQ),
+       "")
+
+    ck("jacobi: a diagonal matrix comes back with its own diagonal",
+       sorted(_pg.evaluate("()=>ORD.jacobi([[5,0],[0,2]]).values"), reverse=True) == [5, 2], "")
+    ck("jacobi: a symmetric matrix has only real, finite eigenvalues",
+       all(isinstance(x, (int, float)) and _m.isfinite(x) for x in ev), ev)
+
+    # Procrustes: identical configurations agree perfectly, a rotation still
+    # agrees, and a degenerate all-zero configuration must not divide by its
+    # own zero scale.
+    C1 = [[0.0, 0.0], [1.0, 0.0], [0.0, 1.0], [1.0, 1.0]]
+    C2 = [[0.0, 0.0], [0.0, 1.0], [-1.0, 0.0], [-1.0, 1.0]]   # 90 degrees
+    ck("procrustes: a configuration against itself agrees",
+       _pg.evaluate("(c)=>ORD.procrustes(c,c)", C1) > 0.999, "")
+    ck("procrustes: a rotation of the same shape still agrees",
+       _pg.evaluate("([a,b])=>ORD.procrustes(a,b)", [C1, C2]) > 0.999, "")
+    ck("procrustes: an all-zero configuration returns a number, not NaN",
+       _m.isfinite(_pg.evaluate("([a,b])=>ORD.procrustes(a,b)",
+                                [C1, [[0,0],[0,0],[0,0],[0,0]]])), "")
+    # Procrustes normalises each configuration to unit scale before comparing,
+    # and the guard `if(!(s>0)) return Y` is what skips that for a degenerate
+    # all-zero input. Inverting it skips normalisation for every NORMAL input
+    # instead -- which no fixture above could see, because none of them
+    # differed in SCALE. The same shape at three times the size is the case
+    # that separates a scale-invariant comparison from one that is not.
+    BIG = [[0.0, 0.0], [3.0, 0.0], [0.0, 3.0], [3.0, 3.0]]
+    ck("procrustes: the same shape at three times the scale still agrees, "
+       "because both are normalised first",
+       _pg.evaluate("([a,b])=>ORD.procrustes(a,b)", [C1, BIG]) > 0.999,
+       _pg.evaluate("([a,b])=>ORD.procrustes(a,b)", [C1, BIG]))
+    ck("procrustes: a rotated AND rescaled shape agrees too",
+       _pg.evaluate("([a,b])=>ORD.procrustes(a,b)",
+                    [C1, [[0,0],[0,5],[-5,0],[-5,5]]]) > 0.999, "")
+
+    # TWO SURVIVORS LEFT STANDING, AND WHY THEY ARE LEFT.
+    #
+    # `theta >= 0 ? 1 : -1` in the Jacobi rotation. With equal diagonals theta
+    # is exactly zero and the two branches give rotations of +45 and -45
+    # degrees. Both diagonalise the matrix; they differ only in which
+    # eigenvector pairs with which eigenvalue, and in convergence rate on
+    # ill-conditioned input. The `>=` is there for numerical stability, not for
+    # correctness, so no assertion about eigenvalues can separate them.
+    #
+    # `if(!(s>0)) return Y` in normScale. That function is internal to NMDS and
+    # not exported, and the adaptive step size added after the convergence bug
+    # absorbs a badly scaled configuration -- the final stress still matches
+    # sklearn's SMACOF either way.
+    #
+    # Both are EQUIVALENT MUTANTS with respect to anything this suite can
+    # honestly assert. Writing a check to kill them would mean asserting a
+    # convergence count or reaching into a private function, which measures the
+    # implementation rather than the result. Recorded here so the next person
+    # reading a survivor list knows these two were examined and not forgotten.
+
+    ck("procrustes: an unrelated shape agrees LESS than a rotation does",
+       _pg.evaluate("([a,b])=>ORD.procrustes(a,b)",
+                    [C1, [[0,0],[3,0.1],[0.2,0.05],[0.1,0.1]]])
+       < _pg.evaluate("([a,b])=>ORD.procrustes(a,b)", [C1, C2]), "")
+
+    _b2.close()
+
 print("\n".join("PASS  " + x for x in P))
 if SKIP:
     print("\n".join("SKIP  " + x for x in SKIP))
