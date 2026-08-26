@@ -528,6 +528,52 @@ def convention_windows():
     return [(a, b) for a, b in RANGE.findall(dashed(m.group(1))) if float(b) > float(a)]
 
 
+# A string literal inside a <script> is prose too, when it is a sentence. These
+# bench pages say most of what a reader actually reads at RUNTIME -- the verdict
+# banner after you enter your plates, not the Method tab you may never open --
+# and rule 3 could not see any of it. Five such statements carried a category-2
+# figure with no label.
+#
+# Not every literal, though. "lands in 30-300" is a tile label, and demanding
+# the word "conventional" inside a three-word caption is how a checker teaches a
+# page to get worse. Same cut as headings: a LABEL is not a claim. A literal
+# earns the rule when it is a sentence -- enough words to be one, and the
+# punctuation of one.
+JSSTR = re.compile(r"'((?:[^'\\\n]|\\.)*)'|\"((?:[^\"\\\n]|\\.)*)\"")
+SCRIPTS = re.compile(r"<script\b[^>]*>(.*?)</script>", re.S | re.I)
+MIN_WORDS = 8
+JOINABLE = re.compile(r"^[^;]*\+[^;]*$", re.S)
+
+def statements(html):
+    """Script string literals that read as sentences, not as labels.
+
+    Literals are JOINED across `+` first, because that is what the reader sees:
+
+        FEK.banner("...", "The thermophiles die off above roughly 65-66 C, so a "+
+                          "pile this hot is cooking itself toward a stall. Turn it.")
+
+    is one sentence on screen and two literals in the file. A first version
+    tested each literal alone, and the very banner that motivated this rule
+    escaped it -- the figure sat in the half with no full stop. Two literals
+    join when the text between them carries a `+` and no `;`, so a
+    concatenation joins and two separate statements do not."""
+    out = []
+    for m in SCRIPTS.finditer(html):
+        body = m.group(1)
+        run, end = [], None
+        for lit in JSSTR.finditer(body):
+            text = lit.group(1) if lit.group(1) is not None else lit.group(2)
+            if run and end is not None and JOINABLE.match(body[end:lit.start()]):
+                run.append(text)
+            else:
+                if run: out.append(" ".join(run))
+                run = [text]
+            end = lit.end()
+        if run: out.append(" ".join(run))
+    return [dashed(t) for t in out
+            if len(t.split()) >= MIN_WORDS and re.search(r"[.!?]", t)]
+
+
 def blocks(html):
     """The smallest unit a reader takes in at once, with headings attached.
 
@@ -573,7 +619,7 @@ def unlabelled(pages, figs):
     for name, html in sorted(pages.items()):
         if name == POLICY:          # the policy names them all; that is its job
             continue
-        for text in blocks(html):
+        for text in blocks(html) + statements(html):
             for fig in figs:
                 if states(text, fig) and not LABEL.search(text):
                     out.append((name, "%s-%s" % fig, text))
@@ -610,6 +656,31 @@ ck("a glossary term states the figure and its definition must label it",
    len(unlabelled(DT_BARE, WINDOWS)) == 1, unlabelled(DT_BARE, WINDOWS))
 ck("inline markup does not orphan a figure from its own sentence",
    not unlabelled(INLINE, WINDOWS), unlabelled(INLINE, WINDOWS))
+SCRIPT_BARE = {"x.html": "<script>var m='Every plate is outside the 30-300 window, "
+                         "so there is no defensible count from this run.';</script>"}
+SCRIPT_OK = {"x.html": "<script>var m='Every plate is outside the conventional 30-300 window, "
+                       "so there is no defensible count from this run.';</script>"}
+SCRIPT_LABEL = {"x.html": "<script>var m='lands in 30-300';</script>"}
+SCRIPT_FRAG = {"x.html": "<script>var m='the 30-300 window is the one used here';</script>"}
+ck("a runtime sentence stating a category-2 figure is caught",
+   len(unlabelled(SCRIPT_BARE, WINDOWS)) == 1, unlabelled(SCRIPT_BARE, WINDOWS))
+ck("and labelling it clears the rule",
+   not unlabelled(SCRIPT_OK, WINDOWS), unlabelled(SCRIPT_OK, WINDOWS))
+ck("a three-word tile label is not a claim",
+   not unlabelled(SCRIPT_LABEL, WINDOWS), unlabelled(SCRIPT_LABEL, WINDOWS))
+ck("nor is a fragment with no sentence punctuation",
+   not unlabelled(SCRIPT_FRAG, WINDOWS), unlabelled(SCRIPT_FRAG, WINDOWS))
+SCRIPT_JOIN = {"x.html": "<script>b('t','The window here is 30-300 colonies, so a plate '+"
+                         "'outside it is excluded from the mean.');</script>"}
+SCRIPT_SPLIT = {"x.html": "<script>var a='the 30-300 window'; var b='is where a plate is "
+                          "counted at all, and outside it nothing is.';</script>"}
+ck("a sentence split across a + is judged as the one sentence a reader sees",
+   len(unlabelled(SCRIPT_JOIN, WINDOWS)) == 1, unlabelled(SCRIPT_JOIN, WINDOWS))
+ck("but two separate statements are not welded into one",
+   not unlabelled(SCRIPT_SPLIT, WINDOWS), unlabelled(SCRIPT_SPLIT, WINDOWS))
+ck("a double-quoted literal is read too, not only single",
+   len(unlabelled({"x.html": '<script>var m="Every plate is outside the 30-300 window, '
+                             'so there is no defensible count from this run.";</script>'}, WINDOWS)) == 1)
 ROW_OK = {"x.html": "<tr><td>30-300 rule</td><td>a convention, not a constant</td></tr>"}
 ROW_BARE = {"x.html": "<tr><td>30-300 rule</td><td>plates outside it are excluded</td></tr>"}
 ck("a table row is one unit: a label in the description cell counts",
@@ -627,6 +698,18 @@ for label, page in (("entity", "<p>the 30&ndash;300 rule</p>"),
                     ("hyphen", "<p>the 30-300 rule</p>")):
     ck("a bare figure written with a %s is caught" % label,
        len(unlabelled({"x.html": page}, WINDOWS)) == 1, page)
+
+# A policy example the kit no longer states is a rule policing nothing, and it
+# reads exactly like a rule that is working. This slice created one: rewriting
+# soil-bench's ceiling replaced "65-66" with Cornell's "60-65", and the ADR's
+# entry went on naming a figure no page carried -- three canary mutants
+# survived, not because the rule was weak but because it had nothing left to
+# check. Every listed figure must be stated somewhere.
+stated = {f: [n for n, html in pages.items() if n != POLICY
+              and any(states(t, f) for t in blocks(html) + statements(html))]
+          for f in WINDOWS}
+dead = sorted("%s-%s" % f for f, where in stated.items() if not where)
+ck("every figure ADR-031 lists is one the kit actually states", not dead, dead)
 
 BARE_KIT = unlabelled(pages, WINDOWS)
 ck("no page states an ADR-031 category-2 figure without labelling it",

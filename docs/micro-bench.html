@@ -1005,7 +1005,7 @@ var FEK = (function(){
     var o=$("plOut");
     if(!good.length){
       o.innerHTML='<h3 style="margin-top:0">Result</h3><div class="refuse"><b>No countable plate.</b> '+
-        'Every plate is outside the 30–300 window, so there is no defensible CFU/mL from this run. '+
+        'Every plate is outside the conventional 30–300 window, so there is no defensible CFU/mL from this run. '+
         (plates.every(function(p){return p.c>300;})
           ? 'All plates are TNTC — the dilution series did not go far enough. Extend it by two or three more steps.'
           : (plates.every(function(p){return p.c<30;})
@@ -1078,7 +1078,7 @@ var FEK = (function(){
     });
     h+='</table></div>';
     if(best==null) h+='<div class="warnbox"><b>No step lands in the window.</b> With '+f(vol,2)+' mL plated '+
-      'and this dilution factor, no step gives 30–300 colonies. Change the plated volume, or use a smaller '+
+      'and this dilution factor, no step gives the conventional 30–300 colonies. Change the plated volume, or use a smaller '+
       'dilution factor per step so the series has finer resolution.</div>';
     else h+='<div class="verdict"><b>Plate step '+best+' — and step '+(best+1)+' as well.</b> '+
       'Plating two adjacent dilutions is what lets you notice a series that has gone wrong: if the two '+

@@ -19,7 +19,7 @@ a suite goes green by measuring nothing.
 
 Run:  python3 tools/verify/verify_claims_math.py
 """
-import io, math, os, re, sys
+import glob, io, math, os, re, sys
 from statistics import NormalDist
 
 ROOT = os.path.normpath(os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", ".."))
@@ -171,10 +171,38 @@ if g:
     ck("the prose says ten-fold, which is what the division gives",
        "ten-fold" in page("soil-bench.html") and close(ratio, 10, 1e-9), ratio)
 
-g = grab("soil-bench.html", r"at (\d+) °F \((\d+) °C\)", "NOP temperature cap")
-if g:
-    f, c = g
-    ck("%g °F really is about %g °C" % (f, c), close((f - 32) * 5 / 9, c, 0.5), (f - 32) * 5 / 9)
+# Every Fahrenheit-Celsius pair the kit states, anywhere -- not one sentence.
+#
+# This was `grab("soil-bench.html", r"at (\d+) °F \((\d+) °C\)", ...)` and it
+# broke the moment the sentence around it was rewritten: the claim moved from
+# "at 170 °F" to "permits up to 170 °F" and the check reported the claim gone
+# rather than wrong. Re-pinning it to the new wording would buy the same failure
+# again at the next edit. What the check is actually FOR is that a stated
+# conversion converts, and that is true of every such pair in the kit -- so it
+# now finds them all and names the page and the numbers when one is off.
+FC = re.compile(r"(\d+(?:\.\d+)?) °F\s*(?:</?[a-z]+>\s*)?\((\d+(?:\.\d+)?) °C\)")
+pairs = []
+for name in sorted(os.path.basename(x) for x in glob.glob(os.path.join(DOCS, "*.html"))):
+    for m in FC.finditer(page(name)):
+        pairs.append((name, float(m.group(1)), float(m.group(2))))
+ck("the kit states Fahrenheit-Celsius pairs at all -- otherwise this is vacuous",
+   pairs, pairs)
+def misconverted(rows):
+    """The pairs whose Celsius is not what the Fahrenheit converts to.
+
+    A function, not an inline comprehension, so the fixtures below exercise the
+    SAME code the kit is checked with. Inline, disabling the comparison was an
+    unkillable mutant: with every shipped pair correct, forcing the filter empty
+    changes nothing (ADR-039)."""
+    return [(n, f, c, round((f - 32) * 5 / 9, 2)) for n, f, c in rows
+            if not close((f - 32) * 5 / 9, c, 0.5)]
+
+off = misconverted(pairs)
+ck("every stated °F/°C pair converts (%d checked)" % len(pairs), not off, off)
+ck("a correct pair passes the filter", not misconverted([("x", 170, 76.7)]))
+ck("a wrong one does not", misconverted([("x", 170, 70)]))
+ck("and the half-degree tolerance is a tolerance, not a licence",
+   not misconverted([("x", 212, 100.4)]) and misconverted([("x", 212, 101)]))
 
 # ------------------------------------------------------------------- cp bench
 for f, name in (("cp-bench.html", "cp-bench"), ("cp-suite.html", "cp-suite")):

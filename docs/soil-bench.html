@@ -58,6 +58,8 @@
   .card { background:var(--surface); border:1px solid var(--border); border-radius:16px;
     padding:16px; box-shadow:var(--shadow); margin-bottom:14px; }
   .fine { font-size:12.5px; color:var(--muted); margin-top:10px; line-height:1.55; }
+  /* A source, set apart from the sentence it backs (ADR-053). */
+  .who { font-family:var(--mono); font-size:11px; color:var(--ink); font-weight:500; }
 
   input[type=text], input[type=number], input[type=date], select, textarea {
     background:var(--surface); color:var(--ink); border:1.5px solid var(--border); border-radius:12px;
@@ -477,10 +479,21 @@
             <td>55&nbsp;°C or higher for <b>15 days</b>, with at least <b>5 turnings</b> in that period</td>
             <td>40&nbsp;CFR&nbsp;503 App.&nbsp;B (PFRP); USDA NOP concurs</td></tr>
       </table></div>
-      <p class="fine">The upper bound matters too. The thermophilic organisms doing the work operate to
-        roughly <b>65&ndash;66&nbsp;°C</b>; above that they begin to die off and the pile cooks itself into a
-        stall. NOP caps the acceptable range at 170&nbsp;°F (77&nbsp;°C) for the pathogen requirement, but a
-        pile running at 70&nbsp;°C is not a better pile, it is one that needs turning and probably water.</p>
+      <p class="fine"><b>The upper bound is a convention, and the sources disagree.</b> The two thresholds
+        above are published requirements; the ceiling is not. <span class="who">Cornell Waste Management
+        Institute</span> reports decomposition is fastest at <b>40&ndash;60&nbsp;°C</b>, that most species of
+        microorganism cannot survive above <b>60&ndash;65&nbsp;°C</b>, and that managers therefore keep piles
+        below about <b>65&nbsp;°C</b>. The <span class="who">Rodale Institute</span>'s turn-according-to-
+        temperature method turns at <b>160&nbsp;°F</b> (71&nbsp;°C), on the different argument that the pile is
+        using oxygen faster than it can diffuse in. <span class="who">USDA NOP</span> permits up to
+        <b>170&nbsp;°F</b> (77&nbsp;°C) while the pathogen requirement is being met. Three numbers, three
+        purposes &mdash; a microbial ceiling, an aeration trigger, and a regulatory cap.</p>
+      <p class="fine">This page raises its alarm at <b>66&nbsp;°C</b>, one degree above the top of Cornell's
+        band, so a reading inside the uncertainty does not fire it. That is a <b>conventional</b> choice and
+        not a measured constant. Note also that the fastest-decomposition band ends at 60&nbsp;°C, <em>below</em>
+        the 55&nbsp;°C pathogen floor's useful working range &mdash; so a pile held hot enough to certify is
+        already past peak decomposition rate. Both things are true at once, and neither threshold is wrong;
+        they are answering different questions.</p>
       <div class="fek-banner bad"><b>This page does not certify anything.</b>
         It counts the days and turnings you logged and compares them against the numbers above. Whether a
         given batch meets a regulatory standard depends on probe placement, how many probes, where in the
@@ -1058,7 +1071,7 @@ var TEXNOTE = {
         ". Days and turnings only count while the pile is actually at temperature.","warn"));
     }
     if(over) box.appendChild(FEK.banner(over+" reading"+(over===1?"":"s")+" above 66 °C.",
-      "The thermophiles doing the work die off above roughly 65–66 °C, so a pile this hot is cooking itself "+
+      "Cornell keeps piles below about 65 °C: the thermophiles doing the work die off past 60–65 °C. The 66 °C alarm here is conventional, and a pile this hot is cooking itself "+
       "toward a stall rather than composting faster. Turn it and check the moisture. The pathogen requirement "+
       "has an upper bound too — NOP caps the acceptable range at 77 °C.","bad"));
     var last=readings[readings.length-1];
