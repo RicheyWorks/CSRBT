@@ -23,12 +23,33 @@ from playwright.sync_api import sync_playwright
 
 ROOT = os.path.normpath(os.path.join(os.path.dirname(os.path.abspath(__file__)), ".."))
 DOCS = os.path.join(ROOT, "docs")
-PAGES = sorted(f for f in os.listdir(DOCS) if f.endswith(".html"))
+ALL_PAGES = sorted(f for f in os.listdir(DOCS) if f.endswith(".html"))
+# --only limits which pages are SWEPT, not which exist: every file stays on disk
+# so internal links still resolve. Re-checking one page after an edit took a full
+# 37-page browser sweep before this, which is why nobody ran it that way -- and
+# why the canary suite for this audit was taking nine minutes.
+_only = [a.split("=", 1)[1] for a in sys.argv[1:] if a.startswith("--only=")]
+_want = set(",".join(_only).split(",")) if _only else None
+PAGES = [f for f in ALL_PAGES if f in _want] if _want else ALL_PAGES
+if _want and not PAGES:
+    sys.exit("--only matched no page in docs/")
 findings = []
 ID_REFS = {}
 SRC = {}
+CITED = {}
+ALLOWED_HOSTS = ("fonts.googleapis.com", "fonts.gstatic.com", "claude.ai", "github.com")
+# Tags whose src/href the BROWSER fetches. <a href> is deliberately absent.
+FETCHED = re.compile(
+    r'<\s*(?P<tag>link|script|img|iframe|source|video|audio|embed|object|track|input)\b'
+    r'[^>]*?\b(?:src|href|data|poster)\s*=\s*"(?P<u>https?://[^"]+)"', re.I)
 def F(sev, page, kind, detail):
     findings.append({"sev":sev,"page":page,"kind":kind,"detail":detail})
+
+
+def IN_SCRIPT(src, i):
+    """True if index i falls inside a <script> block -- i.e. the id="X" found
+    there is markup the page WRITES, not markup it ships."""
+    return src.count("<script", 0, i) > src.count("</script", 0, i)
 
 # ---- static pass ----
 for p in PAGES:
@@ -52,11 +73,22 @@ for p in PAGES:
             continue          # an external citation, already counted as one
         if not os.path.exists(os.path.join(DOCS, h.split("#")[0])):
             F("HIGH", p, "dead-link", h)
-    # external resources other than google fonts (CSP risk when published)
-    for u in set(re.findall(r'(?:src|href)="(https?://[^"]+)"', src)):
-        if "fonts.googleapis.com" not in u and "fonts.gstatic.com" not in u and "claude.ai" not in u \
-           and "github.com" not in u:
-            F("MED", p, "external-resource", u)
+    # External SUBRESOURCES -- things the browser fetches on its own, which is
+    # what carries the CSP and offline risk. This rule used to match any src OR
+    # href, so every clickable citation in an ADR or a reference page was
+    # reported as a resource: 15 of the 16 open rows, none of them a risk,
+    # because a link you tap is not a request the page makes. A finder whose
+    # rows are all noise trains you to skim the one that is not.
+    for m in FETCHED.finditer(src):
+        u = m.group("u")
+        if any(k in u for k in ALLOWED_HOSTS):
+            continue
+        F("MED", p, "external-resource", "<%s> %s" % (m.group("tag").lower(), u))
+    for m in re.finditer(r'@import\s+(?:url\()?["\']?(https?://[^"\')\s]+)', src):
+        if not any(k in m.group(1) for k in ALLOWED_HOSTS):
+            F("MED", p, "external-resource", "@import " + m.group(1))
+    CITED[p] = sorted({u for u in re.findall(r'<a\b[^>]*?href="(https?://[^"]+)"', src)
+                       if not any(k in u for k in ALLOWED_HOSTS)})
     # print stylesheet present?
     if "@media print" not in src: F("MED", p, "no-print-css", "page has no @media print block")
     # viewport meta
@@ -73,11 +105,45 @@ for p in PAGES:
         seg = src[max(0,m.start()-160):m.start()]
         if "try" not in seg:
             F("MED", p, "unguarded-localStorage", src[max(0,m.start()-40):m.start()+40].replace("\n"," "))
-    # innerHTML with a raw user-ish variable (XSS-ish smell) — flag only unescaped .value
-    for m in re.finditer(r'innerHTML\s*=\s*[^;]{0,200}', src):
-        seg = m.group(0)
-        if ".value" in seg and "esc(" not in seg and "csvCell" not in seg:
-            F("MED", p, "innerHTML-unescaped-value", seg[:110].replace("\n"," "))
+    # There used to be a rule here called "innerHTML-unescaped-value". It looked
+    # for the substring ".value" inside a 200-character window after innerHTML=
+    # and no "esc(" in that same window. It was wrong three separate ways:
+    # ".value" also matches ".values", a comparison operand (x.value===y) is not
+    # an interpolation, and the 200-character window truncated every multi-line
+    # template so the esc() call further down was invisible. It reported three
+    # findings, all false. Worse: seeding the exact ADR-031 defect -- removing
+    # esc() from a real warning path -- produced ZERO findings, because these
+    # pages assemble HTML into a variable with += and assign it once, so the
+    # assignment expression never contains the concatenation at all.
+    #
+    # A rule that cannot see the defect it is named for, and whose every row is
+    # noise, is not a weak check; it is an anti-check. Following the taint
+    # through hand-written JS is real static analysis with a long false-positive
+    # tail, and this kit already measures escaping where it is decidable: at
+    # runtime, by typing markup into a page and seeing what comes back
+    # (audit_escaping.py, verify_escaping_slice.py, and each page's own suite).
+    #
+    # What IS decidable statically is the crude case: a page that builds HTML by
+    # concatenation and has no escaper anywhere in it.
+    builds = re.search(r'\.innerHTML\s*(=|\+=)\s*[^;]*?["\'`]\s*\+', src) \
+             or re.search(r'insertAdjacentHTML', src)
+    # Detect the escaper by its SIGNATURE, not its name. The first cut of this
+    # rule looked for a function literally called esc(), and reported
+    # field-season -- whose escaper is called escv() and works fine. Naming a
+    # helper differently is not a defect; a rule that says it is has just moved
+    # the false positives somewhere new.
+    has_escaper = re.search(r'replace\s*\(\s*/\[?[&<>"\'\\]+\]?/[gimsu]*', src) \
+                  and "&lt;" in src and "&amp;" in src
+    # A page with no free-text input has nothing for a person to inject THROUGH.
+    takes_text = re.search(r'<(input[^>]*type="text"|textarea)\b', src) \
+                 or re.search(r'\bFEK\.(text|note|picker)\b', src) \
+                 or re.search(r'type\s*=\s*"text"', src)
+    if builds and not has_escaper and takes_text:
+        F("MED", p, "html-assembly-with-no-escaper",
+          "page concatenates HTML from a text field and defines no escaping helper")
+    elif builds and not has_escaper:
+        F("LOW", p, "html-assembly-no-escaper-no-input",
+          "concatenates HTML with no escaper, but has no free-text field to inject through")
 
 # ---- runtime pass ----
 with sync_playwright() as pw:
@@ -115,10 +181,22 @@ with sync_playwright() as pw:
                 for i in sorted(gone):
                     bare = re.findall(
                         r'(?:\$|document\.getElementById)\(\s*"%s"\s*\)\s*\.' % re.escape(i), SRC[p])
-                    if bare:
-                        F("MED", p, "unguarded-ref-to-absent-id",
-                          "%s dereferenced directly and absent at load (%d site%s)"
-                          % (i, len(bare), "" if len(bare) == 1 else "s"))
+                    if not bare:
+                        continue
+                    # Absent at load AND dereferenced bare -- but all eight rows
+                    # this ever reported were controls the page's own script
+                    # writes into markup moments before dereferencing them. That
+                    # is not an unguarded reference, it is a constructor. If the
+                    # script emits id="X" itself, the element exists by the time
+                    # the next line runs, and the runtime js-error rows above are
+                    # what would say otherwise.
+                    built = re.search(
+                        r'id=\\?["\']%s\\?["\']' % re.escape(i), SRC[p])
+                    if built and IN_SCRIPT(SRC[p], built.start()):
+                        continue
+                    F("MED", p, "unguarded-ref-to-absent-id",
+                      "%s dereferenced directly and absent at load (%d site%s)"
+                      % (i, len(bare), "" if len(bare) == 1 else "s"))
             for c in cons:
                 if "ERR_" not in c and "favicon" not in c: F("MED", p, "console-error@"+label, c)
             # horizontal overflow
