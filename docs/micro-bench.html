@@ -58,6 +58,8 @@
   .card { background:var(--surface); border:1px solid var(--border); border-radius:16px;
     padding:16px; box-shadow:var(--shadow); margin-bottom:14px; }
   .fine { font-size:12.5px; color:var(--muted); margin-top:10px; line-height:1.55; }
+  /* A source, set apart from the sentence it backs (ADR-053). */
+  .who { font-family:var(--mono); font-size:11px; color:var(--ink); font-weight:500; }
 
   input[type=text], input[type=number], input[type=date], select, textarea {
     background:var(--surface); color:var(--ink); border:1.5px solid var(--border); border-radius:12px;
@@ -507,9 +509,10 @@
     </div>
 
     <div class="card">
-      <h3 style="margin-top:0">The 30&ndash;300 window</h3>
-      <p class="fine" style="margin-top:0">Only plates with roughly <b>30 to 300</b> colonies are counted.
-        Both ends are real:</p>
+      <h3 style="margin-top:0">The conventional 30&ndash;300 window</h3>
+      <p class="fine" style="margin-top:0">Only plates with roughly <b>30 to 300</b> colonies are counted &mdash;
+        the pour-plate window of <span class="who">APHA Standard Methods 9215</span>, and a convention rather
+        than a constant: see <i>whose window is it</i> below. Both ends are real:</p>
       <ul style="font-size:13px;color:var(--muted);line-height:1.6;margin:0 0 10px;padding-left:20px">
         <li><b>Below 30</b> the Poisson error is large. Counting is a Poisson process, so the coefficient of
           variation is 1&nbsp;&divide;&nbsp;&radic;N: thirty colonies gives 1&nbsp;&divide;&nbsp;&radic;30
@@ -525,7 +528,9 @@
       <p class="fine"><b>Whose window is it?</b> There is no single countable range, and it is worth
         knowing that before someone tells you your plate was out of spec. FDA BAM and USP&nbsp;&lt;1227&gt;
         both specify <b>25&ndash;250</b> for bacteria; USP drops to <b>8&ndash;80</b> for fungi; ASTM gives
-        <b>20&ndash;200</b> for spread plates and <b>30&ndash;300</b> for pour plates; Breed and Dotterrer,
+        <b>20&ndash;200</b> for spread plates and <b>30&ndash;300</b> for pour plates, which is also
+        <b>APHA Standard Methods&nbsp;9215</b> for water (its membrane-filter window is <b>20&ndash;200</b>);
+        Breed and Dotterrer,
         who measured it in 1916, found 50&ndash;200 gave the most repeatable answers. This page uses
         <b>30&ndash;300</b>, which is the general-purpose teaching convention, and it applies that one
         window to both plating methods on this bench even though ASTM would narrow it for the spread

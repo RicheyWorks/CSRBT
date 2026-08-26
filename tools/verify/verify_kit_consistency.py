@@ -455,6 +455,184 @@ ck("the span form earns its place: a year with no author is still a citation",
 ck("and a bare date is not mistaken for a citation",
    not CITE.search("the 2026-08-09 audits") and not CITE.search("window: 2000 operations"), "")
 
+# =========================================================================
+# RULE 3 -- ADR-031's own category-2 list, enforced (ADR-057)
+# =========================================================================
+# ADR-031 sorts every displayed number into three gates, and gate 2 reads:
+#
+#     Ship it labelled a convention -- widely used, useful, but arbitrary or
+#     contested. Examples: ... the 30-300 plate window; 20-50 cells per
+#     haemocytometer square; 40-45 deg C for drying fungal vouchers. The word
+#     conventional must appear beside it.
+#
+# Nothing checked it. Micro Bench spends a paragraph on whose window 30-300
+# actually is ("There is no single countable range"), and the glossary, the
+# field card and the landing page each state the same figure as "the 30-300
+# rule" -- flat, unqualified, and read by more people than the paragraph is.
+# That is ADR-051's defect (the kit contradicting itself) in a shape rule 1
+# cannot see, because rule 1 anchors on a hedged PERCENTAGE and this is a
+# hedged RANGE.
+#
+# THE ANCHOR IS THE POLICY, NOT A LIST I WROTE
+#
+# The figures are read out of ADR-031's own category-2 paragraph. A list
+# retyped here would be a second copy of the policy, free to drift from it,
+# and ADR-039 is about exactly that. Add a figure to the ADR and this rule
+# starts enforcing it with no edit here.
+#
+# WHY NOT THE LITERAL WORD "conventional"
+#
+# The ADR asks for a word; what it wants is a reader able to tell a convention
+# from a constant. fungal-characters says 40-45 deg C is "a starting point to
+# adapt, not a standard", which does that job and never says "convention".
+# Enforcing the token would have forced an edit that made honest prose worse,
+# so this accepts the same vocabulary rule 1 uses, plus the word itself. The
+# ADR's wording is the narrow thing here, and ADR-057 says so rather than
+# having this file quietly disagree with it.
+LABEL = re.compile(HEDGE.pattern + r"|convention|usual working compromise|"
+                   r"starting point to adapt|rules? of thumb|no single\b", re.I)
+
+DASHES = dict.fromkeys(map(ord, "‐‑‒–—−"), "-")
+RANGE = re.compile(r"(?<![\w.-])(\d+(?:\.\d+)?)\s*-\s*(\d+(?:\.\d+)?)(?![\w.-])")
+CAT2 = re.compile(r"Ship it labelled a convention</strong>(.*?)<p>3\.", re.S)
+# Block-level tags only. A first version split on EVERY tag, so "<b>20-50</b>
+# cells per square" became a block holding just the figure, cut off from the
+# sentence that labels it -- and eight of ten reported violations were that
+# artefact. Inline markup stays inside its block and plain() removes it.
+# <td> is deliberately absent. A field-card row is "metric | what it reads",
+# and a reader reads the row; splitting the cells would put the figure in one
+# block and the sentence describing it in the next, so the only way to satisfy
+# the rule would be to cram the label into the narrow nowrap metric cell. The
+# row is the unit, exactly as <dt>+<dd> is.
+BLOCKTAG = re.compile(r"<(/?)((?:li|p|div|dd|dt|section|tr|ul|ol|h[1-6]))\b[^>]*>", re.I)
+HEADING = re.compile(r"h[1-6]$|^dt$", re.I)
+POLICY = "adr-031.html"
+
+
+def dashed(text):
+    """Every dash a reader sees as a range dash, written the one way.
+
+    The kit uses &ndash;, a literal en dash and a hyphen interchangeably. A
+    first version normalised only the entity, read ADR-031's own example list
+    as containing NO ranges, and reported a clean kit -- passing on nothing,
+    which is the failure mode ADR-039 names."""
+    return plain(text).translate(DASHES)
+
+
+def convention_windows():
+    """The ranges ADR-031 itself files under 'ship it labelled a convention'."""
+    src = io.open(os.path.join(DOCS, POLICY), encoding="utf-8").read()
+    m = CAT2.search(src)
+    if not m:
+        return []
+    return [(a, b) for a, b in RANGE.findall(dashed(m.group(1))) if float(b) > float(a)]
+
+
+def blocks(html):
+    """The smallest unit a reader takes in at once, with headings attached.
+
+    A heading is not a claim and not a block: <h3>The 30-300 window</h3> names
+    the prose under it, and a glossary <dt> names its <dd>. So a heading's text
+    PREFIXES the next block rather than standing alone -- which is also what
+    makes the glossary catchable, since the entry titled "30-300 rule" has the
+    figure in its <dt> and the words in its <dd>.
+
+    A <div class="card"> holding five paragraphs is NOT one unit. ADR-051 chose
+    block scope over page scope so a disclaimer at the top could not excuse
+    everything below; a disclaimer three paragraphs BELOW excuses nothing above
+    it for the same reason."""
+    src = re.sub(r"<script\b.*?</script>", " ", html, flags=re.S | re.I)
+    raw, tag, pos = [], "", 0
+    for m in BLOCKTAG.finditer(src):
+        raw.append((tag, dashed(src[pos:m.start()])))
+        tag, pos = ("" if m.group(1) else m.group(2).lower()), m.end()
+    raw.append((tag, dashed(src[pos:])))
+
+    out, carry = [], ""
+    for t, text in raw:
+        if not text:
+            continue
+        if HEADING.match(t or ""):
+            carry = (carry + " " + text).strip()
+            continue
+        out.append((carry + " " + text).strip() if carry else text)
+        carry = ""
+    if carry:                     # a heading with nothing under it still counts
+        out.append(carry)
+    return out
+
+
+def states(text, fig):
+    a, b = fig
+    return re.search(r"(?<![\w.-])%s\s*-\s*%s(?![\w.-])" % (re.escape(a), re.escape(b)), text)
+
+
+def unlabelled(pages, figs):
+    """(page, figure, text) wherever a category-2 figure is stated with no label."""
+    out = []
+    for name, html in sorted(pages.items()):
+        if name == POLICY:          # the policy names them all; that is its job
+            continue
+        for text in blocks(html):
+            for fig in figs:
+                if states(text, fig) and not LABEL.search(text):
+                    out.append((name, "%s-%s" % fig, text))
+    return out
+
+
+WINDOWS = convention_windows()
+ck("ADR-031's category-2 list parses into figures",
+   len(WINDOWS) >= 3, WINDOWS)
+ck("and 30-300, the window this rule was written for, is one of them",
+   ("30", "300") in WINDOWS, WINDOWS)
+
+# The detector, against pages built to fail and to pass. Fixtures first: a
+# rule proved only against the kit passes the moment the kit is fixed, and
+# then goes on passing whatever anyone writes next.
+BARE_PAGE = {"x.html": "<p>Plates are counted under the 30-300 rule.</p>"}
+LBL_PAGE = {"x.html": "<p>The 30-300 window is a convention, not a constant.</p>"}
+FAR_PAGE = {"x.html": "<p>It is a convention.</p><p>Count under the 30-300 rule.</p>"}
+HEAD_PAGE = {"x.html": "<h3>The 30-300 window</h3><p>No single range exists.</p>"}
+HEAD_BARE = {"x.html": "<h3>The 30-300 window</h3><p>Plates outside it are excluded.</p>"}
+DT_BARE = {"x.html": "<dt>30-300 rule</dt><dd>Only plates in that window count.</dd>"}
+INLINE = {"x.html": "<p><b>30-300</b> is the teaching convention here.</p>"}
+ck("a bare category-2 figure is caught", len(unlabelled(BARE_PAGE, WINDOWS)) == 1,
+   unlabelled(BARE_PAGE, WINDOWS))
+ck("a labelled one is not", not unlabelled(LBL_PAGE, WINDOWS),
+   unlabelled(LBL_PAGE, WINDOWS))
+ck("a label in a DIFFERENT block does not excuse it -- that is page scope",
+   len(unlabelled(FAR_PAGE, WINDOWS)) == 1, unlabelled(FAR_PAGE, WINDOWS))
+ck("a heading reads with the prose under it, so its label counts",
+   not unlabelled(HEAD_PAGE, WINDOWS), unlabelled(HEAD_PAGE, WINDOWS))
+ck("and a heading over UNLABELLED prose is still caught",
+   len(unlabelled(HEAD_BARE, WINDOWS)) == 1, unlabelled(HEAD_BARE, WINDOWS))
+ck("a glossary term states the figure and its definition must label it",
+   len(unlabelled(DT_BARE, WINDOWS)) == 1, unlabelled(DT_BARE, WINDOWS))
+ck("inline markup does not orphan a figure from its own sentence",
+   not unlabelled(INLINE, WINDOWS), unlabelled(INLINE, WINDOWS))
+ROW_OK = {"x.html": "<tr><td>30-300 rule</td><td>a convention, not a constant</td></tr>"}
+ROW_BARE = {"x.html": "<tr><td>30-300 rule</td><td>plates outside it are excluded</td></tr>"}
+ck("a table row is one unit: a label in the description cell counts",
+   not unlabelled(ROW_OK, WINDOWS), unlabelled(ROW_OK, WINDOWS))
+ck("and a row with no label anywhere in it is caught",
+   len(unlabelled(ROW_BARE, WINDOWS)) == 1, unlabelled(ROW_BARE, WINDOWS))
+ck("a figure ADR-031 does not list is not policed",
+   not unlabelled({"x.html": "<p>Count under the 77-999 rule.</p>"}, WINDOWS), "")
+ck("the policy page itself is exempt -- listing them is what it is for",
+   not unlabelled({POLICY: "<p>the 30-300 plate window</p>"}, WINDOWS), "")
+# Dash forms, all three, because the kit writes all three and a normaliser
+# that handles one is a checker that reads a third of the kit.
+for label, page in (("entity", "<p>the 30&ndash;300 rule</p>"),
+                    ("literal en dash", "<p>the 30–300 rule</p>"),
+                    ("hyphen", "<p>the 30-300 rule</p>")):
+    ck("a bare figure written with a %s is caught" % label,
+       len(unlabelled({"x.html": page}, WINDOWS)) == 1, page)
+
+BARE_KIT = unlabelled(pages, WINDOWS)
+ck("no page states an ADR-031 category-2 figure without labelling it",
+   not BARE_KIT, [(n, f, t[:70]) for n, f, t in BARE_KIT])
+
+
 print("-" * 70)
 print("%d passed, %d failed" % (ok, bad))
 sys.exit(1 if bad else 0)

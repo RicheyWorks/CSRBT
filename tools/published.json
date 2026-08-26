@@ -6,8 +6,12 @@
     "cp-bench.html": "9434f5fd87d0b487a8c45c442efe87f88c98184f31144338b6aa42ddcef70b98",
     "deployment-log.html": "6061c614ab206b8c33d6687a72ae1769cbb07ceaa65c6cba4a3338baa7bafacf",
     "ecology-field-card.html": {
-      "at": 1787777383,
-      "sha": "8bf115c5b50c94bf2ee4c769f4f7a4e28607db7f5ac46c756705431162e65616"
+      "at": 1787779354,
+      "sha": "77a397c110da86ac37d66f7b5bdbf37f53964548bfc844a194b2eae64bba2a91"
+    },
+    "ecology-glossary.html": {
+      "at": 1787779354,
+      "sha": "4d4464657944e2515d8abc6fbbed5abaf6af02902cea115e634b82e52138f3ff"
     },
     "ecology-lab-manual.html": {
       "at": 1787777383,
