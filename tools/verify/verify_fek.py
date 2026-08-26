@@ -156,9 +156,74 @@ with sync_playwright() as p:
     ck("omitting value entirely is what starts null",
        pg.evaluate("()=>A.nullable")==True, "")
 
+    # ---- the picker's FILTER, which nothing drove until a mutation sweep asked
+    # A mutation changing the filter's `indexOf(qq) >= 0` to `> 0` survived this
+    # whole suite. That single character breaks the picker for the normal case:
+    # indexOf returns 0 when a query matches the START of an option, which is
+    # what happens when anyone types the first letters of the thing they want.
+    # The suite had one picker check -- that FEK.picker was a function.
+    #
+    # The fixture below is chosen to DISCRIMINATE: "may" matches "mayfly nymph"
+    # at index 0 and "perch" at nowhere, so >=0 and >0 give different answers.
+    # A query that matched mid-string would pass under either and test nothing.
+    pg.evaluate("""()=>{
+      window.__P = FEK.picker({label:"probe", options:[
+        {value:"a", label:"mayfly nymph", sub:"insect"},
+        {value:"b", label:"perch",        sub:"fish"},
+        {value:"c", label:"water flea",   sub:"crustacean"}]});
+      const h=document.createElement('div'); h.id='hpick';
+      document.body.appendChild(h); h.appendChild(window.__P.el);
+    }""")
+    pg.wait_for_timeout(150)
+    def shown():
+        return pg.evaluate("()=>[...document.querySelectorAll('#hpick .opt')]"
+                           ".map(b=>b.textContent)")
+    ck("the picker lists every option before filtering", len(shown()) == 3, shown())
+
+    def type_filter(q):
+        pg.evaluate("""(q)=>{const s=document.querySelector('#hpick .search');
+          s.value=q; s.dispatchEvent(new Event('input',{bubbles:true}));}""", q)
+        pg.wait_for_timeout(120)
+
+    type_filter("may")
+    got = shown()
+    ck("a query matching the START of a label still finds it — indexOf returns 0 there",
+       len(got) == 1 and "mayfly" in got[0], got)
+    type_filter("erc")
+    got = shown()
+    ck("a query matching mid-label finds it too", len(got) == 1 and "perch" in got[0], got)
+    type_filter("fish")
+    ck("the sub-label is searched as well as the label", len(shown()) == 1, shown())
+    type_filter("MAY")
+    ck("filtering is case-insensitive", len(shown()) == 1, shown())
+    type_filter("zzz")
+    ck("no match shows the empty state rather than an empty box",
+       len(shown()) == 0
+       and bool(pg.evaluate("()=>document.querySelector('#hpick .none')")), shown())
+    ck("and the empty state says how many options there are",
+       "3" in (pg.evaluate("()=>{const n=document.querySelector('#hpick .none');"
+                           "return n?n.textContent:'';}") or ""), "")
+    type_filter("")
+    ck("clearing the filter brings every option back", len(shown()) == 3, shown())
+
+    pg.evaluate("()=>[...document.querySelectorAll('#hpick .opt')][1].click()")
+    pg.wait_for_timeout(120)
+    ck("choosing an option reports its value, not its label",
+       pg.evaluate("()=>window.__P.get()") == "b", pg.evaluate("()=>window.__P.get()"))
+    ck("and the chosen option is marked",
+       pg.evaluate("()=>!!document.querySelector('#hpick .opt.on')"), "")
+    pg.evaluate("()=>window.__P.set('c')")
+    pg.wait_for_timeout(120)
+    ck("set() moves the selection", pg.evaluate("()=>window.__P.get()") == "c", "")
+
     ck("no errors after the run", not errs, errs[:2])
     b.close()
 
 for x in F: print("FAIL:",x)
 print("PASS",len(P))
 print("---"); print("%d/%d"%(len(P),len(P)+len(F)))
+
+# A suite that cannot fail the run is not a check. This one printed its FAIL
+# lines and exited zero, so run_all marked it green whatever it found -- for
+# eleven suites in this kit, "green" meant "the process did not crash".
+raise SystemExit(1 if F else 0)

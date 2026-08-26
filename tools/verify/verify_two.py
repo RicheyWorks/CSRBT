@@ -184,3 +184,8 @@ with sync_playwright() as p:
 for x in F: print("FAIL:",x)
 print("PASS",len(P))
 print("---"); print("%d/%d"%(len(P),len(P)+len(F)))
+
+# A suite that cannot fail the run is not a check. This one printed its FAIL
+# lines and exited zero, so run_all marked it green whatever it found -- for
+# eleven suites in this kit, "green" meant "the process did not crash".
+raise SystemExit(1 if F else 0)

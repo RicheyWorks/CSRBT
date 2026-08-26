@@ -48,6 +48,9 @@ PASSFAIL = re.compile(r"^(\d+)\s+passed,\s+(\d+)\s+failed\s*$")
 # race under -j 4 did exactly that. The last line was then an exception name,
 # and run_all printed it in the column where the score goes, on a row marked ok.
 # A row that cannot show a score must not be allowed to show a traceback either.
+# Anchored at line start and word-bounded: "FAIL" and "FAIL:" are results,
+# "FAILURES" in a table header is not.
+FAIL_LINE = re.compile(r"^[ \t]*FAIL\b", re.M)
 NOISE = re.compile(r"^(Traceback \(most recent call last\)|\s+File \"|"
                    r"[A-Za-z_][\w.]*(?:Error|Exception|Warning)\b)")
 
@@ -102,7 +105,7 @@ def main():
     print("root: %s" % ROOT)
     print("-" * 76)
 
-    results, failed, noisy_jobs = [], [], []
+    results, failed, noisy_jobs, silent_failures = [], [], [], []
     with cf.ThreadPoolExecutor(max_workers=max(1, a.jobs)) as ex:
         futs = {ex.submit(run, path, cwd): (kind, name, what)
                 for kind, name, what, path, cwd in jobs}
@@ -116,7 +119,32 @@ def main():
     results.sort(key=lambda r: (order[r[0]], r[1]))
     passed = checks = total = 0
     for kind, name, what, rc, got, tot, secs, out in results:
-        if rc == 0:
+        # THE EXIT CODE IS NOT THE ONLY EVIDENCE, AND FOR A THIRD OF THESE
+        # SUITES IT IS NOT EVIDENCE AT ALL.
+        #
+        # A mutation sweep found that verify_fek prints its FAIL lines and then
+        # exits 0. Eleven suites have no exit statement whatsoever. For every
+        # one of them "green" has meant "the process did not crash", and the
+        # headline "N of N jobs green" was counting jobs that could not have
+        # said otherwise.
+        #
+        # The score is already parsed. When it shows a shortfall, that is a
+        # failure whatever the process claimed on the way out -- and it covers
+        # every suite written from here on without anyone remembering to add an
+        # exit line. Belt and braces, with the braces doing the work.
+        short = (got is not None and tot is not None and got < tot)
+        # A RESULT line, not the substring. The first version of this rule used
+        # `"FAIL" in out` and flagged audit_contrast on its first run, because
+        # that audit prints a column header reading "AA FAILURES". One false
+        # positive out of forty-five jobs, on the rule's debut -- the same
+        # defect ADR-040 is about, in the fix for a different one. A row that
+        # is right about what it matched and wrong about what the match means.
+        says_fail = bool(FAIL_LINE.search(out))
+        if rc == 0 and (short or says_fail):
+            mark = "FAIL*"
+            failed.append((name, out))
+            silent_failures.append((name, got, tot, rc))
+        elif rc == 0:
             mark = "ok"
             passed += 1
         else:
@@ -136,6 +164,15 @@ def main():
 
     print("-" * 76)
     print("%d of %d jobs green" % (passed, len(results)))
+    if silent_failures:
+        print("")
+        print("%d job(s) FAILED WHILE EXITING ZERO -- marked FAIL* above. A suite that"
+              % len(silent_failures))
+        print("cannot fail the run is not a check, and the exit code is not the only")
+        print("evidence: the score it printed is.")
+        for name, got, tot, rc in silent_failures:
+            print("  %-22s %s   rc=%d"
+                  % (name, ("%s/%s" % (got, tot)) if got is not None else "(no score)", rc))
     if noisy_jobs:
         print("")
         print("%d job(s) exited 0 while printing a traceback -- green is not the whole"
