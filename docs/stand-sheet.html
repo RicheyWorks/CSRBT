@@ -456,8 +456,9 @@
         <button class="btn btn-ghost" id="htToggle" type="button">📐 Height from angles</button>
       </div>
       <p class="fine">Enter a circumference instead if that's what your tape gives:
-        DBH = C ÷ π. <b>Measure at 1.37 m</b> on the uphill side; for a fork below breast height, record
-        each stem separately and say so in the note.</p>
+        DBH = C ÷ π. <b>Measure at the breast height you set on the Plot tab</b> &mdash; 1.37&nbsp;m is the
+        North American convention, 1.30&nbsp;m is used through most of the world &mdash; on the uphill
+        side; for a fork below breast height, record each stem separately and say so in the note.</p>
     </div>
 
     <div class="card" id="htCard" style="display:none">
@@ -509,6 +510,7 @@
       <input type="hidden" id="sLen" value="20">
       <input type="hidden" id="sWid" value="20">
       <input type="hidden" id="sMin" value="5">
+      <input type="hidden" id="sBH" value="1.37">
       <div id="sArea" class="verdict"></div>
       <p class="fine">11.28 m radius = 400 m² = 0.04 ha, the common US fixed plot. 5.64 m = 100 m². State your
         minimum tallied diameter — expansion factors are meaningless without it.</p>
@@ -658,7 +660,7 @@
       <div class="tw"><table>
         <tr><th>Quantity</th><th>Formula</th><th>Watch out</th></tr>
         <tr><td>Basal area</td><td>BA = π(DBH/2)² &nbsp;→&nbsp; m² = 0.00007854 · DBH²<sub>cm</sub></td>
-          <td>Measured at 1.37 m, uphill side. Forks below that are separate stems.</td></tr>
+          <td>Measured at the breast height set on the Plot tab (1.37&nbsp;m N. America, 1.30&nbsp;m most elsewhere), uphill side. Forks below that are separate stems.</td></tr>
         <tr><td>Height</td><td>H = D·(tan θ<sub>top</sub> − tan θ<sub>base</sub>)</td>
           <td>Horizontal distance, not slope distance. Leaning stems invalidate it.</td></tr>
         <tr><td>DBH from tape</td><td>DBH = C / π</td><td>Only if the tape is a circumference tape.</td></tr>
@@ -2007,7 +2009,7 @@ var DWC = (function(){
       placeholder:"type a name to filter…",
       help:"The pack for your region loads here. An unidentified stem still counts toward density and basal area — tally it as unknown rather than guessing." });
     TDBH = TDBH || FEK.step({ label:"DBH", unit:"cm", value:0, min:0, max:400, step:0.5, dec:1,
-      help:"Measured at 1.37 m on the uphill side. Hold − or + to run the number. A tape giving circumference: DBH = C ÷ π." });
+      help:"Measured at the breast height set on the Plot tab, on the uphill side. Hold − or + to run the number. A tape giving circumference: DBH = C ÷ π." });
     THT = THT || FEK.step({ label:"height", unit:"m", value:0, min:0, max:120, step:0.5, dec:1,
       help:"Optional. Leave at 0 and the stem still tallies; the height statistics simply skip it." });
     TCC = TCC || FEK.dial({ label:"crown class", options:CROWN, value:"C", clearable:false });
@@ -2158,12 +2160,27 @@ var DWC = (function(){
     onchange:function(v){ push("sLen",v); } });
   GEO.wid = FEK.step({ field:"sWid", label:"width", unit:"m", value:20, min:0, max:200, step:1, dec:0,
     onchange:function(v){ push("sWid",v); } });
+  /* Breast height is a METHOD PARAMETER, not a constant, and this sheet used to
+     fix it silently at 1.37 m in four places. 1.37 m (4 ft 6 in) is the North
+     American convention; most of the world measures at 1.30 m, and Australia,
+     New Zealand, India, Malaysia and South Africa historically used 1.40 m. A
+     stem taper of a few centimetres over that 7 cm changes DBH, and DBH is
+     squared into basal area and QMD and raised to 1.605 in SDI -- so two sheets
+     recorded on different continents are not comparable unless each says which
+     height it used. This page already refuses to export an expansion factor
+     without a minimum tallied diameter, for exactly the same reason. */
+  GEO.bh = FEK.dial({ field:"sBH", label:"breast height", clearable:false, value:1.37,
+    options:[{value:1.30,label:"1.30 m",sub:"most of the world",ramp:1},
+             {value:1.37,label:"1.37 m",sub:"N. America (4 ft 6 in)",ramp:2},
+             {value:1.40,label:"1.40 m",sub:"historic AU/NZ/IN/MY/ZA",ramp:3}],
+    onchange:function(v){ push("sBH",v); },
+    help:"Recorded with the data. Measured on the uphill side here \u2014 the highest point of ground touching the trunk; some protocols average the high and low sides instead, which is a different number on a steep slope." });
   GEO.min = FEK.step({ field:"sMin", label:"min DBH tallied", unit:"cm", value:5, min:0, max:100, step:0.5, dec:1,
     onchange:function(v){ push("sMin",v); },
     help:"Expansion factors are meaningless without it — state the diameter below which you stopped tallying." });
   function geoPaint(){
     var rect = val("sDesign")==="rect";
-    var parts=[GEO.design].concat(rect?[GEO.len,GEO.wid]:[GEO.rad]).concat([GEO.min]);
+    var parts=[GEO.design].concat(rect?[GEO.len,GEO.wid]:[GEO.rad]).concat([GEO.bh,GEO.min]);
     FEK.mount("geoEntry",parts);
   }
   geoPaint();
@@ -2254,7 +2271,7 @@ var DWC = (function(){
     } else $("sHeatload").innerHTML="";
     cwdOut(); ecoOut();
   }
-  ["sDesign","sRad","sLen","sWid","sAsp","sSlope","sMin"].forEach(function(id){ $(id).addEventListener("input",siteOut); });
+  ["sDesign","sRad","sLen","sWid","sAsp","sSlope","sMin","sBH"].forEach(function(id){ $(id).addEventListener("input",siteOut); });
   ["sPlot","sLoc","sObs","sDate","sLat","sLon","sElev","sPos","sSoil","sParent","sMoist","sCan","sShrub","sHerb",
    "sBare","sLit","sBrowse","sNotes"].forEach(function(id){ $(id).addEventListener("input",ecoOut); });
 
@@ -2452,7 +2469,8 @@ var DWC = (function(){
     if(meta.length) L.push("# "+meta.join(" — "));
     if(A>0) L.push("# plot: "+(val("sDesign")==="rect"?"rectangle "+val("sLen")+"×"+val("sWid")+" m"
       :"circle r="+val("sRad")+" m")+" = "+A.toFixed(0)+" m² ("+(A/10000).toFixed(4)+" ha), EF "+E.toFixed(1)
-      +(num("sMin")!==null?", min DBH "+num("sMin")+" cm":""));
+      +(num("sMin")!==null?", min DBH "+num("sMin")+" cm":"")
+      +(num("sBH")!==null?", breast height "+num("sBH").toFixed(2)+" m":""));
     var phys=[];
     if(num("sAsp")!==null) phys.push("aspect "+num("sAsp")+"°");
     if(num("sSlope")!==null) phys.push("slope "+num("sSlope")+"%");

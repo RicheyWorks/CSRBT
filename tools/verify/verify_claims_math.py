@@ -81,10 +81,29 @@ if g:
     ck("√(1 + %g²) really is %g" % (grade, factor), close(real, factor, 0.005), real)
     ck("that really is about %g%% over" % pct, close(100 * (real - 1), pct, 0.5), 100 * (real - 1))
 
-g = grab("stand-sheet.html", r"Measured at ([\d.]+) m on the uphill side", "breast height")
+# Breast height moved from four hardcoded sentences into a control, because it
+# is a method parameter and not a constant: 1.37 m is North American, 1.30 m is
+# most of the world. This check moved with it, and now reads the option that
+# states an imperial equivalent -- the one place on the page where two units
+# claim to be the same length.
+g = grab("stand-sheet.html",
+         r'\{value:([\d.]+),label:"[\d.]+ m",sub:"N\. America \((\d+) ft (\d+) in\)"',
+         "breast height, North American option")
 if g:
-    ck("1.37 m is 4.5 ft, the height the US convention actually names",
-       close(g[0], 4.5 * 0.3048, 0.005), g[0])
+    metres, ft, inch = g
+    imperial = (ft + inch / 12.0) * 0.3048
+    ck("%g m really is %g ft %g in" % (metres, ft, inch),
+       close(metres, imperial, 0.005), imperial)
+
+# And the choice offered is the set of conventions that actually exist, not one
+# height presented as universal. Recomputed from the page, never pinned: the
+# assertion is that each option's label agrees with its own value.
+opts = re.findall(r'\{value:(1\.\d+),label:"([\d.]+) m"', page("stand-sheet.html"))
+ck("the breast-height control offers more than one convention", len(opts) >= 2, opts)
+ck("every option's label states its own value",
+   all(close(float(v), float(lab), 1e-9) for v, lab in opts), opts)
+ck("and 1.30 m -- the height most of the world uses -- is among them",
+   any(abs(float(v) - 1.30) < 1e-9 for v, _ in opts), opts)
 
 # --------------------------------------------------------------------- relevé
 g = grab("releve.html",

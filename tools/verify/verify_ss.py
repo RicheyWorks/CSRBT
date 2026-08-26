@@ -128,7 +128,19 @@ with sync_playwright() as p:
 
     # -------------- PLOT --------------
     pg.click('.tab[data-pane="p-plot"]'); pg.wait_for_timeout(300)
-    ck("geometry is FEK", pg.eval_on_selector_all("#geoEntry .fek-row","e=>e.length")==3, "")
+    # Not a count. "== 3" was an assertion that a legitimate change breaks, and
+    # it broke the moment breast height became a control instead of a constant
+    # baked into four sentences (ADR-041). What the check means is that the
+    # geometry block is built from the kit's components and carries the
+    # parameters an expansion factor is meaningless without -- so it names them.
+    geo_labels = pg.eval_on_selector_all(
+        "#geoEntry .fek-lab", "e=>e.map(x=>x.textContent.toLowerCase())")
+    ck("geometry is FEK", pg.eval_on_selector_all("#geoEntry .fek-row","e=>e.length")>=3,
+       geo_labels)
+    ck("geometry names its method parameters, not just its shape",
+       any("breast height" in l for l in geo_labels)
+       and any("min dbh" in l for l in geo_labels)
+       and any("design" in l for l in geo_labels), geo_labels)
     ck("physiography is FEK", pg.eval_on_selector_all("#physEntry .fek-row","e=>e.length")==5, "")
     ck("cover is FEK", pg.eval_on_selector_all("#covEntry .fek-row","e=>e.length")==6, "")
     ck("no legacy select left on plot",
@@ -142,7 +154,16 @@ with sync_playwright() as p:
       .find(x=>x.textContent.indexOf('rectangle')>=0); c.click();}""")
     pg.wait_for_timeout(300)
     ck("rectangle swaps in length and width",
-       pg.eval_on_selector_all("#geoEntry .fek-step","e=>e.length")==3, "")
+       # The unit span sits inside the label element, so textContent reads
+       # "lengthm" and "widthm" -- prefix, not equality.
+       all(any(l.startswith(w) for l in pg.eval_on_selector_all(
+           "#geoEntry .fek-lab","e=>e.map(x=>x.textContent.toLowerCase())"))
+           for w in ("length","width")),
+       pg.eval_on_selector_all("#geoEntry .fek-lab","e=>e.map(x=>x.textContent)"))
+    ck("and the radius goes away with it",
+       not any(l.startswith("radius") for l in pg.eval_on_selector_all(
+           "#geoEntry .fek-lab","e=>e.map(x=>x.textContent.toLowerCase())")),
+       pg.eval_on_selector_all("#geoEntry .fek-lab","e=>e.map(x=>x.textContent)"))
     ck("20x20 = 400 m2", "400 m²" in pg.inner_text("#sArea"), pg.inner_text("#sArea")[:120])
     pg.evaluate("""()=>{const c=[...document.querySelectorAll('#geoEntry .fek-chip')]
       .find(x=>x.textContent.indexOf('circle')>=0); c.click();}""")
@@ -185,6 +206,30 @@ with sync_playwright() as p:
     ck("export names the plot geometry", "circle r=11.28 m" in eco, eco[:300])
     ck("export carries the expansion factor", "EF %.1f"%E in eco, eco[:300])
     ck("export carries min DBH", "min DBH 5" in eco, eco[:300])
+    # Breast height is a method parameter: 1.37 m is North American, 1.30 m is
+    # the rest of the world, and DBH is squared into basal area and QMD and
+    # raised to 1.605 in SDI. Two sheets recorded at different heights are not
+    # comparable, so the sheet has to SAY which it used -- exactly the rule it
+    # already applies to the minimum tallied diameter. Checked on the export,
+    # not on the control: a control nothing records is decoration.
+    ck("export records the breast height used", "breast height 1.37 m" in eco, eco[:400])
+    # Guarded. An unguarded .click() on a control that is not there raises, and
+    # a check that raises has told you nothing -- worse, it aborts the run and
+    # hides every check after it. A canary that removed the control crashed the
+    # suite instead of failing the two checks that name it.
+    def bhclick(text):
+        return pg.evaluate("""(t)=>{const b=[...document.querySelectorAll(
+          '#geoEntry .fek-dial button')].find(x=>x.textContent.indexOf(t)>=0);
+          if(!b) return false; b.click(); return true;}""", text)
+
+    ck("the breast-height control is a dial that can be changed", bhclick("1.30"), "")
+    pg.wait_for_timeout(300)
+    eco130=pg.evaluate("()=>document.getElementById('ecoOut').textContent")
+    ck("and it follows the control rather than being hardcoded",
+       "breast height 1.30 m" in eco130 and "breast height 1.37 m" not in eco130, eco130[:400])
+    bhclick("1.37")
+    pg.wait_for_timeout(300)
+    eco=pg.evaluate("()=>document.getElementById('ecoOut').textContent")
     ck("export carries the folded-aspect entry", "aspect 45" in eco, eco[:400])
     ck("export carries canopy cover", "canopy 60%" in eco, eco[:500])
     ck("export carries CWD", "coarse woody debris %.1f m3/ha"%V2 in eco, eco[:600])
