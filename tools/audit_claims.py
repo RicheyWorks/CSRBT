@@ -37,10 +37,13 @@ Run:  python3 tools/audit_claims.py
 import glob, os, re, sys
 from playwright.sync_api import sync_playwright
 
+# --full prints each claim whole. Triage needs the sentence, not its first
+# 150 characters -- half these lines were cut mid-number.
+FULL = "--full" in sys.argv
 DOCS = os.path.normpath(os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "docs")) + os.sep
 
 PROBE = r"""
-() => {
+(FULL) => {
   const UNIT = /(?:^|[\s(])(?:[<>≤≥±~]\s*)?\d[\d.,]*\s*(?:°C|°F|\bK\b|mm|cm|\bm\b|km|µm|nm|\bg\b|kg|mg|ppm|ppb|mL|\bL\b|pH|%|days?|weeks?|hours?|hrs?|minutes?|min\b|seconds?|GDD|lux|kPa|bar|mS\/cm|dS\/m)(?![\w-])/i;
   const CMP  = /(?:^|\s)(?:at least|no more than|not below|not above|below|above|under|over|greater than|less than|between)\s+\d/i;
   // Case-insensitive: the kit labels its own conventions as "Rule of thumb:" at
@@ -103,7 +106,7 @@ PROBE = r"""
     if (el.querySelector('.cite, .src, .ref, cite')) return;
     if (par && par !== document.body && par.querySelector('.cite, .src, .ref, cite, sup a')) return;
 
-    out.push(t.slice(0, 150));
+    out.push(FULL ? t : t.slice(0, 150));
   });
   return out;
 }
@@ -131,7 +134,7 @@ def main():
             try:
                 pg.goto("file://" + path, wait_until="domcontentloaded")
                 pg.wait_for_timeout(600)
-                hits = pg.evaluate(PROBE)
+                hits = pg.evaluate(PROBE, FULL)
             except Exception as exc:
                 rows.append((nm, None, str(exc)[:60])); continue
             seen, uniq = set(), []

@@ -560,7 +560,7 @@
         <tr><td>Ground cover</td><td>basal hits ÷ points read × 100</td>
           <td>Bare soil, litter, rock, moss and biocrust are cover types too — record them or your denominator lies.</td></tr>
         <tr><td>Precision</td><td>≈ √(p(1−p)/n)</td>
-          <td>Binomial. At 100 points a 20% cover estimate carries roughly ±4 percentage points of standard error — before observer error.</td></tr>
+          <td>Binomial: the standard error is &radic;(p(1&minus;p)/n). At 100 points a 20% cover estimate gives &radic;(0.20&nbsp;&times;&nbsp;0.80&nbsp;&divide;&nbsp;100)&nbsp;=&nbsp;0.04, so roughly &plusmn;4 percentage points &mdash; before observer error.</td></tr>
       </table></div>
       <p class="fine">LPI is repeatable in a way ocular cover never is: two observers on the same
         transect will agree far more closely than two observers eyeballing the same quadrat. It is also
@@ -1549,7 +1549,7 @@ var DWC = (function(){
     onchange:function(v){ push("lInt",v); } });
   var LNUM=FEK.step({ field:"lNum", label:"transects", value:1, min:1, max:50, step:1, dec:0,
     onchange:function(v){ push("lNum",v); },
-    help:"One transect is one sample. Precision comes from several — the binomial error on 50 points is about 7 percentage points at 50% cover." });
+    help:"One transect is one sample. Precision comes from several — the binomial standard error is √(p(1−p)/n), so at 50% cover on 50 points that is √(0.25 ÷ 50) ≈ 7 percentage points." });
   FEK.mount("lpiEntry",[LLEN,LINT,LNUM]);
   function phenName(k){ for(var i=0;i<PHENO.length;i++) if(PHENO[i][0]===k) return PHENO[i][1]; return k; }
   try{ $("sDate").value=new Date().toISOString().slice(0,10); }catch(e){}

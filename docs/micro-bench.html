@@ -511,9 +511,10 @@
       <p class="fine" style="margin-top:0">Only plates with roughly <b>30 to 300</b> colonies are counted.
         Both ends are real:</p>
       <ul style="font-size:13px;color:var(--muted);line-height:1.6;margin:0 0 10px;padding-left:20px">
-        <li><b>Below 30</b> the Poisson error is large. Thirty colonies carries a CV of about 18%; ten carries
-          about 32%. The plate is not wrong, it is imprecise, and averaging several such plates is better than
-          quoting one.</li>
+        <li><b>Below 30</b> the Poisson error is large. Counting is a Poisson process, so the coefficient of
+          variation is 1&nbsp;&divide;&nbsp;&radic;N: thirty colonies gives 1&nbsp;&divide;&nbsp;&radic;30
+          &asymp; 18%, ten gives 1&nbsp;&divide;&nbsp;&radic;10 &asymp; 32%. The plate is not wrong, it is
+          imprecise, and averaging several such plates is better than quoting one.</li>
         <li><b>Above 300</b> colonies merge, crowd, and compete for nutrients, so you undercount by a growing
           and unknowable amount. This is a <b>bias</b>, not noise, and more plates will not fix it.</li>
       </ul>

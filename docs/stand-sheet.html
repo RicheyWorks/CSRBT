@@ -2177,7 +2177,7 @@ var DWC = (function(){
     help:"Eight points is what a compass gives you in the field without pretending to a precision you did not measure. The colour is the heat-load axis: SW is the drought end, NE the moist end." });
   PHY.slope = FEK.step({ field:"sSlope", label:"slope", unit:"%", value:0, min:0, max:200, step:5, dec:0,
     onchange:function(v){ push("sSlope",v); },
-    help:"Percent, not degrees — 100% is a 45° slope." });
+    help:"Percent, not degrees — rise ÷ run × 100, so 100% = a 45° slope (tan 45° = 1)." });
   PHY.pos = FEK.dial({ field:"sPos", label:"slope position",
     options:[{value:"ridge",label:"ridge"},{value:"upper slope",label:"upper"},
              {value:"mid slope",label:"mid"},{value:"lower slope",label:"lower"},
@@ -2223,7 +2223,7 @@ var DWC = (function(){
 
   HT.d = FEK.step({ field:"hD", label:"horizontal distance", unit:"m", value:0, min:0, max:200, step:1, dec:1,
     onchange:function(v){ push("hD",v); },
-    help:"Horizontal, not slope distance — on a 20% slope, slope distance overestimates by about 2%." });
+    help:"Horizontal, not slope distance — the slope distance is √(1 + 0.20²) = 1.02 times the horizontal, so it overestimates by about 2%." });
   HT.u = FEK.chips({ field:"hU", label:"angle units", single:true, value:["deg"],
     options:[{value:"deg",label:"degrees"},{value:"pct",label:"percent"}],
     onchange:function(a){ push("hU", a[0]||"deg"); } });

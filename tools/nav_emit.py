@@ -88,8 +88,13 @@ def main(argv):
         if out != src and not check:
             io.open(path, "w", encoding="utf-8").write(out)
 
-    print("kit rail v%s -- %d chips in %d groups, %d references"
-          % (nav.VERSION, sum(len(c) for _, c in nav.GROUPS), len(nav.GROUPS), len(nav.REFS)))
+    # The banner used to say "3 references" flatly, which stopped being true the
+    # day pages could carry a fourth of their own. A banner that misdescribes the
+    # thing it introduces is a small lie in a place people trust.
+    print("kit rail v%s -- %d chips in %d groups, %d shared references"
+          " + a suite link on %d page(s)"
+          % (nav.VERSION, sum(len(c) for _, c in nav.GROUPS), len(nav.GROUPS),
+             len(nav.REFS), len(nav.UP)))
     print("-" * 64)
     for n in changed:
         print("%-28s %s" % (n, "would be rewritten" if check else "rewritten"))

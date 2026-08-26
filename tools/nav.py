@@ -57,10 +57,32 @@ REFS = [
     ("ecology-glossary.html",    "glossary"),
 ]
 
+# Three refs for every page erased a fourth that some pages had: an "up to the
+# suite" link. The published Soil Bench still carries "↑ Soil & compost suite";
+# the repo copy lost it the day the rail became generated, because the generator
+# had no concept of a page-specific ref. Nobody noticed until a republish
+# compared the two. Generated navigation is only as good as what the generator
+# knows about, and it did not know about this.
+#
+# A suite is a page's parent, not a sibling: it belongs above the hub link.
+UP = {}
+for _suite, _label, _members in [
+    ("soil-suite.html",     "↑ Soil &amp; compost suite",
+     ["soil-bench.html"]),
+    # cp-characters is a chip IN the rail but carries no rail of its own, so an
+    # entry for it here would be config that can never fire. Left out on purpose.
+    ("cp-suite.html",       "↑ Carnivorous plant suite",
+     ["cp-bench.html"]),
+    ("breeding-suite.html", "↑ Breeding suite",
+     ["breeding-bench.html", "selection-log.html"]),
+]:
+    for _m in _members:
+        UP[_m] = (_suite, _label)
+
 
 def hrefs():
     out = [h for _, chips in GROUPS for h, _, _ in chips]
-    return out + [h for h, _ in REFS]
+    return out + [h for h, _ in REFS] + [h for h, _ in UP.values()]
 
 
 def rail(current=None):
@@ -81,7 +103,7 @@ def rail(current=None):
             L.append('    <a href="%s"%s><span>%s</span>%s</a>' % (href, cur, icon, label))
         L.append('  </div>')
     L.append('  <div class="chips" style="margin-top:16px">')
-    for href, label in REFS:
+    for href, label in ([UP[current]] if current in UP else []) + REFS:
         cur = ' aria-current="page"' if href == current else ""
         L.append('    <a class="ref" href="%s"%s>%s</a>' % (href, cur, label))
     L.append('  </div>')
