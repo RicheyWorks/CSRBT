@@ -119,7 +119,13 @@ def ready(pg, name):
     on correct code often enough to teach everyone to re-run it.
     """
     pg.goto(url(name), wait_until="domcontentloaded")
-    pg.wait_for_function("() => typeof DWC !== 'undefined' && !!DWC.TERMS", timeout=20000)
+    # 20 s was enough when this suite drove five coordinate cases. It now drives
+    # eight, and under three-way parallelism the extra page work pushed the very
+    # first wait past its own budget -- the suite passed alone and timed out in
+    # run_all, which is the worst kind of flake because it looks like a real
+    # failure in whichever job happens to lose the race. A wait for a script to
+    # finish parsing is not a performance assertion; it should be generous.
+    pg.wait_for_function("() => typeof DWC !== 'undefined' && !!DWC.TERMS", timeout=60000)
     pg.wait_for_timeout(150)
 
 
@@ -134,7 +140,7 @@ ck("no duplicate terms", len(set(TERMS)) == len(TERMS),
 with sync_playwright() as p:
     b = p.chromium.launch()
     pg = b.new_page(viewport={"width": 900, "height": 1300})
-    pg.set_default_timeout(15000)
+    pg.set_default_timeout(45000)
     offline(pg)
     errs = []
     pg.on("pageerror", lambda e: errs.append(str(e)))
@@ -202,6 +208,16 @@ with sync_playwright() as p:
         (0.0,     0,  "45.123456", "-93.567891","WGS84"),
         (0.0,     0,  "45.123456", "-93.567891","unknown"),
         (100.0,   5,  "0.0001",    "0.0001",    "WGS84"),
+        # WHOLE-DEGREE COORDINATES. Every fixture above carries at least two
+        # decimal places, so `dp >= 0` and `dp > 0` gave identical answers and
+        # a mutation between them survived all 138 checks. A coordinate written
+        # as "45" is precise to half a degree -- about 55 km -- and dropping
+        # that term reports a 55 km location as if it were metres. That is the
+        # worst shape an error can take in a Darwin Core record: a plausible
+        # small number standing where a huge one belongs.
+        (0.0,     0,  "45",        "-93",       "WGS84"),
+        (100.0,   5,  "45",        "-93",       "WGS84"),
+        (0.0,     0,  "45.1",      "-93",       "WGS84"),   # dp = min(1, 0) = 0
     ]
     for area, gps, lat, lon, datum in cases:
         push(pg, "sLat", lat)
@@ -272,6 +288,56 @@ with sync_playwright() as p:
         ck("releve quantity type is coverage, not a count",
            r.get("organismQuantityType") in ("percentageCoverage", ""),
            r.get("organismQuantityType"))
+        # Stated as a magnitude, not only as an equality, so the intent survives a
+        # future reader who has forgotten what dp = 0 means.
+        u0 = pg.evaluate("""()=>DWC.uncertainty({latText:"45", lonText:"-93", lat:45,
+            extentM:0, gpsM:0, datum:"WGS84"})""")
+        ck("a whole-degree coordinate carries tens of kilometres of uncertainty, not metres",
+           u0 is not None and u0 > 50000, u0)
+        u2 = pg.evaluate("""()=>DWC.uncertainty({latText:"45.12", lonText:"-93.56", lat:45,
+            extentM:0, gpsM:0, datum:"WGS84"})""")
+        ck("two decimal places carries hundreds of metres",
+           u2 is not None and 100 < u2 < 2000, u2)
+        # Guarded: when the precision term is dropped entirely u0 comes back
+        # None, and dividing by it crashed the suite instead of failing it. A
+        # crash is a kill for the sweep's purposes but it is a bad report for a
+        # person -- a failing check should say which check failed.
+        ck("and the whole-degree figure is about a hundred times the two-decimal one, "
+           "so this check can tell the precision term is present at all",
+           u0 is not None and u2 not in (None, 0) and u0 / float(u2) > 50, (u0, u2))
+        u4 = pg.evaluate("""()=>DWC.uncertainty({latText:"45.1234", lonText:"-93.5678", lat:45,
+            extentM:0, gpsM:0, datum:"WGS84"})""")
+        # None-guarded on purpose. When the precision term is dropped these come
+        # back None, and an unguarded `>` raises a TypeError that kills the
+        # suite instead of failing a check. A crash counts as a kill for the
+        # sweep either way; a person reading the output needs to be told WHICH
+        # check failed.
+        ck("more decimal places always mean less uncertainty",
+           None not in (u0, u2, u4) and u0 > u2 > u4, (u0, u2, u4))
+        # TWO DWC SURVIVORS LEFT STANDING, both provably unreachable.
+        #
+        # `window.crypto && window.crypto.getRandomValues` -> `||`. In any
+        # browser window.crypto exists, so `||` short-circuits true and the
+        # behaviour is identical. The `&&` guards an environment where crypto
+        # exists WITHOUT getRandomValues, which nothing this suite can run in
+        # reproduces.
+        #
+        # `m > 0.5` -> `m > 0.55`. The precision term is
+        # 0.5 x 10^-dp x 110540, so m only ever takes the discrete values
+        # 55270, 5527, 552.7, 55.27, 5.527, 0.5527, 0.05527 ... It cannot land
+        # between 0.5 and 0.55 for any integer dp, at any latitude, because
+        # degLat is a constant and the max() always picks it. The threshold is
+        # unreachable in that window by construction, not by accident of the
+        # fixtures -- which is a stronger statement than "no fixture hits it",
+        # and the reason this one is closed rather than left open.
+        ck("the precision term's value set skips the 0.5-0.55 window entirely, "
+           "so that threshold cannot be probed",
+           all(not (0.5 < 0.5 * 10 ** -dp * 110540 <= 0.55) for dp in range(0, 12)), ""),
+
+        ck("a mixed-precision pair takes the COARSER of the two",
+           pg.evaluate("""()=>DWC.uncertainty({latText:"45.1234", lonText:"-93", lat:45,
+               extentM:0, gpsM:0, datum:"WGS84"})""") == u0, "")
+
         ck("releve uncertainty is never 0",
            r.get("coordinateUncertaintyInMeters") not in (0, "0"),
            r.get("coordinateUncertaintyInMeters"))
