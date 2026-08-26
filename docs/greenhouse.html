@@ -1,0 +1,2136 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Greenhouse Monitor — VPD, DLI, kWh and grams per kilowatt hour</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<!-- Webfonts load without blocking first paint: a stylesheet request that
+     hangs (one bar of signal) otherwise holds the page blank indefinitely,
+     which breaks the offline constraint in ADR-031. See tools/audit_offline.py. -->
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,600;9..144,700&family=Nunito+Sans:wght@400;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" media="print" data-webfont>
+<noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,600;9..144,700&family=Nunito+Sans:wght@400;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap"></noscript>
+<script>(function(){var l=document.querySelector('link[data-webfont]');if(!l)return;
+  var on=function(){l.media="all";};
+  if(l.sheet){on();}else{l.addEventListener("load",on);l.addEventListener("error",function(){});}
+})();</script>
+<style>
+  :root {
+    color-scheme: light;
+    --page:#F5F1E6; --surface:#FFFDF7; --surface-2:#F3EEE0; --ink:#23281F; --ink-2:#4B5344;
+    --muted:#6B6B5E; --border:#E3DCC9; --s1:#2C784C; --s1-deep:#236240; --s2:#A94F26; --s3:#2B6C8F;
+    --soft:#E9F0E7; --warn-bg:#F6EAD8; --danger:#B23A32; --danger-bg:#F6E7E5; --gold:#8A6408;
+    --shadow:0 1px 2px rgba(35,40,31,.06),0 10px 28px rgba(35,40,31,.08);
+    --head:"Fraunces",Georgia,serif;
+    --body:"Nunito Sans",system-ui,-apple-system,sans-serif;
+    --mono:"JetBrains Mono",ui-monospace,Menlo,monospace;
+  }
+  * { box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
+  body { margin:0; background:var(--page); color:var(--ink); font:16px/1.5 var(--body);
+    -webkit-font-smoothing:antialiased; overscroll-behavior-y:contain; }
+  .app { max-width:960px; margin:0 auto; padding:14px 16px calc(104px + env(safe-area-inset-bottom)); }
+  .top { display:flex; align-items:baseline; justify-content:space-between; gap:10px; padding:6px 2px 12px; flex-wrap:wrap; }
+  .brand { font-family:var(--head); font-weight:700; font-size:22px; letter-spacing:-0.01em; }
+  .brand span { color:var(--s1); }
+  .top a { font-family:var(--mono); font-size:11.5px; color:var(--muted); text-decoration:none;
+    display:inline-flex; align-items:center; min-height:44px; padding:0 6px; margin:-10px -6px; touch-action:manipulation; }
+  .top a:hover { color:var(--s1); }
+
+  .tabbar { position:fixed; left:0; right:0; bottom:0; z-index:20;
+    background:color-mix(in srgb, var(--surface) 94%, transparent); backdrop-filter:blur(10px);
+    border-top:1px solid var(--border); padding:8px max(8px, env(safe-area-inset-left)) calc(8px + env(safe-area-inset-bottom)); }
+  .tabbar .row { max-width:960px; margin:0 auto; display:grid; grid-template-columns:repeat(6,1fr); gap:4px; }
+  .tab { display:flex; flex-direction:column; align-items:center; gap:2px; border:0; background:none;
+    font:700 10.5px var(--body); color:var(--muted); padding:7px 1px; border-radius:12px; cursor:pointer;
+    min-height:54px; touch-action:manipulation; transition:background .15s ease, color .15s ease; }
+  .tab .ico { font-size:20px; line-height:1; }
+  .tab.on { color:var(--s1); background:var(--soft); }
+  .tab:active { transform:scale(.96); }
+  .pane { display:none; animation:fade .18s ease; }
+  .pane.on { display:block; }
+  @keyframes fade { from{opacity:0;transform:translateY(4px);} to{opacity:1;transform:none;} }
+  @media (prefers-reduced-motion: reduce){ .pane{animation:none;} }
+
+  h2 { font-family:var(--head); font-weight:600; font-size:20px; margin:6px 0 2px; }
+  h3 { font-family:var(--head); font-weight:600; font-size:16.5px; margin:16px 0 4px; }
+  .hint { color:var(--muted); font-size:14px; margin:0 0 12px; }
+  .card { background:var(--surface); border:1px solid var(--border); border-radius:16px;
+    padding:16px; box-shadow:var(--shadow); margin-bottom:14px; }
+  .fine { font-size:12.5px; color:var(--muted); margin-top:10px; line-height:1.55; }
+
+  input[type=text], input[type=number], input[type=date], select, textarea {
+    background:var(--surface); color:var(--ink); border:1.5px solid var(--border); border-radius:12px;
+    padding:11px 14px; font:16px var(--body); min-height:48px; max-width:100%; }
+  textarea { min-height:78px; line-height:1.5; width:100%; }
+  input:focus, select:focus, textarea:focus { outline:none; border-color:var(--s1); box-shadow:0 0 0 3px rgba(44,120,76,.18); }
+  input[type=number] { width:110px; }
+  label.f { display:flex; flex-direction:column; gap:5px; font-size:13px; font-weight:700; color:var(--ink-2); min-width:0; }
+  .grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(150px,1fr)); gap:10px; }
+  .grid label.f input, .grid label.f select { width:100%; }
+
+  .btn { border:0; border-radius:12px; padding:12px 18px; font:800 15px var(--body); cursor:pointer;
+    min-height:48px; touch-action:manipulation; transition:transform .1s ease, background .15s ease; }
+  .btn:active { transform:scale(.97); }
+  .btn-go { background:var(--s1); color:#fff; } .btn-go:hover { background:var(--s1-deep); }
+  .btn-soft { background:var(--soft); color:var(--s1); }
+  .btn-ghost { background:none; border:1.5px solid var(--border); color:var(--ink-2); }
+  .btn-ghost:hover { border-color:var(--s1); color:var(--s1); }
+  .btn-row { display:flex; gap:8px; flex-wrap:wrap; margin-top:12px; align-items:end; }
+
+  .kopts { display:flex; flex-wrap:wrap; gap:8px; }
+  .kopt { border:1.5px solid var(--border); background:var(--surface); border-radius:14px; padding:10px 14px;
+    font:700 14px var(--body); color:var(--ink-2); cursor:pointer; min-height:46px; touch-action:manipulation;
+    display:inline-flex; flex-direction:column; align-items:flex-start; gap:1px; }
+  .kopt small { font-weight:400; font-size:11px; color:var(--muted); font-family:var(--mono); }
+  .kopt.on { border-color:var(--s1); background:var(--soft); color:var(--s1); }
+
+  .covscale { display:flex; flex-wrap:wrap; gap:6px; margin-top:6px; }
+  .cv { border:1.5px solid var(--border); background:var(--surface); border-radius:11px; min-width:52px;
+    padding:8px 6px; font:800 15px var(--body); color:var(--ink-2); cursor:pointer; min-height:52px;
+    display:flex; flex-direction:column; align-items:center; justify-content:center; gap:1px; touch-action:manipulation; }
+  .cv small { font:400 9.5px var(--mono); color:var(--muted); }
+  .cv.on { border-color:var(--s1); background:var(--soft); color:var(--s1); }
+  .cv.on small { color:var(--s1-deep); }
+
+  .tiles { display:flex; flex-wrap:wrap; gap:8px; margin:12px 0 2px; }
+  .tile { background:var(--surface-2); border:1px solid var(--border); border-radius:12px; padding:9px 14px; min-width:96px; }
+  .tile .v { font-family:var(--head); font-weight:700; font-size:21px; font-variant-numeric:tabular-nums; }
+  .tile .l { font-size:11px; color:var(--muted); }
+  .verdict { border-radius:12px; padding:13px 16px; margin:12px 0 2px; font-size:15.5px; line-height:1.55;
+    border-left:4px solid var(--s1); background:var(--soft); color:var(--ink-2); }
+  .verdict b { color:var(--ink); }
+  .verdict.warn { border-left-color:var(--s2); background:var(--warn-bg); }
+  .verdict.act { border-left-color:var(--danger); background:var(--danger-bg); }
+
+  .tw { overflow-x:auto; -webkit-overflow-scrolling:touch; margin:10px 0; }
+  table { border-collapse:collapse; width:100%; font-size:14px; }
+  th,td { border:1px solid var(--border); padding:6px 9px; text-align:left; vertical-align:top; white-space:nowrap; }
+  th { background:var(--soft); font-family:var(--head); font-weight:600; font-size:13px; }
+  td.n, th.n { text-align:right; font-variant-numeric:tabular-nums; font-family:var(--mono); font-size:13px; }
+  td i { font-style:italic; color:var(--ink-2); }
+
+  .rowlist { display:grid; gap:8px; margin-top:10px; }
+  .row2 { display:flex; align-items:center; gap:10px; background:var(--surface); border:1px solid var(--border);
+    border-radius:12px; padding:10px 13px; font-size:15px; }
+  .row2.inv { border-left:3px solid var(--danger); }
+  .row2 .g { flex:1; min-width:0; }
+  .row2 .g b { font-family:var(--head); font-size:15.5px; }
+  .row2 .g b i { font-style:italic; font-weight:400; color:var(--ink-2); font-size:14px; }
+  .row2 .g span { display:block; color:var(--muted); font-size:12.5px; font-family:var(--mono); margin-top:1px;
+    overflow:hidden; text-overflow:ellipsis; }
+  .row2 .cov { font-family:var(--head); font-weight:700; font-size:17px; color:var(--s1); min-width:46px; text-align:right; }
+  .row2 button { border:0; background:none; color:var(--muted); font-size:15px; padding:9px 11px; cursor:pointer; min-height:44px; min-width:44px; }
+  .row2 button:hover { color:var(--danger); }
+
+  .bars { display:grid; gap:6px; margin-top:10px; }
+  .bar { display:grid; grid-template-columns:132px 1fr 54px; gap:8px; align-items:center; font-size:13.5px; }
+  .bar .nm { font-weight:700; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+  .bar .tr { display:block; background:var(--surface-2); border:1px solid var(--border); border-radius:8px; height:20px; overflow:hidden; }
+  .bar .fl { display:block; height:100%; background:var(--s1); border-radius:7px 0 0 7px; transition:width .4s ease; }
+  .bar .fl.inv { background:var(--s2); }
+  .bar .pc { text-align:right; font-variant-numeric:tabular-nums; color:var(--ink-2); font-family:var(--mono); font-size:12.5px; }
+
+  .label { background:#fff; border:1px solid var(--ink); border-radius:2px; padding:14px 16px; margin-top:10px;
+    font:12.5px/1.5 var(--body); color:#000; max-width:440px; }
+  .label .inst { font-family:var(--head); font-weight:700; font-size:12px; letter-spacing:.06em;
+    text-transform:uppercase; text-align:center; border-bottom:1px solid #000; padding-bottom:5px; margin-bottom:7px; }
+  .label .sci { font-style:italic; font-weight:700; font-size:14px; }
+  .label .row { margin:3px 0; }
+  .label .k { font-weight:700; }
+  .label .coll { margin-top:8px; padding-top:6px; border-top:1px solid #999; display:flex; justify-content:space-between; }
+
+  pre.export { background:#23281F; color:#E8E4D5; border-radius:12px; padding:14px 16px; overflow-x:auto;
+    font:12.5px/1.65 var(--mono); max-height:340px; }
+  code { font-family:var(--mono); font-size:.82em; background:var(--surface-2); border:1px solid var(--border); border-radius:5px; padding:1px 5px; }
+
+  .toast { position:fixed; left:50%; bottom:84px; transform:translateX(-50%) translateY(90px); z-index:30;
+    background:var(--ink); color:#F5F1E6; border-radius:999px; padding:10px 22px; font:700 14px var(--body);
+    transition:transform .25s ease; pointer-events:none; max-width:88vw; text-align:center; }
+  .toast.on { transform:translateX(-50%) translateY(0); }
+
+  @media print {
+    .tabbar, .btn, .kopts, .covscale, .top a, .noprint { display:none !important; }
+    body { background:#fff; } .pane { display:block !important; }
+    .app { padding-bottom:0; } .card { break-inside:avoid; } table { font-size:10pt; }
+    pre.export { background:#fff; color:#000; border:1px solid #ccc; max-height:none; }
+    .label { break-inside:avoid; page-break-inside:avoid; }
+  }
+
+
+  /* ---- fungal additions ---- */
+  .sw { display:flex; flex-wrap:wrap; gap:7px; margin-top:6px; }
+  .swc { border:1.5px solid var(--border); background:var(--surface); border-radius:12px; padding:7px 11px 8px;
+    font:700 12.5px var(--body); color:var(--ink-2); cursor:pointer; min-height:56px; touch-action:manipulation;
+    display:flex; flex-direction:column; align-items:center; gap:5px; min-width:74px; }
+  .swc .chip { width:44px; height:18px; border-radius:5px; border:1px solid rgba(35,40,31,.28); display:block; }
+  .swc.on { border-color:var(--s1); background:var(--soft); color:var(--s1); }
+
+  .chk { display:flex; flex-wrap:wrap; gap:7px; margin-top:6px; }
+  .ck { border:1.5px solid var(--border); background:var(--surface); border-radius:999px; padding:9px 14px;
+    font:700 13.5px var(--body); color:var(--ink-2); cursor:pointer; min-height:44px; touch-action:manipulation; }
+  .ck.on { border-color:var(--s1); background:var(--soft); color:var(--s1); }
+  .ck.on::before { content:"\2713 "; }
+
+  .rg { display:grid; gap:9px; margin-top:8px; }
+  .rgi { border:1px solid var(--border); background:var(--surface); border-radius:13px; padding:11px 13px; }
+  .rgi .hd { display:flex; align-items:center; justify-content:space-between; gap:9px; flex-wrap:wrap; }
+  .rgi .nm { font-family:var(--head); font-weight:700; font-size:15px; }
+  .rgi .nm em { font-style:normal; font-family:var(--mono); font-size:11.5px; color:var(--muted); margin-left:6px; }
+  .rgi .wh { font-size:12.5px; color:var(--muted); line-height:1.5; margin-top:5px; }
+  .rgi input[type=text] { width:100%; margin-top:8px; min-height:44px; }
+  .rgi.haz { border-left:3px solid var(--s2); }
+
+  .guild { display:inline-block; font:700 10.5px var(--mono); letter-spacing:.05em; text-transform:uppercase;
+    border-radius:999px; padding:3px 9px; border:1px solid var(--border); background:var(--surface-2); color:var(--ink-2); }
+  .guild.ecm { border-color:var(--s1); color:var(--s1); background:var(--soft); }
+  .guild.woodsap, .guild.littersap { border-color:var(--s3); color:var(--s3); background:#E6EEF3; }
+  .guild.par { border-color:var(--danger); color:var(--danger); background:var(--danger-bg); }
+  .guild.lich { border-color:var(--gold); color:#7a5c07; background:#F5EFD9; }
+  .guild.myco { border-color:var(--s2); color:var(--s2); background:var(--warn-bg); }
+  .guild.mixed { border-style:dashed; }
+
+  .mx td.h0 { color:var(--muted); }
+  .mx td.h1 { background:#EDF4EA; font-weight:700; }
+  .mx td.h2 { background:var(--s1); color:#fff; font-weight:700; }
+
+  .never { border:2px solid var(--danger); background:var(--danger-bg); border-radius:14px; padding:15px 17px;
+    margin:14px 0; font-size:15px; line-height:1.6; color:var(--ink); }
+  .never b { font-family:var(--head); display:block; font-size:16px; margin-bottom:5px; color:var(--danger); }
+
+  .drylog { display:grid; grid-template-columns:repeat(auto-fit,minmax(128px,1fr)); gap:9px; margin-top:8px; }
+
+
+  /* ---- bench additions ---- */
+  .stat { display:grid; grid-template-columns:repeat(auto-fit,minmax(132px,1fr)); gap:9px; margin:12px 0 2px; }
+  .st { background:var(--surface-2); border:1px solid var(--border); border-radius:12px; padding:10px 13px; }
+  .st .v { font-family:var(--head); font-weight:700; font-size:22px; font-variant-numeric:tabular-nums; line-height:1.1; }
+  .st .l { font-size:11px; color:var(--muted); margin-top:2px; line-height:1.35; }
+  .st.hi .v { color:var(--s1); } .st.bad .v { color:var(--danger); } .st.warnv .v { color:var(--s2); }
+  .eq { font-family:var(--mono); font-size:12.5px; background:var(--surface-2); border:1px solid var(--border);
+    border-radius:9px; padding:9px 12px; margin:9px 0; color:var(--ink-2); overflow-x:auto; }
+  .scat { display:block; width:100%; height:auto; background:var(--surface); border:1px solid var(--border);
+    border-radius:12px; margin-top:10px; }
+  .warnbox { border:2px solid var(--s2); background:var(--warn-bg); border-radius:14px; padding:14px 17px;
+    margin:14px 0; font-size:15px; line-height:1.6; }
+  .warnbox b { font-family:var(--head); display:block; font-size:16px; margin-bottom:4px; color:var(--s2); }
+  .refuse { border:2px solid var(--danger); background:var(--danger-bg); border-radius:14px; padding:15px 18px;
+    margin:14px 0; font-size:15px; line-height:1.6; }
+  .refuse b { font-family:var(--head); display:block; font-size:16px; margin-bottom:4px; color:var(--danger); }
+  td.ok { color:var(--s1); font-weight:700; } td.no { color:var(--danger); font-weight:700; }
+
+  /* ---- greenhouse page ---- */
+  .ing { width:100%; border-collapse:collapse; font-size:14px; }
+  .ing th, .ing td { border-bottom:1px solid var(--border); padding:7px 9px; text-align:left;
+    vertical-align:top; white-space:normal; }
+  .ing th { background:var(--soft); font-family:var(--head); font-weight:600; font-size:13px;
+    white-space:nowrap; }
+  .ing td.q { font-family:var(--mono); font-variant-numeric:tabular-nums; white-space:nowrap;
+    text-align:right; font-size:13.5px; }
+  /* 16px, not 14: iOS zooms the whole page when a sub-16px control takes focus,
+     and a page that lurches on every tap is unusable one-handed in a greenhouse. */
+  .cite { font-family:var(--mono); font-size:.9em; color:var(--muted); }
+  input[type=file] { font:16px var(--body); color:var(--ink-2); padding:10px 0; min-height:48px; }
+
+  /* ============ Field Entry Kit v1.3.0 ============
+     Large-target, high-contrast entry controls. Sizing is driven by --tap
+     rather than per-component numbers so one token retunes the whole kit for
+     gloves, cold hands or a wall-mounted tablet. */
+  :root {
+    --tap: 60px;            /* primary control height  */
+    --tap-sm: 48px;         /* secondary control height */
+    --fek-r: 16px;
+    /* These three moved for WCAG AA and the move was made in the pages, by
+       hand, and never came back here -- because the CSS half of fek_emit was
+       dead code and nobody could tell. Source and pages agreed only by
+       ramp-1 moved here too: at its old teal, white label text on a selected
+       button measured 3.94:1 and the .92-white sub-line 3.59:1, both under AA.
+       No page had caught it because none defaulted to a ramp-1 option until the
+       deployment log did. Every ramp is now checked against both, in
+       verify_contrast_slice.
+       The pre-fix ramp values are named in verify_contrast_slice,
+       which greps for them literally across every page -- so they are not
+       repeated here, because a comment naming them is itself a page carrying
+       them, and the suite is right not to care why. */
+    --ramp-0:#2B6C8F; --ramp-1:#2F7373; --ramp-2:#2C784C;
+    --ramp-3:#8A6408; --ramp-4:#A94F26; --ramp-5:#B23A32;
+    --fek-line:#C7C0AC;
+  }
+  .fek-lab { display:block; font:800 15px var(--body); color:var(--ink-2);
+    letter-spacing:.01em; margin:0 0 6px; }
+  .fek-lab .u { font:600 12.5px var(--mono); color:var(--muted); margin-left:6px; }
+  .fek-help { font-size:13.5px; color:var(--muted); line-height:1.5; margin:6px 0 0; }
+  .fek-row { margin:0 0 20px; }
+
+  /* --- stepper: the workhorse numeric entry --- */
+  .fek-step { display:flex; align-items:stretch; gap:0; border:2px solid var(--border);
+    border-radius:var(--fek-r); overflow:hidden; background:var(--surface); max-width:340px; }
+  .fek-step button { border:0; background:var(--surface-2); color:var(--ink);
+    font:800 30px var(--body); line-height:1; width:calc(var(--tap) + 8px); min-height:var(--tap);
+    cursor:pointer; touch-action:manipulation; transition:background .12s; }
+  .fek-step button:hover { background:var(--soft); color:var(--s1); }
+  .fek-step button:active { background:var(--s1); color:#fff; }
+  .fek-step .val { flex:1; min-width:0; text-align:center; border:0; background:none;
+    font:800 30px var(--head); color:var(--ink); font-variant-numeric:tabular-nums;
+    -moz-appearance:textfield; padding:0 4px; }
+  .fek-step .val::-webkit-outer-spin-button,
+  .fek-step .val::-webkit-inner-spin-button { -webkit-appearance:none; margin:0; }
+  .fek-step .val:focus { outline:none; background:var(--soft); }
+
+  /* --- segmented ordinal dial with a colour ramp --- */
+  .fek-dial { display:flex; flex-wrap:wrap; gap:8px; }
+  .fek-dial button { flex:1 1 auto; min-width:72px; min-height:var(--tap);
+    border:2px solid var(--border); border-radius:var(--fek-r); background:var(--surface);
+    font:800 17px var(--body); color:var(--ink-2); cursor:pointer; touch-action:manipulation;
+    display:flex; flex-direction:column; align-items:center; justify-content:center; gap:2px;
+    padding:6px 8px; transition:transform .08s, border-color .12s, background .12s; }
+  .fek-dial button small { font:600 11px var(--mono); color:var(--muted); letter-spacing:.02em; }
+  .fek-dial button:active { transform:scale(.96); }
+  .fek-dial button.on { color:#fff; border-color:transparent; }
+  .fek-dial button.on small { color:rgba(255,255,255,.92); }
+  .fek-dial button.on[data-r="0"]{background:var(--ramp-0);}
+  .fek-dial button.on[data-r="1"]{background:var(--ramp-1);}
+  .fek-dial button.on[data-r="2"]{background:var(--ramp-2);}
+  .fek-dial button.on[data-r="3"]{background:var(--ramp-3);}
+  .fek-dial button.on[data-r="4"]{background:var(--ramp-4);}
+  .fek-dial button.on[data-r="5"]{background:var(--ramp-5);}
+
+  /* --- field: a typed value from an instrument readout ---
+     A stepper is the wrong control for a number you READ off a machine to three
+     decimals: you would tap two thousand times to reach 1.842. This is a plain
+     numeric entry sized like the rest of the kit, with the unit shown and the
+     decimal keypad requested, and nothing that pretends the value is scrollable. */
+  .fek-field { display:flex; align-items:stretch; gap:0; border:2px solid var(--border);
+    border-radius:var(--fek-r); overflow:hidden; background:var(--surface); max-width:340px; }
+  .fek-field input { flex:1; min-width:0; border:0; background:none; text-align:right;
+    font:800 26px var(--head); color:var(--ink); font-variant-numeric:tabular-nums;
+    -moz-appearance:textfield; padding:0 12px; min-height:var(--tap); }
+  .fek-field input::-webkit-outer-spin-button,
+  .fek-field input::-webkit-inner-spin-button { -webkit-appearance:none; margin:0; }
+  .fek-field input:focus { outline:none; background:var(--soft); }
+  .fek-field input::placeholder { color:var(--muted); font-weight:600; font-size:20px; }
+  .fek-field .u { display:flex; align-items:center; padding:0 14px; background:var(--surface-2);
+    font:700 13px var(--mono); color:var(--muted); border-left:2px solid var(--border); white-space:nowrap; }
+  .fek-field.empty { border-style:dashed; }
+
+  /* --- big toggle chips --- */
+  .fek-chips { display:flex; flex-wrap:wrap; gap:9px; }
+  .fek-chip { min-height:var(--tap-sm); border:2px solid var(--border); border-radius:999px;
+    background:var(--surface); font:800 15.5px var(--body); color:var(--ink-2);
+    padding:0 20px; cursor:pointer; touch-action:manipulation; display:inline-flex;
+    align-items:center; gap:8px; transition:transform .08s, border-color .12s, background .12s; }
+  .fek-chip:active { transform:scale(.96); }
+  .fek-chip.on { border-color:var(--s1); background:var(--soft); color:var(--s1-deep); }
+  .fek-chip.on::before { content:"\2713"; font-size:17px; }
+
+  /* --- slider with a live bubble --- */
+  .fek-slide { display:flex; align-items:center; gap:14px; }
+  .fek-slide input[type=range] { flex:1; min-width:0; height:var(--tap-sm); -webkit-appearance:none;
+    background:transparent; cursor:pointer; touch-action:manipulation; }
+  .fek-slide input[type=range]::-webkit-slider-runnable-track { height:14px; border-radius:8px;
+    background:linear-gradient(90deg,var(--ramp-0),var(--ramp-2),var(--ramp-3),var(--ramp-5)); }
+  .fek-slide input[type=range]::-moz-range-track { height:14px; border-radius:8px;
+    background:linear-gradient(90deg,var(--ramp-0),var(--ramp-2),var(--ramp-3),var(--ramp-5)); }
+  .fek-slide input[type=range]::-webkit-slider-thumb { -webkit-appearance:none; width:34px; height:34px;
+    border-radius:50%; background:#fff; border:3px solid var(--ink); margin-top:-10px;
+    box-shadow:0 2px 6px rgba(35,40,31,.3); }
+  .fek-slide input[type=range]::-moz-range-thumb { width:34px; height:34px; border-radius:50%;
+    background:#fff; border:3px solid var(--ink); box-shadow:0 2px 6px rgba(35,40,31,.3); }
+  .fek-slide .bub { font:800 26px var(--head); font-variant-numeric:tabular-nums; color:var(--ink);
+    min-width:86px; text-align:right; }
+  .fek-slide .bub span { font:600 13px var(--mono); color:var(--muted); margin-left:3px; }
+
+  /* --- big picker: replaces <select> for long lists --- */
+  .fek-pick { border:2px solid var(--border); border-radius:var(--fek-r); background:var(--surface);
+    overflow:hidden; }
+  .fek-pick .search { width:100%; border:0; border-bottom:2px solid var(--border);
+    font:700 17px var(--body); padding:0 16px; min-height:var(--tap); background:var(--surface-2); }
+  .fek-pick .search:focus { outline:none; background:var(--soft); }
+  .fek-pick .opts { max-height:264px; overflow-y:auto; -webkit-overflow-scrolling:touch; }
+  .fek-pick .opt { display:block; width:100%; text-align:left; border:0; border-bottom:1px solid var(--border);
+    background:none; font:700 16.5px var(--body); color:var(--ink); min-height:var(--tap-sm);
+    padding:10px 16px; cursor:pointer; touch-action:manipulation; }
+  .fek-pick .opt small { display:block; font:400 12.5px var(--mono); color:var(--muted); margin-top:2px; }
+  .fek-pick .opt:hover { background:var(--soft); }
+  .fek-pick .opt.on { background:var(--s1); color:#fff; }
+  .fek-pick .opt.on small { color:rgba(255,255,255,.92); }
+  .fek-pick .none { padding:16px; color:var(--muted); font-size:14px; }
+
+  /* --- readout tiles, sized to be read at arm's length --- */
+  .fek-tiles { display:grid; grid-template-columns:repeat(auto-fit,minmax(148px,1fr)); gap:11px; margin:14px 0 2px; }
+  .fek-tile { border:2px solid var(--border); border-radius:var(--fek-r); padding:13px 15px; background:var(--surface); }
+  .fek-tile .v { font:800 30px var(--head); font-variant-numeric:tabular-nums; line-height:1.05; color:var(--ink); }
+  .fek-tile .l { font:700 12px var(--body); color:var(--muted); margin-top:4px; letter-spacing:.02em; }
+  .fek-tile.good { border-color:var(--ramp-2); } .fek-tile.good .v { color:var(--ramp-2); }
+  .fek-tile.warn { border-color:var(--ramp-3); } .fek-tile.warn .v { color:#8a6508; }
+  .fek-tile.bad  { border-color:var(--ramp-5); } .fek-tile.bad  .v { color:var(--ramp-5); }
+  .fek-tile.cold { border-color:var(--ramp-0); } .fek-tile.cold .v { color:var(--ramp-0); }
+
+  /* --- banner: the verdict, big --- */
+  .fek-banner { border-radius:var(--fek-r); padding:16px 19px; margin:14px 0; font-size:16px;
+    line-height:1.55; border-left:7px solid var(--ramp-2); background:var(--soft); color:var(--ink-2); }
+  .fek-banner b { font-family:var(--head); color:var(--ink); font-size:17.5px; display:block; margin-bottom:4px; }
+  .fek-banner.warn { border-left-color:var(--ramp-3); background:var(--warn-bg); }
+  .fek-banner.bad  { border-left-color:var(--ramp-5); background:var(--danger-bg); }
+  .fek-banner.cold { border-left-color:var(--ramp-0); background:#E6EEF3; }
+
+  @media (max-width:420px){ :root { --tap:56px; --tap-sm:46px; } .fek-step .val { font-size:26px; } }
+  @media print { .fek-step button, .fek-pick .search { display:none; } }
+
+  /* ============ Greenhouse engine v1.0.0 ============ */
+  .gh-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(150px,1fr)); gap:10px;
+    margin:12px 0 2px; }
+  .gh-stat { border:2px solid var(--border); border-radius:14px; padding:12px 14px;
+    background:var(--surface); }
+  .gh-stat .v { font:800 26px var(--head); font-variant-numeric:tabular-nums; line-height:1.05;
+    color:var(--ink); }
+  .gh-stat .v small { font:600 13px var(--mono); color:var(--muted); margin-left:3px; }
+  .gh-stat .l { font:700 11.5px var(--body); color:var(--muted); margin-top:4px; line-height:1.35; }
+  .gh-stat .d { font:600 11px var(--mono); margin-top:3px; }
+  .gh-stat.good { border-color:var(--ramp-2); } .gh-stat.good .v { color:var(--ramp-2); }
+  .gh-stat.warn { border-color:var(--ramp-3); } .gh-stat.warn .v { color:#8a6508; }
+  .gh-stat.bad  { border-color:var(--ramp-5); } .gh-stat.bad  .v { color:var(--ramp-5); }
+  .gh-stat.cold { border-color:var(--ramp-0); } .gh-stat.cold .v { color:var(--ramp-0); }
+  .gh-stat.none .v { color:var(--muted); font-size:20px; }
+
+  .gh-chart { display:block; width:100%; height:auto; background:var(--surface);
+    border:1px solid var(--border); border-radius:12px; margin-top:10px; }
+  .gh-chart text { font-family:var(--mono); }
+
+  .gh-src { display:grid; gap:9px; margin-top:8px; }
+  .gh-srow { border:1.5px solid var(--border); border-radius:13px; padding:11px 13px;
+    background:var(--surface); }
+  .gh-srow .hd { display:flex; align-items:center; justify-content:space-between; gap:9px;
+    flex-wrap:wrap; }
+  .gh-srow .nm { font-family:var(--head); font-weight:700; font-size:15px; }
+  .gh-srow .st { font:700 10.5px var(--mono); letter-spacing:.05em; text-transform:uppercase;
+    border-radius:999px; padding:3px 9px; border:1px solid var(--border); white-space:nowrap; }
+  .gh-srow .st.ready { border-color:var(--ramp-2); color:var(--ramp-2); background:var(--soft); }
+  .gh-srow .st.off   { border-color:var(--border); color:var(--muted); }
+  .gh-srow .st.live  { border-color:var(--ramp-0); color:var(--ramp-0); background:#E6EEF3; }
+  .gh-srow .wh { font-size:12.5px; color:var(--muted); line-height:1.5; margin-top:6px; }
+  .gh-srow.unavailable { opacity:.72; }
+  /* ============ /Greenhouse engine v1.0.0 ============ */
+
+  .rail { margin:26px 0 4px; }
+  .rail .rl { font-family:var(--mono); font-size:11px; letter-spacing:.14em; text-transform:uppercase; color:var(--muted); margin:0 2px 8px; }
+  .rail .chips { display:flex; flex-wrap:wrap; gap:8px; }
+  .rail a { display:inline-flex; align-items:center; gap:7px; text-decoration:none; font:700 13.5px var(--body);
+    color:var(--ink-2); background:var(--surface); border:1px solid var(--border); border-radius:999px;
+    padding:9px 15px; min-height:44px; box-shadow:var(--shadow); touch-action:manipulation; }
+  .rail a:hover { border-color:var(--s1); color:var(--s1); }
+  .rail a[aria-current="page"] { background:var(--soft); border-color:var(--s1); color:var(--s1); }
+  .rail a.ref { font-weight:600; color:var(--muted); background:none; box-shadow:none; }
+  @media print { .rail { display:none !important; } }
+
+  /* WCAG 1.4.11 non-text contrast: the visible edge of a control you are meant
+     to write in is the only thing telling you where to write, so it carries the
+     3:1 floor. Decorative card borders are not controls and stay quiet. */
+  input:not([type=checkbox]):not([type=radio]):not([type=range]):not([type=color]),
+  select, textarea { border-color: #8E8160; }
+</style>
+</head>
+<body>
+<div class="app">
+  <div class="top">
+    <div class="brand">🌡️ Greenhouse <span>Monitor</span></div>
+    <a href="ecology.html">part of the science kit →</a>
+  </div>
+
+  <!-- ============ ENVIRONMENT ============ -->
+  <section class="pane on" id="p-env">
+    <h2>Environment</h2>
+    <p class="hint">VPD, dew point and absolute humidity from your log, against the band for the
+      stage you are in. Time outside the band is measured by <b>duration</b>, not by counting
+      samples.</p>
+
+    <div class="card">
+      <div id="envCtl"></div>
+    </div>
+
+    <div class="card" id="envOut"></div>
+    <div class="card" id="envChart"></div>
+
+    <div class="card">
+      <h3 style="margin-top:0">Which VPD this page shows, and why it matters</h3>
+      <p class="fine" style="margin-top:0">There are two numbers called VPD and most published
+        target bands do not say which they mean.</p>
+      <div class="eq">air VPD&nbsp; = es(T<sub>air</sub>) &minus; es(T<sub>air</sub>) &times; RH/100<br>
+        leaf VPD = es(T<sub>leaf</sub>) &minus; es(T<sub>air</sub>) &times; RH/100</div>
+      <p class="fine">This page shows <b>leaf VPD</b>. A transpiring leaf under a lamp sits below air
+        temperature &mdash; commonly 1&ndash;3&nbsp;°C below with airflow, less in still air, and it
+        can sit <em>above</em> air temperature under a hot fixture with no movement. A cooler leaf
+        has a lower saturation pressure, so a <b>larger offset gives a lower VPD</b>.</p>
+      <p class="fine">Because es() is exponential, the size of that shift is not small. Swept across
+        18&ndash;32&nbsp;°C and 40&ndash;85% RH, a <b>2&nbsp;°C offset moves VPD by 0.25 to
+        0.51&nbsp;kPa</b> &mdash; median 0.36. The vegetative band is 0.4&nbsp;kPa wide, so the
+        offset alone is worth <b>61% to 128% of the whole band</b>: at the top of that range it is
+        wider than the band it is being compared against. That is not a rounding difference. It is
+        the difference between reading &ldquo;in band&rdquo; and not, and <b>a target band quoted
+        without its leaf assumption is not a number</b>.</p>
+      <p class="fine">Set the offset to <b>0</b> and you get air VPD. If your log carries a measured
+        leaf temperature, the page uses it and ignores the offset entirely &mdash; a measurement
+        beats an assumption every time.</p>
+      <p class="fine">Saturation vapour pressure is <b>Buck</b> <span class="cite">(Buck, 1981)</span>, the equation NOAA publishes
+        and most controllers implement, so a number here matches the number on your controller's own
+        screen. It is within 0.05% of the reference formulation across this whole range.</p>
+      <div class="warnbox"><b>The target bands are grower convention, not a controlled result.</b>
+        0.4&ndash;0.8&nbsp;kPa for clones, 0.8&ndash;1.2 vegetative, 1.0&ndash;1.4 early flower,
+        1.2&ndash;1.6 late flower are the ranges in common circulation among growers and equipment
+        makers. The stage boundaries are soft and the numbers vary between sources. Use them as a
+        starting point and let your own record move them.</div>
+    </div>
+  </section>
+
+  <!-- ============ LIGHT ============ -->
+  <section class="pane" id="p-light">
+    <h2>Light</h2>
+    <p class="hint">DLI is the integral of light over the photoperiod &mdash; the number the plant
+      actually experiences. PPFD alone is a snapshot.</p>
+
+    <div class="card">
+      <div id="lightCtl"></div>
+    </div>
+    <div class="card" id="lightOut"></div>
+
+    <div class="card">
+      <h3 style="margin-top:0">DLI, and why it is an integral</h3>
+      <div class="eq">DLI = PPFD &times; hours &times; 0.0036&nbsp;&nbsp;mol/m²/d<br>
+        <span style="color:var(--muted)">1&nbsp;µmol/m²/s &times; 3600&nbsp;s/h &divide;
+        10⁶&nbsp;µmol/mol = 0.0036</span></div>
+      <p class="fine">That closed form is only right when PPFD is <b>constant</b> for the whole
+        photoperiod. A dimming ramp, a sunrise curve, a two-stage photoperiod or a cloudy afternoon
+        all break it. When your log carries PPFD, this page integrates the actual curve by trapezoid
+        instead, and reports both so you can see the gap.</p>
+
+      <h3>Lumens are the wrong unit, and this page will not pretend otherwise</h3>
+      <p class="fine" style="margin-top:0">Lumens weight photons by the <b>human</b> photopic
+        response, which peaks at 555&nbsp;nm &mdash; green, the wavelength a leaf reflects most and
+        absorbs least. PPFD counts every photon from 400&ndash;700&nbsp;nm equally. The ratio between
+        them is a property of your fixture's <b>spectrum</b> and nothing else, and across lamps
+        people actually own it spans the whole range of the table below &mdash; <b>24 lux per µmol/m²/s for a red-and-blue
+        LED to 82 for HPS</b>, which is 82&nbsp;&divide;&nbsp;24&nbsp;=&nbsp;3.4, a factor of more
+        than three.</p>
+      <div class="refuse"><b>There is no default factor, so this page does not have one.</b>
+        Give it a factor and it converts, names the factor in the output, and carries that name into
+        the export. Leave it blank and it returns nothing rather than three significant figures
+        invented from a guess. The starting figures below are published approximations for whole
+        lamp classes, not measurements of your lamp; a $30 PAR meter ends the argument permanently.</div>
+      <div class="tw"><table class="ing" id="luxTable"></table></div>
+    </div>
+  </section>
+
+  <!-- ============ ENERGY & YIELD ============ -->
+  <section class="pane" id="p-econ">
+    <h2>Energy &amp; yield</h2>
+    <p class="hint">What the run cost, what it produced, and the ratio between them &mdash; in both
+      of the two numbers that get called &ldquo;grams per watt&rdquo;.</p>
+
+    <div class="card">
+      <div id="econCtl"></div>
+    </div>
+    <div class="card" id="econOut"></div>
+
+    <div class="card">
+      <h3 style="margin-top:0">Two different numbers share the name &ldquo;g/W&rdquo;</h3>
+      <div class="eq">g/W&nbsp;&nbsp; = yield &divide; <b>rated</b> fixture watts<br>
+        g/kWh = yield &divide; energy <b>actually consumed</b></div>
+      <p class="fine">The first is the figure the industry quotes. It ignores photoperiod, dimming,
+        and everything in the room that is not the light. A fixture run at 60% for half the cycle
+        has the <em>same</em> g/W as one run flat out and uses
+        0.60&nbsp;&times;&nbsp;0.50&nbsp;=&nbsp;0.30 of the energy, so its g/kWh is
+        1&nbsp;&divide;&nbsp;0.30&nbsp;=&nbsp;3.3 times higher. Anyone comparing
+        g/W across two rooms with different duty cycles is comparing nothing at all.</p>
+      <p class="fine">The second is what your meter saw. It is the one that divides into your bill,
+        and it is the one this page leads with.</p>
+
+      <h3>Energy is integrated, not multiplied</h3>
+      <div class="eq">kWh = &int;P&nbsp;dt &nbsp;&asymp;&nbsp;
+        &Sigma; (P<sub>i</sub> + P<sub>i&minus;1</sub>) / 2 &times; &Delta;t<sub>i</sub></div>
+      <p class="fine">When a power log is available the page uses the <b>trapezoid rule</b> over it.
+        Controllers that claim to log every five minutes drop samples under load, and a rectangle
+        sum silently attributes each gap to whichever endpoint it happened to use. The trapezoid is
+        correct for any spacing, which is the only assumption safe to make about real logs.</p>
+      <div class="warnbox"><b>What this page will not compute.</b>
+        It does not predict a yield, price a harvest, or tell you whether more light would pay. The
+        first needs a controlled trial, the second is not a horticultural question, and the third
+        depends on where you sit on a diminishing-returns curve that only your own record can locate
+        &mdash; which is precisely what logging run after run is for.</div>
+    </div>
+  </section>
+
+  <!-- ============ SOURCES ============ -->
+  <section class="pane" id="p-src">
+    <h2>Where the data comes from</h2>
+    <p class="hint">Five ways in. Each one says whether it can run in <b>this</b> browser, on
+      <b>this</b> page, right now &mdash; and if it cannot, why not.</p>
+
+    <div class="card">
+      <div class="gh-src" id="srcList"></div>
+      <div id="srcCtl" style="margin-top:14px"></div>
+      <div class="btn-row">
+        <button class="btn btn-go" id="srcRun" type="button">Load from this source</button>
+        <button class="btn btn-ghost" id="srcClear" type="button">Clear the log</button>
+      </div>
+      <p class="fine" id="srcMsg" style="margin-top:10px"></p>
+    </div>
+
+    <div class="card">
+      <h3 style="margin-top:0">Adding a sixth</h3>
+      <p class="fine" style="margin-top:0">The page does not know the list. A source is one
+        registration call, and it must answer the same two questions as the rest:</p>
+      <div class="eq">GH.register({<br>
+        &nbsp; id:"mine", name:"My rig", kind:"poll",<br>
+        &nbsp; available:function(){ return {ok:…, why:"…"}; },<br>
+        &nbsp; read:function(opts){ return Promise.resolve({rows:[…]}); }<br>
+        });</div>
+      <p class="fine"><b><code>available()</code> is not optional decoration.</b> A monitoring page
+        that fails silently is worse than one that does not load: it shows you an empty room and
+        lets you believe the room is empty. Every source here reports its own limits before you
+        depend on it &mdash; a <code>file://</code> page cannot fetch <code>http://</code>, an
+        <code>https://</code> page cannot fetch a plain-http sensor, and Web Serial does not exist
+        outside Chromium. Those are all checked, not assumed.</p>
+    </div>
+
+    <div class="card">
+      <h3 style="margin-top:0">The log</h3>
+      <div class="tw"><table class="ing" id="logTable"></table></div>
+      <p class="fine" id="logNote"></p>
+    </div>
+  </section>
+
+  <!-- ============ EXPORT ============ -->
+  <section class="pane" id="p-out">
+    <h2>Take it home</h2>
+    <div class="card">
+      <pre class="export" id="ghOut"># load a source and the summary appears here</pre>
+      <div class="btn-row">
+        <button class="btn btn-go" id="ghCopy" type="button">Copy the summary</button>
+        <button class="btn btn-soft" id="ghCsv" type="button">Copy the log as CSV</button>
+        <button class="btn btn-ghost" onclick="window.print()" type="button">Print / save PDF</button>
+      </div>
+      <p class="fine">The summary carries the leaf offset, the lux factor and the source it came
+        from, because a VPD without its offset and a PPFD without its factor are both numbers that
+        cannot be checked by anyone you hand them to.</p>
+    </div>
+  </section>
+<div class="rail">
+  <p class="rl">Record it — in the field</p>
+  <div class="chips">
+    <a href="field-notebook.html"><span>📓</span>Field Notebook</a>
+    <a href="ethogram.html"><span>🐾</span>Ethogram</a>
+    <a href="selection-log.html"><span>📏</span>Selection Log</a>
+    <a href="stand-sheet.html"><span>🌲</span>Stand Sheet</a>
+    <a href="releve.html"><span>🌾</span>Relevé</a>
+    <a href="collection-sheet.html"><span>🍄</span>Collection Sheet</a>
+    <a href="farm-scout.html"><span>🧑‍🌾</span>Farm Scout</a>
+    <a href="pheno-tracker.html"><span>🌱</span>Pheno Tracker</a>
+    <a href="deployment-log.html"><span>🎙️</span>Deployment Log</a>
+  </div>
+  <p class="rl" style="margin-top:16px">At the bench</p>
+  <div class="chips">
+    <a href="cp-bench.html"><span>🫙</span>CP Bench</a>
+    <a href="soil-bench.html"><span>🪱</span>Soil Bench</a>
+    <a href="breeding-bench.html"><span>🥕</span>Breeding Bench</a>
+    <a href="cell-bench.html"><span>🔬</span>Cell Bench</a>
+    <a href="micro-bench.html"><span>🧫</span>Micro Bench</a>
+    <a href="soil-recipes.html"><span>🧱</span>Soil Recipes</a>
+    <a href="greenhouse.html" aria-current="page"><span>🌡️</span>Greenhouse</a>
+  </div>
+  <p class="rl" style="margin-top:16px">Analyse it</p>
+  <div class="chips">
+    <a href="survey-design.html"><span>🧭</span>Survey Design</a>
+    <a href="ordination.html"><span>📉</span>Ordination</a>
+    <a href="food-web.html"><span>🕸️</span>Food Web Builder</a>
+    <a href="field-season.html"><span>🎯</span>Field Season</a>
+  </div>
+  <p class="rl" style="margin-top:16px">Print it</p>
+  <div class="chips">
+    <a href="plant-characters.html"><span>🌱</span>Plant Characters</a>
+    <a href="fungal-characters.html"><span>🔬</span>Fungal Characters</a>
+    <a href="cp-characters.html"><span>🪤</span>CP Characters</a>
+  </div>
+  <div class="chips" style="margin-top:16px">
+    <a class="ref" href="ecology.html">← kit hub</a>
+    <a class="ref" href="ecology-field-card.html">field card</a>
+    <a class="ref" href="ecology-glossary.html">glossary</a>
+  </div>
+</div>
+</div>
+
+<div class="tabbar"><div class="row">
+  <button class="tab on" data-pane="p-env" type="button"><span class="ico">🌡️</span>Environment</button>
+  <button class="tab" data-pane="p-light" type="button"><span class="ico">☀️</span>Light</button>
+  <button class="tab" data-pane="p-econ" type="button"><span class="ico">⚡</span>Energy</button>
+  <button class="tab" data-pane="p-src" type="button"><span class="ico">🔌</span>Sources</button>
+  <button class="tab" data-pane="p-out" type="button"><span class="ico">📤</span>Export</button>
+</div></div>
+
+<div class="toast" id="toast">Saved</div>
+
+<script>
+/* ---- Field Entry Kit v1.3.0 : constructors return {el, get, set} ---- */
+var FEK = (function(){
+  function el(t,c,h){ var e=document.createElement(t); if(c) e.className=c;
+    if(h!=null) e.innerHTML=h; return e; }
+  /* Where the line falls, and why it falls there.
+     A component's OWN label is written by whoever built the page and often
+     carries deliberate markup -- "Pod parent <span class="u">seed bearer</span>".
+     That stays HTML. The label on an OPTION, a chip or a tile is data: a
+     species you typed, a cross you recorded, a source you named. v1.1 passed
+     those straight into innerHTML, so a plant named with a < became markup.
+     Escaped here rather than at each call site, because a component whose
+     safety depends on every caller remembering is a component that will bite
+     somebody. Verified against the whole kit first: no option, chip or tile
+     label anywhere passes markup on purpose. */
+  /* No object literal here on purpose: the map form needs an escaped double
+     quote as a key, and this file is a Python string emitting JavaScript, so
+     that quote has to survive two layers of escaping. It did not, and every
+     consumer got a syntax error that took FEK down with it. A chain of
+     comparisons has nothing to escape. */
+  function escv(s){ return String(s==null?"":s).replace(/[&<>"']/g,function(c){
+    return c==="&"?"&amp;":c==="<"?"&lt;":c===">"?"&gt;":c==='"'?"&quot;":"&#39;"; }); }
+  function buzz(m){ try{ if(navigator.vibrate) navigator.vibrate(m||8);}catch(e){} }
+
+  /* ---- field registry (v1.3.0) ----
+     A component writes through to a hidden field via the page's own onchange.
+     That is fine going out and useless coming back: nothing could put a
+     restored value INTO the widget, so an autosaved session showed default
+     dials over correct data -- a lie on screen, which is worse than no
+     autosave. A component that declares `field:"sElev"` is registered here,
+     and FEK.setField puts a value back through the widget's own set(). Purely
+     additive: a component with no `field` behaves exactly as before. */
+  var REG = {};
+  function reg(o, h){ if(o && o.field) REG[o.field] = h; return h; }
+  function setField(id, v){
+    var h = REG[id];
+    if(!h) return false;
+    try { h.set(v); } catch(e){ return false; }
+    return true;
+  }
+  function fields(){ var out=[]; for(var k in REG) if(REG.hasOwnProperty(k)) out.push(k); return out; }
+
+  function step(o){
+    o=o||{}; var min=(o.min==null?-Infinity:o.min), max=(o.max==null?Infinity:o.max);
+    var stepv=o.step||1, dec=o.dec==null?(String(stepv).split(".")[1]||"").length:o.dec;
+    var v=o.value==null?0:o.value;
+    var wrap=el("div","fek-row"), lab=el("label","fek-lab",
+      (o.label||"")+(o.unit?'<span class="u">'+o.unit+'</span>':""));
+    var box=el("div","fek-step");
+    var minus=el("button",null,"&minus;"), inp=el("input"), plus=el("button",null,"+");
+    minus.type="button"; plus.type="button"; inp.type="number"; inp.className="val";
+    inp.setAttribute("inputmode","decimal");
+    if(o.label) inp.setAttribute("aria-label",o.label);
+    /* nullable: the control can hold "not recorded", which is not the same as
+       zero. Aspect 0 is north; a duff depth of 0 cm is an observation. An empty
+       nullable stepper reports null and the first bump starts from o.start. */
+    var nullable = !!o.nullable;
+    if(nullable && o.value==null) v=null;
+    function clamp(x){ return Math.min(max,Math.max(min,x)); }
+    function render(){
+      if(v==null){ inp.value=""; wrap.classList.add("is-empty"); box.classList.add("empty"); return; }
+      wrap.classList.remove("is-empty"); box.classList.remove("empty");
+      inp.value=(dec?v.toFixed(dec):String(v));
+    }
+    function set(x,quiet){
+      if(nullable && (x==null || x==="" || (typeof x==="number" && !isFinite(x)))) v=null;
+      else v=clamp(isFinite(x)?x:0);
+      render(); if(!quiet&&o.onchange) o.onchange(v);
+    }
+    function bump(d){
+      if(v==null) set(clamp(o.start==null?0:o.start));
+      else set(+(v+d*stepv).toFixed(6));
+      buzz();
+    }
+    function clear(){ if(nullable) set(null); }
+    minus.addEventListener("click",function(){ bump(-1); });
+    plus.addEventListener("click",function(){ bump(1); });
+    var hold;
+    function holdOn(d){ return function(){ clearInterval(hold);
+      hold=setInterval(function(){ bump(d); },110); }; }
+    function holdOff(){ clearInterval(hold); }
+    minus.addEventListener("pointerdown",holdOn(-1)); plus.addEventListener("pointerdown",holdOn(1));
+    ["pointerup","pointerleave","pointercancel"].forEach(function(ev){
+      minus.addEventListener(ev,holdOff); plus.addEventListener(ev,holdOff); });
+    inp.addEventListener("input",function(){
+      if(nullable && inp.value===""){ v=null; box.classList.add("empty");
+        if(o.onchange) o.onchange(null); return; }
+      var x=parseFloat(inp.value);
+      if(isFinite(x)){ v=clamp(x); box.classList.remove("empty"); if(o.onchange) o.onchange(v); } });
+    inp.addEventListener("blur",render);
+    box.appendChild(minus); box.appendChild(inp); box.appendChild(plus);
+    wrap.appendChild(lab); wrap.appendChild(box);
+    if(o.help) wrap.appendChild(el("p","fek-help",o.help));
+    render();
+    return reg(o, { el:wrap, get:function(){return v;}, set:function(x){set(x,true);},
+             clear:clear, nullable:nullable });
+  }
+
+  /* field: a value typed from an instrument readout. No steppers — see the CSS note. */
+  function field(o){
+    o=o||{};
+    var min=(o.min==null?-Infinity:o.min), max=(o.max==null?Infinity:o.max);
+    var dec=(o.dec==null?3:o.dec), v=(o.value==null?null:o.value);
+    var wrap=el("div","fek-row"), lab=el("label","fek-lab",
+      (o.label||"")+(o.unit?'<span class="u">'+o.unit+'</span>':""));
+    var box=el("div","fek-field"), inp=el("input");
+    inp.type="number"; inp.setAttribute("inputmode","decimal");
+    if(o.step!=null) inp.step=o.step;
+    inp.placeholder = o.placeholder==null ? "—" : o.placeholder;
+    if(o.label) inp.setAttribute("aria-label",o.label);
+    function paint(){ box.classList.toggle("empty", v==null); }
+    function set(x,quiet){
+      if(x==null || x===""){ v=null; inp.value=""; }
+      else { var n=parseFloat(x);
+        v = isFinite(n) ? Math.min(max,Math.max(min,n)) : null;
+        inp.value = (v==null?"":String(v)); }
+      paint(); if(!quiet&&o.onchange) o.onchange(v);
+    }
+    inp.addEventListener("input",function(){
+      if(inp.value===""){ v=null; paint(); if(o.onchange) o.onchange(null); return; }
+      var n=parseFloat(inp.value);
+      if(isFinite(n)){ v=Math.min(max,Math.max(min,n)); paint(); if(o.onchange) o.onchange(v); } });
+    inp.addEventListener("blur",function(){
+      if(v!=null && isFinite(v)) inp.value = (dec==null?String(v):String(+v.toFixed(dec)));
+      paint(); });
+    box.appendChild(inp);
+    if(o.unitBox!==false && o.unit) box.appendChild(el("div","u",o.unit));
+    wrap.appendChild(lab); wrap.appendChild(box);
+    if(o.help) wrap.appendChild(el("p","fek-help",o.help));
+    set(v,true);
+    return reg(o, { el:wrap, get:function(){return v;}, set:function(x){set(x,true);},
+             clear:function(){ set(null,true); }, nullable:true });
+  }
+
+  function dial(o){
+    o=o||{}; var opts=o.options||[], cur=o.value==null?null:o.value;
+    var wrap=el("div","fek-row"), lab=el("label","fek-lab",o.label||"");
+    var box=el("div","fek-dial"), btns=[];
+    opts.forEach(function(op,i){
+      var b=el("button",null,'<span>'+escv(op.label)+'</span>'+(op.sub?'<small>'+escv(op.sub)+'</small>':""));
+      b.type="button";
+      b.setAttribute("data-r", op.ramp==null ? String(Math.min(5,Math.round(i*5/Math.max(1,opts.length-1)))) : String(op.ramp));
+      b.addEventListener("click",function(){
+        cur = (cur===op.value && o.clearable!==false) ? null : op.value;
+        paint(); buzz(); if(o.onchange) o.onchange(cur);
+      });
+      btns.push(b); box.appendChild(b);
+    });
+    function paint(){ btns.forEach(function(b,i){ b.classList.toggle("on", opts[i].value===cur); }); }
+    paint();
+    wrap.appendChild(lab); wrap.appendChild(box);
+    if(o.help) wrap.appendChild(el("p","fek-help",o.help));
+    return reg(o, { el:wrap, get:function(){return cur;},
+             set:function(x){ cur=x; paint(); } });
+  }
+
+  function chips(o){
+    o=o||{}; var opts=o.options||[], sel={};
+    (o.value||[]).forEach(function(v){ sel[v]=1; });
+    var wrap=el("div","fek-row"), lab=el("label","fek-lab",o.label||"");
+    var box=el("div","fek-chips"), btns=[];
+    opts.forEach(function(op){
+      var b=el("button","fek-chip",escv(op.label)); b.type="button";
+      b.addEventListener("click",function(){
+        if(o.single){ sel={}; sel[op.value]=1; }
+        else if(sel[op.value]) delete sel[op.value]; else sel[op.value]=1;
+        paint(); buzz(); if(o.onchange) o.onchange(Object.keys(sel));
+      });
+      btns.push(b); box.appendChild(b);
+    });
+    function paint(){ btns.forEach(function(b,i){ b.classList.toggle("on",!!sel[opts[i].value]); }); }
+    paint();
+    wrap.appendChild(lab); wrap.appendChild(box);
+    if(o.help) wrap.appendChild(el("p","fek-help",o.help));
+    return reg(o, { el:wrap, get:function(){return Object.keys(sel);},
+             set:function(a){ sel={}; (a||[]).forEach(function(v){sel[v]=1;}); paint(); } });
+  }
+
+  function slider(o){
+    o=o||{};
+    var nullable=!!o.nullable;
+    var v = (nullable && o.value==null) ? null : (o.value==null?(o.min||0):o.value);
+    var wrap=el("div","fek-row"), lab=el("label","fek-lab",o.label||"");
+    var box=el("div","fek-slide"), r=el("input"), bub=el("div","bub");
+    r.type="range"; r.min=o.min==null?0:o.min; r.max=o.max==null?100:o.max;
+    r.step=o.step||1; r.value=v;
+    if(o.label) r.setAttribute("aria-label",o.label);
+    function paint(){
+      if(v==null){ bub.innerHTML='<span style="opacity:.6">not recorded</span>'; return; }
+      bub.innerHTML=(o.fmt?o.fmt(v):v)+(o.unit?'<span>'+o.unit+'</span>':"");
+    }
+    r.addEventListener("input",function(){ v=parseFloat(r.value); paint(); if(o.onchange) o.onchange(v); });
+    if(nullable && v==null) r.value = (o.min==null?0:o.min);
+    paint();
+    box.appendChild(r); box.appendChild(bub);
+    wrap.appendChild(lab); wrap.appendChild(box);
+    if(o.help) wrap.appendChild(el("p","fek-help",o.help));
+    return reg(o, { el:wrap, get:function(){return v;},
+             set:function(x){ v=(nullable&&x==null)?null:x; if(x!=null) r.value=x; paint(); },
+             clear:function(){ if(nullable){ v=null; paint(); } }, nullable:nullable });
+  }
+
+  function picker(o){
+    o=o||{}; var opts=o.options||[], cur=o.value==null?null:o.value, q="";
+    var wrap=el("div","fek-row"), lab=el("label","fek-lab",o.label||"");
+    var box=el("div","fek-pick"), s=el("input","search"), list=el("div","opts");
+    s.type="text"; s.placeholder=o.placeholder||"type to filter…";
+    s.setAttribute("autocomplete","off");
+    if(o.label) s.setAttribute("aria-label",o.label+" filter");
+    function paint(){
+      list.innerHTML="";
+      var qq=q.toLowerCase();
+      var shown=opts.filter(function(op){
+        return !qq || (op.label+" "+(op.sub||"")).toLowerCase().indexOf(qq)>=0; });
+      if(!shown.length){ list.appendChild(el("div","none","No match. Clear the filter to see all "+opts.length+".")); return; }
+      shown.slice(0,200).forEach(function(op){
+        var b=el("button","opt"+(op.value===cur?" on":""),
+          escv(op.label)+(op.sub?'<small>'+escv(op.sub)+'</small>':""));
+        b.type="button";
+        b.addEventListener("click",function(){ cur=op.value; paint(); buzz(); if(o.onchange) o.onchange(cur); });
+        list.appendChild(b);
+      });
+    }
+    s.addEventListener("input",function(){ q=s.value; paint(); });
+    box.appendChild(s); box.appendChild(list);
+    wrap.appendChild(lab); wrap.appendChild(box);
+    if(o.help) wrap.appendChild(el("p","fek-help",o.help));
+    paint();
+    return reg(o, { el:wrap, get:function(){return cur;}, set:function(x){ cur=x; paint(); } });
+  }
+
+  function tiles(list){
+    var box=el("div","fek-tiles");
+    (list||[]).forEach(function(t){
+      box.appendChild(el("div","fek-tile"+(t.tone?" "+t.tone:""),
+        '<div class="v">'+escv(t.v)+'</div><div class="l">'+escv(t.l)+'</div>'));
+    });
+    return box;
+  }
+  function banner(title,body,tone){
+    return el("div","fek-banner"+(tone?" "+tone:""),"<b>"+title+"</b>"+body);
+  }
+  function mount(host,parts){
+    var h=typeof host==="string"?document.getElementById(host):host;
+    h.innerHTML=""; parts.forEach(function(p){ h.appendChild(p.el||p); }); return h;
+  }
+  /* Exported because a page building a component LABEL -- which stays HTML by
+     design -- still has to escape the data inside it. A private copy of an
+     escaper in one page was how the last one got lost when the kit was
+     re-emitted over it. */
+  return { version:"1.3.0", esc:escv, setField:setField, fields:fields, step:step, field:field, dial:dial, chips:chips, slider:slider,
+           picker:picker, tiles:tiles, banner:banner, mount:mount, buzz:buzz };
+})();
+</script>
+<script>
+/* ---------- Greenhouse engine v1.0.0 ---------- */
+var GH = (function(){
+  "use strict";
+
+  /* ================= psychrometrics ================= */
+
+  /* Buck (1981) saturation vapour pressure over water, kPa, T in degrees C.
+     Chosen over Tetens and over Magnus because it is what NOAA publishes and
+     what most grow controllers implement, so a number computed here matches
+     the number on the controller's own screen. Buck is within 0.05% of the
+     reference formulation from -20 to +50 C, which is the whole range that
+     matters here and then some. */
+  function svp(t){
+    return 0.61121 * Math.exp((18.678 - t/234.5) * (t / (257.14 + t)));
+  }
+
+  /* Vapour pressure deficit, kPa.
+
+     THERE ARE TWO VPDs AND THE PUBLISHED TARGET BANDS RARELY SAY WHICH.
+
+       air VPD  = es(T_air)  - es(T_air) * RH/100
+       leaf VPD = es(T_leaf) - es(T_air) * RH/100
+
+     A leaf transpiring under a lamp sits BELOW air temperature -- typically
+     1-3 C below with airflow, less in still air, and it can sit above air
+     temperature under a very hot fixture with no movement. A cooler leaf has a
+     lower saturation pressure, so a LARGER offset gives a LOWER VPD.
+
+     Because es() is exponential the size of that shift is not small. Swept
+     across 18-32 C and 40-85% RH, a 2 C offset moves VPD by 0.25 to 0.51 kPa
+     -- median 0.36. The vegetative band is 0.4 kPa wide. So the offset alone
+     is worth between 61 and 128 percent of the whole band: at the top of that range
+     it is wider than the band it is being compared against. This is not a
+     rounding difference, it is the difference between "in band" and not, and
+     a target band quoted without its leaf assumption is not a number.
+
+     This returns LEAF VPD, and takes the offset explicitly rather than
+     assuming one. Pass 0 and you get air VPD. The page states which it shows. */
+  function vpd(tAir, rh, leafOffset){
+    if(tAir==null || rh==null) return null;
+    var off = (leafOffset==null) ? 0 : leafOffset;
+    var tLeaf = tAir - off;
+    var avp = svp(tAir) * (rh/100);
+    return svp(tLeaf) - avp;
+  }
+
+  /* Dew point by inverting Buck numerically. A closed-form inverse of Buck
+     does not exist; bisection over a bracket that covers every terrestrial
+     condition converges to well under 0.01 C in 50 steps and cannot diverge. */
+  function dewPoint(tAir, rh){
+    if(tAir==null || rh==null || rh<=0) return null;
+    var target = svp(tAir) * (rh/100);
+    var lo=-80, hi=tAir;
+    for(var i=0;i<60;i++){
+      var mid=(lo+hi)/2;
+      if(svp(mid) < target) lo=mid; else hi=mid;
+    }
+    return (lo+hi)/2;
+  }
+
+  /* Absolute humidity, g/m3 -- the number that tells you what your dehumidifier
+     actually has to remove. RH alone does not, because the same RH at two
+     temperatures is two different amounts of water. */
+  function absHumidity(tAir, rh){
+    if(tAir==null || rh==null) return null;
+    var e = svp(tAir) * (rh/100) * 1000;         /* Pa */
+    return 2.16679 * e / (tAir + 273.15);        /* g/m3 */
+  }
+
+  /* Target bands, kPa, LEAF VPD. These are the ranges in common circulation
+     among growers and equipment makers; they are not a controlled result and
+     the page says so. Stage boundaries are soft. */
+  var BANDS = [
+    {id:"clone",  label:"clones / seedlings", lo:0.4, hi:0.8},
+    {id:"veg",    label:"vegetative",         lo:0.8, hi:1.2},
+    {id:"early",  label:"early flower",       lo:1.0, hi:1.4},
+    {id:"late",   label:"late flower",        lo:1.2, hi:1.6}
+  ];
+  function band(id){
+    for(var i=0;i<BANDS.length;i++) if(BANDS[i].id===id) return BANDS[i];
+    return BANDS[1];
+  }
+  function inBand(v, b){ return v!=null && v>=b.lo && v<=b.hi; }
+
+  /* ================= light ================= */
+
+  /* DLI, mol/m2/d, from a constant PPFD held for `hours`.
+       1 umol/m2/s * 3600 s/h * h / 1e6 = PPFD * h * 0.0036 */
+  function dli(ppfd, hours){
+    if(ppfd==null || hours==null) return null;
+    return ppfd * hours * 0.0036;
+  }
+
+  /* DLI from a LOG of PPFD samples -- the integral rather than the formula.
+     A dimming ramp, a cloudy afternoon or a two-stage photoperiod all make the
+     constant-PPFD version wrong, and by more than people expect. Trapezoid,
+     because controller sample spacing is never uniform. */
+  function dliFromLog(rows, tKey, ppfdKey){
+    var pts = rows.filter(function(r){ return r[tKey]!=null && r[ppfdKey]!=null; })
+                  .sort(function(a,b){ return a[tKey]-b[tKey]; });
+    if(pts.length<2) return null;
+    var umol = 0;                       /* umol/m2 accumulated */
+    for(var i=1;i<pts.length;i++){
+      var dt = (pts[i][tKey] - pts[i-1][tKey]) / 1000;   /* ms -> s */
+      umol += (pts[i][ppfdKey] + pts[i-1][ppfdKey]) / 2 * dt;
+    }
+    var days = (pts[pts.length-1][tKey] - pts[0][tKey]) / 86400000;
+    if(days<=0) return null;
+    return (umol / 1e6) / days;
+  }
+
+  /* Lumens to PPFD. THE ENGINE WILL NOT PICK THE FACTOR FOR YOU.
+
+     Lumens are photons weighted by the human photopic response, which peaks at
+     555 nm -- green, where a leaf reflects most and absorbs least. PPFD counts
+     every photon from 400-700 nm equally. The ratio between the two is a
+     property of the fixture's SPECTRUM and nothing else, and across the lamps
+     people actually own it spans roughly 15 to 70 lux per umol/m2/s.
+
+     Handing back a number from a default factor would be inventing three
+     significant figures out of a guess. This returns the conversion WITH the
+     factor used, so the number never travels without it. */
+  function lumensToPPFD(lux, luxPerUmol){
+    if(lux==null || luxPerUmol==null || luxPerUmol<=0)
+      return {value:null, factor:luxPerUmol||null,
+              note:"no conversion: lux to PPFD depends entirely on the fixture spectrum, "+
+                   "and no default is defensible"};
+    return {value: lux/luxPerUmol, factor: luxPerUmol,
+            note:"converted at "+luxPerUmol+" lux per umol/m2/s -- a property of YOUR fixture's "+
+                 "spectrum, not a constant"};
+  }
+  /* Rough published factors, offered as a starting point and labelled as one. */
+  var LUX_FACTORS = [
+    {id:"sun",   label:"daylight / sun",        f:54},
+    {id:"hps",   label:"HPS",                   f:82},
+    {id:"mh",    label:"metal halide",          f:71},
+    {id:"cmh",   label:"CMH / LEC 3100K",       f:64},
+    {id:"led3k", label:"white LED ~3000K",      f:62},
+    {id:"led4k", label:"white LED ~4000K",      f:65},
+    {id:"led5k", label:"white LED ~5000K",      f:69},
+    {id:"blur",  label:"blurple LED (red/blue)",f:24}
+  ];
+
+  /* ================= energy ================= */
+
+  /* Energy in kWh by trapezoid over a power log. Uneven spacing is the norm --
+     a controller that logs "every 5 minutes" drops samples under load -- and a
+     rectangle sum silently attributes the gap to whichever endpoint it used.
+     Returns null rather than 0 for a log too short to integrate: zero is an
+     answer, and "I cannot answer" is not zero. */
+  function kWh(rows, tKey, wKey){
+    var pts = rows.filter(function(r){ return r[tKey]!=null && r[wKey]!=null; })
+                  .sort(function(a,b){ return a[tKey]-b[tKey]; });
+    if(pts.length<2) return null;
+    var wh = 0;
+    for(var i=1;i<pts.length;i++){
+      var dtH = (pts[i][tKey] - pts[i-1][tKey]) / 3600000;   /* ms -> h */
+      wh += (pts[i][wKey] + pts[i-1][wKey]) / 2 * dtH;
+    }
+    return wh/1000;
+  }
+
+  /* The simple case: a fixture at a fixed draw on a timer. */
+  function kWhFromSchedule(watts, hoursPerDay, days){
+    if(watts==null||hoursPerDay==null||days==null) return null;
+    return watts * hoursPerDay * days / 1000;
+  }
+
+  function cost(kwh, ratePerKWh){
+    if(kwh==null||ratePerKWh==null) return null;
+    return kwh * ratePerKWh;
+  }
+
+  /* ================= yield economics ================= */
+
+  /* Both g/W figures, with the difference stated rather than buried.
+     ratedW  -- what the fixture is sold as
+     kwh     -- what the meter actually saw over the whole cycle
+     days    -- cycle length, needed to turn kWh back into an average draw */
+  function economics(grams, ratedW, kwh, days, ratePerKWh){
+    var out = {grams:grams, ratedW:ratedW, kwh:kwh, days:days,
+               gPerW:null, gPerKWh:null, costTotal:null, costPerGram:null,
+               avgW:null, dutyVsRated:null};
+    if(grams==null) return out;
+    if(ratedW) out.gPerW = grams/ratedW;
+    if(kwh)    out.gPerKWh = grams/kwh;
+    if(kwh!=null && days) out.avgW = kwh*1000/(days*24);
+    if(out.avgW!=null && ratedW) out.dutyVsRated = out.avgW/ratedW;
+    if(kwh!=null && ratePerKWh!=null){
+      out.costTotal = kwh*ratePerKWh;
+      if(grams>0) out.costPerGram = out.costTotal/grams;
+    }
+    return out;
+  }
+
+  /* ================= trend ================= */
+
+  /* Ordinary least squares on (x,y). Returns slope, intercept, r2 and n.
+     The slope is the derivative the trend question is actually asking for --
+     "is my VPD drifting" is dVPD/dt, and eyeballing a chart answers it badly.
+     r2 is returned alongside because a slope from a cloud of points is a
+     number with no meaning, and reporting one without the other is how a
+     trend line becomes a claim it cannot support. */
+  function ols(xs, ys){
+    var n=0, sx=0, sy=0, sxx=0, sxy=0, syy=0;
+    for(var i=0;i<xs.length;i++){
+      if(xs[i]==null||ys[i]==null||!isFinite(xs[i])||!isFinite(ys[i])) continue;
+      n++; sx+=xs[i]; sy+=ys[i]; sxx+=xs[i]*xs[i]; sxy+=xs[i]*ys[i]; syy+=ys[i]*ys[i];
+    }
+    if(n<3) return {n:n, slope:null, intercept:null, r2:null,
+                    why:"fewer than three usable points"};
+    var d = n*sxx - sx*sx;
+    if(Math.abs(d) < 1e-12) return {n:n, slope:null, intercept:null, r2:null,
+                                    why:"every x is the same -- no slope exists"};
+    var slope = (n*sxy - sx*sy)/d;
+    var intercept = (sy - slope*sx)/n;
+    var ssTot = syy - sy*sy/n;
+    var ssRes = 0;
+    for(var j=0;j<xs.length;j++){
+      if(xs[j]==null||ys[j]==null||!isFinite(xs[j])||!isFinite(ys[j])) continue;
+      var e = ys[j] - (intercept + slope*xs[j]);
+      ssRes += e*e;
+    }
+    var r2 = ssTot>1e-12 ? 1 - ssRes/ssTot : null;
+    return {n:n, slope:slope, intercept:intercept, r2:r2, why:null};
+  }
+
+  /* Fraction of LOGGED TIME outside a band, by trapezoid on the indicator --
+     not the fraction of samples, which is a different question whenever
+     sampling is uneven. Ten samples in one bad hour and one sample per good
+     hour would read as 50% of samples and about 4% of time. */
+  function timeOutside(rows, tKey, vKey, lo, hi){
+    var pts = rows.filter(function(r){ return r[tKey]!=null && r[vKey]!=null; })
+                  .sort(function(a,b){ return a[tKey]-b[tKey]; });
+    if(pts.length<2) return null;
+    var out=0, tot=0;
+    for(var i=1;i<pts.length;i++){
+      var dt = pts[i][tKey]-pts[i-1][tKey];
+      if(dt<=0) continue;
+      var a = (pts[i-1][vKey]<lo || pts[i-1][vKey]>hi) ? 1 : 0;
+      var b = (pts[i][vKey]<lo   || pts[i][vKey]>hi)   ? 1 : 0;
+      out += (a+b)/2*dt; tot += dt;
+    }
+    return tot>0 ? out/tot : null;
+  }
+
+  /* ================= ingest plugins ================= */
+
+  /* A registry rather than one hard-wired path, because no two growers have
+     the same kit. A source declares what it is, whether it can run HERE (in
+     this browser, on this page, right now), and how to read. A source that
+     cannot run says so with a reason -- it does not silently return nothing,
+     which is how a dashboard ends up confidently displaying an empty room. */
+  var sources = [];
+  function register(src){
+    if(!src || !src.id) throw new Error("a source needs an id");
+    if(typeof src.read !== "function") throw new Error(src.id+": needs a read()");
+    var s = {
+      id: src.id,
+      name: src.name || src.id,
+      kind: src.kind || "file",          /* file | poll | serial | manual | demo */
+      note: src.note || "",
+      needs: src.needs || "",
+      available: typeof src.available === "function"
+                 ? src.available
+                 : function(){ return {ok:true, why:""}; },
+      read: src.read
+    };
+    sources = sources.filter(function(x){ return x.id !== s.id; });
+    sources.push(s);
+    return s;
+  }
+  function list(){
+    return sources.map(function(s){
+      var a;
+      try { a = s.available(); } catch(e){ a = {ok:false, why:"probe threw: "+e.message}; }
+      return {id:s.id, name:s.name, kind:s.kind, note:s.note, needs:s.needs,
+              ok:!!(a&&a.ok), why:(a&&a.why)||""};
+    });
+  }
+  function get(id){
+    for(var i=0;i<sources.length;i++) if(sources[i].id===id) return sources[i];
+    return null;
+  }
+  function clear(){ sources = []; }
+
+  /* ================= reading rows ================= */
+
+  /* Column aliases. Every controller names things differently and nobody is
+     going to rename their CSV headers by hand. Matching is case- and
+     punctuation-insensitive on the whole header, then on a contained word. */
+  var ALIASES = {
+    t:    ["time","timestamp","datetime","date","ts","recorded","logged at"],
+    temp: ["temp","temperature","air temp","tempc","temp c","temp f","t","tair"],
+    rh:   ["rh","humidity","relative humidity","hum","rh%"],
+    ppfd: ["ppfd","par","umol","photon flux","ppf"],
+    lux:  ["lux","lumens","illuminance","light"],
+    w:    ["w","watts","power","load","draw","p"],
+    co2:  ["co2","carbon dioxide","ppm"],
+    leaf: ["leaf","leaf temp","leaftemp","canopy temp"]
+  };
+  function norm(s){ return String(s==null?"":s).toLowerCase().replace(/[^a-z0-9%]+/g," ").trim(); }
+  function mapHeaders(headers){
+    var map = {}, used = {};
+    Object.keys(ALIASES).forEach(function(field){
+      for(var i=0;i<headers.length;i++){
+        if(used[i]) continue;
+        var h = norm(headers[i]);
+        if(ALIASES[field].indexOf(h) >= 0){ map[field]=i; used[i]=1; return; }
+      }
+      for(var j=0;j<headers.length;j++){
+        if(used[j]) continue;
+        var hh = " "+norm(headers[j])+" ";
+        for(var k=0;k<ALIASES[field].length;k++){
+          if(hh.indexOf(" "+ALIASES[field][k]+" ") >= 0){ map[field]=j; used[j]=1; return; }
+        }
+      }
+    });
+    return map;
+  }
+
+  /* A CSV parser that handles quoted fields, because controller exports put
+     commas inside timestamps and a split(",") silently shifts every column
+     after the first quoted one. */
+  function parseCSV(text){
+    var rows=[], row=[], cur="", q=false;
+    for(var i=0;i<text.length;i++){
+      var c=text[i];
+      if(q){
+        if(c==='"'){ if(text[i+1]==='"'){ cur+='"'; i++; } else q=false; }
+        else cur+=c;
+      } else if(c==='"'){ q=true; }
+      else if(c===","){ row.push(cur); cur=""; }
+      else if(c==="\n"){ row.push(cur); cur=""; rows.push(row); row=[]; }
+      else if(c==="\r"){ /* skip */ }
+      else cur+=c;
+    }
+    if(cur!=="" || row.length){ row.push(cur); rows.push(row); }
+    return rows.filter(function(r){ return r.length>1 || (r[0]||"").trim()!==""; });
+  }
+
+  function num(v){
+    if(v==null) return null;
+    var s=String(v).replace(/[^\d.eE+-]/g,"");
+    if(s==="" ) return null;
+    var n=parseFloat(s);
+    return isFinite(n) ? n : null;
+  }
+  function stamp(v){
+    if(v==null || v==="") return null;
+    var n = Number(v);
+    /* A bare number is an epoch. Seconds and milliseconds are told apart by
+       magnitude: anything under 1e11 as a timestamp would be 1973 in ms. */
+    if(isFinite(n) && String(v).trim()!==""&& /^[\d.]+$/.test(String(v).trim()))
+      return n < 1e11 ? n*1000 : n;
+    var d = Date.parse(String(v).replace(" ","T"));
+    if(!isNaN(d)) return d;
+    d = Date.parse(String(v));
+    return isNaN(d) ? null : d;
+  }
+
+  /* Turn a parsed CSV into engine rows. Reports what it could NOT map, because
+     a silently dropped column is a chart that is quietly missing a variable. */
+  function rowsFromCSV(text, opts){
+    opts = opts || {};
+    var grid = parseCSV(text);
+    if(grid.length<2) return {rows:[], map:{}, headers:[], unmapped:[],
+                              why:"fewer than two lines -- no header plus data"};
+    var headers = grid[0].map(function(h){ return String(h).trim(); });
+    var map = mapHeaders(headers);
+    var fahrenheit = !!opts.fahrenheit;
+    var rows = [];
+    for(var i=1;i<grid.length;i++){
+      var g=grid[i], r={};
+      if(map.t   != null) r.t    = stamp(g[map.t]);
+      if(map.temp!= null){ var tv=num(g[map.temp]);
+        r.temp = (tv!=null && fahrenheit) ? (tv-32)*5/9 : tv; }
+      if(map.leaf!= null){ var lv=num(g[map.leaf]);
+        r.leaf = (lv!=null && fahrenheit) ? (lv-32)*5/9 : lv; }
+      if(map.rh  != null) r.rh   = num(g[map.rh]);
+      if(map.ppfd!= null) r.ppfd = num(g[map.ppfd]);
+      if(map.lux != null) r.lux  = num(g[map.lux]);
+      if(map.w   != null) r.w    = num(g[map.w]);
+      if(map.co2 != null) r.co2  = num(g[map.co2]);
+      if(r.t==null) continue;
+      rows.push(r);
+    }
+    var mappedIdx = {};
+    Object.keys(map).forEach(function(k){ mappedIdx[map[k]]=1; });
+    var unmapped = headers.filter(function(h,i){ return !mappedIdx[i]; });
+    return {rows:rows, map:map, headers:headers, unmapped:unmapped,
+            why: rows.length ? null : "no row carried a readable timestamp"};
+  }
+
+  /* ================= summary ================= */
+
+  function summarise(rows, opts){
+    opts = opts || {};
+    var off  = opts.leafOffset==null ? 2 : opts.leafOffset;
+    var b    = band(opts.stage || "veg");
+    var withV = rows.map(function(r){
+      var o = {};
+      for(var k in r) if(Object.prototype.hasOwnProperty.call(r,k)) o[k]=r[k];
+      /* A measured leaf temperature beats an assumed offset every time. */
+      o.vpd = (o.leaf!=null && o.rh!=null)
+              ? svp(o.leaf) - svp(o.temp)*(o.rh/100)
+              : vpd(o.temp, o.rh, off);
+      o.dew = dewPoint(o.temp, o.rh);
+      o.ah  = absHumidity(o.temp, o.rh);
+      return o;
+    });
+    var vs = withV.map(function(r){ return r.vpd; }).filter(function(v){ return v!=null; });
+    var ts = withV.map(function(r){ return r.t; });
+    var span = (ts.length>1) ? (Math.max.apply(null,ts)-Math.min.apply(null,ts)) : 0;
+    return {
+      rows: withV,
+      n: withV.length,
+      spanDays: span/86400000,
+      band: b,
+      leafOffsetUsed: off,
+      measuredLeaf: withV.some(function(r){ return r.leaf!=null; }),
+      vpdMean: vs.length ? vs.reduce(function(a,c){return a+c;},0)/vs.length : null,
+      vpdMin: vs.length ? Math.min.apply(null,vs) : null,
+      vpdMax: vs.length ? Math.max.apply(null,vs) : null,
+      outsideBand: timeOutside(withV, "t", "vpd", b.lo, b.hi),
+      kwh: kWh(withV, "t", "w"),
+      dli: dliFromLog(withV, "t", "ppfd"),
+      trendVPD: ols(withV.map(function(r){ return r.t/86400000; }),
+                    withV.map(function(r){ return r.vpd; }))
+    };
+  }
+
+  return { version:"1.0.0",
+           svp:svp, vpd:vpd, dewPoint:dewPoint, absHumidity:absHumidity,
+           BANDS:BANDS, band:band, inBand:inBand,
+           dli:dli, dliFromLog:dliFromLog, lumensToPPFD:lumensToPPFD, LUX_FACTORS:LUX_FACTORS,
+           kWh:kWh, kWhFromSchedule:kWhFromSchedule, cost:cost, economics:economics,
+           ols:ols, timeOutside:timeOutside,
+           register:register, list:list, get:get, clear:clear,
+           parseCSV:parseCSV, mapHeaders:mapHeaders, rowsFromCSV:rowsFromCSV,
+           summarise:summarise };
+})();
+/* ---------- /Greenhouse engine v1.0.0 ---------- */
+</script>
+<script>
+/* ---------- ingest plugins ----------
+   Five ways in, because no two growers own the same kit and a dashboard that
+   only speaks one protocol is a dashboard most people cannot use.
+
+   Every source answers the same two questions before it is offered: can it run
+   HERE -- this browser, this page, right now -- and if not, WHY not. A source
+   that cannot run says so in the row. It does not quietly return nothing,
+   which is how a monitoring page ends up confidently displaying an empty room.
+
+   Adding a sixth is one GH.register() call. That is the whole extension point;
+   nothing in the page knows the list. */
+(function(){
+  "use strict";
+
+  /* --- 1. file: a CSV or JSON export from a controller ------------------
+     The one that works everywhere, offline, with no infrastructure at all --
+     and the one nearly every controller already supports. AC Infinity, Pulse,
+     Trolmaster, SwitchBot, Ecowitt and a Home Assistant history export all
+     produce something this reads. Column names are matched by alias, and the
+     page reports every header it could NOT place. */
+  GH.register({
+    id:"file", name:"Controller export (CSV or JSON)", kind:"file",
+    needs:"a file from your controller",
+    note:"Works offline, in any browser, with no server. Column names are matched by "+
+         "alias — time, temp, RH, PPFD, lux, watts, CO₂, leaf temp — and anything not "+
+         "recognised is listed rather than dropped in silence.",
+    available:function(){
+      return (typeof FileReader === "function")
+        ? {ok:true, why:""}
+        : {ok:false, why:"this browser has no FileReader"};
+    },
+    read:function(opts){
+      return new Promise(function(resolve, reject){
+        var f = opts && opts.file;
+        if(!f) return reject(new Error("no file given"));
+        var fr = new FileReader();
+        fr.onerror = function(){ reject(new Error("could not read the file")); };
+        fr.onload = function(){
+          var text = String(fr.result || "");
+          var t = text.replace(/^﻿/, "").trim();
+          if(t.charAt(0) === "[" || t.charAt(0) === "{"){
+            var j;
+            try { j = JSON.parse(t); }
+            catch(e){ return reject(new Error("that looks like JSON but will not parse: "+e.message)); }
+            var arr = Array.isArray(j) ? j : (j.rows || j.data || j.records || []);
+            if(!Array.isArray(arr) || !arr.length)
+              return reject(new Error("JSON parsed, but no array of readings was found in it"));
+            var headers = Object.keys(arr[0]);
+            var csv = [headers.join(",")].concat(arr.map(function(o){
+              return headers.map(function(h){
+                var v = o[h] == null ? "" : String(o[h]);
+                return /[",\n]/.test(v) ? '"'+v.replace(/"/g,'""')+'"' : v;
+              }).join(",");
+            })).join("\n");
+            return resolve(GH.rowsFromCSV(csv, opts));
+          }
+          resolve(GH.rowsFromCSV(text, opts));
+        };
+        fr.readAsText(f);
+      });
+    }
+  });
+
+  /* --- 2. poll: an HTTP endpoint on the local network -------------------
+     Genuinely live, and genuinely constrained. A page opened from a file://
+     URL cannot fetch http:// at all, and a page served over https:// cannot
+     fetch a plain-http sensor either -- the browser blocks mixed content
+     before your code runs. Both limits are checked HERE and reported in the
+     row, rather than discovered as a silent failure once you have typed in an
+     address and waited thirty seconds for nothing. */
+  GH.register({
+    id:"poll", name:"Local network endpoint (HTTP / JSON)", kind:"poll",
+    needs:"a sensor or bridge serving JSON on your LAN",
+    note:"Polls a URL on an interval and appends each reading. Home Assistant, "+
+         "ESPHome, Ecowitt's local API and most DIY sensors expose one. Needs the page "+
+         "to be SERVED rather than opened as a file, and the sensor must send "+
+         "Access-Control-Allow-Origin or the browser will refuse the response.",
+    available:function(){
+      if(typeof fetch !== "function") return {ok:false, why:"this browser has no fetch()"};
+      var p = (location.protocol||"").toLowerCase();
+      if(p === "file:")
+        return {ok:false, why:"this page was opened as a file, and a file:// page cannot "+
+                              "fetch http:// — serve the page to use this"};
+      if(p === "https:")
+        return {ok:true,  why:"served over https, so the endpoint must be https too — a "+
+                              "plain-http sensor will be blocked as mixed content"};
+      return {ok:true, why:""};
+    },
+    read:function(opts){
+      var url = opts && opts.url;
+      if(!url) return Promise.reject(new Error("no URL given"));
+      return fetch(url, {cache:"no-store"}).then(function(res){
+        if(!res.ok) throw new Error("the endpoint answered "+res.status+" "+res.statusText);
+        return res.text();
+      }).then(function(text){
+        var t = text.trim();
+        if(t.charAt(0) === "[" || t.charAt(0) === "{"){
+          var j = JSON.parse(t);
+          var o = Array.isArray(j) ? j[j.length-1] : j;
+          var flat = {};
+          Object.keys(o||{}).forEach(function(k){
+            if(o[k] !== null && typeof o[k] === "object") return;
+            flat[k] = o[k];
+          });
+          var headers = Object.keys(flat);
+          if(!headers.length) throw new Error("the endpoint returned JSON with no scalar fields");
+          var csv = headers.join(",")+"\n"+headers.map(function(h){ return flat[h]; }).join(",");
+          var parsed = GH.rowsFromCSV(csv, opts);
+          /* An endpoint that reports no timestamp is reporting NOW. */
+          if(!parsed.rows.length && parsed.why){
+            var withT = "time,"+headers.join(",")+"\n"+Date.now()+","+
+                        headers.map(function(h){ return flat[h]; }).join(",");
+            parsed = GH.rowsFromCSV(withT, opts);
+            parsed.stampedLocally = true;
+          }
+          return parsed;
+        }
+        return GH.rowsFromCSV(t, opts);
+      });
+    }
+  });
+
+  /* --- 3. serial: a USB sensor over Web Serial -------------------------
+     No server, genuinely live, and Chromium-only by design of the standard.
+     It also needs a user gesture per session -- the browser will not let a
+     page open a port on its own -- so this cannot be made to reconnect
+     silently, and the row says so rather than implying otherwise. */
+  GH.register({
+    id:"serial", name:"USB sensor (Web Serial)", kind:"serial",
+    needs:"a USB sensor that prints readings as text",
+    note:"Reads lines straight off a USB device — an Arduino, an SCD41 breakout, "+
+         "anything that prints CSV. No server involved. Chromium-based browsers only, "+
+         "and the browser requires you to pick the port yourself each session.",
+    available:function(){
+      if(!("serial" in navigator))
+        return {ok:false, why:"this browser has no Web Serial — Chrome, Edge or Opera on "+
+                              "desktop have it; Firefox and Safari do not"};
+      if((location.protocol||"") !== "https:" && location.hostname !== "localhost"
+         && (location.protocol||"") !== "file:")
+        return {ok:false, why:"Web Serial needs a secure context"};
+      return {ok:true, why:"you will be asked to choose the port — the browser will not "+
+                           "open one without you"};
+    },
+    read:function(opts){
+      return navigator.serial.requestPort().then(function(port){
+        return port.open({baudRate:(opts&&opts.baud)||9600}).then(function(){
+          var dec = new TextDecoderStream();
+          port.readable.pipeTo(dec.writable);
+          var reader = dec.readable.getReader();
+          var buf = "", lines = [], deadline = Date.now() + ((opts&&opts.ms)||4000);
+          function pump(){
+            if(Date.now() > deadline) return reader.cancel().then(function(){ return null; });
+            return reader.read().then(function(r){
+              if(r.done) return null;
+              buf += r.value;
+              var parts = buf.split("\n");
+              buf = parts.pop();
+              lines = lines.concat(parts);
+              return pump();
+            });
+          }
+          return pump().then(function(){
+            try { port.close(); } catch(e){}
+            if(!lines.length)
+              throw new Error("the port opened but sent nothing in the listening window");
+            return GH.rowsFromCSV(lines.join("\n"), opts);
+          });
+        });
+      });
+    }
+  });
+
+  /* --- 4. manual: the way the rest of this kit works -------------------
+     Lowest technology, highest availability, and honest about its own
+     resolution: a trend built from three readings a week is a trend about
+     three readings a week. */
+  GH.register({
+    id:"manual", name:"Type it in", kind:"manual",
+    needs:"nothing",
+    note:"One reading per visit, the same controls as the rest of the kit. The trend is "+
+         "only ever as good as how often you look — and this page computes time-outside-band "+
+         "by duration, not by counting samples, so uneven visits do not skew it.",
+    available:function(){ return {ok:true, why:""}; },
+    read:function(opts){
+      var r = (opts && opts.reading) || {};
+      if(r.t == null) r.t = Date.now();
+      if(r.temp == null && r.rh == null)
+        return Promise.reject(new Error("a reading needs at least a temperature and a humidity"));
+      return Promise.resolve({rows:[r], map:{}, headers:[], unmapped:[], why:null});
+    }
+  });
+
+  /* --- 5. demo: a generated week, labelled as generated ----------------
+     Every dashboard needs something on it before the first real reading, and
+     the honest way to do that is synthetic data that says it is synthetic in
+     the row, in the source name, and in the export. */
+  GH.register({
+    id:"demo", name:"Worked example (generated, not measured)", kind:"demo",
+    needs:"nothing",
+    note:"Seven days of plausible readings so the charts have something to show. Every "+
+         "number is generated — it is not a measurement of anything, and the export says so.",
+    available:function(){ return {ok:true, why:"synthetic data, clearly marked"}; },
+    read:function(opts){
+      var days = (opts && opts.days) || 7;
+      var perDay = 48;                                    /* every 30 min */
+      var end = (opts && opts.now) || Date.now();
+      var rows = [];
+      /* Deterministic: a demo that differs every reload cannot be tested, and
+         a chart that moves when you refresh teaches the wrong thing. */
+      var seed = 20260826;
+      function rnd(){ seed = (1664525*seed + 1013904223) >>> 0; return seed/4294967296; }
+      for(var i = days*perDay; i >= 0; i--){
+        var t = end - i*30*60000;
+        var hour = ((t/3600000) % 24 + 24) % 24;
+        var lightsOn = hour >= 6 && hour < 24;            /* 18/6 */
+        var temp = (lightsOn ? 26 : 21) + Math.sin(hour/24*2*Math.PI)*1.4 + (rnd()-0.5)*0.8;
+        var rh   = (lightsOn ? 58 : 66) - Math.sin(hour/24*2*Math.PI)*4 + (rnd()-0.5)*3;
+        var ppfd = lightsOn ? 780 + (rnd()-0.5)*40 : 0;
+        var w    = lightsOn ? 640 + (rnd()-0.5)*25 : 55;  /* fans and dehu at night */
+        rows.push({t:t, temp:+temp.toFixed(2), rh:+rh.toFixed(1),
+                   ppfd:Math.round(ppfd), w:+w.toFixed(1), co2:lightsOn?900:520});
+      }
+      return Promise.resolve({rows:rows, map:{}, headers:[], unmapped:[], why:null,
+                              synthetic:true});
+    }
+  });
+})();
+</script>
+<script>
+(function(){
+  "use strict";
+  var $=function(i){return document.getElementById(i);};
+  var esc=FEK.esc;
+  var tt; function toast(m){ var t=$("toast"); t.textContent=m; t.classList.add("on");
+    clearTimeout(tt); tt=setTimeout(function(){ t.classList.remove("on"); },1700); }
+  function f(x,d){ return (x==null||!isFinite(x)) ? "—" : x.toFixed(d==null?1:d); }
+  function money(x){ return (x==null||!isFinite(x)) ? "—" : "$"+x.toFixed(2); }
+
+  /* ---- state ---- */
+  var LOG = [];                 /* engine rows */
+  var srcId = "demo", srcLabel = "", srcSynthetic = false, lastUnmapped = [];
+  var stage = "veg", leafOff = 2, fahrenheit = false;
+  var luxFactor = null, luxValue = null, photoperiod = 18, ppfdManual = null;
+  var grams = null, ratedW = null, rate = 0.15, cycleDays = null;
+  var pollTimer = null;
+
+  /* ================= sources tab ================= */
+  function srcRows(){
+    var box=$("srcList"), rows=GH.list();
+    box.innerHTML = rows.map(function(s){
+      var cls = s.ok ? (s.kind==="poll"||s.kind==="serial" ? "live" : "ready") : "off";
+      var lab = s.ok ? (s.kind==="poll"||s.kind==="serial" ? "live-capable" : "ready") : "unavailable";
+      return '<div class="gh-srow'+(s.ok?"":" unavailable")+'">'
+        +'<div class="hd"><span class="nm">'+esc(s.name)+'</span>'
+        +'<span class="st '+cls+'">'+esc(lab)+'</span></div>'
+        +'<div class="wh">'+esc(s.note)+(s.why?' <b>'+esc(s.why)+'</b>':"")+'</div></div>';
+    }).join("");
+  }
+
+  var srcPick, fileCtl, urlCtl, everyCtl;
+  function srcCtl(){
+    var opts = GH.list().map(function(s){
+      return {value:s.id, label:s.name.split(" (")[0], sub:(s.ok?s.kind:"unavailable"),
+              ramp:(s.ok?2:5)};
+    });
+    srcPick = FEK.dial({label:"Source", options:opts, value:srcId, clearable:false,
+      help:"Pick one. An unavailable source stays listed with its reason rather than hidden — "+
+           "you should be able to see why a path is closed.",
+      onchange:function(v){ if(v==null) return; srcId=v; srcExtra(); }});
+    FEK.mount("srcCtl",[srcPick]);
+    var host=document.createElement("div"); host.id="srcExtra"; $("srcCtl").appendChild(host);
+    srcExtra();
+  }
+  function srcExtra(){
+    var host=$("srcExtra"); if(!host) return;
+    host.innerHTML="";
+    if(srcId==="file"){
+      var lab=document.createElement("label"); lab.className="fek-lab";
+      lab.textContent="Controller export"; host.appendChild(lab);
+      var inp=document.createElement("input"); inp.type="file"; inp.id="srcFile";
+      inp.accept=".csv,.txt,.json,.tsv";
+      inp.setAttribute("aria-label","controller export file");
+      inp.style.minHeight="48px"; inp.style.fontSize="16px";
+      host.appendChild(inp);
+      var fc=FEK.chips({label:"Temperatures in the file are", single:true,
+        value:[fahrenheit?"F":"C"],
+        options:[{value:"C",label:"°C"},{value:"F",label:"°F"}],
+        onchange:function(a){ fahrenheit=(a[0]==="F"); }});
+      host.appendChild(fc.el);
+    } else if(srcId==="poll"){
+      var u=document.createElement("label"); u.className="fek-lab";
+      u.textContent="Endpoint URL"; host.appendChild(u);
+      var t=document.createElement("input"); t.type="text"; t.id="srcUrl";
+      t.placeholder="http://192.168.1.50/api/readings";
+      t.setAttribute("aria-label","endpoint URL"); t.style.width="100%";
+      host.appendChild(t);
+      everyCtl=FEK.step({label:"Poll every", unit:"seconds", value:30, min:5, max:3600, step:5,
+        help:"Each poll appends one reading. Nothing is stored anywhere but this tab."});
+      host.appendChild(everyCtl.el);
+    } else if(srcId==="manual"){
+      var mt=FEK.step({label:"Air temperature", unit:"°C", value:25, min:-5, max:50, step:0.5, dec:1});
+      var mr=FEK.step({label:"Relative humidity", unit:"%", value:60, min:1, max:100, step:1});
+      var mw=FEK.step({label:"Power draw", unit:"W", value:null, start:600, min:0, max:5000, step:10,
+        nullable:true, help:"Optional — leave it empty if you are not tracking power. The first "+
+        "tap starts at 600 W rather than 0, because 0 W is a claim about the room."});
+      host.appendChild(mt.el); host.appendChild(mr.el); host.appendChild(mw.el);
+      host._manual = function(){ return {temp:mt.get(), rh:mr.get(), w:mw.get()}; };
+    }
+  }
+
+  function runSource(){
+    var s = GH.get(srcId);
+    if(!s){ msg("no such source", true); return; }
+    var a = s.available();
+    if(!a.ok){ msg("That source cannot run here: "+a.why, true); return; }
+    var opts = {fahrenheit:fahrenheit};
+    if(srcId==="file"){
+      var fi=$("srcFile");
+      if(!fi || !fi.files || !fi.files[0]){ msg("Choose a file first.", true); return; }
+      opts.file=fi.files[0];
+    } else if(srcId==="poll"){
+      var u=$("srcUrl");
+      if(!u || !u.value.trim()){ msg("Enter the endpoint URL first.", true); return; }
+      opts.url=u.value.trim();
+    } else if(srcId==="manual"){
+      opts.reading = $("srcExtra")._manual ? $("srcExtra")._manual() : {};
+    }
+    msg("reading…", false);
+    s.read(opts).then(function(res){
+      var rows = (res && res.rows) || [];
+      if(!rows.length){
+        msg("That source returned nothing"+((res&&res.why)?": "+res.why:"")+
+            ". Nothing was added to the log.", true);
+        return;
+      }
+      if(srcId==="manual" || srcId==="poll") LOG = LOG.concat(rows);
+      else LOG = rows;
+      srcLabel = s.name;
+      srcSynthetic = !!(res && res.synthetic);
+      lastUnmapped = (res && res.unmapped) || [];
+      var extra = lastUnmapped.length
+        ? " Columns not recognised, and therefore not used: "+lastUnmapped.join(", ")+"."
+        : "";
+      if(res && res.stampedLocally)
+        extra += " The endpoint sent no timestamp, so this browser's clock was used.";
+      msg(rows.length+" reading"+(rows.length===1?"":"s")+" from "+s.name+"."+extra, false);
+      renderAll();
+      if(srcId==="poll") startPoll();
+    }).catch(function(e){
+      msg("That source failed: "+(e&&e.message?e.message:e)+". The log is unchanged.", true);
+    });
+  }
+  function startPoll(){
+    stopPoll();
+    var secs = everyCtl ? everyCtl.get() : 30;
+    pollTimer = setInterval(function(){
+      var u=$("srcUrl"); if(!u) { stopPoll(); return; }
+      GH.get("poll").read({url:u.value.trim(), fahrenheit:fahrenheit}).then(function(res){
+        if(res && res.rows && res.rows.length){ LOG=LOG.concat(res.rows); renderAll(); }
+      }).catch(function(e){
+        stopPoll();
+        msg("Polling stopped after an error: "+(e&&e.message?e.message:e), true);
+      });
+    }, secs*1000);
+  }
+  function stopPoll(){ if(pollTimer){ clearInterval(pollTimer); pollTimer=null; } }
+  function msg(t, bad){
+    var el=$("srcMsg"); el.textContent=t;
+    el.style.color = bad ? "var(--danger)" : "var(--muted)";
+    el.style.fontWeight = bad ? "700" : "400";
+  }
+
+  /* ================= environment ================= */
+  function envCtl(){
+    var st=FEK.dial({label:"Growth stage", clearable:false, value:stage,
+      options:GH.BANDS.map(function(b,i){
+        return {value:b.id, label:b.label, sub:b.lo+"–"+b.hi+" kPa", ramp:i+1}; }),
+      help:"Sets the target band the readout is measured against. These bands are grower "+
+           "convention, not a controlled result — see the note below the chart.",
+      onchange:function(v){ if(v==null) return; stage=v; renderAll(); }});
+    var lo=FEK.step({label:"Leaf temperature offset", unit:"°C below air", value:2,
+      min:-3, max:6, step:0.5, dec:1,
+      help:"Set 0 for air VPD. A measured leaf temperature in your log overrides this entirely.",
+      onchange:function(v){ leafOff=v; renderAll(); }});
+    FEK.mount("envCtl",[st,lo]);
+  }
+
+  function stat(v, unit, label, tone, detail){
+    return '<div class="gh-stat '+(tone||"")+(v==null?" none":"")+'">'
+      +'<div class="v">'+esc(v==null?"—":v)+(unit&&v!=null?'<small>'+esc(unit)+'</small>':"")+'</div>'
+      +'<div class="l">'+esc(label)+'</div>'
+      +(detail?'<div class="d">'+esc(detail)+'</div>':"")+'</div>';
+  }
+
+  function envOut(){
+    var box=$("envOut");
+    if(!LOG.length){
+      box.innerHTML='<h3 style="margin-top:0">Readout</h3>'
+        +'<p class="fine" style="margin:0">No readings yet. Load a source, or open the '
+        +'<b>Worked example</b> to see the shape of it.</p>';
+      $("envChart").innerHTML=""; return;
+    }
+    var s=GH.summarise(LOG,{stage:stage, leafOffset:leafOff});
+    var b=s.band;
+    var tone = s.vpdMean==null ? "" :
+      (GH.inBand(s.vpdMean,b) ? "good" : (s.vpdMean<b.lo ? "cold" : "bad"));
+    var last=s.rows[s.rows.length-1];
+    var h='<h3 style="margin-top:0">Readout — '+esc(b.label)+' ('+b.lo+'–'+b.hi+' kPa)</h3>'
+      +'<div class="gh-grid">'
+      + stat(f(s.vpdMean,2),"kPa","mean leaf VPD",tone,
+             s.measuredLeaf ? "measured leaf temp" : "leaf = air − "+f(leafOff,1)+" °C")
+      + stat(f(s.vpdMin,2)+"–"+f(s.vpdMax,2),"kPa","VPD range","")
+      + stat(s.outsideBand==null?null:f(s.outsideBand*100,0),"%","of TIME outside the band",
+             s.outsideBand==null?"":(s.outsideBand<0.1?"good":(s.outsideBand<0.3?"warn":"bad")),
+             "by duration, not sample count")
+      + stat(f(last.dew,1),"°C","dew point, last reading",
+             (last.dew!=null && last.temp!=null && last.temp-last.dew < 3) ? "bad" : "",
+             (last.dew!=null && last.temp!=null) ? f(last.temp-last.dew,1)+" °C of margin" : "")
+      + stat(f(last.ah,1),"g/m³","absolute humidity","",
+             "what a dehumidifier must remove")
+      + stat(s.n,"","readings","", f(s.spanDays,1)+" days logged")
+      +'</div>';
+
+    var tr=s.trendVPD;
+    if(tr.slope!=null){
+      var perDay=tr.slope;
+      var strong = tr.r2!=null && tr.r2>=0.3;
+      h+='<div class="fek-banner'+(strong?(Math.abs(perDay)>0.05?" warn":""):" cold")+'">'
+        +'<b>VPD trend: '+(perDay>0?"+":"")+f(perDay,3)+' kPa per day</b>'
+        +(strong
+          ? 'Over '+f(s.spanDays,1)+' days that is '+(perDay>0?"a rise":"a fall")+' of about '
+            +f(Math.abs(perDay*s.spanDays),2)+' kPa. r² = '+f(tr.r2,2)+', on '+tr.n+' points.'
+          : 'r² = '+f(tr.r2,2)+' — the points do not lie near this line, so the slope is not '
+            +'describing them. A trend line through a cloud is a claim the data will not support.')
+        +'</div>';
+    } else if(tr.why){
+      h+='<div class="fek-banner cold"><b>No trend computed</b>'+esc(tr.why)+'.</div>';
+    }
+    if(last.dew!=null && last.temp!=null && last.temp-last.dew < 3){
+      h+='<div class="fek-banner bad"><b>Condensation risk.</b>'
+        +'The last reading sits '+f(last.temp-last.dew,1)+' °C above its dew point. Any surface '
+        +'cooler than '+f(last.dew,1)+' °C — glass, a wall, a leaf under a cold spot — is wet. '
+        +'That is a botrytis problem before it is a VPD problem.</div>';
+    }
+    if(srcSynthetic){
+      h+='<div class="fek-banner warn"><b>These are generated numbers.</b>'
+        +'The worked example is synthetic data so the charts have something to show. It is not a '
+        +'measurement of any room.</div>';
+    }
+    box.innerHTML=h;
+    envChart(s);
+  }
+
+  /* A plain SVG time series. No library, because the page has to work from a
+     file:// URL with no network, and a CDN script is a dependency that fails
+     exactly when you are furthest from help. */
+  function envChart(s){
+    var box=$("envChart");
+    var pts=s.rows.filter(function(r){ return r.vpd!=null && r.t!=null; })
+                  .sort(function(a,b){ return a.t-b.t; });
+    if(pts.length<2){ box.innerHTML=""; return; }
+    var W=680,H=260,P=46, b=s.band;
+    var t0=pts[0].t, t1=pts[pts.length-1].t;
+    var vs=pts.map(function(p){return p.vpd;});
+    var lo=Math.min(b.lo, Math.min.apply(null,vs))-0.15;
+    var hi=Math.max(b.hi, Math.max.apply(null,vs))+0.15;
+    function X(t){ return P+(t-t0)/Math.max(1,(t1-t0))*(W-P-18); }
+    function Y(v){ return H-P-(v-lo)/Math.max(1e-9,(hi-lo))*(H-P-22); }
+    var path=pts.map(function(p,i){ return (i?"L":"M")+X(p.t).toFixed(1)+","+Y(p.vpd).toFixed(1); }).join(" ");
+    var tr=s.trendVPD, trLine="";
+    if(tr.slope!=null && tr.r2!=null && tr.r2>=0.3){
+      var y0=tr.intercept+tr.slope*(t0/86400000), y1=tr.intercept+tr.slope*(t1/86400000);
+      trLine='<line x1="'+X(t0)+'" y1="'+Y(y0).toFixed(1)+'" x2="'+X(t1)+'" y2="'+Y(y1).toFixed(1)+
+             '" stroke="#A94F26" stroke-width="2" stroke-dasharray="7 5"/>';
+    }
+    var days=(t1-t0)/86400000;
+    box.innerHTML='<h3 style="margin-top:0">Leaf VPD over '+f(days,1)+' days</h3>'
+      +'<svg class="gh-chart" viewBox="0 0 '+W+' '+H+'" role="img" '
+      +'aria-label="leaf VPD over time against the target band">'
+      +'<rect x="'+P+'" y="'+Y(b.hi).toFixed(1)+'" width="'+(W-P-18)+'" height="'
+        +Math.abs(Y(b.lo)-Y(b.hi)).toFixed(1)+'" fill="#2C784C" fill-opacity=".12"/>'
+      +'<line x1="'+P+'" y1="'+Y(b.lo).toFixed(1)+'" x2="'+(W-18)+'" y2="'+Y(b.lo).toFixed(1)
+        +'" stroke="#2C784C" stroke-width="1.5" stroke-dasharray="6 4"/>'
+      +'<line x1="'+P+'" y1="'+Y(b.hi).toFixed(1)+'" x2="'+(W-18)+'" y2="'+Y(b.hi).toFixed(1)
+        +'" stroke="#2C784C" stroke-width="1.5" stroke-dasharray="6 4"/>'
+      +'<path d="'+path+'" fill="none" stroke="#23281F" stroke-width="2"/>'
+      + trLine
+      +'<text x="'+(P+6)+'" y="'+(Y(b.hi)-6).toFixed(1)+'" font-size="11.5" fill="#2C784C">'
+        +b.lo+'–'+b.hi+' kPa target band</text>'
+      +'<text x="6" y="'+(Y(hi)+10).toFixed(1)+'" font-size="11.5" fill="#6B6B5E">'+f(hi,1)+'</text>'
+      +'<text x="6" y="'+(H-P).toFixed(1)+'" font-size="11.5" fill="#6B6B5E">'+f(lo,1)+'</text>'
+      +'<text x="'+(W/2)+'" y="'+(H-8)+'" text-anchor="middle" font-size="11.5" fill="#6B6B5E">'
+        +(trLine?'solid: your readings — dashed: least-squares trend':'time')+'</text>'
+      +'</svg>';
+  }
+
+  /* ================= light ================= */
+  var lumCtl, factCtl, ppCtl, ppfdCtl;
+  function lightCtl(){
+    ppCtl=FEK.step({label:"Photoperiod", unit:"hours on", value:18, min:0, max:24, step:0.5, dec:1,
+      onchange:function(v){ photoperiod=v; renderAll(); }});
+    ppfdCtl=FEK.step({label:"PPFD at canopy", unit:"µmol/m²/s", value:null, start:600,
+      min:0, max:3000, step:25, nullable:true,
+      help:"From a PAR meter, or from your log if it carries PPFD. Leave empty if you only have lux.",
+      onchange:function(v){ ppfdManual=v; renderAll(); }});
+    lumCtl=FEK.step({label:"…or illuminance", unit:"lux", value:null, start:40000,
+      min:0, max:200000, step:1000, nullable:true,
+      help:"Only useful WITH a factor below. Lux alone converts to nothing.",
+      onchange:function(v){ luxValue=v; renderAll(); }});
+    factCtl=FEK.picker({label:"Fixture class (sets the lux factor)",
+      placeholder:"pick your lamp type…",
+      options:GH.LUX_FACTORS.map(function(x){
+        return {value:x.id, label:x.label, sub:x.f+" lux per µmol/m²/s"}; }),
+      onchange:function(v){
+        var m=GH.LUX_FACTORS.filter(function(x){return x.id===v;})[0];
+        luxFactor = m ? m.f : null; renderAll(); }});
+    FEK.mount("lightCtl",[ppCtl,ppfdCtl,lumCtl,factCtl]);
+  }
+  function luxTable(){
+    var h='<tr><th>fixture class</th><th>lux per µmol/m²/s</th></tr>';
+    h+=GH.LUX_FACTORS.map(function(x){
+      return '<tr><td>'+esc(x.label)+'</td><td class="q">'+x.f+'</td></tr>'; }).join("");
+    $("luxTable").innerHTML=h;
+  }
+  function lightOut(){
+    var box=$("lightOut");
+    var conv=GH.lumensToPPFD(luxValue, luxFactor);
+    var ppfd = ppfdManual!=null ? ppfdManual : conv.value;
+    var srcTxt = ppfdManual!=null ? "measured PPFD"
+                 : (conv.value!=null ? "converted from lux" : null);
+    var dliFlat = GH.dli(ppfd, photoperiod);
+    var s = LOG.length ? GH.summarise(LOG,{stage:stage, leafOffset:leafOff}) : null;
+    var dliLog = s ? s.dli : null;
+
+    var h='<h3 style="margin-top:0">Light readout</h3><div class="gh-grid">'
+      + stat(f(ppfd,0),"µmol/m²/s","PPFD at canopy",ppfd==null?"":"good", srcTxt||"not set")
+      + stat(f(dliFlat,1),"mol/m²/d","DLI, constant-PPFD formula","",
+             ppfd==null?"needs a PPFD":"PPFD × "+f(photoperiod,1)+" h × 0.0036")
+      + stat(f(dliLog,1),"mol/m²/d","DLI integrated from your log","",
+             dliLog==null?"log carries no PPFD":"trapezoid over the actual curve")
+      +'</div>';
+
+    if(dliFlat!=null && dliLog!=null){
+      var gap=Math.abs(dliFlat-dliLog);
+      h+='<div class="fek-banner'+(gap>dliLog*0.1?" warn":"")+'">'
+        +'<b>The two DLIs differ by '+f(gap,1)+' mol/m²/d</b>'
+        +(gap>dliLog*0.1
+          ? 'The flat formula assumes PPFD is constant for the whole photoperiod. Your log says it '
+            +'is not — a ramp, a cloudy stretch or a two-stage photoperiod. The integrated figure '
+            +'is the one the plant experienced.'
+          : 'Close enough that the constant-PPFD assumption is holding for this run.')
+        +'</div>';
+    }
+    if(luxValue!=null && luxFactor==null){
+      h+='<div class="fek-banner bad"><b>Lux without a factor converts to nothing.</b>'
+        +esc(conv.note)+'. Pick a fixture class above for a starting figure, or measure it — a PAR '
+        +'meter ends the argument permanently.</div>';
+    } else if(conv.value!=null && ppfdManual==null){
+      h+='<div class="fek-banner warn"><b>Converted, at a factor you should check.</b>'
+        +esc(conv.note)+'. The class figures are published approximations for whole lamp families; '
+        +'two "4000 K white LED" fixtures can differ by 20% or more.</div>';
+    }
+    if(dliFlat!=null){
+      var read = dliFlat<15 ? "low — below where most photoperiod crops respond well"
+               : dliFlat<25 ? "moderate"
+               : dliFlat<45 ? "in the range commonly targeted for flowering under lights"
+               : "very high — above this, CO₂ and everything else usually becomes limiting first";
+      h+='<div class="fek-banner cold"><b>DLI of '+f(dliFlat,1)+' mol/m²/d is '+read+'.</b>'
+        +'That reading is grower convention, not a controlled result for your cultivar. What it is '
+        +'good for is comparing <em>your</em> runs against each other.</div>';
+    }
+    box.innerHTML=h;
+  }
+
+  /* ================= economics ================= */
+  var gCtl, wCtl, rCtl, dCtl;
+  function econCtl(){
+    gCtl=FEK.step({label:"Dry yield", unit:"g", value:null, start:400, min:0, max:100000, step:10,
+      nullable:true, help:"Leave empty until you have weighed it.",
+      onchange:function(v){ grams=v; renderAll(); }});
+    wCtl=FEK.step({label:"Rated fixture power", unit:"W", value:null, start:600,
+      min:0, max:20000, step:25, nullable:true,
+      help:"What the light is sold as. Used only for the industry g/W figure.",
+      onchange:function(v){ ratedW=v; renderAll(); }});
+    rCtl=FEK.field({label:"Electricity rate", unit:"per kWh", value:0.15, dec:3, step:0.001,
+      min:0, max:5,
+      help:"Your marginal rate, not the average on the bill — tiers and demand charges make those differ.",
+      onchange:function(v){ rate=v; renderAll(); }});
+    dCtl=FEK.step({label:"Cycle length", unit:"days", value:null, start:70, min:1, max:400, step:1,
+      nullable:true, help:"Only needed if your log does not span the whole run.",
+      onchange:function(v){ cycleDays=v; renderAll(); }});
+    FEK.mount("econCtl",[gCtl,wCtl,rCtl,dCtl]);
+  }
+  function econOut(){
+    var box=$("econOut");
+    var s = LOG.length ? GH.summarise(LOG,{stage:stage, leafOffset:leafOff}) : null;
+    var kwh = s ? s.kwh : null;
+    var days = cycleDays!=null ? cycleDays : (s ? s.spanDays : null);
+    var e = GH.economics(grams, ratedW, kwh, days, rate);
+
+    var h='<h3 style="margin-top:0">Energy and yield</h3><div class="gh-grid">'
+      + stat(f(e.kwh,1),"kWh","energy over the log","",
+             kwh==null ? "log carries no power column" : "trapezoid over "+f(days,1)+" days")
+      + stat(money(e.costTotal),"","electricity for that energy","",
+             kwh==null?"":"at "+f(rate,3)+" per kWh")
+      + stat(f(e.gPerKWh,2),"g/kWh","grams per kilowatt hour",
+             e.gPerKWh==null?"":"good", "yield ÷ energy actually used")
+      + stat(f(e.gPerW,2),"g/W","grams per RATED watt","",
+             "the industry figure — ignores duty cycle")
+      + stat(money(e.costPerGram),"","electricity cost per gram",
+             e.costPerGram==null?"":(e.costPerGram<0.5?"good":(e.costPerGram<1.5?"warn":"bad")),
+             "light and everything else in the log")
+      + stat(f(e.avgW,0),"W","average draw","",
+             e.dutyVsRated==null?"":f(e.dutyVsRated*100,0)+"% of rated")
+      +'</div>';
+
+    if(e.gPerW!=null && e.gPerKWh!=null){
+      h+='<div class="fek-banner"><b>Your two &ldquo;grams per watt&rdquo; numbers are '
+        +f(e.gPerW,2)+' and '+f(e.gPerKWh,2)+'.</b>'
+        +'The first divides by what the fixture is sold as; the second by what the meter saw over '
+        +f(days,1)+' days. They are not the same quantity and only the second one divides into your '
+        +'bill. Quote the first only alongside your duty cycle'
+        +(e.dutyVsRated!=null ? ' — yours averaged '+f(e.dutyVsRated*100,0)+'% of rated.' : '.')
+        +'</div>';
+    }
+    if(kwh==null && LOG.length){
+      h+='<div class="fek-banner warn"><b>No power column in the log.</b>'
+        +'Energy is integrated from logged watts. Without it there is no kWh, and every figure that '
+        +'divides by kWh is blank rather than estimated — an estimate here would be a guess wearing '
+        +'two decimal places.</div>';
+    }
+    if(grams==null){
+      h+='<div class="fek-banner cold"><b>No yield entered yet.</b>'
+        +'The energy side computes on its own; the ratios wait for a weight.</div>';
+    }
+    box.innerHTML=h;
+  }
+
+  /* ================= log table & export ================= */
+  function logTable(){
+    var box=$("logTable");
+    if(!LOG.length){
+      box.innerHTML='<tr><td>Nothing loaded yet.</td></tr>';
+      $("logNote").textContent=""; return;
+    }
+    var s=GH.summarise(LOG,{stage:stage, leafOffset:leafOff});
+    var show=s.rows.slice(-12).reverse();
+    var h='<tr><th>time</th><th class="q">°C</th><th class="q">RH%</th><th class="q">VPD</th>'
+      +'<th class="q">W</th><th class="q">PPFD</th></tr>';
+    h+=show.map(function(r){
+      return '<tr><td>'+esc(new Date(r.t).toLocaleString())+'</td>'
+        +'<td class="q">'+f(r.temp,1)+'</td><td class="q">'+f(r.rh,0)+'</td>'
+        +'<td class="q">'+f(r.vpd,2)+'</td><td class="q">'+f(r.w,0)+'</td>'
+        +'<td class="q">'+f(r.ppfd,0)+'</td></tr>';
+    }).join("");
+    box.innerHTML=h;
+    $("logNote").textContent = LOG.length+" readings loaded; the last 12 are shown."
+      + (lastUnmapped.length ? " Unrecognised columns: "+lastUnmapped.join(", ")+"." : "")
+      + (srcSynthetic ? " These are generated, not measured." : "");
+  }
+
+  function exportOut(){
+    var L=[];
+    L.push("# Greenhouse Monitor — summary");
+    L.push("# source: "+(srcLabel||"none")+(srcSynthetic?"  (GENERATED, NOT MEASURED)":""));
+    L.push("# engine: GH v"+GH.version+"   VPD: Buck 1981, LEAF vpd");
+    L.push("# leaf offset used: "+f(leafOff,1)+" C below air"
+           + (LOG.length && GH.summarise(LOG,{leafOffset:leafOff}).measuredLeaf
+              ? "  (overridden by measured leaf temperature where present)" : ""));
+    if(!LOG.length){
+      L.push(""); L.push("no readings loaded");
+      $("ghOut").textContent=L.join("\n"); return;
+    }
+    var s=GH.summarise(LOG,{stage:stage, leafOffset:leafOff});
+    var days = cycleDays!=null ? cycleDays : s.spanDays;
+    var e = GH.economics(grams, ratedW, s.kwh, days, rate);
+    var conv=GH.lumensToPPFD(luxValue, luxFactor);
+    L.push("# readings: "+s.n+" over "+f(s.spanDays,2)+" days");
+    L.push("");
+    L.push("## environment  [band: "+s.band.label+" "+s.band.lo+"-"+s.band.hi+" kPa]");
+    L.push("  mean leaf VPD      "+f(s.vpdMean,3)+" kPa   (range "+f(s.vpdMin,3)+"-"+f(s.vpdMax,3)+")");
+    L.push("  time outside band  "+(s.outsideBand==null?"—":f(s.outsideBand*100,1)+"%")
+           +"   (by duration, not sample count)");
+    if(s.trendVPD.slope!=null)
+      L.push("  VPD trend          "+(s.trendVPD.slope>0?"+":"")+f(s.trendVPD.slope,4)
+             +" kPa/day, r2="+f(s.trendVPD.r2,3)+", n="+s.trendVPD.n);
+    else
+      L.push("  VPD trend          none: "+(s.trendVPD.why||"not computable"));
+    L.push("");
+    L.push("## light");
+    L.push("  photoperiod        "+f(photoperiod,1)+" h");
+    L.push("  PPFD               "+(ppfdManual!=null?f(ppfdManual,0)+" umol/m2/s (measured)"
+                                    :(conv.value!=null?f(conv.value,0)+" umol/m2/s (converted)":"—")));
+    if(conv.value!=null) L.push("  lux conversion     "+conv.note);
+    else if(luxValue!=null) L.push("  lux conversion     REFUSED: "+conv.note);
+    L.push("  DLI (flat formula) "+f(GH.dli(ppfdManual!=null?ppfdManual:conv.value, photoperiod),2)
+           +" mol/m2/d");
+    L.push("  DLI (integrated)   "+(s.dli==null?"— (log carries no PPFD)":f(s.dli,2)+" mol/m2/d"));
+    L.push("");
+    L.push("## energy and yield");
+    L.push("  energy             "+(s.kwh==null?"— (log carries no power column)":f(s.kwh,2)+" kWh"));
+    L.push("  electricity        "+money(e.costTotal)+" at "+f(rate,3)+"/kWh");
+    L.push("  dry yield          "+(grams==null?"—":f(grams,0)+" g"));
+    L.push("  g/kWh              "+f(e.gPerKWh,3)+"    <- divides into your bill");
+    L.push("  g/W (rated)        "+f(e.gPerW,3)+"    <- ignores duty cycle; quote with the duty cycle");
+    L.push("  average draw       "+(e.avgW==null?"—":f(e.avgW,0)+" W"
+           +(e.dutyVsRated!=null?" ("+f(e.dutyVsRated*100,0)+"% of rated)":"")));
+    L.push("  cost per gram      "+money(e.costPerGram));
+    L.push("");
+    L.push("# VPD is LEAF vpd on Buck (1981). Target bands are grower convention, not a");
+    L.push("# controlled result. Energy is the trapezoid integral of logged power, so it is");
+    L.push("# correct for uneven sample spacing. No yield was predicted and none should be.");
+    $("ghOut").textContent=L.join("\n");
+  }
+
+  function copyText(s,m){
+    function ok(){ toast(m); FEK.buzz(); }
+    function fb(){ var a=document.createElement("textarea"); a.value=s; a.style.position="fixed";
+      a.style.opacity="0"; document.body.appendChild(a); a.select();
+      try{ document.execCommand("copy"); ok(); }catch(e){ toast("Select and copy manually"); }
+      document.body.removeChild(a); }
+    try{ if(navigator.clipboard&&navigator.clipboard.writeText)
+      navigator.clipboard.writeText(s).then(ok,fb); else fb(); }catch(e){ fb(); }
+  }
+  $("ghCopy").addEventListener("click",function(){
+    copyText($("ghOut").textContent,"Copied — with its offset and factor"); });
+  $("ghCsv").addEventListener("click",function(){
+    if(!LOG.length){ toast("Nothing loaded"); return; }
+    var s=GH.summarise(LOG,{stage:stage, leafOffset:leafOff});
+    var head=["time","temp_c","rh_pct","vpd_kpa","dew_c","ah_g_m3","watts","ppfd","co2"];
+    var rows=[head.join(",")].concat(s.rows.map(function(r){
+      return [new Date(r.t).toISOString(), f(r.temp,2), f(r.rh,1), f(r.vpd,3), f(r.dew,2),
+              f(r.ah,2), f(r.w,1), f(r.ppfd,0), f(r.co2,0)].join(","); }));
+    copyText(rows.join("\n"),"Log copied as CSV"); });
+
+  $("srcRun").addEventListener("click",runSource);
+  $("srcClear").addEventListener("click",function(){
+    stopPoll(); LOG=[]; srcLabel=""; srcSynthetic=false; lastUnmapped=[];
+    msg("Log cleared.",false); renderAll(); });
+
+  document.querySelectorAll(".tab").forEach(function(tb){
+    tb.addEventListener("click",function(){
+      document.querySelectorAll(".tab").forEach(function(t){ t.classList.toggle("on",t===tb); });
+      document.querySelectorAll(".pane").forEach(function(p){
+        p.classList.toggle("on", p.id===tb.dataset.pane); });
+      window.scrollTo(0,0); FEK.buzz();
+    });
+  });
+
+  function renderAll(){ envOut(); lightOut(); econOut(); logTable(); exportOut(); srcRows(); }
+
+  envCtl(); lightCtl(); econCtl(); srcCtl(); srcRows(); luxTable(); renderAll();
+  window.GHPAGE = { load:function(rows,label){ LOG=rows; srcLabel=label||"test"; renderAll(); },
+                    state:function(){ return {n:LOG.length, stage:stage, leafOff:leafOff}; },
+                    setStage:function(s){ stage=s; renderAll(); },
+                    setLeafOffset:function(v){ leafOff=v; renderAll(); },
+                    setYield:function(g){ grams=g; renderAll(); },
+                    setRated:function(w){ ratedW=w; renderAll(); },
+                    setRate:function(r){ rate=r; renderAll(); },
+                    setLux:function(v,fac){ luxValue=v; luxFactor=fac; renderAll(); },
+                    setPPFD:function(v){ ppfdManual=v; renderAll(); },
+                    setPhotoperiod:function(h){ photoperiod=h; renderAll(); } };
+})();
+</script>
+</body>
+</html>

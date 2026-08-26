@@ -57,6 +57,8 @@ EMITTERS = [
     ("keep_emit.py", "keep.py", r"/\* ---- Keep v[\d.]+ :",
      r"/\* =+ Keep \(local autosave\) v[\d.]+ =+"),
     ("nav_emit.py",  "nav.py",  r'<div class="rail">', None),
+    ("gh_emit.py",   "gh.py",   r"/\* -+ Greenhouse engine v[\d.]+ -+ \*/",
+     r"/\* =+ Greenhouse engine v[\d.]+ =+ \*/"),
 ]
 
 

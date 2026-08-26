@@ -36,6 +36,7 @@ GROUPS = [
         ("cell-bench.html",        "\U0001F52C", "Cell Bench"),
         ("micro-bench.html",       "\U0001F9EB", "Micro Bench"),
         ("soil-recipes.html",      "\U0001F9F1", "Soil Recipes"),
+        ("greenhouse.html",        "\U0001F321\uFE0F", "Greenhouse"),
     ]),
     ("Analyse it", [
         ("survey-design.html",     "\U0001F9ED", "Survey Design"),
