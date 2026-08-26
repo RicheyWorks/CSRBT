@@ -99,8 +99,17 @@ with sync_playwright() as p:
     pg.click("#cUndo"); pg.wait_for_timeout(250)
     co=pg.inner_text("#cOut")
     ck("chart drawn", pg.eval_on_selector_all("#cChart svg","e=>e.length")==1, "")
-    ck("55C threshold line labelled", "55 °C — the threshold" in pg.inner_text("#cChart"), "")
-    ck("66C line labelled", "thermophiles die off" in pg.inner_text("#cChart"), "")
+    # Each threshold line carries its own NUMBER, not one particular sentence.
+    # Both of these pinned a phrase and both broke when the prose around them was
+    # rewritten -- "thermophiles die off" became "conventional ceiling" and the
+    # check reported the line UNLABELLED rather than relabelled. What the check
+    # is for is that a reader can tell which line is which (ADR-041, ADR-060).
+    chart = pg.inner_text("#cChart")
+    ck("55C threshold line carries its value", "55 °C" in chart, chart[:160])
+    ck("66C ceiling line carries its value", "66 °C" in chart, chart[:160])
+    ck("and the two lines say different things, so neither is a copy of the other",
+       len({l.strip() for l in chart.splitlines() if "°C" in l and l.strip()}) >= 2,
+       [l for l in chart.splitlines() if "°C" in l])
 
     # switch to in-vessel -> 3 days needed -> should now pass
     pg.evaluate("""()=>{const b=[...document.querySelectorAll('#cSetup .fek-dial button')]
