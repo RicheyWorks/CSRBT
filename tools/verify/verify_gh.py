@@ -378,6 +378,32 @@ with sync_playwright() as pw:
        and str(min(facs)) in body and str(max(facs)) in body,
        (min(facs), max(facs)))
 
+    # ---------- inBand and the log span, which nothing called ----------
+    # Three mutations of inBand() survived the whole suite: it is used by the
+    # page to colour a tile, and never called directly. A boundary function
+    # tested only through a colour is not tested.
+    B = {"lo": 0.8, "hi": 1.2}
+    for v, want, why in [(0.8, True,  "the lower edge is INSIDE — the band is inclusive"),
+                         (1.2, True,  "so is the upper edge"),
+                         (1.0, True,  "the middle is obviously inside"),
+                         (0.79, False, "just below is outside"),
+                         (1.21, False, "just above is outside"),
+                         (0.0, False, "zero is outside, not a falsy free pass")]:
+        got = pg.evaluate("([v,b])=>GH.inBand(v,b)", [v, B])
+        ck("inBand(%.2f): %s" % (v, why), got is want, got)
+    ck("inBand of null is false, not an error",
+       pg.evaluate("(b)=>GH.inBand(null,b)", B) is False, "")
+    ck("a band with lo above hi admits nothing",
+       pg.evaluate("()=>GH.inBand(1.0,{lo:1.2,hi:0.8})") is False, "")
+
+    SPAN = [{"t": 1000, "temp": 20, "rh": 50}, {"t": 5000, "temp": 21, "rh": 51},
+            {"t": 3000, "temp": 22, "rh": 52}]
+    sp = pg.evaluate("(r)=>GH.summarise(r,{}).spanDays", SPAN)
+    ck("the logged span is last minus first in TIME, not in row order",
+       close(sp, (5000 - 1000) / 86400000.0, 1e-12), sp)
+    ck("a single reading spans no time rather than a negative amount",
+       close(pg.evaluate("(r)=>GH.summarise(r,{}).spanDays", SPAN[:1]), 0.0, 1e-12), "")
+
     # ---------- runs: the noise floor ----------
     import statistics
 

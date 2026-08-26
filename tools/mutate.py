@@ -232,12 +232,25 @@ def suites_for(page):
 #
 # So a shared-block mutation on a page measures THAT PAGE'S suite, honestly, and
 # a module is measured by mutating its own source with --module.
+# The third entry is the EMITTER, and leaving it out silently measures nothing.
+#
+# verify_fek builds its harness from tools/fek.py at run time, so mutating that
+# file reaches the suite directly. verify_gh does not: it opens docs/greenhouse.
+# html, which is a BUILT artefact with the engine already inlined. Mutating
+# tools/gh.py and running verify_gh scored four survivors that a hand test
+# killed instantly -- the suite was reading the unmutated copy the whole time.
+#
+# That is the second time this tool has assumed a suite could see a mutation it
+# structurally could not. The first was running verify_fek against a page's
+# inlined FEK. Both share a shape: a module's source and the code a suite
+# actually executes are two different things unless something regenerates one
+# from the other. Where an emitter does that, it has to run.
 MODULES = {
-    "fek":  ("tools/fek.py",  "tools/verify/verify_fek.py"),
-    "keep": ("tools/keep.py", "tools/verify/verify_keep.py"),
-    "gh":   ("tools/gh.py",   "tools/verify/verify_gh.py"),
-    "dwc":  ("tools/dwc.py",  "tools/verify/verify_dwc.py"),
-    "ord":  ("tools/ord.py",  "tools/verify/verify_ord.py"),
+    "fek":  ("tools/fek.py",  "tools/verify/verify_fek.py",  None),
+    "keep": ("tools/keep.py", "tools/verify/verify_keep.py", "tools/keep_emit.py"),
+    "gh":   ("tools/gh.py",   "tools/verify/verify_gh.py",   "tools/gh_emit.py"),
+    "dwc":  ("tools/dwc.py",  "tools/verify/verify_dwc.py",  "tools/dwc_emit.py"),
+    "ord":  ("tools/ord.py",  "tools/verify/verify_ord.py",  "tools/ord_emit.py"),
 }
 
 
@@ -303,7 +316,7 @@ def module_sweep(a):
     if a.module not in MODULES:
         print("unknown module %r -- known: %s" % (a.module, ", ".join(sorted(MODULES))))
         return 1
-    rel_src, rel_suite = MODULES[a.module]
+    rel_src, rel_suite, rel_emit = MODULES[a.module]
     src_path = os.path.join(ROOT, rel_src)
     if not os.path.exists(src_path):
         print("no such module source: %s" % rel_src); return 1
@@ -312,8 +325,9 @@ def module_sweep(a):
     if not muts:
         print("%s: no mutable code found" % rel_src); return 0
 
-    print("mutation sweep -- module %s against %s"
-          % (a.module, os.path.basename(rel_suite)))
+    print("mutation sweep -- module %s against %s%s"
+          % (a.module, os.path.basename(rel_suite),
+             (" (via %s)" % os.path.basename(rel_emit)) if rel_emit else " (built at run time)"))
     print("-" * 78)
     if a.list:
         for mu in muts:
@@ -328,8 +342,19 @@ def module_sweep(a):
     try:
         tsrc = os.path.join(tmp, rel_src)
         tsuite = os.path.join(tmp, rel_suite)
+        temit = os.path.join(tmp, rel_emit) if rel_emit else None
         for n, mu in enumerate(muts, 1):
             io.open(tsrc, "w", encoding="utf-8").write(mu["text"])
+            if temit:
+                # Regenerate the consumers inside the scratch tree, or the suite
+                # opens a page that still carries the ORIGINAL module.
+                r = subprocess.run([sys.executable, temit], capture_output=True,
+                                   text=True, cwd=tmp, timeout=180)
+                if r.returncode != 0 and "would change" not in (r.stdout or ""):
+                    print("   %3d/%-3d %-12s line %-6d %-8s emitter refused: %s"
+                          % (n, len(muts), mu["op"], mu["line"], "unviable",
+                             (r.stdout or r.stderr or "").strip().split("\n")[-1][:40]))
+                    continue
             caught = run_suite(tsuite, tmp) != 0
             if caught: killed += 1
             else:
