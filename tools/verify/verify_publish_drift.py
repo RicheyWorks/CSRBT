@@ -171,6 +171,109 @@ ck("and no longer states the wrong one", "eight-fold" not in sb, "")
 ck("comparing a page with itself yields no drift at all",
    not S(sb, sb) and not C(sb, sb), "")
 
+# ---- 8. when a saved copy stops being evidence (ADR-056) ----------------
+# The rule these exercise is the one that was a footnote and got walked past
+# twice. Every arm is asserted in BOTH directions, because the expensive
+# failure here is not a wrong drift count -- it is a page ranked from a copy
+# that predates it, which reads exactly like a page that is genuinely stale.
+E = PD.evidence
+CUR, OTHER = "a" * 64, "b" * 64
+STAMP_AT = 1000                     # not "now": a fixture that moves with the
+COPY_OLD, COPY_NEW = 999, 1001      # clock is ADR-041's frozen constant inverted
+
+ck("repo hash == stamp hash is CURRENT whatever the copy's age",
+   E({"sha": CUR, "at": STAMP_AT}, CUR, COPY_OLD) == "current"
+   and E({"sha": CUR, "at": STAMP_AT}, CUR, COPY_NEW) == "current",
+   E({"sha": CUR, "at": STAMP_AT}, CUR, COPY_OLD))
+ck("a copy fetched AFTER the last stamp is rankable",
+   E({"sha": OTHER, "at": STAMP_AT}, CUR, COPY_NEW) == "rankable",
+   E({"sha": OTHER, "at": STAMP_AT}, CUR, COPY_NEW))
+ck("a copy fetched BEFORE the last stamp is SUPERSEDED, not drift",
+   E({"sha": OTHER, "at": STAMP_AT}, CUR, COPY_OLD) == "superseded",
+   E({"sha": OTHER, "at": STAMP_AT}, CUR, COPY_OLD))
+ck("a copy fetched at the very moment of the stamp is rankable, not superseded",
+   E({"sha": OTHER, "at": STAMP_AT}, CUR, STAMP_AT) == "rankable",
+   E({"sha": OTHER, "at": STAMP_AT}, CUR, STAMP_AT))
+
+# The bucket that produced the phantom: unstamped, and stamped before stamps
+# carried a time. Both are "no ordering exists", and neither may borrow the
+# other buckets' answers -- an unstamped page is not superseded (that would
+# hide real staleness) and is not rankable (that is the phantom).
+ck("a page that was never stamped is UNORDERED, not rankable",
+   E(None, CUR, COPY_NEW) == "unordered", E(None, CUR, COPY_NEW))
+ck("and is not SUPERSEDED either -- absence of a stamp orders nothing",
+   E(None, CUR, COPY_OLD) == "unordered", E(None, CUR, COPY_OLD))
+ck("a pre-ADR-056 bare-string stamp is UNORDERED however old the copy",
+   E(OTHER, CUR, COPY_OLD) == "unordered"
+   and E(OTHER, CUR, COPY_NEW) == "unordered",
+   E(OTHER, CUR, COPY_NEW))
+ck("but a bare-string stamp still resolves CURRENT when the hash matches",
+   E(CUR, CUR, COPY_OLD) == "current", E(CUR, CUR, COPY_OLD))
+
+# The accessors underneath, in both formats. entry_at must not invent a time:
+# 0 and None are different answers and only one of them is true.
+PS = PD._pstate
+ck("entry_sha reads the new format", PS.entry_sha({"sha": CUR, "at": 5}) == CUR)
+ck("entry_sha reads the legacy bare string", PS.entry_sha(CUR) == CUR)
+ck("entry_at reads the new format", PS.entry_at({"sha": CUR, "at": 5}) == 5)
+ck("entry_at on a legacy entry is None, never 0",
+   PS.entry_at(CUR) is None, PS.entry_at(CUR))
+ck("entry_at on a missing entry is None, never 0",
+   PS.entry_at(None) is None, PS.entry_at(None))
+
+# The kit's own state file must be readable by both accessors, or the rule
+# above is exercised only on fixtures (ADR-039).
+import json
+REAL = json.load(io.open(os.path.join(ROOT, "tools", "published.json"),
+                         encoding="utf-8"))["pages"]
+ck("every stamp in the real state file yields a 64-char sha",
+   REAL and all(isinstance(PS.entry_sha(v), str) and len(PS.entry_sha(v)) == 64
+                for v in REAL.values()), "")
+ck("and a time that is an int or None, never anything else",
+   all(PS.entry_at(v) is None or isinstance(PS.entry_at(v), int)
+       for v in REAL.values()), "")
+
+# ---- 9. the WRITER, not just the readers -------------------------------
+# A mutation sweep deleted the timestamp from the stamp writer and all
+# twenty-one fixtures above stayed green: they read entries, and every entry
+# they read was hand-built. A rule whose only inputs are hand-built inputs is
+# ADR-039 again. This runs the real --stamp path against a throwaway state file
+# and reads back what it actually wrote.
+import tempfile, time as _time, contextlib
+_keep = PS.STATE
+_tmp = tempfile.NamedTemporaryFile("w", suffix=".json", delete=False, encoding="utf-8")
+_tmp.write(json.dumps({"_comment": "fixture", "pages": {}})); _tmp.close()
+try:
+    PS.STATE = _tmp.name
+    before = int(_time.time())
+    with contextlib.redirect_stdout(io.StringIO()):
+        rc = PS.main(["--stamp", "food-web.html"])
+    after = int(_time.time())
+    WROTE = json.load(io.open(_tmp.name, encoding="utf-8"))["pages"].get("food-web.html")
+finally:
+    PS.STATE = _keep
+    os.unlink(_tmp.name)
+
+ck("--stamp succeeds against a throwaway state file", rc == 0, rc)
+ck("--stamp writes an entry the sha accessor can read",
+   isinstance(PS.entry_sha(WROTE), str) and len(PS.entry_sha(WROTE)) == 64, WROTE)
+ck("--stamp writes a TIME, not a bare hash", PS.entry_at(WROTE) is not None, WROTE)
+# Bracketed, not pinned: an expected constant here is exactly the frozen
+# assertion ADR-041 forbids -- it would fail every day after the one it was
+# written on, and be deleted rather than believed.
+# Guarded: with the time missing this comparison raises, and a suite that
+# CRASHES on a mutant reports nothing about the checks after it -- which is a
+# worse failure than the one being tested for.
+_at = PS.entry_at(WROTE)
+ck("and that time is the moment the stamp was taken",
+   isinstance(_at, int) and before <= _at <= after, (before, _at, after))
+ck("the sha it wrote is the sha of the bytes publish.py would emit now",
+   PS.entry_sha(WROTE) == __import__("hashlib").sha256(
+       PD.publish_bytes("food-web.html").encode("utf-8")).hexdigest(), "")
+ck("and the real state file was not touched by the fixture",
+   json.load(io.open(os.path.join(ROOT, "tools", "published.json"),
+                     encoding="utf-8"))["pages"] == REAL, "")
+
 print("-" * 70)
 print("%d passed, %d failed" % (ok, bad))
 sys.exit(1 if bad else 0)

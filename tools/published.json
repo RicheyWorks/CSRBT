@@ -5,15 +5,30 @@
     "collection-sheet.html": "9594155c90450d4074a70f01a846c3fe729cda43ec42d871b7a568e14574feb6",
     "cp-bench.html": "9434f5fd87d0b487a8c45c442efe87f88c98184f31144338b6aa42ddcef70b98",
     "deployment-log.html": "6061c614ab206b8c33d6687a72ae1769cbb07ceaa65c6cba4a3338baa7bafacf",
+    "ecology-field-card.html": {
+      "at": 1787777383,
+      "sha": "8bf115c5b50c94bf2ee4c769f4f7a4e28607db7f5ac46c756705431162e65616"
+    },
+    "ecology-lab-manual.html": {
+      "at": 1787777383,
+      "sha": "2ea38fb40eb14ae4bbbc5c7c982a12092f0f04a77109a1913191f43267cb72cc"
+    },
     "ecology.html": "a71d69ad69be0f1ed0434db35761f69b99158ff8fa7eb29fedb6fd0a77a0033a",
     "food-web.html": "2a07daa9f22aa0b55d661b7b0e9833e6f3067b2bd3998afa85d6af7f0a4f0002",
+    "fungal-characters.html": {
+      "at": 1787777383,
+      "sha": "1bff48d4c593ee3b0547851469d36015bcb5817cac6dc108047e607323c579e4"
+    },
     "greenhouse.html": "c1b1fce6241952605be526af38997b2c2c1721893c16b216fdfa9d5fe847f14d",
     "ordination.html": "3ae31cefb8748e0a4c0e42ae24679a2324765055dc639294ca7ae25a4cad4b85",
     "pheno-tracker.html": "770477f9eac3b88e723b9d9f63e88bbdf962aebe7a6eda6137eaba95d78d8306",
     "releve.html": "35bbc54ca78e663a09a63a0ec75446af5a1c4bbb1991465a27ebaf3cc499d516",
     "soil-bench.html": "9a21f70318bdadb4dab208d0ac0aeca266e9c07d6bc96a9a0c08775f9c94ea00",
     "soil-recipes.html": "e578260b054edf5ea2d4fa4b3878d9c05a9c14f1df156e074a4d7ebda4cac1c9",
-    "stand-sheet.html": "2225524ac540294fd00a6a4f60cd10e54f80f0768620435abe4edb3f309d3626",
+    "stand-sheet.html": {
+      "at": 1787777383,
+      "sha": "658a9aeeba59aafc1c5a46c13a5de9e8f108ab2eabaa94773fd93eba472c7732"
+    },
     "survey-design.html": "1ddf7cdfdcbb6988464474eba68370844bf10d86b7780732af5dd8451210d0a0"
   }
 }

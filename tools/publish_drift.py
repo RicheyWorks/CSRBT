@@ -46,6 +46,28 @@ NEWEST COPY ON DISK and the repo, stamps that copy's age on every row, and never
 says "the live page is wrong". Where publish_state says a page is CURRENT its
 saved copy is superseded and is skipped.
 
+WHEN A COPY STOPS BEING EVIDENCE (ADR-056)
+
+Printing "a republished page will OVERSTATE its drift" at the bottom was not
+enough: the caveat is true, unmissable, and was walked past twice. It is now a
+classification instead of a footnote, because publish_state records WHEN each
+stamp was taken and the saved copy's filename carries when it was fetched:
+
+  copy fetched AFTER the last stamp   the copy postdates the last publish, so
+                                      it is what that URL served. Rankable.
+  copy fetched BEFORE the last stamp  provably superseded. SUPERSEDED, and it
+                                      is not ranked, because every difference
+                                      it shows may already be live.
+  page never stamped, or stamped
+  before ADR-056 (no time)            no ordering exists between the copy and
+                                      the live page. Reported apart from the
+                                      ranked lists, never inside them.
+
+The third bucket is the one that bit. ecology-glossary was unstamped with a
+four-day-old copy; it ranked as "37 sentences the reader never sees" and a fetch
+showed the live page already had all thirty-seven. Ranking evidence of unknown
+age next to evidence of known age is what makes a caveat get walked past.
+
     python3 tools/publish_drift.py --live DIR
     python3 tools/publish_drift.py --live DIR --page food-web.html
 """
@@ -56,6 +78,10 @@ DOCS = os.path.join(ROOT, "docs")
 
 _spec = importlib.util.spec_from_file_location("_pub", os.path.join(ROOT, "tools", "publish.py"))
 _pub = importlib.util.module_from_spec(_spec); _spec.loader.exec_module(_pub)
+
+_sspec = importlib.util.spec_from_file_location(
+    "_pstate", os.path.join(ROOT, "tools", "publish_state.py"))
+_pstate = importlib.util.module_from_spec(_sspec); _sspec.loader.exec_module(_pstate)
 
 BODY = re.compile(r"<!--\s*/frame-runtime\s*-->.*?<body>", re.S)
 TAIL = re.compile(r"</body>\s*</html>\s*$")
@@ -146,6 +172,20 @@ def newest_saved(live_dir):
     return best
 
 
+def evidence(entry, cur_sha, copy_ts):
+    """Can this saved copy be ranked, and if not, why not.
+
+    ONE function so the report and the fixtures cannot drift apart (ADR-039).
+    Returns one of: "current", "superseded", "unordered", "rankable".
+    """
+    sha_, at = _pstate.entry_sha(entry), _pstate.entry_at(entry)
+    if sha_ == cur_sha:
+        return "current"                 # repo == what was last published
+    if at is None:
+        return "unordered"               # never stamped, or stamped pre-ADR-056
+    return "superseded" if copy_ts < at else "rankable"
+
+
 def numeric_sentence_drift(old, new):
     """Sentences carrying a digit that the repo no longer states, or now states.
 
@@ -223,12 +263,15 @@ def main(argv):
         if not got:
             no_copy.append(name); continue
         cur = publish_bytes(name)
-        if stamps.get(name) == hashlib.sha256(cur.encode("utf-8")).hexdigest():
+        ev = evidence(stamps.get(name), hashlib.sha256(cur.encode("utf-8")).hexdigest(), got[1])
+        if ev == "current":
             rows.append((name, got[1], "CURRENT", [], [])); continue
+        if ev == "superseded":
+            rows.append((name, got[1], "SUPERSEDED", [], [])); continue
         old = unwrap(io.open(got[0], encoding="utf-8").read())
         if old.strip() == cur.strip():
             rows.append((name, got[1], "same", [], [])); continue
-        rows.append((name, got[1], "differs",
+        rows.append((name, got[1], "differs" if ev == "rankable" else "unordered",
                      numeric_sentence_drift(old, cur), code_num_drift(old, cur)))
 
     if a.page:
@@ -237,6 +280,12 @@ def main(argv):
                 continue
             when = datetime.datetime.utcfromtimestamp(ts).strftime("%Y-%m-%d %H:%M")
             print("%s  --  newest copy on disk: %s UTC  (%s)" % (name, when, state))
+            if state == "unordered":
+                print("  NOT EVIDENCE: no stamp orders this copy against the live")
+                print("  page. Everything below may already be published.")
+            if state == "SUPERSEDED":
+                print("  The page was published after this copy was fetched.")
+                print("  Fetch it again before reading anything into the difference.")
             for g, c in sdrift:
                 print("")
                 print("  published: " + (g[:260] if g else "(not present)"))
@@ -260,17 +309,20 @@ def main(argv):
     # soil-bench (a ratio stated as eight-fold that is ten-fold).
     print("%-30s %-16s %7s %7s %7s %6s"
           % ("page", "copy seen (UTC)", "changed", "dropped", "added", "code"))
-    worst = []
+    worst, unordered = [], []
     for name, ts, state, sdrift, cdrift in rows:
         when = datetime.datetime.utcfromtimestamp(ts).strftime("%Y-%m-%d %H:%M")
-        if state != "differs":
+        if state not in ("differs", "unordered"):
             print("%-30s %-16s %s" % (name, when, state)); continue
         ch = sum(1 for g, c in sdrift if g and c)
         dr = sum(1 for g, c in sdrift if g and not c)
         ad = sum(1 for g, c in sdrift if c and not g)
-        print("%-30s %-16s %7d %7d %7d %6d" % (name, when, ch, dr, ad, len(cdrift)))
+        print("%-30s %-16s %7d %7d %7d %6d%s"
+              % (name, when, ch, dr, ad, len(cdrift),
+                 "  ?" if state == "unordered" else ""))
         if ch or dr or ad or cdrift:
-            worst.append((name, ch, dr, ad, len(cdrift)))
+            (worst if state == "differs" else unordered).append(
+                (name, ch, dr, ad, len(cdrift)))
     print("-" * 74)
     print("%d page(s) with a saved copy; %d with none (nothing can be said)"
           % (len(rows), len(no_copy)))
@@ -295,14 +347,23 @@ def main(argv):
         for n, ch, dr, ad, c in sorted(missing, key=lambda r: -r[3]):
             print("   %-28s %d sentence(s) the reader never sees" % (n, ad))
     if not worst:
-        print("No numeric drift in prose or code on any page with a saved copy.")
-    if worst:
+        print("No rankable page shows numeric drift in prose or code.")
+    if unordered:
+        print()
+        print("? UNORDERED -- these differ from their saved copy, but nothing")
+        print("records whether that copy predates the live page, so the difference")
+        print("is not evidence of anything. Fetch the artifact before acting:")
+        for n, ch, dr, ad, c in sorted(unordered, key=lambda r: -(r[1] + r[2] + r[3] + r[4])):
+            print("   %-28s %d changed, %d withdrawn, %d missing, %d code"
+                  % (n, ch, dr, ad, c))
+    if worst or unordered:
         print()
         print("Read any one with --page <name> before acting on it.")
     print()
-    print("Newest copy ON DISK versus the repo. A page republished since that")
-    print("copy was saved will OVERSTATE its drift. Nothing understates it except")
-    print("having no copy at all, which is listed above.")
+    print("Newest copy ON DISK versus the repo. A copy fetched after the page's")
+    print("last stamp is what that URL served and is ranked; one fetched before it")
+    print("is SUPERSEDED and is not; one with no stamp to order it against is")
+    print("UNORDERED and is listed apart. Pages with no copy are listed above.")
     return 0
 
 

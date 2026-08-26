@@ -18,8 +18,22 @@ A page that has never been stamped reports as **unknown**, not as current.
 Unknown is the truthful state for the pages published before this file existed,
 and collapsing it into "up to date" would be the single most useful lie this
 tool could tell.
+
+WHY EACH STAMP CARRIES A TIME (ADR-056)
+
+The hash alone answers "is the repo ahead of what I last published?". It cannot
+answer "is this saved copy of the live page still evidence?", and publish_drift
+needs that second answer: a copy fetched BEFORE the last publish describes a
+page that no longer exists. Twice now a copy older than its own page produced a
+list of corrections that were already live -- once reported to the user as harm
+(ADR-055), once caught by the caveat (this ADR). A stamp with no time cannot
+distinguish the two cases, so every stamp records when it was taken.
+
+Entries are {"sha": ..., "at": epoch seconds}. A bare string is the pre-ADR-056
+format and reads back with at=None -- ordering unknown, which is its own state
+and not a licence to assume either order.
 """
-import glob, hashlib, io, json, os, subprocess, sys
+import glob, hashlib, io, json, os, subprocess, sys, time
 
 ROOT = os.path.normpath(os.path.join(os.path.dirname(os.path.abspath(__file__)), ".."))
 DOCS = os.path.join(ROOT, "docs")
@@ -28,11 +42,26 @@ STATE = os.path.join(ROOT, "tools", "published.json")
 MAP = os.path.join(ROOT, "tools", "artifact_map.json")
 
 BLANK = {
-    "_comment": "sha256 of the bytes last handed to the publisher, per page. "
-                "A page absent from this map has never been stamped and its "
-                "published state is UNKNOWN -- which is not the same as current.",
+    "_comment": "sha256 of the bytes last handed to the publisher, per page, "
+                "with the epoch second the stamp was taken. A page absent from "
+                "this map has never been stamped and its published state is "
+                "UNKNOWN -- which is not the same as current. An entry that is "
+                "a bare string is the pre-ADR-056 format: hash known, time not.",
     "pages": {},
 }
+
+
+def entry_sha(e):
+    """The recorded hash, whichever format the entry is in."""
+    return e if isinstance(e, str) else (e or {}).get("sha")
+
+
+def entry_at(e):
+    """When the stamp was taken, or None when the entry predates ADR-056.
+
+    None is not zero and not now. A caller that treats it as either is asserting
+    an ordering the file does not record."""
+    return None if isinstance(e, str) else (e or {}).get("at")
 
 
 def load(path, blank):
@@ -70,8 +99,8 @@ def main(argv):
             p = os.path.join(BUILD, n)
             if not os.path.exists(p):
                 print("%-30s NOT BUILT -- nothing stamped" % n); return 2
-            state["pages"][n] = sha(p)
-            print("%-30s stamped %s" % (n, state["pages"][n][:12]))
+            state["pages"][n] = {"sha": sha(p), "at": int(time.time())}
+            print("%-30s stamped %s" % (n, entry_sha(state["pages"][n])[:12]))
         save(state)
         return 0
 
@@ -87,7 +116,7 @@ def main(argv):
         h = sha(p)
         if n not in state["pages"]:
             unknown.append(n)
-        elif state["pages"][n] != h:
+        elif entry_sha(state["pages"][n]) != h:
             behind.append(n)
         else:
             current.append(n)
