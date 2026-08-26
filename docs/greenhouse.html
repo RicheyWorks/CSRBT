@@ -377,7 +377,7 @@
   @media (max-width:420px){ :root { --tap:56px; --tap-sm:46px; } .fek-step .val { font-size:26px; } }
   @media print { .fek-step button, .fek-pick .search { display:none; } }
 
-  /* ============ Greenhouse engine v1.0.0 ============ */
+  /* ============ Greenhouse engine v1.1.0 ============ */
   .gh-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(150px,1fr)); gap:10px;
     margin:12px 0 2px; }
   .gh-stat { border:2px solid var(--border); border-radius:14px; padding:12px 14px;
@@ -410,7 +410,22 @@
   .gh-srow .st.live  { border-color:var(--ramp-0); color:var(--ramp-0); background:#E6EEF3; }
   .gh-srow .wh { font-size:12.5px; color:var(--muted); line-height:1.5; margin-top:6px; }
   .gh-srow.unavailable { opacity:.72; }
-  /* ============ /Greenhouse engine v1.0.0 ============ */
+  /* ============ /Greenhouse engine v1.1.0 ============ */
+  /* ============ Keep (local autosave) v1.0.0 ============ */
+  .keep { display:flex; flex-wrap:wrap; align-items:center; gap:10px;
+    background:var(--surface-2, #F3EEE0); border:1px solid var(--border, #E3DCC9);
+    border-radius:12px; padding:10px 13px; margin:12px 0 2px; }
+  .keep .st { font-family:var(--mono, monospace); font-size:11.5px; color:var(--muted, #6B6B5E);
+    line-height:1.5; flex:1 1 220px; min-width:0; }
+  .keep .st b { color:var(--ink, #23281F); }
+  .keep.bad { border-color:var(--danger, #B23A32); background:var(--danger-bg, #F6E7E5); }
+  .keep.bad .st b { color:var(--danger, #B23A32); }
+  .keep button { border:1.5px solid var(--border, #E3DCC9); background:none; border-radius:10px;
+    padding:0 14px; min-height:var(--tap, 44px); font:700 13px var(--body, sans-serif);
+    color:var(--ink-2, #4B5344); cursor:pointer; touch-action:manipulation; }
+  .keep button:hover { border-color:var(--danger, #B23A32); color:var(--danger, #B23A32); }
+  .keep .note { flex:1 1 100%; font-size:12px; color:var(--muted, #6B6B5E); line-height:1.5; }
+  @media print { .keep { display:none !important; } }
 
   .rail { margin:26px 0 4px; }
   .rail .rl { font-family:var(--mono); font-size:11px; letter-spacing:.14em; text-transform:uppercase; color:var(--muted); margin:0 2px 8px; }
@@ -599,6 +614,63 @@
     </div>
   </section>
 
+  <!-- ============ RUNS ============ -->
+  <section class="pane" id="p-runs">
+    <h2>Run history</h2>
+    <p class="hint">Save each cycle, then compare them against <b>your own</b> spread &mdash; because
+      a difference between two runs means nothing until you know how much your runs differ when you
+      change nothing at all.</p>
+
+    <div class="card">
+      <div id="keepBox"></div>
+      <div id="runCtl"></div>
+      <div class="btn-row">
+        <button class="btn btn-go" id="runSave" type="button">Save this run</button>
+        <button class="btn btn-ghost" id="runDemo" type="button">Load five example runs</button>
+        <button class="btn btn-ghost" id="runWipe" type="button">Clear all runs</button>
+      </div>
+      <p class="fine" id="runMsg"></p>
+    </div>
+
+    <div class="card" id="runOut"></div>
+    <div class="card" id="runChart"></div>
+
+    <div class="card">
+      <h3 style="margin-top:0">Your repeatability is the only rigorous thing in here</h3>
+      <p class="fine" style="margin-top:0">Comparing two cycles is observational data with
+        <b>n&nbsp;=&nbsp;1 per condition</b>, no randomisation, no control, and every variable moving
+        at once &mdash; genetics, technique, plant count, the weather outside, and where you decided
+        the dry-down had finished. A difference between two runs <b>cannot tell you what caused
+        it</b>. Any page that implies otherwise is lying with a chart.</p>
+      <p class="fine">One thing you <em>can</em> establish from your own records, and it is the thing
+        that makes every later comparison mean something: <b>how much your results move when you
+        change nothing</b>. Run three or more cycles at nominally the same settings, mark them
+        <b>baseline</b>, and their spread is the noise floor of your operation.</p>
+      <div class="eq">z = (this run &minus; baseline mean) &divide; baseline SD</div>
+      <p class="fine">After that a new run is only news if it lands outside that floor. This page
+        reports the distance in units of <b>your own</b> standard deviation and says plainly when a
+        difference is inside the noise. <b>There is no p-value here to misuse</b> &mdash; z is a
+        distance, not a significance test, and with a handful of uncontrolled runs a significance
+        test would be theatre.</p>
+      <div class="refuse"><b>Under three baseline runs, no spread is computed at all.</b>
+        A standard deviation from two points is arithmetic without information. The page will show
+        you the runs and refuse the comparison, rather than printing a z-score that looks like an
+        answer.</div>
+      <p class="fine"><b>The sample SD (n&minus;1) is used, not the population form.</b> The
+        population version divides by n and would flatter every small set by shrinking its spread,
+        and every set here is small.</p>
+    </div>
+
+    <div class="card">
+      <h3 style="margin-top:0">What is stored, and where</h3>
+      <p class="fine" style="margin-top:0">A saved run is a <b>summary</b> &mdash; yield, energy,
+        DLI, mean VPD, time outside band &mdash; not the log it came from. A season of 30-second
+        samples is megabytes and browser storage is a few, and a page that fills it silently drops
+        the oldest thing you still needed. The raw log stays in the export, which is the durable
+        copy. Browser storage is recovery from a closed tab; it is not a backup.</p>
+    </div>
+  </section>
+
   <!-- ============ EXPORT ============ -->
   <section class="pane" id="p-out">
     <h2>Take it home</h2>
@@ -663,6 +735,7 @@
   <button class="tab" data-pane="p-light" type="button"><span class="ico">☀️</span>Light</button>
   <button class="tab" data-pane="p-econ" type="button"><span class="ico">⚡</span>Energy</button>
   <button class="tab" data-pane="p-src" type="button"><span class="ico">🔌</span>Sources</button>
+  <button class="tab" data-pane="p-runs" type="button"><span class="ico">📈</span>Runs</button>
   <button class="tab" data-pane="p-out" type="button"><span class="ico">📤</span>Export</button>
 </div></div>
 
@@ -923,7 +996,198 @@ var FEK = (function(){
 })();
 </script>
 <script>
-/* ---------- Greenhouse engine v1.0.0 ---------- */
+/* ---- Keep v1.0.0 : local autosave, and honesty about what that is ---- */
+var KEEP = (function(){
+  function esc(s){ return String(s==null?"":s).replace(/[&<>"']/g,function(c){
+    return c==="&"?"&amp;":c==="<"?"&lt;":c===">"?"&gt;":c==='"'?"&quot;":"&#39;"; }); }
+
+  /* Probe rather than assume. Safari in private mode used to throw on the
+     first write; storage can also be disabled by enterprise policy or by the
+     user, and in a sandboxed frame the accessor itself throws. All three look
+     identical to a page that only wraps setItem in a try. */
+  function usable(){
+    try {
+      var k = "__keep_probe__";
+      window.localStorage.setItem(k, "1");
+      window.localStorage.removeItem(k);
+      return true;
+    } catch(e){ return false; }
+  }
+
+  function when(ts){
+    if(!ts) return "";
+    try {
+      var d = new Date(ts), now = new Date();
+      var same = d.toDateString() === now.toDateString();
+      var hm = ("0"+d.getHours()).slice(-2) + ":" + ("0"+d.getMinutes()).slice(-2);
+      return same ? ("today " + hm) : (d.toISOString().slice(0,10) + " " + hm);
+    } catch(e){ return ""; }
+  }
+
+  function wire(o){
+    o = o || {};
+    var key = o.key, host = typeof o.mount === "string" ? document.getElementById(o.mount) : o.mount;
+    var fmt = o.format == null ? 1 : o.format;
+    var ok = usable(), lastErr = null, savedAt = null, restoredFrom = null, timer = null;
+    var noun = o.noun || "your work";
+
+    function read(){
+      if(!ok) return null;
+      try {
+        var raw = window.localStorage.getItem(key);
+        if(!raw) return null;
+        var p = JSON.parse(raw);
+        /* A format stamp, so a page that changes its state shape does not
+           restore a shape it can no longer read and fail in a way the user
+           reads as data loss. */
+        if(!p || p.format !== fmt) return null;
+        return p;
+      } catch(e){ return null; }
+    }
+
+    function write(){
+      timer = null;
+      if(!ok) return;
+      var body;
+      try { body = o.snapshot(); } catch(e){ lastErr = "could not read the page state"; paint(); return; }
+      if(body == null){
+        try { window.localStorage.removeItem(key); }catch(e){}
+        savedAt = null; lastErr = null; paint(); return;
+      }
+      try {
+        window.localStorage.setItem(key, JSON.stringify({ format:fmt, at:Date.now(), body:body }));
+        savedAt = Date.now(); lastErr = null;
+      } catch(e){
+        /* Do not swallow this. A quota failure that says nothing is worse than
+           no autosave at all, because it teaches the user to trust it. */
+        lastErr = (e && e.name === "QuotaExceededError")
+          ? "this browser's storage is full" : "this browser refused the write";
+      }
+      paint();
+    }
+
+    function touch(){
+      if(!ok) return;
+      if(timer) clearTimeout(timer);
+      timer = setTimeout(write, o.debounce == null ? 500 : o.debounce);
+    }
+
+    function flush(){ if(timer){ clearTimeout(timer); } write(); }
+
+    function forget(){
+      /* Cancel the pending write first. Without this the debounced save from
+         the edit that preceded the click -- or from the click itself, on a
+         page that listens for clicks -- lands a few hundred milliseconds later
+         and puts the copy straight back, which makes the button look like it
+         did nothing. */
+      if(timer){ clearTimeout(timer); timer = null; }
+      try { window.localStorage.removeItem(key); }catch(e){}
+      savedAt = null; restoredFrom = null; lastErr = null; paint();
+      if(o.onforget) o.onforget();
+    }
+
+    function paint(){
+      if(!host) return;
+      /* noprint: this is screen chrome -- a status line about a browser and a
+         button -- and the print audit is right to count anything else that
+         vanishes on paper as content lost. */
+      host.className = "keep noprint" + ((!ok || lastErr) ? " bad" : "");
+      var msg;
+      if(!ok){
+        msg = "<b>This browser is not keeping anything.</b> Storage is unavailable here &mdash; a "
+            + "private window, or site data switched off. Nothing is being saved, so export before "
+            + "you close the tab.";
+      } else if(lastErr){
+        msg = "<b>Autosave failed &mdash; " + esc(lastErr) + ".</b> What is on screen is not saved. "
+            + "Export it now.";
+      } else if(savedAt){
+        msg = "Saved on this device <b>" + esc(when(savedAt)) + "</b>"
+            + (restoredFrom ? " &middot; restored from " + esc(when(restoredFrom)) : "") + ".";
+      } else if(restoredFrom){
+        msg = "Restored " + esc(noun) + " from <b>" + esc(when(restoredFrom)) + "</b> on this device.";
+      } else {
+        msg = "Autosave is on. " + esc(noun.charAt(0).toUpperCase() + noun.slice(1))
+            + " will still be here if you close the tab.";
+      }
+      host.innerHTML =
+        '<p class="st">' + msg + '</p>'
+        + '<button type="button" data-keep-forget>Forget this device\'s copy</button>'
+        + '<p class="note"><b>This is not a backup.</b> It is one browser on one device, and it goes '
+        + 'when site data is cleared, in a private window, or on any other machine. It exists so a '
+        + 'phone call does not cost you a morning. The exports are the durable copy.</p>';
+      var b = host.querySelector("[data-keep-forget]");
+      if(b) b.addEventListener("click", function(){
+        forget();
+        if(o.ontoast) o.ontoast("Saved copy removed from this device");
+      });
+    }
+
+    var got = read();
+    if(got){
+      var accepted = false;
+      try { accepted = o.restore(got.body) !== false; } catch(e){ accepted = false; }
+      if(accepted){ restoredFrom = got.at; }
+    }
+    paint();
+    /* A tab closing mid-debounce is exactly the case this exists for. */
+    try {
+      window.addEventListener("pagehide", function(){ if(timer) flush(); });
+      document.addEventListener("visibilitychange", function(){
+        if(document.visibilityState === "hidden" && timer) flush(); });
+    } catch(e){}
+
+    return { touch:touch, flush:flush, forget:forget, usable:function(){ return ok; },
+             restored:function(){ return restoredFrom; }, savedAt:function(){ return savedAt; },
+             error:function(){ return lastErr; } };
+  }
+
+  /* ---- generic form capture ----
+     Every page in the kit keeps its typed state in elements with ids -- real
+     inputs for text and dates, hidden write-through fields for the FEK
+     widgets. Capturing them by walking the DOM means a page that gains a field
+     does not also have to remember to add it to a list, which is how a
+     hand-maintained list of fields quietly stops covering the newest one. */
+  function formSnapshot(){
+    var out = {}, i, els = document.querySelectorAll("input[id], textarea[id]");
+    for(i=0;i<els.length;i++){
+      var e = els[i];
+      if(e.type === "file" || e.type === "button" || e.type === "submit") continue;
+      out[e.id] = (e.type === "checkbox" || e.type === "radio") ? (e.checked ? "1" : "") : e.value;
+    }
+    return out;
+  }
+  /* Restoring the hidden field is only half the job: the widget above it still
+     shows its construction default, and a correct value under a wrong-looking
+     dial is worse than no restore at all. FEK.setField (v1.3.0) puts the value
+     back through the widget for every component that declared its field. */
+  function formRestore(map){
+    if(!map) return 0;
+    var n = 0, id;
+    for(id in map){
+      if(!map.hasOwnProperty(id)) continue;
+      var e = document.getElementById(id);
+      if(!e) continue;
+      if(e.type === "checkbox" || e.type === "radio") e.checked = !!map[id];
+      else e.value = map[id];
+      if(typeof FEK !== "undefined" && FEK.setField){
+        var v = map[id];
+        if(e.type === "number" || /^-?\d+(\.\d+)?$/.test(String(v))) {
+          FEK.setField(id, v === "" ? null : parseFloat(v));
+        } else {
+          FEK.setField(id, v === "" ? null : v);
+        }
+      }
+      n++;
+    }
+    return n;
+  }
+
+  return { version:"1.0.0", wire:wire, usable:usable,
+           formSnapshot:formSnapshot, formRestore:formRestore };
+})();
+</script>
+<script>
+/* ---------- Greenhouse engine v1.1.0 ---------- */
 var GH = (function(){
   "use strict";
 
@@ -1355,7 +1619,91 @@ var GH = (function(){
     };
   }
 
-  return { version:"1.0.0",
+  /* ================= runs ================= */
+
+  /* A run record is a SUMMARY, not a log. A season of 30-second samples is
+     megabytes; browser storage is a few, and a page that fills it silently
+     drops the oldest thing the user still needed. The raw log stays in the
+     export. What is kept is what a comparison actually reads. */
+  function runRecord(o){
+    o = o || {};
+    return {
+      id: o.id || ("run-" + (o.started || 0) + "-" + Math.round((o.grams||0)*1000)),
+      label: String(o.label == null ? "" : o.label),
+      started: o.started == null ? null : o.started,
+      days: o.days == null ? null : o.days,
+      baseline: !!o.baseline,
+      stage: o.stage || null,
+      grams: o.grams == null ? null : o.grams,
+      ratedW: o.ratedW == null ? null : o.ratedW,
+      kwh: o.kwh == null ? null : o.kwh,
+      rate: o.rate == null ? null : o.rate,
+      dli: o.dli == null ? null : o.dli,
+      vpdMean: o.vpdMean == null ? null : o.vpdMean,
+      outsideBand: o.outsideBand == null ? null : o.outsideBand,
+      n: o.n == null ? null : o.n,
+      note: String(o.note == null ? "" : o.note)
+    };
+  }
+
+  function runMetric(r, key){
+    if(!r) return null;
+    if(key === "gPerKWh") return (r.grams != null && r.kwh) ? r.grams / r.kwh : null;
+    if(key === "gPerW")   return (r.grams != null && r.ratedW) ? r.grams / r.ratedW : null;
+    if(key === "costPerGram")
+      return (r.grams && r.kwh != null && r.rate != null) ? r.kwh * r.rate / r.grams : null;
+    if(key === "costTotal") return (r.kwh != null && r.rate != null) ? r.kwh * r.rate : null;
+    return r[key] == null ? null : r[key];
+  }
+
+  /* Mean and SAMPLE standard deviation (n-1). The population form would flatter
+     a small set by shrinking the spread, and every set here is small. */
+  function meanSD(xs){
+    var v = xs.filter(function(x){ return x != null && isFinite(x); });
+    if(!v.length) return {n:0, mean:null, sd:null, cv:null, why:"no values"};
+    var m = v.reduce(function(a,c){ return a+c; }, 0) / v.length;
+    if(v.length < 3)
+      return {n:v.length, mean:m, sd:null, cv:null,
+              why:"fewer than three runs — a spread estimated from " + v.length +
+                  " is not an estimate of anything"};
+    var ss = v.reduce(function(a,c){ return a + (c-m)*(c-m); }, 0);
+    var sd = Math.sqrt(ss/(v.length-1));
+    return {n:v.length, mean:m, sd:sd, cv:(m !== 0 ? sd/Math.abs(m) : null), why:null};
+  }
+
+  /* Your own noise floor, from the runs you marked as baseline. */
+  function runStats(runs, key){
+    var base = (runs||[]).filter(function(r){ return r && r.baseline; });
+    var s = meanSD(base.map(function(r){ return runMetric(r, key); }));
+    s.baselineCount = base.length;
+    s.key = key;
+    return s;
+  }
+
+  /* A run against that floor. The verdict is deliberately conservative and it
+     says what it is: a distance in units of the grower's own spread, not a
+     significance test. There is no p-value here to abuse. */
+  function compare(run, runs, key){
+    var v = runMetric(run, key);
+    var s = runStats((runs||[]).filter(function(r){ return r && r.id !== (run&&run.id); }), key);
+    var out = {key:key, value:v, baseline:s, delta:null, z:null, verdict:null, why:null};
+    if(v == null){ out.why = "this run has no value for " + key; return out; }
+    if(s.mean == null){ out.why = "no baseline runs marked yet"; return out; }
+    out.delta = v - s.mean;
+    if(s.sd == null || s.sd === 0){
+      out.why = s.sd === 0
+        ? "every baseline run gave exactly the same number, which is not a spread"
+        : s.why;
+      out.verdict = "no-floor";
+      return out;
+    }
+    out.z = out.delta / s.sd;
+    var a = Math.abs(out.z);
+    out.verdict = a < 1 ? "inside" : (a < 2 ? "edge" : "outside");
+    return out;
+  }
+
+  return { version:"1.1.0",
            svp:svp, vpd:vpd, dewPoint:dewPoint, absHumidity:absHumidity,
            BANDS:BANDS, band:band, inBand:inBand,
            dli:dli, dliFromLog:dliFromLog, lumensToPPFD:lumensToPPFD, LUX_FACTORS:LUX_FACTORS,
@@ -1363,9 +1711,11 @@ var GH = (function(){
            ols:ols, timeOutside:timeOutside,
            register:register, list:list, get:get, clear:clear,
            parseCSV:parseCSV, mapHeaders:mapHeaders, rowsFromCSV:rowsFromCSV,
-           summarise:summarise };
+           summarise:summarise,
+           runRecord:runRecord, runMetric:runMetric, meanSD:meanSD,
+           runStats:runStats, compare:compare };
 })();
-/* ---------- /Greenhouse engine v1.0.0 ---------- */
+/* ---------- /Greenhouse engine v1.1.0 ---------- */
 </script>
 <script>
 /* ---------- ingest plugins ----------
@@ -2129,7 +2479,271 @@ var GH = (function(){
                     setRate:function(r){ rate=r; renderAll(); },
                     setLux:function(v,fac){ luxValue=v; luxFactor=fac; renderAll(); },
                     setPPFD:function(v){ ppfdManual=v; renderAll(); },
-                    setPhotoperiod:function(h){ photoperiod=h; renderAll(); } };
+                    setPhotoperiod:function(h){ photoperiod=h; renderAll(); },
+                    /* The run tab needs the whole state to summarise a cycle, and
+                       reaching into another closure's variables from outside is how
+                       two copies of the truth appear. One accessor, one source. */
+                    raw:function(){ return {rows:LOG, stage:stage, leafOff:leafOff,
+                                            grams:grams, ratedW:ratedW, rate:rate,
+                                            cycleDays:cycleDays, synthetic:srcSynthetic}; } };
+})();
+
+/* ---------- run history ---------- */
+(function(){
+  "use strict";
+  var $=function(i){return document.getElementById(i);};
+  var esc=FEK.esc;
+  function f(x,d){ return (x==null||!isFinite(x)) ? "—" : x.toFixed(d==null?1:d); }
+  function money(x){ return (x==null||!isFinite(x)) ? "—" : "$"+x.toFixed(2); }
+  var tt; function toast(m){ var t=$("toast"); t.textContent=m; t.classList.add("on");
+    clearTimeout(tt); tt=setTimeout(function(){ t.classList.remove("on"); },1700); }
+
+  var RUNS = [];
+  var METRIC = "gPerKWh";
+  var METRICS = [
+    {value:"gPerKWh",     label:"g/kWh",     sub:"yield ÷ energy",  dec:2},
+    {value:"gPerW",       label:"g/W",       sub:"yield ÷ rated W", dec:2},
+    {value:"costPerGram", label:"$/g",       sub:"electricity",     dec:3},
+    {value:"grams",       label:"yield",     sub:"grams",           dec:0},
+    {value:"dli",         label:"DLI",       sub:"mol/m²/d",        dec:1},
+    {value:"vpdMean",     label:"mean VPD",  sub:"kPa",             dec:2}
+  ];
+  function metricDef(){ return METRICS.filter(function(m){return m.value===METRIC;})[0]; }
+
+  var labCtl, baseCtl, metCtl;
+  function runCtl(){
+    var lab=document.createElement("label"); lab.className="fek-lab";
+    lab.textContent="Label for this run"; 
+    var inp=document.createElement("input"); inp.type="text"; inp.id="runLabel";
+    inp.placeholder="e.g. autumn 2026, tent A";
+    inp.setAttribute("aria-label","label for this run"); inp.style.width="100%";
+    baseCtl=FEK.chips({label:"Mark as", value:[],
+      options:[{value:"base",label:"baseline — nothing deliberately changed"}],
+      help:"Baseline runs are the ones you did not deliberately change anything on. Their spread "+
+           "is what every later run is measured against, so mark them honestly."});
+    metCtl=FEK.dial({label:"Compare on", clearable:false, value:METRIC,
+      options:METRICS.map(function(m,i){
+        return {value:m.value, label:m.label, sub:m.sub, ramp:i%6}; }),
+      onchange:function(v){ if(v==null) return; METRIC=v; renderRuns(); }});
+    var host=$("runCtl"); host.innerHTML="";
+    var w=document.createElement("div"); w.className="fek-row";
+    w.appendChild(lab); w.appendChild(inp); host.appendChild(w);
+    host.appendChild(baseCtl.el); host.appendChild(metCtl.el);
+  }
+
+  function currentRun(){
+    var st = window.GHPAGE ? window.GHPAGE.state() : null;
+    var raw = window.GHPAGE ? window.GHPAGE.raw() : null;
+    if(!raw || !raw.rows.length) return null;
+    var s = GH.summarise(raw.rows, {stage:raw.stage, leafOffset:raw.leafOff});
+    var days = raw.cycleDays != null ? raw.cycleDays : s.spanDays;
+    return GH.runRecord({
+      label: ($("runLabel") && $("runLabel").value.trim()) || ("run " + (RUNS.length+1)),
+      started: s.rows.length ? s.rows[0].t : null,
+      days: days, stage: raw.stage,
+      baseline: baseCtl && baseCtl.get().length > 0,
+      grams: raw.grams, ratedW: raw.ratedW, rate: raw.rate,
+      kwh: s.kwh, dli: s.dli, vpdMean: s.vpdMean, outsideBand: s.outsideBand, n: s.n,
+      note: raw.synthetic ? "GENERATED — not measured" : ""
+    });
+  }
+
+  function saveRun(){
+    var r = currentRun();
+    if(!r){ msg("Load a source first — there is nothing to save.", true); return; }
+    if(r.grams == null)
+      msg("Saved without a yield, so the ratios will stay blank for this run until you add one.", false);
+    else
+      msg("Saved “"+r.label+"”.", false);
+    RUNS.push(r); KEPT.touch(); renderRuns();
+  }
+  function msg(t,bad){
+    var el=$("runMsg"); el.textContent=t;
+    el.style.color = bad ? "var(--danger)" : "var(--muted)";
+    el.style.fontWeight = bad ? "700" : "400";
+  }
+
+  function renderRuns(){
+    var box=$("runOut");
+    if(!RUNS.length){
+      box.innerHTML='<h3 style="margin-top:0">Runs</h3>'
+        +'<p class="fine" style="margin:0">Nothing saved yet. Load a source on the other tabs, add '
+        +'a yield, and save the run — or load the five example runs to see how the comparison reads.</p>';
+      $("runChart").innerHTML=""; return;
+    }
+    var md=metricDef();
+    var stats=GH.runStats(RUNS, METRIC);
+    var vals=RUNS.map(function(r){ return GH.runMetric(r,METRIC); });
+
+    var h='<h3 style="margin-top:0">'+RUNS.length+' run'+(RUNS.length===1?"":"s")
+      +' — comparing on '+esc(md.label)+'</h3>';
+
+    h+='<div class="gh-grid">'
+      + statTile(stats.mean==null?null:f(stats.mean,md.dec), md.sub, "baseline mean",
+                 stats.mean==null?"":"good",
+                 stats.baselineCount+" run"+(stats.baselineCount===1?"":"s")+" marked baseline")
+      + statTile(stats.sd==null?null:f(stats.sd,md.dec), md.sub, "your run-to-run SD", "",
+                 stats.sd==null ? "needs three baseline runs" : "the noise floor of your operation")
+      + statTile(stats.cv==null?null:f(stats.cv*100,0), "%", "coefficient of variation", "",
+                 stats.cv==null?"":"SD as a share of the mean")
+      +'</div>';
+
+    if(stats.sd==null && stats.why){
+      h+='<div class="fek-banner bad"><b>No spread computed.</b>'+esc(stats.why)
+        +'. Until there are three, this page will show you the runs and refuse the comparison — a '
+        +'z-score from two points looks like an answer and is not one.</div>';
+    }
+
+    h+='<div class="tw"><table class="ing"><tr><th>run</th><th>base</th>'
+      +'<th class="q">'+esc(md.label)+'</th><th class="q">z</th><th>reading</th></tr>';
+    RUNS.forEach(function(r,i){
+      var c=GH.compare(r, RUNS, METRIC);
+      var verdict = c.z==null
+        ? (c.why ? esc(c.why) : "—")
+        : (c.verdict==="inside"
+             ? "inside your normal spread — not news"
+             : (c.verdict==="edge"
+                  ? "at the edge of your spread — watch it, do not conclude from it"
+                  : "outside your spread — worth investigating, still not a cause"));
+      h+='<tr><td><b>'+esc(r.label)+'</b>'
+        +(r.note?'<small>'+esc(r.note)+'</small>':"")
+        +'<small>'+(r.days==null?"":f(r.days,0)+" days")
+        +(r.grams==null?", no yield":", "+f(r.grams,0)+" g")+'</small></td>'
+        +'<td>'+(r.baseline?"✓":"")+'</td>'
+        +'<td class="q">'+f(vals[i],md.dec)+'</td>'
+        +'<td class="q">'+(c.z==null?"—":(c.z>0?"+":"")+f(c.z,1))+'</td>'
+        +'<td>'+verdict+'</td></tr>';
+    });
+    h+='</table></div>';
+
+    var withY=RUNS.filter(function(r){ return r.grams!=null && r.kwh!=null; });
+    if(withY.length>=2){
+      var best=withY.slice().sort(function(a,b){
+        return GH.runMetric(b,"gPerKWh")-GH.runMetric(a,"gPerKWh"); })[0];
+      var worst=withY.slice().sort(function(a,b){
+        return GH.runMetric(a,"gPerKWh")-GH.runMetric(b,"gPerKWh"); })[0];
+      var bg=GH.runMetric(best,"gPerKWh"), wg=GH.runMetric(worst,"gPerKWh");
+      h+='<div class="fek-banner"><b>Best and worst on g/kWh: '+f(bg,2)+' and '+f(wg,2)+'.</b>'
+        +'That is a '+f((bg/wg-1)*100,0)+'% spread between “'+esc(best.label)+'” and “'
+        +esc(worst.label)+'”'
+        +(stats.sd!=null
+          ? ', or '+f((bg-wg)/stats.sd,1)+' times your own SD. '
+          : '. ')
+        +'<b>It does not say which of them was the better run.</b> Two cycles differ in everything '
+        +'at once, and the ranking you are looking at includes genetics, technique, plant count and '
+        +'where you called the dry-down finished.</div>';
+    }
+    box.innerHTML=h;
+    runChart(stats, vals, md);
+  }
+
+  function statTile(v,unit,label,tone,detail){
+    return '<div class="gh-stat '+(tone||"")+(v==null?" none":"")+'">'
+      +'<div class="v">'+esc(v==null?"—":v)+(unit&&v!=null?'<small>'+esc(unit)+'</small>':"")+'</div>'
+      +'<div class="l">'+esc(label)+'</div>'
+      +(detail?'<div class="d">'+esc(detail)+'</div>':"")+'</div>';
+  }
+
+  function runChart(stats, vals, md){
+    var box=$("runChart");
+    var pts=vals.map(function(v,i){ return {v:v, r:RUNS[i]}; })
+                .filter(function(p){ return p.v!=null; });
+    if(pts.length<2){ box.innerHTML=""; return; }
+    var W=680,H=250,P=52;
+    var all=pts.map(function(p){return p.v;});
+    var lo=Math.min.apply(null,all), hi=Math.max.apply(null,all);
+    if(stats.mean!=null && stats.sd!=null){
+      lo=Math.min(lo, stats.mean-2.2*stats.sd); hi=Math.max(hi, stats.mean+2.2*stats.sd);
+    }
+    var pad=(hi-lo)*0.12 || 1; lo-=pad; hi+=pad;
+    function X(i){ return P + (pts.length===1?0.5:i/(pts.length-1))*(W-P-24); }
+    function Y(v){ return H-P-(v-lo)/Math.max(1e-9,(hi-lo))*(H-P-24); }
+    var bandSvg="";
+    if(stats.mean!=null && stats.sd!=null){
+      bandSvg='<rect x="'+P+'" y="'+Y(stats.mean+stats.sd).toFixed(1)+'" width="'+(W-P-24)
+        +'" height="'+Math.abs(Y(stats.mean-stats.sd)-Y(stats.mean+stats.sd)).toFixed(1)
+        +'" fill="#2C784C" fill-opacity=".13"/>'
+        +'<line x1="'+P+'" y1="'+Y(stats.mean).toFixed(1)+'" x2="'+(W-24)+'" y2="'
+        +Y(stats.mean).toFixed(1)+'" stroke="#2C784C" stroke-width="2" stroke-dasharray="6 4"/>';
+    }
+    var path=pts.map(function(p,i){ return (i?"L":"M")+X(i).toFixed(1)+","+Y(p.v).toFixed(1); }).join(" ");
+    var dots=pts.map(function(p,i){
+      var c = p.r.baseline ? "#2C784C" : "#2B6C8F";
+      return '<circle cx="'+X(i).toFixed(1)+'" cy="'+Y(p.v).toFixed(1)+'" r="6" fill="'+c+'"/>';
+    }).join("");
+    box.innerHTML='<h3 style="margin-top:0">'+esc(md.label)+' by run</h3>'
+      +'<svg class="gh-chart" viewBox="0 0 '+W+' '+H+'" role="img" aria-label="'
+      +esc(md.label)+' across saved runs, against the baseline spread">'
+      + bandSvg
+      +'<path d="'+path+'" fill="none" stroke="#23281F" stroke-width="2"/>'+dots
+      +'<text x="8" y="'+(Y(hi)+12).toFixed(1)+'" font-size="11.5" fill="#6B6B5E">'+f(hi,md.dec)+'</text>'
+      +'<text x="8" y="'+(H-P).toFixed(1)+'" font-size="11.5" fill="#6B6B5E">'+f(lo,md.dec)+'</text>'
+      +(stats.sd!=null
+        ? '<text x="'+(P+6)+'" y="'+(Y(stats.mean+stats.sd)-6).toFixed(1)
+          +'" font-size="11.5" fill="#2C784C">baseline mean ± 1 SD</text>'
+        : '')
+      +'<text x="'+(W/2)+'" y="'+(H-8)+'" text-anchor="middle" font-size="11.5" fill="#6B6B5E">'
+      +'runs in the order you saved them — green dots are baseline'
+      +(stats.sd==null?' — no band drawn: under three baseline runs':'')+'</text>'
+      +'</svg>';
+  }
+
+  /* Five example runs, generated and labelled as such. The spread is deliberately
+     realistic: four baseline runs that differ by a few percent for no reason at
+     all, and a fifth that looks better and is still inside the noise. That last
+     one is the whole lesson. */
+  function demoRuns(){
+    var base=[{l:"spring 2025",g:498,k:78.2,d:41.2,v:0.94},
+              {l:"summer 2025",g:512,k:80.9,d:41.8,v:0.97},
+              {l:"autumn 2025",g:471,k:79.4,d:40.9,v:0.91},
+              {l:"winter 2025",g:505,k:81.6,d:41.5,v:0.99}];
+    RUNS = base.map(function(b,i){
+      return GH.runRecord({id:"demo-"+i, label:b.l, started:1735689600000+i*7776000000,
+        days:70, baseline:true, stage:"late", grams:b.g, ratedW:650, rate:0.15,
+        kwh:b.k, dli:b.d, vpdMean:b.v, outsideBand:0.18, n:3360,
+        note:"GENERATED — not measured"});
+    });
+    RUNS.push(GH.runRecord({id:"demo-4", label:"spring 2026 — new light",
+      started:1766707200000, days:70, baseline:false, stage:"late",
+      grams:548, ratedW:720, rate:0.15, kwh:84.1, dli:45.2, vpdMean:1.02,
+      outsideBand:0.15, n:3360, note:"GENERATED — not measured"}));
+    KEPT.touch(); renderRuns();
+    msg("Five generated runs loaded. Four baseline, one that looks like an improvement — check its "
+        +"z before believing it.", false);
+  }
+
+  $("runSave").addEventListener("click",saveRun);
+  $("runDemo").addEventListener("click",demoRuns);
+  $("runWipe").addEventListener("click",function(){
+    if(!RUNS.length) return;
+    if(!confirm("Clear every saved run?")) return;
+    RUNS=[]; KEPT.touch(); renderRuns(); msg("All runs cleared.",false);
+  });
+
+  var KEPT = KEEP.wire({
+    key: "csrbtGreenhouseRuns",
+    format: 1,
+    mount: "keepBox",
+    noun: "your run history",
+    ontoast: toast,
+    snapshot: function(){ return RUNS.length ? {runs:RUNS, metric:METRIC} : null; },
+    restore: function(b){
+      if(!b || !b.runs || !b.runs.length) return false;
+      RUNS = b.runs.map(function(r){ return GH.runRecord(r); });
+      if(b.metric) METRIC=b.metric;
+      if(metCtl) metCtl.set(METRIC);
+      renderRuns();
+      return true;
+    },
+    onforget: function(){ RUNS=[]; renderRuns(); }
+  });
+
+  runCtl(); renderRuns();
+  window.GHRUNS = { list:function(){ return RUNS; },
+                    set:function(rs){ RUNS=rs.map(function(r){return GH.runRecord(r);});
+                                      renderRuns(); },
+                    metric:function(m){ METRIC=m; renderRuns(); },
+                    demo:demoRuns, save:saveRun };
 })();
 </script>
 </body>

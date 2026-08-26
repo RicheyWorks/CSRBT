@@ -17,7 +17,7 @@ keep = importlib.util.module_from_spec(_spec); _spec.loader.exec_module(keep)
 
 CONSUMERS = ["ordination.html", "releve.html", "stand-sheet.html", "collection-sheet.html",
              "pheno-tracker.html", "deployment-log.html",
-             "survey-design.html"]
+             "survey-design.html", "greenhouse.html"]
 
 JS_RE = re.compile(r"/\* ---- Keep v[\d.]+ :.*?\n\}\)\(\);", re.S)
 

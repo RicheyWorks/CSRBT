@@ -37,10 +37,30 @@ WHAT IS REFUSED
   fixtures. The engine will convert if you give it a factor, it names the factor
   it used, and it refuses to pick one for you. See lumensToPPFD().
 
+RUN-TO-RUN COMPARISON, AND THE ONLY RIGOROUS THING AVAILABLE IN IT
+
+  Comparing two grow cycles is observational data with n=1 per condition, no
+  randomisation, no control, and every variable moving at once -- genetics,
+  technique, plant count, the weather outside, and where you decided the
+  dry-down had finished. A difference between two runs cannot tell you what
+  caused it. Any page that implies otherwise is lying with a chart.
+
+  There IS one thing a grower can establish rigorously from their own records,
+  and it is the thing that makes every later comparison meaningful: their own
+  REPEATABILITY. Run three or more cycles at nominally the same settings and
+  the spread of those results is the noise floor of your operation. After that,
+  a new run is only news if it lands outside that floor.
+
+  So runStats() estimates the spread of the runs you mark as baseline, and
+  compare() reports a new run's distance from that baseline IN UNITS OF YOUR
+  OWN SD -- and says plainly when a difference is inside the noise. With fewer
+  than three baseline runs it refuses to estimate a spread at all, because a
+  standard deviation from two points is a number with no information in it.
+
     python3 tools/gh_emit.py           # rewrite every consumer
     python3 tools/gh_emit.py --check   # report drift, write nothing
 """
-VERSION = "1.0.0"
+VERSION = "1.1.0"
 
 CSS = """
   /* ============ Greenhouse engine v__GHVER__ ============ */
@@ -512,6 +532,90 @@ var GH = (function(){
     };
   }
 
+  /* ================= runs ================= */
+
+  /* A run record is a SUMMARY, not a log. A season of 30-second samples is
+     megabytes; browser storage is a few, and a page that fills it silently
+     drops the oldest thing the user still needed. The raw log stays in the
+     export. What is kept is what a comparison actually reads. */
+  function runRecord(o){
+    o = o || {};
+    return {
+      id: o.id || ("run-" + (o.started || 0) + "-" + Math.round((o.grams||0)*1000)),
+      label: String(o.label == null ? "" : o.label),
+      started: o.started == null ? null : o.started,
+      days: o.days == null ? null : o.days,
+      baseline: !!o.baseline,
+      stage: o.stage || null,
+      grams: o.grams == null ? null : o.grams,
+      ratedW: o.ratedW == null ? null : o.ratedW,
+      kwh: o.kwh == null ? null : o.kwh,
+      rate: o.rate == null ? null : o.rate,
+      dli: o.dli == null ? null : o.dli,
+      vpdMean: o.vpdMean == null ? null : o.vpdMean,
+      outsideBand: o.outsideBand == null ? null : o.outsideBand,
+      n: o.n == null ? null : o.n,
+      note: String(o.note == null ? "" : o.note)
+    };
+  }
+
+  function runMetric(r, key){
+    if(!r) return null;
+    if(key === "gPerKWh") return (r.grams != null && r.kwh) ? r.grams / r.kwh : null;
+    if(key === "gPerW")   return (r.grams != null && r.ratedW) ? r.grams / r.ratedW : null;
+    if(key === "costPerGram")
+      return (r.grams && r.kwh != null && r.rate != null) ? r.kwh * r.rate / r.grams : null;
+    if(key === "costTotal") return (r.kwh != null && r.rate != null) ? r.kwh * r.rate : null;
+    return r[key] == null ? null : r[key];
+  }
+
+  /* Mean and SAMPLE standard deviation (n-1). The population form would flatter
+     a small set by shrinking the spread, and every set here is small. */
+  function meanSD(xs){
+    var v = xs.filter(function(x){ return x != null && isFinite(x); });
+    if(!v.length) return {n:0, mean:null, sd:null, cv:null, why:"no values"};
+    var m = v.reduce(function(a,c){ return a+c; }, 0) / v.length;
+    if(v.length < 3)
+      return {n:v.length, mean:m, sd:null, cv:null,
+              why:"fewer than three runs — a spread estimated from " + v.length +
+                  " is not an estimate of anything"};
+    var ss = v.reduce(function(a,c){ return a + (c-m)*(c-m); }, 0);
+    var sd = Math.sqrt(ss/(v.length-1));
+    return {n:v.length, mean:m, sd:sd, cv:(m !== 0 ? sd/Math.abs(m) : null), why:null};
+  }
+
+  /* Your own noise floor, from the runs you marked as baseline. */
+  function runStats(runs, key){
+    var base = (runs||[]).filter(function(r){ return r && r.baseline; });
+    var s = meanSD(base.map(function(r){ return runMetric(r, key); }));
+    s.baselineCount = base.length;
+    s.key = key;
+    return s;
+  }
+
+  /* A run against that floor. The verdict is deliberately conservative and it
+     says what it is: a distance in units of the grower's own spread, not a
+     significance test. There is no p-value here to abuse. */
+  function compare(run, runs, key){
+    var v = runMetric(run, key);
+    var s = runStats((runs||[]).filter(function(r){ return r && r.id !== (run&&run.id); }), key);
+    var out = {key:key, value:v, baseline:s, delta:null, z:null, verdict:null, why:null};
+    if(v == null){ out.why = "this run has no value for " + key; return out; }
+    if(s.mean == null){ out.why = "no baseline runs marked yet"; return out; }
+    out.delta = v - s.mean;
+    if(s.sd == null || s.sd === 0){
+      out.why = s.sd === 0
+        ? "every baseline run gave exactly the same number, which is not a spread"
+        : s.why;
+      out.verdict = "no-floor";
+      return out;
+    }
+    out.z = out.delta / s.sd;
+    var a = Math.abs(out.z);
+    out.verdict = a < 1 ? "inside" : (a < 2 ? "edge" : "outside");
+    return out;
+  }
+
   return { version:"__GHVER__",
            svp:svp, vpd:vpd, dewPoint:dewPoint, absHumidity:absHumidity,
            BANDS:BANDS, band:band, inBand:inBand,
@@ -520,7 +624,9 @@ var GH = (function(){
            ols:ols, timeOutside:timeOutside,
            register:register, list:list, get:get, clear:clear,
            parseCSV:parseCSV, mapHeaders:mapHeaders, rowsFromCSV:rowsFromCSV,
-           summarise:summarise };
+           summarise:summarise,
+           runRecord:runRecord, runMetric:runMetric, meanSD:meanSD,
+           runStats:runStats, compare:compare };
 })();
 /* ---------- /Greenhouse engine v__GHVER__ ---------- */
 """

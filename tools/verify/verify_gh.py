@@ -346,7 +346,11 @@ with sync_playwright() as pw:
     # inner_text returns only what is VISIBLE, and four of five panes are
     # display:none at any moment. Reading only the open tab is how a check for
     # page text passes or fails depending on which tab happens to be showing.
-    body = pg.evaluate("()=>document.body.innerText + ' ' + document.body.textContent")
+    # Whitespace is collapsed before matching. A phrase that wraps across a line
+    # in the source reads as "caused\n        it" in textContent, and a check
+    # that fails on that is testing the line wrap, not the page.
+    body = pg.evaluate("()=>(document.body.innerText+' '+document.body.textContent)"
+                       ".replace(/\\s+/g,' ')")
     for phrase, why in [
         ("leaf VPD", "the page names which VPD it shows"),
         ("Buck", "the page names the SVP equation it uses"),
@@ -373,6 +377,124 @@ with sync_playwright() as pw:
        close(max(facs) / min(facs), 82 / 24.0, 0.01)
        and str(min(facs)) in body and str(max(facs)) in body,
        (min(facs), max(facs)))
+
+    # ---------- runs: the noise floor ----------
+    import statistics
+
+    def g_per_kwh(r): return r["grams"] / r["kwh"]
+
+    BASE = [{"id": "b%d" % i, "label": "b%d" % i, "baseline": True,
+             "grams": g, "kwh": 80.0, "ratedW": 650, "rate": 0.15}
+            for i, g in enumerate([498, 512, 471, 505])]
+    NEW = {"id": "n", "label": "new", "baseline": False,
+           "grams": 548, "kwh": 84.1, "ratedW": 720, "rate": 0.15}
+
+    st = pg.evaluate("(rs)=>GH.runStats(rs,'gPerKWh')", BASE)
+    vals = [g_per_kwh(r) for r in BASE]
+    ck("baseline mean recomputes", close(st["mean"], sum(vals) / len(vals), 1e-9), st["mean"])
+    ck("baseline SD is the SAMPLE form (n−1), not the population form",
+       close(st["sd"], statistics.stdev(vals), 1e-9)
+       and not close(st["sd"], statistics.pstdev(vals), 1e-9), (st["sd"], statistics.pstdev(vals)))
+    ck("CV is SD over the mean", close(st["cv"], st["sd"] / st["mean"], 1e-9), st["cv"])
+    ck("only baseline-marked runs count toward the floor",
+       pg.evaluate("(rs)=>GH.runStats(rs,'gPerKWh').n", BASE + [NEW]) == 4, "")
+
+    for n in (0, 1, 2):
+        r = pg.evaluate("(rs)=>GH.runStats(rs,'gPerKWh')", BASE[:n])
+        ck("with %d baseline run(s) no SD is computed" % n, r["sd"] is None, r)
+        if n:
+            ck("and it says why rather than going quiet", bool(r["why"]), r["why"])
+
+    c = pg.evaluate("([r,rs])=>GH.compare(r,rs,'gPerKWh')", [NEW, BASE + [NEW]])
+    want_z = (g_per_kwh(NEW) - sum(vals) / len(vals)) / statistics.stdev(vals)
+    ck("z is the distance from the baseline mean in baseline SDs",
+       close(c["z"], want_z, 1e-9), (c["z"], want_z))
+    ck("a non-baseline run does not enter the baseline it is measured against",
+       close(c["baseline"]["mean"], sum(vals) / len(vals), 1e-9), c["baseline"]["mean"])
+
+    # Self-exclusion only bites when the run being judged is ITSELF a baseline
+    # run — with a non-baseline run the baseline filter already removed it, so
+    # the first version of this check could not tell the two behaviours apart
+    # and a seeded fault walked straight through it.
+    # BASE[2] is the LOW outlier, chosen on purpose. A run sitting near the mean
+    # barely moves the answer whether it is excluded or not, so the first
+    # version of this check — which used BASE[0] — could not tell the two apart
+    # either, and the seeded fault escaped a second time. Fixtures that cannot
+    # distinguish two implementations are not tests of the difference.
+    OUT = 2
+    cself = pg.evaluate("([r,rs])=>GH.compare(r,rs,'gPerKWh')", [BASE[OUT], BASE])
+    others = [g_per_kwh(r) for i, r in enumerate(BASE) if i != OUT]
+    ck("a baseline run is excluded from the baseline it is judged against",
+       cself["baseline"]["n"] == 3
+       and close(cself["baseline"]["mean"], sum(others) / len(others), 1e-9),
+       (cself["baseline"]["n"], cself["baseline"]["mean"]))
+    z_incl = (g_per_kwh(BASE[OUT]) - sum(vals) / len(vals)) / statistics.stdev(vals)
+    ck("and that changes its z substantially from the include-self answer",
+       abs(cself["z"] - z_incl) > 1.0, (cself["z"], z_incl))
+    ck("|z| under 1 reads as inside the noise",
+       pg.evaluate("([r,rs])=>GH.compare(r,rs,'gPerKWh').verdict",
+                   [dict(BASE[1], id="q", baseline=False), BASE]) == "inside", "")
+    big = dict(NEW, grams=900)
+    ck("a genuinely large move reads as outside",
+       pg.evaluate("([r,rs])=>GH.compare(r,rs,'gPerKWh').verdict", [big, BASE]) == "outside", "")
+
+    flat = [dict(r, grams=500) for r in BASE]
+    cf = pg.evaluate("([r,rs])=>GH.compare(r,rs,'gPerKWh')", [NEW, flat])
+    ck("a zero spread is refused rather than divided by",
+       cf["z"] is None and "not a spread" in (cf["why"] or ""), cf)
+
+    c2 = pg.evaluate("([r,rs])=>GH.compare(r,rs,'gPerKWh')", [NEW, []])
+    ck("no baseline at all gives no z, with a reason",
+       c2["z"] is None and bool(c2["why"]), c2)
+    c3 = pg.evaluate("([r,rs])=>GH.compare(r,rs,'gPerKWh')",
+                     [dict(NEW, grams=None), BASE])
+    ck("a run with no yield gives no z, with a reason",
+       c3["z"] is None and bool(c3["why"]), c3)
+
+    ck("g/W and g/kWh are read from different denominators",
+       close(pg.evaluate("(r)=>GH.runMetric(r,'gPerW')", NEW), 548 / 720.0, 1e-9)
+       and close(pg.evaluate("(r)=>GH.runMetric(r,'gPerKWh')", NEW), 548 / 84.1, 1e-9), "")
+    ck("cost per gram uses the run's own rate",
+       close(pg.evaluate("(r)=>GH.runMetric(r,'costPerGram')", NEW),
+             84.1 * 0.15 / 548, 1e-9), "")
+
+    # ---------- the demo tells the intended story ----------
+    pg.evaluate("()=>GHRUNS.demo()")
+    pg.wait_for_timeout(300)
+    rs = pg.evaluate("()=>GHRUNS.list()")
+    ck("the example loads five runs, four of them baseline",
+       len(rs) == 5 and sum(1 for r in rs if r["baseline"]) == 4,
+       (len(rs), sum(1 for r in rs if r["baseline"])))
+    last = rs[-1]
+    ck("the example's headline run really does yield more",
+       last["grams"] > max(r["grams"] for r in rs[:-1]), last["grams"])
+    dc = pg.evaluate("()=>{const rs=GHRUNS.list();"
+                     "return GH.compare(rs[rs.length-1], rs, 'gPerKWh');}")
+    ck("and its z still lands at the edge rather than outside — which is the lesson",
+       dc["verdict"] == "edge", (dc["z"], dc["verdict"]))
+    ck("every example run is marked as generated",
+       all("GENERATED" in (r["note"] or "") for r in rs), [r["note"] for r in rs][:2])
+
+    # ---------- persistence ----------
+    ck("KEEP is wired on this page", pg.evaluate("()=>typeof KEEP === 'object'"), "")
+    ck("the run store has its own key, not a shared one",
+       "csrbtGreenhouseRuns" in pg.content(), "")
+    pg.reload(wait_until="domcontentloaded"); pg.wait_for_timeout(800)
+    after = pg.evaluate("()=>GHRUNS.list().length")
+    ck("saved runs survive a reload", after == 5, after)
+    ck("and the page says where they came from",
+       "run history" in pg.evaluate("()=>document.body.textContent"), "")
+
+    # ---------- the page's own words about what a comparison can support ----------
+    body2 = pg.evaluate("()=>(document.body.innerText+' '+document.body.textContent)"
+                        ".replace(/\\s+/g,' ')")
+    for phrase, why in [
+        ("cannot tell you what caused it", "the page refuses causal reading of a run difference"),
+        ("no p-value", "the page says outright there is no significance test here"),
+        ("three baseline runs", "the page states the minimum for a spread"),
+        ("not a backup", "the page repeats what browser storage is"),
+    ]:
+        ck(why, phrase in body2, phrase)
 
     ck("no script errors after driving the whole page", not errs, errs[:2])
     b.close()
