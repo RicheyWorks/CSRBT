@@ -473,7 +473,10 @@
         : C<=0.3 ? 'right in the range of real published food webs (≈0.05–0.3).'
         : 'denser than most real webs — fine for a toy, but check whether every arrow is a real feeding link.';
       html+='<div class="verdict"><b>Connectance '+C.toFixed(3)+'</b> — '+read
-        +(maxLv>=4 ? ' A chain of '+maxLv+' levels is long for nature — energy loss (~90% per level) usually caps chains at 4–5.' : '')
+        +(maxLv>=4 ? ' A chain of '+maxLv+' levels is long for a real web; published ones mostly run 3–5. '
+           + 'The usual explanation is energy lost between levels, but the ~10% transfer figure behind it is a '
+           + 'teaching convention rather than a constant — Lindeman 1942 reported 0.1% to 37.5% — so read this '
+           + 'as an observation about your web, not a limit it has broken.' : '')
         +(apex.length ? ' Top of this web: <b>'+apex.map(function(s){return esc(s.name);}).join(", ")+'</b>.' : '')
         +' Long-press any species to test what its loss would take down.</div>';
     }
