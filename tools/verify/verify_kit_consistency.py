@@ -334,6 +334,127 @@ OTHER_BLOCK = ("<p>Efficiency is a teaching convention, not a constant.</p>"
                "<li>Take 10% transfer per level and estimate the energy reaching the top predator.</li>")
 ck("a hedge in a DIFFERENT block does not", scan(OTHER_BLOCK), scan(OTHER_BLOCK))
 
+# =========================================================================
+# RULE 2 -- a figure that carries a citation somewhere must not appear
+# uncited elsewhere.
+#
+# Rule 1 above anchors on the glossary. That anchor was too narrow, and the
+# kit proved it: `stand-sheet` states
+#
+#     Stand Density Index (Reineke 1933)   SDI = N (QMD/25)^1.605
+#     Metric form, 25 cm reference. Derived for even-aged single-species
+#     stands -- treat it as indicative in mixed uneven-aged forest.
+#
+# while `ecology-field-card` shipped the same formula with no citation and
+# added a threshold stand-sheet never claims: ">55% of max means
+# competition-driven mortality has begun", stated as a universal fact. The
+# literature puts the onset of imminent competition mortality at 0.55 of
+# maximum for lodgepole pine and 0.45 for white spruce -- species-specific --
+# with ~35% the lower limit of full site occupancy and ~60% the lower limit
+# of self-thinning (Long & Daniel 1990).
+#
+# Same defect class as rule 1, and rule 1 could not see it, because the
+# researched position lived on a bench page rather than in the glossary.
+# Only 18 of the kit's 31 citations are in the glossary.
+#
+# WHAT COUNTS AS A FIGURE HERE
+#
+# A first attempt matched any figure of three or more significant digits and
+# returned 49 hits, of which one was real: 100, 180, 225 and 0.05 are slider
+# maxima, compass bearings, CSS widths and p-value cutoffs, and they are
+# everywhere. Distinctiveness is not magnitude -- it is that nobody writes the
+# number by accident. A fingerprint is a decimal carrying three or more
+# decimal places, or two that do not end in 0 or 5. On this kit exactly one
+# figure qualifies, which is honest about the rule's reach: it is narrow, and
+# it caught the one thing in range.
+# Two alternatives, not three. The kit writes citations three ways --
+# "(Reineke 1933)", "<span class=\"who\">Lindeman 1942</span>", and a bare
+# "after Reineke 1933" in running prose -- but the bare pattern already matches
+# the author-year inside the parentheses, so a separate parenthesised
+# alternative was pure decoration: a mutation sweep deleted it and nothing
+# noticed, because every test string still matched through the bare form.
+#
+# The span form is NOT redundant, and a fixture below says why: one glossary
+# entry cites a year with no author at all, which the bare form -- which
+# requires a capitalised author immediately before the year, so that a date
+# like "the 2026-08-09 audits" is not mistaken for a citation -- cannot see.
+CITE = re.compile(
+    r"<span class=\"who\">([^<]*(?:19|20)\d{2}[^<]*)</span>"
+    r"|\b([A-Z][A-Za-z.\-]{2,}(?:\s+(?:et\s+al\.|and|&amp;|&)\s+[A-Z][A-Za-z.\-]+)?"
+    r"\s+(?:19|20)\d{2})\b")
+DECIMAL = re.compile(r"(?<![\w.-])(\d+\.\d{2,})(?![\w])")
+NEAR = 180
+
+
+def fingerprint(v):
+    frac = v.split(".")[1]
+    return len(frac) >= 3 or frac[-1] not in "05"
+
+
+def bare(text):
+    return re.sub(r"<style\b.*?</style>", " ", text, flags=re.S | re.I)
+
+
+def cited_figures(page_map):
+    """figure -> {(page, citation)} for every fingerprint near a citation."""
+    out = {}
+    for name, html in page_map.items():
+        t = bare(html)
+        for m in CITE.finditer(t):
+            window = TAG.sub(" ", t[max(0, m.start() - NEAR):m.end() + NEAR])
+            for f in DECIMAL.finditer(window):
+                if fingerprint(f.group(1)):
+                    out.setdefault(f.group(1), set()).add(
+                        (name, (m.group(1) or m.group(2)).strip()))
+    return out
+
+
+def uncited_uses(page_map, figure, homes):
+    out = []
+    for name, html in page_map.items():
+        if name in homes:
+            continue
+        t = TAG.sub(" ", bare(html))
+        for f in re.finditer(r"(?<![\w.-])%s(?![\w])" % re.escape(figure), t):
+            if CITE.search(t[max(0, f.start() - NEAR):f.end() + NEAR]):
+                continue
+            out.append((name, " ".join(t[max(0, f.start() - 90):f.end() + 60].split())))
+            break
+    return out
+
+
+CITED = cited_figures(pages)
+ck("the kit has at least one cited fingerprint figure -- else rule 2 is vacuous",
+   bool(CITED), sorted(CITED))
+
+loose = []
+for fig, where in sorted(CITED.items()):
+    loose += [(fig, n, c) for n, c in uncited_uses(pages, fig, {p for p, _ in where})]
+ck("no cited figure appears uncited on another page", not loose,
+   [(f, n, c[:70]) for f, n, c in loose])
+
+# Fixtures for rule 2, in both directions.
+FIX = {"a.html": '<p>The exponent (Reineke 1933) is 1.605 in the metric form.</p>',
+       "b.html": '<p>Use N(QMD/25)^1.605 to get stocking.</p>'}
+ck("rule 2 catches a fingerprint used without its citation",
+   uncited_uses(FIX, "1.605", {"a.html"}), "")
+FIX_OK = dict(FIX, **{"b.html": '<p>N(QMD/25)^1.605, after Reineke 1933.</p>'})
+ck("and leaves it alone once the citation travels with it",
+   not uncited_uses(FIX_OK, "1.605", {"a.html"}), uncited_uses(FIX_OK, "1.605", {"a.html"}))
+ck("a round two-decimal number is not a fingerprint",
+   not fingerprint("0.05") and not fingerprint("1.10"), "")
+ck("but three decimals is, and so is a two-decimal odd ending",
+   fingerprint("1.605") and fingerprint("11.28"), "")
+ck("every citation form the kit uses is read",
+   bool(CITE.search("(Reineke 1933)"))
+   and bool(CITE.search('<span class="who">Lindeman 1942</span>'))
+   and bool(CITE.search("after Reineke 1933,")), "")
+ck("the span form earns its place: a year with no author is still a citation",
+   bool(CITE.search('<span class="who">1908</span>'))
+   and not re.search(r"\b[A-Z][A-Za-z.\-]{2,}\s+(?:19|20)\d{2}\b", "<span>1908</span>"), "")
+ck("and a bare date is not mistaken for a citation",
+   not CITE.search("the 2026-08-09 audits") and not CITE.search("window: 2000 operations"), "")
+
 print("-" * 70)
 print("%d passed, %d failed" % (ok, bad))
 sys.exit(1 if bad else 0)

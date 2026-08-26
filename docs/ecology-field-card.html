@@ -55,6 +55,7 @@
   td, th { border:1px solid var(--rule); padding:5px 8px; text-align:left; vertical-align:top; line-height:1.4; }
   th { background:var(--soft); font-family:var(--head); font-weight:600; font-size:12.5px; }
   .m { font-family:var(--mono); font-size:12px; color:var(--ink); white-space:nowrap; }
+  .who { font-family:var(--mono); font-size:11px; color:var(--muted); font-weight:400; margin-right:4px; }
   .band { color:var(--ink-2); }
   .band em { font-style:normal; color:var(--s1); font-weight:600; }
 
@@ -151,7 +152,7 @@
         <tr><th>Metric</th><th>Reads</th></tr>
         <tr><td class="m">Basal area BA</td><td class="band">0.00007854&nbsp;&times;&nbsp;DBH²<sub>cm</sub> per stem; summed per hectare it is the standard stocking measure</td></tr>
         <tr><td class="m">QMD</td><td class="band">&radic;(&Sigma;DBH²/n) &mdash; the tree of average <em>basal area</em>, always &ge; mean DBH</td></tr>
-        <tr><td class="m">Reineke SDI</td><td class="band">N(QMD/25)<sup>1.605</sup> &mdash; <em>&gt;55%</em> of max means competition-driven mortality has begun</td></tr>
+        <tr><td class="m">Reineke SDI</td><td class="band"><span class="who">Reineke 1933</span> N(QMD/25)<sup>1.605</sup> &mdash; metric form; the 25&nbsp;cm reference is a convention, not a conversion of Reineke's 10&nbsp;in. Zone thresholds are rules of thumb and vary by species: &asymp;35% of max is the lower limit of full site occupancy, &asymp;60% the lower limit of self-thinning (Long &amp; Daniel 1990) &mdash; published onsets of imminent competition mortality run 0.45 for white spruce to 0.55 for lodgepole pine. Derived for even-aged single-species stands</td></tr>
         <tr><td class="m">Importance value</td><td class="band">(rel. density + rel. dominance)/2 &mdash; ranks species by presence <em>and</em> size together</td></tr>
         <tr><td class="m">Height</td><td class="band">D(tan&nbsp;&theta;<sub>top</sub> &minus; tan&nbsp;&theta;<sub>base</sub>) &mdash; both angles, or the number is wrong on a slope</td></tr>
         <tr><td class="m">CWD volume</td><td class="band">van Wagner &pi;²&Sigma;d²/(8L) &mdash; line-intercept, needs the full transect length</td></tr>
