@@ -144,6 +144,9 @@ with sync_playwright() as p:
 
 # static link check
 import io, os, glob
+
+# "'+x+'", '"+x+"', "${x}" -- markers of a value spliced in at runtime.
+TEMPLATED = re.compile(r"""['"]\s*\+|\+\s*['"]|\$\{""")
 files=sorted(glob.glob(DOCS_DIR + "*.html"))
 ids={}
 for f in files:
@@ -153,6 +156,13 @@ for f in files:
     s=io.open(f,encoding='utf-8').read(); bn=os.path.basename(f)
     for href in re.findall(r'href="([^"]+)"', s):
         if href.startswith(("http","mailto:")): continue
+        # An href assembled in JavaScript is source code, not a path. This
+        # checker read  href="'+esc(r.url)+'"  out of a template literal and
+        # reported it as a missing file. A link checker that reports source
+        # code as a dead link is the same defect class as ADR-040's audit
+        # reporting a citation as a fetched resource: the row is not wrong
+        # about what it matched, it is wrong about what the match MEANS.
+        if TEMPLATED.search(href): continue
         if href.startswith("#"):
             if href[1:] and href[1:] not in ids[bn]: bad.append((bn,href))
             continue

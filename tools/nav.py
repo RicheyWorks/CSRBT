@@ -35,6 +35,7 @@ GROUPS = [
         ("breeding-bench.html",    "\U0001F955", "Breeding Bench"),
         ("cell-bench.html",        "\U0001F52C", "Cell Bench"),
         ("micro-bench.html",       "\U0001F9EB", "Micro Bench"),
+        ("soil-recipes.html",      "\U0001F9F1", "Soil Recipes"),
     ]),
     ("Analyse it", [
         ("survey-design.html",     "\U0001F9ED", "Survey Design"),

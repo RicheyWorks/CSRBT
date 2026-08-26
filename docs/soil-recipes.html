@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>Micro Bench — plate counts, dilutions, growth rate &amp; zones</title>
+<title>Grower's Soil Recipes — Super Soil, TLO, Coot's</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <!-- Webfonts load without blocking first paint: a stylesheet request that
@@ -219,16 +219,34 @@
   .refuse b { font-family:var(--head); display:block; font-size:16px; margin-bottom:4px; color:var(--danger); }
   td.ok { color:var(--s1); font-weight:700; } td.no { color:var(--danger); font-weight:700; }
 
-  .rail { margin:26px 0 4px; }
-  .rail .rl { font-family:var(--mono); font-size:11px; letter-spacing:.14em; text-transform:uppercase; color:var(--muted); margin:0 2px 8px; }
-  .rail .chips { display:flex; flex-wrap:wrap; gap:8px; }
-  .rail a { display:inline-flex; align-items:center; gap:7px; text-decoration:none; font:700 13.5px var(--body);
-    color:var(--ink-2); background:var(--surface); border:1px solid var(--border); border-radius:999px;
-    padding:9px 15px; min-height:44px; box-shadow:var(--shadow); touch-action:manipulation; }
-  .rail a:hover { border-color:var(--s1); color:var(--s1); }
-  .rail a[aria-current="page"] { background:var(--soft); border-color:var(--s1); color:var(--s1); }
-  .rail a.ref { font-weight:600; color:var(--muted); background:none; box-shadow:none; }
-  @media print { .rail { display:none !important; } }
+  /* ---- recipe sheet ---- */
+  .rec { border:1px solid var(--border); background:var(--surface); border-radius:16px;
+    padding:16px; box-shadow:var(--shadow); margin-bottom:14px; }
+  .rec > h3 { margin-top:0; }
+  .who { font:600 12px var(--mono); color:var(--muted); margin:2px 0 10px; }
+  .who a { color:var(--s1); }
+  .ing { width:100%; border-collapse:collapse; font-size:14px; }
+  .ing th, .ing td { border-bottom:1px solid var(--border); padding:7px 9px; text-align:left;
+    vertical-align:top; white-space:normal; }
+  .ing th { background:var(--soft); font-family:var(--head); font-weight:600; font-size:13px;
+    white-space:nowrap; }
+  .ing td.q { font-family:var(--mono); font-variant-numeric:tabular-nums; white-space:nowrap;
+    text-align:right; font-size:13.5px; }
+  .ing tr.base td { background:var(--surface-2); font-weight:700; }
+  .ing td small { display:block; color:var(--muted); font-size:11.5px; font-family:var(--body);
+    margin-top:2px; line-height:1.45; }
+  .pill { display:inline-block; font:700 10.5px var(--mono); letter-spacing:.05em;
+    text-transform:uppercase; border-radius:999px; padding:3px 9px; border:1px solid var(--border);
+    background:var(--surface-2); color:var(--ink-2); margin-left:6px; vertical-align:2px; }
+  .pill.hot { border-color:var(--danger); color:var(--danger); background:var(--danger-bg); }
+  .pill.mild { border-color:var(--s1); color:var(--s1); background:var(--soft); }
+  .layer { display:grid; gap:0; margin:12px 0 4px; border:2px solid var(--border);
+    border-radius:12px; overflow:hidden; }
+  .layer div { padding:11px 14px; font-size:14px; line-height:1.5; }
+  .layer .top { background:var(--soft); }
+  .layer .bot { background:var(--warn-bg); border-top:2px solid var(--border); }
+  .layer b { font-family:var(--head); }
+
 
   /* ============ Field Entry Kit v1.3.0 ============
      Large-target, high-contrast entry controls. Sizing is driven by --tap
@@ -375,6 +393,16 @@
   @media (max-width:420px){ :root { --tap:56px; --tap-sm:46px; } .fek-step .val { font-size:26px; } }
   @media print { .fek-step button, .fek-pick .search { display:none; } }
 
+  .rail { margin:26px 0 4px; }
+  .rail .rl { font-family:var(--mono); font-size:11px; letter-spacing:.14em; text-transform:uppercase; color:var(--muted); margin:0 2px 8px; }
+  .rail .chips { display:flex; flex-wrap:wrap; gap:8px; }
+  .rail a { display:inline-flex; align-items:center; gap:7px; text-decoration:none; font:700 13.5px var(--body);
+    color:var(--ink-2); background:var(--surface); border:1px solid var(--border); border-radius:999px;
+    padding:9px 15px; min-height:44px; box-shadow:var(--shadow); touch-action:manipulation; }
+  .rail a:hover { border-color:var(--s1); color:var(--s1); }
+  .rail a[aria-current="page"] { background:var(--soft); border-color:var(--s1); color:var(--s1); }
+  .rail a.ref { font-weight:600; color:var(--muted); background:none; box-shadow:none; }
+  @media print { .rail { display:none !important; } }
 
   /* WCAG 1.4.11 non-text contrast: the visible edge of a control you are meant
      to write in is the only thing telling you where to write, so it carries the
@@ -386,257 +414,135 @@
 <body>
 <div class="app">
   <div class="top">
-    <div class="brand">🧫 Micro <span>Bench</span></div>
+    <div class="brand">🧱 Grower's <span>Soil Recipes</span></div>
     <a href="ecology.html">part of the science kit →</a>
   </div>
 
-  <!-- ============ PLATES ============ -->
-  <section class="pane on" id="p-pl">
-    <h2>Plate counts</h2>
-    <p class="hint">Enter every plate you counted, including the ones that were unusable. Which plates you
-      discarded, and why, is part of the result.</p>
+  <h2>Four published recipes, transcribed and scalable</h2>
+  <p class="hint">Super Soil, TLO, Coot's and the BuildASoil mix &mdash; each with its author, its
+    source, its cook time and its own failure mode. Pick a batch size and the quantities scale.</p>
 
-    <div class="card">
-      <div id="plEntry"></div>
-      <div class="btn-row">
-        <label class="f">plate label<input type="text" id="plL" style="width:150px" placeholder="TSA-A" autocomplete="off"></label>
-        <button class="btn btn-soft" id="plAdd" type="button">Add plate</button>
-      </div>
-      <input type="hidden" id="plN"><input type="hidden" id="plV" value="0.1"><input type="hidden" id="plC">
-      <div class="rowlist" id="plList"></div>
-    </div>
-    <div class="card" id="plOut"></div>
-    <div class="card" id="plNote"></div>
-  </section>
+  <div class="refuse"><b>These are grower conventions, not agronomy.</b>
+    Every recipe here was published by a named grower on a forum or in a book, and every one is
+    widely used and widely reported to work. None of them rests on a soil test, a control or a
+    replicated trial, and the quantities differ between printings of the same recipe. They are
+    reproduced exactly as published, with the source linked, so you can go and read the argument
+    rather than take a number on trust. This page will not tell you which is best, because nothing
+    it has access to could answer that.</div>
 
-  <!-- ============ DILUTION ============ -->
-  <section class="pane" id="p-dil">
-    <h2>Dilution planner</h2>
-    <p class="hint">Work out which dilution will land in the countable window <em>before</em> you pour, not
-      after you have wasted a set of plates.</p>
-    <div class="card">
-      <div id="dilEntry"></div>
-      <input type="hidden" id="dEst"><input type="hidden" id="dVol" value="0.1">
-      <input type="hidden" id="dTr" value="1"><input type="hidden" id="dBl" value="9">
-      <div id="dilOut"></div>
-    </div>
-  </section>
-
-  <!-- ============ GROWTH ============ -->
-  <section class="pane" id="p-gr">
-    <h2>Growth curve</h2>
-    <p class="hint">Enter time and OD, then mark the points you judge to be in exponential phase. The fit
-      uses only those.</p>
-    <div class="card">
-      <div id="grEntry"></div>
-      <input type="hidden" id="grT"><input type="hidden" id="grO">
-      <div class="btn-row">
-        <button class="btn btn-soft" id="grAdd" type="button">Add reading</button>
-        <button class="btn btn-ghost" id="grClear" type="button">Clear</button>
-        <button class="btn btn-ghost" id="grDemo" type="button">Worked example</button>
-      </div>
-      <div class="rowlist" id="grList"></div>
-    </div>
-    <div class="card" id="grOut"></div>
-  </section>
-
-  <!-- ============ ZONES ============ -->
-  <section class="pane" id="p-zn">
-    <h2>Disc diffusion</h2>
-    <p class="hint">Measure the zone. Interpretation needs a breakpoint table, and this page will not invent
-      one &mdash; see below.</p>
-    <div class="card">
-      <div class="grid">
-        <label class="f">organism<input type="text" id="zOrg" placeholder="E. coli ATCC 25922" autocomplete="off"></label>
-        <label class="f">medium<input type="text" id="zMed" value="Mueller-Hinton" autocomplete="off"></label>
-      </div>
-      <div class="btn-row">
-        <label class="f">antimicrobial<input type="text" id="zDrug" style="width:150px" autocomplete="off"></label>
-        <label class="f">disc content<input type="text" id="zCont" style="width:110px" placeholder="30 µg" autocomplete="off"></label>
-      </div>
-      <div id="zEntry"></div>
-      <input type="hidden" id="zMm">
-      <div class="btn-row">
-        <button class="btn btn-soft" id="zAdd" type="button">Add zone</button>
-      </div>
-      <h3>Breakpoints — from your current table</h3>
-      <div id="bpEntry"></div>
-      <input type="hidden" id="zS"><input type="hidden" id="zR">
-      <label class="f" style="margin-bottom:14px">source &amp; year<input type="text" id="zSrc" placeholder="CLSI M100, 2026" autocomplete="off"></label>
-      <div class="rowlist" id="zList"></div>
-      <div id="zOut"></div>
-    </div>
-    <div class="card" id="zRefuse"></div>
-  </section>
-
-  <!-- ============ METHOD ============ -->
-  <section class="pane" id="p-met">
-    <h2>Method</h2>
-
-    <div class="card">
-      <h3 style="margin-top:0">What the entry layer records &mdash; and what it does not</h3>
-      <p>The controls are the shared <b>Field Entry Kit</b>, and this page splits its numbers the same way
-        Cell Bench does.</p>
-      <p><b>A stepper for a number you set; a field for a number you read.</b> The dilution exponent, the
-        plated volume, the transfer and diluent volumes are <em>settings</em> &mdash; you choose them, so
-        they get steppers you can hold to run. The colony count, the OD&#8326;&#8320;&#8320;, the zone
-        diameter and the breakpoints you copy out of a table are <em>readings</em> &mdash; they get plain
-        typed entries at full precision, with the decimal keypad and nothing rounded on the way in. An
-        OD of 0.482 is three taps, not four hundred and eighty-two.</p>
-      <p><b>Blank still means blank.</b> The dilution exponent starts unrecorded rather than at 10&#8304;,
-        because an undiluted plate is a real choice and an unfilled field is not. Tap once and it starts at
-        10&#8315;&#8309;, which is a plausible working dilution rather than a meaningless zero.</p>
-      <p><b>The breakpoint fields are typed for the same reason the page ships no breakpoints.</b> They are
-        transcribed from the edition in front of you, and the edition is recorded beside them. A control
-        that let you scroll to a number would invite you to guess at one.</p>
-    </div>
-
-    <div class="card">
-      <h3 style="margin-top:0">What a colony count actually counts</h3>
-      <div class="eq">CFU/mL = colonies ÷ (volume plated × dilution)</div>
-      <p class="fine">The unit is a <b>colony-forming unit</b>, and the name is the caveat. A CFU is whatever
-        gave rise to one colony. A chain of eight streptococci, a clump of staphylococci, a hypha &mdash; each
-        is one CFU. Plate counts therefore <b>underestimate cell number</b> by an amount that depends on how
-        clumpy the organism is, which is why vortexing and the diluent matter and why CFU/mL should never be
-        reported as "cells per mL".</p>
-      <p class="fine">The second and larger caveat: a plate count only sees what grows <b>on that medium, at
-        that temperature, in that atmosphere, in that time</b>. For an environmental sample the culturable
-        fraction is routinely a small percentage of the cells present — the great plate count anomaly, known
-        since the 1930s and confirmed by every sequencing survey since. A plate count of a soil or water
-        sample is a count of the organisms your conditions happened to suit. Say so.</p>
-    </div>
-
-    <div class="card">
-      <h3 style="margin-top:0">The 30&ndash;300 window</h3>
-      <p class="fine" style="margin-top:0">Only plates with roughly <b>30 to 300</b> colonies are counted.
-        Both ends are real:</p>
-      <ul style="font-size:13px;color:var(--muted);line-height:1.6;margin:0 0 10px;padding-left:20px">
-        <li><b>Below 30</b> the Poisson error is large. Counting is a Poisson process, so the coefficient of
-          variation is 1&nbsp;&divide;&nbsp;&radic;N: thirty colonies gives 1&nbsp;&divide;&nbsp;&radic;30
-          &asymp; 18%, ten gives 1&nbsp;&divide;&nbsp;&radic;10 &asymp; 32%. The plate is not wrong, it is
-          imprecise, and averaging several such plates is better than quoting one.</li>
-        <li><b>Above 300</b> colonies merge, crowd, and compete for nutrients, so you undercount by a growing
-          and unknowable amount. This is a <b>bias</b>, not noise, and more plates will not fix it.</li>
-      </ul>
-      <p class="fine">Plates outside the window are recorded as <b>TFTC</b> (too few to count) and <b>TNTC</b>
-        (too numerous to count) and excluded from the mean. This page shows them, marks them, and leaves them
-        out of the arithmetic rather than silently dropping them — a run where every plate was TNTC is a
-        result about your dilution series, and it should be visible.</p>
-      <p class="fine"><b>Whose window is it?</b> There is no single countable range, and it is worth
-        knowing that before someone tells you your plate was out of spec. FDA BAM and USP&nbsp;&lt;1227&gt;
-        both specify <b>25&ndash;250</b> for bacteria; USP drops to <b>8&ndash;80</b> for fungi; ASTM gives
-        <b>20&ndash;200</b> for spread plates and <b>30&ndash;300</b> for pour plates; Breed and Dotterrer,
-        who measured it in 1916, found 50&ndash;200 gave the most repeatable answers. This page uses
-        <b>30&ndash;300</b>, which is the general-purpose teaching convention, and it applies that one
-        window to both plating methods on this bench even though ASTM would narrow it for the spread
-        plate. That is a simplification, and it is a deliberate one rather than an oversight. If you are
-        working to a named standard, use its window and not ours &mdash; the reasoning above about Poisson
-        error below the floor and crowding bias above the ceiling holds whichever numbers you pick.</p>
-      <p class="fine">Where two adjacent dilutions are both countable, the convention is to use both and
-        average the computed CFU/mL. If they disagree by more than about a factor of two, something is wrong
-        with the series rather than with the organism, and the page says so.</p>
-    </div>
-
-    <div class="card">
-      <h3 style="margin-top:0">Growth rate from OD</h3>
-      <div class="eq">ln(OD) = ln(OD₀) + µt &nbsp;&nbsp;→&nbsp;&nbsp; µ = slope &nbsp;·&nbsp; t_d = ln2 / µ</div>
-      <p class="fine">Fitting a straight line to <b>ln(OD)</b> across the exponential phase gives the specific
-        growth rate µ in h⁻¹, and the doubling time follows. Two things to be honest about.</p>
-      <p class="fine"><b>OD is turbidity, not cells.</b> It measures light scattering, and the relationship
-        between scattering and cell number depends on cell size and shape — both of which change with growth
-        phase and medium. An OD-to-CFU conversion is specific to one strain on one instrument in one medium,
-        and it must be calibrated by you before it means anything. This page deliberately offers no such
-        conversion.</p>
-      <p class="fine"><b>OD saturates.</b> Above roughly OD 0.4&ndash;0.6 on a typical spectrophotometer,
-        multiple scattering makes the reading fall below linearity, so late points flatten for optical reasons
-        that have nothing to do with the culture. Including them drags µ down. Dilute before reading, or
-        exclude those points and say you did — which is why the phase selection here is manual rather than
-        automatic. Choosing the window is a scientific judgement and the page will not make it for you.</p>
-    </div>
-
-    <div class="card">
-      <h3 style="margin-top:0">Disc diffusion</h3>
-      <p class="fine" style="margin-top:0">Zone diameter is a measurement. <b>Susceptible / intermediate /
-        resistant is an interpretation</b>, and it comes from a breakpoint table that is specific to the
-        organism, the antimicrobial, the disc content, the medium and the method — and that is
-        <b>revised annually</b> by CLSI and EUCAST.</p>
-      <div class="refuse"><b>This page ships no breakpoints, and that is deliberate.</b>
-        A hard-coded table would be wrong within a year and dangerously wrong within a few, and software that
-        prints "susceptible" from a stale number is worse than software that prints nothing. Enter the
-        breakpoints from the table you are actually working to, and record which edition it was — the page
-        stores that alongside the result and puts it in the export. With no breakpoints entered you get the
-        measurement and nothing else, which is the honest output.</div>
-      <p class="fine">The method matters as much as the table: Mueller-Hinton at a controlled depth, a
-        0.5 McFarland inoculum within 15 minutes of preparation, discs applied within 15 minutes of
-        inoculation, 16&ndash;18 h at 35&nbsp;°C in air. Change any of those and the zone changes. A QC strain
-        run alongside is what tells you the method was in control on the day; a result from a run whose QC was
-        out of range is not a result.</p>
-    </div>
-
-    <div class="card">
-      <h3 style="margin-top:0">Controls</h3>
-      <p class="fine" style="margin-top:0">Every count needs an uninoculated control plate from the same
-        batch of medium, incubated alongside. It costs one plate and it is the only thing that distinguishes
-        "my sample contained these organisms" from "my medium did". If the negative control grows, the run is
-        void — not adjusted, void.</p>
-    </div>
-  </section>
-
-  <div class="rail">
-    <p class="rl">Record it — in the field</p>
-    <div class="chips">
-      <a href="field-notebook.html"><span>📓</span>Field Notebook</a>
-      <a href="ethogram.html"><span>🐾</span>Ethogram</a>
-      <a href="selection-log.html"><span>📏</span>Selection Log</a>
-      <a href="stand-sheet.html"><span>🌲</span>Stand Sheet</a>
-      <a href="releve.html"><span>🌾</span>Relevé</a>
-      <a href="collection-sheet.html"><span>🍄</span>Collection Sheet</a>
-      <a href="farm-scout.html"><span>🧑‍🌾</span>Farm Scout</a>
-      <a href="pheno-tracker.html"><span>🌱</span>Pheno Tracker</a>
-      <a href="deployment-log.html"><span>🎙️</span>Deployment Log</a>
-    </div>
-    <p class="rl" style="margin-top:16px">At the bench</p>
-    <div class="chips">
-      <a href="cp-bench.html"><span>🫙</span>CP Bench</a>
-      <a href="soil-bench.html"><span>🪱</span>Soil Bench</a>
-      <a href="breeding-bench.html"><span>🥕</span>Breeding Bench</a>
-      <a href="cell-bench.html"><span>🔬</span>Cell Bench</a>
-      <a href="micro-bench.html" aria-current="page"><span>🧫</span>Micro Bench</a>
-      <a href="soil-recipes.html"><span>🧱</span>Soil Recipes</a>
-    </div>
-    <p class="rl" style="margin-top:16px">Analyse it</p>
-    <div class="chips">
-      <a href="survey-design.html"><span>🧭</span>Survey Design</a>
-      <a href="ordination.html"><span>📉</span>Ordination</a>
-      <a href="food-web.html"><span>🕸️</span>Food Web Builder</a>
-      <a href="field-season.html"><span>🎯</span>Field Season</a>
-    </div>
-    <p class="rl" style="margin-top:16px">Print it</p>
-    <div class="chips">
-      <a href="plant-characters.html"><span>🌱</span>Plant Characters</a>
-      <a href="fungal-characters.html"><span>🔬</span>Fungal Characters</a>
-      <a href="cp-characters.html"><span>🪤</span>CP Characters</a>
-    </div>
-    <div class="chips" style="margin-top:16px">
-      <a class="ref" href="ecology.html">← kit hub</a>
-      <a class="ref" href="ecology-field-card.html">field card</a>
-      <a class="ref" href="ecology-glossary.html">glossary</a>
-    </div>
+  <div class="card">
+    <div id="recPick"></div>
+    <div id="recScale"></div>
+    <p class="fine" id="scaleNote" style="margin-top:2px"></p>
   </div>
+
+  <div id="recOut"></div>
+
+  <h2>What each amendment actually does</h2>
+  <div class="card">
+    <p class="fine" style="margin-top:0">The column that matters is <b>release speed</b>. It is why a
+      mix is left to cook, why blood meal burns a seedling and rock phosphate never does, and why a
+      run that goes hungry in week seven was usually built without anything slow in it.</p>
+    <div class="tw"><table class="ing" id="amendTable"></table></div>
+    <p class="fine"><b>The NPK figures are typical published ranges for the material, not
+      measurements of your bag.</b> Every one varies with source &mdash; published C:N for
+      &ldquo;leaves&rdquo; alone spans 40 to 90 &mdash; and a bag's own label beats this table every
+      time. Use the column to reason about direction, never as an input to a calculation.</p>
   </div>
+
+  <h2>Reading a recipe before you build it</h2>
+  <div class="card">
+    <h3 style="margin-top:0">Hot mixes and mild mixes are two different designs</h3>
+    <p class="fine" style="margin-top:0">Subcool's and the Rev's are <b>hot</b>: concentrated
+      amendment, banded or layered so the roots meet it on a schedule, and enough nitrogen in one
+      place to kill a seedling planted into it. Coot's and the BuildASoil mix are <b>mild</b>:
+      everything is dilute and even, the container is meant to be re-used, and feeding happens by
+      top-dressing later. Neither design is wrong. Mixing the two &mdash; a hot band under a mild
+      mix, or a mild mix fed as though it were hot &mdash; is where most of the trouble comes from.</p>
+
+    <h3>Cooking is not a ritual</h3>
+    <p class="fine" style="margin-top:0">The wait exists because the fast amendments have to be
+      converted by soil organisms before roots can use them, and because that conversion produces
+      ammonia and heat. Thirty days for Subcool's, fifteen for the Rev's, four to six weeks for
+      Coot's: those numbers come from the recipes themselves. Keep the pile damp, not wet. A mix that
+      smells of ammonia is not finished.</p>
+
+    <h3>Calcium is the amendment people double up on without noticing</h3>
+    <p class="fine" style="margin-top:0">Dolomite lime, agricultural lime, oyster shell flour and
+      gypsum all supply calcium, and three of the four also raise pH. Several of these recipes carry
+      two or three of them at once. Gypsum is the one that does not move pH. If you are working from
+      hard water, read the lime line of your recipe before you follow it.</p>
+
+    <h3>Where this page stops</h3>
+    <p class="fine" style="margin-top:0">It does not compute a C:N ratio, a nutrient total or a
+      predicted yield from these recipes. The published quantities are volumes and weights of
+      materials whose analyses vary by a factor of two, so any total computed from them would carry
+      an error bar wider than the answer. The
+      <a href="soil-bench.html">Soil Bench</a> will compute a C:N on dry mass if you have real
+      figures for your own ingredients, which is the only way that number means anything.</p>
+
+    <div class="warnbox"><b>Grow what is legal where you are.</b>
+      Cannabis law varies by country, state and municipality, and it changes. Nothing on this page is
+      advice about whether you may grow anything. Some amendments here &mdash; neem and karanja above
+      all &mdash; are regulated as pesticides in many jurisdictions regardless of what you grow.</div>
+  </div>
+
+  <h2>Take it home</h2>
+  <div class="card">
+    <pre class="export" id="recExport"># pick a recipe above — the shopping list appears here</pre>
+    <div class="btn-row">
+      <button class="btn btn-go" id="recCopy" type="button">Copy the list</button>
+      <button class="btn btn-ghost" onclick="window.print()" type="button">Print / save PDF</button>
+    </div>
+    <p class="fine">Sources are carried in the export, because a recipe without its provenance is how
+      the quantities drift between printings in the first place.</p>
+  </div>
+<div class="rail">
+  <p class="rl">Record it — in the field</p>
+  <div class="chips">
+    <a href="field-notebook.html"><span>📓</span>Field Notebook</a>
+    <a href="ethogram.html"><span>🐾</span>Ethogram</a>
+    <a href="selection-log.html"><span>📏</span>Selection Log</a>
+    <a href="stand-sheet.html"><span>🌲</span>Stand Sheet</a>
+    <a href="releve.html"><span>🌾</span>Relevé</a>
+    <a href="collection-sheet.html"><span>🍄</span>Collection Sheet</a>
+    <a href="farm-scout.html"><span>🧑‍🌾</span>Farm Scout</a>
+    <a href="pheno-tracker.html"><span>🌱</span>Pheno Tracker</a>
+    <a href="deployment-log.html"><span>🎙️</span>Deployment Log</a>
+  </div>
+  <p class="rl" style="margin-top:16px">At the bench</p>
+  <div class="chips">
+    <a href="cp-bench.html"><span>🫙</span>CP Bench</a>
+    <a href="soil-bench.html"><span>🪱</span>Soil Bench</a>
+    <a href="breeding-bench.html"><span>🥕</span>Breeding Bench</a>
+    <a href="cell-bench.html"><span>🔬</span>Cell Bench</a>
+    <a href="micro-bench.html"><span>🧫</span>Micro Bench</a>
+    <a href="soil-recipes.html" aria-current="page"><span>🧱</span>Soil Recipes</a>
+  </div>
+  <p class="rl" style="margin-top:16px">Analyse it</p>
+  <div class="chips">
+    <a href="survey-design.html"><span>🧭</span>Survey Design</a>
+    <a href="ordination.html"><span>📉</span>Ordination</a>
+    <a href="food-web.html"><span>🕸️</span>Food Web Builder</a>
+    <a href="field-season.html"><span>🎯</span>Field Season</a>
+  </div>
+  <p class="rl" style="margin-top:16px">Print it</p>
+  <div class="chips">
+    <a href="plant-characters.html"><span>🌱</span>Plant Characters</a>
+    <a href="fungal-characters.html"><span>🔬</span>Fungal Characters</a>
+    <a href="cp-characters.html"><span>🪤</span>CP Characters</a>
+  </div>
+  <div class="chips" style="margin-top:16px">
+    <a class="ref" href="ecology.html">← kit hub</a>
+    <a class="ref" href="ecology-field-card.html">field card</a>
+    <a class="ref" href="ecology-glossary.html">glossary</a>
   </div>
 </div>
+</div>
 
-<div class="tabbar"><div class="row">
-  <button class="tab on" data-pane="p-pl" type="button"><span class="ico">🧫</span>Plates</button>
-  <button class="tab" data-pane="p-dil" type="button"><span class="ico">💧</span>Dilution</button>
-  <button class="tab" data-pane="p-gr" type="button"><span class="ico">📈</span>Growth</button>
-  <button class="tab" data-pane="p-zn" type="button"><span class="ico">⭕</span>Zones</button>
-  <button class="tab" data-pane="p-met" type="button"><span class="ico">📖</span>Method</button>
-</div></div>
 <div class="toast" id="toast">Saved</div>
-<script>
 
+<script>
 /* ---- Field Entry Kit v1.3.0 : constructors return {el, get, set} ---- */
 var FEK = (function(){
   function el(t,c,h){ var e=document.createElement(t); if(c) e.className=c;
@@ -889,333 +795,354 @@ var FEK = (function(){
   return { version:"1.3.0", esc:escv, setField:setField, fields:fields, step:step, field:field, dial:dial, chips:chips, slider:slider,
            picker:picker, tiles:tiles, banner:banner, mount:mount, buzz:buzz };
 })();
+</script>
+<script>
+/* ---------------------------------------------------------------------------
+   Four grower soil recipes, transcribed from their published sources.
 
+   PROVENANCE MATTERS MORE THAN USUAL HERE. None of these is an agronomic
+   standard. They are recipes published by named growers on forums and in
+   books, they are widely copied, and they work for the people using them --
+   but the quantities carry no soil test, no replication and no control. Every
+   one is reproduced with its author and a link, and none of the numbers were
+   adjusted, rounded or "improved" in transcription. Where a source gives a
+   range ("25 to 50 lbs"), the range is kept.
+
+   The scaler multiplies. It does not convert between recipes, because the
+   recipes do not share a denominator: Subcool's is stated per 8 bags of
+   potting soil, Coot's and BuildASoil's per cubic foot, the Rev's per
+   8-gallon batch. Normalising them all to one unit would mean inventing a bag
+   volume nobody stated. See the note under the scaler.
+--------------------------------------------------------------------------- */
+var RECIPES = [
+{
+  id:"subcool", name:"Subcool's Super Soil", icon:"🧱",
+  who:"SubCool / TGA Genetics. Published in High Times and reproduced across the grow forums.",
+  url:"https://hightimes.com/news/subcools-super-soil-step-by-step/",
+  urlLabel:"High Times — Subcool's Super Soil, step by step",
+  strength:"hot",
+  batch:"one full batch — 8 bags of base soil, roughly 12 cu ft / 90 US gal once mixed",
+  batchNote:"The source says “8 large bags” without naming a bag size. At the usual 1.5 cu ft that is about 12 cu ft; at 2 cu ft it is 16. The volume is an estimate, the ingredient weights are not.",
+  base:[
+    ["8 bags", "high-quality organic potting soil with coco fibre and mycorrhizae", 8, "bags"]
+  ],
+  items:[
+    ["25–50 lb", "organic worm castings", 25, "lb", "The source gives a range. Buy pure castings — it warns specifically against “soil conditioner with worm casting” blends.", 50],
+    ["5 lb", "steamed bone meal", 5, "lb", "P and Ca, slow. Steamed rather than raw."],
+    ["5 lb", "Bloom bat guano", 5, "lb", "The high-P guano, not the high-N one."],
+    ["5 lb", "blood meal", 5, "lb", "The hottest thing in the mix and the usual cause of a burn."],
+    ["3 lb", "rock phosphate", 3, "lb", "Very slow P. Years, not weeks."],
+    ["¾ cup", "Epsom salts", 0.75, "cup", "Mg and S."],
+    ["½–1 cup", "sweet lime (dolomite)", 0.5, "cup", "Ca, Mg and pH buffer. High Times gives ½ cup; other printings give up to 1.", 1],
+    ["½ cup", "azomite", 0.5, "cup", "Trace elements."],
+    ["2 tbsp", "powdered humic acid", 2, "tbsp", ""]
+  ],
+  cook:"Mix hard for about 15 minutes, breaking every clod. Fill large bins, add about 3 gallons of water per bin to wake the mycorrhizae, and leave it 30 days.",
+  layer:{top:"<b>Top half to three-quarters — plain base soil.</b> The plant lives here for the first weeks and its roots reach down as it grows.",
+         bot:"<b>Bottom quarter to half — Super Soil concentrate</b>, blended with base soil. Heavy feeders can go up to ¾."},
+  warn:"Do not put seeds or clones straight into the concentrate. It is a concentrate, not a potting mix, and it will burn them. Transplant fully rooted, established clones into the plain soil above it."
+},
+{
+  id:"rev", name:"The Rev's TLO mix", icon:"📕",
+  who:"The Rev, True Living Organics. Recipe as circulated by growers working from the book.",
+  url:"https://buildasoil.com/blogs/news/9885098-why-tlo-dissecting-the-rev-mix-line-by-line",
+  urlLabel:"BuildASoil — dissecting the Rev mix line by line",
+  strength:"hot",
+  batch:"one 8-gallon batch (about 1 cu ft)",
+  batchNote:"The base is stated as four 2-gallon parts, so the batch size is unambiguous — unusually for this genre.",
+  base:[
+    ["2 gal", "quality organic soil mix", 2, "gal"],
+    ["2 gal", "coir, thoroughly rinsed", 2, "gal"],
+    ["2 gal", "perlite, small nugget", 2, "gal"],
+    ["2 gal", "earthworm castings and/or fresh compost", 2, "gal"]
+  ],
+  items:[
+    ["1½ cup", "Organicare Grow or Bloom “Pure”", 1.5, "cup", "A blended product: fish meal, crab meal, sulfate of potash, alfalfa, composted poultry litter, seaweed. Any comparable dry organic base will stand in."],
+    ["½ cup", "greensand", 0.5, "cup", "K and trace minerals, released over years."],
+    ["¾ cup", "ground oyster shell", 0.75, "cup", "Ca, slow."],
+    ["½ cup", "dolomite lime, powdered", 0.5, "cup", ""],
+    ["1 cup", "prilled fast-acting dolomite lime", 1, "cup", ""],
+    ["¼ cup", "blood meal", 0.25, "cup", ""],
+    ["¼ cup", "feather meal", 0.25, "cup", "Slow N — months."],
+    ["1 cup", "bone meal, un-steamed granular", 1, "cup", ""],
+    ["½ cup", "bulb food", 0.5, "cup", "A garden-centre P-heavy blend; analysis varies by brand."],
+    ["¼ cup", "soft rock phosphate, powdered", 0.25, "cup", ""],
+    ["½ cup", "gypsum, powdered", 0.5, "cup", "Ca and S without moving pH."],
+    ["½ cup", "kelp meal", 0.5, "cup", "Trace minerals and growth regulators."],
+    ["4 cups", "composted steer manure", 4, "cup", ""],
+    ["½ cup", "azomite, granular", 0.5, "cup", ""],
+    ["1 cup", "humic acid ore, granular", 1, "cup", ""],
+    ["1 cup", "alfalfa meal", 1, "cup", "Carries triacontanol."],
+    ["1 heaping cup", "organic rice", 1, "cup", "Uncooked. It is food for the soil life, not for the plant."]
+  ],
+  cook:"Moisten with chlorine-free water and turn it every few days for about 15 days before use.",
+  layer:{top:"<b>Most of the container — the mix above.</b>",
+         bot:"<b>Spikes and layers.</b> The method puts concentrated amendment in bands the roots reach later, rather than mixing everything evenly. The book is the source for the placement; the recipe above is the mix itself."},
+  warn:"Two dolomite products and oyster shell in one 8-gallon batch is a lot of calcium carbonate. If your water is already hard, this mix is a common cause of a locked-out, high-pH root zone."
+},
+{
+  id:"coot", name:"Clackamas Coot's mix", icon:"🌿",
+  who:"Clackamas Coot. The reference recipe for the no-till / living-soil side of the hobby.",
+  url:"https://growingorganic.com/soil-guide/coots-soil-mix/",
+  urlLabel:"Growing Organic — Coot's soil mix",
+  strength:"mild",
+  batch:"per cubic foot of finished mix",
+  batchNote:"Stated per cubic foot, so this one scales cleanly. A 15-gallon batch is about 2 cu ft — 5 gallons each of peat, compost and aeration.",
+  base:[
+    ["⅓", "sphagnum peat moss", 1, "part"],
+    ["⅓", "compost or worm castings", 1, "part"],
+    ["⅓", "aeration — pumice, lava rock or rice hulls", 1, "part"]
+  ],
+  items:[
+    ["1 cup", "kelp meal", 1, "cup", ""],
+    ["½ cup", "neem seed meal", 0.5, "cup", ""],
+    ["½ cup", "karanja meal", 0.5, "cup", ""],
+    ["½–1 cup", "flax seed meal", 0.5, "cup", "", 1],
+    ["1 cup", "fine agricultural lime", 1, "cup", ""],
+    ["½ cup", "gypsum", 0.5, "cup", ""],
+    ["3–4 cups", "rock dust", 3, "cup", "Commonly basalt or glacial rock dust, sometimes blended in equal parts with gypsum and oyster shell flour.", 4]
+  ],
+  cook:"Four to six weeks, kept damp. Some growers then top-dress a quarter cup of freshly ground malted barley a week from week three.",
+  layer:{top:"<b>No layering.</b> The whole container is one mix; the point of the approach is that the container is re-used and improved rather than rebuilt.",
+         bot:"<b>Feeding is by top-dress and mulch</b>, not by a hot band at the bottom."},
+  warn:"The recipe leans entirely on the compost. The sources are unanimous that poor compost sinks the whole mix, and that is the ingredient hardest to judge by eye."
+},
+{
+  id:"bas", name:"BuildASoil living soil", icon:"🪴",
+  who:"BuildASoil. A commercial simplification of the Coot lineage, published as a recipe.",
+  url:"https://buildasoil.com/blogs/news/living-soil-ingredients-and-recipe",
+  urlLabel:"BuildASoil — living soil ingredients and recipe",
+  strength:"mild",
+  batch:"per cubic foot of finished mix",
+  batchNote:"",
+  base:[
+    ["⅓", "sphagnum peat moss", 1, "part"],
+    ["⅓", "compost", 1, "part"],
+    ["⅓", "aeration — rice hulls and pumice", 1, "part"]
+  ],
+  items:[
+    ["½ cup", "kelp meal", 0.5, "cup", ""],
+    ["½ cup", "neem cake", 0.5, "cup", ""],
+    ["½ cup", "crustacean meal", 0.5, "cup", "Chitin. The claimed reason for it is that it feeds chitin-digesting organisms."],
+    ["2 cups", "basalt rock dust", 2, "cup", ""],
+    ["1 cup", "oyster shell flour", 1, "cup", ""],
+    ["1 cup", "gypsum", 1, "cup", ""],
+    ["5% by volume", "biochar, pre-charged", 5, "pct", "Uncharged biochar adsorbs nutrients out of a new mix before it releases any."]
+  ],
+  cook:"The source gives no cook time. Growers working this recipe generally give it two to four weeks damp.",
+  layer:{top:"<b>No layering</b> — same approach as Coot's.",
+         bot:"<b>Top-dress and mulch</b> between runs."},
+  warn:"Three calcium sources at once — oyster shell, gypsum and whatever the compost carries. Gypsum does not move pH; oyster shell does."
+}
+];
+
+/* Amendment reference. NPK figures are TYPICAL PUBLISHED RANGES for the
+   material, not measurements of any particular bag: every one of these varies
+   with source, and a bag's own label beats this table every time. Release
+   speed is the practically useful column and the reason a mix "cooks". */
+var AMEND = [
+  ["blood meal",            "12-0-0",            "moderate, 1–4 months", "The usual cause of a burn in a hot mix."],
+  ["feather meal",          "7-12-0",            "slow, 4+ months",           "N that arrives late in the run."],
+  ["fish meal",             "4-2-2 to 9-7-0",    "moderate, 1–4 months", ""],
+  ["alfalfa meal",          "2-1-2",             "moderate, 1–4 months", "Carries triacontanol."],
+  ["cottonseed meal",       "6-0.4-1.5",         "moderate, 1–4 months", "Acidifying."],
+  ["bat guano, high-N",     "10-3-1",            "moderate, 1–4 months", ""],
+  ["bat guano, high-P",     "3-10-1",            "moderate, 1–4 months", "The “bloom” guano in Subcool's mix."],
+  ["bone meal",             "1-11-0 to 3-15-0",  "slow, 6–12 months",    "P and Ca."],
+  ["soft/colloidal rock phosphate", "0-2-0",     "slow, ~2 years",            "Low soluble P; a long-term reserve."],
+  ["rock phosphate",        "0-3-0",             "slow, 3–5 years",      ""],
+  ["kelp meal",             "1-0.5-2.5",         "moderate",                  "Trace minerals; the reason it is in nearly every recipe."],
+  ["greensand",             "0-0-1",             "very slow, ~10 years",      "A mineral reserve, not a fertiliser."],
+  ["granite meal",          "1-0-4",             "slow",                      ""],
+  ["worm castings",         "0.5-0.5-0.3",       "moderate",                  "Biology and structure more than NPK."],
+  ["compost",               "0.5-0.5-0.5 to 4-4-4", "moderate",               "The widest range on this table by far."],
+  ["gypsum",                "0-0-0",             "moderate",                  "Pure CaSO₄·2H₂O is 40.1 ÷ 172.2 = 23% Ca and 32.1 ÷ 172.2 = 19% S by mass; agricultural gypsum runs a little under that, about 22% Ca and 17% S. Does not move pH."],
+  ["dolomite lime",         "0-0-0",             "slow",                      "Ca and Mg; raises pH. Two sources of it in one mix is a common mistake."],
+  ["oyster shell flour",    "0-0-0",             "slow",                      "Ca; raises pH."],
+  ["azomite / rock dust",   "trace",             "very slow",                 "Trace elements. Claims made for rock dust run well ahead of the evidence."],
+  ["neem / karanja meal",   "~6-1-2",            "moderate",                  "Also used for pest pressure; that use is regulated in many places."],
+  ["crustacean meal",       "~5-3-0",            "moderate",                  "Chitin plus calcium."]
+];
 </script>
 <script>
 (function(){
   "use strict";
   var $=function(i){return document.getElementById(i);};
-  var val=function(i){var e=$(i);return e?String(e.value||"").trim():"";};
-  var nv=function(i){var e=$(i);var v=parseFloat(e&&e.value);return isFinite(v)?v:NaN;};
+  var esc=FEK.esc;
+  var tt; function toast(m){ var t=$("toast"); t.textContent=m; t.classList.add("on");
+    clearTimeout(tt); tt=setTimeout(function(){ t.classList.remove("on"); },1700); }
 
-  /* ---------------- Field Entry Kit ----------------
-     Same rule as Cell Bench: a stepper for a number you SET, a field for a
-     number you READ. A dilution exponent, a plated volume, a transfer volume
-     are settings — steppers. A colony count, an OD600, a zone diameter, a
-     breakpoint copied out of a table are readings — typed fields, at full
-     precision, with nothing rounded on the way in.
-     Everything writes through to the hidden field nv() already reads, so an
-     untouched entry stays NaN rather than reading as a recorded zero. */
-  function push(id,v){
-    var e=$(id); if(!e) return;
-    e.value=(v==null?"":String(v));
-    e.dispatchEvent(new Event("input",{bubbles:true}));
-    e.dispatchEvent(new Event("change",{bubbles:true}));
+  var cur=RECIPES[0], mult=1;
+
+  /* Quantities are scaled and then written in a form a person can measure.
+     0.375 cup is not a measurement anybody can make; 6 tbsp is. */
+  function fmtCup(c){
+    if(c<=0) return "0";
+    var tbsp=c*16;
+    if(tbsp < 1) return fmtTbsp(tbsp);
+    if(c < 1)    return round1(tbsp)+" tbsp";
+    return round1(c)+" cup"+(c>=2?"s":"");
+  }
+  /* A quarter of "2 tbsp" is half a tablespoon, which no measuring spoon has.
+     Below one tablespoon the answer belongs in teaspoons. */
+  function fmtTbsp(t){
+    if(t < 1) return round1(t*3)+" tsp";
+    return round1(t)+" tbsp";
+  }
+  function round1(x){ return (Math.round(x*10)/10).toString(); }
+  /* At 1x the page must read EXACTLY as the source printed it. Converting
+     "3/4 cup" into "12 tbsp" is arithmetically fine and editorially wrong: a
+     reader comparing this page against the original would find a number that
+     is not in it, and the whole point of transcribing a recipe is that it
+     matches. Conversion is for scaled values only, where the published wording
+     no longer applies anyway. */
+  /* A published RANGE has to stay a range after scaling. Showing only the low
+     end of "25-50 lb" as "6.3 lb" silently halves the recipe and reads like a
+     precise figure the source never gave. Both ends scale, or neither does. */
+  function scaleQty(n, unit, published, hi){
+    if(mult===1 && published) return published;
+    if(hi != null){
+      var a=scaleOne(n, unit), b=scaleOne(hi, unit);
+      /* "cup" and "cups" are the same unit; comparing the raw strings printed
+         "1 cup–2 cups". Singular/plural is stripped before the comparison. */
+      var ua=a.replace(/^[\d.]+\s*/,"").replace(/s$/,""),
+          ub=b.replace(/^[\d.]+\s*/,"").replace(/s$/,"");
+      /* "6.3 lb–12.5 lb" is noise; drop the first unit only when both agree.
+         When scaling pushes the two ends into different units (3 tsp–1.5 tbsp)
+         both have to be shown or the reader is misled. */
+      return ua===ub ? a.replace(/\s*[a-z]+s?$/i,"")+"–"+b : a+"–"+b;
+    }
+    return scaleOne(n, unit);
+  }
+  function scaleOne(n, unit){
+    var v=n*mult;
+    if(unit==="cup")  return fmtCup(v);
+    if(unit==="tbsp") return fmtTbsp(v);
+    if(unit==="lb")   return round1(v)+" lb";
+    if(unit==="gal")  return round1(v)+" gal";
+    if(unit==="bags") return round1(v)+" bag"+(v>=2?"s":"");
+    if(unit==="part") return "1 part";
+    if(unit==="pct")  return v.toFixed(0)+"% by volume";
+    return round1(v)+" "+unit;
   }
 
-  var PLN=FEK.step({ field:"plN", label:"dilution", unit:"10⁻ⁿ", min:0, max:12, step:1, dec:0,
-    nullable:true, start:5,
-    onchange:function(v){ push("plN",v); },
-    help:"The exponent, not the factor: 5 means the 10⁻⁵ tube." });
-  var PLV=FEK.step({ field:"plV", label:"volume plated", unit:"mL", value:0.1, min:0.001, max:10, step:0.05, dec:3,
-    onchange:function(v){ push("plV",v); },
-    help:"0.1 mL spread, 1.0 mL pour. The volume is in the denominator, so getting it wrong scales every count." });
-  var PLC=FEK.field({ field:"plC", label:"colonies", dec:0, step:1, min:0,
-    onchange:function(v){ push("plC",v); },
-    help:"What you counted, including a plate you are about to discard — which plates you threw out, and why, is part of the result." });
-  FEK.mount("plEntry",[PLN,PLV,PLC]);
+  function pickUI(){
+    var pk=FEK.dial({label:"Recipe", clearable:false, value:cur.id,
+      options:RECIPES.map(function(r){
+        return {value:r.id, label:r.icon+" "+r.name,
+                sub:(r.strength==="hot"?"hot / layered":"mild / even"),
+                ramp:(r.strength==="hot"?4:2)}; }),
+      help:"Four published recipes. Each opens with its author and a link to the source it was transcribed from.",
+      onchange:function(v){ if(v==null) return;
+        cur=RECIPES.filter(function(r){return r.id===v;})[0]; render(); }});
+    FEK.mount("recPick",[pk]);
+  }
+  function scaleUI(){
+    var s=FEK.dial({label:"Batch", clearable:false, value:1,
+      options:[{value:0.25,label:"¼",sub:"quarter",ramp:0},
+               {value:0.5, label:"½",sub:"half",   ramp:1},
+               {value:1,   label:"1×",sub:"as published",ramp:2},
+               {value:2,   label:"2×",sub:"double",ramp:3},
+               {value:4,   label:"4×",sub:"quadruple",ramp:4}],
+      help:"Multiplies every quantity. It does not convert between recipes — see the note below.",
+      onchange:function(v){ if(v==null) return; mult=v; render(); }});
+    FEK.mount("recScale",[s]);
+  }
 
-  var DEST=FEK.field({ field:"dEst", label:"estimated titre", unit:"CFU/mL", dec:0, step:1000, min:0,
-    onchange:function(v){ push("dEst",v); },
-    help:"A guess is fine — that is the point of planning the series before you pour." });
-  var DVOL=FEK.step({ field:"dVol", label:"volume plated", unit:"mL", value:0.1, min:0.001, max:10, step:0.05, dec:3,
-    onchange:function(v){ push("dVol",v); } });
-  var DTR=FEK.step({ field:"dTr", label:"transfer volume", unit:"mL", value:1, min:0.01, max:100, step:0.5, dec:2,
-    onchange:function(v){ push("dTr",v); } });
-  var DBL=FEK.step({ field:"dBl", label:"diluent volume", unit:"mL", value:9, min:0.01, max:1000, step:0.5, dec:2,
-    onchange:function(v){ push("dBl",v); },
-    help:"1 into 9 is a ten-fold step. 1 into 99 is a hundred-fold — fewer tubes, and fewer chances to pipette wrong." });
-  FEK.mount("dilEntry",[DEST,DVOL,DTR,DBL]);
-
-  var GRT=FEK.field({ field:"grT", label:"time", unit:"h", dec:2, step:0.1, min:0,
-    onchange:function(v){ push("grT",v); } });
-  var GRO=FEK.field({ field:"grO", label:"OD₆₀₀", unit:"AU", dec:3, step:0.001, min:0, max:5,
-    onchange:function(v){ push("grO",v); },
-    help:"As the spectrophotometer reads it. Above about 0.8 the relationship with cell number stops being linear — the Method tab has the detail." });
-  FEK.mount("grEntry",[GRT,GRO]);
-
-  var ZMM=FEK.field({ field:"zMm", label:"zone diameter", unit:"mm", dec:1, step:0.5, min:0,
-    onchange:function(v){ push("zMm",v); },
-    help:"Including the disc, measured across the whole zone of inhibition." });
-  FEK.mount("zEntry",[ZMM]);
-
-  var ZS=FEK.field({ field:"zS", label:"susceptible if ≥", unit:"mm", dec:1, step:0.5, min:0,
-    onchange:function(v){ push("zS",v); } });
-  var ZR=FEK.field({ field:"zR", label:"resistant if ≤", unit:"mm", dec:1, step:0.5, min:0,
-    onchange:function(v){ push("zR",v); },
-    help:"Copied from the table in front of you, not remembered. These are typed fields for the same reason the page ships no breakpoints of its own." });
-  FEK.mount("bpEntry",[ZS,ZR]);
-  function esc(s){return String(s==null?"":s).replace(/[&<>"]/g,function(c){
-    return {"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;"}[c];});}
-  function buzz(m){try{if(navigator.vibrate)navigator.vibrate(m||8);}catch(e){}}
-  var tt;function toast(m){var t=$("toast");t.textContent=m;t.classList.add("on");
-    clearTimeout(tt);tt=setTimeout(function(){t.classList.remove("on");},1700);}
-  function f(x,d){return isFinite(x)?x.toFixed(d==null?2:d):"—";}
-  function sup(n){return String(n).replace(/[-0-9]/g,function(c){
-    return {"-":"⁻","0":"⁰","1":"¹","2":"²","3":"³","4":"⁴","5":"⁵","6":"⁶","7":"⁷","8":"⁸","9":"⁹"}[c];});}
-  function sci(x){ if(!isFinite(x))return "—"; if(x===0)return "0";
-    var e=Math.floor(Math.log10(Math.abs(x))),m=x/Math.pow(10,e);
-    return m.toFixed(2)+"×10"+sup(e); }
-  function st(v,l,c){return '<div class="st'+(c?" "+c:"")+'"><div class="v">'+v+'</div><div class="l">'+l+'</div></div>';}
-
-  /* --------------------------------------------------------------- plates */
-  var plates=[];
-  $("plAdd").addEventListener("click",function(){
-    var n=nv("plN"), v=nv("plV"), c=nv("plC");
-    if(!isFinite(n)||!isFinite(v)||!isFinite(c)||v<=0){toast("Need dilution, volume and colonies");return;}
-    plates.push({n:n,v:v,c:c,label:val("plL")});
-    PLC.clear(); push("plC",null); $("plL").value="";
-    renderPl(); buzz(12);
-  });
-  function cfu(p){ return p.c/(p.v*Math.pow(10,-p.n)); }
-  function statusOf(p){ return p.c<30?"TFTC":(p.c>300?"TNTC":"countable"); }
-  function renderPl(){
-    var box=$("plList");
-    if(!plates.length){ box.innerHTML='<p class="fine" style="margin:0">No plates yet.</p>';
-      $("plOut").innerHTML=""; $("plNote").innerHTML=""; return; }
-    box.innerHTML=plates.map(function(p,i){
-      var s=statusOf(p);
-      return '<div class="row2'+(s!=="countable"?' inv':'')+'"><div class="g"><b>'+
-        esc(p.label||("10"+sup(-p.n)))+'</b><span>10'+sup(-p.n)+' · '+f(p.v,2)+' mL · '+
-        p.c+' colonies · <b>'+s+'</b></span></div><span class="cov">'+
-        (s==="countable"?sci(cfu(p)):"—")+'</span>'+
-        '<button type="button" data-i="'+i+'">✕</button></div>';
+  function rows(list, cls){
+    return list.map(function(it){
+      var qty = it.length>=4 ? scaleQty(it[2], it[3], it[0], it[5]) : it[0];
+      var note = (it.length>4 && it[4]) ? '<small>'+esc(it[4])+'</small>' : "";
+      return '<tr'+(cls?' class="'+cls+'"':"")+'><td class="q">'+esc(qty)+'</td>'+
+             '<td>'+esc(it[1])+note+'</td></tr>';
     }).join("");
-    Array.prototype.forEach.call(box.querySelectorAll("button[data-i]"),function(b){
-      b.addEventListener("click",function(){ plates.splice(+b.getAttribute("data-i"),1); renderPl(); });
-    });
-
-    var good=plates.filter(function(p){return statusOf(p)==="countable";});
-    var o=$("plOut");
-    if(!good.length){
-      o.innerHTML='<h3 style="margin-top:0">Result</h3><div class="refuse"><b>No countable plate.</b> '+
-        'Every plate is outside the 30–300 window, so there is no defensible CFU/mL from this run. '+
-        (plates.every(function(p){return p.c>300;})
-          ? 'All plates are TNTC — the dilution series did not go far enough. Extend it by two or three more steps.'
-          : (plates.every(function(p){return p.c<30;})
-             ? 'All plates are TFTC — the series went too far, or the sample is more dilute than you expected. Plate a lower dilution.'
-             : 'Plate the dilutions between the ones that were too crowded and too sparse.'))+
-        ' Report the run as it happened rather than quoting a number from an out-of-range plate.</div>';
-      $("plNote").innerHTML=""; return;
-    }
-    var vals=good.map(cfu);
-    var mean=vals.reduce(function(a,b){return a+b;},0)/vals.length;
-    var lo=Math.min.apply(null,vals), hi=Math.max.apply(null,vals);
-    var totCol=good.reduce(function(a,p){return a+p.c;},0);
-    var cv=100/Math.sqrt(totCol);
-    var h='<h3 style="margin-top:0">Result</h3><div class="stat">'+
-      st(sci(mean),"CFU/mL (mean of countable)","hi")+
-      st(good.length+" / "+plates.length,"countable plates")+
-      st(totCol,"colonies counted")+
-      st("±"+f(cv,1)+"%","Poisson CV", cv>18?"warnv":"")+'</div>';
-    h+='<div class="tw"><table><tr><th>plate</th><th class="n">dilution</th><th class="n">colonies</th>'+
-       '<th class="n">status</th><th class="n">CFU/mL</th></tr>';
-    plates.forEach(function(p){
-      var s=statusOf(p);
-      h+='<tr><td>'+esc(p.label||"—")+'</td><td class="n">10'+sup(-p.n)+'</td><td class="n">'+p.c+
-         '</td><td class="'+(s==="countable"?"ok":"no")+'">'+s+'</td><td class="n">'+
-         (s==="countable"?sci(cfu(p)):"excluded")+'</td></tr>';
-    });
-    h+='</table></div>';
-    o.innerHTML=h;
-
-    var a=[];
-    if(plates.length>good.length) a.push('<div class="verdict warn"><b>'+(plates.length-good.length)+
-      ' plate'+(plates.length-good.length===1?"":"s")+' excluded.</b> TFTC and TNTC plates are shown above and '+
-      'left out of the mean rather than dropped silently — which plates you discarded is part of the record.</div>');
-    if(hi/lo>2) a.push('<div class="warnbox"><b>Countable plates disagree by '+f(hi/lo,1)+'×.</b> '+
-      'Adjacent dilutions should give CFU/mL within about a factor of two of each other. A larger spread '+
-      'points at the dilution series — incomplete mixing between steps, a pipetting error, or carry-over — '+
-      'rather than at the organism. Repeat the series before reporting the mean.</div>');
-    if(totCol<30) a.push('<div class="verdict warn"><b>Only '+totCol+' colonies counted in total.</b> '+
-      'Poisson precision is ±'+f(cv,1)+'%. Count more plates at the countable dilution.</div>');
-    a.push('<div class="verdict"><b>This is CFU/mL, not cells/mL.</b> A chain, a clump or a hypha gives one '+
-      'colony, so the figure underestimates cell number by an amount set by how clumpy the organism is. '+
-      'For an environmental sample it also counts only what grows on this medium under these conditions, '+
-      'which is typically a small fraction of what is present.</div>');
-    $("plNote").innerHTML=a.join("");
   }
 
-  /* ------------------------------------------------------------ dilution */
-  function dil(){
-    var est=nv("dEst"), vol=nv("dVol"), tr=nv("dTr"), bl=nv("dBl"), o=$("dilOut");
-    if(!isFinite(est)||est<=0||!isFinite(vol)||vol<=0||!isFinite(tr)||tr<=0||!isFinite(bl)){ o.innerHTML=""; return; }
-    var step=tr/(tr+bl);
-    var perStep=-Math.log10(step);
-    var rows=[], conc=est, k=0, best=null;
-    while(k<=12){
-      var expected=conc*vol;
-      rows.push({k:k,conc:conc,exp:expected});
-      if(expected>=30&&expected<=300&&!best) best=k;
-      conc*=step; k++;
-    }
-    var h='<div class="stat">'+st("1:"+f((tr+bl)/tr,0),"each step")+
-      st(f(perStep,2),"log₁₀ per step")+
-      st(best==null?"none":("step "+best),"lands in 30–300", best==null?"bad":"hi")+'</div>';
-    h+='<div class="tw"><table><tr><th>step</th><th class="n">dilution</th><th class="n">CFU/mL</th>'+
-       '<th class="n">expected colonies</th><th class="n">plate it?</th></tr>';
-    rows.forEach(function(r){
-      var ok=r.exp>=30&&r.exp<=300;
-      h+='<tr><td>'+r.k+'</td><td class="n">10'+sup(-Math.round(r.k*perStep))+'</td><td class="n">'+
-         sci(r.conc)+'</td><td class="n">'+f(r.exp,0)+'</td><td class="'+(ok?"ok":"no")+'">'+
-         (ok?"yes":(r.exp>300?"too many":"too few"))+'</td></tr>';
-    });
-    h+='</table></div>';
-    if(best==null) h+='<div class="warnbox"><b>No step lands in the window.</b> With '+f(vol,2)+' mL plated '+
-      'and this dilution factor, no step gives 30–300 colonies. Change the plated volume, or use a smaller '+
-      'dilution factor per step so the series has finer resolution.</div>';
-    else h+='<div class="verdict"><b>Plate step '+best+' — and step '+(best+1)+' as well.</b> '+
-      'Plating two adjacent dilutions is what lets you notice a series that has gone wrong: if the two '+
-      'computed CFU/mL disagree by more than about twofold, the problem is the dilutions, not the sample. '+
-      'The estimate above is only as good as your guess at the titre, so bracket it.</div>';
-    o.innerHTML=h;
+  function render(){
+    var r=cur;
+    var pill = r.strength==="hot"
+      ? '<span class="pill hot">hot &middot; layered</span>'
+      : '<span class="pill mild">mild &middot; even</span>';
+    var h='<div class="rec">'
+      +'<h3>'+esc(r.icon+" "+r.name)+pill+'</h3>'
+      /* The source link is set as a DOM property below rather than concatenated
+         into the href here. These URLs are page constants so nothing could be
+         injected through them, but an href built by string concatenation is the
+         shape that carries the risk, and the kit's own link checker cannot tell
+         a JS template apart from markup -- it read "'+esc(r.url)+'" as a
+         relative path and reported a dead link. Both problems go away at once. */
+      +'<p class="who">'+esc(r.who)+' &middot; <a id="recSrc"></a></p>'
+      +'<div class="tw"><table class="ing">'
+      +'<tr><th>amount</th><th>ingredient</th></tr>'
+      + rows(r.base,"base") + rows(r.items)
+      +'</table></div>'
+      +'<p class="fine"><b>Batch:</b> '+esc(r.batch)
+      + (mult!==1 ? ' &mdash; shown at <b>'+ (mult<1 ? (mult===0.25?"¼":"½") : mult+"×") +'</b>' : "")
+      + (r.batchNote ? ' '+esc(r.batchNote) : "") + '</p>'
+      /* The cook time is transcribed from the source shown above, but the
+         claims finder cannot see a citation that far up the card -- and
+         widening the finder to make its count fall is the error ADR-041 is
+         about. Saying what the number IS costs one clause and is true: these
+         are grower conventions, not measured optima. */
+      +'<p class="fine"><b>Cook</b> &mdash; the source\u2019s own instruction, a grower '
+      +'convention rather than a measured optimum: '+esc(r.cook)+'</p>'
+      +'<div class="layer"><div class="top">'+r.layer.top+'</div>'
+      +'<div class="bot">'+r.layer.bot+'</div></div>';
+    if(r.warn) h+='<div class="warnbox"><b>The way this one goes wrong</b>'+esc(r.warn)+'</div>';
+    h+='</div>';
+    $("recOut").innerHTML=h;
+    var src=$("recSrc");
+    if(src){ src.href=r.url; src.textContent=r.urlLabel; }
+    $("scaleNote").innerHTML='The multiplier scales <em>one recipe</em>. It does not translate '
+      +'between them: Subcool’s is stated per 8 bags of potting soil, the Rev’s per '
+      +'8-gallon batch, Coot’s and BuildASoil’s per cubic foot. Putting all four on one '
+      +'denominator would mean inventing a bag volume none of the sources gave.';
+    exportOut();
   }
-  ["dEst","dVol","dTr","dBl"].forEach(function(i){ $(i).addEventListener("input",dil); });
 
-  /* -------------------------------------------------------------- growth */
-  var pts=[];
-  $("grAdd").addEventListener("click",function(){
-    var t=nv("grT"), od=nv("grO");
-    if(!isFinite(t)||!isFinite(od)){toast("Need time and OD");return;}
-    if(od<=0){toast("OD must be above zero to take a log");return;}
-    pts.push({t:t,od:od,use:true}); pts.sort(function(a,b){return a.t-b.t;});
-    GRT.clear(); GRO.clear(); push("grT",null); push("grO",null); renderGr(); buzz(12);
-  });
-  $("grClear").addEventListener("click",function(){ pts=[]; renderGr(); });
-  $("grDemo").addEventListener("click",function(){
-    /* OD rising by a factor of sqrt(2) each half hour -- i.e. doubling every hour --
-       from 0.05, then flattening as the reading saturates optically past ~0.5 */
-    pts=[{t:0,od:0.050,use:true},{t:0.5,od:0.071,use:true},{t:1,od:0.100,use:true},
-         {t:1.5,od:0.141,use:true},{t:2,od:0.200,use:true},{t:2.5,od:0.283,use:true},
-         {t:3,od:0.400,use:true},{t:3.5,od:0.510,use:false},{t:4,od:0.580,use:false},
-         {t:4.5,od:0.610,use:false}];
-    renderGr(); toast("Loaded — last three points excluded as optically saturated"); buzz(14);
-  });
-  function reg(xs,ys){
-    var n=xs.length; if(n<2) return null;
-    var mx=0,my=0; xs.forEach(function(v){mx+=v;}); ys.forEach(function(v){my+=v;}); mx/=n; my/=n;
-    var sxx=0,sxy=0,syy=0;
-    for(var i=0;i<n;i++){var dx=xs[i]-mx,dy=ys[i]-my;sxx+=dx*dx;sxy+=dx*dy;syy+=dy*dy;}
-    if(sxx===0) return null;
-    var b=sxy/sxx;
-    return {b:b,a:my-b*mx,r2:syy===0?1:(sxy*sxy)/(sxx*syy),n:n};
+  function exportOut(){
+    var r=cur, L=[];
+    L.push("# "+r.name+(mult!==1?("  ("+mult+"× batch)"):""));
+    L.push("# "+r.who);
+    L.push("# source: "+r.url);
+    L.push("# batch: "+r.batch);
+    L.push("");
+    L.push("## base");
+    r.base.forEach(function(it){ L.push("  "+scaleQty(it[2],it[3],it[0],it[5])+"  "+it[1]); });
+    L.push("");
+    L.push("## amendments");
+    r.items.forEach(function(it){ L.push("  "+scaleQty(it[2],it[3],it[0],it[5])+"  "+it[1]); });
+    L.push("");
+    L.push("## cook");
+    L.push("  "+r.cook);
+    if(r.warn){ L.push(""); L.push("## watch out"); L.push("  "+r.warn); }
+    L.push("");
+    L.push("# Transcribed from the source above without adjustment. A grower recipe,");
+    L.push("# not an agronomic standard: no soil test, no control, no replication.");
+    $("recExport").textContent=L.join("\n");
   }
-  function renderGr(){
-    var box=$("grList");
-    if(!pts.length){ box.innerHTML='<p class="fine" style="margin:0">No points yet.</p>'; $("grOut").innerHTML=""; return; }
-    box.innerHTML=pts.map(function(p,i){
-      return '<div class="row2"><div class="g"><b>'+f(p.t,2)+' h</b><span>OD '+f(p.od,3)+
-        ' · ln(OD) '+f(Math.log(p.od),3)+'</span></div>'+
-        '<button type="button" class="'+(p.use?"":"off")+'" data-u="'+i+'" style="font-weight:700;color:'+
-        (p.use?"var(--s1)":"var(--muted)")+'">'+(p.use?"✓ in fit":"excluded")+'</button>'+
-        '<button type="button" data-d="'+i+'">✕</button></div>';
+
+  function amendTable(){
+    var h='<tr><th>amendment</th><th>typical N-P-K</th><th>release</th><th>note</th></tr>';
+    h+=AMEND.map(function(a){
+      return '<tr><td><b>'+esc(a[0])+'</b></td><td class="q">'+esc(a[1])+'</td>'
+        +'<td>'+esc(a[2])+'</td><td>'+esc(a[3])+'</td></tr>';
     }).join("");
-    Array.prototype.forEach.call(box.querySelectorAll("button[data-u]"),function(b){
-      b.addEventListener("click",function(){ var i=+b.getAttribute("data-u"); pts[i].use=!pts[i].use; renderGr(); });});
-    Array.prototype.forEach.call(box.querySelectorAll("button[data-d]"),function(b){
-      b.addEventListener("click",function(){ pts.splice(+b.getAttribute("data-d"),1); renderGr(); });});
-
-    var use=pts.filter(function(p){return p.use;});
-    var o=$("grOut");
-    if(use.length<3){ o.innerHTML='<p class="fine" style="margin:0">Mark at least three points as being in '+
-      'exponential phase.</p>'; return; }
-    var g=reg(use.map(function(p){return p.t;}), use.map(function(p){return Math.log(p.od);}));
-    if(!g){ o.innerHTML=""; return; }
-    var mu=g.b, td=mu>0?Math.LN2/mu:NaN;
-    var h='<h3 style="margin-top:0">Exponential fit</h3><div class="stat">'+
-      st(f(mu,4)+" h⁻¹","specific growth rate µ","hi")+
-      st(f(td,3)+" h","doubling time","hi")+
-      st(f(td*60,1)+" min","doubling time")+
-      st(f(g.r2,4),"r²", g.r2<0.98?"warnv":"")+
-      st(use.length+" / "+pts.length,"points in fit")+'</div>';
-    h+='<div class="eq">ln(OD) = '+f(g.a,4)+' + '+f(mu,4)+'·t &nbsp;·&nbsp; t_d = ln2 ÷ '+f(mu,4)+' = '+f(td,3)+' h</div>';
-    if(mu<=0) h+='<div class="warnbox"><b>Slope is not positive.</b> The selected points are not growing, so '+
-      'there is no growth rate to report. Check which points you marked.</div>';
-    if(g.r2<0.98) h+='<div class="warnbox"><b>r² = '+f(g.r2,4)+' across the selected window.</b> A genuine '+
-      'exponential phase is very straight in ln(OD). Curvature here usually means the window includes lag at '+
-      'the start or the approach to stationary at the end — narrow it.</div>';
-    var maxUsed=Math.max.apply(null,use.map(function(p){return p.od;}));
-    if(maxUsed>0.6) h+='<div class="warnbox"><b>Points above OD 0.6 are in the fit.</b> Above roughly '+
-      '0.4–0.6 a typical spectrophotometer reads low because of multiple scattering, so those points flatten '+
-      'the line for optical reasons and push µ down. Dilute before reading, or exclude them.</div>';
-    h+='<div class="verdict"><b>µ is a rate of increase in turbidity.</b> OD measures light scattering, and '+
-      'the scattering per cell changes with cell size and shape as the culture ages. Do not convert this to '+
-      'cells/mL without your own OD-to-CFU calibration for this strain, medium and instrument — and note '+
-      'that such a calibration is not transferable to another lab.</div>';
-    o.innerHTML=h;
+    $("amendTable").innerHTML=h;
   }
 
-  /* --------------------------------------------------------------- zones */
-  var zones=[];
-  $("zAdd").addEventListener("click",function(){
-    var d=val("zDrug"), mm=nv("zMm");
-    if(!d||!isFinite(mm)){toast("Need an antimicrobial and a zone");return;}
-    zones.push({drug:d,cont:val("zCont"),mm:mm});
-    $("zDrug").value=""; $("zCont").value=""; ZMM.clear(); push("zMm",null);
-    renderZ(); buzz(12);
+  $("recCopy").addEventListener("click",function(){
+    var s=$("recExport").textContent;
+    function ok(){ toast("Copied — with its source"); FEK.buzz(); }
+    function fb(){ var a=document.createElement("textarea"); a.value=s; a.style.position="fixed";
+      a.style.opacity="0"; document.body.appendChild(a); a.select();
+      try{ document.execCommand("copy"); ok(); }catch(e){ toast("Select and copy manually"); }
+      document.body.removeChild(a); }
+    try{ if(navigator.clipboard&&navigator.clipboard.writeText)
+      navigator.clipboard.writeText(s).then(ok,fb); else fb(); }catch(e){ fb(); }
   });
-  function renderZ(){
-    var box=$("zList"), S=nv("zS"), R=nv("zR"), src=val("zSrc");
-    var haveBp=isFinite(S)&&isFinite(R);
-    if(!zones.length){ box.innerHTML='<p class="fine" style="margin:0">No zones recorded.</p>'; }
-    else {
-      box.innerHTML=zones.map(function(z,i){
-        var interp="—";
-        if(haveBp) interp = z.mm>=S?"S":(z.mm<=R?"R":"I");
-        return '<div class="row2"><div class="g"><b>'+esc(z.drug)+(z.cont?' '+esc(z.cont):'')+
-          '</b><span>'+f(z.mm,1)+' mm'+(haveBp?'':' · no breakpoints entered')+'</span></div>'+
-          '<span class="cov">'+interp+'</span><button type="button" data-z="'+i+'">✕</button></div>';
-      }).join("");
-      Array.prototype.forEach.call(box.querySelectorAll("button[data-z]"),function(b){
-        b.addEventListener("click",function(){ zones.splice(+b.getAttribute("data-z"),1); renderZ(); });});
-    }
-    var o=$("zOut");
-    if(!zones.length){ o.innerHTML=""; }
-    else if(!haveBp){
-      o.innerHTML='<div class="refuse"><b>Measurement only — no interpretation.</b> '+
-        'You have recorded '+zones.length+' zone'+(zones.length===1?"":"s")+' but no breakpoints. '+
-        'S/I/R cannot be derived from a zone diameter alone: it depends on the organism, the agent, the disc '+
-        'content, the medium and the method, and the table is revised every year. Enter the S and R values '+
-        'from the table you are working to, and the edition, and the interpretation appears.</div>';
-    } else if(S<=R){
-      o.innerHTML='<div class="refuse"><b>Those breakpoints are the wrong way round.</b> The susceptible '+
-        'threshold must be larger than the resistant one — a bigger zone means more susceptible. Check the row '+
-        'you are reading from the table.</div>';
-    } else {
-      o.innerHTML='<div class="verdict"><b>Interpreted against S ≥ '+f(S,1)+' mm, R ≤ '+f(R,1)+' mm'+
-        (src?', '+esc(src):'')+'.</b>'+(src?'':' <b>No source recorded</b> — put the table and its edition in '+
-        'the source field, because an interpretation without its breakpoint source is not reproducible.')+
-        ' The intermediate band is '+f(R+0.5,1)+'–'+f(S-0.5,1)+' mm.</div>';
-    }
-    $("zRefuse").innerHTML='<h3 style="margin-top:0">Why no built-in table</h3>'+
-      '<p class="fine" style="margin-top:0">Breakpoint tables are revised annually and differ between CLSI '+
-      'and EUCAST. Software that hard-codes them prints confident answers that quietly go out of date, and a '+
-      'stale “susceptible” is a worse output than no output. This page therefore asks you for the numbers and '+
-      'records which edition they came from, so the interpretation travels with its source. The same reasoning '+
-      'is why the vegetation tool refuses to ship coefficients of conservatism and the fungal tool ships no '+
-      'edibility data.</p>';
-  }
-  ["zS","zR","zSrc"].forEach(function(i){ $(i).addEventListener("input",renderZ); });
 
-  /* ---------------------------------------------------------------- tabs */
-  document.querySelectorAll(".tab").forEach(function(tb){
-    tb.addEventListener("click",function(){
-      document.querySelectorAll(".tab").forEach(function(t){t.classList.toggle("on",t===tb);});
-      document.querySelectorAll(".pane").forEach(function(p){p.classList.toggle("on",p.id===tb.dataset.pane);});
-      window.scrollTo(0,0); buzz();
-    });
-  });
-  renderPl(); renderGr(); renderZ();
+  pickUI(); scaleUI(); amendTable(); render();
 })();
 </script>
 </body>
