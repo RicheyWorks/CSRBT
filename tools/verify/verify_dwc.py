@@ -117,6 +117,13 @@ def ready(pg, name):
     A fixed sleep passed alone and failed under four-way parallel load with
     "DWC is not defined" -- a flake, which is the worst kind of check: it fails
     on correct code often enough to teach everyone to re-run it.
+
+    This helper was written for exactly that, and then TWO navigations kept
+    their 500 ms sleep anyway -- stand-sheet and collection-sheet -- and one of
+    them threw the same "DWC is not defined" again in run_all months later,
+    from an evaluate that patches DWC.table. A lesson learned in one place and
+    not applied in the other two is a lesson half-learned; every navigation in
+    this file comes through here now.
     """
     pg.goto(url(name), wait_until="domcontentloaded")
     # 20 s was enough when this suite drove five coordinate cases. It now drives
@@ -377,8 +384,7 @@ with sync_playwright() as p:
 
     # ================= stand sheet =================
     errs[:] = []
-    pg.goto(url("stand-sheet.html"), wait_until="domcontentloaded")
-    pg.wait_for_timeout(500)
+    ready(pg, "stand-sheet.html")
     pg.click('.tab[data-pane="p-plot"]')
     pg.wait_for_timeout(200)
     for k, v in [("sPlot", "TAH-04"), ("sLoc", "Sagehen Creek"), ("sObs", "R. Test"),
@@ -449,8 +455,7 @@ with sync_playwright() as p:
 
     # ================= collection sheet =================
     errs[:] = []
-    pg.goto(url("collection-sheet.html"), wait_until="domcontentloaded")
-    pg.wait_for_timeout(500)
+    ready(pg, "collection-sheet.html")
     pg.click('.tab[data-pane="p-site"]')
     pg.wait_for_timeout(200)
     for k, v in [("sSite", "Bear Cr. old-growth"), ("sObs", "R. Test"),

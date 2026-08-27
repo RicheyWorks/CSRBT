@@ -360,6 +360,14 @@
       "killed": 4,
       "survived": 2,
       "fresh": 2
+    },
+    {
+      "page": "ecology-lab.html",
+      "adr": "ADR-075",
+      "source": "tool",
+      "killed": 6,
+      "survived": 0,
+      "fresh": 0
     }
   ]
 }

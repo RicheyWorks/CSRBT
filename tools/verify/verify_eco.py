@@ -177,6 +177,55 @@ with sync_playwright() as p:
     ck("and the bars use the height they are given", len(used) >= len(charts) // 2,
        (len(used), len(charts)))
 
+    # ---------- a session is a file somebody sends you ----------
+    # The page charts a JSON dropped onto it, and its own comment says why every
+    # string from one is escaped: "a shared protocol would be a script-injection
+    # vector for whoever drops it in". The escape in the tile builder was never
+    # tested, and a mutation sweep dropped it twice without anything noticing.
+    #
+    # `bestFit` is a STRING that comes straight out of the session and lands in
+    # a tile's value. Measured: with the escape, `<b>…</b>` is text; without it,
+    # one <b> element appears in the tiles. Rendered through the page's own
+    # render(), which is the same path the drop handler takes.
+    pg.evaluate("""()=>{const s=JSON.parse(JSON.stringify(SESSION));
+        s.meadow.phases[0].bestFit='<b>BROKEN_STICK</b>';
+        s.meadow.phases[0].name='<i>Even grazing</i>';
+        render(s);}""")
+    pg.wait_for_timeout(400)
+    ck("markup in a session string does not become markup in a tile",
+       pg.evaluate("()=>document.querySelectorAll('.tile b, .tile i, .tile img').length") == 0,
+       pg.evaluate("()=>[...document.querySelectorAll('.tile *')].map(e=>e.tagName).slice(0,6)"))
+    ck("and it is still shown, as text",
+       "<b>broken stick</b>" in pg.evaluate(
+           "()=>[...document.querySelectorAll('.tile .v')].map(e=>e.textContent).join('|')"),
+       pg.evaluate("""()=>[...document.querySelectorAll('.tile .v')]
+           .map(e=>e.textContent).filter(t=>t.indexOf('broken')>=0)"""))
+
+    # ---------- a series with a non-finite point is DROPPED ----------
+    # `pts.every(p => isFinite(p[0]) && isFinite(p[1]))`. A sweep turned the &&
+    # into ||, and a point with a finite x and a null y then passed the filter
+    # and was drawn. null is not exotic in a JSON somebody generated: it is what
+    # a missing number looks like.
+    #
+    # Counted on the rarefaction chart, whose curves are one per phase, so the
+    # difference is visible as a curve that is there or is not: two phases give
+    # two curves, and nulling one point in one of them must give one.
+    def _curves():
+        return pg.evaluate("""()=>{
+          const h=[...document.querySelectorAll('.h3')].find(e=>/Rarefaction/.test(e.textContent));
+          if(!h) return -1;
+          const svg=h.parentElement.querySelector('svg');
+          return svg ? svg.querySelectorAll('path[stroke]').length : -2;}""")
+    pg.evaluate("()=>render(JSON.parse(JSON.stringify(SESSION)))"); pg.wait_for_timeout(350)
+    _all = _curves()
+    ck("the clean session draws a rarefaction curve per phase", _all == 2, _all)
+    pg.evaluate("""()=>{const s=JSON.parse(JSON.stringify(SESSION));
+        s.meadow.phases[0].rarefaction[3][1]=null; render(s);}""")
+    pg.wait_for_timeout(350)
+    _one = _curves()
+    ck("a series carrying a null coordinate is dropped, not drawn", _one == _all - 1,
+       (_all, _one))
+
     b.close()
 
 # static link check

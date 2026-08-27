@@ -109,6 +109,22 @@ for name in [p for p, k in kinds.items() if k == "loader-only"][:4]:
 ck("a page with real code of its own is not called loader-only",
    SL.classify("selection-log.html") == "own-code", SL.classify("selection-log.html"))
 
+# ---- 4b. "39 of 39" is a sample, and has to say so ----------------------
+# The headline number reads as coverage. It is not: a swept page was swept at
+# four to eight mutants, and the kit has thousands. The status block carries
+# both figures now, and this asserts they are the ones the functions compute --
+# because a denominator that drifts from its numerator is how "19 swept, 20 to
+# go" happened in the first place.
+_run, _counted = SL.mutants_run()
+_avail = SL.mutants_available()
+ck("some rows record what they ran, so the sample size is knowable",
+   _counted > 10 and _run > 0, (_counted, _run))
+ck("the sample is a small fraction of the mutants that exist -- and is not claimed otherwise",
+   0 < _run < sum(_avail.values()), (_run, sum(_avail.values())))
+ck("every page contributes mutants to the denominator",
+   all(v > 0 for v in _avail.values()),
+   sorted(k for k, v in _avail.items() if v == 0))
+
 # ---- 5. the report and the data cannot drift ----------------------------
 text = "\n".join(SL.status_lines())
 m = re.search(r"(\d+) of (\d+) page\(s\) swept, (\d+) to go", text)
@@ -116,6 +132,13 @@ ck("the status line reports the same numbers the functions compute",
    bool(m) and (int(m.group(1)), int(m.group(2)), int(m.group(3)))
    == (len(swept), len(allp), len(left)),
    m.groups() if m else text[:120])
+_m3 = re.search(r"at least (\d+) mutant\(s\) run", text)
+ck("the status block reports the sample size the function computes",
+   bool(_m3) and int(_m3.group(1)) == _run, (_m3.group(1) if _m3 else None, _run))
+_m4 = re.search(r"(\d+) mutant\(s\) exist", text)
+ck("and the denominator it computes",
+   bool(_m4) and int(_m4.group(1)) == sum(_avail.values()),
+   (_m4.group(1) if _m4 else None, sum(_avail.values())))
 m2 = re.search(r"(\d+) with code of their own, (\d+) with no suite, "
                r"(\d+) loader-only, (\d+) prose", text)
 ck("and the same bucket sizes",

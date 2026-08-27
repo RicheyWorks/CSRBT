@@ -116,6 +116,38 @@ def classify(page):
     return "own-code" if suites else "no-suite"
 
 
+def mutants_available():
+    """How many mutants the kit HAS, page by page. Computed, like everything else.
+
+    This is the denominator the headline number has been missing. "39 of 39
+    pages swept" is true and, on its own, reads as coverage -- and a page is
+    swept at a SAMPLE, four to eight mutants chosen to spread across operators,
+    not at all of them. Without this figure beside it the sentence claims about
+    twenty times what it has earned.
+    """
+    import mutate as _m
+    total = {}
+    for name in all_pages():
+        _src, muts = _m.mutants_for(os.path.join(DOCS, name))
+        total[name] = len(muts)
+    return total
+
+
+def mutants_run():
+    """Mutants actually run, from the rows that recorded a count.
+
+    A LOWER BOUND: the rows backfilled from the ADRs carry no counts, because
+    the tool was not writing them yet. Reporting it as exact would be the same
+    class of mistake as the tally this ledger replaced.
+    """
+    n, counted = 0, 0
+    for r in records():
+        if "killed" in r and "survived" in r:
+            n += r["killed"] + r["survived"]
+            counted += 1
+    return n, counted
+
+
 def status_lines():
     recs, done, left, total = records(), swept_pages(), remaining(), all_pages()
     hand = sum(1 for r in recs if r.get("source") != "tool")
@@ -127,6 +159,15 @@ def status_lines():
                % (len(recs), len(done), len(recs) - len(done)))
     out.append("%d row(s) backfilled by hand from the ADRs, %d written by the tool"
                % (hand, len(recs) - hand))
+    _avail = sum(mutants_available().values())
+    _run, _counted = mutants_run()
+    out.append("")
+    out.append("SAMPLE, not census: a swept page was swept at four to eight mutants,")
+    out.append("spread across the operators, and not at every mutant it has.")
+    out.append("   at least %d mutant(s) run, from %d row(s) that recorded a count"
+               % (_run, _counted))
+    out.append("   %d mutant(s) exist across the %d page(s) -- so this is a %.0f%% sample"
+               % (_avail, len(total), 100.0 * _run / _avail if _avail else 0))
     out.append("")
     buckets = {"own-code": [], "no-suite": [], "loader-only": [], "prose": []}
     for p in left:
