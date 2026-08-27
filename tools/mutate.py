@@ -208,6 +208,13 @@ KNOWN_EQUIVALENT = [
     ("lte->lt", "v<=0",
      "the plated-volume guard; the stepper clamps to its min, measured: typing "
      "0 or -5 both yield 0.001, so v<=0 is unreachable through the UI"),
+    # NOT equivalent -- a genuinely open question, parked here so it stops
+    # crowding the fresh list while it waits for the claims worklist.
+    ("num-shift", "from 0.2 to 5 mm",
+     "OPEN, not equivalent: an uncited size range for Utricularia bladders in "
+     "cp-characters' genus table. Shifting it is a wrong fact and nothing "
+     "catches it. The fix is a source (audit_claims), not a pinned constant "
+     "in a suite -- ADR-041 -- so it waits there rather than being killed here"),
     ("lte->lt", "a[i]<=a[i-1]",
      "tree-visualizer's own checkBST; the tree refuses duplicates (bstInsert "
      "returns null for a key already present, and verify_tv asserts that "
@@ -318,6 +325,49 @@ def run_suite_argv(argv, cwd, timeout=None):
                               timeout=timeout, cwd=cwd).returncode
     except subprocess.TimeoutExpired:
         return 99
+
+
+def cross_cutting():
+    """Suites that GLOB the docs instead of naming a page.
+
+    ADR-061 found that cross-cutting AUDITS were excluded from every sweep by
+    construction, because suites_for() keeps the suites whose source names the
+    page and an audit names none. The same is true of a verify_* suite written
+    the same way, and there is one: verify_offline_slice globs docs/*.html and
+    checks the shared webfont loader on all of them -- including that the
+    deferred link really is promoted back to media="all", which is the half of
+    the contract audit_offline does not check.
+
+    So a `neg-guard` mutant on that loader (`if(!l)return` -> `if(l)return`,
+    which leaves every page in fallback fonts forever) came back as a survivor
+    on cp-characters while a suite in this very repo would have killed it.
+
+    Derived, not listed: a suite qualifies if it globs the docs directory and
+    names no page. Fixture-builders are excluded by the same predicate
+    suites_for uses, which is how verify_emitters stays out.
+    """
+    pages = {os.path.basename(x) for x in glob.glob(os.path.join(DOCS, "*.html"))}
+    out = []
+    for s in sorted(glob.glob(os.path.join(VERIFY, "verify_*.py"))):
+        txt = io.open(s, encoding="utf-8").read()
+        if not re.search(r"glob\.glob\([^)]*DOCS", txt):
+            continue
+        if any(p in txt for p in pages):
+            continue
+        # A sharper predicate than suites_for's, and measured rather than
+        # chosen: across the four suites that touch tempfile, `shutil` is what
+        # separates the two that copy a whole scratch TREE to test tooling
+        # (verify_emitters, verify_audit_frontend) from the two that write one
+        # fixture FILE and otherwise assert about the real kit
+        # (verify_offline_slice, verify_claims_triage). The looser `mkdtemp`
+        # test drops all four, which is what kept the webfont killer out.
+        if "shutil" in txt:
+            continue
+        out.append(s)
+    return out
+
+
+CROSS = None
 
 
 def suites_for(page):
@@ -568,6 +618,9 @@ def main(argv):
         src, muts = mutants_for(path, a.limit)
         if not muts:
             print("%-28s no mutable code found" % page); continue
+        global CROSS
+        if CROSS is None:
+            CROSS = cross_cutting()
         suites, skipped = suites_for(page)
         if skipped:
             print("%-28s excluded (builds a scratch tree, so it names this page as a "
@@ -617,6 +670,18 @@ def main(argv):
                         if run_audit(aud, page, tmp) != 0:
                             caught = True
                             by = aud[:-3]
+                            break
+                # Last, and only for something still alive: the cross-cutting
+                # suites. They are the slowest thing here and the rarest to
+                # fire, so they are paid for only when the alternative is a
+                # survivor -- which costs a human far more than seventeen
+                # seconds of CPU.
+                if not caught:
+                    for s in CROSS:
+                        tp = os.path.join(tmp, "tools", "verify", os.path.basename(s))
+                        if run_suite(tp, tmp) != 0:
+                            caught = True
+                            by = os.path.basename(s)[:-3].replace("verify_", "")
                             break
                 if caught:
                     killed += 1

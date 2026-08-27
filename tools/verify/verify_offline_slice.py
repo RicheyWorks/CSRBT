@@ -50,8 +50,39 @@ for path in withfont:
        "%s: exactly two stylesheet URLs -- the deferred link and its noscript copy (%d)"
        % (nm, src.count("fonts.googleapis.com/css2")))
 
+# ---- 1b. and every page's loader is the SAME loader ---------------------
+# Section 2 below verifies what the loader DOES, and it does it on one
+# representative page. That covers thirty-eight pages only if their loaders are
+# the same code, and nothing said so: a mutation sweep changed `if(!l)return` to
+# `if(l)return` on cp-characters -- which leaves that page in fallback fonts
+# forever -- and this suite passed 166/166, because the checks above read the
+# link's ATTRIBUTES and the check below reads a different page.
+#
+# Asserting the snippets are byte-identical is what makes one behavioural test
+# honest coverage for all of them, rather than a sample presented as a rule.
+LOADER = re.compile(r"<script>\(function\(\)\{var l=document\.querySelector\('link\[data-webfont\]'\);"
+                    r".*?\}\)\(\);</script>", re.S)
+loaders = {}
+for path in pages:
+    src = io.open(path, encoding="utf-8").read()
+    if "data-webfont" not in src:
+        continue                       # tree-visualizer ships system fonts only
+    m = LOADER.search(src)
+    ck(bool(m), "%s: its webfont loader is still in the shape this suite reads"
+       % os.path.basename(path))
+    if m:
+        loaders.setdefault(m.group(0), []).append(os.path.basename(path))
+ck(len(loaders) == 1,
+   "every page's webfont loader is byte-identical (%d distinct: %s)"
+   % (len(loaders), [v[:3] for v in loaders.values()]))
+ck(sum(len(v) for v in loaders.values()) >= 30,
+   "and there are enough of them for that to mean something (%d)"
+   % sum(len(v) for v in loaders.values()))
+
 # ---- 2. what the browser actually does ---------------------------------
 BIG = max(pages, key=os.path.getsize)
+ck(any(os.path.basename(BIG) in v for v in loaders.values()),
+   "the page section 2 exercises is one of the pages section 1b just proved identical")
 with sync_playwright() as pw:
     b = pw.chromium.launch()
 
