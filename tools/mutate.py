@@ -235,6 +235,12 @@ KNOWN_EQUIVALENT = [
      "field-season's Poisson draw; with lam=0 the guard is redundant -- L=exp(0)=1 "
      "and the do/while exits on the first draw because the PRNG returns t/2^32 < 1, "
      "so k-1 = 0 either way"),
+    ("lte->lt", "i<=8;i++) S.plants",
+     "pheno-tracker's starting roster size. No independent witness exists for "
+     "it: the page writes its own runN field back from the roster length, so "
+     "'the grid matches the control' compares a number with itself and passes "
+     "with the mutant in place -- measured. Pinning 8 would pin an arbitrary "
+     "default (ADR-041), so it is left"),
     ("lte->lt", "t<=4",
      "tree-proofs chart gridlines: five lines at 0/25/50/75/100% become four. "
      "Chart furniture, no claim depends on it -- examined and left"),

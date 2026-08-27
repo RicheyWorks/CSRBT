@@ -36,6 +36,40 @@ with sync_playwright() as p:
     pg.on("console",_con)
     pg.goto(_u("pheno-tracker.html"), wait_until="domcontentloaded")
     pg.wait_for_timeout(600)
+
+    # ---- the roster, and one check that had to be thrown away ----
+    # `for(var i=1;i<=8;i++) S.plants.push(blank(i))` seeds the grid, and a
+    # sweep made it `i<8`. The obvious check -- the grid holds as many plants as
+    # the page's own "how many" control says -- is a TAUTOLOGY: the page writes
+    # runN back from the roster length at render, so with the mutant in place
+    # both read 7 and the check passes. Measured, after writing it and watching
+    # the sweep still report the mutant alive.
+    #
+    # There is no independent witness for the starting count anywhere on the
+    # page, so asserting 8 would pin an arbitrary default (ADR-041). That
+    # mutant is recorded as deliberately left. What IS worth checking is the
+    # part with a rule behind it: the ids run 1..n with no gap, and asking for
+    # n plants gives n.
+    def numbers():
+        return pg.eval_on_selector_all(
+            "#plantGrid > *",
+            "e=>e.map(x=>parseInt((x.textContent.match(/#(\\d+)/)||[])[1],10))")
+    n0 = len(numbers())
+    ck("the plants are numbered 1..n with no gap", numbers() == list(range(1, n0 + 1)),
+       numbers())
+
+    # rebuilding to a different size honours the number asked for
+    pg.evaluate("()=>{document.getElementById('runN').value='5';}")
+    pg.click("#runMake"); pg.wait_for_timeout(250)
+    ck("asking for 5 plants gives exactly 5 rows",
+       pg.eval_on_selector_all("#plantGrid > *", "e=>e.length") == 5,
+       pg.eval_on_selector_all("#plantGrid > *", "e=>e.length"))
+    ck("and the page says how many it made", "5 plants" in pg.inner_text("body"), "")
+    pg.evaluate("()=>{document.getElementById('runN').value=String(%d);}" % n0)
+    pg.click("#runMake"); pg.wait_for_timeout(250)
+    ck("and it goes back up again",
+       pg.eval_on_selector_all("#plantGrid > *", "e=>e.length") == n0,
+       pg.eval_on_selector_all("#plantGrid > *", "e=>e.length"))
     # start from a clean slate regardless of any stored run
     pg.evaluate("()=>{try{localStorage.clear();}catch(e){}}")
     pg.reload(wait_until="domcontentloaded"); pg.wait_for_timeout(600)
