@@ -222,6 +222,61 @@ ck("nor by an escaped quote inside that string",
    _try(json.loads, _try(inline_session, ESCAPED)) == {"a": 'x " } y', "b": 3},
    _try(inline_session, ESCAPED))
 
+# ---- link D: the page's plain-English thresholds ARE the engine's ---------
+# `ecology-lab.html` says, in a comment above its reading functions, "same
+# thresholds as FieldReport.java". Nothing checked it, and a mutation sweep
+# walked straight through: `j >= .85` became `j > .85` and `i <= 1.5` became
+# `i < 1.5`, and every suite stayed green. At exactly 0.85 a community stops
+# reading "very even"; at exactly 1.5 a distribution stops reading "random".
+#
+# Both sides are extracted -- the Java's named constants and the comparisons
+# that use them, the page's inline numbers and the operators beside them -- and
+# compared as ORDERED (operator, value) pairs. A number moving on one side, or
+# an operator changing on either, breaks the match. That is the same shape as
+# link B: a value generated in one place and inlined in another, with something
+# binding the two.
+JAVA_SRC = os.path.join(ROOT, "csrbt-experimental", "src", "main", "java", "io",
+                        "github", "richeyworks", "csrbt", "experimental", "ecology",
+                        "FieldReport.java")
+# page function -> the Java constants its bands are cut at, in the order the
+# page tests them. Written out rather than inferred: the correspondence is the
+# claim being checked, and a rule that derived it would be checking itself.
+READINGS = [
+    ("evenness",   ["EVEN_VERY", "EVEN_MODERATE", "EVEN_UNEVEN"]),
+    ("dispersion", ["DISP_REGULAR", "DISP_CLUMPED"]),
+    ("overlap",    ["OVERLAP_HIGH", "OVERLAP_PARTIAL"]),
+    ("turnoverR",  ["TURNOVER_LOW", "TURNOVER_MODERATE"]),
+    ("fillRead",   ["FILL_TIGHT", "FILL_HEALTHY"]),
+]
+OPNUM = re.compile(r"(>=|<=|>|<)\s*(\.\d+|\d+\.?\d*)")
+
+if not os.path.exists(JAVA_SRC):
+    unverified.append("the page's thresholds against FieldReport.java -- source not present")
+else:
+    _j = io.open(JAVA_SRC, encoding="utf-8").read()
+    _const = dict((m.group(1), float(m.group(2))) for m in
+                  re.finditer(r"public static final double (\w+)\s*=\s*([\d.]+);", _j))
+    _jcmp = dict((m.group(2), m.group(1)) for m in
+                 re.finditer(r"if \(\s*\w+\s*(>=|<=|>|<)\s*([A-Z_]+)\s*\)", _j))
+    _page = io.open(os.path.join(ROOT, "docs", "ecology-lab.html"), encoding="utf-8").read()
+    ck("FieldReport.java declares its thresholds as named constants",
+       len(_const) >= 8, sorted(_const))
+    for _fn, _names in READINGS:
+        # `const NAME = ... ;` whether or not there is an arrow: four of these
+        # are arrow functions and fillRead is a plain ternary computed inline,
+        # and requiring `=>` found four of five and called the fifth missing.
+        _m = re.search(r"\bconst %s\s*=(.*?);\s*\n" % _fn, _page, re.S)
+        if not _m:
+            ck("the page still has a %s reading to bind" % _fn, False, "not found")
+            continue
+        _want = [(_jcmp.get(n), _const.get(n)) for n in _names]
+        _got = [(o, float(v)) for o, v in OPNUM.findall(_m.group(1))]
+        ck("%s uses the engine's own constants, with the engine's own operators" % _fn,
+           _got == _want, {"page": _got, "FieldReport": _want, "constants": _names})
+    ck("and the binding is not vacuous -- the constants really are distinct values",
+       len({_const[n] for _, ns in READINGS for n in ns}) >= 6,
+       sorted({_const.get(n) for _, ns in READINGS for n in ns}))
+
 total = ok + bad + len(unverified)
 print("-" * 70)
 for u in unverified:

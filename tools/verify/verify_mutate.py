@@ -238,14 +238,39 @@ sys.path.insert(0, os.path.join(ROOT, "tools"))
 import mutate as _mu
 _scratch = _mu.scratch_root()
 try:
-    real = {n for n in os.listdir(ROOT) if os.path.isfile(os.path.join(ROOT, n))}
-    got = {n for n in os.listdir(_scratch) if os.path.isfile(os.path.join(_scratch, n))}
-    ck("the scratch copy carries every top-level file, not just docs/ and tools/",
+    # "Every top-level FILE" was the first version of this check, and it passed
+    # while demo/ was missing -- so verify_visualizer_sessions, which reads
+    # demo/visualizer.html, was red on the scratch copy one page after the
+    # README fix went in. The instance, not the class.
+    #
+    # The rule now matches the tool's: everything except a NAMED exclusion. A
+    # directory added to this repo is copied by default and this check passes
+    # by default; leaving something out has to be a deliberate, visible act.
+    real = set(os.listdir(ROOT)) - set(_mu.SCRATCH_SKIP)
+    got = set(os.listdir(_scratch))
+    ck("the scratch copy carries every top-level entry that is not explicitly skipped",
        real <= got, sorted(real - got))
-    ck("and the fixture is not vacuous -- there ARE top-level files", bool(real), sorted(real))
+    ck("and the fixture is not vacuous -- there ARE entries to carry", bool(real), sorted(real))
+    ck("every skipped entry has a reason written beside it",
+       all(isinstance(v, str) and len(v) > 20 for v in _mu.SCRATCH_SKIP.values()),
+       sorted(k for k, v in _mu.SCRATCH_SKIP.items() if not (isinstance(v, str) and len(v) > 20)))
+    for _rel, _why in _mu.SCRATCH_KEEP.items():
+        ck("a file carried out of a skipped tree is really there: %s"
+           % os.path.basename(_rel), os.path.exists(os.path.join(_scratch, _rel)),
+           _rel)
+        ck("...and it exists in the real tree too, so the entry is not stale",
+           os.path.exists(os.path.join(ROOT, _rel)), _rel)
+        ck("...with a reason written beside it", isinstance(_why, str) and len(_why) > 20, _why)
+    ck("nothing docs/ or tools/ needs is on the skip list",
+       not ({"docs", "tools", "demo"} & set(_mu.SCRATCH_SKIP)), sorted(_mu.SCRATCH_SKIP))
     ck("docs/ and tools/ are both in the scratch copy",
        os.path.isdir(os.path.join(_scratch, "docs"))
        and os.path.isdir(os.path.join(_scratch, "tools")), sorted(os.listdir(_scratch)))
+    # The two files that started it, both resolved from inside the copy:
+    # tree-proofs.html's ../README.md, and the demo page a suite reads directly.
+    ck("a page a suite reads outside docs/ is in the scratch copy",
+       os.path.exists(os.path.join(_scratch, "demo", "visualizer.html")),
+       sorted(os.listdir(_scratch)))
     # The link that started it, resolved from inside the copy.
     _tp = os.path.join(_scratch, "docs", "tree-proofs.html")
     if os.path.exists(_tp):

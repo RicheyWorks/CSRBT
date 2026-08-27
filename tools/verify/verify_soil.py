@@ -98,6 +98,51 @@ with sync_playwright() as p:
     ck("cooled-below-40 note", "cooled below 40" in pg.inner_text("#cOut"), pg.inner_text("#cOut")[-300:])
     pg.click("#cUndo"); pg.wait_for_timeout(250)
     co=pg.inner_text("#cOut")
+
+    # ---- the peak tile has to be the peak ---------------------------------
+    # `Math.max` over the logged temperatures, feeding a tile labelled "peak"
+    # and the tone beside it. A mutation sweep replaced it with a min and
+    # nothing noticed: the suite counted how many readings were hot and never
+    # asked what the hottest one was. With a min the tile shows the COLDEST
+    # reading and calls it the peak -- 32 in place of 64 on this very sequence.
+    #
+    # Recomputed from the fixture rather than written in, so editing the
+    # sequence above cannot silently invalidate it (ADR-041).
+    _peak = max(s[0] for s in seq)
+    _pt = tile("peak", "#cOut")
+    ck("the peak tile is the hottest reading logged (%d C)" % _peak,
+       _pt is not None and _pt.rstrip("\u00b0").strip() == str(_peak), (_pt, _peak))
+    ck("and it is not the coldest, which is what a min would show (%d C)" % min(s[0] for s in seq),
+       _pt is not None and _pt.rstrip("\u00b0").strip() != str(min(s[0] for s in seq)), _pt)
+
+    # ---- "dry" is a reading the page names, so test that reading -----------
+    # The squeeze test is a five-point scale whose value 2 is labelled "Dry",
+    # and the page warns while the last reading is <= 2. A sweep turned that
+    # into < 2 and nothing noticed, because every fixture here ends on 3.
+    # At exactly 2 the mutant drops the warning for a pile the page itself
+    # calls dry.
+    def _log(temp, moist):
+        pg.evaluate("""([t,m])=>{
+          const v=document.querySelector('#cEntry .fek-step .val');
+          v.value=String(t); v.dispatchEvent(new Event('input',{bubbles:true}));
+          const d=document.querySelectorAll('#cEntry .fek-dial')[0];
+          const b=[...d.querySelectorAll('button')][m-1];
+          if(!b) throw new Error('no moisture option '+m); b.click();}""", [temp, moist])
+        pg.wait_for_timeout(120)
+        pg.click("#cAdd"); pg.wait_for_timeout(300)
+        return pg.inner_text("#cOut")
+    _dry = _log(57, 2)
+    ck("a last reading of 2 -- the page's own \"Dry\" -- raises the dry warning",
+       "came out dry" in _dry, _dry[-320:])
+    _ok = _log(57, 3)
+    ck("and a last reading of 3 does not", "came out dry" not in _ok, _ok[-320:])
+    _wet = _log(57, 4)
+    ck("4 raises the wet warning, so the scale is read at both ends",
+       "came out wet" in _wet, _wet[-320:])
+    for _ in range(3):
+        pg.click("#cUndo"); pg.wait_for_timeout(200)
+    co=pg.inner_text("#cOut")
+
     ck("chart drawn", pg.eval_on_selector_all("#cChart svg","e=>e.length")==1, "")
     # Each threshold line carries its own NUMBER, not one particular sentence.
     # Both of these pinned a phrase and both broke when the prose around them was

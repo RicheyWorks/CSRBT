@@ -312,6 +312,54 @@
       "killed": 5,
       "survived": 1,
       "fresh": 0
+    },
+    {
+      "page": "soil-bench.html",
+      "adr": "ADR-074",
+      "source": "tool",
+      "killed": 3,
+      "survived": 3,
+      "fresh": 3
+    },
+    {
+      "page": "ecology-lab.html",
+      "adr": "ADR-074",
+      "source": "tool",
+      "killed": 1,
+      "survived": 5,
+      "fresh": 5
+    },
+    {
+      "page": "collection-sheet.html",
+      "adr": "ADR-074",
+      "source": "tool",
+      "killed": 6,
+      "survived": 0,
+      "fresh": 0
+    },
+    {
+      "page": "soil-bench.html",
+      "adr": "ADR-074",
+      "source": "tool",
+      "killed": 5,
+      "survived": 1,
+      "fresh": 0
+    },
+    {
+      "page": "ecology-lab.html",
+      "adr": "ADR-074",
+      "source": "tool",
+      "killed": 2,
+      "survived": 4,
+      "fresh": 4
+    },
+    {
+      "page": "ecology-lab.html",
+      "adr": "ADR-074",
+      "source": "tool",
+      "killed": 4,
+      "survived": 2,
+      "fresh": 2
     }
   ]
 }

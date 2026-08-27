@@ -140,6 +140,43 @@ with sync_playwright() as p:
     # ---------- link sweep across the whole kit ----------
     pg.set_viewport_size({"width":1000,"height":1000})
     ck("no page errors", not allerr, allerr[:3])
+    # ---------- the lab's bars have to be inside their charts ----------
+    # `const yMax = Math.max(1, ...finite) * 1.05` -- the 1 is a floor, so an
+    # all-zero series still gets an axis instead of dividing by zero. A mutation
+    # sweep turned the max into a min and nothing in this kit noticed: the bars
+    # are <path> elements and every chart check here had been about whether an
+    # svg existed.
+    #
+    # Measured, on the page as it loads from its own inlined session: nine
+    # charts draw bars, none above the frame; with the mutant six of the nine
+    # do, the worst at y = -48732 in a 180-high viewBox. So the rule is the one
+    # the ordination plot and the CP Bench sparkline now carry -- a bar is an
+    # assertion about a number, and it has to be inside the picture.
+    pg.goto(_u("ecology-lab.html"), wait_until="domcontentloaded")
+    pg.wait_for_timeout(1500)
+    # getBBox, not the `d` string. Parsing the path and taking every second
+    # number assumes it alternates x,y -- barPath() emits rounded corners, so
+    # the odd positions also hold arc radii and flags, and the first version of
+    # this check reported a maxY of 965 in a 170-high chart on a correct page.
+    # The browser already knows where the shape is; ask it.
+    charts = pg.evaluate("""()=>[...document.querySelectorAll('svg')].map(s=>{
+        const bars=[...s.querySelectorAll('path.grow-bar')];
+        if(!bars.length) return null;
+        const bb=bars.map(p=>p.getBBox());
+        const vb=s.getAttribute('viewBox').split(' ').map(Number);
+        return {bars:bars.length,
+                minY:Math.min(...bb.map(b=>b.y)),
+                maxY:Math.max(...bb.map(b=>b.y+b.height)), H:vb[3]};
+      }).filter(Boolean)""")
+    ck("the lab draws bar charts on load", len(charts) >= 5, len(charts))
+    over = [c for c in charts if c["minY"] < 0 or c["maxY"] > c["H"]]
+    ck("every bar is inside its own chart", not over, over[:3])
+    # ...and not vacuous the other way: a chart whose bars all sat on the axis
+    # would satisfy that and would be showing nothing.
+    used = [c for c in charts if c["minY"] < c["H"] * 0.75]
+    ck("and the bars use the height they are given", len(used) >= len(charts) // 2,
+       (len(used), len(charts)))
+
     b.close()
 
 # static link check

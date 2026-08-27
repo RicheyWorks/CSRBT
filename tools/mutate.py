@@ -235,6 +235,9 @@ KNOWN_EQUIVALENT = [
      "field-season's Poisson draw; with lam=0 the guard is redundant -- L=exp(0)=1 "
      "and the do/while exits on the first draw because the PRNG returns t/2^32 < 1, "
      "so k-1 = 0 either way"),
+    ("drop-esc", "esc(mm.label)",
+     "soil-bench's reading row; mm comes from MOIST, a five-entry page literal at "
+     "line 991 with no push, splice or reassignment anywhere in the file"),
     ("drop-esc", "esc(s)",
      "cp-bench's water-reading row; s is a SOURCES label and SOURCES is a page "
      "literal at line 1011 with no push, splice or reassignment anywhere in the "
@@ -582,6 +585,36 @@ def run_suite(path, cwd, timeout=None):
         return 99
 
 
+# Top-level entries the scratch copy leaves out, each with a reason. Anything
+# not named here is copied, so the failure direction is a slower copy rather
+# than a suite that cannot run.
+SCRATCH_SKIP = {
+    "build": "generated output; no page or suite reads it, and publish.py rebuilds it",
+    "csrbt-core": "the Java engine, 24 MB, reached only through committed session JSON",
+    "csrbt-experimental": "the experimental Java tree, 6 MB, same reasoning",
+    "csrbt-benchmarks": "the JMH benchmark sources; nothing in docs/ or tools/ reads them",
+    "gradle": "the wrapper's jar and properties; nothing in docs/ or tools/ reads it",
+    ".git": "history, and by far the largest thing here",
+    "_to_delete": "parked older copies of tools; copying them would put stale "
+                  "suites in the scratch tree next to the real ones",
+}
+
+
+# ...and paths INSIDE a skipped tree that come across anyway, because a suite
+# reads them. Each is one file, named, with the suite that needs it.
+#
+# The alternative is un-skipping a 6 MB tree to carry a 4 KB file. The cost of
+# this list is that it has to be maintained; the cost of not having it is a
+# suite that reports NOT VERIFIED inside every sweep and a mutation that lives
+# because of it -- which is what happened to the threshold binding the day it
+# was written.
+SCRATCH_KEEP = {
+    os.path.join("csrbt-experimental", "src", "main", "java", "io", "github",
+                 "richeyworks", "csrbt", "experimental", "ecology", "FieldReport.java"):
+        "verify_engine_sessions binds ecology-lab's plain-English thresholds to it",
+}
+
+
 def scratch_root():
     """A throwaway copy of docs/ and tools/ to mutate.
 
@@ -601,18 +634,37 @@ def scratch_root():
     is most of the kit, silently, and reported as "already failing on clean
     code" when it passes 98/98 in the real tree.
 
-    Ninety-eight checks that had never been allowed to testify. Directories
-    are deliberately NOT copied: build/ and the Java tree are large and nothing
-    in docs/ links into them.
+    Ninety-eight checks that had never been allowed to testify.
+
+    That fix copied the top-level FILES and stopped, which was the instance and
+    not the class: verify_visualizer_sessions reads demo/visualizer.html, and
+    demo/ is a directory, so the next sweep reported IT red on the scratch copy
+    for the same reason one page later.
+
+    So the default is inverted. Everything at the top level comes across unless
+    it is named in SCRATCH_SKIP, which means a directory added to this repo
+    tomorrow is copied without anybody remembering to say so -- the same lesson
+    KEEP's formSnapshot learned about hand-maintained lists of fields. The
+    exclusions are the two large trees and the things that cannot matter:
+    together they are 33 of the repo's 44 MB, and no page or suite reads into
+    any of them.
     """
     tmp = tempfile.mkdtemp(prefix="csrbt_mutate_")
-    shutil.copytree(DOCS, os.path.join(tmp, "docs"))
-    shutil.copytree(os.path.join(ROOT, "tools"), os.path.join(tmp, "tools"),
-                    ignore=shutil.ignore_patterns("__pycache__", "*.pyc"))
     for nm in sorted(os.listdir(ROOT)):
-        src = os.path.join(ROOT, nm)
-        if os.path.isfile(src):
-            shutil.copy2(src, os.path.join(tmp, nm))
+        if nm in SCRATCH_SKIP:
+            continue
+        src, dst = os.path.join(ROOT, nm), os.path.join(tmp, nm)
+        if os.path.isdir(src):
+            shutil.copytree(src, dst,
+                            ignore=shutil.ignore_patterns("__pycache__", "*.pyc"))
+        else:
+            shutil.copy2(src, dst)
+    for rel in SCRATCH_KEEP:
+        src = os.path.join(ROOT, rel)
+        if os.path.exists(src):
+            dst = os.path.join(tmp, rel)
+            os.makedirs(os.path.dirname(dst), exist_ok=True)
+            shutil.copy2(src, dst)
     return tmp
 
 
