@@ -104,8 +104,24 @@ CHECK = """
 """
 
 
-def main():
+def main(argv=None):
+    """--page NAME scopes the probe to one page.
+
+    Added for tools/mutate.py, which runs only the suites that NAME a page and
+    so never ran this one -- it globs every page and names none. Every
+    `drop-esc` mutant it seeded was therefore reported as surviving while this
+    audit killed it, and a survivor list padded with garbage is a worklist
+    nobody finishes (ADR-047)."""
+    argv = sys.argv[1:] if argv is None else argv
+    only = None
+    if "--page" in argv:
+        only = argv[argv.index("--page") + 1]
     pages = sorted(glob.glob(DOCS + "*.html"))
+    if only:
+        pages = [p for p in pages if os.path.basename(p) == only]
+        if not pages:
+            print("no such page: %s" % only)
+            return 2
     rows, total = [], 0
     with sync_playwright() as p:
         b = p.chromium.launch()

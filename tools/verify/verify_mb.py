@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-import math
+import math, re
 from playwright.sync_api import sync_playwright
 import os as _os
 # The kit is checked out wherever the user keeps it; these suites used to hard-code
@@ -97,6 +97,30 @@ with sync_playwright() as p:
     ck("CFU is caveated as not cells", "not cells/mL" in pn, pn[:300])
     ck("discarded plates are still shown in the list",
        pg.eval_on_selector_all("#plList > *","e=>e.length")==2,
+       pg.eval_on_selector_all("#plList > *","e=>e.length"))
+
+    # ---------------- two countable plates that disagree ----------------
+    # The Method tab promises this: "If they disagree by more than about a
+    # factor of two, something is wrong with the series rather than with the
+    # organism, and the page says so." Nothing checked that it does. A mutation
+    # sweep turned `hi=Math.max.apply(...)` into `Math.min.apply`, which makes
+    # hi === lo and hi/lo === 1, so the warning could never fire again -- and
+    # every suite stayed green.
+    setstep("#plEntry",0,5)
+    setfield("#plEntry",0,50)
+    pg.fill("#plL","TSA-C"); pg.click("#plAdd"); pg.wait_for_timeout(300)
+    pn=pg.inner_text("#plNote")
+    ck("two countable plates disagreeing by more than 2x are flagged",
+       "disagree by" in pn, pn[:300])
+    # Recomputed, not pinned: same dilution and volume on both, so the ratio of
+    # computed CFU/mL is just the ratio of the counts (ADR-041).
+    m=re.search(r"disagree by ([\d.]+)", pn)
+    ck("and the factor it states is the ratio of the two counts",
+       bool(m) and abs(float(m.group(1)) - 148/50) < 0.05, (m.group(1) if m else None, 148/50))
+    ck("the spread is blamed on the series, not the organism",
+       "dilution series" in pn or "series" in pn, pn[:300])
+    ck("all three plates now feed the list",
+       pg.eval_on_selector_all("#plList > *","e=>e.length")==3,
        pg.eval_on_selector_all("#plList > *","e=>e.length"))
 
     # ---------------- DILUTION PLANNER ----------------

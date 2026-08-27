@@ -197,6 +197,35 @@ def mutants_for(path, limit=None, whole_file=False):
     return src, out
 
 
+# A cross-cutting audit names no page -- it globs them all -- so suites_for()
+# can never return one, and every mutant of a kind only an audit can catch was
+# reported as surviving. audit_escaping kills a seeded `drop-esc` on
+# micro-bench outright, and the sweep called it a survivor because it never ran
+# it. ADR-047: a survivor list padded with garbage is a worklist nobody
+# finishes.
+#
+# Mapped by KIND, and only where the audit demonstrably kills that kind. There
+# is no entry for the other audits: contrast, offline, print and focus are not
+# reachable from any mutation this file generates, and adding them on a hunch
+# would buy a slower sweep for no kills.
+AUDITS_FOR_OP = {"drop-esc": ["audit_escaping.py"]}
+
+
+def run_audit(name, page, cwd):
+    """A page-scoped audit run. Non-zero means it caught the fault."""
+    return run_suite_argv([sys.executable, os.path.join(cwd, "tools", name),
+                           "--page", page], cwd)
+
+
+def run_suite_argv(argv, cwd, timeout=None):
+    timeout = timeout or SUITE_TIMEOUT[0]
+    try:
+        return subprocess.run(argv, capture_output=True, text=True,
+                              timeout=timeout, cwd=cwd).returncode
+    except subprocess.TimeoutExpired:
+        return 99
+
+
 def suites_for(page):
     """Suites whose source names this page. A suite that never mentions a page
     cannot be expected to notice it changed.
@@ -476,6 +505,12 @@ def main(argv):
                         caught = True
                         by = os.path.basename(s)[:-3].replace("verify_", "")
                         break
+                if not caught:
+                    for aud in AUDITS_FOR_OP.get(mu["op"], []):
+                        if run_audit(aud, page, tmp) != 0:
+                            caught = True
+                            by = aud[:-3]
+                            break
                 if caught:
                     killed += 1
                     mark = "killed"
