@@ -1,22 +1,12 @@
 {
   "_comment": "sha256 of the bytes last handed to the publisher, per page. A page absent from this map has never been stamped and its published state is UNKNOWN -- which is not the same as current.",
-  "observed": {
+  "observed": {},
+  "pages": {
     "adr-031.html": {
-      "at": 1787871312,
-      "blocking_webfont": true,
+      "at": 1787873301,
       "sha": "ac550cc22f323703f72d3854610d685fe6c8b8c9196dad11856cbac7e2798f0e",
-      "state": "behind",
       "via": "read"
     },
-    "ecology-lab.html": {
-      "at": 1787871163,
-      "blocking_webfont": true,
-      "sha": "b0ec0e859df6e97b42ccf0524b7e34ff6be0b72a62d98bd199c4206c9d9faf6e",
-      "state": "behind",
-      "via": "read"
-    }
-  },
-  "pages": {
     "cell-bench.html": "dd3157877bd6dbd6ccfb0bff160f52a4073867dca34239c50d85c381a1d386b9",
     "collection-sheet.html": {
       "at": 1787810037,
@@ -35,6 +25,11 @@
     "ecology-lab-manual.html": {
       "at": 1787777383,
       "sha": "2ea38fb40eb14ae4bbbc5c7c982a12092f0f04a77109a1913191f43267cb72cc"
+    },
+    "ecology-lab.html": {
+      "at": 1787873397,
+      "sha": "b0ec0e859df6e97b42ccf0524b7e34ff6be0b72a62d98bd199c4206c9d9faf6e",
+      "via": "read"
     },
     "ecology.html": {
       "at": 1787781284,

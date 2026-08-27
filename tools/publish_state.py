@@ -302,6 +302,17 @@ def main(argv):
     print("%d current, %d behind (%d of them measured at the URL), %d unknown, "
           "%d unmapped" % (len(current), len(behind) + len(measured), len(measured),
                            len(unknown), len(unmapped)))
+    # What this figure is actually FOR (ADR-079). Every audit and suite in this
+    # kit measures docs/ -- the repo. A green contrast audit is a claim about
+    # what a reader sees only for the pages whose published copy carries those
+    # same bytes, and this line is the only place that link is stated. Measured
+    # on 2026-08-27: the published flagship was serving --muted at 2.98:1 and a
+    # render-blocking font link, months after the audits that catch both went
+    # green, because they were green about the repo.
+    if behind or measured or unknown:
+        print("   %d page(s) are NOT known to carry the audited bytes -- for those, a "
+              "green audit\n   of docs/ says nothing about what a reader sees"
+              % (len(behind) + len(measured) + len(unknown)))
     if current:
         print("   of the current: %s"
               % ", ".join("%d %s" % (len(v), {"read": "measured from the live page",
