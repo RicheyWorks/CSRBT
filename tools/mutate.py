@@ -208,6 +208,11 @@ KNOWN_EQUIVALENT = [
     ("lte->lt", "v<=0",
      "the plated-volume guard; the stepper clamps to its min, measured: typing "
      "0 or -5 both yield 0.001, so v<=0 is unreachable through the UI"),
+    ("lte->lt", "a[i]<=a[i-1]",
+     "tree-visualizer's own checkBST; the tree refuses duplicates (bstInsert "
+     "returns null for a key already present, and verify_tv asserts that "
+     "inserting 50 twice leaves the count unchanged), so no two adjacent "
+     "in-order keys are ever equal and <= cannot differ from <"),
     ("lte->lt", "c<=0",
      "soil-recipes fmtCup's zero guard; measured: 51 quantities in the RECIPES "
      "literal with a minimum of 0.25, and the batch dial's smallest multiplier "
