@@ -127,6 +127,119 @@ for n in sorted(reach):
 ck("every page where the injection is reachable is published current",
    not not_current, not_current)
 
+# ---- a stamp says HOW it was earned (ADR-078) ---------------------------
+# "Unknown" was the honest state for nineteen pages, and the only way out of it
+# was to republish nineteen artifacts -- a real cost paid for a bookkeeping gap.
+# It is avoidable, because ADR-055's own principle says staleness is a property
+# of the PUBLISHED COPY, and the published copy can be read. So a stamp can be
+# earned by measuring the live page rather than by publishing it.
+#
+# Two stamps, two different pieces of evidence, and the whole value of the
+# distinction is that they never read as one:
+#     via "publish"  the bytes I handed the publisher
+#     via "read"     the bytes the URL was serving at that moment
+# The report has to keep them apart, and entries written before any of this
+# existed must not be silently upgraded into either.
+ck("a stamp's provenance is read through publish_state, like its hash and time",
+   _pstate.entry_via({"sha": "a", "at": 1, "via": "read"}) == "read"
+   and _pstate.entry_via({"sha": "a", "at": 1, "via": "publish"}) == "publish",
+   (_pstate.entry_via({"sha": "a", "at": 1, "via": "read"}),))
+ck("an entry with no provenance reads as None, never as 'publish'",
+   _pstate.entry_via({"sha": "a", "at": 1}) is None
+   and _pstate.entry_via("abc") is None,
+   (_pstate.entry_via({"sha": "a", "at": 1}), _pstate.entry_via("abc")))
+
+# containment, not equality -- and not skeleton-stripping. The publisher wraps
+# the build bytes in a page shell; parsing that shell back off would be a filter
+# written against today's wrapper, which is the shape that produced
+# publish_drift's twenty-four false findings.
+_probe = os.path.join(ROOT, "build", "publish", "cp-bench.html")
+if os.path.exists(_probe):
+    _body = io.open(_probe, encoding="utf-8").read()
+    ck("a wrapped copy of the publish bytes verifies",
+       _pstate.contains_build("<!doctype html><head>SHELL</head><body>"
+                              + _body + "</body></html>", _probe))
+    ck("...and one byte of drift inside the content does not",
+       not _pstate.contains_build("<!doctype html><body>"
+                                  + _body.replace("<style>", "<style >", 1)
+                                  + "</body>", _probe),
+       "cp-bench has no <style> to perturb" if "<style>" not in _body else "")
+    ck("a truncated copy does not verify",
+       not _pstate.contains_build(_body[:-40], _probe))
+    # the test has to be able to fail: if the perturbation above changed nothing
+    # the check above would pass vacuously (ADR-039).
+    ck("the drift probe actually perturbs the bytes", "<style>" in _body,
+       _body[:80])
+else:
+    print("NOT VERIFIED: no build output to test containment against")
+
+# The pages this suite covers must be current, and now the report can say on
+# what evidence. Nothing here demands "read" -- publish-time stamps are the
+# normal case -- only that whatever the file says is what the tool reports.
+_shapes = {n: _pstate.entry_via(stamps[n]) for n in sorted(reach) if n in stamps}
+ck("every stamp for a reachable page carries a provenance this tool understands",
+   all(v in (None, "read", "publish") for v in _shapes.values()), _shapes)
+
+# ---- the offline contract, measured where the reader is (ADR-078) ------
+# verify_offline_slice checks ADR-031's webfont rule on the REPO. Nothing
+# checked it on the PUBLISHED copies, and the published copies are the ones a
+# reader opens -- ADR-055's principle, applied to a rule instead of to bytes.
+# Measured today: adr-031.html's own published copy blocks first paint on a
+# font request. The page that states the constraint shipped in violation of it.
+_F = "https://fonts.googleapis.com/css2?family=X"
+_DEFER = ('<link rel="stylesheet" href="' + _F + '" media="print" data-webfont>'
+          '<noscript><link rel="stylesheet" href="' + _F + '"></noscript>'
+          '<script>(function(){var l=document.querySelector(\'link[data-webfont]\');'
+          'l.media="all";})();</script>')
+_BLOCK = '<link rel="stylesheet" href="' + _F + '">'
+_bad, _prom = _pstate.blocking_webfont("<head>" + _DEFER + "</head>")
+ck("the deferred webfont form is not reported as blocking", not _bad, _bad)
+ck("...and its promoter is seen", _prom)
+_bad2, _ = _pstate.blocking_webfont("<head>" + _BLOCK + "</head>")
+ck("a plain stylesheet link to the font host IS reported as blocking",
+   len(_bad2) == 1, _bad2)
+# the <noscript> fallback is a deliberately blocking copy; counting it would
+# report every correct page, which is the false-positive shape ADR-055 named.
+_bad3, _ = _pstate.blocking_webfont(
+    '<head><link rel="stylesheet" href="' + _F + '" media="print" data-webfont>'
+    '<noscript>' + _BLOCK + '</noscript></head>')
+ck("the noscript fallback is not counted as the defect", not _bad3, _bad3)
+# a page with no webfont at all is not a finding either way
+_bad4, _prom4 = _pstate.blocking_webfont("<head><title>x</title></head>")
+ck("a page with no webfont reports neither a block nor a promoter",
+   not _bad4 and not _prom4, (_bad4, _prom4))
+
+# ---- a measurement decays when the repo moves (ADR-078) ----------------
+# A negative measurement is knowledge -- "I read that URL at T and it was not
+# serving this build" beats "unknown" -- but only about the build it was taken
+# against. The moment the repo moves, carrying the verdict forward would be a
+# stale claim about a live page, which is precisely the failure ADR-055 is
+# named for. So the rule is stated as one function and checked here, both ways.
+_ST = {"pages": {"a.html": {"sha": "AAA", "at": 10, "via": "publish"}},
+       "observed": {"b.html": {"sha": "BBB", "at": 20, "via": "read",
+                               "state": "behind"}}}
+ck("a stamp matching the build reads current",
+   _pstate.classify("a.html", "AAA", _ST)[0] == "current",
+   _pstate.classify("a.html", "AAA", _ST))
+ck("a stamp against a moved build reads behind",
+   _pstate.classify("a.html", "ZZZ", _ST)[0] == "behind",
+   _pstate.classify("a.html", "ZZZ", _ST))
+ck("an observation against THIS build reads measured-behind",
+   _pstate.classify("b.html", "BBB", _ST)[0] == "measured-behind",
+   _pstate.classify("b.html", "BBB", _ST))
+ck("...and against a moved build DECAYS to unknown, not to a stale verdict",
+   _pstate.classify("b.html", "ZZZ", _ST)[0] == "unknown",
+   _pstate.classify("b.html", "ZZZ", _ST))
+ck("a page with neither a stamp nor an observation is unknown",
+   _pstate.classify("c.html", "AAA", _ST)[0] == "unknown",
+   _pstate.classify("c.html", "AAA", _ST))
+# a stamp always wins over an observation -- publishing is the later event
+_ST2 = {"pages": {"b.html": {"sha": "BBB", "at": 30, "via": "read"}},
+        "observed": {"b.html": {"sha": "BBB", "at": 20, "state": "behind"}}}
+ck("a stamp outranks a leftover observation for the same page",
+   _pstate.classify("b.html", "BBB", _ST2)[0] == "current",
+   _pstate.classify("b.html", "BBB", _ST2))
+
 print("-" * 70)
 print("%d passed, %d failed" % (ok, bad))
 sys.exit(1 if bad else 0)

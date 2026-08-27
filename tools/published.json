@@ -1,5 +1,21 @@
 {
   "_comment": "sha256 of the bytes last handed to the publisher, per page. A page absent from this map has never been stamped and its published state is UNKNOWN -- which is not the same as current.",
+  "observed": {
+    "adr-031.html": {
+      "at": 1787871312,
+      "blocking_webfont": true,
+      "sha": "ac550cc22f323703f72d3854610d685fe6c8b8c9196dad11856cbac7e2798f0e",
+      "state": "behind",
+      "via": "read"
+    },
+    "ecology-lab.html": {
+      "at": 1787871163,
+      "blocking_webfont": true,
+      "sha": "b0ec0e859df6e97b42ccf0524b7e34ff6be0b72a62d98bd199c4206c9d9faf6e",
+      "state": "behind",
+      "via": "read"
+    }
+  },
   "pages": {
     "cell-bench.html": "dd3157877bd6dbd6ccfb0bff160f52a4073867dca34239c50d85c381a1d386b9",
     "collection-sheet.html": {
@@ -56,6 +72,11 @@
     "survey-design.html": {
       "at": 1787810037,
       "sha": "80e11468a5919c2ff8cc1feeebf8b3c23785af11a9e4999f7de9b14510ca3649"
+    },
+    "tree-proofs.html": {
+      "at": 1787871286,
+      "sha": "8fd9fb40cd2e7d8e6d587e25e9ee1a458f10ef72a6f37a5a05dd9ef2db04abc9",
+      "via": "read"
     }
   }
 }
