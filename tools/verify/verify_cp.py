@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-import sys
+import re, sys
 from playwright.sync_api import sync_playwright
 import os as _os
 # The kit is checked out wherever the user keeps it; these suites used to hard-code
@@ -59,6 +59,37 @@ with sync_playwright() as p:
     ck("300 ppm -> too high", "Too high" in pg.inner_text("#wOut"), pg.inner_text("#wOut")[:150])
     ck("no amendment removes TDS stated", "no amendment" in pg.inner_text("#wOut"), "")
     ck("3 readings listed", pg.eval_on_selector_all("#wList .row2","e=>e.length")==3, "")
+
+    # ---- the bands are named by their boundaries, so test the boundaries ----
+    # 20, 120 and 300 are the middles of the three bands. A mutation sweep
+    # turned `tds <= 50` into `tds < 50` and nothing here noticed, because 50
+    # itself had never been entered -- and 50 is the number every grower reads,
+    # the one the page names in its own sentence, and the one the stepper lands
+    # on in tens. Same for 160.
+    #
+    # The row in the list carries the same two comparisons independently of the
+    # verdict, so both are asserted: a page that agreed with itself only in the
+    # middle of each band would be a page whose list and verdict can disagree at
+    # the edge, which is where somebody actually looks.
+    def _band(v):
+        setstep("#wEntry", v); pg.click("#wAdd"); pg.wait_for_timeout(250)
+        return pg.inner_text("#wOut"), pg.inner_text("#wList .row2")
+    _o50, _r50 = _band(50)
+    ck("exactly 50 ppm is inside the convention, not above it",
+       "Excellent" in _o50 and "Usable" not in _o50, _o50[:160])
+    ck("and the reading's own row says the same at 50",
+       "inside the 50 ppm convention" in _r50, _r50[:160])
+    _o160, _r160 = _band(160)
+    ck("exactly 160 ppm is under the guidance, not over it",
+       "Usable" in _o160 and "Too high" not in _o160, _o160[:160])
+    ck("and the reading's own row says the same at 160",
+       "under the 160 ppm guidance" in _r160, _r160[:160])
+    # ...and one ppm past each boundary really does move, so the fixtures above
+    # are not passing because the page ignores the number.
+    _o51, _ = _band(51)
+    ck("51 ppm has left the convention band", "Usable" in _o51, _o51[:160])
+    _o161, _ = _band(161)
+    ck("161 ppm has left the guidance band", "Too high" in _o161, _o161[:160])
 
     # RO creep: three RO readings climbing
     for v in (5,20,45):
@@ -127,6 +158,31 @@ with sync_playwright() as p:
     ck("trap trend reported up 4->9", "Up from 4 to 9" in po, po[:300])
     ck("seasonality caveat on trap counts", "seasonal" in po, "")
     ck("trap chart drawn", pg.eval_on_selector_all("#pOut svg","e=>e.length")==1, "")
+
+    # ---- ...and the line has to be inside the chart -----------------------
+    # "an svg exists" was the whole of this page's chart coverage. A mutation
+    # sweep replaced `hi = Math.max(series)` with a min: hi then equals lo, the
+    # `hi === lo` guard bumps it to lo + 1, and every count above that is drawn
+    # far above the top of the frame -- y around -456 in a 170-high viewBox for
+    # this very 4/6/9 series. Nothing noticed, because nothing had ever read the
+    # path.
+    #
+    # Same rule as the ordination plot: inside the frame, and using it. A scale
+    # that collapsed the line onto one row would satisfy the first and not the
+    # second.
+    _vb = pg.eval_on_selector("#pOut svg", "e=>e.getAttribute('viewBox')")
+    _W, _H = [float(x) for x in _vb.split()[2:4]]
+    _d = pg.eval_on_selector("#pOut svg path", "e=>e.getAttribute('d')")
+    _pts = [(float(a), float(b)) for a, b in
+            re.findall(r"[ML]([-\d.]+),([-\d.]+)", _d or "")]
+    ck("the trend line has a point per observation", len(_pts) == 3, (_d or "")[:120])
+    ck("every point on the trend line is inside the chart",
+       all(0 <= x <= _W for x, _ in _pts) and all(0 <= y <= _H for _, y in _pts),
+       [(round(x, 1), round(y, 1)) for x, y in _pts])
+    ck("and a rising count rises -- later points sit higher, so y decreases",
+       [y for _, y in _pts] == sorted([y for _, y in _pts], reverse=True)
+       and _pts[0][1] > _pts[-1][1],
+       [round(y, 1) for _, y in _pts])
 
     # ---------------- DORMANCY: the gate-3 refusal ----------------
     pg.click('.tab[data-pane="p-sea"]'); pg.wait_for_timeout(250)

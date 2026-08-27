@@ -235,6 +235,18 @@ KNOWN_EQUIVALENT = [
      "field-season's Poisson draw; with lam=0 the guard is redundant -- L=exp(0)=1 "
      "and the do/while exits on the first draw because the PRNG returns t/2^32 < 1, "
      "so k-1 = 0 either way"),
+    ("drop-esc", "esc(s)",
+     "cp-bench's water-reading row; s is a SOURCES label and SOURCES is a page "
+     "literal at line 1011 with no push, splice or reassignment anywhere in the "
+     "file -- so there is nothing in the input to escape"),
+    # --- a guard whose two branches converge ------------------------------
+    ("and->or", "navigator.clipboard&&navigator",
+     "eco-protocol-library's copy button. With `||` a truthy navigator.clipboard "
+     "short-circuits and writeText is called even if absent -- which THROWS, and "
+     "the whole expression sits inside a try that calls fallback(). Both spellings "
+     "reach fallback() in every browser where they differ, so the mutation cannot "
+     "be observed from outside: measured by reading the enclosing try, not by "
+     "reading the condition"),
     ("lte->lt", "i<=8;i++) S.plants",
      "pheno-tracker's starting roster size. No independent witness exists for "
      "it: the page writes its own runN field back from the roster length, so "

@@ -280,6 +280,38 @@
       "killed": 1,
       "survived": 0,
       "fresh": 0
+    },
+    {
+      "page": "eco-protocol-library.html",
+      "adr": "ADR-073",
+      "source": "tool",
+      "killed": 1,
+      "survived": 1,
+      "fresh": 1
+    },
+    {
+      "page": "cp-bench.html",
+      "adr": "ADR-073",
+      "source": "tool",
+      "killed": 3,
+      "survived": 3,
+      "fresh": 3
+    },
+    {
+      "page": "eco-protocol-library.html",
+      "adr": "ADR-073",
+      "source": "tool",
+      "killed": 1,
+      "survived": 1,
+      "fresh": 0
+    },
+    {
+      "page": "cp-bench.html",
+      "adr": "ADR-073",
+      "source": "tool",
+      "killed": 5,
+      "survived": 1,
+      "fresh": 0
     }
   ]
 }
