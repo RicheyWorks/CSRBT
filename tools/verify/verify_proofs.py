@@ -62,6 +62,14 @@ with sync_playwright() as pw:
         ck(h <= 1.4404 * math.log2(n + 2) - 0.3277 + 1e-9,
            "h=%d clears the classical AVL bound" % h)
         ck(r[4] == "✓", "h=%d row is marked as holding" % h)
+        # Every bound above is an UPPER bound, so a height computed too SMALL
+        # satisfies all of them. A mutation sweep turned the height recurrence
+        # `1 + Math.max(left.h, right.h)` into `Math.min` and this whole section
+        # stayed green. No tree of n nodes can be shorter than log2(n+1), and
+        # that is recomputed from n rather than pinned (ADR-041).
+        ck(h >= math.log2(n + 1) - 1e-9,
+           "h=%d: %d nodes cannot fit in a tree shorter than log2(%d+1) = %.2f"
+           % (h, n, n, math.log2(n + 1)))
 
     # ---- 2. red-black: the bound, over several random trees ---------------
     for i in range(6):
@@ -73,6 +81,9 @@ with sync_playwright() as pw:
             ck(h <= 2 * math.log2(n + 1) + 1e-9,
                "tree %d: height %d <= 2*log2(%d+1) = %.2f" % (i, h, n, 2 * math.log2(n + 1)))
             ck(bh <= h, "tree %d: black-height %d does not exceed height %d" % (i, bh, h))
+            ck(h >= math.log2(n + 1) - 1e-9,
+               "tree %d: %d keys cannot fit in a tree shorter than log2(%d+1) = %.2f"
+               % (i, n, n, math.log2(n + 1)))
             ck("VIOLATED" not in note, "tree %d: the page does not report a violation" % i)
         pg.click("#rbNew"); pg.wait_for_timeout(160)
     # the 2-3-4 view must be the same tree, not a different one

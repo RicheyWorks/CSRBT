@@ -135,6 +135,65 @@ with sync_playwright() as p:
         ck("%s: no loop warning on a shipped preset" % name,
            "Loop detected" not in box, box[:120])
 
+    # ---- tapping a pair twice erases the link, INCLUDING the first one ----
+    # The builder's own instructions say "tap the same pair again to erase".
+    # The erase branch is guarded by `if(i>=0)` on a findIndex result, and a
+    # mutation sweep turned it into `i>0` -- which leaves the link at index 0
+    # permanently unremovable while every other link still erases. Nothing
+    # noticed, because no check had ever erased the FIRST link.
+    pg.click("#presetPond"); pg.wait_for_timeout(450)
+    first = pg.evaluate("()=>FW.links()[0]")
+    before = pg.evaluate("()=>FW.links().length")
+    def tap(sid):
+        pg.eval_on_selector('g[data-id="%s"]' % sid,
+                            "e=>e.dispatchEvent(new MouseEvent('click',{bubbles:true}))")
+        pg.wait_for_timeout(220)
+    tap(first["prey"]); tap(first["pred"])          # re-tapping the pair erases it
+    after = pg.evaluate("()=>FW.links().length")
+    ck("re-tapping a pair erases the link at index 0", after == before - 1, (before, after))
+    ck("and it is that link that went",
+       not any(l["prey"] == first["prey"] and l["pred"] == first["pred"]
+               for l in pg.evaluate("()=>FW.links()")), first)
+    tap(first["prey"]); tap(first["pred"])          # and putting it back works
+    ck("tapping the pair once more restores it",
+       pg.evaluate("()=>FW.links().length") == before,
+       pg.evaluate("()=>FW.links().length"))
+
+    # ---- the connectance verdict, ON its boundary ----
+    # The page's three readings hinge on 0.05 and 0.3, and the upper one is
+    # written `C <= 0.3`. A mutation sweep made it `C < 0.3` and every check
+    # passed, because no web in the suite sat ON the boundary -- which is the
+    # only place the two spellings differ. S=10, L=30 gives C = 30/100 exactly.
+    BSP = {}
+    for i in range(3): BSP["p%d" % i] = "producer"
+    for i in range(7): BSP["c%d" % i] = "consumer"
+    ids = list(BSP)
+    # A DAG, or the page reports a loop and never prints the connectance
+    # reading at all -- the first attempt let every consumer eat every other
+    # species, which is mutual predation, and the verdict block is guarded by
+    # `!orphans.length && !L.loop`. Only i<j links, and every consumer is given
+    # one incoming link first so none is an orphan either.
+    order = {k: i for i, k in enumerate(ids)}
+    seed = [(ids[0], c) for c in ids[3:]]                      # 7, no orphans
+    rest = [(x, y) for x in ids for y in ids
+            if order[x] < order[y] and order[y] >= 3 and (x, y) not in seed]
+    pairs = seed + rest
+    BLN = pairs[:30]
+    ck("the boundary web is exactly S=10, L=30", len(BSP) == 10 and len(BLN) == 30,
+       (len(BSP), len(BLN)))
+    build(list(BSP.items()), BLN)
+    ck("connectance on the boundary reads 0.300",
+       tile("connectance L/S²") == "0.300", tile("connectance L/S²"))
+    body = pg.inner_text("body")
+    ck("C = 0.3 exactly is read as INSIDE the published range, not denser than it",
+       "right in the range" in body, body[:200])
+    # and one link past it flips, so the check above is not passing on a page
+    # that says "in the range" whatever the number.
+    build(list(BSP.items()), pairs[:31])
+    body2 = pg.inner_text("body")
+    ck("and 31 links on ten species is read as denser than most real webs",
+       "denser than most" in body2, body2[:200])
+
     # ---- the knockout cascade, on the case the page advertises ----
     pg.click("#presetPond")
     pg.wait_for_timeout(400)

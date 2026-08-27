@@ -144,6 +144,72 @@ def block_of(src, i):
     return "page"
 
 
+# ---- a mutation inside a module function the page never calls ---------------
+#
+# Every page inlines the Field Entry Kit whole. A page that uses steppers and
+# fields still carries picker(), slider() and chips(), and a mutation inside a
+# constructor the page never calls cannot change anything the page does. Those
+# came back as survivors on micro-bench and on cell-bench, and would have come
+# back on all thirty-nine -- the same two rows forever, which is how a worklist
+# teaches you to skim (ADR-047).
+#
+# This is a FACT about the page, not a heuristic: the module publishes its
+# constructors in a `return { name: fn, ... }`, and if the page never writes
+# `FEK.name(` then that constructor is dead code in this copy.
+#
+# Deliberately narrow. It applies ONLY to published names. An internal helper --
+# reg(), el(), buzz(), clamp() -- is called from inside the module, so "the page
+# never calls FEK.reg(" is true and irrelevant, and treating it as unreachable
+# would hide a real survivor.
+# ---- survivors examined and left, with the reason ---------------------------
+#
+# ADR-047: "the defence is saying out loud which survivors you decided not to
+# kill and why." These three recur on every page that inlines the Field Entry
+# Kit, which is all of them, and re-triaging the same three rows on thirty-nine
+# pages is how a worklist teaches you to skim.
+#
+# Each was settled by MEASUREMENT, not by reading, and the measurement is named.
+# None is a licence: a mutant only matches here if its operator and its context
+# both match, so the same operator somewhere else is still a survivor.
+#
+# An automated version was attempted and withdrawn. Deciding "this module
+# function is never called on this page" needs the position matched to the
+# function that CONTAINS it, which needs JavaScript braces matched properly,
+# which needs regex literals told apart from division -- and the first cut
+# attributed every FEK mutation to esc(), because the escaper's own
+# /[&<>"']/g swallowed the matcher. A rule that cannot be got right is worse
+# than a list that is honest about being a list.
+KNOWN_EQUIVALENT = [
+    ("gte->gt", "indexOf(qq)>=0",
+     "inside FEK.picker's filter; grep shows FEK.picker used 0 times on the "
+     "bench pages, so the constructor is dead code in those copies"),
+    ("and->or", "if(o && o.field)",
+     "FEK.reg(o,h); all 6 call sites pass the constructor's own o, which every "
+     "constructor has already defaulted to {} -- so o && is always true"),
+    ("lte->lt", "v<=0",
+     "the plated-volume guard; the stepper clamps to its min, measured: typing "
+     "0 or -5 both yield 0.001, so v<=0 is unreachable through the UI"),
+    ("lte->lt", "lam<=0",
+     "field-season's Poisson draw; with lam=0 the guard is redundant -- L=exp(0)=1 "
+     "and the do/while exits on the first draw because the PRNG returns t/2^32 < 1, "
+     "so k-1 = 0 either way"),
+    ("lte->lt", "t<=4",
+     "tree-proofs chart gridlines: five lines at 0/25/50/75/100% become four. "
+     "Chart furniture, no claim depends on it -- examined and left"),
+    ("lte->lt", "sq<=0",
+     "the squares-counted guard; same clamp, measured: typing 0 or -3 both "
+     "yield hidden cSq = 1"),
+]
+
+
+def examined(mu):
+    """The recorded reason this survivor was left, or None."""
+    for op, frag, why in KNOWN_EQUIVALENT:
+        if mu["op"] == op and frag in mu["ctx"]:
+            return why
+    return None
+
+
 def mutants_for(path, limit=None, whole_file=False):
     src = io.open(path, encoding="utf-8").read()
     if whole_file:
@@ -230,13 +296,22 @@ def suites_for(page):
     """Suites whose source names this page. A suite that never mentions a page
     cannot be expected to notice it changed.
 
+    Returns (kept, skipped). The skipped list is REPORTED rather than dropped
+    quietly: this heuristic is a judgement about coverage, and ADR-061 is what a
+    silent exclusion costs -- every audit was excluded from every sweep by
+    construction and nobody could see it from the output. Measured for
+    verify_claims_triage, which names three real pages and also builds a canary:
+    it passes the mutants mutate.py generates, because it asserts on rendered
+    TEXT and these mutants change interactive behaviour. Right call, and now a
+    visible one.
+
     Ordered so the page's OWN suite runs first. Two reasons, and the second is
     the important one: the common case is a killed mutant, so trying the most
     likely killer first makes the whole sweep affordable -- and a page named by
     a suite only as scaffolding (verify_audit_frontend plants faults IN
     food-web to test the audit) is not covered by it in any useful sense, so it
     should never be the thing that reports a kill."""
-    hits = []
+    hits, skipped = [], []
     for s in sorted(glob.glob(os.path.join(VERIFY, "verify_*.py"))):
         txt = io.open(s, encoding="utf-8").read()
         if page not in txt:
@@ -248,9 +323,10 @@ def suites_for(page):
         # that asserts nothing about it, and would make every sweep pay for a
         # ninety-second run that cannot kill a page-logic mutant anyway.
         if "tempfile" in txt and ("shutil" in txt or "mkdtemp" in txt):
+            skipped.append(os.path.basename(s)[:-3])
             continue
         hits.append(s)
-    return hits
+    return hits, skipped
 
 
 # Mutating a shared module's INLINED COPY inside a page and then running the
@@ -464,7 +540,10 @@ def main(argv):
         src, muts = mutants_for(path, a.limit)
         if not muts:
             print("%-28s no mutable code found" % page); continue
-        suites = suites_for(page)
+        suites, skipped = suites_for(page)
+        if skipped:
+            print("%-28s excluded (builds a scratch tree, so it names this page as a "
+                  "fixture): %s" % ("", ", ".join(skipped)))
         if not suites:
             print("%-28s %3d mutant(s)  NO SUITE NAMES THIS PAGE -- every mutant survives "
                   "by default" % (page, len(muts)))
@@ -541,14 +620,26 @@ def main(argv):
               % grand_nosuite)
     if survivors:
         print("")
+        fresh = [(p_, m_) for p_, m_ in survivors if not examined(m_)]
+        old = [(p_, m_) for p_, m_ in survivors if examined(m_)]
         print("SURVIVORS -- every relevant suite passed with these faults in place.")
         print("Each is a question, not a verdict: unreachable code and equivalent")
         print("mutants survive too, and there is no general way to tell them apart.")
-        for page, mu in survivors:
+        for page, mu in fresh:
             print("  %-24s %-12s %-5s line %-6d %s -> %s"
                   % (page, mu["op"], mu["block"], mu["line"], mu["was"], mu["now"]))
             print("  %-24s %s" % ("", mu["why"]))
             print("  %-24s %s" % ("", mu["ctx"][:70]))
+        if not fresh:
+            print("  (none that have not already been examined)")
+        if old:
+            print("")
+            print("ALREADY EXAMINED -- survivors triaged in an earlier slice and left,")
+            print("with the measurement that settled each one. Not a licence: the")
+            print("operator AND the context both have to match.")
+            for page, mu in old:
+                print("  %-24s %-12s line %-6d %s" % (page, mu["op"], mu["line"], mu["ctx"][:40]))
+                print("  %-24s %s" % ("", examined(mu)))
     return 0
 
 
