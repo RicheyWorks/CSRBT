@@ -2,7 +2,10 @@
   "_comment": "sha256 of the bytes last handed to the publisher, per page. A page absent from this map has never been stamped and its published state is UNKNOWN -- which is not the same as current.",
   "pages": {
     "cell-bench.html": "dd3157877bd6dbd6ccfb0bff160f52a4073867dca34239c50d85c381a1d386b9",
-    "collection-sheet.html": "9594155c90450d4074a70f01a846c3fe729cda43ec42d871b7a568e14574feb6",
+    "collection-sheet.html": {
+      "at": 1787810037,
+      "sha": "a45ce7d0b37f3e3a232f6757985235d898f91162ce8147e73554bd836c8f8254"
+    },
     "cp-bench.html": "9434f5fd87d0b487a8c45c442efe87f88c98184f31144338b6aa42ddcef70b98",
     "deployment-log.html": "6061c614ab206b8c33d6687a72ae1769cbb07ceaa65c6cba4a3338baa7bafacf",
     "ecology-field-card.html": {
@@ -32,8 +35,15 @@
       "sha": "5d710d6a44dec67be8470e6b5e2f0e1c8dbfbd65649c7b12a81a85b4caef7922"
     },
     "ordination.html": "3ae31cefb8748e0a4c0e42ae24679a2324765055dc639294ca7ae25a4cad4b85",
-    "pheno-tracker.html": "770477f9eac3b88e723b9d9f63e88bbdf962aebe7a6eda6137eaba95d78d8306",
+    "pheno-tracker.html": {
+      "at": 1787810037,
+      "sha": "91d18bc826da23130569bfc2c4c2d72e75488063fcab031ccc3afe6333b2b7d0"
+    },
     "releve.html": "35bbc54ca78e663a09a63a0ec75446af5a1c4bbb1991465a27ebaf3cc499d516",
+    "selection-log.html": {
+      "at": 1787810037,
+      "sha": "146f7291e9d548551f3b8720e7b93685ca335a6822caaff91d27feea83832d59"
+    },
     "soil-bench.html": {
       "at": 1787787501,
       "sha": "76c4a6602f44119a7be73b7ca752e5d3fd81885889a20e9e50fb88b8ad06ab04"
@@ -43,6 +53,9 @@
       "at": 1787777383,
       "sha": "658a9aeeba59aafc1c5a46c13a5de9e8f108ab2eabaa94773fd93eba472c7732"
     },
-    "survey-design.html": "1ddf7cdfdcbb6988464474eba68370844bf10d86b7780732af5dd8451210d0a0"
+    "survey-design.html": {
+      "at": 1787810037,
+      "sha": "80e11468a5919c2ff8cc1feeebf8b3c23785af11a9e4999f7de9b14510ca3649"
+    }
   }
 }

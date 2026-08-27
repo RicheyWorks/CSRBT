@@ -308,6 +308,63 @@ with sync_playwright() as p:
     ck("the blast radius of a silent fitness error is spelled out",
        "all at once and all invisibly" in m, m[-500:])
 
+    # ---- a fitness component that is recorded and all zero -------------
+    # The page guards `mean(W) <= 0` before dividing by sumW. A mutation sweep
+    # turned `<=` into `<`, and every check above still passed: nothing here had
+    # ever recorded a fitness of zero for EVERYBODY. It is not an exotic state --
+    # it is a drought where nothing survived, which is the case the page's own
+    # verdict text was written for. Without the guard, sumW is 0, mAfter is 0/0,
+    # and the tiles read NaN.
+    pg.click('.tab[data-pane="p-ind"]'); pg.wait_for_timeout(150)
+    for idx in range(len(labels)): setFit(idx, 0)
+    pg.wait_for_timeout(200)
+    pg.click('.tab[data-pane="p-sel"]'); pg.wait_for_timeout(300)
+    so0 = pg.inner_text("#selOut")
+    ck("all-zero fitness is called out rather than divided by",
+       "Mean fitness is zero" in so0, so0[:220])
+    ck("and nothing on the selection pane reads NaN",
+       "NaN" not in so0, [l for l in so0.split("\n") if "NaN" in l][:3])
+    ck("the gradient box is emptied too, not left with the previous run's numbers",
+       pg.inner_text("#gradBox").strip() == "", pg.inner_text("#gradBox")[:120])
+
+    # ---- a trait label is data, and FEK escapes it ---------------------
+    # The trait chips are built from TRAITS, which `tAdd` PUSHES typed text into
+    # -- so a trait name and unit are user data reaching a component option
+    # label. The page used to escape the unit itself on the way in; FEK escapes
+    # option labels too, so the entity survived to the screen and the chip read
+    # `girth (&quot;)` while the trait list below it read `girth"`.
+    #
+    # The expected string is BUILT FROM THE INPUT, not written out: a check that
+    # pins `girth (")` passes for a page that ignores the typed value entirely.
+    NAME, UNIT = "gir<b>th", '"&x'
+    pg.click('.tab[data-pane="p-mea"]'); pg.wait_for_timeout(120)
+    pg.evaluate("""([n,u])=>{document.getElementById('tName').value=n;
+        document.getElementById('tUnit').value=u;
+        document.getElementById('tAdd').click();}""", [NAME, UNIT])
+    pg.wait_for_timeout(250)
+    chips = pg.evaluate("""(n)=>[...document.querySelectorAll('.fek-chip')]
+        .map(e=>e.textContent).filter(t=>t.indexOf(n)===0)""", NAME)
+    ck("the new trait reaches every trait chip list (3 of them)",
+       len(chips) == 3, len(chips))
+    want = "%s (%s)" % (NAME, UNIT)
+    ck("a trait chip reads back exactly what was typed, entities and all",
+       chips and all(c == want for c in chips), (want, chips[:2]))
+    listed = pg.evaluate("""(n)=>[...document.querySelectorAll('#traitList .g')]
+        .map(e=>e.textContent).filter(t=>t.indexOf(n)===0)""", NAME)
+    ck("and the trait list on the same page spells it the same way",
+       listed and listed[0].startswith(NAME + UNIT), listed[:2])
+    # Not "#traitList has no <b>": renderTraits wraps EVERY trait name in an
+    # authored <b>, so that assertion fails on working code -- it did, first
+    # run. One authored bold per row is the invariant; an injected one makes
+    # two. Chips carry no authored markup at all, so there zero is the number.
+    rows = pg.evaluate("()=>document.querySelectorAll('#traitList .row2').length")
+    ck("one authored <b> per trait row and not one more",
+       pg.evaluate("()=>document.querySelectorAll('#traitList b').length") == rows,
+       (rows, pg.evaluate("()=>document.querySelectorAll('#traitList b').length")))
+    ck("and a chip, which authors no markup, contains no elements at all",
+       pg.evaluate("()=>document.querySelectorAll('.fek-chip *').length") == 0,
+       pg.evaluate("()=>[...document.querySelectorAll('.fek-chip *')].map(e=>e.tagName).slice(0,4)"))
+
     b.close()
 
 print("PASS %d"%len(P))

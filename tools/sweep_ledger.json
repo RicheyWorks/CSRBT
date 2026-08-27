@@ -1,0 +1,141 @@
+{
+  "_comment": [
+    "Every page-level mutation sweep that has been run, one record per RUN.",
+    "Duplicates are deliberate: greenhouse was swept twice, and a ledger that",
+    "silently deduplicated would hide that, which is how the running total in",
+    "the ADRs drifted by one in the first place (ADR-069).",
+    "Derived numbers -- how many pages are swept, how many are left -- are",
+    "computed by tools/sweep_ledger.py from this file and the docs/ glob.",
+    "Nothing here is a count. Counts are computed (ADR-041)."
+  ],
+  "records": [
+    {
+      "page": "ethogram.html",
+      "adr": "ADR-045",
+      "source": "backfilled",
+      "note": "run before ADR-046 fixed the exit-code bug, so this run's score was not evidence; re-swept in ADR-064"
+    },
+    {
+      "page": "food-web.html",
+      "adr": "ADR-045",
+      "source": "backfilled",
+      "note": "hand-canaried first; re-swept in ADR-063"
+    },
+    {
+      "page": "greenhouse.html",
+      "adr": "ADR-046",
+      "source": "backfilled",
+      "note": "module sweep of the inlined engine; re-swept at page level in ADR-063"
+    },
+    {
+      "page": "micro-bench.html",
+      "adr": "ADR-061",
+      "source": "backfilled"
+    },
+    {
+      "page": "cell-bench.html",
+      "adr": "ADR-062",
+      "source": "backfilled"
+    },
+    {
+      "page": "fungal-characters.html",
+      "adr": "ADR-062",
+      "source": "backfilled"
+    },
+    {
+      "page": "fungal-characters.html",
+      "adr": "ADR-063",
+      "source": "backfilled",
+      "note": "re-swept, 100% both times"
+    },
+    {
+      "page": "farm-scout.html",
+      "adr": "ADR-063",
+      "source": "backfilled"
+    },
+    {
+      "page": "greenhouse.html",
+      "adr": "ADR-063",
+      "source": "backfilled"
+    },
+    {
+      "page": "field-season.html",
+      "adr": "ADR-063",
+      "source": "backfilled"
+    },
+    {
+      "page": "tree-proofs.html",
+      "adr": "ADR-063",
+      "source": "backfilled"
+    },
+    {
+      "page": "food-web.html",
+      "adr": "ADR-063",
+      "source": "backfilled"
+    },
+    {
+      "page": "greenhouse.html",
+      "adr": "ADR-064",
+      "source": "backfilled",
+      "note": "THE DOUBLE COUNT: already swept in ADR-063; ADR-064 added it to the running total a second time and every tally after it was one too high"
+    },
+    {
+      "page": "soil-recipes.html",
+      "adr": "ADR-064",
+      "source": "backfilled"
+    },
+    {
+      "page": "survey-design.html",
+      "adr": "ADR-064",
+      "source": "backfilled"
+    },
+    {
+      "page": "ethogram.html",
+      "adr": "ADR-064",
+      "source": "backfilled"
+    },
+    {
+      "page": "tree-visualizer.html",
+      "adr": "ADR-065",
+      "source": "backfilled"
+    },
+    {
+      "page": "plant-characters.html",
+      "adr": "ADR-065",
+      "source": "backfilled"
+    },
+    {
+      "page": "field-notebook.html",
+      "adr": "ADR-065",
+      "source": "backfilled"
+    },
+    {
+      "page": "cp-characters.html",
+      "adr": "ADR-065",
+      "source": "backfilled"
+    },
+    {
+      "page": "breeding-bench.html",
+      "adr": "ADR-067",
+      "source": "backfilled"
+    },
+    {
+      "page": "deployment-log.html",
+      "adr": "ADR-067",
+      "source": "backfilled"
+    },
+    {
+      "page": "pheno-tracker.html",
+      "adr": "ADR-068",
+      "source": "backfilled"
+    },
+    {
+      "page": "selection-log.html",
+      "adr": "ADR-069",
+      "source": "tool",
+      "killed": 6,
+      "survived": 0,
+      "fresh": 0
+    }
+  ]
+}

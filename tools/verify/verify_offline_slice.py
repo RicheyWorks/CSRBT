@@ -60,8 +60,7 @@ for path in withfont:
 #
 # Asserting the snippets are byte-identical is what makes one behavioural test
 # honest coverage for all of them, rather than a sample presented as a rule.
-LOADER = re.compile(r"<script>\(function\(\)\{var l=document\.querySelector\('link\[data-webfont\]'\);"
-                    r".*?\}\)\(\);</script>", re.S)
+LOADER = _kit.LOADER              # one pattern, two readers -- see _kit.py
 loaders = {}
 for path in pages:
     src = io.open(path, encoding="utf-8").read()

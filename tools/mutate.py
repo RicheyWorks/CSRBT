@@ -331,6 +331,57 @@ def run_audit(name, page, cwd):
                            "--page", page], cwd)
 
 
+# ---- a mutation inside a module's INLINED copy ------------------------------
+#
+# Every page carries a verbatim copy of the Field Entry Kit, and some carry Keep,
+# the greenhouse engine, Darwin Core or Ordination too. `verify_fek` builds its
+# own harness page from `tools/fek.py` and never opens docs/ at all -- correctly,
+# because that is what makes it a test of the module rather than of one consumer.
+# The consequence is that a mutation to the FEK block INSIDE selection-log.html
+# is invisible to every suite the sweep runs for that page, and comes back as a
+# survivor. It came back on every page swept so far, which is how a worklist
+# teaches you to skim (ADR-047).
+#
+# It is not a blind spot. `fek_emit.py --check` compares each page's inlined
+# block against the module byte for byte and exits non-zero on any difference --
+# measured here, not assumed: seeding `Math.max(min,x)` -> `Math.min(min,x)` into
+# selection-log's clamp() makes --check report one consumer would be rewritten.
+#
+# So the coverage is real, in two links: the emitter proves the page's copy IS
+# the module, and the module's suite proves the module behaves. Worth being
+# precise about what this kill means, which is why the output attributes it to
+# `fek_emit` by name rather than to a suite. A mutant killed this way is not
+# evidence that anything TESTS that line's behaviour on that page -- it is
+# evidence the line is not that page's to change.
+MODULE_EMITTER = {"FEK": "fek_emit.py", "KEEP": "keep_emit.py", "GH": "gh_emit.py",
+                  "DWC": "dwc_emit.py", "ORD": "ord_emit.py"}
+
+
+def green_on_clean(run, key, tpath, clean_src, mutant_src, cache):
+    """Would this checker pass on the UNMUTATED page?
+
+    The named suites are baselined once, up front, while the scratch tree is
+    still clean. The audits and the cross-cutting suites are not: they run only
+    when a mutant is otherwise about to survive, which is rare, so baselining
+    all of them for every page would be paid for on every mutant and collected
+    on almost none. Instead the page is put back for the length of one run, the
+    answer is cached per checker, and the mutant is restored.
+    """
+    if key not in cache:
+        io.open(tpath, "w", encoding="utf-8").write(clean_src)
+        try:
+            cache[key] = (run() == 0)
+        finally:
+            io.open(tpath, "w", encoding="utf-8").write(mutant_src)
+    return cache[key]
+
+
+def run_emitter(name, cwd):
+    """`<module>_emit.py --check`. Non-zero means the inlined copy has drifted."""
+    return run_suite_argv([sys.executable, os.path.join(cwd, "tools", name),
+                           "--check"], cwd)
+
+
 def run_suite_argv(argv, cwd, timeout=None):
     timeout = timeout or SUITE_TIMEOUT[0]
     try:
@@ -603,7 +654,16 @@ def main(argv):
     ap.add_argument("--all", action="store_true", help="every page that has a suite")
     ap.add_argument("--limit", type=int, default=25, help="mutants per page (default 25)")
     ap.add_argument("--list", action="store_true", help="print mutants and run nothing")
+    ap.add_argument("--status", action="store_true",
+                    help="how far the sweep has got -- counts computed, not stored")
+    ap.add_argument("--record", metavar="ADR",
+                    help="append this run to tools/sweep_ledger.json under that ADR")
     a = ap.parse_args(argv)
+
+    if a.status:
+        import sweep_ledger
+        print("\n".join(sweep_ledger.status_lines()))
+        return 0
 
     if a.module:
         return module_sweep(a)
@@ -661,6 +721,68 @@ def main(argv):
             tpath = os.path.join(tmp, "docs", page)
             tsuites = [os.path.join(tmp, "tools", "verify", os.path.basename(s))
                        for s in suites]
+
+            # ---- the suites have to be GREEN before they can testify --------
+            #
+            # A suite that already fails on clean code returns non-zero for
+            # every mutant, and the sweep reads that as a kill. Measured, not
+            # imagined: extending verify_label_escaping in this same slice put
+            # selection-log on its list, the suite was red for an unrelated
+            # reason (a page it now covers was not published current), and the
+            # very next sweep of that page reported SIX mutants killed in three
+            # seconds and a mutation score of 100%. Two of those six were known
+            # blind spots that had survived the run an hour earlier.
+            #
+            # ADR-046 fixed the mirror image of this -- a suite that printed
+            # FAIL and exited 0, so every failure read as a pass and FEK scored
+            # 7% when it should have scored 95%. Both directions produce a
+            # number with nothing behind it. This is the other guard rail.
+            red = []
+            for s in list(tsuites):
+                if run_suite(s, tmp) != 0:
+                    red.append(os.path.basename(s)[:-3].replace("verify_", ""))
+                    tsuites.remove(s)
+            if red:
+                print("%-28s EXCLUDED, already failing on clean code -- a red "
+                      "suite kills every mutant: %s" % ("", ", ".join(red)))
+            # ---- and green is not enough: it has to survive a NULL edit ----
+            #
+            # verify_label_escaping passed its baseline and then killed all six
+            # of selection-log's mutants in under a minute, including a
+            # Math.max->Math.min inside the Field Entry Kit that it has no
+            # opinion about. It was not testing them. Its section 5 recomputes
+            # each page's publish bytes and compares them against the stamp in
+            # published.json, so ANY edit to that page makes it fail -- and the
+            # sweep edits the page by construction.
+            #
+            # The score went 33% -> 100% on a page nothing new had been written
+            # for. That is the third way this tool has been fooled into
+            # reporting a kill: a suite that exits 0 on failure (ADR-046), a
+            # suite that was already red (above), and now a suite that measures
+            # the file's BYTES rather than its behaviour.
+            #
+            # The test is a mutation that changes bytes and cannot change
+            # behaviour. A suite that fails on that is not testifying about any
+            # mutant; it is testifying about the edit.
+            NULL = src + "\n<!-- sweep: byte-only edit, no behaviour changes -->\n"
+            io.open(tpath, "w", encoding="utf-8").write(NULL)
+            bytesy = []
+            for s in list(tsuites):
+                if run_suite(s, tmp) != 0:
+                    bytesy.append(os.path.basename(s)[:-3].replace("verify_", ""))
+                    tsuites.remove(s)
+            io.open(tpath, "w", encoding="utf-8").write(src)
+            if bytesy:
+                print("%-28s EXCLUDED, fails on a comment appended to the page -- it is "
+                      "measuring bytes, not behaviour: %s" % ("", ", ".join(bytesy)))
+
+            if not tsuites:
+                print("%-28s no green suite names this page -- nothing to "
+                      "measure against" % "")
+                grand_nosuite += len(muts)
+                continue
+
+            _clean = {}
             for n, mu in enumerate(muts, 1):
                 io.open(tpath, "w", encoding="utf-8").write(mu["text"])
                 if not viable(mu["text"]):
@@ -678,9 +800,20 @@ def main(argv):
                         caught = True
                         by = os.path.basename(s)[:-3].replace("verify_", "")
                         break
+                # The drift check first, when the mutation landed in an
+                # inlined module: it is one cheap subprocess and it settles the
+                # commonest survivor in the kit.
+                if not caught and mu["block"] in MODULE_EMITTER:
+                    em = MODULE_EMITTER[mu["block"]]
+                    if os.path.exists(os.path.join(tmp, "tools", em)):
+                        if run_emitter(em, tmp) != 0:
+                            caught = True
+                            by = em[:-3]
                 if not caught:
                     for aud in AUDITS_FOR_OP.get(mu["op"], []):
-                        if run_audit(aud, page, tmp) != 0:
+                        if run_audit(aud, page, tmp) != 0 and green_on_clean(
+                                lambda: run_audit(aud, page, tmp),
+                                aud, tpath, src, mu["text"], _clean):
                             caught = True
                             by = aud[:-3]
                             break
@@ -692,7 +825,9 @@ def main(argv):
                 if not caught:
                     for s in CROSS:
                         tp = os.path.join(tmp, "tools", "verify", os.path.basename(s))
-                        if run_suite(tp, tmp) != 0:
+                        if run_suite(tp, tmp) != 0 and green_on_clean(
+                                lambda tp=tp: run_suite(tp, tmp),
+                                tp, tpath, src, mu["text"], _clean):
                             caught = True
                             by = os.path.basename(s)[:-3].replace("verify_", "")
                             break
@@ -710,6 +845,13 @@ def main(argv):
             shutil.rmtree(tmp, ignore_errors=True)
         print("   %d killed, %d survived%s"
               % (killed, lived, (", %d unviable" % unviable) if unviable else ""))
+        if a.record:
+            import sweep_ledger
+            n_fresh = len([1 for p_, m_ in survivors
+                           if p_ == page and not examined(m_)])
+            sweep_ledger.append(page, a.record, killed=killed, survived=lived,
+                                fresh=n_fresh)
+            print("   recorded in tools/sweep_ledger.json under %s" % a.record)
         print()
         grand_killed += killed; grand_survived += lived
 

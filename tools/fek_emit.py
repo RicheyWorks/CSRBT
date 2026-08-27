@@ -17,6 +17,9 @@ regenerated rather than patched.
 """
 import glob, importlib.util, io, os, re, sys
 
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+import emit_common
+
 ROOT = os.path.normpath(os.path.join(os.path.dirname(os.path.abspath(__file__)), ".."))
 DOCS = os.path.join(ROOT, "docs")
 
@@ -27,7 +30,10 @@ spec.loader.exec_module(fek)
 JS_RE = re.compile(r"/\* ---- Field Entry Kit v[\d.]+ :.*?\n\}\)\(\);", re.S)
 
 
-def css_span(src):
+CSS_OPEN = re.compile(r"[ \t]*/\* =+ Field Entry Kit v[\d.]+ =+")
+
+
+def css_span(src, from_=0):
     """Where the inlined FEK stylesheet starts and ends in a page.
 
     This used to be guessed by a lookahead for "the next non-FEK comment",
@@ -41,7 +47,7 @@ def css_span(src):
     from its banner to the end of fek.CSS's own last rule. If that rule is not
     in the page, the page predates it and is reported rather than guessed at.
     """
-    start = src.find("/* ============ Field Entry Kit v")
+    start = src.find("/* ============ Field Entry Kit v", from_)
     if start == -1:
         return None
     line_start = src.rfind("\n", 0, start) + 1
@@ -54,13 +60,16 @@ def css_span(src):
 
 def main(argv):
     check = "--check" in argv
-    changed, drift = [], []
+    changed, drift, extra = [], [], []
     for path in sorted(glob.glob(os.path.join(DOCS, "*.html"))):
         src = io.open(path, encoding="utf-8").read()
         if "Field Entry Kit v" not in src:
             continue
         nm = os.path.basename(path)
-        out = src
+        # One copy of the block, before anything tries to rewrite "the" block.
+        out, dupes = emit_common.dedupe(src, CSS_OPEN, css_span)
+        if dupes:
+            extra.append((nm, dupes))
         jm = JS_RE.search(out)
         if not jm:
             drift.append((nm, "no JS block found")); continue
@@ -82,6 +91,9 @@ def main(argv):
     print("-" * 62)
     for nm, banner, runtime in changed:
         print("%-30s banner %-8s runtime %-8s -> %s" % (nm, banner, runtime, fek.VERSION))
+    for nm, k in extra:
+        print("%-30s %d DUPLICATE stylesheet block(s) %s"
+              % (nm, k, "found" if check else "removed"))
     for nm, why in drift:
         print("%-30s SKIPPED  %s" % (nm, why))
     print("-" * 62)

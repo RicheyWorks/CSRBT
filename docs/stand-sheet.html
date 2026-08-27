@@ -2357,7 +2357,7 @@ var DWC = (function(){
 
   /* ================= INTERACTIONS ================= */
   var ITYPE=FEK.picker({ field:"iT", label:"interaction", placeholder:"type to filter\u2026",
-    options: INTER_TYPES.map(function(t){ return {value:t.id, label:t.n, sub:"A "+esc(t.dir)+" B"}; }),
+    options: INTER_TYPES.map(function(t){ return {value:t.id, label:t.n, sub:"A "+t.dir+" B"}; }),   /* raw: FEK escapes op.sub */
     onchange:function(v){ push("iT",v); },
     help:"The subtitle reads the relationship in the direction the record stores it \u2014 A does the verb to B. If that is backwards for what you saw, swap the two partners rather than picking a different type." });
   var IEV=FEK.dial({ field:"iE", label:"evidence", clearable:false, value:"obs",

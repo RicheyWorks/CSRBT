@@ -7,7 +7,16 @@ longer drive a control with select_option() or fill() -- it has to do what a
 finger does. These helpers do that, in one place, so a future FEK change is one
 edit here rather than one per suite.
 """
-import os
+import os, re
+
+# The boot loader every page in docs/ carries, byte-identical (ADR-066).
+# It lives here rather than in the one suite that reads it because a second
+# reader arrived -- tools/sweep_ledger.py, which needs to know whether a page's
+# only mutable code IS this loader. Two copies of this pattern would drift, and
+# a drifted pattern reports "not in the shape this suite reads" on a page that
+# is fine (ADR-039).
+LOADER = re.compile(r"<script>\(function\(\)\{var l=document\.querySelector\('link\[data-webfont\]'\);"
+                    r".*?\}\)\(\);</script>", re.S)
 
 ROOT = os.path.normpath(os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", ".."))
 DOCS_DIR = os.path.join(ROOT, "docs") + os.sep

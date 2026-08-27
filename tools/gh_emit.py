@@ -14,6 +14,9 @@ emitter are exercised by tools/verify/verify_emitters.py.
 """
 import importlib.util, io, os, re, sys
 
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+import emit_common
+
 ROOT = os.path.normpath(os.path.join(os.path.dirname(os.path.abspath(__file__)), ".."))
 DOCS = os.path.join(ROOT, "docs")
 _spec = importlib.util.spec_from_file_location("gh", os.path.join(ROOT, "tools", "gh.py"))
@@ -34,15 +37,26 @@ JS_RE = re.compile(r"/\* -+ Greenhouse engine v[\d.]+ -+ \*/.*?"
                    r"/\* -+ /Greenhouse engine v[\d.]+ -+ \*/", re.S)
 
 
+CSS_OPEN = re.compile(r"[ \t]*/\* =+ Greenhouse engine v[\d.]+ =+ \*/")
+
+
+def css_span(src, from_=0):
+    """The engine's CSS block, opening banner to closing banner."""
+    m = CSS_RE.search(src, from_)
+    return (m.start(), m.end()) if m else None
+
+
 def main(argv):
     check = "--check" in argv
-    changed, missing = [], []
+    changed, missing, extra = [], [], []
     for name in CONSUMERS:
         path = os.path.join(DOCS, name)
         if not os.path.exists(path):
             missing.append((name, "page does not exist")); continue
         src = io.open(path, encoding="utf-8").read()
-        out = src
+        out, dupes = emit_common.dedupe(src, CSS_OPEN, css_span)
+        if dupes:
+            extra.append((name, dupes))
         if CSS_RE.search(out):
             out = CSS_RE.sub(lambda m: CSS_TEXT.strip("\n"), out, count=1)
         else:
@@ -59,6 +73,9 @@ def main(argv):
     print("-" * 60)
     for n in changed:
         print("%-28s %s" % (n, "would be rewritten" if check else "rewritten"))
+    for n, k in extra:
+        print("%-28s %d DUPLICATE stylesheet block(s) %s"
+              % (n, k, "found" if check else "removed"))
     for n, why in missing:
         print("%-28s SKIPPED  %s" % (n, why))
     print("-" * 60)

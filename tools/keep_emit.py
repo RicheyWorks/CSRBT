@@ -10,6 +10,9 @@ something.
 """
 import glob, importlib.util, io, os, re, sys
 
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+import emit_common
+
 ROOT = os.path.normpath(os.path.join(os.path.dirname(os.path.abspath(__file__)), ".."))
 DOCS = os.path.join(ROOT, "docs")
 _spec = importlib.util.spec_from_file_location("keep", os.path.join(ROOT, "tools", "keep.py"))
@@ -22,7 +25,11 @@ CONSUMERS = ["ordination.html", "releve.html", "stand-sheet.html", "collection-s
 JS_RE = re.compile(r"/\* ---- Keep v[\d.]+ :.*?\n\}\)\(\);", re.S)
 
 
-def css_span(src):
+BANNER = "/* ============ Keep (local autosave) v"
+CSS_OPEN = re.compile(r"[ \t]*/\* =+ Keep \(local autosave\) v[\d.]+ =+")
+
+
+def css_span(src, from_=0):
     """Banner to the end of keep.CSS's own last rule.
 
     Inherited the lookahead-for-the-next-comment boundary from dwc_emit, and
@@ -30,7 +37,7 @@ def css_span(src):
     the tail is left behind and duplicated on the next run. Bound the region by
     the source of truth instead.
     """
-    start = src.find("/* ============ Keep (local autosave) v")
+    start = src.find(BANNER, from_)
     if start == -1:
         return None
     line_start = src.rfind("\n", 0, start) + 1
@@ -41,13 +48,25 @@ def css_span(src):
     return line_start, end + len(tail)
 
 
+def dedupe_css(src):
+    """Leave ONE copy of the CSS block, and say how many were removed.
+
+    See tools/emit_common.py for what this is and how survey-design.html came
+    to carry the Keep stylesheet four times with --check reporting the tree
+    clean.
+    """
+    return emit_common.dedupe(src, CSS_OPEN, css_span)
+
+
 def main(argv):
     check = "--check" in argv
-    changed, missing = [], []
+    changed, missing, extra = [], [], []
     for name in CONSUMERS:
         path = os.path.join(DOCS, name)
         src = io.open(path, encoding="utf-8").read()
-        out = src
+        out, dupes = dedupe_css(src)
+        if dupes:
+            extra.append((name, dupes))
         span = css_span(out)
         if span:
             out = out[:span[0]] + keep.CSS.strip("\n") + out[span[1]:]
@@ -67,6 +86,9 @@ def main(argv):
     print("-" * 56)
     for n in changed:
         print("%-28s %s" % (n, "would be rewritten" if check else "rewritten"))
+    for n, k in extra:
+        print("%-28s %d DUPLICATE stylesheet block(s) %s"
+              % (n, k, "found" if check else "removed"))
     for n, why in missing:
         print("%-28s SKIPPED  %s" % (n, why))
     print("-" * 56)

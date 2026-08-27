@@ -62,6 +62,23 @@ EMITTERS = [
 ]
 
 
+_MODS = {}
+def _load(emitter):
+    """Import an emitter as a module, to reuse its own span finder.
+
+    Cached: importing gh_emit renders the engine CSS, which is not free, and
+    this suite asks four times.
+    """
+    if emitter not in _MODS:
+        import importlib.util
+        sys.path.insert(0, TOOLS_DIR.rstrip(os.sep))
+        spec = importlib.util.spec_from_file_location(
+            emitter[:-3], os.path.join(TOOLS_DIR, emitter))
+        m = importlib.util.module_from_spec(spec); spec.loader.exec_module(m)
+        _MODS[emitter] = m
+    return _MODS[emitter]
+
+
 def run(emitter, *args):
     p = subprocess.run([sys.executable, os.path.join(TOOLS_DIR, emitter)] + list(args),
                        cwd=TOOLS_DIR, capture_output=True, text=True)
@@ -130,6 +147,48 @@ try:
             finally:
                 io.open(target, "w", encoding="utf-8").write(original)
 
+        # ---- a SECOND copy of the block, which is not a perturbation ----
+        #
+        # The canary above edits inside the region the emitter owns, and every
+        # emitter catches that. None of them caught a whole extra copy of the
+        # region sitting further down the file, because the rewrite finds the
+        # FIRST banner, replaces it, and stops looking.
+        #
+        # Found by reading a published page: survey-design.html carried the Keep
+        # stylesheet four times, and `keep_emit.py --check` reported the tree
+        # clean. Four identical copies render identically -- until keep.CSS
+        # changes, at which point copy one is updated, copies two to four are
+        # not, and the LAST rule wins in CSS. The page would then render the
+        # stale stylesheet with every regenerator reporting success.
+        if css_probe is not None:
+            # The block's extent comes from the EMITTER's own css_span, not from
+            # a guess. The first cut of this canary copied "banner to
+            # </style>", which on fek and dwc pages swallows the stylesheets
+            # that follow -- so the emitter removed its own duplicate correctly
+            # and the byte comparison still failed, on three emitters at once,
+            # for a reason that had nothing to do with them.
+            emod = _load(emitter)
+            span = getattr(emod, "css_span", None)
+            span = span(original) if span else None
+            if span:
+                    block = original[span[0]:span[1]] + "\n"
+                    doubled = original[:span[1] + 1] + block + original[span[1] + 1:]
+                    io.open(target, "w", encoding="utf-8").write(doubled)
+                    try:
+                        rc, out = run(emitter, "--check")
+                        ck("%s --check NOTICES a DUPLICATED stylesheet in %s"
+                           % (emitter, name), rc != 0,
+                           "check passed on a page carrying the block twice")
+                        rc2, out2 = run(emitter)
+                        ck("%s collapses the duplicate without error" % emitter,
+                           rc2 == 0, out2.strip()[-160:])
+                        back = io.open(target, encoding="utf-8").read()
+                        ck("%s leaves exactly one copy of the stylesheet in %s"
+                           % (emitter, name), back == original,
+                           "%d bytes differ from the original" % (len(back) - len(original)))
+                    finally:
+                        io.open(target, "w", encoding="utf-8").write(original)
+
         rc, out = run(emitter, "--check")
         ck("%s --check clean again after the canary" % emitter, rc == 0, out.strip()[-160:])
 
@@ -143,8 +202,13 @@ try:
         unused = sorted(r for r in defined if r not in body)
         ck("%s: no compiled pattern is defined and never used" % emitter, not unused, unused)
         helpers = set(re.findall(r"^def ([a-z_]+)\(", src, re.M)) - {"main"}
-        dead = sorted(h for h in helpers if len(re.findall(r"\b%s\(" % h, src)) < 2)
-        ck("%s: no helper is defined and never called" % emitter, not dead, dead)
+        # `\bname\b`, not `\bname\(`. gh_emit's css_span is handed to
+        # emit_common.dedupe as a VALUE and called from there, so counting call
+        # syntax reported a live helper as dead -- and a check that fires on
+        # working code is a check people learn to wave through, which is what
+        # this one exists to prevent.
+        dead = sorted(h for h in helpers if len(re.findall(r"\b%s\b" % h, src)) < 2)
+        ck("%s: no helper is defined and never called or passed" % emitter, not dead, dead)
 
     # ---- and the whole tree must be at rest afterwards ----
     for emitter, mod, probe, css_probe in EMITTERS:

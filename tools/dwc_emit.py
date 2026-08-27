@@ -10,6 +10,9 @@ something.
 """
 import glob, importlib.util, io, os, re, sys
 
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+import emit_common
+
 ROOT = os.path.normpath(os.path.join(os.path.dirname(os.path.abspath(__file__)), ".."))
 DOCS = os.path.join(ROOT, "docs")
 _spec = importlib.util.spec_from_file_location("dwc", os.path.join(ROOT, "tools", "dwc.py"))
@@ -20,7 +23,10 @@ CONSUMERS = ["releve.html", "stand-sheet.html", "collection-sheet.html"]
 JS_RE = re.compile(r"/\* ---- Darwin Core v[\d.]+ :.*?\n\}\)\(\);", re.S)
 
 
-def css_span(src):
+CSS_OPEN = re.compile(r"[ \t]*/\* =+ Darwin Core export v[\d.]+ =+")
+
+
+def css_span(src, from_=0):
     """Where the inlined stylesheet starts and ends in a page.
 
     Not a lookahead for "the next comment". The block acquired an explanatory
@@ -32,7 +38,7 @@ def css_span(src):
     The boundary comes from the source of truth: banner to the end of dwc.CSS's
     own last rule. A page that lacks that rule is reported, not guessed at.
     """
-    start = src.find("/* ============ Darwin Core export v")
+    start = src.find("/* ============ Darwin Core export v", from_)
     if start == -1:
         return None
     line_start = src.rfind("\n", 0, start) + 1
@@ -45,11 +51,13 @@ def css_span(src):
 
 def main(argv):
     check = "--check" in argv
-    changed, missing = [], []
+    changed, missing, extra = [], [], []
     for name in CONSUMERS:
         path = os.path.join(DOCS, name)
         src = io.open(path, encoding="utf-8").read()
-        out = src
+        out, dupes = emit_common.dedupe(src, CSS_OPEN, css_span)
+        if dupes:
+            extra.append((name, dupes))
         span = css_span(out)
         if span:
             out = out[:span[0]] + dwc.CSS.strip("\n") + out[span[1]:]
@@ -69,6 +77,9 @@ def main(argv):
     print("-" * 56)
     for n in changed:
         print("%-28s %s" % (n, "would be rewritten" if check else "rewritten"))
+    for n, k in extra:
+        print("%-28s %d DUPLICATE stylesheet block(s) %s"
+              % (n, k, "found" if check else "removed"))
     for n, why in missing:
         print("%-28s SKIPPED  %s" % (n, why))
     print("-" * 56)

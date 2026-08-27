@@ -1114,7 +1114,15 @@ var FEK = (function(){
   }
   function traitOptions(){
     return TRAITS.map(function(t){
-      return {value:t.id, label:t.name+(t.unit?" ("+esc(t.unit)+")":"")}; });
+      return {value:t.id,
+        /* NOT esc(): FEK escapes an OPTION label itself (escv(op.label)),
+           deliberately, so no call site has to remember. Escaping here too
+           put the entities on screen -- a trait unit typed as " rendered as
+           `girth (&quot;)` in the chip while the trait list two inches below
+           showed `girth"`. The same unit, two spellings, on one page. The
+           control's OWN label is different and stays markup; see FEK's
+           comment above escv(). */
+        label:t.name+(t.unit?" ("+t.unit+")":"")}; });
   }
   function fillSelects(){
     var opts=indOptions();
