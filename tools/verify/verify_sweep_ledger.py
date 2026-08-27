@@ -76,8 +76,18 @@ ck("swept is the DISTINCT pages, not the row count",
 # the first classify() called all twenty-one remaining pages "ready", because
 # every page carries the webfont loader and so every page has a mutant.
 kinds = {p: SL.classify(p) for p in left}
-ck("the classifier returns more than one value across the remaining pages",
-   len(set(kinds.values())) > 1, sorted(set(kinds.values())))
+# Not "more than one value across what is LEFT". That is how this check was
+# written, and it failed the day the twelve loader-only pages were swept and
+# the backlog became homogeneous -- a check firing on correct work, which is
+# the failure this kit keeps catching in its own instruments.
+#
+# The classifier is asked to tell two NAMED pages apart instead. That is what
+# non-vacuous means for a classifier, and it stays true when the backlog is
+# empty.
+ck("the classifier tells a page with code of its own from a loader-only one",
+   SL.classify("selection-log.html") == "own-code"
+   and SL.classify("ecology-essay.html") == "loader-only",
+   (SL.classify("selection-log.html"), SL.classify("ecology-essay.html")))
 ck("every value it returns is one of the four it documents",
    set(kinds.values()) <= {"own-code", "no-suite", "loader-only", "prose"},
    sorted(set(kinds.values())))

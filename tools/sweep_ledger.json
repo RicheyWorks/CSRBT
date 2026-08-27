@@ -152,6 +152,134 @@
       "killed": 4,
       "survived": 0,
       "fresh": 0
+    },
+    {
+      "page": "ordination.html",
+      "adr": "ADR-071",
+      "source": "tool",
+      "killed": 6,
+      "survived": 2,
+      "fresh": 2
+    },
+    {
+      "page": "ordination.html",
+      "adr": "ADR-071",
+      "source": "tool",
+      "killed": 8,
+      "survived": 0,
+      "fresh": 0
+    },
+    {
+      "page": "releve.html",
+      "adr": "ADR-072",
+      "source": "tool",
+      "killed": 4,
+      "survived": 2,
+      "fresh": 2
+    },
+    {
+      "page": "releve.html",
+      "adr": "ADR-072",
+      "source": "tool",
+      "killed": 6,
+      "survived": 0,
+      "fresh": 0
+    },
+    {
+      "page": "adr-031.html",
+      "adr": "ADR-072",
+      "source": "tool",
+      "killed": 1,
+      "survived": 0,
+      "fresh": 0
+    },
+    {
+      "page": "breeding-suite.html",
+      "adr": "ADR-072",
+      "source": "tool",
+      "killed": 1,
+      "survived": 0,
+      "fresh": 0
+    },
+    {
+      "page": "cp-suite.html",
+      "adr": "ADR-072",
+      "source": "tool",
+      "killed": 1,
+      "survived": 0,
+      "fresh": 0
+    },
+    {
+      "page": "eco-protocol-reference.html",
+      "adr": "ADR-072",
+      "source": "tool",
+      "killed": 1,
+      "survived": 0,
+      "fresh": 0
+    },
+    {
+      "page": "ecology-glossary.html",
+      "adr": "ADR-072",
+      "source": "tool",
+      "killed": 1,
+      "survived": 0,
+      "fresh": 0
+    },
+    {
+      "page": "ecology.html",
+      "adr": "ADR-072",
+      "source": "tool",
+      "killed": 1,
+      "survived": 0,
+      "fresh": 0
+    },
+    {
+      "page": "soil-suite.html",
+      "adr": "ADR-072",
+      "source": "tool",
+      "killed": 1,
+      "survived": 0,
+      "fresh": 0
+    },
+    {
+      "page": "ecology-essay.html",
+      "adr": "ADR-072",
+      "source": "tool",
+      "killed": 1,
+      "survived": 0,
+      "fresh": 0
+    },
+    {
+      "page": "ecology-field-card.html",
+      "adr": "ADR-072",
+      "source": "tool",
+      "killed": 1,
+      "survived": 0,
+      "fresh": 0
+    },
+    {
+      "page": "ecology-field-guide.html",
+      "adr": "ADR-072",
+      "source": "tool",
+      "killed": 1,
+      "survived": 0,
+      "fresh": 0
+    },
+    {
+      "page": "ecology-lab-manual.html",
+      "adr": "ADR-072",
+      "source": "tool",
+      "killed": 1,
+      "survived": 0,
+      "fresh": 0
+    },
+    {
+      "page": "ecology-teachers-guide.html",
+      "adr": "ADR-072",
+      "source": "tool",
+      "killed": 1,
+      "survived": 0,
+      "fresh": 0
     }
   ]
 }

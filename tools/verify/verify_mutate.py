@@ -143,8 +143,15 @@ tmp = tempfile.mkdtemp(prefix="verify-mutate-")
 try:
     build(tmp, {"verify_fake_good.py": HONEST, "verify_fake_red.py": ALWAYS_RED})
     out = sweep(tmp)
-    ck("a suite red on clean code is excluded", "EXCLUDED, already failing on clean code" in out,
-       out[-500:])
+    ck("a suite red on the unmutated copy is excluded",
+       "EXCLUDED, red on the UNMUTATED scratch copy" in out, out[-500:])
+    # The wording matters and is asserted: this suite passes 98/98 in the real
+    # tree and was red only in the scratch copy, and the old message -- "already
+    # failing on clean code" -- sent the reader to look at the suite instead of
+    # at the copy. It took a page sweep printing that line about verify_eco to
+    # notice, so the line now says where to look.
+    ck("and the message points at the scratch copy, not at the suite's own health",
+       "If it passes in the real tree" in out, out[-500:])
     ck("and it is named in the exclusion", "fake_red" in out.split("EXCLUDED")[1][:200] if "EXCLUDED" in out else False,
        out[-500:])
     ck("no kill is ever attributed to it", not re.search(r"killed\s+fake_red", out),
@@ -158,8 +165,8 @@ tmp = tempfile.mkdtemp(prefix="verify-mutate-")
 try:
     build(tmp, {"verify_fake_bytes.py": BYTE_SENSITIVE % len(PAGE)})
     out = sweep(tmp)
-    ck("a byte-sensitive suite passes its own baseline", "already failing on clean code" not in out,
-       out[-400:])
+    ck("a byte-sensitive suite passes its own baseline",
+       "red on the UNMUTATED scratch copy" not in out, out[-400:])
     ck("but is excluded by the null edit", "measuring bytes, not behaviour" in out, out[-500:])
     ck("and with nothing left, the page is reported as unmeasured, not as 100%",
        score(out) is None and "no green suite" in out, out[-400:])
@@ -215,6 +222,41 @@ try:
     ck("and there is at least one, so the fixture is not empty", bool(ops), sorted(ops))
 finally:
     shutil.rmtree(tmp, ignore_errors=True)
+
+# ---- 6. the scratch tree has to be a tree the suites can run in ---------
+# Not hypothetical, and not caught by anything above: verify_eco checks that
+# every link in the kit resolves, and tree-proofs.html links to ../README.md.
+# scratch_root() copied docs/ and tools/ and nothing else, so that link was
+# broken in every scratch copy, so verify_eco was red in every sweep, so the
+# guard excluded it -- from every page it names, silently, while blaming the
+# suite. Ninety-eight checks that had never once been allowed to testify.
+#
+# The guard was right to exclude a red suite. The instrument it was reading was
+# broken, and the only way to see that was to ask whether the scratch copy is
+# actually the tree.
+sys.path.insert(0, os.path.join(ROOT, "tools"))
+import mutate as _mu
+_scratch = _mu.scratch_root()
+try:
+    real = {n for n in os.listdir(ROOT) if os.path.isfile(os.path.join(ROOT, n))}
+    got = {n for n in os.listdir(_scratch) if os.path.isfile(os.path.join(_scratch, n))}
+    ck("the scratch copy carries every top-level file, not just docs/ and tools/",
+       real <= got, sorted(real - got))
+    ck("and the fixture is not vacuous -- there ARE top-level files", bool(real), sorted(real))
+    ck("docs/ and tools/ are both in the scratch copy",
+       os.path.isdir(os.path.join(_scratch, "docs"))
+       and os.path.isdir(os.path.join(_scratch, "tools")), sorted(os.listdir(_scratch)))
+    # The link that started it, resolved from inside the copy.
+    _tp = os.path.join(_scratch, "docs", "tree-proofs.html")
+    if os.path.exists(_tp):
+        _src = io.open(_tp, encoding="utf-8").read()
+        _links = sorted(set(re.findall(r'href="(\.\./[^"#?]+)"', _src)))
+        _bad = [l for l in _links
+                if not os.path.exists(os.path.normpath(os.path.join(_scratch, "docs", l)))]
+        ck("a page's links out of docs/ still resolve inside the scratch copy",
+           not _bad, _bad)
+finally:
+    shutil.rmtree(_scratch, ignore_errors=True)
 
 print("PASS %d" % len(P))
 for x in F: print("FAIL:", x)

@@ -87,6 +87,23 @@ with sync_playwright() as p:
             pg.fill("#rFree",nm)
         dialpick("#rCov",0,cls)
         pg.click("#rAdd"); pg.wait_for_timeout(250)
+    # ---- the stratum bars are read against a 100% scale ------------------
+    # `Math.max.apply(null, totals.concat([100]))` -- the 100 is a FLOOR, so a
+    # stratum covering 40% draws a bar 40% of the way across rather than filling
+    # it. A mutation sweep turned that max into a min and nothing noticed: no
+    # check in this kit had ever looked at how wide a bar was drawn.
+    #
+    # Asserted as the meaning of the floor rather than as a number: while the
+    # total is under 100%, the bar width IS the total.
+    _bars = pg.evaluate("""()=>[...document.querySelectorAll('#rStrataBox .bar')].map(x=>[
+        x.querySelector('.fl').style.width, x.querySelector('.pc').textContent])""")
+    ck("the strata chart draws a bar", len(_bars) >= 1, _bars)
+    _w, _pc = (_bars[0] if _bars else ("", ""))
+    _wv = float(_w[:-1]) if _w.endswith("%") else -1
+    _pv = float(_pc.rstrip("%")) if _pc else -1
+    ck("a stratum under 100%% cover draws a bar that wide, not a full one",
+       0 < _wv < 100 and abs(_wv - _pv) <= 1.0, (_w, _pc))
+
     ck("cover dial clears after add",
        pg.eval_on_selector_all("#rCov .fek-dial button.on","e=>e.length")==0,
        pg.eval_on_selector_all("#rCov .fek-dial button.on","e=>e.length"))
@@ -200,6 +217,31 @@ with sync_playwright() as p:
        pg.eval_on_selector_all("#wEditor .fek-dial","e=>e.filter(d=>d.querySelector('button.on')).length"))
     ck("unscored explained on the page", "left out of the index" in pg.inner_text("#wEditor"),
        pg.inner_text("#wEditor")[:200])
+
+    # ---- the threshold is INCLUSIVE, and 3.0 is where it is decided ---------
+    # The Corps criterion is prevalence index <= 3.0 for hydrophytic vegetation.
+    # A mutation sweep turned `PI <= 3.0` into `PI < 3.0` and nothing here
+    # noticed: the suite checked that an index appears and never what it was
+    # compared against. At exactly 3.00 the mutant flips a wetland determination
+    # -- the boundary is not an edge case here, it IS the criterion.
+    #
+    # 3.00 exactly is easy to reach and reachable in the field: score every
+    # taxon FAC, whose indicator value is 3, and the cover-weighted mean is 3
+    # for any covers at all. So the fixture does not depend on the cover
+    # classes, which is what makes it a test of the comparison.
+    _n = pg.eval_on_selector_all("#wEditor .fek-dial", "e=>e.length")
+    for _i in range(_n):
+        pg.evaluate("""(i)=>{const d=document.querySelectorAll('#wEditor .fek-dial')[i];
+          const b=[...d.querySelectorAll('button')].find(
+            x=>x.querySelector('span').textContent.trim()==='FAC');
+          if(!b) throw new Error('no FAC option'); if(!b.classList.contains('on')) b.click();}""", _i)
+        pg.wait_for_timeout(150)
+    _aw = pg.inner_text("#anWet")
+    ck("all-FAC gives a prevalence index of exactly 3.00", "3.00" in _aw, _aw[:160])
+    ck("and 3.00 is called hydrophytic -- the threshold includes its own boundary",
+       "at or below" in _aw and "above 3.0" not in _aw, _aw[:260])
+    ck("the determination is not claimed to be settled by vegetation alone",
+       "one of three criteria" in _aw, _aw[:300])
 
     # ---------------- METHOD ----------------
     pg.click('.tab[data-pane="p-met"]'); pg.wait_for_timeout(250)

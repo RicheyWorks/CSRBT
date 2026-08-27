@@ -24,20 +24,27 @@ worth asking is whether that defect can FIRE. My first answer -- reached by
 grepping for angle brackets and stopping -- was that it cannot. That answer was
 wrong, and this file is what overturned it: cp-bench maps user-typed plant names
 and cross parents straight into picker labels, and its published copy was on
-v1.1.1. The general shape below still holds for the rest of the kit:
+v1.1.1.
 
-  * Every dial and picker option list in this kit is built from a page CONSTANT
-    -- CROPS, GENERA, PHENO, TARGETS, CAMS, FEED -- never from typed input.
-  * No option label in any page constant contains an angle bracket.
+The sentence that stood here for four ADRs -- "every option list in this kit is
+built from a page constant, never from typed input" -- was also wrong, and it
+was wrong about FIVE pages. ADR-069 found them: selection-log pushes a typed
+trait name and unit into an ALL-CAPS table, collection-sheet replaces its whole
+genus table from a file the user loads, survey-design puts typed event names in
+a sub-label. The convention was never a guarantee, and a docstring is not a
+check. The detector in tools/reach.py is, and section 2 below asserts its
+answer.
 
 ADR-031's original injection was `Sarracenia <hybrid>`: a TAXON NAME carrying
 angle brackets, sitting in a constant table. Not user input at all.
 
-Where the fuse IS lit -- cp-bench, and releve's "<2 m" stratum labels -- this
-check names it, and section 5 then requires those pages to be published current
-rather than merely correct in the repo. It fails the moment a page constant
-gains an angle bracket in a label, or a page starts feeding typed text into an
-option list, or such a page falls behind its published copy.
+WHAT THIS FILE DOES AND DOES NOT COVER
+
+Sections 1 to 4 are properties of the SOURCE and are byte-insensitive, so a
+mutation sweep can use them as witnesses. The requirement that a reachable
+page be published CURRENT is a property of the published copy, and lives in
+verify_publish_reach.py -- see section 5 for why that separation is not
+tidiness.
 
 Run:  python3 tools/verify/verify_label_escaping.py
 """
@@ -53,127 +60,25 @@ def ck(name, cond, got=""):
     else:    bad += 1; print("FAIL  %s   got: %r" % (name, got))
 
 
-# A label or sub-label written into a component option, anywhere in a page.
-LABEL = re.compile(r'\b(?:label|sub)\s*:\s*"((?:[^"\\]|\\.)*)"')
-ANGLE = re.compile(r"[<>]")
-
-# An option list built from something other than an inline array literal.
-#
-# This used to require `.map(` at the options site itself, and that is how it
-# missed selection-log: the page writes `options:opts`, and `opts` came from
-# `traitOptions()` four lines up. The trait list is PUSHED to by the page's own
-# "add trait" button, so typed text was reaching a component option label on a
-# page this suite listed as safe. Any bare identifier counts now; an inline
-# `options:[{...}]` still does not match, because `[` is not an identifier.
-DYNAMIC = re.compile(r'options\s*:\s*([A-Za-z_$][\w$.]*)\s*(?:\.map\s*\(|[,}\n])')
+# The detector and its tracer live in tools/reach.py, imported here and by
+# verify_publish_reach.py -- one tracer, two readers, and no second copy to
+# drift. A drifted tracer fails OPEN: it calls typed input a constant.
+sys.path.insert(0, os.path.join(ROOT, "tools"))
+import reach as _reach
+LABEL, ANGLE, DYNAMIC = _reach.LABEL, _reach.ANGLE, _reach.DYNAMIC
+roots_in_constant, grows_at_runtime = _reach.roots_in_constant, _reach.grows_at_runtime
 
 pages = sorted(glob.glob(os.path.join(DOCS, "*.html")))
 ck("there are pages to check", len(pages) > 20, len(pages))
 
 # --- 1. labels that CONTAIN angle brackets -------------------------------
-# Banning them would be wrong: "<2 m" is a legitimate stratum height and
-# "> 10 m" is its pair. What matters is that the component escapes them, and
-# that a page carrying them is known to be one where a stale published copy
-# renders visibly wrong.
-angled = {}
-for p in pages:
-    src = io.open(p, encoding="utf-8").read()
-    hits = sorted({m.group(1) for m in LABEL.finditer(src) if ANGLE.search(m.group(1))})
-    if hits:
-        angled[os.path.basename(p)] = hits[:6]
+angled = _reach.angled_pages(pages)
 ck("the pages carrying angle-bracket labels are known and listed",
    set(angled) <= {"releve.html"}, angled)
 ck("and there is at least one, so this check is not vacuous", bool(angled), angled)
 
 # --- 2. option lists built from RUNTIME data -----------------------------
-# This is the case that turns a display bug into an injection: typed text
-# becoming a component label. The kit's convention is that an option list maps
-# over an ALL-CAPS constant table; anything else is data whose contents no
-# static check can vouch for.
-#
-# One assignment hop is followed before calling something runtime data.
-# soil-bench maps `n.a`, and `n` is lower-case -- but two lines above sits
-# `var n=TEX[node]`, so `n` IS the constant table, reached through a local.
-# The first version of this check called soil-bench runtime data and then
-# exempted it by NAME in a later section, with a hand-written detector that a
-# canary walked straight past. Tracing the assignment is the same exemption
-# made out of evidence, in the section that draws the conclusion, and it
-# generalises to the next page that does this.
-ASSIGN = r"\b(?:var|let|const)\s+%s\s*=\s*([A-Za-z_$][\w$.\[\]]*)"
-CALL = r"\b(?:var|let|const)\s+%s\s*=\s*([A-Za-z_$][\w$]*)\s*\("
-# An ALL-CAPS name is the kit's convention for "a table the page authored". It
-# is a convention, not a guarantee, and selection-log breaks it: `TRAITS` is
-# ALL-CAPS and the "add trait" button PUSHES typed text into it. So the shape of
-# the name is not the test -- whether anything writes to it is.
-GROWS = r"\b%s\s*(?:\.(?:push|unshift|splice)\s*\(|=(?!=))"
-
-
-def grows_at_runtime(name, src):
-    """Does anything write to this table after it is declared?"""
-    for m in re.finditer(GROWS % re.escape(name), src):
-        before = src[max(0, m.start() - 12):m.start()]
-        if re.search(r"\b(?:var|let|const)\s+$", before):
-            continue                         # the declaration itself
-        return True
-    return False
-
-def roots_in_constant(head, src, pos):
-    """True if `head` at offset `pos` is an ALL-CAPS table, or reaches one.
-
-    Scoped to the NEAREST PRECEDING binding, which is what a reader does. The
-    first version searched the whole file for `var n=` and found
-    `var n=parseFloat(x)` inside the FEK module -- a different `n`, hundreds of
-    lines away, in another scope -- and concluded soil-bench was runtime data.
-    A finder that matches the wrong binding is not a weaker check, it is a
-    check of something else.
-    """
-    seen = set()
-    while head and head not in seen:
-        if re.fullmatch(r"[A-Z][A-Z0-9_]*", head):
-            return not grows_at_runtime(head, src)
-        seen.add(head)
-        call = [m for m in re.finditer(CALL % re.escape(head), src) if m.start() < pos]
-        before = [m for m in re.finditer(ASSIGN % re.escape(head), src) if m.start() < pos]
-        # A call binding wins when it is at least as near as a plain one.
-        # `>=` and not `>`, because on `var opts = famOptions()` BOTH patterns
-        # match at the same offset -- ASSIGN captures the callee's name as
-        # though it were a variable, and with `>` the assignment branch won,
-        # went looking for `var famOptions =`, found nothing, and reported a
-        # page built entirely from a constant table as runtime data. On
-        # `var opts = PACK.slice(...)` only ASSIGN matches, so the plain branch
-        # still governs there.
-        if before and not (call and call[-1].start() >= before[-1].start()):
-            m = before[-1]                   # nearest preceding, not first in file
-            pos = m.start()
-            head = m.group(1).split(".")[0].split("[")[0]
-            continue
-        # One hop through a helper: `var opts = traitOptions()` and
-        # `function traitOptions(){ return TRAITS.map(...) }`. Deliberately one
-        # shape and one hop -- a general answer needs the JS parsed, and the
-        # last attempt at that in this kit had to be withdrawn (ADR-062).
-        # Everything that does not match this exact shape is treated as runtime
-        # data, so the failure direction is a page NAMED that need not have
-        # been, never a page missed.
-        if not call:
-            return False
-        fn = call[-1].group(1)
-        body = re.search(r"\bfunction\s+%s\s*\([^)]*\)\s*\{" % re.escape(fn), src)
-        if not body:
-            return False
-        ret = re.search(r"\breturn\s+([A-Za-z_$][\w$.]*)", src[body.end():body.end() + 600])
-        if not ret:
-            return False
-        pos = body.start()
-        head = ret.group(1).split(".")[0].split("[")[0]
-    return False
-
-runtime = {}
-for p_ in pages:
-    src = io.open(p_, encoding="utf-8").read()
-    for m in DYNAMIC.finditer(src):
-        head = m.group(1).split(".")[0]
-        if not roots_in_constant(head, src, m.start()):
-            runtime.setdefault(os.path.basename(p_), []).append(m.group(1))
+runtime = _reach.runtime_pages(pages)
 ck("some pages build option lists at runtime, so this check is not vacuous",
    any(DYNAMIC.search(io.open(q, encoding="utf-8").read()) for q in pages), "")
 # The tracer gets its own fixtures, because a tracer that silently resolves
@@ -272,107 +177,82 @@ ck("the unescaped v1.1.1 form is gone from the module",
 # So this matches only an OPTION literal: a line carrying `value:` alongside a
 # `label:`/`sub:` that calls an escaper. That shape is what found both, and it
 # is narrow enough that the dial's authored label cannot match it.
-ESCAPED_OPT = re.compile(r"^.*\bvalue\s*:.*?\b(?:label|sub)\s*:[^,}]*\b(?:FEK\.)?esc\w*\(",
-                         re.M)
-pre_escaped = {}
+# The shape is an OPTION LITERAL: a brace-bounded object carrying `value:`
+# alongside a `label:` or `sub:` that calls an escaper. Brace-bounded and
+# comment-stripped, both learned the hard way:
+#
+#   The first version was one line, anchored with re.M. Fixing selection-log
+#   split the return across three lines with an explanatory comment, and the
+#   rule went blind to the very line it was written for -- re-seeding the
+#   defect afterwards passed 22/22. A canary that cannot fail is not a canary.
+#
+#   Stripping comments matters for the same edit: the comment I added SAYS
+#   "NOT esc()", so a rule that reads comments flags the fix as the defect.
+#
+# `[^{}]*` keeps it inside one literal and cannot run away across a file; it
+# also means a CONTROL's own options -- `FEK.dial({label:..., options:[{...}]})`
+# -- never match, because that object has nested braces. Measured across all
+# thirty-nine pages: zero hits clean, one hit with the defect re-seeded.
+OPT_LITERAL = re.compile(r"\{[^{}]*\}", re.S)
+HAS_VALUE = re.compile(r"\bvalue\s*:")
+ESCAPED_LABEL = re.compile(r"\b(?:label|sub)\s*:[^,}]*?\b(?:FEK\.)?esc\w*\(", re.S)
+_BLOCK_C = re.compile(r"/\*.*?\*/", re.S)
+_LINE_C = re.compile(r"(^|[^:])//[^\n]*")
+
+
+def decomment(t):
+    return _LINE_C.sub(lambda m: m.group(1), _BLOCK_C.sub(" ", t))
+
+
+def pre_escaped(src):
+    """Option literals that escape a label the component escapes for them."""
+    out = []
+    for m in OPT_LITERAL.finditer(src):
+        t = decomment(m.group(0))
+        if HAS_VALUE.search(t) and ESCAPED_LABEL.search(t):
+            out.append(re.sub(r"\s+", " ", t).strip()[:80])
+    return out
+
+
+pre_escaped_pages = {}
 for p_ in pages:
-    src = io.open(p_, encoding="utf-8").read()
-    hits = [re.sub(r"\s+", " ", m.group(0)).strip()[-70:]
-            for m in ESCAPED_OPT.finditer(src)]
+    hits = pre_escaped(io.open(p_, encoding="utf-8").read())
     if hits:
-        pre_escaped[os.path.basename(p_)] = hits
+        pre_escaped_pages[os.path.basename(p_)] = hits
 ck("no page escapes an option label that FEK escapes for it",
-   not pre_escaped, pre_escaped)
-# A rule nothing can trip is not a rule. The fixture is the line as it stood.
-_was = 'return {value:t.id, label:t.name+(t.unit?" ("+esc(t.unit)+")":"")}; });'
-ck("and the rule fires on the line that motivated it",
-   bool(ESCAPED_OPT.search(_was)), _was)
+   not pre_escaped_pages, pre_escaped_pages)
+# A rule nothing can trip is not a rule, and this one could not trip for an
+# hour. The fixture is the line as it stood, in the shape it is in now.
+_was = ('return {value:t.id,\n'
+        '        /* NOT esc(): FEK escapes an OPTION label itself. */\n'
+        '        label:t.name+(t.unit?" ("+esc(t.unit)+")":"")}; });')
+ck("and the rule fires on the line that motivated it, split across lines",
+   bool(pre_escaped(_was)), _was)
+ck("it is not fooled by a comment that merely mentions esc()",
+   not pre_escaped('return {value:t.id, /* not esc(label) here */ label:t.name};'), "")
 ck("but not on a component's own authored label",
-   not ESCAPED_OPT.search("label:FEK.esc(t.n)+'<span class=\"u\">x</span>',"), "")
+   not pre_escaped("FEK.dial({label:FEK.esc(t.n)+'<span>x</span>', value:v, "
+                   "options:[{value:'1',label:'1'}]})"), "")
 
 # --- 4. and no page in docs/ still carries the old form -------------------
 stale = [os.path.basename(p) for p in pages
          if "'<span>'+op.label+'</span>'" in io.open(p, encoding="utf-8").read()]
 ck("no page in docs/ still carries the unescaped dial", not stale, stale)
 
-# --- 5. every page where the defect is REACHABLE is published current ------
-# The earlier version of this check ended by asserting a "republish priority"
-# built from sections 1 and 2 alone. That was wrong in a way worth recording:
-# reachability is a property of the SOURCE, and staleness is a property of the
-# PUBLISHED COPY, and nothing here had looked at a published copy. It named
-# releve.html as priority; releve's live artifact was already serving FEK
-# v1.3.0 with the escaping in place. The check was not measuring what its own
-# sentence claimed.
+# --- 5. it used to live here, and it cost the four sections above --------
+# "Every page where the injection is reachable is published current" is now
+# tools/verify/verify_publish_reach.py. It compares each page against a digest,
+# so it fails on ANY edit -- and a mutation sweep edits pages by construction,
+# so ADR-070's guard threw this WHOLE suite out on all five reachable pages as
+# "measuring bytes, not behaviour". It was right to. The cost was that sections
+# 1 to 4, which are byte-insensitive and are the actual escaping rules, could
+# not kill a single mutant on the pages that most need them.
 #
-# What it should assert is the crossing of the two: for every page where a
-# stale copy would render typed text or an angle-bracket label as markup, the
-# published copy must be STAMPED CURRENT. publish_state.py is the only thing
-# in this repo that knows that, so this reads its state rather than restating
-# section 1.
-#
-import json, hashlib, importlib.util
-
-reach = set(angled) | set(runtime)
-
-ck("the reachable set is not empty -- this check would be vacuous otherwise",
-   bool(reach), sorted(reach))
-
-# The publish bytes are recomputed IN MEMORY, through publish.py's own strip()
-# and wire(), rather than by shelling out to it. Shelling out would have this
-# suite write into build/publish/ as a side effect of being run -- a test that
-# mutates the tree it is testing, which is exactly the mistake the mutation
-# sweep made and had to be rebuilt to avoid. Recomputed, never a pinned digest:
-# a legitimate edit to a page must not fail this check, only an UNSTAMPED one.
-_spec = importlib.util.spec_from_file_location("_pub", os.path.join(ROOT, "tools", "publish.py"))
-_pub = importlib.util.module_from_spec(_spec); _spec.loader.exec_module(_pub)
-_base, _pages = _pub.load()
-
-def publish_bytes(name):
-    src = io.open(os.path.join(DOCS, name), encoding="utf-8").read()
-    return _pub.wire(_pub.strip(src), _base, _pages).encode("utf-8")
-
-# There is no reimplementation here to drift: strip() and wire() ARE
-# publish.py's, imported. What can go wrong is importing something else --
-# a stub, a stale copy, a module that silently lacks them -- and then hashing
-# bytes no publisher would ever produce. So the check is on the provenance of
-# the functions, not on a file that may simply be an unrebuilt build dir.
-#
-# The first version of this check compared against build/publish/cp-bench.html
-# and called that "reproduces publish.py's output byte for byte". It did not:
-# it measured whether the build directory was fresh, and fired on a canary that
-# only edited a page. Naming a check for something it does not measure is the
-# same error section 5 was rewritten to fix, two checks apart.
-ck("strip and wire are publish.py's own, not a local reimplementation",
-   getattr(_pub.strip, "__module__", "") == "_pub"
-   and getattr(_pub.wire, "__module__", "") == "_pub"
-   and os.path.samefile(_pub.__file__, os.path.join(ROOT, "tools", "publish.py")),
-   getattr(_pub, "__file__", None))
-ck("and the publish transform is not a no-op on these pages",
-   publish_bytes("cp-bench.html")
-   != io.open(os.path.join(DOCS, "cp-bench.html"), "rb").read(), "")
-
-# Through publish_state.entry_sha, not `stamps[n]` directly. ADR-056 gave an
-# entry a timestamp -- `{"sha": ..., "at": ...}` where a bare string used to be
-# -- and eight of the nineteen entries are the new shape today. Comparing the
-# dict to a digest is never equal, so this check would have called a freshly
-# stamped page "behind": a false alarm on correct work, arriving whenever
-# somebody happened to re-stamp one of these five pages. It read as passing
-# only because the two pages it covered were both still the old shape.
-_ps = importlib.util.spec_from_file_location(
-    "_pstate", os.path.join(ROOT, "tools", "publish_state.py"))
-_pstate = importlib.util.module_from_spec(_ps); _ps.loader.exec_module(_pstate)
-stamps = json.load(io.open(os.path.join(ROOT, "tools", "published.json"), encoding="utf-8"))["pages"]
-ck("both entry shapes are read through publish_state, not compared raw",
-   _pstate.entry_sha("abc") == "abc"
-   and _pstate.entry_sha({"sha": "abc", "at": 1}) == "abc",
-   (_pstate.entry_sha("abc"), _pstate.entry_sha({"sha": "abc", "at": 1})))
-not_current = []
-for n in sorted(reach):
-    digest = hashlib.sha256(publish_bytes(n)).hexdigest()
-    if n not in stamps:                             not_current.append((n, "never stamped"))
-    elif _pstate.entry_sha(stamps[n]) != digest:    not_current.append((n, "behind"))
-ck("every page where the injection is reachable is published current",
-   not not_current, not_current)
+# The reachable set both files work from is tools/reach.py, imported by each, so
+# they cannot come to different conclusions about which pages those are
+# (ADR-039). The fixtures for the tracer stay HERE: they are checks about
+# whether the detector is right, and verify_publish_reach only consumes its
+# answer.
 
 print("-" * 70)
 print("%d passed, %d failed" % (ok, bad))

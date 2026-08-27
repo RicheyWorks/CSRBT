@@ -579,12 +579,28 @@ def scratch_root():
     container that goes away -- and the failure mode is a mutant left in the
     real tree, which is the single worst thing a tool like this could do.
     Suites resolve their root from their own file location, so copying both
-    directories is enough for them to run entirely inside the scratch tree.
+    directories lets them run entirely inside the scratch tree -- ALMOST.
+
+    The top-level files come too, and finding out why is the whole point of
+    ADR-070's guard. `verify_eco` checks every link in the kit resolves, and
+    `tree-proofs.html` links to `../README.md`. That file is not in docs/ or
+    tools/, so in the scratch copy the link was broken, so verify_eco was red,
+    so the guard excluded it -- from every sweep of every page it names, which
+    is most of the kit, silently, and reported as "already failing on clean
+    code" when it passes 98/98 in the real tree.
+
+    Ninety-eight checks that had never been allowed to testify. Directories
+    are deliberately NOT copied: build/ and the Java tree are large and nothing
+    in docs/ links into them.
     """
     tmp = tempfile.mkdtemp(prefix="csrbt_mutate_")
     shutil.copytree(DOCS, os.path.join(tmp, "docs"))
     shutil.copytree(os.path.join(ROOT, "tools"), os.path.join(tmp, "tools"),
                     ignore=shutil.ignore_patterns("__pycache__", "*.pyc"))
+    for nm in sorted(os.listdir(ROOT)):
+        src = os.path.join(ROOT, nm)
+        if os.path.isfile(src):
+            shutil.copy2(src, os.path.join(tmp, nm))
     return tmp
 
 
@@ -778,8 +794,9 @@ def main(argv):
                 (red if clean_rc != 0 else bytesy).append(nm)
             io.open(tpath, "w", encoding="utf-8").write(src)
             if red:
-                print("%-28s EXCLUDED, already failing on clean code -- a red "
-                      "suite kills every mutant: %s" % ("", ", ".join(red)))
+                print("%-28s EXCLUDED, red on the UNMUTATED scratch copy -- a red suite "
+                      "kills every mutant. If it passes in the real tree, the scratch "
+                      "copy is missing something it reads: %s" % ("", ", ".join(red)))
             if liars:
                 print("%-28s EXCLUDED, prints a failure and exits 0 on clean code -- "
                       "the ADR-046 defect: %s" % ("", ", ".join(liars)))

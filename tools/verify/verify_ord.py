@@ -339,6 +339,52 @@ with sync_playwright() as p:
        pg.eval_on_selector_all("#ordPlot circle", "e=>e.length") == 0,
        pg.eval_on_selector_all("#ordPlot circle", "e=>e.length"))
 
+    # ---- the boundary the "free coordinates" warning is about --------------
+    # NMDS in k dimensions can place n <= k + 2 points to satisfy any ordering
+    # exactly, so a stress of zero there is arithmetic rather than a finding,
+    # and the page says so. A mutation sweep turned `n <= k + 2` into `n < k + 2`
+    # and nothing noticed: the suite tests the stress figure and never the
+    # sentence beside it.
+    #
+    # Measured at the boundary, both sides, both at stress 0.000 -- so the check
+    # isolates the COUNT rather than the stress, which is the half the mutation
+    # touched. With k = 2 that is four sites present, five absent.
+    _M4 = "site,a,b,c,d\nP,5,1,0,0\nQ,4,2,1,0\nR,1,4,3,0\nS,0,1,5,2"
+    _KEY = "enough free"          # "...enough free coordinates to place the points exactly"
+    feed(_M4)
+    _t4 = pg.inner_text("#p-ord")
+    ck("four sites in two dimensions: a zero stress is called out as guaranteed",
+       _KEY in _t4, _t4[:220])
+    ck("and the stress really is zero there, so the fixture tests the count",
+       "Stress 0.000" in _t4, _t4[:120])
+    feed(_M4 + "\nT,0,0,2,6")
+    _t5 = pg.inner_text("#p-ord")
+    ck("five sites is past the boundary and the warning goes away",
+       _KEY not in _t5, _t5[:220])
+    ck("even though the stress is still zero -- so it is the count that moved",
+       "Stress 0.000" in _t5, _t5[:120])
+
+    # ---- the picture has to be inside its own frame -----------------------
+    # `scaler()` maps a coordinate range onto an axis. Replacing its max with a
+    # min survived every check in this suite, because the suite tests the
+    # NUMBERS and nothing had ever looked at where the points were drawn.
+    # Measured: the mutant does not collapse the plot, it throws the points
+    # OUT of it -- cx up to 1739 in a 680-wide viewBox, cy negative.
+    _vb = pg.eval_on_selector("#ordPlot svg", "e=>e.getAttribute('viewBox')")
+    _W, _H = [float(x) for x in _vb.split()[2:4]]
+    _cx = pg.eval_on_selector_all("#ordPlot circle", "e=>e.map(c=>+c.getAttribute('cx'))")
+    _cy = pg.eval_on_selector_all("#ordPlot circle", "e=>e.map(c=>+c.getAttribute('cy'))")
+    ck("the plot draws a point per site", len(_cx) == 5, len(_cx))
+    ck("every plotted point is inside the frame",
+       all(0 <= v <= _W for v in _cx) and all(0 <= v <= _H for v in _cy),
+       (round(min(_cx or [0]), 1), round(max(_cx or [0]), 1),
+        round(min(_cy or [0]), 1), round(max(_cy or [0]), 1), _W, _H))
+    # ...and it is not vacuous the other way: a scale that collapsed every point
+    # onto one spot would also be inside the frame, and would be just as wrong.
+    ck("and the points use most of the frame rather than collapsing into it",
+       (max(_cx) - min(_cx)) > _W / 2 and (max(_cy) - min(_cy)) > _H / 2,
+       (round(max(_cx) - min(_cx), 1), round(max(_cy) - min(_cy), 1), _W, _H))
+
     feed("site,a,b,c\nX,1,2,3\nY,3,2,1\nZ,0,5,5\nW,0,0,0\nV,2,2,2")
     po = pg.inner_text("#parseOut")
     ck("an empty site is named", "recorded nothing" in po and " W" in po, po[:120])
