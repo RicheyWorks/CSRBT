@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-import sys, math
+import sys, math, re
 from playwright.sync_api import sync_playwright
 import os as _os
 # The kit is checked out wherever the user keeps it; these suites used to hard-code
@@ -160,6 +160,36 @@ with sync_playwright() as p:
         pg.click("#tAdd"); pg.wait_for_timeout(120)
     ck("one replicate refused", "One replicate is not a trial" in pg.inner_text("#triOut"),
        pg.inner_text("#triOut")[:250])
+
+    # ---- the multiple-comparisons warning, and its own arithmetic ----
+    # The banner is guarded by `a.t > 4`, so the four-entry demo above never
+    # reaches it and nothing had ever read it. A mutation sweep dropped the /2
+    # from `a.t*(a.t-1)/2*0.05` -- leaving the SAME banner saying there are 15
+    # pairwise comparisons and that you should expect 1.5 false differences,
+    # which is 15 x 0.10. The two halves of one sentence disagreeing is the
+    # whole tell, so both are read and compared (ADR-041: recomputed from the
+    # entry count the page itself reports, not pinned).
+    pg.click("#tClear"); pg.wait_for_timeout(150)
+    for e in range(1, 7):
+        for blk in (1, 2, 3):
+            setstep("#triEntry", 0, e); setstep("#triEntry", 1, blk)
+            setstep("#triEntry", 2, 10 + e + blk * 0.1)
+            pg.click("#tAdd"); pg.wait_for_timeout(60)
+    out = pg.inner_text("#triOut")
+    ck("six entries reach the multiple-comparison warning",
+       "pairwise comparisons" in out, out[-300:])
+    m = re.search(r"With (\d+) entries there are (\d+) pairwise comparisons", out)
+    ck("the warning names the entry count and the comparison count", bool(m), out[-300:])
+    if m:
+        t, pairs = int(m.group(1)), int(m.group(2))
+        ck("the comparison count is t(t-1)/2 for the t it just named",
+           pairs == t * (t - 1) // 2, (t, pairs, t * (t - 1) // 2))
+        x = re.search(r"expect roughly ([\d.]+) apparent differences", out)
+        ck("and it says how many of those are noise at 5%", bool(x), out[-300:])
+        if x:
+            ck("that figure is 5% of the comparison count it just stated",
+               abs(float(x.group(1)) - round(pairs * 0.05, 1)) < 0.05,
+               (x.group(1), round(pairs * 0.05, 1), pairs))
     # incomplete design
     setstep("#triEntry",0,1); setstep("#triEntry",1,2); setstep("#triEntry",2,11)
     pg.click("#tAdd"); pg.wait_for_timeout(250)

@@ -193,6 +193,9 @@ KNOWN_EQUIVALENT = [
      "of three literals keep.py chooses, so no runtime path can put markup in it "
      "-- and verify_keep now asserts statically that no assignment reaches "
      "e.message or e.stack"),
+    ("drop-esc", "esc(c.n)",
+     "breeding-bench crop heading; c comes from cropBy() over the CROPS literal "
+     "at line 930, and grep finds 0 pushes to it"),
     ("drop-esc", "esc(it[4])",
      "soil-recipes ingredient note; rows() is called only with r.base/r.items "
      "from the RECIPES literal, and grep finds 0 pushes to it anywhere"),
@@ -220,6 +223,10 @@ KNOWN_EQUIVALENT = [
      "returns null for a key already present, and verify_tv asserts that "
      "inserting 50 twice leaves the count unchanged), so no two adjacent "
      "in-order keys are ever equal and <= cannot differ from <"),
+    ("lte->lt", "every <= 0",
+     "deployment-log's duty-cycle divisor guard; aOn and aEvery are FEK steppers "
+     "with min:1 and no nullable flag, measured to clamp, so `every` can never "
+     "reach 0 through the UI and the guard is defensive"),
     ("lte->lt", "c<=0",
      "soil-recipes fmtCup's zero guard; measured: 51 quantities in the RECIPES "
      "literal with a minimum of 0.25, and the batch dial's smallest multiplier "

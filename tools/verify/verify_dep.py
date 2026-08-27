@@ -145,6 +145,23 @@ with sync_playwright() as p:
            stat("dutyStat", "duty cycle"))
 
     # a card that cannot hold the deployment must say so
+    # ---- the duty cycle at the smallest values a user can set ----
+    # Every reading here divides by `every`, and the panel had never been read
+    # at the bottom of its own ranges. Typing 0 does NOT reach zero: aOn and
+    # aEvery are FEK steppers with min:1 and no nullable flag, so both clamp --
+    # measured, which is also why the sweep's `every <= 0` -> `every < 0` mutant
+    # is recorded as equivalent rather than killed here. What this does check is
+    # that the floor of the reachable range produces numbers and not NaN.
+    for lbl in ("record for", "once every", "deployment", "SD card"):
+        setstep(lbl, 0)
+    pg.wait_for_timeout(250)
+    for el in ("#dutyStat", "#dutyLegend", "#dutyBox"):
+        txt = pg.inner_text(el)
+        ck("the duty panel is NaN-free at the floor of its ranges (%s)" % el,
+           "NaN" not in txt, txt[:120])
+    ck("and it shows no Infinity either", "Infinity" not in pg.inner_text("#dutyStat"),
+       pg.inner_text("#dutyStat")[:120])
+
     setstep("record for", 600)
     setstep("once every", 600)
     setstep("deployment", 30)
