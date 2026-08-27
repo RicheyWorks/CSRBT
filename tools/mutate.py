@@ -422,8 +422,9 @@ def cross_cutting():
     on cp-characters while a suite in this very repo would have killed it.
 
     Derived, not listed: a suite qualifies if it globs the docs directory and
-    names no page. Fixture-builders are excluded by the same predicate
-    suites_for uses, which is how verify_emitters stays out.
+    names no page. Fixture-builders are excluded by the same DECLARATION
+    suites_for reads, which is how verify_emitters stays out -- one answer to
+    the question, in one place, rather than two predicates that can drift.
     """
     pages = {os.path.basename(x) for x in glob.glob(os.path.join(DOCS, "*.html"))}
     out = []
@@ -433,14 +434,16 @@ def cross_cutting():
             continue
         if any(p in txt for p in pages):
             continue
-        # A sharper predicate than suites_for's, and measured rather than
-        # chosen: across the four suites that touch tempfile, `shutil` is what
-        # separates the two that copy a whole scratch TREE to test tooling
-        # (verify_emitters, verify_audit_frontend) from the two that write one
-        # fixture FILE and otherwise assert about the real kit
-        # (verify_offline_slice, verify_claims_triage). The looser `mkdtemp`
-        # test drops all four, which is what kept the webfont killer out.
-        if "shutil" in txt:
+        # The SAME declaration suites_for reads. This used to be a second,
+        # sharper text predicate -- `"shutil" in txt` -- chosen because it
+        # separated the suites that copy a whole scratch TREE from the two that
+        # write one fixture FILE and otherwise assert about the real kit. Two
+        # predicates answering one question is one too many, and they duly
+        # disagreed: a comment added to verify_offline_slice that MENTIONED
+        # shutil, while explaining the sniff, dropped it out of the cross-cutting
+        # set and the webfont killer went back to reporting a survivor. A rule
+        # that a sentence about the rule can break is not a rule.
+        if FIXTURE_MARK in txt:
             continue
         out.append(s)
     return out
@@ -479,11 +482,49 @@ def suites_for(page):
         # Counting those as coverage would let a page look tested by a suite
         # that asserts nothing about it, and would make every sweep pay for a
         # ninety-second run that cannot kill a page-logic mutant anyway.
-        if "tempfile" in txt and ("shutil" in txt or "mkdtemp" in txt):
+        #
+        # DECLARED, not inferred. This used to read "imports tempfile and either
+        # shutil or mkdtemp", which is a fact about a suite's imports and not
+        # about what it does -- and the day verify_eco needed a temp dir to
+        # compile a JDK oracle, 138 checks on the flagship page silently stopped
+        # voting on that page's mutants and the sweep reported the escapes they
+        # cover as survivors. Same shape as ADR-061: a silent exclusion is worse
+        # than a wrong one, because nothing in the output disagrees with it.
+        if FIXTURE_MARK in txt:
             skipped.append(os.path.basename(s)[:-3])
             continue
         hits.append(s)
     return hits, skipped
+
+
+FIXTURE_MARK = 'MUTATE_ROLE = "fixture-builder"'
+SUBJECT_MARK = 'MUTATE_ROLE = "subject"'
+
+
+def marker_drift():
+    """Suites that use a temp dir without saying what for.
+
+    The old inference -- "imports tempfile and either shutil or mkdtemp" -- is
+    no longer the rule, but it is still a decent smoke alarm, so it is kept as
+    the trigger for a QUESTION rather than a decision: a suite that reaches for
+    a temp dir is either building fixture pages (not coverage) or doing
+    something else entirely (verify_eco compiles a JDK oracle in one), and only
+    the person writing it knows which. So the sniff no longer guesses; it
+    demands one of the two markers, and reports the suites that carry neither.
+
+    The stale list is the mirror: a suite still declaring itself a
+    fixture-builder after its tree went away is sitting out sweeps it could
+    win, silently, which is the ADR-061 failure again.  Returns
+    (undeclared, stale)."""
+    undeclared, stale = [], []
+    for s in sorted(glob.glob(os.path.join(VERIFY, "verify_*.py"))):
+        txt = io.open(s, encoding="utf-8").read()
+        looks = "tempfile" in txt and ("shutil" in txt or "mkdtemp" in txt)
+        says = FIXTURE_MARK in txt
+        if looks and not says and SUBJECT_MARK not in txt:
+            undeclared.append(os.path.basename(s)[:-3])
+        if says and not looks: stale.append(os.path.basename(s)[:-3])
+    return undeclared, stale
 
 
 # Mutating a shared module's INLINED COPY inside a page and then running the
@@ -795,13 +836,33 @@ def main(argv):
             CROSS = cross_cutting()
         suites, skipped = suites_for(page)
         if skipped:
-            print("%-28s excluded (builds a scratch tree, so it names this page as a "
-                  "fixture): %s" % ("", ", ".join(skipped)))
-        if not suites:
-            print("%-28s %3d mutant(s)  NO SUITE NAMES THIS PAGE -- every mutant survives "
-                  "by default" % (page, len(muts)))
+            print("%-28s excluded (declares itself a fixture-builder, so it names this "
+                  "page as a fixture): %s" % ("", ", ".join(skipped)))
+        _und, _stale = marker_drift()
+        if _und:
+            print("%-28s NOTE: uses a temp dir and declares neither role, so the sweep "
+                  "is guessing it is coverage: %s" % ("", ", ".join(_und)))
+        if _stale:
+            print("%-28s NOTE: declares itself a fixture-builder but no longer looks like "
+                  "one, so it is sitting out sweeps: %s" % ("", ", ".join(_stale)))
+        # "No suite names this page" is not the same as "nothing covers this
+        # page": the cross-cutting suites reach every page in docs/ precisely
+        # BECAUSE they name none of them, and this guard used to return before
+        # they were ever consulted. So a page whose only cover is cross-cutting
+        # was reported as having none, and its mutants were binned as unrunnable
+        # rather than run -- the ADR-061 defect one more time, in the branch
+        # written to report it.
+        if not suites and not CROSS:
+            print("%-28s %3d mutant(s)  NOTHING COVERS THIS PAGE -- no suite names it and "
+                  "there are no cross-cutting suites, so every mutant survives by default"
+                  % (page, len(muts)))
             grand_nosuite += len(muts)
             continue
+        if not suites:
+            print("%-28s %3d mutant(s), no suite NAMES this page -- run against the "
+                  "cross-cutting suites only: %s"
+                  % (page, len(muts),
+                     ", ".join(os.path.basename(x)[:-3] for x in CROSS)))
 
         if a.list:
             print("%s  -- %d mutant(s), suites: %s"
@@ -868,11 +929,18 @@ def main(argv):
                 print("%-28s EXCLUDED, fails on a comment appended to the page -- it is "
                       "measuring bytes, not behaviour: %s" % ("", ", ".join(bytesy)))
 
-            if not tsuites:
-                print("%-28s no green suite names this page -- nothing to "
-                      "measure against" % "")
+            # Same distinction as the guard above: no GREEN NAMING suite is not
+            # the same as nothing to measure against, because the cross-cutting
+            # suites are still there and are the whole reason a page nothing
+            # names is covered at all.
+            if not tsuites and not CROSS:
+                print("%-28s no green suite names this page and there are no "
+                      "cross-cutting suites -- nothing to measure against" % "")
                 grand_nosuite += len(muts)
                 continue
+            if not tsuites:
+                print("%-28s no green suite NAMES this page -- measured against the "
+                      "cross-cutting suites alone" % "")
 
             _clean = {}
             for n, mu in enumerate(muts, 1):

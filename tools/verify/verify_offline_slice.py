@@ -10,6 +10,13 @@ The second half of this suite exists because the audit that found it lied twice
 about paint timing before it was right, both times through the harness rather
 than the page. So the harness is tested here too.
 """
+
+# Declared for tools/mutate.py. This suite writes ONE synthetic fixture file --
+# and every other assertion in it is about the real pages in docs/. It is a
+# subject, not a fixture-builder, and saying so is not optional: two different
+# text predicates in mutate.py used to answer this question, they disagreed
+# about this exact file, and the disagreement cost a real kill.
+MUTATE_ROLE = "subject"
 import glob, io, os, re, sys
 
 import _kit

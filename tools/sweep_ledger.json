@@ -368,6 +368,30 @@
       "killed": 6,
       "survived": 0,
       "fresh": 0
+    },
+    {
+      "page": "ecology-lab.html",
+      "adr": "ADR-076",
+      "source": "tool",
+      "killed": 18,
+      "survived": 12,
+      "fresh": 12
+    },
+    {
+      "page": "ecology-lab.html",
+      "adr": "ADR-077",
+      "source": "tool",
+      "killed": 29,
+      "survived": 1,
+      "fresh": 1
+    },
+    {
+      "page": "ecology-lab.html",
+      "adr": "ADR-077",
+      "source": "tool",
+      "killed": 30,
+      "survived": 0,
+      "fresh": 0
     }
   ]
 }

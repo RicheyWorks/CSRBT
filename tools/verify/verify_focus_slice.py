@@ -53,6 +53,43 @@ with sync_playwright() as p:
         ck(got==lab, "%s aria-label == %r (got %r)"%(tid,lab,got))
     ck(pg.eval_on_selector("#wb-eco-out","e=>e.readOnly"), "wb-eco-out stays read-only")
 
+    # ---------- the paste path (ADR-077) ----------
+    # "edit as text (paste from a spreadsheet)" is how anyone with real data gets it
+    # into this page. Everything above drives the ADD ROW; nothing drove the textarea,
+    # so chipify's parse() -- comments, blanks, bare names, bare numbers, duplicate
+    # accumulation -- had no test at all. One paste exercises every branch of it.
+    pg.eval_on_selector("#wb-field", "e=>e.closest('details.fe-raw').open=true")
+    pg.wait_for_timeout(150)
+    PASTE = ("# quadrat A notes\n"      # comment-only line: dropped whole
+             "\n"                        # blank line: dropped
+             "robin, 4\n"                # comma separator
+             "wren 2\n"                  # space separator
+             "sparrow\n"                 # bare name: counts as one
+             "12\n"                      # bare number: NOT a species
+             "oak 3 # the big one\n"     # trailing comment stripped off a data line
+             "robin 1\n")                # duplicate name accumulates
+    pg.fill("#wb-field", PASTE); pg.wait_for_timeout(400)
+    chips = pg.eval_on_selector("#wb-field", """e=>{
+        var w = e.closest('details.fe-raw').previousElementSibling;
+        return [...w.querySelectorAll('.fe-chip')].map(c=>[
+            c.querySelector('.fe-name').textContent,
+            c.querySelector('.fe-count').textContent]);
+    }""")
+    ck(chips == [["robin","5"],["wren","2"],["sparrow","1"],["oak","3"]],
+       "pasted block parses to robin 5 / wren 2 / sparrow 1 / oak 3: %r" % (chips,))
+    # Each of those four facts, stated so a failure names which branch broke.
+    names = [c[0] for c in chips]
+    ck("12" not in names, "a bare number is not read as a species named 12: %r" % (names,))
+    ck("sparrow" in names, "a bare name with no count is still read as one individual")
+    ck("#" not in "".join(names) and "quadrat A notes" not in " ".join(names),
+       "a comment-only line contributes no species: %r" % (names,))
+    ck(dict(chips).get("robin") == "5",
+       "the same name on two lines accumulates (4 + 1 = 5), it does not overwrite")
+    ck(dict(chips).get("oak") == "3", "a trailing # comment is stripped off a data line")
+    # and typing in the raw box must not rewrite the raw box under the user's cursor
+    ck(pg.eval_on_selector("#wb-field","e=>e.value") == PASTE,
+       "parsing does not re-serialize over what the user is typing")
+
     # the deck textarea is still populated by its select
     ck(pg.eval_on_selector("#wb-decklist","e=>e.value.length>0") , "wb-decklist still auto-fills from the deck picker")
 

@@ -16,6 +16,13 @@ Exemptions, where the finder was reporting things that were never faults. Each
 is asserted here against a seeded example, because an exemption is a hole in a
 tool and holes should be shown to be the shape you meant.
 """
+
+# Declared for tools/mutate.py. This suite writes ONE synthetic fixture file --
+# and every other assertion in it is about the real pages in docs/. It is a
+# subject, not a fixture-builder, and saying so is not optional: two different
+# text predicates in mutate.py used to answer this question, they disagreed
+# about this exact file, and the disagreement cost a real kill.
+MUTATE_ROLE = "subject"
 import io, os, re, sys, tempfile
 
 import _kit

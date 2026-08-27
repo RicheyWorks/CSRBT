@@ -31,6 +31,14 @@ reasons, and a mock of those would be a test of the mock.
 
 Run:  python3 tools/verify/verify_mutate.py
 """
+
+# Declared for tools/mutate.py: this suite builds its own scratch tree and the
+# page names in it are FIXTURES it perturbs, not subjects it asserts about. A
+# sweep must not count it as coverage. Declared rather than inferred -- the
+# inference was "imports tempfile and shutil", which is a fact about imports and
+# not about what the suite does, and it silently excluded verify_eco (138 checks
+# on the flagship page) the moment that suite needed a temp dir for a JDK.
+MUTATE_ROLE = "fixture-builder"
 import io, os, re, shutil, subprocess, sys, tempfile
 
 HERE = os.path.dirname(os.path.abspath(__file__))
@@ -282,6 +290,138 @@ try:
            not _bad, _bad)
 finally:
     shutil.rmtree(_scratch, ignore_errors=True)
+
+
+# ---- 7. which suites count as coverage is DECLARED, not sniffed ---------
+# The rule used to be "imports tempfile and either shutil or mkdtemp, so it
+# must be building fixture pages". That is a fact about a suite's imports. The
+# day verify_eco needed a temp dir to compile a JDK oracle, all 138 of its
+# checks stopped voting on the page they are entirely about, and the sweep
+# reported the escapes they cover as fresh survivors -- with one line of output
+# saying so in language that read like a deliberate exclusion.
+#
+# So: a temp-dir suite must say which of the two it is, and the sweep reports
+# the ones that will not. Four suites, one sweep, all four outcomes.
+_FAKE = "docs/fake.html is the subject here\n"
+_GREEN = "import sys\nprint('1/1')\nsys.exit(0)\n"
+_TMP = "import tempfile, shutil, os\n"
+_ROLES = {
+    "verify_role_fixture.py": "# " + _FAKE + _TMP
+        + 'MUTATE_ROLE = "fixture-builder"\n' + _GREEN,
+    "verify_role_subject.py": "# " + _FAKE + _TMP
+        + 'MUTATE_ROLE = "subject"\n' + _GREEN,
+    "verify_role_silent.py":  "# " + _FAKE + _TMP + _GREEN,
+    "verify_role_stale.py":   "# " + _FAKE
+        + 'MUTATE_ROLE = "fixture-builder"\n' + _GREEN,
+}
+tmp = tempfile.mkdtemp(prefix="verify-mutate-roles-")
+try:
+    build(tmp, dict(_ROLES))
+    out = sweep(tmp)
+    _hdr = [l for l in out.split("\n") if "mutant(s) against" in l]
+    _hdr = _hdr[0] if _hdr else ""
+    ck("the sweep still names the suites it is running against", bool(_hdr), out[:400])
+    # declared fixture-builder: excluded, and said so in those words
+    ck("a suite that declares itself a fixture-builder is excluded",
+       "role_fixture" not in _hdr, _hdr)
+    ck("and the exclusion says it was DECLARED, not inferred",
+       "declares itself a fixture-builder" in out,
+       [l for l in out.split("\n") if "excluded" in l])
+    # declared subject: kept, despite tripping the old inference exactly
+    ck("a temp-dir suite that declares itself a subject still counts as coverage",
+       "role_subject" in _hdr, _hdr)
+    ck("and it raises no question, because it answered the question",
+       "role_subject" not in "".join(l for l in out.split("\n") if "NOTE:" in l),
+       [l for l in out.split("\n") if "NOTE:" in l])
+    # undeclared: kept (guessing), and the guess is visible
+    ck("a temp-dir suite that declares nothing is still counted as coverage",
+       "role_silent" in _hdr, _hdr)
+    ck("...but the sweep says out loud that it is guessing",
+       "role_silent" in "".join(l for l in out.split("\n") if "NOTE:" in l),
+       [l for l in out.split("\n") if "NOTE:" in l])
+    # stale marker: excluded, and reported as probably wrong
+    ck("a stale fixture-builder marker still excludes the suite",
+       "role_stale" not in _hdr, _hdr)
+    ck("...and is reported, because sitting out a sweep silently is the ADR-061 failure",
+       "role_stale" in "".join(l for l in out.split("\n") if "NOTE:" in l),
+       [l for l in out.split("\n") if "NOTE:" in l])
+    # and the two NOTEs are distinguishable -- one is "you did not say",
+    # the other is "what you said no longer matches"
+    ck("the two notes read differently, so the fix for each is obvious",
+       "declares neither role" in out and "no longer looks like" in out,
+       [l for l in out.split("\n") if "NOTE:" in l])
+finally:
+    shutil.rmtree(tmp, ignore_errors=True)
+
+# ---- 7b. ONE declaration, read in both places ---------------------------
+# suites_for and cross_cutting both have to answer "is this a fixture-builder",
+# and they used to answer it with two different text predicates. They duly
+# disagreed, and the way they disagreed is the joke: a comment added to
+# verify_offline_slice EXPLAINING the `"shutil" in txt` sniff contained the word
+# shutil, so the suite dropped out of the cross-cutting set and the webfont
+# killer -- the one mutant that suite exists to catch -- went back to being
+# reported as a survivor. The same shape as the pre-escape rule that went blind
+# on the line it was written for: a rule a sentence about the rule can break.
+#
+# So this asserts the property, not the wording: a suite that GLOBS the docs and
+# names no page is cross-cutting on the strength of its declaration alone, and
+# stays cross-cutting however much prose about shutil and scratch trees it
+# carries.
+_CROSS_BODY = ('# a cross-cutting suite: globs the docs, names no page\n'
+               '# This comment talks about shutil and copying a whole scratch tree,\n'
+               '# because prose about the old sniff is exactly what broke it.\n'
+               'MUTATE_ROLE = "subject"\n'
+               'import glob, io, os, sys\n'
+               'ROOT = os.path.normpath(os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", ".."))\n'
+               'DOCS = os.path.join(ROOT, "docs")\n'
+               'bad = 0\n'
+               'for f in glob.glob(os.path.join(DOCS, "*.html")):\n'
+               '    t = io.open(f, encoding="utf-8").read()\n'
+               '    if ("Math.min(a, b)" in t) or ("n > 3" in t): bad += 1\n'
+               'print("1/1" if not bad else "0/1")\n'
+               'sys.exit(1 if bad else 0)\n')
+tmp = tempfile.mkdtemp(prefix="verify-mutate-cross-")
+try:
+    # ONLY the cross-cutting suite. Nothing names fake.html, so if the sweep
+    # kills anything at all it can only be this one, reached by the glob path.
+    build(tmp, {"verify_role_cross.py": _CROSS_BODY})
+    out = sweep(tmp)
+    ck("a globbing suite that declares itself a subject is still cross-cutting",
+       "NOTHING COVERS THIS PAGE" not in out
+       and "cross-cutting suites only: verify_role_cross" in out, out[-600:])
+    ck("...and it kills, however much prose about shutil it carries",
+       (score(out) or 0) > 0, (score(out), out[-400:]))
+finally:
+    shutil.rmtree(tmp, ignore_errors=True)
+# the mirror: declaring fixture-builder takes it out of BOTH sets, not one
+tmp = tempfile.mkdtemp(prefix="verify-mutate-cross2-")
+try:
+    build(tmp, {"verify_role_cross.py": _CROSS_BODY.replace(
+        'MUTATE_ROLE = "subject"', 'MUTATE_ROLE = "fixture-builder"')})
+    out = sweep(tmp)
+    ck("and declaring fixture-builder removes it from the cross-cutting set too",
+       "NOTHING COVERS THIS PAGE" in out, out[-500:])
+finally:
+    shutil.rmtree(tmp, ignore_errors=True)
+
+# ---- 8. the real tree agrees with itself --------------------------------
+# The section above proves the mechanism on a scratch tree. This one asks the
+# question of the kit as it stands, because a mechanism nobody has answered for
+# is worth nothing: every suite here that reaches for a temp dir has to have
+# said which kind it is.
+_und, _stale = _mu.marker_drift()
+ck("no suite in the kit uses a temp dir without declaring what for", not _und, _und)
+ck("and no suite carries a fixture-builder marker it has outgrown", not _stale, _stale)
+# ...and the declaration is actually load-bearing: verify_eco, the largest suite
+# in the kit, is a temp-dir suite that MUST come out on the coverage side.
+_eco_suites, _eco_skip = _mu.suites_for("ecology-lab.html")
+ck("verify_eco votes on sweeps of the page it is entirely about",
+   any(os.path.basename(x) == "verify_eco.py" for x in _eco_suites),
+   [os.path.basename(x) for x in _eco_suites])
+ck("and the genuine fixture-builders are still kept out",
+   "verify_audit_frontend" not in [os.path.basename(x)[:-3] for x in
+                                   _mu.suites_for("food-web.html")[0]],
+   [os.path.basename(x)[:-3] for x in _mu.suites_for("food-web.html")[0]])
 
 print("PASS %d" % len(P))
 for x in F: print("FAIL:", x)

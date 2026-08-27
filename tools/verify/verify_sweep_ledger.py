@@ -27,6 +27,14 @@ sentence. It asserts, in order:
 
 Run:  python3 tools/verify/verify_sweep_ledger.py
 """
+
+# Declared for tools/mutate.py: this suite builds its own scratch tree and the
+# page names in it are FIXTURES it perturbs, not subjects it asserts about. A
+# sweep must not count it as coverage. Declared rather than inferred -- the
+# inference was "imports tempfile and shutil", which is a fact about imports and
+# not about what the suite does, and it silently excluded verify_eco (138 checks
+# on the flagship page) the moment that suite needed a temp dir for a JDK.
+MUTATE_ROLE = "fixture-builder"
 import io, json, os, re, shutil, sys, tempfile
 
 HERE = os.path.dirname(os.path.abspath(__file__))
