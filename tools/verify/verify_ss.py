@@ -121,6 +121,35 @@ with sync_playwright() as p:
     hexp=20*(math.tan(math.radians(42))-math.tan(math.radians(-8)))
     ho=pg.inner_text("#hOut")
     ck("height = %.1f m"%hexp, ("%.1f"%hexp) in ho, ho[:200])
+    # A horizontal distance of ZERO is not a small distance, it is no distance,
+    # and the formula divides the tree's height by it in effect: D * (tan t -
+    # tan b) is 0 for every pair of angles. The page guards `D <= 0` and says
+    # "enter a horizontal distance". A mutation sweep turned that into `D < 0`
+    # and nothing here noticed: with D = 0 the guard stops firing, height()
+    # returns 0 instead of null, and the page offers a SIGN diagnosis --
+    # "check the signs, looking up is positive" -- for a reading whose problem
+    # is not the signs at all. 0 is reachable: it is the bottom of the distance
+    # stepper's own range.
+    #
+    # Asserted as an equivalence rather than as prose: zero distance must be
+    # refused the same way a missing one is. That survives a rewording of the
+    # message, which a pinned string does not (four suites in this kit have
+    # broken that way).
+    blank = pg.evaluate("""()=>{const e=document.getElementById('hD');
+        e.value=''; e.dispatchEvent(new Event('input',{bubbles:true}));
+        return document.getElementById('hOut').innerText.trim();}""")
+    zero = pg.evaluate("""()=>{const e=document.getElementById('hD');
+        e.value='0'; e.dispatchEvent(new Event('input',{bubbles:true}));
+        return document.getElementById('hOut').innerText.trim();}""")
+    ck("a zero horizontal distance is refused exactly as a missing one is",
+       zero == blank and zero != "", (zero[:90], blank[:90]))
+    ck("and it is not diagnosed as a sign error",
+       "sign" not in zero.lower(), zero[:140])
+    # ...and the fixture is not vacuous: a real distance still computes.
+    setstep("#htEntry",0,20); pg.wait_for_timeout(250)
+    ck("a real distance still gives a height",
+       ("%.1f"%hexp) in pg.inner_text("#hOut"), pg.inner_text("#hOut")[:120])
+
     pg.click("#hUse"); pg.wait_for_timeout(250)
     ck("height copies into the tally stepper",
        pg.evaluate("()=>document.querySelectorAll('#tEntry .fek-step .val')[1].value")=="%.1f"%hexp,

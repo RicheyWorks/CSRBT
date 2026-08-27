@@ -136,6 +136,22 @@
       "killed": 6,
       "survived": 0,
       "fresh": 0
+    },
+    {
+      "page": "stand-sheet.html",
+      "adr": "ADR-070",
+      "source": "tool",
+      "killed": 3,
+      "survived": 1,
+      "fresh": 1
+    },
+    {
+      "page": "stand-sheet.html",
+      "adr": "ADR-070",
+      "source": "tool",
+      "killed": 4,
+      "survived": 0,
+      "fresh": 0
     }
   ]
 }

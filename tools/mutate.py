@@ -541,11 +541,30 @@ def viable(text):
 SUITE_TIMEOUT = [150]
 
 
+# A suite that prints a failure and exits 0. ADR-046: verify_fek did exactly
+# this, so the sweep read every one of its failures as a pass and the Field
+# Entry Kit scored 7% when the truth was 95%. The suite was fixed; nothing
+# stopped the next one, because an exit code is all this runner ever looked at.
+# Anchored and word-bounded, the same shape run_all.py uses: "FAIL" and "FAIL:"
+# are results, "FAILURES" in a table header is not.
+FAIL_LINE = re.compile(r"^[ \t]*FAIL\b", re.M)
+
+# Suites caught exiting 0 on a failure, reported once at the end rather than on
+# every mutant.
+LIARS = set()
+
+
 def run_suite(path, cwd, timeout=None):
+    """Non-zero if the suite noticed. A printed failure counts as noticing."""
     timeout = timeout or SUITE_TIMEOUT[0]
     try:
         p = subprocess.run([sys.executable, path], capture_output=True, text=True,
                            timeout=timeout, cwd=cwd)
+        if p.returncode == 0 and FAIL_LINE.search((p.stdout or "") + (p.stderr or "")):
+            # It DID notice. Take the signal and name the defect, rather than
+            # discarding a real detection because the suite's exit code lied.
+            LIARS.add(os.path.basename(path))
+            return 1
         return p.returncode
     except subprocess.TimeoutExpired:
         return 99
@@ -722,56 +741,48 @@ def main(argv):
             tsuites = [os.path.join(tmp, "tools", "verify", os.path.basename(s))
                        for s in suites]
 
-            # ---- the suites have to be GREEN before they can testify --------
+            # ---- a suite has to be able to testify before it is believed ----
             #
-            # A suite that already fails on clean code returns non-zero for
-            # every mutant, and the sweep reads that as a kill. Measured, not
-            # imagined: extending verify_label_escaping in this same slice put
-            # selection-log on its list, the suite was red for an unrelated
-            # reason (a page it now covers was not published current), and the
-            # very next sweep of that page reported SIX mutants killed in three
-            # seconds and a mutation score of 100%. Two of those six were known
-            # blind spots that had survived the run an hour earlier.
+            # Three ways this runner has been fooled into reporting a kill:
             #
-            # ADR-046 fixed the mirror image of this -- a suite that printed
-            # FAIL and exited 0, so every failure read as a pass and FEK scored
-            # 7% when it should have scored 95%. Both directions produce a
-            # number with nothing behind it. This is the other guard rail.
-            red = []
+            #   ADR-046  a suite printed FAIL and exited 0, so every failure read
+            #            as a pass and FEK scored 7% against a true 95%.
+            #   ADR-069  a suite was already RED on clean code, so it returned
+            #            non-zero for every mutant. 33% -> 100% in three seconds.
+            #   ADR-069  a suite compared PUBLISH DIGESTS, so any edit failed it
+            #            -- and a sweep edits the page by construction. 100%
+            #            again, an hour later, for a different reason.
+            #
+            # One probe settles all three: run each suite against the page with
+            # a COMMENT APPENDED. That changes the bytes and cannot change the
+            # behaviour, so a suite that passes it is green AND is not measuring
+            # the file. A suite that fails gets one more run, on the clean page,
+            # only to say WHICH of the two it is -- so the common case costs one
+            # run per suite rather than two. run_suite() reports a printed
+            # failure as a failure whatever the exit code, which is what puts
+            # the ADR-046 shape into the same net.
+            NULL = src + "\n<!-- sweep: byte-only edit, no behaviour changes -->\n"
+            io.open(tpath, "w", encoding="utf-8").write(NULL)
+            red, liars, bytesy = [], [], []
             for s in list(tsuites):
-                if run_suite(s, tmp) != 0:
-                    red.append(os.path.basename(s)[:-3].replace("verify_", ""))
-                    tsuites.remove(s)
+                before = set(LIARS)
+                if run_suite(s, tmp) == 0:
+                    continue                     # green, and blind to the edit
+                nm = os.path.basename(s)[:-3].replace("verify_", "")
+                tsuites.remove(s)
+                if LIARS - before:
+                    liars.append(nm); continue
+                io.open(tpath, "w", encoding="utf-8").write(src)
+                clean_rc = run_suite(s, tmp)
+                io.open(tpath, "w", encoding="utf-8").write(NULL)
+                (red if clean_rc != 0 else bytesy).append(nm)
+            io.open(tpath, "w", encoding="utf-8").write(src)
             if red:
                 print("%-28s EXCLUDED, already failing on clean code -- a red "
                       "suite kills every mutant: %s" % ("", ", ".join(red)))
-            # ---- and green is not enough: it has to survive a NULL edit ----
-            #
-            # verify_label_escaping passed its baseline and then killed all six
-            # of selection-log's mutants in under a minute, including a
-            # Math.max->Math.min inside the Field Entry Kit that it has no
-            # opinion about. It was not testing them. Its section 5 recomputes
-            # each page's publish bytes and compares them against the stamp in
-            # published.json, so ANY edit to that page makes it fail -- and the
-            # sweep edits the page by construction.
-            #
-            # The score went 33% -> 100% on a page nothing new had been written
-            # for. That is the third way this tool has been fooled into
-            # reporting a kill: a suite that exits 0 on failure (ADR-046), a
-            # suite that was already red (above), and now a suite that measures
-            # the file's BYTES rather than its behaviour.
-            #
-            # The test is a mutation that changes bytes and cannot change
-            # behaviour. A suite that fails on that is not testifying about any
-            # mutant; it is testifying about the edit.
-            NULL = src + "\n<!-- sweep: byte-only edit, no behaviour changes -->\n"
-            io.open(tpath, "w", encoding="utf-8").write(NULL)
-            bytesy = []
-            for s in list(tsuites):
-                if run_suite(s, tmp) != 0:
-                    bytesy.append(os.path.basename(s)[:-3].replace("verify_", ""))
-                    tsuites.remove(s)
-            io.open(tpath, "w", encoding="utf-8").write(src)
+            if liars:
+                print("%-28s EXCLUDED, prints a failure and exits 0 on clean code -- "
+                      "the ADR-046 defect: %s" % ("", ", ".join(liars)))
             if bytesy:
                 print("%-28s EXCLUDED, fails on a comment appended to the page -- it is "
                       "measuring bytes, not behaviour: %s" % ("", ", ".join(bytesy)))
@@ -863,6 +874,11 @@ def main(argv):
           % (total, time.time() - t0, grand_killed, grand_survived))
     if total:
         print("mutation score: %.0f%%" % (100.0 * grand_killed / total))
+    if LIARS:
+        print("")
+        print("SUITES THAT EXIT 0 ON A FAILURE -- their detections were counted, but")
+        print("an exit code that lies is what made the Field Entry Kit read 7%% in")
+        print("ADR-046. Fix the suite: %s" % ", ".join(sorted(LIARS)))
     if grand_nosuite:
         print("%d mutant(s) on pages NO suite names -- not run, and not a score"
               % grand_nosuite)
