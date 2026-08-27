@@ -37,6 +37,57 @@ CONSUMERS = {
 }
 
 ck("tools/keep.py declares a version", bool(KEEPV), KEEPV)
+
+# ---- the autosave banner may only ever print text WE wrote -----------------
+# A mutation sweep dropped the esc() from `esc(lastErr)` in the failure banner
+# and nothing caught it. That mutant is EQUIVALENT today, and the reason is the
+# whole point: lastErr is never the exception's message. It is one of three
+# string literals we chose, so there is nothing for esc() to escape and no
+# runtime test can reach it -- I claimed in ADR-063 that forcing a
+# markup-bearing throw would test it, and that was wrong, because the message
+# never reaches the banner.
+#
+# What CAN go wrong is someone reaching for `e.message` to be more helpful. That
+# single edit turns a constant into browser- and, through a crafted filename or
+# URL, potentially attacker-influenced text on the same line the sweep just
+# showed is unguarded. So the invariant is asserted where it lives: in the
+# module, statically, once -- not in each of the pages that inline it.
+KEEP_SRC = io.open(os.path.join(TOOLS_DIR, "keep.py"), encoding="utf-8").read()
+def assignments(src):
+    """Each `lastErr = ...` statement, whole, up to its terminating `;`.
+
+    Scanned to the semicolon rather than to the newline because the
+    QuotaExceededError ternary spans two lines, and a line-limited regex reads
+    only its condition -- which would let `.message` on the second line through
+    the check below."""
+    out = []
+    for m in re.finditer(r"lastErr\s*=", src):
+        end = src.find(";", m.end())
+        out.append(src[m.start(): end if end != -1 else len(src)])
+    return out
+
+ASSIGN = assignments(KEEP_SRC)
+ck("keep.py assigns lastErr at all -- otherwise this check is vacuous",
+   len(ASSIGN) >= 4, len(ASSIGN))
+# The invariant, stated directly rather than by trying to decide what counts as
+# a constant expression. A first cut wrote a constant() predicate and tripped
+# over `var lastErr = null, savedAt = null, ...` and over the same ternary --
+# writing a small JavaScript parser to check JavaScript, which ADR-062 is about.
+LEAK = re.compile(r"\.\s*(message|stack|toString)\b")
+leaks = [a.strip()[:70] for a in ASSIGN if LEAK.search(a)]
+ck("no lastErr assignment reaches into the caught error's own text", not leaks, leaks)
+# Both halves of the rule, asserted directly. Neither of these can be caught by
+# mutating the tree: with keep.py clean there is nothing for the pattern to
+# match and nothing spanning a line for the scanner to lose, so forcing either
+# to fail changes no outcome (the ADR-059 shape). They are checked here instead.
+ck("the leak pattern recognises a leak when it sees one",
+   bool(LEAK.search("lastErr = e.message")) and bool(LEAK.search("lastErr = err.stack"))
+   and not LEAK.search('lastErr = "storage is full"'), "")
+ck("and the scanner takes a multi-line ternary whole, not just its first line",
+   any("QuotaExceededError" in a and "refused the write" in a for a in ASSIGN),
+   [a.strip()[:60] for a in ASSIGN])
+ck("the banner still escapes it anyway, so the guard survives a future edit",
+   "esc(lastErr)" in KEEP_SRC, "")
 ck("FEK is at or past the field registry (1.3.0)", FEKV >= "1.3.0", FEKV)
 
 # Kit-wide, and static: a component that writes through to a hidden field must

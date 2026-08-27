@@ -180,6 +180,25 @@ def block_of(src, i):
 # /[&<>"']/g swallowed the matcher. A rule that cannot be got right is worse
 # than a list that is honest about being a list.
 KNOWN_EQUIVALENT = [
+    # --- esc() over a value the page itself wrote -------------------------
+    # An escape whose input is a constant this page authored cannot be observed
+    # by dropping it: there is nothing in the input to escape. The escape is
+    # still correct -- it is what keeps the line safe if the table ever becomes
+    # user-editable -- so these are equivalent TODAY, not pointless.
+    #
+    # The criterion is a measurement, not a look: the source of the value must
+    # have no path from typed input. Each entry names the one that settled it.
+    ("drop-esc", "esc(lastErr)",
+     "the KEEP autosave banner; lastErr is never the exception's message but one "
+     "of three literals keep.py chooses, so no runtime path can put markup in it "
+     "-- and verify_keep now asserts statically that no assignment reaches "
+     "e.message or e.stack"),
+    ("drop-esc", "esc(it[4])",
+     "soil-recipes ingredient note; rows() is called only with r.base/r.items "
+     "from the RECIPES literal, and grep finds 0 pushes to it anywhere"),
+    ("drop-esc", "esc(it[1])+'<small>'",
+     "ethogram's design chips; chips() is called only with the SAMPLE and RECORD "
+     "literals, and grep finds 0 pushes to either"),
     ("gte->gt", "indexOf(qq)>=0",
      "inside FEK.picker's filter; grep shows FEK.picker used 0 times on the "
      "bench pages, so the constructor is dead code in those copies"),
@@ -189,6 +208,10 @@ KNOWN_EQUIVALENT = [
     ("lte->lt", "v<=0",
      "the plated-volume guard; the stepper clamps to its min, measured: typing "
      "0 or -5 both yield 0.001, so v<=0 is unreachable through the UI"),
+    ("lte->lt", "c<=0",
+     "soil-recipes fmtCup's zero guard; measured: 51 quantities in the RECIPES "
+     "literal with a minimum of 0.25, and the batch dial's smallest multiplier "
+     "is 0.25, so the smallest value fmtCup can ever see is 0.0625"),
     ("lte->lt", "lam<=0",
      "field-season's Poisson draw; with lam=0 the guard is redundant -- L=exp(0)=1 "
      "and the do/while exits on the first draw because the PRNG returns t/2^32 < 1, "
