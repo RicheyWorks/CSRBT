@@ -1,6 +1,14 @@
 {
   "_comment": "sha256 of the bytes last handed to the publisher, per page. A page absent from this map has never been stamped and its published state is UNKNOWN -- which is not the same as current.",
-  "observed": {},
+  "observed": {
+    "ecology-field-guide.html": {
+      "at": 1787874545,
+      "blocking_webfont": true,
+      "sha": "ce67fdecf587ee82fae7f2497b909305501a4e6e9143d1f3c3ecd5ce2423fe89",
+      "state": "behind",
+      "via": "read"
+    }
+  },
   "pages": {
     "adr-031.html": {
       "at": 1787873301,
@@ -17,6 +25,11 @@
     "ecology-field-card.html": {
       "at": 1787779354,
       "sha": "77a397c110da86ac37d66f7b5bdbf37f53964548bfc844a194b2eae64bba2a91"
+    },
+    "ecology-field-guide.html": {
+      "at": 1787874601,
+      "sha": "ce67fdecf587ee82fae7f2497b909305501a4e6e9143d1f3c3ecd5ce2423fe89",
+      "via": "publish"
     },
     "ecology-glossary.html": {
       "at": 1787779354,
@@ -35,7 +48,11 @@
       "at": 1787781284,
       "sha": "8cb6dc1225b36c67ebfc9772019da6dc0ab22b6e74009c82d5fb4202d44937ba"
     },
-    "food-web.html": "2a07daa9f22aa0b55d661b7b0e9833e6f3067b2bd3998afa85d6af7f0a4f0002",
+    "food-web.html": {
+      "at": 1787874421,
+      "sha": "9c5d887ee45f561ea793fe84d28ff1c4eab1feaa5b8291f360835f0033f0d120",
+      "via": "publish"
+    },
     "fungal-characters.html": {
       "at": 1787777383,
       "sha": "1bff48d4c593ee3b0547851469d36015bcb5817cac6dc108047e607323c579e4"

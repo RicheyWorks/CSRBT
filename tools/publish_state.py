@@ -237,8 +237,15 @@ def main(argv):
         if not contains_build(live, bp):
             print("%-30s BEHIND, measured: the copy does not carry the current publish "
                   "bytes" % n)
-            print("%-30s   copy %d bytes, publish bytes %d -- republish, then --stamp"
+            # Labelled, because the two are not comparable and reading them as if
+            # they were is a trap I walked into myself: the copy is the WRAPPED
+            # page and carries the publisher's ~12 KB runtime skeleton, so a
+            # correct page whose content is identical still shows a copy that
+            # looks 12 KB "larger". The gap between them is not drift.
+            print("%-30s   copy %d chars INCLUDING the publisher's wrapper; publish bytes %d "
+                  "-- the two are not comparable, only the containment test is"
                   % ("", len(live), os.path.getsize(bp)))
+            print("%-30s   republish, then --stamp" % "")
             state.setdefault("observed", {})[n] = {
                 "sha": sha(bp), "at": taken, "via": "read", "state": "behind",
                 "blocking_webfont": bool(bad)}
