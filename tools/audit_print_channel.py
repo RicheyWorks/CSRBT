@@ -11,9 +11,12 @@ ADR-091 defined what "on screen" means -- innerText, SVG <text>, and every
 tooltip a chart yields -- and named the one channel outside that definition:
 a print stylesheet. This measures it.
 
-Seventeen of the kit's thirty-nine pages put text on paper that a reader never
-sees in the browser: the field sheets build a whole tab-separated report under
-`@media print`, and it carries numbers. No suite had ever rendered any of it.
+Very little, once the question is asked properly. These pages print with
+`.pane { display:block !important }`, so printing opens every tab at once --
+and text in another tab is not a print-only channel, it is a click away. The
+first version of this file compared print against the DEFAULT tab and reported
+1682 lines across seventeen pages; against every tab the number collapses.
+ADR-093 has the correction and the numbers.
 
     python3 tools/audit_print.py
 
@@ -43,6 +46,35 @@ def lines(pg):
     return set(l.strip() for l in pg.evaluate(OBSERVE).splitlines() if l.strip())
 
 
+TABS = ".tabbar button, .tab, [role=tab]"
+
+
+def screen_everywhere(pg):
+    """Everything the SCREEN can show -- every tab, not just the one that opens.
+
+    The first version of this compared print against the default tab, and
+    reported 1682 "print-only" lines across seventeen pages. Most of them were
+    the OTHER TABS: these pages print with `.pane { display:block !important }`,
+    so printing opens every pane at once, and a reader reaches the same text on
+    screen by clicking. Measured against every tab, stand-sheet's 238 becomes
+    11 and three other pages' 164, 161 and 133 become zero.
+
+    A difference is only a channel if the other side cannot be reached. Clicking
+    every tab is what makes the comparison mean what it says (ADR-093).
+    """
+    out = lines(pg)
+    n = pg.evaluate("(s)=>document.querySelectorAll(s).length", TABS)
+    for i in range(n):
+        try:
+            pg.evaluate("([s,i])=>{const t=document.querySelectorAll(s)[i]; if(t) t.click();}",
+                        [TABS, i])
+            pg.wait_for_timeout(220)
+            out |= lines(pg)
+        except Exception:                        # a control that is not a tab
+            pass
+    return out
+
+
 def sweep(pw, names=None):
     """{page: (only_print_lines, how_many_carry_digits)} for every page given."""
     names = names or sorted(os.path.basename(p)
@@ -54,7 +86,7 @@ def sweep(pw, names=None):
         _kit.offline(pg)
         pg.goto(_kit.url(name), wait_until="load")
         pg.wait_for_timeout(900)
-        screen = lines(pg)
+        screen = screen_everywhere(pg)
         pg.emulate_media(media="print")
         pg.wait_for_timeout(350)
         only = lines(pg) - screen
