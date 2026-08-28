@@ -191,10 +191,9 @@
       "via": "publish"
     },
     "ecology.html": {
-      "at": 1787781272,
-      "dated_by": "the version marker in the copy (re-derived; the original was the file's mtime)",
-      "sha": "8cb6dc1225b36c67ebfc9772019da6dc0ab22b6e74009c82d5fb4202d44937ba",
-      "via": "read"
+      "at": 1787905554,
+      "sha": "5e144ec74b66f075a3799c0c03c7e1966be4386fa7090803799952747aa1dccb",
+      "via": "publish"
     },
     "ethogram.html": {
       "at": 1787876222,

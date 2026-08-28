@@ -28,6 +28,15 @@ sitting inside a `.refuse` panel where the kit declines to assert at all. A bloc
 the number follows from a definition or from arithmetic shown on the page, which
 the reader can check without going anywhere.
 
+That last branch is DEAD, and saying so is better than leaving it to be
+rediscovered. `verify_claims_slice` forbids the attribute in docs/ outright --
+it was a reverted attempt, and the suite checks the revert held. So the escape
+this file documents cannot be used by any page, and a reader of this docstring
+who reaches for it will be stopped by a suite two directories away. The branch
+stays because removing it would make the two files disagree about history; the
+paragraph stays because a documented mechanism nobody may use is exactly the
+silent kind of wrong (ADR-061).
+
 Deliberately not flagged: numbers inside controls (a stepper's min and max are
 UI, not claims), unit-conversion arithmetic, and anything already inside a
 refusal panel.
@@ -41,6 +50,54 @@ from playwright.sync_api import sync_playwright
 # 150 characters -- half these lines were cut mid-number.
 FULL = "--full" in sys.argv
 DOCS = os.path.normpath(os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "docs")) + os.sep
+
+
+# How far away is the nearest provenance? A SECOND question, asked after the
+# first has already been answered strictly.
+#
+# The worklist sat around thirty for several slices, and measuring showed why:
+# 27 of 41 flagged claims have provenance somewhere in their own section --
+# micro-bench states 30-300 in one paragraph and names FDA BAM, AOAC, USP and
+# ASTM three paragraphs down, in the same card.
+#
+# It would be easy, and wrong, to widen the test to the section. One citation
+# would then exempt every number under the same heading, including the ones it
+# says nothing about: micro-bench's "0.1 mL spread, 1.0 mL pour" sits in that
+# same card and comes from no standard named in it. A section-level pass is a
+# silent exclusion with a plausible face (ADR-061).
+#
+# The constant below is deliberately NOT named with the four letters P-R-O-B-E
+# followed by the raw-string opener. Two suites read this file by splitting it
+# on that exact sequence, so any second occurrence -- a differently named probe,
+# or a COMMENT quoting the sequence to warn about it -- hijacks the split and
+# hands them the wrong body. The first draft of this file did it with a name;
+# the comment written to explain that did it again, verbatim, which is ADR-077:
+# a sentence about the rule can break the rule. This paragraph therefore
+# describes the marker without containing it, and verify_claims_slice checks
+# that every tool read this way carries exactly one.
+#
+# So the test does not move. The REPORT gains a column: `near` means provenance
+# exists elsewhere in this claim's section, and the claim is therefore likely --
+# not certainly -- covered. Triage reads it as an ordering hint. Fourteen claims
+# have nothing anywhere near them, and those are the real front of the list.
+SECTION_PROVENANCE = r"""
+(claims) => {
+  const PROV = /\b(?:convention|conventional|conventionally|arbitrary|rule of thumb|by definition|definitional|as defined|indicative|cf\.|et al\.?)/i;
+  const STD  = /\b(?:\d+\s*CFR\s*\d+|USDA\s+NOP|NOP\s*§|CLSI|EUCAST|ISO\s*\d|ASTM\s*[A-Z]?\d|EN\s*\d{3,}|Mueller[- ]Hinton|McFarland|IUCN|CITES|Braun[- ]Blanquet|Lincoln[-–\s]Petersen|Chapman|Daubenmire|USFS|FIA|FDA\s+BAM|AOAC|USP|APHA|Standard\s+Methods)\b/i;
+  const CITED = /(?:after\s+[A-Z][a-z]+|\(\s*[A-Z][A-Za-z’'\-]+(?:\s+(?:&|and)\s+[A-Z][A-Za-z’'\-]+)?,?\s*(?:19|20)\d\d\s*\))/;
+  const has = t => PROV.test(t) || STD.test(t) || CITED.test(t);
+  const BLOCK = 'p,li,td,th,dd,figcaption,blockquote,summary';
+  return claims.map(c => {
+    for (const el of document.querySelectorAll(BLOCK)) {
+      const t = (el.innerText || '').replace(/\s+/g, ' ').trim();
+      if (!t.startsWith(c.slice(0, 45))) continue;
+      const sec = el.closest('section, .card, article, .pane') || document.body;
+      return has(sec.innerText || '');
+    }
+    return false;
+  });
+}
+"""
 
 PROBE = r"""
 (FULL) => {
@@ -142,15 +199,20 @@ def main():
                 if h in seen: continue
                 seen.add(h); uniq.append(h)
             total += len(uniq)
-            rows.append((nm, uniq, None))
+            try:
+                near = pg.evaluate(SECTION_PROVENANCE, [re.sub(r"\s+", " ", h).strip()
+                                                for h in uniq])
+            except Exception:
+                near = [False] * len(uniq)
+            rows.append((nm, list(zip(uniq, near)), None))
         b.close()
 
     for nm, hits, err in rows:
         if err: print("%-30s LOAD FAIL %s" % (nm, err)); continue
         if not hits: continue
         print("%s  (%d)" % (nm, len(hits)))
-        for h in hits:
-            print("    %s" % h)
+        for h, near in hits:
+            print("    %s %s" % ("near" if near else "BARE", h))
         print()
     print("-" * 78)
     broke = [nm for nm, h, e in rows if e]
@@ -160,7 +222,12 @@ def main():
         print("   " + ", ".join(broke[:6]))
     print("pages with unsourced-looking claims: %d of %d"
           % (sum(1 for _, h, e in rows if h), len(rows) - len(broke)))
-    print("claims to triage: %d" % total)
+    bare = sum(1 for _, h, e in rows if h for _, n in h if not n)
+    print("claims to triage: %d -- %d BARE (no provenance anywhere in the claim's "
+          "section) and %d near (some in the section, so likely covered)"
+          % (total, bare, total - bare))
+    print("`near` is an ordering hint, NOT an exemption: one citation must not "
+          "cover every number under the same heading (ADR-094).")
     print("(this is a finder, not a gate -- every line above is a question, not a verdict)")
     return 0
 

@@ -71,6 +71,20 @@ bad = [os.path.basename(p) for p in glob.glob(DOCS+"*.html")
        if re.search(r'<[^>]*\sdata-claim="', io.open(p, encoding="utf-8").read())]
 ck(not bad, "no stray data-claim attributes left behind: %s" % bad)
 
+# ---- 5b. the extraction marker is unique in every tool read this way -----
+# This suite, verify_claims_triage and verify_print_slice all read a probe out
+# of a tool by splitting the file on one literal sequence. A second occurrence
+# -- another constant whose name ends with it, or a comment quoting it -- hands
+# the reader the wrong body. Both happened in one slice: a constant named for
+# it, then the comment written to warn about the constant. Checked here rather
+# than remembered.
+MARK = "PROBE" + ' = r"""'
+for tool in ("audit_claims.py", "audit_print.py"):
+    src = io.open(_os.path.join(ROOT, "tools", tool), encoding="utf-8").read()
+    ck(src.count(MARK) == 1,
+       "%s carries the extraction marker exactly once (found %d)"
+       % (tool, src.count(MARK)))
+
 # ---- 6. the finder still finds ------------------------------------------
 CAN = """<!doctype html><html><head><meta charset="utf-8"><title>c</title></head><body>
 <p>Incubate the pile at 55 C for 3 days before turning it, then hold above 45 C for a further 10 days.</p>
