@@ -100,6 +100,29 @@ def entry_at(e):
     return None if isinstance(e, str) else (e or {}).get("at")
 
 
+def stamp_allowed(prev, taken):
+    """May a read taken at `taken` replace the stamp `prev`? -> (bool, why).
+
+    Stated as a function because the rule has three cases and inline
+    conditionals hid one of them: written as a single early return it also
+    refused to READ the copy, and one clause -- "the stamp carries no time, so
+    this cannot be ordered" -- could never be satisfied by any copy, because
+    there was no time for one to be newer than. Every page still on a
+    pre-ADR-056 stamp was therefore permanently unmeasurable.
+
+    An undated stamp is the weakest entry the file holds; a dated read is
+    strictly better evidence and supersedes it. A DATED stamp still wins against
+    an older copy -- that is ADR-056 and it is unchanged."""
+    at = entry_at(prev)
+    if prev is None:
+        return True, "no previous stamp"
+    if at is None:
+        return True, "supersedes an undated stamp with a dated read"
+    if taken < at:
+        return False, "the copy is older than the stamp it would overwrite"
+    return True, "the copy is at least as new as the stamp"
+
+
 def entry_via(e):
     """How the stamp was earned: "publish", "read", or None for entries written
     before ADR-078. None is not "publish" -- the old entries were all taken at
@@ -216,12 +239,30 @@ def main(argv):
             print("%-30s the copy cannot be dated -- not stamped" % n); return 2
         prev = state["pages"].get(n)
         prev_at = entry_at(prev)
-        if prev is not None and prev_at is None:
-            print("%-30s the existing stamp carries no time, so this copy cannot be "
-                  "ordered against it -- not stamped" % n); return 2
-        if prev_at is not None and taken < prev_at:
-            print("%-30s the copy is OLDER than the stamp it would overwrite "
-                  "(%d < %d) -- not stamped" % (n, taken, prev_at)); return 2
+        # WHAT THE ORDERING GUARD IS FOR, AND WHAT IT IS NOT FOR.
+        #
+        # ADR-056's rule is that a copy older than the stamp it would overwrite
+        # describes a page that no longer exists, so it must not replace the
+        # stamp. That protects the STAMP. It has nothing to say about reading
+        # the copy, about what the copy does with the offline contract, or about
+        # recording a BEHIND observation -- none of which touch state["pages"].
+        #
+        # Written as a single early `return 2` it refused all four, and one of
+        # its two clauses could never be satisfied by anything: when the stamp
+        # carries no time, there is no time for the copy to be newer than, so
+        # every page still on a pre-ADR-056 stamp was permanently unmeasurable.
+        # Fourteen pages were in that state, which is exactly the set ADR-083
+        # predicted would verify CURRENT -- a prediction the tool made
+        # untestable. A guard with no satisfiable path is not a guard, it is a
+        # wall, and it was standing in front of its own evidence.
+        #
+        # So the check moved to where the write is, and split in two:
+        #   * an untimed stamp is the weakest entry in the file (the report says
+        #     so on every run). A dated read is strictly better evidence, so it
+        #     supersedes -- and says so, because silently replacing one is how a
+        #     file stops meaning what it says.
+        #   * a TIMED stamp still wins against an older copy, unchanged.
+        may_stamp, why_stamp = stamp_allowed(prev, taken)
         live = io.open(copy, encoding="utf-8", errors="replace").read()
         # Whether it is behind or not, say what the LIVE copy does about the
         # offline contract. That is the number that decides how urgent a
@@ -251,6 +292,13 @@ def main(argv):
                 "blocking_webfont": bool(bad)}
             save(state)
             return 1
+        if not may_stamp:
+            print("%-30s the copy carries this build, but %s (%d < %d) "
+                  "-- measured, not stamped" % (n, why_stamp, taken, prev_at))
+            save(state)
+            return 0
+        if prev is not None and entry_at(prev) is None:
+            print("%-30s   %s" % ("", why_stamp))
         state["pages"][n] = {"sha": sha(bp), "at": taken, "via": "read"}
         state.get("observed", {}).pop(n, None)
         print("%-30s CURRENT, measured from the live copy taken at %d" % (n, taken))

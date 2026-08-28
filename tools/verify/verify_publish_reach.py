@@ -240,6 +240,36 @@ ck("a stamp outranks a leftover observation for the same page",
    _pstate.classify("b.html", "BBB", _ST2)[0] == "current",
    _pstate.classify("b.html", "BBB", _ST2))
 
+# ---- may a dated read replace the stamp it found? -------------------------
+# Three cases, and the one that mattered was invisible while the rule lived in
+# inline conditionals: an UNDATED stamp gave the copy nothing to be newer than,
+# so the ordering test could never be satisfied and every page still on a
+# pre-ADR-056 stamp was permanently unmeasurable. Fourteen pages were in that
+# state -- exactly the set ADR-083 predicted would verify CURRENT, which the
+# tool had made untestable. Stated as a function, all three cases are visible
+# and all three are checked, including the one that must still REFUSE.
+_UNDATED = "abc123"                                    # pre-ADR-056 bare sha
+_DATED   = {"sha": "abc123", "at": 100, "via": "publish"}
+
+ck("with no previous stamp, a read may stamp",
+   _pstate.stamp_allowed(None, 50)[0] is True, _pstate.stamp_allowed(None, 50))
+ck("a dated read supersedes an UNDATED stamp",
+   _pstate.stamp_allowed(_UNDATED, 50)[0] is True, _pstate.stamp_allowed(_UNDATED, 50))
+ck("...and it says so, rather than replacing it silently",
+   "undated" in _pstate.stamp_allowed(_UNDATED, 50)[1], _pstate.stamp_allowed(_UNDATED, 50))
+ck("a copy OLDER than a dated stamp is still refused (ADR-056, unchanged)",
+   _pstate.stamp_allowed(_DATED, 99)[0] is False, _pstate.stamp_allowed(_DATED, 99))
+ck("a copy newer than a dated stamp may stamp",
+   _pstate.stamp_allowed(_DATED, 101)[0] is True, _pstate.stamp_allowed(_DATED, 101))
+ck("a copy taken at exactly the stamp's time may stamp",
+   _pstate.stamp_allowed(_DATED, 100)[0] is True, _pstate.stamp_allowed(_DATED, 100))
+# The canary the refusal needs: a rule that returned True for everything would
+# pass five of the six above. Only this one distinguishes it.
+ck("the rule can say no at all -- exactly one of these six is a refusal",
+   [_pstate.stamp_allowed(*a)[0] for a in
+    [(None, 50), (_UNDATED, 50), (_DATED, 99), (_DATED, 101), (_DATED, 100)]
+   ].count(False) == 1)
+
 print("-" * 70)
 print("%d passed, %d failed" % (ok, bad))
 sys.exit(1 if bad else 0)
