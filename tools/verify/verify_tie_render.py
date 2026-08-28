@@ -57,8 +57,15 @@ with sync_playwright() as pw:
     reach = [r for r in rows if r[4]]
     ck("no figure is rounded at a tie where the page shows it",
        not live, [(r[0], r[1], r[3]) for r in live])
-    ck("...and the pass is not vacuous: ties still reach the rendered text",
+    ck("...and the pass is not vacuous: ties still reach what a reader can see",
        len(reach) >= 1, len(reach))
+    # The observation is three sources deep now, and the third is the fragile
+    # one: `structural` reaches a reader ONLY through a chart tooltip. If the
+    # tooltip harvest ever stops working, every check above still passes and
+    # this one does not -- which is the whole point of naming it.
+    ck("the tooltip harvest is live -- a figure that appears only in a tooltip "
+       "is still seen", any(r[0] == "structural" and r[4] for r in rows),
+       [(r[0], r[4]) for r in rows])
     ck("the fixture still holds ties to look for at all",
        len(R.ties_in()) >= 4, len(R.ties_in()))
 

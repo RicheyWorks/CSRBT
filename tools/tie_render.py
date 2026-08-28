@@ -28,9 +28,11 @@ WHAT THIS DOES NOT COVER, NAMED RATHER THAN IMPLIED (ADR-061)
     holding ties are read by `demo/visualizer.html` and the protocol reference
     when a reader drops the file in, so rendering them means driving a file
     drop. Those fixtures are listed as not covered, not passed over.
-  * A value drawn only into a <canvas> plot changes no text and will read as
-    "not displayed" here. That is a real blind spot, and it is why the verdict
-    below is "reaches the rendered TEXT", not "is invisible".
+  * What "on screen" means is defined by OBSERVE below, and it was too narrow
+    twice: innerText alone missed SVG <text> and missed tooltips entirely. Both
+    are included now. Anything a page shows by some OTHER means -- a title
+    attribute, a value only a print stylesheet reveals -- is still outside it,
+    so the verdict is "reaches what a reader can see", not "is invisible".
 
 This is a finder, not a gate.
 """
@@ -60,6 +62,39 @@ READERS = [
 ]
 
 
+
+# What counts as "on screen". innerText alone was not it.
+#
+# ADR-089 and ADR-090 both named the gap as "a value drawn only into a <canvas>".
+# Measured: this page has ZERO canvases. Its twenty charts are SVG, and the two
+# things innerText does not report are SVG <text> (innerText is layout text, and
+# excludes it) and a tooltip that exists only while a chart element is hovered.
+# A blind spot named after the wrong mechanism is still a blind spot, and it
+# keeps the search pointed the wrong way.
+#
+# Tooltips are harvested by dispatching mousemove on every sized element inside
+# every svg and reading the tooltip node after each -- deterministic, no
+# physical pointer, no per-chart knowledge. 305 hit rects on the flagship page
+# yield 258 distinct tooltips.
+OBSERVE = """() => {
+  const parts = [document.body.innerText];
+  parts.push([...document.querySelectorAll('svg text')].map(t => t.textContent).join('\\n'));
+  const tip = document.getElementById('tooltip');
+  if (tip) {
+    const seen = new Set();
+    for (const el of document.querySelectorAll('svg *')) {
+      const r = el.getBoundingClientRect();
+      if (r.width < 1 || r.height < 1) continue;
+      el.dispatchEvent(new MouseEvent('mousemove', {bubbles: true, cancelable: true,
+        clientX: r.x + r.width / 2, clientY: r.y + r.height / 2}));
+      const t = (tip.textContent || '').trim();
+      if (t) seen.add(t);
+    }
+    parts.push([...seen].sort().join('\\n'));
+  }
+  return parts.join('\\n<<>>\\n');
+}"""
+
 def inline_session(src):
     """The page's own copy, by brace matching -- a regex sees braces in strings."""
     i = src.index("const SESSION = ")
@@ -84,7 +119,7 @@ def render(page_src, pw):
         _kit.offline(pg)
         pg.goto("file://" + p, wait_until="load")
         pg.wait_for_timeout(1500)
-        txt = pg.evaluate("()=>document.body.innerText")
+        txt = pg.evaluate(OBSERVE)
         b.close()
         return txt
 
@@ -113,7 +148,7 @@ def render_loaded(pw, page, mech, fixture_name, text, page_src=None):
         else:
             pg.goto("file://" + page, wait_until="load")
         pg.wait_for_timeout(1200)
-        before = pg.evaluate("()=>document.body.innerText")
+        before = pg.evaluate(OBSERVE)
         if mech == "input":
             pg.set_input_files("#file", f)
         else:
@@ -124,7 +159,7 @@ def render_loaded(pw, page, mech, fixture_name, text, page_src=None):
                     {dataTransfer: dt, bubbles: true, cancelable: true}));
             }""", [text, fixture_name])
         pg.wait_for_timeout(2500)
-        txt = pg.evaluate("()=>document.body.innerText")
+        txt = pg.evaluate(OBSERVE)
         b.close()
         return txt, said, (txt != before)
 
@@ -261,14 +296,14 @@ def main():
                   % (key, lit, as_, digits))
             continue
         shown += 1 if reaches else 0
-        v = "REACHES THE RENDERED TEXT" if reaches else "no change on screen"
+        v = "REACHES WHAT A READER CAN SEE" if reaches else "no change on screen"
         if live:
             v += "  ** ROUNDED AT THE TIE **"
             if (key, lit) not in [(h[0], h[1]) for h in hot]:
                 hot.append((key, lit, scale, digits))
         print("%-16s %-11s %-5s %-3d %s" % (key, lit, as_, digits, v))
     print("-" * 96)
-    print("%d of %d tie(s) in %s reach the rendered text" % (shown, len(rows), FIXTURE))
+    print("%d of %d tie(s) in %s reach what a reader can see" % (shown, len(rows), FIXTURE))
     print("%d of those are rounded at the tie -- a reader sees a digit the "
           "rounding rule chose%s" % (len(hot), ":" if hot else ""))
     for k, l, sc, dg in hot:
@@ -289,8 +324,8 @@ def main():
                   % (fx, mech, os.path.basename(page), len(drows), len(reach2),
                      len(hot2), " " + str(hot2) if hot2 else ""))
     print()
-    print("(a value drawn only into a canvas changes no text and reads as "
-          "no-change; a refusal is an alert(), which is why dialogs are read too)")
+    print("(observed = innerText + svg <text> + every tooltip a chart element "
+          "yields on mousemove; a refusal is an alert(), so dialogs are read too)")
     return 0
 
 
