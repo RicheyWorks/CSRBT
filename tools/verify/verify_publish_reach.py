@@ -27,6 +27,15 @@ imports, so the two cannot disagree about which pages those are.
 
 Run:  python3 tools/verify/verify_publish_reach.py
 """
+# Declared for tools/mutate.py: this suite writes fixture pages into a temp dir,
+# so the page names in it are fixtures and comments, not subjects. Two of the
+# three real page names it contains appear only inside prose explaining a past
+# finding, and ADR-077 is exactly that: a sentence ABOUT a page is a mention, and
+# mutate.py reads mentions as coverage. Excluding them is not a loss -- checked
+# rather than assumed, the one page this suite genuinely probes is covered by six
+# other suites, so nothing goes uncovered by this declaration.
+MUTATE_ROLE = "fixture-builder"
+
 import glob, io, os, re, sys
 
 ROOT = os.path.normpath(os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", ".."))
@@ -269,6 +278,139 @@ ck("the rule can say no at all -- exactly one of these six is a refusal",
    [_pstate.stamp_allowed(*a)[0] for a in
     [(None, 50), (_UNDATED, 50), (_DATED, 99), (_DATED, 101), (_DATED, 100)]
    ].count(False) == 1)
+
+
+# ---- is this copy a copy of THIS page? ------------------------------------
+# --verify took a page name and a path and nothing made them agree. Handing it
+# one page's copy under another page's name produced "BEHIND, measured" about a
+# page that was current, and wrote it to state["observed"] with via="read".
+import tempfile
+
+_TMP = tempfile.mkdtemp(prefix="pubreach-")
+
+
+def _w(name, text):
+    fp = os.path.join(_TMP, name)
+    io.open(fp, "w", encoding="utf-8").write(text)
+    return fp
+
+
+_BUILD = _w("fixture-bench.html", "<title>Fixture Bench</title>\n<p>body</p>\n")
+_MAP = {"fixture-bench.html": "58e9b6d9-5a9b-496a-8b71-4644db78f750",
+        "other-bench.html": "287e03ab-3c15-468f-a15c-6bb2d95a09c9"}
+_WRAP = '<base href="/_f/1787695412-79bc/"><title>Fixture Bench</title>\n<p>body</p>\n'
+_WRONG = '<base href="/_f/1787695406-faf3/"><title>Other Bench</title>\n<p>body</p>\n'
+_named_right = _w("artifact-58e9b6d9-1787695412-79bc.html", _WRAP)
+_named_wrong = _w("artifact-287e03ab-1787695406-faf3.html", _WRAP)
+_hand = _w("saved-copy.html", _WRAP)
+_hand_wrong = _w("saved-other.html", _WRONG)
+_untitled = _w("saved-untitled.html", "<p>body</p>\n")
+
+
+def _of(name, path, text):
+    return _pstate.copy_is_of(name, path, text, _BUILD, _MAP)
+
+
+ck("CONTROL: the right page's copy, named as that page, is attributed",
+   _of("fixture-bench.html", _named_right, _WRAP)[0] is True,
+   _of("fixture-bench.html", _named_right, _WRAP))
+ck("a copy whose FILENAME names another artifact is refused",
+   _of("fixture-bench.html", _named_wrong, _WRAP)[0] is False,
+   _of("fixture-bench.html", _named_wrong, _WRAP))
+ck("...and the refusal names both artifacts, so the mix-up is visible",
+   "287e03ab" in _of("fixture-bench.html", _named_wrong, _WRAP)[1],
+   _of("fixture-bench.html", _named_wrong, _WRAP))
+ck("a hand-named copy is attributed by its TITLE alone",
+   _of("fixture-bench.html", _hand, _WRAP)[0] is True,
+   _of("fixture-bench.html", _hand, _WRAP))
+ck("a hand-named copy of a DIFFERENT page is refused on its title",
+   _of("fixture-bench.html", _hand_wrong, _WRONG)[0] is False,
+   _of("fixture-bench.html", _hand_wrong, _WRONG))
+# ADR-061: the case where nothing can speak must be loud, not a silent pass.
+ck("a copy with no artifact id and no title ties to nothing, and is refused",
+   _of("fixture-bench.html", _untitled, "<p>body</p>\n")[0] is False,
+   _of("fixture-bench.html", _untitled, "<p>body</p>\n"))
+ck("...and says that is why, rather than naming a mismatch it did not find",
+   "nothing" in _of("fixture-bench.html", _untitled, "<p>body</p>\n")[1])
+# The title must be the TITLE ELEMENT, not the string appearing anywhere: a hub
+# page quoting another page's title in a card would otherwise be attributed to it.
+_quoting = _w("saved-hub.html",
+              '<title>Hub</title>\n<a>Fixture Bench</a>\n')
+ck("a page that merely MENTIONS this page's title is not a copy of it",
+   _of("fixture-bench.html", _quoting, '<title>Hub</title>\n<a>Fixture Bench</a>\n')[0] is False,
+   _of("fixture-bench.html", _quoting, '<title>Hub</title>\n<a>Fixture Bench</a>\n'))
+# The canary the seven need: a function that refused everything would pass six of
+# them, and one that accepted everything would pass the other one. Stated as the
+# property rather than as a count -- a pinned number here would be the frozen
+# constant ADR-041 is about, and it was wrong on the first try.
+_VERDICTS = set(_of(*a)[0] for a in
+                [("fixture-bench.html", _named_right, _WRAP),
+                 ("fixture-bench.html", _named_wrong, _WRAP),
+                 ("fixture-bench.html", _hand, _WRAP),
+                 ("fixture-bench.html", _hand_wrong, _WRONG),
+                 ("fixture-bench.html", _untitled, "<p>body</p>\n"),
+                 ("fixture-bench.html", _quoting,
+                  '<title>Hub</title>\n<a>Fixture Bench</a>\n')])
+ck("the rule is not a constant -- it both accepts and refuses across these six",
+   _VERDICTS == {True, False}, sorted(map(str, _VERDICTS)))
+
+# ---- may this copy be recorded as an OBSERVATION? -------------------------
+# A different question from "may it stamp", and sharing one answer between them
+# recorded "behind, measured, via read" for the two pages with no dated stamp,
+# from copies of versions three days old. Both may be current; the copies could
+# not say. The two rules are checked side by side here precisely because the bug
+# was that they were the same rule.
+ck("with nothing on record, an observation contradicts nothing and is allowed",
+   _pstate.observation_allowed(None, 50)[0] is True,
+   _pstate.observation_allowed(None, 50))
+ck("against an UNDATED stamp, a copy cannot be ordered -- and so may NOT observe",
+   _pstate.observation_allowed(_UNDATED, 50)[0] is False,
+   _pstate.observation_allowed(_UNDATED, 50))
+ck("...which is the exact case where it MAY stamp -- the two rules differ here",
+   _pstate.stamp_allowed(_UNDATED, 50)[0] is True
+   and _pstate.observation_allowed(_UNDATED, 50)[0] is False)
+ck("a copy older than a dated stamp may not observe either",
+   _pstate.observation_allowed(_DATED, 99)[0] is False,
+   _pstate.observation_allowed(_DATED, 99))
+ck("a copy newer than a dated stamp may observe",
+   _pstate.observation_allowed(_DATED, 101)[0] is True,
+   _pstate.observation_allowed(_DATED, 101))
+ck("the observation rule is not a constant -- it both allows and refuses",
+   set(_pstate.observation_allowed(*a)[0] for a in
+       [(None, 50), (_UNDATED, 50), (_DATED, 99), (_DATED, 101)]) == {True, False})
+
+# ---- what dates a copy ----------------------------------------------------
+# mtime is a property of the local file. Measured across 103 saved copies, every
+# mtime was later than the version the copy carries -- by up to 3.1 days, never
+# once equal -- so every date this file wrote for a via="read" entry was
+# overstated, always in the direction ADR-056 exists to refuse.
+_at, _how = _pstate.copy_taken_at(_named_right, _WRAP)
+ck("a copy is dated by the version marker in its own bytes",
+   _at == 1787695412, (_at, _how))
+ck("...and says so, so a date's provenance is never left to be assumed",
+   "version marker" in _how, _how)
+_at2, _how2 = _pstate.copy_taken_at(_hand, _WRAP)
+ck("a hand-named copy is still dated from its bytes, not its mtime",
+   _at2 == 1787695412, (_at2, _how2))
+_at3, _how3 = _pstate.copy_taken_at(
+    _w("artifact-58e9b6d9-1787695412-79bc.html", "<p>no base</p>"), "<p>no base</p>")
+ck("with no marker in the bytes, the filename's epoch is used",
+   _at3 == 1787695412, (_at3, _how3))
+_at4, _how4 = _pstate.copy_taken_at(_untitled, "<p>body</p>")
+ck("with neither, mtime is the last resort and is LABELLED as not the version",
+   _at4 is not None and "NOT the version" in _how4, (_at4, _how4))
+# Disagreement between the two written-from-the-page sources takes the older,
+# which is the reading that can only understate.
+_dis = _w("artifact-58e9b6d9-1787695999-79bc.html", _WRAP)
+ck("name and bytes disagreeing takes the OLDER of the two",
+   _pstate.copy_taken_at(_dis, _WRAP)[0] == 1787695412,
+   _pstate.copy_taken_at(_dis, _WRAP))
+ck("...and does not pass that off as an ordinary reading",
+   "disagreeing" in _pstate.copy_taken_at(_dis, _WRAP)[1])
+# The canary: a function that always returned the same epoch would pass five.
+ck("the date actually comes from the copy -- a different version reads different",
+   _pstate.copy_taken_at(_named_wrong, _WRONG)[0] == 1787695406,
+   _pstate.copy_taken_at(_named_wrong, _WRONG))
 
 print("-" * 70)
 print("%d passed, %d failed" % (ok, bad))

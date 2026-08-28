@@ -123,6 +123,33 @@ def stamp_allowed(prev, taken):
     return True, "the copy is at least as new as the stamp"
 
 
+def observation_allowed(prev, taken):
+    """May a copy taken at `taken` be recorded as an observation about `prev`'s
+    page? -> (bool, why).
+
+    A DIFFERENT question from stamp_allowed, and sharing one answer between them
+    was a bug. Stamping asks "is this better evidence than what the file holds?"
+    -- and an undated stamp is the weakest thing the file holds, so a dated read
+    beats it (ADR-084). Observing asks "does this copy describe the page as it is
+    NOW?" -- and against an undated stamp there is no time to order against, so
+    the honest answer is that it cannot be known, not that the copy wins.
+
+    Run against the ten pre-provenance pages, the shared rule recorded
+    "behind, measured, via read" for the two with no date at all, from copies of
+    versions three days old. Both pages may well be current; the copies simply
+    could not say. An unorderable copy is not licence to make the claim, it is
+    the reason not to."""
+    at = entry_at(prev)
+    if prev is None:
+        return True, "nothing published is on record, so nothing is contradicted"
+    if at is None:
+        return False, ("the stamp carries no time, so this copy cannot be ordered "
+                       "against the publish it would speak about")
+    if taken < at:
+        return False, "the copy is older than the stamp it would overwrite"
+    return True, "the copy is at least as new as the last publish"
+
+
 def entry_via(e):
     """How the stamp was earned: "publish", "read", or None for entries written
     before ADR-078. None is not "publish" -- the old entries were all taken at
@@ -139,6 +166,112 @@ def contains_build(live_text, build_path):
     occurrence is not something that happens by chance, and asking the question
     this way means this file never has to know what the wrapper looks like."""
     return io.open(build_path, encoding="utf-8").read() in live_text
+
+
+VERSION_IN_BYTES = re.compile(r'<base href="/_f/(\d{9,})-[0-9a-f]+/"')
+VERSION_IN_NAME = re.compile(r"artifact-[0-9a-f]+-(\d{9,})-[0-9a-f]+\.html$")
+
+
+def copy_taken_at(copy_path, live_text):
+    """When was this copy taken? -> (epoch, how).
+
+    NOT the file's mtime. mtime is a property of the local file and anything
+    that rewrites the cache -- a re-read, a copy, a sync -- moves it forward
+    without a byte of the page changing. Measured across 103 saved copies:
+    every single mtime was LATER than the version the copy actually carries,
+    by up to 3.1 days, and never once equal. Every date this file has ever
+    written for a via="read" entry was overstated, all nine of them, and always
+    in the unsafe direction -- an old copy looking newer is the exact thing
+    ADR-056 exists to refuse.
+
+    The honest date is inside the bytes. A published artifact carries
+    <base href="/_f/<epoch>-<hash>/">, and that epoch is when THIS VERSION was
+    published, which is the number the ordering question actually needs: a copy
+    of the version published at V cannot be evidence about anything published
+    after V, no matter when it was fetched.
+
+    Three sources, in order of what they are about:
+      bytes   the version marker in the copy itself. About the page.
+      name    the same epoch in a saved copy's filename. About the file, but
+              written from the page.
+      mtime   about the local filesystem and nothing else. Last resort, and it
+              says so, because a date whose provenance is unstated is how the
+              nine got written.
+    If bytes and name disagree the copy was renamed or edited; take the older
+    of the two, which is the reading that can only understate."""
+    b = VERSION_IN_BYTES.search(live_text)
+    n = VERSION_IN_NAME.search(os.path.basename(copy_path))
+    if b and n:
+        vb, vn = int(b.group(1)), int(n.group(1))
+        if vb != vn:
+            return min(vb, vn), "version marker, disagreeing with the filename -- taking the older"
+        return vb, "the version marker in the copy"
+    if b:
+        return int(b.group(1)), "the version marker in the copy"
+    if n:
+        return int(n.group(1)), "the version epoch in the filename"
+    try:
+        return int(os.path.getmtime(copy_path)), "the file's mtime -- NOT the version, only when this file was last written"
+    except OSError:
+        return None, "nothing in the copy or on disk dates it"
+
+
+TITLE = re.compile(r"<title[^>]*>(.*?)</title>", re.S | re.I)
+COPY_OF = re.compile(r"artifact-([0-9a-f]{6,})-")
+
+
+def copy_is_of(name, copy_path, live_text, build_path, mapped):
+    """Is this saved copy a copy of THIS page? -> (ok, why).
+
+    `--verify` takes a page name and a path, and NOTHING made them agree. Handing
+    it a copy of one page under another page's name produced a confident
+    "BEHIND, measured" about a page that was current, and wrote it into
+    state["observed"] with via="read" -- the strongest provenance this file
+    records -- alongside an offline-contract verdict about the named page
+    derived from another page's bytes. That is ADR-078's rule (an observation is
+    only about the thing it was taken against) broken by the interface that
+    records the observation. Measured, not supposed: run it and the false
+    BEHIND lands in the file.
+
+    Two independent attributors, because one that can only ever say yes is not a
+    check:
+
+      the path   a saved artifact copy is named artifact-<id>-...; if the
+                 basename carries an id and the map has one for this page, they
+                 must be the same artifact.
+      the title  every page in this kit has exactly one <title> and all 39 are
+                 distinct, so the copy's title element must be this page's. Not
+                 "the title appears somewhere" -- a hub page quoting a title in
+                 a card would pass that.
+
+    Either one may stay silent (a copy saved under a hand-chosen name; a page
+    with no title). Either one may refuse, and a single refusal refuses. If BOTH
+    stay silent the answer is still no: nothing ties this copy to this page, and
+    a silent pass is how the interface got here (ADR-061).
+
+    A title mismatch can also mean this page's title changed since it was
+    published. That is not a case worth an override: in both readings the copy
+    must not be stamped CURRENT, and if the title changed the page is behind by
+    that fact alone -- republish and stamp, no measurement needed."""
+    said = []
+    want_id = (mapped.get(name) or "")
+    m = COPY_OF.search(os.path.basename(copy_path))
+    if m and want_id:
+        got = m.group(1)
+        if not want_id.startswith(got):
+            return False, ("this copy is a copy of artifact %s; %s is artifact %s"
+                           % (got, name, want_id[:len(got)]))
+        said.append("path names this page's artifact")
+    bt = TITLE.findall(io.open(build_path, encoding="utf-8").read())
+    lt = TITLE.findall(live_text)
+    if len(bt) == 1 and len(lt) == 1:
+        if bt[0].strip() != lt[0].strip():
+            return False, ("the copy's title is %r; this page's is %r"
+                           % (lt[0].strip()[:60], bt[0].strip()[:60]))
+        said.append("title matches")
+    if not said:
+        return False, "nothing in this copy ties it to this page"
+    return True, " and ".join(said)
 
 
 BLOCKING_FONT = re.compile(
@@ -233,10 +366,10 @@ def main(argv):
             print("%-30s NOT BUILT -- nothing verified" % n); return 2
         # ADR-056: a copy that cannot be dated cannot be ordered against the
         # publish it would be evidence about, so it is not evidence.
-        try:
-            taken = int(os.path.getmtime(copy))
-        except OSError:
-            print("%-30s the copy cannot be dated -- not stamped" % n); return 2
+        live_early = io.open(copy, encoding="utf-8", errors="replace").read()
+        taken, how_taken = copy_taken_at(copy, live_early)
+        if taken is None:
+            print("%-30s %s -- not stamped" % (n, how_taken)); return 2
         prev = state["pages"].get(n)
         prev_at = entry_at(prev)
         # WHAT THE ORDERING GUARD IS FOR, AND WHAT IT IS NOT FOR.
@@ -263,7 +396,16 @@ def main(argv):
         #     file stops meaning what it says.
         #   * a TIMED stamp still wins against an older copy, unchanged.
         may_stamp, why_stamp = stamp_allowed(prev, taken)
-        live = io.open(copy, encoding="utf-8", errors="replace").read()
+        live = live_early
+        # Before ANY claim is printed or written: is this a copy of this page?
+        # Everything below -- the offline-contract line, the BEHIND observation,
+        # the CURRENT stamp -- is a statement about `n`, and each one is false in
+        # the same way if the copy is of something else.
+        ok_of, why_of = copy_is_of(n, copy, live, bp, mapped)
+        if not ok_of:
+            print("%-30s NOT A COPY OF THIS PAGE -- nothing measured" % n)
+            print("%-30s   %s" % ("", why_of))
+            return 2
         # Whether it is behind or not, say what the LIVE copy does about the
         # offline contract. That is the number that decides how urgent a
         # republish is, and it is only knowable from the published bytes.
@@ -287,9 +429,26 @@ def main(argv):
                   "-- the two are not comparable, only the containment test is"
                   % ("", len(live), os.path.getsize(bp)))
             print("%-30s   republish, then --stamp" % "")
+            # ADR-084 carved observations out of the ordering guard, on the
+            # reasoning that they never touch state["pages"]. The reasoning was
+            # right and the carve-out was still too wide, because the date
+            # feeding it was the file's mtime and therefore always overstated:
+            # a copy of a version published two days ago, re-cached a minute
+            # ago, recorded "behind, measured, via read" about a page that had
+            # been republished in between. That is ADR-055's harm with the
+            # strongest provenance word in the file attached to it.
+            #
+            # A BEHIND observation is a claim about the page NOW. A copy older
+            # than the last publish cannot make it, so it does not get to.
+            may_obs, why_obs = observation_allowed(prev, taken)
+            if not may_obs:
+                print("%-30s   but %s -- so this copy is not evidence that the page "
+                      "is behind NOW. Not recorded." % ("", why_obs))
+                save(state)
+                return 0
             state.setdefault("observed", {})[n] = {
                 "sha": sha(bp), "at": taken, "via": "read", "state": "behind",
-                "blocking_webfont": bool(bad)}
+                "blocking_webfont": bool(bad), "dated_by": how_taken}
             save(state)
             return 1
         if not may_stamp:
@@ -299,9 +458,11 @@ def main(argv):
             return 0
         if prev is not None and entry_at(prev) is None:
             print("%-30s   %s" % ("", why_stamp))
-        state["pages"][n] = {"sha": sha(bp), "at": taken, "via": "read"}
+        state["pages"][n] = {"sha": sha(bp), "at": taken, "via": "read",
+                             "dated_by": how_taken}
         state.get("observed", {}).pop(n, None)
         print("%-30s CURRENT, measured from the live copy taken at %d" % (n, taken))
+        print("%-30s   dated by %s" % ("", how_taken))
         save(state)
         return 0
 
