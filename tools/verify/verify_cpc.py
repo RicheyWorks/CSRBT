@@ -1,4 +1,14 @@
 # -*- coding: utf-8 -*-
+# Declared for tools/verify/verify_advertised.py: this suite is THE page suite
+# for the page below -- the one whose size a hub page is entitled to advertise.
+# Declared rather than inferred, for the reason the mutate role markers exist:
+# deriving it from "which pages does this file mention" returns seven suites for
+# the bench page below, because every cross-cutting suite mentions it. That is
+# a fact about mentions, not about ownership -- and note that this comment may
+# not NAME another page while making the point (ADR-077): a sentence about the
+# rule that mentions a filename is itself a mention, and mutate.py reads
+# mentions.
+PAGE_SUITE_FOR = "cp-characters.html"
 from playwright.sync_api import sync_playwright
 import os as _os
 # The kit is checked out wherever the user keeps it; these suites used to hard-code

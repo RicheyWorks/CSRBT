@@ -13,7 +13,7 @@ to run the tests would defeat the constraint the tests exist to protect.
 
 Requires Playwright with Chromium:  pip install playwright && playwright install chromium
 """
-import argparse, concurrent.futures as cf, glob, os, re, subprocess, sys, time
+import argparse, concurrent.futures as cf, glob, hashlib, io, json, os, re, subprocess, sys, time
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 ROOT = os.path.normpath(os.path.join(HERE, "..", ".."))
@@ -184,6 +184,47 @@ def main():
         print("%d of %d checks passing" % (checks, total))
     for name, what in FINDERS:
         print("not run here: %s -- %s" % (name, what))
+
+    # ---- record what each suite counted, and what it counted it WITH --------
+    # Pages in this kit advertise a suite's size in prose ("85/85 verified").
+    # That is a number generated in one place and inlined in another with
+    # nothing binding the two (ADR-052), and it had gone stale on five of six
+    # claims before anything noticed -- because nothing was looking.
+    #
+    # The obvious fix, having the page's checker re-run those suites, costs a
+    # minute of browser time per kit run to re-derive a number this run already
+    # has in hand. So the run writes it down instead.
+    #
+    # THE RECORDED COUNT IS AN OBSERVATION, NOT A FACT, and a stored observation
+    # is only about the thing it was taken against -- the same rule publish_state
+    # applies to a published page (ADR-078). So each entry carries the SHA of the
+    # suite source it was measured from. Edit the suite and the recorded count
+    # stops applying to it, visibly, rather than becoming the next frozen
+    # constant one level removed. mtime would not do: a fresh clone stamps every
+    # file with the checkout time.
+    rec = {}
+    for kind, name, what, rc, got, tot, secs, out in results:
+        if kind != "suite" or got is None:
+            continue
+        src = os.path.join(HERE, name + ".py")
+        try:
+            sha = hashlib.sha1(io.open(src, "rb").read()).hexdigest()[:12]
+        except OSError:
+            continue
+        rec[name] = {"n": got, "of": tot, "sha": sha, "green": rc == 0 and got == tot}
+    if rec:
+        cpath = os.path.join(HERE, "counts.json")
+        try:
+            io.open(cpath, "w", encoding="utf-8").write(json.dumps(
+                {"_comment": "Written by run_all.py. n is what the suite counted; "
+                             "sha identifies the suite source it was counted from. "
+                             "A count whose sha no longer matches says nothing about "
+                             "the suite as it stands -- rerun run_all.",
+                 "at": int(time.time()), "suites": rec},
+                indent=1, sort_keys=True) + "\n")
+            print("wrote %s (%d suite counts)" % (os.path.relpath(cpath, ROOT), len(rec)))
+        except OSError as e:
+            print("could not write counts.json: %s" % e)
 
     if failed:
         print()
