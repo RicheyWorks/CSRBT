@@ -45,8 +45,19 @@ import audit_ties as T
 
 PAGE = os.path.join(ROOT, "docs", "ecology-lab.html")
 FIXTURE = "ecology-lab-session.json"
-NOT_RENDERED = ["arena-search-session.json", "ecology-experiment-session.json",
-                "ecology-trace-session.json"]
+VIS = os.path.join(ROOT, "demo", "visualizer.html")
+
+# Which page reads which fixture, and HOW. Established by trying it, not by
+# reading filenames: the first version sent all three non-inlined fixtures at
+# the visualizer because I assumed the visualizer was their reader. It refused
+# two of them -- out loud, with an alert() -- and that refusal looked like an
+# answer. It was an answer to the wrong question. Both are read by the lab page,
+# through drag-drop, which the experimental runner's own javadoc says plainly.
+READERS = [
+    ("arena-search-session.json",      VIS,  "input"),
+    ("ecology-experiment-session.json", PAGE, "drop"),
+    ("ecology-trace-session.json",     PAGE, "drop"),
+]
 
 
 def inline_session(src):
@@ -76,6 +87,88 @@ def render(page_src, pw):
         txt = pg.evaluate("()=>document.body.innerText")
         b.close()
         return txt
+
+
+def render_loaded(pw, page, mech, fixture_name, text, page_src=None):
+    """Load `text` into `page` the way a reader would, and read the result.
+
+    Returns (innerText, dialogs). The dialogs matter: the page reports a file it
+    cannot read with alert(), which playwright auto-dismisses and innerText
+    never shows. A first version of this read "no change on screen" for a page
+    that was in fact refusing the file out loud -- the blind spot was in the
+    probe, not the page.
+    """
+    with tempfile.TemporaryDirectory() as t:
+        f = os.path.join(t, fixture_name)
+        io.open(f, "w", encoding="utf-8").write(text)
+        b = pw.chromium.launch()
+        pg = b.new_page(viewport={"width": 1200, "height": 900})
+        _kit.offline(pg)
+        said = []
+        pg.on("dialog", lambda d: (said.append(d.message), d.dismiss()))
+        if page_src is not None:
+            alt = os.path.join(t, "page.html")
+            io.open(alt, "w", encoding="utf-8").write(page_src)
+            pg.goto("file://" + alt, wait_until="load")
+        else:
+            pg.goto("file://" + page, wait_until="load")
+        pg.wait_for_timeout(1200)
+        before = pg.evaluate("()=>document.body.innerText")
+        if mech == "input":
+            pg.set_input_files("#file", f)
+        else:
+            pg.evaluate("""([txt, name]) => {
+                const dt = new DataTransfer();
+                dt.items.add(new File([txt], name, {type: 'application/json'}));
+                window.dispatchEvent(new DragEvent('drop',
+                    {dataTransfer: dt, bubbles: true, cancelable: true}));
+            }""", [text, fixture_name])
+        pg.wait_for_timeout(2500)
+        txt = pg.evaluate("()=>document.body.innerText")
+        b.close()
+        return txt, said, (txt != before)
+
+
+def scan_loaded(pw, fixture, page, mech, only=None, page_src=None):
+    """Same experiment, for a fixture a reader loads into a page.
+
+    -> (accepted, why_not, [(key, lit, scale, digits, reaches, live)])
+
+    "Accepted" is measured: the page must have CHANGED when the file arrived.
+    A fixture its page refuses would otherwise report zero ties displayed, which
+    is true and useless -- the silent-exclusion failure (ADR-061) dressed up as
+    a clean result.
+    """
+    path = os.path.join(ROOT, "docs", fixture)
+    raw = io.open(path, encoding="utf-8").read()
+    # `only` narrows to named keys so a suite can re-check the figures a record
+    # actually fixed without re-rendering the whole fixture; `page_src` lets it
+    # seed a fault into the page. Both default to the full, honest sweep.
+    base, said, took = render_loaded(pw, page, mech, fixture, raw, page_src)
+    if said:
+        return False, said[0], []
+    if not took:
+        return False, "the page did not change when the file arrived", []
+    rows = []
+    for key, lit, scale, digits in ties_in(fixture):
+        if only and key not in only:
+            continue
+        pat = re.compile(r'("%s"\s*:\s*)%s\b' % (re.escape(key), re.escape(lit)))
+        moved = pat.sub(lambda mm: mm.group(1) + str(Decimal(lit) + step(scale, digits)), raw)
+        if moved == raw:
+            rows.append((key, lit, scale, digits, None, None))
+            continue
+        reaches = render_loaded(pw, page, mech, fixture, moved, page_src)[0] != base
+        live = False
+        if reaches:
+            for sign in (-1, 1):
+                nudged = pat.sub(
+                    lambda mm: mm.group(1) + str(Decimal(lit) + sign * EPSILON), raw)
+                if render_loaded(pw, page, mech, fixture, nudged, page_src)[0] != base:
+                    live = True
+                    break
+        rows.append((key, lit, scale, digits, reaches, live))
+    return True, None, rows
 
 
 def step(scale, digits):
@@ -118,6 +211,15 @@ def scan(pw, page_src=None, directions=(-1, 1)):
     work: under half-away-from-zero, only a step DOWN can move a value off an
     exact .5 boundary, and a version of this that stepped up could never report
     anything (ADR-084's wall, third occurrence).
+
+    NOTE ON WHAT `rounded_at_tie` IS A PROPERTY OF. The boundary nudge moves the
+    VALUE; it cannot be aimed at one precision. So the flag answers "some
+    display of this figure sits exactly on a rounding boundary", and every row
+    carrying the same literal carries the same answer. The first version printed
+    the flag against each row's precision, which named a precision it had not
+    tested -- a report asserting more than its measurement. Rows are deduped by
+    literal where the finding is printed, and the tie precisions stay in their
+    own column as the candidates they are.
     """
     src = page_src if page_src is not None else io.open(PAGE, encoding="utf-8").read()
     a, b = inline_session(src)
@@ -162,17 +264,33 @@ def main():
         v = "REACHES THE RENDERED TEXT" if reaches else "no change on screen"
         if live:
             v += "  ** ROUNDED AT THE TIE **"
-            hot.append((key, lit, scale, digits))
+            if (key, lit) not in [(h[0], h[1]) for h in hot]:
+                hot.append((key, lit, scale, digits))
         print("%-16s %-11s %-5s %-3d %s" % (key, lit, as_, digits, v))
     print("-" * 96)
     print("%d of %d tie(s) in %s reach the rendered text" % (shown, len(rows), FIXTURE))
     print("%d of those are rounded at the tie -- a reader sees a digit the "
           "rounding rule chose%s" % (len(hot), ":" if hot else ""))
     for k, l, sc, dg in hot:
-        print("      %-16s %-11s at %s%d dp" % (k, l, "%" if sc == 100 else "", dg))
-    print("not rendered here (their pages read the file on a drop): %s"
-          % ", ".join(NOT_RENDERED))
-    print("(a value drawn only into a canvas would read as no-change -- see the docstring)")
+        print("      %-16s %s" % (k, l))
+    print()
+    print("== the fixtures a reader loads into a page ==")
+    with sync_playwright() as pw:
+        for fx, page, mech in READERS:
+            accepted, why, drows = scan_loaded(pw, fx, page, mech)
+            if not accepted:
+                print("%-34s NOT READ by %s (%s): %s"
+                      % (fx, os.path.basename(page), mech, (why or "")[:52]))
+                continue
+            hot2 = sorted(set((r[0], r[1]) for r in drows if r[5]))
+            reach2 = [r for r in drows if r[4]]
+            print("%-34s via %-5s on %-18s %d tie(s), %d reach the text, "
+                  "%d rounded at the tie%s"
+                  % (fx, mech, os.path.basename(page), len(drows), len(reach2),
+                     len(hot2), " " + str(hot2) if hot2 else ""))
+    print()
+    print("(a value drawn only into a canvas changes no text and reads as "
+          "no-change; a refusal is an alert(), which is why dialogs are read too)")
     return 0
 
 

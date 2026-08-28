@@ -494,7 +494,7 @@ function renderStations(S) {
       "and Chao1's how-much-did-we-miss estimate — the numbers the structural indices provably cannot vary on.");
     for (const p of m.phases) {
       c.insertAdjacentHTML("beforeend",
-        `<div class="tiles">${tile(fmt(p.evenness), `J′ — ${String(p.name ?? "").toLowerCase()}`)}
+        `<div class="tiles">${tile(fmt(p.evenness, 3), `J′ — ${String(p.name ?? "").toLowerCase()}`)}
          ${tile(fmt(p.hill1, 1), "effective species")}${tile(fmt(p.chao1, 1), "Chao1 est. richness")}
          ${tile(String(p.bestFit ?? "—").replace("_", " ").toLowerCase(), "curve shape")}</div>
          <p class="reading"><b>${esc(p.name)}:</b> ${evenness(p.evenness)}. ${chaoRead(p.richness, p.chao1)}.</p>`);
@@ -534,7 +534,7 @@ function renderStations(S) {
          Bray–Curtis <b>${fmt(m.brayCurtis)}</b> — ${turnoverR(m.brayCurtis)}.</p>`);
     }
     dataTable(c, ["community", "richness", "touches", "H′", "J′", "eff. species", "Chao1"],
-      m.phases.map(p => [p.name, p.richness, p.total, fmt(p.shannon), fmt(p.evenness), fmt(p.hill1, 1), fmt(p.chao1, 1)]));
+      m.phases.map(p => [p.name, p.richness, p.total, fmt(p.shannon), fmt(p.evenness, 3), fmt(p.hill1, 1), fmt(p.chao1, 1)]));
   }
 
   /* The drift — trace sessions: workload change over the run */
@@ -706,7 +706,7 @@ function renderStations(S) {
       if (m.kind === "hardyweinberg") {
         const st = m.stats;
         facet.insertAdjacentHTML("beforeend",
-          `<div class="tiles">${tile(fmt(st.p, 3), "allele freq p")}${tile(fmt(st.q, 3), "allele freq q")}
+          `<div class="tiles">${tile(fmt(st.p, 4), "allele freq p")}${tile(fmt(st.q, 4), "allele freq q")}
            ${tile(fmt(st.chi2, 2), "χ² (df 1)")}</div>
            <p class="reading">${st.inEquilibrium ? "✅ consistent with Hardy–Weinberg equilibrium"
                                                  : "❌ significantly out of equilibrium"}.
@@ -778,7 +778,7 @@ function renderStations(S) {
       const facet = document.createElement("div"); facet.className = "facet";
       facet.innerHTML = `<h3>${esc(d.name)} <span class="chip">${esc(d.total)} records</span></h3>
         <div class="tiles">${tile(d.richness, "kinds")}${tile(fmt(d.shannon, 2), "Shannon H′")}
-        ${tile(fmt(d.evenness, 2), "evenness J′")}${tile(fmt(d.chao1, 1), "Chao1 est.")}</div>`;
+        ${tile(fmt(d.evenness, 3), "evenness J′")}${tile(fmt(d.chao1, 1), "Chao1 est.")}</div>`;
       barChart(facet, d.counts ?? [], { w: 480, h: 130, color: "var(--s3)", xLabel: "kind",
         tipFn: (i, v) => `<b>${esc((d.labels ?? [])[i] ?? i + 1)}</b> · <b>${esc(v)}</b>` });
       f.append(facet);

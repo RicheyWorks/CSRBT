@@ -74,6 +74,27 @@ with sync_playwright() as pw:
     ck("...so the downward nudge is doing the work, not decoration",
        ("chao1", 0) in hot and ("chao1", 0) not in up_only, (hot, up_only))
 
+    # ---- the drop path: the same page, fed the session a reader is TOLD to
+    # drop onto it. The inline session was clean; this one was not, and nothing
+    # before ADR-090 had ever rendered it.
+    KEYS = ["evenness", "p", "q"]
+    okd, why, rows2 = R.scan_loaded(pw, "ecology-experiment-session.json",
+                                    R.PAGE, "drop", only=KEYS)
+    ck("the lab page accepts the experiment session when it is dropped on it",
+       okd, why)
+    ck("...and there are figures there to check", len(rows2) >= 3, len(rows2))
+    ck("none of the dropped session's figures is rounded at a tie",
+       not [r for r in rows2 if r[5]], sorted(set((r[0], r[1]) for r in rows2 if r[5])))
+
+    # CANARY: put one of the three precisions back and it must be caught again.
+    SEED2 = CLEAN.replace('${tile(fmt(st.p, 4), "allele freq p")}',
+                          '${tile(fmt(st.p, 3), "allele freq p")}')
+    ck("the drop-path canary really changes the page", SEED2 != CLEAN)
+    _, _, rows3 = R.scan_loaded(pw, "ecology-experiment-session.json",
+                                R.PAGE, "drop", only=["p"], page_src=SEED2)
+    ck("CANARY: the three-decimal allele frequency is caught on the drop path",
+       any(r[5] for r in rows3), [(r[0], r[1], r[5]) for r in rows3])
+
 print("-" * 70)
 print("%d passed, %d failed" % (ok, bad))
 sys.exit(1 if bad else 0)
