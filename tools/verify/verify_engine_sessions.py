@@ -36,7 +36,10 @@ fresh clone needs one `./gradlew classes` before this link can be verified.
 
 Run:  python3 tools/verify/verify_engine_sessions.py
 """
-import decimal, glob, io, json, math, os, re, subprocess, sys, tempfile
+import decimal, glob, io, json, os, re, subprocess, sys, tempfile
+
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+import _kit
 
 ROOT = os.path.normpath(os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", ".."))
 DOCS = os.path.join(ROOT, "docs")
@@ -209,19 +212,16 @@ DATED_RECORDS = ("ADR-", "CHANGELOG-", "AUDIT-", "SESSION-HANDOFF-")
 
 
 def displayed(x, digits=1):
-    """The digits the page will show for x*100 -- computed the way the page does.
+    """The digits the page will show for x*100 -- one shared implementation.
 
-    The page renders with Number(...).toLocaleString("en-US",
-    {maximumFractionDigits: d}), which rounds the DOUBLE half away from zero and
-    drops a trailing ".0". Python's round() is half-to-even and would disagree on
-    an exact tie, so the rule is written out rather than borrowed: rounding is
-    the thing under test here and a check that used a different rounding would be
-    comparing the page against a second source of truth (ADR-068).
+    This used to spell the rounding rule out here. It now borrows it from
+    _kit.as_page_shows, because a second reader arrived (tools/audit_ties.py)
+    and two copies of a rounding rule is the frozen-constant problem with a
+    function instead of a number: they agree until one is edited. The rule
+    itself, and the measured cases where Python's round() disagrees with it, are
+    documented there.
     """
-    v = x * 100
-    scaled = math.floor(abs(v) * (10 ** digits) + 0.5) / (10 ** digits)
-    scaled = math.copysign(scaled, v)
-    return ("%.*f" % (digits, scaled)).rstrip("0").rstrip(".") if digits else "%d" % scaled
+    return _kit.as_page_shows(x, digits, 100)
 
 
 def is_rounding_tie(literal_text, digits):

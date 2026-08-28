@@ -111,13 +111,47 @@ with sync_playwright() as pw:
 
     # (b) the request hangs -- the case that was broken
     pg = b.new_page(viewport={"width": 390, "height": 900})
-    pg.route("**://fonts.googleapis.com/**", lambda route: None)
-    pg.route("**://fonts.gstatic.com/**", lambda route: None)
+    # A handler that returns without fulfilling, aborting or continuing IS the
+    # hang: the request never settles, which is the one-bar-of-signal case
+    # ADR-031 is about. Keep the routes so they can be settled deliberately at
+    # the end -- see the teardown below for why that matters.
+    hung = []
+    pg.route("**://fonts.googleapis.com/**", lambda route: hung.append(route))
+    pg.route("**://fonts.gstatic.com/**", lambda route: hung.append(route))
     pg.goto("file://" + BIG, wait_until="commit")
     pg.wait_for_timeout(4000)
     r = pg.evaluate(PAINT)
     ck(r["p"] is not None, "hanging request: the page still paints (%s ms)" % r["p"])
     ck(r["chars"] > 500, "hanging request: content is visible, not just in the DOM (%d)" % r["chars"])
+    # The handlers above deliberately never resolve their route -- that IS the
+    # hanging request this case simulates. Dropping the PATTERN does not settle
+    # a handler already in flight, so closing the page cancelled it and asyncio
+    # printed a CancelledError from playwright's dispatcher: a traceback nobody
+    # raised, on a suite that exited 0 and scored 207/207. run_all's own guard
+    # ("exited 0 while printing a traceback") is what surfaced it.
+    #
+    # unroute_all(behavior="ignoreErrors") is the documented way to drop pending
+    # handlers without the cancellation noise; the pattern unroutes stay because
+    # they are what stops NEW requests being caught.
+    # Those handlers never resolved their route -- deliberately. Closing the page
+    # with one still in flight cancelled it, and asyncio printed a CancelledError
+    # from playwright's dispatcher: a traceback nobody raised, on a suite that
+    # exited 0 and scored 207/207. run_all's own guard ("exited 0 while printing
+    # a traceback") is what surfaced it, and dropping the PATTERN is not enough
+    # because that does not settle a handler already in flight.
+    #
+    # Measured rather than guessed: resolving these two routes takes the
+    # traceback from 1 to 0, three runs each way.
+    # ...and if nothing was ever intercepted, this whole case proved nothing:
+    # the page would have painted because no request was made, not because a
+    # hanging one cannot block it. Checked, not assumed.
+    ck(len(hung) > 0, "hanging request: a font request was actually intercepted "
+                      "(%d) -- otherwise this case is vacuous" % len(hung))
+    for r in hung:
+        try:
+            r.abort()
+        except Exception:                        # already gone; nothing to settle
+            pass
     try:
         pg.unroute("**://fonts.googleapis.com/**"); pg.unroute("**://fonts.gstatic.com/**")
     except Exception:

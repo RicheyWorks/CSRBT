@@ -8,6 +8,7 @@ finger does. These helpers do that, in one place, so a future FEK change is one
 edit here rather than one per suite.
 """
 import os, re
+from decimal import Decimal, ROUND_HALF_UP
 
 # The boot loader every page in docs/ carries, byte-identical (ADR-066).
 # It lives here rather than in the one suite that reads it because a second
@@ -80,3 +81,33 @@ def push(pg, elid, value):
       e.dispatchEvent(new Event('input',{bubbles:true}));
       e.dispatchEvent(new Event('change',{bubbles:true}));}""", [elid, value])
     pg.wait_for_timeout(120)
+
+
+def as_page_shows(x, digits, scale=1):
+    """The digits a kit page will display for `x * scale` at `digits` places.
+
+    One implementation, here, because there are now three readers and they must
+    not each choose a rounding rule. The pages format with toFixed(d) or
+    Number(...).toLocaleString("en-US", {maximumFractionDigits: d}); both round
+    HALF AWAY FROM ZERO on the double.
+
+    Python's round() is half-to-EVEN, and on the kit's own recorded figures the
+    two disagree. Measured, not supposed:
+
+        K = 138.5   page shows 139   round() gives 138
+        K =  40.5   page shows  41   round() gives  40
+
+    A check that asserted round() there would contradict the page while looking
+    correct, which is ADR-068's failure with the arithmetic moved one step out.
+    So the rule the pages use is written down once and borrowed, never
+    re-chosen.
+
+    Rounding is applied to the DOUBLE, deliberately: the double is what the page
+    has. Whether the exact decimal was a tie is a different question, and
+    tools/audit_ties.py is where that one is asked.
+    """
+    v = float(x) * scale
+    q = Decimal(1).scaleb(-digits)
+    d = (Decimal(repr(v)) / q).to_integral_value(rounding=ROUND_HALF_UP) * q
+    out = ("%.*f" % (digits, d)) if digits else "%d" % d
+    return out.rstrip("0").rstrip(".") if digits and "." in out else out
