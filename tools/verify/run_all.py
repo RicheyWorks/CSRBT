@@ -33,6 +33,7 @@ AUDITS = [
 # it here would say nothing about pass or fail. Named so it is not forgotten.
 FINDERS = [("audit_claims", "unsourced numeric claims (worklist only)"),
            ("audit_ties", "figures whose displayed digit a rounding rule decides"),
+           ("audit_print_channel", "what the pages put on paper that no screen shows"),
            ("publish_state", "which published artifacts are behind the repo")]
 
 TAIL = re.compile(r"(\d+)\s*/\s*(\d+)\s*$")
