@@ -218,6 +218,84 @@ try:
         dead = sorted(h for h in helpers if len(re.findall(r"\b%s\b" % h, src)) < 2)
         ck("%s: no helper is defined and never called or passed" % emitter, not dead, dead)
 
+    # ---- every version marker in a block agrees with the module ----
+    # Three things carry a version number into a consumer page: the CSS banner,
+    # the JS banner, and the runtime literal `version:"x"` that the module
+    # returns and that a page can print or export. They come from one VERSION in
+    # the source, so on a freshly emitted page they cannot disagree -- which is
+    # exactly why a disagreement is worth a check: it means the page was written
+    # by an emitter half that is no longer running.
+    #
+    # This is not hypothetical either. Every FEK-consuming page that was still
+    # serving its ORIGINAL publish carried CSS banner v1.1.1, JS banner v1.1,
+    # and runtime version:"1.1.0" -- three numbers in one file. `fek_emit
+    # --check` was silent because the tree it checks is docs/, and docs/ had
+    # long since been re-emitted; the disagreement only survived in the copies
+    # readers were being served.
+    #
+    # ATTRIBUTION IS THE WHOLE DIFFICULTY. A bare grep for version:"..." across
+    # a page matches FEK's literal AND Keep's AND Ordination's AND Greenhouse's,
+    # which legitimately differ -- the first cut of this check reported six
+    # pages "disagreeing" when every one of them was correct. So each marker is
+    # attributed to the block it sits inside, using the EMITTER's own span
+    # finders, the same discipline the duplicate-stylesheet canary above uses.
+    def markers(src, emod, ver):
+        """(what, found) for every version marker that is NOT `ver`.
+
+        Only blocks the emitter actually owns are searched, so a module's
+        literal is never read as another module's."""
+        bad = []
+        m = getattr(emod, "JS_RE", None)
+        m = m.search(src) if m else None
+        if m:
+            blk = m.group(0)
+            for got in set(re.findall(r'version:"([\d.]+)"', blk)):
+                if got != ver: bad.append(("runtime literal", got))
+            for got in set(re.findall(r"v([\d.]+)", blk[:120])):
+                if got != ver: bad.append(("js banner", got))
+        span = getattr(emod, "css_span", None)
+        span = span(src) if span else None
+        if span:
+            for got in set(re.findall(r"v([\d.]+)", src[span[0]:span[0] + 140])):
+                if got != ver: bad.append(("css banner", got))
+        return bad
+
+    # The canary: a page carrying the shape that actually shipped -- banner and
+    # runtime one bump apart -- must be reported, and the same page with the
+    # numbers agreeing must not.
+    _fek = _load("fek_emit.py")
+    _fver = version_of("fek.py")
+    _one = io.open(os.path.join(DOCS, "farm-scout.html"), encoding="utf-8").read()
+    ck("a consumer page at rest carries no version disagreement (canary control)",
+       not markers(_one, _fek, _fver), markers(_one, _fek, _fver))
+    _drift = _one.replace('version:"%s"' % _fver, 'version:"0.0.1"', 1)
+    ck("a stale RUNTIME literal beside a current banner is caught",
+       ("runtime literal", "0.0.1") in markers(_drift, _fek, _fver))
+    _drift2 = _one.replace("Field Entry Kit v%s ====" % _fver,
+                           "Field Entry Kit v0.0.2 ====", 1)
+    ck("a stale CSS BANNER beside a current runtime literal is caught",
+       ("css banner", "0.0.2") in markers(_drift2, _fek, _fver),
+       "the CSS half needs its own canary -- that is the half that went dead")
+
+    # ...and then the real tree, every module, every consumer.
+    for emitter, mod, probe, css_probe in EMITTERS:
+        emod, ver = _load(emitter), version_of(mod)
+        if not ver:
+            ck("%s declares a VERSION" % mod, False, "no VERSION line"); continue
+        # nav_emit stamps no version into the page at all -- its block is a
+        # <div class="rail">, not a banner. Say that out loud rather than
+        # letting it fall through the loop as a silent pass, because "no
+        # markers found" and "all markers agree" look identical in a tally.
+        if not getattr(emod, "JS_RE", None) and not hasattr(emod, "css_span"):
+            ck("%s stamps no version marker into consumers -- nothing to check" % mod, True)
+            continue
+        for path in consumers(probe):
+            src = io.open(path, encoding="utf-8").read()
+            bad = markers(src, emod, ver)
+            ck("%s in %s: every version marker reads %s"
+               % (mod, os.path.basename(path), ver), not bad,
+               "; ".join("%s says %s" % (w, g) for w, g in bad))
+
     # ---- and the whole tree must be at rest afterwards ----
     for emitter, mod, probe, css_probe in EMITTERS:
         rc, out = run(emitter, "--check")

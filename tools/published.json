@@ -1,6 +1,13 @@
 {
   "_comment": "sha256 of the bytes last handed to the publisher, per page. A page absent from this map has never been stamped and its published state is UNKNOWN -- which is not the same as current.",
   "observed": {
+    "breeding-bench.html": {
+      "at": 1787876069,
+      "blocking_webfont": true,
+      "sha": "f2ed142ad5cb75561f0e175bc5ad051e9e3c5fe1cc14156ad78876f27c7a3c51",
+      "state": "behind",
+      "via": "read"
+    },
     "eco-protocol-reference.html": {
       "at": 1787875367,
       "blocking_webfont": true,
@@ -28,6 +35,27 @@
       "sha": "c0721fbaf50fe638419e428f03bd9d78bcdeb8b2a31dfc9724569743f94629e4",
       "state": "behind",
       "via": "read"
+    },
+    "ethogram.html": {
+      "at": 1787876086,
+      "blocking_webfont": true,
+      "sha": "4bd436abcc01ea5839bd7a6df8095fedd7588a317f22bd6796411ffad97db37d",
+      "state": "behind",
+      "via": "read"
+    },
+    "field-notebook.html": {
+      "at": 1787876098,
+      "blocking_webfont": true,
+      "sha": "5b00edd607867301acee23f8026855b83f8b1452ee899751ff29bcd89c06d72c",
+      "state": "behind",
+      "via": "read"
+    },
+    "field-season.html": {
+      "at": 1787876104,
+      "blocking_webfont": true,
+      "sha": "9e63b70f45164b951befdce12e137822294fad399775bcc25600dae21bd191a9",
+      "state": "behind",
+      "via": "read"
     }
   },
   "pages": {
@@ -35,6 +63,11 @@
       "at": 1787873301,
       "sha": "ac550cc22f323703f72d3854610d685fe6c8b8c9196dad11856cbac7e2798f0e",
       "via": "read"
+    },
+    "breeding-bench.html": {
+      "at": 1787876222,
+      "sha": "f2ed142ad5cb75561f0e175bc5ad051e9e3c5fe1cc14156ad78876f27c7a3c51",
+      "via": "publish"
     },
     "cell-bench.html": "dd3157877bd6dbd6ccfb0bff160f52a4073867dca34239c50d85c381a1d386b9",
     "collection-sheet.html": {
@@ -83,6 +116,26 @@
     "ecology.html": {
       "at": 1787781284,
       "sha": "8cb6dc1225b36c67ebfc9772019da6dc0ab22b6e74009c82d5fb4202d44937ba"
+    },
+    "ethogram.html": {
+      "at": 1787876222,
+      "sha": "4bd436abcc01ea5839bd7a6df8095fedd7588a317f22bd6796411ffad97db37d",
+      "via": "publish"
+    },
+    "farm-scout.html": {
+      "at": 1787875972,
+      "sha": "8bb52c39dd2029fcf25bae6a09d101ec307d9924f7c21989a9a50bd542a420ea",
+      "via": "read"
+    },
+    "field-notebook.html": {
+      "at": 1787876222,
+      "sha": "5b00edd607867301acee23f8026855b83f8b1452ee899751ff29bcd89c06d72c",
+      "via": "publish"
+    },
+    "field-season.html": {
+      "at": 1787876222,
+      "sha": "9e63b70f45164b951befdce12e137822294fad399775bcc25600dae21bd191a9",
+      "via": "publish"
     },
     "food-web.html": {
       "at": 1787874421,
