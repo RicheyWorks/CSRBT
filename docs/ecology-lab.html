@@ -291,8 +291,14 @@ const turnoverR = b => b <= .2 ? "nearly identical" : b <= .6 ? "moderate turnov
 const survType = t => t === "TYPE_I" ? "Type I — most survive to old age, then die together (large mammals)"
                  : t === "TYPE_II" ? "Type II — steady, age-independent death rate (songbirds)"
                  : "Type III — heavy early mortality, survivors persist (oysters)";
-const chaoRead = (s, c) => (c - s) < .5 ? `Chao1 says the survey is complete (≈ ${fmt(c,0)})`
-                 : `Chao1 estimates ≈ ${fmt(c,0)} — about ${fmt(c - s,0)} rare keys unseen`;
+/* One decimal, not zero: the shipped session's Chao1 is 103.5 and the shortfall
+   it prints is 103.5 - 100 = 3.5. Both land exactly on a rounding boundary, so
+   at zero decimals a reader was shown 104 and 4 -- digits the rounding rule
+   picked, not the estimate. The SECOND of those is not in any fixture: it is
+   made by subtraction here, which is why a sweep of recorded literals cannot
+   find it and the render pass could (ADR-089). */
+const chaoRead = (s, c) => (c - s) < .5 ? `Chao1 says the survey is complete (≈ ${fmt(c,1)})`
+                 : `Chao1 estimates ≈ ${fmt(c,1)} — about ${fmt(c - s,1)} rare keys unseen`;
 const fmt = (x, d=2) => Number(x).toLocaleString("en-US", {maximumFractionDigits: d});
 
 /* Every string that reaches innerHTML from outside this file — a dropped .eco session,
@@ -489,7 +495,7 @@ function renderStations(S) {
     for (const p of m.phases) {
       c.insertAdjacentHTML("beforeend",
         `<div class="tiles">${tile(fmt(p.evenness), `J′ — ${String(p.name ?? "").toLowerCase()}`)}
-         ${tile(fmt(p.hill1, 1), "effective species")}${tile(fmt(p.chao1, 0), "Chao1 est. richness")}
+         ${tile(fmt(p.hill1, 1), "effective species")}${tile(fmt(p.chao1, 1), "Chao1 est. richness")}
          ${tile(String(p.bestFit ?? "—").replace("_", " ").toLowerCase(), "curve shape")}</div>
          <p class="reading"><b>${esc(p.name)}:</b> ${evenness(p.evenness)}. ${chaoRead(p.richness, p.chao1)}.</p>`);
     }
@@ -528,7 +534,7 @@ function renderStations(S) {
          Bray–Curtis <b>${fmt(m.brayCurtis)}</b> — ${turnoverR(m.brayCurtis)}.</p>`);
     }
     dataTable(c, ["community", "richness", "touches", "H′", "J′", "eff. species", "Chao1"],
-      m.phases.map(p => [p.name, p.richness, p.total, fmt(p.shannon), fmt(p.evenness), fmt(p.hill1, 1), fmt(p.chao1, 0)]));
+      m.phases.map(p => [p.name, p.richness, p.total, fmt(p.shannon), fmt(p.evenness), fmt(p.hill1, 1), fmt(p.chao1, 1)]));
   }
 
   /* The drift — trace sessions: workload change over the run */
@@ -554,7 +560,7 @@ function renderStations(S) {
       "Inserts are births, removes are deaths, ages count in operations. Cohort life table + Verhulst logistic fit.");
     const tiles = [];
     if (d) tiles.push(tile(fmt(d.cohort, 0), "completed lives"), tile(fmt(d.meanAge, 0) + " ops", "mean age at death"));
-    if (g) tiles.push(tile(fmt(g.r, 4), "growth rate r (per op)"), tile("≈ " + fmt(g.K, 0) + " keys", "carrying capacity K"));
+    if (g) tiles.push(tile(fmt(g.r, 4), "growth rate r (per op)"), tile("≈ " + fmt(g.K, 1) + " keys", "carrying capacity K"));
     c.insertAdjacentHTML("beforeend", `<div class="tiles">${tiles.join("")}</div>` +
       (d ? `<p class="reading">${survType(d.type)}.</p>` : ""));
     const f = document.createElement("div"); f.className = "facets";
@@ -772,7 +778,7 @@ function renderStations(S) {
       const facet = document.createElement("div"); facet.className = "facet";
       facet.innerHTML = `<h3>${esc(d.name)} <span class="chip">${esc(d.total)} records</span></h3>
         <div class="tiles">${tile(d.richness, "kinds")}${tile(fmt(d.shannon, 2), "Shannon H′")}
-        ${tile(fmt(d.evenness, 2), "evenness J′")}${tile(fmt(d.chao1, 0), "Chao1 est.")}</div>`;
+        ${tile(fmt(d.evenness, 2), "evenness J′")}${tile(fmt(d.chao1, 1), "Chao1 est.")}</div>`;
       barChart(facet, d.counts ?? [], { w: 480, h: 130, color: "var(--s3)", xLabel: "kind",
         tipFn: (i, v) => `<b>${esc((d.labels ?? [])[i] ?? i + 1)}</b> · <b>${esc(v)}</b>` });
       f.append(facet);
