@@ -640,22 +640,22 @@ function renderStations(S) {
     c.insertAdjacentHTML("beforeend",
       `<div class="tiles">${tile(f.generations.length, "strata on record")}
        ${tile(fmt(f.turnover * 100, 0) + "%", "avg turnover per generation")}
-       ${f.meanContent !== undefined ? tile(fmt(f.meanContent * 100, 0) + "%", "keys inherited / generation") : ""}
-       ${f.meanStructural !== undefined ? tile(fmt(f.meanStructural * 100, 0) + "%", "physical nodes inherited") : ""}</div>` +
+       ${f.meanContent !== undefined ? tile(fmt(f.meanContent * 100, 1) + "%", "keys inherited / generation") : ""}
+       ${f.meanStructural !== undefined ? tile(fmt(f.meanStructural * 100, 1) + "%", "physical nodes inherited") : ""}</div>` +
       (f.meanStructural !== undefined ?
-        `<p class="reading"><b>Two kinds of heredity:</b> ${fmt(f.meanContent * 100, 0)}% of keys survive a generation,
-         but only ${fmt(f.meanStructural * 100, 0)}% of the physical nodes — the gap is the price of path copying:
+        `<p class="reading"><b>Two kinds of heredity:</b> ${fmt(f.meanContent * 100, 1)}% of keys survive a generation,
+         but only ${fmt(f.meanStructural * 100, 1)}% of the physical nodes — the gap is the price of path copying:
          every edit rewrites its ancestors even though their keys persist.</p>` : ""));
     const gens = f.generations.filter(g => g.inherited !== undefined);
     const w = document.createElement("div");
     w.innerHTML = "<p class='h3'>Inherited fraction, each stratum → the next</p>";
     barChart(w, gens.map(g => g.inherited), { w: 980, h: 170, color: "var(--s1)", xLabel: "stratum transition",
-      tipFn: i => `stratum <b>${esc(gens[i].g)} → ${esc(Number(gens[i].g) + 1)}</b><br>keys inherited <b>${fmt(gens[i].inherited * 100, 0)}%</b>` +
-                  (gens[i].structural !== undefined ? ` · physical nodes <b>${fmt(gens[i].structural * 100, 0)}%</b>` : "") +
+      tipFn: i => `stratum <b>${esc(gens[i].g)} → ${esc(Number(gens[i].g) + 1)}</b><br>keys inherited <b>${fmt(gens[i].inherited * 100, 1)}%</b>` +
+                  (gens[i].structural !== undefined ? ` · physical nodes <b>${fmt(gens[i].structural * 100, 1)}%</b>` : "") +
                   `<br>gained <b>${esc(gens[i].gains)}</b> · lost <b>${esc(gens[i].losses)}</b>` });
     c.append(w);
     dataTable(c, ["transition", "inherited %", "gained", "lost"],
-      gens.map(g => [`${g.g} → ${g.g + 1}`, fmt(g.inherited * 100, 0), g.gains, g.losses]));
+      gens.map(g => [`${g.g} → ${g.g + 1}`, fmt(g.inherited * 100, 1), g.gains, g.losses]));
   }
 
   /* The survey grid */

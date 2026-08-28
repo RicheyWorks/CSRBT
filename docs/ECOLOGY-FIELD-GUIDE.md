@@ -123,7 +123,7 @@ gives divergence — how far apart two moments in the structure's history are.
 Since ADR-017 the record also carries **physical heredity**: `structuralInheritance(g)`
 counts the parent's *nodes* (by identity) that survive into the child, not just its
 keys. The gap between the two is the price of path copying — in the demo, 80% of keys
-survive a generation but only 57% of physical nodes. A key can be inherited while its
+survive a generation but only 57.5% of physical nodes. A key can be inherited while its
 node is rewritten; never the reverse.
 
 ## Station 5 — The survey grid (spatial pattern)

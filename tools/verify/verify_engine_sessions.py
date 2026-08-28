@@ -36,7 +36,7 @@ fresh clone needs one `./gradlew classes` before this link can be verified.
 
 Run:  python3 tools/verify/verify_engine_sessions.py
 """
-import glob, io, json, os, re, subprocess, sys, tempfile
+import decimal, glob, io, json, math, os, re, subprocess, sys, tempfile
 
 ROOT = os.path.normpath(os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", ".."))
 DOCS = os.path.join(ROOT, "docs")
@@ -187,6 +187,106 @@ ck("no session figure is restated as a literal in the page's prose",
 ck("the interpolation the prose actually uses is still there",
    "meanContent" in page and "meanStructural" in page
    and "${fmt(f.meanContent" in page, "")
+
+# ---- link D: every OTHER document that quotes the headline pair ----------
+# Link C bans a literal restatement inside ecology-lab.html. It says nothing
+# about the next file that writes the same sentence, and two of them do: the
+# field guide in markdown and its published HTML twin, which hand-write both
+# figures in prose. That is ADR-072's shape -- the fix that names one caller
+# does not cover the next one somebody writes -- and here the next one is a page
+# a reader opens.
+#
+# Prose is allowed to quote a figure. What was missing is anything that fails
+# when the quote drifts from the session, so this BINDS rather than bans:
+# wherever the pair appears, the digits must be the digits the page renders.
+#
+# Dated records are exempt and named, not inferred: an ADR or changelog reports
+# what was true on its date and must not be rewritten when the engine moves.
+PAIR = re.compile(
+    r"(\d{1,3}(?:\.\d+)?)\s*%\s*of keys.{0,90}?(\d{1,3}(?:\.\d+)?)\s*%\s*of\s*"
+    r"(?:the\s*)?(?:physical\s*)?nodes", re.S | re.I)
+DATED_RECORDS = ("ADR-", "CHANGELOG-", "AUDIT-", "SESSION-HANDOFF-")
+
+
+def displayed(x, digits=1):
+    """The digits the page will show for x*100 -- computed the way the page does.
+
+    The page renders with Number(...).toLocaleString("en-US",
+    {maximumFractionDigits: d}), which rounds the DOUBLE half away from zero and
+    drops a trailing ".0". Python's round() is half-to-even and would disagree on
+    an exact tie, so the rule is written out rather than borrowed: rounding is
+    the thing under test here and a check that used a different rounding would be
+    comparing the page against a second source of truth (ADR-068).
+    """
+    v = x * 100
+    scaled = math.floor(abs(v) * (10 ** digits) + 0.5) / (10 ** digits)
+    scaled = math.copysign(scaled, v)
+    return ("%.*f" % (digits, scaled)).rstrip("0").rstrip(".") if digits else "%d" % scaled
+
+
+def is_rounding_tie(literal_text, digits):
+    """Does this figure land EXACTLY on a .5 boundary at this display precision?
+
+    Read from the JSON's own decimal literal, not from the double: 0.575000 is
+    exactly 57.500 in decimal, and at 0 digits that is a tie. The page showed 57
+    and every other document said 57, and they agreed only because the nearest
+    double to 0.575 is 57.49999999999999 -- a coin flip that IEEE happened to
+    win. Had the value been representable, JS would have shown 58 and the prose
+    would still have said 57, with nothing in the kit noticing.
+
+    A number displayed at a precision where it is a tie is not a reported
+    figure, it is a coin flip between two implementations.
+    """
+    d = decimal.Decimal(literal_text) * 100
+    return d == d.quantize(decimal.Decimal(1) if not digits
+                           else decimal.Decimal(1).scaleb(-digits),
+                           rounding=decimal.ROUND_FLOOR) + decimal.Decimal(5).scaleb(-digits - 1)
+
+
+_LIT = re.compile(r'"meanStructural"\s*:\s*([0-9.]+)')
+_lit = _LIT.search(shipped_txt)
+ck("the session's own decimal literal for the structural figure is readable",
+   _lit is not None, shipped_txt[:80])
+if _lit:
+    ck("the structural figure is NOT displayed at a precision where it is a tie",
+       not is_rounding_tie(_lit.group(1), 1),
+       "%s at 1 dp" % _lit.group(1))
+    ck("...and it WOULD have been at the 0 dp this page used to render -- the "
+       "agreement across the kit was a float-representation accident",
+       is_rounding_tie(_lit.group(1), 0), _lit.group(1))
+
+want = (displayed(shipped["fossils"]["meanContent"]),
+        displayed(shipped["fossils"]["meanStructural"]))
+quoting, drifted = [], []
+for f in sorted(glob.glob(os.path.join(DOCS, "*"))):
+    b = os.path.basename(f)
+    if not os.path.isfile(f) or b.startswith(DATED_RECORDS) or b == "ecology-lab.html":
+        continue
+    try:
+        raw_f = io.open(f, encoding="utf-8").read()
+    except (UnicodeDecodeError, OSError):
+        continue
+    flat = re.sub(r"\s+", " ", re.sub(r"<[^>]+>", " ", raw_f)).replace("*", "")
+    for m in PAIR.finditer(flat):
+        quoting.append(b)
+        if (m.group(1), m.group(2)) != want:
+            drifted.append((b, m.group(1), m.group(2)))
+ck("some document outside the lab page quotes the headline pair -- otherwise "
+   "this check is asserting nothing", bool(quoting), quoting)
+ck("every quote of the pair matches what the page renders (%s%% / %s%%)" % want,
+   not drifted, drifted)
+
+# The canary: seed the drift the check exists to catch, and a control beside it.
+_GOOD = "in the demo, %s%% of keys survive a generation but only %s%% of physical nodes" % want
+_BAD = "in the demo, %s%% of keys survive a generation but only 57%% of physical nodes" % want[0]
+ck("CONTROL: a correct sentence is not reported as drift",
+   [g.groups() for g in PAIR.finditer(_GOOD)] == [want], _GOOD)
+ck("a sentence carrying the OLD figure is caught",
+   [g.groups() for g in PAIR.finditer(_BAD)] != [want], _BAD)
+ck("and the matcher survives markdown bold around the figures",
+   [g.groups() for g in PAIR.finditer(
+       ("in the demo, **%s%%** of keys survive but only **%s%%** of physical nodes"
+        % want).replace("*", ""))] == [want], "")
 
 # ---- the artifacts this does NOT bind ------------------------------------
 # Named rather than implied covered. These are recorded sessions loaded by the

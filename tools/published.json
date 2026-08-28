@@ -164,8 +164,8 @@
       "via": "read"
     },
     "ecology-field-guide.html": {
-      "at": 1787874601,
-      "sha": "ce67fdecf587ee82fae7f2497b909305501a4e6e9143d1f3c3ecd5ce2423fe89",
+      "at": 1787885761,
+      "sha": "fdf7bd6505f366ea6ff2e980bb9da65f58efa42f182f58bd50a65dda4ca3b7bb",
       "via": "publish"
     },
     "ecology-glossary.html": {
@@ -181,10 +181,9 @@
       "via": "read"
     },
     "ecology-lab.html": {
-      "at": 1787873386,
-      "dated_by": "the version marker in the copy (re-derived; the original was the file's mtime)",
-      "sha": "b0ec0e859df6e97b42ccf0524b7e34ff6be0b72a62d98bd199c4206c9d9faf6e",
-      "via": "read"
+      "at": 1787885761,
+      "sha": "9a6cdd60de768f32a5aa6f554d6a9ed483d160f3012d5f49de96cf5e9e14af5e",
+      "via": "publish"
     },
     "ecology-teachers-guide.html": {
       "at": 1787875443,
