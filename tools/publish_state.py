@@ -100,8 +100,25 @@ def entry_at(e):
     return None if isinstance(e, str) else (e or {}).get("at")
 
 
-def stamp_allowed(prev, taken):
+def stamp_allowed(prev, taken, same_build=False):
     """May a read taken at `taken` replace the stamp `prev`? -> (bool, why).
+
+    `same_build` says the existing stamp records the build now in build/. It is
+    only meaningful where the caller has ALSO measured that the copy carries
+    that build -- and --verify only acts on the returned verdict after the
+    containment test has passed, which is what makes the three equal: stamp,
+    repo, copy. When they are, ORDERING IS NOT A QUESTION: both entries describe
+    the same publish, and the only thing being decided is which provenance word
+    the file keeps for it. "read" beats "publish" every time -- one says the URL
+    was serving these bytes, the other says only that they were handed over.
+
+    That case had to be named because the two dates come from different clocks
+    for the same event. --stamp writes time.time() at the moment of the local
+    call; the artifact's version epoch is assigned a few seconds EARLIER. So a
+    read of exactly the version a stamp describes always looks about five
+    seconds stale against it, and without this clause every one of the twenty
+    publish-time stamps was permanently unimprovable -- the same shape of wall
+    ADR-084 took down, rebuilt by the fix in ADR-085 that made the dates honest.
 
     Stated as a function because the rule has three cases and inline
     conditionals hid one of them: written as a single early return it also
@@ -116,6 +133,9 @@ def stamp_allowed(prev, taken):
     at = entry_at(prev)
     if prev is None:
         return True, "no previous stamp"
+    if same_build:
+        return True, ("the copy carries the very build this stamp records -- same "
+                      "publish, and a read is better provenance than a publish")
     if at is None:
         return True, "supersedes an undated stamp with a dated read"
     if taken < at:
@@ -395,7 +415,12 @@ def main(argv):
         #     supersedes -- and says so, because silently replacing one is how a
         #     file stops meaning what it says.
         #   * a TIMED stamp still wins against an older copy, unchanged.
-        may_stamp, why_stamp = stamp_allowed(prev, taken)
+        # Does the existing stamp record the build now in build/? A fact about
+        # bytes, and where the containment test below also passes it means stamp,
+        # repo and copy are the same publish -- so the dates need not be compared
+        # at all. Read here, acted on only past that test.
+        same_build = (entry_sha(prev) == sha(bp)) if prev is not None else False
+        may_stamp, why_stamp = stamp_allowed(prev, taken, same_build)
         live = live_early
         # Before ANY claim is printed or written: is this a copy of this page?
         # Everything below -- the offline-contract line, the BEHIND observation,

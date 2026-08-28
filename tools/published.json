@@ -116,10 +116,17 @@
       "via": "publish"
     },
     "collection-sheet.html": {
-      "at": 1787810037,
-      "sha": "a45ce7d0b37f3e3a232f6757985235d898f91162ce8147e73554bd836c8f8254"
+      "at": 1787810032,
+      "dated_by": "the version marker in the copy",
+      "sha": "a45ce7d0b37f3e3a232f6757985235d898f91162ce8147e73554bd836c8f8254",
+      "via": "read"
     },
-    "cp-bench.html": "9434f5fd87d0b487a8c45c442efe87f88c98184f31144338b6aa42ddcef70b98",
+    "cp-bench.html": {
+      "at": 1787726247,
+      "dated_by": "the version marker in the copy",
+      "sha": "9434f5fd87d0b487a8c45c442efe87f88c98184f31144338b6aa42ddcef70b98",
+      "via": "read"
+    },
     "cp-characters.html": {
       "at": 1787878200,
       "sha": "f998f65f7a77c5e58d6b53b936d316e4c641742f9aea2b9c6fe8d2279f1318c9",
@@ -162,12 +169,16 @@
       "via": "publish"
     },
     "ecology-glossary.html": {
-      "at": 1787779354,
-      "sha": "4d4464657944e2515d8abc6fbbed5abaf6af02902cea115e634b82e52138f3ff"
+      "at": 1787779279,
+      "dated_by": "the version marker in the copy",
+      "sha": "4d4464657944e2515d8abc6fbbed5abaf6af02902cea115e634b82e52138f3ff",
+      "via": "read"
     },
     "ecology-lab-manual.html": {
-      "at": 1787777383,
-      "sha": "2ea38fb40eb14ae4bbbc5c7c982a12092f0f04a77109a1913191f43267cb72cc"
+      "at": 1787777233,
+      "dated_by": "the version marker in the copy",
+      "sha": "2ea38fb40eb14ae4bbbc5c7c982a12092f0f04a77109a1913191f43267cb72cc",
+      "via": "read"
     },
     "ecology-lab.html": {
       "at": 1787873386,
@@ -213,8 +224,10 @@
       "via": "publish"
     },
     "fungal-characters.html": {
-      "at": 1787777383,
-      "sha": "1bff48d4c593ee3b0547851469d36015bcb5817cac6dc108047e607323c579e4"
+      "at": 1787777016,
+      "dated_by": "the version marker in the copy",
+      "sha": "1bff48d4c593ee3b0547851469d36015bcb5817cac6dc108047e607323c579e4",
+      "via": "read"
     },
     "greenhouse.html": {
       "at": 1787710960,
@@ -223,8 +236,10 @@
       "via": "read"
     },
     "micro-bench.html": {
-      "at": 1787787501,
-      "sha": "5d710d6a44dec67be8470e6b5e2f0e1c8dbfbd65649c7b12a81a85b4caef7922"
+      "at": 1787786971,
+      "dated_by": "the version marker in the copy",
+      "sha": "5d710d6a44dec67be8470e6b5e2f0e1c8dbfbd65649c7b12a81a85b4caef7922",
+      "via": "read"
     },
     "ordination.html": {
       "at": 1787881288,
@@ -232,18 +247,27 @@
       "via": "publish"
     },
     "pheno-tracker.html": {
-      "at": 1787810037,
-      "sha": "91d18bc826da23130569bfc2c4c2d72e75488063fcab031ccc3afe6333b2b7d0"
+      "at": 1787809639,
+      "dated_by": "the version marker in the copy",
+      "sha": "91d18bc826da23130569bfc2c4c2d72e75488063fcab031ccc3afe6333b2b7d0",
+      "via": "read"
     },
     "plant-characters.html": {
       "at": 1787878151,
       "sha": "0d303647a67af1019355ccf6e1ba12235d0884e3750ab8e34dcb2d7259f1d44c",
       "via": "publish"
     },
-    "releve.html": "35bbc54ca78e663a09a63a0ec75446af5a1c4bbb1991465a27ebaf3cc499d516",
+    "releve.html": {
+      "at": 1787726337,
+      "dated_by": "the version marker in the copy",
+      "sha": "35bbc54ca78e663a09a63a0ec75446af5a1c4bbb1991465a27ebaf3cc499d516",
+      "via": "read"
+    },
     "selection-log.html": {
-      "at": 1787810037,
-      "sha": "146f7291e9d548551f3b8720e7b93685ca335a6822caaff91d27feea83832d59"
+      "at": 1787809560,
+      "dated_by": "the version marker in the copy",
+      "sha": "146f7291e9d548551f3b8720e7b93685ca335a6822caaff91d27feea83832d59",
+      "via": "read"
     },
     "soil-bench.html": {
       "at": 1787787498,
@@ -267,8 +291,10 @@
       "via": "publish"
     },
     "survey-design.html": {
-      "at": 1787810037,
-      "sha": "80e11468a5919c2ff8cc1feeebf8b3c23785af11a9e4999f7de9b14510ca3649"
+      "at": 1787809971,
+      "dated_by": "the version marker in the copy",
+      "sha": "80e11468a5919c2ff8cc1feeebf8b3c23785af11a9e4999f7de9b14510ca3649",
+      "via": "read"
     },
     "tree-proofs.html": {
       "at": 1787633321,

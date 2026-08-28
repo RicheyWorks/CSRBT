@@ -272,6 +272,26 @@ ck("a copy newer than a dated stamp may stamp",
    _pstate.stamp_allowed(_DATED, 101)[0] is True, _pstate.stamp_allowed(_DATED, 101))
 ck("a copy taken at exactly the stamp's time may stamp",
    _pstate.stamp_allowed(_DATED, 100)[0] is True, _pstate.stamp_allowed(_DATED, 100))
+# Two clocks for one event: --stamp writes time.time() locally, the artifact's
+# version epoch is assigned seconds EARLIER, so a read of exactly the version a
+# stamp describes always looks slightly stale against it. Without the same-build
+# case every publish-time stamp was permanently unimprovable -- ADR-084's wall,
+# rebuilt by the honest dates of ADR-085.
+ck("a read of the SAME build supersedes a publish-time stamp it looks older than",
+   _pstate.stamp_allowed(_DATED, 99, True)[0] is True,
+   _pstate.stamp_allowed(_DATED, 99, True))
+ck("...and says it is the same publish, not that it won on time",
+   "same" in _pstate.stamp_allowed(_DATED, 99, True)[1],
+   _pstate.stamp_allowed(_DATED, 99, True))
+ck("the same-build case is the ONLY thing that changed that verdict",
+   _pstate.stamp_allowed(_DATED, 99, False)[0] is False,
+   _pstate.stamp_allowed(_DATED, 99, False))
+# ...and it must not leak into the observation rule, which has no such case: a
+# stale copy of the same build still cannot say the page is behind now.
+ck("observation_allowed has no same-build escape -- it takes no such argument",
+   _pstate.observation_allowed(_DATED, 99)[0] is False,
+   _pstate.observation_allowed(_DATED, 99))
+
 # The canary the refusal needs: a rule that returned True for everything would
 # pass five of the six above. Only this one distinguishes it.
 ck("the rule can say no at all -- exactly one of these six is a refusal",
