@@ -34,19 +34,18 @@ def ck(c, m):
     if c: P += 1
     else: F += 1; print("FAIL:", m)
 
-def text(f):
-    return re.sub(r"\s+", " ", re.sub(r"<[^>]+>", " ", io.open(_kit.DOCS_DIR + f, encoding="utf-8").read()))
-
-
-# text() strips tags with <[^>]+>, which is fine for prose and WRONG for script
-# content: a page's JS contains bare < and > (comparisons, arrows), so the regex
-# pairs them off and swallows whole spans. Every claim this kit renders from a
-# widget's `help:` option lives in a script string, and an assertion about one
-# written against text() does not fail -- it silently looks somewhere else. Read
-# the raw source for those. ADR-098 found this by writing two such assertions
-# and having them fail for a reason that had nothing to do with the page.
-def raw(f):
-    return re.sub(r"\s+", " ", io.open(_kit.DOCS_DIR + f, encoding="utf-8").read())
+# Two readers, each saying which view it means, both shared from _kit (ADR-099).
+#
+# ADR-098 replaced a bracket-regex tag-stripper here after two assertions about
+# a widget's `help:` string failed for a reason that had nothing to do with the
+# page: a page's JS carries bare < and >, the regex pairs them off, and whole
+# spans vanish. ADR-099 then measured every membership test in this suite and
+# found the reverse case too -- six assertions that PASSED only because the
+# mangled JS was still in the haystack. Those now read the source, which is
+# where their text lives. text() is a real parse with script and style dropped;
+# nothing here rests on where a stray bracket fell.
+text = _kit.prose
+raw = _kit.raw
 
 # ---- 1. the drying temperature carries both sides -------------------------
 for f in ("collection-sheet.html", "fungal-characters.html"):
@@ -77,7 +76,11 @@ ck("rule of thumb rather than a measured floor" in cs,
    "and the 35 C floor says which kind of number it is")
 
 # ---- 2. the flytrap range, corrected and cited ---------------------------
-cpc = text("cp-characters.html")
+# cp-characters keys its species out of a data table in script and renders the
+# prose from it, so every claim in sections 2 and 3 lives in the source rather
+# than in the rendered text. Read from where they are (ADR-099); an assertion
+# that names script content and reads rendered prose is asking the wrong file.
+cpc = raw("cp-characters.html")
 ck("landward" in cpc, "cp-characters says landward -- half the circle is ocean")
 ck("Center for Plant Conservation" in cpc, "cp-characters cites the range")
 ck("1 December 2014" in cpc, "the felony claim carries the date it became true")

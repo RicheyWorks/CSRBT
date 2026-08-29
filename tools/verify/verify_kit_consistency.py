@@ -41,6 +41,7 @@ with the glossary instead of with a hand-kept list.
 Run:  python3 tools/verify/verify_kit_consistency.py
 """
 import glob, io, os, re, sys
+import _kit
 
 ROOT = os.path.normpath(os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", ".."))
 DOCS = os.path.join(ROOT, "docs")
@@ -53,7 +54,9 @@ def ck(name, cond, got=""):
     else:    bad += 1; print("FAIL  %s   got: %r" % (name, got))
 
 ENTRY = re.compile(r'<div class="entry"><dt>(.*?)</dt><dd>(.*?)</dd>', re.S)
-TAG = re.compile(r"<[^>]+>")
+# No bracket-regex tag stripper here any more: on a page it is not a tag
+# stripper at all. _kit.prose_of is a real parse, script and style dropped.
+# ADR-099, and verify_claims_slice lints for the pattern across the suites.
 PCT = re.compile(r"(?<![\w#.-])(\d+(?:\.\d+)?)\s*%")
 
 # Language that marks a figure as one the kit does NOT stand behind as a constant.
@@ -70,8 +73,12 @@ INFER = re.compile(r"\buse the\b|\busing the\b|\bestimate\b|\bcaps?\b|\bmeans th
 
 
 def plain(html):
-    h = re.sub(r"<style\b.*?</style>", " ", html, flags=re.S | re.I)
-    h = TAG.sub(" ", h)
+    # A real parse, script and style dropped (_kit.prose_of). What this replaced
+    # removed <style> and then bracket-stripped, which leaves a page's mangled
+    # JavaScript sitting in "plain" text -- and swallows any prose that fell
+    # between a stray < and the next >. Behaviour-identical on today's kit
+    # (49/49 either way, measured), and no longer resting on that. ADR-099.
+    h = _kit.prose_of(html)
     for a, b in (("&mdash;", "-"), ("&ndash;", "-"), ("&nbsp;", " "), ("&amp;", "&"),
                  ("&lt;", "<"), ("&gt;", ">"), ("&deg;", " deg"), ("&asymp;", "~")):
         h = h.replace(a, b)
@@ -162,7 +169,7 @@ def entries():
         body = plain(dd)
         # The citation, when there is one, sits in a <span class="who">.
         cite = re.search(r'<span class="who">(.*?)</span>', dt)
-        got.append({"term": re.sub(r"\s+", " ", TAG.sub(" ", dt)).strip(),
+        got.append({"term": _kit.prose_of(dt).strip(),
                     "head": plain(re.sub(r'<span class="who">.*?</span>', " ", dt)),
                     "cite": plain(cite.group(1)) if cite else "",
                     "body": body,
@@ -401,7 +408,7 @@ def cited_figures(page_map):
     for name, html in page_map.items():
         t = bare(html)
         for m in CITE.finditer(t):
-            window = TAG.sub(" ", t[max(0, m.start() - NEAR):m.end() + NEAR])
+            window = _kit.prose_of(t[max(0, m.start() - NEAR):m.end() + NEAR])
             for f in DECIMAL.finditer(window):
                 if fingerprint(f.group(1)):
                     out.setdefault(f.group(1), set()).add(
@@ -414,7 +421,7 @@ def uncited_uses(page_map, figure, homes):
     for name, html in page_map.items():
         if name in homes:
             continue
-        t = TAG.sub(" ", bare(html))
+        t = _kit.prose_of(bare(html))
         for f in re.finditer(r"(?<![\w.-])%s(?![\w])" % re.escape(figure), t):
             if CITE.search(t[max(0, f.start() - NEAR):f.end() + NEAR]):
                 continue

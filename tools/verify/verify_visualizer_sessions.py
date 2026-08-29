@@ -36,6 +36,7 @@ passing when the engine legitimately produces a different tree.
 Run:  python3 tools/verify/verify_visualizer_sessions.py
 """
 import io, json, os, re, sys
+import _kit
 
 ROOT = os.path.normpath(os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", ".."))
 DOCS = os.path.join(ROOT, "docs")
@@ -186,7 +187,7 @@ def sentence_for(fname):
     if i < 0: return ""
     rest = SRC[i + len(fname): i + len(fname) + 400]
     cut = min([m.start() for m in re.finditer(r"docs/[\w-]+\.json", rest)] or [len(rest)])
-    return re.sub(r"<[^>]+>", " ", rest[:cut])
+    return _kit.prose_of(rest[:cut])
 
 def arc(session):
     """The strategy sequence actually recorded, with repeats collapsed."""

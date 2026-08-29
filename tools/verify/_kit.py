@@ -7,7 +7,8 @@ longer drive a control with select_option() or fill() -- it has to do what a
 finger does. These helpers do that, in one place, so a future FEK change is one
 edit here rather than one per suite.
 """
-import os, sys, re
+import html.parser as _html_parser
+import io, os, sys, re
 from decimal import Decimal, ROUND_HALF_UP
 
 # The boot loader every page in docs/ carries, byte-identical (ADR-066).
@@ -27,6 +28,82 @@ TOOLS_DIR = os.path.join(ROOT, "tools") + os.sep
 def url(name):
     """file:// URL for a page in docs/, whatever the checkout is called."""
     return "file://" + os.path.join(ROOT, "docs", name).replace(os.sep, "/")
+
+
+# ---- reading a page as text, and meaning one thing by it -------------------
+#
+# Four suites each rolled their own `re.sub(r"<[^>]+>", " ", src)`. That is a
+# fine reader for prose and a bad one for a page: a page's JavaScript contains
+# bare < and >, the regex pairs them off, and whole spans -- including prose --
+# vanish. ADR-098 hit this writing an assertion about a widget's `help:` string,
+# which is script content; ADR-099 measured it and found the reverse hazard as
+# well: eleven live assertions that PASS only because the mangled JS is still in
+# the haystack, their visibility decided by accidental bracket pairing somewhere
+# else in the file.
+#
+# So there are two readers here and each says which view it means. A suite that
+# wants what a reader SEES asks for prose(); one that wants what the file SAYS
+# asks for raw(). Neither is a tag-stripper, and no assertion's verdict rests on
+# where a stray `<` happened to fall. tools/audit_readers.py reports any
+# assertion that still depends on the difference.
+
+class _Prose(_html_parser.HTMLParser):
+    """Text a reader would see: script and style dropped, entities left as the
+    file writes them (`&nbsp;` stays `&nbsp;`), which is what the readers this
+    replaces did and what the suites' assertions are written against."""
+
+    def __init__(self):
+        _html_parser.HTMLParser.__init__(self, convert_charrefs=False)
+        self.out, self.skip = [], 0
+
+    def handle_starttag(self, tag, attrs):
+        if tag in ("script", "style"):
+            self.skip += 1
+
+    def handle_endtag(self, tag):
+        if tag in ("script", "style") and self.skip:
+            self.skip -= 1
+
+    def handle_data(self, data):
+        if not self.skip:
+            self.out.append(data)
+
+    def handle_entityref(self, name):
+        if not self.skip:
+            self.out.append("&" + name + ";")
+
+    def handle_charref(self, name):
+        if not self.skip:
+            self.out.append("&#" + name + ";")
+
+
+def page_src(name):
+    """The file, verbatim."""
+    return io.open(os.path.join(ROOT, "docs", name), encoding="utf-8").read()
+
+
+def prose_of(src):
+    """prose(), for a page a suite has already read or altered -- a footer
+    window, a page with its session literal cut out. Same parse, so the two
+    cannot disagree about what a reader sees."""
+    p = _Prose()
+    p.feed(src)
+    p.close()
+    return re.sub(r"\s+", " ", " ".join(p.out))
+
+
+def prose(name):
+    """What the page shows: markup resolved, script and style gone, whitespace
+    collapsed. Tags join with a space, as the tag-stripper did, so an assertion
+    written across a tag boundary reads the same as it always has."""
+    return prose_of(page_src(name))
+
+
+def raw(name):
+    """What the file says, whitespace collapsed. For claims the page renders
+    from script -- a widget's `help:` option -- which prose() cannot see and
+    should not pretend to."""
+    return re.sub(r"\s+", " ", page_src(name))
 
 
 def tool(name):

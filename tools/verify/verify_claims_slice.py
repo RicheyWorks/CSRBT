@@ -6,6 +6,7 @@ This checks the corrections are actually on the page and say what they should,
 and that the finder that surfaced them still finds things.
 """
 import io, os, re
+import _kit
 from playwright.sync_api import sync_playwright
 import os as _os
 # The kit is checked out wherever the user keeps it; these suites used to hard-code
@@ -24,8 +25,13 @@ def ck(c, m):
     if c: P += 1
     else: F += 1; print("FAIL:", m)
 
-def text(f):
-    return re.sub(r"\s+", " ", re.sub(r"<[^>]+>", " ", io.open(DOCS+f, encoding="utf-8").read()))
+# Two readers, each saying which view it means (ADR-099). text() is what the
+# page SHOWS -- script and style dropped by a real parser, not by a bracket
+# regex that a page's own JavaScript defeats. src() is what the file SAYS, for
+# the claims this kit renders out of a widget's `help:` option, which text()
+# cannot see and must not pretend to.
+text = _kit.prose
+src_of = _kit.raw
 
 # ---- 1. the ten-percent rule is labelled, and carries its real range -------
 g = text("ecology-glossary.html")
@@ -55,7 +61,9 @@ ck("disagree between trained observers by 10" not in ss,
    "the unsourced flat 10-20 percentage-point claim is gone")
 
 # ---- 4. rules of thumb say that they are ----------------------------------
-sb = text("soil-bench.html")
+# These two are a widget's `help:` text, which the page renders out of script.
+# They are read from the source, because that is where they live (ADR-099).
+sb = src_of("soil-bench.html")
 ck("Rule of thumb, not a measurement" in sb, "soil-bench labels the bucket and barrow volumes")
 ck("measure your own once" in sb, "soil-bench tells the reader how to replace the guess")
 fc = text("fungal-characters.html")
@@ -100,6 +108,72 @@ import _kit as _k0
 _p0 = _k0.tool("audit_claims").PROBE
 ck("FDA" in _p0 and "APHA" in _p0,
    "the block-level probe now knows the standards the section-level one knew")
+
+# ---- 5b. a page is read through a named reader, never a bracket regex ----
+#
+# ADR-099. `re.sub(r"<...>", " ", page)` is not a tag stripper on a page in this
+# kit: a page's JavaScript carries bare < and >, the regex pairs them off, and
+# whole spans -- prose included -- disappear. It cost ADR-098 two assertions
+# that failed for a reason unrelated to the page they named, and ADR-099
+# measured eleven live assertions whose verdict rested on where a stray bracket
+# happened to fall. _kit.prose / _kit.prose_of / _kit.raw each say which view
+# they mean.
+#
+# The forbidden pattern is ASSEMBLED rather than written, because a rule that
+# spells the thing it forbids trips on itself -- ADR-077, and the reason the
+# probe-marker rule next door is phrased the way it is. COMMENTS are exempt and
+# that is deliberate: a suite may explain the pattern, it may not use one.
+# tools/publish_drift.py is out of scope and stays as it is -- it removes
+# <script> and <style> BEFORE it strips, so its stripper only ever meets markup.
+import tokenize as _tok
+_BAD = "<[" + "^" + ">]+>"
+_forms = tuple('re.%s(r"%s"' % (_fn, _BAD) for _fn in ("sub", "compile"))
+
+def _code_only(path):
+    """The file with its comment tokens blanked, so the rule reads code."""
+    out = io.open(path, encoding="utf-8").read()
+    try:
+        with io.open(path, "rb") as fh:
+            for t in _tok.tokenize(fh.readline):
+                if t.type == _tok.COMMENT:
+                    out = out.replace(t.string, " " * len(t.string))
+    except Exception:
+        return out
+    return out
+
+def _strippers(paths):
+    return sorted(_os.path.basename(f) for f in paths
+                  if any(form in _code_only(f) for form in _forms))
+
+_suites = sorted(_glob.glob(_os.path.join(_here, "verify_*.py")))
+ck(not _strippers(_suites),
+   "no suite reads a page through a bracket-regex tag stripper: %s"
+   % _strippers(_suites))
+
+# and the rule can fail -- seeded both ways, because a lint nobody has watched
+# fire is a lint nobody knows the shape of (ADR-069).
+_cdir = "/tmp/_rdrcan"
+os.makedirs(_cdir, exist_ok=True)
+io.open(_os.path.join(_cdir, "verify_offender.py"), "w", encoding="utf-8").write(
+    "import re" + chr(10) +
+    'text = re.sub(r"' + _BAD + '", " ", open("p.html").read())' + chr(10))
+io.open(_os.path.join(_cdir, "verify_talker.py"), "w", encoding="utf-8").write(
+    '# a suite may explain re.sub(r"' + _BAD + '", " ", src) without using one' + chr(10) +
+    "import _kit" + chr(10) + 'text = _kit.prose("p.html")' + chr(10))
+_seeded = sorted(_glob.glob(_os.path.join(_cdir, "verify_*.py")))
+ck(_strippers(_seeded) == ["verify_offender.py"],
+   "canary: the rule catches a suite that uses one, and exempts a comment "
+   "that only describes one: %s" % _strippers(_seeded))
+
+# the two readers say different things about the same page, and the difference
+# is exactly the case ADR-098 hit: a claim the page renders out of a script.
+_cs_prose, _cs_raw = _k0.prose("collection-sheet.html"), _k0.raw("collection-sheet.html")
+ck("The note under this log" in _cs_raw,
+   "raw() sees a claim the page renders from a widget's help option")
+ck("The note under this log" not in _cs_prose,
+   "and prose() does not pretend to -- script is dropped, not mangled")
+ck("conventional working compromise" in _cs_prose,
+   "while prose() does see the page's own prose")
 
 # ---- 6. the finder still finds ------------------------------------------
 CAN = """<!doctype html><html><head><meta charset="utf-8"><title>c</title></head><body>
@@ -177,12 +251,14 @@ ck("deliberate simplification rather than\n        an oversight" in
    or "deliberate simplification" in bb,
    "and the single floor is declared a simplification, not left to look like an oversight")
 
-cpc2 = text("cp-characters.html")
-ck("Taylor, 1989" in cpc2, "the Utricularia bladder range is cited")
-ck("0.2 to 5 mm" not in cpc2,
+cpc2, cpc2_src = text("cp-characters.html"), src_of("cp-characters.html")
+ck("Taylor, 1989" in cpc2_src, "the Utricularia bladder range is cited")
+# The absence is asserted against the SOURCE, not the rendered text: a string
+# that is gone from the prose but still sitting in a script is not gone.
+ck("0.2 to 5 mm" not in cpc2_src,
    "and the spliced range -- the genus minimum against the usual maximum -- is gone")
 
-mb = text("micro-bench.html")
+mb = src_of("micro-bench.html")
 ck("The conventional volumes are" in mb, "the plating volumes are labelled a convention")
 ck("fixed at 0.1 mL in" in mb and "FDA BAM" in mb,
    "and the spread volume names the standard that fixes it -- ADR-094 offered this "

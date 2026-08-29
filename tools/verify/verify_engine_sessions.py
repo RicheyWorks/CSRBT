@@ -177,7 +177,12 @@ ck("the session carries figures that render as percentages", bool(pcts), sorted(
 
 i = page.index("const SESSION = ")
 rest = page[:i] + page[i + len(raw):]
-prose = re.sub(r"<[^>]+>", " ", re.sub(r"<style\b.*?</style>", " ", rest, flags=re.S | re.I))
+# A real parse, script and style dropped (_kit.prose_of). What this replaced
+# removed <style> and then bracket-stripped, so a page's mangled JavaScript
+# stayed in "prose" -- a percentage sitting in script would have been reported
+# as a restated literal, and any prose between a stray < and the next > was
+# never searched at all. ADR-099.
+prose = _kit.prose_of(rest)
 # CSS widths are not claims; they are excluded by looking only outside <style>
 # and by requiring the number not to be preceded by a colon or a quote.
 literals = []
@@ -266,7 +271,7 @@ for f in sorted(glob.glob(os.path.join(DOCS, "*"))):
         raw_f = io.open(f, encoding="utf-8").read()
     except (UnicodeDecodeError, OSError):
         continue
-    flat = re.sub(r"\s+", " ", re.sub(r"<[^>]+>", " ", raw_f)).replace("*", "")
+    flat = _kit.prose_of(raw_f).replace("*", "")
     for m in PAIR.finditer(flat):
         quoting.append(b)
         if (m.group(1), m.group(2)) != want:
