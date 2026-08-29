@@ -18,6 +18,10 @@ ROOT = os.path.normpath(os.path.join(os.path.dirname(os.path.abspath(__file__)),
 PAGE = "file://" + os.path.join(ROOT, "docs", "experiment-guide.html").replace(os.sep, "/")
 SRC = os.path.join(ROOT, "docs", "experiment-guide.html")
 
+def io_open(path):
+    import io
+    return io.open(path, encoding="utf-8").read()
+
 ok = bad = 0
 def ck(name, cond, got=""):
     global ok, bad
@@ -164,6 +168,43 @@ with sync_playwright() as pw:
     ck("chosen track persisted", not pg.evaluate("document.getElementById('eng-track').hidden"))
     ck("checklist tick persisted", pg.is_checked("#c1"))
     ck("phases persisted", "graze" in pg.text_content("#p-list"))
+
+    # ── import: the reverse path, against the shipped sample ──
+    # Expected counts recomputed from the sample file itself, comments stripped
+    # the way the parser strips them — not transcribed from the page's JS.
+    sample = io_open(os.path.join(ROOT, "docs", "sample-experiment.eco"))
+    dirs = [l for l in (re.sub(r"#.*$", "", raw).strip() for raw in sample.split("\n")) if l]
+    want = {p: sum(1 for l in dirs if l.startswith(p + ":"))
+            for p in ("phase", "model", "data", "expect", "cross", "tree")}
+    pg.click("#tab-designer"); pg.click("#track-eco")
+    pg.click("#imp-card summary")
+    pg.fill("#imp-text", sample); pg.click("#imp-go")
+    ck("import restored every phase", pg.eval_on_selector_all("#p-list .chip", "c => c.length") == want["phase"],
+       (pg.eval_on_selector_all("#p-list .chip", "c => c.length"), want["phase"]))
+    ck("import restored every model", pg.eval_on_selector_all("#m-list .chip", "c => c.length") == want["model"],
+       (pg.eval_on_selector_all("#m-list .chip", "c => c.length"), want["model"]))
+    ck("import restored every dataset", pg.eval_on_selector_all("#d-list .chip", "c => c.length") == want["data"],
+       (pg.eval_on_selector_all("#d-list .chip", "c => c.length"), want["data"]))
+    ck("import restored every hypothesis", pg.eval_on_selector_all("#x-list .chip", "c => c.length") == want["expect"],
+       (pg.eval_on_selector_all("#x-list .chip", "c => c.length"), want["expect"]))
+    ck("import kept the study name", pg.input_value("#e-name") == "meadow disturbance study",
+       pg.input_value("#e-name"))
+    extra = pg.input_value("#e-extra")
+    ck("cross and tree directives kept in the extra box",
+       extra.count("cross:") == want["cross"] and extra.count("tree:") == want["tree"], extra)
+    ck("the shipped sample lints clean", "would parse clean" in pg.text_content("#lint"),
+       pg.text_content("#lint"))
+    # emit → import → emit is a fixed point
+    emit1 = pg.text_content("#eco-out")
+    pg.fill("#imp-text", emit1); pg.click("#imp-go")
+    emit2 = pg.text_content("#eco-out")
+    ck("emit-import-emit is a fixed point", emit1 == emit2,
+       [a for a, b2 in zip(emit1.split("\n"), emit2.split("\n")) if a != b2][:3])
+    # junk survives import into the extra box, where the lint names it
+    pg.fill("#imp-text", "wibble: 1\nphase: x wobble 5"); pg.click("#imp-go")
+    lint = pg.text_content("#lint")
+    ck("imported unknown directive named", "unknown directive 'wibble'" in lint, lint)
+    ck("imported unknown phase kind named", "unknown phase kind 'wobble'" in lint, lint)
 
     b.close()
 

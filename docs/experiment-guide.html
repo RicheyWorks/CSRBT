@@ -63,7 +63,7 @@
   .fine a, .card a { color:var(--s1-deep); }
   /* inline links keep their place in prose but carry a 44px+ touch target */
   .card p a, .fine a, .src a, .story a, td a { display:inline-block; padding:14px 3px; margin:-14px -3px; }
-  input[type=checkbox] { font-size:16px; }
+  input[type=checkbox], input[type=file] { font-size:16px; }
   .src { font-family:var(--mono); font-size:11px; color:var(--muted); }
   .src a { color:var(--muted); }
   .src a:hover { color:var(--s1); }
@@ -287,6 +287,24 @@
 
   <!-- ── ecology track ── -->
   <div id="eco-track">
+    <div class="card" id="imp-card">
+      <details>
+        <summary>Already have a protocol? Import a .eco</summary>
+        <div>
+          <p class="hint">Paste a protocol below, choose a file, or drop one on this card. Importing replaces
+            the Designer's entries and runs the pre-flight lint over what came in. Directives the Designer
+            doesn't edit (<code>cross:</code>, <code>tree:</code>) are kept in the extra-lines box; comments
+            are dropped, the way the parser drops them.</p>
+          <label for="imp-text">Protocol text</label>
+          <textarea id="imp-text" rows="4" placeholder="name: meadow disturbance study&#10;phase: graze uniform 2000&#10;expect: evenness(graze) &gt; 0.9"></textarea>
+          <div class="btnrow">
+            <button type="button" class="btn primary" id="imp-go">Import</button>
+            <button type="button" class="btn" id="imp-file">Choose .eco file&hellip;</button>
+            <input type="file" id="imp-input" accept=".eco,text/plain" hidden>
+          </div>
+        </div>
+      </details>
+    </div>
     <div class="card">
       <h3>Step 1 — name the study</h3>
       <div class="grid4">
@@ -334,12 +352,13 @@
       <h3>Step 3 — set the abiotic stage <span class="src">(optional)</span></h3>
       <p class="hint">Factors scale the theory models' rates and capacities: <code>area</code> scales K and
         extinction pressure, <code>wind</code> scales colonization, <code>temperature</code> multiplies rates,
-        <code>distance</code> decays immigration. 1.0 means "leave it alone."</p>
+        <code>distance</code> decays immigration. Leave a factor at its neutral value to leave it alone —
+        1.0 for the first three, 0 for <code>distance</code> (no isolation).</p>
       <div class="grid4">
         <div><label for="f-area">area</label><input type="number" id="f-area" step="0.1" placeholder="1.0" inputmode="decimal"></div>
         <div><label for="f-wind">wind</label><input type="number" id="f-wind" step="0.1" placeholder="1.0" inputmode="decimal"></div>
         <div><label for="f-temp">temperature</label><input type="number" id="f-temp" step="0.1" placeholder="1.0" inputmode="decimal"></div>
-        <div><label for="f-dist">distance</label><input type="number" id="f-dist" step="0.1" placeholder="1.0" inputmode="decimal"></div>
+        <div><label for="f-dist">distance</label><input type="number" id="f-dist" step="0.1" placeholder="0" inputmode="decimal"></div>
       </div>
     </div>
 
@@ -864,8 +883,28 @@
   var MODEL_ARITY = { levins: 4, logistic: 4, island: 5, exponential: 3,
     competition: 9, predation: 7, hardyweinberg: 3, markrecapture: 3 };
   var TRAJECTORY = { levins: 1, logistic: 1, island: 1, exponential: 1, competition: 1, predation: 1 };
+  /* Parse one phase value ("<name> <kind> <ops> ...") the way parsePhase does.
+     Returns {ph: {...}} or {err: "..."} — bounds are the lint's job. */
+  function phaseFrom(val) {
+    var p = val.trim().split(/\s+/);
+    if (p.length < 3) return { err: "phase needs: <name> <kind> <ops> ..." };
+    var kind = p[1].toLowerCase(), ops = parseInt(p[2], 10);
+    if (isNaN(ops)) return { err: "phase ops must be a whole number, not '" + p[2] + "'" };
+    if (kind === "uniform") return { ph: { name: p[0], kind: "uniform", ops: ops } };
+    if (kind === "hot") {
+      if (p.length < 5) return { err: "hot needs: <ops> <hotSetSize> <hotShare%>" };
+      return { ph: { name: p[0], kind: "hot", ops: ops,
+        hotSet: parseInt(p[3], 10), hotShare: parseInt(p[4], 10) } };
+    }
+    if (kind === "churn") {
+      if (p.length < 4) return { err: "churn needs: <ops> <addPercent>" };
+      return { ph: { name: p[0], kind: "churn", ops: ops, addPct: parseInt(p[3], 10) } };
+    }
+    return { err: "unknown phase kind '" + p[1] + "'" };
+  }
   function modelProblem(kind, params) {
     var toks = params.split(" ");
+    if (kind !== "eulerlotka" && !(kind in MODEL_ARITY)) return "unknown model '" + kind + "'";
     if (kind === "eulerlotka") {
       if (toks.length < 2) return "eulerlotka needs >= 2 lx:mx pairs";
       for (var i = 0; i < toks.length; i++) {
@@ -978,8 +1017,11 @@
     out.push("seed: " + (parseInt($("e-seed").value, 10) || 42));
     out.push("window: " + (parseInt($("e-window").value, 10) || 250));
     if (S.phases.length) { out.push(""); S.phases.forEach(function (p) { out.push(phaseLine(p)); }); }
-    var facts = [["area", "f-area"], ["wind", "f-wind"], ["temperature", "f-temp"], ["distance", "f-dist"]]
-      .filter(function (f) { return $(f[1]).value !== "" && parseFloat($(f[1]).value) !== 1; });
+    // Each factor's NEUTRAL value comes from the parser's own defaults
+    // (area/temperature/wind default 1, distance defaults 0) — emitting nothing
+    // must mean the same thing as emitting the neutral value.
+    var facts = [["area", "f-area", 1], ["wind", "f-wind", 1], ["temperature", "f-temp", 1], ["distance", "f-dist", 0]]
+      .filter(function (f) { return $(f[1]).value !== "" && parseFloat($(f[1]).value) !== f[2]; });
     if (facts.length) { out.push(""); facts.forEach(function (f) { out.push("factor: " + f[0] + " " + parseFloat($(f[1]).value)); }); }
     if (S.models.length) { out.push(""); S.models.forEach(function (m) { out.push("model: " + m.kind + " " + m.params); }); }
     if (S.datasets.length) { out.push(""); S.datasets.forEach(function (d) { out.push("data: " + d.name + " " + d.counts); }); }
@@ -1073,6 +1115,27 @@
 
   /* ── pre-flight lint: the same rules ExperimentSpec.parse applies, before the runner sees the file ── */
   var DIRECTIVE = /^(name|keys|seed|window|phase|factor|model|cross|data|note(\([A-Za-z0-9_-]+\))?|tree|expect):/;
+  var FACTOR_NAMES = ["area", "temperature", "wind", "distance"];
+  /* What's checkably wrong with one free-typed directive line (extra-lines box, imports).
+     cross:/data:/tree:/note:/expect: get their deep checks at parse or grading time. */
+  function extraLineProblem(l) {
+    if (l.indexOf(":") < 0) return "'" + l.slice(0, 40) + "' has no directive — reported, never guessed at";
+    if (!DIRECTIVE.test(l)) return "unknown directive '" + l.split(":")[0] + "'";
+    var key = l.slice(0, l.indexOf(":")).toLowerCase(), val = l.slice(l.indexOf(":") + 1).trim();
+    if (key === "phase") { var r = phaseFrom(val); if (r.err) return r.err; }
+    if (key === "model") {
+      var t = val.split(/\s+/);
+      return modelProblem(t[0].toLowerCase(), t.slice(1).join(" "));
+    }
+    if (key === "factor") {
+      var f = val.split(/\s+/);
+      if (f.length !== 2) return "factor needs: <name> <value>";
+      if (FACTOR_NAMES.indexOf(f[0].toLowerCase()) < 0)
+        return "unknown factor '" + f[0] + "' (area, temperature, wind, distance)";
+      if (!isFinite(parseFloat(f[1]))) return "'" + f[1] + "' is not a number";
+    }
+    return null;
+  }
   function lintEco() {
     var out = [];
     function no(t) { out.push({ sev: "no", tag: "PROBLEM", text: t }); }
@@ -1119,8 +1182,8 @@
     ($("e-extra").value || "").split("\n").forEach(function (l) {
       l = l.replace(/#.*$/, "").trim();
       if (!l) return;
-      if (l.indexOf(":") < 0) no("extra line '" + l.slice(0, 40) + "' has no directive — reported, never guessed at");
-      else if (!DIRECTIVE.test(l)) no("extra line: unknown directive '" + l.split(":")[0] + "'");
+      var bad = extraLineProblem(l);
+      if (bad) no("extra line: " + bad);
     });
     if (!S.phases.length) un("no phases — nothing will be simulated (models and entered data still run)");
     if (!S.expects.length) un("no pre-registered hypotheses — without one, it's a demo, not an experiment");
@@ -1192,6 +1255,86 @@
   }
   $("eco-reset").addEventListener("click", function () { resetAll(true); });
   $("eng-reset").addEventListener("click", function () { resetAll(false); });
+
+  /* ── import: the reverse path — read a .eco back into the Designer ── */
+  function setField(id, v) { $(id).value = v; S.fields[id] = String(v); }
+  function importEco(text) {
+    S.track = "eco";
+    S.phases = []; S.models = []; S.datasets = []; S.expects = [];
+    setField("e-name", ""); setField("e-keys", 100); setField("e-seed", 42); setField("e-window", 250);
+    setField("f-area", ""); setField("f-wind", ""); setField("f-temp", ""); setField("f-dist", "");
+    var notes = [], extra = [];
+    (text || "").split("\n").forEach(function (raw) {
+      var l = raw.replace(/#.*$/, "").trim();
+      if (!l) return;
+      var colon = l.indexOf(":");
+      if (colon < 0) { extra.push(l); return; }
+      var key = l.slice(0, colon).trim().toLowerCase(), val = l.slice(colon + 1).trim();
+      var noteTarget = key.match(/^note\(([A-Za-z0-9_-]+)\)$/);
+      if (noteTarget) { notes.push(noteTarget[1] + ": " + val); return; }
+      switch (key) {
+        case "note": notes.push(val); break;
+        case "name": setField("e-name", val); break;
+        case "keys": setField("e-keys", val); break;
+        case "seed": setField("e-seed", val); break;
+        case "window": setField("e-window", val); break;
+        case "phase": {
+          var r = phaseFrom(val);
+          if (r.ph) S.phases.push(r.ph); else extra.push(l);
+          break;
+        }
+        case "factor": {
+          var f = val.split(/\s+/);
+          var fid = { area: "f-area", wind: "f-wind", temperature: "f-temp", distance: "f-dist" }[(f[0] || "").toLowerCase()];
+          if (f.length === 2 && fid && isFinite(parseFloat(f[1]))) setField(fid, parseFloat(f[1]));
+          else extra.push(l);
+          break;
+        }
+        case "model": {
+          var t = val.split(/\s+/), kind = (t[0] || "").toLowerCase(), params = t.slice(1).join(" ");
+          if (!modelProblem(kind, params)) S.models.push({ kind: kind, params: params });
+          else extra.push(l);
+          break;
+        }
+        case "data": {
+          var d = val.split(/\s+/);
+          if (d.length >= 2 && d[0].indexOf("=") < 0)
+            S.datasets.push({ name: d[0], counts: d.slice(1).join(" ") });
+          else extra.push(l);
+          break;
+        }
+        case "expect": S.expects.push("expect: " + val.replace(/\s+/g, " ")); break;
+        default: extra.push(l);   // cross:, tree:, and anything unknown — the lint sorts them
+      }
+    });
+    setField("e-notes", notes.join("\n"));
+    setField("e-extra", extra.join("\n"));
+    showTrack(); renderPhases(); renderModels(); renderDatasets(); renderExpects();
+    saveState(); rebuild();
+    toast("Imported — " + S.phases.length + " phases, " + S.models.length + " models, " +
+          S.datasets.length + " datasets, " + S.expects.length + " hypotheses" +
+          (extra.length ? ", " + extra.length + " extra lines" : ""));
+  }
+  $("imp-go").addEventListener("click", function () {
+    var t = $("imp-text").value;
+    if (!t.trim()) { toast("Paste a protocol first"); return; }
+    importEco(t); $("imp-text").value = "";
+  });
+  $("imp-file").addEventListener("click", function () { $("imp-input").click(); });
+  function importFile(file) {
+    if (!file) return;
+    var rd = new FileReader();
+    rd.onload = function () { importEco(String(rd.result)); };
+    rd.readAsText(file);
+  }
+  $("imp-input").addEventListener("change", function () {
+    importFile($("imp-input").files[0]); $("imp-input").value = "";
+  });
+  $("imp-card").addEventListener("dragover", function (e) { e.preventDefault(); });
+  $("imp-card").addEventListener("drop", function (e) {
+    e.preventDefault();
+    if (e.dataTransfer && e.dataTransfer.files && e.dataTransfer.files.length) importFile(e.dataTransfer.files[0]);
+  });
 
   /* ── checklist ── */
   for (var i = 1; i <= 10; i++) (function (id) {
