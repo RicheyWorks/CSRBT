@@ -59,8 +59,22 @@ with sync_playwright() as pw:
     pg.select_option("#p-kind", "churn"); pg.fill("#p-name", "seasons"); pg.fill("#p-addpct", "55"); pg.click("#p-add")
     pg.select_option("#m-kind", "logistic"); pg.fill("#m-params", "0.15 120 5 60"); pg.click("#m-add")
     pg.fill("#d-name", "pondA"); pg.fill("#d-counts", "cattail=18 duckweed=44"); pg.click("#d-add")
+    # a dataset may not take a name a phase already holds — even the FIRST one
+    n_ds = pg.eval_on_selector_all("#d-list .chip", "c => c.length")
+    pg.fill("#d-name", "graze"); pg.fill("#d-counts", "x=1"); pg.click("#d-add")
+    ck("dataset colliding with a phase name refused",
+       pg.eval_on_selector_all("#d-list .chip", "c => c.length") == n_ds)
+    ck("collision refusal names the rule", "is taken" in pg.text_content("#toast"),
+       pg.text_content("#toast"))
+    pg.fill("#d-name", ""); pg.fill("#d-counts", "")
+    # a malformed eulerlotka is refused with the parser's own words
+    pg.select_option("#m-kind", "eulerlotka"); pg.fill("#m-params", "1.0:0"); pg.click("#m-add")
+    ck("eulerlotka refusal uses the parser's message",
+       "eulerlotka needs >= 2 lx:mx pairs" in pg.text_content("#toast"), pg.text_content("#toast"))
+    pg.fill("#m-params", "")
     pg.fill("#f-area", "0.5")
-    pg.fill("#e-notes", "sampled after two dry weeks\nbloom: five keys took the traffic")
+    # one note targets graze — the FIRST community, index 0, the classic off-by-one seat
+    pg.fill("#e-notes", "sampled after two dry weeks\nbloom: five keys took the traffic\ngraze: even traffic, as designed")
     pg.select_option("#x-metric", "evenness"); pg.fill("#x-args", "graze")
     pg.select_option("#x-op", ">"); pg.fill("#x-val", "0.9"); pg.click("#x-add")
     pg.select_option("#x-metric", "brayCurtis"); pg.fill("#x-args", "graze"); pg.click("#x-add")   # must refuse
@@ -78,6 +92,7 @@ with sync_playwright() as pw:
                  "data: pondA cattail=18 duckweed=44",
                  "note: sampled after two dry weeks",
                  "note(bloom): five keys took the traffic",
+                 "note(graze): even traffic, as designed",
                  "expect: evenness(graze) > 0.9",
                  "expect: brayCurtis(graze, bloom) > 0.5",
                  "expect: survivorship is type3"]:
@@ -153,6 +168,9 @@ with sync_playwright() as pw:
     pg.fill("#g-floor", "reading the bytes once")
     pg.fill("#g-sizes", "20000, 60000")
     pg.fill("#g-rule", "fires above 5x the floor")
+    # empty measurement rows print blanks, never the token "undefined"
+    ck("blank rows print blanks", "undefined" not in pg.text_content("#eng-out"),
+       pg.text_content("#eng-out"))
     lint = pg.text_content("#eng-lint")
     ck("eng lint clean once question, floor, rule, sizes are in",
        "pre-registration complete" in lint, lint)
@@ -181,6 +199,12 @@ with sync_playwright() as pw:
     pre = pg.text_content("#eng-out")
     want_row = "| 60000 | 29 | 61 | 434 | 1 | %g | %d× |" % (total, ratio)
     ck("table row computed from entered numbers", want_row in pre, pre)
+    # rows are in, verdict is not declared yet: the slot stays honestly empty,
+    # and no incomplete cell ever prints as the token "undefined" (the NaN-in-
+    # session.json failure class, ADR-019's edge-case pass, on this page)
+    ck("verdict slot still empty with rows in but nothing declared",
+       "append after the run" in pre, pre[-200:])
+    ck("no undefined leaks into the table", "undefined" not in pre, pre)
     ck("computed line shows the ratio against the floor",
        ("%d× the floor" % ratio) in pg.text_content("#meas"), pg.text_content("#meas"))
     # with a rule and a complete row, the declaration lands verbatim
@@ -200,10 +224,14 @@ with sync_playwright() as pw:
        "Infinity" not in pg.text_content("#eng-out") and "NaN" not in pg.text_content("#eng-out"))
 
     # ── persistence: entries survive a reload (guarded storage) ──
-    pg.click("#tab-checklist"); pg.check("#c1")
+    pg.click("#tab-checklist"); pg.check("#c1"); pg.check("#c10")
     pg.reload(wait_until="domcontentloaded"); pg.wait_for_timeout(300)
     ck("chosen track persisted", not pg.evaluate("document.getElementById('eng-track').hidden"))
     ck("checklist tick persisted", pg.is_checked("#c1"))
+    ck("the LAST checklist tick persisted too (inclusive loop bound)", pg.is_checked("#c10"))
+    pg.click("#tab-checklist"); pg.click("#cl-clear")
+    ck("clear reaches the last box as well", not pg.is_checked("#c10") and not pg.is_checked("#c1"))
+    pg.check("#c1"); pg.check("#c3")
     ck("phases persisted", "graze" in pg.text_content("#p-list"))
     ck("measurements persisted", pg.input_value('input[aria-label="scan (ms) at n = 60000"]') == "434",
        pg.input_value('input[aria-label="scan (ms) at n = 60000"]'))
@@ -246,6 +274,41 @@ with sync_playwright() as pw:
     lint = pg.text_content("#lint")
     ck("imported unknown directive named", "unknown directive 'wibble'" in lint, lint)
     ck("imported unknown phase kind named", "unknown phase kind 'wobble'" in lint, lint)
+    # the smallest legal data line — label plus ONE count — imports as a dataset
+    pg.fill("#imp-text", "name: tiny\ndata: solo cattail=3"); pg.click("#imp-go")
+    ck("two-token data line imports as a dataset",
+       pg.eval_on_selector_all("#d-list .chip", "c => c.length") == 1
+       and "solo" in pg.text_content("#d-list"), pg.text_content("#d-list"))
+
+    # ── the copy path, exercised both ways ──
+    # (a) clipboard present: capture what lands on it and pin the emitted texts
+    ctx2 = b.new_context(viewport={"width": 390, "height": 844})
+    ctx2.add_init_script(
+        "Object.defineProperty(navigator, 'clipboard', {get: () => ({"
+        "writeText: t => { window.__copied = t; return Promise.resolve(); }})});")
+    p2 = ctx2.new_page()
+    p2.on("pageerror", lambda e: errors.append("clip: " + str(e)))
+    p2.goto(PAGE, wait_until="domcontentloaded"); p2.wait_for_timeout(300)
+    p2.click("#tab-designer"); p2.click("#track-eco")
+    p2.fill("#e-name", "copy check"); p2.fill("#p-name", "graze"); p2.click("#p-add")
+    p2.click("#eco-copy"); p2.wait_for_timeout(100)
+    copied = p2.evaluate("window.__copied || ''")
+    ck("Copy .eco puts the emitted protocol on the clipboard",
+       "name: copy check" in copied and "phase: graze uniform 2000" in copied, copied[:200])
+    p2.click("#track-eng"); p2.click("#eng-skel"); p2.wait_for_timeout(100)
+    skel = p2.evaluate("window.__copied || ''")
+    for want in ["static final long SEED", "TIMED_PASSES", "java.util.Arrays.sort(t)",
+                 "t[TIMED_PASSES / 2]", "Math.max(1, floor)", "measureFloor"]:
+        ck("skeleton carries %r" % want, want in skel, skel[:300])
+    # (b) clipboard absent: the fallback path answers with a toast, never a crash
+    ctx3 = b.new_context(viewport={"width": 390, "height": 844})
+    ctx3.add_init_script("Object.defineProperty(navigator, 'clipboard', {get: () => undefined});")
+    p3 = ctx3.new_page()
+    p3.on("pageerror", lambda e: errors.append("noclip: " + str(e)))
+    p3.goto(PAGE, wait_until="domcontentloaded"); p3.wait_for_timeout(300)
+    p3.click("#tab-designer"); p3.click("#track-eco"); p3.click("#eco-copy"); p3.wait_for_timeout(150)
+    ck("copy without a clipboard falls back and speaks",
+       p3.text_content("#toast").strip() != "", p3.text_content("#toast"))
 
     b.close()
 

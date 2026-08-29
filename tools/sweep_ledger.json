@@ -392,6 +392,14 @@
       "killed": 30,
       "survived": 0,
       "fresh": 0
+    },
+    {
+      "page": "experiment-guide.html",
+      "adr": "ADR-095",
+      "source": "tool",
+      "killed": 20,
+      "survived": 5,
+      "fresh": 0
     }
   ]
 }

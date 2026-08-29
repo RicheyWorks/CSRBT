@@ -262,6 +262,23 @@ KNOWN_EQUIVALENT = [
     ("lte->lt", "sq<=0",
      "the squares-counted guard; same clamp, measured: typing 0 or -3 both "
      "yield hidden cSq = 1"),
+    # experiment-guide.html, first sweep (ADR-095): five examined, all measured.
+    ("gte->gt", "(r >= 10",
+     "experiment-guide fmtRatio's rounding boundary: the operators differ only "
+     "at r == 10 exactly, where Math.round(10) and Math.round(100)/10 both "
+     "render '10\u00d7' -- measured at the boundary"),
+    ("and->or", "(k) { return row[k]",
+     "experiment-guide rowComplete: the defined/non-empty clauses are subsumed "
+     "by isFinite(parseFloat(...)) -- undefined and '' both parse to NaN, so "
+     "the disjunction cannot change the verdict; kept for readability"),
+    ("and->or", 'row[k] !== "" && i',
+     "the second conjunction of the same subsumed guard, same reason"),
+    ("and->or", "(p) { return row[p]",
+     "experiment-guide table cells: the mutant pushes undefined, which "
+     "Array.join renders as the empty string -- one space of markdown cell "
+     "padding, and markdown renders both identically; measured"),
+    ("and->or", "ells.push(row.floor",
+     "the floor cell of the same row builder, same join behaviour"),
 ]
 
 
