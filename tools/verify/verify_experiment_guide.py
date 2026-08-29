@@ -162,12 +162,53 @@ with sync_playwright() as pw:
         ck("pre-registration carries %r" % want, want in pre, pre[:300])
     ck("the verdict slot is explicit and empty before the run", "VERDICT:" in pre and "append after the run" in pre, pre[-160:])
 
+    # ── the verdict step: computed ratios, and a declaration the page guards ──
+    # a verdict clicked before any measured row leaves the slot empty
+    pg.click("#vd-fires")
+    ck("verdict refused before measurements", "append after the run" in pg.text_content("#eng-out"),
+       pg.text_content("#eng-out")[-160:])
+    pg.fill("#g-phases", "inflate, recover, scan")
+    n_inputs = pg.eval_on_selector_all("#meas input", "i => i.length")
+    ck("measurement inputs: (3 phases + floor) x 2 sizes", n_inputs == 8, n_inputs)
+    # the cold-scan numbers at n=60000; expected values recomputed here, not transcribed
+    inflate, recover, scan, floor = 29.0, 61.0, 434.0, 1.0
+    total = inflate + recover + scan
+    ratio = round(total / floor)
+    pg.fill('input[aria-label="inflate (ms) at n = 60000"]', "29")
+    pg.fill('input[aria-label="recover (ms) at n = 60000"]', "61")
+    pg.fill('input[aria-label="scan (ms) at n = 60000"]', "434")
+    pg.fill('input[aria-label="floor (ms) at n = 60000"]', "1")
+    pre = pg.text_content("#eng-out")
+    want_row = "| 60000 | 29 | 61 | 434 | 1 | %g | %d× |" % (total, ratio)
+    ck("table row computed from entered numbers", want_row in pre, pre)
+    ck("computed line shows the ratio against the floor",
+       ("%d× the floor" % ratio) in pg.text_content("#meas"), pg.text_content("#meas"))
+    # with a rule and a complete row, the declaration lands verbatim
+    pg.fill("#g-verdict-note", "524x against a 5x bar - fire it")
+    pg.click("#vd-fires")
+    pre = pg.text_content("#eng-out")
+    ck("declared verdict lands in house style",
+       "**VERDICT: THE TRIGGER FIRES** — 524x against a 5x bar - fire it" in pre, pre[-220:])
+    # a floor of zero yields no ratio, never a division artifact
+    pg.fill('input[aria-label="inflate (ms) at n = 20000"]', "1")
+    pg.fill('input[aria-label="recover (ms) at n = 20000"]', "1")
+    pg.fill('input[aria-label="scan (ms) at n = 20000"]', "1")
+    pg.fill('input[aria-label="floor (ms) at n = 20000"]', "0")
+    ck("zero floor shows no ratio", "| 20000 | 1 | 1 | 1 | 0 | 3 | — |" in pg.text_content("#eng-out"),
+       pg.text_content("#eng-out"))
+    ck("no Infinity or NaN leaks into the report",
+       "Infinity" not in pg.text_content("#eng-out") and "NaN" not in pg.text_content("#eng-out"))
+
     # ── persistence: entries survive a reload (guarded storage) ──
     pg.click("#tab-checklist"); pg.check("#c1")
     pg.reload(wait_until="domcontentloaded"); pg.wait_for_timeout(300)
     ck("chosen track persisted", not pg.evaluate("document.getElementById('eng-track').hidden"))
     ck("checklist tick persisted", pg.is_checked("#c1"))
     ck("phases persisted", "graze" in pg.text_content("#p-list"))
+    ck("measurements persisted", pg.input_value('input[aria-label="scan (ms) at n = 60000"]') == "434",
+       pg.input_value('input[aria-label="scan (ms) at n = 60000"]'))
+    ck("verdict persisted", "THE TRIGGER FIRES" in pg.text_content("#eng-out"),
+       pg.text_content("#eng-out")[-160:])
 
     # ── import: the reverse path, against the shipped sample ──
     # Expected counts recomputed from the sample file itself, comments stripped

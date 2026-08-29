@@ -515,6 +515,33 @@
     </div>
 
     <div class="card">
+      <h3>Step 4 — after the run: the numbers</h3>
+      <p class="hint">Come back once the run is done. Enter what you measured (milliseconds) and the floor;
+        totals and the ratio against the floor are computed for you and land in the table below.
+        Until then this step waits — the rule above was written first, and it stays written.</p>
+      <div id="meas"><p class="empty">Enter sizes in Step 2 to open measurement rows.</p></div>
+    </div>
+
+    <div class="card">
+      <h3>Step 5 — declare the verdict</h3>
+      <p class="hint">The page computes ratios; it does not decide. Read your rule, read the numbers, and say
+        which way it went. The house style puts verdict, bar, and consequence in one sentence — the
+        Grading tab shows three real ones.</p>
+      <div class="choice" role="group" aria-label="Verdict">
+        <button type="button" id="vd-fires"><div class="t">&#128293; THE TRIGGER FIRES</div>
+          <div class="d">the measured cost cleared the bar — the held feature earns its build</div></button>
+        <button type="button" id="vd-held"><div class="t">&#9202;&#65039; STAYS HELD</div>
+          <div class="d">the bar wasn't met — the seam waits, and the price is now on record</div></button>
+        <button type="button" id="vd-dead"><div class="t">&#9760;&#65039; PRICED DEAD</div>
+          <div class="d">the workaround everyone would reach for was measured unviable</div></button>
+        <button type="button" id="vd-clear"><div class="t">&#8634; No verdict yet</div>
+          <div class="d">clear the declaration — the report keeps its empty slot</div></button>
+      </div>
+      <div><label for="g-verdict-note">The verdict sentence <span class="src">(measured number beside the bar, then the consequence)</span></label>
+        <input type="text" id="g-verdict-note" placeholder="524x against a 5x bar - the columnar cold format is unlocked, format ADR first" autocomplete="off"></div>
+    </div>
+
+    <div class="card">
       <h3>Your pre-registration</h3>
       <div class="lint" id="eng-lint" aria-live="polite"></div>
       <pre class="out" id="eng-out" aria-label="Generated pre-registration"></pre>
@@ -747,6 +774,7 @@
   var S = loadState();
   S.phases = S.phases || []; S.models = S.models || []; S.datasets = S.datasets || [];
   S.expects = S.expects || []; S.fields = S.fields || {}; S.ticks = S.ticks || {};
+  S.meas = S.meas || {}; S.verdict = S.verdict || null;
   S.track = S.track === "eng" ? "eng" : "eco";
 
   /* ── toast ── */
@@ -802,7 +830,7 @@
   /* ── field persistence (plain inputs + textareas) ── */
   var FIELDS = ["e-name", "e-keys", "e-seed", "e-window", "f-area", "f-wind", "f-temp", "f-dist",
     "e-notes", "e-extra", "g-question", "g-floor", "g-workload", "g-sizes", "g-seed", "g-passes",
-    "g-phases", "g-rule", "g-stakes"];
+    "g-phases", "g-rule", "g-stakes", "g-verdict-note"];
   FIELDS.forEach(function (id) {
     var el = $(id);
     if (S.fields[id] !== undefined && S.fields[id] !== "") el.value = S.fields[id];
@@ -1042,14 +1070,120 @@
     return out.join("\n") + "\n";
   }
 
-  /* ── the pre-registration + skeleton emitters ── */
+  /* ── measurements: the numbers, entered after the run ── */
   function val(id, fallback) { return ($(id).value || "").trim() || fallback; }
+  function measSizes() {
+    return val("g-sizes", "").split(",").map(function (s) { return parseInt(s.trim(), 10); })
+      .filter(function (n) { return n > 0; })
+      .filter(function (n, i, a) { return a.indexOf(n) === i; });
+  }
+  function measPhases() {
+    var p = val("g-phases", "").split(",").map(function (s) { return s.trim(); }).filter(Boolean);
+    return p.length ? p : ["route"];
+  }
+  function rowOf(size) { return S.meas[size] || {}; }
+  function rowComplete(size) {
+    var row = rowOf(size), keys = measPhases().concat(["floor"]);
+    return keys.every(function (k) { return row[k] !== undefined && row[k] !== "" && isFinite(parseFloat(row[k])); });
+  }
+  function rowTotal(size) {
+    return measPhases().reduce(function (t, k) { return t + parseFloat(rowOf(size)[k]); }, 0);
+  }
+  function fmtMs(x) { return (Math.round(x * 10) / 10) + " ms"; }
+  function fmtRatio(total, floor) {
+    if (!(floor > 0)) return "—";
+    var r = total / floor;
+    return (r >= 10 ? Math.round(r) : Math.round(r * 10) / 10) + "×";
+  }
+  function anyCompleteRow() { return measSizes().some(rowComplete); }
+  function computedLine(size) {
+    if (!rowComplete(size)) return "waiting for every cell — totals appear when the row is complete";
+    var t = rowTotal(size), f = parseFloat(rowOf(size).floor);
+    return "total " + fmtMs(t) + " · floor " + fmtMs(f) + " · " + fmtRatio(t, f) + " the floor";
+  }
+  function renderMeas() {
+    var box = $("meas");
+    while (box.firstChild) box.removeChild(box.firstChild);
+    var sizes = measSizes();
+    if (!sizes.length) {
+      var e = document.createElement("p"); e.className = "empty";
+      e.textContent = "Enter sizes in Step 2 to open measurement rows.";
+      box.appendChild(e); return;
+    }
+    sizes.forEach(function (size) {
+      var wrap = document.createElement("div");
+      wrap.style.cssText = "border-top:1px dashed var(--border); padding:10px 0 4px; margin-top:8px;";
+      var head = document.createElement("b"); head.textContent = "n = " + size;
+      wrap.appendChild(head);
+      var grid = document.createElement("div"); grid.className = "grid4";
+      measPhases().concat(["floor"]).forEach(function (k) {
+        var cell = document.createElement("div");
+        var lab = document.createElement("label");
+        lab.textContent = k === "floor" ? "floor (ms)" : k + " (ms)";
+        var inp = document.createElement("input");
+        inp.type = "number"; inp.step = "any"; inp.min = "0"; inp.inputMode = "decimal";
+        inp.setAttribute("aria-label", lab.textContent + " at n = " + size);
+        if (rowOf(size)[k] !== undefined) inp.value = rowOf(size)[k];
+        inp.addEventListener("input", function () {
+          if (!S.meas[size]) S.meas[size] = {};
+          S.meas[size][k] = inp.value;
+          comp.textContent = computedLine(size);
+          saveState(); rebuild();
+        });
+        cell.appendChild(lab); cell.appendChild(inp); grid.appendChild(cell);
+      });
+      wrap.appendChild(grid);
+      var comp = document.createElement("div"); comp.className = "fine";
+      comp.textContent = computedLine(size);
+      wrap.appendChild(comp);
+      box.appendChild(wrap);
+    });
+  }
+  ["g-sizes", "g-phases"].forEach(function (id) {
+    $(id).addEventListener("input", renderMeas);
+  });
+
+  /* ── the verdict: declared by the researcher, never by the page ── */
+  var VERDICT_WORDS = { fires: "THE TRIGGER FIRES", held: "STAYS HELD", dead: "PRICED DEAD" };
+  function paintVerdict() {
+    ["fires", "held", "dead"].forEach(function (v) {
+      $("vd-" + v).classList.toggle("on", S.verdict === v);
+    });
+  }
+  ["fires", "held", "dead"].forEach(function (v) {
+    $("vd-" + v).addEventListener("click", function () {
+      if (!val("g-rule", "")) { toast("No rule, no verdict — write the rule first (Step 3)"); return; }
+      if (!anyCompleteRow()) { toast("Enter the measured numbers first (Step 4)"); return; }
+      S.verdict = v; paintVerdict(); saveState(); rebuild();
+    });
+  });
+  $("vd-clear").addEventListener("click", function () {
+    S.verdict = null; paintVerdict(); saveState(); rebuild();
+  });
+
+  /* ── the pre-registration + skeleton emitters ── */
   function buildPrereg() {
     var q = val("g-question", "(one sentence: what are you measuring?)");
     var today = new Date().toISOString().slice(0, 10);
-    var phases = val("g-phases", "").split(",").map(function (s) { return s.trim(); }).filter(Boolean);
-    var header = ["n"].concat(phases.length ? phases : ["route"]).concat(["total", "total/floor"]);
+    var phases = measPhases();
+    var header = ["n"].concat(phases.map(function (p) { return p + " (ms)"; }))
+      .concat(["floor (ms)", "total (ms)", "total/floor"]);
     var line = function (cells) { return "| " + cells.join(" | ") + " |"; };
+    var sizes = measSizes();
+    var rows = sizes.length ? sizes.map(function (size) {
+      var row = rowOf(size);
+      var cells = [String(size)].concat(phases.map(function (p) { return row[p] !== undefined && row[p] !== "" ? row[p] : " "; }));
+      cells.push(row.floor !== undefined && row.floor !== "" ? row.floor : " ");
+      if (rowComplete(size)) {
+        var t = rowTotal(size);
+        cells.push(String(Math.round(t * 10) / 10), fmtRatio(t, parseFloat(row.floor)));
+      } else cells.push(" ", " ");
+      return line(cells);
+    }) : [line(header.map(function () { return " "; }))];
+    var verdict = (S.verdict && anyCompleteRow())
+      ? "**VERDICT: " + VERDICT_WORDS[S.verdict] + "** — " +
+        val("g-verdict-note", "(write the sentence: the measured number beside the bar, then the consequence)")
+      : "**VERDICT:** _append after the run — the measured number beside the bar, and what it means._";
     return [
       "## Experiment — " + q,
       "",
@@ -1059,17 +1193,17 @@
       "**Workload:** " + val("g-workload", "(shape and generator)") + "; sizes: " + val("g-sizes", "(n, ...)") +
         "; seed " + val("g-seed", "42") + ".",
       "**Timing:** one untimed warm-up pass, then " + val("g-passes", "3") +
-        " timed passes on fresh state, median kept" + (phases.length ? "; phases timed separately." : "."),
+        " timed passes on fresh state, median kept" + (val("g-phases", "") ? "; phases timed separately." : "."),
       "",
       line(header),
-      line(header.map(function () { return "---"; })),
-      line(header.map(function () { return " "; })),
+      line(header.map(function () { return "---"; }))
+    ].concat(rows).concat([
       "",
       "**Pre-registered rule:** " + val("g-rule", "(the bar, and what clearing it means)"),
       "**If it fails the bar:** " + val("g-stakes", "(what is recorded, what stays held)"),
       "",
-      "**VERDICT:** _append after the run — the measured number beside the bar, and what it means._"
-    ].join("\n") + "\n";
+      verdict
+    ]).join("\n") + "\n";
   }
   function buildSkeleton() {
     var q = val("g-question", "what does the route cost?");
@@ -1245,11 +1379,12 @@
       ["e-keys", "e-seed", "e-window"].forEach(function (id) { delete S.fields[id]; });
       renderPhases(); renderModels(); renderDatasets(); renderExpects();
     } else {
-      ["g-question", "g-floor", "g-workload", "g-sizes", "g-phases", "g-rule", "g-stakes"].forEach(function (id) {
+      ["g-question", "g-floor", "g-workload", "g-sizes", "g-phases", "g-rule", "g-stakes", "g-verdict-note"].forEach(function (id) {
         $(id).value = ""; delete S.fields[id];
       });
       $("g-seed").value = 42; $("g-passes").value = 3;
       delete S.fields["g-seed"]; delete S.fields["g-passes"];
+      S.meas = {}; S.verdict = null; paintVerdict(); renderMeas();
     }
     saveState(); rebuild(); toast("Cleared");
   }
@@ -1350,7 +1485,8 @@
   });
 
   /* ── boot ── */
-  showTrack(); renderPhases(); renderModels(); renderDatasets(); renderExpects(); rebuild();
+  showTrack(); renderPhases(); renderModels(); renderDatasets(); renderExpects();
+  renderMeas(); paintVerdict(); rebuild();
 })();
 </script>
 
