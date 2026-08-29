@@ -151,6 +151,8 @@
     .tabbar, .btnrow, .toast, .top a { display:none !important; }
     .pane { display:block !important; }
     .pane + .pane { page-break-before:always; }
+    /* paper carries the whole document: both Designer tracks print, whichever was active */
+    #eco-track, #eng-track { display:block !important; }
     .card, .story, details { box-shadow:none; break-inside:avoid; }
     details { border:1px solid #bbb; }
     details:not([open]) > div { display:block; }
