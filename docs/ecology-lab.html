@@ -624,7 +624,7 @@ function renderStations(S) {
              <b>${fmt(a.observed * 100, 0)}%</b>: the model reads <b>${fmt(Math.abs(gap) * 100, 0)} points
              ${dir}</b> the snapshot. Across these <b>${a.timeline.length}</b> surveys occupancy swung between
              <b>${fmt(lo * 100, 0)}%</b> and <b>${fmt(hi * 100, 0)}%</b> — a
-             <b>${fmt(swing * 100, 0)}-point</b> range, wider than the ±15-point agreement band, so a run
+             <b>${fmt(swing * 100, 0)}-point</b> range, wider than the conventional ±15-point agreement band, so a run
              that ends on a peak is scored as disagreement even when nothing is wrong. That gap is the
              lesson: the model averages the storm cycle, the tile above reports one moment, and events
              between surveys are invisible.`}</p>`);
@@ -651,7 +651,8 @@ function renderStations(S) {
       (f.meanStructural !== undefined ?
         `<p class="reading"><b>Two kinds of heredity:</b> ${fmt(f.meanContent * 100, 1)}% of keys survive a generation,
          but only ${fmt(f.meanStructural * 100, 1)}% of the physical nodes — the gap is the price of path copying:
-         every edit rewrites its ancestors even though their keys persist.</p>` : ""));
+         every edit rewrites its ancestors even though their keys persist.
+         <span class="src">Both figures are means over the per-transition table below.</span></p>` : ""));
     const gens = f.generations.filter(g => g.inherited !== undefined);
     const w = document.createElement("div");
     w.innerHTML = "<p class='h3'>Inherited fraction, each stratum → the next</p>";

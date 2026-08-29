@@ -904,7 +904,7 @@ var FEK = (function(){
              {value:"random",label:"random",sub:"no pattern",ramp:2},
              {value:"clumped",label:"clumped",sub:"patchy",ramp:5}],
     onchange:function(v){ G.q3=v||null; },
-    help:"Ordered from most to least uniform. Clumped is the common answer in real vegetation and the one variance-to-mean above 1 points to." });
+    help:"Ordered from most to least uniform. Clumped is the common answer in real vegetation and the one variance-to-mean above 1 points to — a random (Poisson) pattern has ratio 1 by definition." });
   FEK.mount("q3Entry",[Q3]);
 
   var Q4=FEK.field({ label:"Q4 · voles here", unit:"N̂", dec:0, step:1, min:1,

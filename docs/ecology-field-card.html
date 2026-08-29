@@ -201,7 +201,7 @@
         <tr><td class="m">Event rate</td><td class="band">count ÷ observed minutes. Point sampling cannot produce one</td></tr>
         <tr><td class="m">Mean bout</td><td class="band">continuous recording only; entirely a function of how the state's <em>end</em> was defined</td></tr>
         <tr><td class="m">Cohen's&nbsp;&kappa;</td><td class="band">(p<sub>o</sub>&minus;p<sub>e</sub>)/(1&minus;p<sub>e</sub>). Bands are convention, not result. Depressed when one category dominates</td></tr>
-        <tr><td class="m">Transitions</td><td class="band">first-order Markov; diagonal structurally empty. Rows under 5 transitions are noise</td></tr>
+        <tr><td class="m">Transitions</td><td class="band">first-order Markov; diagonal structurally empty. Rows under 5 transitions are noise — a rule of thumb</td></tr>
       </table>
     </div>
 
@@ -226,8 +226,8 @@
         <tr><th>Metric</th><th>Reads</th></tr>
         <tr><td class="m">Counting CV</td><td class="band">1/&radic;N. 100 cells = ±10%, 400 = ±5%. The floor on every count</td></tr>
         <tr><td class="m">cells/mL</td><td class="band">(cells ÷ squares) × chamber factor × dilution. the conventional <em>20&ndash;50</em> per square: fewer imprecise, more <b>undercount</b></td></tr>
-        <tr><td class="m">Viability</td><td class="band">trypan blue is membrane integrity, not viability. <em>&lt;80%</em> suspect handling first</td></tr>
-        <tr><td class="m">Doubling time</td><td class="band">Δt ÷ log₂(N_f/N_i). Exponential phase only; &gt;80% confluent makes it too long</td></tr>
+        <tr><td class="m">Viability</td><td class="band">trypan blue is membrane integrity, not viability. Below the conventional <em>80%</em>, suspect handling first</td></tr>
+        <tr><td class="m">Doubling time</td><td class="band">Δt ÷ log₂(N_f/N_i). Exponential phase only; past the conventional &gt;80% confluence it reads long</td></tr>
         <tr><td class="m">Standard curve</td><td class="band">high r² ≠ valid. Above the top standard is <b>extrapolation, not measurement</b> — dilute</td></tr>
         <tr><td class="m">A260/A280</td><td class="band">≈1.8 DNA, ≈2.0 RNA — conventions, buffer-sensitive, silent about integrity</td></tr>
         <tr><td class="m">Mitotic index</td><td class="band">dividing ÷ total. Phase durations assume asynchrony, known cycle, equal visibility — the last is false</td></tr>
