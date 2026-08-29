@@ -517,7 +517,7 @@
         <em>unrecorded</em> &mdash; the box is dashed and the slider says so in words rather than parking
         at zero. A confluency of 0% is a real observation and an unrecorded confluency is not, and the two
         must not collapse into each other. Tap once on an empty cycle-length stepper and it starts at a
-        plausible 24&nbsp;h rather than at zero, because zero is never the value you meant.</p>
+        conventional 24&nbsp;h rather than at zero, because zero is never the value you meant.</p>
       <p><b>The mitotic index computes without a cycle length.</b> Supply one and the phase durations
         follow; leave it blank and you still get the index, without the page inventing a cycle to
         multiply by.</p>
@@ -539,7 +539,7 @@
         beside every count and says which side of the range you are on.</p>
       <div class="eq">cells/mL = (cells counted / squares counted) × chamber factor × dilution factor</div>
       <p class="fine">The chamber factor is 10⁴ for a standard Neubauer at 0.1 mm depth, because one large
-        square holds 0.1 µL. If your chamber differs, so does the factor — check it rather than assuming.</p>
+        square holds 0.1 µL (1 mm × 1 mm × 0.1 mm = 0.1 µL, and 0.1 µL × 10⁴ = 1 mL). If your chamber differs, so does the factor — check it rather than assuming.</p>
     </div>
 
     <div class="card">
@@ -946,7 +946,7 @@ var FEK = (function(){
 
   var CSQ=FEK.step({ field:"cSq", label:"large squares counted", value:4, min:1, max:25, step:1, dec:0,
     onchange:function(v){ push("cSq",v); },
-    help:"The 1 mm corner squares you actually counted, not the ones on the grid." });
+    help:"The corner squares you actually counted, not the ones on the grid — 1 mm on a side by definition of the improved Neubauer ruling." });
   var CLIVE=FEK.field({ field:"cLive", label:"live cells counted", dec:0, step:1, min:0,
     onchange:function(v){ push("cLive",v); },
     help:"The total across those squares — type what your clicker says." });

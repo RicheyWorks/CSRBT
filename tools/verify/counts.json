@@ -1,6 +1,6 @@
 {
  "_comment": "Written by run_all.py. n is what the suite counted; sha identifies the suite source it was counted from. A count whose sha no longer matches says nothing about the suite as it stands -- rerun run_all.",
- "at": 1787905047,
+ "at": 1787991727,
  "suites": {
   "verify_advertised": {
    "green": true,
@@ -28,21 +28,21 @@
   },
   "verify_claims_math": {
    "green": true,
-   "n": 43,
-   "of": 43,
-   "sha": "a7b2346b7502"
+   "n": 49,
+   "of": 49,
+   "sha": "64f6db468a31"
   },
   "verify_claims_slice": {
    "green": true,
-   "n": 31,
-   "of": 31,
-   "sha": "5e86b39b372e"
+   "n": 51,
+   "of": 51,
+   "sha": "c4e8c8b6d4d9"
   },
   "verify_claims_triage": {
    "green": true,
    "n": 30,
    "of": 30,
-   "sha": "c74e437c0959"
+   "sha": "df1fa33b4a45"
   },
   "verify_contrast_slice": {
    "green": true,
@@ -105,9 +105,9 @@
    "sha": "d27908007bf3"
   },
   "verify_engine_sessions": {
-   "green": true,
-   "n": 26,
-   "of": 26,
+   "green": false,
+   "n": 24,
+   "of": 25,
    "sha": "943e9d0da063"
   },
   "verify_escaping_slice": {
@@ -121,6 +121,12 @@
    "n": 71,
    "of": 71,
    "sha": "8571743ed653"
+  },
+  "verify_experiment_guide": {
+   "green": true,
+   "n": 82,
+   "of": 82,
+   "sha": "6d7052a79d58"
   },
   "verify_fek": {
    "green": true,
@@ -184,8 +190,8 @@
   },
   "verify_offline_slice": {
    "green": true,
-   "n": 208,
-   "of": 208,
+   "n": 213,
+   "of": 213,
    "sha": "71e191c93fa2"
   },
   "verify_ord": {
@@ -204,7 +210,7 @@
    "green": true,
    "n": 20,
    "of": 20,
-   "sha": "e7893eb29ccd"
+   "sha": "a12365262403"
   },
   "verify_proofs": {
    "green": true,

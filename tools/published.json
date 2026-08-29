@@ -15,13 +15,6 @@
       "state": "behind",
       "via": "read"
     },
-    "cell-bench.html": {
-      "at": 1787878847,
-      "blocking_webfont": false,
-      "sha": "0379fd5fa38082241c1b19415146db81b3a58a880d138785716b2c58e4402b59",
-      "state": "behind",
-      "via": "read"
-    },
     "eco-protocol-reference.html": {
       "at": 1787875367,
       "blocking_webfont": true,
@@ -101,8 +94,8 @@
       "via": "read"
     },
     "breeding-bench.html": {
-      "at": 1787876222,
-      "sha": "f2ed142ad5cb75561f0e175bc5ad051e9e3c5fe1cc14156ad78876f27c7a3c51",
+      "at": 1787991276,
+      "sha": "55f8099c162f0b9c0f2b74e27e0ba69830652193311e8c33f8562de30419be1b",
       "via": "publish"
     },
     "breeding-suite.html": {
@@ -111,9 +104,10 @@
       "via": "publish"
     },
     "cell-bench.html": {
-      "at": 1787879014,
-      "sha": "0379fd5fa38082241c1b19415146db81b3a58a880d138785716b2c58e4402b59",
-      "via": "publish"
+      "at": 1787971537,
+      "dated_by": "the version marker in the copy",
+      "sha": "43814f7f50962d0b1eb81163bd9061396d524d943dd041859ef0e67a5deeeb7c",
+      "via": "read"
     },
     "collection-sheet.html": {
       "at": 1787810032,
@@ -122,14 +116,14 @@
       "via": "read"
     },
     "cp-bench.html": {
-      "at": 1787726247,
+      "at": 1787939374,
       "dated_by": "the version marker in the copy",
-      "sha": "9434f5fd87d0b487a8c45c442efe87f88c98184f31144338b6aa42ddcef70b98",
+      "sha": "22c240800757ddd44f6a01d7a316680fee50f904ee2446c000242156cceec711",
       "via": "read"
     },
     "cp-characters.html": {
-      "at": 1787878200,
-      "sha": "f998f65f7a77c5e58d6b53b936d316e4c641742f9aea2b9c6fe8d2279f1318c9",
+      "at": 1787991276,
+      "sha": "3e0edd16373ef82ce8cb08d3a3113b505665b31bbfc76e7302ff30455f1f16ec",
       "via": "publish"
     },
     "cp-suite.html": {
@@ -138,13 +132,14 @@
       "via": "publish"
     },
     "deployment-log.html": {
-      "at": 1787881268,
-      "sha": "5e6ced56c22cc2d8a980ccb691de5339e7655da76044ed0f3fb071182ddc9a67",
-      "via": "publish"
+      "at": 1787971675,
+      "dated_by": "the version marker in the copy",
+      "sha": "76434d1ec41a0757a0ecfb96c9cf802bb9b0b4b98e844e4294dca1b372f2ada6",
+      "via": "read"
     },
     "eco-protocol-library.html": {
-      "at": 1787878173,
-      "sha": "3e35144fe84f5003c1f756750f836182fd0d6380d72caaaa2cdbdd9dec47e3d5",
+      "at": 1787991276,
+      "sha": "b33e2ef0313359267d0dd565a8b1f6079b0313502a70ee3b237ccb3bc4684e6d",
       "via": "publish"
     },
     "eco-protocol-reference.html": {
@@ -191,8 +186,8 @@
       "via": "publish"
     },
     "ecology.html": {
-      "at": 1787985598,
-      "sha": "b11f2eff380f05481e52a4403623888eff7c6e9b265724f279fed1ccf1f88944",
+      "at": 1787991276,
+      "sha": "cec0c34075160e9bf95aad98b7f00881e83dd6dfe511a153fff1cce014957eae",
       "via": "publish"
     },
     "ethogram.html": {
@@ -227,9 +222,9 @@
       "via": "publish"
     },
     "fungal-characters.html": {
-      "at": 1787777016,
+      "at": 1787950206,
       "dated_by": "the version marker in the copy",
-      "sha": "1bff48d4c593ee3b0547851469d36015bcb5817cac6dc108047e607323c579e4",
+      "sha": "dcfb70d2f1e62bc674f767ec3c748a728b926e4983cdc6f5fa766ffc9b1947b1",
       "via": "read"
     },
     "greenhouse.html": {
@@ -239,10 +234,9 @@
       "via": "read"
     },
     "micro-bench.html": {
-      "at": 1787786971,
-      "dated_by": "the version marker in the copy",
-      "sha": "5d710d6a44dec67be8470e6b5e2f0e1c8dbfbd65649c7b12a81a85b4caef7922",
-      "via": "read"
+      "at": 1787991306,
+      "sha": "6f81d6789b777798248429c18253e51787bb3362b068ed6a2e66a965e6abb6a4",
+      "via": "publish"
     },
     "ordination.html": {
       "at": 1787881288,

@@ -478,7 +478,13 @@
     <div class="card">
       <h3 style="margin-top:0">Minimum population</h3>
       <p class="fine" style="margin-top:0">The rule this page applies is <b>seed saved from at least 20
-        inbreeding or 100 outbreeding individuals per variety</b>. Both halves matter, and they fail
+        inbreeding or 100 outbreeding individuals per variety</b> &mdash; the seed-savers' <b>rule of thumb</b>,
+        not a measured threshold; the per-crop literature refines it in both directions, and here is how far.
+        <span class="src">Seed Savers Exchange</span>&rsquo;s crop-specific chart asks for <b>10&ndash;20</b>
+        plants of a self-pollinator, <b>80</b> brassicas, and <b>200</b> corn, carrots or onions &mdash; a
+        lower floor for inbreeders than this page uses and a higher one for outbreeders. One number across all
+        crops is a <b>deliberate simplification rather than an oversight</b>: a floor you remember beats a
+        table you look up, and the crop notes carry the species detail. Both halves matter, and they fail
         differently.</p>
       <p class="fine">For an <b>inbreeder</b> — beans, peas, lettuce, tomatoes — the plants are already
         near-homozygous, so a small sample loses little. Twenty is about avoiding a bottleneck and catching
@@ -486,7 +492,8 @@
       <p class="fine">For an <b>outbreeder</b> — corn, brassicas, carrots, onions, beets — the plants carry
         a load of recessive alleles that heterozygosity has been hiding. Sample too few and you force those
         into the open. <b>Corn, carrots and onions are the classic sufferers</b>, and sweet corn wants at
-        least <b>100 plants and preferably 200 or more</b>.</p>
+        least <b>100 plants and preferably 200 or more</b> — the population <i>The Seed Garden</i>
+        recommends for long-term stewardship of a corn variety (Colley &amp; Zystro, 2015).</p>
       <div class="fek-banner warn"><b>The floor is a floor, not a target.</b> It is the point below which
         you are actively damaging the variety. If you are trying to conserve diversity rather than merely
         maintain it, more is better with no sharp upper limit, and the honest advice for a home grower is to
@@ -538,8 +545,10 @@
       <p class="fine" style="margin-top:0">Saving seed from the best <b>p</b> proportion of a population is
         <b>truncation selection</b>, and its intensity follows from p alone:</p>
       <div class="eq">i = &phi;(x) / p, &nbsp; where x = &Phi;<sup>-1</sup>(1 &minus; p)</div>
-      <p class="fine">Keeping the top 10% gives i &asymp; 1.755; the top 50% gives i &asymp; 0.798. Then the
-        expected response is</p>
+      <p class="fine">Keeping the top 10% gives i = &phi;(1.2816) / 0.10 &asymp; 1.755; the top 50% gives
+        i = &phi;(0) / 0.50 &asymp; 0.798 &mdash; that is i = &phi;(x) &divide; p evaluated at those cutoffs
+        (Falconer &amp; Mackay, 1996), written out with p substituted so you can check both without leaving
+        the page. Then the expected response is</p>
       <div class="eq">R = i &times; h&sup2; &times; &sigma;<sub>P</sub></div>
       <p class="fine">the same breeder's equation the <a href="selection-log.html">Selection Log</a> uses on
         wild populations, and it carries the same warnings. h&sup2; is a property of <em>this</em> population

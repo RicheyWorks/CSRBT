@@ -139,13 +139,20 @@ if g:
 
 # ------------------------------------------------------------- breeding bench
 g = grab("breeding-bench.html",
-         r"Keeping the top (\d+)% gives i ≈ ([\d.]+); the top (\d+)% gives i ≈ ([\d.]+)\.",
+         r"Keeping the top (\d+)% gives i = φ\(([\d.]+)\) / ([\d.]+) ≈ ([\d.]+); "
+         r"the top (\d+)% gives i = φ\(([\d.]+)\) / ([\d.]+) ≈ ([\d.]+)",
          "selection intensity")
 if g:
-    p1, i1, p2, i2 = g
-    for p, stated in ((p1 / 100.0, i1), (p2 / 100.0, i2)):
+    p1, x1, d1, i1, p2, x2, d2, i2 = g
+    for p, x, d, stated in ((p1 / 100.0, x1, d1, i1), (p2 / 100.0, x2, d2, i2)):
         want = N.pdf(N.inv_cdf(1 - p)) / p
         ck("i at the top %g%% really is %g" % (p * 100, stated), close(want, stated, 0.002), want)
+        # the page prints the substitution now, so the ARGUMENT is checkable too
+        ck("the x shown at p=%g really is Phi^-1(1-p)" % p,
+           close(N.inv_cdf(1 - p), x, 5e-4), N.inv_cdf(1 - p))
+        ck("the denominator shown at p=%g really is p" % p, close(d, p, 1e-9), d)
+        ck("phi(%g)/%g really is %g" % (x, d, stated),
+           close(N.pdf(x) / d, stated, 0.002), N.pdf(x) / d)
     ck("the page states i = φ(x)/p, the formula those numbers come from",
        "i = φ(x) / p" in page("breeding-bench.html"), "formula missing")
 

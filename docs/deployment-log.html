@@ -407,7 +407,8 @@
       <p class="fine">Open Acoustic Devices state that an AudioMoth's time is accurate to <b>&plusmn;10&nbsp;ms</b>
         when set, and that the clock then drifts <b>up to about one second per day</b>. Their GPS-synchronised
         firmware reaches <b>at least 20&nbsp;&micro;s</b> between units. Those three numbers decide whether
-        your array can localise anything at all.</p>
+        your array can localise anything at all. <span class="src">All three are from their two support
+        pages, linked under Sources below.</span></p>
     </div>
 
     <div class="card">
@@ -574,7 +575,8 @@
         one thing this kit will not hand you.</p>
 
       <h3>Clock drift, which is arithmetic</h3>
-      <p style="font-size:15.5px;color:var(--ink-2)">Sound travels about 343&nbsp;m/s in air at 20&nbsp;°C.
+      <p style="font-size:15.5px;color:var(--ink-2)">Sound travels about 343&nbsp;m/s in air at 20&nbsp;°C
+        (the usual approximation is 331.3 + 0.606&nbsp;T with T in °C, so 331.3 + 0.606 &times; 20 = 343.4).
         A recorder whose clock has drifted by one second is, for the purposes of time-of-arrival
         localisation, wrong about where it is by <b>343 metres</b>. Over a fortnight at the stated drift
         rate that is several kilometres. This is why arrays need GPS synchronisation and why a single
@@ -1206,7 +1208,8 @@ var KEEP = (function(){
     for(var i=0;i<cells;i++) r.push('<i class="'+(i<onCells?"on":"off")+'" style="width:'+(100/cells)+'%"></i>');
     $("dutyRuler").innerHTML = r.join("");
     $("dutyLegend").textContent = "one " + (every>=60 ? (every/60).toFixed(every%60?1:0)+" min" : every+" s")
-      + " cycle — " + (on>=60 ? (on/60).toFixed(on%60?1:0)+" min" : on+" s") + " recording, the rest asleep";
+      + " cycle — " + (on>=60 ? (on/60).toFixed(on%60?1:0)+" min" : on+" s") + " recording, the rest asleep"
+      + " (" + on + " s of " + every + " s = " + (100*frac).toFixed(1) + "% duty)";
     $("dutyStat").innerHTML = '<div class="stat">'
       + k("duty cycle", (100*frac).toFixed(1)+'<span class="u">%</span>')
       + k("audio recorded", (recSec/3600).toFixed(1)+'<span class="u"> h</span>')

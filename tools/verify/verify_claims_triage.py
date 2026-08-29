@@ -75,8 +75,7 @@ CANARY = """<!doctype html><html><head><meta charset="utf-8"><title>c</title></h
 </body></html>"""
 d = tempfile.mkdtemp()
 io.open(os.path.join(d, "c.html"), "w", encoding="utf-8").write(CANARY)
-probe = io.open(os.path.join(_kit.TOOLS_DIR, "audit_claims.py"), encoding="utf-8").read()
-probe = probe.split('PROBE = r"""')[1].split('"""')[0]
+probe = _kit.tool("audit_claims").PROBE
 with sync_playwright() as pw:
     b = pw.chromium.launch()
     ctx = b.new_context(viewport={"width": 1100, "height": 900})

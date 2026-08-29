@@ -7,7 +7,7 @@ longer drive a control with select_option() or fill() -- it has to do what a
 finger does. These helpers do that, in one place, so a future FEK change is one
 edit here rather than one per suite.
 """
-import os, re
+import os, sys, re
 from decimal import Decimal, ROUND_HALF_UP
 
 # The boot loader every page in docs/ carries, byte-identical (ADR-066).
@@ -27,6 +27,25 @@ TOOLS_DIR = os.path.join(ROOT, "tools") + os.sep
 def url(name):
     """file:// URL for a page in docs/, whatever the checkout is called."""
     return "file://" + os.path.join(ROOT, "docs", name).replace(os.sep, "/")
+
+
+def tool(name):
+    """Import a module out of tools/ and hand it back.
+
+    Three suites used to read a probe out of a tool by SPLITTING its source on
+    one literal sequence -- the letters of the constant's name followed by a
+    raw-string opener. It broke twice in one hour (ADR-094): first a second
+    constant whose name ended with that sequence, then the comment written to
+    warn about the first. ADR-094 added a uniqueness check, said plainly that
+    the coupling itself was the defect and that a suite could import the module
+    instead, and left it. This is that import. A probe is now read by its NAME,
+    which is what a name is for, and renaming one is a NameError rather than a
+    silently wrong body.
+    """
+    import importlib
+    if TOOLS_DIR.rstrip(os.sep) not in sys.path:
+        sys.path.insert(0, TOOLS_DIR.rstrip(os.sep))
+    return importlib.import_module(name)
 
 
 def offline(pg):

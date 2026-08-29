@@ -925,7 +925,7 @@ var FEK = (function(){
     help:"The exponent, not the factor: 5 means the 10⁻⁵ tube." });
   var PLV=FEK.step({ field:"plV", label:"volume plated", unit:"mL", value:0.1, min:0.001, max:10, step:0.05, dec:3,
     onchange:function(v){ push("plV",v); },
-    help:"0.1 mL spread, 1.0 mL pour. The volume is in the denominator, so getting it wrong scales every count." });
+    help:"The conventional volumes are 0.1 mL spread, 1.0 mL pour — and they are not this page's choice: the spread volume is fixed at 0.1 mL in <span class='src'>FDA BAM</span>, and 1.0 mL is the volume that defines a pour plate. The volume is in the denominator, so getting it wrong scales every count." });
   var PLC=FEK.field({ field:"plC", label:"colonies", dec:0, step:1, min:0,
     onchange:function(v){ push("plC",v); },
     help:"What you counted, including a plate you are about to discard — which plates you threw out, and why, is part of the result." });

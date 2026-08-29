@@ -78,12 +78,28 @@ ck(not bad, "no stray data-claim attributes left behind: %s" % bad)
 # the reader the wrong body. Both happened in one slice: a constant named for
 # it, then the comment written to warn about the constant. Checked here rather
 # than remembered.
-MARK = "PROBE" + ' = r"""'
-for tool in ("audit_claims.py", "audit_print.py"):
-    src = io.open(_os.path.join(ROOT, "tools", tool), encoding="utf-8").read()
-    ck(src.count(MARK) == 1,
-       "%s carries the extraction marker exactly once (found %d)"
-       % (tool, src.count(MARK)))
+# ADR-096 retires the split. The uniqueness check above it was the right thing
+# to do while the coupling stood -- it made the failure loud instead of
+# memorable -- but it protected a mechanism that should not exist, and ADR-094
+# said so in the same paragraph that added it. `_kit.tool()` imports the module
+# and reads the probe by name. What is checked now is that nobody goes back.
+import glob as _glob, re as _re
+_here = _os.path.dirname(_os.path.abspath(__file__))
+_splitters = []
+for _f in sorted(_glob.glob(_os.path.join(_here, "verify_*.py"))):
+    _body = io.open(_f, encoding="utf-8").read()
+    if _re.search(r"""\.split\(\s*['"][A-Z_]*PROBE""", _body):
+        _splitters.append(_os.path.basename(_f))
+ck(not _splitters,
+   "no suite reads a tool's probe by splitting its source: %s" % _splitters)
+_ac = _os.path.join(ROOT, "tools", "audit_claims.py")
+_acs = io.open(_ac, encoding="utf-8").read()
+ck(_acs.count("_VOCAB = r") == 1 and _acs.count("__VOCAB__") == 4,
+   "audit_claims keeps ONE provenance vocabulary, substituted into both probes")
+import _kit as _k0
+_p0 = _k0.tool("audit_claims").PROBE
+ck("FDA" in _p0 and "APHA" in _p0,
+   "the block-level probe now knows the standards the section-level one knew")
 
 # ---- 6. the finder still finds ------------------------------------------
 CAN = """<!doctype html><html><head><meta charset="utf-8"><title>c</title></head><body>
@@ -93,8 +109,8 @@ CAN = """<!doctype html><html><head><meta charset="utf-8"><title>c</title></head
 </body></html>"""
 os.makedirs("/tmp/_ccan", exist_ok=True)
 io.open("/tmp/_ccan/c.html", "w", encoding="utf-8").write(CAN)
-probe = io.open(_os.path.join(ROOT, "tools", "audit_claims.py"), encoding="utf-8").read()
-probe = probe.split('PROBE = r"""')[1].split('"""')[0]
+import _kit
+probe = _kit.tool("audit_claims").PROBE
 with sync_playwright() as p:
     b = p.chromium.launch(); pg = b.new_page(viewport={"width": 1100, "height": 900})
     pg.set_default_timeout(20000)
@@ -107,6 +123,84 @@ with sync_playwright() as p:
     ck(not any("By convention" in h for h in hits), "canary: a labelled convention is not reported")
     ck(not any("40 CFR" in h for h in hits), "canary: a named regulation is not reported")
     b.close()
+
+# ---- 7. the escape has a floor, and it is not a widened regex ------------
+# `.cite`/`.src`/`.ref` used to exempt a block by EXISTING: an empty span
+# silenced every number under it. And a named ORGANISATION in prose -- the
+# commonest citation form in half these domains -- is still not provenance to
+# the finder, deliberately: an organisation-name regex would match any two
+# capitalised words (ADR-061). The page declares it with `.src` or it stays on
+# the list, which is the route ADR-096 took for four claims.
+CAN2 = """<!doctype html><html><head><meta charset="utf-8"><title>c</title></head><body>
+<section><p id="a">Hold pile A above 55 C for at least 12 days. <span class="src"></span></p></section>
+<section><p id="b">Hold pile B above 55 C for at least 12 days. <span class="src">California Carnivores</span></p></section>
+<section><p id="c">California Carnivores state that water should stay below 160 ppm.</p></section>
+</body></html>"""
+io.open("/tmp/_ccan/c2.html", "w", encoding="utf-8").write(CAN2)
+with sync_playwright() as p:
+    b = p.chromium.launch(); pg = b.new_page(viewport={"width": 1100, "height": 900})
+    pg.set_default_timeout(20000)
+    _kit.offline(pg)
+    pg.goto("file:///tmp/_ccan/c2.html", wait_until="domcontentloaded"); pg.wait_for_timeout(300)
+    h2 = pg.evaluate(probe)
+    ck(len(h2) == 2, "canary: two of three are reported (got %d)" % len(h2))
+    ck(any("pile A" in h for h in h2),
+       "canary: an EMPTY .src no longer exempts the block it sits in")
+    ck(not any("pile B" in h for h in h2),
+       "canary: a .src that names something still exempts")
+    ck(any(h.startswith("California Carnivores state") for h in h2),
+       "canary: a named organisation in bare prose is still reported")
+    b.close()
+
+# ---- 9. the corrections of ADR-096 are on the pages ----------------------
+eco = text("ecology.html")
+ck('<span class="src">California Carnivores</span>' in
+   io.open(DOCS + "ecology.html", encoding="utf-8").read(),
+   "the hub's water card DECLARES its source, not merely writes it")
+
+dep = io.open(DOCS + "deployment-log.html", encoding="utf-8").read()
+ck('<span class="src">All three are from their two support' in dep,
+   "the AudioMoth clock figures declare where the three came from")
+ck("% duty)" in dep,
+   "the duty legend prints its own arithmetic instead of taking an exemption")
+ck(".echo" not in io.open(_os.path.join(ROOT, "tools", "audit_claims.py"), encoding="utf-8")
+        .read().split("NOT an exemption")[0],
+   "the withdrawn .echo exemption is not still live above the note that withdraws it")
+
+bb = text("breeding-bench.html")
+ck("rule of thumb" in bb, "the 20/100 floor is labelled a rule of thumb")
+ck("Seed Savers Exchange" in bb, "and the chart that disagrees with it is named")
+ck("10&ndash;20" in io.open(DOCS + "breeding-bench.html", encoding="utf-8").read()
+   or "10\u2013" in bb, "with the numbers it gives, not just its name")
+ck("deliberate simplification rather than\n        an oversight" in
+   io.open(DOCS + "breeding-bench.html", encoding="utf-8").read().replace("\r", "")
+   or "deliberate simplification" in bb,
+   "and the single floor is declared a simplification, not left to look like an oversight")
+
+cpc2 = text("cp-characters.html")
+ck("Taylor, 1989" in cpc2, "the Utricularia bladder range is cited")
+ck("0.2 to 5 mm" not in cpc2,
+   "and the spliced range -- the genus minimum against the usual maximum -- is gone")
+
+mb = text("micro-bench.html")
+ck("The conventional volumes are" in mb, "the plating volumes are labelled a convention")
+ck("fixed at 0.1 mL in" in mb and "FDA BAM" in mb,
+   "and the spread volume names the standard that fixes it -- ADR-094 offered this "
+   "claim as one no standard in the card covers, and FDA BAM Ch.23 states it outright")
+
+fc2 = text("fungal-characters.html")
+ck("Read at the conventional 30 s" in fc2,
+   "the KOH reading times carry their label in the cell that states them")
+ck("a practitioners" in fc2 and "not a measured threshold" in fc2,
+   "and the 35 C drying floor says it is a rule of thumb")
+
+# ---- 10. the selection intensities are checked where arithmetic is checked
+# NOT recomputed here. verify_claims_math already recomputes both from the
+# method (ADR-041), and ADR-096 strengthened it: the page now prints the
+# substituted argument, so that suite checks x = Phi^-1(1-p) as well as i.
+# Two suites recomputing one number is how the two disagree later.
+ck("&phi;(1.2816) / 0.10" in io.open(DOCS + "breeding-bench.html", encoding="utf-8").read(),
+   "the page shows the substitution, not just the answer")
 
 print("---"); print("%d/%d" % (P, P+F))
 raise SystemExit(1 if F else 0)

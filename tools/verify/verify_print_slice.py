@@ -47,8 +47,8 @@ with sync_playwright() as p:
     os.makedirs("/tmp/_pcan", exist_ok=True)
     io.open("/tmp/_pcan/c.html", "w", encoding="utf-8").write(CANARY)
     pg.goto("file:///tmp/_pcan/c.html", wait_until="domcontentloaded"); pg.wait_for_timeout(400)
-    probe = io.open(_os.path.join(ROOT, "tools", "audit_print.py"), encoding="utf-8").read()
-    probe = probe.split('PROBE = r"""')[1].split('"""')[0]
+    import _kit
+    probe = _kit.tool("audit_print").PROBE
     r = pg.evaluate(probe, 720)
     lost = [k for k, n in r["lost"]]
     ck(lost == ["div.p"], "canary: only the genuine prose is called lost (got %s)" % lost)

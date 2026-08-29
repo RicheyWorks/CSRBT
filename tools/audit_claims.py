@@ -52,6 +52,26 @@ FULL = "--full" in sys.argv
 DOCS = os.path.normpath(os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "docs")) + os.sep
 
 
+# ONE VOCABULARY, TWO PROBES.
+#
+# These three regexes were written out twice -- once in each probe -- and the two
+# copies had drifted. The section-level list named FDA BAM, AOAC, USP, APHA and
+# Standard Methods; the block-level list did not. The strict test was therefore
+# WEAKER than the loose one on the same tokens: a claim naming FDA BAM in its own
+# sentence read BARE, while a claim three paragraphs away from one read `near`.
+# That is not a strictness setting, it is a contradiction (ADR-051), and it is
+# the reason micro-bench's plating volumes could be offered in ADR-094 as the
+# worked example of a number no standard in the card covers -- FDA BAM Chapter 23
+# fixes the spread volume at 0.1 mL in so many words.
+#
+# Written once and substituted into both, so widening is one visible edit rather
+# than drift between two copies.
+_VOCAB = r"""
+  const PROV = /\b(?:convention|conventional|conventionally|arbitrary|rule of thumb|by definition|definitional|as defined|indicative|cf\.|et al\.?)/i;
+  const STD  = /\b(?:\d+\s*CFR\s*\d+|USDA\s+NOP|NOP\s*§|CLSI|EUCAST|ISO\s*\d|ASTM\s*[A-Z]?\d|EN\s*\d{3,}|Mueller[- ]Hinton|McFarland|IUCN|CITES|Braun[- ]Blanquet|Lincoln[-–\s]Petersen|Chapman|Daubenmire|USFS|FIA|FDA\s+BAM|AOAC|USP|APHA|Standard\s+Methods)\b/i;
+  const CITED = /(?:after\s+[A-Z][a-z]+|\(\s*[A-Z][A-Za-z’'\-]+(?:\s+(?:&|and)\s+[A-Z][A-Za-z’'\-]+)?,?\s*(?:19|20)\d\d\s*\))/;
+"""
+
 # How far away is the nearest provenance? A SECOND question, asked after the
 # first has already been answered strictly.
 #
@@ -82,9 +102,7 @@ DOCS = os.path.normpath(os.path.join(os.path.dirname(os.path.abspath(__file__)),
 # have nothing anywhere near them, and those are the real front of the list.
 SECTION_PROVENANCE = r"""
 (claims) => {
-  const PROV = /\b(?:convention|conventional|conventionally|arbitrary|rule of thumb|by definition|definitional|as defined|indicative|cf\.|et al\.?)/i;
-  const STD  = /\b(?:\d+\s*CFR\s*\d+|USDA\s+NOP|NOP\s*§|CLSI|EUCAST|ISO\s*\d|ASTM\s*[A-Z]?\d|EN\s*\d{3,}|Mueller[- ]Hinton|McFarland|IUCN|CITES|Braun[- ]Blanquet|Lincoln[-–\s]Petersen|Chapman|Daubenmire|USFS|FIA|FDA\s+BAM|AOAC|USP|APHA|Standard\s+Methods)\b/i;
-  const CITED = /(?:after\s+[A-Z][a-z]+|\(\s*[A-Z][A-Za-z’'\-]+(?:\s+(?:&|and)\s+[A-Z][A-Za-z’'\-]+)?,?\s*(?:19|20)\d\d\s*\))/;
+__VOCAB__
   const has = t => PROV.test(t) || STD.test(t) || CITED.test(t);
   const BLOCK = 'p,li,td,th,dd,figcaption,blockquote,summary';
   return claims.map(c => {
@@ -97,19 +115,19 @@ SECTION_PROVENANCE = r"""
     return false;
   });
 }
-"""
+""".replace("__VOCAB__", _VOCAB)
 
 PROBE = r"""
 (FULL) => {
   const UNIT = /(?:^|[\s(])(?:[<>≤≥±~]\s*)?\d[\d.,]*\s*(?:°C|°F|\bK\b|mm|cm|\bm\b|km|µm|nm|\bg\b|kg|mg|ppm|ppb|mL|\bL\b|pH|%|days?|weeks?|hours?|hrs?|minutes?|min\b|seconds?|GDD|lux|kPa|bar|mS\/cm|dS\/m)(?![\w-])/i;
   const CMP  = /(?:^|\s)(?:at least|no more than|not below|not above|below|above|under|over|greater than|less than|between)\s+\d/i;
-  // Case-insensitive: the kit labels its own conventions as "Rule of thumb:" at
-  // the head of a sentence, and a case-sensitive test hid every one of them.
-  const PROV = /\b(?:convention|conventional|conventionally|arbitrary|rule of thumb|by definition|definitional|as defined|indicative|cf\.|et al\.?)/i;
-  // Named standards and regulations are provenance too -- arguably the strongest
-  // kind here, since the reader can go and look the clause up.
-  const STD  = /\b(?:\d+\s*CFR\s*\d+|USDA\s+NOP|NOP\s*§|CLSI|EUCAST|ISO\s*\d|ASTM\s*[A-Z]?\d|EN\s*\d{3,}|Mueller[- ]Hinton|McFarland|IUCN|CITES|Braun[- ]Blanquet|Lincoln[-–\s]Petersen|Chapman|Daubenmire|USFS|FIA)\b/i;
-  const CITED = /(?:after\s+[A-Z][a-z]+|\(\s*[A-Z][A-Za-z’'\-]+(?:\s+(?:&|and)\s+[A-Z][A-Za-z’'\-]+)?,?\s*(?:19|20)\d\d\s*\))/;
+  // PROV, STD and CITED come from the one vocabulary above.
+  // Case-insensitivity on PROV matters: the kit labels its own conventions
+  // as "Rule of thumb:" at the head of a sentence, and a case-sensitive
+  // test hid every one of them. Named standards and regulations are
+  // provenance too -- arguably the strongest kind here, since the reader
+  // can go and look the clause up.
+__VOCAB__
 
   const out = [];
   const BLOCK = 'p,li,td,th,dd,figcaption,blockquote,summary';
@@ -122,6 +140,14 @@ PROBE = r"""
     // intent is not the same as inferring one.
     if (el.closest('[data-claim="definitional"], [data-claim="derived"]')) return;
     if (el.closest('button, label, select, .fek-step, .fek-slide, .fek-pick, .fek-tiles')) return;
+    // NOT an exemption for "a legend that restates the reader's own entry".
+    // One was written, with a class and a suite that drove each named control to
+    // prove the text moved. Then the live copy of the only page that would have
+    // used it turned out to have solved the same problem better: the duty legend
+    // now prints "60 s of 600 s = 10.0% duty", so the derivation exemption above
+    // already covers it and the reader gains the arithmetic. An escape with zero
+    // members is the silent kind of wrong (ADR-094), so it was withdrawn rather
+    // than kept for a case that no longer needs it. ADR-096 section 5.
     const t = (el.textContent || '').replace(/\s+/g, ' ').trim();
     if (t.length < 12 || t.length > 400) return;
     if (!UNIT.test(t) && !CMP.test(t)) return;
@@ -160,14 +186,20 @@ PROBE = r"""
       if (ct.length < own.length * 4) near.push(ct);       // still the same neighbourhood
     }
     if (near.some(t => PROV.test(t) || STD.test(t) || CITED.test(t))) return;
-    if (el.querySelector('.cite, .src, .ref, cite')) return;
-    if (par && par !== document.body && par.querySelector('.cite, .src, .ref, cite, sup a')) return;
+    // A floor under the strongest escape in this file. `.cite`/`.src`/`.ref`
+    // exempted a block by EXISTING: an empty span silenced every number under
+    // it and nothing checked. A provenance element has to name something.
+    const sourced = root => [].slice.call(
+        root.querySelectorAll('.cite, .src, .ref, cite, sup a'))
+      .some(n => (n.textContent || '').trim().length >= 3 || n.querySelector('a[href]'));
+    if (sourced(el)) return;
+    if (par && par !== document.body && sourced(par)) return;
 
     out.push(FULL ? t : t.slice(0, 150));
   });
   return out;
 }
-"""
+""".replace("__VOCAB__", _VOCAB)
 
 
 def main():
