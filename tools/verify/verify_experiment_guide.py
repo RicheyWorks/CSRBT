@@ -86,6 +86,52 @@ with sync_playwright() as pw:
     ck("the run command carries the study's slug",
        "-Pspec=meadow-disturbance-study.eco" in pg.text_content("#eco-cmd"), pg.text_content("#eco-cmd"))
 
+    # ── pre-flight lint mirrors ExperimentSpec.parse ──
+    lint = pg.text_content("#lint")
+    ck("a well-formed protocol lints clean", "would parse clean" in lint, lint)
+    # an expectation naming a community that doesn't exist → UNGRADEABLE warning
+    pg.select_option("#x-metric", "shannon"); pg.fill("#x-args", "ghost")
+    pg.fill("#x-val", "1"); pg.click("#x-add")
+    lint = pg.text_content("#lint")
+    ck("unknown community warned as UNGRADEABLE", "ghost" in lint and "UNGRADEABLE" in lint, lint)
+    # a phase-vs-dataset comparison → UNGRADEABLE warning (they share no species)
+    pg.select_option("#x-metric", "jaccard"); pg.fill("#x-args", "graze, pondA")
+    pg.fill("#x-val", "0.5"); pg.click("#x-add")
+    lint = pg.text_content("#lint")
+    ck("phase-vs-data compare warned as UNGRADEABLE", "share no species" in lint, lint)
+    # remove the two bad hypotheses (last two chips) and the lint goes clean again
+    pg.eval_on_selector_all("#x-list .chip button", "b => { b[b.length-1].click(); }")
+    pg.eval_on_selector_all("#x-list .chip button", "b => { b[b.length-1].click(); }")
+    ck("lint clean after removing them", "would parse clean" in pg.text_content("#lint"),
+       pg.text_content("#lint"))
+    # a model with the wrong arity is refused at the door (logistic needs 4)
+    n_models = pg.eval_on_selector_all("#m-list .chip", "c => c.length")
+    pg.select_option("#m-kind", "logistic"); pg.fill("#m-params", "0.15 120 5"); pg.click("#m-add")
+    ck("wrong-arity model refused", pg.eval_on_selector_all("#m-list .chip", "c => c.length") == n_models)
+    pg.fill("#m-params", "")
+    # a duplicate community name is refused (expectations address communities by name)
+    n_ph = pg.eval_on_selector_all("#p-list .chip", "c => c.length")
+    pg.fill("#p-name", "graze"); pg.click("#p-add")
+    ck("duplicate phase name refused", pg.eval_on_selector_all("#p-list .chip", "c => c.length") == n_ph)
+    # junk in the extra-directives box → PROBLEM row
+    pg.fill("#e-extra", "wibble: 3")
+    lint = pg.text_content("#lint")
+    ck("unknown extra directive flagged", "unknown directive 'wibble'" in lint, lint)
+    pg.fill("#e-extra", "cross: Rr x Rr observed 5474 1850")
+    ck("a known extra directive passes", "would parse clean" in pg.text_content("#lint"),
+       pg.text_content("#lint"))
+    pg.fill("#e-extra", "")
+    # keys below the parser's floor → PROBLEM row
+    pg.fill("#e-keys", "1")
+    ck("keys below [2, 1000000] flagged", "keys out of range" in pg.text_content("#lint"))
+    pg.fill("#e-keys", "100")
+    # a note targeting an undeclared name stays a plain note (the parser would report it)
+    pg.fill("#e-notes", "ghost: a note for nobody")
+    eco2 = pg.text_content("#eco-out")
+    ck("note with unknown target stays unattached", "note: ghost: a note for nobody" in eco2
+       and "note(ghost)" not in eco2, eco2[-200:])
+    pg.fill("#e-notes", "sampled after two dry weeks\nbloom: five keys took the traffic")
+
     # ── escaping: what you type never comes back as markup ──
     pg.fill("#e-name", '<img src=x onerror="window.__pwned=1">')
     pg.wait_for_timeout(200)
@@ -97,10 +143,15 @@ with sync_playwright() as pw:
     pg.click("#track-eng")
     ck("engineering track shows", pg.is_visible("#eng-track"))
     ck("ecology track hides", not pg.is_visible("#eco-track"))
+    ck("empty pre-registration lints as missing", "MISSING" in pg.text_content("#eng-lint"),
+       pg.text_content("#eng-lint"))
     pg.fill("#g-question", "What does one cold scan cost?")
     pg.fill("#g-floor", "reading the bytes once")
     pg.fill("#g-sizes", "20000, 60000")
     pg.fill("#g-rule", "fires above 5x the floor")
+    lint = pg.text_content("#eng-lint")
+    ck("eng lint clean once question, floor, rule, sizes are in",
+       "pre-registration complete" in lint, lint)
     pre = pg.text_content("#eng-out")
     for want in ["What does one cold scan cost?", "reading the bytes once",
                  "Pre-registered rule:", "fires above 5x the floor", "median kept"]:

@@ -138,6 +138,9 @@
   .verdict.no { background:var(--danger-bg); color:var(--danger); }
   .verdict.un { background:var(--warn-bg); color:var(--gold); }
 
+  .lint { display:flex; flex-direction:column; gap:7px; margin:2px 0 10px; }
+  .lint .row { display:flex; gap:9px; align-items:baseline; font-size:13.5px; line-height:1.45; }
+  .lint .row .verdict { flex:0 0 auto; }
   .toast { position:fixed; left:50%; transform:translateX(-50%) translateY(20px); bottom:calc(96px + env(safe-area-inset-bottom));
     background:var(--ink); color:var(--page); font:700 13.5px var(--body); border-radius:999px;
     padding:10px 18px; opacity:0; pointer-events:none; transition:opacity .2s ease, transform .2s ease; z-index:30; }
@@ -432,6 +435,10 @@
 
     <div class="card">
       <h3>Your protocol</h3>
+      <p class="hint">Pre-flight lint — the same rules <code>ExperimentSpec.parse</code> applies, run before the
+        runner ever sees the file. A red line would land in the report's problem list; an amber line would
+        grade UNGRADEABLE or weaken the study.</p>
+      <div class="lint" id="lint" aria-live="polite"></div>
       <pre class="out" id="eco-out" aria-label="Generated .eco protocol"></pre>
       <div class="btnrow">
         <button type="button" class="btn primary" id="eco-copy">Copy .eco</button>
@@ -490,6 +497,7 @@
 
     <div class="card">
       <h3>Your pre-registration</h3>
+      <div class="lint" id="eng-lint" aria-live="polite"></div>
       <pre class="out" id="eng-out" aria-label="Generated pre-registration"></pre>
       <div class="btnrow">
         <button type="button" class="btn primary" id="eng-copy">Copy pre-registration</button>
@@ -814,10 +822,16 @@
   pKind.addEventListener("change", phaseParamVis);
   phaseParamVis();
 
+  function communityNames() {
+    return S.phases.map(function (p) { return p.name; })
+      .concat(S.datasets.map(function (d) { return d.name; }));
+  }
   $("p-add").addEventListener("click", function () {
     var name = token($("p-name").value, "phase" + (S.phases.length + 1));
+    if (communityNames().indexOf(name) >= 0) { toast("'" + name + "' is taken — community names must be unique"); return; }
     var kind = pKind.value;
     var ops = parseInt($("p-ops").value, 10) || 2000;
+    if (ops < 1 || ops > 10000000) { toast("phase ops out of range [1, 10000000]"); return; }
     var ph = { name: name, kind: kind, ops: ops };
     if (kind === "hot") {
       ph.hotSet = parseInt($("p-hotset").value, 10) || 5;
@@ -847,9 +861,35 @@
   }
   mKind.addEventListener("change", modelHint);
   modelHint();
+  var MODEL_ARITY = { levins: 4, logistic: 4, island: 5, exponential: 3,
+    competition: 9, predation: 7, hardyweinberg: 3, markrecapture: 3 };
+  var TRAJECTORY = { levins: 1, logistic: 1, island: 1, exponential: 1, competition: 1, predation: 1 };
+  function modelProblem(kind, params) {
+    var toks = params.split(" ");
+    if (kind === "eulerlotka") {
+      if (toks.length < 2) return "eulerlotka needs >= 2 lx:mx pairs";
+      for (var i = 0; i < toks.length; i++) {
+        var pair = toks[i].split(":");
+        if (pair.length !== 2 || !isFinite(parseFloat(pair[0])) || !isFinite(parseFloat(pair[1])))
+          return "pairs are lx:mx, got '" + toks[i] + "'";
+      }
+      return null;
+    }
+    var want = MODEL_ARITY[kind];
+    if (toks.length !== want) return "model " + kind + " needs " + want + " parameters";
+    for (var j = 0; j < toks.length; j++)
+      if (!isFinite(parseFloat(toks[j]))) return "'" + toks[j] + "' is not a number";
+    if (TRAJECTORY[kind]) {
+      var steps = parseFloat(toks[want - 1]);
+      if (steps < 0 || steps > 100000) return "steps out of range [0, 100000]";
+    }
+    return null;
+  }
   $("m-add").addEventListener("click", function () {
     var params = ($("m-params").value || "").trim().replace(/\s+/g, " ");
     if (!params) params = mKind.options[mKind.selectedIndex].getAttribute("data-eg");
+    var bad = modelProblem(mKind.value, params);
+    if (bad) { toast(bad); return; }
     S.models.push({ kind: mKind.value, params: params });
     $("m-params").value = "";
     renderModels(); saveState(); rebuild();
@@ -862,6 +902,7 @@
   /* ── datasets ── */
   $("d-add").addEventListener("click", function () {
     var name = token($("d-name").value, "site" + (S.datasets.length + 1));
+    if (communityNames().indexOf(name) >= 0) { toast("'" + name + "' is taken — community names must be unique"); return; }
     var counts = ($("d-counts").value || "").trim().replace(/\s+/g, " ");
     if (!counts) { toast("Enter counts or tallies first"); return; }
     S.datasets.push({ name: name, counts: counts });
@@ -930,7 +971,7 @@
     var name = ($("e-name").value || "").trim() || "untitled study";
     var out = [];
     out.push("# " + name + " — written before the run, graded after.");
-    out.push("# Run me:  ./gradlew ecologyExperiment -Pspec=" + slug(name) + ".eco");
+    out.push("# Run me:  ./gradlew ecologyExperiment -Pspec=" + slug($("e-name").value) + ".eco");
     out.push("");
     out.push("name: " + name);
     out.push("keys: " + (parseInt($("e-keys").value, 10) || 100));
@@ -945,9 +986,12 @@
     var notes = ($("e-notes").value || "").split("\n").map(function (l) { return l.trim(); }).filter(Boolean);
     if (notes.length) {
       out.push("");
+      var known = communityNames();
       notes.forEach(function (l) {
+        // "bloom: text" attaches only when bloom is a declared phase or dataset —
+        // the parser reports a note with an unknown target as a spec problem.
         var m = l.match(/^([A-Za-z0-9_-]+):\s*(.+)$/);
-        out.push(m ? "note(" + m[1] + "): " + m[2] : "note: " + l);
+        out.push(m && known.indexOf(m[1]) >= 0 ? "note(" + m[1] + "): " + m[2] : "note: " + l);
       });
     }
     if (S.expects.length) { out.push(""); S.expects.forEach(function (x) { out.push(x); }); }
@@ -1027,12 +1071,92 @@
     ].join("\n") + "\n";
   }
 
+  /* ── pre-flight lint: the same rules ExperimentSpec.parse applies, before the runner sees the file ── */
+  var DIRECTIVE = /^(name|keys|seed|window|phase|factor|model|cross|data|note(\([A-Za-z0-9_-]+\))?|tree|expect):/;
+  function lintEco() {
+    var out = [];
+    function no(t) { out.push({ sev: "no", tag: "PROBLEM", text: t }); }
+    function un(t) { out.push({ sev: "un", tag: "WEAK", text: t }); }
+    var keys = parseInt($("e-keys").value, 10);
+    if (isNaN(keys) || keys < 2 || keys > 1000000) no("keys out of range [2, 1000000]");
+    var win = parseInt($("e-window").value, 10);
+    if (isNaN(win) || win < 16 || win > 1000000) no("window out of range [16, 1000000]");
+    if ($("e-seed").value !== "" && isNaN(parseInt($("e-seed").value, 10))) no("seed must be a whole number");
+
+    var names = communityNames(), seen = {};
+    names.forEach(function (n) {
+      if (seen[n]) no("duplicate community name '" + n + "' — expectations address communities by name");
+      seen[n] = 1;
+    });
+    S.phases.forEach(function (p) {
+      if (p.ops < 1 || p.ops > 10000000) no("phase " + p.name + ": ops out of range [1, 10000000]");
+      if (p.kind === "hot" && (p.hotSet < 1 || p.hotSet > 1000000)) no("phase " + p.name + ": hotSetSize out of range [1, 1000000]");
+      if (p.kind === "hot" && (p.hotShare < 0 || p.hotShare > 100)) no("phase " + p.name + ": hotShare% out of range [0, 100]");
+      if (p.kind === "churn" && (p.addPct < 0 || p.addPct > 100)) no("phase " + p.name + ": addPercent out of range [0, 100]");
+    });
+    S.models.forEach(function (m) {
+      var bad = modelProblem(m.kind, m.params);
+      if (bad) no(bad);
+    });
+    var isPhase = {}, isData = {};
+    S.phases.forEach(function (p) { isPhase[p.name] = 1; });
+    S.datasets.forEach(function (d) { isData[d.name] = 1; });
+    S.expects.forEach(function (x) {
+      var m = x.match(/^expect:\s*([A-Za-z]+)\(([^)]*)\)/);
+      if (!m) return;                                    // survivorship — reads the census, no names
+      var args = m[2].split(",").map(function (a) { return a.trim(); }).filter(Boolean);
+      var unknown = args.filter(function (a) { return !isPhase[a] && !isData[a]; });
+      if (unknown.length) {
+        un("'" + m[1] + "(" + m[2] + ")' names " + (unknown.length > 1 ? "communities" : "a community") +
+           " that " + (unknown.length > 1 ? "don't" : "doesn't") + " exist (" + unknown.join(", ") +
+           ") — it will grade UNGRADEABLE");
+      } else if (args.length === 2 &&
+                 ((isPhase[args[0]] && isData[args[1]]) || (isData[args[0]] && isPhase[args[1]]))) {
+        un("'" + m[1] + "(" + m[2] + ")' compares a simulated phase to entered field data — " +
+           "they share no species, so it will grade UNGRADEABLE");
+      }
+    });
+    ($("e-extra").value || "").split("\n").forEach(function (l) {
+      l = l.replace(/#.*$/, "").trim();
+      if (!l) return;
+      if (l.indexOf(":") < 0) no("extra line '" + l.slice(0, 40) + "' has no directive — reported, never guessed at");
+      else if (!DIRECTIVE.test(l)) no("extra line: unknown directive '" + l.split(":")[0] + "'");
+    });
+    if (!S.phases.length) un("no phases — nothing will be simulated (models and entered data still run)");
+    if (!S.expects.length) un("no pre-registered hypotheses — without one, it's a demo, not an experiment");
+    return out;
+  }
+  function lintEng() {
+    var out = [];
+    function un(t) { out.push({ sev: "un", tag: "MISSING", text: t }); }
+    if (!$("g-question").value.trim()) un("no question — one sentence, a cost or a comparison");
+    if (!$("g-floor").value.trim()) un("no floor — without one, every claim is only about the other guy");
+    if (!$("g-rule").value.trim()) un("no decision rule — if you don't set the bar now, the numbers will set it for you");
+    if (!$("g-sizes").value.trim()) un("no sizes — two or more shows how the cost scales");
+    return out;
+  }
+  function renderLint(el, items, cleanText) {
+    while (el.firstChild) el.removeChild(el.firstChild);
+    var list = items.length ? items : [{ sev: "ok", tag: "CLEAN", text: cleanText }];
+    list.forEach(function (it) {
+      var row = document.createElement("div"); row.className = "row";
+      var v = document.createElement("span"); v.className = "verdict " + it.sev; v.textContent = it.tag;
+      var t = document.createElement("span"); t.textContent = it.text;
+      row.appendChild(v); row.appendChild(t); el.appendChild(row);
+    });
+  }
+
   /* ── rebuild outputs ── */
   function rebuild() {
     var eco = buildEco();
     $("eco-out").textContent = eco;
     $("eco-cmd").textContent = "./gradlew ecologyExperiment -Pspec=" + slug($("e-name").value) + ".eco";
     $("eng-out").textContent = buildPrereg();
+    var dirs = eco.split("\n").filter(function (l) { return l.trim() && l.charAt(0) !== "#"; }).length;
+    renderLint($("lint"), lintEco(),
+      "would parse clean — " + dirs + " directives, " + S.expects.length +
+      (S.expects.length === 1 ? " hypothesis" : " hypotheses") + ", seed " + (parseInt($("e-seed").value, 10) || 42));
+    renderLint($("eng-lint"), lintEng(), "pre-registration complete — run it, then append the verdict");
   }
 
   $("eco-copy").addEventListener("click", function () { copyText(buildEco(), "Protocol"); });
