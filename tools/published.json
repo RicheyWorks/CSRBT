@@ -191,13 +191,18 @@
       "via": "publish"
     },
     "ecology.html": {
-      "at": 1787905554,
-      "sha": "5e144ec74b66f075a3799c0c03c7e1966be4386fa7090803799952747aa1dccb",
+      "at": 1787985598,
+      "sha": "b11f2eff380f05481e52a4403623888eff7c6e9b265724f279fed1ccf1f88944",
       "via": "publish"
     },
     "ethogram.html": {
       "at": 1787876222,
       "sha": "4bd436abcc01ea5839bd7a6df8095fedd7588a317f22bd6796411ffad97db37d",
+      "via": "publish"
+    },
+    "experiment-guide.html": {
+      "at": 1787985598,
+      "sha": "be1633cea92dec143c291d7d90c2df14dc4748b05f5a7387820ac8a89ec1e594",
       "via": "publish"
     },
     "farm-scout.html": {
