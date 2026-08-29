@@ -37,6 +37,17 @@ def ck(c, m):
 def text(f):
     return re.sub(r"\s+", " ", re.sub(r"<[^>]+>", " ", io.open(_kit.DOCS_DIR + f, encoding="utf-8").read()))
 
+
+# text() strips tags with <[^>]+>, which is fine for prose and WRONG for script
+# content: a page's JS contains bare < and > (comparisons, arrows), so the regex
+# pairs them off and swallows whole spans. Every claim this kit renders from a
+# widget's `help:` option lives in a script string, and an assertion about one
+# written against text() does not fail -- it silently looks somewhere else. Read
+# the raw source for those. ADR-098 found this by writing two such assertions
+# and having them fail for a reason that had nothing to do with the page.
+def raw(f):
+    return re.sub(r"\s+", " ", io.open(_kit.DOCS_DIR + f, encoding="utf-8").read())
+
 # ---- 1. the drying temperature carries both sides -------------------------
 for f in ("collection-sheet.html", "fungal-characters.html"):
     t = text(f)
@@ -45,9 +56,25 @@ for f in ("collection-sheet.html", "fungal-characters.html"):
     ck("93" in t, "%s gives the range that experiment actually tested" % f)
     ck("stay below that" not in t, "%s no longer states the 50 C rule as a fact about DNA" % f)
 cs = text("collection-sheet.html")
+cs_raw = raw("collection-sheet.html")
 ck("headroom" in cs, "collection-sheet says what the disagreement means for the reader")
 ck("Record the temperature you actually used" in cs,
    "collection-sheet asks for the number that makes a failed extraction interpretable")
+
+# ADR-098: the dryer help sent the reader to the Method tab for the 50 C
+# discussion. That discussion is on the Voucher tab, in the note directly under
+# the same log -- the pointer named the one tab that does not carry it.
+ck("The note under this log" in cs_raw, "collection-sheet points at the note that is actually there")
+ck("see the Method tab" not in cs_raw,
+   "and no longer sends the reader to a tab that does not carry the 50 C discussion")
+ck("Silica beats any drying temperature" not in cs_raw,
+   "the unsourced comparative about silica is gone -- no number, so no run of the finder saw it")
+ck("conventional choice for a DNA subsample" in cs_raw,
+   "and what replaced it says what kind of claim it is")
+ck("conventional working compromise" in cs,
+   "40-45 C is labelled a convention, which is what the note below it argues")
+ck("rule of thumb rather than a measured floor" in cs,
+   "and the 35 C floor says which kind of number it is")
 
 # ---- 2. the flytrap range, corrected and cited ---------------------------
 cpc = text("cp-characters.html")
@@ -95,6 +122,67 @@ with sync_playwright() as pw:
         ck(not any(phrase in h for h in hits), "canary: %s is exempt" % why)
     ctx.close()
     b.close()
+
+# ---- 5a. the derivation exemption is arithmetic, not provenance ----------
+# ADR-098. Two sibling claims, neither carrying a provenance token and neither
+# sitting near one. They differ in exactly one way: whether the arithmetic can
+# be written down. The finder exempts the one that can.
+#
+# That is the derivation rule behaving as designed, and it has a consequence
+# worth asserting rather than remembering: a claim whose CONTENT is that a
+# quantity cannot be computed can never take that exit, however well sourced it
+# is. micro-bench's "above 300" bullet is the kit's live example, and section 5b
+# holds its provenance in place so the flag stays a known-good one.
+ARITH = """<!doctype html><html><head><meta charset="utf-8"><title>a</title></head><body>
+<ul>
+<li>Below 30 the count is imprecise: CV = 1/&#8730;N, so 30 colonies gives 1/&#8730;30 &#8776; 18%.</li>
+<li>Above 300 colonies merge and crowd, so you undercount by a growing and unknowable amount.</li>
+</ul>
+</body></html>"""
+d2 = tempfile.mkdtemp()
+io.open(os.path.join(d2, "a.html"), "w", encoding="utf-8").write(ARITH)
+with sync_playwright() as pw:
+    b = pw.chromium.launch()
+    ctx = b.new_context(viewport={"width": 1100, "height": 900})
+    ctx.set_offline(True)
+    pg = ctx.new_page()
+    pg.goto("file://" + os.path.join(d2, "a.html"), wait_until="domcontentloaded")
+    pg.wait_for_timeout(300)
+    hits = pg.evaluate(probe)
+    ck(len(hits) == 1, "arithmetic canary: one of the two siblings is reported (%d)" % len(hits))
+    ck(hits and "Above 300" in hits[0],
+       "arithmetic canary: and it is the one that cannot show its working")
+    ck(not any("Below 30" in h for h in hits),
+       "arithmetic canary: the one that can show its working is exempt")
+
+    # and the same pair on the real page, so the finder's last open item is the
+    # one this ADR triaged. A change here is not a failure to fix quietly: read
+    # ADR-098 first.
+    pg2 = ctx.new_page()
+    pg2.goto("file://" + os.path.join(_kit.DOCS_DIR, "micro-bench.html"),
+             wait_until="domcontentloaded")
+    pg2.wait_for_timeout(400)
+    mb_hits = pg2.evaluate(probe)
+    ck(any("Above 300" in h for h in mb_hits),
+       "micro-bench's above-300 bullet is still the reported one (ADR-098 triaged it sound)")
+    ck(not any("Below 30" in h for h in mb_hits),
+       "and its sibling, which shows the Poisson arithmetic, is not")
+    ctx.close()
+    b.close()
+
+# ---- 5b. and it is reported despite being sourced, not because it is not --
+mb_src = io.open(_kit.DOCS_DIR + "micro-bench.html", encoding="utf-8").read()
+mb = text("micro-bench.html")
+ck("APHA Standard Methods 9215" in mb,
+   "micro-bench names the standard the 30-300 window comes from")
+ck("a convention rather" in mb, "and calls the window a convention rather than a constant")
+ck("Breed and Dotterrer" in mb and "1916" in mb,
+   "and cites the measurement the ranges disagree about")
+bullet = mb_src.split("<li><b>Above 300</b>")[1].split("</li>")[0]
+ck(not any(c in bullet for c in "=\u00f7\u221a"),
+   "the above-300 bullet carries no arithmetic -- which is why it cannot take the derivation exit")
+ck("unknowable" in bullet,
+   "because its claim is that the quantity is unknowable, not that nobody did the sum")
 
 # ---- 5. the record of provenance is not asked for provenance -------------
 src = io.open(os.path.join(_kit.TOOLS_DIR, "audit_claims.py"), encoding="utf-8").read()

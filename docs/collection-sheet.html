@@ -602,10 +602,12 @@
       <div class="btn-row">
         <button class="btn btn-go" id="vAdd" type="button">Make voucher label</button>
       </div>
-      <p class="fine"><b>40&ndash;45&nbsp;°C with airflow</b> is the usual working compromise. It straddles
+      <p class="fine"><b>40&ndash;45&nbsp;°C with airflow</b> is the conventional working compromise
+        &mdash; a convention, not a measurement, as the note below argues. It straddles
         the lower edge of the 43&ndash;50&nbsp;°C (110&ndash;120&nbsp;&deg;F) window the Fungal Diversity
         Survey's collection guide recommends for specimens you may want to sequence &mdash; only its top
-        two degrees are inside it. Below about 35&nbsp;°C a fleshy cap can spoil before it is dry.</p>
+        two degrees are inside it. Below about 35&nbsp;°C a fleshy cap can spoil before it is dry, which
+        is a rule of thumb rather than a measured floor.</p>
       <p class="fine"><b>The upper end is less settled than it is usually stated.</b> The practitioner advice
         &mdash; stay under 50&nbsp;°C, DNA is damaged above about 68&nbsp;°C &mdash; is what most keys and
         forays will tell you. But Wang, Liu and Xu (<i>Scientific Reports</i>, 2017) dried mushrooms at
@@ -1779,7 +1781,7 @@ var DWC = (function(){
              {value:"taken — dried tissue",label:"dried tissue",ramp:3},
              {value:"none",label:"none",ramp:5}],
     onchange:function(v){ push("vDna",v); },
-    help:"Take it before the dryer. Silica beats any drying temperature for sequencing; see the Method tab on where the 50 °C figure comes from and who disagrees with it." });
+    help:"Take it before the dryer. Silica is the conventional choice for a DNA subsample — it takes the dryer out of the question entirely, which is why it is worth doing before you know what temperature you will end up using. The note under this log says where the 50 °C ceiling comes from and who disagrees with it." });
   FEK.mount("dryEntry",[VTEMP,VHRS,VSLICE,VDNA]);
   function genTell(){
     var g=gById(val("cGen")); var box=$("cGenTell");

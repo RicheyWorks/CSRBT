@@ -41,6 +41,26 @@ Deliberately not flagged: numbers inside controls (a stepper's min and max are
 UI, not claims), unit-conversion arithmetic, and anything already inside a
 refusal panel.
 
+Two things this finder cannot see. They are named here because an undocumented
+blind spot is the silent kind of wrong (ADR-061), and because a reader who
+trusts a clean run should know what a clean run does not cover.
+
+  * A CLAIM WITH NO NUMBER. The two tests are a number carrying a unit, and a
+    comparison written with a digit. A comparative in words takes neither:
+    "Silica beats any drying temperature for sequencing" was an unsourced
+    instruction about a collector's only DNA subsample, and no run of this file
+    would ever have reported it. It was found by reading, not by running this.
+
+  * A CLAIM WHOSE CONTENT IS THAT A QUANTITY CANNOT BE COMPUTED. The derivation
+    exemption below is a showable-arithmetic test, not a provenance test. Take
+    the arithmetic out of micro-bench's "below 30 the Poisson error is large"
+    bullet and it is reported exactly like its sibling, with its sourcing
+    untouched -- the two differ in whether the sum can be written down, not in
+    where they come from. The sibling, "above 300 you undercount by a growing
+    and unknowable amount", can never take that exit: there is no arithmetic to
+    show, and saying so IS the claim. Both shapes are seeded in
+    verify_claims_triage so the asymmetry is asserted rather than remembered.
+
 Run:  python3 tools/audit_claims.py
 """
 import glob, os, re, sys
