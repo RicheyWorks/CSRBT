@@ -1,0 +1,451 @@
+# -*- coding: utf-8 -*-
+"""A provider-neutral automation contract for the kit: gateway, registry, plugins.
+
+WHY A CONTRACT AND NOT A SCRIPT
+    tools/harness.py and tools/swarm.py drive these pages by reaching straight
+    into Playwright. That works for one caller written by the same hand as the
+    kit. It is useless to anyone else: an accessibility auditor, a test runner,
+    an MCP server, a model with a tool-calling loop. Each of those would have to
+    re-derive what a control IS on these pages, and would re-derive it wrongly,
+    because "a button" on a Field Entry Kit page is a .fek-dial option with
+    radio semantics and a rebuild-on-change lifecycle.
+
+    So the knowledge moves behind a typed boundary, and every client -- the
+    swarm included -- goes through it. The swarm is not a privileged insider
+    with a private route to the DOM. It is the contract's first client, and it
+    exercises every action on forty pages, which is the only evidence worth
+    having that the contract is usable.
+
+        AI provider / MCP / test runner / accessibility tool / script
+                            |
+              stdio, REST, MCP, or another adapter
+                            |
+              HarnessGateway   (token + policy + replay safety)
+                            |
+              HarnessRegistry  (plugin discovery)
+                            |
+              HarnessPlugin implementations
+                            |
+              a CSRBT page in a browser, or another target
+
+    The gateway and the plugin interface are the contract. A transport is an
+    adapter over four operations -- manifest, discover, observe, execute -- and
+    nothing else. tools/harness_stdio.py is the first one; it is 120 lines,
+    which is the point.
+
+SAFETY DEFAULTS
+    Off unless switched on. No transport serves anything unless
+    CSRBT_HARNESS_ENABLED is true, and every call needs a token of at least 24
+    characters whether or not a transport thinks it is on a private machine.
+
+    Risk is declared by the PLUGIN, never claimed by the caller:
+
+      READ            allowed   discover plugins, observe control metadata
+      NAVIGATE        allowed   change pane or page without changing a record
+      SENSITIVE_READ  blocked   read entered values, or capture pixels
+      DRAFT           blocked   enter a temporary field or selector value
+      MUTATE          blocked   change persistent data (localStorage autosave)
+      DESTRUCTIVE     blocked   generic activation whose effect cannot be known
+
+    DESTRUCTIVE cannot be enabled without MUTATE. Generic button activation is
+    classified DESTRUCTIVE deliberately: on these pages a selector may resolve
+    to "Add row", to "Clear trial", or to "Copy CSV", and deciding which from
+    the label is precisely the guess this contract exists to refuse. The swarm
+    guesses from labels for its own oracle and is welcome to be wrong about a
+    verdict; the gateway does not get to be wrong about permission.
+
+    Observation is value-redacted by default: kind, selector, label, pane,
+    visible, enabled, commandable -- never the contents of a field. Labels can
+    still carry field data on a page that renders entries into a list, so the
+    manifest says so and the token is the boundary.
+
+REPLAY SAFETY
+    Every command carries a caller-generated request_id. Replaying the same id
+    with the same body returns the cached response with replayed=true and does
+    not operate the page twice. Reusing that id with a different body is a
+    conflict. The cache is bounded: 256 commands or 8 MiB of output.
+
+    One deliberate divergence from the FlowersForever gateway this mirrors: a
+    replay is authorised again before it is served. There, the cache is checked
+    before the risk is authorised, so a response captured while
+    SENSITIVE_READ was open can still be replayed after an operator closes it.
+    Here the policy is re-applied to the cached response's risk, so tightening
+    the policy takes effect on the next call rather than the next restart.
+"""
+import hmac, json, os, re, time
+
+PROTOCOL_VERSION = "1.0"
+REPLAY_CACHE_LIMIT = 256
+REPLAY_CACHE_BYTE_LIMIT = 8 * 1024 * 1024
+TOKEN_MIN = 24
+SLUG = re.compile(r"^[a-z0-9][a-z0-9-]{0,29}$")
+TOOL_NAME_MAX = 64
+TOOL_NAME_OK = re.compile(r"^[A-Za-z0-9_-]{1,64}$")
+
+# Ordered least to most consequential. The order is not decorative: DESTRUCTIVE
+# requires MUTATE, and the manifest publishes the ladder so an adapter can show
+# an operator what it is being asked for.
+RISKS = ("READ", "NAVIGATE", "SENSITIVE_READ", "DRAFT", "MUTATE", "DESTRUCTIVE")
+DEFAULT_POLICY = {"READ": True, "NAVIGATE": True, "SENSITIVE_READ": False,
+                  "DRAFT": False, "MUTATE": False, "DESTRUCTIVE": False}
+
+VALUE_TYPES = ("string", "integer", "number", "boolean", "array")
+_JSON_TYPE = {"string": str, "integer": int, "number": (int, float),
+              "boolean": bool, "array": list}
+
+
+class HarnessError(Exception):
+    """Every refusal a client can be given, with a code a transport can map."""
+
+    def __init__(self, code, message):
+        Exception.__init__(self, message)
+        self.code = code
+        self.message = message
+
+    def as_dict(self):
+        return {"ok": False, "code": self.code, "message": self.message}
+
+
+def _err(code):
+    def make(msg):
+        return HarnessError(code, msg)
+    return make
+
+
+Unauthorized = _err("unauthorized")
+Forbidden = _err("forbidden")
+NotFound = _err("not_found")
+InvalidArgument = _err("invalid_argument")
+Conflict = _err("conflict")
+Unavailable = _err("unavailable")
+Failed = _err("failed")
+
+
+# ---------------------------------------------------------------------------
+# Typed description of what a plugin can do
+# ---------------------------------------------------------------------------
+
+class ArgumentSpec(object):
+    def __init__(self, name, type, description, required=False, items=None,
+                 enum=None):
+        if type not in VALUE_TYPES:
+            raise ValueError("unknown value type %r" % type)
+        if type == "array" and items not in VALUE_TYPES:
+            # An adapter that cannot tell a list of row numbers from a list of
+            # menu labels will build the wrong tool schema, so an array must
+            # publish what it is an array OF.
+            raise ValueError("array argument %r must declare items type" % name)
+        self.name, self.type, self.description = name, type, description
+        self.required, self.items, self.enum = required, items, enum
+
+    def schema(self):
+        s = {"type": self.type, "description": self.description}
+        if self.type == "array":
+            s["items"] = {"type": self.items}
+        if self.enum:
+            s["enum"] = list(self.enum)
+        return s
+
+    def validate(self, value, action):
+        want = _JSON_TYPE[self.type]
+        if self.type == "integer" and isinstance(value, bool):
+            raise InvalidArgument("%s: %s must be an integer" % (action, self.name))
+        if self.type == "number" and isinstance(value, bool):
+            raise InvalidArgument("%s: %s must be a number" % (action, self.name))
+        if not isinstance(value, want):
+            raise InvalidArgument("%s: %s must be %s, got %s"
+                                  % (action, self.name, self.type,
+                                     type(value).__name__))
+        if self.type == "array":
+            for v in value:
+                if not isinstance(v, _JSON_TYPE[self.items]):
+                    raise InvalidArgument("%s: %s must be an array of %s"
+                                          % (action, self.name, self.items))
+        if self.enum and value not in self.enum:
+            raise InvalidArgument("%s: %s must be one of %s"
+                                  % (action, self.name, ", ".join(self.enum)))
+
+
+class ActionSpec(object):
+    def __init__(self, name, description, risk, arguments=()):
+        if not SLUG.match(name):
+            raise ValueError("action name %r is not a slug of 1-30 chars" % name)
+        if risk not in RISKS:
+            raise ValueError("unknown risk %r" % risk)
+        self.name, self.description, self.risk = name, description, risk
+        self.arguments = list(arguments)
+
+    def input_schema(self):
+        return {"type": "object",
+                "properties": dict((a.name, a.schema()) for a in self.arguments),
+                "required": [a.name for a in self.arguments if a.required],
+                "additionalProperties": False}
+
+    def as_dict(self):
+        return {"name": self.name, "description": self.description,
+                "risk": self.risk,
+                "arguments": [{"name": a.name, "type": a.type,
+                               "description": a.description,
+                               "required": a.required,
+                               "items": a.items, "enum": a.enum}
+                              for a in self.arguments]}
+
+
+class PluginDescriptor(object):
+    def __init__(self, id, title, description, version, actions):
+        if not SLUG.match(id):
+            raise ValueError("plugin id %r is not a slug of 1-30 chars" % id)
+        seen = set()
+        for a in actions:
+            if a.name in seen:
+                raise ValueError("plugin %s declares action %s twice" % (id, a.name))
+            seen.add(a.name)
+            t = tool_name(id, a.name)
+            if not TOOL_NAME_OK.match(t) or len(t) > TOOL_NAME_MAX:
+                raise ValueError("tool name %r is not provider-safe" % t)
+        self.id, self.title, self.description = id, title, description
+        self.version, self.actions = version, list(actions)
+
+    def action(self, name):
+        for a in self.actions:
+            if a.name == name:
+                return a
+        raise NotFound("plugin %s has no action %r" % (self.id, name))
+
+    def as_dict(self):
+        return {"id": self.id, "title": self.title, "description": self.description,
+                "version": self.version,
+                "actions": [a.as_dict() for a in self.actions]}
+
+
+def tool_name(plugin_id, action):
+    return "%s__%s" % (plugin_id.replace("-", "_"), action.replace("-", "_"))
+
+
+class Plugin(object):
+    """What a target implements. Three methods, no transport, no policy."""
+
+    def descriptor(self):
+        raise NotImplementedError
+
+    def observe(self, sensitive=False):
+        """A snapshot. Field VALUES appear only when sensitive is true, and the
+        gateway is the only thing that may pass it."""
+        raise NotImplementedError
+
+    def execute(self, action, arguments):
+        """Return (ok, message, output). Raise HarnessError to refuse."""
+        raise NotImplementedError
+
+
+# ---------------------------------------------------------------------------
+# Policy
+# ---------------------------------------------------------------------------
+
+class Policy(object):
+    """Off by default, read from the environment, and never from the caller."""
+
+    def __init__(self, token=None, allow=None, enabled=None):
+        self.enabled = (os.environ.get("CSRBT_HARNESS_ENABLED", "").lower() == "true"
+                        if enabled is None else bool(enabled))
+        self.token = token if token is not None else os.environ.get("CSRBT_HARNESS_TOKEN", "")
+        p = dict(DEFAULT_POLICY)
+        for r in RISKS:
+            v = os.environ.get("CSRBT_HARNESS_ALLOW_" + r)
+            if v is not None:
+                p[r] = v.lower() == "true"
+        if allow:
+            for r in allow:
+                if r not in RISKS:
+                    raise ValueError("unknown risk %r" % r)
+                p[r] = bool(allow[r])
+        # A generic activation that may change nothing or may delete a record is
+        # not something to hand out on its own.
+        if p["DESTRUCTIVE"] and not p["MUTATE"]:
+            raise ValueError("DESTRUCTIVE cannot be allowed without MUTATE")
+        self.allow = p
+
+    def authenticate(self, token):
+        if not self.token or len(self.token) < TOKEN_MIN:
+            raise Unauthorized("harness token is unset or shorter than %d characters"
+                               % TOKEN_MIN)
+        if not isinstance(token, str) or not hmac.compare_digest(token, self.token):
+            raise Unauthorized("harness token rejected")
+
+    def authorize(self, risk):
+        if not self.allow.get(risk):
+            raise Forbidden("%s is not enabled for this session" % risk)
+
+
+# ---------------------------------------------------------------------------
+# Registry
+# ---------------------------------------------------------------------------
+
+class Registry(object):
+    def __init__(self, plugins=()):
+        self._by_id = {}
+        for p in plugins:
+            self.register(p)
+
+    def register(self, plugin):
+        d = plugin.descriptor()
+        if d.id in self._by_id:
+            raise ValueError("duplicate plugin id %r" % d.id)
+        self._by_id[d.id] = plugin
+        return self
+
+    def descriptors(self):
+        return [self._by_id[k].descriptor() for k in sorted(self._by_id)]
+
+    def find(self, plugin_id):
+        if plugin_id not in self._by_id:
+            raise NotFound("unknown harness plugin %r" % plugin_id)
+        return self._by_id[plugin_id]
+
+
+# ---------------------------------------------------------------------------
+# Gateway
+# ---------------------------------------------------------------------------
+
+class _Done(object):
+    __slots__ = ("body", "response", "risk", "nbytes")
+
+    def __init__(self, body, response, risk, nbytes):
+        self.body, self.response, self.risk, self.nbytes = body, response, risk, nbytes
+
+
+class Gateway(object):
+    """Token, policy, replay safety. The only thing a transport talks to."""
+
+    def __init__(self, registry, policy):
+        self.registry, self.policy = registry, policy
+        self._done = {}          # cacheKey -> _Done, insertion-ordered
+        self._bytes = 0
+        self.audit = []          # (t, plugin, action, risk, outcome)
+
+    # -- the four operations ------------------------------------------------
+    def manifest(self, token):
+        self.policy.authenticate(token)
+        self.policy.authorize("READ")
+        plugins = self.registry.descriptors()
+        tools = []
+        for p in plugins:
+            for a in p.actions:
+                tools.append({
+                    "name": tool_name(p.id, a.name),
+                    "pluginId": p.id, "action": a.name,
+                    "description": a.description, "risk": a.risk,
+                    # allowed=false is an instruction to omit the tool for this
+                    # session, not a hint. The gateway refuses it regardless.
+                    "allowed": bool(self.policy.allow.get(a.risk)),
+                    "inputSchema": a.input_schema()})
+        return {"protocolVersion": PROTOCOL_VERSION,
+                "replayCacheCommands": REPLAY_CACHE_LIMIT,
+                "replayCacheBytes": REPLAY_CACHE_BYTE_LIMIT,
+                "strictArguments": True,
+                "tokenMinLength": TOKEN_MIN,
+                "risks": list(RISKS),
+                "policy": dict(self.policy.allow),
+                "redaction": "observe() omits entered values unless "
+                             "SENSITIVE_READ is enabled; visible labels may still "
+                             "carry data a user typed",
+                "plugins": [p.as_dict() for p in plugins],
+                "tools": tools}
+
+    def discover(self, token):
+        self.policy.authenticate(token)
+        self.policy.authorize("READ")
+        return [p.as_dict() for p in self.registry.descriptors()]
+
+    def observe(self, token, plugin_id):
+        self.policy.authenticate(token)
+        self.policy.authorize("READ")
+        sensitive = bool(self.policy.allow.get("SENSITIVE_READ"))
+        return self.registry.find(plugin_id).observe(sensitive=sensitive)
+
+    def execute(self, token, plugin_id, command):
+        self.policy.authenticate(token)
+        rid = command.get("request_id") or command.get("requestId")
+        name = command.get("action")
+        args = command.get("arguments") or {}
+        if not rid or not isinstance(rid, str):
+            raise InvalidArgument("every command needs a caller-generated request_id")
+        if not isinstance(args, dict):
+            raise InvalidArgument("arguments must be an object")
+        plugin = self.registry.find(plugin_id)
+        key = plugin_id + "\x00" + rid
+        body = json.dumps({"a": name, "g": args}, sort_keys=True)
+
+        hit = self._done.get(key)
+        if hit is not None:
+            if hit.body != body:
+                raise Conflict("request_id %r was already used for a different command"
+                               % rid)
+            # Re-authorised, not merely re-served: a payload captured while a
+            # gate was open must not keep flowing after it is closed.
+            self.policy.authorize(hit.risk)
+            r = dict(hit.response)
+            r["replayed"] = True
+            return r
+
+        spec = plugin.descriptor().action(name)
+        self._validate(spec, args)
+        self.policy.authorize(spec.risk)
+        t0 = time.time()
+        try:
+            ok, message, output = plugin.execute(spec.name, args)
+        except HarnessError:
+            self.audit.append((time.time(), plugin_id, name, spec.risk, "refused"))
+            raise
+        except Exception as e:
+            self.audit.append((time.time(), plugin_id, name, spec.risk, "failed"))
+            raise Failed("%s/%s raised: %s" % (plugin_id, name, str(e)[:200]))
+        resp = {"protocolVersion": PROTOCOL_VERSION, "requestId": rid,
+                "pluginId": plugin_id, "action": spec.name, "risk": spec.risk,
+                "ok": bool(ok), "replayed": False, "message": message,
+                "output": output, "ms": int((time.time() - t0) * 1000),
+                "snapshot": plugin.observe(
+                    sensitive=bool(self.policy.allow.get("SENSITIVE_READ")))}
+        n = _bytes(output)
+        self._done[key] = _Done(body, resp, spec.risk, n)
+        self._bytes += n
+        self._trim()
+        self.audit.append((time.time(), plugin_id, name, spec.risk,
+                           "ok" if ok else "no"))
+        return resp
+
+    # -- internals ----------------------------------------------------------
+    @staticmethod
+    def _validate(spec, args):
+        declared = set()
+        for a in spec.arguments:
+            declared.add(a.name)
+            v = args.get(a.name)
+            if a.required and v is None:
+                raise InvalidArgument("action %r requires argument %r"
+                                      % (spec.name, a.name))
+            if v is not None:
+                a.validate(v, spec.name)
+        for k in args:
+            if k not in declared:
+                raise InvalidArgument("action %r does not accept argument %r"
+                                      % (spec.name, k))
+
+    def _trim(self):
+        while self._done and (len(self._done) > REPLAY_CACHE_LIMIT
+                              or (self._bytes > REPLAY_CACHE_BYTE_LIMIT
+                                  and len(self._done) > 1)):
+            k = next(iter(self._done))
+            self._bytes -= self._done.pop(k).nbytes
+
+
+def _bytes(v):
+    if v is None:
+        return 0
+    if isinstance(v, str):
+        return len(v.encode("utf-8"))
+    if isinstance(v, dict):
+        return sum(_bytes(k) + _bytes(x) for k, x in v.items())
+    if isinstance(v, (list, tuple)):
+        return sum(_bytes(x) for x in v)
+    return 16

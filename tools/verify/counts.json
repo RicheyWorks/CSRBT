@@ -1,6 +1,6 @@
 {
  "_comment": "Written by run_all.py. n is what the suite counted; sha identifies the suite source it was counted from. A count whose sha no longer matches says nothing about the suite as it stands -- rerun run_all.",
- "at": 1788030838,
+ "at": 1788037559,
  "suites": {
   "verify_advertised": {
    "green": true,
@@ -43,6 +43,12 @@
    "n": 46,
    "of": 46,
    "sha": "5043144f9c58"
+  },
+  "verify_contract": {
+   "green": true,
+   "n": 65,
+   "of": 65,
+   "sha": "fadc5dc62ada"
   },
   "verify_contrast_slice": {
    "green": true,
@@ -283,6 +289,12 @@
    "n": 122,
    "of": 122,
    "sha": "79c7d6188503"
+  },
+  "verify_swarm": {
+   "green": true,
+   "n": 28,
+   "of": 28,
+   "sha": "4a5117d50e9a"
   },
   "verify_sweep_ledger": {
    "green": true,
