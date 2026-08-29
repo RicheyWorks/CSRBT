@@ -1,0 +1,1091 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>The Experiment Guider — how to run an experiment in this ecosystem</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<!-- Webfonts load without blocking first paint: a stylesheet request that
+     hangs (one bar of signal) otherwise holds the page blank indefinitely,
+     which breaks the offline constraint in ADR-031. See tools/audit_offline.py. -->
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,600;9..144,700&family=Nunito+Sans:wght@400;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" media="print" data-webfont>
+<noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,600;9..144,700&family=Nunito+Sans:wght@400;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap"></noscript>
+<script>(function(){var l=document.querySelector('link[data-webfont]');if(!l)return;
+  var on=function(){l.media="all";};
+  if(l.sheet){on();}else{l.addEventListener("load",on);l.addEventListener("error",function(){});}
+})();</script>
+<style>
+  :root {
+    color-scheme: light;
+    --page:#F5F1E6; --surface:#FFFDF7; --surface-2:#F3EEE0; --ink:#23281F; --ink-2:#4B5344;
+    --muted:#6B6B5E; --border:#E3DCC9; --s1:#2C784C; --s1-deep:#236240; --s2:#A94F26; --s3:#2B6C8F;
+    --soft:#E9F0E7; --warn-bg:#F6EAD8; --danger:#B23A32; --danger-bg:#F6E7E5; --gold:#8A6408;
+    --shadow:0 1px 2px rgba(35,40,31,.06),0 10px 28px rgba(35,40,31,.08);
+    --head:"Fraunces",Georgia,serif;
+    --body:"Nunito Sans",system-ui,-apple-system,sans-serif;
+    --mono:"JetBrains Mono",ui-monospace,Menlo,monospace;
+  }
+  * { box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
+  [hidden] { display:none !important; }
+  body { margin:0; background:var(--page); color:var(--ink); font:16px/1.5 var(--body);
+    -webkit-font-smoothing:antialiased; overscroll-behavior-y:contain; }
+  .app { max-width:960px; margin:0 auto; padding:14px 16px calc(104px + env(safe-area-inset-bottom)); }
+  .top { display:flex; align-items:baseline; justify-content:space-between; gap:10px; padding:6px 2px 12px; flex-wrap:wrap; }
+  .brand { font-family:var(--head); font-weight:700; font-size:22px; letter-spacing:-0.01em; }
+  .brand span { color:var(--s1); }
+  .top a { font-family:var(--mono); font-size:11.5px; color:var(--muted); text-decoration:none;
+    display:inline-flex; align-items:center; min-height:44px; padding:0 6px; margin:-10px -6px; touch-action:manipulation; }
+  .top a:hover { color:var(--s1); }
+  .sub { color:var(--muted); font-size:14px; margin:0 0 12px; line-height:1.55; }
+
+  .tabbar { position:fixed; left:0; right:0; bottom:0; z-index:20;
+    background:color-mix(in srgb, var(--surface) 94%, transparent); backdrop-filter:blur(10px);
+    border-top:1px solid var(--border); padding:8px max(8px, env(safe-area-inset-left)) calc(8px + env(safe-area-inset-bottom)); }
+  .tabbar .row { max-width:960px; margin:0 auto; display:grid; grid-template-columns:repeat(5,1fr); gap:4px; }
+  .tab { display:flex; flex-direction:column; align-items:center; gap:2px; border:0; background:none;
+    font:700 10.5px var(--body); color:var(--muted); padding:7px 1px; border-radius:12px; cursor:pointer;
+    min-height:54px; touch-action:manipulation; transition:background .15s ease, color .15s ease; }
+  .tab .ico { font-size:20px; line-height:1; }
+  .tab.on { color:var(--s1); background:var(--soft); }
+  .tab:active { transform:scale(.96); }
+  .pane { display:none; animation:fade .18s ease; }
+  .pane.on { display:block; }
+  @keyframes fade { from{opacity:0;transform:translateY(4px);} to{opacity:1;transform:none;} }
+  @media (prefers-reduced-motion: reduce){ .pane{animation:none;} }
+
+  h2 { font-family:var(--head); font-weight:600; font-size:20px; margin:6px 0 2px; }
+  h3 { font-family:var(--head); font-weight:600; font-size:16.5px; margin:16px 0 4px; }
+  .hint { color:var(--muted); font-size:14px; margin:0 0 12px; }
+  .card { background:var(--surface); border:1px solid var(--border); border-radius:16px;
+    padding:16px; box-shadow:var(--shadow); margin-bottom:14px; }
+  .fine { font-size:12.5px; color:var(--muted); margin-top:10px; line-height:1.55; }
+  .fine a, .card a { color:var(--s1-deep); }
+  /* inline links keep their place in prose but carry a 44px+ touch target */
+  .card p a, .fine a, .src a, .story a, td a { display:inline-block; padding:14px 3px; margin:-14px -3px; }
+  input[type=checkbox] { font-size:16px; }
+  .src { font-family:var(--mono); font-size:11px; color:var(--muted); }
+  .src a { color:var(--muted); }
+  .src a:hover { color:var(--s1); }
+
+  .story { border-left:4px solid var(--s1); background:var(--soft); border-radius:0 12px 12px 0;
+    padding:10px 14px; margin:10px 0; font-size:14.5px; line-height:1.55; }
+  .story.warn { border-left-color:var(--s2); background:var(--warn-bg); }
+  .story b.num { font-family:var(--mono); font-weight:500; }
+
+  table { border-collapse:collapse; width:100%; font-size:13.5px; margin:8px 0; }
+  th, td { text-align:left; padding:6px 8px; border-bottom:1px solid var(--border); vertical-align:top; }
+  th { font-size:12px; text-transform:uppercase; letter-spacing:.04em; color:var(--muted); }
+  td code, li code, p code { font-family:var(--mono); font-size:12.5px; background:var(--surface-2);
+    padding:1px 5px; border-radius:6px; white-space:nowrap; }
+  .scroll { overflow-x:auto; }
+
+  label { display:block; font-weight:700; font-size:13px; margin:10px 0 4px; }
+  input[type=text], input[type=number], select, textarea {
+    width:100%; font:16px/1.4 var(--body); color:var(--ink); background:var(--surface);
+    border:1px solid var(--border); border-radius:10px; padding:10px 12px; min-height:44px; }
+  textarea { font-family:var(--mono); font-size:16px; }
+  input:focus, select:focus, textarea:focus, button:focus, a:focus, summary:focus
+    { outline:3px solid var(--s3); outline-offset:1px; }
+  .grid2 { display:grid; grid-template-columns:1fr 1fr; gap:0 12px; }
+  .grid4 { display:grid; grid-template-columns:repeat(4,1fr); gap:0 12px; }
+  @media (max-width:640px){ .grid4 { grid-template-columns:1fr 1fr; } }
+  .rowline { display:flex; gap:8px; align-items:flex-end; flex-wrap:wrap; }
+  .rowline > div { flex:1 1 120px; }
+  .rowline > .tight { flex:0 0 auto; }
+
+  button.btn { font:700 14px var(--body); color:var(--ink); background:var(--surface-2);
+    border:1px solid var(--border); border-radius:12px; padding:10px 16px; min-height:44px;
+    cursor:pointer; touch-action:manipulation; }
+  button.btn:hover { border-color:var(--s1); color:var(--s1-deep); }
+  button.btn.primary { background:var(--s1); border-color:var(--s1); color:#fff; }
+  button.btn.primary:hover { background:var(--s1-deep); color:#fff; }
+  button.btn:active { transform:scale(.97); }
+  .btnrow { display:flex; gap:8px; flex-wrap:wrap; margin-top:10px; }
+
+  .choice { display:grid; grid-template-columns:1fr 1fr; gap:10px; margin:8px 0 4px; }
+  @media (max-width:560px){ .choice { grid-template-columns:1fr; } }
+  .choice button { text-align:left; background:var(--surface); border:2px solid var(--border);
+    border-radius:14px; padding:14px; cursor:pointer; font:inherit; color:inherit; min-height:44px; touch-action:manipulation; }
+  .choice button.on { border-color:var(--s1); background:var(--soft); }
+  .choice .t { font-weight:800; font-size:15px; }
+  .choice .d { color:var(--muted); font-size:13px; margin-top:2px; }
+
+  pre.out { font:13px/1.5 var(--mono); background:#26291F; color:#EDEAD9; border-radius:12px;
+    padding:14px; overflow-x:auto; margin:10px 0 0; white-space:pre; }
+  pre.cmd { font:13.5px/1.5 var(--mono); background:#26291F; color:#EDEAD9; border-radius:12px;
+    padding:12px 14px; overflow-x:auto; margin:8px 0; white-space:pre; }
+  .added { display:flex; flex-wrap:wrap; gap:6px; margin-top:8px; }
+  .chip { font:500 12px var(--mono); background:var(--surface-2); border:1px solid var(--border);
+    border-radius:999px; padding:8px 12px; display:inline-flex; align-items:center; gap:8px; min-height:36px; }
+  .chip button { border:0; background:none; cursor:pointer; font-size:14px; line-height:1;
+    color:var(--danger); padding:6px; margin:-6px; min-width:32px; min-height:32px; touch-action:manipulation; }
+  .empty { color:var(--muted); font-size:13px; font-style:italic; }
+
+  details { border:1px solid var(--border); border-radius:12px; background:var(--surface); margin:8px 0; }
+  summary { font-weight:700; font-size:14px; padding:12px 14px; cursor:pointer; min-height:44px;
+    display:flex; align-items:center; touch-action:manipulation; }
+  details > div { padding:0 14px 12px; }
+
+  .check { display:flex; gap:10px; align-items:flex-start; padding:9px 2px; border-bottom:1px dashed var(--border); }
+  .check:last-child { border-bottom:0; }
+  .check input { width:22px; height:22px; min-height:22px; margin-top:2px; accent-color:var(--s1); flex:0 0 auto; }
+  .check label { display:block; font-weight:400; font-size:14.5px; margin:0; line-height:1.5; }
+  .check label b { font-weight:800; }
+
+  .verdict { font-family:var(--mono); font-size:12px; font-weight:500; border-radius:8px; padding:2px 8px; white-space:nowrap; }
+  .verdict.ok { background:var(--soft); color:var(--s1-deep); }
+  .verdict.no { background:var(--danger-bg); color:var(--danger); }
+  .verdict.un { background:var(--warn-bg); color:var(--gold); }
+
+  .toast { position:fixed; left:50%; transform:translateX(-50%) translateY(20px); bottom:calc(96px + env(safe-area-inset-bottom));
+    background:var(--ink); color:var(--page); font:700 13.5px var(--body); border-radius:999px;
+    padding:10px 18px; opacity:0; pointer-events:none; transition:opacity .2s ease, transform .2s ease; z-index:30; }
+  .toast.show { opacity:1; transform:translateX(-50%) translateY(0); }
+
+  @media print {
+    body { background:#fff; }
+    .tabbar, .btnrow, .toast, .top a { display:none !important; }
+    .pane { display:block !important; }
+    .pane + .pane { page-break-before:always; }
+    .card, .story, details { box-shadow:none; break-inside:avoid; }
+    details { border:1px solid #bbb; }
+    details:not([open]) > div { display:block; }
+    pre.out, pre.cmd { background:#fff; color:#111; border:1px solid #bbb; white-space:pre-wrap; }
+    .app { padding-bottom:16px; }
+  }
+</style>
+</head>
+<body>
+<div class="app">
+  <div class="top">
+    <div class="brand">The Experiment <span>Guider</span></div>
+    <a href="ecology.html">&larr; the living-systems lab</a>
+  </div>
+  <p class="sub">How to run an experiment in this ecosystem — for <b>scientists and engineers</b>.
+    The same discipline runs a meadow study and a storage-engine benchmark: write the rule before the run,
+    pin the seed, pay warm-up off the clock, and let the verdict say no.
+    This page teaches the method, then builds your experiment with you — a ready-to-run
+    <code>.eco</code> protocol, or a pre-registered measurement plan. Everything works offline and prints clean.</p>
+
+<!-- ══════════════════════════ METHOD ══════════════════════════ -->
+<section class="pane on" id="pane-method" aria-labelledby="tab-method">
+  <div class="card">
+    <h2>The five commitments</h2>
+    <p class="hint">None of these are theory. Every one was learned here the hard way, and each story below
+      carries its receipt — the document where the number lives.</p>
+
+    <h3>1 &middot; Write the rule before the run</h3>
+    <p>Decide what result would change your mind — and write it down — <b>before</b> you see any data.
+      A bar set after the numbers arrive is a bar the numbers set. In this ecosystem the habit is built in:
+      the <code>.eco</code> runner grades hypotheses that were in the spec before it ran, and every
+      performance experiment states its decision rule in the test's javadoc before the first timed pass.</p>
+    <div class="story">
+      Three pre-registered verdicts, one day. The cold-scan experiment set its bar at
+      <b class="num">5&times;</b> the raw-read floor and measured <b class="num">524&times;</b> — the trigger
+      <span class="verdict ok">FIRED</span> and a held feature earned its build. The preserve-cadence experiment
+      set a <b class="num">25%</b>-of-churn viability bar and measured <b class="num">191%</b> — the popular
+      workaround was <span class="verdict no">PRICED DEAD</span>, and nobody gets told "just preserve more often"
+      again. The memory-bound experiment set a <b class="num">1&nbsp;KB</b>-per-key bar and measured
+      <b class="num">181&nbsp;B</b> — the disk-pages seam <span class="verdict un">STAYS HELD</span>.
+      Two of the three said no. All three verdicts were kept.
+      <div class="src">sources:
+        <a href="https://github.com/RicheyWorks/WholeHog/blob/main/docs/EXPERIMENT-2026-08-20-cold-triggers.md">EXPERIMENT-2026-08-20-cold-triggers.md</a> &middot;
+        <a href="https://github.com/RicheyWorks/WholeHog/blob/main/docs/EXPERIMENT-2026-08-20-memory-bound.md">EXPERIMENT-2026-08-20-memory-bound.md</a></div>
+    </div>
+
+    <h3>2 &middot; Pin the seed</h3>
+    <p>A result nobody can reproduce is an anecdote. Every workload generator here takes a seed, and the
+      protocol runner is deterministic to the byte: <i>same spec, same bytes</i>. Reviewers do not have to
+      trust your run — they can have it.</p>
+    <div class="story">
+      The experiments above are not tables in a document that someone once produced — they are checked in as
+      seeded tests (<code>ColdScanExperimentTest</code>, <code>PreserveCadenceExperimentTest</code>,
+      <code>MemoryBoundExperimentTest</code>), so any machine can re-run the verdict of record.
+      <div class="src">source: <a href="https://github.com/RicheyWorks/WholeHog/blob/main/docs/EXPERIMENT-2026-08-20-cold-triggers.md">EXPERIMENT-2026-08-20-cold-triggers.md</a> ("checked in so any machine can reproduce them")</div>
+    </div>
+
+    <h3>3 &middot; Pay warm-up off the clock</h3>
+    <p>On a JIT-compiled runtime, the first pass through any code path pays compilation on your stopwatch.
+      Run one full untimed pass first; only then start timing.</p>
+    <div class="story warn">
+      Before ADR-022, the strategy tournament timed a single cold pass — and whichever competitor ran first
+      paid the JIT bill: <b class="num">62.4&nbsp;ms</b> cold vs <b class="num">17.2&nbsp;ms</b> warm
+      (<b class="num">3.6&times;</b>) for identical work. Rank orders differed across <i>identical inputs</i>.
+      The fix: one untimed warm-up pass, then timed passes on fresh contexts.
+      <div class="src">source: <a href="https://github.com/RicheyWorks/CSRBT/blob/main/docs/ADR-022-battle-methodology-2026-08-12.md">ADR-022</a>, finding V-D</div>
+    </div>
+
+    <h3>4 &middot; Take the median of three</h3>
+    <p>One timed pass is one sample of a noisy machine. Three timed passes on fresh state, keep the median —
+      it absorbs a single spike without averaging it into your result. Report the phase decomposition too:
+      a total that cannot say <i>where</i> the time went cannot name the enemy.</p>
+    <div class="story">
+      The cold-scan verdict was usable <i>because</i> it decomposed: inflate <b class="num">29&nbsp;ms</b>,
+      recover <b class="num">61&nbsp;ms</b>, scan <b class="num">434&nbsp;ms</b> of a
+      <b class="num">524&nbsp;ms</b> route at n=60,000. The decomposition named the enemy (the scan through a
+      store recovered only to be read once) — and the fix it pointed at measured
+      <b class="num">33&times;</b> faster.
+      <div class="src">source: <a href="https://github.com/RicheyWorks/WholeHog/blob/main/docs/EXPERIMENT-2026-08-20-cold-triggers.md">EXPERIMENT-2026-08-20-cold-triggers.md</a></div>
+    </div>
+
+    <h3>5 &middot; Measure the realized thing</h3>
+    <p>The easiest number to collect is usually a proxy for the number you care about. Ask of every metric:
+      <i>is this the behavior, or the worst case of the behavior? Is the subject actually allowed to do the
+      thing I claim to be measuring?</i></p>
+    <div class="story warn">
+      The tournament once benchmarked the Splay strategy <b>with splaying disabled</b> — searches ran through a
+      read path documented "never splays," so the self-adjusting structure could never self-adjust in the very
+      workloads written to favor it. And the "search depth" metric was the <i>root height</i> (worst case,
+      weighted &times;3 in the score), not nodes actually touched: it read <b class="num">~3000</b> where the
+      realized depth was under <b class="num">100</b>. Splay finished dead last in every seed — a structurally
+      guaranteed verdict, not a measured one.
+      <div class="src">source: <a href="https://github.com/RicheyWorks/CSRBT/blob/main/docs/ADR-022-battle-methodology-2026-08-12.md">ADR-022</a>, finding V-C</div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>Two habits that keep verdicts honest</h2>
+    <h3>Compare against a floor</h3>
+    <p>Before comparing solution A to solution B, name the <b>floor</b> — the least <i>any</i> solution could
+      possibly do. The cold-scan experiment measured its route against the cost of reading the archive's bytes
+      once; "524&times; the floor" is a claim about the problem, where "5&times; faster than the other guy" is
+      only a claim about the other guy.</p>
+    <h3>A refuted result is a result</h3>
+    <p>The report keeps what the run refuted, in writing, next to what it confirmed. The
+      <code>.eco</code> runner prints REFUTED beside a failed hypothesis instead of hiding it, and audit
+      documents here record <i>dismissed</i> suspicions alongside confirmed findings — a suspicion examined
+      and cleared is knowledge, and it stops the next person from re-hunting it.</p>
+    <p class="fine">This is also why UNGRADEABLE exists as a third verdict: a hypothesis naming a phase that
+      doesn't exist is a spec bug, not a result — the runner refuses to guess.
+      See <a href="eco-protocol-reference.html">the .eco reference</a>.</p>
+  </div>
+</section>
+
+<!-- ══════════════════════════ DESIGNER ══════════════════════════ -->
+<section class="pane" id="pane-designer" aria-labelledby="tab-designer">
+  <div class="card">
+    <h2>Design your experiment</h2>
+    <p class="hint">Pick a track. Both walks end with something you can run: a <code>.eco</code> protocol file,
+      or a pre-registered measurement plan with a test skeleton. Your entries autosave on this device.</p>
+    <div class="choice" role="group" aria-label="Experiment track">
+      <button type="button" id="track-eco" class="on">
+        <div class="t">&#127807; Ecology protocol</div>
+        <div class="d">A field or simulation study in the <code>.eco</code> format — phases, factors, models,
+          field data, and graded hypotheses. Runs in one command.</div>
+      </button>
+      <button type="button" id="track-eng">
+        <div class="t">&#9201;&#65039; Engineering measurement</div>
+        <div class="d">A performance question with a floor, a seed, warm-up, median-of-3 timing, and a
+          decision rule written before the run.</div>
+      </button>
+    </div>
+  </div>
+
+  <!-- ── ecology track ── -->
+  <div id="eco-track">
+    <div class="card">
+      <h3>Step 1 — name the study</h3>
+      <div class="grid4">
+        <div><label for="e-name">Study name</label>
+          <input type="text" id="e-name" placeholder="meadow disturbance study" autocomplete="off"></div>
+        <div><label for="e-keys">Key population</label>
+          <input type="number" id="e-keys" value="100" min="1" inputmode="numeric"></div>
+        <div><label for="e-seed">Seed</label>
+          <input type="number" id="e-seed" value="42" inputmode="numeric"></div>
+        <div><label for="e-window">Recorder window (ops)</label>
+          <input type="number" id="e-window" value="250" min="1" inputmode="numeric"></div>
+      </div>
+      <p class="fine">Keys are species &middot; touches are abundance &middot; time is counted in operations.
+        The seed makes the whole run reproducible — same spec, same bytes.</p>
+    </div>
+
+    <div class="card">
+      <h3>Step 2 — write the story as phases</h3>
+      <p class="hint">Each phase is a named stretch of operations with one access pattern.
+        <code>uniform</code> spreads traffic evenly; <code>hot</code> concentrates it on a few keys
+        (a bloom, a disturbance); <code>churn</code> adds and removes keys (turnover, seasons).</p>
+      <div class="rowline">
+        <div><label for="p-name">Phase name</label>
+          <input type="text" id="p-name" placeholder="graze" autocomplete="off"></div>
+        <div><label for="p-kind">Pattern</label>
+          <select id="p-kind">
+            <option value="uniform">uniform — even traffic</option>
+            <option value="hot">hot — a few keys dominate</option>
+            <option value="churn">churn — keys come and go</option>
+          </select></div>
+        <div><label for="p-ops">Ops</label>
+          <input type="number" id="p-ops" value="2000" min="1" inputmode="numeric"></div>
+        <div id="p-hotwrap" hidden><label for="p-hotset">Hot set size</label>
+          <input type="number" id="p-hotset" value="5" min="1" inputmode="numeric"></div>
+        <div id="p-sharewrap" hidden><label for="p-hotshare">Hot share %</label>
+          <input type="number" id="p-hotshare" value="90" min="1" max="100" inputmode="numeric"></div>
+        <div id="p-addwrap" hidden><label for="p-addpct">Add %</label>
+          <input type="number" id="p-addpct" value="55" min="0" max="100" inputmode="numeric"></div>
+        <div class="tight"><button type="button" class="btn" id="p-add">+ Add phase</button></div>
+      </div>
+      <div class="added" id="p-list"><span class="empty">No phases yet — a study needs at least one.</span></div>
+    </div>
+
+    <div class="card">
+      <h3>Step 3 — set the abiotic stage <span class="src">(optional)</span></h3>
+      <p class="hint">Factors scale the theory models' rates and capacities: <code>area</code> scales K and
+        extinction pressure, <code>wind</code> scales colonization, <code>temperature</code> multiplies rates,
+        <code>distance</code> decays immigration. 1.0 means "leave it alone."</p>
+      <div class="grid4">
+        <div><label for="f-area">area</label><input type="number" id="f-area" step="0.1" placeholder="1.0" inputmode="decimal"></div>
+        <div><label for="f-wind">wind</label><input type="number" id="f-wind" step="0.1" placeholder="1.0" inputmode="decimal"></div>
+        <div><label for="f-temp">temperature</label><input type="number" id="f-temp" step="0.1" placeholder="1.0" inputmode="decimal"></div>
+        <div><label for="f-dist">distance</label><input type="number" id="f-dist" step="0.1" placeholder="1.0" inputmode="decimal"></div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h3>Step 4 — run theory beside the field <span class="src">(optional)</span></h3>
+      <p class="hint">Models run next to the simulation so prediction and observation share a report.
+        Parameters are space-separated, in the order shown.</p>
+      <div class="rowline">
+        <div><label for="m-kind">Model</label>
+          <select id="m-kind">
+            <option value="logistic" data-hint="r K n0 steps" data-eg="0.15 120 5 60">logistic growth</option>
+            <option value="exponential" data-hint="r n0 steps" data-eg="0.1 5 40">exponential growth</option>
+            <option value="levins" data-hint="c e p0 steps" data-eg="0.4 0.1 0.05 40">levins metapopulation</option>
+            <option value="island" data-hint="c e pool s0 steps" data-eg="0.3 0.1 100 0 40">island biogeography</option>
+            <option value="competition" data-hint="r1 K1 r2 K2 a12 a21 n1 n2 steps" data-eg="0.4 100 0.4 80 0.7 1.1 5 5 80">Lotka&ndash;Volterra competition</option>
+            <option value="predation" data-hint="r a b m n0 p0 steps" data-eg="0.5 0.02 0.3 0.4 40 9 200">predator&ndash;prey</option>
+            <option value="hardyweinberg" data-hint="observed AA Aa aa" data-eg="298 489 213">Hardy&ndash;Weinberg</option>
+            <option value="eulerlotka" data-hint="lx:mx per age" data-eg="1.0:0 0.8:1.5 0.5:2.0 0.2:1.0">Euler&ndash;Lotka</option>
+            <option value="markrecapture" data-hint="marked caught recaptured" data-eg="120 90 30">mark&ndash;recapture</option>
+          </select></div>
+        <div><label for="m-params">Parameters &middot; <span class="src" id="m-hint">r K n0 steps</span></label>
+          <input type="text" id="m-params" placeholder="0.15 120 5 60" autocomplete="off"></div>
+        <div class="tight"><button type="button" class="btn" id="m-add">+ Add model</button></div>
+      </div>
+      <div class="added" id="m-list"><span class="empty">No models yet.</span></div>
+    </div>
+
+    <div class="card">
+      <h3>Step 5 — enter field data <span class="src">(optional)</span></h3>
+      <p class="hint">Your own observations, graded by the same instruments as the simulation.
+        Write <code>species=count</code> pairs, or bare names that tally like clipboard marks
+        (<code>peck peck flap</code> counts two pecks and a flap).</p>
+      <div class="rowline">
+        <div><label for="d-name">Dataset name</label>
+          <input type="text" id="d-name" placeholder="pondA" autocomplete="off"></div>
+        <div style="flex:2 1 240px"><label for="d-counts">Counts or tallies</label>
+          <input type="text" id="d-counts" placeholder="cattail=18 duckweed=44 frogbit=3" autocomplete="off"></div>
+        <div class="tight"><button type="button" class="btn" id="d-add">+ Add dataset</button></div>
+      </div>
+      <div class="added" id="d-list"><span class="empty">No datasets yet.</span></div>
+      <label for="e-notes" style="margin-top:12px">Field notebook <span class="src">(one note per line; <code>bloom: ...</code> attaches a note to a phase or dataset)</span></label>
+      <textarea id="e-notes" rows="3" placeholder="sampled both ponds after two dry weeks&#10;bloom: five keys took nearly all the traffic"></textarea>
+    </div>
+
+    <div class="card">
+      <h3>Step 6 — pre-register your hypotheses</h3>
+      <p class="hint">This is the step that makes it an experiment. Each expectation is graded
+        CONFIRMED or REFUTED after the run — and you are writing it <b>now</b>, before the run.
+        Numeric: <code>metric(phase) &lt; value</code>. Qualitative: <code>metric(phase) is word</code>,
+        graded against fixed bands.</p>
+      <div class="rowline">
+        <div><label for="x-metric">Metric</label>
+          <select id="x-metric">
+            <optgroup label="one community (a phase or dataset)">
+              <option value="richness">richness</option>
+              <option value="shannon">shannon</option>
+              <option value="evenness">evenness</option>
+              <option value="hill1">hill1</option>
+              <option value="chao1">chao1</option>
+            </optgroup>
+            <optgroup label="two communities">
+              <option value="brayCurtis">brayCurtis</option>
+              <option value="pianka">pianka</option>
+              <option value="jaccard">jaccard</option>
+              <option value="sorensen">sorensen</option>
+            </optgroup>
+            <optgroup label="qualitative (graded against bands)">
+              <option value="q-evenness">evenness &hellip; is &hellip;</option>
+              <option value="q-turnover">turnover(p, q) is &hellip;</option>
+              <option value="q-overlap">overlap(p, q) is &hellip;</option>
+              <option value="q-fit">fit(p) is &hellip;</option>
+              <option value="q-survivorship">survivorship is &hellip;</option>
+            </optgroup>
+          </select></div>
+        <div><label for="x-args">Phase / dataset name(s)</label>
+          <input type="text" id="x-args" placeholder="graze  or  graze, bloom" autocomplete="off"></div>
+        <div id="x-opwrap"><label for="x-op">Test</label>
+          <select id="x-op"><option>&gt;</option><option>&lt;</option><option>&gt;=</option><option>&lt;=</option></select></div>
+        <div id="x-valwrap"><label for="x-val">Value</label>
+          <input type="number" id="x-val" step="any" placeholder="0.9" inputmode="decimal"></div>
+        <div id="x-wordwrap" hidden><label for="x-word">Band</label>
+          <select id="x-word"></select></div>
+        <div class="tight"><button type="button" class="btn" id="x-add">+ Add hypothesis</button></div>
+      </div>
+      <div class="added" id="x-list"><span class="empty">No hypotheses yet — without one, it's a demo, not an experiment.</span></div>
+      <p class="fine">Comparing a simulated phase to an entered dataset grades UNGRADEABLE on purpose —
+        the numbers share no species. Compare phase-to-phase or dataset-to-dataset.
+        Advanced directives (<code>cross:</code> Mendelian genetics, <code>tree:</code> Newick phylogenies) are in
+        <a href="eco-protocol-reference.html">the full .eco reference</a>; paste them into the extra-lines box below.</p>
+      <label for="e-extra" style="margin-top:8px">Extra directives <span class="src">(optional, appended verbatim)</span></label>
+      <textarea id="e-extra" rows="2" placeholder="cross: Rr x Rr observed 5474 1850&#10;tree: pondlife (Porifera,(Cnidaria,(Mollusca,Chordata)));"></textarea>
+    </div>
+
+    <div class="card">
+      <h3>Your protocol</h3>
+      <pre class="out" id="eco-out" aria-label="Generated .eco protocol"></pre>
+      <div class="btnrow">
+        <button type="button" class="btn primary" id="eco-copy">Copy .eco</button>
+        <button type="button" class="btn" id="eco-download">Download .eco</button>
+        <button type="button" class="btn" id="eco-reset">Start over</button>
+      </div>
+      <p class="fine">If your viewer blocks downloads (some hosted viewers do), use <b>Copy .eco</b> and paste
+        into a file named after the study — the command below already carries the name.</p>
+      <h3>Then run it</h3>
+      <pre class="cmd" id="eco-cmd">./gradlew ecologyExperiment -Pspec=my-experiment.eco</pre>
+      <p class="fine">From the repo root. The runner prints the narrated report with each hypothesis graded,
+        and writes results <b>beside your spec</b>: <code>my-experiment-session.json</code> and
+        <code>my-experiment-out/</code> (CSV, Excel workbook, PowerPoint report, HTML). Drop the session file
+        onto <a href="ecology-lab.html">the interactive lab</a> to explore the run — or drop the
+        <code>.eco</code> itself onto the lab's Workbench to load it back for editing.</p>
+    </div>
+  </div>
+
+  <!-- ── engineering track ── -->
+  <div id="eng-track" hidden>
+    <div class="card">
+      <h3>Step 1 — the question and the floor</h3>
+      <div><label for="g-question">What are you measuring? <span class="src">(one sentence, a cost or a comparison)</span></label>
+        <input type="text" id="g-question" placeholder="What does one scan over a cold archive cost, end to end?" autocomplete="off"></div>
+      <div><label for="g-floor">The floor — the least ANY solution could do <span class="src">(what you compare against)</span></label>
+        <input type="text" id="g-floor" placeholder="reading the archive's bytes once, front to back" autocomplete="off"></div>
+      <p class="fine">A floor turns "X is slower than Y" into "X costs N&times; what the problem itself costs."
+        If no floor exists, name your baseline and say why it's the honest one.</p>
+    </div>
+
+    <div class="card">
+      <h3>Step 2 — the apparatus</h3>
+      <div class="grid2">
+        <div><label for="g-workload">Workload / input <span class="src">(shape and generator)</span></label>
+          <input type="text" id="g-workload" placeholder="60k-op churn, ~5k live keys, seeded generator" autocomplete="off"></div>
+        <div><label for="g-sizes">Sizes to run <span class="src">(comma-separated; two or more shows scaling)</span></label>
+          <input type="text" id="g-sizes" placeholder="20000, 60000" autocomplete="off"></div>
+        <div><label for="g-seed">Seed</label>
+          <input type="number" id="g-seed" value="42" inputmode="numeric"></div>
+        <div><label for="g-passes">Timed passes <span class="src">(median kept; 1 untimed warm-up first)</span></label>
+          <input type="number" id="g-passes" value="3" min="1" inputmode="numeric"></div>
+      </div>
+      <div><label for="g-phases">Phase decomposition <span class="src">(comma-separated stages you will time separately)</span></label>
+        <input type="text" id="g-phases" placeholder="inflate, recover, scan" autocomplete="off"></div>
+    </div>
+
+    <div class="card">
+      <h3>Step 3 — the decision rule</h3>
+      <p class="hint">Write what each outcome will <b>mean</b> — before the run. What number fires the trigger?
+        What number kills the idea? What happens on the boundary?</p>
+      <div><label for="g-rule">Rule <span class="src">(a bar and its consequence)</span></label>
+        <input type="text" id="g-rule" placeholder="fires if the route exceeds 5x the floor at the larger size" autocomplete="off"></div>
+      <div><label for="g-stakes">If it fails the bar</label>
+        <input type="text" id="g-stakes" placeholder="the seam stays held and the workaround is recorded as priced dead" autocomplete="off"></div>
+    </div>
+
+    <div class="card">
+      <h3>Your pre-registration</h3>
+      <pre class="out" id="eng-out" aria-label="Generated pre-registration"></pre>
+      <div class="btnrow">
+        <button type="button" class="btn primary" id="eng-copy">Copy pre-registration</button>
+        <button type="button" class="btn" id="eng-skel">Copy JUnit skeleton</button>
+        <button type="button" class="btn" id="eng-reset">Start over</button>
+      </div>
+      <p class="fine">Paste the pre-registration into your experiment doc <i>before</i> running
+        (the convention here: <code>docs/EXPERIMENT-&lt;date&gt;-&lt;name&gt;.md</code>, method and rule first,
+        table and verdict appended after). The skeleton is a seeded JUnit test in the house style —
+        decision constants at the top, warm-up pass, median-of-3 helper — modeled on
+        <a href="https://github.com/RicheyWorks/WholeHog/blob/main/docs/EXPERIMENT-2026-08-20-cold-triggers.md">the checked-in experiments</a>.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ══════════════════════════ GRADING ══════════════════════════ -->
+<section class="pane" id="pane-grading" aria-labelledby="tab-grading">
+  <div class="card">
+    <h2>How a verdict is earned</h2>
+    <p class="hint">Every hypothesis gets exactly one of three verdicts. There is no "sort of."</p>
+    <p><span class="verdict ok">CONFIRMED</span> — the observed value satisfied the test you pre-registered.<br>
+       <span class="verdict no">REFUTED</span> — it didn't. This stays in the report; a refuted prediction is a
+       measurement of your model, not an embarrassment.<br>
+       <span class="verdict un">UNGRADEABLE</span> — the hypothesis could not be tested: it names a phase or
+       dataset that doesn't exist, or compares a simulated phase to entered field data (they share no species,
+       so the number would be noise wearing a decimal point). An untestable hypothesis is a spec bug, and the
+       runner says so instead of guessing.</p>
+  </div>
+
+  <div class="card">
+    <h3>Numeric hypotheses — <code>metric(args) op value</code></h3>
+    <p class="hint">Operators: <code>&lt;</code> <code>&gt;</code> <code>&lt;=</code> <code>&gt;=</code>.
+      A community is a phase or an entered <code>data:</code> set.</p>
+    <div class="scroll"><table>
+      <tr><th>metric</th><th>of</th><th>asks</th></tr>
+      <tr><td><code>richness</code></td><td>one community</td><td>how many species were present</td></tr>
+      <tr><td><code>shannon</code></td><td>one community</td><td>diversity weighting rare species (H&prime;)</td></tr>
+      <tr><td><code>evenness</code></td><td>one community</td><td>how equally abundance is shared (0&ndash;1)</td></tr>
+      <tr><td><code>hill1</code></td><td>one community</td><td>the effective number of common species</td></tr>
+      <tr><td><code>chao1</code></td><td>one community</td><td>estimated true richness, from rarity</td></tr>
+      <tr><td><code>brayCurtis</code></td><td>two communities</td><td>abundance turnover between them (0 same &ndash; 1 disjoint)</td></tr>
+      <tr><td><code>jaccard</code> / <code>sorensen</code></td><td>two communities</td><td>presence/absence overlap</td></tr>
+      <tr><td><code>pianka</code></td><td>two communities</td><td>niche overlap (0 none &ndash; 1 identical use)</td></tr>
+    </table></div>
+    <p class="fine">Examples: <code>expect: evenness(graze) &gt; 0.9</code> &middot;
+      <code>expect: brayCurtis(graze, bloom) &gt; 0.5</code> &middot;
+      <code>expect: jaccard(pondA, pondB) &lt; 0.5</code></p>
+  </div>
+
+  <div class="card">
+    <h3>Qualitative hypotheses — <code>metric(args) is word</code></h3>
+    <p class="hint">Graded against the same fixed bands the narrated report uses, so your words and the
+      report's words can't drift apart.</p>
+    <div class="scroll"><table>
+      <tr><th>form</th><th>allowed words</th></tr>
+      <tr><td><code>evenness(p) is &hellip;</code></td><td><code>very-even</code> <code>moderate</code> <code>uneven</code> <code>dominated</code></td></tr>
+      <tr><td><code>turnover(p, q) is &hellip;</code></td><td><code>low</code> <code>moderate</code> <code>major</code> <span class="src">(Bray&ndash;Curtis bands)</span></td></tr>
+      <tr><td><code>overlap(p, q) is &hellip;</code></td><td><code>high</code> <code>partial</code> <code>little</code> <span class="src">(Pianka bands)</span></td></tr>
+      <tr><td><code>fit(p) is &hellip;</code></td><td><code>geometric</code> <code>brokenstick</code> <code>uniform</code> <span class="src">(rank-abundance best fit)</span></td></tr>
+      <tr><td><code>survivorship is &hellip;</code></td><td><code>type1</code> <code>type2</code> <code>type3</code> <span class="src">(no parentheses — reads the run's census)</span></td></tr>
+    </table></div>
+    <p class="fine">Everything beyond this deliberately stays out of the format — a hypothesis that needs more
+      belongs in Java against the instruments directly. The format stays small on purpose.
+      Full grammar: <a href="eco-protocol-reference.html">the .eco reference</a>.</p>
+  </div>
+
+  <div class="card">
+    <h3>Engineering verdicts</h3>
+    <p>Performance experiments here grade a <b>held decision</b>, not a number in isolation. The
+      pre-registered rule names the bar; the run answers one of:</p>
+    <p><span class="verdict ok">THE TRIGGER FIRES</span> — the measured cost cleared the bar; the held feature
+      earns its build, with its number attached (the cold-scan trigger fired at
+      <b class="src">524&times; against a 5&times; bar</b>).<br>
+      <span class="verdict un">STAYS HELD</span> — the bar wasn't met; the seam waits, and the price you
+      measured is recorded so the next reviewer doesn't re-litigate it from intuition
+      (the disk-pages seam stays held at <b class="src">181&nbsp;B/key against a 1&nbsp;KB bar</b>).<br>
+      <span class="verdict no">PRICED DEAD</span> — a workaround everyone would reach for was measured
+      unviable, in writing (preserve-often died at <b class="src">191% of churn time against a 25% bar</b>).</p>
+    <p class="fine">Sources for all three numbers:
+      <a href="https://github.com/RicheyWorks/WholeHog/blob/main/docs/EXPERIMENT-2026-08-20-cold-triggers.md">cold-triggers</a> and
+      <a href="https://github.com/RicheyWorks/WholeHog/blob/main/docs/EXPERIMENT-2026-08-20-memory-bound.md">memory-bound</a>.
+      Notice the pattern: verdict, bar, and consequence live in one sentence. Write yours the same way.</p>
+  </div>
+</section>
+
+<!-- ══════════════════════════ INSTRUMENTS ══════════════════════════ -->
+<section class="pane" id="pane-instruments" aria-labelledby="tab-instruments">
+  <div class="card">
+    <h2>The instrument bench</h2>
+    <p class="hint">What to reach for, by the job in front of you. Pages live beside this one in
+      <code>docs/</code>; engines live in their repos.</p>
+
+    <h3>Design the study</h3>
+    <div class="scroll"><table>
+      <tr><th>instrument</th><th>reach for it when</th></tr>
+      <tr><td><a href="eco-protocol-reference.html">.eco reference</a></td>
+          <td>you need the full protocol grammar — every directive, every model, every band</td></tr>
+      <tr><td><a href="eco-protocol-library.html">protocol library</a></td>
+          <td>you want a worked protocol to start from instead of a blank page</td></tr>
+      <tr><td><a href="survey-design.html">survey design</a></td>
+          <td>your study involves looking for things — it teaches the difference between
+              <i>absent</i> and <i>not looked for</i></td></tr>
+      <tr><td>this page's Designer tab</td>
+          <td>you want to be walked from question to runnable protocol</td></tr>
+    </table></div>
+
+    <h3>Run it</h3>
+    <div class="scroll"><table>
+      <tr><th>instrument</th><th>what it does</th></tr>
+      <tr><td><code>./gradlew ecologyExperiment -Pspec=your.eco</code></td>
+          <td>runs a protocol: simulates the phases, runs the models, grades every hypothesis, prints the
+              narrated report, writes the session + exports beside your spec</td></tr>
+      <tr><td>exports folder</td>
+          <td>every run emits CSV, a native Excel workbook, a PowerPoint report, and HTML — data leaves in
+              whatever your collaborators open
+              <span class="src">(<a href="https://github.com/RicheyWorks/CSRBT/blob/main/docs/ADR-030-native-office-export-2026-08-19.md">ADR-030</a>)</span></td></tr>
+      <tr><td><code>StrategyBattleRunner</code></td>
+          <td>races Red-Black, AVL, Splay, Hybrid on one seeded workload — 7 workload types, warm-up +
+              median-of-3, realized search depth
+              <span class="src">(<a href="https://github.com/RicheyWorks/CSRBT/blob/main/docs/ADR-022-battle-methodology-2026-08-12.md">ADR-022</a>)</span></td></tr>
+      <tr><td><code>csrbt-benchmarks</code> (JMH)</td>
+          <td>serious steady-state benchmarking; the battle runner is a diagnostics tool, JMH is the
+              measuring instrument of record</td></tr>
+      <tr><td>checked-in experiment tests</td>
+          <td>the reproducible verdicts: <code>NonStationary</code>, <code>SwitchingCost</code>,
+              <code>DiscriminatingSchedule</code>, <code>EvolutionAcceptance</code> in csrbt-core;
+              <code>EarlyWarning</code>, <code>CacheTransfer</code> in csrbt-experimental — read them as
+              worked examples of the method</td></tr>
+    </table></div>
+
+    <h3>Read the results</h3>
+    <div class="scroll"><table>
+      <tr><th>instrument</th><th>what it does</th></tr>
+      <tr><td><a href="ecology-lab.html">the interactive lab</a></td>
+          <td>drop a session JSON on it — the Workbench renders your run's communities, curves, and graded
+              hypotheses; drop a <code>.eco</code> to load a protocol back for editing</td></tr>
+      <tr><td><a href="field-notebook.html">field notebook</a></td>
+          <td>tap-to-tally live field data that transfers straight into a protocol</td></tr>
+      <tr><td><a href="tree-visualizer.html">tree visualizer</a></td>
+          <td>watch the structure your workload actually built</td></tr>
+      <tr><td><a href="ordination.html">ordination</a></td>
+          <td>many communities at once — which samples resemble which</td></tr>
+    </table></div>
+
+    <h3>The wider organism</h3>
+    <p>The storage ecosystem around the index has its own instruments, built for exactly this method —
+      every one is a seam an experiment can hold onto:</p>
+    <div class="scroll"><table>
+      <tr><th>engine</th><th>instrument</th></tr>
+      <tr><td><a href="https://github.com/RicheyWorks/Rub">Rub</a></td>
+          <td>the observer: <code>Vitals</code> meters and <code>pulse()</code> — op-relative deltas between
+              two readings, no wall clock involved</td></tr>
+      <tr><td><a href="https://github.com/RicheyWorks/Sizzle">Sizzle</a></td>
+          <td>deterministic chaos: seeded fault and latency injection, so a failure experiment reproduces
+              like any other run</td></tr>
+      <tr><td><a href="https://github.com/RicheyWorks/Twine">Twine</a></td>
+          <td><code>stats()</code> — a nonzero <code>journalReplays</code> is the observable trace of an
+              absorbed crash</td></tr>
+      <tr><td><a href="https://github.com/RicheyWorks/WholeHog">WholeHog</a></td>
+          <td>the composed organism: <code>Organism.report()</code> reads every meter in one call
+              (and two consecutive physicals are pinned identical — a physical never changes the patient)</td></tr>
+    </table></div>
+    <p class="fine">The pattern worth stealing: instrument first, then experiment. Every engine above grew a
+      meter <i>before</i> any claim was made about it — you cannot pre-register a rule about a number you
+      cannot read.</p>
+  </div>
+</section>
+
+<!-- ══════════════════════════ CHECKLIST ══════════════════════════ -->
+<section class="pane" id="pane-checklist" aria-labelledby="tab-checklist">
+  <div class="card">
+    <h2>Pre-flight checklist</h2>
+    <p class="hint">Fill this in before the first real run. If a box can't be ticked, the experiment isn't
+      ready — that's the checklist working. Print it and keep it with the run.</p>
+    <div id="cl">
+      <div class="check"><input type="checkbox" id="c1"><label for="c1"><b>The question is one sentence.</b>
+        If it needs two, it's two experiments.</label></div>
+      <div class="check"><input type="checkbox" id="c2"><label for="c2"><b>Each hypothesis is falsifiable.</b>
+        There is a result that would refute it, and you can say what that result is.</label></div>
+      <div class="check"><input type="checkbox" id="c3"><label for="c3"><b>The decision rule is written down.</b>
+        The bar, and what fires / stays held / dies on each side of it — recorded before any data exists.</label></div>
+      <div class="check"><input type="checkbox" id="c4"><label for="c4"><b>The floor or baseline is named.</b>
+        You know the least any solution could do, or the honest thing you're comparing against.</label></div>
+      <div class="check"><input type="checkbox" id="c5"><label for="c5"><b>The seed is pinned.</b>
+        Anyone with the spec (or the test) gets your bytes.</label></div>
+      <div class="check"><input type="checkbox" id="c6"><label for="c6"><b>Warm-up is planned and untimed.</b>
+        For timed runs: one full untimed pass; JIT pays off the clock.</label></div>
+      <div class="check"><input type="checkbox" id="c7"><label for="c7"><b>Timing is median-of-3 on fresh state.</b>
+        And the phases you'll decompose into are listed.</label></div>
+      <div class="check"><input type="checkbox" id="c8"><label for="c8"><b>You know where every output lands.</b>
+        Session, exports, tables — paths named before the run, so nothing overwrites a shipped artifact.</label></div>
+      <div class="check"><input type="checkbox" id="c9"><label for="c9"><b>The verdict has a home.</b>
+        A doc (or test) that will hold the result — including a refuted one.</label></div>
+      <div class="check"><input type="checkbox" id="c10"><label for="c10"><b>Refuted goes in the report.</b>
+        You've agreed with yourself, in advance, that a no is publishable.</label></div>
+    </div>
+    <div class="btnrow">
+      <button type="button" class="btn primary" id="cl-print">Print this page</button>
+      <button type="button" class="btn" id="cl-clear">Clear ticks</button>
+    </div>
+    <p class="fine">Ticks autosave on this device only. The checklist compresses the Method tab; when in doubt,
+      re-read the story behind the box you can't tick.</p>
+  </div>
+</section>
+</div>
+
+<nav class="tabbar" aria-label="Sections">
+  <div class="row">
+    <button class="tab on" id="tab-method"      aria-controls="pane-method"      type="button"><span class="ico" aria-hidden="true">&#129517;</span>Method</button>
+    <button class="tab"    id="tab-designer"    aria-controls="pane-designer"    type="button"><span class="ico" aria-hidden="true">&#129514;</span>Designer</button>
+    <button class="tab"    id="tab-grading"     aria-controls="pane-grading"     type="button"><span class="ico" aria-hidden="true">&#9878;&#65039;</span>Grading</button>
+    <button class="tab"    id="tab-instruments" aria-controls="pane-instruments" type="button"><span class="ico" aria-hidden="true">&#128301;</span>Instruments</button>
+    <button class="tab"    id="tab-checklist"   aria-controls="pane-checklist"   type="button"><span class="ico" aria-hidden="true">&#128203;</span>Checklist</button>
+  </div>
+</nav>
+
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+<script>
+(function () {
+  "use strict";
+  var $ = function (id) { return document.getElementById(id); };
+
+  /* ── storage: best-effort, guarded — a private window or blocked storage must not break the page ── */
+  var KEY = "experiment-guider-v1";
+  function loadState() { try { return JSON.parse(localStorage.getItem(KEY)) || {}; } catch (e) { return {}; } }
+  function saveState() { try { localStorage.setItem(KEY, JSON.stringify(S)); } catch (e) { /* best effort */ } }
+  var S = loadState();
+  S.phases = S.phases || []; S.models = S.models || []; S.datasets = S.datasets || [];
+  S.expects = S.expects || []; S.fields = S.fields || {}; S.ticks = S.ticks || {};
+  S.track = S.track === "eng" ? "eng" : "eco";
+
+  /* ── toast ── */
+  var toastT = null;
+  function toast(msg) {
+    var t = $("toast"); t.textContent = msg; t.classList.add("show");
+    clearTimeout(toastT); toastT = setTimeout(function () { t.classList.remove("show"); }, 1800);
+  }
+
+  /* ── copy, with fallback for contexts without the async clipboard ── */
+  function copyText(text, label) {
+    function fallback() {
+      var ta = document.createElement("textarea");
+      ta.value = text; ta.setAttribute("readonly", "");
+      ta.style.position = "fixed"; ta.style.opacity = "0";
+      document.body.appendChild(ta); ta.select();
+      var ok = false; try { ok = document.execCommand("copy"); } catch (e) {}
+      document.body.removeChild(ta);
+      toast(ok ? label + " copied" : "Copy failed — select the text by hand");
+    }
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(text).then(function () { toast(label + " copied"); }, fallback);
+    } else { fallback(); }
+  }
+
+  /* ── tabs ── */
+  var TABS = ["method", "designer", "grading", "instruments", "checklist"];
+  TABS.forEach(function (name) {
+    var tab = $("tab-" + name);
+    tab.addEventListener("click", function () {
+      TABS.forEach(function (n) {
+        var on = n === name;
+        $("tab-" + n).classList.toggle("on", on);
+        $("tab-" + n).setAttribute("aria-selected", on ? "true" : "false");
+        $("pane-" + n).classList.toggle("on", on);
+      });
+      window.scrollTo({ top: 0 });
+    });
+    tab.setAttribute("aria-selected", tab.classList.contains("on") ? "true" : "false");
+  });
+
+  /* ── track choice ── */
+  function showTrack() {
+    var eco = S.track !== "eng";
+    $("track-eco").classList.toggle("on", eco);
+    $("track-eng").classList.toggle("on", !eco);
+    $("eco-track").hidden = !eco;
+    $("eng-track").hidden = eco;
+  }
+  $("track-eco").addEventListener("click", function () { S.track = "eco"; showTrack(); saveState(); });
+  $("track-eng").addEventListener("click", function () { S.track = "eng"; showTrack(); saveState(); });
+
+  /* ── field persistence (plain inputs + textareas) ── */
+  var FIELDS = ["e-name", "e-keys", "e-seed", "e-window", "f-area", "f-wind", "f-temp", "f-dist",
+    "e-notes", "e-extra", "g-question", "g-floor", "g-workload", "g-sizes", "g-seed", "g-passes",
+    "g-phases", "g-rule", "g-stakes"];
+  FIELDS.forEach(function (id) {
+    var el = $(id);
+    if (S.fields[id] !== undefined && S.fields[id] !== "") el.value = S.fields[id];
+    el.addEventListener("input", function () { S.fields[id] = el.value; saveState(); rebuild(); });
+  });
+
+  /* ── helpers ── */
+  function token(v, fallbackName) {
+    v = (v || "").trim().replace(/\s+/g, "-");
+    return v || fallbackName;
+  }
+  function chipList(el, items, describe, removeAt, emptyText) {
+    while (el.firstChild) el.removeChild(el.firstChild);
+    if (!items.length) {
+      var e = document.createElement("span"); e.className = "empty"; e.textContent = emptyText;
+      el.appendChild(e); return;
+    }
+    items.forEach(function (item, i) {
+      var chip = document.createElement("span"); chip.className = "chip";
+      var txt = document.createElement("span"); txt.textContent = describe(item);
+      var x = document.createElement("button"); x.type = "button"; x.textContent = "×";
+      x.setAttribute("aria-label", "Remove " + describe(item));
+      x.addEventListener("click", function () { removeAt(i); });
+      chip.appendChild(txt); chip.appendChild(x); el.appendChild(chip);
+    });
+  }
+
+  /* ── phases ── */
+  var pKind = $("p-kind");
+  function phaseParamVis() {
+    var k = pKind.value;
+    $("p-hotwrap").hidden = k !== "hot";
+    $("p-sharewrap").hidden = k !== "hot";
+    $("p-addwrap").hidden = k !== "churn";
+  }
+  pKind.addEventListener("change", phaseParamVis);
+  phaseParamVis();
+
+  $("p-add").addEventListener("click", function () {
+    var name = token($("p-name").value, "phase" + (S.phases.length + 1));
+    var kind = pKind.value;
+    var ops = parseInt($("p-ops").value, 10) || 2000;
+    var ph = { name: name, kind: kind, ops: ops };
+    if (kind === "hot") {
+      ph.hotSet = parseInt($("p-hotset").value, 10) || 5;
+      ph.hotShare = parseInt($("p-hotshare").value, 10) || 90;
+    }
+    if (kind === "churn") ph.addPct = parseInt($("p-addpct").value, 10) || 55;
+    S.phases.push(ph); $("p-name").value = "";
+    renderPhases(); saveState(); rebuild();
+  });
+  function phaseLine(ph) {
+    if (ph.kind === "hot") return "phase: " + ph.name + " hot " + ph.ops + " " + ph.hotSet + " " + ph.hotShare;
+    if (ph.kind === "churn") return "phase: " + ph.name + " churn " + ph.ops + " " + ph.addPct;
+    return "phase: " + ph.name + " uniform " + ph.ops;
+  }
+  function renderPhases() {
+    chipList($("p-list"), S.phases, function (ph) { return phaseLine(ph).slice(7); },
+      function (i) { S.phases.splice(i, 1); renderPhases(); saveState(); rebuild(); },
+      "No phases yet — a study needs at least one.");
+  }
+
+  /* ── models ── */
+  var mKind = $("m-kind");
+  function modelHint() {
+    var o = mKind.options[mKind.selectedIndex];
+    $("m-hint").textContent = o.getAttribute("data-hint");
+    $("m-params").placeholder = o.getAttribute("data-eg");
+  }
+  mKind.addEventListener("change", modelHint);
+  modelHint();
+  $("m-add").addEventListener("click", function () {
+    var params = ($("m-params").value || "").trim().replace(/\s+/g, " ");
+    if (!params) params = mKind.options[mKind.selectedIndex].getAttribute("data-eg");
+    S.models.push({ kind: mKind.value, params: params });
+    $("m-params").value = "";
+    renderModels(); saveState(); rebuild();
+  });
+  function renderModels() {
+    chipList($("m-list"), S.models, function (m) { return m.kind + " " + m.params; },
+      function (i) { S.models.splice(i, 1); renderModels(); saveState(); rebuild(); }, "No models yet.");
+  }
+
+  /* ── datasets ── */
+  $("d-add").addEventListener("click", function () {
+    var name = token($("d-name").value, "site" + (S.datasets.length + 1));
+    var counts = ($("d-counts").value || "").trim().replace(/\s+/g, " ");
+    if (!counts) { toast("Enter counts or tallies first"); return; }
+    S.datasets.push({ name: name, counts: counts });
+    $("d-name").value = ""; $("d-counts").value = "";
+    renderDatasets(); saveState(); rebuild();
+  });
+  function renderDatasets() {
+    chipList($("d-list"), S.datasets, function (d) { return d.name + " · " + d.counts; },
+      function (i) { S.datasets.splice(i, 1); renderDatasets(); saveState(); rebuild(); }, "No datasets yet.");
+  }
+
+  /* ── expectations ── */
+  var WORDS = {
+    "q-evenness": ["very-even", "moderate", "uneven", "dominated"],
+    "q-turnover": ["low", "moderate", "major"],
+    "q-overlap": ["high", "partial", "little"],
+    "q-fit": ["geometric", "brokenstick", "uniform"],
+    "q-survivorship": ["type1", "type2", "type3"]
+  };
+  var TWO_ARG = { brayCurtis: 1, pianka: 1, jaccard: 1, sorensen: 1, "q-turnover": 1, "q-overlap": 1 };
+  var xMetric = $("x-metric");
+  function expectVis() {
+    var v = xMetric.value, qual = v.indexOf("q-") === 0;
+    $("x-opwrap").hidden = qual; $("x-valwrap").hidden = qual; $("x-wordwrap").hidden = !qual;
+    $("x-args").disabled = v === "q-survivorship";
+    $("x-args").placeholder = TWO_ARG[v] ? "graze, bloom" : (v === "q-survivorship" ? "(reads the run's census)" : "graze");
+    if (qual) {
+      var sel = $("x-word");
+      while (sel.firstChild) sel.removeChild(sel.firstChild);
+      WORDS[v].forEach(function (w) {
+        var o = document.createElement("option"); o.value = w; o.textContent = w; sel.appendChild(o);
+      });
+    }
+  }
+  xMetric.addEventListener("change", expectVis);
+  expectVis();
+  $("x-add").addEventListener("click", function () {
+    var v = xMetric.value, qual = v.indexOf("q-") === 0;
+    var args = ($("x-args").value || "").split(",").map(function (a) { return token(a, ""); })
+      .filter(function (a) { return a; });
+    var need = v === "q-survivorship" ? 0 : (TWO_ARG[v] ? 2 : 1);
+    if (args.length < need) { toast(need === 2 ? "This metric needs two names" : "Name the phase or dataset"); return; }
+    var line;
+    if (v === "q-survivorship") line = "expect: survivorship is " + $("x-word").value;
+    else if (qual) line = "expect: " + v.slice(2) + "(" + args.slice(0, need).join(", ") + ") is " + $("x-word").value;
+    else {
+      var val = $("x-val").value;
+      if (val === "") { toast("Enter the value to test against"); return; }
+      line = "expect: " + v + "(" + args.slice(0, need).join(", ") + ") " + $("x-op").value + " " + val;
+    }
+    S.expects.push(line); $("x-args").value = "";
+    renderExpects(); saveState(); rebuild();
+  });
+  function renderExpects() {
+    chipList($("x-list"), S.expects, function (x) { return x.slice(8); },
+      function (i) { S.expects.splice(i, 1); renderExpects(); saveState(); rebuild(); },
+      "No hypotheses yet — without one, it's a demo, not an experiment.");
+  }
+
+  /* ── the .eco emitter ── */
+  function slug(name) {
+    var s = (name || "").toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "");
+    return s || "my-experiment";
+  }
+  function buildEco() {
+    var name = ($("e-name").value || "").trim() || "untitled study";
+    var out = [];
+    out.push("# " + name + " — written before the run, graded after.");
+    out.push("# Run me:  ./gradlew ecologyExperiment -Pspec=" + slug(name) + ".eco");
+    out.push("");
+    out.push("name: " + name);
+    out.push("keys: " + (parseInt($("e-keys").value, 10) || 100));
+    out.push("seed: " + (parseInt($("e-seed").value, 10) || 42));
+    out.push("window: " + (parseInt($("e-window").value, 10) || 250));
+    if (S.phases.length) { out.push(""); S.phases.forEach(function (p) { out.push(phaseLine(p)); }); }
+    var facts = [["area", "f-area"], ["wind", "f-wind"], ["temperature", "f-temp"], ["distance", "f-dist"]]
+      .filter(function (f) { return $(f[1]).value !== "" && parseFloat($(f[1]).value) !== 1; });
+    if (facts.length) { out.push(""); facts.forEach(function (f) { out.push("factor: " + f[0] + " " + parseFloat($(f[1]).value)); }); }
+    if (S.models.length) { out.push(""); S.models.forEach(function (m) { out.push("model: " + m.kind + " " + m.params); }); }
+    if (S.datasets.length) { out.push(""); S.datasets.forEach(function (d) { out.push("data: " + d.name + " " + d.counts); }); }
+    var notes = ($("e-notes").value || "").split("\n").map(function (l) { return l.trim(); }).filter(Boolean);
+    if (notes.length) {
+      out.push("");
+      notes.forEach(function (l) {
+        var m = l.match(/^([A-Za-z0-9_-]+):\s*(.+)$/);
+        out.push(m ? "note(" + m[1] + "): " + m[2] : "note: " + l);
+      });
+    }
+    if (S.expects.length) { out.push(""); S.expects.forEach(function (x) { out.push(x); }); }
+    var extra = ($("e-extra").value || "").split("\n").map(function (l) { return l.trim(); }).filter(Boolean);
+    if (extra.length) { out.push(""); extra.forEach(function (l) { out.push(l); }); }
+    return out.join("\n") + "\n";
+  }
+
+  /* ── the pre-registration + skeleton emitters ── */
+  function val(id, fallback) { return ($(id).value || "").trim() || fallback; }
+  function buildPrereg() {
+    var q = val("g-question", "(one sentence: what are you measuring?)");
+    var today = new Date().toISOString().slice(0, 10);
+    var phases = val("g-phases", "").split(",").map(function (s) { return s.trim(); }).filter(Boolean);
+    var header = ["n"].concat(phases.length ? phases : ["route"]).concat(["total", "total/floor"]);
+    var line = function (cells) { return "| " + cells.join(" | ") + " |"; };
+    return [
+      "## Experiment — " + q,
+      "",
+      "**Pre-registered " + today + "** — the decision rule below was written before any run.",
+      "",
+      "**Floor:** " + val("g-floor", "(the least ANY solution could do)"),
+      "**Workload:** " + val("g-workload", "(shape and generator)") + "; sizes: " + val("g-sizes", "(n, ...)") +
+        "; seed " + val("g-seed", "42") + ".",
+      "**Timing:** one untimed warm-up pass, then " + val("g-passes", "3") +
+        " timed passes on fresh state, median kept" + (phases.length ? "; phases timed separately." : "."),
+      "",
+      line(header),
+      line(header.map(function () { return "---"; })),
+      line(header.map(function () { return " "; })),
+      "",
+      "**Pre-registered rule:** " + val("g-rule", "(the bar, and what clearing it means)"),
+      "**If it fails the bar:** " + val("g-stakes", "(what is recorded, what stays held)"),
+      "",
+      "**VERDICT:** _append after the run — the measured number beside the bar, and what it means._"
+    ].join("\n") + "\n";
+  }
+  function buildSkeleton() {
+    var q = val("g-question", "what does the route cost?");
+    var sizes = val("g-sizes", "20000, 60000").split(",").map(function (s) {
+      return String(parseInt(s.trim(), 10) || 0);
+    }).filter(function (s) { return s !== "0"; }).join(", ") || "20000, 60000";
+    var passes = parseInt(val("g-passes", "3"), 10) || 3;
+    return [
+      "/**",
+      " * Pre-registered experiment — " + q,
+      " * Floor: " + val("g-floor", "(name it)"),
+      " * Rule (written before the run): " + val("g-rule", "(the bar)"),
+      " * Seeded, warm-up discarded, median-of-" + passes + " — ADR-022 methodology.",
+      " */",
+      "class MyExperimentTest {",
+      "    static final long SEED = " + val("g-seed", "42") + "L;",
+      "    static final int[] SIZES = {" + sizes + "};",
+      "    static final int TIMED_PASSES = " + passes + ";",
+      "",
+      "    @org.junit.jupiter.api.Test",
+      "    void verdictOfRecord() {",
+      "        for (int n : SIZES) {",
+      "            runOnce(n, SEED);                       // warm-up: JIT pays off the clock",
+      "            long[] t = new long[TIMED_PASSES];",
+      "            for (int i = 0; i < TIMED_PASSES; i++) t[i] = runOnce(n, SEED); // fresh state each pass",
+      "            java.util.Arrays.sort(t);",
+      "            long median = t[TIMED_PASSES / 2];",
+      "            long floor  = measureFloor(n, SEED);",
+      "            System.out.printf(\"n=%d  median=%,dns  floor=%,dns  ratio=%.1fx%n\",",
+      "                    n, median, floor, (double) median / Math.max(1, floor));",
+      "            // Grade against the pre-registered rule HERE — it was written before this line ran.",
+      "        }",
+      "    }",
+      "",
+      "    /** Build a fresh apparatus, run the route once, return elapsed nanos. */",
+      "    long runOnce(int n, long seed) { throw new UnsupportedOperationException(\"apparatus\"); }",
+      "",
+      "    /** The least ANY solution could do — the denominator of every claim. */",
+      "    long measureFloor(int n, long seed) { throw new UnsupportedOperationException(\"floor\"); }",
+      "}"
+    ].join("\n") + "\n";
+  }
+
+  /* ── rebuild outputs ── */
+  function rebuild() {
+    var eco = buildEco();
+    $("eco-out").textContent = eco;
+    $("eco-cmd").textContent = "./gradlew ecologyExperiment -Pspec=" + slug($("e-name").value) + ".eco";
+    $("eng-out").textContent = buildPrereg();
+  }
+
+  $("eco-copy").addEventListener("click", function () { copyText(buildEco(), "Protocol"); });
+  $("eco-download").addEventListener("click", function () {
+    var blob = new Blob([buildEco()], { type: "text/plain" });
+    var a = document.createElement("a");
+    a.href = URL.createObjectURL(blob);
+    a.download = slug($("e-name").value) + ".eco";
+    document.body.appendChild(a); a.click(); document.body.removeChild(a);
+    setTimeout(function () { URL.revokeObjectURL(a.href); }, 4000);
+    toast("Downloading " + a.download);
+  });
+  $("eng-copy").addEventListener("click", function () { copyText(buildPrereg(), "Pre-registration"); });
+  $("eng-skel").addEventListener("click", function () { copyText(buildSkeleton(), "Skeleton"); });
+
+  function resetAll(ecoSide) {
+    if (ecoSide) {
+      S.phases = []; S.models = []; S.datasets = []; S.expects = [];
+      ["e-name", "e-notes", "e-extra", "f-area", "f-wind", "f-temp", "f-dist"].forEach(function (id) {
+        $(id).value = ""; delete S.fields[id];
+      });
+      $("e-keys").value = 100; $("e-seed").value = 42; $("e-window").value = 250;
+      ["e-keys", "e-seed", "e-window"].forEach(function (id) { delete S.fields[id]; });
+      renderPhases(); renderModels(); renderDatasets(); renderExpects();
+    } else {
+      ["g-question", "g-floor", "g-workload", "g-sizes", "g-phases", "g-rule", "g-stakes"].forEach(function (id) {
+        $(id).value = ""; delete S.fields[id];
+      });
+      $("g-seed").value = 42; $("g-passes").value = 3;
+      delete S.fields["g-seed"]; delete S.fields["g-passes"];
+    }
+    saveState(); rebuild(); toast("Cleared");
+  }
+  $("eco-reset").addEventListener("click", function () { resetAll(true); });
+  $("eng-reset").addEventListener("click", function () { resetAll(false); });
+
+  /* ── checklist ── */
+  for (var i = 1; i <= 10; i++) (function (id) {
+    var box = $(id);
+    if (S.ticks[id]) box.checked = true;
+    box.addEventListener("change", function () { S.ticks[id] = box.checked; saveState(); });
+  })("c" + i);
+  $("cl-print").addEventListener("click", function () { window.print(); });
+  $("cl-clear").addEventListener("click", function () {
+    S.ticks = {};
+    for (var i = 1; i <= 10; i++) $("c" + i).checked = false;
+    saveState(); toast("Cleared");
+  });
+
+  /* ── boot ── */
+  showTrack(); renderPhases(); renderModels(); renderDatasets(); renderExpects(); rebuild();
+})();
+</script>
+
+</body>
+</html>
