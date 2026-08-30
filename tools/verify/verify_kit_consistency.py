@@ -723,6 +723,46 @@ ck("no page states an ADR-031 category-2 figure without labelling it",
    not BARE_KIT, [(n, f, t[:70]) for n, f, t in BARE_KIT])
 
 
+# ---------------------------------------------------------------------------
+# What a long entry does to a phone (ADR-103)
+# ---------------------------------------------------------------------------
+# Two CSS rules, both put here rather than in a page suite because both were
+# copied into a dozen pages and a rule that is right on fourteen of fifteen is
+# the shape this file exists to catch.
+import glob as _glob
+import re as _re
+
+# The ellipsis rule ADR-100 found dead is STILL dead, and this records why
+# rather than asserting it fixed: adding white-space:nowrap made releve,
+# micro-bench and soil-bench overflow a 390px phone once a record was in the
+# row, and three suites went red. The repair is a layout change, not a property.
+_ELLIPSIS = _re.compile(r"\{[^{}]*text-overflow\s*:\s*ellipsis[^{}]*\}")
+_COMMENT = _re.compile(r"/\*.*?\*/", _re.S)
+_dead = []
+for _f in sorted(_glob.glob(os.path.join(ROOT, "docs", "*.html"))):
+    # Comments out first. The first version of this check read the comment
+    # EXPLAINING that white-space is missing as the declaration itself, and
+    # reported the defect fixed on all fifteen pages -- a check answering from
+    # the prose about the rule rather than the rule (ADR-077).
+    _s = _COMMENT.sub(" ", io.open(_f, encoding="utf-8").read())
+    for _m in _ELLIPSIS.finditer(_s):
+        if "white-space" not in _m.group(0):
+            _dead.append(os.path.basename(_f))
+ck("the fifteen pages whose ellipsis rule cannot fire are still exactly fifteen "
+   "-- a known-open defect, counted so it cannot quietly spread",
+   len(set(_dead)) == 15, sorted(set(_dead)))
+
+# A 400-character working name has no break opportunity, and pushed a verdict
+# box to 4005px inside a 390px phone. Every page that echoes an entry back into
+# a verdict, a code span or a table cell has to allow a mid-token break.
+_ECHOERS = ["collection-sheet.html", "stand-sheet.html", "survey-design.html",
+            "releve.html", "ecology-lab.html", "deployment-log.html"]
+_unbroken = [n for n in _ECHOERS
+             if "overflow-wrap:anywhere" not in
+             io.open(os.path.join(ROOT, "docs", n), encoding="utf-8").read()]
+ck("every page that echoes an entry back lets an unbreakable token wrap",
+   not _unbroken, _unbroken)
+
 print("-" * 70)
 print("%d passed, %d failed" % (ok, bad))
 sys.exit(1 if bad else 0)

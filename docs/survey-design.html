@@ -368,6 +368,13 @@
   .taxa .t.absent { background:var(--warn-bg); border-color:var(--s2); color:var(--s2); }
   .taxa .t small { font-family:var(--mono); font-size:10px; letter-spacing:.06em; text-transform:uppercase;
     opacity:.85; }
+
+  /* An entry with no space in it has no break opportunity. A 400-character
+     working name pushed a verdict box to 4005px inside a 390px phone (ADR-103,
+     measured -- not the .row2 ellipsis rule ADR-102 blamed for it). Anything
+     that echoes back what a user typed has to be allowed to break mid-token. */
+  .verdict, .verdict *, code, td, th { overflow-wrap:anywhere; }
+
 </style>
 </head>
 <body>

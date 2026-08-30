@@ -1844,7 +1844,11 @@ var ORD = (function(){
   function load(text){
     $("raw").value=text;
     var p=parse(text);
-    if(p.err){ M=null; $("parseOut").innerHTML='<div class="verdict act"><b>'+esc(p.err)+'</b></div>'; return; }
+    /* A failed parse drops the matrix, so it must drop the results too: an
+       ordination describes the matrix it was run on, and keeping it after that
+       matrix is gone leaves RES non-null while M is null. The copy buttons
+       guarded on RES and read M.sites, and threw. */
+    if(p.err){ M=null; RES=null; $("parseOut").innerHTML='<div class="verdict act"><b>'+esc(p.err)+'</b></div>'; return; }
     M=p; RES=null;
     parseReport();
     drawOrd(); drawShepard(); drawScree(); reportStress(); reportStarts();
@@ -1867,7 +1871,7 @@ var ORD = (function(){
     buzz(); toast("Cleared"); });
   $("runOrd").addEventListener("click",function(){ run(); buzz(); });
   $("copyCoord").addEventListener("click",function(){
-    if(!RES){ toast("Nothing to copy"); return; }
+    if(!RES || !M){ toast("Nothing to copy"); return; }
     var head=["site"], i;
     for(i=0;i<RES.k;i++) head.push((RES.method==="nmds"?"NMDS":"PCoA")+(i+1));
     var L=[head.join(",")];
@@ -1880,7 +1884,7 @@ var ORD = (function(){
     copyText(L.join("\n"), "Coordinates copied");
   });
   $("copyDis").addEventListener("click",function(){
-    if(!RES){ toast("Run it first"); return; }
+    if(!RES || !M){ toast("Run it first"); return; }
     var L=[[""].concat(M.sites).join(",")];
     RES.D.forEach(function(row,i){
       L.push([M.sites[i]].concat(row.map(function(v){ return v.toFixed(6); })).join(","));

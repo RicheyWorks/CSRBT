@@ -344,6 +344,13 @@
   .keep button:hover { border-color:var(--danger, #B23A32); color:var(--danger, #B23A32); }
   .keep .note { flex:1 1 100%; font-size:12px; color:var(--muted, #6B6B5E); line-height:1.5; }
   @media print { .keep { display:none !important; } }
+
+  /* An entry with no space in it has no break opportunity. A 400-character
+     working name pushed a verdict box to 4005px inside a 390px phone (ADR-103,
+     measured -- not the .row2 ellipsis rule ADR-102 blamed for it). Anything
+     that echoes back what a user typed has to be allowed to break mid-token. */
+  .verdict, .verdict *, code, td, th { overflow-wrap:anywhere; }
+
 </style>
 </head>
 <body>

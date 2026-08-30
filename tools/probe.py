@@ -166,13 +166,20 @@ def edges(name, cap=14):
 
 def chaos(name, steps=120, seed=1):
     res = {"page": name, "pass": "chaos", "seed": seed, "steps": 0,
-           "findings": [], "secs": 0}
+           "skipped": 0, "findings": [], "secs": 0}
     rng = random.Random("%s/%d" % (name, seed))
     t0 = time.time()
     log = []
     with S.open_session(name) as (cl, pg, errs):
         snap = cl.snapshot()
         for i in range(steps):
+            # Every kind chaos can press, judged LIVE below. The first version
+            # filtered on the snapshot's stale visibility and reached a tenth of
+            # the page; the fix removed the filter altogether, and chaos began
+            # pressing controls inside display:none cards -- which is how
+            # field-season came to report twenty-six uncaught throws that no
+            # user can reach. Neither "trust the snapshot" nor "trust nothing"
+            # was right: ask the page, now, for this control.
             pool = [c for c in snap["controls"] if c["kind"] in CLICKY + TYPED_KINDS]
             if not pool:
                 break
@@ -184,9 +191,14 @@ def chaos(name, steps=120, seed=1):
                         cl.do("show-pane", pane=c["pane"])
                     except HarnessError:
                         pass
+                live = cl.control(c["selector"])
+                if not live or not live.get("visible") or not live.get("enabled"):
+                    res["skipped"] += 1
+                    continue
                 before = cl.page_state()
                 cl.do(act, **dict(arg, selector=c["selector"]))
                 log.append({"n": i, "action": act, "selector": c["selector"],
+                            "pane": c["pane"],
                             "label": (c["label"] or "")[:30], "arg": arg})
                 res["steps"] += 1
                 after = cl.page_state()
@@ -204,6 +216,17 @@ def chaos(name, steps=120, seed=1):
                     "replay": log[-12:], "seed": seed, "shot": _shot(pg, tag)})
             if i % 10 == 9:
                 snap = cl.snapshot()
+        # Shrink the first finding on this page. One minimal repro is worth more
+        # than fifty sequences that all end the same way.
+        if res["findings"]:
+            f = res["findings"][0]
+            try:
+                short = shrink(cl, f["replay"], f["broke"])
+                f["minimal"] = short
+                f["minimal_confirmed"] = replay(cl, short) is not None
+            except HarnessError:
+                f["minimal"] = None
+            snap = cl.snapshot()
     res["secs"] = round(time.time() - t0, 1)
     return res
 
@@ -222,6 +245,61 @@ def _random_action(c, rng):
     if k == "tab":
         return "activate", {}
     return "activate", {}
+
+
+# ---------------------------------------------------------------------------
+# SHRINK -- the shortest sequence that still breaks it
+# ---------------------------------------------------------------------------
+
+def replay(cl, actions):
+    """Apply a recorded sequence to a freshly reloaded page. Returns the first
+    invariant break, or None."""
+    errs = []
+    cl.do("reload")
+    before = cl.page_state()
+    for a in actions:
+        try:
+            if a.get("pane"):
+                try:
+                    cl.do("show-pane", pane=a["pane"])
+                except HarnessError:
+                    pass
+            live = cl.control(a["selector"])
+            if not live or not live.get("visible") or not live.get("enabled"):
+                continue
+            cl.do(a["action"], **dict(a.get("arg") or {}, selector=a["selector"]))
+        except HarnessError:
+            continue
+        after = cl.page_state()
+        bad = broken(before, after, errs)
+        if bad:
+            return bad[0]
+        before = after
+    return None
+
+
+def shrink(cl, actions, want, rounds=3):
+    """Delta debugging. A twelve-step sequence that ends in a crash is a story;
+    the two steps that cause it are a bug report. Each candidate is replayed from
+    a reload, because a sequence that only reproduces from the state the last
+    attempt left behind has not been shrunk, it has been misread."""
+    best = list(actions)
+    for _ in range(rounds):
+        changed = False
+        i = 0
+        while i < len(best):
+            trial = best[:i] + best[i + 1:]
+            if not trial:
+                break
+            got = replay(cl, trial)
+            if got and got.split(":")[0] == want.split(":")[0]:
+                best = trial
+                changed = True
+            else:
+                i += 1
+        if not changed:
+            break
+    return best
 
 
 # ---------------------------------------------------------------------------
@@ -351,7 +429,8 @@ def main():
             if r["pass"] == "edges":
                 extra = "%d fields, %d values" % (r.get("fields", 0), r.get("tried", 0))
             elif r["pass"] == "chaos":
-                extra = "%d actions, seed %s" % (r.get("steps", 0), r.get("seed"))
+                extra = ("%d actions, %d unreachable skipped, seed %s"
+                         % (r.get("steps", 0), r.get("skipped", 0), r.get("seed")))
             else:
                 extra = ("%d paths, %d leaves, depth %d, %d options, %d states"
                          % (r.get("paths", 0), r.get("leaves", 0),

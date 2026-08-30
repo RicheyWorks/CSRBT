@@ -624,6 +624,24 @@ with sync_playwright() as _p2:
 
     _b2.close()
 
+# ---------------------------------------------------------------------------
+# ADR-103: the copy buttons guarded on RES and read M
+# ---------------------------------------------------------------------------
+# A failed parse dropped the matrix and left the results standing, so both copy
+# handlers passed their guard and then read M.sites off null. Two assertions,
+# because either fix alone leaves the other latent: the results must go when the
+# matrix goes, and a handler must guard on what it actually reads.
+_SRC = io.open(os.path.join(ROOT, "docs", "ordination.html"), encoding="utf-8").read()
+ck("a failed parse clears the results as well as the matrix -- an ordination "
+   "describes the matrix it was run on",
+   "if(p.err){ M=null; RES=null;" in _SRC.replace("  ", " "),
+   "load() still leaves RES standing after a parse error")
+_guards = _SRC.count("if(!RES || !M)")
+ck("both copy handlers guard on the matrix they read, not only on the results",
+   _guards == 2, "found %d of 2" % _guards)
+ck("and no copy handler is left guarding on RES alone",
+   'if(!RES){ toast(' not in _SRC, "an RES-only guard remains")
+
 print("\n".join("PASS  " + x for x in P))
 if SKIP:
     print("\n".join("SKIP  " + x for x in SKIP))

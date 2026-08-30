@@ -350,6 +350,13 @@
   .ruler i { display:block; height:100%; }
   .ruler i.on { background:var(--s1); } .ruler i.off { background:var(--surface-2); }
   .legend { font-family:var(--mono); font-size:11px; color:var(--muted); }
+
+  /* An entry with no space in it has no break opportunity. A 400-character
+     working name pushed a verdict box to 4005px inside a 390px phone (ADR-103,
+     measured -- not the .row2 ellipsis rule ADR-102 blamed for it). Anything
+     that echoes back what a user typed has to be allowed to break mid-token. */
+  .verdict, .verdict *, code, td, th { overflow-wrap:anywhere; }
+
 </style>
 </head>
 <body>
