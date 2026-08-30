@@ -6,6 +6,12 @@ This checks the corrections are actually on the page and say what they should,
 and that the finder that surfaced them still finds things.
 """
 import io, os, re, tempfile
+
+# This suite reaches for a temp dir only to seed a canary page proving the audit
+# it guards still has teeth; its actual subject is the real kit. Declared so the
+# mutation sweep keeps sweeping it (ADR-108) -- a suite that quietly labelled
+# itself a fixture-builder would sit out sweeps it could win.
+MUTATE_ROLE = "subject"
 from pathlib import Path as _Path
 import _kit
 from playwright.sync_api import sync_playwright

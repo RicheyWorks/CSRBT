@@ -317,6 +317,11 @@ ck("and the matcher survives markdown bold around the figures",
 # can say they are the engine's output.
 UNBOUND = ["arena-session.json", "arena-search-session.json",
            "ecology-trace-session.json", "ecology-experiment-session.json",
+           # A real observation, run through the engine from docs/tahoe-westshore.eco
+           # (ADR-107). Unbound for the same reason as the rest: it is the output of a
+           # spec that names external Darwin Core files, so there is no argument-free
+           # run() this suite could call to regenerate it and compare.
+           "tahoe-westshore-session.json",
            "viability-map.json"]
 present = [os.path.basename(p) for p in glob.glob(os.path.join(DOCS, "*.json"))]
 ck("the unbound session artifacts are exactly the ones named here",

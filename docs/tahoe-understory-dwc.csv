@@ -1,0 +1,5 @@
+occurrenceID,scientificName,organismQuantity,organismQuantityType,identificationQualifier,eventDate,recordedBy,decimalLatitude,decimalLongitude,coordinateUncertaintyInMeters,basisOfRecord,associatedMedia,locality
+tahoe:under:1,Poaceae,30,% cover,cf.,,Morgan Linton,,,,HumanObservation,tahoe-westshore-a42a4047.png,Lake Tahoe west shore (asserted)
+tahoe:under:2,Arctostaphylos patula,25,% cover,cf.,,Morgan Linton,,,,HumanObservation,tahoe-westshore-a42a4047.png,Lake Tahoe west shore (asserted)
+tahoe:under:3,Chrysolepis sempervirens,15,% cover,cf.,,Morgan Linton,,,,HumanObservation,tahoe-westshore-a42a4047.png,Lake Tahoe west shore (asserted)
+tahoe:under:4,Ceanothus cordulatus,10,% cover,aff.,,Morgan Linton,,,,HumanObservation,tahoe-westshore-a42a4047.png,Lake Tahoe west shore (asserted)

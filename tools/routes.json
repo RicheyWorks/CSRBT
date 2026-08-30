@@ -1,0 +1,1031 @@
+{
+ "_comment": "The kit's route table. A route is a reachable place: a page, or a pane within one. Published so coverage can be checked against a list rather than against whatever the last run happened to visit -- see tools/verify/verify_routes.py, which fails when a page is unrouted or a route uncovered.",
+ "at": 1788122999,
+ "count": 128,
+ "routes": [
+  {
+   "id": "adr-031.html",
+   "kind": "primary",
+   "label": "ADR-031 Entry Layer and Suites",
+   "page": "adr-031.html",
+   "pane": null,
+   "selector": null
+  },
+  {
+   "id": "breeding-bench.html",
+   "kind": "primary",
+   "label": "Breeding Bench",
+   "page": "breeding-bench.html",
+   "pane": null,
+   "selector": null
+  },
+  {
+   "id": "breeding-bench.html#p-pop",
+   "kind": "nested",
+   "label": "\ud83d\udc65",
+   "page": "breeding-bench.html",
+   "pane": "p-pop",
+   "selector": ".tab[data-pane=\"p-pop\"]"
+  },
+  {
+   "id": "breeding-bench.html#p-iso",
+   "kind": "nested",
+   "label": "\ud83d\udcd0",
+   "page": "breeding-bench.html",
+   "pane": "p-iso",
+   "selector": ".tab[data-pane=\"p-iso\"]"
+  },
+  {
+   "id": "breeding-bench.html#p-sel",
+   "kind": "nested",
+   "label": "\ud83c\udfaf",
+   "page": "breeding-bench.html",
+   "pane": "p-sel",
+   "selector": ".tab[data-pane=\"p-sel\"]"
+  },
+  {
+   "id": "breeding-bench.html#p-tri",
+   "kind": "nested",
+   "label": "\ud83d\udd2c",
+   "page": "breeding-bench.html",
+   "pane": "p-tri",
+   "selector": ".tab[data-pane=\"p-tri\"]"
+  },
+  {
+   "id": "breeding-bench.html#p-seed",
+   "kind": "nested",
+   "label": "\ud83c\udf3e",
+   "page": "breeding-bench.html",
+   "pane": "p-seed",
+   "selector": ".tab[data-pane=\"p-seed\"]"
+  },
+  {
+   "id": "breeding-bench.html#p-met",
+   "kind": "nested",
+   "label": "\ud83d\udcd6",
+   "page": "breeding-bench.html",
+   "pane": "p-met",
+   "selector": ".tab[data-pane=\"p-met\"]"
+  },
+  {
+   "id": "breeding-suite.html",
+   "kind": "primary",
+   "label": "Vegetable breeding \u2014 a CSRBT suite",
+   "page": "breeding-suite.html",
+   "pane": null,
+   "selector": null
+  },
+  {
+   "id": "cell-bench.html",
+   "kind": "primary",
+   "label": "Cell Bench \u2014 counting, culture, standard curves &amp; mitotic index",
+   "page": "cell-bench.html",
+   "pane": null,
+   "selector": null
+  },
+  {
+   "id": "cell-bench.html#p-cnt",
+   "kind": "nested",
+   "label": "\ud83d\udd2c",
+   "page": "cell-bench.html",
+   "pane": "p-cnt",
+   "selector": ".tab[data-pane=\"p-cnt\"]"
+  },
+  {
+   "id": "cell-bench.html#p-cul",
+   "kind": "nested",
+   "label": "\ud83e\uddeb",
+   "page": "cell-bench.html",
+   "pane": "p-cul",
+   "selector": ".tab[data-pane=\"p-cul\"]"
+  },
+  {
+   "id": "cell-bench.html#p-asy",
+   "kind": "nested",
+   "label": "\ud83d\udcc8",
+   "page": "cell-bench.html",
+   "pane": "p-asy",
+   "selector": ".tab[data-pane=\"p-asy\"]"
+  },
+  {
+   "id": "cell-bench.html#p-mit",
+   "kind": "nested",
+   "label": "\ud83e\uddec",
+   "page": "cell-bench.html",
+   "pane": "p-mit",
+   "selector": ".tab[data-pane=\"p-mit\"]"
+  },
+  {
+   "id": "cell-bench.html#p-met",
+   "kind": "nested",
+   "label": "\ud83d\udcd6",
+   "page": "cell-bench.html",
+   "pane": "p-met",
+   "selector": ".tab[data-pane=\"p-met\"]"
+  },
+  {
+   "id": "collection-sheet.html",
+   "kind": "primary",
+   "label": "Collection Sheet \u2014 macrofungi records, spore prints &amp; guild",
+   "page": "collection-sheet.html",
+   "pane": null,
+   "selector": null
+  },
+  {
+   "id": "collection-sheet.html#p-rec",
+   "kind": "nested",
+   "label": "\ud83c\udf44",
+   "page": "collection-sheet.html",
+   "pane": "p-rec",
+   "selector": ".tab[data-pane=\"p-rec\"]"
+  },
+  {
+   "id": "collection-sheet.html#p-site",
+   "kind": "nested",
+   "label": "\ud83d\udccb",
+   "page": "collection-sheet.html",
+   "pane": "p-site",
+   "selector": ".tab[data-pane=\"p-site\"]"
+  },
+  {
+   "id": "collection-sheet.html#p-prt",
+   "kind": "nested",
+   "label": "\ud83c\udfa8",
+   "page": "collection-sheet.html",
+   "pane": "p-prt",
+   "selector": ".tab[data-pane=\"p-prt\"]"
+  },
+  {
+   "id": "collection-sheet.html#p-an",
+   "kind": "nested",
+   "label": "\ud83d\udcca",
+   "page": "collection-sheet.html",
+   "pane": "p-an",
+   "selector": ".tab[data-pane=\"p-an\"]"
+  },
+  {
+   "id": "collection-sheet.html#p-vou",
+   "kind": "nested",
+   "label": "\ud83d\uddc2\ufe0f",
+   "page": "collection-sheet.html",
+   "pane": "p-vou",
+   "selector": ".tab[data-pane=\"p-vou\"]"
+  },
+  {
+   "id": "collection-sheet.html#p-met",
+   "kind": "nested",
+   "label": "\ud83d\udcd0",
+   "page": "collection-sheet.html",
+   "pane": "p-met",
+   "selector": ".tab[data-pane=\"p-met\"]"
+  },
+  {
+   "id": "cp-bench.html",
+   "kind": "primary",
+   "label": "CP Bench",
+   "page": "cp-bench.html",
+   "pane": null,
+   "selector": null
+  },
+  {
+   "id": "cp-bench.html#p-wat",
+   "kind": "nested",
+   "label": "\ud83d\udca7",
+   "page": "cp-bench.html",
+   "pane": "p-wat",
+   "selector": ".tab[data-pane=\"p-wat\"]"
+  },
+  {
+   "id": "cp-bench.html#p-mix",
+   "kind": "nested",
+   "label": "\ud83e\udeb4",
+   "page": "cp-bench.html",
+   "pane": "p-mix",
+   "selector": ".tab[data-pane=\"p-mix\"]"
+  },
+  {
+   "id": "cp-bench.html#p-pl",
+   "kind": "nested",
+   "label": "\ud83c\udf31",
+   "page": "cp-bench.html",
+   "pane": "p-pl",
+   "selector": ".tab[data-pane=\"p-pl\"]"
+  },
+  {
+   "id": "cp-bench.html#p-sea",
+   "kind": "nested",
+   "label": "\u2744\ufe0f",
+   "page": "cp-bench.html",
+   "pane": "p-sea",
+   "selector": ".tab[data-pane=\"p-sea\"]"
+  },
+  {
+   "id": "cp-bench.html#p-cro",
+   "kind": "nested",
+   "label": "\ud83c\udf38",
+   "page": "cp-bench.html",
+   "pane": "p-cro",
+   "selector": ".tab[data-pane=\"p-cro\"]"
+  },
+  {
+   "id": "cp-bench.html#p-met",
+   "kind": "nested",
+   "label": "\ud83d\udcd6",
+   "page": "cp-bench.html",
+   "pane": "p-met",
+   "selector": ".tab[data-pane=\"p-met\"]"
+  },
+  {
+   "id": "cp-characters.html",
+   "kind": "primary",
+   "label": "CP Characters \u2014 carnivorous plants, drawn",
+   "page": "cp-characters.html",
+   "pane": null,
+   "selector": null
+  },
+  {
+   "id": "cp-suite.html",
+   "kind": "primary",
+   "label": "Carnivorous plants \u2014 a CSRBT suite",
+   "page": "cp-suite.html",
+   "pane": null,
+   "selector": null
+  },
+  {
+   "id": "deployment-log.html",
+   "kind": "primary",
+   "label": "Deployment Log \u2014 recorders, loggers and flights, with what they can and cannot measure",
+   "page": "deployment-log.html",
+   "pane": null,
+   "selector": null
+  },
+  {
+   "id": "deployment-log.html#p-ac",
+   "kind": "nested",
+   "label": "\ud83c\udf99\ufe0f",
+   "page": "deployment-log.html",
+   "pane": "p-ac",
+   "selector": ".tab[data-pane=\"p-ac\"]"
+  },
+  {
+   "id": "deployment-log.html#p-fl",
+   "kind": "nested",
+   "label": "\ud83d\ude81",
+   "page": "deployment-log.html",
+   "pane": "p-fl",
+   "selector": ".tab[data-pane=\"p-fl\"]"
+  },
+  {
+   "id": "deployment-log.html#p-lg",
+   "kind": "nested",
+   "label": "\ud83c\udf21\ufe0f",
+   "page": "deployment-log.html",
+   "pane": "p-lg",
+   "selector": ".tab[data-pane=\"p-lg\"]"
+  },
+  {
+   "id": "deployment-log.html#p-log",
+   "kind": "nested",
+   "label": "\ud83d\udccb",
+   "page": "deployment-log.html",
+   "pane": "p-log",
+   "selector": ".tab[data-pane=\"p-log\"]"
+  },
+  {
+   "id": "deployment-log.html#p-met",
+   "kind": "nested",
+   "label": "\ud83d\udcd0",
+   "page": "deployment-log.html",
+   "pane": "p-met",
+   "selector": ".tab[data-pane=\"p-met\"]"
+  },
+  {
+   "id": "douglas-explorer.html",
+   "kind": "primary",
+   "label": "Douglas Explorer Mode \u2014 CSRBT",
+   "page": "douglas-explorer.html",
+   "pane": null,
+   "selector": null
+  },
+  {
+   "id": "eco-protocol-library.html",
+   "kind": "primary",
+   "label": "Protocol Library \u2014 ready-made .eco experiments",
+   "page": "eco-protocol-library.html",
+   "pane": null,
+   "selector": null
+  },
+  {
+   "id": "eco-protocol-reference.html",
+   "kind": "primary",
+   "label": "The .eco Protocol \u2014 CSRBT",
+   "page": "eco-protocol-reference.html",
+   "pane": null,
+   "selector": null
+  },
+  {
+   "id": "ecology-essay.html",
+   "kind": "primary",
+   "label": "The Ecology of a Tree \u2014 CSRBT",
+   "page": "ecology-essay.html",
+   "pane": null,
+   "selector": null
+  },
+  {
+   "id": "ecology-field-card.html",
+   "kind": "primary",
+   "label": "Ecology Field Card \u2014 CSRBT",
+   "page": "ecology-field-card.html",
+   "pane": null,
+   "selector": null
+  },
+  {
+   "id": "ecology-field-guide.html",
+   "kind": "primary",
+   "label": "The Ecology Field Guide \u2014 CSRBT",
+   "page": "ecology-field-guide.html",
+   "pane": null,
+   "selector": null
+  },
+  {
+   "id": "ecology-glossary.html",
+   "kind": "primary",
+   "label": "Ecology Glossary \u2014 CSRBT",
+   "page": "ecology-glossary.html",
+   "pane": null,
+   "selector": null
+  },
+  {
+   "id": "ecology-lab-manual.html",
+   "kind": "primary",
+   "label": "Field & Lab Manual \u2014 Ecology Field Day",
+   "page": "ecology-lab-manual.html",
+   "pane": null,
+   "selector": null
+  },
+  {
+   "id": "ecology-lab.html",
+   "kind": "primary",
+   "label": "Ecology Field Day \u2014 CSRBT Living-Systems Lab",
+   "page": "ecology-lab.html",
+   "pane": null,
+   "selector": null
+  },
+  {
+   "id": "ecology-teachers-guide.html",
+   "kind": "primary",
+   "label": "The Teacher's Guide \u2014 running a term on the ecology kit",
+   "page": "ecology-teachers-guide.html",
+   "pane": null,
+   "selector": null
+  },
+  {
+   "id": "ecology.html",
+   "kind": "primary",
+   "label": "The Living-Systems Lab \u2014 CSRBT",
+   "page": "ecology.html",
+   "pane": null,
+   "selector": null
+  },
+  {
+   "id": "ethogram.html",
+   "kind": "primary",
+   "label": "Ethogram \u2014 behaviour sampling, time budgets &amp; reliability",
+   "page": "ethogram.html",
+   "pane": null,
+   "selector": null
+  },
+  {
+   "id": "ethogram.html#p-rec",
+   "kind": "nested",
+   "label": "\ud83d\udc3e",
+   "page": "ethogram.html",
+   "pane": "p-rec",
+   "selector": ".tab[data-pane=\"p-rec\"]"
+  },
+  {
+   "id": "ethogram.html#p-des",
+   "kind": "nested",
+   "label": "\ud83d\udcd0",
+   "page": "ethogram.html",
+   "pane": "p-des",
+   "selector": ".tab[data-pane=\"p-des\"]"
+  },
+  {
+   "id": "ethogram.html#p-bud",
+   "kind": "nested",
+   "label": "\ud83d\udcca",
+   "page": "ethogram.html",
+   "pane": "p-bud",
+   "selector": ".tab[data-pane=\"p-bud\"]"
+  },
+  {
+   "id": "ethogram.html#p-rel",
+   "kind": "nested",
+   "label": "\u2696\ufe0f",
+   "page": "ethogram.html",
+   "pane": "p-rel",
+   "selector": ".tab[data-pane=\"p-rel\"]"
+  },
+  {
+   "id": "ethogram.html#p-met",
+   "kind": "nested",
+   "label": "\ud83d\udcd6",
+   "page": "ethogram.html",
+   "pane": "p-met",
+   "selector": ".tab[data-pane=\"p-met\"]"
+  },
+  {
+   "id": "experiment-guide.html",
+   "kind": "primary",
+   "label": "The Experiment Guider \u2014 how to run an experiment in this ecosystem",
+   "page": "experiment-guide.html",
+   "pane": null,
+   "selector": null
+  },
+  {
+   "id": "farm-scout.html",
+   "kind": "primary",
+   "label": "Farm Scout \u2014 field science for growers",
+   "page": "farm-scout.html",
+   "pane": null,
+   "selector": null
+  },
+  {
+   "id": "farm-scout.html#p-scout",
+   "kind": "nested",
+   "label": "\ud83d\udc1b",
+   "page": "farm-scout.html",
+   "pane": "p-scout",
+   "selector": ".tab[data-pane=\"p-scout\"]"
+  },
+  {
+   "id": "farm-scout.html#p-poll",
+   "kind": "nested",
+   "label": "\ud83d\udc1d",
+   "page": "farm-scout.html",
+   "pane": "p-poll",
+   "selector": ".tab[data-pane=\"p-poll\"]"
+  },
+  {
+   "id": "farm-scout.html#p-germ",
+   "kind": "nested",
+   "label": "\ud83c\udf31",
+   "page": "farm-scout.html",
+   "pane": "p-germ",
+   "selector": ".tab[data-pane=\"p-germ\"]"
+  },
+  {
+   "id": "farm-scout.html#p-rot",
+   "kind": "nested",
+   "label": "\ud83e\uddd1\u200d\ud83c\udf3e",
+   "page": "farm-scout.html",
+   "pane": "p-rot",
+   "selector": ".tab[data-pane=\"p-rot\"]"
+  },
+  {
+   "id": "field-notebook.html",
+   "kind": "primary",
+   "label": "Field Notebook \u2014 tap-to-tally field data",
+   "page": "field-notebook.html",
+   "pane": null,
+   "selector": null
+  },
+  {
+   "id": "field-notebook.html#p-etho",
+   "kind": "nested",
+   "label": "\ud83d\udc26",
+   "page": "field-notebook.html",
+   "pane": "p-etho",
+   "selector": ".tab[data-pane=\"p-etho\"]"
+  },
+  {
+   "id": "field-notebook.html#p-quad",
+   "kind": "nested",
+   "label": "\ud83c\udf31",
+   "page": "field-notebook.html",
+   "pane": "p-quad",
+   "selector": ".tab[data-pane=\"p-quad\"]"
+  },
+  {
+   "id": "field-notebook.html#p-spec",
+   "kind": "nested",
+   "label": "\ud83d\udd0d",
+   "page": "field-notebook.html",
+   "pane": "p-spec",
+   "selector": ".tab[data-pane=\"p-spec\"]"
+  },
+  {
+   "id": "field-notebook.html#p-more",
+   "kind": "nested",
+   "label": "\ud83c\udf92",
+   "page": "field-notebook.html",
+   "pane": "p-more",
+   "selector": ".tab[data-pane=\"p-more\"]"
+  },
+  {
+   "id": "field-season.html",
+   "kind": "primary",
+   "label": "Field Season \u2014 the sampling game",
+   "page": "field-season.html",
+   "pane": null,
+   "selector": null
+  },
+  {
+   "id": "food-web.html",
+   "kind": "primary",
+   "label": "Food Web Builder \u2014 tap a web into being",
+   "page": "food-web.html",
+   "pane": null,
+   "selector": null
+  },
+  {
+   "id": "fungal-characters.html",
+   "kind": "primary",
+   "label": "Fungal Characters \u2014 the keying vocabulary, drawn",
+   "page": "fungal-characters.html",
+   "pane": null,
+   "selector": null
+  },
+  {
+   "id": "greenhouse.html",
+   "kind": "primary",
+   "label": "Greenhouse Monitor \u2014 VPD, DLI, kWh and grams per kilowatt hour",
+   "page": "greenhouse.html",
+   "pane": null,
+   "selector": null
+  },
+  {
+   "id": "greenhouse.html#p-env",
+   "kind": "nested",
+   "label": "\ud83c\udf21\ufe0f",
+   "page": "greenhouse.html",
+   "pane": "p-env",
+   "selector": ".tab[data-pane=\"p-env\"]"
+  },
+  {
+   "id": "greenhouse.html#p-light",
+   "kind": "nested",
+   "label": "\u2600\ufe0f",
+   "page": "greenhouse.html",
+   "pane": "p-light",
+   "selector": ".tab[data-pane=\"p-light\"]"
+  },
+  {
+   "id": "greenhouse.html#p-econ",
+   "kind": "nested",
+   "label": "\u26a1",
+   "page": "greenhouse.html",
+   "pane": "p-econ",
+   "selector": ".tab[data-pane=\"p-econ\"]"
+  },
+  {
+   "id": "greenhouse.html#p-src",
+   "kind": "nested",
+   "label": "\ud83d\udd0c",
+   "page": "greenhouse.html",
+   "pane": "p-src",
+   "selector": ".tab[data-pane=\"p-src\"]"
+  },
+  {
+   "id": "greenhouse.html#p-runs",
+   "kind": "nested",
+   "label": "\ud83d\udcc8",
+   "page": "greenhouse.html",
+   "pane": "p-runs",
+   "selector": ".tab[data-pane=\"p-runs\"]"
+  },
+  {
+   "id": "greenhouse.html#p-out",
+   "kind": "nested",
+   "label": "\ud83d\udce4",
+   "page": "greenhouse.html",
+   "pane": "p-out",
+   "selector": ".tab[data-pane=\"p-out\"]"
+  },
+  {
+   "id": "micro-bench.html",
+   "kind": "primary",
+   "label": "Micro Bench \u2014 plate counts, dilutions, growth rate &amp; zones",
+   "page": "micro-bench.html",
+   "pane": null,
+   "selector": null
+  },
+  {
+   "id": "micro-bench.html#p-pl",
+   "kind": "nested",
+   "label": "\ud83e\uddeb",
+   "page": "micro-bench.html",
+   "pane": "p-pl",
+   "selector": ".tab[data-pane=\"p-pl\"]"
+  },
+  {
+   "id": "micro-bench.html#p-dil",
+   "kind": "nested",
+   "label": "\ud83d\udca7",
+   "page": "micro-bench.html",
+   "pane": "p-dil",
+   "selector": ".tab[data-pane=\"p-dil\"]"
+  },
+  {
+   "id": "micro-bench.html#p-gr",
+   "kind": "nested",
+   "label": "\ud83d\udcc8",
+   "page": "micro-bench.html",
+   "pane": "p-gr",
+   "selector": ".tab[data-pane=\"p-gr\"]"
+  },
+  {
+   "id": "micro-bench.html#p-zn",
+   "kind": "nested",
+   "label": "\u2b55",
+   "page": "micro-bench.html",
+   "pane": "p-zn",
+   "selector": ".tab[data-pane=\"p-zn\"]"
+  },
+  {
+   "id": "micro-bench.html#p-met",
+   "kind": "nested",
+   "label": "\ud83d\udcd6",
+   "page": "micro-bench.html",
+   "pane": "p-met",
+   "selector": ".tab[data-pane=\"p-met\"]"
+  },
+  {
+   "id": "ordination.html",
+   "kind": "primary",
+   "label": "Ordination \u2014 NMDS, PCoA, and what the stress is worth",
+   "page": "ordination.html",
+   "pane": null,
+   "selector": null
+  },
+  {
+   "id": "ordination.html#p-data",
+   "kind": "nested",
+   "label": "\ud83d\udccb",
+   "page": "ordination.html",
+   "pane": "p-data",
+   "selector": ".tab[data-pane=\"p-data\"]"
+  },
+  {
+   "id": "ordination.html#p-ord",
+   "kind": "nested",
+   "label": "\ud83d\udcc9",
+   "page": "ordination.html",
+   "pane": "p-ord",
+   "selector": ".tab[data-pane=\"p-ord\"]"
+  },
+  {
+   "id": "ordination.html#p-diag",
+   "kind": "nested",
+   "label": "\ud83d\udd0d",
+   "page": "ordination.html",
+   "pane": "p-diag",
+   "selector": ".tab[data-pane=\"p-diag\"]"
+  },
+  {
+   "id": "ordination.html#p-met",
+   "kind": "nested",
+   "label": "\ud83d\udcd0",
+   "page": "ordination.html",
+   "pane": "p-met",
+   "selector": ".tab[data-pane=\"p-met\"]"
+  },
+  {
+   "id": "pheno-tracker.html",
+   "kind": "primary",
+   "label": "Pheno Tracker \u2014 the breeder's selection bench",
+   "page": "pheno-tracker.html",
+   "pane": null,
+   "selector": null
+  },
+  {
+   "id": "pheno-tracker.html#p-run",
+   "kind": "nested",
+   "label": "\ud83e\uddec",
+   "page": "pheno-tracker.html",
+   "pane": "p-run",
+   "selector": ".tab[data-pane=\"p-run\"]"
+  },
+  {
+   "id": "pheno-tracker.html#p-score",
+   "kind": "nested",
+   "label": "\ud83d\udccb",
+   "page": "pheno-tracker.html",
+   "pane": "p-score",
+   "selector": ".tab[data-pane=\"p-score\"]"
+  },
+  {
+   "id": "pheno-tracker.html#p-sel",
+   "kind": "nested",
+   "label": "\u2b50",
+   "page": "pheno-tracker.html",
+   "pane": "p-sel",
+   "selector": ".tab[data-pane=\"p-sel\"]"
+  },
+  {
+   "id": "pheno-tracker.html#p-seg",
+   "kind": "nested",
+   "label": "\ud83c\udfaf",
+   "page": "pheno-tracker.html",
+   "pane": "p-seg",
+   "selector": ".tab[data-pane=\"p-seg\"]"
+  },
+  {
+   "id": "plant-characters.html",
+   "kind": "primary",
+   "label": "Plant Characters \u2014 the botanist's keying card",
+   "page": "plant-characters.html",
+   "pane": null,
+   "selector": null
+  },
+  {
+   "id": "releve.html",
+   "kind": "primary",
+   "label": "Relev\u00e9 \u2014 vegetation plot &amp; floristic quality",
+   "page": "releve.html",
+   "pane": null,
+   "selector": null
+  },
+  {
+   "id": "releve.html#p-rec",
+   "kind": "nested",
+   "label": "\ud83c\udf3e",
+   "page": "releve.html",
+   "pane": "p-rec",
+   "selector": ".tab[data-pane=\"p-rec\"]"
+  },
+  {
+   "id": "releve.html#p-plot",
+   "kind": "nested",
+   "label": "\ud83d\udccb",
+   "page": "releve.html",
+   "pane": "p-plot",
+   "selector": ".tab[data-pane=\"p-plot\"]"
+  },
+  {
+   "id": "releve.html#p-lpi",
+   "kind": "nested",
+   "label": "\ud83d\udccf",
+   "page": "releve.html",
+   "pane": "p-lpi",
+   "selector": ".tab[data-pane=\"p-lpi\"]"
+  },
+  {
+   "id": "releve.html#p-an",
+   "kind": "nested",
+   "label": "\ud83d\udcca",
+   "page": "releve.html",
+   "pane": "p-an",
+   "selector": ".tab[data-pane=\"p-an\"]"
+  },
+  {
+   "id": "releve.html#p-vou",
+   "kind": "nested",
+   "label": "\ud83d\uddc2\ufe0f",
+   "page": "releve.html",
+   "pane": "p-vou",
+   "selector": ".tab[data-pane=\"p-vou\"]"
+  },
+  {
+   "id": "releve.html#p-met",
+   "kind": "nested",
+   "label": "\ud83d\udcd0",
+   "page": "releve.html",
+   "pane": "p-met",
+   "selector": ".tab[data-pane=\"p-met\"]"
+  },
+  {
+   "id": "selection-log.html",
+   "kind": "primary",
+   "label": "Selection Log \u2014 marked individuals, traits &amp; measured selection",
+   "page": "selection-log.html",
+   "pane": null,
+   "selector": null
+  },
+  {
+   "id": "selection-log.html#p-ind",
+   "kind": "nested",
+   "label": "\ud83d\udc26",
+   "page": "selection-log.html",
+   "pane": "p-ind",
+   "selector": ".tab[data-pane=\"p-ind\"]"
+  },
+  {
+   "id": "selection-log.html#p-mea",
+   "kind": "nested",
+   "label": "\ud83d\udccf",
+   "page": "selection-log.html",
+   "pane": "p-mea",
+   "selector": ".tab[data-pane=\"p-mea\"]"
+  },
+  {
+   "id": "selection-log.html#p-sel",
+   "kind": "nested",
+   "label": "\ud83d\udcc9",
+   "page": "selection-log.html",
+   "pane": "p-sel",
+   "selector": ".tab[data-pane=\"p-sel\"]"
+  },
+  {
+   "id": "selection-log.html#p-her",
+   "kind": "nested",
+   "label": "\ud83d\udc6a",
+   "page": "selection-log.html",
+   "pane": "p-her",
+   "selector": ".tab[data-pane=\"p-her\"]"
+  },
+  {
+   "id": "selection-log.html#p-met",
+   "kind": "nested",
+   "label": "\ud83d\udcd6",
+   "page": "selection-log.html",
+   "pane": "p-met",
+   "selector": ".tab[data-pane=\"p-met\"]"
+  },
+  {
+   "id": "soil-bench.html",
+   "kind": "primary",
+   "label": "Soil Bench \u2014 compost, C:N, mixes &amp; texture",
+   "page": "soil-bench.html",
+   "pane": null,
+   "selector": null
+  },
+  {
+   "id": "soil-bench.html#p-comp",
+   "kind": "nested",
+   "label": "\ud83c\udf21\ufe0f",
+   "page": "soil-bench.html",
+   "pane": "p-comp",
+   "selector": ".tab[data-pane=\"p-comp\"]"
+  },
+  {
+   "id": "soil-bench.html#p-rec",
+   "kind": "nested",
+   "label": "\ud83e\uddea",
+   "page": "soil-bench.html",
+   "pane": "p-rec",
+   "selector": ".tab[data-pane=\"p-rec\"]"
+  },
+  {
+   "id": "soil-bench.html#p-mix",
+   "kind": "nested",
+   "label": "\ud83e\udeb4",
+   "page": "soil-bench.html",
+   "pane": "p-mix",
+   "selector": ".tab[data-pane=\"p-mix\"]"
+  },
+  {
+   "id": "soil-bench.html#p-tex",
+   "kind": "nested",
+   "label": "\u270b",
+   "page": "soil-bench.html",
+   "pane": "p-tex",
+   "selector": ".tab[data-pane=\"p-tex\"]"
+  },
+  {
+   "id": "soil-bench.html#p-met",
+   "kind": "nested",
+   "label": "\ud83d\udcd6",
+   "page": "soil-bench.html",
+   "pane": "p-met",
+   "selector": ".tab[data-pane=\"p-met\"]"
+  },
+  {
+   "id": "soil-recipes.html",
+   "kind": "primary",
+   "label": "Grower's Soil Recipes \u2014 Super Soil, TLO, Coot's",
+   "page": "soil-recipes.html",
+   "pane": null,
+   "selector": null
+  },
+  {
+   "id": "soil-suite.html",
+   "kind": "primary",
+   "label": "Soil &amp; compost \u2014 a CSRBT suite",
+   "page": "soil-suite.html",
+   "pane": null,
+   "selector": null
+  },
+  {
+   "id": "stand-sheet.html",
+   "kind": "primary",
+   "label": "Stand Sheet \u2014 field tree ID &amp; plot recorder",
+   "page": "stand-sheet.html",
+   "pane": null,
+   "selector": null
+  },
+  {
+   "id": "stand-sheet.html#p-id",
+   "kind": "nested",
+   "label": "\ud83d\udd0d",
+   "page": "stand-sheet.html",
+   "pane": "p-id",
+   "selector": ".tab[data-pane=\"p-id\"]"
+  },
+  {
+   "id": "stand-sheet.html#p-trees",
+   "kind": "nested",
+   "label": "\ud83c\udf32",
+   "page": "stand-sheet.html",
+   "pane": "p-trees",
+   "selector": ".tab[data-pane=\"p-trees\"]"
+  },
+  {
+   "id": "stand-sheet.html#p-plot",
+   "kind": "nested",
+   "label": "\ud83d\udccb",
+   "page": "stand-sheet.html",
+   "pane": "p-plot",
+   "selector": ".tab[data-pane=\"p-plot\"]"
+  },
+  {
+   "id": "stand-sheet.html#p-notes",
+   "kind": "nested",
+   "label": "\ud83d\udcf7",
+   "page": "stand-sheet.html",
+   "pane": "p-notes",
+   "selector": ".tab[data-pane=\"p-notes\"]"
+  },
+  {
+   "id": "stand-sheet.html#p-web",
+   "kind": "nested",
+   "label": "\ud83d\udd78\ufe0f",
+   "page": "stand-sheet.html",
+   "pane": "p-web",
+   "selector": ".tab[data-pane=\"p-web\"]"
+  },
+  {
+   "id": "stand-sheet.html#p-method",
+   "kind": "nested",
+   "label": "\ud83d\udcd0",
+   "page": "stand-sheet.html",
+   "pane": "p-method",
+   "selector": ".tab[data-pane=\"p-method\"]"
+  },
+  {
+   "id": "survey-design.html",
+   "kind": "primary",
+   "label": "Survey Design \u2014 Event Core, Humboldt, and the difference between absent and not looked for",
+   "page": "survey-design.html",
+   "pane": null,
+   "selector": null
+  },
+  {
+   "id": "survey-design.html#p-hier",
+   "kind": "nested",
+   "label": "\ud83e\udded",
+   "page": "survey-design.html",
+   "pane": "p-hier",
+   "selector": ".tab[data-pane=\"p-hier\"]"
+  },
+  {
+   "id": "survey-design.html#p-scope",
+   "kind": "nested",
+   "label": "\ud83c\udfaf",
+   "page": "survey-design.html",
+   "pane": "p-scope",
+   "selector": ".tab[data-pane=\"p-scope\"]"
+  },
+  {
+   "id": "survey-design.html#p-abs",
+   "kind": "nested",
+   "label": "\ud83d\udd73\ufe0f",
+   "page": "survey-design.html",
+   "pane": "p-abs",
+   "selector": ".tab[data-pane=\"p-abs\"]"
+  },
+  {
+   "id": "survey-design.html#p-out",
+   "kind": "nested",
+   "label": "\ud83d\udce4",
+   "page": "survey-design.html",
+   "pane": "p-out",
+   "selector": ".tab[data-pane=\"p-out\"]"
+  },
+  {
+   "id": "survey-design.html#p-met",
+   "kind": "nested",
+   "label": "\ud83d\udcd0",
+   "page": "survey-design.html",
+   "pane": "p-met",
+   "selector": ".tab[data-pane=\"p-met\"]"
+  },
+  {
+   "id": "tree-proofs.html",
+   "kind": "primary",
+   "label": "The Bounds, Drawn \u2014 CSRBT",
+   "page": "tree-proofs.html",
+   "pane": null,
+   "selector": null
+  },
+  {
+   "id": "tree-visualizer.html",
+   "kind": "primary",
+   "label": "CSRBT \u2014 Interactive Tree Visualizer",
+   "page": "tree-visualizer.html",
+   "pane": null,
+   "selector": null
+  }
+ ]
+}

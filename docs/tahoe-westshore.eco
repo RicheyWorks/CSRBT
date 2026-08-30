@@ -18,13 +18,15 @@ factor: temperature 0.75   # montane, ~6,800 ft: shorter season, slower rates
 factor: wind 1.4           # open lake fetch to the east, exposed canopy
 factor: distance 1.1       # ~15 km of open water to the far shore
 
-# ── BIOTIC: canopy cover by taxon ────────────────────────────────────────────
-# Photo-estimated crown cover, percent. NOT stem counts -- the engine has no
-# cover field, so cover is entered in the count slot. See the gap note below.
-data: canopy Abies_concolor=45 Pinus_jeffreyi=30 Calocedrus_decurrens=8 Pinus_lambertiana=5 Abies_magnifica=4 standing_dead=3
-
-# Understory and ground layer, percent cover of the open bench in the foreground.
-data: understory Arctostaphylos_patula=25 Chrysolepis_sempervirens=15 graminoids=30 forbs=10 bare_litter=20
+# ── BIOTIC: entered as DARWIN CORE, the standard the kit's own field pages emit ─
+# Cover is declared as cover (organismQuantityType), so the engine applies the
+# proportional indices and WITHHOLDS Chao1 and rarefaction, which model counts of
+# individuals and have none here. identificationQualifier carries the hedge on
+# every determination. decimalLatitude is deliberately EMPTY: the location is not
+# known, and an empty coordinate must stay empty rather than become a zero that
+# would read as perfect precision.
+dwc: canopy     docs/tahoe-canopy-dwc.csv
+dwc: understory docs/tahoe-understory-dwc.csv
 
 # Structural elements present in frame, counted as occurrences.
 data: structure canopy_gap=2 standing_snag=1 multi_layer_canopy=3 lake_edge_ecotone=1
@@ -50,14 +52,20 @@ note(canopy): two species carry the stand -- white fir and Jeffrey pine; the res
 note(canopy): one grey standing snag mid-frame, crown intact, no foliage -- recent mortality, still holding branch structure
 note(structure): the view corridor itself is a canopy gap; regeneration visible along its floor
 note(understory): shrub layer is continuous on the open bench and absent under closed canopy -- a light-driven boundary
-# --- INFORMATION THE HARNESS COULD NOT HOLD IN A FIELD, ONLY AS PROSE ---
-note: NO FIELD -- coordinates, approximately 39.1 N, 120.1 W, west shore
-note: NO FIELD -- elevation of viewpoint approximately 6,800 ft; lake surface 6,225 ft
-note: NO FIELD -- aspect east-northeast, slope moderate, descending to the shore
-note: NO FIELD -- date and observer of record
-note: NO FIELD -- source photograph identifier
-note: NO FIELD -- canopy cover entered as counts because there is no cover-class type
-note: NO FIELD -- species identifications are photo-based and uncertain at the species level for Calocedrus, Pinus lambertiana and Abies magnifica
+# --- WHAT DARWIN CORE NOW HOLDS AS FIELDS (ADR-107) ---
+# These were free-text notes in the first run. They are fields now:
+#   coordinates            -> decimalLatitude / decimalLongitude (EMPTY: not known)
+#   coordinate precision   -> coordinateUncertaintyInMeters (empty, never 0)
+#   elevation              -> minimumElevationInMeters
+#   observer               -> recordedBy = Morgan Linton
+#   evidence               -> associatedMedia = tahoe-westshore-a42a4047.png
+#   cover, not counts      -> organismQuantityType = "% cover"
+#   identification hedge   -> identificationQualifier = cf. / aff.
+# STILL no field, and still prose:
+note: NO FIELD -- aspect and slope of the bench
+note: NO FIELD -- bearing, which is what would settle whether the far skyline is
+note:            the Carson Range or the Sierra crest
+note: photograph by Morgan Linton (@morganlinton); site is his framing, not metadata
 
 # ── HYPOTHESES, written before the run ───────────────────────────────────────
 expect: richness(canopy) <= 6

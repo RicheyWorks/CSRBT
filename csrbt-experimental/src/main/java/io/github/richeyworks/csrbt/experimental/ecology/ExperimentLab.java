@@ -141,10 +141,12 @@ public final class ExperimentLab {
                 "   %d keys, seed %d, window %d ops, %d phase(s), %d model(s), %d hypothesis(es)%n",
                 spec.keys(), spec.seed(), spec.window(), spec.phases().size(),
                 spec.models().size(), spec.expectations().size()));
-        if (!spec.datasets().isEmpty() || !spec.notes().isEmpty() || !spec.trees().isEmpty()) {
+        if (!spec.datasets().isEmpty() || !spec.dwcSources().isEmpty()
+                || !spec.notes().isEmpty() || !spec.trees().isEmpty()) {
             report.append(String.format(Locale.ROOT,
                     "   entered: %d dataset(s), %d note(s), %d tree(s)%n",
-                    spec.datasets().size(), spec.notes().size(), spec.trees().size()));
+                    spec.datasets().size() + spec.dwcSources().size(),
+                    spec.notes().size(), spec.trees().size()));
         }
         TheoreticalModels.Environment env = spec.environment();
         if (!env.equals(TheoreticalModels.Environment.NEUTRAL)) {
@@ -156,6 +158,48 @@ public final class ExperimentLab {
             report.append("   ⚠ spec: ").append(problem).append('\n');
         }
         report.append('\n');
+
+        // Darwin Core files named by dwc: lines become datasets here, where file IO belongs
+        // (the parser stays pure). Anything unreadable is reported, never guessed at.
+        List<ExperimentSpec.Dataset> datasets = new ArrayList<>(spec.datasets());
+        for (ExperimentSpec.DwcSource src : spec.dwcSources()) {
+            try {
+                DarwinCore.Archive arc = DarwinCore.read(
+                        java.nio.file.Files.readAllLines(java.nio.file.Path.of(src.path())));
+                for (String problem : arc.problems()) {
+                    report.append("   ⚠ dwc ").append(src.label()).append(": ")
+                          .append(problem).append('\n');
+                }
+                if (arc.records().isEmpty()) {
+                    report.append("   ⚠ dwc ").append(src.label())
+                          .append(": no usable records\n");
+                    continue;
+                }
+                datasets.add(new ExperimentSpec.Dataset(
+                        src.label(), arc.proportionalWeights(), arc.quantityKind()));
+                DarwinCore.Site st = arc.site();
+                report.append(String.format(Locale.ROOT,
+                        "   dwc %s: %d record(s), %s%s%s%s%n",
+                        src.label(), arc.records().size(),
+                        arc.quantityKind() == DarwinCore.Quantity.COVER
+                                ? "cover" : "individuals",
+                        st.latitude() != null
+                                ? String.format(Locale.ROOT, ", at %.4f %.4f", st.latitude(), st.longitude())
+                                : ", no coordinate recorded",
+                        st.coordinateUncertaintyM() != null
+                                ? String.format(Locale.ROOT, " ±%.0f m", st.coordinateUncertaintyM()) : "",
+                        st.eventDate() != null ? ", " + st.eventDate() : ""));
+                if (!arc.uncertainTaxa().isEmpty()) {
+                    report.append("   dwc ").append(src.label())
+                          .append(": identification hedged for ")
+                          .append(arc.uncertainTaxa()).append('\n');
+                }
+            } catch (java.io.IOException io) {
+                report.append("   ⚠ dwc ").append(src.label()).append(": cannot read ")
+                      .append(src.path()).append('\n');
+            }
+        }
+        if (!spec.dwcSources().isEmpty()) report.append('\n');
 
         // ── Simulation: one seeded stream through a live tree ─────────────────
         TreeContext tree = new TreeContext(new RedBlackStrategy<>());
@@ -239,10 +283,30 @@ public final class ExperimentLab {
         report.append('\n');
 
         // ── Entered field data (ADR-020): same instruments, the student's numbers ─
-        for (ExperimentSpec.Dataset d : spec.datasets()) {
+        for (ExperimentSpec.Dataset d : datasets) {
+            if (d.isCover()) {
+                // Cover is a proportion of ground, not a headcount, so the proportional indices
+                // apply and the richness estimators do not: Chao1 and rarefaction reason about
+                // how many species were missed GIVEN HOW MANY INDIVIDUALS WERE CAUGHT, and there
+                // are no individuals here. Withholding them is the point of carrying the type.
+                report.append(String.format(Locale.ROOT,
+                        "── ENTERED DATA · %s (%d kinds, cover) ──%n", d.name(), d.counts().size()));
+                double h = CommunityMetrics.shannon(d.counts());
+                double j = CommunityMetrics.pielouEvenness(d.counts());
+                report.append(String.format(Locale.ROOT,
+                        "  Diversity H' = %.3f, evenness J' = %.2f: %s.%n",
+                        h, j, FieldReport.evennessReading(j)));
+                report.append(String.format(Locale.ROOT, "  %s.%n",
+                        FieldReport.effectiveSpeciesReading(
+                                CommunityMetrics.hillNumber(d.counts(), 1),
+                                CommunityMetrics.richness(d.counts()))));
+                report.append("  cover data: Chao1 and rarefaction withheld — they estimate unseen "
+                        + "species from counts of individuals, and cover has none.\n");
+            } else {
             report.append(FieldReport.communitySection(
                     "ENTERED DATA · " + d.name() + " (" + d.counts().size() + " kinds, "
                             + CommunityMetrics.total(d.counts()) + " records)", d.counts()));
+            }
             if (exports != null) {
                 for (Map.Entry<String, Long> e : d.counts().entrySet()) {
                     ExperimentExport.row(exports, "data.csv", "dataset,name,count",
@@ -250,8 +314,8 @@ public final class ExperimentLab {
                 }
             }
         }
-        for (int i = 0; i + 1 < spec.datasets().size(); i++) {
-            ExperimentSpec.Dataset a = spec.datasets().get(i), b = spec.datasets().get(i + 1);
+        for (int i = 0; i + 1 < datasets.size(); i++) {
+            ExperimentSpec.Dataset a = datasets.get(i), b = datasets.get(i + 1);
             var pa = BetaDiversity.presence(a.counts());
             var pb = BetaDiversity.presence(b.counts());
             var shared = new java.util.HashSet<>(pa);
@@ -264,7 +328,7 @@ public final class ExperimentLab {
                     BetaDiversity.brayCurtis(a.counts(), b.counts()),
                     FieldReport.turnoverReading(BetaDiversity.brayCurtis(a.counts(), b.counts()))));
         }
-        if (!spec.datasets().isEmpty()) report.append('\n');
+        if (!datasets.isEmpty()) report.append('\n');
 
         // ── JSON assembly (lab-page schema) ───────────────────────────────────
         StringBuilder json = new StringBuilder("{\n");
@@ -320,19 +384,24 @@ public final class ExperimentLab {
         }
 
         // ── Entered data: lab-page card ───────────────────────────────────────
-        if (!spec.datasets().isEmpty()) {
+        if (!datasets.isEmpty()) {
             sep(json, first);
             json.append("  \"entered\": [");
-            for (int d = 0; d < spec.datasets().size(); d++) {
+            for (int d = 0; d < datasets.size(); d++) {
                 if (d > 0) json.append(',');
-                ExperimentSpec.Dataset ds = spec.datasets().get(d);
+                ExperimentSpec.Dataset ds = datasets.get(d);
                 Map<String, Long> a = ds.counts();
                 json.append("{ \"name\": \"").append(WorkloadTrace.escapeJson(ds.name())).append('"');
                 json.append(", \"richness\": ").append(CommunityMetrics.richness(a));
                 json.append(", \"total\": ").append(CommunityMetrics.total(a));
                 json.append(String.format(Locale.ROOT, ", \"shannon\": %.6f", CommunityMetrics.shannon(a)));
                 json.append(String.format(Locale.ROOT, ", \"evenness\": %.6f", CommunityMetrics.pielouEvenness(a)));
-                json.append(String.format(Locale.ROOT, ", \"chao1\": %.6f", CommunityMetrics.chao1(a)));
+                if (ds.isCover()) {
+                    json.append(", \"quantity\": \"cover\", \"chao1\": null");
+                } else {
+                    json.append(String.format(Locale.ROOT, ", \"quantity\": \"individuals\""));
+                    json.append(String.format(Locale.ROOT, ", \"chao1\": %.6f", CommunityMetrics.chao1(a)));
+                }
                 List<Map.Entry<String, Long>> sorted = new ArrayList<>(a.entrySet());
                 sorted.sort(Map.Entry.<String, Long>comparingByValue().reversed()
                         .thenComparing(Map.Entry.comparingByKey()));
@@ -455,7 +524,7 @@ public final class ExperimentLab {
                 communities.put(e.getKey(), s);
             }
             java.util.Set<String> datasetNames = new java.util.HashSet<>();
-            for (ExperimentSpec.Dataset d : spec.datasets()) {
+            for (ExperimentSpec.Dataset d : datasets) {
                 if (!communities.containsKey(d.name())) {   // name collisions already flagged
                     communities.put(d.name(), d.counts());
                     datasetNames.add(d.name());

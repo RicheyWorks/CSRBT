@@ -98,7 +98,23 @@ public final class ExperimentSpec {
                               String op, double value, String word) {}
 
     /** One entered dataset ({@code data:} line): field counts, tallies, or a survey. */
-    public record Dataset(String name, LinkedHashMap<String, Long> counts) {}
+    /**
+     * One entered dataset. {@code kind} records what the numbers ARE — individuals or cover —
+     * because the richness estimators only model the first (ADR-107). A dataset built by the
+     * {@code data:} directive is individuals by construction; one read from Darwin Core carries
+     * whatever {@code organismQuantityType} said.
+     */
+    public record Dataset(String name, LinkedHashMap<String, Long> counts,
+                          DarwinCore.Quantity kind) {
+        public Dataset(String name, LinkedHashMap<String, Long> counts) {
+            this(name, counts, DarwinCore.Quantity.INDIVIDUALS);
+        }
+        /** True when these weights came from cover and must not reach Chao1 or rarefaction. */
+        public boolean isCover() { return kind == DarwinCore.Quantity.COVER; }
+    }
+
+    /** A Darwin Core file to read as a dataset: {@code dwc: <label> <path>}. */
+    public record DwcSource(String label, String path) {}
 
     /** One field-notebook entry; {@code about} is a phase/dataset name or null (general). */
     public record Note(String about, String text) {}
@@ -119,6 +135,7 @@ public final class ExperimentSpec {
     private final List<CrossSpec> crosses;
     private final List<Expectation> expectations;
     private final List<Dataset> datasets;
+    private final List<DwcSource> dwcSources;
     private final List<Note> notes;
     private final List<Tree> trees;
     private final List<String> problems;
@@ -126,7 +143,7 @@ public final class ExperimentSpec {
 
     private ExperimentSpec(String name, int keys, long seed, int window,
                            List<Phase> phases, List<Model> models, List<CrossSpec> crosses,
-                           List<Expectation> expectations, List<Dataset> datasets,
+                           List<Expectation> expectations, List<Dataset> datasets, List<DwcSource> dwcSources,
                            List<Note> notes, List<Tree> trees, List<String> problems,
                            TheoreticalModels.Environment environment) {
         this.name = name;
@@ -138,6 +155,7 @@ public final class ExperimentSpec {
         this.crosses = crosses;
         this.expectations = expectations;
         this.datasets = datasets;
+        this.dwcSources = dwcSources;
         this.notes = notes;
         this.trees = trees;
         this.problems = problems;
@@ -154,6 +172,8 @@ public final class ExperimentSpec {
     public List<Expectation> expectations() { return expectations; }
     /** Entered field datasets, in file order. */
     public List<Dataset> datasets() { return datasets; }
+    /** Darwin Core files named by {@code dwc:} lines, resolved by the runner. */
+    public List<DwcSource> dwcSources() { return dwcSources; }
     /** Field-notebook entries, in file order. */
     public List<Note> notes() { return notes; }
     /** Phylogenies, in file order. */
@@ -174,6 +194,7 @@ public final class ExperimentSpec {
         List<CrossSpec> crosses = new ArrayList<>();
         List<Expectation> expectations = new ArrayList<>();
         List<Dataset> datasets = new ArrayList<>();
+        List<DwcSource> dwcSources = new ArrayList<>();
         List<Note> notes = new ArrayList<>();
         List<Tree> trees = new ArrayList<>();
         List<String> problems = new ArrayList<>();
@@ -214,6 +235,7 @@ public final class ExperimentSpec {
                     case "cross" -> crosses.add(parseCross(val));
                     case "expect" -> expectations.add(parseExpect(val));
                     case "data" -> datasets.add(parseData(val, problems));
+                    case "dwc" -> dwcSources.add(parseDwc(val));
                     case "tree" -> trees.add(parseTree(val));
                     case "factor" -> {
                         String[] f = val.split("\\s+");
@@ -245,6 +267,16 @@ public final class ExperimentSpec {
         Set<String> phaseNames = new java.util.HashSet<>();
         for (Phase p : phases) phaseNames.add(p.name());
         Set<String> datasetNames = new java.util.HashSet<>();
+        // A dwc: label names a dataset that will exist at run time, so notes and hypotheses may
+        // address it. Validating against only the data: lines reported false problems against a
+        // spec that was correct -- the parser knowing less than the runner is not a spec error.
+        for (DwcSource d : dwcSources) {
+            if (phaseNames.contains(d.label())) {
+                problems.add("dwc source '" + d.label() + "' collides with a phase name");
+            } else if (!datasetNames.add(d.label())) {
+                problems.add("duplicate dataset name '" + d.label() + "'");
+            }
+        }
         for (Dataset d : datasets) {
             if (phaseNames.contains(d.name())) {
                 problems.add("dataset '" + d.name() + "' collides with a phase name");
@@ -267,7 +299,14 @@ public final class ExperimentSpec {
             env = TheoreticalModels.Environment.NEUTRAL;
         }
         return new ExperimentSpec(name, keys, seed, window, phases, models, crosses,
-                expectations, datasets, notes, trees, problems, env);
+                expectations, datasets, dwcSources, notes, trees, problems, env);
+    }
+
+    /** dwc: &lt;label&gt; &lt;path&gt; — a Darwin Core occurrence file to read as a dataset. */
+    private static DwcSource parseDwc(String val) {
+        String[] parts = val.split("\\s+", 2);
+        if (parts.length < 2) throw new IllegalArgumentException("dwc needs: <label> <path>");
+        return new DwcSource(parts[0], parts[1].trim());
     }
 
     /** data: &lt;label&gt; &lt;name[=count]&gt; ... — entered counts, tallies, or surveys. */

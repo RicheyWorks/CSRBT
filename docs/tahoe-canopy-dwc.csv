@@ -1,0 +1,6 @@
+occurrenceID,scientificName,organismQuantity,organismQuantityType,identificationQualifier,eventDate,recordedBy,decimalLatitude,decimalLongitude,coordinateUncertaintyInMeters,minimumElevationInMeters,basisOfRecord,associatedMedia,locality
+tahoe:canopy:1,Abies concolor,45,% cover,cf.,,Morgan Linton,,,,,HumanObservation,tahoe-westshore-a42a4047.png,Lake Tahoe west shore (asserted)
+tahoe:canopy:2,Pinus jeffreyi,30,% cover,cf.,,Morgan Linton,,,,,HumanObservation,tahoe-westshore-a42a4047.png,Lake Tahoe west shore (asserted)
+tahoe:canopy:3,Calocedrus decurrens,8,% cover,aff.,,Morgan Linton,,,,,HumanObservation,tahoe-westshore-a42a4047.png,Lake Tahoe west shore (asserted)
+tahoe:canopy:4,Pinus lambertiana,5,% cover,cf.,,Morgan Linton,,,,,HumanObservation,tahoe-westshore-a42a4047.png,Lake Tahoe west shore (asserted)
+tahoe:canopy:5,Abies magnifica,4,% cover,cf.,,Morgan Linton,,,,,HumanObservation,tahoe-westshore-a42a4047.png,Lake Tahoe west shore (asserted)

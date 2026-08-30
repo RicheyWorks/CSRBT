@@ -7,6 +7,12 @@ report zero forever, so the canary is part of the suite rather than a thing I
 ran once by hand.
 """
 import io, os, tempfile
+
+# This suite reaches for a temp dir only to seed a canary page proving the audit
+# it guards still has teeth; its actual subject is the real kit. Declared so the
+# mutation sweep keeps sweeping it (ADR-108) -- a suite that quietly labelled
+# itself a fixture-builder would sit out sweeps it could win.
+MUTATE_ROLE = "subject"
 from pathlib import Path as _Path
 from playwright.sync_api import sync_playwright
 import os as _os

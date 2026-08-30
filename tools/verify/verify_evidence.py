@@ -18,8 +18,11 @@ Four links, each checked here from the bytes rather than from the record:
                   images, so what a reader sees is the copy inside the page and
                   nothing else
 
-And one thing it refuses to let the kit pretend: a file that carries no EXIF, no
-timestamp and no GPS cannot certify where it was taken. The manifest must say so
+And two things it refuses to let the kit pretend. First, that a picture whose
+creator is recorded in a manifest has been credited: if an entry names a creator,
+the page that displays it has to name them too, where a reader will see it.
+Second, that a file which carries no EXIF, no timestamp and no GPS can certify
+where it was taken. The manifest must say so
 in `self_certifying`, and a site attribution that rests on testimony has to be
 labelled as testimony. Provenance by instrument and provenance by assertion are
 different evidence, and the whole point of ADR-031 is that they never get to
@@ -87,6 +90,22 @@ for name, e in sorted(man.items()):
     if not e.get("self_certifying"):
         ck("%s: a non-self-certifying file labels its site attribution as testimony" % name,
            "assert" in str(e.get("site_attribution", "")).lower(), e.get("site_attribution"))
+
+    # 3c. PROVENANCE IS NOT JUST BYTES.
+    # The first version of this store recorded a hash, a size and a subject, and
+    # would have passed a file taken from someone else's work with nothing to say
+    # whose it was. A store that can prove WHAT the bytes are but not WHOSE they
+    # are has recorded half a provenance, and the missing half is the half with a
+    # person in it. So: any file the repository did not itself create must name a
+    # creator, a rights holder and a source, and the page that shows it must name
+    # the creator on the page -- where a reader is, not only in a JSON file.
+    if e.get("creator"):
+        for field in ("credit", "rights_holder", "source"):
+            ck("%s: credited work records %s" % (name, field), bool(e.get(field)), e.get(field))
+        for page in e.get("used_by", []):
+            if page.endswith(".html") and pages.get(page):
+                ck("%s: %s names the creator on the page itself" % (name, page),
+                   e["creator"] in pages[page], "creator absent from rendered page")
 
     # 4. publication -- the link that decides what a reader sees
     for page in e.get("used_by", []):

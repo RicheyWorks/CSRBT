@@ -555,10 +555,45 @@ def main():
         for page, e in rows[:60]:
             print("  %-26s %s" % (page, e[:110]))
 
-    json.dump({"at": int(time.time()), "viewport": VIEWPORT, "excluded_kinds": EXCLUDED,
-               "totals": dict(tot, discovered=disc, invariant_breaks=errs),
-               "pages": out}, io.open(a.ledger, "w", encoding="utf-8"), indent=1)
-    print("\nwrote %s" % a.ledger)
+    # MERGE, DO NOT REPLACE (ADR-108, and ADR-104 before it for the counts ledger).
+    # This wrote `out` as the whole ledger, so `harness.py one-page.html` silently
+    # deleted the coverage of every page it did not run -- and the route contract,
+    # which reads this file to answer "is every page covered?", would then report
+    # forty uncovered pages that had in fact been driven yesterday. A ledger with a
+    # consumer does not corrupt quietly. A run now updates only the pages it drove
+    # and keeps the rest, and every page entry carries its own "at" so a kept
+    # reading can be told from a fresh one.
+    now = int(time.time())
+    for r in out:
+        r["at"] = now
+    prev = []
+    if os.path.exists(a.ledger):
+        try:
+            prev = json.load(io.open(a.ledger, encoding="utf-8")).get("pages", [])
+        except (OSError, ValueError):
+            prev = []
+    ran = {r["page"] for r in out}
+    merged = [r for r in prev if r.get("page") not in ran] + out
+    merged.sort(key=lambda r: r.get("page", ""))
+    kept = len(merged) - len(out)
+
+    def total(key):
+        # Per-page entries hold LISTS of affordance labels for driven/dead/hidden/
+        # failed/excluded, and an int for discovered. Count either.
+        n = 0
+        for r in merged:
+            v = r.get(key, 0)
+            n += len(v) if isinstance(v, (list, tuple)) else (v or 0)
+        return n
+    mdisc = total("discovered")
+    mtot = {k: total(k) for k in ("driven", "dead", "hidden", "failed", "excluded")}
+    json.dump({"at": now, "viewport": VIEWPORT, "excluded_kinds": EXCLUDED,
+               "totals": dict(mtot, discovered=mdisc,
+                              invariant_breaks=sum(len(r.get("errors", [])) for r in merged)),
+               "pages": merged}, io.open(a.ledger, "w", encoding="utf-8"), indent=1)
+    print("\nwrote %s (%d page%s driven%s)"
+          % (a.ledger, len(out), "" if len(out) == 1 else "s",
+             ", %d kept from earlier runs" % kept if kept else ""))
     return 0
 
 

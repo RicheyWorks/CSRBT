@@ -1,5 +1,5 @@
 {
- "at": 1788029346,
+ "at": 1788123141,
  "viewport": {
   "width": 390,
   "height": 844
@@ -14,8 +14,8 @@
   "dead": 21,
   "hidden": 251,
   "failed": 4,
-  "excluded": 1051,
-  "discovered": 3684,
+  "excluded": 1066,
+  "discovered": 3699,
   "invariant_breaks": 62
  },
  "pages": [
@@ -7155,6 +7155,142 @@
    "junk_on_load": "",
    "passes": 2,
    "secs": 30.6
+  },
+  {
+   "page": "douglas-explorer.html",
+   "discovered": 15,
+   "driven": [],
+   "dead": [],
+   "hidden": [],
+   "failed": [],
+   "excluded": [
+    {
+     "id": "nav_link:0",
+     "kind": "nav_link",
+     "label": "Overview",
+     "pane": null,
+     "href": "ecology.html",
+     "why": "nav_link"
+    },
+    {
+     "id": "nav_link:1",
+     "kind": "nav_link",
+     "label": "Interactive Lab",
+     "pane": null,
+     "href": "ecology-lab.html",
+     "why": "nav_link"
+    },
+    {
+     "id": "nav_link:2",
+     "kind": "nav_link",
+     "label": "Field Guide",
+     "pane": null,
+     "href": "ecology-field-guide.html",
+     "why": "nav_link"
+    },
+    {
+     "id": "nav_link:3",
+     "kind": "nav_link",
+     "label": "Field Card",
+     "pane": null,
+     "href": "ecology-field-card.html",
+     "why": "nav_link"
+    },
+    {
+     "id": "nav_link:4",
+     "kind": "nav_link",
+     "label": "Glossary",
+     "pane": null,
+     "href": "ecology-glossary.html",
+     "why": "nav_link"
+    },
+    {
+     "id": "nav_link:5",
+     "kind": "nav_link",
+     "label": "Relev\u00e9",
+     "pane": null,
+     "href": "releve.html",
+     "why": "nav_link"
+    },
+    {
+     "id": "nav_link:6",
+     "kind": "nav_link",
+     "label": "Collection Sheet",
+     "pane": null,
+     "href": "collection-sheet.html",
+     "why": "nav_link"
+    },
+    {
+     "id": "nav_link:7",
+     "kind": "nav_link",
+     "label": "Experiment Guide",
+     "pane": null,
+     "href": "experiment-guide.html",
+     "why": "nav_link"
+    },
+    {
+     "id": "nav_link:8",
+     "kind": "nav_link",
+     "label": "Wikipedia \u2014 David Douglas",
+     "pane": null,
+     "href": "https://en.wikipedia.org/wiki/David_Douglas_(botanist)",
+     "why": "nav_link"
+    },
+    {
+     "id": "nav_link:9",
+     "kind": "nav_link",
+     "label": "Grokipedia \u2014 David Douglas",
+     "pane": null,
+     "href": "https://grokipedia.com/page/David_Douglas_(botanist)",
+     "why": "nav_link"
+    },
+    {
+     "id": "nav_link:10",
+     "kind": "nav_link",
+     "label": "Biography of a Botanical Collector (1884)",
+     "pane": null,
+     "href": "https://todayinsci.com/D/Douglas_David/DouglasDavid-BotanicalCollector.htm",
+     "why": "nav_link"
+    },
+    {
+     "id": "nav_link:11",
+     "kind": "nav_link",
+     "label": "Atlas Obscura \u2014 the pit",
+     "pane": null,
+     "href": "https://www.atlasobscura.com/articles/david-douglas-death-monument-mystery-hawaii",
+     "why": "nav_link"
+    },
+    {
+     "id": "nav_link:12",
+     "kind": "nav_link",
+     "label": "Field Guide",
+     "pane": null,
+     "href": "ecology-field-guide.html",
+     "why": "nav_link"
+    },
+    {
+     "id": "nav_link:13",
+     "kind": "nav_link",
+     "label": "Field Card",
+     "pane": null,
+     "href": "ecology-field-card.html",
+     "why": "nav_link"
+    },
+    {
+     "id": "nav_link:14",
+     "kind": "nav_link",
+     "label": "Experiment Guide",
+     "pane": null,
+     "href": "experiment-guide.html",
+     "why": "nav_link"
+    }
+   ],
+   "errors": [],
+   "calls": [],
+   "junk_on_load": "",
+   "passes": 2,
+   "secs": 1.1,
+   "at": 1788123141
   },
   {
    "page": "eco-protocol-library.html",

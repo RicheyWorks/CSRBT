@@ -1,0 +1,6 @@
+hypothesis,observed,verdict
+richness(canopy) <= 6,5.000000,CONFIRMED
+evenness(canopy) is uneven,moderate,REFUTED
+"turnover(canopy, understory) is major",major,CONFIRMED
+shannon(understory) > 1.4,1.305096,REFUTED
+evenness(structure) is very-even,very-even,CONFIRMED

@@ -1,0 +1,143 @@
+model,series,t,value
+"Island richness (c=0.122, e=0.200, pool=90)",S,0,0.000000
+"Island richness (c=0.122, e=0.200, pool=90)",S,1,9.411553
+"Island richness (c=0.122, e=0.200, pool=90)",S,2,16.229837
+"Island richness (c=0.122, e=0.200, pool=90)",S,3,21.169404
+"Island richness (c=0.122, e=0.200, pool=90)",S,4,24.747917
+"Island richness (c=0.122, e=0.200, pool=90)",S,5,27.340404
+"Island richness (c=0.122, e=0.200, pool=90)",S,6,29.218554
+"Island richness (c=0.122, e=0.200, pool=90)",S,7,30.579197
+"Island richness (c=0.122, e=0.200, pool=90)",S,8,31.564927
+"Island richness (c=0.122, e=0.200, pool=90)",S,9,32.279047
+"Island richness (c=0.122, e=0.200, pool=90)",S,10,32.796399
+"Island richness (c=0.122, e=0.200, pool=90)",S,11,33.171199
+"Island richness (c=0.122, e=0.200, pool=90)",S,12,33.442726
+"Island richness (c=0.122, e=0.200, pool=90)",S,13,33.639436
+"Island richness (c=0.122, e=0.200, pool=90)",S,14,33.781944
+"Island richness (c=0.122, e=0.200, pool=90)",S,15,33.885186
+"Island richness (c=0.122, e=0.200, pool=90)",S,16,33.959980
+"Island richness (c=0.122, e=0.200, pool=90)",S,17,34.014166
+"Island richness (c=0.122, e=0.200, pool=90)",S,18,34.053421
+"Island richness (c=0.122, e=0.200, pool=90)",S,19,34.081859
+"Island richness (c=0.122, e=0.200, pool=90)",S,20,34.102462
+"Island richness (c=0.122, e=0.200, pool=90)",S,21,34.117388
+"Island richness (c=0.122, e=0.200, pool=90)",S,22,34.128201
+"Island richness (c=0.122, e=0.200, pool=90)",S,23,34.136035
+"Island richness (c=0.122, e=0.200, pool=90)",S,24,34.141710
+"Island richness (c=0.122, e=0.200, pool=90)",S,25,34.145821
+"Island richness (c=0.122, e=0.200, pool=90)",S,26,34.148800
+"Island richness (c=0.122, e=0.200, pool=90)",S,27,34.150958
+"Island richness (c=0.122, e=0.200, pool=90)",S,28,34.152521
+"Island richness (c=0.122, e=0.200, pool=90)",S,29,34.153653
+"Island richness (c=0.122, e=0.200, pool=90)",S,30,34.154474
+"Island richness (c=0.122, e=0.200, pool=90)",S,31,34.155068
+"Island richness (c=0.122, e=0.200, pool=90)",S,32,34.155499
+"Island richness (c=0.122, e=0.200, pool=90)",S,33,34.155811
+"Island richness (c=0.122, e=0.200, pool=90)",S,34,34.156037
+"Island richness (c=0.122, e=0.200, pool=90)",S,35,34.156201
+"Island richness (c=0.122, e=0.200, pool=90)",S,36,34.156319
+"Island richness (c=0.122, e=0.200, pool=90)",S,37,34.156405
+"Island richness (c=0.122, e=0.200, pool=90)",S,38,34.156467
+"Island richness (c=0.122, e=0.200, pool=90)",S,39,34.156512
+"Island richness (c=0.122, e=0.200, pool=90)",S,40,34.156545
+"Island richness (c=0.122, e=0.200, pool=90)",S,41,34.156569
+"Island richness (c=0.122, e=0.200, pool=90)",S,42,34.156586
+"Island richness (c=0.122, e=0.200, pool=90)",S,43,34.156598
+"Island richness (c=0.122, e=0.200, pool=90)",S,44,34.156607
+"Island richness (c=0.122, e=0.200, pool=90)",S,45,34.156614
+"Island richness (c=0.122, e=0.200, pool=90)",S,46,34.156619
+"Island richness (c=0.122, e=0.200, pool=90)",S,47,34.156622
+"Island richness (c=0.122, e=0.200, pool=90)",S,48,34.156625
+"Island richness (c=0.122, e=0.200, pool=90)",S,49,34.156626
+"Island richness (c=0.122, e=0.200, pool=90)",S,50,34.156628
+"Island richness (c=0.122, e=0.200, pool=90)",S,51,34.156629
+"Island richness (c=0.122, e=0.200, pool=90)",S,52,34.156629
+"Island richness (c=0.122, e=0.200, pool=90)",S,53,34.156630
+"Island richness (c=0.122, e=0.200, pool=90)",S,54,34.156630
+"Island richness (c=0.122, e=0.200, pool=90)",S,55,34.156630
+"Island richness (c=0.122, e=0.200, pool=90)",S,56,34.156631
+"Island richness (c=0.122, e=0.200, pool=90)",S,57,34.156631
+"Island richness (c=0.122, e=0.200, pool=90)",S,58,34.156631
+"Island richness (c=0.122, e=0.200, pool=90)",S,59,34.156631
+"Island richness (c=0.122, e=0.200, pool=90)",S,60,34.156631
+"Logistic growth (r=0.068, K=240)",N,0,40.000000
+"Logistic growth (r=0.068, K=240)",N,1,42.300897
+"Logistic growth (r=0.068, K=240)",N,2,44.704562
+"Logistic growth (r=0.068, K=240)",N,3,47.212195
+"Logistic growth (r=0.068, K=240)",N,4,49.824602
+"Logistic growth (r=0.068, K=240)",N,5,52.542167
+"Logistic growth (r=0.068, K=240)",N,6,55.364803
+"Logistic growth (r=0.068, K=240)",N,7,58.291922
+"Logistic growth (r=0.068, K=240)",N,8,61.322398
+"Logistic growth (r=0.068, K=240)",N,9,64.454538
+"Logistic growth (r=0.068, K=240)",N,10,67.686054
+"Logistic growth (r=0.068, K=240)",N,11,71.014046
+"Logistic growth (r=0.068, K=240)",N,12,74.434984
+"Logistic growth (r=0.068, K=240)",N,13,77.944706
+"Logistic growth (r=0.068, K=240)",N,14,81.538416
+"Logistic growth (r=0.068, K=240)",N,15,85.210695
+"Logistic growth (r=0.068, K=240)",N,16,88.955519
+"Logistic growth (r=0.068, K=240)",N,17,92.766288
+"Logistic growth (r=0.068, K=240)",N,18,96.635861
+"Logistic growth (r=0.068, K=240)",N,19,100.556607
+"Logistic growth (r=0.068, K=240)",N,20,104.520453
+"Logistic growth (r=0.068, K=240)",N,21,108.518951
+"Logistic growth (r=0.068, K=240)",N,22,112.543345
+"Logistic growth (r=0.068, K=240)",N,23,116.584648
+"Logistic growth (r=0.068, K=240)",N,24,120.633719
+"Logistic growth (r=0.068, K=240)",N,25,124.681348
+"Logistic growth (r=0.068, K=240)",N,26,128.718337
+"Logistic growth (r=0.068, K=240)",N,27,132.735584
+"Logistic growth (r=0.068, K=240)",N,28,136.724165
+"Logistic growth (r=0.068, K=240)",N,29,140.675415
+"Logistic growth (r=0.068, K=240)",N,30,144.580994
+"Logistic growth (r=0.068, K=240)",N,31,148.432963
+"Logistic growth (r=0.068, K=240)",N,32,152.223838
+"Logistic growth (r=0.068, K=240)",N,33,155.946641
+"Logistic growth (r=0.068, K=240)",N,34,159.594952
+"Logistic growth (r=0.068, K=240)",N,35,163.162931
+"Logistic growth (r=0.068, K=240)",N,36,166.645354
+"Logistic growth (r=0.068, K=240)",N,37,170.037622
+"Logistic growth (r=0.068, K=240)",N,38,173.335772
+"Logistic growth (r=0.068, K=240)",N,39,176.536471
+"Logistic growth (r=0.068, K=240)",N,40,179.637012
+"Logistic growth (r=0.068, K=240)",N,41,182.635298
+"Logistic growth (r=0.068, K=240)",N,42,185.529814
+"Logistic growth (r=0.068, K=240)",N,43,188.319607
+"Logistic growth (r=0.068, K=240)",N,44,191.004249
+"Logistic growth (r=0.068, K=240)",N,45,193.583805
+"Logistic growth (r=0.068, K=240)",N,46,196.058795
+"Logistic growth (r=0.068, K=240)",N,47,198.430153
+"Logistic growth (r=0.068, K=240)",N,48,200.699190
+"Logistic growth (r=0.068, K=240)",N,49,202.867551
+"Logistic growth (r=0.068, K=240)",N,50,204.937177
+"Logistic growth (r=0.068, K=240)",N,51,206.910265
+"Logistic growth (r=0.068, K=240)",N,52,208.789231
+"Logistic growth (r=0.068, K=240)",N,53,210.576674
+"Logistic growth (r=0.068, K=240)",N,54,212.275344
+"Logistic growth (r=0.068, K=240)",N,55,213.888106
+"Logistic growth (r=0.068, K=240)",N,56,215.417917
+"Logistic growth (r=0.068, K=240)",N,57,216.867794
+"Logistic growth (r=0.068, K=240)",N,58,218.240794
+"Logistic growth (r=0.068, K=240)",N,59,219.539989
+"Logistic growth (r=0.068, K=240)",N,60,220.768447
+"Logistic growth (r=0.068, K=240)",N,61,221.929218
+"Logistic growth (r=0.068, K=240)",N,62,223.025314
+"Logistic growth (r=0.068, K=240)",N,63,224.059701
+"Logistic growth (r=0.068, K=240)",N,64,225.035285
+"Logistic growth (r=0.068, K=240)",N,65,225.954903
+"Logistic growth (r=0.068, K=240)",N,66,226.821319
+"Logistic growth (r=0.068, K=240)",N,67,227.637211
+"Logistic growth (r=0.068, K=240)",N,68,228.405173
+"Logistic growth (r=0.068, K=240)",N,69,229.127709
+"Logistic growth (r=0.068, K=240)",N,70,229.807229
+"Logistic growth (r=0.068, K=240)",N,71,230.446050
+"Logistic growth (r=0.068, K=240)",N,72,231.046393
+"Logistic growth (r=0.068, K=240)",N,73,231.610386
+"Logistic growth (r=0.068, K=240)",N,74,232.140061
+"Logistic growth (r=0.068, K=240)",N,75,232.637359
+"Logistic growth (r=0.068, K=240)",N,76,233.104127
+"Logistic growth (r=0.068, K=240)",N,77,233.542125
+"Logistic growth (r=0.068, K=240)",N,78,233.953024
+"Logistic growth (r=0.068, K=240)",N,79,234.338413
+"Logistic growth (r=0.068, K=240)",N,80,234.699797

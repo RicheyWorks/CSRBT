@@ -1,0 +1,14 @@
+dataset,name,count
+structure,canopy_gap,2
+structure,standing_snag,1
+structure,multi_layer_canopy,3
+structure,lake_edge_ecotone,1
+canopy,Abies concolor,4891
+canopy,Pinus jeffreyi,3261
+canopy,Calocedrus decurrens,870
+canopy,Pinus lambertiana,543
+canopy,Abies magnifica,435
+understory,Poaceae,3750
+understory,Arctostaphylos patula,3125
+understory,Chrysolepis sempervirens,1875
+understory,Ceanothus cordulatus,1250

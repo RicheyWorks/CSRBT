@@ -1,0 +1,65 @@
+🧪 ECOLOGY EXPERIMENT — Tahoe west-shore montane conifer stand
+   120 keys, seed 2026, window 200 ops, 0 phase(s), 2 model(s), 5 hypothesis(es)
+   entered: 3 dataset(s), 13 note(s), 1 tree(s)
+   environment: area=0.60 temperature=0.75 wind=1.40 distance=1.10
+
+   dwc canopy: 5 record(s), cover, no coordinate recorded
+   dwc canopy: identification hedged for [Abies concolor, Pinus jeffreyi, Calocedrus decurrens, Pinus lambertiana, Abies magnifica]
+   dwc understory: 4 record(s), cover, no coordinate recorded
+   dwc understory: identification hedged for [Poaceae, Arctostaphylos patula, Chrysolepis sempervirens, Ceanothus cordulatus]
+
+
+── ENTERED DATA · structure (4 kinds, 7 records) ──
+  4 distinct keys, 7 touches recorded.
+  Diversity H' = 1.277, evenness J' = 0.92: very even — no key dominates the community.
+  of 4 keys present, the community behaves like about 3.6 equally-common ones.
+  the rank–abundance curve follows a geometric series — classic niche preemption, where each species takes a fixed share of what is left.
+  we saw 4 keys, but Chao1 estimates ≈ 6 — roughly 2 rare keys likely went unseen.
+── ENTERED DATA · canopy (5 kinds, cover) ──
+  Diversity H' = 1.222, evenness J' = 0.76: moderately even — some keys are busier than others.
+  of 5 keys present, the community behaves like about 3.4 equally-common ones.
+  cover data: Chao1 and rarefaction withheld — they estimate unseen species from counts of individuals, and cover has none.
+── ENTERED DATA · understory (4 kinds, cover) ──
+  Diversity H' = 1.305, evenness J' = 0.94: very even — no key dominates the community.
+  of 4 keys present, the community behaves like about 3.7 equally-common ones.
+  cover data: Chao1 and rarefaction withheld — they estimate unseen species from counts of individuals, and cover has none.
+  structure ↔ canopy: Jaccard 0.00, Sørensen 0.00 — share 0 of 9 kinds; Bray–Curtis 1.00 (major turnover — this is substantially a different community).
+  canopy ↔ understory: Jaccard 0.00, Sørensen 0.00 — share 0 of 9 kinds; Bray–Curtis 1.00 (major turnover — this is substantially a different community).
+
+── FIELD NOTEBOOK ──
+  • clear sky, no cloud and no smoke -- deep unscattered blue to the horizon
+  • sun high and shadows short -- near midday, and the lake is unruffled inshore
+  • snow persists only on the highest north-facing benches of the far range
+  • full leaf-out in the shrub layer and no snow at the viewpoint -- early summer
+  • lake water reads deep blue with no green cast, consistent with an oligotrophic, low-productivity water column
+  [canopy] two species carry the stand -- white fir and Jeffrey pine; the rest are scattered individuals
+  [canopy] one grey standing snag mid-frame, crown intact, no foliage -- recent mortality, still holding branch structure
+  [structure] the view corridor itself is a canopy gap; regeneration visible along its floor
+  [understory] shrub layer is continuous on the open bench and absent under closed canopy -- a light-driven boundary
+  • NO FIELD -- aspect and slope of the bench
+  • NO FIELD -- bearing, which is what would settle whether the far skyline is
+  • the Carson Range or the Sierra crest
+  • photograph by Morgan Linton (@morganlinton); site is his framing, not metadata
+
+── TREE THINKING — phylogenies in this experiment ──
+  conifers — 5 taxa, depth 4:
+    ┐
+    ├─ Calocedrus_decurrens
+    └─ ┐
+       ├─ ┐
+       │  ├─ Pinus_jeffreyi
+       │  └─ Pinus_lambertiana
+       └─ ┐
+          ├─ Abies_concolor
+          └─ Abies_magnifica
+
+── THEORY BENCH ──
+  Island richness (c=0.122, e=0.200, pool=90): equilibrium S* = 34.157, 60 steps.
+  Logistic growth (r=0.068, K=240): carrying capacity K = 240.000, 80 steps.
+
+── HYPOTHESES (pre-registered, graded by the run) ──
+  ✅ CONFIRMED  richness(canopy) <= 6                    (observed 5.0000)
+  ❌ REFUTED    evenness(canopy) is uneven               (observed 0.7594 → "moderate")
+  ✅ CONFIRMED  turnover(canopy, understory) is major    (observed 1.0000 → "major")
+  ❌ REFUTED    shannon(understory) > 1.4                (observed 1.3051)
+  ✅ CONFIRMED  evenness(structure) is very-even         (observed 0.9212 → "very-even")

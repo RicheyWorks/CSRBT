@@ -1,0 +1,290 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Tahoe west-shore montane conifer stand — experiment report</title>
+<style>
+  body { font: 14px/1.5 system-ui, sans-serif; color: #1a1a19; margin: 40px auto;
+         max-width: 860px; padding: 0 20px; }
+  h1 { font-size: 24px; } h2 { font-size: 17px; margin-top: 28px;
+       border-bottom: 1px solid #ddd; padding-bottom: 4px; }
+  pre { background: #f6f6f4; border: 1px solid #e4e4e0; border-radius: 8px;
+        padding: 14px 18px; white-space: pre-wrap; font-size: 12.5px; }
+  table { border-collapse: collapse; margin: 10px 0; }
+  td, th { border: 1px solid #d8d8d4; padding: 4px 12px; font-size: 12.5px;
+           text-align: right; }
+  th { background: #f0f0ed; text-align: left; }
+  td:first-child { text-align: left; }
+  .verdict-CONFIRMED { color: #0a7a0a; font-weight: 600; }
+  .verdict-REFUTED { color: #c03030; font-weight: 600; }
+  section { break-inside: avoid; }
+  footer { margin-top: 40px; color: #888; font-size: 12px; }
+</style>
+</head>
+<body>
+<h1>🧪 Tahoe west-shore montane conifer stand</h1>
+<p>An experiment run by the CSRBT ecology engine — deterministic (seed 2026), every number reproducible.</p>
+<section><h2>The narrated report</h2>
+<pre>🧪 ECOLOGY EXPERIMENT — Tahoe west-shore montane conifer stand
+   120 keys, seed 2026, window 200 ops, 0 phase(s), 2 model(s), 5 hypothesis(es)
+   entered: 3 dataset(s), 13 note(s), 1 tree(s)
+   environment: area=0.60 temperature=0.75 wind=1.40 distance=1.10
+
+   dwc canopy: 5 record(s), cover, no coordinate recorded
+   dwc canopy: identification hedged for [Abies concolor, Pinus jeffreyi, Calocedrus decurrens, Pinus lambertiana, Abies magnifica]
+   dwc understory: 4 record(s), cover, no coordinate recorded
+   dwc understory: identification hedged for [Poaceae, Arctostaphylos patula, Chrysolepis sempervirens, Ceanothus cordulatus]
+
+
+── ENTERED DATA · structure (4 kinds, 7 records) ──
+  4 distinct keys, 7 touches recorded.
+  Diversity H' = 1.277, evenness J' = 0.92: very even — no key dominates the community.
+  of 4 keys present, the community behaves like about 3.6 equally-common ones.
+  the rank–abundance curve follows a geometric series — classic niche preemption, where each species takes a fixed share of what is left.
+  we saw 4 keys, but Chao1 estimates ≈ 6 — roughly 2 rare keys likely went unseen.
+── ENTERED DATA · canopy (5 kinds, cover) ──
+  Diversity H' = 1.222, evenness J' = 0.76: moderately even — some keys are busier than others.
+  of 5 keys present, the community behaves like about 3.4 equally-common ones.
+  cover data: Chao1 and rarefaction withheld — they estimate unseen species from counts of individuals, and cover has none.
+── ENTERED DATA · understory (4 kinds, cover) ──
+  Diversity H' = 1.305, evenness J' = 0.94: very even — no key dominates the community.
+  of 4 keys present, the community behaves like about 3.7 equally-common ones.
+  cover data: Chao1 and rarefaction withheld — they estimate unseen species from counts of individuals, and cover has none.
+  structure ↔ canopy: Jaccard 0.00, Sørensen 0.00 — share 0 of 9 kinds; Bray–Curtis 1.00 (major turnover — this is substantially a different community).
+  canopy ↔ understory: Jaccard 0.00, Sørensen 0.00 — share 0 of 9 kinds; Bray–Curtis 1.00 (major turnover — this is substantially a different community).
+
+── FIELD NOTEBOOK ──
+  • clear sky, no cloud and no smoke -- deep unscattered blue to the horizon
+  • sun high and shadows short -- near midday, and the lake is unruffled inshore
+  • snow persists only on the highest north-facing benches of the far range
+  • full leaf-out in the shrub layer and no snow at the viewpoint -- early summer
+  • lake water reads deep blue with no green cast, consistent with an oligotrophic, low-productivity water column
+  [canopy] two species carry the stand -- white fir and Jeffrey pine; the rest are scattered individuals
+  [canopy] one grey standing snag mid-frame, crown intact, no foliage -- recent mortality, still holding branch structure
+  [structure] the view corridor itself is a canopy gap; regeneration visible along its floor
+  [understory] shrub layer is continuous on the open bench and absent under closed canopy -- a light-driven boundary
+  • NO FIELD -- aspect and slope of the bench
+  • NO FIELD -- bearing, which is what would settle whether the far skyline is
+  • the Carson Range or the Sierra crest
+  • photograph by Morgan Linton (@morganlinton); site is his framing, not metadata
+
+── TREE THINKING — phylogenies in this experiment ──
+  conifers — 5 taxa, depth 4:
+    ┐
+    ├─ Calocedrus_decurrens
+    └─ ┐
+       ├─ ┐
+       │  ├─ Pinus_jeffreyi
+       │  └─ Pinus_lambertiana
+       └─ ┐
+          ├─ Abies_concolor
+          └─ Abies_magnifica
+
+── THEORY BENCH ──
+  Island richness (c=0.122, e=0.200, pool=90): equilibrium S* = 34.157, 60 steps.
+  Logistic growth (r=0.068, K=240): carrying capacity K = 240.000, 80 steps.
+
+── HYPOTHESES (pre-registered, graded by the run) ──
+  ✅ CONFIRMED  richness(canopy) &lt;= 6                    (observed 5.0000)
+  ❌ REFUTED    evenness(canopy) is uneven               (observed 0.7594 → "moderate")
+  ✅ CONFIRMED  turnover(canopy, understory) is major    (observed 1.0000 → "major")
+  ❌ REFUTED    shannon(understory) &gt; 1.4                (observed 1.3051)
+  ✅ CONFIRMED  evenness(structure) is very-even         (observed 0.9212 → "very-even")
+</pre></section>
+<section><h2>data</h2>
+<table>
+<tr><th>dataset</th><th>name</th><th>count</th></tr>
+<tr><td>structure</td><td>canopy_gap</td><td>2</td></tr>
+<tr><td>structure</td><td>standing_snag</td><td>1</td></tr>
+<tr><td>structure</td><td>multi_layer_canopy</td><td>3</td></tr>
+<tr><td>structure</td><td>lake_edge_ecotone</td><td>1</td></tr>
+<tr><td>canopy</td><td>Abies concolor</td><td>4891</td></tr>
+<tr><td>canopy</td><td>Pinus jeffreyi</td><td>3261</td></tr>
+<tr><td>canopy</td><td>Calocedrus decurrens</td><td>870</td></tr>
+<tr><td>canopy</td><td>Pinus lambertiana</td><td>543</td></tr>
+<tr><td>canopy</td><td>Abies magnifica</td><td>435</td></tr>
+<tr><td>understory</td><td>Poaceae</td><td>3750</td></tr>
+<tr><td>understory</td><td>Arctostaphylos patula</td><td>3125</td></tr>
+<tr><td>understory</td><td>Chrysolepis sempervirens</td><td>1875</td></tr>
+<tr><td>understory</td><td>Ceanothus cordulatus</td><td>1250</td></tr>
+</table></section>
+<section><h2>notes</h2>
+<table>
+<tr><th>about</th><th>note</th></tr>
+<tr><td></td><td>clear sky, no cloud and no smoke -- deep unscattered blue to the horizon</td></tr>
+<tr><td></td><td>sun high and shadows short -- near midday, and the lake is unruffled inshore</td></tr>
+<tr><td></td><td>snow persists only on the highest north-facing benches of the far range</td></tr>
+<tr><td></td><td>full leaf-out in the shrub layer and no snow at the viewpoint -- early summer</td></tr>
+<tr><td></td><td>lake water reads deep blue with no green cast, consistent with an oligotrophic, low-productivity water column</td></tr>
+<tr><td>canopy</td><td>two species carry the stand -- white fir and Jeffrey pine; the rest are scattered individuals</td></tr>
+<tr><td>canopy</td><td>one grey standing snag mid-frame, crown intact, no foliage -- recent mortality, still holding branch structure</td></tr>
+<tr><td>structure</td><td>the view corridor itself is a canopy gap; regeneration visible along its floor</td></tr>
+<tr><td>understory</td><td>shrub layer is continuous on the open bench and absent under closed canopy -- a light-driven boundary</td></tr>
+<tr><td></td><td>NO FIELD -- aspect and slope of the bench</td></tr>
+<tr><td></td><td>NO FIELD -- bearing, which is what would settle whether the far skyline is</td></tr>
+<tr><td></td><td>the Carson Range or the Sierra crest</td></tr>
+<tr><td></td><td>photograph by Morgan Linton (@morganlinton); site is his framing, not metadata</td></tr>
+</table></section>
+<section><h2>trees</h2>
+<table>
+<tr><th>label</th><th>taxa</th><th>depth</th><th>newick</th></tr>
+<tr><td>conifers</td><td>5</td><td>4</td><td>(Calocedrus_decurrens,((Pinus_jeffreyi,Pinus_lambertiana),(Abies_concolor,Abies_magnifica)));</td></tr>
+</table></section>
+<section><h2>model-series</h2>
+<table>
+<tr><th>model</th><th>series</th><th>t</th><th>value</th></tr>
+<tr><td>Island richness (c=0.122, e=0.200, pool=90)</td><td>S</td><td>0</td><td>0.000000</td></tr>
+<tr><td>Island richness (c=0.122, e=0.200, pool=90)</td><td>S</td><td>1</td><td>9.411553</td></tr>
+<tr><td>Island richness (c=0.122, e=0.200, pool=90)</td><td>S</td><td>2</td><td>16.229837</td></tr>
+<tr><td>Island richness (c=0.122, e=0.200, pool=90)</td><td>S</td><td>3</td><td>21.169404</td></tr>
+<tr><td>Island richness (c=0.122, e=0.200, pool=90)</td><td>S</td><td>4</td><td>24.747917</td></tr>
+<tr><td>Island richness (c=0.122, e=0.200, pool=90)</td><td>S</td><td>5</td><td>27.340404</td></tr>
+<tr><td>Island richness (c=0.122, e=0.200, pool=90)</td><td>S</td><td>6</td><td>29.218554</td></tr>
+<tr><td>Island richness (c=0.122, e=0.200, pool=90)</td><td>S</td><td>7</td><td>30.579197</td></tr>
+<tr><td>Island richness (c=0.122, e=0.200, pool=90)</td><td>S</td><td>8</td><td>31.564927</td></tr>
+<tr><td>Island richness (c=0.122, e=0.200, pool=90)</td><td>S</td><td>9</td><td>32.279047</td></tr>
+<tr><td>Island richness (c=0.122, e=0.200, pool=90)</td><td>S</td><td>10</td><td>32.796399</td></tr>
+<tr><td>Island richness (c=0.122, e=0.200, pool=90)</td><td>S</td><td>11</td><td>33.171199</td></tr>
+<tr><td>Island richness (c=0.122, e=0.200, pool=90)</td><td>S</td><td>12</td><td>33.442726</td></tr>
+<tr><td>Island richness (c=0.122, e=0.200, pool=90)</td><td>S</td><td>13</td><td>33.639436</td></tr>
+<tr><td>Island richness (c=0.122, e=0.200, pool=90)</td><td>S</td><td>14</td><td>33.781944</td></tr>
+<tr><td>Island richness (c=0.122, e=0.200, pool=90)</td><td>S</td><td>15</td><td>33.885186</td></tr>
+<tr><td>Island richness (c=0.122, e=0.200, pool=90)</td><td>S</td><td>16</td><td>33.959980</td></tr>
+<tr><td>Island richness (c=0.122, e=0.200, pool=90)</td><td>S</td><td>17</td><td>34.014166</td></tr>
+<tr><td>Island richness (c=0.122, e=0.200, pool=90)</td><td>S</td><td>18</td><td>34.053421</td></tr>
+<tr><td>Island richness (c=0.122, e=0.200, pool=90)</td><td>S</td><td>19</td><td>34.081859</td></tr>
+<tr><td>Island richness (c=0.122, e=0.200, pool=90)</td><td>S</td><td>20</td><td>34.102462</td></tr>
+<tr><td>Island richness (c=0.122, e=0.200, pool=90)</td><td>S</td><td>21</td><td>34.117388</td></tr>
+<tr><td>Island richness (c=0.122, e=0.200, pool=90)</td><td>S</td><td>22</td><td>34.128201</td></tr>
+<tr><td>Island richness (c=0.122, e=0.200, pool=90)</td><td>S</td><td>23</td><td>34.136035</td></tr>
+<tr><td>Island richness (c=0.122, e=0.200, pool=90)</td><td>S</td><td>24</td><td>34.141710</td></tr>
+<tr><td>Island richness (c=0.122, e=0.200, pool=90)</td><td>S</td><td>25</td><td>34.145821</td></tr>
+<tr><td>Island richness (c=0.122, e=0.200, pool=90)</td><td>S</td><td>26</td><td>34.148800</td></tr>
+<tr><td>Island richness (c=0.122, e=0.200, pool=90)</td><td>S</td><td>27</td><td>34.150958</td></tr>
+<tr><td>Island richness (c=0.122, e=0.200, pool=90)</td><td>S</td><td>28</td><td>34.152521</td></tr>
+<tr><td>Island richness (c=0.122, e=0.200, pool=90)</td><td>S</td><td>29</td><td>34.153653</td></tr>
+<tr><td>Island richness (c=0.122, e=0.200, pool=90)</td><td>S</td><td>30</td><td>34.154474</td></tr>
+<tr><td>Island richness (c=0.122, e=0.200, pool=90)</td><td>S</td><td>31</td><td>34.155068</td></tr>
+<tr><td>Island richness (c=0.122, e=0.200, pool=90)</td><td>S</td><td>32</td><td>34.155499</td></tr>
+<tr><td>Island richness (c=0.122, e=0.200, pool=90)</td><td>S</td><td>33</td><td>34.155811</td></tr>
+<tr><td>Island richness (c=0.122, e=0.200, pool=90)</td><td>S</td><td>34</td><td>34.156037</td></tr>
+<tr><td>Island richness (c=0.122, e=0.200, pool=90)</td><td>S</td><td>35</td><td>34.156201</td></tr>
+<tr><td>Island richness (c=0.122, e=0.200, pool=90)</td><td>S</td><td>36</td><td>34.156319</td></tr>
+<tr><td>Island richness (c=0.122, e=0.200, pool=90)</td><td>S</td><td>37</td><td>34.156405</td></tr>
+<tr><td>Island richness (c=0.122, e=0.200, pool=90)</td><td>S</td><td>38</td><td>34.156467</td></tr>
+<tr><td>Island richness (c=0.122, e=0.200, pool=90)</td><td>S</td><td>39</td><td>34.156512</td></tr>
+<tr><td>Island richness (c=0.122, e=0.200, pool=90)</td><td>S</td><td>40</td><td>34.156545</td></tr>
+<tr><td>Island richness (c=0.122, e=0.200, pool=90)</td><td>S</td><td>41</td><td>34.156569</td></tr>
+<tr><td>Island richness (c=0.122, e=0.200, pool=90)</td><td>S</td><td>42</td><td>34.156586</td></tr>
+<tr><td>Island richness (c=0.122, e=0.200, pool=90)</td><td>S</td><td>43</td><td>34.156598</td></tr>
+<tr><td>Island richness (c=0.122, e=0.200, pool=90)</td><td>S</td><td>44</td><td>34.156607</td></tr>
+<tr><td>Island richness (c=0.122, e=0.200, pool=90)</td><td>S</td><td>45</td><td>34.156614</td></tr>
+<tr><td>Island richness (c=0.122, e=0.200, pool=90)</td><td>S</td><td>46</td><td>34.156619</td></tr>
+<tr><td>Island richness (c=0.122, e=0.200, pool=90)</td><td>S</td><td>47</td><td>34.156622</td></tr>
+<tr><td>Island richness (c=0.122, e=0.200, pool=90)</td><td>S</td><td>48</td><td>34.156625</td></tr>
+<tr><td>Island richness (c=0.122, e=0.200, pool=90)</td><td>S</td><td>49</td><td>34.156626</td></tr>
+<tr><td>Island richness (c=0.122, e=0.200, pool=90)</td><td>S</td><td>50</td><td>34.156628</td></tr>
+<tr><td>Island richness (c=0.122, e=0.200, pool=90)</td><td>S</td><td>51</td><td>34.156629</td></tr>
+<tr><td>Island richness (c=0.122, e=0.200, pool=90)</td><td>S</td><td>52</td><td>34.156629</td></tr>
+<tr><td>Island richness (c=0.122, e=0.200, pool=90)</td><td>S</td><td>53</td><td>34.156630</td></tr>
+<tr><td>Island richness (c=0.122, e=0.200, pool=90)</td><td>S</td><td>54</td><td>34.156630</td></tr>
+<tr><td>Island richness (c=0.122, e=0.200, pool=90)</td><td>S</td><td>55</td><td>34.156630</td></tr>
+<tr><td>Island richness (c=0.122, e=0.200, pool=90)</td><td>S</td><td>56</td><td>34.156631</td></tr>
+<tr><td>Island richness (c=0.122, e=0.200, pool=90)</td><td>S</td><td>57</td><td>34.156631</td></tr>
+<tr><td>Island richness (c=0.122, e=0.200, pool=90)</td><td>S</td><td>58</td><td>34.156631</td></tr>
+<tr><td>Island richness (c=0.122, e=0.200, pool=90)</td><td>S</td><td>59</td><td>34.156631</td></tr>
+<tr><td>Island richness (c=0.122, e=0.200, pool=90)</td><td>S</td><td>60</td><td>34.156631</td></tr>
+<tr><td>Logistic growth (r=0.068, K=240)</td><td>N</td><td>0</td><td>40.000000</td></tr>
+<tr><td>Logistic growth (r=0.068, K=240)</td><td>N</td><td>1</td><td>42.300897</td></tr>
+<tr><td>Logistic growth (r=0.068, K=240)</td><td>N</td><td>2</td><td>44.704562</td></tr>
+<tr><td>Logistic growth (r=0.068, K=240)</td><td>N</td><td>3</td><td>47.212195</td></tr>
+<tr><td>Logistic growth (r=0.068, K=240)</td><td>N</td><td>4</td><td>49.824602</td></tr>
+<tr><td>Logistic growth (r=0.068, K=240)</td><td>N</td><td>5</td><td>52.542167</td></tr>
+<tr><td>Logistic growth (r=0.068, K=240)</td><td>N</td><td>6</td><td>55.364803</td></tr>
+<tr><td>Logistic growth (r=0.068, K=240)</td><td>N</td><td>7</td><td>58.291922</td></tr>
+<tr><td>Logistic growth (r=0.068, K=240)</td><td>N</td><td>8</td><td>61.322398</td></tr>
+<tr><td>Logistic growth (r=0.068, K=240)</td><td>N</td><td>9</td><td>64.454538</td></tr>
+<tr><td>Logistic growth (r=0.068, K=240)</td><td>N</td><td>10</td><td>67.686054</td></tr>
+<tr><td>Logistic growth (r=0.068, K=240)</td><td>N</td><td>11</td><td>71.014046</td></tr>
+<tr><td>Logistic growth (r=0.068, K=240)</td><td>N</td><td>12</td><td>74.434984</td></tr>
+<tr><td>Logistic growth (r=0.068, K=240)</td><td>N</td><td>13</td><td>77.944706</td></tr>
+<tr><td>Logistic growth (r=0.068, K=240)</td><td>N</td><td>14</td><td>81.538416</td></tr>
+<tr><td>Logistic growth (r=0.068, K=240)</td><td>N</td><td>15</td><td>85.210695</td></tr>
+<tr><td>Logistic growth (r=0.068, K=240)</td><td>N</td><td>16</td><td>88.955519</td></tr>
+<tr><td>Logistic growth (r=0.068, K=240)</td><td>N</td><td>17</td><td>92.766288</td></tr>
+<tr><td>Logistic growth (r=0.068, K=240)</td><td>N</td><td>18</td><td>96.635861</td></tr>
+<tr><td>Logistic growth (r=0.068, K=240)</td><td>N</td><td>19</td><td>100.556607</td></tr>
+<tr><td>Logistic growth (r=0.068, K=240)</td><td>N</td><td>20</td><td>104.520453</td></tr>
+<tr><td>Logistic growth (r=0.068, K=240)</td><td>N</td><td>21</td><td>108.518951</td></tr>
+<tr><td>Logistic growth (r=0.068, K=240)</td><td>N</td><td>22</td><td>112.543345</td></tr>
+<tr><td>Logistic growth (r=0.068, K=240)</td><td>N</td><td>23</td><td>116.584648</td></tr>
+<tr><td>Logistic growth (r=0.068, K=240)</td><td>N</td><td>24</td><td>120.633719</td></tr>
+<tr><td>Logistic growth (r=0.068, K=240)</td><td>N</td><td>25</td><td>124.681348</td></tr>
+<tr><td>Logistic growth (r=0.068, K=240)</td><td>N</td><td>26</td><td>128.718337</td></tr>
+<tr><td>Logistic growth (r=0.068, K=240)</td><td>N</td><td>27</td><td>132.735584</td></tr>
+<tr><td>Logistic growth (r=0.068, K=240)</td><td>N</td><td>28</td><td>136.724165</td></tr>
+<tr><td>Logistic growth (r=0.068, K=240)</td><td>N</td><td>29</td><td>140.675415</td></tr>
+<tr><td>Logistic growth (r=0.068, K=240)</td><td>N</td><td>30</td><td>144.580994</td></tr>
+<tr><td>Logistic growth (r=0.068, K=240)</td><td>N</td><td>31</td><td>148.432963</td></tr>
+<tr><td>Logistic growth (r=0.068, K=240)</td><td>N</td><td>32</td><td>152.223838</td></tr>
+<tr><td>Logistic growth (r=0.068, K=240)</td><td>N</td><td>33</td><td>155.946641</td></tr>
+<tr><td>Logistic growth (r=0.068, K=240)</td><td>N</td><td>34</td><td>159.594952</td></tr>
+<tr><td>Logistic growth (r=0.068, K=240)</td><td>N</td><td>35</td><td>163.162931</td></tr>
+<tr><td>Logistic growth (r=0.068, K=240)</td><td>N</td><td>36</td><td>166.645354</td></tr>
+<tr><td>Logistic growth (r=0.068, K=240)</td><td>N</td><td>37</td><td>170.037622</td></tr>
+<tr><td>Logistic growth (r=0.068, K=240)</td><td>N</td><td>38</td><td>173.335772</td></tr>
+<tr><td>Logistic growth (r=0.068, K=240)</td><td>N</td><td>39</td><td>176.536471</td></tr>
+<tr><td>Logistic growth (r=0.068, K=240)</td><td>N</td><td>40</td><td>179.637012</td></tr>
+<tr><td>Logistic growth (r=0.068, K=240)</td><td>N</td><td>41</td><td>182.635298</td></tr>
+<tr><td>Logistic growth (r=0.068, K=240)</td><td>N</td><td>42</td><td>185.529814</td></tr>
+<tr><td>Logistic growth (r=0.068, K=240)</td><td>N</td><td>43</td><td>188.319607</td></tr>
+<tr><td>Logistic growth (r=0.068, K=240)</td><td>N</td><td>44</td><td>191.004249</td></tr>
+<tr><td>Logistic growth (r=0.068, K=240)</td><td>N</td><td>45</td><td>193.583805</td></tr>
+<tr><td>Logistic growth (r=0.068, K=240)</td><td>N</td><td>46</td><td>196.058795</td></tr>
+<tr><td>Logistic growth (r=0.068, K=240)</td><td>N</td><td>47</td><td>198.430153</td></tr>
+<tr><td>Logistic growth (r=0.068, K=240)</td><td>N</td><td>48</td><td>200.699190</td></tr>
+<tr><td>Logistic growth (r=0.068, K=240)</td><td>N</td><td>49</td><td>202.867551</td></tr>
+<tr><td>Logistic growth (r=0.068, K=240)</td><td>N</td><td>50</td><td>204.937177</td></tr>
+<tr><td>Logistic growth (r=0.068, K=240)</td><td>N</td><td>51</td><td>206.910265</td></tr>
+<tr><td>Logistic growth (r=0.068, K=240)</td><td>N</td><td>52</td><td>208.789231</td></tr>
+<tr><td>Logistic growth (r=0.068, K=240)</td><td>N</td><td>53</td><td>210.576674</td></tr>
+<tr><td>Logistic growth (r=0.068, K=240)</td><td>N</td><td>54</td><td>212.275344</td></tr>
+<tr><td>Logistic growth (r=0.068, K=240)</td><td>N</td><td>55</td><td>213.888106</td></tr>
+<tr><td>Logistic growth (r=0.068, K=240)</td><td>N</td><td>56</td><td>215.417917</td></tr>
+<tr><td>Logistic growth (r=0.068, K=240)</td><td>N</td><td>57</td><td>216.867794</td></tr>
+<tr><td>Logistic growth (r=0.068, K=240)</td><td>N</td><td>58</td><td>218.240794</td></tr>
+<tr><td>Logistic growth (r=0.068, K=240)</td><td>N</td><td>59</td><td>219.539989</td></tr>
+<tr><td>Logistic growth (r=0.068, K=240)</td><td>N</td><td>60</td><td>220.768447</td></tr>
+<tr><td>Logistic growth (r=0.068, K=240)</td><td>N</td><td>61</td><td>221.929218</td></tr>
+<tr><td>Logistic growth (r=0.068, K=240)</td><td>N</td><td>62</td><td>223.025314</td></tr>
+<tr><td>Logistic growth (r=0.068, K=240)</td><td>N</td><td>63</td><td>224.059701</td></tr>
+<tr><td>Logistic growth (r=0.068, K=240)</td><td>N</td><td>64</td><td>225.035285</td></tr>
+<tr><td>Logistic growth (r=0.068, K=240)</td><td>N</td><td>65</td><td>225.954903</td></tr>
+<tr><td>Logistic growth (r=0.068, K=240)</td><td>N</td><td>66</td><td>226.821319</td></tr>
+<tr><td>Logistic growth (r=0.068, K=240)</td><td>N</td><td>67</td><td>227.637211</td></tr>
+<tr><td>Logistic growth (r=0.068, K=240)</td><td>N</td><td>68</td><td>228.405173</td></tr>
+<tr><td>Logistic growth (r=0.068, K=240)</td><td>N</td><td>69</td><td>229.127709</td></tr>
+<tr><td>Logistic growth (r=0.068, K=240)</td><td>N</td><td>70</td><td>229.807229</td></tr>
+<tr><td>Logistic growth (r=0.068, K=240)</td><td>N</td><td>71</td><td>230.446050</td></tr>
+<tr><td>Logistic growth (r=0.068, K=240)</td><td>N</td><td>72</td><td>231.046393</td></tr>
+<tr><td>Logistic growth (r=0.068, K=240)</td><td>N</td><td>73</td><td>231.610386</td></tr>
+<tr><td>Logistic growth (r=0.068, K=240)</td><td>N</td><td>74</td><td>232.140061</td></tr>
+<tr><td>Logistic growth (r=0.068, K=240)</td><td>N</td><td>75</td><td>232.637359</td></tr>
+<tr><td>Logistic growth (r=0.068, K=240)</td><td>N</td><td>76</td><td>233.104127</td></tr>
+<tr><td>Logistic growth (r=0.068, K=240)</td><td>N</td><td>77</td><td>233.542125</td></tr>
+<tr><td>Logistic growth (r=0.068, K=240)</td><td>N</td><td>78</td><td>233.953024</td></tr>
+<tr><td>Logistic growth (r=0.068, K=240)</td><td>N</td><td>79</td><td>234.338413</td></tr>
+<tr><td>Logistic growth (r=0.068, K=240)</td><td>N</td><td>80</td><td>234.699797</td></tr>
+</table></section>
+<section><h2>hypotheses</h2>
+<table>
+<tr><th>hypothesis</th><th>observed</th><th>verdict</th></tr>
+<tr><td>richness(canopy) &lt;= 6</td><td>5.000000</td><td class="verdict-CONFIRMED">CONFIRMED</td></tr>
+<tr><td>evenness(canopy) is uneven</td><td>moderate</td><td class="verdict-REFUTED">REFUTED</td></tr>
+<tr><td>turnover(canopy, understory) is major</td><td>major</td><td class="verdict-CONFIRMED">CONFIRMED</td></tr>
+<tr><td>shannon(understory) &gt; 1.4</td><td>1.305096</td><td class="verdict-REFUTED">REFUTED</td></tr>
+<tr><td>evenness(structure) is very-even</td><td>very-even</td><td class="verdict-CONFIRMED">CONFIRMED</td></tr>
+</table></section>
+<footer>Generated by CSRBT's ecology experiment engine (ADR-019). CSV files in this bundle open directly in Excel, Google Sheets, or R; this page prints to PDF.</footer>
+</body>
+</html>
