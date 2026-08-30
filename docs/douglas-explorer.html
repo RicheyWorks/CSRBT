@@ -1,0 +1,370 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Douglas Explorer Mode — CSRBT</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<!-- Webfonts load without blocking first paint: a stylesheet request that
+     hangs (one bar of signal) otherwise holds the page blank indefinitely,
+     which breaks the offline constraint in ADR-031. See tools/audit_offline.py. -->
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&family=Newsreader:opsz,wght@6..72,400;6..72,500;6..72,600&family=JetBrains+Mono:wght@400;500&display=swap" media="print" data-webfont>
+<noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&family=Newsreader:opsz,wght@6..72,400;6..72,500;6..72,600&family=JetBrains+Mono:wght@400;500&display=swap"></noscript>
+<script>(function(){var l=document.querySelector('link[data-webfont]');if(!l)return;
+  var on=function(){l.media="all";};
+  if(l.sheet){on();}else{l.addEventListener("load",on);l.addEventListener("error",function(){});}
+})();</script>
+<style>
+  :root {
+    color-scheme: light;
+    --page:#F5F1E6; --surface:#FFFDF7; --ink:#23281F; --ink-2:#4B5344; --muted:#6B6B5E;
+    --border:#E3DCC9; --rule:#C7C0AC; --s1:#2C784C; --s2:#A94F26; --s3:#2B6C8F;
+    --soft:#E9F0E7; --soft-2:#F3EEE0; --shadow:0 1px 2px rgba(35,40,31,.05),0 12px 32px rgba(35,40,31,.06);
+    --head:"Fraunces",Georgia,serif; --body:"Newsreader",Georgia,"Times New Roman",serif;
+    --mono:"JetBrains Mono",ui-monospace,Menlo,monospace;
+  }
+  * { box-sizing:border-box; }
+  body { margin:0; background:var(--page); color:var(--ink); font:17px/1.55 var(--body);
+    -webkit-font-smoothing:antialiased; text-rendering:optimizeLegibility; }
+  .wrap { max-width:900px; margin:0 auto; padding:0 26px; }
+  a { color:var(--s1); text-underline-offset:2px; }
+
+  .kit-nav { display:flex; flex-wrap:wrap; gap:8px; padding:14px 0 0; }
+  .kit-nav a { font-family:var(--mono); font-size:12.5px; letter-spacing:.02em; text-decoration:none;
+    color:var(--ink-2); background:var(--surface); border:1px solid var(--border); border-radius:999px;
+    padding:9px 15px; box-shadow:var(--shadow); display:inline-flex; align-items:center; min-height:40px; }
+  .kit-nav a:hover { border-color:var(--s1); color:var(--s1); }
+
+  .masthead { padding:26px 0 8px; }
+  .masthead::before { content:""; display:block; width:52px; height:3px; background:var(--s1);
+    border-radius:2px; margin:0 0 16px; }
+  .masthead h1 { font-family:var(--head); font-size:38px; line-height:1.1; margin:0 0 8px; font-weight:600; }
+  .masthead p.standfirst { font-size:19px; color:var(--ink-2); margin:0 0 6px; max-width:62ch; }
+  .kicker { font-family:var(--mono); font-size:11.5px; letter-spacing:.09em; text-transform:uppercase;
+    color:var(--s2); margin:0 0 10px; }
+
+  h2 { font-family:var(--head); font-size:25px; font-weight:600; margin:38px 0 10px; }
+  h3 { font-family:var(--head); font-size:18.5px; font-weight:600; margin:24px 0 6px; }
+  p { max-width:66ch; }
+  .lede { font-size:18.5px; color:var(--ink-2); }
+
+  .card { background:var(--surface); border:1px solid var(--border); border-radius:14px;
+    padding:20px 24px; margin:18px 0; box-shadow:var(--shadow); }
+  .card > :first-child { margin-top:0; } .card > :last-child { margin-bottom:0; }
+
+  .portrait { display:flex; gap:26px; align-items:flex-start; flex-wrap:wrap; }
+  .portrait figure { margin:0; flex:0 0 240px; max-width:100%; }
+  .portrait figcaption { font-size:13px; color:var(--muted); margin-top:8px; line-height:1.45; }
+  .portrait .bio { flex:1 1 320px; min-width:0; }
+
+  table { border-collapse:collapse; width:100%; margin:12px 0; font-size:15px; }
+  th, td { border-bottom:1px solid var(--border); padding:8px 10px; text-align:left; vertical-align:top; }
+  th { font-family:var(--mono); font-size:11.5px; letter-spacing:.05em; text-transform:uppercase;
+    color:var(--ink-2); border-bottom:1px solid var(--rule); }
+  td.num { font-family:var(--mono); text-align:right; white-space:nowrap; }
+  .scroll { overflow-x:auto; }
+
+  code, .mono { font-family:var(--mono); font-size:14px; }
+  pre { background:var(--soft-2); border:1px solid var(--border); border-radius:10px;
+    padding:14px 16px; overflow-x:auto; font-family:var(--mono); font-size:13.5px; line-height:1.5; }
+  .verdict, .verdict *, code, td, th { overflow-wrap:anywhere; }
+
+  .tag { font-family:var(--mono); font-size:11px; letter-spacing:.04em; padding:2px 8px;
+    border-radius:999px; border:1px solid var(--border); background:var(--soft-2); color:var(--ink-2);
+    white-space:nowrap; display:inline-block; }
+  .tag.doc { background:var(--soft); border-color:#BFD8C4; color:var(--s1); }
+  .tag.trad { background:#F6EAD8; border-color:#E4CDA4; color:#8A6408; }
+  .tag.gap { background:#F6E7E5; border-color:#E7C3BE; color:#B23A32; }
+
+  ul.rules { max-width:66ch; padding-left:20px; }
+  ul.rules li { margin:8px 0; }
+
+  .links { display:flex; flex-wrap:wrap; gap:10px; margin:14px 0 0; }
+  .links a { font-family:var(--mono); font-size:12.5px; text-decoration:none; color:var(--ink-2);
+    background:var(--soft-2); border:1px solid var(--border); border-radius:999px; padding:9px 15px;
+    display:inline-flex; align-items:center; min-height:40px; }
+  .links a:hover { border-color:var(--s1); color:var(--s1); }
+
+  footer { border-top:1px solid var(--rule); margin:44px 0 0; padding:16px 0 40px;
+    font-size:14.5px; color:var(--muted); }
+
+  @media print {
+    :root { --page:#fff; --surface:#fff; --soft-2:#f6f4ee; --shadow:none; }
+    body { font-size:10pt; background:#fff; } .wrap { max-width:none; padding:0; }
+    .kit-nav, .links { display:none; } a { color:inherit; text-decoration:none; }
+    h2 { break-after:avoid; } .card { break-inside:avoid; }
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<nav class="kit-nav">
+  <a href="ecology.html">Overview</a>
+  <a href="ecology-lab.html">Interactive Lab</a>
+  <a href="ecology-field-guide.html">Field Guide</a>
+  <a href="ecology-field-card.html">Field Card</a>
+  <a href="ecology-glossary.html">Glossary</a>
+  <a href="releve.html">Relev&eacute;</a>
+  <a href="collection-sheet.html">Collection Sheet</a>
+  <a href="experiment-guide.html">Experiment Guide</a>
+</nav>
+
+<header class="masthead">
+  <p class="kicker">A field mode for the harness</p>
+  <h1>Douglas Explorer Mode</h1>
+  <p class="standfirst">Point the kit at a real place. Enter everything the place actually shows you,
+  invent nothing, and write down by name each thing the harness could not hold.</p>
+</header>
+
+<p class="lede">Most of this kit's experiments are simulations: a seeded stream, a known answer, an
+oracle to check it against. Douglas Explorer Mode is the other direction. You stand somewhere real,
+you record what is in front of you, and the instruments meet data that did not come from a random
+number generator and does not care whether they are ready for it.</p>
+
+<p>The mode is named for <strong>David Douglas</strong>, who did exactly this for eleven years with a
+notebook, a plant press, and no way of knowing whether any of it would arrive home.</p>
+
+<h2>The patron</h2>
+
+<div class="card portrait">
+  <figure>
+    <svg viewBox="0 0 240 300" width="240" height="300" role="img"
+         aria-label="A period-style silhouette medallion for David Douglas, beside a Douglas fir cone
+                     showing its three-pointed bracts.">
+      <defs>
+        <clipPath id="dx-roundel"><circle cx="118" cy="112" r="86"/></clipPath>
+      </defs>
+      <circle cx="118" cy="112" r="94" fill="#2C784C" opacity=".10"/>
+      <circle cx="118" cy="112" r="86" fill="#FFFDF7" stroke="#2C784C" stroke-width="2.5"/>
+      <circle cx="118" cy="112" r="79" fill="none" stroke="#C7C0AC" stroke-width="1"/>
+      <g clip-path="url(#dx-roundel)">
+        <!-- Silhouette in the paper-cut manner of the 1820s: a form, not a likeness. -->
+        <path fill="#23281F" d="
+          M150 198
+          C150 176 146 168 138 160
+          C132 154 128 148 126 140
+          C131 136 133 130 132 124
+          C137 122 138 118 136 114
+          C133 108 130 104 128 100
+          C127 92 126 84 122 78
+          C116 68 105 62 94 63
+          C82 64 72 72 68 83
+          C64 94 65 106 70 116
+          C74 124 79 130 82 138
+          C84 146 83 154 79 160
+          C72 170 66 178 64 198
+          Z"/>
+        <path fill="#23281F" d="
+          M68 84 C62 76 64 66 72 60 C80 54 92 53 101 56
+          C110 59 116 65 118 72 C112 68 104 66 96 67
+          C86 68 76 74 68 84 Z"/>
+        <path fill="#FFFDF7" d="M126 140 C120 144 112 146 104 145 C112 149 120 149 127 146 Z"/>
+      </g>
+      <path d="M118 26 a86 86 0 0 1 0 172" fill="none" stroke="#2C784C" stroke-width="2.5" opacity=".35"/>
+      <text x="118" y="222" text-anchor="middle" font-family="Fraunces,Georgia,serif"
+            font-size="17" font-weight="600" fill="#23281F">David Douglas</text>
+      <text x="118" y="240" text-anchor="middle" font-family="JetBrains Mono,monospace"
+            font-size="11.5" fill="#6B6B5E">1799 &ndash; 1834</text>
+      <!-- Pseudotsuga cone: the trident bracts are the diagnostic character. -->
+      <g transform="translate(118,262)">
+        <ellipse cx="0" cy="12" rx="15" ry="21" fill="#A94F26" opacity=".16"/>
+        <g stroke="#A94F26" stroke-width="1.5" fill="none" stroke-linecap="round">
+          <path d="M0 -6 v36"/>
+          <path d="M-11 0 h22 M-13 8 h26 M-12 16 h24 M-9 24 h18"/>
+          <path d="M-6 -2 l-3 -7 M-6 -2 l-6 -4 M-6 -2 l-1 -8"/>
+          <path d="M6 -2 l3 -7 M6 -2 l6 -4 M6 -2 l1 -8"/>
+          <path d="M-9 6 l-3 -7 M-9 6 l-6 -4 M-9 6 l-1 -8"/>
+          <path d="M9 6 l3 -7 M9 6 l6 -4 M9 6 l1 -8"/>
+        </g>
+      </g>
+    </svg>
+    <figcaption><strong>Not his likeness.</strong> Douglas died in 1834, before photographic portraiture,
+    and this is an original device in the silhouette manner of his period, with a
+    <em>Pseudotsuga</em> cone below &mdash; the three-pointed bracts standing out between the scales are
+    the character that identifies the tree that carries his name. The surviving portrait is linked below.</figcaption>
+  </figure>
+
+  <div class="bio">
+    <p>Born <strong>25 June 1799</strong> at Scone, Perthshire, son of a stonemason. Apprenticed at
+    eleven into the gardens at Scone Palace, seven years under the head gardener, then Valleyfield and
+    the Glasgow Botanic Garden, where <strong>William Jackson Hooker</strong> took him to lectures and
+    then recommended him to the Royal Horticultural Society. That recommendation is the whole hinge of
+    his life: a gardener's boy with no standing became the Society's collector in North America.</p>
+
+    <p>Three expeditions. Eastern North America in <strong>1823</strong>. The Pacific Northwest from
+    <strong>July 1824 to October 1827</strong> &mdash; the great one. A third from
+    <strong>1829</strong>, through the Columbia, down to San Francisco in 1832, and on to Hawaii in
+    January 1834.</p>
+
+    <p>He sent home roughly <strong>240 species new to Britain</strong>. Walk through almost any
+    British or Irish plantation and you are walking through his shipping manifest: Douglas fir,
+    Sitka spruce, sugar pine, western white pine, ponderosa, lodgepole, Monterey pine, grand fir,
+    noble fir; and in the borders, flowering currant, salal, lupin, penstemon, California poppy.
+    <strong>Over eighty</strong> plants and animals carry <em>douglasii</em>.</p>
+
+    <p>He was probably the first European mountaineer in North America &mdash; Mount Brown in the
+    spring of 1826 &mdash; and the second European on the summit of Mauna Loa.</p>
+  </div>
+</div>
+
+<h3>What the record actually says, and what it only says traditionally</h3>
+
+<p>This kit does not let a good story stand in for a sourced one, so the anecdotes are tagged.</p>
+
+<div class="scroll">
+<table>
+  <thead><tr><th>Claim</th><th>Standing</th><th>Detail</th></tr></thead>
+  <tbody>
+    <tr><td>Killed by a bull in a pit trap on Mauna Kea, 12 July 1834, aged 35</td>
+        <td><span class="tag doc">documented</span></td>
+        <td>He fell into a bullock pit already holding a wild bull. The site is still called
+            <em>Ka lua kauka</em> &mdash; the doctor's pit.</td></tr>
+    <tr><td>The death was suspicious</td>
+        <td><span class="tag doc">documented dispute</span></td>
+        <td>Last seen at the hut of <strong>Ned Gurney</strong>, an escaped convict turned bullock
+            hunter. Douglas was said to be carrying more money than was handed over with the body.
+            No evidence was ever found that contradicted Gurney's account, and none that settled it.</td></tr>
+    <tr><td>The sugar pine, at gunpoint</td>
+        <td><span class="tag doc">documented</span></td>
+        <td>He shot cones out of <em>Pinus lambertiana</em> &mdash; hanging &ldquo;like sugar-loaves&rdquo;
+            &mdash; and the shots brought armed men around him in a ring. He got away, and spent
+            twelve days in extreme misery and danger getting back; his horse died.</td></tr>
+    <tr><td>A dog was with him</td>
+        <td><span class="tag doc">documented</span></td>
+        <td>A rough Scotch terrier, described as shaggy as his master. It was waiting beside his
+            bundle at the edge of the pit when he was found.</td></tr>
+    <tr><td>His eyesight was failing</td>
+        <td><span class="tag doc">documented</span></td>
+        <td>&ldquo;He could not shoot well, as his eyesight had begun to fail.&rdquo; He went into the
+            pit country half-blind.</td></tr>
+    <tr><td>He put the specimens before himself</td>
+        <td><span class="tag doc">documented</span></td>
+        <td>He wore the wet shirt so the dry one could be wrapped around the plants. Swamped on the
+            Columbia, he recorded that he had lost all his provisions but saved his collection. His
+            kit: one pair of shoes, no stockings, two shirts, two handkerchiefs, a blanket and a cloak.</td></tr>
+    <tr><td>He lived off roots</td>
+        <td><span class="tag trad">traditional</span></td>
+        <td>Consistent with everything above &mdash; provisions lost, weeks on the move, a man who
+            would not eat his cargo &mdash; and it is how the story is always told. The two sources
+            below record the starvation and the lost provisions; neither names the roots. Recorded
+            here as tradition rather than promoted to fact.</td></tr>
+  </tbody>
+</table>
+</div>
+
+<div class="links">
+  <a href="https://en.wikipedia.org/wiki/David_Douglas_(botanist)">Wikipedia &mdash; David Douglas</a>
+  <a href="https://grokipedia.com/page/David_Douglas_(botanist)">Grokipedia &mdash; David Douglas</a>
+  <a href="https://todayinsci.com/D/Douglas_David/DouglasDavid-BotanicalCollector.htm">Biography of a Botanical Collector (1884)</a>
+  <a href="https://www.atlasobscura.com/articles/david-douglas-death-monument-mystery-hawaii">Atlas Obscura &mdash; the pit</a>
+</div>
+
+<h2>The mode</h2>
+
+<p>Douglas Explorer Mode is a discipline, not a feature. Six rules, all of them his:</p>
+
+<ul class="rules">
+  <li><strong>Record the place, not the idea of the place.</strong> What is in the frame goes in.
+      What you expect to be there does not.</li>
+  <li><strong>Uncertain identification is data; a confident guess is not.</strong> If the tree could be
+      <em>Calocedrus</em> or a young fir, it is entered as uncertain, at the rank you can actually defend.</li>
+  <li><strong>Save the specimens before the provisions.</strong> When something has to be dropped,
+      drop your own convenience, never the record.</li>
+  <li><strong>Name what you could not carry.</strong> Every observation the harness had no field for
+      is written down as a gap, in the record, where it will be found.</li>
+  <li><strong>Write the hypotheses before the numbers.</strong> The engine grades them either way; the
+      only thing at stake is whether you learn anything.</li>
+  <li><strong>The instrument is a suspect too.</strong> A clean result from a tool that examined
+      nothing is the failure this kit keeps finding. Ask what it looked at.</li>
+</ul>
+
+<h2>First expedition: Lake Tahoe, west shore</h2>
+
+<p>A montane conifer stand on a slope bench above the lake, looking east-northeast across open water
+to the Carson Range. Entered through the harness as <code>docs/tahoe-westshore.eco</code> and run with:</p>
+
+<pre>./gradlew ecologyExperiment -Pspec=docs/tahoe-westshore.eco</pre>
+
+<h3>What went in</h3>
+
+<div class="scroll">
+<table>
+  <thead><tr><th>Layer</th><th>Entered</th><th class="num">S</th><th class="num">H&prime;</th><th class="num">J&prime;</th><th>Reading</th></tr></thead>
+  <tbody>
+    <tr><td>Canopy, crown cover %</td>
+        <td><em>Abies concolor</em> 45 &middot; <em>Pinus jeffreyi</em> 30 &middot;
+            <em>Calocedrus decurrens</em> 8 &middot; <em>Pinus lambertiana</em> 5 &middot;
+            <em>Abies magnifica</em> 4 &middot; standing dead 3</td>
+        <td class="num">6</td><td class="num">1.324</td><td class="num">0.74</td>
+        <td>moderately even &mdash; two species carry the stand</td></tr>
+    <tr><td>Understory, cover % of the open bench</td>
+        <td>graminoids 30 &middot; <em>Arctostaphylos patula</em> 25 &middot; bare litter 20 &middot;
+            <em>Chrysolepis sempervirens</em> 15 &middot; forbs 10</td>
+        <td class="num">5</td><td class="num">1.544</td><td class="num">0.96</td>
+        <td>very even &mdash; no single shrub dominates the gap</td></tr>
+    <tr><td>Structure, occurrences</td>
+        <td>canopy gap 2 &middot; multi-layer canopy 3 &middot; standing snag 1 &middot; lake-edge ecotone 1</td>
+        <td class="num">4</td><td class="num">1.277</td><td class="num">0.92</td>
+        <td>very even</td></tr>
+  </tbody>
+</table>
+</div>
+
+<p>Also entered: a Newick phylogeny of the conifers recorded
+(<code>(Calocedrus_decurrens,((Pinus_jeffreyi,Pinus_lambertiana),(Abies_concolor,Abies_magnifica)));</code>),
+an island-biogeography model with the lake as the dispersal barrier and the far range as the island,
+a logistic model for stand density, four abiotic factors, and nine notebook entries &mdash; clear sky
+with no smoke, high sun and still inshore water, snow surviving only on the highest north-facing
+benches opposite, full leaf-out with no snow at the viewpoint, and a deep blue water column with no
+green cast, which is what an oligotrophic lake looks like from the shore.</p>
+
+<h3>What the harness could not hold</h3>
+
+<p>This is the part of the record that matters most, because it is the part that would otherwise
+quietly not exist.</p>
+
+<div class="scroll">
+<table>
+  <thead><tr><th>Observation</th><th>Status</th><th>What happened to it</th></tr></thead>
+  <tbody>
+    <tr><td>Coordinates, elevation, aspect, slope</td><td><span class="tag gap">no field</span></td>
+        <td>Written into free-text notes. A site has no location in this grammar.</td></tr>
+    <tr><td>Date and observer</td><td><span class="tag gap">no field</span></td>
+        <td>Free text. The record cannot say who made it or when.</td></tr>
+    <tr><td>Source photograph</td><td><span class="tag gap">no field</span></td>
+        <td>Free text. No evidence can be attached to an observation.</td></tr>
+    <tr><td>Percent cover</td><td><span class="tag gap">forced</span></td>
+        <td>Cover was entered in the count slot, because the only quantity the grammar has is a count.
+            The diversity maths still works &mdash; proportions are proportions &mdash; but Chao1 and
+            the rare-species estimators read cover classes as individuals, which they are not.</td></tr>
+    <tr><td>Identification confidence</td><td><span class="tag gap">no field</span></td>
+        <td>Free text. Three of the six canopy taxa are uncertain at species rank and the record
+            cannot mark which.</td></tr>
+    <tr><td>Abiotic factors beyond four</td><td><span class="tag gap">no field</span></td>
+        <td>Only area, temperature, wind and distance exist, all as unitless ratios. Elevation and
+            aspect &mdash; the two variables that most determine what grows on a Sierra slope &mdash;
+            have nowhere to go.</td></tr>
+  </tbody>
+</table>
+</div>
+
+<p>Six gaps from one photograph. That is the finding, and it is a better result than a clean run
+would have been: the harness takes a simulation's worth of information and a real place has more.
+Every one of these is a field the grammar could grow &mdash; a <code>site:</code> line, a
+<code>cover:</code> quantity distinct from a count, a confidence rank, an evidence reference &mdash;
+and none of them can be designed honestly without a real observation to design against. Now there is one.</p>
+
+<footer>
+  Douglas Explorer Mode &middot; the instruments are described in the
+  <a href="ecology-field-guide.html">Field Guide</a>, the bands they read by are on the
+  <a href="ecology-field-card.html">Field Card</a>, and the protocol grammar is in the
+  <a href="experiment-guide.html">Experiment Guide</a>. Douglas's own record is linked above; the
+  tagging of documented against traditional is this kit's, and the honesty gate it answers to is
+  ADR-031. MIT-licensed &middot; &copy; 2026 Richmond.
+</footer>
+
+</div>
+</body>
+</html>

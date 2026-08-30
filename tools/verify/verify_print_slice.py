@@ -6,7 +6,8 @@ the AUDIT still has teeth -- a print audit that cannot report a fault would
 report zero forever, so the canary is part of the suite rather than a thing I
 ran once by hand.
 """
-import io, os
+import io, os, tempfile
+from pathlib import Path as _Path
 from playwright.sync_api import sync_playwright
 import os as _os
 # The kit is checked out wherever the user keeps it; these suites used to hard-code
@@ -44,9 +45,16 @@ with sync_playwright() as p:
     pg.emulate_media(media="print")
 
     # ---- 1. the audit still has teeth -------------------------------------
-    os.makedirs("/tmp/_pcan", exist_ok=True)
-    io.open("/tmp/_pcan/c.html", "w", encoding="utf-8").write(CANARY)
-    pg.goto("file:///tmp/_pcan/c.html", wait_until="domcontentloaded"); pg.wait_for_timeout(400)
+    # Scratch dir via tempfile, and the file URL via Path.as_uri() (ADR-106).
+    # These were hardcoded Linux scratch paths written into a suite that has to
+    # run wherever the kit is checked out. On Windows os.makedirs happily creates
+    # the directory on the current drive while the browser resolves the absolute
+    # file URL somewhere else entirely, so the canary died on
+    # net::ERR_FILE_NOT_FOUND -- the suite CRASHED rather than reporting, and a
+    # suite that crashes says nothing about the checks after it.
+    _pcan = os.path.join(tempfile.mkdtemp(prefix="_pcan_"), "c.html")
+    io.open(_pcan, "w", encoding="utf-8").write(CANARY)
+    pg.goto(_Path(_pcan).as_uri(), wait_until="domcontentloaded"); pg.wait_for_timeout(400)
     import _kit
     probe = _kit.tool("audit_print").PROBE
     r = pg.evaluate(probe, 720)

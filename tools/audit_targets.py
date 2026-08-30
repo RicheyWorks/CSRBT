@@ -10,8 +10,26 @@ and 44px would wreck running prose).
 import glob, os, sys
 from playwright.sync_api import sync_playwright
 
-DOCS="/tmp/eco/CSRBT/docs/"
+# THE PATH WAS THE POLISH LOOP'S CLONE, NOT THIS CHECKOUT (ADR-106)
+#
+# This read DOCS = "/tmp/eco/CSRBT/docs/" -- the directory the autonomous
+# polish job clones into, which exists in exactly one container and nowhere
+# else. Everywhere else glob returned [], the page loop never ran, and the
+# audit printed a clean bill of health having examined ZERO pages. It has
+# been green on Richmond's machine on that basis, and that green was counted
+# in the kit's headline numbers.
+#
+# Two changes, and the second matters more than the first: the path now comes
+# from this file's own location, so the audit reads the checkout it was run
+# from; and finding no pages is now a LOUD FAILURE rather than a clean result,
+# because the next hardcoded path will fail the same silent way and "I looked
+# at nothing" must never again render as "nothing is wrong".
+ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+DOCS = os.path.join(ROOT, "docs") + os.sep
 pages=sorted(glob.glob(DOCS+"*.html"))
+if not pages:
+    print("NO PAGES FOUND under %s -- refusing to report a clean audit of nothing" % DOCS)
+    sys.exit(2)
 bad_total=0
 rows=[]
 

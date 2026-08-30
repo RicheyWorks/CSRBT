@@ -1,392 +1,394 @@
 {
  "_comment": "Written by run_all.py. n is what the suite counted; sha identifies the suite source it was counted from; at is when THAT suite was last scored, which is not necessarily this run -- a run updates only the suites it could run. A count whose sha no longer matches says nothing about the suite as it stands -- rerun run_all.",
- "at": 1788119995,
+ "at": 1788121607,
  "suites": {
   "verify_advertised": {
-   "at": 1788119995,
+   "at": 1788121607,
    "green": true,
    "n": 29,
    "of": 29,
    "sha": "9efeaa527c4e"
   },
   "verify_audit_frontend": {
-   "at": 1788119995,
+   "at": 1788121607,
    "green": true,
    "n": 19,
    "of": 19,
    "sha": "d4cc495bc2f9"
   },
   "verify_br": {
-   "at": 1788119995,
+   "at": 1788121607,
    "green": true,
    "n": 90,
    "of": 90,
    "sha": "48f3bab32795"
   },
   "verify_cb": {
-   "at": 1788119995,
+   "at": 1788121607,
    "green": true,
    "n": 74,
    "of": 74,
    "sha": "ae0ff858bda8"
   },
   "verify_claims_math": {
-   "at": 1788119995,
+   "at": 1788121607,
    "green": true,
    "n": 49,
    "of": 49,
    "sha": "64f6db468a31"
   },
   "verify_claims_slice": {
+   "at": 1788121607,
    "green": true,
    "n": 56,
    "of": 56,
-   "sha": "6db6bd1bd6d6"
+   "sha": "6bac545e6c89"
   },
   "verify_claims_triage": {
-   "at": 1788119995,
+   "at": 1788121607,
    "green": true,
    "n": 46,
    "of": 46,
    "sha": "5043144f9c58"
   },
   "verify_contract": {
-   "at": 1788119995,
+   "at": 1788121607,
    "green": true,
    "n": 70,
    "of": 70,
    "sha": "d6861b5fb14b"
   },
   "verify_contrast_slice": {
-   "at": 1788119995,
+   "at": 1788121607,
    "green": true,
    "n": 57,
    "of": 57,
    "sha": "6a4c6d049d46"
   },
   "verify_cp": {
-   "at": 1788119995,
+   "at": 1788121607,
    "green": true,
    "n": 87,
    "of": 87,
    "sha": "c705a3a1630f"
   },
   "verify_cpc": {
-   "at": 1788119995,
+   "at": 1788121607,
    "green": true,
    "n": 116,
    "of": 116,
    "sha": "b72c629fc370"
   },
   "verify_cs": {
-   "at": 1788119995,
+   "at": 1788121607,
    "green": true,
    "n": 72,
    "of": 72,
    "sha": "db368e330f20"
   },
   "verify_cs_science": {
-   "at": 1788119995,
+   "at": 1788121607,
    "green": false,
    "n": 84,
    "of": 86,
    "sha": "9608d4d8271a"
   },
   "verify_dep": {
-   "at": 1788119995,
+   "at": 1788121607,
    "green": true,
    "n": 105,
    "of": 105,
    "sha": "510e253939e6"
   },
   "verify_dwc": {
-   "at": 1788119995,
+   "at": 1788121607,
    "green": true,
    "n": 147,
    "of": 147,
    "sha": "9c7ea96520a1"
   },
   "verify_eco": {
-   "at": 1788119995,
+   "at": 1788121607,
    "green": true,
    "n": 138,
    "of": 138,
    "sha": "0f40aa822975"
   },
   "verify_eco_experiment": {
-   "at": 1788119995,
+   "at": 1788121607,
    "green": true,
    "n": 35,
    "of": 35,
    "sha": "df49be95d2ec"
   },
   "verify_emitters": {
-   "at": 1788119995,
+   "at": 1788121607,
    "green": true,
    "n": 130,
    "of": 130,
    "sha": "d27908007bf3"
   },
   "verify_engine_sessions": {
-   "at": 1788119995,
+   "at": 1788121607,
    "green": true,
    "n": 26,
    "of": 26,
    "sha": "00f7c16a2a7e"
   },
   "verify_escaping_slice": {
-   "at": 1788119995,
+   "at": 1788121607,
    "green": true,
    "n": 115,
    "of": 115,
    "sha": "f193991eb86b"
   },
   "verify_etho": {
-   "at": 1788119995,
+   "at": 1788121607,
    "green": true,
    "n": 71,
    "of": 71,
    "sha": "8571743ed653"
   },
   "verify_experiment_guide": {
-   "at": 1788119995,
+   "at": 1788121607,
    "green": true,
    "n": 82,
    "of": 82,
    "sha": "6d7052a79d58"
   },
   "verify_fek": {
-   "at": 1788119995,
+   "at": 1788121607,
    "green": true,
    "n": 101,
    "of": 101,
    "sha": "52c05006e46d"
   },
   "verify_focus_slice": {
-   "at": 1788119995,
+   "at": 1788121607,
    "green": true,
    "n": 22,
    "of": 22,
    "sha": "1cec4cf19e41"
   },
   "verify_fs": {
-   "at": 1788119995,
+   "at": 1788121607,
    "green": true,
    "n": 45,
    "of": 45,
    "sha": "a7b6c83b0ce9"
   },
   "verify_fw": {
-   "at": 1788119995,
+   "at": 1788121607,
    "green": true,
    "n": 61,
    "of": 61,
    "sha": "bad9225fa503"
   },
   "verify_gh": {
-   "at": 1788119995,
+   "at": 1788121607,
    "green": true,
    "n": 141,
    "of": 141,
    "sha": "85fb9077857c"
   },
   "verify_harness": {
-   "at": 1788119995,
+   "at": 1788121607,
    "green": true,
    "n": 22,
    "of": 22,
    "sha": "631c6ba06738"
   },
   "verify_keep": {
-   "at": 1788119995,
+   "at": 1788121607,
    "green": true,
    "n": 112,
    "of": 112,
    "sha": "086ad016eca4"
   },
   "verify_kit_consistency": {
-   "at": 1788119995,
+   "at": 1788121607,
    "green": true,
    "n": 51,
    "of": 51,
    "sha": "144cd1ddc66a"
   },
   "verify_label_escaping": {
-   "at": 1788119995,
+   "at": 1788121607,
    "green": true,
    "n": 23,
    "of": 23,
    "sha": "39f6694a0877"
   },
   "verify_mb": {
-   "at": 1788119995,
+   "at": 1788121607,
    "green": true,
    "n": 65,
    "of": 65,
    "sha": "92c307cec203"
   },
   "verify_mutate": {
-   "at": 1788119995,
-   "green": true,
-   "n": 47,
+   "at": 1788121607,
+   "green": false,
+   "n": 46,
    "of": 47,
    "sha": "08f64a0e37f6"
   },
   "verify_offline_slice": {
-   "at": 1788119995,
-   "green": true,
-   "n": 213,
+   "at": 1788121607,
+   "green": false,
+   "n": 212,
    "of": 213,
    "sha": "71e191c93fa2"
   },
   "verify_ord": {
-   "at": 1788119995,
+   "at": 1788121607,
    "green": true,
    "n": 110,
    "of": 110,
    "sha": "9128d36bb10e"
   },
   "verify_print_channel": {
-   "at": 1788119995,
+   "at": 1788121607,
    "green": true,
    "n": 11,
    "of": 11,
    "sha": "4ac8854f3a08"
   },
   "verify_print_slice": {
+   "at": 1788121607,
    "green": true,
    "n": 20,
    "of": 20,
-   "sha": "a12365262403"
+   "sha": "ee77b6eb4214"
   },
   "verify_probe": {
-   "at": 1788119995,
+   "at": 1788121607,
    "green": true,
    "n": 25,
    "of": 25,
    "sha": "caf176f31937"
   },
   "verify_proofs": {
-   "at": 1788119995,
+   "at": 1788121607,
    "green": true,
    "n": 137,
    "of": 137,
    "sha": "7dcee0510de5"
   },
   "verify_pt": {
-   "at": 1788119995,
+   "at": 1788121607,
    "green": true,
    "n": 60,
    "of": 60,
    "sha": "6d84f03b4363"
   },
   "verify_publish_drift": {
-   "at": 1788119995,
+   "at": 1788121607,
    "green": true,
    "n": 50,
    "of": 50,
    "sha": "51ca7c07571c"
   },
   "verify_publish_reach": {
-   "at": 1788119995,
+   "at": 1788121607,
    "green": true,
    "n": 58,
    "of": 58,
    "sha": "c50776ab77d9"
   },
   "verify_recipes": {
-   "at": 1788119995,
+   "at": 1788121607,
    "green": true,
    "n": 238,
    "of": 238,
    "sha": "c309e136019a"
   },
   "verify_rv": {
-   "at": 1788119995,
+   "at": 1788121607,
    "green": true,
    "n": 81,
    "of": 81,
    "sha": "109a53a5dd9e"
   },
   "verify_sd": {
-   "at": 1788119995,
+   "at": 1788121607,
    "green": true,
    "n": 70,
    "of": 70,
    "sha": "bbf528b9b8d6"
   },
   "verify_sel": {
-   "at": 1788119995,
+   "at": 1788121607,
    "green": true,
    "n": 83,
    "of": 83,
    "sha": "85b6c54da318"
   },
   "verify_soil": {
-   "at": 1788119995,
+   "at": 1788121607,
    "green": true,
    "n": 70,
    "of": 70,
    "sha": "631ceebaa44f"
   },
   "verify_ss": {
-   "at": 1788119995,
+   "at": 1788121607,
    "green": true,
    "n": 84,
    "of": 84,
    "sha": "fb72833f92bc"
   },
   "verify_suites": {
-   "at": 1788119995,
+   "at": 1788121607,
    "green": true,
    "n": 122,
    "of": 122,
    "sha": "79c7d6188503"
   },
   "verify_swarm": {
-   "at": 1788119995,
+   "at": 1788121607,
    "green": true,
    "n": 40,
    "of": 40,
    "sha": "65442fab17de"
   },
   "verify_sweep_ledger": {
-   "at": 1788119995,
+   "at": 1788121607,
    "green": true,
    "n": 23,
    "of": 23,
    "sha": "372fd5229f90"
   },
   "verify_tie_render": {
-   "at": 1788119995,
+   "at": 1788121607,
    "green": true,
    "n": 13,
    "of": 13,
    "sha": "6c46fd86a7fa"
   },
   "verify_ties": {
-   "at": 1788119995,
+   "at": 1788121607,
    "green": true,
    "n": 19,
    "of": 19,
    "sha": "782505e30933"
   },
   "verify_tv": {
-   "at": 1788119995,
+   "at": 1788121607,
    "green": true,
    "n": 115,
    "of": 115,
    "sha": "b497c0161554"
   },
   "verify_two": {
-   "at": 1788119995,
+   "at": 1788121607,
    "green": true,
    "n": 37,
    "of": 37,
    "sha": "6abcff3a1ab2"
   },
   "verify_visualizer_sessions": {
-   "at": 1788119995,
+   "at": 1788121607,
    "green": true,
    "n": 32,
    "of": 32,

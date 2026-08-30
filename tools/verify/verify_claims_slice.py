@@ -5,7 +5,8 @@ Four claims were changed because they asserted more than the kit could support.
 This checks the corrections are actually on the page and say what they should,
 and that the finder that surfaced them still finds things.
 """
-import io, os, re
+import io, os, re, tempfile
+from pathlib import Path as _Path
 import _kit
 from playwright.sync_api import sync_playwright
 import os as _os
@@ -152,8 +153,14 @@ ck(not _strippers(_suites),
 
 # and the rule can fail -- seeded both ways, because a lint nobody has watched
 # fire is a lint nobody knows the shape of (ADR-069).
-_cdir = "/tmp/_rdrcan"
-os.makedirs(_cdir, exist_ok=True)
+# Scratch dir via tempfile, and the file URL via Path.as_uri() (ADR-106).
+# These were hardcoded Linux scratch paths written into a suite that has to
+# run wherever the kit is checked out. On Windows os.makedirs happily creates
+# the directory on the current drive while the browser resolves the absolute
+# file URL somewhere else entirely, so the canary died on
+# net::ERR_FILE_NOT_FOUND -- the suite CRASHED rather than reporting, and a
+# suite that crashes says nothing about the checks after it.
+_cdir = tempfile.mkdtemp(prefix="_rdrcan_")
 io.open(_os.path.join(_cdir, "verify_offender.py"), "w", encoding="utf-8").write(
     "import re" + chr(10) +
     'text = re.sub(r"' + _BAD + '", " ", open("p.html").read())' + chr(10))
@@ -181,8 +188,9 @@ CAN = """<!doctype html><html><head><meta charset="utf-8"><title>c</title></head
 <p>By convention the reading is taken at 30 s; this one is labelled and should not be reported.</p>
 <p>Hold at 55 C for 3 days (40 CFR 503 Appendix B), which names its standard and should not be reported.</p>
 </body></html>"""
-os.makedirs("/tmp/_ccan", exist_ok=True)
-io.open("/tmp/_ccan/c.html", "w", encoding="utf-8").write(CAN)
+_ccan = tempfile.mkdtemp(prefix="_ccan_")
+_can1 = os.path.join(_ccan, "c.html")
+io.open(_can1, "w", encoding="utf-8").write(CAN)
 import _kit
 probe = _kit.tool("audit_claims").PROBE
 with sync_playwright() as p:
@@ -190,7 +198,7 @@ with sync_playwright() as p:
     pg.set_default_timeout(20000)
     pg.route("**://fonts.googleapis.com/**", lambda r: r.abort())
     pg.route("**://fonts.gstatic.com/**", lambda r: r.abort())
-    pg.goto("file:///tmp/_ccan/c.html", wait_until="domcontentloaded"); pg.wait_for_timeout(300)
+    pg.goto(_Path(_can1).as_uri(), wait_until="domcontentloaded"); pg.wait_for_timeout(300)
     hits = pg.evaluate(probe)
     ck(len(hits) == 1, "canary: exactly one of three claims is reported (got %d)" % len(hits))
     ck(hits and "Incubate the pile" in hits[0], "canary: the unlabelled, uncited one is the one reported")
@@ -210,12 +218,13 @@ CAN2 = """<!doctype html><html><head><meta charset="utf-8"><title>c</title></hea
 <section><p id="b">Hold pile B above 55 C for at least 12 days. <span class="src">California Carnivores</span></p></section>
 <section><p id="c">California Carnivores state that water should stay below 160 ppm.</p></section>
 </body></html>"""
-io.open("/tmp/_ccan/c2.html", "w", encoding="utf-8").write(CAN2)
+_can2 = os.path.join(_ccan, "c2.html")
+io.open(_can2, "w", encoding="utf-8").write(CAN2)
 with sync_playwright() as p:
     b = p.chromium.launch(); pg = b.new_page(viewport={"width": 1100, "height": 900})
     pg.set_default_timeout(20000)
     _kit.offline(pg)
-    pg.goto("file:///tmp/_ccan/c2.html", wait_until="domcontentloaded"); pg.wait_for_timeout(300)
+    pg.goto(_Path(_can2).as_uri(), wait_until="domcontentloaded"); pg.wait_for_timeout(300)
     h2 = pg.evaluate(probe)
     ck(len(h2) == 2, "canary: two of three are reported (got %d)" % len(h2))
     ck(any("pile A" in h for h in h2),

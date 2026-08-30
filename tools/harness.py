@@ -46,6 +46,7 @@ Run:  python3 tools/harness.py            all pages
       python3 tools/harness.py -j 4       four at a time
 """
 import argparse, concurrent.futures as cf, glob, io, json, os, sys, time
+import tempfile
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, os.path.join(HERE, "verify"))
@@ -332,7 +333,11 @@ def act(pg, a):
         el.evaluate("e => { e.value = e.max; e.dispatchEvent(new Event('input', {bubbles:true})); }")
         return "slid"
     if k == "file_in":
-        p = "/tmp/_harness_import.json"
+        # tempfile, not a hardcoded Linux scratch path (ADR-106): on Windows
+        # this wrote to the current drive's root, which is a permission error
+        # rather than a fixture, and the chaos pass would have lost the one
+        # action that exercises file import.
+        p = os.path.join(tempfile.gettempdir(), "_harness_import.json")
         io.open(p, "w", encoding="utf-8").write('{"not":"a valid pack"}')
         el.set_input_files(p, timeout=ACT_TIMEOUT)
         return "imported"
