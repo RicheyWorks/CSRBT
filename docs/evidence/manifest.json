@@ -1,0 +1,22 @@
+{
+ "_comment": "Evidence store for the CSRBT kit. Files here are CONTENT-ADDRESSED: the name carries the first 8 hex of the sha256 of the bytes, so a file that has been altered no longer matches its own name. sha256 is the identity; everything else in an entry is a claim about the file that tools/verify/verify_evidence.py re-derives from the bytes rather than trusting. self_certifying records whether the FILE proves its own origin (EXIF, GPS, timestamp) or whether the site attribution rests on testimony -- those are not the same evidence and must not read as if they were.",
+ "evidence": {
+  "tahoe-westshore-a42a4047.png": {
+   "bytes": 461570,
+   "entered": 1788121658,
+   "format": "PNG",
+   "height": 680,
+   "self_certifying": false,
+   "self_certifying_note": "no EXIF, no tIME, no GPS chunk -- the file records nothing about when or where it was made",
+   "sha256": "a42a404738229695604a04ae48bd0a3954967ebe008b1001bcd4296ea4b6ad90",
+   "site": "Lake Tahoe, west shore, California",
+   "site_attribution": "asserted by the observer, not carried by the file",
+   "subject": "montane mixed-conifer stand on a slope bench above the lake, looking ENE to the Carson Range",
+   "used_by": [
+    "douglas-explorer.html",
+    "tahoe-westshore.eco"
+   ],
+   "width": 510
+  }
+ }
+}
