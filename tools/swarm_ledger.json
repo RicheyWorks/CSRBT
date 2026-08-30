@@ -1,5 +1,5 @@
 {
- "at": 1788036651,
+ "at": 1788046578,
  "viewport": {
   "width": 390,
   "height": 844
@@ -7,8 +7,7 @@
  "excluded_kinds": {
   "link": "a rail link navigates away from the page under test; the hrefs are checked structurally instead -- every one must resolve to a page in tools/artifact_map.json or to this page itself",
   "nav_link": "the same, for the cards on the hub and the suite pages: a click would end the run on a different page, so every href is resolved against the artifact map rather than followed",
-  "readonly_out": "a readonly or disabled box is a display, not a control -- typing into it is not something a user can do, and five of them were reported as affordances the harness failed to drive when the truth was that nobody can drive them",
-  "file_in": "a file chooser is a platform-specific extension, not part of the automation contract: choosing a file needs OS focus and an approval policy the gateway does not own, so the contract publishes no action for it and the swarm does not reach around the contract to drive one"
+  "readonly_out": "a readonly or disabled box is a display, not a control -- typing into it is not something a user can do, and five of them were reported as affordances the harness failed to drive when the truth was that nobody can drive them"
  },
  "policy": {
   "READ": true,
@@ -19,16 +18,16 @@
   "DESTRUCTIVE": true
  },
  "totals": {
-  "verified": 1966,
-  "wrong": 18,
+  "verified": 1975,
+  "wrong": 17,
   "changed": 273,
-  "dead": 34,
-  "hidden": 204,
-  "failed": 4,
-  "excluded": 1055,
-  "discovered": 3554,
-  "commands": 15404,
-  "invariant_breaks": 68
+  "dead": 32,
+  "hidden": 220,
+  "failed": 3,
+  "excluded": 1051,
+  "discovered": 3571,
+  "commands": 15474,
+  "invariant_breaks": 66
  },
  "pages": [
   {
@@ -174,7 +173,8 @@
     "MUTATE": true,
     "DESTRUCTIVE": true
    },
-   "secs": 2.3
+   "video": null,
+   "secs": 4.8
   },
   {
    "page": "breeding-bench.html",
@@ -1954,7 +1954,9 @@
     "MUTATE": true,
     "DESTRUCTIVE": true
    },
-   "secs": 266.3
+   "shot": "/root/full/tools/swarm_evidence/breeding-bench/final.png",
+   "video": "/root/full/tools/swarm_evidence/breeding-bench/run.webm",
+   "secs": 441.2
   },
   {
    "page": "breeding-suite.html",
@@ -2127,7 +2129,8 @@
     "MUTATE": true,
     "DESTRUCTIVE": true
    },
-   "secs": 2.2
+   "video": null,
+   "secs": 5.1
   },
   {
    "page": "cell-bench.html",
@@ -2945,7 +2948,8 @@
     "MUTATE": true,
     "DESTRUCTIVE": true
    },
-   "secs": 69.5
+   "video": null,
+   "secs": 105.1
   },
   {
    "page": "collection-sheet.html",
@@ -2955,7 +2959,7 @@
     "export expected contains what was typed into the form, got valid JSON, 16357 chars, none of the 26 entered values  [action_btn:8 Export genus pack]",
     "export expected contains what was typed into the form, got 32 line(s) of text, 2345 chars, none of the 26 entered values  [action_btn:9 Copy the AI prompt]"
    ],
-   "commands": 1805,
+   "commands": 1811,
    "seeded": {
     "fields": 5,
     "adds": 1,
@@ -3635,7 +3639,7 @@
      "got": "1 of 66 on"
     },
     {
-     "selector": "text_in:1",
+     "selector": "text_in:0",
      "kind": "text_in",
      "label": "Suillus cf. brevipes",
      "pane": "p-rec",
@@ -3645,7 +3649,7 @@
      "got": "Zqx006"
     },
     {
-     "selector": "text_in:2",
+     "selector": "text_in:1",
      "kind": "text_in",
      "label": "RCW-2026-041",
      "pane": "p-rec",
@@ -4505,7 +4509,7 @@
      "got": "+5"
     },
     {
-     "selector": "text_in:4",
+     "selector": "text_in:2",
      "kind": "text_in",
      "label": "raphanoid / farinaceous / none",
      "pane": "p-rec",
@@ -4515,7 +4519,7 @@
      "got": "Zqx014"
     },
     {
-     "selector": "text_in:5",
+     "selector": "text_in:3",
      "kind": "text_in",
      "label": "blue in 5 s, then fading",
      "pane": "p-rec",
@@ -4525,7 +4529,7 @@
      "got": "Zqx015"
     },
     {
-     "selector": "text_in:6",
+     "selector": "text_in:4",
      "kind": "text_in",
      "label": "Cap viscid when wet, margin appendiculate. Duff 4 cm deep. T",
      "pane": "p-rec",
@@ -4565,7 +4569,7 @@
      "got": "-1 fine"
     },
     {
-     "selector": "text_in:7",
+     "selector": "text_in:5",
      "kind": "text_in",
      "label": "Bear Cr. old-growth",
      "pane": "p-site",
@@ -4575,7 +4579,7 @@
      "got": "Zqx017"
     },
     {
-     "selector": "text_in:8",
+     "selector": "text_in:6",
      "kind": "text_in",
      "label": "",
      "pane": "p-site",
@@ -4585,7 +4589,7 @@
      "got": "Zqx018"
     },
     {
-     "selector": "text_in:9",
+     "selector": "text_in:7",
      "kind": "text_in",
      "label": "",
      "pane": "p-site",
@@ -4595,7 +4599,7 @@
      "got": "2026-06-20"
     },
     {
-     "selector": "text_in:10",
+     "selector": "text_in:8",
      "kind": "text_in",
      "label": "45.3736",
      "pane": "p-site",
@@ -4605,7 +4609,7 @@
      "got": "Zqx020"
     },
     {
-     "selector": "text_in:11",
+     "selector": "text_in:9",
      "kind": "text_in",
      "label": "-121.6960",
      "pane": "p-site",
@@ -4615,7 +4619,7 @@
      "got": "Zqx021"
     },
     {
-     "selector": "text_in:12",
+     "selector": "text_in:10",
      "kind": "text_in",
      "label": "Tsuga heterophylla / Pseudotsuga zone",
      "pane": "p-site",
@@ -4625,7 +4629,7 @@
      "got": "Zqx022"
     },
     {
-     "selector": "text_in:13",
+     "selector": "text_in:11",
      "kind": "text_in",
      "label": "PSME, TSHE, THPL",
      "pane": "p-site",
@@ -4635,7 +4639,7 @@
      "got": "Zqx023"
     },
     {
-     "selector": "text_in:14",
+     "selector": "text_in:12",
      "kind": "text_in",
      "label": "salvage-logged 2019; light ground fire",
      "pane": "p-site",
@@ -4865,7 +4869,7 @@
      "got": "1 of 4 on"
     },
     {
-     "selector": "text_in:15",
+     "selector": "text_in:13",
      "kind": "text_in",
      "label": "",
      "pane": "p-site",
@@ -5105,7 +5109,7 @@
      "got": "1 of 5 on"
     },
     {
-     "selector": "text_in:17",
+     "selector": "text_in:14",
      "kind": "text_in",
      "label": "what you saw, and where \u2014 blank means not tested",
      "pane": "p-prt",
@@ -5115,7 +5119,7 @@
      "got": "Zqx036"
     },
     {
-     "selector": "text_in:18",
+     "selector": "text_in:15",
      "kind": "text_in",
      "label": "what you saw, and where \u2014 blank means not tested",
      "pane": "p-prt",
@@ -5125,7 +5129,7 @@
      "got": "Zqx037"
     },
     {
-     "selector": "text_in:19",
+     "selector": "text_in:16",
      "kind": "text_in",
      "label": "what you saw, and where \u2014 blank means not tested",
      "pane": "p-prt",
@@ -5135,7 +5139,7 @@
      "got": "Zqx038"
     },
     {
-     "selector": "text_in:20",
+     "selector": "text_in:17",
      "kind": "text_in",
      "label": "what you saw, and where \u2014 blank means not tested",
      "pane": "p-prt",
@@ -5145,7 +5149,7 @@
      "got": "Zqx039"
     },
     {
-     "selector": "text_in:21",
+     "selector": "text_in:18",
      "kind": "text_in",
      "label": "what you saw, and where \u2014 blank means not tested",
      "pane": "p-prt",
@@ -5155,7 +5159,7 @@
      "got": "Zqx040"
     },
     {
-     "selector": "text_in:22",
+     "selector": "text_in:19",
      "kind": "text_in",
      "label": "what you saw, and where \u2014 blank means not tested",
      "pane": "p-prt",
@@ -5165,7 +5169,7 @@
      "got": "Zqx041"
     },
     {
-     "selector": "text_in:23",
+     "selector": "text_in:20",
      "kind": "text_in",
      "label": "what you saw, and where \u2014 blank means not tested",
      "pane": "p-prt",
@@ -5175,7 +5179,7 @@
      "got": "Zqx042"
     },
     {
-     "selector": "text_in:24",
+     "selector": "text_in:21",
      "kind": "text_in",
      "label": "what you saw, and where \u2014 blank means not tested",
      "pane": "p-prt",
@@ -5185,7 +5189,7 @@
      "got": "Zqx043"
     },
     {
-     "selector": "text_in:25",
+     "selector": "text_in:22",
      "kind": "text_in",
      "label": "SGH2026:plot:03 \u2014 from the Survey Design page",
      "pane": "p-prt",
@@ -5275,7 +5279,7 @@
      "got": "+1"
     },
     {
-     "selector": "text_in:26",
+     "selector": "text_in:23",
      "kind": "text_in",
      "label": "OSC, NY, F \u2014 blank if not yet accessioned",
      "pane": "p-an",
@@ -5285,7 +5289,7 @@
      "got": "Zqx046"
     },
     {
-     "selector": "text_in:27",
+     "selector": "text_in:24",
      "kind": "text_in",
      "label": "Fungi",
      "pane": "p-an",
@@ -5295,7 +5299,7 @@
      "got": "Zqx047"
     },
     {
-     "selector": "text_in:29",
+     "selector": "text_in:25",
      "kind": "text_in",
      "label": "OSC",
      "pane": "p-vou",
@@ -5305,7 +5309,7 @@
      "got": "Zqx048"
     },
     {
-     "selector": "text_in:30",
+     "selector": "text_in:26",
      "kind": "text_in",
      "label": "",
      "pane": "p-vou",
@@ -5315,7 +5319,7 @@
      "got": "Zqx049"
     },
     {
-     "selector": "text_in:31",
+     "selector": "text_in:27",
      "kind": "text_in",
      "label": "",
      "pane": "p-vou",
@@ -5325,7 +5329,7 @@
      "got": "Zqx050"
     },
     {
-     "selector": "text_in:32",
+     "selector": "text_in:28",
      "kind": "text_in",
      "label": "18:40",
      "pane": "p-vou",
@@ -5707,6 +5711,16 @@
      "oracle": "decline",
      "expected": "a payload leaves the page",
      "got": "declined and said so: Saved copy removed from this device"
+    },
+    {
+     "selector": "file_in:0",
+     "kind": "file_in",
+     "label": "",
+     "pane": "p-an",
+     "note": "attached genus-pack.json (hidden input, reached the way its button reaches it)",
+     "oracle": "decline",
+     "expected": "the page takes the file or says why",
+     "got": "declined and said so: Saved copy removed from this device"
     }
    ],
    "dead": [],
@@ -5776,13 +5790,6 @@
      "label": "Survey Design",
      "pane": "p-prt",
      "why": "the same, for the cards on the hub and the suite pages: a click would end the run on a different page, so every href is "
-    },
-    {
-     "selector": "file_in:0",
-     "kind": "file_in",
-     "label": "",
-     "pane": "p-an",
-     "why": "a file chooser is a platform-specific extension, not part of the automation contract: choosing a file needs OS focus and"
     },
     {
      "selector": "link:0",
@@ -5977,7 +5984,9 @@
     "MUTATE": true,
     "DESTRUCTIVE": true
    },
-   "secs": 623.8
+   "shot": "/root/full/tools/swarm_evidence/collection-sheet/final.png",
+   "video": "/root/full/tools/swarm_evidence/collection-sheet/run.webm",
+   "secs": 973.3
   },
   {
    "page": "cp-bench.html",
@@ -6344,7 +6353,7 @@
      "got": "1 of 15 on"
     },
     {
-     "selector": "text_in:1",
+     "selector": "text_in:0",
      "kind": "text_in",
      "label": "S. flava var. rubricorpora \u2018Claret\u2019",
      "pane": "p-pl",
@@ -6354,7 +6363,7 @@
      "got": "Zqx005"
     },
     {
-     "selector": "text_in:2",
+     "selector": "text_in:1",
      "kind": "text_in",
      "label": "nursery, division from X, seed-grown",
      "pane": "p-pl",
@@ -6734,7 +6743,7 @@
      "got": "matched a state this run had been in"
     },
     {
-     "selector": "text_in:5",
+     "selector": "text_in:2",
      "kind": "text_in",
      "label": "S. leucophylla \u2018Tarnok\u2019",
      "pane": "p-cro",
@@ -6744,7 +6753,7 @@
      "got": "Zqx011"
     },
     {
-     "selector": "text_in:6",
+     "selector": "text_in:3",
      "kind": "text_in",
      "label": "S. flava var. ornata",
      "pane": "p-cro",
@@ -6754,7 +6763,7 @@
      "got": "Zqx012"
     },
     {
-     "selector": "text_in:7",
+     "selector": "text_in:4",
      "kind": "text_in",
      "label": "hand-pollinated, bagged",
      "pane": "p-cro",
@@ -7399,7 +7408,8 @@
     "MUTATE": true,
     "DESTRUCTIVE": true
    },
-   "secs": 193.6
+   "video": null,
+   "secs": 299.8
   },
   {
    "page": "cp-characters.html",
@@ -7847,7 +7857,8 @@
     "MUTATE": true,
     "DESTRUCTIVE": true
    },
-   "secs": 18.4
+   "video": null,
+   "secs": 18.8
   },
   {
    "page": "cp-suite.html",
@@ -8006,14 +8017,15 @@
     "MUTATE": true,
     "DESTRUCTIVE": true
    },
-   "secs": 2.1
+   "video": null,
+   "secs": 4.0
   },
   {
    "page": "deployment-log.html",
-   "discovered": 120,
+   "discovered": 121,
    "errors": [],
    "findings": [],
-   "commands": 613,
+   "commands": 619,
    "seeded": {
     "fields": 6,
     "adds": 0,
@@ -8577,10 +8589,10 @@
      "kind": "text_in",
      "label": "",
      "pane": "p-fl",
-     "note": "entered 1",
+     "note": "entered 09:09",
      "oracle": "field",
-     "expected": "holds 1",
-     "got": "1"
+     "expected": "holds 09:09",
+     "got": "09:09"
     },
     {
      "selector": "text_in:14",
@@ -8595,17 +8607,17 @@
     {
      "selector": "text_in:15",
      "kind": "text_in",
-     "label": "HOBO-03",
-     "pane": "p-lg",
-     "note": "entered Zqx029",
+     "label": "",
+     "pane": "p-fl",
+     "note": "entered 3",
      "oracle": "field",
-     "expected": "holds Zqx029",
-     "got": "Zqx029"
+     "expected": "holds 3",
+     "got": "3"
     },
     {
      "selector": "text_in:16",
      "kind": "text_in",
-     "label": "1.5 m, N side of bole",
+     "label": "HOBO-03",
      "pane": "p-lg",
      "note": "entered Zqx030",
      "oracle": "field",
@@ -8615,12 +8627,22 @@
     {
      "selector": "text_in:17",
      "kind": "text_in",
+     "label": "1.5 m, N side of bole",
+     "pane": "p-lg",
+     "note": "entered Zqx031",
+     "oracle": "field",
+     "expected": "holds Zqx031",
+     "got": "Zqx031"
+    },
+    {
+     "selector": "text_in:18",
+     "kind": "text_in",
      "label": "",
      "pane": "p-lg",
-     "note": "entered 2026-06-04",
+     "note": "entered 2026-06-05",
      "oracle": "field",
-     "expected": "holds 2026-06-04",
-     "got": "2026-06-04"
+     "expected": "holds 2026-06-05",
+     "got": "2026-06-05"
     },
     {
      "selector": "step_btn:14",
@@ -8637,10 +8659,10 @@
      "kind": "step_val",
      "label": "logging interval",
      "pane": "p-lg",
-     "note": "entered 6",
+     "note": "entered 7",
      "oracle": "field",
-     "expected": "holds 6",
-     "got": "6"
+     "expected": "holds 7",
+     "got": "7"
     },
     {
      "selector": "step_btn:15",
@@ -8667,10 +8689,10 @@
      "kind": "step_val",
      "label": "deployment",
      "pane": "p-lg",
-     "note": "entered 7",
+     "note": "entered 8",
      "oracle": "field",
-     "expected": "holds 7",
-     "got": "7"
+     "expected": "holds 8",
+     "got": "8"
     },
     {
      "selector": "step_btn:17",
@@ -8679,7 +8701,7 @@
      "pane": "p-lg",
      "note": "pressed up (stepped the other way first)",
      "oracle": "step",
-     "expected": "up to 7",
+     "expected": "up to 8",
      "got": "+5"
     },
     {
@@ -8697,10 +8719,10 @@
      "kind": "step_val",
      "label": "memory",
      "pane": "p-lg",
-     "note": "entered 8",
+     "note": "entered 9",
      "oracle": "field",
-     "expected": "holds 8",
-     "got": "8"
+     "expected": "holds 9",
+     "got": "9"
     },
     {
      "selector": "step_btn:19",
@@ -8770,7 +8792,7 @@
      "note": "activated",
      "oracle": "export",
      "expected": "2 rows x 8 columns carrying 7 entered value(s)",
-     "got": "437 chars"
+     "got": "443 chars"
     },
     {
      "selector": "action_btn:6",
@@ -8780,7 +8802,7 @@
      "note": "activated",
      "oracle": "export",
      "expected": "8 line(s) of text carrying 7 entered value(s)",
-     "got": "472 chars"
+     "got": "478 chars"
     },
     {
      "selector": "action_btn:7",
@@ -9141,7 +9163,8 @@
     "MUTATE": true,
     "DESTRUCTIVE": true
    },
-   "secs": 141.4
+   "video": "/root/full/tools/swarm_evidence/deployment-log/run.webm",
+   "secs": 187.2
   },
   {
    "page": "eco-protocol-library.html",
@@ -9351,7 +9374,8 @@
     "MUTATE": true,
     "DESTRUCTIVE": true
    },
-   "secs": 6.5
+   "video": null,
+   "secs": 7.4
   },
   {
    "page": "eco-protocol-reference.html",
@@ -9594,7 +9618,8 @@
     "MUTATE": true,
     "DESTRUCTIVE": true
    },
-   "secs": 2.2
+   "video": null,
+   "secs": 3.9
   },
   {
    "page": "ecology-essay.html",
@@ -9760,7 +9785,8 @@
     "MUTATE": true,
     "DESTRUCTIVE": true
    },
-   "secs": 2.1
+   "video": null,
+   "secs": 5.3
   },
   {
    "page": "ecology-field-card.html",
@@ -9905,7 +9931,8 @@
     "MUTATE": true,
     "DESTRUCTIVE": true
    },
-   "secs": 2.1
+   "video": null,
+   "secs": 3.9
   },
   {
    "page": "ecology-field-guide.html",
@@ -10120,7 +10147,8 @@
     "MUTATE": true,
     "DESTRUCTIVE": true
    },
-   "secs": 2.1
+   "video": null,
+   "secs": 4.0
   },
   {
    "page": "ecology-glossary.html",
@@ -10314,7 +10342,8 @@
     "MUTATE": true,
     "DESTRUCTIVE": true
    },
-   "secs": 1.9
+   "video": null,
+   "secs": 4.6
   },
   {
    "page": "ecology-lab-manual.html",
@@ -10564,16 +10593,17 @@
     "MUTATE": true,
     "DESTRUCTIVE": true
    },
-   "secs": 1.9
+   "video": null,
+   "secs": 3.4
   },
   {
    "page": "ecology-lab.html",
-   "discovered": 73,
+   "discovered": 75,
    "errors": [],
    "findings": [
     "export expected a payload leaves the page, got nothing was copied or downloaded, and nothing told the user why  [action_btn:22 import these .eco lines]"
    ],
-   "commands": 375,
+   "commands": 385,
    "seeded": {
     "fields": 32,
     "adds": 5,
@@ -10793,6 +10823,16 @@
      "got": "Zqx050"
     },
     {
+     "selector": "checkbox:0",
+     "kind": "checkbox",
+     "label": "",
+     "pane": null,
+     "note": "ticked",
+     "oracle": "checkbox",
+     "expected": "ticked",
+     "got": "held"
+    },
+    {
      "selector": "text_in:18",
      "kind": "text_in",
      "label": "",
@@ -10841,6 +10881,16 @@
      "oracle": "field",
      "expected": "holds 1",
      "got": "1"
+    },
+    {
+     "selector": "checkbox:1",
+     "kind": "checkbox",
+     "label": "",
+     "pane": null,
+     "note": "ticked",
+     "oracle": "checkbox",
+     "expected": "ticked",
+     "got": "held"
     },
     {
      "selector": "text_in:22",
@@ -11265,7 +11315,9 @@
     "MUTATE": true,
     "DESTRUCTIVE": true
    },
-   "secs": 67.0
+   "shot": "/root/full/tools/swarm_evidence/ecology-lab/final.png",
+   "video": "/root/full/tools/swarm_evidence/ecology-lab/run.webm",
+   "secs": 92.9
   },
   {
    "page": "ecology-teachers-guide.html",
@@ -11690,7 +11742,8 @@
     "MUTATE": true,
     "DESTRUCTIVE": true
    },
-   "secs": 1.9
+   "video": null,
+   "secs": 3.9
   },
   {
    "page": "ecology.html",
@@ -12101,7 +12154,8 @@
     "MUTATE": true,
     "DESTRUCTIVE": true
    },
-   "secs": 2.1
+   "video": null,
+   "secs": 3.9
   },
   {
    "page": "ethogram.html",
@@ -12110,7 +12164,7 @@
    "findings": [
     "add expected one more row, got no repeated element gained one, and nothing told the user why  [action_btn:19 Add]"
    ],
-   "commands": 413,
+   "commands": 419,
    "seeded": {
     "fields": 0,
     "adds": 0,
@@ -12512,9 +12566,27 @@
      "why": "changed the page, but this kind carries no expectation to check"
     },
     {
+     "selector": "action_btn:3",
+     "kind": "action_btn",
+     "label": "subject 1",
+     "pane": "p-rec",
+     "note": "activated",
+     "oracle": "none",
+     "why": "changed the page, but this kind carries no expectation to check"
+    },
+    {
      "selector": "action_btn:4",
      "kind": "action_btn",
      "label": "restRST0",
+     "pane": "p-rec",
+     "note": "activated",
+     "oracle": "none",
+     "why": "changed the page, but this kind carries no expectation to check"
+    },
+    {
+     "selector": "action_btn:12",
+     "kind": "action_btn",
+     "label": "submitSUB0",
      "pane": "p-rec",
      "note": "activated",
      "oracle": "none",
@@ -12547,18 +12619,19 @@
      "note": "activated",
      "oracle": "none",
      "why": "changed the page, but this kind carries no expectation to check"
+    },
+    {
+     "selector": "file_in:0",
+     "kind": "file_in",
+     "label": "",
+     "pane": "p-bud",
+     "note": "attached genus-pack.json (hidden input, reached the way its button reaches it)",
+     "oracle": "decline",
+     "expected": "the page takes the file or says why",
+     "got": "declined and said so: Type a label first"
     }
    ],
    "dead": [
-    {
-     "selector": "action_btn:3",
-     "kind": "action_btn",
-     "label": "subject 1",
-     "pane": "p-rec",
-     "note": "activated",
-     "oracle": "trace",
-     "why": "left no trace at all"
-    },
     {
      "selector": "action_btn:5",
      "kind": "action_btn",
@@ -12617,15 +12690,6 @@
      "selector": "action_btn:11",
      "kind": "action_btn",
      "label": "aggressAGG0",
-     "pane": "p-rec",
-     "note": "activated",
-     "oracle": "trace",
-     "why": "left no trace at all"
-    },
-    {
-     "selector": "action_btn:12",
-     "kind": "action_btn",
-     "label": "submitSUB0",
      "pane": "p-rec",
      "note": "activated",
      "oracle": "trace",
@@ -12815,13 +12879,6 @@
      "label": "part of the ecology kit \u2192",
      "pane": null,
      "why": "the same, for the cards on the hub and the suite pages: a click would end the run on a different page, so every href is "
-    },
-    {
-     "selector": "file_in:0",
-     "kind": "file_in",
-     "label": "",
-     "pane": "p-bud",
-     "why": "a file chooser is a platform-specific extension, not part of the automation contract: choosing a file needs OS focus and"
     },
     {
      "selector": "link:0",
@@ -13016,14 +13073,16 @@
     "MUTATE": true,
     "DESTRUCTIVE": true
    },
-   "secs": 82.6
+   "shot": "/root/full/tools/swarm_evidence/ethogram/final.png",
+   "video": "/root/full/tools/swarm_evidence/ethogram/run.webm",
+   "secs": 111.4
   },
   {
    "page": "experiment-guide.html",
-   "discovered": 89,
+   "discovered": 100,
    "errors": [],
    "findings": [],
-   "commands": 194,
+   "commands": 233,
    "seeded": {
     "fields": 0,
     "adds": 0,
@@ -13034,6 +13093,16 @@
    "verified": [],
    "wrong": [],
    "changed": [
+    {
+     "selector": "file_in:0",
+     "kind": "file_in",
+     "label": "",
+     "pane": "pane-designer",
+     "note": "attached session.eco (hidden input, reached the way its button reaches it)",
+     "oracle": "file",
+     "expected": "the page shows the file it was handed",
+     "got": "the page changed but named no file"
+    },
     {
      "selector": "action_btn:21",
      "kind": "action_btn",
@@ -13094,6 +13163,13 @@
      "selector": "action_btn:1",
      "kind": "action_btn",
      "label": "\u23f1\ufe0f Engineering measurement A performance question with a flo",
+     "pane": "pane-designer",
+     "why": "not visible with its own pane open"
+    },
+    {
+     "selector": "drop_zone:0",
+     "kind": "drop_zone",
+     "label": "Already have a protocol? Import a .eco Paste a protocol belo",
      "pane": "pane-designer",
      "why": "not visible with its own pane open"
     },
@@ -13462,6 +13538,76 @@
      "why": "not visible with its own pane open"
     },
     {
+     "selector": "checkbox:0",
+     "kind": "checkbox",
+     "label": "",
+     "pane": "pane-checklist",
+     "why": "not visible with its own pane open"
+    },
+    {
+     "selector": "checkbox:1",
+     "kind": "checkbox",
+     "label": "",
+     "pane": "pane-checklist",
+     "why": "not visible with its own pane open"
+    },
+    {
+     "selector": "checkbox:2",
+     "kind": "checkbox",
+     "label": "",
+     "pane": "pane-checklist",
+     "why": "not visible with its own pane open"
+    },
+    {
+     "selector": "checkbox:3",
+     "kind": "checkbox",
+     "label": "",
+     "pane": "pane-checklist",
+     "why": "not visible with its own pane open"
+    },
+    {
+     "selector": "checkbox:4",
+     "kind": "checkbox",
+     "label": "",
+     "pane": "pane-checklist",
+     "why": "not visible with its own pane open"
+    },
+    {
+     "selector": "checkbox:5",
+     "kind": "checkbox",
+     "label": "",
+     "pane": "pane-checklist",
+     "why": "not visible with its own pane open"
+    },
+    {
+     "selector": "checkbox:6",
+     "kind": "checkbox",
+     "label": "",
+     "pane": "pane-checklist",
+     "why": "not visible with its own pane open"
+    },
+    {
+     "selector": "checkbox:7",
+     "kind": "checkbox",
+     "label": "",
+     "pane": "pane-checklist",
+     "why": "not visible with its own pane open"
+    },
+    {
+     "selector": "checkbox:8",
+     "kind": "checkbox",
+     "label": "",
+     "pane": "pane-checklist",
+     "why": "not visible with its own pane open"
+    },
+    {
+     "selector": "checkbox:9",
+     "kind": "checkbox",
+     "label": "",
+     "pane": "pane-checklist",
+     "why": "not visible with its own pane open"
+    },
+    {
      "selector": "action_btn:18",
      "kind": "action_btn",
      "label": "Print this page",
@@ -13533,13 +13679,6 @@
      "label": "the .eco reference",
      "pane": "pane-method",
      "why": "the same, for the cards on the hub and the suite pages: a click would end the run on a different page, so every href is "
-    },
-    {
-     "selector": "file_in:0",
-     "kind": "file_in",
-     "label": "",
-     "pane": "pane-designer",
-     "why": "a file chooser is a platform-specific extension, not part of the automation contract: choosing a file needs OS focus and"
     },
     {
      "selector": "nav_link:8",
@@ -13685,14 +13824,15 @@
     "MUTATE": true,
     "DESTRUCTIVE": true
    },
-   "secs": 27.8
+   "video": "/root/full/tools/swarm_evidence/experiment-guide/run.webm",
+   "secs": 57.4
   },
   {
    "page": "farm-scout.html",
-   "discovered": 357,
+   "discovered": 351,
    "errors": [],
    "findings": [],
-   "commands": 2067,
+   "commands": 2058,
    "seeded": {
     "fields": 1,
     "adds": 5,
@@ -14480,6 +14620,36 @@
      "oracle": "remove",
      "expected": "one fewer row",
      "got": "-1 x"
+    },
+    {
+     "selector": "text_in:2",
+     "kind": "text_in",
+     "label": "e.g. north block",
+     "pane": "p-rot",
+     "note": "entered Zqx008",
+     "oracle": "field",
+     "expected": "holds Zqx008",
+     "got": "Zqx008"
+    },
+    {
+     "selector": "text_in:3",
+     "kind": "text_in",
+     "label": "your name",
+     "pane": "p-rot",
+     "note": "entered Zqx009",
+     "oracle": "field",
+     "expected": "holds Zqx009",
+     "got": "Zqx009"
+    },
+    {
+     "selector": "text_in:4",
+     "kind": "text_in",
+     "label": "",
+     "pane": "p-rot",
+     "note": "entered 2026-06-11",
+     "oracle": "field",
+     "expected": "holds 2026-06-11",
+     "got": "2026-06-11"
     },
     {
      "selector": "action_btn:31",
@@ -16870,69 +17040,6 @@
      "label": "\u2715",
      "pane": "p-rot",
      "why": "not visible with its own pane open"
-    },
-    {
-     "selector": "text_in:8",
-     "kind": "text_in",
-     "label": "e.g. north block",
-     "pane": "p-rot",
-     "why": "the page rebuilt it away before it could be read"
-    },
-    {
-     "selector": "text_in:9",
-     "kind": "text_in",
-     "label": "your name",
-     "pane": "p-rot",
-     "why": "the page rebuilt it away before it could be read"
-    },
-    {
-     "selector": "text_in:10",
-     "kind": "text_in",
-     "label": "",
-     "pane": "p-rot",
-     "why": "the page rebuilt it away before it could be read"
-    },
-    {
-     "selector": "text_in:14",
-     "kind": "text_in",
-     "label": "e.g. north block",
-     "pane": "p-rot",
-     "why": "the page rebuilt it away before it could be read"
-    },
-    {
-     "selector": "text_in:15",
-     "kind": "text_in",
-     "label": "your name",
-     "pane": "p-rot",
-     "why": "the page rebuilt it away before it could be read"
-    },
-    {
-     "selector": "text_in:16",
-     "kind": "text_in",
-     "label": "",
-     "pane": "p-rot",
-     "why": "the page rebuilt it away before it could be read"
-    },
-    {
-     "selector": "text_in:26",
-     "kind": "text_in",
-     "label": "e.g. north block",
-     "pane": "p-rot",
-     "why": "the page rebuilt it away before it could be read"
-    },
-    {
-     "selector": "text_in:27",
-     "kind": "text_in",
-     "label": "your name",
-     "pane": "p-rot",
-     "why": "the page rebuilt it away before it could be read"
-    },
-    {
-     "selector": "text_in:28",
-     "kind": "text_in",
-     "label": "",
-     "pane": "p-rot",
-     "why": "the page rebuilt it away before it could be read"
     }
    ],
    "failed": [],
@@ -17144,15 +17251,13 @@
     "MUTATE": true,
     "DESTRUCTIVE": true
    },
-   "secs": 721.2
+   "video": "/root/full/tools/swarm_evidence/farm-scout/run.webm",
+   "secs": 698.9
   },
   {
    "page": "field-notebook.html",
    "discovered": 76,
-   "errors": [
-    "junk rendered [action_btn:30 +]:  + Recaptured (R) 0 \u2212 + No recaptures yet \u2014 the estimate is undefined (R must be \u2265 1). Catch more, or mark more. Session",
-    "junk rendered [action_btn:31 \u2212]:  + Recaptured (R) 0 \u2212 + No recaptures yet \u2014 the estimate is undefined (R must be \u2265 1). Catch more, or mark more. Session"
-   ],
+   "errors": [],
    "findings": [
     "add expected one more row, got no repeated element gained one, and nothing told the user why  [action_btn:9 Add]"
    ],
@@ -17820,7 +17925,9 @@
     "MUTATE": true,
     "DESTRUCTIVE": true
    },
-   "secs": 57.1
+   "shot": "/root/full/tools/swarm_evidence/field-notebook/final.png",
+   "video": "/root/full/tools/swarm_evidence/field-notebook/run.webm",
+   "secs": 68.3
   },
   {
    "page": "field-season.html",
@@ -18282,7 +18389,9 @@
     "MUTATE": true,
     "DESTRUCTIVE": true
    },
-   "secs": 19.5
+   "shot": "/root/full/tools/swarm_evidence/field-season/final.png",
+   "video": "/root/full/tools/swarm_evidence/field-season/run.webm",
+   "secs": 19.0
   },
   {
    "page": "food-web.html",
@@ -18623,7 +18732,9 @@
     "MUTATE": true,
     "DESTRUCTIVE": true
    },
-   "secs": 10.8
+   "shot": "/root/full/tools/swarm_evidence/food-web/final.png",
+   "video": "/root/full/tools/swarm_evidence/food-web/run.webm",
+   "secs": 12.0
   },
   {
    "page": "fungal-characters.html",
@@ -19361,7 +19472,8 @@
     "MUTATE": true,
     "DESTRUCTIVE": true
    },
-   "secs": 49.9
+   "video": null,
+   "secs": 47.5
   },
   {
    "page": "greenhouse.html",
@@ -19778,7 +19890,7 @@
      "got": "1 of 5 on"
     },
     {
-     "selector": "text_in:1",
+     "selector": "text_in:0",
      "kind": "text_in",
      "label": "label for this run",
      "pane": "p-runs",
@@ -19982,9 +20094,9 @@
      "label": "Clear all runs",
      "pane": "p-runs",
      "note": "activated",
-     "oracle": "clear",
+     "oracle": "decline",
      "expected": "fewer fields left holding anything",
-     "got": "cleared something other than the form fields"
+     "got": "declined and said so: Saved copy removed from this device"
     },
     {
      "selector": "action_btn:6",
@@ -20211,7 +20323,8 @@
     "MUTATE": true,
     "DESTRUCTIVE": true
    },
-   "secs": 80.8
+   "video": null,
+   "secs": 79.8
   },
   {
    "page": "micro-bench.html",
@@ -20829,14 +20942,15 @@
     "MUTATE": true,
     "DESTRUCTIVE": true
    },
-   "secs": 44.2
+   "video": null,
+   "secs": 42.8
   },
   {
    "page": "ordination.html",
    "discovered": 54,
    "errors": [],
    "findings": [],
-   "commands": 190,
+   "commands": 185,
    "seeded": {
     "fields": 1,
     "adds": 0,
@@ -21076,16 +21190,6 @@
      "why": "changed the page, but this kind carries no expectation to check"
     },
     {
-     "selector": "action_btn:4",
-     "kind": "action_btn",
-     "label": "Forget this device's copy",
-     "pane": "p-data",
-     "note": "activated",
-     "oracle": "decline",
-     "expected": "a payload leaves the page",
-     "got": "declined and said so: Saved copy removed from this device"
-    },
-    {
      "selector": "action_btn:5",
      "kind": "action_btn",
      "label": "Run it again",
@@ -21116,7 +21220,15 @@
     }
    ],
    "dead": [],
-   "hidden": [],
+   "hidden": [
+    {
+     "selector": "action_btn:4",
+     "kind": "action_btn",
+     "label": "Forget this device's copy",
+     "pane": "p-data",
+     "why": "the page rebuilt it away before it could be read"
+    }
+   ],
    "failed": [],
    "excluded": [
     {
@@ -21319,16 +21431,17 @@
     "MUTATE": true,
     "DESTRUCTIVE": true
    },
-   "secs": 31.3
+   "video": null,
+   "secs": 28.4
   },
   {
    "page": "pheno-tracker.html",
-   "discovered": 112,
+   "discovered": 111,
    "errors": [],
    "findings": [
     "export expected a payload that parses, got ragged table: 1 of 3 rows are not 10 fields  [action_btn:28 Copy CSV (for Excel/R)]"
    ],
-   "commands": 487,
+   "commands": 481,
    "seeded": {
     "fields": 4,
     "adds": 1,
@@ -21838,24 +21951,14 @@
      "got": "1 of 5 on"
     },
     {
-     "selector": "text_in:4",
+     "selector": "text_in:5",
      "kind": "text_in",
-     "label": "internodes, nose, leaf shape\u2026",
-     "pane": "p-score",
+     "label": "",
+     "pane": "p-seg",
      "note": "entered Zqx013",
      "oracle": "field",
      "expected": "holds Zqx013",
      "got": "Zqx013"
-    },
-    {
-     "selector": "text_in:7",
-     "kind": "text_in",
-     "label": "",
-     "pane": "p-seg",
-     "note": "entered Zqx014",
-     "oracle": "field",
-     "expected": "holds Zqx014",
-     "got": "Zqx014"
     },
     {
      "selector": "action_btn:27",
@@ -21864,8 +21967,8 @@
      "pane": "p-seg",
      "note": "activated",
      "oracle": "export",
-     "expected": "7 line(s) of text carrying 4 entered value(s)",
-     "got": "350 chars"
+     "expected": "7 line(s) of text carrying 3 entered value(s)",
+     "got": "340 chars"
     },
     {
      "selector": "action_btn:29",
@@ -22075,11 +22178,11 @@
      "why": "not visible with its own pane open"
     },
     {
-     "selector": "text_in:6",
+     "selector": "text_in:4",
      "kind": "text_in",
      "label": "",
      "pane": "p-seg",
-     "why": "the page rebuilt it away before it could be read"
+     "why": "not visible with its own pane open"
     },
     {
      "selector": "action_btn:20",
@@ -22340,7 +22443,9 @@
     "MUTATE": true,
     "DESTRUCTIVE": true
    },
-   "secs": 104.8
+   "shot": "/root/full/tools/swarm_evidence/pheno-tracker/final.png",
+   "video": "/root/full/tools/swarm_evidence/pheno-tracker/run.webm",
+   "secs": 79.0
   },
   {
    "page": "plant-characters.html",
@@ -22962,17 +23067,18 @@
     "MUTATE": true,
     "DESTRUCTIVE": true
    },
-   "secs": 40.1
+   "video": null,
+   "secs": 29.8
   },
   {
    "page": "releve.html",
-   "discovered": 322,
+   "discovered": 321,
    "errors": [],
    "findings": [
     "export expected contains what was typed into the form, got 28 line(s) of text, 1129 chars, none of the 9 entered values  [action_btn:2 Copy the AI prompt]",
     "export expected contains what was typed into the form, got valid JSON, 16111 chars, none of the 9 entered values  [action_btn:3 Export pack]"
    ],
-   "commands": 1772,
+   "commands": 1761,
    "seeded": {
     "fields": 1,
     "adds": 1,
@@ -23492,7 +23598,7 @@
      "got": "1 of 50 on"
     },
     {
-     "selector": "text_in:1",
+     "selector": "text_in:0",
      "kind": "text_in",
      "label": "not in the pack",
      "pane": "p-rec",
@@ -23722,7 +23828,7 @@
      "got": "matched a state this run had been in"
     },
     {
-     "selector": "text_in:2",
+     "selector": "text_in:1",
      "kind": "text_in",
      "label": "WAS-12",
      "pane": "p-plot",
@@ -23732,7 +23838,7 @@
      "got": "Zqx003"
     },
     {
-     "selector": "text_in:3",
+     "selector": "text_in:2",
      "kind": "text_in",
      "label": "",
      "pane": "p-plot",
@@ -23742,7 +23848,7 @@
      "got": "Zqx004"
     },
     {
-     "selector": "text_in:4",
+     "selector": "text_in:3",
      "kind": "text_in",
      "label": "",
      "pane": "p-plot",
@@ -23752,7 +23858,7 @@
      "got": "2026-06-06"
     },
     {
-     "selector": "text_in:5",
+     "selector": "text_in:4",
      "kind": "text_in",
      "label": "40.5853",
      "pane": "p-plot",
@@ -23762,7 +23868,7 @@
      "got": "Zqx006"
     },
     {
-     "selector": "text_in:6",
+     "selector": "text_in:5",
      "kind": "text_in",
      "label": "-111.6383",
      "pane": "p-plot",
@@ -23772,7 +23878,7 @@
      "got": "Zqx007"
     },
     {
-     "selector": "text_in:7",
+     "selector": "text_in:6",
      "kind": "text_in",
      "label": "Artemisia tridentata / Pseudoroegneria",
      "pane": "p-plot",
@@ -23872,7 +23978,7 @@
      "got": "1 of 3 on"
     },
     {
-     "selector": "text_in:8",
+     "selector": "text_in:7",
      "kind": "text_in",
      "label": "texture / parent material",
      "pane": "p-plot",
@@ -24012,7 +24118,7 @@
      "got": "100%"
     },
     {
-     "selector": "text_in:9",
+     "selector": "text_in:8",
      "kind": "text_in",
      "label": "Management, disturbance, grazing evidence, anything a return",
      "pane": "p-plot",
@@ -24022,7 +24128,7 @@
      "got": "Zqx013"
     },
     {
-     "selector": "text_in:10",
+     "selector": "text_in:9",
      "kind": "text_in",
      "label": "{\"species\":[{\"id\":\"\u2026\",\"sci\":\"\u2026\",\"com\":\"\u2026\",\"fam\":\"\u2026\",\"gf\":\"fo",
      "pane": "p-plot",
@@ -25232,7 +25338,7 @@
      "got": "+1"
     },
     {
-     "selector": "text_in:13",
+     "selector": "text_in:10",
      "kind": "text_in",
      "label": "RJ-2026-014",
      "pane": "p-vou",
@@ -25302,7 +25408,7 @@
      "got": "1 of 8 on"
     },
     {
-     "selector": "text_in:14",
+     "selector": "text_in:11",
      "kind": "text_in",
      "label": "Flower colour, scent, height, exudate, habit, substrate.",
      "pane": "p-vou",
@@ -25312,7 +25418,7 @@
      "got": "Zqx020"
     },
     {
-     "selector": "text_in:15",
+     "selector": "text_in:12",
      "kind": "text_in",
      "label": "SGH2026:plot:03 \u2014 from the Survey Design page",
      "pane": "p-met",
@@ -25532,7 +25638,7 @@
      "got": "1 of 4 on"
     },
     {
-     "selector": "action_btn:17",
+     "selector": "action_btn:16",
      "kind": "action_btn",
      "label": "Print / save PDF",
      "pane": "p-met",
@@ -25633,25 +25739,6 @@
     },
     {
      "selector": "action_btn:15",
-     "kind": "action_btn",
-     "label": "Print / save PDF",
-     "pane": "p-met",
-     "note": "activated",
-     "oracle": "decline",
-     "expected": "a payload leaves the page",
-     "got": "declined and said so: Nothing recorded"
-    },
-    {
-     "selector": "action_btn:10",
-     "kind": "action_btn",
-     "label": "Record voucher",
-     "pane": "p-vou",
-     "note": "activated",
-     "oracle": "none",
-     "why": "changed the page, but this kind carries no expectation to check"
-    },
-    {
-     "selector": "action_btn:16",
      "kind": "action_btn",
      "label": "Print / save PDF",
      "pane": "p-met",
@@ -25845,6 +25932,13 @@
      "selector": "dial_btn:58",
      "kind": "dial_btn",
      "label": "unknownadds 5359 m",
+     "pane": "p-met",
+     "why": "not visible with its own pane open"
+    },
+    {
+     "selector": "action_btn:10",
+     "kind": "action_btn",
+     "label": "Forget this device's copy",
      "pane": "p-met",
      "why": "not visible with its own pane open"
     }
@@ -26058,7 +26152,9 @@
     "MUTATE": true,
     "DESTRUCTIVE": true
    },
-   "secs": 644.2
+   "shot": "/root/full/tools/swarm_evidence/releve/final.png",
+   "video": "/root/full/tools/swarm_evidence/releve/run.webm",
+   "secs": 633.6
   },
   {
    "page": "selection-log.html",
@@ -26340,7 +26436,7 @@
      "got": "1"
     },
     {
-     "selector": "text_in:5",
+     "selector": "text_in:4",
      "kind": "text_in",
      "label": "rep 1",
      "pane": "p-mea",
@@ -26350,7 +26446,7 @@
      "got": "Zqx010"
     },
     {
-     "selector": "text_in:6",
+     "selector": "text_in:5",
      "kind": "text_in",
      "label": "",
      "pane": "p-mea",
@@ -26370,7 +26466,7 @@
      "got": "matched a state this run had been in"
     },
     {
-     "selector": "text_in:7",
+     "selector": "text_in:6",
      "kind": "text_in",
      "label": "bill depth",
      "pane": "p-mea",
@@ -26380,7 +26476,7 @@
      "got": "Zqx012"
     },
     {
-     "selector": "text_in:8",
+     "selector": "text_in:7",
      "kind": "text_in",
      "label": "mm",
      "pane": "p-mea",
@@ -27769,7 +27865,9 @@
     "MUTATE": true,
     "DESTRUCTIVE": true
    },
-   "secs": 261.2
+   "shot": "/root/full/tools/swarm_evidence/selection-log/final.png",
+   "video": "/root/full/tools/swarm_evidence/selection-log/run.webm",
+   "secs": 239.3
   },
   {
    "page": "soil-bench.html",
@@ -28642,7 +28740,8 @@
     "MUTATE": true,
     "DESTRUCTIVE": true
    },
-   "secs": 98.4
+   "video": null,
+   "secs": 86.1
   },
   {
    "page": "soil-recipes.html",
@@ -28989,7 +29088,8 @@
     "MUTATE": true,
     "DESTRUCTIVE": true
    },
-   "secs": 12.8
+   "video": null,
+   "secs": 8.8
   },
   {
    "page": "soil-suite.html",
@@ -29155,16 +29255,15 @@
     "MUTATE": true,
     "DESTRUCTIVE": true
    },
-   "secs": 1.9
+   "video": null,
+   "secs": 2.0
   },
   {
    "page": "stand-sheet.html",
-   "discovered": 250,
+   "discovered": 262,
    "errors": [],
-   "findings": [
-    "add expected one more row, got no repeated element gained one, and nothing told the user why  [action_btn:16 \ud83d\udcf7 Add photos]"
-   ],
-   "commands": 1433,
+   "findings": [],
+   "commands": 1467,
    "seeded": {
     "fields": 1,
     "adds": 0,
@@ -29824,7 +29923,7 @@
      "got": "1 of 6 on"
     },
     {
-     "selector": "text_in:3",
+     "selector": "text_in:2",
      "kind": "text_in",
      "label": "cavity, fire scar, mistletoe\u2026",
      "pane": "p-trees",
@@ -29964,7 +30063,7 @@
      "got": "+1"
     },
     {
-     "selector": "text_in:4",
+     "selector": "text_in:3",
      "kind": "text_in",
      "label": "e.g. TAH-04",
      "pane": "p-plot",
@@ -29974,7 +30073,7 @@
      "got": "Zqx010"
     },
     {
-     "selector": "text_in:5",
+     "selector": "text_in:4",
      "kind": "text_in",
      "label": "Tahoe NF, Sagehen Creek, N-facing bench",
      "pane": "p-plot",
@@ -29984,7 +30083,7 @@
      "got": "Zqx011"
     },
     {
-     "selector": "text_in:6",
+     "selector": "text_in:5",
      "kind": "text_in",
      "label": "",
      "pane": "p-plot",
@@ -29994,7 +30093,7 @@
      "got": "Zqx012"
     },
     {
-     "selector": "text_in:7",
+     "selector": "text_in:6",
      "kind": "text_in",
      "label": "",
      "pane": "p-plot",
@@ -30004,7 +30103,7 @@
      "got": "2026-06-14"
     },
     {
-     "selector": "text_in:8",
+     "selector": "text_in:7",
      "kind": "text_in",
      "label": "39.0968",
      "pane": "p-plot",
@@ -30014,7 +30113,7 @@
      "got": "Zqx014"
     },
     {
-     "selector": "text_in:9",
+     "selector": "text_in:8",
      "kind": "text_in",
      "label": "-120.0324",
      "pane": "p-plot",
@@ -30024,7 +30123,7 @@
      "got": "Zqx015"
     },
     {
-     "selector": "text_in:10",
+     "selector": "text_in:9",
      "kind": "text_in",
      "label": "",
      "pane": "p-plot",
@@ -30474,7 +30573,7 @@
      "got": "1 of 6 on"
     },
     {
-     "selector": "text_in:11",
+     "selector": "text_in:10",
      "kind": "text_in",
      "label": "granodiorite, basalt, dolomite\u2026",
      "pane": "p-plot",
@@ -30614,7 +30713,7 @@
      "got": "+0.1"
     },
     {
-     "selector": "text_in:12",
+     "selector": "text_in:11",
      "kind": "text_in",
      "label": "12 8 31 45 9",
      "pane": "p-plot",
@@ -30754,7 +30853,7 @@
      "got": "13 of 13 on"
     },
     {
-     "selector": "text_in:13",
+     "selector": "text_in:12",
      "kind": "text_in",
      "label": "Age structure, evident history, management, anything a retur",
      "pane": "p-plot",
@@ -30764,7 +30863,7 @@
      "got": "Zqx025"
     },
     {
-     "selector": "text_in:14",
+     "selector": "text_in:13",
      "kind": "text_in",
      "label": "SGH2026:plot:03 \u2014 from the Survey Design page",
      "pane": "p-plot",
@@ -30854,24 +30953,34 @@
      "got": "print()"
     },
     {
-     "selector": "text_in:15",
-     "kind": "text_in",
-     "label": "Clark's nutcracker",
-     "pane": "p-web",
-     "note": "entered Zqx028",
-     "oracle": "field",
-     "expected": "holds Zqx028",
-     "got": "Zqx028"
+     "selector": "drop_zone:0",
+     "kind": "drop_zone",
+     "label": "Add photos \u2014 camera or gallery, or drop files here. \ud83d\udcf7 Add p",
+     "pane": "p-notes",
+     "note": "dropped IMG_0431.jpg, session.eco",
+     "oracle": "file",
+     "expected": "the page shows the file it was handed",
+     "got": "IMG_0431.jpg named on the page"
     },
     {
-     "selector": "text_in:16",
-     "kind": "text_in",
-     "label": "whitebark pine",
-     "pane": "p-web",
-     "note": "entered Zqx029",
-     "oracle": "field",
-     "expected": "holds Zqx029",
-     "got": "Zqx029"
+     "selector": "file_in:0",
+     "kind": "file_in",
+     "label": "",
+     "pane": "p-notes",
+     "note": "attached IMG_0431.jpg, DJI_0192.JPG (hidden input, reached the way its button reaches it)",
+     "oracle": "file",
+     "expected": "the page shows the file it was handed",
+     "got": "IMG_0431.jpg, DJI_0192.JPG named on the page"
+    },
+    {
+     "selector": "action_btn:16",
+     "kind": "action_btn",
+     "label": "\ud83d\udcf7 Add photos",
+     "pane": "p-notes",
+     "note": "activated",
+     "oracle": "chooser",
+     "expected": "opens the file chooser",
+     "got": "the page asked for a file"
     },
     {
      "selector": "pick_search:1",
@@ -31104,16 +31213,6 @@
      "got": "1 of 3 on"
     },
     {
-     "selector": "text_in:18",
-     "kind": "text_in",
-     "label": "what you actually saw",
-     "pane": "p-web",
-     "note": "entered Zqx030",
-     "oracle": "field",
-     "expected": "holds Zqx030",
-     "got": "Zqx030"
-    },
-    {
      "selector": "tab:0",
      "kind": "tab",
      "label": "\ud83d\udd0dID",
@@ -31188,10 +31287,10 @@
      "kind": "step_val",
      "label": "gps accuracy",
      "pane": "p-plot",
-     "note": "entered 5",
+     "note": "entered 2",
      "oracle": "field",
-     "expected": "holds 5",
-     "got": "5"
+     "expected": "holds 2",
+     "got": "2"
     },
     {
      "selector": "step_btn:25",
@@ -31200,22 +31299,41 @@
      "pane": "p-plot",
      "note": "pressed up (stepped the other way first)",
      "oracle": "step",
-     "expected": "up to 5",
+     "expected": "up to 2",
      "got": "+1"
-    }
-   ],
-   "wrong": [
+    },
     {
-     "selector": "action_btn:16",
+     "selector": "text_in:17",
+     "kind": "text_in",
+     "label": "What character does this show? What did you conclude?",
+     "pane": "p-notes",
+     "note": "entered Zqx029",
+     "oracle": "field",
+     "expected": "holds Zqx029",
+     "got": "Zqx029"
+    },
+    {
+     "selector": "action_btn:20",
      "kind": "action_btn",
-     "label": "\ud83d\udcf7 Add photos",
+     "label": "Remove",
      "pane": "p-notes",
      "note": "activated",
-     "oracle": "add",
-     "expected": "one more row",
-     "got": "no repeated element gained one, and nothing told the user why"
+     "oracle": "remove",
+     "expected": "one fewer row",
+     "got": "-1 noprint"
+    },
+    {
+     "selector": "text_in:20",
+     "kind": "text_in",
+     "label": "Clark's nutcracker",
+     "pane": "p-web",
+     "note": "entered Zqx030",
+     "oracle": "field",
+     "expected": "holds Zqx030",
+     "got": "Zqx030"
     }
    ],
+   "wrong": [],
    "changed": [
     {
      "selector": "action_btn:1",
@@ -31313,32 +31431,13 @@
      "got": "declined and said so: No interactions recorded"
     },
     {
-     "selector": "action_btn:17",
+     "selector": "action_btn:19",
      "kind": "action_btn",
-     "label": "Record interaction",
-     "pane": "p-web",
+     "label": "Link species",
+     "pane": "p-notes",
      "note": "activated",
      "oracle": "none",
      "why": "changed the page, but this kind carries no expectation to check"
-    },
-    {
-     "selector": "action_btn:18",
-     "kind": "action_btn",
-     "label": "\u271a Pull known links for tallied species",
-     "pane": "p-web",
-     "note": "activated",
-     "oracle": "none",
-     "why": "changed the page, but this kind carries no expectation to check"
-    },
-    {
-     "selector": "action_btn:10",
-     "kind": "action_btn",
-     "label": "Forget this device's copy",
-     "pane": "p-plot",
-     "note": "activated",
-     "oracle": "decline",
-     "expected": "a payload leaves the page",
-     "got": "declined and said so: Saved copy removed from this device"
     }
    ],
    "dead": [
@@ -31361,17 +31460,107 @@
      "why": "left no trace at all"
     }
    ],
-   "hidden": [],
-   "failed": [
+   "hidden": [
     {
-     "selector": "action_btn:19",
+     "selector": "action_btn:10",
      "kind": "action_btn",
-     "label": "\u2715",
+     "label": "Forget this device's copy",
+     "pane": "p-plot",
+     "why": "the page rebuilt it away before it could be read"
+    },
+    {
+     "selector": "text_in:14",
+     "kind": "text_in",
+     "label": "Clark's nutcracker",
      "pane": "p-web",
-     "why": "the page was unreadable after the action",
-     "got": "not_found: no control 'action_btn:19' on this page right now"
+     "why": "not visible with its own pane open"
+    },
+    {
+     "selector": "text_in:15",
+     "kind": "text_in",
+     "label": "whitebark pine",
+     "pane": "p-web",
+     "why": "not visible with its own pane open"
+    },
+    {
+     "selector": "text_in:16",
+     "kind": "text_in",
+     "label": "what you actually saw",
+     "pane": "p-web",
+     "why": "not visible with its own pane open"
+    },
+    {
+     "selector": "action_btn:17",
+     "kind": "action_btn",
+     "label": "Record interaction",
+     "pane": "p-web",
+     "why": "not visible with its own pane open"
+    },
+    {
+     "selector": "action_btn:18",
+     "kind": "action_btn",
+     "label": "\u271a Pull known links for tallied species",
+     "pane": "p-web",
+     "why": "not visible with its own pane open"
+    },
+    {
+     "selector": "text_in:18",
+     "kind": "text_in",
+     "label": "voucher / stem #",
+     "pane": "p-notes",
+     "why": "not visible with its own pane open"
+    },
+    {
+     "selector": "text_in:19",
+     "kind": "text_in",
+     "label": "What character does this show? What did you conclude?",
+     "pane": "p-notes",
+     "why": "not visible with its own pane open"
+    },
+    {
+     "selector": "action_btn:21",
+     "kind": "action_btn",
+     "label": "Link species",
+     "pane": "p-notes",
+     "why": "not visible with its own pane open"
+    },
+    {
+     "selector": "action_btn:22",
+     "kind": "action_btn",
+     "label": "Remove",
+     "pane": "p-notes",
+     "why": "not visible with its own pane open"
+    },
+    {
+     "selector": "text_in:21",
+     "kind": "text_in",
+     "label": "whitebark pine",
+     "pane": "p-web",
+     "why": "the page rebuilt it away before it could be read"
+    },
+    {
+     "selector": "text_in:22",
+     "kind": "text_in",
+     "label": "what you actually saw",
+     "pane": "p-web",
+     "why": "the page rebuilt it away before it could be read"
+    },
+    {
+     "selector": "action_btn:23",
+     "kind": "action_btn",
+     "label": "Record interaction",
+     "pane": "p-web",
+     "why": "the page rebuilt it away before it could be read"
+    },
+    {
+     "selector": "action_btn:24",
+     "kind": "action_btn",
+     "label": "\u271a Pull known links for tallied species",
+     "pane": "p-web",
+     "why": "the page rebuilt it away before it could be read"
     }
    ],
+   "failed": [],
    "excluded": [
     {
      "selector": "nav_link:0",
@@ -31393,13 +31582,6 @@
      "label": "Food Web Builder",
      "pane": "p-plot",
      "why": "the same, for the cards on the hub and the suite pages: a click would end the run on a different page, so every href is "
-    },
-    {
-     "selector": "file_in:0",
-     "kind": "file_in",
-     "label": "",
-     "pane": "p-notes",
-     "why": "a file chooser is a platform-specific extension, not part of the automation contract: choosing a file needs OS focus and"
     },
     {
      "selector": "link:0",
@@ -31594,11 +31776,12 @@
     "MUTATE": true,
     "DESTRUCTIVE": true
    },
-   "secs": 412.3
+   "video": "/root/full/tools/swarm_evidence/stand-sheet/run.webm",
+   "secs": 312.0
   },
   {
    "page": "survey-design.html",
-   "discovered": 120,
+   "discovered": 119,
    "errors": [
     "spills 30px sideways [action_btn:1 Load an example design]: button. w=75, button. w=75",
     "spills 30px sideways [action_btn:2 copy ID]: button. w=75, button. w=75",
@@ -31738,9 +31921,9 @@
      "got": "16 chars"
     },
     {
-     "selector": "text_in:5",
+     "selector": "text_in:4",
      "kind": "text_in",
-     "label": "Bryophyta | Lichenes",
+     "label": "Tracheophyta",
      "pane": "p-scope",
      "note": "entered Zqx009",
      "oracle": "field",
@@ -31748,9 +31931,9 @@
      "got": "Zqx009"
     },
     {
-     "selector": "text_in:6",
+     "selector": "text_in:5",
      "kind": "text_in",
-     "label": "45",
+     "label": "Bryophyta | Lichenes",
      "pane": "p-scope",
      "note": "entered Zqx010",
      "oracle": "field",
@@ -31758,9 +31941,9 @@
      "got": "Zqx010"
     },
     {
-     "selector": "text_in:7",
+     "selector": "text_in:6",
      "kind": "text_in",
-     "label": "minutes",
+     "label": "45",
      "pane": "p-scope",
      "note": "entered 3",
      "oracle": "field",
@@ -31768,9 +31951,9 @@
      "got": "3"
     },
     {
-     "selector": "text_in:8",
+     "selector": "text_in:7",
      "kind": "text_in",
-     "label": "two observers, timed search",
+     "label": "minutes",
      "pane": "p-scope",
      "note": "entered Zqx012",
      "oracle": "field",
@@ -31778,14 +31961,34 @@
      "got": "Zqx012"
     },
     {
-     "selector": "text_in:9",
+     "selector": "text_in:8",
      "kind": "text_in",
-     "label": "how the searching was organised",
+     "label": "two observers, timed search",
      "pane": "p-scope",
      "note": "entered Zqx013",
      "oracle": "field",
      "expected": "holds Zqx013",
      "got": "Zqx013"
+    },
+    {
+     "selector": "text_in:9",
+     "kind": "text_in",
+     "label": "how the searching was organised",
+     "pane": "p-scope",
+     "note": "entered Zqx014",
+     "oracle": "field",
+     "expected": "holds Zqx014",
+     "got": "Zqx014"
+    },
+    {
+     "selector": "text_in:10",
+     "kind": "text_in",
+     "label": "Carex aquatilis",
+     "pane": "p-abs",
+     "note": "entered Zqx015",
+     "oracle": "field",
+     "expected": "holds Zqx015",
+     "got": "Zqx015"
     },
     {
      "selector": "tab:0",
@@ -32018,16 +32221,6 @@
      "got": "-1 opt"
     },
     {
-     "selector": "text_in:11",
-     "kind": "text_in",
-     "label": "Carex aquatilis",
-     "pane": "p-abs",
-     "note": "entered Zqx014",
-     "oracle": "field",
-     "expected": "holds Zqx014",
-     "got": "Zqx014"
-    },
-    {
      "selector": "pick_search:1",
      "kind": "pick_search",
      "label": "event filter",
@@ -32201,20 +32394,6 @@
    ],
    "dead": [],
    "hidden": [
-    {
-     "selector": "text_in:4",
-     "kind": "text_in",
-     "label": "Tracheophyta",
-     "pane": "p-scope",
-     "why": "the page rebuilt it away before it could be read"
-    },
-    {
-     "selector": "text_in:10",
-     "kind": "text_in",
-     "label": "Carex aquatilis",
-     "pane": "p-abs",
-     "why": "not visible with its own pane open"
-    },
     {
      "selector": "action_btn:4",
      "kind": "action_btn",
@@ -32663,7 +32842,9 @@
     "MUTATE": true,
     "DESTRUCTIVE": true
    },
-   "secs": 130.8
+   "shot": "/root/full/tools/swarm_evidence/survey-design/final.png",
+   "video": "/root/full/tools/swarm_evidence/survey-design/run.webm",
+   "secs": 85.8
   },
   {
    "page": "tree-proofs.html",
@@ -32835,7 +33016,9 @@
     "MUTATE": true,
     "DESTRUCTIVE": true
    },
-   "secs": 10.2
+   "shot": "/root/full/tools/swarm_evidence/tree-proofs/final.png",
+   "video": "/root/full/tools/swarm_evidence/tree-proofs/run.webm",
+   "secs": 7.3
   },
   {
    "page": "tree-visualizer.html",
@@ -33056,7 +33239,9 @@
     "MUTATE": true,
     "DESTRUCTIVE": true
    },
-   "secs": 17.0
+   "shot": "/root/full/tools/swarm_evidence/tree-visualizer/final.png",
+   "video": "/root/full/tools/swarm_evidence/tree-visualizer/run.webm",
+   "secs": 17.7
   }
  ]
 }

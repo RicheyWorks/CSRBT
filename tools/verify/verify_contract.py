@@ -14,7 +14,7 @@ default but answers one operation without a token, or that serves a cached
 SENSITIVE_READ after the operator has closed that gate, has a plausible face and
 an open door (ADR-061).
 """
-import json, os, sys
+import io, json, os, sys
 
 import _kit
 
@@ -281,16 +281,37 @@ ck(names.get("show-pane") == "NAVIGATE" and names.get("open") == "NAVIGATE",
    "moving around the kit does not need a mutation gate")
 ck(names.get("set-text") == "DRAFT" and names.get("choose-option") == "DRAFT",
    "entering a value is DRAFT")
-ck("attach-file" not in names and not any("file" in n for n in names),
-   "no file-chooser action is published: it needs OS focus and an approval "
-   "policy the gateway does not own")
+# ADR-101 asserted the opposite of this: that no file action is published,
+# because a chooser needs OS focus. That confused the native DIALOG with the act
+# of handing a page some bytes, and left the kit's only photo entry undriven.
+ck(names.get("attach-file") == "DRAFT" and names.get("drop-files") == "DRAFT",
+   "handing a page bytes is DRAFT, the same as typing into it: %s" % names)
+ck("open-chooser" not in names,
+   "and the native chooser is still not published: no action opens an OS dialog")
+src = io.open(os.path.join(_kit.TOOLS_DIR, "harness_plugin_page.py"),
+              encoding="utf-8").read()
+ck("FIXTURES" in src and "set_input_files" in src,
+   "the bytes come from the harness's own fixture table, so a run reads nothing "
+   "of the operator's disk")
+import harness_plugin_page as _PP
+ck(all(set(f) == {"name", "type", "b64"} for f in _PP.FIXTURES.values()),
+   "every fixture is a real named file with a real type and real bytes")
+ck(any(f["type"].startswith("image/") for f in _PP.FIXTURES.values()) and
+   any(f["name"].startswith("DJI_") for f in _PP.FIXTURES.values()),
+   "including one named the way a drone names its frames, because a page that "
+   "keys on a filename should be driven with a filename somebody will hand it")
 
 import swarm as SW
 ck(set(SW.DRIVER.values()) <= set(names),
    "every action the swarm drives with is one the plugin publishes: %s"
    % (set(SW.DRIVER.values()) - set(names)))
-ck("file_in" in SW.EXCLUDED and len(SW.EXCLUDED["file_in"]) > 40,
-   "the kind with no published action is excluded with a reason, not skipped")
+ck(all(len(v) > 40 for v in SW.EXCLUDED.values()),
+   "every kind the swarm still leaves undriven carries a reason, not a label: %s"
+   % sorted(SW.EXCLUDED))
+ck(set(SW.DRIVER) | set(SW.EXCLUDED) >= set(k for k, _ in SW.SWARM_KINDS),
+   "and every kind it discovers is either driven or excluded -- none is simply "
+   "not mentioned: %s"
+   % sorted(set(k for k, _ in SW.SWARM_KINDS) - set(SW.DRIVER) - set(SW.EXCLUDED)))
 
 print("---")
 print("%d/%d" % (P, P + F))

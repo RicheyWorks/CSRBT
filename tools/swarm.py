@@ -70,7 +70,7 @@ sys.path.insert(0, os.path.join(HERE, "verify"))
 import _kit
 import harness as H
 from harness_contract import Gateway, HarnessError, Policy, Registry
-from harness_plugin_page import PagePlugin
+from harness_plugin_page import PagePlugin, FIXTURES
 from playwright.sync_api import sync_playwright
 
 LEDGER = os.path.join(HERE, "swarm_ledger.json")
@@ -78,6 +78,8 @@ VIEWPORT = H.VIEWPORT
 IGNORED_CONSOLE = H.IGNORED_CONSOLE
 
 VERDICTS = ("verified", "wrong", "changed", "dead", "hidden", "failed", "excluded")
+
+
 
 # The policy a supervised verification run needs, stated once and printed. It is
 # the whole ladder, because the swarm's job is to press everything -- which is
@@ -95,6 +97,7 @@ SENT_RE = re.compile(r"Zqx\d{3}")
 # having if its client uses the typed action: pressing a stepper with a generic
 # activate would tell the gateway nothing about what was being asked for.
 DRIVER = {
+    "checkbox": "set-checkbox", "file_in": "attach-file", "drop_zone": "drop-files",
     "tab": "show-pane", "step_btn": "press-step", "step_val": "set-text",
     "text_in": "set-text", "field_in": "set-text", "pick_search": "set-text",
     "select": "choose-option", "slider": "set-slider",
@@ -103,12 +106,44 @@ DRIVER = {
     "action_btn": "activate",
 }
 
+# ADR-100's kinds, widened. Three surfaces of this kit had never been touched by
+# any harness: twelve checkboxes and a time field that no kind's selector
+# matched, five file inputs that were excluded outright, and three drop zones
+# that no CSS selector can find at all -- those are stamped at the moment a page
+# registers its drop listener.
+SWARM_KINDS = [k for k in H.KINDS if k[0] not in ("text_in", "file_in",
+                                                  "action_btn", "link", "nav_link")]
+SWARM_KINDS += [
+    ("checkbox",  'input[type=checkbox], input[type=radio]'),
+    ("drop_zone", '[data-h-drop]'),
+    ("text_in",   'input[type=text], input[type=number], input[type=date], '
+                  'input[type=time], input[type=datetime-local], input[type=month], '
+                  'input[type=week], input[type=email], input[type=url], '
+                  'input[type=tel], input[type=search], input[type=color], '
+                  'input:not([type]), textarea'),
+    ("file_in",   'input[type=file]'),
+    ("action_btn", 'button'),
+    ("link",      '.rail a[href]'),
+    ("nav_link",  'a[href]'),
+]
+
+# The bytes each kind of input is offered. A file input that says image/* gets
+# images, one that says .json gets a pack, and every one of them also gets the
+# file it should refuse.
+FILES_FOR = [
+    (r"image/\*|\.jpe?g|\.png|image", ["image", "image2"]),
+    (r"\.json|application/json",        ["pack"]),
+    (r"\.eco|text/plain",               ["eco"]),
+    (r"\.csv|\.tsv|text/csv",          ["csv"]),
+]
+
 EXCLUDED = dict(H.EXCLUDED)
-EXCLUDED["file_in"] = (
-    "a file chooser is a platform-specific extension, not part of the automation "
-    "contract: choosing a file needs OS focus and an approval policy the gateway "
-    "does not own, so the contract publishes no action for it and the swarm does "
-    "not reach around the contract to drive one")
+EXCLUDED.pop("file_in", None)
+# ADR-101 excluded file inputs on the grounds that a file chooser needs OS focus.
+# That confused the native DIALOG with the ACT of handing a page some bytes. The
+# dialog is still out of scope and still never opens; the bytes are supplied by
+# the harness, so nothing on the operator's disk is read. Five file inputs, one
+# of them the kit's only photo entry, were sitting behind that confusion.
 
 # What the label says the control is for. Order matters: a Copy CSV is an export
 # even though its label carries no verb this list would otherwise reach for, and
@@ -132,7 +167,7 @@ VERBS = [
 # download navigate away. Anchor downloads are intercepted rather than followed,
 # both so the payload can be read and so the run does not wander off the page.
 CATCH = r"""
-window.__S = { out: [], toasts: 0 };
+window.__S = { out: [], toasts: 0, choosers: 0, lastChooser: "" };
 (function () {
   var map = {};
   // A toast raised while an identical toast is still on screen changes nothing
@@ -171,6 +206,38 @@ window.__S = { out: [], toasts: 0 };
     window.__S.out.push({ k: k, name: String(name || "").slice(0, 80),
                           text: String(text == null ? "" : text).slice(0, 40000) });
   };
+  // A page cannot be asked where its drop zones are: a drop listener leaves no
+  // mark in the markup and no CSS selector finds it. Three pages in this kit
+  // take photos and data by drag-and-drop and the harness had never dropped
+  // anything on any of them. Stamp the element as the listener is registered.
+  try {
+    var AEL = EventTarget.prototype.addEventListener;
+    EventTarget.prototype.addEventListener = function (type, fn, opt) {
+      try {
+        if (type === "drop" && this.setAttribute && this.nodeType === 1)
+          this.setAttribute("data-h-drop", "1");
+      } catch (e) { }
+      return AEL.call(this, type, fn, opt);
+    };
+  } catch (e) { }
+
+  // A button whose whole job is to open the file chooser does nothing else, and
+  // was being judged as an Add that added no row. Opening the chooser IS its
+  // result, so record it as one.
+  try {
+    var IC = HTMLInputElement.prototype.click;
+    HTMLInputElement.prototype.click = function () {
+      try {
+        if (this.type === "file") {
+          window.__S.choosers++;
+          window.__S.lastChooser = this.getAttribute("data-h") || this.id || "";
+          return;                          /* the native dialog never opens */
+        }
+      } catch (e) { }
+      return IC.apply(this, arguments);
+    };
+  } catch (e) { }
+
   var AC = HTMLAnchorElement.prototype.click;
   HTMLAnchorElement.prototype.click = function () {
     if (this.hasAttribute("download")) {
@@ -213,6 +280,7 @@ def verb(label):
 class Client(object):
     def __init__(self, gateway, token, plugin="csrbt-page"):
         self.gw, self.tok, self.plugin = gateway, token, plugin
+        self.video_path = None
         self.n = 0
         self.refused = []
 
@@ -323,12 +391,16 @@ def declined(before, after):
     silence is indistinguishable from one that is broken, to the harness and to
     the person holding the phone, and stays a finding.
     """
-    return after.get("toasts", 0) > before.get("toasts", 0)
+    return (after.get("toasts", 0) > before.get("toasts", 0)
+            or after.get("said", 0) > before.get("said", 0))
 
 
 def _decline(before, after, what):
+    how = (after.get("toastText") or "").strip()
+    if after.get("said", 0) > before.get("said", 0):
+        how = how or "an alert"
     return ("changed", "decline", what,
-            "declined and said so: %s" % (after.get("toastText") or "(a toast)")[:60])
+            "declined and said so: %s" % (how or "(a toast)")[:60])
 
 
 def oracle(a, before, after, cx):
@@ -437,8 +509,48 @@ def oracle(a, before, after, cx):
                     % (c.get("selected"), c.get("size")))
         return None
 
+    if k == "checkbox":
+        c = (cx.get("check_after") or {})
+        want = cx.get("check_want")
+        if want is None or "checked" not in c:
+            return None
+        if c["checked"] != want:
+            return ("wrong", "checkbox", "ticked" if want else "cleared",
+                    "still %s" % ("ticked" if c["checked"] else "clear"))
+        return ("verified", "checkbox", "ticked" if want else "cleared", "held")
+
+    if k in ("file_in", "drop_zone"):
+        names = cx.get("files") or []
+        took = (cx.get("file_after") or {}).get("taken")
+        shown = [n for n in names if n in (after.get("text") or "")]
+        if shown:
+            return ("verified", "file",
+                    "the page shows the file it was handed",
+                    "%s named on the page" % ", ".join(shown[:2]))
+        if declined(before, after):
+            return _decline(before, after, "the page takes the file or says why")
+        if took:
+            # The input is holding the bytes but nothing on screen says so. On a
+            # page whose export carries the FILENAME, that is the difference
+            # between a photo that was filed and one that was dropped on the
+            # floor, and a user cannot tell which.
+            return ("wrong", "file", "the page shows the file it was handed",
+                    "the input holds %d file(s) and nothing on the page names them"
+                    % took)
+        if _moved(before, after):
+            return ("changed", "file", "the page shows the file it was handed",
+                    "the page changed but named no file")
+        return ("wrong", "file", "the page takes the file or says why",
+                "nothing happened and nothing was said")
+
     if k == "action_btn":
         v = verb(label)
+        # A button whose whole job is to open the file chooser does nothing else,
+        # and was being judged as an Add that added no row -- stand-sheet's
+        # camera button among them. Opening the chooser IS its result.
+        if cx.get("choosers", 0) > 0:
+            return ("verified", "chooser", "opens the file chooser",
+                    "the page asked for a file")
         if v == "add":
             up, _ = _rows(before, after)
             if up and after["els"] > before["els"]:
@@ -534,12 +646,54 @@ def oracle(a, before, after, cx):
 # Driving one affordance, entirely through published actions
 # ---------------------------------------------------------------------------
 
-def _value_for(a, tick, seeds):
-    t = (a.get("type") or "").lower()
+FIXTURE_NAME = dict((k, v["name"]) for k, v in FIXTURES.items())
+
+
+def _files_for(control, kind):
+    """What to hand this input. A file input says what it will take; a drop zone
+    says nothing, so it gets a photo and a data file both."""
+    acc = ((control.get("file") or {}).get("accept") or "").lower()
+    if kind == "drop_zone" or not acc:
+        return ["image", "eco"]
+    for pat, names in FILES_FOR:
+        if re.search(pat, acc):
+            return names if (control.get("file") or {}).get("multiple") else names[:1]
+    return ["eco"]
+
+
+# A field takes the kind of value it is for. Handing a text sentinel to a time
+# input is not a hostile test, it is a broken one: the browser discards it before
+# the page ever sees it, and deployment-log's start-time field was reported as
+# throwing an entry away when the harness had never given it a time. The moment
+# a wider set of input types became visible, the old two-case value maker started
+# lying about them.
+def _typed_value(t, tick):
     if t == "date":
         return "2026-06-%02d" % (1 + tick % 28)
+    if t == "time":
+        return "%02d:%02d" % (6 + tick % 12, (tick * 7) % 60)
+    if t == "datetime-local":
+        return "2026-06-%02dT%02d:00" % (1 + tick % 28, 6 + tick % 12)
+    if t == "month":
+        return "2026-%02d" % (1 + tick % 12)
+    if t == "week":
+        return "2026-W%02d" % (1 + tick % 52)
+    if t == "color":
+        return "#%02x6a4a" % (32 + tick % 200)
+    if t == "email":
+        return "field%d@example.org" % (tick % 100)
+    if t == "url":
+        return "https://example.org/plot/%d" % (tick % 100)
     if t == "number":
         return str(1 + tick % 9)
+    return None
+
+
+def _value_for(a, tick, seeds):
+    t = (a.get("type") or "").lower()
+    v = _typed_value(t, tick)
+    if v is not None:
+        return v
     if a.get("kind") == "step_val":
         # A stepper holds a number. Typing a sentinel into it is not something a
         # user does; it is something a careless client does, and it makes the
@@ -642,10 +796,19 @@ def drive(cl, a, res, cx0):
         rec["why"] = "the page rebuilt it away before it could be driven"
         res["hidden"].append(rec)
         return
-    if not cbefore.get("visible"):
+    if not cbefore.get("visible") and kind != "file_in":
         rec["why"] = "not visible with its own pane open"
         res["hidden"].append(rec)
         return
+    if kind == "file_in" and not cbefore.get("visible"):
+        # Three of the five file inputs in this kit are display:none by design,
+        # opened by a camera or Load-pack button standing in front of them. A
+        # user reaches them; refusing to drive them because they are invisible
+        # would leave the kit's photo and pack import paths untested for the
+        # sake of a rule about visibility that does not apply to them.
+        prep_hidden = " (hidden input, reached the way its button reaches it)"
+    else:
+        prep_hidden = ""
 
     # ---- put it in a state where its effect can show ----------------------
     prep = ""
@@ -742,6 +905,18 @@ def drive(cl, a, res, cx0):
             cx["slide_want"] = want
             cl.do("set-slider", selector=sel, value=want)
             note = "set to %s" % want
+        elif action == "set-checkbox":
+            want = not (cbefore.get("checkbox") or {}).get("checked")
+            cx["check_want"] = want
+            cl.do("set-checkbox", selector=sel, checked=want)
+            note = "ticked" if want else "cleared"
+        elif action in ("attach-file", "drop-files"):
+            names = _files_for(cbefore, kind)
+            cx["files"] = [FIXTURE_NAME[n] for n in names]
+            cx["accept"] = (cbefore.get("file") or {}).get("accept", "")
+            cl.do(action, selector=sel, files=names)
+            note = "%s %s" % ("attached" if action == "attach-file" else "dropped",
+                              ", ".join(cx["files"]))
         else:
             cl.do("activate", selector=sel)
             note = "activated"
@@ -758,6 +933,9 @@ def drive(cl, a, res, cx0):
         cx["step_after"] = cafter.get("step")
         cx["grp_after"] = cafter.get("group")
         cx["held"] = cafter.get("value")
+        cx["check_after"] = cafter.get("checkbox")
+        cx["file_after"] = cafter.get("file")
+        cx["choosers"] = after.get("choosers", 0) - before.get("choosers", 0)
         cx["sel_after"] = cafter.get("value")
         cx["slide_after"] = cafter.get("slider")
         cx["route"] = cl.snapshot().get("route")
@@ -780,7 +958,7 @@ def drive(cl, a, res, cx0):
         res["failed"].append(rec)
         return
 
-    rec["note"] = note + prep
+    rec["note"] = note + prep + prep_hidden
     cx0["history"].add(after["thash"])
 
     # ---- the verdict ------------------------------------------------------
@@ -835,6 +1013,9 @@ def _invariants(a, after, res):
     bad = []
     if after.get("junkTok") and after["junkTok"] != res.get("junk_on_load"):
         bad.append(("junk rendered", after["junk"]))
+    js = after.get("junkSlot")
+    if js:
+        bad.append(("a readout shows %r" % js["text"], js["where"]))
     if after.get("panes") and after.get("onp") != 1:
         bad.append(("%d panes visible" % after["onp"], ""))
     if after.get("overflow", 0) > 1:
@@ -900,28 +1081,71 @@ def seed(cl, controls, cx0, res):
                      "sentinels": len(cx0["seeds"]), "committed": cx0["committed"]}
 
 
-def run_page(name, passes=3, url=None):
-    started = time.time()
-    res = {"page": name, "discovered": 0, "errors": [], "findings": [],
-           "commands": 0, "seeded": {}}
-    for v in VERDICTS:
-        res[v] = []
+import contextlib
+
+
+@contextlib.contextmanager
+def open_session(name, url=None, video_dir=None):
+    """A page, a browser, and a client of it -- shared by the swarm and by the
+    edge, chaos and key-exploration passes in tools/probe.py.
+
+    video_dir turns on recording. A run that finds nothing is a run nobody needs
+    to watch, so the caller deletes the file unless the page produced something;
+    a finding you cannot see happen is a finding somebody has to reproduce by
+    hand before they can believe it.
+    """
     with sync_playwright() as pw:
         b = pw.chromium.launch()
-        ctx = b.new_context(viewport=VIEWPORT)
+        kw = {"viewport": VIEWPORT}
+        if video_dir:
+            kw["record_video_dir"] = video_dir
+            kw["record_video_size"] = VIEWPORT
+        ctx = b.new_context(**kw)
         ctx.set_offline(True)
         ctx.add_init_script(H.STUBS)
         ctx.add_init_script(CATCH)
         pg = ctx.new_page()
         pg.set_default_timeout(H.ACT_TIMEOUT)
-        pg.on("pageerror", lambda e: res["errors"].append("pageerror: " + str(e)[:200]))
+        errors = []
+        pg.on("pageerror", lambda e: errors.append("pageerror: " + str(e)[:200]))
         pg.goto(url or _kit.url(name), wait_until="domcontentloaded")
         pg.wait_for_timeout(400)
-
         token = "swarm-" + "s" * 24
         policy = Policy(token=token, allow=SWARM_POLICY, enabled=True)
-        gw = Gateway(Registry([PagePlugin(pg, name)]), policy)
-        cl = Client(gw, token)
+        plugin = PagePlugin(pg, name, kinds=SWARM_KINDS)
+        cl = Client(Gateway(Registry([plugin]), policy), token)
+        try:
+            yield cl, pg, errors
+        finally:
+            path = None
+            try:
+                if pg.video:
+                    path = pg.video.path()
+            except Exception:
+                path = None
+            ctx.close()
+            b.close()
+            cl.video_path = path
+
+
+EVIDENCE = os.path.join(HERE, "swarm_evidence")
+
+
+def run_page(name, passes=3, url=None, video=True):
+    started = time.time()
+    res = {"page": name, "discovered": 0, "errors": [], "findings": [],
+           "commands": 0, "seeded": {}}
+    for v in VERDICTS:
+        res[v] = []
+    vdir = os.path.join(EVIDENCE, name[:-5]) if video else None
+    if vdir:
+        try:
+            os.makedirs(vdir, exist_ok=True)
+        except Exception:
+            vdir = None
+    with open_session(name, url=url, video_dir=vdir) as (cl, pg, errs):
+        res["errors"] = errs
+        policy = cl.gw.policy
 
         opening = cl.page_state()
         res["junk_on_load"] = opening.get("junkTok") or ""
@@ -950,8 +1174,32 @@ def run_page(name, passes=3, url=None):
         res["discovered"] = len(seen)
         res["commands"] = cl.n
         res["policy"] = dict(policy.allow)
-        ctx.close()
-        b.close()
+        # A picture of the state a finding was reported in, taken while the page
+        # is still in it. A defect nobody can see happen is one somebody has to
+        # reproduce by hand before they will believe it.
+        if res["wrong"] or res["errors"]:
+            try:
+                os.makedirs(vdir or EVIDENCE, exist_ok=True)
+                res["shot"] = os.path.join(vdir or EVIDENCE, "final.png")
+                pg.screenshot(path=res["shot"])
+            except Exception:
+                res["shot"] = None
+    # Video of the whole run, kept only where there is something to watch. Forty
+    # films of a page behaving is forty films nobody opens.
+    res["video"] = None
+    path = getattr(cl, "video_path", None)
+    if path:
+        keep = bool(res["wrong"] or res["errors"] or res["dead"])
+        try:
+            if keep:
+                dest = os.path.join(vdir, "run.webm")
+                if os.path.abspath(path) != os.path.abspath(dest):
+                    os.replace(path, dest)
+                res["video"] = dest
+            else:
+                os.remove(path)
+        except Exception:
+            res["video"] = path if keep else None
     res["secs"] = round(time.time() - started, 1)
     return res
 

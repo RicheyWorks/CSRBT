@@ -41,3 +41,5 @@ _to_delete/
 # Python bytecode from the verification harness
 __pycache__/
 *.pyc
+tools/swarm_evidence/
+tools/probe_evidence/

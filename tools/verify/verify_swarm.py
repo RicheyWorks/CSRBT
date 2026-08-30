@@ -129,7 +129,33 @@ FIXTURES = {
              '<script>var n=0;document.getElementById("a").onclick=function(){'
              'document.getElementById("o").textContent="rows: "+(++n);};</script>' + TAIL,
 
-    # 10. everything in order. The instrument must be able to come back clean.
+    # 10. a file input and a drop zone that take a photo and say so.
+    "photo": HEAD + '<input type="file" id="f" accept="image/*" multiple>'
+             '<div id="dz">drop here</div><div id="list"></div>'
+             '<script>function add(fs){var L=document.getElementById("list");'
+             '[].slice.call(fs).forEach(function(f){var d=document.createElement("div");'
+             'd.className="ph";d.textContent=f.name;L.appendChild(d);});}'
+             'document.getElementById("f").onchange=function(){add(this.files);};'
+             'var z=document.getElementById("dz");'
+             'z.addEventListener("dragover",function(e){e.preventDefault();});'
+             'z.addEventListener("drop",function(e){e.preventDefault();'
+             'add(e.dataTransfer.files);});</script>' + TAIL,
+
+    # 11. a file input that takes the photo and never says it did. The bytes are
+    #     in the input; the user has no way to know.
+    "silent": HEAD + '<input type="file" id="f" accept="image/*">'
+              '<p id="o">ready</p>'
+              '<script>document.getElementById("f").onchange=function(){};</script>'
+              + TAIL,
+
+    # 12. a checkbox that refuses to stay ticked.
+    "stuckbox": HEAD + '<label>on <input type="checkbox" id="c"></label><p id="o">0</p>'
+                '<script>var n=0;var c=document.getElementById("c");'
+                'c.addEventListener("click",function(){'
+                'document.getElementById("o").textContent=String(++n);'
+                'c.checked=false;});</script>' + TAIL,
+
+    # 13. everything in order. The instrument must be able to come back clean.
     "good": HEAD + STEP +
             '<button class="tab on" data-pane="p1">one</button>'
             '<button class="tab" data-pane="p2">two</button>'
@@ -247,6 +273,42 @@ r = run("noadd")
 ck(accounted(r), "noadd fixture: every affordance accounted for")
 ck(wrongs(r, "add"),
    "an Add that changes a caption but adds no row is reported: %s" % findings(r))
+
+# ---- 10. photos, drops, and a page that takes a file without a word ---------
+r = run("photo")
+ck(accounted(r), "photo fixture: every affordance accounted for")
+ck(any(x.get("oracle") == "file" for x in r["verified"]),
+   "a file input that names the photo it was handed is verified: %s"
+   % [(x.get("oracle"), x.get("got")) for x in r["verified"]][:3])
+ck(any(x["kind"] == "drop_zone" for x in r["verified"] + r["changed"] + r["wrong"]),
+   "and the drop zone is found and driven, though no CSS selector can name one")
+ck(any("DJI_" in str(x.get("got", "")) or "IMG_" in str(x.get("got", ""))
+       for x in r["verified"]),
+   "the file it names is the one it was handed: %s"
+   % [x.get("got") for x in r["verified"]][:3])
+
+r = run("silent")
+ck(accounted(r), "silent fixture: every affordance accounted for")
+ck(any(x.get("oracle") == "file" for x in r["wrong"]),
+   "a page that takes the photo and never names it is reported -- the bytes are "
+   "in the input and the user cannot tell: %s" % findings(r))
+
+r = run("stuckbox")
+ck(accounted(r), "checkbox fixture: every affordance accounted for")
+ck(any(x.get("oracle") == "checkbox" for x in r["wrong"]),
+   "a checkbox that will not stay ticked is reported: %s" % findings(r))
+
+# ---- the widened surface ---------------------------------------------------
+_kinds = set(k for k, _ in swarm.SWARM_KINDS)
+ck({"checkbox", "drop_zone", "file_in"} <= _kinds,
+   "checkboxes, drop zones and file inputs are all discovered: %s" % sorted(_kinds))
+ck("type=time" in dict(swarm.SWARM_KINDS)["text_in"],
+   "and the text kind reaches every input type the kit uses, not three of them")
+ck("file_in" not in swarm.EXCLUDED and swarm.DRIVER.get("file_in") == "attach-file",
+   "file inputs are driven now, not excluded")
+ck(set(swarm.EXCLUDED) == {"link", "nav_link", "readonly_out"},
+   "and the only ways out left are the three that carry a reason: %s"
+   % sorted(swarm.EXCLUDED))
 
 # ---- the seed, without which most of the above cannot be asked --------------
 r = run("good")
