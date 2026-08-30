@@ -1,16 +1,18 @@
 {
- "_comment": "Written by run_all.py. n is what the suite counted; sha identifies the suite source it was counted from. A count whose sha no longer matches says nothing about the suite as it stands -- rerun run_all.",
- "at": 1788070789,
+ "_comment": "Written by run_all.py. n is what the suite counted; sha identifies the suite source it was counted from; at is when THAT suite was last scored, which is not necessarily this run -- a run updates only the suites it could run. A count whose sha no longer matches says nothing about the suite as it stands -- rerun run_all.",
+ "at": 1788118805,
  "suites": {
   "verify_advertised": {
+   "at": 1788118805,
    "green": true,
    "n": 29,
    "of": 29,
    "sha": "9efeaa527c4e"
   },
   "verify_audit_frontend": {
-   "green": true,
-   "n": 19,
+   "at": 1788118805,
+   "green": false,
+   "n": 6,
    "of": 19,
    "sha": "0906783fbb0d"
   },
@@ -27,6 +29,7 @@
    "sha": "ae0ff858bda8"
   },
   "verify_claims_math": {
+   "at": 1788118805,
    "green": true,
    "n": 49,
    "of": 49,
@@ -99,22 +102,25 @@
    "sha": "0f40aa822975"
   },
   "verify_eco_experiment": {
+   "at": 1788118805,
    "green": true,
    "n": 35,
    "of": 35,
    "sha": "df49be95d2ec"
   },
   "verify_emitters": {
+   "at": 1788118805,
    "green": true,
    "n": 130,
    "of": 130,
    "sha": "d27908007bf3"
   },
   "verify_engine_sessions": {
+   "at": 1788118805,
    "green": true,
    "n": 26,
    "of": 26,
-   "sha": "a0e8382cbed9"
+   "sha": "00f7c16a2a7e"
   },
   "verify_escaping_slice": {
    "green": true,
@@ -177,12 +183,14 @@
    "sha": "086ad016eca4"
   },
   "verify_kit_consistency": {
+   "at": 1788118805,
    "green": true,
    "n": 51,
    "of": 51,
    "sha": "144cd1ddc66a"
   },
   "verify_label_escaping": {
+   "at": 1788118805,
    "green": true,
    "n": 23,
    "of": 23,
@@ -195,6 +203,7 @@
    "sha": "92c307cec203"
   },
   "verify_mutate": {
+   "at": 1788118805,
    "green": true,
    "n": 47,
    "of": 47,
@@ -243,14 +252,16 @@
    "sha": "6d84f03b4363"
   },
   "verify_publish_drift": {
-   "green": true,
-   "n": 50,
+   "at": 1788118805,
+   "green": false,
+   "n": 49,
    "of": 50,
    "sha": "51ca7c07571c"
   },
   "verify_publish_reach": {
-   "green": false,
-   "n": 57,
+   "at": 1788118805,
+   "green": true,
+   "n": 58,
    "of": 58,
    "sha": "c50776ab77d9"
   },
@@ -303,6 +314,7 @@
    "sha": "65442fab17de"
   },
   "verify_sweep_ledger": {
+   "at": 1788118805,
    "green": true,
    "n": 23,
    "of": 23,
@@ -315,6 +327,7 @@
    "sha": "6c46fd86a7fa"
   },
   "verify_ties": {
+   "at": 1788118805,
    "green": true,
    "n": 19,
    "of": 19,
@@ -333,6 +346,7 @@
    "sha": "6abcff3a1ab2"
   },
   "verify_visualizer_sessions": {
+   "at": 1788118805,
    "green": true,
    "n": 32,
    "of": 32,
