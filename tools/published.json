@@ -27,10 +27,9 @@
       "via": "read"
     },
     "collection-sheet.html": {
-      "at": 1787998925,
-      "dated_by": "the version marker in the copy",
-      "sha": "171379f451dec2ed0b89db54d3a0ab575709cfe7284ccf6abee97c258636b934",
-      "via": "read"
+      "at": 1788117942,
+      "sha": "5a305f38faeeff18eb708569d6d24c486bafcfafd03e6981204717ec9bca758d",
+      "via": "publish"
     },
     "cp-bench.html": {
       "at": 1787939374,
@@ -51,10 +50,9 @@
       "via": "read"
     },
     "deployment-log.html": {
-      "at": 1787971675,
-      "dated_by": "the version marker in the copy",
-      "sha": "76434d1ec41a0757a0ecfb96c9cf802bb9b0b4b98e844e4294dca1b372f2ada6",
-      "via": "read"
+      "at": 1788117942,
+      "sha": "698c827aee747f0e4b24b25310a0fc60619f03e9193bfe338dc7af65b91b5247",
+      "via": "publish"
     },
     "eco-protocol-library.html": {
       "at": 1787990774,
@@ -99,10 +97,9 @@
       "via": "read"
     },
     "ecology-lab.html": {
-      "at": 1787971766,
-      "dated_by": "the version marker in the copy",
-      "sha": "bdc0403873ff647ae132758df72feee95414177431c4730bb54a9ed82ac62c71",
-      "via": "read"
+      "at": 1788117942,
+      "sha": "df3c094c93f01f0a4e1d888fe6d5a1832ce5a680cfef4ded868f01accd48c020",
+      "via": "publish"
     },
     "ecology-teachers-guide.html": {
       "at": 1787875439,
@@ -171,10 +168,9 @@
       "via": "read"
     },
     "ordination.html": {
-      "at": 1787881285,
-      "dated_by": "the version marker in the copy",
-      "sha": "941cea6a629c6cb9b3c24d49d463b30fdbf73278e33e89b0bcce5a1fd88ed789",
-      "via": "read"
+      "at": 1788117942,
+      "sha": "42216f7fca42326753074410999c4b44cf5e0b6954b8ed5bb33ef225b5f5cad7",
+      "via": "publish"
     },
     "pheno-tracker.html": {
       "at": 1787809639,
@@ -189,10 +185,9 @@
       "via": "read"
     },
     "releve.html": {
-      "at": 1787951945,
-      "dated_by": "the version marker in the copy",
-      "sha": "84d2a5e006c46b580823e056dc3873555c29663a348786b079f680a99961508f",
-      "via": "read"
+      "at": 1788117942,
+      "sha": "be1682d173e7e671313bd8e519f9ccd63e845aaa123e4b98899b639a51e97e62",
+      "via": "publish"
     },
     "selection-log.html": {
       "at": 1787809560,
@@ -219,16 +214,14 @@
       "via": "read"
     },
     "stand-sheet.html": {
-      "at": 1787952014,
-      "dated_by": "the version marker in the copy",
-      "sha": "4b8166d1ad29d163eb093cd74d74f1052585d9b58282868f8f83f90f05537e2f",
-      "via": "read"
+      "at": 1788117942,
+      "sha": "477e1c16d9408e3f9532b54a0da5db034f063d154679c30c44fadef114311e56",
+      "via": "publish"
     },
     "survey-design.html": {
-      "at": 1787809971,
-      "dated_by": "the version marker in the copy",
-      "sha": "80e11468a5919c2ff8cc1feeebf8b3c23785af11a9e4999f7de9b14510ca3649",
-      "via": "read"
+      "at": 1788117942,
+      "sha": "d9edbba1089e6075dcf718ea8cd1957d95480890ad5031755400dfb98b1badfb",
+      "via": "publish"
     },
     "tree-proofs.html": {
       "at": 1787633321,

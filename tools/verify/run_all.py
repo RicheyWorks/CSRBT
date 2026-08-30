@@ -63,6 +63,28 @@ def run(cmd, cwd):
     return p.returncode, (p.stdout or "") + (p.stderr or ""), time.time() - t0
 
 
+NOT_VERIFIED = re.compile(r"^\s*NOT VERIFIED:", re.M)
+
+
+def unverified(out):
+    """Checks a suite counted in its total and openly said it did not run.
+
+    A suite that cannot reach its subject has three honest answers, not two:
+    passed, failed, and did-not-run. verify_engine_sessions needs the built
+    engine plus log4j on the classpath, and on a machine without them it counts
+    the check and prints NOT VERIFIED rather than passing or failing it -- the
+    same discipline publish_state.py uses when it refuses to read "unknown" as
+    "current".
+
+    The shortfall rule below could not see that distinction and called the
+    result a silent failure, which is this file's own documented defect for the
+    third time: right about what it matched, wrong about what the match meant.
+    Counting these lets a real shortfall stay a failure while a declared hole
+    stays a hole -- reported at the end, never folded into green.
+    """
+    return len(NOT_VERIFIED.findall(out))
+
+
 def score(out):
     for line in reversed(out.strip().split("\n")):
         t = line.strip()
@@ -107,7 +129,7 @@ def main():
     print("root: %s" % ROOT)
     print("-" * 76)
 
-    results, failed, noisy_jobs, silent_failures = [], [], [], []
+    results, failed, noisy_jobs, silent_failures, holes = [], [], [], [], []
     with cf.ThreadPoolExecutor(max_workers=max(1, a.jobs)) as ex:
         futs = {ex.submit(run, path, cwd): (kind, name, what)
                 for kind, name, what, path, cwd in jobs}
@@ -134,7 +156,8 @@ def main():
         # failure whatever the process claimed on the way out -- and it covers
         # every suite written from here on without anyone remembering to add an
         # exit line. Belt and braces, with the braces doing the work.
-        short = (got is not None and tot is not None and got < tot)
+        unver = unverified(out)
+        short = (got is not None and tot is not None and got < tot - unver)
         # A RESULT line, not the substring. The first version of this rule used
         # `"FAIL" in out` and flagged audit_contrast on its first run, because
         # that audit prints a column header reading "AA FAILURES". One false
@@ -146,6 +169,11 @@ def main():
             mark = "FAIL*"
             failed.append((name, out))
             silent_failures.append((name, got, tot, rc))
+        elif rc == 0 and unver:
+            mark = "ok--"                     # ran clean, but not all of it ran
+            passed += 1
+            holes.append((name, unver,
+                          NOT_VERIFIED.split(out)[-1].strip().split("\n")[0][:44]))
         elif rc == 0:
             mark = "ok"
             passed += 1
@@ -175,6 +203,13 @@ def main():
         for name, got, tot, rc in silent_failures:
             print("  %-22s %s   rc=%d"
                   % (name, ("%s/%s" % (got, tot)) if got is not None else "(no score)", rc))
+    if holes:
+        print("")
+        print("%d job(s) COULD NOT RUN every check -- marked ok-- above. What ran,"
+              % len(holes))
+        print("passed; the rest was not attempted and is not evidence of anything.")
+        for name, n, why in holes:
+            print("  %-22s %d not verified   %s" % (name, n, why))
     if noisy_jobs:
         print("")
         print("%d job(s) exited 0 while printing a traceback -- green is not the whole"
@@ -213,18 +248,55 @@ def main():
             sha = hashlib.sha1(io.open(src, "rb").read()).hexdigest()[:12]
         except OSError:
             continue
-        rec[name] = {"n": got, "of": tot, "sha": sha, "green": rc == 0 and got == tot}
+        entry = {"n": got, "of": tot, "sha": sha, "at": int(time.time()),
+                 "green": rc == 0 and got == tot}
+        u = unverified(out)
+        if u:
+            entry["unverified"] = u
+        rec[name] = entry
     if rec:
         cpath = os.path.join(HERE, "counts.json")
+        # MERGE, DO NOT REPLACE. This ledger used to be rebuilt from scratch on
+        # every run, so a machine that could not RUN a suite silently deleted
+        # what a machine that could had measured. It happened, and the damage
+        # did not stop at the file: 52 of the 64 jobs are Playwright, the
+        # desktop Linux VM has none, so those suites produced no score, so the
+        # rebuild dropped their entries -- and verify_advertised, which READS
+        # this ledger, went from 29/29 to 22/29 on the next run. A ledger with
+        # a consumer does not corrupt quietly; it takes a suite down with it,
+        # and the suite reports a defect in the kit that is really a defect in
+        # the machine that last wrote the file.
+        #
+        # The sha guard does not catch this, and it is worth being clear why:
+        # the suite SOURCE was identical, only the environment differed. A hash
+        # of the thing being measured cannot detect a change in what is doing
+        # the measuring.
+        #
+        # So a run now updates only the suites it actually scored and leaves the
+        # rest of the ledger alone, and every entry carries its own "at" -- the
+        # ADR-056 lesson, that a stamp with no time cannot tell a fresh reading
+        # from a stale one, applied to the second ledger in this kit that needed
+        # it.
+        try:
+            prev = json.loads(io.open(cpath, encoding="utf-8").read()).get("suites", {})
+        except (OSError, ValueError):
+            prev = {}
+        merged = dict(prev)
+        merged.update(rec)
         try:
             io.open(cpath, "w", encoding="utf-8").write(json.dumps(
                 {"_comment": "Written by run_all.py. n is what the suite counted; "
-                             "sha identifies the suite source it was counted from. "
-                             "A count whose sha no longer matches says nothing about "
-                             "the suite as it stands -- rerun run_all.",
-                 "at": int(time.time()), "suites": rec},
+                             "sha identifies the suite source it was counted from; "
+                             "at is when THAT suite was last scored, which is not "
+                             "necessarily this run -- a run updates only the suites "
+                             "it could run. A count whose sha no longer matches says "
+                             "nothing about the suite as it stands -- rerun run_all.",
+                 "at": int(time.time()), "suites": merged},
                 indent=1, sort_keys=True) + "\n")
-            print("wrote %s (%d suite counts)" % (os.path.relpath(cpath, ROOT), len(rec)))
+            kept = len(merged) - len(rec)
+            print("wrote %s (%d suite counts updated%s)"
+                  % (os.path.relpath(cpath, ROOT), len(rec),
+                     ", %d kept from earlier runs" % kept if kept > 0 else ""))
         except OSError as e:
             print("could not write counts.json: %s" % e)
 

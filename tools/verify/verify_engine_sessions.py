@@ -92,27 +92,45 @@ def inline_session(page_src):
 
 
 def classpath():
+    """(classpath, why_not). Two things can be missing and they are not the same
+    thing, so this says which.
+
+    The single message this used to return -- "engine classes or log4j not found
+    -- run ./gradlew classes" -- named the wrong cause on the machine where it
+    actually fires. In the desktop Linux VM the classes ARE built (they come
+    over the mount from the Windows host) and it is the log4j jars that are
+    absent, because they live in the HOST's ~/.gradle cache and that is not
+    mounted. The advice was worse than vague: `./gradlew classes` cannot run
+    there at all -- Gradle 9 needs JVM 17+ and that VM has 11 -- so a reader
+    following it got a second failure that explained nothing about the first.
+    An unverified result is honest; an unverified result with a wrong remedy
+    just moves the confusion downstream.
+    """
     parts = [os.path.join(ROOT, "csrbt-experimental", "build", "classes", "java", "main"),
              os.path.join(ROOT, "csrbt-core", "build", "classes", "java", "main")]
-    if not all(os.path.isdir(p) for p in parts):
-        return None
+    missing = [p for p in parts if not os.path.isdir(p)]
+    if missing:
+        return None, ("engine classes not built (%s) -- run ./gradlew classes on a JDK 17+"
+                      % os.path.relpath(missing[0], ROOT))
     # log4j is a compile dependency of TreeContext's static initialiser, so the
     # engine will not start without it even though nothing here logs.
     for pat in ("log4j-api-*.jar", "log4j-core-*.jar"):
         hit = glob.glob(os.path.join(os.path.expanduser("~"), ".gradle", "caches",
                                      "modules-2", "files-2.1", "**", pat), recursive=True)
         if not hit:
-            return None
+            return None, ("classes are built but %s is not in this machine's "
+                          "~/.gradle cache -- run this suite where the engine was built"
+                          % pat)
         parts.append(sorted(hit)[-1])
-    return os.pathsep.join(parts)
+    return os.pathsep.join(parts), None
 
 
 def engine_json():
     """(json_text, why_not). Never raises: an engine that will not start is an
     UNVERIFIED result, not a crash and certainly not a pass."""
-    cp = classpath()
+    cp, why_not = classpath()
     if cp is None:
-        return None, "engine classes or log4j not found -- run ./gradlew classes"
+        return None, why_not
     src = ('import io.github.richeyworks.csrbt.experimental.ecology.EcologyFieldDay;\n'
            'public class _Regen { public static void main(String[] a) throws Exception {\n'
            '  System.out.print(EcologyFieldDay.run().json()); } }\n')
