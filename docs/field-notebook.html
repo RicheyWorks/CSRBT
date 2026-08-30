@@ -980,7 +980,14 @@ var FEK = (function(){
       o.innerHTML="Lincoln–Petersen estimate: <b>N̂ ≈ "+Math.round(N)+"</b> &nbsp;( "+mr.M+" × "+mr.C+" ÷ "+mr.R
         +" ). Assumes a closed population, marks kept, and even mixing.";
     } else if(mr.M>0&&mr.C>0&&mr.R===0){
-      o.innerHTML="No recaptures yet — the estimate is undefined (R must be ≥ 1). Catch more, or mark more.";
+      // data-junk-ok: this page renders the WORD "undefined" on purpose. Lincoln-Petersen
+      // is M×C/R and genuinely has no value at R=0, and saying so is more honest than
+      // printing a number or a blank. Declared so the harness's junk detector does not
+      // report the kit's own carefulness as a value leak (ADR-109). The marker excuses
+      // this word only: a real NaN here would still be caught.
+      o.innerHTML='<span data-junk-ok="Lincoln-Petersen has no value at R=0; saying so is the point">'
+        + 'No recaptures yet — the estimate is undefined (R must be ≥ 1). Catch more, or mark more.'
+        + '</span>';
     } else { o.textContent="Enter your catches — the estimate appears here."; }
     refreshEco();
   }

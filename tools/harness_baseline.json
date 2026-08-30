@@ -1,0 +1,58 @@
+{
+ "_comment": "ACCEPTED FINDINGS -- the kit's known defect debt, as measured by tools/harness.py. tools/verify/verify_findings.py fails on anything NOT in this file, so a new dead control, a new raise, or a new layout spill breaks the build instead of printing into a run nobody reads. It also fails on entries here that no longer occur: debt that was paid and not written off makes the list longer than the kit's real problem, which is how a defect register stops being read. A signature is 'page | category | label' -- the harness's own ids renumber whenever a page changes, and a label is what a maintainer actually searches for. ADDING TO THIS FILE IS ACCEPTING A DEFECT. Do it deliberately, and prefer fixing.",
+ "at": 1788126137,
+ "totals": {
+  "distinct": 32,
+  "occurrences": 76
+ },
+ "by_page": {
+  "selection-log.html": 38,
+  "survey-design.html": 23,
+  "ecology-lab.html": 7,
+  "pheno-tracker.html": 3,
+  "field-notebook.html": 2,
+  "breeding-bench.html": 1,
+  "stand-sheet.html": 1,
+  "tree-proofs.html": 1
+ },
+ "known": {
+  "selection-log.html": "row2 spills at 390px once a record is in the row -- the flex-chain repair ADR-103 named and deliberately left; 37px is the worst in the kit",
+  "survey-design.html": "the same row2 family, 9px, on the copy/remove buttons of each row",
+  "ecology-lab.html": "two textarea fills time out in the Workbench; the controls work by hand",
+  "field-notebook.html": "Undo and Copy CSV leave no observable trace the general oracle can see"
+ },
+ "accepted": {
+  "breeding-bench.html | dead | Clear trial": 1,
+  "ecology-lab.html | dead | +": 1,
+  "ecology-lab.html | dead | count": 1,
+  "ecology-lab.html | dead | \u2715": 1,
+  "ecology-lab.html | failed | 12 0 3 45 2 0 0 28 1 0": 1,
+  "ecology-lab.html | failed | cattail 18 duckweed 44 frogbit 3 azolla 9 rush 6": 1,
+  "ecology-lab.html | failed | duckweed 51 azolla 2 lily 12 rush 6": 1,
+  "ecology-lab.html | failed | robin 34 sparrow 21 wren 8 finch 3 thrush 1": 1,
+  "field-notebook.html | dead | Copy CSV (for Excel/R)": 1,
+  "field-notebook.html | dead | \u21a9 Undo": 1,
+  "pheno-tracker.html | dead | not showing": 1,
+  "pheno-tracker.html | dead | \u2715": 1,
+  "pheno-tracker.html | dead | \ud83c\udf4e fruit program": 1,
+  "selection-log.html | dead | 1": 1,
+  "selection-log.html | spill15px | +": 12,
+  "selection-log.html | spill15px | 0": 5,
+  "selection-log.html | spill15px | 1": 7,
+  "selection-log.html | spill15px | \u2212": 12,
+  "selection-log.html | spill37px | Add individual": 1,
+  "stand-sheet.html | dead | \ud83d\udcf7 Add photos": 1,
+  "survey-design.html | spill9px | Load an example design": 1,
+  "survey-design.html | spill9px | copy ID": 7,
+  "survey-design.html | spill9px | harness-334:plot:01plot \u00b7 Nort": 1,
+  "survey-design.html | spill9px | harness-334:plot:02plot \u00b7 Nort": 1,
+  "survey-design.html | spill9px | harness-334:plot:03plot \u00b7 Cree": 1,
+  "survey-design.html | spill9px | harness-334:plot:04plot \u00b7 Cree": 1,
+  "survey-design.html | spill9px | harness-334:site:01site \u00b7 Nort": 1,
+  "survey-design.html | spill9px | harness-334:site:02site \u00b7 Cree": 1,
+  "survey-design.html | spill9px | harness-334:survey:01survey \u00b7": 1,
+  "survey-design.html | spill9px | parent event filter": 1,
+  "survey-design.html | spill9px | remove": 7,
+  "tree-proofs.html | dead | New random tree": 1
+ }
+}

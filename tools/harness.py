@@ -35,7 +35,8 @@ WHAT "IT WORKED" MEANS
     or wired to something that does not answer.
 
 THE ACCOUNTING
-    discovered == driven + dead + hidden + failed + excluded, per page and in
+    discovered == driven + dead + sequenced + hidden + failed + excluded, per page
+    and in
     total. The run prints UNACCOUNTED if that identity does not hold, because a
     harness that loses track of an affordance is a harness reporting a coverage
     it does not have. EXCLUDED is the only way out and every entry carries its
@@ -181,7 +182,39 @@ PROBE = r"""
     .map(e => (e.type === "checkbox" || e.type === "radio") ? String(e.checked) : String(e.value))
     .join("");
   let ls = -1; try { ls = JSON.stringify(localStorage).length; } catch (e) { }
-  const junk = t.match(/\bNaN\b|\bundefined\b|\[object Object\]/);
+  // JUNK: A VALUE LEAKING INTO THE PAGE, NOT AN ENGLISH WORD (ADR-109)
+  //
+  // The old rule matched /\bundefined\b/ against the whole body text and then
+  // tried to excuse false positives by comparing the token against whatever was
+  // there on load. That is a weaker rule than it looks: field-notebook renders
+  // "No recaptures yet -- the estimate is undefined (R=0)", which is the page
+  // being CAREFUL -- Lincoln-Petersen genuinely has no value at zero recaptures
+  // -- and it only renders after an interaction, so the on-load excuse never
+  // applied and the harness reported the kit's honesty as a defect. Twice.
+  //
+  // That is this kit's recurring defect for the fifth time: a check right about
+  // what it matched and wrong about what the match meant (ADR-040, ADR-105,
+  // ADR-106). The fix is not a cleverer regex. It is to stop guessing: an
+  // element may DECLARE that it renders one of these words as prose, with a
+  // reason, via data-junk-ok, exactly as suites declare MUTATE_ROLE and the
+  // harness declares its excluded kinds.
+  //
+  // The declaration excuses the WORD undefined only. NaN and [object Object]
+  // are never English and no marker can hide them -- otherwise the escape hatch
+  // becomes the way the next real leak goes unreported.
+  // Scan the page text with the DECLARED zones cut out of it. Removing the whole
+  // zone text is exact where index arithmetic over innerText is not: there is no
+  // reliable way back from a match offset in innerText to the element it came
+  // from, and a rule that has to guess is the rule this replaced.
+  let scan = t;
+  for (const z of document.querySelectorAll("[data-junk-ok]")) {
+    const zt = (z.innerText || "").trim();
+    if (zt) scan = scan.split(zt).join(" ");
+  }
+  // NaN and [object Object] are matched against the WHOLE text: no declaration
+  // excuses them, so the escape hatch cannot become the way a real leak hides.
+  const junk = t.match(/\bNaN\b|\[object Object\]/) || scan.match(/\bundefined\b/);
+  const junkSrc = (junk && junk.input === scan) ? scan : t;
   const panes = document.querySelectorAll(".pane").length;
   const el = id ? document.querySelector('[data-h="' + id + '"]') : null;
   let vis = false, on = false;
@@ -202,7 +235,7 @@ PROBE = r"""
                      (e.textContent || "").slice(0, 16)).join("|")),
           calls: (window.__H ? window.__H.calls.length : 0) },
     present: !!el, visible: vis, wasOn: on,
-    junk: junk ? t.slice(Math.max(0, junk.index - 60), junk.index + 60).replace(/\s+/g, " ") : null,
+    junk: junk ? junkSrc.slice(Math.max(0, junk.index - 60), junk.index + 60).replace(/\s+/g, " ") : null,
     junkTok: junk ? junk[0] : null,
     panes: panes, onp: document.querySelectorAll(".pane.on").length,
     // clientWidth, NOT innerWidth. innerWidth includes the vertical scrollbar;
@@ -427,6 +460,25 @@ def drive_all(pg, found, res, console):
             if rec["note"] == "gone":
                 rec["note"] = "rebuilt out from under the walk"
             res["driven"].append(rec)
+        elif rec["note"].startswith("gone ("):
+            # NOT DEAD -- THE HARNESS MOVED FIRST (ADR-109).
+            #
+            # To test a control fairly the walk sometimes has to set up against
+            # it: step a stepper the other way so there is headroom, or move a
+            # radio group off the option about to be pressed. When that setup
+            # rebuilds the row, the control the walk was about to press is gone
+            # -- and it was reported as "wired to nothing", which is an
+            # accusation against working code caused entirely by the order the
+            # harness chose to act in.
+            #
+            # Ten of twenty-one dead findings were this. Forty-eight per cent of
+            # a defect list was the instrument describing itself, which is the
+            # ADR-105 canary all over again, and the reason the accounting
+            # identity now carries a sixth bucket instead of folding these in
+            # with real ones. A finding that names the tool is not a finding
+            # about the page, and the two must not be counted together.
+            rec["why"] = "the harness's own setup removed it before it could be pressed"
+            res["sequenced"].append(rec)
         else:
             res["dead"].append(rec)
 
@@ -450,7 +502,8 @@ def drive_all(pg, found, res, console):
 
 def run_page(name, passes=3, url=None):
     started = time.time()
-    res = {"page": name, "discovered": 0, "driven": [], "dead": [], "hidden": [],
+    res = {"page": name, "discovered": 0, "driven": [], "dead": [], "sequenced": [],
+           "hidden": [],
            "failed": [], "excluded": [], "errors": [], "calls": []}
     with sync_playwright() as pw:
         b = pw.chromium.launch()
@@ -473,9 +526,10 @@ def run_page(name, passes=3, url=None):
         pg.wait_for_timeout(400)
 
         opening = pg.evaluate(PROBE, None)
-        # A page may legitimately contain the WORD undefined -- field-notebook
-        # says "the estimate is undefined (R must be at least 1)", which is the
-        # page being careful, not a value leaking. Only junk that was not there
+        # Kept as a second line of defence. It is no longer the mechanism that
+        # excuses legitimate prose -- data-junk-ok is (ADR-109) -- because this
+        # only ever worked for text present at load, and the case it was written
+        # for renders after an interaction. Only junk that was not there
         # when the page loaded counts.
         res["junk_on_load"] = opening["junkTok"] or ""
         if opening["junk"]:
@@ -504,7 +558,7 @@ def run_page(name, passes=3, url=None):
     return res
 
 
-BUCKETS = ("driven", "dead", "hidden", "failed", "excluded")
+BUCKETS = ("driven", "dead", "sequenced", "hidden", "failed", "excluded")
 
 
 def main():
@@ -541,6 +595,7 @@ def main():
     print("actions that broke an invariant: %d" % errs)
 
     for bucket, head in (("dead", "AFFORDANCES THAT LEFT NO TRACE"),
+                         ("sequenced", "NOT REACHED: THE HARNESS'S OWN SETUP REMOVED THEM FIRST"),
                          ("failed", "AFFORDANCES THE HARNESS COULD NOT DRIVE")):
         rows = [(r["page"], d) for r in out for d in r[bucket]]
         if rows:
@@ -586,7 +641,7 @@ def main():
             n += len(v) if isinstance(v, (list, tuple)) else (v or 0)
         return n
     mdisc = total("discovered")
-    mtot = {k: total(k) for k in ("driven", "dead", "hidden", "failed", "excluded")}
+    mtot = {k: total(k) for k in BUCKETS}
     json.dump({"at": now, "viewport": VIEWPORT, "excluded_kinds": EXCLUDED,
                "totals": dict(mtot, discovered=mdisc,
                               invariant_breaks=sum(len(r.get("errors", [])) for r in merged)),

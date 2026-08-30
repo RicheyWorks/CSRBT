@@ -63,13 +63,26 @@ breaks nothing:
 An affordance that leaves **no** trace is the finding: it is wired to nothing, or
 wired to something that does not answer.
 
+**Junk is a value leaking, not an English word.** `NaN` and `[object Object]` are
+never legitimate and nothing excuses them. The word `undefined` sometimes is:
+field-notebook renders *"the estimate is undefined (R must be ≥ 1)"* because
+Lincoln–Petersen genuinely has no value at R=0. An element may declare that with
+`data-junk-ok="<reason>"` and the detector will skip it — the word only. A
+declaration wrapped around a real `NaN` is still reported, and that is canaried,
+or the escape hatch becomes the way the next real leak hides.
+
 ## 5. The accounting identity
 
 ```
-discovered == driven + dead + hidden + failed + excluded
+discovered == driven + dead + sequenced + hidden + failed + excluded
 ```
 
-Per page and in total. The run prints `UNACCOUNTED` if it does not hold, because
+Per page and in total. **`sequenced`** is the sixth bucket (ADR-109): affordances
+the harness's *own* setup removed before it could press them — stepping a stepper
+the other way, moving a radio group off the option under test. Ten of twenty-one
+"dead" findings were that, and calling them dead was the instrument accusing
+working code. They stay counted and visible; they are simply not the same fact as
+a control wired to nothing. The run prints `UNACCOUNTED` if it does not hold, because
 a harness that loses track of an affordance is reporting a coverage it does not
 have. `excluded` is the only way out and every entry carries its reason.
 
@@ -108,6 +121,38 @@ in fact been driven the day before. A ledger with a consumer does not corrupt
 quietly. This is the same defect as ADR-104's counts ledger, found in a second
 ledger by building the consumer that reads it.
 
+## 7a. Findings are enforced, not just printed
+
+The harness used to report 21 dead controls, 4 raising actions and 62 broken
+invariants into a green build. `tools/verify/verify_findings.py` now compares
+what it found against the accepted debt in `tools/harness_baseline.json` and
+fails **both** ways:
+
+- a finding **not** in the baseline is a regression and breaks the build;
+- a baseline entry that **no longer occurs** is debt paid and not written off,
+  and also fails — a register longer than the real problem stops being read.
+
+A finding is signed `page | category | label`, because the harness's own ids
+renumber whenever a page changes. Duplicates are counted, so eight identical
+spills cannot hide behind one accepted entry.
+
+Current accepted debt: **32 distinct, 76 occurrences, 8 pages**, each with a
+reason. Adding to that file is accepting a defect deliberately.
+
+## 7b. The harness is tested like something that can fail a build
+
+Because it now can. `tools/verify/verify_harness_matrix.py` walks the contract
+clause by clause — **56 checks**: all 20 discovery kinds, all 6 buckets, every
+trace the oracle accepts, every invariant it claims to catch, hostile pages
+(no controls, throws on load, self-removing control, `confirm`/`prompt`, a slow
+handler), determinism, unique addressability, and the ledger arithmetic.
+
+And the tester is tested by breaking the harness on purpose.
+`tools/mutate_harness.py` applies **ten mutations to a copy** and requires the
+matrix to notice each one; every mutant names the check that must kill it.
+Current score: **10 killed, 0 survived**. A surviving mutant is the finding — it
+means that contract clause is asserted by nobody.
+
 ## 8. Running it
 
 ```bash
@@ -116,7 +161,11 @@ python3 tools/routes.py --check              # report without writing
 python3 tools/harness.py                     # drive every page
 python3 tools/harness.py collection-sheet.html   # drive one; the rest is kept
 python3 tools/verify/verify_routes.py        # the app-wide contract
-python3 tools/verify/run_all.py              # everything, including both of the above
+python3 tools/verify/verify_findings.py       # the findings ratchet
+python3 tools/verify/verify_harness_matrix.py # the harness's own contract, 56 checks
+python3 tools/mutate_harness.py              # break the harness 10 ways, require notice
+python3 tools/mutate_harness.py --list       # the mutation catalogue
+python3 tools/verify/run_all.py              # everything above
 ```
 
 ## 9. Data in and out

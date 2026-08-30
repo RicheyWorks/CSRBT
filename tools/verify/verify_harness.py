@@ -81,6 +81,31 @@ FIXTURES = {
               'document.getElementById("deep").onclick=function(){'
               'document.getElementById("o").textContent=String(++n);};</script>' + TAIL,
 
+    # PROSE THAT LEGITIMATELY SAYS "undefined", DECLARED (ADR-109).
+    # field-notebook renders exactly this: Lincoln-Petersen is M*C/R and has no
+    # value at R=0, so the page says so. The old detector matched the word and
+    # reported the kit's carefulness as a value leak, twice. A declared zone is
+    # excused; the next two fixtures prove the excuse is narrow.
+    "prose_ok": HEAD + '<button id="a">estimate</button><p id="o">ready</p>'
+                '<script>document.getElementById("a").onclick=function(){'
+                'document.getElementById("o").innerHTML='
+                '"<span data-junk-ok=\'no value at R=0\'>the estimate is undefined'
+                ' (R must be at least 1)</span>";};</script>' + TAIL,
+
+    # the same word, NOT declared -- a real value leaking into the page
+    "prose_leak": HEAD + '<button id="a">show</button><p class="v" id="o">ready</p>'
+                  '<script>var q={};document.getElementById("a").onclick=function(){'
+                  'document.getElementById("o").textContent="Total: "+q.missing;};</script>' + TAIL,
+
+    # a declaration wrapped around a REAL NaN. The marker excuses the word
+    # "undefined" and nothing else; if this fixture passes, the escape hatch has
+    # become the way the next real leak goes unreported.
+    "prose_abuse": HEAD + '<button id="a">divide</button><p id="o">ready</p>'
+                   '<script>document.getElementById("a").onclick=function(){'
+                   'document.getElementById("o").innerHTML='
+                   '"<span data-junk-ok=\'trying to hide a real one\'>"'
+                   '+String(Number("x")/2)+"</span>";};</script>' + TAIL,
+
     # an affordance the page throws on
     "throws": HEAD + '<button id="a">boom</button>'
               '<script>document.getElementById("a").onclick=function(){'
@@ -123,6 +148,22 @@ ck(accounted(r), "junk fixture: every affordance accounted for")
 ck(any("junk rendered" in e for e in r["errors"]),
    "NaN reaching a value element is reported: %s" % r["errors"][:2])
 
+# ---- 2b. the junk rule knows prose from a value leak (ADR-109) ------------
+r = run("prose_ok")
+ck(accounted(r), "declared-prose fixture: every affordance accounted for")
+ck(not any("junk rendered" in e for e in r["errors"]),
+   "a DECLARED 'undefined' is prose, not a leak: %s" % r["errors"][:2])
+
+r = run("prose_leak")
+ck(accounted(r), "undeclared-leak fixture: every affordance accounted for")
+ck(any("junk rendered" in e for e in r["errors"]),
+   "an UNDECLARED undefined is still reported: %s" % r["errors"][:2])
+
+r = run("prose_abuse")
+ck(accounted(r), "abuse fixture: every affordance accounted for")
+ck(any("junk rendered" in e for e in r["errors"]),
+   "a declaration CANNOT hide a real NaN -- the hatch is not a way out: %s" % r["errors"][:2])
+
 # ---- 3. a row that really spills is reported, with the element named -------
 r = run("spill")
 ck(accounted(r), "spill fixture: every affordance accounted for")
@@ -150,9 +191,15 @@ ck(set(harness.EXCLUDED) <= set(k for k, _ in harness.KINDS),
    "every excluded kind is a kind the harness actually discovers")
 ck(all(len(v) > 40 for v in harness.EXCLUDED.values()),
    "every exclusion carries a reason, not a label")
+# Six, since ADR-109. "sequenced" holds affordances the harness's OWN setup
+# removed before it could press them -- stepping a stepper the other way, moving
+# a radio group off the option under test. Ten of twenty-one dead findings were
+# that, and calling them dead was the instrument accusing working code. They stay
+# counted and stay visible; they are simply not the same fact as a control wired
+# to nothing, and the identity must not fold them together.
 ck("BUCKETS" in dir(harness) and set(harness.BUCKETS) ==
-   {"driven", "dead", "hidden", "failed", "excluded"},
-   "the accounting has exactly the five buckets the report adds up")
+   {"driven", "dead", "sequenced", "hidden", "failed", "excluded"},
+   "the accounting has exactly the six buckets the report adds up")
 
 # ---- 7. the measurements that were wrong once, asserted -------------------
 src = io.open(os.path.join(_kit.TOOLS_DIR, "harness.py"), encoding="utf-8").read()

@@ -79,7 +79,7 @@ ck("the kit drives at least %d affordances (ratchet)" % CONTROL_FLOOR,
    discovered >= CONTROL_FLOOR, discovered)
 ck("the harness accounts for every affordance it discovered",
    discovered == sum(led.get("totals", {}).get(k, 0)
-                     for k in ("driven", "dead", "hidden", "failed", "excluded")),
+                     for k in ("driven", "dead", "sequenced", "hidden", "failed", "excluded")),
    led.get("totals"))
 
 # ── 3 + 6. atomic resolution, and the canaries ───────────────────────────────
