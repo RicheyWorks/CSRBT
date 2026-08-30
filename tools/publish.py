@@ -70,7 +70,15 @@ def main(argv):
         if left:
             rc = 1
         if not check:
-            with open(os.path.join(OUT, name), "w", encoding="utf-8") as f:
+            # newline="" so \n is written as \n on every platform. Without it
+            # Python translates to \r\n on Windows, and publish_state.sha() reads
+            # these files in binary -- so the SAME page stamped from Windows and
+            # from Linux gets two different hashes, and a stamp taken on one
+            # reads as BEHIND on the other. The ledger silently meant a different
+            # thing depending on who last ran it. Measured: verify_publish_drift
+            # is 50/50 on Linux and 49/50 on Windows, failing exactly the check
+            # that compares a stamped sha to the bytes publish.py would emit.
+            with open(os.path.join(OUT, name), "w", encoding="utf-8", newline="") as f:
                 f.write(out)
         print("%-30s %7d bytes   %s" % (name, len(out), "UNWIRED: " + ", ".join(left) if left else "ok"))
 

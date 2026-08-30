@@ -42,9 +42,32 @@ STUB = ('<!doctype html><html lang="en"><head><meta charset="utf-8">'
         '<style>@media print { body { background:#fff; } }</style>'
         '</head><body>stub</body></html>')
 
-ok = bad = 0
+ok = bad = unv = 0
+
+# WHY THIS SUITE CAN REPORT A THIRD THING (ADR-105)
+#
+# Every check here seeds a fault, runs audit_frontend over it, and asserts the
+# audit caught it. The audit was run as a subprocess and its RETURN CODE was
+# never looked at -- only its stdout was scraped for finding rows. So an audit
+# that died on its import line produced no rows, and all twelve seeded faults
+# reported "got: []" as though the finder had looked and missed them.
+#
+# That is not hypothetical: audit_frontend needs playwright, neither Richmond's
+# Windows host nor the desktop Linux VM has it, and this suite has been printing
+# twelve false failures on both -- 6/19 in two environments, which is what made
+# it look like a real defect in the finder. Twelve accusations against working
+# code, from a canary that never checked whether its subject started.
+#
+# It is the same defect as ADR-104, one layer down: a shortfall that means
+# "did not run" reported as one that means "ran and failed".
+WHY_NOT = None
+
 def ck(name, cond, got=""):
-    global ok, bad
+    global ok, bad, unv
+    if WHY_NOT is not None:
+        unv += 1
+        print("NOT VERIFIED: %s (%s)" % (name, WHY_NOT))
+        return
     if cond: ok += 1; print("PASS  " + name)
     else:    bad += 1; print("FAIL  %s   got: %r" % (name, got))
 
@@ -89,6 +112,15 @@ def run_audit(edit=None, page=None, subset=None):
         for line in (p.stdout + p.stderr).split("\n"):
             m = re.match(r'\[(HIGH|MED|LOW)\]\s+(\S+)\s+(\S+)\s+(.*)', line)
             if m: rows.append(m.groups())
+        # An audit that did not start has not cleared a seeded fault, and its
+        # empty output is not evidence about the finder. Latch the reason once;
+        # every check from here reports NOT VERIFIED rather than a false FAIL.
+        if p.returncode != 0 and not rows:
+            global WHY_NOT
+            if WHY_NOT is None:
+                err = [l.strip() for l in (p.stderr or p.stdout).split("\n") if l.strip()]
+                WHY_NOT = ("audit_frontend did not run (rc=%d): %s"
+                           % (p.returncode, err[-1][:70] if err else "no output"))
         return rows, p.stdout + p.stderr
     finally:
         shutil.rmtree(tmp, ignore_errors=True)
@@ -194,4 +226,8 @@ for name, page, kind, should_fire, edit in CASES:
 
 print("-" * 70)
 print("%d passed, %d failed" % (ok, bad))
+if unv:
+    # The score line run_all parses, with the holes inside the denominator so
+    # the shortfall is visible and exactly accounted for (ADR-104).
+    print("%d/%d checks" % (ok, ok + bad + unv))
 sys.exit(1 if bad else 0)
