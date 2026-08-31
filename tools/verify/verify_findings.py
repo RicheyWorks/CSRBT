@@ -105,13 +105,26 @@ _new, _fixed = findings.diff(dict(_base, **{"canary.html | dead | a third": 1}),
 ck("canary: a baseline entry that no longer occurs is reported as fixed",
    any("a third" in x for x in _fixed), _fixed)
 
-# Duplicates must not collapse: eight identical spills are eight facts, and a
-# baseline of one would otherwise hide seven regressions behind it.
+# A COUNT IS NOT A REGRESSION (ADR-110). The first version of this rule compared
+# occurrence counts, and adding the second-chance retry moved one signature from
+# seven occurrences to nine without a line of page code changing -- how many rows
+# a walk builds before it reaches a spilling one is a property of the walk. A
+# ratchet that fires on its own maintenance gets ignored, which is the one thing
+# a defect register cannot survive.
 _led3 = json.loads(json.dumps(_led))
 _led3["pages"][0]["dead"].append({"label": "a button"})
 _new, _fixed = findings.diff(_base, findings.signatures(_led3))
-ck("canary: a SECOND occurrence of an accepted finding is still a regression",
-   any("a button" in x for x in _new), _new)
+ck("canary: the same finding occurring twice is not a new finding", not _new, _new)
+
+# ...and the identity that makes that safe: generated row ids are normalised away,
+# so a family of identical row spills is ONE signature rather than twenty-three
+# unstable ones, and a genuinely different control is still its own.
+_led4 = {"pages": [{"page": "c.html", "dead": [], "failed": [],
+                    "errors": ["spills 9px sideways [action_btn:3 harness-991:plot:07row]: x",
+                               "spills 9px sideways [action_btn:4 harness-991:plot:08row]: x"]}]}
+_sig4 = findings.signatures(_led4)
+ck("canary: two rows differing only by a generated id are one signature",
+   len(_sig4) == 1, dict(_sig4))
 
 print("-" * 70)
 print("accepted debt: %d distinct, %d occurrences across %d page(s)"

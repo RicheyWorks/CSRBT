@@ -65,9 +65,35 @@ MUTANTS = [
     # twice and an ambiguous anchor is a mutant whose result cannot be believed.
     # The runner caught that itself and reported BAD MUTANT rather than a pass.
     ("a control invisible with its own pane open is counted as driven",
-     'rec["why"] = "not visible with its own pane open"\n            res["hidden"].append(rec)',
-     'rec["why"] = "not visible with its own pane open"\n            res["driven"].append(rec)',
+     "            res[\"hidden\"].append(rec)\n            continue\n\n        # Pressing something",
+     "            res[\"driven\"].append(rec)\n            continue\n\n        # Pressing something",
      "B3"),
+
+    # ---- K: one visibility oracle (ADR-111) ----------------------------------
+    # Put discovery's old, weaker visibility test back. It disagrees with the
+    # one the driver obeys, so a control inside a collapsed <details> is called
+    # visible, driven, times out, and is filed as a page failure.
+    ("discovery goes back to its own visibility test, disagreeing with the driver",
+     'const rendered = (typeof el.checkVisibility === "function")\n      ? el.checkVisibility()\n      : (s.visibility !== "hidden" && s.display !== "none");',
+     'const rendered = (s.visibility !== "hidden" && s.display !== "none");',
+     "K1"),
+    # Stop counting collapsed disclosures, so a control that is merely unopened
+    # is reported with the wording that points at the page.
+    ("a collapsed disclosure is no longer told apart from a hidden control",
+     'if (n.tagName === "DETAILS" && !n.open) shut++;',
+     'if (false) shut++;',
+     "K2"),
+    ("the second chance never runs",
+     'if res["dead"]:', 'if False and res["dead"]:',
+     "J1"),
+    ("the second chance does not rebuild state before retrying",
+     '                        try:\n                            act(pg, a)\n                            pg.wait_for_timeout(15)\n                        except Exception:\n                            pass',
+     "                        pass",
+     "J3b"),
+    ("a revived control is not recorded as having needed prior state",
+     'r["note"] = ((r.get("note") or "") + " [needed prior state]").strip()',
+     'r["note"] = (r.get("note") or "")',
+     "J2"),
     ("the accounting loses a bucket",
      'BUCKETS = ("driven", "dead", "sequenced", "hidden", "failed", "excluded")',
      'BUCKETS = ("driven", "dead", "sequenced", "hidden", "failed")',
@@ -87,7 +113,14 @@ def run_one(name, find, repl, expect, keep=False):
     io.open(target, "w", encoding="utf-8", newline="\n").write(src.replace(find, repl, 1))
 
     matrix = os.path.join(dst, "verify", "verify_harness_matrix.py")
-    p = subprocess.run([sys.executable, matrix], capture_output=True, text=True, timeout=1800)
+    # Section I of the matrix checks that every anchor in this catalogue still
+    # matches the harness exactly once. Under mutation the harness is altered on
+    # purpose, so that check would fire on every mutant whose anchor it removed --
+    # and a mutant "killed" by I2 has proved nothing about the clause it targets.
+    # The run is marked so section I stands aside.
+    env = dict(os.environ, HARNESS_MUTANT="1")
+    p = subprocess.run([sys.executable, matrix], capture_output=True, text=True,
+                       timeout=1800, env=env)
     out = p.stdout + p.stderr
     fails = [l for l in out.split("\n") if l.startswith("FAIL")]
     if not keep:

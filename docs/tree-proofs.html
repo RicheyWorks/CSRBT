@@ -500,12 +500,26 @@ function rbInsert(T,k){
   T.root.red=false;
 }
 var RB=null, RBMODE=0;
+/* The shuffle below used to be a pure function of the loop index -- no seed and
+   no state -- so "New random tree" rebuilt the SAME tree on every press, and
+   take was 13 every time because RB.rot is read from a tree created one line
+   earlier and is therefore always 0. The button was not wired to nothing; it
+   was wired to something that could not answer, which is the harder version of
+   the same defect and the one the harness's oracle exists to catch (ADR-110).
+
+   The fix keeps this kit's determinism rather than reaching for Math.random():
+   a counter advances once per press and seeds the mixer, so press N always
+   yields tree N -- reproducible, and different from press N-1. */
+var rbSeed = 0;
 function rbBuild(){
   RB=mkTree();
+  rbSeed = (rbSeed + 1) | 0;
   var keys=[],i;
   for(i=1;i<=40;i++)keys.push(i);
-  for(i=keys.length-1;i>0;i--){ var j=Math.floor(((i*2654435761)%2147483647)/2147483647*(i+1)); var t=keys[i];keys[i]=keys[j];keys[j]=t; }
-  var take=13+ (RB.rot%3);
+  var st = (rbSeed * 2654435761) >>> 0;
+  function rnd(){ st ^= st << 13; st >>>= 0; st ^= st >>> 17; st ^= st << 5; st >>>= 0; return st / 4294967296; }
+  for(i=keys.length-1;i>0;i--){ var j=Math.floor(rnd()*(i+1)); var t=keys[i];keys[i]=keys[j];keys[j]=t; }
+  var take=13+(rbSeed%3);
   for(i=0;i<take;i++)rbInsert(RB,keys[i]);
   rbPaint();
 }

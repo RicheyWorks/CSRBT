@@ -32,7 +32,10 @@ WHAT "IT WORKED" MEANS
       * nothing spilling sideways out of a 390px viewport
 
     An affordance that leaves NO trace is the finding: it is wired to nothing,
-    or wired to something that does not answer.
+    or wired to something that does not answer -- but only after a SECOND CHANCE
+    against the page as the walk has left it. A control that operates on data
+    does nothing when there is no data, and doing nothing is then the correct
+    behaviour, not a defect (ADR-110).
 
 THE ACCOUNTING
     discovered == driven + dead + sequenced + hidden + failed + excluded, per page
@@ -217,12 +220,32 @@ PROBE = r"""
   const junkSrc = (junk && junk.input === scan) ? scan : t;
   const panes = document.querySelectorAll(".pane").length;
   const el = id ? document.querySelector('[data-h="' + id + '"]') : null;
-  let vis = false, on = false;
+  let vis = false, on = false, shut = 0;
   if (el) {
     const r = el.getBoundingClientRect();
     const s = getComputedStyle(el);
-    vis = r.width > 0 && r.height > 0 && s.visibility !== "hidden" && s.display !== "none";
+    // ONE visibility oracle. This used to be the rect-and-computed-style test
+    // alone, and it disagreed with the one Playwright's fill/click uses. A
+    // textarea inside a COLLAPSED <details> reports a 300x120 box and
+    // visibility:visible -- Chromium skips rendering the subtree without
+    // touching either -- so discovery called it visible, the driver's fill
+    // timed out waiting for actionability, and four working controls on
+    // ecology-lab were written down as "action raised": a defect reported
+    // against the product that was never true of it. Two oracles inside one
+    // instrument is one oracle too many; checkVisibility() is the one the
+    // driver obeys, so it is the one discovery asks.
+    const rendered = (typeof el.checkVisibility === "function")
+      ? el.checkVisibility()
+      : (s.visibility !== "hidden" && s.display !== "none");
+    vis = r.width > 0 && r.height > 0 && rendered;
     on = el.classList.contains("on");
+    // How many collapsed disclosures stand between this control and the page.
+    // A closed <details> is prior state a person supplies by clicking the
+    // summary, exactly like an unopened pane -- so it is worth telling apart
+    // from a control that is hidden for good.
+    for (let n = el.parentElement; n; n = n.parentElement) {
+      if (n.tagName === "DETAILS" && !n.open) shut++;
+    }
   }
   return {
     // WHICH things are on, not how many. Counting caught a toggle going on and
@@ -234,7 +257,7 @@ PROBE = r"""
                 e => (e.getAttribute("data-h") || "") + "/" + e.className + "/" +
                      (e.textContent || "").slice(0, 16)).join("|")),
           calls: (window.__H ? window.__H.calls.length : 0) },
-    present: !!el, visible: vis, wasOn: on,
+    present: !!el, visible: vis, wasOn: on, shut: shut,
     junk: junk ? junkSrc.slice(Math.max(0, junk.index - 60), junk.index + 60).replace(/\s+/g, " ") : null,
     junkTok: junk ? junk[0] : null,
     panes: panes, onp: document.querySelectorAll(".pane.on").length,
@@ -334,6 +357,35 @@ def show_pane(pg, pane):
     return pg.evaluate(ACTIVE_PANE) == pane
 
 
+# WHY THE WALK DOES NOT EXPAND DISCLOSURES (ADR-111)
+#
+# A collapsed <details> is prior state a person supplies by clicking a summary,
+# so the controls inside one look like they deserve to be driven. Two ways of
+# doing that were built and measured, and both were reverted:
+#
+#   per-control, opened just before the press   ecology-lab  85 -> 55 driven
+#   once on load, before any id is handed out   ecology-lab  85 -> 55 driven
+#
+# Same number, because the cost is not the toggling. It is what is INSIDE these
+# particular disclosures: a raw "edit as text" textarea that rebuilds the whole
+# widget from its contents. Filling it destroys the row editor above it -- rows
+# an earlier press had added, each carrying its own +, -, x buttons -- and the
+# affordance ids are positional within a kind, so every id above the break then
+# pointed at nothing. Four controls bought, thirty lost.
+#
+# Driving the raw box and driving the row buttons are mutually exclusive in one
+# walk. That is not a harness defect and not a page defect; it is the `sequenced`
+# phenomenon at the scale of a whole widget, and the honest reading is the one
+# with more coverage: leave the box shut, count it `hidden`, and say why.
+#
+# Worth recording separately: throughout both experiments the accounting
+# identity held perfectly. An identity says nothing was lost TRACK of, not that
+# nothing was lost. It caught ADR-110's off-by-two because that bug dropped
+# records; it cannot catch a change that drops opportunities. Coverage needs its
+# own floor, which is what verify_routes' CONTROL_FLOOR is for, and the floor is
+# the check that would have caught this if the measurement had not.
+
+
 def act(pg, a):
     """Do to the affordance what a finger would. Returns a note, or raises."""
     sel = '[data-h="%s"]' % a["id"]
@@ -408,7 +460,13 @@ def drive_all(pg, found, res, console):
             res["hidden"].append(rec)
             continue
         if not before["visible"]:
-            rec["why"] = "not visible with its own pane open"
+            # Named, not lumped in with the rest. "Not visible" invites the
+            # reader to suspect the page; "inside a collapsed disclosure" says
+            # the control is fine and simply was not opened, which is true and
+            # is a different piece of work to do about it.
+            rec["why"] = ("inside a collapsed disclosure the walk did not open"
+                          if before.get("shut")
+                          else "not visible with its own pane open")
             res["hidden"].append(rec)
             continue
 
@@ -542,6 +600,7 @@ def run_page(name, passes=3, url=None):
         # pass turns up nothing new, or the cap is reached. Every id seen in any
         # pass is accounted for; nothing is discovered and then forgotten.
         seen, res["passes"] = set(), 0
+        spec = {}
         for _ in range(passes):
             res["passes"] += 1
             fresh = [a for a in pg.evaluate(DISCOVER, KINDS) if a["id"] not in seen]
@@ -549,8 +608,89 @@ def run_page(name, passes=3, url=None):
                 break
             for a in fresh:
                 seen.add(a["id"])
+                spec[a["id"]] = a
             drive_all(pg, fresh, res, console)
         res["discovered"] = len(seen)
+
+        # SECOND CHANCE: A CONTROL JUDGED ON AN EMPTY PAGE WAS NOT JUDGED (ADR-110)
+        #
+        # The passes above solve half the state problem: a page that has had a
+        # record added offers controls that were not there at load, so the walk
+        # repeats until nothing new turns up. But it only ever DRIVES the newly
+        # discovered ones. An affordance pressed in pass one is never pressed
+        # again, however much state the rest of the walk has since built.
+        #
+        # For a kit of data-entry pages that is the wrong half. "Undo", "Clear
+        # trial", "Copy CSV", the row-removing "x" -- every one of them operates
+        # ON DATA, and every one was pressed while there was none, left no trace,
+        # and was filed as wired to nothing. Measured directly on field-notebook:
+        # Undo from an empty tally changes nothing, which is correct; tally one
+        # card first and it takes the tap back. The control was never broken. The
+        # harness had judged it in a state where doing nothing IS the right
+        # behaviour.
+        #
+        # So anything still dead at the end is pressed once more against the page
+        # as the walk has left it -- by then rows have been added, tallies made,
+        # forms filled. Nothing synthetic is injected: the state is whatever the
+        # kit's own affordances built. If it leaves a trace now, it was never
+        # dead, and it is recorded as needing prior state, which is a fact about
+        # the control worth keeping rather than a defect.
+        if res["dead"]:
+            # The state has to be rebuilt IMMEDIATELY BEFORE the retry, not merely
+            # inherited from the end of the walk. Undo is the case that proves it:
+            # the walk taps cards (building history) and also presses Undo on every
+            # pass (draining it), so by the end the history is empty again and a
+            # retry in that state is the same wrong test a second time. So for each
+            # pane, the affordances that DID leave a trace there are replayed first
+            # -- the page's own controls, nothing synthetic -- and then its dead
+            # candidates are pressed against that freshly built state.
+            driven_ids = [r["id"] for r in res["driven"] if r["id"] in spec]
+            by_pane = {}
+            for r in res["dead"]:
+                by_pane.setdefault(r.get("pane"), []).append(r)
+            # still_dead is separate from res["dead"] on purpose: the loop below
+            # extends every bucket from each pane's retry, and assigning
+            # res["dead"] = kept afterwards silently discarded the ones that came
+            # back still dead. Two affordances vanished and the accounting identity
+            # caught it -- which is exactly what it is for.
+            kept, still_dead, revived_total, retried_total = [], [], 0, 0
+            for pane, recs in by_pane.items():
+                retry = [spec[r["id"]] for r in recs if r["id"] in spec]
+                kept.extend(r for r in recs if r["id"] not in spec)
+                if not retry:
+                    continue
+                retried_total += len(retry)
+                dead_ids = {a["id"] for a in retry}
+                try:
+                    show_pane(pg, pane)
+                    pg.evaluate(DISCOVER, KINDS)
+                    for did in driven_ids:
+                        a = spec[did]
+                        if a["pane"] != pane or a["id"] in dead_ids:
+                            continue
+                        try:
+                            act(pg, a)
+                            pg.wait_for_timeout(15)
+                        except Exception:
+                            pass
+                    pg.evaluate(QUIESCE)
+                except Exception:
+                    pass
+                second = {k: [] for k in BUCKETS}
+                second["errors"] = []
+                second["junk_on_load"] = res.get("junk_on_load", "")
+                drive_all(pg, retry, second, console)
+                for r in second["driven"]:
+                    r["note"] = ((r.get("note") or "") + " [needed prior state]").strip()
+                for bucket in BUCKETS:
+                    if bucket == "dead":
+                        still_dead.extend(second["dead"])
+                    else:
+                        res[bucket].extend(second[bucket])
+                res["errors"].extend(second["errors"])
+                revived_total += len(second["driven"])
+            res["dead"] = kept + still_dead
+            res["second_chance"] = {"retried": retried_total, "revived": revived_total}
         res["calls"] = pg.evaluate("() => window.__H.calls.map(c => c.k)")
         ctx.close()
         b.close()

@@ -324,8 +324,148 @@ if os.path.isfile(led):
        real["totals"]["discovered"] == total(real["pages"], "discovered"),
        (real["totals"]["discovered"], total(real["pages"], "discovered")))
 
+# ══ J. THE SECOND CHANCE ═════════════════════════════════════════════════════
+# PROMISE (ADR-110): a control that operates on data is not judged on an empty
+# page. Anything still dead at the end of the walk is pressed once more, with the
+# state its own pane's working controls can build. Ten of twelve "dead" findings
+# in this kit were this -- Undo with nothing to undo, Copy CSV with nothing to
+# copy -- and doing nothing was the correct behaviour every time.
+print("\n-- J. a control judged on an empty page was not judged --")
+
+# "log" tallies; "undo" only does anything once something has been tallied.
+# Undo comes FIRST in document order on purpose. The walk drives in that order,
+# so undo is pressed while there is nothing to undo -- the situation the real
+# pages produce and the one the second chance exists for. With log first the walk
+# seeds it by accident and the retry never fires; the first draft did that, and
+# J3 caught it.
+STATEFUL = ('<button id="undo">undo</button><button id="log">log one</button>'
+            '<p id="o"></p>'
+            '<script>var n=0;'
+            'document.getElementById("log").onclick=function(){'
+            'n++;document.getElementById("o").textContent="count "+n;};'
+            'document.getElementById("undo").onclick=function(){'
+            'if(n>0){n--;document.getElementById("o").textContent=n?"count "+n:"";}};'
+            '</script>')
+r = run("j_stateful", STATEFUL)
+ck("J1: a control that needs prior state is driven, not called wired to nothing",
+   "undo" in labels(r, "driven"), {b: labels(r, b) for b in harness.BUCKETS if r[b]})
+ck("J2: and it is recorded as having needed that state",
+   any("needed prior state" in (x.get("note") or "")
+       for x in r["driven"] if x.get("label") == "undo"),
+   [x.get("note") for x in r["driven"] if x.get("label") == "undo"])
+ck("J3: the run reports what the second chance retried and revived",
+   r.get("second_chance", {}).get("revived", 0) >= 1, r.get("second_chance"))
+
+# THE STATE MUST BE REBUILT, NOT INHERITED.
+# J1-J3 pass even if the retry simply reuses whatever state the walk left, because
+# in that fixture the state survives to the end. The real case does not: on
+# field-notebook the walk both builds the tally history and drains it, so by the
+# end there is nothing to undo and a retry in that state is the same wrong test
+# twice. Mutation testing found exactly this hole -- "the second chance does not
+# rebuild state before retrying" SURVIVED against J1-J3.
+#
+# Here the drain lives in a second pane, so the walk ends with the state empty and
+# the pane-scoped replay is the only thing that can bring it back.
+DRAINED = ('<button class="tab on" data-pane="p1">one</button>'
+           '<button class="tab" data-pane="p2">two</button>'
+           '<section class="pane on" id="p1">'
+           '  <button id="undo">undo</button><button id="log">log one</button>'
+           '  <p id="o"></p></section>'
+           '<section class="pane" id="p2"><button id="reset">reset all</button>'
+           '  <p id="o2">idle</p></section>'
+           '<script>var n=0;'
+           'function show(){document.getElementById("o").textContent=n?"count "+n:"";}'
+           'document.getElementById("log").onclick=function(){n++;show();};'
+           'document.getElementById("undo").onclick=function(){if(n>0){n--;show();}};'
+           'document.getElementById("reset").onclick=function(){n=0;show();'
+           'document.getElementById("o2").textContent="cleared at "+Date.now();};'
+           'document.querySelectorAll(".tab").forEach(function(t){t.onclick=function(){'
+           'document.querySelectorAll(".tab").forEach(function(x){x.classList.toggle("on",x===t);});'
+           'document.querySelectorAll(".pane").forEach(function(q){'
+           'q.classList.toggle("on",q.id===t.dataset.pane);});};});</script>')
+r = run("j_drained", DRAINED)
+ck("J3b: the retry REBUILDS state -- it does not merely inherit what the walk left",
+   "undo" in labels(r, "driven"),
+   {b: labels(r, b) for b in harness.BUCKETS if r[b]})
+
+# The retry must not resurrect everything: a control wired to nothing has no
+# state that could make it answer, and it has to stay dead.
+r = run("j_reallydead", STATEFUL + '<button id="x">wired to nothing</button>')
+ck("J4: a genuinely dead control is still dead after the second chance",
+   "wired to nothing" in labels(r, "dead"), labels(r, "dead"))
+ck("J5: and the identity still holds with the retry in play", accounted(r), r["discovered"])
+
+# ══ K. ONE VISIBILITY ORACLE ═════════════════════════════════════════════════
+# PROMISE: discovery and the driver agree about what "visible" means.
+#
+# They did not. Discovery asked getBoundingClientRect plus computed display and
+# visibility; the driver asked Playwright, which asks checkVisibility(). A
+# textarea inside a COLLAPSED <details> passes the first and fails the second --
+# Chromium skips rendering the subtree without touching either property, so the
+# box is still 300x120 and the styles still say visible. Four working controls
+# on ecology-lab were driven, timed out, and written down as "action raised":
+# a defect reported against a page that did not have one.
+#
+# The bucket a control lands in is a claim about the PAGE. `failed` says the
+# page misbehaved. `hidden` says the harness did not reach it. Sending an
+# unreached control to `failed` is the instrument accusing working code, which
+# is this kit's recurring defect wearing its sixth outfit. What section K pins
+# is not the wording but the direction: a control the driver cannot act on must
+# never have been called visible in the first place.
+print("\n-- K. discovery and the driver share one notion of visible --")
+
+SHUT = ('<details><summary>edit as text</summary>'
+        '  <textarea id="inside">robin 34</textarea></details>')
+r = run("k_shut", SHUT)
+ck("K1: a control in a collapsed disclosure is hidden, not failed",
+   labels(r, "hidden") and not r["failed"],
+   {"hidden": labels(r, "hidden"), "failed": labels(r, "failed")})
+ck("K2: and the reason names the disclosure, not the page",
+   any("disclosure" in (x.get("why") or "") for x in r["hidden"]),
+   [x.get("why") for x in r["hidden"]])
+
+# The rule is not "details means hidden". An OPEN disclosure is an ordinary
+# part of the page and everything in it is drivable; if K3 ever fails together
+# with K1 passing, the harness has stopped testing disclosures altogether while
+# still reporting green.
+OPEN = ('<details open><summary>edit as text</summary>'
+        '  <textarea id="inside" oninput="document.title=this.value"></textarea>'
+        '</details>')
+r = run("k_open", OPEN)
+ck("K3: a control in an OPEN disclosure is driven normally",
+   any("inside" in (x.get("label") or "") or x.get("kind") == "text_in"
+       for x in r["driven"]),
+   {b: labels(r, b) for b in harness.BUCKETS if r[b]})
+
+# The two halves of the oracle, one at a time: not-rendered, and rendered but
+# with no box. Both are hidden, and neither is a disclosure, so both must keep
+# the older wording rather than being relabelled by the new branch.
+r = run("k_none", '<div style="display:none"><button id="g">gone</button></div>')
+ck("K4: a display:none control is hidden and NOT called a disclosure",
+   labels(r, "hidden") and not any("disclosure" in (x.get("why") or "")
+                                   for x in r["hidden"]),
+   [(x.get("label"), x.get("why")) for x in r["hidden"]])
+
+r = run("k_zero", '<button id="z" style="width:0;height:0;padding:0;border:0;'
+                  'overflow:hidden"></button>')
+ck("K5: a rendered control with no box is hidden",
+   not r["driven"] or all(x.get("kind") != "action_btn" for x in r["driven"]),
+   {b: labels(r, b) for b in harness.BUCKETS if r[b]})
+
+# The promise itself, stated as the thing that must never happen: no control
+# may be reported as a page failure for a reason that is really "the harness
+# could not act on it". An actionability timeout in `failed` is that report.
+for nm, body in (("k_shut2", SHUT), ("k_none2",
+                 '<div style="display:none"><input id="q"></div>')):
+    r = run(nm, body)
+    ck("K6[%s]: nothing lands in failed with an actionability timeout" % nm,
+       not [x for x in r["failed"] if "Timeout" in str(x.get("got") or "")],
+       [x.get("got") for x in r["failed"]])
+    ck("K7[%s]: and the identity holds" % nm, accounted(r), r["discovered"])
+
+
 # ══ I. IS THIS SUITE ITSELF WORTH ANYTHING? ══════════════════════════════════
-# The catalogue in tools/mutate_harness.py breaks the harness ten ways on a COPY
+# The catalogue in tools/mutate_harness.py breaks the harness fifteen ways on a COPY
 # and requires this suite to notice each one. Running the whole catalogue here
 # would take minutes, so what is asserted is that the catalogue exists, that
 # every mutant names the check that must kill it, and that every anchor it uses
@@ -335,10 +475,19 @@ if os.path.isfile(led):
 print("\n-- I. the mutation catalogue still bites --")
 import mutate_harness                                            # noqa: E402
 src = io.open(os.path.join(ROOT, "tools", "harness.py"), encoding="utf-8").read()
-ck("I1: the catalogue is not empty", len(mutate_harness.MUTANTS) >= 10,
+ck("I1: the catalogue is not empty", len(mutate_harness.MUTANTS) >= 15,
    len(mutate_harness.MUTANTS))
-stale = [n for n, find, _, _ in mutate_harness.MUTANTS if src.count(find) != 1]
-ck("I2: every mutant's anchor still matches the harness exactly once", not stale, stale)
+if os.environ.get("HARNESS_MUTANT"):
+    # A mutation run has deliberately changed the harness, so an anchor that no
+    # longer matches is the mutation working, not the catalogue rotting. Reported
+    # rather than skipped in silence: a check that quietly stops running is the
+    # thing this whole file exists to prevent.
+    print("NOT VERIFIED: I2 anchors -- this is a mutation run and the harness is "
+          "altered on purpose")
+    ok += 0
+else:
+    stale = [n for n, find, _, _ in mutate_harness.MUTANTS if src.count(find) != 1]
+    ck("I2: every mutant's anchor still matches the harness exactly once", not stale, stale)
 ck("I3: every mutant names the check that must kill it",
    all(e for _, _, _, e in mutate_harness.MUTANTS),
    [n for n, _, _, e in mutate_harness.MUTANTS if not e])

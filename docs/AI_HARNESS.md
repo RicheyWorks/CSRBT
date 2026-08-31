@@ -86,7 +86,8 @@ a control wired to nothing. The run prints `UNACCOUNTED` if it does not hold, be
 a harness that loses track of an affordance is reporting a coverage it does not
 have. `excluded` is the only way out and every entry carries its reason.
 
-Current: **3,699 discovered across 41 pages.**
+Current: **3,699 discovered across 41 pages** — 2,367 driven, 1 dead,
+10 sequenced, 255 hidden, **0 failed**, 1,066 excluded.
 
 ## 6. The ratchet
 
@@ -133,25 +134,127 @@ fails **both** ways:
   and also fails — a register longer than the real problem stops being read.
 
 A finding is signed `page | category | label`, because the harness's own ids
-renumber whenever a page changes. Duplicates are counted, so eight identical
-spills cannot hide behind one accepted entry.
+renumber whenever a page changes. The label is **normalised** before signing:
+generated row ids and bare integers collapse to `#`, so `row 12 · harness-408`
+and `row 13 · harness-409` sign the same. Without that, one repeating row-spill
+defect signed twenty-three ways and the register grew every time a page was
+edited — a ratchet that fires on renumbering teaches you to stop reading it.
 
-Current accepted debt: **32 distinct, 76 occurrences, 8 pages**, each with a
+Occurrences are **recorded but not compared**. This is a deliberate retraction of
+ADR-109's "duplicates are counted, so eight identical spills cannot hide behind
+one accepted entry": the count moved 7 → 9 on `survey-design` purely because the
+second chance pressed two more controls on a page whose defect had not changed.
+A count that moves when the *harness* changes is not a fact about the product.
+Set membership is; that is what is enforced, both ways.
+
+Current accepted debt: **13 distinct, 63 occurrences, 3 pages**, each with a
 reason. Adding to that file is accepting a defect deliberately.
+
+The "fixed without being written off" half is not decoration. It fired on the
+ADR-111 run and refused the build until four entries were struck — four accepted
+"defects" on `ecology-lab` that had never been defects at all. A baseline is
+where a finding goes to stop being looked at, so the check that makes you look
+again is the one that keeps the file honest.
 
 ## 7b. The harness is tested like something that can fail a build
 
 Because it now can. `tools/verify/verify_harness_matrix.py` walks the contract
-clause by clause — **56 checks**: all 20 discovery kinds, all 6 buckets, every
-trace the oracle accepts, every invariant it claims to catch, hostile pages
-(no controls, throws on load, self-removing control, `confirm`/`prompt`, a slow
-handler), determinism, unique addressability, and the ledger arithmetic.
+clause by clause — **71 checks in eleven sections**: A discovery (all 20 kinds),
+B buckets (all 6, and that each one is *reached*, not merely present),
+C the traces the oracle accepts, D the invariants it claims to catch,
+E hostile pages (no controls, throws on load, self-removing control,
+`confirm`/`prompt`, a slow handler), F determinism, G unique addressability,
+H the ledger arithmetic, I catalogue liveness, J the second chance, and
+K one visibility oracle.
+
+Section B used to assert that the `sequenced` bucket *existed*. A surviving
+mutant found that: you can delete every path that puts something in it and the
+check still passes. It now asserts placement, both ways.
 
 And the tester is tested by breaking the harness on purpose.
-`tools/mutate_harness.py` applies **ten mutations to a copy** and requires the
-matrix to notice each one; every mutant names the check that must kill it.
-Current score: **10 killed, 0 survived**. A surviving mutant is the finding — it
-means that contract clause is asserted by nobody.
+`tools/mutate_harness.py` applies **fifteen mutations to a copy** and requires
+the matrix to notice each one; every mutant names the check that must kill it.
+Current score: **15 killed, 0 survived**.
+
+Two rules keep that score honest. A mutation whose anchor does not match exactly
+once is reported as `BAD MUTANT`, not silently skipped — two mutations had been
+"killed" without ever being applied. And the runner sets `HARNESS_MUTANT=1` so
+section I, which checks the catalogue's own anchors, stands aside: a mutant
+killed by the check that reads the mutation list proves nothing about the
+harness.
+
+A surviving mutant is the finding — it means that contract clause is asserted by
+nobody.
+
+## 7bb. Two oracles inside one instrument
+
+Four `ecology-lab` textareas were reported as `failed` — *"action raised:
+ElementHandle.fill: Timeout 2500ms exceeded"* — and sat in the baseline as
+accepted defect debt on a page that had no defect.
+
+The harness had **two** definitions of "visible" and did not know it. Discovery
+used a hand-rolled test — non-empty box, `display`, `visibility`. The driver used
+Playwright's, which is `checkVisibility()`. For every ordinary control they
+agree. For a control inside a **collapsed `<details>`** they do not: Chromium
+skips rendering the subtree without touching either property, so the box is still
+300×120 and the styles still say visible. Discovery said press it; the driver
+could not; the timeout was filed under `failed`, which in this harness means
+**the page misbehaved**.
+
+The bucket is a claim about the product. `failed` accuses; `hidden` says the
+harness did not get there. Sending an unreached control to `failed` is the
+instrument accusing working code — the sixth outfit of the same defect.
+
+There is now one oracle, and it is the driver's, because the driver's is the one
+that decides whether the press happens. The probe also counts collapsed
+disclosure ancestors, so the record reads *"inside a collapsed disclosure the
+walk did not open"* rather than something vaguer.
+
+**The harness does not open them.** That was built two ways and measured both:
+opening ancestors per press, and expanding everything once before discovery.
+Both bought four controls and cost thirty, because the box behind those
+particular disclosures rebuilds the whole widget from its own text and destroys
+the row editor above it — and affordance ids are positional, so every id above
+the break then pointed at nothing. Driving the raw box and driving the row
+buttons are mutually exclusive in one walk. The reading with more coverage wins.
+The rejected approach is kept in `harness.py` as a comment with its numbers in
+it, because "we tried opening them" is the first thing the next person will
+think of.
+
+Through both experiments **the accounting identity held perfectly** while
+coverage fell 85 → 55. An identity says nothing was lost *track* of; it does not
+say nothing was lost. It catches dropped records — it cannot catch dropped
+opportunities. `CONTROL_FLOOR` in the route contract is the check that can, and
+that is what it is for.
+
+## 7c. A control judged on a page that was never opened
+
+Twelve controls were reported dead. Two were. The other ten were on panes that
+open only after something else has been pressed — a result card that does not
+exist until you run the model, a step-two field behind a step-one choice. The
+harness pressed them on an empty page, got no trace, and wrote them down as wired
+to nothing. That is the same defect this document keeps finding in different
+clothes: **a check right about what it matched and wrong about what the match
+meant.**
+
+So the walk now has a second phase. When a pane reports dead controls, the
+harness re-enters that pane, replays the controls on it that *did* work — in
+discovery order, so the page is in the state a person would have put it in — and
+presses the dead ones again. Anything that answers moves to `driven` with the
+note `[needed prior state]`, which is a different fact from "worked first try"
+and is kept visible as one. Anything still silent stays dead and now means it.
+
+Dead went **12 → 2**. The two are real.
+
+The accounting identity is what caught the bug in the fix: the second-chance loop
+extended `res["dead"]` and then overwrote it, and the run printed `UNACCOUNTED`
+off by two. An identity that only holds when the code is right is worth more than
+a test that agrees with it.
+
+Section J of the matrix pins this: that a control needing prior state is revived,
+that one wired to nothing is not, that the note is attached, that a pane whose
+dead list is drained does not leave an empty entry behind, and that the identity
+still balances after the second phase.
 
 ## 8. Running it
 
@@ -162,8 +265,8 @@ python3 tools/harness.py                     # drive every page
 python3 tools/harness.py collection-sheet.html   # drive one; the rest is kept
 python3 tools/verify/verify_routes.py        # the app-wide contract
 python3 tools/verify/verify_findings.py       # the findings ratchet
-python3 tools/verify/verify_harness_matrix.py # the harness's own contract, 56 checks
-python3 tools/mutate_harness.py              # break the harness 10 ways, require notice
+python3 tools/verify/verify_harness_matrix.py # the harness's own contract, 71 checks
+python3 tools/mutate_harness.py              # break the harness 15 ways, require notice
 python3 tools/mutate_harness.py --list       # the mutation catalogue
 python3 tools/verify/run_all.py              # everything above
 ```

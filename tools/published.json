@@ -137,10 +137,9 @@
       "via": "read"
     },
     "field-notebook.html": {
-      "at": 1787876149,
-      "dated_by": "the version marker in the copy",
-      "sha": "5b00edd607867301acee23f8026855b83f8b1452ee899751ff29bcd89c06d72c",
-      "via": "read"
+      "at": 1788136457,
+      "sha": "ddc57684ea66dada9d38f1c1ce506381c4d2cda377eb4c62d4cfa1eca2348794",
+      "via": "publish"
     },
     "field-season.html": {
       "at": 1787950863,
@@ -229,10 +228,9 @@
       "via": "publish"
     },
     "tree-proofs.html": {
-      "at": 1787633321,
-      "dated_by": "the version marker in the copy",
-      "sha": "8fd9fb40cd2e7d8e6d587e25e9ee1a458f10ef72a6f37a5a05dd9ef2db04abc9",
-      "via": "read"
+      "at": 1788136457,
+      "sha": "4a2b56dad24f084b89c60428e1c6e191cbd7aeb393d172a0059890f2383f4ca0",
+      "via": "publish"
     },
     "tree-visualizer.html": {
       "at": 1787633327,
