@@ -61,14 +61,17 @@ MUTANTS = [
      "        self._q.put(None)\n\n    def _recv", "        pass\n\n    def _recv",
      "pump's sentinel"),
     (CONSOLE, "count-range is off by one",
-     'o.primary().countRange(lo, hi) + "}"', 'o.primary().countRange(lo, hi + 1) + "}"',
+     ': o.primary().countRange(lo, hi);', ': o.primary().countRange(lo, hi + 1);',
      "count-range agrees with the mirror"),
     (CONSOLE, "delete always claims the key existed",
      "existed = o.store().delete(k);", "existed = true; o.store().delete(k);",
      "reports existed="),
     (CONSOLE, "the sensitive sample ignores its cap",
-     "if (seen[0]++ < cap) {\n                    recs.add(rec(k, v));",
-     "if (seen[0]++ < 1000) {\n                    recs.add(rec(k, v));",
+     # Anchored on the sample's own range call: the same two lines occur in
+     # range() too, and an ambiguous anchor is a BAD MUTANT, which is what this
+     # one reported the day the console grew (ADR-113).
+     "o.primary().range(first, last, (k, v) -> {\n                if (seen[0]++ < cap) {",
+     "o.primary().range(first, last, (k, v) -> {\n                if (seen[0]++ < 1000) {",
      "sensitive sample is capped"),
     (CONSOLE, "cold-scan reports the live store instead of the archive",
      "int scanned = Organism.coldScan(a, (k, v) -> n[0]++);", "int scanned = o.primary().size();",
@@ -81,6 +84,39 @@ MUTANTS = [
      '        b.commit();\n        return "{\\"ok\\":true,\\"ops\\":"',
      '        return "{\\"ok\\":true,\\"ops\\":"',
      "size"),
+    # ---- ADR-113: every engine ------------------------------------------------
+    (PLUGIN, "reads drop their route and always go direct",
+     '        via = args.get("via") or "direct"\n        if action == "get":',
+     '        via = "direct"\n        if action == "get":',
+     "wire's own meters counted them"),
+    (PLUGIN, "restart is relabelled MUTATE",
+     '                           "NAVIGATE",\n                           [ArgumentSpec("chaos"',
+     '                           "MUTATE",\n                           [ArgumentSpec("chaos"',
+     "NAVIGATE"),
+    (PLUGIN, "groups is relabelled READ, leaking the histogram under the default policy",
+     '                           "SENSITIVE_READ",\n                           [ArgumentSpec("top"',
+     '                           "READ",\n                           [ArgumentSpec("top"',
+     "SENSITIVE_READ"),
+    (CONSOLE, "median answers the first key",
+     'case "median":     answer = w ? wire(SmokeSignalClient::medianKey) : p.medianKey(); break;',
+     'case "median":     answer = w ? wire(SmokeSignalClient::firstKey) : p.firstKey(); break;',
+     "median is the lower median"),
+    (CONSOLE, "overlap runs a stab",
+     "        var q = stab ? o.carver().query().stabbing(Organism.SPAN, lo)\n                     : o.carver().query().overlapping(Organism.SPAN, lo, hi);",
+     "        var q = o.carver().query().stabbing(Organism.SPAN, lo);",
+     "overlap agrees with brute force"),
+    (CONSOLE, "the cache reports a hit when the store answered",
+     ',\\"hit\\":" + (after.valueHits() > before.valueHits())',
+     ',\\"hit\\":" + (after.storeReads() > before.storeReads())',
+     "cache hit under champion"),
+    (CONSOLE, "as-of reads the live store instead of the aged view",
+     "            String v = past.store().get(k);",
+     "            String v = o.store().get(k);",
+     "as-of reads the frozen moment"),
+    (CONSOLE, "restart ignores its plan",
+     "        o = new Organism(organismRoot, seed, plan);",
+     "        o = new Organism(organismRoot, seed);",
+     "counts one injected fault"),
 ]
 
 # Applied, measured, survived, and judged equivalent: the console refuses the
@@ -92,6 +128,14 @@ KNOWN_EQUIVALENT = [
     ("the plugin's batch-op regex accepts anything",
      "the console refuses 'zap 3' with invalid_argument before the journal sees it; "
      "the suite observes the same code either way (measured 2026-09-01: 0 failures)"),
+    ("the plugin's order-arg check is removed",
+     "the console refuses 'order median 3' (3 is not a route) and 'order rank' (no key) "
+     "with invalid_argument itself; same code either way (ADR-113, reasoned not run: "
+     "identical shape to the batch-op case)"),
+    ("replica-get reads the primary",
+     "after quiesce the replica and the primary agree by construction, and the suite "
+     "cannot hold the replica behind the primary without a Sizzle.slow seam on the "
+     "replication tail, which the organism does not expose (ADR-113, held)"),
 ]
 
 

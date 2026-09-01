@@ -168,22 +168,41 @@ It needs the engine built once, as a sibling of this repo (or wherever
 cd ../WholeHog && ./gradlew harnessClasspath     # writes build/harness/classpath.txt
 ```
 
-| Action | Required arguments | Risk |
-|---|---|---|
-| `report` | none | `READ` |
-| `pulse` | none | `READ` |
-| `tick` | none | `NAVIGATE` |
-| `quiesce` | `ms` (0–30000) | `NAVIGATE` |
-| `get` | `key` | `SENSITIVE_READ` |
-| `contains` | `key` | `SENSITIVE_READ` |
-| `range` | `lo`, `hi`, `cap` (1–200) | `SENSITIVE_READ` |
-| `count-range` | `lo`, `hi` | `SENSITIVE_READ` |
-| `query` | `lo`, `hi`, `attr-lo`, `attr-hi`, `cap` | `SENSITIVE_READ` |
-| `cold-scan` | `generation` | `SENSITIVE_READ` |
-| `put` | `key`, `attr`, `start`, `end`, `via` (`direct`\|`wire`) | `MUTATE` |
-| `delete` | `key`, `via` | `MUTATE` |
-| `batch` | `ops` (`"p K A S E"` / `"d K"` strings, through Twine) | `MUTATE` |
-| `preserve` | none | `MUTATE` |
+| Engine | Action | Arguments | Risk |
+|---|---|---|---|
+| Rub | `report`, `pulse`, `history` | none | `READ` |
+| Rub | `tick` | none | `NAVIGATE` |
+| — | `quiesce` | `ms` (0–30000) | `NAVIGATE` |
+| SmokeHouse | `get`, `contains` | `key`, `via` | `SENSITIVE_READ` |
+| SmokeHouse | `range` | `lo`, `hi`, `cap` (1–200), `via` | `SENSITIVE_READ` |
+| SmokeHouse | `count-range` | `lo`, `hi`, `via` | `SENSITIVE_READ` |
+| SmokeHouse | `segments` | none | `READ` |
+| SmokeHouse | `compact` | none | `MUTATE` |
+| CSRBT | `order` | `kind` (rank\|nth\|median\|percentile\|first\|last\|size), `arg`, `via` | `SENSITIVE_READ` |
+| CSRBT | `depth` | `key` | `SENSITIVE_READ` |
+| Carver | `query` | `lo`, `hi`, `attr-lo`, `attr-hi`, `cap` | `SENSITIVE_READ` |
+| Carver | `overlap` | `lo`, `hi`, `cap` | `SENSITIVE_READ` |
+| Carver | `stab` | `point`, `cap` | `SENSITIVE_READ` |
+| Renderer | `groups` | `top` (1–1000) | `SENSITIVE_READ` |
+| Brine | `cache-get` | `key` | `SENSITIVE_READ` |
+| PitBoss | `fleet` | none | `READ` |
+| PitBoss | `replica-get` | `key` | `SENSITIVE_READ` |
+| PitBoss | `rebootstrap` | none | `MUTATE` |
+| Twine | `batch` | `ops` (`"p K A S E"` / `"d K"`) | `MUTATE` |
+| Twine | `recover` | none | `MUTATE` |
+| SmokeSignal | `put` | `key`, `attr`, `start`, `end`, `via` (`direct`\|`wire`) | `MUTATE` |
+| SmokeSignal | `delete` | `key`, `via` | `MUTATE` |
+| DryAge | `preserve` | none | `MUTATE` |
+| DryAge | `generations` | none | `READ` |
+| DryAge | `as-of` | `generation`, `key` | `SENSITIVE_READ` |
+| DryAge | `retain-newest` | `count` | `MUTATE` |
+| Jerky | `verify-archive`, `archive-names` | `generation` | `READ` |
+| Jerky | `cold-scan` | `generation` | `SENSITIVE_READ` |
+| Sizzle | `restart` | `chaos` (none\|once:N\|every:N\|prob:SEED:P), `latency-ms` | `NAVIGATE` |
+
+Thirty-three actions (ADR-113): every engine of the organism is reachable by
+its own surface. `via` is on every read the wire can answer as well as on the
+writes, so a client can test that the wire reads what the store reads.
 
 No action is `DESTRUCTIVE`: an organism has no generic "press this", so the rung
 the page needs has no member here and is left empty rather than filled for
@@ -195,8 +214,16 @@ only under `SENSITIVE_READ`.
 
 A dead or silent console is reported `unavailable`, never `failed`: `failed`
 accuses the target, and a transport death is not a finding about the organism.
-Chaos is a constructor seam on the organism, so there is no chaos action —
-`chaosCrashes` is in every snapshot for the day the seam is cut.
+
+Chaos goes through the front door. Sizzle is a constructor seam on the
+organism, so `restart` closes it and reopens it at the same root under a plan —
+which is also the crash-recovery road, because construction replays Twine's
+journal into every index. Arm `once:2`, commit a batch (`failed`: `Sizzle.Crash`
+at op 2, `chaosCrashes: 1`), `restart` clean (`journalReplays: 1`), and read the
+batch back whole. `restart` is `NAVIGATE`: it changes no record, and a plan only
+makes later writes fail. After `rebootstrap`, snapshots say
+`replicaObserverDetached: true` until the next restart — the replica vitals line
+is then about a store nobody reads, and the snapshot says so.
 
 ## Add another target
 
@@ -227,15 +254,20 @@ cache bounding, manifest completeness including typed array items, redaction wit
 and without `SENSITIVE_READ`, provider-safe naming, duplicate-plugin failure, and
 that every action the swarm drives with is one the plugin publishes.
 
-`tools/verify/verify_organism.py` (234 checks) is the evidence that the contract
-is target-neutral: the organism plugin driven through the gateway only — default
-refusals leaving every meter at zero, redaction both ways, a 160-op differential
-oracle over direct, wire and batch routes against a mirror, replay writing
-nothing, cold-scan equal to the preserved moment, nine refusals with the right
-code and no trace, a killed console `unavailable` in under a second, and the
-stdio transport end to end. `tools/mutate_organism.py` breaks the plugin and the
-console eleven ways and requires that suite to notice each (11 killed, 0
-survived, 1 recorded equivalent).
+`tools/verify/verify_organism.py` (284 checks) is the evidence that the contract
+is target-neutral and that the organism does what it says when driven through
+it: default refusals leaving every meter at zero, redaction both ways, a 160-op
+differential oracle over direct, wire and batch routes against a mirror, replay
+writing nothing, cold-scan equal to the preserved moment, nine refusals with the
+right code and no trace, a killed console `unavailable` in under a second, the
+stdio transport end to end — and (ADR-113) one oracle per engine: wire == direct,
+order statistics against the sorted mirror, Carver spans against brute force,
+the Renderer fold against the histogram, Brine's hit after its miss, the fleet
+through a rebootstrap, `as-of` reading the frozen moment, Jerky verifying,
+segments summing to the garbage, and the recovery road under an armed crash.
+`tools/mutate_organism.py` breaks the plugin and the console nineteen ways and
+requires that suite to notice each (19 killed, 0 survived, 3 recorded
+equivalents).
 
 `tools/verify/verify_swarm.py` is the evidence that the verdicts mean something:
 ten fixture pages, nine of them wired and wrong in a different way, one of them

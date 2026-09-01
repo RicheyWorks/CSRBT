@@ -21,6 +21,20 @@ a request id, against a policy it names.
   G. refusals: the boundary and the target both refuse, with the right code,
      and a refused write leaves no trace
   H. the physical never changes the patient
+  K. (ADR-113) every read over the wire equals the same read direct
+  L. order statistics -- CSRBT's own reads -- against the sorted mirror
+  M. Carver over the SPAN interval index against brute force
+  N. Renderer's fold against the mirror's attr histogram
+  O. Brine answers from the store once and from the cache after
+  P. PitBoss: the fleet is caught up, the replica agrees, and survives a
+     rebootstrap
+  Q. DryAge: as-of reads the frozen moment; retain-newest ages the vault
+  R. Jerky: the archive verifies and names its scan run
+  S. SmokeHouse: segments account for the garbage; compact changes no read
+  T. Twine: a clean journal has nothing to replay
+  U. Rub: history grows by one per tick
+  V. Sizzle: arm a crash by restart, watch a batch fail, restart clean, read
+     the batch back whole -- the recovery road through the gateway
   I. a dead console is `unavailable`, never a hang and never `failed`
   J. the stdio transport serves the organism with no change below its parser
 
@@ -84,23 +98,42 @@ plug = O.OrganismPlugin()          # no console yet: the descriptor is static
 d = plug.descriptor()
 ck(C.SLUG.match(d.id) and d.id == "csrbt-organism", "plugin id is a slug")
 names = [a.name for a in d.actions]
-ck(len(names) == len(set(names)) and len(names) >= 14,
+ck(len(names) == len(set(names)) and len(names) >= 33,
    "%d distinct actions" % len(names))
 ck(all(a.risk in C.RISKS for a in d.actions), "every action declares a risk")
 ck(not any(a.risk == "DESTRUCTIVE" for a in d.actions),
    "no action is DESTRUCTIVE: the organism has no generic press, so the rung "
    "the page plugin needs is left empty rather than filled for symmetry")
 ck({a.name for a in d.actions if a.risk == "MUTATE"} ==
-   {"put", "delete", "batch", "preserve"},
-   "exactly the four actions that change what is on disk are MUTATE")
+   {"put", "delete", "batch", "preserve", "rebootstrap", "retain-newest",
+    "compact", "recover"},
+   "exactly the eight actions that change what is on disk are MUTATE")
 ck({a.name for a in d.actions if a.risk == "SENSITIVE_READ"} ==
-   {"get", "contains", "range", "count-range", "query", "cold-scan"},
+   {"get", "contains", "range", "count-range", "query", "cold-scan", "order",
+    "depth", "overlap", "stab", "groups", "cache-get", "replica-get", "as-of"},
    "everything that returns a key, a value or an aggregate over named keys is "
    "SENSITIVE_READ -- 'does key 5 exist' is data about the data")
-ck({a.name for a in d.actions if a.risk == "READ"} == {"report", "pulse"},
-   "report and pulse are READ: meters only")
-ck({a.name for a in d.actions if a.risk == "NAVIGATE"} == {"tick", "quiesce"},
-   "tick and quiesce are NAVIGATE: they move an instrument, not a record")
+ck({a.name for a in d.actions if a.risk == "READ"} ==
+   {"report", "pulse", "fleet", "generations", "verify-archive", "archive-names",
+    "segments", "history"},
+   "READ is meters, lags, generation numbers, archive entry names, segment "
+   "sizes and a CRC verdict: never a key, never a value")
+ck({a.name for a in d.actions if a.risk == "NAVIGATE"} == {"tick", "quiesce", "restart"},
+   "tick, quiesce and restart are NAVIGATE: they move an instrument or reopen, "
+   "and change no record")
+ck(all(any(a.name == "via" for a in d.action(n).arguments)
+       for n in ("get", "contains", "range", "count-range", "order", "put", "delete")),
+   "every read that the wire can answer takes via, the same way the writes do")
+ENGINES = {"CSRBT": ("order", "depth"), "SmokeSignal": ("get",), "Carver": ("query", "overlap", "stab"),
+           "Renderer": ("groups",), "Brine": ("cache-get",),
+           "PitBoss": ("fleet", "replica-get", "rebootstrap"),
+           "DryAge": ("generations", "as-of", "retain-newest", "preserve"),
+           "Jerky": ("verify-archive", "archive-names", "cold-scan"),
+           "SmokeHouse": ("compact", "segments"), "Twine": ("batch", "recover"),
+           "Rub": ("tick", "pulse", "history", "report"), "Sizzle": ("restart",)}
+ck(all(n in names for acts in ENGINES.values() for n in acts),
+   "every engine in the organism is reachable by name through the manifest: %s"
+   % sorted(ENGINES))
 ck(all(len(a.description) > 15 for a in d.actions), "every action says what it does")
 batch = d.action("batch")
 ck(batch.arguments[0].type == "array" and batch.arguments[0].items == "string",
@@ -339,6 +372,7 @@ else:
     # ---- F. history ----
     r = run(gwW, "preserve")
     gen = r["output"]["generation"]
+    frozen = dict(model)
     moment = plug.observe()["size"]
     ck(r["ok"] and r["snapshot"]["generations"] == 1 and moment == len(model),
        "preserve returns generation %d and the vault holds one" % gen)
@@ -402,6 +436,198 @@ else:
     run(gwW, "tick")
     r = run(gwW, "pulse")
     ck(r["ok"] and r["output"]["pulse"] is not None, "after a second tick there is a pulse")
+
+    # ---- K. the wire agrees with the store ----
+    keys_live = sorted(model)
+    sample_keys = keys_live[::max(1, len(keys_live) // 10)][:10] + [999]
+    same = all(run(gwW, "get", key=k, via="wire")["output"].get("value") ==
+               run(gwW, "get", key=k, via="direct")["output"].get("value")
+               for k in sample_keys)
+    ck(same, "get over the wire equals get direct on %d keys (one absent)" % len(sample_keys))
+    r = run(gwW, "range", lo=0, hi=999, via="wire")
+    rd = run(gwW, "range", lo=0, hi=999, via="direct")
+    ck(r["output"]["records"] == rd["output"]["records"] and r["output"]["via"] == "wire",
+       "a full range over the wire is the same records in the same order")
+    same = all(run(gwW, "count-range", lo=lo, hi=hi, via="wire")["output"]["count"] ==
+               run(gwW, "count-range", lo=lo, hi=hi, via="direct")["output"]["count"]
+               for lo, hi in ((0, 50), (30, 120), (500, 600), (0, 999)))
+    ck(same, "count-range over the wire equals direct on four windows")
+    w = plug.observe()["wire"]
+    ck(w["gets"] >= len(sample_keys) and w["rangeQueries"] >= 5,
+       "and the wire's own meters counted them: gets=%d ranges=%d" % (w["gets"], w["rangeQueries"]))
+
+    # ---- L. order statistics against the sorted mirror ----
+    n = len(keys_live)
+    def order(kind, arg=None, via="direct"):
+        a = {"kind": kind, "via": via}
+        if arg is not None:
+            a["arg"] = arg
+        return run(gwW, "order", **a)["output"]["answer"]
+    ck(order("size") == n and order("first") == keys_live[0] and order("last") == keys_live[-1],
+       "size, first and last are the mirror's")
+    ck(order("median") == keys_live[(n - 1) // 2],
+       "median is the lower median of the sorted mirror (%s)" % order("median"))
+    ck(all(order("nth", r) == keys_live[r - 1] for r in (1, 2, n // 2, n)),
+       "nth (1-based) selects the mirror's r-th key")
+    ck(all(order("rank", k) == keys_live.index(k) + 1 for k in keys_live[::7]),
+       "rank of a live key is its 1-based position")
+    ck(order("percentile", 0) == keys_live[0] and order("percentile", 100) == keys_live[-1],
+       "percentile 0 and 100 are the ends")
+    ck(all(order(kind, None, "wire") == order(kind) for kind in ("size", "first", "last", "median")) and
+       all(order(kind, 2, "wire") == order(kind, 2) for kind in ("nth", "rank", "percentile")),
+       "every order statistic answers the same over the wire")
+    ok_, code = refused(lambda: run(gwW, "order", kind="nth", arg=0), "invalid_argument")
+    ck(ok_, "nth 0 is invalid_argument, not a crash: %s" % code)
+    ok_, code = refused(lambda: run(gwW, "order", kind="nth", arg=n + 1), "invalid_argument")
+    ck(ok_, "nth past the size is invalid_argument: %s" % code)
+    ok_, code = refused(lambda: run(gwW, "order", kind="median", arg=3), "invalid_argument")
+    ck(ok_, "an arg on a kind that takes none is refused at the boundary: %s" % code)
+    ok_, code = refused(lambda: run(gwW, "order", kind="rank"), "invalid_argument")
+    ck(ok_, "rank without a key is refused at the boundary: %s" % code)
+    d_live = run(gwW, "depth", key=keys_live[0])["output"]
+    d_gone = run(gwW, "depth", key=999)["output"]
+    ck(d_live["depth"] >= 1 and d_live["live"] and d_gone["depth"] < 0 and not d_gone["live"],
+       "depth is >= 1 for a live key and ~depth (negative) for an absent one: %d / %d"
+       % (d_live["depth"], d_gone["depth"]))
+
+    # ---- M. Carver over the interval index ----
+    bad = []
+    for _ in range(6):
+        lo = rnd.randint(0, 1999); hi = rnd.randint(lo, 1999)
+        want = sorted(k for k, v in model.items() if v[1] <= hi and v[2] >= lo)
+        r = run(gwW, "overlap", lo=lo, hi=hi)
+        if sorted(r["output"]["keys"]) != want:
+            bad.append((lo, hi, sorted(r["output"]["keys"]), want))
+    ck(not bad, "overlap agrees with brute force on 6 random spans: %s" % bad[:1])
+    ck("INTERVAL" in r["output"]["plan"], "and Carver drove the interval index: %r" % r["output"]["plan"])
+    bad = []
+    for _ in range(6):
+        pt = rnd.randint(0, 1999)
+        want = sorted(k for k, v in model.items() if v[1] <= pt <= v[2])
+        r = run(gwW, "stab", point=pt)
+        if sorted(r["output"]["keys"]) != want:
+            bad.append((pt, sorted(r["output"]["keys"]), want))
+    ck(not bad, "stab agrees with brute force on 6 random points: %s" % bad[:1])
+    ok_, code = refused(lambda: run(gwW, "overlap", lo=9, hi=1), "invalid_argument")
+    ck(ok_, "overlap lo > hi is refused by the target: %s" % code)
+
+    # ---- N. Renderer's fold ----
+    run(gwW, "quiesce", ms=15000)
+    hist = {}
+    for v in model.values():
+        hist[v[0]] = hist.get(v[0], 0) + 1
+    r = run(gwW, "groups", top=3)["output"]
+    top_want = sorted(hist.items(), key=lambda kv: (-kv[1], -kv[0]))[:3]
+    ck(r["groups"] == len(hist), "groups == distinct attrs in the mirror (%d)" % len(hist))
+    ck([(g["attr"], g["total"]) for g in r["top"]] == top_want and not r["gapped"],
+       "top-3 by total matches the mirror's histogram, gap-free: %s" % r["top"])
+
+    # ---- O. Brine ----
+    k0 = keys_live[3]
+    a = run(gwW, "cache-get", key=k0)["output"]
+    b = run(gwW, "cache-get", key=k0)["output"]
+    ck((a["value"]["attr"], a["value"]["start"], a["value"]["end"]) == model[k0] and
+       b["value"] == a["value"], "Brine's answer is the mirror's, twice")
+    ck(b["hit"] and not b["storeRead"] and a["champion"],
+       "the second read is a cache hit under champion %s" % a["champion"])
+
+    # ---- P. PitBoss ----
+    f = run(gwW, "fleet")["output"]
+    ck(len(f["replicas"]) == 1 and f["replicas"][0]["lag"] == 0 and not f["replicas"][0]["gapped"],
+       "the fleet has one replica, caught up and gap-free: %s" % f["replicas"])
+    same = all(run(gwW, "replica-get", key=k)["output"].get("value") ==
+               run(gwW, "get", key=k)["output"].get("value") for k in sample_keys)
+    ck(same, "the replica's store agrees with the primary on %d keys" % len(sample_keys))
+    r = run(gwW, "rebootstrap")
+    ck(r["ok"] and r["snapshot"]["replicaObserverDetached"] is True,
+       "rebootstrap says the replica observer is now detached, in every snapshot")
+    run(gwW, "put", key=777, attr=5, start=5, end=6); model[777] = (5, 5, 6); keys_live = sorted(model)
+    run(gwW, "quiesce", ms=15000)
+    f = run(gwW, "fleet")["output"]["replicas"][0]
+    ck(run(gwW, "replica-get", key=777)["output"]["found"] and f["lag"] == 0 and
+       not f["rebootstrapped"],
+       "the reborn replica catches a later write, lag 0 -- and the tick's rebootstrapped "
+       "flag stays false, because it reports what THE TICK did about a gap, not what a "
+       "caller asked for (the first draft of this check read it the other way)")
+
+    # ---- Q. DryAge ----
+    r = run(gwW, "generations")["output"]
+    ck(r["generations"] == [gen], "generations lists the one preserved: %s" % r["generations"])
+    changed = keys_live[5]
+    was = frozen[changed]
+    run(gwW, "put", key=changed, attr=0, start=0, end=0); model[changed] = (0, 0, 0)
+    a = run(gwW, "as-of", generation=gen, key=changed)["output"]
+    ck((a["value"]["attr"], a["value"]["start"], a["value"]["end"]) == was and a["size"] == len(frozen),
+       "as-of reads the frozen moment for a key changed since: %s then, %s now" % (was, model[changed]))
+    a = run(gwW, "as-of", generation=gen, key=777)["output"]
+    ck(not a["found"], "and a key written after the moment is not in it")
+    gen2 = run(gwW, "preserve")["output"]["generation"]
+    ck(run(gwW, "generations")["output"]["generations"] == [gen, gen2], "a second preserve, two generations")
+    r = run(gwW, "retain-newest", count=1)["output"]
+    ck(r["released"] == [gen] and run(gwW, "generations")["output"]["generations"] == [gen2],
+       "retain-newest 1 releases the older generation and keeps the newest")
+    ok_, code = refused(lambda: run(gwW, "as-of", generation=gen, key=changed), "not_found")
+    ck(ok_, "as-of a released generation is not_found: %s" % code)
+
+    # ---- R. Jerky ----
+    r = run(gwW, "verify-archive", generation=gen2)
+    ck(r["ok"] and r["output"]["verified"] is True and r["risk"] == "READ", "the archive verifies")
+    r = run(gwW, "archive-names", generation=gen2)["output"]
+    ck("scan.run" in r["names"] and any(x.startswith("manifest") for x in r["names"]),
+       "and names its scan run and manifest: %s" % r["names"])
+    ok_, code = refused(lambda: run(gwW, "archive-names", generation=gen2 + 50), "not_found")
+    ck(ok_, "names of an archive never cured is not_found: %s" % code)
+
+    # ---- S. SmokeHouse ----
+    segs = run(gwW, "segments")["output"]["segments"]
+    snap = plug.observe()
+    ck(segs and sum(x["garbageBytes"] for x in segs) == snap["garbageBytes"] and
+       sum(1 for x in segs if x["active"]) == 1 and len(segs) == snap["segments"],
+       "segments account for the snapshot's garbage, one active: %d segment(s)" % len(segs))
+    before = run(gwW, "range", lo=0, hi=999)["output"]["records"]
+    r = run(gwW, "compact")["output"]
+    after = run(gwW, "range", lo=0, hi=999)["output"]["records"]
+    ck(r["garbageAfter"] <= r["garbageBefore"] and after == before,
+       "compact reclaimed %d bytes (garbage %d -> %d) and changed no read"
+       % (r["reclaimed"], r["garbageBefore"], r["garbageAfter"]))
+
+    # ---- T. Twine ----
+    r = run(gwW, "recover")["output"]
+    ck(r["replayed"] is False, "a clean journal has nothing to replay")
+
+    # ---- U. Rub ----
+    h0 = len(run(gwW, "history")["output"]["history"])
+    t = run(gwW, "tick")["output"]["vitals"]
+    h = run(gwW, "history")["output"]["history"]
+    ck(len(h) == h0 + 1 and h[-1] == t, "history grew by one and its last sample is the tick's")
+
+    # ---- V. Sizzle: the recovery road ----
+    size0 = plug.observe()["size"]
+    r = run(gwW, "restart", chaos="once:2")
+    ck(r["ok"] and r["risk"] == "NAVIGATE" and r["output"]["size"] == size0 and
+       r["snapshot"]["chaos"] == "once:2" and r["snapshot"]["restarts"] == 1,
+       "restart under once:2 reopens the same store (%d keys) with the plan armed" % size0)
+    ok_, code = refused(lambda: run(gwW, "batch", ops=["p 900 1 1 1", "p 901 1 1 1", "p 902 1 1 1"]),
+                        "failed")
+    ck(ok_ and plug.observe()["chaosCrashes"] == 1,
+       "a three-op batch crashes at op 2 and the snapshot counts one injected fault: %s" % code)
+    r = run(gwW, "restart")
+    ck(r["output"]["chaos"] == "none" and r["output"]["journalReplays"] >= 1,
+       "a clean restart replayed the journal: journalReplays=%d" % r["output"]["journalReplays"])
+    for k in (900, 901, 902):
+        model[k] = (1, 1, 1)
+    run(gwW, "quiesce", ms=15000)
+    got = [(x["key"], (x["value"]["attr"], x["value"]["start"], x["value"]["end"]))
+           for x in run(gwW, "range", lo=0, hi=999)["output"]["records"]]
+    ck(got == sorted(model.items()),
+       "and the crashed batch is back whole, in every index, alongside everything else")
+    ck(run(gwW, "groups", top=1)["output"]["groups"] == len({v[0] for v in model.values()}),
+       "the Renderer fold replayed with it")
+    ok_, code = refused(lambda: run(gwW, "restart", chaos="bogus"), "invalid_argument")
+    ck(ok_, "an unknown plan is refused at the boundary: %s" % code)
+    ok_, code = refused(lambda: run(gwW, "restart", **{"latency-ms": 9999}), "invalid_argument")
+    ck(ok_, "a latency past the cap is refused: %s" % code)
+    ck(plug.observe()["restarts"] == 2, "and neither refusal restarted anything")
 
     # ---- I. a dead console ----
     plug.console.proc.kill()

@@ -31,8 +31,10 @@ THE RISK MAPPING, AND WHY
                     over named keys: get, contains, range, count-range, query,
                     cold-scan, and the sensitive half of observe (a record
                     sample). "Does key 5 exist" is data about the data.
-    MUTATE          put, delete, batch, preserve. Every one changes what is on
-                    disk: the store, the journal, the vault, an archive.
+    MUTATE          put, delete, batch, preserve, and (ADR-113) compact,
+                    recover, retain-newest, rebootstrap. Every one changes what
+                    is on disk: the store, the journal, the vault, an archive,
+                    the replica's directory.
     DESTRUCTIVE     nothing. There is no generic "press this" on an organism;
                     every action here names exactly what it does, so the
                     rung the page plugin needs for "a selector that might be
@@ -44,13 +46,35 @@ THE RISK MAPPING, AND WHY
     claim is that every route lands in every index; a client that can name
     the route can test the claim.
 
-WHAT IS HELD
-    Chaos (Sizzle) is a constructor seam on the Organism -- a ChaosPlan is
-    fixed at standup, not injected at runtime -- so there is no chaos action.
-    Publishing one would need an upstream cut, and "a harness that presses
-    buttons nobody can reach" is ADR-103's finding, not a thing to repeat.
-    The console reports chaosCrashes in every snapshot so the day the seam is
-    cut the meter is already wired.
+EVERY ENGINE, BY NAME (ADR-113)
+    ADR-112 reached the organism through the store. ADR-113 reaches each
+    organ through its own surface, so the manifest names what the ecosystem
+    can do rather than what a key-value store can do:
+
+      CSRBT        order (rank, nth, median, percentile, first, last, size)
+                   and depth -- the measuring read
+      SmokeSignal  every read takes via = direct | wire, like the writes
+      Carver       query (secondary), overlap and stab (the SPAN interval index)
+      Renderer     groups -- the materialized fold, top-k attrs with totals
+      Brine        cache-get -- and whether the cache or the store answered
+      PitBoss      fleet, replica-get, rebootstrap
+      DryAge       generations, as-of, retain-newest
+      Jerky        verify-archive, archive-names
+      SmokeHouse   compact, segments
+      Twine        recover
+      Rub          history
+      Sizzle       restart -- see below
+
+CHAOS, HONESTLY
+    Sizzle is a constructor seam on the Organism: a ChaosPlan is fixed at
+    standup, not injected at runtime. ADR-112 held chaos on that ground. The
+    honest way through is not a runtime knob upstream but the road the
+    organism's own tests take: close, reopen at the same root under a plan.
+    `restart` does exactly that, and it is also the crash-recovery road --
+    Twine's journal replays into every index on construction -- so a client
+    can arm a crash, watch a batch fail, restart clean, and read the batch
+    back whole. It is NAVIGATE: it changes no record; a plan only makes
+    later writes fail, and failing is something MUTATE already permits.
 
 LIVENESS
     The console is a child process. It can die. Every request has a bounded
@@ -81,6 +105,8 @@ STARTUP_TIMEOUT = 60.0
 SAMPLE_CAP = 20             # records in a sensitive snapshot
 RANGE_CAP = 200             # records one range/query answer may carry
 VIA = ["direct", "wire"]
+ORDER_KINDS = ["rank", "nth", "median", "percentile", "first", "last", "size"]
+CHAOS = re.compile(r"^(none|once:\d+|every:\d+|prob:-?\d+:(0|1|0?\.\d+))$")
 BATCH_OP = re.compile(r"^(p \d+ \d+ \d+ \d+|d \d+)$")
 
 
@@ -202,6 +228,16 @@ def _key(name, required=True):
     return ArgumentSpec(name, "integer", "A record key (integer).", required=required)
 
 
+def _via():
+    return ArgumentSpec("via", "string",
+                        "direct: the indexed store's fan-out. wire: a fresh SmokeSignal "
+                        "client over loopback. Default direct.", enum=VIA)
+
+
+def _cap_arg():
+    return ArgumentSpec("cap", "integer", "At most this many records (1-%d)." % RANGE_CAP)
+
+
 def _triple():
     return [ArgumentSpec("attr", "integer", "Attribute 0-999; feeds the secondary index and Renderer's grouping.", required=True),
             ArgumentSpec("start", "integer", "Span start 0-99999; feeds the interval index.", required=True),
@@ -225,15 +261,11 @@ class OrganismPlugin(Plugin):
             "lands in every index. Snapshots carry meters only; records need "
             "SENSITIVE_READ.",
             "1.0", [
+                # ---- writes: the four MUTATE routes of ADR-112 ---------------------
                 ActionSpec("put", "Write one record by the route named.", "MUTATE",
-                           [_key("key")] + _triple() +
-                           [ArgumentSpec("via", "string",
-                                         "direct: the indexed store's fan-out. "
-                                         "wire: a fresh SmokeSignal client over loopback.",
-                                         enum=VIA)]),
+                           [_key("key")] + _triple() + [_via()]),
                 ActionSpec("delete", "Delete one record by the route named.", "MUTATE",
-                           [_key("key"),
-                            ArgumentSpec("via", "string", "direct or wire.", enum=VIA)]),
+                           [_key("key"), _via()]),
                 ActionSpec("batch",
                            "Commit one crash-atomic batch through Twine's journal. "
                            "Each op is 'p KEY ATTR START END' or 'd KEY'.",
@@ -244,16 +276,32 @@ class OrganismPlugin(Plugin):
                            "Preserve the current moment into the vault and cure it "
                            "into a verified cold archive carrying its scan run.",
                            "MUTATE", []),
-                ActionSpec("get", "Read one record.", "SENSITIVE_READ", [_key("key")]),
+                # ---- reads, by route -----------------------------------------------
+                ActionSpec("get", "Read one record.", "SENSITIVE_READ", [_key("key"), _via()]),
                 ActionSpec("contains", "Whether a key is live.", "SENSITIVE_READ",
-                           [_key("key")]),
+                           [_key("key"), _via()]),
                 ActionSpec("range", "Records with keys in lo..hi, in key order, capped.",
                            "SENSITIVE_READ",
-                           [_key("lo"), _key("hi"),
-                            ArgumentSpec("cap", "integer",
-                                         "At most this many records (1-%d)." % RANGE_CAP)]),
+                           [_key("lo"), _key("hi"), _cap_arg(), _via()]),
                 ActionSpec("count-range", "How many live keys lie in lo..hi.",
-                           "SENSITIVE_READ", [_key("lo"), _key("hi")]),
+                           "SENSITIVE_READ", [_key("lo"), _key("hi"), _via()]),
+                # ---- CSRBT: the index's own reads ----------------------------------
+                ActionSpec("order",
+                           "An order statistic from the adaptive index: rank KEY, "
+                           "nth RANK (1-based), median, percentile PCT, first, last, "
+                           "size. Null on an empty store. Same names over the wire.",
+                           "SENSITIVE_READ",
+                           [ArgumentSpec("kind", "string", "Which statistic.",
+                                         required=True, enum=ORDER_KINDS),
+                            ArgumentSpec("arg", "integer",
+                                         "The key for rank, the rank for nth, the "
+                                         "percentile for percentile; otherwise omitted."),
+                            _via()]),
+                ActionSpec("depth",
+                           "CSRBT's measuring read: nodes the index touched to find a "
+                           "key (>= 1 when live; ~depth, negative, when absent).",
+                           "SENSITIVE_READ", [_key("key")]),
+                # ---- Carver --------------------------------------------------------
                 ActionSpec("query",
                            "A Carver cost-based query: keys in lo..hi whose attr is "
                            "in attr-lo..attr-hi. Returns the plan it chose and the keys.",
@@ -261,13 +309,82 @@ class OrganismPlugin(Plugin):
                            [_key("lo"), _key("hi"),
                             ArgumentSpec("attr-lo", "integer", "Attribute lower bound.", required=True),
                             ArgumentSpec("attr-hi", "integer", "Attribute upper bound.", required=True),
-                            ArgumentSpec("cap", "integer", "At most this many keys.")]),
+                            _cap_arg()]),
+                ActionSpec("overlap",
+                           "Carver over the SPAN interval index: keys whose span "
+                           "overlaps lo..hi. Plan and keys.",
+                           "SENSITIVE_READ",
+                           [ArgumentSpec("lo", "integer", "Span lower bound.", required=True),
+                            ArgumentSpec("hi", "integer", "Span upper bound.", required=True),
+                            _cap_arg()]),
+                ActionSpec("stab",
+                           "Carver over the SPAN interval index: keys whose span "
+                           "contains a point.",
+                           "SENSITIVE_READ",
+                           [ArgumentSpec("point", "integer", "The point.", required=True),
+                            _cap_arg()]),
+                # ---- Renderer, Brine, PitBoss --------------------------------------
+                ActionSpec("groups",
+                           "Renderer's materialized fold over attr: how many groups, "
+                           "the heaviest k with their totals, and whether the fold has "
+                           "caught the tail.",
+                           "SENSITIVE_READ",
+                           [ArgumentSpec("top", "integer", "How many groups to list (1-1000).")]),
+                ActionSpec("cache-get",
+                           "Brine's answer for a key, and whether the cache or the "
+                           "store supplied it; names the champion genome.",
+                           "SENSITIVE_READ", [_key("key")]),
+                ActionSpec("fleet",
+                           "PitBoss's tick: the primary sequence and, per replica, lag, "
+                           "gapped, and whether THIS tick rebootstrapped it for a gap "
+                           "(a rebootstrap you asked for is not reported here).",
+                           "READ", []),
+                ActionSpec("replica-get", "Read one record from the replica's own store.",
+                           "SENSITIVE_READ", [_key("key")]),
+                ActionSpec("rebootstrap",
+                           "Cold-start the replica mid-life: its directory is rebuilt "
+                           "from the primary. Snapshots then say replicaObserverDetached "
+                           "until the next restart, because Rub stays on the old store.",
+                           "MUTATE", []),
+                # ---- DryAge, Jerky -------------------------------------------------
+                ActionSpec("generations", "The vault's generation numbers.", "READ", []),
+                ActionSpec("as-of",
+                           "One key as it was in a preserved generation. A scratch "
+                           "copy is recovered and released.",
+                           "SENSITIVE_READ",
+                           [ArgumentSpec("generation", "integer", "Generation number.", required=True),
+                            _key("key")]),
+                ActionSpec("retain-newest",
+                           "Aging policy: release every generation but the newest n. "
+                           "Returns what was released.",
+                           "MUTATE",
+                           [ArgumentSpec("count", "integer", "Generations to keep.", required=True)]),
+                ActionSpec("verify-archive",
+                           "Jerky's whole-body CRC over a cured archive: true or false.",
+                           "READ",
+                           [ArgumentSpec("generation", "integer", "Generation number.", required=True)]),
+                ActionSpec("archive-names",
+                           "The entry names inside a cured archive (manifest, segments, "
+                           "scan run). Names only, never bytes.",
+                           "READ",
+                           [ArgumentSpec("generation", "integer", "Generation number.", required=True)]),
                 ActionSpec("cold-scan",
                            "Count the records in a cured archive by streaming its "
                            "scan run, without resurrecting a store.",
                            "SENSITIVE_READ",
                            [ArgumentSpec("generation", "integer",
                                          "Generation number preserve returned.", required=True)]),
+                # ---- SmokeHouse, Twine, Rub ----------------------------------------
+                ActionSpec("compact",
+                           "Compact the store's segments: garbage before and after, "
+                           "bytes reclaimed.",
+                           "MUTATE", []),
+                ActionSpec("segments", "Per-segment bytes, garbage and which is active.",
+                           "READ", []),
+                ActionSpec("recover",
+                           "Replay Twine's journal now: true if a batch was waiting.",
+                           "MUTATE", []),
+                ActionSpec("history", "Rub's sample history, oldest first.", "READ", []),
                 ActionSpec("report", "The physical: every engine's meters in one read-only call.",
                            "READ", []),
                 ActionSpec("pulse", "Rub's op-relative delta between the last two ticks.",
@@ -279,6 +396,17 @@ class OrganismPlugin(Plugin):
                            "up with the primary, or the timeout passes.",
                            "NAVIGATE",
                            [ArgumentSpec("ms", "integer", "Timeout in milliseconds, 0-30000.")]),
+                # ---- Sizzle --------------------------------------------------------
+                ActionSpec("restart",
+                           "Close the organism and reopen it at the same root -- the "
+                           "crash-recovery road (Twine's journal replays into every "
+                           "index) -- optionally under a Sizzle plan: none, once:N, "
+                           "every:N, prob:SEED:P, plus a per-write latency. Changes no "
+                           "record; a plan only makes later writes fail.",
+                           "NAVIGATE",
+                           [ArgumentSpec("chaos", "string",
+                                         "none | once:N | every:N | prob:SEED:P"),
+                            ArgumentSpec("latency-ms", "integer", "0-5000 per write op.")]),
             ])
 
     def descriptor(self):
@@ -341,26 +469,100 @@ class OrganismPlugin(Plugin):
         if action == "preserve":
             r = c.send("preserve")
             return True, "preserved generation %d" % r["generation"], _out(r)
+        via = args.get("via") or "direct"
         if action == "get":
-            r = c.send("get", args["key"])
-            return True, "get %d (found=%s)" % (args["key"], r["found"]), _out(r)
+            r = c.send("get", args["key"], via)
+            return True, "get %d via %s (found=%s)" % (args["key"], via, r["found"]), _out(r)
         if action == "contains":
-            r = c.send("contains", args["key"])
+            r = c.send("contains", args["key"], via)
             return True, "contains %d = %s" % (args["key"], r["found"]), _out(r)
         if action == "range":
-            cap = _cap(args.get("cap"))
-            r = c.send("range", args["lo"], args["hi"], cap)
-            return True, "%d record(s) in %d..%d" % (r["count"], args["lo"], args["hi"]), _out(r)
+            r = c.send("range", args["lo"], args["hi"], _cap(args.get("cap")), via)
+            return True, "%d record(s) in %d..%d via %s" % (r["count"], args["lo"], args["hi"], via), _out(r)
         if action == "count-range":
-            r = c.send("count", args["lo"], args["hi"])
-            return True, "%d key(s) in %d..%d" % (r["count"], args["lo"], args["hi"]), _out(r)
+            r = c.send("count", args["lo"], args["hi"], via)
+            return True, "%d key(s) in %d..%d via %s" % (r["count"], args["lo"], args["hi"], via), _out(r)
+        if action == "order":
+            kind = args["kind"]
+            needs = kind in ("rank", "nth", "percentile")
+            if needs and args.get("arg") is None:
+                raise InvalidArgument("order %s needs arg" % kind)
+            if not needs and args.get("arg") is not None:
+                raise InvalidArgument("order %s takes no arg" % kind)
+            r = c.send("order", kind, *([args["arg"]] if needs else []), via)
+            return True, "%s = %s via %s" % (kind, r["answer"], via), _out(r)
+        if action == "depth":
+            r = c.send("depth", args["key"])
+            return True, "depth of %d = %d" % (args["key"], r["depth"]), _out(r)
         if action == "query":
             cap = _cap(args.get("cap"))
             r = c.send("query", args["lo"], args["hi"], args["attr-lo"], args["attr-hi"], cap)
             return True, "%d key(s): %s" % (r["count"], r["plan"]), _out(r)
+        if action == "overlap":
+            r = c.send("overlap", args["lo"], args["hi"], _cap(args.get("cap")))
+            return True, "%d key(s): %s" % (r["count"], r["plan"]), _out(r)
+        if action == "stab":
+            r = c.send("stab", args["point"], _cap(args.get("cap")))
+            return True, "%d key(s): %s" % (r["count"], r["plan"]), _out(r)
+        if action == "groups":
+            top = args.get("top", 5)
+            if not 1 <= top <= 1000:
+                raise InvalidArgument("top must be 1-1000")
+            r = c.send("groups", top)
+            return True, "%d group(s)" % r["groups"], _out(r)
+        if action == "cache-get":
+            r = c.send("cacheget", args["key"])
+            return True, "cache-get %d (%s)" % (args["key"], "hit" if r["hit"] else "store"), _out(r)
+        if action == "fleet":
+            r = c.send("fleet")
+            return True, "%d replica(s)" % len(r["replicas"]), _out(r)
+        if action == "replica-get":
+            r = c.send("replicaget", args["key"])
+            return True, "replica-get %d (found=%s)" % (args["key"], r["found"]), _out(r)
+        if action == "rebootstrap":
+            r = c.send("rebootstrap")
+            return True, "replica rebootstrapped", _out(r)
+        if action == "generations":
+            r = c.send("generations")
+            return True, "%d generation(s)" % len(r["generations"]), _out(r)
+        if action == "as-of":
+            r = c.send("asof", args["generation"], args["key"])
+            return True, "as of %d: %d found=%s" % (args["generation"], args["key"], r["found"]), _out(r)
+        if action == "retain-newest":
+            if args["count"] < 0:
+                raise InvalidArgument("count must be >= 0")
+            r = c.send("retain", args["count"])
+            return True, "released %s" % r["released"], _out(r)
+        if action == "verify-archive":
+            r = c.send("verify", args["generation"])
+            return bool(r["verified"]), "verified=%s" % r["verified"], _out(r)
+        if action == "archive-names":
+            r = c.send("names", args["generation"])
+            return True, "%d entries" % len(r["names"]), _out(r)
         if action == "cold-scan":
             r = c.send("coldscan", args["generation"])
             return True, "%d record(s) in generation %d" % (r["records"], r["generation"]), _out(r)
+        if action == "compact":
+            r = c.send("compact")
+            return True, "reclaimed %d bytes" % r["reclaimed"], _out(r)
+        if action == "segments":
+            r = c.send("segments")
+            return True, "%d segment(s)" % len(r["segments"]), _out(r)
+        if action == "recover":
+            r = c.send("recover")
+            return True, "replayed=%s" % r["replayed"], _out(r)
+        if action == "history":
+            r = c.send("history")
+            return True, "%d sample(s)" % len(r["history"]), _out(r)
+        if action == "restart":
+            plan = args.get("chaos") or "none"
+            if not CHAOS.match(plan):
+                raise InvalidArgument("chaos must be none | once:N | every:N | prob:SEED:P")
+            lat = args.get("latency-ms", 0)
+            if not 0 <= lat <= 5000:
+                raise InvalidArgument("latency-ms must be 0-5000")
+            r = c.send("restart", plan, lat)
+            return True, "restarted under %s" % r["chaos"], _out(r)
         if action == "report":
             r = c.send("report")
             return True, "the physical", {"report": r["report"],

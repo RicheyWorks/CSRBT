@@ -268,13 +268,20 @@ the second implementation is the measurement, and it held.
 ```bash
 cd ../WholeHog && ./gradlew harnessClasspath         # once, after a clone
 python3 tools/harness_stdio.py --target organism     # or --target both
-python3 tools/verify/verify_organism.py              # 234 checks; NOT VERIFIED ×9 without the build
-python3 tools/mutate_organism.py                     # break plugin + console 11 ways, require notice
+python3 tools/verify/verify_organism.py              # 284 checks; NOT VERIFIED ×9 without the build
+python3 tools/mutate_organism.py                     # break plugin + console 19 ways, require notice
 ```
 
-The action table and the risk mapping are in `AUTOMATION-HARNESS.md`. The rule
-that carries over from the pages: a bucket is a claim about the product, so a
-console that dies is `unavailable`, not `failed`.
+ADR-113 finished the wiring: **33 actions, every engine by its own surface** —
+CSRBT's order statistics and probe depth, reads over the wire, Carver's interval
+index, Renderer's fold, Brine's cache, PitBoss's fleet and a rebootstrap,
+DryAge's `as-of` and aging, Jerky's verify, compaction, journal recovery, Rub's
+history, and chaos through `restart` (close, reopen at the same root under a
+Sizzle plan — the recovery road). One oracle per engine in the suite, each
+against the same mirror. The action table and the risk mapping are in
+`AUTOMATION-HARNESS.md`. The rule that carries over from the pages: a bucket is
+a claim about the product, so a console that dies is `unavailable`, not
+`failed`.
 
 ## 8. Running it
 
