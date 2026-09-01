@@ -274,7 +274,17 @@ python3 tools/organism_walk.py                       # the first robot: the mani
 python3 tools/verify/verify_organism_walk.py         # 26 checks on the robot and its ledger
 python3 tools/harness_mcp.py --target organism       # the second transport: MCP, for a model (ADR-115)
 python3 tools/verify/verify_mcp.py                   # 31 checks on it; mutate_mcp.py 6/6
+./gradlew :csrbt-experimental:harnessClasspath       # once: the science engine (ADR-116)
+python3 tools/harness_stdio.py --target lab          # or --target all: organism + lab + page
+python3 tools/verify/verify_lab.py                   # 35 checks; mutate_lab.py 9/9
 ```
+
+ADR-116 puts the science engine behind the same door — `csrbt-lab`: lint,
+run and grade an `.eco` protocol, the strategy arena, the controller's morph
+log, the field day, and export. Its canonical oracle (the shipped protocol
+through the gateway must reproduce the shipped session) found the shipped
+session stale, and the classpath it writes is what `verify_engine_sessions` had
+needed all along — that suite is fully verified for the first time.
 
 ADR-115 is the one that lets an AI in: `harness_mcp.py` serves the same gateway
 over the Model Context Protocol with nothing in the plugins or the gateway

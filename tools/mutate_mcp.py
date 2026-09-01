@@ -63,6 +63,12 @@ def run_one(find, repl, expect):
         p = subprocess.run([sys.executable, os.path.join(dst, "verify", "verify_mcp.py")],
                            capture_output=True, text=True, timeout=600, env=env)
         fails = [l for l in (p.stdout + p.stderr).split("\n") if l.startswith("FAIL")]
+        if not fails and p.returncode != 0:
+            # A suite that crashed under mutation asserted nothing either way. Reporting
+            # it SURVIVED would be the tool accusing its own suite of a hole it does not
+            # have; reporting it killed would be a kill by a traceback. Neither is a result.
+            return ("BAD MUTANT", "the suite crashed rather than failed: %s"
+                    % (out.strip().split("\n")[-1][:70] if out.strip() else "no output"))
         if not fails:
             return ("SURVIVED", "no check failed -- this clause is asserted by nobody")
         return ("killed" if any(expect in f for f in fails) else "killed by the wrong check",

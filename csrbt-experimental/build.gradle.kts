@@ -94,6 +94,24 @@ tasks.register<JavaExec>("ecologyTrace") {
 }
 
 // The classroom seam (ADR-019): run a plain-text experiment spec.
+// ADR-116 (2026-09-01): the science engine as a harness target. tools/harness_plugin_lab.py
+// launches LabConsole with the classpath this task writes -- same shape as WholeHog's task, so
+// the plugin never re-derives Gradle's resolution and an absent file means "not built".
+val harnessClasspath by tasks.registering {
+    description = "Write the experimental module's runtime classpath for the CSRBT harness plugin."
+    group = "verification"
+    dependsOn(tasks.named("classes"))
+    val cp = sourceSets.main.get().runtimeClasspath
+    val outFile = layout.buildDirectory.file("harness/classpath.txt")
+    inputs.files(cp)
+    outputs.file(outFile)
+    doLast {
+        val f = outFile.get().asFile
+        f.parentFile.mkdirs()
+        f.writeText(cp.files.joinToString(File.pathSeparator) { it.absolutePath })
+    }
+}
+
 // ./gradlew ecologyExperiment -Pspec=path/to/experiment.eco   (default: docs/sample-experiment.eco)
 tasks.register<JavaExec>("ecologyExperiment") {
     group = "verification"

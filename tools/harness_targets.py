@@ -9,7 +9,7 @@ maps four operations and decides nothing; this file decides what stands
 behind them, and it is the only place that knows a target's name.
 
     policy = require_policy()            # None, and a line on stderr, if off
-    plugins, closers = stand_up("organism", seed=42)
+    plugins, closers = stand_up("organism", seed=42)   # or "lab", "page", "both", "all"
     gateway = Gateway(Registry(plugins), policy)
 """
 import os, sys
@@ -19,7 +19,9 @@ sys.path.insert(0, HERE)
 sys.path.insert(0, os.path.join(HERE, "verify"))
 from harness_contract import HarnessError, Policy, TOKEN_MIN
 
-TARGETS = ("page", "organism", "both")
+TARGETS = ("page", "organism", "lab", "both", "all")
+WANTS = {"page": ("page",), "organism": ("organism",), "lab": ("lab",),
+         "both": ("organism", "page"), "all": ("organism", "lab", "page")}
 
 
 def require_policy(err=None):
@@ -45,7 +47,8 @@ def stand_up(target, page="ecology.html", seed=42, headed=False, err=None):
     if target not in TARGETS:
         raise ValueError("target must be one of %s" % ", ".join(TARGETS))
     plugins, closers = [], []
-    if target in ("organism", "both"):
+    wants = WANTS[target]
+    if "organism" in wants:
         from harness_plugin_organism import OrganismPlugin
         org = OrganismPlugin(seed=seed)
         try:
@@ -58,7 +61,20 @@ def stand_up(target, page="ecology.html", seed=42, headed=False, err=None):
             raise SystemExit(2)
         plugins.append(org)
         closers.append(org.close)
-    if target in ("page", "both"):
+    if "lab" in wants:
+        from harness_plugin_lab import LabPlugin
+        lab = LabPlugin()
+        try:
+            lab.observe()
+        except HarnessError as e:
+            err.write(e.message + "\n")
+            raise SystemExit(2)
+        if not lab.console or not lab.console.alive():
+            err.write("lab console did not come up\n")
+            raise SystemExit(2)
+        plugins.append(lab)
+        closers.append(lab.close)
+    if "page" in wants:
         import _kit
         import harness as H
         from playwright.sync_api import sync_playwright

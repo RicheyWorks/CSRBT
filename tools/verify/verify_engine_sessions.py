@@ -106,6 +106,17 @@ def classpath():
     An unverified result is honest; an unverified result with a wrong remedy
     just moves the confusion downstream.
     """
+    # ADR-116: the experimental module writes its own runtime classpath for the
+    # harness plugin (./gradlew :csrbt-experimental:harnessClasspath). When it
+    # is there it is exactly what this suite needed all along -- Gradle's own
+    # resolution, log4j included -- so the ~/.gradle hunt below is only the
+    # fallback for a tree built before that task existed.
+    written = os.path.join(ROOT, "csrbt-experimental", "build", "harness", "classpath.txt")
+    if os.path.isfile(written):
+        cp = io.open(written, encoding="utf-8").read().strip()
+        head = cp.split(os.pathsep)[0]
+        if os.path.isdir(head):
+            return cp, None
     parts = [os.path.join(ROOT, "csrbt-experimental", "build", "classes", "java", "main"),
              os.path.join(ROOT, "csrbt-core", "build", "classes", "java", "main")]
     missing = [p for p in parts if not os.path.isdir(p)]

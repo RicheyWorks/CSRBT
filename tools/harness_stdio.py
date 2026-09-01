@@ -91,9 +91,10 @@ def main():
     ap.add_argument("--page", default="ecology.html",
                     help="page to open in the browser the plugin drives")
     ap.add_argument("--headed", action="store_true")
-    ap.add_argument("--target", default="page", choices=["page", "organism", "both"],
+    ap.add_argument("--target", default="page", choices=["page", "organism", "lab", "both", "all"],
                     help="what the gateway fronts: a kit page, the WholeHog "
-                         "organism, or both (default: page)")
+                         "organism, the science lab, both (organism+page) or all "
+                         "(default: page)")
     ap.add_argument("--seed", type=int, default=42, help="organism seed")
     a = ap.parse_args()
 

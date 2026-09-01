@@ -187,6 +187,12 @@ def run_one(target, find, repl, expect, cp):
         fails = [l for l in out.split("\n") if l.startswith("FAIL")]
         if "NOT VERIFIED" in out:
             return ("BAD MUTANT", "the suite could not reach the engine under mutation")
+        if not fails and p.returncode != 0:
+            # A suite that crashed under mutation asserted nothing either way. Reporting
+            # it SURVIVED would be the tool accusing its own suite of a hole it does not
+            # have; reporting it killed would be a kill by a traceback. Neither is a result.
+            return ("BAD MUTANT", "the suite crashed rather than failed: %s"
+                    % (out.strip().split("\n")[-1][:70] if out.strip() else "no output"))
         if not fails:
             return ("SURVIVED", "no check failed -- this clause is asserted by nobody")
         hit = any(expect in f for f in fails)

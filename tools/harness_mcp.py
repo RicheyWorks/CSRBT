@@ -191,7 +191,7 @@ def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--page", default="ecology.html")
     ap.add_argument("--headed", action="store_true")
-    ap.add_argument("--target", default="page", choices=["page", "organism", "both"])
+    ap.add_argument("--target", default="page", choices=["page", "organism", "lab", "both", "all"])
     ap.add_argument("--seed", type=int, default=42)
     a = ap.parse_args()
     policy = require_policy()

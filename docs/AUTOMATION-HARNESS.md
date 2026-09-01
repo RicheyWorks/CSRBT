@@ -29,6 +29,7 @@ maps exactly four operations and decides nothing.
 | `tools/harness_contract.py` | risk ladder, policy, argument specs, registry, gateway |
 | `tools/harness_plugin_page.py` | the `csrbt-page` plugin: one page in a browser |
 | `tools/harness_plugin_organism.py` | the `csrbt-organism` plugin: the fourteen-engine organism in a child process (ADR-112) |
+| `tools/harness_plugin_lab.py` | the `csrbt-lab` plugin: the science engine — protocols graded, the arena, the controller, the field day (ADR-116) |
 | `tools/harness_stdio.py` | the first transport, ~120 lines |
 | `tools/harness_mcp.py` | the second transport: MCP (JSON-RPC 2.0 over stdio), no SDK (ADR-115) |
 | `tools/harness_targets.py` | stands a target up for either transport — the only file that names one |
@@ -269,6 +270,35 @@ makes later writes fail. After `rebootstrap`, snapshots say
 `replicaObserverDetached: true` until the next restart — the replica vitals line
 is then about a store nobody reads, and the snapshot says so.
 
+## The third target: the science engine
+
+`--target lab` serves `csrbt-lab` (ADR-116): csrbt-experimental's classroom
+runner, arena, adaptive controller and field day. Build it once:
+
+```bash
+./gradlew :csrbt-experimental:harnessClasspath
+```
+
+| Action | Arguments | Risk |
+|---|---|---|
+| `protocols` | none | `READ` |
+| `lint` | `protocol` | `READ` |
+| `run-protocol` | `name` (the shipped `.eco` files, an enum) | `NAVIGATE` |
+| `run` | `protocol` (an `.eco` text, ≤ 64 KiB; the schema carries a runnable example) | `NAVIGATE` |
+| `battle` | `workload` (enum), `ops` (100–50000), `seed` | `NAVIGATE` |
+| `adapt` | `keys` (1–100000), `ops` (1–50000), `seed` | `NAVIGATE` |
+| `field-day` | none | `NAVIGATE` |
+| `export` | `protocol` | `MUTATE` |
+
+A `run` returns the narrated report, the lab-page session, every hypothesis
+with its observed value and verdict (`CONFIRMED` / `REFUTED` / `UNGRADEABLE`),
+and the export names. Compute that persists nothing is `NAVIGATE`; `export`
+writes the bundle (CSVs, HTML, `workbook.xlsx`, `report.pptx`) into scratch the
+plugin owns and is `MUTATE`. A protocol's `dwc:` line is refused at the boundary
+and at the console: through the harness it would be the harness reading the
+operator's disk. `--target all` serves the organism, the lab and a page from one
+registry.
+
 ## Add another target
 
 Implement `Plugin` — `descriptor()`, `observe(sensitive)`, `execute(action,
@@ -319,6 +349,11 @@ equivalents).
 claim: an outsider, a generator that respects every kind of bound and reports
 the unformable rather than guessing, a live walk with full coverage and nothing
 failed, and the committed ledger at the same bar.
+
+`tools/verify/verify_lab.py` (35 checks) holds the third target to the
+canonical oracle the repository already keeps — the shipped protocol run through
+the gateway must produce the shipped session — and to determinism, grading,
+refusal and export. `tools/mutate_lab.py`: 9 killed, 0 survived, 1 equivalent.
 
 `tools/verify/verify_mcp.py` (31 checks) holds the second transport to "decides
 nothing": the adapter names no target, both transports share one builder, the
