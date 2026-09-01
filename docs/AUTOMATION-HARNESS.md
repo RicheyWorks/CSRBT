@@ -105,6 +105,24 @@ labels.
 current session, not a hint. The gateway enforces the same policy independently
 if a client submits the command anyway.
 
+**The schema is enough to form a call (ADR-114, protocol 1.1).** Integer and
+number arguments publish `minimum`/`maximum` (inclusive); string arguments and
+arrays of strings publish a `pattern` (full-match; on the items for arrays) —
+and a pattern always comes with `examples` that satisfy it, because a pattern
+with no example is a lock with no key. Unbounded integers such as keys carry
+`examples` as a pool to draw from. The gateway enforces all of it before a
+plugin runs: outside a bound or a pattern is `invalid_argument`. A value that is
+a fact of the moment rather than of the schema — which generations exist right
+now — is published in the snapshot as `argumentPools`, a map from argument name
+to currently valid values; observe, then act on what you observed.
+
+`tools/organism_walk.py` is the proof: a client that imports nothing from this
+kit, speaks the four operations over stdio, and forms every call from the
+schema alone. It drives all thirty-three organism actions, keeps the accounting
+identity `commands == driven + refused + declined + chaos + failed`, and fails
+if any published tool cannot be driven from its schema or any cross-check
+between reads breaks. Its ledger is `tools/organism_ledger.json`.
+
 ## Replay safety
 
 Every command carries a caller-generated `request_id`. Replaying the same id
@@ -268,6 +286,11 @@ segments summing to the garbage, and the recovery road under an armed crash.
 `tools/mutate_organism.py` breaks the plugin and the console nineteen ways and
 requires that suite to notice each (19 killed, 0 survived, 3 recorded
 equivalents).
+
+`tools/verify/verify_organism_walk.py` (26 checks) holds the first robot to its
+claim: an outsider, a generator that respects every kind of bound and reports
+the unformable rather than guessing, a live walk with full coverage and nothing
+failed, and the committed ledger at the same bar.
 
 `tools/verify/verify_swarm.py` is the evidence that the verdicts mean something:
 ten fixture pages, nine of them wired and wrong in a different way, one of them

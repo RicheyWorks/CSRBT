@@ -121,6 +121,19 @@ ck({a.name for a in d.actions if a.risk == "READ"} ==
 ck({a.name for a in d.actions if a.risk == "NAVIGATE"} == {"tick", "quiesce", "restart"},
    "tick, quiesce and restart are NAVIGATE: they move an instrument or reopen, "
    "and change no record")
+def _arg(action, name):
+    return [a for a in d.action(action).arguments if a.name == name][0]
+ck(_arg("range", "cap").maximum == O.RANGE_CAP and _arg("put", "attr").maximum == 999 and
+   _arg("put", "end").maximum == 99_999 and _arg("quiesce", "ms").maximum == 30_000 and
+   _arg("restart", "latency-ms").maximum == 5000 and _arg("groups", "top").minimum == 1 and
+   _arg("overlap", "hi").maximum == 99_999 and _arg("query", "attr-hi").maximum == 999,
+   "every bounded integer publishes its bound in the manifest (ADR-114)")
+ck(_arg("batch", "ops").pattern == O.BATCH_OP.pattern and len(_arg("batch", "ops").examples) >= 2 and
+   _arg("restart", "chaos").pattern == O.CHAOS.pattern and "once:2" in _arg("restart", "chaos").examples,
+   "the two string grammars are published as patterns WITH examples")
+ck(len(_arg("put", "key").examples) >= 5 and _arg("cold-scan", "generation").examples,
+   "unbounded keys and generations carry example values, so a schema-driven "
+   "client has a pool to draw from without guessing the domain")
 ck(all(any(a.name == "via" for a in d.action(n).arguments)
        for n in ("get", "contains", "range", "count-range", "order", "put", "delete")),
    "every read that the wire can answer takes via, the same way the writes do")
@@ -405,6 +418,12 @@ else:
                         "invalid_argument")
     ck(ok_, "an attribute outside the organism's domain is refused BY THE TARGET, "
        "which keeps its own rules: %s" % code)
+    ok_, code = refused(lambda: run(gwW, "put", key=1, attr=1, start=9, end=1, via="wire"),
+                        "invalid_argument")
+    ck(ok_, "a span with start > end is invalid_argument OVER THE WIRE too -- the first robot "
+       "found it answered failed on that route and invalid_argument on the other: %s" % code)
+    ok_, code = refused(lambda: run(gwW, "order", kind="nth", arg=10_000, via="wire"), "invalid_argument")
+    ck(ok_, "and so is a rank past the size over the wire: %s" % code)
     ok_, code = refused(lambda: run(gwW, "range", lo=9, hi=1), "invalid_argument")
     ck(ok_, "range with lo > hi is refused by the target: %s" % code)
     ok_, code = refused(lambda: run(gwW, "range", lo=1, hi=9, cap=0), "invalid_argument")
@@ -436,6 +455,10 @@ else:
     run(gwW, "tick")
     r = run(gwW, "pulse")
     ck(r["ok"] and r["output"]["pulse"] is not None, "after a second tick there is a pulse")
+    s = gwW.observe(TOKEN, plug.ID)
+    ck(s["argumentPools"]["generation"] == run(gwW, "generations")["output"]["generations"],
+       "the snapshot publishes the generations that exist right now as an argument pool "
+       "(ADR-114), so a manifest-only client can form an as-of it will not be refused")
 
     # ---- K. the wire agrees with the store ----
     keys_live = sorted(model)
@@ -611,6 +634,9 @@ else:
                         "failed")
     ck(ok_ and plug.observe()["chaosCrashes"] == 1,
        "a three-op batch crashes at op 2 and the snapshot counts one injected fault: %s" % code)
+    ok_, code = refused(lambda: run(gwW, "batch", ops=["p 903 1 1 1"]), "conflict")
+    ck(ok_, "a batch while the crashed one is still applying is a CONFLICT -- Twine's own "
+       "rule, not the organism failing (the first robot filed it under failed): %s" % code)
     r = run(gwW, "restart")
     ck(r["output"]["chaos"] == "none" and r["output"]["journalReplays"] >= 1,
        "a clean restart replayed the journal: journalReplays=%d" % r["output"]["journalReplays"])

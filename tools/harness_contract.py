@@ -74,7 +74,7 @@ REPLAY SAFETY
 """
 import hmac, json, os, re, time
 
-PROTOCOL_VERSION = "1.0"
+PROTOCOL_VERSION = "1.1"   # 1.1 (ADR-114): bounds, patterns, examples in argument schemas
 REPLAY_CACHE_LIMIT = 256
 REPLAY_CACHE_BYTE_LIMIT = 8 * 1024 * 1024
 TOKEN_MIN = 24
@@ -126,8 +126,19 @@ Failed = _err("failed")
 # ---------------------------------------------------------------------------
 
 class ArgumentSpec(object):
+    """One argument, typed, and -- since ADR-114 -- bounded well enough that a
+    client holding nothing but the manifest can form a valid call.
+
+    minimum/maximum apply to integer and number arguments; pattern applies to a
+    string argument, or to each item of an array of strings; examples are
+    values a client may use verbatim. An argument with a pattern MUST carry
+    examples, and every example must satisfy its own pattern, because the
+    manifest is the only thing a schema-driven client reads and a pattern with
+    no example is a lock with no key (organism_walk reported exactly that on the
+    batch-op strings before this rule existed)."""
+
     def __init__(self, name, type, description, required=False, items=None,
-                 enum=None):
+                 enum=None, minimum=None, maximum=None, pattern=None, examples=None):
         if type not in VALUE_TYPES:
             raise ValueError("unknown value type %r" % type)
         if type == "array" and items not in VALUE_TYPES:
@@ -135,15 +146,45 @@ class ArgumentSpec(object):
             # menu labels will build the wrong tool schema, so an array must
             # publish what it is an array OF.
             raise ValueError("array argument %r must declare items type" % name)
+        if (minimum is not None or maximum is not None) and type not in ("integer", "number"):
+            raise ValueError("argument %r: bounds need a numeric type" % name)
+        if minimum is not None and maximum is not None and minimum > maximum:
+            raise ValueError("argument %r: minimum %r > maximum %r" % (name, minimum, maximum))
+        if pattern is not None:
+            if not (type == "string" or (type == "array" and items == "string")):
+                raise ValueError("argument %r: a pattern needs a string, or an array of strings" % name)
+            if not examples:
+                raise ValueError("argument %r: a pattern without examples is a lock with no key" % name)
+            rx = re.compile(pattern)
+            for ex in examples:
+                if not isinstance(ex, str) or not rx.fullmatch(ex):
+                    raise ValueError("argument %r: example %r fails its own pattern" % (name, ex))
+        if enum is not None and examples:
+            for ex in examples:
+                if ex not in enum:
+                    raise ValueError("argument %r: example %r is not in its enum" % (name, ex))
         self.name, self.type, self.description = name, type, description
         self.required, self.items, self.enum = required, items, enum
+        self.minimum, self.maximum, self.pattern = minimum, maximum, pattern
+        self.examples = list(examples) if examples else None
+        self._rx = re.compile(pattern) if pattern else None
 
     def schema(self):
         s = {"type": self.type, "description": self.description}
         if self.type == "array":
             s["items"] = {"type": self.items}
+            if self.pattern:
+                s["items"]["pattern"] = self.pattern
+        elif self.pattern:
+            s["pattern"] = self.pattern
         if self.enum:
             s["enum"] = list(self.enum)
+        if self.minimum is not None:
+            s["minimum"] = self.minimum
+        if self.maximum is not None:
+            s["maximum"] = self.maximum
+        if self.examples:
+            s["examples"] = list(self.examples)
         return s
 
     def validate(self, value, action):
@@ -161,9 +202,21 @@ class ArgumentSpec(object):
                 if not isinstance(v, _JSON_TYPE[self.items]):
                     raise InvalidArgument("%s: %s must be an array of %s"
                                           % (action, self.name, self.items))
+                if self._rx and not self._rx.fullmatch(v):
+                    raise InvalidArgument("%s: %s item %r does not match %s"
+                                          % (action, self.name, v[:40], self.pattern))
         if self.enum and value not in self.enum:
             raise InvalidArgument("%s: %s must be one of %s"
                                   % (action, self.name, ", ".join(self.enum)))
+        if self.minimum is not None and value < self.minimum:
+            raise InvalidArgument("%s: %s must be >= %s, got %s"
+                                  % (action, self.name, self.minimum, value))
+        if self.maximum is not None and value > self.maximum:
+            raise InvalidArgument("%s: %s must be <= %s, got %s"
+                                  % (action, self.name, self.maximum, value))
+        if self._rx and self.type == "string" and not self._rx.fullmatch(value):
+            raise InvalidArgument("%s: %s does not match %s"
+                                  % (action, self.name, self.pattern))
 
 
 class ActionSpec(object):
@@ -187,7 +240,9 @@ class ActionSpec(object):
                 "arguments": [{"name": a.name, "type": a.type,
                                "description": a.description,
                                "required": a.required,
-                               "items": a.items, "enum": a.enum}
+                               "items": a.items, "enum": a.enum,
+                               "minimum": a.minimum, "maximum": a.maximum,
+                               "pattern": a.pattern, "examples": a.examples}
                               for a in self.arguments]}
 
 

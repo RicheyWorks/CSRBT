@@ -269,8 +269,19 @@ the second implementation is the measurement, and it held.
 cd ../WholeHog && ./gradlew harnessClasspath         # once, after a clone
 python3 tools/harness_stdio.py --target organism     # or --target both
 python3 tools/verify/verify_organism.py              # 284 checks; NOT VERIFIED ×9 without the build
-python3 tools/mutate_organism.py                     # break plugin + console 19 ways, require notice
+python3 tools/mutate_organism.py                     # break plugin + console 22 ways, require notice
+python3 tools/organism_walk.py                       # the first robot: the manifest alone, 33/33
+python3 tools/verify/verify_organism_walk.py         # 26 checks on the robot and its ledger
 ```
+
+ADR-114 made the manifest **sufficient to operate**, not merely to describe:
+bounds, patterns with examples and example pools in every schema, enforced by
+the gateway, plus `argumentPools` in the snapshot for values that are a fact of
+the moment. `organism_walk.py` is a client that imports nothing from the kit and
+forms every call from the schema; on its first walk it found four things the
+source-informed suite could not (a wedged Twine reported as failing, a `pulse`
+that declined instead of answering, a route-dependent error code, and static
+examples going stale).
 
 ADR-113 finished the wiring: **33 actions, every engine by its own surface** —
 CSRBT's order statistics and probe depth, reads over the wire, Carver's interval

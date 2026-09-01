@@ -1,0 +1,264 @@
+{
+ "accounted": 896,
+ "at": 1788293219,
+ "commands": 896,
+ "failures": [],
+ "forbidden": [],
+ "identity": "holds",
+ "invariants_broken": [],
+ "per_action": {
+  "_cross_checks": {
+   "chaos": 0,
+   "declined": 0,
+   "driven": 104,
+   "failed": 0,
+   "refused": 0
+  },
+  "csrbt_organism__archive_names": {
+   "chaos": 0,
+   "declined": 0,
+   "driven": 21,
+   "failed": 0,
+   "refused": 3
+  },
+  "csrbt_organism__as_of": {
+   "chaos": 0,
+   "declined": 0,
+   "driven": 9,
+   "failed": 0,
+   "refused": 15
+  },
+  "csrbt_organism__batch": {
+   "chaos": 1,
+   "declined": 0,
+   "driven": 21,
+   "failed": 0,
+   "refused": 2
+  },
+  "csrbt_organism__cache_get": {
+   "chaos": 0,
+   "declined": 0,
+   "driven": 24,
+   "failed": 0,
+   "refused": 0
+  },
+  "csrbt_organism__cold_scan": {
+   "chaos": 0,
+   "declined": 0,
+   "driven": 21,
+   "failed": 0,
+   "refused": 3
+  },
+  "csrbt_organism__compact": {
+   "chaos": 0,
+   "declined": 0,
+   "driven": 24,
+   "failed": 0,
+   "refused": 0
+  },
+  "csrbt_organism__contains": {
+   "chaos": 0,
+   "declined": 0,
+   "driven": 24,
+   "failed": 0,
+   "refused": 0
+  },
+  "csrbt_organism__count_range": {
+   "chaos": 0,
+   "declined": 0,
+   "driven": 10,
+   "failed": 0,
+   "refused": 14
+  },
+  "csrbt_organism__delete": {
+   "chaos": 0,
+   "declined": 0,
+   "driven": 24,
+   "failed": 0,
+   "refused": 0
+  },
+  "csrbt_organism__depth": {
+   "chaos": 0,
+   "declined": 0,
+   "driven": 24,
+   "failed": 0,
+   "refused": 0
+  },
+  "csrbt_organism__fleet": {
+   "chaos": 0,
+   "declined": 0,
+   "driven": 24,
+   "failed": 0,
+   "refused": 0
+  },
+  "csrbt_organism__generations": {
+   "chaos": 0,
+   "declined": 0,
+   "driven": 24,
+   "failed": 0,
+   "refused": 0
+  },
+  "csrbt_organism__get": {
+   "chaos": 0,
+   "declined": 0,
+   "driven": 24,
+   "failed": 0,
+   "refused": 0
+  },
+  "csrbt_organism__groups": {
+   "chaos": 0,
+   "declined": 0,
+   "driven": 24,
+   "failed": 0,
+   "refused": 0
+  },
+  "csrbt_organism__history": {
+   "chaos": 0,
+   "declined": 0,
+   "driven": 24,
+   "failed": 0,
+   "refused": 0
+  },
+  "csrbt_organism__order": {
+   "chaos": 0,
+   "declined": 0,
+   "driven": 9,
+   "failed": 0,
+   "refused": 15
+  },
+  "csrbt_organism__overlap": {
+   "chaos": 0,
+   "declined": 0,
+   "driven": 14,
+   "failed": 0,
+   "refused": 10
+  },
+  "csrbt_organism__preserve": {
+   "chaos": 0,
+   "declined": 0,
+   "driven": 24,
+   "failed": 0,
+   "refused": 0
+  },
+  "csrbt_organism__pulse": {
+   "chaos": 0,
+   "declined": 0,
+   "driven": 24,
+   "failed": 0,
+   "refused": 0
+  },
+  "csrbt_organism__put": {
+   "chaos": 0,
+   "declined": 0,
+   "driven": 15,
+   "failed": 0,
+   "refused": 9
+  },
+  "csrbt_organism__query": {
+   "chaos": 0,
+   "declined": 0,
+   "driven": 9,
+   "failed": 0,
+   "refused": 15
+  },
+  "csrbt_organism__quiesce": {
+   "chaos": 0,
+   "declined": 0,
+   "driven": 24,
+   "failed": 0,
+   "refused": 0
+  },
+  "csrbt_organism__range": {
+   "chaos": 0,
+   "declined": 0,
+   "driven": 17,
+   "failed": 0,
+   "refused": 7
+  },
+  "csrbt_organism__rebootstrap": {
+   "chaos": 0,
+   "declined": 0,
+   "driven": 24,
+   "failed": 0,
+   "refused": 0
+  },
+  "csrbt_organism__recover": {
+   "chaos": 3,
+   "declined": 0,
+   "driven": 21,
+   "failed": 0,
+   "refused": 0
+  },
+  "csrbt_organism__replica_get": {
+   "chaos": 0,
+   "declined": 0,
+   "driven": 24,
+   "failed": 0,
+   "refused": 0
+  },
+  "csrbt_organism__report": {
+   "chaos": 0,
+   "declined": 0,
+   "driven": 24,
+   "failed": 0,
+   "refused": 0
+  },
+  "csrbt_organism__restart": {
+   "chaos": 0,
+   "declined": 0,
+   "driven": 24,
+   "failed": 0,
+   "refused": 0
+  },
+  "csrbt_organism__retain_newest": {
+   "chaos": 0,
+   "declined": 0,
+   "driven": 24,
+   "failed": 0,
+   "refused": 0
+  },
+  "csrbt_organism__segments": {
+   "chaos": 0,
+   "declined": 0,
+   "driven": 24,
+   "failed": 0,
+   "refused": 0
+  },
+  "csrbt_organism__stab": {
+   "chaos": 0,
+   "declined": 0,
+   "driven": 24,
+   "failed": 0,
+   "refused": 0
+  },
+  "csrbt_organism__tick": {
+   "chaos": 0,
+   "declined": 0,
+   "driven": 24,
+   "failed": 0,
+   "refused": 0
+  },
+  "csrbt_organism__verify_archive": {
+   "chaos": 0,
+   "declined": 0,
+   "driven": 21,
+   "failed": 0,
+   "refused": 3
+  }
+ },
+ "per_round": 3,
+ "protocolVersion": "1.1",
+ "rounds": 8,
+ "seconds": 26.7,
+ "seed": 2026,
+ "tools": 33,
+ "totals": {
+  "chaos": 4,
+  "declined": 0,
+  "driven": 796,
+  "failed": 0,
+  "refused": 96
+ },
+ "undriven": [],
+ "unschemable": {}
+}

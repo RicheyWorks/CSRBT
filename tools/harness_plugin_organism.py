@@ -92,7 +92,7 @@ except ImportError:  # pragma: no cover
 HERE = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, HERE)
 from harness_contract import (ActionSpec, ArgumentSpec, Plugin, PluginDescriptor,
-                              HarnessError, Failed, InvalidArgument, NotFound,
+                              HarnessError, Conflict, Failed, InvalidArgument, NotFound,
                               Unavailable)
 
 ROOT = os.path.normpath(os.path.join(HERE, ".."))
@@ -208,6 +208,8 @@ class Console(object):
             raise InvalidArgument(why)
         if code == "not_found":
             raise NotFound(why)
+        if code == "conflict":
+            raise Conflict(why)
         raise Failed(why)
 
     def close(self):
@@ -225,7 +227,10 @@ class Console(object):
 
 
 def _key(name, required=True):
-    return ArgumentSpec(name, "integer", "A record key (integer).", required=required)
+    # Keys are longs and unbounded in the organism; the examples give a
+    # schema-driven client a pool to draw from without guessing the domain.
+    return ArgumentSpec(name, "integer", "A record key (integer).", required=required,
+                        examples=[0, 1, 5, 7, 12, 60, 121, 777])
 
 
 def _via():
@@ -234,14 +239,23 @@ def _via():
                         "client over loopback. Default direct.", enum=VIA)
 
 
+def _gen():
+    return ArgumentSpec("generation", "integer", "Generation number preserve returned.",
+                        required=True, minimum=0, examples=[0, 1])
+
+
 def _cap_arg():
-    return ArgumentSpec("cap", "integer", "At most this many records (1-%d)." % RANGE_CAP)
+    return ArgumentSpec("cap", "integer", "At most this many records (1-%d)." % RANGE_CAP,
+                        minimum=1, maximum=RANGE_CAP)
 
 
 def _triple():
-    return [ArgumentSpec("attr", "integer", "Attribute 0-999; feeds the secondary index and Renderer's grouping.", required=True),
-            ArgumentSpec("start", "integer", "Span start 0-99999; feeds the interval index.", required=True),
-            ArgumentSpec("end", "integer", "Span end 0-99999.", required=True)]
+    return [ArgumentSpec("attr", "integer", "Attribute 0-999; feeds the secondary index and Renderer's grouping.",
+                         required=True, minimum=0, maximum=999),
+            ArgumentSpec("start", "integer", "Span start 0-99999; feeds the interval index.",
+                         required=True, minimum=0, maximum=99_999),
+            ArgumentSpec("end", "integer", "Span end 0-99999, not below start.", required=True,
+                         minimum=0, maximum=99_999)]
 
 
 class OrganismPlugin(Plugin):
@@ -271,7 +285,9 @@ class OrganismPlugin(Plugin):
                            "Each op is 'p KEY ATTR START END' or 'd KEY'.",
                            "MUTATE",
                            [ArgumentSpec("ops", "array", "Batch ops in order.",
-                                         required=True, items="string")]),
+                                         required=True, items="string",
+                                         pattern=BATCH_OP.pattern,
+                                         examples=["p 1 2 3 4", "p 60 5 100 200", "d 1"])]),
                 ActionSpec("preserve",
                            "Preserve the current moment into the vault and cure it "
                            "into a verified cold archive carrying its scan run.",
@@ -294,8 +310,9 @@ class OrganismPlugin(Plugin):
                            [ArgumentSpec("kind", "string", "Which statistic.",
                                          required=True, enum=ORDER_KINDS),
                             ArgumentSpec("arg", "integer",
-                                         "The key for rank, the rank for nth, the "
-                                         "percentile for percentile; otherwise omitted."),
+                                         "The key for rank, the rank for nth (1-based), the "
+                                         "percentile (0-100) for percentile; otherwise omitted.",
+                                         examples=[1, 2, 50, 100]),
                             _via()]),
                 ActionSpec("depth",
                            "CSRBT's measuring read: nodes the index touched to find a "
@@ -307,21 +324,26 @@ class OrganismPlugin(Plugin):
                            "in attr-lo..attr-hi. Returns the plan it chose and the keys.",
                            "SENSITIVE_READ",
                            [_key("lo"), _key("hi"),
-                            ArgumentSpec("attr-lo", "integer", "Attribute lower bound.", required=True),
-                            ArgumentSpec("attr-hi", "integer", "Attribute upper bound.", required=True),
+                            ArgumentSpec("attr-lo", "integer", "Attribute lower bound.", required=True,
+                                         minimum=0, maximum=999),
+                            ArgumentSpec("attr-hi", "integer", "Attribute upper bound.", required=True,
+                                         minimum=0, maximum=999),
                             _cap_arg()]),
                 ActionSpec("overlap",
                            "Carver over the SPAN interval index: keys whose span "
                            "overlaps lo..hi. Plan and keys.",
                            "SENSITIVE_READ",
-                           [ArgumentSpec("lo", "integer", "Span lower bound.", required=True),
-                            ArgumentSpec("hi", "integer", "Span upper bound.", required=True),
+                           [ArgumentSpec("lo", "integer", "Span lower bound.", required=True,
+                                         minimum=0, maximum=99_999),
+                            ArgumentSpec("hi", "integer", "Span upper bound.", required=True,
+                                         minimum=0, maximum=99_999),
                             _cap_arg()]),
                 ActionSpec("stab",
                            "Carver over the SPAN interval index: keys whose span "
                            "contains a point.",
                            "SENSITIVE_READ",
-                           [ArgumentSpec("point", "integer", "The point.", required=True),
+                           [ArgumentSpec("point", "integer", "The point.", required=True,
+                                         minimum=0, maximum=99_999),
                             _cap_arg()]),
                 # ---- Renderer, Brine, PitBoss --------------------------------------
                 ActionSpec("groups",
@@ -329,7 +351,8 @@ class OrganismPlugin(Plugin):
                            "the heaviest k with their totals, and whether the fold has "
                            "caught the tail.",
                            "SENSITIVE_READ",
-                           [ArgumentSpec("top", "integer", "How many groups to list (1-1000).")]),
+                           [ArgumentSpec("top", "integer", "How many groups to list (1-1000).",
+                                         minimum=1, maximum=1000)]),
                 ActionSpec("cache-get",
                            "Brine's answer for a key, and whether the cache or the "
                            "store supplied it; names the champion genome.",
@@ -352,28 +375,25 @@ class OrganismPlugin(Plugin):
                            "One key as it was in a preserved generation. A scratch "
                            "copy is recovered and released.",
                            "SENSITIVE_READ",
-                           [ArgumentSpec("generation", "integer", "Generation number.", required=True),
-                            _key("key")]),
+                           [_gen(), _key("key")]),
                 ActionSpec("retain-newest",
                            "Aging policy: release every generation but the newest n. "
                            "Returns what was released.",
                            "MUTATE",
-                           [ArgumentSpec("count", "integer", "Generations to keep.", required=True)]),
+                           [ArgumentSpec("count", "integer", "Generations to keep.", required=True,
+                                         minimum=0, maximum=1_000_000)]),
                 ActionSpec("verify-archive",
                            "Jerky's whole-body CRC over a cured archive: true or false.",
-                           "READ",
-                           [ArgumentSpec("generation", "integer", "Generation number.", required=True)]),
+                           "READ", [_gen()]),
                 ActionSpec("archive-names",
                            "The entry names inside a cured archive (manifest, segments, "
                            "scan run). Names only, never bytes.",
-                           "READ",
-                           [ArgumentSpec("generation", "integer", "Generation number.", required=True)]),
+                           "READ", [_gen()]),
                 ActionSpec("cold-scan",
                            "Count the records in a cured archive by streaming its "
                            "scan run, without resurrecting a store.",
                            "SENSITIVE_READ",
-                           [ArgumentSpec("generation", "integer",
-                                         "Generation number preserve returned.", required=True)]),
+                           [_gen()]),
                 # ---- SmokeHouse, Twine, Rub ----------------------------------------
                 ActionSpec("compact",
                            "Compact the store's segments: garbage before and after, "
@@ -395,7 +415,8 @@ class OrganismPlugin(Plugin):
                            "Wait until every tail consumer (views, replica) has caught "
                            "up with the primary, or the timeout passes.",
                            "NAVIGATE",
-                           [ArgumentSpec("ms", "integer", "Timeout in milliseconds, 0-30000.")]),
+                           [ArgumentSpec("ms", "integer", "Timeout in milliseconds, 0-30000.",
+                                         minimum=0, maximum=30_000)]),
                 # ---- Sizzle --------------------------------------------------------
                 ActionSpec("restart",
                            "Close the organism and reopen it at the same root -- the "
@@ -405,8 +426,11 @@ class OrganismPlugin(Plugin):
                            "record; a plan only makes later writes fail.",
                            "NAVIGATE",
                            [ArgumentSpec("chaos", "string",
-                                         "none | once:N | every:N | prob:SEED:P"),
-                            ArgumentSpec("latency-ms", "integer", "0-5000 per write op.")]),
+                                         "none | once:N | every:N | prob:SEED:P",
+                                         pattern=CHAOS.pattern,
+                                         examples=["none", "once:2", "every:3", "prob:7:0.1"]),
+                            ArgumentSpec("latency-ms", "integer", "0-5000 per write op.",
+                                         minimum=0, maximum=5000)]),
             ])
 
     def descriptor(self):
@@ -432,6 +456,11 @@ class OrganismPlugin(Plugin):
             return {"ready": False, "why": e.message}
         s["target"] = "organism"
         s["seed"] = self.seed
+        # ADR-114: values that are a fact of the moment rather than of the schema
+        # -- which generations exist right now -- are published here so a client
+        # holding only the manifest and a snapshot can form a valid call. READ
+        # level: generation numbers are not records.
+        s["argumentPools"] = {"generation": s.pop("generationIds", [])}
         s["sensitive"] = bool(sensitive)
         s.pop("ok", None)
         if sensitive:
@@ -569,7 +598,7 @@ class OrganismPlugin(Plugin):
                                           "lines": r["report"].split("\n")}
         if action == "pulse":
             r = c.send("pulse")
-            return r["pulse"] is not None, ("pulse" if r["pulse"] else r.get("why", "no pulse")), _out(r)
+            return True, ("pulse" if r["pulse"] else r.get("why", "no pulse yet")), _out(r)
         if action == "tick":
             r = c.send("tick")
             return True, "ticked", _out(r)

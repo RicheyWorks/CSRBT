@@ -208,7 +208,7 @@ ck(len(g._done) <= C.REPLAY_CACHE_LIMIT,
 # ---- 6. the manifest is enough to build a client from --------------------
 g, _ = gw(allow={"SENSITIVE_READ": True})
 m = g.manifest(TOKEN)
-ck(m["protocolVersion"] == "1.0", "the manifest states a protocol version")
+ck(m["protocolVersion"] == "1.1", "the manifest states a protocol version (1.1: ADR-114 bounds)")
 ck(m["strictArguments"] is True, "and that unknown arguments are refused")
 ck(m["tokenMinLength"] == C.TOKEN_MIN, "and the minimum token length")
 ck(set(m["policy"]) == set(C.RISKS), "and the effective policy for every risk")
@@ -312,6 +312,81 @@ ck(set(SW.DRIVER) | set(SW.EXCLUDED) >= set(k for k, _ in SW.SWARM_KINDS),
    "and every kind it discovers is either driven or excluded -- none is simply "
    "not mentioned: %s"
    % sorted(set(k for k, _ in SW.SWARM_KINDS) - set(SW.DRIVER) - set(SW.EXCLUDED)))
+
+# ---- 10. bounded arguments: the manifest is enough to FORM a call (ADR-114) --
+class Bounded(C.Plugin):
+    def __init__(self):
+        self.ran = []
+        self._d = C.PluginDescriptor("bounded", "Bounded", "ADR-114 fixture.", "1.0", [
+            C.ActionSpec("go", "Every kind of bound at once.", "READ", [
+                C.ArgumentSpec("n", "integer", "0..10", required=True, minimum=0, maximum=10),
+                C.ArgumentSpec("x", "number", ">= 1.5", minimum=1.5),
+                C.ArgumentSpec("s", "string", "a slug", pattern=r"^[a-z]+:\d+$",
+                               examples=["dial:2", "text:7"]),
+                C.ArgumentSpec("ops", "array", "ops", items="string",
+                               pattern=r"^(p \d+|d \d+)$", examples=["p 1", "d 2"]),
+                C.ArgumentSpec("via", "string", "route", enum=["a", "b"], examples=["a"]),
+            ])])
+
+    def descriptor(self):
+        return self._d
+
+    def observe(self, sensitive=False):
+        return {"ready": True}
+
+    def execute(self, action, arguments):
+        self.ran.append(arguments)
+        return True, "ok", {}
+
+
+bp = Bounded()
+gb = C.Gateway(C.Registry([bp]), C.Policy(token=TOKEN, enabled=True))
+sch = gb.manifest(TOKEN)["tools"][0]["inputSchema"]["properties"]
+ck(sch["n"]["minimum"] == 0 and sch["n"]["maximum"] == 10 and sch["x"]["minimum"] == 1.5,
+   "bounds are published in the JSON Schema an adapter builds from")
+ck(sch["s"]["pattern"] and sch["s"]["examples"] == ["dial:2", "text:7"],
+   "a pattern is published with its examples")
+ck(sch["ops"]["items"] == {"type": "string", "pattern": r"^(p \d+|d \d+)$"} and
+   sch["ops"]["examples"] == ["p 1", "d 2"],
+   "an array's item pattern is published on the items, with examples on the argument")
+ck(sch["via"]["examples"] == ["a"], "an enum may carry examples too")
+
+
+def bounded(args, expect_ok):
+    try:
+        gb.execute(TOKEN, "bounded", {"request_id": "b%d" % len(bp.ran) + str(args), "action": "go",
+                                      "arguments": args})
+        return expect_ok
+    except C.HarnessError as e:
+        return (not expect_ok) and e.code == "invalid_argument"
+
+
+ran0 = len(bp.ran)
+ck(bounded({"n": 0}, True) and bounded({"n": 10}, True), "the bounds are inclusive")
+ck(bounded({"n": -1}, False) and bounded({"n": 11}, False), "outside them is invalid_argument")
+ck(bounded({"n": 5, "x": 1.5}, True) and bounded({"n": 5, "x": 1.49}, False), "a number bound too")
+ck(bounded({"n": 5, "s": "dial:2"}, True) and bounded({"n": 5, "s": "dial:x"}, False) and
+   bounded({"n": 5, "s": "dial:2 "}, False),
+   "a string pattern is a full match, not a search")
+ck(bounded({"n": 5, "ops": ["p 1", "d 2"]}, True) and bounded({"n": 5, "ops": ["p 1", "zap"]}, False),
+   "an array pattern applies to every item")
+ck(len(bp.ran) == ran0 + 5, "and a refused call never reached the plugin: %d ran" % (len(bp.ran) - ran0))
+for bad, why in ((dict(pattern="^a$"), "a pattern without examples"),
+                 (dict(pattern="^a$", examples=["b"]), "an example failing its own pattern"),
+                 (dict(minimum=5, maximum=1), "minimum above maximum"),
+                 (dict(enum=["a"], examples=["z"]), "an example outside its enum")):
+    try:
+        kw = dict(bad)
+        typ = "integer" if "minimum" in kw else "string"
+        C.ArgumentSpec("q", typ, "d", **kw)
+        ck(False, "%s was accepted at construction" % why)
+    except ValueError:
+        ck(True, "%s is refused at construction, not at call time" % why)
+try:
+    C.ArgumentSpec("q", "string", "d", minimum=1)
+    ck(False, "a bound on a string was accepted")
+except ValueError:
+    ck(True, "a bound on a string is refused: bounds need a numeric type")
 
 print("---")
 print("%d/%d" % (P, P + F))

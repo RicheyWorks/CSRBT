@@ -49,10 +49,10 @@ MUTANTS = [
      'via = args.get("via") or "direct"\n            r = c.send("put"',
      'via = args.get("via") or "wire"\n            r = c.send("put"',
      "names no route goes direct"),
-    (PLUGIN, "the plugin stops bounding the range cap",
-     "    if not 1 <= v <= RANGE_CAP:\n        raise InvalidArgument",
-     "    if False:\n        raise InvalidArgument",
-     "cap past the published"),
+    (PLUGIN, "the manifest stops publishing the range cap's bound",
+     '                        minimum=1, maximum=RANGE_CAP)',
+     '                        minimum=1)',
+     "publishes its bound"),
     (PLUGIN, "a dead console is reported as the target failing",
      'raise Unavailable("console exited (rc=%s)" % self.proc.poll())',
      'raise Failed("console exited (rc=%s)" % self.proc.poll())',
@@ -113,6 +113,18 @@ MUTANTS = [
      "            String v = past.store().get(k);",
      "            String v = o.store().get(k);",
      "as-of reads the frozen moment"),
+    (CONSOLE, "a wedged Twine is reported as the organism failing",
+     '            return refuse("conflict", e.getMessage());',
+     '            return refuse("failed", e.getMessage());',
+     "is a CONFLICT"),
+    (CONSOLE, "a span with start > end is not checked before the route",
+     '        if (start > end) {\n            throw new IllegalArgumentException("span start "',
+     '        if (false) {\n            throw new IllegalArgumentException("span start "',
+     "OVER THE WIRE too"),
+    (PLUGIN, "the snapshot stops publishing the generation pool",
+     '        s["argumentPools"] = {"generation": s.pop("generationIds", [])}',
+     '        s["argumentPools"] = {"generation": []}',
+     "argument pool"),
     (CONSOLE, "restart ignores its plan",
      "        o = new Organism(organismRoot, seed, plan);",
      "        o = new Organism(organismRoot, seed);",
@@ -125,6 +137,10 @@ MUTANTS = [
 # check is a second line, not the only one. Kept here with the measurement so
 # the next reader does not re-run it and call the survival a finding.
 KNOWN_EQUIVALENT = [
+    ("the plugin's own _cap() stops bounding the range cap",
+     "since ADR-114 the bound is published in the schema and the gateway refuses cap > 200 "
+     "before execute() runs; _cap() is the target-side second line (killed under ADR-112, "
+     "equivalent from ADR-114 on -- measured: 0 failures)"),
     ("the plugin's batch-op regex accepts anything",
      "the console refuses 'zap 3' with invalid_argument before the journal sees it; "
      "the suite observes the same code either way (measured 2026-09-01: 0 failures)"),
