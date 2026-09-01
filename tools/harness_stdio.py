@@ -24,6 +24,14 @@ and in a shell history.
     CSRBT_HARNESS_ALLOW_DRAFT=true \
     python3 tools/harness_stdio.py --page collection-sheet.html
 
+    python3 tools/harness_stdio.py --target organism      # the engines (ADR-112)
+    python3 tools/harness_stdio.py --target both --page ecology.html
+
+--target chooses what stands behind the gateway: a kit page in a browser, the
+WholeHog organism in a child process, or both in one registry. The transport
+does not change between them -- that is the measurement ADR-112 exists to
+make -- so nothing below the argument parser knows which it got.
+
 Enable only the capability the supervised session needs, then unset the
 variables. Do not put the token in a URL, a prompt, a source file, a screenshot
 or a transcript.
@@ -84,6 +92,10 @@ def main():
     ap.add_argument("--page", default="ecology.html",
                     help="page to open in the browser the plugin drives")
     ap.add_argument("--headed", action="store_true")
+    ap.add_argument("--target", default="page", choices=["page", "organism", "both"],
+                    help="what the gateway fronts: a kit page, the WholeHog "
+                         "organism, or both (default: page)")
+    ap.add_argument("--seed", type=int, default=42, help="organism seed")
     a = ap.parse_args()
 
     policy = Policy()
@@ -95,9 +107,24 @@ def main():
         sys.stderr.write("CSRBT_HARNESS_TOKEN must be at least 24 characters.\n")
         return 2
 
-    from playwright.sync_api import sync_playwright
-    from harness_plugin_page import PagePlugin
-    with sync_playwright() as pw:
+    plugins, closers = [], []
+    if a.target in ("organism", "both"):
+        from harness_plugin_organism import OrganismPlugin
+        org = OrganismPlugin(seed=a.seed)
+        try:
+            org.observe()          # stand it up now, so a missing build fails here
+        except HarnessError as e:
+            sys.stderr.write(e.message + "\n")
+            return 2
+        if not org.console or not org.console.alive():
+            sys.stderr.write("organism did not come up\n")
+            return 2
+        plugins.append(org)
+        closers.append(org.close)
+    if a.target in ("page", "both"):
+        from playwright.sync_api import sync_playwright
+        from harness_plugin_page import PagePlugin
+        pw = sync_playwright().start()
         b = pw.chromium.launch(headless=not a.headed)
         ctx = b.new_context(viewport=H.VIEWPORT)
         ctx.set_offline(True)
@@ -110,12 +137,22 @@ def main():
         pg = ctx.new_page()
         pg.goto(_kit.url(a.page), wait_until="domcontentloaded")
         pg.wait_for_timeout(300)
-        gw = Gateway(Registry([PagePlugin(pg, a.page)]), policy)
-        sys.stderr.write("harness ready on stdio: %s, policy %s\n"
-                         % (a.page, ",".join(k for k, v in policy.allow.items() if v)))
+        plugins.append(PagePlugin(pg, a.page))
+        closers.append(ctx.close)
+        closers.append(b.close)
+        closers.append(pw.stop)
+    gw = Gateway(Registry(plugins), policy)
+    sys.stderr.write("harness ready on stdio: %s, policy %s\n"
+                     % (", ".join(p.descriptor().id for p in plugins),
+                        ",".join(k for k, v in policy.allow.items() if v)))
+    try:
         rc = serve(gw, sys.stdin, sys.stdout)
-        ctx.close()
-        b.close()
+    finally:
+        for c in closers:
+            try:
+                c()
+            except Exception:
+                pass
     return rc
 
 

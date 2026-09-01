@@ -256,6 +256,26 @@ that one wired to nothing is not, that the note is attached, that a pane whose
 dead list is drained does not leave an empty entry behind, and that the identity
 still balances after the second phase.
 
+## 7d. The engines are behind the same door (ADR-112)
+
+Everything above is about the kit's pages. The ecosystem is also fourteen Java
+engines composed into one organism (WholeHog), and until ADR-112 the harness
+had never touched one. Now `csrbt-organism` is the contract's second plugin —
+same gateway, same token, same policy, same replay cache, same stdio transport,
+**no change to any of them**. A contract with one implementation was a claim;
+the second implementation is the measurement, and it held.
+
+```bash
+cd ../WholeHog && ./gradlew harnessClasspath         # once, after a clone
+python3 tools/harness_stdio.py --target organism     # or --target both
+python3 tools/verify/verify_organism.py              # 234 checks; NOT VERIFIED ×9 without the build
+python3 tools/mutate_organism.py                     # break plugin + console 11 ways, require notice
+```
+
+The action table and the risk mapping are in `AUTOMATION-HARNESS.md`. The rule
+that carries over from the pages: a bucket is a claim about the product, so a
+console that dies is `unavailable`, not `failed`.
+
 ## 8. Running it
 
 ```bash
