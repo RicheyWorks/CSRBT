@@ -179,8 +179,10 @@ serve_src = stdio_src[stdio_src.index("def serve("):stdio_src.index("def _w(")]
 ck("organism" not in serve_src and "page" not in serve_src.replace("plugin", ""),
    "the transport's serve() names no target: nothing below the argument "
    "parser knows which it got")
-ck("--target" in stdio_src and "OrganismPlugin" in stdio_src,
-   "and the parser offers the organism")
+targets_src = io.open(os.path.join(_kit.TOOLS_DIR, "harness_targets.py"), encoding="utf-8").read()
+ck("--target" in stdio_src and "OrganismPlugin" in targets_src and "OrganismPlugin" not in stdio_src,
+   "and the parser offers the organism, stood up by the shared builder (ADR-115) -- the "
+   "transport itself names no plugin class")
 
 # ---- the engine ------------------------------------------------------------
 CP = O.classpath()

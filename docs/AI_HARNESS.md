@@ -272,7 +272,16 @@ python3 tools/verify/verify_organism.py              # 284 checks; NOT VERIFIED 
 python3 tools/mutate_organism.py                     # break plugin + console 22 ways, require notice
 python3 tools/organism_walk.py                       # the first robot: the manifest alone, 33/33
 python3 tools/verify/verify_organism_walk.py         # 26 checks on the robot and its ledger
+python3 tools/harness_mcp.py --target organism       # the second transport: MCP, for a model (ADR-115)
+python3 tools/verify/verify_mcp.py                   # 31 checks on it; mutate_mcp.py 6/6
 ```
+
+ADR-115 is the one that lets an AI in: `harness_mcp.py` serves the same gateway
+over the Model Context Protocol with nothing in the plugins or the gateway
+changed — the JSON-RPC id is the request id (a retry is a replay), the policy
+decides what `tools/list` shows, risk is an annotation, and a target's no is
+`isError` rather than a protocol error. The host config is in
+`AUTOMATION-HARNESS.md`.
 
 ADR-114 made the manifest **sufficient to operate**, not merely to describe:
 bounds, patterns with examples and example pools in every schema, enforced by

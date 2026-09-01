@@ -30,6 +30,8 @@ maps exactly four operations and decides nothing.
 | `tools/harness_plugin_page.py` | the `csrbt-page` plugin: one page in a browser |
 | `tools/harness_plugin_organism.py` | the `csrbt-organism` plugin: the fourteen-engine organism in a child process (ADR-112) |
 | `tools/harness_stdio.py` | the first transport, ~120 lines |
+| `tools/harness_mcp.py` | the second transport: MCP (JSON-RPC 2.0 over stdio), no SDK (ADR-115) |
+| `tools/harness_targets.py` | stands a target up for either transport — the only file that names one |
 | `tools/swarm.py` | the contract's first client, and its heaviest user |
 
 ## Safety defaults
@@ -80,6 +82,30 @@ Every rung has its own switch: `CSRBT_HARNESS_ALLOW_NAVIGATE`,
 `CSRBT_HARNESS_ALLOW_MUTATE`, `CSRBT_HARNESS_ALLOW_DESTRUCTIVE`. Enable only what
 the supervised session needs, then unset them. Do not put the token in a URL, a
 prompt, a source file, a screenshot, or a transcript.
+
+## Enable the MCP transport — plug a model in
+
+The same policy and token, in the environment of the server process. A host's
+config is the whole of it:
+
+```json
+{"mcpServers": {"csrbt": {
+  "command": "python3",
+  "args": ["/path/to/CSRBT/tools/harness_mcp.py", "--target", "organism"],
+  "env": {"CSRBT_HARNESS_ENABLED": "true",
+          "CSRBT_HARNESS_TOKEN": "<at least 24 random characters>",
+          "CSRBT_HARNESS_ALLOW_MUTATE": "true"}}}}
+```
+
+`tools/list` shows **only the tools the policy allows** (the risk is the first
+word of each description, and an MCP annotation: `readOnlyHint` for READ,
+NAVIGATE and SENSITIVE_READ, `destructiveHint` for MUTATE and DESTRUCTIVE).
+`tools/call` is `execute` with **the JSON-RPC id as the request id**, so a host
+that retries with the same id gets the replay, not a second write. Each target's
+snapshot is a resource, `harness://<plugin>/snapshot`, redacted under the
+session's policy. A badly formed call is `-32602` with the gateway's code in the
+message; a policy refusal is `-32001`; a target that ran and said no is a normal
+result with `isError: true`. The token never crosses the protocol.
 
 ## The four operations
 
@@ -256,7 +282,9 @@ is a gateway permission, not a substitute for the target's own rules.
 ## Add another transport
 
 Map four operations — `manifest`, `discover`, `observe`, `execute` — and nothing
-else. Do not touch the page from the transport. Keeping adapter code outside the
+else. There are two now (stdio and MCP), and neither knows what it fronts: stand
+the targets up with `harness_targets.stand_up(target)` and hand the registry to a
+`Gateway`. Do not touch the page from the transport. Keeping adapter code outside the
 plugin preserves one policy, one action schema, one replay rule and one test
 surface for every client. Authentication beyond the token, rate limits, prompt
 approval and transcript retention belong to the adapter and its operator.
@@ -291,6 +319,12 @@ equivalents).
 claim: an outsider, a generator that respects every kind of bound and reports
 the unformable rather than guessing, a live walk with full coverage and nothing
 failed, and the committed ledger at the same bar.
+
+`tools/verify/verify_mcp.py` (31 checks) holds the second transport to "decides
+nothing": the adapter names no target, both transports share one builder, the
+full protocol surface in-process over a fixture, and the server as a child over
+the organism spoken to in JSON-RPC. `tools/mutate_mcp.py`: 6 killed, 0 survived,
+1 recorded equivalent.
 
 `tools/verify/verify_swarm.py` is the evidence that the verdicts mean something:
 ten fixture pages, nine of them wired and wrong in a different way, one of them

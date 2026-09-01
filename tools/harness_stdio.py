@@ -41,9 +41,8 @@ import argparse, io, json, os, sys
 HERE = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, HERE)
 sys.path.insert(0, os.path.join(HERE, "verify"))
-import _kit
-from harness_contract import Gateway, HarnessError, Policy, Registry
-import harness as H
+from harness_contract import Gateway, HarnessError, Registry
+from harness_targets import require_policy, stand_up, tear_down
 
 
 def serve(gateway, stdin, stdout):
@@ -98,49 +97,10 @@ def main():
     ap.add_argument("--seed", type=int, default=42, help="organism seed")
     a = ap.parse_args()
 
-    policy = Policy()
-    if not policy.enabled:
-        sys.stderr.write("harness is off. Set CSRBT_HARNESS_ENABLED=true to "
-                         "enable it for this supervised session.\n")
+    policy = require_policy()
+    if policy is None:
         return 2
-    if not policy.token or len(policy.token) < 24:
-        sys.stderr.write("CSRBT_HARNESS_TOKEN must be at least 24 characters.\n")
-        return 2
-
-    plugins, closers = [], []
-    if a.target in ("organism", "both"):
-        from harness_plugin_organism import OrganismPlugin
-        org = OrganismPlugin(seed=a.seed)
-        try:
-            org.observe()          # stand it up now, so a missing build fails here
-        except HarnessError as e:
-            sys.stderr.write(e.message + "\n")
-            return 2
-        if not org.console or not org.console.alive():
-            sys.stderr.write("organism did not come up\n")
-            return 2
-        plugins.append(org)
-        closers.append(org.close)
-    if a.target in ("page", "both"):
-        from playwright.sync_api import sync_playwright
-        from harness_plugin_page import PagePlugin
-        pw = sync_playwright().start()
-        b = pw.chromium.launch(headless=not a.headed)
-        ctx = b.new_context(viewport=H.VIEWPORT)
-        ctx.set_offline(True)
-        ctx.add_init_script(H.STUBS)
-        try:
-            from swarm import CATCH
-            ctx.add_init_script(CATCH)
-        except Exception:
-            pass
-        pg = ctx.new_page()
-        pg.goto(_kit.url(a.page), wait_until="domcontentloaded")
-        pg.wait_for_timeout(300)
-        plugins.append(PagePlugin(pg, a.page))
-        closers.append(ctx.close)
-        closers.append(b.close)
-        closers.append(pw.stop)
+    plugins, closers = stand_up(a.target, page=a.page, seed=a.seed, headed=a.headed)
     gw = Gateway(Registry(plugins), policy)
     sys.stderr.write("harness ready on stdio: %s, policy %s\n"
                      % (", ".join(p.descriptor().id for p in plugins),
@@ -148,11 +108,7 @@ def main():
     try:
         rc = serve(gw, sys.stdin, sys.stdout)
     finally:
-        for c in closers:
-            try:
-                c()
-            except Exception:
-                pass
+        tear_down(closers)
     return rc
 
 
