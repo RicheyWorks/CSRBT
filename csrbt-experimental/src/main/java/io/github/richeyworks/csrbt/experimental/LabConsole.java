@@ -14,6 +14,7 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.PrintStream;
+import java.lang.management.ManagementFactory;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -116,6 +117,7 @@ public final class LabConsole {
             case "battle":   return battle(t);
             case "adapt":    return adapt(intArg(t, 1, 1, 100_000), intArg(t, 2, 1, OPS_MAX), longArg(t, 3));
             case "fieldday": return fieldDay();
+            case "jvm":      return jvm();
             default:
                 return refuse("not_found", "unknown verb " + t[0]);
         }
@@ -125,7 +127,27 @@ public final class LabConsole {
         return "{\"ok\":true,\"ready\":true,\"runs\":" + runs + ",\"lints\":" + lints
                 + ",\"battles\":" + battles + ",\"adapts\":" + adapts + ",\"fieldDays\":" + fieldDays
                 + ",\"exportsWritten\":" + exportsWritten + ",\"lastName\":" + str(lastName)
-                + ",\"workloads\":" + workloads() + "}";
+                + ",\"workloads\":" + workloads()
+                + ",\"jvm\":{\"threads\":" + ManagementFactory.getThreadMXBean().getThreadCount()
+                + ",\"fds\":" + fds() + "}}";
+    }
+
+    /**
+     * The process, as a leak detector sees it (ADR-123): live threads, open file descriptors (-1
+     * where the platform has no count), heap in use. A lab that has run a hundred experiments
+     * must leave these where it found them.
+     */
+    String jvm() {
+        Runtime rt = Runtime.getRuntime();
+        return "{\"ok\":true,\"threads\":" + ManagementFactory.getThreadMXBean().getThreadCount()
+                + ",\"fds\":" + fds() + ",\"heapUsedMb\":" + ((rt.totalMemory() - rt.freeMemory()) >> 20)
+                + ",\"runs\":" + runs + "}";
+    }
+
+    static long fds() {
+        java.lang.management.OperatingSystemMXBean os = ManagementFactory.getOperatingSystemMXBean();
+        return (os instanceof com.sun.management.UnixOperatingSystemMXBean unix)
+                ? unix.getOpenFileDescriptorCount() : -1L;
     }
 
     // ── the classroom runner ────────────────────────────────────────────────

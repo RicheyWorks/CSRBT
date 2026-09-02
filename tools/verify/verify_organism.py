@@ -46,6 +46,11 @@ a request id, against a policy it names.
      checkpoint) makes the reopen scan the log and SuperBeefSort sort it --
      the report names the strategy, the cost, the feed's disorder and the
      born tree, and every read afterwards agrees with the mirror
+  Y. the organism, restarted forty times (ADR-123): clean and cold, under a
+     replica lag and a chaos plan, with writes between -- and the process
+     ends where it began: the same live threads by name, descriptors up by
+     at most the segments those restarts rolled and back down after a
+     compact, every record equal to the mirror
   I. a dead console is `unavailable`, never a hang and never `failed`
   J. the stdio transport serves the organism with no change below its parser
 
@@ -109,7 +114,7 @@ plug = O.OrganismPlugin()          # no console yet: the descriptor is static
 d = plug.descriptor()
 ck(C.SLUG.match(d.id) and d.id == "csrbt-organism", "plugin id is a slug")
 names = [a.name for a in d.actions]
-ck(len(names) == len(set(names)) and len(names) >= 34,
+ck(len(names) == len(set(names)) and len(names) >= 35,
    "%d distinct actions" % len(names))
 ck(all(a.risk in C.RISKS for a in d.actions), "every action declares a risk")
 ck(not any(a.risk == "DESTRUCTIVE" for a in d.actions),
@@ -126,7 +131,7 @@ ck({a.name for a in d.actions if a.risk == "SENSITIVE_READ"} ==
    "SENSITIVE_READ -- 'does key 5 exist' is data about the data")
 ck({a.name for a in d.actions if a.risk == "READ"} ==
    {"report", "pulse", "fleet", "generations", "verify-archive", "archive-names",
-    "segments", "history", "recovery"},
+    "segments", "history", "recovery", "jvm"},
    "READ is meters, lags, generation numbers, archive entry names, segment "
    "sizes and a CRC verdict: never a key, never a value")
 ck({a.name for a in d.actions if a.risk == "NAVIGATE"} == {"tick", "quiesce", "restart"},
@@ -473,6 +478,14 @@ else:
     ck(s["argumentPools"]["generation"] == run(gwW, "generations")["output"]["generations"],
        "the snapshot publishes the generations that exist right now as an argument pool "
        "(ADR-114), so a manifest-only client can form an as-of it will not be refused")
+    pools = s["argumentPools"]
+    ck(all(pools.get(a + ".lo") and pools.get(a + ".hi") and max(pools[a + ".lo"]) < min(pools[a + ".hi"])
+           for a in ("range", "count-range", "overlap")),
+       "and a scoped pool per bound pair (range, count-range, overlap) in which every low value is below "
+       "every high one (ADR-123): a robot forming lo and hi separately is otherwise refused by seed-luck: %s"
+       % {k: v for k, v in pools.items() if k.endswith((".lo", ".hi"))})
+    ck(run(gwW, "overlap", lo=max(pools["overlap.lo"]), hi=min(pools["overlap.hi"]))["ok"],
+       "the narrowest pair the pools can form is accepted")
 
     # ---- K. the wire agrees with the store ----
     keys_live = sorted(model)
@@ -774,6 +787,43 @@ else:
     ck(r["output"]["how"] == "clean" and r["output"]["recovery"]["sorted"] is False and
        r["output"]["recovery"]["entries"] == rep["entries"],
        "and a clean restart after it is warm again: the same entries, nothing sorted")
+
+    # ---- Y. the organism, restarted forty times ----
+    # A leak detector: a thread or a handle that survives close() is a count
+    # that only rises. The first probe of this (2026-09-02) saw descriptors climb
+    # one per cold restart -- and it was not a leak: every cold open rolls a
+    # segment, every segment with a live record earns a cached reader, and a
+    # compact releases them. The bound says exactly that.
+    run(gwW, "quiesce", ms=15000)
+    j0 = run(gwW, "jvm")["output"]
+    seg0 = plug.observe()["segments"]
+    ck(j0["threads"] > 0 and isinstance(j0["threadNames"], list) and len(j0["threadNames"]) == j0["threads"]
+       and j0["heapUsedMb"] >= 0,
+       "jvm reads the process: %d threads by name, %d descriptors, %d MB" % (j0["threads"], j0["fds"], j0["heapUsedMb"]))
+    ways = [{"how": "clean"}, {"how": "cold"}, {"how": "cold", "replica-lag-ms": 20}, {"how": "clean", "chaos": "once:99"}]
+    for i in range(40):
+        run(gwW, "restart", **ways[i % len(ways)])
+        run(gwW, "put", key=1000 + i, attr=i % 4, start=3, end=4)
+        model[1000 + i] = (i % 4, 3, 4)
+        if i % 5 == 4:
+            run(gwW, "get", key=1000 + i)                 # a read into the segment this restart rolled
+    run(gwW, "restart")
+    run(gwW, "quiesce", ms=15000)
+    j1 = run(gwW, "jvm")["output"]
+    seg1 = plug.observe()["segments"]
+    ck(sorted(j1["threadNames"]) == sorted(j0["threadNames"]),
+       "forty restarts later the live threads are the same ones, by name: %d -> %d (new: %s)"
+       % (j0["threads"], j1["threads"], sorted(set(j1["threadNames"]) - set(j0["threadNames"]))[:5]))
+    ck(j1["fds"] < 0 or j1["fds"] <= j0["fds"] + (seg1 - seg0) + 4,
+       "descriptors rose by at most the segments the restarts rolled: %d -> %d with %d -> %d segments"
+       % (j0["fds"], j1["fds"], seg0, seg1))
+    run(gwW, "compact")
+    j2 = run(gwW, "jvm")["output"]
+    ck(j2["fds"] < 0 or j2["fds"] <= j0["fds"] + 4,
+       "and a compact gives them back: %d (baseline %d)" % (j2["fds"], j0["fds"]))
+    got = [(x["key"], (x["value"]["attr"], x["value"]["start"], x["value"]["end"]))
+           for x in run(gwW, "range", lo=0, hi=1999)["output"]["records"]]
+    ck(got == sorted(model.items()), "and every record, including the forty written between restarts, equals the mirror")
 
     # ---- I. a dead console ----
     plug.console.proc.kill()

@@ -455,6 +455,13 @@ class OrganismPlugin(Plugin):
                                          "recovery -- the log scanned, SuperBeefSort sorting "
                                          "it, the index born from what it measured.",
                                          enum=["clean", "cold"])]),
+                # ---- the process ---------------------------------------------------
+                ActionSpec("jvm",
+                           "The organism's own process: live threads by name, open file "
+                           "descriptors (-1 where the platform has no count), heap in use. "
+                           "Restarts must leave these where they found them; descriptors "
+                           "rise one per segment until a compact.",
+                           "READ", []),
                 # ---- SuperBeefSort ------------------------------------------------
                 ActionSpec("recovery",
                            "Engine 2's report of the last open: entries recovered, whether "
@@ -493,6 +500,17 @@ class OrganismPlugin(Plugin):
         # holding only the manifest and a snapshot can form a valid call. READ
         # level: generation numbers are not records.
         s["argumentPools"] = {"generation": s.pop("generationIds", [])}
+        # ADR-123: a bound pair (lo..hi, a span's start..end) is a domain the
+        # schema cannot express -- lo <= hi -- so a client forming each side
+        # from its own bounds is refused about half the time, and a short walk
+        # can miss a tool by seed-luck (the first 2x2 suite walk at 35 tools
+        # never drove overlap). The pools say which pairs are always valid:
+        # every low value is below every high one. A robot that reads scoped
+        # pools first forms a valid pair every time; refusals remain where the
+        # target's own rules make them (a missing key, a released generation).
+        s["argumentPools"].update({"range.lo": [0, 1, 50], "range.hi": [200, 999, 100_000],
+                                   "count-range.lo": [0, 1, 50], "count-range.hi": [200, 999, 100_000],
+                                   "overlap.lo": [0, 1, 40], "overlap.hi": [60, 500, 99_999]})
         s["sensitive"] = bool(sensitive)
         s.pop("ok", None)
         if sensitive:
@@ -630,6 +648,9 @@ class OrganismPlugin(Plugin):
                 raise InvalidArgument("how must be clean or cold")
             r = c.send("restart", plan, lat, lag, how)
             return True, "restarted %s under %s%s" % (how, r["chaos"], (", replica held back %d ms/event" % lag) if lag else ""), _out(r)
+        if action == "jvm":
+            r = c.send("jvm")
+            return True, "%d thread(s), %d fd(s), %d MB" % (r["threads"], r["fds"], r["heapUsedMb"]), _out(r)
         if action == "recovery":
             r = c.send("recovery")
             rr = r["recovery"]

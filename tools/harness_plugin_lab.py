@@ -207,6 +207,9 @@ class LabPlugin(Plugin):
             "and deterministic; nothing here reads the operator's disk.",
             "1.0", [
                 ActionSpec("protocols", "The .eco protocols the kit ships, by name.", "READ", []),
+                ActionSpec("jvm", "The lab's own process: live threads, open file descriptors "
+                                  "(-1 where the platform has no count), heap in use -- what a "
+                                  "hundred experiments must not grow.", "READ", []),
                 ActionSpec("lint",
                            "Parse a protocol without running it: what it declares, and "
                            "every malformed line named. A hypothesis that cannot be tested "
@@ -285,6 +288,9 @@ class LabPlugin(Plugin):
         if action == "protocols":
             names = shipped_protocols()
             return True, "%d protocol(s)" % len(names), {"protocols": names}
+        if action == "jvm":
+            r = self._c().send("jvm")
+            return True, "%d thread(s), %d fd(s)" % (r["threads"], r["fds"]), {k: v for k, v in r.items() if k != "ok"}
         if action == "run-protocol":
             name = args["name"]
             if name not in shipped_protocols():

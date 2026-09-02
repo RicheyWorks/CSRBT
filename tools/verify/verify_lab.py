@@ -81,8 +81,8 @@ def refused(fn, code):
 plug = L.LabPlugin()
 d = plug.descriptor()
 names = [a.name for a in d.actions]
-ck(d.id == "csrbt-lab" and len(names) == 8 and len(set(names)) == 8, "eight distinct actions")
-ck({a.name for a in d.actions if a.risk == "READ"} == {"protocols", "lint"} and
+ck(d.id == "csrbt-lab" and len(names) == 9 and len(set(names)) == 9, "nine distinct actions")
+ck({a.name for a in d.actions if a.risk == "READ"} == {"protocols", "lint", "jvm"} and
    {a.name for a in d.actions if a.risk == "NAVIGATE"} == {"run-protocol", "run", "battle", "adapt", "field-day"} and
    {a.name for a in d.actions if a.risk == "MUTATE"} == {"export"} and
    not any(a.risk in ("SENSITIVE_READ", "DESTRUCTIVE") for a in d.actions),

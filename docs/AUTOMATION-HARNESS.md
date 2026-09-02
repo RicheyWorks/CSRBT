@@ -164,7 +164,11 @@ A pool may be **scoped to an action** — `"set-text.selector"` is the text
 controls, `"attach-file.selector"` the file inputs — and a client should prefer
 the scoped pool every time: the target said "these". The page plugin publishes
 one per action (controls behind a closed tab included, since every action opens
-the pane first), plus `pane`, `page` and `choose-option.value`.
+the pane first), plus `pane`, `page` and `choose-option.value`. The organism
+publishes one per **bound pair** — `range.lo`/`range.hi`, `count-range`,
+`overlap` — in which every low value is below every high one, because "lo below
+hi" is a domain no schema can state and a client forming each side from its own
+bounds is refused half the time (ADR-123).
 
 `tools/harness_walk.py` is the proof (ADR-114, ADR-117, ADR-121): a client that
 imports nothing from this kit, speaks the four operations over either transport
@@ -275,6 +279,7 @@ cd ../WholeHog && ./gradlew harnessClasspath     # writes build/harness/classpat
 | Jerky | `cold-scan` | `generation` | `SENSITIVE_READ` |
 | Sizzle | `restart` | `chaos` (none\|once:N\|every:N\|prob:SEED:P), `latency-ms`, `replica-lag-ms` (0–200), `how` (clean\|cold) | `NAVIGATE` |
 | SuperBeefSort | `recovery` | — | `READ` |
+| the process | `jvm` | — | `READ` |
 
 Thirty-three actions (ADR-113): every engine of the organism is reachable by
 its own surface. `via` is on every read the wire can answer as well as on the
@@ -320,6 +325,14 @@ by which strategy at what cost, the feed's sortedness and inversions, the born
 tree. A clean restart's report says "nothing sorted"; until this action existed,
 that was every restart the harness had ever made, and the recovery engine had
 never run under it.
+
+`jvm` (ADR-123) is the process itself — live threads by name, open file
+descriptors where the platform counts them, heap in use — and every snapshot
+carries its headline. The robot holds it every round: the threads of round one
+and no others, descriptors up by no more than the segments the store rolled (a
+cached reader each; a `compact` gives them back). `verify_organism` restarts the
+organism forty ways and requires the same. The lab's `jvm` is the same
+instrument on the science engine.
 
 ## The fourth target: the fixture
 
@@ -392,7 +405,7 @@ cache bounding, manifest completeness including typed array items, redaction wit
 and without `SENSITIVE_READ`, provider-safe naming, duplicate-plugin failure, and
 that every action the swarm drives with is one the plugin publishes.
 
-`tools/verify/verify_organism.py` (310 checks) is the evidence that the contract
+`tools/verify/verify_organism.py` (317 checks) is the evidence that the contract
 is target-neutral and that the organism does what it says when driven through
 it: default refusals leaving every meter at zero, redaction both ways, a 160-op
 differential oracle over direct, wire and batch routes against a mirror, replay
@@ -406,18 +419,19 @@ segments summing to the garbage, and the recovery road under an armed crash —
 and (ADR-120) `compact` reclaiming exactly the closed segments' garbage, the
 replica held behind the primary and reporting it, and the snapshot priced —
 and (ADR-122) a cold restart recovering from the log alone with engine 2's
-report naming the sort, its cost and the feed's disorder.
-`tools/mutate_organism.py` breaks the plugin and the console twenty-nine ways and
-requires that suite to notice each (29 killed, 0 survived, 4 recorded
+report naming the sort, its cost and the feed's disorder — and (ADR-123) forty
+restarts leaving the process's threads and descriptors where they were.
+`tools/mutate_organism.py` breaks the plugin and the console thirty-one ways and
+requires that suite to notice each (31 killed, 0 survived, 4 recorded
 equivalents).
 
-`tools/verify/verify_walk.py` (74 checks) holds the robot to its claim on every
+`tools/verify/verify_walk.py` (107 checks) holds the robot to its claim on every
 target: an outsider, a generator that respects every kind of bound and reports
 the unformable rather than guessing, live walks of the organism, the lab and two
 pages with full coverage and nothing failed, the committed ledger at the same
 bar for all three with the snapshot's price on it, and (ADR-119) a walk of the
 fixture with every bucket's count pinned exactly. `tools/mutate_walk.py` breaks
-the robot seventeen ways against that suite: 17 killed, 0 survived, 2 recorded
+the robot twenty-four ways against that suite (the MCP wire and the leak checks included): 24 killed, 0 survived, 2 recorded
 equivalents.
 
 `tools/verify/verify_lab.py` (35 checks) holds the third target to the

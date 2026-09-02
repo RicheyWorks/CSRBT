@@ -35,6 +35,9 @@ suite pins what makes that claim believable:
      same number of times as over stdio, and so does the organism -- the
      transport decides nothing, measured; over MCP the snapshot is a second
      round trip and every execute pays it.
+  H. the leak checks (ADR-123): round one is the baseline; a thread not there
+     in round one is reported by name; descriptors may rise by the segments
+     the store rolled and a little slack, no more.
 
 Run:  python3 tools/verify/verify_walk.py
       CSRBT_WALK_QUICK=1 python3 tools/verify/verify_walk.py   # no engine or page walks (the mutant runner)
@@ -148,7 +151,7 @@ elif not os.path.isfile(cp_org):
     unverified.append("C  the organism walk -- WholeHog is not built")
 else:
     res = walk_target("organism")["csrbt-organism"]
-    hold(res, "organism", 34)
+    hold(res, "organism", 35)
     ck(res["totals"]["refused"] > 0,
        "organism: the target defended itself against some of what the schema allowed (%d refused), "
        "counted rather than hidden" % res["totals"]["refused"])
@@ -162,7 +165,7 @@ elif not os.path.isfile(cp_lab):
     unverified.append("C  the lab walk -- csrbt-experimental is not built")
 else:
     res = walk_target("lab")["csrbt-lab"]
-    hold(res, "lab", 8)
+    hold(res, "lab", 9)
     ck(res["per_action"]["csrbt_lab__run"]["driven"] >= 2 and res["per_action"]["csrbt_lab__export"]["driven"] >= 1,
        "lab: protocols ran and a bundle was exported, from the schema's example protocol")
 # a page needs only Playwright, which every kit suite needs
@@ -191,8 +194,8 @@ if os.path.isfile(led):
     ck(set(L) == {"csrbt-organism", "csrbt-lab", "csrbt-page",
                   "csrbt-organism@mcp", "csrbt-lab@mcp", "csrbt-page@mcp"},
        "one entry per target per transport: %s" % sorted(L))
-    for pid, want in (("csrbt-organism", 34), ("csrbt-lab", 8), ("csrbt-page", 15),
-                      ("csrbt-organism@mcp", 34), ("csrbt-lab@mcp", 8), ("csrbt-page@mcp", 15)):
+    for pid, want in (("csrbt-organism", 35), ("csrbt-lab", 9), ("csrbt-page", 15),
+                      ("csrbt-organism@mcp", 35), ("csrbt-lab@mcp", 9), ("csrbt-page@mcp", 15)):
         e = L.get(pid) or {}
         ck(e.get("identity") == "holds" and e.get("accounted") == e.get("commands") and
            e.get("tools") == want and not e.get("undriven") and not e.get("unschemable") and
@@ -348,7 +351,7 @@ ck('"_meta"' in src_mcp and "_meta" in src and "split(\"__\"" not in src,
 if not QUICK and os.path.isfile(cp_org):
     res_s = walk_target("organism")["csrbt-organism"]
     res_m = walk_target("organism", transport="mcp")["csrbt-organism"]
-    hold(res_m, "organism over MCP", 34)
+    hold(res_m, "organism over MCP", 35)
     ck(res_m["per_action"] == res_s["per_action"],
        "the organism walked over MCP and over stdio from the same seed land every action in the same "
        "buckets: %s vs %s" % (res_m["totals"], res_s["totals"]))
@@ -357,6 +360,22 @@ if not QUICK and os.path.isfile(cp_org):
        "organism over MCP: every command paid a snapshot round trip, median %s ms" % pr["median"])
 elif not QUICK:
     unverified.append("G  the organism over MCP -- WholeHog is not built")
+
+# ---- H. the leak checks (ADR-123) ------------------------------------------
+W.FIRST.clear()
+ck(W.leak_checks("t", 10, ["a", "b"], 40, 3) == [] and W.leak_checks("t", 10, ["a", "b"], 40, 3) == [],
+   "round one is the baseline, and a process that stays where it started breaks nothing")
+ck(any("threads grew" in b for b in W.leak_checks("t", 11, ["a", "b", "c"], 40, 3)),
+   "a thread that was not there in round one is reported by name")
+ck(any("descriptors grew" in b for b in W.leak_checks("t", 10, ["a", "b"], 60, 3)),
+   "descriptors up by more than the segments explain are reported")
+ck(W.leak_checks("t", 10, ["a", "b"], 45, 8) == [] and W.leak_checks("t", 10, ["a", "b"], 47, 3) == [],
+   "descriptors up by the segments the store rolled, or within the slack, are not")
+ck(W.leak_checks("t", 10, ["a"], -1, 3) == [] and W.leak_checks("u", 5, None, 10, 0) == [] and
+   any("threads grew" in b for b in W.leak_checks("u", 12, None, 10, 0)),
+   "a platform with no descriptor count is not accused, and a target with counts but no names is held "
+   "to the count")
+W.FIRST.clear()
 
 total = P + F + len(unverified)
 print("---")

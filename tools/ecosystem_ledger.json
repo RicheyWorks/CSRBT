@@ -1,9 +1,9 @@
 {
  "_comment": "Written by tools/ecosystem.py. One entry per engine; a read updates only the engines it could read and keeps the rest, each with its own at. floor only rises on a read; lowering it is --lower with a reason, on the record.",
- "at": 1788331530,
+ "at": 1788333267,
  "engines": {
   "Brine": {
-   "at": 1788331530,
+   "at": 1788333267,
    "classes": 1,
    "errors": 0,
    "failures": 0,
@@ -16,7 +16,7 @@
    "tests": 5
   },
   "Carver": {
-   "at": 1788331530,
+   "at": 1788333267,
    "classes": 1,
    "errors": 0,
    "failures": 0,
@@ -29,7 +29,7 @@
    "tests": 9
   },
   "DryAge": {
-   "at": 1788331530,
+   "at": 1788333267,
    "classes": 1,
    "errors": 0,
    "failures": 0,
@@ -42,7 +42,7 @@
    "tests": 10
   },
   "Jerky": {
-   "at": 1788331530,
+   "at": 1788333267,
    "classes": 1,
    "errors": 0,
    "failures": 0,
@@ -55,7 +55,7 @@
    "tests": 5
   },
   "PitBoss": {
-   "at": 1788331530,
+   "at": 1788333267,
    "classes": 1,
    "errors": 0,
    "failures": 0,
@@ -68,7 +68,7 @@
    "tests": 4
   },
   "Renderer": {
-   "at": 1788331530,
+   "at": 1788333267,
    "classes": 1,
    "errors": 0,
    "failures": 0,
@@ -81,7 +81,7 @@
    "tests": 6
   },
   "Rub": {
-   "at": 1788331530,
+   "at": 1788333267,
    "classes": 1,
    "errors": 0,
    "failures": 0,
@@ -94,7 +94,7 @@
    "tests": 6
   },
   "Sizzle": {
-   "at": 1788331530,
+   "at": 1788333267,
    "classes": 1,
    "errors": 0,
    "failures": 0,
@@ -107,7 +107,7 @@
    "tests": 7
   },
   "SmokeHouse": {
-   "at": 1788331530,
+   "at": 1788333267,
    "classes": 22,
    "errors": 0,
    "failures": 0,
@@ -120,7 +120,7 @@
    "tests": 82
   },
   "SmokeSignal": {
-   "at": 1788331530,
+   "at": 1788333267,
    "classes": 1,
    "errors": 0,
    "failures": 0,
@@ -133,7 +133,7 @@
    "tests": 14
   },
   "SuperBeefSort": {
-   "at": 1788331530,
+   "at": 1788333267,
    "classes": 57,
    "errors": 0,
    "failures": 0,
@@ -146,7 +146,7 @@
    "tests": 318
   },
   "Twine": {
-   "at": 1788331530,
+   "at": 1788333267,
    "classes": 1,
    "errors": 0,
    "failures": 0,
@@ -159,7 +159,7 @@
    "tests": 8
   },
   "WholeHog": {
-   "at": 1788331530,
+   "at": 1788333267,
    "classes": 5,
    "errors": 0,
    "failures": 0,
@@ -167,12 +167,12 @@
    "green": true,
    "note": "the organism; the harness console",
    "repo": "WholeHog",
-   "results_at": 1788331014,
+   "results_at": 1788333188,
    "skipped": 0,
    "tests": 21
   },
   "csrbt-core": {
-   "at": 1788331530,
+   "at": 1788333267,
    "classes": 163,
    "errors": 0,
    "failures": 0,
@@ -185,17 +185,17 @@
    "tests": 877
   },
   "csrbt-experimental": {
-   "at": 1788331530,
+   "at": 1788333267,
    "classes": 43,
    "errors": 0,
    "failures": 0,
-   "floor": 256,
+   "floor": 257,
    "green": true,
    "note": "arena, ecology, cache-evo; the lab console",
    "repo": "CSRBT",
-   "results_at": 1788302408,
+   "results_at": 1788333207,
    "skipped": 0,
-   "tests": 256
+   "tests": 257
   }
  }
 }

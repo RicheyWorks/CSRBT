@@ -60,6 +60,23 @@ final class LabConsoleTest {
     }
 
     @Test
+    void jvmReadsTheProcessAndObserveCarriesItsHeadline() {
+        // ADR-123: the leak detector's counts. A hundred experiments must leave them where they were.
+        LabConsole c = console();
+        String j = c.answer("jvm");
+        assertTrue(j.startsWith("{\"ok\":true,\"threads\":") && j.contains("\"fds\":") && j.contains("\"heapUsedMb\":"), j);
+        int threads = Integer.parseInt(j.replaceAll(".*\"threads\":(\\d+).*", "$1"));
+        assertTrue(threads > 0);
+        for (int i = 0; i < 20; i++) {
+            c.answer("adapt 200 800 " + i);
+        }
+        String after = c.answer("jvm");
+        int threadsAfter = Integer.parseInt(after.replaceAll(".*\"threads\":(\\d+).*", "$1"));
+        assertTrue(threadsAfter <= threads + 2, "twenty controller runs grew no threads: " + threads + " -> " + threadsAfter);
+        assertTrue(c.answer("observe").contains("\"jvm\":{\"threads\":"));
+    }
+
+    @Test
     void arenaAndControllerAreDeterministicPerSeed() {
         LabConsole c = console();
         String a = c.answer("adapt 300 1500 42");

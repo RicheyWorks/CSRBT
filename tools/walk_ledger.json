@@ -2,9 +2,9 @@
  "_comment": "Written by harness_walk.py. One entry per target; a walk updates only the targets it drove and keeps the rest, each with its own at.",
  "targets": {
   "csrbt-lab": {
-   "accounted": 192,
-   "at": 1788316031,
-   "commands": 192,
+   "accounted": 216,
+   "at": 1788333038,
+   "commands": 216,
    "failures": [],
    "forbidden": [],
    "identity": "holds",
@@ -45,6 +45,13 @@
      "failed": 0,
      "refused": 0
     },
+    "csrbt_lab__jvm": {
+     "chaos": 0,
+     "declined": 0,
+     "driven": 24,
+     "failed": 0,
+     "refused": 0
+    },
     "csrbt_lab__lint": {
      "chaos": 0,
      "declined": 0,
@@ -78,29 +85,29 @@
    "plugin": "csrbt-lab",
    "price": {
     "actionMs": {
-     "max": 1497,
-     "median": 11,
-     "n": 180,
-     "p95": 270,
-     "total": 10784
+     "max": 1235,
+     "median": 7,
+     "n": 204,
+     "p95": 158,
+     "total": 7788
     },
     "snapshotMs": {
-     "max": 5,
+     "max": 8,
      "median": 0,
-     "n": 180,
+     "n": 204,
      "p95": 1,
-     "total": 45
+     "total": 62
     }
    },
    "protocolVersion": "1.2",
    "rounds": 8,
-   "seconds": 11.2,
+   "seconds": 8.2,
    "seed": 2026,
-   "tools": 8,
+   "tools": 9,
    "totals": {
     "chaos": 0,
     "declined": 0,
-    "driven": 180,
+    "driven": 204,
     "failed": 0,
     "refused": 12
    },
@@ -110,9 +117,9 @@
    "unschemable": {}
   },
   "csrbt-lab@mcp": {
-   "accounted": 192,
-   "at": 1788316143,
-   "commands": 192,
+   "accounted": 216,
+   "at": 1788333046,
+   "commands": 216,
    "failures": [],
    "forbidden": [],
    "identity": "holds",
@@ -153,6 +160,13 @@
      "failed": 0,
      "refused": 0
     },
+    "csrbt_lab__jvm": {
+     "chaos": 0,
+     "declined": 0,
+     "driven": 24,
+     "failed": 0,
+     "refused": 0
+    },
     "csrbt_lab__lint": {
      "chaos": 0,
      "declined": 0,
@@ -186,29 +200,29 @@
    "plugin": "csrbt-lab",
    "price": {
     "actionMs": {
-     "max": 1751,
-     "median": 11,
-     "n": 192,
-     "p95": 277,
-     "total": 11079
+     "max": 1163,
+     "median": 4,
+     "n": 204,
+     "p95": 149,
+     "total": 7381
     },
     "snapshotMs": {
-     "max": 4,
+     "max": 5,
      "median": 0,
-     "n": 192,
-     "p95": 2,
-     "total": 67
+     "n": 216,
+     "p95": 1,
+     "total": 63
     }
    },
    "protocolVersion": "1.2",
    "rounds": 8,
-   "seconds": 11.7,
+   "seconds": 7.9,
    "seed": 2026,
-   "tools": 8,
+   "tools": 9,
    "totals": {
     "chaos": 0,
     "declined": 0,
-    "driven": 180,
+    "driven": 204,
     "failed": 0,
     "refused": 12
    },
@@ -218,9 +232,9 @@
    "unschemable": {}
   },
   "csrbt-organism": {
-   "accounted": 922,
-   "at": 1788331285,
-   "commands": 922,
+   "accounted": 956,
+   "at": 1788334375,
+   "commands": 956,
    "failures": [],
    "forbidden": [],
    "identity": "holds",
@@ -229,7 +243,7 @@
     "_cross_checks": {
      "chaos": 0,
      "declined": 0,
-     "driven": 106,
+     "driven": 116,
      "failed": 0,
      "refused": 0
     },
@@ -243,9 +257,9 @@
     "csrbt_organism__as_of": {
      "chaos": 0,
      "declined": 0,
-     "driven": 21,
+     "driven": 18,
      "failed": 0,
-     "refused": 3
+     "refused": 6
     },
     "csrbt_organism__batch": {
      "chaos": 2,
@@ -285,9 +299,9 @@
     "csrbt_organism__count_range": {
      "chaos": 0,
      "declined": 0,
-     "driven": 14,
+     "driven": 24,
      "failed": 0,
-     "refused": 10
+     "refused": 0
     },
     "csrbt_organism__delete": {
      "chaos": 0,
@@ -338,19 +352,26 @@
      "failed": 0,
      "refused": 0
     },
+    "csrbt_organism__jvm": {
+     "chaos": 0,
+     "declined": 0,
+     "driven": 24,
+     "failed": 0,
+     "refused": 0
+    },
     "csrbt_organism__order": {
      "chaos": 0,
      "declined": 0,
-     "driven": 6,
+     "driven": 7,
      "failed": 0,
-     "refused": 18
+     "refused": 17
     },
     "csrbt_organism__overlap": {
      "chaos": 0,
      "declined": 0,
-     "driven": 21,
+     "driven": 24,
      "failed": 0,
-     "refused": 3
+     "refused": 0
     },
     "csrbt_organism__preserve": {
      "chaos": 0,
@@ -369,30 +390,30 @@
     "csrbt_organism__put": {
      "chaos": 0,
      "declined": 0,
-     "driven": 15,
+     "driven": 9,
      "failed": 0,
-     "refused": 9
+     "refused": 15
     },
     "csrbt_organism__query": {
      "chaos": 0,
      "declined": 0,
-     "driven": 5,
+     "driven": 11,
      "failed": 0,
-     "refused": 19
+     "refused": 13
     },
     "csrbt_organism__quiesce": {
      "chaos": 0,
-     "declined": 1,
-     "driven": 23,
+     "declined": 0,
+     "driven": 24,
      "failed": 0,
      "refused": 0
     },
     "csrbt_organism__range": {
      "chaos": 0,
      "declined": 0,
-     "driven": 12,
+     "driven": 24,
      "failed": 0,
-     "refused": 12
+     "refused": 0
     },
     "csrbt_organism__rebootstrap": {
      "chaos": 0,
@@ -476,31 +497,31 @@
    "plugin": "csrbt-organism",
    "price": {
     "actionMs": {
-     "max": 4907,
+     "max": 7657,
      "median": 0,
-     "n": 838,
-     "p95": 10,
-     "total": 7165
+     "n": 895,
+     "p95": 12,
+     "total": 20208
     },
     "snapshotMs": {
-     "max": 8,
+     "max": 10,
      "median": 0,
-     "n": 838,
+     "n": 895,
      "p95": 2,
-     "total": 255
+     "total": 350
     }
    },
    "protocolVersion": "1.2",
    "rounds": 8,
-   "seconds": 13.3,
+   "seconds": 21.7,
    "seed": 2026,
-   "tools": 34,
+   "tools": 35,
    "totals": {
     "chaos": 2,
-    "declined": 1,
-    "driven": 837,
+    "declined": 0,
+    "driven": 895,
     "failed": 0,
-    "refused": 82
+    "refused": 59
    },
    "transport": "stdio",
    "undriven": [],
@@ -508,9 +529,9 @@
    "unschemable": {}
   },
   "csrbt-organism@mcp": {
-   "accounted": 922,
-   "at": 1788331300,
-   "commands": 922,
+   "accounted": 956,
+   "at": 1788334397,
+   "commands": 956,
    "failures": [],
    "forbidden": [],
    "identity": "holds",
@@ -519,7 +540,7 @@
     "_cross_checks": {
      "chaos": 0,
      "declined": 0,
-     "driven": 106,
+     "driven": 116,
      "failed": 0,
      "refused": 0
     },
@@ -533,9 +554,9 @@
     "csrbt_organism__as_of": {
      "chaos": 0,
      "declined": 0,
-     "driven": 21,
+     "driven": 18,
      "failed": 0,
-     "refused": 3
+     "refused": 6
     },
     "csrbt_organism__batch": {
      "chaos": 2,
@@ -575,9 +596,9 @@
     "csrbt_organism__count_range": {
      "chaos": 0,
      "declined": 0,
-     "driven": 14,
+     "driven": 24,
      "failed": 0,
-     "refused": 10
+     "refused": 0
     },
     "csrbt_organism__delete": {
      "chaos": 0,
@@ -628,19 +649,26 @@
      "failed": 0,
      "refused": 0
     },
+    "csrbt_organism__jvm": {
+     "chaos": 0,
+     "declined": 0,
+     "driven": 24,
+     "failed": 0,
+     "refused": 0
+    },
     "csrbt_organism__order": {
      "chaos": 0,
      "declined": 0,
-     "driven": 6,
+     "driven": 7,
      "failed": 0,
-     "refused": 18
+     "refused": 17
     },
     "csrbt_organism__overlap": {
      "chaos": 0,
      "declined": 0,
-     "driven": 21,
+     "driven": 24,
      "failed": 0,
-     "refused": 3
+     "refused": 0
     },
     "csrbt_organism__preserve": {
      "chaos": 0,
@@ -659,30 +687,30 @@
     "csrbt_organism__put": {
      "chaos": 0,
      "declined": 0,
-     "driven": 15,
+     "driven": 9,
      "failed": 0,
-     "refused": 9
+     "refused": 15
     },
     "csrbt_organism__query": {
      "chaos": 0,
      "declined": 0,
-     "driven": 5,
+     "driven": 11,
      "failed": 0,
-     "refused": 19
+     "refused": 13
     },
     "csrbt_organism__quiesce": {
      "chaos": 0,
-     "declined": 1,
-     "driven": 23,
+     "declined": 0,
+     "driven": 24,
      "failed": 0,
      "refused": 0
     },
     "csrbt_organism__range": {
      "chaos": 0,
      "declined": 0,
-     "driven": 12,
+     "driven": 24,
      "failed": 0,
-     "refused": 12
+     "refused": 0
     },
     "csrbt_organism__rebootstrap": {
      "chaos": 0,
@@ -766,31 +794,31 @@
    "plugin": "csrbt-organism",
    "price": {
     "actionMs": {
-     "max": 4906,
+     "max": 7658,
      "median": 0,
-     "n": 838,
-     "p95": 11,
-     "total": 7102
+     "n": 895,
+     "p95": 12,
+     "total": 20229
     },
     "snapshotMs": {
      "max": 7,
      "median": 0,
-     "n": 922,
-     "p95": 1,
-     "total": 176
+     "n": 956,
+     "p95": 2,
+     "total": 330
     }
    },
    "protocolVersion": "1.2",
    "rounds": 8,
-   "seconds": 13.7,
+   "seconds": 22.3,
    "seed": 2026,
-   "tools": 34,
+   "tools": 35,
    "totals": {
     "chaos": 2,
-    "declined": 1,
-    "driven": 837,
+    "declined": 0,
+    "driven": 895,
     "failed": 0,
-    "refused": 82
+    "refused": 59
    },
    "transport": "mcp",
    "undriven": [],

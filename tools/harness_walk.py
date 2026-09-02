@@ -24,9 +24,12 @@ WHAT IS TARGET-NEUTRAL, AND WHAT IS NOT
                        count-range over the pool, direct and over the wire;
                        generations and segments match the snapshot; the
                        fleet is caught up; two physicals agree; the fold
-                       counts no more than the store holds
+                       counts no more than the store holds; the process has
+                       the threads it started the walk with and no more
+                       descriptors than the segments explain (ADR-123)
       csrbt-lab        the target's own counters (runs, lints, battles,
-                       adapts, field days) equal what this walk drove
+                       adapts, field days) equal what this walk drove; the
+                       process has not grown threads or descriptors
       csrbt-page       read-page's invariants: exactly one pane open, no NaN
                        or [object Object] rendered, no uncaught error, nothing
                        spilling sideways
@@ -422,6 +425,7 @@ def walk_one(wire, man, pid, rounds, seed, per_round, log=None):
         return r
 
     invariants = INVARIANTS.get(pid)
+    FIRST.pop(pid, None)                                   # the leak checks' baseline is per walk
     observe()                                              # the first pools
     t0 = time.time()
     for round_no in range(1, rounds + 1):
@@ -501,6 +505,30 @@ def walk_one(wire, man, pid, rounds, seed, per_round, log=None):
 # cross-checks: reads against reads, keyed by plugin id
 # ---------------------------------------------------------------------------
 
+FIRST = {}   # plugin id -> what the process looked like in round one (threads by name, fds, segments)
+
+
+def leak_checks(pid, threads, names, fds, segments, slack_threads=4, slack_fds=8):
+    """A thread or a descriptor that survives a round is a count that only
+    rises. Names, where the target gives them, catch a leak of one thread
+    replacing another; descriptors are allowed to rise with the segments the
+    store rolled (a cached reader each) and a little slack for sockets in
+    flight."""
+    first = FIRST.setdefault(pid, {"threads": threads, "names": set(names or []), "fds": fds, "segments": segments})
+    out = []
+    grown = sorted(set(names or []) - first["names"])
+    if names and grown:
+        out.append("threads grew since round one: %s" % grown[:5])
+    elif not names and threads > first["threads"] + slack_threads:
+        out.append("threads grew since round one: %d -> %d" % (first["threads"], threads))
+    if fds is not None and first["fds"] is not None and fds >= 0 and first["fds"] >= 0:
+        allowed = first["fds"] + max(0, (segments or 0) - (first["segments"] or 0)) + slack_fds
+        if fds > allowed:
+            out.append("descriptors grew beyond what the segments explain: %d -> %d (segments %s -> %s)"
+                       % (first["fds"], fds, first["segments"], segments))
+    return out
+
+
 def organism_checks(call, observe, tools, per):
     broken = []
     snap = call("quiesce", ms=15000)["snapshot"]
@@ -534,6 +562,10 @@ def organism_checks(call, observe, tools, per):
     grp = call("groups", top=3)["output"]
     if grp and (grp["groups"] > size or sum(x["total"] for x in grp["top"]) > size):
         broken.append("the fold counts more than the store holds")
+    j = call("jvm")["output"]
+    if j:
+        broken += leak_checks("csrbt-organism", j.get("threads", 0), j.get("threadNames"), j.get("fds"),
+                              snap.get("segments"))
     return broken
 
 
@@ -544,8 +576,12 @@ def lab_checks(call, observe, tools, per):
     driven = lambda *names: sum(per.get("csrbt_lab__" + n, {}).get("driven", 0) for n in names)
     want = {"runs": driven("run", "run_protocol", "export"), "lints": driven("lint"),
             "battles": driven("battle"), "adapts": driven("adapt"), "fieldDays": driven("field_day")}
-    return ["%s: target counts %s, the walk drove %s" % (k, snap.get(k), v)
-            for k, v in want.items() if snap.get(k) != v]
+    broken = ["%s: target counts %s, the walk drove %s" % (k, snap.get(k), v)
+              for k, v in want.items() if snap.get(k) != v]
+    j = snap.get("jvm") or {}
+    if j:
+        broken += leak_checks("csrbt-lab", j.get("threads", 0), None, j.get("fds"), 0)
+    return broken
 
 
 def page_checks(call, observe, tools, per):

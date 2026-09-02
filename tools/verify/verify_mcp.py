@@ -198,8 +198,8 @@ else:
         by = dict((o["id"], o) for o in outs)
         ck("csrbt-organism" in by[1]["result"]["instructions"], "initialize names the organism")
         listed = [t["name"] for t in by[2]["result"]["tools"]]
-        ck(len(listed) == 20 and "csrbt_organism__put" in listed and "csrbt_organism__get" not in listed,
-           "tools/list is the 20 the policy allows (MUTATE opened, SENSITIVE_READ not): %d" % len(listed))
+        ck(len(listed) == 21 and "csrbt_organism__put" in listed and "csrbt_organism__get" not in listed,
+           "tools/list is the 21 the policy allows (MUTATE opened, SENSITIVE_READ not): %d" % len(listed))
         meta = dict((t["name"], t.get("_meta") or {}) for t in by[2]["result"]["tools"])
         ck(meta.get("csrbt_organism__retain_newest") == {"pluginId": "csrbt-organism", "action": "retain-newest",
                                                          "risk": "MUTATE"},

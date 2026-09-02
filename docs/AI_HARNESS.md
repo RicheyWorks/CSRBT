@@ -268,10 +268,10 @@ the second implementation is the measurement, and it held.
 ```bash
 cd ../WholeHog && ./gradlew harnessClasspath         # once, after a clone
 python3 tools/harness_stdio.py --target organism     # or --target both
-python3 tools/verify/verify_organism.py              # 310 checks; NOT VERIFIED ×9 without the build
-python3 tools/mutate_organism.py                     # break plugin + console 29 ways, require notice
+python3 tools/verify/verify_organism.py              # 317 checks; NOT VERIFIED ×9 without the build
+python3 tools/mutate_organism.py                     # break plugin + console 31 ways, require notice
 python3 tools/harness_walk.py --target all           # the robot: every target from the manifest alone
-python3 tools/verify/verify_walk.py                  # 74 checks on the robot, its ledger, and the fixture
+python3 tools/verify/verify_walk.py                  # 107 checks on the robot, its ledger, the fixture, both transports, the leak checks
 python3 tools/harness_walk.py --target fixture       # the target built to be walked (ADR-119)
 python3 tools/harness_walk.py --target all --transport mcp   # the same robot through the second transport (ADR-121)
 python3 tools/mutate_walk.py                         # break the robot 17 ways against verify_walk (quick mode)
@@ -284,6 +284,14 @@ python3 tools/ecosystem.py --read                    # every engine's JUnit resu
 python3 tools/verify/verify_ecosystem.py             # 56 checks: green, >= floor, unbuilt or stale = NOT VERIFIED; the Atlas == the ledger
 python3 tools/atlas.py                               # regenerate the Atlas's engine table from the ledger (ADR-120)
 ```
+
+ADR-123 gave the harness a clock: `jvm` on both JVM targets (threads by name,
+descriptors, heap), the robot holding every round to round one's process, and
+a forty-restart drill in `verify_organism`. The first probe read descriptors
+climbing one per cold restart and it was not a leak — a segment per cold open,
+a cached reader per segment read, all given back by a compact — so that is the
+bound the checks enforce, and a count that rose without a segment to explain
+it would be the finding.
 
 ADR-122 reached the one engine the harness had never seen work: SuperBeefSort,
 the recovery engine, whose sort ran on every open and whose measurement of the
