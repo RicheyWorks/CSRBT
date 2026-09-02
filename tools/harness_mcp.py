@@ -60,7 +60,7 @@ from harness_contract import Gateway, HarnessError, Registry
 from harness_targets import require_policy, stand_up, tear_down
 
 PROTOCOL = "2025-03-26"
-SERVER = {"name": "csrbt-harness", "version": "1.2"}
+SERVER = {"name": "csrbt-harness", "version": "1.3"}
 PARSE_ERROR, INVALID_REQUEST, METHOD_NOT_FOUND, INVALID_PARAMS = -32700, -32600, -32601, -32602
 POLICY_REFUSED, TARGET_UNAVAILABLE = -32001, -32002
 CODE = {"invalid_argument": INVALID_PARAMS, "not_found": INVALID_PARAMS, "conflict": INVALID_PARAMS,

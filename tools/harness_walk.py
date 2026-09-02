@@ -59,6 +59,7 @@ THE ACCOUNTING
     python3 tools/harness_walk.py --target all --no-ledger
 
     python3 tools/harness_walk.py --target fixture --transport mcp   # the same walk, over MCP (ADR-121)
+    python3 tools/harness_walk.py --target page --page all --rounds 3 --per-round 2   # every routed page (ADR-124)
 
 The ledger, tools/walk_ledger.json, is MERGED per target (and per transport --
 a walk over MCP is "<plugin>@mcp"): a walk of one
@@ -275,7 +276,16 @@ def form(schema, rnd, tick, pools=None, action=None):
     args = {}
     props = schema.get("properties") or {}
     required = set(schema.get("required") or [])
+    # ADR-124: a pool keyed by the ACTION alone is a pool of whole argument
+    # sets -- (selector, value) pairs that are valid together right now, where
+    # no per-argument pool could say which value goes with which select. One
+    # set is taken whole; anything it does not cover is formed as before.
+    sets = (pools or {}).get(action) if action else None
+    if isinstance(sets, list) and sets and all(isinstance(x, dict) for x in sets):
+        args.update(rnd.choice(sets))
     for name, p in props.items():
+        if name in args:
+            continue
         if name not in required and rnd.random() < 0.35:
             continue                                     # optionals are sometimes left out
         args[name] = value(name, p, rnd, tick, pools, action)
@@ -342,6 +352,8 @@ def relevant_pools(tool, pools):
     "<argument>". Empty means the target publishes nothing about them."""
     keys = []
     schema = tool["inputSchema"]
+    if tool["action"] in pools and isinstance(pools[tool["action"]], list):
+        keys.append(tool["action"])                      # the argument-set pool covers them all
     for name in schema.get("required") or []:
         scoped = "%s.%s" % (tool["action"], name)
         if scoped in pools:
@@ -444,6 +456,9 @@ def walk_one(wire, man, pid, rounds, seed, per_round, log=None):
                 tick = (round_no - 1) * per_round + i
                 relevant = relevant_pools(tool, pools)
                 if relevant:
+                    # non-empty in EVERY relevant pool, this round; a set pool
+                    # that is empty while the per-argument pools are not means
+                    # no valid set exists right now (ADR-124)
                     empty_pools[tool["name"]] = empty_pools.get(tool["name"], False) or \
                         all(pools[k] for k in relevant)
                 try:
@@ -685,6 +700,8 @@ def main(argv):
                     help="which transport to walk through (ADR-121): the walk itself does not know")
     a = ap.parse_args(argv)
 
+    if a.target == "page" and a.page == "all":
+        return walk_every_page(a)
     token = "walk-" + secrets.token_urlsafe(24)
     try:
         wire = wire_for(a.transport, token, seed=a.organism_seed, target=a.target, page=a.page)
@@ -705,6 +722,72 @@ def main(argv):
         merge_ledger(results)
         print("\nwrote %s" % LEDGER)
     return 1 if any(bad(r) for r in results.values()) else 0
+
+
+ROUTES = os.path.join(HERE, "routes.json")
+
+
+def routed_pages(path=ROUTES):
+    """Every page the kit's published route table names (tools/routes.py). The
+    walker reads a published artifact here, as it reads a manifest -- not the
+    kit's code."""
+    rt = json.load(io.open(path, encoding="utf-8"))
+    return sorted({r["page"] for r in rt["routes"]})
+
+
+def walk_every_page(a):
+    """ADR-124: one robot for every page. Each routed page is walked on its own
+    transport child (a fresh browser page), from the manifest alone, and kept
+    in the ledger as "csrbt-page/<page>". The general oracle is the same on
+    every page; what differs per page is which tools it offers nothing for
+    (unreachable) -- a fact about the page the ledger records."""
+    pages = routed_pages()
+    results, verdicts = {}, []
+    t0 = time.time()
+    for i, page in enumerate(pages, 1):
+        token = "walk-" + secrets.token_urlsafe(24)
+        try:
+            wire = wire_for(a.transport, token, seed=a.organism_seed, target="page", page=page)
+            hello = wire.op("discover")
+            if not hello.get("ok"):
+                raise RuntimeError("discovery refused: %s" % hello)
+            try:
+                res = walk(wire, rounds=a.rounds, seed=a.seed, per_round=a.per_round)["csrbt-page"]
+            finally:
+                wire.close()
+        except Exception as e:
+            print("%-32s FAILED TO WALK: %s" % (page, str(e)[:100]))
+            verdicts.append((page, "FAILED TO WALK"))
+            continue
+        res["page"] = page
+        results["csrbt-page/" + page] = res
+        t = res["totals"]
+        verdict = "BAD" if bad(res) else "ok"
+        verdicts.append((page, verdict))
+        print("%2d/%d %-30s %-3s driven %3d refused %3d declined %2d failed %2d  unreachable %2d  broken %d  %5.1fs"
+              % (i, len(pages), page, verdict, t["driven"], t["refused"], t["declined"], t["failed"],
+                 len(res["unreachable"]), len(res["invariants_broken"]), res["seconds"]))
+        for f in res["failures"][:3]:
+            print("      FAILED " + f)
+        for b in res["invariants_broken"][:3]:
+            print("      BROKEN " + b)
+    print("\n%d page(s) walked in %.0fs: %d ok, %d bad, %d failed to walk"
+          % (len(pages), time.time() - t0, sum(1 for _, v in verdicts if v == "ok"),
+             sum(1 for _, v in verdicts if v == "BAD"), sum(1 for _, v in verdicts if v == "FAILED TO WALK")))
+    # the coverage matrix: which tools no page could reach
+    tools_seen = {}
+    for res in results.values():
+        for name, c in res["per_action"].items():
+            if name.startswith("_"):
+                continue
+            tools_seen.setdefault(name, 0)
+            tools_seen[name] += c["driven"]
+    never = sorted(n for n, d in tools_seen.items() if d == 0)
+    print("tools driven on no page at all: %s" % (never or "none"))
+    if not a.no_ledger and results:
+        merge_ledger(results)
+        print("wrote %s" % LEDGER)
+    return 1 if any(v != "ok" for _, v in verdicts) or never else 0
 
 
 if __name__ == "__main__":

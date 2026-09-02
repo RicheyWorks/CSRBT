@@ -271,7 +271,8 @@ python3 tools/harness_stdio.py --target organism     # or --target both
 python3 tools/verify/verify_organism.py              # 317 checks; NOT VERIFIED ×9 without the build
 python3 tools/mutate_organism.py                     # break plugin + console 31 ways, require notice
 python3 tools/harness_walk.py --target all           # the robot: every target from the manifest alone
-python3 tools/verify/verify_walk.py                  # 107 checks on the robot, its ledger, the fixture, both transports, the leak checks
+python3 tools/harness_walk.py --target page --page all --rounds 3 --per-round 2   # every routed page (ADR-124), ~6 min
+python3 tools/verify/verify_walk.py                  # 120 checks on the robot, its ledger, the fixture, both transports, every page
 python3 tools/harness_walk.py --target fixture       # the target built to be walked (ADR-119)
 python3 tools/harness_walk.py --target all --transport mcp   # the same robot through the second transport (ADR-121)
 python3 tools/mutate_walk.py                         # break the robot 17 ways against verify_walk (quick mode)
@@ -284,6 +285,14 @@ python3 tools/ecosystem.py --read                    # every engine's JUnit resu
 python3 tools/verify/verify_ecosystem.py             # 56 checks: green, >= floor, unbuilt or stale = NOT VERIFIED; the Atlas == the ledger
 python3 tools/atlas.py                               # regenerate the Atlas's engine table from the ledger (ADR-120)
 ```
+
+ADR-124 walked every one of the forty-one routed pages from the manifest alone,
+and the first pass found the robot leaving the page — following a nav link to
+another kit page (and walking that under the first page's name) and once to
+the internet — and a page with five selects on which `choose-option` could not
+be driven because no per-argument pool can say which value goes with which
+select. Links that leave the page are refused now, and the snapshot can publish
+argument *sets* (protocol 1.3). Second pass: 41 of 41.
 
 ADR-123 gave the harness a clock: `jvm` on both JVM targets (threads by name,
 descriptors, heap), the robot holding every round to round one's process, and

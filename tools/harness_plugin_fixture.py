@@ -22,6 +22,11 @@ under two seconds.
                              each response's pools is refused           -> driven
     empty-pool   DRAFT       its scoped pool is published empty, always,
                              and it refuses whatever it is handed          -> unreachable
+    paired       DRAFT       accepts only (a, b) pairs the snapshot publishes
+                             as argument SETS under "paired" -- neither a nor
+                             b has a pool of its own; a robot that reads set
+                             pools is driven, one that forms each argument
+                             alone is refused (ADR-124)                        -> driven
     reached      DRAFT       its scoped pool is ALSO published empty, but
                              the schema's example gets through -- so it is
                              driven, and must not be called unreachable      -> driven
@@ -70,6 +75,9 @@ class FixturePlugin(Plugin):
             ActionSpec("empty-pool", "Its scoped pool is always empty.", "DRAFT",
                        [ArgumentSpec("thing", "string", "Anything.", required=True,
                                      examples=["z"])]),
+            ActionSpec("paired", "Accepts only the (a, b) pairs the snapshot publishes as sets.", "DRAFT",
+                       [ArgumentSpec("a", "string", "Half of a pair.", required=True, examples=["never"]),
+                        ArgumentSpec("b", "string", "The other half.", required=True, examples=["valid"])]),
             ActionSpec("reached", "Its scoped pool is empty too, but its example is accepted.", "DRAFT",
                        [ArgumentSpec("thing", "string", "Anything.", required=True,
                                      examples=["z"])]),
@@ -98,7 +106,8 @@ class FixturePlugin(Plugin):
                 "chaos": "armed", "consistent": self.consistent,
                 "calls": dict(self.calls), "arrayLengths": list(self.array_lengths),
                 "argumentPools": {"pooled.slot": [self.SLOTS[self.slot]],
-                                  "empty-pool.thing": [], "reached.thing": []}}
+                                  "empty-pool.thing": [], "reached.thing": [],
+                                  "paired": [{"a": "k1", "b": "v1"}, {"a": "k2", "b": "v2"}]}}
 
     def execute(self, action, args):
         if self.dead:
@@ -122,6 +131,10 @@ class FixturePlugin(Plugin):
             return True, "slot %s" % want, {"slot": want}
         if action == "empty-pool":
             raise InvalidArgument("nothing to act on: the pool is empty, whatever %r is" % args.get("thing"))
+        if action == "paired":
+            if (args.get("a"), args.get("b")) not in (("k1", "v1"), ("k2", "v2")):
+                raise InvalidArgument("(%r, %r) is not a published pair" % (args.get("a"), args.get("b")))
+            return True, "paired %s/%s" % (args["a"], args["b"]), {}
         if action == "reached":
             return True, "reached with %r" % args.get("thing"), {}
         if action == "unformable":

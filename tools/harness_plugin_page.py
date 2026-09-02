@@ -128,14 +128,22 @@ CONTROLS = r"""
   });
   // Option VALUES of the page's selects (capped): a client forming a
   // choose-option needs a value that exists, and an option is a choice the
-  // page offers, not something a user typed (ADR-117 argument pools).
-  const opts = new Set();
-  document.querySelectorAll("select").forEach(sel => {
-    [...sel.options].slice(0, 20).forEach(o => { if (opts.size < 200) opts.add(String(o.value)); });
+  // page offers, not something a user typed (ADR-117 argument pools). And
+  // per select (ADR-124): a value from one select is "no such option" on
+  // another, so the union alone left choose-option refused six of six on a
+  // page with five selects. The pairs are published as argument SETS.
+  const opts = new Set(), choices = [];
+  document.querySelectorAll("select[data-h]").forEach(sel => {
+    [...sel.options].slice(0, 20).forEach(o => {
+      if (opts.size < 200) opts.add(String(o.value));
+      if (choices.length < 400 && !sel.disabled)
+        choices.push({ selector: sel.getAttribute("data-h"), value: String(o.value) });
+    });
   });
   return { route: (document.querySelector(".pane.on") || {}).id || null,
            title: document.title,
            optionValues: [...opts],
+           optionChoices: choices,
            panes: [...document.querySelectorAll(".pane")].map(p => p.id),
            tabs: [...document.querySelectorAll(".tab[data-pane]")].map(
                    t => ({ pane: t.getAttribute("data-pane"),
@@ -262,6 +270,19 @@ ACT = r"""
     if (!t) return { ok: false, why: "stepper has no buttons" };
     t.click();
     return { ok: true };
+  }
+  // A link that leaves the document is not an activation of this page: the
+  // robot's walk of every page (ADR-124) followed one to another kit page
+  // and walked THAT, and on douglas-explorer followed one to the internet,
+  // after which reload failed with ERR_INTERNET_DISCONNECTED and was filed
+  // as the page failing. Leaving is `open`'s job. Same-document links (#id)
+  // and links with no destination are still clicks.
+  const a = e.closest("a[href]");
+  if (a) {
+    const href = a.getAttribute("href") || "";
+    if (href && !href.startsWith("#") && !href.startsWith("javascript:")) {
+      return { ok: false, why: "a link that leaves the page (" + href.slice(0, 60) + "): use open" };
+    }
   }
   e.click();
   return { ok: true };
@@ -425,7 +446,8 @@ class PagePlugin(Plugin):
                            [ArgumentSpec("selector", "string", "Selector of a select.", required=True, pattern=SEL_RE.pattern, examples=["dial_btn:2", "text_in:7"]),
                             ArgumentSpec("value", "string",
                                          "Option value or its visible text; the snapshot "
-                                         "pool choose-option.value lists the page's.",
+                                         "pool choose-option.value lists the page's; the "
+                                         "set pool choose-option lists valid (selector, value) pairs.",
                                          required=True, examples=["1", "0"])]),
                 ActionSpec("set-slider", "Move a slider to a value.", "MUTATE",
                            [ArgumentSpec("selector", "string", "Selector of a slider.", required=True, pattern=SEL_RE.pattern, examples=["dial_btn:2", "text_in:7"]),
@@ -524,7 +546,13 @@ class PagePlugin(Plugin):
         pools = {"selector": [c["selector"] for c in live],
                  "pane": list(s.get("panes") or []),
                  "page": [self.name] if self.name else kit_pages(),
-                 "choose-option.value": list(s.get("optionValues") or [])}
+                 "choose-option.value": list(s.get("optionValues") or []),
+                 # ADR-124: an argument SET pool, keyed by the action alone --
+                 # whole (selector, value) pairs that are valid right now,
+                 # because a value's validity depends on the select it goes to
+                 # and no per-argument pool can say so.
+                 "choose-option": [c for c in (s.get("optionChoices") or [])
+                                   if any(l["selector"] == c["selector"] for l in live)]}
         for action, kinds in POOL_KINDS.items():
             pools[action + ".selector"] = [c["selector"] for c in live if c["kind"] in kinds]
         return pools

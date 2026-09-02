@@ -38,6 +38,11 @@ suite pins what makes that claim believable:
   H. the leak checks (ADR-123): round one is the baseline; a thread not there
      in round one is reported by name; descriptors may rise by the segments
      the store rolled and a little slack, no more.
+  I. every routed page, walked (ADR-124): the committed ledger carries one
+     entry per page in tools/routes.json, each at the same bar; every page
+     tool was driven on at least one page; a link that leaves the page is
+     refused (leaving is `open`'s job); a select's option pairs are an
+     argument-set pool and choose-option is driven from them.
 
 Run:  python3 tools/verify/verify_walk.py
       CSRBT_WALK_QUICK=1 python3 tools/verify/verify_walk.py   # no engine or page walks (the mutant runner)
@@ -118,6 +123,19 @@ formed = [W.form(schema, rnd, i) for i in range(60)]
 ck(all("n" in a for a in formed) and any("s" not in a for a in formed) and any("s" in a for a in formed),
    "required arguments are always formed and optional ones sometimes left out")
 
+sets = {"choose": [{"s": "sel:0", "v": "a"}, {"s": "sel:1", "v": "b"}], "s": ["sel:9"], "v": ["z"]}
+schema2 = {"type": "object", "properties": {"s": {"type": "string", "examples": ["x"]},
+                                            "v": {"type": "string", "examples": ["y"]},
+                                            "n": {"type": "integer", "minimum": 0, "maximum": 3}},
+           "required": ["s", "v"]}
+formed = [W.form(schema2, rnd, i, sets, "choose") for i in range(40)]
+ck(all((a["s"], a["v"]) in (("sel:0", "a"), ("sel:1", "b")) for a in formed) and
+   len({(a["s"], a["v"]) for a in formed}) == 2 and any("n" in a for a in formed),
+   "an argument-SET pool keyed by the action is taken whole -- the pair stays a pair, the per-argument "
+   "pools are not mixed in, and arguments the set does not cover are formed as before (ADR-124)")
+ck(W.relevant_pools({"action": "choose", "inputSchema": {"required": ["s", "v"]}}, sets) == ["choose", "s", "v"],
+   "the set pool is the first relevant pool of its action")
+
 # ---- C. the walks, against the engine ---------------------------------------
 def walk_target(target, rounds=2, per_round=2, transport="stdio", **kw):
     wire = W.wire_for(transport, "walk-suite-" + secrets.token_urlsafe(18), seed=3, target=target, **kw)
@@ -136,7 +154,7 @@ def hold(res, label, tools_expected, allow_unreachable=False):
     ck(not res["unschemable"], "%s: nothing was unschemable: %s" % (label, res["unschemable"]))
     ck(not res["invariants_broken"], "%s: no cross-check broke: %s" % (label, res["invariants_broken"][:2]))
     ck(res["totals"]["failed"] == 0, "%s: nothing failed: %s" % (label, res["failures"][:2]))
-    ck(res["protocolVersion"] == "1.2", "%s: protocol 1.2" % label)
+    ck(res["protocolVersion"] == "1.3", "%s: protocol 1.3" % label)
     if not allow_unreachable:
         ck(not res["unreachable"], "%s: nothing was unreachable: %s" % (label, res["unreachable"]))
 
@@ -191,9 +209,10 @@ led = os.path.join(_kit.TOOLS_DIR, "walk_ledger.json")
 ck(os.path.isfile(led), "the ledger exists")
 if os.path.isfile(led):
     L = json.load(io.open(led, encoding="utf-8"))["targets"]
-    ck(set(L) == {"csrbt-organism", "csrbt-lab", "csrbt-page",
-                  "csrbt-organism@mcp", "csrbt-lab@mcp", "csrbt-page@mcp"},
-       "one entry per target per transport: %s" % sorted(L))
+    ck({k for k in L if not k.startswith("csrbt-page/")} ==
+       {"csrbt-organism", "csrbt-lab", "csrbt-page", "csrbt-organism@mcp", "csrbt-lab@mcp", "csrbt-page@mcp"},
+       "one entry per target per transport, plus one per routed page: %s"
+       % sorted(k for k in L if not k.startswith("csrbt-page/")))
     for pid, want in (("csrbt-organism", 35), ("csrbt-lab", 9), ("csrbt-page", 15),
                       ("csrbt-organism@mcp", 35), ("csrbt-lab@mcp", 9), ("csrbt-page@mcp", 15)):
         e = L.get(pid) or {}
@@ -264,10 +283,10 @@ def only(name, bucket):
     return c.get(bucket) == N and sum(c.values()) == N
 
 
-ck(fx["tools"] == 11 and set(pa) == {F_ + n for n in ("ok", "refuse", "decline", "crash", "boom", "pooled",
-                                                    "empty_pool", "reached", "unformable", "array", "broken")}
+ck(fx["tools"] == 12 and set(pa) == {F_ + n for n in ("ok", "refuse", "decline", "crash", "boom", "pooled",
+                                                    "empty_pool", "reached", "paired", "unformable", "array", "broken")}
    | {"_cross_checks"},
-   "fixture: eleven tools published, one row each plus the cross-checks' row: %s" % sorted(pa))
+   "fixture: twelve tools published, one row each plus the cross-checks' row: %s" % sorted(pa))
 ck(only("ok", "driven"), "fixture: ok is driven, %d of %d: %s" % (N, N, pa.get(F_ + "ok")))
 ck(only("refuse", "refused"), "fixture: a target defending itself is REFUSED, never driven or failed: %s"
    % pa.get(F_ + "refuse"))
@@ -280,6 +299,9 @@ ck(only("pooled", "driven"),
    "fixture: a pool the target rotates on every call is re-read from every response -- pooled is driven "
    "%d of %d (a walker acting on a stale pool is refused): %s" % (N, N, pa.get(F_ + "pooled")))
 ck(only("broken", "driven") and only("array", "driven"), "fixture: array and broken are driven")
+ck(only("paired", "driven"),
+   "fixture: an argument-SET pool keyed by the action is taken whole (ADR-124) -- paired is driven %d of %d "
+   "where forming a and b alone would be refused: %s" % (N, N, pa.get(F_ + "paired")))
 ck(only("empty_pool", "refused") and fx["unreachable"] == [F_ + "empty_pool"],
    "fixture: a tool whose scoped pool was published empty throughout AND was never driven is "
    "UNREACHABLE, and its refusals are still counted: %s %s" % (fx["unreachable"], pa.get(F_ + "empty_pool")))
@@ -294,9 +316,9 @@ ck(list(fx["unschemable"]) == [F_ + "unformable"] and "no examples" in fx["unsch
    and sum((pa.get(F_ + "unformable") or {}).values()) == 0,
    "fixture: a string the manifest gives no way to form is UNSCHEMABLE, named, and never sent: %s"
    % fx["unschemable"])
-ck(fx["identity"] == "holds" and fx["accounted"] == fx["commands"] == 10 * N and fx["commands"] == sum(
+ck(fx["identity"] == "holds" and fx["accounted"] == fx["commands"] == 11 * N and fx["commands"] == sum(
     fsnap.get("calls", {}).values()) and fx["accounted"] == sum(fx["totals"].values()) and
-   fx["totals"] == {"driven": 5 * N, "refused": 2 * N, "declined": N, "chaos": N, "failed": N},
+   fx["totals"] == {"driven": 6 * N, "refused": 2 * N, "declined": N, "chaos": N, "failed": N},
    "fixture: commands == driven + refused + declined + chaos + failed == %d, the totals are %s, and the "
    "fixture counted the same" % (fx["commands"], fx["totals"]))
 ck(fsnap.get("arrayLengths", [None])[0] == 1 and sorted(set(fsnap.get("arrayLengths", []))) == [1, 2, 3],
@@ -314,10 +336,10 @@ ck(not W.bad(clean) and all(W.bad(r) for r in spoilt),
    "a failure -- and passing with none (refusals, declines and chaos are counted, not failed)")
 ck(fx["rounds"] == 2 and fx["per_round"] == 2 and fx["seconds"] < 30,
    "fixture: a walk of the fixture is a fast one: %ss" % fx["seconds"])
-ck(fx["price"]["snapshotMs"]["n"] == 6 * N and fx["price"]["snapshotMs"]["max"] <= 5,
+ck(fx["price"]["snapshotMs"]["n"] == 7 * N and fx["price"]["snapshotMs"]["max"] <= 5,
    "fixture: the price is read from the responses that carry one -- the %d driven and declined; a "
    "refusal carries no snapshot -- and a fixture's snapshot costs nothing: %s"
-   % (6 * N, fx["price"]["snapshotMs"]))
+   % (7 * N, fx["price"]["snapshotMs"]))
 try:
     walk_fixture(env={"CSRBT_FIXTURE_DIE": "1"})
     ck(False, "fixture: a target that went away was walked to the end as if it had answered")
@@ -376,6 +398,68 @@ ck(W.leak_checks("t", 10, ["a"], -1, 3) == [] and W.leak_checks("u", 5, None, 10
    "a platform with no descriptor count is not accused, and a target with counts but no names is held "
    "to the count")
 W.FIRST.clear()
+
+# ---- I. every routed page ----------------------------------------------------
+pages = W.routed_pages()
+ck(len(pages) == 41 and "douglas-explorer.html" in pages, "the route table names the kit's %d pages" % len(pages))
+if os.path.isfile(led):
+    L = json.load(io.open(led, encoding="utf-8"))["targets"]
+    walked = {k[len("csrbt-page/"):] for k in L if k.startswith("csrbt-page/")}
+    ck(walked == set(pages), "the ledger carries a walk of every routed page and of nothing unrouted: missing %s, "
+       "extra %s" % (sorted(set(pages) - walked), sorted(walked - set(pages))))
+    badp = [p for p in pages if "csrbt-page/" + p in L and W.bad(L["csrbt-page/" + p])]
+    ck(not badp, "every page's walk holds the identity, drove every tool it offers, broke nothing, failed nothing: "
+       "bad %s" % badp)
+    ck(all(L["csrbt-page/" + p].get("page") == p and L["csrbt-page/" + p].get("rounds", 0) >= 3
+           for p in pages if "csrbt-page/" + p in L),
+       "each entry names its page and was at least a three-round walk")
+    driven_somewhere = {}
+    for p in pages:
+        for name, c in L.get("csrbt-page/" + p, {}).get("per_action", {}).items():
+            if not name.startswith("_"):
+                driven_somewhere[name] = driven_somewhere.get(name, 0) + c["driven"]
+    ck(len(driven_somewhere) == 15 and all(v > 0 for v in driven_somewhere.values()),
+       "every one of the 15 page tools was driven on at least one page: never %s"
+       % sorted(n for n, v in driven_somewhere.items() if v == 0))
+    unreach = {p: len(L["csrbt-page/" + p]["unreachable"]) for p in pages if "csrbt-page/" + p in L}
+    ck(unreach.get("stand-sheet.html", 99) <= 3 and unreach.get("ecology-teachers-guide.html", 0) >= 6,
+       "unreachable is a fact about the page: a bench offers nearly every tool, a guide offers few: %s"
+       % {k: unreach[k] for k in ("stand-sheet.html", "ecology-teachers-guide.html") if k in unreach})
+if not QUICK:
+    # the two defects the first walk of every page found, pinned live
+    wire = W.Wire("walk-suite-" + secrets.token_urlsafe(18), seed=3, target="page", page="ecology.html")
+    try:
+        wire.op("discover")
+        snap = wire.op("observe", plugin="csrbt-page")["snapshot"]
+        link = next((c["selector"] for c in snap.get("controls", []) if c["kind"] == "nav_link"), None)
+        r = wire.op("execute", plugin="csrbt-page",
+                    command={"request_id": "leave-1", "action": "activate", "arguments": {"selector": link}})
+        ck(link and not r.get("ok") and r.get("code") == "invalid_argument" and "use open" in (r.get("message") or ""),
+           "on the hub, activating a link to another page is refused -- leaving is open's job: %s"
+           % (r.get("message") or "")[:80])
+        ck((wire.op("observe", plugin="csrbt-page")["snapshot"].get("page") or "ecology.html") == "ecology.html"
+           and wire.op("execute", plugin="csrbt-page",
+                       command={"request_id": "leave-2", "action": "reload", "arguments": {}}).get("ok"),
+           "and the walk is still on its page: reload works")
+    finally:
+        wire.close()
+    wire = W.Wire("walk-suite-" + secrets.token_urlsafe(18), seed=3, target="page", page="experiment-guide.html")
+    try:
+        wire.op("discover")
+        snap = wire.op("observe", plugin="csrbt-page")["snapshot"]
+        sets_ = snap["argumentPools"].get("choose-option") or []
+        ck(len(sets_) >= 10 and all(set(x) == {"selector", "value"} for x in sets_) and
+           len({x["selector"] for x in sets_}) >= 4,
+           "experiment-guide publishes its selects' (selector, value) pairs as an argument-set pool: %d pairs "
+           "over %d selects" % (len(sets_), len({x["selector"] for x in sets_})))
+        okc = 0
+        for i, x in enumerate(sets_[:8]):
+            r = wire.op("execute", plugin="csrbt-page",
+                        command={"request_id": "pair-%d" % i, "action": "choose-option", "arguments": dict(x)})
+            okc += 1 if r.get("ok") else 0
+        ck(okc == min(8, len(sets_)), "and every published pair is accepted: %d of %d" % (okc, min(8, len(sets_))))
+    finally:
+        wire.close()
 
 total = P + F + len(unverified)
 print("---")

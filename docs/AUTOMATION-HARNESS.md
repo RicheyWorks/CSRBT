@@ -168,7 +168,11 @@ the pane first), plus `pane`, `page` and `choose-option.value`. The organism
 publishes one per **bound pair** — `range.lo`/`range.hi`, `count-range`,
 `overlap` — in which every low value is below every high one, because "lo below
 hi" is a domain no schema can state and a client forming each side from its own
-bounds is refused half the time (ADR-123).
+bounds is refused half the time (ADR-123). Where no per-argument pool can say
+what goes together — which option value belongs to which select — a pool keyed
+by the **action name alone** is a list of whole argument sets, valid right now
+(protocol 1.3, ADR-124): the page plugin publishes `choose-option:
+[{selector, value}, …]`, and a client takes one set whole and forms the rest.
 
 `tools/harness_walk.py` is the proof (ADR-114, ADR-117, ADR-121): a client that
 imports nothing from this kit, speaks the four operations over either transport
@@ -179,7 +183,11 @@ walks every plugin the manifest names, keeps the accounting identity
 tool whose published pools were empty throughout as `unreachable` (a fact about
 the target — a page with no select cannot have `choose-option` driven), and fails
 if any other published tool cannot be driven from its schema or any cross-check
-between reads breaks. Its ledger is `tools/walk_ledger.json`, merged per target
+between reads breaks. `--target page --page all` walks every routed page (ADR-124)
+and keeps each as `csrbt-page/<page>`; its first pass found the robot following
+links off the page — to another kit page, and once to the internet — so
+`activate` on a link that leaves the document is refused now: leaving is
+`open`'s job. Its ledger is `tools/walk_ledger.json`, merged per target
 and per transport (`<plugin>@mcp` for MCP walks). The same walk from the same
 seed lands every action in the same bucket the same number of times through
 either transport — "a transport decides nothing", measured.
@@ -425,14 +433,15 @@ restarts leaving the process's threads and descriptors where they were.
 requires that suite to notice each (31 killed, 0 survived, 4 recorded
 equivalents).
 
-`tools/verify/verify_walk.py` (107 checks) holds the robot to its claim on every
+`tools/verify/verify_walk.py` (120 checks) holds the robot to its claim on every
 target: an outsider, a generator that respects every kind of bound and reports
 the unformable rather than guessing, live walks of the organism, the lab and two
 pages with full coverage and nothing failed, the committed ledger at the same
 bar for all three with the snapshot's price on it, and (ADR-119) a walk of the
 fixture with every bucket's count pinned exactly. `tools/mutate_walk.py` breaks
-the robot twenty-four ways against that suite (the MCP wire and the leak checks included): 24 killed, 0 survived, 2 recorded
-equivalents.
+the robot twenty-six ways against that suite (the MCP wire, the leak checks and
+the argument-set pools included): 26 killed, 0 survived, 2 recorded equivalents.
+Section I holds the committed walk of every routed page to the same bar.
 
 `tools/verify/verify_lab.py` (35 checks) holds the third target to the
 canonical oracle the repository already keeps — the shipped protocol run through
