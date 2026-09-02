@@ -108,6 +108,15 @@ session's policy. A badly formed call is `-32602` with the gateway's code in the
 message; a policy refusal is `-32001`; a target that ran and said no is a normal
 result with `isError: true`. The token never crosses the protocol.
 
+Every listed tool carries `_meta` — `pluginId`, `action`, `risk`, the contract's
+own names (ADR-121): a tool name is a provider-safe slug, and a client that
+scopes argument pools by action must not guess `set-text` back out of
+`csrbt_page__set_text`. A call's body carries `ms`, `snapshotMs` and the
+`requestId` the gateway recorded. MCP returns no snapshot with a call; a client
+that observes after every act reads the resource, and that second round trip is
+the price of this transport (about a millisecond, on the record in the walk
+ledger's `@mcp` entries).
+
 ## The four operations
 
 ```json
@@ -157,15 +166,19 @@ the scoped pool every time: the target said "these". The page plugin publishes
 one per action (controls behind a closed tab included, since every action opens
 the pane first), plus `pane`, `page` and `choose-option.value`.
 
-`tools/harness_walk.py` is the proof (ADR-114, ADR-117): a client that imports
-nothing from this kit, speaks the four operations over stdio, and forms every
-call from the schema and the pools alone. `--target organism | lab | page | all`
+`tools/harness_walk.py` is the proof (ADR-114, ADR-117, ADR-121): a client that
+imports nothing from this kit, speaks the four operations over either transport
+(`--transport stdio | mcp`), and forms every call from the schema and the pools
+alone. `--target organism | lab | page | all`
 walks every plugin the manifest names, keeps the accounting identity
 `commands == driven + refused + declined + chaos + failed` per target, reports a
 tool whose published pools were empty throughout as `unreachable` (a fact about
 the target — a page with no select cannot have `choose-option` driven), and fails
 if any other published tool cannot be driven from its schema or any cross-check
-between reads breaks. Its ledger is `tools/walk_ledger.json`, merged per target.
+between reads breaks. Its ledger is `tools/walk_ledger.json`, merged per target
+and per transport (`<plugin>@mcp` for MCP walks). The same walk from the same
+seed lands every action in the same bucket the same number of times through
+either transport — "a transport decides nothing", measured.
 
 ## Replay safety
 

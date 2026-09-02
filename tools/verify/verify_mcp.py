@@ -67,6 +67,7 @@ class Fake(C.Plugin):
             C.ActionSpec("poke", "change a record", "MUTATE",
                          [C.ArgumentSpec("n", "integer", "how hard", required=True, minimum=0, maximum=9)]),
             C.ActionSpec("nope", "always says no", "NAVIGATE", []),
+            C.ActionSpec("look-twice", "read something, hyphenated", "READ", []),
         ])
 
     def descriptor(self):
@@ -102,17 +103,25 @@ ck(srv.handle({"jsonrpc": "2.0", "method": "notifications/initialized"}) is None
 ck(rpc("ping")["result"] == {}, "ping")
 tools = rpc("tools/list")["result"]["tools"]
 names = [t["name"] for t in tools]
-ck(names == ["fake__look", "fake__poke", "fake__nope"],
+ck(names == ["fake__look", "fake__poke", "fake__nope", "fake__look_twice"],
    "tools/list lists exactly what the policy allows, in manifest order: %s" % names)
 ck(all(t["annotations"]["readOnlyHint"] is (t["name"] != "fake__poke") for t in tools) and
    all(t["annotations"]["destructiveHint"] is (t["name"] == "fake__poke") for t in tools),
    "risk is published as MCP annotations: read-only unless it changes a record")
 ck(all(t["description"].startswith("[") for t in tools) and tools[1]["inputSchema"]["properties"]["n"]["maximum"] == 9,
    "the description names the risk and the schema carries the bounds")
+ck([t["_meta"] for t in tools] == [{"pluginId": "fake", "action": a, "risk": r_}
+                                    for a, r_ in (("look", "READ"), ("poke", "MUTATE"), ("nope", "NAVIGATE"),
+                                                  ("look-twice", "READ"))],
+   "every tool carries _meta with the contract's own plugin id, action and risk (ADR-121), so a client "
+   "never guesses an action back out of a slug -- look-twice, not look_twice: %s" % [t.get("_meta") for t in tools])
 r = rpc("tools/call", {"name": "fake__poke", "arguments": {"n": 3}}, mid=7)
 body = json.loads(r["result"]["content"][0]["text"])
 ck(r["result"]["isError"] is False and body["ok"] and body["output"]["n"] == 3 and not body["replayed"],
    "tools/call executes and returns the output as text content")
+ck(isinstance(body.get("ms"), int) and isinstance(body.get("snapshotMs"), int) and body.get("requestId") == "mcp-7",
+   "the body prices the action and the snapshot separately and names the request id the gateway recorded: %s"
+   % {k: body.get(k) for k in ("ms", "snapshotMs", "requestId")})
 ck(fake.ran[-1] == ("poke", {"n": 3}), "and the plugin ran it")
 n_ran = len(fake.ran)
 r2 = rpc("tools/call", {"name": "fake__poke", "arguments": {"n": 3}}, mid=7)
@@ -191,6 +200,11 @@ else:
         listed = [t["name"] for t in by[2]["result"]["tools"]]
         ck(len(listed) == 19 and "csrbt_organism__put" in listed and "csrbt_organism__get" not in listed,
            "tools/list is the 19 the policy allows (MUTATE opened, SENSITIVE_READ not): %d" % len(listed))
+        meta = dict((t["name"], t.get("_meta") or {}) for t in by[2]["result"]["tools"])
+        ck(meta.get("csrbt_organism__retain_newest") == {"pluginId": "csrbt-organism", "action": "retain-newest",
+                                                         "risk": "MUTATE"},
+           "a tool's _meta carries the hyphenated action and plugin id the slug cannot give back: %s"
+           % meta.get("csrbt_organism__retain_newest"))
         first = json.loads(outs[2]["result"]["content"][0]["text"])
         again = json.loads(outs[3]["result"]["content"][0]["text"])
         ck(first["ok"] and not first["replayed"] and again["replayed"] is True,

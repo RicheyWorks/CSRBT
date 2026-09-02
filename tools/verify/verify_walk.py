@@ -29,6 +29,12 @@ suite pins what makes that claim believable:
      the cross-check reports the fixture's own inconsistency; a target that
      goes away is an alarm, not a bucket. tools/mutate_walk.py breaks the
      walker and requires these checks to notice.
+  G. the same robot over the second transport (ADR-121): McpWire speaks
+     JSON-RPC to harness_mcp.py and folds it into the shape the walk reads;
+     the fixture walked over MCP lands every action in the same bucket the
+     same number of times as over stdio, and so does the organism -- the
+     transport decides nothing, measured; over MCP the snapshot is a second
+     round trip and every execute pays it.
 
 Run:  python3 tools/verify/verify_walk.py
       CSRBT_WALK_QUICK=1 python3 tools/verify/verify_walk.py   # no engine or page walks (the mutant runner)
@@ -110,8 +116,8 @@ ck(all("n" in a for a in formed) and any("s" not in a for a in formed) and any("
    "required arguments are always formed and optional ones sometimes left out")
 
 # ---- C. the walks, against the engine ---------------------------------------
-def walk_target(target, rounds=2, per_round=2, **kw):
-    wire = W.Wire("walk-suite-" + secrets.token_urlsafe(18), seed=3, target=target, **kw)
+def walk_target(target, rounds=2, per_round=2, transport="stdio", **kw):
+    wire = W.wire_for(transport, "walk-suite-" + secrets.token_urlsafe(18), seed=3, target=target, **kw)
     try:
         return W.walk(wire, rounds=rounds, seed=11, per_round=per_round)
     finally:
@@ -182,8 +188,11 @@ led = os.path.join(_kit.TOOLS_DIR, "walk_ledger.json")
 ck(os.path.isfile(led), "the ledger exists")
 if os.path.isfile(led):
     L = json.load(io.open(led, encoding="utf-8"))["targets"]
-    ck(set(L) == {"csrbt-organism", "csrbt-lab", "csrbt-page"}, "one entry per target: %s" % sorted(L))
-    for pid, want in (("csrbt-organism", 33), ("csrbt-lab", 8), ("csrbt-page", 15)):
+    ck(set(L) == {"csrbt-organism", "csrbt-lab", "csrbt-page",
+                  "csrbt-organism@mcp", "csrbt-lab@mcp", "csrbt-page@mcp"},
+       "one entry per target per transport: %s" % sorted(L))
+    for pid, want in (("csrbt-organism", 33), ("csrbt-lab", 8), ("csrbt-page", 15),
+                      ("csrbt-organism@mcp", 33), ("csrbt-lab@mcp", 8), ("csrbt-page@mcp", 15)):
         e = L.get(pid) or {}
         ck(e.get("identity") == "holds" and e.get("accounted") == e.get("commands") and
            e.get("tools") == want and not e.get("undriven") and not e.get("unschemable") and
@@ -195,6 +204,8 @@ if os.path.isfile(led):
         ck(pr.get("n", 0) > 0 and isinstance(pr.get("median"), int) and pr["median"] <= 250,
            "%s: the committed walk carries the snapshot's price (median %s ms over %s responses)"
            % (pid, pr.get("median"), pr.get("n")))
+        ck(e.get("transport") == ("mcp" if pid.endswith("@mcp") else "stdio"),
+           "%s: the entry names its transport" % pid)
 
 # ---- E. scoped pools ---------------------------------------------------------
 rnd = random.Random(5)
@@ -223,11 +234,11 @@ except ImportError:
 # walker's bookkeeping is pinned by exact counts rather than by "nothing
 # failed" against a target that mostly succeeds. 2 rounds x 2 per round: each
 # action is called exactly four times unless the walker stops early.
-def walk_fixture(rounds=2, per_round=2, env=None):
+def walk_fixture(rounds=2, per_round=2, env=None, transport="stdio"):
     old = dict(os.environ)
     os.environ.update(env or {})
     try:
-        wire = W.Wire("walk-suite-" + secrets.token_urlsafe(18), seed=3, target="fixture")
+        wire = W.wire_for(transport, "walk-suite-" + secrets.token_urlsafe(18), seed=3, target="fixture")
         try:
             res = W.walk(wire, rounds=rounds, seed=11, per_round=per_round)["csrbt-fixture"]
             snap = wire.op("observe", plugin="csrbt-fixture").get("snapshot") or {}
@@ -310,6 +321,42 @@ try:
 except RuntimeError as e:
     ck("went away" in str(e), "fixture: a target that goes away mid-walk is an alarm (unavailable), "
                               "not a bucket: %s" % str(e)[:60])
+
+# ---- G. the same robot over MCP --------------------------------------------
+gx, gsnap = walk_fixture(transport="mcp")
+ck(gx["transport"] == "mcp" and fx["transport"] == "stdio", "the result names its transport")
+ck(gx["per_action"] == fx["per_action"] and gx["totals"] == fx["totals"] and gx["commands"] == fx["commands"],
+   "the fixture walked over MCP lands every action in the same bucket the same number of times as over "
+   "stdio -- refused, declined, chaos and failed all read back through JSON-RPC: %s vs %s"
+   % (gx["totals"], fx["totals"]))
+ck(gx["unreachable"] == fx["unreachable"] and gx["undriven"] == fx["undriven"] and
+   list(gx["unschemable"]) == list(fx["unschemable"]) and gx["invariants_broken"] == fx["invariants_broken"],
+   "and says the same about the unreachable, the undriven, the unschemable and the cross-checks")
+ck(gx["price"]["snapshotMs"]["n"] == gx["commands"] and gx["price"]["snapshotMs"]["n"] > fx["price"]["snapshotMs"]["n"],
+   "over MCP every execute pays for a snapshot -- a second round trip, priced by the client's own clock -- "
+   "where over stdio a refusal carries none: %d vs %d priced" % (gx["price"]["snapshotMs"]["n"],
+                                                                 fx["price"]["snapshotMs"]["n"]))
+ck(gsnap.get("calls") == fsnap.get("calls"), "the fixture counted the same calls from either transport")
+try:
+    walk_fixture(env={"CSRBT_FIXTURE_DIE": "1"}, transport="mcp")
+    ck(False, "over MCP a target that went away was walked to the end")
+except RuntimeError as e:
+    ck("went away" in str(e), "over MCP a target that goes away (-32002, unavailable) is the same alarm")
+src_mcp = io.open(os.path.join(_kit.TOOLS_DIR, "harness_mcp.py"), encoding="utf-8").read()
+ck('"_meta"' in src_mcp and "_meta" in src and "split(\"__\"" not in src,
+   "the MCP wire reads the action from a tool's _meta and never guesses it back out of the slug")
+if not QUICK and os.path.isfile(cp_org):
+    res_s = walk_target("organism")["csrbt-organism"]
+    res_m = walk_target("organism", transport="mcp")["csrbt-organism"]
+    hold(res_m, "organism over MCP", 33)
+    ck(res_m["per_action"] == res_s["per_action"],
+       "the organism walked over MCP and over stdio from the same seed land every action in the same "
+       "buckets: %s vs %s" % (res_m["totals"], res_s["totals"]))
+    pr = res_m["price"]["snapshotMs"]
+    ck(pr["n"] == res_m["commands"] and pr["median"] <= 250,
+       "organism over MCP: every command paid a snapshot round trip, median %s ms" % pr["median"])
+elif not QUICK:
+    unverified.append("G  the organism over MCP -- WholeHog is not built")
 
 total = P + F + len(unverified)
 print("---")

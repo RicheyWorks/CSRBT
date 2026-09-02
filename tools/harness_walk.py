@@ -55,7 +55,10 @@ THE ACCOUNTING
     python3 tools/harness_walk.py --target page --page collection-sheet.html
     python3 tools/harness_walk.py --target all --no-ledger
 
-The ledger, tools/walk_ledger.json, is MERGED per target: a walk of one
+    python3 tools/harness_walk.py --target fixture --transport mcp   # the same walk, over MCP (ADR-121)
+
+The ledger, tools/walk_ledger.json, is MERGED per target (and per transport --
+a walk over MCP is "<plugin>@mcp"): a walk of one
 target keeps the others' entries, each with its own `at` (the harness
 ledger's rule, ADR-108). The token is generated per run and passed to the
 child through its environment, never on a command line.
@@ -72,21 +75,27 @@ OPS = ("manifest", "discover", "observe", "execute", "quit")
 # the wire: four operations over a child's stdio, and nothing else
 # ---------------------------------------------------------------------------
 
+def _spawn(script, token, seed, target, page, python=None):
+    env = dict(os.environ)
+    env.update({"CSRBT_HARNESS_ENABLED": "true", "CSRBT_HARNESS_TOKEN": token,
+                "CSRBT_HARNESS_ALLOW_SENSITIVE_READ": "true",
+                "CSRBT_HARNESS_ALLOW_DRAFT": "true",
+                "CSRBT_HARNESS_ALLOW_MUTATE": "true",
+                "CSRBT_HARNESS_ALLOW_DESTRUCTIVE": "true"})
+    return subprocess.Popen(
+        [python or sys.executable, script, "--target", target, "--seed", str(seed), "--page", page],
+        stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE,
+        text=True, encoding="utf-8", bufsize=1, env=env)
+
+
 class Wire(object):
+    """The stdio transport: JSON lines, the four operations by name."""
+    transport = "stdio"
+
     def __init__(self, token, seed=42, python=None, stdio=None, target="organism", page="ecology.html"):
         self.token = token
         self.target = target
-        env = dict(os.environ)
-        env.update({"CSRBT_HARNESS_ENABLED": "true", "CSRBT_HARNESS_TOKEN": token,
-                    "CSRBT_HARNESS_ALLOW_SENSITIVE_READ": "true",
-                    "CSRBT_HARNESS_ALLOW_DRAFT": "true",
-                    "CSRBT_HARNESS_ALLOW_MUTATE": "true",
-                    "CSRBT_HARNESS_ALLOW_DESTRUCTIVE": "true"})
-        self.proc = subprocess.Popen(
-            [python or sys.executable, stdio or os.path.join(HERE, "harness_stdio.py"),
-             "--target", target, "--seed", str(seed), "--page", page],
-            stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE,
-            text=True, encoding="utf-8", bufsize=1, env=env)
+        self.proc = _spawn(stdio or os.path.join(HERE, "harness_stdio.py"), token, seed, target, page, python)
         self.sent = 0
 
     def op(self, op, **fields):
@@ -111,6 +120,138 @@ class Wire(object):
             self.proc.wait(timeout=30)
         except Exception:
             self.proc.kill()
+
+
+class McpWire(object):
+    """The MCP transport (ADR-121): the same four operations, spoken as JSON-RPC
+    to tools/harness_mcp.py, and folded back into the shape the walk reads --
+    so the walk does not know which transport it is on. What MCP says
+    differently, and how it is read:
+
+      manifest   tools/list + resources/list. A tool's `_meta` carries the
+                 contract's pluginId and action (the slug csrbt_page__set_text
+                 cannot give "set-text" back); the plugins are the snapshot
+                 resources. Only allowed tools are listed, so `forbidden` is
+                 what the policy hid: nothing, under this walk's policy.
+      observe    resources/read of harness://<plugin>/snapshot.
+      execute    tools/call with the request id AS the JSON-RPC id (a retry is
+                 a replay). A JSON-RPC error whose message begins with a
+                 gateway code ("invalid_argument: ...") is that code -- the
+                 target defended itself; isError:true with a body is the
+                 target's no (declined). MCP returns no snapshot with a call, so
+                 the wire reads the resource after every call and prices it by
+                 its own clock: over MCP the snapshot is a second round trip,
+                 and snapshotMs is what THIS client waited, not what the
+                 gateway measured.
+    """
+    transport = "mcp"
+
+    def __init__(self, token, seed=42, python=None, target="organism", page="ecology.html"):
+        self.token = token
+        self.target = target
+        self.proc = _spawn(os.path.join(HERE, "harness_mcp.py"), token, seed, target, page, python)
+        self.sent = 0
+        self._id = 0
+        self._tools = None
+        self._plugins = None
+
+    def rpc(self, method, params=None, mid=None):
+        self._id += 1
+        msg = {"jsonrpc": "2.0", "id": mid if mid is not None else "w%d" % self._id, "method": method}
+        if params is not None:
+            msg["params"] = params
+        self.proc.stdin.write(json.dumps(msg) + "\n")
+        self.proc.stdin.flush()
+        self.sent += 1
+        line = self.proc.stdout.readline()
+        if not line:
+            err = (self.proc.stderr.read() or "")[-400:]
+            raise RuntimeError("transport closed (rc=%s): %s" % (self.proc.poll(), err.strip()))
+        return json.loads(line)
+
+    def op(self, op, **fields):
+        assert op in OPS
+        if op == "discover":
+            r = self.rpc("initialize", {"protocolVersion": "2025-03-26", "capabilities": {},
+                                        "clientInfo": {"name": "harness_walk", "version": "1"}})
+            if "error" in r:
+                return {"ok": False, "error": r["error"]}
+            self.proc.stdin.write(json.dumps({"jsonrpc": "2.0", "method": "notifications/initialized"}) + "\n")
+            self.proc.stdin.flush()
+            self._version = r["result"]["serverInfo"].get("version")
+            return {"ok": True, "serverInfo": r["result"]["serverInfo"]}
+        if op == "manifest":
+            if not hasattr(self, "_version"):
+                self.op("discover")                            # MCP: initialize comes first
+            tools = self.rpc("tools/list")["result"]["tools"]
+            res = self.rpc("resources/list")["result"]["resources"]
+            plugins = [{"id": x["uri"][len("harness://"):-len("/snapshot")]} for x in res]
+            man = {"protocolVersion": getattr(self, "_version", None), "plugins": plugins, "tools": []}
+            for t in tools:
+                meta = t.get("_meta") or {}
+                man["tools"].append({"name": t["name"], "pluginId": meta.get("pluginId"),
+                                     "action": meta.get("action"), "risk": meta.get("risk"),
+                                     "allowed": True, "inputSchema": t["inputSchema"]})
+            return {"ok": True, "manifest": man}
+        if op == "observe":
+            r = self.rpc("resources/read", {"uri": "harness://%s/snapshot" % fields["plugin"]})
+            if "error" in r:
+                return {"ok": False, "code": self._code(r["error"]), "message": r["error"]["message"]}
+            return {"ok": True, "snapshot": json.loads(r["result"]["contents"][0]["text"])}
+        if op == "execute":
+            cmd = fields["command"]
+            name = self._name(fields["plugin"], cmd["action"])
+            r = self.rpc("tools/call", {"name": name, "arguments": cmd.get("arguments") or {}},
+                         mid=cmd["request_id"])
+            if "error" in r:
+                out = {"ok": False, "code": self._code(r["error"]), "message": r["error"]["message"],
+                       "output": {}, "requestId": cmd["request_id"]}
+            else:
+                body = json.loads(r["result"]["content"][0]["text"])
+                # isError is MCP's own word for "this happened and it was a
+                # no"; the body's ok is the gateway's, and they agree. The
+                # wire reads the protocol's signal, as a host would.
+                out = {"ok": not r["result"].get("isError"), "message": body.get("message"),
+                       "output": body.get("output") or {}, "requestId": body.get("requestId"),
+                       "ms": body.get("ms"), "replayed": body.get("replayed")}
+            t0 = time.time()
+            snap = self.op("observe", plugin=fields["plugin"])
+            out["snapshotMs"] = int((time.time() - t0) * 1000)
+            out["snapshot"] = snap.get("snapshot") or {}
+            return out
+        if op == "quit":
+            self.proc.stdin.close()
+            return {"ok": True}
+
+    def _name(self, plugin, action):
+        if self._tools is None:
+            self._tools = {}
+            for t in self.op("manifest")["manifest"]["tools"]:
+                self._tools[(t["pluginId"], t["action"])] = t["name"]
+        name = self._tools.get((plugin, action))
+        if name is None:
+            raise RuntimeError("no MCP tool for %s/%s: the list must name it in _meta" % (plugin, action))
+        return name
+
+    @staticmethod
+    def _code(err):
+        msg = err.get("message") or ""
+        head = msg.split(":", 1)[0].strip()
+        return head if head in REFUSAL + ("forbidden", "unauthorized", "unavailable", "failed") else "failed"
+
+    def close(self):
+        try:
+            self.op("quit")
+        except Exception:
+            pass
+        try:
+            self.proc.wait(timeout=30)
+        except Exception:
+            self.proc.kill()
+
+
+def wire_for(transport, token, **kw):
+    return McpWire(token, **kw) if transport == "mcp" else Wire(token, **kw)
 
 
 # ---------------------------------------------------------------------------
@@ -244,7 +385,8 @@ def walk_one(wire, man, pid, rounds, seed, per_round, log=None):
                              "arguments": args})
         if isinstance(r.get("snapshotMs"), int):
             price["snapshot"].append(r["snapshotMs"])
-            price["action"].append(r.get("ms") or 0)
+        if isinstance(r.get("ms"), int):
+            price["action"].append(r["ms"])           # a refusal ran no action: no price, not zero
         snap = r.get("snapshot") or {}
         if isinstance(snap.get("argumentPools"), dict):
             pools.clear()
@@ -339,6 +481,7 @@ def walk_one(wire, man, pid, rounds, seed, per_round, log=None):
                 "max": xs[-1], "total": sum(xs)}
     return {
         "at": int(time.time()), "plugin": pid, "seed": seed, "rounds": rounds, "per_round": per_round,
+        "transport": getattr(wire, "transport", "stdio"),
         # ADR-120: the snapshot every response carries, priced from the
         # responses themselves -- what the target charged to be asked about
         # itself, beside what the actions cost.
@@ -446,7 +589,7 @@ INVARIANTS = {"csrbt-organism": organism_checks, "csrbt-lab": lab_checks, "csrbt
 
 def report(pid, res, out=print):
     out("")
-    out("== %s" % pid)
+    out("== %s  (over %s)" % (pid, res.get("transport", "stdio")))
     out("%-30s %7s %7s %8s %6s %6s" % ("action", "driven", "refused", "declined", "chaos", "failed"))
     for name in sorted(res["per_action"]):
         c = res["per_action"][name]
@@ -483,7 +626,11 @@ def merge_ledger(results, path=LEDGER):
             led = json.load(io.open(path, encoding="utf-8"))
         except ValueError:
             pass
-    led.setdefault("targets", {}).update(results)
+    # ADR-121: a walk over MCP is its own entry, "<plugin>@mcp"; the stdio
+    # entries keep the plain key they have had since ADR-114.
+    keyed = dict((pid if res.get("transport", "stdio") == "stdio" else "%s@%s" % (pid, res["transport"]), res)
+                 for pid, res in results.items())
+    led.setdefault("targets", {}).update(keyed)
     json.dump(led, io.open(path, "w", encoding="utf-8"), indent=1, sort_keys=True)
     return led
 
@@ -498,11 +645,13 @@ def main(argv):
     ap.add_argument("--seed", type=int, default=2026)
     ap.add_argument("--organism-seed", type=int, default=42)
     ap.add_argument("--no-ledger", action="store_true")
+    ap.add_argument("--transport", default="stdio", choices=["stdio", "mcp"],
+                    help="which transport to walk through (ADR-121): the walk itself does not know")
     a = ap.parse_args(argv)
 
     token = "walk-" + secrets.token_urlsafe(24)
     try:
-        wire = Wire(token, seed=a.organism_seed, target=a.target, page=a.page)
+        wire = wire_for(a.transport, token, seed=a.organism_seed, target=a.target, page=a.page)
         hello = wire.op("discover")
     except Exception as e:
         print("cannot start the transport: %s" % e)

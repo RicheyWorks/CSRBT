@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-"""Mutation testing for the robot itself (ADR-119).
+"""Mutation testing for the robot itself (ADR-119; the MCP wire, ADR-121).
 
 WHY
 
@@ -99,6 +99,25 @@ MUTANTS = [
      '            or res["invariants_broken"] or res["totals"]["failed"])',
      '            or res["invariants_broken"])',
      "verdict is failing on any one of"),
+    # ADR-121: the MCP wire
+    ("over MCP, isError is not read as the target's no",
+     '                out = {"ok": not r["result"].get("isError"), "message": body.get("message"),',
+     '                out = {"ok": True, "message": body.get("message"),',
+     "same bucket the same number of times as over"),
+    ("over MCP, a gateway code in a JSON-RPC error is not read back",
+     '        return head if head in REFUSAL + ("forbidden", "unauthorized", "unavailable", "failed") else "failed"',
+     '        return "failed"',
+     "same bucket the same number of times as over"),
+    ("over MCP, the snapshot is not read after a call",
+     '            out["snapshot"] = snap.get("snapshot") or {}',
+     '            out["snapshot"] = {}',
+     "same bucket the same number of times as over"),
+    ("over MCP, the action is guessed from the slug instead of read from _meta",
+     '                man["tools"].append({"name": t["name"], "pluginId": meta.get("pluginId"),\n'
+     '                                     "action": meta.get("action"), "risk": meta.get("risk"),',
+     '                man["tools"].append({"name": t["name"], "pluginId": meta.get("pluginId"),\n'
+     '                                     "action": t["name"].split("__", 1)[1].replace("_", "-"), "risk": meta.get("risk"),',
+     "never guesses it back out of the slug"),
     ("the verdict ignores unschemable tools",
      '    return (res["identity"] != "holds" or res["undriven"] or res["unschemable"]',
      '    return (res["identity"] != "holds" or res["undriven"]',

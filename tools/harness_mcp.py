@@ -23,6 +23,14 @@ The mapping, and nothing else:
                                             harness://<plugin>/snapshot)
     ping                      -> {}
 
+Each tool also carries `_meta` -- pluginId, action, risk -- the contract's own
+names for it (ADR-121). A tool name is a provider-safe slug, and a client that
+scopes argument pools by action ("set-text.selector") must not have to guess
+"set-text" back out of "csrbt_page__set_text"; a `_meta` the spec reserves for
+exactly this is where those names ride. tools/call's body carries the price of
+the action (ms) and of the snapshot the gateway took after it (snapshotMs), and
+the request id the gateway recorded (ADR-120).
+
 Risk becomes MCP tool annotations, so a host can show an operator what it is
 being asked for: READ, NAVIGATE and SENSITIVE_READ are readOnlyHint (the
 last with the risk named in the description); MUTATE and DESTRUCTIVE are
@@ -126,7 +134,8 @@ class Server(object):
             out.append({"name": t["name"],
                         "description": "[%s] %s" % (t["risk"], t["description"]),
                         "inputSchema": t["inputSchema"],
-                        "annotations": annotations(t["risk"])})
+                        "annotations": annotations(t["risk"]),
+                        "_meta": {"pluginId": t["pluginId"], "action": t["action"], "risk": t["risk"]}})
         return out
 
     def call(self, mid, params):
@@ -142,7 +151,8 @@ class Server(object):
         r = self.gw.execute(self.token, plugin_id, {
             "request_id": rid, "action": action, "arguments": params.get("arguments") or {}})
         body = {"ok": r["ok"], "message": r["message"], "output": r["output"],
-                "replayed": r["replayed"], "risk": r["risk"], "ms": r["ms"]}
+                "replayed": r["replayed"], "risk": r["risk"], "ms": r["ms"],
+                "snapshotMs": r.get("snapshotMs"), "requestId": r["requestId"]}
         return {"content": [{"type": "text", "text": json.dumps(body, default=str)}],
                 "isError": not r["ok"]}
 

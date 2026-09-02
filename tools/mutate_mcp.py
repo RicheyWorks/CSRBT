@@ -40,6 +40,10 @@ MUTANTS = [
     ("a tool that is not listed runs anyway",
      '        if name not in self._tools:', '        if False:',
      "never reached the plugin"),
+    ("tools drop their _meta, so a client must guess the action from the slug",
+     '                        "_meta": {"pluginId": t["pluginId"], "action": t["action"], "risk": t["risk"]}})',
+     '                        "_meta": {"pluginId": t["pluginId"], "action": t["name"].split("__", 1)[1], "risk": t["risk"]}})',
+     "never guesses an action"),
 ]
 
 KNOWN_EQUIVALENT = [

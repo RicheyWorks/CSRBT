@@ -273,6 +273,7 @@ python3 tools/mutate_organism.py                     # break plugin + console 26
 python3 tools/harness_walk.py --target all           # the robot: every target from the manifest alone
 python3 tools/verify/verify_walk.py                  # 74 checks on the robot, its ledger, and the fixture
 python3 tools/harness_walk.py --target fixture       # the target built to be walked (ADR-119)
+python3 tools/harness_walk.py --target all --transport mcp   # the same robot through the second transport (ADR-121)
 python3 tools/mutate_walk.py                         # break the robot 17 ways against verify_walk (quick mode)
 python3 tools/harness_mcp.py --target organism       # the second transport: MCP, for a model (ADR-115)
 python3 tools/verify/verify_mcp.py                   # 31 checks on it; mutate_mcp.py 6/6
@@ -283,6 +284,14 @@ python3 tools/ecosystem.py --read                    # every engine's JUnit resu
 python3 tools/verify/verify_ecosystem.py             # 56 checks: green, >= floor, unbuilt or stale = NOT VERIFIED; the Atlas == the ledger
 python3 tools/atlas.py                               # regenerate the Atlas's engine table from the ledger (ADR-120)
 ```
+
+ADR-121 walked the second transport: `harness_walk.py --transport mcp` speaks
+JSON-RPC to the MCP server and the walk does not know it — the fixture and the
+organism land every action in the same bucket the same number of times through
+either door, which is "a transport decides nothing" as a measurement rather
+than a sentence. It took `_meta` on every tool (the contract's plugin id and
+action, so a client never guesses an action from a slug) and it priced the
+transport: over MCP the snapshot is a second round trip.
 
 ADR-120 closed what the program had held: every response now prices its
 snapshot (`snapshotMs`, protocol 1.2 — free on the organism and the lab, 91 ms
