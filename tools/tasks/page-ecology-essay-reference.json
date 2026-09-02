@@ -1,0 +1,47 @@
+{
+ "id": "page-ecology-essay-reference",
+ "target": "page",
+ "page": "ecology-essay.html",
+ "goal": "The ecology-essay page is a reference page with no data entry: its report is its outline. Read through the gateway, it carries exactly its 10 headings in order (The ecology of a tree ... Coda), and is intact -- no leaked value, no script error, nothing pushed sideways.",
+ "steps": [
+  {
+   "id": "look",
+   "action": "observe",
+   "expect": {
+    "ok": true,
+    "snapshot.page": "ecology-essay.html"
+   }
+  },
+  {
+   "id": "outline",
+   "action": "read-report",
+   "expect": {
+    "ok": true,
+    "output.headings": [
+     "The ecology of a tree",
+     "After the no",
+     "The audit that found constants where instruments should be",
+     "Refounding: instruments that move",
+     "One model per engine, or none",
+     "Heredity, made physical",
+     "Perception: the early-warning experiment",
+     "The frontier: perception meets economics",
+     "What the biology actually bought",
+     "Coda"
+    ]
+   }
+  },
+  {
+   "id": "intact",
+   "action": "read-page",
+   "expect": {
+    "output.junk": null,
+    "output.errors": {
+     "op": "==",
+     "value": []
+    },
+    "output.overflow": 0
+   }
+  }
+ ]
+}

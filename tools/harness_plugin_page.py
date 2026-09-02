@@ -232,7 +232,10 @@ REPORT = r"""
   document.querySelectorAll(".v").forEach(v => {
     const t = v.parentElement;
     if (!t || seen.has(t) || order.length >= 200) return;
-    const l = [...t.children].find(c => c.classList.contains("l"));
+    // the label is a sibling .l, or a sibling .k that is itself the label
+    // (the visualizer's <span class=k>Nodes</span><span class=v>13</span>)
+    const l = [...t.children].find(c => c.classList.contains("l")) ||
+              [...t.children].find(c => c.classList.contains("k") && !c.querySelector(".v"));
     if (!l || v.parentElement !== t) return;
     seen.add(t);
     const key = norm(l.textContent).slice(0, 60);
@@ -261,16 +264,18 @@ REPORT = r"""
   // What counts as a box is the kit's naming: an analysis (an*), an output
   // (*Out), a *Box, *Stats, *Plan, *Matrix, *Verdict, *Warn, *Tell, *Note,
   // *Advice, *Refuse, *Table, *Chart, *Typical, *List, *Grid, *Export,
-  // *Lint, *Cmd, *Meas, *Help, *Card, *Legend (any case, hyphens allowed:
+  // *Lint, *Cmd, *Meas, *Help, *Card, *Legend, *Msg, *Check, *Read, *Desc,
+  // *Left, *Res (ADR-129: the keys' kres/kRes, the visualizer's msg, the
+  // proofs' spCheck, the lab's readings) (any case, hyphens allowed:
   // the experiment guide's eco-out), and the few plain names (coherence,
   // report, results, outputs, toast, journal). Capped in count and in
   // characters; a list's rows are counted separately below.
-  const BOX = /^(an|out|rep|res|sum)[A-Za-z0-9-]*$|(box|out|stats?|plan|matrix|verdict|tiles|warn|coh|tell|note|advice|refuse|table|chart|typical|list|results|grid|export|lint|cmd|meas|help|card|legend)$|^(coherence|report|results|outputs|toast|journal)$/i;
+  const BOX = /^(an|out|rep|res|sum)[A-Za-z0-9-]*$|(box|out|stats?|plan|matrix|verdict|tiles|warn|coh|tell|note|advice|refuse|table|chart|typical|list|results|grid|export|lint|cmd|meas|help|card|legend|msg|check|read|desc|left|res)$|^(coherence|report|results|outputs|toast|journal)$/i;
   const boxes = {}, shown = [];
   document.querySelectorAll("[id]").forEach(e => {
     if (!BOX.test(e.id)) return;
     if (Object.keys(boxes).length >= 64) return;
-    boxes[e.id] = norm(e.textContent).slice(0, 1500);
+    boxes[e.id] = norm(e.textContent).slice(0, 4000);
     if (vis(e)) shown.push(e.id);
   });
   // Tables, row by row, cell by cell (capped): the recipe card's
@@ -285,12 +290,17 @@ REPORT = r"""
     tables[key] = [...t.querySelectorAll("tr")].slice(0, 40).map(
       tr => [...tr.children].slice(0, 8).map(c => norm(c.textContent).slice(0, 60)));
   });
+  // The page's headings, in order (ADR-129): a reference page has no
+  // figures and no boxes, and its structure IS its report.
+  const headings = [...document.querySelectorAll("h1, h2, h3")].slice(0, 80)
+    .map(h => norm(h.textContent).slice(0, 120));
   const rows = {};
   document.querySelectorAll(".row2").forEach(r => {
     const p = r.parentElement; const id = p && p.id ? "#" + p.id : (p ? p.className.split(" ")[0] : "?");
     rows[id] = (rows[id] || 0) + 1;
   });
   return { figures: figures, by: by, order: order, boxes: boxes, shown: shown, rows: rows, tables: tables,
+           headings: headings,
            route: (document.querySelector(".pane.on") || {}).id || null };
 }
 """
@@ -621,7 +631,8 @@ class PagePlugin(Plugin):
                            "beside a .v value) flat and by the box it sits in, every analysis "
                            "box's text (by the kit's id conventions: an*, *Out, *Box, *Stats, "
                            "*Note, *List, *Table, toast...), which boxes a reader can see, "
-                           "every table's cells, and the row count of every list. What an "
+                           "every table's cells, the row count of every list, and the "
+                           "headings in order. What an "
                            "operator checks a data-entry page's arithmetic against.",
                            "SENSITIVE_READ", []),
                 ActionSpec("read-control",
@@ -769,8 +780,8 @@ class PagePlugin(Plugin):
                 r = self.page.evaluate(REPORT)
             except Exception as e:
                 raise Unavailable("page not readable: %s" % str(e)[:120])
-            return True, "%d figure(s), %d box(es), %d list(s), %d table(s)" % (
-                len(r["figures"]), len(r["boxes"]), len(r["rows"]), len(r["tables"])), r
+            return True, "%d figure(s), %d box(es), %d list(s), %d table(s), %d heading(s)" % (
+                len(r["figures"]), len(r["boxes"]), len(r["rows"]), len(r["tables"]), len(r["headings"])), r
 
         sel = args.get("selector")
         if sel is not None and not SEL_RE.match(sel):

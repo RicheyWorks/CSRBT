@@ -1,0 +1,146 @@
+{
+ "id": "page-plant-characters-key",
+ "target": "page",
+ "page": "plant-characters.html",
+ "goal": "On the plant characters key, score herbaceous, opposite, simple and add the tells square stem and strongly aromatic: 7 of the 20 families are consistent with all 3 characters and Lamiaceae leads (3/3 characters, 2 extra tells, score 3 + 2 x 1.5 = 6) ahead of six families at 3/3; woody, opposite, three petals matches nothing and the closest are shown with the conflict named; Start over clears the key.",
+ "steps": [
+  {
+   "id": "look",
+   "action": "observe",
+   "expect": {
+    "ok": true,
+    "snapshot.page": "plant-characters.html"
+   }
+  },
+  {
+   "id": "p0",
+   "action": "activate",
+   "arguments": {
+    "selector": "@control:keybox/Herbaceous"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "p1",
+   "action": "activate",
+   "arguments": {
+    "selector": "@control:keybox/Opposite"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "p2",
+   "action": "activate",
+   "arguments": {
+    "selector": "@control:keybox/Simple"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "p3",
+   "action": "activate",
+   "arguments": {
+    "selector": "@control:keybox/Square stem"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "p4",
+   "action": "activate",
+   "arguments": {
+    "selector": "@control:keybox/Strongly aromatic"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "seven",
+   "action": "read-report",
+   "expect": {
+    "ok": true,
+    "output.boxes.kres": "7 families are consistent with all 3 characters you scored, ranked by how many of your extra observations they also explain.Lamiaceae3/3 characters · 2 extraSquare stem, opposite leaves, aromatic, two-lipped corolla, four nutlets.Also explains: Square stem, Strongly aromaticAsteraceae3/3 charactersHeads of many tiny flowers inside a ring of bracts. Pull one apart — dozens of tubes.Ranunculaceae3/3 charactersEverything numerous and nothing fused — a scatter of separate parts.Amaranthaceae3/3 charactersSmall green petal-less flowers on a mealy or fleshy plant, often on salty ground.Plantaginaceae3/3 charactersTubular two-lipped corolla, superior ovary, capsule. Penstemon's fifth stamen is bearded.Onagraceae3/3 charactersParts in fours over a long hypanthium and an obviously inferior ovary."
+   }
+  },
+  {
+   "id": "second",
+   "action": "read-report",
+   "expect": {
+    "output.boxes.kres": {
+     "op": "contains",
+     "value": "Asteraceae3/3 characters"
+    }
+   }
+  },
+  {
+   "id": "reset",
+   "action": "activate",
+   "arguments": {
+    "selector": "@control:kclear"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "q0",
+   "action": "activate",
+   "arguments": {
+    "selector": "@control:keybox/Woody"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "q1",
+   "action": "activate",
+   "arguments": {
+    "selector": "@control:keybox/Opposite"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "q2",
+   "action": "activate",
+   "arguments": {
+    "selector": "@control:keybox/Three"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "nomatch",
+   "action": "read-report",
+   "expect": {
+    "output.boxes.kres": {
+     "op": "contains",
+     "value": "Conflict: petals or tepals — this family shows five or many"
+    }
+   }
+  },
+  {
+   "id": "intact",
+   "action": "read-page",
+   "expect": {
+    "output.junk": null,
+    "output.errors": {
+     "op": "==",
+     "value": []
+    },
+    "output.overflow": 0
+   }
+  }
+ ]
+}

@@ -1,0 +1,50 @@
+{
+ "id": "page-ecology-glossary-reference",
+ "target": "page",
+ "page": "ecology-glossary.html",
+ "goal": "The ecology-glossary page is a reference page with no data entry: its report is its outline. Read through the gateway, it carries exactly its 13 headings in order (Ecology Glossary ... The kit's own terms), and is intact -- no leaked value, no script error, nothing pushed sideways.",
+ "steps": [
+  {
+   "id": "look",
+   "action": "observe",
+   "expect": {
+    "ok": true,
+    "snapshot.page": "ecology-glossary.html"
+   }
+  },
+  {
+   "id": "outline",
+   "action": "read-report",
+   "expect": {
+    "ok": true,
+    "output.headings": [
+     "Ecology Glossary",
+     "Community & diversity",
+     "Comparing communities — β diversity",
+     "Populations & demography",
+     "Space & islands",
+     "Food webs",
+     "Botany & vegetation",
+     "Fungi & mycology",
+     "Animal behaviour",
+     "Evolution & selection",
+     "Cell & microbiology",
+     "Genetics",
+     "The kit's own terms"
+    ]
+   }
+  },
+  {
+   "id": "intact",
+   "action": "read-page",
+   "expect": {
+    "output.junk": null,
+    "output.errors": {
+     "op": "==",
+     "value": []
+    },
+    "output.overflow": 0
+   }
+  }
+ ]
+}

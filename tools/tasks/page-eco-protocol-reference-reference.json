@@ -1,0 +1,56 @@
+{
+ "id": "page-eco-protocol-reference-reference",
+ "target": "page",
+ "page": "eco-protocol-reference.html",
+ "goal": "The eco-protocol-reference page is a reference page with no data entry: its report is its outline. Read through the gateway, it carries exactly its 15 headings in order (The .eco Protocol ... How to run it), and 8 table(s), and is intact -- no leaked value, no script error, nothing pushed sideways.",
+ "steps": [
+  {
+   "id": "look",
+   "action": "observe",
+   "expect": {
+    "ok": true,
+    "snapshot.page": "eco-protocol-reference.html"
+   }
+  },
+  {
+   "id": "outline",
+   "action": "read-report",
+   "expect": {
+    "ok": true,
+    "output.headings": [
+     "The .eco Protocol",
+     "The round-trip",
+     "Keywords",
+     "Header — the world",
+     "phase — a chapter of the workload",
+     "factor — the conditions",
+     "model — run a classic model",
+     "data — bring your own field counts",
+     "note — qualitative observations",
+     "tree — a phylogeny in Newick",
+     "cross — a genetic cross",
+     "expect — commit before you run",
+     "How grading works",
+     "What a run writes",
+     "How to run it"
+    ],
+    "output.tables.phase.0.0": {
+     "op": "exists",
+     "value": true
+    }
+   }
+  },
+  {
+   "id": "intact",
+   "action": "read-page",
+   "expect": {
+    "output.junk": null,
+    "output.errors": {
+     "op": "==",
+     "value": []
+    },
+    "output.overflow": 0
+   }
+  }
+ ]
+}

@@ -1,0 +1,376 @@
+{
+ "id": "page-tree-proofs-science",
+ "target": "page",
+ "page": "tree-proofs.html",
+ "goal": "On the tree proofs page, against an independent Python port of its splay core: a balanced splay tree of 63 keys has potential Φ = Σ log2(size) = 79.3; accessing key 1 costs 6 rotations+1 = 6 actual and 13.0 amortized (ΔΦ +7.0), the same key again costs 1 and 1.0; key 63 costs 7 / 13.0; the worst-case path (63 keys inserted descending) has Φ 290.0 and accessing key 1 costs 63 actual but −77.4 amortized, under the Access Lemma bound 3·log2(63)+1 = 18.9; the minimal AVL trees to height 12 have F(h+2)−1 nodes (1 2 4 7 12 20 33 54 88 143 232 376) under 1.4404·log2(n+2)−0.3277; select(9) over 31 keys takes 5 steps (16 → 8 → 12 → 10 → 9) and select(20) 3 steps (16 → 24 → 20).",
+ "steps": [
+  {
+   "id": "look",
+   "action": "observe",
+   "expect": {
+    "ok": true,
+    "snapshot.page": "tree-proofs.html"
+   }
+  },
+  {
+   "id": "boot",
+   "action": "read-report",
+   "expect": {
+    "ok": true,
+    "output.figures.nodes": "63",
+    "output.figures.Φ now": "79.3",
+    "output.figures.Σ actual": "0",
+    "output.figures.Σ amortized": "0.0",
+    "output.boxes.spCheck": {
+     "op": "contains",
+     "value": "3·log₂(63) + 1 = 18.9 amortized per access."
+    },
+    "output.boxes.osNote": "select(9) = 9 in 5 steps out of 31 keys. Checked against the sorted order: correct.",
+    "output.tables.osTab.0.0": "step",
+    "output.tables.osTab.0.1": "at node",
+    "output.tables.osTab.0.2": "size(left)",
+    "output.tables.osTab.0.3": "rank here",
+    "output.tables.osTab.0.4": "go",
+    "output.tables.osTab.0.5": "k becomes",
+    "output.tables.osTab.1.0": "1",
+    "output.tables.osTab.1.1": "16",
+    "output.tables.osTab.1.2": "15",
+    "output.tables.osTab.1.3": "16",
+    "output.tables.osTab.1.4": "left",
+    "output.tables.osTab.1.5": "9",
+    "output.tables.osTab.2.0": "2",
+    "output.tables.osTab.2.1": "8",
+    "output.tables.osTab.2.2": "7",
+    "output.tables.osTab.2.3": "8",
+    "output.tables.osTab.2.4": "right",
+    "output.tables.osTab.2.5": "1",
+    "output.tables.osTab.3.0": "3",
+    "output.tables.osTab.3.1": "12",
+    "output.tables.osTab.3.2": "3",
+    "output.tables.osTab.3.3": "4",
+    "output.tables.osTab.3.4": "left",
+    "output.tables.osTab.3.5": "1",
+    "output.tables.osTab.4.0": "4",
+    "output.tables.osTab.4.1": "10",
+    "output.tables.osTab.4.2": "1",
+    "output.tables.osTab.4.3": "2",
+    "output.tables.osTab.4.4": "left",
+    "output.tables.osTab.4.5": "1",
+    "output.tables.osTab.5.0": "5",
+    "output.tables.osTab.5.1": "9",
+    "output.tables.osTab.5.2": "0",
+    "output.tables.osTab.5.3": "1",
+    "output.tables.osTab.5.4": "stop",
+    "output.tables.osTab.5.5": "—"
+   }
+  },
+  {
+   "id": "k1",
+   "action": "set-text",
+   "arguments": {
+    "selector": "@control:spK",
+    "value": "1"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "a1",
+   "action": "activate",
+   "arguments": {
+    "selector": "@control:spAccess"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "first",
+   "action": "read-report",
+   "expect": {
+    "output.figures.nodes": "63",
+    "output.figures.Φ now": "86.4",
+    "output.figures.Σ actual": "6",
+    "output.figures.Σ amortized": "13.0",
+    "output.figures.last actual": "6",
+    "output.figures.last amortized": "13.0"
+   }
+  },
+  {
+   "id": "a1b",
+   "action": "activate",
+   "arguments": {
+    "selector": "@control:spAccess"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "again",
+   "action": "read-report",
+   "expect": {
+    "output.figures.nodes": "63",
+    "output.figures.Φ now": "86.4",
+    "output.figures.Σ actual": "7",
+    "output.figures.Σ amortized": "14.0",
+    "output.figures.last actual": "1",
+    "output.figures.last amortized": "1.0"
+   }
+  },
+  {
+   "id": "k63",
+   "action": "set-text",
+   "arguments": {
+    "selector": "@control:spK",
+    "value": "63"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "a63",
+   "action": "activate",
+   "arguments": {
+    "selector": "@control:spAccess"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "far",
+   "action": "read-report",
+   "expect": {
+    "output.figures.nodes": "63",
+    "output.figures.Φ now": "92.4",
+    "output.figures.Σ actual": "14",
+    "output.figures.Σ amortized": "27.1",
+    "output.figures.last actual": "7",
+    "output.figures.last amortized": "13.0"
+   }
+  },
+  {
+   "id": "worst",
+   "action": "activate",
+   "arguments": {
+    "selector": "@control:spWorst"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "path",
+   "action": "read-report",
+   "expect": {
+    "output.figures.nodes": "63",
+    "output.figures.Φ now": "290.0",
+    "output.figures.Σ actual": "0",
+    "output.figures.Σ amortized": "0.0",
+    "output.boxes.spNote": {
+     "op": "contains",
+     "value": "Built as a path"
+    }
+   }
+  },
+  {
+   "id": "aw",
+   "action": "activate",
+   "arguments": {
+    "selector": "@control:spAccess"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "lemma",
+   "action": "read-report",
+   "expect": {
+    "output.figures.nodes": "63",
+    "output.figures.Φ now": "149.6",
+    "output.figures.Σ actual": "63",
+    "output.figures.Σ amortized": "-77.4",
+    "output.figures.last actual": "63",
+    "output.figures.last amortized": "-77.4",
+    "output.boxes.spCheck": {
+     "op": "contains",
+     "value": "3·log₂(63) + 1 = 18.9 amortized per access."
+    }
+   }
+  },
+  {
+   "id": "h12",
+   "action": "set-text",
+   "arguments": {
+    "selector": "@control:avH",
+    "value": "12"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "avgo",
+   "action": "activate",
+   "arguments": {
+    "selector": "@control:avGo"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "avl",
+   "action": "read-report",
+   "expect": {
+    "output.tables.avTab.0.0": "height h",
+    "output.tables.avTab.0.1": "nodes built",
+    "output.tables.avTab.0.2": "F(h+2) − 1",
+    "output.tables.avTab.0.3": "bound 1.4404·log₂(n+2) − 0.3277",
+    "output.tables.avTab.0.4": "holds",
+    "output.tables.avTab.1.0": "1",
+    "output.tables.avTab.1.1": "1",
+    "output.tables.avTab.1.2": "1",
+    "output.tables.avTab.1.3": "1.955",
+    "output.tables.avTab.1.4": "✓",
+    "output.tables.avTab.2.0": "2",
+    "output.tables.avTab.2.1": "2",
+    "output.tables.avTab.2.2": "2",
+    "output.tables.avTab.2.3": "2.553",
+    "output.tables.avTab.2.4": "✓",
+    "output.tables.avTab.3.0": "3",
+    "output.tables.avTab.3.1": "4",
+    "output.tables.avTab.3.2": "4",
+    "output.tables.avTab.3.3": "3.396",
+    "output.tables.avTab.3.4": "✓",
+    "output.tables.avTab.4.0": "4",
+    "output.tables.avTab.4.1": "7",
+    "output.tables.avTab.4.2": "7",
+    "output.tables.avTab.4.3": "4.238",
+    "output.tables.avTab.4.4": "✓",
+    "output.tables.avTab.5.0": "5",
+    "output.tables.avTab.5.1": "12",
+    "output.tables.avTab.5.2": "12",
+    "output.tables.avTab.5.3": "5.156",
+    "output.tables.avTab.5.4": "✓",
+    "output.tables.avTab.6.0": "6",
+    "output.tables.avTab.6.1": "20",
+    "output.tables.avTab.6.2": "20",
+    "output.tables.avTab.6.3": "6.096",
+    "output.tables.avTab.6.4": "✓",
+    "output.tables.avTab.7.0": "7",
+    "output.tables.avTab.7.1": "33",
+    "output.tables.avTab.7.2": "33",
+    "output.tables.avTab.7.3": "7.061",
+    "output.tables.avTab.7.4": "✓",
+    "output.tables.avTab.8.0": "8",
+    "output.tables.avTab.8.1": "54",
+    "output.tables.avTab.8.2": "54",
+    "output.tables.avTab.8.3": "8.037",
+    "output.tables.avTab.8.4": "✓",
+    "output.tables.avTab.9.0": "9",
+    "output.tables.avTab.9.1": "88",
+    "output.tables.avTab.9.2": "88",
+    "output.tables.avTab.9.3": "9.023",
+    "output.tables.avTab.9.4": "✓",
+    "output.tables.avTab.10.0": "10",
+    "output.tables.avTab.10.1": "143",
+    "output.tables.avTab.10.2": "143",
+    "output.tables.avTab.10.3": "10.014",
+    "output.tables.avTab.10.4": "✓",
+    "output.tables.avTab.11.0": "11",
+    "output.tables.avTab.11.1": "232",
+    "output.tables.avTab.11.2": "232",
+    "output.tables.avTab.11.3": "11.009",
+    "output.tables.avTab.11.4": "✓",
+    "output.tables.avTab.12.0": "12",
+    "output.tables.avTab.12.1": "376",
+    "output.tables.avTab.12.2": "376",
+    "output.tables.avTab.12.3": "12.005",
+    "output.tables.avTab.12.4": "✓"
+   }
+  },
+  {
+   "id": "k20",
+   "action": "set-text",
+   "arguments": {
+    "selector": "@control:osK",
+    "value": "20"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "osgo",
+   "action": "activate",
+   "arguments": {
+    "selector": "@control:osGo"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "select20",
+   "action": "read-report",
+   "expect": {
+    "output.boxes.osNote": "select(20) = 20 in 3 steps out of 31 keys. Checked against the sorted order: correct.",
+    "output.tables.osTab.1.0": "1",
+    "output.tables.osTab.1.1": "16",
+    "output.tables.osTab.1.2": "15",
+    "output.tables.osTab.1.3": "16",
+    "output.tables.osTab.1.4": "right",
+    "output.tables.osTab.1.5": "4",
+    "output.tables.osTab.2.0": "2",
+    "output.tables.osTab.2.1": "24",
+    "output.tables.osTab.2.2": "7",
+    "output.tables.osTab.2.3": "8",
+    "output.tables.osTab.2.4": "left",
+    "output.tables.osTab.2.5": "4",
+    "output.tables.osTab.3.0": "3",
+    "output.tables.osTab.3.1": "20",
+    "output.tables.osTab.3.2": "3",
+    "output.tables.osTab.3.3": "4",
+    "output.tables.osTab.3.4": "stop",
+    "output.tables.osTab.3.5": "—"
+   }
+  },
+  {
+   "id": "toggle",
+   "action": "activate",
+   "arguments": {
+    "selector": "@control:rbToggle"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "view234",
+   "action": "read-report",
+   "expect": {
+    "output.boxes.rbNote": {
+     "op": "contains",
+     "value": "2-3-4 view"
+    }
+   }
+  },
+  {
+   "id": "intact",
+   "action": "read-page",
+   "expect": {
+    "output.junk": null,
+    "output.errors": {
+     "op": "==",
+     "value": []
+    },
+    "output.overflow": 0
+   }
+  }
+ ]
+}

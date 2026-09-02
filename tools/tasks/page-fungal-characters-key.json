@@ -1,0 +1,216 @@
+{
+ "id": "page-fungal-characters-key",
+ "target": "page",
+ "page": "fungal-characters.html",
+ "goal": "On the fungal characters key (51 genera): gills, a white or cream print and flesh that snaps like chalk, with the chalk tell, leave Russula alone at 4 of 4 matched; gills and a white print alone leave 13 genera; adding a volva at the base leaves Amanita alone at 3 of 3; pores on dead wood leave Trametes and Fomitopsis; teeth with a dull green print match nothing and Chlorophyllum is the closest with the conflict named.",
+ "steps": [
+  {
+   "id": "look",
+   "action": "observe",
+   "expect": {
+    "ok": true,
+    "snapshot.page": "fungal-characters.html"
+   }
+  },
+  {
+   "id": "a0",
+   "action": "activate",
+   "arguments": {
+    "selector": "@control:fkq/gills"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "a1",
+   "action": "activate",
+   "arguments": {
+    "selector": "@control:fkq/white or cream"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "a2",
+   "action": "activate",
+   "arguments": {
+    "selector": "@control:fkq/brittle, snaps like chalk"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "t0",
+   "action": "activate",
+   "arguments": {
+    "selector": "@control:fktell/the stipe snaps like chalk"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "russula",
+   "action": "read-report",
+   "expect": {
+    "ok": true,
+    "output.boxes.fkout": "Russula4 of 4 matchedThe stipe snaps clean like a stick of chalk instead of tearing into fibres. No latex, no veil, no ring.One genus matches everything you entered — which makes it the hypothesis to test, not the answer. Take a spore print if you have not, check the base of the stipe, and confirm against a monograph or a regional key before the name goes on a label."
+   }
+  },
+  {
+   "id": "r1",
+   "action": "activate",
+   "arguments": {
+    "selector": "@control:fkreset"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "b0",
+   "action": "activate",
+   "arguments": {
+    "selector": "@control:fkq/gills"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "b1",
+   "action": "activate",
+   "arguments": {
+    "selector": "@control:fkq/white or cream"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "thirteen",
+   "action": "read-report",
+   "expect": {
+    "output.boxes.fkout": {
+     "op": "contains",
+     "value": "Amanita2 of 2 matched"
+    }
+   }
+  },
+  {
+   "id": "c0",
+   "action": "activate",
+   "arguments": {
+    "selector": "@control:fkq/a volva or sac at the base"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "amanita",
+   "action": "read-report",
+   "expect": {
+    "output.boxes.fkout": {
+     "op": "contains",
+     "value": "One genus matches everything you entered"
+    }
+   }
+  },
+  {
+   "id": "r2",
+   "action": "activate",
+   "arguments": {
+    "selector": "@control:fkreset"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "d0",
+   "action": "activate",
+   "arguments": {
+    "selector": "@control:fkq/pores or tubes"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "d1",
+   "action": "activate",
+   "arguments": {
+    "selector": "@control:fkq/dead wood"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "polypores",
+   "action": "read-report",
+   "expect": {
+    "output.boxes.fkout": {
+     "op": "contains",
+     "value": "Fomitopsis2 of 2 matched"
+    }
+   }
+  },
+  {
+   "id": "r3",
+   "action": "activate",
+   "arguments": {
+    "selector": "@control:fkreset"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "e0",
+   "action": "activate",
+   "arguments": {
+    "selector": "@control:fkq/teeth or spines"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "e1",
+   "action": "activate",
+   "arguments": {
+    "selector": "@control:fkq/dull green"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "nomatch",
+   "action": "read-report",
+   "expect": {
+    "output.boxes.fkout": {
+     "op": "contains",
+     "value": "this genus shows “gills”"
+    }
+   }
+  },
+  {
+   "id": "intact",
+   "action": "read-page",
+   "expect": {
+    "output.junk": null,
+    "output.errors": {
+     "op": "==",
+     "value": []
+    },
+    "output.overflow": 0
+   }
+  }
+ ]
+}

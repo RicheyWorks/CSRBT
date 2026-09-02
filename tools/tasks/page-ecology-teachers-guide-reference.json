@@ -1,0 +1,62 @@
+{
+ "id": "page-ecology-teachers-guide-reference",
+ "target": "page",
+ "page": "ecology-teachers-guide.html",
+ "goal": "The ecology-teachers-guide page is a reference page with no data entry: its report is its outline. Read through the gateway, it carries exactly its 21 headings in order (The Teacher's Guide ... Start here on Monday), and 4 table(s), and is intact -- no leaked value, no script error, nothing pushed sideways.",
+ "steps": [
+  {
+   "id": "look",
+   "action": "observe",
+   "expect": {
+    "ok": true,
+    "snapshot.page": "ecology-teachers-guide.html"
+   }
+  },
+  {
+   "id": "outline",
+   "action": "read-report",
+   "expect": {
+    "ok": true,
+    "output.headings": [
+     "The Teacher's Guide",
+     "The ninety-second answer",
+     "What's in here",
+     "Three ways in",
+     "The seven labs at a glance",
+     "A twelve-week sequence",
+     "Thirty students, six tablets",
+     "Group size",
+     "The pooling move",
+     "Tablets in the field",
+     "Prep checklists",
+     "Assessment",
+     "Rubric 1 — Data quality",
+     "Rubric 2 — Interpretation",
+     "Rubric 3 — Honest uncertainty",
+     "What an A actually looks like",
+     "When it goes wrong",
+     "Reaching everyone",
+     "Teaching uncertainty honestly",
+     "What this kit can't do",
+     "Start here on Monday"
+    ],
+    "output.tables.at-a-glance.0.0": {
+     "op": "exists",
+     "value": true
+    }
+   }
+  },
+  {
+   "id": "intact",
+   "action": "read-page",
+   "expect": {
+    "output.junk": null,
+    "output.errors": {
+     "op": "==",
+     "value": []
+    },
+    "output.overflow": 0
+   }
+  }
+ ]
+}

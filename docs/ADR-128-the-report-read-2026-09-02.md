@@ -63,7 +63,7 @@ One call returns the page's report as it stands:
   which row.
 - **`rows`** — the count of `.row2` children per list.
 
-Everything is capped: 200 figures, 64 boxes of 1,500 characters, 16
+Everything is capped: 200 figures, 64 boxes of 4,000 characters (1,500 in ADR-128; a key with eight cards needs more), 16
 tables of 40 rows of 8 cells, whitespace normalised.
 
 ### `pick` (DRAFT, `selector`, `value`) — the page plugin

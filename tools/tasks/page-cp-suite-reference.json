@@ -1,0 +1,43 @@
+{
+ "id": "page-cp-suite-reference",
+ "target": "page",
+ "page": "cp-suite.html",
+ "goal": "The cp-suite page is a reference page with no data entry: its report is its outline. Read through the gateway, it carries exactly its 6 headings in order (Carnivorous plants ... What this suite will and will not tell y), and is intact -- no leaked value, no script error, nothing pushed sideways.",
+ "steps": [
+  {
+   "id": "look",
+   "action": "observe",
+   "expect": {
+    "ok": true,
+    "snapshot.page": "cp-suite.html"
+   }
+  },
+  {
+   "id": "outline",
+   "action": "read-report",
+   "expect": {
+    "ok": true,
+    "output.headings": [
+     "Carnivorous plants",
+     "The order that keeps plants alive",
+     "Two instruments, one method",
+     "CP Bench",
+     "CP Characters",
+     "What this suite will and will not tell you"
+    ]
+   }
+  },
+  {
+   "id": "intact",
+   "action": "read-page",
+   "expect": {
+    "output.junk": null,
+    "output.errors": {
+     "op": "==",
+     "value": []
+    },
+    "output.overflow": 0
+   }
+  }
+ ]
+}

@@ -275,9 +275,10 @@ python3 tools/harness_walk.py --target page --page all --rounds 3 --per-round 2 
 python3 tools/harness_tasks.py                       # every task: goals with graded expectations (ADR-125)
 python3 tools/harness_mcp.py --target organism --trace t.jsonl   # a host's session, recorded (ADR-126)
 python3 tools/harness_tasks.py --grade-trace all     # every trace under tools/traces, graded against its task
-python3 tools/harness_tasks.py --target page         # the 21 science tasks + the page canary: every data-entry page held to its oracle (ADR-128)
-python3 tools/verify/verify_tasks.py                 # 133 checks on the grammar, @control, the grader, every task and trace, the science; mutate_tasks.py 24/24
-python3 tools/verify/verify_report.py                # 30 checks on read-report, pick, the picker pool and the snapshot's naming; mutate_report.py 22/22
+python3 tools/harness_tasks.py --target page         # 27 science + 14 reference tasks + the canary: every routed page held (ADR-128, ADR-129)
+python3 tools/verify/run_all.py --audits             # every audit; targets/contrast/focus in every state of every page (ADR-130)
+python3 tools/verify/verify_tasks.py                 # 176 checks on the grammar, @control, the grader, every task and trace, the whole kit; mutate_tasks.py 24/24
+python3 tools/verify/verify_report.py                # 33 checks on read-report, pick, the picker pool and the snapshot's naming; mutate_report.py 24/24
 python3 tools/harness_board.py                       # the Harness Board from every ledger (ADR-127); --check for drift
 python3 tools/verify/verify_board.py                 # 37 checks: the page is the ledgers, the ledgers agree
 python3 tools/verify/verify_walk.py                  # 120 checks on the robot, its ledger, the fixture, both transports, every page
@@ -293,6 +294,21 @@ python3 tools/ecosystem.py --read                    # every engine's JUnit resu
 python3 tools/verify/verify_ecosystem.py             # 56 checks: green, >= floor, unbuilt or stale = NOT VERIFIED; the Atlas == the ledger
 python3 tools/atlas.py                               # regenerate the Atlas's engine table from the ledger (ADR-120)
 ```
+
+ADR-130 took the audits everywhere: `tools/audit_states.py` walks a page
+through every state a reader can put it in — each tab, every `<details>`, the
+season started, the comparison opened, a `<select>` that grows a field — and
+the 44 px, contrast and focus audits measure each state and count a control no
+state reached as a fault. Ten controls under 44 px and twenty-five field
+borders at 1.35:1, all behind tabs, were found and fixed; `verify_audit_states`
+33, `mutate_audit_states` 20/20. Held: the audits measure the page before
+entry.
+
+ADR-129 finished the sweep: the three character keys, the tree visualizer,
+the tree proofs and the interactive lab are held to independent Python ports
+(a red-black/AVL/WB/splay port, the splay potential, a mulberry32 terrarium),
+and the fourteen reference pages to their outlines — every one of the 41
+routed pages has a task. Held: the audits measure pages at rest only.
 
 ADR-128 gave the harness a reader and a picker: `read-report` returns a page's
 figures (by label and by box), boxes, tables and list counts; `pick` drives a

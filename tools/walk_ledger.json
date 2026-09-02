@@ -4082,7 +4082,7 @@
   },
   "csrbt-page/ecology-lab.html": {
    "accounted": 105,
-   "at": 1788356829,
+   "at": 1788378791,
    "commands": 105,
    "failures": [],
    "forbidden": [],
@@ -4163,9 +4163,9 @@
     "csrbt_page__read_control": {
      "chaos": 0,
      "declined": 0,
-     "driven": 5,
+     "driven": 4,
      "failed": 0,
-     "refused": 1
+     "refused": 2
     },
     "csrbt_page__read_page": {
      "chaos": 0,
@@ -4198,9 +4198,9 @@
     "csrbt_page__set_slider": {
      "chaos": 0,
      "declined": 0,
-     "driven": 0,
+     "driven": 6,
      "failed": 0,
-     "refused": 6
+     "refused": 0
     },
     "csrbt_page__set_text": {
      "chaos": 0,
@@ -4221,31 +4221,31 @@
    "plugin": "csrbt-page",
    "price": {
     "actionMs": {
-     "max": 508,
-     "median": 28,
-     "n": 68,
-     "p95": 489,
-     "total": 6781
+     "max": 473,
+     "median": 22,
+     "n": 73,
+     "p95": 422,
+     "total": 6180
     },
     "snapshotMs": {
-     "max": 162,
-     "median": 56,
-     "n": 68,
-     "p95": 111,
-     "total": 4252
+     "max": 95,
+     "median": 43,
+     "n": 73,
+     "p95": 83,
+     "total": 3473
     }
    },
    "protocolVersion": "1.3",
    "rounds": 3,
-   "seconds": 12.8,
+   "seconds": 11.1,
    "seed": 2026,
    "tools": 17,
    "totals": {
     "chaos": 0,
     "declined": 0,
-    "driven": 68,
+    "driven": 73,
     "failed": 0,
-    "refused": 37
+    "refused": 32
    },
    "transport": "stdio",
    "undriven": [],
@@ -4254,7 +4254,6 @@
     "csrbt_page__drop_files",
     "csrbt_page__pick",
     "csrbt_page__press_step",
-    "csrbt_page__set_slider",
     "csrbt_page__show_pane"
    ],
    "unschemable": {}

@@ -1,0 +1,45 @@
+{
+ "id": "page-soil-suite-reference",
+ "target": "page",
+ "page": "soil-suite.html",
+ "goal": "The soil-suite page is a reference page with no data entry: its report is its outline. Read through the gateway, it carries exactly its 8 headings in order (Soil & compost ... What this suite will and will not tell y), and is intact -- no leaked value, no script error, nothing pushed sideways.",
+ "steps": [
+  {
+   "id": "look",
+   "action": "observe",
+   "expect": {
+    "ok": true,
+    "snapshot.page": "soil-suite.html"
+   }
+  },
+  {
+   "id": "outline",
+   "action": "read-report",
+   "expect": {
+    "ok": true,
+    "output.headings": [
+     "Soil & compost",
+     "From feedstock to a medium you trust",
+     "The bench, and where it meets the field",
+     "Soil Bench",
+     "Stand Sheet",
+     "Relevé",
+     "CP Bench",
+     "What this suite will and will not tell you"
+    ]
+   }
+  },
+  {
+   "id": "intact",
+   "action": "read-page",
+   "expect": {
+    "output.junk": null,
+    "output.errors": {
+     "op": "==",
+     "value": []
+    },
+    "output.overflow": 0
+   }
+  }
+ ]
+}

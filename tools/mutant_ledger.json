@@ -1,6 +1,117 @@
 {
  "_comment": "Written by the mutant runners through tools/mutant_ledger.py. One entry per runner; a run updates only its own entry and keeps the rest, each with its own at.",
  "runners": {
+  "mutate_audit_states": {
+   "at": 1788382422,
+   "equivalent": 0,
+   "equivalents": [],
+   "inconclusive": 0,
+   "killed": 20,
+   "mutants": 20,
+   "rows": [
+    {
+     "detail": "12 failure(s); first: the states, in order: rest, each tab (data-pane then aria-",
+     "name": "the tabs are not pressed",
+     "verdict": "killed"
+    },
+    {
+     "detail": "12 failure(s); first: the states, in order: rest, each tab (data-pane then aria-",
+     "name": "an aria-controls button is not a tab",
+     "verdict": "killed"
+    },
+    {
+     "detail": "1 failure(s); first: at rest every <details> is opened, so a reader's view of it",
+     "name": "<details> stay closed",
+     "verdict": "killed"
+    },
+    {
+     "detail": "16 failure(s); first: the states, in order: rest, each tab (data-pane then aria-",
+     "name": "the page-specific reveals are not pressed",
+     "verdict": "killed"
+    },
+    {
+     "detail": "11 failure(s); first: the states, in order: rest, each tab (data-pane then aria-",
+     "name": "a <select> reveal is skipped",
+     "verdict": "killed"
+    },
+    {
+     "detail": "11 failure(s); first: the states, in order: rest, each tab (data-pane then aria-",
+     "name": "the owning tab is not pressed before a <select> reveal",
+     "verdict": "killed"
+    },
+    {
+     "detail": "9 failure(s); first: the states, in order: rest, each tab (data-pane then aria-c",
+     "name": "a revealed surface's tabs are not pressed",
+     "verdict": "killed"
+    },
+    {
+     "detail": "5 failure(s); first: 11 had a box in some state -- B3's box in the third pane, s",
+     "name": "exposure is not accumulated across states",
+     "verdict": "killed"
+    },
+    {
+     "detail": "8 failure(s); first: 11 had a box in some state -- B3's box in the third pane, s",
+     "name": "the stamps are reassigned every state",
+     "verdict": "killed"
+    },
+    {
+     "detail": "9 failure(s); first: 12 controls exist at the end (hidden and file inputs are no",
+     "name": "a hidden input is a control",
+     "verdict": "killed"
+    },
+    {
+     "detail": "8 failure(s); first: 11 had a box in some state -- B3's box in the third pane, s",
+     "name": "coverage never names anything",
+     "verdict": "killed"
+    },
+    {
+     "detail": "5 failure(s); first: the states, in order: rest, each tab (data-pane then aria-c",
+     "name": "the click is a pointer click",
+     "verdict": "killed"
+    },
+    {
+     "detail": "3 failure(s); first: field-season.html reaches state:startBtn: ['rest']",
+     "name": "the state-button table is empty",
+     "verdict": "killed"
+    },
+    {
+     "detail": "2 failure(s); first: experiment-guide.html reaches state:p-kind=hot: ['rest', 'p",
+     "name": "the guide's hot phase is not a state",
+     "verdict": "killed"
+    },
+    {
+     "detail": "4 failure(s); first: targets: the 20 px button behind the second tab and the nev",
+     "name": "targets measures the page as loaded",
+     "verdict": "killed"
+    },
+    {
+     "detail": "1 failure(s); first: targets: the 20 px button behind the second tab and the nev",
+     "name": "targets does not count what it never measured",
+     "verdict": "killed"
+    },
+    {
+     "detail": "3 failure(s); first: focus counts the unreached control as a fault: ['          ",
+     "name": "focus measures the page as loaded",
+     "verdict": "killed"
+    },
+    {
+     "detail": "3 failure(s); first: audit_focus exits 1 on the fixture (rc 0)",
+     "name": "focus does not count what it never measured",
+     "verdict": "killed"
+    },
+    {
+     "detail": "4 failure(s); first: contrast: the faint text behind the third tab is found: ['t",
+     "name": "contrast measures the page as loaded",
+     "verdict": "killed"
+    },
+    {
+     "detail": "1 failure(s); first: contrast counts the unreached control in its total: ['     ",
+     "name": "contrast does not count what it never measured",
+     "verdict": "killed"
+    }
+   ],
+   "survived": 0
+  },
   "mutate_harness": {
    "at": 1788347888,
    "equivalent": 0,
@@ -383,15 +494,15 @@
    "survived": 0
   },
   "mutate_report": {
-   "at": 1788354944,
+   "at": 1788379238,
    "equivalent": 0,
    "equivalents": [],
    "inconclusive": 0,
-   "killed": 22,
-   "mutants": 22,
+   "killed": 24,
+   "mutants": 24,
    "rows": [
     {
-     "detail": "4 failure(s); first: a .tile and a .stat .st are both figures: the .l/.v pair is",
+     "detail": "5 failure(s); first: a .tile and a .stat .st are both figures: the .l/.v pair is",
      "name": "figures are only .tile again",
      "verdict": "killed"
     },
@@ -401,7 +512,7 @@
      "verdict": "killed"
     },
     {
-     "detail": "1 failure(s); first: and by the box: a label is a fact of its box: {}",
+     "detail": "2 failure(s); first: a bare .k beside the .v is the label too (the visualizer's ",
      "name": "figures are not kept by their box",
      "verdict": "killed"
     },
@@ -416,7 +527,7 @@
      "verdict": "killed"
     },
     {
-     "detail": "2 failure(s); first: boxes follow the kit's naming -- an*, *Out, *Box, *Stat, *M",
+     "detail": "3 failure(s); first: boxes follow the kit's naming -- an*, *Out, *Box, *Stat, *M",
      "name": "boxes are the old five prefixes only",
      "verdict": "killed"
     },
@@ -426,7 +537,7 @@
      "verdict": "killed"
     },
     {
-     "detail": "3 failure(s); first: boxes follow the kit's naming -- an*, *Out, *Box, *Stat, *M",
+     "detail": "4 failure(s); first: boxes follow the kit's naming -- an*, *Out, *Box, *Stat, *M",
      "name": "a box behind a closed tab is dropped again",
      "verdict": "killed"
     },
@@ -478,6 +589,16 @@
     {
      "detail": "1 failure(s); first: the snapshot publishes each picker's option labels as an ar",
      "name": "the pool carries the sub-line in the label",
+     "verdict": "killed"
+    },
+    {
+     "detail": "2 failure(s); first: a bare .k beside the .v is the label too (the visualizer's ",
+     "name": "a bare .k label is not a figure",
+     "verdict": "killed"
+    },
+    {
+     "detail": "1 failure(s); first: the page's headings, in order: []",
+     "name": "the headings are not read",
      "verdict": "killed"
     },
     {

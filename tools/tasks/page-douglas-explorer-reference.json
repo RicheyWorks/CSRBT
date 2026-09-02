@@ -1,0 +1,69 @@
+{
+ "id": "page-douglas-explorer-reference",
+ "target": "page",
+ "page": "douglas-explorer.html",
+ "goal": "The douglas-explorer page is a reference page with no data entry: its report is its outline. Read through the gateway, it carries exactly its 24 headings in order (Douglas Explorer Mode ... Queued — what this experiment could not ), and 12 table(s), and is intact -- no leaked value, no script error, nothing pushed sideways.",
+ "steps": [
+  {
+   "id": "look",
+   "action": "observe",
+   "expect": {
+    "ok": true,
+    "snapshot.page": "douglas-explorer.html"
+   }
+  },
+  {
+   "id": "outline",
+   "action": "read-report",
+   "expect": {
+    "ok": true,
+    "output.headings": [
+     "Douglas Explorer Mode",
+     "The patron",
+     "What the record actually says, and what it only says traditionally",
+     "The mode",
+     "The plate",
+     "First expedition: Lake Tahoe, west shore",
+     "What went in",
+     "What the harness could not hold",
+     "Lab report — a west-shore montane stand and the lake below it",
+     "1. Evidence tiers used throughout",
+     "2. Site and physiography",
+     "3. The lake",
+     "4. Vegetation, keyed as far as the plate allows",
+     "5. What lives in those trees",
+     "6. Quantitative results",
+     "7. Limitations",
+     "8. Sources",
+     "9. Where the numbers come from",
+     "9.1 Occurrence records — plants, fungi, animals",
+     "9.2 Forest structure and health — the numbers behind section 4",
+     "9.3 Climate, air and water",
+     "9.4 Terrain and substrate — what would close the site gap",
+     "10. The seam this experiment actually found",
+     "Queued — what this experiment could not finish"
+    ],
+    "output.tables.table #9.0.0": {
+     "op": "exists",
+     "value": true
+    },
+    "output.tables.table #13": {
+     "op": "exists",
+     "value": false
+    }
+   }
+  },
+  {
+   "id": "intact",
+   "action": "read-page",
+   "expect": {
+    "output.junk": null,
+    "output.errors": {
+     "op": "==",
+     "value": []
+    },
+    "output.overflow": 0
+   }
+  }
+ ]
+}

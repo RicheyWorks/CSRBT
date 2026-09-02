@@ -20,8 +20,8 @@
       "via": "read"
     },
     "cell-bench.html": {
-      "at": 1788358788,
-      "sha": "270b99b71a280d3ea25b900d4199ff98075248a10de60c3f8762106f868aeef5",
+      "at": 1788384168,
+      "sha": "2568c0c5b4ef5852d9b91cf1cebc5b3f1109faa09f86fd7b5e88de2ed2036ce7",
       "via": "publish"
     },
     "collection-sheet.html": {
@@ -30,8 +30,8 @@
       "via": "publish"
     },
     "cp-bench.html": {
-      "at": 1788358788,
-      "sha": "7ec8f3cf35d843de4a4aaf56e2a7e333e4313004e38bd86c07f3bb4df025afe0",
+      "at": 1788384168,
+      "sha": "0c3b59b56c58fc321f7061c9251c1fad8a741f4877eb995be512b783d00df1ab",
       "via": "publish"
     },
     "cp-characters.html": {
@@ -47,8 +47,8 @@
       "via": "read"
     },
     "deployment-log.html": {
-      "at": 1788358788,
-      "sha": "b858ff301430b28c167d02defceae95ef1126fa601b25d2b74e1d2166da587d5",
+      "at": 1788384168,
+      "sha": "99da0339a3fa6952abd4573537c40c94f3c483b598376730a1cf96914b365a9a",
       "via": "publish"
     },
     "douglas-explorer.html": {
@@ -121,15 +121,14 @@
       "via": "publish"
     },
     "experiment-guide.html": {
-      "at": 1788358788,
-      "sha": "91ca03daaeb2b2007cb0346431f451bc3083f6dcb4834351fe387853cf9482db",
+      "at": 1788384168,
+      "sha": "e931974a1269ef6cb87fa62f603ee34057da6dba43ef1c8fd051418272880a0f",
       "via": "publish"
     },
     "farm-scout.html": {
-      "at": 1787875969,
-      "dated_by": "the version marker in the copy",
-      "sha": "8bb52c39dd2029fcf25bae6a09d101ec307d9924f7c21989a9a50bd542a420ea",
-      "via": "read"
+      "at": 1788384168,
+      "sha": "2bc5dd796cb0451d0b5e0a18ad403eb8793fc656c3d001025000a348bf76a1eb",
+      "via": "publish"
     },
     "field-notebook.html": {
       "at": 1788136457,
@@ -165,15 +164,14 @@
       "via": "publish"
     },
     "ordination.html": {
-      "at": 1788358788,
-      "sha": "a1a0ec3bfe98f8e744ab7fc8cb6c8fb09da67f4666b079afd621cfd694085378",
+      "at": 1788384168,
+      "sha": "4e6174a691950186d7c6884751586fa1aa0ba83fa5379bef5c6cc76cc64cac5d",
       "via": "publish"
     },
     "pheno-tracker.html": {
-      "at": 1787809639,
-      "dated_by": "the version marker in the copy",
-      "sha": "91d18bc826da23130569bfc2c4c2d72e75488063fcab031ccc3afe6333b2b7d0",
-      "via": "read"
+      "at": 1788384168,
+      "sha": "4936762f76a459dc65f8e319025552cfbae31c0098f1bf88b6bf80e9f77fd560",
+      "via": "publish"
     },
     "plant-characters.html": {
       "at": 1787878148,
@@ -182,8 +180,8 @@
       "via": "read"
     },
     "releve.html": {
-      "at": 1788358788,
-      "sha": "dfb46acaf5c8b5bdeeaab834163789401b15ceaa3d5113e1a4145885e1e60912",
+      "at": 1788384168,
+      "sha": "871b0cc01784da723e4b3f02288bc4a3294c50929183935da470b372c82487f4",
       "via": "publish"
     },
     "selection-log.html": {

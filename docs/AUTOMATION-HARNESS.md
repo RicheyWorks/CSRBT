@@ -386,7 +386,11 @@ port of its generator. A task names its controls the page's way —
 snapshot, and never writes a selector down. A page canary claims a wrong figure
 and is refuted. `verify_tasks` section G pins that every data-entry page has
 one, that each holds a figure and not prose alone, and that the ledger holds
-every one with at least twenty confirmed expectations.
+every one with at least twenty confirmed expectations. ADR-129 extended the
+sweep to every routed page: the keys, the visualizer, the proofs and the lab
+are held to independent ports of their arithmetic, and each reference page
+to its outline (`read-report` now carries `headings`); every routed page has
+exactly one task, and `verify_tasks` pins it.
 
 ## The fourth target: the fixture
 
@@ -515,6 +519,17 @@ defect, a dead target a defect, MCP the same verdicts — runs every task throug
 the gateway, and holds the trace grader (order, one call per step, probes after
 required steps) and the six committed traces. `tools/mutate_tasks.py`: 16
 killed, 0 survived.
+
+`tools/verify/verify_audit_states.py` (33 checks) holds the kit's audits to
+"everywhere" (ADR-130): `tools/audit_states.py` walks a page through its
+states — rest with every `<details>` open, each tab (`data-pane` or
+`aria-controls`), each page-specific reveal, a revealed surface's own tabs —
+by programmatic click, and keeps the accounting of which controls had a box in
+some state; the 44 px, contrast and focus audits measure every state and count
+a control no state reached as a fault. The suite pins the states and the
+counts on a fixture, the focus audit's own probe after the walk, and runs the
+three audits on a fixture directory whose faults are known. `tools/mutate_audit_states.py`:
+20 killed, 0 survived.
 
 `tools/verify/verify_swarm.py` is the evidence that the verdicts mean something:
 ten fixture pages, nine of them wired and wrong in a different way, one of them

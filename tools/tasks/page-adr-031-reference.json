@@ -1,0 +1,77 @@
+{
+ "id": "page-adr-031-reference",
+ "target": "page",
+ "page": "adr-031.html",
+ "goal": "The adr-031 page is a reference page with no data entry: its report is its outline. Read through the gateway, it carries exactly its 32 headings in order (A shared entry layer, and three domain s ... Soil texture — gate 1), and 8 table(s), and is intact -- no leaked value, no script error, nothing pushed sideways.",
+ "steps": [
+  {
+   "id": "look",
+   "action": "observe",
+   "expect": {
+    "ok": true,
+    "snapshot.page": "adr-031.html"
+   }
+  },
+  {
+   "id": "outline",
+   "action": "read-report",
+   "expect": {
+    "ok": true,
+    "output.headings": [
+     "A shared entry layer, and three domain suites",
+     "ADR-031: A shared entry layer, and three domain suites",
+     "Context",
+     "Constraints (non-negotiable, inherited)",
+     "Decision",
+     "D1 — The Field Entry Kit",
+     "Options considered",
+     "What v1 contains",
+     "D2 — Suite packaging",
+     "Options considered",
+     "D3 — The honesty test",
+     "The three suites",
+     "Suite C — Soil & compost — BUILT THIS SLICE",
+     "Suite A — Carnivorous plants — specified, next",
+     "Suite B — Vegetable breeding — specified",
+     "Trade-off analysis",
+     "Consequences",
+     "Action items",
+     "What the migrations decided",
+     "Follow-on: measuring the kit instead of trusting it",
+     "Follow-on: working the claims list down",
+     "Follow-on: FEK v1.2.0 — a name with a bracket in it",
+     "Follow-on: the constraint nobody had tested",
+     "Follow-on: auditing the gate the gate was written for",
+     "Follow-on: FEK v1.1",
+     "nullable on step and slider — predicted",
+     "FEK.field — not predicted",
+     "Appendix A — Research findings",
+     "Compost — well sourced, gate 1",
+     "Vegetable breeding — partially sourced",
+     "Carnivorous plants — the gate-3 case",
+     "Soil texture — gate 1"
+    ],
+    "output.tables.table #8.0.0": {
+     "op": "exists",
+     "value": true
+    },
+    "output.tables.table #9": {
+     "op": "exists",
+     "value": false
+    }
+   }
+  },
+  {
+   "id": "intact",
+   "action": "read-page",
+   "expect": {
+    "output.junk": null,
+    "output.errors": {
+     "op": "==",
+     "value": []
+    },
+    "output.overflow": 0
+   }
+  }
+ ]
+}

@@ -83,7 +83,11 @@
   label { display:block; font-weight:700; font-size:13px; margin:10px 0 4px; }
   input[type=text], input[type=number], select, textarea {
     width:100%; font:16px/1.4 var(--body); color:var(--ink); background:var(--surface);
-    border:1px solid var(--border); border-radius:10px; padding:10px 12px; min-height:44px; }
+    border:1px solid #8E8160; border-radius:10px; padding:10px 12px; min-height:44px; }
+  /* WCAG 1.4.11: the edge of a field you are meant to write in carries the
+     3:1 floor (#8E8160 on this ground), as on every kit page. The guide's
+     fields sat behind its Designer tab and no audit had measured them until
+     the audits opened tabs (ADR-130). */
   textarea { font-family:var(--mono); font-size:16px; }
   input:focus, select:focus, textarea:focus, button:focus, a:focus, summary:focus
     { outline:3px solid var(--s3); outline-offset:1px; }

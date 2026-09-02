@@ -1,0 +1,285 @@
+{
+ "id": "page-ecology-lab-science",
+ "target": "page",
+ "page": "ecology-lab.html",
+ "goal": "On the interactive lab, against an independent port: the seeded terrarium meadow (mulberry32(42), 4000 draws, hot share 60%, hot set 5) reads evenness J' 0.73, 29.2 effective species and Chao1 100, and the island LRU (mulberry32(7), 800 ops, capacity 12) 616 immigrations and 604 extinctions; 95% hot share is uneven (J' 0.43) and a hot set of 20 very even (0.88); capacity 32 gives 342 / 310; the workbench's defaults are right -- five birds Shannon H' 1.16, J' 0.72, Chao1 5; quadrats variance/mean 26.12 and Morisita 3.51, clumped; Hardy-Weinberg p 0.543 chi-square 0.22; Jaccard 0.5, Sorensen 0.67, Bray-Curtis 0.31; Lincoln-Petersen 360, Chapman 354 (268-440); 7 taxa at depth 6; Mendel's 5474:1850 chi-square 0.263 -- and change as entered: a sixth bird, AA = 400, R = 20, the dihybrid preset (chi-square 0.47, df 3), and the .eco lines carry the entries.",
+ "steps": [
+  {
+   "id": "look",
+   "action": "observe",
+   "expect": {
+    "ok": true,
+    "snapshot.page": "ecology-lab.html"
+   }
+  },
+  {
+   "id": "boot",
+   "action": "read-report",
+   "expect": {
+    "ok": true,
+    "output.by.t-meadow-tiles.evenness J′": "0.73",
+    "output.by.t-meadow-tiles.effective species": "29.2",
+    "output.by.t-meadow-tiles.Chao1 est\\.": "100",
+    "output.by.t-island-tiles.residents / capacity": "12/12",
+    "output.by.t-island-tiles.immigrations": "616",
+    "output.by.t-island-tiles.extinctions": "604",
+    "output.by.t-island-tiles.mean residence": "16 ops",
+    "output.boxes.t-meadow-read": "moderately even — some keys busier than others.",
+    "output.by.wb-field-out.species": "5",
+    "output.by.wb-field-out.Shannon H′": "1.16",
+    "output.by.wb-field-out.evenness J′": "0.72",
+    "output.by.wb-field-out.effective species": "3.2",
+    "output.by.wb-field-out.Chao1 est\\.": "5",
+    "output.boxes.wb-field-out": {
+     "op": "contains",
+     "value": "moderately even — some keys busier than others."
+    },
+    "output.by.wb-quad-out.variance/mean": "26.12",
+    "output.by.wb-quad-out.Morisita": "3.51",
+    "output.boxes.wb-quad-out": {
+     "op": "contains",
+     "value": "clumped"
+    },
+    "output.by.wb-hw-out.p": "0.543",
+    "output.by.wb-hw-out.q": "0.458",
+    "output.by.wb-hw-out.χ² (df 1)": "0.22",
+    "output.boxes.wb-hw-out": {
+     "op": "contains",
+     "value": "expected 294 / 496 / 209"
+    },
+    "output.by.wb-sites-out.Jaccard": "0.5",
+    "output.by.wb-sites-out.Sørensen": "0.67",
+    "output.by.wb-sites-out.Bray–Curtis": "0.31",
+    "output.boxes.wb-sites-out": {
+     "op": "contains",
+     "value": "share 3 of 6 kinds"
+    },
+    "output.by.wb-mr-out.Lincoln–Petersen N̂": "360",
+    "output.by.wb-mr-out.Chapman N̂": "354",
+    "output.by.wb-mr-out.95% CI": "268–440",
+    "output.by.wb-tree-out.taxa": "7",
+    "output.by.wb-tree-out.depth": "6",
+    "output.boxes.wb-punnett-out": {
+     "op": "contains",
+     "value": "χ² = 0.263 (df 1, critical 3.841) — ✅ consistent with the Mendelian ratio."
+    }
+   }
+  },
+  {
+   "id": "hot95",
+   "action": "set-slider",
+   "arguments": {
+    "selector": "@control:c-hot",
+    "value": 95
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "uneven",
+   "action": "read-report",
+   "expect": {
+    "output.by.t-meadow-tiles.evenness J′": "0.43",
+    "output.by.t-meadow-tiles.effective species": "7",
+    "output.by.t-meadow-tiles.Chao1 est\\.": "117",
+    "output.boxes.t-meadow-read": "uneven — a few hot keys carry most of the traffic."
+   }
+  },
+  {
+   "id": "hot60",
+   "action": "set-slider",
+   "arguments": {
+    "selector": "@control:c-hot",
+    "value": 60
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "set20",
+   "action": "set-slider",
+   "arguments": {
+    "selector": "@control:c-set",
+    "value": 20
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "even",
+   "action": "read-report",
+   "expect": {
+    "output.by.t-meadow-tiles.evenness J′": "0.88",
+    "output.by.t-meadow-tiles.effective species": "57.7",
+    "output.by.t-meadow-tiles.Chao1 est\\.": "100",
+    "output.boxes.t-meadow-read": "very even — no key dominates."
+   }
+  },
+  {
+   "id": "cap32",
+   "action": "set-slider",
+   "arguments": {
+    "selector": "@control:c-cap",
+    "value": 32
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "island",
+   "action": "read-report",
+   "expect": {
+    "output.by.t-island-tiles.residents / capacity": "32/32",
+    "output.by.t-island-tiles.immigrations": "342",
+    "output.by.t-island-tiles.extinctions": "310",
+    "output.by.t-island-tiles.mean residence": "72 ops"
+   }
+  },
+  {
+   "id": "field",
+   "action": "set-text",
+   "arguments": {
+    "selector": "@control:wb-field",
+    "value": "robin 34\nsparrow 21\nwren 8\nfinch 3\nthrush 1\nowl 1"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "field6",
+   "action": "read-report",
+   "expect": {
+    "output.by.wb-field-out.species": "6",
+    "output.by.wb-field-out.Shannon H′": "1.22",
+    "output.by.wb-field-out.evenness J′": "0.68",
+    "output.by.wb-field-out.effective species": "3.4",
+    "output.by.wb-field-out.Chao1 est\\.": "7"
+   }
+  },
+  {
+   "id": "aa",
+   "action": "set-text",
+   "arguments": {
+    "selector": "@control:wb-aa",
+    "value": "400"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "hw2",
+   "action": "read-report",
+   "expect": {
+    "output.by.wb-hw-out.p": "0.585",
+    "output.by.wb-hw-out.q": "0.415",
+    "output.by.wb-hw-out.χ² (df 1)": "8.19"
+   }
+  },
+  {
+   "id": "recap",
+   "action": "set-text",
+   "arguments": {
+    "selector": "@control:wb-mrr",
+    "value": "20"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "mr2",
+   "action": "read-report",
+   "expect": {
+    "output.by.wb-mr-out.Lincoln–Petersen N̂": "540",
+    "output.by.wb-mr-out.Chapman N̂": "523",
+    "output.by.wb-mr-out.95% CI": "349–698"
+   }
+  },
+  {
+   "id": "dihybrid",
+   "action": "choose-option",
+   "arguments": {
+    "selector": "@control:wb-preset",
+    "value": "RrYy|RrYy|0|315 108 101 32"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "nine",
+   "action": "read-report",
+   "expect": {
+    "output.boxes.wb-punnett-out": {
+     "op": "contains",
+     "value": "χ² = 0.47 (df 3, critical 7.815) — ✅ consistent with the Mendelian ratio."
+    }
+   }
+  },
+  {
+   "id": "build",
+   "action": "activate",
+   "arguments": {
+    "selector": "@control:wb-eco-build"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "eco",
+   "action": "read-control",
+   "arguments": {
+    "selector": "@control:wb-eco-out"
+   },
+   "expect": {
+    "output.value": {
+     "op": "contains",
+     "value": "model: hardyweinberg 400 489 213"
+    }
+   }
+  },
+  {
+   "id": "eco2",
+   "action": "read-control",
+   "arguments": {
+    "selector": "@control:wb-eco-out"
+   },
+   "expect": {
+    "output.value": {
+     "op": "contains",
+     "value": "cross: RrYy x RrYy observed 315 108 101 32"
+    }
+   }
+  },
+  {
+   "id": "still",
+   "action": "read-report",
+   "expect": {
+    "output.boxes.wb-punnett-out": {
+     "op": "contains",
+     "value": "phenotype ratio: 9 R_Y_ : 3 R_yy : 3 rrY_ : 1 rryy"
+    },
+    "output.by.wb-hw-out.p": "0.585"
+   }
+  },
+  {
+   "id": "intact",
+   "action": "read-page",
+   "expect": {
+    "output.junk": null,
+    "output.errors": {
+     "op": "==",
+     "value": []
+    },
+    "output.overflow": 0
+   }
+  }
+ ]
+}

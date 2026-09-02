@@ -1,0 +1,89 @@
+{
+ "id": "page-ecology-reference",
+ "target": "page",
+ "page": "ecology.html",
+ "goal": "The ecology page is a reference page with no data entry: its report is its outline. Read through the gateway, it carries exactly its 44 headings in order (The Living-Systems Lab ... From the build, or from the browser), and 1 table(s), and is intact -- no leaked value, no script error, nothing pushed sideways.",
+ "steps": [
+  {
+   "id": "look",
+   "action": "observe",
+   "expect": {
+    "ok": true,
+    "snapshot.page": "ecology.html"
+   }
+  },
+  {
+   "id": "outline",
+   "action": "read-report",
+   "expect": {
+    "ok": true,
+    "output.headings": [
+     "The Living-Systems Lab",
+     "Four surfaces, one science",
+     "Interactive Lab",
+     "Field & Lab Manual",
+     "Field Guide",
+     ".eco Reference",
+     "Suites",
+     "CP Bench",
+     "Soil Bench",
+     "Breeding Bench",
+     "Twenty-six instruments, one method",
+     "Record it — tablet apps for the field",
+     "Field Notebook",
+     "Ethogram",
+     "Selection Log",
+     "Stand Sheet",
+     "Relevé",
+     "Collection Sheet",
+     "Farm Scout",
+     "Pheno Tracker",
+     "Print it — cards for the basket and the press",
+     "Plant Characters",
+     "Fungal Characters",
+     "CP Characters",
+     "Field Card",
+     "At the bench — lab instruments",
+     "CP Bench",
+     "Soil Bench",
+     "Breeding Bench",
+     "Cell Bench",
+     "Micro Bench",
+     "Teach it, run it, play it",
+     "Experiment Guider",
+     "Teacher's Guide",
+     "Protocol Library",
+     "Glossary",
+     "Survey Design",
+     "Deployment Log",
+     "Ordination",
+     "Food Web Builder",
+     "Field Season",
+     "Bring your own data — or explore the demo",
+     "Standard field methods, oracle-tested",
+     "From the build, or from the browser"
+    ],
+    "output.tables.table.0.0": {
+     "op": "exists",
+     "value": true
+    },
+    "output.tables.table #2": {
+     "op": "exists",
+     "value": false
+    }
+   }
+  },
+  {
+   "id": "intact",
+   "action": "read-page",
+   "expect": {
+    "output.junk": null,
+    "output.errors": {
+     "op": "==",
+     "value": []
+    },
+    "output.overflow": 0
+   }
+  }
+ ]
+}

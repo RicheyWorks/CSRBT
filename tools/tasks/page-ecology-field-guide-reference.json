@@ -1,0 +1,48 @@
+{
+ "id": "page-ecology-field-guide-reference",
+ "target": "page",
+ "page": "ecology-field-guide.html",
+ "goal": "The ecology-field-guide page is a reference page with no data entry: its report is its outline. Read through the gateway, it carries exactly its 11 headings in order (The Ecology Field Guide ... The honesty rules (why you can cite thes), and is intact -- no leaked value, no script error, nothing pushed sideways.",
+ "steps": [
+  {
+   "id": "look",
+   "action": "observe",
+   "expect": {
+    "ok": true,
+    "snapshot.page": "ecology-field-guide.html"
+   }
+  },
+  {
+   "id": "outline",
+   "action": "read-report",
+   "expect": {
+    "ok": true,
+    "output.headings": [
+     "The Ecology Field Guide",
+     "The six stations",
+     "Diversity & evenness",
+     "Life tables & growth",
+     "Metapopulation",
+     "Descent with modification",
+     "Spatial pattern",
+     "Turnover at capacity",
+     "Reading the numbers without memorizing them",
+     "Design your own experiment",
+     "The honesty rules (why you can cite these numbers)"
+    ]
+   }
+  },
+  {
+   "id": "intact",
+   "action": "read-page",
+   "expect": {
+    "output.junk": null,
+    "output.errors": {
+     "op": "==",
+     "value": []
+    },
+    "output.overflow": 0
+   }
+  }
+ ]
+}

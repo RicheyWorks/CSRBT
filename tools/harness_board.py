@@ -56,6 +56,7 @@ HARNESS_SUITES = [
     ("verify_walk", "the robot, every target, both transports, every page"),
     ("verify_tasks", "goals with graded expectations; traces held to them; the science tasks"),
     ("verify_report", "the page reader: every figure, the right option, every control named"),
+    ("verify_audit_states", "the audits, everywhere: every state of every page measured, the unreached counted"),
     ("verify_ecosystem", "the engines' own suites, ratcheted; the Atlas"),
     ("verify_engine_sessions", "shipped sessions bound to the engine"),
     ("verify_harness", "the swarm's driver over the kit's pages"),
@@ -69,6 +70,7 @@ RUNNERS = [
     ("mutate_walk", "the robot"),
     ("mutate_tasks", "the task runner and grader"),
     ("mutate_report", "the page reader, picker and naming"),
+    ("mutate_audit_states", "the audits' state walker and accounting"),
     ("mutate_harness", "the swarm's driver"),
 ]
 

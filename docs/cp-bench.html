@@ -1215,12 +1215,12 @@ var PRESETS = [
     pName.innerHTML='<label class="fek-lab" for="pnm">Name or clone</label>'+
       '<input id="pnm" type="text" placeholder="S. flava var. rubricorpora &lsquo;Claret&rsquo;" '+
       'autocomplete="off" style="width:100%;min-height:var(--tap);font:700 17px var(--body);'+
-      'border:2px solid var(--border);border-radius:var(--fek-r);padding:0 15px;background:var(--surface);color:var(--ink)">';
+      'border:2px solid #8E8160;border-radius:var(--fek-r);padding:0 15px;background:var(--surface);color:var(--ink)">';
     pSrc=document.createElement("div"); pSrc.className="fek-row";
     pSrc.innerHTML='<label class="fek-lab" for="psr">Source <span class="u">provenance matters — see Method</span></label>'+
       '<input id="psr" type="text" placeholder="nursery, division from X, seed-grown" '+
       'autocomplete="off" style="width:100%;min-height:var(--tap);font:700 17px var(--body);'+
-      'border:2px solid var(--border);border-radius:var(--fek-r);padding:0 15px;background:var(--surface);color:var(--ink)">';
+      'border:2px solid #8E8160;border-radius:var(--fek-r);padding:0 15px;background:var(--surface);color:var(--ink)">';
     FEK.mount("pNew",[pGen,{el:pName},{el:pSrc}]);
   }
   function obsUI(){
@@ -1412,7 +1412,7 @@ var PRESETS = [
       var d=document.createElement("div"); d.className="fek-row";
       d.innerHTML='<label class="fek-lab" for="'+id+'">'+lab+'</label>'+
         '<input id="'+id+'" type="text" placeholder="'+ph+'" autocomplete="off" '+
-        'style="width:100%;min-height:var(--tap);font:700 17px var(--body);border:2px solid var(--border);'+
+        'style="width:100%;min-height:var(--tap);font:700 17px var(--body);border:2px solid #8E8160;'+
         'border-radius:var(--fek-r);padding:0 15px;background:var(--surface);color:var(--ink)">';
       return {el:d};
     }

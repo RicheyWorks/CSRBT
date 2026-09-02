@@ -1,0 +1,232 @@
+{
+ "id": "page-tree-visualizer-science",
+ "target": "page",
+ "page": "tree-visualizer.html",
+ "goal": "On the tree visualizer, against an independent Python port of its four strategies: the boot red-black tree of 13 keys has height 4 (1.0x the optimal ceil(log2 14) = 4), 0 rotations, select(1) = 4, rank(42) = #7, median 42; inserting 7 makes 14 nodes at height 5 (1.3x), median 30, rank #8; 7 again is already present; 1..20 ascending into red-black is height 7 with 14 rotations; morphing rebuilds from the sorted keys: AVL height 5 (15 rotations), Splay height 20 (a spine, 4.0x), WB height 6, red-black 7.",
+ "steps": [
+  {
+   "id": "look",
+   "action": "observe",
+   "expect": {
+    "ok": true,
+    "snapshot.page": "tree-visualizer.html"
+   }
+  },
+  {
+   "id": "boot",
+   "action": "read-report",
+   "expect": {
+    "ok": true,
+    "output.by.singleWrap.Nodes": "13",
+    "output.by.singleWrap.Height": "4 (1.0× optimal)",
+    "output.by.singleWrap.Optimal ⌈log₂n⌉": "4",
+    "output.by.singleWrap.Rotations (total)": "0",
+    "output.boxes.selOut": "4",
+    "output.boxes.rnkOut": "#7",
+    "output.boxes.medOut": "42"
+   }
+  },
+  {
+   "id": "key7",
+   "action": "set-text",
+   "arguments": {
+    "selector": "@control:keyIn",
+    "value": "7"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "ins7",
+   "action": "activate",
+   "arguments": {
+    "selector": "@control:bIns"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "fourteen",
+   "action": "read-report",
+   "expect": {
+    "output.by.singleWrap.Nodes": "14",
+    "output.by.singleWrap.Height": "5 (1.3× optimal)",
+    "output.by.singleWrap.Optimal ⌈log₂n⌉": "4",
+    "output.by.singleWrap.Rotations (total)": "0",
+    "output.boxes.selOut": "4",
+    "output.boxes.rnkOut": "#8",
+    "output.boxes.medOut": "30",
+    "output.boxes.msg": {
+     "op": "contains",
+     "value": "inserted 7"
+    }
+   }
+  },
+  {
+   "id": "again",
+   "action": "activate",
+   "arguments": {
+    "selector": "@control:bIns"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "present",
+   "action": "read-report",
+   "expect": {
+    "output.boxes.msg": {
+     "op": "contains",
+     "value": "already present"
+    },
+    "output.by.singleWrap.Nodes": "14"
+   }
+  },
+  {
+   "id": "asc",
+   "action": "activate",
+   "arguments": {
+    "selector": "@control:bAsc"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "rb20",
+   "action": "read-report",
+   "expect": {
+    "output.by.singleWrap.Nodes": "20",
+    "output.by.singleWrap.Height": "7 (1.4× optimal)",
+    "output.by.singleWrap.Optimal ⌈log₂n⌉": "5",
+    "output.by.singleWrap.Rotations (total)": "14",
+    "output.boxes.selOut": "1",
+    "output.boxes.rnkOut": "absent",
+    "output.boxes.medOut": "10"
+   }
+  },
+  {
+   "id": "toAVL",
+   "action": "activate",
+   "arguments": {
+    "selector": "@control:morphSeg/AVL"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "mAVL",
+   "action": "read-report",
+   "expect": {
+    "output.by.singleWrap.Nodes": "20",
+    "output.by.singleWrap.Height": "5 (1.0× optimal)",
+    "output.by.singleWrap.Optimal ⌈log₂n⌉": "5",
+    "output.by.singleWrap.Rotations (total)": "15",
+    "output.boxes.selOut": "1",
+    "output.boxes.rnkOut": "absent",
+    "output.boxes.medOut": "10",
+    "output.boxes.msg": {
+     "op": "contains",
+     "value": "morphed"
+    }
+   }
+  },
+  {
+   "id": "toSplay",
+   "action": "activate",
+   "arguments": {
+    "selector": "@control:morphSeg/Splay"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "mSplay",
+   "action": "read-report",
+   "expect": {
+    "output.by.singleWrap.Nodes": "20",
+    "output.by.singleWrap.Height": "20 (4.0× optimal)",
+    "output.by.singleWrap.Optimal ⌈log₂n⌉": "5",
+    "output.by.singleWrap.Rotations (total)": "19",
+    "output.boxes.selOut": "1",
+    "output.boxes.rnkOut": "absent",
+    "output.boxes.medOut": "10",
+    "output.boxes.msg": {
+     "op": "contains",
+     "value": "morphed"
+    }
+   }
+  },
+  {
+   "id": "toWB",
+   "action": "activate",
+   "arguments": {
+    "selector": "@control:morphSeg/WB"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "mWB",
+   "action": "read-report",
+   "expect": {
+    "output.by.singleWrap.Nodes": "20",
+    "output.by.singleWrap.Height": "6 (1.2× optimal)",
+    "output.by.singleWrap.Optimal ⌈log₂n⌉": "5",
+    "output.by.singleWrap.Rotations (total)": "14",
+    "output.boxes.selOut": "1",
+    "output.boxes.rnkOut": "absent",
+    "output.boxes.medOut": "10",
+    "output.boxes.msg": {
+     "op": "contains",
+     "value": "morphed"
+    }
+   }
+  },
+  {
+   "id": "toRB",
+   "action": "activate",
+   "arguments": {
+    "selector": "@control:morphSeg/RB"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "mRB",
+   "action": "read-report",
+   "expect": {
+    "output.by.singleWrap.Nodes": "20",
+    "output.by.singleWrap.Height": "7 (1.4× optimal)",
+    "output.by.singleWrap.Optimal ⌈log₂n⌉": "5",
+    "output.by.singleWrap.Rotations (total)": "14",
+    "output.boxes.selOut": "1",
+    "output.boxes.rnkOut": "absent",
+    "output.boxes.medOut": "10",
+    "output.boxes.msg": {
+     "op": "contains",
+     "value": "morphed"
+    }
+   }
+  },
+  {
+   "id": "intact",
+   "action": "read-page",
+   "expect": {
+    "output.junk": null,
+    "output.errors": {
+     "op": "==",
+     "value": []
+    },
+    "output.overflow": 0
+   }
+  }
+ ]
+}

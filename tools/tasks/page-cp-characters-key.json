@@ -1,0 +1,146 @@
+{
+ "id": "page-cp-characters-key",
+ "target": "page",
+ "page": "cp-characters.html",
+ "goal": "On the carnivorous-plant key (18 genera): a snap trap matches Aldrovanda and Dionaea (2 genera, 1 of 4 characters); adding free-floating water leaves Aldrovanda alone with Dionaea disagreeing on where it grows and Utricularia on trap type; bladders underground match no genus in full, the closest being Genlisea, Philcoxia and Utricularia at 1/2; a pitcher native to North America matches Catopsis, Darlingtonia and Sarracenia in full with 8 of 11 candidates shown and 3 weaker not shown.",
+ "steps": [
+  {
+   "id": "look",
+   "action": "observe",
+   "expect": {
+    "ok": true,
+    "snapshot.page": "cp-characters.html"
+   }
+  },
+  {
+   "id": "a0",
+   "action": "activate",
+   "arguments": {
+    "selector": "@control:qTrap/two lobes that clap shut"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "snap",
+   "action": "read-report",
+   "expect": {
+    "ok": true,
+    "output.boxes.kRes": "2 genuses match everything you answered. 1 of 4 characters used.Aldrovanda1/1 · 1 sp · Old World, scatteredA free-floating, rootless whorled shoot with snap traps 2–3 mm across — a flytrap that went underwater and shrank. Looks like a bedraggled aquatic Elodea until you look closely.Dionaea1/1 · 1 sp · Carolina coastal plainTwo hinged lobes with interlocking marginal spines and three trigger hairs on each inner face. Nothing else on Earth looks like it except Aldrovanda, which is aquatic."
+   }
+  },
+  {
+   "id": "b0",
+   "action": "activate",
+   "arguments": {
+    "selector": "@control:qHabit/free-floating in open water"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "water",
+   "action": "read-report",
+   "expect": {
+    "output.boxes.kRes": {
+     "op": "contains",
+     "value": "Utricularia1/2"
+    }
+   }
+  },
+  {
+   "id": "r1",
+   "action": "activate",
+   "arguments": {
+    "selector": "@control:kReset"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "c0",
+   "action": "activate",
+   "arguments": {
+    "selector": "@control:qTrap/small bladders on stolons or among leaves"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "d0",
+   "action": "activate",
+   "arguments": {
+    "selector": "@control:qHabit/the trap itself is underground"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "none",
+   "action": "read-report",
+   "expect": {
+    "output.boxes.kRes": {
+     "op": "contains",
+     "value": "Disagrees on: where it grows"
+    }
+   }
+  },
+  {
+   "id": "r2",
+   "action": "activate",
+   "arguments": {
+    "selector": "@control:kReset"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "e0",
+   "action": "activate",
+   "arguments": {
+    "selector": "@control:qTrap/a pitcher or tube you could pour water into"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "f0",
+   "action": "activate",
+   "arguments": {
+    "selector": "@control:qReg/North America"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "pitchers",
+   "action": "read-report",
+   "expect": {
+    "output.boxes.kRes": {
+     "op": "contains",
+     "value": "3 weaker matches not shown."
+    }
+   }
+  },
+  {
+   "id": "intact",
+   "action": "read-page",
+   "expect": {
+    "output.junk": null,
+    "output.errors": {
+     "op": "==",
+     "value": []
+    },
+    "output.overflow": 0
+   }
+  }
+ ]
+}

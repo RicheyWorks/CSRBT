@@ -15,8 +15,8 @@ gateway child), so the mutant runner can afford to run it many times.
      unit is spaced off; boxes are the kit's id conventions -- an*, *Out,
      *Box, *Stats, *Note, *List, *Table, hyphenated and lower-case names,
      toast -- read whether or not their pane is open, with the visible ones
-     named; every table's cells; every .row2 list's count; nothing outside
-     the conventions
+     named; every table's cells; every .row2 list's count; the headings in
+     order; nothing outside the conventions
   B. pick: exact label first, then prefix, then the sole option the filter
      left; two or more left is refused as ambiguous, none as no match; the
      option's <small> sub-line never matches; the snapshot publishes each
@@ -75,6 +75,7 @@ FIXTURE = u"""<!doctype html><html><head><meta charset="utf-8"><title>report fix
   <input type="text" id="cName">
   <div id="cList"><div class="row2">a</div><div class="row2">b</div><div class="row2">c</div></div>
   <div id="packStat" class="stat"><div class="k"><span class="l">families</span><span class="v">23</span></div></div>
+  <div id="mStats"><div class="stat"><span class="k">Nodes</span><span class="v">13</span></div></div>
   <div id="ignored-plain">not a box</div>
   <div id="toast">saved</div>
 </section>
@@ -92,6 +93,8 @@ FIXTURE = u"""<!doctype html><html><head><meta charset="utf-8"><title>report fix
   <div id="triTable"><table><tr><th>entry</th><th>mean</th></tr><tr><td>4</td><td>14.00</td></tr></table></div>
   <div id="kMatrix">Confusion matrix</div>
   <div id="lPlan">50 points</div>
+  <div id="keybox"><div id="kres">2 families</div></div><div id="msg">inserted 42</div><div id="spCheck">bound holds</div>
+  <h2>Analysis</h2><h3>Richness</h3>
 </section>
 <script>
   document.querySelectorAll('.tab').forEach(function(t){ t.addEventListener('click', function(){
@@ -129,6 +132,7 @@ with sync_playwright() as pw:
     ok, msg, r = plug.execute("read-report", {})
     ck(ok and r["figures"].get("collections") == "5" and r["figures"].get("mean before") == "10.500",
        "a .tile and a .stat .st are both figures: the .l/.v pair is the convention, not the class: %s" % r["figures"])
+    ck(r["by"].get("mStats", {}).get("Nodes") == "13", "a bare .k beside the .v is the label too (the visualizer's stats): %s" % r["by"].get("mStats"))
     ck(r["figures"].get("families") == "23" and r["figures"].get("families #2") == "2",
        "flat figures: the first label wins and a second carries #2: %s" % r["figures"])
     ck(r["by"].get("packStat", {}).get("families") == "23" and r["by"].get("anBox", {}).get("families") == "2",
@@ -136,12 +140,15 @@ with sync_playwright() as pw:
     ck(r["by"]["anBox"].get("doubling time") == "1.000 h" and r["by"]["anBox"].get("doubling time #2") == "60.0 min",
        "the same label twice in one box keeps both: %s" % r["by"]["anBox"])
     ck(r["by"]["anBox"].get("DLI") == "38.9 mol/m²/d", "a <small> unit inside the value is spaced off: %r" % r["by"]["anBox"].get("DLI"))
-    ck(r["order"][:2] == ["families", "collections"], "figures are in document order: %s" % r["order"][:3])
+    ck(r["order"][:3] == ["families", "Nodes", "collections"], "figures are in document order: %s" % r["order"][:3])
     boxes = r["boxes"]
     ck("anBox" in boxes and "lower bound" in boxes["anBox"] and "selOut" in boxes and "eco-out" in boxes and
        "triTable" in boxes and "kMatrix" in boxes and "lPlan" in boxes and "toast" in boxes and "packStat" in boxes
        and "cList" in boxes,
        "boxes follow the kit's naming -- an*, *Out, *Box, *Stat, *Matrix, *Plan, *Table, *List, hyphenated, toast: %s" % sorted(boxes))
+    ck("kres" in boxes and "msg" in boxes and "spCheck" in boxes,
+       "the keys' result, the visualizer's message and the proofs' check are boxes too (ADR-129): %s" % sorted(boxes))
+    ck(r["headings"] == ["Analysis", "Richness"], "the page's headings, in order: %s" % r["headings"])
     ck("ignored-plain" not in boxes and "p-rec" not in boxes and "genEntry" not in boxes,
        "and nothing outside the conventions: %s" % sorted(boxes))
     ck("anBox" in boxes and "anBox" not in r["shown"] and "toast" in r["shown"] and "cList" in r["shown"],

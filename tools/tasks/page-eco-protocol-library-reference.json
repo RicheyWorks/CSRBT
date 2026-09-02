@@ -1,0 +1,66 @@
+{
+ "id": "page-eco-protocol-library-reference",
+ "target": "page",
+ "page": "eco-protocol-library.html",
+ "goal": "The eco-protocol-library page is a reference page with no data entry: its report is its outline. Read through the gateway, it carries exactly its 6 headings in order (Protocol Library ... The shrinking island), and is intact -- no leaked value, no script error, nothing pushed sideways.",
+ "steps": [
+  {
+   "id": "look",
+   "action": "observe",
+   "expect": {
+    "ok": true,
+    "snapshot.page": "eco-protocol-library.html"
+   }
+  },
+  {
+   "id": "outline",
+   "action": "read-report",
+   "expect": {
+    "ok": true,
+    "output.headings": [
+     "Protocol Library",
+     "Meadow disturbance",
+     "Two-pond comparison",
+     "Activity budget, two contexts",
+     "Mendel's bench",
+     "The shrinking island"
+    ]
+   }
+  },
+  {
+   "id": "copy",
+   "action": "activate",
+   "arguments": {
+    "selector": "@control:Copy#0"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "toast",
+   "action": "read-report",
+   "expect": {
+    "output.boxes.toast": {
+     "op": "in",
+     "value": [
+      "Copied — save as a .eco file",
+      "Select & copy manually"
+     ]
+    }
+   }
+  },
+  {
+   "id": "intact",
+   "action": "read-page",
+   "expect": {
+    "output.junk": null,
+    "output.errors": {
+     "op": "==",
+     "value": []
+    },
+    "output.overflow": 0
+   }
+  }
+ ]
+}

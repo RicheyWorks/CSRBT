@@ -1,0 +1,62 @@
+{
+ "id": "page-ecology-field-card-reference",
+ "target": "page",
+ "page": "ecology-field-card.html",
+ "goal": "The ecology-field-card page is a reference page with no data entry: its report is its outline. Read through the gateway, it carries exactly its 17 headings in order (Ecology Field Card ... Reading numbers in words), and 16 table(s), and is intact -- no leaked value, no script error, nothing pushed sideways.",
+ "steps": [
+  {
+   "id": "look",
+   "action": "observe",
+   "expect": {
+    "ok": true,
+    "snapshot.page": "ecology-field-card.html"
+   }
+  },
+  {
+   "id": "outline",
+   "action": "read-report",
+   "expect": {
+    "ok": true,
+    "output.headings": [
+     "Ecology Field Card",
+     "Diversity & evenness",
+     "Spatial pattern",
+     "Demography",
+     "Forest plots",
+     "Vegetation plots",
+     "Macrofungi",
+     "Behaviour",
+     "Selection & inheritance",
+     "Cell bench",
+     "Micro bench",
+     "Between two sites — β diversity",
+     "Islands (MacArthur & Wilson)",
+     "Food webs",
+     "Genetics",
+     "Population size",
+     "Reading numbers in words"
+    ],
+    "output.tables.table #9.0.0": {
+     "op": "exists",
+     "value": true
+    },
+    "output.tables.table #17": {
+     "op": "exists",
+     "value": false
+    }
+   }
+  },
+  {
+   "id": "intact",
+   "action": "read-page",
+   "expect": {
+    "output.junk": null,
+    "output.errors": {
+     "op": "==",
+     "value": []
+    },
+    "output.overflow": 0
+   }
+  }
+ ]
+}

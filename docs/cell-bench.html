@@ -388,6 +388,21 @@
      3:1 floor. Decorative card borders are not controls and stay quiet. */
   input:not([type=checkbox]):not([type=radio]):not([type=range]):not([type=color]),
   select, textarea { border-color: #8E8160; }
+  /* The mitosis phase grid reuses the ethogram's behaviour-key markup and had
+     none of its CSS: five 21 px buttons behind the Mitosis tab, invisible to
+     every audit until the audits opened tabs (ADR-130). */
+  .bgrid { display:grid; grid-template-columns:repeat(auto-fill,minmax(136px,1fr)); gap:9px; margin-top:8px; }
+  .bb { position:relative; border:1.5px solid var(--border); background:var(--surface); border-radius:15px;
+    min-height:78px; padding:11px 12px 9px; cursor:pointer; text-align:left; touch-action:manipulation;
+    font-family:var(--body); box-shadow:var(--shadow); transition:border-color .12s, background .12s, transform .08s; }
+  .bb:active { transform:scale(.97); }
+  .bb .nm { font-weight:800; font-size:15px; display:block; line-height:1.25; }
+  .bb .cd { font:400 10.5px var(--mono); color:var(--muted); letter-spacing:.06em; }
+  .bb .ct { position:absolute; right:10px; bottom:7px; font-family:var(--head); font-weight:700;
+    font-size:19px; color:var(--s1); font-variant-numeric:tabular-nums; }
+  .bb.state { border-left:4px solid var(--s3); }
+  .bb.event { border-left:4px solid var(--s2); }
+  .bb.on { border-color:var(--s1); background:var(--soft); }
 </style>
 </head>
 <body>

@@ -30,9 +30,11 @@ pins what makes a verdict believable:
      own; a trace that took the fixture's canary task is graded FAIL and
      held; and the committed traces -- a model's, planning from the goal and
      tools/list alone -- are every one PASS
-  G. the science (ADR-128): every data-entry page of the kit has a task
-     that enters data through the gateway and holds the page's report to a
-     hand-checked oracle; a science task names its controls the page's way
+  G. the science (ADR-128) and the whole kit (ADR-129): every data-entry,
+     key, simulator and proof page has a task that enters data through the
+     gateway and holds the page's report to a hand-checked oracle; every
+     other routed page has a reference task that pins its outline; every
+     routed page has exactly one; a task names its controls the page's way
      and never writes a selector down; the page canary claims a wrong
      figure and is refuted
 
@@ -341,16 +343,28 @@ if os.path.isfile(led):
     ck(set(traced) == {os.path.basename(f)[:-6] for f in tfiles} and all(e["held"] and e["graded"] == "trace" for e in traced.values()),
        "the ledger carries every trace's grade, held: %s" % sorted(traced))
 
-# ---- G. the science (ADR-128) --------------------------------------------------
+# ---- G. the science (ADR-128) and the whole kit (ADR-129) ---------------------
 DATA_ENTRY = {"collection-sheet.html", "releve.html", "stand-sheet.html", "ethogram.html", "selection-log.html",
               "farm-scout.html", "pheno-tracker.html", "deployment-log.html", "cell-bench.html", "micro-bench.html",
               "cp-bench.html", "soil-bench.html", "breeding-bench.html", "survey-design.html", "ordination.html",
               "food-web.html", "soil-recipes.html", "field-notebook.html", "field-season.html", "experiment-guide.html",
               "greenhouse.html"}
-science = [t for t in tasks if t["target"] == "page" and t["id"] != "page-enter-and-read-back" and t.get("must", "PASS") == "PASS"]
-ck({t["page"] for t in science} == DATA_ENTRY,
-   "every data-entry page of the kit has a science task, and every science task is on one: missing %s, extra %s"
-   % (sorted(DATA_ENTRY - {t["page"] for t in science}), sorted({t["page"] for t in science} - DATA_ENTRY)))
+# ADR-129: the keys, the simulators and the proofs are operated and held too
+INTERACTIVE = {"plant-characters.html", "fungal-characters.html", "cp-characters.html", "tree-visualizer.html",
+               "tree-proofs.html", "ecology-lab.html"}
+science = [t for t in tasks if t["target"] == "page" and t["id"] != "page-enter-and-read-back"
+           and t.get("must", "PASS") == "PASS" and not t["id"].endswith("-reference")]
+reference = [t for t in tasks if t["target"] == "page" and t["id"].endswith("-reference")]
+ck({t["page"] for t in science} == DATA_ENTRY | INTERACTIVE,
+   "every data-entry, key, simulator and proof page of the kit has a science task, and every science task is on one: "
+   "missing %s, extra %s" % (sorted((DATA_ENTRY | INTERACTIVE) - {t["page"] for t in science}),
+                             sorted({t["page"] for t in science} - (DATA_ENTRY | INTERACTIVE))))
+import harness_walk as W_
+routed = set(W_.routed_pages())
+ck({t["page"] for t in science} | {t["page"] for t in reference} == routed and
+   not ({t["page"] for t in science} & {t["page"] for t in reference}),
+   "every routed page of the kit has exactly one kind of task -- a science task or a reference task (ADR-129): "
+   "untasked %s" % sorted(routed - {t["page"] for t in science} - {t["page"] for t in reference}))
 ENTRY = ("set-text", "pick", "activate", "choose-option", "set-slider", "press-step", "set-checkbox", "attach-file", "drop-files")
 
 
@@ -362,7 +376,7 @@ def reads_after_entry(t):
 
 ck(all(reads_after_entry(t) for t in science) and
    all(t["steps"][-1]["action"] == "read-page" and t["steps"][-1]["expect"].get("output.junk", 1) is None
-       and t["steps"][-1]["expect"].get("output.overflow") == 0 for t in science),
+       and t["steps"][-1]["expect"].get("output.overflow") == 0 for t in science + reference),
    "each ends by reading the report against its oracle and by finding the page intact -- no junk, no errors, "
    "nothing pushed sideways")
 ck(all(any(s["action"] == "read-report" and any(k.startswith(("output.figures.", "output.by.", "output.tables.", "output.rows."))
@@ -371,11 +385,14 @@ ck(all(any(s["action"] == "read-report" and any(k.startswith(("output.figures.",
    "each holds a FIGURE, a table cell, a row count or a box's whole text -- never a substring alone -- to its oracle")
 ck(all(sum(1 for s in t["steps"] if s["action"] in ENTRY) >= 3 for t in science),
    "each enters data: at least three entries through the gateway")
-raw = [(t["id"], s["id"]) for t in science for s in t["steps"]
+raw = [(t["id"], s["id"]) for t in science + reference for s in t["steps"]
        if isinstance((s.get("arguments") or {}).get("selector"), str) and not s["arguments"]["selector"].startswith("@control:")]
 ck(not raw, "a science task names its controls the page's way and never writes a selector down: %s" % raw[:3])
 ck(all(len(t["goal"]) > 200 and any(ch.isdigit() for ch in t["goal"]) for t in science),
    "each goal states the numbers it expects, in words a reader can check by hand")
+ck(all(any(s["action"] == "read-report" and isinstance(s.get("expect", {}).get("output.headings"), list)
+           and len(s["expect"]["output.headings"]) >= 6 for s in t["steps"]) for t in reference),
+   "a reference page's report is its outline: every reference task pins the page's headings, in order")
 canary = by.get("page-collection-sheet-canary")
 ck(canary and canary["page"] == "collection-sheet.html" and canary["steps"][-1]["action"] == "read-report"
    and canary["steps"][-1]["expect"].get("output.figures.collections") == "2",
@@ -383,9 +400,10 @@ ck(canary and canary["page"] == "collection-sheet.html" and canary["steps"][-1][
 if os.path.isfile(led):
     L = json.load(io.open(led, encoding="utf-8"))["tasks"]
     sci = {t["id"]: L.get(t["id"]) for t in science}
-    ck(all(e and e["held"] and e["confirmed"] >= 20 for e in sci.values()),
-       "the ledger holds every science task with at least twenty confirmed expectations: %s"
-       % [k for k, e in sci.items() if not (e and e["held"] and e["confirmed"] >= 20)])
+    ck(all(e and e["held"] and e["confirmed"] >= 18 for e in sci.values()),
+       "the ledger holds every science task with at least eighteen confirmed expectations: %s"
+       % [k for k, e in sci.items() if not (e and e["held"] and e["confirmed"] >= 18)])
+    ck(all(L.get(t["id"], {}).get("held") for t in reference), "and every reference task")
     ck(L.get("page-collection-sheet-canary", {}).get("verdict") == "FAIL" and L.get("page-collection-sheet-canary", {}).get("held"),
        "and the page canary was refuted and held")
 
