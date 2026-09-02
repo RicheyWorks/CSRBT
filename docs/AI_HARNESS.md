@@ -272,6 +272,10 @@ python3 tools/verify/verify_organism.py              # 317 checks; NOT VERIFIED 
 python3 tools/mutate_organism.py                     # break plugin + console 31 ways, require notice
 python3 tools/harness_walk.py --target all           # the robot: every target from the manifest alone
 python3 tools/harness_walk.py --target page --page all --rounds 3 --per-round 2   # every routed page (ADR-124), ~6 min
+python3 tools/harness_tasks.py                       # every task: goals with graded expectations (ADR-125)
+python3 tools/harness_mcp.py --target organism --trace t.jsonl   # a host's session, recorded (ADR-126)
+python3 tools/harness_tasks.py --grade-trace all     # every trace under tools/traces, graded against its task
+python3 tools/verify/verify_tasks.py                 # 70 checks on the grammar, the grader, every task and trace; mutate_tasks.py 16/16
 python3 tools/verify/verify_walk.py                  # 120 checks on the robot, its ledger, the fixture, both transports, every page
 python3 tools/harness_walk.py --target fixture       # the target built to be walked (ADR-119)
 python3 tools/harness_walk.py --target all --transport mcp   # the same robot through the second transport (ADR-121)
@@ -285,6 +289,23 @@ python3 tools/ecosystem.py --read                    # every engine's JUnit resu
 python3 tools/verify/verify_ecosystem.py             # 56 checks: green, >= floor, unbuilt or stale = NOT VERIFIED; the Atlas == the ledger
 python3 tools/atlas.py                               # regenerate the Atlas's engine table from the ledger (ADR-120)
 ```
+
+ADR-126 closed the pipeline once: the MCP server records a trace of what a
+host did, the task grader holds a trace to a task — required steps in order,
+the operator's own detours allowed and counted — and the assistant of that
+session, given each goal and `tools/list` and not the steps, operated the
+organism, the lab and a page over the door. First grading: two of six, every
+miss the instrument's (an observation that was not a call; a lag the author had
+pinned to a number; a probe stealing the operator's only read-page). Then six of
+six. Not a blind trial, and the provenance file says so.
+
+ADR-125 gave the harness goals. A task is a JSON file — a target, a goal in
+words, steps, references between responses, expectations graded CONFIRMED or
+REFUTED the way the science engine grades a protocol — run through the real
+transport and kept in a ledger; a canary written to be refuted proves the
+grader can say no. Eight tasks over every target, 8 of 8 held over stdio and
+MCP. It is the first artifact in the kit an operator other than the kit can be
+handed, and the instrument a model plugged in will be measured by.
 
 ADR-124 walked every one of the forty-one routed pages from the manifest alone,
 and the first pass found the robot leaving the page — following a nav link to

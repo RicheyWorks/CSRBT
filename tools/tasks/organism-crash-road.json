@@ -1,0 +1,118 @@
+{
+ "id": "organism-crash-road",
+ "target": "organism",
+ "goal": "Arm a crash on the second write, commit a three-record batch and watch it fail, see the organism refuse the next batch while the crashed one is still applying, restart clean, and find the batch whole in every index.",
+ "steps": [
+  {
+   "id": "arm",
+   "action": "restart",
+   "arguments": {
+    "chaos": "once:2"
+   },
+   "expect": {
+    "ok": true,
+    "snapshot.chaos": "once:2"
+   }
+  },
+  {
+   "id": "crash",
+   "action": "batch",
+   "arguments": {
+    "ops": [
+     "p 900 1 1 1",
+     "p 901 1 1 1",
+     "p 902 1 1 1"
+    ]
+   },
+   "expect": {
+    "ok": false,
+    "code": "failed",
+    "message": {
+     "op": "contains",
+     "value": "Crash"
+    }
+   }
+  },
+  {
+   "id": "look",
+   "action": "observe",
+   "expect": {
+    "ok": true,
+    "snapshot.chaosCrashes": 1,
+    "snapshot.chaos": "once:2"
+   }
+  },
+  {
+   "id": "wedged",
+   "action": "batch",
+   "arguments": {
+    "ops": [
+     "p 903 1 1 1"
+    ]
+   },
+   "expect": {
+    "ok": false,
+    "code": "conflict"
+   }
+  },
+  {
+   "id": "clean",
+   "action": "restart",
+   "expect": {
+    "ok": true,
+    "output.chaos": "none",
+    "output.journalReplays": {
+     "op": ">=",
+     "value": 1
+    }
+   }
+  },
+  {
+   "id": "settle",
+   "action": "quiesce",
+   "arguments": {
+    "ms": 15000
+   },
+   "expect": {
+    "output.quiet": true
+   }
+  },
+  {
+   "id": "count",
+   "action": "count-range",
+   "arguments": {
+    "lo": 900,
+    "hi": 902
+   },
+   "expect": {
+    "output.count": 3
+   }
+  },
+  {
+   "id": "wire",
+   "action": "count-range",
+   "arguments": {
+    "lo": 900,
+    "hi": 902,
+    "via": "wire"
+   },
+   "expect": {
+    "output.count": "$count.output.count"
+   },
+   "optional": true
+  },
+  {
+   "id": "fold",
+   "action": "groups",
+   "arguments": {
+    "top": 3
+   },
+   "expect": {
+    "output.groups": {
+     "op": ">=",
+     "value": 1
+    }
+   }
+  }
+ ]
+}

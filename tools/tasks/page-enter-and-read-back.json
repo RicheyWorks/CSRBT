@@ -1,0 +1,69 @@
+{
+ "id": "page-enter-and-read-back",
+ "target": "page",
+ "page": "collection-sheet.html",
+ "goal": "On the collection sheet, enter a value into the first text control, read it back with SENSITIVE_READ, and find the page's invariants intact.",
+ "steps": [
+  {
+   "id": "look",
+   "action": "read-page",
+   "expect": {
+    "ok": true,
+    "output.onp": 1,
+    "output.junk": null,
+    "output.errors": {
+     "op": "==",
+     "value": []
+    }
+   },
+   "optional": true
+  },
+  {
+   "id": "type",
+   "action": "set-text",
+   "arguments": {
+    "selector": "text_in:0",
+    "value": "Quercus rubra"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "read",
+   "action": "read-control",
+   "arguments": {
+    "selector": "text_in:0"
+   },
+   "expect": {
+    "output.value": "Quercus rubra"
+   }
+  },
+  {
+   "id": "still",
+   "action": "read-page",
+   "expect": {
+    "output.errors": {
+     "op": "==",
+     "value": []
+    }
+   }
+  },
+  {
+   "id": "leave",
+   "action": "activate",
+   "arguments": {
+    "selector": "nav_link:0"
+   },
+   "expect": {
+    "ok": false,
+    "code": "invalid_argument",
+    "message": {
+     "op": "contains",
+     "value": "use open"
+    }
+   },
+   "optional": true
+  }
+ ]
+}

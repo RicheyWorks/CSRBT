@@ -1,0 +1,70 @@
+{
+ "id": "fixture-buckets",
+ "target": "fixture",
+ "goal": "Every bucket, by expectation: a refusal, a decline and a failure are results a task can expect, and a reference reads a snapshot's pool into the next call.",
+ "steps": [
+  {
+   "id": "r",
+   "action": "refuse",
+   "arguments": {
+    "n": 3
+   },
+   "expect": {
+    "ok": false,
+    "code": "invalid_argument"
+   }
+  },
+  {
+   "id": "d",
+   "action": "decline",
+   "expect": {
+    "ok": false,
+    "code": {
+     "op": "exists",
+     "value": false
+    }
+   }
+  },
+  {
+   "id": "b",
+   "action": "boom",
+   "expect": {
+    "ok": false,
+    "code": "failed"
+   }
+  },
+  {
+   "id": "look",
+   "action": "ok",
+   "expect": {
+    "snapshot.argumentPools.pooled\\.slot.0": {
+     "op": "in",
+     "value": [
+      "s0",
+      "s1",
+      "s2"
+     ]
+    }
+   }
+  },
+  {
+   "id": "slot",
+   "action": "pooled",
+   "arguments": {
+    "slot": "$look.snapshot.argumentPools.pooled\\.slot.0"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "pair",
+   "action": "paired",
+   "arguments": "$look.snapshot.argumentPools.paired.1",
+   "expect": {
+    "ok": true,
+    "message": "paired k2/v2"
+   }
+  }
+ ]
+}

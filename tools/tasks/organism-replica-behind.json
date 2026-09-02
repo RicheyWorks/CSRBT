@@ -1,0 +1,107 @@
+{
+ "id": "organism-replica-behind",
+ "target": "organism",
+ "goal": "Hold the replica behind the primary, write, see the fleet report it behind and not gapped, wait for the feed to land, and find the last write on the replica.",
+ "steps": [
+  {
+   "id": "lag",
+   "action": "restart",
+   "arguments": {
+    "replica-lag-ms": 200
+   },
+   "expect": {
+    "ok": true,
+    "output.replicaLagMs": {
+     "op": ">",
+     "value": 0
+    }
+   }
+  },
+  {
+   "id": "w1",
+   "action": "put",
+   "arguments": {
+    "key": 50,
+    "attr": 1,
+    "start": 1,
+    "end": 2
+   }
+  },
+  {
+   "id": "w2",
+   "action": "put",
+   "arguments": {
+    "key": 51,
+    "attr": 1,
+    "start": 1,
+    "end": 2
+   }
+  },
+  {
+   "id": "w3",
+   "action": "put",
+   "arguments": {
+    "key": 52,
+    "attr": 1,
+    "start": 1,
+    "end": 2
+   }
+  },
+  {
+   "id": "w4",
+   "action": "put",
+   "arguments": {
+    "key": 53,
+    "attr": 1,
+    "start": 1,
+    "end": 2
+   }
+  },
+  {
+   "id": "behind",
+   "action": "fleet",
+   "expect": {
+    "output.replicas.0.lag": {
+     "op": ">",
+     "value": 0
+    },
+    "output.replicas.0.gapped": false
+   }
+  },
+  {
+   "id": "land",
+   "action": "quiesce",
+   "arguments": {
+    "ms": 15000
+   },
+   "expect": {
+    "output.quiet": true
+   }
+  },
+  {
+   "id": "caught",
+   "action": "fleet",
+   "expect": {
+    "output.replicas.0.lag": 0
+   }
+  },
+  {
+   "id": "there",
+   "action": "replica-get",
+   "arguments": {
+    "key": 53
+   },
+   "expect": {
+    "output.found": true
+   }
+  },
+  {
+   "id": "free",
+   "action": "restart",
+   "expect": {
+    "output.replicaLagMs": 0
+   },
+   "optional": true
+  }
+ ]
+}

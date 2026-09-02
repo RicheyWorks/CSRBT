@@ -1,0 +1,107 @@
+{
+ "id": "organism-preserve-cold-scan",
+ "target": "organism",
+ "goal": "Write three records, preserve the store into the vault, and read the preserved generation back cold -- the archive holds exactly what the store held at that moment, even after the store moves on.",
+ "steps": [
+  {
+   "id": "p1",
+   "action": "put",
+   "arguments": {
+    "key": 11,
+    "attr": 1,
+    "start": 1,
+    "end": 5
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "p2",
+   "action": "put",
+   "arguments": {
+    "key": 12,
+    "attr": 2,
+    "start": 2,
+    "end": 6
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "p3",
+   "action": "put",
+   "arguments": {
+    "key": 13,
+    "attr": 1,
+    "start": 3,
+    "end": 7
+   },
+   "expect": {
+    "ok": true,
+    "snapshot.size": 3
+   }
+  },
+  {
+   "id": "gen",
+   "action": "preserve",
+   "expect": {
+    "ok": true,
+    "output.generation": {
+     "op": ">=",
+     "value": 0
+    },
+    "snapshot.generations": 1
+   }
+  },
+  {
+   "id": "later",
+   "action": "put",
+   "arguments": {
+    "key": 14,
+    "attr": 3,
+    "start": 4,
+    "end": 8
+   },
+   "expect": {
+    "snapshot.size": 4
+   }
+  },
+  {
+   "id": "scan",
+   "action": "cold-scan",
+   "arguments": {
+    "generation": "$gen.output.generation"
+   },
+   "expect": {
+    "ok": true,
+    "output.records": "$gen.snapshot.size",
+    "output.generation": "$gen.output.generation"
+   }
+  },
+  {
+   "id": "verify",
+   "action": "verify-archive",
+   "arguments": {
+    "generation": "$gen.output.generation"
+   },
+   "expect": {
+    "output.verified": true
+   },
+   "optional": true
+  },
+  {
+   "id": "gone",
+   "action": "cold-scan",
+   "arguments": {
+    "generation": 999999
+   },
+   "expect": {
+    "ok": false,
+    "code": "not_found"
+   },
+   "optional": true
+  }
+ ]
+}

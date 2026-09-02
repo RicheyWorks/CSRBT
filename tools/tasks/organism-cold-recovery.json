@@ -1,0 +1,126 @@
+{
+ "id": "organism-cold-recovery",
+ "target": "organism",
+ "goal": "Write keys in shuffled order, die without the checkpoint, and find engine 2 sorting the log on the reopen -- a named strategy, a measured disorder -- with every key back.",
+ "steps": [
+  {
+   "id": "k1",
+   "action": "put",
+   "arguments": {
+    "key": 70,
+    "attr": 1,
+    "start": 1,
+    "end": 2
+   }
+  },
+  {
+   "id": "k2",
+   "action": "put",
+   "arguments": {
+    "key": 30,
+    "attr": 1,
+    "start": 1,
+    "end": 2
+   }
+  },
+  {
+   "id": "k3",
+   "action": "put",
+   "arguments": {
+    "key": 90,
+    "attr": 1,
+    "start": 1,
+    "end": 2
+   }
+  },
+  {
+   "id": "k4",
+   "action": "put",
+   "arguments": {
+    "key": 10,
+    "attr": 1,
+    "start": 1,
+    "end": 2
+   }
+  },
+  {
+   "id": "k5",
+   "action": "put",
+   "arguments": {
+    "key": 50,
+    "attr": 1,
+    "start": 1,
+    "end": 2
+   },
+   "expect": {
+    "snapshot.size": {
+     "op": ">=",
+     "value": 5
+    }
+   }
+  },
+  {
+   "id": "cold",
+   "action": "restart",
+   "arguments": {
+    "how": "cold"
+   },
+   "expect": {
+    "ok": true,
+    "output.how": "cold",
+    "output.recovery.sorted": true,
+    "output.recovery.entries": "$.snapshot.size",
+    "output.recovery.hintUsed": false,
+    "output.recovery.sortStrategy": {
+     "op": "!=",
+     "value": ""
+    },
+    "output.recovery.inversions": {
+     "op": ">",
+     "value": 0
+    }
+   }
+  },
+  {
+   "id": "size",
+   "action": "order",
+   "arguments": {
+    "kind": "size"
+   },
+   "expect": {
+    "output.answer": "$cold.output.recovery.entries"
+   }
+  },
+  {
+   "id": "first",
+   "action": "order",
+   "arguments": {
+    "kind": "first"
+   },
+   "expect": {
+    "output.answer": 10
+   },
+   "optional": true
+  },
+  {
+   "id": "last",
+   "action": "order",
+   "arguments": {
+    "kind": "last"
+   },
+   "expect": {
+    "output.answer": 90
+   },
+   "optional": true
+  },
+  {
+   "id": "warm",
+   "action": "restart",
+   "expect": {
+    "output.recovery.sorted": false,
+    "output.recovery.hintUsed": true
+   },
+   "optional": true
+  }
+ ]
+}

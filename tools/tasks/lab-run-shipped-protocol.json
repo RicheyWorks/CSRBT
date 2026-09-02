@@ -1,0 +1,59 @@
+{
+ "id": "lab-run-shipped-protocol",
+ "target": "lab",
+ "goal": "Run the shipped sample protocol through the gateway and grade every hypothesis; the run is deterministic, so running it twice grades the same.",
+ "steps": [
+  {
+   "id": "list",
+   "action": "protocols",
+   "expect": {
+    "output.protocols": {
+     "op": "contains",
+     "value": "sample-experiment"
+    }
+   },
+   "optional": true
+  },
+  {
+   "id": "run",
+   "action": "run-protocol",
+   "arguments": {
+    "name": "sample-experiment"
+   },
+   "expect": {
+    "ok": true,
+    "output.hypotheses": {
+     "op": "exists",
+     "value": true
+    },
+    "output.verdicts.CONFIRMED": {
+     "op": ">=",
+     "value": 1
+    }
+   }
+  },
+  {
+   "id": "again",
+   "action": "run-protocol",
+   "arguments": {
+    "name": "sample-experiment"
+   },
+   "expect": {
+    "output.verdicts": "$run.output.verdicts",
+    "snapshot.runs": 2
+   }
+  },
+  {
+   "id": "refused",
+   "action": "run",
+   "arguments": {
+    "protocol": "name: x\ndwc: plot /etc/passwd\n"
+   },
+   "expect": {
+    "ok": false,
+    "code": "invalid_argument"
+   },
+   "optional": true
+  }
+ ]
+}

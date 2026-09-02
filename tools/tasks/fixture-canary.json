@@ -1,0 +1,30 @@
+{
+ "id": "fixture-canary",
+ "target": "fixture",
+ "must": "FAIL",
+ "goal": "A task written to be refuted: the fixture's ok action is expected to decline. The grader must say REFUTED, or it cannot say anything.",
+ "steps": [
+  {
+   "id": "ok",
+   "action": "ok",
+   "expect": {
+    "ok": true,
+    "snapshot.consistent": true
+   }
+  },
+  {
+   "id": "wrong",
+   "action": "ok",
+   "expect": {
+    "ok": false
+   }
+  },
+  {
+   "id": "never",
+   "action": "ok",
+   "expect": {
+    "ok": true
+   }
+  }
+ ]
+}

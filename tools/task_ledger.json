@@ -1,0 +1,1756 @@
+{
+ "_comment": "Written by harness_tasks.py. One entry per task id; a run updates only the tasks it ran and keeps the rest, each with its own at.",
+ "tasks": {
+  "fixture-buckets": {
+   "at": 1788343672,
+   "confirmed": 10,
+   "goal": "Every bucket, by expectation: a refusal, a decline and a failure are results a task can expect, and a reference reads a snapshot's pool into the next call.",
+   "held": true,
+   "id": "fixture-buckets",
+   "must": "PASS",
+   "refuted": 0,
+   "seconds": 0.0,
+   "steps": [
+    {
+     "action": "refuse",
+     "expectations": [
+      {
+       "detail": "ok == False, got False",
+       "path": "ok",
+       "verdict": "CONFIRMED"
+      },
+      {
+       "detail": "code == 'invalid_argument', got 'invalid_argument'",
+       "path": "code",
+       "verdict": "CONFIRMED"
+      }
+     ],
+     "id": "r",
+     "message": "refused, as always (n=3)",
+     "ms": null,
+     "result": "refused"
+    },
+    {
+     "action": "decline",
+     "expectations": [
+      {
+       "detail": "ok == False, got False",
+       "path": "ok",
+       "verdict": "CONFIRMED"
+      },
+      {
+       "detail": "code exists False, got None",
+       "path": "code",
+       "verdict": "CONFIRMED"
+      }
+     ],
+     "id": "d",
+     "message": "no",
+     "ms": 0,
+     "result": "declined"
+    },
+    {
+     "action": "boom",
+     "expectations": [
+      {
+       "detail": "ok == False, got False",
+       "path": "ok",
+       "verdict": "CONFIRMED"
+      },
+      {
+       "detail": "code == 'failed', got 'failed'",
+       "path": "code",
+       "verdict": "CONFIRMED"
+      }
+     ],
+     "id": "b",
+     "message": "csrbt-fixture/boom raised: boom: no plan, just a raise",
+     "ms": null,
+     "result": "failed"
+    },
+    {
+     "action": "ok",
+     "expectations": [
+      {
+       "detail": "snapshot.argumentPools.pooled\\.slot.0 in ['s0', 's1', 's2'], got 's0'",
+       "path": "snapshot.argumentPools.pooled\\.slot.0",
+       "verdict": "CONFIRMED"
+      }
+     ],
+     "id": "look",
+     "message": "ok",
+     "ms": 0,
+     "result": "driven"
+    },
+    {
+     "action": "pooled",
+     "expectations": [
+      {
+       "detail": "ok == True, got True",
+       "path": "ok",
+       "verdict": "CONFIRMED"
+      }
+     ],
+     "id": "slot",
+     "message": "slot s0",
+     "ms": 0,
+     "result": "driven"
+    },
+    {
+     "action": "paired",
+     "expectations": [
+      {
+       "detail": "ok == True, got True",
+       "path": "ok",
+       "verdict": "CONFIRMED"
+      },
+      {
+       "detail": "message == 'paired k2/v2', got 'paired k2/v2'",
+       "path": "message",
+       "verdict": "CONFIRMED"
+      }
+     ],
+     "id": "pair",
+     "message": "paired k2/v2",
+     "ms": 0,
+     "result": "driven"
+    }
+   ],
+   "target": "fixture",
+   "transport": "stdio",
+   "verdict": "PASS"
+  },
+  "fixture-canary": {
+   "at": 1788343672,
+   "confirmed": 2,
+   "goal": "A task written to be refuted: the fixture's ok action is expected to decline. The grader must say REFUTED, or it cannot say anything.",
+   "held": true,
+   "id": "fixture-canary",
+   "must": "FAIL",
+   "refuted": 1,
+   "seconds": 0.0,
+   "steps": [
+    {
+     "action": "ok",
+     "expectations": [
+      {
+       "detail": "ok == True, got True",
+       "path": "ok",
+       "verdict": "CONFIRMED"
+      },
+      {
+       "detail": "snapshot.consistent == True, got True",
+       "path": "snapshot.consistent",
+       "verdict": "CONFIRMED"
+      }
+     ],
+     "id": "ok",
+     "message": "ok",
+     "ms": 0,
+     "result": "driven"
+    },
+    {
+     "action": "ok",
+     "expectations": [
+      {
+       "detail": "ok == False, got True",
+       "path": "ok",
+       "verdict": "REFUTED"
+      }
+     ],
+     "id": "wrong",
+     "message": "ok",
+     "ms": 0,
+     "result": "driven"
+    }
+   ],
+   "target": "fixture",
+   "transport": "stdio",
+   "verdict": "FAIL"
+  },
+  "lab-run-shipped-protocol": {
+   "at": 1788343672,
+   "confirmed": 8,
+   "goal": "Run the shipped sample protocol through the gateway and grade every hypothesis; the run is deterministic, so running it twice grades the same.",
+   "held": true,
+   "id": "lab-run-shipped-protocol",
+   "must": "PASS",
+   "refuted": 0,
+   "seconds": 0.4,
+   "steps": [
+    {
+     "action": "protocols",
+     "expectations": [
+      {
+       "detail": "output.protocols contains 'sample-experiment', got ['sample-experiment', 'tahoe-westshore']",
+       "path": "output.protocols",
+       "verdict": "CONFIRMED"
+      }
+     ],
+     "id": "list",
+     "message": "2 protocol(s)",
+     "ms": 0,
+     "result": "driven"
+    },
+    {
+     "action": "run-protocol",
+     "expectations": [
+      {
+       "detail": "ok == True, got True",
+       "path": "ok",
+       "verdict": "CONFIRMED"
+      },
+      {
+       "detail": "output.hypotheses exists True, got [{'expr': 'evenness(graze) > 0.9', 'observed': 0.994433, 'verdict': 'CONFIRMED'}, {'expr': 'hill1(bloom) < 20', 'observed': 9.111201, 'verdict': 'CONFIRMED'}, {'expr': 'brayCurtis(graze, bloom) > 0.5', 'observed': 0.8505, 'verdict': 'CONFIRMED'}, {'expr': 'evenness(bloom) > 0.9', 'observed': 0.494749, 'verdict': 'REFUTED'}, {'expr': 'jaccard(pondA, pondB) <= 0.5', 'observed': 0.5, 'verdict': 'CONFIRMED'}, {'expr': 'evenness(bloom) is uneven', 'observed': 'uneven', 'value': 0.494749, 'verdict': 'CONFIRMED'}, {'expr': 'survivorship is type3', 'observed': 'type3', 'verdict': 'CONFIRMED'}]",
+       "path": "output.hypotheses",
+       "verdict": "CONFIRMED"
+      },
+      {
+       "detail": "output.verdicts.CONFIRMED >= 1, got 6",
+       "path": "output.verdicts.CONFIRMED",
+       "verdict": "CONFIRMED"
+      }
+     ],
+     "id": "run",
+     "message": "meadow disturbance study: 6 CONFIRMED, 1 REFUTED",
+     "ms": 321,
+     "result": "driven"
+    },
+    {
+     "action": "run-protocol",
+     "expectations": [
+      {
+       "detail": "output.verdicts == {'CONFIRMED': 6, 'REFUTED': 1}, got {'CONFIRMED': 6, 'REFUTED': 1}",
+       "path": "output.verdicts",
+       "verdict": "CONFIRMED"
+      },
+      {
+       "detail": "snapshot.runs == 2, got 2",
+       "path": "snapshot.runs",
+       "verdict": "CONFIRMED"
+      }
+     ],
+     "id": "again",
+     "message": "meadow disturbance study: 6 CONFIRMED, 1 REFUTED",
+     "ms": 63,
+     "result": "driven"
+    },
+    {
+     "action": "run",
+     "expectations": [
+      {
+       "detail": "ok == False, got False",
+       "path": "ok",
+       "verdict": "CONFIRMED"
+      },
+      {
+       "detail": "code == 'invalid_argument', got 'invalid_argument'",
+       "path": "code",
+       "verdict": "CONFIRMED"
+      }
+     ],
+     "id": "refused",
+     "message": "dwc: lines are refused through the harness: a protocol that names a file would read the operator's disk",
+     "ms": null,
+     "result": "refused"
+    }
+   ],
+   "target": "lab",
+   "transport": "stdio",
+   "verdict": "PASS"
+  },
+  "lab-run-shipped-protocol@trace": {
+   "asked": 4,
+   "at": 1788343671,
+   "calls": 3,
+   "confirmed": 6,
+   "goal": "Run the shipped sample protocol through the gateway and grade every hypothesis; the run is deterministic, so running it twice grades the same.",
+   "graded": "trace",
+   "held": true,
+   "id": "lab-run-shipped-protocol",
+   "met": 2,
+   "must": "PASS",
+   "probed": 1,
+   "probes": 2,
+   "refuted": 0,
+   "required": 2,
+   "seconds": 0,
+   "steps": [
+    {
+     "action": "protocols",
+     "call": 0,
+     "expectations": [
+      {
+       "detail": "output.protocols contains 'sample-experiment', got ['sample-experiment', 'tahoe-westshore']",
+       "path": "output.protocols",
+       "verdict": "CONFIRMED"
+      }
+     ],
+     "id": "list",
+     "result": "driven"
+    },
+    {
+     "action": "run-protocol",
+     "call": 1,
+     "expectations": [
+      {
+       "detail": "ok == True, got True",
+       "path": "ok",
+       "verdict": "CONFIRMED"
+      },
+      {
+       "detail": "output.hypotheses exists True, got [{'expr': 'evenness(graze) > 0.9', 'observed': 0.994433, 'verdict': 'CONFIRMED'}, {'expr': 'hill1(bloom) < 20', 'observed': 9.111201, 'verdict': 'CONFIRMED'}, {'expr': 'brayCurtis(graze, bloom) > 0.5', 'observed': 0.8505, 'verdict': 'CONFIRMED'}, {'expr': 'evenness(bloom) > 0.9', 'observed': 0.494749, 'verdict': 'REFUTED'}, {'expr': 'jaccard(pondA, pondB) <= 0.5', 'observed': 0.5, 'verdict': 'CONFIRMED'}, {'expr': 'evenness(bloom) is uneven', 'observed': 'uneven', 'value': 0.494749, 'verdict': 'CONFIRMED'}, {'expr': 'survivorship is type3', 'observed': 'type3', 'verdict': 'CONFIRMED'}]",
+       "path": "output.hypotheses",
+       "verdict": "CONFIRMED"
+      },
+      {
+       "detail": "output.verdicts.CONFIRMED >= 1, got 6",
+       "path": "output.verdicts.CONFIRMED",
+       "verdict": "CONFIRMED"
+      }
+     ],
+     "id": "run",
+     "result": "driven"
+    },
+    {
+     "action": "run-protocol",
+     "call": 2,
+     "expectations": [
+      {
+       "detail": "output.verdicts == {'CONFIRMED': 6, 'REFUTED': 1}, got {'CONFIRMED': 6, 'REFUTED': 1}",
+       "path": "output.verdicts",
+       "verdict": "CONFIRMED"
+      },
+      {
+       "detail": "snapshot.runs == 2, got 2",
+       "path": "snapshot.runs",
+       "verdict": "CONFIRMED"
+      }
+     ],
+     "id": "again",
+     "result": "driven"
+    },
+    {
+     "action": "run",
+     "detail": "optional, and no call satisfies it",
+     "id": "refused",
+     "result": "SKIPPED"
+    }
+   ],
+   "target": "lab",
+   "trace": "lab-run-shipped-protocol.jsonl",
+   "unmet": 0,
+   "verdict": "PASS"
+  },
+  "organism-cold-recovery": {
+   "at": 1788343673,
+   "confirmed": 13,
+   "goal": "Write keys in shuffled order, die without the checkpoint, and find engine 2 sorting the log on the reopen -- a named strategy, a measured disorder -- with every key back.",
+   "held": true,
+   "id": "organism-cold-recovery",
+   "must": "PASS",
+   "refuted": 0,
+   "seconds": 0.1,
+   "steps": [
+    {
+     "action": "put",
+     "expectations": [],
+     "id": "k1",
+     "message": "put 70 via direct",
+     "ms": 17,
+     "result": "driven"
+    },
+    {
+     "action": "put",
+     "expectations": [],
+     "id": "k2",
+     "message": "put 30 via direct",
+     "ms": 4,
+     "result": "driven"
+    },
+    {
+     "action": "put",
+     "expectations": [],
+     "id": "k3",
+     "message": "put 90 via direct",
+     "ms": 0,
+     "result": "driven"
+    },
+    {
+     "action": "put",
+     "expectations": [],
+     "id": "k4",
+     "message": "put 10 via direct",
+     "ms": 0,
+     "result": "driven"
+    },
+    {
+     "action": "put",
+     "expectations": [
+      {
+       "detail": "snapshot.size >= 5, got 5",
+       "path": "snapshot.size",
+       "verdict": "CONFIRMED"
+      }
+     ],
+     "id": "k5",
+     "message": "put 50 via direct",
+     "ms": 0,
+     "result": "driven"
+    },
+    {
+     "action": "restart",
+     "expectations": [
+      {
+       "detail": "ok == True, got True",
+       "path": "ok",
+       "verdict": "CONFIRMED"
+      },
+      {
+       "detail": "output.how == 'cold', got 'cold'",
+       "path": "output.how",
+       "verdict": "CONFIRMED"
+      },
+      {
+       "detail": "output.recovery.sorted == True, got True",
+       "path": "output.recovery.sorted",
+       "verdict": "CONFIRMED"
+      },
+      {
+       "detail": "output.recovery.entries == 5, got 5",
+       "path": "output.recovery.entries",
+       "verdict": "CONFIRMED"
+      },
+      {
+       "detail": "output.recovery.hintUsed == False, got False",
+       "path": "output.recovery.hintUsed",
+       "verdict": "CONFIRMED"
+      },
+      {
+       "detail": "output.recovery.sortStrategy != '', got 'network.oddeven'",
+       "path": "output.recovery.sortStrategy",
+       "verdict": "CONFIRMED"
+      },
+      {
+       "detail": "output.recovery.inversions > 0, got 6",
+       "path": "output.recovery.inversions",
+       "verdict": "CONFIRMED"
+      }
+     ],
+     "id": "cold",
+     "message": "restarted cold under none",
+     "ms": 60,
+     "result": "driven"
+    },
+    {
+     "action": "order",
+     "expectations": [
+      {
+       "detail": "output.answer == 5, got 5",
+       "path": "output.answer",
+       "verdict": "CONFIRMED"
+      }
+     ],
+     "id": "size",
+     "message": "size = 5 via direct",
+     "ms": 2,
+     "result": "driven"
+    },
+    {
+     "action": "order",
+     "expectations": [
+      {
+       "detail": "output.answer == 10, got 10",
+       "path": "output.answer",
+       "verdict": "CONFIRMED"
+      }
+     ],
+     "id": "first",
+     "message": "first = 10 via direct",
+     "ms": 0,
+     "result": "driven"
+    },
+    {
+     "action": "order",
+     "expectations": [
+      {
+       "detail": "output.answer == 90, got 90",
+       "path": "output.answer",
+       "verdict": "CONFIRMED"
+      }
+     ],
+     "id": "last",
+     "message": "last = 90 via direct",
+     "ms": 0,
+     "result": "driven"
+    },
+    {
+     "action": "restart",
+     "expectations": [
+      {
+       "detail": "output.recovery.sorted == False, got False",
+       "path": "output.recovery.sorted",
+       "verdict": "CONFIRMED"
+      },
+      {
+       "detail": "output.recovery.hintUsed == True, got True",
+       "path": "output.recovery.hintUsed",
+       "verdict": "CONFIRMED"
+      }
+     ],
+     "id": "warm",
+     "message": "restarted clean under none",
+     "ms": 24,
+     "result": "driven"
+    }
+   ],
+   "target": "organism",
+   "transport": "stdio",
+   "verdict": "PASS"
+  },
+  "organism-cold-recovery@trace": {
+   "asked": 10,
+   "at": 1788343671,
+   "calls": 13,
+   "confirmed": 9,
+   "goal": "Write keys in shuffled order, die without the checkpoint, and find engine 2 sorting the log on the reopen -- a named strategy, a measured disorder -- with every key back.",
+   "graded": "trace",
+   "held": true,
+   "id": "organism-cold-recovery",
+   "met": 7,
+   "must": "PASS",
+   "probed": 0,
+   "probes": 3,
+   "refuted": 0,
+   "required": 7,
+   "seconds": 0,
+   "steps": [
+    {
+     "action": "put",
+     "call": 0,
+     "expectations": [],
+     "id": "k1",
+     "result": "driven"
+    },
+    {
+     "action": "put",
+     "call": 1,
+     "expectations": [],
+     "id": "k2",
+     "result": "driven"
+    },
+    {
+     "action": "put",
+     "call": 2,
+     "expectations": [],
+     "id": "k3",
+     "result": "driven"
+    },
+    {
+     "action": "put",
+     "call": 3,
+     "expectations": [],
+     "id": "k4",
+     "result": "driven"
+    },
+    {
+     "action": "put",
+     "call": 4,
+     "expectations": [
+      {
+       "detail": "snapshot.size >= 5, got 5",
+       "path": "snapshot.size",
+       "verdict": "CONFIRMED"
+      }
+     ],
+     "id": "k5",
+     "result": "driven"
+    },
+    {
+     "action": "restart",
+     "call": 8,
+     "expectations": [
+      {
+       "detail": "ok == True, got True",
+       "path": "ok",
+       "verdict": "CONFIRMED"
+      },
+      {
+       "detail": "output.how == 'cold', got 'cold'",
+       "path": "output.how",
+       "verdict": "CONFIRMED"
+      },
+      {
+       "detail": "output.recovery.sorted == True, got True",
+       "path": "output.recovery.sorted",
+       "verdict": "CONFIRMED"
+      },
+      {
+       "detail": "output.recovery.entries == 8, got 8",
+       "path": "output.recovery.entries",
+       "verdict": "CONFIRMED"
+      },
+      {
+       "detail": "output.recovery.hintUsed == False, got False",
+       "path": "output.recovery.hintUsed",
+       "verdict": "CONFIRMED"
+      },
+      {
+       "detail": "output.recovery.sortStrategy != '', got 'network.oddeven'",
+       "path": "output.recovery.sortStrategy",
+       "verdict": "CONFIRMED"
+      },
+      {
+       "detail": "output.recovery.inversions > 0, got 14",
+       "path": "output.recovery.inversions",
+       "verdict": "CONFIRMED"
+      }
+     ],
+     "id": "cold",
+     "result": "driven"
+    },
+    {
+     "action": "order",
+     "call": 10,
+     "expectations": [
+      {
+       "detail": "output.answer == 8, got 8",
+       "path": "output.answer",
+       "verdict": "CONFIRMED"
+      }
+     ],
+     "id": "size",
+     "result": "driven"
+    },
+    {
+     "action": "order",
+     "detail": "optional, and no call satisfies it",
+     "id": "first",
+     "result": "SKIPPED"
+    },
+    {
+     "action": "order",
+     "detail": "optional, and no call satisfies it",
+     "id": "last",
+     "result": "SKIPPED"
+    },
+    {
+     "action": "restart",
+     "detail": "optional, and no call satisfies it",
+     "id": "warm",
+     "result": "SKIPPED"
+    }
+   ],
+   "target": "organism",
+   "trace": "organism-cold-recovery.jsonl",
+   "unmet": 0,
+   "verdict": "PASS"
+  },
+  "organism-crash-road": {
+   "at": 1788343673,
+   "confirmed": 17,
+   "goal": "Arm a crash on the second write, commit a three-record batch and watch it fail, see the organism refuse the next batch while the crashed one is still applying, restart clean, and find the batch whole in every index.",
+   "held": true,
+   "id": "organism-crash-road",
+   "must": "PASS",
+   "refuted": 0,
+   "seconds": 0.2,
+   "steps": [
+    {
+     "action": "restart",
+     "expectations": [
+      {
+       "detail": "ok == True, got True",
+       "path": "ok",
+       "verdict": "CONFIRMED"
+      },
+      {
+       "detail": "snapshot.chaos == 'once:2', got 'once:2'",
+       "path": "snapshot.chaos",
+       "verdict": "CONFIRMED"
+      }
+     ],
+     "id": "arm",
+     "message": "restarted clean under once:2",
+     "ms": 57,
+     "result": "driven"
+    },
+    {
+     "action": "batch",
+     "expectations": [
+      {
+       "detail": "ok == False, got False",
+       "path": "ok",
+       "verdict": "CONFIRMED"
+      },
+      {
+       "detail": "code == 'failed', got 'failed'",
+       "path": "code",
+       "verdict": "CONFIRMED"
+      },
+      {
+       "detail": "message contains 'Crash', got 'Crash: Sizzle injected a crash at op 2 (put 901)'",
+       "path": "message",
+       "verdict": "CONFIRMED"
+      }
+     ],
+     "id": "crash",
+     "message": "Crash: Sizzle injected a crash at op 2 (put 901)",
+     "ms": null,
+     "result": "failed"
+    },
+    {
+     "action": "observe",
+     "expectations": [
+      {
+       "detail": "ok == True, got True",
+       "path": "ok",
+       "verdict": "CONFIRMED"
+      },
+      {
+       "detail": "snapshot.chaosCrashes == 1, got 1",
+       "path": "snapshot.chaosCrashes",
+       "verdict": "CONFIRMED"
+      },
+      {
+       "detail": "snapshot.chaos == 'once:2', got 'once:2'",
+       "path": "snapshot.chaos",
+       "verdict": "CONFIRMED"
+      }
+     ],
+     "id": "look",
+     "message": "",
+     "ms": null,
+     "result": "driven"
+    },
+    {
+     "action": "batch",
+     "expectations": [
+      {
+       "detail": "ok == False, got False",
+       "path": "ok",
+       "verdict": "CONFIRMED"
+      },
+      {
+       "detail": "code == 'conflict', got 'conflict'",
+       "path": "code",
+       "verdict": "CONFIRMED"
+      }
+     ],
+     "id": "wedged",
+     "message": "a committed batch is still applying; one batch at a time",
+     "ms": null,
+     "result": "refused"
+    },
+    {
+     "action": "restart",
+     "expectations": [
+      {
+       "detail": "ok == True, got True",
+       "path": "ok",
+       "verdict": "CONFIRMED"
+      },
+      {
+       "detail": "output.chaos == 'none', got 'none'",
+       "path": "output.chaos",
+       "verdict": "CONFIRMED"
+      },
+      {
+       "detail": "output.journalReplays >= 1, got 1",
+       "path": "output.journalReplays",
+       "verdict": "CONFIRMED"
+      }
+     ],
+     "id": "clean",
+     "message": "restarted clean under none",
+     "ms": 33,
+     "result": "driven"
+    },
+    {
+     "action": "quiesce",
+     "expectations": [
+      {
+       "detail": "output.quiet == True, got True",
+       "path": "output.quiet",
+       "verdict": "CONFIRMED"
+      }
+     ],
+     "id": "settle",
+     "message": "quiet",
+     "ms": 1,
+     "result": "driven"
+    },
+    {
+     "action": "count-range",
+     "expectations": [
+      {
+       "detail": "output.count == 3, got 3",
+       "path": "output.count",
+       "verdict": "CONFIRMED"
+      }
+     ],
+     "id": "count",
+     "message": "3 key(s) in 900..902 via direct",
+     "ms": 1,
+     "result": "driven"
+    },
+    {
+     "action": "count-range",
+     "expectations": [
+      {
+       "detail": "output.count == 3, got 3",
+       "path": "output.count",
+       "verdict": "CONFIRMED"
+      }
+     ],
+     "id": "wire",
+     "message": "3 key(s) in 900..902 via wire",
+     "ms": 6,
+     "result": "driven"
+    },
+    {
+     "action": "groups",
+     "expectations": [
+      {
+       "detail": "output.groups >= 1, got 1",
+       "path": "output.groups",
+       "verdict": "CONFIRMED"
+      }
+     ],
+     "id": "fold",
+     "message": "1 group(s)",
+     "ms": 5,
+     "result": "driven"
+    }
+   ],
+   "target": "organism",
+   "transport": "stdio",
+   "verdict": "PASS"
+  },
+  "organism-crash-road@trace": {
+   "asked": 9,
+   "at": 1788343671,
+   "calls": 8,
+   "confirmed": 16,
+   "goal": "Arm a crash on the second write, commit a three-record batch and watch it fail, see the organism refuse the next batch while the crashed one is still applying, restart clean, and find the batch whole in every index.",
+   "graded": "trace",
+   "held": true,
+   "id": "organism-crash-road",
+   "met": 8,
+   "must": "PASS",
+   "probed": 0,
+   "probes": 1,
+   "refuted": 0,
+   "required": 8,
+   "seconds": 0,
+   "steps": [
+    {
+     "action": "restart",
+     "call": 0,
+     "expectations": [
+      {
+       "detail": "ok == True, got True",
+       "path": "ok",
+       "verdict": "CONFIRMED"
+      },
+      {
+       "detail": "snapshot.chaos == 'once:2', got 'once:2'",
+       "path": "snapshot.chaos",
+       "verdict": "CONFIRMED"
+      }
+     ],
+     "id": "arm",
+     "result": "driven"
+    },
+    {
+     "action": "batch",
+     "call": 1,
+     "expectations": [
+      {
+       "detail": "ok == False, got False",
+       "path": "ok",
+       "verdict": "CONFIRMED"
+      },
+      {
+       "detail": "code == 'failed', got 'failed'",
+       "path": "code",
+       "verdict": "CONFIRMED"
+      },
+      {
+       "detail": "message contains 'Crash', got 'Crash: Sizzle injected a crash at op 2 (put 42)'",
+       "path": "message",
+       "verdict": "CONFIRMED"
+      }
+     ],
+     "id": "crash",
+     "result": "failed"
+    },
+    {
+     "action": "observe",
+     "call": 2,
+     "expectations": [
+      {
+       "detail": "ok == True, got True",
+       "path": "ok",
+       "verdict": "CONFIRMED"
+      },
+      {
+       "detail": "snapshot.chaosCrashes == 1, got 1",
+       "path": "snapshot.chaosCrashes",
+       "verdict": "CONFIRMED"
+      },
+      {
+       "detail": "snapshot.chaos == 'once:2', got 'once:2'",
+       "path": "snapshot.chaos",
+       "verdict": "CONFIRMED"
+      }
+     ],
+     "id": "look",
+     "result": "driven"
+    },
+    {
+     "action": "batch",
+     "call": 3,
+     "expectations": [
+      {
+       "detail": "ok == False, got False",
+       "path": "ok",
+       "verdict": "CONFIRMED"
+      },
+      {
+       "detail": "code == 'conflict', got 'conflict'",
+       "path": "code",
+       "verdict": "CONFIRMED"
+      }
+     ],
+     "id": "wedged",
+     "result": "refused"
+    },
+    {
+     "action": "restart",
+     "call": 4,
+     "expectations": [
+      {
+       "detail": "ok == True, got True",
+       "path": "ok",
+       "verdict": "CONFIRMED"
+      },
+      {
+       "detail": "output.chaos == 'none', got 'none'",
+       "path": "output.chaos",
+       "verdict": "CONFIRMED"
+      },
+      {
+       "detail": "output.journalReplays >= 1, got 1",
+       "path": "output.journalReplays",
+       "verdict": "CONFIRMED"
+      }
+     ],
+     "id": "clean",
+     "result": "driven"
+    },
+    {
+     "action": "quiesce",
+     "call": 5,
+     "expectations": [
+      {
+       "detail": "output.quiet == True, got True",
+       "path": "output.quiet",
+       "verdict": "CONFIRMED"
+      }
+     ],
+     "id": "settle",
+     "result": "driven"
+    },
+    {
+     "action": "count-range",
+     "call": 6,
+     "expectations": [
+      {
+       "detail": "output.count == 3, got 3",
+       "path": "output.count",
+       "verdict": "CONFIRMED"
+      }
+     ],
+     "id": "count",
+     "result": "driven"
+    },
+    {
+     "action": "count-range",
+     "detail": "optional, and no call satisfies it",
+     "id": "wire",
+     "result": "SKIPPED"
+    },
+    {
+     "action": "groups",
+     "call": 7,
+     "expectations": [
+      {
+       "detail": "output.groups >= 1, got 1",
+       "path": "output.groups",
+       "verdict": "CONFIRMED"
+      }
+     ],
+     "id": "fold",
+     "result": "driven"
+    }
+   ],
+   "target": "organism",
+   "trace": "organism-crash-road.jsonl",
+   "unmet": 0,
+   "verdict": "PASS"
+  },
+  "organism-preserve-cold-scan": {
+   "at": 1788343674,
+   "confirmed": 14,
+   "goal": "Write three records, preserve the store into the vault, and read the preserved generation back cold -- the archive holds exactly what the store held at that moment, even after the store moves on.",
+   "held": true,
+   "id": "organism-preserve-cold-scan",
+   "must": "PASS",
+   "refuted": 0,
+   "seconds": 0.1,
+   "steps": [
+    {
+     "action": "put",
+     "expectations": [
+      {
+       "detail": "ok == True, got True",
+       "path": "ok",
+       "verdict": "CONFIRMED"
+      }
+     ],
+     "id": "p1",
+     "message": "put 11 via direct",
+     "ms": 22,
+     "result": "driven"
+    },
+    {
+     "action": "put",
+     "expectations": [
+      {
+       "detail": "ok == True, got True",
+       "path": "ok",
+       "verdict": "CONFIRMED"
+      }
+     ],
+     "id": "p2",
+     "message": "put 12 via direct",
+     "ms": 1,
+     "result": "driven"
+    },
+    {
+     "action": "put",
+     "expectations": [
+      {
+       "detail": "ok == True, got True",
+       "path": "ok",
+       "verdict": "CONFIRMED"
+      },
+      {
+       "detail": "snapshot.size == 3, got 3",
+       "path": "snapshot.size",
+       "verdict": "CONFIRMED"
+      }
+     ],
+     "id": "p3",
+     "message": "put 13 via direct",
+     "ms": 2,
+     "result": "driven"
+    },
+    {
+     "action": "preserve",
+     "expectations": [
+      {
+       "detail": "ok == True, got True",
+       "path": "ok",
+       "verdict": "CONFIRMED"
+      },
+      {
+       "detail": "output.generation >= 0, got 0",
+       "path": "output.generation",
+       "verdict": "CONFIRMED"
+      },
+      {
+       "detail": "snapshot.generations == 1, got 1",
+       "path": "snapshot.generations",
+       "verdict": "CONFIRMED"
+      }
+     ],
+     "id": "gen",
+     "message": "preserved generation 0",
+     "ms": 12,
+     "result": "driven"
+    },
+    {
+     "action": "put",
+     "expectations": [
+      {
+       "detail": "snapshot.size == 4, got 4",
+       "path": "snapshot.size",
+       "verdict": "CONFIRMED"
+      }
+     ],
+     "id": "later",
+     "message": "put 14 via direct",
+     "ms": 1,
+     "result": "driven"
+    },
+    {
+     "action": "cold-scan",
+     "expectations": [
+      {
+       "detail": "ok == True, got True",
+       "path": "ok",
+       "verdict": "CONFIRMED"
+      },
+      {
+       "detail": "output.records == 3, got 3",
+       "path": "output.records",
+       "verdict": "CONFIRMED"
+      },
+      {
+       "detail": "output.generation == 0, got 0",
+       "path": "output.generation",
+       "verdict": "CONFIRMED"
+      }
+     ],
+     "id": "scan",
+     "message": "3 record(s) in generation 0",
+     "ms": 5,
+     "result": "driven"
+    },
+    {
+     "action": "verify-archive",
+     "expectations": [
+      {
+       "detail": "output.verified == True, got True",
+       "path": "output.verified",
+       "verdict": "CONFIRMED"
+      }
+     ],
+     "id": "verify",
+     "message": "verified=True",
+     "ms": 0,
+     "result": "driven"
+    },
+    {
+     "action": "cold-scan",
+     "expectations": [
+      {
+       "detail": "ok == False, got False",
+       "path": "ok",
+       "verdict": "CONFIRMED"
+      },
+      {
+       "detail": "code == 'not_found', got 'not_found'",
+       "path": "code",
+       "verdict": "CONFIRMED"
+      }
+     ],
+     "id": "gone",
+     "message": "no archive for generation 999999",
+     "ms": null,
+     "result": "refused"
+    }
+   ],
+   "target": "organism",
+   "transport": "stdio",
+   "verdict": "PASS"
+  },
+  "organism-preserve-cold-scan@trace": {
+   "asked": 8,
+   "at": 1788343671,
+   "calls": 7,
+   "confirmed": 11,
+   "goal": "Write three records, preserve the store into the vault, and read the preserved generation back cold -- the archive holds exactly what the store held at that moment, even after the store moves on.",
+   "graded": "trace",
+   "held": true,
+   "id": "organism-preserve-cold-scan",
+   "met": 6,
+   "must": "PASS",
+   "probed": 0,
+   "probes": 2,
+   "refuted": 0,
+   "required": 6,
+   "seconds": 0,
+   "steps": [
+    {
+     "action": "put",
+     "call": 0,
+     "expectations": [
+      {
+       "detail": "ok == True, got True",
+       "path": "ok",
+       "verdict": "CONFIRMED"
+      }
+     ],
+     "id": "p1",
+     "result": "driven"
+    },
+    {
+     "action": "put",
+     "call": 1,
+     "expectations": [
+      {
+       "detail": "ok == True, got True",
+       "path": "ok",
+       "verdict": "CONFIRMED"
+      }
+     ],
+     "id": "p2",
+     "result": "driven"
+    },
+    {
+     "action": "put",
+     "call": 2,
+     "expectations": [
+      {
+       "detail": "ok == True, got True",
+       "path": "ok",
+       "verdict": "CONFIRMED"
+      },
+      {
+       "detail": "snapshot.size == 3, got 3",
+       "path": "snapshot.size",
+       "verdict": "CONFIRMED"
+      }
+     ],
+     "id": "p3",
+     "result": "driven"
+    },
+    {
+     "action": "preserve",
+     "call": 3,
+     "expectations": [
+      {
+       "detail": "ok == True, got True",
+       "path": "ok",
+       "verdict": "CONFIRMED"
+      },
+      {
+       "detail": "output.generation >= 0, got 0",
+       "path": "output.generation",
+       "verdict": "CONFIRMED"
+      },
+      {
+       "detail": "snapshot.generations == 1, got 1",
+       "path": "snapshot.generations",
+       "verdict": "CONFIRMED"
+      }
+     ],
+     "id": "gen",
+     "result": "driven"
+    },
+    {
+     "action": "put",
+     "call": 4,
+     "expectations": [
+      {
+       "detail": "snapshot.size == 4, got 4",
+       "path": "snapshot.size",
+       "verdict": "CONFIRMED"
+      }
+     ],
+     "id": "later",
+     "result": "driven"
+    },
+    {
+     "action": "cold-scan",
+     "call": 6,
+     "expectations": [
+      {
+       "detail": "ok == True, got True",
+       "path": "ok",
+       "verdict": "CONFIRMED"
+      },
+      {
+       "detail": "output.records == 3, got 3",
+       "path": "output.records",
+       "verdict": "CONFIRMED"
+      },
+      {
+       "detail": "output.generation == 0, got 0",
+       "path": "output.generation",
+       "verdict": "CONFIRMED"
+      }
+     ],
+     "id": "scan",
+     "result": "driven"
+    },
+    {
+     "action": "verify-archive",
+     "detail": "optional, and no call satisfies it",
+     "id": "verify",
+     "result": "SKIPPED"
+    },
+    {
+     "action": "cold-scan",
+     "detail": "optional, and no call satisfies it",
+     "id": "gone",
+     "result": "SKIPPED"
+    }
+   ],
+   "target": "organism",
+   "trace": "organism-preserve-cold-scan.jsonl",
+   "unmet": 0,
+   "verdict": "PASS"
+  },
+  "organism-replica-behind": {
+   "at": 1788343675,
+   "confirmed": 8,
+   "goal": "Hold the replica behind the primary, write, see the fleet report it behind and not gapped, wait for the feed to land, and find the last write on the replica.",
+   "held": true,
+   "id": "organism-replica-behind",
+   "must": "PASS",
+   "refuted": 0,
+   "seconds": 1.0,
+   "steps": [
+    {
+     "action": "restart",
+     "expectations": [
+      {
+       "detail": "ok == True, got True",
+       "path": "ok",
+       "verdict": "CONFIRMED"
+      },
+      {
+       "detail": "output.replicaLagMs > 0, got 200",
+       "path": "output.replicaLagMs",
+       "verdict": "CONFIRMED"
+      }
+     ],
+     "id": "lag",
+     "message": "restarted clean under none, replica held back 200 ms/event",
+     "ms": 69,
+     "result": "driven"
+    },
+    {
+     "action": "put",
+     "expectations": [],
+     "id": "w1",
+     "message": "put 50 via direct",
+     "ms": 8,
+     "result": "driven"
+    },
+    {
+     "action": "put",
+     "expectations": [],
+     "id": "w2",
+     "message": "put 51 via direct",
+     "ms": 1,
+     "result": "driven"
+    },
+    {
+     "action": "put",
+     "expectations": [],
+     "id": "w3",
+     "message": "put 52 via direct",
+     "ms": 1,
+     "result": "driven"
+    },
+    {
+     "action": "put",
+     "expectations": [],
+     "id": "w4",
+     "message": "put 53 via direct",
+     "ms": 0,
+     "result": "driven"
+    },
+    {
+     "action": "fleet",
+     "expectations": [
+      {
+       "detail": "output.replicas.0.lag > 0, got 4",
+       "path": "output.replicas.0.lag",
+       "verdict": "CONFIRMED"
+      },
+      {
+       "detail": "output.replicas.0.gapped == False, got False",
+       "path": "output.replicas.0.gapped",
+       "verdict": "CONFIRMED"
+      }
+     ],
+     "id": "behind",
+     "message": "1 replica(s)",
+     "ms": 4,
+     "result": "driven"
+    },
+    {
+     "action": "quiesce",
+     "expectations": [
+      {
+       "detail": "output.quiet == True, got True",
+       "path": "output.quiet",
+       "verdict": "CONFIRMED"
+      }
+     ],
+     "id": "land",
+     "message": "quiet",
+     "ms": 764,
+     "result": "driven"
+    },
+    {
+     "action": "fleet",
+     "expectations": [
+      {
+       "detail": "output.replicas.0.lag == 0, got 0",
+       "path": "output.replicas.0.lag",
+       "verdict": "CONFIRMED"
+      }
+     ],
+     "id": "caught",
+     "message": "1 replica(s)",
+     "ms": 0,
+     "result": "driven"
+    },
+    {
+     "action": "replica-get",
+     "expectations": [
+      {
+       "detail": "output.found == True, got True",
+       "path": "output.found",
+       "verdict": "CONFIRMED"
+      }
+     ],
+     "id": "there",
+     "message": "replica-get 53 (found=True)",
+     "ms": 4,
+     "result": "driven"
+    },
+    {
+     "action": "restart",
+     "expectations": [
+      {
+       "detail": "output.replicaLagMs == 0, got 0",
+       "path": "output.replicaLagMs",
+       "verdict": "CONFIRMED"
+      }
+     ],
+     "id": "free",
+     "message": "restarted clean under none",
+     "ms": 49,
+     "result": "driven"
+    }
+   ],
+   "target": "organism",
+   "transport": "stdio",
+   "verdict": "PASS"
+  },
+  "organism-replica-behind@trace": {
+   "asked": 10,
+   "at": 1788343671,
+   "calls": 11,
+   "confirmed": 7,
+   "goal": "Hold the replica behind the primary, write, see the fleet report it behind and not gapped, wait for the feed to land, and find the last write on the replica.",
+   "graded": "trace",
+   "held": true,
+   "id": "organism-replica-behind",
+   "met": 9,
+   "must": "PASS",
+   "probed": 0,
+   "probes": 1,
+   "refuted": 0,
+   "required": 9,
+   "seconds": 0,
+   "steps": [
+    {
+     "action": "restart",
+     "call": 0,
+     "expectations": [
+      {
+       "detail": "ok == True, got True",
+       "path": "ok",
+       "verdict": "CONFIRMED"
+      },
+      {
+       "detail": "output.replicaLagMs > 0, got 150",
+       "path": "output.replicaLagMs",
+       "verdict": "CONFIRMED"
+      }
+     ],
+     "id": "lag",
+     "result": "driven"
+    },
+    {
+     "action": "put",
+     "call": 1,
+     "expectations": [],
+     "id": "w1",
+     "result": "driven"
+    },
+    {
+     "action": "put",
+     "call": 2,
+     "expectations": [],
+     "id": "w2",
+     "result": "driven"
+    },
+    {
+     "action": "put",
+     "call": 3,
+     "expectations": [],
+     "id": "w3",
+     "result": "driven"
+    },
+    {
+     "action": "put",
+     "call": 4,
+     "expectations": [],
+     "id": "w4",
+     "result": "driven"
+    },
+    {
+     "action": "fleet",
+     "call": 7,
+     "expectations": [
+      {
+       "detail": "output.replicas.0.lag > 0, got 6",
+       "path": "output.replicas.0.lag",
+       "verdict": "CONFIRMED"
+      },
+      {
+       "detail": "output.replicas.0.gapped == False, got False",
+       "path": "output.replicas.0.gapped",
+       "verdict": "CONFIRMED"
+      }
+     ],
+     "id": "behind",
+     "result": "driven"
+    },
+    {
+     "action": "quiesce",
+     "call": 8,
+     "expectations": [
+      {
+       "detail": "output.quiet == True, got True",
+       "path": "output.quiet",
+       "verdict": "CONFIRMED"
+      }
+     ],
+     "id": "land",
+     "result": "driven"
+    },
+    {
+     "action": "fleet",
+     "call": 9,
+     "expectations": [
+      {
+       "detail": "output.replicas.0.lag == 0, got 0",
+       "path": "output.replicas.0.lag",
+       "verdict": "CONFIRMED"
+      }
+     ],
+     "id": "caught",
+     "result": "driven"
+    },
+    {
+     "action": "replica-get",
+     "call": 10,
+     "expectations": [
+      {
+       "detail": "output.found == True, got True",
+       "path": "output.found",
+       "verdict": "CONFIRMED"
+      }
+     ],
+     "id": "there",
+     "result": "driven"
+    },
+    {
+     "action": "restart",
+     "detail": "optional, and no call satisfies it",
+     "id": "free",
+     "result": "SKIPPED"
+    }
+   ],
+   "target": "organism",
+   "trace": "organism-replica-behind.jsonl",
+   "unmet": 0,
+   "verdict": "PASS"
+  },
+  "page-enter-and-read-back": {
+   "at": 1788343676,
+   "confirmed": 10,
+   "goal": "On the collection sheet, enter a value into the first text control, read it back with SENSITIVE_READ, and find the page's invariants intact.",
+   "held": true,
+   "id": "page-enter-and-read-back",
+   "must": "PASS",
+   "refuted": 0,
+   "seconds": 0.4,
+   "steps": [
+    {
+     "action": "read-page",
+     "expectations": [
+      {
+       "detail": "ok == True, got True",
+       "path": "ok",
+       "verdict": "CONFIRMED"
+      },
+      {
+       "detail": "output.onp == 1, got 1",
+       "path": "output.onp",
+       "verdict": "CONFIRMED"
+      },
+      {
+       "detail": "output.junk == None, got None",
+       "path": "output.junk",
+       "verdict": "CONFIRMED"
+      },
+      {
+       "detail": "output.errors == [], got []",
+       "path": "output.errors",
+       "verdict": "CONFIRMED"
+      }
+     ],
+     "id": "look",
+     "message": "read the page",
+     "ms": 14,
+     "result": "driven"
+    },
+    {
+     "action": "set-text",
+     "expectations": [
+      {
+       "detail": "ok == True, got True",
+       "path": "ok",
+       "verdict": "CONFIRMED"
+      }
+     ],
+     "id": "type",
+     "message": "set-text text_in:0",
+     "ms": 27,
+     "result": "driven"
+    },
+    {
+     "action": "read-control",
+     "expectations": [
+      {
+       "detail": "output.value == 'Quercus rubra', got 'Quercus rubra'",
+       "path": "output.value",
+       "verdict": "CONFIRMED"
+      }
+     ],
+     "id": "read",
+     "message": "read text_in:0",
+     "ms": 3,
+     "result": "driven"
+    },
+    {
+     "action": "read-page",
+     "expectations": [
+      {
+       "detail": "output.errors == [], got []",
+       "path": "output.errors",
+       "verdict": "CONFIRMED"
+      }
+     ],
+     "id": "still",
+     "message": "read the page",
+     "ms": 6,
+     "result": "driven"
+    },
+    {
+     "action": "activate",
+     "expectations": [
+      {
+       "detail": "ok == False, got False",
+       "path": "ok",
+       "verdict": "CONFIRMED"
+      },
+      {
+       "detail": "code == 'invalid_argument', got 'invalid_argument'",
+       "path": "code",
+       "verdict": "CONFIRMED"
+      },
+      {
+       "detail": "message contains 'use open', got 'nav_link:0: a link that leaves the page (ecology.html): use open'",
+       "path": "message",
+       "verdict": "CONFIRMED"
+      }
+     ],
+     "id": "leave",
+     "message": "nav_link:0: a link that leaves the page (ecology.html): use open",
+     "ms": null,
+     "result": "refused"
+    }
+   ],
+   "target": "page",
+   "transport": "stdio",
+   "verdict": "PASS"
+  },
+  "page-enter-and-read-back@trace": {
+   "asked": 5,
+   "at": 1788343671,
+   "calls": 3,
+   "confirmed": 3,
+   "goal": "On the collection sheet, enter a value into the first text control, read it back with SENSITIVE_READ, and find the page's invariants intact.",
+   "graded": "trace",
+   "held": true,
+   "id": "page-enter-and-read-back",
+   "met": 3,
+   "must": "PASS",
+   "probed": 0,
+   "probes": 2,
+   "refuted": 0,
+   "required": 3,
+   "seconds": 0,
+   "steps": [
+    {
+     "action": "read-page",
+     "detail": "optional, and no call satisfies it",
+     "id": "look",
+     "result": "SKIPPED"
+    },
+    {
+     "action": "set-text",
+     "call": 0,
+     "expectations": [
+      {
+       "detail": "ok == True, got True",
+       "path": "ok",
+       "verdict": "CONFIRMED"
+      }
+     ],
+     "id": "type",
+     "result": "driven"
+    },
+    {
+     "action": "read-control",
+     "call": 1,
+     "expectations": [
+      {
+       "detail": "output.value == 'Quercus rubra', got 'Quercus rubra'",
+       "path": "output.value",
+       "verdict": "CONFIRMED"
+      }
+     ],
+     "id": "read",
+     "result": "driven"
+    },
+    {
+     "action": "read-page",
+     "call": 2,
+     "expectations": [
+      {
+       "detail": "output.errors == [], got []",
+       "path": "output.errors",
+       "verdict": "CONFIRMED"
+      }
+     ],
+     "id": "still",
+     "result": "driven"
+    },
+    {
+     "action": "activate",
+     "detail": "optional, and no call satisfies it",
+     "id": "leave",
+     "result": "SKIPPED"
+    }
+   ],
+   "target": "page",
+   "trace": "page-enter-and-read-back.jsonl",
+   "unmet": 0,
+   "verdict": "PASS"
+  }
+ }
+}

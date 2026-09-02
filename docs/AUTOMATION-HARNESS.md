@@ -342,6 +342,28 @@ cached reader each; a `compact` gives them back). `verify_organism` restarts the
 organism forty ways and requires the same. The lab's `jvm` is the same
 instrument on the science engine.
 
+## Tasks: what an operator is for
+
+A walk proves a target is operable; a **task** asks whether a goal was done
+(ADR-125). `tools/tasks/*.json` — a target, a goal in words, steps with
+arguments, references to earlier responses (`"$gen.output.generation"`), and
+expectations graded `CONFIRMED` / `REFUTED` (`==`, `!=`, `>`, `>=`, `<`, `<=`,
+`in`, `contains`, `exists`). A refusal, a decline or a failure is a result a
+task can expect; a failure nobody expected is the target's and ends the task;
+a reference that does not resolve is the task's own DEFECT, never a finding.
+`tools/harness_tasks.py` runs each task on a fresh target through either
+transport and keeps `tools/task_ledger.json`; a task that declares `must: FAIL`
+is the canary that proves the grader can say no. Eight tasks ship — the
+preserve-and-cold-scan road, the crash road, the replica held behind, a cold
+recovery, the shipped protocol, a page entered and read back, the fixture's
+buckets, the canary — and every one is held. A model handed the goal and the
+manifest, and not the steps, is what this grader is for — and has been graded
+once (ADR-126): `harness_mcp.py --trace FILE` records every call and observation
+a host makes, and `harness_tasks.py --grade-trace FILE` holds that trace to a
+task — required steps in order, probes anywhere after, one call per step, the
+operator's own detours allowed and counted. Six traces under `tools/traces/`,
+planned from the goals alone, every one held; their provenance is stated there.
+
 ## The fourth target: the fixture
 
 `--target fixture` serves `csrbt-fixture` (ADR-119): a plugin built to be
@@ -453,6 +475,13 @@ nothing": the adapter names no target, both transports share one builder, the
 full protocol surface in-process over a fixture, and the server as a child over
 the organism spoken to in JSON-RPC. `tools/mutate_mcp.py`: 6 killed, 0 survived,
 1 recorded equivalent.
+
+`tools/verify/verify_tasks.py` (70 checks) holds the task runner to its grammar,
+its files and its grader — the canary refuted and held, a bad reference a
+defect, a dead target a defect, MCP the same verdicts — runs every task through
+the gateway, and holds the trace grader (order, one call per step, probes after
+required steps) and the six committed traces. `tools/mutate_tasks.py`: 16
+killed, 0 survived.
 
 `tools/verify/verify_swarm.py` is the evidence that the verdicts mean something:
 ten fixture pages, nine of them wired and wrong in a different way, one of them
