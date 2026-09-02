@@ -326,6 +326,7 @@ class Bounded(C.Plugin):
                 C.ArgumentSpec("ops", "array", "ops", items="string",
                                pattern=r"^(p \d+|d \d+)$", examples=["p 1", "d 2"]),
                 C.ArgumentSpec("via", "string", "route", enum=["a", "b"], examples=["a"]),
+                C.ArgumentSpec("kinds", "array", "kinds", items="string", enum=["x", "y"]),
             ])])
 
     def descriptor(self):
@@ -350,6 +351,8 @@ ck(sch["ops"]["items"] == {"type": "string", "pattern": r"^(p \d+|d \d+)$"} and
    sch["ops"]["examples"] == ["p 1", "d 2"],
    "an array's item pattern is published on the items, with examples on the argument")
 ck(sch["via"]["examples"] == ["a"], "an enum may carry examples too")
+ck(sch["kinds"]["items"] == {"type": "string", "enum": ["x", "y"]} and "enum" not in sch["kinds"],
+   "an enum on an array is published per item (ADR-117)")
 
 
 def bounded(args, expect_ok):
@@ -370,7 +373,9 @@ ck(bounded({"n": 5, "s": "dial:2"}, True) and bounded({"n": 5, "s": "dial:x"}, F
    "a string pattern is a full match, not a search")
 ck(bounded({"n": 5, "ops": ["p 1", "d 2"]}, True) and bounded({"n": 5, "ops": ["p 1", "zap"]}, False),
    "an array pattern applies to every item")
-ck(len(bp.ran) == ran0 + 5, "and a refused call never reached the plugin: %d ran" % (len(bp.ran) - ran0))
+ck(bounded({"n": 5, "kinds": ["x", "y"]}, True) and bounded({"n": 5, "kinds": ["x", "z"]}, False),
+   "an array enum is checked per item")
+ck(len(bp.ran) == ran0 + 6, "and a refused call never reached the plugin: %d ran" % (len(bp.ran) - ran0))
 for bad, why in ((dict(pattern="^a$"), "a pattern without examples"),
                  (dict(pattern="^a$", examples=["b"]), "an example failing its own pattern"),
                  (dict(minimum=5, maximum=1), "minimum above maximum"),

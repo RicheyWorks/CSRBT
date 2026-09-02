@@ -175,9 +175,11 @@ class ArgumentSpec(object):
             s["items"] = {"type": self.items}
             if self.pattern:
                 s["items"]["pattern"] = self.pattern
+            if self.enum:
+                s["items"]["enum"] = list(self.enum)     # an enum on an array is per item
         elif self.pattern:
             s["pattern"] = self.pattern
-        if self.enum:
+        if self.enum and self.type != "array":
             s["enum"] = list(self.enum)
         if self.minimum is not None:
             s["minimum"] = self.minimum
@@ -205,9 +207,12 @@ class ArgumentSpec(object):
                 if self._rx and not self._rx.fullmatch(v):
                     raise InvalidArgument("%s: %s item %r does not match %s"
                                           % (action, self.name, v[:40], self.pattern))
-        if self.enum and value not in self.enum:
-            raise InvalidArgument("%s: %s must be one of %s"
-                                  % (action, self.name, ", ".join(self.enum)))
+        if self.enum:
+            each = value if self.type == "array" else [value]
+            for v in each:
+                if v not in self.enum:
+                    raise InvalidArgument("%s: %s must be one of %s"
+                                          % (action, self.name, ", ".join(self.enum)))
         if self.minimum is not None and value < self.minimum:
             raise InvalidArgument("%s: %s must be >= %s, got %s"
                                   % (action, self.name, self.minimum, value))

@@ -143,12 +143,21 @@ a fact of the moment rather than of the schema — which generations exist right
 now — is published in the snapshot as `argumentPools`, a map from argument name
 to currently valid values; observe, then act on what you observed.
 
-`tools/organism_walk.py` is the proof: a client that imports nothing from this
-kit, speaks the four operations over stdio, and forms every call from the
-schema alone. It drives all thirty-three organism actions, keeps the accounting
-identity `commands == driven + refused + declined + chaos + failed`, and fails
-if any published tool cannot be driven from its schema or any cross-check
-between reads breaks. Its ledger is `tools/organism_ledger.json`.
+A pool may be **scoped to an action** — `"set-text.selector"` is the text
+controls, `"attach-file.selector"` the file inputs — and a client should prefer
+the scoped pool every time: the target said "these". The page plugin publishes
+one per action (controls behind a closed tab included, since every action opens
+the pane first), plus `pane`, `page` and `choose-option.value`.
+
+`tools/harness_walk.py` is the proof (ADR-114, ADR-117): a client that imports
+nothing from this kit, speaks the four operations over stdio, and forms every
+call from the schema and the pools alone. `--target organism | lab | page | all`
+walks every plugin the manifest names, keeps the accounting identity
+`commands == driven + refused + declined + chaos + failed` per target, reports a
+tool whose published pools were empty throughout as `unreachable` (a fact about
+the target — a page with no select cannot have `choose-option` driven), and fails
+if any other published tool cannot be driven from its schema or any cross-check
+between reads breaks. Its ledger is `tools/walk_ledger.json`, merged per target.
 
 ## Replay safety
 
@@ -345,10 +354,11 @@ segments summing to the garbage, and the recovery road under an armed crash.
 requires that suite to notice each (19 killed, 0 survived, 3 recorded
 equivalents).
 
-`tools/verify/verify_organism_walk.py` (26 checks) holds the first robot to its
-claim: an outsider, a generator that respects every kind of bound and reports
-the unformable rather than guessing, a live walk with full coverage and nothing
-failed, and the committed ledger at the same bar.
+`tools/verify/verify_walk.py` (49 checks) holds the robot to its claim on every
+target: an outsider, a generator that respects every kind of bound and reports
+the unformable rather than guessing, live walks of the organism, the lab and two
+pages with full coverage and nothing failed, and the committed ledger at the
+same bar for all three.
 
 `tools/verify/verify_lab.py` (35 checks) holds the third target to the
 canonical oracle the repository already keeps — the shipped protocol run through

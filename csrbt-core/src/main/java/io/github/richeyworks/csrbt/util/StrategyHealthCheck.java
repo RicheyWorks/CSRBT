@@ -116,15 +116,28 @@ public final class StrategyHealthCheck {
      * healthy. Bounds are threaded down the recursion: every node must lie strictly
      * inside the (min, max) window its ancestors impose.
      */
-    private static <K> boolean isBst(TreeNode1<K> n) {
-        return isBst(n, null, null);
-    }
-
-    private static <K> boolean isBst(TreeNode1<K> n, TreeNode1<K> min, TreeNode1<K> max) {
-        if (n.isNil()) return true;
-        if (min != null && n.compareTo(min) <= 0) return false;
-        if (max != null && n.compareTo(max) >= 0) return false;
-        return isBst(n.getLeft(), min, n) && isBst(n.getRight(), n, max);
+    private static <K> boolean isBst(TreeNode1<K> root) {
+        // Iterative (ADR-117, 2026-09-01): the recursive form overflowed the stack on a
+        // deep candidate. A Splay candidate built aside from sorted keys is a chain as
+        // deep as the set is large, and the first robot to drive the adaptive controller
+        // over 20k keys found the health check itself dying at ~1,000 frames -- inside a
+        // morph, taking the console with it. Same defect the tenth pass fixed in the
+        // snapshot loader (C1) and TreeHistory (C2): a walk that recurses is bounded by
+        // the stack, not by the tree. Bounds travel with each frame on an explicit stack.
+        java.util.ArrayDeque<Object[]> stack = new java.util.ArrayDeque<>();
+        stack.push(new Object[] {root, null, null});
+        while (!stack.isEmpty()) {
+            Object[] f = stack.pop();
+            @SuppressWarnings("unchecked") TreeNode1<K> n = (TreeNode1<K>) f[0];
+            @SuppressWarnings("unchecked") TreeNode1<K> min = (TreeNode1<K>) f[1];
+            @SuppressWarnings("unchecked") TreeNode1<K> max = (TreeNode1<K>) f[2];
+            if (n.isNil()) continue;
+            if (min != null && n.compareTo(min) <= 0) return false;
+            if (max != null && n.compareTo(max) >= 0) return false;
+            stack.push(new Object[] {n.getLeft(), min, n});
+            stack.push(new Object[] {n.getRight(), n, max});
+        }
+        return true;
     }
 
     private static <K> boolean isRedBlackValid(TreeNode1<K> root) {

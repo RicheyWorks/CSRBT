@@ -37,7 +37,7 @@ import _kit
 sys.path.insert(0, _kit.TOOLS_DIR.rstrip(os.sep))
 import harness_contract as C
 import harness_plugin_lab as L
-import organism_walk as W
+import harness_walk as W
 from harness_plugin_organism import OrganismPlugin
 from harness_plugin_page import PagePlugin
 

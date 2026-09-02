@@ -33,7 +33,7 @@ WHAT THE HARNESS REFUSES
     at 64 KiB. Its schema carries an example a schema-driven client can use
     verbatim, so the lab is operable from the manifest alone (ADR-114).
 """
-import base64, glob, io, json, os, re, subprocess, sys, tempfile, threading
+import base64, collections, glob, io, json, os, re, subprocess, sys, tempfile, threading
 try:
     import queue
 except ImportError:  # pragma: no cover
@@ -101,6 +101,13 @@ class Console(object):
             stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE,
             text=True, encoding="utf-8", bufsize=1)
         threading.Thread(target=self._pump, daemon=True).start()
+        # stderr is drained too, into a bounded tail. The first robot found a
+        # console that died LOUDLY -- a StackOverflowError prints a thousand
+        # frames -- filling the unread stderr pipe, so the JVM blocked on its
+        # own trace, never exited, and the reader waited out its whole timeout
+        # instead of learning of the death at once. A detector with no alarm.
+        self._err = collections.deque(maxlen=200)
+        threading.Thread(target=self._drain, daemon=True).start()
         hello = self._recv(STARTUP_TIMEOUT)
         if not hello.get("ready"):
             raise Unavailable("lab console did not come up: %r" % hello)
@@ -114,17 +121,20 @@ class Console(object):
             pass
         self._q.put(None)
 
+    def _drain(self):
+        try:
+            for line in self.proc.stderr:
+                self._err.append(line.rstrip()[:200])
+        except Exception:
+            pass
+
     def _recv(self, timeout):
         try:
             line = self._q.get(timeout=timeout)
         except queue.Empty:
             raise Unavailable("lab console gave no answer within %.0fs" % timeout)
         if line is None:
-            err = ""
-            try:
-                err = (self.proc.stderr.read() or "")[-300:]
-            except Exception:
-                pass
+            err = " | ".join(list(self._err)[-3:])[-300:]
             raise Unavailable("lab console exited (rc=%s) %s" % (self.proc.poll(), err.strip()))
         try:
             return json.loads(line)

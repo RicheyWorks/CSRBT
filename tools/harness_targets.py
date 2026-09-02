@@ -92,7 +92,14 @@ def stand_up(target, page="ecology.html", seed=42, headed=False, err=None):
         pg = ctx.new_page()
         pg.goto(_kit.url(page), wait_until="domcontentloaded")
         pg.wait_for_timeout(300)
-        plugins.append(PagePlugin(pg, page))
+        # The swarm's widened kinds (ADR-101: checkboxes, drop zones, every text
+        # input type) are the discovery a client should get; the harness's own
+        # list is the published ledger's and stays narrower on purpose.
+        try:
+            from swarm import SWARM_KINDS
+        except Exception:
+            SWARM_KINDS = None
+        plugins.append(PagePlugin(pg, page, kinds=SWARM_KINDS))
         closers.append(ctx.close)
         closers.append(b.close)
         closers.append(pw.stop)

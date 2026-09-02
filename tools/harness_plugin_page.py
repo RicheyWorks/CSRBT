@@ -86,6 +86,26 @@ FIXTURES = {
 
 SEL_RE = re.compile(r"^[a-z_]+:\d+$")
 
+# Which discovered kinds each action can act on -- the same knowledge the
+# swarm's DRIVER map holds (verify_contract pins that they agree), published
+# here as argument pools so a client that has never read the swarm can pick a
+# selector its action will accept.
+POOL_KINDS = {
+    "set-text": ("text_in", "field_in", "pick_search", "step_val"),
+    "choose-option": ("select",),
+    "set-slider": ("slider",),
+    "press-step": ("step_btn",),
+    "set-checkbox": ("checkbox",),
+    "attach-file": ("file_in",),
+    "drop-files": ("drop_zone",),
+    "activate": ("pick_opt", "dial_btn", "chip", "kopt", "ck", "cv", "swc", "action_btn"),
+}
+
+
+def kit_pages():
+    import glob
+    return sorted(os.path.basename(p) for p in glob.glob(os.path.join(_kit.DOCS_DIR, "*.html")))
+
 # Read where a user reads: one round trip, typed, and never a field's contents.
 CONTROLS = r"""
 () => {
@@ -106,8 +126,16 @@ CONTROLS = r"""
       commandable: !e.disabled && !e.readOnly && e.type !== "password",
     });
   });
+  // Option VALUES of the page's selects (capped): a client forming a
+  // choose-option needs a value that exists, and an option is a choice the
+  // page offers, not something a user typed (ADR-117 argument pools).
+  const opts = new Set();
+  document.querySelectorAll("select").forEach(sel => {
+    [...sel.options].slice(0, 20).forEach(o => { if (opts.size < 200) opts.add(String(o.value)); });
+  });
   return { route: (document.querySelector(".pane.on") || {}).id || null,
            title: document.title,
+           optionValues: [...opts],
            panes: [...document.querySelectorAll(".pane")].map(p => p.id),
            tabs: [...document.querySelectorAll(".tab[data-pane]")].map(
                    t => ({ pane: t.getAttribute("data-pane"),
@@ -195,6 +223,12 @@ ACT = r"""
   const e = document.querySelector('[data-h="' + sel + '"]');
   if (!e) return { ok: false, why: "gone" };
   if (kind === "text") {
+    // The first robot (ADR-117) sent set-text to a button and got "TypeError:
+    // Illegal invocation" from the value setter -- a raise, filed as the page
+    // failing. A wrong-kind selector is the CALLER's, and says so.
+    if (e.tagName !== "TEXTAREA" && e.tagName !== "INPUT") return { ok: false, why: "not a text control" };
+    if (e.tagName === "INPUT" && ["button", "submit", "checkbox", "radio", "file", "range", "reset"].indexOf(e.type) >= 0)
+      return { ok: false, why: "not a text control" };
     const proto = e.tagName === "TEXTAREA" ? HTMLTextAreaElement : HTMLInputElement;
     const set = Object.getOwnPropertyDescriptor(proto.prototype, "value").set;
     set.call(e, String(value));
@@ -203,6 +237,7 @@ ACT = r"""
     return { ok: true, value: String(e.value) };
   }
   if (kind === "range") {
+    if (e.tagName !== "INPUT" || e.type !== "range") return { ok: false, why: "not a slider" };
     e.value = String(value);
     e.dispatchEvent(new Event("input", { bubbles: true }));
     e.dispatchEvent(new Event("change", { bubbles: true }));
@@ -306,6 +341,9 @@ DROP = r"""
 ([sel, files]) => {
   const el = document.querySelector('[data-h="' + sel + '"]');
   if (!el) return { ok: false, why: "gone" };
+  // Only a registered drop zone. Dispatching drag events at anything else
+  // "succeeds" and nothing happens -- a driven that drove nothing (ADR-117).
+  if (!el.hasAttribute("data-h-drop")) return { ok: false, why: "not a drop zone" };
   let dt;
   try { dt = new DataTransfer(); } catch (e) { return { ok: false, why: "no DataTransfer" }; }
   for (const f of files) {
@@ -325,6 +363,8 @@ SET_CHECK = r"""
 ([sel, want]) => {
   const e = document.querySelector('[data-h="' + sel + '"]');
   if (!e) return { ok: false, why: "gone" };
+  if (e.tagName !== "INPUT" || (e.type !== "checkbox" && e.type !== "radio"))
+    return { ok: false, why: "not a checkbox" };
   if (e.checked !== want) e.click();
   return { ok: true, checked: !!e.checked };
 }
@@ -356,9 +396,12 @@ class PagePlugin(Plugin):
                 ActionSpec("open", "Load a page of the kit by file name.",
                            "NAVIGATE",
                            [ArgumentSpec("page", "string",
-                                         "File name, e.g. collection-sheet.html",
+                                         "File name, e.g. collection-sheet.html. The example "
+                                         "and the snapshot pool name the page this plugin is "
+                                         "on, so a walk stays on its page; every kit page is "
+                                         "listed in tools/routes.json.",
                                          required=True, pattern=r"^[a-z0-9][a-z0-9.\-]{0,60}\.html$",
-                                         examples=["collection-sheet.html", "ecology.html"])]),
+                                         examples=[name or "collection-sheet.html"])]),
                 ActionSpec("reload",
                            "Reload whatever page is loaded, discarding its state. "
                            "A client backtracking through a key needs this and "
@@ -366,21 +409,24 @@ class PagePlugin(Plugin):
                            "NAVIGATE", []),
                 ActionSpec("show-pane", "Open the pane with this id by pressing its tab.",
                            "NAVIGATE",
-                           [ArgumentSpec("pane", "string", "Pane element id.",
-                                         required=True)]),
+                           [ArgumentSpec("pane", "string",
+                                         "Pane element id; the snapshot pool 'pane' lists this page's.",
+                                         required=True, examples=["log", "data", "setup"])]),
                 ActionSpec("set-text",
                            "Type a value into a text, number, date or textarea control.",
                            "DRAFT",
                            [ArgumentSpec("selector", "string", "Control selector from a snapshot, e.g. text_in:3", required=True, pattern=SEL_RE.pattern, examples=["dial_btn:2", "text_in:7"]),
                             ArgumentSpec("value", "string", "Value to enter.",
-                                         required=True)]),
+                                         required=True,
+                                         examples=["12", "3.5", "Quercus alba", "2026-06-01"])]),
                 ActionSpec("choose-option",
                            "Choose an option of a select box by value or visible label.",
                            "DRAFT",
                            [ArgumentSpec("selector", "string", "Selector of a select.", required=True, pattern=SEL_RE.pattern, examples=["dial_btn:2", "text_in:7"]),
                             ArgumentSpec("value", "string",
-                                         "Option value or its visible text.",
-                                         required=True)]),
+                                         "Option value or its visible text; the snapshot "
+                                         "pool choose-option.value lists the page's.",
+                                         required=True, examples=["1", "0"])]),
                 ActionSpec("set-slider", "Move a slider to a value.", "MUTATE",
                            [ArgumentSpec("selector", "string", "Selector of a slider.", required=True, pattern=SEL_RE.pattern, examples=["dial_btn:2", "text_in:7"]),
                             ArgumentSpec("value", "number", "Value within min and max.",
@@ -414,14 +460,16 @@ class PagePlugin(Plugin):
                             ArgumentSpec("files", "array",
                                          "Names of built-in fixture files: image, "
                                          "image2, pack, eco, csv, junk, video.",
-                                         required=True, items="string")]),
+                                         required=True, items="string",
+                                         enum=sorted(FIXTURES), examples=["image", "eco"])]),
                 ActionSpec("drop-files",
                            "Drop files onto a drop zone, dispatching the same "
                            "dragenter, dragover and drop a hand would.",
                            "DRAFT",
                            [ArgumentSpec("selector", "string", "Selector of a drop zone.", required=True, pattern=SEL_RE.pattern, examples=["dial_btn:2", "text_in:7"]),
                             ArgumentSpec("files", "array", "Fixture file names.",
-                                         required=True, items="string")]),
+                                         required=True, items="string",
+                                         enum=sorted(FIXTURES), examples=["image", "csv"])]),
                 ActionSpec("read-page",
                            "The whole visible state at once: rendered text, how "
                            "many fields hold something, which elements are "
@@ -454,10 +502,32 @@ class PagePlugin(Plugin):
         s["ready"] = True
         s["page"] = self.name
         s["sensitive"] = bool(sensitive)
+        s["argumentPools"] = self._pools(s)
         if not sensitive:
             s["redacted"] = ("entered values omitted; use read-control with "
                              "SENSITIVE_READ enabled")
         return s
+
+    def _pools(self, s):
+        """ADR-117: what a client holding only the manifest and this snapshot
+        can form a call from. Selectors are a fact of the moment (the widgets
+        rebuild), so they are published per action -- "set-text.selector" is
+        the text controls, "attach-file.selector" the file inputs -- plus the
+        plain "selector" pool of everything commandable. Panes, kit pages and
+        the page's own option values complete the set. Nothing here is a
+        value a user typed."""
+        # Commandable, and either visible now or inside a pane -- every action
+        # opens a control's pane before acting (_reach), so a control behind a
+        # tab is reachable; a control hidden any other way is not.
+        live = [c for c in s.get("controls", [])
+                if c.get("commandable") and (c.get("visible") or c.get("pane"))]
+        pools = {"selector": [c["selector"] for c in live],
+                 "pane": list(s.get("panes") or []),
+                 "page": [self.name] if self.name else kit_pages(),
+                 "choose-option.value": list(s.get("optionValues") or [])}
+        for action, kinds in POOL_KINDS.items():
+            pools[action + ".selector"] = [c["selector"] for c in live if c["kind"] in kinds]
+        return pools
 
     # -- execution ----------------------------------------------------------
     def execute(self, action, args):
@@ -525,6 +595,11 @@ class PagePlugin(Plugin):
             el = self.page.query_selector('[data-h="%s"]' % sel)
             if el is None:
                 raise NotFound("control %r is no longer on the page" % sel)
+            kind = el.evaluate("e => (e.tagName === 'INPUT' && e.type === 'file') ? (e.multiple ? 'multi' : 'single') : 'no'")
+            if kind == "no":
+                raise InvalidArgument("%s is not a file input" % sel)
+            if kind == "single" and len(files) > 1:
+                raise InvalidArgument("%s takes one file; %d were given" % (sel, len(files)))
             el.set_input_files([{"name": f["name"], "mimeType": f["type"],
                                  "buffer": base64.b64decode(f["b64"])}
                                 for f in files], timeout=H.ACT_TIMEOUT)
