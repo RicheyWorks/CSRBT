@@ -9,6 +9,8 @@ and 44px would wreck running prose).
 """
 import glob, os, sys
 from playwright.sync_api import sync_playwright
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+import audit_states as S
 
 # THE PATH WAS THE POLISH LOOP'S CLONE, NOT THIS CHECKOUT (ADR-106)
 #
@@ -26,6 +28,9 @@ from playwright.sync_api import sync_playwright
 # at nothing" must never again render as "nothing is wrong".
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 DOCS = os.path.join(ROOT, "docs") + os.sep
+# verify_audit_states runs this audit on a fixture directory whose faults are
+# known; the env var is that hook, and nothing else sets it.
+DOCS = (os.environ.get("CSRBT_DOCS_DIR") or DOCS).rstrip(os.sep) + os.sep
 pages=sorted(glob.glob(DOCS+"*.html"))
 if not pages:
     print("NO PAGES FOUND under %s -- refusing to report a clean audit of nothing" % DOCS)
@@ -46,28 +51,44 @@ with sync_playwright() as p:
             pg.goto("file://"+path, wait_until="domcontentloaded"); pg.wait_for_timeout(700)
         except Exception as e:
             rows.append((name,"LOAD FAIL",str(e)[:60])); continue
-        r=pg.evaluate("""()=>{const bad={};
+        # ADR-130: measured in every state of the page -- each tab pressed,
+        # every <details> open, the page-specific reveals -- and the controls no
+        # state exposed are named and counted as faults: an unmeasured control
+        # must not print as a good one.
+        PROBE = """()=>{const bad={};
           document.querySelectorAll('button,input,select,[role=button]').forEach(e=>{
             const bb=e.getBoundingClientRect();
             if(bb.width===0&&bb.height===0) return;
             if(e.type==='checkbox'||e.type==='radio') return;
             if(bb.height<44){
-              const k=e.tagName.toLowerCase()+(e.className?('.'+String(e.className).split(' ')[0]):'');
-              bad[k]=(bad[k]||0)+1;}});
-          return bad;}""")
-        n=sum(r.values())
+              const k=e.tagName.toLowerCase()+(e.className?('.'+String(e.className).split(' ')[0]):'')+'@'+(e.getAttribute('data-audit')||'');
+              bad[k]=1;}});
+          return bad;}"""
+        merged={}; nstates=0
+        for state, r in S.each_state(pg, name, lambda: pg.evaluate(PROBE)):
+            nstates+=1
+            for k in r: merged.setdefault(k, state)
+        r={}
+        for k, state in merged.items():
+            kk=k.split('@')[0]; r[kk]=r.get(kk,0)+1
+        cov=S.coverage(pg)
+        n=sum(r.values())+len(cov["never"])
         bad_total+=n
-        rows.append((name, n, r))
+        if cov["never"]: r["NEVER EXPOSED in %d states"%nstates]=cov["never"][:8]
+        rows.append((name, n, r, nstates, cov))
 
     b.close()
 
-print("%-30s %s" % ("PAGE","UNDER 44px"))
+print("%-30s %s" % ("PAGE","UNDER 44px (every state; controls no state exposed count too)"))
 print("-"*62)
-for name, n, detail in rows:
+for row in rows:
+    if len(row) == 3:
+        print("%-30s %s %s" % row); continue
+    name, n, detail, nstates, cov = row
     if n==0:
-        print("%-30s ok" % name)
+        print("%-30s ok   %d states, %d/%d controls measured" % (name, nstates, cov["exposed"], cov["exist"]))
     else:
-        print("%-30s %s   %s" % (name, n, detail))
+        print("%-30s %s   %s   (%d states, %d/%d measured)" % (name, n, detail, nstates, cov["exposed"], cov["exist"]))
 print("-"*62)
-print("total under 44px across the kit:", bad_total)
+print("total under 44px or never measured across the kit:", bad_total)
 sys.exit(1 if bad_total else 0)

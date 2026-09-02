@@ -21,13 +21,19 @@ What it deliberately does not flag:
     counted and reported separately rather than silently dropped, so a page that
     hides failures behind gradients still shows up.
 
+ADR-130: measured in every state of the page (tools/audit_states.py), not
+only as loaded -- text behind a closed tab had no box and was never measured.
+
 Run:  python3 tools/audit_contrast.py
 Exits non-zero if any fault is found, so it fails a build.
 """
 import glob, os, sys
 from playwright.sync_api import sync_playwright
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+import audit_states as S
 
 DOCS = os.path.normpath(os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "docs")) + os.sep
+DOCS = (os.environ.get("CSRBT_DOCS_DIR") or DOCS).rstrip(os.sep) + os.sep   # verify_audit_states's fixture hook
 
 PROBE = r"""
 () => {
@@ -131,7 +137,7 @@ def main():
     pages = sorted(glob.glob(DOCS + "*.html"))
     if not pages:
         print("no pages found under", DOCS); return 1
-    rows, tot_t, tot_n, tot_u = [], 0, 0, 0
+    rows, tot_t, tot_n, tot_u, tot_never = [], 0, 0, 0, 0
     with sync_playwright() as p:
         b = p.chromium.launch()
         pg = b.new_page(viewport={"width": 390, "height": 900})
@@ -143,13 +149,29 @@ def main():
             try:
                 pg.goto("file://" + path, wait_until="domcontentloaded")
                 pg.wait_for_timeout(600)
-                res = pg.evaluate(PROBE)
+                # ADR-130: every state of the page, the findings merged by their
+                # key (an element found under two tabs is one finding)
+                res = {"text": [], "nontext": [], "unknown": [], "states": 0}
+                keys = set()
+                for state, r in S.each_state(pg, nm, lambda: pg.evaluate(PROBE)):
+                    res["states"] += 1
+                    for bucket in ("text", "nontext"):
+                        for row in r[bucket]:
+                            k = (bucket, row[0], row[2], row[3], row[5])
+                            if k not in keys:
+                                keys.add(k); res[bucket].append(row)
+                    for u in r["unknown"]:
+                        if u not in res["unknown"]:
+                            res["unknown"].append(u)
+                res["coverage"] = S.coverage(pg)
             except Exception as exc:
                 rows.append((nm, None, str(exc)[:70])); continue
             t = sum(r[1] for r in res["text"])
             n = sum(r[1] for r in res["nontext"])
-            tot_t += t; tot_n += n; tot_u += len(res["unknown"])
-            rows.append((nm, t + n, res))
+            # ADR-130: a control no state exposed was measured in no state
+            never = len(res["coverage"]["never"])
+            tot_t += t; tot_n += n; tot_u += len(res["unknown"]); tot_never += never
+            rows.append((nm, t + n + never, res))
         b.close()
 
     print("%-30s %s" % ("PAGE", "AA FAILURES"))
@@ -157,10 +179,14 @@ def main():
     for nm, n, res in rows:
         if n is None:
             print("%-30s LOAD FAIL  %s" % (nm, res)); continue
+        cov = res.get("coverage", {"exposed": 0, "exist": 0, "never": []})
         if n == 0:
-            print("%-30s ok%s" % (nm, "   (%d over imagery, unmeasured)" % len(res["unknown"]) if res["unknown"] else ""))
+            print("%-30s ok   %d states, %d/%d controls measured%s" % (nm, res.get("states", 1), cov["exposed"], cov["exist"],
+                                              "   (%d over imagery, unmeasured)" % len(res["unknown"]) if res["unknown"] else ""))
             continue
         print("%-30s %d" % (nm, n))
+        for name in cov["never"]:
+            print("%-32s %-9s %s" % ("", "never", "never exposed in %d states: %s" % (res.get("states", 1), name)))
         for label, bucket in (("text", res["text"]), ("non-text", res["nontext"])):
             for sel, c, got, need, sample, extra in bucket:
                 print("%-32s %-9s %-22s %5.2f:1 need %.1f x%d  %r"
@@ -169,8 +195,9 @@ def main():
     print("%-26s %d" % ("text below AA:", tot_t))
     print("%-26s %d" % ("field borders below 3:1:", tot_n))
     print("%-26s %d" % ("unmeasured (over imagery):", tot_u))
-    print("%-26s %d" % ("total faults:", tot_t + tot_n))
-    return tot_t + tot_n
+    print("%-26s %d" % ("never exposed, unmeasured:", tot_never))
+    print("%-26s %d" % ("total faults:", tot_t + tot_n + tot_never))
+    return tot_t + tot_n + tot_never
 
 
 if __name__ == "__main__":

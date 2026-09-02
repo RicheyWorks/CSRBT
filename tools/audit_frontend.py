@@ -19,6 +19,7 @@ Run:  python3 tools/audit_frontend.py
 Exits non-zero if any HIGH finding is present.
 """
 import os, re, json, io, sys
+from collections import Counter
 from playwright.sync_api import sync_playwright
 
 ROOT = os.path.normpath(os.path.join(os.path.dirname(os.path.abspath(__file__)), ".."))
@@ -44,6 +45,51 @@ FETCHED = re.compile(
     r'[^>]*?\b(?:src|href|data|poster)\s*=\s*"(?P<u>https?://[^"]+)"', re.I)
 def F(sev, page, kind, detail):
     findings.append({"sev":sev,"page":page,"kind":kind,"detail":detail})
+
+
+# ---- CSS the browser threw away (ADR-130) ---------------------------------
+CSS_JS = r"""
+() => {
+  // every selector the CSSOM actually holds, at every nesting level
+  const out = [];
+  const walk = r => {
+    out.push(r.selectorText || r.keyText || (r.cssText || "").split("{")[0].trim());
+    if (r.cssRules) for (const k of r.cssRules) walk(k);
+  };
+  document.querySelectorAll("style").forEach(st => {
+    const sh = [...document.styleSheets].find(s => s.ownerNode === st);
+    if (!sh) return;
+    try { for (const r of sh.cssRules) walk(r); } catch (e) {}
+  });
+  return out;
+}
+"""
+
+# The rules Chromium drops ON PURPOSE: a pseudo-element written for another
+# engine. Everything else the source declares, the CSSOM must hold.
+_FOREIGN = ("::-moz-", "::-ms-")
+
+
+def css_selectors(src):
+    """Every rule the page's own <style> declares, in source order."""
+    out = []
+    for m in re.finditer(r"<style>([\s\S]*?)</style>", src):
+        text = re.sub(r"/\*[\s\S]*?\*/", "", m.group(1))
+        for sm in re.finditer(r"([^{}]*)\{", text):
+            sel = re.sub(r"\s+", " ", sm.group(1)).strip()
+            if sel and not any(f in sel for f in _FOREIGN):
+                out.append(sel)
+    return out
+
+
+def css_key(sel):
+    """One spelling for a selector the source wrote and the CSSOM gives back.
+    The CSSOM quotes attribute values and renames a keyframe's from/to; nothing
+    else about these sheets differs."""
+    k = re.sub(r"[\s\"\']", "", sel or "")
+    return {"from": "0%", "to": "100%"}.get(k, k)
+
+
 
 
 def IN_SCRIPT(src, i):
@@ -168,6 +214,32 @@ with sync_playwright() as pw:
                 F("HIGH", p, "load-failed", "%s @%s: %s" % (p,label,e)); ctx.close(); continue
             for e in errs: F("HIGH", p, "js-error@"+label, e)
             if label == "phone":
+                # ADR-130: CSS THE BROWSER THREW AWAY.
+                #
+                # Three pages carried an orphaned declaration block -- a rule
+                # whose selector line had been deleted with the widget it styled,
+                # leaving "padding:8px 6px; ... }" standing alone in the sheet.
+                # A browser recovering from that reads everything up to the NEXT
+                # "{" as one selector, so the block after it is eaten too: on
+                # deployment-log, ordination and releve the .tiles row lost its
+                # flex layout and nothing anywhere said so. Every audit in this
+                # kit measures what the browser painted, so a rule the browser
+                # never kept is invisible to all of them -- by construction.
+                #
+                # The test is a reconciliation, and it names names: every rule
+                # the source declares must come back from the CSSOM, once the
+                # rules Chromium drops ON PURPOSE are taken out (::-moz-, ::-ms-
+                # -- written for other engines). Anything else the sheet
+                # declares and the browser did not keep is dead CSS, reported by
+                # its selector.
+                kept = Counter(css_key(x) for x in pg.evaluate(CSS_JS))
+                for sel in css_selectors(SRC[p]):
+                    k = css_key(sel)
+                    if kept[k] > 0:
+                        kept[k] -= 1
+                        continue
+                    F("HIGH", p, "css-rule-dropped",
+                      "the browser kept no rule for %r -- it is in the sheet and it styles nothing" % sel[:80])
                 gone = pg.evaluate(
                     "(ids)=>ids.filter(i=>!document.getElementById(i))", ID_REFS.get(p, []))
                 # An id absent at load is not by itself a fault -- most of these
@@ -216,12 +288,11 @@ os.makedirs(os.path.join(ROOT, "build"), exist_ok=True)
 order={"HIGH":0,"MED":1,"LOW":2}
 findings.sort(key=lambda f:(order[f["sev"]], f["page"], f["kind"]))
 io.open(os.path.join(ROOT, "build", "frontend-findings.json"), "w", encoding="utf-8").write(json.dumps(findings,indent=1,ensure_ascii=False))
-from collections import Counter
 c=Counter(f["sev"] for f in findings)
 print("pages swept: %d   findings: HIGH=%d MED=%d LOW=%d\n" % (len(PAGES), c["HIGH"], c["MED"], c["LOW"]))
 for f in findings:
     print("[%s] %-28s %-26s %s" % (f["sev"], f["page"], f["kind"], f["detail"][:120]))
 
 print()
-print("%d/%d checks clear" % (len(PAGES) * 8 - c["HIGH"] - c["MED"], len(PAGES) * 8))
+print("%d/%d checks clear" % (len(PAGES) * 9 - c["HIGH"] - c["MED"], len(PAGES) * 9))
 sys.exit(1 if c["HIGH"] else 0)

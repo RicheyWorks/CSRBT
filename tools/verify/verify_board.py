@@ -68,7 +68,11 @@ E = L["ecosystem"]["engines"]
 ck(S["engine_tests"] == sum(e.get("tests", 0) for e in E.values()), "engine tests are the ecosystem ledger's: %d" % S["engine_tests"])
 
 # ---- 3. every runner has a row, and the row is its catalogue -------------------
-runners = sorted(f[:-3] for f in os.listdir(_kit.TOOLS_DIR) if re.match(r"mutate_[a-z]+\.py$", f))
+# [a-z_]+, not [a-z]+: mutate_audit_states.py (ADR-130) is a runner and the
+# old pattern did not match it, so the check compared a short list against a
+# complete one and blamed the board. A discovery rule that cannot see a file is
+# the same defect as an audit that cannot see a page.
+runners = sorted(f[:-3] for f in os.listdir(_kit.TOOLS_DIR) if re.match(r"mutate_[a-z_]+\.py$", f))
 ck(set(runners) == {r for r, _ in B.RUNNERS} and set(runners) <= set(M),
    "every mutant runner in tools/ is on the board and in the ledger: runners %s, ledger %s, board %s"
    % (runners, sorted(M), sorted(r for r, _ in B.RUNNERS)))

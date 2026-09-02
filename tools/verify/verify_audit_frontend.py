@@ -209,6 +209,29 @@ CASES = [
     ("unguarded localStorage is still caught", "food-web.html", "unguarded-localStorage", True,
      lambda s: s.replace("  render();\n})();",
                          "  localStorage.setItem('x','1');\n  render();\n})();", 1)),
+    # ---- CSS the browser threw away (ADR-130) ----
+    # The real defect, restaged: a rule's selector line deleted with the widget
+    # it styled, leaving its declarations standing alone. The browser reads on
+    # to the next "{" and eats the block after it too -- which is how
+    # deployment-log, ordination and releve lost .tiles with nothing saying so.
+    ("an orphaned declaration block is caught", "food-web.html", "css-rule-dropped", True,
+     lambda s: s.replace("  .tiles { display:flex;",
+                         "  padding:8px 6px; min-height:52px; }\n  .tiles { display:flex;", 1)),
+    ("a bad selector is caught", "food-web.html", "css-rule-dropped", True,
+     lambda s: s.replace("  .tile .l {", "  .tile ((( .l {", 1)),
+    # A pseudo-element written for another engine is dropped BY DESIGN, and the
+    # reconciliation must not call that a defect. Nor may an @media block, a
+    # keyframe or a quoted attribute value, which the CSSOM gives back in its
+    # own spelling.
+    ("a ::-moz- rule Chromium drops stays quiet", "food-web.html", "css-rule-dropped", False,
+     lambda s: s.replace("  .tiles { display:flex;",
+                         "  input[type=range]::-moz-range-thumb { border:0; }\n  .tiles { display:flex;", 1)),
+    ("an @media block, a keyframe and a quoted attribute stay quiet", "food-web.html", "css-rule-dropped", False,
+     lambda s: s.replace("  .tiles { display:flex;",
+                         "  @media (max-width:300px) { .tiles { gap:2px; } }\n"
+                         "  @keyframes canary { from { opacity:0; } to { opacity:1; } }\n"
+                         "  input[type=search] { color:inherit; }\n  .tiles { display:flex;", 1)),
+
     ("a JS error at load is still caught", "food-web.html", "js-error@phone", True,
      lambda s: s.replace("  render();\n})();", "  render(); notDefinedAnywhere();\n})();", 1)),
 ]

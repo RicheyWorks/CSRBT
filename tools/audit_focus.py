@@ -21,9 +21,12 @@ Exits non-zero if any fault is found, so it fails a build.
 """
 import glob, os, sys
 from playwright.sync_api import sync_playwright
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+import audit_states as S
 
 DOCS = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "docs")
 DOCS = os.path.normpath(DOCS) + os.sep
+DOCS = (os.environ.get("CSRBT_DOCS_DIR") or DOCS).rstrip(os.sep) + os.sep   # verify_audit_states's fixture hook
 
 PROBE = r"""
 () => {
@@ -101,7 +104,8 @@ PROBE = r"""
 FAULTS = [("invisible", "no visible focus"),
           ("unreachable", "not keyboard reachable"),
           ("unnamed", "no accessible name"),
-          ("tabindex", "positive tabindex")]
+          ("tabindex", "positive tabindex"),
+          ("never", "never exposed, so never measured")]
 
 
 def main():
@@ -121,7 +125,22 @@ def main():
             try:
                 pg.goto("file://" + path, wait_until="domcontentloaded")
                 pg.wait_for_timeout(600)
-                res = pg.evaluate(PROBE)
+                # ADR-130: every state of the page, findings merged by selector
+                res, nstates = {}, 0
+                for state, r in S.each_state(pg, nm, lambda: pg.evaluate(PROBE)):
+                    nstates += 1
+                    for k in r:
+                        have = dict(res.get(k, []))
+                        for sel, c in r[k]:
+                            have[sel] = max(have.get(sel, 0), c)
+                        res[k] = sorted(have.items())
+                res["states"] = nstates
+                # ADR-130: a control no state exposed had its focus checked in
+                # no state; that is a fault of the audit's reach, counted here
+                # so it cannot print as a pass
+                cov = S.coverage(pg)
+                res["never"] = [(nm_, 1) for nm_ in cov["never"]]
+                res["coverage"] = cov
             except Exception as exc:
                 rows.append((nm, None, str(exc)[:70])); continue
             n = 0
@@ -138,7 +157,8 @@ def main():
         if n is None:
             print("%-30s LOAD FAIL  %s" % (nm, res)); continue
         if n == 0:
-            print("%-30s ok" % nm); continue
+            cov = res.get("coverage", {})
+            print("%-30s ok   %d states, %d/%d controls measured" % (nm, res.get("states", 1), cov.get("exposed", 0), cov.get("exist", 0))); continue
         print("%-30s %d" % (nm, n))
         for k, label in FAULTS:
             for sel, c in res.get(k, []):
