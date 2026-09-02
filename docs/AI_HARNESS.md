@@ -275,7 +275,11 @@ python3 tools/harness_walk.py --target page --page all --rounds 3 --per-round 2 
 python3 tools/harness_tasks.py                       # every task: goals with graded expectations (ADR-125)
 python3 tools/harness_mcp.py --target organism --trace t.jsonl   # a host's session, recorded (ADR-126)
 python3 tools/harness_tasks.py --grade-trace all     # every trace under tools/traces, graded against its task
-python3 tools/verify/verify_tasks.py                 # 70 checks on the grammar, the grader, every task and trace; mutate_tasks.py 16/16
+python3 tools/harness_tasks.py --target page         # the 21 science tasks + the page canary: every data-entry page held to its oracle (ADR-128)
+python3 tools/verify/verify_tasks.py                 # 133 checks on the grammar, @control, the grader, every task and trace, the science; mutate_tasks.py 24/24
+python3 tools/verify/verify_report.py                # 30 checks on read-report, pick, the picker pool and the snapshot's naming; mutate_report.py 22/22
+python3 tools/harness_board.py                       # the Harness Board from every ledger (ADR-127); --check for drift
+python3 tools/verify/verify_board.py                 # 37 checks: the page is the ledgers, the ledgers agree
 python3 tools/verify/verify_walk.py                  # 120 checks on the robot, its ledger, the fixture, both transports, every page
 python3 tools/harness_walk.py --target fixture       # the target built to be walked (ADR-119)
 python3 tools/harness_walk.py --target all --transport mcp   # the same robot through the second transport (ADR-121)
@@ -289,6 +293,19 @@ python3 tools/ecosystem.py --read                    # every engine's JUnit resu
 python3 tools/verify/verify_ecosystem.py             # 56 checks: green, >= floor, unbuilt or stale = NOT VERIFIED; the Atlas == the ledger
 python3 tools/atlas.py                               # regenerate the Atlas's engine table from the ledger (ADR-120)
 ```
+
+ADR-128 gave the harness a reader and a picker: `read-report` returns a page's
+figures (by label and by box), boxes, tables and list counts; `pick` drives a
+FEK picker through its filter; a task names a control the page's way with
+`@control:<id | label | host>` (`rCov/4`, `iList/died#2`). Twenty-one science
+tasks — one per data-entry page — enter data and hold the report to a
+hand-checked oracle; a page canary is refuted; 1,316 expectations confirmed.
+
+ADR-127 gave the harness a readout: `tools/harness_board.py` renders the
+Harness Board from seven ledgers — the mutant runners now keep one too — and
+`verify_board` fails when the page and the ledgers disagree. Nothing on it is
+typed. First render: 4882 suite checks, 6893 commands walked, 8 tasks and 6
+traces held, 104 of 104 mutants killed, 1629 engine tests green.
 
 ADR-126 closed the pipeline once: the MCP server records a trace of what a
 host did, the task grader holds a trace to a task — required steps in order,

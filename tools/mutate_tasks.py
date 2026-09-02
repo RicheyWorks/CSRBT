@@ -86,6 +86,42 @@ MUTANTS += [
      "records every call"),
 ]
 
+MUTANTS += [
+    # ADR-128: a page control by the page's own name
+    ("@control is not a reference: the name is passed as the selector",
+     '    if isinstance(value, str) and value.startswith("@control:"):\n        return find_control(value[len("@control:"):], done, where)',
+     '    if False:\n        return find_control(value[len("@control:"):], done, where)',
+     "an id wins over a control merely labelled"),
+    ("a label beats an id",
+     '        for key in ("id", "label", "host"):',
+     '        for key in ("label", "id", "host"):',
+     "an id wins over a control merely labelled"),
+    ("host/label scoping ignores the host",
+     '        hits = [c for c in controls if c.get("host") == host and c.get("label") == label and c.get("selector")]',
+     '        hits = [c for c in controls if c.get("label") == label and c.get("selector")]',
+     "host/label scopes"),
+    ("#n is ignored: the first match is always taken",
+     '    return hits[nth]["selector"]',
+     '    return hits[0]["selector"]',
+     "#n is the nth match"),
+    ("a trailing #n is not parsed",
+     '    m = re.match(r"^(.*)#(\\d+)$", name)          # a trailing #n is the nth match; "season #" is a label',
+     '    m = None',
+     "#n is the nth match"),
+    ("a control nothing matches resolves to None",
+     '    if nth >= len(hits):\n        raise TaskDefect("%s: no control named %r%s in the latest snapshot"\n                         % (where, name, " (match #%d of %d)" % (nth, len(hits)) if hits or nth else ""))',
+     '    if nth >= len(hits):\n        return None',
+     "a control nothing matches is a task DEFECT"),
+    ("@control before any snapshot searches nothing instead of objecting",
+     '    if controls is None:\n        raise TaskDefect("%s: @control:%s before any step observed the page" % (where, name))',
+     '    if controls is None:\n        controls = []',
+     "before any step carried a snapshot"),
+    ("the FIRST snapshot is resolved against, not the latest",
+     '    for r in reversed(list(done.values())):',
+     '    for r in list(done.values()):',
+     "LATEST snapshot"),
+]
+
 KNOWN_EQUIVALENT = []
 
 
@@ -132,13 +168,17 @@ def main(argv):
     print("mutation testing the task runner against verify_tasks (quick) -- %d mutant(s), %d known equivalent\n"
           % (len(MUTANTS), len(KNOWN_EQUIVALENT)))
     survived = bad = 0
+    rows = []
     for name, find, repl, expect in MUTANTS:
         verdict, detail = run_one(find, repl, expect)
         print("  %-9s %-56s %s" % (verdict, name, detail[:60]))
+        rows.append({"name": name, "verdict": verdict, "detail": detail})
         if verdict == "SURVIVED":
             survived += 1
         elif verdict != "killed":
             bad += 1
+    import mutant_ledger
+    mutant_ledger.record("mutate_tasks", rows, KNOWN_EQUIVALENT)
     print("\n%d killed, %d survived, %d inconclusive, %d equivalent (recorded)"
           % (len(MUTANTS) - survived - bad, survived, bad, len(KNOWN_EQUIVALENT)))
     return 1 if (survived or bad) else 0

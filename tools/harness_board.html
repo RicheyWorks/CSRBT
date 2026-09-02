@@ -1,0 +1,200 @@
+<title>Harness Board</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400;12..96,600;12..96,800&family=IBM+Plex+Mono:wght@400;500;600&family=Source+Serif+4:opsz,wght@8..60,400;8..60,600&display=swap">
+<style>
+  :root {
+    --ground: #F5F3EF; --panel: #FDFCFA; --ink: #26231F; --muted: #6E675E; --line: #DDD8D0;
+    --ember: #C4501B; --ember-soft: #F3E2D6; --seam: #5E7C8A; --good: #3E7A45; --good-soft: #E4EFE5;
+    --bad: #A83232; --bad-soft: #F4DEDE; --na: #8A8378;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --ground: #191613; --panel: #211D18; --ink: #EAE4DA; --muted: #9A9186; --line: #3A342C;
+      --ember: #E0672E; --ember-soft: #33241A; --seam: #7FA0AF; --good: #6FAE76; --good-soft: #1F2E21;
+      --bad: #C96A6A; --bad-soft: #3A2222; --na: #8A8378;
+    }
+  }
+  :root[data-theme="dark"] {
+    --ground: #191613; --panel: #211D18; --ink: #EAE4DA; --muted: #9A9186; --line: #3A342C;
+    --ember: #E0672E; --ember-soft: #33241A; --seam: #7FA0AF; --good: #6FAE76; --good-soft: #1F2E21;
+    --bad: #C96A6A; --bad-soft: #3A2222; --na: #8A8378;
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--ground); color: var(--ink); font-family: "Source Serif 4", Georgia, serif; font-size: 16px; line-height: 1.5; }
+  .wrap { max-width: 1100px; margin: 0 auto; padding: 44px 24px 80px; }
+  h1, h2 { font-family: "Bricolage Grotesque", "Arial Black", sans-serif; text-wrap: balance; margin: 0; }
+  h1 { font-size: clamp(2.2rem, 5vw, 3.4rem); font-weight: 800; line-height: 1.02; letter-spacing: -0.015em; }
+  h2 { font-size: 1.35rem; font-weight: 800; }
+  .mono, td.num, .pname, .pnum, .ename, .floor { font-family: "IBM Plex Mono", ui-monospace, monospace; }
+  .eyebrow { font-family: "IBM Plex Mono", monospace; font-size: 0.72rem; letter-spacing: 0.14em; text-transform: uppercase; color: var(--ember); font-weight: 600; }
+  .hero .lede { font-size: 1.02rem; max-width: 66ch; color: var(--muted); margin: 12px 0 0; }
+  .verdict { display: inline-block; margin-top: 16px; font-family: "Bricolage Grotesque", sans-serif; font-weight: 600; padding: 6px 12px; border-radius: 3px; border: 1px solid; }
+  .verdict.good { color: var(--good); border-color: var(--good); background: var(--good-soft); }
+  .verdict.bad { color: var(--bad); border-color: var(--bad); background: var(--bad-soft); }
+  section { margin-top: 44px; }
+  .sec-head { display: flex; align-items: baseline; gap: 14px; flex-wrap: wrap; border-bottom: 2px solid var(--ink); padding-bottom: 8px; margin-bottom: 14px; }
+  .sec-head .count { font-family: "IBM Plex Mono", monospace; color: var(--muted); font-size: 0.82rem; }
+  .stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(190px, 1fr)); gap: 12px; }
+  .stat { background: var(--panel); border: 1px solid var(--line); border-top: 3px solid var(--ember); border-radius: 3px; padding: 14px 16px 12px; }
+  .stat .big { font-family: "Bricolage Grotesque", sans-serif; font-weight: 800; font-size: 1.9rem; line-height: 1; color: var(--ember); font-variant-numeric: tabular-nums; }
+  .stat .what { font-family: "IBM Plex Mono", monospace; font-size: 0.7rem; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); margin-top: 8px; }
+  .stat p { margin: 6px 0 0; font-size: 0.84rem; color: var(--muted); }
+  table { width: 100%; border-collapse: collapse; font-size: 0.9rem; }
+  .tablewrap { overflow-x: auto; background: var(--panel); border: 1px solid var(--line); border-radius: 3px; }
+  th { font-family: "IBM Plex Mono", monospace; font-size: 0.68rem; letter-spacing: 0.1em; text-transform: uppercase; color: var(--muted); text-align: left; padding: 9px 11px; border-bottom: 2px solid var(--line); white-space: nowrap; }
+  td { padding: 8px 11px; border-bottom: 1px solid var(--line); vertical-align: baseline; }
+  tr:last-child td { border-bottom: none; }
+  td.num { font-variant-numeric: tabular-nums; white-space: nowrap; text-align: right; }
+  td.dim { color: var(--muted); font-size: 0.8rem; }
+  .role { color: var(--muted); font-size: 0.86rem; }
+  .pill { display: inline-block; font-family: "IBM Plex Mono", monospace; font-size: 0.72rem; padding: 1px 7px; border-radius: 2px; border: 1px solid var(--line); white-space: nowrap; }
+  .pill.good { color: var(--good); border-color: var(--good); background: var(--good-soft); }
+  .pill.bad { color: var(--bad); border-color: var(--bad); background: var(--bad-soft); }
+  .pill.na { color: var(--na); }
+  .note { font-size: 0.86rem; color: var(--muted); max-width: 80ch; margin: 10px 0 0; }
+  .pages { display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 6px; }
+  .page { display: flex; flex-direction: column; gap: 2px; background: var(--panel); border: 1px solid var(--line); border-left: 3px solid var(--good); border-radius: 2px; padding: 7px 10px; }
+  .page.bad { border-left-color: var(--bad); }
+  .pname { font-size: 0.8rem; font-weight: 600; }
+  .pnum { font-size: 0.7rem; color: var(--muted); }
+  .engines { display: grid; grid-template-columns: repeat(auto-fill, minmax(230px, 1fr)); gap: 6px; }
+  .engine { display: flex; align-items: baseline; gap: 10px; background: var(--panel); border: 1px solid var(--line); border-radius: 2px; padding: 7px 10px; }
+  .ename { font-size: 0.82rem; font-weight: 600; flex: 1; }
+  .floor { font-size: 0.7rem; color: var(--muted); }
+  footer { margin-top: 56px; border-top: 2px solid var(--ink); padding-top: 12px; font-size: 0.82rem; color: var(--muted); display: flex; flex-wrap: wrap; gap: 8px 24px; }
+  footer .mono { font-size: 0.76rem; }
+  @media (prefers-reduced-motion: reduce) { * { animation: none !important; transition: none !important; } }
+</style>
+<div class="wrap">
+<header class="hero"><div class="eyebrow">CSRBT · the automation harness · every ledger, rendered</div><h1>Harness Board</h1><p class="lede">What the harness can currently vouch for, read from its own ledgers and never typed: the suites, the robot's walks of every target and every page, the tasks and the traces graded against them, the mutant runners, and the fourteen engines' own suites. A number here that disagrees with a ledger fails <span class="mono">verify_board</span>.</p><div class="verdict good">Everything the harness knows how to check is green.</div></header>
+<section><div class="stats">
+<div class="stat"><div class="big">5020 / 5020</div><div class="what">suite checks passing</div><p>68 suites, 68 green, no holes; the audits are run_all&#x27;s</p></div>
+<div class="stat"><div class="big">7481</div><div class="what">commands walked</div><p>3 targets × 2 transports, 41 pages</p></div>
+<div class="stat"><div class="big">30 / 30</div><div class="what">tasks held</div><p>6 / 6 traces held, 1437 expectations confirmed</p></div>
+<div class="stat"><div class="big">134 / 134</div><div class="what">mutants killed</div><p>0 survived, 0 inconclusive, 8 recorded equivalent</p></div>
+<div class="stat"><div class="big">1629</div><div class="what">engine tests</div><p>15 suites, 0 failures</p></div>
+</div></section>
+<section><div class="sec-head"><h2>The harness suites</h2><span class="count">11 of the kit's 68 suites</span></div><div class="tablewrap"><table><thead><tr><th>suite</th><th>what it holds</th><th>checks</th><th>holes</th><th>scored</th></tr></thead><tbody>
+<tr><td class="mono">verify_contract</td><td class="role">the gateway contract: policy, replay, arguments, redaction</td><td class="num"><span class="pill good">89 / 89</span></td><td class="num">—</td><td class="num dim">2026-09-02 14:31</td></tr>
+<tr><td class="mono">verify_organism</td><td class="role">the organism through the gateway: one oracle per engine</td><td class="num"><span class="pill good">317 / 317</span></td><td class="num">—</td><td class="num dim">2026-09-02 14:31</td></tr>
+<tr><td class="mono">verify_lab</td><td class="role">the science engine: the shipped protocol reproduced</td><td class="num"><span class="pill good">35 / 35</span></td><td class="num">—</td><td class="num dim">2026-09-02 14:31</td></tr>
+<tr><td class="mono">verify_mcp</td><td class="role">the second transport decides nothing</td><td class="num"><span class="pill good">34 / 34</span></td><td class="num">—</td><td class="num dim">2026-09-02 14:31</td></tr>
+<tr><td class="mono">verify_walk</td><td class="role">the robot, every target, both transports, every page</td><td class="num"><span class="pill good">121 / 121</span></td><td class="num">—</td><td class="num dim">2026-09-02 14:31</td></tr>
+<tr><td class="mono">verify_tasks</td><td class="role">goals with graded expectations; traces held to them; the science tasks</td><td class="num"><span class="pill good">133 / 133</span></td><td class="num">—</td><td class="num dim">2026-09-02 14:31</td></tr>
+<tr><td class="mono">verify_report</td><td class="role">the page reader: every figure, the right option, every control named</td><td class="num"><span class="pill good">30 / 30</span></td><td class="num">—</td><td class="num dim">2026-09-02 14:31</td></tr>
+<tr><td class="mono">verify_ecosystem</td><td class="role">the engines&#x27; own suites, ratcheted; the Atlas</td><td class="num"><span class="pill good">56 / 56</span></td><td class="num">—</td><td class="num dim">2026-09-02 14:31</td></tr>
+<tr><td class="mono">verify_engine_sessions</td><td class="role">shipped sessions bound to the engine</td><td class="num"><span class="pill good">26 / 26</span></td><td class="num">—</td><td class="num dim">2026-09-02 14:31</td></tr>
+<tr><td class="mono">verify_harness</td><td class="role">the swarm&#x27;s driver over the kit&#x27;s pages</td><td class="num"><span class="pill good">28 / 28</span></td><td class="num">—</td><td class="num dim">2026-09-02 14:31</td></tr>
+<tr><td class="mono">verify_harness_matrix</td><td class="role">the swarm&#x27;s verdicts mean something</td><td class="num"><span class="pill good">71 / 71</span></td><td class="num">—</td><td class="num dim">2026-09-02 14:31</td></tr>
+</tbody></table></div><p class="note">The other 57 suites are the kit's pages' own; <span class="mono">run_all</span> scores them all and writes <span class="mono">counts.json</span>.</p></section>
+<section><div class="sec-head"><h2>The robot's walks</h2><span class="count">from the manifest alone · commands == driven + refused + declined + chaos + failed</span></div><div class="tablewrap"><table><thead><tr><th>target</th><th>transport</th><th>tools</th><th>driven</th><th>refused</th><th>declined</th><th>chaos</th><th>failed</th><th>unreachable</th><th>broken</th><th>snapshot ms</th><th>verdict</th></tr></thead><tbody>
+<tr><td class="mono">csrbt-lab</td><td class="mono">stdio</td><td class="num">9</td><td class="num">204</td><td class="num">12</td><td class="num">0</td><td class="num">0</td><td class="num">0</td><td class="num">0</td><td class="num">0</td><td class="num">0</td><td><span class="pill good">holds</span></td></tr>
+<tr><td class="mono">csrbt-lab</td><td class="mono">mcp</td><td class="num">9</td><td class="num">204</td><td class="num">12</td><td class="num">0</td><td class="num">0</td><td class="num">0</td><td class="num">0</td><td class="num">0</td><td class="num">0</td><td><span class="pill good">holds</span></td></tr>
+<tr><td class="mono">csrbt-organism</td><td class="mono">stdio</td><td class="num">35</td><td class="num">895</td><td class="num">59</td><td class="num">0</td><td class="num">2</td><td class="num">0</td><td class="num">0</td><td class="num">0</td><td class="num">0</td><td><span class="pill good">holds</span></td></tr>
+<tr><td class="mono">csrbt-organism</td><td class="mono">mcp</td><td class="num">35</td><td class="num">895</td><td class="num">59</td><td class="num">0</td><td class="num">2</td><td class="num">0</td><td class="num">0</td><td class="num">0</td><td class="num">0</td><td><span class="pill good">holds</span></td></tr>
+<tr><td class="mono">csrbt-page</td><td class="mono">stdio</td><td class="num">17</td><td class="num">294</td><td class="num">122</td><td class="num">0</td><td class="num">0</td><td class="num">0</td><td class="num">4</td><td class="num">0</td><td class="num">95</td><td><span class="pill good">holds</span></td></tr>
+<tr><td class="mono">csrbt-page</td><td class="mono">mcp</td><td class="num">17</td><td class="num">294</td><td class="num">122</td><td class="num">0</td><td class="num">0</td><td class="num">0</td><td class="num">4</td><td class="num">0</td><td class="num">96</td><td><span class="pill good">holds</span></td></tr>
+</tbody></table></div></section>
+<section><div class="sec-head"><h2>Every page</h2><span class="count">41 routed pages · 41 walked</span></div><div class="pages">
+<div class="page "><span class="pname">adr-031.html</span><span class="pnum">45 driven · 60 refused · 10 unreachable</span></div>
+<div class="page "><span class="pname">breeding-bench.html</span><span class="pnum">80 driven · 25 refused · 4 unreachable</span></div>
+<div class="page "><span class="pname">breeding-suite.html</span><span class="pnum">42 driven · 63 refused · 10 unreachable</span></div>
+<div class="page "><span class="pname">cell-bench.html</span><span class="pnum">72 driven · 33 refused · 5 unreachable</span></div>
+<div class="page "><span class="pname">collection-sheet.html</span><span class="pnum">75 driven · 30 refused · 4 unreachable</span></div>
+<div class="page "><span class="pname">cp-bench.html</span><span class="pnum">73 driven · 32 refused · 5 unreachable</span></div>
+<div class="page "><span class="pname">cp-characters.html</span><span class="pnum">49 driven · 56 refused · 9 unreachable</span></div>
+<div class="page "><span class="pname">cp-suite.html</span><span class="pnum">42 driven · 63 refused · 10 unreachable</span></div>
+<div class="page "><span class="pname">deployment-log.html</span><span class="pnum">73 driven · 32 refused · 5 unreachable</span></div>
+<div class="page "><span class="pname">douglas-explorer.html</span><span class="pnum">43 driven · 62 refused · 10 unreachable</span></div>
+<div class="page "><span class="pname">eco-protocol-library.html</span><span class="pnum">49 driven · 56 refused · 9 unreachable</span></div>
+<div class="page "><span class="pname">eco-protocol-reference.html</span><span class="pnum">44 driven · 61 refused · 9 unreachable</span></div>
+<div class="page "><span class="pname">ecology-essay.html</span><span class="pnum">42 driven · 63 refused · 10 unreachable</span></div>
+<div class="page "><span class="pname">ecology-field-card.html</span><span class="pnum">45 driven · 60 refused · 10 unreachable</span></div>
+<div class="page "><span class="pname">ecology-field-guide.html</span><span class="pnum">44 driven · 61 refused · 9 unreachable</span></div>
+<div class="page "><span class="pname">ecology-glossary.html</span><span class="pnum">43 driven · 62 refused · 10 unreachable</span></div>
+<div class="page "><span class="pname">ecology-lab-manual.html</span><span class="pnum">44 driven · 61 refused · 9 unreachable</span></div>
+<div class="page "><span class="pname">ecology-lab.html</span><span class="pnum">68 driven · 37 refused · 6 unreachable</span></div>
+<div class="page "><span class="pname">ecology-teachers-guide.html</span><span class="pnum">42 driven · 63 refused · 10 unreachable</span></div>
+<div class="page "><span class="pname">ecology.html</span><span class="pnum">42 driven · 63 refused · 10 unreachable</span></div>
+<div class="page "><span class="pname">ethogram.html</span><span class="pnum">71 driven · 34 refused · 5 unreachable</span></div>
+<div class="page "><span class="pname">experiment-guide.html</span><span class="pnum">81 driven · 24 refused · 3 unreachable</span></div>
+<div class="page "><span class="pname">farm-scout.html</span><span class="pnum">70 driven · 35 refused · 5 unreachable</span></div>
+<div class="page "><span class="pname">field-notebook.html</span><span class="pnum">65 driven · 40 refused · 6 unreachable</span></div>
+<div class="page "><span class="pname">field-season.html</span><span class="pnum">53 driven · 52 refused · 8 unreachable</span></div>
+<div class="page "><span class="pname">food-web.html</span><span class="pnum">56 driven · 49 refused · 8 unreachable</span></div>
+<div class="page "><span class="pname">fungal-characters.html</span><span class="pnum">51 driven · 54 refused · 9 unreachable</span></div>
+<div class="page "><span class="pname">greenhouse.html</span><span class="pnum">74 driven · 31 refused · 5 unreachable</span></div>
+<div class="page "><span class="pname">micro-bench.html</span><span class="pnum">66 driven · 39 refused · 6 unreachable</span></div>
+<div class="page "><span class="pname">ordination.html</span><span class="pnum">67 driven · 38 refused · 6 unreachable</span></div>
+<div class="page "><span class="pname">pheno-tracker.html</span><span class="pnum">62 driven · 43 refused · 6 unreachable</span></div>
+<div class="page "><span class="pname">plant-characters.html</span><span class="pnum">49 driven · 56 refused · 9 unreachable</span></div>
+<div class="page "><span class="pname">releve.html</span><span class="pnum">79 driven · 26 refused · 4 unreachable</span></div>
+<div class="page "><span class="pname">selection-log.html</span><span class="pnum">61 driven · 44 refused · 7 unreachable</span></div>
+<div class="page "><span class="pname">soil-bench.html</span><span class="pnum">74 driven · 31 refused · 5 unreachable</span></div>
+<div class="page "><span class="pname">soil-recipes.html</span><span class="pnum">50 driven · 55 refused · 9 unreachable</span></div>
+<div class="page "><span class="pname">soil-suite.html</span><span class="pnum">42 driven · 63 refused · 10 unreachable</span></div>
+<div class="page "><span class="pname">stand-sheet.html</span><span class="pnum">90 driven · 15 refused · 2 unreachable</span></div>
+<div class="page "><span class="pname">survey-design.html</span><span class="pnum">62 driven · 43 refused · 7 unreachable</span></div>
+<div class="page "><span class="pname">tree-proofs.html</span><span class="pnum">54 driven · 51 refused · 8 unreachable</span></div>
+<div class="page "><span class="pname">tree-visualizer.html</span><span class="pnum">57 driven · 48 refused · 8 unreachable</span></div>
+</div><p class="note">Unreachable is a fact about the page — a guide offers few controls, a bench nearly all fifteen — and never a hole. A red page failed the walk's bar.</p></section>
+<section><div class="sec-head"><h2>Tasks and traces</h2><span class="count">goals with graded expectations</span></div><div class="tablewrap"><table><thead><tr><th>task</th><th>target</th><th>run</th><th>confirmed</th><th>trace</th><th>calls for steps</th></tr></thead><tbody>
+<tr><td class="mono">fixture-buckets</td><td class="mono">fixture</td><td><span class="pill good">PASS</span></td><td class="num">10</td><td><span class="pill na">no trace</span></td><td class="num">—</td></tr>
+<tr><td class="mono">fixture-canary</td><td class="mono">fixture</td><td><span class="pill good">FAIL · must FAIL</span></td><td class="num">2</td><td><span class="pill na">no trace</span></td><td class="num">—</td></tr>
+<tr><td class="mono">lab-run-shipped-protocol</td><td class="mono">lab</td><td><span class="pill good">PASS</span></td><td class="num">8</td><td><span class="pill good">PASS</span></td><td class="num">3 for 2</td></tr>
+<tr><td class="mono">organism-cold-recovery</td><td class="mono">organism</td><td><span class="pill good">PASS</span></td><td class="num">13</td><td><span class="pill good">PASS</span></td><td class="num">13 for 7</td></tr>
+<tr><td class="mono">organism-crash-road</td><td class="mono">organism</td><td><span class="pill good">PASS</span></td><td class="num">17</td><td><span class="pill good">PASS</span></td><td class="num">8 for 8</td></tr>
+<tr><td class="mono">organism-preserve-cold-scan</td><td class="mono">organism</td><td><span class="pill good">PASS</span></td><td class="num">14</td><td><span class="pill good">PASS</span></td><td class="num">7 for 6</td></tr>
+<tr><td class="mono">organism-replica-behind</td><td class="mono">organism</td><td><span class="pill good">PASS</span></td><td class="num">8</td><td><span class="pill good">PASS</span></td><td class="num">11 for 9</td></tr>
+<tr><td class="mono">page-breeding-bench-science</td><td class="mono">page</td><td><span class="pill good">PASS</span></td><td class="num">97</td><td><span class="pill na">no trace</span></td><td class="num">—</td></tr>
+<tr><td class="mono">page-cell-bench-science</td><td class="mono">page</td><td><span class="pill good">PASS</span></td><td class="num">76</td><td><span class="pill na">no trace</span></td><td class="num">—</td></tr>
+<tr><td class="mono">page-collection-sheet-canary</td><td class="mono">page</td><td><span class="pill good">FAIL · must FAIL</span></td><td class="num">9</td><td><span class="pill na">no trace</span></td><td class="num">—</td></tr>
+<tr><td class="mono">page-collection-sheet-science</td><td class="mono">page</td><td><span class="pill good">PASS</span></td><td class="num">52</td><td><span class="pill na">no trace</span></td><td class="num">—</td></tr>
+<tr><td class="mono">page-cp-bench-science</td><td class="mono">page</td><td><span class="pill good">PASS</span></td><td class="num">85</td><td><span class="pill na">no trace</span></td><td class="num">—</td></tr>
+<tr><td class="mono">page-deployment-log-science</td><td class="mono">page</td><td><span class="pill good">PASS</span></td><td class="num">137</td><td><span class="pill na">no trace</span></td><td class="num">—</td></tr>
+<tr><td class="mono">page-enter-and-read-back</td><td class="mono">page</td><td><span class="pill good">PASS</span></td><td class="num">10</td><td><span class="pill good">PASS</span></td><td class="num">3 for 3</td></tr>
+<tr><td class="mono">page-ethogram-kappa</td><td class="mono">page</td><td><span class="pill good">PASS</span></td><td class="num">27</td><td><span class="pill na">no trace</span></td><td class="num">—</td></tr>
+<tr><td class="mono">page-experiment-guide-design</td><td class="mono">page</td><td><span class="pill good">PASS</span></td><td class="num">52</td><td><span class="pill na">no trace</span></td><td class="num">—</td></tr>
+<tr><td class="mono">page-farm-scout-science</td><td class="mono">page</td><td><span class="pill good">PASS</span></td><td class="num">68</td><td><span class="pill na">no trace</span></td><td class="num">—</td></tr>
+<tr><td class="mono">page-field-notebook-science</td><td class="mono">page</td><td><span class="pill good">PASS</span></td><td class="num">64</td><td><span class="pill na">no trace</span></td><td class="num">—</td></tr>
+<tr><td class="mono">page-field-season-replay</td><td class="mono">page</td><td><span class="pill good">PASS</span></td><td class="num">35</td><td><span class="pill na">no trace</span></td><td class="num">—</td></tr>
+<tr><td class="mono">page-food-web-science</td><td class="mono">page</td><td><span class="pill good">PASS</span></td><td class="num">32</td><td><span class="pill na">no trace</span></td><td class="num">—</td></tr>
+<tr><td class="mono">page-greenhouse-science</td><td class="mono">page</td><td><span class="pill good">PASS</span></td><td class="num">38</td><td><span class="pill na">no trace</span></td><td class="num">—</td></tr>
+<tr><td class="mono">page-micro-bench-science</td><td class="mono">page</td><td><span class="pill good">PASS</span></td><td class="num">74</td><td><span class="pill na">no trace</span></td><td class="num">—</td></tr>
+<tr><td class="mono">page-ordination-science</td><td class="mono">page</td><td><span class="pill good">PASS</span></td><td class="num">54</td><td><span class="pill na">no trace</span></td><td class="num">—</td></tr>
+<tr><td class="mono">page-pheno-tracker-science</td><td class="mono">page</td><td><span class="pill good">PASS</span></td><td class="num">77</td><td><span class="pill na">no trace</span></td><td class="num">—</td></tr>
+<tr><td class="mono">page-releve-science</td><td class="mono">page</td><td><span class="pill good">PASS</span></td><td class="num">45</td><td><span class="pill na">no trace</span></td><td class="num">—</td></tr>
+<tr><td class="mono">page-selection-log-science</td><td class="mono">page</td><td><span class="pill good">PASS</span></td><td class="num">70</td><td><span class="pill na">no trace</span></td><td class="num">—</td></tr>
+<tr><td class="mono">page-soil-bench-science</td><td class="mono">page</td><td><span class="pill good">PASS</span></td><td class="num">66</td><td><span class="pill na">no trace</span></td><td class="num">—</td></tr>
+<tr><td class="mono">page-soil-recipes-scaling</td><td class="mono">page</td><td><span class="pill good">PASS</span></td><td class="num">40</td><td><span class="pill na">no trace</span></td><td class="num">—</td></tr>
+<tr><td class="mono">page-stand-sheet-science</td><td class="mono">page</td><td><span class="pill good">PASS</span></td><td class="num">56</td><td><span class="pill na">no trace</span></td><td class="num">—</td></tr>
+<tr><td class="mono">page-survey-design-science</td><td class="mono">page</td><td><span class="pill good">PASS</span></td><td class="num">49</td><td><span class="pill na">no trace</span></td><td class="num">—</td></tr>
+</tbody></table></div><p class="note">A run follows the task's steps through the gateway. A trace is what an operator given only the goal did through the MCP door, held to the same expectations; its economy is calls made for required steps.</p></section>
+<section><div class="sec-head"><h2>The mutant runners</h2><span class="count">each instrument, broken on purpose</span></div><div class="tablewrap"><table><thead><tr><th>runner</th><th>breaks</th><th>mutants</th><th>killed</th><th>survived</th><th>inconclusive</th><th>equivalent</th><th>run</th></tr></thead><tbody>
+<tr><td class="mono">mutate_organism</td><td class="role">the organism plugin and console</td><td class="num">31</td><td class="num"><span class="pill good">31</span></td><td class="num">0</td><td class="num">0</td><td class="num">4</td><td class="num dim">2026-09-02 11:06</td></tr>
+<tr><td class="mono">mutate_lab</td><td class="role">the lab plugin and console</td><td class="num">9</td><td class="num"><span class="pill good">9</span></td><td class="num">0</td><td class="num">0</td><td class="num">1</td><td class="num dim">2026-09-02 11:02</td></tr>
+<tr><td class="mono">mutate_mcp</td><td class="role">the MCP transport</td><td class="num">7</td><td class="num"><span class="pill good">7</span></td><td class="num">0</td><td class="num">0</td><td class="num">1</td><td class="num dim">2026-09-02 11:01</td></tr>
+<tr><td class="mono">mutate_walk</td><td class="role">the robot</td><td class="num">26</td><td class="num"><span class="pill good">26</span></td><td class="num">0</td><td class="num">0</td><td class="num">2</td><td class="num dim">2026-09-02 11:01</td></tr>
+<tr><td class="mono">mutate_tasks</td><td class="role">the task runner and grader</td><td class="num">24</td><td class="num"><span class="pill good">24</span></td><td class="num">0</td><td class="num">0</td><td class="num">0</td><td class="num dim">2026-09-02 14:20</td></tr>
+<tr><td class="mono">mutate_report</td><td class="role">the page reader, picker and naming</td><td class="num">22</td><td class="num"><span class="pill good">22</span></td><td class="num">0</td><td class="num">0</td><td class="num">0</td><td class="num dim">2026-09-02 13:15</td></tr>
+<tr><td class="mono">mutate_harness</td><td class="role">the swarm&#x27;s driver</td><td class="num">15</td><td class="num"><span class="pill good">15</span></td><td class="num">0</td><td class="num">0</td><td class="num">0</td><td class="num dim">2026-09-02 11:18</td></tr>
+</tbody></table></div></section>
+<section><div class="sec-head"><h2>The engines' own suites</h2><span class="count">JUnit, read by <span class="mono">tools/ecosystem.py</span></span></div><div class="engines">
+<div class="engine"><span class="ename">csrbt-core</span><span class="pill good">877 ✓</span><span class="floor">floor 877</span></div>
+<div class="engine"><span class="ename">SuperBeefSort</span><span class="pill good">318 ✓</span><span class="floor">floor 318</span></div>
+<div class="engine"><span class="ename">csrbt-experimental</span><span class="pill good">257 ✓</span><span class="floor">floor 257</span></div>
+<div class="engine"><span class="ename">SmokeHouse</span><span class="pill good">82 ✓</span><span class="floor">floor 82</span></div>
+<div class="engine"><span class="ename">WholeHog</span><span class="pill good">21 ✓</span><span class="floor">floor 21</span></div>
+<div class="engine"><span class="ename">SmokeSignal</span><span class="pill good">14 ✓</span><span class="floor">floor 14</span></div>
+<div class="engine"><span class="ename">DryAge</span><span class="pill good">10 ✓</span><span class="floor">floor 10</span></div>
+<div class="engine"><span class="ename">Carver</span><span class="pill good">9 ✓</span><span class="floor">floor 9</span></div>
+<div class="engine"><span class="ename">Twine</span><span class="pill good">8 ✓</span><span class="floor">floor 8</span></div>
+<div class="engine"><span class="ename">Sizzle</span><span class="pill good">7 ✓</span><span class="floor">floor 7</span></div>
+<div class="engine"><span class="ename">Renderer</span><span class="pill good">6 ✓</span><span class="floor">floor 6</span></div>
+<div class="engine"><span class="ename">Rub</span><span class="pill good">6 ✓</span><span class="floor">floor 6</span></div>
+<div class="engine"><span class="ename">Brine</span><span class="pill good">5 ✓</span><span class="floor">floor 5</span></div>
+<div class="engine"><span class="ename">Jerky</span><span class="pill good">5 ✓</span><span class="floor">floor 5</span></div>
+<div class="engine"><span class="ename">PitBoss</span><span class="pill good">4 ✓</span><span class="floor">floor 4</span></div>
+</div></section>
+<footer><span>Rendered from the ledgers by <span class="mono">tools/harness_board.py</span>: <span class="mono">counts.json</span>, <span class="mono">walk_ledger.json</span>, <span class="mono">task_ledger.json</span>, <span class="mono">mutant_ledger.json</span>, <span class="mono">ecosystem_ledger.json</span>, <span class="mono">routes.json</span>; newest reading 2026-09-02 14:31.</span><span class="mono">nothing here was typed.</span></footer>
+</div>

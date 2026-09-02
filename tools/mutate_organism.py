@@ -261,13 +261,17 @@ def main(argv):
     print("mutation testing the organism plugin and console against verify_organism -- "
           "%d mutant(s), %d known equivalent\n" % (len(MUTANTS), len(KNOWN_EQUIVALENT)))
     survived = bad = 0
+    rows = []
     for target, name, find, repl, expect in MUTANTS:
         verdict, detail = run_one(target, find, repl, expect, cp)
         print("  %-9s %-8s %-52s %s" % (verdict, target, name, detail[:60]))
+        rows.append({"name": name, "verdict": verdict, "detail": detail})
         if verdict == "SURVIVED":
             survived += 1
         elif verdict != "killed":
             bad += 1
+    import mutant_ledger
+    mutant_ledger.record("mutate_organism", rows, KNOWN_EQUIVALENT)
     print("\n%d killed, %d survived, %d inconclusive, %d equivalent (recorded)"
           % (len(MUTANTS) - survived - bad, survived, bad, len(KNOWN_EQUIVALENT)))
     if survived:

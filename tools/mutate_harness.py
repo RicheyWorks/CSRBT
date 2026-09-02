@@ -143,13 +143,17 @@ def main(argv):
 
     print("mutation testing tools/harness.py against its matrix -- %d mutant(s)\n" % len(MUTANTS))
     survived = bad = 0
+    rows = []
     for name, find, repl, expect in MUTANTS:
         verdict, detail = run_one(name, find, repl, expect)
         print("  %-9s %-52s %s" % (verdict, name, detail[:60]))
+        rows.append({"name": name, "verdict": verdict, "detail": detail})
         if verdict == "SURVIVED":
             survived += 1
         elif verdict != "killed":
             bad += 1
+    import mutant_ledger
+    mutant_ledger.record("mutate_harness", rows, ())
     print("\n%d killed, %d survived, %d inconclusive" % (len(MUTANTS) - survived - bad, survived, bad))
     if survived:
         print("A SURVIVING MUTANT IS THE FINDING: the harness can be broken that way and "

@@ -103,6 +103,19 @@ def noisy(out):
     return [l.rstrip() for l in out.strip().split("\n") if NOISE.match(l.rstrip())]
 
 
+def render_board(when):
+    """tools/harness_board.py, if it is there: the board follows the ledgers."""
+    script = os.path.join(TOOLS, "harness_board.py")
+    if not os.path.isfile(script):
+        return
+    try:
+        p = subprocess.run([sys.executable, script], capture_output=True, text=True, timeout=120, cwd=ROOT)
+        if p.returncode != 0:
+            print("the board could not be rendered %s: %s" % (when, (p.stderr or p.stdout).strip()[-200:]))
+    except Exception as e:
+        print("the board could not be rendered %s: %s" % (when, e))
+
+
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--audits", action="store_true", help="audits only")
@@ -122,6 +135,11 @@ def main():
         for path in sorted(glob.glob(os.path.join(HERE, "verify_*.py"))):
             jobs.append(("suite", os.path.basename(path)[:-3], "", path, HERE))
 
+    # ADR-127: the board is rendered from the ledgers before the suites run
+    # (so verify_board holds it against what the ledgers say NOW, not against
+    # the last render) and again after counts.json is written (so the committed
+    # board is this run's). A run is the one thing that changes counts.json.
+    render_board("before the run")
     if not jobs:
         print("nothing to run"); return 1
 
@@ -299,6 +317,7 @@ def main():
                      ", %d kept from earlier runs" % kept if kept > 0 else ""))
         except OSError as e:
             print("could not write counts.json: %s" % e)
+        render_board("after the run")
 
     if failed:
         print()

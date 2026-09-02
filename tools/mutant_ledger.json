@@ -1,0 +1,788 @@
+{
+ "_comment": "Written by the mutant runners through tools/mutant_ledger.py. One entry per runner; a run updates only its own entry and keeps the rest, each with its own at.",
+ "runners": {
+  "mutate_harness": {
+   "at": 1788347888,
+   "equivalent": 0,
+   "equivalents": [],
+   "inconclusive": 0,
+   "killed": 15,
+   "mutants": 15,
+   "rows": [
+    {
+     "detail": "1 failure(s); first: FAIL  A2 chip          is discovered   got: ['action_btn', ",
+     "name": "discovery drops a widget kind",
+     "verdict": "killed"
+    },
+    {
+     "detail": "1 failure(s); first: FAIL  A2 tab           is discovered   got: ['action_btn', ",
+     "name": "discovery drops the tab kind",
+     "verdict": "killed"
+    },
+    {
+     "detail": "2 failure(s); first: FAIL  D1: NaN reaching the page is reported   got: []",
+     "name": "junk detector never fires",
+     "verdict": "killed"
+    },
+    {
+     "detail": "1 failure(s); first: FAIL  D4: a row spilling out of a 390px phone is reported, ",
+     "name": "spill check disabled",
+     "verdict": "killed"
+    },
+    {
+     "detail": "1 failure(s); first: FAIL  D3: two panes visible at once is reported   got: []",
+     "name": "pane-count invariant disabled",
+     "verdict": "killed"
+    },
+    {
+     "detail": "2 failure(s); first: FAIL  B5: a control the harness's own setup removed lands i",
+     "name": "sequencing artifacts folded back into dead",
+     "verdict": "killed"
+    },
+    {
+     "detail": "1 failure(s); first: FAIL  C storage  counts as an observable trace   got: ([], ",
+     "name": "localStorage is no longer an observable trace",
+     "verdict": "killed"
+    },
+    {
+     "detail": "1 failure(s); first: FAIL  C class    counts as an observable trace   got: ([], ",
+     "name": "the .on fingerprint stops distinguishing which things are on",
+     "verdict": "killed"
+    },
+    {
+     "detail": "5 failure(s); first: FAIL  B3 hidden: a control in a pane no tab reveals   got: ",
+     "name": "a control invisible with its own pane open is counted as driven",
+     "verdict": "killed"
+    },
+    {
+     "detail": "3 failure(s); first: FAIL  K1: a control in a collapsed disclosure is hidden, no",
+     "name": "discovery goes back to its own visibility test, disagreeing with the driver",
+     "verdict": "killed"
+    },
+    {
+     "detail": "1 failure(s); first: FAIL  K2: and the reason names the disclosure, not the page",
+     "name": "a collapsed disclosure is no longer told apart from a hidden control",
+     "verdict": "killed"
+    },
+    {
+     "detail": "4 failure(s); first: FAIL  J1: a control that needs prior state is driven, not c",
+     "name": "the second chance never runs",
+     "verdict": "killed"
+    },
+    {
+     "detail": "1 failure(s); first: FAIL  J3b: the retry REBUILDS state -- it does not merely i",
+     "name": "the second chance does not rebuild state before retrying",
+     "verdict": "killed"
+    },
+    {
+     "detail": "1 failure(s); first: FAIL  J2: and it is recorded as having needed that state   ",
+     "name": "a revived control is not recorded as having needed prior state",
+     "verdict": "killed"
+    },
+    {
+     "detail": "4 failure(s); first: FAIL  A1: the accounting identity holds on a page of every ",
+     "name": "the accounting loses a bucket",
+     "verdict": "killed"
+    }
+   ],
+   "survived": 0
+  },
+  "mutate_lab": {
+   "at": 1788346951,
+   "equivalent": 1,
+   "equivalents": [
+    {
+     "name": "the plugin's own dwc: check is removed",
+     "why": "the console refuses the same line with the same code before parsing; the suite sees invalid_argument either way (measured 2026-09-01: 0 failures)"
+    }
+   ],
+   "inconclusive": 0,
+   "killed": 9,
+   "mutants": 9,
+   "rows": [
+    {
+     "detail": "2 failure(s); first: six confirmed, one refuted -- the one the protocol says is ",
+     "name": "verdicts are all counted as CONFIRMED",
+     "verdict": "killed"
+    },
+    {
+     "detail": "2 failure(s); first: the lab stands up, counts nothing yet, names its workloads,",
+     "name": "the protocol's name is shown under every policy",
+     "verdict": "killed"
+    },
+    {
+     "detail": "1 failure(s); first: the bundle is written into the plugin's scratch: 9 files",
+     "name": "exports land beside the operator's files instead of in scratch",
+     "verdict": "killed"
+    },
+    {
+     "detail": "2 failure(s); first: and by the console itself, so a client that reaches around ",
+     "name": "the console stops refusing dwc: lines",
+     "verdict": "killed"
+    },
+    {
+     "detail": "1 failure(s); first: lint counts what is declared and names the malformed line: ",
+     "name": "lint swallows the problems",
+     "verdict": "killed"
+    },
+    {
+     "detail": "1 failure(s); first: and a different seed is a different workload",
+     "name": "the arena ignores its seed",
+     "verdict": "killed"
+    },
+    {
+     "detail": "1 failure(s); first: the morph log has 1 entries in op order",
+     "name": "the morph log is never reported",
+     "verdict": "killed"
+    },
+    {
+     "detail": "4 failure(s); first: the shipped protocol run through the gateway produces the s",
+     "name": "run returns the wrong session",
+     "verdict": "killed"
+    },
+    {
+     "detail": "1 failure(s); first: the exported session is on disk and equals the run's",
+     "name": "export writes nothing",
+     "verdict": "killed"
+    }
+   ],
+   "survived": 0
+  },
+  "mutate_mcp": {
+   "at": 1788346912,
+   "equivalent": 1,
+   "equivalents": [
+    {
+     "name": "the resource URI shape is not checked",
+     "why": "the registry refuses an unknown plugin id with not_found, so a foreign URI ends in the same -32602 either way (measured 2026-09-01: 0 failures)"
+    }
+   ],
+   "inconclusive": 0,
+   "killed": 7,
+   "mutants": 7,
+   "rows": [
+    {
+     "detail": "1 failure(s); first: a target that ran and said no is isError, not a protocol er",
+     "name": "a target's no is never isError",
+     "verdict": "killed"
+    },
+    {
+     "detail": "1 failure(s); first: tools/list lists exactly what the policy allows, in manifes",
+     "name": "tools/list lists what the policy does not allow",
+     "verdict": "killed"
+    },
+    {
+     "detail": "3 failure(s); first: the body prices the action and the snapshot separately and ",
+     "name": "every call gets a fresh request id, so a retry writes twice",
+     "verdict": "killed"
+    },
+    {
+     "detail": "1 failure(s); first: risk is published as MCP annotations: read-only unless it c",
+     "name": "every tool is annotated read-only",
+     "verdict": "killed"
+    },
+    {
+     "detail": "2 failure(s); first: a notification is accepted with silence",
+     "name": "notifications are answered",
+     "verdict": "killed"
+    },
+    {
+     "detail": "1 failure(s); first: a tool the policy hid is not callable by name, and never re",
+     "name": "a tool that is not listed runs anyway",
+     "verdict": "killed"
+    },
+    {
+     "detail": "1 failure(s); first: every tool carries _meta with the contract's own plugin id,",
+     "name": "tools drop their _meta, so a client must guess the action from the slug",
+     "verdict": "killed"
+    }
+   ],
+   "survived": 0
+  },
+  "mutate_organism": {
+   "at": 1788347195,
+   "equivalent": 4,
+   "equivalents": [
+    {
+     "name": "the plugin's own _cap() stops bounding the range cap",
+     "why": "since ADR-114 the bound is published in the schema and the gateway refuses cap > 200 before execute() runs; _cap() is the target-side second line (killed under ADR-112, equivalent from ADR-114 on -- measured: 0 failures)"
+    },
+    {
+     "name": "the plugin's batch-op regex accepts anything",
+     "why": "the console refuses 'zap 3' with invalid_argument before the journal sees it; the suite observes the same code either way (measured 2026-09-01: 0 failures)"
+    },
+    {
+     "name": "the plugin's order-arg check is removed",
+     "why": "the console refuses 'order median 3' (3 is not a route) and 'order rank' (no key) with invalid_argument itself; same code either way (ADR-113, reasoned not run: identical shape to the batch-op case)"
+    },
+    {
+     "name": "replica-get reads the primary",
+     "why": "after quiesce the replica and the primary agree by construction, and the suite cannot hold the replica behind the primary without a Sizzle.slow seam on the replication tail, which the organism does not expose (ADR-113, held)"
+    }
+   ],
+   "inconclusive": 0,
+   "killed": 31,
+   "mutants": 31,
+   "rows": [
+    {
+     "detail": "2 failure(s); first: every response carries a snapshot, redacted under the same ",
+     "name": "a plain snapshot leaks the record sample",
+     "verdict": "killed"
+    },
+    {
+     "detail": "2 failure(s); first: a put that names no route goes direct, and the wire's meter",
+     "name": "a put that names no route goes over the wire",
+     "verdict": "killed"
+    },
+    {
+     "detail": "1 failure(s); first: every bounded integer publishes its bound in the manifest (",
+     "name": "the manifest stops publishing the range cap's bound",
+     "verdict": "killed"
+    },
+    {
+     "detail": "1 failure(s); first: a killed console is reported unavailable in 0.0s, not as th",
+     "name": "a dead console is reported as the target failing",
+     "verdict": "killed"
+    },
+    {
+     "detail": "1 failure(s); first: the reader learns of the death from the pump's sentinel in ",
+     "name": "the pump dies without telling the reader",
+     "verdict": "killed"
+    },
+    {
+     "detail": "3 failure(s); first: count-range agrees with the mirror on 12 random windows: [(",
+     "name": "count-range is off by one",
+     "verdict": "killed"
+    },
+    {
+     "detail": "9 failure(s); first: delete 66 via direct reports existed=True, mirror says Fals",
+     "name": "delete always claims the key existed",
+     "verdict": "killed"
+    },
+    {
+     "detail": "1 failure(s); first: the sensitive sample is capped, says so, and its median is ",
+     "name": "the sensitive sample ignores its cap",
+     "verdict": "killed"
+    },
+    {
+     "detail": "1 failure(s); first: the store moved on (91) and the archive still reads the mom",
+     "name": "cold-scan reports the live store instead of the archive",
+     "verdict": "killed"
+    },
+    {
+     "detail": "1 failure(s); first: the wire and the journal metered exactly the traffic sent t",
+     "name": "a wire put quietly goes direct",
+     "verdict": "killed"
+    },
+    {
+     "detail": "20 failure(s); first: delete 105 via wire reports existed=False, mirror says Tru",
+     "name": "a batch is built and never committed",
+     "verdict": "killed"
+    },
+    {
+     "detail": "2 failure(s); first: a full range over the wire is the same records in the same ",
+     "name": "reads drop their route and always go direct",
+     "verdict": "killed"
+    },
+    {
+     "detail": "3 failure(s); first: exactly the eight actions that change what is on disk are M",
+     "name": "restart is relabelled MUTATE",
+     "verdict": "killed"
+    },
+    {
+     "detail": "2 failure(s); first: everything that returns a key, a value or an aggregate over",
+     "name": "groups is relabelled READ, leaking the histogram under the default policy",
+     "verdict": "killed"
+    },
+    {
+     "detail": "1 failure(s); first: median is the lower median of the sorted mirror (2)",
+     "name": "median answers the first key",
+     "verdict": "killed"
+    },
+    {
+     "detail": "1 failure(s); first: overlap agrees with brute force on 6 random spans: [(104, 1",
+     "name": "overlap runs a stab",
+     "verdict": "killed"
+    },
+    {
+     "detail": "1 failure(s); first: the second read is a cache hit under champion SLRU(2/10,p1)",
+     "name": "the cache reports a hit when the store answered",
+     "verdict": "killed"
+    },
+    {
+     "detail": "2 failure(s); first: as-of reads the frozen moment for a key changed since: (2, ",
+     "name": "as-of reads the live store instead of the aged view",
+     "verdict": "killed"
+    },
+    {
+     "detail": "1 failure(s); first: a batch while the crashed one is still applying is a CONFLI",
+     "name": "a wedged Twine is reported as the organism failing",
+     "verdict": "killed"
+    },
+    {
+     "detail": "2 failure(s); first: a span with start > end is invalid_argument OVER THE WIRE t",
+     "name": "a span with start > end is not checked before the route",
+     "verdict": "killed"
+    },
+    {
+     "detail": "1 failure(s); first: the snapshot publishes the generations that exist right now",
+     "name": "the snapshot stops publishing the generation pool",
+     "verdict": "killed"
+    },
+    {
+     "detail": "6 failure(s); first: a three-op batch crashes at op 2 and the snapshot counts on",
+     "name": "restart ignores its plan",
+     "verdict": "killed"
+    },
+    {
+     "detail": "2 failure(s); first: restart with a replica lag reopens the store with the feed ",
+     "name": "restart lets the feed go whatever lag was asked for",
+     "verdict": "killed"
+    },
+    {
+     "detail": "2 failure(s); first: restart with a replica lag reopens the store with the feed ",
+     "name": "the plugin never passes the replica lag to the console",
+     "verdict": "killed"
+    },
+    {
+     "detail": "1 failure(s); first: six writes later the fleet reports the replica BEHIND and n",
+     "name": "the fleet always reports lag 0",
+     "verdict": "killed"
+    },
+    {
+     "detail": "4 failure(s); first: a cold restart dies without the checkpoint (and the compact",
+     "name": "a cold restart closes cleanly after all",
+     "verdict": "killed"
+    },
+    {
+     "detail": "4 failure(s); first: a cold restart dies without the checkpoint (and the compact",
+     "name": "the plugin never passes how to the console",
+     "verdict": "killed"
+    },
+    {
+     "detail": "2 failure(s); first: after a clean restart the report says: checkpoint used, not",
+     "name": "the recovery report always says sorted",
+     "verdict": "killed"
+    },
+    {
+     "detail": "1 failure(s); first: and a scoped pool per bound pair (range, count-range, overl",
+     "name": "the bound-pair pools are not published",
+     "verdict": "killed"
+    },
+    {
+     "detail": "1 failure(s); first: jvm reads the process: 0 threads by name, 43 descriptors, 7",
+     "name": "jvm reports no thread names",
+     "verdict": "killed"
+    },
+    {
+     "detail": "1 failure(s); first: compact reclaimed EXACTLY the closed segments' garbage: 835",
+     "name": "compact reports every dead byte as reclaimed",
+     "verdict": "killed"
+    }
+   ],
+   "survived": 0
+  },
+  "mutate_report": {
+   "at": 1788354944,
+   "equivalent": 0,
+   "equivalents": [],
+   "inconclusive": 0,
+   "killed": 22,
+   "mutants": 22,
+   "rows": [
+    {
+     "detail": "4 failure(s); first: a .tile and a .stat .st are both figures: the .l/.v pair is",
+     "name": "figures are only .tile again",
+     "verdict": "killed"
+    },
+    {
+     "detail": "1 failure(s); first: flat figures: the first label wins and a second carries #2:",
+     "name": "a second label overwrites the first in the flat map",
+     "verdict": "killed"
+    },
+    {
+     "detail": "1 failure(s); first: and by the box: a label is a fact of its box: {}",
+     "name": "figures are not kept by their box",
+     "verdict": "killed"
+    },
+    {
+     "detail": "1 failure(s); first: the same label twice in one box keeps both: {'collections':",
+     "name": "the same label twice in a box keeps one",
+     "verdict": "killed"
+    },
+    {
+     "detail": "1 failure(s); first: a <small> unit inside the value is spaced off: '38.9mol/m\u00b2/",
+     "name": "a <small> unit is glued to the value",
+     "verdict": "killed"
+    },
+    {
+     "detail": "2 failure(s); first: boxes follow the kit's naming -- an*, *Out, *Box, *Stat, *M",
+     "name": "boxes are the old five prefixes only",
+     "verdict": "killed"
+    },
+    {
+     "detail": "2 failure(s); first: and nothing outside the conventions: ['anBox', 'cList', 'cN",
+     "name": "every identified element is a box",
+     "verdict": "killed"
+    },
+    {
+     "detail": "3 failure(s); first: boxes follow the kit's naming -- an*, *Out, *Box, *Stat, *M",
+     "name": "a box behind a closed tab is dropped again",
+     "verdict": "killed"
+    },
+    {
+     "detail": "3 failure(s); first: a box behind a closed tab is read, and which boxes a reader",
+     "name": "every box is reported shown",
+     "verdict": "killed"
+    },
+    {
+     "detail": "1 failure(s); first: every table's cells, by its host: {}",
+     "name": "tables are not read",
+     "verdict": "killed"
+    },
+    {
+     "detail": "1 failure(s); first: every .row2 list is counted under its parent: {'#cList': 1}",
+     "name": "lists are not counted",
+     "verdict": "killed"
+    },
+    {
+     "detail": "2 failure(s); first: an exact label wins over the longer one it prefixes, listed",
+     "name": "pick takes the first option whatever the value",
+     "verdict": "killed"
+    },
+    {
+     "detail": "2 failure(s); first: a fragment the filter narrows to one option takes that one ",
+     "name": "pick never takes the sole option the filter left",
+     "verdict": "killed"
+    },
+    {
+     "detail": "1 failure(s); first: an exact label wins over the longer one it prefixes, listed",
+     "name": "pick matches the sub-line as the label",
+     "verdict": "killed"
+    },
+    {
+     "detail": "1 failure(s); first: a prefix, case-insensitively, takes the option it starts ev",
+     "name": "a prefix is not a match",
+     "verdict": "killed"
+    },
+    {
+     "detail": "1 failure(s); first: two options left is a guess and is refused as ambiguous, na",
+     "name": "no match and ambiguous are the same refusal",
+     "verdict": "killed"
+    },
+    {
+     "detail": "1 failure(s); first: the snapshot publishes each picker's option labels as an ar",
+     "name": "a picker's options are not published as a pool",
+     "verdict": "killed"
+    },
+    {
+     "detail": "1 failure(s); first: the snapshot publishes each picker's option labels as an ar",
+     "name": "the pool carries the sub-line in the label",
+     "verdict": "killed"
+    },
+    {
+     "detail": "1 failure(s); first: a plain input keeps its id",
+     "name": "a control carries no id",
+     "verdict": "killed"
+    },
+    {
+     "detail": "3 failure(s); first: a dial option is labelled by its <span>, not by its text ru",
+     "name": "a control's host is its pane, not its nearest identified ancestor",
+     "verdict": "killed"
+    },
+    {
+     "detail": "1 failure(s); first: a dial option is labelled by its <span>, not by its text ru",
+     "name": "a dial option is labelled by its whole text",
+     "verdict": "killed"
+    },
+    {
+     "detail": "1 failure(s); first: a behaviour key is labelled by its .nm child: ['forageF']",
+     "name": "a behaviour key is labelled by its whole text",
+     "verdict": "killed"
+    }
+   ],
+   "survived": 0
+  },
+  "mutate_tasks": {
+   "at": 1788358820,
+   "equivalent": 0,
+   "equivalents": [],
+   "inconclusive": 0,
+   "killed": 24,
+   "mutants": 24,
+   "rows": [
+    {
+     "detail": "4 failure(s); first: every operator grades, a reference grades as its value, a m",
+     "name": "every expectation is CONFIRMED",
+     "verdict": "killed"
+    },
+    {
+     "detail": "2 failure(s); first: every operator grades, a reference grades as its value, a m",
+     "name": "an operator expectation is always CONFIRMED",
+     "verdict": "killed"
+    },
+    {
+     "detail": "1 failure(s); first: the canary is REFUTED at its second step, stops there, and ",
+     "name": "a REFUTED expectation does not fail the task",
+     "verdict": "killed"
+    },
+    {
+     "detail": "2 failure(s); first: an unresolvable reference was tolerated: $a.output.none",
+     "name": "a bad reference resolves to None instead of a DEFECT",
+     "verdict": "killed"
+    },
+    {
+     "detail": "1 failure(s); first: a step that FAILS with no expectation about it is the targe",
+     "name": "an unexpected failure does not end the task",
+     "verdict": "killed"
+    },
+    {
+     "detail": "1 failure(s); first: the canary is REFUTED at its second step, stops there, and ",
+     "name": "must is ignored: every PASS is held",
+     "verdict": "killed"
+    },
+    {
+     "detail": "2 failure(s); first: every operator grades, a reference grades as its value, a m",
+     "name": "a missing path counts as present",
+     "verdict": "killed"
+    },
+    {
+     "detail": "1 failure(s); first: a dotted path splits on dots, and an escaped dot stays in i",
+     "name": "escaped dots are not unescaped",
+     "verdict": "killed"
+    },
+    {
+     "detail": "1 failure(s); first: a target that goes away mid-task is a DEFECT (unavailable),",
+     "name": "a target that went away is a failed step, not a DEFECT",
+     "verdict": "killed"
+    },
+    {
+     "detail": "1 failure(s); first: each step's result is its bucket: {'r': 'driven', 'd': 'dec",
+     "name": "the result buckets are mislabelled: a refusal is driven",
+     "verdict": "killed"
+    },
+    {
+     "detail": "2 failure(s); first: order is order: a required put after the count has no ok:tr",
+     "name": "a trace step is satisfied by any call with its action, expectations unread",
+     "verdict": "killed"
+    },
+    {
+     "detail": "1 failure(s); first: order is order: a required put after the count has no ok:tr",
+     "name": "order is not order: a required step may match an earlier call",
+     "verdict": "killed"
+    },
+    {
+     "detail": "1 failure(s); first: a probe never takes a call a required step needs (the first",
+     "name": "one call may satisfy two steps",
+     "verdict": "killed"
+    },
+    {
+     "detail": "1 failure(s); first: a failure the step did not ask for never satisfies it, even",
+     "name": "a failure the step did not ask for satisfies it",
+     "verdict": "killed"
+    },
+    {
+     "detail": "4 failure(s); first: a step no call satisfies is UNMET and fails the task: no ca",
+     "name": "an UNMET required step does not fail the trace",
+     "verdict": "killed"
+    },
+    {
+     "detail": "1 failure(s); first: the MCP server records every call -- refusals included -- a",
+     "name": "the MCP server records nothing",
+     "verdict": "killed"
+    },
+    {
+     "detail": "10 failure(s); first: an id wins over a control merely labelled with that name, ",
+     "name": "@control is not a reference: the name is passed as the selector",
+     "verdict": "killed"
+    },
+    {
+     "detail": "1 failure(s); first: an id wins over a control merely labelled with that name, w",
+     "name": "a label beats an id",
+     "verdict": "killed"
+    },
+    {
+     "detail": "1 failure(s); first: host/label scopes a label every dial shares to one dial",
+     "name": "host/label scoping ignores the host",
+     "verdict": "killed"
+    },
+    {
+     "detail": "1 failure(s); first: #n is the nth match in document order: action_btn:7",
+     "name": "#n is ignored: the first match is always taken",
+     "verdict": "killed"
+    },
+    {
+     "detail": "1 failure(s); first: #n is the nth match in document order: DEFECT: t: no contro",
+     "name": "a trailing #n is not parsed",
+     "verdict": "killed"
+    },
+    {
+     "detail": "3 failure(s); first: a control nothing matches is a task DEFECT, not a refusal: ",
+     "name": "a control nothing matches resolves to None",
+     "verdict": "killed"
+    },
+    {
+     "detail": "1 failure(s); first: @control before any step carried a snapshot is a DEFECT: DE",
+     "name": "@control before any snapshot searches nothing instead of objecting",
+     "verdict": "killed"
+    },
+    {
+     "detail": "1 failure(s); first: the LATEST snapshot is the one resolved against -- the widg",
+     "name": "the FIRST snapshot is resolved against, not the latest",
+     "verdict": "killed"
+    }
+   ],
+   "survived": 0
+  },
+  "mutate_walk": {
+   "at": 1788346912,
+   "equivalent": 2,
+   "equivalents": [
+    {
+     "name": "accounted is set to commands instead of summed from the rows",
+     "why": "every execute adds one to exactly one row of exactly one tool, so the sum of the rows IS the command count unless the walk crashes; the identity is a tripwire for a bucket added without a row, not a runtime measurement (measured 2026-09-02: 0 failures)"
+    },
+    {
+     "name": "the plain-pool 70% becomes 100%",
+     "why": "the fixture publishes only scoped pools and the suite's plain-pool check asks only that the pool is used sometimes (measured 2026-09-02: 0 failures); a walk of a page would still pass"
+    }
+   ],
+   "inconclusive": 0,
+   "killed": 26,
+   "mutants": 26,
+   "rows": [
+    {
+     "detail": "4 failure(s); first: fixture: a target defending itself is REFUSED, never driven",
+     "name": "a refusal is filed as driven",
+     "verdict": "killed"
+    },
+    {
+     "detail": "3 failure(s); first: fixture: ok:false with no code is DECLINED: {'driven': 0, '",
+     "name": "a decline is filed as failed",
+     "verdict": "killed"
+    },
+    {
+     "detail": "3 failure(s); first: fixture: a raise naming a Crash under an armed plan is CHAO",
+     "name": "chaos is never recognised",
+     "verdict": "killed"
+    },
+    {
+     "detail": "3 failure(s); first: fixture: a raise with no Crash in it is FAILED -- the findi",
+     "name": "any raise under an armed plan is chaos, Crash or not",
+     "verdict": "killed"
+    },
+    {
+     "detail": "1 failure(s); first: fixture: every failure is noted by action and message, and ",
+     "name": "failures are not noted",
+     "verdict": "killed"
+    },
+    {
+     "detail": "5 failure(s); first: a pool scoped to the action is used every time: the target ",
+     "name": "a scoped pool is not preferred",
+     "verdict": "killed"
+    },
+    {
+     "detail": "3 failure(s); first: fixture: a pool the target rotates on every call is re-read",
+     "name": "pools are not refreshed from each response",
+     "verdict": "killed"
+    },
+    {
+     "detail": "2 failure(s); first: an array of patterned strings is one to three examples, one",
+     "name": "arrays are never one item first",
+     "verdict": "killed"
+    },
+    {
+     "detail": "2 failure(s); first: fixture: undriven names exactly the tools that answered but",
+     "name": "an unschemable tool is skipped without being named",
+     "verdict": "killed"
+    },
+    {
+     "detail": "2 failure(s); first: fixture: a target that went away was walked to the end as i",
+     "name": "a target that went away is walked on",
+     "verdict": "killed"
+    },
+    {
+     "detail": "1 failure(s); first: fixture: the cross-check ran every round and reported the f",
+     "name": "the cross-checks never run",
+     "verdict": "killed"
+    },
+    {
+     "detail": "2 failure(s); first: fixture: a tool whose scoped pool was published empty throu",
+     "name": "unreachable is never reported",
+     "verdict": "killed"
+    },
+    {
+     "detail": "2 failure(s); first: fixture: a tool whose scoped pool was published empty throu",
+     "name": "unreachable ignores whether anything was driven",
+     "verdict": "killed"
+    },
+    {
+     "detail": "3 failure(s); first: the pools a required argument would draw from are found sco",
+     "name": "relevant pools are looked up plain, never scoped",
+     "verdict": "killed"
+    },
+    {
+     "detail": "1 failure(s); first: fixture: undriven names exactly the tools that answered but",
+     "name": "undriven counts the unreachable and the unschemable",
+     "verdict": "killed"
+    },
+    {
+     "detail": "1 failure(s); first: the verdict is failing on any one of: identity broken, a to",
+     "name": "the verdict ignores failures",
+     "verdict": "killed"
+    },
+    {
+     "detail": "2 failure(s); first: the fixture walked over MCP lands every action in the same ",
+     "name": "over MCP, isError is not read as the target's no",
+     "verdict": "killed"
+    },
+    {
+     "detail": "2 failure(s); first: the fixture walked over MCP lands every action in the same ",
+     "name": "over MCP, a gateway code in a JSON-RPC error is not read back",
+     "verdict": "killed"
+    },
+    {
+     "detail": "1 failure(s); first: the fixture walked over MCP lands every action in the same ",
+     "name": "over MCP, the snapshot is not read after a call",
+     "verdict": "killed"
+    },
+    {
+     "detail": "1 failure(s); first: the MCP wire reads the action from a tool's _meta and never",
+     "name": "over MCP, the action is guessed from the slug instead of read from _meta",
+     "verdict": "killed"
+    },
+    {
+     "detail": "1 failure(s); first: a thread that was not there in round one is reported by nam",
+     "name": "a new thread is never reported",
+     "verdict": "killed"
+    },
+    {
+     "detail": "1 failure(s); first: descriptors up by more than the segments explain are report",
+     "name": "descriptors may grow without bound",
+     "verdict": "killed"
+    },
+    {
+     "detail": "3 failure(s); first: a thread that was not there in round one is reported by nam",
+     "name": "the baseline is retaken every round",
+     "verdict": "killed"
+    },
+    {
+     "detail": "5 failure(s); first: an argument-SET pool keyed by the action is taken whole -- ",
+     "name": "an argument-set pool is never read",
+     "verdict": "killed"
+    },
+    {
+     "detail": "1 failure(s); first: the set pool is the first relevant pool of its action",
+     "name": "a set pool is not a relevant pool",
+     "verdict": "killed"
+    },
+    {
+     "detail": "1 failure(s); first: the verdict is failing on any one of: identity broken, a to",
+     "name": "the verdict ignores unschemable tools",
+     "verdict": "killed"
+    }
+   ],
+   "survived": 0
+  }
+ }
+}

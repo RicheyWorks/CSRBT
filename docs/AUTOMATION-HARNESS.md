@@ -216,7 +216,9 @@ restart.
 | `set-slider` | `selector`, `value` | `MUTATE` |
 | `press-step` | `selector`, `direction` | `MUTATE` |
 | `activate` | `selector` | `DESTRUCTIVE` |
+| `pick` | `selector`, `value` | `DRAFT` |
 | `read-control` | `selector` | `SENSITIVE_READ` |
+| `read-report` | none | `SENSITIVE_READ` |
 | `read-page` | none | `SENSITIVE_READ` |
 | `collect-output` | none | `SENSITIVE_READ` |
 | `capture-screen` | none | `SENSITIVE_READ` |
@@ -228,6 +230,15 @@ selector gets `not_found` rather than the wrong element. A client that holds a
 selector across a rebuild and judges the result by the label it remembers will
 apply one control's expectation to another — which is a mistake the swarm made
 before it was corrected, and the reason this paragraph exists.
+
+`pick` (ADR-128) drives a FEK picker the way a finger does: the value goes into
+the filter and the option whose label matches exactly, else by prefix, else the
+only one left, is clicked; two left is refused as ambiguous. `read-report`
+returns the page's report as it stands — every `.l`/`.v` figure flat and by its
+box, every box the kit names (`an*`, `*Out`, `*Box`, `*Stats`, `*Note`, `*List`,
+`*Table`, `toast` …) whether or not its pane is open, with the visible ones
+named in `shown`, every table's cells and every `.row2` list's count. It is
+what a task checks a page's arithmetic against.
 
 Sensitive perception is bounded on every axis: `read-control` covers one visible
 non-password control, caps text at 8,000 characters, caps option and picker
@@ -364,6 +375,19 @@ task — required steps in order, probes anywhere after, one call per step, the
 operator's own detours allowed and counted. Six traces under `tools/traces/`,
 planned from the goals alone, every one held; their provenance is stated there.
 
+**The science (ADR-128).** Twenty-one tasks, one per data-entry page of the
+kit, enter data through the gateway and hold the page's report to an oracle
+computed by hand: the collection sheet's Chao1 6.5 and H′ 1.359, the stand
+sheet's QMD 29.7 and SDI 132, Cohen's κ 0.722, the breeding bench's Nₑ 36.0
+and LSD 0.82 kg, the field season's whole seeded meadow from an independent
+port of its generator. A task names its controls the page's way —
+`"@control:cName"`, `"@control:area searched"`, `"@control:rCov/4"`,
+`"@control:iList/died#2"` — resolved to the moment's selector from the latest
+snapshot, and never writes a selector down. A page canary claims a wrong figure
+and is refuted. `verify_tasks` section G pins that every data-entry page has
+one, that each holds a figure and not prose alone, and that the ledger holds
+every one with at least twenty confirmed expectations.
+
 ## The fourth target: the fixture
 
 `--target fixture` serves `csrbt-fixture` (ADR-119): a plugin built to be
@@ -423,6 +447,15 @@ the targets up with `harness_targets.stand_up(target)` and hand the registry to 
 plugin preserves one policy, one action schema, one replay rule and one test
 surface for every client. Authentication beyond the token, rate limits, prompt
 approval and transcript retention belong to the adapter and its operator.
+
+## The board
+
+`tools/harness_board.py` renders the Harness Board — one page saying what the
+harness can vouch for right now — from its ledgers and nothing else: the suites'
+counts, the robot's walks of every target and every page, the tasks and traces,
+the mutant runners (which record their runs in `tools/mutant_ledger.json` since
+ADR-127), the engines' own suites. `verify_board` fails when the committed page
+and the ledgers disagree. It is published as an artifact beside the Atlas.
 
 ## Verification
 

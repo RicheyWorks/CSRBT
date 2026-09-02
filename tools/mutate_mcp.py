@@ -94,11 +94,15 @@ def main(argv):
     print("mutation testing tools/harness_mcp.py against verify_mcp -- %d mutant(s), %d known equivalent\n"
           % (len(MUTANTS), len(KNOWN_EQUIVALENT)))
     survived = bad = 0
+    rows = []
     for name, find, repl, expect in MUTANTS:
         verdict, detail = run_one(find, repl, expect)
         print("  %-9s %-56s %s" % (verdict, name, detail[:60]))
+        rows.append({"name": name, "verdict": verdict, "detail": detail})
         survived += verdict == "SURVIVED"
         bad += verdict not in ("killed", "SURVIVED")
+    import mutant_ledger
+    mutant_ledger.record("mutate_mcp", rows, KNOWN_EQUIVALENT)
     print("\n%d killed, %d survived, %d inconclusive, %d equivalent (recorded)"
           % (len(MUTANTS) - survived - bad, survived, bad, len(KNOWN_EQUIVALENT)))
     return 1 if (survived or bad) else 0
