@@ -112,9 +112,13 @@ DRIVER = {
 # that no CSS selector can find at all -- those are stamped at the moment a page
 # registers its drop listener.
 SWARM_KINDS = [k for k in H.KINDS if k[0] not in ("text_in", "file_in",
-                                                  "action_btn", "link", "nav_link")]
+                                                  "action_btn", "link", "nav_link", "slider")]
 SWARM_KINDS += [
     ("checkbox",  'input[type=checkbox], input[type=radio]'),
+    # ADR-129: every range input, not only the FEK slider -- the lab's three
+    # terrarium sliders had never been discovered, so the harness could not
+    # move the one experiment on the page
+    ("slider",    'input[type=range]'),
     ("drop_zone", '[data-h-drop]'),
     ("text_in",   'input[type=text], input[type=number], input[type=date], '
                   'input[type=time], input[type=datetime-local], input[type=month], '
