@@ -52,7 +52,7 @@ authentication for a stdio server anyway.
     CSRBT_HARNESS_ALLOW_MUTATE=true \\
     python3 tools/harness_mcp.py --target organism
 """
-import argparse, io, json, os, sys
+import argparse, io, json, os, sys, time
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, HERE)
@@ -77,9 +77,14 @@ def annotations(risk):
 class Server(object):
     """The entire adapter. Holds the gateway and the token; knows no target."""
 
-    def __init__(self, gateway, token):
+    def __init__(self, gateway, token, trace=None):
         self.gw, self.token = gateway, token
         self._tools = None            # name -> (pluginId, action)
+        # ADR-126: a trace. Every tools/call the host makes -- the action, the
+        # arguments, the gateway's whole response -- appended as one JSON line,
+        # so what a model did through this door can be graded afterwards
+        # against a task's expectations (harness_tasks.py --grade-trace).
+        self._trace = io.open(trace, "a", encoding="utf-8") if trace else None
 
     # -- one request, one response (or nothing, for a notification) ---------
     def handle(self, msg):
@@ -148,13 +153,28 @@ class Server(object):
             raise HarnessError("not_found", "no tool %r is listed for this session" % name)
         plugin_id, action = self._tools[name]
         rid = "mcp-%s" % mid if mid is not None else None
-        r = self.gw.execute(self.token, plugin_id, {
-            "request_id": rid, "action": action, "arguments": params.get("arguments") or {}})
+        try:
+            r = self.gw.execute(self.token, plugin_id, {
+                "request_id": rid, "action": action, "arguments": params.get("arguments") or {}})
+        except HarnessError as e:
+            # a refusal is part of what the model did, and a task may expect one
+            self.record({"pluginId": plugin_id, "action": action, "arguments": params.get("arguments") or {},
+                         "response": {"ok": False, "code": e.code, "message": e.message, "output": {},
+                                      "requestId": rid}})
+            raise
         body = {"ok": r["ok"], "message": r["message"], "output": r["output"],
                 "replayed": r["replayed"], "risk": r["risk"], "ms": r["ms"],
                 "snapshotMs": r.get("snapshotMs"), "requestId": r["requestId"]}
+        self.record({"pluginId": plugin_id, "action": action, "arguments": params.get("arguments") or {},
+                     "response": r})
         return {"content": [{"type": "text", "text": json.dumps(body, default=str)}],
                 "isError": not r["ok"]}
+
+    def record(self, entry):
+        if self._trace is not None:
+            entry = dict(entry, at=time.time())
+            self._trace.write(json.dumps(entry, default=str) + "\n")
+            self._trace.flush()
 
     def resources(self):
         return [{"uri": "harness://%s/snapshot" % p["id"], "name": "%s snapshot" % p["id"],
@@ -168,6 +188,8 @@ class Server(object):
             raise HarnessError("not_found", "no resource %r" % uri)
         plugin_id = uri[len("harness://"):-len("/snapshot")]
         snap = self.gw.observe(self.token, plugin_id)
+        self.record({"pluginId": plugin_id, "action": "observe", "arguments": {},
+                     "response": {"ok": True, "snapshot": snap, "output": {}, "requestId": None}})
         return {"contents": [{"uri": uri, "mimeType": "application/json",
                               "text": json.dumps(snap, default=str)}]}
 
@@ -203,6 +225,8 @@ def main():
     ap.add_argument("--headed", action="store_true")
     ap.add_argument("--target", default="page", choices=["page", "organism", "lab", "both", "all", "fixture"])
     ap.add_argument("--seed", type=int, default=42)
+    ap.add_argument("--trace", default=os.environ.get("CSRBT_HARNESS_TRACE"),
+                    help="append every tools/call and its response to this file, one JSON line each (ADR-126)")
     a = ap.parse_args()
     policy = require_policy()
     if policy is None:
@@ -213,7 +237,7 @@ def main():
                      % (", ".join(p.descriptor().id for p in plugins),
                         ",".join(k for k, v in policy.allow.items() if v)))
     try:
-        return serve(Server(gw, policy.token), sys.stdin, sys.stdout)
+        return serve(Server(gw, policy.token, trace=a.trace), sys.stdin, sys.stdout)
     finally:
         tear_down(closers)
 
