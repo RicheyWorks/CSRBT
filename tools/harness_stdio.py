@@ -91,7 +91,7 @@ def main():
     ap.add_argument("--page", default="ecology.html",
                     help="page to open in the browser the plugin drives")
     ap.add_argument("--headed", action="store_true")
-    ap.add_argument("--target", default="page", choices=["page", "organism", "lab", "both", "all"],
+    ap.add_argument("--target", default="page", choices=["page", "organism", "lab", "both", "all", "fixture"],
                     help="what the gateway fronts: a kit page, the WholeHog "
                          "organism, the science lab, both (organism+page) or all "
                          "(default: page)")

@@ -20,8 +20,18 @@ suite pins what makes that claim believable:
   D. the committed ledger is a coverage claim, per target, held to the same bar
   E. scoped pools: "<action>.<argument>" is preferred over "<argument>", and
      a page's snapshot publishes them per action
+  F. the robot, broken on purpose (ADR-119): a walk of the csrbt-fixture
+     target, whose every action lands in a KNOWN bucket, so each bucket's
+     count is pinned exactly -- refused is refused, declined is declined, a
+     Crash under an armed plan is chaos and a raise without one is the
+     finding; a pool the target rotates on every call is re-read from every
+     response; an empty pool is unreachable only when nothing was driven;
+     the cross-check reports the fixture's own inconsistency; a target that
+     goes away is an alarm, not a bucket. tools/mutate_walk.py breaks the
+     walker and requires these checks to notice.
 
 Run:  python3 tools/verify/verify_walk.py
+      CSRBT_WALK_QUICK=1 python3 tools/verify/verify_walk.py   # no engine or page walks (the mutant runner)
 """
 import io, json, os, random, re, secrets, sys
 
@@ -117,7 +127,7 @@ def hold(res, label, tools_expected, allow_unreachable=False):
     ck(not res["unschemable"], "%s: nothing was unschemable: %s" % (label, res["unschemable"]))
     ck(not res["invariants_broken"], "%s: no cross-check broke: %s" % (label, res["invariants_broken"][:2]))
     ck(res["totals"]["failed"] == 0, "%s: nothing failed: %s" % (label, res["failures"][:2]))
-    ck(res["protocolVersion"] == "1.1", "%s: protocol 1.1" % label)
+    ck(res["protocolVersion"] == "1.2", "%s: protocol 1.2" % label)
     if not allow_unreachable:
         ck(not res["unreachable"], "%s: nothing was unreachable: %s" % (label, res["unreachable"]))
 
@@ -125,7 +135,10 @@ def hold(res, label, tools_expected, allow_unreachable=False):
 cp_org = os.path.join(os.environ.get("CSRBT_WHOLEHOG") or os.path.join(_kit.ROOT, "..", "WholeHog"),
                       "build", "harness", "classpath.txt")
 cp_lab = os.path.join(_kit.ROOT, "csrbt-experimental", "build", "harness", "classpath.txt")
-if not os.path.isfile(cp_org):
+QUICK = os.environ.get("CSRBT_WALK_QUICK") == "1"
+if QUICK:
+    print("QUICK: the engine and page walks of section C are skipped (CSRBT_WALK_QUICK=1)")
+elif not os.path.isfile(cp_org):
     unverified.append("C  the organism walk -- WholeHog is not built")
 else:
     res = walk_target("organism")["csrbt-organism"]
@@ -133,7 +146,13 @@ else:
     ck(res["totals"]["refused"] > 0,
        "organism: the target defended itself against some of what the schema allowed (%d refused), "
        "counted rather than hidden" % res["totals"]["refused"])
-if not os.path.isfile(cp_lab):
+    pr = res["price"]["snapshotMs"]
+    ck(pr["n"] > 20 and 0 <= pr["median"] <= 250 and pr["max"] <= 2000,
+       "organism: the snapshot on every response is priced from the responses (ADR-120): median %s ms, "
+       "p95 %s, max %s over %d" % (pr.get("median"), pr.get("p95"), pr.get("max"), pr["n"]))
+if QUICK:
+    pass
+elif not os.path.isfile(cp_lab):
     unverified.append("C  the lab walk -- csrbt-experimental is not built")
 else:
     res = walk_target("lab")["csrbt-lab"]
@@ -141,21 +160,22 @@ else:
     ck(res["per_action"]["csrbt_lab__run"]["driven"] >= 2 and res["per_action"]["csrbt_lab__export"]["driven"] >= 1,
        "lab: protocols ran and a bundle was exported, from the schema's example protocol")
 # a page needs only Playwright, which every kit suite needs
-res = walk_target("page", page="collection-sheet.html", rounds=3, per_round=3)["csrbt-page"]
-hold(res, "page", 15, allow_unreachable=True)
-ck(set(res["unreachable"]) == {"csrbt_page__choose_option", "csrbt_page__drop_files",
-                              "csrbt_page__set_checkbox", "csrbt_page__set_slider"},
-   "page: collection-sheet has no select, drop zone, checkbox or slider, and the walk says so "
-   "rather than calling them undriven: %s" % res["unreachable"])
-ck(res["per_action"]["csrbt_page__attach_file"]["driven"] >= 1 and
-   res["per_action"]["csrbt_page__show_pane"]["driven"] >= 1 and
-   res["per_action"]["csrbt_page__set_text"]["driven"] >= 1,
-   "page: a file input behind a tab, a pane and a text control were all reached through the pools")
-res2 = walk_target("page", page="ecology-lab.html", rounds=3, per_round=3)["csrbt-page"]
-ck(res2["per_action"]["csrbt_page__choose_option"]["driven"] >= 1 and
-   "csrbt_page__choose_option" not in res2["unreachable"],
-   "page: on a page WITH selects choose-option is driven, from the option-value pool")
-ck(res2["totals"]["failed"] == 0 and not res2["invariants_broken"], "page: and ecology-lab breaks nothing")
+if not QUICK:
+    res = walk_target("page", page="collection-sheet.html", rounds=3, per_round=3)["csrbt-page"]
+    hold(res, "page", 15, allow_unreachable=True)
+    ck(set(res["unreachable"]) == {"csrbt_page__choose_option", "csrbt_page__drop_files",
+                                  "csrbt_page__set_checkbox", "csrbt_page__set_slider"},
+       "page: collection-sheet has no select, drop zone, checkbox or slider, and the walk says so "
+       "rather than calling them undriven: %s" % res["unreachable"])
+    ck(res["per_action"]["csrbt_page__attach_file"]["driven"] >= 1 and
+       res["per_action"]["csrbt_page__show_pane"]["driven"] >= 1 and
+       res["per_action"]["csrbt_page__set_text"]["driven"] >= 1,
+       "page: a file input behind a tab, a pane and a text control were all reached through the pools")
+    res2 = walk_target("page", page="ecology-lab.html", rounds=3, per_round=3)["csrbt-page"]
+    ck(res2["per_action"]["csrbt_page__choose_option"]["driven"] >= 1 and
+       "csrbt_page__choose_option" not in res2["unreachable"],
+       "page: on a page WITH selects choose-option is driven, from the option-value pool")
+    ck(res2["totals"]["failed"] == 0 and not res2["invariants_broken"], "page: and ecology-lab breaks nothing")
 
 # ---- D. the committed ledger ----------------------------------------------
 led = os.path.join(_kit.TOOLS_DIR, "walk_ledger.json")
@@ -171,6 +191,10 @@ if os.path.isfile(led):
            e.get("rounds", 0) >= 8,
            "%s: the committed walk holds the identity, drove every tool, broke nothing, failed nothing, "
            "and was a full walk" % pid)
+        pr = (e.get("price") or {}).get("snapshotMs") or {}
+        ck(pr.get("n", 0) > 0 and isinstance(pr.get("median"), int) and pr["median"] <= 250,
+           "%s: the committed walk carries the snapshot's price (median %s ms over %s responses)"
+           % (pid, pr.get("median"), pr.get("n")))
 
 # ---- E. scoped pools ---------------------------------------------------------
 rnd = random.Random(5)
@@ -193,6 +217,99 @@ try:
        "the page plugin's pool kinds agree with the swarm's DRIVER map")
 except ImportError:
     ck(True, "(swarm not importable here)")
+
+# ---- F. the robot, broken on purpose ------------------------------------------
+# The fixture target lands every action in a known bucket, every time, so the
+# walker's bookkeeping is pinned by exact counts rather than by "nothing
+# failed" against a target that mostly succeeds. 2 rounds x 2 per round: each
+# action is called exactly four times unless the walker stops early.
+def walk_fixture(rounds=2, per_round=2, env=None):
+    old = dict(os.environ)
+    os.environ.update(env or {})
+    try:
+        wire = W.Wire("walk-suite-" + secrets.token_urlsafe(18), seed=3, target="fixture")
+        try:
+            res = W.walk(wire, rounds=rounds, seed=11, per_round=per_round)["csrbt-fixture"]
+            snap = wire.op("observe", plugin="csrbt-fixture").get("snapshot") or {}
+            return res, snap
+        finally:
+            wire.close()
+    finally:
+        os.environ.clear()
+        os.environ.update(old)
+
+
+fx, fsnap = walk_fixture()
+F_ = "csrbt_fixture__"
+pa = fx["per_action"]
+N = 4
+
+
+def only(name, bucket):
+    c = pa.get(F_ + name) or {}
+    return c.get(bucket) == N and sum(c.values()) == N
+
+
+ck(fx["tools"] == 11 and set(pa) == {F_ + n for n in ("ok", "refuse", "decline", "crash", "boom", "pooled",
+                                                    "empty_pool", "reached", "unformable", "array", "broken")}
+   | {"_cross_checks"},
+   "fixture: eleven tools published, one row each plus the cross-checks' row: %s" % sorted(pa))
+ck(only("ok", "driven"), "fixture: ok is driven, %d of %d: %s" % (N, N, pa.get(F_ + "ok")))
+ck(only("refuse", "refused"), "fixture: a target defending itself is REFUSED, never driven or failed: %s"
+   % pa.get(F_ + "refuse"))
+ck(only("decline", "declined"), "fixture: ok:false with no code is DECLINED: %s" % pa.get(F_ + "decline"))
+ck(only("crash", "chaos"), "fixture: a raise naming a Crash under an armed plan is CHAOS: %s" % pa.get(F_ + "crash"))
+ck(only("boom", "failed"), "fixture: a raise with no Crash in it is FAILED -- the finding: %s" % pa.get(F_ + "boom"))
+ck(fx["totals"]["failed"] == N and len(fx["failures"]) == N and all("boom" in f for f in fx["failures"]),
+   "fixture: every failure is noted by action and message, and only boom's: %s" % fx["failures"][:2])
+ck(only("pooled", "driven"),
+   "fixture: a pool the target rotates on every call is re-read from every response -- pooled is driven "
+   "%d of %d (a walker acting on a stale pool is refused): %s" % (N, N, pa.get(F_ + "pooled")))
+ck(only("broken", "driven") and only("array", "driven"), "fixture: array and broken are driven")
+ck(only("empty_pool", "refused") and fx["unreachable"] == [F_ + "empty_pool"],
+   "fixture: a tool whose scoped pool was published empty throughout AND was never driven is "
+   "UNREACHABLE, and its refusals are still counted: %s %s" % (fx["unreachable"], pa.get(F_ + "empty_pool")))
+ck(only("reached", "driven") and F_ + "reached" not in fx["unreachable"],
+   "fixture: a tool whose scoped pool is empty but whose schema example gets through was REACHED, "
+   "whatever the pool said: %s" % pa.get(F_ + "reached"))
+ck(F_ + "empty_pool" not in fx["undriven"] and F_ + "unformable" not in fx["undriven"] and fx["undriven"] ==
+   [F_ + n for n in ("refuse", "decline", "crash", "boom")],
+   "fixture: undriven names exactly the tools that answered but never ok, not the unreachable or the "
+   "unschemable: %s" % fx["undriven"])
+ck(list(fx["unschemable"]) == [F_ + "unformable"] and "no examples" in fx["unschemable"][F_ + "unformable"]
+   and sum((pa.get(F_ + "unformable") or {}).values()) == 0,
+   "fixture: a string the manifest gives no way to form is UNSCHEMABLE, named, and never sent: %s"
+   % fx["unschemable"])
+ck(fx["identity"] == "holds" and fx["accounted"] == fx["commands"] == 10 * N and fx["commands"] == sum(
+    fsnap.get("calls", {}).values()) and fx["accounted"] == sum(fx["totals"].values()) and
+   fx["totals"] == {"driven": 5 * N, "refused": 2 * N, "declined": N, "chaos": N, "failed": N},
+   "fixture: commands == driven + refused + declined + chaos + failed == %d, the totals are %s, and the "
+   "fixture counted the same" % (fx["commands"], fx["totals"]))
+ck(fsnap.get("arrayLengths", [None])[0] == 1 and sorted(set(fsnap.get("arrayLengths", []))) == [1, 2, 3],
+   "fixture: arrays are one item first, then longer: %s" % fsnap.get("arrayLengths"))
+ck(len(fx["invariants_broken"]) == 2 and all("not consistent" in b for b in fx["invariants_broken"]),
+   "fixture: the cross-check ran every round and reported the fixture's own broken flag, nothing else: %s"
+   % fx["invariants_broken"])
+ck(W.bad(fx), "fixture: the walker's verdict on a target that fails on purpose is failing")
+clean = {"identity": "holds", "undriven": [], "unschemable": {}, "invariants_broken": [],
+         "totals": {"driven": 3, "refused": 0, "declined": 0, "chaos": 0, "failed": 0}}
+spoilt = [dict(clean, identity="UNACCOUNTED"), dict(clean, undriven=["x"]), dict(clean, unschemable={"x": "y"}),
+          dict(clean, invariants_broken=["z"]), dict(clean, totals=dict(clean["totals"], failed=1))]
+ck(not W.bad(clean) and all(W.bad(r) for r in spoilt),
+   "the verdict is failing on any one of: identity broken, a tool undriven, unschemable, a cross-check broken, "
+   "a failure -- and passing with none (refusals, declines and chaos are counted, not failed)")
+ck(fx["rounds"] == 2 and fx["per_round"] == 2 and fx["seconds"] < 30,
+   "fixture: a walk of the fixture is a fast one: %ss" % fx["seconds"])
+ck(fx["price"]["snapshotMs"]["n"] == 6 * N and fx["price"]["snapshotMs"]["max"] <= 5,
+   "fixture: the price is read from the responses that carry one -- the %d driven and declined; a "
+   "refusal carries no snapshot -- and a fixture's snapshot costs nothing: %s"
+   % (6 * N, fx["price"]["snapshotMs"]))
+try:
+    walk_fixture(env={"CSRBT_FIXTURE_DIE": "1"})
+    ck(False, "fixture: a target that went away was walked to the end as if it had answered")
+except RuntimeError as e:
+    ck("went away" in str(e), "fixture: a target that goes away mid-walk is an alarm (unavailable), "
+                              "not a bucket: %s" % str(e)[:60])
 
 total = P + F + len(unverified)
 print("---")

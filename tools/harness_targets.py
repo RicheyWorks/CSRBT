@@ -19,9 +19,10 @@ sys.path.insert(0, HERE)
 sys.path.insert(0, os.path.join(HERE, "verify"))
 from harness_contract import HarnessError, Policy, TOKEN_MIN
 
-TARGETS = ("page", "organism", "lab", "both", "all")
+TARGETS = ("page", "organism", "lab", "both", "all", "fixture")
 WANTS = {"page": ("page",), "organism": ("organism",), "lab": ("lab",),
-         "both": ("organism", "page"), "all": ("organism", "lab", "page")}
+         "both": ("organism", "page"), "all": ("organism", "lab", "page"),
+         "fixture": ("fixture",)}       # ADR-119: the robot's own test target; never in "all"
 
 
 def require_policy(err=None):
@@ -61,6 +62,9 @@ def stand_up(target, page="ecology.html", seed=42, headed=False, err=None):
             raise SystemExit(2)
         plugins.append(org)
         closers.append(org.close)
+    if "fixture" in wants:
+        from harness_plugin_fixture import FixturePlugin
+        plugins.append(FixturePlugin())
     if "lab" in wants:
         from harness_plugin_lab import LabPlugin
         lab = LabPlugin()

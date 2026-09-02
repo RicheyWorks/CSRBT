@@ -227,6 +227,7 @@ def walk_one(wire, man, pid, rounds, seed, per_round, log=None):
     pools = {}
     rid = [0]
     empty_pools = {}          # tool name -> ever saw a non-empty scoped pool
+    price = {"snapshot": [], "action": []}   # ms per response: the snapshot's and the action's
 
     def observe():
         snap = wire.op("observe", plugin=pid).get("snapshot") or {}
@@ -241,6 +242,9 @@ def walk_one(wire, man, pid, rounds, seed, per_round, log=None):
         r = wire.op("execute", plugin=pid,
                     command={"request_id": "walk-%s-%d" % (pid, rid[0]), "action": tool["action"],
                              "arguments": args})
+        if isinstance(r.get("snapshotMs"), int):
+            price["snapshot"].append(r["snapshotMs"])
+            price["action"].append(r.get("ms") or 0)
         snap = r.get("snapshot") or {}
         if isinstance(snap.get("argumentPools"), dict):
             pools.clear()
@@ -285,7 +289,13 @@ def walk_one(wire, man, pid, rounds, seed, per_round, log=None):
             if tool["name"] in unschemable:
                 continue
             for i in range(per_round):
-                tick = round_no * 100 + i
+                # The tool's own call number, from zero: the first call to any
+                # tool takes the first enum value and a one-item array (a
+                # single-file input gets one file before it gets three). The
+                # fixture walk found the old round*100+i tick handing out two
+                # items first -- "one first" was true in the generator's unit
+                # check and false in every walk.
+                tick = (round_no - 1) * per_round + i
                 relevant = relevant_pools(tool, pools)
                 if relevant:
                     empty_pools[tool["name"]] = empty_pools.get(tool["name"], False) or \
@@ -315,11 +325,24 @@ def walk_one(wire, man, pid, rounds, seed, per_round, log=None):
     # EMPTY every time it was looked at has nothing to act on here -- a page
     # with no file input cannot have attach-file driven. That is a fact about
     # the target, reported as unreachable, not a hole in the schema or the walk.
-    unreachable = sorted(n for n, ever in empty_pools.items() if not ever)
+    # ... and only when nothing was driven: a tool that got through on a
+    # schema example despite an empty pool was reached, whatever the pool said.
+    unreachable = sorted(n for n, ever in empty_pools.items()
+                         if not ever and per[n]["driven"] == 0)
     undriven = [t["name"] for t in tools if per[t["name"]]["driven"] == 0
                 and t["name"] not in unschemable and t["name"] not in unreachable]
+    def stats(xs):
+        if not xs:
+            return {"n": 0}
+        xs = sorted(xs)
+        return {"n": len(xs), "median": xs[len(xs) // 2], "p95": xs[min(len(xs) - 1, int(len(xs) * 0.95))],
+                "max": xs[-1], "total": sum(xs)}
     return {
         "at": int(time.time()), "plugin": pid, "seed": seed, "rounds": rounds, "per_round": per_round,
+        # ADR-120: the snapshot every response carries, priced from the
+        # responses themselves -- what the target charged to be asked about
+        # itself, beside what the actions cost.
+        "price": {"snapshotMs": stats(price["snapshot"]), "actionMs": stats(price["action"])},
         "protocolVersion": man["protocolVersion"],
         "tools": len(tools), "forbidden": forbidden,
         "commands": commands, "accounted": accounted,
@@ -399,7 +422,26 @@ def page_checks(call, observe, tools, per):
     return broken
 
 
-INVARIANTS = {"csrbt-organism": organism_checks, "csrbt-lab": lab_checks, "csrbt-page": page_checks}
+def fixture_checks(call, observe, tools, per):
+    """The fixture's counters must equal what the walk sent it, and its
+    consistent flag must hold -- which it will not once `broken` has run,
+    so a walker that stops collecting cross-checks is visible."""
+    snap = observe()
+    broken = []
+    if not snap.get("ready"):
+        return ["the fixture is not ready"]
+    for t in tools:
+        sent = sum(per.get(t["name"], {}).values())
+        got = snap.get("calls", {}).get(t["action"], 0)
+        if t["name"] not in per or sent != got:
+            broken.append("%s: the walk sent %d, the fixture counted %d" % (t["action"], sent, got))
+    if not snap.get("consistent", True):
+        broken.append("the fixture reports it is not consistent")
+    return broken
+
+
+INVARIANTS = {"csrbt-organism": organism_checks, "csrbt-lab": lab_checks, "csrbt-page": page_checks,
+              "csrbt-fixture": fixture_checks}
 
 
 def report(pid, res, out=print):
@@ -415,6 +457,11 @@ def report(pid, res, out=print):
     out("tools %d, undriven %s, unreachable %s, unschemable %s"
         % (res["tools"], res["undriven"] or "none", res["unreachable"] or "none",
            res["unschemable"] or "none"))
+    pr = res.get("price") or {}
+    if pr.get("snapshotMs", {}).get("n"):
+        out("price: snapshot median %d ms, p95 %d, max %d; action median %d ms, max %d (%d responses)"
+            % (pr["snapshotMs"]["median"], pr["snapshotMs"]["p95"], pr["snapshotMs"]["max"],
+               pr["actionMs"]["median"], pr["actionMs"]["max"], pr["snapshotMs"]["n"]))
     out("invariants broken: %d" % len(res["invariants_broken"]))
     for b in res["invariants_broken"][:10]:
         out("  " + b)
@@ -443,7 +490,7 @@ def merge_ledger(results, path=LEDGER):
 
 def main(argv):
     ap = argparse.ArgumentParser()
-    ap.add_argument("--target", default="organism", choices=["page", "organism", "lab", "both", "all"])
+    ap.add_argument("--target", default="organism", choices=["page", "organism", "lab", "both", "all", "fixture"])
     ap.add_argument("--page", default="collection-sheet.html",
                     help="the page to walk under --target page (the hub has only links)")
     ap.add_argument("--rounds", type=int, default=8)
