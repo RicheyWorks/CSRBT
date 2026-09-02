@@ -447,7 +447,22 @@ class OrganismPlugin(Plugin):
                             ArgumentSpec("replica-lag-ms", "integer",
                                          "0-200 per replicated event; the fleet's lag reads "
                                          "nonzero until the replica catches up.",
-                                         minimum=0, maximum=200)]),
+                                         minimum=0, maximum=200),
+                            ArgumentSpec("how", "string",
+                                         "clean: close and reopen (the checkpoint is written, "
+                                         "the reopen is warm); cold: the organism DIES without "
+                                         "its checkpoint, so the reopen is SmokeHouse's own "
+                                         "recovery -- the log scanned, SuperBeefSort sorting "
+                                         "it, the index born from what it measured.",
+                                         enum=["clean", "cold"])]),
+                # ---- SuperBeefSort ------------------------------------------------
+                ActionSpec("recovery",
+                           "Engine 2's report of the last open: entries recovered, whether "
+                           "the checkpoint was used, whether SuperBeefSort sorted (and by "
+                           "which strategy, at what cost, over how disordered a feed), and "
+                           "the tree the index was born as. A clean restart sorts nothing; "
+                           "a cold one does.",
+                           "READ", []),
             ])
 
     def descriptor(self):
@@ -610,8 +625,17 @@ class OrganismPlugin(Plugin):
             lag = args.get("replica-lag-ms", 0)
             if not 0 <= lag <= 200:
                 raise InvalidArgument("replica-lag-ms must be 0-200")
-            r = c.send("restart", plan, lat, lag)
-            return True, "restarted under %s%s" % (r["chaos"], (", replica held back %d ms/event" % lag) if lag else ""), _out(r)
+            how = args.get("how", "clean")
+            if how not in ("clean", "cold"):
+                raise InvalidArgument("how must be clean or cold")
+            r = c.send("restart", plan, lat, lag, how)
+            return True, "restarted %s under %s%s" % (how, r["chaos"], (", replica held back %d ms/event" % lag) if lag else ""), _out(r)
+        if action == "recovery":
+            r = c.send("recovery")
+            rr = r["recovery"]
+            msg = (("engine 2 sorted %d entries by %s" % (rr["entries"], rr["sortStrategy"])) if rr["sorted"]
+                   else ("warm: %d entries from the checkpoint, nothing sorted" % rr["entries"]))
+            return True, msg, _out(r)
         if action == "report":
             r = c.send("report")
             return True, "the physical", {"report": r["report"],

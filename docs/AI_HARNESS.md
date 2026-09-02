@@ -268,8 +268,8 @@ the second implementation is the measurement, and it held.
 ```bash
 cd ../WholeHog && ./gradlew harnessClasspath         # once, after a clone
 python3 tools/harness_stdio.py --target organism     # or --target both
-python3 tools/verify/verify_organism.py              # 301 checks; NOT VERIFIED ×9 without the build
-python3 tools/mutate_organism.py                     # break plugin + console 26 ways, require notice
+python3 tools/verify/verify_organism.py              # 310 checks; NOT VERIFIED ×9 without the build
+python3 tools/mutate_organism.py                     # break plugin + console 29 ways, require notice
 python3 tools/harness_walk.py --target all           # the robot: every target from the manifest alone
 python3 tools/verify/verify_walk.py                  # 74 checks on the robot, its ledger, and the fixture
 python3 tools/harness_walk.py --target fixture       # the target built to be walked (ADR-119)
@@ -284,6 +284,15 @@ python3 tools/ecosystem.py --read                    # every engine's JUnit resu
 python3 tools/verify/verify_ecosystem.py             # 56 checks: green, >= floor, unbuilt or stale = NOT VERIFIED; the Atlas == the ledger
 python3 tools/atlas.py                               # regenerate the Atlas's engine table from the ledger (ADR-120)
 ```
+
+ADR-122 reached the one engine the harness had never seen work: SuperBeefSort,
+the recovery engine, whose sort ran on every open and whose measurement of the
+data was dropped — and which had never run under the harness at all, because
+every restart closed cleanly. `restart` can now be `cold` (the organism dies
+without its checkpoint) and `recovery` is engine 2's report. Reading that
+report the first time found the sort had been fed a `TreeMap`'s iteration on
+every open — sortedness 1.0, whatever the log had done — so the "born optimal"
+strategy was advised from a profile of a map. Recovery feeds arrival order now.
 
 ADR-121 walked the second transport: `harness_walk.py --transport mcp` speaks
 JSON-RPC to the MCP server and the walk does not know it — the fixture and the
@@ -338,7 +347,7 @@ examples going stale). ADR-117 made it one robot for every target — organism,
 lab, page — and its first walk of the other two found a `StackOverflowError` in
 csrbt-core's health check and five plugin defects.
 
-ADR-113 finished the wiring: **33 actions, every engine by its own surface** —
+ADR-113 finished the wiring: **33 actions, every engine by its own surface** (34 with ADR-122's `recovery`) —
 CSRBT's order statistics and probe depth, reads over the wire, Carver's interval
 index, Renderer's fold, Brine's cache, PitBoss's fleet and a rebootstrap,
 DryAge's `as-of` and aging, Jerky's verify, compaction, journal recovery, Rub's

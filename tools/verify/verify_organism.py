@@ -41,6 +41,11 @@ a request id, against a policy it names.
      write, and the fleet reports the replica BEHIND -- a lag reading that is a
      reading -- then a quiesce lands the feed and it reads zero; the per-response
      snapshot is priced and bounded
+  X. engine 2, observed (ADR-122): a clean restart is a warm open that sorts
+     nothing and says so; a COLD restart (the organism dies without its
+     checkpoint) makes the reopen scan the log and SuperBeefSort sort it --
+     the report names the strategy, the cost, the feed's disorder and the
+     born tree, and every read afterwards agrees with the mirror
   I. a dead console is `unavailable`, never a hang and never `failed`
   J. the stdio transport serves the organism with no change below its parser
 
@@ -104,7 +109,7 @@ plug = O.OrganismPlugin()          # no console yet: the descriptor is static
 d = plug.descriptor()
 ck(C.SLUG.match(d.id) and d.id == "csrbt-organism", "plugin id is a slug")
 names = [a.name for a in d.actions]
-ck(len(names) == len(set(names)) and len(names) >= 33,
+ck(len(names) == len(set(names)) and len(names) >= 34,
    "%d distinct actions" % len(names))
 ck(all(a.risk in C.RISKS for a in d.actions), "every action declares a risk")
 ck(not any(a.risk == "DESTRUCTIVE" for a in d.actions),
@@ -121,7 +126,7 @@ ck({a.name for a in d.actions if a.risk == "SENSITIVE_READ"} ==
    "SENSITIVE_READ -- 'does key 5 exist' is data about the data")
 ck({a.name for a in d.actions if a.risk == "READ"} ==
    {"report", "pulse", "fleet", "generations", "verify-archive", "archive-names",
-    "segments", "history"},
+    "segments", "history", "recovery"},
    "READ is meters, lags, generation numbers, archive entry names, segment "
    "sizes and a CRC verdict: never a key, never a value")
 ck({a.name for a in d.actions if a.risk == "NAVIGATE"} == {"tick", "quiesce", "restart"},
@@ -149,7 +154,8 @@ ENGINES = {"CSRBT": ("order", "depth"), "SmokeSignal": ("get",), "Carver": ("que
            "DryAge": ("generations", "as-of", "retain-newest", "preserve"),
            "Jerky": ("verify-archive", "archive-names", "cold-scan"),
            "SmokeHouse": ("compact", "segments"), "Twine": ("batch", "recover"),
-           "Rub": ("tick", "pulse", "history", "report"), "Sizzle": ("restart",)}
+           "Rub": ("tick", "pulse", "history", "report"), "Sizzle": ("restart",),
+           "SuperBeefSort": ("recovery",)}
 ck(all(n in names for acts in ENGINES.values() for n in acts),
    "every engine in the organism is reachable by name through the manifest: %s"
    % sorted(ENGINES))
@@ -719,6 +725,55 @@ else:
     prices = [run(gwW, "order", kind="size")["snapshotMs"] for _ in range(10)]
     ck(all(isinstance(p_, int) and 0 <= p_ <= 250 for p_ in prices),
        "ten snapshots on the organism each cost under 250 ms: %s" % prices)
+
+    # ---- X. engine 2, observed ----
+    # Every restart above closed cleanly, so SuperBeefSort -- the recovery engine
+    # -- had never run under the harness: the checkpoint covered the log and the
+    # reopen sorted nothing. The first RecoveryReport also found that when it DID
+    # run, it was handed a TreeMap's iteration: sortedness 1.0 on every open,
+    # whatever the log had done. Recovery feeds it arrival order now.
+    rr = run(gwW, "recovery")
+    ck(rr["ok"] and rr["risk"] == "READ" and rr["output"]["recovery"]["hintUsed"] is True and
+       rr["output"]["recovery"]["sorted"] is False and rr["output"]["recovery"]["sortStrategy"] == "",
+       "after a clean restart the report says: checkpoint used, nothing sorted: %s" % rr["output"]["recovery"])
+    # The first draft wrote keys 960..999 in order and read sortedness 1.00 again --
+    # the delta past the checkpoint WAS sorted, because the test wrote it sorted.
+    # Right about what it measured. So: shuffled keys, then a compaction, which
+    # invalidates the checkpoint, so the cold open scans the whole log in the
+    # order the differential oracle wrote it.
+    shuffled = list(range(960, 1000))
+    random.Random(7).shuffle(shuffled)
+    for k in shuffled:
+        run(gwW, "put", key=k, attr=k % 3, start=1, end=2)
+        model[k] = (k % 3, 1, 2)
+    run(gwW, "compact")
+    size_now = plug.observe()["size"]
+    r = run(gwW, "restart", how="cold")
+    rep = r["output"]["recovery"]
+    ck(r["ok"] and r["output"]["how"] == "cold" and rep["sorted"] is True and rep["entries"] == size_now
+       and rep["hintUsed"] is False,
+       "a cold restart dies without the checkpoint (and the compaction retired the old one): the reopen "
+       "recovered every live key from the log alone and SORTED them: %s" % rep)
+    ck(rep["sortStrategy"] and rep["comparisons"] > rep["entries"] and rep["bornStrategy"] and rep["tier"] == "STATIC",
+       "engine 2 names its strategy (%s), its cost (%d comparisons over %d entries) and the tree the index "
+       "was born as (%s)" % (rep["sortStrategy"], rep["comparisons"], rep["entries"], rep["bornStrategy"]))
+    ck(0.0 <= rep["sortednessRatio"] < 0.9 and rep["inversions"] > 0 and rep["nearlySorted"] is False,
+       "the feed's disorder is the log's arrival order, measured -- not a map's iteration: sortedness %.2f, "
+       "%d inversions" % (rep["sortednessRatio"], rep["inversions"]))
+    ck(run(gwW, "recovery")["output"]["recovery"] == rep and plug.observe()["recovery"]["sorted"] is True,
+       "the report is the same read back, and the snapshot carries its headline")
+    run(gwW, "quiesce", ms=15000)
+    got = [(x["key"], (x["value"]["attr"], x["value"]["start"], x["value"]["end"]))
+           for x in run(gwW, "range", lo=0, hi=999)["output"]["records"]]
+    ck(got == sorted(model.items()), "and every record reads back equal to the mirror after the cold recovery")
+    ck(run(gwW, "groups", top=1)["output"]["groups"] == len({v[0] for v in model.values()}),
+       "the Renderer fold rebuilt over the recovered store agrees too")
+    ok_, code = refused(lambda: run(gwW, "restart", how="lukewarm"), "invalid_argument")
+    ck(ok_, "a way of restarting that is neither clean nor cold is refused at the boundary: %s" % code)
+    r = run(gwW, "restart")
+    ck(r["output"]["how"] == "clean" and r["output"]["recovery"]["sorted"] is False and
+       r["output"]["recovery"]["entries"] == rep["entries"],
+       "and a clean restart after it is warm again: the same entries, nothing sorted")
 
     # ---- I. a dead console ----
     plug.console.proc.kill()

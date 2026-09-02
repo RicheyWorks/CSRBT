@@ -148,7 +148,7 @@ elif not os.path.isfile(cp_org):
     unverified.append("C  the organism walk -- WholeHog is not built")
 else:
     res = walk_target("organism")["csrbt-organism"]
-    hold(res, "organism", 33)
+    hold(res, "organism", 34)
     ck(res["totals"]["refused"] > 0,
        "organism: the target defended itself against some of what the schema allowed (%d refused), "
        "counted rather than hidden" % res["totals"]["refused"])
@@ -191,8 +191,8 @@ if os.path.isfile(led):
     ck(set(L) == {"csrbt-organism", "csrbt-lab", "csrbt-page",
                   "csrbt-organism@mcp", "csrbt-lab@mcp", "csrbt-page@mcp"},
        "one entry per target per transport: %s" % sorted(L))
-    for pid, want in (("csrbt-organism", 33), ("csrbt-lab", 8), ("csrbt-page", 15),
-                      ("csrbt-organism@mcp", 33), ("csrbt-lab@mcp", 8), ("csrbt-page@mcp", 15)):
+    for pid, want in (("csrbt-organism", 34), ("csrbt-lab", 8), ("csrbt-page", 15),
+                      ("csrbt-organism@mcp", 34), ("csrbt-lab@mcp", 8), ("csrbt-page@mcp", 15)):
         e = L.get(pid) or {}
         ck(e.get("identity") == "holds" and e.get("accounted") == e.get("commands") and
            e.get("tools") == want and not e.get("undriven") and not e.get("unschemable") and
@@ -348,7 +348,7 @@ ck('"_meta"' in src_mcp and "_meta" in src and "split(\"__\"" not in src,
 if not QUICK and os.path.isfile(cp_org):
     res_s = walk_target("organism")["csrbt-organism"]
     res_m = walk_target("organism", transport="mcp")["csrbt-organism"]
-    hold(res_m, "organism over MCP", 33)
+    hold(res_m, "organism over MCP", 34)
     ck(res_m["per_action"] == res_s["per_action"],
        "the organism walked over MCP and over stdio from the same seed land every action in the same "
        "buckets: %s vs %s" % (res_m["totals"], res_s["totals"]))

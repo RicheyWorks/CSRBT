@@ -273,7 +273,8 @@ cd ../WholeHog && ./gradlew harnessClasspath     # writes build/harness/classpat
 | DryAge | `retain-newest` | `count` | `MUTATE` |
 | Jerky | `verify-archive`, `archive-names` | `generation` | `READ` |
 | Jerky | `cold-scan` | `generation` | `SENSITIVE_READ` |
-| Sizzle | `restart` | `chaos` (none\|once:N\|every:N\|prob:SEED:P), `latency-ms`, `replica-lag-ms` (0–200) | `NAVIGATE` |
+| Sizzle | `restart` | `chaos` (none\|once:N\|every:N\|prob:SEED:P), `latency-ms`, `replica-lag-ms` (0–200), `how` (clean\|cold) | `NAVIGATE` |
+| SuperBeefSort | `recovery` | — | `READ` |
 
 Thirty-three actions (ADR-113): every engine of the organism is reachable by
 its own surface. `via` is on every read the wire can answer as well as on the
@@ -309,6 +310,16 @@ that is a reading — measured by PitBoss from the primary it conducts, because 
 replica whose feed is held back has not yet received the frame that would tell
 it how far behind it is (the first pull of this seam found the fleet reporting
 0 for a replica twenty frames behind).
+
+`restart` with `how: cold` (ADR-122) makes the organism **die** instead of
+closing — every organ released, the store abandoned without its checkpoint — so
+the reopen is SmokeHouse's own recovery: the log scanned, SuperBeefSort sorting
+it, the index born from what it measured. `recovery` is engine 2's report of
+the last open: entries, whether the checkpoint was used, whether it sorted and
+by which strategy at what cost, the feed's sortedness and inversions, the born
+tree. A clean restart's report says "nothing sorted"; until this action existed,
+that was every restart the harness had ever made, and the recovery engine had
+never run under it.
 
 ## The fourth target: the fixture
 
@@ -381,7 +392,7 @@ cache bounding, manifest completeness including typed array items, redaction wit
 and without `SENSITIVE_READ`, provider-safe naming, duplicate-plugin failure, and
 that every action the swarm drives with is one the plugin publishes.
 
-`tools/verify/verify_organism.py` (301 checks) is the evidence that the contract
+`tools/verify/verify_organism.py` (310 checks) is the evidence that the contract
 is target-neutral and that the organism does what it says when driven through
 it: default refusals leaving every meter at zero, redaction both ways, a 160-op
 differential oracle over direct, wire and batch routes against a mirror, replay
@@ -393,9 +404,11 @@ the Renderer fold against the histogram, Brine's hit after its miss, the fleet
 through a rebootstrap, `as-of` reading the frozen moment, Jerky verifying,
 segments summing to the garbage, and the recovery road under an armed crash —
 and (ADR-120) `compact` reclaiming exactly the closed segments' garbage, the
-replica held behind the primary and reporting it, and the snapshot priced.
-`tools/mutate_organism.py` breaks the plugin and the console twenty-six ways and
-requires that suite to notice each (26 killed, 0 survived, 4 recorded
+replica held behind the primary and reporting it, and the snapshot priced —
+and (ADR-122) a cold restart recovering from the log alone with engine 2's
+report naming the sort, its cost and the feed's disorder.
+`tools/mutate_organism.py` breaks the plugin and the console twenty-nine ways and
+requires that suite to notice each (29 killed, 0 survived, 4 recorded
 equivalents).
 
 `tools/verify/verify_walk.py` (74 checks) holds the robot to its claim on every

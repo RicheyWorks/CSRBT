@@ -218,9 +218,9 @@
    "unschemable": {}
   },
   "csrbt-organism": {
-   "accounted": 900,
-   "at": 1788316064,
-   "commands": 900,
+   "accounted": 922,
+   "at": 1788331285,
+   "commands": 922,
    "failures": [],
    "forbidden": [],
    "identity": "holds",
@@ -229,7 +229,7 @@
     "_cross_checks": {
      "chaos": 0,
      "declined": 0,
-     "driven": 108,
+     "driven": 106,
      "failed": 0,
      "refused": 0
     },
@@ -243,9 +243,9 @@
     "csrbt_organism__as_of": {
      "chaos": 0,
      "declined": 0,
-     "driven": 12,
+     "driven": 21,
      "failed": 0,
-     "refused": 12
+     "refused": 3
     },
     "csrbt_organism__batch": {
      "chaos": 2,
@@ -264,9 +264,9 @@
     "csrbt_organism__cold_scan": {
      "chaos": 0,
      "declined": 0,
-     "driven": 21,
+     "driven": 24,
      "failed": 0,
-     "refused": 3
+     "refused": 0
     },
     "csrbt_organism__compact": {
      "chaos": 0,
@@ -285,9 +285,9 @@
     "csrbt_organism__count_range": {
      "chaos": 0,
      "declined": 0,
-     "driven": 16,
+     "driven": 14,
      "failed": 0,
-     "refused": 8
+     "refused": 10
     },
     "csrbt_organism__delete": {
      "chaos": 0,
@@ -348,9 +348,9 @@
     "csrbt_organism__overlap": {
      "chaos": 0,
      "declined": 0,
-     "driven": 15,
+     "driven": 21,
      "failed": 0,
-     "refused": 9
+     "refused": 3
     },
     "csrbt_organism__preserve": {
      "chaos": 0,
@@ -369,30 +369,30 @@
     "csrbt_organism__put": {
      "chaos": 0,
      "declined": 0,
-     "driven": 16,
+     "driven": 15,
      "failed": 0,
-     "refused": 8
+     "refused": 9
     },
     "csrbt_organism__query": {
      "chaos": 0,
      "declined": 0,
-     "driven": 11,
+     "driven": 5,
      "failed": 0,
-     "refused": 13
+     "refused": 19
     },
     "csrbt_organism__quiesce": {
      "chaos": 0,
-     "declined": 0,
-     "driven": 24,
+     "declined": 1,
+     "driven": 23,
      "failed": 0,
      "refused": 0
     },
     "csrbt_organism__range": {
      "chaos": 0,
      "declined": 0,
-     "driven": 15,
+     "driven": 12,
      "failed": 0,
-     "refused": 9
+     "refused": 12
     },
     "csrbt_organism__rebootstrap": {
      "chaos": 0,
@@ -402,6 +402,13 @@
      "refused": 0
     },
     "csrbt_organism__recover": {
+     "chaos": 0,
+     "declined": 0,
+     "driven": 24,
+     "failed": 0,
+     "refused": 0
+    },
+    "csrbt_organism__recovery": {
      "chaos": 0,
      "declined": 0,
      "driven": 24,
@@ -469,31 +476,31 @@
    "plugin": "csrbt-organism",
    "price": {
     "actionMs": {
-     "max": 15007,
+     "max": 4907,
      "median": 0,
-     "n": 810,
-     "p95": 15,
-     "total": 32406
+     "n": 838,
+     "p95": 10,
+     "total": 7165
     },
     "snapshotMs": {
-     "max": 12,
+     "max": 8,
      "median": 0,
-     "n": 810,
+     "n": 838,
      "p95": 2,
-     "total": 398
+     "total": 255
     }
    },
    "protocolVersion": "1.2",
    "rounds": 8,
-   "seconds": 33.9,
+   "seconds": 13.3,
    "seed": 2026,
-   "tools": 33,
+   "tools": 34,
    "totals": {
     "chaos": 2,
-    "declined": 0,
-    "driven": 810,
+    "declined": 1,
+    "driven": 837,
     "failed": 0,
-    "refused": 88
+    "refused": 82
    },
    "transport": "stdio",
    "undriven": [],
@@ -501,9 +508,9 @@
    "unschemable": {}
   },
   "csrbt-organism@mcp": {
-   "accounted": 900,
-   "at": 1788316178,
-   "commands": 900,
+   "accounted": 922,
+   "at": 1788331300,
+   "commands": 922,
    "failures": [],
    "forbidden": [],
    "identity": "holds",
@@ -512,7 +519,7 @@
     "_cross_checks": {
      "chaos": 0,
      "declined": 0,
-     "driven": 108,
+     "driven": 106,
      "failed": 0,
      "refused": 0
     },
@@ -526,9 +533,9 @@
     "csrbt_organism__as_of": {
      "chaos": 0,
      "declined": 0,
-     "driven": 12,
+     "driven": 21,
      "failed": 0,
-     "refused": 12
+     "refused": 3
     },
     "csrbt_organism__batch": {
      "chaos": 2,
@@ -547,9 +554,9 @@
     "csrbt_organism__cold_scan": {
      "chaos": 0,
      "declined": 0,
-     "driven": 21,
+     "driven": 24,
      "failed": 0,
-     "refused": 3
+     "refused": 0
     },
     "csrbt_organism__compact": {
      "chaos": 0,
@@ -568,9 +575,9 @@
     "csrbt_organism__count_range": {
      "chaos": 0,
      "declined": 0,
-     "driven": 16,
+     "driven": 14,
      "failed": 0,
-     "refused": 8
+     "refused": 10
     },
     "csrbt_organism__delete": {
      "chaos": 0,
@@ -631,9 +638,9 @@
     "csrbt_organism__overlap": {
      "chaos": 0,
      "declined": 0,
-     "driven": 15,
+     "driven": 21,
      "failed": 0,
-     "refused": 9
+     "refused": 3
     },
     "csrbt_organism__preserve": {
      "chaos": 0,
@@ -652,30 +659,30 @@
     "csrbt_organism__put": {
      "chaos": 0,
      "declined": 0,
-     "driven": 16,
+     "driven": 15,
      "failed": 0,
-     "refused": 8
+     "refused": 9
     },
     "csrbt_organism__query": {
      "chaos": 0,
      "declined": 0,
-     "driven": 11,
+     "driven": 5,
      "failed": 0,
-     "refused": 13
+     "refused": 19
     },
     "csrbt_organism__quiesce": {
      "chaos": 0,
-     "declined": 0,
-     "driven": 24,
+     "declined": 1,
+     "driven": 23,
      "failed": 0,
      "refused": 0
     },
     "csrbt_organism__range": {
      "chaos": 0,
      "declined": 0,
-     "driven": 15,
+     "driven": 12,
      "failed": 0,
-     "refused": 9
+     "refused": 12
     },
     "csrbt_organism__rebootstrap": {
      "chaos": 0,
@@ -685,6 +692,13 @@
      "refused": 0
     },
     "csrbt_organism__recover": {
+     "chaos": 0,
+     "declined": 0,
+     "driven": 24,
+     "failed": 0,
+     "refused": 0
+    },
+    "csrbt_organism__recovery": {
      "chaos": 0,
      "declined": 0,
      "driven": 24,
@@ -752,31 +766,31 @@
    "plugin": "csrbt-organism",
    "price": {
     "actionMs": {
-     "max": 15007,
+     "max": 4906,
      "median": 0,
-     "n": 900,
-     "p95": 15,
-     "total": 32427
+     "n": 838,
+     "p95": 11,
+     "total": 7102
     },
     "snapshotMs": {
-     "max": 10,
+     "max": 7,
      "median": 0,
-     "n": 900,
-     "p95": 3,
-     "total": 433
+     "n": 922,
+     "p95": 1,
+     "total": 176
     }
    },
    "protocolVersion": "1.2",
    "rounds": 8,
-   "seconds": 34.7,
+   "seconds": 13.7,
    "seed": 2026,
-   "tools": 33,
+   "tools": 34,
    "totals": {
     "chaos": 2,
-    "declined": 0,
-    "driven": 810,
+    "declined": 1,
+    "driven": 837,
     "failed": 0,
-    "refused": 88
+    "refused": 82
    },
    "transport": "mcp",
    "undriven": [],
