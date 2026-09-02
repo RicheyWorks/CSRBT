@@ -277,7 +277,16 @@ python3 tools/verify/verify_mcp.py                   # 31 checks on it; mutate_m
 ./gradlew :csrbt-experimental:harnessClasspath       # once: the science engine (ADR-116)
 python3 tools/harness_stdio.py --target lab          # or --target all: organism + lab + page
 python3 tools/verify/verify_lab.py                   # 35 checks; mutate_lab.py 9/9
+python3 tools/ecosystem.py --read                    # every engine's JUnit results into one ledger (ADR-118)
+python3 tools/verify/verify_ecosystem.py             # 52 checks: green, >= floor, unbuilt or stale = NOT VERIFIED
 ```
+
+ADR-118 reads the Java side into the same discipline: `tools/ecosystem.py`
+records every engine's own suite (fifteen suites, 1624 tests on the first
+reading) in a merged ledger with a floor per engine that only rises, and
+`verify_ecosystem` refuses a shrunken suite, a stale reading, or an unlisted
+engine — so "everything works" now includes the engines' own claims about
+themselves, with holes named where a machine has not built one.
 
 ADR-116 puts the science engine behind the same door — `csrbt-lab`: lint,
 run and grade an `.eco` protocol, the strategy arena, the controller's morph
