@@ -3,7 +3,7 @@
  "targets": {
   "csrbt-lab": {
    "accounted": 192,
-   "at": 1788302224,
+   "at": 1788313392,
    "commands": 192,
    "failures": [],
    "forbidden": [],
@@ -69,24 +69,40 @@
     "csrbt_lab__run_protocol": {
      "chaos": 0,
      "declined": 0,
-     "driven": 16,
+     "driven": 12,
      "failed": 0,
-     "refused": 8
+     "refused": 12
     }
    },
    "per_round": 3,
    "plugin": "csrbt-lab",
-   "protocolVersion": "1.1",
+   "price": {
+    "actionMs": {
+     "max": 2089,
+     "median": 12,
+     "n": 180,
+     "p95": 316,
+     "total": 13437
+    },
+    "snapshotMs": {
+     "max": 5,
+     "median": 0,
+     "n": 180,
+     "p95": 2,
+     "total": 58
+    }
+   },
+   "protocolVersion": "1.2",
    "rounds": 8,
-   "seconds": 8.7,
+   "seconds": 13.9,
    "seed": 2026,
    "tools": 8,
    "totals": {
     "chaos": 0,
     "declined": 0,
-    "driven": 184,
+    "driven": 180,
     "failed": 0,
-    "refused": 8
+    "refused": 12
    },
    "undriven": [],
    "unreachable": [],
@@ -94,7 +110,7 @@
   },
   "csrbt-organism": {
    "accounted": 900,
-   "at": 1788302249,
+   "at": 1788313427,
    "commands": 900,
    "failures": [],
    "forbidden": [],
@@ -123,9 +139,9 @@
      "refused": 12
     },
     "csrbt_organism__batch": {
-     "chaos": 1,
+     "chaos": 2,
      "declined": 0,
-     "driven": 21,
+     "driven": 20,
      "failed": 0,
      "refused": 2
     },
@@ -160,9 +176,9 @@
     "csrbt_organism__count_range": {
      "chaos": 0,
      "declined": 0,
-     "driven": 13,
+     "driven": 16,
      "failed": 0,
-     "refused": 11
+     "refused": 8
     },
     "csrbt_organism__delete": {
      "chaos": 0,
@@ -216,16 +232,16 @@
     "csrbt_organism__order": {
      "chaos": 0,
      "declined": 0,
-     "driven": 8,
+     "driven": 6,
      "failed": 0,
-     "refused": 16
+     "refused": 18
     },
     "csrbt_organism__overlap": {
      "chaos": 0,
      "declined": 0,
-     "driven": 16,
+     "driven": 15,
      "failed": 0,
-     "refused": 8
+     "refused": 9
     },
     "csrbt_organism__preserve": {
      "chaos": 0,
@@ -244,30 +260,30 @@
     "csrbt_organism__put": {
      "chaos": 0,
      "declined": 0,
-     "driven": 13,
+     "driven": 16,
      "failed": 0,
-     "refused": 11
+     "refused": 8
     },
     "csrbt_organism__query": {
      "chaos": 0,
      "declined": 0,
-     "driven": 9,
+     "driven": 11,
      "failed": 0,
-     "refused": 15
+     "refused": 13
     },
     "csrbt_organism__quiesce": {
      "chaos": 0,
-     "declined": 0,
-     "driven": 24,
+     "declined": 1,
+     "driven": 23,
      "failed": 0,
      "refused": 0
     },
     "csrbt_organism__range": {
      "chaos": 0,
      "declined": 0,
-     "driven": 17,
+     "driven": 15,
      "failed": 0,
-     "refused": 7
+     "refused": 9
     },
     "csrbt_organism__rebootstrap": {
      "chaos": 0,
@@ -277,9 +293,9 @@
      "refused": 0
     },
     "csrbt_organism__recover": {
-     "chaos": 3,
+     "chaos": 0,
      "declined": 0,
-     "driven": 21,
+     "driven": 24,
      "failed": 0,
      "refused": 0
     },
@@ -342,17 +358,33 @@
    },
    "per_round": 3,
    "plugin": "csrbt-organism",
-   "protocolVersion": "1.1",
+   "price": {
+    "actionMs": {
+     "max": 15005,
+     "median": 0,
+     "n": 810,
+     "p95": 18,
+     "total": 32997
+    },
+    "snapshotMs": {
+     "max": 14,
+     "median": 0,
+     "n": 810,
+     "p95": 5,
+     "total": 736
+    }
+   },
+   "protocolVersion": "1.2",
    "rounds": 8,
-   "seconds": 25.2,
+   "seconds": 34.9,
    "seed": 2026,
    "tools": 33,
    "totals": {
-    "chaos": 4,
-    "declined": 0,
-    "driven": 805,
+    "chaos": 2,
+    "declined": 1,
+    "driven": 809,
     "failed": 0,
-    "refused": 91
+    "refused": 88
    },
    "undriven": [],
    "unreachable": [],
@@ -360,7 +392,7 @@
   },
   "csrbt-page": {
    "accounted": 368,
-   "at": 1788302299,
+   "at": 1788313491,
    "commands": 368,
    "failures": [],
    "forbidden": [],
@@ -475,24 +507,40 @@
     "csrbt_page__show_pane": {
      "chaos": 0,
      "declined": 0,
-     "driven": 16,
+     "driven": 15,
      "failed": 0,
-     "refused": 8
+     "refused": 9
     }
    },
    "per_round": 3,
    "plugin": "csrbt-page",
-   "protocolVersion": "1.1",
+   "price": {
+    "actionMs": {
+     "max": 377,
+     "median": 69,
+     "n": 247,
+     "p95": 361,
+     "total": 27982
+    },
+    "snapshotMs": {
+     "max": 177,
+     "median": 91,
+     "n": 247,
+     "p95": 153,
+     "total": 25173
+    }
+   },
+   "protocolVersion": "1.2",
    "rounds": 8,
-   "seconds": 50.3,
+   "seconds": 63.7,
    "seed": 2026,
    "tools": 15,
    "totals": {
     "chaos": 0,
     "declined": 0,
-    "driven": 248,
+    "driven": 247,
     "failed": 0,
-    "refused": 120
+    "refused": 121
    },
    "undriven": [],
    "unreachable": [

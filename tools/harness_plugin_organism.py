@@ -432,15 +432,22 @@ class OrganismPlugin(Plugin):
                            "Close the organism and reopen it at the same root -- the "
                            "crash-recovery road (Twine's journal replays into every "
                            "index) -- optionally under a Sizzle plan: none, once:N, "
-                           "every:N, prob:SEED:P, plus a per-write latency. Changes no "
-                           "record; a plan only makes later writes fail.",
+                           "every:N, prob:SEED:P, plus a per-write latency, plus a "
+                           "replica lag: milliseconds every replicated event is held "
+                           "back, so the fleet's replica is genuinely behind the primary "
+                           "until a quiesce (late, never wrong). Changes no record; a "
+                           "plan only makes later writes fail.",
                            "NAVIGATE",
                            [ArgumentSpec("chaos", "string",
                                          "none | once:N | every:N | prob:SEED:P",
                                          pattern=CHAOS.pattern,
                                          examples=["none", "once:2", "every:3", "prob:7:0.1"]),
                             ArgumentSpec("latency-ms", "integer", "0-5000 per write op.",
-                                         minimum=0, maximum=5000)]),
+                                         minimum=0, maximum=5000),
+                            ArgumentSpec("replica-lag-ms", "integer",
+                                         "0-200 per replicated event; the fleet's lag reads "
+                                         "nonzero until the replica catches up.",
+                                         minimum=0, maximum=200)]),
             ])
 
     def descriptor(self):
@@ -600,8 +607,11 @@ class OrganismPlugin(Plugin):
             lat = args.get("latency-ms", 0)
             if not 0 <= lat <= 5000:
                 raise InvalidArgument("latency-ms must be 0-5000")
-            r = c.send("restart", plan, lat)
-            return True, "restarted under %s" % r["chaos"], _out(r)
+            lag = args.get("replica-lag-ms", 0)
+            if not 0 <= lag <= 200:
+                raise InvalidArgument("replica-lag-ms must be 0-200")
+            r = c.send("restart", plan, lat, lag)
+            return True, "restarted under %s%s" % (r["chaos"], (", replica held back %d ms/event" % lag) if lag else ""), _out(r)
         if action == "report":
             r = c.send("report")
             return True, "the physical", {"report": r["report"],

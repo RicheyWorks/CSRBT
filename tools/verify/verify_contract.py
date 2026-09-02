@@ -14,7 +14,7 @@ default but answers one operation without a token, or that serves a cached
 SENSITIVE_READ after the operator has closed that gate, has a plausible face and
 an open door (ADR-061).
 """
-import io, json, os, sys
+import io, json, os, sys, time
 
 import _kit
 
@@ -132,8 +132,23 @@ ck(C.TOKEN_MIN >= 24, "the minimum token length is at least 24 characters")
 
 # ---- 3. risk is enforced, and it is the plugin's declaration --------------
 g, plug = gw()
-ck(g.execute(TOKEN, "fake", {"request_id": rid(2), "action": "look"})["ok"],
-   "a READ action runs under the default policy")
+r = g.execute(TOKEN, "fake", {"request_id": rid(2), "action": "look"})
+ck(r["ok"], "a READ action runs under the default policy")
+# ADR-120: the snapshot that rides every response is priced on that response --
+# the action's own time and the snapshot's, separately, as integers of ms.
+ck(isinstance(r.get("ms"), int) and isinstance(r.get("snapshotMs"), int) and r["ms"] >= 0
+   and r["snapshotMs"] >= 0 and "snapshot" in r,
+   "every execute response prices its action (ms) and its snapshot (snapshotMs) separately: %s"
+   % {k: r.get(k) for k in ("ms", "snapshotMs")})
+class Slow(Fake):
+    def observe(self, sensitive=False):
+        time.sleep(0.05)
+        return Fake.observe(self, sensitive)
+gs = C.Gateway(C.Registry([Slow()]), C.Policy(token=TOKEN, allow=None, enabled=True))
+rs = gs.execute(TOKEN, "fake", {"request_id": rid(2), "action": "look"})
+ck(rs["snapshotMs"] >= 40 and rs["ms"] < 40,
+   "a slow observe is charged to the snapshot, not to the action: ms=%s snapshotMs=%s"
+   % (rs["ms"], rs["snapshotMs"]))
 refused(lambda: g.execute(TOKEN, "fake", {"request_id": rid(3), "action": "peek"}),
         "forbidden", "SENSITIVE_READ under the default policy")
 refused(lambda: g.execute(TOKEN, "fake", {"request_id": rid(4), "action": "save"}),
@@ -208,7 +223,7 @@ ck(len(g._done) <= C.REPLAY_CACHE_LIMIT,
 # ---- 6. the manifest is enough to build a client from --------------------
 g, _ = gw(allow={"SENSITIVE_READ": True})
 m = g.manifest(TOKEN)
-ck(m["protocolVersion"] == "1.1", "the manifest states a protocol version (1.1: ADR-114 bounds)")
+ck(m["protocolVersion"] == "1.2", "the manifest states a protocol version (1.2: ADR-120 snapshotMs)")
 ck(m["strictArguments"] is True, "and that unknown arguments are refused")
 ck(m["tokenMinLength"] == C.TOKEN_MIN, "and the minimum token length")
 ck(set(m["policy"]) == set(C.RISKS), "and the effective policy for every risk")

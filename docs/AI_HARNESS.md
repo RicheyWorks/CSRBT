@@ -268,18 +268,34 @@ the second implementation is the measurement, and it held.
 ```bash
 cd ../WholeHog && ./gradlew harnessClasspath         # once, after a clone
 python3 tools/harness_stdio.py --target organism     # or --target both
-python3 tools/verify/verify_organism.py              # 284 checks; NOT VERIFIED ×9 without the build
-python3 tools/mutate_organism.py                     # break plugin + console 22 ways, require notice
+python3 tools/verify/verify_organism.py              # 301 checks; NOT VERIFIED ×9 without the build
+python3 tools/mutate_organism.py                     # break plugin + console 26 ways, require notice
 python3 tools/harness_walk.py --target all           # the robot: every target from the manifest alone
-python3 tools/verify/verify_walk.py                  # 49 checks on the robot and its ledger
+python3 tools/verify/verify_walk.py                  # 74 checks on the robot, its ledger, and the fixture
+python3 tools/harness_walk.py --target fixture       # the target built to be walked (ADR-119)
+python3 tools/mutate_walk.py                         # break the robot 17 ways against verify_walk (quick mode)
 python3 tools/harness_mcp.py --target organism       # the second transport: MCP, for a model (ADR-115)
 python3 tools/verify/verify_mcp.py                   # 31 checks on it; mutate_mcp.py 6/6
 ./gradlew :csrbt-experimental:harnessClasspath       # once: the science engine (ADR-116)
 python3 tools/harness_stdio.py --target lab          # or --target all: organism + lab + page
 python3 tools/verify/verify_lab.py                   # 35 checks; mutate_lab.py 9/9
 python3 tools/ecosystem.py --read                    # every engine's JUnit results into one ledger (ADR-118)
-python3 tools/verify/verify_ecosystem.py             # 52 checks: green, >= floor, unbuilt or stale = NOT VERIFIED
+python3 tools/verify/verify_ecosystem.py             # 56 checks: green, >= floor, unbuilt or stale = NOT VERIFIED; the Atlas == the ledger
+python3 tools/atlas.py                               # regenerate the Atlas's engine table from the ledger (ADR-120)
 ```
+
+ADR-120 closed what the program had held: every response now prices its
+snapshot (`snapshotMs`, protocol 1.2 — free on the organism and the lab, 91 ms
+median on a page, more than the actions it rides on), the replica can be held
+behind the primary through a feed seam cut three engines deep (and the first
+pull of it found PitBoss reporting lag 0 for a replica twenty frames behind —
+it measures from the conductor's seat now), `compact` is asserted to the byte,
+and the Atlas is regenerated from the ecosystem ledger by `tools/atlas.py`
+with a check that fails on drift. ADR-119 turned the kit's mutation rule on the
+robot itself: `csrbt-fixture` is a target whose every action lands in a known
+bucket, so `mutate_walk.py` can break the walker and require its suite to
+notice — and the fixture found "one first" true in the unit check and false in
+every walk.
 
 ADR-118 reads the Java side into the same discipline: `tools/ecosystem.py`
 records every engine's own suite (fifteen suites, 1624 tests on the first

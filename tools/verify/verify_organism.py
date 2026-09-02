@@ -30,11 +30,17 @@ a request id, against a policy it names.
      rebootstrap
   Q. DryAge: as-of reads the frozen moment; retain-newest ages the vault
   R. Jerky: the archive verifies and names its scan run
-  S. SmokeHouse: segments account for the garbage; compact changes no read
+  S. SmokeHouse: segments account for the garbage; after a churn that closes
+     segments, compact reclaims EXACTLY the closed segments' garbage, leaves
+     no closed garbage behind, and changes no read (ADR-120: asserted strongly)
   T. Twine: a clean journal has nothing to replay
   U. Rub: history grows by one per tick
   V. Sizzle: arm a crash by restart, watch a batch fail, restart clean, read
      the batch back whole -- the recovery road through the gateway
+  W. the replica held behind the primary (ADR-120): restart with a replica lag,
+     write, and the fleet reports the replica BEHIND -- a lag reading that is a
+     reading -- then a quiesce lands the feed and it reads zero; the per-response
+     snapshot is priced and bounded
   I. a dead console is `unavailable`, never a hang and never `failed`
   J. the stdio transport serves the organism with no change below its parser
 
@@ -609,12 +615,31 @@ else:
     ck(segs and sum(x["garbageBytes"] for x in segs) == snap["garbageBytes"] and
        sum(1 for x in segs if x["active"]) == 1 and len(segs) == snap["segments"],
        "segments account for the snapshot's garbage, one active: %d segment(s)" % len(segs))
+    # ADR-120: asserted strongly. Overwrite a handful of keys many times so the
+    # 4 KiB segments roll and the closed ones carry garbage; then compact must
+    # reclaim exactly that garbage -- the closed segments' dead bytes, no more,
+    # no less -- and leave nothing dead behind in a closed segment.
+    for round_ in range(12):
+        for k in [k for k in sample_keys if k in model][:10]:
+            run(gwW, "put", key=k, attr=model[k][0], start=model[k][1], end=model[k][2])
+    segs = run(gwW, "segments")["output"]["segments"]
+    closed_garbage = sum(x["garbageBytes"] for x in segs if not x["active"])
+    ck(len(segs) >= 3 and closed_garbage > 0,
+       "the churn closed segments carrying garbage: %d segment(s), %d dead bytes in closed ones"
+       % (len(segs), closed_garbage))
     before = run(gwW, "range", lo=0, hi=999)["output"]["records"]
     r = run(gwW, "compact")["output"]
     after = run(gwW, "range", lo=0, hi=999)["output"]["records"]
-    ck(r["garbageAfter"] <= r["garbageBefore"] and after == before,
-       "compact reclaimed %d bytes (garbage %d -> %d) and changed no read"
-       % (r["reclaimed"], r["garbageBefore"], r["garbageAfter"]))
+    segs2 = run(gwW, "segments")["output"]["segments"]
+    ck(r["reclaimed"] == closed_garbage and r["garbageBefore"] - r["garbageAfter"] == closed_garbage,
+       "compact reclaimed EXACTLY the closed segments' garbage: %d of %d dead bytes (garbage %d -> %d)"
+       % (r["reclaimed"], closed_garbage, r["garbageBefore"], r["garbageAfter"]))
+    ck(all(x["garbageBytes"] == 0 for x in segs2 if not x["active"]) and
+       sum(1 for x in segs2 if not x["active"]) <= 1 and r["segments"] == len(segs2),
+       "and left no dead byte in a closed segment, at most one closed segment, its count on the "
+       "record: %s" % segs2)
+    ck(after == before and len(after) == len(model),
+       "and changed no read: %d records before and after" % len(after))
 
     # ---- T. Twine ----
     r = run(gwW, "recover")["output"]
@@ -656,6 +681,44 @@ else:
     ok_, code = refused(lambda: run(gwW, "restart", **{"latency-ms": 9999}), "invalid_argument")
     ck(ok_, "a latency past the cap is refused: %s" % code)
     ck(plug.observe()["restarts"] == 2, "and neither refusal restarted anything")
+
+    # ---- W. the replica held behind the primary; the snapshot priced ----
+    # ADR-113 held this: "the replica can't be held behind the primary without a
+    # Sizzle.slow seam on the replication tail". The seam is cut (SmokeHouse's
+    # ReplicationServer feed wrapper, through PitBoss, through Organism) and the
+    # first time it was pulled, the fleet reported the held-back replica at lag
+    # 0 -- Replica.lagSequence() measures from the last frame it RECEIVED. PitBoss
+    # now measures from the primary it conducts.
+    r = run(gwW, "restart", **{"replica-lag-ms": 200})
+    ck(r["ok"] and r["output"]["replicaLagMs"] == 200 and r["snapshot"]["replicaLagMs"] == 200
+       and r["snapshot"]["chaos"] == "none",
+       "restart with a replica lag reopens the store with the feed held back 200 ms per event, "
+       "and the snapshot says so: %s" % r["output"])
+    for k in range(950, 956):
+        run(gwW, "put", key=k, attr=2, start=2, end=3)
+        model[k] = (2, 2, 3)
+    f = run(gwW, "fleet")["output"]["replicas"][0]
+    ck(f["lag"] > 0 and not f["gapped"],
+       "six writes later the fleet reports the replica BEHIND and not gapped -- a lag reading that "
+       "is a reading: %s" % f)
+    q = run(gwW, "quiesce", ms=15000)["output"]
+    f2 = run(gwW, "fleet")["output"]["replicas"][0]
+    ck(q["quiet"] is True and f2["lag"] == 0,
+       "a quiesce waits for the held-back feed to land, and the fleet then reads lag 0: %s" % f2)
+    ck(run(gwW, "replica-get", key=955)["output"].get("found") is True,
+       "and the last write is on the replica: late, never wrong")
+    ok_, code = refused(lambda: run(gwW, "restart", **{"replica-lag-ms": 9999}), "invalid_argument")
+    ck(ok_, "a replica lag past the cap is refused at the boundary: %s" % code)
+    r = run(gwW, "restart")
+    ck(r["output"]["replicaLagMs"] == 0 and plug.observe()["replicaLagMs"] == 0,
+       "a plain restart lets the feed go")
+    run(gwW, "quiesce", ms=15000)
+    # The snapshot, priced (held since ADR-112). Every response carries what its
+    # snapshot cost; the organism's observe is a dozen meters and a directory
+    # listing, and it must stay a small fraction of a second.
+    prices = [run(gwW, "order", kind="size")["snapshotMs"] for _ in range(10)]
+    ck(all(isinstance(p_, int) and 0 <= p_ <= 250 for p_ in prices),
+       "ten snapshots on the organism each cost under 250 ms: %s" % prices)
 
     # ---- I. a dead console ----
     plug.console.proc.kill()

@@ -74,7 +74,8 @@ REPLAY SAFETY
 """
 import hmac, json, os, re, time
 
-PROTOCOL_VERSION = "1.1"   # 1.1 (ADR-114): bounds, patterns, examples in argument schemas
+PROTOCOL_VERSION = "1.2"   # 1.1 (ADR-114): bounds, patterns, examples in argument schemas
+                           # 1.2 (ADR-120): snapshotMs on every execute response -- the snapshot, priced
 REPLAY_CACHE_LIMIT = 256
 REPLAY_CACHE_BYTE_LIMIT = 8 * 1024 * 1024
 TOKEN_MIN = 24
@@ -460,12 +461,19 @@ class Gateway(object):
         except Exception as e:
             self.audit.append((time.time(), plugin_id, name, spec.risk, "failed"))
             raise Failed("%s/%s raised: %s" % (plugin_id, name, str(e)[:200]))
+        ms = int((time.time() - t0) * 1000)
+        # The snapshot rides every response, and until ADR-120 nobody had said
+        # what it costs. Priced here, per response: a client can read how much
+        # of a round trip was the action and how much was the target being
+        # asked about itself, and a ledger can hold it to a bound.
+        t1 = time.time()
+        snap = plugin.observe(sensitive=bool(self.policy.allow.get("SENSITIVE_READ")))
         resp = {"protocolVersion": PROTOCOL_VERSION, "requestId": rid,
                 "pluginId": plugin_id, "action": spec.name, "risk": spec.risk,
                 "ok": bool(ok), "replayed": False, "message": message,
-                "output": output, "ms": int((time.time() - t0) * 1000),
-                "snapshot": plugin.observe(
-                    sensitive=bool(self.policy.allow.get("SENSITIVE_READ")))}
+                "output": output, "ms": ms,
+                "snapshotMs": int((time.time() - t1) * 1000),
+                "snapshot": snap}
         n = _bytes(output)
         self._done[key] = _Done(body, resp, spec.risk, n)
         self._bytes += n

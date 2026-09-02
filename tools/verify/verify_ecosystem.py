@@ -19,7 +19,10 @@ that keeps that ledger honest:
      sources, is NOT VERIFIED, by name, never green -- stale evidence is not
      a shrunken suite;
   5. a floor only rises on a read; every lowering carries a reason;
-  6. the ledger's arithmetic: the total it prints is the sum of its rows.
+  6. the ledger's arithmetic: the total it prints is the sum of its rows;
+  7. the Atlas's engine table (WholeHog/docs/atlas.html) is what tools/atlas.py
+     renders from this ledger and the repos' build files -- a version or a
+     suite count typed by hand is drift, and drift fails (ADR-120).
 
 The ledger is the claim; the XML on disk is the evidence. Where the XML is
 newer than the ledger's reading, the reading is stale and this says so
@@ -117,6 +120,22 @@ ck(all(all(l.get("reason", "").strip() for l in e.get("lowered", [])) for e in e
 ck(sum(e.get("tests", 0) for e in eng.values()) ==
    sum(eng[n].get("tests", 0) for n in listed if n in eng),
    "the total is the sum of the rows, and only listed engines count")
+
+# ---- 7. the Atlas is regenerated from this ledger, not typed ------------------
+import atlas as A
+if os.path.isfile(A.ATLAS):
+    html = io.open(A.ATLAS, encoding="utf-8").read()
+    ck("<!-- engines:begin -->" in html and "<!-- stamp:begin -->" in html,
+       "the Atlas carries the generation markers tools/atlas.py writes between")
+    ck(A.render(html, led) == html,
+       "the Atlas's engine table and stamp are exactly what the ledger and the build files say -- "
+       "run tools/atlas.py")
+    ck(len(A.ROWS) == 14 and {r[1] for r in A.ROWS} == {repo for _, repo, _, _ in E.ENGINES},
+       "the Atlas rows are the fourteen repos the ledger lists, no more, no fewer")
+    ck(sorted(n for _, _, engines, _ in A.ROWS for n in engines) == sorted(e for e, _, _, _ in E.ENGINES),
+       "every ledger engine feeds exactly one Atlas row")
+else:
+    unverified.append("Atlas: WholeHog/docs/atlas.html is not beside this repo")
 
 total = P + F + len(unverified)
 print("---")

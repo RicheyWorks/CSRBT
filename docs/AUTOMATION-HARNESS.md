@@ -132,6 +132,14 @@ labels.
 current session, not a hint. The gateway enforces the same policy independently
 if a client submits the command anyway.
 
+**Every response prices its snapshot (ADR-120, protocol 1.2).** An execute
+response carries `ms` (the action) and `snapshotMs` (what the target charged to
+be asked about itself), timed separately. The organism's and the lab's snapshots
+are free; a page's costs more than its actions (91 ms median on collection-sheet
+against 69 ms), because reading a page's state means evaluating the control map
+over the DOM. The robot reads the price from the responses and keeps it in the
+walk ledger per target; the suites bound the median at 250 ms.
+
 **The schema is enough to form a call (ADR-114, protocol 1.1).** Integer and
 number arguments publish `minimum`/`maximum` (inclusive); string arguments and
 arrays of strings publish a `pattern` (full-match; on the items for arrays) —
@@ -252,7 +260,7 @@ cd ../WholeHog && ./gradlew harnessClasspath     # writes build/harness/classpat
 | DryAge | `retain-newest` | `count` | `MUTATE` |
 | Jerky | `verify-archive`, `archive-names` | `generation` | `READ` |
 | Jerky | `cold-scan` | `generation` | `SENSITIVE_READ` |
-| Sizzle | `restart` | `chaos` (none\|once:N\|every:N\|prob:SEED:P), `latency-ms` | `NAVIGATE` |
+| Sizzle | `restart` | `chaos` (none\|once:N\|every:N\|prob:SEED:P), `latency-ms`, `replica-lag-ms` (0–200) | `NAVIGATE` |
 
 Thirty-three actions (ADR-113): every engine of the organism is reachable by
 its own surface. `via` is on every read the wire can answer as well as on the
@@ -278,6 +286,27 @@ batch back whole. `restart` is `NAVIGATE`: it changes no record, and a plan only
 makes later writes fail. After `rebootstrap`, snapshots say
 `replicaObserverDetached: true` until the next restart — the replica vitals line
 is then about a store nobody reads, and the snapshot says so.
+
+`restart` also takes `replica-lag-ms` (ADR-120): every replicated event is held
+back that long — `Sizzle.slow` on the replication feed seam that SmokeHouse's
+`ReplicationServer` and PitBoss pass through — so the fleet's replica is
+genuinely behind the primary until a `quiesce` lands the feed. Late, never
+wrong: frames arrive in order and none are dropped. `fleet` then reports a lag
+that is a reading — measured by PitBoss from the primary it conducts, because a
+replica whose feed is held back has not yet received the frame that would tell
+it how far behind it is (the first pull of this seam found the fleet reporting
+0 for a replica twenty frames behind).
+
+## The fourth target: the fixture
+
+`--target fixture` serves `csrbt-fixture` (ADR-119): a plugin built to be
+walked, whose every action lands in a known bucket every time — always ok,
+always refuses, always declines, raises a Crash under an armed plan, raises
+without one, accepts only the slot the latest snapshot publishes, publishes an
+empty pool, takes a string nothing can form, records array lengths, flips its
+own consistency flag, and (with `CSRBT_FIXTURE_DIE=1`) goes away. It is what
+`tools/mutate_walk.py` breaks the robot against, and it is never part of
+`--target all`.
 
 ## The third target: the science engine
 
@@ -339,7 +368,7 @@ cache bounding, manifest completeness including typed array items, redaction wit
 and without `SENSITIVE_READ`, provider-safe naming, duplicate-plugin failure, and
 that every action the swarm drives with is one the plugin publishes.
 
-`tools/verify/verify_organism.py` (284 checks) is the evidence that the contract
+`tools/verify/verify_organism.py` (301 checks) is the evidence that the contract
 is target-neutral and that the organism does what it says when driven through
 it: default refusals leaving every meter at zero, redaction both ways, a 160-op
 differential oracle over direct, wire and batch routes against a mirror, replay
@@ -349,16 +378,21 @@ stdio transport end to end — and (ADR-113) one oracle per engine: wire == dire
 order statistics against the sorted mirror, Carver spans against brute force,
 the Renderer fold against the histogram, Brine's hit after its miss, the fleet
 through a rebootstrap, `as-of` reading the frozen moment, Jerky verifying,
-segments summing to the garbage, and the recovery road under an armed crash.
-`tools/mutate_organism.py` breaks the plugin and the console nineteen ways and
-requires that suite to notice each (19 killed, 0 survived, 3 recorded
+segments summing to the garbage, and the recovery road under an armed crash —
+and (ADR-120) `compact` reclaiming exactly the closed segments' garbage, the
+replica held behind the primary and reporting it, and the snapshot priced.
+`tools/mutate_organism.py` breaks the plugin and the console twenty-six ways and
+requires that suite to notice each (26 killed, 0 survived, 4 recorded
 equivalents).
 
-`tools/verify/verify_walk.py` (49 checks) holds the robot to its claim on every
+`tools/verify/verify_walk.py` (74 checks) holds the robot to its claim on every
 target: an outsider, a generator that respects every kind of bound and reports
 the unformable rather than guessing, live walks of the organism, the lab and two
-pages with full coverage and nothing failed, and the committed ledger at the
-same bar for all three.
+pages with full coverage and nothing failed, the committed ledger at the same
+bar for all three with the snapshot's price on it, and (ADR-119) a walk of the
+fixture with every bucket's count pinned exactly. `tools/mutate_walk.py` breaks
+the robot seventeen ways against that suite: 17 killed, 0 survived, 2 recorded
+equivalents.
 
 `tools/verify/verify_lab.py` (35 checks) holds the third target to the
 canonical oracle the repository already keeps — the shipped protocol run through
