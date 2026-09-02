@@ -273,6 +273,29 @@ with sync_playwright() as pw:
     pg.fill("#imp-text", "wibble: 1\nphase: x wobble 5"); pg.click("#imp-go")
     lint = pg.text_content("#lint")
     ck("imported unknown directive named", "unknown directive 'wibble'" in lint, lint)
+    # a photograph dropped on the import card is refused by name, and nothing
+    # is imported (ADR-128: the harness's page walk dropped one and a run of
+    # its bytes pushed the page 30px sideways on a phone)
+    before = pg.text_content("#eco-out")
+    pg.evaluate("""() => {
+      const dt = new DataTransfer();
+      dt.items.add(new File([new Uint8Array([0xff, 0xd8, 0xff, 0xe0, 0, 16, 74, 70, 73, 70, 0, 1])], "IMG_0431.jpg", {type: "image/jpeg"}));
+      const e = new DragEvent("drop", {bubbles: true, cancelable: true, dataTransfer: dt});
+      document.getElementById("imp-card").dispatchEvent(e); }""")
+    pg.wait_for_timeout(200)
+    ck("a JPEG dropped on the import card is refused by name", "Not a text file: IMG_0431.jpg" in pg.text_content("#toast"),
+       pg.text_content("#toast"))
+    ck("and nothing was imported", pg.text_content("#eco-out") == before, pg.text_content("#eco-out")[:80])
+    pg.evaluate("""() => {
+      const dt = new DataTransfer();
+      dt.items.add(new File([new Uint8Array([0xff, 0xd8, 0xff, 0xe0, 0, 16])], "no-type.bin", {type: ""}));
+      document.getElementById("imp-card").dispatchEvent(new DragEvent("drop", {bubbles: true, cancelable: true, dataTransfer: dt})); }""")
+    pg.wait_for_timeout(300)
+    ck("a typeless binary is refused by its bytes", "Not a text file: no-type.bin" in pg.text_content("#toast"),
+       pg.text_content("#toast"))
+    ck("a lint row cannot push the page sideways: long tokens wrap",
+       pg.evaluate("() => getComputedStyle(document.querySelector('.lint .row') || document.body).overflowWrap") == "anywhere"
+       or "overflow-wrap:anywhere" in src.replace(" ", ""), "no .lint .row / no rule")
     ck("imported unknown phase kind named", "unknown phase kind 'wobble'" in lint, lint)
     # the smallest legal data line — label plus ONE count — imports as a dataset
     pg.fill("#imp-text", "name: tiny\ndata: solo cattail=3"); pg.click("#imp-go")

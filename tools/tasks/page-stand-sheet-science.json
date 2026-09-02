@@ -1,0 +1,403 @@
+{
+ "id": "page-stand-sheet-science",
+ "target": "page",
+ "page": "stand-sheet.html",
+ "goal": "On the stand sheet's default 11.28 m fixed-radius plot (400 m², expansion factor 25.0), tally four live Douglas-fir at DBH 30, 25, 40 and 20 cm and find 4 live stems, 100 stems/ha, live basal area 6.9 m²/ha, QMD 29.7 cm and SDI 132; a DBH-35 snag counts as one snag and undo removes it; a stem at DBH 0 is refused; 20 m horizontal distance with angles 42° to the top and −8° to the base gives a 20.8 m (68 ft) tree; coarse woody debris 12 8 31 45 9 cm on a 30 m transect is 134.7 m³/ha by van Wagner and half that on 60 m; the .eco export carries every figure.",
+ "steps": [
+  {
+   "id": "look",
+   "action": "observe",
+   "expect": {
+    "ok": true,
+    "snapshot.page": "stand-sheet.html"
+   }
+  },
+  {
+   "id": "tally",
+   "action": "show-pane",
+   "arguments": {
+    "pane": "p-trees"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "sp",
+   "action": "pick",
+   "arguments": {
+    "selector": "@control:tEntry",
+    "value": "Douglas-fir"
+   },
+   "expect": {
+    "ok": true,
+    "output.chose": {
+     "op": "contains",
+     "value": "Douglas-fir"
+    }
+   }
+  },
+  {
+   "id": "d1",
+   "action": "set-text",
+   "arguments": {
+    "selector": "@control:DBH",
+    "value": "30"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "t1",
+   "action": "activate",
+   "arguments": {
+    "selector": "@control:tAdd"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "d2",
+   "action": "set-text",
+   "arguments": {
+    "selector": "@control:DBH",
+    "value": "25"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "t2",
+   "action": "activate",
+   "arguments": {
+    "selector": "@control:tAdd"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "d3",
+   "action": "set-text",
+   "arguments": {
+    "selector": "@control:DBH",
+    "value": "40"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "t3",
+   "action": "activate",
+   "arguments": {
+    "selector": "@control:tAdd"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "d4",
+   "action": "set-text",
+   "arguments": {
+    "selector": "@control:DBH",
+    "value": "20"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "t4",
+   "action": "activate",
+   "arguments": {
+    "selector": "@control:tAdd"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "four",
+   "action": "read-report",
+   "expect": {
+    "ok": true,
+    "output.figures.live stems": "4",
+    "output.figures.snags": "0",
+    "output.figures.live stems/ha": "100",
+    "output.figures.live BA m²/ha": "6.9",
+    "output.figures.QMD cm": "29.7",
+    "output.figures.SDI (Reineke)": "132"
+   }
+  },
+  {
+   "id": "d5",
+   "action": "set-text",
+   "arguments": {
+    "selector": "@control:DBH",
+    "value": "35"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "snag",
+   "action": "activate",
+   "arguments": {
+    "selector": "@control:tEntry/snag 3"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "t5",
+   "action": "activate",
+   "arguments": {
+    "selector": "@control:tAdd"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "one-snag",
+   "action": "read-report",
+   "expect": {
+    "output.figures.snags": "1",
+    "output.figures.live stems": "4"
+   }
+  },
+  {
+   "id": "live",
+   "action": "activate",
+   "arguments": {
+    "selector": "@control:tEntry/live"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "undo",
+   "action": "activate",
+   "arguments": {
+    "selector": "@control:tUndo"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "no-snag",
+   "action": "read-report",
+   "expect": {
+    "output.figures.snags": "0",
+    "output.figures.live stems": "4"
+   }
+  },
+  {
+   "id": "d0",
+   "action": "set-text",
+   "arguments": {
+    "selector": "@control:DBH",
+    "value": "0"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "t0",
+   "action": "activate",
+   "arguments": {
+    "selector": "@control:tAdd"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "refused",
+   "action": "read-report",
+   "expect": {
+    "output.figures.live stems": "4"
+   }
+  },
+  {
+   "id": "ht",
+   "action": "activate",
+   "arguments": {
+    "selector": "@control:htToggle"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "hd",
+   "action": "set-text",
+   "arguments": {
+    "selector": "@control:horizontal distance",
+    "value": "20"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "top",
+   "action": "set-text",
+   "arguments": {
+    "selector": "@control:angle to TOP",
+    "value": "42"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "base",
+   "action": "set-text",
+   "arguments": {
+    "selector": "@control:angle to BASE",
+    "value": "-8"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "height",
+   "action": "read-report",
+   "expect": {
+    "output.figures.total height": "20.8 m",
+    "output.figures.for US protocols": "68 ft"
+   }
+  },
+  {
+   "id": "plot",
+   "action": "show-pane",
+   "arguments": {
+    "pane": "p-plot"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "ne",
+   "action": "activate",
+   "arguments": {
+    "selector": "@control:physEntry/NE"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "cwd",
+   "action": "set-text",
+   "arguments": {
+    "selector": "@control:cwdD",
+    "value": "12 8 31 45 9"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "cwd30",
+   "action": "read-report",
+   "expect": {
+    "output.figures.pieces crossed": "5",
+    "output.figures.m³/ha": "134.7",
+    "output.figures.transect m": "30",
+    "output.boxes.cwdOut": {
+     "op": "contains",
+     "value": "8·30"
+    }
+   }
+  },
+  {
+   "id": "len",
+   "action": "set-text",
+   "arguments": {
+    "selector": "@control:transect length",
+    "value": "60"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "cwd60",
+   "action": "read-report",
+   "expect": {
+    "output.figures.m³/ha": "67.3",
+    "output.figures.transect m": "60",
+    "output.boxes.ecoOut": {
+     "op": "contains",
+     "value": "coarse woody debris 67.3 m3/ha"
+    }
+   }
+  },
+  {
+   "id": "eco1",
+   "action": "read-report",
+   "expect": {
+    "output.boxes.ecoOut": {
+     "op": "contains",
+     "value": "Douglas-fir=4"
+    }
+   }
+  },
+  {
+   "id": "eco2",
+   "action": "read-report",
+   "expect": {
+    "output.boxes.ecoOut": {
+     "op": "contains",
+     "value": "6.93 m²/ha"
+    }
+   }
+  },
+  {
+   "id": "eco3",
+   "action": "read-report",
+   "expect": {
+    "output.boxes.ecoOut": {
+     "op": "contains",
+     "value": "EF 25.0"
+    }
+   }
+  },
+  {
+   "id": "eco4",
+   "action": "read-report",
+   "expect": {
+    "output.boxes.ecoOut": {
+     "op": "contains",
+     "value": "aspect 45"
+    }
+   }
+  },
+  {
+   "id": "intact",
+   "action": "read-page",
+   "expect": {
+    "output.junk": null,
+    "output.errors": {
+     "op": "==",
+     "value": []
+    },
+    "output.overflow": 0
+   }
+  }
+ ]
+}

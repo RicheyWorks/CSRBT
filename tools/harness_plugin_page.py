@@ -92,6 +92,7 @@ SEL_RE = re.compile(r"^[a-z_]+:\d+$")
 # selector its action will accept.
 POOL_KINDS = {
     "set-text": ("text_in", "field_in", "pick_search", "step_val"),
+    "pick": ("pick_search",),
     "choose-option": ("select",),
     "set-slider": ("slider",),
     "press-step": ("step_btn",),
@@ -115,7 +116,16 @@ CONTROLS = r"""
     out.push({
       selector: e.getAttribute("data-h"),
       kind: (e.getAttribute("data-h") || "").split(":")[0],
-      label: (e.getAttribute("aria-label") || e.textContent || e.placeholder ||
+      // The page's own name for the control (ADR-128): a task says
+      // "@control:cName" and is readable; the selector is the moment's.
+      id: e.id || null,
+      host: (e.parentElement && e.parentElement.closest("[id]") || {}).id || null,
+      // A dial button is "<span>4</span><small>25-50%</small>", a behaviour
+      // key "<b class=nm>forage</b><kbd>f</kbd>": the label is the name a
+      // finger reads, not the whole button's text run together (ADR-128).
+      label: (e.getAttribute("aria-label") || (e.querySelector(".nm") || {}).textContent ||
+              (() => { const c = e.cloneNode(true); c.querySelectorAll("small, kbd").forEach(x => x.remove());
+                       return c.textContent; })() || e.placeholder ||
               e.getAttribute("title") || "").replace(/\s+/g, " ").trim().slice(0, 60),
       pane: (e.closest(".pane") || {}).id || null,
       target: e.getAttribute("data-pane") || null,
@@ -140,16 +150,148 @@ CONTROLS = r"""
         choices.push({ selector: sel.getAttribute("data-h"), value: String(o.value) });
     });
   });
+  // A picker's options, as (selector, label) SETS (ADR-128): the labels a
+  // reader would type are the page's, not the manifest's examples -- the
+  // first walk of every page left pick undriven on five pages whose pickers
+  // offer no genus. Capped per picker; the label is the option's name
+  // without its sub-line.
+  const picks = [];
+  document.querySelectorAll(".fek-pick .search[data-h]").forEach(s => {
+    const root = s.closest(".fek-pick");
+    [...root.querySelectorAll(".opt")].slice(0, 6).forEach(o => {
+      const c = o.cloneNode(true); c.querySelectorAll("small").forEach(x => x.remove());
+      const label = (c.textContent || "").replace(/\s+/g, " ").trim().slice(0, 80);
+      if (label && picks.length < 200) picks.push({ selector: s.getAttribute("data-h"), value: label });
+    });
+  });
   return { route: (document.querySelector(".pane.on") || {}).id || null,
            title: document.title,
            optionValues: [...opts],
            optionChoices: choices,
+           pickChoices: picks,
            panes: [...document.querySelectorAll(".pane")].map(p => p.id),
            tabs: [...document.querySelectorAll(".tab[data-pane]")].map(
                    t => ({ pane: t.getAttribute("data-pane"),
                            label: (t.textContent || "").trim().slice(0, 40),
                            open: t.classList.contains("on") })),
            controls: out };
+}
+"""
+
+# A FEK picker, driven the way a finger drives it (ADR-128): type into its
+# filter, then click the first option still showing. The option list is what
+# the page offers; a value nothing matches is refused, never typed in blind.
+PICK = r"""
+([sel, value]) => {
+  const s = document.querySelector('[data-h="' + sel + '"]');
+  if (!s) return { ok: false, why: "gone" };
+  const root = s.closest(".fek-pick") || s.parentElement;
+  if (!root || !root.querySelector(".opt")) return { ok: false, why: "not a picker" };
+  const set = Object.getOwnPropertyDescriptor(HTMLInputElement.prototype, "value").set;
+  set.call(s, String(value));
+  s.dispatchEvent(new Event("input", { bubbles: true }));
+  const want = String(value).trim().toLowerCase();
+  const opts = [...root.querySelectorAll(".opt")].filter(o => {
+    const r = o.getBoundingClientRect(), cs = getComputedStyle(o);
+    return r.width > 0 && r.height > 0 && cs.display !== "none" && cs.visibility !== "hidden";
+  });
+  // The option's own label is what a reader matches against: the name
+  // without its <small> sub-line (the picker filters on both).
+  const nameOf = o => { const c = o.cloneNode(true); c.querySelectorAll("small").forEach(x => x.remove());
+                        return (c.textContent || "").replace(/\s+/g, " ").trim().toLowerCase(); };
+  const exact = opts.find(o => nameOf(o) === want)
+             || opts.find(o => nameOf(o).startsWith(want));
+  // Not exact, not a prefix: the value is a fragment the filter still
+  // narrowed to one option ('Tarnok' in "S. leucophylla 'Tarnok' x ...")
+  // -- that one is what a finger would tap. Two or more left is a guess,
+  // and a guess is refused, not taken.
+  const hit = exact || (opts.length === 1 ? opts[0] : null);
+  if (!hit) return { ok: false, why: opts.length ? "ambiguous: " + opts.length + " options match " + JSON.stringify(String(value))
+                                                 : "no option matches " + JSON.stringify(String(value)) };
+  hit.click();
+  return { ok: true, chose: (hit.textContent || "").replace(/\s+/g, " ").trim().slice(0, 80), offered: opts.length };
+}
+"""
+
+# The page's REPORT (ADR-128): every figure the kit's pages render as a
+# labelled value -- a .tile or a .stat .k with a .l label and a .v value --
+# every box that carries an analysis (ids beginning an/out/rep/res/sum), and
+# the row counts of every list. Read now, capped, values only as the page
+# shows them; never a field a user typed.
+REPORT = r"""
+() => {
+  const vis = e => { const r = e.getBoundingClientRect(), cs = getComputedStyle(e);
+    return r.width > 0 && r.height > 0 && cs.display !== "none" && cs.visibility !== "hidden"; };
+  const norm = t => (t || "").replace(/\s+/g, " ").trim();
+  // A figure is any element that shows a .v value beside a .l label: the
+  // kit's .tile, the selection log's .stat .st, the benches' .stat .k, and
+  // whatever a page calls it next -- the pair is the convention, the class
+  // is not (the first draft named four classes and read nothing on the
+  // selection log, whose figures are .st).
+  const figures = {}, order = [], seen = new Set(), by = {};
+  document.querySelectorAll(".v").forEach(v => {
+    const t = v.parentElement;
+    if (!t || seen.has(t) || order.length >= 200) return;
+    const l = [...t.children].find(c => c.classList.contains("l"));
+    if (!l || v.parentElement !== t) return;
+    seen.add(t);
+    const key = norm(l.textContent).slice(0, 60);
+    if (!key) return;
+    // A unit set in <small> inside the value is a unit, not a digit: read
+    // "38.9 mol/m²/d", not "38.9mol/m²/d".
+    const vc = v.cloneNode(true);
+    vc.querySelectorAll("small").forEach(x => x.insertAdjacentText("beforebegin", " "));
+    const val = norm(vc.textContent).slice(0, 120);
+    let k = key, n = 2;
+    while (k in figures) { k = key + " #" + (n++); }
+    figures[k] = val;
+    order.push(k);
+    // ...and by the box it sits in: a label is a fact of its box (the
+    // relevé's pack shows "families 23" and its analysis "families 2").
+    const box = (t.parentElement && t.parentElement.closest("[id]") || {}).id || "";
+    if (box) { const b = by[box] = by[box] || {}; let bk = key, m = 2;
+               while (bk in b) { bk = key + " #" + (m++); }        // "doubling time" twice in one box
+               b[bk] = val; }
+  });
+  // A box is read whether or not its pane is open: a report a pane hides is
+  // still the page's report, and the robot compares figures, not pixels. Which
+  // boxes a reader could see right now is reported beside them, not used to
+  // drop them -- the first draft filtered by visibility and read nothing at
+  // rest on a page whose analysis lives behind a closed tab.
+  // What counts as a box is the kit's naming: an analysis (an*), an output
+  // (*Out), a *Box, *Stats, *Plan, *Matrix, *Verdict, *Warn, *Tell, *Note,
+  // *Advice, *Refuse, *Table, *Chart, *Typical, *List, *Grid, *Export,
+  // *Lint, *Cmd, *Meas, *Help, *Card, *Legend (any case, hyphens allowed:
+  // the experiment guide's eco-out), and the few plain names (coherence,
+  // report, results, outputs, toast, journal). Capped in count and in
+  // characters; a list's rows are counted separately below.
+  const BOX = /^(an|out|rep|res|sum)[A-Za-z0-9-]*$|(box|out|stats?|plan|matrix|verdict|tiles|warn|coh|tell|note|advice|refuse|table|chart|typical|list|results|grid|export|lint|cmd|meas|help|card|legend)$|^(coherence|report|results|outputs|toast|journal)$/i;
+  const boxes = {}, shown = [];
+  document.querySelectorAll("[id]").forEach(e => {
+    if (!BOX.test(e.id)) return;
+    if (Object.keys(boxes).length >= 64) return;
+    boxes[e.id] = norm(e.textContent).slice(0, 1500);
+    if (vis(e)) shown.push(e.id);
+  });
+  // Tables, row by row, cell by cell (capped): the recipe card's
+  // ingredient/quantity pairs and the trial's entry means are tables, and a
+  // blob of text loses which quantity belongs to which row.
+  const tables = {};
+  document.querySelectorAll("table").forEach((t, i) => {
+    if (Object.keys(tables).length >= 16) return;
+    const host = (t.id || (t.parentElement && t.parentElement.closest("[id]") || {}).id || "table") ;
+    let key = host, n = 2;
+    while (key in tables) { key = host + " #" + (n++); }
+    tables[key] = [...t.querySelectorAll("tr")].slice(0, 40).map(
+      tr => [...tr.children].slice(0, 8).map(c => norm(c.textContent).slice(0, 60)));
+  });
+  const rows = {};
+  document.querySelectorAll(".row2").forEach(r => {
+    const p = r.parentElement; const id = p && p.id ? "#" + p.id : (p ? p.className.split(" ")[0] : "?");
+    rows[id] = (rows[id] || 0) + 1;
+  });
+  return { figures: figures, by: by, order: order, boxes: boxes, shown: shown, rows: rows, tables: tables,
+           route: (document.querySelector(".pane.on") || {}).id || null };
 }
 """
 
@@ -464,6 +606,24 @@ class PagePlugin(Plugin):
                            "which from its label is a guess.",
                            "DESTRUCTIVE",
                            [ArgumentSpec("selector", "string", "Control selector.", required=True, pattern=SEL_RE.pattern, examples=["dial_btn:2", "text_in:7"])]),
+                ActionSpec("pick",
+                           "Choose a picker's option by the label a reader sees: type it "
+                           "into the picker's filter and take the first match. Pool "
+                           "pick.selector lists the pickers; a label nothing matches is "
+                           "refused, not typed in blind.",
+                           "DRAFT",
+                           [ArgumentSpec("selector", "string", "Selector of a picker's search box.", required=True,
+                                         pattern=SEL_RE.pattern, examples=["pick_search:0"]),
+                            ArgumentSpec("value", "string", "The option's label, e.g. a genus.",
+                                         required=True, examples=["Amanita", "Pinus contorta", "Quercus"])]),
+                ActionSpec("read-report",
+                           "The page's report as it stands: every labelled figure (a .l label "
+                           "beside a .v value) flat and by the box it sits in, every analysis "
+                           "box's text (by the kit's id conventions: an*, *Out, *Box, *Stats, "
+                           "*Note, *List, *Table, toast...), which boxes a reader can see, "
+                           "every table's cells, and the row count of every list. What an "
+                           "operator checks a data-entry page's arithmetic against.",
+                           "SENSITIVE_READ", []),
                 ActionSpec("read-control",
                            "Read one control including its entered value, group "
                            "state, stepper number, slider position and picker rows.",
@@ -552,7 +712,11 @@ class PagePlugin(Plugin):
                  # because a value's validity depends on the select it goes to
                  # and no per-argument pool can say so.
                  "choose-option": [c for c in (s.get("optionChoices") or [])
-                                   if any(l["selector"] == c["selector"] for l in live)]}
+                                   if any(l["selector"] == c["selector"] for l in live)],
+                 # ADR-128: the same for pickers -- a label the page offers
+                 # now, paired with the picker that offers it.
+                 "pick": [c for c in (s.get("pickChoices") or [])
+                          if any(l["selector"] == c["selector"] for l in live)]}
         for action, kinds in POOL_KINDS.items():
             pools[action + ".selector"] = [c["selector"] for c in live if c["kind"] in kinds]
         return pools
@@ -600,6 +764,14 @@ class PagePlugin(Plugin):
                 "mime": "image/png", "bytes": len(png),
                 "data": base64.b64encode(png).decode("ascii")}
 
+        if action == "read-report":
+            try:
+                r = self.page.evaluate(REPORT)
+            except Exception as e:
+                raise Unavailable("page not readable: %s" % str(e)[:120])
+            return True, "%d figure(s), %d box(es), %d list(s), %d table(s)" % (
+                len(r["figures"]), len(r["boxes"]), len(r["rows"]), len(r["tables"])), r
+
         sel = args.get("selector")
         if sel is not None and not SEL_RE.match(sel):
             raise InvalidArgument("selector must be kind:index as published by a "
@@ -640,6 +812,9 @@ class PagePlugin(Plugin):
             r["attached"] = [f["name"] for f in files]
         elif action == "set-text":
             r = self.page.evaluate(ACT, [sel, "text", args["value"]])
+        elif action == "pick":
+            r = self.page.evaluate(PICK, [sel, args["value"]])
+            self.page.wait_for_timeout(120)
         elif action == "choose-option":
             r = self.page.evaluate(ACT, [sel, "option", args["value"]])
         elif action == "set-slider":
@@ -661,7 +836,10 @@ class PagePlugin(Plugin):
     def _open_pane(self, pane):
         if pane in (self.page.evaluate(OPEN_PANES) or []):
             return True
-        tab = self.page.query_selector('.tab[data-pane="%s"]' % pane)
+        # A tab names its pane by data-pane (the kit's convention) or by
+        # aria-controls (the experiment guide's); either opens it.
+        tab = (self.page.query_selector('.tab[data-pane="%s"]' % pane) or
+               self.page.query_selector('[aria-controls="%s"]' % pane))
         if tab is None:
             return False
         try:

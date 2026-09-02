@@ -60,6 +60,7 @@ THE ACCOUNTING
 
     python3 tools/harness_walk.py --target fixture --transport mcp   # the same walk, over MCP (ADR-121)
     python3 tools/harness_walk.py --target page --page all --rounds 3 --per-round 2   # every routed page (ADR-124)
+    python3 tools/harness_walk.py --target page --page a.html,b.html --rounds 3 --per-round 2   # a few, as their own entries
 
 The ledger, tools/walk_ledger.json, is MERGED per target (and per transport --
 a walk over MCP is "<plugin>@mcp"): a walk of one
@@ -372,6 +373,9 @@ def walk(wire, rounds=8, seed=2026, per_round=3, log=None):
     return out
 
 
+VERBOSE = os.environ.get("CSRBT_WALK_VERBOSE") == "1"
+
+
 def walk_one(wire, man, pid, rounds, seed, per_round, log=None):
     rnd = random.Random(seed)
     say = log or (lambda *a: None)
@@ -398,6 +402,9 @@ def walk_one(wire, man, pid, rounds, seed, per_round, log=None):
         r = wire.op("execute", plugin=pid,
                     command={"request_id": "walk-%s-%d" % (pid, rid[0]), "action": tool["action"],
                              "arguments": args})
+        if VERBOSE:                                        # every command, for finding which one broke a page
+            say("    %-16s %-70s %s %s" % (tool["action"], json.dumps(args, ensure_ascii=False)[:70],
+                                          "ok" if r.get("ok") else r.get("code"), (r.get("message") or "")[:50]))
         if isinstance(r.get("snapshotMs"), int):
             price["snapshot"].append(r["snapshotMs"])
         if isinstance(r.get("ms"), int):
@@ -700,7 +707,7 @@ def main(argv):
                     help="which transport to walk through (ADR-121): the walk itself does not know")
     a = ap.parse_args(argv)
 
-    if a.target == "page" and a.page == "all":
+    if a.target == "page" and (a.page == "all" or "," in a.page):
         return walk_every_page(a)
     token = "walk-" + secrets.token_urlsafe(24)
     try:
@@ -741,7 +748,10 @@ def walk_every_page(a):
     in the ledger as "csrbt-page/<page>". The general oracle is the same on
     every page; what differs per page is which tools it offers nothing for
     (unreachable) -- a fact about the page the ledger records."""
-    pages = routed_pages()
+    # "all" is every routed page; "a.html,b.html" re-walks a few of them into
+    # their own ledger entries (a fix to one page's plugin path should not
+    # cost a walk of forty-one)
+    pages = routed_pages() if a.page == "all" else [p for p in a.page.split(",") if p]
     results, verdicts = {}, []
     t0 = time.time()
     for i, page in enumerate(pages, 1):

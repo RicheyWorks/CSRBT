@@ -1,0 +1,561 @@
+{
+ "id": "page-selection-log-science",
+ "target": "page",
+ "page": "selection-log.html",
+ "goal": "On the selection log, enter six individuals A1-A6 with bill depths 8 9 10 11 12 13 mm, let A1 and A2 die and the rest survive, and find the selection analysis right: mean before 10.500, sample SD 1.871, mean after 11.500, differential S 1.000, intensity i and univariate gradient 0.586 (S over the population SD 1.708).",
+ "steps": [
+  {
+   "id": "look",
+   "action": "observe",
+   "expect": {
+    "ok": true,
+    "snapshot.page": "selection-log.html"
+   }
+  },
+  {
+   "id": "ind",
+   "action": "show-pane",
+   "arguments": {
+    "pane": "p-ind"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "i1",
+   "action": "set-text",
+   "arguments": {
+    "selector": "@control:iId",
+    "value": "A1"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "ia1",
+   "action": "activate",
+   "arguments": {
+    "selector": "@control:iAdd"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "i2",
+   "action": "set-text",
+   "arguments": {
+    "selector": "@control:iId",
+    "value": "A2"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "ia2",
+   "action": "activate",
+   "arguments": {
+    "selector": "@control:iAdd"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "i3",
+   "action": "set-text",
+   "arguments": {
+    "selector": "@control:iId",
+    "value": "A3"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "ia3",
+   "action": "activate",
+   "arguments": {
+    "selector": "@control:iAdd"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "i4",
+   "action": "set-text",
+   "arguments": {
+    "selector": "@control:iId",
+    "value": "A4"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "ia4",
+   "action": "activate",
+   "arguments": {
+    "selector": "@control:iAdd"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "i5",
+   "action": "set-text",
+   "arguments": {
+    "selector": "@control:iId",
+    "value": "A5"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "ia5",
+   "action": "activate",
+   "arguments": {
+    "selector": "@control:iAdd"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "i6",
+   "action": "set-text",
+   "arguments": {
+    "selector": "@control:iId",
+    "value": "A6"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "ia6",
+   "action": "activate",
+   "arguments": {
+    "selector": "@control:iAdd"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "six",
+   "action": "read-report",
+   "expect": {
+    "output.rows.#iList": 6
+   }
+  },
+  {
+   "id": "mea",
+   "action": "show-pane",
+   "arguments": {
+    "pane": "p-mea"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "mp1",
+   "action": "pick",
+   "arguments": {
+    "selector": "@control:meaEntry",
+    "value": "A1"
+   },
+   "expect": {
+    "ok": true,
+    "output.chose": "A1"
+   }
+  },
+  {
+   "id": "mt1",
+   "action": "activate",
+   "arguments": {
+    "selector": "@control:meaEntry/bill depth (mm)"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "mv1",
+   "action": "set-text",
+   "arguments": {
+    "selector": "@control:meaEntry/value",
+    "value": "8"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "ma1",
+   "action": "activate",
+   "arguments": {
+    "selector": "@control:mAdd"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "mp2",
+   "action": "pick",
+   "arguments": {
+    "selector": "@control:meaEntry",
+    "value": "A2"
+   },
+   "expect": {
+    "ok": true,
+    "output.chose": "A2"
+   }
+  },
+  {
+   "id": "mt2",
+   "action": "activate",
+   "arguments": {
+    "selector": "@control:meaEntry/bill depth (mm)"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "mv2",
+   "action": "set-text",
+   "arguments": {
+    "selector": "@control:meaEntry/value",
+    "value": "9"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "ma2",
+   "action": "activate",
+   "arguments": {
+    "selector": "@control:mAdd"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "mp3",
+   "action": "pick",
+   "arguments": {
+    "selector": "@control:meaEntry",
+    "value": "A3"
+   },
+   "expect": {
+    "ok": true,
+    "output.chose": "A3"
+   }
+  },
+  {
+   "id": "mt3",
+   "action": "activate",
+   "arguments": {
+    "selector": "@control:meaEntry/bill depth (mm)"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "mv3",
+   "action": "set-text",
+   "arguments": {
+    "selector": "@control:meaEntry/value",
+    "value": "10"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "ma3",
+   "action": "activate",
+   "arguments": {
+    "selector": "@control:mAdd"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "mp4",
+   "action": "pick",
+   "arguments": {
+    "selector": "@control:meaEntry",
+    "value": "A4"
+   },
+   "expect": {
+    "ok": true,
+    "output.chose": "A4"
+   }
+  },
+  {
+   "id": "mt4",
+   "action": "activate",
+   "arguments": {
+    "selector": "@control:meaEntry/bill depth (mm)"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "mv4",
+   "action": "set-text",
+   "arguments": {
+    "selector": "@control:meaEntry/value",
+    "value": "11"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "ma4",
+   "action": "activate",
+   "arguments": {
+    "selector": "@control:mAdd"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "mp5",
+   "action": "pick",
+   "arguments": {
+    "selector": "@control:meaEntry",
+    "value": "A5"
+   },
+   "expect": {
+    "ok": true,
+    "output.chose": "A5"
+   }
+  },
+  {
+   "id": "mt5",
+   "action": "activate",
+   "arguments": {
+    "selector": "@control:meaEntry/bill depth (mm)"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "mv5",
+   "action": "set-text",
+   "arguments": {
+    "selector": "@control:meaEntry/value",
+    "value": "12"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "ma5",
+   "action": "activate",
+   "arguments": {
+    "selector": "@control:mAdd"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "mp6",
+   "action": "pick",
+   "arguments": {
+    "selector": "@control:meaEntry",
+    "value": "A6"
+   },
+   "expect": {
+    "ok": true,
+    "output.chose": "A6"
+   }
+  },
+  {
+   "id": "mt6",
+   "action": "activate",
+   "arguments": {
+    "selector": "@control:meaEntry/bill depth (mm)"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "mv6",
+   "action": "set-text",
+   "arguments": {
+    "selector": "@control:meaEntry/value",
+    "value": "13"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "ma6",
+   "action": "activate",
+   "arguments": {
+    "selector": "@control:mAdd"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "measured",
+   "action": "read-report",
+   "expect": {
+    "output.rows.#mList": 6
+   }
+  },
+  {
+   "id": "ind2",
+   "action": "show-pane",
+   "arguments": {
+    "pane": "p-ind"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "w0",
+   "action": "activate",
+   "arguments": {
+    "selector": "@control:iList/died#0"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "w1",
+   "action": "activate",
+   "arguments": {
+    "selector": "@control:iList/died#1"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "w2",
+   "action": "activate",
+   "arguments": {
+    "selector": "@control:iList/survived#2"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "w3",
+   "action": "activate",
+   "arguments": {
+    "selector": "@control:iList/survived#3"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "w4",
+   "action": "activate",
+   "arguments": {
+    "selector": "@control:iList/survived#4"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "w5",
+   "action": "activate",
+   "arguments": {
+    "selector": "@control:iList/survived#5"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "sel",
+   "action": "show-pane",
+   "arguments": {
+    "pane": "p-sel"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "report",
+   "action": "read-report",
+   "expect": {
+    "ok": true,
+    "output.by.selOut.measured": "6",
+    "output.by.selOut.mean before mm": "10.500",
+    "output.by.selOut.SD before (sample, n−1)": "1.871",
+    "output.by.selOut.with fitness": "6",
+    "output.by.selOut.differential S mm": "1.000",
+    "output.by.selOut.intensity i (SD units)": "0.586",
+    "output.by.selOut.gradient β (univariate)": "0.586",
+    "output.by.selOut.mean after": "11.500"
+   }
+  },
+  {
+   "id": "upward",
+   "action": "read-report",
+   "expect": {
+    "output.boxes.selOut": {
+     "op": "contains",
+     "value": "Directional selection upward"
+    }
+   }
+  },
+  {
+   "id": "grad",
+   "action": "read-report",
+   "expect": {
+    "output.boxes.gradBox": {
+     "op": "contains",
+     "value": "low r² is normal"
+    }
+   }
+  },
+  {
+   "id": "intact",
+   "action": "read-page",
+   "expect": {
+    "output.junk": null,
+    "output.errors": {
+     "op": "==",
+     "value": []
+    },
+    "output.overflow": 0
+   }
+  }
+ ]
+}

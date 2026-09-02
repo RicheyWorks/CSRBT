@@ -1,0 +1,1048 @@
+{
+ "id": "page-deployment-log-science",
+ "target": "page",
+ "page": "deployment-log.html",
+ "goal": "On the deployment log: a 48 kHz recorder records up to 24 kHz and cannot survey bats, 192 kHz covers most of it, 384 kHz all; a 60 s in 600 s duty over 14 days at 16-bit mono 48 kHz writes 11.61 GB (10.0%, 33.6 h) and a 32 GB card lasts 39 days, 300/3600 over 30 days 20.74 GB, 60/60 over 7 days 58.06 GB, and 600/600 over 30 days (248.83 GB) fills an 8 GB card; clock drift at 1 s/day is 343 m of sound per day (10.3 km at 30 days); GSD = sensor width x altitude / (focal length x image width): RedEdge 4.17/8.33, P4 3.18/6.36, Sequoia 5.65/11.31 cm/px at 60/120 m; 70/60 overlap is below Pix4D, 85/85 meets it; a logger at 600 s over 90 days takes 12,960 readings and 84,650 memory fills after 588 days, at 60 s over 30 days with 20,000 it fills after 14 days; a logged recorder lands in the table and the .eco export.",
+ "steps": [
+  {
+   "id": "look",
+   "action": "observe",
+   "expect": {
+    "ok": true,
+    "snapshot.page": "deployment-log.html"
+   }
+  },
+  {
+   "id": "ac",
+   "action": "show-pane",
+   "arguments": {
+    "pane": "p-ac"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "nyq",
+   "action": "read-report",
+   "expect": {
+    "ok": true,
+    "output.by.nyqBox.records up to": "24 kHz"
+   }
+  },
+  {
+   "id": "bats",
+   "action": "activate",
+   "arguments": {
+    "selector": "@control:acEntry/bats"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "alias",
+   "action": "read-report",
+   "expect": {
+    "output.boxes.nyqBox": {
+     "op": "contains",
+     "value": "cannot survey bats"
+    }
+   }
+  },
+  {
+   "id": "k192",
+   "action": "activate",
+   "arguments": {
+    "selector": "@control:acEntry/192 kHz"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "most",
+   "action": "read-report",
+   "expect": {
+    "output.boxes.nyqBox": {
+     "op": "contains",
+     "value": "Enough for most of it"
+    }
+   }
+  },
+  {
+   "id": "k384",
+   "action": "activate",
+   "arguments": {
+    "selector": "@control:acEntry/384 kHz"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "full",
+   "action": "read-report",
+   "expect": {
+    "output.boxes.nyqBox": {
+     "op": "contains",
+     "value": "Full coverage"
+    }
+   }
+  },
+  {
+   "id": "k48",
+   "action": "activate",
+   "arguments": {
+    "selector": "@control:acEntry/48 kHz"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "birds",
+   "action": "activate",
+   "arguments": {
+    "selector": "@control:acEntry/birds"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "on60_600",
+   "action": "set-text",
+   "arguments": {
+    "selector": "@control:record for",
+    "value": "60"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "ev60_600",
+   "action": "set-text",
+   "arguments": {
+    "selector": "@control:once every",
+    "value": "600"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "dd60_600",
+   "action": "set-text",
+   "arguments": {
+    "selector": "@control:dutyEntry/deployment",
+    "value": "14"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "cd60_600",
+   "action": "set-text",
+   "arguments": {
+    "selector": "@control:SD card",
+    "value": "32"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "duty60_600",
+   "action": "read-report",
+   "expect": {
+    "output.by.dutyStat.duty cycle": "10.0%",
+    "output.by.dutyStat.audio recorded": "33.6 h",
+    "output.by.dutyStat.card needed": "11.61 GB",
+    "output.by.dutyStat.card lasts": "39 d"
+   }
+  },
+  {
+   "id": "on300_3600",
+   "action": "set-text",
+   "arguments": {
+    "selector": "@control:record for",
+    "value": "300"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "ev300_3600",
+   "action": "set-text",
+   "arguments": {
+    "selector": "@control:once every",
+    "value": "3600"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "dd300_3600",
+   "action": "set-text",
+   "arguments": {
+    "selector": "@control:dutyEntry/deployment",
+    "value": "30"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "cd300_3600",
+   "action": "set-text",
+   "arguments": {
+    "selector": "@control:SD card",
+    "value": "64"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "duty300_3600",
+   "action": "read-report",
+   "expect": {
+    "output.by.dutyStat.duty cycle": "8.3%",
+    "output.by.dutyStat.audio recorded": "60.0 h",
+    "output.by.dutyStat.card needed": "20.74 GB",
+    "output.by.dutyStat.card lasts": "93 d"
+   }
+  },
+  {
+   "id": "on60_60",
+   "action": "set-text",
+   "arguments": {
+    "selector": "@control:record for",
+    "value": "60"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "ev60_60",
+   "action": "set-text",
+   "arguments": {
+    "selector": "@control:once every",
+    "value": "60"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "dd60_60",
+   "action": "set-text",
+   "arguments": {
+    "selector": "@control:dutyEntry/deployment",
+    "value": "7"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "cd60_60",
+   "action": "set-text",
+   "arguments": {
+    "selector": "@control:SD card",
+    "value": "128"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "duty60_60",
+   "action": "read-report",
+   "expect": {
+    "output.by.dutyStat.duty cycle": "100.0%",
+    "output.by.dutyStat.audio recorded": "168.0 h",
+    "output.by.dutyStat.card needed": "58.06 GB",
+    "output.by.dutyStat.card lasts": "15 d"
+   }
+  },
+  {
+   "id": "on600",
+   "action": "set-text",
+   "arguments": {
+    "selector": "@control:record for",
+    "value": "600"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "ev600",
+   "action": "set-text",
+   "arguments": {
+    "selector": "@control:once every",
+    "value": "600"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "dd30",
+   "action": "set-text",
+   "arguments": {
+    "selector": "@control:dutyEntry/deployment",
+    "value": "30"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "cd8",
+   "action": "set-text",
+   "arguments": {
+    "selector": "@control:SD card",
+    "value": "8"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "fills",
+   "action": "read-report",
+   "expect": {
+    "output.boxes.dutyBox": {
+     "op": "contains",
+     "value": "The card fills before you get back."
+    },
+    "output.by.dutyStat.card needed": "248.83 GB"
+   }
+  },
+  {
+   "id": "drift1",
+   "action": "set-text",
+   "arguments": {
+    "selector": "@control:dutyEntry/deployment",
+    "value": "1"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "dr1",
+   "action": "read-report",
+   "expect": {
+    "output.by.driftStat.deployment": "1 d",
+    "output.by.driftStat.clock may be out by": "1 s",
+    "output.by.driftStat.as a distance": "343 m",
+    "output.by.driftStat.with GPS sync": "20 µs"
+   }
+  },
+  {
+   "id": "drift7",
+   "action": "set-text",
+   "arguments": {
+    "selector": "@control:dutyEntry/deployment",
+    "value": "7"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "dr7",
+   "action": "read-report",
+   "expect": {
+    "output.by.driftStat.deployment": "7 d",
+    "output.by.driftStat.clock may be out by": "7 s",
+    "output.by.driftStat.as a distance": "2.4 km",
+    "output.by.driftStat.with GPS sync": "20 µs"
+   }
+  },
+  {
+   "id": "drift14",
+   "action": "set-text",
+   "arguments": {
+    "selector": "@control:dutyEntry/deployment",
+    "value": "14"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "dr14",
+   "action": "read-report",
+   "expect": {
+    "output.by.driftStat.deployment": "14 d",
+    "output.by.driftStat.clock may be out by": "14 s",
+    "output.by.driftStat.as a distance": "4.8 km",
+    "output.by.driftStat.with GPS sync": "20 µs"
+   }
+  },
+  {
+   "id": "drift30",
+   "action": "set-text",
+   "arguments": {
+    "selector": "@control:dutyEntry/deployment",
+    "value": "30"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "dr30",
+   "action": "read-report",
+   "expect": {
+    "output.by.driftStat.deployment": "30 d",
+    "output.by.driftStat.clock may be out by": "30 s",
+    "output.by.driftStat.as a distance": "10.3 km",
+    "output.by.driftStat.with GPS sync": "20 µs"
+   }
+  },
+  {
+   "id": "spl",
+   "action": "read-report",
+   "expect": {
+    "output.boxes.splBox": {
+     "op": "contains",
+     "value": "will not convert your recordings to decibels"
+    }
+   }
+  },
+  {
+   "id": "fl",
+   "action": "show-pane",
+   "arguments": {
+    "pane": "p-fl"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "cam-MicaSense",
+   "action": "activate",
+   "arguments": {
+    "selector": "@control:camEntry/MicaSense RedEdge"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "altMicaSense60",
+   "action": "set-text",
+   "arguments": {
+    "selector": "@control:altitude AGL",
+    "value": "60"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "gsdMicaSense60",
+   "action": "read-report",
+   "expect": {
+    "output.by.gsdStat.GSD": "4.17 cm/px"
+   }
+  },
+  {
+   "id": "altMicaSense120",
+   "action": "set-text",
+   "arguments": {
+    "selector": "@control:altitude AGL",
+    "value": "120"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "gsdMicaSense120",
+   "action": "read-report",
+   "expect": {
+    "output.by.gsdStat.GSD": "8.33 cm/px"
+   }
+  },
+  {
+   "id": "cam-P4",
+   "action": "activate",
+   "arguments": {
+    "selector": "@control:camEntry/P4 Multispectral"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "altP460",
+   "action": "set-text",
+   "arguments": {
+    "selector": "@control:altitude AGL",
+    "value": "60"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "gsdP460",
+   "action": "read-report",
+   "expect": {
+    "output.by.gsdStat.GSD": "3.18 cm/px"
+   }
+  },
+  {
+   "id": "altP4120",
+   "action": "set-text",
+   "arguments": {
+    "selector": "@control:altitude AGL",
+    "value": "120"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "gsdP4120",
+   "action": "read-report",
+   "expect": {
+    "output.by.gsdStat.GSD": "6.36 cm/px"
+   }
+  },
+  {
+   "id": "cam-Parrot",
+   "action": "activate",
+   "arguments": {
+    "selector": "@control:camEntry/Parrot Sequoia"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "altParrot60",
+   "action": "set-text",
+   "arguments": {
+    "selector": "@control:altitude AGL",
+    "value": "60"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "gsdParrot60",
+   "action": "read-report",
+   "expect": {
+    "output.by.gsdStat.GSD": "5.65 cm/px"
+   }
+  },
+  {
+   "id": "altParrot120",
+   "action": "set-text",
+   "arguments": {
+    "selector": "@control:altitude AGL",
+    "value": "120"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "gsdParrot120",
+   "action": "read-report",
+   "expect": {
+    "output.by.gsdStat.GSD": "11.31 cm/px"
+   }
+  },
+  {
+   "id": "cam-back",
+   "action": "activate",
+   "arguments": {
+    "selector": "@control:camEntry/MicaSense RedEdge"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "alt120",
+   "action": "set-text",
+   "arguments": {
+    "selector": "@control:altitude AGL",
+    "value": "120"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "formula",
+   "action": "read-report",
+   "expect": {
+    "output.boxes.gsdBox": {
+     "op": "contains",
+     "value": "4.8 mm × 120 m ÷ (5.4 mm × 1280 px) = 8.33 cm/px"
+    }
+   }
+  },
+  {
+   "id": "fwd70",
+   "action": "set-slider",
+   "arguments": {
+    "selector": "@control:frontal overlap",
+    "value": 70
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "side60",
+   "action": "set-slider",
+   "arguments": {
+    "selector": "@control:side overlap",
+    "value": 60
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "below",
+   "action": "read-report",
+   "expect": {
+    "output.boxes.gsdBox": {
+     "op": "contains",
+     "value": "Below Pix4D"
+    }
+   }
+  },
+  {
+   "id": "fwd85",
+   "action": "set-slider",
+   "arguments": {
+    "selector": "@control:frontal overlap",
+    "value": 85
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "side85",
+   "action": "set-slider",
+   "arguments": {
+    "selector": "@control:side overlap",
+    "value": 85
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "meets",
+   "action": "read-report",
+   "expect": {
+    "output.boxes.gsdBox": {
+     "op": "contains",
+     "value": "meets Pix4D"
+    }
+   }
+  },
+  {
+   "id": "stock",
+   "action": "activate",
+   "arguments": {
+    "selector": "@control:camEntry/stock RGB"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "noNDVI",
+   "action": "read-report",
+   "expect": {
+    "output.boxes.radBox": {
+     "op": "contains",
+     "value": "cannot produce NDVI at all"
+    }
+   }
+  },
+  {
+   "id": "rededge",
+   "action": "activate",
+   "arguments": {
+    "selector": "@control:camEntry/MicaSense RedEdge"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "neither",
+   "action": "activate",
+   "arguments": {
+    "selector": "@control:radEntry/neither"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "incomparable",
+   "action": "read-report",
+   "expect": {
+    "output.boxes.radBox": {
+     "op": "contains",
+     "value": "cannot be compared to another one"
+    }
+   }
+  },
+  {
+   "id": "both",
+   "action": "activate",
+   "arguments": {
+    "selector": "@control:radEntry/panel + DLS"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "comparable",
+   "action": "read-report",
+   "expect": {
+    "output.boxes.radBox": {
+     "op": "contains",
+     "value": "makes two flights comparable"
+    }
+   }
+  },
+  {
+   "id": "cloud",
+   "action": "set-text",
+   "arguments": {
+    "selector": "@control:fCloud",
+    "value": "4"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "sky",
+   "action": "read-report",
+   "expect": {
+    "output.boxes.skyBox": {
+     "op": "contains",
+     "value": "hardest sky to fly in"
+    }
+   }
+  },
+  {
+   "id": "lg",
+   "action": "show-pane",
+   "arguments": {
+    "pane": "p-lg"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "iv600",
+   "action": "set-text",
+   "arguments": {
+    "selector": "@control:logging interval",
+    "value": "600"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "ld600",
+   "action": "set-text",
+   "arguments": {
+    "selector": "@control:logEntry/deployment",
+    "value": "90"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "mem600",
+   "action": "set-text",
+   "arguments": {
+    "selector": "@control:memory",
+    "value": "84650"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "log600",
+   "action": "read-report",
+   "expect": {
+    "output.by.logStat.interval": "10 min",
+    "output.by.logStat.readings": "12,960",
+    "output.by.logStat.memory holds": "84,650",
+    "output.by.logStat.fills after": "588 d"
+   }
+  },
+  {
+   "id": "iv60",
+   "action": "set-text",
+   "arguments": {
+    "selector": "@control:logging interval",
+    "value": "60"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "ld60",
+   "action": "set-text",
+   "arguments": {
+    "selector": "@control:logEntry/deployment",
+    "value": "30"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "mem60",
+   "action": "set-text",
+   "arguments": {
+    "selector": "@control:memory",
+    "value": "20000"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "log60",
+   "action": "read-report",
+   "expect": {
+    "output.by.logStat.interval": "1 min",
+    "output.by.logStat.readings": "43,200",
+    "output.by.logStat.memory holds": "20,000",
+    "output.by.logStat.fills after": "14 d"
+   }
+  },
+  {
+   "id": "iv3600",
+   "action": "set-text",
+   "arguments": {
+    "selector": "@control:logging interval",
+    "value": "3600"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "ld3600",
+   "action": "set-text",
+   "arguments": {
+    "selector": "@control:logEntry/deployment",
+    "value": "365"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "mem3600",
+   "action": "set-text",
+   "arguments": {
+    "selector": "@control:memory",
+    "value": "84650"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "log3600",
+   "action": "read-report",
+   "expect": {
+    "output.by.logStat.interval": "60 min",
+    "output.by.logStat.readings": "8,760",
+    "output.by.logStat.memory holds": "84,650",
+    "output.by.logStat.fills after": "3527 d"
+   }
+  },
+  {
+   "id": "iv60b",
+   "action": "set-text",
+   "arguments": {
+    "selector": "@control:logging interval",
+    "value": "60"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "ld90",
+   "action": "set-text",
+   "arguments": {
+    "selector": "@control:logEntry/deployment",
+    "value": "90"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "mem20k",
+   "action": "set-text",
+   "arguments": {
+    "selector": "@control:memory",
+    "value": "20000"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "overflow",
+   "action": "read-report",
+   "expect": {
+    "output.boxes.logBox": {
+     "op": "contains",
+     "value": "to 7 minutes"
+    }
+   }
+  },
+  {
+   "id": "shield",
+   "action": "read-report",
+   "expect": {
+    "output.boxes.shBox": {
+     "op": "contains",
+     "value": "Record what the logger was inside"
+    }
+   }
+  },
+  {
+   "id": "gill",
+   "action": "activate",
+   "arguments": {
+    "selector": "@control:shEntry/gill-type multi-plate"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "gill-note",
+   "action": "read-report",
+   "expect": {
+    "output.boxes.shBox": {
+     "op": "contains",
+     "value": "the gill-type gave the best protection"
+    }
+   }
+  },
+  {
+   "id": "ac2",
+   "action": "show-pane",
+   "arguments": {
+    "pane": "p-ac"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "unit",
+   "action": "set-text",
+   "arguments": {
+    "selector": "@control:aUnit",
+    "value": "AM-014"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "addAc",
+   "action": "activate",
+   "arguments": {
+    "selector": "@control:addAc"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "log",
+   "action": "show-pane",
+   "arguments": {
+    "pane": "p-log"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "row",
+   "action": "read-report",
+   "expect": {
+    "output.boxes.logTable": {
+     "op": "contains",
+     "value": "no SPL calibration"
+    },
+    "output.tables.logTable.1.0": {
+     "op": "exists",
+     "value": true
+    }
+   }
+  },
+  {
+   "id": "eco",
+   "action": "read-report",
+   "expect": {
+    "output.boxes.ecoOut": {
+     "op": "contains",
+     "value": "[recorder]"
+    }
+   }
+  },
+  {
+   "id": "intact",
+   "action": "read-page",
+   "expect": {
+    "output.junk": null,
+    "output.errors": {
+     "op": "==",
+     "value": []
+    },
+    "output.overflow": 0
+   }
+  }
+ ]
+}

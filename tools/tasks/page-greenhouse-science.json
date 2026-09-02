@@ -1,0 +1,217 @@
+{
+ "id": "page-greenhouse-science",
+ "target": "page",
+ "page": "greenhouse.html",
+ "goal": "On the greenhouse monitor: 40,000 lux under HPS (factor 82) converts to 488 umol/m2/s and 31.6 mol/m2/d over 18 h; 600 umol/m2/s is DLI 38.9 (600 x 18 x 0.0036) and 25.9 over 12 h; 400 g on a 600 W rated fixture is 0.67 g/W while every figure that divides by kWh stays blank without a power log; the five example runs (498/78.2, 512/80.9, 471/79.4, 505/81.6 g/kWh baselines and 548/84.1 new) have baseline mean 6.20, sample SD 0.20, CV 3%, per-run z with self excluded +1.1 +0.8 -3.8 -0.1 and the new run at +1.6, at the edge.",
+ "steps": [
+  {
+   "id": "look",
+   "action": "observe",
+   "expect": {
+    "ok": true,
+    "snapshot.page": "greenhouse.html"
+   }
+  },
+  {
+   "id": "light",
+   "action": "show-pane",
+   "arguments": {
+    "pane": "p-light"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "hps",
+   "action": "pick",
+   "arguments": {
+    "selector": "@control:Fixture class (sets the lux factor) filter",
+    "value": "HPS"
+   },
+   "expect": {
+    "ok": true,
+    "output.chose": {
+     "op": "contains",
+     "value": "HPS"
+    }
+   }
+  },
+  {
+   "id": "lux",
+   "action": "press-step",
+   "arguments": {
+    "selector": "@control:lightCtl/+#2",
+    "direction": "up"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "converted",
+   "action": "read-report",
+   "expect": {
+    "ok": true,
+    "output.by.lightOut.PPFD at canopy": "488 µmol/m²/s",
+    "output.by.lightOut.DLI, constant-PPFD formula": "31.6 mol/m²/d"
+   }
+  },
+  {
+   "id": "ppfd",
+   "action": "set-text",
+   "arguments": {
+    "selector": "@control:PPFD at canopy",
+    "value": "600"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "flat",
+   "action": "read-report",
+   "expect": {
+    "output.by.lightOut.PPFD at canopy": "600 µmol/m²/s",
+    "output.by.lightOut.DLI, constant-PPFD formula": "38.9 mol/m²/d"
+   }
+  },
+  {
+   "id": "pp12",
+   "action": "set-text",
+   "arguments": {
+    "selector": "@control:Photoperiod",
+    "value": "12"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "flat12",
+   "action": "read-report",
+   "expect": {
+    "output.by.lightOut.DLI, constant-PPFD formula": "25.9 mol/m²/d"
+   }
+  },
+  {
+   "id": "econ",
+   "action": "show-pane",
+   "arguments": {
+    "pane": "p-econ"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "yield",
+   "action": "press-step",
+   "arguments": {
+    "selector": "@control:econCtl/+#0",
+    "direction": "up"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "watts",
+   "action": "press-step",
+   "arguments": {
+    "selector": "@control:econCtl/+#1",
+    "direction": "up"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "gpw",
+   "action": "read-report",
+   "expect": {
+    "output.boxes.econOut": {
+     "op": "contains",
+     "value": "log carries no power column"
+    },
+    "output.by.econOut.grams per RATED watt": "0.67 g/W",
+    "output.by.econOut.energy over the log": "— kWh",
+    "output.by.econOut.grams per kilowatt hour": "— g/kWh"
+   }
+  },
+  {
+   "id": "runs",
+   "action": "show-pane",
+   "arguments": {
+    "pane": "p-runs"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "demo",
+   "action": "activate",
+   "arguments": {
+    "selector": "@control:runDemo"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "noise",
+   "action": "read-report",
+   "expect": {
+    "output.boxes.runOut": {
+     "op": "contains",
+     "value": "5 runs — comparing on g/kWh"
+    },
+    "output.by.runOut.coefficient of variation": "3 %",
+    "output.by.runOut.baseline mean": {
+     "op": "contains",
+     "value": "6.20"
+    },
+    "output.by.runOut.your run-to-run SD": {
+     "op": "contains",
+     "value": "0.20"
+    }
+   }
+  },
+  {
+   "id": "table",
+   "action": "read-report",
+   "expect": {
+    "output.tables.runOut.1.2": "6.37",
+    "output.tables.runOut.1.3": "+1.1",
+    "output.tables.runOut.3.2": "5.93",
+    "output.tables.runOut.3.3": "-3.8",
+    "output.tables.runOut.5.2": "6.52",
+    "output.tables.runOut.5.3": "+1.6",
+    "output.tables.runOut.4.3": "-0.1"
+   }
+  },
+  {
+   "id": "edge",
+   "action": "read-report",
+   "expect": {
+    "output.boxes.runOut": {
+     "op": "contains",
+     "value": "at the edge of your spread"
+    }
+   }
+  },
+  {
+   "id": "intact",
+   "action": "read-page",
+   "expect": {
+    "output.junk": null,
+    "output.errors": {
+     "op": "==",
+     "value": []
+    },
+    "output.overflow": 0
+   }
+  }
+ ]
+}

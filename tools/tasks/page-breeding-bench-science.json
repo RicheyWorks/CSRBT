@@ -1,0 +1,682 @@
+{
+ "id": "page-breeding-bench-science",
+ "target": "page",
+ "page": "breeding-bench.html",
+ "goal": "On the breeding bench: common bean's published minimum is 20 (self) and 10 plants is below it, sweet corn's is 100 (200 preferred), cross-pollinated by wind; 10 pollen and 90 seed parents give Ne = 4*10*90/100 = 36.0 and delta-F 1.39% (13.9% over 10 generations), 50/50 gives 100.0; sweet corn's cited isolation is two miles and 100 m is 3100 m short; keeping 10 of 100 is intensity 1.755 and an expected response 6.14 at h2 0.35 and SD 10, 50 of 100 is 0.798, 200 of 100 is refused; roguing 85 leaves 15 standing; the demo trial (4 entries x 3 blocks, means 10 12 11 14) has grand mean 11.75, MSE 0.167, LSD 0.82 kg, CV 3.5%; one replicate is not a trial; 90 of 100 seeds is 90.0% +/- 3.0% (84.1-95.9%), 30 of 20 is refused; 7 seasons stored is past the conventional window.",
+ "steps": [
+  {
+   "id": "look",
+   "action": "observe",
+   "expect": {
+    "ok": true,
+    "snapshot.page": "breeding-bench.html"
+   }
+  },
+  {
+   "id": "pop",
+   "action": "show-pane",
+   "arguments": {
+    "pane": "p-pop"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "bean",
+   "action": "pick",
+   "arguments": {
+    "selector": "@control:popPick",
+    "value": "bean, common"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "beans",
+   "action": "read-report",
+   "expect": {
+    "ok": true,
+    "output.boxes.popOut": {
+     "op": "contains",
+     "value": "Just above the floor."
+    },
+    "output.by.popOut.you plan to keep": "20",
+    "output.by.popOut.published minimum": "20",
+    "output.by.popOut.mating system": "self"
+   }
+  },
+  {
+   "id": "ten",
+   "action": "set-text",
+   "arguments": {
+    "selector": "@control:Plants you plan to save seed from",
+    "value": "10"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "below",
+   "action": "read-report",
+   "expect": {
+    "output.boxes.popOut": {
+     "op": "contains",
+     "value": "Below the published minimum of 20."
+    }
+   }
+  },
+  {
+   "id": "corn",
+   "action": "pick",
+   "arguments": {
+    "selector": "@control:popPick",
+    "value": "corn, sweet"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "corns",
+   "action": "read-report",
+   "expect": {
+    "output.by.popOut.published minimum (preferred)": "100 (200)",
+    "output.by.popOut.mating system": "cross",
+    "output.by.popOut.pollinated by": "wind"
+   }
+  },
+  {
+   "id": "nm",
+   "action": "set-text",
+   "arguments": {
+    "selector": "@control:Pollen parents contributing",
+    "value": "10"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "nf",
+   "action": "set-text",
+   "arguments": {
+    "selector": "@control:Seed parents contributing",
+    "value": "90"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "ne",
+   "action": "read-report",
+   "expect": {
+    "output.boxes.neOut": {
+     "op": "contains",
+     "value": "The rarer sex is capping you."
+    },
+    "output.by.neOut.Nₑ": "36.0",
+    "output.by.neOut.ΔF per generation": "1.39%",
+    "output.by.neOut.after 10 generations": "13.9%",
+    "output.by.neOut.pollen / seed parents": "10 / 90"
+   }
+  },
+  {
+   "id": "nm50",
+   "action": "set-text",
+   "arguments": {
+    "selector": "@control:Pollen parents contributing",
+    "value": "50"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "nf50",
+   "action": "set-text",
+   "arguments": {
+    "selector": "@control:Seed parents contributing",
+    "value": "50"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "ne100",
+   "action": "read-report",
+   "expect": {
+    "output.boxes.neOut": {
+     "op": "contains",
+     "value": "reasonably balanced"
+    },
+    "output.by.neOut.Nₑ": "100.0"
+   }
+  },
+  {
+   "id": "iso",
+   "action": "show-pane",
+   "arguments": {
+    "pane": "p-iso"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "icorn",
+   "action": "pick",
+   "arguments": {
+    "selector": "@control:isoPick",
+    "value": "corn, sweet"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "d100",
+   "action": "set-text",
+   "arguments": {
+    "selector": "@control:Distance to the nearest other variety",
+    "value": "100"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "short",
+   "action": "read-report",
+   "expect": {
+    "output.boxes.isoOut": {
+     "op": "contains",
+     "value": "Short of the cited two miles (3200 m)."
+    },
+    "output.by.isoOut.cited (NMSU H-262)": "two miles"
+   }
+  },
+  {
+   "id": "d3500",
+   "action": "set-text",
+   "arguments": {
+    "selector": "@control:Distance to the nearest other variety",
+    "value": "3500"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "far",
+   "action": "read-report",
+   "expect": {
+    "output.boxes.isoOut": {
+     "op": "contains",
+     "value": "Meets the cited two miles."
+    }
+   }
+  },
+  {
+   "id": "tomato",
+   "action": "pick",
+   "arguments": {
+    "selector": "@control:isoPick",
+    "value": "tomato"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "nocite",
+   "action": "read-report",
+   "expect": {
+    "output.boxes.isoOut": {
+     "op": "contains",
+     "value": "No cited distance for this crop."
+    }
+   }
+  },
+  {
+   "id": "sel",
+   "action": "show-pane",
+   "arguments": {
+    "pane": "p-sel"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "grown",
+   "action": "set-text",
+   "arguments": {
+    "selector": "@control:Plants grown",
+    "value": "100"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "kept",
+   "action": "set-text",
+   "arguments": {
+    "selector": "@control:Plants kept as parents",
+    "value": "10"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "selection",
+   "action": "read-report",
+   "expect": {
+    "output.boxes.selOut": {
+     "op": "contains",
+     "value": "costs you a population"
+    },
+    "output.by.selOut.proportion kept": "10.0%",
+    "output.by.selOut.intensity i": "1.755",
+    "output.by.selOut.expected R per generation": "6.14",
+    "output.by.selOut.Nₑ if these are the only parents": "10",
+    "output.by.selOut.ΔF per generation": "5.00%"
+   }
+  },
+  {
+   "id": "kept50",
+   "action": "set-text",
+   "arguments": {
+    "selector": "@control:Plants kept as parents",
+    "value": "50"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "half",
+   "action": "read-report",
+   "expect": {
+    "output.by.selOut.intensity i": "0.798"
+   }
+  },
+  {
+   "id": "kept200",
+   "action": "set-text",
+   "arguments": {
+    "selector": "@control:Plants kept as parents",
+    "value": "200"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "toomany",
+   "action": "read-report",
+   "expect": {
+    "output.boxes.selOut": {
+     "op": "contains",
+     "value": "cannot keep more parents"
+    }
+   }
+  },
+  {
+   "id": "kept10",
+   "action": "set-text",
+   "arguments": {
+    "selector": "@control:Plants kept as parents",
+    "value": "10"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "rog",
+   "action": "set-text",
+   "arguments": {
+    "selector": "@control:Plants rogued",
+    "value": "85"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "radd",
+   "action": "activate",
+   "arguments": {
+    "selector": "@control:rAdd"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "rogued",
+   "action": "read-report",
+   "expect": {
+    "output.boxes.rogOut": {
+     "op": "contains",
+     "value": "below the inbreeder floor"
+    },
+    "output.by.rogOut.rogued in total": "85",
+    "output.by.rogOut.left standing": "15",
+    "output.by.rogOut.of the population": "85.0%"
+   }
+  },
+  {
+   "id": "tri",
+   "action": "show-pane",
+   "arguments": {
+    "pane": "p-tri"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "tdemo",
+   "action": "activate",
+   "arguments": {
+    "selector": "@control:tDemo"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "trial",
+   "action": "read-report",
+   "expect": {
+    "output.boxes.triOut": {
+     "op": "contains",
+     "value": "tidy"
+    },
+    "output.by.triOut.entries": "4",
+    "output.by.triOut.blocks": "3",
+    "output.by.triOut.grand mean": "11.75 kg",
+    "output.by.triOut.MSE": "0.167",
+    "output.by.triOut.LSD₀\\.₀₅": "0.82 kg",
+    "output.by.triOut.CV": "3.5%"
+   }
+  },
+  {
+   "id": "means",
+   "action": "read-report",
+   "expect": {
+    "output.tables.triTable.1.1": "14.00",
+    "output.tables.triTable.2.1": "12.00"
+   }
+  },
+  {
+   "id": "tclear",
+   "action": "activate",
+   "arguments": {
+    "selector": "@control:tClear"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "te1",
+   "action": "set-text",
+   "arguments": {
+    "selector": "@control:Entry (variety number)",
+    "value": "1"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "tb1",
+   "action": "set-text",
+   "arguments": {
+    "selector": "@control:Block",
+    "value": "1"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "ty1",
+   "action": "set-text",
+   "arguments": {
+    "selector": "@control:Plot yield",
+    "value": "11"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "ta1",
+   "action": "activate",
+   "arguments": {
+    "selector": "@control:tAdd"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "te2",
+   "action": "set-text",
+   "arguments": {
+    "selector": "@control:Entry (variety number)",
+    "value": "2"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "tb2",
+   "action": "set-text",
+   "arguments": {
+    "selector": "@control:Block",
+    "value": "1"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "ty2",
+   "action": "set-text",
+   "arguments": {
+    "selector": "@control:Plot yield",
+    "value": "12"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "ta2",
+   "action": "activate",
+   "arguments": {
+    "selector": "@control:tAdd"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "te3",
+   "action": "set-text",
+   "arguments": {
+    "selector": "@control:Entry (variety number)",
+    "value": "3"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "tb3",
+   "action": "set-text",
+   "arguments": {
+    "selector": "@control:Block",
+    "value": "1"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "ty3",
+   "action": "set-text",
+   "arguments": {
+    "selector": "@control:Plot yield",
+    "value": "13"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "ta3",
+   "action": "activate",
+   "arguments": {
+    "selector": "@control:tAdd"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "onerep",
+   "action": "read-report",
+   "expect": {
+    "output.boxes.triOut": {
+     "op": "contains",
+     "value": "One replicate is not a trial."
+    }
+   }
+  },
+  {
+   "id": "seed",
+   "action": "show-pane",
+   "arguments": {
+    "pane": "p-seed"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "gn",
+   "action": "set-text",
+   "arguments": {
+    "selector": "@control:Seeds tested",
+    "value": "100"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "gup",
+   "action": "set-text",
+   "arguments": {
+    "selector": "@control:Seeds germinated",
+    "value": "90"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "germ",
+   "action": "read-report",
+   "expect": {
+    "output.boxes.germOut": {
+     "op": "contains",
+     "value": "seeds per plant"
+    },
+    "output.by.germOut.germination": "90.0%",
+    "output.by.germOut.binomial SE": "±3.0%",
+    "output.by.germOut.seeds tested": "100",
+    "output.by.germOut.95% interval": "84.1–95.9%"
+   }
+  },
+  {
+   "id": "gn20",
+   "action": "set-text",
+   "arguments": {
+    "selector": "@control:Seeds tested",
+    "value": "20"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "gup30",
+   "action": "set-text",
+   "arguments": {
+    "selector": "@control:Seeds germinated",
+    "value": "30"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "more",
+   "action": "read-report",
+   "expect": {
+    "output.boxes.germOut": {
+     "op": "contains",
+     "value": "More germinated than you sowed."
+    }
+   }
+  },
+  {
+   "id": "years",
+   "action": "set-text",
+   "arguments": {
+    "selector": "@control:Seasons in storage",
+    "value": "7"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "stored",
+   "action": "read-report",
+   "expect": {
+    "output.boxes.storOut": {
+     "op": "contains",
+     "value": "Past the conventional window."
+    },
+    "output.by.storOut.seasons stored": "7"
+   }
+  },
+  {
+   "id": "intact",
+   "action": "read-page",
+   "expect": {
+    "output.junk": null,
+    "output.errors": {
+     "op": "==",
+     "value": []
+    },
+    "output.overflow": 0
+   }
+  }
+ ]
+}

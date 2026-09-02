@@ -1,0 +1,88 @@
+{
+ "id": "page-collection-sheet-canary",
+ "target": "page",
+ "page": "collection-sheet.html",
+ "must": "FAIL",
+ "goal": "The page canary: record ONE collection on the collection sheet and claim the analysis counts two. A grader that cannot refute a wrong figure read from a page's report would pass every science task for the wrong reason; this task is written to be refuted.",
+ "steps": [
+  {
+   "id": "look",
+   "action": "observe",
+   "expect": {
+    "ok": true,
+    "snapshot.page": "collection-sheet.html"
+   }
+  },
+  {
+   "id": "rec",
+   "action": "show-pane",
+   "arguments": {
+    "pane": "p-rec"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "g1",
+   "action": "pick",
+   "arguments": {
+    "selector": "@control:genEntry",
+    "value": "Amanita"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "n1",
+   "action": "set-text",
+   "arguments": {
+    "selector": "@control:cName",
+    "value": "Amanita muscaria"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "h1",
+   "action": "pick",
+   "arguments": {
+    "selector": "@control:hostEntry",
+    "value": "Pinus contorta"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "a1",
+   "action": "activate",
+   "arguments": {
+    "selector": "@control:cAdd"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "analysis",
+   "action": "show-pane",
+   "arguments": {
+    "pane": "p-an"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "report",
+   "action": "read-report",
+   "expect": {
+    "ok": true,
+    "output.figures.collections": "2"
+   }
+  }
+ ]
+}

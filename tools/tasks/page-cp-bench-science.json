@@ -1,0 +1,570 @@
+{
+ "id": "page-cp-bench-science",
+ "target": "page",
+ "page": "cp-bench.html",
+ "goal": "On the carnivorous-plant bench: TDS readings of 20, 120 and 300 ppm are excellent, usable and too high against the 50/160 ppm conventions; ten 250 mL top-ups at 50 ppm leave 125 mg of solids in the pot, as one watering at 500 ppm; the Sarracenia/Dionaea preset (peat + perlite) is nutrient-free and coir makes it 0.33/5; a plant with no source is counted; trap counts 4, 6, 9 read as up from 4 to 9; the demo dormancy log has 43 of 84 needed days at or below 10 C with a longest run of 15; a cross with 200 seed and 80 seedlings germinated 40.0%.",
+ "steps": [
+  {
+   "id": "look",
+   "action": "observe",
+   "expect": {
+    "ok": true,
+    "snapshot.page": "cp-bench.html"
+   }
+  },
+  {
+   "id": "wat",
+   "action": "show-pane",
+   "arguments": {
+    "pane": "p-wat"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "tds20",
+   "action": "set-text",
+   "arguments": {
+    "selector": "@control:TDS",
+    "value": "20"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "log20",
+   "action": "activate",
+   "arguments": {
+    "selector": "@control:wAdd"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "w20",
+   "action": "read-report",
+   "expect": {
+    "output.boxes.wOut": {
+     "op": "contains",
+     "value": "Excellent — 20 ppm."
+    },
+    "output.boxes.wList": {
+     "op": "contains",
+     "value": "inside the 50 ppm convention"
+    },
+    "output.by.wOut.latest reading": "20 ppm",
+    "output.by.wOut.source": "RO / DI"
+   }
+  },
+  {
+   "id": "tds120",
+   "action": "set-text",
+   "arguments": {
+    "selector": "@control:TDS",
+    "value": "120"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "log120",
+   "action": "activate",
+   "arguments": {
+    "selector": "@control:wAdd"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "w120",
+   "action": "read-report",
+   "expect": {
+    "output.boxes.wOut": {
+     "op": "contains",
+     "value": "Usable — 120 ppm."
+    },
+    "output.boxes.wList": {
+     "op": "contains",
+     "value": "under the 160 ppm guidance"
+    },
+    "output.by.wOut.latest reading": "120 ppm",
+    "output.by.wOut.source": "RO / DI"
+   }
+  },
+  {
+   "id": "tds300",
+   "action": "set-text",
+   "arguments": {
+    "selector": "@control:TDS",
+    "value": "300"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "log300",
+   "action": "activate",
+   "arguments": {
+    "selector": "@control:wAdd"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "w300",
+   "action": "read-report",
+   "expect": {
+    "output.boxes.wOut": {
+     "op": "contains",
+     "value": "Too high — 300 ppm."
+    },
+    "output.boxes.wList": {
+     "op": "contains",
+     "value": "above the 160 ppm guidance"
+    },
+    "output.by.wOut.latest reading": "300 ppm",
+    "output.by.wOut.source": "RO / DI"
+   }
+  },
+  {
+   "id": "three",
+   "action": "read-report",
+   "expect": {
+    "output.rows.#wList": 3,
+    "output.by.wOut.readings logged": "3"
+   }
+  },
+  {
+   "id": "accum",
+   "action": "read-report",
+   "expect": {
+    "output.boxes.wAccumOut": {
+     "op": "contains",
+     "value": "10 top-ups at 50 ppm is equivalent to a single watering at 500 ppm."
+    },
+    "output.by.wAccumOut.dissolved solids left in the pot": "125 mg",
+    "output.by.wAccumOut.same as one watering at": "500 ppm",
+    "output.by.wAccumOut.water evaporated": "2.5 L"
+   }
+  },
+  {
+   "id": "mix",
+   "action": "show-pane",
+   "arguments": {
+    "pane": "p-mix"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "preset",
+   "action": "activate",
+   "arguments": {
+    "selector": "@control:mPresets/Sarracenia · Dionaea"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "free",
+   "action": "read-report",
+   "expect": {
+    "output.boxes.mOut": {
+     "op": "contains",
+     "value": "Nutrient-free."
+    },
+    "output.by.mOut.water holding": "3.0 / 5",
+    "output.by.mOut.aeration": "3.5 / 5",
+    "output.by.mOut.nutrient load": "0.00 / 5"
+   }
+  },
+  {
+   "id": "coir",
+   "action": "activate",
+   "arguments": {
+    "selector": "@control:mGrid/coconut coir"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "notfree",
+   "action": "read-report",
+   "expect": {
+    "output.boxes.mOut": {
+     "op": "contains",
+     "value": "This mix is not nutrient-free."
+    },
+    "output.by.mOut.nutrient load": "0.33 / 5"
+   }
+  },
+  {
+   "id": "pl",
+   "action": "show-pane",
+   "arguments": {
+    "pane": "p-pl"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "genus",
+   "action": "pick",
+   "arguments": {
+    "selector": "@control:pNew",
+    "value": "Sarracenia"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "pname",
+   "action": "set-text",
+   "arguments": {
+    "selector": "@control:pnm",
+    "value": "S. flava 'Claret'"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "padd",
+   "action": "activate",
+   "arguments": {
+    "selector": "@control:pAdd"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "plant",
+   "action": "read-report",
+   "expect": {
+    "output.rows.#pList": 1,
+    "output.boxes.pOut": {
+     "op": "contains",
+     "value": "1 plant with no source recorded."
+    },
+    "output.by.pOut.plants": "1",
+    "output.by.pOut.observations": "0",
+    "output.by.pOut.without a source": "1",
+    "output.by.pOut.losses recorded": "0"
+   }
+  },
+  {
+   "id": "op0",
+   "action": "pick",
+   "arguments": {
+    "selector": "@control:pObs",
+    "value": "S. flava 'Claret'"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "oc0",
+   "action": "set-text",
+   "arguments": {
+    "selector": "@control:Count (for trap counts)",
+    "value": "4"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "oa0",
+   "action": "activate",
+   "arguments": {
+    "selector": "@control:oAdd"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "op1",
+   "action": "pick",
+   "arguments": {
+    "selector": "@control:pObs",
+    "value": "S. flava 'Claret'"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "oc1",
+   "action": "set-text",
+   "arguments": {
+    "selector": "@control:Count (for trap counts)",
+    "value": "6"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "oa1",
+   "action": "activate",
+   "arguments": {
+    "selector": "@control:oAdd"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "op2",
+   "action": "pick",
+   "arguments": {
+    "selector": "@control:pObs",
+    "value": "S. flava 'Claret'"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "oc2",
+   "action": "set-text",
+   "arguments": {
+    "selector": "@control:Count (for trap counts)",
+    "value": "9"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "oa2",
+   "action": "activate",
+   "arguments": {
+    "selector": "@control:oAdd"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "obs",
+   "action": "read-report",
+   "expect": {
+    "output.boxes.pOut": {
+     "op": "contains",
+     "value": "Up from 4 to 9."
+    },
+    "output.by.pOut.observations": "3"
+   }
+  },
+  {
+   "id": "sea",
+   "action": "show-pane",
+   "arguments": {
+    "pane": "p-sea"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "nep",
+   "action": "pick",
+   "arguments": {
+    "selector": "@control:sTarget",
+    "value": "Nepenthes"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "nodorm",
+   "action": "read-report",
+   "expect": {
+    "output.boxes.sOut": {
+     "op": "contains",
+     "value": "Nepenthes — no winter dormancy"
+    }
+   }
+  },
+  {
+   "id": "sarr",
+   "action": "pick",
+   "arguments": {
+    "selector": "@control:sTarget",
+    "value": "Sarracenia"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "dorm",
+   "action": "read-report",
+   "expect": {
+    "output.boxes.sOut": {
+     "op": "contains",
+     "value": "Sarracenia — needs a dormancy"
+    }
+   }
+  },
+  {
+   "id": "demo",
+   "action": "activate",
+   "arguments": {
+    "selector": "@control:sDemo"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "season",
+   "action": "read-report",
+   "expect": {
+    "output.boxes.sOut": {
+     "op": "contains",
+     "value": "41 days short of your target."
+    },
+    "output.by.sOut.days at or below 10 °C": "43 / 84",
+    "output.by.sOut.longest unbroken run": "15",
+    "output.by.sOut.readings": "58",
+    "output.by.sOut.of your target": "51%"
+   }
+  },
+  {
+   "id": "cro",
+   "action": "show-pane",
+   "arguments": {
+    "pane": "p-cro"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "pod",
+   "action": "set-text",
+   "arguments": {
+    "selector": "@control:xpod",
+    "value": "S. leucophylla 'Tarnok'"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "pol",
+   "action": "set-text",
+   "arguments": {
+    "selector": "@control:xpol",
+    "value": "S. flava var. ornata"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "cadd",
+   "action": "activate",
+   "arguments": {
+    "selector": "@control:cAdd"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "cross",
+   "action": "read-report",
+   "expect": {
+    "output.rows.#cList": 1
+   }
+  },
+  {
+   "id": "upick",
+   "action": "pick",
+   "arguments": {
+    "selector": "@control:cUpd",
+    "value": "Tarnok"
+   },
+   "expect": {
+    "ok": true,
+    "output.chose": {
+     "op": "contains",
+     "value": "Tarnok"
+    }
+   }
+  },
+  {
+   "id": "seed",
+   "action": "set-text",
+   "arguments": {
+    "selector": "@control:Seed collected",
+    "value": "200"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "germ",
+   "action": "set-text",
+   "arguments": {
+    "selector": "@control:Seedlings germinated",
+    "value": "80"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "csave",
+   "action": "activate",
+   "arguments": {
+    "selector": "@control:cSave"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "crosses",
+   "action": "read-report",
+   "expect": {
+    "output.by.cOut.crosses recorded": "1",
+    "output.by.cOut.set seed": "1",
+    "output.by.cOut.seed collected": "200",
+    "output.by.cOut.germination overall": "40.0%"
+   }
+  },
+  {
+   "id": "intact",
+   "action": "read-page",
+   "expect": {
+    "output.junk": null,
+    "output.errors": {
+     "op": "==",
+     "value": []
+    },
+    "output.overflow": 0
+   }
+  }
+ ]
+}

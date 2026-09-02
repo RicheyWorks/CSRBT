@@ -1,0 +1,465 @@
+{
+ "id": "page-soil-bench-science",
+ "target": "page",
+ "page": "soil-bench.html",
+ "goal": "On the soil bench: the demo windrow log has 14 of 15 required days at or above 55 C and 5 of 5 turnings while hot, peak 64, not there yet; a 34 C reading is a cooled pile, in-vessel needs only 3 days and is met, 72 C is one reading above 66; 100 L of fresh grass clippings (C:N 20, 2.4% N, 80% moisture, 250 kg/m3) is nitrogen-rich and 200 L of straw (80, 0.7%, 12%, 60) blends to C:N 42.9:1 by sum C over sum N, 37 kg wet, 16 kg dry, 58% moisture; peat + perlite is a nutrient-free mix and compost makes it 1.00/5; the texture key reads holds, ribbon, over 5 cm, smooth as SILTY CLAY and falls apart as SAND.",
+ "steps": [
+  {
+   "id": "look",
+   "action": "observe",
+   "expect": {
+    "ok": true,
+    "snapshot.page": "soil-bench.html"
+   }
+  },
+  {
+   "id": "comp",
+   "action": "show-pane",
+   "arguments": {
+    "pane": "p-comp"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "up",
+   "action": "press-step",
+   "arguments": {
+    "selector": "@control:cEntry/+",
+    "direction": "up"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "t56",
+   "action": "read-control",
+   "arguments": {
+    "selector": "@control:Core temperature"
+   },
+   "expect": {
+    "output.value": "56"
+   }
+  },
+  {
+   "id": "demo",
+   "action": "activate",
+   "arguments": {
+    "selector": "@control:cDemo"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "pile",
+   "action": "read-report",
+   "expect": {
+    "ok": true,
+    "output.boxes.cOut": {
+     "op": "contains",
+     "value": "more day"
+    },
+    "output.by.cOut.days logged at ≥55 °C": "14 / 15",
+    "output.by.cOut.turnings while hot": "5 / 5",
+    "output.by.cOut.readings": "18",
+    "output.by.cOut.peak": "64°"
+   }
+  },
+  {
+   "id": "t34",
+   "action": "set-text",
+   "arguments": {
+    "selector": "@control:Core temperature",
+    "value": "34"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "add34",
+   "action": "activate",
+   "arguments": {
+    "selector": "@control:cAdd"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "cooled",
+   "action": "read-report",
+   "expect": {
+    "output.boxes.cOut": {
+     "op": "contains",
+     "value": "The pile has cooled below 40 °C."
+    }
+   }
+  },
+  {
+   "id": "undo",
+   "action": "activate",
+   "arguments": {
+    "selector": "@control:cUndo"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "vessel",
+   "action": "activate",
+   "arguments": {
+    "selector": "@control:cSetup/In-vessel"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "meets",
+   "action": "read-report",
+   "expect": {
+    "output.boxes.cOut": {
+     "op": "contains",
+     "value": "meets the in-vessel"
+    },
+    "output.by.cOut.turnings while hot": {
+     "op": "exists",
+     "value": false
+    }
+   }
+  },
+  {
+   "id": "windrow",
+   "action": "activate",
+   "arguments": {
+    "selector": "@control:cSetup/Windrow"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "t72",
+   "action": "set-text",
+   "arguments": {
+    "selector": "@control:Core temperature",
+    "value": "72"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "add72",
+   "action": "activate",
+   "arguments": {
+    "selector": "@control:cAdd"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "over",
+   "action": "read-report",
+   "expect": {
+    "output.boxes.cOut": {
+     "op": "contains",
+     "value": "1 reading above 66 °C."
+    }
+   }
+  },
+  {
+   "id": "undo2",
+   "action": "activate",
+   "arguments": {
+    "selector": "@control:cUndo"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "rec",
+   "action": "show-pane",
+   "arguments": {
+    "pane": "p-rec"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "grass",
+   "action": "pick",
+   "arguments": {
+    "selector": "@control:rPick",
+    "value": "grass clippings, fresh"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "v100",
+   "action": "set-text",
+   "arguments": {
+    "selector": "@control:Volume",
+    "value": "100"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "radd1",
+   "action": "activate",
+   "arguments": {
+    "selector": "@control:rAdd"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "nrich",
+   "action": "read-report",
+   "expect": {
+    "output.boxes.rOut": {
+     "op": "contains",
+     "value": "C:N of 20.0:1 is nitrogen-rich."
+    },
+    "output.by.rOut.blended C:N": "20.0:1"
+   }
+  },
+  {
+   "id": "straw",
+   "action": "pick",
+   "arguments": {
+    "selector": "@control:rPick",
+    "value": "straw"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "v200",
+   "action": "set-text",
+   "arguments": {
+    "selector": "@control:Volume",
+    "value": "200"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "radd2",
+   "action": "activate",
+   "arguments": {
+    "selector": "@control:rAdd"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "blend",
+   "action": "read-report",
+   "expect": {
+    "output.rows.#rList": 2,
+    "output.boxes.rOut": {
+     "op": "contains",
+     "value": "carbon-rich"
+    },
+    "output.by.rOut.blended C:N": "42.9:1",
+    "output.by.rOut.total volume": "300 L",
+    "output.by.rOut.wet mass": "37 kg",
+    "output.by.rOut.dry mass": "16 kg",
+    "output.by.rOut.moisture as built": "58%",
+    "output.by.rOut.green : brown by volume": "33 / 67"
+   }
+  },
+  {
+   "id": "mix",
+   "action": "show-pane",
+   "arguments": {
+    "pane": "p-mix"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "peat",
+   "action": "activate",
+   "arguments": {
+    "selector": "@control:mGrid/sphagnum peat"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "perl",
+   "action": "activate",
+   "arguments": {
+    "selector": "@control:mGrid/perlite"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "free",
+   "action": "read-report",
+   "expect": {
+    "output.boxes.mOut": {
+     "op": "contains",
+     "value": "Nutrient-free."
+    },
+    "output.by.mOut.water holding": "3.0 / 5",
+    "output.by.mOut.aeration": "3.5 / 5",
+    "output.by.mOut.cation exchange": "2.0 / 5",
+    "output.by.mOut.nutrient load": "0.00 / 5"
+   }
+  },
+  {
+   "id": "compost",
+   "action": "activate",
+   "arguments": {
+    "selector": "@control:mGrid/finished compost"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "carries",
+   "action": "read-report",
+   "expect": {
+    "output.boxes.mOut": {
+     "op": "contains",
+     "value": "Carries nutrients."
+    },
+    "output.by.mOut.nutrient load": "1.00 / 5",
+    "output.tables.mOut.3.0": {
+     "op": "exists",
+     "value": true
+    }
+   }
+  },
+  {
+   "id": "tex",
+   "action": "show-pane",
+   "arguments": {
+    "pane": "p-tex"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "q1",
+   "action": "activate",
+   "arguments": {
+    "selector": "@control:tBox/Yes — it holds"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "q2",
+   "action": "activate",
+   "arguments": {
+    "selector": "@control:tBox/Yes, a ribbon forms"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "q3",
+   "action": "activate",
+   "arguments": {
+    "selector": "@control:tBox/Over 5 cm (2 in)"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "q4",
+   "action": "activate",
+   "arguments": {
+    "selector": "@control:tBox/Smooth, floury"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "silty",
+   "action": "read-report",
+   "expect": {
+    "output.boxes.tBox": {
+     "op": "contains",
+     "value": "Texture class: SILTY CLAY"
+    },
+    "output.boxes.tOut": {
+     "op": "contains",
+     "value": "not structure"
+    }
+   }
+  },
+  {
+   "id": "startover",
+   "action": "activate",
+   "arguments": {
+    "selector": "@control:tBox/Start over"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "q1b",
+   "action": "activate",
+   "arguments": {
+    "selector": "@control:tBox/No — it falls apart"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "sand",
+   "action": "read-report",
+   "expect": {
+    "output.boxes.tBox": {
+     "op": "contains",
+     "value": "Texture class: SAND"
+    }
+   }
+  },
+  {
+   "id": "intact",
+   "action": "read-page",
+   "expect": {
+    "output.junk": null,
+    "output.errors": {
+     "op": "==",
+     "value": []
+    },
+    "output.overflow": 0
+   }
+  }
+ ]
+}

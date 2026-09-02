@@ -1,0 +1,464 @@
+{
+ "id": "page-experiment-guide-design",
+ "target": "page",
+ "page": "experiment-guide.html",
+ "goal": "On the experiment guide's designer: measured phases 12.34 + 5.6 ms over a 2 ms floor total 17.9 ms at 9x the floor and 100 + 48.6 over 12 ms 148.6 ms at 12x, the pre-registration table says the same, a verdict without a rule is refused and with one it fires; on the ecology track a named study with one uniform phase and one hypothesis emits exactly the .eco text and lints clean with 6 directives, a logistic model with 3 of 4 parameters is refused and with 4 is emitted. A photograph dropped on the import card is refused by name and imports nothing.",
+ "steps": [
+  {
+   "id": "look",
+   "action": "observe",
+   "expect": {
+    "ok": true,
+    "snapshot.page": "experiment-guide.html"
+   }
+  },
+  {
+   "id": "designer",
+   "action": "activate",
+   "arguments": {
+    "selector": "@control:tab-designer"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "eng",
+   "action": "activate",
+   "arguments": {
+    "selector": "@control:track-eng"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "reset",
+   "action": "activate",
+   "arguments": {
+    "selector": "@control:eng-reset"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "sizes",
+   "action": "set-text",
+   "arguments": {
+    "selector": "@control:g-sizes",
+    "value": "20000, 60000"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "phases",
+   "action": "set-text",
+   "arguments": {
+    "selector": "@control:g-phases",
+    "value": "inflate, scan"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "i20",
+   "action": "set-text",
+   "arguments": {
+    "selector": "@control:inflate (ms) at n = 20000",
+    "value": "12.34"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "s20",
+   "action": "set-text",
+   "arguments": {
+    "selector": "@control:scan (ms) at n = 20000",
+    "value": "5.6"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "f20",
+   "action": "set-text",
+   "arguments": {
+    "selector": "@control:floor (ms) at n = 20000",
+    "value": "2"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "i60",
+   "action": "set-text",
+   "arguments": {
+    "selector": "@control:inflate (ms) at n = 60000",
+    "value": "100"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "s60",
+   "action": "set-text",
+   "arguments": {
+    "selector": "@control:scan (ms) at n = 60000",
+    "value": "48.6"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "f60",
+   "action": "set-text",
+   "arguments": {
+    "selector": "@control:floor (ms) at n = 60000",
+    "value": "12"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "totals",
+   "action": "read-report",
+   "expect": {
+    "ok": true,
+    "output.boxes.meas": {
+     "op": "contains",
+     "value": "total 17.9 ms · floor 2 ms · 9× the floor"
+    },
+    "output.boxes.eng-out": {
+     "op": "contains",
+     "value": "| 20000 | 12.34 | 5.6 | 2 | 17.9 | 9× |"
+    }
+   }
+  },
+  {
+   "id": "totals2",
+   "action": "read-report",
+   "expect": {
+    "output.boxes.meas": {
+     "op": "contains",
+     "value": "total 148.6 ms · floor 12 ms · 12× the floor"
+    },
+    "output.boxes.eng-out": {
+     "op": "contains",
+     "value": "| 60000 | 100 | 48.6 | 12 | 148.6 | 12× |"
+    }
+   }
+  },
+  {
+   "id": "lint",
+   "action": "read-report",
+   "expect": {
+    "output.boxes.eng-lint": {
+     "op": "contains",
+     "value": "no decision rule"
+    }
+   }
+  },
+  {
+   "id": "early",
+   "action": "activate",
+   "arguments": {
+    "selector": "@control:vd-fires"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "norule",
+   "action": "read-report",
+   "expect": {
+    "output.boxes.toast": {
+     "op": "contains",
+     "value": "No rule, no verdict"
+    }
+   }
+  },
+  {
+   "id": "rule",
+   "action": "set-text",
+   "arguments": {
+    "selector": "@control:g-rule",
+    "value": "fires above 5x the floor"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "fires",
+   "action": "activate",
+   "arguments": {
+    "selector": "@control:vd-fires"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "verdict",
+   "action": "read-report",
+   "expect": {
+    "output.boxes.eng-out": {
+     "op": "contains",
+     "value": "VERDICT: THE TRIGGER FIRES"
+    }
+   }
+  },
+  {
+   "id": "ecotrack",
+   "action": "activate",
+   "arguments": {
+    "selector": "@control:track-eco"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "ecoreset",
+   "action": "activate",
+   "arguments": {
+    "selector": "@control:eco-reset"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "name",
+   "action": "set-text",
+   "arguments": {
+    "selector": "@control:e-name",
+    "value": "meadow disturbance study"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "pname",
+   "action": "set-text",
+   "arguments": {
+    "selector": "@control:p-name",
+    "value": "graze"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "padd",
+   "action": "activate",
+   "arguments": {
+    "selector": "@control:p-add"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "weak",
+   "action": "read-report",
+   "expect": {
+    "output.boxes.lint": {
+     "op": "contains",
+     "value": "no pre-registered hypotheses"
+    }
+   }
+  },
+  {
+   "id": "metric",
+   "action": "choose-option",
+   "arguments": {
+    "selector": "@control:x-metric",
+    "value": "evenness"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "args",
+   "action": "set-text",
+   "arguments": {
+    "selector": "@control:x-args",
+    "value": "graze"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "val",
+   "action": "set-text",
+   "arguments": {
+    "selector": "@control:x-val",
+    "value": "0.9"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "xadd",
+   "action": "activate",
+   "arguments": {
+    "selector": "@control:x-add"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "spec",
+   "action": "read-report",
+   "expect": {
+    "output.boxes.eco-out": "# meadow disturbance study — written before the run, graded after. # Run me: ./gradlew ecologyExperiment -Pspec=meadow-disturbance-study.eco name: meadow disturbance study keys: 100 seed: 42 window: 250 phase: graze uniform 2000 expect: evenness(graze) > 0.9",
+    "output.boxes.eco-cmd": "./gradlew ecologyExperiment -Pspec=meadow-disturbance-study.eco",
+    "output.boxes.lint": {
+     "op": "contains",
+     "value": "would parse clean — 6 directives, 1 hypothesis, seed 42"
+    }
+   }
+  },
+  {
+   "id": "model",
+   "action": "choose-option",
+   "arguments": {
+    "selector": "@control:m-kind",
+    "value": "logistic"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "short",
+   "action": "set-text",
+   "arguments": {
+    "selector": "@control:m-params",
+    "value": "0.15 120 5"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "madd",
+   "action": "activate",
+   "arguments": {
+    "selector": "@control:m-add"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "arity",
+   "action": "read-report",
+   "expect": {
+    "output.boxes.toast": {
+     "op": "contains",
+     "value": "model logistic needs 4 parameters"
+    }
+   }
+  },
+  {
+   "id": "full",
+   "action": "set-text",
+   "arguments": {
+    "selector": "@control:m-params",
+    "value": "0.15 120 5 60"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "madd2",
+   "action": "activate",
+   "arguments": {
+    "selector": "@control:m-add"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "modelled",
+   "action": "read-report",
+   "expect": {
+    "output.boxes.eco-out": {
+     "op": "contains",
+     "value": "model: logistic 0.15 120 5 60"
+    },
+    "output.boxes.lint": {
+     "op": "contains",
+     "value": "7 directives"
+    }
+   }
+  },
+  {
+   "id": "photo",
+   "action": "drop-files",
+   "arguments": {
+    "selector": "@control:imp-card",
+    "files": [
+     "image"
+    ]
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "refused",
+   "action": "read-report",
+   "expect": {
+    "output.boxes.toast": {
+     "op": "contains",
+     "value": "Not a text file: IMG_0431.jpg"
+    },
+    "output.boxes.eco-out": {
+     "op": "contains",
+     "value": "model: logistic 0.15 120 5 60"
+    }
+   }
+  },
+  {
+   "id": "flat",
+   "action": "read-page",
+   "expect": {
+    "output.overflow": 0
+   }
+  },
+  {
+   "id": "intact",
+   "action": "read-page",
+   "expect": {
+    "output.junk": null,
+    "output.errors": {
+     "op": "==",
+     "value": []
+    },
+    "output.overflow": 0
+   }
+  }
+ ]
+}

@@ -1,0 +1,487 @@
+{
+ "id": "page-field-notebook-science",
+ "target": "page",
+ "page": "field-notebook.html",
+ "goal": "On the field notebook, tally species-a x6, species-b x3 and a new species clover x1 and find 10 individuals, 3 species, Shannon H' 0.90, evenness J' 0.82, 2.5 effective species (moderately even) and the .eco line; count 0 1 2 9 in four quadrats for mean 3.00, variance/mean 5.56 (50/3 over 3) and Morisita 2.24 (4*74/132), clumped; mark 5 voles, catch 4 with no recaptures (undefined, on purpose) then 2 recaptures for Lincoln-Petersen 5*4/2 = 10.",
+ "steps": [
+  {
+   "id": "look",
+   "action": "observe",
+   "expect": {
+    "ok": true,
+    "snapshot.page": "field-notebook.html"
+   }
+  },
+  {
+   "id": "spec",
+   "action": "show-pane",
+   "arguments": {
+    "pane": "p-spec"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "a0",
+   "action": "activate",
+   "arguments": {
+    "selector": "@control:specGrid#0"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "a1",
+   "action": "activate",
+   "arguments": {
+    "selector": "@control:specGrid#0"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "a2",
+   "action": "activate",
+   "arguments": {
+    "selector": "@control:specGrid#0"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "a3",
+   "action": "activate",
+   "arguments": {
+    "selector": "@control:specGrid#0"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "a4",
+   "action": "activate",
+   "arguments": {
+    "selector": "@control:specGrid#0"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "a5",
+   "action": "activate",
+   "arguments": {
+    "selector": "@control:specGrid#0"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "b0",
+   "action": "activate",
+   "arguments": {
+    "selector": "@control:specGrid#1"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "b1",
+   "action": "activate",
+   "arguments": {
+    "selector": "@control:specGrid#1"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "b2",
+   "action": "activate",
+   "arguments": {
+    "selector": "@control:specGrid#1"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "new",
+   "action": "set-text",
+   "arguments": {
+    "selector": "@control:specNew",
+    "value": "clover"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "add",
+   "action": "activate",
+   "arguments": {
+    "selector": "@control:specAdd"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "c0",
+   "action": "activate",
+   "arguments": {
+    "selector": "@control:specGrid#2"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "species",
+   "action": "read-report",
+   "expect": {
+    "ok": true,
+    "output.boxes.specResults": {
+     "op": "contains",
+     "value": "moderately even"
+    },
+    "output.by.specResults.individuals": "10",
+    "output.by.specResults.species": "3",
+    "output.by.specResults.Shannon H′": "0.90",
+    "output.by.specResults.evenness J′": "0.82",
+    "output.by.specResults.effective (species)": "2.5"
+   }
+  },
+  {
+   "id": "eco",
+   "action": "read-report",
+   "expect": {
+    "output.boxes.ecoOut": {
+     "op": "contains",
+     "value": "data: site species-a=6 species-b=3 clover=1"
+    }
+   }
+  },
+  {
+   "id": "quad",
+   "action": "show-pane",
+   "arguments": {
+    "pane": "p-quad"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "q2",
+   "action": "activate",
+   "arguments": {
+    "selector": "@control:quadGrid#3"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "q3_0",
+   "action": "activate",
+   "arguments": {
+    "selector": "@control:quadGrid#5"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "q3_1",
+   "action": "activate",
+   "arguments": {
+    "selector": "@control:quadGrid#5"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "q4_0",
+   "action": "activate",
+   "arguments": {
+    "selector": "@control:quadGrid#7"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "q4_1",
+   "action": "activate",
+   "arguments": {
+    "selector": "@control:quadGrid#7"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "q4_2",
+   "action": "activate",
+   "arguments": {
+    "selector": "@control:quadGrid#7"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "q4_3",
+   "action": "activate",
+   "arguments": {
+    "selector": "@control:quadGrid#7"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "q4_4",
+   "action": "activate",
+   "arguments": {
+    "selector": "@control:quadGrid#7"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "q4_5",
+   "action": "activate",
+   "arguments": {
+    "selector": "@control:quadGrid#7"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "q4_6",
+   "action": "activate",
+   "arguments": {
+    "selector": "@control:quadGrid#7"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "q4_7",
+   "action": "activate",
+   "arguments": {
+    "selector": "@control:quadGrid#7"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "q4_8",
+   "action": "activate",
+   "arguments": {
+    "selector": "@control:quadGrid#7"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "dispersion",
+   "action": "read-report",
+   "expect": {
+    "output.boxes.quadResults": {
+     "op": "contains",
+     "value": "clumped"
+    },
+    "output.by.quadResults.quadrats": "4",
+    "output.by.quadResults.individuals": "12",
+    "output.by.quadResults.mean / quadrat": "3.00",
+    "output.by.quadResults.variance / mean": "5.56",
+    "output.by.quadResults.Morisita": "2.24"
+   }
+  },
+  {
+   "id": "quadeco",
+   "action": "read-report",
+   "expect": {
+    "output.boxes.ecoOut": {
+     "op": "contains",
+     "value": "# quadrat counts (per frame): 0 1 2 9"
+    }
+   }
+  },
+  {
+   "id": "more",
+   "action": "show-pane",
+   "arguments": {
+    "pane": "p-more"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "m0",
+   "action": "activate",
+   "arguments": {
+    "selector": "@control:p-more#1"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "m1",
+   "action": "activate",
+   "arguments": {
+    "selector": "@control:p-more#1"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "m2",
+   "action": "activate",
+   "arguments": {
+    "selector": "@control:p-more#1"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "m3",
+   "action": "activate",
+   "arguments": {
+    "selector": "@control:p-more#1"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "m4",
+   "action": "activate",
+   "arguments": {
+    "selector": "@control:p-more#1"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "cc0",
+   "action": "activate",
+   "arguments": {
+    "selector": "@control:p-more#3"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "cc1",
+   "action": "activate",
+   "arguments": {
+    "selector": "@control:p-more#3"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "cc2",
+   "action": "activate",
+   "arguments": {
+    "selector": "@control:p-more#3"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "cc3",
+   "action": "activate",
+   "arguments": {
+    "selector": "@control:p-more#3"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "nocatch",
+   "action": "read-report",
+   "expect": {
+    "output.boxes.mrOut": {
+     "op": "contains",
+     "value": "undefined"
+    }
+   }
+  },
+  {
+   "id": "r0",
+   "action": "activate",
+   "arguments": {
+    "selector": "@control:p-more#5"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "r1",
+   "action": "activate",
+   "arguments": {
+    "selector": "@control:p-more#5"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "lp",
+   "action": "read-report",
+   "expect": {
+    "output.boxes.mrOut": {
+     "op": "contains",
+     "value": "N̂ ≈ 10"
+    },
+    "output.boxes.ecoOut": {
+     "op": "contains",
+     "value": "model: markrecapture 5 4 2"
+    },
+    "output.by.p-more.Marked (M)": "5",
+    "output.by.p-more.2nd catch (C)": "4",
+    "output.by.p-more.Recaptured (R)": "2"
+   }
+  },
+  {
+   "id": "intact",
+   "action": "read-page",
+   "expect": {
+    "output.junk": null,
+    "output.errors": {
+     "op": "==",
+     "value": []
+    },
+    "output.overflow": 0
+   }
+  }
+ ]
+}

@@ -1,0 +1,644 @@
+{
+ "id": "page-pheno-tracker-science",
+ "target": "page",
+ "page": "pheno-tracker.html",
+ "goal": "On the pheno tracker, make a run of 8, score every plant on the four dials (vigor x1, structure x1, aroma x2, resistance x1.5) from the pattern 5 4 3 2 1 3 5 2 with the other traits one lower, keep the top three, and find the weighted totals 4.18 4.18 3.18, run mean 2.41, keeper mean 3.85 and selection differential +1.44; then on segregation 9:3, 9:7 and 60:20 each give chi-square 0.00 against their nearest Mendelian ratio.",
+ "steps": [
+  {
+   "id": "look",
+   "action": "observe",
+   "expect": {
+    "ok": true,
+    "snapshot.page": "pheno-tracker.html"
+   }
+  },
+  {
+   "id": "run",
+   "action": "show-pane",
+   "arguments": {
+    "pane": "p-run"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "n",
+   "action": "set-text",
+   "arguments": {
+    "selector": "@control:plants in run",
+    "value": "8"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "make",
+   "action": "activate",
+   "arguments": {
+    "selector": "@control:runMake"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "score",
+   "action": "show-pane",
+   "arguments": {
+    "pane": "p-score"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "p1",
+   "action": "activate",
+   "arguments": {
+    "selector": "@control:plantGrid#0"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "p1_t0",
+   "action": "activate",
+   "arguments": {
+    "selector": "@control:scoreDials/5#0"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "p1_t1",
+   "action": "activate",
+   "arguments": {
+    "selector": "@control:scoreDials/4#1"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "p1_t2",
+   "action": "activate",
+   "arguments": {
+    "selector": "@control:scoreDials/4#2"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "p1_t3",
+   "action": "activate",
+   "arguments": {
+    "selector": "@control:scoreDials/4#3"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "p2",
+   "action": "activate",
+   "arguments": {
+    "selector": "@control:plantGrid#1"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "p2_t0",
+   "action": "activate",
+   "arguments": {
+    "selector": "@control:scoreDials/4#0"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "p2_t1",
+   "action": "activate",
+   "arguments": {
+    "selector": "@control:scoreDials/3#1"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "p2_t2",
+   "action": "activate",
+   "arguments": {
+    "selector": "@control:scoreDials/3#2"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "p2_t3",
+   "action": "activate",
+   "arguments": {
+    "selector": "@control:scoreDials/3#3"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "p3",
+   "action": "activate",
+   "arguments": {
+    "selector": "@control:plantGrid#2"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "p3_t0",
+   "action": "activate",
+   "arguments": {
+    "selector": "@control:scoreDials/3#0"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "p3_t1",
+   "action": "activate",
+   "arguments": {
+    "selector": "@control:scoreDials/2#1"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "p3_t2",
+   "action": "activate",
+   "arguments": {
+    "selector": "@control:scoreDials/2#2"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "p3_t3",
+   "action": "activate",
+   "arguments": {
+    "selector": "@control:scoreDials/2#3"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "p4",
+   "action": "activate",
+   "arguments": {
+    "selector": "@control:plantGrid#3"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "p4_t0",
+   "action": "activate",
+   "arguments": {
+    "selector": "@control:scoreDials/2#0"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "p4_t1",
+   "action": "activate",
+   "arguments": {
+    "selector": "@control:scoreDials/1#1"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "p4_t2",
+   "action": "activate",
+   "arguments": {
+    "selector": "@control:scoreDials/1#2"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "p4_t3",
+   "action": "activate",
+   "arguments": {
+    "selector": "@control:scoreDials/1#3"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "p5",
+   "action": "activate",
+   "arguments": {
+    "selector": "@control:plantGrid#4"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "p5_t0",
+   "action": "activate",
+   "arguments": {
+    "selector": "@control:scoreDials/1#0"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "p5_t1",
+   "action": "activate",
+   "arguments": {
+    "selector": "@control:scoreDials/1#1"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "p5_t2",
+   "action": "activate",
+   "arguments": {
+    "selector": "@control:scoreDials/1#2"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "p5_t3",
+   "action": "activate",
+   "arguments": {
+    "selector": "@control:scoreDials/1#3"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "p6",
+   "action": "activate",
+   "arguments": {
+    "selector": "@control:plantGrid#5"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "p6_t0",
+   "action": "activate",
+   "arguments": {
+    "selector": "@control:scoreDials/3#0"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "p6_t1",
+   "action": "activate",
+   "arguments": {
+    "selector": "@control:scoreDials/2#1"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "p6_t2",
+   "action": "activate",
+   "arguments": {
+    "selector": "@control:scoreDials/2#2"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "p6_t3",
+   "action": "activate",
+   "arguments": {
+    "selector": "@control:scoreDials/2#3"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "p7",
+   "action": "activate",
+   "arguments": {
+    "selector": "@control:plantGrid#6"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "p7_t0",
+   "action": "activate",
+   "arguments": {
+    "selector": "@control:scoreDials/5#0"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "p7_t1",
+   "action": "activate",
+   "arguments": {
+    "selector": "@control:scoreDials/4#1"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "p7_t2",
+   "action": "activate",
+   "arguments": {
+    "selector": "@control:scoreDials/4#2"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "p7_t3",
+   "action": "activate",
+   "arguments": {
+    "selector": "@control:scoreDials/4#3"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "p8",
+   "action": "activate",
+   "arguments": {
+    "selector": "@control:plantGrid#7"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "p8_t0",
+   "action": "activate",
+   "arguments": {
+    "selector": "@control:scoreDials/2#0"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "p8_t1",
+   "action": "activate",
+   "arguments": {
+    "selector": "@control:scoreDials/1#1"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "p8_t2",
+   "action": "activate",
+   "arguments": {
+    "selector": "@control:scoreDials/1#2"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "p8_t3",
+   "action": "activate",
+   "arguments": {
+    "selector": "@control:scoreDials/1#3"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "sel",
+   "action": "show-pane",
+   "arguments": {
+    "pane": "p-sel"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "keep0",
+   "action": "activate",
+   "arguments": {
+    "selector": "@control:rankBoard/⭐#0"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "keep1",
+   "action": "activate",
+   "arguments": {
+    "selector": "@control:rankBoard/⭐#1"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "keep2",
+   "action": "activate",
+   "arguments": {
+    "selector": "@control:rankBoard/⭐#2"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "stats",
+   "action": "read-report",
+   "expect": {
+    "ok": true,
+    "output.by.selStats.scored": "8",
+    "output.by.selStats.run mean": "2.41",
+    "output.by.selStats.keepers": "3",
+    "output.by.selStats.keeper mean": "3.85",
+    "output.by.selStats.selection differential S": "+1.44"
+   }
+  },
+  {
+   "id": "resp",
+   "action": "read-report",
+   "expect": {
+    "output.boxes.selStats": {
+     "op": "contains",
+     "value": "R = h² × S"
+    }
+   }
+  },
+  {
+   "id": "seg",
+   "action": "show-pane",
+   "arguments": {
+    "pane": "p-seg"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "a9_3",
+   "action": "set-text",
+   "arguments": {
+    "selector": "@control:showing it",
+    "value": "9"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "b9_3",
+   "action": "set-text",
+   "arguments": {
+    "selector": "@control:not showing",
+    "value": "3"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "x9_3",
+   "action": "read-report",
+   "expect": {
+    "output.by.segOut.observed (12 plants)": "9 : 3",
+    "output.by.segOut.closest ratio": "3:1",
+    "output.by.segOut.χ² (cutoff 3\\.84)": "0.00"
+   }
+  },
+  {
+   "id": "a9_7",
+   "action": "set-text",
+   "arguments": {
+    "selector": "@control:showing it",
+    "value": "9"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "b9_7",
+   "action": "set-text",
+   "arguments": {
+    "selector": "@control:not showing",
+    "value": "7"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "x9_7",
+   "action": "read-report",
+   "expect": {
+    "output.by.segOut.observed (16 plants)": "9 : 7",
+    "output.by.segOut.closest ratio": "9:7",
+    "output.by.segOut.χ² (cutoff 3\\.84)": "0.00"
+   }
+  },
+  {
+   "id": "a60_20",
+   "action": "set-text",
+   "arguments": {
+    "selector": "@control:showing it",
+    "value": "60"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "b60_20",
+   "action": "set-text",
+   "arguments": {
+    "selector": "@control:not showing",
+    "value": "20"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "x60_20",
+   "action": "read-report",
+   "expect": {
+    "output.by.segOut.observed (80 plants)": "60 : 20",
+    "output.by.segOut.closest ratio": "3:1",
+    "output.by.segOut.χ² (cutoff 3\\.84)": "0.00"
+   }
+  },
+  {
+   "id": "also",
+   "action": "read-report",
+   "expect": {
+    "output.boxes.segOut": {
+     "op": "contains",
+     "value": "Consistent with 3:1"
+    }
+   }
+  },
+  {
+   "id": "intact",
+   "action": "read-page",
+   "expect": {
+    "output.junk": null,
+    "output.errors": {
+     "op": "==",
+     "value": []
+    },
+    "output.overflow": 0
+   }
+  }
+ ]
+}

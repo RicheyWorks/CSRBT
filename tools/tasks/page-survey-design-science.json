@@ -1,0 +1,307 @@
+{
+ "id": "page-survey-design-science",
+ "target": "page",
+ "page": "survey-design.html",
+ "goal": "On the survey design page, load the example design (1 survey, 2 sites, 4 plots, 8 visits = 15 events, no duplicate IDs), find a site with plots refused deletion, attach the absences to visit:01 and find 15 event rows, 15 Humboldt rows (nothing inherited), 3 occurrence rows (2 found + 1 absent) with 1 absence written and 0 refused; clear the target scope and find the absence refused (2 rows, 0 written, 1 refused); restore it, enter effort 45 minutes and an excluded scope, and find the declarations and the export carry them.",
+ "steps": [
+  {
+   "id": "look",
+   "action": "observe",
+   "expect": {
+    "ok": true,
+    "snapshot.page": "survey-design.html"
+   }
+  },
+  {
+   "id": "hier",
+   "action": "show-pane",
+   "arguments": {
+    "pane": "p-hier"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "demo",
+   "action": "activate",
+   "arguments": {
+    "selector": "@control:evDemo"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "tree",
+   "action": "read-report",
+   "expect": {
+    "ok": true,
+    "output.by.treeStat.events": "15",
+    "output.by.treeStat.sites": "2",
+    "output.by.treeStat.plots": "4",
+    "output.by.treeStat.visits": "8",
+    "output.by.treeStat.duplicate IDs": "0"
+   }
+  },
+  {
+   "id": "rm",
+   "action": "activate",
+   "arguments": {
+    "selector": "@control:tree/remove#1"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "kept",
+   "action": "read-report",
+   "expect": {
+    "output.boxes.toast": {
+     "op": "contains",
+     "value": "remove those first"
+    },
+    "output.by.treeStat.events": "15"
+   }
+  },
+  {
+   "id": "abs",
+   "action": "show-pane",
+   "arguments": {
+    "pane": "p-abs"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "taxa",
+   "action": "read-report",
+   "expect": {
+    "output.by.taxaStat.on the list": "5",
+    "output.by.taxaStat.found": "2",
+    "output.by.taxaStat.absent": "1",
+    "output.by.taxaStat.not assessed": "2"
+   }
+  },
+  {
+   "id": "event",
+   "action": "pick",
+   "arguments": {
+    "selector": "@control:absEntry",
+    "value": "visit:01"
+   },
+   "expect": {
+    "ok": true,
+    "output.chose": {
+     "op": "contains",
+     "value": "visit:01"
+    }
+   }
+  },
+  {
+   "id": "out",
+   "action": "show-pane",
+   "arguments": {
+    "pane": "p-out"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "scoped",
+   "action": "read-report",
+   "expect": {
+    "output.boxes.declBox": {
+     "op": "contains",
+     "value": "eco:targetTaxonomicScope"
+    },
+    "output.by.outStat.event rows": "15",
+    "output.by.outStat.Humboldt rows": "15",
+    "output.by.outStat.occurrence rows": "3",
+    "output.by.outStat.absences written": "1",
+    "output.by.outStat.absences refused": "0"
+   }
+  },
+  {
+   "id": "agree",
+   "action": "read-report",
+   "expect": {
+    "output.by.outStat.Humboldt rows": "$scoped.output.by.outStat.event rows"
+   }
+  },
+  {
+   "id": "scope",
+   "action": "show-pane",
+   "arguments": {
+    "pane": "p-scope"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "noscope",
+   "action": "set-text",
+   "arguments": {
+    "selector": "@control:scTarget",
+    "value": ""
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "out2",
+   "action": "show-pane",
+   "arguments": {
+    "pane": "p-out"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "refused",
+   "action": "read-report",
+   "expect": {
+    "output.by.outStat.occurrence rows": "2",
+    "output.by.outStat.absences written": "0",
+    "output.by.outStat.absences refused": "1"
+   }
+  },
+  {
+   "id": "scope2",
+   "action": "show-pane",
+   "arguments": {
+    "pane": "p-scope"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "rescope",
+   "action": "set-text",
+   "arguments": {
+    "selector": "@control:scTarget",
+    "value": "Tracheophyta"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "eff",
+   "action": "set-text",
+   "arguments": {
+    "selector": "@control:scEffVal",
+    "value": "45"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "nounit",
+   "action": "set-text",
+   "arguments": {
+    "selector": "@control:scEffUnit",
+    "value": ""
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "half",
+   "action": "read-report",
+   "expect": {
+    "output.boxes.effortBox": {
+     "op": "contains",
+     "value": "Half an effort figure"
+    }
+   }
+  },
+  {
+   "id": "unit",
+   "action": "set-text",
+   "arguments": {
+    "selector": "@control:scEffUnit",
+    "value": "minutes"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "whole",
+   "action": "read-report",
+   "expect": {
+    "output.boxes.effortBox": {
+     "op": "contains",
+     "value": "isSamplingEffortReported"
+    }
+   }
+  },
+  {
+   "id": "excl",
+   "action": "set-text",
+   "arguments": {
+    "selector": "@control:scExcluded",
+    "value": "Bryophyta|Lichenes"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "decision",
+   "action": "read-report",
+   "expect": {
+    "output.boxes.scopeBox": {
+     "op": "contains",
+     "value": "a decision, not a finding"
+    }
+   }
+  },
+  {
+   "id": "out3",
+   "action": "show-pane",
+   "arguments": {
+    "pane": "p-out"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "eco",
+   "action": "read-report",
+   "expect": {
+    "output.boxes.ecoOut": {
+     "op": "contains",
+     "value": "Tracheophyta"
+    },
+    "output.boxes.declBox": {
+     "op": "contains",
+     "value": "eco:isSamplingEffortReported"
+    }
+   }
+  },
+  {
+   "id": "intact",
+   "action": "read-page",
+   "expect": {
+    "output.junk": null,
+    "output.errors": {
+     "op": "==",
+     "value": []
+    },
+    "output.overflow": 0
+   }
+  }
+ ]
+}

@@ -1,0 +1,161 @@
+{
+ "id": "page-food-web-science",
+ "target": "page",
+ "page": "food-web.html",
+ "goal": "On the food web builder, the pond preset is 9 species and 12 links, connectance L/S^2 = 12/81 = 0.148, longest chain 5 (algae to heron), 2 producers, heron at the top, and its export says the same; the meadow is 10 species, 12 links, 0.120, kestrel at the top; a consumer added with no food source is flagged and makes 11 species at 12/121 = 0.099; undo restores 10.",
+ "steps": [
+  {
+   "id": "look",
+   "action": "observe",
+   "expect": {
+    "ok": true,
+    "snapshot.page": "food-web.html"
+   }
+  },
+  {
+   "id": "pond",
+   "action": "activate",
+   "arguments": {
+    "selector": "@control:presetPond"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "pondweb",
+   "action": "read-report",
+   "expect": {
+    "ok": true,
+    "output.boxes.webStats": {
+     "op": "contains",
+     "value": "right in the range"
+    },
+    "output.by.webStats.species": "9",
+    "output.by.webStats.feeding links": "12",
+    "output.by.webStats.connectance L/S²": "0.148",
+    "output.by.webStats.longest chain": "5",
+    "output.by.webStats.producers": "2"
+   }
+  },
+  {
+   "id": "pondeco",
+   "action": "read-report",
+   "expect": {
+    "output.boxes.ecoOut": {
+     "op": "contains",
+     "value": "note: connectance 0.148 — longest chain 5 levels"
+    }
+   }
+  },
+  {
+   "id": "meadow",
+   "action": "activate",
+   "arguments": {
+    "selector": "@control:presetMeadow"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "meadowweb",
+   "action": "read-report",
+   "expect": {
+    "output.boxes.webStats": {
+     "op": "contains",
+     "value": "Top of this web: kestrel."
+    },
+    "output.by.webStats.species": "10",
+    "output.by.webStats.feeding links": "12",
+    "output.by.webStats.connectance L/S²": "0.120",
+    "output.by.webStats.longest chain": "5",
+    "output.by.webStats.producers": "3"
+   }
+  },
+  {
+   "id": "meadoweco",
+   "action": "read-report",
+   "expect": {
+    "output.boxes.ecoOut": {
+     "op": "contains",
+     "value": "note: connectance 0.120 — longest chain 5 levels"
+    }
+   }
+  },
+  {
+   "id": "name",
+   "action": "set-text",
+   "arguments": {
+    "selector": "@control:spNew",
+    "value": "vole"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "consumer",
+   "action": "activate",
+   "arguments": {
+    "selector": "@control:kindSeg/🐾 consumer"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "add",
+   "action": "activate",
+   "arguments": {
+    "selector": "@control:spAdd"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "eleven",
+   "action": "read-report",
+   "expect": {
+    "output.boxes.webStats": {
+     "op": "contains",
+     "value": "no food source"
+    },
+    "output.by.webStats.species": "11",
+    "output.by.webStats.feeding links": "12",
+    "output.by.webStats.connectance L/S²": "0.099"
+   }
+  },
+  {
+   "id": "undo",
+   "action": "activate",
+   "arguments": {
+    "selector": "@control:webUndo"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "ten",
+   "action": "read-report",
+   "expect": {
+    "output.by.webStats.species": "10",
+    "output.by.webStats.connectance L/S²": "0.120"
+   }
+  },
+  {
+   "id": "intact",
+   "action": "read-page",
+   "expect": {
+    "output.junk": null,
+    "output.errors": {
+     "op": "==",
+     "value": []
+    },
+    "output.overflow": 0
+   }
+  }
+ ]
+}

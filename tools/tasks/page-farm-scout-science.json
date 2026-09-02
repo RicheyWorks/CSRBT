@@ -1,0 +1,591 @@
+{
+ "id": "page-farm-scout-science",
+ "target": "page",
+ "page": "farm-scout.html",
+ "goal": "On the farm scout's germination pane, test 40 seeds with 33 up wanting 120 plants and find 83%% and 146 seeds to sow (ceil(120/0.825)); 26 up gives 65%% and 185, 18 up 45%% and 267; on the rotation pane, Brassica last season and planned again is flagged within 3 years, and Fabaceae planned instead is a clean rotation; the scout pane's ten stops driven to 2 3 2 4 3 2 3 12 2 3 by the + buttons read mean 3.60 and variance/mean 2.54.",
+ "steps": [
+  {
+   "id": "look",
+   "action": "observe",
+   "expect": {
+    "ok": true,
+    "snapshot.page": "farm-scout.html"
+   }
+  },
+  {
+   "id": "germ",
+   "action": "show-pane",
+   "arguments": {
+    "pane": "p-germ"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "sown",
+   "action": "set-text",
+   "arguments": {
+    "selector": "@control:seeds tested",
+    "value": "40"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "up",
+   "action": "set-text",
+   "arguments": {
+    "selector": "@control:germinated",
+    "value": "33"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "want",
+   "action": "set-text",
+   "arguments": {
+    "selector": "@control:plants you want",
+    "value": "120"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "g83",
+   "action": "read-report",
+   "expect": {
+    "ok": true,
+    "output.by.gOut.germination": "83%",
+    "output.by.gOut.seeds to sow for 120 plants": "146"
+   }
+  },
+  {
+   "id": "decent",
+   "action": "read-report",
+   "expect": {
+    "output.boxes.gOut": {
+     "op": "contains",
+     "value": "Decent lot."
+    }
+   }
+  },
+  {
+   "id": "up26",
+   "action": "set-text",
+   "arguments": {
+    "selector": "@control:germinated",
+    "value": "26"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "g65",
+   "action": "read-report",
+   "expect": {
+    "output.by.gOut.germination": "65%",
+    "output.by.gOut.seeds to sow for 120 plants": "185"
+   }
+  },
+  {
+   "id": "up18",
+   "action": "set-text",
+   "arguments": {
+    "selector": "@control:germinated",
+    "value": "18"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "g45",
+   "action": "read-report",
+   "expect": {
+    "output.by.gOut.germination": "45%",
+    "output.by.gOut.seeds to sow for 120 plants": "267"
+   }
+  },
+  {
+   "id": "poor",
+   "action": "read-report",
+   "expect": {
+    "output.boxes.gOut": {
+     "op": "contains",
+     "value": "Poor lot."
+    }
+   }
+  },
+  {
+   "id": "rot",
+   "action": "show-pane",
+   "arguments": {
+    "pane": "p-rot"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "last",
+   "action": "pick",
+   "arguments": {
+    "selector": "@control:last season filter#0",
+    "value": "Brassicaceae"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "plan",
+   "action": "pick",
+   "arguments": {
+    "selector": "@control:planned now filter#0",
+    "value": "Brassicaceae"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "flag",
+   "action": "read-report",
+   "expect": {
+    "output.boxes.bedGrid": {
+     "op": "contains",
+     "value": "within 3 years"
+    }
+   }
+  },
+  {
+   "id": "try",
+   "action": "read-report",
+   "expect": {
+    "output.boxes.bedGrid": {
+     "op": "contains",
+     "value": "Try:"
+    }
+   }
+  },
+  {
+   "id": "plan2",
+   "action": "pick",
+   "arguments": {
+    "selector": "@control:planned now filter#0",
+    "value": "Fabaceae"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "clean",
+   "action": "read-report",
+   "expect": {
+    "output.boxes.bedGrid": {
+     "op": "contains",
+     "value": "Clean rotation"
+    }
+   }
+  },
+  {
+   "id": "scout",
+   "action": "show-pane",
+   "arguments": {
+    "pane": "p-scout"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "s0_0",
+   "action": "activate",
+   "arguments": {
+    "selector": "@control:scGrid/+#0"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "s0_1",
+   "action": "activate",
+   "arguments": {
+    "selector": "@control:scGrid/+#0"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "s1_0",
+   "action": "activate",
+   "arguments": {
+    "selector": "@control:scGrid/+#1"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "s1_1",
+   "action": "activate",
+   "arguments": {
+    "selector": "@control:scGrid/+#1"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "s1_2",
+   "action": "activate",
+   "arguments": {
+    "selector": "@control:scGrid/+#1"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "s2_0",
+   "action": "activate",
+   "arguments": {
+    "selector": "@control:scGrid/+#2"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "s2_1",
+   "action": "activate",
+   "arguments": {
+    "selector": "@control:scGrid/+#2"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "s3_0",
+   "action": "activate",
+   "arguments": {
+    "selector": "@control:scGrid/+#3"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "s3_1",
+   "action": "activate",
+   "arguments": {
+    "selector": "@control:scGrid/+#3"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "s3_2",
+   "action": "activate",
+   "arguments": {
+    "selector": "@control:scGrid/+#3"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "s3_3",
+   "action": "activate",
+   "arguments": {
+    "selector": "@control:scGrid/+#3"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "s4_0",
+   "action": "activate",
+   "arguments": {
+    "selector": "@control:scGrid/+#4"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "s4_1",
+   "action": "activate",
+   "arguments": {
+    "selector": "@control:scGrid/+#4"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "s4_2",
+   "action": "activate",
+   "arguments": {
+    "selector": "@control:scGrid/+#4"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "s5_0",
+   "action": "activate",
+   "arguments": {
+    "selector": "@control:scGrid/+#5"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "s5_1",
+   "action": "activate",
+   "arguments": {
+    "selector": "@control:scGrid/+#5"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "s6_0",
+   "action": "activate",
+   "arguments": {
+    "selector": "@control:scGrid/+#6"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "s6_1",
+   "action": "activate",
+   "arguments": {
+    "selector": "@control:scGrid/+#6"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "s6_2",
+   "action": "activate",
+   "arguments": {
+    "selector": "@control:scGrid/+#6"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "s7_0",
+   "action": "activate",
+   "arguments": {
+    "selector": "@control:scGrid/+#7"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "s7_1",
+   "action": "activate",
+   "arguments": {
+    "selector": "@control:scGrid/+#7"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "s7_2",
+   "action": "activate",
+   "arguments": {
+    "selector": "@control:scGrid/+#7"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "s7_3",
+   "action": "activate",
+   "arguments": {
+    "selector": "@control:scGrid/+#7"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "s7_4",
+   "action": "activate",
+   "arguments": {
+    "selector": "@control:scGrid/+#7"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "s7_5",
+   "action": "activate",
+   "arguments": {
+    "selector": "@control:scGrid/+#7"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "s7_6",
+   "action": "activate",
+   "arguments": {
+    "selector": "@control:scGrid/+#7"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "s7_7",
+   "action": "activate",
+   "arguments": {
+    "selector": "@control:scGrid/+#7"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "s7_8",
+   "action": "activate",
+   "arguments": {
+    "selector": "@control:scGrid/+#7"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "s7_9",
+   "action": "activate",
+   "arguments": {
+    "selector": "@control:scGrid/+#7"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "s7_10",
+   "action": "activate",
+   "arguments": {
+    "selector": "@control:scGrid/+#7"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "s7_11",
+   "action": "activate",
+   "arguments": {
+    "selector": "@control:scGrid/+#7"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "s8_0",
+   "action": "activate",
+   "arguments": {
+    "selector": "@control:scGrid/+#8"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "s8_1",
+   "action": "activate",
+   "arguments": {
+    "selector": "@control:scGrid/+#8"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "s9_0",
+   "action": "activate",
+   "arguments": {
+    "selector": "@control:scGrid/+#9"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "s9_1",
+   "action": "activate",
+   "arguments": {
+    "selector": "@control:scGrid/+#9"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "s9_2",
+   "action": "activate",
+   "arguments": {
+    "selector": "@control:scGrid/+#9"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "scout-report",
+   "action": "read-report",
+   "expect": {
+    "output.by.scResults.stops": "10",
+    "output.by.scResults.pests counted": "36",
+    "output.by.scResults.avg / plant": "3.6",
+    "output.by.scResults.spread (var/mean)": "2.54"
+   }
+  },
+  {
+   "id": "intact",
+   "action": "read-page",
+   "expect": {
+    "output.junk": null,
+    "output.errors": {
+     "op": "==",
+     "value": []
+    },
+    "output.overflow": 0
+   }
+  }
+ ]
+}

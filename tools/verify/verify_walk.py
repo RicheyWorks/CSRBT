@@ -189,7 +189,7 @@ else:
 # a page needs only Playwright, which every kit suite needs
 if not QUICK:
     res = walk_target("page", page="collection-sheet.html", rounds=3, per_round=3)["csrbt-page"]
-    hold(res, "page", 15, allow_unreachable=True)
+    hold(res, "page", 17, allow_unreachable=True)
     ck(set(res["unreachable"]) == {"csrbt_page__choose_option", "csrbt_page__drop_files",
                                   "csrbt_page__set_checkbox", "csrbt_page__set_slider"},
        "page: collection-sheet has no select, drop zone, checkbox or slider, and the walk says so "
@@ -198,6 +198,8 @@ if not QUICK:
        res["per_action"]["csrbt_page__show_pane"]["driven"] >= 1 and
        res["per_action"]["csrbt_page__set_text"]["driven"] >= 1,
        "page: a file input behind a tab, a pane and a text control were all reached through the pools")
+    ck(res["per_action"]["csrbt_page__pick"]["driven"] >= 1 and res["per_action"]["csrbt_page__read_report"]["driven"] >= 1,
+       "page: a picker was driven from its pool with a label the manifest suggests, and the report was read (ADR-128)")
     res2 = walk_target("page", page="ecology-lab.html", rounds=3, per_round=3)["csrbt-page"]
     ck(res2["per_action"]["csrbt_page__choose_option"]["driven"] >= 1 and
        "csrbt_page__choose_option" not in res2["unreachable"],
@@ -213,8 +215,8 @@ if os.path.isfile(led):
        {"csrbt-organism", "csrbt-lab", "csrbt-page", "csrbt-organism@mcp", "csrbt-lab@mcp", "csrbt-page@mcp"},
        "one entry per target per transport, plus one per routed page: %s"
        % sorted(k for k in L if not k.startswith("csrbt-page/")))
-    for pid, want in (("csrbt-organism", 35), ("csrbt-lab", 9), ("csrbt-page", 15),
-                      ("csrbt-organism@mcp", 35), ("csrbt-lab@mcp", 9), ("csrbt-page@mcp", 15)):
+    for pid, want in (("csrbt-organism", 35), ("csrbt-lab", 9), ("csrbt-page", 17),
+                      ("csrbt-organism@mcp", 35), ("csrbt-lab@mcp", 9), ("csrbt-page@mcp", 17)):
         e = L.get(pid) or {}
         ck(e.get("identity") == "holds" and e.get("accounted") == e.get("commands") and
            e.get("tools") == want and not e.get("undriven") and not e.get("unschemable") and
@@ -246,7 +248,10 @@ ck(W.relevant_pools({"action": "show-pane", "inputSchema": {"required": ["pane"]
 from harness_plugin_page import PagePlugin, POOL_KINDS
 try:
     import swarm as SW
-    ck(all(SW.DRIVER.get(k) == a for a, ks in POOL_KINDS.items() for k in ks if k in SW.DRIVER),
+    # a kind may be accepted by more than one action (a picker's search takes
+    # set-text and pick, ADR-128); what the swarm drives it with must be one
+    ck(all(SW.DRIVER[k] in {a for a, ks in POOL_KINDS.items() if k in ks}
+           for k in SW.DRIVER if any(k in ks for ks in POOL_KINDS.values())),
        "the page plugin's pool kinds agree with the swarm's DRIVER map")
 except ImportError:
     ck(True, "(swarm not importable here)")
@@ -418,8 +423,8 @@ if os.path.isfile(led):
         for name, c in L.get("csrbt-page/" + p, {}).get("per_action", {}).items():
             if not name.startswith("_"):
                 driven_somewhere[name] = driven_somewhere.get(name, 0) + c["driven"]
-    ck(len(driven_somewhere) == 15 and all(v > 0 for v in driven_somewhere.values()),
-       "every one of the 15 page tools was driven on at least one page: never %s"
+    ck(len(driven_somewhere) == 17 and all(v > 0 for v in driven_somewhere.values()),
+       "every one of the 17 page tools was driven on at least one page: never %s"
        % sorted(n for n, v in driven_somewhere.items() if v == 0))
     unreach = {p: len(L["csrbt-page/" + p]["unreachable"]) for p in pages if "csrbt-page/" + p in L}
     ck(unreach.get("stand-sheet.html", 99) <= 3 and unreach.get("ecology-teachers-guide.html", 0) >= 6,

@@ -31,6 +31,14 @@ REFERENCES  "$<step>.<dotted.path>" anywhere in arguments or expectations
             reads the snapshot on its own and is graded like any response. A reference to a step that has not run, or a path that is
             not there, is a task DEFECT, not a refutation: the task is wrong,
             not the target.
+CONTROLS    "@control:<name>" in an argument (ADR-128) is a page control by
+            the page's own name -- its id (cName), its label ("area
+            searched"), or the id of the box it is mounted in (genEntry) --
+            resolved to the moment's selector from the latest snapshot a
+            step carried; "@control:<host>/<label>" scopes a label to the
+            box it sits in (a dial's "4" under #rCov), "#n" takes the nth
+            match. A task about a data-entry page names its fields the way
+            the page does and never writes a selector down.
 EXPECT      "<dotted.path>": <value>  -- equal to a literal or a reference
             "<dotted.path>": {"op": ">=", "value": 3}   -- ==, !=, >, >=, <, <=,
                               "in", "contains", "exists"
@@ -127,8 +135,49 @@ def dig(obj, path):
     return cur
 
 
+def find_control(name, done, where):
+    """ADR-128: "@control:<name>" -- a page control by the page's own name,
+    looked up in the latest snapshot any step so far has carried. Matched in
+    this order, first hit in document order: the element's id (cName), its
+    label (a stepper's "area searched"), then the id of the nearest identified
+    ancestor (a picker mounted under #genEntry). A dial's option or a list
+    row's button has no id and a label shared with every other dial's, so a
+    name may be scoped: "@control:rCov/4" is the control labelled "4" whose
+    nearest identified ancestor is #rCov; "@control:iList/died#2" the third
+    such. Selectors are the moment's (the widgets rebuild), so a task never
+    writes one down; nothing found is the task's DEFECT, not the page's
+    refusal."""
+    controls = None
+    for r in reversed(list(done.values())):
+        snap = r.get("snapshot") if isinstance(r, dict) else None
+        if isinstance(snap, dict) and isinstance(snap.get("controls"), list):
+            controls = snap["controls"]
+            break
+    if controls is None:
+        raise TaskDefect("%s: @control:%s before any step observed the page" % (where, name))
+    nth = 0
+    m = re.match(r"^(.*)#(\d+)$", name)          # a trailing #n is the nth match; "season #" is a label
+    if m:
+        name, nth = m.group(1), int(m.group(2))
+    if "/" in name:
+        host, _, label = name.partition("/")
+        hits = [c for c in controls if c.get("host") == host and c.get("label") == label and c.get("selector")]
+    else:
+        hits = []
+        for key in ("id", "label", "host"):
+            hits = [c for c in controls if c.get(key) == name and c.get("selector")]
+            if hits:
+                break
+    if nth >= len(hits):
+        raise TaskDefect("%s: no control named %r%s in the latest snapshot"
+                         % (where, name, " (match #%d of %d)" % (nth, len(hits)) if hits or nth else ""))
+    return hits[nth]["selector"]
+
+
 def resolve(value, done, where):
     """Replace "$step.path" references, recursively, from the responses so far."""
+    if isinstance(value, str) and value.startswith("@control:"):
+        return find_control(value[len("@control:"):], done, where)
     if isinstance(value, str) and value.startswith("$"):
         ref = value[1:]
         step, _, path = ref.partition(".")

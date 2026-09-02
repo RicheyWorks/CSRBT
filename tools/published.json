@@ -9,10 +9,9 @@
       "via": "read"
     },
     "breeding-bench.html": {
-      "at": 1787991010,
-      "dated_by": "the version marker in the copy",
-      "sha": "55f8099c162f0b9c0f2b74e27e0ba69830652193311e8c33f8562de30419be1b",
-      "via": "read"
+      "at": 1788358788,
+      "sha": "5d2d2d4847000a35d7b43eab0e9c2d13f5262099e7e354c9f93cd4df924e64ac",
+      "via": "publish"
     },
     "breeding-suite.html": {
       "at": 1787950306,
@@ -21,21 +20,19 @@
       "via": "read"
     },
     "cell-bench.html": {
-      "at": 1787971537,
-      "dated_by": "the version marker in the copy",
-      "sha": "43814f7f50962d0b1eb81163bd9061396d524d943dd041859ef0e67a5deeeb7c",
-      "via": "read"
+      "at": 1788358788,
+      "sha": "270b99b71a280d3ea25b900d4199ff98075248a10de60c3f8762106f868aeef5",
+      "via": "publish"
     },
     "collection-sheet.html": {
-      "at": 1788117942,
-      "sha": "5a305f38faeeff18eb708569d6d24c486bafcfafd03e6981204717ec9bca758d",
+      "at": 1788358788,
+      "sha": "c3af10d99a789b616036fa3ca9ba2a92f9ed71cedbf36a32329615f08277fef3",
       "via": "publish"
     },
     "cp-bench.html": {
-      "at": 1787939374,
-      "dated_by": "the version marker in the copy",
-      "sha": "22c240800757ddd44f6a01d7a316680fee50f904ee2446c000242156cceec711",
-      "via": "read"
+      "at": 1788358788,
+      "sha": "7ec8f3cf35d843de4a4aaf56e2a7e333e4313004e38bd86c07f3bb4df025afe0",
+      "via": "publish"
     },
     "cp-characters.html": {
       "at": 1787990873,
@@ -50,8 +47,8 @@
       "via": "read"
     },
     "deployment-log.html": {
-      "at": 1788117942,
-      "sha": "698c827aee747f0e4b24b25310a0fc60619f03e9193bfe338dc7af65b91b5247",
+      "at": 1788358788,
+      "sha": "b858ff301430b28c167d02defceae95ef1126fa601b25d2b74e1d2166da587d5",
       "via": "publish"
     },
     "douglas-explorer.html": {
@@ -119,16 +116,14 @@
       "via": "read"
     },
     "ethogram.html": {
-      "at": 1787971720,
-      "dated_by": "the version marker in the copy",
-      "sha": "80226368388a715484878cc8233efd70a7a49f3a8a36992c8566c33643186d8f",
-      "via": "read"
+      "at": 1788358788,
+      "sha": "b93caf45a04a49f8ffde0d77dbee1df9df9a27bfe701663f92b3e31f80965bcf",
+      "via": "publish"
     },
     "experiment-guide.html": {
-      "at": 1787985588,
-      "dated_by": "the version marker in the copy",
-      "sha": "be1633cea92dec143c291d7d90c2df14dc4748b05f5a7387820ac8a89ec1e594",
-      "via": "read"
+      "at": 1788358788,
+      "sha": "91ca03daaeb2b2007cb0346431f451bc3083f6dcb4834351fe387853cf9482db",
+      "via": "publish"
     },
     "farm-scout.html": {
       "at": 1787875969,
@@ -160,20 +155,18 @@
       "via": "read"
     },
     "greenhouse.html": {
-      "at": 1787710960,
-      "dated_by": "the version marker in the copy",
-      "sha": "c1b1fce6241952605be526af38997b2c2c1721893c16b216fdfa9d5fe847f14d",
-      "via": "read"
+      "at": 1788358788,
+      "sha": "0320440535d5a22aa797db1af3a428e76e648193f4229a3932f1459cdd5618e6",
+      "via": "publish"
     },
     "micro-bench.html": {
-      "at": 1787991303,
-      "dated_by": "the version marker in the copy",
-      "sha": "6f81d6789b777798248429c18253e51787bb3362b068ed6a2e66a965e6abb6a4",
-      "via": "read"
+      "at": 1788358788,
+      "sha": "98675a533238c3409ef5c432d8cb462296ad36ae3e99da3d37d95ae2d6f15fc3",
+      "via": "publish"
     },
     "ordination.html": {
-      "at": 1788117942,
-      "sha": "42216f7fca42326753074410999c4b44cf5e0b6954b8ed5bb33ef225b5f5cad7",
+      "at": 1788358788,
+      "sha": "a1a0ec3bfe98f8e744ab7fc8cb6c8fb09da67f4666b079afd621cfd694085378",
       "via": "publish"
     },
     "pheno-tracker.html": {
@@ -189,27 +182,24 @@
       "via": "read"
     },
     "releve.html": {
-      "at": 1788117942,
-      "sha": "be1682d173e7e671313bd8e519f9ccd63e845aaa123e4b98899b639a51e97e62",
+      "at": 1788358788,
+      "sha": "dfb46acaf5c8b5bdeeaab834163789401b15ceaa3d5113e1a4145885e1e60912",
       "via": "publish"
     },
     "selection-log.html": {
-      "at": 1787809560,
-      "dated_by": "the version marker in the copy",
-      "sha": "146f7291e9d548551f3b8720e7b93685ca335a6822caaff91d27feea83832d59",
-      "via": "read"
+      "at": 1788358788,
+      "sha": "ccd37b65290b46fe8d7d7c76c9a3469fd1f07a4b383f258360d76771c0625b09",
+      "via": "publish"
     },
     "soil-bench.html": {
-      "at": 1787787498,
-      "dated_by": "the version marker in the copy",
-      "sha": "76c4a6602f44119a7be73b7ca752e5d3fd81885889a20e9e50fb88b8ad06ab04",
-      "via": "read"
+      "at": 1788358788,
+      "sha": "a0b6849873b134b45c5d05f9d0744f0ab164dc44384b54a19faad08a9dc591ba",
+      "via": "publish"
     },
     "soil-recipes.html": {
-      "at": 1787878844,
-      "dated_by": "the version marker in the copy",
-      "sha": "59a97c09b47cafdc4a1fa93b9d274688edadf73953a918b41b6f90b2bc1de611",
-      "via": "read"
+      "at": 1788358788,
+      "sha": "1a43c575a34d8f6b693d0617ce23c22ecff90297da7b08983c799f82f2c78e93",
+      "via": "publish"
     },
     "soil-suite.html": {
       "at": 1787878064,
@@ -218,13 +208,13 @@
       "via": "read"
     },
     "stand-sheet.html": {
-      "at": 1788117942,
-      "sha": "477e1c16d9408e3f9532b54a0da5db034f063d154679c30c44fadef114311e56",
+      "at": 1788358788,
+      "sha": "1a82d02f23ee1557efbfa01d5dd1c07a79f1ac38dd7648bf26fe3e6420646367",
       "via": "publish"
     },
     "survey-design.html": {
-      "at": 1788117942,
-      "sha": "d9edbba1089e6075dcf718ea8cd1957d95480890ad5031755400dfb98b1badfb",
+      "at": 1788358788,
+      "sha": "bbd1379a5592498dc849ca2b2060e111edfd39f1d78c9a192ee0c6763e50e7c5",
       "via": "publish"
     },
     "tree-proofs.html": {

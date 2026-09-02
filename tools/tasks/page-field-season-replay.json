@@ -1,0 +1,239 @@
+{
+ "id": "page-field-season-replay",
+ "target": "page",
+ "page": "field-season.html",
+ "goal": "Play season #4217 of the field season game -- mark, recapture, one quadrat survey, file -- and find the seeded meadow exactly as an independent port of its generator says: 29 marked, 33 caught with 8 marks, five quadrats of 10 2 5 45 46 plants across six species, and answering 11 species, uneven, clumped and Lincoln-Petersen 29*33/8 = 120 against a true 101 voles grades 25 + 20 + 25 + 20 = 90, Published.",
+ "steps": [
+  {
+   "id": "look",
+   "action": "observe",
+   "expect": {
+    "ok": true,
+    "snapshot.page": "field-season.html"
+   }
+  },
+  {
+   "id": "season",
+   "action": "read-control",
+   "arguments": {
+    "selector": "@control:season #"
+   },
+   "expect": {
+    "output.value": "4217"
+   }
+  },
+  {
+   "id": "start",
+   "action": "activate",
+   "arguments": {
+    "selector": "@control:startBtn"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "mark",
+   "action": "activate",
+   "arguments": {
+    "selector": "@control:aMark"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "marked",
+   "action": "read-report",
+   "expect": {
+    "ok": true,
+    "output.boxes.journal": {
+     "op": "contains",
+     "value": "caught, marked, and released 29 voles"
+    }
+   }
+  },
+  {
+   "id": "recap",
+   "action": "activate",
+   "arguments": {
+    "selector": "@control:aRecap"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "recaught",
+   "action": "read-report",
+   "expect": {
+    "output.boxes.journal": {
+     "op": "contains",
+     "value": "(M=29, C=33, R=8)"
+    }
+   }
+  },
+  {
+   "id": "quad",
+   "action": "activate",
+   "arguments": {
+    "selector": "@control:aQuad"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "counted",
+   "action": "read-report",
+   "expect": {
+    "output.boxes.journal": {
+     "op": "contains",
+     "value": "5 quadrats, 108 plants counted."
+    },
+    "output.tables.journal.0": [
+     "quadrat",
+     "harebell",
+     "knapweed",
+     "scabious",
+     "trefoil",
+     "vetch",
+     "yarrow",
+     "total"
+    ],
+    "output.tables.journal.4": [
+     "Q4",
+     "6",
+     "2",
+     "1",
+     "2",
+     "8",
+     "26",
+     "45"
+    ],
+    "output.tables.journal.5": [
+     "Q5",
+     "3",
+     "3",
+     "0",
+     "0",
+     "11",
+     "29",
+     "46"
+    ],
+    "output.by.statTiles.days left": "9",
+    "output.by.statTiles.quadrats thrown": "5",
+    "output.by.statTiles.species seen": "6",
+    "output.by.statTiles.seen ≤2× (rare?)": "2",
+    "output.by.statTiles.recapture sessions": "1"
+   }
+  },
+  {
+   "id": "file",
+   "action": "activate",
+   "arguments": {
+    "selector": "@control:fileBtn"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "hint",
+   "action": "read-report",
+   "expect": {
+    "output.boxes.mrHelp": {
+     "op": "contains",
+     "value": "M=29, C=33, R=8"
+    }
+   }
+  },
+  {
+   "id": "q1",
+   "action": "set-text",
+   "arguments": {
+    "selector": "@control:Q1 · plant species in the meadow",
+    "value": "11"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "q2",
+   "action": "activate",
+   "arguments": {
+    "selector": "@control:q2Entry/uneven"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "q3",
+   "action": "activate",
+   "arguments": {
+    "selector": "@control:q3Entry/clumped"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "q4",
+   "action": "activate",
+   "arguments": {
+    "selector": "@control:q4calc"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "q4v",
+   "action": "read-control",
+   "arguments": {
+    "selector": "@control:Q4 · voles here"
+   },
+   "expect": {
+    "output.value": "120"
+   }
+  },
+  {
+   "id": "grade",
+   "action": "activate",
+   "arguments": {
+    "selector": "@control:gradeBtn"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "review",
+   "action": "read-report",
+   "expect": {
+    "output.boxes.resCard": {
+     "op": "contains",
+     "value": "the meadow held 101 voles"
+    },
+    "output.by.resCard.Richness": "25/25",
+    "output.by.resCard.Evenness": "20/20",
+    "output.by.resCard.Spatial pattern": "25/25",
+    "output.by.resCard.Vole population": "20/30"
+   }
+  },
+  {
+   "id": "intact",
+   "action": "read-page",
+   "expect": {
+    "output.junk": null,
+    "output.errors": {
+     "op": "==",
+     "value": []
+    },
+    "output.overflow": 0
+   }
+  }
+ ]
+}

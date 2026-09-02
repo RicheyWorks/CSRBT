@@ -139,7 +139,8 @@
   .verdict.un { background:var(--warn-bg); color:var(--gold); }
 
   .lint { display:flex; flex-direction:column; gap:7px; margin:2px 0 10px; }
-  .lint .row { display:flex; gap:9px; align-items:baseline; font-size:13.5px; line-height:1.45; }
+  .lint .row { display:flex; gap:9px; align-items:baseline; font-size:13.5px; line-height:1.45;
+    min-width:0; overflow-wrap:anywhere; }
   .lint .row .verdict { flex:0 0 auto; }
   .toast { position:fixed; left:50%; transform:translateX(-50%) translateY(20px); bottom:calc(96px + env(safe-area-inset-bottom));
     background:var(--ink); color:var(--page); font:700 13.5px var(--body); border-radius:999px;
@@ -1460,8 +1461,25 @@
   $("imp-file").addEventListener("click", function () { $("imp-input").click(); });
   function importFile(file) {
     if (!file) return;
+    /* A protocol is text. A photograph dropped on this card by mistake used
+       to be read as one -- its bytes became "extra lines" in the lint, and
+       one of them was wide enough to push the page sideways on a phone (the
+       harness's page walk found it, ADR-128). Refused by name, with nothing
+       imported: a guess at what a JPEG means as directives would be worse
+       than no import. */
+    if (file.type && !/^text\/|json$|xml$/.test(file.type)) {
+      toast("Not a text file: " + file.name + " (" + file.type + ") -- a protocol is .eco text");
+      return;
+    }
     var rd = new FileReader();
-    rd.onload = function () { importEco(String(rd.result)); };
+    rd.onload = function () {
+      var t = String(rd.result);
+      if (/[\u0000-\u0008\u000E-\u001F\uFFFD]/.test(t)) {
+        toast("Not a text file: " + file.name + " -- a protocol is .eco text");
+        return;
+      }
+      importEco(t);
+    };
     rd.readAsText(file);
   }
   $("imp-input").addEventListener("change", function () {

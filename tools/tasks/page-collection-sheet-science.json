@@ -1,0 +1,400 @@
+{
+ "id": "page-collection-sheet-science",
+ "target": "page",
+ "page": "collection-sheet.html",
+ "goal": "On the collection sheet, record a search of 1000 m² over 90 minutes and five collections -- Amanita muscaria x1, Suillus brevipes x1, Russula brevipes x1, Cortinarius cf. vanduzerensis x2, Pleurotus pulmonarius x5, each on its host -- then open the analysis and find the sheet's arithmetic right: 5 collections, 10 fruit bodies, Sobs 5, Chao1 6.5 (5 + 3·2 / (2·(1+1))), singletons/doubletons 3 / 1, Shannon H′ 1.359 and Pielou J′ 0.845 for p = .1 .1 .1 .2 .5, 0.50 collections per 100 m², 3.3 collections per hour.",
+ "steps": [
+  {
+   "id": "look",
+   "action": "observe",
+   "expect": {
+    "ok": true,
+    "snapshot.page": "collection-sheet.html"
+   }
+  },
+  {
+   "id": "site",
+   "action": "show-pane",
+   "arguments": {
+    "pane": "p-site"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "area",
+   "action": "set-text",
+   "arguments": {
+    "selector": "@control:area searched",
+    "value": "1000"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "minutes",
+   "action": "set-text",
+   "arguments": {
+    "selector": "@control:search time",
+    "value": "90"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "area-back",
+   "action": "read-control",
+   "arguments": {
+    "selector": "@control:area searched"
+   },
+   "expect": {
+    "output.value": "1000"
+   }
+  },
+  {
+   "id": "rec",
+   "action": "show-pane",
+   "arguments": {
+    "pane": "p-rec"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "g1",
+   "action": "pick",
+   "arguments": {
+    "selector": "@control:genEntry",
+    "value": "Amanita"
+   },
+   "expect": {
+    "ok": true,
+    "output.chose": {
+     "op": "contains",
+     "value": "Amanita"
+    }
+   }
+  },
+  {
+   "id": "n1",
+   "action": "set-text",
+   "arguments": {
+    "selector": "@control:cName",
+    "value": "Amanita muscaria"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "c1",
+   "action": "set-text",
+   "arguments": {
+    "selector": "@control:fruit bodies counted",
+    "value": "1"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "h1",
+   "action": "pick",
+   "arguments": {
+    "selector": "@control:hostEntry",
+    "value": "Pinus contorta"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "a1",
+   "action": "activate",
+   "arguments": {
+    "selector": "@control:cAdd"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "g2",
+   "action": "pick",
+   "arguments": {
+    "selector": "@control:genEntry",
+    "value": "Suillus"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "n2",
+   "action": "set-text",
+   "arguments": {
+    "selector": "@control:cName",
+    "value": "Suillus brevipes"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "c2",
+   "action": "set-text",
+   "arguments": {
+    "selector": "@control:fruit bodies counted",
+    "value": "1"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "h2",
+   "action": "pick",
+   "arguments": {
+    "selector": "@control:hostEntry",
+    "value": "Pinus contorta"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "a2",
+   "action": "activate",
+   "arguments": {
+    "selector": "@control:cAdd"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "g3",
+   "action": "pick",
+   "arguments": {
+    "selector": "@control:genEntry",
+    "value": "Russula"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "n3",
+   "action": "set-text",
+   "arguments": {
+    "selector": "@control:cName",
+    "value": "Russula brevipes"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "c3",
+   "action": "set-text",
+   "arguments": {
+    "selector": "@control:fruit bodies counted",
+    "value": "1"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "h3",
+   "action": "pick",
+   "arguments": {
+    "selector": "@control:hostEntry",
+    "value": "Pseudotsuga menziesii"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "a3",
+   "action": "activate",
+   "arguments": {
+    "selector": "@control:cAdd"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "g4",
+   "action": "pick",
+   "arguments": {
+    "selector": "@control:genEntry",
+    "value": "Cortinarius"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "n4",
+   "action": "set-text",
+   "arguments": {
+    "selector": "@control:cName",
+    "value": "Cortinarius cf. vanduzerensis"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "c4",
+   "action": "set-text",
+   "arguments": {
+    "selector": "@control:fruit bodies counted",
+    "value": "2"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "h4",
+   "action": "pick",
+   "arguments": {
+    "selector": "@control:hostEntry",
+    "value": "Pseudotsuga menziesii"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "a4",
+   "action": "activate",
+   "arguments": {
+    "selector": "@control:cAdd"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "g5",
+   "action": "pick",
+   "arguments": {
+    "selector": "@control:genEntry",
+    "value": "Pleurotus"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "n5",
+   "action": "set-text",
+   "arguments": {
+    "selector": "@control:cName",
+    "value": "Pleurotus pulmonarius"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "c5",
+   "action": "set-text",
+   "arguments": {
+    "selector": "@control:fruit bodies counted",
+    "value": "5"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "h5",
+   "action": "pick",
+   "arguments": {
+    "selector": "@control:hostEntry",
+    "value": "Populus tremuloides"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "a5",
+   "action": "activate",
+   "arguments": {
+    "selector": "@control:cAdd"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "listed",
+   "action": "read-report",
+   "expect": {
+    "ok": true,
+    "output.rows.#cList": 5
+   }
+  },
+  {
+   "id": "analysis",
+   "action": "show-pane",
+   "arguments": {
+    "pane": "p-an"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "report",
+   "action": "read-report",
+   "expect": {
+    "ok": true,
+    "output.figures.collections": "5",
+    "output.figures.fruit bodies": "10",
+    "output.figures.taxa Sobs": "5",
+    "output.figures.Chao1": "6.5",
+    "output.figures.singletons / doubletons": "3 / 1",
+    "output.figures.Shannon H′": "1.359",
+    "output.figures.Pielou J′": "0.845",
+    "output.figures.collections / 100 m²": "0.50",
+    "output.figures.collections / hour": "3.3",
+    "output.boxes.anBox": {
+     "op": "contains",
+     "value": "lower bound"
+    },
+    "output.boxes.anGuild": {
+     "op": "contains",
+     "value": "ectomycorrhizal"
+    },
+    "output.shown": {
+     "op": "contains",
+     "value": "anBox"
+    }
+   }
+  },
+  {
+   "id": "intact",
+   "action": "read-page",
+   "expect": {
+    "output.junk": null,
+    "output.errors": {
+     "op": "==",
+     "value": []
+    },
+    "output.overflow": 0
+   }
+  }
+ ]
+}

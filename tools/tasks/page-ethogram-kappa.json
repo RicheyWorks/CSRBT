@@ -1,0 +1,191 @@
+{
+ "id": "page-ethogram-kappa",
+ "target": "page",
+ "page": "ethogram.html",
+ "goal": "On the ethogram's reliability pane, hand two observers' ten-sample records to the kappa calculator -- A: F F V R L F V V R F, B: F V V R L F V R R F -- and find Cohen's kappa 0.722 from 80% raw agreement and 28% expected by chance (margins F4 V3 R2 L1 against F3 V3 R3 L1 over 10), the confusion matrix present, and records of different length refused with the matrix cleared.",
+ "steps": [
+  {
+   "id": "look",
+   "action": "observe",
+   "expect": {
+    "ok": true,
+    "snapshot.page": "ethogram.html"
+   }
+  },
+  {
+   "id": "rel",
+   "action": "show-pane",
+   "arguments": {
+    "pane": "p-rel"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "a",
+   "action": "set-text",
+   "arguments": {
+    "selector": "@control:kA",
+    "value": "F F V R L F V V R F"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "b",
+   "action": "set-text",
+   "arguments": {
+    "selector": "@control:kB",
+    "value": "F V V R L F V R R F"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "go",
+   "action": "activate",
+   "arguments": {
+    "selector": "@control:kGo"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "kappa",
+   "action": "read-report",
+   "expect": {
+    "ok": true,
+    "output.by.kOut.Cohen's κ": "0.722",
+    "output.by.kOut.raw agreement": "80.0%",
+    "output.by.kOut.expected by chance": "28.0%",
+    "output.by.kOut.samples": "10",
+    "output.by.kOut.categories": "4"
+   }
+  },
+  {
+   "id": "few",
+   "action": "read-report",
+   "expect": {
+    "output.boxes.kOut": {
+     "op": "contains",
+     "value": "samples is few"
+    }
+   }
+  },
+  {
+   "id": "matrix",
+   "action": "read-report",
+   "expect": {
+    "output.boxes.kMatrix": {
+     "op": "contains",
+     "value": "commonest disagreement"
+    }
+   }
+  },
+  {
+   "id": "short",
+   "action": "set-text",
+   "arguments": {
+    "selector": "@control:kB",
+    "value": "F V V"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "go2",
+   "action": "activate",
+   "arguments": {
+    "selector": "@control:kGo"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "refused",
+   "action": "read-report",
+   "expect": {
+    "output.boxes.kOut": {
+     "op": "contains",
+     "value": "Different lengths."
+    },
+    "output.boxes.kMatrix": ""
+   }
+  },
+  {
+   "id": "design",
+   "action": "show-pane",
+   "arguments": {
+    "pane": "p-des"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "scan",
+   "action": "activate",
+   "arguments": {
+    "selector": "@control:dSample/scan"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "cont",
+   "action": "activate",
+   "arguments": {
+    "selector": "@control:dRecord/continuous"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "incoherent",
+   "action": "read-report",
+   "expect": {
+    "output.boxes.coherence": {
+     "op": "contains",
+     "value": "Scan sampling cannot be continuous"
+    }
+   }
+  },
+  {
+   "id": "focal",
+   "action": "activate",
+   "arguments": {
+    "selector": "@control:dSample/focal animal"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "coherent",
+   "action": "read-report",
+   "expect": {
+    "output.boxes.coherence": ""
+   }
+  },
+  {
+   "id": "intact",
+   "action": "read-page",
+   "expect": {
+    "output.junk": null,
+    "output.errors": {
+     "op": "==",
+     "value": []
+    },
+    "output.overflow": 0
+   }
+  }
+ ]
+}

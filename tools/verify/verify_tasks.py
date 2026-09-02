@@ -7,17 +7,20 @@ science engine grades a protocol -- through the real transport. This suite
 pins what makes a verdict believable:
 
   A. the grammar: dotted paths (with escaped dots), references that resolve
-     or are DEFECTS, every operator, a literal against a reference
+     or are DEFECTS, every operator, a literal against a reference; and
+     "@control:<name>" (ADR-128): a page control by id, then label, then
+     host, scoped "host/label", the nth match, resolved from the latest
+     snapshot, a DEFECT when nothing matches
   B. the task files: each loads, is named by its file, names a target the
-     builder stands up, refers only to earlier steps, and the canary
-     declares it must FAIL
+     builder stands up, refers only to earlier steps, and the canaries --
+     the fixture's and the page's -- declare they must FAIL
   C. the grader on the fixture: the canary is REFUTED and held; the buckets
      task is PASSed with every expectation confirmed; a task that references
      a missing path is a DEFECT, not a refutation; a target that goes away is
      a DEFECT; an unexpected failure ends the task FAIL; over MCP the same
      verdicts, expectation for expectation
-  D. the real targets: every organism, lab and page task PASSes through the
-     gateway (NOT VERIFIED without the builds)
+  D. the real targets: every organism, lab and page task holds through the
+     gateway -- PASS, or FAIL for a canary (NOT VERIFIED without the builds)
   E. the committed ledger: one entry per task file, every one held, each
      naming its transport
   F. traces (ADR-126): the MCP server records every call and observation;
@@ -27,6 +30,11 @@ pins what makes a verdict believable:
      own; a trace that took the fixture's canary task is graded FAIL and
      held; and the committed traces -- a model's, planning from the goal and
      tools/list alone -- are every one PASS
+  G. the science (ADR-128): every data-entry page of the kit has a task
+     that enters data through the gateway and holds the page's report to a
+     hand-checked oracle; a science task names its controls the page's way
+     and never writes a selector down; the page canary claims a wrong
+     figure and is refuted
 
 Run:  python3 tools/verify/verify_tasks.py
       CSRBT_TASKS_QUICK=1 python3 tools/verify/verify_tasks.py   # A-C and E only (the mutant runner)
@@ -88,6 +96,48 @@ ck(g == {"ok": "CONFIRMED", "output.n": "CONFIRMED", "output.n2": "CONFIRMED", "
    "every operator grades, a reference grades as its value, a missing path is REFUTED unless exists:false: %s" % g)
 ck(T.grade({"output.n": {"op": ">", "value": "x"}}, {"output": {"n": 3}}, {}, "t")[0][1] == "REFUTED",
    "an incomparable pair is REFUTED, not a crash")
+# ADR-128: a page control by the page's own name
+snap = {"controls": [
+    {"selector": "step_val:0", "kind": "step_val", "id": None, "host": "geoEntry", "label": "cName"},
+    {"selector": "text_in:3", "kind": "text_in", "id": "cName", "host": "p-rec", "label": "working name"},
+    {"selector": "dial_btn:0", "kind": "dial_btn", "id": None, "host": "rCov", "label": "4"},
+    {"selector": "dial_btn:1", "kind": "dial_btn", "id": None, "host": "strEntry", "label": "4"},
+    {"selector": "dial_btn:2", "kind": "dial_btn", "id": None, "host": "rCov", "label": "5"},
+    {"selector": "action_btn:7", "kind": "action_btn", "id": None, "host": "iList", "label": "died"},
+    {"selector": "action_btn:9", "kind": "action_btn", "id": None, "host": "iList", "label": "died"},
+    {"selector": "pick_search:0", "kind": "pick_search", "id": None, "host": "genEntry", "label": "genus filter"},
+    {"selector": "field_in:0", "kind": "field_in", "id": None, "host": "seedEntry", "label": "season #"}]}
+cd = {"look": {"ok": True, "snapshot": snap}}
+
+
+def res(x, d=cd):
+    try:
+        return T.resolve(x, d, "t")
+    except T.TaskDefect as e:
+        return "DEFECT: " + str(e)
+
+
+ck(res("@control:cName") == "text_in:3",
+   "an id wins over a control merely labelled with that name, wherever it sits in the document")
+ck(res("@control:working name") == "text_in:3" and res("@control:genEntry") == "pick_search:0",
+   "then the label, then the host: a picker is named by the box it is mounted in")
+ck(res({"selector": "@control:rCov/4"}) == {"selector": "dial_btn:0"} and
+   res("@control:4") == "dial_btn:0" and res("@control:strEntry/4") == "dial_btn:1",
+   "host/label scopes a label every dial shares to one dial")
+ck(res("@control:iList/died#1") == "action_btn:9" and res("@control:died#0") == "action_btn:7",
+   "#n is the nth match in document order: %s" % res("@control:iList/died#1"))
+ck(res("@control:season #") == "field_in:0", "a label that ends in # is a label, not an index")
+for bad in ("@control:nothing", "@control:rCov/4#3", "@control:iList/died#2"):
+    r_ = res(bad)
+    ck(isinstance(r_, str) and r_.startswith("DEFECT") and "no control" in r_,
+       "a control nothing matches is a task DEFECT, not a refusal: %s -> %s" % (bad, str(r_)[:60]))
+r_ = res("@control:cName", {"a": {"ok": True, "output": {}}})
+ck(isinstance(r_, str) and r_.startswith("DEFECT") and "observed" in r_,
+   "@control before any step carried a snapshot is a DEFECT: %s" % str(r_)[:60])
+later = {"first": {"snapshot": snap}, "then": {"snapshot": {"controls": [
+    {"selector": "text_in:9", "kind": "text_in", "id": "cName", "host": "p-rec", "label": "working name"}]}}}
+ck(res("@control:cName", later) == "text_in:9",
+   "the LATEST snapshot is the one resolved against -- the widgets rebuild and selectors are the moment's")
 
 # ---- B. the task files -------------------------------------------------------
 files = sorted(glob.glob(os.path.join(T.TASKS_DIR, "*.json")))
@@ -107,7 +157,8 @@ for t in tasks:
     ck(okrefs, "%s: every reference names an earlier step" % t["id"])
 ck({t["target"] for t in tasks} == {"organism", "lab", "page", "fixture"}, "every target has a task")
 canaries = [t for t in tasks if t.get("must") == "FAIL"]
-ck(len(canaries) == 1 and canaries[0]["target"] == "fixture", "exactly one canary, on the fixture, declares it must FAIL")
+ck({t["target"] for t in canaries} == {"fixture", "page"} and len(canaries) == 2,
+   "two canaries declare they must FAIL: the fixture's and the page's: %s" % [t["id"] for t in canaries])
 try:
     T.load_task(os.path.join(_kit.TOOLS_DIR, "harness_walk.py"))
     ck(False, "a non-task loaded")
@@ -184,8 +235,8 @@ else:
             continue
         rs = T.run_tasks([t for t in tasks if t["target"] == tgt])
         for k, r in rs.items():
-            ck(r["verdict"] == "PASS" and r["held"] and r["refuted"] == 0,
-               "%s: PASS through the gateway (%d confirmed): %s" % (k, r["confirmed"],
+            ck(r["held"] and r["verdict"] == r["must"] and (r["refuted"] == 0 or r["must"] == "FAIL"),
+               "%s: held through the gateway (%d confirmed): %s" % (k, r["confirmed"],
                                                                   [(s["id"], e["detail"]) for s in r["steps"]
                                                                    for e in s.get("expectations", []) if e["verdict"] != "CONFIRMED"][:2]))
         ck(sum(r["confirmed"] for r in rs.values()) >= 8, "%s: the tasks carry real expectations, %d confirmed"
@@ -203,7 +254,7 @@ if os.path.isfile(led):
            for e in runs.values()),
        "every committed task is held -- its verdict is the one it was written for -- and names its transport: %s"
        % [k for k, e in runs.items() if not e.get("held")])
-    ck(sum(e.get("confirmed", 0) for e in runs.values()) >= 60,
+    ck(sum(e.get("confirmed", 0) for e in runs.values()) >= 1200,
        "the ledger carries %d confirmed expectations" % sum(e.get("confirmed", 0) for e in runs.values()))
 
 # ---- F. traces ---------------------------------------------------------------
@@ -271,8 +322,10 @@ ck(gc["verdict"] == "FAIL" and gc["held"] and gc["steps"][1]["result"] == "UNMET
    "the canary graded from a trace: its 'ok declines' step is UNMET, the task FAILs, and it is held")
 # the committed traces: a model's, planning from the goal and tools/list alone
 tfiles = sorted(glob.glob(os.path.join(T.TRACES_DIR, "*.jsonl")))
-ck(len(tfiles) == 6 and {os.path.basename(f)[:-6] for f in tfiles} == {t["id"] for t in tasks if t["target"] != "fixture"},
-   "one committed trace per real task, none for the fixture's: %s" % [os.path.basename(f) for f in tfiles])
+ck(len(tfiles) == 6 and {os.path.basename(f)[:-6] for f in tfiles} <= {t["id"] for t in tasks if t["target"] != "fixture"}
+   and {by[os.path.basename(f)[:-6]]["target"] for f in tfiles} == {"organism", "lab", "page"},
+   "the six committed traces each name a real task, on every real target, none the fixture's: %s"
+   % [os.path.basename(f) for f in tfiles])
 for f in tfiles:
     tid = os.path.basename(f)[:-6]
     gt = T.grade_trace(by[tid], T.load_trace(f))
@@ -287,6 +340,54 @@ if os.path.isfile(led):
     traced = {k[:-6]: e for k, e in L.items() if k.endswith("@trace")}
     ck(set(traced) == {os.path.basename(f)[:-6] for f in tfiles} and all(e["held"] and e["graded"] == "trace" for e in traced.values()),
        "the ledger carries every trace's grade, held: %s" % sorted(traced))
+
+# ---- G. the science (ADR-128) --------------------------------------------------
+DATA_ENTRY = {"collection-sheet.html", "releve.html", "stand-sheet.html", "ethogram.html", "selection-log.html",
+              "farm-scout.html", "pheno-tracker.html", "deployment-log.html", "cell-bench.html", "micro-bench.html",
+              "cp-bench.html", "soil-bench.html", "breeding-bench.html", "survey-design.html", "ordination.html",
+              "food-web.html", "soil-recipes.html", "field-notebook.html", "field-season.html", "experiment-guide.html",
+              "greenhouse.html"}
+science = [t for t in tasks if t["target"] == "page" and t["id"] != "page-enter-and-read-back" and t.get("must", "PASS") == "PASS"]
+ck({t["page"] for t in science} == DATA_ENTRY,
+   "every data-entry page of the kit has a science task, and every science task is on one: missing %s, extra %s"
+   % (sorted(DATA_ENTRY - {t["page"] for t in science}), sorted({t["page"] for t in science} - DATA_ENTRY)))
+ENTRY = ("set-text", "pick", "activate", "choose-option", "set-slider", "press-step", "set-checkbox", "attach-file", "drop-files")
+
+
+def reads_after_entry(t):
+    acts = [s["action"] for s in t["steps"]]
+    last_entry = max(i for i, a in enumerate(acts) if a in ENTRY)
+    return any(a == "read-report" and t["steps"][i].get("expect") for i, a in enumerate(acts) if i > last_entry)
+
+
+ck(all(reads_after_entry(t) for t in science) and
+   all(t["steps"][-1]["action"] == "read-page" and t["steps"][-1]["expect"].get("output.junk", 1) is None
+       and t["steps"][-1]["expect"].get("output.overflow") == 0 for t in science),
+   "each ends by reading the report against its oracle and by finding the page intact -- no junk, no errors, "
+   "nothing pushed sideways")
+ck(all(any(s["action"] == "read-report" and any(k.startswith(("output.figures.", "output.by.", "output.tables.", "output.rows."))
+                                                or (k.startswith("output.boxes.") and not isinstance(v, dict))
+                                                for k, v in s.get("expect", {}).items()) for s in t["steps"]) for t in science),
+   "each holds a FIGURE, a table cell, a row count or a box's whole text -- never a substring alone -- to its oracle")
+ck(all(sum(1 for s in t["steps"] if s["action"] in ENTRY) >= 3 for t in science),
+   "each enters data: at least three entries through the gateway")
+raw = [(t["id"], s["id"]) for t in science for s in t["steps"]
+       if isinstance((s.get("arguments") or {}).get("selector"), str) and not s["arguments"]["selector"].startswith("@control:")]
+ck(not raw, "a science task names its controls the page's way and never writes a selector down: %s" % raw[:3])
+ck(all(len(t["goal"]) > 200 and any(ch.isdigit() for ch in t["goal"]) for t in science),
+   "each goal states the numbers it expects, in words a reader can check by hand")
+canary = by.get("page-collection-sheet-canary")
+ck(canary and canary["page"] == "collection-sheet.html" and canary["steps"][-1]["action"] == "read-report"
+   and canary["steps"][-1]["expect"].get("output.figures.collections") == "2",
+   "the page canary enters one collection and claims the sheet counts two")
+if os.path.isfile(led):
+    L = json.load(io.open(led, encoding="utf-8"))["tasks"]
+    sci = {t["id"]: L.get(t["id"]) for t in science}
+    ck(all(e and e["held"] and e["confirmed"] >= 20 for e in sci.values()),
+       "the ledger holds every science task with at least twenty confirmed expectations: %s"
+       % [k for k, e in sci.items() if not (e and e["held"] and e["confirmed"] >= 20)])
+    ck(L.get("page-collection-sheet-canary", {}).get("verdict") == "FAIL" and L.get("page-collection-sheet-canary", {}).get("held"),
+       "and the page canary was refuted and held")
 
 total = P + F + len(unverified)
 print("---")

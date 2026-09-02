@@ -1,0 +1,322 @@
+{
+ "id": "page-releve-science",
+ "target": "page",
+ "page": "releve.html",
+ "goal": "On the relevé, record three taxa in the herb stratum by cover class -- big sagebrush 4 (midpoint 62.5%), bluebunch wheatgrass 2 (15%), cheatgrass + (0.5%) -- and find the analysis right: 3 taxa in 2 families, Shannon H′ 0.53 and evenness J′ 0.48 on the cover shares (62.5 : 15 : 0.5 of 78), effective taxa 1.7, one non-native, the dominant at 80%; an add with no cover class adds no row; the LPI plan for a 25 m transect at 0.5 m is 50 points (±5.7) and four transects 200 (±2.8); three taxa scored FAC give a prevalence index of 3.00.",
+ "steps": [
+  {
+   "id": "look",
+   "action": "observe",
+   "expect": {
+    "ok": true,
+    "snapshot.page": "releve.html"
+   }
+  },
+  {
+   "id": "rec",
+   "action": "show-pane",
+   "arguments": {
+    "pane": "p-rec"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "s1",
+   "action": "pick",
+   "arguments": {
+    "selector": "@control:recEntry",
+    "value": "big sagebrush"
+   },
+   "expect": {
+    "ok": true,
+    "output.chose": {
+     "op": "contains",
+     "value": "big sagebrush"
+    }
+   }
+  },
+  {
+   "id": "c1",
+   "action": "activate",
+   "arguments": {
+    "selector": "@control:rCov/4"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "a1",
+   "action": "activate",
+   "arguments": {
+    "selector": "@control:rAdd"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "s2",
+   "action": "pick",
+   "arguments": {
+    "selector": "@control:recEntry",
+    "value": "bluebunch wheatgrass"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "c2",
+   "action": "activate",
+   "arguments": {
+    "selector": "@control:rCov/2"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "a2",
+   "action": "activate",
+   "arguments": {
+    "selector": "@control:rAdd"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "s3",
+   "action": "pick",
+   "arguments": {
+    "selector": "@control:recEntry",
+    "value": "cheatgrass"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "c3",
+   "action": "activate",
+   "arguments": {
+    "selector": "@control:rCov/+"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "a3",
+   "action": "activate",
+   "arguments": {
+    "selector": "@control:rAdd"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "listed",
+   "action": "read-report",
+   "expect": {
+    "ok": true,
+    "output.rows.#rList": 3
+   }
+  },
+  {
+   "id": "free",
+   "action": "set-text",
+   "arguments": {
+    "selector": "@control:rFree",
+    "value": "test plant"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "no-cover",
+   "action": "activate",
+   "arguments": {
+    "selector": "@control:rAdd"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "still3",
+   "action": "read-report",
+   "expect": {
+    "output.rows.#rList": 3
+   }
+  },
+  {
+   "id": "an",
+   "action": "show-pane",
+   "arguments": {
+    "pane": "p-an"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "report",
+   "action": "read-report",
+   "expect": {
+    "ok": true,
+    "output.boxes.anStats": {
+     "op": "contains",
+     "value": "80%"
+    },
+    "output.by.anStats.taxa": "3",
+    "output.by.anStats.families": "2",
+    "output.by.anStats.Shannon H′": "0.53",
+    "output.by.anStats.evenness J′": "0.48",
+    "output.by.anStats.effective taxa": "1.7",
+    "output.by.anStats.non-native taxa": "1"
+   }
+  },
+  {
+   "id": "dominated",
+   "action": "read-report",
+   "expect": {
+    "output.boxes.anStats": {
+     "op": "contains",
+     "value": "strongly dominated"
+    }
+   }
+  },
+  {
+   "id": "lpi",
+   "action": "show-pane",
+   "arguments": {
+    "pane": "p-lpi"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "plan1",
+   "action": "read-report",
+   "expect": {
+    "output.boxes.lPlan": {
+     "op": "contains",
+     "value": "50 points"
+    }
+   }
+  },
+  {
+   "id": "plan1b",
+   "action": "read-report",
+   "expect": {
+    "output.boxes.lPlan": {
+     "op": "contains",
+     "value": "±5.7"
+    }
+   }
+  },
+  {
+   "id": "four",
+   "action": "set-text",
+   "arguments": {
+    "selector": "@control:transects",
+    "value": "4"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "plan4",
+   "action": "read-report",
+   "expect": {
+    "output.boxes.lPlan": {
+     "op": "contains",
+     "value": "200"
+    }
+   }
+  },
+  {
+   "id": "plan4b",
+   "action": "read-report",
+   "expect": {
+    "output.boxes.lPlan": {
+     "op": "contains",
+     "value": "±2.8"
+    }
+   }
+  },
+  {
+   "id": "an2",
+   "action": "show-pane",
+   "arguments": {
+    "pane": "p-an"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "w0",
+   "action": "activate",
+   "arguments": {
+    "selector": "@control:wEditor/FAC#0"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "w1",
+   "action": "activate",
+   "arguments": {
+    "selector": "@control:wEditor/FAC#1"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "w2",
+   "action": "activate",
+   "arguments": {
+    "selector": "@control:wEditor/FAC#2"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "wet",
+   "action": "read-report",
+   "expect": {
+    "output.boxes.anWet": {
+     "op": "contains",
+     "value": "at or below"
+    },
+    "output.by.anWet.prevalence index": "3.00",
+    "output.by.anWet.taxa scored": "3/3",
+    "output.by.anWet.vs threshold": "≤ 3.0"
+   }
+  },
+  {
+   "id": "intact",
+   "action": "read-page",
+   "expect": {
+    "output.junk": null,
+    "output.errors": {
+     "op": "==",
+     "value": []
+    },
+    "output.overflow": 0
+   }
+  }
+ ]
+}

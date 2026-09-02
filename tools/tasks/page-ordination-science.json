@@ -1,0 +1,419 @@
+{
+ "id": "page-ordination-science",
+ "target": "page",
+ "page": "ordination.html",
+ "goal": "On the ordination page: the two-gradient demo parses to 20 sites x 24 species, NMDS in 2 dimensions carries a stress with Clarke's bands, the Shepard diagram fits 190 pairs (20*19/2), PCoA reports axis percentages over positive eigenvalues only with negative eigenvalues counted for a semi-metric; the no-structure demo will not help you read the picture; three sites are refused (four minimum); four sites at k=2 fit exactly by construction at stress 0.000 with the free-coordinates warning, five sites without it; an empty site, an unreadable value and a quoted comma in a species name are each named, not swallowed.",
+ "steps": [
+  {
+   "id": "look",
+   "action": "observe",
+   "expect": {
+    "ok": true,
+    "snapshot.page": "ordination.html"
+   }
+  },
+  {
+   "id": "data",
+   "action": "show-pane",
+   "arguments": {
+    "pane": "p-data"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "demo",
+   "action": "activate",
+   "arguments": {
+    "selector": "@control:demo1"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "parsed",
+   "action": "read-report",
+   "expect": {
+    "ok": true,
+    "output.by.parseOut.sites": "20",
+    "output.by.parseOut.species": "24"
+   }
+  },
+  {
+   "id": "nmds",
+   "action": "read-report",
+   "expect": {
+    "output.boxes.ordVerdict": {
+     "op": "contains",
+     "value": "Clarke"
+    },
+    "output.by.ordStat.dimensions": "2",
+    "output.by.ordStat.sites": "20",
+    "output.by.ordStat.stress": {
+     "op": "exists",
+     "value": true
+    }
+   }
+  },
+  {
+   "id": "diag",
+   "action": "show-pane",
+   "arguments": {
+    "pane": "p-diag"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "shepard",
+   "action": "read-report",
+   "expect": {
+    "output.boxes.shepNote": {
+     "op": "contains",
+     "value": "Worst-placed pairs"
+    },
+    "output.by.stressBox.sites": "20",
+    "output.by.stressBox.pairs fitted": "190"
+   }
+  },
+  {
+   "id": "ord",
+   "action": "show-pane",
+   "arguments": {
+    "pane": "p-ord"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "pcoa",
+   "action": "activate",
+   "arguments": {
+    "selector": "@control:methEntry/PCoA"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "axes",
+   "action": "read-report",
+   "expect": {
+    "output.boxes.ordVerdict": {
+     "op": "contains",
+     "value": "positive eigenvalues only"
+    },
+    "output.by.ordStat.axis 1": {
+     "op": "exists",
+     "value": true
+    },
+    "output.by.ordStat.negative eigenvalues": {
+     "op": "!=",
+     "value": "0"
+    }
+   }
+  },
+  {
+   "id": "nmds2",
+   "action": "activate",
+   "arguments": {
+    "selector": "@control:methEntry/NMDS"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "data2",
+   "action": "show-pane",
+   "arguments": {
+    "pane": "p-data"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "noise",
+   "action": "activate",
+   "arguments": {
+    "selector": "@control:demo2"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "nohelp",
+   "action": "read-report",
+   "expect": {
+    "output.boxes.ordVerdict": {
+     "op": "contains",
+     "value": "will not help you read the picture"
+    }
+   }
+  },
+  {
+   "id": "data3",
+   "action": "show-pane",
+   "arguments": {
+    "pane": "p-data"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "three",
+   "action": "set-text",
+   "arguments": {
+    "selector": "@control:raw",
+    "value": "site,a,b,c\nX,1,2,3\nY,3,2,1\nZ,0,5,5"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "run3",
+   "action": "activate",
+   "arguments": {
+    "selector": "@control:runBtn"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "minimum",
+   "action": "read-report",
+   "expect": {
+    "output.boxes.parseOut": {
+     "op": "contains",
+     "value": "Four sites minimum"
+    }
+   }
+  },
+  {
+   "id": "data4",
+   "action": "show-pane",
+   "arguments": {
+    "pane": "p-data"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "four",
+   "action": "set-text",
+   "arguments": {
+    "selector": "@control:raw",
+    "value": "site,a,b,c,d\nP,5,1,0,0\nQ,4,2,1,0\nR,1,4,3,0\nS,0,1,5,2"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "run4",
+   "action": "activate",
+   "arguments": {
+    "selector": "@control:runBtn"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "free",
+   "action": "read-report",
+   "expect": {
+    "output.boxes.ordVerdict": {
+     "op": "contains",
+     "value": "Stress 0.000"
+    },
+    "output.by.ordStat.sites": "4"
+   }
+  },
+  {
+   "id": "data5",
+   "action": "show-pane",
+   "arguments": {
+    "pane": "p-data"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "five",
+   "action": "set-text",
+   "arguments": {
+    "selector": "@control:raw",
+    "value": "site,a,b,c,d\nP,5,1,0,0\nQ,4,2,1,0\nR,1,4,3,0\nS,0,1,5,2\nT,0,0,2,6"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "run5",
+   "action": "activate",
+   "arguments": {
+    "selector": "@control:runBtn"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "notfree",
+   "action": "read-report",
+   "expect": {
+    "output.by.ordStat.sites": "5",
+    "output.boxes.ordVerdict": {
+     "op": "contains",
+     "value": "Stress 0.000"
+    }
+   }
+  },
+  {
+   "id": "data6",
+   "action": "show-pane",
+   "arguments": {
+    "pane": "p-data"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "emptysite",
+   "action": "set-text",
+   "arguments": {
+    "selector": "@control:raw",
+    "value": "site,a,b,c\nX,1,2,3\nY,3,2,1\nZ,0,5,5\nW,0,0,0\nV,2,2,2"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "run6",
+   "action": "activate",
+   "arguments": {
+    "selector": "@control:runBtn"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "nothing",
+   "action": "read-report",
+   "expect": {
+    "output.boxes.parseOut": {
+     "op": "contains",
+     "value": "recorded nothing"
+    }
+   }
+  },
+  {
+   "id": "data7",
+   "action": "show-pane",
+   "arguments": {
+    "pane": "p-data"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "bad",
+   "action": "set-text",
+   "arguments": {
+    "selector": "@control:raw",
+    "value": "site,a,b,c\nX,1,two,3\nY,3,2,1\nZ,0,5,5\nW,1,1,1\nV,2,2,2"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "run7",
+   "action": "activate",
+   "arguments": {
+    "selector": "@control:runBtn"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "unreadable",
+   "action": "read-report",
+   "expect": {
+    "output.boxes.parseOut": {
+     "op": "contains",
+     "value": "could not be read as a number"
+    }
+   }
+  },
+  {
+   "id": "data8",
+   "action": "show-pane",
+   "arguments": {
+    "pane": "p-data"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "quoted",
+   "action": "set-text",
+   "arguments": {
+    "selector": "@control:raw",
+    "value": "site,\"Carex aquatilis, Wahlenb.\",b,c\nX,1,2,3\nY,3,2,1\nZ,0,5,5\nW,1,1,1"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "run8",
+   "action": "activate",
+   "arguments": {
+    "selector": "@control:runBtn"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "comma",
+   "action": "read-report",
+   "expect": {
+    "output.by.parseOut.species": "3",
+    "output.by.parseOut.sites": "4"
+   }
+  },
+  {
+   "id": "intact",
+   "action": "read-page",
+   "expect": {
+    "output.junk": null,
+    "output.errors": {
+     "op": "==",
+     "value": []
+    },
+    "output.overflow": 0
+   }
+  }
+ ]
+}

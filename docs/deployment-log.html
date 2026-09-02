@@ -105,11 +105,18 @@
   td.n, th.n { text-align:right; font-variant-numeric:tabular-nums; font-family:var(--mono); font-size:13px; }
   td i { font-style:italic; color:var(--ink-2); }
 
-  .rowlist { display:grid; gap:8px; margin-top:10px; }
+  .rowlist { display:grid; grid-template-columns:minmax(0,1fr); gap:8px; margin-top:10px; }
+  /* minmax(0,1fr), not the implicit auto track: an auto track is at least its
+     widest row's min-content, and a row whose badge, count and remove button
+     do not shrink pushed a phone's page 4px sideways once a host was recorded
+     (the harness's page walk found it, ADR-128). */
   .row2 { display:flex; align-items:center; gap:10px; background:var(--surface); border:1px solid var(--border);
     border-radius:12px; padding:10px 13px; font-size:15px; }
   .row2.inv { border-left:3px solid var(--danger); }
-  .row2 .g { flex:1; min-width:0; }
+  .row2 .g { flex:1 1 220px; min-width:0; }
+  /* A row wraps rather than squeezes: below 220px for the name, the badge,
+     the count and the remove button take the next line together (ADR-128). */
+  .row2 { flex-wrap:wrap; }
   .row2 .g b { font-family:var(--head); font-size:15.5px; }
   .row2 .g b i { font-style:italic; font-weight:400; color:var(--ink-2); font-size:14px; }
   .row2 .g span { display:block; color:var(--muted); font-size:12.5px; font-family:var(--mono); margin-top:1px;
