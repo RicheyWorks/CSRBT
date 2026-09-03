@@ -26,7 +26,7 @@ REDACTION
     what a user typed -- the manifest says so rather than pretending otherwise.
     Values come back only through read-control, which is SENSITIVE_READ.
 """
-import base64, io, os, re, sys
+import base64, io, json, os, re, sys
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, HERE)
@@ -554,6 +554,12 @@ class PagePlugin(Plugin):
     ID = "csrbt-page"
 
     def __init__(self, page, name=None, kinds=None):
+        # ADR-134: what this session has said the environment is. Kept here and
+        # re-installed as an init script after every set, because a page that
+        # reloads or opens another page starts with a fresh window -- and an
+        # environment that survives one navigation and not the next would be
+        # worse than none at all.
+        self._env = {}
         self.page = page
         self.name = name
         # ADR-100's kind list plus whatever the caller adds. It is a parameter
@@ -635,6 +641,46 @@ class PagePlugin(Plugin):
                            "headings in order. What an "
                            "operator checks a data-entry page's arithmetic against.",
                            "SENSITIVE_READ", []),
+                # ---- the environment as an argument (ADR-134) ----
+                #
+                # A page that reads the clock or the dice answers differently
+                # every run, so no expectation could hold it and no audit could
+                # measure it: the ethogram's time budget, the ordination's
+                # Date.now()-seeded starts, the greenhouse's demo log, and the
+                # three Math.random buttons were driven by nobody. These say
+                # what "now" and "chance" are for this run. NAVIGATE, not
+                # MUTATE: they change the world the page is in, not the data
+                # the page holds.
+                ActionSpec("set-clock",
+                           "Freeze the page's clock. Date.now() and new Date() answer this "
+                           "instant until the run ends; every other Date form is untouched. "
+                           "Omit `at` to hand the page back the real clock.",
+                           "NAVIGATE",
+                           [ArgumentSpec("at", "string",
+                                         "An ISO 8601 instant, e.g. 2026-03-01T09:00:00Z. Omit to unfreeze.",
+                                         pattern=r"^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(\.\d+)?Z$",
+                                         examples=["2026-03-01T09:00:00Z", "2024-07-04T12:34:56Z"])]),
+                ActionSpec("set-seed",
+                           "Seed the page's Math.random with mulberry32, the generator the kit's "
+                           "own pages use, so a run that draws chance draws the same chance twice. "
+                           "Omit `seed` to hand the page back the real generator.",
+                           "NAVIGATE",
+                           [ArgumentSpec("seed", "integer",
+                                         "A 32-bit seed. Omit to unseed.",
+                                         minimum=0, maximum=4294967295, examples=[42, 1, 20260301])]),
+                ActionSpec("set-dialog",
+                           "Decide what a dialog gets answered with. A page that asks "
+                           "\"really clear?\" is answered yes by default; this makes it "
+                           "answerable no, so the path where a reader says no can be driven.",
+                           "NAVIGATE",
+                           [ArgumentSpec("confirm", "boolean", "The answer window.confirm() gets."),
+                            ArgumentSpec("prompt", "string", "The text window.prompt() gets.",
+                                         examples=["", "cancelled"])]),
+                ActionSpec("read-dialogs",
+                           "Every dialog the page raised since it loaded, in order, with its "
+                           "text: what it asked before it cleared, and what it told you when "
+                           "it refused.",
+                           "SENSITIVE_READ", []),
                 ActionSpec("read-control",
                            "Read one control including its entered value, group "
                            "state, stepper number, slider position and picker rows.",
@@ -694,6 +740,17 @@ class PagePlugin(Plugin):
             return {"ready": False, "why": str(e)[:200]}
         s["ready"] = True
         s["page"] = self.name
+        # ADR-134: the environment this run is happening in, on every snapshot.
+        # A figure that came out of a seeded draw or a frozen clock is only
+        # reproducible if the reader can see what the clock and the seed were,
+        # and a snapshot that hides them makes every such figure unfalsifiable.
+        try:
+            s["environment"] = self.page.evaluate(
+                "() => window.__D ? {clock: window.__D.epoch, seed: window.__D.seed, "
+                "draws: window.__D.draws, confirm: window.__D.confirm, "
+                "dialogs: window.__D.dialogs.length} : null")
+        except Exception:
+            s["environment"] = None
         s["sensitive"] = bool(sensitive)
         s["argumentPools"] = self._pools(s)
         if not sensitive:
@@ -733,6 +790,37 @@ class PagePlugin(Plugin):
         return pools
 
     # -- execution ----------------------------------------------------------
+    def _reinstall(self):
+        """Make this session's environment survive the next navigation.
+
+        An init script runs before any page script, which is the only place a
+        clock can be frozen for a page that reads it at load. Playwright's
+        init scripts accumulate and cannot be removed, so each set adds one
+        more -- they run in order and the last one wins, and a session sets
+        these a handful of times at most.
+        """
+        try:
+            ctx = self.page.context
+        except Exception:
+            return
+        js = ["window.__D = window.__D || {};"]
+        if "clock" in self._env:
+            js.append("window.__D.epoch = %s;" % ("null" if self._env["clock"] is None else self._env["clock"]))
+        if "seed" in self._env:
+            if self._env["seed"] is None:
+                js.append("window.__D.seed = null;")
+            else:
+                js.append("window.__D.seed = %d; window.__D.state = %d; window.__D.draws = 0;"
+                          % (self._env["seed"], self._env["seed"]))
+        if "confirm" in self._env:
+            js.append("window.__D.confirm = %s;" % ("true" if self._env["confirm"] else "false"))
+        if "prompt" in self._env:
+            js.append("window.__D.prompt = %s;" % json.dumps(self._env["prompt"]))
+        try:
+            ctx.add_init_script("(function(){ %s })();" % " ".join(js))
+        except Exception:
+            pass
+
     def execute(self, action, args):
         if action == "open":
             name = args["page"]
@@ -787,6 +875,60 @@ class PagePlugin(Plugin):
         if sel is not None and not SEL_RE.match(sel):
             raise InvalidArgument("selector must be kind:index as published by a "
                                   "snapshot, e.g. dial_btn:2")
+
+        if action == "set-clock":
+            at = args.get("at")
+            if at is None:
+                self.page.evaluate("() => { window.__D.epoch = null; }")
+                self._env["clock"] = None
+                self._reinstall()
+                return True, "the page has the real clock back", {"clock": None}
+            import calendar, datetime
+            try:
+                d = datetime.datetime.strptime(at.replace("Z", "").split(".")[0], "%Y-%m-%dT%H:%M:%S")
+            except ValueError:
+                raise InvalidArgument("at must be an ISO 8601 instant like 2026-03-01T09:00:00Z")
+            ms = calendar.timegm(d.timetuple()) * 1000
+            self.page.evaluate("(ms) => { window.__D.epoch = ms; }", ms)
+            self._env["clock"] = ms
+            self._reinstall()
+            # A page that reads the clock ONCE, at load -- the ethogram stamps its
+            # date field that way -- has already read the real one by the time an
+            # action can run. The freeze is in place for everything from here on
+            # and for the whole of the next load, so the answer says so rather
+            # than leaving a caller to find out from a wrong date.
+            return True, "the clock is frozen at %s; reload for code that reads it at load" % at, \
+                   {"clock": at, "epochMs": ms, "reloadForLoadTime": True}
+
+        if action == "set-seed":
+            seed = args.get("seed")
+            if seed is None:
+                self.page.evaluate("() => { window.__D.seed = null; }")
+                self._env["seed"] = None
+                self._reinstall()
+                return True, "the page has the real generator back", {"seed": None}
+            self.page.evaluate("(n) => { window.__D.seed = n; window.__D.state = n >>> 0; window.__D.draws = 0; }", int(seed))
+            self._env["seed"] = int(seed)
+            self._reinstall()
+            return True, "Math.random is mulberry32 seeded %d; reload for code that draws at load" % int(seed), \
+                   {"seed": int(seed), "reloadForLoadTime": True}
+
+        if action == "set-dialog":
+            if "confirm" not in args and "prompt" not in args:
+                raise InvalidArgument("set-dialog needs confirm, prompt, or both")
+            if "confirm" in args:
+                self.page.evaluate("(v) => { window.__D.confirm = !!v; }", bool(args["confirm"]))
+                self._env["confirm"] = bool(args["confirm"])
+            if "prompt" in args:
+                self.page.evaluate("(v) => { window.__D.prompt = String(v); }", args["prompt"])
+                self._env["prompt"] = args["prompt"]
+            self._reinstall()
+            return True, "dialogs answered %s" % self._env, {"confirm": self._env.get("confirm"),
+                                                            "prompt": self._env.get("prompt")}
+
+        if action == "read-dialogs":
+            d = self.page.evaluate("() => (window.__D && window.__D.dialogs) ? window.__D.dialogs.slice(0, 32) : []")
+            return True, "%d dialog(s)" % len(d), {"dialogs": d, "count": len(d)}
 
         if action == "read-control":
             r = self.page.evaluate(READ_ONE, sel)

@@ -147,6 +147,97 @@ window.__H = { calls: [], errors: [] };
 })();
 """
 
+
+# ---------------------------------------------------------------------------
+# The clocks, the dice and the dialogs (ADR-134)
+# ---------------------------------------------------------------------------
+#
+# Five pages have behaviour no task could reach and no audit could measure,
+# because the behaviour is not a function of what you enter: the ethogram's
+# time budget, the ordination's Date.now()-seeded NMDS starts, the greenhouse's
+# demo log read against a real clock, and #bRand / #bRand10 / #spRand, which
+# call Math.random(). A harness cannot hold a number it cannot reproduce, so
+# those paths were driven by nobody and asserted by nobody.
+#
+# This shim makes the environment an ARGUMENT. Installed before any page
+# script runs, it replaces Date, performance.now and Math.random with versions
+# that consult window.__D -- and while window.__D says nothing, they are the
+# real ones, byte for byte. A page under this shim behaves exactly as it did
+# until a task says otherwise, which is the only way a shim earns its place in
+# every session.
+#
+# The generator is mulberry32, the one the kit's own pages seed themselves
+# with, ported to Python in tools/mulberry32.py so an oracle can say what the
+# page must print without asking the page.
+DETERMINISM = r"""
+window.__D = window.__D || { epoch: null, seed: null, state: 0, draws: 0,
+                             confirm: true, prompt: "", dialogs: [] };
+(function () {
+  if (window.__D.installed) return;
+  window.__D.installed = true;
+  var RealDate = Date, realNow = RealDate.now.bind(RealDate);
+  var realRandom = Math.random, realPerf = (window.performance && window.performance.now)
+    ? window.performance.now.bind(window.performance) : null;
+
+  // ---- the clock ----------------------------------------------------------
+  // new Date() with no arguments and Date.now() are the two a page reads for
+  // "now"; every other constructor form is a date the page names itself and
+  // must not be touched.
+  function D(y, m, d, h, mi, s, ms) {
+    if (!(this instanceof D)) return RealDate();
+    if (arguments.length === 0 && window.__D.epoch !== null) return new RealDate(window.__D.epoch);
+    switch (arguments.length) {
+      case 0: return new RealDate();
+      case 1: return new RealDate(y);
+      case 2: return new RealDate(y, m);
+      case 3: return new RealDate(y, m, d);
+      case 4: return new RealDate(y, m, d, h);
+      case 5: return new RealDate(y, m, d, h, mi);
+      case 6: return new RealDate(y, m, d, h, mi, s);
+      default: return new RealDate(y, m, d, h, mi, s, ms);
+    }
+  }
+  D.prototype = RealDate.prototype;
+  D.now = function () { return window.__D.epoch !== null ? window.__D.epoch : realNow(); };
+  D.parse = RealDate.parse;
+  D.UTC = RealDate.UTC;
+  window.Date = D;
+  if (realPerf) {
+    window.performance.now = function () {
+      return window.__D.epoch !== null ? 0 : realPerf();
+    };
+  }
+
+  // ---- the dice -----------------------------------------------------------
+  Math.random = function () {
+    if (window.__D.seed === null) return realRandom();
+    window.__D.draws++;
+    window.__D.state = (window.__D.state + 0x6D2B79F5) >>> 0;
+    var t = window.__D.state;
+    t = Math.imul(t ^ (t >>> 15), t | 1);
+    t ^= t + Math.imul(t ^ (t >>> 7), t | 61);
+    return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+  };
+
+  // ---- the dialogs --------------------------------------------------------
+  // window.confirm already answered "yes" and was counted (harness.STUBS). It
+  // is now answered by POLICY and recorded by TEXT, so a task can assert that
+  // a page asked before it cleared -- and can make it answer no.
+  var say = function (kind, dflt) {
+    return function (text) {
+      if (window.__D.dialogs.length < 32) {
+        window.__D.dialogs.push({ kind: kind, text: String(text == null ? "" : text).slice(0, 300) });
+      }
+      if (window.__H && window.__H.calls) window.__H.calls.push({ k: kind, a: [String(text).slice(0, 4000)] });
+      return dflt();
+    };
+  };
+  window.confirm = say("confirm", function () { return !!window.__D.confirm; });
+  window.alert = say("alert", function () { return undefined; });
+  window.prompt = say("prompt", function () { return window.__D.prompt; });
+})();
+"""
+
 # One pass, one id per affordance. data-h is stamped on so a later action cannot
 # reach the wrong element when the DOM has been rebuilt underneath the walk.
 DISCOVER = r"""
@@ -568,6 +659,7 @@ def run_page(name, passes=3, url=None):
         ctx = b.new_context(viewport=VIEWPORT)
         ctx.set_offline(True)
         ctx.add_init_script(STUBS)
+        ctx.add_init_script(DETERMINISM)   # ADR-134
         pg = ctx.new_page()
         pg.set_default_timeout(ACT_TIMEOUT)
         console = []

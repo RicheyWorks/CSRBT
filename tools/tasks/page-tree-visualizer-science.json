@@ -2,7 +2,7 @@
  "id": "page-tree-visualizer-science",
  "target": "page",
  "page": "tree-visualizer.html",
- "goal": "On the tree visualizer, against an independent Python port of its four strategies: the boot red-black tree of 13 keys has height 4 (1.0x the optimal ceil(log2 14) = 4), 0 rotations, select(1) = 4, rank(42) = #7, median 42; inserting 7 makes 14 nodes at height 5 (1.3x), median 30, rank #8; 7 again is already present; 1..20 ascending into red-black is height 7 with 14 rotations; morphing rebuilds from the sorted keys: AVL height 5 (15 rotations), Splay height 20 (a spine, 4.0x), WB height 6, red-black 7.",
+ "goal": "On the tree visualizer, against an independent Python port of its four strategies: the boot red-black tree of 13 keys has height 4 (1.0x the optimal ceil(log2 14) = 4), 0 rotations, select(1) = 4, rank(42) = #7, median 42; inserting 7 makes 14 nodes at height 5 (1.3x), median 30, rank #8; 7 again is already present; 1..20 ascending into red-black is height 7 with 14 rotations; morphing rebuilds from the sorted keys: AVL height 5 (15 rotations), Splay height 20 (a spine, 4.0x), WB height 6, red-black 7. With the page's Math.random seeded (ADR-134), the two random-insert buttons are reproducible: mulberry32 seeded 42, with the page's own skip-a-key-already-present rule, draws 60 first and 19 eleventh, and the tree is 24 nodes after 15 draws.",
  "steps": [
   {
    "id": "look",
@@ -214,6 +214,64 @@
      "op": "contains",
      "value": "morphed"
     }
+   }
+  },
+  {
+   "id": "wipe",
+   "action": "activate",
+   "arguments": {
+    "selector": "@control:bClear"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "seed",
+   "action": "set-seed",
+   "arguments": {
+    "seed": 42
+   },
+   "expect": {
+    "ok": true,
+    "output.seed": 42,
+    "snapshot.environment.seed": 42
+   }
+  },
+  {
+   "id": "rand1",
+   "action": "activate",
+   "arguments": {
+    "selector": "@control:bRand"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "sawFirst",
+   "action": "read-report",
+   "expect": {
+    "output.boxes.msg": "inserted 60"
+   }
+  },
+  {
+   "id": "rand10",
+   "action": "activate",
+   "arguments": {
+    "selector": "@control:bRand10"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "seeded",
+   "action": "read-report",
+   "expect": {
+    "output.boxes.msg": "inserted 24",
+    "output.by.singleWrap.Nodes": "11",
+    "snapshot.environment.draws": 11
    }
   },
   {

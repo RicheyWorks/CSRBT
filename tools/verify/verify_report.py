@@ -27,6 +27,12 @@ gateway child), so the mutant runner can afford to run it many times.
   D. on a real page: the collection sheet's analysis is read behind its
      closed tab, a genus picked by prefix is the genus the sheet records,
      and the experiment guide's aria-controls tabs open their panes
+  E. the environment as an argument (ADR-134): with nothing set, Date and
+     Math.random are the real ones; set-clock freezes what "now" answers and
+     leaves every other Date form alone; set-seed makes Math.random the
+     kit's own mulberry32, agreeing bit for bit with the Python port; a
+     dialog is answered by policy and recorded by text; all of it survives a
+     reload, and the snapshot publishes it
 
 Run:  python3 tools/verify/verify_report.py
 """
@@ -242,6 +248,82 @@ with sync_playwright() as pw:
     ok, _, out = plug.execute("show-pane", {"pane": "pane-designer"})
     ck(ok and "pane-designer" in out["open"],
        "on the experiment guide, whose tabs name their pane by aria-controls rather than data-pane, show-pane opens it: %s" % out)
+    # ---- E. the environment as an argument (ADR-134) ----------------------
+    from mulberry32 import Mulberry32
+    ctx2 = b.new_context(viewport=H.VIEWPORT)
+    ctx2.add_init_script(H.STUBS)
+    ctx2.add_init_script(H.DETERMINISM)
+    pg2 = ctx2.new_page()
+    pg2.goto("file://" + fx.replace(os.sep, "/"), wait_until="domcontentloaded")
+    env = PP.PagePlugin(pg2, "fixture.html", kinds=SWARM_KINDS)
+
+    # untouched, the page has the real world. A shim that changed behaviour
+    # before anyone asked would be a shim nobody could leave installed.
+    ck(env.observe(sensitive=True)["environment"] == {"clock": None, "seed": None, "draws": 0,
+                                                      "confirm": True, "dialogs": 0},
+       "with nothing set the environment is empty and the page has the real clock and the real dice")
+    ck(pg2.evaluate("() => { const a = Date.now(); let s = 0; for (let i = 0; i < 200000; i++) s += i; "
+                    "return Date.now() >= a && s > 0; }"),
+       "and the real clock still moves")
+    # THE FIRST draws on this page, before anything else has touched Math.random.
+    # "three different numbers" is not enough: a shim that ran the seeded
+    # generator from an unset state would also give three different numbers, and
+    # would have replaced the page's chance without anyone asking. The tell is
+    # that the unset page must not be drawing the seeded stream at all.
+    first3 = pg2.evaluate("() => [Math.random(), Math.random(), Math.random()]")
+    ck(len(set(first3)) == 3, "and the real dice still differ")
+    ck(first3 != Mulberry32(0).take(3),
+       "and they are the REAL dice, not the seeded generator running from an unset state")
+
+    ok, msg, out = env.execute("set-clock", {"at": "2026-03-01T09:00:00Z"})
+    ck(ok and out["epochMs"] == 1772355600000 and out["reloadForLoadTime"] is True,
+       "set-clock answers the epoch it froze, and says a reload is needed for code that reads the clock at "
+       "load: %s" % out)
+    ck(pg2.evaluate("() => [Date.now(), new Date().toISOString()]") == [1772355600000, "2026-03-01T09:00:00.000Z"],
+       "Date.now() and new Date() answer the frozen instant")
+    ck(pg2.evaluate("() => [new Date(0).getTime(), new Date(2020, 0, 2).getFullYear(), new Date() instanceof Date]")
+       == [0, 2020, True],
+       "and every OTHER Date form is untouched -- a date the page names itself is not 'now'")
+
+    ok, _, out = env.execute("set-seed", {"seed": 42})
+    ck(ok and out["seed"] == 42, "set-seed answers the seed it set")
+    js = pg2.evaluate("() => [Math.random(), Math.random(), Math.random(), Math.random(), Math.random()]")
+    ck(js == Mulberry32(42).take(5),
+       "Math.random IS mulberry32, agreeing with tools/mulberry32.py bit for bit -- the port is what lets an "
+       "oracle say what a page must print without asking the page: %s" % js[:2])
+    ck(env.observe(sensitive=True)["environment"]["draws"] == 5,
+       "and the snapshot counts the draws, so a figure that came out of chance can be reproduced")
+
+    ok, _, out = env.execute("set-dialog", {"confirm": False, "prompt": "no thanks"})
+    ck(ok and pg2.evaluate("() => [confirm('really?'), prompt('name?')]") == [False, "no thanks"],
+       "a dialog is answered by policy: the branch a reader takes when they say NO is drivable")
+    ok, _, out = env.execute("read-dialogs", {})
+    ck(ok and out["count"] == 2 and out["dialogs"][0] == {"kind": "confirm", "text": "really?"},
+       "and every dialog is recorded by kind and text, in order: %s" % out["dialogs"])
+
+    env.execute("reload", {})
+    ck(pg2.evaluate("() => [Date.now(), Math.random() === %r, window.__D.confirm]" % Mulberry32(42).random())
+       == [1772355600000, True, False],
+       "the whole environment survives a reload -- an init script, because a page that reads the clock at load "
+       "has already read it by the time an action can run")
+
+    ok, _, out = env.execute("set-clock", {})
+    ck(ok and out["clock"] is None and pg2.evaluate("() => window.__D.epoch") is None,
+       "set-clock with no argument hands the page its real clock back")
+    ok, _, out = env.execute("set-seed", {})
+    ck(ok and out["seed"] is None, "and set-seed with no argument hands back the real generator")
+    try:
+        env.execute("set-clock", {"at": "the day before yesterday"})
+        ck(False, "a clock that is not an instant was accepted")
+    except HarnessError as e:
+        ck(e.code == "invalid_argument", "a clock that is not an ISO instant is refused: %s" % e.message[:60])
+    try:
+        env.execute("set-dialog", {})
+        ck(False, "set-dialog with nothing to set was accepted")
+    except HarnessError as e:
+        ck(e.code == "invalid_argument", "set-dialog with neither answer is refused: %s" % e.message[:60])
+    ctx2.close()
+
     ctx.close()
     b.close()
 

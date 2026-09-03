@@ -136,8 +136,15 @@ SETTLE_JS = r"""
 """
 
 
-def _settle(pg, tries=20):
-    """Wait until nothing on the page is still animating (bounded)."""
+def _settle(pg, tries=40):
+    """Wait until nothing on the page is still animating (bounded, 2s).
+
+    Two seconds, not one: under the kit's own parallel run a second browser is
+    competing for the CPU and a 300 ms transition can take past a second to
+    finish. audit_focus reported one fault under -j 2 that it did not report
+    alone, which is the instrument's flakiness and not the page's -- and an
+    audit whose answer depends on what else is running is not an audit.
+    """
     for _ in range(tries):
         try:
             if not pg.evaluate(SETTLE_JS):

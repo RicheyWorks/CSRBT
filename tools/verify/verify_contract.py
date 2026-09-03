@@ -223,7 +223,9 @@ ck(len(g._done) <= C.REPLAY_CACHE_LIMIT,
 # ---- 6. the manifest is enough to build a client from --------------------
 g, _ = gw(allow={"SENSITIVE_READ": True})
 m = g.manifest(TOKEN)
-ck(m["protocolVersion"] == "1.3", "the manifest states a protocol version (1.3: ADR-124 argument sets)")
+ck(m["protocolVersion"] == "1.4",
+   "the manifest states a protocol version (1.4: ADR-134, a target may publish actions that set the environment "
+   "a run happens in -- the clock, the seed, the answer a dialog gets)")
 ck(m["strictArguments"] is True, "and that unknown arguments are refused")
 ck(m["tokenMinLength"] == C.TOKEN_MIN, "and the minimum token length")
 ck(set(m["policy"]) == set(C.RISKS), "and the effective policy for every risk")

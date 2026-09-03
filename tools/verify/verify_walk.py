@@ -154,7 +154,7 @@ def hold(res, label, tools_expected, allow_unreachable=False):
     ck(not res["unschemable"], "%s: nothing was unschemable: %s" % (label, res["unschemable"]))
     ck(not res["invariants_broken"], "%s: no cross-check broke: %s" % (label, res["invariants_broken"][:2]))
     ck(res["totals"]["failed"] == 0, "%s: nothing failed: %s" % (label, res["failures"][:2]))
-    ck(res["protocolVersion"] == "1.3", "%s: protocol 1.3" % label)
+    ck(res["protocolVersion"] == "1.4", "%s: protocol 1.4" % label)
     if not allow_unreachable:
         ck(not res["unreachable"], "%s: nothing was unreachable: %s" % (label, res["unreachable"]))
 
@@ -189,7 +189,7 @@ else:
 # a page needs only Playwright, which every kit suite needs
 if not QUICK:
     res = walk_target("page", page="collection-sheet.html", rounds=3, per_round=3)["csrbt-page"]
-    hold(res, "page", 17, allow_unreachable=True)
+    hold(res, "page", 21, allow_unreachable=True)
     ck(set(res["unreachable"]) == {"csrbt_page__choose_option", "csrbt_page__drop_files",
                                   "csrbt_page__set_checkbox", "csrbt_page__set_slider"},
        "page: collection-sheet has no select, drop zone, checkbox or slider, and the walk says so "
@@ -215,8 +215,8 @@ if os.path.isfile(led):
        {"csrbt-organism", "csrbt-lab", "csrbt-page", "csrbt-organism@mcp", "csrbt-lab@mcp", "csrbt-page@mcp"},
        "one entry per target per transport, plus one per routed page: %s"
        % sorted(k for k in L if not k.startswith("csrbt-page/")))
-    for pid, want in (("csrbt-organism", 35), ("csrbt-lab", 9), ("csrbt-page", 17),
-                      ("csrbt-organism@mcp", 35), ("csrbt-lab@mcp", 9), ("csrbt-page@mcp", 17)):
+    for pid, want in (("csrbt-organism", 35), ("csrbt-lab", 9), ("csrbt-page", 21),
+                      ("csrbt-organism@mcp", 35), ("csrbt-lab@mcp", 9), ("csrbt-page@mcp", 21)):
         e = L.get(pid) or {}
         ck(e.get("identity") == "holds" and e.get("accounted") == e.get("commands") and
            e.get("tools") == want and not e.get("undriven") and not e.get("unschemable") and
@@ -423,8 +423,8 @@ if os.path.isfile(led):
         for name, c in L.get("csrbt-page/" + p, {}).get("per_action", {}).items():
             if not name.startswith("_"):
                 driven_somewhere[name] = driven_somewhere.get(name, 0) + c["driven"]
-    ck(len(driven_somewhere) == 17 and all(v > 0 for v in driven_somewhere.values()),
-       "every one of the 17 page tools was driven on at least one page: never %s"
+    ck(len(driven_somewhere) == 21 and all(v > 0 for v in driven_somewhere.values()),
+       "every one of the 21 page tools was driven on at least one page: never %s"
        % sorted(n for n, v in driven_somewhere.items() if v == 0))
     unreach = {p: len(L["csrbt-page/" + p]["unreachable"]) for p in pages if "csrbt-page/" + p in L}
     ck(unreach.get("stand-sheet.html", 99) <= 3 and unreach.get("ecology-teachers-guide.html", 0) >= 6,

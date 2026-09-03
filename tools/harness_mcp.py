@@ -56,11 +56,15 @@ import argparse, io, json, os, sys, time
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, HERE)
+import harness_contract as C
 from harness_contract import Gateway, HarnessError, Registry
 from harness_targets import require_policy, stand_up, tear_down
 
 PROTOCOL = "2025-03-26"
-SERVER = {"name": "csrbt-harness", "version": "1.3"}
+# The server's version IS the gateway's protocol version -- two numbers that
+# mean the same thing drift, and the robot reads this one to check the door it
+# came through is the door it thinks it is.
+SERVER = {"name": "csrbt-harness", "version": C.PROTOCOL_VERSION}
 PARSE_ERROR, INVALID_REQUEST, METHOD_NOT_FOUND, INVALID_PARAMS = -32700, -32600, -32601, -32602
 POLICY_REFUSED, TARGET_UNAVAILABLE = -32001, -32002
 CODE = {"invalid_argument": INVALID_PARAMS, "not_found": INVALID_PARAMS, "conflict": INVALID_PARAMS,

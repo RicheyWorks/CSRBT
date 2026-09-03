@@ -564,12 +564,12 @@
    "survived": 0
   },
   "mutate_report": {
-   "at": 1788379238,
+   "at": 1788423330,
    "equivalent": 0,
    "equivalents": [],
    "inconclusive": 0,
-   "killed": 24,
-   "mutants": 24,
+   "killed": 35,
+   "mutants": 35,
    "rows": [
     {
      "detail": "5 failure(s); first: a .tile and a .stat .st are both figures: the .l/.v pair is",
@@ -689,6 +689,61 @@
     {
      "detail": "1 failure(s); first: a behaviour key is labelled by its .nm child: ['forageF']",
      "name": "a behaviour key is labelled by its whole text",
+     "verdict": "killed"
+    },
+    {
+     "detail": "1 failure(s); first: Date.now() and new Date() answer the frozen instant",
+     "name": "the clock is never frozen",
+     "verdict": "killed"
+    },
+    {
+     "detail": "1 failure(s); first: and every OTHER Date form is untouched -- a date the page n",
+     "name": "freezing the clock replaces every Date, not just \"now\"",
+     "verdict": "killed"
+    },
+    {
+     "detail": "1 failure(s); first: and they are the REAL dice, not the seeded generator runnin",
+     "name": "the shim changes behaviour before anyone asks",
+     "verdict": "killed"
+    },
+    {
+     "detail": "2 failure(s); first: Math.random IS mulberry32, agreeing with tools/mulberry32.p",
+     "name": "the seeded generator is not mulberry32",
+     "verdict": "killed"
+    },
+    {
+     "detail": "1 failure(s); first: and the snapshot counts the draws, so a figure that came ou",
+     "name": "the draws are not counted",
+     "verdict": "killed"
+    },
+    {
+     "detail": "1 failure(s); first: a dialog is answered by policy: the branch a reader takes w",
+     "name": "a dialog is always answered yes",
+     "verdict": "killed"
+    },
+    {
+     "detail": "1 failure(s); first: and every dialog is recorded by kind and text, in order: [{",
+     "name": "dialogs are counted but not recorded",
+     "verdict": "killed"
+    },
+    {
+     "detail": "1 failure(s); first: the whole environment survives a reload -- an init script, ",
+     "name": "the environment does not survive a reload",
+     "verdict": "killed"
+    },
+    {
+     "detail": "1 failure(s); first: with nothing set the environment is empty and the page has ",
+     "name": "the snapshot hides the environment",
+     "verdict": "killed"
+    },
+    {
+     "detail": "1 failure(s); first: a clock that is not an instant was accepted",
+     "name": "a clock that is not an instant is accepted",
+     "verdict": "killed"
+    },
+    {
+     "detail": "1 failure(s); first: set-dialog with nothing to set was accepted",
+     "name": "set-dialog with nothing to set is accepted",
      "verdict": "killed"
     }
    ],

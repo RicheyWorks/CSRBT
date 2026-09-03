@@ -74,9 +74,12 @@ REPLAY SAFETY
 """
 import hmac, json, os, re, time
 
-PROTOCOL_VERSION = "1.3"   # 1.1 (ADR-114): bounds, patterns, examples in argument schemas
+PROTOCOL_VERSION = "1.4"   # 1.1 (ADR-114): bounds, patterns, examples in argument schemas
                            # 1.2 (ADR-120): snapshotMs on every execute response -- the snapshot, priced
                            # 1.3 (ADR-124): argumentPools may carry argument SETS, keyed by the action alone
+                           # 1.4 (ADR-134): a target may publish actions that set the ENVIRONMENT a run
+                           #                happens in -- the clock, the seed, the answer a dialog gets --
+                           #                so a client can make a non-deterministic path reproducible
 REPLAY_CACHE_LIMIT = 256
 REPLAY_CACHE_BYTE_LIMIT = 8 * 1024 * 1024
 TOKEN_MIN = 24

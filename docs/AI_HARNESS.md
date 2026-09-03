@@ -295,6 +295,17 @@ python3 tools/verify/verify_ecosystem.py             # 56 checks: green, >= floo
 python3 tools/atlas.py                               # regenerate the Atlas's engine table from the ledger (ADR-120)
 ```
 
+ADR-134 made the ENVIRONMENT an argument (protocol 1.4). `harness.DETERMINISM`
+is installed on every browser target and does nothing until asked; then
+`set-clock` freezes what "now" answers, `set-seed` makes `Math.random` the kit's
+own mulberry32 (ported to `tools/mulberry32.py`, agreeing bit for bit), and
+`set-dialog` decides what `confirm()` is told. Five paths no expectation could
+hold are now held: the visualizer's and the proofs' random buttons against
+independent ports, the ethogram's stamped date, and the greenhouse's clear-runs
+dialog answered both ways. The robot, walking with the four new tools, found a
+2 px row spill in the survey designer. `verify_report` 49, `mutate_report`
+35/35.
+
 ADR-133 gave a task two targets: a step may name its own, the runner opens each
 once and closes them in reverse, and references resolve across them. The first
 one runs the shipped protocol through the science engine and holds

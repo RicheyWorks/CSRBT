@@ -353,8 +353,12 @@
 
   /* the tree: indentation is the parentEventID relationship, drawn */
   .tree { margin:8px 0 2px; }
-  .tree .n { display:flex; align-items:center; gap:9px; padding:9px 12px; margin:5px 0;
+  .tree .n { display:flex; flex-wrap:wrap; align-items:center; gap:9px; padding:9px 12px; margin:5px 0;
     background:var(--surface-2); border-radius:12px; border-left:4px solid var(--s1); }
+  /* A node's id and type do not shrink, so a long site id pushed the row's two
+     buttons past the edge of a phone (found by the robot, ADR-134). The row
+     wraps and the id breaks; nothing goes sideways. */
+  .tree .n .id, .tree .n .ty { min-width:0; overflow-wrap:anywhere; }
   .tree .n.d1 { margin-left:22px; border-left-color:var(--s3); }
   .tree .n.d2 { margin-left:44px; border-left-color:var(--s2); }
   .tree .n.d3 { margin-left:66px; border-left-color:var(--gold, #8A6408); }

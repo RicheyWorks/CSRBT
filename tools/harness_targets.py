@@ -88,6 +88,7 @@ def stand_up(target, page="ecology.html", seed=42, headed=False, err=None):
         ctx = b.new_context(viewport=H.VIEWPORT)
         ctx.set_offline(True)
         ctx.add_init_script(H.STUBS)
+        ctx.add_init_script(H.DETERMINISM)   # ADR-134: the environment as an argument
         try:
             from swarm import CATCH
             ctx.add_init_script(CATCH)

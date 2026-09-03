@@ -2,7 +2,7 @@
  "id": "page-ethogram-kappa",
  "target": "page",
  "page": "ethogram.html",
- "goal": "On the ethogram's reliability pane, hand two observers' ten-sample records to the kappa calculator -- A: F F V R L F V V R F, B: F V V R L F V R R F -- and find Cohen's kappa 0.722 from 80% raw agreement and 28% expected by chance (margins F4 V3 R2 L1 against F3 V3 R3 L1 over 10), the confusion matrix present, and records of different length refused with the matrix cleared.",
+ "goal": "On the ethogram's reliability pane, hand two observers' ten-sample records to the kappa calculator -- A: F F V R L F V V R F, B: F V V R L F V R R F -- and find Cohen's kappa 0.722 from 80% raw agreement and 28% expected by chance (margins F4 V3 R2 L1 against F3 V3 R3 L1 over 10), the confusion matrix present, and records of different length refused with the matrix cleared. And the date the sheet stamps itself with, which is the real clock's and so could never be an expectation: freeze the clock at 2026-03-01T09:00:00Z, reload — because the page reads the clock once, at load — and the field says 2026-03-01 (ADR-134).",
  "steps": [
   {
    "id": "look",
@@ -173,6 +173,44 @@
    "action": "read-report",
    "expect": {
     "output.boxes.coherence": ""
+   }
+  },
+  {
+   "id": "freeze",
+   "action": "set-clock",
+   "arguments": {
+    "at": "2026-03-01T09:00:00Z"
+   },
+   "expect": {
+    "ok": true,
+    "output.epochMs": 1772355600000,
+    "output.reloadForLoadTime": true,
+    "snapshot.environment.clock": 1772355600000
+   }
+  },
+  {
+   "id": "again",
+   "action": "reload",
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "dated",
+   "action": "read-control",
+   "arguments": {
+    "selector": "@control:dDate"
+   },
+   "expect": {
+    "ok": true,
+    "output.value": "2026-03-01"
+   }
+  },
+  {
+   "id": "stillFrozen",
+   "action": "observe",
+   "expect": {
+    "snapshot.environment.clock": 1772355600000
    }
   },
   {

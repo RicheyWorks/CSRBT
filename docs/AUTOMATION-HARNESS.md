@@ -546,6 +546,15 @@ not. The suite pins all four selection rules with fixture tasks that isolate
 each, and the focus audit presses and releases a key before every probe so the
 browser is in a keyboard user's mood whatever the entry did with the pointer.
 
+ADR-134 (protocol 1.4): a target may publish actions that set the environment a
+run happens in. The page plugin publishes `set-clock`, `set-seed` and
+`set-dialog` (NAVIGATE) and `read-dialogs` (SENSITIVE_READ); the shim behind
+them is installed on every browser target and is the real clock and the real
+dice until a caller says otherwise. Each set is re-installed as an init script,
+so it survives a reload — which a page that reads the clock at load needs, and
+`set-clock` says so in its answer. Every snapshot publishes `environment`: the
+clock, the seed, the draws so far, and the dialog answer.
+
 ADR-133: a task's steps may each name a `target`. The runner opens every target
 the task names once, keeps them for its life, and closes them in the reverse of
 the order they were opened; a reference resolves across targets, so a page's

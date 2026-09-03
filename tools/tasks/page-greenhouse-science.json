@@ -2,7 +2,7 @@
  "id": "page-greenhouse-science",
  "target": "page",
  "page": "greenhouse.html",
- "goal": "On the greenhouse monitor: 40,000 lux under HPS (factor 82) converts to 488 umol/m2/s and 31.6 mol/m2/d over 18 h; 600 umol/m2/s is DLI 38.9 (600 x 18 x 0.0036) and 25.9 over 12 h; 400 g on a 600 W rated fixture is 0.67 g/W while every figure that divides by kWh stays blank without a power log; the five example runs (498/78.2, 512/80.9, 471/79.4, 505/81.6 g/kWh baselines and 548/84.1 new) have baseline mean 6.20, sample SD 0.20, CV 3%, per-run z with self excluded +1.1 +0.8 -3.8 -0.1 and the new run at +1.6, at the edge.",
+ "goal": "On the greenhouse monitor: 40,000 lux under HPS (factor 82) converts to 488 umol/m2/s and 31.6 mol/m2/d over 18 h; 600 umol/m2/s is DLI 38.9 (600 x 18 x 0.0036) and 25.9 over 12 h; 400 g on a 600 W rated fixture is 0.67 g/W while every figure that divides by kWh stays blank without a power log; the five example runs (498/78.2, 512/80.9, 471/79.4, 505/81.6 g/kWh baselines and 548/84.1 new) have baseline mean 6.20, sample SD 0.20, CV 3%, per-run z with self excluded +1.1 +0.8 -3.8 -0.1 and the new run at +1.6, at the edge. And the path a reader takes when they say no: the page asks 'Clear every saved run?' before it clears, and answering no keeps the five runs -- a branch nothing could reach before the harness could decide what a dialog gets answered (ADR-134).",
  "steps": [
   {
    "id": "look",
@@ -198,6 +198,79 @@
     "output.boxes.runOut": {
      "op": "contains",
      "value": "at the edge of your spread"
+    }
+   }
+  },
+  {
+   "id": "sayNo",
+   "action": "set-dialog",
+   "arguments": {
+    "confirm": false
+   },
+   "expect": {
+    "ok": true,
+    "output.confirm": false,
+    "snapshot.environment.confirm": false
+   }
+  },
+  {
+   "id": "refuseWipe",
+   "action": "activate",
+   "arguments": {
+    "selector": "@control:runWipe"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "asked",
+   "action": "read-dialogs",
+   "expect": {
+    "ok": true,
+    "output.count": 1,
+    "output.dialogs.0.kind": "confirm",
+    "output.dialogs.0.text": "Clear every saved run?"
+   }
+  },
+  {
+   "id": "kept",
+   "action": "read-report",
+   "expect": {
+    "output.boxes.runOut": {
+     "op": "contains",
+     "value": "5 runs"
+    }
+   }
+  },
+  {
+   "id": "sayYes",
+   "action": "set-dialog",
+   "arguments": {
+    "confirm": true
+   },
+   "expect": {
+    "ok": true,
+    "snapshot.environment.confirm": true
+   }
+  },
+  {
+   "id": "doWipe",
+   "action": "activate",
+   "arguments": {
+    "selector": "@control:runWipe"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "gone",
+   "action": "read-report",
+   "expect": {
+    "output.boxes.runOut#2": {
+     "op": "excludes",
+     "value": "5 runs"
     }
    }
   },

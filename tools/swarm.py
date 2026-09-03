@@ -1107,6 +1107,7 @@ def open_session(name, url=None, video_dir=None):
         ctx = b.new_context(**kw)
         ctx.set_offline(True)
         ctx.add_init_script(H.STUBS)
+        ctx.add_init_script(H.DETERMINISM)   # ADR-134: the environment as an argument
         ctx.add_init_script(CATCH)
         pg = ctx.new_page()
         pg.set_default_timeout(H.ACT_TIMEOUT)

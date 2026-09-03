@@ -112,9 +112,57 @@ MUTANTS = [
      '      label: (e.getAttribute("aria-label") || (e.querySelector(".nm") || {}).textContent ||',
      '      label: (e.getAttribute("aria-label") ||',
      "labelled by its .nm child"),
+    # ---- the environment as an argument (ADR-134) ----
+    ("the clock is never frozen",
+     '            self.page.evaluate("(ms) => { window.__D.epoch = ms; }", ms)',
+     '            self.page.evaluate("(ms) => { window.__D.epoch = ms; }", 0) if False else None',
+     "answer the frozen instant"),
+    ("freezing the clock replaces every Date, not just \"now\"",
+     '    if (arguments.length === 0 && window.__D.epoch !== null) return new RealDate(window.__D.epoch);',
+     '    if (window.__D.epoch !== null) return new RealDate(window.__D.epoch);',
+     "every OTHER Date form is untouched"),
+    ("the shim changes behaviour before anyone asks",
+     '  Math.random = function () {\n    if (window.__D.seed === null) return realRandom();',
+     '  Math.random = function () {\n    if (false) return realRandom();',
+     "REAL dice"),
+    ("the seeded generator is not mulberry32",
+     '    t = Math.imul(t ^ (t >>> 15), t | 1);',
+     '    t = Math.imul(t ^ (t >>> 13), t | 1);',
+     "IS mulberry32"),
+    ("the draws are not counted",
+     '    window.__D.draws++;',
+     '    ',
+     "counts the draws"),
+    ("a dialog is always answered yes",
+     '  window.confirm = say("confirm", function () { return !!window.__D.confirm; });',
+     '  window.confirm = say("confirm", function () { return true; });',
+     "answered by policy"),
+    ("dialogs are counted but not recorded",
+     '        window.__D.dialogs.push({ kind: kind, text: String(text == null ? "" : text).slice(0, 300) });',
+     '        window.__D.dialogs.push({ kind: kind, text: "" });',
+     "recorded by kind and text"),
+    ("the environment does not survive a reload",
+     '            ctx.add_init_script("(function(){ %s })();" % " ".join(js))',
+     '            pass',
+     "survives a reload"),
+    ("the snapshot hides the environment",
+     '            s["environment"] = self.page.evaluate(',
+     '            s["environment"] = None if True else self.page.evaluate(',
+     "environment is empty"),
+    ("a clock that is not an instant is accepted",
+     '            except ValueError:\n                raise InvalidArgument("at must be an ISO 8601 instant like 2026-03-01T09:00:00Z")',
+     '            except ValueError:\n                d = datetime.datetime(1970, 1, 1)',
+     "was accepted"),
+    ("set-dialog with nothing to set is accepted",
+     '                raise InvalidArgument("set-dialog needs confirm, prompt, or both")',
+     '                pass',
+     "was accepted"),
 ]
 
 KNOWN_EQUIVALENT = []
+
+
+FILES = {"audit": None}
 
 
 def run_one(find, repl, expect):
@@ -122,10 +170,21 @@ def run_one(find, repl, expect):
     try:
         dst = os.path.join(tmp, "tools")
         shutil.copytree(TOOLS, dst, ignore=shutil.ignore_patterns("__pycache__", "*_evidence"))
-        path = os.path.join(dst, "harness_plugin_page.py")
+        # the subject is the page plugin AND the determinism shim it drives
+        # (tools/harness.py): one catalogue, two files, and the runner finds
+        # whichever one carries the anchor rather than making the catalogue
+        # say it twice.
+        path = None
+        for cand in ("harness_plugin_page.py", "harness.py"):
+            p2 = os.path.join(dst, cand)
+            if io.open(p2, encoding="utf-8").read().count(find) == 1:
+                path = p2
+                break
+        if path is None:
+            n = sum(io.open(os.path.join(dst, c), encoding="utf-8").read().count(find)
+                    for c in ("harness_plugin_page.py", "harness.py"))
+            return ("BAD MUTANT", "anchor matched %d times across the subject -- the mutation never applied" % n)
         src = io.open(path, encoding="utf-8").read()
-        if src.count(find) != 1:
-            return ("BAD MUTANT", "anchor matched %d times -- the mutation never applied" % src.count(find))
         io.open(path, "w", encoding="utf-8", newline="\n").write(src.replace(find, repl, 1))
         suite = os.path.join(dst, "verify", "verify_report.py")
         env = dict(os.environ, CSRBT_DOCS_DIR=os.path.join(ROOT, "docs"))
