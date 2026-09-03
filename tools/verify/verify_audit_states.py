@@ -224,6 +224,28 @@ with sync_playwright() as pw:
     ck(cov["exposed"] == 14, "14 had a box in some state -- B3's box in the third pane, seen once, is remembered: %s" % cov["exposed"])
     ck(len(cov["never"]) == 1 and "#never" in cov["never"][0],
        "the one control no state exposed is named by element: %s" % cov["never"])
+    # ADR-136: a control the page mounts AFTER the last stamp
+    pg2 = b.new_page(viewport={"width": 390, "height": 900})
+    pg2.goto("file://" + fx.replace(os.sep, "/"), wait_until="domcontentloaded")
+    LATE = ("() => { const e = document.createElement('button'); e.id = 'late'; e.textContent = 'late'; "
+            "document.body.appendChild(e); return true; }")
+    seen2, mounted = [], []
+    for state, _r in S.each_state(pg2, "fixture.html", lambda: pg2.evaluate(BOXED)):
+        seen2.append(state)
+        if state == "entered/state:more" and not mounted:
+            pg2.evaluate(LATE)                      # the page builds a control after the walk's last stamp
+            mounted.append(1)
+    ck(mounted and seen2[-1] == "settled" and seen2[:-1] == names,
+       "a page that grows a control after the last state settles into one more state, and only then: %s" % seen2[-2:])
+    cov2 = S.coverage(pg2)
+    ck(cov2["exist"] == 16 and cov2["exposed"] == 15 and len(cov2["never"]) == 1 and "#never" in cov2["never"][0],
+       "the late control is stamped and MEASURED, not counted as a control no state exposed -- the only one "
+       "never exposed is still the one that never had a box: exist=%s exposed=%s never=%s"
+       % (cov2["exist"], cov2["exposed"], cov2["never"]))
+    ck(not any(x is None for x in pg2.evaluate(S.UNSTAMPED_JS, S.CONTROLS)),
+       "and no control is left carrying no stamp -- a fault that names nothing is the worst kind")
+    pg2.close()
+
     stamps = pg.evaluate("() => [...document.querySelectorAll('[data-audit]')].map(e => e.getAttribute('data-audit'))")
     ck(len(stamps) == 15 and len(set(stamps)) == 15,
        "every control carries one stable stamp, the ones the entry built included: %d stamps, %d distinct"

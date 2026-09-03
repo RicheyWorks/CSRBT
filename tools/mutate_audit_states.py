@@ -188,6 +188,22 @@ MUTANTS = [
      '            never = len(res["coverage"]["never"])',
      '            never = 0',
      "contrast"),
+    # ---- ADR-136: the page may still be building ----
+    ("the walk ends without settling, so a control mounted after the last stamp carries none",
+     "audit_states.py",
+     '    if None in pg.evaluate(UNSTAMPED_JS, CONTROLS):',
+     '    if False:',
+     "not counted as a control no state exposed"),
+    ("the final settle happens whether or not anything appeared",
+     "audit_states.py",
+     '    if None in pg.evaluate(UNSTAMPED_JS, CONTROLS):',
+     '    if True:',
+     "and only then"),
+    ("the late control is stamped but never measured",
+     "audit_states.py",
+     '        exposed |= set(pg.evaluate(MARK_JS, CONTROLS))\n        yield "settled", probe()',
+     '        pg.evaluate(MARK_JS, CONTROLS)',
+     "the late control is stamped and MEASURED"),
 ]
 
 KNOWN_EQUIVALENT = []

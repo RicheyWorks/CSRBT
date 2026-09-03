@@ -326,6 +326,13 @@ def main():
             print("=" * 76)
             print(name)
             lines = [l for l in out.split("\n") if l.startswith("FAIL") or "Error" in l]
+            if not lines:
+                # A JOB THAT FAILED AND PRINTED NO "FAIL" LINE STILL HAS TO SAY
+                # WHAT IT FOUND. The audits report a fault table and a total,
+                # not FAIL lines, so this section printed their NAME AND NOTHING
+                # ELSE -- a run that says "audit_focus" and stops is a run that
+                # has told the operator to go and reproduce it by hand.
+                lines = [l for l in out.split("\n") if l.strip()][-12:]
             for l in (out.split("\n") if a.verbose else lines[:12]):
                 print("   " + l)
         return 1

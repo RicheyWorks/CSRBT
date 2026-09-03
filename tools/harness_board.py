@@ -99,8 +99,8 @@ def summary(L):
     bad_walks = [k for k, e in W.items() if e.get("identity") != "holds" or e.get("undriven") or e.get("unschemable")
                  or e.get("invariants_broken") or (e.get("totals") or {}).get("failed")]
     T = L["tasks"]["tasks"]
-    runs = {k: e for k, e in T.items() if not k.endswith("@trace")}
-    traces = {k: e for k, e in T.items() if k.endswith("@trace")}
+    runs = {k: e for k, e in T.items() if not k.endswith(("@trace", "@blind"))}
+    traces = {k: e for k, e in T.items() if k.endswith(("@trace", "@blind"))}   # ADR-136: blind traces count too
     M = L["mutants"]["runners"]
     E = L["ecosystem"]["engines"]
     return {
@@ -225,19 +225,23 @@ def render(L):
     # tasks and traces
     o.append('<section><div class="sec-head"><h2>Tasks and traces</h2><span class="count">goals with graded expectations'
              '</span></div><div class="tablewrap"><table><thead><tr><th>task</th><th>target</th><th>run</th>'
-             '<th>confirmed</th><th>trace</th><th>calls for steps</th></tr></thead><tbody>')
-    for k in sorted(k for k in T if not k.endswith("@trace")):
+             '<th>confirmed</th><th>trace</th><th>blind trace</th><th>calls for steps</th></tr></thead><tbody>')
+    for k in sorted(k for k in T if not k.endswith(("@trace", "@blind"))):
         e = T[k]
         tr = T.get(k + "@trace")
+        bl = T.get(k + "@blind")
         o.append('<tr><td class="mono">%s</td><td class="mono">%s</td><td>%s</td><td class="num">%d</td><td>%s</td>'
-                 '<td class="num">%s</td></tr>'
+                 '<td>%s</td><td class="num">%s</td></tr>'
                  % (esc(k), esc(e.get("target")), pill("%s%s" % (e.get("verdict"), " · must FAIL" if e.get("must") == "FAIL" else ""),
                                                         "good" if e.get("held") else "bad"), e.get("confirmed", 0),
                     pill("%s" % tr.get("verdict"), "good" if tr.get("held") else "bad") if tr else pill("no trace", "na"),
-                    esc("%d for %d" % (tr.get("calls", 0), tr.get("required", 0))) if tr else "—"))
+                    pill("%s" % bl.get("verdict"), "good" if bl.get("held") else "bad") if bl else pill("—", "na"),
+                    esc("%d for %d" % ((bl or tr).get("calls", 0), (bl or tr).get("required", 0))) if (tr or bl) else "—"))
     o.append('</tbody></table></div><p class="note">A run follows the task\'s steps through the gateway. A trace is what '
              'an operator given only the goal did through the MCP door, held to the same expectations; its economy is '
-             'calls made for required steps.</p></section>')
+             'calls made for required steps. A BLIND trace (ADR-136) is one an operator produced who had never seen the '
+             'task at all -- the goal sentence verbatim, a JSON-RPC console, and a checkout with the tasks, the traces, '
+             'the ledger and every ADR deleted.</p></section>')
 
     # mutants
     o.append('<section><div class="sec-head"><h2>The mutant runners</h2><span class="count">each instrument, broken on '

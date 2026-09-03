@@ -280,13 +280,33 @@ def each_state(pg, name, probe, entered=True):
                     pg.evaluate(OPEN_DETAILS_JS)
                     exposed |= set(pg.evaluate(MARK_JS, CONTROLS))
                     yield "entered/state:%s" % sel.lstrip("#"), probe()
+    # THE PAGE MAY STILL BE BUILDING (ADR-136).
+    #
+    # Every state stamps before it probes, and coverage() counts after the walk
+    # -- so a control the page mounts AFTER the last stamp (a region rendered on
+    # a timer, a chart that builds its own buttons) carries no stamp at all, and
+    # coverage reports it, correctly by its own rule and falsely in fact, as a
+    # control no state exposed. deployment-log produced exactly that fault on
+    # one run and not the next two: a phantom, and the worst kind, because it
+    # names nothing (the stamp it would be named by is the stamp it never got).
+    # So the walk settles once more at the end and, if the page did grow a
+    # control since the last stamp, MEASURES it in a final state rather than
+    # counting it as never measured.
+    _settle(pg)
+    if None in pg.evaluate(UNSTAMPED_JS, CONTROLS):
+        pg.evaluate(OPEN_DETAILS_JS)
+        exposed |= set(pg.evaluate(MARK_JS, CONTROLS))
+        yield "settled", probe()
+
+
+UNSTAMPED_JS = "(css) => [...document.querySelectorAll(css)].map(e => e.getAttribute('data-audit'))"
 
 
 def coverage(pg):
     """After each_state: how many controls exist, how many had a box in some
     state, and the names of those no state exposed."""
     exposed = getattr(pg, "_audit_exposed", set())
-    all_ids = pg.evaluate("(css) => [...document.querySelectorAll(css)].map(e => e.getAttribute('data-audit'))", CONTROLS)
+    all_ids = pg.evaluate(UNSTAMPED_JS, CONTROLS)
     never = [i for i in all_ids if i not in exposed]
     return {"exist": len(all_ids), "exposed": len(all_ids) - len(never),
             "never": pg.evaluate(NAME_JS, never)}

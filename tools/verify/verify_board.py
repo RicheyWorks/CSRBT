@@ -59,8 +59,12 @@ W = L["walk"]["targets"]
 ck(S["commands"] == sum(e.get("commands", 0) for e in W.values()) and S["pages"] == sum(1 for k in W if k.startswith("csrbt-page/")),
    "commands walked are the sum of the walk ledger: %d over %d entries" % (S["commands"], len(W)))
 T = L["tasks"]["tasks"]
-ck(S["tasks"] + S["traces"] == len(T) and S["tasks_held"] == sum(1 for k, e in T.items() if not k.endswith("@trace") and e.get("held")),
-   "tasks and traces are counted as the task ledger holds them: %d + %d" % (S["tasks"], S["traces"]))
+ck(S["tasks"] + S["traces"] == len(T) and S["tasks_held"] == sum(1 for k, e in T.items() if not k.endswith(("@trace", "@blind")) and e.get("held")),
+   "tasks and traces are counted as the task ledger holds them, a blind trace among the traces (ADR-136): %d + %d"
+   % (S["tasks"], S["traces"]))
+ck(S["traces"] == sum(1 for k in T if k.endswith(("@trace", "@blind"))) and sum(1 for k in T if k.endswith("@blind")) == 6,
+   "and the six blind traces are counted: %d trace(s), %d blind"
+   % (S["traces"], sum(1 for k in T if k.endswith("@blind"))))
 M = L["mutants"]["runners"]
 ck(S["mutants"] == sum(e.get("mutants", 0) for e in M.values()) and S["killed"] == sum(e.get("killed", 0) for e in M.values()),
    "mutants are the runners' own totals: %d killed of %d" % (S["killed"], S["mutants"]))
@@ -100,7 +104,9 @@ ck('<title>Harness Board</title>' in page and 'data-theme="dark"' in page and "p
    "the page is named and designed for both themes")
 ck(all(p[len("csrbt-page/"):] in page for p in W if p.startswith("csrbt-page/")),
    "every walked page is on the board")
-ck(all(k in page for k in T if not k.endswith("@trace")), "every task is on the board")
+ck(all(k in page for k in T if not k.endswith(("@trace", "@blind"))), "every task is on the board")
+ck("blind trace" in page and "never seen the task" in page,
+   "and the board says which column is the blind one, and what blind means")
 
 print("---")
 print("%d/%d" % (P, P + F))
