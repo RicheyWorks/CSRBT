@@ -345,7 +345,7 @@
    "survived": 0
   },
   "mutate_mcp": {
-   "at": 1788346912,
+   "at": 1788475153,
    "equivalent": 1,
    "equivalents": [
     {
@@ -354,11 +354,11 @@
     }
    ],
    "inconclusive": 0,
-   "killed": 7,
-   "mutants": 7,
+   "killed": 20,
+   "mutants": 20,
    "rows": [
     {
-     "detail": "1 failure(s); first: a target that ran and said no is isError, not a protocol er",
+     "detail": "4 failure(s); first: a target that ran and said no is isError, not a protocol er",
      "name": "a target's no is never isError",
      "verdict": "killed"
     },
@@ -368,28 +368,93 @@
      "verdict": "killed"
     },
     {
-     "detail": "3 failure(s); first: the body prices the action and the snapshot separately and ",
+     "detail": "6 failure(s); first: the body prices the action and the snapshot separately and ",
      "name": "every call gets a fresh request id, so a retry writes twice",
      "verdict": "killed"
     },
     {
-     "detail": "1 failure(s); first: risk is published as MCP annotations: read-only unless it c",
+     "detail": "4 failure(s); first: risk is published as MCP annotations: read-only unless it c",
      "name": "every tool is annotated read-only",
      "verdict": "killed"
     },
     {
-     "detail": "2 failure(s); first: a notification is accepted with silence",
+     "detail": "5 failure(s); first: a notification is accepted with silence",
      "name": "notifications are answered",
      "verdict": "killed"
     },
     {
-     "detail": "1 failure(s); first: a tool the policy hid is not callable by name, and never re",
+     "detail": "4 failure(s); first: a tool the policy hid is not callable by name, and never re",
      "name": "a tool that is not listed runs anyway",
      "verdict": "killed"
     },
     {
-     "detail": "1 failure(s); first: every tool carries _meta with the contract's own plugin id,",
+     "detail": "4 failure(s); first: every tool carries _meta with the contract's own plugin id,",
      "name": "tools drop their _meta, so a client must guess the action from the slug",
+     "verdict": "killed"
+    },
+    {
+     "detail": "1 failure(s); first: and the server DROPS its own name map -- a notification sen",
+     "name": "the server announces the change and keeps the name map it cached",
+     "verdict": "killed"
+    },
+    {
+     "detail": "6 failure(s); first: a plugin arriving changes both lists, and the tool list is ",
+     "name": "a plugin arriving takes no resource with it",
+     "verdict": "killed"
+    },
+    {
+     "detail": "4 failure(s); first: a session nothing can change declares listChanged FALSE, as",
+     "name": "listChanged is declared whatever the session can do",
+     "verdict": "killed"
+    },
+    {
+     "detail": "4 failure(s); first: a session that serves csrbt-session declares listChanged TR",
+     "name": "listChanged is never declared, so the notices are sent unannounced",
+     "verdict": "killed"
+    },
+    {
+     "detail": "4 failure(s); first: serve() writes the notifications first and the response las",
+     "name": "the notice is written after the response it explains",
+     "verdict": "killed"
+    },
+    {
+     "detail": "4 failure(s); first: construction is not a change: quiet=True puts a plugin in a",
+     "name": "building a registry is a change, so every session opens by announcing one",
+     "verdict": "killed"
+    },
+    {
+     "detail": "6 failure(s); first: and says both lists changed again: []",
+     "name": "retiring a plugin announces nothing",
+     "verdict": "killed"
+    },
+    {
+     "detail": "1 failure(s); first: a watcher that raises took the registry down with it: a wat",
+     "name": "a watcher that raises takes the registry down with it",
+     "verdict": "killed"
+    },
+    {
+     "detail": "4 failure(s); first: a target detached and attached again is a NEW target: the r",
+     "name": "a retired plugin's replayable responses outlive it",
+     "verdict": "killed"
+    },
+    {
+     "detail": "4 failure(s); first: detach takes the target out AND closes it: closed=0",
+     "name": "detach takes the target out of the registry and leaves it running",
+     "verdict": "killed"
+    },
+    {
+     "detail": "4 failure(s); first: detach refuses a target this session did not attach",
+     "name": "detach retires whatever it is named, attached by this session or not",
+     "verdict": "killed"
+    },
+    {
+     "detail": "4 failure(s); first: the robot's wire drops its cached tool-name map when the se",
+     "name": "the consumer hears the notice and keeps its cache",
+     "verdict": "killed"
+    },
+    {
+     "detail": "4 failure(s); first: and it reads until its id comes back rather than taking the",
+     "name": "the client takes the next line for its answer",
      "verdict": "killed"
     }
    ],

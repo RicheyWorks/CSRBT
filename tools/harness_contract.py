@@ -347,17 +347,66 @@ class Policy(object):
 # ---------------------------------------------------------------------------
 
 class Registry(object):
+    """The plugins a session may drive -- and, since ADR-137, a set that can
+    CHANGE while the session is open.
+
+    A registry that could only be built and then read made the transports'
+    `listChanged: false` true by construction: there was nothing that could
+    change a list. `retire()` and a `register()` after construction are what
+    make the notification worth sending, and `watch()` is how a transport
+    hears about it. Anything that changes which tools a manifest names calls
+    every watcher with the kind of change ("tools" for a policy-shaped change,
+    "plugins" when the set of targets itself moved -- a plugin's tools AND its
+    snapshot resource arrive or leave together)."""
+
     def __init__(self, plugins=()):
         self._by_id = {}
+        self._watchers = []
         for p in plugins:
-            self.register(p)
+            self.register(p, quiet=True)          # construction is not a change
 
-    def register(self, plugin):
+    def watch(self, fn):
+        """Call fn(kind) whenever the set of plugins changes. Returns fn so a
+        caller can unwatch it."""
+        self._watchers.append(fn)
+        return fn
+
+    def unwatch(self, fn):
+        if fn in self._watchers:
+            self._watchers.remove(fn)
+
+    def _announce(self, kind):
+        # A watcher that raises must not take the registry down with it: the
+        # change HAPPENED, and a transport that cannot cope with hearing so is
+        # the transport's problem.
+        for fn in list(self._watchers):
+            try:
+                fn(kind)
+            except Exception:
+                pass
+
+    def register(self, plugin, quiet=False):
         d = plugin.descriptor()
         if d.id in self._by_id:
+            # A ValueError, not a Conflict: nothing a HOST does reaches here
+            # with a duplicate -- csrbt-session checks the ids it is about to
+            # add against the ones already served and refuses with `conflict`
+            # first. Getting here is a programming mistake, and has been since
+            # ADR-102.
             raise ValueError("duplicate plugin id %r" % d.id)
         self._by_id[d.id] = plugin
+        if not quiet:
+            self._announce("plugins")
         return self
+
+    def retire(self, plugin_id):
+        """Take a plugin out of the session. Its tools stop being listed and
+        its snapshot stops being a resource; the caller owns closing it."""
+        if plugin_id not in self._by_id:
+            raise NotFound("unknown harness plugin %r" % plugin_id)
+        plugin = self._by_id.pop(plugin_id)
+        self._announce("plugins")
+        return plugin
 
     def descriptors(self):
         return [self._by_id[k].descriptor() for k in sorted(self._by_id)]
@@ -387,6 +436,38 @@ class Gateway(object):
         self._done = {}          # cacheKey -> _Done, insertion-ordered
         self._bytes = 0
         self.audit = []          # (t, plugin, action, risk, outcome)
+        # ADR-137: a transport subscribes here and hears every change to what a
+        # session may drive. The gateway is what watches the registry, not the
+        # transport, because the gateway is also what must FORGET a retired
+        # plugin's replayable responses.
+        self._subs = []
+        self.changes = 0
+        registry.watch(self._changed)
+
+    def subscribe(self, fn):
+        """Call fn(kind) when the set of tools this session lists changes."""
+        self._subs.append(fn)
+        return fn
+
+    def unsubscribe(self, fn):
+        if fn in self._subs:
+            self._subs.remove(fn)
+
+    def _changed(self, kind):
+        # A RETIRED PLUGIN'S REPLAY CACHE GOES WITH IT. The cache is keyed by
+        # plugin id and request id; a plugin detached and attached again is a
+        # NEW target that has done nothing, and serving it a previous
+        # incarnation's response as `replayed: true` would be a lie about a
+        # machine that no longer exists.
+        live = set(d.id for d in self.registry.descriptors())
+        for key in [k for k in self._done if k.split("\x00", 1)[0] not in live]:
+            self._bytes -= self._done.pop(key).nbytes
+        self.changes += 1
+        for fn in list(self._subs):
+            try:
+                fn(kind)
+            except Exception:
+                pass
 
     # -- the four operations ------------------------------------------------
     def manifest(self, token):

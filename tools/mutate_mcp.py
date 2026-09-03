@@ -46,6 +46,63 @@ MUTANTS = [
      "never guesses an action"),
 ]
 
+
+MUTANTS += [
+    # ---- ADR-137: listChanged, with a consumer ----
+    ('the server announces the change and keeps the name map it cached',
+     '        self._tools = None\n        self._notes.append({"jsonrpc": "2.0", "method": "notifications/tools/list_changed"})',
+     '        self._notes.append({"jsonrpc": "2.0", "method": "notifications/tools/list_changed"})',
+     'DROPS its own name map'),
+    ('a plugin arriving takes no resource with it',
+     '        if kind == "plugins":',
+     '        if False:',
+     'changes both lists'),
+    ('listChanged is declared whatever the session can do',
+     '        self._can_change = (any(p["id"] == SESSION_PLUGIN_ID for p in gateway.discover(token))\n                            if list_changed is None else bool(list_changed))',
+     '        self._can_change = True',
+     'declares listChanged FALSE'),
+    ('listChanged is never declared, so the notices are sent unannounced',
+     '        self._can_change = (any(p["id"] == SESSION_PLUGIN_ID for p in gateway.discover(token))\n                            if list_changed is None else bool(list_changed))',
+     '        self._can_change = False',
+     'declares listChanged TRUE'),
+    ('the notice is written after the response it explains',
+     '        for note in server.drain():\n            _w(stdout, note)\n        if resp is not None:\n            _w(stdout, resp)',
+     '        if resp is not None:\n            _w(stdout, resp)\n        for note in server.drain():\n            _w(stdout, note)',
+     'writes the notifications first'),
+    ('building a registry is a change, so every session opens by announcing one',
+     '            self.register(p, quiet=True)          # construction is not a change',
+     '            self.register(p)          # construction is not a change',
+     'construction is not a change'),
+    ('retiring a plugin announces nothing',
+     '        plugin = self._by_id.pop(plugin_id)\n        self._announce("plugins")',
+     '        plugin = self._by_id.pop(plugin_id)',
+     'retire hands the plugin back and announces'),
+    ('a watcher that raises takes the registry down with it',
+     '        for fn in list(self._watchers):\n            try:\n                fn(kind)\n            except Exception:\n                pass',
+     '        for fn in list(self._watchers):\n            fn(kind)',
+     'took the registry down with it'),
+    ("a retired plugin's replayable responses outlive it",
+     '        for key in [k for k in self._done if k.split("\\x00", 1)[0] not in live]:\n            self._bytes -= self._done.pop(key).nbytes',
+     '        pass',
+     'is a NEW target'),
+    ('detach takes the target out of the registry and leaves it running',
+     '        TG.tear_down(closers)\n        return True, "%s detached; %d plugin(s) gone" % (target, len(gone)), {',
+     '        return True, "%s detached; %d plugin(s) gone" % (target, len(gone)), {',
+     'AND closes it'),
+    ('detach retires whatever it is named, attached by this session or not',
+     '        if target not in self.attached:\n            raise NotFound("%s was not attached by this session (attached: %s)"',
+     '        if False:\n            raise NotFound("%s was not attached by this session (attached: %s)"',
+     'did not attach'),
+    ('the consumer hears the notice and keeps its cache',
+     '        if method == "notifications/tools/list_changed":\n            self._tools = None',
+     '        if method == "notifications/tools/list_changed":\n            pass',
+     'drops its cached tool-name map'),
+    ('the client takes the next line for its answer',
+     '        while True:\n            line = self.proc.stdout.readline()',
+     '        for _once in (1,):\n            line = self.proc.stdout.readline()',
+     'reads until its id comes back'),
+]
+
 KNOWN_EQUIVALENT = [
     ("the resource URI shape is not checked",
      "the registry refuses an unknown plugin id with not_found, so a foreign URI ends in "
@@ -58,9 +115,19 @@ def run_one(find, repl, expect):
     try:
         dst = os.path.join(tmp, "tools")
         shutil.copytree(TOOLS, dst, ignore=shutil.ignore_patterns("__pycache__", "*_evidence"))
-        path = os.path.join(dst, "harness_mcp.py")
-        src = io.open(path, encoding="utf-8").read()
-        if src.count(find) != 1:
+        # ADR-137: listChanged is not one file's clause. The notice is the
+        # server's, the change is the registry's, the forgetting is the
+        # gateway's, the attach is the session plugin's, and the CONSUMER is
+        # the robot's wire -- so a mutant may live in any of the five.
+        path, src = None, None
+        for cand in ("harness_mcp.py", "harness_contract.py", "harness_plugin_session.py",
+                     "harness_walk.py"):
+            t = io.open(os.path.join(dst, cand), encoding="utf-8").read()
+            if t.count(find) == 1:
+                path, src = os.path.join(dst, cand), t
+                break
+        if src is None:
+            src = io.open(os.path.join(dst, "harness_mcp.py"), encoding="utf-8").read()
             return ("BAD MUTANT", "anchor matched %d times -- the mutation never applied" % src.count(find))
         io.open(path, "w", encoding="utf-8", newline="\n").write(src.replace(find, repl, 1))
         env = dict(os.environ, CSRBT_WHOLEHOG="/nonexistent")   # section C is not what these test

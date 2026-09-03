@@ -80,7 +80,7 @@ OPS = ("manifest", "discover", "observe", "execute", "quit")
 # the wire: four operations over a child's stdio, and nothing else
 # ---------------------------------------------------------------------------
 
-def _spawn(script, token, seed, target, page, python=None):
+def _spawn(script, token, seed, target, page, python=None, extra=None):
     env = dict(os.environ)
     env.update({"CSRBT_HARNESS_ENABLED": "true", "CSRBT_HARNESS_TOKEN": token,
                 "CSRBT_HARNESS_ALLOW_SENSITIVE_READ": "true",
@@ -88,7 +88,8 @@ def _spawn(script, token, seed, target, page, python=None):
                 "CSRBT_HARNESS_ALLOW_MUTATE": "true",
                 "CSRBT_HARNESS_ALLOW_DESTRUCTIVE": "true"})
     return subprocess.Popen(
-        [python or sys.executable, script, "--target", target, "--seed", str(seed), "--page", page],
+        [python or sys.executable, script, "--target", target, "--seed", str(seed), "--page", page]
+        + list(extra or []),
         stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE,
         text=True, encoding="utf-8", bufsize=1, env=env)
 
@@ -151,28 +152,59 @@ class McpWire(object):
     """
     transport = "mcp"
 
-    def __init__(self, token, seed=42, python=None, target="organism", page="ecology.html"):
+    def __init__(self, token, seed=42, python=None, target="organism", page="ecology.html",
+                 attachable=False):
         self.token = token
         self.target = target
-        self.proc = _spawn(os.path.join(HERE, "harness_mcp.py"), token, seed, target, page, python)
+        self.proc = _spawn(os.path.join(HERE, "harness_mcp.py"), token, seed, target, page, python,
+                           extra=["--attachable"] if attachable else None)
         self.sent = 0
         self._id = 0
         self._tools = None
         self._plugins = None
+        # ADR-137: what the server told us, unasked.
+        self.notified = []                 # every notification method, in order
+        self.list_changed = 0              # how many times a cached list was dropped
 
     def rpc(self, method, params=None, mid=None):
         self._id += 1
-        msg = {"jsonrpc": "2.0", "id": mid if mid is not None else "w%d" % self._id, "method": method}
+        want = mid if mid is not None else "w%d" % self._id
+        msg = {"jsonrpc": "2.0", "id": want, "method": method}
         if params is not None:
             msg["params"] = params
         self.proc.stdin.write(json.dumps(msg) + "\n")
         self.proc.stdin.flush()
         self.sent += 1
-        line = self.proc.stdout.readline()
-        if not line:
-            err = (self.proc.stderr.read() or "")[-400:]
-            raise RuntimeError("transport closed (rc=%s): %s" % (self.proc.poll(), err.strip()))
-        return json.loads(line)
+        # A SERVER MAY SPEAK WHEN IT WAS NOT ASKED (ADR-137). Until the server
+        # could change its lists this loop was a single readline, and that was
+        # sound: nothing but a response ever came back. Now `csrbt_session__attach`
+        # makes the server send `notifications/tools/list_changed` BEFORE the
+        # response, so a client that reads one line per request would take the
+        # notice for its answer and then be one line behind for the rest of the
+        # session. Read until the id matches; everything with no id is a
+        # notification, and this client is its consumer.
+        while True:
+            line = self.proc.stdout.readline()
+            if not line:
+                err = (self.proc.stderr.read() or "")[-400:]
+                raise RuntimeError("transport closed (rc=%s): %s" % (self.proc.poll(), err.strip()))
+            msg = json.loads(line)
+            if "id" not in msg and "method" in msg:
+                self.on_notification(msg["method"])
+                continue
+            if msg.get("id") != want:
+                continue                    # not ours; a response we never asked for
+            return msg
+
+    def on_notification(self, method):
+        """The consumer. A cached list the server says has changed is not a
+        cache any more -- it is a wrong answer waiting to be given."""
+        self.notified.append(method)
+        if method == "notifications/tools/list_changed":
+            self._tools = None
+            self.list_changed += 1
+        elif method == "notifications/resources/list_changed":
+            self._plugins = None
 
     def op(self, op, **fields):
         assert op in OPS
@@ -256,7 +288,10 @@ class McpWire(object):
 
 
 def wire_for(transport, token, **kw):
-    return McpWire(token, **kw) if transport == "mcp" else Wire(token, **kw)
+    if transport == "mcp":
+        return McpWire(token, **kw)
+    kw.pop("attachable", None)          # the stdio door caches no list to invalidate
+    return Wire(token, **kw)
 
 
 # ---------------------------------------------------------------------------
@@ -693,6 +728,109 @@ def merge_ledger(results, path=LEDGER):
     return led
 
 
+SESSION_PLUGIN = "csrbt-session"
+
+
+def attach_walk(a):
+    """ADR-137: the robot as the CONSUMER of listChanged.
+
+    The walk proper is generic -- it drives whatever the manifest names. This
+    is not that: it drives the session's own control surface DELIBERATELY,
+    because a random walk of `attach` is a random walk of starting processes,
+    and the generic walker would spend it standing up a JVM and a browser to
+    see what happens. csrbt-session is therefore kept out of the generic walk
+    and driven here, in the one order that proves the notification carries its
+    weight:
+
+      1. walk the target the session started with, from the manifest alone;
+      2. attach a second target and note what arrived UNASKED -- the wire's
+         cached (pluginId, action) -> tool name map is dropped by the
+         notification, not by the response;
+      3. re-read the list and walk the new target too, on the same session;
+      4. detach it, and find its tools gone from the list and its snapshot
+         gone from the resources.
+
+    The claim being tested is narrow and checkable: a client that caches a
+    tool list is WRONG after an attach, and the only thing that can tell it so
+    is the notification. Step 3 is impossible without step 2."""
+    token = "walk-" + secrets.token_urlsafe(24)
+    try:
+        wire = wire_for("mcp", token, seed=a.organism_seed, target=a.target, page=a.page,
+                        attachable=True)
+        hello = wire.op("discover")
+    except Exception as e:
+        print("cannot start the transport: %s" % e)
+        return 2
+    if not hello.get("ok"):
+        print("the transport refused discovery: %s" % hello)
+        return 2
+    rc, results = 0, {}
+    try:
+        man = wire.op("manifest")["manifest"]
+        started = [p["id"] for p in man["plugins"] if p["id"] != SESSION_PLUGIN]
+        print("session started with: %s" % ", ".join(started))
+        for pid in started:
+            results[pid] = walk_one(wire, man, pid, a.rounds, a.seed, a.per_round, print)
+
+        before = set(t["name"] for t in man["tools"])
+        seen_before = len(wire.notified)
+        rid = "attach-%s" % secrets.token_urlsafe(6)
+        r = wire.op("execute", plugin=SESSION_PLUGIN,
+                    command={"request_id": rid, "action": "attach", "arguments": {"target": a.attach}})
+        if not r.get("ok"):
+            print("attach refused: %s %s" % (r.get("code"), r.get("message")))
+            return 2
+        new_notes = wire.notified[seen_before:]
+        print("attached %s; the server said, unasked: %s"
+              % (a.attach, ", ".join(n.rsplit("/", 2)[-2] + "/" + n.rsplit("/", 1)[-1] for n in new_notes) or "NOTHING"))
+        if "notifications/tools/list_changed" not in new_notes:
+            print("FAULT: a target was attached and the tool list was never said to have changed")
+            rc = 1
+        if "notifications/resources/list_changed" not in new_notes:
+            print("FAULT: a plugin arrived and its snapshot resource was never announced")
+            rc = 1
+        if wire._tools is not None:
+            print("FAULT: the wire is still holding the tool map it cached before the attach")
+            rc = 1
+
+        man2 = wire.op("manifest")["manifest"]
+        after = set(t["name"] for t in man2["tools"])
+        arrived = sorted(after - before)
+        print("the list grew by %d tool(s): %s%s"
+              % (len(arrived), ", ".join(arrived[:4]), " ..." if len(arrived) > 4 else ""))
+        if not arrived:
+            print("FAULT: nothing arrived in the list after an attach")
+            rc = 1
+        for pid in [p["id"] for p in man2["plugins"] if p["id"] not in started and p["id"] != SESSION_PLUGIN]:
+            results[pid] = walk_one(wire, man2, pid, a.rounds, a.seed, a.per_round, print)
+
+        seen_before = len(wire.notified)
+        r = wire.op("execute", plugin=SESSION_PLUGIN,
+                    command={"request_id": "detach-%s" % secrets.token_urlsafe(6),
+                             "action": "detach", "arguments": {"target": a.attach}})
+        if not r.get("ok"):
+            print("detach refused: %s %s" % (r.get("code"), r.get("message")))
+            return 2
+        if "notifications/tools/list_changed" not in wire.notified[seen_before:]:
+            print("FAULT: a target was detached and the tool list was never said to have changed")
+            rc = 1
+        man3 = wire.op("manifest")["manifest"]
+        left = set(t["name"] for t in man3["tools"])
+        if left & set(arrived):
+            print("FAULT: a detached target's tools are still listed: %s" % sorted(left & set(arrived))[:3])
+            rc = 1
+        if any(p["id"] not in started and p["id"] != SESSION_PLUGIN for p in man3["plugins"]):
+            print("FAULT: a detached target's snapshot is still a resource")
+            rc = 1
+        print("detached %s; the list is back to %d tool(s), %d notification(s) in all"
+              % (a.attach, len(left), len(wire.notified)))
+    finally:
+        wire.close()
+    for pid, res in results.items():
+        report(pid, res)
+    return 1 if (rc or any(bad(r) for r in results.values())) else 0
+
+
 def main(argv):
     ap = argparse.ArgumentParser()
     ap.add_argument("--target", default="organism", choices=["page", "organism", "lab", "both", "all", "fixture"])
@@ -705,8 +843,16 @@ def main(argv):
     ap.add_argument("--no-ledger", action="store_true")
     ap.add_argument("--transport", default="stdio", choices=["stdio", "mcp"],
                     help="which transport to walk through (ADR-121): the walk itself does not know")
+    ap.add_argument("--attach", choices=["page", "organism", "lab", "fixture"],
+                    help="ADR-137: walk the session's target, then ATTACH this one mid-session, hear "
+                         "the list change, re-read and walk it too, then detach. MCP only.")
     a = ap.parse_args(argv)
 
+    if a.attach:
+        if a.transport != "mcp":
+            print("--attach is MCP only: the stdio door re-reads every op and has no list to invalidate")
+            return 2
+        return attach_walk(a)
     if a.target == "page" and (a.page == "all" or "," in a.page):
         return walk_every_page(a)
     token = "walk-" + secrets.token_urlsafe(24)

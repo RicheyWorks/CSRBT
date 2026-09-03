@@ -60,6 +60,11 @@ import harness_contract as C
 from harness_contract import Gateway, HarnessError, Registry
 from harness_targets import require_policy, stand_up, tear_down
 
+# ADR-137: the one plugin that can change what a session lists. Named here, not
+# imported, so a transport standing up no attachable session does not pay for
+# the module.
+SESSION_PLUGIN_ID = "csrbt-session"
+
 PROTOCOL = "2025-03-26"
 # The server's version IS the gateway's protocol version -- two numbers that
 # mean the same thing drift, and the robot reads this one to check the door it
@@ -81,9 +86,20 @@ def annotations(risk):
 class Server(object):
     """The entire adapter. Holds the gateway and the token; knows no target."""
 
-    def __init__(self, gateway, token, trace=None):
+    def __init__(self, gateway, token, trace=None, list_changed=None):
         self.gw, self.token = gateway, token
         self._tools = None            # name -> (pluginId, action)
+        # ADR-137: listChanged, with a consumer.
+        #
+        # Declared TRUE only when something in this session can change the list
+        # -- which today means the csrbt-session plugin is registered. A server
+        # that cannot change its lists says false and means it; ADR-115 said
+        # false for exactly that reason and was right to.
+        self._can_change = (any(p["id"] == SESSION_PLUGIN_ID for p in gateway.discover(token))
+                            if list_changed is None else bool(list_changed))
+        self._notes = []
+        if self._can_change:
+            gateway.subscribe(self._on_change)
         # ADR-126: a trace. Every tools/call the host makes -- the action, the
         # arguments, the gateway's whole response -- appended as one JSON line,
         # so what a model did through this door can be graded afterwards
@@ -124,7 +140,8 @@ class Server(object):
     def initialize(self):
         plugins = self.gw.discover(self.token)
         return {"protocolVersion": PROTOCOL,
-                "capabilities": {"tools": {"listChanged": False}, "resources": {"listChanged": False}},
+                "capabilities": {"tools": {"listChanged": self._can_change},
+                                 "resources": {"listChanged": self._can_change}},
                 "serverInfo": SERVER,
                 "instructions": "CSRBT automation harness over %s. Tools not listed are not "
                                 "allowed for this session. A snapshot of each target is a "
@@ -174,6 +191,27 @@ class Server(object):
         return {"content": [{"type": "text", "text": json.dumps(body, default=str)}],
                 "isError": not r["ok"]}
 
+    # -- the lists changed --------------------------------------------------
+    def _on_change(self, kind):
+        """The registry moved. Drop what this server cached about the lists and
+        queue the notification the host is owed.
+
+        THE CACHE IS THE POINT. `call()` maps a tool name through `self._tools`,
+        filled by the last `tools/list`; after an attach that map does not hold
+        the new target's tools, and after a detach it still holds the old one's.
+        A notification a server sends without clearing its own cache is a
+        courtesy; clearing it is the fix."""
+        self._tools = None
+        self._notes.append({"jsonrpc": "2.0", "method": "notifications/tools/list_changed"})
+        if kind == "plugins":
+            # a plugin arriving or leaving takes its snapshot resource with it
+            self._notes.append({"jsonrpc": "2.0", "method": "notifications/resources/list_changed"})
+
+    def drain(self):
+        """The notifications queued since the last drain, in order."""
+        out, self._notes = self._notes, []
+        return out
+
     def record(self, entry):
         if self._trace is not None:
             entry = dict(entry, at=time.time())
@@ -213,6 +251,13 @@ def serve(server, stdin, stdout):
             _w(stdout, server._error(None, PARSE_ERROR, "parse error: %s" % str(e)[:80]))
             continue
         resp = server.handle(msg)
+        # THE NOTICE GOES OUT BEFORE THE ANSWER. A host that reads its transport
+        # in order must never hold the response to `attach` -- which names the
+        # tools it may now call -- while the notice that the list changed is
+        # still behind it in the pipe. Sent first, there is no window in which a
+        # client could act on a new target through a stale list.
+        for note in server.drain():
+            _w(stdout, note)
         if resp is not None:
             _w(stdout, resp)
     return 0
@@ -231,15 +276,25 @@ def main():
     ap.add_argument("--seed", type=int, default=42)
     ap.add_argument("--trace", default=os.environ.get("CSRBT_HARNESS_TRACE"),
                     help="append every tools/call and its response to this file, one JSON line each (ADR-126)")
+    ap.add_argument("--attachable", action="store_true",
+                    help="serve csrbt-session too, so a host can attach and detach targets while the "
+                         "session is open -- and declare listChanged, because now something can (ADR-137)")
     a = ap.parse_args()
     policy = require_policy()
     if policy is None:
         return 2
     plugins, closers = stand_up(a.target, page=a.page, seed=a.seed, headed=a.headed)
-    gw = Gateway(Registry(plugins), policy)
-    sys.stderr.write("harness ready on MCP: %s, policy %s\n"
-                     % (", ".join(p.descriptor().id for p in plugins),
-                        ",".join(k for k, v in policy.allow.items() if v)))
+    registry = Registry(plugins)
+    if a.attachable:
+        from harness_plugin_session import SessionPlugin
+        sp = SessionPlugin(registry, page=a.page, seed=a.seed, headed=a.headed)
+        registry.register(sp, quiet=True)
+        closers.append(sp.close)              # detach anything the host attached
+    gw = Gateway(registry, policy)
+    sys.stderr.write("harness ready on MCP: %s, policy %s%s\n"
+                     % (", ".join(d.id for d in registry.descriptors()),
+                        ",".join(k for k, v in policy.allow.items() if v),
+                        ", attachable" if a.attachable else ""))
     try:
         return serve(Server(gw, policy.token, trace=a.trace), sys.stdin, sys.stdout)
     finally:

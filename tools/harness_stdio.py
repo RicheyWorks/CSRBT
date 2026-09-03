@@ -96,16 +96,27 @@ def main():
                          "organism, the science lab, both (organism+page) or all "
                          "(default: page)")
     ap.add_argument("--seed", type=int, default=42, help="organism seed")
+    ap.add_argument("--attachable", action="store_true",
+                    help="serve csrbt-session too, so a client can attach and detach targets while "
+                         "the session is open (ADR-137). This door needs no notification: every op "
+                         "re-reads, so there is no cached list to go stale.")
     a = ap.parse_args()
 
     policy = require_policy()
     if policy is None:
         return 2
     plugins, closers = stand_up(a.target, page=a.page, seed=a.seed, headed=a.headed)
-    gw = Gateway(Registry(plugins), policy)
-    sys.stderr.write("harness ready on stdio: %s, policy %s\n"
-                     % (", ".join(p.descriptor().id for p in plugins),
-                        ",".join(k for k, v in policy.allow.items() if v)))
+    registry = Registry(plugins)
+    if a.attachable:
+        from harness_plugin_session import SessionPlugin
+        sp = SessionPlugin(registry, page=a.page, seed=a.seed, headed=a.headed)
+        registry.register(sp, quiet=True)
+        closers.append(sp.close)
+    gw = Gateway(registry, policy)
+    sys.stderr.write("harness ready on stdio: %s, policy %s%s\n"
+                     % (", ".join(d.id for d in registry.descriptors()),
+                        ",".join(k for k, v in policy.allow.items() if v),
+                        ", attachable" if a.attachable else ""))
     try:
         rc = serve(gw, sys.stdin, sys.stdout)
     finally:

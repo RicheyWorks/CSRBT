@@ -274,6 +274,8 @@ python3 tools/harness_walk.py --target all           # the robot: every target f
 python3 tools/harness_walk.py --target page --page all --rounds 3 --per-round 2   # every routed page (ADR-124), ~6 min
 python3 tools/harness_tasks.py                       # every task: goals with graded expectations (ADR-125)
 python3 tools/harness_mcp.py --target organism --trace t.jsonl   # a host's session, recorded (ADR-126)
+python3 tools/harness_mcp.py --target page --attachable      # a session that can attach targets (ADR-137)
+python3 tools/harness_walk.py --transport mcp --target page --attach organism  # the robot as listChanged's consumer
 python3 tools/blind_console.py --target organism --moves m.json --trace t.jsonl  # the door a BLIND operator drives (ADR-136)
 python3 tools/harness_tasks.py --grade-trace all     # every trace under tools/traces AND tools/traces/blind, graded against its task
 python3 tools/harness_tasks.py --target page         # 27 science + 14 reference tasks + the canary: every routed page held (ADR-128, ADR-129)
@@ -368,6 +370,24 @@ FEK picker through its filter; a task names a control the page's way with
 `@control:<id | label | host>` (`rCov/4`, `iList/died#2`). Twenty-one science
 tasks — one per data-entry page — enter data and hold the report to a
 hand-checked oracle; a page canary is refuted; 1,316 expectations confirmed.
+
+ADR-137 gave `listChanged` a consumer. ADR-115 declared it false and ADR-121
+held it there for the honest reason that nothing could change a list -- a
+`Registry` was built once and only read. `tools/harness_plugin_session.py`
+(`csrbt-session`: `targets`, `attach`, `detach`) is the thing that can: a host
+attaches a target the session did not start with, the registry announces, the
+gateway forgets the retired target's replayable responses, and the MCP server
+drops the tool-name map it cached and writes
+`notifications/tools/list_changed` -- BEFORE the response that caused it, so no
+client ever holds the answer to `attach` while the notice is still behind it in
+the pipe. It is served only under `--attachable`, and a transport without it
+still says false and means it. The consumer is the robot: `McpWire.rpc()` reads
+until its own id comes back and drops its cached list on the notice, and
+`harness_walk --attach <target>` walks the session's target, attaches a second
+one, re-reads and walks that too, then detaches. One reading: a browser session
+walked collection-sheet (256 commands), picked up the ORGANISM mid-session, and
+drove all 35 of its tools (480 commands) -- undriven none, unreachable none --
+before giving it back.
 
 ADR-136 ran the blind trial ADR-126 could not. Six subagents, a fresh context
 each, were given a task's GOAL SENTENCE VERBATIM and a JSON-RPC console

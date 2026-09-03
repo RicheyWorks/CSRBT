@@ -380,6 +380,20 @@ task — required steps in order, probes anywhere after, one call per step, the
 operator's own detours allowed and counted. Six traces under `tools/traces/`,
 planned from the goals alone, every one held; their provenance is stated there.
 
+**A session that can change (ADR-137).** `--attachable` on either door serves
+`csrbt-session` -- `targets`, `attach`, `detach` -- and a host may then pick up a
+target the session did not start with. Attaching registers the target's plugins
+in the live registry; the registry announces, the gateway drops the retired
+plugin's replayable responses (a target detached and attached again is a new
+target that has done nothing), and the MCP server drops its own tool-name map
+and sends `notifications/tools/list_changed` and
+`notifications/resources/list_changed`, written BEFORE the response that caused
+them. `listChanged` is declared true exactly when `csrbt-session` is served, so
+ADR-115's `false` is still the right answer for a session nothing can change.
+The stdio door needs no notice: every op re-reads. The consumer is the robot --
+`harness_walk --attach <target>` walks the starting target, attaches a second,
+re-reads and walks it, then detaches and finds the list exactly what it was.
+
 **The blind trial (ADR-136).** Those six were produced by the session that had
 written the tasks. Six more, under `tools/traces/blind/`, were not: a fresh
 subagent each, given the task's goal sentence verbatim and
@@ -528,11 +542,19 @@ canonical oracle the repository already keeps — the shipped protocol run throu
 the gateway must produce the shipped session — and to determinism, grading,
 refusal and export. `tools/mutate_lab.py`: 9 killed, 0 survived, 1 equivalent.
 
-`tools/verify/verify_mcp.py` (31 checks) holds the second transport to "decides
+`tools/verify/verify_mcp.py` (70 checks) holds the second transport to "decides
 nothing": the adapter names no target, both transports share one builder, the
-full protocol surface in-process over a fixture, and the server as a child over
-the organism spoken to in JSON-RPC. `tools/mutate_mcp.py`: 6 killed, 0 survived,
-1 recorded equivalent.
+full protocol surface in-process over a fixture, the server as a child over
+the organism spoken to in JSON-RPC, and — since ADR-137 — `listChanged` with a
+consumer: the declaration honest in both directions, attach and detach and every
+refusal by its own code, the server's and the robot's caches dropped on the
+notice, the gateway forgetting a retired plugin's replayable responses, the
+notices written before the response that caused them, and a real browser page
+attached over a real child. `tools/mutate_mcp.py`: 20 killed, 0 survived, 1
+recorded equivalent — the runner mutates `harness_contract.py`,
+`harness_plugin_session.py` and `harness_walk.py` too, because the notice is the
+server's, the change is the registry's, the forgetting is the gateway's, the
+attach is the plugin's and the consumer is the robot's.
 
 `tools/verify/verify_tasks.py` (234 checks) holds the task runner to its grammar,
 its files and its grader — the canary refuted and held, a bad reference a

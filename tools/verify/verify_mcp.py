@@ -217,6 +217,250 @@ else:
         ck(by[6]["result"]["isError"] is False and "rub" in json.loads(by[6]["result"]["content"][0]["text"])["output"]["report"],
            "the physical reads over MCP")
 
+# ---- D. listChanged, with a consumer (ADR-137) ------------------------------
+#
+# ADR-115 declared listChanged:false and ADR-121 held it there, for the honest
+# reason that nothing could change a list. This section is what makes the
+# capability worth declaring: the registry can move, the gateway hears it, the
+# server drops what it cached and says so, and a client that caches is the one
+# the notification is for.
+import harness_plugin_session as SP
+
+
+class _Made(C.Plugin):
+    """A target a fake stand_up hands back: cheap, and it records its close."""
+
+    def __init__(self, pid="csrbt-made"):
+        self.closed = 0
+        self._d = C.PluginDescriptor(pid, "Made", "attached by the session plugin", "1.0",
+                                     [C.ActionSpec("hello", "say hello", "READ", [])])
+
+    def descriptor(self):
+        return self._d
+
+    def observe(self, sensitive=False):
+        return {"ready": True}
+
+    def execute(self, action, arguments):
+        return True, "hello", {"said": "hello"}
+
+    def close(self):
+        self.closed += 1
+
+
+made = {}
+
+
+def fake_stand_up(target, page=None, seed=None, headed=None, err=None):
+    if target == "organism":
+        raise SystemExit(2)                       # a target that cannot come up
+    m = _Made("csrbt-" + target)
+    made[target] = m
+    return [m], [m.close]
+
+
+def session_server(extra=(), allow=None):
+    reg = C.Registry(list(extra))
+    sp = SP.SessionPlugin(reg, stand_up=fake_stand_up)
+    reg.register(sp, quiet=True)
+    pol = C.Policy(token=TOKEN, enabled=True,
+                   allow=allow or {"NAVIGATE": True, "SENSITIVE_READ": True})
+    gw = C.Gateway(reg, pol)
+    return reg, sp, gw, M.Server(gw, TOKEN)
+
+
+def call(srv, mid, name, args=None):
+    return srv.handle({"jsonrpc": "2.0", "id": mid, "method": "tools/call",
+                       "params": {"name": name, "arguments": args or {}}})
+
+
+# the declaration is honest in both directions
+plain = M.Server(C.Gateway(C.Registry([Fake()]), C.Policy(token=TOKEN, enabled=True)), TOKEN)
+caps = plain.initialize()["capabilities"]
+ck(caps["tools"]["listChanged"] is False and caps["resources"]["listChanged"] is False,
+   "a session nothing can change declares listChanged FALSE, as ADR-115 did and was right to: %s" % caps)
+reg, sp, gw, srv = session_server()
+caps = srv.initialize()["capabilities"]
+ck(caps["tools"]["listChanged"] is True and caps["resources"]["listChanged"] is True,
+   "a session that serves csrbt-session declares listChanged TRUE, because now something can: %s" % caps)
+ck(plain.drain() == [] and srv.drain() == [], "and neither has said anything yet")
+
+# the round trip
+before = set(t["name"] for t in srv.tools())
+call(srv, 6, "csrbt_session__targets")                                 # fills the server's cache
+ck(srv._tools is not None, "the server caches the name map a call needs")
+r = call(srv, 7, "csrbt_session__attach", {"target": "fixture"})
+ck(r["result"]["isError"] is False and "csrbt-fixture" in json.loads(r["result"]["content"][0]["text"])["output"]["plugins"],
+   "attach stands a target up and puts it in the session")
+ck(srv._tools is None, "and the server DROPS its own name map -- a notification sent over a stale cache "
+                       "is a courtesy, clearing it is the fix")
+notes = [n["method"] for n in srv.drain()]
+ck(notes == ["notifications/tools/list_changed", "notifications/resources/list_changed"],
+   "a plugin arriving changes both lists, and the tool list is announced first: %s" % notes)
+after = set(t["name"] for t in srv.tools())
+ck(after - before == {"csrbt_fixture__hello"} and len(srv.resources()) == 2,
+   "the tool arrived and so did its snapshot resource: %s" % sorted(after - before))
+ck(call(srv, 8, "csrbt_fixture__hello")["result"]["isError"] is False,
+   "and the new tool is callable by name on the same session")
+
+# the refusals
+for i, (args, head, why) in enumerate((({"target": "nope"}, "invalid_argument", "a target that is not a target"),
+                                       ({"target": "fixture"}, "conflict", "a target already attached"),
+                                       ({"target": "organism"}, "failed", "a target that cannot come up"))):
+    e = call(srv, 20 + i, "csrbt_session__attach", args)
+    msg = e.get("error", {}).get("message", "")
+    ck("error" in e and msg.startswith(head + ":") and e["error"]["code"] == M.CODE[head],
+       "attach refuses %s, as %s: %s" % (why, head, msg[:70]))
+e = call(srv, 40, "csrbt_session__detach", {"target": "lab"})
+ck("error" in e and "not attached" in e["error"]["message"], "detach refuses a target this session did not attach")
+ck(srv.drain() == [], "and a refused attach or detach announces nothing")
+
+# detach
+r = call(srv, 9, "csrbt_session__detach", {"target": "fixture"})
+ck(r["result"]["isError"] is False and made["fixture"].closed == 1,
+   "detach takes the target out AND closes it: closed=%d" % made["fixture"].closed)
+notes = [n["method"] for n in srv.drain()]
+ck(notes == ["notifications/tools/list_changed", "notifications/resources/list_changed"],
+   "and says both lists changed again: %s" % notes)
+ck(set(t["name"] for t in srv.tools()) == before and len(srv.resources()) == 1,
+   "the list is back to what it was, and the snapshot resource is gone")
+e = call(srv, 10, "csrbt_fixture__hello")
+ck("error" in e and e["error"]["code"] == M.INVALID_PARAMS,
+   "a detached target's tool is not listed and cannot be called")
+
+# a re-attached target has done nothing, whatever the cache remembers
+_, _, gw2, srv2 = session_server()
+call(srv2, 11, "csrbt_session__attach", {"target": "fixture"})
+one = json.loads(call(srv2, 77, "csrbt_fixture__hello")["result"]["content"][0]["text"])
+call(srv2, 12, "csrbt_session__detach", {"target": "fixture"})
+call(srv2, 13, "csrbt_session__attach", {"target": "fixture"})
+two = json.loads(call(srv2, 77, "csrbt_fixture__hello")["result"]["content"][0]["text"])
+ck(one["replayed"] is False and two["replayed"] is False,
+   "a target detached and attached again is a NEW target: the replay cache does not answer for a machine "
+   "that no longer exists (%s, %s)" % (one["replayed"], two["replayed"]))
+
+# the registry's own contract
+reg3 = C.Registry([Fake()])
+heard = []
+reg3.watch(lambda kind: heard.append(kind))
+reg3.watch(lambda kind: (_ for _ in ()).throw(RuntimeError("a watcher that raises")))
+f2 = Fake()
+f2._d = C.PluginDescriptor("fake2", "Fake2", "another", "1.0", [C.ActionSpec("look", "l", "READ", [])])
+try:
+    reg3.register(f2)
+    ck(heard == ["plugins"], "register after construction announces the change: %s" % heard)
+except Exception as e:
+    ck(False, "a watcher that raises took the registry down with it: %s" % e)
+ck(reg3.retire("fake2") is f2 and heard == ["plugins", "plugins"] and len(reg3.descriptors()) == 1,
+   "retire hands the plugin back and announces: %s" % heard)
+reg4 = C.Registry([])
+heard4 = []
+reg4.watch(heard4.append)
+reg4.register(Fake(), quiet=True)
+csrc = io.open(os.path.join(_kit.TOOLS_DIR, "harness_contract.py"), encoding="utf-8").read()
+ck(heard4 == [] and len(reg4.descriptors()) == 1
+   and "self.register(p, quiet=True)          # construction is not a change" in csrc,
+   "construction is not a change: quiet=True puts a plugin in and announces nothing, and that is how a "
+   "registry is BUILT from its list -- a session that opens by announcing a change it did not make teaches "
+   "every client to ignore the notice: %s" % heard4)
+ck(C.Gateway(C.Registry([Fake()]), C.Policy(token=TOKEN, enabled=True)).changes == 0,
+   "and a gateway over a freshly built registry has counted no change")
+try:
+    reg3.register(Fake())
+    ck(False, "the registry accepted a duplicate plugin id")
+except ValueError:
+    ck(True, "")
+try:
+    reg3.retire("gone")
+    ck(False, "the registry retired a plugin it does not have")
+except C.HarnessError as e:
+    ck(e.code == "not_found", "retiring an unknown id is not_found, not a crash: %s" % e.code)
+
+# serve(): the notice goes out BEFORE the answer
+_, _, _, srv4 = session_server()
+out4 = io.StringIO()
+M.serve(srv4, io.StringIO(json.dumps({"jsonrpc": "2.0", "id": 1, "method": "tools/call",
+                                      "params": {"name": "csrbt_session__attach",
+                                                 "arguments": {"target": "fixture"}}}) + "\n"), out4)
+wrote = [json.loads(l) for l in out4.getvalue().strip().split("\n")]
+ck([w.get("method") or "response" for w in wrote] ==
+   ["notifications/tools/list_changed", "notifications/resources/list_changed", "response"],
+   "serve() writes the notifications first and the response last, so no client ever holds the answer to "
+   "attach while the notice is still behind it in the pipe: %s"
+   % [w.get("method") or "response" for w in wrote])
+
+# the consumer: the robot's wire drops what it cached, on hearing it
+sys.path.insert(0, _kit.TOOLS_DIR.rstrip(os.sep))
+import harness_walk as W
+
+
+class _NoProc(W.McpWire):
+    def __init__(self):
+        self._tools = {("a", "b"): "x"}
+        self._plugins = ["a"]
+        self.notified = []
+        self.list_changed = 0
+
+
+w = _NoProc()
+w.on_notification("notifications/tools/list_changed")
+ck(w._tools is None and w.list_changed == 1 and w._plugins == ["a"],
+   "the robot's wire drops its cached tool-name map when the server says the list changed")
+w.on_notification("notifications/resources/list_changed")
+ck(w._plugins is None and w.notified == ["notifications/tools/list_changed",
+                                         "notifications/resources/list_changed"],
+   "and its cached plugin list on the other notice, keeping both on the record")
+wsrc = io.open(os.path.join(_kit.TOOLS_DIR, "harness_walk.py"), encoding="utf-8").read()
+ck('if "id" not in msg and "method" in msg:' in wsrc and "while True:" in wsrc[wsrc.index("def rpc("):wsrc.index("def on_notification(")],
+   "and it reads until its id comes back rather than taking the next line for its answer")
+
+
+# ---- E. attaching a real target over a real child ---------------------------
+env = dict(os.environ)
+env.update({"CSRBT_HARNESS_ENABLED": "true", "CSRBT_HARNESS_TOKEN": TOKEN,
+            "CSRBT_HARNESS_ALLOW_NAVIGATE": "true", "CSRBT_HARNESS_ALLOW_DRAFT": "true",
+            "CSRBT_HARNESS_ALLOW_MUTATE": "true", "CSRBT_HARNESS_ALLOW_SENSITIVE_READ": "true"})
+msgs = [
+    {"jsonrpc": "2.0", "id": 1, "method": "initialize",
+     "params": {"protocolVersion": M.PROTOCOL, "capabilities": {}, "clientInfo": {"name": "suite"}}},
+    {"jsonrpc": "2.0", "id": 2, "method": "tools/list"},
+    {"jsonrpc": "2.0", "id": 3, "method": "tools/call",
+     "params": {"name": "csrbt_session__attach", "arguments": {"target": "page", "page": "collection-sheet.html"}}},
+    {"jsonrpc": "2.0", "id": 4, "method": "tools/list"},
+    {"jsonrpc": "2.0", "id": 5, "method": "resources/list"},
+    {"jsonrpc": "2.0", "id": 6, "method": "tools/call", "params": {"name": "csrbt_page__read_page", "arguments": {}}},
+    {"jsonrpc": "2.0", "id": 7, "method": "tools/call",
+     "params": {"name": "csrbt_session__detach", "arguments": {"target": "page"}}},
+    {"jsonrpc": "2.0", "id": 8, "method": "tools/list"},
+]
+p = subprocess.run([sys.executable, os.path.join(_kit.TOOLS_DIR, "harness_mcp.py"),
+                    "--target", "fixture", "--attachable"],
+                   input="\n".join(json.dumps(m) for m in msgs) + "\n",
+                   capture_output=True, text=True, env=env, timeout=240)
+outs = [json.loads(l) for l in p.stdout.strip().split("\n") if l.strip()]
+notes = [o["method"] for o in outs if "id" not in o]
+res = dict((o["id"], o) for o in outs if "id" in o)
+ck(p.returncode == 0 and len(res) == 8 and len(notes) == 4,
+   "the child answered eight requests and volunteered four notifications: rc=%d res=%d notes=%d %s"
+   % (p.returncode, len(res), len(notes), p.stderr.strip()[-160:]))
+if len(res) == 8:
+    ck(res[1]["result"]["capabilities"]["tools"]["listChanged"] is True,
+       "--attachable declares listChanged")
+    n0 = [t["name"] for t in res[2]["result"]["tools"]]
+    n1 = [t["name"] for t in res[4]["result"]["tools"]]
+    ck("csrbt_page__read_page" not in n0 and "csrbt_page__read_page" in n1 and len(n1) - len(n0) == 20,
+       "a real browser target attached mid-session brings its tools with it -- 20 of the page's 21, the "
+       "DESTRUCTIVE one omitted because this session never opened that gate: %d -> %d" % (len(n0), len(n1)))
+    uris = [x["uri"] for x in res[5]["result"]["resources"]]
+    ck("harness://csrbt-page/snapshot" in uris, "and its snapshot is a resource: %s" % uris)
+    ck(res[6]["result"]["isError"] is False,
+       "and the page it opened is really there: read-page answers over the same session")
+    n2 = [t["name"] for t in res[8]["result"]["tools"]]
+    ck(n2 == n0, "detached, the list is exactly what it was: %d back to %d" % (len(n1), len(n2)))
+    order = [o.get("method", "r%s" % o.get("id")) for o in outs]
+    ck(order.index("notifications/tools/list_changed") < order.index("r3"),
+       "and every notice was written before the response that caused it: %s" % order)
+
 total = P + F + len(unverified)
 print("---")
 for u in unverified:
