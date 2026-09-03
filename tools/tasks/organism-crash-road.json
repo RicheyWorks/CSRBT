@@ -34,15 +34,6 @@
    }
   },
   {
-   "id": "look",
-   "action": "observe",
-   "expect": {
-    "ok": true,
-    "snapshot.chaosCrashes": 1,
-    "snapshot.chaos": "once:2"
-   }
-  },
-  {
    "id": "wedged",
    "action": "batch",
    "arguments": {
@@ -54,6 +45,16 @@
     "ok": false,
     "code": "conflict"
    }
+  },
+  {
+   "id": "look",
+   "action": "observe",
+   "expect": {
+    "ok": true,
+    "snapshot.chaosCrashes": 1,
+    "snapshot.chaos": "once:2"
+   },
+   "optional": true
   },
   {
    "id": "clean",
@@ -75,7 +76,8 @@
    },
    "expect": {
     "output.quiet": true
-   }
+   },
+   "optional": true
   },
   {
    "id": "count",
@@ -85,7 +87,10 @@
     "hi": 902
    },
    "expect": {
-    "output.count": 3
+    "output.count": {
+     "op": ">=",
+     "value": 3
+    }
    }
   },
   {
@@ -111,7 +116,8 @@
     "output.groups": {
      "op": ">=",
      "value": 1
-    }
+    },
+    "output.gapped": false
    }
   }
  ]

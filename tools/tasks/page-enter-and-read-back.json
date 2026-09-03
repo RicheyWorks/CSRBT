@@ -36,7 +36,7 @@
     "selector": "text_in:0"
    },
    "expect": {
-    "output.value": "Quercus rubra"
+    "output.value": "$type.output.value"
    }
   },
   {
@@ -46,6 +46,10 @@
     "output.errors": {
      "op": "==",
      "value": []
+    },
+    "output.filled": {
+     "op": ">",
+     "value": 0
     }
    }
   },

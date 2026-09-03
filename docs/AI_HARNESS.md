@@ -274,10 +274,11 @@ python3 tools/harness_walk.py --target all           # the robot: every target f
 python3 tools/harness_walk.py --target page --page all --rounds 3 --per-round 2   # every routed page (ADR-124), ~6 min
 python3 tools/harness_tasks.py                       # every task: goals with graded expectations (ADR-125)
 python3 tools/harness_mcp.py --target organism --trace t.jsonl   # a host's session, recorded (ADR-126)
-python3 tools/harness_tasks.py --grade-trace all     # every trace under tools/traces, graded against its task
+python3 tools/blind_console.py --target organism --moves m.json --trace t.jsonl  # the door a BLIND operator drives (ADR-136)
+python3 tools/harness_tasks.py --grade-trace all     # every trace under tools/traces AND tools/traces/blind, graded against its task
 python3 tools/harness_tasks.py --target page         # 27 science + 14 reference tasks + the canary: every routed page held (ADR-128, ADR-129)
 python3 tools/verify/run_all.py --audits             # every audit; targets/contrast/focus in every state of every page (ADR-130)
-python3 tools/verify/verify_tasks.py                 # 176 checks on the grammar, @control, the grader, every task and trace, the whole kit; mutate_tasks.py 24/24
+python3 tools/verify/verify_tasks.py                 # 234 checks on the grammar, @control, the grader, every task and trace (the blind trial included), the whole kit; mutate_tasks.py 55/55
 python3 tools/verify/verify_report.py                # 33 checks on read-report, pick, the picker pool and the snapshot's naming; mutate_report.py 24/24
 python3 tools/harness_board.py                       # the Harness Board from every ledger (ADR-127); --check for drift
 python3 tools/verify/verify_board.py                 # 37 checks: the page is the ledgers, the ledgers agree
@@ -294,6 +295,15 @@ python3 tools/ecosystem.py --read                    # every engine's JUnit resu
 python3 tools/verify/verify_ecosystem.py             # 56 checks: green, >= floor, unbuilt or stale = NOT VERIFIED; the Atlas == the ledger
 python3 tools/atlas.py                               # regenerate the Atlas's engine table from the ledger (ADR-120)
 ```
+
+ADR-135 named the interactive lab's thirteen stations: each card carries
+`id="station-<key>"`, the key the engine uses, so its figures stop colliding
+under `#main`. The kit's shipped session is now a plugin fixture and is dropped
+onto the page through the gateway — the lab takes its drop on the WINDOW, so it
+had published no drop zone and nothing had ever been dropped on it. Four
+stations (the meadow's three phases, the census, the theory bench's six models,
+all three entered datasets) are held to the engine's own numbers: 33
+expectations. `@control:kind=<kind>` names a control the page never named.
 
 ADR-134 made the ENVIRONMENT an argument (protocol 1.4). `harness.DETERMINISM`
 is installed on every browser target and does nothing until asked; then
@@ -358,6 +368,20 @@ FEK picker through its filter; a task names a control the page's way with
 `@control:<id | label | host>` (`rCov/4`, `iList/died#2`). Twenty-one science
 tasks — one per data-entry page — enter data and hold the report to a
 hand-checked oracle; a page canary is refuted; 1,316 expectations confirmed.
+
+ADR-136 ran the blind trial ADR-126 could not. Six subagents, a fresh context
+each, were given a task's GOAL SENTENCE VERBATIM and a JSON-RPC console
+(`tools/blind_console.py`) in a checkout with `tools/tasks/`, `tools/traces/`,
+the ledger and every ADR deleted — blindness as a fact about the filesystem.
+First grading: **24 of 40 required steps**. Every miss was the instrument's: an
+`observe` step demanding its own read when a snapshot rides every response; a
+probe required because the author took that route; a read-back pinned to the
+literal the author happened to type; a count of the author's batch where the
+goal claims the batch is whole. Fixed — the grader, and three task files —
+**30 of 30**. The six blind traces are now a committed check: a task that
+re-acquires its author's route stops grading against an operator who never saw
+it, and `verify_tasks` section F2 fails. `load_task` also refuses a required
+step that reads a probe: a claim may not rest on a step an operator may skip.
 
 ADR-127 gave the harness a readout: `tools/harness_board.py` renders the
 Harness Board from seven ledgers — the mutant runners now keep one too — and

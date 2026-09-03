@@ -2,20 +2,20 @@
  "_comment": "Written by the mutant runners through tools/mutant_ledger.py. One entry per runner; a run updates only its own entry and keeps the rest, each with its own at.",
  "runners": {
   "mutate_audit_states": {
-   "at": 1788398511,
+   "at": 1788466673,
    "equivalent": 0,
    "equivalents": [],
    "inconclusive": 0,
-   "killed": 34,
-   "mutants": 34,
+   "killed": 37,
+   "mutants": 37,
    "rows": [
     {
-     "detail": "13 failure(s); first: the states, in order: rest, each tab (data-pane then aria-",
+     "detail": "14 failure(s); first: the states, in order: rest, each tab (data-pane then aria-",
      "name": "the tabs are not pressed",
      "verdict": "killed"
     },
     {
-     "detail": "13 failure(s); first: the states, in order: rest, each tab (data-pane then aria-",
+     "detail": "14 failure(s); first: the states, in order: rest, each tab (data-pane then aria-",
      "name": "an aria-controls button is not a tab",
      "verdict": "killed"
     },
@@ -25,7 +25,7 @@
      "verdict": "killed"
     },
     {
-     "detail": "16 failure(s); first: the states, in order: rest, each tab (data-pane then aria-",
+     "detail": "17 failure(s); first: the states, in order: rest, each tab (data-pane then aria-",
      "name": "the page-specific reveals are not pressed",
      "verdict": "killed"
     },
@@ -45,7 +45,7 @@
      "verdict": "killed"
     },
     {
-     "detail": "6 failure(s); first: 14 had a box in some state -- B3's box in the third pane, s",
+     "detail": "7 failure(s); first: 14 had a box in some state -- B3's box in the third pane, s",
      "name": "exposure is not accumulated across states",
      "verdict": "killed"
     },
@@ -65,12 +65,12 @@
      "verdict": "killed"
     },
     {
-     "detail": "10 failure(s); first: 15 controls exist at the end (the row's button included; h",
+     "detail": "11 failure(s); first: 15 controls exist at the end (the row's button included; h",
      "name": "a hidden input is a control",
      "verdict": "killed"
     },
     {
-     "detail": "9 failure(s); first: 14 had a box in some state -- B3's box in the third pane, s",
+     "detail": "10 failure(s); first: 14 had a box in some state -- B3's box in the third pane, ",
      "name": "coverage never names anything",
      "verdict": "killed"
     },
@@ -90,7 +90,7 @@
      "verdict": "killed"
     },
     {
-     "detail": "10 failure(s); first: the states, in order: rest, each tab (data-pane then aria-",
+     "detail": "12 failure(s); first: the states, in order: rest, each tab (data-pane then aria-",
      "name": "the page is never entered",
      "verdict": "killed"
     },
@@ -125,12 +125,12 @@
      "verdict": "killed"
     },
     {
-     "detail": "7 failure(s); first: 15 controls exist at the end (the row's button included; hi",
+     "detail": "8 failure(s); first: 15 controls exist at the end (the row's button included; hi",
      "name": "the entry's steps are not driven",
      "verdict": "killed"
     },
     {
-     "detail": "1 failure(s); first: the states, in order: rest, each tab (data-pane then aria-c",
+     "detail": "3 failure(s); first: the states, in order: rest, each tab (data-pane then aria-c",
      "name": "the page's own reveals are not pressed again after the entry",
      "verdict": "killed"
     },
@@ -177,6 +177,21 @@
     {
      "detail": "1 failure(s); first: contrast counts the unreached control in its total: ['     ",
      "name": "contrast does not count what it never measured",
+     "verdict": "killed"
+    },
+    {
+     "detail": "3 failure(s); first: a page that grows a control after the last state settles in",
+     "name": "the walk ends without settling, so a control mounted after the last stamp carries none",
+     "verdict": "killed"
+    },
+    {
+     "detail": "6 failure(s); first: the states, in order: rest, each tab (data-pane then aria-c",
+     "name": "the final settle happens whether or not anything appeared",
+     "verdict": "killed"
+    },
+    {
+     "detail": "2 failure(s); first: a page that grows a control after the last state settles in",
+     "name": "the late control is stamped but never measured",
      "verdict": "killed"
     }
    ],
@@ -750,12 +765,12 @@
    "survived": 0
   },
   "mutate_tasks": {
-   "at": 1788417796,
+   "at": 1788462991,
    "equivalent": 0,
    "equivalents": [],
    "inconclusive": 0,
-   "killed": 41,
-   "mutants": 41,
+   "killed": 55,
+   "mutants": 55,
    "rows": [
     {
      "detail": "4 failure(s); first: every operator grades, a reference grades as its value, a m",
@@ -788,7 +803,7 @@
      "verdict": "killed"
     },
     {
-     "detail": "2 failure(s); first: an op the grader does not know is the TASK's DEFECT, not a ",
+     "detail": "6 failure(s); first: an op the grader does not know is the TASK's DEFECT, not a ",
      "name": "the loader and the grader keep separate op tables",
      "verdict": "killed"
     },
@@ -800,6 +815,21 @@
     {
      "detail": "1 failure(s); first: ...and a read-report duplicate label, which has a SPACE bef",
      "name": "a read-report duplicate label is stripped as if it were a #n label",
+     "verdict": "killed"
+    },
+    {
+     "detail": "2 failure(s); first: a control the page never named is nameable by WHAT IT IS: t",
+     "name": "kind= is not a way to name a control",
+     "verdict": "killed"
+    },
+    {
+     "detail": "2 failure(s); first: a control the page never named is nameable by WHAT IT IS: t",
+     "name": "kind= matches on the label instead of the kind",
+     "verdict": "killed"
+    },
+    {
+     "detail": "6 failure(s); first: an id wins over a control merely labelled with that name, w",
+     "name": "kind= swallows a plain id",
      "verdict": "killed"
     },
     {
@@ -913,7 +943,7 @@
      "verdict": "killed"
     },
     {
-     "detail": "4 failure(s); first: a step no call satisfies is UNMET and fails the task: no ca",
+     "detail": "6 failure(s); first: a step no call satisfies is UNMET and fails the task: no ca",
      "name": "an UNMET required step does not fail the trace",
      "verdict": "killed"
     },
@@ -938,17 +968,17 @@
      "verdict": "killed"
     },
     {
-     "detail": "1 failure(s); first: #n is the nth match in document order: action_btn:7",
+     "detail": "2 failure(s); first: #n is the nth match in document order: action_btn:7",
      "name": "#n is ignored: the first match is always taken",
      "verdict": "killed"
     },
     {
-     "detail": "1 failure(s); first: #n is the nth match in document order: DEFECT: t: no contro",
+     "detail": "2 failure(s); first: #n is the nth match in document order: DEFECT: t: no contro",
      "name": "a trailing #n is not parsed",
      "verdict": "killed"
     },
     {
-     "detail": "3 failure(s); first: a control nothing matches is a task DEFECT, not a refusal: ",
+     "detail": "4 failure(s); first: a control nothing matches is a task DEFECT, not a refusal: ",
      "name": "a control nothing matches resolves to None",
      "verdict": "killed"
     },
@@ -960,6 +990,61 @@
     {
      "detail": "1 failure(s); first: the LATEST snapshot is the one resolved against -- the widg",
      "name": "the FIRST snapshot is resolved against, not the latest",
+     "verdict": "killed"
+    },
+    {
+     "detail": "2 failure(s); first: an observe step is met by the snapshot on ANY response -- a",
+     "name": "an observation does not ride a response: observe needs its own read",
+     "verdict": "killed"
+    },
+    {
+     "detail": "7 failure(s); first: a failure the step did not ask for never satisfies it, even",
+     "name": "the licence is not observe's alone: any step is met by any response with a snapshot",
+     "verdict": "killed"
+    },
+    {
+     "detail": "1 failure(s); first: and a response carrying no snapshot observes nothing: the s",
+     "name": "an observe step is met by a response that carries no snapshot",
+     "verdict": "killed"
+    },
+    {
+     "detail": "1 failure(s); first: a required step resting on a probe loaded",
+     "name": "a required step may rest on a probe",
+     "verdict": "killed"
+    },
+    {
+     "detail": "5 failure(s); first: every committed task file loads: ['organism-crash-road.json",
+     "name": "the rule reads backwards: a probe may not read a required step",
+     "verdict": "killed"
+    },
+    {
+     "detail": "2 failure(s); first: page-enter-and-read-back: an operator who never saw the tas",
+     "name": "page-enter-and-read-back reads back the author's own constant",
+     "verdict": "killed"
+    },
+    {
+     "detail": "2 failure(s); first: organism-crash-road: the model's trace meets every required",
+     "name": "organism-crash-road requires the author's route to the crashed state",
+     "verdict": "killed"
+    },
+    {
+     "detail": "2 failure(s); first: organism-crash-road: an operator who never saw the task mee",
+     "name": "organism-crash-road counts the author's batch, not the goal's claim",
+     "verdict": "killed"
+    },
+    {
+     "detail": "2 failure(s); first: organism-replica-behind: an operator who never saw the task",
+     "name": "organism-replica-behind requires four writes because the author wrote four",
+     "verdict": "killed"
+    },
+    {
+     "detail": "1 failure(s); first: --grade-trace all grades every trace it has, sighted and bl",
+     "name": "the blind grades are filed as if they were the sighted ones",
+     "verdict": "killed"
+    },
+    {
+     "detail": "1 failure(s); first: --grade-trace all grades every trace it has, sighted and bl",
+     "name": "--grade-trace all does not reach the blind traces",
      "verdict": "killed"
     }
    ],

@@ -69,7 +69,8 @@ not_found, a refused link); a trace that skips it is SKIPPED there, not
 failed -- run_task still runs it.
 
     python3 tools/harness_tasks.py --grade-trace tools/traces/organism-crash-road.jsonl
-    python3 tools/harness_tasks.py --grade-trace all      # every trace under tools/traces, into the ledger as <id>@trace
+    python3 tools/harness_tasks.py --grade-trace all      # every trace under tools/traces, into the ledger as
+                                                         # <id>@trace, and tools/traces/blind as <id>@blind
 
     python3 tools/harness_tasks.py                  # every task under tools/tasks
     python3 tools/harness_tasks.py --target organism
@@ -112,6 +113,24 @@ def load_task(path):
         for k, v in (s.get("expect") or {}).items():
             if isinstance(v, dict) and ("op" not in v or v["op"] not in OPS):
                 raise TaskDefect("%s/%s: expectation %r has no valid op" % (t["id"], sid, k))
+    # A CLAIM MAY NOT REST ON A PROBE (ADR-136).
+    #
+    # "optional": true marks a step the author added beyond the goal; a trace
+    # that skips it is SKIPPED, not failed. So a REQUIRED step that reads a
+    # probe's response -- "$look.output.n" -- is a step that cannot be graded
+    # whenever the probe was skipped: the reference raises, the step is DEFECT,
+    # and the task blames the operator for not taking a detour the goal never
+    # asked for. The blind trial (ADR-136) is where this stops being
+    # hypothetical: three of six operators skipped a probe.
+    probes = set(s["id"] for s in t["steps"] if s.get("optional"))
+    for s in t["steps"]:
+        if s.get("optional"):
+            continue
+        for v in json.dumps([s.get("arguments"), s.get("expect")]).split('"'):
+            if v.startswith("$") and not v.startswith("$."):
+                if v[1:].partition(".")[0] in probes:
+                    raise TaskDefect("%s/%s: a required step reads %s, and that step is a probe -- a claim may "
+                                     "not rest on a step an operator may skip" % (t["id"], s["id"], v))
     t["_path"] = path
     return t
 
@@ -145,7 +164,9 @@ def find_control(name, done, where):
     looked up in the latest snapshot any step so far has carried. Matched in
     this order, first hit in document order: the element's id (cName), its
     label (a stepper's "area searched"), then the id of the nearest identified
-    ancestor (a picker mounted under #genEntry). A dial's option or a list
+    ancestor (a picker mounted under #genEntry). "kind=<kind>" names a control
+    the page never named, by what it is -- "kind=drop_zone" is the one drop
+    zone on the page (ADR-135). A dial's option or a list
     row's button has no id and a label shared with every other dial's, so a
     name may be scoped: "@control:rCov/4" is the control labelled "4" whose
     nearest identified ancestor is #rCov; "@control:iList/died#2" the third
@@ -164,7 +185,16 @@ def find_control(name, done, where):
     m = re.match(r"^(.*)#(\d+)$", name)          # a trailing #n is the nth match; "season #" is a label
     if m:
         name, nth = m.group(1), int(m.group(2))
-    if "/" in name:
+    if name.startswith("kind="):
+        # A CONTROL WITH NO NAME (ADR-135). The interactive lab takes its
+        # dropped session on the window, so the drop zone is the page's own
+        # <body>: no id, no host, and a "label" that is the whole navigation
+        # bar. It is perfectly identifiable by what it IS -- the one drop zone
+        # on the page -- and a task that cannot say that has to invent an id
+        # for the page's sake, which is the page changing to suit the harness.
+        want = name[len("kind="):]
+        hits = [c for c in controls if c.get("kind") == want and c.get("selector")]
+    elif "/" in name:
         host, _, label = name.partition("/")
         hits = [c for c in controls if c.get("host") == host and c.get("label") == label and c.get("selector")]
     else:
@@ -382,6 +412,7 @@ def run_task(task, wire, pid, wires=None):
 
 PLUGIN = {"organism": "csrbt-organism", "lab": "csrbt-lab", "page": "csrbt-page", "fixture": "csrbt-fixture"}
 TRACES_DIR = os.path.join(HERE, "traces")
+BLIND_DIR = os.path.join(TRACES_DIR, "blind")     # the blind trial (ADR-136)
 
 
 def load_trace(path):
@@ -415,8 +446,20 @@ def grade_trace(task, trace):
         where = "%s/%s" % (task["id"], s["id"])
         for i in range(start, len(trace)):
             e = trace[i]
-            if e.get("action") != s["action"] or i in used:
+            if i in used:
                 continue                                    # one call satisfies one step
+            if e.get("action") != s["action"]:
+                # AN OBSERVATION RIDES EVERY RESPONSE (ADR-136).
+                #
+                # ADR-126 made `observe` a step action because an observation
+                # is an operator's move too. The blind trial found the other
+                # half: a step that only wants to SEE the state is satisfied by
+                # the snapshot on any response, and demanding a separate
+                # resources/read is the instrument asking for a ceremony. An
+                # operator who read the state off the answer it already had has
+                # observed. Any other action still has to be the action named.
+                if not (s["action"] == "observe" and (e.get("response") or {}).get("snapshot")):
+                    continue
             r = e.get("response") or {}
             try:
                 graded = grade(s.get("expect") or {}, r, done, where)
@@ -570,7 +613,11 @@ def main(argv):
                          "the trace's file name")
     a = ap.parse_args(argv)
     if a.grade_trace:
-        files = sorted(glob.glob(os.path.join(TRACES_DIR, "*.jsonl"))) if a.grade_trace == "all" else [a.grade_trace]
+        # "all" is every trace under tools/traces, the blind trial's included
+        # (ADR-136): a blind trace is graded by exactly the same rules, and
+        # lands in the ledger as <id>@blind beside the sighted <id>@trace.
+        files = (sorted(glob.glob(os.path.join(TRACES_DIR, "*.jsonl"))) +
+                 sorted(glob.glob(os.path.join(BLIND_DIR, "*.jsonl")))) if a.grade_trace == "all" else [a.grade_trace]
         results, held = {}, 0
         for f in files:
             try:
@@ -580,11 +627,14 @@ def main(argv):
             except TaskDefect as e:
                 print("defect: %s" % e)
                 return 2
-            res["trace"] = os.path.basename(f)
-            results[task["id"] + "@trace"] = res
+            blind = os.path.basename(os.path.dirname(os.path.abspath(f))) == "blind"
+            res["trace"] = ("blind/" if blind else "") + os.path.basename(f)
+            res["blind"] = blind
+            results[task["id"] + ("@blind" if blind else "@trace")] = res
             held += 1 if res["held"] else 0
-            print("%-36s %-6s %-4s %d of %d required steps met, %d of %d probes, by %d call(s); %d confirmed"
-                  % (task["id"], res["verdict"], "held" if res["held"] else "NOT", res["met"], res["required"],
+            print("%-36s%-7s %-6s %-4s %d of %d required steps met, %d of %d probes, by %d call(s); %d confirmed"
+                  % (task["id"], " blind" if blind else "", res["verdict"], "held" if res["held"] else "NOT",
+                     res["met"], res["required"],
                      res["probed"], res["probes"], res["calls"], res["confirmed"]))
             for s in res["steps"]:
                 print("   %-10s %-16s %s" % (s["id"], s["action"], ("call #%d %s" % (s["call"], s["result"])) if "call" in s

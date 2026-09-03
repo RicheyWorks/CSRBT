@@ -84,6 +84,24 @@ FIXTURES = {
     }
 }
 
+# The kit's own shipped session, read from docs/ rather than pasted here as
+# base64 (ADR-135): it is 9 KB of the engine's own arithmetic, and a copy in
+# this file would be a second session that drifts from the one the engine
+# writes. A page that charts it must chart THE session, not a likeness.
+def _shipped_session():
+    path = os.path.join(_kit.DOCS_DIR, "ecology-experiment-session.json")
+    try:
+        raw = io.open(path, "rb").read()
+    except (IOError, OSError):
+        return None
+    return {"name": "ecology-experiment-session.json", "type": "application/json",
+            "b64": base64.b64encode(raw).decode("ascii")}
+
+
+_SESSION = _shipped_session()
+if _SESSION:
+    FIXTURES["session"] = _SESSION
+
 SEL_RE = re.compile(r"^[a-z_]+:\d+$")
 
 # Which discovered kinds each action can act on -- the same knowledge the
@@ -270,7 +288,10 @@ REPORT = r"""
   // the experiment guide's eco-out), and the few plain names (coherence,
   // report, results, outputs, toast, journal). Capped in count and in
   // characters; a list's rows are counted separately below.
-  const BOX = /^(an|out|rep|res|sum)[A-Za-z0-9-]*$|(box|out|stats?|plan|matrix|verdict|tiles|warn|coh|tell|note|advice|refuse|table|chart|typical|list|results|grid|export|lint|cmd|meas|help|card|legend|msg|check|read|desc|left|res)$|^(coherence|report|results|outputs|toast|journal)$/i;
+  // "station-<key>" is the lab's own name for a station (ADR-135): the session
+  // key the engine uses, so a figure read off the page is read under the same
+  // name the engine reports it under.
+  const BOX = /^(an|out|rep|res|sum)[A-Za-z0-9-]*$|(box|out|stats?|plan|matrix|verdict|tiles|warn|coh|tell|note|advice|refuse|table|chart|typical|list|results|grid|export|lint|cmd|meas|help|card|legend|msg|check|read|desc|left|res)$|^(coherence|report|results|outputs|toast|journal)$|^station-[a-z]+$/i;
   const boxes = {}, shown = [];
   document.querySelectorAll("[id]").forEach(e => {
     if (!BOX.test(e.id)) return;
@@ -698,7 +719,8 @@ class PagePlugin(Plugin):
                            [ArgumentSpec("selector", "string", "Selector of a file input.", required=True, pattern=SEL_RE.pattern, examples=["dial_btn:2", "text_in:7"]),
                             ArgumentSpec("files", "array",
                                          "Names of built-in fixture files: image, "
-                                         "image2, pack, eco, csv, junk, video.",
+                                         "image2, png, pack, eco, csv, junk, video, "
+                                         "session (the kit's own shipped experiment session).",
                                          required=True, items="string",
                                          enum=sorted(FIXTURES), examples=["image", "eco"])]),
                 ActionSpec("drop-files",

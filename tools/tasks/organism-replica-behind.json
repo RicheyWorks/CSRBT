@@ -35,7 +35,8 @@
     "attr": 1,
     "start": 1,
     "end": 2
-   }
+   },
+   "optional": true
   },
   {
    "id": "w3",
@@ -45,7 +46,8 @@
     "attr": 1,
     "start": 1,
     "end": 2
-   }
+   },
+   "optional": true
   },
   {
    "id": "w4",
@@ -55,7 +57,8 @@
     "attr": 1,
     "start": 1,
     "end": 2
-   }
+   },
+   "optional": true
   },
   {
    "id": "behind",

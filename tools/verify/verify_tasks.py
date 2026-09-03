@@ -22,7 +22,8 @@ pins what makes a verdict believable:
   D. the real targets: every organism, lab and page task holds through the
      gateway -- PASS, or FAIL for a canary (NOT VERIFIED without the builds)
   E. the committed ledger: one entry per task file, every one held, each
-     naming its transport
+     naming its transport (a trace's grade is "<id>@trace", a blind trace's
+     "<id>@blind"; neither is a run)
   F. traces (ADR-126): the MCP server records every call and observation;
      grade_trace holds a trace to a task -- required steps in order, probes
      anywhere after, one call per step, a step no call satisfies UNMET, a
@@ -41,7 +42,7 @@ pins what makes a verdict believable:
 Run:  python3 tools/verify/verify_tasks.py
       CSRBT_TASKS_QUICK=1 python3 tools/verify/verify_tasks.py   # A-C and E only (the mutant runner)
 """
-import copy, glob, io, json, os, sys
+import copy, glob, io, json, os, sys, tempfile
 
 import _kit
 
@@ -201,7 +202,15 @@ ck(res("@control:cName", later) == "text_in:9",
 
 # ---- B. the task files -------------------------------------------------------
 files = sorted(glob.glob(os.path.join(T.TASKS_DIR, "*.json")))
-tasks = [T.load_task(f) for f in files]
+# a committed task that will not load is a FAILING CHECK, not a traceback: a
+# suite that falls over has not noticed anything (ADR-136)
+tasks, wont_load = [], []
+for _f in files:
+    try:
+        tasks.append(T.load_task(_f))
+    except T.TaskDefect as _e:
+        wont_load.append("%s: %s" % (os.path.basename(_f), str(_e)[:90]))
+ck(not wont_load, "every committed task file loads: %s" % wont_load[:3])
 ck(len(tasks) >= 8, "%d task files" % len(tasks))
 ck(all(t["id"] == os.path.basename(t["_path"])[:-5] for t in tasks), "each task is named by its file")
 ck(all(t["target"] in T.PLUGIN for t in tasks), "each task names a target the builder stands up")
@@ -224,12 +233,36 @@ defects = [t for t in tasks if t.get("must") == "DEFECT"]
 ck(len(defects) == 1 and defects[0]["id"] == "two-targets-canary",
    "one canary declares it must DEFECT: a step naming a target that does not exist is the task's fault, not any "
    "target's: %s" % [t["id"] for t in defects])
+# ADR-136: a claim may not rest on a probe
+probe_refs = [(t["id"], s["id"], v) for t in tasks for s in t["steps"] if not s.get("optional")
+              for v in json.dumps([s.get("arguments"), s.get("expect")]).split('"')
+              if v.startswith("$") and not v.startswith("$.")
+              and v[1:].partition(".")[0] in set(x["id"] for x in t["steps"] if x.get("optional"))]
+ck(not probe_refs, "no required step reads a probe's response -- a claim may not rest on a step an operator "
+                   "may skip: %s" % probe_refs[:3])
+_pr = os.path.join(tempfile.mkdtemp(), "probe.json")
+io.open(_pr, "w").write(json.dumps({"id": "probe", "target": "fixture", "goal": "x" * 50, "steps": [
+    {"id": "look", "action": "look", "optional": True},
+    {"id": "need", "action": "count", "expect": {"output.count": "$look.output.n"}}]}))
+try:
+    T.load_task(_pr)
+    ck(False, "a required step resting on a probe loaded")
+except T.TaskDefect as e:
+    ck("probe" in str(e), "a required step that reads a probe is a task DEFECT at load: %s" % str(e)[-60:])
+_pr2 = os.path.join(os.path.dirname(_pr), "probe2.json")
+io.open(_pr2, "w").write(json.dumps({"id": "probe2", "target": "fixture", "goal": "x" * 50, "steps": [
+    {"id": "one", "action": "ok"},
+    {"id": "look", "action": "look", "optional": True, "expect": {"output.n": "$one.output.n"}}]}))
+try:
+    ck(T.load_task(_pr2)["id"] == "probe2", "a PROBE may read a required step -- the rule is one-way")
+except T.TaskDefect as e:
+    ck(False, "a PROBE may read a required step -- the rule is one-way: %s" % str(e)[:80])
+
 try:
     T.load_task(os.path.join(_kit.TOOLS_DIR, "harness_walk.py"))
     ck(False, "a non-task loaded")
 except (T.TaskDefect, ValueError):
     ck(True, "")
-import tempfile
 tmp = tempfile.mkdtemp()
 badf = os.path.join(tmp, "bad.json")
 io.open(badf, "w").write(json.dumps({"id": "bad", "target": "fixture", "goal": "x" * 50,
@@ -306,6 +339,34 @@ else:
                                                                    for e in s.get("expectations", []) if e["verdict"] != "CONFIRMED"][:2]))
         ck(sum(r["confirmed"] for r in rs.values()) >= 8, "%s: the tasks carry real expectations, %d confirmed"
            % (tgt, sum(r["confirmed"] for r in rs.values())))
+
+# ---- ADR-135: a control the page never named --------------------------------
+kindsnap = {"controls": [
+    {"selector": "drop_zone:0", "kind": "drop_zone", "id": None, "host": None,
+     "label": "Overview Interactive Lab Lab Manual Teacher's Guide"},
+    {"selector": "text_in:0", "kind": "text_in", "id": "wb-field", "host": "main", "label": "field"},
+    {"selector": "drop_zone:1", "kind": "drop_zone", "id": None, "host": None, "label": ""},
+]}
+kd = {"s": {"snapshot": kindsnap}}
+def _fc(name):
+    """find_control, reporting a refusal rather than dying of it: a suite that
+    crashes on a mutation has not noticed it, it has fallen over."""
+    try:
+        return T.find_control(name, kd, "t")
+    except T.TaskDefect as e:
+        return "DEFECT: %s" % str(e)[:60]
+
+
+ck(_fc("kind=drop_zone") == "drop_zone:0",
+   "a control the page never named is nameable by WHAT IT IS: the lab's drop zone is the page's own <body>, "
+   "with no id and the whole nav bar for a label -- got %s" % _fc("kind=drop_zone"))
+ck(_fc("kind=drop_zone#1") == "drop_zone:1", "and #n picks among them: %s" % _fc("kind=drop_zone#1"))
+ck(T.find_control("wb-field", kd, "t") == "text_in:0", "naming by id still wins, unchanged")
+try:
+    T.find_control("kind=telescope", kd, "t")
+    ck(False, "a kind nothing matches resolved")
+except T.TaskDefect as e:
+    ck("no control named" in str(e), "a kind nothing matches is the task's DEFECT: %s" % str(e)[:60])
 
 # ---- ADR-133: two targets, one task ------------------------------------------
 #
@@ -395,7 +456,7 @@ led = T.LEDGER
 ck(os.path.isfile(led), "the task ledger exists")
 if os.path.isfile(led):
     L = json.load(io.open(led, encoding="utf-8"))["tasks"]
-    runs = {k: e for k, e in L.items() if not k.endswith("@trace")}
+    runs = {k: e for k, e in L.items() if not k.endswith(("@trace", "@blind"))}
     ck(set(runs) == {t["id"] for t in tasks}, "one entry per task file, and none for a task that is gone: %s"
        % sorted(set(runs) ^ {t["id"] for t in tasks}))
     ck(all(e.get("held") and e.get("verdict") == e.get("must", "PASS") and e.get("transport") in ("stdio", "mcp")
@@ -440,6 +501,25 @@ g5 = T.grade_trace({"id": "t5", "target": "fixture", "goal": "g" * 50, "steps": 
     {"id": "s", "action": "look", "optional": True, "expect": {"output.n": 1}}, {"id": "l", "action": "look", "expect": {"ok": True}}]}, trace)
 ck(g5["verdict"] == "PASS" and g5["steps"][1].get("call") == 1 and g5["steps"][0]["result"] == "SKIPPED",
    "a probe never takes a call a required step needs (the first page trace lost its read-page that way)")
+# ADR-136: an observation rides every response
+obs_trace = [{"action": "put", "arguments": {"key": 1},
+              "response": {"ok": True, "output": {}, "snapshot": {"size": 1, "gapped": False}}},
+             {"action": "boom", "arguments": {}, "response": {"ok": False, "code": "failed", "output": {}}}]
+og = T.grade_trace({"id": "og", "target": "fixture", "goal": "g" * 50, "steps": [
+    {"id": "see", "action": "observe", "expect": {"snapshot.size": 1, "snapshot.gapped": False}}]}, obs_trace)
+ck(og["verdict"] == "PASS" and og["steps"][0].get("call") == 0,
+   "an observe step is met by the snapshot on ANY response -- an operator who read the state off the answer it "
+   "already had has observed, and a separate resources/read is a ceremony the goal never asked for")
+og2 = T.grade_trace({"id": "og2", "target": "fixture", "goal": "g" * 50, "steps": [
+    {"id": "see", "action": "observe", "expect": {"ok": True}}]},
+    [{"action": "count", "arguments": {}, "response": {"ok": True, "output": {"count": 1}}}])
+ck(og2["verdict"] == "FAIL" and og2["steps"][0]["result"] == "UNMET",
+   "and a response carrying no snapshot observes nothing: the step is still UNMET")
+og3 = T.grade_trace({"id": "og3", "target": "fixture", "goal": "g" * 50, "steps": [
+    {"id": "c", "action": "count", "expect": {"snapshot.size": 1}}]}, obs_trace)
+ck(og3["verdict"] == "FAIL" and og3["steps"][0]["result"] == "UNMET",
+   "the licence is observe's alone: every other step is still met only by the action it names, snapshot or no")
+
 try:
     T.load_trace(os.path.join(_kit.TOOLS_DIR, "harness_walk.py"))
     ck(False, "a non-trace loaded")
@@ -488,6 +568,69 @@ if os.path.isfile(led):
     traced = {k[:-6]: e for k, e in L.items() if k.endswith("@trace")}
     ck(set(traced) == {os.path.basename(f)[:-6] for f in tfiles} and all(e["held"] and e["graded"] == "trace" for e in traced.values()),
        "the ledger carries every trace's grade, held: %s" % sorted(traced))
+
+# ---- F2. the blind trial (ADR-136) -------------------------------------------
+#
+# The six traces above were produced by the session that had written the tasks
+# earlier the same day. It knew the answers. These six were produced by
+# operators that could not: a fresh context each, given the task's goal
+# sentence VERBATIM and a JSON-RPC console, working in a copy of the repo with
+# tools/tasks, tools/traces, the ledger and every ADR deleted.
+#
+# This is the strongest check in the file, and the only one that is empirical
+# rather than structural: a task whose required steps pin the author's route
+# rather than the goal's claim STOPS GRADING against a blind trace, and this
+# block fails. It is the regression guard for every task-shape finding the
+# trial produced -- there is no rule here that says "do not pin a constant",
+# only six operators who did not know what the constant was.
+bfiles = sorted(glob.glob(os.path.join(T.BLIND_DIR, "*.jsonl")))
+ck(len(bfiles) == 6 and {os.path.basename(f)[:-6] for f in bfiles} <= {t["id"] for t in tasks if t["target"] != "fixture"}
+   and {by[os.path.basename(f)[:-6]]["target"] for f in bfiles} == {"organism", "lab", "page"},
+   "six blind traces, each naming a real task, on every real target: %s" % [os.path.basename(f) for f in bfiles])
+prov = os.path.join(T.BLIND_DIR, "PROVENANCE.md")
+ptext = io.open(prov, encoding="utf-8").read() if os.path.isfile(prov) else ""
+ck("verbatim" in ptext and "mis-conducted" in ptext and len(ptext) > 1500,
+   "the blind traces carry a provenance that states the conditions verbatim, and owns the one run that was "
+   "mis-conducted -- a trial whose conduct is not on the record proves nothing")
+rode = skipped = 0
+for f in bfiles:
+    tid = os.path.basename(f)[:-6]
+    tr = T.load_trace(f)
+    gb = T.grade_trace(by[tid], tr)
+    ck(gb["verdict"] == "PASS" and gb["held"] and gb["met"] == gb["required"],
+       "%s: an operator who never saw the task meets every required step (%d of %d, %d of %d probes, %d calls): %s"
+       % (tid, gb["met"], gb["required"], gb["probed"], gb["probes"], gb["calls"],
+          [(x["id"], x.get("detail", "")[:60]) for x in gb["steps"] if x["result"] == "UNMET"][:2]))
+    ck(any(e["arguments"] != (s.get("arguments") or {}) for e in tr for s in by[tid]["steps"]
+           if e["action"] == s["action"] and s.get("arguments")) or tid == "lab-run-shipped-protocol",
+       "%s: and it is not the task's own steps replayed -- the arguments differ" % tid)
+    for x in gb["steps"]:
+        if x["result"] == "SKIPPED":
+            skipped += 1
+        elif x["action"] == "observe" and "call" in x and tr[x["call"]]["action"] != "observe":
+            rode += 1
+ck(rode >= 1, "at least one blind operator met an observe step by reading the snapshot off a response it already "
+              "had -- the rule the trial found is exercised by the evidence, not only by the fixture (%d)" % rode)
+ck(skipped >= 3, "and blind operators skipped probes they were never told to take (%d) -- which is why no required "
+                 "step may rest on one" % skipped)
+_out = io.StringIO()
+_save, sys.stdout = sys.stdout, _out
+try:
+    _rc = T.main(["--grade-trace", "all", "--no-ledger"])
+finally:
+    sys.stdout = _save
+_lines = [l for l in _out.getvalue().split("\n") if "required steps met" in l]
+ck(_rc == 0 and len(_lines) == 12 and sum(1 for l in _lines if " blind " in l) == 6
+   and all("PASS" in l and "held" in l for l in _lines),
+   "--grade-trace all grades every trace it has, sighted and blind, and says so on every line it prints: "
+   "%d line(s), %d blind" % (len(_lines), sum(1 for l in _lines if " blind " in l)))
+if os.path.isfile(led):
+    L = json.load(io.open(led, encoding="utf-8"))["tasks"]
+    blind = {k[:-6]: e for k, e in L.items() if k.endswith("@blind")}
+    ck(set(blind) == {os.path.basename(f)[:-6] for f in bfiles}
+       and all(e["held"] and e["verdict"] == "PASS" and e["blind"] and e["trace"].startswith("blind/")
+               for e in blind.values()),
+       "the ledger carries every blind grade beside the sighted one, each marked blind: %s" % sorted(blind))
 
 # ---- G. the science (ADR-128) and the whole kit (ADR-129) ---------------------
 DATA_ENTRY = {"collection-sheet.html", "releve.html", "stand-sheet.html", "ethogram.html", "selection-log.html",

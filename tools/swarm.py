@@ -218,8 +218,23 @@ window.__S = { out: [], toasts: 0, choosers: 0, lastChooser: "" };
     var AEL = EventTarget.prototype.addEventListener;
     EventTarget.prototype.addEventListener = function (type, fn, opt) {
       try {
-        if (type === "drop" && this.setAttribute && this.nodeType === 1)
-          this.setAttribute("data-h-drop", "1");
+        if (type === "drop") {
+          if (this.setAttribute && this.nodeType === 1) this.setAttribute("data-h-drop", "1");
+          // A page whose drop target is the WINDOW had no element to stamp, so
+          // it published no drop zone and the harness could not drop anything
+          // on it at all -- which is how the interactive lab's "drop a session
+          // anywhere to reload" went undriven through four ADRs (ADR-135). The
+          // surface a reader drops onto is then the page itself.
+          else if (this === window || this === document) {
+            var mark = function () {
+              if (document.body && !document.body.hasAttribute("data-h-drop"))
+                document.body.setAttribute("data-h-drop", "1");
+            };
+            mark();
+            if (document.readyState === "loading")
+              document.addEventListener("DOMContentLoaded", mark);
+          }
+        }
       } catch (e) { }
       return AEL.call(this, type, fn, opt);
     };

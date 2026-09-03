@@ -10,7 +10,7 @@ over both transports, the committed ledger; no engine, no browser.
     python3 tools/mutate_tasks.py           # run every mutant
     python3 tools/mutate_tasks.py --list    # the catalogue
 """
-import argparse, io, os, shutil, subprocess, sys, tempfile
+import argparse, glob, io, os, shutil, subprocess, sys, tempfile
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 TOOLS = os.path.join(ROOT, "tools")
@@ -53,6 +53,19 @@ MUTANTS = [
      '        key, real = path, re.sub(r"(?<! )#\\d+$", "", path)',
      '        key, real = path, re.sub(r"#\\d+$", "", path).rstrip()',
      "real path segment"),
+    # ---- a control the page never named (ADR-135) ----
+    ("kind= is not a way to name a control",
+     '    if name.startswith("kind="):',
+     '    if False:',
+     "nameable by WHAT IT IS"),
+    ("kind= matches on the label instead of the kind",
+     '        hits = [c for c in controls if c.get("kind") == want and c.get("selector")]',
+     '        hits = [c for c in controls if c.get("label") == want and c.get("selector")]',
+     "nameable by WHAT IT IS"),
+    ("kind= swallows a plain id",
+     '    if name.startswith("kind="):\n',
+     '    if True:\n',
+     "an id wins over a control merely labelled"),
     # ---- two targets, one task (ADR-133) ----
     ("a step's target is ignored: every step goes to the task's own target",
      '        if s.get("target"):\n            if s["target"] not in wires:',
@@ -139,8 +152,8 @@ MUTANTS += [
      '    for s in required:\n        hit = match(s, 0)',
      "order is order"),
     ("one call may satisfy two steps",
-     '            if e.get("action") != s["action"] or i in used:',
-     '            if e.get("action") != s["action"]:',
+     '            if i in used:\n                continue                                    # one call satisfies one step',
+     '            if False:\n                continue                                    # one call satisfies one step',
      "probe never takes a call"),
     ("a failure the step did not ask for satisfies it",
      '            if result == "failed" and not any(p == "code" for p, _, _ in graded):\n                continue                                    # a failure the step did not ask for',
@@ -192,6 +205,54 @@ MUTANTS += [
      "LATEST snapshot"),
 ]
 
+MUTANTS += [
+    # ---- ADR-136: the blind trial ----
+    ('an observation does not ride a response: observe needs its own read',
+     '                if not (s["action"] == "observe" and (e.get("response") or {}).get("snapshot")):\n                    continue',
+     '                continue',
+     'met by the snapshot on ANY response'),
+    ("the licence is not observe's alone: any step is met by any response with a snapshot",
+     '                if not (s["action"] == "observe" and (e.get("response") or {}).get("snapshot")):\n                    continue',
+     '                if not (e.get("response") or {}).get("snapshot"):\n                    continue',
+     "the licence is observe's alone"),
+    ('an observe step is met by a response that carries no snapshot',
+     '                if not (s["action"] == "observe" and (e.get("response") or {}).get("snapshot")):\n                    continue',
+     '                if not (s["action"] == "observe"):\n                    continue',
+     'carrying no snapshot observes nothing'),
+    ('a required step may rest on a probe',
+     '                if v[1:].partition(".")[0] in probes:\n                    raise TaskDefect',
+     '                if False:\n                    raise TaskDefect',
+     'a required step resting on a probe loaded'),
+    ('the rule reads backwards: a probe may not read a required step',
+     '    probes = set(s["id"] for s in t["steps"] if s.get("optional"))\n    for s in t["steps"]:\n        if s.get("optional"):',
+     '    probes = set(s["id"] for s in t["steps"] if not s.get("optional"))\n    for s in t["steps"]:\n        if not s.get("optional"):',
+     'the rule is one-way'),
+    ("page-enter-and-read-back reads back the author's own constant",
+     '    "output.value": "$type.output.value"',
+     '    "output.value": "Quercus rubra"',
+     'meets every required step'),
+    ("organism-crash-road requires the author's route to the crashed state",
+     '    "snapshot.chaos": "once:2"\n   },\n   "optional": true',
+     '    "snapshot.chaos": "once:2"\n   }',
+     'meets every required step'),
+    ("organism-crash-road counts the author's batch, not the goal's claim",
+     '    "output.count": {\n     "op": ">=",\n     "value": 3\n    }',
+     '    "output.count": 3',
+     'meets every required step'),
+    ('organism-replica-behind requires four writes because the author wrote four',
+     '    "key": 51,\n    "attr": 1,\n    "start": 1,\n    "end": 2\n   },\n   "optional": true',
+     '    "key": 51,\n    "attr": 1,\n    "start": 1,\n    "end": 2\n   }',
+     'meets every required step'),
+    ('the blind grades are filed as if they were the sighted ones',
+     '            results[task["id"] + ("@blind" if blind else "@trace")] = res',
+     '            results[task["id"] + "@trace"] = res',
+     'and says so on every line it prints'),
+    ('--grade-trace all does not reach the blind traces',
+     '        files = (sorted(glob.glob(os.path.join(TRACES_DIR, "*.jsonl"))) +\n                 sorted(glob.glob(os.path.join(BLIND_DIR, "*.jsonl")))) if a.grade_trace == "all" else [a.grade_trace]',
+     '        files = sorted(glob.glob(os.path.join(TRACES_DIR, "*.jsonl"))) if a.grade_trace == "all" else [a.grade_trace]',
+     'grades every trace it has, sighted and blind'),
+]
+
 KNOWN_EQUIVALENT = []
 
 
@@ -200,11 +261,19 @@ def run_one(find, repl, expect):
     try:
         dst = os.path.join(tmp, "tools")
         shutil.copytree(TOOLS, dst, ignore=shutil.ignore_patterns("__pycache__", "*_evidence"))
-        path = os.path.join(dst, "harness_tasks.py")
-        src = io.open(path, encoding="utf-8").read()
-        if src.count(find) == 0:                                   # a mutant of the recorder lives in the server
-            path = os.path.join(dst, "harness_mcp.py")
-            src = io.open(path, encoding="utf-8").read()
+        cands = [os.path.join(dst, "harness_tasks.py"),
+                 os.path.join(dst, "harness_mcp.py")]              # a mutant of the recorder lives in the server
+        # ADR-136: and a mutant of a TASK lives in its file. The blind traces
+        # are the only check that can notice one -- an author's constant put
+        # back into a required step still grades against the author's own
+        # trace, and only against an operator that never saw it does it fail.
+        cands += sorted(glob.glob(os.path.join(dst, "tasks", "*.json")))
+        path, src = cands[0], io.open(cands[0], encoding="utf-8").read()
+        for c in cands:
+            t = io.open(c, encoding="utf-8").read()
+            if t.count(find) == 1:
+                path, src = c, t
+                break
         if src.count(find) != 1:
             return ("BAD MUTANT", "anchor matched %d times -- the mutation never applied" % src.count(find))
         io.open(path, "w", encoding="utf-8", newline="\n").write(src.replace(find, repl, 1))

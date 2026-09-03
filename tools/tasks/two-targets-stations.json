@@ -1,0 +1,187 @@
+{
+ "id": "two-targets-stations",
+ "target": "lab",
+ "page": "ecology-lab.html",
+ "goal": "Run the shipped protocol through the science engine, drop the session the engine wrote onto the kit's interactive lab, and hold EVERY station's figures to the engine's own -- the meadow's three phases, the census, the theory bench's six models and the entered data. The page charts what the engine computed; if a station disagrees with the session it is charting, one of them is wrong.",
+ "steps": [
+  {
+   "id": "run",
+   "action": "run-protocol",
+   "arguments": {
+    "name": "sample-experiment"
+   },
+   "expect": {
+    "ok": true,
+    "output.session.meadow.phases.0.name": "graze",
+    "output.session.demography.cohort": 676
+   }
+  },
+  {
+   "id": "look",
+   "target": "page",
+   "action": "observe",
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "drop",
+   "target": "page",
+   "action": "drop-files",
+   "arguments": {
+    "selector": "@control:kind=drop_zone",
+    "files": [
+     "session"
+    ]
+   },
+   "expect": {
+    "ok": true,
+    "output.attached": {
+     "op": "contains",
+     "value": "ecology-experiment-session.json"
+    }
+   }
+  },
+  {
+   "id": "meadow",
+   "target": "page",
+   "action": "read-report",
+   "expect": {
+    "output.by.station-meadow.J′ — graze": {
+     "op": "~=",
+     "value": "$run.output.session.meadow.phases.0.evenness",
+     "tolerance": 0.0005
+    },
+    "output.by.station-meadow.effective species": {
+     "op": "~=",
+     "value": "$run.output.session.meadow.phases.0.hill1",
+     "tolerance": 0.05
+    },
+    "output.by.station-meadow.J′ — bloom": {
+     "op": "~=",
+     "value": "$run.output.session.meadow.phases.1.evenness",
+     "tolerance": 0.0005
+    },
+    "output.by.station-meadow.effective species #2": {
+     "op": "~=",
+     "value": "$run.output.session.meadow.phases.1.hill1",
+     "tolerance": 0.05
+    },
+    "output.by.station-meadow.Chao1 est\\. richness #2": {
+     "op": "~=",
+     "value": "$run.output.session.meadow.phases.1.chao1",
+     "tolerance": 0.05
+    },
+    "output.by.station-meadow.J′ — seasons": {
+     "op": "~=",
+     "value": "$run.output.session.meadow.phases.2.evenness",
+     "tolerance": 0.0005
+    },
+    "output.by.station-meadow.curve shape": "geometric",
+    "output.by.station-meadow.curve shape #2": "broken stick"
+   }
+  },
+  {
+   "id": "census",
+   "target": "page",
+   "action": "read-report",
+   "expect": {
+    "output.by.station-demography.completed lives": "676",
+    "output.by.station-demography.mean age at death": "820 ops"
+   }
+  },
+  {
+   "id": "bench",
+   "target": "page",
+   "action": "read-report",
+   "expect": {
+    "output.by.station-models.equilibrium": {
+     "op": "~=",
+     "value": "$run.output.session.models.0.equilibrium",
+     "tolerance": 0.5
+    },
+    "output.by.station-models.equilibrium #2": {
+     "op": "~=",
+     "value": "$run.output.session.models.1.equilibrium",
+     "tolerance": 0.005
+    },
+    "output.by.station-models.allele freq p": {
+     "op": "~=",
+     "value": "$run.output.session.models.3.stats.p",
+     "tolerance": 5e-05
+    },
+    "output.by.station-models.χ² (df 1)": {
+     "op": "~=",
+     "value": "$run.output.session.models.3.stats.chi2",
+     "tolerance": 0.005
+    },
+    "output.by.station-models.net reproductive rate R₀": {
+     "op": "~=",
+     "value": "$run.output.session.models.4.stats.R0",
+     "tolerance": 0.05
+    },
+    "output.by.station-models.intrinsic r (Euler–Lotka)": {
+     "op": "~=",
+     "value": "$run.output.session.models.4.stats.rExact",
+     "tolerance": 5e-05
+    },
+    "output.by.station-models.Lincoln–Petersen N̂": {
+     "op": "~=",
+     "value": "$run.output.session.models.5.stats.lincolnPetersen",
+     "tolerance": 0.5
+    },
+    "output.by.station-models.Chapman N̂": {
+     "op": "~=",
+     "value": "$run.output.session.models.5.stats.chapman",
+     "tolerance": 0.5
+    }
+   }
+  },
+  {
+   "id": "entered",
+   "target": "page",
+   "action": "read-report",
+   "expect": {
+    "output.by.station-entered.kinds": "5",
+    "output.by.station-entered.Shannon H′": {
+     "op": "~=",
+     "value": "$run.output.session.entered.0.shannon",
+     "tolerance": 0.005
+    },
+    "output.by.station-entered.evenness J′": {
+     "op": "~=",
+     "value": "$run.output.session.entered.0.evenness",
+     "tolerance": 0.0005
+    },
+    "output.by.station-entered.Shannon H′ #2": {
+     "op": "~=",
+     "value": "$run.output.session.entered.1.shannon",
+     "tolerance": 0.005
+    },
+    "output.by.station-entered.Shannon H′ #3": {
+     "op": "~=",
+     "value": "$run.output.session.entered.2.shannon",
+     "tolerance": 0.005
+    },
+    "output.by.station-entered.Chao1 est\\. #3": {
+     "op": "~=",
+     "value": "$run.output.session.entered.2.chao1",
+     "tolerance": 0.05
+    }
+   }
+  },
+  {
+   "id": "intact",
+   "target": "page",
+   "action": "read-page",
+   "expect": {
+    "output.junk": null,
+    "output.errors": {
+     "op": "==",
+     "value": []
+    },
+    "output.overflow": 0
+   }
+  }
+ ]
+}

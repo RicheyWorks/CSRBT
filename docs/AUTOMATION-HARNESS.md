@@ -380,6 +380,22 @@ task — required steps in order, probes anywhere after, one call per step, the
 operator's own detours allowed and counted. Six traces under `tools/traces/`,
 planned from the goals alone, every one held; their provenance is stated there.
 
+**The blind trial (ADR-136).** Those six were produced by the session that had
+written the tasks. Six more, under `tools/traces/blind/`, were not: a fresh
+subagent each, given the task's goal sentence verbatim and
+`tools/blind_console.py` — a JSON-RPC console that offers `tools/list`,
+`resources/list`, a call and a read, and nothing else — in a checkout with
+`tools/tasks/`, `tools/traces/`, the ledger and every ADR deleted. First
+grading, 24 of 40 required steps; after four fixes to the instrument, 30 of 30.
+The fixes: an `observe` step is met by the snapshot riding ANY response (the
+licence is observe's alone); four steps that described the author's route
+became probes; a read-back reads `$type.output.value` rather than the literal
+the task types; a count claims `>= 3` rather than the author's batch size. And
+`load_task` now refuses a required step that reads a probe — a claim may not
+rest on a step an operator may skip. The blind traces are a committed check:
+`verify_tasks` section F2 requires each to grade PASS and held, which is what
+stops a task from quietly re-acquiring its author's route.
+
 **The science (ADR-128).** Twenty-one tasks, one per data-entry page of the
 kit, enter data through the gateway and hold the page's report to an oracle
 computed by hand: the collection sheet's Chao1 6.5 and H′ 1.359, the stand
@@ -518,12 +534,14 @@ full protocol surface in-process over a fixture, and the server as a child over
 the organism spoken to in JSON-RPC. `tools/mutate_mcp.py`: 6 killed, 0 survived,
 1 recorded equivalent.
 
-`tools/verify/verify_tasks.py` (70 checks) holds the task runner to its grammar,
+`tools/verify/verify_tasks.py` (234 checks) holds the task runner to its grammar,
 its files and its grader — the canary refuted and held, a bad reference a
 defect, a dead target a defect, MCP the same verdicts — runs every task through
 the gateway, and holds the trace grader (order, one call per step, probes after
-required steps) and the six committed traces. `tools/mutate_tasks.py`: 16
-killed, 0 survived.
+required steps) and the twelve committed traces, six of them blind (ADR-136).
+`tools/mutate_tasks.py`: 55 killed, 0 survived — and to carry four of them the
+runner mutates TASK FILES as well as the harness, putting the author's
+constants back; only the blind operators refuse them.
 
 `tools/verify/verify_audit_states.py` (33 checks) holds the kit's audits to
 "everywhere" (ADR-130): `tools/audit_states.py` walks a page through its
@@ -545,6 +563,12 @@ nothing, is counted as a fault; a refusal on a step written to be refused is
 not. The suite pins all four selection rules with fixture tasks that isolate
 each, and the focus audit presses and releases a key before every probe so the
 browser is in a keyboard user's mood whatever the entry did with the pointer.
+
+ADR-135: a task may name a control by what it IS — `@control:kind=drop_zone` —
+for a control the page never named. A `drop` listener on the window stamps the
+page's `<body>` as its drop zone, and `FIXTURES["session"]` is the kit's own
+shipped experiment session, so a task can hand the interactive lab the session
+the engine just wrote and hold every station's figures to it.
 
 ADR-134 (protocol 1.4): a target may publish actions that set the environment a
 run happens in. The page plugin publishes `set-clock`, `set-seed` and

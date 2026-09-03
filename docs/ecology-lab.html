@@ -466,9 +466,17 @@ function lineChart(parent, seriesList, { w = 980, h = 230, yMax, xTicks, xLabel,
 }
 
 /* ── page assembly ────────────────────────────────────────────────────────── */
-function card(emoji, title, whatis) {
+function card(emoji, title, whatis, slug) {
   const c = document.createElement("section");
   c.className = "card";
+  /* A STATION HAS A NAME (ADR-135).
+     Every station on this page was an anonymous <section class="card">, so a
+     harness reading the page's figures found them all under #main -- and the
+     nine stations' tiles, which reuse the same labels ("effective species",
+     "Chao1 est."), collided into one map that nobody could hold to anything.
+     The id is the session's own key for that station, so a reader (and a task)
+     names the station the way the engine does. */
+  if (slug) c.id = "station-" + slug;
   c.innerHTML = `<h2>${emoji} ${title}</h2><p class="whatis">${whatis}</p>`;
   document.getElementById("main").append(c);
   return c;
@@ -499,7 +507,7 @@ function renderStations(S) {
     const m = S.meadow;
     const c = card("🌾", "The Meadow — diversity of the access community",
       "Species = keys, abundance = touches. Shannon H′, Pielou J′, the effective-species (Hill) number, " +
-      "and Chao1's how-much-did-we-miss estimate — the numbers the structural indices provably cannot vary on.");
+      "and Chao1's how-much-did-we-miss estimate — the numbers the structural indices provably cannot vary on.", "meadow");
     for (const p of m.phases) {
       c.insertAdjacentHTML("beforeend",
         `<div class="tiles">${tile(fmt(p.evenness, 3), `J′ — ${String(p.name ?? "").toLowerCase()}`)}
@@ -551,7 +559,7 @@ function renderStations(S) {
     const peak = d.bray.indexOf(Math.max(...d.bray));
     const c = card("🌊", "The Drift — how the workload changed while it ran",
       `Bray–Curtis turnover between consecutive ${esc(d.windowOps)}-op windows. Spikes are regime shifts — ` +
-      "the early-warning experiment shows abrupt shifts land in exactly one window (lag 0).");
+      "the early-warning experiment shows abrupt shifts land in exactly one window (lag 0).", "drift");
     c.insertAdjacentHTML("beforeend",
       `<p class="reading">Sharpest change at window <b>${peak + 1} → ${peak + 2}</b> ` +
       `(Bray–Curtis <b>${fmt(d.bray[peak])}</b>: ${turnoverR(d.bray[peak])}).</p>`);
@@ -565,7 +573,7 @@ function renderStations(S) {
     const d = S.demography && S.demography.survivorship ? S.demography : null;
     const g = S.growth && S.growth.series ? S.growth : null;
     const c = card("📋", "The Census — who lives how long, and how the population grew",
-      "Inserts are births, removes are deaths, ages count in operations. Cohort life table + Verhulst logistic fit.");
+      "Inserts are births, removes are deaths, ages count in operations. Cohort life table + Verhulst logistic fit.", "demography");
     const tiles = [];
     if (d) tiles.push(tile(fmt(d.cohort, 0), "completed lives"), tile(fmt(d.meanAge, 0) + " ops", "mean age at death"));
     if (g) tiles.push(tile(fmt(g.r, 4), "growth rate r (per op)"), tile("≈ " + fmt(g.K, 1) + " keys", "carrying capacity K"));
@@ -609,7 +617,7 @@ function renderStations(S) {
   if (S.archipelago && S.archipelago.timeline && S.archipelago.timeline.length) {
     const a = S.archipelago;
     const c = card("🏝️", "The Archipelago — ensemble members as habitat patches",
-      "Quarantine is a local extinction; healing from the primary is recolonization. Levins model vs direct measurement.");
+      "Quarantine is a local extinction; healing from the primary is recolonization. Levins model vs direct measurement.", "archipelago");
     /* The verdict uses FieldReport.LEVINS_AGREEMENT = 0.15, the same band the printed
        report uses — the page must not grade more leniently than the oracle. The prose
        below therefore explains the numbers instead of widening the band: `levins` is a
@@ -650,7 +658,7 @@ function renderStations(S) {
   if (S.fossils && S.fossils.generations && S.fossils.generations.length) {
     const f = S.fossils;
     const c = card("🦴", "The Fossil Record — strata of the persistent engine",
-      "Each snapshot is a preserved stratum later edits cannot rewrite: inherited, gained, and lost per generation.");
+      "Each snapshot is a preserved stratum later edits cannot rewrite: inherited, gained, and lost per generation.", "fossils");
     c.insertAdjacentHTML("beforeend",
       `<div class="tiles">${tile(f.generations.length, "strata on record")}
        ${tile(fmt(f.turnover * 100, 0) + "%", "avg turnover per generation")}
@@ -677,7 +685,7 @@ function renderStations(S) {
   if (S.grid) {
     const g = S.grid;
     const c = card("🗺️", "The Survey Grid — quadrat sampling over the key space",
-      "A field grid over the key range: individuals per quadrat, then the classic dispersion verdicts.");
+      "A field grid over the key range: individuals per quadrat, then the classic dispersion verdicts.", "grid");
     const f = document.createElement("div"); f.className = "facets";
     const entries = [["clustered", g.spread ? "Patchy planting" : "Keys at trace end", "var(--s2)"],
                      ["spread", "Evenly sown", "var(--s3)"]];
@@ -707,7 +715,7 @@ function renderStations(S) {
   /* Theory bench — models run by the experiment engine */
   if (S.models && S.models.length) {
     const c = card("📐", "The Theory Bench — what the models say",
-      "Trajectories and statistics from the classical models, with the spec's abiotic factors already applied to the rates.");
+      "Trajectories and statistics from the classical models, with the spec's abiotic factors already applied to the rates.", "models");
     const f = document.createElement("div"); f.className = "facets";
     for (const m of S.models) {
       const facet = document.createElement("div"); facet.className = "facet";
@@ -762,7 +770,7 @@ function renderStations(S) {
   if (S.crosses && S.crosses.length) {
     const c = card("🌱", "The Greenhouse & Coop — Punnett squares",
       "The famous crosses drawn out: gametes along the edges, offspring in the cells, colors by phenotype. " +
-      "χ² verdicts grade any observed counts against the Mendelian ratio.");
+      "χ² verdicts grade any observed counts against the Mendelian ratio.", "crosses");
     const f = document.createElement("div"); f.className = "facets";
     for (const cr of S.crosses) {
       const facet = document.createElement("div"); facet.className = "facet";
@@ -781,7 +789,7 @@ function renderStations(S) {
   if (S.entered && S.entered.length) {
     const c = card("📓", "The Entered Data — your own observations, same instruments",
       "Field counts, ethogram tallies, and surveys from data: lines in the protocol — graded by the exact " +
-      "indices the simulated phases get.");
+      "indices the simulated phases get.", "entered");
     const f = document.createElement("div"); f.className = "facets";
     for (const d of S.entered) {
       const facet = document.createElement("div"); facet.className = "facet";
@@ -798,7 +806,7 @@ function renderStations(S) {
   /* Field notebook */
   if (S.notes && S.notes.length) {
     const c = card("📔", "The Field Notebook — qualitative observations, kept with the run",
-      "note: lines from the protocol. Numbers say how much; the notebook says what it was like out there.");
+      "note: lines from the protocol. Numbers say how much; the notebook says what it was like out there.", "notes");
     for (const n of S.notes) {
       c.insertAdjacentHTML("beforeend",
         `<p class="reading">${n.about ? `<span class="chip">${esc(n.about)}</span> ` : "• "}${esc(n.text)}</p>`);
@@ -809,7 +817,7 @@ function renderStations(S) {
   if (S.trees && S.trees.length) {
     const c = card("🌳", "Tree Thinking — phylogenies in this experiment",
       "tree: lines in standard Newick, drawn as cladograms. A search tree orders keys; a phylogeny is a " +
-      "hypothesis of descent — same picture, different meaning.");
+      "hypothesis of descent — same picture, different meaning.", "trees");
     const f = document.createElement("div"); f.className = "facets";
     for (const t of S.trees) {
       if (!t || !t.root) continue;
@@ -825,7 +833,7 @@ function renderStations(S) {
   /* Hypotheses */
   if (S.hypotheses && S.hypotheses.length) {
     const c = card("🎯", "The Hypotheses — graded by the run",
-      "Written before the experiment ran; the run decides. That order is the whole discipline.");
+      "Written before the experiment ran; the run decides. That order is the whole discipline.", "hypotheses");
     for (const h of S.hypotheses) {
       const mark = h.verdict === "CONFIRMED" ? "✅" : h.verdict === "REFUTED" ? "❌" : "⚠";
       const obs = h.observed === undefined ? "" :
@@ -841,7 +849,7 @@ function renderStations(S) {
   if (S.island && S.island.timeline && S.island.timeline.length) {
     const isl = S.island;
     const c = card("🌋", "The Island — the cache at carrying capacity",
-      "A bounded habitat: admissions immigrate, evictions go locally extinct. The MacArthur–Wilson signature: richness flat, composition churning.");
+      "A bounded habitat: admissions immigrate, evictions go locally extinct. The MacArthur–Wilson signature: richness flat, composition churning.", "island");
     const lastSurvey = isl.timeline.at(-1) ?? {};              // guarded like S.meadow.phases above
     c.insertAdjacentHTML("beforeend",
       `<div class="tiles">${tile(isl.capacity, "capacity (island area)")}${tile(isl.immigrations, "immigrations")}
