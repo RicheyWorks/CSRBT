@@ -643,6 +643,92 @@
    ],
    "survived": 0
   },
+  "mutate_publish": {
+   "at": 1788478109,
+   "equivalent": 0,
+   "equivalents": [],
+   "inconclusive": 0,
+   "killed": 15,
+   "mutants": 15,
+   "rows": [
+    {
+     "detail": "5 failure(s); first: every mapped artifact has bytes in build/publish -- an arti",
+     "name": "the shell patterns go back to what they were for four months",
+     "verdict": "killed"
+    },
+    {
+     "detail": "3 failure(s); first: no mapped artifact is known to be serving bytes this repo h",
+     "name": "the tag names lose their word boundary, so <header> is a <head>",
+     "verdict": "killed"
+    },
+    {
+     "detail": "1 failure(s); first: a pattern that spans past a shell tag is REFUSED, not publi",
+     "name": "the strip trusts its patterns instead of counting what they removed",
+     "verdict": "killed"
+    },
+    {
+     "detail": "1 failure(s); first: a pattern that spans past a shell tag is REFUSED, not publi",
+     "name": "the guard counts tags but not the '<' they took with them",
+     "verdict": "killed"
+    },
+    {
+     "detail": "7 failure(s); first: every page where the injection is reachable is published cu",
+     "name": "the skeleton is left in the published bytes",
+     "verdict": "killed"
+    },
+    {
+     "detail": "1 failure(s); first: every artifact this kit publishes is mapped, the Harness Bo",
+     "name": "artifacts that are not docs pages are not artifacts",
+     "verdict": "killed"
+    },
+    {
+     "detail": "2 failure(s); first: every mapped artifact has bytes in build/publish -- an arti",
+     "name": "publish.py builds the docs pages and leaves the board out",
+     "verdict": "killed"
+    },
+    {
+     "detail": "1 failure(s); first: a page stamped at PUBLISH time reads as stamped, never as m",
+     "name": "a page handed to a publisher counts as one that was measured",
+     "verdict": "killed"
+    },
+    {
+     "detail": "1 failure(s); first: ...and the same entry earned by READING the live copy reads",
+     "name": "...and one that was measured counts as merely stamped",
+     "verdict": "killed"
+    },
+    {
+     "detail": "1 failure(s); first: a stamp that does not match the bytes that would be publish",
+     "name": "a URL known to be serving other bytes is only a hole, not a failure",
+     "verdict": "killed"
+    },
+    {
+     "detail": "1 failure(s); first: a copy whose id prefix fits two artifacts is attributed to ",
+     "name": "a copy is offered to the first page whose id it merely resembles",
+     "verdict": "killed"
+    },
+    {
+     "detail": "1 failure(s); first: ...and a copy naming no artifact this kit publishes is attr",
+     "name": "a copy that names no artifact is attributed to a page anyway",
+     "verdict": "killed"
+    },
+    {
+     "detail": "1 failure(s); first: sweeping two copies of one page takes the newer VERSION, no",
+     "name": "sweeping keeps the FIRST copy of a page it happens to see",
+     "verdict": "killed"
+    },
+    {
+     "detail": "1 failure(s); first: sweeping two copies of one page takes the newer VERSION, no",
+     "name": "sweeping dates a copy by its mtime, the way ADR-078 was wrong before",
+     "verdict": "killed"
+    },
+    {
+     "detail": "1 failure(s); first: --plan names exactly the artifacts that are not measured   ",
+     "name": "the plan says nothing is owed",
+     "verdict": "killed"
+    }
+   ],
+   "survived": 0
+  },
   "mutate_report": {
    "at": 1788423330,
    "equivalent": 0,

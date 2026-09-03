@@ -36,7 +36,7 @@ Run:  python3 tools/verify/verify_publish_reach.py
 # other suites, so nothing goes uncovered by this declaration.
 MUTATE_ROLE = "fixture-builder"
 
-import glob, io, os, re, sys
+import glob, io, os, re, sys, tempfile
 
 ROOT = os.path.normpath(os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", ".."))
 sys.path.insert(0, os.path.join(ROOT, "tools"))
@@ -45,6 +45,7 @@ import reach as _reach
 DOCS = os.path.join(ROOT, "docs")
 
 ok = bad = 0
+unverified = []
 def ck(name, cond, got=""):
     global ok, bad
     if cond: ok += 1; print("PASS  " + name)
@@ -432,6 +433,167 @@ ck("the date actually comes from the copy -- a different version reads different
    _pstate.copy_taken_at(_named_wrong, _WRONG)[0] == 1787695406,
    _pstate.copy_taken_at(_named_wrong, _WRONG))
 
+# ---- ADR-138: measurement is the default, and a hole is a hole -------------
+#
+# `via "publish"` says the repo's bytes were handed to a publisher. `via "read"`
+# says the URL was serving them. Only the second answers the question every
+# audit in this kit silently depends on -- does a green audit of docs/ describe
+# what a reader gets? -- and until ADR-138 twenty-two of forty-one pages carried
+# only the first, because measuring meant a human remembering to fetch a copy.
+#
+# So: an unmeasured artifact is NOT VERIFIED here. Never a pass. The suite
+# cannot fetch (an artifact is read through the host's Artifact tool, not over
+# HTTP from a container), and a suite that pretended to would be manufacturing
+# the evidence it exists to demand -- so it reports the hole and names the
+# command that closes it.
+sys.path.insert(0, os.path.join(ROOT, "tools"))
+import publish_reach as _pr
+import publish_state as _ps2
+
+_ps2.build_current([])        # compare against what WOULD be published now, not a stale build dir
+_art = _pr.artifacts()
+ck("every artifact this kit publishes is mapped, the Harness Board included",
+   len(_art) >= 42 and "_harness-board.html" in _art, sorted(_art)[:2])
+_reach = _pr.reach()
+_unmeasured = [n for n, (k, _e) in sorted(_reach.items()) if k != "measured"]
+_missing = [n for n, (_i, bp) in sorted(_art.items()) if not os.path.exists(bp)]
+ck("every mapped artifact has bytes in build/publish -- an artifact nothing builds cannot be "
+   "compared to anything", not _missing, _missing[:4])
+ck("the reach is known for every mapped artifact",
+   all(k in ("measured", "stamped", "behind", "unknown", "not-built")
+       for k, _e in _reach.values()), sorted(set(k for k, _e in _reach.values())))
+# A KNOWN-STALE URL IS A FAILURE; A NEVER-LOOKED-AT ONE IS A HOLE. They are not
+# the same claim and must not share an outcome. `behind` means the repo has
+# moved past what that URL was last known to serve -- a reader is being handed
+# an old page, and this suite says so. `stamped` and `unknown` mean nobody has
+# looked; that is a gap in the evidence, reported as NOT VERIFIED so it counts
+# against nothing and hides from nobody.
+_behind = [n for n in _unmeasured if _reach[n][0] in ("behind", "not-built")]
+for _n in _unmeasured:
+    if _n not in _behind:
+        unverified.append("%s is %s, not MEASURED -- for this artifact a green audit of docs/ "
+                          "says nothing about what a reader is served. Close it with: "
+                          "python3 tools/publish_reach.py --plan" % (_n, _reach[_n][0].upper()))
+ck("no mapped artifact is known to be serving bytes this repo has moved past",
+   not _behind, _behind[:4])
+ck("--plan names exactly the artifacts that are not measured",
+   [n for n, _a, _b in _pr.plan()] == _unmeasured, [n for n, _a, _b in _pr.plan()][:4])
+
+# a copy is offered to the page whose artifact id it names, and to no other
+# a page whose build output EXISTS: under a mutation that makes publish.py
+# refuse a page, picking the first name alphabetically picks a file that is not
+# there, and the suite dies of a FileNotFoundError instead of reporting what it
+# found. A suite that falls over has not noticed anything.
+_built_ok = sorted((n, i) for n, (i, bp) in _art.items() if os.path.exists(bp))
+_a_page, _a_id = _built_ok[0] if _built_ok else ("none.html", "0" * 32)
+ck("a saved copy is attributed by the artifact id in its name",
+   _pr.attribute("artifact-%s-1788000000-abcd.html" % _a_id[:8], _art) == _a_page,
+   _pr.attribute("artifact-%s-1788000000-abcd.html" % _a_id[:8], _art))
+ck("...and a copy naming no artifact this kit publishes is attributed to nothing",
+   _pr.attribute("artifact-deadbeef-1788000000-abcd.html", _art) is None
+   and _pr.attribute("some-file.html", _art) is None)
+
+# the two stamps are not one stamp: reach() must not read `via publish` as measured
+_fake = {"pages": {_a_page: {"sha": (_ps2.sha(os.path.join(_ps2.BUILD, _a_page))
+                                    if os.path.exists(os.path.join(_ps2.BUILD, _a_page)) else "x"),
+                             "at": 1788000000, "via": "publish"}}, "observed": {}}
+ck("a page stamped at PUBLISH time reads as stamped, never as measured",
+   _pr.reach(_fake)[_a_page][0] == "stamped", _pr.reach(_fake)[_a_page])
+_fake["pages"][_a_page]["via"] = "read"
+ck("...and the same entry earned by READING the live copy reads as measured",
+   _pr.reach(_fake)[_a_page][0] == "measured", _pr.reach(_fake)[_a_page])
+_fake["pages"][_a_page]["sha"] = "0" * 64
+ck("a stamp that does not match the bytes that would be published now is BEHIND -- a URL known "
+   "to be serving something else, not merely one nobody has looked at",
+   _pr.reach(_fake)[_a_page][0] == "behind", _pr.reach(_fake)[_a_page])
+
+# a prefix that fits two artifacts fits neither: an ambiguous id names nothing
+_two = {"a.html": ("abcdef1111", "x"), "b.html": ("abcdef2222", "y")}
+ck("a copy whose id prefix fits two artifacts is attributed to neither",
+   _pr.attribute("artifact-abcdef-1788000000-aaaa.html", _two) is None,
+   _pr.attribute("artifact-abcdef-1788000000-aaaa.html", _two))
+ck("...while one that fits exactly one is attributed to it",
+   _pr.attribute("artifact-abcdef11-1788000000-aaaa.html", _two) == "a.html")
+
+# sweeping a directory with two copies of a page takes the newer VERSION
+_old = "artifact-%s-1788000000-aaaa.html" % _a_id[:8]
+_new = "artifact-%s-1788999999-bbbb.html" % _a_id[:8]
+_d = tempfile.mkdtemp()
+for _f in (_old, _new):
+    io.open(os.path.join(_d, _f), "w", encoding="utf-8").write("<p>%s</p>" % _f)
+# and the older VERSION is touched last, so a sweep that dated copies by mtime
+# would take exactly the wrong one -- which is the mistake ADR-078 measured
+# across 103 saved copies and this rule exists to refuse.
+os.utime(os.path.join(_d, _old), (2000000000, 2000000000))
+_done, _orph = _pr.pick(sorted(os.path.join(_d, f) for f in (_old, _new)), _art)
+ck("sweeping two copies of one page takes the newer VERSION, not the newer file",
+   os.path.basename(_done[_a_page][0]) == _new, _done.get(_a_page))
+_orphan = os.path.join(_d, "artifact-deadbeef-1788000000-cccc.html")
+io.open(_orphan, "w", encoding="utf-8").write("<p>x</p>")
+_done2, _orph2 = _pr.pick([_orphan], _art)
+ck("...and a copy of nothing this kit publishes is an orphan, not attributed to a page",
+   _done2 == {} and _orph2 == [_orphan], (_done2, _orph2))
+
+# ---- ADR-138: the strip that ate a page ------------------------------------
+#
+# publish.py removes the document skeleton because the Artifact runtime wraps
+# the file in its own. Written as `</?head[^>]*>`, that pattern also matched
+# `<header class="hero">` AND `</header>` -- eight pages of this kit opened with
+# one -- and, because a character class matches newlines, it matched from
+# `i<headers.length` in greenhouse's mapHeaders() all the way to the next ">"
+# anywhere in the file, deleting 321 characters of JavaScript. The published
+# greenhouse carried `for(var i=0;i= 0){`: a syntax error, so every interactive
+# feature on that page was dead. No audit in this kit could see it -- they all
+# measure docs/, and docs/ was fine.
+import publish as _pub
+
+
+def _strip(html):
+    """strip(), reporting a refusal rather than dying of it: a suite that
+    crashes on a mutation has not noticed it, it has fallen over."""
+    try:
+        return _pub.strip(html)
+    except Exception as e:
+        return "RAISED: %s" % e
+
+
+_HERO = '<header class="hero"><h1>x</h1></header><p>after</p>'
+ck("a <header> element survives the shell strip, opening tag and closing tag",
+   _strip("<!doctype html><html><head><title>t</title></head><body>" + _HERO + "</body></html>")
+   == "<title>t</title>" + _HERO,
+   _strip("<!doctype html><html><head><title>t</title></head><body>" + _HERO + "</body></html>"))
+_JS = "<script>for(var i=0;i<headers.length;i++){ q(i); }</script><p>after</p>"
+ck("a JS comparison that reads like a tag survives it too",
+   _strip("<html><body>" + _JS + "</body></html>") == _JS,
+   _strip("<html><body>" + _JS + "</body></html>"))
+ck("the skeleton itself is still removed -- doctype, html, head, body, in any case",
+   _strip("<!DOCTYPE html>\n<HTML lang=en>\n<HEAD>\n<title>t</title>\n</HEAD>\n"
+              "<BODY class=x>\n<p>p</p>\n</BODY>\n</HTML>\n") == "<title>t</title>\n<p>p</p>",
+   _strip("<!DOCTYPE html>\n<HTML lang=en>\n<HEAD>\n<title>t</title>\n</HEAD>\n"
+              "<BODY class=x>\n<p>p</p>\n</BODY>\n</HTML>\n"))
+try:
+    _pub.SHELL, _saved = (r'</?head[^>]*>\s*',), _pub.SHELL
+    _pub.strip("<p>for(var i=0;i<headers.length;i++){ q(i); }</p><p>after</p>")
+    ck("a pattern that spans past a shell tag is REFUSED, not published", False, "no refusal")
+except ValueError as e:
+    ck("a pattern that spans past a shell tag is REFUSED, not published",
+       "not part of the document skeleton" in str(e), str(e)[:70])
+finally:
+    _pub.SHELL = _saved
+ck("...and the guard counts, rather than trusting the patterns: N tags, N '<'",
+   _strip("<html><body><p>a<b>c</b></p></body></html>") == "<p>a<b>c</b></p>")
+
+# every page of the kit that opens with a <header> keeps it in the build output
+_heroes = [p for p in pages if re.search(r"<header\b", io.open(p, encoding="utf-8").read())]
+_built = os.path.join(ROOT, "build", "publish")
+_lost = [os.path.basename(p) for p in _heroes
+         if os.path.exists(os.path.join(_built, os.path.basename(p)))
+         and "<header" not in io.open(os.path.join(_built, os.path.basename(p)), encoding="utf-8").read()]
+ck("every page that opens with a <header> still has one in the bytes handed to the publisher",
+   not _lost and len(_heroes) >= 6, (len(_heroes), _lost))
+
 print("-" * 70)
+for u in unverified:
+    print("NOT VERIFIED: " + u)
 print("%d passed, %d failed" % (ok, bad))
 sys.exit(1 if bad else 0)

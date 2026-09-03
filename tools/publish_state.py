@@ -365,9 +365,20 @@ def build_current(names):
                    cwd=os.path.join(ROOT, "tools"), capture_output=True, text=True)
 
 
+def mapped_artifacts():
+    """Every artifact this kit publishes, build name -> id: the docs pages, and
+    (ADR-138) the ones that are not pages -- the Harness Board. publish.py
+    builds both into build/publish, so everything below treats them alike."""
+    m = load(MAP, {"pages": {}})
+    out = dict(m.get("pages", {}))
+    for name, spec in (m.get("others") or {}).items():
+        out[name] = spec["artifact"]
+    return out
+
+
 def main(argv):
     state = load(STATE, BLANK)
-    mapped = load(MAP, {"pages": {}})["pages"]
+    mapped = mapped_artifacts()
 
     if "--verify" in argv:
         # publish_state.py --verify PAGE.html /path/to/saved-live-copy.html
@@ -507,6 +518,7 @@ def main(argv):
 
     build_current([])
     pages = sorted(os.path.basename(p) for p in glob.glob(os.path.join(DOCS, "*.html")))
+    pages += sorted(n for n in mapped if n not in pages)      # ADR-138: the board is an artifact too
     behind, unknown, current, unmapped, measured = [], [], [], [], []
     for n in pages:
         if n not in mapped:

@@ -1,6 +1,13 @@
 {
  "_base": "https://claude.ai/code/artifact/",
  "_comment": "Artifact URL for each page of the science kit. This map lived only in a scratch container for months, which meant the published kit could not be rebuilt by anyone but the session that last published it. Same class of problem as the test suites, same fix: keep it in the repo.",
+ "others": {
+  "_harness-board.html": {
+   "artifact": "d1e5e7fd-99ed-4431-8f19-64e907fe900b",
+   "source": "tools/harness_board.html",
+   "why": "ADR-127 published the Harness Board and held that it is republished by hand, so the one page that reports on everything else was the one page nothing reported on. ADR-138 maps it here: publish.py copies it into build/publish under this name, and publish_reach measures it like any other artifact."
+  }
+ },
  "pages": {
   "adr-031.html": "d85bd722-b32f-4d3e-a9c6-229732d6af72",
   "breeding-bench.html": "34e0aed2-dd77-4de6-9370-033ca179f20f",

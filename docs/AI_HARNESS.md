@@ -274,6 +274,8 @@ python3 tools/harness_walk.py --target all           # the robot: every target f
 python3 tools/harness_walk.py --target page --page all --rounds 3 --per-round 2   # every routed page (ADR-124), ~6 min
 python3 tools/harness_tasks.py                       # every task: goals with graded expectations (ADR-125)
 python3 tools/harness_mcp.py --target organism --trace t.jsonl   # a host's session, recorded (ADR-126)
+python3 tools/publish_reach.py --plan                # what the reader is NOT known to be served (ADR-138)
+python3 tools/publish_reach.py --sweep DIR           # ...and the copies, measured
 python3 tools/harness_mcp.py --target page --attachable      # a session that can attach targets (ADR-137)
 python3 tools/harness_walk.py --transport mcp --target page --attach organism  # the robot as listChanged's consumer
 python3 tools/blind_console.py --target organism --moves m.json --trace t.jsonl  # the door a BLIND operator drives (ADR-136)
@@ -370,6 +372,27 @@ FEK picker through its filter; a task names a control the page's way with
 `@control:<id | label | host>` (`rCov/4`, `iList/died#2`). Twenty-one science
 tasks — one per data-entry page — enter data and hold the report to a
 hand-checked oracle; a page canary is refuted; 1,316 expectations confirmed.
+
+ADR-138 made MEASUREMENT the default. `publish_state` has recorded two kinds of
+evidence since ADR-078 -- `via publish` ("these bytes were handed to a
+publisher") and `via read` ("the URL was serving them") -- and only the second
+answers the question every audit in this kit silently depends on, since every
+audit measures docs/. Twenty-two of forty-one pages carried only the first,
+because measuring one meant a human remembering to fetch it.
+`tools/publish_reach.py` makes it mechanical: `--plan` names exactly what is
+owed and where, an agent with the Artifact tool reads those, and `--sweep`
+attributes and verifies the copies. It does NOT fetch, and says so -- a script
+that pretended to would manufacture the evidence it exists to demand. The
+Harness Board is mapped like any page now (`build/publish/_harness-board.html`),
+so 42 artifacts, not 41. THE FINDING: measuring all 42 showed publish.py's
+shell-strip regex `</?head[^>]*>` had been eating `<header>` AND `</header>` on
+eight pages, and -- a character class matches newlines -- 321 characters of
+JavaScript out of the published greenhouse's mapHeaders(), which served
+`for(var i=0;i= 0){` and therefore had every interactive feature dead. No audit
+could see it: they all measure docs/, and docs/ was fine. strip() now proves it
+removed only the skeleton (N shell tags remove exactly N "<", or the build is
+refused), an unmeasured artifact is NOT VERIFIED rather than a pass, and a URL
+the repo has moved past is a failure.
 
 ADR-137 gave `listChanged` a consumer. ADR-115 declared it false and ADR-121
 held it there for the honest reason that nothing could change a list -- a

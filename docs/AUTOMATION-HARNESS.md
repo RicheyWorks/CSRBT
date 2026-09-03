@@ -380,6 +380,20 @@ task — required steps in order, probes anywhere after, one call per step, the
 operator's own detours allowed and counted. Six traces under `tools/traces/`,
 planned from the goals alone, every one held; their provenance is stated there.
 
+**What the reader is served (ADR-138).** `tools/publish_reach.py` reports every
+artifact this kit publishes -- 42, the Harness Board included -- as MEASURED
+(the URL was read and was serving these bytes), STAMPED (the bytes were handed
+to a publisher and nobody has looked), BEHIND or UNKNOWN. `--plan` names what is
+owed and its URL; an agent with the Artifact tool reads those; `--sweep DIR`
+attributes each copy by the artifact id in its name and verifies it through
+publish_state's existing rules, newest VERSION per page winning. It never
+fetches, by design. In `verify_publish_reach` an unmeasured artifact is NOT
+VERIFIED -- a hole, never a pass -- and a URL the repo has moved past is a
+failure. Measuring all 42 for the first time found publish.py's shell strip
+eating `<header>` on eight pages and 321 characters of JavaScript out of the
+published greenhouse; `strip()` now refuses to build unless N shell tags removed
+exactly N `<`.
+
 **A session that can change (ADR-137).** `--attachable` on either door serves
 `csrbt-session` -- `targets`, `attach`, `detach` -- and a host may then pick up a
 target the session did not start with. Attaching registers the target's plugins

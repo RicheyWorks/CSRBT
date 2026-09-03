@@ -26,7 +26,18 @@ MAP = os.path.join(ROOT, "tools", "artifact_map.json")
 
 # The Artifact runtime wraps the file in its own document skeleton at publish
 # time, so the page must not bring one of its own.
-SHELL = (r'<!doctype[^>]*>\s*', r'</?html[^>]*>\s*', r'</?head[^>]*>\s*', r'</?body[^>]*>\s*')
+#
+# \b AFTER EACH TAG NAME, AND IT IS NOT PEDANTRY (ADR-138). Written without it,
+# `</?head[^>]*>` matches `<header class="hero">` -- `head` then `[^>]*` eating
+# `er class="hero"` -- and matches `</header>` the same way. Eight pages of this
+# kit open with a <header class="hero"> banner, and every published copy of them
+# had BOTH tags deleted: the hero content survived unwrapped, so .hero never
+# applied and the banner rendered as loose text. No audit could see it, by
+# construction -- every audit in this kit measures docs/, and docs/ was fine. It
+# took ADR-138 measuring what the URL was actually serving to find it, four
+# months after publish.py was written.
+SHELL = (r'<!doctype[^<>]*>\s*', r'</?html\b[^<>]*>\s*', r'</?head\b[^<>]*>\s*',
+         r'</?body\b[^<>]*>\s*')
 
 
 def load():
@@ -35,9 +46,43 @@ def load():
     return m["_base"], m["pages"]
 
 
+def others():
+    """Artifacts that are not docs pages (ADR-138). Build name -> source path.
+
+    The Harness Board is published like any page of the kit and, until ADR-138,
+    was tracked like none of them. It carries no links into the kit, so it needs
+    no rewrite -- only the same build output every other artifact has, under a
+    name the publish ledger can key on, so `publish_state` and `publish_reach`
+    can hold it to the same rule as the rest."""
+    with open(MAP, encoding="utf-8") as f:
+        m = json.load(f)
+    return dict((name, os.path.join(ROOT, spec["source"]))
+                for name, spec in (m.get("others") or {}).items())
+
+
 def strip(html):
+    """Remove the document skeleton, and prove that is all that was removed.
+
+    A tag cannot contain "<", so `[^<>]*` is the right class and `[^>]*` was
+    the wrong one: without it `</?head[^>]*>` matched from `i<headers.length`
+    in a JS loop all the way to the next ">" ANYWHERE in the file -- a
+    character class matches newlines -- and deleted 321 characters out of
+    greenhouse's mapHeaders(). The published page carried `for(var i=0;i= 0){`,
+    a syntax error, so every interactive feature on it was dead. For months.
+
+    The guard below is the general form of that lesson: stripping N shell tags
+    removes exactly N "<" characters. Anything else means a pattern spanned
+    something that is not a shell tag, and the right response is to refuse to
+    build rather than to publish a page with a hole in it."""
+    before = html.count("<")
+    tags = 0
     for pat in SHELL:
-        html = re.sub(pat, "", html, flags=re.I)
+        html, n = re.subn(pat, "", html, flags=re.I)
+        tags += n
+    gone = before - html.count("<")
+    if gone != tags:
+        raise ValueError("shell-stripping removed %d '<' for %d shell tag(s): a pattern "
+                         "spanned something that is not part of the document skeleton" % (gone, tags))
     return html.strip()
 
 
@@ -81,6 +126,16 @@ def main(argv):
             with open(os.path.join(OUT, name), "w", encoding="utf-8", newline="") as f:
                 f.write(out)
         print("%-30s %7d bytes   %s" % (name, len(out), "UNWIRED: " + ", ".join(left) if left else "ok"))
+
+    for name, src in sorted(others().items()):
+        if not os.path.exists(src):
+            print("%-30s %7s bytes   MISSING: %s" % (name, "-", src)); rc = 1; continue
+        with open(src, encoding="utf-8") as f:
+            out = strip(f.read())
+        if not check:
+            with open(os.path.join(OUT, name), "w", encoding="utf-8", newline="") as f:
+                f.write(out)
+        print("%-30s %7d bytes   ok (from %s)" % (name, len(out), os.path.relpath(src, ROOT)))
 
     print("-" * 66)
     print("pages in docs/ with no artifact: %s" % (", ".join(unmapped) if unmapped else "none"))

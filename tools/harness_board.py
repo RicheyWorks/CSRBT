@@ -72,6 +72,7 @@ RUNNERS = [
     ("mutate_report", "the page reader, picker and naming"),
     ("mutate_audit_states", "the audits' state walker and accounting"),
     ("mutate_harness", "the swarm's driver"),
+    ("mutate_publish", "the publish pipeline and its reach"),
 ]
 
 
