@@ -127,6 +127,10 @@
     "output.boxes.kres": {
      "op": "contains",
      "value": "Conflict: petals or tepals — this family shows five or many"
+    },
+    "output.boxes.kres#2": {
+     "op": "excludes",
+     "value": "3/3 characters"
     }
    }
   },

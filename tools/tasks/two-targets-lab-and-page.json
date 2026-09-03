@@ -1,0 +1,92 @@
+{
+ "id": "two-targets-lab-and-page",
+ "target": "lab",
+ "page": "ecology-lab.html",
+ "goal": "Run the shipped protocol through the science engine, then enter the same field data into the kit page's workbench and hold the page's diversity figures to the engine's. Two independent implementations of the same statistics, in one run, over one gateway: if they disagree, one of them is wrong.",
+ "steps": [
+  {
+   "id": "run",
+   "action": "run-protocol",
+   "arguments": {
+    "name": "sample-experiment"
+   },
+   "expect": {
+    "ok": true,
+    "output.session.entered.0.name": "pondA",
+    "output.session.entered.0.richness": 5,
+    "output.session.entered.0.total": 80,
+    "output.session.entered.0.labels": {
+     "op": "contains",
+     "value": "duckweed"
+    }
+   }
+  },
+  {
+   "id": "look",
+   "target": "page",
+   "action": "observe",
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "enter",
+   "target": "page",
+   "action": "set-text",
+   "arguments": {
+    "selector": "@control:wb-field",
+    "value": "duckweed 44\ncattail 18\nazolla 9\nrush 6\nfrogbit 3"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "agree",
+   "target": "page",
+   "action": "read-report",
+   "expect": {
+    "output.by.wb-field-out.species": "5",
+    "output.by.wb-field-out.Shannon H′": {
+     "op": "~=",
+     "value": "$run.output.session.entered.0.shannon",
+     "tolerance": 0.005
+    },
+    "output.by.wb-field-out.evenness J′": {
+     "op": "~=",
+     "value": "$run.output.session.entered.0.evenness",
+     "tolerance": 0.005
+    },
+    "output.by.wb-field-out.Chao1 est\\.": {
+     "op": "~=",
+     "value": "$run.output.session.entered.0.chao1",
+     "tolerance": 0.05
+    }
+   }
+  },
+  {
+   "id": "engine",
+   "action": "protocols",
+   "expect": {
+    "ok": true,
+    "output.protocols": {
+     "op": "contains",
+     "value": "sample-experiment"
+    }
+   }
+  },
+  {
+   "id": "intact",
+   "target": "page",
+   "action": "read-page",
+   "expect": {
+    "output.junk": null,
+    "output.errors": {
+     "op": "==",
+     "value": []
+    },
+    "output.overflow": 0
+   }
+  }
+ ]
+}

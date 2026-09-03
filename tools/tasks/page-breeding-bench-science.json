@@ -325,6 +325,10 @@
     "output.boxes.selOut": {
      "op": "contains",
      "value": "cannot keep more parents"
+    },
+    "output.boxes.selOut#2": {
+     "op": "excludes",
+     "value": "intensity i"
     }
    }
   },
@@ -563,6 +567,14 @@
     "output.boxes.triOut": {
      "op": "contains",
      "value": "One replicate is not a trial."
+    },
+    "output.boxes.triOut#2": {
+     "op": "excludes",
+     "value": "MSE"
+    },
+    "output.boxes.triOut#3": {
+     "op": "excludes",
+     "value": "CV"
     }
    }
   },

@@ -83,7 +83,10 @@ from harness_walk import wire_for
 
 TASKS_DIR = os.path.join(HERE, "tasks")
 LEDGER = os.path.join(HERE, "task_ledger.json")
-OPS = ("==", "!=", ">", ">=", "<", "<=", "in", "contains", "exists")
+# ONE op table. There were briefly two -- load_task's and the grader's -- which
+# is how a grammar drifts: a task file accepted at load and rejected at grade,
+# or the reverse. Everything that needs to know what an op is reads this.
+OPS = ("==", "!=", ">", ">=", "<", "<=", "~=", "in", "not-in", "contains", "excludes", "exists")
 
 
 class TaskDefect(Exception):
@@ -100,6 +103,8 @@ def load_task(path):
         if "action" not in s:
             raise TaskDefect("%s: step %d has no action" % (t["id"], i))
         sid = s.get("id") or "s%d" % i
+        if s.get("target") is not None and not isinstance(s["target"], str):
+            raise TaskDefect("%s/%s: a step's target must be a target name" % (t["id"], sid))
         if sid in seen:
             raise TaskDefect("%s: step id %r used twice" % (t["id"], sid))
         seen.add(sid)
@@ -204,8 +209,21 @@ def grade(expect, response, done, where):
     done[""] = response
     out = []
     for path, want in expect.items():
+        # TWO CLAIMS ABOUT ONE PATH (ADR-132).
+        #
+        # Expectations are keyed by path, so a box could carry exactly one
+        # claim -- and the interesting pair is "it says the refusal" AND "it no
+        # longer says the answer", which are two claims about the same box. A
+        # trailing "#n" (no space before it) is a label, stripped before the
+        # path is followed: output.boxes.selOut and output.boxes.selOut#2 are
+        # the same box, graded and reported separately.
+        #
+        # The space matters: read-report's own duplicate labels are written
+        # "doubling time #2", with a space, and are real path segments. Only a
+        # "#n" glued to the end is a label.
+        key, real = path, re.sub(r"(?<! )#\d+$", "", path)
         try:
-            got = dig(response, path)
+            got = dig(response, real)
             present = True
         except KeyError:
             got, present = None, False
@@ -228,32 +246,96 @@ def grade(expect, response, done, where):
                 ok = got in val if isinstance(val, (list, str, dict)) else False
             elif op == "contains":
                 ok = val in got if isinstance(got, (list, str, dict)) else False
+            elif op == "~=":
+                # TWO INSTRUMENTS, ONE NUMBER (ADR-133).
+                #
+                # A cross-target task holds a page's figure to an ENGINE's, and
+                # the two do not print the same string: the engine reports
+                # 1.227621 and the page shows "1.23" because that is what a
+                # reader needs. The claim is that they agree, and the grammar
+                # could not say it -- "==" is false and "contains" is a
+                # coincidence waiting to happen.
+                #
+                # The tolerance is REQUIRED and has no default. A default would
+                # be this file deciding how close two instruments have to be,
+                # which is the task's business and nobody else's: a page that
+                # rounds to two decimals agrees to 0.005, and a page that
+                # rounds to a whole number does not.
+                if "tolerance" not in want:
+                    raise TaskDefect("%s: ~= on %r needs a tolerance -- how close two instruments must be is the "
+                                     "task's claim, not a default" % (where, real))
+                tol = resolve(want["tolerance"], done, where)
+                try:
+                    ok = abs(float(got) - float(val)) <= float(tol)
+                except (TypeError, ValueError):
+                    ok = False
+            elif op == "excludes":
+                # SAYING WHAT IS ABSENT (ADR-132).
+                #
+                # Until now the grammar could only say what a box DOES hold, so
+                # a task that wanted to assert a page had stopped printing a
+                # warning had to guess what replaced it -- and a guess that
+                # happens to be right is not the same claim. "excludes" is the
+                # claim itself. It is deliberately NOT satisfied by a missing
+                # path (see the `not present` rung above): a task must name a
+                # box that exists and say the string is not in it, or a typo in
+                # the path would read as proof of absence, which is the exact
+                # failure this op was added to stop.
+                ok = val not in got if isinstance(got, (list, str, dict)) else False
+            elif op == "not-in":
+                ok = got not in val if isinstance(val, (list, str, dict)) else False
             else:
-                ok = False
-            out.append((path, "CONFIRMED" if ok else "REFUTED", "%s %s %r, got %r" % (path, op, val, got)))
+                # An op the grader does not know is the TASK's defect, not the
+                # page's. It used to fall through to ok = False and print as a
+                # REFUTED expectation -- a typo in a task file reported as a
+                # finding about the kit, which is ADR-125's rule broken by the
+                # grader itself.
+                raise TaskDefect("%s: unknown op %r in an expectation on %r (known: %s)"
+                                 % (where, op, real, ", ".join(sorted(OPS))))
+            detail = "%s %s %r%s, got %r" % (real, op, val,
+                                             " +/- %r" % want["tolerance"] if op == "~=" else "", got)
+            out.append((key, "CONFIRMED" if ok else "REFUTED", detail))
         else:
             val = resolve(want, done, where)
             ok = present and got == val
-            out.append((path, "CONFIRMED" if ok else "REFUTED", "%s == %r, got %r" % (path, val, got)))
+            out.append((key, "CONFIRMED" if ok else "REFUTED", "%s == %r, got %r" % (real, val, got)))
     return out
 
 
-def run_task(task, wire, pid):
-    """Run one task's steps through the wire. Returns the ledger entry."""
+def run_task(task, wire, pid, wires=None):
+    """Run one task's steps through the wire. Returns the ledger entry.
+
+    TWO TARGETS, ONE TASK (ADR-133). A step may name its own `target`, and
+    `wires` is then {target: (wire, pluginId)} -- opened once by the caller and
+    kept for the task's life, so a task can write through the organism and look
+    at the page's rendering of it in the same run. A step with no target uses
+    the task's own, which is every task written before this one."""
     done, steps, t0 = {}, [], time.time()
     verdict = "PASS"
+    wires = wires or {}
     for s in task["steps"]:
         where = "%s/%s" % (task["id"], s["id"])
+        w, p = wire, pid
+        if s.get("target"):
+            if s["target"] not in wires:
+                # naming a target the task did not open is the TASK's defect:
+                # it asked for an instrument nobody plugged in
+                steps.append({"id": s["id"], "action": s["action"], "result": "DEFECT",
+                              "detail": "step names target %r, which this task did not open (opened: %s)"
+                                        % (s["target"], ", ".join(sorted(wires)) or "none")})
+                verdict = "DEFECT"
+                break
+            w, p = wires[s["target"]]
         try:
             args = resolve(s.get("arguments") or {}, done, where)
             if s["action"] == "observe":
                 # an observation is an operator's move too (ADR-126): the
                 # snapshot, read on its own, graded like any response
-                o = wire.op("observe", plugin=pid)
+                o = w.op("observe", plugin=p)
                 r = {"ok": bool(o.get("ok", "snapshot" in o)), "snapshot": o.get("snapshot") or {},
                      "output": {}, "requestId": None, "code": o.get("code")}
             else:
-                r = wire.op("execute", plugin=pid,
+                r = w.op("execute", plugin=p,
                             command={"request_id": "task-%s-%s-%s" % (task["id"], s["id"], secrets.token_hex(4)),
                                      "action": s["action"], "arguments": args})
         except TaskDefect as e:
@@ -290,6 +372,7 @@ def run_task(task, wire, pid):
                 break
     must = task.get("must", "PASS")
     return {"id": task["id"], "target": task["target"], "goal": task["goal"], "at": int(time.time()),
+            "targets": sorted(set([task["target"]] + [x["target"] for x in task["steps"] if x.get("target")])),
             "steps": steps, "verdict": verdict, "must": must,
             "held": verdict == must,       # the task did what it was written to do (a canary must FAIL)
             "confirmed": sum(1 for s in steps for e in s.get("expectations", []) if e["verdict"] == "CONFIRMED"),
@@ -380,6 +463,7 @@ def grade_trace(task, trace):
     steps = [by_id[s["id"]] for s in task["steps"] if s["id"] in by_id]
     must = task.get("must", "PASS")
     return {"id": task["id"], "target": task["target"], "goal": task["goal"], "at": int(time.time()),
+            "targets": sorted(set([task["target"]] + [x["target"] for x in task["steps"] if x.get("target")])),
             "steps": steps, "verdict": verdict, "must": must, "held": verdict == must, "graded": "trace",
             "calls": len(trace), "asked": len(task["steps"]),
             "required": len(required), "met": sum(1 for x in required if "call" in by_id.get(x["id"], {})),
@@ -396,19 +480,49 @@ def run_tasks(tasks, transport="stdio", log=None, page="collection-sheet.html", 
     results = {}
     for task in tasks:
         tgt = task["target"]
-        wire = wire_for(transport, "task-" + secrets.token_urlsafe(24), seed=seed, target=tgt,
-                        page=task.get("page", page))
+        # ADR-133: the task's own target, plus every target its steps name --
+        # each opened once, kept for the task's life, and closed in the reverse
+        # of the order they were opened.
+        want = [tgt] + [s["target"] for s in task["steps"] if s.get("target") and s["target"] != tgt]
+        order, seen_t = [], set()
+        for t in want:
+            if t not in seen_t:
+                seen_t.add(t); order.append(t)
+        wires, opened = {}, []
         try:
-            hello = wire.op("discover")
-            if not hello.get("ok"):
+            bad = None
+            for t in order:
+                if t not in PLUGIN:
+                    bad = "step names an unknown target %r (known: %s)" % (t, ", ".join(sorted(PLUGIN)))
+                    break
+                w = wire_for(transport, "task-" + secrets.token_urlsafe(24), seed=seed, target=t,
+                             page=task.get("page", page))
+                opened.append(w)
+                wires[t] = (w, PLUGIN[t])
+                hello = w.op("discover")
+                if not hello.get("ok"):
+                    bad = "discovery refused on target %r: %s" % (t, hello)
+                    break
+            if bad:
                 results[task["id"]] = {"id": task["id"], "target": tgt, "goal": task["goal"], "at": int(time.time()),
-                                       "steps": [], "verdict": "DEFECT", "must": task.get("must", "PASS"),
-                                       "held": False, "confirmed": 0, "refuted": 0, "seconds": 0,
-                                       "detail": "discovery refused: %s" % hello}
+                                       "targets": order, "steps": [], "verdict": "DEFECT",
+                                       "must": task.get("must", "PASS"),
+                                       # held is verdict == must EVERYWHERE, including here: a canary
+                                       # written to be a DEFECT is held when it defects, and hard-coding
+                                       # False made the one canary that can reach this path unholdable
+                                       "held": task.get("must", "PASS") == "DEFECT",
+                                       "confirmed": 0, "refuted": 0, "seconds": 0,
+                                       # every entry names its transport, this one included: the ledger
+                                       # holds "held and by which door", and an entry without it is a
+                                       # row nobody can read
+                                       "transport": transport,
+                                       "detail": bad}
                 continue
-            res = run_task(task, wire, PLUGIN[tgt])
+            wire = wires[tgt][0]
+            res = run_task(task, wire, PLUGIN[tgt], wires)
         finally:
-            wire.close()
+            for w in reversed(opened):
+                w.close()
         res["transport"] = transport
         results[task["id"]] = res
         say("%-36s %-6s %-4s %2d confirmed %2d refuted  %5.1fs  %s"

@@ -1,0 +1,23 @@
+{
+ "id": "two-targets-canary",
+ "target": "fixture",
+ "must": "DEFECT",
+ "goal": "A canary for the multi-target runner: a step names a target that does not exist. That is the task asking for an instrument nobody builds, and it must be graded as the TASK's defect -- never as a refusal, and never as a finding about any target.",
+ "steps": [
+  {
+   "id": "fine",
+   "action": "ok",
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "nowhere",
+   "target": "telescope",
+   "action": "report",
+   "expect": {
+    "ok": true
+   }
+  }
+ ]
+}

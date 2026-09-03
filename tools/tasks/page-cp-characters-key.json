@@ -127,6 +127,10 @@
     "output.boxes.kRes": {
      "op": "contains",
      "value": "3 weaker matches not shown."
+    },
+    "output.boxes.kRes#2": {
+     "op": "excludes",
+     "value": "Nepenthes"
     }
    }
   },

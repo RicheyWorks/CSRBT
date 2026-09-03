@@ -695,12 +695,12 @@
    "survived": 0
   },
   "mutate_tasks": {
-   "at": 1788358820,
+   "at": 1788417796,
    "equivalent": 0,
    "equivalents": [],
    "inconclusive": 0,
-   "killed": 24,
-   "mutants": 24,
+   "killed": 41,
+   "mutants": 41,
    "rows": [
     {
      "detail": "4 failure(s); first: every operator grades, a reference grades as its value, a m",
@@ -708,8 +708,93 @@
      "verdict": "killed"
     },
     {
-     "detail": "2 failure(s); first: every operator grades, a reference grades as its value, a m",
+     "detail": "7 failure(s); first: every operator grades, a reference grades as its value, a m",
      "name": "an operator expectation is always CONFIRMED",
+     "verdict": "killed"
+    },
+    {
+     "detail": "1 failure(s); first: a path that is not in the response does not prove absence: ",
+     "name": "excludes is satisfied by a missing path",
+     "verdict": "killed"
+    },
+    {
+     "detail": "3 failure(s); first: excludes CONFIRMS when the value is not in the string or th",
+     "name": "excludes reads the wrong way round",
+     "verdict": "killed"
+    },
+    {
+     "detail": "1 failure(s); first: excludes is REFUTED when the value IS there -- it is a clai",
+     "name": "excludes is always true",
+     "verdict": "killed"
+    },
+    {
+     "detail": "2 failure(s); first: not-in CONFIRMS when the value is not one of a set: {'outpu",
+     "name": "not-in reads the wrong way round",
+     "verdict": "killed"
+    },
+    {
+     "detail": "2 failure(s); first: an op the grader does not know is the TASK's DEFECT, not a ",
+     "name": "the loader and the grader keep separate op tables",
+     "verdict": "killed"
+    },
+    {
+     "detail": "1 failure(s); first: a trailing #n labels a second claim about the same path, gr",
+     "name": "a trailing #n is part of the path",
+     "verdict": "killed"
+    },
+    {
+     "detail": "1 failure(s); first: ...and a read-report duplicate label, which has a SPACE bef",
+     "name": "a read-report duplicate label is stripped as if it were a #n label",
+     "verdict": "killed"
+    },
+    {
+     "detail": "3 failure(s); first: a task can drive two targets in one run: FAIL 1",
+     "name": "a step's target is ignored: every step goes to the task's own target",
+     "verdict": "killed"
+    },
+    {
+     "detail": "1 failure(s); first: a step naming a target the runner did not open is the TASK'",
+     "name": "a step naming a target nobody opened quietly uses the task's own",
+     "verdict": "killed"
+    },
+    {
+     "detail": "1 failure(s); first: the ledger entry names every target the task used, not just",
+     "name": "the ledger entry names only the target the task declares",
+     "verdict": "killed"
+    },
+    {
+     "detail": "2 failure(s); first: every target a task opened is closed, in the reverse of the",
+     "name": "only the task's own target is opened",
+     "verdict": "killed"
+    },
+    {
+     "detail": "2 failure(s); first: a step naming a target that does not exist is the task's DE",
+     "name": "an unknown target is opened as the task's own instead of refused",
+     "verdict": "killed"
+    },
+    {
+     "detail": "1 failure(s); first: every target a task opened is closed, in the reverse of the",
+     "name": "the targets are closed in the order they were opened",
+     "verdict": "killed"
+    },
+    {
+     "detail": "1 failure(s); first: every target a task opened is closed, in the reverse of the",
+     "name": "a target is opened and never closed",
+     "verdict": "killed"
+    },
+    {
+     "detail": "1 failure(s); first: ~= without a tolerance was tolerated",
+     "name": "~= has a default tolerance",
+     "verdict": "killed"
+    },
+    {
+     "detail": "1 failure(s); first: ~= holds a page's rounded figure to an engine's full one: t",
+     "name": "~= ignores the tolerance and asks for equality",
+     "verdict": "killed"
+    },
+    {
+     "detail": "1 failure(s); first: ...and a canary written to be a DEFECT is HELD when it defe",
+     "name": "held is hard-coded False when a target cannot be opened",
      "verdict": "killed"
     },
     {

@@ -359,7 +359,12 @@ A walk proves a target is operable; a **task** asks whether a goal was done
 (ADR-125). `tools/tasks/*.json` — a target, a goal in words, steps with
 arguments, references to earlier responses (`"$gen.output.generation"`), and
 expectations graded `CONFIRMED` / `REFUTED` (`==`, `!=`, `>`, `>=`, `<`, `<=`,
-`in`, `contains`, `exists`). A refusal, a decline or a failure is a result a
+`in`, `not-in`, `contains`, `excludes`, `exists`). `excludes` is how a task says a
+box has stopped saying something — a refusal that must also stop computing — and
+it is deliberately not satisfied by a missing path, or a typo would read as proof
+of absence. A trailing `#n` on the path (no space) labels a second claim about
+the same box; a ` #2` with a space is a real path segment, the way `read-report`
+writes a duplicate label. An op the grader does not know is the task's DEFECT. A refusal, a decline or a failure is a result a
 task can expect; a failure nobody expected is the target's and ends the task;
 a reference that does not resolve is the task's own DEFECT, never a finding.
 `tools/harness_tasks.py` runs each task on a fresh target through either
@@ -540,6 +545,13 @@ nothing, is counted as a fault; a refusal on a step written to be refused is
 not. The suite pins all four selection rules with fixture tasks that isolate
 each, and the focus audit presses and releases a key before every probe so the
 browser is in a keyboard user's mood whatever the entry did with the pointer.
+
+ADR-133: a task's steps may each name a `target`. The runner opens every target
+the task names once, keeps them for its life, and closes them in the reverse of
+the order they were opened; a reference resolves across targets, so a page's
+figure can be held to an engine's. `~=` (with a required tolerance) is how two
+instruments that print the same number differently are held to each other. A
+step naming a target that does not exist is the task's DEFECT.
 
 `tools/verify/verify_swarm.py` is the evidence that the verdicts mean something:
 ten fixture pages, nine of them wired and wrong in a different way, one of them

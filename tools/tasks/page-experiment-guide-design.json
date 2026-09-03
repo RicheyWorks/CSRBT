@@ -438,6 +438,10 @@
     "output.boxes.eco-out": {
      "op": "contains",
      "value": "model: logistic 0.15 120 5 60"
+    },
+    "output.boxes.eco-out#2": {
+     "op": "excludes",
+     "value": "IMG_0431"
     }
    }
   },

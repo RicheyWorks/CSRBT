@@ -57,7 +57,11 @@
    "action": "read-report",
    "expect": {
     "ok": true,
-    "output.boxes.fkout": "Russula4 of 4 matchedThe stipe snaps clean like a stick of chalk instead of tearing into fibres. No latex, no veil, no ring.One genus matches everything you entered — which makes it the hypothesis to test, not the answer. Take a spore print if you have not, check the base of the stipe, and confirm against a monograph or a regional key before the name goes on a label."
+    "output.boxes.fkout": "Russula4 of 4 matchedThe stipe snaps clean like a stick of chalk instead of tearing into fibres. No latex, no veil, no ring.One genus matches everything you entered — which makes it the hypothesis to test, not the answer. Take a spore print if you have not, check the base of the stipe, and confirm against a monograph or a regional key before the name goes on a label.",
+    "output.boxes.fkout#2": {
+     "op": "excludes",
+     "value": "Lactarius"
+    }
    }
   },
   {

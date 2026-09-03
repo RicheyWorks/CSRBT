@@ -1,0 +1,73 @@
+{
+ "id": "two-targets-isolated",
+ "target": "organism",
+ "goal": "Drive two targets in one task and hold the machinery to what a multi-target task must guarantee: each target keeps its own session, one target's crash does not touch the other's meters, and a replay id spent on one is free on the other.",
+ "steps": [
+  {
+   "id": "before",
+   "action": "report",
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "write",
+   "action": "put",
+   "arguments": {
+    "key": 7,
+    "attr": 1,
+    "start": 1,
+    "end": 5
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "boom",
+   "target": "fixture",
+   "action": "boom",
+   "expect": {
+    "ok": false,
+    "code": "failed"
+   }
+  },
+  {
+   "id": "still",
+   "action": "get",
+   "arguments": {
+    "key": 7
+   },
+   "expect": {
+    "ok": true,
+    "output.found": {
+     "op": "exists",
+     "value": true
+    }
+   }
+  },
+  {
+   "id": "grew",
+   "action": "report",
+   "expect": {
+    "ok": true,
+    "snapshot.size": {
+     "op": ">",
+     "value": "$before.snapshot.size"
+    }
+   }
+  },
+  {
+   "id": "theirs",
+   "target": "fixture",
+   "action": "ok",
+   "expect": {
+    "ok": true,
+    "snapshot.size": {
+     "op": "exists",
+     "value": false
+    }
+   }
+  }
+ ]
+}

@@ -295,6 +295,24 @@ python3 tools/verify/verify_ecosystem.py             # 56 checks: green, >= floo
 python3 tools/atlas.py                               # regenerate the Atlas's engine table from the ledger (ADR-120)
 ```
 
+ADR-133 gave a task two targets: a step may name its own, the runner opens each
+once and closes them in reverse, and references resolve across them. The first
+one runs the shipped protocol through the science engine and holds
+`ecology-lab.html`'s workbench figures to the engine's own session — a Java
+engine and a page's JavaScript, written separately, agreeing on Shannon,
+evenness and Chao1 from the same field data. The new `~=` op is what lets a
+task say that (a required tolerance, no default); a target that does not exist
+is the task's DEFECT, and `two-targets-canary` is written to be one.
+`verify_tasks` 203, `mutate_tasks` 41/41, 53 tasks held.
+
+ADR-132 gave the task grammar a way to say what is ABSENT: `excludes` and
+`not-in`, neither satisfied by a missing path; an unknown op is the task's
+DEFECT rather than a finding; one op table instead of two; and a trailing `#n`
+lets one box carry two claims — it says the refusal, and it no longer says the
+answer. Six refusal paths across the three keys, the guide and the breeding
+bench now assert that, instead of guessing at what replaced it.
+`verify_tasks` 185, `mutate_tasks` 31/31.
+
 ADR-131 took them into the page with data in it: `audit_states.enter()` replays
 a page's own science task in the audit's browser — never a reference task, never
 a canary, never another page's — and the audits then measure `entered` and every

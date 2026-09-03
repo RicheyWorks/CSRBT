@@ -98,6 +98,64 @@ ck(g == {"ok": "CONFIRMED", "output.n": "CONFIRMED", "output.n2": "CONFIRMED", "
    "every operator grades, a reference grades as its value, a missing path is REFUTED unless exists:false: %s" % g)
 ck(T.grade({"output.n": {"op": ">", "value": "x"}}, {"output": {"n": 3}}, {}, "t")[0][1] == "REFUTED",
    "an incomparable pair is REFUTED, not a crash")
+
+# ---- ADR-133: two instruments, one number ------------------------------------
+ck(T.grade({"a": {"op": "~=", "value": 1.227621, "tolerance": 0.005}}, {"a": "1.23"}, {}, "t")[0][1] == "CONFIRMED",
+   "~= holds a page's rounded figure to an engine's full one: two instruments agreeing is a claim '==' cannot make")
+ck(T.grade({"a": {"op": "~=", "value": 1.227621, "tolerance": 0.0001}}, {"a": "1.23"}, {}, "t")[0][1] == "REFUTED",
+   "...and the tolerance is the claim: too tight, and it is REFUTED")
+try:
+    T.grade({"a": {"op": "~=", "value": 1}}, {"a": "1"}, {}, "t")
+    ck(False, "~= without a tolerance was tolerated")
+except T.TaskDefect as e:
+    ck("needs a tolerance" in str(e),
+       "~= without a tolerance is a task DEFECT: how close two instruments must be has no default: %s" % str(e)[:70])
+ck(T.grade({"a": {"op": "~=", "value": 1, "tolerance": 1}}, {"a": "not a number"}, {}, "t")[0][1] == "REFUTED",
+   "a value that is not a number is REFUTED, not a crash")
+
+# ---- ADR-132: saying what is ABSENT ------------------------------------------
+#
+# The grammar could only say what a box holds, so a task asserting that a page
+# had stopped printing something had to guess what replaced it. These four
+# checks are the whole of the new claim: it holds when the string is not there,
+# it fails when it is, a missing path does NOT prove absence (a typo in the path
+# would otherwise read as evidence), and the mirror op reads the other way.
+R = {"output": {"box": "the run is clean", "list": ["a", "b"]}}
+gx = dict((p, v) for p, v, _ in T.grade(
+    {"output.box": {"op": "excludes", "value": "INVARIANT FAILED"},
+     "output.list": {"op": "excludes", "value": "c"},
+     "output.box#2": {"op": "excludes", "value": "clean"}}, R, {}, "t"))
+ck(gx.get("output.box") == "CONFIRMED" and gx.get("output.list") == "CONFIRMED",
+   "excludes CONFIRMS when the value is not in the string or the list: %s" % gx)
+ck(T.grade({"output.box": {"op": "excludes", "value": "clean"}}, R, {}, "t")[0][1] == "REFUTED",
+   "excludes is REFUTED when the value IS there -- it is a claim, not a formality")
+ck(T.grade({"output.gone": {"op": "excludes", "value": "anything"}}, R, {}, "t")[0][1] == "REFUTED",
+   "a path that is not in the response does not prove absence: a task must name a box that exists")
+gn = dict((p, v) for p, v, _ in T.grade(
+    {"output.box": {"op": "not-in", "value": ["a", "b"]},
+     "output.box#2": {"op": "not-in", "value": ["the run is clean"]}}, R, {}, "t"))
+ck(gn.get("output.box") == "CONFIRMED", "not-in CONFIRMS when the value is not one of a set: %s" % gn)
+ck(T.grade({"output.box": {"op": "not-in", "value": ["the run is clean"]}}, R, {}, "t")[0][1] == "REFUTED",
+   "not-in is REFUTED when it is one of them")
+try:
+    T.grade({"output.box": {"op": "excldes", "value": "x"}}, R, {}, "t")
+    ck(False, "a typo'd op was tolerated")
+except T.TaskDefect as e:
+    ck("unknown op" in str(e) and "excludes" in str(e),
+       "an op the grader does not know is the TASK's DEFECT, not a finding about the kit, and the message names "
+       "the ops it does know: %s" % str(e)[:90])
+ck(sorted(T.OPS) == sorted(["==", "!=", ">", ">=", "<", "<=", "~=", "in", "not-in", "contains", "excludes", "exists"]),
+   "ONE op table, read by the loader and the grader alike -- two would drift into a file accepted at load and "
+   "rejected at grade: %s" % sorted(T.OPS))
+# a path may carry a trailing "#n" label so a box can hold two claims: it says
+# the refusal AND it no longer says the answer
+g2 = T.grade({"output.box": {"op": "contains", "value": "clean"},
+              "output.box#2": {"op": "excludes", "value": "FAILED"}}, R, {}, "t")
+ck(sorted((p, v) for p, v, _ in g2) == [("output.box", "CONFIRMED"), ("output.box#2", "CONFIRMED")],
+   "a trailing #n labels a second claim about the same path, graded and reported separately: %s" % g2)
+ck(T.grade({"output.by.selOut.doubling time #2": {"op": "exists", "value": True}},
+           {"output": {"by": {"selOut": {"doubling time #2": "4"}}}}, {}, "t")[0][1] == "CONFIRMED",
+   "...and a read-report duplicate label, which has a SPACE before its #2, is a real path segment, not a label")
 # ADR-128: a page control by the page's own name
 snap = {"controls": [
     {"selector": "step_val:0", "kind": "step_val", "id": None, "host": "geoEntry", "label": "cName"},
@@ -161,6 +219,11 @@ ck({t["target"] for t in tasks} == {"organism", "lab", "page", "fixture"}, "ever
 canaries = [t for t in tasks if t.get("must") == "FAIL"]
 ck({t["target"] for t in canaries} == {"fixture", "page"} and len(canaries) == 2,
    "two canaries declare they must FAIL: the fixture's and the page's: %s" % [t["id"] for t in canaries])
+# ADR-133: a third kind of canary -- one written to be the TASK's own DEFECT
+defects = [t for t in tasks if t.get("must") == "DEFECT"]
+ck(len(defects) == 1 and defects[0]["id"] == "two-targets-canary",
+   "one canary declares it must DEFECT: a step naming a target that does not exist is the task's fault, not any "
+   "target's: %s" % [t["id"] for t in defects])
 try:
     T.load_task(os.path.join(_kit.TOOLS_DIR, "harness_walk.py"))
     ck(False, "a non-task loaded")
@@ -243,6 +306,89 @@ else:
                                                                    for e in s.get("expectations", []) if e["verdict"] != "CONFIRMED"][:2]))
         ck(sum(r["confirmed"] for r in rs.values()) >= 8, "%s: the tasks carry real expectations, %d confirmed"
            % (tgt, sum(r["confirmed"] for r in rs.values())))
+
+# ---- ADR-133: two targets, one task ------------------------------------------
+#
+# The runner's contract for a multi-target task, held without a browser or a
+# JVM: a fake wire per target, so the checks are about the RUNNER -- which wire
+# each step went to, that a reference crosses targets, that a step naming a
+# target nobody opened is the task's defect, and that every wire is closed in
+# the reverse of the order it was opened.
+
+
+class FakeWire(object):
+    """Records what it was asked, answers from a script, and remembers when it
+    was closed."""
+    LOG = []
+
+    def __init__(self, name, answers):
+        self.name, self.answers, self.calls, self.closed = name, answers, [], False
+
+    def op(self, kind, plugin=None, command=None):
+        self.calls.append((kind, plugin, (command or {}).get("action")))
+        if kind == "discover":
+            return {"ok": True}
+        act = (command or {}).get("action") if command else "observe"
+        return dict(self.answers.get(act, {"ok": True, "output": {}, "snapshot": {}}))
+
+    def close(self):
+        self.closed = True
+        FakeWire.LOG.append(self.name)
+
+
+ORG = FakeWire("organism", {"report": {"ok": True, "output": {"size": 3}, "snapshot": {"size": 3}}})
+PAGE = FakeWire("page", {"read-report": {"ok": True, "output": {"n": 3}, "snapshot": {}}})
+two = {"id": "t2", "target": "organism", "goal": "g",
+       "steps": [{"id": "a", "action": "report", "expect": {"ok": True}},
+                 {"id": "b", "target": "page", "action": "read-report",
+                  "expect": {"output.n": "$a.output.size"}}]}
+res = T.run_task(two, ORG, "csrbt-organism",
+                 {"organism": (ORG, "csrbt-organism"), "page": (PAGE, "csrbt-page")})
+ck(res["verdict"] == "PASS" and res["confirmed"] == 2,
+   "a task can drive two targets in one run: %s %s" % (res["verdict"], res["confirmed"]))
+ck([c[1] for c in ORG.calls] == ["csrbt-organism"] and [c[1] for c in PAGE.calls] == ["csrbt-page"],
+   "each step went to the wire its target names, under that target's plugin id: %s / %s"
+   % (ORG.calls, PAGE.calls))
+ck(res["targets"] == ["organism", "page"],
+   "the ledger entry names every target the task used, not just the one it declares: %s" % res["targets"])
+ck(any(e["verdict"] == "CONFIRMED" for st in res["steps"] for e in st["expectations"]),
+   "a reference resolves ACROSS targets: the page's figure held to the organism's size")
+
+missing = T.run_task(two, ORG, "csrbt-organism", {"organism": (ORG, "csrbt-organism")})
+ck(missing["verdict"] == "DEFECT" and "did not open" in (missing["steps"][-1].get("detail") or ""),
+   "a step naming a target the runner did not open is the TASK's defect, not a refusal: %s"
+   % missing["steps"][-1].get("detail"))
+
+# closing order: a task that opened two targets closes them in the reverse of
+# the order it opened them, so a target that another one depends on outlives it
+FakeWire.LOG = []
+A, B = FakeWire("first", {}), FakeWire("second", {})
+saved = dict(T.PLUGIN)
+try:
+    T.PLUGIN.update({"first": "csrbt-fixture", "second": "csrbt-fixture"})
+    orig = T.wire_for
+    made = iter([A, B])
+    T.wire_for = lambda transport, token, **kw: next(made)
+    T.run_tasks([{"id": "closing", "target": "first", "goal": "g", "must": "PASS",
+                  "steps": [{"id": "x", "action": "ok"},
+                            {"id": "y", "target": "second", "action": "ok"}]}], log=None)
+finally:
+    T.wire_for = orig
+    T.PLUGIN.clear(); T.PLUGIN.update(saved)
+ck(FakeWire.LOG == ["second", "first"] and A.closed and B.closed,
+   "every target a task opened is closed, in the reverse of the order it was opened: %s" % FakeWire.LOG)
+
+# a target that does not exist is the TASK's defect, and a canary written to be
+# one is HELD when it defects -- run_tasks decides both, and neither is reached
+# by the FakeWire path above
+out = T.run_tasks([{"id": "telescope", "target": "fixture", "goal": "g", "must": "DEFECT",
+                    "steps": [{"id": "x", "target": "telescope", "action": "ok"}]}], log=None)
+e = out["telescope"]
+ck(e["verdict"] == "DEFECT" and "unknown target" in (e.get("detail") or ""),
+   "a step naming a target that does not exist is the task's DEFECT, and the message says so: %s" % e.get("detail"))
+ck(e["held"] is True and e.get("transport") == "stdio",
+   "...and a canary written to be a DEFECT is HELD when it defects, and still names its transport: held=%s "
+   "transport=%s" % (e["held"], e.get("transport")))
 
 # ---- E. the committed ledger ---------------------------------------------------
 led = T.LEDGER
@@ -353,7 +499,8 @@ DATA_ENTRY = {"collection-sheet.html", "releve.html", "stand-sheet.html", "ethog
 INTERACTIVE = {"plant-characters.html", "fungal-characters.html", "cp-characters.html", "tree-visualizer.html",
                "tree-proofs.html", "ecology-lab.html"}
 science = [t for t in tasks if t["target"] == "page" and t["id"] != "page-enter-and-read-back"
-           and t.get("must", "PASS") == "PASS" and not t["id"].endswith("-reference")]
+           and t.get("must", "PASS") == "PASS" and not t["id"].endswith("-reference")
+           and not t["id"].startswith("two-targets-")]
 reference = [t for t in tasks if t["target"] == "page" and t["id"].endswith("-reference")]
 ck({t["page"] for t in science} == DATA_ENTRY | INTERACTIVE,
    "every data-entry, key, simulator and proof page of the kit has a science task, and every science task is on one: "
