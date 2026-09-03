@@ -121,8 +121,8 @@
       "via": "publish"
     },
     "experiment-guide.html": {
-      "at": 1788384168,
-      "sha": "e931974a1269ef6cb87fa62f603ee34057da6dba43ef1c8fd051418272880a0f",
+      "at": 1788391738,
+      "sha": "4715d5b8664ae9a38ee9c87d481e720b6a0833375b074d37bd8ee0167553f42d",
       "via": "publish"
     },
     "farm-scout.html": {
@@ -180,8 +180,8 @@
       "via": "read"
     },
     "releve.html": {
-      "at": 1788384168,
-      "sha": "871b0cc01784da723e4b3f02288bc4a3294c50929183935da470b372c82487f4",
+      "at": 1788391738,
+      "sha": "13ab322bee27e6d4d3e997b947c48abd27c41e0189003ae9625473457f38b671",
       "via": "publish"
     },
     "selection-log.html": {
@@ -206,13 +206,13 @@
       "via": "read"
     },
     "stand-sheet.html": {
-      "at": 1788358788,
-      "sha": "1a82d02f23ee1557efbfa01d5dd1c07a79f1ac38dd7648bf26fe3e6420646367",
+      "at": 1788391738,
+      "sha": "4128f41e6839107abf916a27dd810a36527b2020802a0448afbddceb1eb3ac5d",
       "via": "publish"
     },
     "survey-design.html": {
-      "at": 1788358788,
-      "sha": "bbd1379a5592498dc849ca2b2060e111edfd39f1d78c9a192ee0c6763e50e7c5",
+      "at": 1788391738,
+      "sha": "dba6faa86884b0186bd41d78eb93d0b71253c4de78fa8aa819fe9978a8ac4a7a",
       "via": "publish"
     },
     "tree-proofs.html": {

@@ -531,6 +531,16 @@ counts on a fixture, the focus audit's own probe after the walk, and runs the
 three audits on a fixture directory whose faults are known. `tools/mutate_audit_states.py`:
 20 killed, 0 survived.
 
+ADR-131 adds the ENTERED state: `audit_states.enter()` replays the page's own
+science task in process on the audit's browser (the task file is the single
+source of what entering means for that page — the science task, never a
+reference task, a canary, or another page's), then `entered` and each tab from
+there are measured like any other state. An entry that could not run, or drove
+nothing, is counted as a fault; a refusal on a step written to be refused is
+not. The suite pins all four selection rules with fixture tasks that isolate
+each, and the focus audit presses and releases a key before every probe so the
+browser is in a keyboard user's mood whatever the entry did with the pointer.
+
 `tools/verify/verify_swarm.py` is the evidence that the verdicts mean something:
 ten fixture pages, nine of them wired and wrong in a different way, one of them
 entirely in order.

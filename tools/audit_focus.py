@@ -105,7 +105,8 @@ FAULTS = [("invisible", "no visible focus"),
           ("unreachable", "not keyboard reachable"),
           ("unnamed", "no accessible name"),
           ("tabindex", "positive tabindex"),
-          ("never", "never exposed, so never measured")]
+          ("never", "never exposed, so never measured"),
+          ("entry_not_reached", "the entered state was never reached")]
 
 
 def main():
@@ -127,7 +128,32 @@ def main():
                 pg.wait_for_timeout(600)
                 # ADR-130: every state of the page, findings merged by selector
                 res, nstates = {}, 0
-                for state, r in S.each_state(pg, nm, lambda: pg.evaluate(PROBE)):
+                # THE BROWSER'S MOOD IS THIS AUDIT'S PRECONDITION (ADR-131).
+                #
+                # Chromium decides whether to paint a focus ring on
+                # programmatic focus from how the page was last interacted
+                # with: after a pointer, it does not. audit_states presses its
+                # states with el.click() to stay in the keyboard mood, but the
+                # ENTERED state is reached by driving the page the way a finger
+                # does -- that is what entering data means -- and the mood flips.
+                # Rather than depend on what the last caller did, this audit
+                # asserts its own precondition: one keypress before every probe,
+                # so "is focus visible" is always asked of a keyboard user.
+                def probe():
+                    try:
+                        pg.keyboard.press("Tab")
+                        pg.wait_for_timeout(40)
+                        # ...and then let go of it. The probe reads each
+                        # control's style BEFORE focusing it and again after; an
+                        # element the keypress left focused shows no change and
+                        # would be reported as having no ring -- the mood is
+                        # what this press is for, not the focus.
+                        pg.evaluate("() => { const a = document.activeElement; if (a && a.blur) a.blur(); }")
+                    except Exception:
+                        pass
+                    return pg.evaluate(PROBE)
+
+                for state, r in S.each_state(pg, nm, probe):
                     nstates += 1
                     for k in r:
                         have = dict(res.get(k, []))
@@ -141,6 +167,9 @@ def main():
                 cov = S.coverage(pg)
                 res["never"] = [(nm_, 1) for nm_ in cov["never"]]
                 res["coverage"] = cov
+                res["entry"] = getattr(pg, "_audit_entered", None)
+                ef = S.entry_fault(res["entry"])
+                res["entry_not_reached"] = [(ef, 1)] if ef else []
             except Exception as exc:
                 rows.append((nm, None, str(exc)[:70])); continue
             n = 0
@@ -158,7 +187,10 @@ def main():
             print("%-30s LOAD FAIL  %s" % (nm, res)); continue
         if n == 0:
             cov = res.get("coverage", {})
-            print("%-30s ok   %d states, %d/%d controls measured" % (nm, res.get("states", 1), cov.get("exposed", 0), cov.get("exist", 0))); continue
+            ent = res.get("entry")
+            print("%-30s ok   %d states, %d/%d controls measured%s"
+                  % (nm, res.get("states", 1), cov.get("exposed", 0), cov.get("exist", 0),
+                     "" if not ent else "   entry %s %d/%d driven" % (ent["task"], ent["driven"], ent["steps"]))); continue
         print("%-30s %d" % (nm, n))
         for k, label in FAULTS:
             for sel, c in res.get(k, []):

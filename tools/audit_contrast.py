@@ -164,12 +164,13 @@ def main():
                         if u not in res["unknown"]:
                             res["unknown"].append(u)
                 res["coverage"] = S.coverage(pg)
+                res["entry"] = getattr(pg, "_audit_entered", None)
             except Exception as exc:
                 rows.append((nm, None, str(exc)[:70])); continue
             t = sum(r[1] for r in res["text"])
             n = sum(r[1] for r in res["nontext"])
             # ADR-130: a control no state exposed was measured in no state
-            never = len(res["coverage"]["never"])
+            never = len(res["coverage"]["never"]) + (1 if S.entry_fault(res.get("entry")) else 0)
             tot_t += t; tot_n += n; tot_u += len(res["unknown"]); tot_never += never
             rows.append((nm, t + n + never, res))
         b.close()
@@ -181,8 +182,10 @@ def main():
             print("%-30s LOAD FAIL  %s" % (nm, res)); continue
         cov = res.get("coverage", {"exposed": 0, "exist": 0, "never": []})
         if n == 0:
-            print("%-30s ok   %d states, %d/%d controls measured%s" % (nm, res.get("states", 1), cov["exposed"], cov["exist"],
-                                              "   (%d over imagery, unmeasured)" % len(res["unknown"]) if res["unknown"] else ""))
+            ent = res.get("entry")
+            print("%-30s ok   %d states, %d/%d controls measured%s%s" % (nm, res.get("states", 1), cov["exposed"], cov["exist"],
+                                              "   (%d over imagery, unmeasured)" % len(res["unknown"]) if res["unknown"] else "",
+                                              "" if not ent else "   entry %s %d/%d driven" % (ent["task"], ent["driven"], ent["steps"])))
             continue
         print("%-30s %d" % (nm, n))
         for name in cov["never"]:

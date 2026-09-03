@@ -54,7 +54,9 @@ with sync_playwright() as p:
         # ADR-130: measured in every state of the page -- each tab pressed,
         # every <details> open, the page-specific reveals -- and the controls no
         # state exposed are named and counted as faults: an unmeasured control
-        # must not print as a good one.
+        # must not print as a good one. ADR-131 adds the ENTERED state: the
+        # page's own science task replayed, then every tab again, so a control
+        # that exists only in a built row is measured too.
         PROBE = """()=>{const bad={};
           document.querySelectorAll('button,input,select,[role=button]').forEach(e=>{
             const bb=e.getBoundingClientRect();
@@ -72,10 +74,13 @@ with sync_playwright() as p:
         for k, state in merged.items():
             kk=k.split('@')[0]; r[kk]=r.get(kk,0)+1
         cov=S.coverage(pg)
-        n=sum(r.values())+len(cov["never"])
+        ent=getattr(pg,"_audit_entered",None)
+        efault=S.entry_fault(ent)
+        n=sum(r.values())+len(cov["never"])+(1 if efault else 0)
+        if efault: r["ENTRY NOT REACHED"]=efault
         bad_total+=n
         if cov["never"]: r["NEVER EXPOSED in %d states"%nstates]=cov["never"][:8]
-        rows.append((name, n, r, nstates, cov))
+        rows.append((name, n, r, nstates, cov, ent))
 
     b.close()
 
@@ -84,11 +89,16 @@ print("-"*62)
 for row in rows:
     if len(row) == 3:
         print("%-30s %s %s" % row); continue
-    name, n, detail, nstates, cov = row
+    name, n, detail, nstates, cov, ent = row
+    # ADR-131: what the entry did, so "audited entered" is a fact on the row
+    tail = ("" if ent is None else
+            "   entry %s %d/%d driven%s" % (ent["task"], ent["driven"], ent["steps"],
+                                            (" -- " + ent["error"]) if ent.get("error") else
+                                            (", %d refused" % ent["refused"] if ent["refused"] else "")))
     if n==0:
-        print("%-30s ok   %d states, %d/%d controls measured" % (name, nstates, cov["exposed"], cov["exist"]))
+        print("%-30s ok   %d states, %d/%d controls measured%s" % (name, nstates, cov["exposed"], cov["exist"], tail))
     else:
-        print("%-30s %s   %s   (%d states, %d/%d measured)" % (name, n, detail, nstates, cov["exposed"], cov["exist"]))
+        print("%-30s %s   %s   (%d states, %d/%d measured)%s" % (name, n, detail, nstates, cov["exposed"], cov["exist"], tail))
 print("-"*62)
 print("total under 44px or never measured across the kit:", bad_total)
 sys.exit(1 if bad_total else 0)

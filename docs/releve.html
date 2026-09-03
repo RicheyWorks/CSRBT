@@ -1840,8 +1840,9 @@ var DWC = (function(){
       E+='<tr><td>'+esc(t.com)+'<br><i>'+esc(t.sci)+'</i></td><td>'+esc(t.fam||"—")+'</td>'
         +'<td>'+esc(t.nat)+'</td><td class="n">'
         +(t.nat==="native"
-          ? '<input type="number" min="0" max="10" step="1" data-c="'+esc(t.sci)+'" value="'
-            +(t.c==null?"":t.c)+'" style="width:64px;min-height:40px;padding:6px 8px;font-size:14px">'
+          ? '<input type="number" min="0" max="10" step="1" data-c="'+esc(t.sci)+'"'
+            +' aria-label="C-value for '+esc(t.com)+'" value="'
+            +(t.c==null?"":t.c)+'" style="width:64px;min-height:44px;padding:6px 8px;font-size:14px">'
           : '<span class="fine">n/a</span>')
         +'</td></tr>';
     });

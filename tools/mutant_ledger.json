@@ -2,20 +2,20 @@
  "_comment": "Written by the mutant runners through tools/mutant_ledger.py. One entry per runner; a run updates only its own entry and keeps the rest, each with its own at.",
  "runners": {
   "mutate_audit_states": {
-   "at": 1788382422,
+   "at": 1788398511,
    "equivalent": 0,
    "equivalents": [],
    "inconclusive": 0,
-   "killed": 20,
-   "mutants": 20,
+   "killed": 34,
+   "mutants": 34,
    "rows": [
     {
-     "detail": "12 failure(s); first: the states, in order: rest, each tab (data-pane then aria-",
+     "detail": "13 failure(s); first: the states, in order: rest, each tab (data-pane then aria-",
      "name": "the tabs are not pressed",
      "verdict": "killed"
     },
     {
-     "detail": "12 failure(s); first: the states, in order: rest, each tab (data-pane then aria-",
+     "detail": "13 failure(s); first: the states, in order: rest, each tab (data-pane then aria-",
      "name": "an aria-controls button is not a tab",
      "verdict": "killed"
     },
@@ -30,42 +30,52 @@
      "verdict": "killed"
     },
     {
-     "detail": "11 failure(s); first: the states, in order: rest, each tab (data-pane then aria-",
+     "detail": "9 failure(s); first: the states, in order: rest, each tab (data-pane then aria-c",
      "name": "a <select> reveal is skipped",
      "verdict": "killed"
     },
     {
-     "detail": "11 failure(s); first: the states, in order: rest, each tab (data-pane then aria-",
+     "detail": "9 failure(s); first: the states, in order: rest, each tab (data-pane then aria-c",
      "name": "the owning tab is not pressed before a <select> reveal",
      "verdict": "killed"
     },
     {
-     "detail": "9 failure(s); first: the states, in order: rest, each tab (data-pane then aria-c",
+     "detail": "8 failure(s); first: the states, in order: rest, each tab (data-pane then aria-c",
      "name": "a revealed surface's tabs are not pressed",
      "verdict": "killed"
     },
     {
-     "detail": "5 failure(s); first: 11 had a box in some state -- B3's box in the third pane, s",
+     "detail": "6 failure(s); first: 14 had a box in some state -- B3's box in the third pane, s",
      "name": "exposure is not accumulated across states",
      "verdict": "killed"
     },
     {
-     "detail": "8 failure(s); first: 11 had a box in some state -- B3's box in the third pane, s",
-     "name": "the stamps are reassigned every state",
+     "detail": "3 failure(s); first: a stamp is what the element IS -- tag, id, non-state classe",
+     "name": "a stamp is a counter, so a rebuilt region loses its measurements",
      "verdict": "killed"
     },
     {
-     "detail": "9 failure(s); first: 12 controls exist at the end (hidden and file inputs are no",
+     "detail": "1 failure(s); first: a state class (on/open/active/selected...) does not re-key ",
+     "name": "a state class re-keys a control",
+     "verdict": "killed"
+    },
+    {
+     "detail": "4 failure(s); first: every control carries one stable stamp, the ones the entry ",
+     "name": "the occurrence index is dropped, so identical controls share a stamp",
+     "verdict": "killed"
+    },
+    {
+     "detail": "10 failure(s); first: 15 controls exist at the end (the row's button included; h",
      "name": "a hidden input is a control",
      "verdict": "killed"
     },
     {
-     "detail": "8 failure(s); first: 11 had a box in some state -- B3's box in the third pane, s",
+     "detail": "9 failure(s); first: 14 had a box in some state -- B3's box in the third pane, s",
      "name": "coverage never names anything",
      "verdict": "killed"
     },
     {
-     "detail": "5 failure(s); first: the states, in order: rest, each tab (data-pane then aria-c",
+     "detail": "4 failure(s); first: the states, in order: rest, each tab (data-pane then aria-c",
      "name": "the click is a pointer click",
      "verdict": "killed"
     },
@@ -77,6 +87,66 @@
     {
      "detail": "2 failure(s); first: experiment-guide.html reaches state:p-kind=hot: ['rest', 'p",
      "name": "the guide's hot phase is not a state",
+     "verdict": "killed"
+    },
+    {
+     "detail": "10 failure(s); first: the states, in order: rest, each tab (data-pane then aria-",
+     "name": "the page is never entered",
+     "verdict": "killed"
+    },
+    {
+     "detail": "3 failure(s); first: the states, in order: rest, each tab (data-pane then aria-c",
+     "name": "the entered state's tabs are not walked",
+     "verdict": "killed"
+    },
+    {
+     "detail": "1 failure(s); first: a page whose only task is a canary has NO entry -- a task w",
+     "name": "a canary counts as the page's task",
+     "verdict": "killed"
+    },
+    {
+     "detail": "1 failure(s); first: a page whose only task is all reads has no entry -- replayi",
+     "name": "a reference task counts as an entry",
+     "verdict": "killed"
+    },
+    {
+     "detail": "1 failure(s); first: with two tasks that both enter, the SCIENCE task wins even ",
+     "name": "the science task is not preferred",
+     "verdict": "killed"
+    },
+    {
+     "detail": "9 failure(s); first: targets: the 20 px button behind the second tab and the nev",
+     "name": "a task is matched whatever page it names",
+     "verdict": "killed"
+    },
+    {
+     "detail": "2 failure(s); first: a page whose only task is all reads has no entry -- replayi",
+     "name": "the reads are replayed too",
+     "verdict": "killed"
+    },
+    {
+     "detail": "7 failure(s); first: 15 controls exist at the end (the row's button included; hi",
+     "name": "the entry's steps are not driven",
+     "verdict": "killed"
+    },
+    {
+     "detail": "1 failure(s); first: the states, in order: rest, each tab (data-pane then aria-c",
+     "name": "the page's own reveals are not pressed again after the entry",
+     "verdict": "killed"
+    },
+    {
+     "detail": "1 failure(s); first: an entry that drove nothing IS a fault: the states after it",
+     "name": "an entry that drove nothing is not a fault",
+     "verdict": "killed"
+    },
+    {
+     "detail": "1 failure(s); first: an entry that could not run at all is a fault",
+     "name": "an entry that could not run is not a fault",
+     "verdict": "killed"
+    },
+    {
+     "detail": "1 failure(s); first: a refusal on a step written to be refused is not: a science",
+     "name": "an expected refusal is called a fault",
      "verdict": "killed"
     },
     {

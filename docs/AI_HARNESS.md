@@ -295,6 +295,19 @@ python3 tools/verify/verify_ecosystem.py             # 56 checks: green, >= floo
 python3 tools/atlas.py                               # regenerate the Atlas's engine table from the ledger (ADR-120)
 ```
 
+ADR-131 took them into the page with data in it: `audit_states.enter()` replays
+a page's own science task in the audit's browser — never a reference task, never
+a canary, never another page's — and the audits then measure `entered` and every
+tab from there; an entry that drove nothing is itself a fault. Forty-two
+touch-target defects that only exist once a row is built were found and fixed
+(survey-design's hierarchy buttons, stand-sheet's remove, the guide's chips,
+the relevé's C-value box), and two artefacts of the instrument with them: a pane
+measured mid-transition, and the browser's pointer mood after the entry.
+The accounting's stamp became the element's structural identity rather than an
+index, because these pages rebuild regions with `innerHTML` and a counter forgot
+every measurement taken before the re-render. `verify_audit_states` 52,
+`mutate_audit_states` 34.
+
 ADR-130 took the audits everywhere: `tools/audit_states.py` walks a page
 through every state a reader can put it in — each tab, every `<details>`, the
 season started, the comparison opened, a `<select>` that grows a field — and

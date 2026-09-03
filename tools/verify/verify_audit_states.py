@@ -28,13 +28,19 @@ suite holds tools/audit_states.py, and the three audits that use it, to what
   E. on real pages: the season starts for the audits (field-season), the
      guide's hot-phase fields are reached through their tab
      (experiment-guide), and the coverage on both is complete
+  F. the entered state (ADR-131): the page's OWN science task is what is
+     replayed -- never a reference task, never a canary, never another page's;
+     the entry steps are driven and the reads are not; a control that exists
+     only in a built row is exposed and measured; each tab is walked again
+     from there; an entry that drove nothing is a fault, and a refusal on a
+     step that was meant to refuse is not
 
 Run:  python3 tools/verify/verify_audit_states.py
 """
 # Declared for tools/mutate.py: this suite writes its own fixture pages and
 # asserts about tools/audit_states.py -- a subject.
 MUTATE_ROLE = "subject"
-import io, os, re, subprocess, sys, tempfile
+import io, json, os, re, subprocess, sys, tempfile
 
 import _kit
 
@@ -75,6 +81,9 @@ FIXTURE = u"""<!doctype html><html><head><meta charset="utf-8"><title>states fix
   <button id="small">tiny</button>
   <select id="kind" aria-label="kind"><option>cold</option><option>hot</option></select>
   <input id="hotInput" aria-label="hot set">
+  <input id="typed" aria-label="typed">
+  <button id="addRow">add</button>
+  <div id="rows"></div>
 </div>
 <div id="p3" class="pane"><p id="faint" style="color:#c8c8c8">faint text behind the third tab</p><button id="b3">B3</button></div>
 <details><summary>more about it</summary><button id="inDetails">D</button></details>
@@ -94,14 +103,82 @@ FIXTURE = u"""<!doctype html><html><head><meta charset="utf-8"><title>states fix
   // accounting's accumulation across states a claim the suite can refute
   document.getElementById('more').addEventListener('click', function(){ document.getElementById('extra').classList.add('on'); document.getElementById('t3').remove(); });
   document.getElementById('kind').addEventListener('change', function(e){ document.body.classList.toggle('hot', e.target.value === 'hot'); });
+  // a row exists only once something has been entered: its buttons have no box
+  // in any state of the empty page, which is the whole point of "entered"
+  document.getElementById('addRow').addEventListener('click', function(){
+    var v = document.getElementById('typed').value;
+    if (!v) return;
+    document.getElementById('rows').insertAdjacentHTML('beforeend',
+      '<div class="row"><span class="l">name</span><span class="v">' + v + '</span>' +
+      '<button class="rowDrop" aria-label="remove ' + v + '">x</button></div>');
+  });
 </script></body></html>
 """
+
+# A page with an entry: one task file whose steps build a row, so the entered
+# state is a real state and not a hope. Written beside the fixture page so the
+# suite owns both halves of what it asserts.
+TASKS = {
+    "page-fixture-science": {
+        "id": "page-fixture-science", "target": "page", "page": "fixture.html",
+        "goal": "build a row, then read what the page says about it",
+        "steps": [
+            {"id": "s0", "action": "observe"},
+            {"id": "s1", "action": "show-pane", "arguments": {"pane": "p2"}},
+            {"id": "s2", "action": "set-text", "arguments": {"selector": "@control:typed", "value": "kestrel"}},
+            {"id": "s3", "action": "activate", "arguments": {"selector": "@control:addRow"}},
+            {"id": "s4", "action": "read-report"},
+        ],
+    },
+    "page-fixture-reference": {
+        "id": "page-fixture-reference", "target": "page", "page": "fixture.html",
+        "goal": "the outline", "steps": [{"id": "r0", "action": "read-report"}],
+    },
+    "page-fixture-canary": {
+        "id": "page-fixture-canary", "target": "page", "page": "fixture.html", "must": "FAIL",
+        "goal": "a canary: enter what the page must reject",
+        "steps": [{"id": "c0", "action": "observe"},
+                  {"id": "c1", "action": "activate", "arguments": {"selector": "@control:never"}}],
+    },
+    # three pages that isolate one selection rule each -- without them the
+    # preference for "-science" masks the canary and reference filters, and
+    # alphabetical order masks the preference
+    "page-canaryonly-canary": {
+        "id": "page-canaryonly-canary", "target": "page", "page": "canaryonly.html", "must": "FAIL",
+        "goal": "a canary and nothing else",
+        "steps": [{"id": "c0", "action": "activate", "arguments": {"selector": "#more"}}],
+    },
+    "page-refonly-reference": {
+        "id": "page-refonly-reference", "target": "page", "page": "refonly.html",
+        "goal": "reads and nothing else",
+        "steps": [{"id": "r0", "action": "observe"}, {"id": "r1", "action": "read-report"}],
+    },
+    "page-aprefer-extra": {
+        "id": "page-aprefer-extra", "target": "page", "page": "prefer.html",
+        "goal": "sorts first, and is not the science task",
+        "steps": [{"id": "a0", "action": "activate", "arguments": {"selector": "#more"}}],
+    },
+    "page-zprefer-science": {
+        "id": "page-zprefer-science", "target": "page", "page": "prefer.html",
+        "goal": "sorts last, and is the science task",
+        "steps": [{"id": "z0", "action": "activate", "arguments": {"selector": "#more"}}],
+    },
+    "page-other-science": {
+        "id": "page-other-science", "target": "page", "page": "other.html",
+        "goal": "another page's task", "steps": [{"id": "o0", "action": "activate", "arguments": {"selector": "#more"}}],
+    },
+}
 
 tmp = tempfile.mkdtemp(prefix="states_")
 docs = os.path.join(tmp, "docs")
 os.mkdir(docs)
 fx = os.path.join(docs, "fixture.html")
 io.open(fx, "w", encoding="utf-8").write(FIXTURE)
+tasks_dir = os.path.join(tmp, "tasks")
+os.mkdir(tasks_dir)
+for tid, t in TASKS.items():
+    io.open(os.path.join(tasks_dir, tid + ".json"), "w", encoding="utf-8").write(json.dumps(t, indent=1))
+S.TASKS_DIR = tasks_dir
 
 S.STATE_BUTTONS["fixture.html"] = [("select", "#kind", "hot"), "#more"]
 # the controls with a box, plus "details:open" when the <details> is open --
@@ -124,7 +201,9 @@ with sync_playwright() as pw:
         seen.append((state, set(r)))
     names = [s for s, _ in seen]
     want = ["rest", "pane:p1", "pane:p2", "pane:p4", "pane:p3", "state:kind=hot", "state:more",
-            "state:more/pane:p1", "state:more/pane:p2", "state:more/pane:p4"]
+            "state:more/pane:p1", "state:more/pane:p2", "state:more/pane:p4",
+            "entered", "entered/pane:p1", "entered/pane:p2", "entered/pane:p4",
+            "entered/state:kind=hot", "entered/state:more"]
     ck(names == want, "the states, in order: rest, each tab (data-pane then aria-controls), each reveal, "
                       "a revealed surface's tabs after it: %s" % names)
     by = dict(seen)
@@ -141,14 +220,35 @@ with sync_playwright() as pw:
 
     # ---- B. the accounting ------------------------------------------------
     cov = S.coverage(pg)
-    ck(cov["exist"] == 12, "12 controls exist at the end (hidden and file inputs are not controls; the third tab is gone): %s" % cov["exist"])
-    ck(cov["exposed"] == 11, "11 had a box in some state -- B3's box in the third pane, seen once, is remembered: %s" % cov["exposed"])
+    ck(cov["exist"] == 15, "15 controls exist at the end (the row's button included; hidden and file inputs are not controls; the third tab is gone): %s" % cov["exist"])
+    ck(cov["exposed"] == 14, "14 had a box in some state -- B3's box in the third pane, seen once, is remembered: %s" % cov["exposed"])
     ck(len(cov["never"]) == 1 and "#never" in cov["never"][0],
        "the one control no state exposed is named by element: %s" % cov["never"])
     stamps = pg.evaluate("() => [...document.querySelectorAll('[data-audit]')].map(e => e.getAttribute('data-audit'))")
-    ck(len(stamps) == 12 and len(set(stamps)) == 12, "every control carries one stable stamp: %d stamps, %d distinct" % (len(stamps), len(set(stamps))))
+    ck(len(stamps) == 15 and len(set(stamps)) == 15,
+       "every control carries one stable stamp, the ones the entry built included: %d stamps, %d distinct"
+       % (len(stamps), len(set(stamps))))
     first = pg.evaluate("() => document.querySelector('.tab[data-pane]').getAttribute('data-audit')")
-    ck(first == "a0", "stamps are assigned once in document order and never reassigned: %s" % first)
+    ck(first == "button.tab[submit]|1",
+       "a stamp is what the element IS -- tag, id, non-state classes, input type -- plus its occurrence, so a "
+       "region rebuilt from the same template keeps its stamps and its measurements: %s" % first)
+    onoff = pg.evaluate("""() => { const t = document.querySelector('.tab[data-pane]');
+      const before = t.getAttribute('data-audit'); t.classList.add('on'); return [before, t]; }""")
+    pg.evaluate(S.MARK_JS, S.CONTROLS)
+    after = pg.evaluate("() => { const t = document.querySelector('.tab[data-pane]'); const a = t.getAttribute('data-audit'); t.classList.remove('on'); return a; }")
+    ck(after == "button.tab[submit]|1",
+       "a state class (on/open/active/selected...) does not re-key a control: a chip you pick is the same chip: %s" % after)
+    # a real re-render: the page rebuilds the region from its own template, so
+    # the elements come back WITHOUT the stamp the audit put on them
+    rebuilt = pg.evaluate("""() => { const box = document.getElementById('rows');
+      const html = box.innerHTML.replace(/ data-audit="[^"]*"/g, '');
+      box.innerHTML = ''; box.innerHTML = html;
+      return [...document.querySelectorAll('.rowDrop')].map(e => e.getAttribute('data-audit')); }""")
+    pg.evaluate(S.MARK_JS, S.CONTROLS)
+    again = pg.evaluate("() => [...document.querySelectorAll('.rowDrop')].map(e => e.getAttribute('data-audit'))")
+    ck(rebuilt == [None] and again == ["button.rowDrop[submit]|1"],
+       "a region rebuilt with innerHTML comes back under the SAME stamp -- a counter would have forgotten every "
+       "state that measured it: %s then %s" % (rebuilt, again))
 
     # ---- C. the click is programmatic ---------------------------------------
     inv = pg.evaluate(AF.PROBE)["invisible"]
@@ -210,6 +310,59 @@ with sync_playwright() as pw:
     ck("#startBtn" in S.states_of("field-season.html") and "#cmpBtn" in S.states_of("tree-visualizer.html"),
        "the page-specific reveals are declared for the pages that need them")
     b.close()
+
+# ---- F. the entered state (ADR-131) ---------------------------------------
+t = S.task_for("fixture.html", tasks_dir)
+ck(t is not None and t["id"] == "page-fixture-science",
+   "the page's own SCIENCE task is what gets replayed -- not the reference task (all reads), "
+   "not the canary (written to be refuted): %s" % (t and t["id"]))
+ck(S.task_for("other.html", tasks_dir)["id"] == "page-other-science",
+   "a task is matched by the page it names, never by another page's")
+ck(S.task_for("nobody.html", tasks_dir) is None, "a page with no task has no entry")
+ck(S.task_for("canaryonly.html", tasks_dir) is None,
+   "a page whose only task is a canary has NO entry -- a task written to be refuted enters what the page must "
+   "reject: %s" % (S.task_for("canaryonly.html", tasks_dir) or {}).get("id"))
+ck(S.task_for("refonly.html", tasks_dir) is None,
+   "a page whose only task is all reads has no entry -- replaying it would change nothing: %s"
+   % (S.task_for("refonly.html", tasks_dir) or {}).get("id"))
+ck(S.task_for("prefer.html", tasks_dir)["id"] == "page-zprefer-science",
+   "with two tasks that both enter, the SCIENCE task wins even though the other sorts first: %s"
+   % S.task_for("prefer.html", tasks_dir)["id"])
+
+with sync_playwright() as pw:
+    b = pw.chromium.launch()
+    pg = b.new_page(viewport={"width": 390, "height": 900})
+    pg.goto("file://" + fx.replace(os.sep, "/"), wait_until="domcontentloaded")
+    seen = dict((state, set(r)) for state, r in S.each_state(pg, "fixture.html", lambda: pg.evaluate(BOXED)))
+    names = list(seen)
+    ck("entered" in names and names[-1].startswith("entered"),
+       "the entered state comes after every state of the empty page: %s" % names[-5:])
+    ck([n for n in names if n.startswith("entered/pane:")] ==
+       ["entered/pane:p1", "entered/pane:p2", "entered/pane:p4"],
+       "and each tab is walked again from there (the third tab is gone by then): %s"
+       % [n for n in names if n.startswith("entered/")])
+    ent = getattr(pg, "_audit_entered", None)
+    ck(ent and ent["task"] == "page-fixture-science" and ent["driven"] == 3 and ent["steps"] == 3,
+       "the entry drives the three entry steps and skips the two reads: %s" % ent)
+    ck("x" in seen.get("entered/pane:p2", set()),
+       "a control that exists only in a built row has a box in the entered state, and in no earlier one: %s"
+       % sorted(seen.get("entered/pane:p2", set())))
+    ck(all("x" not in v for k, v in seen.items() if not k.startswith("entered")),
+       "...and in no state of the empty page")
+    cov = S.coverage(pg)
+    ck(cov["exist"] == 15 and len(cov["never"]) == 1 and "#never" in cov["never"][0],
+       "the row's button is counted and measured; the one control no state exposes is still the only one unmeasured: "
+       "%d controls, never %s" % (cov["exist"], cov["never"]))
+    ck(S.entry_fault(ent) is None, "an entry that drove its steps is not a fault")
+    b.close()
+
+ck(S.entry_fault({"task": "t", "driven": 0, "refused": 2, "steps": 2}) is not None,
+   "an entry that drove nothing IS a fault: the states after it are the empty page's")
+ck(S.entry_fault({"task": "t", "driven": 0, "refused": 0, "steps": 0, "error": "no plugin"}) is not None,
+   "an entry that could not run at all is a fault")
+ck(S.entry_fault({"task": "t", "driven": 3, "refused": 1, "steps": 4}) is None,
+   "a refusal on a step written to be refused is not: a science task drives refusal paths on purpose")
+ck(S.entry_fault(None) is None, "a page with no task is not a fault -- it has nothing to enter")
 
 # the three audits actually use the walker: an audit that does not loop over
 # each_state and count coverage is the old audit under a new docstring
