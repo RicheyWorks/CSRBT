@@ -1,0 +1,14 @@
+{
+ "_comment": "Written by tools/engine_attest.py --attest, only on a machine that RAN the engine. Each entry says what the engine emitted, and digests the engine's sources as they stood at that moment -- so the record stops applying the instant the engine moves (ADR-139).",
+ "artifacts": {
+  "docs/ecology-lab-session.json": {
+   "at": 1788479813,
+   "bytes": 4186,
+   "engineDigest": "ef76eca82be7108e4a681bbce99aa7bd8f740100c31eb8ac74ef709b6fc0dc10",
+   "expr": "EcologyFieldDay.run().json()",
+   "java": "openjdk version \"21.0.10\" 2026-01-20",
+   "sha": "55fde6efe30b2e5d91cd06cd06ae1eb04ada2bdd954229cda3c5c4bbbb2fd338",
+   "sourceFiles": 93
+  }
+ }
+}

@@ -36,6 +36,9 @@ fresh clone needs one `./gradlew classes` before this link can be verified.
 
 Run:  python3 tools/verify/verify_engine_sessions.py
 """
+# Declared for tools/mutate.py: the temp dir here holds two fixture .java files used only to digest a rename, not fixture pages (ADR-139)
+MUTATE_ROLE = "subject"
+
 import decimal, glob, io, json, os, re, subprocess, sys, tempfile
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
@@ -91,75 +94,16 @@ def inline_session(page_src):
     raise ValueError("unterminated SESSION object")
 
 
-def classpath():
-    """(classpath, why_not). Two things can be missing and they are not the same
-    thing, so this says which.
-
-    The single message this used to return -- "engine classes or log4j not found
-    -- run ./gradlew classes" -- named the wrong cause on the machine where it
-    actually fires. In the desktop Linux VM the classes ARE built (they come
-    over the mount from the Windows host) and it is the log4j jars that are
-    absent, because they live in the HOST's ~/.gradle cache and that is not
-    mounted. The advice was worse than vague: `./gradlew classes` cannot run
-    there at all -- Gradle 9 needs JVM 17+ and that VM has 11 -- so a reader
-    following it got a second failure that explained nothing about the first.
-    An unverified result is honest; an unverified result with a wrong remedy
-    just moves the confusion downstream.
-    """
-    # ADR-116: the experimental module writes its own runtime classpath for the
-    # harness plugin (./gradlew :csrbt-experimental:harnessClasspath). When it
-    # is there it is exactly what this suite needed all along -- Gradle's own
-    # resolution, log4j included -- so the ~/.gradle hunt below is only the
-    # fallback for a tree built before that task existed.
-    written = os.path.join(ROOT, "csrbt-experimental", "build", "harness", "classpath.txt")
-    if os.path.isfile(written):
-        cp = io.open(written, encoding="utf-8").read().strip()
-        head = cp.split(os.pathsep)[0]
-        if os.path.isdir(head):
-            return cp, None
-    parts = [os.path.join(ROOT, "csrbt-experimental", "build", "classes", "java", "main"),
-             os.path.join(ROOT, "csrbt-core", "build", "classes", "java", "main")]
-    missing = [p for p in parts if not os.path.isdir(p)]
-    if missing:
-        return None, ("engine classes not built (%s) -- run ./gradlew classes on a JDK 17+"
-                      % os.path.relpath(missing[0], ROOT))
-    # log4j is a compile dependency of TreeContext's static initialiser, so the
-    # engine will not start without it even though nothing here logs.
-    for pat in ("log4j-api-*.jar", "log4j-core-*.jar"):
-        hit = glob.glob(os.path.join(os.path.expanduser("~"), ".gradle", "caches",
-                                     "modules-2", "files-2.1", "**", pat), recursive=True)
-        if not hit:
-            return None, ("classes are built but %s is not in this machine's "
-                          "~/.gradle cache -- run this suite where the engine was built"
-                          % pat)
-        parts.append(sorted(hit)[-1])
-    return os.pathsep.join(parts), None
+# ADR-139: ONE implementation of "run the engine", in tools/engine_attest.py,
+# because there are now two consumers -- this suite, and the attestation the
+# suite falls back to. Two copies of a classpath hunt is how the two disagree.
+sys.path.insert(0, _kit.TOOLS_DIR.rstrip(os.sep))
+import engine_attest as EA
+classpath = EA.classpath
 
 
 def engine_json():
-    """(json_text, why_not). Never raises: an engine that will not start is an
-    UNVERIFIED result, not a crash and certainly not a pass."""
-    cp, why_not = classpath()
-    if cp is None:
-        return None, why_not
-    src = ('import io.github.richeyworks.csrbt.experimental.ecology.EcologyFieldDay;\n'
-           'public class _Regen { public static void main(String[] a) throws Exception {\n'
-           '  System.out.print(EcologyFieldDay.run().json()); } }\n')
-    with tempfile.TemporaryDirectory() as d:
-        f = os.path.join(d, "_Regen.java")
-        io.open(f, "w", encoding="utf-8").write(src)
-        try:
-            c = subprocess.run(["javac", "-cp", cp, "-d", d, f],
-                               capture_output=True, text=True, timeout=180)
-            if c.returncode:
-                return None, "javac failed: " + c.stderr.strip().splitlines()[-1][:120]
-            r = subprocess.run(["java", "-cp", cp + os.pathsep + d, "_Regen"],
-                               capture_output=True, text=True, timeout=300)
-            if r.returncode:
-                return None, "engine run failed: " + r.stderr.strip().splitlines()[-1][:120]
-            return r.stdout, None
-        except (OSError, subprocess.TimeoutExpired) as e:
-            return None, "%s: %s" % (type(e).__name__, e)
+    return EA.engine_output("docs/ecology-lab-session.json")
 
 
 page = io.open(PAGE, encoding="utf-8").read()
@@ -177,12 +121,30 @@ ck("and it is the same object as docs/ecology-lab-session.json",
 # ---- link A: engine -> shipped file --------------------------------------
 txt, why = engine_json()
 if why:
-    unverified.append("engine -> docs/ecology-lab-session.json (%s)" % why)
-    print("UNVERIFIED  the shipped session is the engine's output   (%s)" % why)
+    # THE LIVE PATH IS PREFERRED AND IT IS NOT AVAILABLE HERE. What is left is
+    # the attestation (ADR-139): a dated record, written only by a machine that
+    # RAN the engine, saying what it emitted and digesting the engine's sources
+    # as they stood. It is evidence exactly while those sources have not moved,
+    # and it says which of the two it is rather than passing quietly as the
+    # stronger one.
+    kind, awhy = EA.check("docs/ecology-lab-session.json", shipped_txt)
+    if kind == "attested":
+        ck("the shipped session is what the engine emitted -- ATTESTED, not run here (%s; %s)"
+           % (awhy, why), True)
+    elif kind == "differs":
+        ck("the shipped session is what the engine emitted (attested)", False, awhy)
+    else:
+        unverified.append("engine -> docs/ecology-lab-session.json (%s; and %s)" % (why, awhy))
+        print("UNVERIFIED  the shipped session is the engine's output   (%s)" % why)
 else:
     ck("the shipped session is byte-for-byte what the engine emits today",
        txt == shipped_txt,
        "parsed-equal but bytes differ" if json.loads(txt) == shipped else "content differs")
+    # the attestation is only ever written by a run of the engine, so a live run
+    # that agrees with it is also the check that the record is honest
+    _kind, _awhy = EA.check("docs/ecology-lab-session.json", txt)
+    ck("...and the attestation on record says the same thing this live run just did (%s)" % _awhy,
+       _kind in ("attested", "absent", "stale"), (_kind, _awhy))
     ck("and the headline figures are the engine's, not the page's",
        json.loads(txt)["fossils"]["meanContent"] == shipped["fossils"]["meanContent"]
        and json.loads(txt)["fossils"]["meanStructural"] == shipped["fossils"]["meanStructural"],
@@ -415,6 +377,79 @@ else:
     ck("and the binding is not vacuous -- the constants really are distinct values",
        len({_const[n] for _, ns in READINGS for n in ns}) >= 6,
        sorted({_const.get(n) for _, ns in READINGS for n in ns}))
+
+# ---- ADR-139: the attestation, and its decay rule --------------------------
+#
+# The live check is the one that matters and it cannot run everywhere. What
+# stands in for it must be weaker in a way that is STATED and that expires on
+# its own, or it is a cached green.
+_st = EA.load()
+_dig, _n = EA.engine_digest()
+_entry = (_st.get("artifacts") or {}).get("docs/ecology-lab-session.json")
+ck("an attestation is committed for the shipped session, and it names what produced it",
+   bool(_entry) and _entry.get("expr") == "EcologyFieldDay.run().json()"
+   and _entry.get("at", 0) > 0 and _entry.get("sourceFiles", 0) > 10 and _entry.get("java"),
+   _entry)
+ck("the engine digest covers both modules' main sources, by path AND bytes",
+   _n > 50 and len(_dig) == 64 and all(f.endswith(".java") for f in EA.source_files()), (_n, _dig[:12]))
+ck("...and it is the digest the committed attestation was taken against",
+   bool(_entry) and _entry.get("engineDigest") == _dig,
+   (_entry or {}).get("engineDigest", "")[:12] + " vs " + _dig[:12])
+
+# the decay rule, on fixtures: a moved source, a wrong sha, nothing at all
+_fake = {"artifacts": {"docs/ecology-lab-session.json": dict(_entry or {}, sha=EA.sha_text(shipped_txt))}}
+ck("with the engine unmoved and the bytes matching, the attestation APPLIES",
+   EA.check("docs/ecology-lab-session.json", shipped_txt, _fake, _dig)[0] == "attested",
+   EA.check("docs/ecology-lab-session.json", shipped_txt, _fake, _dig))
+ck("move one byte of the engine and it stops applying -- STALE, not attested",
+   EA.check("docs/ecology-lab-session.json", shipped_txt, _fake, "0" * 64)[0] == "stale",
+   EA.check("docs/ecology-lab-session.json", shipped_txt, _fake, "0" * 64))
+ck("edit the shipped file and the attestation says so -- on a machine with no Java at all",
+   EA.check("docs/ecology-lab-session.json", shipped_txt + " ", _fake, _dig)[0] == "differs",
+   EA.check("docs/ecology-lab-session.json", shipped_txt + " ", _fake, _dig))
+ck("with nothing attested the answer is ABSENT, never a pass",
+   EA.check("docs/ecology-lab-session.json", shipped_txt, {"artifacts": {}}, _dig)[0] == "absent")
+# and the digest is over the path as well as the bytes: a file renamed with its
+# content unchanged is a different engine, and a digest of contents alone would
+# call it the same one.
+_fx = tempfile.mkdtemp()
+os.makedirs(os.path.join(_fx, "m", "src", "main", "java", "p"))
+_one = os.path.join(_fx, "m", "src", "main", "java", "p", "A.java")
+io.open(_one, "w", encoding="utf-8").write("class A {}\n")
+_saved_roots, _saved_root = EA.SOURCE_ROOTS, EA.ROOT
+try:
+    EA.ROOT, EA.SOURCE_ROOTS = _fx, (os.path.join("m", "src", "main", "java"),)
+    _d1, _c1 = EA.engine_digest()
+    os.rename(_one, os.path.join(os.path.dirname(_one), "B.java"))
+    _d2, _c2 = EA.engine_digest()
+    io.open(os.path.join(os.path.dirname(_one), "B.java"), "a", encoding="utf-8").write("// x\n")
+    _d3, _c3 = EA.engine_digest()
+    ck("a renamed source file is a different engine even with its bytes unchanged, and an edited "
+       "one is different again", len({_d1, _d2, _d3}) == 3 and _c1 == _c2 == _c3 == 1,
+       (_d1[:8], _d2[:8], _d3[:8], _c1, _c2, _c3))
+finally:
+    EA.SOURCE_ROOTS, EA.ROOT = _saved_roots, _saved_root
+
+# what --attest WRITES, without needing a JDK: the engine's output is faked, the
+# record it produces is not. An attestation with no digest in it would apply to
+# every engine forever, which is the failure this whole mechanism exists to
+# avoid, and nothing would notice until an engine actually moved.
+_saved_out = EA.engine_output
+try:
+    EA.engine_output = lambda artifact="docs/ecology-lab-session.json": ("PRETEND", None)
+    _st2 = {"artifacts": {}}
+    _rec, _rwhy = EA.attest("docs/ecology-lab-session.json", _st2)
+finally:
+    EA.engine_output = _saved_out
+ck("an attestation records the engine digest as it stood, 64 hex, alongside what was emitted",
+   _rwhy is None and _rec and len(_rec.get("engineDigest", "")) == 64
+   and _rec["engineDigest"] == _dig and _rec["sha"] == EA.sha_text("PRETEND")
+   and _rec.get("sourceFiles") == _n, _rec)
+ck("...and the record it wrote applies to this engine and to nothing else",
+   EA.check("docs/ecology-lab-session.json", "PRETEND", _st2, _dig)[0] == "attested"
+   and EA.check("docs/ecology-lab-session.json", "PRETEND", _st2, "f" * 64)[0] == "stale",
+   (EA.check("docs/ecology-lab-session.json", "PRETEND", _st2, _dig),
+    EA.check("docs/ecology-lab-session.json", "PRETEND", _st2, "f" * 64)))
 
 total = ok + bad + len(unverified)
 print("-" * 70)

@@ -30,6 +30,9 @@ rather than passing on last week's number.
 
 Run:  python3 tools/verify/verify_ecosystem.py
 """
+# Declared for tools/mutate.py: the temp dir here holds a fixture LEDGER, not fixture pages: the ratchet's rule is driven against data that would break it (ADR-139)
+MUTATE_ROLE = "subject"
+
 import io, json, os, sys, time
 
 import _kit
@@ -109,12 +112,114 @@ for name, repo, modules, note in E.ENGINES:
     ck(live["results_at"] <= e.get("at", 0) + 1 or live["tests"] == e["tests"],
        "%s: the results on disk (%d tests) are newer than the ledger's reading (%d) -- rerun "
        "ecosystem.py --read" % (name, live["tests"], e["tests"]))
+    # ADR-139: THE RATCHET GOES DOWN TO THE CLASS. A total that has not fallen
+    # is not a suite that has not shrunk: delete one test class, grow another
+    # by the same count, and the engine-level floor is satisfied by a suite
+    # that lost a subject. So every class ever read is on the record, and a
+    # class that is gone -- or smaller -- is named, with the size it had.
+    floors = e.get("classFloor") or {}
+    forgotten = set(f["class"] for f in e.get("forgotten", []))
+    gone = sorted(c for c in floors if c not in live["suites"] and c not in forgotten)
+    shrunk = sorted((c, floors[c], live["suites"][c]) for c in floors
+                    if c in live["suites"] and live["suites"][c] < floors[c])
+    ck(not gone, "%s: %d test class(es) on the ratchet are not in the results any more -- "
+                 "a suite that lost a subject, without --forget: %s" % (name, len(gone), gone[:3]))
+    ck(not shrunk, "%s: %d test class(es) shrank -- %s" % (name, len(shrunk),
+                   ["%s %d -> %d" % x for x in shrunk[:3]]))
 
 # ---- 5. floors only rise, lowering carries a reason -------------------------
 ck(all(e.get("floor", 0) >= e.get("tests", 0) for e in eng.values()),
    "every floor is at least the count it was read from")
 ck(all(all(l.get("reason", "").strip() for l in e.get("lowered", [])) for e in eng.values()),
    "every lowering of a floor carries a reason")
+ck(all(all(f.get("reason", "").strip() and f.get("class") for f in e.get("forgotten", []))
+       for e in eng.values()),
+   "every test class taken off the ratchet carries a reason and names itself")
+ck(sum(len(e.get("classFloor") or {}) for e in eng.values()) >= 200
+   and all(all(v > 0 for v in (e.get("classFloor") or {}).values()) for e in eng.values()),
+   "the class ratchet holds every test class of every engine, each at a count above zero: %d"
+   % sum(len(e.get("classFloor") or {}) for e in eng.values()))
+ck(all(sum((e.get("classFloor") or {}).values()) >= e.get("tests", 0)
+       for n, e in eng.items() if e.get("classFloor")),
+   "and the class floors add up to at least the engine's own floor -- no class is missing from it: %s"
+   % [n for n, e in eng.items() if e.get("classFloor")
+      and sum(e["classFloor"].values()) < e.get("tests", 0)][:3])
+
+# ---- 5b. the ratchet's RULE, on a fixture (ADR-139) --------------------------
+#
+# Checks 4 and 5 read the ledger as it stands, and as it stands nothing has
+# shrunk -- so a read that LOWERED a floor would satisfy every one of them.
+# "The floor only rises" is a rule about the code, and the only way to hold code
+# to a rule is to run it against data that would break it.
+import tempfile as _tf, json as _json
+_led = {"engines": {"csrbt-core": {"floor": 99999, "repo": "CSRBT", "note": "",
+                                   "classFloor": {"a.B": 500, "gone.C": 7}}}}
+_saved_read = E.read_results
+try:
+    E.read_results = lambda repo, module: ({"tests": 3, "failures": 0, "errors": 0, "skipped": 0,
+                                            "classes": 1, "suites": {"a.B": 2, "new.D": 1},
+                                            "results_at": 1788000000}
+                                           if module == "csrbt-core" else None)
+    E.read_all(_led, only=["csrbt-core"])
+finally:
+    E.read_results = _saved_read
+_e = _led["engines"]["csrbt-core"]
+ck(_e["floor"] == 99999, "a read never lowers a floor: 99999 stayed %s after reading 3 tests" % _e["floor"])
+ck(_e["classFloor"].get("a.B") == 500,
+   "...and never lowers a class floor either: a.B was 500, read 2, is %s" % _e["classFloor"].get("a.B"))
+ck(_e["classFloor"].get("gone.C") == 7,
+   "a class that did not appear in this read keeps its floor -- that is what makes its absence "
+   "visible: gone.C is %s" % _e["classFloor"].get("gone.C"))
+ck(_e["classFloor"].get("new.D") == 1,
+   "a class seen for the first time joins the ratchet at what it read: new.D is %s"
+   % _e["classFloor"].get("new.D"))
+_led2 = {"engines": {"csrbt-core": {"floor": 0, "repo": "CSRBT", "note": "",
+                                    "classFloor": {}, "forgotten": [{"class": "a.B", "reason": "r"}]}}}
+_saved_read = E.read_results
+try:
+    E.read_results = lambda repo, module: ({"tests": 3, "failures": 0, "errors": 0, "skipped": 0,
+                                            "classes": 1, "suites": {"a.B": 2, "new.D": 1},
+                                            "results_at": 1788000000}
+                                           if module == "csrbt-core" else None)
+    E.read_all(_led2, only=["csrbt-core"])
+finally:
+    E.read_results = _saved_read
+ck("a.B" not in _led2["engines"]["csrbt-core"]["classFloor"],
+   "a class taken off the ratchet with --forget does not rejoin it on the next read")
+
+# the two escape hatches are the only way down, and both are on the record
+_tmpd = _tf.mkdtemp()
+_lp = os.path.join(_tmpd, "led.json")
+io.open(_lp, "w", encoding="utf-8").write(_json.dumps(
+    {"engines": {"X": {"floor": 10, "classFloor": {"a.B": 4}}}}))
+ck(E.main(["--lower", "X", "2", "--ledger", _lp, "--reason", " "]) == 2
+   and _json.load(io.open(_lp, encoding="utf-8"))["engines"]["X"]["floor"] == 10,
+   "lowering a floor with no reason is refused, and changes nothing")
+ck(E.main(["--forget", "X", "a.B", "--ledger", _lp, "--reason", "  "]) == 2
+   and "a.B" in _json.load(io.open(_lp, encoding="utf-8"))["engines"]["X"]["classFloor"],
+   "forgetting a test class with no reason is refused, and changes nothing")
+ck(E.main(["--lower", "X", "2", "--ledger", _lp, "--reason", "the arena module moved out"]) == 0
+   and _json.load(io.open(_lp, encoding="utf-8"))["engines"]["X"]["lowered"][0]["from"] == 10,
+   "...and with one, the lowering is written down with where it came from")
+ck(E.main(["--forget", "X", "a.B", "--ledger", _lp, "--reason", "class deleted with the feature"]) == 0
+   and _json.load(io.open(_lp, encoding="utf-8"))["engines"]["X"]["forgotten"][0]["had"] == 4,
+   "...and a forgotten class records the size it had when it went")
+
+# an engine spread over two modules keeps BOTH modules' classes
+_led3 = {"engines": {}}
+_saved_read, _saved_engines = E.read_results, E.ENGINES
+try:
+    E.ENGINES = [("Two", "CSRBT", ["m1", "m2"], "")]
+    E.read_results = lambda repo, module: {"tests": 2, "failures": 0, "errors": 0, "skipped": 0,
+                                           "classes": 1, "suites": {module + ".T": 2},
+                                           "results_at": 1788000000}
+    E.read_all(_led3)
+finally:
+    E.read_results, E.ENGINES = _saved_read, _saved_engines
+ck(sorted(_led3["engines"]["Two"]["classFloor"]) == ["m1.T", "m2.T"]
+   and _led3["engines"]["Two"]["tests"] == 4,
+   "an engine spread over two modules puts both modules' classes on the ratchet: %s"
+   % sorted(_led3["engines"]["Two"].get("classFloor", {})))
 
 # ---- 6. arithmetic -----------------------------------------------------------
 ck(sum(e.get("tests", 0) for e in eng.values()) ==

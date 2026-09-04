@@ -126,6 +126,7 @@ def read_results(repo, module):
         return None
     t = f = e = s = 0
     newest = 0
+    suites = {}
     for x in files:
         try:
             root = ET.parse(x).getroot()
@@ -133,9 +134,16 @@ def read_results(repo, module):
             continue
         t += int(root.get("tests", 0)); f += int(root.get("failures", 0))
         e += int(root.get("errors", 0)); s += int(root.get("skipped", 0))
+        # ADR-139: PER TEST CLASS, not only per engine. A total that has not
+        # fallen is not a suite that has not shrunk -- a class deleted and
+        # another grown by the same count leaves the total flat, and the
+        # engine-level ratchet cannot see it. The class name is what the
+        # JUnit XML calls the testsuite.
+        nm = root.get("name") or os.path.basename(x)[len("TEST-"):-len(".xml")]
+        suites[nm] = suites.get(nm, 0) + int(root.get("tests", 0))
         newest = max(newest, os.path.getmtime(x))
     return {"tests": t, "failures": f, "errors": e, "skipped": s, "classes": len(files),
-            "results_at": int(newest)}
+            "suites": suites, "results_at": int(newest)}
 
 
 def load_ledger(path=LEDGER):
@@ -191,6 +199,10 @@ def read_all(led, only=None):
             else:
                 for k in ("tests", "failures", "errors", "skipped", "classes"):
                     agg[k] += r[k]
+                merged = dict(agg["suites"])
+                for k, v in r["suites"].items():
+                    merged[k] = merged.get(k, 0) + v
+                agg["suites"] = merged
                 agg["results_at"] = max(agg["results_at"], r["results_at"])
         e = led["engines"].setdefault(name, {"floor": 0, "repo": repo, "note": note})
         e["repo"], e["note"] = repo, note
@@ -202,6 +214,16 @@ def read_all(led, only=None):
         e["green"] = agg["failures"] == 0 and agg["errors"] == 0
         if agg["tests"] > e.get("floor", 0):
             e["floor"] = agg["tests"]
+        # the class ratchet: each class's floor rises to what was read, and a
+        # class that has ever been seen stays on the record until it is
+        # --forget-ten with a reason. Nothing here ever lowers or removes one.
+        cf = e.setdefault("classFloor", {})
+        forgotten = set(f["class"] for f in e.get("forgotten", []))
+        for nm, n in agg["suites"].items():
+            if nm in forgotten:
+                continue
+            if n > cf.get(nm, 0):
+                cf[nm] = n
         read.append(name)
     return read, missing
 
@@ -211,6 +233,8 @@ def main(argv):
     ap.add_argument("--read", action="store_true", help="read every engine's test results")
     ap.add_argument("--run", nargs="*", metavar="ENGINE", help="run the suites (all, or the named engines) then read")
     ap.add_argument("--lower", nargs=2, metavar=("ENGINE", "FLOOR"), help="lower an engine's floor, with --reason")
+    ap.add_argument("--forget", nargs=2, metavar=("ENGINE", "CLASS"),
+                    help="a test class was deliberately removed: take it off the class ratchet, with --reason")
     ap.add_argument("--reason", default="")
     ap.add_argument("--ledger", default=LEDGER)
     a = ap.parse_args(argv)
@@ -227,6 +251,24 @@ def main(argv):
         e["floor"] = floor
         save_ledger(led, a.ledger)
         print("%s floor -> %d (%s)" % (name, floor, a.reason.strip()))
+        return 0
+
+    if a.forget:
+        # A CLASS THAT WENT AWAY ON PURPOSE IS STILL A FACT ABOUT THE SUITE.
+        # Deleting its floor silently would make the ratchet a thing you can
+        # step over; recording that it was deliberately removed, by whom-said
+        # reason and when, keeps the shrink on the record and lets the check
+        # pass. Same shape as --lower, one level down.
+        name, cls = a.forget
+        if not a.reason.strip():
+            print("forgetting a test class needs --reason: it goes into the ledger")
+            return 2
+        e = led["engines"].setdefault(name, {"floor": 0})
+        had = (e.get("classFloor") or {}).pop(cls, None)
+        e.setdefault("forgotten", []).append({"class": cls, "had": had,
+                                              "reason": a.reason.strip(), "at": int(time.time())})
+        save_ledger(led, a.ledger)
+        print("%s: %s forgotten (was %s) -- %s" % (name, cls, had, a.reason.strip()))
         return 0
 
     if a.run is not None:

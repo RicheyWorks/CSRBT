@@ -373,6 +373,21 @@ FEK picker through its filter; a task names a control the page's way with
 tasks — one per data-entry page — enter data and hold the report to a
 hand-checked oracle; a page canary is refuted; 1,316 expectations confirmed.
 
+ADR-139 took the ecosystem ratchet down to the TEST CLASS and closed the
+engine-session hole. The floor was per engine, so a suite could delete one test
+class and grow another by the same count and the total would not move; the
+ledger now holds all 299 test classes across the fifteen engines, and a class
+that is gone -- or smaller -- is a failure naming it, with `--forget ENGINE
+CLASS --reason` the only way down. And `verify_engine_sessions` link A, which
+answers "is the shipped session really the engine's output?" by RUNNING the
+engine and has therefore reported NOT VERIFIED on most runs since it was
+written, now falls back to an ATTESTATION (`tools/engine_attest.py`): a dated
+record, writable only by a machine that ran the engine, saying what it emitted
+alongside a digest of both modules' sources by path and bytes. It is evidence
+exactly while those sources have not moved -- add one byte and the link goes
+back to NOT VERIFIED on its own. With build/ removed the suite goes from a hole
+to 25/25 clean.
+
 ADR-138 made MEASUREMENT the default. `publish_state` has recorded two kinds of
 evidence since ADR-078 -- `via publish` ("these bytes were handed to a
 publisher") and `via read` ("the URL was serving them") -- and only the second

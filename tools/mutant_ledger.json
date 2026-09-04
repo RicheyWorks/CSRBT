@@ -197,6 +197,82 @@
    ],
    "survived": 0
   },
+  "mutate_engines": {
+   "at": 1788480375,
+   "equivalent": 0,
+   "equivalents": [],
+   "inconclusive": 0,
+   "killed": 13,
+   "mutants": 13,
+   "rows": [
+    {
+     "detail": "2 failure(s); first: a read never lowers a floor: 99999 stayed 3 after reading 3",
+     "name": "the floor falls to whatever was last read",
+     "verdict": "killed"
+    },
+    {
+     "detail": "2 failure(s); first: lowering a floor with no reason is refused, and changes not",
+     "name": "a floor may be lowered with no reason given",
+     "verdict": "killed"
+    },
+    {
+     "detail": "1 failure(s); first: a class seen for the first time joins the ratchet at what i",
+     "name": "the class ratchet is not kept at all",
+     "verdict": "killed"
+    },
+    {
+     "detail": "2 failure(s); first: ...and never lowers a class floor either: a.B was 500, read",
+     "name": "a class floor falls to what was last read",
+     "verdict": "killed"
+    },
+    {
+     "detail": "2 failure(s); first: an engine spread over two modules puts both modules' classe",
+     "name": "only one module's classes reach the ratchet",
+     "verdict": "killed"
+    },
+    {
+     "detail": "16 failure(s); first: csrbt-core: 162 test class(es) on the ratchet are not in t",
+     "name": "every test class is read under the same name",
+     "verdict": "killed"
+    },
+    {
+     "detail": "2 failure(s); first: forgetting a test class with no reason is refused, and chan",
+     "name": "forgetting a class needs no reason",
+     "verdict": "killed"
+    },
+    {
+     "detail": "2 failure(s); first: move one byte of the engine and it stops applying -- STALE,",
+     "name": "an attestation applies whatever the engine has done since",
+     "verdict": "killed"
+    },
+    {
+     "detail": "3 failure(s); first: move one byte of the engine and it stops applying -- STALE,",
+     "name": "nothing attested reads as attested",
+     "verdict": "killed"
+    },
+    {
+     "detail": "1 failure(s); first: edit the shipped file and the attestation says so -- on a m",
+     "name": "the attested bytes are not compared to the shipped ones",
+     "verdict": "killed"
+    },
+    {
+     "detail": "4 failure(s); first: ...and it is the digest the committed attestation was taken",
+     "name": "the digest is of the bytes alone, so a rename is the same engine",
+     "verdict": "killed"
+    },
+    {
+     "detail": "4 failure(s); first: the engine digest covers both modules' main sources, by pat",
+     "name": "the digest covers one module, so the other may move unseen",
+     "verdict": "killed"
+    },
+    {
+     "detail": "2 failure(s); first: an attestation records the engine digest as it stood, 64 he",
+     "name": "an attestation records no engine digest at all",
+     "verdict": "killed"
+    }
+   ],
+   "survived": 0
+  },
   "mutate_harness": {
    "at": 1788347888,
    "equivalent": 0,

@@ -380,6 +380,16 @@ task — required steps in order, probes anywhere after, one call per step, the
 operator's own detours allowed and counted. Six traces under `tools/traces/`,
 planned from the goals alone, every one held; their provenance is stated there.
 
+**The engines, ratcheted (ADR-139).** `tools/ecosystem.py --read` keeps a floor
+per engine AND a `classFloor` per test class (299 of them); a class that has
+gone, or shrunk, is a failure naming it, and `--forget ENGINE CLASS --reason`
+is the only way down. `tools/engine_attest.py --attest` runs the engine and
+records what it emitted with a digest of both modules' main sources by path and
+bytes; `verify_engine_sessions` prefers the live run and falls back to that
+record, which applies exactly while the sources have not moved -- so the link
+is verified on a machine with no JDK, and a hand-edited session is a FAILURE
+there rather than a hole.
+
 **What the reader is served (ADR-138).** `tools/publish_reach.py` reports every
 artifact this kit publishes -- 42, the Harness Board included -- as MEASURED
 (the URL was read and was serving these bytes), STAMPED (the bytes were handed
