@@ -373,6 +373,27 @@ FEK picker through its filter; a task names a control the page's way with
 tasks — one per data-entry page — enter data and hold the report to a
 hand-checked oracle; a page canary is refuted; 1,316 expectations confirmed.
 
+ADR-143 made a FLAKE a measurement. Three of the six full runs it took to close
+ADR-141 failed on checks that passed every time they were run alone -- the
+organism's "two consecutive physicals are identical" and one control
+"never measured" in audit_targets -- and both were re-rolled. A re-rolled flake
+is a measurement nobody took: it might be a race in the instrument, a race in
+the subject, or a claim that is false when the machine is busy, and re-running
+until green picks none of the three. tools/contend.py runs a suite N times while
+OTHER REAL SUITES of this kit run beside it, restarted for as long as the target
+runs, and records the rate under a ledger key that names the conditions
+(`verify_organism beside verify_tie_render +1cpu`) -- because two loads are two
+questions and the first draft, which keyed by target alone, threw a real
+reading away every time the sweep tried a second load. A failing run's own
+output is kept, since a failure that takes twenty minutes to reproduce must not
+be reproduced twice because nobody kept it. First readings: the organism's
+physicals reproduced deliberately for the first time, 1 in 16 beside the browser
+suite and 0 in 22 elsewhere; audit_targets 0 in 3. And coverage() now looks up
+to three times rather than twice -- ADR-140's one extra look is itself a probe,
+and a probe can be early -- stopping as soon as a look finds nothing new, with
+lateLooks reporting which look was the first to see each control. verify_contend
+35, mutate_contend 18/18, verify_audit_states 62, mutate_audit_states 42/42.
+
 ADR-142 asked whether the tasks can be RUN supervised, and made a task declare
 the rungs it needs. The runner had opened all four for every task since
 ADR-114, so every "the harness can enter this data" here had been measured with

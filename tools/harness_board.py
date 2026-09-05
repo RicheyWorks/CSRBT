@@ -42,6 +42,7 @@ def ledgers():
         "counts": _load(os.path.join("verify", "counts.json"), {"suites": {}}),
         "walk": _load("walk_ledger.json", {"targets": {}}),
         "tasks": _load("task_ledger.json", {"tasks": {}}),
+        "contention": _load("contention_ledger.json", {"suites": {}}),
         "mutants": _load("mutant_ledger.json", {"runners": {}}),
         "ecosystem": _load("ecosystem_ledger.json", {"engines": {}}),
         "routes": _load("routes.json", {"routes": []}),
@@ -75,6 +76,7 @@ RUNNERS = [
     ("mutate_publish", "the publish pipeline and its reach"),
     ("mutate_engines", "the engine ledger's ratchet and the engine attestation"),
     ("mutate_contract", "the door itself: the risk ladder, the raise, the replay"),
+    ("mutate_contend", "the contention instrument"),
 ]
 
 
@@ -115,6 +117,15 @@ def summary(L):
         # An entry written before that ADR carries no rungs at all and is not
         # counted either way -- a ledger row from a run that did not record the
         # thing cannot be read as a row that recorded the good answer.
+        # ADR-143: what the kit says when the machine is busy. Two numbers,
+        # because one of them alone lies: how many readings have never failed,
+        # and how many RUNS that rests on -- "0 failed" over three runs is an
+        # upper bound, not a promise.
+        "load_readings": len(L["contention"].get("suites") or {}),
+        "load_clean": sum(1 for e in (L["contention"].get("suites") or {}).values()
+                          if not e.get("failed")),
+        "load_runs": sum(e.get("runs", 0) for e in (L["contention"].get("suites") or {}).values()),
+        "load_failed": sum(e.get("failed", 0) for e in (L["contention"].get("suites") or {}).values()),
         "supervised": sum(1 for e in runs.values()
                           if e.get("rungs") and "DESTRUCTIVE" not in e["rungs"]),
         "rung_known": sum(1 for e in runs.values() if e.get("rungs")),
@@ -185,6 +196,9 @@ def render(L):
          % (S["traces_held"], S["traces"], S["confirmed"])),
         ("%d / %d" % (S["supervised"], S["rung_known"]), "entered supervised",
          "tasks that enter their data with no destructive rung; the rest declare it, with a reason"),
+        ("%d / %d" % (S["load_clean"], S["load_readings"]), "clean under load",
+         "readings taken while other suites of this kit ran beside them: %d run(s), %d failed"
+         % (S["load_runs"], S["load_failed"])),
         ("%d / %d" % (S["killed"], S["mutants"]), "mutants killed", "%d survived, %d inconclusive, %d recorded equivalent"
          % (S["survived"], S["inconclusive"], S["equivalent"])),
         ("%d" % S["engine_tests"], "engine tests", "%d suites, %d failures" % (S["engines"], S["engine_failures"])),

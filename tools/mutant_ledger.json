@@ -2,7 +2,7 @@
  "_comment": "Written by the mutant runners through tools/mutant_ledger.py. One entry per runner; a run updates only its own entry and keeps the rest, each with its own at.",
  "runners": {
   "mutate_audit_states": {
-   "at": 1788496617,
+   "at": 1788585505,
    "equivalent": 2,
    "equivalents": [
     {
@@ -15,8 +15,8 @@
     }
    ],
    "inconclusive": 0,
-   "killed": 39,
-   "mutants": 39,
+   "killed": 42,
+   "mutants": 42,
    "rows": [
     {
      "detail": "14 failure(s); first: the states, in order: rest, each tab (data-pane then aria-",
@@ -211,6 +211,122 @@
     {
      "detail": "1 failure(s); first: a page that grows a control after the last state settles in",
      "name": "the late control is stamped but never measured",
+     "verdict": "killed"
+    },
+    {
+     "detail": "3 failure(s); first: a control revealed BETWEEN two looks of one coverage() call",
+     "name": "coverage looks once, the way it did after ADR-140",
+     "verdict": "killed"
+    },
+    {
+     "detail": "1 failure(s); first: on a settled page the second look finds nothing and the loo",
+     "name": "the looking never stops early, so every page pays for three settles",
+     "verdict": "killed"
+    },
+    {
+     "detail": "1 failure(s); first: on a settled page the second look finds nothing and the loo",
+     "name": "lateLooks reports what each look saw, not what it was FIRST to see",
+     "verdict": "killed"
+    }
+   ],
+   "survived": 0
+  },
+  "mutate_contend": {
+   "at": 1788587889,
+   "equivalent": 0,
+   "equivalents": [],
+   "inconclusive": 0,
+   "killed": 18,
+   "mutants": 18,
+   "rows": [
+    {
+     "detail": "2 failure(s); first: a suite that crashed is FAILED even with no FAIL line: a ru",
+     "name": "a suite that crashed with no FAIL line is not a failure",
+     "verdict": "killed"
+    },
+    {
+     "detail": "3 failure(s); first: a failing suite: the score it printed AND the text of the c",
+     "name": "a run reports THAT a check failed, not which one",
+     "verdict": "killed"
+    },
+    {
+     "detail": "3 failure(s); first: ...and the run's own words around it are kept, bounded: a f",
+     "name": "a failing run keeps none of its output",
+     "verdict": "killed"
+    },
+    {
+     "detail": "1 failure(s); first: a passing run keeps none: a ledger that stored every green ",
+     "name": "every run keeps its output, failing or not",
+     "verdict": "killed"
+    },
+    {
+     "detail": "2 failure(s); first: ...with the most recent failing run's output beside it: {}",
+     "name": "the ledger keeps no record of the last failure",
+     "verdict": "killed"
+    },
+    {
+     "detail": "1 failure(s); first: and a run is timed: 0.00s",
+     "name": "the run is not timed",
+     "verdict": "killed"
+    },
+    {
+     "detail": "1 failure(s); first: a co-tenant that finished is RESTARTED: the load is meant t",
+     "name": "a co-tenant that finished stays finished",
+     "verdict": "killed"
+    },
+    {
+     "detail": "1 failure(s); first: a co-tenant that is not a script of this kit is dropped rat",
+     "name": "a co-tenant nobody has is started anyway",
+     "verdict": "killed"
+    },
+    {
+     "detail": "1 failure(s); first: and stop() leaves nothing behind -- a burner that outlives ",
+     "name": "the load is left running when the measurement ends",
+     "verdict": "killed"
+    },
+    {
+     "detail": "2 failure(s); first: two runs of this file on two days are two samples of the sa",
+     "name": "a second reading replaces the first instead of adding to it",
+     "verdict": "killed"
+    },
+    {
+     "detail": "5 failure(s); first: ...but a reading taken beside a DIFFERENT co-tenant is a di",
+     "name": "a reading beside a different co-tenant lands on top of the old one",
+     "verdict": "killed"
+    },
+    {
+     "detail": "2 failure(s); first: and so is the number of burners: three keys now, one per co",
+     "name": "the burners are not part of the conditions",
+     "verdict": "killed"
+    },
+    {
+     "detail": "1 failure(s); first: the key READS as what it is, because a ledger nobody can re",
+     "name": "the key does not read as anything",
+     "verdict": "killed"
+    },
+    {
+     "detail": "2 failure(s); first: two runs of this file on two days are two samples of the sa",
+     "name": "the checks that failed are not counted by name",
+     "verdict": "killed"
+    },
+    {
+     "detail": "2 failure(s); first: --no-ledger writes nothing: a run taken to try something ou",
+     "name": "--no-ledger writes to the ledger anyway",
+     "verdict": "killed"
+    },
+    {
+     "detail": "1 failure(s); first: a target that FAILED under load exits non-zero: the kit's o",
+     "name": "a failure under load is not an exit code",
+     "verdict": "killed"
+    },
+    {
+     "detail": "1 failure(s); first: a TOOL is found beside it: an audit is not in verify/ and i",
+     "name": "only suites in verify/ can be measured, so no audit can be",
+     "verdict": "killed"
+    },
+    {
+     "detail": "3 failure(s); first: and a name that is neither is None, not a guess",
+     "name": "a name nobody has resolves to something",
      "verdict": "killed"
     }
    ],
