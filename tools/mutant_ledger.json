@@ -2,12 +2,21 @@
  "_comment": "Written by the mutant runners through tools/mutant_ledger.py. One entry per runner; a run updates only its own entry and keeps the rest, each with its own at.",
  "runners": {
   "mutate_audit_states": {
-   "at": 1788466673,
-   "equivalent": 0,
-   "equivalents": [],
+   "at": 1788496617,
+   "equivalent": 2,
+   "equivalents": [
+    {
+     "name": "the walk measures as soon as the click returns, without waiting for a frame",
+     "why": "the frame wait (_frames, ADR-140) is defence against CPU CONTENTION, and no fixture can reproduce contention: _click already waits 150 ms, under which a page's own requestAnimationFrame always lands, so a deterministic suite cannot tell the two apart. Kept for the same reason ADR-134 widened _settle from one second to two -- an instrument whose answer depends on what else is running is not an instrument -- and recorded here rather than asserted by a check that could not fail (measured 2026-09-04: both mutants survive every check in the suite)"
+    },
+    {
+     "name": "waiting for a frame waits for none",
+     "why": "same clause, same reason: the two frames are unobservable on an idle machine"
+    }
+   ],
    "inconclusive": 0,
-   "killed": 37,
-   "mutants": 37,
+   "killed": 39,
+   "mutants": 39,
    "rows": [
     {
      "detail": "14 failure(s); first: the states, in order: rest, each tab (data-pane then aria-",
@@ -25,7 +34,7 @@
      "verdict": "killed"
     },
     {
-     "detail": "17 failure(s); first: the states, in order: rest, each tab (data-pane then aria-",
+     "detail": "18 failure(s); first: the states, in order: rest, each tab (data-pane then aria-",
      "name": "the page-specific reveals are not pressed",
      "verdict": "killed"
     },
@@ -70,7 +79,7 @@
      "verdict": "killed"
     },
     {
-     "detail": "10 failure(s); first: 14 had a box in some state -- B3's box in the third pane, ",
+     "detail": "12 failure(s); first: 14 had a box in some state -- B3's box in the third pane, ",
      "name": "coverage never names anything",
      "verdict": "killed"
     },
@@ -160,7 +169,7 @@
      "verdict": "killed"
     },
     {
-     "detail": "3 failure(s); first: focus counts the unreached control as a fault: ['          ",
+     "detail": "2 failure(s); first: focus counts the unreached control as a fault: ['          ",
      "name": "focus measures the page as loaded",
      "verdict": "killed"
     },
@@ -180,7 +189,7 @@
      "verdict": "killed"
     },
     {
-     "detail": "3 failure(s); first: a page that grows a control after the last state settles in",
+     "detail": "1 failure(s); first: a page that grows a control after the last state settles in",
      "name": "the walk ends without settling, so a control mounted after the last stamp carries none",
      "verdict": "killed"
     },
@@ -190,8 +199,189 @@
      "verdict": "killed"
     },
     {
-     "detail": "2 failure(s); first: a page that grows a control after the last state settles in",
+     "detail": "1 failure(s); first: a control whose box arrived after the last state's probe is",
+     "name": "coverage counts what the last probe saw and never looks again",
+     "verdict": "killed"
+    },
+    {
+     "detail": "9 failure(s); first: 14 had a box in some state -- B3's box in the third pane, s",
+     "name": "coverage takes one more look and forgets what the walk measured",
+     "verdict": "killed"
+    },
+    {
+     "detail": "1 failure(s); first: a page that grows a control after the last state settles in",
      "name": "the late control is stamped but never measured",
+     "verdict": "killed"
+    }
+   ],
+   "survived": 0
+  },
+  "mutate_contract": {
+   "at": 1788560668,
+   "equivalent": 1,
+   "equivalents": [
+    {
+     "name": "a token is compared with ==, in whatever time it takes",
+     "why": "compare_digest and != accept and reject exactly the same tokens; they differ only in how long a rejection takes, and a timing difference across a Python comparison of a 24-character string is not something a suite here can observe without measuring noise. Recorded rather than deleted: the clause is real (ADR-061), and the honest thing to say is that no check defends it -- not to leave a mutant reading SURVIVED as though something had gone wrong today."
+    }
+   ],
+   "inconclusive": 0,
+   "killed": 31,
+   "mutants": 31,
+   "rows": [
+    {
+     "detail": "8 failure(s); first: an action that declared mayRise is asked, with this call's ",
+     "name": "an action's declared risk is the last word again",
+     "verdict": "killed"
+    },
+    {
+     "detail": "1 failure(s); first: an action that did not declare mayRise is never asked what ",
+     "name": "every action is asked what it would touch, whether or not it said it may rise",
+     "verdict": "killed"
+    },
+    {
+     "detail": "2 failure(s); first: a target answering 'READ' may not LOWER its own action belo",
+     "name": "a target may talk its way DOWN the ladder",
+     "verdict": "killed"
+    },
+    {
+     "detail": "1 failure(s); first: a target that THROWS while deciding fails closed at DESTRUC",
+     "name": "a target that cannot decide is trusted with the lowest rung",
+     "verdict": "killed"
+    },
+    {
+     "detail": "1 failure(s); first: a HarnessError raised while deciding the risk reaches the c",
+     "name": "a refusal the target raises while deciding is swallowed as ignorance",
+     "verdict": "killed"
+    },
+    {
+     "detail": "2 failure(s); first: a target answering 'nonsense' may not LOWER its own action ",
+     "name": "a rung the target invented is taken at face value",
+     "verdict": "killed"
+    },
+    {
+     "detail": "2 failure(s); first: a call raised to DESTRUCTIVE was allowed at a MUTATE sessio",
+     "name": "the call is authorised at the floor and RUN at the raise",
+     "verdict": "killed"
+    },
+    {
+     "detail": "2 failure(s); first: a raise is taken, and the response says what it was declare",
+     "name": "the response reports the rung the action DECLARED, not the one it ran at",
+     "verdict": "killed"
+    },
+    {
+     "detail": "1 failure(s); first: and the AUDIT records the risk the call was authorised at, ",
+     "name": "the audit records the declared rung",
+     "verdict": "killed"
+    },
+    {
+     "detail": "1 failure(s); first: a call refused at the rung it was RAISED to says so, and na",
+     "name": "a refusal at a raised rung reads as the manifest contradicting itself",
+     "verdict": "killed"
+    },
+    {
+     "detail": "2 failure(s); first: a raise is taken, and the response says what it was declare",
+     "name": "the reason the call was raised is not carried at all",
+     "verdict": "killed"
+    },
+    {
+     "detail": "1 failure(s); first: a replayed response is re-authorised at the risk it was RAI",
+     "name": "a replayed response is re-authorised at the rung it DECLARED",
+     "verdict": "killed"
+    },
+    {
+     "detail": "3 failure(s); first: a session that may not call an action is not handed that ac",
+     "name": "a snapshot carries every pool, whatever the session may call",
+     "verdict": "killed"
+    },
+    {
+     "detail": "3 failure(s); first: with the action allowed, its pools are published and nothin",
+     "name": "pools that belong to no action are withheld with the rest",
+     "verdict": "killed"
+    },
+    {
+     "detail": "1 failure(s); first: and what was withheld is NAMED, with the rung that withheld",
+     "name": "what was withheld is dropped silently",
+     "verdict": "killed"
+    },
+    {
+     "detail": "1 failure(s); first: the filtering is the gateway's: the target's own snapshot i",
+     "name": "filtering writes through to the target's own snapshot",
+     "verdict": "killed"
+    },
+    {
+     "detail": "8 failure(s); first: a button NAMED for removing work is raised to DESTRUCTIVE, ",
+     "name": "every button is a button: nothing is raised",
+     "verdict": "killed"
+    },
+    {
+     "detail": "1 failure(s); first: a control with no label, id or title is raised too: what it",
+     "name": "a control nobody can name is assumed harmless",
+     "verdict": "killed"
+    },
+    {
+     "detail": "1 failure(s); first: a selector that resolves to NOTHING is raised, and the reas",
+     "name": "a selector that resolves to nothing is somebody else's problem",
+     "verdict": "killed"
+    },
+    {
+     "detail": "3 failure(s); first: the row-removing mark is caught, alone or glued to the row ",
+     "name": "the destructive vocabulary loses the words with a mark for a name",
+     "verdict": "killed"
+    },
+    {
+     "detail": "2 failure(s); first: a MULTIPLICATION sign is not a delete: the kit writes '2\u00d7' ",
+     "name": "a mark anywhere in a label is a delete, so an export is one",
+     "verdict": "killed"
+    },
+    {
+     "detail": "3 failure(s); first: a MULTIPLICATION sign is not a delete: the kit writes '2\u00d7' ",
+     "name": "the multiplication sign is a delete wherever it appears",
+     "verdict": "killed"
+    },
+    {
+     "detail": "2 failure(s); first: ...while that same glyph ALONE is a close button and is rai",
+     "name": "a close button that is nothing but the mark is not raised",
+     "verdict": "killed"
+    },
+    {
+     "detail": "2 failure(s); first: and a word that merely CONTAINS one of them is not one of t",
+     "name": "the vocabulary loses its word boundaries, so Nuclear is Clear",
+     "verdict": "killed"
+    },
+    {
+     "detail": "1 failure(s); first: the snapshot NAMES them, before a call is spent: []",
+     "name": "the snapshot stops naming which selectors would be raised",
+     "verdict": "killed"
+    },
+    {
+     "detail": "1 failure(s); first: published beside the selectors, not instead of them: a call",
+     "name": "naming them is done INSTEAD of publishing them",
+     "verdict": "killed"
+    },
+    {
+     "detail": "15 failure(s); first: reading values, drafting, mutating and generic activation ",
+     "name": "the harness is on by default",
+     "verdict": "killed"
+    },
+    {
+     "detail": "1 failure(s); first: DESTRUCTIVE was enabled without MUTATE",
+     "name": "generic activation may be enabled on its own",
+     "verdict": "killed"
+    },
+    {
+     "detail": "1 failure(s); first: a token under 24 characters is not a token: was allowed",
+     "name": "a short token is good enough",
+     "verdict": "killed"
+    },
+    {
+     "detail": "1 failure(s); first: the same request id with different contents: was allowed",
+     "name": "the same request id with a different body is served the first answer",
+     "verdict": "killed"
+    },
+    {
+     "detail": "1 failure(s); first: an argument the action does not declare: was allowed",
+     "name": "an argument nobody declared is passed through to the target",
      "verdict": "killed"
     }
    ],
@@ -421,7 +611,7 @@
    "survived": 0
   },
   "mutate_mcp": {
-   "at": 1788475153,
+   "at": 1788558009,
    "equivalent": 1,
    "equivalents": [
     {
@@ -430,11 +620,11 @@
     }
    ],
    "inconclusive": 0,
-   "killed": 20,
-   "mutants": 20,
+   "killed": 23,
+   "mutants": 23,
    "rows": [
     {
-     "detail": "4 failure(s); first: a target that ran and said no is isError, not a protocol er",
+     "detail": "5 failure(s); first: a target that ran and said no is isError, not a protocol er",
      "name": "a target's no is never isError",
      "verdict": "killed"
     },
@@ -444,27 +634,27 @@
      "verdict": "killed"
     },
     {
-     "detail": "6 failure(s); first: the body prices the action and the snapshot separately and ",
+     "detail": "7 failure(s); first: the body prices the action and the snapshot separately and ",
      "name": "every call gets a fresh request id, so a retry writes twice",
      "verdict": "killed"
     },
     {
-     "detail": "4 failure(s); first: risk is published as MCP annotations: read-only unless it c",
+     "detail": "5 failure(s); first: risk is published as MCP annotations: read-only unless it c",
      "name": "every tool is annotated read-only",
      "verdict": "killed"
     },
     {
-     "detail": "5 failure(s); first: a notification is accepted with silence",
+     "detail": "6 failure(s); first: a notification is accepted with silence",
      "name": "notifications are answered",
      "verdict": "killed"
     },
     {
-     "detail": "4 failure(s); first: a tool the policy hid is not callable by name, and never re",
+     "detail": "6 failure(s); first: a real action withheld by policy says so, and names the run",
      "name": "a tool that is not listed runs anyway",
      "verdict": "killed"
     },
     {
-     "detail": "4 failure(s); first: every tool carries _meta with the contract's own plugin id,",
+     "detail": "5 failure(s); first: every tool carries _meta with the contract's own plugin id,",
      "name": "tools drop their _meta, so a client must guess the action from the slug",
      "verdict": "killed"
     },
@@ -474,12 +664,12 @@
      "verdict": "killed"
     },
     {
-     "detail": "6 failure(s); first: a plugin arriving changes both lists, and the tool list is ",
+     "detail": "7 failure(s); first: a plugin arriving changes both lists, and the tool list is ",
      "name": "a plugin arriving takes no resource with it",
      "verdict": "killed"
     },
     {
-     "detail": "4 failure(s); first: a session nothing can change declares listChanged FALSE, as",
+     "detail": "5 failure(s); first: a session nothing can change declares listChanged FALSE, as",
      "name": "listChanged is declared whatever the session can do",
      "verdict": "killed"
     },
@@ -489,17 +679,17 @@
      "verdict": "killed"
     },
     {
-     "detail": "4 failure(s); first: serve() writes the notifications first and the response las",
+     "detail": "5 failure(s); first: serve() writes the notifications first and the response las",
      "name": "the notice is written after the response it explains",
      "verdict": "killed"
     },
     {
-     "detail": "4 failure(s); first: construction is not a change: quiet=True puts a plugin in a",
+     "detail": "5 failure(s); first: construction is not a change: quiet=True puts a plugin in a",
      "name": "building a registry is a change, so every session opens by announcing one",
      "verdict": "killed"
     },
     {
-     "detail": "6 failure(s); first: and says both lists changed again: []",
+     "detail": "7 failure(s); first: and says both lists changed again: []",
      "name": "retiring a plugin announces nothing",
      "verdict": "killed"
     },
@@ -509,28 +699,43 @@
      "verdict": "killed"
     },
     {
-     "detail": "4 failure(s); first: a target detached and attached again is a NEW target: the r",
+     "detail": "5 failure(s); first: a target detached and attached again is a NEW target: the r",
      "name": "a retired plugin's replayable responses outlive it",
      "verdict": "killed"
     },
     {
-     "detail": "4 failure(s); first: detach takes the target out AND closes it: closed=0",
+     "detail": "5 failure(s); first: detach takes the target out AND closes it: closed=0",
      "name": "detach takes the target out of the registry and leaves it running",
      "verdict": "killed"
     },
     {
-     "detail": "4 failure(s); first: detach refuses a target this session did not attach",
+     "detail": "5 failure(s); first: detach refuses a target this session did not attach",
      "name": "detach retires whatever it is named, attached by this session or not",
      "verdict": "killed"
     },
     {
-     "detail": "4 failure(s); first: the robot's wire drops its cached tool-name map when the se",
+     "detail": "5 failure(s); first: the robot's wire drops its cached tool-name map when the se",
      "name": "the consumer hears the notice and keeps its cache",
      "verdict": "killed"
     },
     {
-     "detail": "4 failure(s); first: and it reads until its id comes back rather than taking the",
+     "detail": "5 failure(s); first: and it reads until its id comes back rather than taking the",
      "name": "the client takes the next line for its answer",
+     "verdict": "killed"
+    },
+    {
+     "detail": "5 failure(s); first: a real action withheld by policy says so, and names the run",
+     "name": "a tool the policy withheld answers as a name nobody has",
+     "verdict": "killed"
+    },
+    {
+     "detail": "5 failure(s); first: a real action withheld by policy says so, and names the run",
+     "name": "the server never records what it was not shown",
+     "verdict": "killed"
+    },
+    {
+     "detail": "6 failure(s); first: ...while a name that is nobody's action is still not_found:",
+     "name": "a name nobody has answers as a tool that was withheld",
      "verdict": "killed"
     }
    ],
@@ -720,12 +925,12 @@
    "survived": 0
   },
   "mutate_publish": {
-   "at": 1788478109,
+   "at": 1788493217,
    "equivalent": 0,
    "equivalents": [],
    "inconclusive": 0,
-   "killed": 15,
-   "mutants": 15,
+   "killed": 17,
+   "mutants": 17,
    "rows": [
     {
      "detail": "5 failure(s); first: every mapped artifact has bytes in build/publish -- an arti",
@@ -738,12 +943,12 @@
      "verdict": "killed"
     },
     {
-     "detail": "1 failure(s); first: a pattern that spans past a shell tag is REFUSED, not publi",
+     "detail": "2 failure(s); first: no mapped artifact is known to be serving bytes this repo h",
      "name": "the strip trusts its patterns instead of counting what they removed",
      "verdict": "killed"
     },
     {
-     "detail": "1 failure(s); first: a pattern that spans past a shell tag is REFUSED, not publi",
+     "detail": "2 failure(s); first: no mapped artifact is known to be serving bytes this repo h",
      "name": "the guard counts tags but not the '<' they took with them",
      "verdict": "killed"
     },
@@ -763,12 +968,12 @@
      "verdict": "killed"
     },
     {
-     "detail": "1 failure(s); first: a page stamped at PUBLISH time reads as stamped, never as m",
+     "detail": "2 failure(s); first: no mapped artifact is known to be serving bytes this repo h",
      "name": "a page handed to a publisher counts as one that was measured",
      "verdict": "killed"
     },
     {
-     "detail": "1 failure(s); first: ...and the same entry earned by READING the live copy reads",
+     "detail": "2 failure(s); first: no mapped artifact is known to be serving bytes this repo h",
      "name": "...and one that was measured counts as merely stamped",
      "verdict": "killed"
     },
@@ -778,40 +983,50 @@
      "verdict": "killed"
     },
     {
-     "detail": "1 failure(s); first: a copy whose id prefix fits two artifacts is attributed to ",
+     "detail": "2 failure(s); first: no mapped artifact is known to be serving bytes this repo h",
      "name": "a copy is offered to the first page whose id it merely resembles",
      "verdict": "killed"
     },
     {
-     "detail": "1 failure(s); first: ...and a copy naming no artifact this kit publishes is attr",
+     "detail": "2 failure(s); first: no mapped artifact is known to be serving bytes this repo h",
      "name": "a copy that names no artifact is attributed to a page anyway",
      "verdict": "killed"
     },
     {
-     "detail": "1 failure(s); first: sweeping two copies of one page takes the newer VERSION, no",
+     "detail": "2 failure(s); first: no mapped artifact is known to be serving bytes this repo h",
      "name": "sweeping keeps the FIRST copy of a page it happens to see",
      "verdict": "killed"
     },
     {
-     "detail": "1 failure(s); first: sweeping two copies of one page takes the newer VERSION, no",
+     "detail": "2 failure(s); first: no mapped artifact is known to be serving bytes this repo h",
      "name": "sweeping dates a copy by its mtime, the way ADR-078 was wrong before",
      "verdict": "killed"
     },
     {
-     "detail": "1 failure(s); first: --plan names exactly the artifacts that are not measured   ",
+     "detail": "2 failure(s); first: no mapped artifact is known to be serving bytes this repo h",
      "name": "the plan says nothing is owed",
+     "verdict": "killed"
+    },
+    {
+     "detail": "2 failure(s); first: no mapped artifact is known to be serving bytes this repo h",
+     "name": "a reported fetch time overrides the version marker in the bytes",
+     "verdict": "killed"
+    },
+    {
+     "detail": "2 failure(s); first: no mapped artifact is known to be serving bytes this repo h",
+     "name": "a reported fetch time is passed off as the version",
      "verdict": "killed"
     }
    ],
    "survived": 0
   },
   "mutate_report": {
-   "at": 1788423330,
+   "at": 1788560873,
    "equivalent": 0,
    "equivalents": [],
    "inconclusive": 0,
-   "killed": 35,
-   "mutants": 35,
+   "killed": 50,
+   "mutants": 50,
    "rows": [
     {
      "detail": "5 failure(s); first: a .tile and a .stat .st are both figures: the .l/.v pair is",
@@ -844,7 +1059,7 @@
      "verdict": "killed"
     },
     {
-     "detail": "2 failure(s); first: and nothing outside the conventions: ['anBox', 'cList', 'cN",
+     "detail": "2 failure(s); first: and nothing outside the conventions: ['actBar', 'anBox', 'b",
      "name": "every identified element is a box",
      "verdict": "killed"
     },
@@ -986,6 +1201,81 @@
     {
      "detail": "1 failure(s); first: set-dialog with nothing to set was accepted",
      "name": "set-dialog with nothing to set is accepted",
+     "verdict": "killed"
+    },
+    {
+     "detail": "7 failure(s); first: a visible <svg> is a chart, keyed by its own id; one that i",
+     "name": "charts are not read at all",
+     "verdict": "killed"
+    },
+    {
+     "detail": "1 failure(s); first: a visible <svg> is a chart, keyed by its own id; one that i",
+     "name": "a chart that is not shown is read anyway",
+     "verdict": "killed"
+    },
+    {
+     "detail": "1 failure(s); first: every mark is counted by what it is -- a chart that plots t",
+     "name": "marks are counted as one kind",
+     "verdict": "killed"
+    },
+    {
+     "detail": "1 failure(s); first: and the longest drawn series is how many points it carries ",
+     "name": "a series' length is the number of marks, not its points",
+     "verdict": "killed"
+    },
+    {
+     "detail": "1 failure(s); first: and the longest drawn series is how many points it carries ",
+     "name": "a path's points are not counted, only a polyline's",
+     "verdict": "killed"
+    },
+    {
+     "detail": "1 failure(s); first: and the leftmost column top to bottom: ['0', '5', '10']",
+     "name": "aligned text is not put in order",
+     "verdict": "killed"
+    },
+    {
+     "detail": "1 failure(s); first: the LOWEST row of text that lines up is the one taken -- th",
+     "name": "the row taken is the first found, not the lowest",
+     "verdict": "killed"
+    },
+    {
+     "detail": "2 failure(s); first: a text beside a mark names it, and the pair says WHERE the ",
+     "name": "a text is paired with any mark, however far",
+     "verdict": "killed"
+    },
+    {
+     "detail": "2 failure(s); first: ...and every mark centre is there whether or not anything l",
+     "name": "a mark's centre is not recorded unless a text named it",
+     "verdict": "killed"
+    },
+    {
+     "detail": "4 failure(s); first: the LOWEST row of text that lines up is the one taken -- th",
+     "name": "text positions are dropped",
+     "verdict": "killed"
+    },
+    {
+     "detail": "2 failure(s); first: ...and every mark centre is there whether or not anything l",
+     "name": "a rect is placed by its corner, not its middle",
+     "verdict": "killed"
+    },
+    {
+     "detail": "1 failure(s); first: the chart carries the space it was drawn in and how many te",
+     "name": "the space the chart was drawn in is not reported",
+     "verdict": "killed"
+    },
+    {
+     "detail": "2 failure(s); first: read-control answers with the page's own names for the cont",
+     "name": "read-control answers about a selector and nothing else, the way it did until ADR-141",
+     "verdict": "killed"
+    },
+    {
+     "detail": "1 failure(s); first: and it is the SAME label the snapshot published -- one defi",
+     "name": "read-control computes the label its own way",
+     "verdict": "killed"
+    },
+    {
+     "detail": "1 failure(s); first: and a selector that names nothing is refused by COUNT: thes",
+     "name": "a stale selector is refused without saying the numbering moved",
      "verdict": "killed"
     }
    ],

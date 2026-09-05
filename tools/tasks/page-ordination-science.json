@@ -404,6 +404,27 @@
    }
   },
   {
+   "id": "charts",
+   "action": "read-report",
+   "expect": {
+    "output.charts.ordPlot.viewBox": "0 0 680 440",
+    "output.charts.ordPlot.marks.circle": 4,
+    "output.charts.ordPlot.marks.line": 4,
+    "output.charts.ordPlot.points.X": {
+     "op": "exists"
+    },
+    "output.charts.ordPlot.points.Y": {
+     "op": "exists"
+    },
+    "output.charts.ordPlot.points.Z": {
+     "op": "exists"
+    },
+    "output.charts.ordPlot.points.W": {
+     "op": "exists"
+    }
+   }
+  },
+  {
    "id": "intact",
    "action": "read-page",
    "expect": {

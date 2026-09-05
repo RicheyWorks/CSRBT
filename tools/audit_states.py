@@ -152,6 +152,31 @@ def _settle(pg, tries=40):
         except Exception:
             return
         pg.wait_for_timeout(50)
+    _frames(pg)
+
+
+FRAMES_JS = r"""
+() => new Promise(r => requestAnimationFrame(() => requestAnimationFrame(() => r(true))))
+"""
+
+
+def _frames(pg):
+    """Two animation frames, and then measure.
+
+    Settling on document.getAnimations() answers "is anything still moving?"
+    and cannot answer "has the browser laid this state out yet?". A page that
+    reveals a control from its own requestAnimationFrame -- or simply a browser
+    competing for the CPU with the other half of `run_all -j 2` -- has run the
+    click handler and not yet produced a frame, and a control measured then has
+    no box. That is how audit_focus and audit_contrast each reported exactly one
+    "never exposed" fault under the parallel run and none of it alone, twice.
+    Waiting for two frames is the browser's own answer to the question: the
+    first schedules, the second is delivered only after the first has been
+    painted."""
+    try:
+        pg.evaluate(FRAMES_JS)
+    except Exception:
+        pass
 
 
 def _click(pg, sel, i=0):
@@ -304,8 +329,23 @@ UNSTAMPED_JS = "(css) => [...document.querySelectorAll(css)].map(e => e.getAttri
 
 def coverage(pg):
     """After each_state: how many controls exist, how many had a box in some
-    state, and the names of those no state exposed."""
-    exposed = getattr(pg, "_audit_exposed", set())
+    state, and the names of those no state exposed.
+
+    ONE LAST LOOK, AND WHY (ADR-140). Every state stamps and measures exposure
+    at the moment it probes. Under load a probe can run before the browser has
+    finished laying the state out, so a control that DOES have a box a moment
+    later is recorded as having had none -- and, if that was the last state to
+    show it, coverage reports it as a control no state exposed. audit_focus
+    produced exactly that fault under `run_all -j 2` and produced none of it in
+    three solo runs, twice now (ADR-134 widened _settle for the same reason).
+    The end of the walk is still the last state, so settling once more and
+    measuring exposure again is not a new state and not a second chance: it is
+    finishing the measurement that state's probe began."""
+    _settle(pg)
+    late = set(pg.evaluate(MARK_JS, CONTROLS))
+    if hasattr(pg, "_audit_exposed"):
+        pg._audit_exposed |= late
+    exposed = getattr(pg, "_audit_exposed", late)
     all_ids = pg.evaluate(UNSTAMPED_JS, CONTROLS)
     never = [i for i in all_ids if i not in exposed]
     return {"exist": len(all_ids), "exposed": len(all_ids) - len(never),

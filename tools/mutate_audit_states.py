@@ -193,20 +193,41 @@ MUTANTS = [
      "audit_states.py",
      '    if None in pg.evaluate(UNSTAMPED_JS, CONTROLS):',
      '    if False:',
-     "not counted as a control no state exposed"),
+     "settles into one more state, and only then"),
     ("the final settle happens whether or not anything appeared",
      "audit_states.py",
      '    if None in pg.evaluate(UNSTAMPED_JS, CONTROLS):',
      '    if True:',
      "and only then"),
+    ("coverage counts what the last probe saw and never looks again",
+     "audit_states.py",
+     '    _settle(pg)\n    late = set(pg.evaluate(MARK_JS, CONTROLS))',
+     '    late = set()',
+     "arrived after the last state's probe is counted as exposed"),
+    ("coverage takes one more look and forgets what the walk measured",
+     "audit_states.py",
+     '    if hasattr(pg, "_audit_exposed"):\n        pg._audit_exposed |= late',
+     '    if hasattr(pg, "_audit_exposed"):\n        pg._audit_exposed = late',
+     "B3's box in the third pane, seen once, is remembered"),
     ("the late control is stamped but never measured",
      "audit_states.py",
      '        exposed |= set(pg.evaluate(MARK_JS, CONTROLS))\n        yield "settled", probe()',
      '        pg.evaluate(MARK_JS, CONTROLS)',
-     "the late control is stamped and MEASURED"),
+     "settles into one more state, and only then"),
 ]
 
-KNOWN_EQUIVALENT = []
+KNOWN_EQUIVALENT = [
+    ("the walk measures as soon as the click returns, without waiting for a frame",
+     "the frame wait (_frames, ADR-140) is defence against CPU CONTENTION, and no fixture can "
+     "reproduce contention: _click already waits 150 ms, under which a page's own "
+     "requestAnimationFrame always lands, so a deterministic suite cannot tell the two apart. "
+     "Kept for the same reason ADR-134 widened _settle from one second to two -- an instrument "
+     "whose answer depends on what else is running is not an instrument -- and recorded here "
+     "rather than asserted by a check that could not fail (measured 2026-09-04: both mutants "
+     "survive every check in the suite)"),
+    ("waiting for a frame waits for none",
+     "same clause, same reason: the two frames are unobservable on an idle machine"),
+]
 
 
 def run_one(fname, find, repl, expect):

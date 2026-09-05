@@ -179,6 +179,22 @@
    }
   },
   {
+   "id": "charts",
+   "action": "read-report",
+   "expect": {
+    "output.charts.runChart.viewBox": "0 0 680 250",
+    "output.charts.runChart.marks.circle": 5,
+    "output.charts.runChart.longest": 5,
+    "output.charts.runChart.at.0.0": 52,
+    "output.charts.runChart.at.1.0": 203,
+    "output.charts.runChart.at.2.0": 354,
+    "output.charts.runChart.at.3.0": 505,
+    "output.charts.runChart.at.4.0": 656,
+    "output.charts.runChart.texts.0.y": 36,
+    "output.charts.runChart.texts.1.y": 198
+   }
+  },
+  {
    "id": "table",
    "action": "read-report",
    "expect": {
@@ -271,6 +287,10 @@
     "output.boxes.runOut#2": {
      "op": "excludes",
      "value": "5 runs"
+    },
+    "output.charts": {
+     "op": "excludes",
+     "value": "runChart"
     }
    }
   },

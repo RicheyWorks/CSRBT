@@ -43,7 +43,7 @@ page nothing reported on. It is mapped here like any other, under the build
 name `_harness-board.html`, and `publish.py` writes it into `build/publish`
 beside the docs pages. It is measured or it is a hole, the same as the rest.
 """
-import argparse, glob, io, json, os, re, sys
+import argparse, glob, io, json, os, re, sys, time
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 ROOT = os.path.normpath(os.path.join(HERE, ".."))
@@ -121,7 +121,7 @@ def attribute(copy_path, art=None):
     return hits[0] if len(hits) == 1 else None
 
 
-def pick(copies, art=None):
+def pick(copies, art=None, told=None):
     """Choose one copy per page: the NEWEST. -> ({name: (path, at)}, [orphans])
 
     "Newest" is the version the copy CARRIES, not its mtime -- the same rule
@@ -138,7 +138,7 @@ def pick(copies, art=None):
         if name is None:
             orphans.append(c)
             continue
-        at, _how = PS.copy_taken_at(c, io.open(c, encoding="utf-8", errors="replace").read())
+        at, _how = PS.copy_taken_at(c, io.open(c, encoding="utf-8", errors="replace").read(), told)
         if name not in done or (at or 0) > done[name][1]:
             done[name] = (c, at or 0)
     return done, orphans
@@ -152,6 +152,10 @@ def main(argv):
                     help="verify every saved artifact copy in DIR against the page it names")
     ap.add_argument("--check", action="store_true",
                     help="exit non-zero unless every mapped artifact is MEASURED")
+    ap.add_argument("--taken", metavar="EPOCH",
+                    help="for copies whose bytes carry no version marker: when the reader fetched "
+                         "them (an epoch, or 'now'). Only used as a last resort before mtime, and "
+                         "recorded as being about the fetch rather than about the version (ADR-140).")
     a = ap.parse_args(argv)
     art = artifacts()
     PS.build_current([])
@@ -161,12 +165,14 @@ def main(argv):
         if not copies:
             print("no saved copies in %s" % a.sweep)
             return 2
-        done, orphans = pick(copies, art)
+        told = (int(time.time()) if a.taken == "now" else int(a.taken)) if a.taken else None
+        done, orphans = pick(copies, art, told)
         for c in orphans:
             print("%-30s UNATTRIBUTED  %s" % ("", os.path.basename(c)))
         rc = 0
         for name in sorted(done):
-            code = PS.main(["--verify", name, done[name][0]])
+            code = PS.main(["--verify", name, done[name][0]]
+                           + (["--taken", str(told)] if told else []))
             rc = rc or (0 if code == 0 else code)
         left = [n for n, _a, _b in plan()]
         print("-" * 68)

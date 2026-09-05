@@ -373,6 +373,41 @@ FEK picker through its filter; a task names a control the page's way with
 tasks — one per data-entry page — enter data and hold the report to a
 hand-checked oracle; a page canary is refuted; 1,316 expectations confirmed.
 
+ADR-141 made a declared risk a FLOOR. Four blind operators, one science page
+each and a supervised session (SENSITIVE_READ + DRAFT + MUTATE, no DESTRUCTIVE),
+independently found that this harness could fill every field on a data-entry
+page and commit none of them: every button on these pages is pressed through
+`activate`, and `activate` was DESTRUCTIVE. Protocol 1.5: an action may declare
+`mayRise`, and the target that knows what the selector resolved to raises the
+call per call -- never lowers it -- with a reason the response carries
+(`risk`, `declaredRisk`, `riskWhy`); a target that throws while deciding is held
+at DESTRUCTIVE, because a call whose subject cannot be named is the dangerous
+case. `activate` is MUTATE now, raised when the control is named for removing
+something, carries no name at all, or resolves to nothing -- a stale positional
+index, which the trial watched delete a tallied stem and answer ok:true. The
+vocabulary is measured, not invented: 956 distinct labels over 1,453 activatable
+controls across the 41 pages, of which 110 raise, and the snapshot publishes
+them as `activate.destructive` before a call is spent. With it: a snapshot no
+longer advertises pools for actions the session may not call (`poolsWithheld`
+names the rung), a withheld tool is refused as withheld rather than as a bad
+name, `read-control` returns id/label/host/pane, and one `LABEL_FN` is read by
+the snapshot, the reader and the classifier. verify_contract 111 and, for the
+first time, a mutant runner behind it -- mutate_contract, 30 killed, 0 survived.
+
+ADR-140 made the CHARTS readable. ADR-128 held that SVG text and geometry were
+outside read-report, so every page that draws published numbers no task could
+hold -- and a chart that plots the wrong series looks exactly like one that
+plots the right series. read-report now returns `charts` per visible <svg>:
+viewBox, texts with the positions the page gave them, marks counted by tag, the
+longest drawn series, the text that lines up (`aligned.row`/`.col` -- named for
+what it IS, since a reader cannot know an axis unless the page declares one),
+each text paired with the nearest mark, and every mark centre labelled or not.
+Read in the svg's OWN units so an oracle can recompute what the page computed:
+the greenhouse's five dot positions and the selection log's six come from a
+Python port of each page's projection, and after the greenhouse's runs are wiped
+`output.charts` EXCLUDES runChart. Four charts held; verify_report 60,
+mutate_report 47/47.
+
 ADR-139 took the ecosystem ratchet down to the TEST CLASS and closed the
 engine-session hole. The floor was per engine, so a suite could delete one test
 class and grow another by the same count and the total would not move; the

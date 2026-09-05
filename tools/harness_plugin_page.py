@@ -125,9 +125,24 @@ def kit_pages():
     import glob
     return sorted(os.path.basename(p) for p in glob.glob(os.path.join(_kit.DOCS_DIR, "*.html")))
 
+# ONE definition of "the name a finger reads" (ADR-141). It was written twice
+# -- once in the discovery snapshot, once nowhere at all, so read-control
+# answered about a control without ever naming it -- and the risk classifier
+# added a third reader. A classifier that decides a button is called something
+# other than what the snapshot calls it is exactly the failure the classifier
+# exists to prevent, so the three share these lines rather than agreeing by
+# hand. A dial button is "<span>4</span><small>25-50%</small>", a behaviour key
+# "<b class=nm>forage</b><kbd>f</kbd>": the label is the name a finger reads,
+# not the whole button's text run together (ADR-128).
+LABEL_FN = r"""
+  const _label = (e) => (e.getAttribute("aria-label") || (e.querySelector(".nm") || {}).textContent ||
+      (() => { const c = e.cloneNode(true); c.querySelectorAll("small, kbd").forEach(x => x.remove());
+               return c.textContent; })() || e.placeholder ||
+      e.getAttribute("title") || "").replace(/\s+/g, " ").trim().slice(0, 60);
+"""
+
 # Read where a user reads: one round trip, typed, and never a field's contents.
-CONTROLS = r"""
-() => {
+CONTROLS = "() => {" + LABEL_FN + r"""
   const out = [];
   document.querySelectorAll("[data-h]").forEach(e => {
     const r = e.getBoundingClientRect(), s = getComputedStyle(e);
@@ -138,13 +153,7 @@ CONTROLS = r"""
       // "@control:cName" and is readable; the selector is the moment's.
       id: e.id || null,
       host: (e.parentElement && e.parentElement.closest("[id]") || {}).id || null,
-      // A dial button is "<span>4</span><small>25-50%</small>", a behaviour
-      // key "<b class=nm>forage</b><kbd>f</kbd>": the label is the name a
-      // finger reads, not the whole button's text run together (ADR-128).
-      label: (e.getAttribute("aria-label") || (e.querySelector(".nm") || {}).textContent ||
-              (() => { const c = e.cloneNode(true); c.querySelectorAll("small, kbd").forEach(x => x.remove());
-                       return c.textContent; })() || e.placeholder ||
-              e.getAttribute("title") || "").replace(/\s+/g, " ").trim().slice(0, 60),
+      label: _label(e),
       pane: (e.closest(".pane") || {}).id || null,
       target: e.getAttribute("data-pane") || null,
       type: (e.getAttribute("type") || e.tagName).toLowerCase(),
@@ -315,21 +324,111 @@ REPORT = r"""
   // figures and no boxes, and its structure IS its report.
   const headings = [...document.querySelectorAll("h1, h2, h3")].slice(0, 80)
     .map(h => norm(h.textContent).slice(0, 120));
+  // THE CHARTS (ADR-140). ADR-128 held that SVG text and geometry are outside
+  // read-report, so every page that DRAWS published numbers no task could hold:
+  // a chart that plots the wrong series looks exactly like one that plots the
+  // right series. Read in the svg's OWN coordinate space (the attributes the
+  // page computed), not in rendered pixels -- the rendered size depends on the
+  // viewport and the page's own arithmetic does not, so an oracle can
+  // recompute it.
+  const charts = {};
+  const num = a => { const v = parseFloat(a); return isFinite(v) ? Math.round(v * 100) / 100 : null; };
+  document.querySelectorAll("svg").forEach(sv => {
+    if (Object.keys(charts).length >= 16 || !vis(sv)) return;
+    const host = sv.id || ((sv.closest("[id]") || {}).id) || "svg";
+    let key = host, n = 2;
+    while (key in charts) { key = host + " #" + (n++); }
+    const texts = [...sv.querySelectorAll("text")].slice(0, 40).map(t => (
+      {t: norm(t.textContent).slice(0, 60), x: num(t.getAttribute("x")), y: num(t.getAttribute("y"))}));
+    // Marks, by what they are. A count per tag is what says "this chart plots
+    // five sites" or "this histogram has twelve bars".
+    const marks = {};
+    ["circle", "rect", "path", "line", "polyline", "polygon", "ellipse"].forEach(tag => {
+      const k = sv.querySelectorAll(tag).length;
+      if (k) marks[tag] = k;
+    });
+    // The longest drawn series: how many points the biggest polyline or path
+    // carries. A curve that lost half its samples still looks like a curve.
+    let longest = 0;
+    [...sv.querySelectorAll("polyline, polygon")].slice(0, 40).forEach(e => {
+      const pts = (e.getAttribute("points") || "").trim().split(/\s+/).filter(Boolean).length;
+      if (pts > longest) longest = pts;
+    });
+    [...sv.querySelectorAll("path")].slice(0, 40).forEach(e => {
+      const pts = ((e.getAttribute("d") || "").match(/[ML]/g) || []).length;
+      if (pts > longest) longest = pts;
+    });
+    // TEXT THAT LINES UP, in order, without the page having to declare
+    // anything. Named for what it IS rather than what it usually means: the
+    // longest ROW of text nodes sharing a y, read left to right, and the
+    // longest COLUMN sharing an x, read top to bottom. On a chart with axes
+    // that row is the x tick sequence and that column is the y tick sequence;
+    // on the food web it is the trophic level headings and the species names.
+    // Calling it "ticks" would have been a reader deciding what a drawing
+    // means, which is the page's business and not this file's.
+    const rowsAt = {}, colsAt = {};
+    texts.forEach(t => {
+      if (t.y !== null) { const k = Math.round(t.y); (rowsAt[k] = rowsAt[k] || []).push(t); }
+      if (t.x !== null) { const k = Math.round(t.x); (colsAt[k] = colsAt[k] || []).push(t); }
+    });
+    const pick = (groups, along, order) => {
+      let best = null;
+      Object.keys(groups).forEach(k => {
+        const g = groups[k];
+        if (g.length < 3) return;
+        if (!best || g.length > best.length || (g.length === best.length && order(+k, +bestK))) {
+          best = g; bestK = +k;
+        }
+      });
+      return best ? best.slice().sort((a, b) => a[along] - b[along]).map(t => t.t) : [];
+    };
+    let bestK = 0;
+    const aligned = {row: pick(rowsAt, "x", (a, b) => a > b),   // the lowest row of labels
+                     col: pick(colsAt, "y", (a, b) => a < b)};  // the leftmost column
+    // A LABELLED POINT: the nearest mark to each text, in the svg's own units.
+    // The ordination draws circle.dot then text.pt at x+8 -- the pairing is the
+    // page's, and reading it is how a task can say where a named site landed.
+    const centres = [];
+    [...sv.querySelectorAll("circle, ellipse")].slice(0, 60).forEach(c =>
+      centres.push([num(c.getAttribute("cx")), num(c.getAttribute("cy"))]));
+    [...sv.querySelectorAll("rect")].slice(0, 60).forEach(r => {
+      const x = num(r.getAttribute("x")), y = num(r.getAttribute("y")),
+            w = num(r.getAttribute("width")), h = num(r.getAttribute("height"));
+      if (x !== null && y !== null) centres.push([x + (w || 0) / 2, y + (h || 0) / 2]);
+    });
+    const points = {};
+    texts.forEach(t => {
+      if (t.x === null || t.y === null || Object.keys(points).length >= 40) return;
+      let near = null, d2 = 900;                       // within 30 units, squared
+      centres.forEach(c => {
+        if (c[0] === null || c[1] === null) return;
+        const q = (c[0] - t.x) * (c[0] - t.x) + (c[1] - t.y) * (c[1] - t.y);
+        if (q < d2) { d2 = q; near = c; }
+      });
+      if (near && t.t && !(t.t in points)) points[t.t] = near;
+    });
+    const vb = (sv.getAttribute("viewBox") || "").trim();
+    // ...and the mark centres themselves, in document order. `points` pairs a
+    // mark with a label the page happened to put beside it; a chart whose dots
+    // carry no labels still plots them somewhere, and where is the claim.
+    charts[key] = {viewBox: vb, texts: texts, n: texts.length, marks: marks,
+                   longest: longest, aligned: aligned, points: points,
+                   at: centres.slice(0, 40)};
+  });
   const rows = {};
   document.querySelectorAll(".row2").forEach(r => {
     const p = r.parentElement; const id = p && p.id ? "#" + p.id : (p ? p.className.split(" ")[0] : "?");
     rows[id] = (rows[id] || 0) + 1;
   });
   return { figures: figures, by: by, order: order, boxes: boxes, shown: shown, rows: rows, tables: tables,
-           headings: headings,
+           headings: headings, charts: charts,
            route: (document.querySelector(".pane.on") || {}).id || null };
 }
 """
 
 # SENSITIVE_READ. Bounded on every axis: one control, capped text, capped option
 # lists, and a truncated flag rather than a silent clip.
-READ_ONE = r"""
-(sel) => {
+READ_ONE = "(sel) => {" + LABEL_FN + r"""
   const e = document.querySelector('[data-h="' + sel + '"]');
   if (!e) return null;
   if (e.type === "password") return { refused: "password" };
@@ -338,6 +437,14 @@ READ_ONE = r"""
   const r = e.getBoundingClientRect(), cs = getComputedStyle(e);
   const o = { selector: sel, kind: sel.split(":")[0], tag: e.tagName.toLowerCase(),
               type: (e.getAttribute("type") || "").toLowerCase(),
+              // ADR-141: the page's own names for it. read-control used to
+              // answer about a selector and nothing else -- and the selector is
+              // the one thing the caller already had. A blind operator reading
+              // controls one at a time could not tell which of them was the
+              // "Add stem" the task named, because the answer never said.
+              id: e.id || null, label: _label(e),
+              host: (e.parentElement && e.parentElement.closest("[id]") || {}).id || null,
+              pane: (e.closest(".pane") || {}).id || null,
               // Read now, not at discovery. Visibility on these pages is a
               // property of the moment: a pane opened, a row added, a widget
               // rebuilt. Judging it from a snapshot taken before the seed put
@@ -396,6 +503,86 @@ READ_ONE = r"""
                   meSelected: e.classList.contains("on") };
   }
   return o;
+}
+"""
+
+# ---------------------------------------------------------------------------
+# What an activation would touch (ADR-141)
+# ---------------------------------------------------------------------------
+# `activate` was declared DESTRUCTIVE from ADR-112 to ADR-140 for an honest
+# reason: one selector may resolve to "Add stem" and the next to "Clear trial",
+# and deciding which from a label was called a guess. Four blind operators, each
+# given only a task's goal and this door, independently found what that cost:
+# a supervised session holding SENSITIVE_READ, DRAFT and MUTATE can fill every
+# field on a data-entry page and commit none of them, because every button on
+# these pages is pressed through `activate`. Three finished only by being handed
+# DESTRUCTIVE -- which is to say by being handed the wipe-the-store rung to
+# press "Add stem" -- and the fourth, refusing to escalate, could not enter the
+# data at all.
+#
+# So the guess is made, and its direction is what makes it safe. The classifier
+# only ever RAISES: a control whose name reads as destroying work, and a control
+# that cannot be identified at all, are held at DESTRUCTIVE; everything else
+# stays at the declared MUTATE floor. A false positive costs one refusal a
+# session can lift deliberately. A false negative would be the old behaviour of
+# every other button, which is what this replaces.
+#
+# The vocabulary is not invented: it is the destructive vocabulary an inventory
+# of all 41 routed pages actually found across 1,470 activatable controls --
+# Clear, Clear trial, Clear all runs, Delete, Reset, Start over, Undo, the bare
+# row-removing mark, "Forget this device's copy", "remove last".
+DESTRUCTIVE_LABEL = re.compile(
+    r"(?:^|\b)(?:clear|delete|remove|erase|wipe|discard|revert|undo|forget|trash"
+    r"|purge|abandon|reset|start over|restart)\b", re.I)
+# A button named by a mark. Two sets, because two of these glyphs are not marks
+# at all when a scientist writes them. The kit's own labels, measured across all
+# 41 routed pages, say so: the removers are U+2715 ("\u2715honeybee0",
+# "subject 1 \u2715"), while U+00D7 is a MULTIPLICATION sign -- "1\u00d7", "2\u00d7",
+# "4\u00d7" on a playback speed control, and "Copy host \u00d7 taxon matrix" on the
+# parasite page. Raising those three speed buttons and an export would have been
+# the classifier crying wolf on its first day.
+DESTRUCTIVE_MARK = ("\u2715", "\u2716", "\u2717", "\u2718", "\u232b", "\U0001f5d1")
+# ...and the ambiguous ones fire only when the mark is the WHOLE label, which is
+# the close button and nothing else.
+AMBIGUOUS_MARK = ("\u00d7", "\u2a2f")
+
+
+def destroys(label, title=""):
+    """Does this control's NAME say it removes something? -> reason, or None.
+
+    A mark counts at the START or the END of a label -- a remover is a mark
+    attached to the thing it removes ("\u2715honeybee0", "subject 1 \u2715") or a mark
+    on its own. In the MIDDLE it is punctuation between words, which is how
+    "Copy host \u00d7 taxon matrix" would otherwise have read as a delete."""
+    for t in (label, title):
+        s = (t or "").strip()
+        if not s:
+            continue
+        for m in DESTRUCTIVE_MARK:
+            if s.startswith(m) or s.endswith(m):
+                return ("its label is %r, this kit's mark for removing a row or a chip" % s[:40])
+        if s in AMBIGUOUS_MARK:
+            return "its label is %r, a close mark and nothing else" % s
+        hit = DESTRUCTIVE_LABEL.search(s)
+        if hit:
+            return "its label %r reads as %s" % (s[:40], hit.group(0).lower())
+    return None
+
+
+# The identity of one control, asked at the moment of the call rather than read
+# from a snapshot taken before it. `ofKind` is how many selectors of that kind
+# the page has NOW, which is what a caller holding a stale index needs to hear.
+IDENTIFY = "(sel) => {" + LABEL_FN + r"""
+  const kind = String(sel).split(":")[0];
+  const n = document.querySelectorAll('[data-h^="' + kind + ':"]').length;
+  const e = document.querySelector('[data-h="' + sel + '"]');
+  if (!e) return { found: false, kind: kind, ofKind: n };
+  return { found: true, selector: sel, kind: kind, ofKind: n,
+           id: e.id || null,
+           host: (e.parentElement && e.parentElement.closest("[id]") || {}).id || null,
+           pane: (e.closest(".pane") || {}).id || null,
+           label: _label(e),
+           title: String(e.getAttribute("title") || "").slice(0, 80) };
 }
 """
 
@@ -637,12 +824,20 @@ class PagePlugin(Plugin):
                             ArgumentSpec("direction", "string", "up or down",
                                          required=True, enum=["up", "down"])]),
                 ActionSpec("activate",
-                           "Activate a control generically. Classified DESTRUCTIVE "
-                           "because a selector on these pages may resolve to Add "
-                           "row, to Clear trial, or to an export, and deciding "
-                           "which from its label is a guess.",
-                           "DESTRUCTIVE",
-                           [ArgumentSpec("selector", "string", "Control selector.", required=True, pattern=SEL_RE.pattern, examples=["dial_btn:2", "text_in:7"])]),
+                           "Press a control. Declared MUTATE and RAISED per call "
+                           "(protocol 1.5): the target re-reads the control this "
+                           "selector resolves to at the moment of the call, and "
+                           "holds the call at DESTRUCTIVE when that control is "
+                           "named for removing something -- Clear, Delete, Reset, "
+                           "Undo, the row-removing mark -- or cannot be identified "
+                           "at all. The snapshot's activate.destructive pool names "
+                           "which selectors those are before you spend a call. "
+                           "Until ADR-141 this was DESTRUCTIVE always, which meant "
+                           "a supervised session could fill a page and press "
+                           "nothing.",
+                           "MUTATE",
+                           [ArgumentSpec("selector", "string", "Control selector.", required=True, pattern=SEL_RE.pattern, examples=["dial_btn:2", "text_in:7"])],
+                           may_rise=True),
                 ActionSpec("pick",
                            "Choose a picker's option by the label a reader sees: type it "
                            "into the picker's filter and take the first match. Pool "
@@ -809,6 +1004,14 @@ class PagePlugin(Plugin):
                           if any(l["selector"] == c["selector"] for l in live)]}
         for action, kinds in POOL_KINDS.items():
             pools[action + ".selector"] = [c["selector"] for c in live if c["kind"] in kinds]
+        # ADR-141: and which of the activatable ones this door will hold at
+        # DESTRUCTIVE. Published BESIDE the selectors rather than instead of
+        # them: the client is told, before spending a call, which buttons are
+        # the ones that remove work. A pool that merely omitted them would
+        # leave a caller to discover the rung by being refused.
+        pools["activate.destructive"] = [
+            c["selector"] for c in live
+            if c["kind"] in POOL_KINDS["activate"] and destroys(c.get("label"))]
         return pools
 
     # -- execution ----------------------------------------------------------
@@ -842,6 +1045,53 @@ class PagePlugin(Plugin):
             ctx.add_init_script("(function(){ %s })();" % " ".join(js))
         except Exception:
             pass
+
+    def risk_for(self, action, args):
+        """ADR-141: the risk of THIS activation, read off the live page.
+
+        Only ever upward -- the gateway would ignore anything else -- and only
+        for `activate`, the one action whose subject is not knowable from the
+        action name. Three answers:
+
+            the control is named for removing something   DESTRUCTIVE
+            the selector resolves to nothing, or to a
+              control with no name at all                 DESTRUCTIVE
+            anything else                                 the declared floor
+
+        The second is the one that matters most and it is the one that looks
+        wrong at first glance: a selector that resolves to nothing cannot
+        destroy anything, so why hold it at the top? Because these selectors
+        are the MOMENT's. `action_btn:45` is the 46th activatable control on
+        the page right now, and the blind trial watched a stale index of
+        exactly that shape delete a tallied stem and answer `ok: true`. A call
+        whose subject the caller and the page disagree about is the dangerous
+        case, not the safe one."""
+        if action != "activate":
+            return None
+        sel = args.get("selector")
+        try:
+            info = self.page.evaluate(IDENTIFY, sel)
+        except Exception as e:
+            return ("DESTRUCTIVE",
+                    "the page could not be asked what %r is (%s)" % (sel, str(e)[:80]))
+        if not info or not info.get("found"):
+            n, kind = (info or {}).get("ofKind", 0), (info or {}).get("kind", "?")
+            return ("DESTRUCTIVE",
+                    "%r names no control on this page right now (%s), and a call whose "
+                    "subject cannot be named is treated as the worst it could be"
+                    % (sel, ("the page has %d %s selector(s), numbered 0-%d"
+                             % (n, kind, n - 1)) if n else
+                       "this page has no %s control at all" % kind))
+        where = " in #%s" % info["host"] if info.get("host") else ""
+        why = destroys(info.get("label"), info.get("title"))
+        if why:
+            return ("DESTRUCTIVE", "%s is the control %r%s, and %s"
+                    % (sel, (info.get("label") or "")[:40], where, why))
+        if not (info.get("label") or info.get("id") or info.get("title")):
+            return ("DESTRUCTIVE",
+                    "%s%s carries no label, id or title, so what pressing it would do "
+                    "cannot be read from the page" % (sel, where))
+        return None
 
     def execute(self, action, args):
         if action == "open":
@@ -1033,6 +1283,20 @@ class PagePlugin(Plugin):
         except Exception as e:
             raise Unavailable("page not readable: %s" % str(e)[:120])
         if pane is False:
-            raise NotFound("no control %r on this page right now" % sel)
+            # ADR-141: how many selectors of that kind exist NOW. "no control
+            # action_btn:45 on this page right now" reads as a typo; a caller
+            # holding an index from a snapshot the page has since rebuilt needs
+            # to hear that the numbering moved, not that it misspelled something.
+            kind = str(sel).split(":")[0]
+            try:
+                n = self.page.evaluate(
+                    "(k) => document.querySelectorAll('[data-h^=\"' + k + ':\"]').length", kind)
+            except Exception:
+                n = None
+            raise NotFound("no control %r on this page right now%s -- these selectors are "
+                           "the moment's, not the page's: observe again and re-read the pool"
+                           % (sel, "" if n is None else
+                              (" (there are %d %s selector(s), numbered 0-%d)" % (n, kind, n - 1)
+                               if n else " (this page has no %s control at all)" % kind)))
         if pane:
             self._open_pane(pane)

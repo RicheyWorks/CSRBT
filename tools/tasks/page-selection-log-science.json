@@ -546,6 +546,21 @@
    }
   },
   {
+   "id": "charts",
+   "action": "read-report",
+   "expect": {
+    "output.charts.gradBox.viewBox": "0 0 560 260",
+    "output.charts.gradBox.marks.circle": 6,
+    "output.charts.gradBox.marks.line": 3,
+    "output.charts.gradBox.at.0.0": 44,
+    "output.charts.gradBox.at.1.0": 144.4,
+    "output.charts.gradBox.at.5.0": 546,
+    "output.charts.gradBox.points.β = 0\\.586": {
+     "op": "exists"
+    }
+   }
+  },
+  {
    "id": "intact",
    "action": "read-page",
    "expect": {

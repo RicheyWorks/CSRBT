@@ -91,7 +91,7 @@ MUTANTS = [
      """        if name not in done:""",
      "takes the newer VERSION"),
     ("sweeping dates a copy by its mtime, the way ADR-078 was wrong before",
-     """        at, _how = PS.copy_taken_at(c, io.open(c, encoding="utf-8", errors="replace").read())""",
+     """        at, _how = PS.copy_taken_at(c, io.open(c, encoding="utf-8", errors="replace").read(), told)""",
      """        at = os.path.getmtime(c)""",
      "takes the newer VERSION"),
     ("the plan says nothing is owed",
@@ -99,6 +99,19 @@ MUTANTS = [
             if r[n][0] != "measured"]""",
      """    return []""",
      "--plan names exactly the artifacts that are not measured"),
+]
+
+
+MUTANTS += [
+    # ---- ADR-140: dating a copy the reader just fetched ----
+    ('a reported fetch time overrides the version marker in the bytes',
+     '    if told:\n        return int(told), "the fetch time the reader reported -- about the fetch, not about the version"',
+     '    if False:\n        return int(told), "the fetch time the reader reported -- about the fetch, not about the version"',
+     'a reader that says when it fetched dates the copy'),
+    ('a reported fetch time is passed off as the version',
+     '        return int(told), "the fetch time the reader reported -- about the fetch, not about the version"',
+     '        return int(told), "the version marker in the copy"',
+     'stated as being about the FETCH'),
 ]
 
 KNOWN_EQUIVALENT = []

@@ -531,6 +531,23 @@ ck("sweeping two copies of one page takes the newer VERSION, not the newer file"
 _orphan = os.path.join(_d, "artifact-deadbeef-1788000000-cccc.html")
 io.open(_orphan, "w", encoding="utf-8").write("<p>x</p>")
 _done2, _orph2 = _pr.pick([_orphan], _art)
+# ADR-140: a copy the reader just fetched, whose bytes carry no version marker
+_bare = os.path.join(_d, "artifact-%s-0001.html" % _a_id[:8])
+io.open(_bare, "w", encoding="utf-8").write("<p>no marker anywhere</p>")
+_at0, _how0 = _ps2.copy_taken_at(_bare, "<p>no marker anywhere</p>")
+ck("with no marker in the bytes and no epoch in the name, mtime is still the last resort and says so",
+   "NOT the version" in _how0, _how0)
+_at1, _how1 = _ps2.copy_taken_at(_bare, "<p>no marker anywhere</p>", told=1788400000)
+ck("a reader that says when it fetched dates the copy -- ranked below the marker and above mtime, "
+   "and stated as being about the FETCH", _at1 == 1788400000 and "about the fetch" in _how1
+   and "version" in _how1, (_at1, _how1))
+_marked = os.path.join(_d, "artifact-%s-0002.html" % _a_id[:8])
+_wrap = '<base href="/_f/1788111111-abc/">body'
+io.open(_marked, "w", encoding="utf-8").write(_wrap)
+ck("...and it never overrides the marker: the bytes still win when they have one",
+   _ps2.copy_taken_at(_marked, _wrap, told=1788999999)[0] == 1788111111,
+   _ps2.copy_taken_at(_marked, _wrap, told=1788999999))
+
 ck("...and a copy of nothing this kit publishes is an orphan, not attributed to a page",
    _done2 == {} and _orph2 == [_orphan], (_done2, _orph2))
 

@@ -52,13 +52,32 @@ Actions carry a risk **declared by the plugin**, never claimed by the caller:
 | `SENSITIVE_READ` | blocked | Read entered values, page text, or pixels |
 | `DRAFT` | blocked | Enter a temporary field or option value |
 | `MUTATE` | blocked | Change persistent data, including the autosave |
-| `DESTRUCTIVE` | blocked | Generic activation whose effect cannot be known |
+| `DESTRUCTIVE` | blocked | Removing work: an activation whose subject is named for it, or cannot be named at all |
 
-`DESTRUCTIVE` cannot be enabled unless `MUTATE` is also enabled. The page plugin
-classifies generic button activation as `DESTRUCTIVE` deliberately, because a
-selector on these pages may resolve to *Add row*, to *Clear trial*, or to *Copy
-CSV*, and deciding which from the label is exactly the guess this contract
-exists to refuse. This is stricter than reading the button's text, on purpose.
+`DESTRUCTIVE` cannot be enabled unless `MUTATE` is also enabled.
+
+**A declared risk is a floor (protocol 1.5, ADR-141).** An action may declare
+`mayRise`, and the gateway then asks the plugin, per call, what *this* call's
+arguments point at. The answer is taken only if it is **higher** than the
+declared risk — a target may raise its own ceiling and may never lower it — and
+the response carries `risk` (what it was authorised at), `declaredRisk`, and
+`riskWhy`. A plugin that throws while deciding is treated as ignorance and the
+call is held at `DESTRUCTIVE`: a call whose subject cannot be named is the
+dangerous case, not the safe one.
+
+`activate` is the one action of the page plugin that rises. It is declared
+`MUTATE` and raised to `DESTRUCTIVE` when the control the selector resolves to
+*right now* is named for removing something — Clear, Clear trial, Delete, Reset,
+Undo, the row-removing ✕, "Forget this device's copy" — or carries no label, id
+or title at all, or resolves to nothing. Every snapshot publishes the pool
+`activate.destructive`, so a client is told which buttons those are **before** it
+spends a call. It was `DESTRUCTIVE` for everything until ADR-141, which meant a
+supervised session holding `SENSITIVE_READ`, `DRAFT` and `MUTATE` could fill
+every field on a data-entry page and commit none of them.
+
+A snapshot also never advertises what the door would refuse: the argument pools
+of an action this session may not call are withheld and named in
+`poolsWithheld`, with the rung that withheld them.
 
 Observation is value-redacted: a snapshot publishes kind, selector, label, pane,
 visible, enabled and commandable, and never what is in a field. Labels *are*
@@ -106,7 +125,10 @@ that retries with the same id gets the replay, not a second write. Each target's
 snapshot is a resource, `harness://<plugin>/snapshot`, redacted under the
 session's policy. A badly formed call is `-32602` with the gateway's code in the
 message; a policy refusal is `-32001`; a target that ran and said no is a normal
-result with `isError: true`. The token never crosses the protocol.
+result with `isError: true`. Calling a tool that **exists but is withheld** by
+policy is a policy refusal naming the rung, not `not_found` — only a name that
+is nobody's action is `not_found` (ADR-141). The token never crosses the
+protocol.
 
 Every listed tool carries `_meta` — `pluginId`, `action`, `risk`, the contract's
 own names (ADR-121): a tool name is a provider-safe slug, and a client that
@@ -215,7 +237,7 @@ restart.
 | `choose-option` | `selector`, `value` | `DRAFT` |
 | `set-slider` | `selector`, `value` | `MUTATE` |
 | `press-step` | `selector`, `direction` | `MUTATE` |
-| `activate` | `selector` | `DESTRUCTIVE` |
+| `activate` | `selector` | `MUTATE`, raised to `DESTRUCTIVE` per call |
 | `pick` | `selector`, `value` | `DRAFT` |
 | `read-control` | `selector` | `SENSITIVE_READ` |
 | `read-report` | none | `SENSITIVE_READ` |
@@ -379,6 +401,14 @@ a host makes, and `harness_tasks.py --grade-trace FILE` holds that trace to a
 task — required steps in order, probes anywhere after, one call per step, the
 operator's own detours allowed and counted. Six traces under `tools/traces/`,
 planned from the goals alone, every one held; their provenance is stated there.
+
+**The charts (ADR-140).** `read-report` returns a `charts` section per visible
+`<svg>`: `viewBox`, `texts` with their own coordinates, `marks` per tag,
+`longest` (the biggest polyline or path), `aligned.row`/`.col` (text that lines
+up, read along the other coordinate), `points` (a text paired with the nearest
+mark within 30 units) and `at` (every mark centre). In the svg's own units, so a
+task can hold a dot's position against a recomputation of the page's projection
+-- as the greenhouse and selection-log tasks now do.
 
 **The engines, ratcheted (ADR-139).** `tools/ecosystem.py --read` keeps a floor
 per engine AND a `classFloor` per test class (299 of them); a class that has

@@ -146,6 +146,19 @@
    }
   },
   {
+   "id": "charts",
+   "action": "read-report",
+   "expect": {
+    "output.charts.webSvg.viewBox": "0 0 560 518",
+    "output.charts.webSvg.marks.rect": 10,
+    "output.charts.webSvg.marks.path": 13,
+    "output.charts.webSvg.n": 20,
+    "output.charts.webSvg.aligned.col.0": "grass",
+    "output.charts.webSvg.aligned.col.3": "aphid",
+    "output.charts.webSvg.aligned.col.9": "kestrel"
+   }
+  },
+  {
    "id": "intact",
    "action": "read-page",
    "expect": {

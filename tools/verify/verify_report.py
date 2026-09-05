@@ -83,6 +83,22 @@ FIXTURE = u"""<!doctype html><html><head><meta charset="utf-8"><title>report fix
   <div id="packStat" class="stat"><div class="k"><span class="l">families</span><span class="v">23</span></div></div>
   <div id="mStats"><div class="stat"><span class="k">Nodes</span><span class="v">13</span></div></div>
   <div id="ignored-plain">not a box</div>
+  <div id="actBar">
+    <button type="button" id="bAdd">Add stem</button>
+    <button type="button" id="bClear">Clear trial</button>
+    <button type="button" id="bWipe">Clear all runs</button>
+    <button type="button" id="bUndo">&#8617; Undo</button>
+    <button type="button" id="bX">&#10005;</button>
+    <button type="button" id="bForget">Forget this device&#39;s copy</button>
+    <button type="button" id="bSave">Record collection</button>
+    <button type="button" id="bNuclear">Nuclear count</button>
+    <button type="button" id="bTimes">2&#215;</button>
+    <button type="button" id="bMatrix">Copy host &#215; taxon matrix</button>
+    <button type="button" id="bClose">&#215;</button>
+    <button type="button" id="bChip">&#10005;honeybee0</button>
+    <button type="button" id="bCross">Tally A &#10005; B cross</button>
+    <button type="button"></button>
+  </div>
   <div id="toast">saved</div>
 </section>
 <section class="pane" id="p-an">
@@ -101,6 +117,20 @@ FIXTURE = u"""<!doctype html><html><head><meta charset="utf-8"><title>report fix
   <div id="lPlan">50 points</div>
   <div id="keybox"><div id="kres">2 families</div></div><div id="msg">inserted 42</div><div id="spCheck">bound holds</div>
   <h2>Analysis</h2><h3>Richness</h3>
+  <div id="plotBox"><svg id="theChart" viewBox="0 0 200 100" role="img">
+    <line x1="20" y1="80" x2="190" y2="80"/><line x1="20" y1="10" x2="20" y2="80"/>
+    <polyline points="20,70 60,50 100,40 140,20" fill="none"/>
+    <path d="M20,75 L60,60 L100,55 L140,50 L160,45 L180,40"/>
+    <circle cx="60" cy="50" r="3"/><circle cx="100" cy="40" r="3"/><circle cx="140" cy="20" r="3"/>
+    <rect x="165" y="57" width="10" height="6"/>
+    <text x="62" y="46">alpha</text><text x="102" y="36">beta</text><text x="142" y="16">gamma</text>
+    <text x="20" y="92">2021</text><text x="100" y="92">2022</text><text x="180" y="92">2023</text>
+    <text x="8" y="80">0</text><text x="8" y="45">5</text><text x="8" y="12">10</text>
+    <text x="40" y="6">key</text><text x="90" y="6">obs</text><text x="190" y="6">fit</text>
+  </svg>
+  <svg id="theTrend" viewBox="0 0 100 50" role="img">
+    <polyline points="0,40 10,35 20,30 30,28 40,20 50,15 60,10" fill="none"/></svg></div>
+  <div id="hiddenPlot" style="display:none"><svg viewBox="0 0 10 10"><circle cx="1" cy="1" r="1"/></svg></div>
 </section>
 <script>
   document.querySelectorAll('.tab').forEach(function(t){ t.addEventListener('click', function(){
@@ -211,8 +241,127 @@ with sync_playwright() as pw:
     ck(("genEntry", "genus filter") in byl, "a picker's search carries its aria-label and its mount host: %s" % sorted(l for h, l in byl if h == "genEntry"))
     ck(any(c["label"] == "area searched" and c["kind"] == "step_val" for c in snap["controls"]),
        "a stepper's value input carries the stepper's label")
+
+    # ---- ADR-140: the charts ------------------------------------------
+    plug.execute("show-pane", {"pane": "p-an"})     # the chart lives behind the second tab
+    ok, msg, r = plug.execute("read-report", {})
+    ch = r["charts"]
+    ck(ok and sorted(ch) == ["theChart", "theTrend"],
+       "a visible <svg> is a chart, keyed by its own id; one that is not shown is not read: %s" % sorted(ch))
+    c = ch.get("theChart", {})
+    ck(c.get("viewBox") == "0 0 200 100" and c.get("n") == 12,
+       "the chart carries the space it was drawn in and how many texts it holds: %s %s"
+       % (c.get("viewBox"), c.get("n")))
+    ck(c.get("marks") == {"circle": 3, "rect": 1, "path": 1, "line": 2, "polyline": 1},
+       "every mark is counted by what it is -- a chart that plots the wrong number of points "
+       "looks exactly like one that plots the right number: %s" % c.get("marks"))
+    ck(c.get("longest") == 6 and ch.get("theTrend", {}).get("longest") == 7,
+       "and the longest drawn series is how many points it carries -- the path here, the polyline "
+       "in the chart beside it: %s, %s" % (c.get("longest"), ch.get("theTrend", {}).get("longest")))
+    ck(c.get("aligned", {}).get("row") == ["2021", "2022", "2023"],
+       "the LOWEST row of text that lines up is the one taken -- the legend three rows above it is "
+       "just as aligned and is not the x tick sequence: %s" % c.get("aligned", {}).get("row"))
+    ck(c.get("aligned", {}).get("col") == ["10", "5", "0"],
+       "and the leftmost column top to bottom: %s" % c.get("aligned", {}).get("col"))
+    ck(c.get("points") == {"alpha": [60, 50], "beta": [100, 40], "gamma": [140, 20]},
+       "a text beside a mark names it, and the pair says WHERE the page put it, in the svg's own "
+       "units rather than in rendered pixels: %s" % c.get("points"))
+    ck(c.get("at")[:4] == [[60, 50], [100, 40], [140, 20], [170, 60]],
+       "...and every mark centre is there whether or not anything labelled it, a rect by its middle: %s"
+       % c.get("at")[:4])
+    ck([170, 60] in c.get("at", []) and [170, 60] not in c.get("points", {}).values(),
+       "a mark with no text near it is placed but not named -- the pairing is the page's, and where "
+       "the page put nothing beside a mark the reader invents no label")
+    ck([t for t in c.get("texts", []) if t["t"] == "gamma"] == [{"t": "gamma", "x": 142, "y": 16}],
+       "each text carries the position the page gave it")
+
+    # ---- F. what an activation would touch (ADR-141) --------------------
+    # `activate` is how every button on these pages is pressed, and it was
+    # DESTRUCTIVE for all of them because one of them is "Clear trial". Four
+    # blind operators found what that cost: a session holding SENSITIVE_READ,
+    # DRAFT and MUTATE could fill a whole collection sheet and record nothing.
+    plug.execute("show-pane", {"pane": "p-rec"})
+    snap = plug.observe(sensitive=True)
+    by_id = dict((c["id"], c["selector"]) for c in snap["controls"] if c.get("id"))
+    def risk(sel):
+        return plug.risk_for("activate", {"selector": sel})
+    ck(risk(by_id["bAdd"]) is None and risk(by_id["bSave"]) is None,
+       "a button that adds or records stays at the declared MUTATE floor: %s / %s"
+       % (risk(by_id["bAdd"]), risk(by_id["bSave"])))
+    ck(risk(by_id["bNuclear"]) is None,
+       "and a word that merely CONTAINS one of them is not one of them -- on these "
+       "pages 'Nuclear count' stays at the declared MUTATE floor, which is what the "
+       "word boundaries in the vocabulary are for: %s" % (risk(by_id["bNuclear"]),))
+    for name, word in (("bClear", "clear"), ("bWipe", "clear"), ("bUndo", "undo"),
+                       ("bForget", "forget")):
+        got = risk(by_id[name])
+        ck(got and got[0] == "DESTRUCTIVE" and word in got[1],
+           "a button NAMED for removing work is raised to DESTRUCTIVE, and the reason "
+           "quotes the label rather than asserting it: %s -> %s" % (name, got))
+    for name in ("bX", "bChip"):
+        got = risk(by_id[name])
+        ck(got and got[0] == "DESTRUCTIVE" and "mark" in got[1],
+           "the row-removing mark is caught, alone or glued to the row it removes -- 39 of "
+           "the kit's buttons are named nothing but that and 11 more carry it before the "
+           "chip's name: %s -> %s" % (name, got))
+    # ...and the two glyphs a scientist writes for something else entirely
+    ck(risk(by_id["bTimes"]) is None and risk(by_id["bMatrix"]) is None
+       and risk(by_id["bCross"]) is None,
+       "a MULTIPLICATION sign is not a delete: the kit writes '2\u00d7' on a playback speed "
+       "and 'Copy host \u00d7 taxon matrix' on an export, and a mark in the MIDDLE of a label "
+       "is punctuation between words -- a cross, on these pages, quite literally: %s / %s / %s"
+       % (risk(by_id["bTimes"]), risk(by_id["bMatrix"]), risk(by_id["bCross"])))
+    got = risk(by_id["bClose"])
+    ck(got and got[0] == "DESTRUCTIVE" and "close mark" in got[1],
+       "...while that same glyph ALONE is a close button and is raised: %s" % (got,))
+    blank = next(c["selector"] for c in snap["controls"]
+                 if c["kind"] == "action_btn" and not c["label"] and not c.get("id"))
+    got = risk(blank)
+    ck(got and got[0] == "DESTRUCTIVE" and "no label" in got[1],
+       "a control with no label, id or title is raised too: what it would do cannot be "
+       "read, and unreadable is not the same as harmless: %s" % (got,))
+    got = risk("action_btn:9999")
+    ck(got and got[0] == "DESTRUCTIVE" and "no control" in got[1] and "numbered 0-" in got[1],
+       "a selector that resolves to NOTHING is raised, and the reason says how many "
+       "selectors of that kind the page has now -- the blind trial watched a stale index "
+       "of exactly this shape delete a tallied stem and answer ok:true: %s" % (got,))
+    ck(risk(by_id["bClear"]) is not None and plug.risk_for("set-text", {"selector": by_id["bClear"]}) is None,
+       "and only activate is classified: an action that names what it does needs no guess")
+    pool = snap["argumentPools"]
+    dest = set(pool.get("activate.destructive") or [])
+    ck(dest == set(by_id[k] for k in ("bClear", "bWipe", "bUndo", "bX", "bForget",
+                                      "bClose", "bChip")),
+       "the snapshot NAMES them, before a call is spent: %s"
+       % sorted(k for k in by_id if by_id[k] in dest))
+    ck(dest < set(pool["activate.selector"]) and by_id["bAdd"] in pool["activate.selector"],
+       "published beside the selectors, not instead of them: a caller is told which "
+       "buttons remove work, not left to discover the rung by being refused")
+
+    # ...and the refusal a stale selector gets from execute says the same thing
+    try:
+        plug.execute("activate", {"selector": "action_btn:9999"})
+        ck(False, "a selector that names nothing was activated")
+    except HarnessError as e:
+        ck(e.code == "not_found" and "numbered 0-" in e.message and "observe again" in e.message,
+           "and a selector that names nothing is refused by COUNT: these selectors are the "
+           "moment's, and 'no control action_btn:9999' alone reads as a typo: %s" % e.message)
+
+    # ---- G. read-control names the control it read (ADR-141) ------------
+    ok, _, one = plug.execute("read-control", {"selector": by_id["bClear"]})
+    ck(ok and one["id"] == "bClear" and one["label"] == "Clear trial" and one["host"] == "actBar",
+       "read-control answers with the page's own names for the control -- id, label, host "
+       "-- not with the selector the caller already had: %s"
+       % {k: one.get(k) for k in ("id", "label", "host", "pane")})
+    ck(one["pane"] == "p-rec",
+       "and the pane it sits in, which is what a caller needs to reach it: %s" % one["pane"])
+    lab = dict((c["selector"], c["label"]) for c in snap["controls"])
+    ck(all(plug.execute("read-control", {"selector": s2})[2]["label"] == lab[s2]
+           for s2 in sorted(lab)[:12]),
+       "and it is the SAME label the snapshot published -- one definition, three readers")
+
     ctx.close()
     b.close()
+
 
 # ---- D. on a real page -------------------------------------------------------
 with sync_playwright() as pw:

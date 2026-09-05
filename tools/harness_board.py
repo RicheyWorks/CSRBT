@@ -74,6 +74,7 @@ RUNNERS = [
     ("mutate_harness", "the swarm's driver"),
     ("mutate_publish", "the publish pipeline and its reach"),
     ("mutate_engines", "the engine ledger's ratchet and the engine attestation"),
+    ("mutate_contract", "the door itself: the risk ladder, the raise, the replay"),
 ]
 
 
@@ -140,7 +141,20 @@ def render(L):
     o = []
     o.append('<title>Harness Board</title>')
     o.append('<link rel="preconnect" href="https://fonts.googleapis.com">')
-    o.append('<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400;12..96,600;12..96,800&family=IBM+Plex+Mono:wght@400;500;600&family=Source+Serif+4:opsz,wght@8..60,400;8..60,600&display=swap">')
+    # ADR-031's rule, and the board had been breaking it where the reader is:
+    # a webfont stylesheet requested with media="all" holds first paint until
+    # the font server answers. Every page of the kit asks for it as print and
+    # promotes it on load; the board is a page of this kit. Found by measuring
+    # the PUBLISHED copy (ADR-140), which is the only place it was ever true.
+    _f = ("https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400;"
+          "12..96,600;12..96,800&family=IBM+Plex+Mono:wght@400;500;600&"
+          "family=Source+Serif+4:opsz,wght@8..60,400;8..60,600&display=swap")
+    o.append('<link rel="stylesheet" href="%s" media="print" data-webfont>' % _f)
+    o.append('<noscript><link rel="stylesheet" href="%s"></noscript>' % _f)
+    o.append('<script>(function(){var l=document.querySelector("link[data-webfont]");if(!l)return;'
+             'var on=function(){l.media="all";};'
+             'if(l.sheet){on();}else{l.addEventListener("load",on);l.addEventListener("error",function(){});}'
+             '})();</script>')
     o.append(STYLE)
     o.append('<div class="wrap">')
     o.append('<header class="hero"><div class="eyebrow">CSRBT · the automation harness · every ledger, rendered</div>'

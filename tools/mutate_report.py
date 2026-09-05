@@ -37,7 +37,7 @@ MUTANTS = [
      '    ',
      "spaced off"),
     ("boxes are the old five prefixes only",
-     '  const BOX = /^(an|out|rep|res|sum)[A-Za-z0-9-]*$|(box|out|stats?|plan|matrix|verdict|tiles|warn|coh|tell|note|advice|refuse|table|chart|typical|list|results|grid|export|lint|cmd|meas|help|card|legend|msg|check|read|desc|left|res)$|^(coherence|report|results|outputs|toast|journal)$/i;',
+     '  const BOX = /^(an|out|rep|res|sum)[A-Za-z0-9-]*$|(box|out|stats?|plan|matrix|verdict|tiles|warn|coh|tell|note|advice|refuse|table|chart|typical|list|results|grid|export|lint|cmd|meas|help|card|legend|msg|check|read|desc|left|res)$|^(coherence|report|results|outputs|toast|journal)$|^station-[a-z]+$/i;',
      '  const BOX = /^(an|out|rep|res|sum)[A-Za-z]*$/;',
      "kit's naming"),
     ("every identified element is a box",
@@ -96,21 +96,28 @@ MUTANTS = [
      '  const headings = [...document.querySelectorAll("h1, h2, h3")].slice(0, 80)',
      '  const headings = [].slice(0, 80)',
      "headings, in order"),
+    # Anchored with their neighbours since ADR-141: read-control and the risk
+    # classifier now report id and host too, so the bare line appears three
+    # times and a one-line anchor would silently never apply.
     ("a control carries no id",
-     '      id: e.id || null,',
-     '      id: null,',
+     '      // "@control:cName" and is readable; the selector is the moment\'s.\n      id: e.id || null,',
+     '      // "@control:cName" and is readable; the selector is the moment\'s.\n      id: null,',
      "keeps its id"),
     ("a control's host is its pane, not its nearest identified ancestor",
-     '      host: (e.parentElement && e.parentElement.closest("[id]") || {}).id || null,',
-     '      host: (e.closest(".pane") || {}).id || null,',
+     '      id: e.id || null,\n      host: (e.parentElement && e.parentElement.closest("[id]") || {}).id || null,',
+     '      id: e.id || null,\n      host: (e.closest(".pane") || {}).id || null,',
      "mount host"),
+    # ADR-141: these two used to anchor inside the snapshot's own copy of the
+    # label expression. There is one copy now (LABEL_FN), read by the snapshot,
+    # by read-control and by the risk classifier -- so one mutation is put to
+    # all three, which is the point of having one copy.
     ("a dial option is labelled by its whole text",
-     '              (() => { const c = e.cloneNode(true); c.querySelectorAll("small, kbd").forEach(x => x.remove());',
-     '              (() => { const c = e.cloneNode(true);',
+     '      (() => { const c = e.cloneNode(true); c.querySelectorAll("small, kbd").forEach(x => x.remove());',
+     '      (() => { const c = e.cloneNode(true);',
      "labelled by its <span>"),
     ("a behaviour key is labelled by its whole text",
-     '      label: (e.getAttribute("aria-label") || (e.querySelector(".nm") || {}).textContent ||',
-     '      label: (e.getAttribute("aria-label") ||',
+     '  const _label = (e) => (e.getAttribute("aria-label") || (e.querySelector(".nm") || {}).textContent ||',
+     '  const _label = (e) => (e.getAttribute("aria-label") ||',
      "labelled by its .nm child"),
     # ---- the environment as an argument (ADR-134) ----
     ("the clock is never frozen",
@@ -157,6 +164,81 @@ MUTANTS = [
      '                raise InvalidArgument("set-dialog needs confirm, prompt, or both")',
      '                pass',
      "was accepted"),
+]
+
+
+MUTANTS += [
+    # ---- ADR-140: the charts ----
+    ('charts are not read at all',
+     '    if (Object.keys(charts).length >= 16 || !vis(sv)) return;',
+     '    if (true) return;',
+     'a visible <svg> is a chart'),
+    ('a chart that is not shown is read anyway',
+     '    if (Object.keys(charts).length >= 16 || !vis(sv)) return;',
+     '    if (Object.keys(charts).length >= 16) return;',
+     'one that is not shown is not read'),
+    ('marks are counted as one kind',
+     '    ["circle", "rect", "path", "line", "polyline", "polygon", "ellipse"].forEach(tag => {',
+     '    ["circle"].forEach(tag => {',
+     'every mark is counted by what it is'),
+    ("a series' length is the number of marks, not its points",
+     '      const pts = (e.getAttribute("points") || "").trim().split(/\\s+/).filter(Boolean).length;',
+     '      const pts = 1;',
+     'the longest drawn series'),
+    ("a path's points are not counted, only a polyline's",
+     '    [...sv.querySelectorAll("path")].slice(0, 40).forEach(e => {\n      const pts = ((e.getAttribute("d") || "").match(/[ML]/g) || []).length;',
+     '    [].forEach(e => {\n      const pts = ((e.getAttribute("d") || "").match(/[ML]/g) || []).length;',
+     'the path here, the polyline'),
+    ('aligned text is not put in order',
+     '      return best ? best.slice().sort((a, b) => a[along] - b[along]).map(t => t.t) : [];',
+     '      return best ? best.map(t => t.t) : [];',
+     'the leftmost column top to bottom'),
+    ('the row taken is the first found, not the lowest',
+     '    const aligned = {row: pick(rowsAt, "x", (a, b) => a > b),   // the lowest row of labels\n                     col: pick(colsAt, "y", (a, b) => a < b)};  // the leftmost column',
+     '    const aligned = {row: pick(rowsAt, "x", (a, b) => false),\n                     col: pick(colsAt, "y", (a, b) => false)};',
+     'the LOWEST row of text that lines up is the one taken'),
+    ('a text is paired with any mark, however far',
+     '      let near = null, d2 = 900;                       // within 30 units, squared',
+     '      let near = null, d2 = 1e9;',
+     'a text beside a mark names it'),
+    ("a mark's centre is not recorded unless a text named it",
+     '                   at: centres.slice(0, 40)};',
+     '                   at: []};',
+     'every mark centre is there whether or not anything labelled it'),
+    ('text positions are dropped',
+     '      {t: norm(t.textContent).slice(0, 60), x: num(t.getAttribute("x")), y: num(t.getAttribute("y"))}));',
+     '      {t: norm(t.textContent).slice(0, 60), x: null, y: null}));',
+     'each text carries the position the page gave it'),
+    ('a rect is placed by its corner, not its middle',
+     '      if (x !== null && y !== null) centres.push([x + (w || 0) / 2, y + (h || 0) / 2]);',
+     '      if (x !== null && y !== null) centres.push([x, y]);',
+     'a rect by its middle'),
+    ('the space the chart was drawn in is not reported',
+     '    charts[key] = {viewBox: vb, texts: texts, n: texts.length, marks: marks,',
+     '    charts[key] = {viewBox: "", texts: texts, n: texts.length, marks: marks,',
+     'the space it was drawn in'),
+]
+
+
+MUTANTS += [
+    # ---- ADR-141: read-control names what it read ----
+    ("read-control answers about a selector and nothing else, the way it did "
+     "until ADR-141",
+     '              id: e.id || null, label: _label(e),',
+     '              id: null, label: null,',
+     "the page's own names for the control"),
+    ("read-control computes the label its own way",
+     '              id: e.id || null, label: _label(e),\n              host: (e.parentElement',
+     '              id: e.id || null, label: (e.textContent || "").trim().slice(0, 60),\n              host: (e.parentElement',
+     "the SAME label the snapshot published"),
+    ("a stale selector is refused without saying the numbering moved",
+     """            try:
+                n = self.page.evaluate(
+                    "(k) => document.querySelectorAll('[data-h^=\\"' + k + ':\\"]').length", kind)
+            except Exception:
+                n = None""",
+     """            n = None""",
+     "refused by COUNT"),
 ]
 
 KNOWN_EQUIVALENT = []

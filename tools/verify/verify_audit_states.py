@@ -244,6 +244,48 @@ with sync_playwright() as pw:
        % (cov2["exist"], cov2["exposed"], cov2["never"]))
     ck(not any(x is None for x in pg2.evaluate(S.UNSTAMPED_JS, S.CONTROLS)),
        "and no control is left carrying no stamp -- a fault that names nothing is the worst kind")
+    # ADR-140: a control whose box arrives a moment after the last state's probe
+    # ADR-140: a control the page reveals from its own animation frame. Settling
+    # on getAnimations() cannot see it -- nothing is animating, the browser has
+    # simply not produced a frame yet -- and a walk that measures before the
+    # frame lands records a control that has a box as having none.
+    pgF = b.new_page(viewport={"width": 390, "height": 900})
+    pgF.goto("file://" + fx.replace(os.sep, "/"), wait_until="domcontentloaded")
+    pgF.evaluate("""() => {
+        const b = document.createElement('button');
+        b.id = 'raf'; b.textContent = 'raf'; b.style.display = 'none';
+        document.body.appendChild(b);
+        document.querySelector('#more').addEventListener('click', () => {
+            requestAnimationFrame(() => { b.style.display = ''; });
+        });
+    }""")
+    for _s, _r in S.each_state(pgF, "fixture.html", lambda: pgF.evaluate(BOXED), entered=False):
+        pass
+    covF = S.coverage(pgF)
+    ck(not any("#raf" in x for x in covF["never"]),
+       "a control the page reveals asynchronously, after the click handler returns, is still "
+       "measured: %s" % covF["never"])
+    pgF.close()
+
+    pg3 = b.new_page(viewport={"width": 390, "height": 900})
+    pg3.goto("file://" + fx.replace(os.sep, "/"), wait_until="domcontentloaded")
+    LATE_BOX = ("() => { const e = document.createElement('button'); e.id = 'slow'; "
+                "e.textContent = 'slow'; e.style.display = 'none'; document.body.appendChild(e); "
+                "return true; }")
+    SHOW = "() => { document.getElementById('slow').style.display = ''; return true; }"
+    pg3.evaluate(LATE_BOX)
+    for state, _r in S.each_state(pg3, "fixture.html", lambda: pg3.evaluate(BOXED)):
+        pass
+    cov3 = S.coverage(pg3)
+    ck(any("#slow" in x for x in cov3["never"]),
+       "a control that never had a box in any state, and still has none, is named: %s" % cov3["never"])
+    pg3.evaluate(SHOW)                       # ...and now it has one, a moment late
+    cov4 = S.coverage(pg3)
+    ck(not any("#slow" in x for x in cov4["never"]) and cov4["exposed"] == cov3["exposed"] + 1,
+       "a control whose box arrived after the last state's probe is counted as exposed -- coverage "
+       "settles and measures once more, because the end of the walk is still the last state: %s"
+       % cov4["never"])
+    pg3.close()
     pg2.close()
 
     stamps = pg.evaluate("() => [...document.querySelectorAll('[data-audit]')].map(e => e.getAttribute('data-audit'))")

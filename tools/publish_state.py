@@ -192,7 +192,7 @@ VERSION_IN_BYTES = re.compile(r'<base href="/_f/(\d{9,})-[0-9a-f]+/"')
 VERSION_IN_NAME = re.compile(r"artifact-[0-9a-f]+-(\d{9,})-[0-9a-f]+\.html$")
 
 
-def copy_taken_at(copy_path, live_text):
+def copy_taken_at(copy_path, live_text, told=None):
     """When was this copy taken? -> (epoch, how).
 
     NOT the file's mtime. mtime is a property of the local file and anything
@@ -230,6 +230,22 @@ def copy_taken_at(copy_path, live_text):
         return int(b.group(1)), "the version marker in the copy"
     if n:
         return int(n.group(1)), "the version epoch in the filename"
+    # WHAT THE READER SAYS IT DID, WHEN IT SAYS IT DID IT (ADR-140).
+    #
+    # The version marker is in the bytes because the publisher's wrapper puts it
+    # there -- and the wrapper is not always present. A small artifact comes back
+    # from a read as its own HTML in a bare skeleton, with no <base href> and no
+    # epoch anywhere, and ADR-056's rule then refuses it: a copy that cannot be
+    # dated cannot be ordered against the publish it would be evidence about.
+    # Correct, and it meant one artifact could never be measured at all.
+    #
+    # `told` is the fetching reader stating when it fetched. That is a weaker
+    # source than the marker -- it is about the FETCH, not about the version --
+    # and it is stronger than mtime, which is about neither. It ranks between
+    # them and says which it is, because a date whose provenance is unstated is
+    # how the nine bad ones got written.
+    if told:
+        return int(told), "the fetch time the reader reported -- about the fetch, not about the version"
     try:
         return int(os.path.getmtime(copy_path)), "the file's mtime -- NOT the version, only when this file was last written"
     except OSError:
@@ -385,6 +401,10 @@ def main(argv):
         names = [a for a in argv if a.endswith(".html") and not os.sep in a
                  and not a.startswith("/")]
         copies = [a for a in argv if a.endswith(".html") and a not in names]
+        told = None
+        if "--taken" in argv:
+            i = argv.index("--taken")
+            told = int(time.time()) if argv[i + 1] == "now" else int(argv[i + 1])
         if len(names) != 1 or len(copies) != 1:
             print("--verify needs exactly one page name and one path to a saved live copy")
             return 2
@@ -398,7 +418,7 @@ def main(argv):
         # ADR-056: a copy that cannot be dated cannot be ordered against the
         # publish it would be evidence about, so it is not evidence.
         live_early = io.open(copy, encoding="utf-8", errors="replace").read()
-        taken, how_taken = copy_taken_at(copy, live_early)
+        taken, how_taken = copy_taken_at(copy, live_early, told)
         if taken is None:
             print("%-30s %s -- not stamped" % (n, how_taken)); return 2
         prev = state["pages"].get(n)
