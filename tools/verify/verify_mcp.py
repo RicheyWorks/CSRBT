@@ -137,9 +137,20 @@ r = rpc("tools/call", {"name": "fake__poke", "arguments": {"n": 99}}, mid=9)
 ck("error" in r and r["error"]["code"] == M.INVALID_PARAMS and "invalid_argument" in r["error"]["message"],
    "an argument outside its bound is -32602 with the gateway's code in the message")
 r = rpc("tools/call", {"name": "fake__peek", "arguments": {}}, mid=10)
-ck("error" in r and r["error"]["code"] == M.INVALID_PARAMS and "not_found" in r["error"]["message"] and
-   not any(a == "peek" for a, _ in fake.ran),
+ck("error" in r and not any(a == "peek" for a, _ in fake.ran),
    "a tool the policy hid is not callable by name, and never reached the plugin")
+# ADR-141: and it is refused as WITHHELD, not as unknown. A blind operator sent
+# `csrbt_page__activate` and was told no tool of that name is listed -- so it
+# spent its next moves hunting for a spelling, of a tool that existed and was
+# gated. The two are different questions and only one of them has an answer the
+# operator can act on: ask a supervisor to open the rung.
+ck(r["error"]["code"] == M.POLICY_REFUSED and "forbidden" in r["error"]["message"]
+   and "SENSITIVE_READ" in r["error"]["message"] and "withheld" in r["error"]["message"],
+   "a real action withheld by policy says so, and names the rung that withheld it: %s"
+   % r["error"]["message"])
+r = rpc("tools/call", {"name": "fake__nosuch", "arguments": {}}, mid=11)
+ck("error" in r and r["error"]["code"] == M.INVALID_PARAMS and "not_found" in r["error"]["message"],
+   "...while a name that is nobody's action is still not_found: %s" % r["error"]["message"])
 r = rpc("tools/call", {"name": "fake__look"}, mid=None)
 ck("error" in r and r["error"]["code"] == M.INVALID_PARAMS,
    "a call with no id has no request id and is refused rather than run unreplayably")
@@ -209,8 +220,11 @@ else:
         again = json.loads(outs[3]["result"]["content"][0]["text"])
         ck(first["ok"] and not first["replayed"] and again["replayed"] is True,
            "a wire put over MCP lands, and the retry with the same id is a replay")
-        ck("error" in by[4] and by[4]["error"]["code"] == M.INVALID_PARAMS,
-           "get is not listed for this session and cannot be called by name")
+        ck("error" in by[4] and by[4]["error"]["code"] == M.POLICY_REFUSED
+           and "SENSITIVE_READ" in by[4]["error"]["message"],
+           "get is not listed for this session, and calling it by name is refused as "
+           "WITHHELD with the rung named (ADR-141), not as a bad name: %s"
+           % by[4].get("error"))
         snap = json.loads(by[5]["result"]["contents"][0]["text"])
         ck(snap["size"] == 1 and "sample" not in snap and snap["wire"]["puts"] == 1,
            "the snapshot resource shows one key, one wire put, and no record")
@@ -448,9 +462,13 @@ if len(res) == 8:
        "--attachable declares listChanged")
     n0 = [t["name"] for t in res[2]["result"]["tools"]]
     n1 = [t["name"] for t in res[4]["result"]["tools"]]
-    ck("csrbt_page__read_page" not in n0 and "csrbt_page__read_page" in n1 and len(n1) - len(n0) == 20,
-       "a real browser target attached mid-session brings its tools with it -- 20 of the page's 21, the "
-       "DESTRUCTIVE one omitted because this session never opened that gate: %d -> %d" % (len(n0), len(n1)))
+    ck("csrbt_page__read_page" not in n0 and "csrbt_page__read_page" in n1 and len(n1) - len(n0) == 21,
+       "a real browser target attached mid-session brings its tools with it -- all 21, because "
+       "since ADR-141 the page declares no DESTRUCTIVE action: `activate` is MUTATE with a "
+       "per-call raise, so a session that may write may also press: %d -> %d" % (len(n0), len(n1)))
+    ck("csrbt_page__activate" in n1,
+       "and `activate` is one of them -- the tool every button on these pages is pressed "
+       "through, which a supervised session could not see at all before")
     uris = [x["uri"] for x in res[5]["result"]["resources"]]
     ck("harness://csrbt-page/snapshot" in uris, "and its snapshot is a resource: %s" % uris)
     ck(res[6]["result"]["isError"] is False,

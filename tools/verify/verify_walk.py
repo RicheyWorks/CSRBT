@@ -154,7 +154,7 @@ def hold(res, label, tools_expected, allow_unreachable=False):
     ck(not res["unschemable"], "%s: nothing was unschemable: %s" % (label, res["unschemable"]))
     ck(not res["invariants_broken"], "%s: no cross-check broke: %s" % (label, res["invariants_broken"][:2]))
     ck(res["totals"]["failed"] == 0, "%s: nothing failed: %s" % (label, res["failures"][:2]))
-    ck(res["protocolVersion"] == "1.4", "%s: protocol 1.4" % label)
+    ck(res["protocolVersion"] == "1.5", "%s: protocol 1.5" % label)
     if not allow_unreachable:
         ck(not res["unreachable"], "%s: nothing was unreachable: %s" % (label, res["unreachable"]))
 

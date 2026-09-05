@@ -23,8 +23,8 @@ MUTANTS = [
      '"isError": not r["ok"]}', '"isError": False}',
      "isError, not a protocol error"),
     ("tools/list lists what the policy does not allow",
-     '            if not t["allowed"]:\n                continue',
-     '            if False:\n                continue',
+     '            if not t["allowed"]:\n                self._withheld[t["name"]] = t["risk"]\n                continue',
+     '            if False:\n                self._withheld[t["name"]] = t["risk"]\n                continue',
      "exactly what the policy allows"),
     ("every call gets a fresh request id, so a retry writes twice",
      'rid = "mcp-%s" % mid if mid is not None else None',
@@ -39,7 +39,12 @@ MUTANTS = [
      "silence"),
     ("a tool that is not listed runs anyway",
      '        if name not in self._tools:', '        if False:',
-     "never reached the plugin"),
+     # Since ADR-141 the transport does more than refuse an unlisted name: it
+     # says WHICH kind of not-listed it is. With the lookup gone, the call falls
+     # through to the gateway, which refuses it -- correctly, but with no idea
+     # whether the name was withheld or misspelled, which is the whole of what
+     # this branch is for.
+     "withheld by policy says so"),
     ("tools drop their _meta, so a client must guess the action from the slug",
      '                        "_meta": {"pluginId": t["pluginId"], "action": t["action"], "risk": t["risk"]}})',
      '                        "_meta": {"pluginId": t["pluginId"], "action": t["name"].split("__", 1)[1], "risk": t["risk"]}})',
@@ -50,7 +55,7 @@ MUTANTS = [
 MUTANTS += [
     # ---- ADR-137: listChanged, with a consumer ----
     ('the server announces the change and keeps the name map it cached',
-     '        self._tools = None\n        self._notes.append({"jsonrpc": "2.0", "method": "notifications/tools/list_changed"})',
+     '        self._tools = None\n        self._withheld = {}\n        self._notes.append({"jsonrpc": "2.0", "method": "notifications/tools/list_changed"})',
      '        self._notes.append({"jsonrpc": "2.0", "method": "notifications/tools/list_changed"})',
      'DROPS its own name map'),
     ('a plugin arriving takes no resource with it',
@@ -107,6 +112,23 @@ KNOWN_EQUIVALENT = [
     ("the resource URI shape is not checked",
      "the registry refuses an unknown plugin id with not_found, so a foreign URI ends in "
      "the same -32602 either way (measured 2026-09-01: 0 failures)"),
+]
+
+
+MUTANTS += [
+    # ---- ADR-141: withheld is not unknown ----
+    ('a tool the policy withheld answers as a name nobody has',
+     '            rung = (self._withheld or {}).get(name)\n            if rung:',
+     '            rung = (self._withheld or {}).get(name)\n            if False:',
+     'names the rung that withheld it'),
+    ('the server never records what it was not shown',
+     '                self._withheld[t["name"]] = t["risk"]\n                continue',
+     '                continue',
+     'names the rung that withheld it'),
+    ('a name nobody has answers as a tool that was withheld',
+     '            raise HarnessError("not_found", "no tool %r is listed for this session" % name)',
+     '            raise HarnessError("forbidden", "tool %r is withheld" % name)',
+     "is still not_found"),
 ]
 
 

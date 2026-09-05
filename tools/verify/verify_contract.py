@@ -223,9 +223,9 @@ ck(len(g._done) <= C.REPLAY_CACHE_LIMIT,
 # ---- 6. the manifest is enough to build a client from --------------------
 g, _ = gw(allow={"SENSITIVE_READ": True})
 m = g.manifest(TOKEN)
-ck(m["protocolVersion"] == "1.4",
-   "the manifest states a protocol version (1.4: ADR-134, a target may publish actions that set the environment "
-   "a run happens in -- the clock, the seed, the answer a dialog gets)")
+ck(m["protocolVersion"] == "1.5",
+   "the manifest states a protocol version (1.5: ADR-141, a declared risk is a FLOOR -- an action may be raised "
+   "per call by the target that knows what it was pointed at)")
 ck(m["strictArguments"] is True, "and that unknown arguments are refused")
 ck(m["tokenMinLength"] == C.TOKEN_MIN, "and the minimum token length")
 ck(set(m["policy"]) == set(C.RISKS), "and the effective policy for every risk")
@@ -286,10 +286,16 @@ except ValueError:
 import harness_plugin_page as PP
 d = PP.PagePlugin(None, "x.html").descriptor()
 names = dict((a.name, a.risk) for a in d.actions)
-ck(names.get("activate") == "DESTRUCTIVE",
-   "generic activation is DESTRUCTIVE: a selector on these pages may be Add "
-   "row, Clear trial or an export, and guessing from the label is the guess "
-   "this contract exists to refuse")
+act = d.action("activate")
+ck(act.risk == "MUTATE" and act.may_rise,
+   "generic activation declares MUTATE and mayRise (ADR-141): a selector on these "
+   "pages may be Add row or Clear trial, and the answer is to ask the target which "
+   "at the moment of the call -- not to hold every button at the rung the worst one "
+   "needs: %s mayRise=%s" % (act.risk, act.may_rise))
+ck(act.as_dict()["mayRise"] is True and
+   all(a.as_dict()["mayRise"] is False for a in d.actions if a.name != "activate"),
+   "and it is the ONLY action of this target that may rise: %s"
+   % [a.name for a in d.actions if a.may_rise])
 ck(names.get("read-control") == "SENSITIVE_READ" and
    names.get("read-page") == "SENSITIVE_READ" and
    names.get("capture-screen") == "SENSITIVE_READ",
@@ -409,6 +415,174 @@ try:
     ck(False, "a bound on a string was accepted")
 except ValueError:
     ck(True, "a bound on a string is refused: bounds need a numeric type")
+
+
+# ---- 12. a declared risk is a floor (ADR-141) ----------------------------
+# The blind trial's headline: `activate` was DESTRUCTIVE, so a supervised
+# session holding SENSITIVE_READ, DRAFT and MUTATE could fill every field on a
+# data-entry page and commit none of them -- every button on these pages is
+# pressed through `activate`. The fix is not to lower it. It is to let the one
+# thing that knows what a selector resolved to say so, per call, upward only.
+
+class Riser(C.Plugin):
+    """One action that may rise, and a dial for what it answers."""
+
+    def __init__(self, answer=None, boom=None):
+        self.answer, self.boom, self.ran, self.asked = answer, boom, [], []
+        self._d = C.PluginDescriptor("riser", "Riser", "may_rise under test.", "1.0", [
+            C.ActionSpec("press", "Press something.", "MUTATE",
+                         [C.ArgumentSpec("selector", "string", "What.", required=True)],
+                         may_rise=True),
+            C.ActionSpec("fixed", "Never rises.", "MUTATE",
+                         [C.ArgumentSpec("selector", "string", "What.", required=True)])])
+
+    def descriptor(self):
+        return self._d
+
+    def observe(self, sensitive=False):
+        # The SAME object each time, deliberately: a plugin that keeps its
+        # snapshot is an ordinary plugin, and a gateway that filtered in place
+        # would quietly edit a target's own state. Handing back a fresh dict
+        # would hide that.
+        self.snap = getattr(self, "snap", None) or {
+            "ready": True,
+            "argumentPools": {"selector": ["a:0"], "pane": ["p"],
+                              "press.selector": ["a:0"], "fixed.selector": ["a:0"],
+                              "press": [{"selector": "a:0"}]}}
+        return self.snap
+
+    def risk_for(self, action, arguments):
+        self.asked.append((action, arguments.get("selector")))
+        if self.boom:
+            raise self.boom
+        return self.answer
+
+    def execute(self, action, arguments):
+        self.ran.append(action)
+        return True, "pressed", {}
+
+
+def riser_gw(answer=None, boom=None, allow=None):
+    plug = Riser(answer, boom)
+    pol = C.Policy(token=TOKEN, allow={"MUTATE": True} if allow is None else allow,
+                   enabled=True)
+    return C.Gateway(C.Registry([plug]), pol), plug
+
+
+def press(g, n, sel="a:0", action="press"):
+    """The call, or the refusal it got. A suite that CRASHES under a mutation
+    asserts nothing either way -- and the mutations this section exists for are
+    exactly the ones that turn an allowed call into a refused one."""
+    try:
+        return g.execute(TOKEN, "riser", {"request_id": rid(n), "action": action,
+                                          "arguments": {"selector": sel}})
+    except C.HarnessError as e:
+        return {"risk": "REFUSED:" + e.code, "declaredRisk": None, "riskWhy": e.message,
+                "refused": e}
+
+
+# an action that did not declare may_rise is never asked
+g, plug = riser_gw(answer=("DESTRUCTIVE", "would delete everything"))
+r = press(g, 900, action="fixed")
+ck(plug.asked == [] and r.get("risk") == "MUTATE" and r.get("declaredRisk") == "MUTATE"
+   and r.get("riskWhy") is None,
+   "an action that did not declare mayRise is never asked what it would touch: %s" % plug.asked)
+
+# ...and one that did is asked, with the arguments of THIS call
+g, plug = riser_gw(answer=None)
+r = press(g, 901, sel="btn:7")
+ck(plug.asked == [("press", "btn:7")],
+   "an action that declared mayRise is asked, with this call's arguments: %s" % plug.asked)
+ck(r.get("risk") == "MUTATE" and r.get("riskWhy") is None and plug.ran == ["press"],
+   "a target that answers None leaves the call at the declared floor")
+
+# a raise is taken, and the response carries both risks and the reason
+g, plug = riser_gw(answer=("DESTRUCTIVE", "it is Clear trial"),
+                   allow={"MUTATE": True, "DESTRUCTIVE": True})
+r = press(g, 902)
+ck(r.get("risk") == "DESTRUCTIVE" and r.get("declaredRisk") == "MUTATE"
+   and r.get("riskWhy") == "it is Clear trial",
+   "a raise is taken, and the response says what it was declared as, what it was "
+   "authorised at, and why: %s" % dict((k, r.get(k)) for k in ("risk", "declaredRisk", "riskWhy")))
+ck(g.audit[-1][3] == "DESTRUCTIVE",
+   "and the AUDIT records the risk the call was authorised at, not the declared one: %s"
+   % (g.audit[-1],))
+
+# a LOWER answer is ignored -- a target may not talk its way down the ladder
+for lower in (("READ", "harmless, honest"), ("MUTATE", "same rung"), ("nonsense", "not a rung"),
+              ("", "empty")):
+    g, plug = riser_gw(answer=lower)
+    r = press(g, 903)
+    ck(r.get("risk") == "MUTATE" and r.get("riskWhy") is None,
+       "a target answering %r may not LOWER its own action below the declared floor: %s"
+       % (lower[0], r.get("risk")))
+
+# a target that cannot decide gets the top of the ladder, not the bottom
+g, plug = riser_gw(boom=RuntimeError("the page is gone"),
+                   allow={"MUTATE": True, "DESTRUCTIVE": True})
+r = press(g, 904)
+ck(r.get("risk") == "DESTRUCTIVE" and "could not say" in (r.get("riskWhy") or ""),
+   "a target that THROWS while deciding fails closed at DESTRUCTIVE, because a call "
+   "whose subject is unknown is the dangerous case: %s" % r["riskWhy"])
+
+# ...but a refusal it raises deliberately is still a refusal, with its own code
+g, plug = riser_gw(boom=C.Unavailable("the page went away"))
+r = press(g, 905)
+ck(r.get("risk") == "REFUSED:unavailable",
+   "a HarnessError raised while deciding the risk reaches the caller unchanged: %s"
+   % r.get("risk"))
+
+# the refusal at a RAISED rung says it was raised, and why
+g, plug = riser_gw(answer=("DESTRUCTIVE", "it is Clear trial"), allow={"MUTATE": True})
+r = press(g, 906)
+if "refused" not in r:
+    ck(False, "a call raised to DESTRUCTIVE was allowed at a MUTATE session")
+else:
+    e = r["refused"]
+    ck(e.code == "forbidden" and "raised from MUTATE to DESTRUCTIVE" in e.message
+       and "it is Clear trial" in e.message,
+       "a call refused at the rung it was RAISED to says so, and names the target's "
+       "reason -- otherwise the door contradicts a manifest that calls the action "
+       "MUTATE: %s" % e.message)
+ck(plug.ran == [], "and the raised call never reached the target")
+
+# the replay cache re-authorises at the raised risk, not the declared one
+g, plug = riser_gw(answer=("DESTRUCTIVE", "it is Clear trial"),
+                   allow={"MUTATE": True, "DESTRUCTIVE": True})
+r1 = press(g, 907)
+g.policy.allow["DESTRUCTIVE"] = False
+ck(press(g, 907).get("risk") == "REFUSED:forbidden",
+   "a replayed response is re-authorised at the risk it was RAISED to, so a "
+   "payload captured while the gate was open stops flowing when it closes")
+ck(len(plug.ran) == 1, "and the replay did not re-run the action either")
+
+# ---- 13. a snapshot never advertises what the door would refuse ----------
+g, plug = riser_gw(answer=None, allow={"MUTATE": True})
+s_all = g.observe(TOKEN, "riser")
+ck("press.selector" in s_all["argumentPools"] and "poolsWithheld" not in s_all,
+   "with the action allowed, its pools are published and nothing is withheld")
+g2, plug2 = riser_gw(answer=None, allow={})
+s_none = g2.observe(TOKEN, "riser")
+pools = s_none["argumentPools"]
+ck("press.selector" not in pools and "press" not in pools and "fixed.selector" not in pools,
+   "a session that may not call an action is not handed that action's argument pools "
+   "-- the blind trial was given 65 activate selectors and no tool of that name: %s"
+   % sorted(pools))
+ck(sorted(pools) == ["pane", "selector"],
+   "pools that belong to no action are facts about the target and stay: %s" % sorted(pools))
+ck([w["action"] for w in s_none.get("poolsWithheld") or []] == ["fixed", "press"]
+   and all(w["risk"] == "MUTATE" for w in s_none.get("poolsWithheld") or []),
+   "and what was withheld is NAMED, with the rung that withheld it, so the answer is "
+   "'you may not' rather than a pool that goes nowhere: %s" % s_none.get("poolsWithheld"))
+ck("press.selector" in plug2.snap["argumentPools"] and "poolsWithheld" not in plug2.snap,
+   "the filtering is the gateway's: the target's own snapshot is untouched, so a "
+   "plugin never has to know what policy it is being read under -- and a gateway "
+   "that filtered IN PLACE would be editing the target's state: %s"
+   % sorted(plug2.snap["argumentPools"]))
+r = g.execute(TOKEN, "riser", {"request_id": rid(908), "action": "fixed",
+                               "arguments": {"selector": "a:0"}})
+ck("press.selector" in (r.get("snapshot") or {}).get("argumentPools", {}),
+   "the snapshot that rides a response is filtered by the same rule")
 
 print("---")
 print("%d/%d" % (P, P + F))

@@ -93,6 +93,10 @@ def main(argv):
     ap.add_argument("--seed", type=int, default=42)
     ap.add_argument("--moves", help="a JSON file of moves; omit to just list what the door offers")
     ap.add_argument("--trace", help="record every call here (the file the grader reads)")
+    ap.add_argument("--cap", type=int, default=0, metavar="N",
+                    help="print at most N characters of each answer, saying so when it bites. "
+                         "The default, 0, prints the whole answer -- a snapshot is the discovery "
+                         "path and a clipped one does not parse (ADR-141).")
     a = ap.parse_args(argv)
 
     token = "blind-" + secrets.token_urlsafe(24)
@@ -118,7 +122,18 @@ def main(argv):
             else:
                 r = {"error": {"message": "a move is one of list, call, read, observe: %r" % m}}
             out.append({"move": i, "asked": m, "answer": r, "ms": int((time.time() - t0) * 1000)})
-            print(json.dumps(out[-1], ensure_ascii=False)[:4000])
+            # ADR-141: WHOLE, by default. This printed [:4000] and said nothing
+            # about it, so a snapshot -- the documented way to discover a page's
+            # controls, and 40KB on the science pages -- arrived as truncated
+            # JSON that would not parse. Two of the four blind operators gave up
+            # on this console and wrote their own JSON-RPC client, which means
+            # the trial was measuring the console rather than the door. A cap is
+            # available and, when it bites, SAYS it bit.
+            line = json.dumps(out[-1], ensure_ascii=False)
+            if a.cap and len(line) > a.cap:
+                line = (line[:a.cap] + '\n... [%d of %d characters shown: this console was run '
+                        'with --cap %d]' % (a.cap, len(line), a.cap))
+            print(line)
     finally:
         door.close()
     return 0

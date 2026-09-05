@@ -74,12 +74,16 @@ REPLAY SAFETY
 """
 import hmac, json, os, re, time
 
-PROTOCOL_VERSION = "1.4"   # 1.1 (ADR-114): bounds, patterns, examples in argument schemas
+PROTOCOL_VERSION = "1.5"   # 1.1 (ADR-114): bounds, patterns, examples in argument schemas
                            # 1.2 (ADR-120): snapshotMs on every execute response -- the snapshot, priced
                            # 1.3 (ADR-124): argumentPools may carry argument SETS, keyed by the action alone
                            # 1.4 (ADR-134): a target may publish actions that set the ENVIRONMENT a run
                            #                happens in -- the clock, the seed, the answer a dialog gets --
                            #                so a client can make a non-deterministic path reproducible
+                           # 1.5 (ADR-141): an action's declared risk is a FLOOR. An action marked
+                           #                mayRise is one whose real risk depends on what it was
+                           #                pointed at, and the plugin RAISES it per call -- never
+                           #                lowers it -- with a reason the response carries.
 REPLAY_CACHE_LIMIT = 256
 REPLAY_CACHE_BYTE_LIMIT = 8 * 1024 * 1024
 TOKEN_MIN = 24
@@ -230,13 +234,23 @@ class ArgumentSpec(object):
 
 
 class ActionSpec(object):
-    def __init__(self, name, description, risk, arguments=()):
+    def __init__(self, name, description, risk, arguments=(), may_rise=False):
         if not SLUG.match(name):
             raise ValueError("action name %r is not a slug of 1-30 chars" % name)
         if risk not in RISKS:
             raise ValueError("unknown risk %r" % risk)
         self.name, self.description, self.risk = name, description, risk
         self.arguments = list(arguments)
+        # ADR-141: THE DECLARED RISK IS A FLOOR, NOT A VERDICT, for an action
+        # whose real risk depends on what it is pointed at. `activate` on these
+        # pages may resolve to "Add stem" or to "Clear trial"; declaring it
+        # DESTRUCTIVE for the second made the first unreachable, and a
+        # supervised session that can fill every field and commit none of them
+        # cannot enter data at all -- which is what four blind operators
+        # independently found. An action that says may_rise is one the plugin
+        # re-reads per call; the gateway authorises whatever comes back, and
+        # only ever upward.
+        self.may_rise = bool(may_rise)
 
     def input_schema(self):
         return {"type": "object",
@@ -246,7 +260,7 @@ class ActionSpec(object):
 
     def as_dict(self):
         return {"name": self.name, "description": self.description,
-                "risk": self.risk,
+                "risk": self.risk, "mayRise": self.may_rise,
                 "arguments": [{"name": a.name, "type": a.type,
                                "description": a.description,
                                "required": a.required,
@@ -301,6 +315,19 @@ class Plugin(object):
     def execute(self, action, arguments):
         """Return (ok, message, output). Raise HarnessError to refuse."""
         raise NotImplementedError
+
+    def risk_for(self, action, arguments):
+        """ADR-141: the risk of THIS call, for an action that declared may_rise.
+
+        Return (risk, why) or None. The gateway takes it only if it is HIGHER
+        than the declared risk -- a plugin may raise its own ceiling and may
+        never lower it, because a plugin that could talk its way down the ladder
+        would be the policy asking the target for permission.
+
+        It must fail CLOSED: a call whose subject cannot be identified is the
+        dangerous case, not the safe one, and gets the highest risk the action
+        can carry rather than the lowest."""
+        return None
 
 
 # ---------------------------------------------------------------------------
@@ -507,7 +534,8 @@ class Gateway(object):
         self.policy.authenticate(token)
         self.policy.authorize("READ")
         sensitive = bool(self.policy.allow.get("SENSITIVE_READ"))
-        return self.registry.find(plugin_id).observe(sensitive=sensitive)
+        p = self.registry.find(plugin_id)
+        return self._fit(p, p.observe(sensitive=sensitive))
 
     def execute(self, token, plugin_id, command):
         self.policy.authenticate(token)
@@ -536,15 +564,28 @@ class Gateway(object):
 
         spec = plugin.descriptor().action(name)
         self._validate(spec, args)
-        self.policy.authorize(spec.risk)
+        risk, risk_why = self._risk_of(plugin, spec, args)
+        try:
+            self.policy.authorize(risk)
+        except HarnessError as e:
+            if e.code != "forbidden":
+                raise
+            # A call refused at a rung it was RAISED to must say so. "DESTRUCTIVE
+            # is not enabled for this session" about an action the manifest calls
+            # MUTATE reads as the door contradicting itself; the reason the
+            # target gave is the whole of the difference.
+            if risk_why:
+                raise Forbidden("%s -- %s was raised from %s to %s because %s"
+                                % (e.message, spec.name, spec.risk, risk, risk_why))
+            raise
         t0 = time.time()
         try:
             ok, message, output = plugin.execute(spec.name, args)
         except HarnessError:
-            self.audit.append((time.time(), plugin_id, name, spec.risk, "refused"))
+            self.audit.append((time.time(), plugin_id, name, risk, "refused"))
             raise
         except Exception as e:
-            self.audit.append((time.time(), plugin_id, name, spec.risk, "failed"))
+            self.audit.append((time.time(), plugin_id, name, risk, "failed"))
             raise Failed("%s/%s raised: %s" % (plugin_id, name, str(e)[:200]))
         ms = int((time.time() - t0) * 1000)
         # The snapshot rides every response, and until ADR-120 nobody had said
@@ -552,22 +593,91 @@ class Gateway(object):
         # of a round trip was the action and how much was the target being
         # asked about itself, and a ledger can hold it to a bound.
         t1 = time.time()
-        snap = plugin.observe(sensitive=bool(self.policy.allow.get("SENSITIVE_READ")))
+        snap = self._fit(plugin, plugin.observe(
+            sensitive=bool(self.policy.allow.get("SENSITIVE_READ"))))
         resp = {"protocolVersion": PROTOCOL_VERSION, "requestId": rid,
-                "pluginId": plugin_id, "action": spec.name, "risk": spec.risk,
+                "pluginId": plugin_id, "action": spec.name, "risk": risk,
+                "declaredRisk": spec.risk, "riskWhy": risk_why,
                 "ok": bool(ok), "replayed": False, "message": message,
                 "output": output, "ms": ms,
                 "snapshotMs": int((time.time() - t1) * 1000),
                 "snapshot": snap}
         n = _bytes(output)
-        self._done[key] = _Done(body, resp, spec.risk, n)
+        self._done[key] = _Done(body, resp, risk, n)
         self._bytes += n
         self._trim()
-        self.audit.append((time.time(), plugin_id, name, spec.risk,
+        self.audit.append((time.time(), plugin_id, name, risk,
                            "ok" if ok else "no"))
         return resp
 
     # -- internals ----------------------------------------------------------
+    def _fit(self, plugin, snap):
+        """A snapshot never advertises what this door would refuse (ADR-141).
+
+        `argumentPools` are keyed by the action they are for -- "set-text.selector",
+        "pick", "activate.selector" -- and until now every snapshot carried every
+        pool, whatever the session was allowed to do. A blind operator was handed
+        `activate.selector` with 65 selectors in it and no tool of that name in
+        the list: the snapshot advertised what the door then denied, and the
+        operator spent moves finding out which of the two was lying.
+
+        The pools for an action this session may not call are withheld and
+        NAMED, with the rung that withheld them, so the answer is "you may not
+        do that, and here is what you would need" rather than a pool that
+        silently goes nowhere. Pools that belong to no action -- selector, pane,
+        page -- are facts about the target and are always published."""
+        if not isinstance(snap, dict):
+            return snap
+        pools = snap.get("argumentPools")
+        if not isinstance(pools, dict):
+            return snap
+        try:
+            risk_of = dict((a.name, a.risk) for a in plugin.descriptor().actions)
+        except Exception:
+            return snap
+        keep, gone = {}, {}
+        for k in pools:
+            act = k.split(".", 1)[0]
+            r = risk_of.get(act)
+            if r is not None and not self.policy.allow.get(r):
+                gone[act] = r
+            else:
+                keep[k] = pools[k]
+        if not gone:
+            return snap
+        snap = dict(snap)
+        snap["argumentPools"] = keep
+        snap["poolsWithheld"] = [{"action": a, "risk": gone[a],
+                                  "why": "%s is not enabled for this session" % gone[a]}
+                                 for a in sorted(gone)]
+        return snap
+
+    @staticmethod
+    def _risk_of(plugin, spec, args):
+        """The risk THIS call is authorised at, and why (ADR-141).
+
+        Only an action that declared may_rise is asked, and only an answer
+        further UP the ladder is taken. A plugin that raises on ignorance is
+        doing the right thing; a plugin that raises when it should not costs a
+        refusal, which is the safe direction. A plugin that throws while
+        deciding is treated as ignorance."""
+        if not getattr(spec, "may_rise", False):
+            return spec.risk, None
+        try:
+            got = plugin.risk_for(spec.name, args)
+        except HarnessError:
+            raise
+        except Exception:
+            got = ("DESTRUCTIVE", "the target could not say what this call would touch")
+        if not got:
+            return spec.risk, None
+        risk, why = got
+        if risk not in RISKS:
+            return spec.risk, None
+        if RISKS.index(risk) <= RISKS.index(spec.risk):
+            return spec.risk, None            # a plugin may raise, never lower
+        return risk, why
+
     @staticmethod
     def _validate(spec, args):
         declared = set()

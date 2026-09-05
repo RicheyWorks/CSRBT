@@ -89,6 +89,7 @@ class Server(object):
     def __init__(self, gateway, token, trace=None, list_changed=None):
         self.gw, self.token = gateway, token
         self._tools = None            # name -> (pluginId, action)
+        self._withheld = {}           # name -> the rung that omitted it (ADR-141)
         # ADR-137: listChanged, with a consumer.
         #
         # Declared TRUE only when something in this session can change the list
@@ -152,9 +153,16 @@ class Server(object):
     def tools(self):
         man = self.gw.manifest(self.token)
         self._tools = {}
+        # ADR-141: what this session is NOT being shown, and the rung that
+        # withheld it. A tool omitted from the list and a tool that never
+        # existed answered identically before, so a blind operator that named a
+        # gated action was told no tool of that name is listed, and reasonably
+        # concluded it had the spelling wrong.
+        self._withheld = {}
         out = []
         for t in man["tools"]:
             if not t["allowed"]:
+                self._withheld[t["name"]] = t["risk"]
                 continue
             self._tools[t["name"]] = (t["pluginId"], t["action"])
             out.append({"name": t["name"],
@@ -169,8 +177,15 @@ class Server(object):
         if self._tools is None:
             self.tools()
         if name not in self._tools:
-            # Not listed for this session -- unknown or not allowed; the gateway
-            # would refuse it anyway, but a host should hear it as a bad name.
+            rung = (self._withheld or {}).get(name)
+            if rung:
+                # A real action of a real target, withheld by policy. That is a
+                # thing an operator can ask a supervisor to enable; a bad name
+                # is not, and telling one from the other is the difference
+                # between asking and guessing.
+                raise HarnessError("forbidden",
+                                   "tool %r exists on this target but is withheld from this "
+                                   "session: it is %s, which is not enabled" % (name, rung))
             raise HarnessError("not_found", "no tool %r is listed for this session" % name)
         plugin_id, action = self._tools[name]
         rid = "mcp-%s" % mid if mid is not None else None
@@ -202,6 +217,7 @@ class Server(object):
         A notification a server sends without clearing its own cache is a
         courtesy; clearing it is the fix."""
         self._tools = None
+        self._withheld = {}
         self._notes.append({"jsonrpc": "2.0", "method": "notifications/tools/list_changed"})
         if kind == "plugins":
             # a plugin arriving or leaving takes its snapshot resource with it
