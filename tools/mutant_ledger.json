@@ -1282,12 +1282,12 @@
    "survived": 0
   },
   "mutate_tasks": {
-   "at": 1788462991,
+   "at": 1788576391,
    "equivalent": 0,
    "equivalents": [],
    "inconclusive": 0,
-   "killed": 55,
-   "mutants": 55,
+   "killed": 62,
+   "mutants": 62,
    "rows": [
     {
      "detail": "4 failure(s); first: every operator grades, a reference grades as its value, a m",
@@ -1562,6 +1562,41 @@
     {
      "detail": "1 failure(s); first: --grade-trace all grades every trace it has, sighted and bl",
      "name": "--grade-trace all does not reach the blind traces",
+     "verdict": "killed"
+    },
+    {
+     "detail": "3 failure(s); first: a task that says nothing runs SUPERVISED: 42 task(s) declar",
+     "name": "the runner opens every rung again, the way it did until ADR-142",
+     "verdict": "killed"
+    },
+    {
+     "detail": "1 failure(s); first: a task that did not declare DESTRUCTIVE is refused when it ",
+     "name": "a task's declaration is read and then ignored",
+     "verdict": "killed"
+    },
+    {
+     "detail": "1 failure(s); first: a task opening DESTRUCTIVE with no reason is refused: was a",
+     "name": "DESTRUCTIVE may be opened with no reason given",
+     "verdict": "killed"
+    },
+    {
+     "detail": "1 failure(s); first: ...and one that gives a reason but names no step is refused",
+     "name": "a reason is enough: no step need be named",
+     "verdict": "killed"
+    },
+    {
+     "detail": "1 failure(s); first: ...and one whose named step does not exist is refused: was ",
+     "name": "a named step need not exist",
+     "verdict": "killed"
+    },
+    {
+     "detail": "1 failure(s); first: a rung this runner does not open is refused: was accepted",
+     "name": "a rung this runner cannot open is accepted",
+     "verdict": "killed"
+    },
+    {
+     "detail": "1 failure(s); first: ...and the entry says what it was allowed, so the refusal i",
+     "name": "the ledger stops saying what a task was allowed to do",
      "verdict": "killed"
     }
    ],

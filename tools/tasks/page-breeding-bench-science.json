@@ -3,6 +3,18 @@
  "target": "page",
  "page": "breeding-bench.html",
  "goal": "On the breeding bench: common bean's published minimum is 20 (self) and 10 plants is below it, sweet corn's is 100 (200 preferred), cross-pollinated by wind; 10 pollen and 90 seed parents give Ne = 4*10*90/100 = 36.0 and delta-F 1.39% (13.9% over 10 generations), 50/50 gives 100.0; sweet corn's cited isolation is two miles and 100 m is 3100 m short; keeping 10 of 100 is intensity 1.755 and an expected response 6.14 at h2 0.35 and SD 10, 50 of 100 is 0.798, 200 of 100 is refused; roguing 85 leaves 15 standing; the demo trial (4 entries x 3 blocks, means 10 12 11 14) has grand mean 11.75, MSE 0.167, LSD 0.82 kg, CV 3.5%; one replicate is not a trial; 90 of 100 seeds is 90.0% +/- 3.0% (84.1-95.9%), 30 of 20 is refused; 7 seasons stored is past the conventional window.",
+ "policy": {
+  "allow": [
+   "SENSITIVE_READ",
+   "DRAFT",
+   "MUTATE",
+   "DESTRUCTIVE"
+  ],
+  "needs": [
+   "tclear"
+  ],
+  "why": "the goal ends by clearing the trial and reading the empty board back: tClear is 'Clear trial'"
+ },
  "steps": [
   {
    "id": "look",

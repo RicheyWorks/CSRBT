@@ -3,6 +3,18 @@
  "target": "page",
  "page": "plant-characters.html",
  "goal": "On the plant characters key, score herbaceous, opposite, simple and add the tells square stem and strongly aromatic: 7 of the 20 families are consistent with all 3 characters and Lamiaceae leads (3/3 characters, 2 extra tells, score 3 + 2 x 1.5 = 6) ahead of six families at 3/3; woody, opposite, three petals matches nothing and the closest are shown with the conflict named; Start over clears the key.",
+ "policy": {
+  "allow": [
+   "SENSITIVE_READ",
+   "DRAFT",
+   "MUTATE",
+   "DESTRUCTIVE"
+  ],
+  "needs": [
+   "reset"
+  ],
+  "why": "the key is run twice, and the second run starts from kclear ('Start over')"
+ },
  "steps": [
   {
    "id": "look",

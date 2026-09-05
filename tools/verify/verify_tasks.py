@@ -304,7 +304,13 @@ ck(r3["verdict"] == "FAIL" and len(r3["steps"]) == 2 and r3["steps"][1]["result"
 old = dict(os.environ)
 os.environ["CSRBT_FIXTURE_DIE"] = "1"
 try:
+    # ADR-142: `die` is the fixture's DESTRUCTIVE action, and since the runner
+    # stopped opening every rung by default this task has to ask -- which is the
+    # rule working, and is asserted directly in section H.
     gone = {"id": "fixture-gone", "target": "fixture", "goal": "the target goes away half way through the task" * 2,
+            "policy": {"allow": ["SENSITIVE_READ", "DRAFT", "MUTATE", "DESTRUCTIVE"], "needs": ["d"],
+                       "why": "the goal is what a task does when its target dies, and `die` is the "
+                              "fixture's destructive action"},
             "steps": [{"id": "a", "action": "ok"}, {"id": "d", "action": "die"}, {"id": "b", "action": "ok", "expect": {"ok": True}}]}
     r4 = T.run_tasks([gone])["fixture-gone"]
 finally:
@@ -696,6 +702,107 @@ if os.path.isfile(led):
     ck(all(L.get(t["id"], {}).get("held") for t in reference), "and every reference task")
     ck(L.get("page-collection-sheet-canary", {}).get("verdict") == "FAIL" and L.get("page-collection-sheet-canary", {}).get("held"),
        "and the page canary was refuted and held")
+
+
+# ---- H. the rungs a task needs (ADR-142) -------------------------------------
+# Until this ADR the runner opened all four rungs for every task, so "the
+# harness can enter this data" had been measured with the wipe-the-store rung
+# held throughout, and nobody could say which tasks needed it. The default is
+# the supervised set; a task that needs DESTRUCTIVE declares it, with a reason
+# and the step ids that need it.
+ck(tuple(W_.SUPERVISED_RUNGS) == ("SENSITIVE_READ", "DRAFT", "MUTATE"),
+   "the supervised set is read what is entered, draft and write -- and not the fourth rung: %s"
+   % (W_.SUPERVISED_RUNGS,))
+plain = [t for t in tasks if not t.get("policy")]
+ck(plain and all(T.task_rungs(t)[0] == tuple(W_.SUPERVISED_RUNGS) for t in plain),
+   "a task that says nothing runs SUPERVISED: %d task(s) declare no policy and every one of "
+   "them gets exactly the supervised set" % len(plain))
+declared = [t for t in tasks if t.get("policy")]
+ck(declared, "and some tasks do declare one: %d" % len(declared))
+for t in declared:
+    got, why = T.task_rungs(t)
+    ck(got == tuple(r for r in W_.WALK_RUNGS if r in t["policy"]["allow"]),
+       "%s: the runner grants exactly what the task declared, in ladder order: %s" % (t["id"], list(got)))
+    if "DESTRUCTIVE" in got:
+        ck(why and len(why) > 30 and all(n in set(x["id"] for x in t["steps"])
+                                         for n in t["policy"]["needs"]),
+           "%s: it says why it needs the fourth rung and names the step(s) that do: %s / %s"
+           % (t["id"], (why or "")[:40], t["policy"].get("needs")))
+# ...and the refusals a bad declaration gets, on fixtures, because a rule that
+# is only ever obeyed is a rule nobody has tested.
+def defect(mutate, why):
+    base = json.load(io.open(os.path.join(T.TASKS_DIR, "page-food-web-science.json"), encoding="utf-8"))
+    mutate(base)
+    d = tempfile.mkdtemp(prefix="taskpol_")
+    f = os.path.join(d, "page-food-web-science.json")
+    io.open(f, "w", encoding="utf-8").write(json.dumps(base))
+    try:
+        T.load_task(f)
+        ck(False, why + ": was accepted")
+    except T.TaskDefect as e:
+        ck(True, why + ": %s" % str(e)[:60])
+
+defect(lambda t: t.__setitem__("policy", {"allow": ["SENSITIVE_READ", "DRAFT", "MUTATE", "DESTRUCTIVE"],
+                                          "needs": ["undo"]}),
+       "a task opening DESTRUCTIVE with no reason is refused")
+defect(lambda t: t.__setitem__("policy", {"allow": ["SENSITIVE_READ", "DRAFT", "MUTATE", "DESTRUCTIVE"],
+                                          "why": "because I said so, at length and with feeling"}),
+       "...and one that gives a reason but names no step is refused too")
+defect(lambda t: t.__setitem__("policy", {"allow": ["SENSITIVE_READ", "DRAFT", "MUTATE", "DESTRUCTIVE"],
+                                          "why": "because I said so, at length and with feeling",
+                                          "needs": ["no-such-step"]}),
+       "...and one whose named step does not exist is refused")
+defect(lambda t: t.__setitem__("policy", {"allow": ["ROOT"]}),
+       "a rung this runner does not open is refused")
+defect(lambda t: t.__setitem__("policy", {"allow": []}),
+       "an empty allow list is refused: a task that may do nothing is a task nobody wrote")
+
+# THE RUNNER GRANTS NO MORE THAN THE TASK DECLARED, and the only way to assert
+# that is to run one and be refused. A task with no policy, whose step needs the
+# fourth rung, must be refused by the door -- not quietly allowed because the
+# runner opened everything the way it used to.
+_had = os.environ.get("CSRBT_FIXTURE_DIE")
+os.environ["CSRBT_FIXTURE_DIE"] = "1"
+try:
+    greedy = {"id": "fixture-undeclared-destructive", "target": "fixture",
+              "goal": "a task that never declared the fourth rung reaches for it anyway" * 2,
+              "steps": [{"id": "a", "action": "ok"},
+                        {"id": "d", "action": "die", "expect": {"ok": True}}]}
+    rg = T.run_tasks([greedy])["fixture-undeclared-destructive"]
+    last = rg["steps"][-1]
+    ck(rg["verdict"] != "PASS" and "not enabled" in (last.get("message", "") + last.get("detail", "")),
+       "a task that did not declare DESTRUCTIVE is refused when it reaches for it -- the runner "
+       "grants what the file declared and nothing more: %s"
+       % (last.get("detail") or last.get("message") or "")[:70])
+    ck(rg.get("rungs") == list(W_.SUPERVISED_RUNGS),
+       "...and the entry says what it was allowed, so the refusal is readable: %s" % rg.get("rungs"))
+finally:
+    if _had is None:
+        os.environ.pop("CSRBT_FIXTURE_DIE", None)
+    else:
+        os.environ["CSRBT_FIXTURE_DIE"] = _had
+
+# the ledger says, per task, what it was allowed to do
+if os.path.isfile(led):
+    L = json.load(io.open(led, encoding="utf-8"))["tasks"]
+    # Every entry for a committed task, by its own id. The ledger also holds
+    # entries keyed "<id>@mcp", "@trace" and "@blind" -- other doors and other
+    # days, merged and not rewritten (ADR-108), so they carry what they carried
+    # when they were written and requiring rungs of them would be requiring a
+    # past run to have known about this ADR.
+    rows = [(t["id"], L[t["id"]]) for t in tasks if isinstance(L.get(t["id"]), dict)]
+    miss = [k for k, e in rows if not e.get("rungs")]
+    ck(rows and not miss,
+       "every ledger entry for a committed task records the rungs it ran under: %d entry/entries, "
+       "%d without: %s" % (len(rows), len(miss), miss[:4]))
+    sup = [k for k, e in rows if "DESTRUCTIVE" not in (e.get("rungs") or [])]
+    ck(len(sup) == len(rows) - len(declared),
+       "and exactly the tasks that did NOT declare it entered their data with no destructive "
+       "rung at all: %d of %d supervised, %d declared" % (len(sup), len(rows), len(declared)))
+    for k, e in rows:
+        if "DESTRUCTIVE" in (e.get("rungs") or []):
+            ck(bool(e.get("rungsWhy")),
+               "%s ran with the fourth rung open and the ledger carries the reason" % k)
 
 total = P + F + len(unverified)
 print("---")

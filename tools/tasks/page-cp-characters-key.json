@@ -3,6 +3,18 @@
  "target": "page",
  "page": "cp-characters.html",
  "goal": "On the carnivorous-plant key (18 genera): a snap trap matches Aldrovanda and Dionaea (2 genera, 1 of 4 characters); adding free-floating water leaves Aldrovanda alone with Dionaea disagreeing on where it grows and Utricularia on trap type; bladders underground match no genus in full, the closest being Genlisea, Philcoxia and Utricularia at 1/2; a pitcher native to North America matches Catopsis, Darlingtonia and Sarracenia in full with 8 of 11 candidates shown and 3 weaker not shown.",
+ "policy": {
+  "allow": [
+   "SENSITIVE_READ",
+   "DRAFT",
+   "MUTATE",
+   "DESTRUCTIVE"
+  ],
+  "needs": [
+   "r1"
+  ],
+  "why": "the key is run twice, and the second run starts from kReset ('Start over')"
+ },
  "steps": [
   {
    "id": "look",

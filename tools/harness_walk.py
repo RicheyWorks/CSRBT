@@ -80,13 +80,27 @@ OPS = ("manifest", "discover", "observe", "execute", "quit")
 # the wire: four operations over a child's stdio, and nothing else
 # ---------------------------------------------------------------------------
 
-def _spawn(script, token, seed, target, page, python=None, extra=None):
+# The rungs a walk opens. Every rung, because a walk's job is to drive every
+# tool a target publishes and a walk that could not reach half of them would
+# report a green kit it had never touched.
+WALK_RUNGS = ("SENSITIVE_READ", "DRAFT", "MUTATE", "DESTRUCTIVE")
+# What a SUPERVISED session holds (ADR-141): read what is entered, draft, and
+# write. Not DESTRUCTIVE -- an operator that can wipe the store is not being
+# supervised, it is being trusted. This is the set the blind operators had, and
+# since ADR-142 it is the DEFAULT a task runs under: a task that needs the
+# fourth rung says so in its own file, with a reason.
+SUPERVISED_RUNGS = ("SENSITIVE_READ", "DRAFT", "MUTATE")
+
+
+def _spawn(script, token, seed, target, page, python=None, extra=None, allow=None):
     env = dict(os.environ)
-    env.update({"CSRBT_HARNESS_ENABLED": "true", "CSRBT_HARNESS_TOKEN": token,
-                "CSRBT_HARNESS_ALLOW_SENSITIVE_READ": "true",
-                "CSRBT_HARNESS_ALLOW_DRAFT": "true",
-                "CSRBT_HARNESS_ALLOW_MUTATE": "true",
-                "CSRBT_HARNESS_ALLOW_DESTRUCTIVE": "true"})
+    env.update({"CSRBT_HARNESS_ENABLED": "true", "CSRBT_HARNESS_TOKEN": token})
+    # Exactly what was asked for, and exactly nothing else: a rung left to the
+    # inherited environment is a rung nobody in this process decided to open.
+    for rung in ("READ", "NAVIGATE") + WALK_RUNGS:
+        env.pop("CSRBT_HARNESS_ALLOW_" + rung, None)
+    for rung in (WALK_RUNGS if allow is None else allow):
+        env["CSRBT_HARNESS_ALLOW_" + rung] = "true"
     return subprocess.Popen(
         [python or sys.executable, script, "--target", target, "--seed", str(seed), "--page", page]
         + list(extra or []),
@@ -98,10 +112,13 @@ class Wire(object):
     """The stdio transport: JSON lines, the four operations by name."""
     transport = "stdio"
 
-    def __init__(self, token, seed=42, python=None, stdio=None, target="organism", page="ecology.html"):
+    def __init__(self, token, seed=42, python=None, stdio=None, target="organism", page="ecology.html",
+                 allow=None):
         self.token = token
         self.target = target
-        self.proc = _spawn(stdio or os.path.join(HERE, "harness_stdio.py"), token, seed, target, page, python)
+        self.allow = tuple(WALK_RUNGS if allow is None else allow)
+        self.proc = _spawn(stdio or os.path.join(HERE, "harness_stdio.py"), token, seed, target, page,
+                           python, allow=self.allow)
         self.sent = 0
 
     def op(self, op, **fields):
@@ -153,11 +170,12 @@ class McpWire(object):
     transport = "mcp"
 
     def __init__(self, token, seed=42, python=None, target="organism", page="ecology.html",
-                 attachable=False):
+                 attachable=False, allow=None):
         self.token = token
         self.target = target
+        self.allow = tuple(WALK_RUNGS if allow is None else allow)
         self.proc = _spawn(os.path.join(HERE, "harness_mcp.py"), token, seed, target, page, python,
-                           extra=["--attachable"] if attachable else None)
+                           extra=["--attachable"] if attachable else None, allow=self.allow)
         self.sent = 0
         self._id = 0
         self._tools = None

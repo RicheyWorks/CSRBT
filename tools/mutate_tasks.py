@@ -76,8 +76,8 @@ MUTANTS = [
      '                verdict = "DEFECT"\n            w, p = wires.get(s["target"], (wire, pid))',
      "did not open"),
     ("the ledger entry names only the target the task declares",
-     '            "targets": sorted(set([task["target"]] + [x["target"] for x in task["steps"] if x.get("target")])),\n            "steps": steps, "verdict": verdict, "must": must,\n            "held": verdict == must,',
-     '            "targets": [task["target"]],\n            "steps": steps, "verdict": verdict, "must": must,\n            "held": verdict == must,',
+     '            "targets": sorted(set([task["target"]] + [x["target"] for x in task["steps"] if x.get("target")])),\n            # ADR-142',
+     '            "targets": [task["target"]],\n            # ADR-142',
      "every target the task used"),
     ("only the task's own target is opened",
      '        want = [tgt] + [s["target"] for s in task["steps"] if s.get("target") and s["target"] != tgt]',
@@ -251,6 +251,43 @@ MUTANTS += [
      '        files = (sorted(glob.glob(os.path.join(TRACES_DIR, "*.jsonl"))) +\n                 sorted(glob.glob(os.path.join(BLIND_DIR, "*.jsonl")))) if a.grade_trace == "all" else [a.grade_trace]',
      '        files = sorted(glob.glob(os.path.join(TRACES_DIR, "*.jsonl"))) if a.grade_trace == "all" else [a.grade_trace]',
      'grades every trace it has, sighted and blind'),
+]
+
+
+MUTANTS += [
+    # ---- ADR-142: the rungs a task needs ----
+    ("the runner opens every rung again, the way it did until ADR-142",
+     "    if not pol:\n        return tuple(SUPERVISED_RUNGS), None",
+     "    if not pol:\n        return tuple(WALK_RUNGS), None",
+     "a task that says nothing runs SUPERVISED"),
+    ("a task's declaration is read and then ignored",
+     '                             page=task.get("page", page), allow=rungs)',
+     '                             page=task.get("page", page))',
+     "grants what the file declared and nothing more"),
+    ("DESTRUCTIVE may be opened with no reason given",
+     '            if not (pol.get("why") or "").strip():',
+     "            if False:",
+     "with no reason is refused"),
+    ("a reason is enough: no step need be named",
+     '            need = pol.get("needs")\n            if not isinstance(need, list) or not need:',
+     '            need = pol.get("needs") or []\n            if False:',
+     "names no step is refused"),
+    ("a named step need not exist",
+     "                if n not in ids:",
+     "                if False:",
+     "named step does not exist is refused"),
+    ("a rung this runner cannot open is accepted",
+     "            if r not in WALK_RUNGS:",
+     "            if False:  # rung",
+     "does not open is refused"),
+    ("the ledger stops saying what a task was allowed to do",
+     '            "rungs": list(task_rungs(task)[0]), "rungsWhy": task_rungs(task)[1],',
+     '            "rungsWhy": task_rungs(task)[1],',
+     # The greedy-task check sees it first: an entry that cannot say what it was
+     # allowed to do is unreadable at exactly the moment it matters, which is a
+     # refusal. Both checks are about the same clause; this names the one that
+     # actually fires first.
+     "the entry says what it was allowed"),
 ]
 
 KNOWN_EQUIVALENT = []

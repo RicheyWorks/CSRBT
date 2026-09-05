@@ -3,6 +3,18 @@
  "target": "page",
  "page": "tree-proofs.html",
  "goal": "On the tree proofs page, against an independent Python port of its splay core: a balanced splay tree of 63 keys has potential Φ = Σ log2(size) = 79.3; accessing key 1 costs 6 rotations+1 = 6 actual and 13.0 amortized (ΔΦ +7.0), the same key again costs 1 and 1.0; key 63 costs 7 / 13.0; the worst-case path (63 keys inserted descending) has Φ 290.0 and accessing key 1 costs 63 actual but −77.4 amortized, under the Access Lemma bound 3·log2(63)+1 = 18.9; the minimal AVL trees to height 12 have F(h+2)−1 nodes (1 2 4 7 12 20 33 54 88 143 232 376) under 1.4404·log2(n+2)−0.3277; select(9) over 31 keys takes 5 steps (16 → 8 → 12 → 10 → 9) and select(20) 3 steps (16 → 24 → 20). And the twenty random accesses, which no expectation could hold before ADR-134: with Math.random seeded 7 the page draws keys 1, 4, 62, 45, 33, 26, 30, 16, 35, 46, 17, 10, 49, 33, 13, 24, 19, 34, 19, 62 out of a balanced tree of 63, and an independent splay port totals 131 actual against 152.0 amortized -- the same figures the page prints.",
+ "policy": {
+  "allow": [
+   "SENSITIVE_READ",
+   "DRAFT",
+   "MUTATE",
+   "DESTRUCTIVE"
+  ],
+  "needs": [
+   "rebuild"
+  ],
+  "why": "the proof is rebuilt from spReset ('Reset') and the bound re-read"
+ },
  "steps": [
   {
    "id": "look",

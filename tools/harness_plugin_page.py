@@ -136,7 +136,14 @@ def kit_pages():
 # not the whole button's text run together (ADR-128).
 LABEL_FN = r"""
   const _label = (e) => (e.getAttribute("aria-label") || (e.querySelector(".nm") || {}).textContent ||
-      (() => { const c = e.cloneNode(true); c.querySelectorAll("small, kbd").forEach(x => x.remove());
+      (() => { const c = e.cloneNode(true);
+               // <small> and <kbd> are not the name (ADR-128), and neither is a
+               // SMALLER CONTROL living inside this one. The kit's tally chip is
+               // one button reading "<span class=x data-x>x</span> clover 3":
+               // clicking the button increments, clicking the span deletes, and
+               // taking the whole text made the field notebook's primary
+               // data-entry control read as a delete (ADR-142).
+               c.querySelectorAll("small, kbd, [data-x], .x").forEach(x => x.remove());
                return c.textContent; })() || e.placeholder ||
       e.getAttribute("title") || "").replace(/\s+/g, " ").trim().slice(0, 60);
 """

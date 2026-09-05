@@ -79,6 +79,24 @@ A snapshot also never advertises what the door would refuse: the argument pools
 of an action this session may not call are withheld and named in
 `poolsWithheld`, with the rung that withheld them.
 
+**A task declares the rungs it needs (ADR-142).** `tools/harness_tasks.py` runs
+every task with `SENSITIVE_READ`, `DRAFT` and `MUTATE` — the supervised set — and
+nothing else. A task that needs `DESTRUCTIVE` says so in its own file:
+
+```json
+"policy": {"allow": ["SENSITIVE_READ", "DRAFT", "MUTATE", "DESTRUCTIVE"],
+           "needs": ["refuseWipe"],
+           "why": "the goal is that wiping the runs REMOVES runChart from the report"}
+```
+
+`needs` must name real steps and `why` must be given, or the task will not load.
+The child process is spawned with exactly the declared rungs and every inherited
+`CSRBT_HARNESS_ALLOW_*` cleared first, so a rung open in the parent's shell
+cannot widen a supervised session. 42 of the kit's 54 tasks enter their data
+with no destructive rung at all; `tools/walk_ledger.json` and the task ledger
+record what each ran under. A *walk* still opens every rung, because a walk
+drives every tool a target publishes.
+
 Observation is value-redacted: a snapshot publishes kind, selector, label, pane,
 visible, enabled and commandable, and never what is in a field. Labels *are*
 published, and on a page that renders entered records into a list a label can

@@ -3,6 +3,18 @@
  "target": "page",
  "page": "tree-visualizer.html",
  "goal": "On the tree visualizer, against an independent Python port of its four strategies: the boot red-black tree of 13 keys has height 4 (1.0x the optimal ceil(log2 14) = 4), 0 rotations, select(1) = 4, rank(42) = #7, median 42; inserting 7 makes 14 nodes at height 5 (1.3x), median 30, rank #8; 7 again is already present; 1..20 ascending into red-black is height 7 with 14 rotations; morphing rebuilds from the sorted keys: AVL height 5 (15 rotations), Splay height 20 (a spine, 4.0x), WB height 6, red-black 7. With the page's Math.random seeded (ADR-134), the two random-insert buttons are reproducible: mulberry32 seeded 42, with the page's own skip-a-key-already-present rule, draws 60 first and 19 eleventh, and the tree is 24 nodes after 15 draws.",
+ "policy": {
+  "allow": [
+   "SENSITIVE_READ",
+   "DRAFT",
+   "MUTATE",
+   "DESTRUCTIVE"
+  ],
+  "needs": [
+   "wipe"
+  ],
+  "why": "the goal ends by clearing the tree and reading the empty visualizer: bClear is 'Clear'"
+ },
  "steps": [
   {
    "id": "look",

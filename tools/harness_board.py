@@ -111,6 +111,13 @@ def summary(L):
         "targets": len(targets), "pages": len(pages), "bad_walks": bad_walks,
         "commands": sum(e.get("commands", 0) for e in W.values()),
         "tasks": len(runs), "tasks_held": sum(1 for e in runs.values() if e.get("held")),
+        # ADR-142: how many of them entered their data with no destructive rung.
+        # An entry written before that ADR carries no rungs at all and is not
+        # counted either way -- a ledger row from a run that did not record the
+        # thing cannot be read as a row that recorded the good answer.
+        "supervised": sum(1 for e in runs.values()
+                          if e.get("rungs") and "DESTRUCTIVE" not in e["rungs"]),
+        "rung_known": sum(1 for e in runs.values() if e.get("rungs")),
         "traces": len(traces), "traces_held": sum(1 for e in traces.values() if e.get("held")),
         "confirmed": sum(e.get("confirmed", 0) for e in T.values()),
         "mutants": sum(e.get("mutants", 0) for e in M.values()),
@@ -176,6 +183,8 @@ def render(L):
         ("%d" % S["commands"], "commands walked", "%d targets × 2 transports, %d pages" % (S["targets"] // 2, S["pages"])),
         ("%d / %d" % (S["tasks_held"], S["tasks"]), "tasks held", "%d / %d traces held, %d expectations confirmed"
          % (S["traces_held"], S["traces"], S["confirmed"])),
+        ("%d / %d" % (S["supervised"], S["rung_known"]), "entered supervised",
+         "tasks that enter their data with no destructive rung; the rest declare it, with a reason"),
         ("%d / %d" % (S["killed"], S["mutants"]), "mutants killed", "%d survived, %d inconclusive, %d recorded equivalent"
          % (S["survived"], S["inconclusive"], S["equivalent"])),
         ("%d" % S["engine_tests"], "engine tests", "%d suites, %d failures" % (S["engines"], S["engine_failures"])),

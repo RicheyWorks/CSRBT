@@ -3,6 +3,18 @@
  "target": "page",
  "page": "food-web.html",
  "goal": "On the food web builder, the pond preset is 9 species and 12 links, connectance L/S^2 = 12/81 = 0.148, longest chain 5 (algae to heron), 2 producers, heron at the top, and its export says the same; the meadow is 10 species, 12 links, 0.120, kestrel at the top; a consumer added with no food source is flagged and makes 11 species at 12/121 = 0.099; undo restores 10.",
+ "policy": {
+  "allow": [
+   "SENSITIVE_READ",
+   "DRAFT",
+   "MUTATE",
+   "DESTRUCTIVE"
+  ],
+  "needs": [
+   "undo"
+  ],
+  "why": "the goal includes undoing the last link: webUndo is 'Undo'"
+ },
  "steps": [
   {
    "id": "look",

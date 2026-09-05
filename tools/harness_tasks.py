@@ -80,7 +80,7 @@ import argparse, glob, io, json, os, re, secrets, sys, time
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, HERE)
-from harness_walk import wire_for
+from harness_walk import wire_for, SUPERVISED_RUNGS, WALK_RUNGS
 
 TASKS_DIR = os.path.join(HERE, "tasks")
 LEDGER = os.path.join(HERE, "task_ledger.json")
@@ -131,8 +131,51 @@ def load_task(path):
                 if v[1:].partition(".")[0] in probes:
                     raise TaskDefect("%s/%s: a required step reads %s, and that step is a probe -- a claim may "
                                      "not rest on a step an operator may skip" % (t["id"], s["id"], v))
+    # ADR-142: THE RUNGS THE TASK NEEDS, declared by the task.
+    #
+    # Until now every task ran with all four rungs open, because the runner
+    # opened them -- so "the harness can enter this data" was measured with the
+    # wipe-the-store rung held throughout, and nobody could say which tasks
+    # actually needed it. The default is now the supervised set (ADR-141), and a
+    # task that needs DESTRUCTIVE says so IN ITS OWN FILE, with a reason a
+    # reader can weigh. That turns a question nobody had asked into a number:
+    # how many of these data-entry tasks need the destructive rung at all.
+    pol = t.get("policy")
+    if pol is not None:
+        if not isinstance(pol, dict) or not isinstance(pol.get("allow"), list) or not pol["allow"]:
+            raise TaskDefect("%s: policy must be an object with a non-empty allow list" % t["id"])
+        for r in pol["allow"]:
+            if r not in WALK_RUNGS:
+                raise TaskDefect("%s: policy allows %r, which is not a rung this runner opens (%s)"
+                                 % (t["id"], r, ", ".join(WALK_RUNGS)))
+        if "DESTRUCTIVE" in pol["allow"]:
+            if not (pol.get("why") or "").strip():
+                raise TaskDefect("%s: a task that opens DESTRUCTIVE must say why -- the rung that "
+                                 "wipes a store is not opened by default and not opened silently"
+                                 % t["id"])
+            # ...and WHICH steps need it. A reason with no step named is a
+            # sentence; a step id is a thing a reader can go and look at, and it
+            # rots visibly when the step is renamed or removed.
+            need = pol.get("needs")
+            if not isinstance(need, list) or not need:
+                raise TaskDefect("%s: policy.needs must name the step(s) that need DESTRUCTIVE"
+                                 % t["id"])
+            ids = set(x["id"] for x in t["steps"])
+            for n in need:
+                if n not in ids:
+                    raise TaskDefect("%s: policy.needs names %r, which is not a step of this task"
+                                     % (t["id"], n))
     t["_path"] = path
     return t
+
+
+def task_rungs(task):
+    """(rungs, why) -- what this task's sessions are allowed to do."""
+    pol = task.get("policy")
+    if not pol:
+        return tuple(SUPERVISED_RUNGS), None
+    order = dict((r, i) for i, r in enumerate(WALK_RUNGS))
+    return tuple(sorted(set(pol["allow"]), key=lambda r: order[r])), (pol.get("why") or None)
 
 
 def parts_of(path):
@@ -403,6 +446,10 @@ def run_task(task, wire, pid, wires=None):
     must = task.get("must", "PASS")
     return {"id": task["id"], "target": task["target"], "goal": task["goal"], "at": int(time.time()),
             "targets": sorted(set([task["target"]] + [x["target"] for x in task["steps"] if x.get("target")])),
+            # ADR-142: the rungs this run was allowed, per task, so the ledger
+            # answers "how much power does entering this data need" with a
+            # number instead of the runner's old habit of opening everything.
+            "rungs": list(task_rungs(task)[0]), "rungsWhy": task_rungs(task)[1],
             "steps": steps, "verdict": verdict, "must": must,
             "held": verdict == must,       # the task did what it was written to do (a canary must FAIL)
             "confirmed": sum(1 for s in steps for e in s.get("expectations", []) if e["verdict"] == "CONFIRMED"),
@@ -531,6 +578,7 @@ def run_tasks(tasks, transport="stdio", log=None, page="collection-sheet.html", 
         for t in want:
             if t not in seen_t:
                 seen_t.add(t); order.append(t)
+        rungs, why_rungs = task_rungs(task)
         wires, opened = {}, []
         try:
             bad = None
@@ -539,7 +587,7 @@ def run_tasks(tasks, transport="stdio", log=None, page="collection-sheet.html", 
                     bad = "step names an unknown target %r (known: %s)" % (t, ", ".join(sorted(PLUGIN)))
                     break
                 w = wire_for(transport, "task-" + secrets.token_urlsafe(24), seed=seed, target=t,
-                             page=task.get("page", page))
+                             page=task.get("page", page), allow=rungs)
                 opened.append(w)
                 wires[t] = (w, PLUGIN[t])
                 hello = w.op("discover")
@@ -559,6 +607,10 @@ def run_tasks(tasks, transport="stdio", log=None, page="collection-sheet.html", 
                                        # holds "held and by which door", and an entry without it is a
                                        # row nobody can read
                                        "transport": transport,
+                                       # ...and the rungs it ran under, this one included, for the
+                                       # same reason: an entry that does not say what it was allowed
+                                       # to do cannot be compared with one that does (ADR-142)
+                                       "rungs": list(rungs), "rungsWhy": why_rungs,
                                        "detail": bad}
                 continue
             wire = wires[tgt][0]

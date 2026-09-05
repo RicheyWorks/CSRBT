@@ -3,6 +3,18 @@
  "target": "page",
  "page": "survey-design.html",
  "goal": "On the survey design page, load the example design (1 survey, 2 sites, 4 plots, 8 visits = 15 events, no duplicate IDs), find a site with plots refused deletion, attach the absences to visit:01 and find 15 event rows, 15 Humboldt rows (nothing inherited), 3 occurrence rows (2 found + 1 absent) with 1 absence written and 0 refused; clear the target scope and find the absence refused (2 rows, 0 written, 1 refused); restore it, enter effort 45 minutes and an excluded scope, and find the declarations and the export carry them.",
+ "policy": {
+  "allow": [
+   "SENSITIVE_READ",
+   "DRAFT",
+   "MUTATE",
+   "DESTRUCTIVE"
+  ],
+  "needs": [
+   "rm"
+  ],
+  "why": "the goal removes a stratum and re-reads the allocation: the control is the row's remove"
+ },
  "steps": [
   {
    "id": "look",

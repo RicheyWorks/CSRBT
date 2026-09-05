@@ -3,6 +3,18 @@
  "target": "page",
  "page": "fungal-characters.html",
  "goal": "On the fungal characters key (51 genera): gills, a white or cream print and flesh that snaps like chalk, with the chalk tell, leave Russula alone at 4 of 4 matched; gills and a white print alone leave 13 genera; adding a volva at the base leaves Amanita alone at 3 of 3; pores on dead wood leave Trametes and Fomitopsis; teeth with a dull green print match nothing and Chlorophyllum is the closest with the conflict named.",
+ "policy": {
+  "allow": [
+   "SENSITIVE_READ",
+   "DRAFT",
+   "MUTATE",
+   "DESTRUCTIVE"
+  ],
+  "needs": [
+   "r1"
+  ],
+  "why": "the key is run twice, and the second run starts from fkreset ('Start over')"
+ },
  "steps": [
   {
    "id": "look",

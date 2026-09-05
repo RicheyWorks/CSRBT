@@ -3,6 +3,18 @@
  "target": "page",
  "page": "soil-bench.html",
  "goal": "On the soil bench: the demo windrow log has 14 of 15 required days at or above 55 C and 5 of 5 turnings while hot, peak 64, not there yet; a 34 C reading is a cooled pile, in-vessel needs only 3 days and is met, 72 C is one reading above 66; 100 L of fresh grass clippings (C:N 20, 2.4% N, 80% moisture, 250 kg/m3) is nitrogen-rich and 200 L of straw (80, 0.7%, 12%, 60) blends to C:N 42.9:1 by sum C over sum N, 37 kg wet, 16 kg dry, 58% moisture; peat + perlite is a nutrient-free mix and compost makes it 1.00/5; the texture key reads holds, ribbon, over 5 cm, smooth as SILTY CLAY and falls apart as SAND.",
+ "policy": {
+  "allow": [
+   "SENSITIVE_READ",
+   "DRAFT",
+   "MUTATE",
+   "DESTRUCTIVE"
+  ],
+  "needs": [
+   "undo"
+  ],
+  "why": "the goal includes undoing the last addition: cUndo is 'Undo'"
+ },
  "steps": [
   {
    "id": "look",

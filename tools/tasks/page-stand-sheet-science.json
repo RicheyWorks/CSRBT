@@ -3,6 +3,18 @@
  "target": "page",
  "page": "stand-sheet.html",
  "goal": "On the stand sheet's default 11.28 m fixed-radius plot (400 m², expansion factor 25.0), tally four live Douglas-fir at DBH 30, 25, 40 and 20 cm and find 4 live stems, 100 stems/ha, live basal area 6.9 m²/ha, QMD 29.7 cm and SDI 132; a DBH-35 snag counts as one snag and undo removes it; a stem at DBH 0 is refused; 20 m horizontal distance with angles 42° to the top and −8° to the base gives a 20.8 m (68 ft) tree; coarse woody debris 12 8 31 45 9 cm on a 30 m transect is 134.7 m³/ha by van Wagner and half that on 60 m; the .eco export carries every figure.",
+ "policy": {
+  "allow": [
+   "SENSITIVE_READ",
+   "DRAFT",
+   "MUTATE",
+   "DESTRUCTIVE"
+  ],
+  "needs": [
+   "undo"
+  ],
+  "why": "the goal includes undoing the last tally: tUndo is 'Undo'"
+ },
  "steps": [
   {
    "id": "look",

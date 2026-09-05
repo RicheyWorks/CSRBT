@@ -466,6 +466,54 @@ if not QUICK:
     finally:
         wire.close()
 
+
+# ---- J. the rungs a session opens are the ones it was given (ADR-142) --------
+# The walk opens all four because a walk must drive every tool. A TASK opens
+# what its file declares, and until this ADR there was no way to open less --
+# `_spawn` wrote all four into the child's environment unconditionally, so
+# "supervised" was not a thing this kit could run.
+import harness_walk as W2
+ck(tuple(W2.WALK_RUNGS) == ("SENSITIVE_READ", "DRAFT", "MUTATE", "DESTRUCTIVE")
+   and tuple(W2.SUPERVISED_RUNGS) == ("SENSITIVE_READ", "DRAFT", "MUTATE"),
+   "two named sets: what a walk opens, and what a supervised session holds")
+_leak = "CSRBT_HARNESS_ALLOW_DESTRUCTIVE"
+_had = os.environ.get(_leak)
+_hadfx = os.environ.get("CSRBT_FIXTURE_DIE")
+os.environ[_leak] = "true"          # a rung open in the PARENT, and nobody asked for it here
+os.environ["CSRBT_FIXTURE_DIE"] = "1"   # the fixture publishes its destructive action
+try:
+    w = W.Wire("walk-rungs-" + secrets.token_urlsafe(18), seed=5, target="fixture",
+                allow=W2.SUPERVISED_RUNGS)
+    try:
+        man = w.op("manifest")["manifest"]
+        pol = man["policy"]
+        ck(pol["SENSITIVE_READ"] and pol["DRAFT"] and pol["MUTATE"] and not pol["DESTRUCTIVE"],
+           "a session opened with the supervised set holds exactly it -- and a DESTRUCTIVE left "
+           "open in this process's own environment does NOT leak into the child, which is the "
+           "whole of what 'supervised' has to mean: %s" % pol)
+        hidden = [t["name"] for t in man["tools"] if not t["allowed"]]
+        ck(any(t["risk"] == "DESTRUCTIVE" for t in man["tools"] if not t["allowed"]),
+           "the target's destructive tool is withheld from the list: %s" % hidden)
+        r = w.op("execute", plugin="csrbt-fixture",
+                 command={"request_id": "rungs-1", "action": "die", "arguments": {}})
+        ck(not r.get("ok") and r.get("code") == "forbidden",
+           "and calling it is refused as forbidden, not run: %s" % {k: r.get(k) for k in ("ok", "code")})
+    finally:
+        w.close()
+    w = W.Wire("walk-rungs2-" + secrets.token_urlsafe(18), seed=5, target="fixture")
+    try:
+        pol = w.op("manifest")["manifest"]["policy"]
+        ck(all(pol[r] for r in W2.WALK_RUNGS),
+           "a wire opened with no allow= is a WALK and still holds every rung: %s" % pol)
+    finally:
+        w.close()
+finally:
+    for k, v in ((_leak, _had), ("CSRBT_FIXTURE_DIE", _hadfx)):
+        if v is None:
+            os.environ.pop(k, None)
+        else:
+            os.environ[k] = v
+
 total = P + F + len(unverified)
 print("---")
 for u in unverified:

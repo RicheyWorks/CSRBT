@@ -373,6 +373,27 @@ FEK picker through its filter; a task names a control the page's way with
 tasks — one per data-entry page — enter data and hold the report to a
 hand-checked oracle; a page canary is refuted; 1,316 expectations confirmed.
 
+ADR-142 asked whether the tasks can be RUN supervised, and made a task declare
+the rungs it needs. The runner had opened all four for every task since
+ADR-114, so every "the harness can enter this data" here had been measured with
+the wipe-the-store rung held throughout. A task now runs with SENSITIVE_READ,
+DRAFT and MUTATE unless its own file declares more, with a reason and the step
+ids that need it; the child is spawned with exactly that and every inherited
+CSRBT_HARNESS_ALLOW_* cleared first, so a rung open in the parent's shell cannot
+widen a supervised session. Run that way, 13 of 54 tasks failed. Twelve were
+real -- Clear all runs, Undo, Start over, Clear trial -- and now declare it;
+42 of 54 enter their data with no destructive rung at all. The thirteenth was
+the classifier's first false positive: the field notebook's tally chip is ONE
+button reading "<span class=x data-x>x</span><div class=name>clover</div><div
+class=count>3</div>", where clicking the button increments and clicking the
+little x inside it deletes -- so ADR-141's label read the whole button and
+raised a data-entry page's primary control to DESTRUCTIVE. LABEL_FN now strips
+[data-x]/.x children, the same rule already applied to <small> and <kbd>: the
+name of a control is not the name of a smaller control inside it. Re-measured,
+99 of 1,453 activatable controls raise (was 110) over 23 distinct labels (was
+34), every one of them a removal. verify_tasks 282, verify_walk 126,
+mutate_tasks 62/62.
+
 ADR-141 made a declared risk a FLOOR. Four blind operators, one science page
 each and a supervised session (SENSITIVE_READ + DRAFT + MUTATE, no DESTRUCTIVE),
 independently found that this harness could fill every field on a data-entry
