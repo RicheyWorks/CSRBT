@@ -80,6 +80,12 @@ with sync_playwright() as p:
         if efault: r["ENTRY NOT REACHED"]=efault
         bad_total+=n
         if cov["never"]: r["NEVER EXPOSED in %d states"%nstates]=cov["never"][:8]
+        # ADR-143: a look that found what an earlier look had missed is
+        # contention, and it is printed rather than absorbed -- a page that
+        # needed the second or third look is a page whose measurement depended
+        # on what else the machine was doing.
+        late=cov.get("lateLooks") or []
+        if len(late)>1 and sum(late[1:]): r["LATE (found on look %d)"%(1+max(i for i,v in enumerate(late) if v))]=sum(late[1:])
         rows.append((name, n, r, nstates, cov, ent))
 
     b.close()

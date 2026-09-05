@@ -1,0 +1,105 @@
+{
+ "_comment": "Written by tools/contend.py. Each entry is what a suite did while OTHER named suites of this kit were running beside it -- the condition run_all -j 2 actually creates. runs is how much evidence there is; 0 failed in a small number of runs is an upper bound, not a proof (ADR-142).",
+ "suites": {
+  "audit_contrast beside verify_tasks": {
+   "at": 1788590731,
+   "beside": [
+    "verify_tasks"
+   ],
+   "checks": {},
+   "cpu": 0,
+   "failed": 0,
+   "fastest": 225.5,
+   "runs": 3,
+   "since": 1788590731,
+   "slowest": 233.7,
+   "target": "audit_contrast"
+  },
+  "audit_targets beside verify_tasks": {
+   "at": 1788586660,
+   "beside": [
+    "verify_tasks"
+   ],
+   "checks": {},
+   "cpu": 0,
+   "failed": 0,
+   "fastest": 186.8,
+   "runs": 3,
+   "since": 1788586660,
+   "slowest": 191.7,
+   "target": "audit_targets"
+  },
+  "verify_contract beside verify_tie_render": {
+   "at": 1788586664,
+   "beside": [
+    "verify_tie_render"
+   ],
+   "checks": {},
+   "cpu": 0,
+   "failed": 0,
+   "fastest": 0.5,
+   "runs": 4,
+   "since": 1788586664,
+   "slowest": 0.5,
+   "target": "verify_contract"
+  },
+  "verify_organism beside verify_tasks": {
+   "at": 1788586089,
+   "beside": [
+    "verify_tasks"
+   ],
+   "checks": {},
+   "cpu": 0,
+   "failed": 0,
+   "fastest": 13.0,
+   "runs": 6,
+   "since": 1788586089,
+   "slowest": 15.1,
+   "target": "verify_organism"
+  },
+  "verify_organism beside verify_tie_render": {
+   "at": 1788586883,
+   "beside": [
+    "verify_tie_render"
+   ],
+   "checks": {
+    "two consecutive physicals are identical through the gateway": 1
+   },
+   "cpu": 0,
+   "failed": 1,
+   "fastest": 11.0,
+   "runs": 16,
+   "since": 1788586003,
+   "slowest": 17.2,
+   "target": "verify_organism"
+  },
+  "verify_organism beside verify_tie_render +1cpu": {
+   "at": 1788587142,
+   "beside": [
+    "verify_tie_render"
+   ],
+   "checks": {},
+   "cpu": 1,
+   "failed": 0,
+   "fastest": 14.6,
+   "runs": 16,
+   "since": 1788587142,
+   "slowest": 17.1,
+   "target": "verify_organism"
+  },
+  "verify_report beside verify_tie_render": {
+   "at": 1788586691,
+   "beside": [
+    "verify_tie_render"
+   ],
+   "checks": {},
+   "cpu": 0,
+   "failed": 0,
+   "fastest": 6.0,
+   "runs": 4,
+   "since": 1788586691,
+   "slowest": 6.6,
+   "target": "verify_report"
+  }
+ }
+}

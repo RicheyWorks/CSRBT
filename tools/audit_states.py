@@ -327,7 +327,7 @@ def each_state(pg, name, probe, entered=True):
 UNSTAMPED_JS = "(css) => [...document.querySelectorAll(css)].map(e => e.getAttribute('data-audit'))"
 
 
-def coverage(pg):
+def coverage(pg, looks=3):
     """After each_state: how many controls exist, how many had a box in some
     state, and the names of those no state exposed.
 
@@ -340,16 +340,39 @@ def coverage(pg):
     three solo runs, twice now (ADR-134 widened _settle for the same reason).
     The end of the walk is still the last state, so settling once more and
     measuring exposure again is not a new state and not a second chance: it is
-    finishing the measurement that state's probe began."""
-    _settle(pg)
-    late = set(pg.evaluate(MARK_JS, CONTROLS))
+    finishing the measurement that state's probe began.
+
+    ONE LOOK WAS NOT ENOUGH EITHER (ADR-143). audit_targets still lost exactly
+    one control to "never exposed" in one of six full runs after ADR-140, and
+    passed every solo run -- the same shape, one layer down: the single extra
+    look is itself a probe, and under contention a probe can be early. So the
+    look REPEATS, up to `looks` times, and stops as soon as a look finds nothing
+    the previous ones had not. That is bounded (three settles at worst, and the
+    second one usually ends it), it cannot invent exposure -- every id still has
+    to have a box when it is measured -- and it makes the race visible instead
+    of silent: `lateLooks` says how many controls each look was the first to
+    see, so a run that needed the third look SAYS it needed the third look."""
+    late, gained = set(), []
+    for i in range(max(1, int(looks))):
+        _settle(pg)
+        seen = set(pg.evaluate(MARK_JS, CONTROLS))
+        new = seen - late
+        late |= seen
+        gained.append(len(new))
+        if i and not new:
+            break
     if hasattr(pg, "_audit_exposed"):
         pg._audit_exposed |= late
     exposed = getattr(pg, "_audit_exposed", late)
     all_ids = pg.evaluate(UNSTAMPED_JS, CONTROLS)
     never = [i for i in all_ids if i not in exposed]
     return {"exist": len(all_ids), "exposed": len(all_ids) - len(never),
-            "never": pg.evaluate(NAME_JS, never)}
+            "never": pg.evaluate(NAME_JS, never),
+            # how many controls each look was the first to see. [n, 0] is a
+            # settled page; anything after the first zero means a look that
+            # found something a previous look had missed, which is contention
+            # reported rather than absorbed.
+            "lateLooks": gained}
 
 
 # ---- the entered state (ADR-131) -----------------------------------------

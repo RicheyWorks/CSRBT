@@ -201,8 +201,8 @@ MUTANTS = [
      "and only then"),
     ("coverage counts what the last probe saw and never looks again",
      "audit_states.py",
-     '    _settle(pg)\n    late = set(pg.evaluate(MARK_JS, CONTROLS))',
-     '    late = set()',
+     '        _settle(pg)\n        seen = set(pg.evaluate(MARK_JS, CONTROLS))',
+     '        seen = set()',
      "arrived after the last state's probe is counted as exposed"),
     ("coverage takes one more look and forgets what the walk measured",
      "audit_states.py",
@@ -214,6 +214,26 @@ MUTANTS = [
      '        exposed |= set(pg.evaluate(MARK_JS, CONTROLS))\n        yield "settled", probe()',
      '        pg.evaluate(MARK_JS, CONTROLS)',
      "settles into one more state, and only then"),
+]
+
+
+MUTANTS += [
+    # ---- ADR-143: the look repeats, and says what it caught ----
+    ("coverage looks once, the way it did after ADR-140",
+     "audit_states.py",
+     "    for i in range(max(1, int(looks))):",
+     "    for i in range(1):",
+     "revealed BETWEEN two looks"),
+    ("the looking never stops early, so every page pays for three settles",
+     "audit_states.py",
+     "        if i and not new:\n            break",
+     "        if False:\n            break",
+     "the looking stops there"),
+    ("lateLooks reports what each look saw, not what it was FIRST to see",
+     "audit_states.py",
+     "        gained.append(len(new))",
+     "        gained.append(len(seen))",
+     "the second look finds nothing"),
 ]
 
 KNOWN_EQUIVALENT = [

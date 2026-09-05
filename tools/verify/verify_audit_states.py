@@ -285,6 +285,35 @@ with sync_playwright() as pw:
        "a control whose box arrived after the last state's probe is counted as exposed -- coverage "
        "settles and measures once more, because the end of the walk is still the last state: %s"
        % cov4["never"])
+    # ADR-143: the look repeats, and says which look found what. A control
+    # revealed BETWEEN two looks of one coverage() call is the contention case
+    # that survived ADR-140 -- one extra look is itself a probe, and a probe can
+    # be early.
+    # The reveal is triggered by the MEASUREMENT, not by a timer: a timer long
+    # enough to beat _settle would make the suite slow and a short one is
+    # exactly the race this fixture must not depend on. The control's own
+    # getBoundingClientRect answers "no box" the first time it is asked and
+    # reveals the element as it does so -- which is what a browser that has not
+    # laid the state out yet looks like from where the probe stands.
+    LATE2 = ("() => { const e = document.createElement('button'); e.id = 'slower'; "
+             "e.textContent = 'slower'; e.style.display = 'none'; document.body.appendChild(e); "
+             "let asked = 0; const real = e.getBoundingClientRect.bind(e); "
+             "e.getBoundingClientRect = () => { if (asked++ === 0) { e.style.display = ''; "
+             "  return {width: 0, height: 0, top: 0, left: 0, right: 0, bottom: 0}; } "
+             "  return real(); }; return true; }")
+    pg3.evaluate(LATE2)
+    cov5 = S.coverage(pg3)
+    ck(not any("#slower" in x for x in cov5["never"]),
+       "a control revealed BETWEEN two looks of one coverage() call is still counted: %s" % cov5["never"])
+    ck(len(cov5["lateLooks"]) >= 2 and sum(cov5["lateLooks"][1:]) >= 1,
+       "...and the run SAYS a later look found it, rather than absorbing the race silently: %s"
+       % cov5["lateLooks"])
+    cov6 = S.coverage(pg3)
+    ck(len(cov6["lateLooks"]) == 2 and cov6["lateLooks"][0] > 0 and cov6["lateLooks"][1] == 0,
+       "on a settled page the second look finds nothing and the looking stops there: %s"
+       % cov6["lateLooks"])
+    ck(S.coverage(pg3, looks=1)["lateLooks"] == cov6["lateLooks"][:1],
+       "looks is a bound a caller can set, and looks=1 is exactly the old behaviour")
     pg3.close()
     pg2.close()
 
