@@ -1,0 +1,374 @@
+{
+ "_comment": "Written by tools/entry_reach.py. Per page: how many of the controls that CARRY A VALUE the page's own entry task acted on, and the floor that reading may not fall below. A floor is raised deliberately and lowered only with a reason (ADR-144, the ADR-139 rule applied to data entry).",
+ "pages": {
+  "adr-031.html": {
+   "at": 1788659398,
+   "controls": 0,
+   "entered": 0,
+   "fields": 0,
+   "floor": 0,
+   "task": null,
+   "touched": 0
+  },
+  "breeding-bench.html": {
+   "at": 1788659398,
+   "controls": 140,
+   "entered": 15,
+   "fields": 21,
+   "floor": 15,
+   "task": "page-breeding-bench-science",
+   "touched": 15
+  },
+  "breeding-suite.html": {
+   "at": 1788659398,
+   "controls": 0,
+   "entered": 0,
+   "fields": 0,
+   "floor": 0,
+   "task": null,
+   "touched": 0
+  },
+  "cell-bench.html": {
+   "at": 1788659398,
+   "controls": 45,
+   "entered": 16,
+   "fields": 28,
+   "floor": 16,
+   "task": "page-cell-bench-science",
+   "touched": 16
+  },
+  "collection-sheet.html": {
+   "at": 1788659398,
+   "controls": 262,
+   "entered": 59,
+   "fields": 63,
+   "floor": 59,
+   "task": "page-collection-sheet-science",
+   "touched": 61
+  },
+  "cp-bench.html": {
+   "at": 1788659398,
+   "controls": 101,
+   "entered": 13,
+   "fields": 23,
+   "floor": 13,
+   "task": "page-cp-bench-science",
+   "touched": 13
+  },
+  "cp-characters.html": {
+   "at": 1788659398,
+   "controls": 18,
+   "entered": 3,
+   "fields": 4,
+   "floor": 3,
+   "task": "page-cp-characters-key",
+   "touched": 6
+  },
+  "cp-suite.html": {
+   "at": 1788659398,
+   "controls": 0,
+   "entered": 0,
+   "fields": 0,
+   "floor": 0,
+   "task": null,
+   "touched": 0
+  },
+  "deployment-log.html": {
+   "at": 1788659398,
+   "controls": 76,
+   "entered": 17,
+   "fields": 37,
+   "floor": 17,
+   "task": "page-deployment-log-science",
+   "touched": 24
+  },
+  "douglas-explorer.html": {
+   "at": 1788659398,
+   "controls": 0,
+   "entered": 0,
+   "fields": 0,
+   "floor": 0,
+   "task": null,
+   "touched": 0
+  },
+  "eco-protocol-library.html": {
+   "at": 1788659398,
+   "controls": 0,
+   "entered": 0,
+   "fields": 0,
+   "floor": 0,
+   "task": "page-eco-protocol-library-reference",
+   "touched": 0
+  },
+  "eco-protocol-reference.html": {
+   "at": 1788659398,
+   "controls": 0,
+   "entered": 0,
+   "fields": 0,
+   "floor": 0,
+   "task": null,
+   "touched": 0
+  },
+  "ecology-essay.html": {
+   "at": 1788659398,
+   "controls": 0,
+   "entered": 0,
+   "fields": 0,
+   "floor": 0,
+   "task": null,
+   "touched": 0
+  },
+  "ecology-field-card.html": {
+   "at": 1788659398,
+   "controls": 0,
+   "entered": 0,
+   "fields": 0,
+   "floor": 0,
+   "task": null,
+   "touched": 0
+  },
+  "ecology-field-guide.html": {
+   "at": 1788659398,
+   "controls": 0,
+   "entered": 0,
+   "fields": 0,
+   "floor": 0,
+   "task": null,
+   "touched": 0
+  },
+  "ecology-glossary.html": {
+   "at": 1788659398,
+   "controls": 0,
+   "entered": 0,
+   "fields": 0,
+   "floor": 0,
+   "task": null,
+   "touched": 0
+  },
+  "ecology-lab-manual.html": {
+   "at": 1788659398,
+   "controls": 0,
+   "entered": 0,
+   "fields": 0,
+   "floor": 0,
+   "task": null,
+   "touched": 0
+  },
+  "ecology-lab.html": {
+   "at": 1788659398,
+   "controls": 40,
+   "entered": 7,
+   "fields": 40,
+   "floor": 7,
+   "task": "page-ecology-lab-science",
+   "touched": 7
+  },
+  "ecology-teachers-guide.html": {
+   "at": 1788659398,
+   "controls": 0,
+   "entered": 0,
+   "fields": 0,
+   "floor": 0,
+   "task": null,
+   "touched": 0
+  },
+  "ecology.html": {
+   "at": 1788659398,
+   "controls": 0,
+   "entered": 0,
+   "fields": 0,
+   "floor": 0,
+   "task": null,
+   "touched": 0
+  },
+  "ethogram.html": {
+   "at": 1788659398,
+   "controls": 26,
+   "entered": 5,
+   "fields": 16,
+   "floor": 5,
+   "task": "page-ethogram-kappa",
+   "touched": 6
+  },
+  "experiment-guide.html": {
+   "at": 1788659398,
+   "controls": 52,
+   "entered": 16,
+   "fields": 52,
+   "floor": 16,
+   "task": "page-experiment-guide-design",
+   "touched": 16
+  },
+  "farm-scout.html": {
+   "at": 1788659398,
+   "controls": 79,
+   "entered": 5,
+   "fields": 15,
+   "floor": 5,
+   "task": "page-farm-scout-science",
+   "touched": 5
+  },
+  "field-notebook.html": {
+   "at": 1788659398,
+   "controls": 8,
+   "entered": 1,
+   "fields": 6,
+   "floor": 1,
+   "task": "page-field-notebook-science",
+   "touched": 1
+  },
+  "field-season.html": {
+   "at": 1788659398,
+   "controls": 11,
+   "entered": 5,
+   "fields": 5,
+   "floor": 5,
+   "task": "page-field-season-replay",
+   "touched": 5
+  },
+  "food-web.html": {
+   "at": 1788659398,
+   "controls": 1,
+   "entered": 1,
+   "fields": 1,
+   "floor": 1,
+   "task": "page-food-web-science",
+   "touched": 1
+  },
+  "fungal-characters.html": {
+   "at": 1788659398,
+   "controls": 38,
+   "entered": 2,
+   "fields": 2,
+   "floor": 2,
+   "task": "page-fungal-characters-key",
+   "touched": 9
+  },
+  "greenhouse.html": {
+   "at": 1788659398,
+   "controls": 48,
+   "entered": 6,
+   "fields": 14,
+   "floor": 6,
+   "task": "page-greenhouse-science",
+   "touched": 6
+  },
+  "micro-bench.html": {
+   "at": 1788659398,
+   "controls": 28,
+   "entered": 12,
+   "fields": 18,
+   "floor": 12,
+   "task": "page-micro-bench-science",
+   "touched": 13
+  },
+  "ordination.html": {
+   "at": 1788659398,
+   "controls": 14,
+   "entered": 2,
+   "fields": 6,
+   "floor": 2,
+   "task": "page-ordination-science",
+   "touched": 3
+  },
+  "pheno-tracker.html": {
+   "at": 1788659398,
+   "controls": 52,
+   "entered": 7,
+   "fields": 16,
+   "floor": 7,
+   "task": "page-pheno-tracker-science",
+   "touched": 20
+  },
+  "plant-characters.html": {
+   "at": 1788659398,
+   "controls": 18,
+   "entered": 1,
+   "fields": 1,
+   "floor": 1,
+   "task": "page-plant-characters-key",
+   "touched": 5
+  },
+  "releve.html": {
+   "at": 1788659398,
+   "controls": 276,
+   "entered": 7,
+   "fields": 42,
+   "floor": 7,
+   "task": "page-releve-science",
+   "touched": 9
+  },
+  "selection-log.html": {
+   "at": 1788659398,
+   "controls": 71,
+   "entered": 10,
+   "fields": 25,
+   "floor": 10,
+   "task": "page-selection-log-science",
+   "touched": 10
+  },
+  "soil-bench.html": {
+   "at": 1788659398,
+   "controls": 53,
+   "entered": 7,
+   "fields": 10,
+   "floor": 7,
+   "task": "page-soil-bench-science",
+   "touched": 12
+  },
+  "soil-recipes.html": {
+   "at": 1788659398,
+   "controls": 9,
+   "entered": 2,
+   "fields": 2,
+   "floor": 2,
+   "task": "page-soil-recipes-scaling",
+   "touched": 5
+  },
+  "soil-suite.html": {
+   "at": 1788659398,
+   "controls": 0,
+   "entered": 0,
+   "fields": 0,
+   "floor": 0,
+   "task": null,
+   "touched": 0
+  },
+  "stand-sheet.html": {
+   "at": 1788659398,
+   "controls": 191,
+   "entered": 9,
+   "fields": 50,
+   "floor": 9,
+   "task": "page-stand-sheet-science",
+   "touched": 10
+  },
+  "survey-design.html": {
+   "at": 1788659398,
+   "controls": 19,
+   "entered": 5,
+   "fields": 14,
+   "floor": 5,
+   "task": "page-survey-design-science",
+   "touched": 5
+  },
+  "tree-proofs.html": {
+   "at": 1788659398,
+   "controls": 3,
+   "entered": 3,
+   "fields": 3,
+   "floor": 3,
+   "task": "page-tree-proofs-science",
+   "touched": 3
+  },
+  "tree-visualizer.html": {
+   "at": 1788659398,
+   "controls": 3,
+   "entered": 1,
+   "fields": 3,
+   "floor": 1,
+   "task": "page-tree-visualizer-science",
+   "touched": 1
+  }
+ }
+}

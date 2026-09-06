@@ -373,6 +373,74 @@ FEK picker through its filter; a task names a control the page's way with
 tasks — one per data-entry page — enter data and hold the report to a
 hand-checked oracle; a page canary is refuted; 1,316 expectations confirmed.
 
+ADR-145 ENTERED THE COLLECTION SHEET WHOLE. ADR-144's reading said the kit's
+flagship data-entry page had 6 of its 63 fields entered by anything, and every
+figure the other 57 feed was computed by a page nothing had ever driven. The
+task now enters the site block, the coordinates, the weather, one specimen
+described in full, a spore print, four spot tests and a voucher label -- 104
+steps, 6 -> 59 of 63 fields, 9 -> 66 confirmed expectations -- and holds what
+the sheet does with them: the weather verdict (14 days after a 32 mm event,
+inside the 7-21 day window), the field-sheet export line by line, the voucher
+label, and `coordinateUncertaintyInMeters` at 36 m, then 5395 m with the datum
+unknown, then 36 m again. Those three are recomputed by a Python port of the
+page's own point-radius arithmetic rather than typed, because a number a tool
+can compute is never a number a task author remembers. FOUR REAGENT ROWS ARE
+LEFT BLANK ON PURPOSE: the sheet's rule is that blank means not tested, which is
+not negative, so filling them to raise a coverage number would be inventing
+observations -- 59 of 63, and the four are a decision. Entering data nobody had
+entered found a page coupling and three defects in the instrument. The coupling
+is held both ways: typing the stand's dominant trees REPLACES the host picker's
+regional list with your stand, so `Quercus gambelii` is refused and
+`Pinus contorta` is taken. The refusal exposed the rest. (1) `pick` checked for
+an option in the DOM BEFORE typing, and this sheet REMOVES non-matching options
+rather than hiding them -- so one refused filter left the picker with none and
+every later pick answered "not a picker", including the one that would have
+cleared the filter. Whether something is a picker is STRUCTURAL; whether it has
+options is a fact of the moment, and a control cannot stop being a picker
+because of what someone typed into it. (2) A refusal carried no snapshot (the
+gateway raises before it observes), so the next `@control:<name>` resolved
+against the last SUCCESSFUL step's snapshot -- which the refusal had just made
+stale by rebuilding the picker, and the runner blamed the page for a stale name
+of its own. The task runner now observes after a refusal: a refusal is a move
+too. (3) An unnamed control's occurrence index was counted across the WHOLE
+DOCUMENT, so adding a collection row renumbered everything below it and a
+control measured before the row was a different control after -- the stand-age
+dial came back from ADR-144's measurement as never entered by a task that had
+just clicked it. The index is now counted within the nearest identified
+ancestor, which is stable against the page growing elsewhere. That was ADR-144's
+own stated caveat, found biting three days later by the first task that made a
+page grow while measuring it, and fixing it recovered phantom misses kit-wide:
+185 -> 237 of 517 fields (36% -> 46%). verify_report 85, mutate_report 52;
+verify_audit_states 67, mutate_audit_states 45; verify_tasks 284,
+mutate_tasks 63. Held: a held export line is not a held science -- the sheet
+echoing "odour faintly raphanoid" proves it carries what was entered, not that
+the odour was recorded correctly; the four blank reagents are themselves an
+unheld claim (nothing checks a blank row exports as not tested rather than as
+negative); and ecology-lab 7 of 40, stand-sheet 9 of 50 and deployment-log
+17 of 37 are still where this page was.
+
+ADR-144 asked HOW MUCH of a page's data its task enters. Twenty-one science
+tasks enter data and hold each page's report to a hand-checked oracle, which
+answers "can the harness enter data here" with a yes and never answered the
+question underneath -- the stand sheet carries 157 controls that hold a value
+and its task drives 25 steps, so a field that silently drops what you type is
+not something any suite here could notice. tools/entry_reach.py measures it per
+page: the controls that CARRY A VALUE (not Add, Save, Clear, tabs, links or
+readonly displays -- every kind harness.KINDS discovers is on one side of that
+line or the other), how many the page's own entry task acted on, and the ones it
+never touched, NAMED. A field is not a control: a FEK widget is one field and
+not three, a group of mutually exclusive choices is one field and not forty, and
+a control the entry touched that the page then REMOVED still counts as entered
+-- a character key deletes the option it has answered, and counting only
+survivors said "0 of 4" about a task that answers the whole key. Which control a
+step touched is resolved BEFORE the step runs, for the same reason. The reading:
+185 of 518 fields, 36%, across the 27 pages that have any -- collection
+sheet 6 of 63, stand sheet 9 of 50, ecology lab 7 of 40. It ratchets rather than
+targets (the ADR-139 rule applied to data entry): a floor per page, raised
+deliberately, lowered only with a reason in the ledger, and failing by default
+with no flag because run_all runs an audit with no arguments. verify_entry_reach
+26, mutate_entry 17/18 killed with one recorded equivalent.
+
 ADR-143 made a FLAKE a measurement. Three of the six full runs it took to close
 ADR-141 failed on checks that passed every time they were run alone -- the
 organism's "two consecutive physicals are identical" and one control

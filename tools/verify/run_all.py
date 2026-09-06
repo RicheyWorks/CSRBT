@@ -28,6 +28,7 @@ AUDITS = [
     ("audit_frontend", "duplicate ids, dead links, iOS zoom, JS and console errors"),
     ("audit_escaping", "does anything you type come back as markup"),
     ("fek_lint",       "FEK misconfiguration"),
+    ("entry_reach",    "how much of each page's data its own task enters"),
 ]
 # A finder, not a gate: it reports a worklist and always exits zero, so running
 # it here would say nothing about pass or fail. Named so it is not forgotten.

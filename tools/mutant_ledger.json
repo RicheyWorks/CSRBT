@@ -2,9 +2,13 @@
  "_comment": "Written by the mutant runners through tools/mutant_ledger.py. One entry per runner; a run updates only its own entry and keeps the rest, each with its own at.",
  "runners": {
   "mutate_audit_states": {
-   "at": 1788585505,
-   "equivalent": 2,
+   "at": 1788655924,
+   "equivalent": 3,
    "equivalents": [
+    {
+     "name": "a control with no stamp is a control no state exposed",
+     "why": "dropping the `unstamped` bucket -- so a null id counts as a control no state exposed again -- cannot be observed once the fix is in: coverage now stamps immediately before it enumerates, and to produce a null a control would have to mount in the microseconds between those two evaluate calls. The trap that produces one for the other half of this clause fires during the last look's stamping pass, which the extra stamp then catches. Kept because the bucket is what makes the report readable if it ever happens, and recorded here rather than asserted by a check that could not fail (measured 2026-09-05)."
+    },
     {
      "name": "the walk measures as soon as the click returns, without waiting for a frame",
      "why": "the frame wait (_frames, ADR-140) is defence against CPU CONTENTION, and no fixture can reproduce contention: _click already waits 150 ms, under which a page's own requestAnimationFrame always lands, so a deterministic suite cannot tell the two apart. Kept for the same reason ADR-134 widened _settle from one second to two -- an instrument whose answer depends on what else is running is not an instrument -- and recorded here rather than asserted by a check that could not fail (measured 2026-09-04: both mutants survive every check in the suite)"
@@ -15,8 +19,8 @@
     }
    ],
    "inconclusive": 0,
-   "killed": 42,
-   "mutants": 42,
+   "killed": 45,
+   "mutants": 45,
    "rows": [
     {
      "detail": "14 failure(s); first: the states, in order: rest, each tab (data-pane then aria-",
@@ -49,7 +53,7 @@
      "verdict": "killed"
     },
     {
-     "detail": "8 failure(s); first: the states, in order: rest, each tab (data-pane then aria-c",
+     "detail": "7 failure(s); first: the states, in order: rest, each tab (data-pane then aria-c",
      "name": "a revealed surface's tabs are not pressed",
      "verdict": "killed"
     },
@@ -59,7 +63,7 @@
      "verdict": "killed"
     },
     {
-     "detail": "3 failure(s); first: a stamp is what the element IS -- tag, id, non-state classe",
+     "detail": "5 failure(s); first: and a control with no id keeps its stamp when the page GROW",
      "name": "a stamp is a counter, so a rebuilt region loses its measurements",
      "verdict": "killed"
     },
@@ -69,7 +73,7 @@
      "verdict": "killed"
     },
     {
-     "detail": "4 failure(s); first: every control carries one stable stamp, the ones the entry ",
+     "detail": "6 failure(s); first: and a control with no id keeps its stamp when the page GROW",
      "name": "the occurrence index is dropped, so identical controls share a stamp",
      "verdict": "killed"
     },
@@ -99,7 +103,7 @@
      "verdict": "killed"
     },
     {
-     "detail": "12 failure(s); first: the states, in order: rest, each tab (data-pane then aria-",
+     "detail": "13 failure(s); first: the states, in order: rest, each tab (data-pane then aria-",
      "name": "the page is never entered",
      "verdict": "killed"
     },
@@ -174,7 +178,7 @@
      "verdict": "killed"
     },
     {
-     "detail": "3 failure(s); first: audit_focus exits 1 on the fixture (rc 0)",
+     "detail": "2 failure(s); first: audit_focus exits 1 on the fixture (rc 0)",
      "name": "focus does not count what it never measured",
      "verdict": "killed"
     },
@@ -199,7 +203,7 @@
      "verdict": "killed"
     },
     {
-     "detail": "1 failure(s); first: a control whose box arrived after the last state's probe is",
+     "detail": "3 failure(s); first: a control revealed BETWEEN two looks of one coverage() call",
      "name": "coverage counts what the last probe saw and never looks again",
      "verdict": "killed"
     },
@@ -214,7 +218,7 @@
      "verdict": "killed"
     },
     {
-     "detail": "3 failure(s); first: a control revealed BETWEEN two looks of one coverage() call",
+     "detail": "3 failure(s); first: ...and the run SAYS a later look found it, rather than abso",
      "name": "coverage looks once, the way it did after ADR-140",
      "verdict": "killed"
     },
@@ -224,8 +228,23 @@
      "verdict": "killed"
     },
     {
-     "detail": "1 failure(s); first: on a settled page the second look finds nothing and the loo",
+     "detail": "4 failure(s); first: on a settled page the second look finds nothing and the loo",
      "name": "lateLooks reports what each look saw, not what it was FIRST to see",
+     "verdict": "killed"
+    },
+    {
+     "detail": "1 failure(s); first: a control that arrived DURING the enumeration is stamped an",
+     "name": "coverage enumerates without stamping first, so a control that just arrived is a null",
+     "verdict": "killed"
+    },
+    {
+     "detail": "2 failure(s); first: and a control with no id keeps its stamp when the page GROW",
+     "name": "an unnamed control is counted across the document, so page growth renames it",
+     "verdict": "killed"
+    },
+    {
+     "detail": "2 failure(s); first: a control with an id is keyed by the id alone -- no host in",
+     "name": "a NAMED control is scoped to its host too, so its id is not enough",
      "verdict": "killed"
     }
    ],
@@ -574,6 +593,107 @@
     {
      "detail": "2 failure(s); first: an attestation records the engine digest as it stood, 64 he",
      "name": "an attestation records no engine digest at all",
+     "verdict": "killed"
+    }
+   ],
+   "survived": 0
+  },
+  "mutate_entry": {
+   "at": 1788601498,
+   "equivalent": 1,
+   "equivalents": [
+    {
+     "name": "a step that was REFUSED still counts as having entered its field",
+     "why": "`if ok and before` -> `if before`. The page plugin refuses by RAISING -- every wrong-kind selector, every missing control, every bad value comes back as a HarnessError -- so the line after execute() is only ever reached with ok true, and no fixture can make a refusal arrive any other way. The guard is defence against a future plugin that answers no without raising, which is a shape this kit does not currently have; recorded rather than asserted by a check that could not fail (measured 2026-09-05)."
+    }
+   ],
+   "inconclusive": 0,
+   "killed": 17,
+   "mutants": 17,
+   "rows": [
+    {
+     "detail": "6 failure(s); first: eighteen controls carry a value here: two steppers of three",
+     "name": "a button that does something WITH data is a field too",
+     "verdict": "killed"
+    },
+    {
+     "detail": "3 failure(s); first: eighteen controls carry a value here: two steppers of three",
+     "name": "a readonly display is a field nobody filled",
+     "verdict": "killed"
+    },
+    {
+     "detail": "1 failure(s); first: ...and they are TEN fields: two steppers (one each, not thr",
+     "name": "a stepper is three fields, so a page of steppers looks two thirds unfilled",
+     "verdict": "killed"
+    },
+    {
+     "detail": "1 failure(s); first: ...and they are TEN fields: two steppers (one each, not thr",
+     "name": "a chip group is one field per chip",
+     "verdict": "killed"
+    },
+    {
+     "detail": "2 failure(s); first: ...and they are TEN fields: two steppers (one each, not thr",
+     "name": "every choice on the page is the same field, whatever it belongs to",
+     "verdict": "killed"
+    },
+    {
+     "detail": "4 failure(s); first: ...and they are TEN fields: two steppers (one each, not thr",
+     "name": "a control the page removed is folded back in under a key it shares with every other",
+     "verdict": "killed"
+    },
+    {
+     "detail": "3 failure(s); first: six were entered: the site input, the stems stepper through",
+     "name": "a field counts as entered when EVERY member of it was touched",
+     "verdict": "killed"
+    },
+    {
+     "detail": "5 failure(s); first: eighteen controls carry a value here: two steppers of three",
+     "name": "a control the page removed after answering it was never entered",
+     "verdict": "killed"
+    },
+    {
+     "detail": "5 failure(s); first: eighteen controls carry a value here: two steppers of three",
+     "name": "which control a step touched is asked AFTER the step, not before",
+     "verdict": "killed"
+    },
+    {
+     "detail": "5 failure(s); first: eighteen controls carry a value here: two steppers of three",
+     "name": "the entry records nothing it touched",
+     "verdict": "killed"
+    },
+    {
+     "detail": "4 failure(s); first: the two inputs nothing filled are NAMED, the one behind a t",
+     "name": "the un-entered fields are counted but not named",
+     "verdict": "killed"
+    },
+    {
+     "detail": "1 failure(s); first: and so is the stepper the task never touched -- named by th",
+     "name": "a field is named by whichever member sorts first",
+     "verdict": "killed"
+    },
+    {
+     "detail": "2 failure(s); first: lowering a floor with no reason is refused",
+     "name": "a floor may be lowered with no reason given",
+     "verdict": "killed"
+    },
+    {
+     "detail": "1 failure(s); first: and the reason, and what it was lowered FROM, go into the l",
+     "name": "lowering a floor forgets what it was lowered from",
+     "verdict": "killed"
+    },
+    {
+     "detail": "1 failure(s); first: a plain run records the reading and sets no floor: {'at': 1",
+     "name": "a plain run raises the floors, so nothing can ever be below one",
+     "verdict": "killed"
+    },
+    {
+     "detail": "1 failure(s); first: a page that entered fewer fields than its floor makes --che",
+     "name": "a reading below the floor is not one",
+     "verdict": "killed"
+    },
+    {
+     "detail": "1 failure(s); first: ...and --check passes when no page is below its floor: a ga",
+     "name": "--check refuses whatever the reading",
      "verdict": "killed"
     }
    ],
@@ -1137,12 +1257,12 @@
    "survived": 0
   },
   "mutate_report": {
-   "at": 1788560873,
+   "at": 1788654480,
    "equivalent": 0,
    "equivalents": [],
    "inconclusive": 0,
-   "killed": 50,
-   "mutants": 50,
+   "killed": 52,
+   "mutants": 52,
    "rows": [
     {
      "detail": "5 failure(s); first: a .tile and a .stat .st are both figures: the .l/.v pair is",
@@ -1225,7 +1345,7 @@
      "verdict": "killed"
     },
     {
-     "detail": "1 failure(s); first: the snapshot publishes each picker's option labels as an ar",
+     "detail": "2 failure(s); first: the snapshot publishes each picker's option labels as an ar",
      "name": "a picker's options are not published as a pool",
      "verdict": "killed"
     },
@@ -1245,12 +1365,12 @@
      "verdict": "killed"
     },
     {
-     "detail": "1 failure(s); first: a plain input keeps its id",
+     "detail": "2 failure(s); first: a pick aimed at something that is not a picker at all is st",
      "name": "a control carries no id",
      "verdict": "killed"
     },
     {
-     "detail": "3 failure(s); first: a dial option is labelled by its <span>, not by its text ru",
+     "detail": "7 failure(s); first: the strict picker's search box is named by its own mount (#",
      "name": "a control's host is its pane, not its nearest identified ancestor",
      "verdict": "killed"
     },
@@ -1393,17 +1513,27 @@
      "detail": "1 failure(s); first: and a selector that names nothing is refused by COUNT: thes",
      "name": "a stale selector is refused without saying the numbering moved",
      "verdict": "killed"
+    },
+    {
+     "detail": "1 failure(s); first: ...so the NEXT pick still works: a control does not stop be",
+     "name": "a picker that currently shows no option is not a picker",
+     "verdict": "killed"
+    },
+    {
+     "detail": "1 failure(s); first: a pick on a plain text input was accepted",
+     "name": "anything with a search box is a picker, whatever it is inside",
+     "verdict": "killed"
     }
    ],
    "survived": 0
   },
   "mutate_tasks": {
-   "at": 1788576391,
+   "at": 1788652279,
    "equivalent": 0,
    "equivalents": [],
    "inconclusive": 0,
-   "killed": 62,
-   "mutants": 62,
+   "killed": 63,
+   "mutants": 63,
    "rows": [
     {
      "detail": "4 failure(s); first: every operator grades, a reference grades as its value, a m",
@@ -1551,7 +1681,7 @@
      "verdict": "killed"
     },
     {
-     "detail": "1 failure(s); first: each step's result is its bucket: {'r': 'driven', 'd': 'dec",
+     "detail": "2 failure(s); first: each step's result is its bucket: {'r': 'driven', 'd': 'dec",
      "name": "the result buckets are mislabelled: a refusal is driven",
      "verdict": "killed"
     },
@@ -1713,6 +1843,11 @@
     {
      "detail": "1 failure(s); first: ...and the entry says what it was allowed, so the refusal i",
      "name": "the ledger stops saying what a task was allowed to do",
+     "verdict": "killed"
+    },
+    {
+     "detail": "1 failure(s); first: a task whose step reads the REFUSED step's snapshot holds: ",
+     "name": "a refused step leaves the runner looking at the page as it was before",
      "verdict": "killed"
     }
    ],

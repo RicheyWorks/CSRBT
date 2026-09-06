@@ -43,6 +43,7 @@ def ledgers():
         "walk": _load("walk_ledger.json", {"targets": {}}),
         "tasks": _load("task_ledger.json", {"tasks": {}}),
         "contention": _load("contention_ledger.json", {"suites": {}}),
+        "entry": _load("entry_ledger.json", {"pages": {}}),
         "mutants": _load("mutant_ledger.json", {"runners": {}}),
         "ecosystem": _load("ecosystem_ledger.json", {"engines": {}}),
         "routes": _load("routes.json", {"routes": []}),
@@ -77,6 +78,7 @@ RUNNERS = [
     ("mutate_engines", "the engine ledger's ratchet and the engine attestation"),
     ("mutate_contract", "the door itself: the risk ladder, the raise, the replay"),
     ("mutate_contend", "the contention instrument"),
+    ("mutate_entry", "the entry-reach measurement"),
 ]
 
 
@@ -121,6 +123,12 @@ def summary(L):
         # because one of them alone lies: how many readings have never failed,
         # and how many RUNS that rests on -- "0 failed" over three runs is an
         # upper bound, not a promise.
+        # ADR-144: how much of the kit's data its own tasks actually enter.
+        # Pages with nothing to enter (a reference page, a glossary) have no
+        # fields and drop out of both halves on their own.
+        "fields": sum(e.get("fields", 0) for e in (L["entry"].get("pages") or {}).values()),
+        "fields_entered": sum(e.get("entered", 0) for e in (L["entry"].get("pages") or {}).values()),
+        "entry_pages": sum(1 for e in (L["entry"].get("pages") or {}).values() if e.get("fields")),
         "load_readings": len(L["contention"].get("suites") or {}),
         "load_clean": sum(1 for e in (L["contention"].get("suites") or {}).values()
                           if not e.get("failed")),
@@ -196,6 +204,9 @@ def render(L):
          % (S["traces_held"], S["traces"], S["confirmed"])),
         ("%d / %d" % (S["supervised"], S["rung_known"]), "entered supervised",
          "tasks that enter their data with no destructive rung; the rest declare it, with a reason"),
+        ("%d / %d" % (S["fields_entered"], S["fields"]), "fields entered",
+         "of the controls that carry a value across %d page(s), how many any task has ever put "
+         "a value into" % S["entry_pages"]),
         ("%d / %d" % (S["load_clean"], S["load_readings"]), "clean under load",
          "readings taken while other suites of this kit ran beside them: %d run(s), %d failed"
          % (S["load_runs"], S["load_failed"])),

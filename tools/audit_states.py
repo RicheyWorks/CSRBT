@@ -102,8 +102,18 @@ MARK_JS = r"""
   document.querySelectorAll(css).forEach(e => {
     const cls = (e.getAttribute("class") || "").trim().split(/\s+/)
                  .filter(c => c && !STATE.test(c)).sort().join(".");
+    // ...AND WHERE IT IS (ADR-145). For a control with no id and no
+    // distinguishing class -- a dial's options, a chip row's chips -- the
+    // occurrence index WAS the whole identity, counted across the document. So
+    // adding a row anywhere above renumbered everything below it, and a
+    // control measured before the row was added was a different control after:
+    // the collection sheet's stand-age dial came back as never-entered by a
+    // task that had just clicked it. Scoping the count to the nearest
+    // identified ancestor makes an unnamed control stable against page growth
+    // ELSEWHERE, which is the growth that actually happens.
+    const host = (e.parentElement && e.parentElement.closest("[id]") || {}).id || "";
     const key = e.tagName.toLowerCase() + (e.id ? "#" + e.id : "") + (cls ? "." + cls : "")
-              + (e.type ? "[" + e.type + "]" : "");
+              + (e.type ? "[" + e.type + "]" : "") + (e.id ? "" : (host ? "@" + host : ""));
     const n = seen[key] = (seen[key] || 0) + 1;
     e.setAttribute("data-audit", key + "|" + n);
     const b = e.getBoundingClientRect();
@@ -364,10 +374,27 @@ def coverage(pg, looks=3):
     if hasattr(pg, "_audit_exposed"):
         pg._audit_exposed |= late
     exposed = getattr(pg, "_audit_exposed", late)
+    # STAMP, THEN ENUMERATE, WITH NOTHING BETWEEN (ADR-144). UNSTAMPED_JS reads
+    # every control's data-audit, and a control that mounted after the last
+    # MARK_JS has none -- so it came back as `null`, was counted as a control no
+    # state exposed, and was NAMED as "None". That is what audit_targets'
+    # never-exposed fault was, three runs out of six: not a stamped control that
+    # never had a box, but an unstamped one that arrived in the gap between two
+    # evaluates. Stamping immediately before enumerating closes the gap; a null
+    # that still appears is reported as what it is rather than as a name nobody
+    # can look up.
+    late |= set(pg.evaluate(MARK_JS, CONTROLS))
+    if hasattr(pg, "_audit_exposed"):
+        pg._audit_exposed |= late
+        exposed = pg._audit_exposed
     all_ids = pg.evaluate(UNSTAMPED_JS, CONTROLS)
-    never = [i for i in all_ids if i not in exposed]
-    return {"exist": len(all_ids), "exposed": len(all_ids) - len(never),
-            "never": pg.evaluate(NAME_JS, never),
+    unstamped = [i for i in all_ids if not i]
+    never = [i for i in all_ids if i and i not in exposed]
+    return {"exist": len(all_ids), "exposed": len(all_ids) - len(never) - len(unstamped),
+            "never": pg.evaluate(NAME_JS, never)
+                     + (["%d control(s) mounted after the last stamp and could not be measured"
+                         % len(unstamped)] if unstamped else []),
+            "unstamped": len(unstamped),
             # how many controls each look was the first to see. [n, 0] is a
             # settled page; anything after the first zero means a look that
             # found something a previous look had missed, which is contention
@@ -426,9 +453,25 @@ def task_for(name, tasks_dir=None):
     return next((t for t in hits if str(t.get("id", "")).endswith("-science")), hits[0])
 
 
+# WHICH CONTROL A STEP TOUCHED (ADR-144). A step names a selector -- the
+# plugin's own data-h, which is the moment's -- and the durable identity of a
+# control in this file is its data-audit stamp. Asked immediately after the
+# step, with the page stamped first, the two can be tied together; asked later,
+# the widget may have rebuilt and the answer would be about a different element.
+TOUCHED_JS = r"""
+(sel) => {
+  const e = document.querySelector('[data-h="' + sel + '"]');
+  if (!e) return null;
+  return {stamp: e.getAttribute("data-audit"), kind: String(sel).split(":")[0]};
+}
+"""
+
+
 def enter(pg, name, task=None, tasks_dir=None):
     """Replay the page's task entry steps on this page. Returns
-    {"task", "driven", "refused", "steps"} or None when the page has no task.
+    {"task", "driven", "refused", "steps", "touched"} or None when the page has
+    no task. `touched` is {data-audit stamp: kind} for every control a step
+    successfully acted on (ADR-144).
 
     Never raises: a page whose entry cannot be replayed is a page audited at
     rest, reported as such -- an audit that dies because a task moved is worse
@@ -451,6 +494,7 @@ def enter(pg, name, task=None, tasks_dir=None):
         return {"task": task["id"], "driven": 0, "refused": 0, "steps": 0,
                 "error": "the page plugin would not load: %s" % exc}
     done, driven, refused, ran = {}, 0, 0, 0
+    touched = {}
     # the snapshot @control: names are resolved against -- the same one the task
     # runner's first "observe" step gets
     done["_snap"] = {"ok": True, "snapshot": plug.observe(sensitive=True), "output": {}}
@@ -461,6 +505,18 @@ def enter(pg, name, task=None, tasks_dir=None):
         ran += 1
         try:
             args = HT.resolve(st.get("arguments") or {}, done, "audit/%s" % name)
+            # BEFORE, not after (ADR-144). A character key removes the option it
+            # has just answered, and the collection sheet rebuilds a whole
+            # region on change -- so asking which control a step touched once
+            # the step has run finds nothing at all, and the key's eight
+            # answered options recorded as zero.
+            before = None
+            if isinstance(args.get("selector"), str):
+                try:
+                    pg.evaluate(MARK_JS, CONTROLS)
+                    before = pg.evaluate(TOUCHED_JS, args["selector"])
+                except Exception:
+                    before = None
             ok, msg, out = plug.execute(action, args)
         except Exception as exc:
             refused += 1
@@ -468,6 +524,8 @@ def enter(pg, name, task=None, tasks_dir=None):
             continue
         driven += 1 if ok else 0
         refused += 0 if ok else 1
+        if ok and before and before.get("stamp"):
+            touched[before["stamp"]] = before.get("kind")
         done[st["id"]] = {"ok": bool(ok), "output": out or {}, "message": msg,
                           "snapshot": plug.observe(sensitive=True)}
     # THE POINTER, AGAIN (ADR-130's lesson, one layer up).
@@ -485,7 +543,8 @@ def enter(pg, name, task=None, tasks_dir=None):
         pg.wait_for_timeout(60)
     except Exception:
         pass
-    return {"task": task["id"], "driven": driven, "refused": refused, "steps": ran}
+    return {"task": task["id"], "driven": driven, "refused": refused, "steps": ran,
+            "touched": touched}
 
 
 def entry_fault(ent):
