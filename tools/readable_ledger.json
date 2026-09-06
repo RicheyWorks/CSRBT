@@ -2,35 +2,35 @@
  "_comment": "Written by tools/audit_readable.py. Per page: the elements the page writes a figure into that read-report cannot see, and the ceiling that count may not rise above. Furniture is declared with a reason (ADR-146).",
  "pages": {
   "breeding-bench.html": {
-   "at": 1788704179,
+   "at": 1788731911,
    "ceiling": 0,
    "task": "page-breeding-bench-science",
    "unreadable": [],
    "written": 10
   },
   "cell-bench.html": {
-   "at": 1788704179,
+   "at": 1788731911,
    "ceiling": 0,
    "task": "page-cell-bench-science",
    "unreadable": [],
    "written": 12
   },
   "collection-sheet.html": {
-   "at": 1788704179,
+   "at": 1788731911,
    "ceiling": 0,
    "task": "page-collection-sheet-science",
    "unreadable": [],
    "written": 11
   },
   "cp-bench.html": {
-   "at": 1788704179,
+   "at": 1788731911,
    "ceiling": 0,
    "task": "page-cp-bench-science",
    "unreadable": [],
    "written": 9
   },
   "cp-characters.html": {
-   "at": 1788704179,
+   "at": 1788731911,
    "ceiling": 1,
    "task": "page-cp-characters-key",
    "unreadable": [
@@ -39,28 +39,28 @@
    "written": 2
   },
   "deployment-log.html": {
-   "at": 1788704179,
+   "at": 1788731911,
    "ceiling": 0,
    "task": "page-deployment-log-science",
    "unreadable": [],
    "written": 17
   },
   "eco-protocol-library.html": {
-   "at": 1788704179,
+   "at": 1788731911,
    "ceiling": 0,
    "task": "page-eco-protocol-library-reference",
    "unreadable": [],
    "written": 1
   },
   "ecology-lab.html": {
-   "at": 1788704179,
+   "at": 1788731911,
    "ceiling": 0,
    "task": "page-ecology-lab-science",
    "unreadable": [],
    "written": 27
   },
   "ethogram.html": {
-   "at": 1788704179,
+   "at": 1788731911,
    "ceiling": 1,
    "furniture": {
     "recHint": "Instruction text -- 'tap a state to start it' -- that changes with the recorder's mode. It repeats what the controls already say and carries no reading."
@@ -72,21 +72,21 @@
    "written": 11
   },
   "experiment-guide.html": {
-   "at": 1788704179,
+   "at": 1788731911,
    "ceiling": 0,
    "task": "page-experiment-guide-design",
    "unreadable": [],
    "written": 6
   },
   "farm-scout.html": {
-   "at": 1788704179,
+   "at": 1788731911,
    "ceiling": 0,
    "task": "page-farm-scout-science",
    "unreadable": [],
    "written": 4
   },
   "field-notebook.html": {
-   "at": 1788704179,
+   "at": 1788731911,
    "ceiling": 3,
    "task": "page-field-notebook-science",
    "unreadable": [
@@ -97,7 +97,7 @@
    "written": 8
   },
   "field-season.html": {
-   "at": 1788704179,
+   "at": 1788731911,
    "ceiling": 2,
    "task": "page-field-season-replay",
    "unreadable": [
@@ -107,7 +107,7 @@
    "written": 7
   },
   "food-web.html": {
-   "at": 1788704179,
+   "at": 1788731911,
    "ceiling": 0,
    "furniture": {
     "arrow": "An SVG <marker> definition. It is drawing, not a figure, and the chart channel reads the svg that uses it."
@@ -117,14 +117,14 @@
    "written": 4
   },
   "fungal-characters.html": {
-   "at": 1788704179,
+   "at": 1788731911,
    "ceiling": 0,
    "task": "page-fungal-characters-key",
    "unreadable": [],
    "written": 1
   },
   "greenhouse.html": {
-   "at": 1788704179,
+   "at": 1788731911,
    "ceiling": 1,
    "task": "page-greenhouse-science",
    "unreadable": [
@@ -133,21 +133,21 @@
    "written": 10
   },
   "micro-bench.html": {
-   "at": 1788704179,
+   "at": 1788731911,
    "ceiling": 0,
    "task": "page-micro-bench-science",
    "unreadable": [],
    "written": 6
   },
   "ordination.html": {
-   "at": 1788704179,
+   "at": 1788731911,
    "ceiling": 0,
    "task": "page-ordination-science",
    "unreadable": [],
    "written": 13
   },
   "pheno-tracker.html": {
-   "at": 1788704179,
+   "at": 1788731911,
    "ceiling": 1,
    "task": "page-pheno-tracker-science",
    "unreadable": [
@@ -156,56 +156,56 @@
    "written": 6
   },
   "plant-characters.html": {
-   "at": 1788704179,
+   "at": 1788731911,
    "ceiling": 0,
    "task": "page-plant-characters-key",
    "unreadable": [],
    "written": 1
   },
   "releve.html": {
-   "at": 1788704179,
+   "at": 1788731911,
    "ceiling": 0,
    "task": "page-releve-science",
    "unreadable": [],
-   "written": 15
+   "written": 16
   },
   "selection-log.html": {
-   "at": 1788704179,
+   "at": 1788731911,
    "ceiling": 0,
    "task": "page-selection-log-science",
    "unreadable": [],
    "written": 9
   },
   "soil-bench.html": {
-   "at": 1788704179,
+   "at": 1788731911,
    "ceiling": 0,
    "task": "page-soil-bench-science",
    "unreadable": [],
    "written": 8
   },
   "soil-recipes.html": {
-   "at": 1788704179,
+   "at": 1788731911,
    "ceiling": 0,
    "task": "page-soil-recipes-scaling",
    "unreadable": [],
    "written": 3
   },
   "stand-sheet.html": {
-   "at": 1788704179,
+   "at": 1788731911,
    "ceiling": 0,
    "task": "page-stand-sheet-science",
    "unreadable": [],
    "written": 15
   },
   "survey-design.html": {
-   "at": 1788704179,
+   "at": 1788731911,
    "ceiling": 0,
    "task": "page-survey-design-science",
    "unreadable": [],
    "written": 13
   },
   "tree-proofs.html": {
-   "at": 1788704179,
+   "at": 1788731911,
    "ceiling": 6,
    "task": "page-tree-proofs-science",
    "unreadable": [
@@ -219,7 +219,7 @@
    "written": 14
   },
   "tree-visualizer.html": {
-   "at": 1788704179,
+   "at": 1788731911,
    "ceiling": 8,
    "task": "page-tree-visualizer-science",
    "unreadable": [

@@ -745,10 +745,15 @@
    "by": "adr148",
    "sha": "0beb2f4927e1060273f4dda72d4c65e58d6324c0636e7a60a31f9cb55e62eea0"
   },
+  "docs/ADR-149-the-releve-recorded-whole-2026-09-06.md": {
+   "at": 1788732841,
+   "by": "adr149",
+   "sha": "a42bee45855f5658d2347382c08f45b2e86c1ef1a4a876b6600bfa432677a330"
+  },
   "docs/AI_HARNESS.md": {
-   "at": 1788705307,
-   "by": "adr148",
-   "sha": "9506dd5647ad3ac2951274eaa081d9c5214cd352a9daf2172bbeb18beb64a685"
+   "at": 1788732841,
+   "by": "adr149",
+   "sha": "a40c785f3c7d746751cda84bfb7a87d3843f6483dff1f36e4a3d258c6a3a6e17"
   },
   "docs/AUDIT-2026-07-14-capability-coverage.md": {
    "at": 1788676922,
@@ -1430,6 +1435,11 @@
    "by": "adr148",
    "sha": "e6700174562014b5ee3a840cded549bf1518915a2cf992af9c4b12adeb7a0bf7"
   },
+  "docs/CHANGELOG-2026-09-06-adr149-the-releve-recorded-whole.md": {
+   "at": 1788732841,
+   "by": "adr149",
+   "sha": "4c04fe2c7dba2aabbb6d15ff0f7ee1c20874b80fc208c4834d94fac9b9397b40"
+  },
   "docs/DESIGN-adaptive-engine.md": {
    "at": 1788676923,
    "by": "adr146b",
@@ -2095,10 +2105,15 @@
    "by": "adr148",
    "sha": "90d474e3da5ee6d015938cfe5ee3b8ed19f93080dd42a6e89d6ba00c8081c931"
   },
+  "tools/delivery/adr149.json": {
+   "at": 1788732841,
+   "by": "adr149",
+   "sha": "6497cbf97e8fc1585006a3ba99e6c80e6a3c74981223afd50e26c3d19aebdfca"
+  },
   "tools/delivery_ledger.json": {
-   "at": 1788705307,
-   "by": "adr148",
-   "sha": "3c6b036f367957a6a8601ffd43d5da6d7eb502ede454fb1c8c0d51c6006460b5"
+   "at": 1788732841,
+   "by": "adr149",
+   "sha": "a6f0b21fd0a26214df63a748b6e7d800699b0392010a1b73cf51898648f07428"
   },
   "tools/dwc.py": {
    "at": 1788676926,
@@ -2141,9 +2156,9 @@
    "sha": "01919e137bdbf702ebc887de41aa026b721916da9d3761ce673812d54a22471f"
   },
   "tools/entry_ledger.json": {
-   "at": 1788705307,
-   "by": "adr148",
-   "sha": "6e4d18f6cad4e425ec323265ade2439bed36f1823c5978d655efebb17738b4b8"
+   "at": 1788732841,
+   "by": "adr149",
+   "sha": "fc5807dc93fa5dad6b107d1fe68d74b8fa0c4cc891b5432442b0e3193ec6f13a"
   },
   "tools/entry_reach.py": {
    "at": 1788676926,
@@ -2196,9 +2211,9 @@
    "sha": "4bb3b1a07b00f7a3035cc9560c6d920a06e2e6c0688a90d16a7935165fa8110e"
   },
   "tools/harness_board.html": {
-   "at": 1788705307,
-   "by": "adr148",
-   "sha": "de6231b59295ebf0f002f8cfc58e963fe5fb70093325912d08c81951c2ad5aa5"
+   "at": 1788732841,
+   "by": "adr149",
+   "sha": "68fc8c3cadada3f92e1aecf37c5ba81db62f8f7e70c767143043d590fe3c1d56"
   },
   "tools/harness_board.py": {
    "at": 1788683836,
@@ -2281,8 +2296,8 @@
    "sha": "f48304b6ba757326d34ace4d678db5c671db42e5fd99bb369a0d311b292c79a3"
   },
   "tools/mutant_ledger.json": {
-   "at": 1788705307,
-   "by": "adr148",
+   "at": 1788732841,
+   "by": "adr149",
    "sha": "3ddb7e6ea55a9c5c3d5ea9e5d74c36175f5e1fc3bdc5ebc52974e000ff73e183"
   },
   "tools/mutant_ledger.py": {
@@ -2421,9 +2436,9 @@
    "sha": "15022dcd97ee97f72ec5f907d0cdfef3ee36da9588f9de47e110519ff9f781e8"
   },
   "tools/published.json": {
-   "at": 1788705307,
-   "by": "adr148",
-   "sha": "c309a6991406f4a8023009fedd21ebc1534a30bc85e0caa512f25accbcd433d3"
+   "at": 1788732841,
+   "by": "adr149",
+   "sha": "452cf8c6ec02c1bb815ffac1841df625f8600006d2c07870beb29217191136ca"
   },
   "tools/reach.py": {
    "at": 1788676928,
@@ -2431,9 +2446,9 @@
    "sha": "b176e4e078bd39b22f5056223c6d1949503ff69c2f029a02d3513a7607db39cb"
   },
   "tools/readable_ledger.json": {
-   "at": 1788705307,
-   "by": "adr148",
-   "sha": "91b7a650f89d747c592bc0372f2c8ef7dac290c5a2a4b0c798223f2e72874f64"
+   "at": 1788732841,
+   "by": "adr149",
+   "sha": "676a25119a61accf5602246c809fc6f9b3060e9d9777ba4ed54c01e4064943cb"
   },
   "tools/routes.json": {
    "at": 1788676928,
@@ -2466,9 +2481,9 @@
    "sha": "0a2241a252fa68e80b813e601b7bd67cd8ba5c00b8ad07acc98dcd93a42b0268"
   },
   "tools/task_ledger.json": {
-   "at": 1788705307,
-   "by": "adr148",
-   "sha": "f7c9cb2390f18e93fcda757e603998dd7add4e3632739a5f0a05093f2d8af785"
+   "at": 1788732841,
+   "by": "adr149",
+   "sha": "60c13eb0568a56f60a1152c6ae9789875f31d535304e6d4a7f09c751e8f26f55"
   },
   "tools/tasks/fixture-buckets.json": {
    "at": 1788676928,
@@ -2676,9 +2691,9 @@
    "sha": "895e873de60e51cbffdea361fd459da85770dd04cbe1a47c9f8f5b8835b5b609"
   },
   "tools/tasks/page-releve-science.json": {
-   "at": 1788676928,
-   "by": "adr146b",
-   "sha": "9010840ea622276a0ce84576d11bca81ffe3a64b3b5d8d61f0c088c592246b76"
+   "at": 1788732841,
+   "by": "adr149",
+   "sha": "3ccf3e093382327bad645a4d7b2c667af556aa4598662b4bbdf22903e824a723"
   },
   "tools/tasks/page-selection-log-science.json": {
    "at": 1788676928,
@@ -2756,9 +2771,9 @@
    "sha": "15a9ad96a69cde9458d5f7fca51be947e5bebad787cc069e1bcc64bf7800b592"
   },
   "tools/verify/counts.json": {
-   "at": 1788705307,
-   "by": "adr148",
-   "sha": "c616ef148e89c07967eb8c6fb090eafc71f0824283bfffbd2cccf0327852b9ab"
+   "at": 1788732841,
+   "by": "adr149",
+   "sha": "b9e3a8f30d07e14280c2194fbb1c03e0dc7a3327e31780d82286815c361328ae"
   },
   "tools/verify/run_all.py": {
    "at": 1788683836,

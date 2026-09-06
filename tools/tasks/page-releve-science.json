@@ -2,7 +2,19 @@
  "id": "page-releve-science",
  "target": "page",
  "page": "releve.html",
- "goal": "On the relevé, record three taxa in the herb stratum by cover class -- big sagebrush 4 (midpoint 62.5%), bluebunch wheatgrass 2 (15%), cheatgrass + (0.5%) -- and find the analysis right: 3 taxa in 2 families, Shannon H′ 0.53 and evenness J′ 0.48 on the cover shares (62.5 : 15 : 0.5 of 78), effective taxa 1.7, one non-native, the dominant at 80%; an add with no cover class adds no row; the LPI plan for a 25 m transect at 0.5 m is 50 points (±5.7) and four transects 200 (±2.8); three taxa scored FAC give a prevalence index of 3.00.",
+ "goal": "Record a sagebrush-steppe releve whole and hold what the sheet computes. Three taxa by Braun-Blanquet class -- big sagebrush 4 (midpoint 62.5%), bluebunch wheatgrass 2 (15%), cheatgrass + (0.5%) -- read 3 taxa in 2 families, Shannon H' 0.53, evenness J' 0.48, 1.7 effective taxa, one non-native and the dominant at 80% of recorded cover, with 80% of that cover shrub; a fourth taxon at class 1 moves them to 0.67, 0.48, 1.9 and 77%, and an add with no cover class adds no row. Floristic Quality Assessment over two of three natives is mean C 4.50, FQI 6.4, adjusted FQI 31.8 and says so is partial; over three of three it is 4.33, 7.5 and 37.5. Scored UPL/FACU the Corps prevalence index is 4.77, above the 3.0 threshold, and the sheet says a determination still needs hydric soil and hydrology. A 50 m transect read at 1 m in duplicate plans 100 points and at 0.5 m plans 200; five top-canopy hits and four bare readings on the 100-point denominator are 5% foliar cover and 4% bare with 91 points still to read. A 40.5853/-111.6383 fix with 30 m of GPS on a 100 m2 plot is 43 m of coordinate uncertainty -- 7 m of it the plot itself -- and 5402 m with the datum unknown. A pack missing its required fields is rejected whole.",
+ "policy": {
+  "allow": [
+   "SENSITIVE_READ",
+   "DRAFT",
+   "MUTATE",
+   "DESTRUCTIVE"
+  ],
+  "needs": [
+   "undo"
+  ],
+  "why": "the goal includes undoing the last line-point hit: lUndo is 'Undo'"
+ },
  "steps": [
   {
    "id": "look",
@@ -10,6 +22,218 @@
    "expect": {
     "ok": true,
     "snapshot.page": "releve.html"
+   }
+  },
+  {
+   "id": "plot",
+   "action": "show-pane",
+   "arguments": {
+    "pane": "p-plot"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "blank-site",
+   "action": "read-report",
+   "expect": {
+    "ok": true,
+    "output.boxes.ecoOut": {
+     "op": "excludes",
+     "value": "# site:"
+    },
+    "output.boxes.anFqa": "",
+    "output.boxes.anWet": "",
+    "output.boxes.anStats": {
+     "op": "contains",
+     "value": "Record some cover"
+    }
+   }
+  },
+  {
+   "id": "s-plot",
+   "action": "set-text",
+   "arguments": {
+    "selector": "@control:sPlot",
+    "value": "WAS-12"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "s-obs",
+   "action": "set-text",
+   "arguments": {
+    "selector": "@control:sObs",
+    "value": "R. Wright"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "s-date",
+   "action": "set-text",
+   "arguments": {
+    "selector": "@control:sDate",
+    "value": "2026-09-06"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "s-lat",
+   "action": "set-text",
+   "arguments": {
+    "selector": "@control:sLat",
+    "value": "40.5853"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "s-lon",
+   "action": "set-text",
+   "arguments": {
+    "selector": "@control:sLon",
+    "value": "-111.6383"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "s-comm",
+   "action": "set-text",
+   "arguments": {
+    "selector": "@control:sComm",
+    "value": "Artemisia tridentata / Pseudoroegneria spicata"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "s-soil",
+   "action": "set-text",
+   "arguments": {
+    "selector": "@control:sSoil",
+    "value": "gravelly loam over limestone colluvium"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "elev",
+   "action": "set-text",
+   "arguments": {
+    "selector": "@control:geoEntry/elevation",
+    "value": "1840"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "size",
+   "action": "set-text",
+   "arguments": {
+    "selector": "@control:geoEntry/plot size",
+    "value": "100"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "asp",
+   "action": "activate",
+   "arguments": {
+    "selector": "@control:physEntry/SW"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "slope",
+   "action": "set-text",
+   "arguments": {
+    "selector": "@control:physEntry/slope",
+    "value": "18"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "moist",
+   "action": "activate",
+   "arguments": {
+    "selector": "@control:physEntry/xeric"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "bare",
+   "action": "set-slider",
+   "arguments": {
+    "selector": "@control:physEntry/bare ground",
+    "value": 25
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "litter",
+   "action": "set-slider",
+   "arguments": {
+    "selector": "@control:physEntry/litter",
+    "value": 35
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "notes",
+   "action": "set-text",
+   "arguments": {
+    "selector": "@control:sNotes",
+    "value": "Cattle trailing along the fence line; no recent fire."
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "site-line",
+   "action": "read-report",
+   "expect": {
+    "output.boxes.ecoOut": {
+     "op": "contains",
+     "value": "# Relevé — WAS-12"
+    },
+    "output.boxes.ecoOut#2": {
+     "op": "contains",
+     "value": "# recorder R. Wright — 2026-09-06 — 40.5853, -111.6383 — 1840 m"
+    },
+    "output.boxes.ecoOut#3": {
+     "op": "contains",
+     "value": "# method: Braun-Blanquet cover scale, class midpoints used for all calculations; plot 100 m²"
+    },
+    "output.boxes.ecoOut#4": {
+     "op": "contains",
+     "value": "# site: aspect 225° · slope 18% · xeric · gravelly loam over limestone colluvium · bare 25% · litter 35%"
+    }
    }
   },
   {
@@ -38,6 +262,26 @@
    }
   },
   {
+   "id": "st1",
+   "action": "activate",
+   "arguments": {
+    "selector": "@control:strEntry/S1"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "ph1",
+   "action": "activate",
+   "arguments": {
+    "selector": "@control:phenEntry/fruiting"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
    "id": "c1",
    "action": "activate",
    "arguments": {
@@ -63,6 +307,20 @@
    "arguments": {
     "selector": "@control:recEntry",
     "value": "bluebunch wheatgrass"
+   },
+   "expect": {
+    "ok": true,
+    "output.chose": {
+     "op": "contains",
+     "value": "bluebunch"
+    }
+   }
+  },
+  {
+   "id": "st2",
+   "action": "activate",
+   "arguments": {
+    "selector": "@control:strEntry/H"
    },
    "expect": {
     "ok": true
@@ -96,7 +354,11 @@
     "value": "cheatgrass"
    },
    "expect": {
-    "ok": true
+    "ok": true,
+    "output.chose": {
+     "op": "contains",
+     "value": "cheatgrass"
+    }
    }
   },
   {
@@ -120,11 +382,119 @@
    }
   },
   {
-   "id": "listed",
+   "id": "an",
+   "action": "show-pane",
+   "arguments": {
+    "pane": "p-an"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "three",
    "action": "read-report",
    "expect": {
+    "output.by.anStats.taxa": "3",
+    "output.by.anStats.families": "2",
+    "output.by.anStats.Shannon H′": "0.53",
+    "output.by.anStats.evenness J′": "0.48",
+    "output.by.anStats.effective taxa": "1.7",
+    "output.by.anStats.non-native taxa": "1",
+    "output.boxes.anStats": {
+     "op": "contains",
+     "value": "carries the most cover (80% of the recorded total)"
+    }
+   }
+  },
+  {
+   "id": "spectrum",
+   "action": "read-report",
+   "expect": {
+    "output.boxes.anFunc": {
+     "op": "contains",
+     "value": "80% of cover is shrub"
+    }
+   }
+  },
+  {
+   "id": "rec2",
+   "action": "show-pane",
+   "arguments": {
+    "pane": "p-rec"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "s4",
+   "action": "pick",
+   "arguments": {
+    "selector": "@control:recEntry",
+    "value": "Sandberg bluegrass"
+   },
+   "expect": {
     "ok": true,
-    "output.rows.#rList": 3
+    "output.chose": {
+     "op": "contains",
+     "value": "Sandberg"
+    }
+   }
+  },
+  {
+   "id": "c4",
+   "action": "activate",
+   "arguments": {
+    "selector": "@control:rCov/1"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "a4",
+   "action": "activate",
+   "arguments": {
+    "selector": "@control:rAdd"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "an3",
+   "action": "show-pane",
+   "arguments": {
+    "pane": "p-an"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "four",
+   "action": "read-report",
+   "expect": {
+    "output.by.anStats.taxa": "4",
+    "output.by.anStats.families": "2",
+    "output.by.anStats.Shannon H′": "0.67",
+    "output.by.anStats.evenness J′": "0.48",
+    "output.by.anStats.effective taxa": "1.9",
+    "output.boxes.anStats": {
+     "op": "contains",
+     "value": "carries the most cover (77% of the recorded total)"
+    }
+   }
+  },
+  {
+   "id": "rec3",
+   "action": "show-pane",
+   "arguments": {
+    "pane": "p-rec"
+   },
+   "expect": {
+    "ok": true
    }
   },
   {
@@ -132,7 +502,7 @@
    "action": "set-text",
    "arguments": {
     "selector": "@control:rFree",
-    "value": "test plant"
+    "value": "Poa secunda ssp. juncifolia"
    },
    "expect": {
     "ok": true
@@ -149,14 +519,7 @@
    }
   },
   {
-   "id": "still3",
-   "action": "read-report",
-   "expect": {
-    "output.rows.#rList": 3
-   }
-  },
-  {
-   "id": "an",
+   "id": "an4",
    "action": "show-pane",
    "arguments": {
     "pane": "p-an"
@@ -166,29 +529,132 @@
    }
   },
   {
-   "id": "report",
+   "id": "still4",
    "action": "read-report",
    "expect": {
-    "ok": true,
-    "output.boxes.anStats": {
-     "op": "contains",
-     "value": "80%"
-    },
-    "output.by.anStats.taxa": "3",
-    "output.by.anStats.families": "2",
-    "output.by.anStats.Shannon H′": "0.53",
-    "output.by.anStats.evenness J′": "0.48",
-    "output.by.anStats.effective taxa": "1.7",
-    "output.by.anStats.non-native taxa": "1"
+    "output.by.anStats.taxa": "4"
    }
   },
   {
-   "id": "dominated",
+   "id": "cv1",
+   "action": "set-text",
+   "arguments": {
+    "selector": "@control:cEditor/C-value for big sagebrush",
+    "value": "4"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "cv2",
+   "action": "set-text",
+   "arguments": {
+    "selector": "@control:cEditor/C-value for bluebunch wheatgrass",
+    "value": "5"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "fqa-partial",
    "action": "read-report",
    "expect": {
-    "output.boxes.anStats": {
+    "output.by.anFqa.mean C (native)": "4.50",
+    "output.by.anFqa.FQI": "6.4",
+    "output.by.anFqa.adjusted FQI": "31.8",
+    "output.by.anFqa.natives scored": "2/3",
+    "output.by.anFqa.non-native taxa": "25%",
+    "output.boxes.anFqa": {
      "op": "contains",
-     "value": "strongly dominated"
+     "value": "Only 2 of 3 natives have a C-value, so this is a partial score"
+    }
+   }
+  },
+  {
+   "id": "cv3",
+   "action": "set-text",
+   "arguments": {
+    "selector": "@control:cEditor/C-value for Sandberg bluegrass",
+    "value": "4"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "fqa-full",
+   "action": "read-report",
+   "expect": {
+    "output.by.anFqa.mean C (native)": "4.33",
+    "output.by.anFqa.FQI": "7.5",
+    "output.by.anFqa.adjusted FQI": "37.5",
+    "output.by.anFqa.natives scored": "3/3",
+    "output.boxes.anFqa": {
+     "op": "contains",
+     "value": "Mean C in the 3.5–4.5 band"
+    },
+    "output.boxes.anFqa#2": {
+     "op": "excludes",
+     "value": "partial score"
+    }
+   }
+  },
+  {
+   "id": "w0",
+   "action": "activate",
+   "arguments": {
+    "selector": "@control:wEditor/UPL#0"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "w1",
+   "action": "activate",
+   "arguments": {
+    "selector": "@control:wEditor/FACU#1"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "w2",
+   "action": "activate",
+   "arguments": {
+    "selector": "@control:wEditor/FACU#2"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "w3",
+   "action": "activate",
+   "arguments": {
+    "selector": "@control:wEditor/FACU#3"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "upland",
+   "action": "read-report",
+   "expect": {
+    "output.by.anWet.prevalence index": "4.77",
+    "output.by.anWet.taxa scored": "4/4",
+    "output.by.anWet.vs threshold": "> 3.0",
+    "output.boxes.anWet": {
+     "op": "contains",
+     "value": "above 3.0, so the vegetation does not by itself indicate a wetland"
+    },
+    "output.boxes.anWet#2": {
+     "op": "contains",
+     "value": "This is one of three criteria"
     }
    }
   },
@@ -203,107 +669,553 @@
    }
   },
   {
-   "id": "plan1",
-   "action": "read-report",
-   "expect": {
-    "output.boxes.lPlan": {
-     "op": "contains",
-     "value": "50 points"
-    }
-   }
-  },
-  {
-   "id": "plan1b",
-   "action": "read-report",
-   "expect": {
-    "output.boxes.lPlan": {
-     "op": "contains",
-     "value": "±5.7"
-    }
-   }
-  },
-  {
-   "id": "four",
+   "id": "len",
    "action": "set-text",
    "arguments": {
-    "selector": "@control:transects",
-    "value": "4"
+    "selector": "@control:lpiEntry/transect length",
+    "value": "50"
    },
    "expect": {
     "ok": true
    }
   },
   {
-   "id": "plan4",
+   "id": "int",
+   "action": "set-text",
+   "arguments": {
+    "selector": "@control:lpiEntry/interval",
+    "value": "1"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "num",
+   "action": "set-text",
+   "arguments": {
+    "selector": "@control:lpiEntry/transects",
+    "value": "2"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "plan",
    "action": "read-report",
    "expect": {
     "output.boxes.lPlan": {
      "op": "contains",
-     "value": "200"
+     "value": "100"
     }
    }
   },
   {
-   "id": "plan4b",
+   "id": "h1",
+   "action": "pick",
+   "arguments": {
+    "selector": "@control:lhitEntry",
+    "value": "big sagebrush"
+   },
+   "expect": {
+    "ok": true,
+    "output.chose": {
+     "op": "contains",
+     "value": "big sagebrush"
+    }
+   }
+  },
+  {
+   "id": "h1a",
+   "action": "activate",
+   "arguments": {
+    "selector": "@control:lhitEntry/top canopy"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "h1add",
+   "action": "activate",
+   "arguments": {
+    "selector": "@control:lAdd"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "h1b",
+   "action": "activate",
+   "arguments": {
+    "selector": "@control:lAdd"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "h1c",
+   "action": "activate",
+   "arguments": {
+    "selector": "@control:lAdd"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "h2",
+   "action": "pick",
+   "arguments": {
+    "selector": "@control:lhitEntry",
+    "value": "bluebunch wheatgrass"
+   },
+   "expect": {
+    "ok": true,
+    "output.chose": {
+     "op": "contains",
+     "value": "bluebunch"
+    }
+   }
+  },
+  {
+   "id": "h2add",
+   "action": "activate",
+   "arguments": {
+    "selector": "@control:lAdd"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "h2b",
+   "action": "activate",
+   "arguments": {
+    "selector": "@control:lAdd"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "miss1",
+   "action": "activate",
+   "arguments": {
+    "selector": "@control:lMiss"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "miss2",
+   "action": "activate",
+   "arguments": {
+    "selector": "@control:lMiss"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "miss3",
+   "action": "activate",
+   "arguments": {
+    "selector": "@control:lMiss"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "miss4",
+   "action": "activate",
+   "arguments": {
+    "selector": "@control:lMiss"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "cover",
    "action": "read-report",
    "expect": {
-    "output.boxes.lPlan": {
+    "output.by.lStats.hits recorded": "9",
+    "output.by.lStats.points planned": "100",
+    "output.by.lStats.total foliar cover": "5%",
+    "output.by.lStats.bare ground": "4%",
+    "output.boxes.lStats": {
      "op": "contains",
-     "value": "±2.8"
+     "value": "91 points still to read"
     }
    }
   },
   {
-   "id": "an2",
+   "id": "int2",
+   "action": "set-text",
+   "arguments": {
+    "selector": "@control:lpiEntry/interval",
+    "value": "0.5"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "plan2",
+   "action": "read-report",
+   "expect": {
+    "output.by.lStats.points planned": "200"
+   }
+  },
+  {
+   "id": "int3",
+   "action": "set-text",
+   "arguments": {
+    "selector": "@control:lpiEntry/interval",
+    "value": "1"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "undo",
+   "action": "activate",
+   "arguments": {
+    "selector": "@control:lUndo"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "undone",
+   "action": "read-report",
+   "expect": {
+    "output.by.lStats.hits recorded": "8"
+   }
+  },
+  {
+   "id": "vou",
    "action": "show-pane",
    "arguments": {
-    "pane": "p-an"
+    "pane": "p-vou"
    },
    "expect": {
     "ok": true
    }
   },
   {
-   "id": "w0",
+   "id": "v1",
+   "action": "pick",
+   "arguments": {
+    "selector": "@control:vouEntry",
+    "value": "big sagebrush"
+   },
+   "expect": {
+    "ok": true,
+    "output.chose": {
+     "op": "contains",
+     "value": "big sagebrush"
+    }
+   }
+  },
+  {
+   "id": "vdup",
+   "action": "set-text",
+   "arguments": {
+    "selector": "@control:vouEntry/duplicates",
+    "value": "3"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "vnum",
+   "action": "set-text",
+   "arguments": {
+    "selector": "@control:vNum",
+    "value": "RJW-2026-014"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "vphen",
    "action": "activate",
    "arguments": {
-    "selector": "@control:wEditor/FAC#0"
+    "selector": "@control:vou2Entry/in fruit"
    },
    "expect": {
     "ok": true
    }
   },
   {
-   "id": "w1",
+   "id": "vphen2",
    "action": "activate",
    "arguments": {
-    "selector": "@control:wEditor/FAC#1"
+    "selector": "@control:vou2Entry/dispersing"
    },
    "expect": {
     "ok": true
    }
   },
   {
-   "id": "w2",
+   "id": "vab",
    "action": "activate",
    "arguments": {
-    "selector": "@control:wEditor/FAC#2"
+    "selector": "@control:vou2Entry/frequent"
    },
    "expect": {
     "ok": true
    }
   },
   {
-   "id": "wet",
+   "id": "vnote",
+   "action": "set-text",
+   "arguments": {
+    "selector": "@control:vNote",
+    "value": "Silvery pubescence, three-toothed leaves, strong camphor scent."
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "vadd",
+   "action": "activate",
+   "arguments": {
+    "selector": "@control:vAdd"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "vouchered",
    "action": "read-report",
    "expect": {
-    "output.boxes.anWet": {
+    "output.boxes.ecoOut": {
      "op": "contains",
-     "value": "at or below"
+     "value": "RJW-2026-014"
+    }
+   }
+  },
+  {
+   "id": "met",
+   "action": "show-pane",
+   "arguments": {
+    "pane": "p-met"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "parent",
+   "action": "set-text",
+   "arguments": {
+    "selector": "@control:sParentEv",
+    "value": "SGH2026:plot:03"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "gps",
+   "action": "set-text",
+   "arguments": {
+    "selector": "@control:dwcCoords/gps accuracy",
+    "value": "30"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "dwc41",
+   "action": "read-report",
+   "expect": {
+    "output.boxes.dwcOut": {
+     "op": "contains",
+     "value": "coordinateUncertaintyInMeters = 43 m"
     },
-    "output.by.anWet.prevalence index": "3.00",
-    "output.by.anWet.taxa scored": "3/3",
-    "output.by.anWet.vs threshold": "≤ 3.0"
+    "output.boxes.dwcOut#2": {
+     "op": "contains",
+     "value": "of which 7 m is the plot itself"
+    }
+   }
+  },
+  {
+   "id": "unknown",
+   "action": "activate",
+   "arguments": {
+    "selector": "@control:dwcCoords/unknown"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "dwc5402",
+   "action": "read-report",
+   "expect": {
+    "output.boxes.dwcOut": {
+     "op": "contains",
+     "value": "5402"
+    }
+   }
+  },
+  {
+   "id": "wgs",
+   "action": "activate",
+   "arguments": {
+    "selector": "@control:dwcCoords/WGS84"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "dwc-back",
+   "action": "read-report",
+   "expect": {
+    "output.boxes.dwcOut": {
+     "op": "contains",
+     "value": "= 43 m"
+    }
+   }
+  },
+  {
+   "id": "plot2",
+   "action": "show-pane",
+   "arguments": {
+    "pane": "p-plot"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "pack-open",
+   "action": "activate",
+   "arguments": {
+    "selector": "@control:packToggle"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "pack-bad",
+   "action": "set-text",
+   "arguments": {
+    "selector": "@control:packIn",
+    "value": "{\"species\":[{\"id\":\"x\",\"com\":\"nope\"}]}"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "pack-load-bad",
+   "action": "activate",
+   "arguments": {
+    "selector": "@control:packLoad"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "pack-refused",
+   "action": "read-report",
+   "expect": {
+    "output.boxes.packMsg": {
+     "op": "contains",
+     "value": "Rejected — 3 problems"
+    },
+    "output.boxes.packMsg#2": {
+     "op": "contains",
+     "value": "Nothing loaded — your flora is untouched"
+    }
+   }
+  },
+  {
+   "id": "plot3",
+   "action": "show-pane",
+   "arguments": {
+    "pane": "p-plot"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "db",
+   "action": "activate",
+   "arguments": {
+    "selector": "@control:sScale/Daubenmire"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "daubenmire",
+   "action": "read-report",
+   "expect": {
+    "output.boxes.ecoOut": {
+     "op": "contains",
+     "value": "# method: Daubenmire cover scale"
+    }
+   }
+  },
+  {
+   "id": "bb",
+   "action": "activate",
+   "arguments": {
+    "selector": "@control:sScale/Braun-Blanquet"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "back-to-bb",
+   "action": "read-report",
+   "expect": {
+    "output.boxes.ecoOut": {
+     "op": "contains",
+     "value": "# method: Braun-Blanquet cover scale"
+    }
+   }
+  },
+  {
+   "id": "sheet",
+   "action": "read-report",
+   "expect": {
+    "output.boxes.ecoOut": {
+     "op": "contains",
+     "value": "# Relevé — WAS-12"
+    },
+    "output.boxes.ecoOut#2": {
+     "op": "contains",
+     "value": "FQA mean C 4.33"
+    },
+    "output.boxes.ecoOut#3": {
+     "op": "contains",
+     "value": "big sagebrush"
+    }
    }
   },
   {

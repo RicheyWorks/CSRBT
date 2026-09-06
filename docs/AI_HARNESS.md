@@ -373,6 +373,58 @@ FEK picker through its filter; a task names a control the page's way with
 tasks — one per data-entry page — enter data and hold the report to a
 hand-checked oracle; a page canary is refuted; 1,316 expectations confirmed.
 
+ADR-149 RECORDED THE RELEVE WHOLE -- the densest page in the kit for published
+method, seven named indices on one sheet, and the task drove three cover classes.
+releve.html was the largest data-entry gap left after ADR-148 at 7 of 42 fields,
+and it carries more of other people's arithmetic than any other page:
+Braun-Blanquet and Daubenmire cover classes, Shannon and Pielou over summed
+midpoint cover, a growth-form spectrum, Swink & Wilhelm's Floristic Quality
+Index, Miller & Wardrop's adjusted FQI, the Corps of Engineers prevalence index
+with its 3.0 threshold, line-point intercept cover on a planned denominator, and
+Chapman & Wieczorek's point-radius. The task goes 30 steps to 109: 7 -> 44 OF 44
+FIELDS, 45 -> 159 confirmed expectations, and the kit 312 -> 349 of 520
+(60% -> 67%). Four pages are now entered whole -- collection sheet (59 of 63,
+four reagent rows deliberately blank), stand sheet, ecology lab and releve.
+HELD, all recomputed by a Python port: three taxa read 3 taxa in 2 families,
+H' 0.53, J' 0.48, 1.7 effective taxa, one non-native and the dominant at 80% of
+recorded cover with 80% of that cover shrub; a fourth at class 1 moves them to
+0.67, 0.48, 1.9 and 77%; FQA over two of three natives is mean C 4.50, FQI 6.4,
+adjusted 31.8 and SAYS SO IS PARTIAL, and over three of three it is 4.33, 7.5 and
+37.5; scored UPL/FACU the prevalence index is 4.77, above threshold; a 50 m
+transect read at 1 m in duplicate plans 100 points and at 0.5 m plans 200, and
+five top-canopy hits with four bare readings are 5% foliar cover and 4% bare with
+91 points still to read; a 40.5853/-111.6383 fix with 30 m of GPS on a 100 m2
+plot is 43 m, of which 7 m is the plot itself, and 5402 m with the datum unknown;
+and a pack missing sci, gf and nat is rejected whole with the flora untouched.
+THREE CLAIMS THE SHEET MAKES THAT NOTHING WAS CHECKING. (1) THE SCALE IS A METHOD
+PARAMETER: Braun-Blanquet's class 2 and Daubenmire's class 2 are both 5-25% and
+both a midpoint of 15%, as the page's own method notes say, so the recorded class
+alone does not say what was measured -- the sheet writes the scale into the
+export and the task now switches to Daubenmire and back and holds both method
+lines. (2) BLANK MEANS UNSCORED AND EMPTY MEANS NOTHING RECORDED: with no taxa
+the FQA and wetland boxes hold nothing at all, not a zero index and not a
+default, and with two of three natives scored the FQA reports 'Only 2 of 3
+natives have a C-value, so this is a partial score' and names the count -- the
+page's own words are that a blank is honest and a guess is not. (3) COVER COMES
+FROM THE PLANNED DENOMINATOR, NOT FROM WHAT WAS READ: five top-canopy hits on a
+100-point plan is 5% cover, not 100% of the five points read, and the sheet says
+91 points still to read, so the percentages are marked partial until the transect
+is finished -- reporting cover from an unfinished transect is the standard way to
+get a confidently wrong number out of this method. THE ORACLE GREW A SECOND
+FORMATTER: ADR-148 established that the lab prints through toLocaleString, which
+rounds half away from zero on the shortest round-trip decimal; the releve prints
+through toFixed, which KEEPS TRAILING ZEROS -- mean C is 4.33 and an all-FAC
+plot's prevalence index is 3.00 and not 3. Two formatters, in one kit, in
+adjacent pages, and each figure is now compared against the one its own page
+uses. Held: a held index is not a validated one, since the FQI is computed from
+C-values a regional expert panel assigns and the page will not invent them, so
+holding the arithmetic says nothing about whether the values are right for the
+region; the prevalence index is ONE OF THREE CRITERIA and the sheet says so in
+the same box as the number, which the task holds too, because a number that
+travels without that sentence is the failure mode of the method; and
+experiment-guide at 16 of 52 is now the largest gap left, followed by
+deployment-log at 17 of 37.
+
 ADR-148 TOOK THE THIRD PAGE WHOLE, AND FOUND THE ENTRY PATH NOBODY HAD PRESSED.
 ecology-lab.html was ADR-144's third-largest gap at 7 of 40 fields, and the seven
 were the seeded terrarium and four defaults: the workbench underneath -- diversity,
