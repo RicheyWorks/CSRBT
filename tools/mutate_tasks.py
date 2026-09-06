@@ -290,6 +290,15 @@ MUTANTS += [
      "the entry says what it was allowed"),
 ]
 
+
+MUTANTS += [
+    # ---- ADR-145: a refusal is a move too ----
+    ("a refused step leaves the runner looking at the page as it was before",
+     '        if not r.get("ok") and not r.get("snapshot"):',
+     "        if False:",
+     "the refusal carries one"),
+]
+
 KNOWN_EQUIVALENT = []
 
 

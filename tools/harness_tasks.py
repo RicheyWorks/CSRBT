@@ -415,6 +415,22 @@ def run_task(task, wire, pid, wires=None):
             steps.append({"id": s["id"], "action": s["action"], "result": "DEFECT", "detail": str(e)})
             verdict = "DEFECT"
             break
+        # A REFUSAL IS A MOVE TOO (ADR-145, ADR-126's phrase one layer down).
+        # The gateway raises before it observes, so a refused response carries
+        # no snapshot -- and the next "@control:<name>" then resolves against
+        # the last SUCCESSFUL step's snapshot, which the refusal may have made
+        # stale. It does here: typing a filter that matches nothing rebuilds
+        # the collection sheet's host picker, so the selector the older
+        # snapshot gave for it pointed at an element that was no longer inside
+        # a picker, and the next pick was refused as "not a picker" -- the
+        # runner blaming the page for a stale name of its own.
+        if not r.get("ok") and not r.get("snapshot"):
+            try:
+                o = w.op("observe", plugin=p)
+                if isinstance(o, dict) and o.get("snapshot"):
+                    r = dict(r, snapshot=o["snapshot"])
+            except Exception:
+                pass
         done[s["id"]] = r
         if r.get("code") == "unavailable":
             steps.append({"id": s["id"], "action": s["action"], "result": "DEFECT",

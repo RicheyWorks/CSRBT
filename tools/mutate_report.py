@@ -112,8 +112,8 @@ MUTANTS = [
     # by read-control and by the risk classifier -- so one mutation is put to
     # all three, which is the point of having one copy.
     ("a dial option is labelled by its whole text",
-     '      (() => { const c = e.cloneNode(true); c.querySelectorAll("small, kbd").forEach(x => x.remove());',
-     '      (() => { const c = e.cloneNode(true);',
+     '               c.querySelectorAll("small, kbd, [data-x], .x").forEach(x => x.remove());',
+     '               c.querySelectorAll("[data-x], .x").forEach(x => x.remove());',
      "labelled by its <span>"),
     ("a behaviour key is labelled by its whole text",
      '  const _label = (e) => (e.getAttribute("aria-label") || (e.querySelector(".nm") || {}).textContent ||',
@@ -239,6 +239,19 @@ MUTANTS += [
                 n = None""",
      """            n = None""",
      "refused by COUNT"),
+]
+
+
+MUTANTS += [
+    # ---- ADR-145: a picker with nothing showing is still a picker ----
+    ("a picker that currently shows no option is not a picker",
+     '  const pick = s.closest(".fek-pick");',
+     '  const pick = null;',
+     "NEXT pick still works"),
+    ("anything with a search box is a picker, whatever it is inside",
+     '  if (!root || (!pick && !root.querySelector(":scope > .opt, :scope > .opts > .opt")))\n    return { ok: false, why: "not a picker" };',
+     '  if (false)\n    return { ok: false, why: "not a picker" };',
+     "a pick on a plain text input was accepted"),
 ]
 
 KNOWN_EQUIVALENT = []

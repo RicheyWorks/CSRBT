@@ -71,6 +71,11 @@ FIXTURE = u"""<!doctype html><html><head><meta charset="utf-8"><title>report fix
       <button class="opt" type="button">Suillus<small>with pines</small></button>
       <button class="opt" type="button">Pleurotus<small>wood saprotroph, oyster</small></button>
     </div></div></div>
+  <div id="genEntry2"><div class="fek-pick"><input class="search" aria-label="strict filter">
+    <div class="opts">
+      <button class="opt" type="button">Boletus</button>
+      <button class="opt" type="button">Butyriboletus</button>
+    </div></div></div>
   <div id="rCov"><div class="fek-dial">
     <button type="button"><span>+</span><small>under 1%</small></button>
     <button type="button"><span>4</span><small>50-75%</small></button>
@@ -138,6 +143,26 @@ FIXTURE = u"""<!doctype html><html><head><meta charset="utf-8"><title>report fix
     document.querySelectorAll('.pane').forEach(function(x){ x.classList.remove('on'); });
     t.classList.add('on'); document.getElementById(t.getAttribute('data-pane')).classList.add('on'); }); });
   window.picked = null;
+  // A picker that REMOVES what does not match, rather than hiding it -- the
+  // collection sheet's own behaviour, and the case that made ADR-145's guard
+  // wrong. The option list is rebuilt from a template on every keystroke.
+  (function(){
+    var box = document.querySelector('#genEntry2 .opts');
+    var all = [].slice.call(box.querySelectorAll('.opt')).map(function(o){ return o.textContent; });
+    var s2 = document.querySelector('#genEntry2 .search');
+    window.picked2 = null;
+    function paint(){
+      var q = s2.value.toLowerCase(); box.innerHTML = '';
+      all.filter(function(t){ return !q || t.toLowerCase().indexOf(q) >= 0; }).forEach(function(t){
+        var b = document.createElement('button'); b.type = 'button'; b.className = 'opt';
+        b.textContent = t;
+        b.addEventListener('click', function(){ window.picked2 = t; });
+        box.appendChild(b); });
+    }
+    s2.addEventListener('input', paint);
+    [].slice.call(box.querySelectorAll('.opt')).forEach(function(o){
+      o.addEventListener('click', function(){ window.picked2 = o.textContent; }); });
+  })();
   var s = document.querySelector('#genEntry .search'), opts = [].slice.call(document.querySelectorAll('#genEntry .opt'));
   function paint(){ var q = s.value.toLowerCase();
     opts.forEach(function(o){ o.style.display = (!q || o.textContent.toLowerCase().indexOf(q) >= 0) ? '' : 'none'; }); }
@@ -223,10 +248,54 @@ with sync_playwright() as pw:
     ck(c.startswith("refused") or p == "Amanita",
        "a sub-line is never a label: it filters but does not name the option: %s" % c)
 
-    pool = snap["argumentPools"].get("pick") or []
-    ck(len(pool) == 4 and all(set(x) == {"selector", "value"} and x["selector"] == sel for x in pool) and
+    pool = [x for x in (snap["argumentPools"].get("pick") or []) if x["selector"] == sel]
+    ck(len(pool) == 4 and all(set(x) == {"selector", "value"} for x in pool) and
        {x["value"] for x in pool} == {"Amanita muscaria", "Amanita", "Suillus", "Pleurotus"},
        "the snapshot publishes each picker's option labels as an argument-set pool for pick, sub-lines stripped: %s" % pool)
+    ck({x["value"] for x in (snap["argumentPools"].get("pick") or []) if x["selector"] != sel}
+       == {"Boletus", "Butyriboletus"},
+       "...and every picker gets its own entries, keyed by its own search box: %s"
+       % [x for x in (snap["argumentPools"].get("pick") or []) if x["selector"] != sel])
+
+    # ---- B2. a picker with nothing showing is still a picker (ADR-145) -------
+    # The collection sheet REMOVES options that do not match instead of hiding
+    # them, so a filter that matches nothing leaves the picker with no .opt in
+    # the DOM at all. The guard asked for one BEFORE typing, so a single
+    # refused pick made the picker unusable for the rest of the session: every
+    # later pick answered "not a picker", including the one that would have
+    # cleared the filter. It was found by a task entering a page's own stand
+    # list, which narrows the host picker to the trees you actually named.
+    strict = next((c["selector"] for c in plug.observe()["controls"]
+                   if c["kind"] == "pick_search" and c.get("host") == "genEntry2"), None)
+    ck(strict is not None,
+       "the strict picker's search box is named by its own mount (#genEntry2), which is how a "
+       "task reaches one picker of several")
+    try:
+        plug.execute("pick", {"selector": strict, "value": "Quercus"})
+        ck(False, "a value no option matches was picked anyway")
+    except HarnessError as e:
+        ck("no option matches" in e.message and "not a picker" not in e.message,
+           "a value nothing matches is refused as NO OPTION MATCHES -- what the caller got wrong "
+           "is the value, not the control: %s" % e.message[:70])
+    ck(pg.evaluate("() => document.querySelectorAll('#genEntry2 .opt').length") == 0,
+       "and the page has removed every option, which is the state the old guard could not tell "
+       "from 'this is not a picker'")
+    try:
+        ok, _, out = plug.execute("pick", {"selector": strict, "value": "Boletus"})
+    except HarnessError as e:
+        ok, out = False, e.message
+    ck(ok and pg.evaluate("() => window.picked2") == "Boletus",
+       "...so the NEXT pick still works: a control does not stop being a picker because of what "
+       "someone typed into it, and without this a refused pick was unrecoverable: %s" % out)
+    # ...and a control that is NOT a picker still says so
+    plain = next((c["selector"] for c in plug.observe()["controls"] if c.get("id") == "cName"), None)
+    try:
+        plug.execute("pick", {"selector": plain, "value": "Boletus"})
+        ck(False, "a pick on a plain text input was accepted")
+    except HarnessError as e:
+        ck("not a picker" in e.message,
+           "a pick aimed at something that is not a picker at all is still refused as NOT A "
+           "PICKER -- the structural test is what that message is for: %s" % e.message[:60])
 
     # ---- C. naming -----------------------------------------------------------
     snap = plug.observe(sensitive=True)

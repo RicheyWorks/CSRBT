@@ -314,12 +314,73 @@ with sync_playwright() as pw:
        % cov6["lateLooks"])
     ck(S.coverage(pg3, looks=1)["lateLooks"] == cov6["lateLooks"][:1],
        "looks is a bound a caller can set, and looks=1 is exactly the old behaviour")
+    # ADR-144: a control that mounts AFTER the last stamp has no data-audit at
+    # all, and came back from UNSTAMPED_JS as null -- counted as a control no
+    # state exposed and named "None", which is what audit_targets' never-exposed
+    # fault turned out to be. Stamping immediately before enumerating closes the
+    # gap; anything still unstamped is reported as what it is.
+    # The control has to arrive DURING the enumeration, which is a window of
+    # microseconds -- so, as with the late-look fixture, the measurement itself
+    # is the trigger: an existing control's getBoundingClientRect appends a new
+    # button the second time coverage() asks about it, which is inside the last
+    # look's stamping pass and therefore after the snapshot that pass took.
+    LATE3 = ("() => { const b = document.getElementById('b1'); let n = 0; "
+             "const real = b.getBoundingClientRect.bind(b); "
+             "b.getBoundingClientRect = () => { n++; "
+             "  if (n === 2 && !document.getElementById('fresh')) { "
+             "    const e = document.createElement('button'); e.id = 'fresh'; "
+             "    e.textContent = 'fresh'; document.body.appendChild(e); } "
+             "  return real(); }; return true; }")
+    pg3.evaluate(LATE3)
+    cov7 = S.coverage(pg3)
+    ck(cov7.get("unstamped") == 0
+       and not any(m is None or str(m) == "None" for m in cov7["never"]),
+       "a control that arrived DURING the enumeration is stamped and measured, not counted as a "
+       "control no state exposed and named by an id that does not exist -- which is what "
+       "audit_targets' never-exposed fault turned out to be: unstamped=%s never=%s"
+       % (cov7.get("unstamped"), cov7["never"]))
+    ck(not any("#fresh" in str(m) for m in cov7["never"]),
+       "...and it counts as exposed, because by the time anything asks it has a box: %s"
+       % cov7["never"])
     pg3.close()
     pg2.close()
 
+    # ADR-145: an unnamed control's index is counted WITHIN ITS HOST. Adding a
+    # row above it renumbered it before, so a control measured before the row
+    # existed was a different control after -- the collection sheet's stand-age
+    # dial read as never-entered by a task that had just clicked it.
+    grew = pg.evaluate("""() => {
+      const before = document.querySelector('#p2 #rows');
+      const b = document.createElement('button'); b.textContent = 'x';
+      document.body.insertBefore(b, document.body.firstChild);
+      return true; }""")
+    pg.evaluate(S.MARK_JS, S.CONTROLS)
+    after_growth = pg.evaluate("() => [...document.querySelectorAll('.rowDrop')].map(e => e.getAttribute('data-audit'))")
+    ck(after_growth == ["button.rowDrop[submit]@rows|1"],
+       "and a control with no id keeps its stamp when the page GROWS somewhere else: its index is "
+       "counted inside its own host, not across the document: %s" % after_growth)
+    # ...and the other half of that rule: a control WITH an id is keyed by the id
+    # ALONE. Scoping a named control to its host too would re-key it the moment
+    # the page moved it -- which is the very failure the host scoping exists to
+    # prevent -- and an id is already unique document-wide, so the host adds
+    # nothing but a way to lose the measurement.
+    named_before = pg.evaluate("() => document.getElementById('typed').getAttribute('data-audit')")
+    pg.evaluate("""() => { document.getElementById('rows').appendChild(document.getElementById('typed')); return true; }""")
+    pg.evaluate(S.MARK_JS, S.CONTROLS)
+    named_moved = pg.evaluate("() => document.getElementById('typed').getAttribute('data-audit')")
+    pg.evaluate("""() => { document.getElementById('p2').appendChild(document.getElementById('typed')); return true; }""")
+    pg.evaluate(S.MARK_JS, S.CONTROLS)
+    ck("@" not in named_before and named_before == "input#typed[text]|1",
+       "a control with an id is keyed by the id alone -- no host in the stamp, because an id is "
+       "already unique document-wide: %s" % named_before)
+    ck(named_moved == named_before,
+       "...so MOVING it into a different identified ancestor keeps its stamp and every measurement "
+       "taken under it: %s then %s" % (named_before, named_moved))
+
     stamps = pg.evaluate("() => [...document.querySelectorAll('[data-audit]')].map(e => e.getAttribute('data-audit'))")
-    ck(len(stamps) == 15 and len(set(stamps)) == 15,
-       "every control carries one stable stamp, the ones the entry built included: %d stamps, %d distinct"
+    ck(len(stamps) == 16 and len(set(stamps)) == 16,
+       "every control carries one stable stamp, the ones the entry built and the one this check "
+       "grew included: %d stamps, %d distinct"
        % (len(stamps), len(set(stamps))))
     first = pg.evaluate("() => document.querySelector('.tab[data-pane]').getAttribute('data-audit')")
     ck(first == "button.tab[submit]|1",
@@ -339,7 +400,7 @@ with sync_playwright() as pw:
       return [...document.querySelectorAll('.rowDrop')].map(e => e.getAttribute('data-audit')); }""")
     pg.evaluate(S.MARK_JS, S.CONTROLS)
     again = pg.evaluate("() => [...document.querySelectorAll('.rowDrop')].map(e => e.getAttribute('data-audit'))")
-    ck(rebuilt == [None] and again == ["button.rowDrop[submit]|1"],
+    ck(rebuilt == [None] and again == ["button.rowDrop[submit]@rows|1"],
        "a region rebuilt with innerHTML comes back under the SAME stamp -- a counter would have forgotten every "
        "state that measured it: %s then %s" % (rebuilt, again))
 

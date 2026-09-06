@@ -219,8 +219,22 @@ PICK = r"""
 ([sel, value]) => {
   const s = document.querySelector('[data-h="' + sel + '"]');
   if (!s) return { ok: false, why: "gone" };
-  const root = s.closest(".fek-pick") || s.parentElement;
-  if (!root || !root.querySelector(".opt")) return { ok: false, why: "not a picker" };
+  // WHETHER IT IS A PICKER IS STRUCTURAL; WHETHER IT HAS OPTIONS IS A FACT OF
+  // THE MOMENT (ADR-145). This guard used to ask for a ".opt" before typing
+  // anything, and a picker whose filter currently matches NOTHING has none --
+  // the collection sheet removes non-matching options from the DOM rather than
+  // hiding them. So one refused pick left the picker unusable for the rest of
+  // the session: every later pick answered "not a picker", including the one
+  // that would have cleared the filter. A control cannot stop being a picker
+  // because of what someone typed into it.
+  const pick = s.closest(".fek-pick");
+  const root = pick || s.parentElement;
+  // Without a .fek-pick to stand on, the options must be THIS control's own --
+  // its siblings, or the list right beside it. Searching the whole subtree of
+  // whatever happens to be the parent let a pick aimed at a plain text input
+  // reach the options of a picker elsewhere in the same section and click one.
+  if (!root || (!pick && !root.querySelector(":scope > .opt, :scope > .opts > .opt")))
+    return { ok: false, why: "not a picker" };
   const set = Object.getOwnPropertyDescriptor(HTMLInputElement.prototype, "value").set;
   set.call(s, String(value));
   s.dispatchEvent(new Event("input", { bubbles: true }));

@@ -79,7 +79,7 @@ MUTANTS = [
      "controls exist"),
     ("coverage never names anything",
      "audit_states.py",
-     '    never = [i for i in all_ids if i not in exposed]',
+     '    never = [i for i in all_ids if i and i not in exposed]',
      '    never = []',
      "no state exposed"),
     ("the click is a pointer click",
@@ -203,11 +203,11 @@ MUTANTS = [
      "audit_states.py",
      '        _settle(pg)\n        seen = set(pg.evaluate(MARK_JS, CONTROLS))',
      '        seen = set()',
-     "arrived after the last state's probe is counted as exposed"),
+     "revealed BETWEEN two looks"),
     ("coverage takes one more look and forgets what the walk measured",
      "audit_states.py",
-     '    if hasattr(pg, "_audit_exposed"):\n        pg._audit_exposed |= late',
-     '    if hasattr(pg, "_audit_exposed"):\n        pg._audit_exposed = late',
+     '    if hasattr(pg, "_audit_exposed"):\n        pg._audit_exposed |= late\n    exposed = getattr(pg, "_audit_exposed", late)',
+     '    if hasattr(pg, "_audit_exposed"):\n        pg._audit_exposed = late\n    exposed = getattr(pg, "_audit_exposed", late)',
      "B3's box in the third pane, seen once, is remembered"),
     ("the late control is stamped but never measured",
      "audit_states.py",
@@ -223,7 +223,7 @@ MUTANTS += [
      "audit_states.py",
      "    for i in range(max(1, int(looks))):",
      "    for i in range(1):",
-     "revealed BETWEEN two looks"),
+     "the run SAYS a later look found"),
     ("the looking never stops early, so every page pays for three settles",
      "audit_states.py",
      "        if i and not new:\n            break",
@@ -236,7 +236,39 @@ MUTANTS += [
      "the second look finds nothing"),
 ]
 
+
+MUTANTS += [
+    ("coverage enumerates without stamping first, so a control that just arrived is a null",
+     "audit_states.py",
+     "    late |= set(pg.evaluate(MARK_JS, CONTROLS))\n    if hasattr(pg, \"_audit_exposed\"):\n        pg._audit_exposed |= late\n        exposed = pg._audit_exposed\n    all_ids = pg.evaluate(UNSTAMPED_JS, CONTROLS)",
+     "    all_ids = pg.evaluate(UNSTAMPED_JS, CONTROLS)",
+     "arrived DURING the enumeration"),
+]
+
+
+MUTANTS += [
+    # ---- ADR-145: an unnamed control is counted inside its host ----
+    ("an unnamed control is counted across the document, so page growth renames it",
+     "audit_states.py",
+     '              + (e.type ? "[" + e.type + "]" : "") + (e.id ? "" : (host ? "@" + host : ""));',
+     '              + (e.type ? "[" + e.type + "]" : "");',
+     "keeps its stamp when the page GROWS"),
+    ("a NAMED control is scoped to its host too, so its id is not enough",
+     "audit_states.py",
+     '(e.id ? "" : (host ? "@" + host : ""))',
+     '(host ? "@" + host : "")',
+     "keyed by the id alone"),
+]
+
 KNOWN_EQUIVALENT = [
+    ("a control with no stamp is a control no state exposed",
+     "dropping the `unstamped` bucket -- so a null id counts as a control no state exposed again "
+     "-- cannot be observed once the fix is in: coverage now stamps immediately before it "
+     "enumerates, and to produce a null a control would have to mount in the microseconds "
+     "between those two evaluate calls. The trap that produces one for the other half of this "
+     "clause fires during the last look's stamping pass, which the extra stamp then catches. "
+     "Kept because the bucket is what makes the report readable if it ever happens, and recorded "
+     "here rather than asserted by a check that could not fail (measured 2026-09-05)."),
     ("the walk measures as soon as the click returns, without waiting for a frame",
      "the frame wait (_frames, ADR-140) is defence against CPU CONTENTION, and no fixture can "
      "reproduce contention: _click already waits 150 ms, under which a page's own "

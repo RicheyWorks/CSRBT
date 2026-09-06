@@ -45,6 +45,169 @@
    }
   },
   {
+   "id": "sname",
+   "action": "set-text",
+   "arguments": {
+    "selector": "@control:sSite",
+    "value": "Bear Cr. old-growth"
+   }
+  },
+  {
+   "id": "sobs",
+   "action": "set-text",
+   "arguments": {
+    "selector": "@control:sObs",
+    "value": "R. Wright"
+   }
+  },
+  {
+   "id": "sdate",
+   "action": "set-text",
+   "arguments": {
+    "selector": "@control:sDate",
+    "value": "2026-09-20"
+   }
+  },
+  {
+   "id": "slat",
+   "action": "set-text",
+   "arguments": {
+    "selector": "@control:sLat",
+    "value": "45.3736"
+   }
+  },
+  {
+   "id": "slon",
+   "action": "set-text",
+   "arguments": {
+    "selector": "@control:sLon",
+    "value": "-121.6960"
+   }
+  },
+  {
+   "id": "sveg",
+   "action": "set-text",
+   "arguments": {
+    "selector": "@control:sVeg",
+    "value": "Tsuga heterophylla / Pseudotsuga zone"
+   }
+  },
+  {
+   "id": "strees",
+   "action": "set-text",
+   "arguments": {
+    "selector": "@control:sTrees",
+    "value": "Pseudotsuga menziesii, Tsuga heterophylla, Pinus contorta, Populus tremuloides"
+   }
+  },
+  {
+   "id": "sdist",
+   "action": "set-text",
+   "arguments": {
+    "selector": "@control:sDist",
+    "value": "salvage-logged 2019; light ground fire"
+   }
+  },
+  {
+   "id": "selev",
+   "action": "set-text",
+   "arguments": {
+    "selector": "@control:siteEntry/elevation",
+    "value": "620"
+   }
+  },
+  {
+   "id": "sduff",
+   "action": "set-text",
+   "arguments": {
+    "selector": "@control:siteEntry/duff depth",
+    "value": "4"
+   }
+  },
+  {
+   "id": "sage",
+   "action": "activate",
+   "arguments": {
+    "selector": "@control:siteEntry/old-growth"
+   }
+  },
+  {
+   "id": "scwd",
+   "action": "activate",
+   "arguments": {
+    "selector": "@control:siteEntry/moderate"
+   }
+  },
+  {
+   "id": "wdate",
+   "action": "set-text",
+   "arguments": {
+    "selector": "@control:wDate",
+    "value": "2026-09-06"
+   }
+  },
+  {
+   "id": "wmm",
+   "action": "set-text",
+   "arguments": {
+    "selector": "@control:wxEntry/that event",
+    "value": "32"
+   }
+  },
+  {
+   "id": "w7",
+   "action": "set-text",
+   "arguments": {
+    "selector": "@control:wxEntry/7-day total",
+    "value": "38"
+   }
+  },
+  {
+   "id": "w30",
+   "action": "set-text",
+   "arguments": {
+    "selector": "@control:wxEntry/30-day total",
+    "value": "96"
+   }
+  },
+  {
+   "id": "wsoil",
+   "action": "set-text",
+   "arguments": {
+    "selector": "@control:wxEntry/soil temp at 10 cm",
+    "value": "11"
+   }
+  },
+  {
+   "id": "wair",
+   "action": "set-text",
+   "arguments": {
+    "selector": "@control:wxEntry/air temp",
+    "value": "14"
+   }
+  },
+  {
+   "id": "wx",
+   "action": "read-report",
+   "expect": {
+    "ok": true,
+    "output.boxes.wOut": {
+     "op": "contains",
+     "value": "after a 32 mm event"
+    }
+   }
+  },
+  {
+   "id": "wx2",
+   "action": "read-report",
+   "expect": {
+    "output.boxes.wOut": {
+     "op": "contains",
+     "value": "Soil at 10 cm reads 11 °C"
+    }
+   }
+  },
+  {
    "id": "area-back",
    "action": "read-control",
    "arguments": {
@@ -68,7 +231,7 @@
    "id": "g1",
    "action": "pick",
    "arguments": {
-    "selector": "@control:genEntry",
+    "selector": "@control:genEntry/genus filter",
     "value": "Amanita"
    },
    "expect": {
@@ -105,11 +268,118 @@
    "id": "h1",
    "action": "pick",
    "arguments": {
-    "selector": "@control:hostEntry",
+    "selector": "@control:hostEntry/host / associated tree filter",
     "value": "Pinus contorta"
    },
    "expect": {
     "ok": true
+   }
+  },
+  {
+   "id": "num1",
+   "action": "set-text",
+   "arguments": {
+    "selector": "@control:cNum",
+    "value": "RCW-2026-041"
+   }
+  },
+  {
+   "id": "sub1",
+   "action": "activate",
+   "arguments": {
+    "selector": "@control:cSub/soil / duff"
+   }
+  },
+  {
+   "id": "hab1",
+   "action": "activate",
+   "arguments": {
+    "selector": "@control:cHab/solitary"
+   }
+  },
+  {
+   "id": "hym1",
+   "action": "activate",
+   "arguments": {
+    "selector": "@control:cHym/gills"
+   }
+  },
+  {
+   "id": "ch1",
+   "action": "activate",
+   "arguments": {
+    "selector": "@control:cChars/volva or sac at base"
+   }
+  },
+  {
+   "id": "ch2",
+   "action": "activate",
+   "arguments": {
+    "selector": "@control:cChars/warts or patches on cap"
+   }
+  },
+  {
+   "id": "cap1",
+   "action": "set-text",
+   "arguments": {
+    "selector": "@control:dimEntry/cap width",
+    "value": "92"
+   }
+  },
+  {
+   "id": "stl1",
+   "action": "set-text",
+   "arguments": {
+    "selector": "@control:dimEntry/stipe length",
+    "value": "140"
+   }
+  },
+  {
+   "id": "stw1",
+   "action": "set-text",
+   "arguments": {
+    "selector": "@control:dimEntry/stipe width",
+    "value": "18"
+   }
+  },
+  {
+   "id": "mass1",
+   "action": "set-text",
+   "arguments": {
+    "selector": "@control:dimEntry/fresh mass",
+    "value": "210"
+   }
+  },
+  {
+   "id": "od1",
+   "action": "set-text",
+   "arguments": {
+    "selector": "@control:cOdour",
+    "value": "faintly raphanoid"
+   }
+  },
+  {
+   "id": "br1",
+   "action": "set-text",
+   "arguments": {
+    "selector": "@control:cBruise",
+    "value": "no change in 5 min"
+   }
+  },
+  {
+   "id": "nt1",
+   "action": "set-text",
+   "arguments": {
+    "selector": "@control:cNotes",
+    "value": "Cap viscid when wet, margin appendiculate. Duff 4 cm deep."
+   }
+  },
+  {
+   "id": "dist1",
+   "action": "set-text",
+   "arguments": {
+    "selector": "@control:hostEntry/distance to host stem",
+    "value": "2"
    }
   },
   {
@@ -126,7 +396,7 @@
    "id": "g2",
    "action": "pick",
    "arguments": {
-    "selector": "@control:genEntry",
+    "selector": "@control:genEntry/genus filter",
     "value": "Suillus"
    },
    "expect": {
@@ -159,7 +429,7 @@
    "id": "h2",
    "action": "pick",
    "arguments": {
-    "selector": "@control:hostEntry",
+    "selector": "@control:hostEntry/host / associated tree filter",
     "value": "Pinus contorta"
    },
    "expect": {
@@ -180,7 +450,7 @@
    "id": "g3",
    "action": "pick",
    "arguments": {
-    "selector": "@control:genEntry",
+    "selector": "@control:genEntry/genus filter",
     "value": "Russula"
    },
    "expect": {
@@ -213,7 +483,7 @@
    "id": "h3",
    "action": "pick",
    "arguments": {
-    "selector": "@control:hostEntry",
+    "selector": "@control:hostEntry/host / associated tree filter",
     "value": "Pseudotsuga menziesii"
    },
    "expect": {
@@ -234,7 +504,7 @@
    "id": "g4",
    "action": "pick",
    "arguments": {
-    "selector": "@control:genEntry",
+    "selector": "@control:genEntry/genus filter",
     "value": "Cortinarius"
    },
    "expect": {
@@ -267,7 +537,7 @@
    "id": "h4",
    "action": "pick",
    "arguments": {
-    "selector": "@control:hostEntry",
+    "selector": "@control:hostEntry/host / associated tree filter",
     "value": "Pseudotsuga menziesii"
    },
    "expect": {
@@ -288,7 +558,7 @@
    "id": "g5",
    "action": "pick",
    "arguments": {
-    "selector": "@control:genEntry",
+    "selector": "@control:genEntry/genus filter",
     "value": "Pleurotus"
    },
    "expect": {
@@ -321,7 +591,7 @@
    "id": "h5",
    "action": "pick",
    "arguments": {
-    "selector": "@control:hostEntry",
+    "selector": "@control:hostEntry/host / associated tree filter",
     "value": "Populus tremuloides"
    },
    "expect": {
@@ -339,11 +609,219 @@
    }
   },
   {
+   "id": "hostgone",
+   "action": "pick",
+   "arguments": {
+    "selector": "@control:hostEntry/host / associated tree filter",
+    "value": "Quercus gambelii"
+   },
+   "expect": {
+    "ok": false
+   }
+  },
+  {
+   "id": "hostback",
+   "action": "pick",
+   "arguments": {
+    "selector": "@control:hostEntry/host / associated tree filter",
+    "value": "Pinus contorta"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
    "id": "listed",
    "action": "read-report",
    "expect": {
     "ok": true,
     "output.rows.#cList": 5
+   }
+  },
+  {
+   "id": "prt",
+   "action": "show-pane",
+   "arguments": {
+    "pane": "p-prt"
+   }
+  },
+  {
+   "id": "ppick",
+   "action": "pick",
+   "arguments": {
+    "selector": "@control:pPickEntry/collection filter",
+    "value": "RCW-2026-041"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "psw",
+   "action": "activate",
+   "arguments": {
+    "selector": "@control:pSw/white"
+   }
+  },
+  {
+   "id": "phrs",
+   "action": "set-text",
+   "arguments": {
+    "selector": "@control:prtEntry/print duration",
+    "value": "18"
+   }
+  },
+  {
+   "id": "pon",
+   "action": "activate",
+   "arguments": {
+    "selector": "@control:prtEntry/white paper"
+   }
+  },
+  {
+   "id": "rg1",
+   "action": "set-text",
+   "arguments": {
+    "selector": "@control:pRg#0",
+    "value": "no reaction on cuticle in 30 s"
+   }
+  },
+  {
+   "id": "rg2",
+   "action": "set-text",
+   "arguments": {
+    "selector": "@control:pRg#1",
+    "value": "flash blue-green, settling to nothing"
+   }
+  },
+  {
+   "id": "rg3",
+   "action": "set-text",
+   "arguments": {
+    "selector": "@control:pRg#2",
+    "value": "no reaction on stipe flesh"
+   }
+  },
+  {
+   "id": "rg4",
+   "action": "set-text",
+   "arguments": {
+    "selector": "@control:pRg#4",
+    "value": "slow, weak blue at 30 s"
+   }
+  },
+  {
+   "id": "psave",
+   "action": "activate",
+   "arguments": {
+    "selector": "@control:pSave"
+   }
+  },
+  {
+   "id": "note",
+   "action": "read-report",
+   "expect": {
+    "output.boxes.pPrintNote": {
+     "op": "contains",
+     "value": "white"
+    }
+   }
+  },
+  {
+   "id": "vpane",
+   "action": "show-pane",
+   "arguments": {
+    "pane": "p-vou"
+   }
+  },
+  {
+   "id": "vpick",
+   "action": "pick",
+   "arguments": {
+    "selector": "@control:vPickEntry/collection filter",
+    "value": "RCW-2026-041"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "vherb",
+   "action": "set-text",
+   "arguments": {
+    "selector": "@control:vHerb",
+    "value": "OSC"
+   }
+  },
+  {
+   "id": "vacc",
+   "action": "set-text",
+   "arguments": {
+    "selector": "@control:vAcc",
+    "value": "OSC-F-118342"
+   }
+  },
+  {
+   "id": "vdet",
+   "action": "set-text",
+   "arguments": {
+    "selector": "@control:vDet",
+    "value": "R. Wright"
+   }
+  },
+  {
+   "id": "vt0",
+   "action": "set-text",
+   "arguments": {
+    "selector": "@control:vT0",
+    "value": "18:40"
+   }
+  },
+  {
+   "id": "vtemp",
+   "action": "set-text",
+   "arguments": {
+    "selector": "@control:dryEntry/dryer temp",
+    "value": "43"
+   }
+  },
+  {
+   "id": "vhrs",
+   "action": "set-text",
+   "arguments": {
+    "selector": "@control:dryEntry/hours to dry",
+    "value": "14"
+   }
+  },
+  {
+   "id": "vslice",
+   "action": "activate",
+   "arguments": {
+    "selector": "@control:dryEntry/halved"
+   }
+  },
+  {
+   "id": "vdna",
+   "action": "activate",
+   "arguments": {
+    "selector": "@control:dryEntry/silica"
+   }
+  },
+  {
+   "id": "vadd",
+   "action": "activate",
+   "arguments": {
+    "selector": "@control:vAdd"
+   }
+  },
+  {
+   "id": "label",
+   "action": "read-report",
+   "expect": {
+    "output.boxes.vList": {
+     "op": "contains",
+     "value": "Habitat: Tsuga heterophylla / Pseudotsuga zone; Pseudotsuga menziesii, Tsuga heterophylla, Pinus contorta, Populus tremuloides"
+    }
    }
   },
   {
@@ -354,6 +832,96 @@
    },
    "expect": {
     "ok": true
+   }
+  },
+  {
+   "id": "inst",
+   "action": "set-text",
+   "arguments": {
+    "selector": "@control:sInst",
+    "value": "OSC"
+   }
+  },
+  {
+   "id": "coll",
+   "action": "set-text",
+   "arguments": {
+    "selector": "@control:sColl",
+    "value": "Fungi"
+   }
+  },
+  {
+   "id": "parent",
+   "action": "set-text",
+   "arguments": {
+    "selector": "@control:sParentEv",
+    "value": "SGH2026:plot:03"
+   }
+  },
+  {
+   "id": "gps",
+   "action": "set-text",
+   "arguments": {
+    "selector": "@control:dwcCoords/gps accuracy",
+    "value": "30"
+   }
+  },
+  {
+   "id": "u36",
+   "action": "read-report",
+   "expect": {
+    "output.boxes.dwcOut": {
+     "op": "contains",
+     "value": "coordinateUncertaintyInMeters = 36 m"
+    }
+   }
+  },
+  {
+   "id": "datum",
+   "action": "activate",
+   "arguments": {
+    "selector": "@control:dwcCoords/unknown"
+   }
+  },
+  {
+   "id": "u5395",
+   "action": "read-report",
+   "expect": {
+    "output.boxes.dwcOut": {
+     "op": "contains",
+     "value": "coordinateUncertaintyInMeters = 5395 m"
+    }
+   }
+  },
+  {
+   "id": "datum2",
+   "action": "activate",
+   "arguments": {
+    "selector": "@control:dwcCoords/WGS84"
+   }
+  },
+  {
+   "id": "u36b",
+   "action": "read-report",
+   "expect": {
+    "output.boxes.dwcOut": {
+     "op": "contains",
+     "value": "coordinateUncertaintyInMeters = 36 m"
+    }
+   }
+  },
+  {
+   "id": "sheet",
+   "action": "read-report",
+   "expect": {
+    "output.boxes.ecoOut": {
+     "op": "contains",
+     "value": "notes Cap viscid when wet"
+    },
+    "output.boxes.ecoOut#2": {
+     "op": "contains",
+     "value": "substrate soil / duff host Pinus contorta 2 m from stem"
+    }
    }
   },
   {

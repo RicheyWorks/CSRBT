@@ -326,6 +326,29 @@ same = all(resm[k]["verdict"] == res[k]["verdict"] and resm[k]["held"] == res[k]
 ck(same and all(resm[k]["transport"] == "mcp" for k in resm),
    "over MCP the same tasks reach the same verdicts, step for step and expectation for expectation")
 
+# ---- C2. a refusal is a move too (ADR-145) -----------------------------------
+# The gateway raises before it observes, so a refused response carries no
+# snapshot -- and the next "@control:<name>" then resolved against the last
+# SUCCESSFUL step's snapshot. On the collection sheet that is not a detail: a
+# filter that matches nothing rebuilds the host picker, so the selector the
+# older snapshot gave pointed at an element that was no longer inside one, and
+# the next pick was refused as "not a picker" -- the runner blaming the page for
+# a stale name of its own.
+refused_task = {"id": "fixture-refusal-snapshot", "target": "fixture",
+                "goal": "a step that is refused still leaves the runner looking at the page as it "
+                        "is now, not as it was before the refusal",
+                "steps": [{"id": "a", "action": "ok"},
+                          {"id": "no", "action": "refuse", "arguments": {"n": 3},
+                           "expect": {"ok": False, "code": "invalid_argument",
+                                      "snapshot.ready": True}},
+                          {"id": "after", "action": "ok", "expect": {"ok": True}}]}
+rr = T.run_tasks([refused_task])["fixture-refusal-snapshot"]
+ck(rr["verdict"] == "PASS" and rr["held"],
+   "a task whose step reads the REFUSED step's snapshot holds: the refusal carries one: %s"
+   % [(x["id"], x["result"], x.get("detail", "")[:40]) for x in rr["steps"]])
+ck(rr["steps"][1]["result"] == "refused",
+   "...and the refusal is still a refusal, not turned into something else: %s" % rr["steps"][1]["result"])
+
 # ---- D. the real targets -------------------------------------------------------
 cp_org = os.path.join(os.environ.get("CSRBT_WHOLEHOG") or os.path.join(_kit.ROOT, "..", "WholeHog"),
                       "build", "harness", "classpath.txt")
