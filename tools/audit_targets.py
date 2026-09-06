@@ -106,5 +106,15 @@ for row in rows:
     else:
         print("%-30s %s   %s   (%d states, %d/%d measured)%s" % (name, n, detail, nstates, cov["exposed"], cov["exist"], tail))
 print("-"*62)
+# ADR-143's rule, finished (ADR-144): the name goes in the SUMMARY too. run_all
+# prints a failing job's tail, and the page row that names a never-exposed
+# control can be two hundred lines above it -- so the kit's own report of this
+# fault has repeatedly been a count with the name cut off.
+for row in rows:
+    if len(row) == 3:
+        continue
+    _nm, _n, _detail, _ns, _cov, _ent = row
+    for nme in (_cov.get("never") or []):
+        print("%-26s %-30s %s" % ("never exposed:", _nm, nme))
 print("total under 44px or never measured across the kit:", bad_total)
 sys.exit(1 if bad_total else 0)

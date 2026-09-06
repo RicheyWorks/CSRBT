@@ -164,6 +164,11 @@ def main():
                         if u not in res["unknown"]:
                             res["unknown"].append(u)
                 res["coverage"] = S.coverage(pg)
+                # ADR-143: a look that found what an earlier look had missed is
+                # contention, and it is printed rather than absorbed.
+                if sum((res["coverage"].get("lateLooks") or [])[1:]):
+                    print("%-30s LATE  %d control(s) only a later look saw"
+                          % (nm, sum(res["coverage"]["lateLooks"][1:])))
                 res["entry"] = getattr(pg, "_audit_entered", None)
             except Exception as exc:
                 rows.append((nm, None, str(exc)[:70])); continue
@@ -199,6 +204,14 @@ def main():
     print("%-26s %d" % ("field borders below 3:1:", tot_n))
     print("%-26s %d" % ("unmeasured (over imagery):", tot_u))
     print("%-26s %d" % ("never exposed, unmeasured:", tot_never))
+    # ADR-143: and WHICH ones, here at the end. The per-page line that names
+    # them can be two hundred lines above this summary, and run_all prints only
+    # a failing job's tail -- so under `run_all -j 2` the kit's own report of
+    # this fault has been "never exposed, unmeasured: 1" with the name cut off,
+    # three times now. A count with no name costs a whole re-run to read.
+    for nm, _n, res in rows:
+        for name in (res.get("coverage") or {}).get("never", []):
+            print("%-26s %s   %s" % ("", nm, name))
     print("%-26s %d" % ("total faults:", tot_t + tot_n + tot_never))
     return tot_t + tot_n + tot_never
 

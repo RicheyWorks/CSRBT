@@ -470,6 +470,18 @@ else:
     # ---- H. the physical ----
     a = run(gwW, "report")["output"]["report"]
     b = run(gwW, "report")["output"]["report"]
+    # This failed exactly once, in one of three consecutive full runs under
+    # `run_all -j 2`, and passed standing alone every time -- so the failure
+    # said "something in the physical moves without a write" and named nothing.
+    # A check whose failure cannot be read is half a check: on a difference the
+    # LINES that differ are printed, because which meter moved is the whole of
+    # what a reader needs and it costs nothing until it happens.
+    if a != b:
+        import difflib
+        for line in difflib.unified_diff(a.split("\n"), b.split("\n"),
+                                         "first physical", "second physical",
+                                         lineterm="", n=0):
+            print("   |", line)
     ck(a == b, "two consecutive physicals are identical through the gateway")
     run(gwW, "tick")
     r = run(gwW, "pulse")

@@ -165,6 +165,11 @@ def main():
                 # no state; that is a fault of the audit's reach, counted here
                 # so it cannot print as a pass
                 cov = S.coverage(pg)
+                # ADR-143: a look that found what an earlier look had missed is
+                # contention, and it is printed rather than absorbed.
+                if sum((cov.get("lateLooks") or [])[1:]):
+                    print("%-30s LATE  %d control(s) only a later look saw"
+                          % (name, sum(cov["lateLooks"][1:])))
                 res["never"] = [(nm_, 1) for nm_ in cov["never"]]
                 res["coverage"] = cov
                 res["entry"] = getattr(pg, "_audit_entered", None)
@@ -196,6 +201,12 @@ def main():
             for sel, c in res.get(k, []):
                 print("%-30s     %-22s %s x%d" % ("", label, sel, c))
     print("-" * 74)
+    # the same, and for the same reason (ADR-144)
+    for nm, n, res in rows:
+        if not isinstance(res, dict):
+            continue
+        for nme in ((res.get("coverage") or {}).get("never") or []):
+            print("%-26s %-30s %s" % ("never exposed:", nm, nme))
     grand = sum(totals.values())
     for k, label in FAULTS:
         print("%-24s %d" % (label + ":", totals[k]))
