@@ -46,6 +46,8 @@ def ledgers():
         "entry": _load("entry_ledger.json", {"pages": {}}),
         # ADR-146: the figures a page publishes that read-report cannot see.
         "readable": _load("readable_ledger.json", {"pages": {}}),
+        # ADR-147: what a slice has actually handed over, by content.
+        "delivery": _load("delivery_ledger.json", {"paths": {}}),
         "mutants": _load("mutant_ledger.json", {"runners": {}}),
         "ecosystem": _load("ecosystem_ledger.json", {"engines": {}}),
         "routes": _load("routes.json", {"routes": []}),
@@ -82,6 +84,7 @@ RUNNERS = [
     ("mutate_contend", "the contention instrument"),
     ("mutate_entry", "the entry-reach measurement"),
     ("mutate_readable", "the readable-figures audit"),
+    ("mutate_delivery", "the delivery manifest and its audit"),
 ]
 
 
@@ -139,6 +142,11 @@ def summary(L):
                           for e in (L["readable"].get("pages") or {}).values()),
         "blind_pages": sum(1 for e in (L["readable"].get("pages") or {}).values()
                            if e.get("unreadable")),
+        # ADR-147: a file on disk and in no commit is present in every
+        # measurement this kit takes and absent from the repository.
+        "delivered": len(L["delivery"].get("paths") or {}),
+        "slices": len(set(e.get("by") for e in (L["delivery"].get("paths") or {}).values()
+                          if e.get("by"))),
         "load_readings": len(L["contention"].get("suites") or {}),
         "load_clean": sum(1 for e in (L["contention"].get("suites") or {}).values()
                           if not e.get("failed")),
@@ -220,6 +228,9 @@ def render(L):
         ("%d / %d" % (S["written"] - S["unreadable"], S["written"]), "figures readable",
          "of the elements the pages write a figure into, how many read-report can see; %d page(s) "
          "still publish one it cannot" % S["blind_pages"]),
+        ("%d" % S["delivered"], "files delivered",
+         "paths whose exact bytes a slice has handed over, across %d slice(s); anything else on "
+         "disk is in no commit" % S["slices"]),
         ("%d / %d" % (S["load_clean"], S["load_readings"]), "clean under load",
          "readings taken while other suites of this kit ran beside them: %d run(s), %d failed"
          % (S["load_runs"], S["load_failed"])),

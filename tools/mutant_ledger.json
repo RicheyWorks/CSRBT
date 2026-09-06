@@ -522,6 +522,167 @@
    ],
    "survived": 0
   },
+  "mutate_delivery": {
+   "at": 1788680642,
+   "equivalent": 0,
+   "equivalents": [],
+   "inconclusive": 0,
+   "killed": 30,
+   "mutants": 30,
+   "rows": [
+    {
+     "detail": "4 failure(s); first: the script stages tools/one.py, because the manifest names ",
+     "name": "the script stages nothing, because the paths are not written into it",
+     "verdict": "killed"
+    },
+    {
+     "detail": "3 failure(s); first: the script stages tools/two.py, because the manifest names ",
+     "name": "only the first path is staged",
+     "verdict": "killed"
+    },
+    {
+     "detail": "1 failure(s); first: ...in the manifest's order, so the same manifest always mak",
+     "name": "the paths are sorted rather than kept in the manifest's order",
+     "verdict": "killed"
+    },
+    {
+     "detail": "1 failure(s); first: the subject is escaped for PowerShell -- a quote, a BACKTIC",
+     "name": "the backtick is escaped last, so every other escape is escaped again",
+     "verdict": "killed"
+    },
+    {
+     "detail": "1 failure(s); first: the subject is escaped for PowerShell -- a quote, a BACKTIC",
+     "name": "a quote in the subject is not escaped",
+     "verdict": "killed"
+    },
+    {
+     "detail": "1 failure(s); first: the body is one line: a newline inside a PowerShell double-",
+     "name": "a newline in the body is left in",
+     "verdict": "killed"
+    },
+    {
+     "detail": "4 failure(s); first: the script is written into the repo, beside its manifest --",
+     "name": "the script is written where it used to live, outside the repo",
+     "verdict": "killed"
+    },
+    {
+     "detail": "1 failure(s); first: the chain probes the file the previous slice was supposed t",
+     "name": "the chain never runs the previous script",
+     "verdict": "killed"
+    },
+    {
+     "detail": "1 failure(s); first: and the tarballs it names are cleaned up",
+     "name": "the tarballs it delivered are never cleaned up",
+     "verdict": "killed"
+    },
+    {
+     "detail": "1 failure(s); first: a script edited by hand is a FAILURE, not a silent divergen",
+     "name": "a hand-edited script is not compared, only its existence",
+     "verdict": "killed"
+    },
+    {
+     "detail": "1 failure(s); first: a script edited by hand is a FAILURE, not a silent divergen",
+     "name": "the comparison ignores what the manifest would generate",
+     "verdict": "killed"
+    },
+    {
+     "detail": "1 failure(s); first: a manifest naming a file that is not there fails: the commi",
+     "name": "a manifest may name a file that is not there",
+     "verdict": "killed"
+    },
+    {
+     "detail": "1 failure(s); first: a manifest whose id is not its filename fails -- everything",
+     "name": "a manifest's id need not be its filename",
+     "verdict": "killed"
+    },
+    {
+     "detail": "1 failure(s); first: a chain to a slice that does not exist fails, because a cha",
+     "name": "a chain may point at nothing",
+     "verdict": "killed"
+    },
+    {
+     "detail": "1 failure(s); first: the tarball holds exactly the manifest's paths and the scri",
+     "name": "the tarball leaves out the script that commits it",
+     "verdict": "killed"
+    },
+    {
+     "detail": "1 failure(s); first: the tarball holds exactly the manifest's paths and the scri",
+     "name": "the tarball ships the whole tree rather than the manifest's paths",
+     "verdict": "killed"
+    },
+    {
+     "detail": "6 failure(s); first: everything the ledger has never seen and no manifest claims",
+     "name": "a file the ledger has never seen counts as delivered",
+     "verdict": "killed"
+    },
+    {
+     "detail": "1 failure(s); first: a file whose BYTES have changed since it was delivered is u",
+     "name": "the bytes are not compared, only the path",
+     "verdict": "killed"
+    },
+    {
+     "detail": "7 failure(s); first: everything the ledger has never seen and no manifest claims",
+     "name": "what a manifest claims is undelivered too, so a slice cannot work",
+     "verdict": "killed"
+    },
+    {
+     "detail": "6 failure(s); first: everything the ledger has never seen and no manifest claims",
+     "name": "every path counts as claimed, so nothing is ever undelivered",
+     "verdict": "killed"
+    },
+    {
+     "detail": "1 failure(s); first: ...and they are NAMED in what it prints, because the workli",
+     "name": "the undelivered files are counted but not named",
+     "verdict": "killed"
+    },
+    {
+     "detail": "2 failure(s); first: an undelivered file fails with NO FLAG -- run_all runs an a",
+     "name": "an undelivered file is reported and the exit code is not",
+     "verdict": "killed"
+    },
+    {
+     "detail": "1 failure(s); first: declaring a path outside delivery WITHOUT a reason is refus",
+     "name": "a path may be ignored with no reason given",
+     "verdict": "killed"
+    },
+    {
+     "detail": "1 failure(s); first: ...and with one, the reason is what is stored: {'tools/old.",
+     "name": "the reason is not what is stored",
+     "verdict": "killed"
+    },
+    {
+     "detail": "2 failure(s); first: an ignored path leaves the worklist: ['tools/old.py']",
+     "name": "an ignored path is still on the worklist",
+     "verdict": "killed"
+    },
+    {
+     "detail": "1 failure(s); first: a file delivered once and since removed is reported as GONE",
+     "name": "a file that was delivered and then deleted is a failure",
+     "verdict": "killed"
+    },
+    {
+     "detail": "1 failure(s); first: ...and it does not adopt what a manifest CLAIMS -- adopting",
+     "name": "an adoption takes in the slice's own work in flight",
+     "verdict": "killed"
+    },
+    {
+     "detail": "1 failure(s); first: an adoption says in the ledger that it is an adoption: seed",
+     "name": "an adoption does not say that it is one",
+     "verdict": "killed"
+    },
+    {
+     "detail": "1 failure(s); first: and the script stages ITSELF, without the manifest having t",
+     "name": "the script does not stage itself, so the record of what a slice staged is never committed",
+     "verdict": "killed"
+    },
+    {
+     "detail": "1 failure(s); first: the audit's last line -- the one run_all puts in its row --",
+     "name": "the audit's summary line is scored by run_all, so files count as checks",
+     "verdict": "killed"
+    }
+   ],
+   "survived": 0
+  },
   "mutate_engines": {
    "at": 1788480375,
    "equivalent": 0,

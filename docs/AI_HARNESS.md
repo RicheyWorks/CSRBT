@@ -373,6 +373,62 @@ FEK picker through its filter; a task names a control the page's way with
 tasks — one per data-entry page — enter data and hold the report to a
 hand-checked oracle; a page canary is refuted; 1,316 expectations confirmed.
 
+ADR-147 CLOSED THE ONE BLIND SPOT EVERY AUDIT HERE SHARES. Every audit in this
+kit measures the WORKING TREE, which is the right thing to measure and has one
+total blind spot: a file that was written, shipped to the operator's disk and
+never named by a push script is PRESENT in every measurement the kit takes and
+ABSENT from the repository. Every suite is green about it, every audit reads it,
+and it exists nowhere but one machine. It happened -- ADR-143 and ADR-144 shipped
+four files (the three state audits printing the NAME of a never-exposed control
+in their summaries, which is ADR-143's own rule that ADR-144's changelog says it
+finished, and verify_organism printing the lines that differ when two
+consecutive physicals disagree) and neither slice's push script named them. They
+sat modified and uncommitted for three days, through six full green runs, and
+were found only because a push script was run twice and the second run had
+nothing to stage. The cause was structural: every slice produced TWO
+hand-written lists of the same file set -- the tarball's, and the push script's
+`git add` -- and nothing compared them. SO THERE IS ONE LIST. A slice writes
+tools/delivery/<id>.json (id, chain, chain_probe, subject, body, paths, clean)
+and tools/deliver.py generates BOTH artefacts from it: --script writes
+tools/push/push-<id>.ps1, --bundle writes the tarball holding exactly those
+paths plus the script that commits them, --record moves the delivery ledger
+forward, --check holds every manifest and every script. Neither list is
+hand-written again, and --check is what says so: every path a manifest names
+EXISTS, every generated script is BYTE-IDENTICAL to the one on disk (a hand edit
+is a failure rather than a silent divergence), a manifest's id is its filename,
+and its chain names a manifest or a script that is really there. The PowerShell
+escaping is checked with it -- quote, backtick and $, the backtick FIRST, since
+it is the escape character and doing it last escapes every other escape. THE
+PUSH SCRIPT MOVES INTO THE REPOSITORY: it was the one artefact of every slice
+that lived outside it, outside every audit, outside every suite, outside the
+commit it describes. ADR-096 to ADR-103 kept theirs in CSRBT/; from ADR-104 they
+were written to the parent directory instead, and the scripts for ADR-104 to
+ADR-111 no longer exist anywhere, so what those eight slices staged cannot now
+be read -- nothing noticed either the drift or the loss, because nothing was
+looking. tools/audit_delivery.py is the measurement. There is no git in the
+agent's copy (a mount, not a clone), so the evidence is CONTENT: UNDELIVERED is
+the tracked files whose sha256 is not the one last delivered, minus the paths
+some manifest CLAIMS, minus the paths declared outside delivery with a reason.
+The subtraction is what makes it runnable DURING a slice, because work in flight
+is declared by the slice's own manifest -- the same list the script and the
+tarball come from. Name it in the manifest or the audit names it here, which is
+the whole mechanism in one sentence. It fails by default with no flag, because
+run_all runs an audit with no arguments. The ledger is SEEDED BY ADOPTION from a
+tree known to be committed and says so in its own _adopted block, and it does
+not adopt what a manifest already claims -- adopting a slice's work in flight
+would record as delivered exactly the files that have not been. verify_delivery
+36, mutate_delivery 30/30. Held: this is not proof that a delivered file was
+PUSHED -- that happens on a machine this process cannot see, and the ledger
+records what was handed over, not what git did with it; it is the other half, in
+that a file nothing has ever handed over cannot have been pushed. The delivery
+ledger cannot be evidence about itself (writing the record changes the file) and
+is declared outside the accounting with that reason; every other ledger the
+suite rewrites is named by the slice's manifest, which is the honest discipline
+-- if you ran the suite, you are shipping the ledgers. Evidence directories,
+traces and binaries are outside the accounting, because a screenshot rewritten
+by every run is not an undelivered change. And the scripts for ADR-104 to
+ADR-111 stay unreadable: this does not recover them.
+
 ADR-146 TOOK THE SECOND PAGE, AND FOUND THE FIGURES NO TASK COULD READ. The
 stand sheet was ADR-144's next-largest gap at 9 of 50 fields, and every figure
 the other 41 feed -- the plot area and expansion factor, Reineke's SDI, Curtis &

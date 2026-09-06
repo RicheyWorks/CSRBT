@@ -1,0 +1,3124 @@
+{
+ "_adopted": {
+  "at": 1788676930,
+  "by": "adr146b",
+  "paths": 607,
+  "why": "seeded from a tree known to be committed. An adoption is not evidence that these bytes were pushed -- it is the baseline the ratchet starts from."
+ },
+ "_comment": "Written by tools/deliver.py. Per path: the sha256 of the bytes a slice last DELIVERED, and which slice delivered them. audit_delivery names anything on disk whose bytes are not in here and that no manifest claims -- a file that is on disk and in no commit (ADR-147).",
+ "ignored": {
+  "tools/delivery_ledger.json": "The ledger cannot record its own bytes: writing the record changes the file, so its stored sha is stale the instant it is written. It is shipped by every slice's manifest like anything else -- what it cannot be is evidence about itself."
+ },
+ "paths": {
+  "docs/ADR-001-csrbt-review-optimization-expansion.md": {
+   "at": 1788676919,
+   "by": "adr146b",
+   "sha": "699624e855fe0a959c12d5cc50c0971f7e2688a0c413c15708aabc081d397fa2"
+  },
+  "docs/ADR-002-architecture-review-2026-05-30.md": {
+   "at": 1788676919,
+   "by": "adr146b",
+   "sha": "ebfb1e9c01b2142a895142b9d5384d8e8067ff87d97000bf89a73d144aa5cad4"
+  },
+  "docs/ADR-003-multi-tree-ensemble-2026-06-06.md": {
+   "at": 1788676919,
+   "by": "adr146b",
+   "sha": "af32786ac43d7c96dfa3a409af8bd809af110d77915e224e1f18606669b0c47d"
+  },
+  "docs/ADR-004-lock-free-reads-2026-06-09.md": {
+   "at": 1788676919,
+   "by": "adr146b",
+   "sha": "579d02a2dff5de87e34ad98f81bb21c2ab4aa4835b61b6fa29491574164b7970"
+  },
+  "docs/ADR-005-balanced-persistent-engine-2026-06-09.md": {
+   "at": 1788676919,
+   "by": "adr146b",
+   "sha": "087d1987810a3eff0b91d1281d9558ae42af6d9fa070c6c8c5846d50a6552a72"
+  },
+  "docs/ADR-006-verified-read-sampling-2026-06-09.md": {
+   "at": 1788676919,
+   "by": "adr146b",
+   "sha": "4daee150c4bbe37865f405f7289af948e93ebba79e5e1613dbdb1b4ed717e185"
+  },
+  "docs/ADR-007-optimistic-votes-2026-06-09.md": {
+   "at": 1788676919,
+   "by": "adr146b",
+   "sha": "e9258feb960f6fe8b4b05ea5de1190edb98de0a465ab82f07b1890096663b0e3"
+  },
+  "docs/ADR-008-bplus-tree-engine-2026-06-09.md": {
+   "at": 1788676919,
+   "by": "adr146b",
+   "sha": "6a0d9afd2abdc1e549219eb791a1fac9ceb2b8225508061584393aa8e853cee8"
+  },
+  "docs/ADR-009-roadmap-reconciliation-2026-06-09.md": {
+   "at": 1788676919,
+   "by": "adr146b",
+   "sha": "415a115ab0b988a7b9f9f4ebd39d587da7ed924d941a18a049cdc9012703944d"
+  },
+  "docs/ADR-010-second-reconciliation-2026-06-10.md": {
+   "at": 1788676919,
+   "by": "adr146b",
+   "sha": "02a31c3f4932993c738d2cc7e55a6e920c2167019d437289a921385928638e68"
+  },
+  "docs/ADR-011-evolution-machine-2026-06-10.md": {
+   "at": 1788676919,
+   "by": "adr146b",
+   "sha": "58fff069f14f8458ff3ff427708ace310ad17dbab249417ebf897817d52a1944"
+  },
+  "docs/ADR-012-ecology-turn-2026-06-10.md": {
+   "at": 1788676919,
+   "by": "adr146b",
+   "sha": "0437bff825d844146d663d1700c706dc735f2de44350e0b1a3a944d28565e226"
+  },
+  "docs/ADR-013-gradle-migration-2026-06-11.md": {
+   "at": 1788676919,
+   "by": "adr146b",
+   "sha": "9bfb5c87b0b66518421e0d34a73ec5a957f80b771561037bca12355dbd61e5b0"
+  },
+  "docs/ADR-014-on-sorted-bulk-build-2026-06-14.md": {
+   "at": 1788676919,
+   "by": "adr146b",
+   "sha": "1fb26cebff2df308484adc1e872181410e60c5e9fbefc961c207943d360b604c"
+  },
+  "docs/ADR-015-community-ecology-layer-2026-08-09.md": {
+   "at": 1788676919,
+   "by": "adr146b",
+   "sha": "cf2a68a1523ad90c64776ae9975da2f61dbee2ed9e0e6f7661a931ebe2b6ff0a"
+  },
+  "docs/ADR-016-engine-ecology-2026-08-09.md": {
+   "at": 1788676919,
+   "by": "adr146b",
+   "sha": "d04386fa3c204266abc2072c60f3376ddd14eedc8b40ff40868271ba130f7b84"
+  },
+  "docs/ADR-017-heredity-seams-2026-08-09.md": {
+   "at": 1788676919,
+   "by": "adr146b",
+   "sha": "1dcb0ba0e5b9c78c11b9d732be60f50187a8c6112b51a81fc2237b4482ba1c2f"
+  },
+  "docs/ADR-018-amortization-frontier-2026-08-09.md": {
+   "at": 1788676919,
+   "by": "adr146b",
+   "sha": "4c4f9ec4e13e7df0b2e0141d00da8f6270650b92e8b21028118d5987c31e89c4"
+  },
+  "docs/ADR-019-classroom-seam-2026-08-09.md": {
+   "at": 1788676919,
+   "by": "adr146b",
+   "sha": "acc44be4d1e04bd55c8b6fc76081f31e1e3055ddb92b34d0414d83972bebc1ba"
+  },
+  "docs/ADR-020-student-seam-2026-08-10.md": {
+   "at": 1788676919,
+   "by": "adr146b",
+   "sha": "cd4cce4c34456cc49515ed4afc369361f347c4cad439e5f039dbadf6164a061d"
+  },
+  "docs/ADR-021-atomic-navigation-2026-08-12.md": {
+   "at": 1788676919,
+   "by": "adr146b",
+   "sha": "aae846479e15a224d3920d27c6412b6e90107e5ae3b48acf825d52788ba05f1a"
+  },
+  "docs/ADR-022-battle-methodology-2026-08-12.md": {
+   "at": 1788676919,
+   "by": "adr146b",
+   "sha": "d319aa78385cb0c73def689cc45a56ef33b03f8da1afe768a709512908866027"
+  },
+  "docs/ADR-023-rotation-cache-propagation-2026-08-17.md": {
+   "at": 1788676919,
+   "by": "adr146b",
+   "sha": "f3beba2767387c40076a8e3cac6647c1b9c98b4774d5d4baa43911026e93cc00"
+  },
+  "docs/ADR-024-per-member-rotation-metering-2026-08-17.md": {
+   "at": 1788676919,
+   "by": "adr146b",
+   "sha": "0afd3fbeaa110e1f48f1628d4112dbb04d1fdf04c4b0217d1af96c4d8ed4114e"
+  },
+  "docs/ADR-025-snapshot-failure-signaling-2026-08-17.md": {
+   "at": 1788676919,
+   "by": "adr146b",
+   "sha": "d7a99d6ccc0e3a84875b08481cdcc09b4d9bf0e62f47f7a28f58172dcc6b523e"
+  },
+  "docs/ADR-026-snapshot-load-signaling-2026-08-17.md": {
+   "at": 1788676919,
+   "by": "adr146b",
+   "sha": "a398e7a96cdee8616a9395d2696e65bc60f668f4c39518d945dcc41ea3deef96"
+  },
+  "docs/ADR-027-protocol-import-2026-08-17.md": {
+   "at": 1788676919,
+   "by": "adr146b",
+   "sha": "21570734dbb8c7cdb9d78cce1cdb610ae15bcd65892f79e3dfd5f6f0362f63ef"
+  },
+  "docs/ADR-028-one-climb-per-write-2026-08-17.md": {
+   "at": 1788676919,
+   "by": "adr146b",
+   "sha": "a4f2c7854a95c027cb647b8c49df2f7edc9ec7693a11dc318a432f4d981e628a"
+  },
+  "docs/ADR-029-bplus-registry-slot-2026-08-19.md": {
+   "at": 1788676919,
+   "by": "adr146b",
+   "sha": "dd89765195f1f6c0a342bb714a162fdbfbf68d8f4161bbc685592d5c5e51f0c3"
+  },
+  "docs/ADR-030-native-office-export-2026-08-19.md": {
+   "at": 1788676919,
+   "by": "adr146b",
+   "sha": "6259981000ec9800866268fe984dd56431f8511a1bcca0a0e1c1d2c988cd97e8"
+  },
+  "docs/ADR-031-entry-layer-and-suites-2026-08-24.md": {
+   "at": 1788676919,
+   "by": "adr146b",
+   "sha": "1089f0a0aead32cadf7a1dac2adf7e87c050c810d4716c43f22fb2edff14c654"
+  },
+  "docs/ADR-032-darwin-core-export-2026-08-25.md": {
+   "at": 1788676919,
+   "by": "adr146b",
+   "sha": "187847f61c10d1d0bc3dfd28b7ecccf1e37b228250737659e065a9a860e9e8c4"
+  },
+  "docs/ADR-033-ordination-2026-08-25.md": {
+   "at": 1788676919,
+   "by": "adr146b",
+   "sha": "664280ad1198778f2dbeef308b42dab221078ea2a3207d9b632d541c4170b511"
+  },
+  "docs/ADR-034-local-autosave-2026-08-25.md": {
+   "at": 1788676919,
+   "by": "adr146b",
+   "sha": "fddb5fe9b71878e63f1cb2f23b681f8ef54689a9a885d76142480a0c8c856a06"
+  },
+  "docs/ADR-035-deployment-log-2026-08-25.md": {
+   "at": 1788676919,
+   "by": "adr146b",
+   "sha": "8b6f44db3c3ac1031977f2a423b5aff034fe894069ab398fb0ab5812009dfed9"
+  },
+  "docs/ADR-036-event-core-humboldt-2026-08-25.md": {
+   "at": 1788676919,
+   "by": "adr146b",
+   "sha": "6e03f26873681deb15b9bd0cb4f7754fd02b6e9018ec30427f69b4d9f93de306"
+  },
+  "docs/ADR-037-joining-the-survey-2026-08-25.md": {
+   "at": 1788676919,
+   "by": "adr146b",
+   "sha": "f740745c07f450f9ed1228da51d844ccb07124e287534934f01e43a6d6bdeb20"
+  },
+  "docs/ADR-038-published-state-2026-08-25.md": {
+   "at": 1788676919,
+   "by": "adr146b",
+   "sha": "0ba025dd6ec458030e8f1c7a27502be984470b7791f4e998d51b86afc5591bf2"
+  },
+  "docs/ADR-039-food-web-verification-2026-08-25.md": {
+   "at": 1788676919,
+   "by": "adr146b",
+   "sha": "6d600c2b82c1a53a6ae3d369af03268513cc43407bbbb4065ff589d52395d34c"
+  },
+  "docs/ADR-040-the-finder-was-the-defect-2026-08-26.md": {
+   "at": 1788676919,
+   "by": "adr146b",
+   "sha": "74660422e7180b6416b9d4633eeedb600dc18a13872c74f7933f309801536edb"
+  },
+  "docs/ADR-041-arithmetic-is-checkable-2026-08-26.md": {
+   "at": 1788676919,
+   "by": "adr146b",
+   "sha": "3d45a72c167f7f088a10ce3f690dc3271a600c106594be8eae1added86e036d8"
+  },
+  "docs/ADR-042-grower-soil-recipes-2026-08-26.md": {
+   "at": 1788676919,
+   "by": "adr146b",
+   "sha": "82e58294090d6839e95a136c11cd3679077e83ee4cd6c1658c260f746c0ab777"
+  },
+  "docs/ADR-043-greenhouse-monitor-2026-08-26.md": {
+   "at": 1788676919,
+   "by": "adr146b",
+   "sha": "330fb4144830144b7a0a5d2a389728c180bdf73936e3bedb5290f261b635dfa0"
+  },
+  "docs/ADR-044-run-history-2026-08-26.md": {
+   "at": 1788676919,
+   "by": "adr146b",
+   "sha": "bbb7012d18bd1b1928d9e652c10323d9714c7c2ee1350b94128d9e4fd4e38480"
+  },
+  "docs/ADR-045-mutation-sweep-2026-08-26.md": {
+   "at": 1788676919,
+   "by": "adr146b",
+   "sha": "e03f0bbae6d41024cb4ec0acb2f8b7b0eebae9274e28d276820f413b98ec28ad"
+  },
+  "docs/ADR-046-raising-the-score-2026-08-26.md": {
+   "at": 1788676919,
+   "by": "adr146b",
+   "sha": "6cba6903a0ada823c83980b0314361fb667d2bb3dcea523ef06cf3f89d804ce5"
+  },
+  "docs/ADR-047-sweeping-the-rest-2026-08-26.md": {
+   "at": 1788676919,
+   "by": "adr146b",
+   "sha": "7fecbf04cc77d1e1ad23bdfc25b4e7d7c64812870077570b2d2f4c2c1fb30a4e"
+  },
+  "docs/ADR-048-darwin-core-swept-2026-08-26.md": {
+   "at": 1788676919,
+   "by": "adr146b",
+   "sha": "a06b54ee66eca1e8d329f3175c5aebb13739dcaad844bd6c89deed9dc85bb91b"
+  },
+  "docs/ADR-049-reachability-is-not-staleness-2026-08-26.md": {
+   "at": 1788676919,
+   "by": "adr146b",
+   "sha": "e4e532cb57626e662a843060e2dbf0867a2d5b211b359097313bf5d098c8d77c"
+  },
+  "docs/ADR-050-what-a-stale-page-actually-says-2026-08-26.md": {
+   "at": 1788676919,
+   "by": "adr146b",
+   "sha": "46f894c9c3b2ebb0f2fa8a34a5798560ef7d682c8c4d78d831563956dc301d3f"
+  },
+  "docs/ADR-051-the-kit-contradicting-itself-2026-08-26.md": {
+   "at": 1788676919,
+   "by": "adr146b",
+   "sha": "6068790a4eea55aee7ca25f5865fdf44feca3c99b9ce177bd7369851b89b2856"
+  },
+  "docs/ADR-052-binding-the-docs-to-the-engine-2026-08-26.md": {
+   "at": 1788676919,
+   "by": "adr146b",
+   "sha": "d09e517a3b50eb4b0e3f41aaa79af6238c593d129739e0c746c4af120a256dbe"
+  },
+  "docs/ADR-053-citations-travel-with-the-number-2026-08-26.md": {
+   "at": 1788676919,
+   "by": "adr146b",
+   "sha": "716ff85c0829ee9eec8cd5aa1b5337369988d1ce839ba986f369cd2530cd2c42"
+  },
+  "docs/ADR-054-breast-height-is-a-method-parameter-2026-08-26.md": {
+   "at": 1788676919,
+   "by": "adr146b",
+   "sha": "a45528e8aea91ba19f54d1714dafcedab05a919fd737e59540f5102b6b139583"
+  },
+  "docs/ADR-055-the-ranking-was-stale-evidence-2026-08-26.md": {
+   "at": 1788676919,
+   "by": "adr146b",
+   "sha": "f40d3f5a1d6fd47f57436a4c218d4a41d2eba01428a50e12ab7a76a0d3e31410"
+  },
+  "docs/ADR-056-a-copy-older-than-its-page-is-not-evidence-2026-08-26.md": {
+   "at": 1788676919,
+   "by": "adr146b",
+   "sha": "749052e05a7c6a5dfcaf2cfe314ef37ab0ddd6af47a51b5bf25e5a1e27ba6f9b"
+  },
+  "docs/ADR-057-the-policy-is-the-checker-2026-08-26.md": {
+   "at": 1788676919,
+   "by": "adr146b",
+   "sha": "faaee8fb3240d72998ecab801de2f8b2d69e5f2960c1b9f24970c8a62c184303"
+  },
+  "docs/ADR-058-the-unread-artifacts-2026-08-26.md": {
+   "at": 1788676919,
+   "by": "adr146b",
+   "sha": "2653cc75c230db76f5b64255b9cdccb9be30da782be0d295bd0f822ae19d3405"
+  },
+  "docs/ADR-059-regrading-the-graded-run-2026-08-26.md": {
+   "at": 1788676919,
+   "by": "adr146b",
+   "sha": "67f05dc1a01c7c3950e90d9fc52bb4c1e5b161798bef37c97f6de83a39b714b3"
+  },
+  "docs/ADR-060-the-contested-ceiling-2026-08-26.md": {
+   "at": 1788676919,
+   "by": "adr146b",
+   "sha": "560962a25de3ef750f166ddac2da1d8419f73e58c1448509c24373d079c4d6a1"
+  },
+  "docs/ADR-061-the-survivor-that-was-already-dead-2026-08-27.md": {
+   "at": 1788676919,
+   "by": "adr146b",
+   "sha": "5ed9d043df66a14d8b121e439476d695c30309e3ec6dcd920addbf360651b810"
+  },
+  "docs/ADR-062-recording-the-triage-2026-08-27.md": {
+   "at": 1788676919,
+   "by": "adr146b",
+   "sha": "9e0fe48c5e50d791246402c8c388da73fadc81d1d3ba231e7fb82310cfb2bf36"
+  },
+  "docs/ADR-063-five-more-pages-2026-08-27.md": {
+   "at": 1788676919,
+   "by": "adr146b",
+   "sha": "c9c3b00e671e7af88f80f8302b518bfeff02c7f3f6ceab4e7a7ede43863ef964"
+  },
+  "docs/ADR-064-escaping-a-constant-2026-08-27.md": {
+   "at": 1788676919,
+   "by": "adr146b",
+   "sha": "bc940684b3f613b44686e81d3b05ff4fb53eaae0b688ba906cc526ae76d43e98"
+  },
+  "docs/ADR-065-a-page-with-no-suite-2026-08-27.md": {
+   "at": 1788676919,
+   "by": "adr146b",
+   "sha": "658820be4431eae141034583f1884c4fc9557f85dc24176a7720403ac14c0970"
+  },
+  "docs/ADR-066-one-loader-thirty-eight-pages-2026-08-27.md": {
+   "at": 1788676919,
+   "by": "adr146b",
+   "sha": "561f02d9f3cf431e14d2384d2c467f113e49c0800cf353abd0b99b9217e5fa74"
+  },
+  "docs/ADR-067-a-sentence-disagreeing-with-itself-2026-08-27.md": {
+   "at": 1788676919,
+   "by": "adr146b",
+   "sha": "a827eb273a268cffb7afd15d1fba477cfa6efa179e7210e24b2e66e8117b4153"
+  },
+  "docs/ADR-068-a-check-that-compared-a-number-with-itself-2026-08-27.md": {
+   "at": 1788676919,
+   "by": "adr146b",
+   "sha": "193dee10204dffe591418384774423964f972739be2372c672829e5509909f50"
+  },
+  "docs/ADR-069-a-red-suite-scores-a-hundred-percent-2026-08-27.md": {
+   "at": 1788676919,
+   "by": "adr146b",
+   "sha": "99d40b3a11648388ec044af120edd6103b7b94160d1c83994672caaed8cd696b"
+  },
+  "docs/ADR-070-nothing-measured-the-thing-that-measures-2026-08-27.md": {
+   "at": 1788676919,
+   "by": "adr146b",
+   "sha": "9dc70d0bec2c05aba88df238ef0194235ac126ce6f85e4a2894cdea4a1fa37ed"
+  },
+  "docs/ADR-071-the-suite-that-could-not-testify-2026-08-27.md": {
+   "at": 1788676919,
+   "by": "adr146b",
+   "sha": "3917525fa87d5702f6dbfc28e61d5028d0f9ab5a7d0bdd3ee918d77d0ca68343"
+  },
+  "docs/ADR-072-ninety-eight-checks-that-were-never-allowed-to-speak-2026-08-27.md": {
+   "at": 1788676919,
+   "by": "adr146b",
+   "sha": "0d97fee1990f228b8b9e563e9118d52e2adaa1f006df72c124f7b9fef0e6890c"
+  },
+  "docs/ADR-073-the-middle-of-every-band-2026-08-27.md": {
+   "at": 1788676919,
+   "by": "adr146b",
+   "sha": "f03d608f53188756ce807967306df3a8b05dbc22d0585a06ba65006edd6adc44"
+  },
+  "docs/ADR-074-thirty-nine-of-thirty-nine-2026-08-27.md": {
+   "at": 1788676919,
+   "by": "adr146b",
+   "sha": "4ea6d6a7d3a0cf52694d92ec6af2f511b2ec6a5cd8577e6c77481451fda26cec"
+  },
+  "docs/ADR-075-thirty-nine-of-thirty-nine-is-a-four-percent-sample-2026-08-27.md": {
+   "at": 1788676919,
+   "by": "adr146b",
+   "sha": "606b8da6a0a6cea011f8bbabbea1eb808c8e39f744c9dc8be7f8e45e932c53d0"
+  },
+  "docs/ADR-077-a-rule-a-sentence-about-the-rule-can-break-2026-08-27.md": {
+   "at": 1788676919,
+   "by": "adr146b",
+   "sha": "1c127f469d16bbfcc9d20e65cc8938f617c03b65d8d9a9da783760824e8f771e"
+  },
+  "docs/ADR-078-the-published-copy-can-be-read-2026-08-27.md": {
+   "at": 1788676919,
+   "by": "adr146b",
+   "sha": "738b52e9ca65f28ffd5f01113bf423340587a1f3021b01fe010c2eaa7921addd"
+  },
+  "docs/ADR-079-green-about-the-repo-2026-08-27.md": {
+   "at": 1788676919,
+   "by": "adr146b",
+   "sha": "67aac90681ac77b80d3ce2ccfe07f45b13ca9d0d2620ad76823aaa95f07d186d"
+  },
+  "docs/ADR-080-what-each-one-was-behind-by-2026-08-27.md": {
+   "at": 1788676919,
+   "by": "adr146b",
+   "sha": "247287d6b5993d4c55fd010d84c5c55e3aa4ad6814a20d615994585277403915"
+  },
+  "docs/ADR-081-the-page-that-promised-it-2026-08-28.md": {
+   "at": 1788676919,
+   "by": "adr146b",
+   "sha": "10b540d1f3c0ee816ac7cc54a443377aaefe957e8d7f5c6f85191249faef3a27"
+  },
+  "docs/ADR-082-three-numbers-in-one-file-2026-08-28.md": {
+   "at": 1788676919,
+   "by": "adr146b",
+   "sha": "cbab9a6db98c4b8e7dc570f4f1345617a68dc05a35eb337e51dba118b7e83b0b"
+  },
+  "docs/ADR-083-the-kit-was-wrong-about-itself-2026-08-28.md": {
+   "at": 1788676919,
+   "by": "adr146b",
+   "sha": "5ecdc5343230b8c0e766386478720ca8fa9a8dc8eff7e061cfeb0574f56a8cb7"
+  },
+  "docs/ADR-084-the-guard-in-front-of-its-own-evidence-2026-08-28.md": {
+   "at": 1788676919,
+   "by": "adr146b",
+   "sha": "9a0b6ea033b35b1c0fe755827a01cfccda4c01afb6eb4f68878b4cde32ecd86d"
+  },
+  "docs/ADR-085-the-date-of-a-copy-is-not-the-date-of-its-file-2026-08-28.md": {
+   "at": 1788676919,
+   "by": "adr146b",
+   "sha": "35ca08ff70e3a9a1aa1dcbe47a04b95b4eebbcc6dd236b2fcbdaac97822a4beb"
+  },
+  "docs/ADR-086-ten-for-ten-and-the-two-clocks-2026-08-28.md": {
+   "at": 1788676919,
+   "by": "adr146b",
+   "sha": "c0fe8d5e7b3695d0cecefca0a80864a6c5ab809be81bae15148918354537b0a3"
+  },
+  "docs/ADR-087-a-number-that-was-a-coin-flip-2026-08-28.md": {
+   "at": 1788676919,
+   "by": "adr146b",
+   "sha": "cc15dbb1e6a4bb117e9681b1c9ee47b1dcffd2927f33f7f1a816b6a1f74d9b27"
+  },
+  "docs/ADR-088-the-sweep-that-was-owed-2026-08-28.md": {
+   "at": 1788676919,
+   "by": "adr146b",
+   "sha": "4225b4a4d610713ba4f01ea10dd0108bf70942e08eb0cdf245aea5229f02a423"
+  },
+  "docs/ADR-089-the-digit-a-reader-was-shown-2026-08-28.md": {
+   "at": 1788676919,
+   "by": "adr146b",
+   "sha": "d2a54f593eac2388c3d2fd1a54d6f605fdfb1c9bc51ad1e1dfeffe582bd88565"
+  },
+  "docs/ADR-090-the-session-nobody-had-rendered-2026-08-28.md": {
+   "at": 1788676919,
+   "by": "adr146b",
+   "sha": "e3cae676d3885b209676930a073983abc7decf879e4febd077aa2cacb05fda9c"
+  },
+  "docs/ADR-091-the-blind-spot-named-after-the-wrong-mechanism-2026-08-28.md": {
+   "at": 1788676919,
+   "by": "adr146b",
+   "sha": "8a71b416a21dbaef8e81def8349357dd813e05648a18113811d86af8e6192ee0"
+  },
+  "docs/ADR-092-a-channel-nobody-had-rendered-2026-08-28.md": {
+   "at": 1788676919,
+   "by": "adr146b",
+   "sha": "274acf68c821cfba6996c0a2d3dddac47066be6ff8e29f7ebcceff2215d2de6d"
+  },
+  "docs/ADR-093-i-measured-the-tabs-2026-08-28.md": {
+   "at": 1788676919,
+   "by": "adr146b",
+   "sha": "38a16a53fa3f45b957c1b12c09936a02bef578ea7024330ff42f87f181684ec0"
+  },
+  "docs/ADR-094-a-worklist-with-a-front-2026-08-28.md": {
+   "at": 1788676919,
+   "by": "adr146b",
+   "sha": "61dd7c5549a50690c01cc5f354f543671319d105861648876429d2d80a675d3c"
+  },
+  "docs/ADR-095-the-guider-arrives-swept-2026-08-29.md": {
+   "at": 1788676919,
+   "by": "adr146b",
+   "sha": "b8cf0b87a8244c83a7dbb7af3bf54cfb896d4ae6f06a37826a3e0e5530b9f70b"
+  },
+  "docs/ADR-096-the-repository-was-the-stale-copy-2026-08-29.md": {
+   "at": 1788676919,
+   "by": "adr146b",
+   "sha": "f23036a75f926763f79ccf1555514d49d602ecbae39b640a2b07deac2b7e7602"
+  },
+  "docs/ADR-097-the-worklist-was-being-worked-in-the-wrong-copy-2026-08-29.md": {
+   "at": 1788676919,
+   "by": "adr146b",
+   "sha": "ecd50e3b1061368b3539b2e0bb524a74fd44ab41092f4a2d8721b18a383ccc9b"
+  },
+  "docs/ADR-098-a-signpost-is-not-a-claim-2026-08-29.md": {
+   "at": 1788676919,
+   "by": "adr146b",
+   "sha": "659cdf6845477dc1d4ddcca8868637a0a42a01b17ea4f775738c344fbe0a8148"
+  },
+  "docs/ADR-099-the-prediction-was-wrong-and-the-reverse-was-true-2026-08-29.md": {
+   "at": 1788676919,
+   "by": "adr146b",
+   "sha": "e5c553cb0f384d8f71f8b4849da2327412840bb861c290fa01311e67ae8a8712"
+  },
+  "docs/ADR-100-the-instrument-was-the-first-thing-it-found-2026-08-29.md": {
+   "at": 1788676919,
+   "by": "adr146b",
+   "sha": "16f3ea77386fb9252ed8dc1d27ea35e85c7908987b6047552018229f609a50d8"
+  },
+  "docs/ADR-101-a-click-is-not-a-result-2026-08-29.md": {
+   "at": 1788676919,
+   "by": "adr146b",
+   "sha": "2a2a8dabc25163582bc1fa7587f7f8abe0148391d80248e45409736c9b9038da"
+  },
+  "docs/ADR-102-the-harness-had-never-touched-the-camera-2026-08-29.md": {
+   "at": 1788676919,
+   "by": "adr146b",
+   "sha": "e653c7d3bef964b1d44f882c7719f99386d3d2541ceb4621d552ce93eb216e1a"
+  },
+  "docs/ADR-103-the-chaos-was-pressing-buttons-nobody-can-reach-2026-08-29.md": {
+   "at": 1788676919,
+   "by": "adr146b",
+   "sha": "2085e25925e0e507f6ae5eb7f0d01ddd751e59d26729fc6a93bf1a7906311a83"
+  },
+  "docs/ADR-104-a-hole-is-not-a-failure-2026-08-30.md": {
+   "at": 1788676919,
+   "by": "adr146b",
+   "sha": "f9a30e63691227dc5ea494fe7ef64aeadcf01b5a4b55bc96c75bae717ad1f21a"
+  },
+  "docs/ADR-105-the-prediction-was-wrong-and-the-canary-was-lying-2026-08-30.md": {
+   "at": 1788676919,
+   "by": "adr146b",
+   "sha": "57dd0de8eeebc8d34d51712d59a3c2e1d15d34ad30cd6b3a70f6069c2fbcecd4"
+  },
+  "docs/ADR-106-an-audit-of-nothing-reports-clean-2026-08-30.md": {
+   "at": 1788676919,
+   "by": "adr146b",
+   "sha": "b8606cdc1d434cdb5154a566ab9e9139dcda56921f202d29931ec448ba687f4f"
+  },
+  "docs/ADR-107-the-first-photograph-2026-08-30.md": {
+   "at": 1788676919,
+   "by": "adr146b",
+   "sha": "a4b4f69e7cc895ff4475a77c67ccd4f53abe009552218ca6fccce1c40c8684d9"
+  },
+  "docs/ADR-108-the-harness-had-no-map-2026-08-30.md": {
+   "at": 1788676919,
+   "by": "adr146b",
+   "sha": "935ff6f4dbd770c3a248171c82683124c438487f0098a420f78bc9578b18c675"
+  },
+  "docs/ADR-109-a-detector-with-no-alarm-2026-08-30.md": {
+   "at": 1788676919,
+   "by": "adr146b",
+   "sha": "0cb3db4b2cab6746316076efe77ae02268ca7ee0d58751fd6c4d6d719f83d920"
+  },
+  "docs/ADR-110-judged-on-an-empty-page-2026-08-31.md": {
+   "at": 1788676919,
+   "by": "adr146b",
+   "sha": "6750b164de2eec6cec2fa8a55e468e8f1519710ce656043ab2d2ce3711d2ae00"
+  },
+  "docs/ADR-111-two-oracles-in-one-instrument-2026-08-31.md": {
+   "at": 1788676919,
+   "by": "adr146b",
+   "sha": "8e7f9cb71c4b35c93feb2a08f309059edc187242d9e3381442515f741f37fd63"
+  },
+  "docs/ADR-112-a-contract-with-one-implementation-is-a-claim-2026-09-01.md": {
+   "at": 1788676919,
+   "by": "adr146b",
+   "sha": "9e3d8151205a4b82a81520ab429095d50a0208d58933bc60795a749c75bd53d4"
+  },
+  "docs/ADR-113-every-organ-by-name-2026-09-01.md": {
+   "at": 1788676919,
+   "by": "adr146b",
+   "sha": "9e17ee6a2aa6dab8cb1b383e754352c877d318668c44579837ac1c7995b43019"
+  },
+  "docs/ADR-114-operable-from-the-manifest-alone-2026-09-01.md": {
+   "at": 1788676919,
+   "by": "adr146b",
+   "sha": "9a7471be7db11bba7bb62266da95ba6a457908938e23477eb975d30d3525fc41"
+  },
+  "docs/ADR-115-the-second-transport-2026-09-01.md": {
+   "at": 1788676919,
+   "by": "adr146b",
+   "sha": "6b5e86e9821b1bef87808cf29f07ea21305a10fd1a4ddece2631ed2c6bf2cfda"
+  },
+  "docs/ADR-116-the-third-target-2026-09-01.md": {
+   "at": 1788676920,
+   "by": "adr146b",
+   "sha": "3b02a662b3b0a59dab849760a6f583bbe1cb12569b045d8fcb5e70623ad11913"
+  },
+  "docs/ADR-117-one-robot-for-every-target-2026-09-01.md": {
+   "at": 1788676920,
+   "by": "adr146b",
+   "sha": "2c3b99f3e10b6abbe1f3681d89cc0ad9c73946d01b5697b43ac4fba868eaea8d"
+  },
+  "docs/ADR-118-the-engines-own-suites-ratcheted-2026-09-02.md": {
+   "at": 1788676920,
+   "by": "adr146b",
+   "sha": "e5469419d0455bedf92676ac7bf4c8b45c2ca2c1a5563d05c93107bc74a64f1e"
+  },
+  "docs/ADR-119-the-robot-broken-on-purpose-2026-09-02.md": {
+   "at": 1788676920,
+   "by": "adr146b",
+   "sha": "574a62327bd243abfa5b7006268122b85f34578327f23506882240793d668752"
+  },
+  "docs/ADR-120-nothing-held-2026-09-02.md": {
+   "at": 1788676920,
+   "by": "adr146b",
+   "sha": "817960ec8af3bcde75fc598412be58bd93d0003b95854fb45f3e8c56c7e81142"
+  },
+  "docs/ADR-121-one-robot-for-every-transport-2026-09-02.md": {
+   "at": 1788676920,
+   "by": "adr146b",
+   "sha": "1b7b0f0d143307df46cd62f091097248f4adb3cc4b73330b373dcecd32335e6c"
+  },
+  "docs/ADR-122-engine-two-observed-2026-09-02.md": {
+   "at": 1788676920,
+   "by": "adr146b",
+   "sha": "d3aecebe60918d58dadffba9e9c2a18cff04c423ec0e3e6081f3c09ebf983537"
+  },
+  "docs/ADR-123-nothing-leaks-2026-09-02.md": {
+   "at": 1788676920,
+   "by": "adr146b",
+   "sha": "af5bcbd6ad903e7fce6add0488d0ba15949b2da4289ca504c088ae912eb270fb"
+  },
+  "docs/ADR-124-every-page-walked-2026-09-02.md": {
+   "at": 1788676920,
+   "by": "adr146b",
+   "sha": "7ba5a9f47c9fe6dc2541bd25bcd0b6c3f767895c9b2e8c112834fe8b7c118a78"
+  },
+  "docs/ADR-125-tasks-what-an-operator-is-for-2026-09-02.md": {
+   "at": 1788676920,
+   "by": "adr146b",
+   "sha": "9a57f5b927873432c325568cd22ad1e521c604bc373410c2ea3350719611b547"
+  },
+  "docs/ADR-126-the-first-trace-2026-09-02.md": {
+   "at": 1788676920,
+   "by": "adr146b",
+   "sha": "63b02f7d93dbcfe3baa53b63bd6875b1b21beebc3ce059b771c16ff3f2bcad51"
+  },
+  "docs/ADR-127-the-board-2026-09-02.md": {
+   "at": 1788676920,
+   "by": "adr146b",
+   "sha": "e41ce0d584741a9587c7b9fd2a5fc6d00941eef7c0a45443d08cd29bab2a5cc5"
+  },
+  "docs/ADR-128-the-report-read-2026-09-02.md": {
+   "at": 1788676920,
+   "by": "adr146b",
+   "sha": "6727232ee766aa26a60814df088b6e850efa877e523b1edf31185ea39da49344"
+  },
+  "docs/ADR-129-every-page-operated-2026-09-02.md": {
+   "at": 1788676921,
+   "by": "adr146b",
+   "sha": "9678e5cd6ea2cb52666ca6846d4a3540b7502f91ea0b035dd9cda82c9e1d4cd1"
+  },
+  "docs/ADR-130-audits-everywhere-2026-09-02.md": {
+   "at": 1788676921,
+   "by": "adr146b",
+   "sha": "d4da24c4383986ba031a87aa6ef50e9c9a8fdc2b111c2b533a5bbfd127fb8957"
+  },
+  "docs/ADR-131-audits-after-entry-2026-09-03.md": {
+   "at": 1788676921,
+   "by": "adr146b",
+   "sha": "8357cdbac2b2fd21ae4b5f63a91423b6b6b861f26381b83bb8e31d8353704295"
+  },
+  "docs/ADR-132-saying-what-is-absent-2026-09-03.md": {
+   "at": 1788676921,
+   "by": "adr146b",
+   "sha": "5e629861019a05273cb083be3af7cf82924c07b959ec7db131d55c0e9fc4200c"
+  },
+  "docs/ADR-133-two-targets-one-task-2026-09-03.md": {
+   "at": 1788676921,
+   "by": "adr146b",
+   "sha": "873d7314bff2d97c87541a2b5d64fd5d56d5aae93bf6601c83b68fdefa2c3120"
+  },
+  "docs/ADR-134-the-environment-as-an-argument-2026-09-03.md": {
+   "at": 1788676921,
+   "by": "adr146b",
+   "sha": "246958f99674319fd2adc6faad92babb8857e9ae506d5094810f9e9b6da8b2e7"
+  },
+  "docs/ADR-135-the-stations-named-2026-09-03.md": {
+   "at": 1788676921,
+   "by": "adr146b",
+   "sha": "a4aa8803b0a0709c82d4c2baa23a4685af9b39fd071ac4d0f75f2b6478415fc6"
+  },
+  "docs/ADR-136-the-blind-trial-2026-09-03.md": {
+   "at": 1788676921,
+   "by": "adr146b",
+   "sha": "e63b5872d7ad345934035b1dee2f695e92b800839cdac54e30fa46f49340a494"
+  },
+  "docs/ADR-137-list-changed-with-a-consumer-2026-09-03.md": {
+   "at": 1788676921,
+   "by": "adr146b",
+   "sha": "7a163587e3799a95b5519d9afe653ef3b99198315c16d5cc20b49d3c3a7843fb"
+  },
+  "docs/ADR-138-what-the-reader-actually-sees-2026-09-03.md": {
+   "at": 1788676921,
+   "by": "adr146b",
+   "sha": "808f91644c6ec3221e0a9422acd4440fc1541ada86392dadb584fd4067e34cd2"
+  },
+  "docs/ADR-139-the-engines-ratcheted-forward-2026-09-04.md": {
+   "at": 1788676921,
+   "by": "adr146b",
+   "sha": "b97e3117ff2a659bcfce070fd0b129eb7ee48a942394328918485f61cb134752"
+  },
+  "docs/ADR-140-the-charts-read-2026-09-04.md": {
+   "at": 1788676922,
+   "by": "adr146b",
+   "sha": "0d4f46dddfdf90e7ddef838b33faa8c0320433ed1b5d6379483c20eb59f2218e"
+  },
+  "docs/ADR-141-the-door-that-could-not-press-a-button-2026-09-04.md": {
+   "at": 1788676922,
+   "by": "adr146b",
+   "sha": "f842ec8a3ba4adf4248d9c31bb59d260fb0fd6b8a4734dc30769b99a30f00603"
+  },
+  "docs/ADR-142-the-rungs-a-task-declares-2026-09-05.md": {
+   "at": 1788676922,
+   "by": "adr146b",
+   "sha": "b2cbf513b84b27b7eee21bbab59b117e06f516006608089a8f2d9b733ab11846"
+  },
+  "docs/ADR-143-a-flake-is-a-measurement-2026-09-05.md": {
+   "at": 1788676922,
+   "by": "adr146b",
+   "sha": "9aacc63619e3811e32a68f9dc883ca837479c5f2eb3884523f25f411d06a2cd2"
+  },
+  "docs/ADR-144-how-much-of-the-data-2026-09-05.md": {
+   "at": 1788676922,
+   "by": "adr146b",
+   "sha": "523df40939024a76ad13aaf7ee1e3e4e11ea09bdb644c438625d5fb9d833a390"
+  },
+  "docs/ADR-145-the-collection-sheet-entered-whole-2026-09-05.md": {
+   "at": 1788676922,
+   "by": "adr146b",
+   "sha": "8fcaee1fe3a02886a379752815ff29a6044759a3f5ddd7513251d25f05a13c2e"
+  },
+  "docs/ADR-146-the-figures-no-task-could-read-2026-09-06.md": {
+   "at": 1788676922,
+   "by": "adr146b",
+   "sha": "8b63ab4e85430c867b681ec24b4fcced800731568f33f04385272354a39067d3"
+  },
+  "docs/ADR-147-one-list-not-two-2026-09-06.md": {
+   "at": 1788683836,
+   "by": "adr147",
+   "sha": "9c5c9fc210adac900bba8cc0f312f07155b46a79ff985c7aacc90bd56feb44f1"
+  },
+  "docs/AI_HARNESS.md": {
+   "at": 1788683836,
+   "by": "adr147",
+   "sha": "f4c8ed3e39da908654dff77ca43a102fbf6f463780270ed8fb2ac81aceebb03a"
+  },
+  "docs/AUDIT-2026-07-14-capability-coverage.md": {
+   "at": 1788676922,
+   "by": "adr146b",
+   "sha": "98c473b007f68b2ff18d89211ffa1025e3241fee1eb63465040975b7f12223f4"
+  },
+  "docs/AUDIT-2026-08-09-ecology-bug-audit.md": {
+   "at": 1788676922,
+   "by": "adr146b",
+   "sha": "70fd8b38865110c84d739ba660b9f4c9e54b44cbc1ab3b84d591555030f1cca7"
+  },
+  "docs/AUDIT-2026-08-09-ecology-module.md": {
+   "at": 1788676922,
+   "by": "adr146b",
+   "sha": "b2bba69bf098fed4135636a3c51f6d05124ebfcf350e614d8d1f763577ad2cdf"
+  },
+  "docs/AUDIT-2026-08-12-deep-sweep.md": {
+   "at": 1788676922,
+   "by": "adr146b",
+   "sha": "1a24ff19c48c846e628405bb3befd13f7941d3ceead68e248d9fae44b3487ec8"
+  },
+  "docs/AUDIT-2026-08-12-fourth-pass.md": {
+   "at": 1788676922,
+   "by": "adr146b",
+   "sha": "84c349b2f1f28172a35bf1e08904bfcc470d830a80579cf106270e8d1d75d250"
+  },
+  "docs/AUDIT-2026-08-12-model-domain.md": {
+   "at": 1788676922,
+   "by": "adr146b",
+   "sha": "2c8c12c1a2619496a90954f6bca0624f32723e5132738e623dc613b79225ea07"
+  },
+  "docs/AUDIT-2026-08-14-wiring-and-fifth-pass.md": {
+   "at": 1788676922,
+   "by": "adr146b",
+   "sha": "1b996af53c11a4ec1255fbc13c56fb19a95a41459264992f630aee05581e0f96"
+  },
+  "docs/AUDIT-2026-08-17-sixth-pass.md": {
+   "at": 1788676922,
+   "by": "adr146b",
+   "sha": "b7ed60140a054b06c7864c0727a7716635a9727ceacaa09222b5d43f9b57f938"
+  },
+  "docs/AUDIT-2026-08-17-wiring-seventh-pass.md": {
+   "at": 1788676922,
+   "by": "adr146b",
+   "sha": "5c38bcec04f7fcd9b0f17c4621c6bbe455f05d3633fad9dffa44e11778498451"
+  },
+  "docs/AUDIT_2026-07-21.md": {
+   "at": 1788676922,
+   "by": "adr146b",
+   "sha": "b53a6d273532dda6b43ca2114788585c259f715e3c6161a920dd3a9c8b878ef2"
+  },
+  "docs/AUTOMATION-HARNESS.md": {
+   "at": 1788676922,
+   "by": "adr146b",
+   "sha": "f78d75d58f32a4abce7d0e9af000cca43f11c2134b96b83f21191b0583ba188a"
+  },
+  "docs/CHANGELOG-2026-05-30.md": {
+   "at": 1788676922,
+   "by": "adr146b",
+   "sha": "e73ccf8ae8843e692389c639befec3bbba6baa90f1f171409e0b83b06c68137a"
+  },
+  "docs/CHANGELOG-2026-05-31-comparator-seam.md": {
+   "at": 1788676922,
+   "by": "adr146b",
+   "sha": "366e0b3505c174a7ae1c8b294c7c17386e9ff7b29f57605488585391bd02447f"
+  },
+  "docs/CHANGELOG-2026-05-31.md": {
+   "at": 1788676922,
+   "by": "adr146b",
+   "sha": "81e2bad49e4b2889a5c94e730285ce97c7be1d5a934588441da0f1c211609d30"
+  },
+  "docs/CHANGELOG-2026-06-01-generic-keys.md": {
+   "at": 1788676922,
+   "by": "adr146b",
+   "sha": "08d31fbe015d867f161f8a4371edb065a04795e9d8c03979d50e47f322a3a57a"
+  },
+  "docs/CHANGELOG-2026-06-03-orderedset.md": {
+   "at": 1788676922,
+   "by": "adr146b",
+   "sha": "1129b62651f660f059dc11471c78b1df086d3a747d16a3ddba94c7c031937f96"
+  },
+  "docs/CHANGELOG-2026-06-04-key-serializer.md": {
+   "at": 1788676922,
+   "by": "adr146b",
+   "sha": "87a632f94e421af71460a7757d6136a6b1b7cfe6e2a6c1f0eca1a498f4a263de"
+  },
+  "docs/CHANGELOG-2026-06-06-control-plane.md": {
+   "at": 1788676922,
+   "by": "adr146b",
+   "sha": "a2a51f1255c298851973f0e250bc362560b0cd2c1929019d679b83e1338a0632"
+  },
+  "docs/CHANGELOG-2026-06-09-adr004-r1.md": {
+   "at": 1788676922,
+   "by": "adr146b",
+   "sha": "3253ef55a7243dfc0af093cfc8076ba1f707cd0aa63364019da3cc5e8f5ca4a0"
+  },
+  "docs/CHANGELOG-2026-06-09-adr004-r2.md": {
+   "at": 1788676922,
+   "by": "adr146b",
+   "sha": "4657642039ad34040d54d07120c596989524df7eb5262737e0e679677f80d9d5"
+  },
+  "docs/CHANGELOG-2026-06-09-adr005-p3-engine-member.md": {
+   "at": 1788676922,
+   "by": "adr146b",
+   "sha": "3b14d8c972c91545ed3c6711bccea3e073b59923ef63ade75ff659796006810d"
+  },
+  "docs/CHANGELOG-2026-06-09-adr005-persistent-engine.md": {
+   "at": 1788676922,
+   "by": "adr146b",
+   "sha": "b56922521ff4c8709ecf5e6c8e08a1cb3dc1cde68ab94099fd4263a67e518aee"
+  },
+  "docs/CHANGELOG-2026-06-09-adr006-verified-sampling.md": {
+   "at": 1788676922,
+   "by": "adr146b",
+   "sha": "9010beb7ffd08dd7ef00cac72401a8727f1523f7b52e59fccb6558dd456ce73e"
+  },
+  "docs/CHANGELOG-2026-06-09-adr007-optimistic-votes.md": {
+   "at": 1788676922,
+   "by": "adr146b",
+   "sha": "e2c67892ca57325c3ea562b594d0b2a619dbf4fb5fea603b381dbceefa89bac4"
+  },
+  "docs/CHANGELOG-2026-06-09-adr008-bplus-engine.md": {
+   "at": 1788676922,
+   "by": "adr146b",
+   "sha": "cdd200b23a641fce7dac260277eda1df99393bffbed1f6d58218846230e8c43b"
+  },
+  "docs/CHANGELOG-2026-06-09-adr009-p1-o1-size.md": {
+   "at": 1788676922,
+   "by": "adr146b",
+   "sha": "2d0b7c7c367af2be88f280bcbad1bbf17aae1d6cc5bfad568497b66a2fd25648"
+  },
+  "docs/CHANGELOG-2026-06-09-adr009-p2-navigableset.md": {
+   "at": 1788676922,
+   "by": "adr146b",
+   "sha": "46862849047d5d1913a86ffded6d54873a2a4add3ee8c9fe2d120f6636d25c2f"
+  },
+  "docs/CHANGELOG-2026-06-09-adr009-p3-events-export.md": {
+   "at": 1788676922,
+   "by": "adr146b",
+   "sha": "91a84f6a493f132f35196409d8bab10e3624c61fea00f07fef6f319a5c3635c0"
+  },
+  "docs/CHANGELOG-2026-06-09-ensemble-e2.md": {
+   "at": 1788676922,
+   "by": "adr146b",
+   "sha": "755eb5c9e9a50cf0e5cb05c92fe94df4e46802b1388aa933e965470d4a32ebf2"
+  },
+  "docs/CHANGELOG-2026-06-09-ensemble-e3.md": {
+   "at": 1788676922,
+   "by": "adr146b",
+   "sha": "58937a678e108f48d0d318e544ee75eebe70c3040fb64bf4f8ef77c587546e46"
+  },
+  "docs/CHANGELOG-2026-06-09-ensemble-e4.md": {
+   "at": 1788676922,
+   "by": "adr146b",
+   "sha": "963f39b03944db701bff4f569037feb4302099337325acf2c37a65e35f3138b9"
+  },
+  "docs/CHANGELOG-2026-06-09-ensemble-e5-benchmark.md": {
+   "at": 1788676922,
+   "by": "adr146b",
+   "sha": "f0a7398a06c06ebe01dbeef1093d69c433230679c4aee1a13136aea373980cf7"
+  },
+  "docs/CHANGELOG-2026-06-09-ensemble-e5-fanout.md": {
+   "at": 1788676922,
+   "by": "adr146b",
+   "sha": "eca2e1e6570bd0d9cd4c6ee3052a560c72c4991193f6f14fc36f4ff850005e3c"
+  },
+  "docs/CHANGELOG-2026-06-09-ensemble-e5-shadow.md": {
+   "at": 1788676922,
+   "by": "adr146b",
+   "sha": "510759985e11e9e0a683a5638d65e167f032321e18d59b2361194dcc95acd837"
+  },
+  "docs/CHANGELOG-2026-06-09-ensemble-e6.md": {
+   "at": 1788676922,
+   "by": "adr146b",
+   "sha": "d2967355e9989fa8e180efdc7f282014b7829271bf782c8122ac2b040979a7ed"
+  },
+  "docs/CHANGELOG-2026-06-09-session-index-2.md": {
+   "at": 1788676922,
+   "by": "adr146b",
+   "sha": "0ef5237f99b71112ce675bbe1ba5e56f3eacb207275ecdd995cd1178758c0de0"
+  },
+  "docs/CHANGELOG-2026-06-09-session-index.md": {
+   "at": 1788676922,
+   "by": "adr146b",
+   "sha": "767ec6c3129aae7f238a75b59c1f023a1cb0b078846b4609b6a49ef7d172ec14"
+  },
+  "docs/CHANGELOG-2026-06-10-adr010-x1-repair-gate.md": {
+   "at": 1788676922,
+   "by": "adr146b",
+   "sha": "1ff38c26d54e4a1c57d3001e77e4bf4f9a9a72e1a564b4a2e1caba2df7fb3115"
+  },
+  "docs/CHANGELOG-2026-06-10-adr010-x2-replay-arena.md": {
+   "at": 1788676922,
+   "by": "adr146b",
+   "sha": "7654414db6d0d37da860e5cca7b70013ade86260aa2bc00bf529ab967b56c55c"
+  },
+  "docs/CHANGELOG-2026-06-10-adr011-v1-weight-balanced.md": {
+   "at": 1788676922,
+   "by": "adr146b",
+   "sha": "ecaca1c7800f0f80b4444f9c41bfced8828cb9a56a329ac3634e5e1a47aa9d02"
+  },
+  "docs/CHANGELOG-2026-06-10-adr011-v2-genome-fitness.md": {
+   "at": 1788676922,
+   "by": "adr146b",
+   "sha": "77065e2e4260e0ff9e7dbdf3e935583dbf182b42dd0c369811fe4f8492c16fc6"
+  },
+  "docs/CHANGELOG-2026-06-10-adr011-v3-policy-bandit.md": {
+   "at": 1788676922,
+   "by": "adr146b",
+   "sha": "44e95268a67f29e2ff97daf9eb342179dc18f3935f55d902bc874d0532804dfa"
+  },
+  "docs/CHANGELOG-2026-06-10-adr011-v4-evolution.md": {
+   "at": 1788676922,
+   "by": "adr146b",
+   "sha": "bd1fbbdc2a08836a1567b42b079f6dbb27afc703855ca22416dbd87387fc0f31"
+  },
+  "docs/CHANGELOG-2026-06-10-adr011-v5-experiment.md": {
+   "at": 1788676922,
+   "by": "adr146b",
+   "sha": "b2183bbf8d35b52ee4a578470cba9e2677ae406948b4bef15df137d2bbf269e0"
+  },
+  "docs/CHANGELOG-2026-06-10-adr012-e1-viability-map.md": {
+   "at": 1788676922,
+   "by": "adr146b",
+   "sha": "8600799041f60631d590c6d5eee9babc1fcd6d28eb6b292fc48582250f7aa2d6"
+  },
+  "docs/CHANGELOG-2026-06-10-adr012-e2-diversity.md": {
+   "at": 1788676922,
+   "by": "adr146b",
+   "sha": "0d2ca551399b2b17f3b9cbd4d92404717b62a5f5a6552f9be2d0e983f885434e"
+  },
+  "docs/CHANGELOG-2026-06-10-adr012-e3-nonstationary.md": {
+   "at": 1788676922,
+   "by": "adr146b",
+   "sha": "400a4f136105519121be7847088ec5dd9e85aa8f67df5fe22d5577bc5d0611d4"
+  },
+  "docs/CHANGELOG-2026-06-10-adr012-e3b-discriminating-schedule.md": {
+   "at": 1788676922,
+   "by": "adr146b",
+   "sha": "b6d91c8a495c436e6109ee7551514dbb36aa02de69b508837d3b53eb392dda23"
+  },
+  "docs/CHANGELOG-2026-06-10-consolidation-audit.md": {
+   "at": 1788676922,
+   "by": "adr146b",
+   "sha": "8cf4df68655024bebf3948c0e96c4fb6fbb6a84efaa4f70e085862ed4f1aff41"
+  },
+  "docs/CHANGELOG-2026-06-10-ecology-audit.md": {
+   "at": 1788676922,
+   "by": "adr146b",
+   "sha": "2d87e6c3ec4c44f9b395228f2366d762eb5055b97e2868b5d1d24a373b830bca"
+  },
+  "docs/CHANGELOG-2026-06-10-scorer-calibration.md": {
+   "at": 1788676922,
+   "by": "adr146b",
+   "sha": "b837e4cc84d95932cd15dae2c38207d9f8e82e1b4d9fbbec915b1c6d9030b9b8"
+  },
+  "docs/CHANGELOG-2026-06-11-adr012-disposition.md": {
+   "at": 1788676922,
+   "by": "adr146b",
+   "sha": "60f0c7477c13744995ca8b374e3201953499f729cbffd21cb6d29f681e602653"
+  },
+  "docs/CHANGELOG-2026-06-11-adr012-e3c-switching-cost.md": {
+   "at": 1788676922,
+   "by": "adr146b",
+   "sha": "0cdfb42c7db3f5bfcf2cb387504feb34edb274f174561de929c966ba06278fa3"
+  },
+  "docs/CHANGELOG-2026-06-11-adr012-e6-transfer.md": {
+   "at": 1788676922,
+   "by": "adr146b",
+   "sha": "ef6b66fa6683665bc34af931303961b6998858305a393acd115136f3764b12a6"
+  },
+  "docs/CHANGELOG-2026-06-11-adr013-gradle-migration.md": {
+   "at": 1788676922,
+   "by": "adr146b",
+   "sha": "0ef2b20f2a42c7df2a8b95241b428f49038c9c0e72a934510434faa3f4ff83b8"
+  },
+  "docs/CHANGELOG-2026-06-11-calibration-audit.md": {
+   "at": 1788676922,
+   "by": "adr146b",
+   "sha": "f563f24fcc434d0241957eedfc6c502e0821ba22a411a8035e6b52b9dd52f66b"
+  },
+  "docs/CHANGELOG-2026-06-11-ci-weatherproof.md": {
+   "at": 1788676922,
+   "by": "adr146b",
+   "sha": "8193677558f14ccd5db5190a950817104871c7daeb01c9bfd15cf0ddb1f9b96b"
+  },
+  "docs/CHANGELOG-2026-06-11-v0.1.0-package-relocation.md": {
+   "at": 1788676922,
+   "by": "adr146b",
+   "sha": "c87bc74953c9255aa67990e94e866ec4cb892551b0a4578a8393f67fe4fae933"
+  },
+  "docs/CHANGELOG-2026-07-07-workload-signal-seam.md": {
+   "at": 1788676922,
+   "by": "adr146b",
+   "sha": "827814130b736ffa31543b88281b53f79b24503302f98b57da88ab993b392554"
+  },
+  "docs/CHANGELOG-2026-07-08-ensemble-window-depth.md": {
+   "at": 1788676922,
+   "by": "adr146b",
+   "sha": "6a8ee3940fca878b253031b8cafb70f20ec3fd4b84f8d6263125826d2b10302c"
+  },
+  "docs/CHANGELOG-2026-07-14-generic-interval-endpoints.md": {
+   "at": 1788676922,
+   "by": "adr146b",
+   "sha": "1301dce824b51506aa5578f0bab84293324f79911ffef7e55a83ae000f1a6ba7"
+  },
+  "docs/CHANGELOG-2026-07-14-scorer-recalibration.md": {
+   "at": 1788676922,
+   "by": "adr146b",
+   "sha": "b245d811e5950180c3fb9dbf70d0fabfe78b50230a11c26d432e69b672aaf7e3"
+  },
+  "docs/CHANGELOG-2026-08-09-adr015-community-ecology.md": {
+   "at": 1788676922,
+   "by": "adr146b",
+   "sha": "7fdbb35502dcc862c26a3fe1bcdaa6fcde916560d99870c3b801f984dce6c686"
+  },
+  "docs/CHANGELOG-2026-08-09-adr016-engine-ecology.md": {
+   "at": 1788676922,
+   "by": "adr146b",
+   "sha": "b26b54e871fb2f07560ca8dcff24a23836d6004357fe516cfed9e4467bfec629"
+  },
+  "docs/CHANGELOG-2026-08-09-adr017-heredity-seams.md": {
+   "at": 1788676922,
+   "by": "adr146b",
+   "sha": "455821a26c8674384663cc86be288078c3ecf7227ce0461e5a1293bcc9b86b37"
+  },
+  "docs/CHANGELOG-2026-08-09-adr018-amortization-frontier.md": {
+   "at": 1788676922,
+   "by": "adr146b",
+   "sha": "3b31b5daf6fbec237f136bf679faea2ccabd4a1abc719578ea69ad7878262379"
+  },
+  "docs/CHANGELOG-2026-08-09-adr019-classroom-seam.md": {
+   "at": 1788676922,
+   "by": "adr146b",
+   "sha": "f6acab45c980c253152a98eba07e6e8c3b75e2bb9987860208b946ce2cd056ea"
+  },
+  "docs/CHANGELOG-2026-08-09-ecology-bug-audit.md": {
+   "at": 1788676922,
+   "by": "adr146b",
+   "sha": "a739e610852be0dd130c88928e2fec76825fa66a231abb79b67df9d800e8ffc5"
+  },
+  "docs/CHANGELOG-2026-08-09-ecology-great.md": {
+   "at": 1788676922,
+   "by": "adr146b",
+   "sha": "b3bce56df26d30ab37bba4ac0a26d7b3a907093ddd00b61007f7546a872faefa"
+  },
+  "docs/CHANGELOG-2026-08-09-ecology-hardening2.md": {
+   "at": 1788676922,
+   "by": "adr146b",
+   "sha": "1be4634aae02371e5d749800a5f04c82821e239eb19580c0c2d811aa9b0983d7"
+  },
+  "docs/CHANGELOG-2026-08-09-ecology-polish.md": {
+   "at": 1788676922,
+   "by": "adr146b",
+   "sha": "598a216eecf9b0cdd2103c935d5865835fd845198f174073d8f80910bcc7696f"
+  },
+  "docs/CHANGELOG-2026-08-10-adr020-student-seam.md": {
+   "at": 1788676922,
+   "by": "adr146b",
+   "sha": "91e606eb1eaed02b00457da6fe664d139337b5afbd7552e94c62dc27c9a94a7d"
+  },
+  "docs/CHANGELOG-2026-08-12-adr021-adr022.md": {
+   "at": 1788676922,
+   "by": "adr146b",
+   "sha": "e6f768f00cf17a3f102326ea1323beb435ab980fe81dfff98be21f66f308ddd1"
+  },
+  "docs/CHANGELOG-2026-08-12-consolidation.md": {
+   "at": 1788676922,
+   "by": "adr146b",
+   "sha": "e1af667d101fb710746f5a654b33f803cb549e533637cae2bd2e3a201eb11002"
+  },
+  "docs/CHANGELOG-2026-08-12-deep-sweep.md": {
+   "at": 1788676922,
+   "by": "adr146b",
+   "sha": "89811fc79bbbd23065ac4b1d5760bd839a6b4b1871aa7bc49742d45d2e7d9679"
+  },
+  "docs/CHANGELOG-2026-08-12-fourth-pass.md": {
+   "at": 1788676922,
+   "by": "adr146b",
+   "sha": "efb68f2b666084cd8d73877ec4c32dc5748a93d91c98bae0c130ae3c02521a25"
+  },
+  "docs/CHANGELOG-2026-08-12-model-domain.md": {
+   "at": 1788676922,
+   "by": "adr146b",
+   "sha": "0ef82fdebff43bc3ea8de6e51d92cb42f71a464756cf69d86bf05b5135ac1f06"
+  },
+  "docs/CHANGELOG-2026-08-12-t1-rotation-meter.md": {
+   "at": 1788676922,
+   "by": "adr146b",
+   "sha": "62463d6fa186b1dfcb2e5c918b531d2ac2e6ab5681243a85452419fa2ff9fc9e"
+  },
+  "docs/CHANGELOG-2026-08-14-fifth-pass-hardening.md": {
+   "at": 1788676922,
+   "by": "adr146b",
+   "sha": "0a1757c1bd983b43d8ac22298166de39f9a82c414f7f9be5eb96700682207e00"
+  },
+  "docs/CHANGELOG-2026-08-17-seventh-pass.md": {
+   "at": 1788676922,
+   "by": "adr146b",
+   "sha": "754e2d3e9e9f9b33c3645bd427528f4f8a88769be067b9c4020e3da88b7d261e"
+  },
+  "docs/CHANGELOG-2026-08-17-sixth-pass-fixes.md": {
+   "at": 1788676922,
+   "by": "adr146b",
+   "sha": "4857dbad945988d0407ee4b95834c28b9ebc5a2895891b6206577db077b4cda1"
+  },
+  "docs/CHANGELOG-2026-08-18-eighth-pass.md": {
+   "at": 1788676922,
+   "by": "adr146b",
+   "sha": "4fb97614e308f66c0e92620cd21345363fb8c34e2813da7cbbd30eee8245460c"
+  },
+  "docs/CHANGELOG-2026-08-19-adr029-030.md": {
+   "at": 1788676922,
+   "by": "adr146b",
+   "sha": "b895401d25af7efc9fabf0d6138c30429e2cbc54236f8f36b521abd1aaf72c12"
+  },
+  "docs/CHANGELOG-2026-08-29-adr096-claims-front.md": {
+   "at": 1788676922,
+   "by": "adr146b",
+   "sha": "c2562fd46a894a7791beb672cf1dddc5b6235ac0a58e046c79973db055013b07"
+  },
+  "docs/CHANGELOG-2026-08-29-adr097-thirty-one-pages-read.md": {
+   "at": 1788676922,
+   "by": "adr146b",
+   "sha": "5c364bc6367d3499e13016c1ab6d92aefb2e20804c5075db0496c91f7e15fe06"
+  },
+  "docs/CHANGELOG-2026-08-29-adr098-the-last-three-claims.md": {
+   "at": 1788676922,
+   "by": "adr146b",
+   "sha": "78273f31121e1dcc3b1fe1c6b67b3b5271b03f2ec1297d1fc60da6d719c6a22d"
+  },
+  "docs/CHANGELOG-2026-08-29-adr099-one-pair-of-readers.md": {
+   "at": 1788676922,
+   "by": "adr146b",
+   "sha": "48cd46f08637c34adc5e4014c10fd90b45ba1880dad2d3ff947313151e427c4e"
+  },
+  "docs/CHANGELOG-2026-08-29-adr100-everything-a-user-can-do.md": {
+   "at": 1788676922,
+   "by": "adr146b",
+   "sha": "d42bf36f9b1a4d82b5480f2e3ad5ea90b2dd66fd01ac1605306c521e5c72f4b5"
+  },
+  "docs/CHANGELOG-2026-08-29-adr101-every-control-carries-an-expectation.md": {
+   "at": 1788676922,
+   "by": "adr146b",
+   "sha": "1deb0c9eff057204d541218be40829aa58e72e11aa278403b35402c93e441932"
+  },
+  "docs/CHANGELOG-2026-08-29-adr102-every-way-in.md": {
+   "at": 1788676922,
+   "by": "adr146b",
+   "sha": "c02d66548aea0c128365ea28ddf9b8ff3a3e9c4f0510559b870399842fbd4200"
+  },
+  "docs/CHANGELOG-2026-08-29-adr103-two-css-fixes-and-a-crash.md": {
+   "at": 1788676922,
+   "by": "adr146b",
+   "sha": "a62c986ae271ab1cb520e85813af555edb52359a090a663e41d074287a8e9489"
+  },
+  "docs/CHANGELOG-2026-08-30-adr104-hole-not-failure.md": {
+   "at": 1788676922,
+   "by": "adr146b",
+   "sha": "9d733aa2e3bef935b4a858c934e6e6e0dd6b31c039af759fff0d686f8124f18c"
+  },
+  "docs/CHANGELOG-2026-08-30-adr105-canary-and-crlf.md": {
+   "at": 1788676922,
+   "by": "adr146b",
+   "sha": "cf510bf94d3cefde312ce091e727cd4725980de2ee2dcd5d935e8be08fc9e9c4"
+  },
+  "docs/CHANGELOG-2026-08-30-adr106-audit-of-nothing.md": {
+   "at": 1788676922,
+   "by": "adr146b",
+   "sha": "2571f86622fa5c9052ec75163b375d32b659cdd562bc8ec53cefe4ab502c3f54"
+  },
+  "docs/CHANGELOG-2026-08-30-adr107-first-photograph.md": {
+   "at": 1788676922,
+   "by": "adr146b",
+   "sha": "017e12e4fd0db2fe46d384ad93223c5e046e3bbd8ca7753cb5fcc8e2526cdc8b"
+  },
+  "docs/CHANGELOG-2026-08-30-adr108-harness-map.md": {
+   "at": 1788676922,
+   "by": "adr146b",
+   "sha": "0b80daee56462706ef4e467436e85df0770bb75afb6210f9b58fc5ad34ce19b6"
+  },
+  "docs/CHANGELOG-2026-08-30-adr109-detector-alarm.md": {
+   "at": 1788676922,
+   "by": "adr146b",
+   "sha": "8d45d518b0de33a11dd37736b74ab3b1d5a5b4b8e1ba5e98d6f89d221e41a647"
+  },
+  "docs/CHANGELOG-2026-08-31-adr110-second-chance.md": {
+   "at": 1788676922,
+   "by": "adr146b",
+   "sha": "cabfb101361df92b91b32d3ec55da0b6e7577fe9ffd33b32a5f22f084e391905"
+  },
+  "docs/CHANGELOG-2026-08-31-adr111-one-visibility-oracle.md": {
+   "at": 1788676922,
+   "by": "adr146b",
+   "sha": "5624551583b0ab6be751f569e8ff082c422a6d4031c42e76fe9eb5fa22145dae"
+  },
+  "docs/CHANGELOG-2026-09-01-adr112-second-target.md": {
+   "at": 1788676922,
+   "by": "adr146b",
+   "sha": "a1e5c4e451a8b8b3cbd6d3003179197482dd70d0cf029d904ef46a65ab93e07b"
+  },
+  "docs/CHANGELOG-2026-09-01-adr113-every-organ.md": {
+   "at": 1788676922,
+   "by": "adr146b",
+   "sha": "ebec80060c898749b2fcd295a2c683f98a8d05031a0d8d35fee9e5f2f1341faf"
+  },
+  "docs/CHANGELOG-2026-09-01-adr114-manifest-alone.md": {
+   "at": 1788676922,
+   "by": "adr146b",
+   "sha": "ed08966deceb0b10f553515d4ec2a9373691e771d195e61deb368c78d9236837"
+  },
+  "docs/CHANGELOG-2026-09-01-adr115-second-transport.md": {
+   "at": 1788676922,
+   "by": "adr146b",
+   "sha": "9b71da696862b6ea6f3a25f67cc6da1b88299d4d3750a222843ecd586d904c1a"
+  },
+  "docs/CHANGELOG-2026-09-01-adr116-third-target.md": {
+   "at": 1788676922,
+   "by": "adr146b",
+   "sha": "fdb8b86a11a85908f88d4d722221e9ab44c7dcff643432a3f90add16d3da8a27"
+  },
+  "docs/CHANGELOG-2026-09-01-adr117-one-robot.md": {
+   "at": 1788676922,
+   "by": "adr146b",
+   "sha": "669e5f48d014105bb8b9e7e514e9ba89b6519bc945734d931af11a5e030573db"
+  },
+  "docs/CHANGELOG-2026-09-02-adr118-engine-suites.md": {
+   "at": 1788676922,
+   "by": "adr146b",
+   "sha": "a9f9a3e07d8546913cade8f8d5c56915a4b808a2dbd2ce5fc5c3408f34e0e593"
+  },
+  "docs/CHANGELOG-2026-09-02-adr119-robot-broken.md": {
+   "at": 1788676922,
+   "by": "adr146b",
+   "sha": "60a97ae40ac8b1f77e4fd70d256963b89238aa1c09e7767926fd742e3dbf6f4c"
+  },
+  "docs/CHANGELOG-2026-09-02-adr120-nothing-held.md": {
+   "at": 1788676922,
+   "by": "adr146b",
+   "sha": "1a690b6e8ea71c7dfd0e141203dac828c65aafebd66fe8d9c0ceb765b5720243"
+  },
+  "docs/CHANGELOG-2026-09-02-adr121-every-transport.md": {
+   "at": 1788676922,
+   "by": "adr146b",
+   "sha": "9b5671c8cd55298bcd96768b7a6bc4da20517b827359fa0ca4cff22b005eea74"
+  },
+  "docs/CHANGELOG-2026-09-02-adr122-engine-two.md": {
+   "at": 1788676922,
+   "by": "adr146b",
+   "sha": "1df1eb02a973106ea3fd3aa751a06daebfe467884bf457110d8fef5f98dab998"
+  },
+  "docs/CHANGELOG-2026-09-02-adr123-nothing-leaks.md": {
+   "at": 1788676922,
+   "by": "adr146b",
+   "sha": "1daf1aab2411cb6f94397c4e0401143b68543d7774212fca9dc78b9746088b27"
+  },
+  "docs/CHANGELOG-2026-09-02-adr124-every-page.md": {
+   "at": 1788676922,
+   "by": "adr146b",
+   "sha": "ba5ba915163dfea6d0cd842c65fc0a9c439102e15ab773d67f7c2c83421574e6"
+  },
+  "docs/CHANGELOG-2026-09-02-adr125-tasks.md": {
+   "at": 1788676922,
+   "by": "adr146b",
+   "sha": "36931ec800715aec33ba98dab99c4155437d9677cc0e4734e55f4b57774f92b9"
+  },
+  "docs/CHANGELOG-2026-09-02-adr126-first-trace.md": {
+   "at": 1788676922,
+   "by": "adr146b",
+   "sha": "0930d73cbe9c411b68a20e9287654b855897d0265fd58c5906d30263a683ef29"
+  },
+  "docs/CHANGELOG-2026-09-02-adr127-the-board.md": {
+   "at": 1788676922,
+   "by": "adr146b",
+   "sha": "a634b879178ea8c81588f595a2b50b656f3735ddf2364307b1002411ca60e3b1"
+  },
+  "docs/CHANGELOG-2026-09-02-adr128-the-report-read.md": {
+   "at": 1788676922,
+   "by": "adr146b",
+   "sha": "ef8d5933ede963085dd35c90957f685bf6255019591ce583c066163ee398083c"
+  },
+  "docs/CHANGELOG-2026-09-02-adr129-every-page-operated.md": {
+   "at": 1788676922,
+   "by": "adr146b",
+   "sha": "42c6388e92e32e68359a8b4f9dd9e882f1f4f5f000270bc004d41bb72ab6b8d8"
+  },
+  "docs/CHANGELOG-2026-09-02-adr130-audits-everywhere.md": {
+   "at": 1788676922,
+   "by": "adr146b",
+   "sha": "5dd50f4243c9168381653f1f80eae60ed6f8657a264cf406ed36ffefcd4c64a6"
+  },
+  "docs/CHANGELOG-2026-09-03-adr131-audits-after-entry.md": {
+   "at": 1788676922,
+   "by": "adr146b",
+   "sha": "aef8cddb04862f3f00daf667628c1ee5337cc813c10682f2515931719611e054"
+  },
+  "docs/CHANGELOG-2026-09-03-adr132-saying-what-is-absent.md": {
+   "at": 1788676922,
+   "by": "adr146b",
+   "sha": "241f4a09124c5a100edf70030cdd492aac9cdcb538f40689cbe7094e8d92b9c1"
+  },
+  "docs/CHANGELOG-2026-09-03-adr133-two-targets-one-task.md": {
+   "at": 1788676922,
+   "by": "adr146b",
+   "sha": "f06da9ffc237b810ac26df53cd686feda17dc71959052ec676d7d72c0ea29462"
+  },
+  "docs/CHANGELOG-2026-09-03-adr134-the-environment-as-an-argument.md": {
+   "at": 1788676922,
+   "by": "adr146b",
+   "sha": "8bb4ebcedd9847818a20b5ce631ab4f07d85c79cd51732fb3bdd9d8ce09735a2"
+  },
+  "docs/CHANGELOG-2026-09-03-adr135-the-stations-named.md": {
+   "at": 1788676922,
+   "by": "adr146b",
+   "sha": "0a75c1a9fa18694f8c5fe7dbf0cf89e071ce600beb697be3420a9e638c417e25"
+  },
+  "docs/CHANGELOG-2026-09-03-adr136-the-blind-trial.md": {
+   "at": 1788676922,
+   "by": "adr146b",
+   "sha": "4201957f2abf89b7c852637ec360e532198e16ee97f3029ad8b5dac7ece887c1"
+  },
+  "docs/CHANGELOG-2026-09-03-adr137-list-changed-with-a-consumer.md": {
+   "at": 1788676922,
+   "by": "adr146b",
+   "sha": "fccfb2eeac3c6be0277d214fc4df9ec7f8eb1b7816831c172dc7af3513a04340"
+  },
+  "docs/CHANGELOG-2026-09-03-adr138-what-the-reader-actually-sees.md": {
+   "at": 1788676922,
+   "by": "adr146b",
+   "sha": "ce8871d415e7fb4d9ac4df8bda101b883cf340696e256552496c98da3a883d9a"
+  },
+  "docs/CHANGELOG-2026-09-04-adr139-the-engines-ratcheted-forward.md": {
+   "at": 1788676922,
+   "by": "adr146b",
+   "sha": "a562989917d0b0537c6d8e23b8c59db4538a1c3393da634b30c02883f3667fc6"
+  },
+  "docs/CHANGELOG-2026-09-04-adr140-the-charts-read.md": {
+   "at": 1788676923,
+   "by": "adr146b",
+   "sha": "d210ec060954dca792097e99bbf439b101aad8d68e4fe7a3cf6034c1a6ca5260"
+  },
+  "docs/CHANGELOG-2026-09-04-adr141-a-declared-risk-is-a-floor.md": {
+   "at": 1788676923,
+   "by": "adr146b",
+   "sha": "952343b0ac740ba5b07eb83ec4f300aeccc40f4235a8e194497da1c2d091aea3"
+  },
+  "docs/CHANGELOG-2026-09-05-adr142-the-rungs-a-task-declares.md": {
+   "at": 1788676923,
+   "by": "adr146b",
+   "sha": "7df8e9f6647490c0686bcaa56c91d8d29616b21aeccdf74dcc86768db2ba6c39"
+  },
+  "docs/CHANGELOG-2026-09-05-adr143-a-flake-is-a-measurement.md": {
+   "at": 1788676923,
+   "by": "adr146b",
+   "sha": "b3ffec811ffcc7e3b4c28d834564906d7a547e354ee889fcbf494703cfcf8c9c"
+  },
+  "docs/CHANGELOG-2026-09-05-adr144-how-much-of-the-data.md": {
+   "at": 1788676923,
+   "by": "adr146b",
+   "sha": "caf8583e065e87c809a774f865c2aa37d7c6dc8674652a4f176a1cdd941caa76"
+  },
+  "docs/CHANGELOG-2026-09-05-adr145-the-collection-sheet-entered-whole.md": {
+   "at": 1788676923,
+   "by": "adr146b",
+   "sha": "27f97a4a6b786f228b659754bed1702eebf85be70a2d6c5901825abd9fc7423d"
+  },
+  "docs/CHANGELOG-2026-09-06-adr146-the-figures-no-task-could-read.md": {
+   "at": 1788676923,
+   "by": "adr146b",
+   "sha": "c2b21311c3b1f21ef65ddac8400a870a216152800f2992d616ef9cbbc28f7ec7"
+  },
+  "docs/CHANGELOG-2026-09-06-adr147-one-list-not-two.md": {
+   "at": 1788683836,
+   "by": "adr147",
+   "sha": "80220b3ce47e474d04f11f746610352590b6e75a26cd89a9fc48584510428afe"
+  },
+  "docs/DESIGN-adaptive-engine.md": {
+   "at": 1788676923,
+   "by": "adr146b",
+   "sha": "a159d17611fa9ba5422caddcd9e975204a6f79d9c79c12d4b162e399aabec47f"
+  },
+  "docs/ECOLOGY-FIELD-GUIDE.md": {
+   "at": 1788676923,
+   "by": "adr146b",
+   "sha": "c4bb0f114e8d57b4764a66ea210010d5dace3910ff234a41bc4828de76c2485c"
+  },
+  "docs/ESSAY-the-ecology-of-a-tree.md": {
+   "at": 1788676923,
+   "by": "adr146b",
+   "sha": "71d264a7ced1c7274d919ba7d0589235dd1150daeb612ddce7525fa4c7a71485"
+  },
+  "docs/ESSAY-the-machine-that-said-no.md": {
+   "at": 1788676923,
+   "by": "adr146b",
+   "sha": "43decd43e317974ea58faa97bcc5d14d2b32642acf3468568ab1b6eb0e868229"
+  },
+  "docs/PLAN-adr002-step2-generic-keys.md": {
+   "at": 1788676923,
+   "by": "adr146b",
+   "sha": "29c225ab25309165beab04908ab27ed16881c74b9a39fc7c4c9ba54c962f2511"
+  },
+  "docs/PLAN-adr002-step4-orderedset.md": {
+   "at": 1788676923,
+   "by": "adr146b",
+   "sha": "50dec61b2e8ed3deffc1882d6c2172282a89b38c99dbca8574f05a38e1037fbc"
+  },
+  "docs/PLAN-adr002-step5-key-serializer.md": {
+   "at": 1788676923,
+   "by": "adr146b",
+   "sha": "5ec3df79af49245737a9a6fab7a582aed6f3e36ee6f50f97c84d5448d8a68d19"
+  },
+  "docs/PLAN-adr002-step6-control-plane.md": {
+   "at": 1788676923,
+   "by": "adr146b",
+   "sha": "11ac6483abd72bbc1b80b5adce47201eb61a06185c185efbe1894afd93643af6"
+  },
+  "docs/PLAN-adr002-step6-phaseD-controller-rewire.md": {
+   "at": 1788676923,
+   "by": "adr146b",
+   "sha": "d0b325ff7dc86cee4c28c63097e904cad4467165cced8a8b2b78d19723933531"
+  },
+  "docs/PLAN-nil-sentinel-refactor.md": {
+   "at": 1788676923,
+   "by": "adr146b",
+   "sha": "1be467a598a89464e829e6156418ebd66230cfd56b7d4ef9a7edf6f2b607dd05"
+  },
+  "docs/PLAN-two-weeks-2026-09-03.md": {
+   "at": 1788676923,
+   "by": "adr146b",
+   "sha": "9677e2823059013f2332bd043f82ffc99f44f3419e6bd2f4dc4c279fe8afc697"
+  },
+  "docs/RELEASE-0.3.0-checklist.md": {
+   "at": 1788676923,
+   "by": "adr146b",
+   "sha": "70b42cf880bbfa6d3b5ece2782ef8765067420cc94e8dae1a6e890dc13cb204b"
+  },
+  "docs/RELEASE-0.3.0.md": {
+   "at": 1788676923,
+   "by": "adr146b",
+   "sha": "0a2c8e369822fc8ee9296aa49503ea73a34ba35ef428448b5570e6c4fa912034"
+  },
+  "docs/RELEASE-CHECKLIST-0.2.0.md": {
+   "at": 1788676923,
+   "by": "adr146b",
+   "sha": "82efa33b27491cbaa3af899349d322190b2588957d349d08d696656123f373a7"
+  },
+  "docs/RELEASE-CHECKLIST-0.2.1.md": {
+   "at": 1788676923,
+   "by": "adr146b",
+   "sha": "cf0052841eeda2acff5b5b487aae402cd17273194583abf79b9d067d67672d9b"
+  },
+  "docs/RELEASE-NOTES-0.1.0.md": {
+   "at": 1788676923,
+   "by": "adr146b",
+   "sha": "a360c5cfe3fde96521b6edd24ef5ca748d831aa72cdab2b233ed117c3a5c7e06"
+  },
+  "docs/RELEASE-NOTES-0.2.0.md": {
+   "at": 1788676923,
+   "by": "adr146b",
+   "sha": "f8ddf0df8555d1c25db98d2324cb396538c8f664875a9d9fcf6fe42296971b2c"
+  },
+  "docs/RELEASE-NOTES-0.2.1.md": {
+   "at": 1788676923,
+   "by": "adr146b",
+   "sha": "83e10a046dd1a426d3542d58695758ab824d622c2661d20acc2f4d4f4ac76d60"
+  },
+  "docs/REVIEW-2026-06-02-generic-keys-static.md": {
+   "at": 1788676923,
+   "by": "adr146b",
+   "sha": "f8ab7c2e50ad7d725442b37a10fde07ca40d55dbd4f4db55bb05e59948320d0b"
+  },
+  "docs/SESSION-HANDOFF-2026-06-09.md": {
+   "at": 1788676923,
+   "by": "adr146b",
+   "sha": "104c03014510aecb187688558722838c22331a1789c79bdc416f0ef86ecba4bc"
+  },
+  "docs/VERIFICATION-2026-08-20-frontend.md": {
+   "at": 1788676923,
+   "by": "adr146b",
+   "sha": "9d042dc21b9cb44ee7385974968617c1e0569259eeac246728cd085a8de87915"
+  },
+  "docs/adr-031.html": {
+   "at": 1788676923,
+   "by": "adr146b",
+   "sha": "16851d12994475b06d9857c02d69595e7992a6b1552b964689fe9da2ff73d1c2"
+  },
+  "docs/arena-search-session.json": {
+   "at": 1788676923,
+   "by": "adr146b",
+   "sha": "b2c24265861a6b627bbd2a348eba165ffbf722df843b7e9609824942e8b7c739"
+  },
+  "docs/arena-session.json": {
+   "at": 1788676923,
+   "by": "adr146b",
+   "sha": "520de92b8ba32bffeb4f92605e68b3ee944eedcef80411224f9932798c31ea17"
+  },
+  "docs/backend-audit-2026-05-30.md": {
+   "at": 1788676923,
+   "by": "adr146b",
+   "sha": "648ac346c28f9d670a5d6667bb798b95981426a8c3e6ef1c1662f8f8697f6ded"
+  },
+  "docs/breeding-bench.html": {
+   "at": 1788676923,
+   "by": "adr146b",
+   "sha": "ae43bfca239c9fd24e8064e46a75f530bb26ac543a10ded69615aa09c02ea2ea"
+  },
+  "docs/breeding-suite.html": {
+   "at": 1788676923,
+   "by": "adr146b",
+   "sha": "c1f4cc41747dc719d249415005b17e833e120e6629b682e53d8953bacd20a955"
+  },
+  "docs/cell-bench.html": {
+   "at": 1788676923,
+   "by": "adr146b",
+   "sha": "d3a801cf17a6c1b744963d11a2693101de3ebd3f4f1d03a1723cf28824856086"
+  },
+  "docs/code-audit-2026-05-30.md": {
+   "at": 1788676923,
+   "by": "adr146b",
+   "sha": "d9b96db72d5a5f03097d75aba529168dc0ad8bb1d98c38a3ff40baf6043ddb20"
+  },
+  "docs/code-review-2026-05-29.md": {
+   "at": 1788676923,
+   "by": "adr146b",
+   "sha": "e9becaa5c548d68981beeefad9483a64e94ac6e0e0205c98883a9c6289453c2f"
+  },
+  "docs/collection-sheet.html": {
+   "at": 1788676923,
+   "by": "adr146b",
+   "sha": "dc9d86f7a4078c86ad5e7cf49aa355c33bc4efe7e09f05d538822d549025e5fa"
+  },
+  "docs/cp-bench.html": {
+   "at": 1788676923,
+   "by": "adr146b",
+   "sha": "0eafa797381ae29e684dd4dad384a063de781cb6c1410740cf3ade04b1642fee"
+  },
+  "docs/cp-characters.html": {
+   "at": 1788676923,
+   "by": "adr146b",
+   "sha": "54e86bd234c0a27542114b5b8ceaf67fd1df375ff4ff0df8f9bdee49d9493493"
+  },
+  "docs/cp-suite.html": {
+   "at": 1788676924,
+   "by": "adr146b",
+   "sha": "007a1f6da7dcc8eb24279818cf26395758f207e09affd3214574eb1d0588060f"
+  },
+  "docs/deployment-log.html": {
+   "at": 1788676924,
+   "by": "adr146b",
+   "sha": "708e936056c668297310bf014fd68ad052ef392db65cdd83268aa753594ad0c6"
+  },
+  "docs/douglas-explorer.html": {
+   "at": 1788676924,
+   "by": "adr146b",
+   "sha": "795a01ffe37c125d1b528631a4aa3c662e01962dbaae6d324a0e64d8dbf1207f"
+  },
+  "docs/eco-protocol-library.html": {
+   "at": 1788676924,
+   "by": "adr146b",
+   "sha": "526ec2accc0660d7a31b082cd54a12f5d2dcb9ccf99a5d1d735c22447d7a1686"
+  },
+  "docs/eco-protocol-reference.html": {
+   "at": 1788676924,
+   "by": "adr146b",
+   "sha": "74f7385b673493979866acaf0a69dfae5592afac2adec2c61d75539ce632d076"
+  },
+  "docs/ecology-essay.html": {
+   "at": 1788676924,
+   "by": "adr146b",
+   "sha": "63738392d3ccfead3ca69314b20ad43add1e1542f7ba8603d12f3bb3092aaa50"
+  },
+  "docs/ecology-experiment-session.json": {
+   "at": 1788676924,
+   "by": "adr146b",
+   "sha": "2a7a124248fd97665568b5e6be55ffcb7de4585aae0c61c2444fbfc4090c0243"
+  },
+  "docs/ecology-field-card.html": {
+   "at": 1788676924,
+   "by": "adr146b",
+   "sha": "03ceeb5997fb820a89a192b33341675b66f571fe51d5d01f94927382c106d236"
+  },
+  "docs/ecology-field-guide.html": {
+   "at": 1788676924,
+   "by": "adr146b",
+   "sha": "fa2a5048f575a9c603f04d604b74c42bcda6e02912c110b19911672ea928dbd7"
+  },
+  "docs/ecology-glossary.html": {
+   "at": 1788676924,
+   "by": "adr146b",
+   "sha": "dc9a21917be9a8721d7ba9191df0bafbe3a786df1a0c851e56508aba531ab8af"
+  },
+  "docs/ecology-lab-manual.html": {
+   "at": 1788676924,
+   "by": "adr146b",
+   "sha": "f58b49e1864c27e03a9d6216e28f836645630130f333a6bb6bc28f2a2c8d6470"
+  },
+  "docs/ecology-lab-session.json": {
+   "at": 1788676924,
+   "by": "adr146b",
+   "sha": "55fde6efe30b2e5d91cd06cd06ae1eb04ada2bdd954229cda3c5c4bbbb2fd338"
+  },
+  "docs/ecology-lab.html": {
+   "at": 1788676924,
+   "by": "adr146b",
+   "sha": "74aa17447a9e2e77d217bebcdcbb4a510ff2f44dfea965eb86a67a00d2f5c0bd"
+  },
+  "docs/ecology-teachers-guide.html": {
+   "at": 1788676924,
+   "by": "adr146b",
+   "sha": "f9d5198acae6779b355dabf7fcafdeeaff34c9564fd0fa6c495caa31efb66c57"
+  },
+  "docs/ecology-trace-session.json": {
+   "at": 1788676924,
+   "by": "adr146b",
+   "sha": "c5328e09256aa223bbf6e47bc3f64759583c2b88aca8b2951250ce1304233c4b"
+  },
+  "docs/ecology.html": {
+   "at": 1788676924,
+   "by": "adr146b",
+   "sha": "98eec884fbbeb0b2166b97ca7964c0823dbf1c3a41504ce6e661a1acc206a4bb"
+  },
+  "docs/ethogram.html": {
+   "at": 1788676924,
+   "by": "adr146b",
+   "sha": "127ef12970803c5f7d1a46fd58377afb472e4775ce545b25827eb30c15ed34ef"
+  },
+  "docs/evidence/manifest.json": {
+   "at": 1788676924,
+   "by": "adr146b",
+   "sha": "28dcfb6002ba20800d85b5a9607d8a06e200bc1f9815ecb12859d0ef094fbde6"
+  },
+  "docs/experiment-guide.html": {
+   "at": 1788676924,
+   "by": "adr146b",
+   "sha": "0d3c557eade2fcffff7bcad5b0d1fad2847ccc519bf7f1822cfaeefd66161d21"
+  },
+  "docs/experiment-out/crosses.csv": {
+   "at": 1788676924,
+   "by": "adr146b",
+   "sha": "1f4c41294c43fedd196d41197c4a0bb0d702b6e061aadb12bd0e0cc587b653e6"
+  },
+  "docs/experiment-out/data.csv": {
+   "at": 1788676924,
+   "by": "adr146b",
+   "sha": "aa7b7c8df8bb03042bea0097179450a8a50cd7a3062bf95090cf3bae4879422a"
+  },
+  "docs/experiment-out/drift.csv": {
+   "at": 1788676924,
+   "by": "adr146b",
+   "sha": "a3d7176cc6025853e5ace18c9ed7c5adee49cb04489c6633fa44a1d21d398815"
+  },
+  "docs/experiment-out/hypotheses.csv": {
+   "at": 1788676924,
+   "by": "adr146b",
+   "sha": "81b9087e810c036f1038ea9b73d1dce4a25ef33856a3f2984352211c1cd04923"
+  },
+  "docs/experiment-out/model-series.csv": {
+   "at": 1788676924,
+   "by": "adr146b",
+   "sha": "e36db962d1c61038136b47fb958cd589fb592463f7826448b611b0dab2433137"
+  },
+  "docs/experiment-out/notes.csv": {
+   "at": 1788676924,
+   "by": "adr146b",
+   "sha": "15d2de4133e589493b8aa64eed8523f28474a510db4fb76156cab0eccf765165"
+  },
+  "docs/experiment-out/phases.csv": {
+   "at": 1788676924,
+   "by": "adr146b",
+   "sha": "9ce9eab2d80c18bc8948eac9f5c5d948ce20732885c843a5cb15df0e54801058"
+  },
+  "docs/experiment-out/punnett.csv": {
+   "at": 1788676924,
+   "by": "adr146b",
+   "sha": "97406cd04b420a7390a393d379bf4c41c9434659aa344583d91a75c0c3e58980"
+  },
+  "docs/experiment-out/report.html": {
+   "at": 1788676924,
+   "by": "adr146b",
+   "sha": "c635fc502c89ff83dee5c2369186f52f59e62328dd9f838cb6b0cdbc774cef3f"
+  },
+  "docs/experiment-out/report.pptx": {
+   "at": 1788676924,
+   "by": "adr146b",
+   "sha": "7271ae71aff7b8d45c5db9bba618dc99e67e61ac17a9389c09ae5adea87f2a19"
+  },
+  "docs/experiment-out/report.txt": {
+   "at": 1788676924,
+   "by": "adr146b",
+   "sha": "753de0c2a37a0fcf9a65de74933dcec788c1368eef8da78ec1814733991337d6"
+  },
+  "docs/experiment-out/session.json": {
+   "at": 1788676924,
+   "by": "adr146b",
+   "sha": "2a7a124248fd97665568b5e6be55ffcb7de4585aae0c61c2444fbfc4090c0243"
+  },
+  "docs/experiment-out/trees.csv": {
+   "at": 1788676924,
+   "by": "adr146b",
+   "sha": "4abaa40de46c569ad58cdc3f1ccb9adc37c6dfec2be9d56486032cebb5ad0af4"
+  },
+  "docs/experiment-out/workbook.xlsx": {
+   "at": 1788676924,
+   "by": "adr146b",
+   "sha": "0340b517042765c76eaa9429b79e46a86bfe5d5d5c5c9de367cdfe49026aba11"
+  },
+  "docs/farm-scout.html": {
+   "at": 1788676924,
+   "by": "adr146b",
+   "sha": "fb156b8890c37abcf975787c48dc90f5dd5e9cf9556d8b76b17244c59a5f4bb1"
+  },
+  "docs/field-notebook.html": {
+   "at": 1788676924,
+   "by": "adr146b",
+   "sha": "e6f31cb56e1d11736c899b3e5446078671f1bdfd5bd66d19d966dce2dcaeaad5"
+  },
+  "docs/field-season.html": {
+   "at": 1788676924,
+   "by": "adr146b",
+   "sha": "286fd909dc875ee68ebd522e9aaca2388c8a59b6077c7be08517dc8138964315"
+  },
+  "docs/food-web.html": {
+   "at": 1788676924,
+   "by": "adr146b",
+   "sha": "f7d332cb675de2f8ea52c49b5e2b00a4a3022a83bbda0f7325a6a12a4942331a"
+  },
+  "docs/fungal-characters.html": {
+   "at": 1788676924,
+   "by": "adr146b",
+   "sha": "e5b9c7bafea072163f6546c9cac05775d616428ff368e7f627187f5a0de8989f"
+  },
+  "docs/greenhouse.html": {
+   "at": 1788676924,
+   "by": "adr146b",
+   "sha": "24e10e958c90b146c7317ef174a18d1689c273b3768db82559729166f7ea54e7"
+  },
+  "docs/hardening-audit-2026-07-08.md": {
+   "at": 1788676924,
+   "by": "adr146b",
+   "sha": "7c7171b41f7c5726a1c940feb10905c9ed184dc8d1c75bbd973a3fc8ab878293"
+  },
+  "docs/media/cp-characters.jpg": {
+   "at": 1788676924,
+   "by": "adr146b",
+   "sha": "5c23bc5515e99685097439547bd2d23510821154afbce77e3a61421f77ed53a6"
+  },
+  "docs/media/field-instruments.jpg": {
+   "at": 1788676924,
+   "by": "adr146b",
+   "sha": "db957fddd501cad027c435ba28c839017b6b497a8048eb86ba8a640ca550a884"
+  },
+  "docs/media/food-web.jpg": {
+   "at": 1788676924,
+   "by": "adr146b",
+   "sha": "260bb82a72a90758692b45f8bd50e3dcb8d3aacfdee3fb3acbc2e58f5f49c81c"
+  },
+  "docs/media/kit-hub.jpg": {
+   "at": 1788676924,
+   "by": "adr146b",
+   "sha": "cae615d60a4a9b83e059c2cf76f7ebaacdc9517ee1cdee1361fe4b32e484e3a2"
+  },
+  "docs/media/tree-visualizer.jpg": {
+   "at": 1788676924,
+   "by": "adr146b",
+   "sha": "4e310b54ca2b9be81b11e1c52774abb09a68efe94b58343f75d45f8eee9f1587"
+  },
+  "docs/media/workbench.jpg": {
+   "at": 1788676924,
+   "by": "adr146b",
+   "sha": "6ef6c67517c5c7e00c15243c4944e070404e655f9f3cae6bc62dd870c16e2f15"
+  },
+  "docs/micro-bench.html": {
+   "at": 1788676924,
+   "by": "adr146b",
+   "sha": "b9e3a6ebd4a9910180e1080d0c19fd4d34be1fc142e087e4bdd42c40c4a7a0fe"
+  },
+  "docs/ordination.html": {
+   "at": 1788676924,
+   "by": "adr146b",
+   "sha": "b2ba76a5aa4314c891e9c766f5c76a8dd33a2064c6e0ba030af11cdd1591371a"
+  },
+  "docs/pheno-tracker.html": {
+   "at": 1788676924,
+   "by": "adr146b",
+   "sha": "cdecd5fb8d7445cd53880ea3dd74d042a1006b49dcbe80e945ea8e1f9479075f"
+  },
+  "docs/plant-characters.html": {
+   "at": 1788676924,
+   "by": "adr146b",
+   "sha": "bfdf709c7fb6d514fe8cfcd814e9155a4cdd358124711c3e0661ab5f5e723c69"
+  },
+  "docs/releve.html": {
+   "at": 1788676925,
+   "by": "adr146b",
+   "sha": "4832d6b0a9b1fe2763b39ff0a220f0aff6bbede706830c06887cece180be94c7"
+  },
+  "docs/sample-experiment.eco": {
+   "at": 1788676925,
+   "by": "adr146b",
+   "sha": "372ea400e040d9ecbcdf75056fad23ef82d083f052242745abf49e4660f75b81"
+  },
+  "docs/sample-trace.csv": {
+   "at": 1788676925,
+   "by": "adr146b",
+   "sha": "bf37dcc4c41aaac1eb79562a372d44e9e59879cf94b553e1daf6968f0623d842"
+  },
+  "docs/selection-log.html": {
+   "at": 1788676925,
+   "by": "adr146b",
+   "sha": "85b6b5891ad77cfd9e1f4abd181a519ea2c062ebf9c3683ba7afbdd8548375f9"
+  },
+  "docs/soil-bench.html": {
+   "at": 1788676925,
+   "by": "adr146b",
+   "sha": "a9dd7c9d311267345d516fcaf46f5ce20903e4923bf6720530aac4a30d7b80d2"
+  },
+  "docs/soil-recipes.html": {
+   "at": 1788676925,
+   "by": "adr146b",
+   "sha": "a17dc536be717eff43c5665b8847b6e2ce80033bcfcae6aeb77112c06352edd3"
+  },
+  "docs/soil-suite.html": {
+   "at": 1788676925,
+   "by": "adr146b",
+   "sha": "e4d5f00963499f02b88f802e8b6f65e5d6f35b205dba4662a9aceea4d14132b7"
+  },
+  "docs/stand-sheet.html": {
+   "at": 1788676925,
+   "by": "adr146b",
+   "sha": "d5b199e4ef11e29ba9bd23ad8e46d4a3b7179ad600df20ea6f5b873874d8351f"
+  },
+  "docs/strategy-audit-and-feasibility-2026-05-30.md": {
+   "at": 1788676925,
+   "by": "adr146b",
+   "sha": "d60acafe7d2504158ee6026aba5bb0747ad71bd809ad072b364129306c8ca624"
+  },
+  "docs/survey-design.html": {
+   "at": 1788676925,
+   "by": "adr146b",
+   "sha": "bee6a1155aabe9a0916b504ccac17849b445f2c21cedf6b047fe9069e1fd484a"
+  },
+  "docs/system-design-audit-2026-05-30.md": {
+   "at": 1788676925,
+   "by": "adr146b",
+   "sha": "7840d6900c823ba753493d4cb827849f7745877a7afa3293c18dddea5b2fecf9"
+  },
+  "docs/tahoe-canopy-dwc.csv": {
+   "at": 1788676925,
+   "by": "adr146b",
+   "sha": "72a817aa3d0e53be2ac36a6e48ab65f51be03a1e4c539a120eed0b7d435c5437"
+  },
+  "docs/tahoe-understory-dwc.csv": {
+   "at": 1788676925,
+   "by": "adr146b",
+   "sha": "19e9d163c10c621a1879c99141f90971ba798b7dec0f3268611d603f76cf3dbe"
+  },
+  "docs/tahoe-westshore-out/data.csv": {
+   "at": 1788676925,
+   "by": "adr146b",
+   "sha": "35f3029b7a60204716b5d1b76bc4dbf6a3c0d968ba5b567eaa3653a22b7446ea"
+  },
+  "docs/tahoe-westshore-out/hypotheses.csv": {
+   "at": 1788676925,
+   "by": "adr146b",
+   "sha": "15561238f1e2780050bac29e5a30fb88b3fb51d4b343ece38c86f13daea60d1b"
+  },
+  "docs/tahoe-westshore-out/model-series.csv": {
+   "at": 1788676925,
+   "by": "adr146b",
+   "sha": "0363440a26f3d51ac7cd9846e1409954032f12058fec8667d739c151193f7b91"
+  },
+  "docs/tahoe-westshore-out/notes.csv": {
+   "at": 1788676925,
+   "by": "adr146b",
+   "sha": "8c1d31627d12c0067c3ca9a244e0c4bbcdb9e002ba5e85f0c8319addd6e8a4c1"
+  },
+  "docs/tahoe-westshore-out/report.html": {
+   "at": 1788676925,
+   "by": "adr146b",
+   "sha": "0caf41b7748de493ee3def1079411ee0762dc06a1c7097b03551e71424078afd"
+  },
+  "docs/tahoe-westshore-out/report.pptx": {
+   "at": 1788676925,
+   "by": "adr146b",
+   "sha": "ce2af55dfc5018977af50eda14c9f3beeef7137481e7d0e67e3e140ac0418c1f"
+  },
+  "docs/tahoe-westshore-out/report.txt": {
+   "at": 1788676925,
+   "by": "adr146b",
+   "sha": "372a83cdd34be153cc98baeaa942b64643278df3f8f8269d8f21f51b91fd5969"
+  },
+  "docs/tahoe-westshore-out/session.json": {
+   "at": 1788676925,
+   "by": "adr146b",
+   "sha": "a9ab5af5972e2d7d49a66997f2a732ad1d9f6c97e544cefe0f5a49f938f3a4e8"
+  },
+  "docs/tahoe-westshore-out/trees.csv": {
+   "at": 1788676925,
+   "by": "adr146b",
+   "sha": "7bf9d20cd863725ee06ca05f5f587e44be24f87a14a0987902c8eca2f5b2b1b7"
+  },
+  "docs/tahoe-westshore-out/workbook.xlsx": {
+   "at": 1788676925,
+   "by": "adr146b",
+   "sha": "e6c62a3db901003167da3da09fd27256e7a89b196cb07d4bcd6cb49d8b7171a6"
+  },
+  "docs/tahoe-westshore-session.json": {
+   "at": 1788676925,
+   "by": "adr146b",
+   "sha": "a9ab5af5972e2d7d49a66997f2a732ad1d9f6c97e544cefe0f5a49f938f3a4e8"
+  },
+  "docs/tahoe-westshore.eco": {
+   "at": 1788676925,
+   "by": "adr146b",
+   "sha": "09ca9c7115f28197d4ca7b12af4c818dba685147f2849873de159d7f9ce2ab37"
+  },
+  "docs/tree-proofs.html": {
+   "at": 1788676925,
+   "by": "adr146b",
+   "sha": "5525554471e82c1db95de81b1c0623381c97b4d2e40be131acb7226dc1587ee4"
+  },
+  "docs/tree-visualizer.html": {
+   "at": 1788676925,
+   "by": "adr146b",
+   "sha": "cff9e83fae96698291cd19721f3b9a2ff53dabe5de27d73503117fd0cfeab348"
+  },
+  "docs/viability-map.json": {
+   "at": 1788676925,
+   "by": "adr146b",
+   "sha": "c510d848586470e9c8a632ff9452f30724d45af339cd7d8d0b865863613d244f"
+  },
+  "docs/visualizer-contract.json": {
+   "at": 1788676925,
+   "by": "adr146b",
+   "sha": "6c2f24bb8892f8aa6f27be694e3309d06d7d5ffffd27044c141b2115d60ac043"
+  },
+  "tools/artifact_map.json": {
+   "at": 1788676925,
+   "by": "adr146b",
+   "sha": "8269e6ba547b95233193a9c14135723d74d9afd897dc07eb4b2ad19b81cbb3bd"
+  },
+  "tools/atlas.py": {
+   "at": 1788676925,
+   "by": "adr146b",
+   "sha": "cce3cea0ab95827aa12319c680e82952d9ef350bce40099c0092361fa29ece31"
+  },
+  "tools/audit_claims.py": {
+   "at": 1788676925,
+   "by": "adr146b",
+   "sha": "c3b3b1379a3d26144c9c13914c8f27010c5074e9a40e4c9a6dc113fdabb78694"
+  },
+  "tools/audit_contrast.py": {
+   "at": 1788676925,
+   "by": "adr146b",
+   "sha": "f70cef108b119617c85832e2426a5d9f6ff10e4cfa19493cd55f41d589cb2946"
+  },
+  "tools/audit_delivery.py": {
+   "at": 1788683836,
+   "by": "adr147",
+   "sha": "409b95cd0496c6b0cc14c12f33f3f946f6e1bfb0362a3f2479733a5aa1025479"
+  },
+  "tools/audit_escaping.py": {
+   "at": 1788676925,
+   "by": "adr146b",
+   "sha": "008191b8917bd2366a052e13c43b434205a183966cabeeaf2a80b5b9c3c5f821"
+  },
+  "tools/audit_focus.py": {
+   "at": 1788676925,
+   "by": "adr146b",
+   "sha": "f75520da035e6d86c1f93af71af2c3b49b8911fc77cd063fe96ec08033893175"
+  },
+  "tools/audit_frontend.py": {
+   "at": 1788676925,
+   "by": "adr146b",
+   "sha": "a869683ad90d465c3bafc66f5deb4078ff0f0d7ddb0a5bbba0697b78f8d0d324"
+  },
+  "tools/audit_offline.py": {
+   "at": 1788676925,
+   "by": "adr146b",
+   "sha": "312250cb8b03cf359470a734a7f5ca562fd0aae5c1c12fb12c0b4a0e032706c6"
+  },
+  "tools/audit_print.py": {
+   "at": 1788676925,
+   "by": "adr146b",
+   "sha": "b02eab0c7058cf08dfc655d5c113433fddbae5b934db17c68a6e9bda7db6dde1"
+  },
+  "tools/audit_print_channel.py": {
+   "at": 1788676925,
+   "by": "adr146b",
+   "sha": "49beb13362dc0cd90ebe49e1fe50c5150cc79b1786e36de31e900655eaecb111"
+  },
+  "tools/audit_readable.py": {
+   "at": 1788676925,
+   "by": "adr146b",
+   "sha": "4f3421036f9a26d107394eaca1b29f46508d6935d1696350ba3bbde141bbc6e0"
+  },
+  "tools/audit_states.py": {
+   "at": 1788676925,
+   "by": "adr146b",
+   "sha": "f4772a3491dd37a2d4f6ff9206e0b921775d35600cf572e252417140751c2226"
+  },
+  "tools/audit_targets.py": {
+   "at": 1788676925,
+   "by": "adr146b",
+   "sha": "f3434b7cf187a40f361a27abe219f982ee6c97959cd092fc7266ae9e19ef7852"
+  },
+  "tools/audit_ties.py": {
+   "at": 1788676925,
+   "by": "adr146b",
+   "sha": "87a75cf8e4e4a93070153679fbaba41272105d2027a9233e517ff608cf275251"
+  },
+  "tools/blind_console.py": {
+   "at": 1788676925,
+   "by": "adr146b",
+   "sha": "3625b3e5be6e6e202252bd72828796c296c4e217f74b086fb7dea5878fda3c39"
+  },
+  "tools/contend.py": {
+   "at": 1788676925,
+   "by": "adr146b",
+   "sha": "eceb3ec79cfebba9fcac7b7809a76b0f6f0eef94b2425479e98903f28aecb628"
+  },
+  "tools/contention_ledger.json": {
+   "at": 1788676926,
+   "by": "adr146b",
+   "sha": "c8a78f4ad406d2fb7078e799c7f837b602f896d5dc08b0814ec15c4b426276b4"
+  },
+  "tools/deliver.py": {
+   "at": 1788683836,
+   "by": "adr147",
+   "sha": "9a07e20bf86274319737ba01d09dfb06ee701097958a62182fdad541cfacf612"
+  },
+  "tools/delivery/adr147.json": {
+   "at": 1788683836,
+   "by": "adr147",
+   "sha": "7497cb714b6b0d6be52cd8a68e2e585b1e917a29df8587f6c40caa97af1d2bc7"
+  },
+  "tools/delivery_ledger.json": {
+   "at": 1788683836,
+   "by": "adr147",
+   "sha": "c59917255d0211061bf40236dfb7ee98f5584a53e355a1b7447f89bdb6e40599"
+  },
+  "tools/dwc.py": {
+   "at": 1788676926,
+   "by": "adr146b",
+   "sha": "f0e0ece8c5003073c2e644e8959f1e67a02688f96c57e2aaf71fa68ec8a66094"
+  },
+  "tools/dwc_emit.py": {
+   "at": 1788676926,
+   "by": "adr146b",
+   "sha": "5e6fc0d154663a794739eb86e0ae1961869309f5e0eb208c8c6c9f1859f76ee6"
+  },
+  "tools/dwc_harness.py": {
+   "at": 1788676926,
+   "by": "adr146b",
+   "sha": "f67b88ea242c332b3400e31e361709e2f9771df071c55c60aa1caccf056fae22"
+  },
+  "tools/ecosystem.py": {
+   "at": 1788676926,
+   "by": "adr146b",
+   "sha": "dd15ae9ea4b1e7462d40e8b047c59df4339287d6de62c1c8226f5e47395795a8"
+  },
+  "tools/ecosystem_ledger.json": {
+   "at": 1788676926,
+   "by": "adr146b",
+   "sha": "2e3c3ed1d1cbfa8023cc8439dd4539065138d606cc1650af309f6698f01d4177"
+  },
+  "tools/emit_common.py": {
+   "at": 1788676926,
+   "by": "adr146b",
+   "sha": "00d8f848523b69df9eeef00197eb7a944a9b906085dd8f0ab1e4b253ae9fc9fb"
+  },
+  "tools/engine_attest.json": {
+   "at": 1788676926,
+   "by": "adr146b",
+   "sha": "fac92d15f1b8f3bf49fd663fbc3d321d181949b1ee1280ca462755a00fc77e63"
+  },
+  "tools/engine_attest.py": {
+   "at": 1788676926,
+   "by": "adr146b",
+   "sha": "01919e137bdbf702ebc887de41aa026b721916da9d3761ce673812d54a22471f"
+  },
+  "tools/entry_ledger.json": {
+   "at": 1788683836,
+   "by": "adr147",
+   "sha": "5062f8c4fb52a752e05ac96f64b85081cf378eaa421b62e930d27d428bf54b22"
+  },
+  "tools/entry_reach.py": {
+   "at": 1788676926,
+   "by": "adr146b",
+   "sha": "99c46c9126e397d520630b1cbd6282686a547e6e952b87cf3f1c02e781d3d86d"
+  },
+  "tools/fek.py": {
+   "at": 1788676926,
+   "by": "adr146b",
+   "sha": "d50fb2483333f08c2b90edafb04e83fa7cb414ee38e69ecb13734806748625b2"
+  },
+  "tools/fek_emit.py": {
+   "at": 1788676926,
+   "by": "adr146b",
+   "sha": "8ffb31f982643e6a54feedbdaca90755612a50a8f9e7a0fc4f695fa2666b8db1"
+  },
+  "tools/fek_harness.py": {
+   "at": 1788676926,
+   "by": "adr146b",
+   "sha": "f45607aaba9c830261fed812a1eedb769fe79a50ece1e3dcdebb3fba52e50e1b"
+  },
+  "tools/fek_lint.py": {
+   "at": 1788676926,
+   "by": "adr146b",
+   "sha": "f5215d2db09c74211bba629bd69a0d5f801e7fb8a1f336c5b59bd0c0291c4e5b"
+  },
+  "tools/findings.py": {
+   "at": 1788676926,
+   "by": "adr146b",
+   "sha": "bc949091b2247fa2262e8c5b10615a8454f1df611a8c789673ff270289beed22"
+  },
+  "tools/gh.py": {
+   "at": 1788676926,
+   "by": "adr146b",
+   "sha": "822b163227c2e7f6aa065e793df0359fc595fee9b6c6538e1ff8cf468cb6e791"
+  },
+  "tools/gh_emit.py": {
+   "at": 1788676926,
+   "by": "adr146b",
+   "sha": "eb9df6bef4362b8e37eb20cd2ab24a9af38ef8e821b62f482330c643b747b08a"
+  },
+  "tools/harness.py": {
+   "at": 1788676926,
+   "by": "adr146b",
+   "sha": "80ed2314bfc12a61a6a8de9be3833f9a650a63788f7ae69adaaecb8a71be8704"
+  },
+  "tools/harness_baseline.json": {
+   "at": 1788676926,
+   "by": "adr146b",
+   "sha": "4bb3b1a07b00f7a3035cc9560c6d920a06e2e6c0688a90d16a7935165fa8110e"
+  },
+  "tools/harness_board.html": {
+   "at": 1788683836,
+   "by": "adr147",
+   "sha": "69e9557a2efd24ddc29751342431dfdec7c0f10fd35cf63fb1a67d033f7cc88b"
+  },
+  "tools/harness_board.py": {
+   "at": 1788683836,
+   "by": "adr147",
+   "sha": "af07abbb218fbdb7eac5e7a57cfc5601567dfc3d2e9ad496147a8d080e3c71c5"
+  },
+  "tools/harness_contract.py": {
+   "at": 1788676926,
+   "by": "adr146b",
+   "sha": "505f7bfe42009f1acabda8b3b3b801a941b3c39465601e35cc989454d8323bdd"
+  },
+  "tools/harness_ledger.json": {
+   "at": 1788676926,
+   "by": "adr146b",
+   "sha": "52c9cdf20fdb3e94b15224a33b8ad59b545f16f88c0dbd2459c0e2a2335f2563"
+  },
+  "tools/harness_mcp.py": {
+   "at": 1788676926,
+   "by": "adr146b",
+   "sha": "09a5af2db1b4cf036d4cd3f70459c365e59dee193743866c00419d1f9e556e92"
+  },
+  "tools/harness_plugin_fixture.py": {
+   "at": 1788676926,
+   "by": "adr146b",
+   "sha": "28937a9642904557f467e563f8fb9812630704232091efd3fce0f6b3ab65a050"
+  },
+  "tools/harness_plugin_lab.py": {
+   "at": 1788676926,
+   "by": "adr146b",
+   "sha": "659f921465a75b7444e8e66ef571102e330cc3fd3a2f828f606a14e18acde6d5"
+  },
+  "tools/harness_plugin_organism.py": {
+   "at": 1788676926,
+   "by": "adr146b",
+   "sha": "0fefc6546ba228e4d370f838ebbd095c1b9d2d8c6e8d7eef223e5a64f25005ec"
+  },
+  "tools/harness_plugin_page.py": {
+   "at": 1788676926,
+   "by": "adr146b",
+   "sha": "3ca5adabf76992da94abab702f0f49edebc3a9f9967661eea74b5b56bfe454ce"
+  },
+  "tools/harness_plugin_session.py": {
+   "at": 1788676926,
+   "by": "adr146b",
+   "sha": "e65fa9ade5d351e691f9bad9bdb42622a94931119217a74a36d957533005e36b"
+  },
+  "tools/harness_stdio.py": {
+   "at": 1788676926,
+   "by": "adr146b",
+   "sha": "fa1085eab9b51939c542a863ac27ee79e2364b0729ea19c5fc7e56b203687b7d"
+  },
+  "tools/harness_targets.py": {
+   "at": 1788676926,
+   "by": "adr146b",
+   "sha": "374e42feeff7f7518edc791650216fafbaf052d8e1f4323d4a388b1abc422c3d"
+  },
+  "tools/harness_tasks.py": {
+   "at": 1788676926,
+   "by": "adr146b",
+   "sha": "a27e7e81509f4682cc70089d61e28345450aa91605e14998b06f2ff3553bc8b4"
+  },
+  "tools/harness_walk.py": {
+   "at": 1788676926,
+   "by": "adr146b",
+   "sha": "83fb8b6be3a00a22754807749565472a97eb2ebc3af3cdf22c3b727d98da3ff0"
+  },
+  "tools/keep.py": {
+   "at": 1788676926,
+   "by": "adr146b",
+   "sha": "9513ef1decd40f58c3c607ad127ba1b57c5e0939feb2e9d9418060bfe6973e19"
+  },
+  "tools/keep_emit.py": {
+   "at": 1788676926,
+   "by": "adr146b",
+   "sha": "9e8d2746558e9a2e3fff18159ebd48b876efa76a9d58bc91bb0fb9b4a59e3c6f"
+  },
+  "tools/mulberry32.py": {
+   "at": 1788676926,
+   "by": "adr146b",
+   "sha": "f48304b6ba757326d34ace4d678db5c671db42e5fd99bb369a0d311b292c79a3"
+  },
+  "tools/mutant_ledger.json": {
+   "at": 1788683836,
+   "by": "adr147",
+   "sha": "f42fd928117036a910e42ca66f3964ac8f6e59d1fb304f30f37b7316e6e45423"
+  },
+  "tools/mutant_ledger.py": {
+   "at": 1788676926,
+   "by": "adr146b",
+   "sha": "f12abe6704040ff0425ebe40ee13871e569fdfd5f9f4a21e48b6d6c005eea2a4"
+  },
+  "tools/mutate.py": {
+   "at": 1788676926,
+   "by": "adr146b",
+   "sha": "f2cd7b3f25def320eff1cc5ec9aeba1788e02a6c00d35e72d53c804d36d6f78e"
+  },
+  "tools/mutate_audit_states.py": {
+   "at": 1788676927,
+   "by": "adr146b",
+   "sha": "9ca585b80ca747773e0e960d1360664b04426d68d3ebecf7bf267a82eba3c4fb"
+  },
+  "tools/mutate_contend.py": {
+   "at": 1788676927,
+   "by": "adr146b",
+   "sha": "a77c8ec78f8f78ca72cceac4281c94b753eea8da683bced1440dbdcf01d36fd4"
+  },
+  "tools/mutate_contract.py": {
+   "at": 1788676927,
+   "by": "adr146b",
+   "sha": "5b72b11d75d51093b7e0547d435b661193958fa4f17f15e6155b7a4e563318da"
+  },
+  "tools/mutate_delivery.py": {
+   "at": 1788683836,
+   "by": "adr147",
+   "sha": "16afa87845f6fae50db03f9ddc1016c12cafef23bace88b53fff7940001dbada"
+  },
+  "tools/mutate_engines.py": {
+   "at": 1788676927,
+   "by": "adr146b",
+   "sha": "1e0cf5c6abd078e57daabdb062b880b16a96fb2a406b0f513d60471680e87fc7"
+  },
+  "tools/mutate_entry.py": {
+   "at": 1788676927,
+   "by": "adr146b",
+   "sha": "ca84788c2f6d351318147aea5ee00a2f95909a99c5cf901c294b55e599d91f67"
+  },
+  "tools/mutate_harness.py": {
+   "at": 1788676927,
+   "by": "adr146b",
+   "sha": "816947e0f6301866b0c53f7851aea43e459e2e398eed2943a37a6bf7681341a7"
+  },
+  "tools/mutate_lab.py": {
+   "at": 1788676927,
+   "by": "adr146b",
+   "sha": "cb3acabb386a21130acba0659cda7771c49f6c150bc642aed59765fbef7b2deb"
+  },
+  "tools/mutate_mcp.py": {
+   "at": 1788676927,
+   "by": "adr146b",
+   "sha": "bd2ba425cd615decb2f8981b30c8a1ce82a2ea1b232fa92a5fc86b6e5a3a1caf"
+  },
+  "tools/mutate_organism.py": {
+   "at": 1788676927,
+   "by": "adr146b",
+   "sha": "3fd93b0e99616169d26531e4f210c8e09e560aad6c88f4d7fa613e3078fc9852"
+  },
+  "tools/mutate_publish.py": {
+   "at": 1788676927,
+   "by": "adr146b",
+   "sha": "be3bc8c6e9f2d9290a2d7ed69b28c57c24689b0459357f9410382a654077f80e"
+  },
+  "tools/mutate_readable.py": {
+   "at": 1788676927,
+   "by": "adr146b",
+   "sha": "59ea599526eee2ae29b559e4ea19d78a34acb23a1a40148df6ffe47af8d99bb1"
+  },
+  "tools/mutate_report.py": {
+   "at": 1788676927,
+   "by": "adr146b",
+   "sha": "e4a6745cb2a1cdbac51a9cc5c6be23d0cfdf000c14f1dc7b49e747895541e994"
+  },
+  "tools/mutate_tasks.py": {
+   "at": 1788676927,
+   "by": "adr146b",
+   "sha": "3924e974ee7f7fce996134fd7b41c9b23627ec415e903575de6eaa57cb916048"
+  },
+  "tools/mutate_walk.py": {
+   "at": 1788676927,
+   "by": "adr146b",
+   "sha": "96866d974c878f4dd0abfb6b72252efaa493ed3f9ebbaeb78809f99262288641"
+  },
+  "tools/nav.py": {
+   "at": 1788676927,
+   "by": "adr146b",
+   "sha": "3bf604a9cc73daefa069f9109625017c070307214815d8d10c8f5435f78c2264"
+  },
+  "tools/nav_emit.py": {
+   "at": 1788676927,
+   "by": "adr146b",
+   "sha": "9d17ba5ccd82b0dadbe2e07290fcb4c25f8ca0642ebfbdf6821063938a4d3613"
+  },
+  "tools/ord.py": {
+   "at": 1788676927,
+   "by": "adr146b",
+   "sha": "48680aafb82baaf6a214cdd557e7b18c1883345a1ce7d35d7b85dd9f74493ee1"
+  },
+  "tools/ord_emit.py": {
+   "at": 1788676927,
+   "by": "adr146b",
+   "sha": "172e699a8abda0fb0fe773b9204e652001fac70b769e1082739097b699c28db0"
+  },
+  "tools/probe.py": {
+   "at": 1788676927,
+   "by": "adr146b",
+   "sha": "637353228f2388759863c9169787c7bef97c86bb420c6c528b4434722359bd48"
+  },
+  "tools/probe_ledger.json": {
+   "at": 1788676927,
+   "by": "adr146b",
+   "sha": "6c9cd6c15744a94e3bc839bce82688f540d7dba60307c2072348e9dc8626a855"
+  },
+  "tools/publish.py": {
+   "at": 1788676927,
+   "by": "adr146b",
+   "sha": "6d1023707b64ed099f2b6ad5f5b7302471062e02e87cb1d1f05ec8aae27fd833"
+  },
+  "tools/publish_drift.py": {
+   "at": 1788676927,
+   "by": "adr146b",
+   "sha": "43ceee547b9e76597eaddc91465c7def278b5215f7c125778c7d8a560f88d350"
+  },
+  "tools/publish_reach.py": {
+   "at": 1788676927,
+   "by": "adr146b",
+   "sha": "776dbe7fef45f92dc80eb069fd600a0a776b7c984539d9c8851e9952169dd85a"
+  },
+  "tools/publish_state.py": {
+   "at": 1788676928,
+   "by": "adr146b",
+   "sha": "15022dcd97ee97f72ec5f907d0cdfef3ee36da9588f9de47e110519ff9f781e8"
+  },
+  "tools/published.json": {
+   "at": 1788683836,
+   "by": "adr147",
+   "sha": "9bd31f74e31f3fb6b0bf5cbfc702c64cdcbba9c24c1f712d174b76551f6e93a8"
+  },
+  "tools/reach.py": {
+   "at": 1788676928,
+   "by": "adr146b",
+   "sha": "b176e4e078bd39b22f5056223c6d1949503ff69c2f029a02d3513a7607db39cb"
+  },
+  "tools/readable_ledger.json": {
+   "at": 1788683836,
+   "by": "adr147",
+   "sha": "106ffbf00a5a46e975327116e8c88b1cef7543aea8497d42cc8b6b524e8e2bbf"
+  },
+  "tools/routes.json": {
+   "at": 1788676928,
+   "by": "adr146b",
+   "sha": "725feb0b6f3d751076698862d12d6257bca5e33be2f73686e674b37366b02f5f"
+  },
+  "tools/routes.py": {
+   "at": 1788676928,
+   "by": "adr146b",
+   "sha": "e0fcfcee1759b6cc65564213f4cdb7d0bc3dcf7403ef1c2bb61c8d158c7063d6"
+  },
+  "tools/swarm.py": {
+   "at": 1788676928,
+   "by": "adr146b",
+   "sha": "892004076af9d9d59bf40448526ca2618e1bb149cff6308d27f74ba174b1558f"
+  },
+  "tools/swarm_ledger.json": {
+   "at": 1788676928,
+   "by": "adr146b",
+   "sha": "6c5cf9e9a53e2f832f99197199d0bcc8f9d779f8f9421f98e1e4950de9eb2cf7"
+  },
+  "tools/sweep_ledger.json": {
+   "at": 1788676928,
+   "by": "adr146b",
+   "sha": "034b97a7e14194fc1f94969c6805e66d276dbb98d32ffb2a360f65ee17ea3d49"
+  },
+  "tools/sweep_ledger.py": {
+   "at": 1788676928,
+   "by": "adr146b",
+   "sha": "0a2241a252fa68e80b813e601b7bd67cd8ba5c00b8ad07acc98dcd93a42b0268"
+  },
+  "tools/task_ledger.json": {
+   "at": 1788683836,
+   "by": "adr147",
+   "sha": "9faf6e0e4d7709895b1d40be804c1e7c72e419da32fecbab971a49979d1241ac"
+  },
+  "tools/tasks/fixture-buckets.json": {
+   "at": 1788676928,
+   "by": "adr146b",
+   "sha": "f90025cb6ccee5d7fdb1ab481802f6a6aa4a5596b761f76af128d0bdc6d492ed"
+  },
+  "tools/tasks/fixture-canary.json": {
+   "at": 1788676928,
+   "by": "adr146b",
+   "sha": "772d1cf60d07c77acb2286a780aab880facef840750d6a4385be4ce4da8d63cb"
+  },
+  "tools/tasks/lab-run-shipped-protocol.json": {
+   "at": 1788676928,
+   "by": "adr146b",
+   "sha": "fad279b077dd8e7b53c782a65a2537272d4388bc55311459c8a5d8faf5d7d8ff"
+  },
+  "tools/tasks/organism-cold-recovery.json": {
+   "at": 1788676928,
+   "by": "adr146b",
+   "sha": "a56a309f7b7e4911aa2f9b7a2558fda33a8084223e9db8bc34c3908d3d94c863"
+  },
+  "tools/tasks/organism-crash-road.json": {
+   "at": 1788676928,
+   "by": "adr146b",
+   "sha": "7de4e943ef8fcbd017fed87b3267c4b7dbddbed2eafffea777ba8485220dcabc"
+  },
+  "tools/tasks/organism-preserve-cold-scan.json": {
+   "at": 1788676928,
+   "by": "adr146b",
+   "sha": "ea0db2e73ec950e5eb21718c5d12f9f1f3b024b535971bda0bb17c3b4e8fe664"
+  },
+  "tools/tasks/organism-replica-behind.json": {
+   "at": 1788676928,
+   "by": "adr146b",
+   "sha": "15725f4d9850358fc646a38a0035b92fd22bf21c76e39d57cb4ccbd11dbc5771"
+  },
+  "tools/tasks/page-adr-031-reference.json": {
+   "at": 1788676928,
+   "by": "adr146b",
+   "sha": "ba146d3c3c81d3395635ceb79dcff34908f02469e1a2d8eba095e0778cca4488"
+  },
+  "tools/tasks/page-breeding-bench-science.json": {
+   "at": 1788676928,
+   "by": "adr146b",
+   "sha": "52563ab4cb2bf612af54884cf302b60e0c1d6eb78c8e0191139190a8a7ea3974"
+  },
+  "tools/tasks/page-breeding-suite-reference.json": {
+   "at": 1788676928,
+   "by": "adr146b",
+   "sha": "6b38894711d3196ab3d210992c48a4c0ff59826698ee9b329a3c32b5abaa0c93"
+  },
+  "tools/tasks/page-cell-bench-science.json": {
+   "at": 1788676928,
+   "by": "adr146b",
+   "sha": "c288a97dc2be65465f9dbfcf8a32082f760f4ea4aea6ee4b4ddd52d62ba4bc2f"
+  },
+  "tools/tasks/page-collection-sheet-canary.json": {
+   "at": 1788676928,
+   "by": "adr146b",
+   "sha": "aa5d619dbf07c0dae390543a1cd3a556eda369120b473704b816ceafd098071b"
+  },
+  "tools/tasks/page-collection-sheet-science.json": {
+   "at": 1788676928,
+   "by": "adr146b",
+   "sha": "6bc6b5fb10f1edfe0c76b5ce375d1b72a0c47ecefd7d707adfc936c427a6e337"
+  },
+  "tools/tasks/page-cp-bench-science.json": {
+   "at": 1788676928,
+   "by": "adr146b",
+   "sha": "86b654d9f2ce191f5b62845139539d938932a9288e0a29e6d98d1af1697da769"
+  },
+  "tools/tasks/page-cp-characters-key.json": {
+   "at": 1788676928,
+   "by": "adr146b",
+   "sha": "904faa45b61d9397c8c89aed8fffbf022ed84ccc6ea93a7e28ad0971bd4b9010"
+  },
+  "tools/tasks/page-cp-suite-reference.json": {
+   "at": 1788676928,
+   "by": "adr146b",
+   "sha": "012ef576d961fa7967adca1a4920f4eeb639d82fcf26078971de2cd63bc56a17"
+  },
+  "tools/tasks/page-deployment-log-science.json": {
+   "at": 1788676928,
+   "by": "adr146b",
+   "sha": "ef9bd64fcbc00ecfb5a0041af4255f25e6dcc6ed67a7333992d00ad1d3e918df"
+  },
+  "tools/tasks/page-douglas-explorer-reference.json": {
+   "at": 1788676928,
+   "by": "adr146b",
+   "sha": "31c670dd76d45f56d6aea35cd5d4ccd1a1295dc52c602263feb5ce41468f8e3f"
+  },
+  "tools/tasks/page-eco-protocol-library-reference.json": {
+   "at": 1788676928,
+   "by": "adr146b",
+   "sha": "faf171306236fbd44e5aca3965212004b316c7208a952bd766a6b5106862b048"
+  },
+  "tools/tasks/page-eco-protocol-reference-reference.json": {
+   "at": 1788676928,
+   "by": "adr146b",
+   "sha": "759be6d51bd8f946cf854ea3199e56ca254ee2f0f28de351ae7929ef83c4db7b"
+  },
+  "tools/tasks/page-ecology-essay-reference.json": {
+   "at": 1788676928,
+   "by": "adr146b",
+   "sha": "214e6a56ba7e437ac8a8b8e57daee9f41e0e7792e34270aa8873fc0f4600edb4"
+  },
+  "tools/tasks/page-ecology-field-card-reference.json": {
+   "at": 1788676928,
+   "by": "adr146b",
+   "sha": "30cc2375f2674e7f16df9bc78a8ef4a2fba193c3427eb1c44652b8cb8d2cff66"
+  },
+  "tools/tasks/page-ecology-field-guide-reference.json": {
+   "at": 1788676928,
+   "by": "adr146b",
+   "sha": "8edf8744f7752f4b619f5368880af7672a69eb25006dbf5e5a1370f5fc49d8e1"
+  },
+  "tools/tasks/page-ecology-glossary-reference.json": {
+   "at": 1788676928,
+   "by": "adr146b",
+   "sha": "874af5f026a2a7ddf22a9b2569d4694cb3730ec5a6f6d81e76738baab98e1e3c"
+  },
+  "tools/tasks/page-ecology-lab-manual-reference.json": {
+   "at": 1788676928,
+   "by": "adr146b",
+   "sha": "d74a58df549a93a8e94a130a0965ba3b2715270a8f2bb2f80abbb71675e3edc4"
+  },
+  "tools/tasks/page-ecology-lab-science.json": {
+   "at": 1788676928,
+   "by": "adr146b",
+   "sha": "3558121d224117841d6c15beb3fffebfe1c903a08cbc7da5310b8b4c83bdfbe6"
+  },
+  "tools/tasks/page-ecology-reference.json": {
+   "at": 1788676928,
+   "by": "adr146b",
+   "sha": "a19b0d01e98b305186b199690afcd35a1c9ff844ae5862ed9b086ed5e8440800"
+  },
+  "tools/tasks/page-ecology-teachers-guide-reference.json": {
+   "at": 1788676928,
+   "by": "adr146b",
+   "sha": "e6acfaddd2d744a301535b2e809ea71931ec473dfff642526bc6d2a2adb85b4e"
+  },
+  "tools/tasks/page-enter-and-read-back.json": {
+   "at": 1788676928,
+   "by": "adr146b",
+   "sha": "960e896be2e08d3a1685095c3e4dfd0068d1d548541d435f130a7b80a825c318"
+  },
+  "tools/tasks/page-ethogram-kappa.json": {
+   "at": 1788676928,
+   "by": "adr146b",
+   "sha": "03172d844dec1a6fe6583146015104b99c42bb322500b24eed2c7925ed4748ea"
+  },
+  "tools/tasks/page-experiment-guide-design.json": {
+   "at": 1788676928,
+   "by": "adr146b",
+   "sha": "d80415a41a406d3cf7b932a8de9d101c48ec0dd63774c1bcad04052481897105"
+  },
+  "tools/tasks/page-farm-scout-science.json": {
+   "at": 1788676928,
+   "by": "adr146b",
+   "sha": "81adaede4e76930132de04ea1c5ad63a6d307bee6e758f3d2978123a9542d4bf"
+  },
+  "tools/tasks/page-field-notebook-science.json": {
+   "at": 1788676928,
+   "by": "adr146b",
+   "sha": "a798885030e67fb78403d7b638f4cb36c7f148134946639b97f8f679880feba2"
+  },
+  "tools/tasks/page-field-season-replay.json": {
+   "at": 1788676928,
+   "by": "adr146b",
+   "sha": "7eaba21688483261e5b011f176fe709a87da388b2522f895d1c345f7e2ddf5c3"
+  },
+  "tools/tasks/page-food-web-science.json": {
+   "at": 1788676928,
+   "by": "adr146b",
+   "sha": "1d4aff81f3d3ae11a9012d2366923d84ce1e1072f3e5e70f70dfada3f40ee01a"
+  },
+  "tools/tasks/page-fungal-characters-key.json": {
+   "at": 1788676928,
+   "by": "adr146b",
+   "sha": "2dffc9d1b162a5e87dd201e4864475947d14fb2c40c6882f8b0e1da922dc177c"
+  },
+  "tools/tasks/page-greenhouse-science.json": {
+   "at": 1788676928,
+   "by": "adr146b",
+   "sha": "10e954d576c223e97d1e11ee6ee3a84df23c163d5b0860b02cce502df2ec6267"
+  },
+  "tools/tasks/page-micro-bench-science.json": {
+   "at": 1788676928,
+   "by": "adr146b",
+   "sha": "9bc0e6b4a577384cb7aace43e06e7b01a0ac6a70f99f7eaa48ad2c9addaa7c35"
+  },
+  "tools/tasks/page-ordination-science.json": {
+   "at": 1788676928,
+   "by": "adr146b",
+   "sha": "71f59b797f0a2d95a7667241d4a751e108c790cfd1a2e4bdac7098367886f26a"
+  },
+  "tools/tasks/page-pheno-tracker-science.json": {
+   "at": 1788676928,
+   "by": "adr146b",
+   "sha": "4ce66d5d1350001bb8c5297f7a03572cf5fc1e1a54782ffa0e434b0e917664bd"
+  },
+  "tools/tasks/page-plant-characters-key.json": {
+   "at": 1788676928,
+   "by": "adr146b",
+   "sha": "895e873de60e51cbffdea361fd459da85770dd04cbe1a47c9f8f5b8835b5b609"
+  },
+  "tools/tasks/page-releve-science.json": {
+   "at": 1788676928,
+   "by": "adr146b",
+   "sha": "9010840ea622276a0ce84576d11bca81ffe3a64b3b5d8d61f0c088c592246b76"
+  },
+  "tools/tasks/page-selection-log-science.json": {
+   "at": 1788676928,
+   "by": "adr146b",
+   "sha": "b6afc62e80504159e0ed80e75b5ba30ad1c37ccaf8767e73bbeb12c775c691c9"
+  },
+  "tools/tasks/page-soil-bench-science.json": {
+   "at": 1788676928,
+   "by": "adr146b",
+   "sha": "ad12cb4bf5cf913fc12ea200287090a9b3f3f3bd4a33bcd9be846459ab5b2681"
+  },
+  "tools/tasks/page-soil-recipes-scaling.json": {
+   "at": 1788676928,
+   "by": "adr146b",
+   "sha": "06a84f4661be797219bcc3fdf29af7da7e06108af2d006a0c251ed11a6514f24"
+  },
+  "tools/tasks/page-soil-suite-reference.json": {
+   "at": 1788676928,
+   "by": "adr146b",
+   "sha": "fb33c0b5f912431335b0fbc2f38d29b09642edbc7aed397d129b0dfed81abe8b"
+  },
+  "tools/tasks/page-stand-sheet-science.json": {
+   "at": 1788676928,
+   "by": "adr146b",
+   "sha": "c520b45c4114370f9d2b553328fe80e5ce58dfb684df556b97d41a23b8f5b59c"
+  },
+  "tools/tasks/page-survey-design-science.json": {
+   "at": 1788676928,
+   "by": "adr146b",
+   "sha": "0e0b800bf8a65db6158f7a02156101f4fc8264eec52e37384a80f74d4f3d3431"
+  },
+  "tools/tasks/page-tree-proofs-science.json": {
+   "at": 1788676928,
+   "by": "adr146b",
+   "sha": "a721f81be5e9bbc97902233ead31ac1ba1143e75d7d0ff2b50a53d8ae0db447d"
+  },
+  "tools/tasks/page-tree-visualizer-science.json": {
+   "at": 1788676928,
+   "by": "adr146b",
+   "sha": "573f9d19a1835498e2d68a52c5df65821e4c6b63bfa759a5add4acab75191801"
+  },
+  "tools/tasks/two-targets-canary.json": {
+   "at": 1788676929,
+   "by": "adr146b",
+   "sha": "8b4c876641c71a8c2f227fd24e43873e59c4994b5fd37eb644738d7eb1b7b096"
+  },
+  "tools/tasks/two-targets-isolated.json": {
+   "at": 1788676929,
+   "by": "adr146b",
+   "sha": "5e2497a49c49cf55b278719c6e474d53bd890d5de78abd0a9f224ac267c6d9ad"
+  },
+  "tools/tasks/two-targets-lab-and-page.json": {
+   "at": 1788676929,
+   "by": "adr146b",
+   "sha": "5018df7d6563184042fdf8603361d380edae17172fe021cec4bf3c80bd1cc1b5"
+  },
+  "tools/tasks/two-targets-stations.json": {
+   "at": 1788676929,
+   "by": "adr146b",
+   "sha": "bb7f028dc07cc08a6bb769bbaae449845342a59f1d995212461873c1e59c3388"
+  },
+  "tools/tie_render.py": {
+   "at": 1788676929,
+   "by": "adr146b",
+   "sha": "59e109c3e67b8f4da9161d4abd32c7dfe1e3000df8066a4af02dde0aca21250a"
+  },
+  "tools/verify/README.md": {
+   "at": 1788676929,
+   "by": "adr146b",
+   "sha": "0a11deb6a4b5736e38336324ba0b0f5da45dc67f78b52c5f80334f1d91bb1362"
+  },
+  "tools/verify/_kit.py": {
+   "at": 1788676929,
+   "by": "adr146b",
+   "sha": "15a9ad96a69cde9458d5f7fca51be947e5bebad787cc069e1bcc64bf7800b592"
+  },
+  "tools/verify/counts.json": {
+   "at": 1788683836,
+   "by": "adr147",
+   "sha": "30d724fd38c91bde880c1a2653c6b3a9199f539bca90a33c79e0b50fbf842603"
+  },
+  "tools/verify/run_all.py": {
+   "at": 1788683836,
+   "by": "adr147",
+   "sha": "0eff4ecb7fc619e956d0b3c603dd4bb09893f0d7d4e4ab94c76ab63a09ea6b0d"
+  },
+  "tools/verify/verify_advertised.py": {
+   "at": 1788676929,
+   "by": "adr146b",
+   "sha": "df72dd9734f74d91508cce87ad3e882a7363c6119fe166ce6a7e95f8f4a4e968"
+  },
+  "tools/verify/verify_audit_frontend.py": {
+   "at": 1788676929,
+   "by": "adr146b",
+   "sha": "25d5c4541c1874d1755a11b08c6165bbf14778cf2d0214f394f4aba4e12fca3e"
+  },
+  "tools/verify/verify_audit_states.py": {
+   "at": 1788676929,
+   "by": "adr146b",
+   "sha": "314c6c9afbfa3e2411d140af43c51785260b3a2fc71020c145b13c7adcd43bd0"
+  },
+  "tools/verify/verify_board.py": {
+   "at": 1788676929,
+   "by": "adr146b",
+   "sha": "b9a8c076605a446bd9b080db7f6d9b879c5252c1e4493f2b7e5469a905cd7b22"
+  },
+  "tools/verify/verify_br.py": {
+   "at": 1788676929,
+   "by": "adr146b",
+   "sha": "4f933d45fd61cf2c2fa0b9e714e63e6e0cb3157fa3ece4e99507e0bec8152def"
+  },
+  "tools/verify/verify_cb.py": {
+   "at": 1788676929,
+   "by": "adr146b",
+   "sha": "41eef3012ece76f7392ac53ed267b69c6341dd41c8b4bd852997af3834eddcde"
+  },
+  "tools/verify/verify_claims_math.py": {
+   "at": 1788676929,
+   "by": "adr146b",
+   "sha": "8b7966cb818857345ed4883c0c18be9069d8c602ed244dca6fcb3c16c134b10b"
+  },
+  "tools/verify/verify_claims_slice.py": {
+   "at": 1788676929,
+   "by": "adr146b",
+   "sha": "dadd49219791df1da2957a1c40f8b759102e890869ac61fc7a95e0b326039aef"
+  },
+  "tools/verify/verify_claims_triage.py": {
+   "at": 1788676929,
+   "by": "adr146b",
+   "sha": "1ac61b39064d21a2bec67b6bfce20389e83ae9575e4c57bf23c95ef91b6049b1"
+  },
+  "tools/verify/verify_contend.py": {
+   "at": 1788676929,
+   "by": "adr146b",
+   "sha": "b3bda976a6e93cc74dc2bd9104bf3eda419cfd0501c2d1386ecfffde2f449b93"
+  },
+  "tools/verify/verify_contract.py": {
+   "at": 1788676929,
+   "by": "adr146b",
+   "sha": "57c45fbf4dd007b3b2addb0ffff06597318f872c381ad635fbb14ee05d691f13"
+  },
+  "tools/verify/verify_contrast_slice.py": {
+   "at": 1788676929,
+   "by": "adr146b",
+   "sha": "872e0711eb549291844d92e47cdeb320dd4af85314eaf6f99f5811ed67c2af39"
+  },
+  "tools/verify/verify_cp.py": {
+   "at": 1788676929,
+   "by": "adr146b",
+   "sha": "978dc54541f7fec91a2ecd9921c92918c16498e59b57abc9d8c29a1da7b8c590"
+  },
+  "tools/verify/verify_cpc.py": {
+   "at": 1788676929,
+   "by": "adr146b",
+   "sha": "ae461651640872a54e7d2d7b98a581aa35a93c59c3c1f2bebef5585a2a296fee"
+  },
+  "tools/verify/verify_cs.py": {
+   "at": 1788676929,
+   "by": "adr146b",
+   "sha": "0837377f2d17d67964f9cfcf9973db8c5b43d5f1e48ff8ad6376c326a6404b0a"
+  },
+  "tools/verify/verify_cs_science.py": {
+   "at": 1788676929,
+   "by": "adr146b",
+   "sha": "07b4c514e7e8c7b8847daf527aa908b99ff5be01b7e4e5a5c54ad584db0f68d7"
+  },
+  "tools/verify/verify_delivery.py": {
+   "at": 1788683836,
+   "by": "adr147",
+   "sha": "55a709181c001221e43ea910b602e338f5da13aa6d52ccc6411c2f013ebf2c12"
+  },
+  "tools/verify/verify_dep.py": {
+   "at": 1788676929,
+   "by": "adr146b",
+   "sha": "e9d15f0dfe5c3c7dd56a0a424448a1a9a62df3ca229a6197e1489944f6a3882b"
+  },
+  "tools/verify/verify_dwc.py": {
+   "at": 1788676929,
+   "by": "adr146b",
+   "sha": "07320e529b8b4289c6e75901904dcef2b0a89ee4ff2a5b9d11c591ab37db9013"
+  },
+  "tools/verify/verify_eco.py": {
+   "at": 1788676929,
+   "by": "adr146b",
+   "sha": "3bddc27e9ef2957ea37738c394157c5e9cac9255adc6591b22c2d0c8291ed649"
+  },
+  "tools/verify/verify_eco_experiment.py": {
+   "at": 1788676929,
+   "by": "adr146b",
+   "sha": "1b8f455fe16a5b133b551bd5d6310f6644b46c8b29d0f6ce32ee5493bb2a0d7b"
+  },
+  "tools/verify/verify_ecosystem.py": {
+   "at": 1788676929,
+   "by": "adr146b",
+   "sha": "e0869b61136f6ba10bb106f627fe113b4a04bcd92ff3424e21b14ad2bd27766a"
+  },
+  "tools/verify/verify_emitters.py": {
+   "at": 1788676929,
+   "by": "adr146b",
+   "sha": "a0796686b53fc1f37a5a215260c54d5d46da368da57cfb91388d2dc955eaef89"
+  },
+  "tools/verify/verify_engine_sessions.py": {
+   "at": 1788676929,
+   "by": "adr146b",
+   "sha": "19a4abd71c1849e4f32bfa71195a95b25c9cb81e3261c7c737fbb755e02dacb1"
+  },
+  "tools/verify/verify_entry_reach.py": {
+   "at": 1788676929,
+   "by": "adr146b",
+   "sha": "b3597554427c027af04c19005edb3ad539c46206ed57fac09ab7af6294459f47"
+  },
+  "tools/verify/verify_escaping_slice.py": {
+   "at": 1788676929,
+   "by": "adr146b",
+   "sha": "a014e69e37edc84f2628d60c52e0d3fae3b1e4dbc4111f0f8aa161dae262da50"
+  },
+  "tools/verify/verify_etho.py": {
+   "at": 1788676929,
+   "by": "adr146b",
+   "sha": "a15ec5c26e536ed60447d33a92a2747e9be2708bab704ccd5b25ad33a7aaf9a9"
+  },
+  "tools/verify/verify_evidence.py": {
+   "at": 1788676929,
+   "by": "adr146b",
+   "sha": "26d5ef58784a3e2cb30ecf781eb48af62e29b6f4b15ac2dae7228b9b64242326"
+  },
+  "tools/verify/verify_experiment_guide.py": {
+   "at": 1788676929,
+   "by": "adr146b",
+   "sha": "61c12e28929ed28a5edfc3cb18d0b437b6c0c43ae2e1f16b4b91124c4234db11"
+  },
+  "tools/verify/verify_fek.py": {
+   "at": 1788676929,
+   "by": "adr146b",
+   "sha": "7ffe37d29db94bbf79a4ede4f2510ebf2ed2a5fe9c24df456bc8d597954ab393"
+  },
+  "tools/verify/verify_findings.py": {
+   "at": 1788676929,
+   "by": "adr146b",
+   "sha": "503ea6465ed4752b5e161bef045999a2816ddd91330430bc7b8761af9b6b3d40"
+  },
+  "tools/verify/verify_focus_slice.py": {
+   "at": 1788676929,
+   "by": "adr146b",
+   "sha": "23a023ce5b50e395b3af2c1cc8172a16ae3cbd5249675468ab9dd687dcb3d3b8"
+  },
+  "tools/verify/verify_fs.py": {
+   "at": 1788676929,
+   "by": "adr146b",
+   "sha": "ce5fd960acae588db112bdbad20aa1bcbac932676bdb040de23ad31c739782a9"
+  },
+  "tools/verify/verify_fw.py": {
+   "at": 1788676929,
+   "by": "adr146b",
+   "sha": "63cad872bee18f180d0b16e156083d6230311011a0f4bcf74141942d493f6536"
+  },
+  "tools/verify/verify_gh.py": {
+   "at": 1788676929,
+   "by": "adr146b",
+   "sha": "ba06d799e985f6bf634e6ed2e46197536efa5ff6b915fd125e5ed4594ce25107"
+  },
+  "tools/verify/verify_harness.py": {
+   "at": 1788676929,
+   "by": "adr146b",
+   "sha": "b9a8fe13f5f113ff8ae53c29defeb257f84ef295dfdf9724408f98ce4feac43b"
+  },
+  "tools/verify/verify_harness_matrix.py": {
+   "at": 1788676929,
+   "by": "adr146b",
+   "sha": "4bba912b17529c2487d8fe977ba29de63429d71d148772bd9747b90f94f9ab33"
+  },
+  "tools/verify/verify_keep.py": {
+   "at": 1788676929,
+   "by": "adr146b",
+   "sha": "a2a84896a75b7b19531dd6c15eef9cba60fbce0cf0da6b6c652bb89f81840149"
+  },
+  "tools/verify/verify_kit_consistency.py": {
+   "at": 1788676929,
+   "by": "adr146b",
+   "sha": "c2fde0176853b4d6344d955c29a9c47544649d85311c85475e0beda9c8bf717f"
+  },
+  "tools/verify/verify_lab.py": {
+   "at": 1788676929,
+   "by": "adr146b",
+   "sha": "eab9c581485dceaaa57254f7cb888f5a42b9b4889cb8207bba8dab15c771f8b7"
+  },
+  "tools/verify/verify_label_escaping.py": {
+   "at": 1788676929,
+   "by": "adr146b",
+   "sha": "00f4e61173c2c319350fa0d5f483999385ac480718b1a350e957ba8c19821979"
+  },
+  "tools/verify/verify_mb.py": {
+   "at": 1788676929,
+   "by": "adr146b",
+   "sha": "342f7ca5f5400cc9a2facadf2a4d700d1f42e17d1d4966a9f37cafa82388682f"
+  },
+  "tools/verify/verify_mcp.py": {
+   "at": 1788676929,
+   "by": "adr146b",
+   "sha": "c24717ff9cedf0bec2a0906fc028cf4bb4dd1917063c400909e7c7fa44ac14f7"
+  },
+  "tools/verify/verify_mutate.py": {
+   "at": 1788676929,
+   "by": "adr146b",
+   "sha": "25e07dafe3fddddfef48274716448b01b2c2c20a1d68e7ea614b4180d419517d"
+  },
+  "tools/verify/verify_offline_slice.py": {
+   "at": 1788676929,
+   "by": "adr146b",
+   "sha": "964c29bffebc9adbedb36734ec071136e104becf728ab588da1b4c6c9590091c"
+  },
+  "tools/verify/verify_ord.py": {
+   "at": 1788676929,
+   "by": "adr146b",
+   "sha": "5a3f7a1303d7779688ecb0f1ec9eae8d36e77561b96accea096ff6b89e914988"
+  },
+  "tools/verify/verify_organism.py": {
+   "at": 1788676929,
+   "by": "adr146b",
+   "sha": "155f5bde52819df857cbd27ba2f1b11339c10c567145aa66932224de208c8b98"
+  },
+  "tools/verify/verify_print_channel.py": {
+   "at": 1788676929,
+   "by": "adr146b",
+   "sha": "e8492eede4b098609f37601c66fc88d6790b2bd1669976a832351964375fd24b"
+  },
+  "tools/verify/verify_print_slice.py": {
+   "at": 1788676929,
+   "by": "adr146b",
+   "sha": "42eddde9bd5fc82ef33975b8e736ec1040a7a2e869dceda76f22a5aefbb39e76"
+  },
+  "tools/verify/verify_probe.py": {
+   "at": 1788676929,
+   "by": "adr146b",
+   "sha": "87bbc65ee9bb58c4b2175f622d2f17893c800c8cd334cd1d767c58afd5db840a"
+  },
+  "tools/verify/verify_proofs.py": {
+   "at": 1788676929,
+   "by": "adr146b",
+   "sha": "3b7d1abdc63582767ce09774693e9fe3f49e87dfc06f6d359be074b89bf9ab04"
+  },
+  "tools/verify/verify_pt.py": {
+   "at": 1788676929,
+   "by": "adr146b",
+   "sha": "7c13780beb2348b8bb41643b46b22d2dbe05023b9ad21027d202695e8aca3a82"
+  },
+  "tools/verify/verify_publish_drift.py": {
+   "at": 1788676929,
+   "by": "adr146b",
+   "sha": "7c60ef6d4d5ec117965e7f4db88c41ad07971747bc2f2b6b544960869e89961a"
+  },
+  "tools/verify/verify_publish_reach.py": {
+   "at": 1788676929,
+   "by": "adr146b",
+   "sha": "55c0359ec0cf7132066f99948ab1cbe52b9667dcacd19787320305a0b20bfc54"
+  },
+  "tools/verify/verify_readable.py": {
+   "at": 1788676929,
+   "by": "adr146b",
+   "sha": "e91a47ac4584279497b7c9f4cf95a858a71a52a20ada1dbe846b84f9474254e0"
+  },
+  "tools/verify/verify_recipes.py": {
+   "at": 1788676929,
+   "by": "adr146b",
+   "sha": "b61d84633dcadd31f0dbbc2f93aff5b1ebce5683c90c2ae3532882e34d062136"
+  },
+  "tools/verify/verify_report.py": {
+   "at": 1788676930,
+   "by": "adr146b",
+   "sha": "227ffaff90419e6e015c0f8a30409cdaf8e19c305da100b26016625cc06f6a53"
+  },
+  "tools/verify/verify_routes.py": {
+   "at": 1788676930,
+   "by": "adr146b",
+   "sha": "f4297a8b94c3e9c9bbb1df54eb514ca508a2576c4e3926e746361ae2eafda4d9"
+  },
+  "tools/verify/verify_rv.py": {
+   "at": 1788676930,
+   "by": "adr146b",
+   "sha": "aaf1f8bbe2a2926f6aeec67f756420ed44bd09d3a8ea3a975917c17351a8b58d"
+  },
+  "tools/verify/verify_sd.py": {
+   "at": 1788676930,
+   "by": "adr146b",
+   "sha": "e463df5fc6a9771013fce92800138e267d129f789637e4da6939128a3d192374"
+  },
+  "tools/verify/verify_sel.py": {
+   "at": 1788676930,
+   "by": "adr146b",
+   "sha": "1793b9d4b45dde17dc856ee5305cb6e7c18183f89e7adf9de87069090009a19d"
+  },
+  "tools/verify/verify_soil.py": {
+   "at": 1788676930,
+   "by": "adr146b",
+   "sha": "ee183af3adc8eb55afd43e60cca54375a5f4e2248b01ef3cf160be78e4ba5fd0"
+  },
+  "tools/verify/verify_ss.py": {
+   "at": 1788676930,
+   "by": "adr146b",
+   "sha": "697f1a2bb73d8db5b01326075a008ffe26cc6b2be3ab85bd2d6794c986a2af13"
+  },
+  "tools/verify/verify_suites.py": {
+   "at": 1788676930,
+   "by": "adr146b",
+   "sha": "6c8967a4dfb7d4382edab345c05dba5bc05583dada721e151226e4b391609560"
+  },
+  "tools/verify/verify_swarm.py": {
+   "at": 1788676930,
+   "by": "adr146b",
+   "sha": "de98792dd10f318e2fa45f1dbd2b7ef5abca0795f3b6967df4cf4a1d3d25d39d"
+  },
+  "tools/verify/verify_sweep_ledger.py": {
+   "at": 1788676930,
+   "by": "adr146b",
+   "sha": "c29a8a4b4bbbba217f4e0c7b9bed82d0d6e65957f930508ded392502387b0b39"
+  },
+  "tools/verify/verify_tasks.py": {
+   "at": 1788676930,
+   "by": "adr146b",
+   "sha": "03b0c149189fa6863746d97d4bbeadbb8d9270a0ce58cf7a96dcb65e81bcdd3d"
+  },
+  "tools/verify/verify_tie_render.py": {
+   "at": 1788676930,
+   "by": "adr146b",
+   "sha": "3f04d8ace8acf4a71181e8fac0635ada2923d471dc29262d55d73f318ebb9f31"
+  },
+  "tools/verify/verify_ties.py": {
+   "at": 1788676930,
+   "by": "adr146b",
+   "sha": "2bd0f2c66412f97784381859100cffc5f64b452a8d100466dc8f0e75e21594f1"
+  },
+  "tools/verify/verify_tv.py": {
+   "at": 1788676930,
+   "by": "adr146b",
+   "sha": "1076ece5682a033e5b96d1fd1e2523fcc22ff895b03ce09d007638acb62a2955"
+  },
+  "tools/verify/verify_two.py": {
+   "at": 1788676930,
+   "by": "adr146b",
+   "sha": "7fd4055847fbc3bf9111be6ee21fa32898e3b15e3348cd7d3039d8cf96cb383f"
+  },
+  "tools/verify/verify_visualizer_sessions.py": {
+   "at": 1788676930,
+   "by": "adr146b",
+   "sha": "36c84a2ce0c9aba0eacddaf22d42e8068a57bb09dd958d2161175ccb03c55524"
+  },
+  "tools/verify/verify_walk.py": {
+   "at": 1788676930,
+   "by": "adr146b",
+   "sha": "50fe22cd6dbcef4ca26c62f33b6350004ee3b5048367030ecca4a8c5ce7f26f5"
+  },
+  "tools/walk_ledger.json": {
+   "at": 1788676930,
+   "by": "adr146b",
+   "sha": "5a1e98c5d0df1970a4836baaf847b18062b5166dc59b370325c39bf27e91526e"
+  }
+ }
+}
