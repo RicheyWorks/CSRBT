@@ -428,9 +428,9 @@
       </div>
     </div>
 
-    <div id="kCount" class="hint"></div>
+    <div id="kCountOut" class="hint"></div>
     <div class="splist" id="kList"></div>
-    <div id="kDetail"></div>
+    <div id="kDetailCard"></div>
 
     <h2 style="margin-top:22px">Species packs</h2>
     <p class="hint">The species list is data, not code. Swap in any biome — or have an AI write you one.</p>
@@ -494,7 +494,7 @@
     </div>
 
     <div class="card" id="tStats"></div>
-    <div class="card"><h3 style="margin-top:0">Diameter distribution</h3><div id="tHist"></div></div>
+    <div class="card"><h3 style="margin-top:0">Diameter distribution</h3><div id="tHistOut"></div></div>
     <div class="card"><h3 style="margin-top:0">Stems</h3><div class="tw" id="tTable"></div></div>
   </section>
 
@@ -525,7 +525,7 @@
       <input type="hidden" id="sWid" value="20">
       <input type="hidden" id="sMin" value="5">
       <input type="hidden" id="sBH" value="1.37">
-      <div id="sArea" class="verdict"></div>
+      <div id="sAreaOut" class="verdict"></div>
       <p class="fine">11.28 m radius = 400 m² = 0.04 ha, the common US fixed plot. 5.64 m = 100 m². State your
         minimum tallied diameter — expansion factors are meaningless without it.</p>
     </div>
@@ -536,7 +536,7 @@
       <label class="f" style="margin-bottom:14px">parent material<input type="text" id="sParent" placeholder="granodiorite, basalt, dolomite…" autocomplete="off"></label>
       <input type="hidden" id="sAsp"><input type="hidden" id="sSlope">
       <input type="hidden" id="sPos"><input type="hidden" id="sSoil"><input type="hidden" id="sMoist">
-      <div id="sHeatload" class="fine"></div>
+      <div id="sHeatOut" class="fine"></div>
     </div>
 
     <div class="card">
@@ -1809,7 +1809,7 @@ var DWC = (function(){
 
   function renderList(){
     var hits=SPECIES.filter(matches);
-    $("kCount").innerHTML = hits.length===SPECIES.length
+    $("kCountOut").innerHTML = hits.length===SPECIES.length
       ? "<b>"+hits.length+"</b> species in the loaded packs — narrow with the filters above."
       : "<b>"+hits.length+"</b> match"+(hits.length===1?"":"es")+".";
     var L=$("kList"); L.innerHTML="";
@@ -1824,7 +1824,7 @@ var DWC = (function(){
   }
 
   function showSp(s){
-    var d=$("kDetail");
+    var d=$("kDetailCard");
     var h='<div class="card spcard"><h3>'+esc(s.com)+'</h3><p class="sci">'+esc(s.sci)+'</p>'
       +'<div class="kv"><div class="k">Key characters</div><div class="v">'+esc(s.key)+'</div></div>'
       +'<div class="kv trick"><div class="k">The field shortcut</div><div class="v">'+esc(s.trick)+'</div></div>'
@@ -1849,7 +1849,7 @@ var DWC = (function(){
   }
   $("kSearch").addEventListener("input",function(){ kQ=this.value.trim().toLowerCase(); renderList(); });
   $("kReset").addEventListener("click",function(){ kReg=null;kLeaf=null;kSub=null;kQ="";$("kSearch").value="";
-    $("kDetail").innerHTML=""; renderKey(); });
+    $("kDetailCard").innerHTML=""; renderKey(); });
 
   /* ================= SPECIES PACKS ================= */
   var PACK_SCHEMA = {
@@ -2055,7 +2055,7 @@ var DWC = (function(){
     var E=ef(), A=plotArea();
     var box=$("tStats");
     if(!stems.length){ box.innerHTML='<p class="hint" style="margin:0">No stems yet. The stand table builds itself as you tally.</p>';
-      $("tHist").innerHTML=""; $("tTable").innerHTML=""; ecoOut(); return; }
+      $("tHistOut").innerHTML=""; $("tTable").innerHTML=""; ecoOut(); return; }
     var baL=live.reduce(function(a,s){return a+baOf(s.d);},0);
     var baD=dead.reduce(function(a,s){return a+baOf(s.d);},0);
     var sumSq=live.reduce(function(a,s){return a+s.d*s.d;},0);
@@ -2106,7 +2106,7 @@ var DWC = (function(){
   }
 
   function renderHist(live){
-    var box=$("tHist");
+    var box=$("tHistOut");
     if(!live.length){ box.innerHTML=""; return; }
     var W=10, bins={}, mx=0;
     live.forEach(function(s){ var b=Math.floor(s.d/W)*W; bins[b]=(bins[b]||0)+1; if(bins[b]>mx) mx=bins[b]; });
@@ -2269,7 +2269,7 @@ var DWC = (function(){
 
   function siteOut(){
     var A=plotArea();
-    $("sArea").innerHTML = A>0
+    $("sAreaOut").innerHTML = A>0
       ? '<b>'+A.toFixed(0)+' m² = '+(A/10000).toFixed(4)+' ha.</b> Expansion factor '+(10000/A).toFixed(1)
         +' — every stem you tally stands for '+(10000/A).toFixed(1)+' per hectare.'
       : 'Set the plot dimensions — nothing scales to a hectare without them.';
@@ -2279,10 +2279,10 @@ var DWC = (function(){
       var band = folded<45?"cool — a northeast-facing site, the moist end of the local gradient"
         : folded<90?"intermediate"
         : folded<135?"warm" : "hot — southwest exposure, the drought end of the local gradient";
-      $("sHeatload").innerHTML='<b>Folded aspect '+folded.toFixed(0)+'°</b> ('+band+')'
+      $("sHeatOut").innerHTML='<b>Folded aspect '+folded.toFixed(0)+'°</b> ('+band+')'
         +(sl!==null?' on a '+sl+'% slope':'')
         +'. McCune &amp; Keon fold aspect about the SW–NE axis so it can be used as a continuous variable; the full heat-load equation also takes latitude and slope.';
-    } else $("sHeatload").innerHTML="";
+    } else $("sHeatOut").innerHTML="";
     cwdOut(); ecoOut();
   }
   ["sDesign","sRad","sLen","sWid","sAsp","sSlope","sMin","sBH"].forEach(function(id){ $(id).addEventListener("input",siteOut); });

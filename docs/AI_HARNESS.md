@@ -373,6 +373,60 @@ FEK picker through its filter; a task names a control the page's way with
 tasks — one per data-entry page — enter data and hold the report to a
 hand-checked oracle; a page canary is refuted; 1,316 expectations confirmed.
 
+ADR-146 TOOK THE SECOND PAGE, AND FOUND THE FIGURES NO TASK COULD READ. The
+stand sheet was ADR-144's next-largest gap at 9 of 50 fields, and every figure
+the other 41 feed -- the plot area and expansion factor, Reineke's SDI, Curtis &
+McIntosh's importance value, van Wagner's line intercept, McCune & Keon's heat
+load, the Darwin Core coordinate uncertainty, the field sheet -- was computed by
+a page nothing had ever driven past a four-stem tally. The task goes 25 steps to
+149 and enters the key, the packs, the tally, the geometry, the physiography,
+the cover, the debris transect, the disturbance, the notes, the coordinates and
+the interactions: 9 -> 51 OF 51 FIELDS, the first page in the kit entered whole,
+56 -> 214 confirmed expectations, and the kit 237 -> 279 of 518 (46% -> 54%).
+Every figure is recomputed by a Python port of the page's own arithmetic: SDI
+132, IV 78.6 against 21.4, 134.7 m3/ha and half that on twice the transect,
+folded aspect 180 hot / 90 warm / 0 cool, and the point-radius uncertainty at 47
+m, 5406 m with the datum unknown, and 50 m as a 20x20 m rectangle -- because the
+same 400 m2 of ground reaches 14.14 m from its centre and not 11.28. A 5.64 m
+plot is EF 100.1 and not 100.0, since its area is 99.92 m2. BLANK STILL MEANS
+BLANK is now held both ways, the check ADR-145 said the collection sheet's four
+blank reagents were owed: before entry the export EXCLUDES `# site:`, `# cover:`,
+`# disturbance:` and `# notes:` and the heat-load readout is empty, and it
+INCLUDES `min DBH 5 cm` and `breast height 1.37 m`, because those two are method
+parameters with defaults and the sheet is right to record them. THE FINDING:
+read-report reads the elements the kit NAMES as outputs -- an analysis (an*), an
+*Out, a *Box, *Stats, *Verdict, *Card, *List -- and a page that writes a figure
+under any other name is invisible to it, and to every task, and to every suite
+built on one. Silently, because a task cannot fail to hold a figure it cannot
+see. The stand sheet had four (sArea, sHeatload, kCount, tHist) and verify_ss
+was green about all of them the whole time, because verify_ss reads the DOM
+directly -- it is the HARNESS that could not. tools/audit_readable.py measures
+it per page and NOT with a second copy of the naming rule, because a rule
+written twice is a rule that drifts: WRITTEN is every element whose rendered
+text differs from what the FILE says (the baseline is the page with its scripts
+off, so a figure painted at boot counts) at the DEEPEST id in each chain, and
+READABLE is what read-report ITSELF returned through all three of its channels
+-- boxes by name, tables by their host, charts by the svg's host (ADR-140). Two
+rules took the first reading from 170 to 40: an ENTRY HOST IS NOT A REPORT (a
+div the Field Entry Kit mounts widgets into changes its text and is not a
+figure; structural -- it holds a control -- rather than by the *Entry name, and
+entry_reach is the file that accounts for what is inside it), and a table or an
+svg is read through the other two channels. Furniture is DECLARED with a reason
+rather than guessed, two entries. The ratchet runs DOWNWARD: the floor is a
+CEILING, a page may not grow a figure the harness cannot read, and it fails by
+default with no flag because run_all runs an audit with no arguments. The stand
+sheet's five are renamed to what they are (sAreaOut, sHeatOut, kCountOut,
+tHistOut, kDetailCard) and all five are now held by the task. THE READING: 230
+of 256 written elements readable, 26 blind on 9 pages -- tree-visualizer 8,
+tree-proofs 6 (the splay potential), field-notebook 3 (the mark-recapture
+estimates), ecology-lab 3, field-season 2, and one each on four more.
+verify_readable 28, mutate_readable 23/23 with one recorded equivalent;
+verify_ss 84. Held: renaming is only honest where the element really is a
+figure; an element that holds a control is skipped, so a figure with a button
+inside it would be missed; a readable figure is not a HELD figure; and the audit
+sees only what the page's own entry makes it write, which is the same coupling
+entry_reach has and the reason growing a task grows this reading too.
+
 ADR-145 ENTERED THE COLLECTION SHEET WHOLE. ADR-144's reading said the kit's
 flagship data-entry page had 6 of its 63 fields entered by anything, and every
 figure the other 57 feed was computed by a page nothing had ever driven. The

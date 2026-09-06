@@ -185,7 +185,7 @@ with sync_playwright() as p:
     ck("no legacy select left on plot",
        pg.eval_on_selector_all("#p-plot select","e=>e.length")==0,
        pg.eval_on_selector_all("#p-plot select","e=>e.map(x=>x.id)"))
-    sa=pg.inner_text("#sArea")
+    sa=pg.inner_text("#sAreaOut")
     ck("default plot = 400 m2", "400 m²" in sa, sa[:120])
     ck("expansion factor stated", "%.1f"%E in sa, sa[:160])
     # switch to rectangle
@@ -203,20 +203,20 @@ with sync_playwright() as p:
        not any(l.startswith("radius") for l in pg.eval_on_selector_all(
            "#geoEntry .fek-lab","e=>e.map(x=>x.textContent.toLowerCase())")),
        pg.eval_on_selector_all("#geoEntry .fek-lab","e=>e.map(x=>x.textContent)"))
-    ck("20x20 = 400 m2", "400 m²" in pg.inner_text("#sArea"), pg.inner_text("#sArea")[:120])
+    ck("20x20 = 400 m2", "400 m²" in pg.inner_text("#sAreaOut"), pg.inner_text("#sAreaOut")[:120])
     pg.evaluate("""()=>{const c=[...document.querySelectorAll('#geoEntry .fek-chip')]
       .find(x=>x.textContent.indexOf('circle')>=0); c.click();}""")
     pg.wait_for_timeout(300)
 
     # aspect: blank until touched, then folded correctly
-    ck("aspect blank before entry", pg.inner_text("#sHeatload").strip()=="",
-       pg.inner_text("#sHeatload")[:80])
+    ck("aspect blank before entry", pg.inner_text("#sHeatOut").strip()=="",
+       pg.inner_text("#sHeatOut")[:80])
     dialclick("#physEntry",0,"SW"); pg.wait_for_timeout(250)
-    hl=pg.inner_text("#sHeatload")
+    hl=pg.inner_text("#sHeatOut")
     ck("SW folds to 180", "180°" in hl, hl[:160])
     ck("SW reads as the drought end", "drought end" in hl, hl[:200])
     dialclick("#physEntry",0,"NE"); pg.wait_for_timeout(250)
-    hl=pg.inner_text("#sHeatload")
+    hl=pg.inner_text("#sHeatOut")
     ck("NE folds to 0", "0°" in hl, hl[:160])
     ck("NE reads as the moist end", "moist end" in hl, hl[:200])
     ck("McCune & Keon credited", "McCune" in hl, "")

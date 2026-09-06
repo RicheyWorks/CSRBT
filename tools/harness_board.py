@@ -44,6 +44,8 @@ def ledgers():
         "tasks": _load("task_ledger.json", {"tasks": {}}),
         "contention": _load("contention_ledger.json", {"suites": {}}),
         "entry": _load("entry_ledger.json", {"pages": {}}),
+        # ADR-146: the figures a page publishes that read-report cannot see.
+        "readable": _load("readable_ledger.json", {"pages": {}}),
         "mutants": _load("mutant_ledger.json", {"runners": {}}),
         "ecosystem": _load("ecosystem_ledger.json", {"engines": {}}),
         "routes": _load("routes.json", {"routes": []}),
@@ -79,6 +81,7 @@ RUNNERS = [
     ("mutate_contract", "the door itself: the risk ladder, the raise, the replay"),
     ("mutate_contend", "the contention instrument"),
     ("mutate_entry", "the entry-reach measurement"),
+    ("mutate_readable", "the readable-figures audit"),
 ]
 
 
@@ -129,6 +132,13 @@ def summary(L):
         "fields": sum(e.get("fields", 0) for e in (L["entry"].get("pages") or {}).values()),
         "fields_entered": sum(e.get("entered", 0) for e in (L["entry"].get("pages") or {}).values()),
         "entry_pages": sum(1 for e in (L["entry"].get("pages") or {}).values() if e.get("fields")),
+        # ADR-146: an element the page writes a figure into that read-report
+        # cannot see is a figure no task can hold, and no suite can fail on.
+        "written": sum(e.get("written", 0) for e in (L["readable"].get("pages") or {}).values()),
+        "unreadable": sum(len(e.get("unreadable") or [])
+                          for e in (L["readable"].get("pages") or {}).values()),
+        "blind_pages": sum(1 for e in (L["readable"].get("pages") or {}).values()
+                           if e.get("unreadable")),
         "load_readings": len(L["contention"].get("suites") or {}),
         "load_clean": sum(1 for e in (L["contention"].get("suites") or {}).values()
                           if not e.get("failed")),
@@ -207,6 +217,9 @@ def render(L):
         ("%d / %d" % (S["fields_entered"], S["fields"]), "fields entered",
          "of the controls that carry a value across %d page(s), how many any task has ever put "
          "a value into" % S["entry_pages"]),
+        ("%d / %d" % (S["written"] - S["unreadable"], S["written"]), "figures readable",
+         "of the elements the pages write a figure into, how many read-report can see; %d page(s) "
+         "still publish one it cannot" % S["blind_pages"]),
         ("%d / %d" % (S["load_clean"], S["load_readings"]), "clean under load",
          "readings taken while other suites of this kit ran beside them: %d run(s), %d failed"
          % (S["load_runs"], S["load_failed"])),

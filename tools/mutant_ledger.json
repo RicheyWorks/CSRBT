@@ -1256,6 +1256,137 @@
    ],
    "survived": 0
   },
+  "mutate_readable": {
+   "at": 1788664028,
+   "equivalent": 1,
+   "equivalents": [
+    {
+     "name": "the baseline snapshot is taken with the entry-host rule ON",
+     "why": "`dpg.evaluate(TEXT_JS, False)` -> `(TEXT_JS, True)`. The rule is structural -- skip an element that HOLDS A CONTROL -- and a control is one because H.DISCOVER stamped it data-h. The baseline context runs no scripts at all, so nothing in it is stamped and the flag has nothing to act on. The argument is there to say which side of the measurement the rule belongs to, and no fixture can make it matter."
+    }
+   ],
+   "inconclusive": 0,
+   "killed": 23,
+   "mutants": 23,
+   "rows": [
+    {
+     "detail": "10 failure(s); first: an element written AT BOOT counts: the baseline is what th",
+     "name": "the baseline page runs its own scripts, so a boot figure reads as unchanged",
+     "verdict": "killed"
+    },
+    {
+     "detail": "6 failure(s); first: an element the page never writes is not a written element, ",
+     "name": "there is no baseline, so every paragraph on the page is a figure the page wrote",
+     "verdict": "killed"
+    },
+    {
+     "detail": "9 failure(s); first: the page's own task is what is replayed, the same entry ent",
+     "name": "the page is measured at rest, so a figure the entry brings into being is missed",
+     "verdict": "killed"
+    },
+    {
+     "detail": "8 failure(s); first: a figure behind a tab is a figure -- the page is walked thr",
+     "name": "the states are not walked, so a figure behind a tab is not one",
+     "verdict": "killed"
+    },
+    {
+     "detail": "6 failure(s); first: only the DEEPEST id in a chain owns the change: a parent's ",
+     "name": "every changed id is reported, not just the deepest",
+     "verdict": "killed"
+    },
+    {
+     "detail": "6 failure(s); first: an element the page never writes is not a written element, ",
+     "name": "an element that never changed is written too",
+     "verdict": "killed"
+    },
+    {
+     "detail": "6 failure(s); first: a control is not a report, even when its own label changes:",
+     "name": "a control's own text is a report",
+     "verdict": "killed"
+    },
+    {
+     "detail": "6 failure(s); first: and neither is an <option>, an input or a select -- a value",
+     "name": "an input's value is a report",
+     "verdict": "killed"
+    },
+    {
+     "detail": "8 failure(s); first: read-report has THREE channels, and a table is read through",
+     "name": "boxes are the only channel, so every table and chart is a figure nobody can read",
+     "verdict": "killed"
+    },
+    {
+     "detail": "6 failure(s); first: read-report has THREE channels, and a table is read through",
+     "name": "a table is a figure nobody can read",
+     "verdict": "killed"
+    },
+    {
+     "detail": "6 failure(s); first: ...and an svg through the third, the chart reader ADR-140 a",
+     "name": "an svg is a figure nobody can read",
+     "verdict": "killed"
+    },
+    {
+     "detail": "8 failure(s); first: read-report has THREE channels, and a table is read through",
+     "name": "a channel is keyed by the element, not by the id that holds it",
+     "verdict": "killed"
+    },
+    {
+     "detail": "6 failure(s); first: an element named the kit's way -- an analysis, an *Out, a *",
+     "name": "read-report is never asked, so nothing is readable",
+     "verdict": "killed"
+    },
+    {
+     "detail": "8 failure(s); first: four unreadable figures on this fixture, no more and no few",
+     "name": "an entry host is a figure, so every entry kit mount in the kit is on the worklist",
+     "verdict": "killed"
+    },
+    {
+     "detail": "2 failure(s); first: ...so the entry host on it is skipped because the AUDIT sta",
+     "name": "the controls are not stamped first, so on a page with no task every mount is a figure",
+     "verdict": "killed"
+    },
+    {
+     "detail": "8 failure(s); first: and everything else the page writes is on the worklist, NAM",
+     "name": "the unreadable elements are counted but not named",
+     "verdict": "killed"
+    },
+    {
+     "detail": "2 failure(s); first: declared furniture leaves the worklist -- and only that ele",
+     "name": "furniture is subtracted from the readable side instead of the worklist",
+     "verdict": "killed"
+    },
+    {
+     "detail": "1 failure(s); first: declaring furniture WITHOUT a reason is refused: a list of ",
+     "name": "furniture may be declared with no reason given",
+     "verdict": "killed"
+    },
+    {
+     "detail": "1 failure(s); first: ...and with one, the reason is what is stored: {'heatload':",
+     "name": "the reason is not what is stored",
+     "verdict": "killed"
+    },
+    {
+     "detail": "1 failure(s); first: a first reading records what it found and no ceiling: nothi",
+     "name": "a plain run lowers the ceilings, so nothing can ever be above one",
+     "verdict": "killed"
+    },
+    {
+     "detail": "1 failure(s); first: ...and --raise-floors LOWERS it, because this ceiling only ",
+     "name": "the ceiling ratchets UPWARD, so a page that grows a blind figure keeps its pass",
+     "verdict": "killed"
+    },
+    {
+     "detail": "2 failure(s); first: a page carrying MORE unreadable figures than its ceiling fa",
+     "name": "a reading above the ceiling is not a failure",
+     "verdict": "killed"
+    },
+    {
+     "detail": "2 failure(s); first: a page carrying MORE unreadable figures than its ceiling fa",
+     "name": "the failure is reported and the exit code is not",
+     "verdict": "killed"
+    }
+   ],
+   "survived": 0
+  },
   "mutate_report": {
    "at": 1788654480,
    "equivalent": 0,

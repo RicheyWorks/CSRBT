@@ -3,9 +3,9 @@
   "observed": {},
   "pages": {
     "_harness-board.html": {
-      "at": 1788660341,
+      "at": 1788668539,
       "dated_by": "the file's mtime -- NOT the version, only when this file was last written",
-      "sha": "6f6f82d6b017732ad5b7673460f260ba645b9cd3c882e0cf8191473ca38b25c4",
+      "sha": "2783b55dd31f2f052c3fe35646558f8208740a7f6159c8a8baaa58e605160b57",
       "via": "read"
     },
     "adr-031.html": {
@@ -231,9 +231,9 @@
       "via": "read"
     },
     "stand-sheet.html": {
-      "at": 1788391528,
-      "dated_by": "the version epoch in the filename",
-      "sha": "4128f41e6839107abf916a27dd810a36527b2020802a0448afbddceb1eb3ac5d",
+      "at": 1788666987,
+      "dated_by": "the file's mtime -- NOT the version, only when this file was last written",
+      "sha": "dba0ed5f77b425c22a2b56a3e5ba7cb944cf4eb4b82904e6f3b171c88947f920",
       "via": "read"
     },
     "survey-design.html": {

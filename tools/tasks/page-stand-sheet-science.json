@@ -2,7 +2,7 @@
  "id": "page-stand-sheet-science",
  "target": "page",
  "page": "stand-sheet.html",
- "goal": "On the stand sheet's default 11.28 m fixed-radius plot (400 m², expansion factor 25.0), tally four live Douglas-fir at DBH 30, 25, 40 and 20 cm and find 4 live stems, 100 stems/ha, live basal area 6.9 m²/ha, QMD 29.7 cm and SDI 132; a DBH-35 snag counts as one snag and undo removes it; a stem at DBH 0 is refused; 20 m horizontal distance with angles 42° to the top and −8° to the base gives a 20.8 m (68 ft) tree; coarse woody debris 12 8 31 45 9 cm on a 30 m transect is 134.7 m³/ha by van Wagner and half that on 60 m; the .eco export carries every figure.",
+ "goal": "Enter the stand sheet whole and hold what it computes. BLANK MEANS BLANK: aspect, slope, position, texture, moisture and every cover field stay out of the export until touched, and the method parameters that DO have defaults -- 5 cm minimum tallied DBH, 1.37 m breast height -- are in it from the start. The key narrows 34 species to 16 in the Sierra, 7 in bundles, 4 at five per bundle, 2 matching 'white'; a pack missing its required fields is rejected whole and a good one adds a species and a region. Four live stems -- three Douglas-fir at 30, 40 and 20 cm and a ponderosa at 25 -- on the default 11.28 m circle (400 m2, EF 25.0) give 100 stems/ha, 6.9 m2/ha live basal area, QMD 29.7 cm, SDI 132, and Douglas-fir leads on importance value 78.6 against the pine's 21.4; a 5.64 m radius is 100 m2 at EF 100.1, not 100.0. Aspect SW folds to 180 and reads hot, NW to 90 and warm, NE to 0 and cool (McCune & Keon). Coarse woody debris 12 8 31 45 9 cm on 30 m is 134.7 m3/ha by van Wagner and half that on 60 m. A 39.4312/-120.2381 fix with 30 m of GPS on a 11.28 m plot is 47 m of coordinate uncertainty, 5406 m with the datum unknown. Two interactions recorded, one of them seen; the field sheet carries every figure.",
  "policy": {
   "allow": [
    "SENSITIVE_READ",
@@ -25,6 +25,307 @@
    }
   },
   {
+   "id": "plot",
+   "action": "show-pane",
+   "arguments": {
+    "pane": "p-plot"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "blank-site",
+   "action": "read-report",
+   "expect": {
+    "ok": true,
+    "output.boxes.ecoOut": {
+     "op": "excludes",
+     "value": "# site:"
+    },
+    "output.boxes.ecoOut#2": {
+     "op": "excludes",
+     "value": "# cover:"
+    },
+    "output.boxes.ecoOut#3": {
+     "op": "excludes",
+     "value": "# disturbance:"
+    },
+    "output.boxes.ecoOut#4": {
+     "op": "excludes",
+     "value": "# notes:"
+    },
+    "output.boxes.sHeatOut": ""
+   }
+  },
+  {
+   "id": "blank-defaults",
+   "action": "read-report",
+   "expect": {
+    "output.boxes.ecoOut": {
+     "op": "contains",
+     "value": "min DBH 5 cm"
+    },
+    "output.boxes.ecoOut#2": {
+     "op": "contains",
+     "value": "breast height 1.37 m"
+    },
+    "output.boxes.sAreaOut": {
+     "op": "contains",
+     "value": "400 m² = 0.0400 ha"
+    },
+    "output.boxes.sAreaOut#2": {
+     "op": "contains",
+     "value": "Expansion factor 25.0"
+    }
+   }
+  },
+  {
+   "id": "id-pane",
+   "action": "show-pane",
+   "arguments": {
+    "pane": "p-id"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "key-all",
+   "action": "read-report",
+   "expect": {
+    "output.boxes.kCountOut": {
+     "op": "contains",
+     "value": "34"
+    },
+    "output.figures.species loaded": "34",
+    "output.figures.regions": "4",
+    "output.figures.known interactions": "102"
+   }
+  },
+  {
+   "id": "key-sier",
+   "action": "activate",
+   "arguments": {
+    "selector": "@control:kReg/Sierra / Tahoe"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "key-sier-n",
+   "action": "read-report",
+   "expect": {
+    "output.boxes.kCountOut": {
+     "op": "contains",
+     "value": "16 matches"
+    }
+   }
+  },
+  {
+   "id": "key-fasc",
+   "action": "activate",
+   "arguments": {
+    "selector": "@control:kLeaf/Needles in bundles"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "key-fasc-n",
+   "action": "read-report",
+   "expect": {
+    "output.boxes.kCountOut": {
+     "op": "contains",
+     "value": "7 matches"
+    }
+   }
+  },
+  {
+   "id": "key-five",
+   "action": "activate",
+   "arguments": {
+    "selector": "@control:kSub/5 per bundle"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "key-five-n",
+   "action": "read-report",
+   "expect": {
+    "output.boxes.kCountOut": {
+     "op": "contains",
+     "value": "4 matches"
+    }
+   }
+  },
+  {
+   "id": "key-q",
+   "action": "set-text",
+   "arguments": {
+    "selector": "@control:kSearch",
+    "value": "white"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "key-q-n",
+   "action": "read-report",
+   "expect": {
+    "output.boxes.kCountOut": {
+     "op": "contains",
+     "value": "2 matches"
+    }
+   }
+  },
+  {
+   "id": "key-q2",
+   "action": "set-text",
+   "arguments": {
+    "selector": "@control:kSearch",
+    "value": "whitebark"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "key-q2-n",
+   "action": "read-report",
+   "expect": {
+    "output.boxes.kCountOut": {
+     "op": "contains",
+     "value": "1 match."
+    }
+   }
+  },
+  {
+   "id": "key-sp",
+   "action": "activate",
+   "arguments": {
+    "selector": "@control:kList"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "key-detail",
+   "action": "read-report",
+   "expect": {
+    "output.boxes.kDetailCard": {
+     "op": "contains",
+     "value": "Pinus albicaulis"
+    },
+    "output.boxes.kDetailCard#2": {
+     "op": "contains",
+     "value": "Five stiff needles"
+    }
+   }
+  },
+  {
+   "id": "key-reset",
+   "action": "activate",
+   "arguments": {
+    "selector": "@control:kReset"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "key-back",
+   "action": "read-report",
+   "expect": {
+    "output.boxes.kCountOut": {
+     "op": "contains",
+     "value": "34"
+    },
+    "output.boxes.kDetailCard": ""
+   }
+  },
+  {
+   "id": "pack-open",
+   "action": "activate",
+   "arguments": {
+    "selector": "@control:packToggle"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "pack-bad",
+   "action": "set-text",
+   "arguments": {
+    "selector": "@control:packIn",
+    "value": "{\"species\":[{\"id\":\"xx\",\"com\":\"nope\"}]}"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "pack-load-bad",
+   "action": "activate",
+   "arguments": {
+    "selector": "@control:packLoad"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "pack-refused",
+   "action": "read-report",
+   "expect": {
+    "output.boxes.packMsg": {
+     "op": "contains",
+     "value": "Pack rejected"
+    },
+    "output.figures.species loaded": "34"
+   }
+  },
+  {
+   "id": "pack-good",
+   "action": "set-text",
+   "arguments": {
+    "selector": "@control:packIn",
+    "value": "{\"region\":{\"id\":\"cas\",\"name\":\"Cascade crest\",\"sub\":\"subalpine\"},\"species\":[{\"id\":\"tsme2\",\"sci\":\"Tsuga mertensiana\",\"com\":\"mountain hemlock (crest form)\",\"leaf\":\"single\",\"reg\":[\"cas\"],\"key\":\"Needles all round the shoot, blue-green, leader nodding.\",\"inter\":[\"ectomycorrhizal\"]}]}"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "pack-load",
+   "action": "activate",
+   "arguments": {
+    "selector": "@control:packLoad"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "pack-loaded",
+   "action": "read-report",
+   "expect": {
+    "output.boxes.packMsg": {
+     "op": "contains",
+     "value": "1 species added"
+    },
+    "output.figures.species loaded": "35",
+    "output.figures.regions": "5"
+   }
+  },
+  {
    "id": "tally",
    "action": "show-pane",
    "arguments": {
@@ -35,7 +336,7 @@
    }
   },
   {
-   "id": "sp",
+   "id": "sp1",
    "action": "pick",
    "arguments": {
     "selector": "@control:tEntry",
@@ -61,6 +362,38 @@
    }
   },
   {
+   "id": "h1",
+   "action": "set-text",
+   "arguments": {
+    "selector": "@control:tEntry/height",
+    "value": "34"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "crown",
+   "action": "activate",
+   "arguments": {
+    "selector": "@control:tEntry/dominant"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "note1",
+   "action": "set-text",
+   "arguments": {
+    "selector": "@control:tNote",
+    "value": "old bark plates, fire scar on the uphill side"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
    "id": "t1",
    "action": "activate",
    "arguments": {
@@ -75,7 +408,7 @@
    "action": "set-text",
    "arguments": {
     "selector": "@control:DBH",
-    "value": "25"
+    "value": "40"
    },
    "expect": {
     "ok": true
@@ -96,7 +429,7 @@
    "action": "set-text",
    "arguments": {
     "selector": "@control:DBH",
-    "value": "40"
+    "value": "20"
    },
    "expect": {
     "ok": true
@@ -113,11 +446,26 @@
    }
   },
   {
+   "id": "sp2",
+   "action": "pick",
+   "arguments": {
+    "selector": "@control:tEntry",
+    "value": "ponderosa pine"
+   },
+   "expect": {
+    "ok": true,
+    "output.chose": {
+     "op": "contains",
+     "value": "ponderosa"
+    }
+   }
+  },
+  {
    "id": "d4",
    "action": "set-text",
    "arguments": {
     "selector": "@control:DBH",
-    "value": "20"
+    "value": "25"
    },
    "expect": {
     "ok": true
@@ -134,16 +482,66 @@
    }
   },
   {
-   "id": "four",
+   "id": "stand",
    "action": "read-report",
    "expect": {
-    "ok": true,
     "output.figures.live stems": "4",
     "output.figures.snags": "0",
     "output.figures.live stems/ha": "100",
     "output.figures.live BA m²/ha": "6.9",
     "output.figures.QMD cm": "29.7",
-    "output.figures.SDI (Reineke)": "132"
+    "output.figures.SDI (Reineke)": "132",
+    "output.figures.top height m": "34.0"
+   }
+  },
+  {
+   "id": "composition",
+   "action": "read-report",
+   "expect": {
+    "output.boxes.tStats": {
+     "op": "contains",
+     "value": "Douglas-fir leads on importance value (78.6)"
+    },
+    "output.boxes.tStats#2": {
+     "op": "contains",
+     "value": "leads on both stems and basal area"
+    },
+    "output.tables.tStats": {
+     "op": "contains",
+     "value": [
+      "Douglas-fir",
+      "3",
+      "5.70",
+      "75.0",
+      "82.3",
+      "78.6"
+     ]
+    },
+    "output.tables.tStats#2": {
+     "op": "contains",
+     "value": [
+      "ponderosa pine",
+      "1",
+      "1.23",
+      "25.0",
+      "17.7",
+      "21.4"
+     ]
+    }
+   }
+  },
+  {
+   "id": "hist",
+   "action": "read-report",
+   "expect": {
+    "output.boxes.tHistOut": {
+     "op": "contains",
+     "value": "20–30 cm"
+    },
+    "output.boxes.tHistOut#2": {
+     "op": "contains",
+     "value": "40–50 cm"
+    }
    }
   },
   {
@@ -293,7 +691,41 @@
    }
   },
   {
-   "id": "plot",
+   "id": "pct",
+   "action": "activate",
+   "arguments": {
+    "selector": "@control:htEntry/percent"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "height-pct",
+   "action": "read-report",
+   "expect": {
+    "output.figures.total height": "10.0 m"
+   }
+  },
+  {
+   "id": "deg",
+   "action": "activate",
+   "arguments": {
+    "selector": "@control:htEntry/degrees"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "height-deg",
+   "action": "read-report",
+   "expect": {
+    "output.figures.total height": "20.8 m"
+   }
+  },
+  {
+   "id": "plot2",
    "action": "show-pane",
    "arguments": {
     "pane": "p-plot"
@@ -303,13 +735,491 @@
    }
   },
   {
-   "id": "ne",
+   "id": "s-plot",
+   "action": "set-text",
+   "arguments": {
+    "selector": "@control:sPlot",
+    "value": "SGH-07"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "s-loc",
+   "action": "set-text",
+   "arguments": {
+    "selector": "@control:sLoc",
+    "value": "Tahoe NF, Sagehen Creek, N-facing bench"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "s-obs",
+   "action": "set-text",
+   "arguments": {
+    "selector": "@control:sObs",
+    "value": "R. Wright"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "s-date",
+   "action": "set-text",
+   "arguments": {
+    "selector": "@control:sDate",
+    "value": "2026-09-06"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "s-lat",
+   "action": "set-text",
+   "arguments": {
+    "selector": "@control:sLat",
+    "value": "39.4312"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "s-lon",
+   "action": "set-text",
+   "arguments": {
+    "selector": "@control:sLon",
+    "value": "-120.2381"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "s-elev",
+   "action": "set-text",
+   "arguments": {
+    "selector": "@control:sElev",
+    "value": "1985"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "header",
+   "action": "read-report",
+   "expect": {
+    "output.boxes.ecoOut": {
+     "op": "contains",
+     "value": "# Stand Sheet — SGH-07"
+    },
+    "output.boxes.ecoOut#2": {
+     "op": "contains",
+     "value": "# locality: Tahoe NF, Sagehen Creek, N-facing bench"
+    },
+    "output.boxes.ecoOut#3": {
+     "op": "contains",
+     "value": "# observer R. Wright — 2026-09-06 — 39.4312, -120.2381 — 1985 m"
+    }
+   }
+  },
+  {
+   "id": "r-small",
+   "action": "set-text",
+   "arguments": {
+    "selector": "@control:geoEntry/radius",
+    "value": "5.64"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "area-100",
+   "action": "read-report",
+   "expect": {
+    "output.boxes.sAreaOut": {
+     "op": "contains",
+     "value": "100 m² = 0.0100 ha"
+    },
+    "output.boxes.sAreaOut#2": {
+     "op": "contains",
+     "value": "Expansion factor 100.1"
+    },
+    "output.boxes.ecoOut": {
+     "op": "contains",
+     "value": "circle r=5.64 m = 100 m² (0.0100 ha), EF 100.1"
+    }
+   }
+  },
+  {
+   "id": "rect",
+   "action": "activate",
+   "arguments": {
+    "selector": "@control:geoEntry/rectangle / belt"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "rect-l",
+   "action": "set-text",
+   "arguments": {
+    "selector": "@control:geoEntry/length",
+    "value": "20"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "rect-w",
+   "action": "set-text",
+   "arguments": {
+    "selector": "@control:geoEntry/width",
+    "value": "20"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "rect-400",
+   "action": "read-report",
+   "expect": {
+    "output.boxes.sAreaOut": {
+     "op": "contains",
+     "value": "400 m² = 0.0400 ha"
+    },
+    "output.boxes.sAreaOut#2": {
+     "op": "contains",
+     "value": "Expansion factor 25.0"
+    },
+    "output.boxes.ecoOut": {
+     "op": "contains",
+     "value": "rectangle 20×20 m = 400 m² (0.0400 ha), EF 25.0"
+    }
+   }
+  },
+  {
+   "id": "circ",
+   "action": "activate",
+   "arguments": {
+    "selector": "@control:geoEntry/fixed-radius circle"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "r-back",
+   "action": "set-text",
+   "arguments": {
+    "selector": "@control:geoEntry/radius",
+    "value": "11.28"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "area-400",
+   "action": "read-report",
+   "expect": {
+    "output.boxes.ecoOut": {
+     "op": "contains",
+     "value": "EF 25.0"
+    },
+    "output.figures.live stems/ha": "100"
+   }
+  },
+  {
+   "id": "bh-130",
+   "action": "activate",
+   "arguments": {
+    "selector": "@control:geoEntry/1.30 m"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "bh-said",
+   "action": "read-report",
+   "expect": {
+    "output.boxes.ecoOut": {
+     "op": "contains",
+     "value": "breast height 1.30 m"
+    }
+   }
+  },
+  {
+   "id": "bh-137",
+   "action": "activate",
+   "arguments": {
+    "selector": "@control:geoEntry/1.37 m"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "min-10",
+   "action": "set-text",
+   "arguments": {
+    "selector": "@control:geoEntry/min DBH tallied",
+    "value": "10"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "min-said",
+   "action": "read-report",
+   "expect": {
+    "output.boxes.ecoOut": {
+     "op": "contains",
+     "value": "min DBH 10 cm"
+    }
+   }
+  },
+  {
+   "id": "min-5",
+   "action": "set-text",
+   "arguments": {
+    "selector": "@control:geoEntry/min DBH tallied",
+    "value": "5"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "asp-sw",
+   "action": "activate",
+   "arguments": {
+    "selector": "@control:physEntry/SW"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "hot",
+   "action": "read-report",
+   "expect": {
+    "output.boxes.sHeatOut": {
+     "op": "contains",
+     "value": "Folded aspect 180°"
+    },
+    "output.boxes.sHeatOut#2": {
+     "op": "contains",
+     "value": "hot — southwest exposure"
+    }
+   }
+  },
+  {
+   "id": "asp-nw",
+   "action": "activate",
+   "arguments": {
+    "selector": "@control:physEntry/NW"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "warm",
+   "action": "read-report",
+   "expect": {
+    "output.boxes.sHeatOut": {
+     "op": "contains",
+     "value": "Folded aspect 90°"
+    },
+    "output.boxes.sHeatOut#2": {
+     "op": "contains",
+     "value": "warm"
+    }
+   }
+  },
+  {
+   "id": "asp-ne",
    "action": "activate",
    "arguments": {
     "selector": "@control:physEntry/NE"
    },
    "expect": {
     "ok": true
+   }
+  },
+  {
+   "id": "cool",
+   "action": "read-report",
+   "expect": {
+    "output.boxes.sHeatOut": {
+     "op": "contains",
+     "value": "Folded aspect 0°"
+    },
+    "output.boxes.sHeatOut#2": {
+     "op": "contains",
+     "value": "cool — a northeast-facing site"
+    }
+   }
+  },
+  {
+   "id": "slope",
+   "action": "set-text",
+   "arguments": {
+    "selector": "@control:physEntry/slope",
+    "value": "35"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "slope-said",
+   "action": "read-report",
+   "expect": {
+    "output.boxes.sHeatOut": {
+     "op": "contains",
+     "value": "on a 35% slope"
+    }
+   }
+  },
+  {
+   "id": "pos",
+   "action": "activate",
+   "arguments": {
+    "selector": "@control:physEntry/mid"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "soil",
+   "action": "activate",
+   "arguments": {
+    "selector": "@control:physEntry/sandy loam"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "moist",
+   "action": "activate",
+   "arguments": {
+    "selector": "@control:physEntry/mesic"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "parent",
+   "action": "set-text",
+   "arguments": {
+    "selector": "@control:sParent",
+    "value": "granodiorite"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "site-line",
+   "action": "read-report",
+   "expect": {
+    "output.boxes.ecoOut": {
+     "op": "contains",
+     "value": "# site: aspect 45° · slope 35% · mid slope · mesic · sandy loam · granodiorite"
+    }
+   }
+  },
+  {
+   "id": "cov-can",
+   "action": "set-slider",
+   "arguments": {
+    "selector": "@control:covEntry/canopy cover",
+    "value": 45
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "cov-shr",
+   "action": "set-slider",
+   "arguments": {
+    "selector": "@control:covEntry/shrub cover",
+    "value": 20
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "cov-hrb",
+   "action": "set-slider",
+   "arguments": {
+    "selector": "@control:covEntry/herb cover",
+    "value": 15
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "cov-bar",
+   "action": "set-slider",
+   "arguments": {
+    "selector": "@control:covEntry/bare / rock",
+    "value": 10
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "litter",
+   "action": "set-text",
+   "arguments": {
+    "selector": "@control:covEntry/litter depth",
+    "value": "3.5"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "browse",
+   "action": "set-text",
+   "arguments": {
+    "selector": "@control:covEntry/browse line height",
+    "value": "1.8"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "cover-line",
+   "action": "read-report",
+   "expect": {
+    "output.boxes.ecoOut": {
+     "op": "contains",
+     "value": "# cover: canopy 45% · shrub 20% · herb 15% · bare 10% · litter 3.5 cm · browse line 1.8 m"
+    }
    }
   },
   {
@@ -337,10 +1247,10 @@
    }
   },
   {
-   "id": "len",
+   "id": "len60",
    "action": "set-text",
    "arguments": {
-    "selector": "@control:transect length",
+    "selector": "@control:cwdEntry/transect length",
     "value": "60"
    },
    "expect": {
@@ -360,42 +1270,423 @@
    }
   },
   {
-   "id": "eco1",
+   "id": "len30",
+   "action": "set-text",
+   "arguments": {
+    "selector": "@control:cwdEntry/transect length",
+    "value": "30"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "dist-fire",
+   "action": "activate",
+   "arguments": {
+    "selector": "@control:sDist/fire scars"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "dist-log",
+   "action": "activate",
+   "arguments": {
+    "selector": "@control:sDist/logging stumps"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "dist-line",
    "action": "read-report",
    "expect": {
     "output.boxes.ecoOut": {
      "op": "contains",
-     "value": "Douglas-fir=4"
+     "value": "# disturbance: fire scars, logging stumps"
     }
    }
   },
   {
-   "id": "eco2",
+   "id": "notes",
+   "action": "set-text",
+   "arguments": {
+    "selector": "@control:sNotes",
+    "value": "Two-storey stand: scattered old Douglas-fir over a ponderosa cohort. Stumps of a 1950s entry."
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "notes-line",
    "action": "read-report",
    "expect": {
     "output.boxes.ecoOut": {
      "op": "contains",
-     "value": "6.93 m²/ha"
+     "value": "# notes: Two-storey stand: scattered old Douglas-fir over a ponderosa cohort."
     }
    }
   },
   {
-   "id": "eco3",
+   "id": "parent-ev",
+   "action": "set-text",
+   "arguments": {
+    "selector": "@control:sParentEv",
+    "value": "SGH2026:plot:03"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "parent-ev-said",
    "action": "read-report",
    "expect": {
-    "output.boxes.ecoOut": {
+    "output.boxes.parentEvBox": {
      "op": "contains",
-     "value": "EF 25.0"
+     "value": "SGH2026:plot:03"
     }
    }
   },
   {
-   "id": "eco4",
+   "id": "gps",
+   "action": "set-text",
+   "arguments": {
+    "selector": "@control:dwcCoords/gps accuracy",
+    "value": "30"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "dwc-47",
+   "action": "read-report",
+   "expect": {
+    "output.boxes.dwcOut": {
+     "op": "contains",
+     "value": "47"
+    }
+   }
+  },
+  {
+   "id": "dwc-rect",
+   "action": "activate",
+   "arguments": {
+    "selector": "@control:geoEntry/rectangle / belt"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "dwc-50",
+   "action": "read-report",
+   "expect": {
+    "output.boxes.dwcOut": {
+     "op": "contains",
+     "value": "50"
+    },
+    "output.boxes.sAreaOut": {
+     "op": "contains",
+     "value": "Expansion factor 25.0"
+    }
+   }
+  },
+  {
+   "id": "dwc-circ",
+   "action": "activate",
+   "arguments": {
+    "selector": "@control:geoEntry/fixed-radius circle"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "dwc-47-again",
+   "action": "read-report",
+   "expect": {
+    "output.boxes.dwcOut": {
+     "op": "contains",
+     "value": "47"
+    }
+   }
+  },
+  {
+   "id": "datum-unknown",
+   "action": "activate",
+   "arguments": {
+    "selector": "@control:dwcCoords/unknown"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "dwc-5406",
+   "action": "read-report",
+   "expect": {
+    "output.boxes.dwcOut": {
+     "op": "contains",
+     "value": "5406"
+    }
+   }
+  },
+  {
+   "id": "datum-wgs",
+   "action": "activate",
+   "arguments": {
+    "selector": "@control:dwcCoords/WGS84"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "dwc-back",
+   "action": "read-report",
+   "expect": {
+    "output.boxes.dwcOut": {
+     "op": "contains",
+     "value": "47"
+    }
+   }
+  },
+  {
+   "id": "web",
+   "action": "show-pane",
+   "arguments": {
+    "pane": "p-web"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "i1a",
+   "action": "set-text",
+   "arguments": {
+    "selector": "@control:iA",
+    "value": "mule deer"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "i1b",
+   "action": "set-text",
+   "arguments": {
+    "selector": "@control:iB",
+    "value": "ponderosa pine"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "i1t",
+   "action": "pick",
+   "arguments": {
+    "selector": "@control:intEntry",
+    "value": "herbivory / browse"
+   },
+   "expect": {
+    "ok": true,
+    "output.chose": {
+     "op": "contains",
+     "value": "herbivory"
+    }
+   }
+  },
+  {
+   "id": "i1e",
+   "action": "activate",
+   "arguments": {
+    "selector": "@control:intEntry/sign"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "i1c",
+   "action": "activate",
+   "arguments": {
+    "selector": "@control:intEntry/high"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "i1n",
+   "action": "set-text",
+   "arguments": {
+    "selector": "@control:iN",
+    "value": "browse line at 1.8 m on every stem below the bench"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "i1add",
+   "action": "activate",
+   "arguments": {
+    "selector": "@control:iAdd"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "one-link",
+   "action": "read-report",
+   "expect": {
+    "output.figures.links": "1",
+    "output.figures.taxa involved": "2",
+    "output.figures.interaction types": "1",
+    "output.figures.seen in the field": "1"
+   }
+  },
+  {
+   "id": "i2a",
+   "action": "set-text",
+   "arguments": {
+    "selector": "@control:iA",
+    "value": "Clark's nutcracker"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "i2b",
+   "action": "set-text",
+   "arguments": {
+    "selector": "@control:iB",
+    "value": "whitebark pine"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "i2t",
+   "action": "pick",
+   "arguments": {
+    "selector": "@control:intEntry",
+    "value": "seed dispersal"
+   },
+   "expect": {
+    "ok": true,
+    "output.chose": {
+     "op": "contains",
+     "value": "seed dispersal"
+    }
+   }
+  },
+  {
+   "id": "i2e",
+   "action": "activate",
+   "arguments": {
+    "selector": "@control:intEntry/literature"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "i2c",
+   "action": "activate",
+   "arguments": {
+    "selector": "@control:intEntry/medium"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "i2add",
+   "action": "activate",
+   "arguments": {
+    "selector": "@control:iAdd"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "two-links",
+   "action": "read-report",
+   "expect": {
+    "output.figures.links": "2",
+    "output.figures.taxa involved": "4",
+    "output.figures.interaction types": "2",
+    "output.figures.seen in the field": "1",
+    "output.boxes.iStats": {
+     "op": "contains",
+     "value": "1 of 2 links rest on something you saw"
+    }
+   }
+  },
+  {
+   "id": "web-export",
    "action": "read-report",
    "expect": {
     "output.boxes.ecoOut": {
      "op": "contains",
-     "value": "aspect 45"
+     "value": "note: mule deer eats ponderosa pine # herbivory / browse, sign, confidence high — browse line at 1.8 m on every stem below the bench"
+    },
+    "output.boxes.ecoOut#2": {
+     "op": "contains",
+     "value": "note: Clark's nutcracker disperses whitebark pine # seed dispersal (mutualism), literature, confidence medium"
+    }
+   }
+  },
+  {
+   "id": "plot3",
+   "action": "show-pane",
+   "arguments": {
+    "pane": "p-plot"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "sheet",
+   "action": "read-report",
+   "expect": {
+    "output.boxes.ecoOut": {
+     "op": "contains",
+     "value": "# stand: 4 live stems, 0 snags"
+    },
+    "output.boxes.ecoOut#2": {
+     "op": "contains",
+     "value": "100 stems/ha, 6.9 m² BA/ha, QMD 29.7 cm, SDI 132"
+    },
+    "output.boxes.ecoOut#3": {
+     "op": "contains",
+     "value": "data: sgh-07 Douglas-fir=3 ponderosa-pine=1"
+    },
+    "output.boxes.ecoOut#4": {
+     "op": "contains",
+     "value": "# Douglas-fir: 3 stems, 5.70 m²/ha"
+    },
+    "output.boxes.ecoOut#5": {
+     "op": "contains",
+     "value": "# ponderosa pine: 1 stems, 1.23 m²/ha"
+    },
+    "output.boxes.ecoOut#6": {
+     "op": "contains",
+     "value": "One plot is a point estimate with no variance"
     }
    }
   },
