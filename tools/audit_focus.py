@@ -86,17 +86,39 @@ PROBE = r"""
             s.boxShadow, s.backgroundColor, s.borderColor, s.borderWidth,
             s.color, s.filter, s.textDecorationLine].join('|');
   };
-  document.querySelectorAll(sel).forEach(e => {
-    if (!visible(e)) return;
-    if (e.disabled) return;
-    if (!name(e)) bump(out.unnamed, e);
-    const before = snap(e);
-    try { e.focus({preventScroll:true}); } catch (_) { return; }
-    if (document.activeElement !== e) return;
-    const after = snap(e);
-    e.blur();
-    if (before === after) bump(out.invisible, e);
-  });
+  // A CONTROL THAT IS ALREADY FOCUSED CANNOT BE ASKED WHAT FOCUS LOOKS LIKE
+  // (ADR-148), and a control mid-transition answers with a value from a
+  // hundred milliseconds ago (ADR-131's lesson, one layer down). The entry
+  // leaves focus wherever the page put it -- the lab's chip adder returns it
+  // to the count box after Add -- and that one control then read as "no
+  // visible focus" on a page whose focus ring is fine, because `before` was
+  // already the focused style. Both are controlled for here: transitions are
+  // switched off for the length of the probe, and every element is blurred
+  // before its unfocused state is read.
+  const noAnim = document.createElement("style");
+  noAnim.textContent = "*,*::before,*::after{transition:none!important;animation:none!important}";
+  document.head.appendChild(noAnim);
+  const wasActive = document.activeElement;
+  try {
+    document.querySelectorAll(sel).forEach(e => {
+      if (!visible(e)) return;
+      if (e.disabled) return;
+      if (!name(e)) bump(out.unnamed, e);
+      if (document.activeElement === e) e.blur();
+      const before = snap(e);
+      try { e.focus({preventScroll:true}); } catch (_) { return; }
+      if (document.activeElement !== e) return;
+      const after = snap(e);
+      e.blur();
+      if (before === after) bump(out.invisible, e);
+    });
+  } finally {
+    noAnim.remove();
+    // Put focus back where the page had it: the audits run one after another
+    // on the same tab, and a probe that moves focus and leaves it moved is a
+    // probe that changes what the next one measures.
+    try { if (wasActive && wasActive.focus) wasActive.focus({preventScroll:true}); } catch (_) {}
+  }
   return out;
 }
 """

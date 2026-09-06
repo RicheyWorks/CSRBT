@@ -819,9 +819,20 @@ if os.path.isfile(led):
        "every ledger entry for a committed task records the rungs it ran under: %d entry/entries, "
        "%d without: %s" % (len(rows), len(miss), miss[:4]))
     sup = [k for k, e in rows if "DESTRUCTIVE" not in (e.get("rungs") or [])]
-    ck(len(sup) == len(rows) - len(declared),
+    # AGAINST THE TASKS THAT DECLARED *IT*, NOT THE TASKS THAT DECLARED ANYTHING
+    # (ADR-148). This compared `sup` with the tasks carrying a policy of any
+    # kind, which was the same set only for as long as every policy in the kit
+    # went all the way to DESTRUCTIVE. The lab's task is the first to declare one
+    # that stops short -- it opens SENSITIVE_READ, DRAFT and MUTATE and says why
+    # it needs no more -- and the arithmetic then counted it on both sides. The
+    # sentence this check prints always said "did NOT declare IT"; the set it
+    # used did not.
+    destructive = [t for t in tasks
+                   if "DESTRUCTIVE" in ((t.get("policy") or {}).get("allow") or [])]
+    ck(len(sup) == len(rows) - len(destructive),
        "and exactly the tasks that did NOT declare it entered their data with no destructive "
-       "rung at all: %d of %d supervised, %d declared" % (len(sup), len(rows), len(declared)))
+       "rung at all: %d of %d supervised, %d declared DESTRUCTIVE (of %d that declare a policy "
+       "at all)" % (len(sup), len(rows), len(destructive), len(declared)))
     for k, e in rows:
         if "DESTRUCTIVE" in (e.get("rungs") or []):
             ck(bool(e.get("rungsWhy")),

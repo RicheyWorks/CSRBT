@@ -2,7 +2,7 @@
  "_comment": "Written by the mutant runners through tools/mutant_ledger.py. One entry per runner; a run updates only its own entry and keeps the rest, each with its own at.",
  "runners": {
   "mutate_audit_states": {
-   "at": 1788655924,
+   "at": 1788701958,
    "equivalent": 3,
    "equivalents": [
     {
@@ -19,8 +19,8 @@
     }
    ],
    "inconclusive": 0,
-   "killed": 45,
-   "mutants": 45,
+   "killed": 47,
+   "mutants": 47,
    "rows": [
     {
      "detail": "14 failure(s); first: the states, in order: rest, each tab (data-pane then aria-",
@@ -88,7 +88,7 @@
      "verdict": "killed"
     },
     {
-     "detail": "4 failure(s); first: the states, in order: rest, each tab (data-pane then aria-c",
+     "detail": "5 failure(s); first: the states, in order: rest, each tab (data-pane then aria-c",
      "name": "the click is a pointer click",
      "verdict": "killed"
     },
@@ -240,6 +240,16 @@
     {
      "detail": "2 failure(s); first: and a control with no id keeps its stamp when the page GROW",
      "name": "an unnamed control is counted across the document, so page growth renames it",
+     "verdict": "killed"
+    },
+    {
+     "detail": "1 failure(s); first: a control the ENTRY LEFT FOCUSED is still measured: a probe",
+     "name": "a control the entry left FOCUSED is measured without blurring it first",
+     "verdict": "killed"
+    },
+    {
+     "detail": "1 failure(s); first: ...and the probe puts focus back where the page had it, bec",
+     "name": "the probe leaves focus wherever it put it",
      "verdict": "killed"
     },
     {

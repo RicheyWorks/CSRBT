@@ -740,10 +740,15 @@
    "by": "adr147",
    "sha": "9c5c9fc210adac900bba8cc0f312f07155b46a79ff985c7aacc90bd56feb44f1"
   },
+  "docs/ADR-148-the-lab-bench-entered-whole-2026-09-06.md": {
+   "at": 1788705307,
+   "by": "adr148",
+   "sha": "0beb2f4927e1060273f4dda72d4c65e58d6324c0636e7a60a31f9cb55e62eea0"
+  },
   "docs/AI_HARNESS.md": {
-   "at": 1788683836,
-   "by": "adr147",
-   "sha": "f4c8ed3e39da908654dff77ca43a102fbf6f463780270ed8fb2ac81aceebb03a"
+   "at": 1788705307,
+   "by": "adr148",
+   "sha": "9506dd5647ad3ac2951274eaa081d9c5214cd352a9daf2172bbeb18beb64a685"
   },
   "docs/AUDIT-2026-07-14-capability-coverage.md": {
    "at": 1788676922,
@@ -1420,6 +1425,11 @@
    "by": "adr147",
    "sha": "80220b3ce47e474d04f11f746610352590b6e75a26cd89a9fc48584510428afe"
   },
+  "docs/CHANGELOG-2026-09-06-adr148-the-lab-bench-entered-whole.md": {
+   "at": 1788705307,
+   "by": "adr148",
+   "sha": "e6700174562014b5ee3a840cded549bf1518915a2cf992af9c4b12adeb7a0bf7"
+  },
   "docs/DESIGN-adaptive-engine.md": {
    "at": 1788676923,
    "by": "adr146b",
@@ -1646,9 +1656,9 @@
    "sha": "55fde6efe30b2e5d91cd06cd06ae1eb04ada2bdd954229cda3c5c4bbbb2fd338"
   },
   "docs/ecology-lab.html": {
-   "at": 1788676924,
-   "by": "adr146b",
-   "sha": "74aa17447a9e2e77d217bebcdcbb4a510ff2f44dfea965eb86a67a00d2f5c0bd"
+   "at": 1788705307,
+   "by": "adr148",
+   "sha": "8886eb2505a685a5f4820eecacf17ccbcfeb697e0eb5ed7c5947c663775a3fbf"
   },
   "docs/ecology-teachers-guide.html": {
    "at": 1788676924,
@@ -2011,9 +2021,9 @@
    "sha": "008191b8917bd2366a052e13c43b434205a183966cabeeaf2a80b5b9c3c5f821"
   },
   "tools/audit_focus.py": {
-   "at": 1788676925,
-   "by": "adr146b",
-   "sha": "f75520da035e6d86c1f93af71af2c3b49b8911fc77cd063fe96ec08033893175"
+   "at": 1788705307,
+   "by": "adr148",
+   "sha": "d16dad99f1ee1c958fd2220d9e31e2d23e489e6ab1032e18035a53383ef17693"
   },
   "tools/audit_frontend.py": {
    "at": 1788676925,
@@ -2080,10 +2090,15 @@
    "by": "adr147",
    "sha": "7497cb714b6b0d6be52cd8a68e2e585b1e917a29df8587f6c40caa97af1d2bc7"
   },
+  "tools/delivery/adr148.json": {
+   "at": 1788705307,
+   "by": "adr148",
+   "sha": "90d474e3da5ee6d015938cfe5ee3b8ed19f93080dd42a6e89d6ba00c8081c931"
+  },
   "tools/delivery_ledger.json": {
-   "at": 1788683836,
-   "by": "adr147",
-   "sha": "c59917255d0211061bf40236dfb7ee98f5584a53e355a1b7447f89bdb6e40599"
+   "at": 1788705307,
+   "by": "adr148",
+   "sha": "3c6b036f367957a6a8601ffd43d5da6d7eb502ede454fb1c8c0d51c6006460b5"
   },
   "tools/dwc.py": {
    "at": 1788676926,
@@ -2126,9 +2141,9 @@
    "sha": "01919e137bdbf702ebc887de41aa026b721916da9d3761ce673812d54a22471f"
   },
   "tools/entry_ledger.json": {
-   "at": 1788683836,
-   "by": "adr147",
-   "sha": "5062f8c4fb52a752e05ac96f64b85081cf378eaa421b62e930d27d428bf54b22"
+   "at": 1788705307,
+   "by": "adr148",
+   "sha": "6e4d18f6cad4e425ec323265ade2439bed36f1823c5978d655efebb17738b4b8"
   },
   "tools/entry_reach.py": {
    "at": 1788676926,
@@ -2181,9 +2196,9 @@
    "sha": "4bb3b1a07b00f7a3035cc9560c6d920a06e2e6c0688a90d16a7935165fa8110e"
   },
   "tools/harness_board.html": {
-   "at": 1788683836,
-   "by": "adr147",
-   "sha": "69e9557a2efd24ddc29751342431dfdec7c0f10fd35cf63fb1a67d033f7cc88b"
+   "at": 1788705307,
+   "by": "adr148",
+   "sha": "de6231b59295ebf0f002f8cfc58e963fe5fb70093325912d08c81951c2ad5aa5"
   },
   "tools/harness_board.py": {
    "at": 1788683836,
@@ -2266,9 +2281,9 @@
    "sha": "f48304b6ba757326d34ace4d678db5c671db42e5fd99bb369a0d311b292c79a3"
   },
   "tools/mutant_ledger.json": {
-   "at": 1788683836,
-   "by": "adr147",
-   "sha": "f42fd928117036a910e42ca66f3964ac8f6e59d1fb304f30f37b7316e6e45423"
+   "at": 1788705307,
+   "by": "adr148",
+   "sha": "3ddb7e6ea55a9c5c3d5ea9e5d74c36175f5e1fc3bdc5ebc52974e000ff73e183"
   },
   "tools/mutant_ledger.py": {
    "at": 1788676926,
@@ -2281,9 +2296,9 @@
    "sha": "f2cd7b3f25def320eff1cc5ec9aeba1788e02a6c00d35e72d53c804d36d6f78e"
   },
   "tools/mutate_audit_states.py": {
-   "at": 1788676927,
-   "by": "adr146b",
-   "sha": "9ca585b80ca747773e0e960d1360664b04426d68d3ebecf7bf267a82eba3c4fb"
+   "at": 1788705307,
+   "by": "adr148",
+   "sha": "20b9420343be7defdd6a2a5e87ff5c4e959e0bcbff246467f5de13e7feba42a4"
   },
   "tools/mutate_contend.py": {
    "at": 1788676927,
@@ -2406,9 +2421,9 @@
    "sha": "15022dcd97ee97f72ec5f907d0cdfef3ee36da9588f9de47e110519ff9f781e8"
   },
   "tools/published.json": {
-   "at": 1788683836,
-   "by": "adr147",
-   "sha": "9bd31f74e31f3fb6b0bf5cbfc702c64cdcbba9c24c1f712d174b76551f6e93a8"
+   "at": 1788705307,
+   "by": "adr148",
+   "sha": "c309a6991406f4a8023009fedd21ebc1534a30bc85e0caa512f25accbcd433d3"
   },
   "tools/reach.py": {
    "at": 1788676928,
@@ -2416,9 +2431,9 @@
    "sha": "b176e4e078bd39b22f5056223c6d1949503ff69c2f029a02d3513a7607db39cb"
   },
   "tools/readable_ledger.json": {
-   "at": 1788683836,
-   "by": "adr147",
-   "sha": "106ffbf00a5a46e975327116e8c88b1cef7543aea8497d42cc8b6b524e8e2bbf"
+   "at": 1788705307,
+   "by": "adr148",
+   "sha": "91b7a650f89d747c592bc0372f2c8ef7dac290c5a2a4b0c798223f2e72874f64"
   },
   "tools/routes.json": {
    "at": 1788676928,
@@ -2451,9 +2466,9 @@
    "sha": "0a2241a252fa68e80b813e601b7bd67cd8ba5c00b8ad07acc98dcd93a42b0268"
   },
   "tools/task_ledger.json": {
-   "at": 1788683836,
-   "by": "adr147",
-   "sha": "9faf6e0e4d7709895b1d40be804c1e7c72e419da32fecbab971a49979d1241ac"
+   "at": 1788705307,
+   "by": "adr148",
+   "sha": "f7c9cb2390f18e93fcda757e603998dd7add4e3632739a5f0a05093f2d8af785"
   },
   "tools/tasks/fixture-buckets.json": {
    "at": 1788676928,
@@ -2581,9 +2596,9 @@
    "sha": "d74a58df549a93a8e94a130a0965ba3b2715270a8f2bb2f80abbb71675e3edc4"
   },
   "tools/tasks/page-ecology-lab-science.json": {
-   "at": 1788676928,
-   "by": "adr146b",
-   "sha": "3558121d224117841d6c15beb3fffebfe1c903a08cbc7da5310b8b4c83bdfbe6"
+   "at": 1788705307,
+   "by": "adr148",
+   "sha": "f4eccb9eeb9ff6eda1b145107f9b6c3e7dfb167b80f0be1da13ae9e623cee65b"
   },
   "tools/tasks/page-ecology-reference.json": {
    "at": 1788676928,
@@ -2741,9 +2756,9 @@
    "sha": "15a9ad96a69cde9458d5f7fca51be947e5bebad787cc069e1bcc64bf7800b592"
   },
   "tools/verify/counts.json": {
-   "at": 1788683836,
-   "by": "adr147",
-   "sha": "30d724fd38c91bde880c1a2653c6b3a9199f539bca90a33c79e0b50fbf842603"
+   "at": 1788705307,
+   "by": "adr148",
+   "sha": "c616ef148e89c07967eb8c6fb090eafc71f0824283bfffbd2cccf0327852b9ab"
   },
   "tools/verify/run_all.py": {
    "at": 1788683836,
@@ -2761,9 +2776,9 @@
    "sha": "25d5c4541c1874d1755a11b08c6165bbf14778cf2d0214f394f4aba4e12fca3e"
   },
   "tools/verify/verify_audit_states.py": {
-   "at": 1788676929,
-   "by": "adr146b",
-   "sha": "314c6c9afbfa3e2411d140af43c51785260b3a2fc71020c145b13c7adcd43bd0"
+   "at": 1788705307,
+   "by": "adr148",
+   "sha": "7a49f4c6ec35fe411382fd4895c669b26cb31b78cce3f77dc4a7c501c01d727c"
   },
   "tools/verify/verify_board.py": {
    "at": 1788676929,
@@ -3081,9 +3096,9 @@
    "sha": "c29a8a4b4bbbba217f4e0c7b9bed82d0d6e65957f930508ded392502387b0b39"
   },
   "tools/verify/verify_tasks.py": {
-   "at": 1788676930,
-   "by": "adr146b",
-   "sha": "03b0c149189fa6863746d97d4bbeadbb8d9270a0ce58cf7a96dcb65e81bcdd3d"
+   "at": 1788705307,
+   "by": "adr148",
+   "sha": "67ed76a2e8e62160f8982514814d7fd57d531bea2772f58ca1fdf2c5f562619d"
   },
   "tools/verify/verify_tie_render.py": {
    "at": 1788676930,

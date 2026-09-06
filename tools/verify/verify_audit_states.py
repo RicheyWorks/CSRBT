@@ -408,6 +408,42 @@ with sync_playwright() as pw:
     inv = pg.evaluate(AF.PROBE)["invisible"]
     ck(inv == [], "after the walk the focus audit's own probe sees a ring on every control: the states were pressed "
                   "by JS, not by a pointer (a pointer click hides rings on programmatic focus): %s" % inv)
+    # A CONTROL THE ENTRY LEFT FOCUSED (ADR-148). The lab's chip adder returns
+    # focus to its count box after Add, and that one control then read as "no
+    # visible focus" on a page whose ring is fine -- because the probe's
+    # "unfocused" reading was taken while it was focused. Nothing else on the
+    # page was wrong; the instrument could not ask the question.
+    # Focused and probed IN THE SAME EVALUATE. Across two calls the headless
+    # page can lose the focus between them, and the check would then be asking
+    # nothing while looking like it asked.
+    # THE FIRST focusable control in document order, and visible. The probe walks
+    # the page focusing and blurring as it goes, so every control except the
+    # first is blurred by the time the loop reaches it -- only the first can
+    # still be focused when its resting state is read, which is exactly the case
+    # the lab hit and the only one a fixture can pose.
+    FIRST = ("const e = [...document.querySelectorAll("
+             "  'a[href],button,input,select,textarea')].find(x => {"
+             "  const b = x.getBoundingClientRect();"
+             "  return (b.width > 0 || b.height > 0) && !x.disabled; });")
+    focused = pg.evaluate("(src) => { " + FIRST +
+                          " if (!e) return null; e.id = e.id || 'left-focused'; e.focus();"
+                          " return document.activeElement === e ? e.id : null; }", "")
+    ck(focused, "the fixture really does leave a VISIBLE control focused, so the next check is "
+                "asking something: %r" % focused)
+    inv2 = pg.evaluate(
+        "(src) => { const probe = eval('(' + src + ')'); " + FIRST +
+        "  e.focus();"
+        "  if (document.activeElement !== e) return [['NOT FOCUSED', 1]];"
+        "  return probe().invisible; }", AF.PROBE)
+    ck(inv2 == [],
+       "a control the ENTRY LEFT FOCUSED is still measured: a probe that reads its unfocused "
+       "state while it is focused finds no difference and reports a ring that is there: %s" % inv2)
+    still = pg.evaluate("() => (document.activeElement || {}).id || ''")
+    ck(still == focused,
+       "...and the probe puts focus back where the page had it, because the audits run one after "
+       "another on the same tab and a probe that leaves focus moved changes what the next one "
+       "measures: %r" % still)
+    pg.evaluate("() => document.activeElement && document.activeElement.blur()")
     ck(S._click(pg, "#nothing-here") is False, "pressing a selector that matches nothing is False, not an error")
     b.close()
 

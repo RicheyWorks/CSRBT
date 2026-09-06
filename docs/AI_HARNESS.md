@@ -373,6 +373,60 @@ FEK picker through its filter; a task names a control the page's way with
 tasks — one per data-entry page — enter data and hold the report to a
 hand-checked oracle; a page canary is refuted; 1,316 expectations confirmed.
 
+ADR-148 TOOK THE THIRD PAGE WHOLE, AND FOUND THE ENTRY PATH NOBODY HAD PRESSED.
+ecology-lab.html was ADR-144's third-largest gap at 7 of 40 fields, and the seven
+were the seeded terrarium and four defaults: the workbench underneath -- diversity,
+beta diversity, mark-recapture, quadrat dispersion, Hardy-Weinberg, a Punnett
+builder with a chi-square fit, a dichotomous key, Newick trees, a seeded
+flashcard drill, six theory models and an .eco round trip -- was entered by
+nothing, and every one of those is a published formula the page computes itself.
+The task goes 22 steps to 129: 7 -> 40 OF 40 FIELDS, 74 -> 202 confirmed
+expectations, and the kit 279 -> 312 of 518 (54% -> 60%). THE TWO ENTRY PATHS
+AGREE: every count box on this page has a CHIP ADDER over it -- a name field, a
+count field, an Add button and plus/minus chips per species -- because that is
+the entry a gloved thumb on a tablet can actually hit, and nothing had ever
+pressed it. One claim now holds both halves: adding heron 5 through the chips
+writes 'heron 5' into the textarea AND moves the figures to six species, H' 1.33,
+J' 0.75, Chao1 6, and typing the old list straight back into the textarea returns
+them. Site A gains lily through its chips, site B gains moss through its own, and
+site A is retyped as text. Every figure is recomputed by a Python port: the
+terrarium at J' 0.73 / 29.2 / Chao1 100 and the island at 342/310 at capacity 32;
+Jaccard 0.5, Sorensen 0.67, Bray-Curtis 0.31 sharing 3 of 6 kinds, and 1/1/0 when
+the sites are made identical; Lincoln-Petersen 360, Chapman 354, 95% CI 268-440,
+and Chapman 11,010 when R = 0 leaves Lincoln-Petersen undefined; variance/mean
+26.12 and Morisita 3.51, and 0 and 0.82 for eight equal quadrats; p 0.543 with
+chi-square 0.22 and expected 294/496/209, and exactly 0 for 250/500/250; Mendel's
+5474/1850 at chi-square 0.263 against critical 3.841 and the dihybrid's
+315/108/101/32 at 0.47 against 7.815; and a drill that deals detritivore first at
+seed 7 and decomposer at seed 0. THREE THINGS IT FOUND. (1) The oracle's
+FORMATTER was wrong, and quietly: the page prints through toLocaleString, which
+rounds HALF AWAY FROM ZERO and does so on the SHORTEST ROUND-TRIP DECIMAL of the
+double rather than on the double itself, while Python's round() is half-to-even
+on the binary value -- Hardy-Weinberg's p came out 0.542 against a page showing
+0.543, and 2.675 is 2.68 on the page and 2.67 in Python. The port is
+Decimal(repr(x)) with ROUND_HALF_UP. A formatter wrong on ties is wrong on about
+one figure in a thousand, which is exactly often enough to be dismissed as a
+rounding quibble and never fixed. (2) AN OCCURRENCE INDEX IS NOT AN ADDRESS:
+read-report distinguishes repeated figure labels with '#2', and this page prints
+'evenness J prime' three times, so writing output.figures.evenness #2 made the
+task depend on how many tiles happen to sit above it -- ADR-145's lesson about
+unnamed controls, one layer up. Figures are addressed by the box that owns them
+instead: output.by.wb-field-out.evenness. (3) SEED 0 IS A SEED: the page's own
+comment records that `+value || 42` once sent seed 0 silently back to the default
+order, and the fix had never been held. NINE REFUSALS are entered on purpose and
+held to the sentence the page prints: R above min(M, C), one quadrat, a key line
+without its two pipes, a key that points at itself, an unbalanced Newick string,
+a drill with no cards, K = 0, K1 = 0, a negative distance, negative steps. The
+terrarium's three slider readouts (o-hot, o-set, o-cap) were figures no task
+could read; renamed to the convention and held, ecology-lab is the second page in
+the kit with ZERO blind figures, and the kit reads 233 of 256 written elements
+readable, 23 blind on 8 pages. verify_eco 138, unchanged in count; verify_audit_states 70, mutate_audit_states 47/47, verify_tasks 285. Held: a Python
+port catches a change in the page, not a shared misunderstanding of the method --
+ADR-133's binding of the shipped protocol to the Java science engine is the check
+that covers that; releve 7 of 42 and experiment-guide 16 of 52 are the largest
+gaps left; and the chip adder's plus/minus and delete buttons are still pressed
+by no task, since they are controls rather than fields.
+
 ADR-147 CLOSED THE ONE BLIND SPOT EVERY AUDIT HERE SHARES. Every audit in this
 kit measures the WORKING TREE, which is the right thing to measure and has one
 total blind spot: a file that was written, shipped to the operator's disk and

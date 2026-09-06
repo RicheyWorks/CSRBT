@@ -1175,9 +1175,9 @@ function setupTerrarium() {
       <div class="facet">
         <h3>Meadow — who gets the traffic</h3>
         <div class="controls">
-          <label>hot-key share <output id="o-hot">60%</output>
+          <label>hot-key share <output id="o-hotOut">60%</output>
             <input type="range" id="c-hot" min="0" max="95" step="5" value="60"></label>
-          <label>hot set size <output id="o-set">5</output>
+          <label>hot set size <output id="o-setOut">5</output>
             <input type="range" id="c-set" min="1" max="20" step="1" value="5"></label>
         </div>
         <div id="t-meadow-tiles" class="tiles"></div>
@@ -1187,7 +1187,7 @@ function setupTerrarium() {
       <div class="facet">
         <h3>Island — a habitat with a hard ceiling</h3>
         <div class="controls">
-          <label>island capacity <output id="o-cap">12</output>
+          <label>island capacity <output id="o-capOut">12</output>
             <input type="range" id="c-cap" min="4" max="32" step="1" value="12"></label>
         </div>
         <div id="t-island-tiles" class="tiles"></div>
@@ -1203,8 +1203,8 @@ function setupTerrarium() {
   function runMeadow() {
     const hotShare = +document.getElementById("c-hot").value;
     const hotSet = +document.getElementById("c-set").value;
-    document.getElementById("o-hot").textContent = hotShare + "%";
-    document.getElementById("o-set").textContent = hotSet;
+    document.getElementById("o-hotOut").textContent = hotShare + "%";
+    document.getElementById("o-setOut").textContent = hotSet;
     const rnd = mulberry32(42);
     const counts = new Array(100).fill(0);
     for (let i = 0; i < 4000; i++) {
@@ -1227,7 +1227,7 @@ function setupTerrarium() {
 
   function runIsland() {
     const cap = +document.getElementById("c-cap").value;
-    document.getElementById("o-cap").textContent = cap;
+    document.getElementById("o-capOut").textContent = cap;
     const rnd = mulberry32(7);
     const order = [];                      // LRU order, most-recent first
     const birth = new Map();

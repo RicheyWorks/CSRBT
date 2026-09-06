@@ -2,7 +2,16 @@
  "id": "page-ecology-lab-science",
  "target": "page",
  "page": "ecology-lab.html",
- "goal": "On the interactive lab, against an independent port: the seeded terrarium meadow (mulberry32(42), 4000 draws, hot share 60%, hot set 5) reads evenness J' 0.73, 29.2 effective species and Chao1 100, and the island LRU (mulberry32(7), 800 ops, capacity 12) 616 immigrations and 604 extinctions; 95% hot share is uneven (J' 0.43) and a hot set of 20 very even (0.88); capacity 32 gives 342 / 310; the workbench's defaults are right -- five birds Shannon H' 1.16, J' 0.72, Chao1 5; quadrats variance/mean 26.12 and Morisita 3.51, clumped; Hardy-Weinberg p 0.543 chi-square 0.22; Jaccard 0.5, Sorensen 0.67, Bray-Curtis 0.31; Lincoln-Petersen 360, Chapman 354 (268-440); 7 taxa at depth 6; Mendel's 5474:1850 chi-square 0.263 -- and change as entered: a sixth bird, AA = 400, R = 20, the dihybrid preset (chi-square 0.47, df 3), and the .eco lines carry the entries.",
+ "goal": "Drive the interactive lab's whole workbench against independent Python ports. The seeded terrarium reads evenness J' 0.73, 29.2 effective species and Chao1 100 on the meadow and 616/604 on the island, 0.43 at a 95% hot share, 0.88 at a hot set of 20, 342/310 at capacity 32. THE TWO ENTRY PATHS AGREE: adding heron 5 through the chip adder writes 'heron 5' into the textarea and moves the figures to six species, H' 1.33, J' 0.75, Chao1 6, and typing the old list back into the textarea returns them. Two sites read Jaccard 0.5, Sorensen 0.67, Bray-Curtis 0.35 sharing 3 of 6 kinds, 0.67/0.8/0.29 once site A gains lily, and 1/1/0 when the sites are made identical. Mark-recapture M 120 C 90 R 30 is Lincoln-Petersen 360, Chapman 354, 95% CI 268-440; R = 0 leaves Lincoln-Petersen undefined and Chapman at 11,010; R above min(M, C) is refused. Quadrats 12 0 3 45 2 0 0 28 1 0 are variance/mean 26.12 and Morisita 3.51, eight equal quadrats 0 and 0.82, and one quadrat is refused. Hardy-Weinberg 298/489/213 gives p 0.543, q 0.458, chi-square 0.22, expected 294/496/209 and consistent; 400/489/213 gives 8.19 and out of equilibrium; 250/500/250 gives exactly zero. A monohybrid cross is 3 R_ : 1 rr and Mendel's 5474/1850 is chi-square 0.263 against critical 3.841; incomplete dominance makes it 1 : 2 : 1; the dihybrid is 9 : 3 : 3 : 1 and 315/108/101/32 is 0.47 against 7.815. A three-couplet key walks to butterfly or moth and keeps the trail; a key that points at itself is caught as a loop rather than walked forever. A Newick string of seven taxa is depth 5 and (A,(B,(C,D))) is four and three. A five-card drill at seed 7 deals detritivore first and at seed 0 decomposer -- zero is a seed, not a missing one. The theory bench refuses K = 0, K1 = 0 and a negative distance in the page's own words, and the habitat chip carries area 2.5, temp 1.4, wind 0.6, distance 3.",
+ "policy": {
+  "allow": [
+   "SENSITIVE_READ",
+   "DRAFT",
+   "MUTATE"
+  ],
+  "needs": [],
+  "why": "nothing here removes a recorded row -- the drill and the key rebuild their own output, and every box is recomputed from the fields rather than cleared"
+ },
  "steps": [
   {
    "id": "look",
@@ -17,52 +26,15 @@
    "action": "read-report",
    "expect": {
     "ok": true,
+    "output.boxes.o-hotOut": "60%",
+    "output.boxes.o-setOut": "5",
+    "output.boxes.o-capOut": "12",
     "output.by.t-meadow-tiles.evenness J′": "0.73",
     "output.by.t-meadow-tiles.effective species": "29.2",
     "output.by.t-meadow-tiles.Chao1 est\\.": "100",
-    "output.by.t-island-tiles.residents / capacity": "12/12",
     "output.by.t-island-tiles.immigrations": "616",
     "output.by.t-island-tiles.extinctions": "604",
-    "output.by.t-island-tiles.mean residence": "16 ops",
-    "output.boxes.t-meadow-read": "moderately even — some keys busier than others.",
-    "output.by.wb-field-out.species": "5",
-    "output.by.wb-field-out.Shannon H′": "1.16",
-    "output.by.wb-field-out.evenness J′": "0.72",
-    "output.by.wb-field-out.effective species": "3.2",
-    "output.by.wb-field-out.Chao1 est\\.": "5",
-    "output.boxes.wb-field-out": {
-     "op": "contains",
-     "value": "moderately even — some keys busier than others."
-    },
-    "output.by.wb-quad-out.variance/mean": "26.12",
-    "output.by.wb-quad-out.Morisita": "3.51",
-    "output.boxes.wb-quad-out": {
-     "op": "contains",
-     "value": "clumped"
-    },
-    "output.by.wb-hw-out.p": "0.543",
-    "output.by.wb-hw-out.q": "0.458",
-    "output.by.wb-hw-out.χ² (df 1)": "0.22",
-    "output.boxes.wb-hw-out": {
-     "op": "contains",
-     "value": "expected 294 / 496 / 209"
-    },
-    "output.by.wb-sites-out.Jaccard": "0.5",
-    "output.by.wb-sites-out.Sørensen": "0.67",
-    "output.by.wb-sites-out.Bray–Curtis": "0.31",
-    "output.boxes.wb-sites-out": {
-     "op": "contains",
-     "value": "share 3 of 6 kinds"
-    },
-    "output.by.wb-mr-out.Lincoln–Petersen N̂": "360",
-    "output.by.wb-mr-out.Chapman N̂": "354",
-    "output.by.wb-mr-out.95% CI": "268–440",
-    "output.by.wb-tree-out.taxa": "7",
-    "output.by.wb-tree-out.depth": "6",
-    "output.boxes.wb-punnett-out": {
-     "op": "contains",
-     "value": "χ² = 0.263 (df 1, critical 3.841) — ✅ consistent with the Mendelian ratio."
-    }
+    "output.by.t-island-tiles.residents / capacity": "12/12"
    }
   },
   {
@@ -80,9 +52,8 @@
    "id": "uneven",
    "action": "read-report",
    "expect": {
+    "output.boxes.o-hotOut": "95%",
     "output.by.t-meadow-tiles.evenness J′": "0.43",
-    "output.by.t-meadow-tiles.effective species": "7",
-    "output.by.t-meadow-tiles.Chao1 est\\.": "117",
     "output.boxes.t-meadow-read": "uneven — a few hot keys carry most of the traffic."
    }
   },
@@ -112,9 +83,8 @@
    "id": "even",
    "action": "read-report",
    "expect": {
+    "output.boxes.o-setOut": "20",
     "output.by.t-meadow-tiles.evenness J′": "0.88",
-    "output.by.t-meadow-tiles.effective species": "57.7",
-    "output.by.t-meadow-tiles.Chao1 est\\.": "100",
     "output.boxes.t-meadow-read": "very even — no key dominates."
    }
   },
@@ -133,36 +103,453 @@
    "id": "island",
    "action": "read-report",
    "expect": {
-    "output.by.t-island-tiles.residents / capacity": "32/32",
+    "output.boxes.o-capOut": "32",
     "output.by.t-island-tiles.immigrations": "342",
     "output.by.t-island-tiles.extinctions": "310",
-    "output.by.t-island-tiles.mean residence": "72 ops"
+    "output.by.t-island-tiles.residents / capacity": "32/32"
    }
   },
   {
-   "id": "field",
+   "id": "field-defaults",
+   "action": "read-report",
+   "expect": {
+    "output.by.wb-field-out.species": "5",
+    "output.by.wb-field-out.Shannon H′": "1.16",
+    "output.by.wb-field-out.evenness J′": "0.72",
+    "output.by.wb-field-out.effective species": "3.2",
+    "output.by.wb-field-out.Chao1 est\\.": "5"
+   }
+  },
+  {
+   "id": "chip-name",
    "action": "set-text",
    "arguments": {
-    "selector": "@control:wb-field",
-    "value": "robin 34\nsparrow 21\nwren 8\nfinch 3\nthrush 1\nowl 1"
+    "selector": "@control:workbench/add a species (e.g. robin)",
+    "value": "heron"
    },
    "expect": {
     "ok": true
    }
   },
   {
-   "id": "field6",
-   "action": "read-report",
+   "id": "chip-count",
+   "action": "set-text",
+   "arguments": {
+    "selector": "@control:workbench/count",
+    "value": "5"
+   },
    "expect": {
-    "output.by.wb-field-out.species": "6",
-    "output.by.wb-field-out.Shannon H′": "1.22",
-    "output.by.wb-field-out.evenness J′": "0.68",
-    "output.by.wb-field-out.effective species": "3.4",
-    "output.by.wb-field-out.Chao1 est\\.": "7"
+    "ok": true
    }
   },
   {
-   "id": "aa",
+   "id": "chip-add",
+   "action": "activate",
+   "arguments": {
+    "selector": "@control:workbench/Add"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "field-six",
+   "action": "read-report",
+   "expect": {
+    "output.by.wb-field-out.species": "6",
+    "output.by.wb-field-out.Shannon H′": "1.33",
+    "output.by.wb-field-out.evenness J′": "0.75",
+    "output.by.wb-field-out.effective species": "3.8",
+    "output.by.wb-field-out.Chao1 est\\.": "6"
+   }
+  },
+  {
+   "id": "chip-wrote",
+   "action": "read-control",
+   "arguments": {
+    "selector": "@control:wb-field"
+   },
+   "expect": {
+    "ok": true,
+    "output.value": {
+     "op": "contains",
+     "value": "heron 5"
+    }
+   }
+  },
+  {
+   "id": "field-text",
+   "action": "set-text",
+   "arguments": {
+    "selector": "@control:wb-field",
+    "value": "robin 34\nsparrow 21\nwren 8\nfinch 3\nthrush 1"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "field-back",
+   "action": "read-report",
+   "expect": {
+    "output.by.wb-field-out.species": "5",
+    "output.by.wb-field-out.Shannon H′": "1.16",
+    "output.by.wb-field-out.Chao1 est\\.": "5"
+   }
+  },
+  {
+   "id": "sites-defaults",
+   "action": "read-report",
+   "expect": {
+    "output.figures.Jaccard": "0.5",
+    "output.figures.Sørensen": "0.67",
+    "output.figures.Bray–Curtis": "0.31",
+    "output.boxes.wb-sites-out": {
+     "op": "contains",
+     "value": "share 3 of 6"
+    }
+   }
+  },
+  {
+   "id": "lily-name",
+   "action": "set-text",
+   "arguments": {
+    "selector": "@control:workbench/site A species",
+    "value": "lily"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "lily-count",
+   "action": "set-text",
+   "arguments": {
+    "selector": "@control:workbench/site A count",
+    "value": "7"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "lily-add",
+   "action": "activate",
+   "arguments": {
+    "selector": "@control:workbench/Add#1"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "sites-lily",
+   "action": "read-report",
+   "expect": {
+    "output.figures.Jaccard": "0.67",
+    "output.figures.Sørensen": "0.8",
+    "output.figures.Bray–Curtis": "0.25",
+    "output.boxes.wb-sites-out": {
+     "op": "contains",
+     "value": "share 4 of 6"
+    }
+   }
+  },
+  {
+   "id": "site-b-same",
+   "action": "set-text",
+   "arguments": {
+    "selector": "@control:wb-siteB",
+    "value": "cattail 18\nduckweed 44\nfrogbit 3\nazolla 9\nrush 6\nlily 7"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "sites-identical",
+   "action": "read-report",
+   "expect": {
+    "output.figures.Jaccard": "1",
+    "output.figures.Sørensen": "1",
+    "output.figures.Bray–Curtis": "0",
+    "output.boxes.wb-sites-out": {
+     "op": "contains",
+     "value": "nearly identical communities"
+    }
+   }
+  },
+  {
+   "id": "site-a-text",
+   "action": "set-text",
+   "arguments": {
+    "selector": "@control:wb-siteA",
+    "value": "cattail 18\nduckweed 44\nfrogbit 3"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "sites-trimmed",
+   "action": "read-report",
+   "expect": {
+    "output.figures.Jaccard": "0.5",
+    "output.figures.Sørensen": "0.67",
+    "output.figures.Bray–Curtis": "0.14",
+    "output.boxes.wb-sites-out": {
+     "op": "contains",
+     "value": "share 3 of 6"
+    }
+   }
+  },
+  {
+   "id": "moss-name",
+   "action": "set-text",
+   "arguments": {
+    "selector": "@control:workbench/site B species",
+    "value": "moss"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "moss-count",
+   "action": "set-text",
+   "arguments": {
+    "selector": "@control:workbench/site B count",
+    "value": "5"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "moss-add",
+   "action": "activate",
+   "arguments": {
+    "selector": "@control:workbench/Add#2"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "sites-moss",
+   "action": "read-report",
+   "expect": {
+    "output.figures.Jaccard": "0.43",
+    "output.figures.Sørensen": "0.6",
+    "output.figures.Bray–Curtis": "0.17",
+    "output.boxes.wb-sites-out": {
+     "op": "contains",
+     "value": "share 3 of 7"
+    }
+   }
+  },
+  {
+   "id": "mr-defaults",
+   "action": "read-report",
+   "expect": {
+    "output.figures.Lincoln–Petersen N̂": "360",
+    "output.figures.Chapman N̂": "354",
+    "output.figures.95% CI": "268–440"
+   }
+  },
+  {
+   "id": "mr-r0",
+   "action": "set-text",
+   "arguments": {
+    "selector": "@control:wb-mrr",
+    "value": "0"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "mr-zero",
+   "action": "read-report",
+   "expect": {
+    "output.figures.Chapman N̂": "11,010",
+    "output.boxes.wb-mr-out": {
+     "op": "contains",
+     "value": "Lincoln–Petersen is undefined"
+    }
+   }
+  },
+  {
+   "id": "mr-m",
+   "action": "set-text",
+   "arguments": {
+    "selector": "@control:wb-mrm",
+    "value": "200"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "mr-c",
+   "action": "set-text",
+   "arguments": {
+    "selector": "@control:wb-mrc",
+    "value": "150"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "mr-r",
+   "action": "set-text",
+   "arguments": {
+    "selector": "@control:wb-mrr",
+    "value": "45"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "mr-again",
+   "action": "read-report",
+   "expect": {
+    "output.figures.Lincoln–Petersen N̂": "667",
+    "output.figures.Chapman N̂": "659",
+    "output.figures.95% CI": "521–797"
+   }
+  },
+  {
+   "id": "mr-bad",
+   "action": "set-text",
+   "arguments": {
+    "selector": "@control:wb-mrr",
+    "value": "180"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "mr-refused",
+   "action": "read-report",
+   "expect": {
+    "output.boxes.wb-mr-out": {
+     "op": "contains",
+     "value": "need M > 0, C > 0, 0 ≤ R ≤ min(M, C)"
+    }
+   }
+  },
+  {
+   "id": "mr-fix",
+   "action": "set-text",
+   "arguments": {
+    "selector": "@control:wb-mrr",
+    "value": "45"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "quad-defaults",
+   "action": "read-report",
+   "expect": {
+    "output.figures.variance/mean": "26.12",
+    "output.figures.Morisita": "3.51"
+   }
+  },
+  {
+   "id": "quad-even",
+   "action": "set-text",
+   "arguments": {
+    "selector": "@control:wb-quad",
+    "value": "5 5 5 5 5 5 5 5"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "quad-uniform",
+   "action": "read-report",
+   "expect": {
+    "output.figures.variance/mean": "0",
+    "output.figures.Morisita": "0.82"
+   }
+  },
+  {
+   "id": "quad-more",
+   "action": "set-text",
+   "arguments": {
+    "selector": "@control:wb-quad",
+    "value": "12 0 3 45 2 0 0 28 1 0 60 0"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "quad-twelve",
+   "action": "read-report",
+   "expect": {
+    "output.figures.variance/mean": "33.72",
+    "output.figures.Morisita": "3.4"
+   }
+  },
+  {
+   "id": "quad-one",
+   "action": "set-text",
+   "arguments": {
+    "selector": "@control:wb-quad",
+    "value": "7"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "quad-refused",
+   "action": "read-report",
+   "expect": {
+    "output.boxes.wb-quad-out": {
+     "op": "contains",
+     "value": "need at least two quadrats"
+    }
+   }
+  },
+  {
+   "id": "quad-back",
+   "action": "set-text",
+   "arguments": {
+    "selector": "@control:wb-quad",
+    "value": "12 0 3 45 2 0 0 28 1 0"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "hw-defaults",
+   "action": "read-report",
+   "expect": {
+    "output.figures.p": "0.543",
+    "output.figures.q": "0.458",
+    "output.figures.χ² (df 1)": "0.22",
+    "output.boxes.wb-hw-out": {
+     "op": "contains",
+     "value": "consistent with equilibrium"
+    },
+    "output.boxes.wb-hw-out#2": {
+     "op": "contains",
+     "value": "expected 294 / 496 / 209"
+    }
+   }
+  },
+  {
+   "id": "hw-aa",
    "action": "set-text",
    "arguments": {
     "selector": "@control:wb-aa",
@@ -173,32 +560,111 @@
    }
   },
   {
-   "id": "hw2",
+   "id": "hw-out",
    "action": "read-report",
    "expect": {
-    "output.by.wb-hw-out.p": "0.585",
-    "output.by.wb-hw-out.q": "0.415",
-    "output.by.wb-hw-out.χ² (df 1)": "8.19"
+    "output.figures.p": "0.585",
+    "output.figures.χ² (df 1)": "8.19",
+    "output.boxes.wb-hw-out": {
+     "op": "contains",
+     "value": "significantly out of equilibrium"
+    }
    }
   },
   {
-   "id": "recap",
+   "id": "hw-a",
    "action": "set-text",
    "arguments": {
-    "selector": "@control:wb-mrr",
-    "value": "20"
+    "selector": "@control:wb-aa",
+    "value": "250"
    },
    "expect": {
     "ok": true
    }
   },
   {
-   "id": "mr2",
+   "id": "hw-h",
+   "action": "set-text",
+   "arguments": {
+    "selector": "@control:wb-ab",
+    "value": "500"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "hw-b",
+   "action": "set-text",
+   "arguments": {
+    "selector": "@control:wb-bb",
+    "value": "250"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "hw-perfect",
    "action": "read-report",
    "expect": {
-    "output.by.wb-mr-out.Lincoln–Petersen N̂": "540",
-    "output.by.wb-mr-out.Chapman N̂": "523",
-    "output.by.wb-mr-out.95% CI": "349–698"
+    "output.figures.p": "0.5",
+    "output.figures.q": "0.5",
+    "output.figures.χ² (df 1)": "0"
+   }
+  },
+  {
+   "id": "punnett-defaults",
+   "action": "read-report",
+   "expect": {
+    "output.boxes.wb-punnett-out": {
+     "op": "contains",
+     "value": "phenotype ratio: 3 R_ : 1 rr"
+    },
+    "output.boxes.wb-punnett-out#2": {
+     "op": "contains",
+     "value": "χ² = 0.263"
+    },
+    "output.boxes.wb-punnett-out#3": {
+     "op": "contains",
+     "value": "df 1"
+    },
+    "output.boxes.wb-punnett-out#4": {
+     "op": "contains",
+     "value": "critical 3.841"
+    }
+   }
+  },
+  {
+   "id": "inc-on",
+   "action": "set-checkbox",
+   "arguments": {
+    "selector": "@control:wb-inc",
+    "checked": true
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "incomplete",
+   "action": "read-report",
+   "expect": {
+    "output.boxes.wb-punnett-out": {
+     "op": "contains",
+     "value": "1 RR : 2 Rr : 1 rr"
+    }
+   }
+  },
+  {
+   "id": "inc-off",
+   "action": "set-checkbox",
+   "arguments": {
+    "selector": "@control:wb-inc",
+    "checked": false
+   },
+   "expect": {
+    "ok": true
    }
   },
   {
@@ -206,7 +672,7 @@
    "action": "choose-option",
    "arguments": {
     "selector": "@control:wb-preset",
-    "value": "RrYy|RrYy|0|315 108 101 32"
+    "value": "Mendel's dihybrid: shape × color"
    },
    "expect": {
     "ok": true
@@ -218,8 +684,666 @@
    "expect": {
     "output.boxes.wb-punnett-out": {
      "op": "contains",
-     "value": "χ² = 0.47 (df 3, critical 7.815) — ✅ consistent with the Mendelian ratio."
+     "value": "9 R_Y_ : 3 R_yy : 3 rrY_ : 1 rryy"
+    },
+    "output.boxes.wb-punnett-out#2": {
+     "op": "contains",
+     "value": "χ² = 0.47"
+    },
+    "output.boxes.wb-punnett-out#3": {
+     "op": "contains",
+     "value": "df 3"
+    },
+    "output.boxes.wb-punnett-out#4": {
+     "op": "contains",
+     "value": "critical 7.815"
     }
+   }
+  },
+  {
+   "id": "p1",
+   "action": "set-text",
+   "arguments": {
+    "selector": "@control:wb-p1",
+    "value": "Rr"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "p2",
+   "action": "set-text",
+   "arguments": {
+    "selector": "@control:wb-p2",
+    "value": "rr"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "obs2",
+   "action": "set-text",
+   "arguments": {
+    "selector": "@control:wb-obs",
+    "value": ""
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "testcross",
+   "action": "read-report",
+   "expect": {
+    "output.boxes.wb-punnett-out": {
+     "op": "contains",
+     "value": "2 R_ : 2 rr"
+    }
+   }
+  },
+  {
+   "id": "key-in",
+   "action": "set-text",
+   "arguments": {
+    "selector": "@control:wb-key",
+    "value": "Does it have six legs? | 2 | =not an insect\nAre the front wings hardened into covers? | =beetle | 3\nAre there two pairs of scaled wings? | =butterfly or moth | =some other insect"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "key-start",
+   "action": "read-report",
+   "expect": {
+    "output.boxes.wb-key-out": {
+     "op": "contains",
+     "value": "Does it have six legs?"
+    }
+   }
+  },
+  {
+   "id": "key-yes",
+   "action": "activate",
+   "arguments": {
+    "selector": "@control:wb-key-out/yes"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "key-two",
+   "action": "read-report",
+   "expect": {
+    "output.boxes.wb-key-out": {
+     "op": "contains",
+     "value": "Are the front wings hardened"
+    }
+   }
+  },
+  {
+   "id": "key-no",
+   "action": "activate",
+   "arguments": {
+    "selector": "@control:wb-key-out/no"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "key-three",
+   "action": "read-report",
+   "expect": {
+    "output.boxes.wb-key-out": {
+     "op": "contains",
+     "value": "Are there two pairs of scaled wings?"
+    }
+   }
+  },
+  {
+   "id": "key-yes2",
+   "action": "activate",
+   "arguments": {
+    "selector": "@control:wb-key-out/yes"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "key-id",
+   "action": "read-report",
+   "expect": {
+    "output.boxes.wb-key-out": {
+     "op": "contains",
+     "value": "identification: butterfly or moth"
+    },
+    "output.boxes.wb-key-out#2": {
+     "op": "contains",
+     "value": "1: yes → 2: no → 3: yes"
+    }
+   }
+  },
+  {
+   "id": "key-loop",
+   "action": "set-text",
+   "arguments": {
+    "selector": "@control:wb-key",
+    "value": "Round and round? | 1 | 1"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "key-loop-yes",
+   "action": "activate",
+   "arguments": {
+    "selector": "@control:wb-key-out/yes"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "key-loops",
+   "action": "read-report",
+   "expect": {
+    "output.boxes.wb-key-out": {
+     "op": "contains",
+     "value": "this key loops"
+    }
+   }
+  },
+  {
+   "id": "key-bad",
+   "action": "set-text",
+   "arguments": {
+    "selector": "@control:wb-key",
+    "value": "no pipes here"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "key-shape",
+   "action": "read-report",
+   "expect": {
+    "output.boxes.wb-key-out": {
+     "op": "contains",
+     "value": "need question | yes | no"
+    }
+   }
+  },
+  {
+   "id": "tree-defaults",
+   "action": "read-report",
+   "expect": {
+    "output.figures.taxa": "7",
+    "output.figures.depth": "6"
+   }
+  },
+  {
+   "id": "tree-in",
+   "action": "set-text",
+   "arguments": {
+    "selector": "@control:wb-newick",
+    "value": "(A,(B,(C,D)));"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "tree-small",
+   "action": "read-report",
+   "expect": {
+    "output.figures.taxa": "4",
+    "output.figures.depth": "4"
+   }
+  },
+  {
+   "id": "tree-bad",
+   "action": "set-text",
+   "arguments": {
+    "selector": "@control:wb-newick",
+    "value": "(A,(B,C"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "tree-refused",
+   "action": "read-report",
+   "expect": {
+    "output.boxes.wb-tree-out": {
+     "op": "contains",
+     "value": "unbalanced '('"
+    }
+   }
+  },
+  {
+   "id": "tree-back",
+   "action": "set-text",
+   "arguments": {
+    "selector": "@control:wb-newick",
+    "value": "(Porifera,(Cnidaria,((Mollusca,Annelida),(Arthropoda,(Echinodermata,Chordata)))));"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "deck-list",
+   "action": "set-text",
+   "arguments": {
+    "selector": "@control:wb-decklist",
+    "value": "producer = makes its own food\nherbivore = eats plants\ncarnivore = eats animals\ndetritivore = eats dead matter\ndecomposer = breaks matter down"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "deck-seed",
+   "action": "set-text",
+   "arguments": {
+    "selector": "@control:wb-deckseed",
+    "value": "7"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "deck-start",
+   "action": "activate",
+   "arguments": {
+    "selector": "@control:wb-deckstart"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "deck-first",
+   "action": "read-report",
+   "expect": {
+    "output.boxes.wb-deck-out": {
+     "op": "contains",
+     "value": "detritivore"
+    }
+   }
+  },
+  {
+   "id": "deck-flip",
+   "action": "set-checkbox",
+   "arguments": {
+    "selector": "@control:wb-deckflip",
+    "checked": true
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "deck-again",
+   "action": "activate",
+   "arguments": {
+    "selector": "@control:wb-deckstart"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "deck-flipped",
+   "action": "read-report",
+   "expect": {
+    "output.boxes.wb-deck-out": {
+     "op": "contains",
+     "value": "eats dead matter"
+    }
+   }
+  },
+  {
+   "id": "deck-unflip",
+   "action": "set-checkbox",
+   "arguments": {
+    "selector": "@control:wb-deckflip",
+    "checked": false
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "deck-seed0",
+   "action": "set-text",
+   "arguments": {
+    "selector": "@control:wb-deckseed",
+    "value": "0"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "deck-zero",
+   "action": "activate",
+   "arguments": {
+    "selector": "@control:wb-deckstart"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "deck-zero-out",
+   "action": "read-report",
+   "expect": {
+    "output.boxes.wb-deck-out": {
+     "op": "contains",
+     "value": "decomposer"
+    }
+   }
+  },
+  {
+   "id": "deck-empty",
+   "action": "set-text",
+   "arguments": {
+    "selector": "@control:wb-decklist",
+    "value": ""
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "deck-none",
+   "action": "activate",
+   "arguments": {
+    "selector": "@control:wb-deckstart"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "deck-refused",
+   "action": "read-report",
+   "expect": {
+    "output.boxes.wb-deck-out": {
+     "op": "contains",
+     "value": "no cards"
+    }
+   }
+  },
+  {
+   "id": "deck-pick",
+   "action": "choose-option",
+   "arguments": {
+    "selector": "@control:wb-deck",
+    "value": "Skeleton — the bone practical"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "area",
+   "action": "set-text",
+   "arguments": {
+    "selector": "@control:wb-area",
+    "value": "2.5"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "temp",
+   "action": "set-text",
+   "arguments": {
+    "selector": "@control:wb-temp",
+    "value": "1.4"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "wind",
+   "action": "set-text",
+   "arguments": {
+    "selector": "@control:wb-wind",
+    "value": "0.6"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "dist",
+   "action": "set-text",
+   "arguments": {
+    "selector": "@control:wb-dist",
+    "value": "3"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "habitat",
+   "action": "read-report",
+   "expect": {
+    "output.boxes.wb-theory-out": {
+     "op": "contains",
+     "value": "habitat: area 2.5 · temp 1.4 · wind 0.6 · distance 3"
+    }
+   }
+  },
+  {
+   "id": "k-zero",
+   "action": "set-text",
+   "arguments": {
+    "selector": "@control:wb-mp1",
+    "value": "0"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "k-refused",
+   "action": "read-report",
+   "expect": {
+    "output.boxes.wb-theory-out": {
+     "op": "contains",
+     "value": "carrying capacity K must be > 0"
+    }
+   }
+  },
+  {
+   "id": "k-back",
+   "action": "set-text",
+   "arguments": {
+    "selector": "@control:wb-mp1",
+    "value": "120"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "steps-bad",
+   "action": "set-text",
+   "arguments": {
+    "selector": "@control:wb-mp3",
+    "value": "-1"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "steps-refused",
+   "action": "read-report",
+   "expect": {
+    "output.boxes.wb-theory-out": {
+     "op": "contains",
+     "value": "steps must be >= 0"
+    }
+   }
+  },
+  {
+   "id": "r-up",
+   "action": "set-text",
+   "arguments": {
+    "selector": "@control:wb-mp0",
+    "value": "0.25"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "n0",
+   "action": "set-text",
+   "arguments": {
+    "selector": "@control:wb-mp2",
+    "value": "10"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "steps",
+   "action": "set-text",
+   "arguments": {
+    "selector": "@control:wb-mp3",
+    "value": "30"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "logistic-again",
+   "action": "read-report",
+   "expect": {
+    "output.boxes.wb-theory-out": {
+     "op": "contains",
+     "value": "habitat: area 2.5 · temp 1.4 · wind 0.6 · distance 3"
+    },
+    "output.boxes.wb-theory-out#2": {
+     "op": "excludes",
+     "value": "cannot be drawn"
+    }
+   }
+  },
+  {
+   "id": "dist-bad",
+   "action": "set-text",
+   "arguments": {
+    "selector": "@control:wb-dist",
+    "value": "-1"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "dist-refused",
+   "action": "read-report",
+   "expect": {
+    "output.boxes.wb-theory-out": {
+     "op": "contains",
+     "value": "distance must be >= 0"
+    }
+   }
+  },
+  {
+   "id": "dist-fix",
+   "action": "set-text",
+   "arguments": {
+    "selector": "@control:wb-dist",
+    "value": "3"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "model-comp",
+   "action": "choose-option",
+   "arguments": {
+    "selector": "@control:wb-model",
+    "value": "L–V competition"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "competition",
+   "action": "read-report",
+   "expect": {
+    "output.boxes.wb-theory-out": {
+     "op": "contains",
+     "value": "species 1"
+    }
+   }
+  },
+  {
+   "id": "k1-zero",
+   "action": "set-text",
+   "arguments": {
+    "selector": "@control:wb-mp1",
+    "value": "0"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "k1-refused",
+   "action": "read-report",
+   "expect": {
+    "output.boxes.wb-theory-out": {
+     "op": "contains",
+     "value": "carrying capacity K₁ must be > 0"
+    }
+   }
+  },
+  {
+   "id": "k1-back",
+   "action": "set-text",
+   "arguments": {
+    "selector": "@control:wb-mp1",
+    "value": "100"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "model-back",
+   "action": "choose-option",
+   "arguments": {
+    "selector": "@control:wb-model",
+    "value": "logistic growth"
+   },
+   "expect": {
+    "ok": true
    }
   },
   {
@@ -239,22 +1363,41 @@
     "selector": "@control:wb-eco-out"
    },
    "expect": {
+    "ok": true,
     "output.value": {
      "op": "contains",
-     "value": "model: hardyweinberg 400 489 213"
+     "value": "data: "
     }
    }
   },
   {
-   "id": "eco2",
-   "action": "read-control",
+   "id": "eco-in",
+   "action": "set-text",
    "arguments": {
-    "selector": "@control:wb-eco-out"
+    "selector": "@control:wb-eco-in",
+    "value": "name: imported pond\ndata: pondA cattail=18 duckweed=44 azolla=9\n"
    },
    "expect": {
-    "output.value": {
+    "ok": true
+   }
+  },
+  {
+   "id": "eco-import",
+   "action": "activate",
+   "arguments": {
+    "selector": "@control:wb-eco-import"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "eco-imported",
+   "action": "read-report",
+   "expect": {
+    "output.boxes.wb-eco-in-out": {
      "op": "contains",
-     "value": "cross: RrYy x RrYy observed 315 108 101 32"
+     "value": "imported"
     }
    }
   },
@@ -262,11 +1405,8 @@
    "id": "still",
    "action": "read-report",
    "expect": {
-    "output.boxes.wb-punnett-out": {
-     "op": "contains",
-     "value": "phenotype ratio: 9 R_Y_ : 3 R_yy : 3 rrY_ : 1 rryy"
-    },
-    "output.by.wb-hw-out.p": "0.585"
+    "output.by.wb-field-out.species": "3",
+    "output.by.wb-field-out.Shannon H′": "0.91"
    }
   },
   {
