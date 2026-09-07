@@ -1,0 +1,492 @@
+{
+ "_comment": "Written by tools/audit_outputs.py. Per page: the buttons that hand something over, what came out of each, whether the page's own task reads it, and the ceiling the unread count may not rise above (ADR-153).",
+ "pages": {
+  "breeding-bench.html": {
+   "at": 1788782693,
+   "buttons": 1,
+   "ceiling": 0,
+   "counts": {
+    "emits": 0,
+    "held": 0,
+    "silent": 1,
+    "unreachable": 0
+   },
+   "task": "page-breeding-bench-science",
+   "unread": []
+  },
+  "collection-sheet.html": {
+   "at": 1788782693,
+   "buttons": 8,
+   "ceiling": 0,
+   "counts": {
+    "emits": 6,
+    "held": 6,
+    "silent": 2,
+    "unreachable": 0
+   },
+   "task": "page-collection-sheet-science",
+   "unread": []
+  },
+  "cp-bench.html": {
+   "at": 1788782693,
+   "buttons": 2,
+   "ceiling": 1,
+   "counts": {
+    "emits": 1,
+    "held": 0,
+    "silent": 1,
+    "unreachable": 0
+   },
+   "task": "page-cp-bench-science",
+   "unread": [
+    "mCopy"
+   ]
+  },
+  "cp-characters.html": {
+   "at": 1788782693,
+   "buttons": 1,
+   "ceiling": 0,
+   "counts": {
+    "emits": 0,
+    "held": 0,
+    "silent": 0,
+    "unreachable": 1
+   },
+   "task": "page-cp-characters-key",
+   "unread": []
+  },
+  "cp-suite.html": {
+   "at": 1788782693,
+   "buttons": 1,
+   "ceiling": 0,
+   "counts": {
+    "emits": 0,
+    "held": 0,
+    "silent": 0,
+    "unreachable": 1
+   },
+   "task": null,
+   "unread": []
+  },
+  "deployment-log.html": {
+   "at": 1788782693,
+   "buttons": 3,
+   "ceiling": 2,
+   "counts": {
+    "emits": 3,
+    "held": 1,
+    "silent": 0,
+    "unreachable": 0
+   },
+   "task": "page-deployment-log-science",
+   "unread": [
+    "ecoCopy",
+    "p-log/Print / save PDF"
+   ]
+  },
+  "eco-protocol-library.html": {
+   "at": 1788782693,
+   "buttons": 3,
+   "ceiling": 1,
+   "counts": {
+    "emits": 1,
+    "held": 0,
+    "silent": 0,
+    "unreachable": 2
+   },
+   "task": "page-eco-protocol-library-reference",
+   "unread": [
+    "Copy"
+   ]
+  },
+  "eco-protocol-reference.html": {
+   "at": 1788782693,
+   "buttons": 1,
+   "ceiling": 0,
+   "counts": {
+    "emits": 0,
+    "held": 0,
+    "silent": 0,
+    "unreachable": 1
+   },
+   "task": null,
+   "unread": []
+  },
+  "ecology-essay.html": {
+   "at": 1788782693,
+   "buttons": 1,
+   "ceiling": 0,
+   "counts": {
+    "emits": 0,
+    "held": 0,
+    "silent": 0,
+    "unreachable": 1
+   },
+   "task": null,
+   "unread": []
+  },
+  "ecology-field-card.html": {
+   "at": 1788782693,
+   "buttons": 1,
+   "ceiling": 0,
+   "counts": {
+    "emits": 0,
+    "held": 0,
+    "silent": 0,
+    "unreachable": 1
+   },
+   "task": null,
+   "unread": []
+  },
+  "ecology-field-guide.html": {
+   "at": 1788782693,
+   "buttons": 1,
+   "ceiling": 0,
+   "counts": {
+    "emits": 0,
+    "held": 0,
+    "silent": 0,
+    "unreachable": 1
+   },
+   "task": null,
+   "unread": []
+  },
+  "ecology-glossary.html": {
+   "at": 1788782693,
+   "buttons": 1,
+   "ceiling": 0,
+   "counts": {
+    "emits": 0,
+    "held": 0,
+    "silent": 0,
+    "unreachable": 1
+   },
+   "task": null,
+   "unread": []
+  },
+  "ecology-lab-manual.html": {
+   "at": 1788782693,
+   "buttons": 1,
+   "ceiling": 0,
+   "counts": {
+    "emits": 0,
+    "held": 0,
+    "silent": 0,
+    "unreachable": 1
+   },
+   "task": null,
+   "unread": []
+  },
+  "ecology-lab.html": {
+   "at": 1788782693,
+   "buttons": 4,
+   "ceiling": 0,
+   "counts": {
+    "emits": 0,
+    "held": 0,
+    "silent": 3,
+    "unreachable": 1
+   },
+   "task": "page-ecology-lab-science",
+   "unread": []
+  },
+  "ecology-teachers-guide.html": {
+   "at": 1788782693,
+   "buttons": 4,
+   "ceiling": 0,
+   "counts": {
+    "emits": 0,
+    "held": 0,
+    "silent": 0,
+    "unreachable": 4
+   },
+   "task": null,
+   "unread": []
+  },
+  "ecology.html": {
+   "at": 1788782693,
+   "buttons": 8,
+   "ceiling": 0,
+   "counts": {
+    "emits": 0,
+    "held": 0,
+    "silent": 0,
+    "unreachable": 8
+   },
+   "task": null,
+   "unread": []
+  },
+  "ethogram.html": {
+   "at": 1788782693,
+   "buttons": 5,
+   "ceiling": 3,
+   "counts": {
+    "emits": 3,
+    "held": 0,
+    "silent": 2,
+    "unreachable": 0
+   },
+   "task": "page-ethogram-kappa",
+   "unread": [
+    "ecoCopy",
+    "packExport",
+    "packPrompt"
+   ]
+  },
+  "experiment-guide.html": {
+   "at": 1788782693,
+   "buttons": 12,
+   "ceiling": 5,
+   "counts": {
+    "emits": 5,
+    "held": 0,
+    "silent": 3,
+    "unreachable": 4
+   },
+   "task": "page-experiment-guide-design",
+   "unread": [
+    "cl-print",
+    "eco-copy",
+    "eco-download",
+    "eng-copy",
+    "eng-skel"
+   ]
+  },
+  "farm-scout.html": {
+   "at": 1788782693,
+   "buttons": 3,
+   "ceiling": 3,
+   "counts": {
+    "emits": 3,
+    "held": 0,
+    "silent": 0,
+    "unreachable": 0
+   },
+   "task": "page-farm-scout-science",
+   "unread": [
+    "csvCopy",
+    "ecoCopy",
+    "p-rot/Print / save PDF"
+   ]
+  },
+  "field-notebook.html": {
+   "at": 1788782693,
+   "buttons": 4,
+   "ceiling": 3,
+   "counts": {
+    "emits": 3,
+    "held": 0,
+    "silent": 0,
+    "unreachable": 1
+   },
+   "task": "page-field-notebook-science",
+   "unread": [
+    "csvCopy",
+    "ecoCopy",
+    "p-more/Print / save PDF"
+   ]
+  },
+  "field-season.html": {
+   "at": 1788782693,
+   "buttons": 1,
+   "ceiling": 1,
+   "counts": {
+    "emits": 1,
+    "held": 0,
+    "silent": 0,
+    "unreachable": 0
+   },
+   "task": "page-field-season-replay",
+   "unread": [
+    "results/Print the season"
+   ]
+  },
+  "food-web.html": {
+   "at": 1788782693,
+   "buttons": 3,
+   "ceiling": 3,
+   "counts": {
+    "emits": 3,
+    "held": 0,
+    "silent": 0,
+    "unreachable": 0
+   },
+   "task": "page-food-web-science",
+   "unread": [
+    "Print / save PDF",
+    "csvCopy",
+    "ecoCopy"
+   ]
+  },
+  "fungal-characters.html": {
+   "at": 1788782693,
+   "buttons": 3,
+   "ceiling": 0,
+   "counts": {
+    "emits": 0,
+    "held": 0,
+    "silent": 2,
+    "unreachable": 1
+   },
+   "task": "page-fungal-characters-key",
+   "unread": []
+  },
+  "greenhouse.html": {
+   "at": 1788782693,
+   "buttons": 6,
+   "ceiling": 2,
+   "counts": {
+    "emits": 2,
+    "held": 0,
+    "silent": 4,
+    "unreachable": 0
+   },
+   "task": "page-greenhouse-science",
+   "unread": [
+    "ghCopy",
+    "p-out/Print / save PDF"
+   ]
+  },
+  "ordination.html": {
+   "at": 1788782693,
+   "buttons": 3,
+   "ceiling": 3,
+   "counts": {
+    "emits": 3,
+    "held": 0,
+    "silent": 0,
+    "unreachable": 0
+   },
+   "task": "page-ordination-science",
+   "unread": [
+    "copyCoord",
+    "copyDis",
+    "p-ord/Print / save PDF"
+   ]
+  },
+  "pheno-tracker.html": {
+   "at": 1788782693,
+   "buttons": 5,
+   "ceiling": 3,
+   "counts": {
+    "emits": 3,
+    "held": 0,
+    "silent": 0,
+    "unreachable": 2
+   },
+   "task": "page-pheno-tracker-science",
+   "unread": [
+    "csvCopy",
+    "ecoCopy",
+    "p-seg/Print / save PDF"
+   ]
+  },
+  "plant-characters.html": {
+   "at": 1788782693,
+   "buttons": 1,
+   "ceiling": 0,
+   "counts": {
+    "emits": 0,
+    "held": 0,
+    "silent": 0,
+    "unreachable": 1
+   },
+   "task": "page-plant-characters-key",
+   "unread": []
+  },
+  "releve.html": {
+   "at": 1788782693,
+   "buttons": 7,
+   "ceiling": 0,
+   "counts": {
+    "emits": 7,
+    "held": 7,
+    "silent": 0,
+    "unreachable": 0
+   },
+   "task": "page-releve-science",
+   "unread": []
+  },
+  "selection-log.html": {
+   "at": 1788782693,
+   "buttons": 3,
+   "ceiling": 3,
+   "counts": {
+    "emits": 3,
+    "held": 0,
+    "silent": 0,
+    "unreachable": 0
+   },
+   "task": "page-selection-log-science",
+   "unread": [
+    "csvCopy",
+    "ecoCopy",
+    "indCopy"
+   ]
+  },
+  "soil-bench.html": {
+   "at": 1788782693,
+   "buttons": 1,
+   "ceiling": 1,
+   "counts": {
+    "emits": 1,
+    "held": 0,
+    "silent": 0,
+    "unreachable": 0
+   },
+   "task": "page-soil-bench-science",
+   "unread": [
+    "mCopy"
+   ]
+  },
+  "soil-recipes.html": {
+   "at": 1788782693,
+   "buttons": 2,
+   "ceiling": 2,
+   "counts": {
+    "emits": 2,
+    "held": 0,
+    "silent": 0,
+    "unreachable": 0
+   },
+   "task": "page-soil-recipes-scaling",
+   "unread": [
+    "Print / save PDF",
+    "recCopy"
+   ]
+  },
+  "stand-sheet.html": {
+   "at": 1788782693,
+   "buttons": 7,
+   "ceiling": 0,
+   "counts": {
+    "emits": 7,
+    "held": 7,
+    "silent": 0,
+    "unreachable": 0
+   },
+   "task": "page-stand-sheet-science",
+   "unread": []
+  },
+  "survey-design.html": {
+   "at": 1788782693,
+   "buttons": 7,
+   "ceiling": 6,
+   "counts": {
+    "emits": 6,
+    "held": 0,
+    "silent": 1,
+    "unreachable": 0
+   },
+   "task": "page-survey-design-science",
+   "unread": [
+    "cpEvent",
+    "cpHum",
+    "cpOcc",
+    "cpRead",
+    "p-out/Print / save PDF",
+    "tree/copy ID"
+   ]
+  }
+ }
+}

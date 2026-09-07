@@ -373,6 +373,57 @@ FEK picker through its filter; a task names a control the page's way with
 tasks — one per data-entry page — enter data and hold the report to a
 hand-checked oracle; a page canary is refuted; 1,316 expectations confirmed.
 
+ADR-153 MEASURED WHAT EACH PAGE HANDS OVER, which is the other end of the
+sentence entry_reach measures: entry_reach asks how much of a page's data its own
+task ENTERS, and audit_outputs asks how much of what a page PRODUCES its own task
+READS. Those are not the same question, and the gap between them is where a whole
+class of defect lives -- every figure this kit holds is read off the SCREEN,
+while the file is built by different code (a cell() that quotes commas, a Darwin
+Core row that maps a cover class to organismQuantity, an .eco line that writes
+cover x10 as integers), and none of it had ever been looked at. THE SCREEN AND
+THE FILE CAN DISAGREE AND NOTHING WOULD SAY SO. 63 outputs across 19 pages
+actually hand something over and 62 OF THEM LEFT WITH NOTHING READING THEM -- the
+one exception being the deployment CSV ADR-152 wrote the day before. FOUR
+DECISIONS CARRY THE MEASUREMENT. A candidate is NAMED, not proved: a button is a
+candidate before it is pressed or there is no experiment, and the rule is its
+label -- copy, download, export, print, save, as WHOLE WORDS, because "Preprint
+checklist" is not an export and matching inside a word is where a naive rule
+starts pressing things. "FORGET THIS DEVICE'S COPY" IS NOT PRESSED: it matches
+copy, and the answer would be a lost autosave; the rule is not written twice but
+is harness_plugin_page.destroys, the same rule the gateway's risk ladder raises
+DESTRUCTIVE on. A PAGE WITH A TASK IS MEASURED WITH ITS OWN DATA IN IT, because
+an export pressed at rest hands over the placeholder a page shows when it has
+nothing to hand over -- "# log a deployment, the sheet builds itself" -- and that
+IS a payload, so the button would be recorded as emitting the empty page's bytes
+and never asked again. And HELD MEANS PRESSED *AND* READ: pressing an export is
+not reading it, which is the whole point, since the deployment log's Copy button
+was pressed by its task for two ADRs before anything asked what came out. An
+earlier draft asked each button again in every later state, on the theory that
+one behind a tab could not be pressed until its pane was open; it can, because
+the plugin's own _reach opens the pane before it acts, and with the ladder
+removed the kit's reading is identical to the digit -- so it is gone. THREE
+SHEETS NOW READ WHAT THEY HAND OVER -- the collection sheet, the releve and the
+stand sheet, the pages where "the file is the product" bites hardest and which
+carry 20 of the 63 between them -- and THE CLAIM IS AGREEMENT, NOT A SECOND
+DERIVATION: each step asserts the export carries a figure the task ALREADY HOLDS
+ON SCREEN (the releve's Shannon H' 0.67, FQI 7.5, prevalence index 4.77, its
+matrix row WAS-12,62.5,0.5,3.0,15.0), and the generator REFUSES any figure the
+task does not already hold, allowing only the export's own decimal padding
+because 15% on screen is 15.0 in a column written to one decimal. Also held now:
+every schema line, which is a promise to whoever reads the file and was checked
+by nothing; the two sheets' Print / save PDF, on panes their tasks had never
+opened; and the reference packs and prompts. The kit goes 62 -> 42 unread and 1
+-> 21 held. NINETEEN BUTTONS ARE SILENT -- pressed after the entry and nothing
+left the page -- and every one refuses honestly ("Nothing recorded", "Nothing
+loaded") because the page's own task never records a session or loads a log:
+that is an entry-reach gap and not an export defect, and silent is not on the
+worklist. verify_outputs 26, mutate_outputs 24. Held: it measures REACH, not
+correctness -- a task that reads a payload and asserts nothing about it counts as
+holding it, the same bargain entry_reach makes; 42 outputs on 16 pages are still
+unread and the ceiling holds them; and the candidate rule is the page's own
+vocabulary, so a file handed over under some other name is invisible, which is
+why the rule is in one place.
+
 ADR-152 FOUND A TOOL THAT ONLY WORKED FOR THE ROBOT. `collect-output` is one of
 the 22 actions the page plugin PUBLISHES: it is in the manifest, every task may
 call it, and it is the only way to read what leaves a page through a Copy button,

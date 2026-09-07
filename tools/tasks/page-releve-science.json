@@ -1219,6 +1219,213 @@
    }
   },
   {
+   "id": "g153-print-pane",
+   "action": "show-pane",
+   "arguments": {
+    "pane": "p-met"
+   }
+  },
+  {
+   "id": "g153-print-press",
+   "action": "activate",
+   "arguments": {
+    "selector": "@control:p-met/Print / save PDF"
+   }
+  },
+  {
+   "id": "g153-print",
+   "action": "collect-output",
+   "expect": {
+    "output.payloads.0.k": "print"
+   }
+  },
+  {
+   "id": "g153-csv-press",
+   "action": "activate",
+   "arguments": {
+    "selector": "@control:csvCopy"
+   }
+  },
+  {
+   "id": "g153-csv",
+   "action": "collect-output",
+   "expect": {
+    "output.payloads.0.k": {
+     "op": "in",
+     "value": [
+      "copy",
+      "clipboard",
+      "download",
+      "print"
+     ]
+    },
+    "output.payloads.0.text": {
+     "op": "contains",
+     "value": "plot,scientific,common,family,growth_form,status,stratum,cover_class,cover_pct,phenophase,wetland_status,c_value"
+    },
+    "output.payloads.0.text#2": {
+     "op": "contains",
+     "value": "WAS-12,Bromus tectorum,cheatgrass,Poaceae,graminoid,invasive,H,+,0.5,fruiting,FACU,"
+    }
+   }
+  },
+  {
+   "id": "g153-dwc-press",
+   "action": "activate",
+   "arguments": {
+    "selector": "@control:dwcCopy"
+   }
+  },
+  {
+   "id": "g153-dwc",
+   "action": "collect-output",
+   "expect": {
+    "output.payloads.0.k": {
+     "op": "in",
+     "value": [
+      "copy",
+      "clipboard",
+      "download",
+      "print"
+     ]
+    },
+    "output.payloads.0.text": {
+     "op": "contains",
+     "value": "occurrenceID,basisOfRecord,scientificName,eventDate,recordedBy,decimalLatitude,decimalLongitude,geodeticDatum"
+    },
+    "output.payloads.0.text#2": {
+     "op": "contains",
+     "value": "Artemisia tridentata"
+    }
+   }
+  },
+  {
+   "id": "g153-eco-press",
+   "action": "activate",
+   "arguments": {
+    "selector": "@control:ecoCopy"
+   }
+  },
+  {
+   "id": "g153-eco",
+   "action": "collect-output",
+   "expect": {
+    "output.payloads.0.k": {
+     "op": "in",
+     "value": [
+      "copy",
+      "clipboard",
+      "download",
+      "print"
+     ]
+    },
+    "output.payloads.0.text": {
+     "op": "contains",
+     "value": "# 4 taxa, Shannon H' 0.67 (on cover), evenness J' 0.48"
+    },
+    "output.payloads.0.text#2": {
+     "op": "contains",
+     "value": "note: FQA mean C 4.33 over 3 scored natives, FQI 7.5"
+    },
+    "output.payloads.0.text#3": {
+     "op": "contains",
+     "value": "note: wetland prevalence index 4.77 over 4 scored taxa"
+    }
+   }
+  },
+  {
+   "id": "g153-mat-press",
+   "action": "activate",
+   "arguments": {
+    "selector": "@control:matCopy"
+   }
+  },
+  {
+   "id": "g153-mat",
+   "action": "collect-output",
+   "expect": {
+    "output.payloads.0.k": {
+     "op": "in",
+     "value": [
+      "copy",
+      "clipboard",
+      "download",
+      "print"
+     ]
+    },
+    "output.payloads.0.text": {
+     "op": "contains",
+     "value": "plot,Artemisia tridentata,Bromus tectorum,Poa secunda,Pseudoroegneria spicata"
+    },
+    "output.payloads.0.text#2": {
+     "op": "contains",
+     "value": "WAS-12,62.5,0.5,3.0,15.0"
+    }
+   }
+  },
+  {
+   "id": "g153-pack-press",
+   "action": "activate",
+   "arguments": {
+    "selector": "@control:packExport"
+   }
+  },
+  {
+   "id": "g153-pack",
+   "action": "collect-output",
+   "expect": {
+    "output.payloads.0.k": {
+     "op": "in",
+     "value": [
+      "copy",
+      "clipboard",
+      "download",
+      "print"
+     ]
+    },
+    "output.payloads.0.text": {
+     "op": "contains",
+     "value": "\"species\": ["
+    }
+   }
+  },
+  {
+   "id": "g153-prompt-press",
+   "action": "activate",
+   "arguments": {
+    "selector": "@control:packPrompt"
+   }
+  },
+  {
+   "id": "g153-prompt",
+   "action": "collect-output",
+   "expect": {
+    "output.payloads.0.k": {
+     "op": "in",
+     "value": [
+      "copy",
+      "clipboard",
+      "download",
+      "print"
+     ]
+    },
+    "output.payloads.0.text": {
+     "op": "contains",
+     "value": "Write a flora pack for a vegetation relev"
+    }
+   }
+  },
+  {
+   "id": "g153-close",
+   "action": "read-report",
+   "expect": {
+    "output.boxes.ecoOut": {
+     "op": "contains",
+     "value": "# Relevé — WAS-12"
+    }
+   }
+  },
+  {
    "id": "intact",
    "action": "read-page",
    "expect": {

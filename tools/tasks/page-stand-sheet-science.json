@@ -1691,6 +1691,205 @@
    }
   },
   {
+   "id": "g153-print-pane",
+   "action": "show-pane",
+   "arguments": {
+    "pane": "p-plot"
+   }
+  },
+  {
+   "id": "g153-print-press",
+   "action": "activate",
+   "arguments": {
+    "selector": "@control:p-plot/Print / save PDF"
+   }
+  },
+  {
+   "id": "g153-print",
+   "action": "collect-output",
+   "expect": {
+    "output.payloads.0.k": "print"
+   }
+  },
+  {
+   "id": "g153-csv-press",
+   "action": "activate",
+   "arguments": {
+    "selector": "@control:csvCopy"
+   }
+  },
+  {
+   "id": "g153-csv",
+   "action": "collect-output",
+   "expect": {
+    "output.payloads.0.k": {
+     "op": "in",
+     "value": [
+      "copy",
+      "clipboard",
+      "download",
+      "print"
+     ]
+    },
+    "output.payloads.0.text": {
+     "op": "contains",
+     "value": "plot,stem,common,scientific,dbh_cm,height_m,crown_class,status,ba_m2,ba_m2_ha,note"
+    },
+    "output.payloads.0.text#2": {
+     "op": "contains",
+     "value": "SGH-07,1,Douglas-fir,Pseudotsuga menziesii,30,34,D,L,"
+    }
+   }
+  },
+  {
+   "id": "g153-dwc-press",
+   "action": "activate",
+   "arguments": {
+    "selector": "@control:dwcCopy"
+   }
+  },
+  {
+   "id": "g153-dwc",
+   "action": "collect-output",
+   "expect": {
+    "output.payloads.0.k": {
+     "op": "in",
+     "value": [
+      "copy",
+      "clipboard",
+      "download",
+      "print"
+     ]
+    },
+    "output.payloads.0.text": {
+     "op": "contains",
+     "value": "occurrenceID,basisOfRecord,scientificName,eventDate,recordedBy,decimalLatitude,decimalLongitude,geodeticDatum"
+    },
+    "output.payloads.0.text#2": {
+     "op": "contains",
+     "value": "Pseudotsuga menziesii"
+    }
+   }
+  },
+  {
+   "id": "g153-eco-press",
+   "action": "activate",
+   "arguments": {
+    "selector": "@control:ecoCopy"
+   }
+  },
+  {
+   "id": "g153-eco",
+   "action": "collect-output",
+   "expect": {
+    "output.payloads.0.k": {
+     "op": "in",
+     "value": [
+      "copy",
+      "clipboard",
+      "download",
+      "print"
+     ]
+    },
+    "output.payloads.0.text": {
+     "op": "contains",
+     "value": "# plot: circle r=11.28 m = 400 m² (0.0400 ha), EF 25.0, min DBH 5 cm, breast height 1.37 m"
+    }
+   }
+  },
+  {
+   "id": "g153-web-press",
+   "action": "activate",
+   "arguments": {
+    "selector": "@control:webCopy"
+   }
+  },
+  {
+   "id": "g153-web",
+   "action": "collect-output",
+   "expect": {
+    "output.payloads.0.k": {
+     "op": "in",
+     "value": [
+      "copy",
+      "clipboard",
+      "download",
+      "print"
+     ]
+    },
+    "output.payloads.0.text": {
+     "op": "contains",
+     "value": "food,eater,interaction,evidence,confidence,note"
+    },
+    "output.payloads.0.text#2": {
+     "op": "contains",
+     "value": "ponderosa pine,mule deer,herbivory / browse,sign,high"
+    }
+   }
+  },
+  {
+   "id": "g153-pack-press",
+   "action": "activate",
+   "arguments": {
+    "selector": "@control:packExport"
+   }
+  },
+  {
+   "id": "g153-pack",
+   "action": "collect-output",
+   "expect": {
+    "output.payloads.0.k": {
+     "op": "in",
+     "value": [
+      "copy",
+      "clipboard",
+      "download",
+      "print"
+     ]
+    },
+    "output.payloads.0.text": {
+     "op": "contains",
+     "value": "\"regions\": ["
+    }
+   }
+  },
+  {
+   "id": "g153-prompt-press",
+   "action": "activate",
+   "arguments": {
+    "selector": "@control:packCopyPrompt"
+   }
+  },
+  {
+   "id": "g153-prompt",
+   "action": "collect-output",
+   "expect": {
+    "output.payloads.0.k": {
+     "op": "in",
+     "value": [
+      "copy",
+      "clipboard",
+      "download",
+      "print"
+     ]
+    },
+    "output.payloads.0.text": {
+     "op": "contains",
+     "value": "Write a species pack for a field tree-identification app"
+    }
+   }
+  },
+  {
+   "id": "g153-close",
+   "action": "read-report",
+   "expect": {
+    "output.boxes.ecoOut": {
+     "op": "contains",
+     "value": "# stand: 4 live stems, 0 snags"
+    }
+   }
+  },
+  {
    "id": "intact",
    "action": "read-page",
    "expect": {

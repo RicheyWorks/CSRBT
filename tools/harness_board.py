@@ -85,6 +85,7 @@ RUNNERS = [
     ("mutate_entry", "the entry-reach measurement"),
     ("mutate_readable", "the readable-figures audit"),
     ("mutate_badinput", "the rejected-buffer audit"),
+    ("mutate_outputs", "the outputs audit"),
     ("mutate_delivery", "the delivery manifest and its audit"),
 ]
 

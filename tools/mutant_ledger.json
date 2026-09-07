@@ -1467,6 +1467,142 @@
    ],
    "survived": 0
   },
+  "mutate_outputs": {
+   "at": 1788780056,
+   "equivalent": 1,
+   "equivalents": [
+    {
+     "name": "a button is keyed by its label alone rather than id-then-label",
+     "why": "`key_of` -> return the label only. Every button on the fixture, and every export in the kit, has either an id or a label unique on its page, so the two keyings agree everywhere a fixture can reach. The id is preferred because it is what a task's selector usually names, and a page that grew two buttons with one label would key them together -- which is a fact about pages that do not exist yet."
+    }
+   ],
+   "inconclusive": 0,
+   "killed": 24,
+   "mutants": 24,
+   "rows": [
+    {
+     "detail": "7 failure(s); first: a verb INSIDE a word is not a verb: 'Preprint checklist' is",
+     "name": "every control is a candidate, so a page's whole toolbar is pressed",
+     "verdict": "killed"
+    },
+    {
+     "detail": "1 failure(s); first: a verb INSIDE a word is not a verb: 'Preprint checklist' is",
+     "name": "the verb matches inside a word, so anything with save in it hands something over",
+     "verdict": "killed"
+    },
+    {
+     "detail": "1 failure(s); first: and neither is a TEXT BOX whose label happens to say save -",
+     "name": "a text box is a control that hands something over",
+     "verdict": "killed"
+    },
+    {
+     "detail": "6 failure(s); first: a control whose NAME says it hands something over is a cand",
+     "name": "print is not a verb, so the print path is never measured",
+     "verdict": "killed"
+    },
+    {
+     "detail": "7 failure(s); first: 'Forget this device's copy' matches `copy` and is NOT a can",
+     "name": "the gateway's own risk rule is not consulted, and Forget is pressed",
+     "verdict": "killed"
+    },
+    {
+     "detail": "10 failure(s); first: ...and it was not pressed, which is the claim that matters",
+     "name": "the page is measured from rest, so an export hands over the empty-state line",
+     "verdict": "killed"
+    },
+    {
+     "detail": "11 failure(s); first: a control whose NAME says it hands something over is a can",
+     "name": "the entry is never replayed at all",
+     "verdict": "killed"
+    },
+    {
+     "detail": "11 failure(s); first: a control whose NAME says it hands something over is a can",
+     "name": "the states are not walked, so a button behind a tab is never pressed",
+     "verdict": "killed"
+    },
+    {
+     "detail": "14 failure(s); first: ...and it was not pressed, which is the claim that matters",
+     "name": "the payloads are never asked for, so nothing emits",
+     "verdict": "killed"
+    },
+    {
+     "detail": "12 failure(s); first: a button that refuses while the page is empty and hands ov",
+     "name": "the button is never pressed, so the payloads are somebody else's",
+     "verdict": "killed"
+    },
+    {
+     "detail": "1 failure(s); first: ...and a Blob download comes back as one: {'key': 'dl', 'la",
+     "name": "a download is not an output",
+     "verdict": "killed"
+    },
+    {
+     "detail": "7 failure(s); first: an output the task presses and never asks about is NOT held",
+     "name": "pressing an output counts as reading it",
+     "verdict": "killed"
+    },
+    {
+     "detail": "7 failure(s); first: an output the task presses and never asks about is NOT held",
+     "name": "the task is credited with reading everything it pressed",
+     "verdict": "killed"
+    },
+    {
+     "detail": "7 failure(s); first: an output the task presses and never asks about is NOT held",
+     "name": "a collect-output reads a button the task presses LATER in the run",
+     "verdict": "killed"
+    },
+    {
+     "detail": "6 failure(s); first: an output the task presses and then asks about is HELD: {'k",
+     "name": "a task that reads nothing still holds everything",
+     "verdict": "killed"
+    },
+    {
+     "detail": "7 failure(s); first: an output the task presses and never asks about is NOT held",
+     "name": "the unread outputs are counted but not named",
+     "verdict": "killed"
+    },
+    {
+     "detail": "6 failure(s); first: a button named for handing something over that hands over N",
+     "name": "a silent button is on the worklist too",
+     "verdict": "killed"
+    },
+    {
+     "detail": "2 failure(s); first: a declared output leaves the worklist -- and only that one:",
+     "name": "a declared output is subtracted from the count instead of the worklist",
+     "verdict": "killed"
+    },
+    {
+     "detail": "1 failure(s); first: declaring an output exempt WITHOUT a reason is refused: a l",
+     "name": "an output may be declared exempt with no reason given",
+     "verdict": "killed"
+    },
+    {
+     "detail": "1 failure(s); first: ...and with one, the reason is what is stored: {'pr': ''}",
+     "name": "the reason is not what is stored",
+     "verdict": "killed"
+    },
+    {
+     "detail": "1 failure(s); first: a first reading records what it found and no ceiling: {'at'",
+     "name": "a plain run lowers the ceilings, so nothing can ever be above one",
+     "verdict": "killed"
+    },
+    {
+     "detail": "1 failure(s); first: ...and --raise-floors LOWERS the ceiling, because this ratc",
+     "name": "the ceiling ratchets UPWARD, so a page that grows an unread export keeps its pass",
+     "verdict": "killed"
+    },
+    {
+     "detail": "2 failure(s); first: a page carrying MORE unread outputs than its ceiling fails,",
+     "name": "a reading above the ceiling is not a failure",
+     "verdict": "killed"
+    },
+    {
+     "detail": "2 failure(s); first: a page carrying MORE unread outputs than its ceiling fails,",
+     "name": "the failure is reported and the exit code is not",
+     "verdict": "killed"
+    }
+   ],
+   "survived": 0
+  },
   "mutate_publish": {
    "at": 1788493217,
    "equivalent": 0,

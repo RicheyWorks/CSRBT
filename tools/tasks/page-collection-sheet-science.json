@@ -953,6 +953,188 @@
    }
   },
   {
+   "id": "g153-csv-press",
+   "action": "activate",
+   "arguments": {
+    "selector": "@control:csvCopy"
+   }
+  },
+  {
+   "id": "g153-csv",
+   "action": "collect-output",
+   "expect": {
+    "output.payloads.0.k": {
+     "op": "in",
+     "value": [
+      "copy",
+      "clipboard",
+      "download",
+      "print"
+     ]
+    },
+    "output.payloads.0.text": {
+     "op": "contains",
+     "value": "site,date,collection_no,working_name,genus,guild,mixed_genus,fruit_bodies,substrate,host"
+    },
+    "output.payloads.0.text#2": {
+     "op": "contains",
+     "value": "Bear Cr. old-growth,2026-09-20,RCW-2026-041,Amanita muscaria,Amanita,ectomycorrhizal"
+    }
+   }
+  },
+  {
+   "id": "g153-dwc-press",
+   "action": "activate",
+   "arguments": {
+    "selector": "@control:dwcCopy"
+   }
+  },
+  {
+   "id": "g153-dwc",
+   "action": "collect-output",
+   "expect": {
+    "output.payloads.0.k": {
+     "op": "in",
+     "value": [
+      "copy",
+      "clipboard",
+      "download",
+      "print"
+     ]
+    },
+    "output.payloads.0.text": {
+     "op": "contains",
+     "value": "occurrenceID,basisOfRecord,scientificName,eventDate,recordedBy,decimalLatitude,decimalLongitude,geodeticDatum"
+    },
+    "output.payloads.0.text#2": {
+     "op": "contains",
+     "value": "Amanita muscaria"
+    }
+   }
+  },
+  {
+   "id": "g153-eco-press",
+   "action": "activate",
+   "arguments": {
+    "selector": "@control:ecoCopy"
+   }
+  },
+  {
+   "id": "g153-eco",
+   "action": "collect-output",
+   "expect": {
+    "output.payloads.0.k": {
+     "op": "in",
+     "value": [
+      "copy",
+      "clipboard",
+      "download",
+      "print"
+     ]
+    },
+    "output.payloads.0.text": {
+     "op": "contains",
+     "value": "# searched: 1000 m² in 90 min"
+    },
+    "output.payloads.0.text#2": {
+     "op": "contains",
+     "value": "collection RCW-2026-041  Amanita muscaria"
+    }
+   }
+  },
+  {
+   "id": "g153-mat-press",
+   "action": "activate",
+   "arguments": {
+    "selector": "@control:matCopy"
+   }
+  },
+  {
+   "id": "g153-mat",
+   "action": "collect-output",
+   "expect": {
+    "output.payloads.0.k": {
+     "op": "in",
+     "value": [
+      "copy",
+      "clipboard",
+      "download",
+      "print"
+     ]
+    },
+    "output.payloads.0.text": {
+     "op": "contains",
+     "value": "taxon,guild,Pinus contorta,Populus tremuloides,Pseudotsuga menziesii"
+    },
+    "output.payloads.0.text#2": {
+     "op": "contains",
+     "value": "Amanita muscaria,ectomycorrhizal,1,0,0"
+    }
+   }
+  },
+  {
+   "id": "g153-pack-press",
+   "action": "activate",
+   "arguments": {
+    "selector": "@control:packExport"
+   }
+  },
+  {
+   "id": "g153-pack",
+   "action": "collect-output",
+   "expect": {
+    "output.payloads.0.k": {
+     "op": "in",
+     "value": [
+      "copy",
+      "clipboard",
+      "download",
+      "print"
+     ]
+    },
+    "output.payloads.0.text": {
+     "op": "contains",
+     "value": "\"genera\": ["
+    }
+   }
+  },
+  {
+   "id": "g153-prompt-press",
+   "action": "activate",
+   "arguments": {
+    "selector": "@control:packPrompt"
+   }
+  },
+  {
+   "id": "g153-prompt",
+   "action": "collect-output",
+   "expect": {
+    "output.payloads.0.k": {
+     "op": "in",
+     "value": [
+      "copy",
+      "clipboard",
+      "download",
+      "print"
+     ]
+    },
+    "output.payloads.0.text": {
+     "op": "contains",
+     "value": "Build a macrofungal genus pack for a field collection sheet."
+    }
+   }
+  },
+  {
+   "id": "g153-close",
+   "action": "read-report",
+   "expect": {
+    "output.boxes.ecoOut": {
+     "op": "contains",
+     "value": "notes Cap viscid when wet"
+    }
+   }
+  },
+  {
    "id": "intact",
    "action": "read-page",
    "expect": {
