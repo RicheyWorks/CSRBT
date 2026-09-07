@@ -39,6 +39,7 @@ Run:  python3 tools/verify/verify_report.py
 # Declared for tools/mutate.py: this suite writes its own fixture pages and
 # asserts about tools/harness_plugin_page.py -- a subject.
 MUTATE_ROLE = "subject"
+import time
 import io, os, sys, tempfile
 
 import _kit
@@ -296,6 +297,74 @@ with sync_playwright() as pw:
         ck("not a picker" in e.message,
            "a pick aimed at something that is not a picker at all is still refused as NOT A "
            "PICKER -- the structural test is what that message is for: %s" % e.message[:60])
+
+    # ---- B3. assigning a value is not typing (ADR-150) ----------------------
+    # set-text writes through the value setter, which is what a SCRIPT does. A
+    # person presses keys. For most controls the two are the same, and for
+    # <input type=number> they are not: assign "3e" and the value is "" with
+    # validity.badInput FALSE; type it and the value is "" with badInput TRUE.
+    # A page that tells the two apart -- and the experiment guide does, because
+    # a blank seed means 42 and a typed-but-rejected seed does not -- had a
+    # branch no task in this kit could reach.
+    num = next((c["selector"] for c in plug.observe()["controls"]
+                if c.get("label") == "area searched"), None)
+    ck(num, "the fixture has a number control to type into: %r" % num)
+    _ok, _m, r = plug.execute("set-text", {"selector": num, "value": "3e"})
+    bad = pg.evaluate("(sel) => { const e = document.querySelector('[data-h=\"' + sel + '\"]');"
+                      "  return {value: String(e.value),"
+                      "          badInput: !!(e.validity && e.validity.badInput)}; }", num)
+    ck(bad["value"] == "" and bad["badInput"] is False,
+       "ASSIGNING an unparseable value to a number control empties it and leaves badInput FALSE "
+       "-- which is exactly what a deliberately blank box looks like: %s" % bad)
+    _ok, _m, r2 = plug.execute("type-text", {"selector": num, "value": "3e"})
+    ck(r2.get("value") == "" and r2.get("badInput") is True,
+       "...and TYPING the same characters empties it and leaves badInput TRUE, which is the only "
+       "way a page can tell a rejected entry from a blank one: %s" % r2)
+    _ok, _m, r3 = plug.execute("type-text", {"selector": num, "value": "42"})
+    ck(r3.get("value") == "42" and r3.get("badInput") is False,
+       "typing a value the control accepts leaves it in the box, badInput false: %s" % r3)
+    txtc = next((c["selector"] for c in plug.observe()["controls"] if c.get("id") == "cName"), None)
+    ck(txtc, "the fixture's named text control is findable, so the next checks ask something -- "
+             "and it keeps its id: %r"
+             % txtc)
+    _ok, _m, r4 = plug.execute("type-text", {"selector": txtc or num, "value": "Boletus edulis"})
+    ck(r4.get("value") == "Boletus edulis",
+       "and on a plain text control typing is just typing: %s" % r4)
+    _ok, _m, r5 = plug.execute("type-text", {"selector": txtc or num, "value": ""})
+    ck(r5.get("value") == "",
+       "typing an empty value CLEARS the control, rather than leaving what was there -- a task "
+       "that empties a box is saying something, and it must not quietly do nothing: %s" % r5)
+    # A CONTROL THAT CANNOT TAKE FOCUS IS A FACT ABOUT THE PAGE, not something
+    # to wait on. The first draft CLICKED the control to put the caret in it,
+    # and the robot drives every tool at every control -- including ones a
+    # layout covers, where a click waits thirty seconds for a hit test that
+    # never comes and the walk records a FAILURE against the page. Typing needs
+    # the focus, not the pointer.
+    pg.evaluate("(sel) => { document.querySelector('[data-h=\"' + sel + '\"]')"
+                "  .style.visibility = 'hidden'; }", txtc)
+    t0 = time.time()
+    try:
+        plug.execute("type-text", {"selector": txtc, "value": "x"})
+        ck(False, "type-text into a control that cannot take focus was accepted")
+    except HarnessError as e:
+        ck("focus" in e.message or "hidden" in e.message.lower(),
+           "typing into a control that cannot take focus is REFUSED, naming the reason: %s"
+           % e.message[:80])
+    ck(time.time() - t0 < 10,
+       "...and refused at once rather than waited on: a pointer would have spent its whole "
+       "actionability timeout on it, and the robot would have filed the wait as the page failing "
+       "(%.1fs)" % (time.time() - t0))
+    pg.evaluate("(sel) => { document.querySelector('[data-h=\"' + sel + '\"]')"
+                "  .style.visibility = ''; }", txtc)
+    try:
+        btn = next(c["selector"] for c in plug.observe()["controls"]
+                   if c["selector"].startswith("action_btn:"))
+        plug.execute("type-text", {"selector": btn, "value": "x"})
+        ck(False, "type-text into a button was accepted")
+    except HarnessError as e:
+        ck(e.code == "invalid_argument" and "not a text control" in e.message,
+           "typing into a button is the CALLER's mistake, refused the same way set-text refuses "
+           "it: %s" % e.message[:60])
 
     # ---- C. naming -----------------------------------------------------------
     snap = plug.observe(sensitive=True)

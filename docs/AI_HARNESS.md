@@ -373,6 +373,102 @@ FEK picker through its filter; a task names a control the page's way with
 tasks — one per data-entry page — enter data and hold the report to a
 hand-checked oracle; a page canary is refuted; 1,316 expectations confirmed.
 
+ADR-151 ASKED THE QUESTION OF EVERY NUMBER BOX IN THE KIT, which ADR-150 had
+found by hand on one page and written down as a worklist. An `<input type=number>`
+holds a value the page reads and a raw keystroke buffer the page cannot see, and
+when the browser cannot parse the buffer the value it hands over is THE EMPTY
+STRING -- the same string a box nobody touched hands over. `validity.badInput` is
+the only thing that separates them, and it is the one signal an assignment cannot
+produce, which is why nothing in this kit could ask until type-text existed.
+audit_badinput puts each box in three states and reads the page each time: a GOOD
+value inside the box's own bounds ASSIGNED, BLANK ASSIGNED, and "3e" TYPED with
+badInput confirmed true afterwards. GOOD != BLANK is THE CONTROL -- it says the
+page reads this box live, and without it every box read only on submit joins the
+worklist and the worklist means nothing; BLANK == BAD is the finding. What counts
+as telling them apart is what the READER would see: a sentence, a mark, or a
+sentence in an element carrying no id, so elements are keyed by id where they
+have one and by where they sit where they do not, one key each -- and ids that
+move on their own are found by reading the page twice at rest and dropped, or a
+clock makes every box on that page look like it is being told apart. THE PAGE
+GETS EVERY CHANCE: a verdict only moves UP a ladder (unreachable, inert,
+cannot-tell, tells) and a box is re-asked in every state until it tells, because
+the finding is "in no state did the page say a different thing" and not "it said
+nothing in the state I happened to look at". IT FOUND 63 BLIND BOXES ON 16 PAGES,
+of 185 measured on 22 -- and the sharpest row is experiment-guide.html with
+twelve, the page ADR-150 had just taken WHOLE at 52 of 52 fields. Taking a page
+whole means every field was entered; it never meant every field was asked this
+question. ALL 63 ARE FIXED, and mostly not in the pages: the Field Entry Kit
+went 1.3.0 to 1.4.0 and its two numeric components now check badInput before they
+read .value, name the box and what happened to it, and stop repainting the old
+value over the reader's characters on blur -- one change, re-emitted into
+nineteen consumers, THIRTY-NINE of the sixty-three across ten pages. A second FEK
+change covers the plain number boxes those pages build themselves -- seven more
+on three pages -- by delegation in capture phase so that a row added or a grid
+opened later is covered too. The guide's four factors had emitted
+NOTHING when rejected, which is how that page says "the neutral value", so a
+typed factor silently became 1 (or 0 for distance); its grader fell back to seed
+42 and 3 passes; its measurement cells said "waiting for every cell", which is
+what they say about a cell nobody filled in. ecology-lab's exporter had checked
+badInput since ADR-148 and the two live workbenches beside it had not. The kit
+goes 33 -> 0 blind and 42 -> 75 telling; every page carrying number boxes is
+recorded at ceiling ZERO, so the next box that reads a rejected buffer as blank
+fails the day it is added. verify_badinput 32, mutate_badinput 24. Held: the
+audit says a page renders a DIFFERENT thing, not a RIGHT thing; 107 boxes are
+INERT -- read only when a button is pressed, and this audit does not press
+buttons, so whether the reports they feed are blind is unmeasured and stated
+rather than hidden; three boxes on releve.html could not be focused in any state
+and are reported unreachable rather than passing; and type=text boxes holding
+numbers have no badInput at all, so there is nothing there to be blind to.
+
+ADR-150 FOUND THAT ASSIGNING A VALUE IS NOT TYPING. experiment-guide.html was
+the largest data-entry gap left at 16 of 52 fields, and three fields in the task
+hit something no earlier page had: the linter says 'seed must be a whole number',
+and nothing the harness could do would make it say that. set-text writes through
+the value setter, which is what a SCRIPT does; a person presses keys, and for
+<input type=number> the page can tell -- assign "3e" and the value is "" with
+validity.badInput FALSE, type "3e" and the value is "" with badInput TRUE. A
+number box the browser cannot parse reads its value back as the empty string,
+which is exactly what a deliberately blank box reads as, and only badInput
+separates them because it reflects a keystroke buffer no assignment fills. So a
+page that distinguishes the two had a branch NO TASK IN THIS KIT COULD REACH. The
+new action is type-text (DRAFT rung, the same kinds set-text takes): it clicks
+the control, clears it, and sends real keystrokes. Chromium filters keystrokes on
+the way in, so "many" types as nothing at all and is not bad input while "3e" is
+a number the user has started and not finished -- what survives the filter is the
+browser's business, and the harness types what a person types. THE DEFECT WAITING
+BEHIND IT: the guide's linter guarded the seed with `value !== ""` so that a
+BLANK seed could mean 42, and a seed the user typed and the browser rejected
+reads as "" too -- the box showed their text, the emitted protocol carried
+seed 42, and the linter said nothing. Fixed with validity.badInput, which is
+ADR-148's numField rule (reported, never guessed) reaching the page next door;
+keys and window were never silent but read as 'out of range', a different
+sentence from the true one, and now say 'is not a whole number' when that is what
+happened. THE TASK goes 42 steps to 165: 16 -> 52 OF 52 FIELDS, 53 -> 220
+confirmed expectations, and the kit 349 -> 385 of 520 (67% -> 74%). Five pages
+are now entered whole. THE GUIDE'S ADVICE IS CHECKABLE, which is the page's
+product and was checked by nothing: every lint finding is answerable and
+answering it clears exactly that finding and no other -- the engineering track
+opens with four MISSING (no question, no floor, no decision rule, no sizes) and
+each field filled removes its own line, ending at CLEAN; the ecology track opens
+with two WEAK, and a hypothesis naming a community that does not exist grades
+UNGRADEABLE while one comparing a simulated phase to entered field data shares no
+species. TWO DOORS, ONE RULE: the builder REFUSES to add a second community with
+a name already taken, and the IMPORTER accepts a protocol that has one and lets
+the linter report it -- rewriting someone else's record on the way in would be
+changing it to make it pass. A VERDICT NEEDS A RULE *AND* NUMBERS: a verdict
+without a measured row is refused for the same reason a verdict without a rule
+is, since a verdict is a reading against a bar and half of it is not a verdict.
+And a qualitative hypothesis is graded against a BAND rather than a number, so
+choosing 'evenness ... is ...' puts away the Test and Value boxes and the emitted
+line reads 'expect: evenness(graze) is uneven'. verify_report 95, mutate_report 57. THREE THINGS THE ROBOT FOUND THAT THE TASK COULD NOT, because a new action goes into the manifest and the manifest is what the robot walks. (a) A CLICK IS NOT A FOCUS: the first draft clicked the control to put the caret in it, and the robot drives every tool at every control -- including ones a pane reveals but a layout still covers -- where a click waits out its whole thirty-second actionability timeout for a hit test that never comes and the walk files the wait as THE PAGE FAILING, nine such failures across five pages; typing needs the focus rather than the pointer, and a control that cannot take focus is a fact about the page (HIDDEN's family), refused at once and naming the reason. (b) AN ACTION ADDED TO A POOL COMPETES FOR IT: type-text claimed pick_search, and pheno-tracker's walk then drove it where it used to drive pick, reporting pick UNDRIVEN on a page that offers one -- it is out of that pool now, because typing into a picker's search box is what pick is for. (c) ADDING A TOOL RE-ROLLS EVERY SEEDED WALK IN THE KIT: the page manifest went 21 tools to 22 and every page's schedule shifted, which surfaced a standing fact about pheno-tracker -- its two pickers have no options until a plant exists, and under the new schedule the robot reached pick before any plant, twenty-four attempts and none driven; its walk carries an explicit seed now, recorded in the ledger, and under it pick is counted unreachable, which is what it honestly is. verify_walk 126 and verify_mcp 73 carried the tool count 21 in four places and now say 22. Held: type-text is slower than set-text -- a click, two key
+presses and one keystroke per character -- so it is for the cases where the
+difference matters and every existing task keeps set-text; it does not reproduce
+every difference between a script and a person, since a paste, an IME, a
+drag-select, an autofill and a key repeat are all still outside it; and the other
+number inputs across the kit have not been retyped, so anywhere a page treats a
+blank field as meaningful the same silence is possible and nothing here has
+looked -- that is a worklist, stated rather than done.
+
 ADR-149 RECORDED THE RELEVE WHOLE -- the densest page in the kit for published
 method, seven named indices on one sheet, and the task drove three cover classes.
 releve.html was the largest data-entry gap left after ADR-148 at 7 of 42 fields,

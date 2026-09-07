@@ -462,8 +462,8 @@ if len(res) == 8:
        "--attachable declares listChanged")
     n0 = [t["name"] for t in res[2]["result"]["tools"]]
     n1 = [t["name"] for t in res[4]["result"]["tools"]]
-    ck("csrbt_page__read_page" not in n0 and "csrbt_page__read_page" in n1 and len(n1) - len(n0) == 21,
-       "a real browser target attached mid-session brings its tools with it -- all 21, because "
+    ck("csrbt_page__read_page" not in n0 and "csrbt_page__read_page" in n1 and len(n1) - len(n0) == 22,
+       "a real browser target attached mid-session brings its tools with it -- all 22, because "
        "since ADR-141 the page declares no DESTRUCTIVE action: `activate` is MUTATE with a "
        "per-call raise, so a session that may write may also press: %d -> %d" % (len(n0), len(n1)))
     ck("csrbt_page__activate" in n1,

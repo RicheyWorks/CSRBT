@@ -826,9 +826,9 @@
    "unschemable": {}
   },
   "csrbt-page": {
-   "accounted": 512,
-   "at": 1788422947,
-   "commands": 512,
+   "accounted": 536,
+   "at": 1788739957,
+   "commands": 536,
    "failures": [],
    "forbidden": [],
    "identity": "holds",
@@ -851,9 +851,9 @@
     "csrbt_page__attach_file": {
      "chaos": 0,
      "declined": 0,
-     "driven": 0,
+     "driven": 8,
      "failed": 0,
-     "refused": 24
+     "refused": 16
     },
     "csrbt_page__capture_screen": {
      "chaos": 0,
@@ -893,16 +893,16 @@
     "csrbt_page__pick": {
      "chaos": 0,
      "declined": 0,
-     "driven": 18,
+     "driven": 24,
      "failed": 0,
-     "refused": 6
+     "refused": 0
     },
     "csrbt_page__press_step": {
      "chaos": 0,
      "declined": 0,
-     "driven": 0,
+     "driven": 24,
      "failed": 0,
-     "refused": 24
+     "refused": 0
     },
     "csrbt_page__read_control": {
      "chaos": 0,
@@ -956,9 +956,9 @@
     "csrbt_page__set_dialog": {
      "chaos": 0,
      "declined": 0,
-     "driven": 23,
+     "driven": 21,
      "failed": 0,
-     "refused": 1
+     "refused": 3
     },
     "csrbt_page__set_seed": {
      "chaos": 0,
@@ -984,57 +984,62 @@
     "csrbt_page__show_pane": {
      "chaos": 0,
      "declined": 0,
-     "driven": 16,
+     "driven": 18,
      "failed": 0,
-     "refused": 8
+     "refused": 6
+    },
+    "csrbt_page__type_text": {
+     "chaos": 0,
+     "declined": 0,
+     "driven": 24,
+     "failed": 0,
+     "refused": 0
     }
    },
    "per_round": 3,
    "plugin": "csrbt-page",
    "price": {
     "actionMs": {
-     "max": 408,
-     "median": 10,
-     "n": 353,
-     "p95": 338,
-     "total": 28874
+     "max": 350,
+     "median": 24,
+     "n": 415,
+     "p95": 325,
+     "total": 33016
     },
     "snapshotMs": {
-     "max": 159,
-     "median": 51,
-     "n": 353,
-     "p95": 99,
-     "total": 19758
+     "max": 143,
+     "median": 71,
+     "n": 415,
+     "p95": 124,
+     "total": 32163
     }
    },
-   "protocolVersion": "1.4",
+   "protocolVersion": "1.5",
    "rounds": 8,
-   "seconds": 64.0,
+   "seconds": 74.7,
    "seed": 2026,
-   "tools": 21,
+   "tools": 22,
    "totals": {
     "chaos": 0,
     "declined": 0,
-    "driven": 353,
+    "driven": 415,
     "failed": 0,
-    "refused": 159
+    "refused": 121
    },
    "transport": "stdio",
    "undriven": [],
    "unreachable": [
-    "csrbt_page__attach_file",
     "csrbt_page__choose_option",
     "csrbt_page__drop_files",
-    "csrbt_page__press_step",
     "csrbt_page__set_checkbox",
     "csrbt_page__set_slider"
    ],
    "unschemable": {}
   },
   "csrbt-page/adr-031.html": {
-   "accounted": 512,
-   "at": 1788420947,
-   "commands": 512,
+   "accounted": 536,
+   "at": 1788736375,
+   "commands": 536,
    "failures": [],
    "forbidden": [],
    "identity": "holds",
@@ -1114,9 +1119,9 @@
     "csrbt_page__read_control": {
      "chaos": 0,
      "declined": 0,
-     "driven": 18,
+     "driven": 19,
      "failed": 0,
-     "refused": 6
+     "refused": 5
     },
     "csrbt_page__read_dialogs": {
      "chaos": 0,
@@ -1163,9 +1168,9 @@
     "csrbt_page__set_dialog": {
      "chaos": 0,
      "declined": 0,
-     "driven": 23,
+     "driven": 20,
      "failed": 0,
-     "refused": 1
+     "refused": 4
     },
     "csrbt_page__set_seed": {
      "chaos": 0,
@@ -1194,37 +1199,44 @@
      "driven": 0,
      "failed": 0,
      "refused": 24
+    },
+    "csrbt_page__type_text": {
+     "chaos": 0,
+     "declined": 0,
+     "driven": 0,
+     "failed": 0,
+     "refused": 24
     }
    },
    "per_round": 3,
    "plugin": "csrbt-page",
    "price": {
     "actionMs": {
-     "max": 348,
-     "median": 6,
-     "n": 265,
-     "p95": 325,
-     "total": 16939
+     "max": 331,
+     "median": 5,
+     "n": 263,
+     "p95": 318,
+     "total": 15561
     },
     "snapshotMs": {
-     "max": 44,
-     "median": 16,
-     "n": 265,
-     "p95": 25,
-     "total": 4382
+     "max": 26,
+     "median": 10,
+     "n": 263,
+     "p95": 16,
+     "total": 2952
     }
    },
-   "protocolVersion": "1.4",
+   "protocolVersion": "1.5",
    "rounds": 8,
-   "seconds": 27.8,
+   "seconds": 25.1,
    "seed": 2026,
-   "tools": 21,
+   "tools": 22,
    "totals": {
     "chaos": 0,
     "declined": 0,
-    "driven": 265,
+    "driven": 263,
     "failed": 0,
-    "refused": 247
+    "refused": 273
    },
    "transport": "stdio",
    "undriven": [],
@@ -1238,14 +1250,15 @@
     "csrbt_page__set_checkbox",
     "csrbt_page__set_slider",
     "csrbt_page__set_text",
-    "csrbt_page__show_pane"
+    "csrbt_page__show_pane",
+    "csrbt_page__type_text"
    ],
    "unschemable": {}
   },
   "csrbt-page/breeding-bench.html": {
-   "accounted": 512,
-   "at": 1788421014,
-   "commands": 512,
+   "accounted": 536,
+   "at": 1788736438,
+   "commands": 536,
    "failures": [],
    "forbidden": [],
    "identity": "holds",
@@ -1325,9 +1338,9 @@
     "csrbt_page__read_control": {
      "chaos": 0,
      "declined": 0,
-     "driven": 21,
+     "driven": 19,
      "failed": 0,
-     "refused": 3
+     "refused": 5
     },
     "csrbt_page__read_dialogs": {
      "chaos": 0,
@@ -1374,9 +1387,9 @@
     "csrbt_page__set_dialog": {
      "chaos": 0,
      "declined": 0,
-     "driven": 19,
+     "driven": 23,
      "failed": 0,
-     "refused": 5
+     "refused": 1
     },
     "csrbt_page__set_seed": {
      "chaos": 0,
@@ -1402,40 +1415,47 @@
     "csrbt_page__show_pane": {
      "chaos": 0,
      "declined": 0,
-     "driven": 15,
+     "driven": 19,
      "failed": 0,
-     "refused": 9
+     "refused": 5
+    },
+    "csrbt_page__type_text": {
+     "chaos": 0,
+     "declined": 0,
+     "driven": 24,
+     "failed": 0,
+     "refused": 0
     }
    },
    "per_round": 3,
    "plugin": "csrbt-page",
    "price": {
     "actionMs": {
-     "max": 335,
-     "median": 24,
-     "n": 399,
-     "p95": 323,
-     "total": 31766
+     "max": 423,
+     "median": 23,
+     "n": 429,
+     "p95": 321,
+     "total": 36498
     },
     "snapshotMs": {
-     "max": 129,
-     "median": 59,
-     "n": 399,
-     "p95": 108,
-     "total": 24815
+     "max": 98,
+     "median": 41,
+     "n": 429,
+     "p95": 80,
+     "total": 18553
     }
    },
-   "protocolVersion": "1.4",
+   "protocolVersion": "1.5",
    "rounds": 8,
-   "seconds": 65.7,
+   "seconds": 61.9,
    "seed": 2026,
-   "tools": 21,
+   "tools": 22,
    "totals": {
     "chaos": 0,
     "declined": 0,
-    "driven": 399,
+    "driven": 429,
     "failed": 0,
-    "refused": 113
+    "refused": 107
    },
    "transport": "stdio",
    "undriven": [],
@@ -1448,9 +1468,9 @@
    "unschemable": {}
   },
   "csrbt-page/breeding-suite.html": {
-   "accounted": 512,
-   "at": 1788421042,
-   "commands": 512,
+   "accounted": 536,
+   "at": 1788736464,
+   "commands": 536,
    "failures": [],
    "forbidden": [],
    "identity": "holds",
@@ -1530,9 +1550,9 @@
     "csrbt_page__read_control": {
      "chaos": 0,
      "declined": 0,
-     "driven": 15,
+     "driven": 19,
      "failed": 0,
-     "refused": 9
+     "refused": 5
     },
     "csrbt_page__read_dialogs": {
      "chaos": 0,
@@ -1579,9 +1599,9 @@
     "csrbt_page__set_dialog": {
      "chaos": 0,
      "declined": 0,
-     "driven": 21,
+     "driven": 24,
      "failed": 0,
-     "refused": 3
+     "refused": 0
     },
     "csrbt_page__set_seed": {
      "chaos": 0,
@@ -1610,37 +1630,44 @@
      "driven": 0,
      "failed": 0,
      "refused": 24
+    },
+    "csrbt_page__type_text": {
+     "chaos": 0,
+     "declined": 0,
+     "driven": 0,
+     "failed": 0,
+     "refused": 24
     }
    },
    "per_round": 3,
    "plugin": "csrbt-page",
    "price": {
     "actionMs": {
-     "max": 328,
-     "median": 4,
-     "n": 260,
-     "p95": 320,
-     "total": 15960
+     "max": 318,
+     "median": 3,
+     "n": 267,
+     "p95": 315,
+     "total": 15258
     },
     "snapshotMs": {
-     "max": 34,
-     "median": 14,
-     "n": 260,
-     "p95": 22,
-     "total": 3961
+     "max": 26,
+     "median": 10,
+     "n": 267,
+     "p95": 17,
+     "total": 3034
     }
    },
-   "protocolVersion": "1.4",
+   "protocolVersion": "1.5",
    "rounds": 8,
-   "seconds": 26.8,
+   "seconds": 24.7,
    "seed": 2026,
-   "tools": 21,
+   "tools": 22,
    "totals": {
     "chaos": 0,
     "declined": 0,
-    "driven": 260,
+    "driven": 267,
     "failed": 0,
-    "refused": 252
+    "refused": 269
    },
    "transport": "stdio",
    "undriven": [],
@@ -1654,14 +1681,15 @@
     "csrbt_page__set_checkbox",
     "csrbt_page__set_slider",
     "csrbt_page__set_text",
-    "csrbt_page__show_pane"
+    "csrbt_page__show_pane",
+    "csrbt_page__type_text"
    ],
    "unschemable": {}
   },
   "csrbt-page/cell-bench.html": {
-   "accounted": 512,
-   "at": 1788425011,
-   "commands": 512,
+   "accounted": 536,
+   "at": 1788736514,
+   "commands": 536,
    "failures": [],
    "forbidden": [],
    "identity": "holds",
@@ -1741,9 +1769,9 @@
     "csrbt_page__read_control": {
      "chaos": 0,
      "declined": 0,
-     "driven": 21,
+     "driven": 18,
      "failed": 0,
-     "refused": 3
+     "refused": 6
     },
     "csrbt_page__read_dialogs": {
      "chaos": 0,
@@ -1790,9 +1818,9 @@
     "csrbt_page__set_dialog": {
      "chaos": 0,
      "declined": 0,
-     "driven": 21,
+     "driven": 22,
      "failed": 0,
-     "refused": 3
+     "refused": 2
     },
     "csrbt_page__set_seed": {
      "chaos": 0,
@@ -1818,38 +1846,45 @@
     "csrbt_page__show_pane": {
      "chaos": 0,
      "declined": 0,
-     "driven": 14,
+     "driven": 16,
      "failed": 0,
-     "refused": 10
+     "refused": 8
+    },
+    "csrbt_page__type_text": {
+     "chaos": 0,
+     "declined": 0,
+     "driven": 24,
+     "failed": 0,
+     "refused": 0
     }
    },
    "per_round": 3,
    "plugin": "csrbt-page",
    "price": {
     "actionMs": {
-     "max": 355,
-     "median": 9,
-     "n": 376,
-     "p95": 327,
-     "total": 26077
+     "max": 418,
+     "median": 22,
+     "n": 400,
+     "p95": 321,
+     "total": 31442
     },
     "snapshotMs": {
-     "max": 122,
-     "median": 38,
-     "n": 376,
-     "p95": 70,
-     "total": 15841
+     "max": 53,
+     "median": 25,
+     "n": 400,
+     "p95": 41,
+     "total": 10482
     }
    },
-   "protocolVersion": "1.4",
+   "protocolVersion": "1.5",
    "rounds": 8,
-   "seconds": 50.8,
+   "seconds": 49.4,
    "seed": 2026,
-   "tools": 21,
+   "tools": 22,
    "totals": {
     "chaos": 0,
     "declined": 0,
-    "driven": 376,
+    "driven": 400,
     "failed": 0,
     "refused": 136
    },
@@ -1865,9 +1900,9 @@
    "unschemable": {}
   },
   "csrbt-page/collection-sheet.html": {
-   "accounted": 512,
-   "at": 1788421183,
-   "commands": 512,
+   "accounted": 536,
+   "at": 1788736591,
+   "commands": 536,
    "failures": [],
    "forbidden": [],
    "identity": "holds",
@@ -1996,9 +2031,9 @@
     "csrbt_page__set_dialog": {
      "chaos": 0,
      "declined": 0,
-     "driven": 18,
+     "driven": 22,
      "failed": 0,
-     "refused": 6
+     "refused": 2
     },
     "csrbt_page__set_seed": {
      "chaos": 0,
@@ -2024,40 +2059,47 @@
     "csrbt_page__show_pane": {
      "chaos": 0,
      "declined": 0,
-     "driven": 20,
+     "driven": 17,
      "failed": 0,
-     "refused": 4
+     "refused": 7
+    },
+    "csrbt_page__type_text": {
+     "chaos": 0,
+     "declined": 0,
+     "driven": 24,
+     "failed": 0,
+     "refused": 0
     }
    },
    "per_round": 3,
    "plugin": "csrbt-page",
    "price": {
     "actionMs": {
-     "max": 380,
-     "median": 25,
-     "n": 390,
-     "p95": 351,
-     "total": 32206
+     "max": 420,
+     "median": 23,
+     "n": 415,
+     "p95": 343,
+     "total": 35889
     },
     "snapshotMs": {
-     "max": 239,
-     "median": 104,
-     "n": 390,
-     "p95": 174,
-     "total": 43651
+     "max": 165,
+     "median": 68,
+     "n": 415,
+     "p95": 119,
+     "total": 30412
     }
    },
-   "protocolVersion": "1.4",
+   "protocolVersion": "1.5",
    "rounds": 8,
-   "seconds": 86.7,
+   "seconds": 75.6,
    "seed": 2026,
-   "tools": 21,
+   "tools": 22,
    "totals": {
     "chaos": 0,
     "declined": 0,
-    "driven": 390,
+    "driven": 415,
     "failed": 0,
-    "refused": 122
+    "refused": 121
    },
    "transport": "stdio",
    "undriven": [],
@@ -2070,9 +2112,9 @@
    "unschemable": {}
   },
   "csrbt-page/cp-bench.html": {
-   "accounted": 512,
-   "at": 1788421256,
-   "commands": 512,
+   "accounted": 536,
+   "at": 1788736652,
+   "commands": 536,
    "failures": [],
    "forbidden": [],
    "identity": "holds",
@@ -2138,9 +2180,9 @@
     "csrbt_page__pick": {
      "chaos": 0,
      "declined": 0,
-     "driven": 18,
+     "driven": 24,
      "failed": 0,
-     "refused": 6
+     "refused": 0
     },
     "csrbt_page__press_step": {
      "chaos": 0,
@@ -2152,9 +2194,9 @@
     "csrbt_page__read_control": {
      "chaos": 0,
      "declined": 0,
-     "driven": 21,
+     "driven": 22,
      "failed": 0,
-     "refused": 3
+     "refused": 2
     },
     "csrbt_page__read_dialogs": {
      "chaos": 0,
@@ -2201,9 +2243,9 @@
     "csrbt_page__set_dialog": {
      "chaos": 0,
      "declined": 0,
-     "driven": 22,
+     "driven": 23,
      "failed": 0,
-     "refused": 2
+     "refused": 1
     },
     "csrbt_page__set_seed": {
      "chaos": 0,
@@ -2229,40 +2271,47 @@
     "csrbt_page__show_pane": {
      "chaos": 0,
      "declined": 0,
-     "driven": 20,
+     "driven": 17,
      "failed": 0,
-     "refused": 4
+     "refused": 7
+    },
+    "csrbt_page__type_text": {
+     "chaos": 0,
+     "declined": 0,
+     "driven": 24,
+     "failed": 0,
+     "refused": 0
     }
    },
    "per_round": 3,
    "plugin": "csrbt-page",
    "price": {
     "actionMs": {
-     "max": 387,
-     "median": 13,
-     "n": 377,
-     "p95": 330,
-     "total": 32058
+     "max": 431,
+     "median": 22,
+     "n": 406,
+     "p95": 321,
+     "total": 35256
     },
     "snapshotMs": {
-     "max": 200,
-     "median": 63,
-     "n": 377,
-     "p95": 121,
-     "total": 26901
+     "max": 80,
+     "median": 35,
+     "n": 406,
+     "p95": 64,
+     "total": 15237
     }
    },
-   "protocolVersion": "1.4",
+   "protocolVersion": "1.5",
    "rounds": 8,
-   "seconds": 72.2,
+   "seconds": 59.5,
    "seed": 2026,
-   "tools": 21,
+   "tools": 22,
    "totals": {
     "chaos": 0,
     "declined": 0,
-    "driven": 377,
+    "driven": 406,
     "failed": 0,
-    "refused": 135
+    "refused": 130
    },
    "transport": "stdio",
    "undriven": [],
@@ -2276,9 +2325,9 @@
    "unschemable": {}
   },
   "csrbt-page/cp-characters.html": {
-   "accounted": 512,
-   "at": 1788421292,
-   "commands": 512,
+   "accounted": 536,
+   "at": 1788736680,
+   "commands": 536,
    "failures": [],
    "forbidden": [],
    "identity": "holds",
@@ -2358,9 +2407,9 @@
     "csrbt_page__read_control": {
      "chaos": 0,
      "declined": 0,
-     "driven": 17,
+     "driven": 16,
      "failed": 0,
-     "refused": 7
+     "refused": 8
     },
     "csrbt_page__read_dialogs": {
      "chaos": 0,
@@ -2407,9 +2456,9 @@
     "csrbt_page__set_dialog": {
      "chaos": 0,
      "declined": 0,
-     "driven": 22,
+     "driven": 19,
      "failed": 0,
-     "refused": 2
+     "refused": 5
     },
     "csrbt_page__set_seed": {
      "chaos": 0,
@@ -2438,37 +2487,44 @@
      "driven": 0,
      "failed": 0,
      "refused": 24
+    },
+    "csrbt_page__type_text": {
+     "chaos": 0,
+     "declined": 0,
+     "driven": 0,
+     "failed": 0,
+     "refused": 24
     }
    },
    "per_round": 3,
    "plugin": "csrbt-page",
    "price": {
     "actionMs": {
-     "max": 425,
-     "median": 7,
-     "n": 287,
-     "p95": 335,
-     "total": 18549
+     "max": 356,
+     "median": 6,
+     "n": 283,
+     "p95": 317,
+     "total": 16126
     },
     "snapshotMs": {
-     "max": 80,
-     "median": 28,
-     "n": 287,
-     "p95": 51,
-     "total": 8773
+     "max": 50,
+     "median": 17,
+     "n": 283,
+     "p95": 27,
+     "total": 5155
     }
    },
-   "protocolVersion": "1.4",
+   "protocolVersion": "1.5",
    "rounds": 8,
-   "seconds": 34.2,
+   "seconds": 27.2,
    "seed": 2026,
-   "tools": 21,
+   "tools": 22,
    "totals": {
     "chaos": 0,
     "declined": 0,
-    "driven": 287,
+    "driven": 283,
     "failed": 0,
-    "refused": 225
+    "refused": 253
    },
    "transport": "stdio",
    "undriven": [],
@@ -2481,14 +2537,15 @@
     "csrbt_page__set_checkbox",
     "csrbt_page__set_slider",
     "csrbt_page__set_text",
-    "csrbt_page__show_pane"
+    "csrbt_page__show_pane",
+    "csrbt_page__type_text"
    ],
    "unschemable": {}
   },
   "csrbt-page/cp-suite.html": {
-   "accounted": 512,
-   "at": 1788421323,
-   "commands": 512,
+   "accounted": 536,
+   "at": 1788736706,
+   "commands": 536,
    "failures": [],
    "forbidden": [],
    "identity": "holds",
@@ -2648,37 +2705,44 @@
      "driven": 0,
      "failed": 0,
      "refused": 24
+    },
+    "csrbt_page__type_text": {
+     "chaos": 0,
+     "declined": 0,
+     "driven": 0,
+     "failed": 0,
+     "refused": 24
     }
    },
    "per_round": 3,
    "plugin": "csrbt-page",
    "price": {
     "actionMs": {
-     "max": 362,
-     "median": 5,
+     "max": 318,
+     "median": 3,
      "n": 263,
-     "p95": 327,
-     "total": 17075
+     "p95": 315,
+     "total": 15208
     },
     "snapshotMs": {
-     "max": 69,
-     "median": 17,
+     "max": 23,
+     "median": 10,
      "n": 263,
-     "p95": 31,
-     "total": 4918
+     "p95": 16,
+     "total": 2857
     }
    },
-   "protocolVersion": "1.4",
+   "protocolVersion": "1.5",
    "rounds": 8,
-   "seconds": 28.8,
+   "seconds": 24.5,
    "seed": 2026,
-   "tools": 21,
+   "tools": 22,
    "totals": {
     "chaos": 0,
     "declined": 0,
     "driven": 263,
     "failed": 0,
-    "refused": 249
+    "refused": 273
    },
    "transport": "stdio",
    "undriven": [],
@@ -2692,14 +2756,15 @@
     "csrbt_page__set_checkbox",
     "csrbt_page__set_slider",
     "csrbt_page__set_text",
-    "csrbt_page__show_pane"
+    "csrbt_page__show_pane",
+    "csrbt_page__type_text"
    ],
    "unschemable": {}
   },
   "csrbt-page/deployment-log.html": {
-   "accounted": 512,
-   "at": 1788421386,
-   "commands": 512,
+   "accounted": 536,
+   "at": 1788736762,
+   "commands": 536,
    "failures": [],
    "forbidden": [],
    "identity": "holds",
@@ -2828,9 +2893,9 @@
     "csrbt_page__set_dialog": {
      "chaos": 0,
      "declined": 0,
-     "driven": 21,
+     "driven": 23,
      "failed": 0,
-     "refused": 3
+     "refused": 1
     },
     "csrbt_page__set_seed": {
      "chaos": 0,
@@ -2856,40 +2921,47 @@
     "csrbt_page__show_pane": {
      "chaos": 0,
      "declined": 0,
-     "driven": 13,
+     "driven": 18,
      "failed": 0,
-     "refused": 11
+     "refused": 6
+    },
+    "csrbt_page__type_text": {
+     "chaos": 0,
+     "declined": 0,
+     "driven": 24,
+     "failed": 0,
+     "refused": 0
     }
    },
    "per_round": 3,
    "plugin": "csrbt-page",
    "price": {
     "actionMs": {
-     "max": 378,
-     "median": 13,
-     "n": 378,
-     "p95": 330,
-     "total": 27440
+     "max": 421,
+     "median": 11,
+     "n": 409,
+     "p95": 322,
+     "total": 30189
     },
     "snapshotMs": {
-     "max": 149,
-     "median": 51,
-     "n": 378,
-     "p95": 95,
-     "total": 21778
+     "max": 73,
+     "median": 32,
+     "n": 409,
+     "p95": 58,
+     "total": 14016
     }
    },
-   "protocolVersion": "1.4",
+   "protocolVersion": "1.5",
    "rounds": 8,
-   "seconds": 61.5,
+   "seconds": 54.7,
    "seed": 2026,
-   "tools": 21,
+   "tools": 22,
    "totals": {
     "chaos": 0,
     "declined": 0,
-    "driven": 378,
+    "driven": 409,
     "failed": 0,
-    "refused": 134
+    "refused": 127
    },
    "transport": "stdio",
    "undriven": [],
@@ -2903,9 +2975,9 @@
    "unschemable": {}
   },
   "csrbt-page/douglas-explorer.html": {
-   "accounted": 512,
-   "at": 1788421417,
-   "commands": 512,
+   "accounted": 536,
+   "at": 1788736789,
+   "commands": 536,
    "failures": [],
    "forbidden": [],
    "identity": "holds",
@@ -2985,9 +3057,9 @@
     "csrbt_page__read_control": {
      "chaos": 0,
      "declined": 0,
-     "driven": 14,
+     "driven": 19,
      "failed": 0,
-     "refused": 10
+     "refused": 5
     },
     "csrbt_page__read_dialogs": {
      "chaos": 0,
@@ -3034,9 +3106,9 @@
     "csrbt_page__set_dialog": {
      "chaos": 0,
      "declined": 0,
-     "driven": 22,
+     "driven": 21,
      "failed": 0,
-     "refused": 2
+     "refused": 3
     },
     "csrbt_page__set_seed": {
      "chaos": 0,
@@ -3065,37 +3137,44 @@
      "driven": 0,
      "failed": 0,
      "refused": 24
+    },
+    "csrbt_page__type_text": {
+     "chaos": 0,
+     "declined": 0,
+     "driven": 0,
+     "failed": 0,
+     "refused": 24
     }
    },
    "per_round": 3,
    "plugin": "csrbt-page",
    "price": {
     "actionMs": {
-     "max": 388,
-     "median": 7,
-     "n": 260,
-     "p95": 376,
-     "total": 19000
+     "max": 364,
+     "median": 5,
+     "n": 264,
+     "p95": 354,
+     "total": 17261
     },
     "snapshotMs": {
-     "max": 86,
-     "median": 15,
-     "n": 260,
-     "p95": 22,
-     "total": 4067
+     "max": 33,
+     "median": 10,
+     "n": 264,
+     "p95": 16,
+     "total": 2893
     }
    },
-   "protocolVersion": "1.4",
+   "protocolVersion": "1.5",
    "rounds": 8,
-   "seconds": 29.6,
+   "seconds": 26.6,
    "seed": 2026,
-   "tools": 21,
+   "tools": 22,
    "totals": {
     "chaos": 0,
     "declined": 0,
-    "driven": 260,
+    "driven": 264,
     "failed": 0,
-    "refused": 252
+    "refused": 272
    },
    "transport": "stdio",
    "undriven": [],
@@ -3109,14 +3188,15 @@
     "csrbt_page__set_checkbox",
     "csrbt_page__set_slider",
     "csrbt_page__set_text",
-    "csrbt_page__show_pane"
+    "csrbt_page__show_pane",
+    "csrbt_page__type_text"
    ],
    "unschemable": {}
   },
   "csrbt-page/eco-protocol-library.html": {
-   "accounted": 512,
-   "at": 1788421445,
-   "commands": 512,
+   "accounted": 536,
+   "at": 1788736816,
+   "commands": 536,
    "failures": [],
    "forbidden": [],
    "identity": "holds",
@@ -3196,219 +3276,9 @@
     "csrbt_page__read_control": {
      "chaos": 0,
      "declined": 0,
-     "driven": 13,
+     "driven": 18,
      "failed": 0,
-     "refused": 11
-    },
-    "csrbt_page__read_dialogs": {
-     "chaos": 0,
-     "declined": 0,
-     "driven": 24,
-     "failed": 0,
-     "refused": 0
-    },
-    "csrbt_page__read_page": {
-     "chaos": 0,
-     "declined": 0,
-     "driven": 24,
-     "failed": 0,
-     "refused": 0
-    },
-    "csrbt_page__read_report": {
-     "chaos": 0,
-     "declined": 0,
-     "driven": 24,
-     "failed": 0,
-     "refused": 0
-    },
-    "csrbt_page__reload": {
-     "chaos": 0,
-     "declined": 0,
-     "driven": 24,
-     "failed": 0,
-     "refused": 0
-    },
-    "csrbt_page__set_checkbox": {
-     "chaos": 0,
-     "declined": 0,
-     "driven": 0,
-     "failed": 0,
-     "refused": 24
-    },
-    "csrbt_page__set_clock": {
-     "chaos": 0,
-     "declined": 0,
-     "driven": 24,
-     "failed": 0,
-     "refused": 0
-    },
-    "csrbt_page__set_dialog": {
-     "chaos": 0,
-     "declined": 0,
-     "driven": 21,
-     "failed": 0,
-     "refused": 3
-    },
-    "csrbt_page__set_seed": {
-     "chaos": 0,
-     "declined": 0,
-     "driven": 24,
-     "failed": 0,
-     "refused": 0
-    },
-    "csrbt_page__set_slider": {
-     "chaos": 0,
-     "declined": 0,
-     "driven": 0,
-     "failed": 0,
-     "refused": 24
-    },
-    "csrbt_page__set_text": {
-     "chaos": 0,
-     "declined": 0,
-     "driven": 0,
-     "failed": 0,
-     "refused": 24
-    },
-    "csrbt_page__show_pane": {
-     "chaos": 0,
-     "declined": 0,
-     "driven": 0,
-     "failed": 0,
-     "refused": 24
-    }
-   },
-   "per_round": 3,
-   "plugin": "csrbt-page",
-   "price": {
-    "actionMs": {
-     "max": 325,
-     "median": 4,
-     "n": 282,
-     "p95": 320,
-     "total": 16663
-    },
-    "snapshotMs": {
-     "max": 38,
-     "median": 15,
-     "n": 282,
-     "p95": 23,
-     "total": 4652
-    }
-   },
-   "protocolVersion": "1.4",
-   "rounds": 8,
-   "seconds": 27.5,
-   "seed": 2026,
-   "tools": 21,
-   "totals": {
-    "chaos": 0,
-    "declined": 0,
-    "driven": 282,
-    "failed": 0,
-    "refused": 230
-   },
-   "transport": "stdio",
-   "undriven": [],
-   "unreachable": [
-    "csrbt_page__attach_file",
-    "csrbt_page__choose_option",
-    "csrbt_page__drop_files",
-    "csrbt_page__pick",
-    "csrbt_page__press_step",
-    "csrbt_page__set_checkbox",
-    "csrbt_page__set_slider",
-    "csrbt_page__set_text",
-    "csrbt_page__show_pane"
-   ],
-   "unschemable": {}
-  },
-  "csrbt-page/eco-protocol-reference.html": {
-   "accounted": 512,
-   "at": 1788421475,
-   "commands": 512,
-   "failures": [],
-   "forbidden": [],
-   "identity": "holds",
-   "invariants_broken": [],
-   "page": "eco-protocol-reference.html",
-   "per_action": {
-    "_cross_checks": {
-     "chaos": 0,
-     "declined": 0,
-     "driven": 8,
-     "failed": 0,
-     "refused": 0
-    },
-    "csrbt_page__activate": {
-     "chaos": 0,
-     "declined": 0,
-     "driven": 10,
-     "failed": 0,
-     "refused": 14
-    },
-    "csrbt_page__attach_file": {
-     "chaos": 0,
-     "declined": 0,
-     "driven": 0,
-     "failed": 0,
-     "refused": 24
-    },
-    "csrbt_page__capture_screen": {
-     "chaos": 0,
-     "declined": 0,
-     "driven": 24,
-     "failed": 0,
-     "refused": 0
-    },
-    "csrbt_page__choose_option": {
-     "chaos": 0,
-     "declined": 0,
-     "driven": 0,
-     "failed": 0,
-     "refused": 24
-    },
-    "csrbt_page__collect_output": {
-     "chaos": 0,
-     "declined": 0,
-     "driven": 24,
-     "failed": 0,
-     "refused": 0
-    },
-    "csrbt_page__drop_files": {
-     "chaos": 0,
-     "declined": 0,
-     "driven": 0,
-     "failed": 0,
-     "refused": 24
-    },
-    "csrbt_page__open": {
-     "chaos": 0,
-     "declined": 0,
-     "driven": 24,
-     "failed": 0,
-     "refused": 0
-    },
-    "csrbt_page__pick": {
-     "chaos": 0,
-     "declined": 0,
-     "driven": 0,
-     "failed": 0,
-     "refused": 24
-    },
-    "csrbt_page__press_step": {
-     "chaos": 0,
-     "declined": 0,
-     "driven": 0,
-     "failed": 0,
-     "refused": 24
-    },
-    "csrbt_page__read_control": {
-     "chaos": 0,
-     "declined": 0,
-     "driven": 14,
-     "failed": 0,
-     "refused": 10
+     "refused": 6
     },
     "csrbt_page__read_dialogs": {
      "chaos": 0,
@@ -3486,37 +3356,44 @@
      "driven": 0,
      "failed": 0,
      "refused": 24
+    },
+    "csrbt_page__type_text": {
+     "chaos": 0,
+     "declined": 0,
+     "driven": 0,
+     "failed": 0,
+     "refused": 24
     }
    },
    "per_round": 3,
    "plugin": "csrbt-page",
    "price": {
     "actionMs": {
-     "max": 347,
-     "median": 5,
-     "n": 270,
-     "p95": 321,
-     "total": 16476
+     "max": 321,
+     "median": 3,
+     "n": 288,
+     "p95": 316,
+     "total": 15831
     },
     "snapshotMs": {
-     "max": 49,
-     "median": 19,
-     "n": 270,
-     "p95": 26,
-     "total": 5230
+     "max": 34,
+     "median": 11,
+     "n": 288,
+     "p95": 18,
+     "total": 3543
     }
    },
-   "protocolVersion": "1.4",
+   "protocolVersion": "1.5",
    "rounds": 8,
-   "seconds": 28.0,
+   "seconds": 25.4,
    "seed": 2026,
-   "tools": 21,
+   "tools": 22,
    "totals": {
     "chaos": 0,
     "declined": 0,
-    "driven": 270,
+    "driven": 288,
     "failed": 0,
-    "refused": 242
+    "refused": 248
    },
    "transport": "stdio",
    "undriven": [],
@@ -3529,14 +3406,233 @@
     "csrbt_page__set_checkbox",
     "csrbt_page__set_slider",
     "csrbt_page__set_text",
-    "csrbt_page__show_pane"
+    "csrbt_page__show_pane",
+    "csrbt_page__type_text"
+   ],
+   "unschemable": {}
+  },
+  "csrbt-page/eco-protocol-reference.html": {
+   "accounted": 536,
+   "at": 1788736842,
+   "commands": 536,
+   "failures": [],
+   "forbidden": [],
+   "identity": "holds",
+   "invariants_broken": [],
+   "page": "eco-protocol-reference.html",
+   "per_action": {
+    "_cross_checks": {
+     "chaos": 0,
+     "declined": 0,
+     "driven": 8,
+     "failed": 0,
+     "refused": 0
+    },
+    "csrbt_page__activate": {
+     "chaos": 0,
+     "declined": 0,
+     "driven": 7,
+     "failed": 0,
+     "refused": 17
+    },
+    "csrbt_page__attach_file": {
+     "chaos": 0,
+     "declined": 0,
+     "driven": 0,
+     "failed": 0,
+     "refused": 24
+    },
+    "csrbt_page__capture_screen": {
+     "chaos": 0,
+     "declined": 0,
+     "driven": 24,
+     "failed": 0,
+     "refused": 0
+    },
+    "csrbt_page__choose_option": {
+     "chaos": 0,
+     "declined": 0,
+     "driven": 0,
+     "failed": 0,
+     "refused": 24
+    },
+    "csrbt_page__collect_output": {
+     "chaos": 0,
+     "declined": 0,
+     "driven": 24,
+     "failed": 0,
+     "refused": 0
+    },
+    "csrbt_page__drop_files": {
+     "chaos": 0,
+     "declined": 0,
+     "driven": 0,
+     "failed": 0,
+     "refused": 24
+    },
+    "csrbt_page__open": {
+     "chaos": 0,
+     "declined": 0,
+     "driven": 24,
+     "failed": 0,
+     "refused": 0
+    },
+    "csrbt_page__pick": {
+     "chaos": 0,
+     "declined": 0,
+     "driven": 0,
+     "failed": 0,
+     "refused": 24
+    },
+    "csrbt_page__press_step": {
+     "chaos": 0,
+     "declined": 0,
+     "driven": 0,
+     "failed": 0,
+     "refused": 24
+    },
+    "csrbt_page__read_control": {
+     "chaos": 0,
+     "declined": 0,
+     "driven": 19,
+     "failed": 0,
+     "refused": 5
+    },
+    "csrbt_page__read_dialogs": {
+     "chaos": 0,
+     "declined": 0,
+     "driven": 24,
+     "failed": 0,
+     "refused": 0
+    },
+    "csrbt_page__read_page": {
+     "chaos": 0,
+     "declined": 0,
+     "driven": 24,
+     "failed": 0,
+     "refused": 0
+    },
+    "csrbt_page__read_report": {
+     "chaos": 0,
+     "declined": 0,
+     "driven": 24,
+     "failed": 0,
+     "refused": 0
+    },
+    "csrbt_page__reload": {
+     "chaos": 0,
+     "declined": 0,
+     "driven": 24,
+     "failed": 0,
+     "refused": 0
+    },
+    "csrbt_page__set_checkbox": {
+     "chaos": 0,
+     "declined": 0,
+     "driven": 0,
+     "failed": 0,
+     "refused": 24
+    },
+    "csrbt_page__set_clock": {
+     "chaos": 0,
+     "declined": 0,
+     "driven": 24,
+     "failed": 0,
+     "refused": 0
+    },
+    "csrbt_page__set_dialog": {
+     "chaos": 0,
+     "declined": 0,
+     "driven": 21,
+     "failed": 0,
+     "refused": 3
+    },
+    "csrbt_page__set_seed": {
+     "chaos": 0,
+     "declined": 0,
+     "driven": 24,
+     "failed": 0,
+     "refused": 0
+    },
+    "csrbt_page__set_slider": {
+     "chaos": 0,
+     "declined": 0,
+     "driven": 0,
+     "failed": 0,
+     "refused": 24
+    },
+    "csrbt_page__set_text": {
+     "chaos": 0,
+     "declined": 0,
+     "driven": 0,
+     "failed": 0,
+     "refused": 24
+    },
+    "csrbt_page__show_pane": {
+     "chaos": 0,
+     "declined": 0,
+     "driven": 0,
+     "failed": 0,
+     "refused": 24
+    },
+    "csrbt_page__type_text": {
+     "chaos": 0,
+     "declined": 0,
+     "driven": 0,
+     "failed": 0,
+     "refused": 24
+    }
+   },
+   "per_round": 3,
+   "plugin": "csrbt-page",
+   "price": {
+    "actionMs": {
+     "max": 321,
+     "median": 4,
+     "n": 271,
+     "p95": 316,
+     "total": 15494
+    },
+    "snapshotMs": {
+     "max": 51,
+     "median": 12,
+     "n": 271,
+     "p95": 19,
+     "total": 3618
+    }
+   },
+   "protocolVersion": "1.5",
+   "rounds": 8,
+   "seconds": 25.4,
+   "seed": 2026,
+   "tools": 22,
+   "totals": {
+    "chaos": 0,
+    "declined": 0,
+    "driven": 271,
+    "failed": 0,
+    "refused": 265
+   },
+   "transport": "stdio",
+   "undriven": [],
+   "unreachable": [
+    "csrbt_page__attach_file",
+    "csrbt_page__choose_option",
+    "csrbt_page__drop_files",
+    "csrbt_page__pick",
+    "csrbt_page__press_step",
+    "csrbt_page__set_checkbox",
+    "csrbt_page__set_slider",
+    "csrbt_page__set_text",
+    "csrbt_page__show_pane",
+    "csrbt_page__type_text"
    ],
    "unschemable": {}
   },
   "csrbt-page/ecology-essay.html": {
-   "accounted": 512,
-   "at": 1788421503,
-   "commands": 512,
+   "accounted": 536,
+   "at": 1788736868,
+   "commands": 536,
    "failures": [],
    "forbidden": [],
    "identity": "holds",
@@ -3616,9 +3712,9 @@
     "csrbt_page__read_control": {
      "chaos": 0,
      "declined": 0,
-     "driven": 15,
+     "driven": 19,
      "failed": 0,
-     "refused": 9
+     "refused": 5
     },
     "csrbt_page__read_dialogs": {
      "chaos": 0,
@@ -3665,9 +3761,9 @@
     "csrbt_page__set_dialog": {
      "chaos": 0,
      "declined": 0,
-     "driven": 20,
+     "driven": 22,
      "failed": 0,
-     "refused": 4
+     "refused": 2
     },
     "csrbt_page__set_seed": {
      "chaos": 0,
@@ -3696,6 +3792,13 @@
      "driven": 0,
      "failed": 0,
      "refused": 24
+    },
+    "csrbt_page__type_text": {
+     "chaos": 0,
+     "declined": 0,
+     "driven": 0,
+     "failed": 0,
+     "refused": 24
     }
    },
    "per_round": 3,
@@ -3703,30 +3806,30 @@
    "price": {
     "actionMs": {
      "max": 325,
-     "median": 4,
-     "n": 259,
-     "p95": 320,
-     "total": 15920
+     "median": 3,
+     "n": 265,
+     "p95": 315,
+     "total": 15284
     },
     "snapshotMs": {
-     "max": 34,
-     "median": 14,
-     "n": 259,
-     "p95": 22,
-     "total": 3874
+     "max": 30,
+     "median": 10,
+     "n": 265,
+     "p95": 16,
+     "total": 2894
     }
    },
-   "protocolVersion": "1.4",
+   "protocolVersion": "1.5",
    "rounds": 8,
-   "seconds": 26.8,
+   "seconds": 24.5,
    "seed": 2026,
-   "tools": 21,
+   "tools": 22,
    "totals": {
     "chaos": 0,
     "declined": 0,
-    "driven": 259,
+    "driven": 265,
     "failed": 0,
-    "refused": 253
+    "refused": 271
    },
    "transport": "stdio",
    "undriven": [],
@@ -3740,14 +3843,15 @@
     "csrbt_page__set_checkbox",
     "csrbt_page__set_slider",
     "csrbt_page__set_text",
-    "csrbt_page__show_pane"
+    "csrbt_page__show_pane",
+    "csrbt_page__type_text"
    ],
    "unschemable": {}
   },
   "csrbt-page/ecology-field-card.html": {
-   "accounted": 512,
-   "at": 1788421530,
-   "commands": 512,
+   "accounted": 536,
+   "at": 1788736893,
+   "commands": 536,
    "failures": [],
    "forbidden": [],
    "identity": "holds",
@@ -3827,9 +3931,9 @@
     "csrbt_page__read_control": {
      "chaos": 0,
      "declined": 0,
-     "driven": 18,
+     "driven": 19,
      "failed": 0,
-     "refused": 6
+     "refused": 5
     },
     "csrbt_page__read_dialogs": {
      "chaos": 0,
@@ -3876,9 +3980,9 @@
     "csrbt_page__set_dialog": {
      "chaos": 0,
      "declined": 0,
-     "driven": 23,
+     "driven": 20,
      "failed": 0,
-     "refused": 1
+     "refused": 4
     },
     "csrbt_page__set_seed": {
      "chaos": 0,
@@ -3907,37 +4011,44 @@
      "driven": 0,
      "failed": 0,
      "refused": 24
+    },
+    "csrbt_page__type_text": {
+     "chaos": 0,
+     "declined": 0,
+     "driven": 0,
+     "failed": 0,
+     "refused": 24
     }
    },
    "per_round": 3,
    "plugin": "csrbt-page",
    "price": {
     "actionMs": {
-     "max": 323,
-     "median": 5,
-     "n": 265,
-     "p95": 320,
-     "total": 16139
+     "max": 336,
+     "median": 4,
+     "n": 263,
+     "p95": 316,
+     "total": 15458
     },
     "snapshotMs": {
-     "max": 40,
-     "median": 14,
-     "n": 265,
-     "p95": 21,
-     "total": 3878
+     "max": 27,
+     "median": 10,
+     "n": 263,
+     "p95": 15,
+     "total": 2738
     }
    },
-   "protocolVersion": "1.4",
+   "protocolVersion": "1.5",
    "rounds": 8,
-   "seconds": 26.2,
+   "seconds": 24.7,
    "seed": 2026,
-   "tools": 21,
+   "tools": 22,
    "totals": {
     "chaos": 0,
     "declined": 0,
-    "driven": 265,
+    "driven": 263,
     "failed": 0,
-    "refused": 247
+    "refused": 273
    },
    "transport": "stdio",
    "undriven": [],
@@ -3951,14 +4062,15 @@
     "csrbt_page__set_checkbox",
     "csrbt_page__set_slider",
     "csrbt_page__set_text",
-    "csrbt_page__show_pane"
+    "csrbt_page__show_pane",
+    "csrbt_page__type_text"
    ],
    "unschemable": {}
   },
   "csrbt-page/ecology-field-guide.html": {
-   "accounted": 512,
-   "at": 1788421559,
-   "commands": 512,
+   "accounted": 536,
+   "at": 1788736919,
+   "commands": 536,
    "failures": [],
    "forbidden": [],
    "identity": "holds",
@@ -3975,9 +4087,9 @@
     "csrbt_page__activate": {
      "chaos": 0,
      "declined": 0,
-     "driven": 5,
+     "driven": 3,
      "failed": 0,
-     "refused": 19
+     "refused": 21
     },
     "csrbt_page__attach_file": {
      "chaos": 0,
@@ -4038,9 +4150,9 @@
     "csrbt_page__read_control": {
      "chaos": 0,
      "declined": 0,
-     "driven": 19,
+     "driven": 17,
      "failed": 0,
-     "refused": 5
+     "refused": 7
     },
     "csrbt_page__read_dialogs": {
      "chaos": 0,
@@ -4087,9 +4199,9 @@
     "csrbt_page__set_dialog": {
      "chaos": 0,
      "declined": 0,
-     "driven": 22,
+     "driven": 21,
      "failed": 0,
-     "refused": 2
+     "refused": 3
     },
     "csrbt_page__set_seed": {
      "chaos": 0,
@@ -4118,37 +4230,44 @@
      "driven": 0,
      "failed": 0,
      "refused": 24
+    },
+    "csrbt_page__type_text": {
+     "chaos": 0,
+     "declined": 0,
+     "driven": 0,
+     "failed": 0,
+     "refused": 24
     }
    },
    "per_round": 3,
    "plugin": "csrbt-page",
    "price": {
     "actionMs": {
-     "max": 333,
-     "median": 4,
-     "n": 270,
-     "p95": 319,
-     "total": 16194
+     "max": 320,
+     "median": 3,
+     "n": 265,
+     "p95": 315,
+     "total": 15311
     },
     "snapshotMs": {
-     "max": 47,
-     "median": 16,
-     "n": 270,
-     "p95": 24,
-     "total": 4614
+     "max": 32,
+     "median": 11,
+     "n": 265,
+     "p95": 18,
+     "total": 3281
     }
    },
-   "protocolVersion": "1.4",
+   "protocolVersion": "1.5",
    "rounds": 8,
-   "seconds": 27.4,
+   "seconds": 24.6,
    "seed": 2026,
-   "tools": 21,
+   "tools": 22,
    "totals": {
     "chaos": 0,
     "declined": 0,
-    "driven": 270,
+    "driven": 265,
     "failed": 0,
-    "refused": 242
+    "refused": 271
    },
    "transport": "stdio",
    "undriven": [],
@@ -4161,14 +4280,15 @@
     "csrbt_page__set_checkbox",
     "csrbt_page__set_slider",
     "csrbt_page__set_text",
-    "csrbt_page__show_pane"
+    "csrbt_page__show_pane",
+    "csrbt_page__type_text"
    ],
    "unschemable": {}
   },
   "csrbt-page/ecology-glossary.html": {
-   "accounted": 512,
-   "at": 1788421587,
-   "commands": 512,
+   "accounted": 536,
+   "at": 1788736945,
+   "commands": 536,
    "failures": [],
    "forbidden": [],
    "identity": "holds",
@@ -4248,9 +4368,9 @@
     "csrbt_page__read_control": {
      "chaos": 0,
      "declined": 0,
-     "driven": 15,
+     "driven": 16,
      "failed": 0,
-     "refused": 9
+     "refused": 8
     },
     "csrbt_page__read_dialogs": {
      "chaos": 0,
@@ -4297,9 +4417,9 @@
     "csrbt_page__set_dialog": {
      "chaos": 0,
      "declined": 0,
-     "driven": 21,
+     "driven": 18,
      "failed": 0,
-     "refused": 3
+     "refused": 6
     },
     "csrbt_page__set_seed": {
      "chaos": 0,
@@ -4328,37 +4448,44 @@
      "driven": 0,
      "failed": 0,
      "refused": 24
+    },
+    "csrbt_page__type_text": {
+     "chaos": 0,
+     "declined": 0,
+     "driven": 0,
+     "failed": 0,
+     "refused": 24
     }
    },
    "per_round": 3,
    "plugin": "csrbt-page",
    "price": {
     "actionMs": {
-     "max": 330,
-     "median": 5,
-     "n": 260,
-     "p95": 320,
-     "total": 16081
+     "max": 332,
+     "median": 3,
+     "n": 258,
+     "p95": 316,
+     "total": 15340
     },
     "snapshotMs": {
-     "max": 36,
-     "median": 16,
-     "n": 260,
-     "p95": 25,
-     "total": 4259
+     "max": 23,
+     "median": 11,
+     "n": 258,
+     "p95": 17,
+     "total": 3109
     }
    },
-   "protocolVersion": "1.4",
+   "protocolVersion": "1.5",
    "rounds": 8,
-   "seconds": 27.1,
+   "seconds": 24.9,
    "seed": 2026,
-   "tools": 21,
+   "tools": 22,
    "totals": {
     "chaos": 0,
     "declined": 0,
-    "driven": 260,
+    "driven": 258,
     "failed": 0,
-    "refused": 252
+    "refused": 278
    },
    "transport": "stdio",
    "undriven": [],
@@ -4372,14 +4499,15 @@
     "csrbt_page__set_checkbox",
     "csrbt_page__set_slider",
     "csrbt_page__set_text",
-    "csrbt_page__show_pane"
+    "csrbt_page__show_pane",
+    "csrbt_page__type_text"
    ],
    "unschemable": {}
   },
   "csrbt-page/ecology-lab-manual.html": {
-   "accounted": 512,
-   "at": 1788421616,
-   "commands": 512,
+   "accounted": 536,
+   "at": 1788736972,
+   "commands": 536,
    "failures": [],
    "forbidden": [],
    "identity": "holds",
@@ -4459,9 +4587,439 @@
     "csrbt_page__read_control": {
      "chaos": 0,
      "declined": 0,
-     "driven": 14,
+     "driven": 19,
      "failed": 0,
-     "refused": 10
+     "refused": 5
+    },
+    "csrbt_page__read_dialogs": {
+     "chaos": 0,
+     "declined": 0,
+     "driven": 24,
+     "failed": 0,
+     "refused": 0
+    },
+    "csrbt_page__read_page": {
+     "chaos": 0,
+     "declined": 0,
+     "driven": 24,
+     "failed": 0,
+     "refused": 0
+    },
+    "csrbt_page__read_report": {
+     "chaos": 0,
+     "declined": 0,
+     "driven": 24,
+     "failed": 0,
+     "refused": 0
+    },
+    "csrbt_page__reload": {
+     "chaos": 0,
+     "declined": 0,
+     "driven": 24,
+     "failed": 0,
+     "refused": 0
+    },
+    "csrbt_page__set_checkbox": {
+     "chaos": 0,
+     "declined": 0,
+     "driven": 0,
+     "failed": 0,
+     "refused": 24
+    },
+    "csrbt_page__set_clock": {
+     "chaos": 0,
+     "declined": 0,
+     "driven": 24,
+     "failed": 0,
+     "refused": 0
+    },
+    "csrbt_page__set_dialog": {
+     "chaos": 0,
+     "declined": 0,
+     "driven": 23,
+     "failed": 0,
+     "refused": 1
+    },
+    "csrbt_page__set_seed": {
+     "chaos": 0,
+     "declined": 0,
+     "driven": 24,
+     "failed": 0,
+     "refused": 0
+    },
+    "csrbt_page__set_slider": {
+     "chaos": 0,
+     "declined": 0,
+     "driven": 0,
+     "failed": 0,
+     "refused": 24
+    },
+    "csrbt_page__set_text": {
+     "chaos": 0,
+     "declined": 0,
+     "driven": 0,
+     "failed": 0,
+     "refused": 24
+    },
+    "csrbt_page__show_pane": {
+     "chaos": 0,
+     "declined": 0,
+     "driven": 0,
+     "failed": 0,
+     "refused": 24
+    },
+    "csrbt_page__type_text": {
+     "chaos": 0,
+     "declined": 0,
+     "driven": 0,
+     "failed": 0,
+     "refused": 24
+    }
+   },
+   "per_round": 3,
+   "plugin": "csrbt-page",
+   "price": {
+    "actionMs": {
+     "max": 351,
+     "median": 5,
+     "n": 272,
+     "p95": 318,
+     "total": 15774
+    },
+    "snapshotMs": {
+     "max": 28,
+     "median": 13,
+     "n": 272,
+     "p95": 19,
+     "total": 3822
+    }
+   },
+   "protocolVersion": "1.5",
+   "rounds": 8,
+   "seconds": 26.2,
+   "seed": 2026,
+   "tools": 22,
+   "totals": {
+    "chaos": 0,
+    "declined": 0,
+    "driven": 272,
+    "failed": 0,
+    "refused": 264
+   },
+   "transport": "stdio",
+   "undriven": [],
+   "unreachable": [
+    "csrbt_page__attach_file",
+    "csrbt_page__choose_option",
+    "csrbt_page__drop_files",
+    "csrbt_page__pick",
+    "csrbt_page__press_step",
+    "csrbt_page__set_checkbox",
+    "csrbt_page__set_slider",
+    "csrbt_page__set_text",
+    "csrbt_page__show_pane",
+    "csrbt_page__type_text"
+   ],
+   "unschemable": {}
+  },
+  "csrbt-page/ecology-lab.html": {
+   "accounted": 536,
+   "at": 1788739038,
+   "commands": 536,
+   "failures": [],
+   "forbidden": [],
+   "identity": "holds",
+   "invariants_broken": [],
+   "page": "ecology-lab.html",
+   "per_action": {
+    "_cross_checks": {
+     "chaos": 0,
+     "declined": 0,
+     "driven": 8,
+     "failed": 0,
+     "refused": 0
+    },
+    "csrbt_page__activate": {
+     "chaos": 0,
+     "declined": 0,
+     "driven": 24,
+     "failed": 0,
+     "refused": 0
+    },
+    "csrbt_page__attach_file": {
+     "chaos": 0,
+     "declined": 0,
+     "driven": 0,
+     "failed": 0,
+     "refused": 24
+    },
+    "csrbt_page__capture_screen": {
+     "chaos": 0,
+     "declined": 0,
+     "driven": 24,
+     "failed": 0,
+     "refused": 0
+    },
+    "csrbt_page__choose_option": {
+     "chaos": 0,
+     "declined": 0,
+     "driven": 24,
+     "failed": 0,
+     "refused": 0
+    },
+    "csrbt_page__collect_output": {
+     "chaos": 0,
+     "declined": 0,
+     "driven": 24,
+     "failed": 0,
+     "refused": 0
+    },
+    "csrbt_page__drop_files": {
+     "chaos": 0,
+     "declined": 0,
+     "driven": 24,
+     "failed": 0,
+     "refused": 0
+    },
+    "csrbt_page__open": {
+     "chaos": 0,
+     "declined": 0,
+     "driven": 24,
+     "failed": 0,
+     "refused": 0
+    },
+    "csrbt_page__pick": {
+     "chaos": 0,
+     "declined": 0,
+     "driven": 0,
+     "failed": 0,
+     "refused": 24
+    },
+    "csrbt_page__press_step": {
+     "chaos": 0,
+     "declined": 0,
+     "driven": 0,
+     "failed": 0,
+     "refused": 24
+    },
+    "csrbt_page__read_control": {
+     "chaos": 0,
+     "declined": 0,
+     "driven": 22,
+     "failed": 0,
+     "refused": 2
+    },
+    "csrbt_page__read_dialogs": {
+     "chaos": 0,
+     "declined": 0,
+     "driven": 24,
+     "failed": 0,
+     "refused": 0
+    },
+    "csrbt_page__read_page": {
+     "chaos": 0,
+     "declined": 0,
+     "driven": 24,
+     "failed": 0,
+     "refused": 0
+    },
+    "csrbt_page__read_report": {
+     "chaos": 0,
+     "declined": 0,
+     "driven": 24,
+     "failed": 0,
+     "refused": 0
+    },
+    "csrbt_page__reload": {
+     "chaos": 0,
+     "declined": 0,
+     "driven": 24,
+     "failed": 0,
+     "refused": 0
+    },
+    "csrbt_page__set_checkbox": {
+     "chaos": 0,
+     "declined": 0,
+     "driven": 24,
+     "failed": 0,
+     "refused": 0
+    },
+    "csrbt_page__set_clock": {
+     "chaos": 0,
+     "declined": 0,
+     "driven": 24,
+     "failed": 0,
+     "refused": 0
+    },
+    "csrbt_page__set_dialog": {
+     "chaos": 0,
+     "declined": 0,
+     "driven": 21,
+     "failed": 0,
+     "refused": 3
+    },
+    "csrbt_page__set_seed": {
+     "chaos": 0,
+     "declined": 0,
+     "driven": 24,
+     "failed": 0,
+     "refused": 0
+    },
+    "csrbt_page__set_slider": {
+     "chaos": 0,
+     "declined": 0,
+     "driven": 24,
+     "failed": 0,
+     "refused": 0
+    },
+    "csrbt_page__set_text": {
+     "chaos": 0,
+     "declined": 0,
+     "driven": 24,
+     "failed": 0,
+     "refused": 0
+    },
+    "csrbt_page__show_pane": {
+     "chaos": 0,
+     "declined": 0,
+     "driven": 0,
+     "failed": 0,
+     "refused": 24
+    },
+    "csrbt_page__type_text": {
+     "chaos": 0,
+     "declined": 0,
+     "driven": 22,
+     "failed": 0,
+     "refused": 2
+    }
+   },
+   "per_round": 3,
+   "plugin": "csrbt-page",
+   "price": {
+    "actionMs": {
+     "max": 474,
+     "median": 21,
+     "n": 433,
+     "p95": 394,
+     "total": 27610
+    },
+    "snapshotMs": {
+     "max": 166,
+     "median": 53,
+     "n": 433,
+     "p95": 96,
+     "total": 25445
+    }
+   },
+   "protocolVersion": "1.5",
+   "rounds": 8,
+   "seconds": 57.7,
+   "seed": 2026,
+   "tools": 22,
+   "totals": {
+    "chaos": 0,
+    "declined": 0,
+    "driven": 433,
+    "failed": 0,
+    "refused": 103
+   },
+   "transport": "stdio",
+   "undriven": [],
+   "unreachable": [
+    "csrbt_page__attach_file",
+    "csrbt_page__pick",
+    "csrbt_page__press_step",
+    "csrbt_page__show_pane"
+   ],
+   "unschemable": {}
+  },
+  "csrbt-page/ecology-teachers-guide.html": {
+   "accounted": 536,
+   "at": 1788737113,
+   "commands": 536,
+   "failures": [],
+   "forbidden": [],
+   "identity": "holds",
+   "invariants_broken": [],
+   "page": "ecology-teachers-guide.html",
+   "per_action": {
+    "_cross_checks": {
+     "chaos": 0,
+     "declined": 0,
+     "driven": 8,
+     "failed": 0,
+     "refused": 0
+    },
+    "csrbt_page__activate": {
+     "chaos": 0,
+     "declined": 0,
+     "driven": 3,
+     "failed": 0,
+     "refused": 21
+    },
+    "csrbt_page__attach_file": {
+     "chaos": 0,
+     "declined": 0,
+     "driven": 0,
+     "failed": 0,
+     "refused": 24
+    },
+    "csrbt_page__capture_screen": {
+     "chaos": 0,
+     "declined": 0,
+     "driven": 24,
+     "failed": 0,
+     "refused": 0
+    },
+    "csrbt_page__choose_option": {
+     "chaos": 0,
+     "declined": 0,
+     "driven": 0,
+     "failed": 0,
+     "refused": 24
+    },
+    "csrbt_page__collect_output": {
+     "chaos": 0,
+     "declined": 0,
+     "driven": 24,
+     "failed": 0,
+     "refused": 0
+    },
+    "csrbt_page__drop_files": {
+     "chaos": 0,
+     "declined": 0,
+     "driven": 0,
+     "failed": 0,
+     "refused": 24
+    },
+    "csrbt_page__open": {
+     "chaos": 0,
+     "declined": 0,
+     "driven": 24,
+     "failed": 0,
+     "refused": 0
+    },
+    "csrbt_page__pick": {
+     "chaos": 0,
+     "declined": 0,
+     "driven": 0,
+     "failed": 0,
+     "refused": 24
+    },
+    "csrbt_page__press_step": {
+     "chaos": 0,
+     "declined": 0,
+     "driven": 0,
+     "failed": 0,
+     "refused": 24
+    },
+    "csrbt_page__read_control": {
+     "chaos": 0,
+     "declined": 0,
+     "driven": 16,
+     "failed": 0,
+     "refused": 8
     },
     "csrbt_page__read_dialogs": {
      "chaos": 0,
@@ -4539,37 +5097,44 @@
      "driven": 0,
      "failed": 0,
      "refused": 24
+    },
+    "csrbt_page__type_text": {
+     "chaos": 0,
+     "declined": 0,
+     "driven": 0,
+     "failed": 0,
+     "refused": 24
     }
    },
    "per_round": 3,
    "plugin": "csrbt-page",
    "price": {
     "actionMs": {
-     "max": 336,
-     "median": 6,
-     "n": 265,
-     "p95": 322,
-     "total": 16514
+     "max": 319,
+     "median": 4,
+     "n": 264,
+     "p95": 316,
+     "total": 15375
     },
     "snapshotMs": {
-     "max": 50,
-     "median": 18,
-     "n": 265,
-     "p95": 27,
-     "total": 5149
+     "max": 37,
+     "median": 17,
+     "n": 264,
+     "p95": 26,
+     "total": 4782
     }
    },
-   "protocolVersion": "1.4",
+   "protocolVersion": "1.5",
    "rounds": 8,
-   "seconds": 28.0,
+   "seconds": 26.5,
    "seed": 2026,
-   "tools": 21,
+   "tools": 22,
    "totals": {
     "chaos": 0,
     "declined": 0,
-    "driven": 265,
+    "driven": 264,
     "failed": 0,
-    "refused": 247
+    "refused": 272
    },
    "transport": "stdio",
    "undriven": [],
@@ -4582,430 +5147,15 @@
     "csrbt_page__set_checkbox",
     "csrbt_page__set_slider",
     "csrbt_page__set_text",
-    "csrbt_page__show_pane"
-   ],
-   "unschemable": {}
-  },
-  "csrbt-page/ecology-lab.html": {
-   "accounted": 512,
-   "at": 1788421681,
-   "commands": 512,
-   "failures": [],
-   "forbidden": [],
-   "identity": "holds",
-   "invariants_broken": [],
-   "page": "ecology-lab.html",
-   "per_action": {
-    "_cross_checks": {
-     "chaos": 0,
-     "declined": 0,
-     "driven": 8,
-     "failed": 0,
-     "refused": 0
-    },
-    "csrbt_page__activate": {
-     "chaos": 0,
-     "declined": 0,
-     "driven": 24,
-     "failed": 0,
-     "refused": 0
-    },
-    "csrbt_page__attach_file": {
-     "chaos": 0,
-     "declined": 0,
-     "driven": 0,
-     "failed": 0,
-     "refused": 24
-    },
-    "csrbt_page__capture_screen": {
-     "chaos": 0,
-     "declined": 0,
-     "driven": 24,
-     "failed": 0,
-     "refused": 0
-    },
-    "csrbt_page__choose_option": {
-     "chaos": 0,
-     "declined": 0,
-     "driven": 24,
-     "failed": 0,
-     "refused": 0
-    },
-    "csrbt_page__collect_output": {
-     "chaos": 0,
-     "declined": 0,
-     "driven": 24,
-     "failed": 0,
-     "refused": 0
-    },
-    "csrbt_page__drop_files": {
-     "chaos": 0,
-     "declined": 0,
-     "driven": 0,
-     "failed": 0,
-     "refused": 24
-    },
-    "csrbt_page__open": {
-     "chaos": 0,
-     "declined": 0,
-     "driven": 24,
-     "failed": 0,
-     "refused": 0
-    },
-    "csrbt_page__pick": {
-     "chaos": 0,
-     "declined": 0,
-     "driven": 0,
-     "failed": 0,
-     "refused": 24
-    },
-    "csrbt_page__press_step": {
-     "chaos": 0,
-     "declined": 0,
-     "driven": 0,
-     "failed": 0,
-     "refused": 24
-    },
-    "csrbt_page__read_control": {
-     "chaos": 0,
-     "declined": 0,
-     "driven": 24,
-     "failed": 0,
-     "refused": 0
-    },
-    "csrbt_page__read_dialogs": {
-     "chaos": 0,
-     "declined": 0,
-     "driven": 24,
-     "failed": 0,
-     "refused": 0
-    },
-    "csrbt_page__read_page": {
-     "chaos": 0,
-     "declined": 0,
-     "driven": 24,
-     "failed": 0,
-     "refused": 0
-    },
-    "csrbt_page__read_report": {
-     "chaos": 0,
-     "declined": 0,
-     "driven": 24,
-     "failed": 0,
-     "refused": 0
-    },
-    "csrbt_page__reload": {
-     "chaos": 0,
-     "declined": 0,
-     "driven": 24,
-     "failed": 0,
-     "refused": 0
-    },
-    "csrbt_page__set_checkbox": {
-     "chaos": 0,
-     "declined": 0,
-     "driven": 24,
-     "failed": 0,
-     "refused": 0
-    },
-    "csrbt_page__set_clock": {
-     "chaos": 0,
-     "declined": 0,
-     "driven": 24,
-     "failed": 0,
-     "refused": 0
-    },
-    "csrbt_page__set_dialog": {
-     "chaos": 0,
-     "declined": 0,
-     "driven": 19,
-     "failed": 0,
-     "refused": 5
-    },
-    "csrbt_page__set_seed": {
-     "chaos": 0,
-     "declined": 0,
-     "driven": 24,
-     "failed": 0,
-     "refused": 0
-    },
-    "csrbt_page__set_slider": {
-     "chaos": 0,
-     "declined": 0,
-     "driven": 24,
-     "failed": 0,
-     "refused": 0
-    },
-    "csrbt_page__set_text": {
-     "chaos": 0,
-     "declined": 0,
-     "driven": 24,
-     "failed": 0,
-     "refused": 0
-    },
-    "csrbt_page__show_pane": {
-     "chaos": 0,
-     "declined": 0,
-     "driven": 0,
-     "failed": 0,
-     "refused": 24
-    }
-   },
-   "per_round": 3,
-   "plugin": "csrbt-page",
-   "price": {
-    "actionMs": {
-     "max": 563,
-     "median": 23,
-     "n": 387,
-     "p95": 456,
-     "total": 28198
-    },
-    "snapshotMs": {
-     "max": 342,
-     "median": 64,
-     "n": 387,
-     "p95": 132,
-     "total": 28790
-    }
-   },
-   "protocolVersion": "1.4",
-   "rounds": 8,
-   "seconds": 63.2,
-   "seed": 2026,
-   "tools": 21,
-   "totals": {
-    "chaos": 0,
-    "declined": 0,
-    "driven": 387,
-    "failed": 0,
-    "refused": 125
-   },
-   "transport": "stdio",
-   "undriven": [],
-   "unreachable": [
-    "csrbt_page__attach_file",
-    "csrbt_page__drop_files",
-    "csrbt_page__pick",
-    "csrbt_page__press_step",
-    "csrbt_page__show_pane"
-   ],
-   "unschemable": {}
-  },
-  "csrbt-page/ecology-teachers-guide.html": {
-   "accounted": 512,
-   "at": 1788421715,
-   "commands": 512,
-   "failures": [],
-   "forbidden": [],
-   "identity": "holds",
-   "invariants_broken": [],
-   "page": "ecology-teachers-guide.html",
-   "per_action": {
-    "_cross_checks": {
-     "chaos": 0,
-     "declined": 0,
-     "driven": 8,
-     "failed": 0,
-     "refused": 0
-    },
-    "csrbt_page__activate": {
-     "chaos": 0,
-     "declined": 0,
-     "driven": 6,
-     "failed": 0,
-     "refused": 18
-    },
-    "csrbt_page__attach_file": {
-     "chaos": 0,
-     "declined": 0,
-     "driven": 0,
-     "failed": 0,
-     "refused": 24
-    },
-    "csrbt_page__capture_screen": {
-     "chaos": 0,
-     "declined": 0,
-     "driven": 24,
-     "failed": 0,
-     "refused": 0
-    },
-    "csrbt_page__choose_option": {
-     "chaos": 0,
-     "declined": 0,
-     "driven": 0,
-     "failed": 0,
-     "refused": 24
-    },
-    "csrbt_page__collect_output": {
-     "chaos": 0,
-     "declined": 0,
-     "driven": 24,
-     "failed": 0,
-     "refused": 0
-    },
-    "csrbt_page__drop_files": {
-     "chaos": 0,
-     "declined": 0,
-     "driven": 0,
-     "failed": 0,
-     "refused": 24
-    },
-    "csrbt_page__open": {
-     "chaos": 0,
-     "declined": 0,
-     "driven": 24,
-     "failed": 0,
-     "refused": 0
-    },
-    "csrbt_page__pick": {
-     "chaos": 0,
-     "declined": 0,
-     "driven": 0,
-     "failed": 0,
-     "refused": 24
-    },
-    "csrbt_page__press_step": {
-     "chaos": 0,
-     "declined": 0,
-     "driven": 0,
-     "failed": 0,
-     "refused": 24
-    },
-    "csrbt_page__read_control": {
-     "chaos": 0,
-     "declined": 0,
-     "driven": 18,
-     "failed": 0,
-     "refused": 6
-    },
-    "csrbt_page__read_dialogs": {
-     "chaos": 0,
-     "declined": 0,
-     "driven": 24,
-     "failed": 0,
-     "refused": 0
-    },
-    "csrbt_page__read_page": {
-     "chaos": 0,
-     "declined": 0,
-     "driven": 24,
-     "failed": 0,
-     "refused": 0
-    },
-    "csrbt_page__read_report": {
-     "chaos": 0,
-     "declined": 0,
-     "driven": 24,
-     "failed": 0,
-     "refused": 0
-    },
-    "csrbt_page__reload": {
-     "chaos": 0,
-     "declined": 0,
-     "driven": 24,
-     "failed": 0,
-     "refused": 0
-    },
-    "csrbt_page__set_checkbox": {
-     "chaos": 0,
-     "declined": 0,
-     "driven": 0,
-     "failed": 0,
-     "refused": 24
-    },
-    "csrbt_page__set_clock": {
-     "chaos": 0,
-     "declined": 0,
-     "driven": 24,
-     "failed": 0,
-     "refused": 0
-    },
-    "csrbt_page__set_dialog": {
-     "chaos": 0,
-     "declined": 0,
-     "driven": 22,
-     "failed": 0,
-     "refused": 2
-    },
-    "csrbt_page__set_seed": {
-     "chaos": 0,
-     "declined": 0,
-     "driven": 24,
-     "failed": 0,
-     "refused": 0
-    },
-    "csrbt_page__set_slider": {
-     "chaos": 0,
-     "declined": 0,
-     "driven": 0,
-     "failed": 0,
-     "refused": 24
-    },
-    "csrbt_page__set_text": {
-     "chaos": 0,
-     "declined": 0,
-     "driven": 0,
-     "failed": 0,
-     "refused": 24
-    },
-    "csrbt_page__show_pane": {
-     "chaos": 0,
-     "declined": 0,
-     "driven": 0,
-     "failed": 0,
-     "refused": 24
-    }
-   },
-   "per_round": 3,
-   "plugin": "csrbt-page",
-   "price": {
-    "actionMs": {
-     "max": 379,
-     "median": 6,
-     "n": 270,
-     "p95": 328,
-     "total": 17279
-    },
-    "snapshotMs": {
-     "max": 99,
-     "median": 30,
-     "n": 270,
-     "p95": 51,
-     "total": 8746
-    }
-   },
-   "protocolVersion": "1.4",
-   "rounds": 8,
-   "seconds": 32.7,
-   "seed": 2026,
-   "tools": 21,
-   "totals": {
-    "chaos": 0,
-    "declined": 0,
-    "driven": 270,
-    "failed": 0,
-    "refused": 242
-   },
-   "transport": "stdio",
-   "undriven": [],
-   "unreachable": [
-    "csrbt_page__attach_file",
-    "csrbt_page__choose_option",
-    "csrbt_page__drop_files",
-    "csrbt_page__pick",
-    "csrbt_page__press_step",
-    "csrbt_page__set_checkbox",
-    "csrbt_page__set_slider",
-    "csrbt_page__set_text",
-    "csrbt_page__show_pane"
+    "csrbt_page__show_pane",
+    "csrbt_page__type_text"
    ],
    "unschemable": {}
   },
   "csrbt-page/ecology.html": {
-   "accounted": 512,
-   "at": 1788421750,
-   "commands": 512,
+   "accounted": 536,
+   "at": 1788737140,
+   "commands": 536,
    "failures": [],
    "forbidden": [],
    "identity": "holds",
@@ -5085,9 +5235,9 @@
     "csrbt_page__read_control": {
      "chaos": 0,
      "declined": 0,
-     "driven": 18,
+     "driven": 16,
      "failed": 0,
-     "refused": 6
+     "refused": 8
     },
     "csrbt_page__read_dialogs": {
      "chaos": 0,
@@ -5134,9 +5284,9 @@
     "csrbt_page__set_dialog": {
      "chaos": 0,
      "declined": 0,
-     "driven": 22,
+     "driven": 21,
      "failed": 0,
-     "refused": 2
+     "refused": 3
     },
     "csrbt_page__set_seed": {
      "chaos": 0,
@@ -5165,37 +5315,44 @@
      "driven": 0,
      "failed": 0,
      "refused": 24
+    },
+    "csrbt_page__type_text": {
+     "chaos": 0,
+     "declined": 0,
+     "driven": 0,
+     "failed": 0,
+     "refused": 24
     }
    },
    "per_round": 3,
    "plugin": "csrbt-page",
    "price": {
     "actionMs": {
-     "max": 388,
-     "median": 6,
-     "n": 264,
-     "p95": 328,
-     "total": 17147
+     "max": 321,
+     "median": 3,
+     "n": 261,
+     "p95": 316,
+     "total": 15283
     },
     "snapshotMs": {
-     "max": 139,
-     "median": 28,
-     "n": 264,
-     "p95": 50,
-     "total": 8445
+     "max": 40,
+     "median": 16,
+     "n": 261,
+     "p95": 26,
+     "total": 4691
     }
    },
-   "protocolVersion": "1.4",
+   "protocolVersion": "1.5",
    "rounds": 8,
-   "seconds": 32.8,
+   "seconds": 26.4,
    "seed": 2026,
-   "tools": 21,
+   "tools": 22,
    "totals": {
     "chaos": 0,
     "declined": 0,
-    "driven": 264,
+    "driven": 261,
     "failed": 0,
-    "refused": 248
+    "refused": 275
    },
    "transport": "stdio",
    "undriven": [],
@@ -5209,14 +5366,15 @@
     "csrbt_page__set_checkbox",
     "csrbt_page__set_slider",
     "csrbt_page__set_text",
-    "csrbt_page__show_pane"
+    "csrbt_page__show_pane",
+    "csrbt_page__type_text"
    ],
    "unschemable": {}
   },
   "csrbt-page/ethogram.html": {
-   "accounted": 512,
-   "at": 1788421812,
-   "commands": 512,
+   "accounted": 536,
+   "at": 1788737190,
+   "commands": 536,
    "failures": [],
    "forbidden": [],
    "identity": "holds",
@@ -5296,9 +5454,9 @@
     "csrbt_page__read_control": {
      "chaos": 0,
      "declined": 0,
-     "driven": 21,
+     "driven": 20,
      "failed": 0,
-     "refused": 3
+     "refused": 4
     },
     "csrbt_page__read_dialogs": {
      "chaos": 0,
@@ -5345,9 +5503,9 @@
     "csrbt_page__set_dialog": {
      "chaos": 0,
      "declined": 0,
-     "driven": 22,
+     "driven": 23,
      "failed": 0,
-     "refused": 2
+     "refused": 1
     },
     "csrbt_page__set_seed": {
      "chaos": 0,
@@ -5376,35 +5534,42 @@
      "driven": 18,
      "failed": 0,
      "refused": 6
+    },
+    "csrbt_page__type_text": {
+     "chaos": 0,
+     "declined": 0,
+     "driven": 24,
+     "failed": 0,
+     "refused": 0
     }
    },
    "per_round": 3,
    "plugin": "csrbt-page",
    "price": {
     "actionMs": {
-     "max": 353,
-     "median": 11,
-     "n": 365,
-     "p95": 328,
-     "total": 27454
+     "max": 440,
+     "median": 7,
+     "n": 389,
+     "p95": 320,
+     "total": 27487
     },
     "snapshotMs": {
-     "max": 148,
-     "median": 50,
-     "n": 365,
-     "p95": 106,
-     "total": 21059
+     "max": 67,
+     "median": 26,
+     "n": 389,
+     "p95": 48,
+     "total": 11265
     }
    },
-   "protocolVersion": "1.4",
+   "protocolVersion": "1.5",
    "rounds": 8,
-   "seconds": 60.7,
+   "seconds": 49.0,
    "seed": 2026,
-   "tools": 21,
+   "tools": 22,
    "totals": {
     "chaos": 0,
     "declined": 0,
-    "driven": 365,
+    "driven": 389,
     "failed": 0,
     "refused": 147
    },
@@ -5420,9 +5585,9 @@
    "unschemable": {}
   },
   "csrbt-page/experiment-guide.html": {
-   "accounted": 512,
-   "at": 1788421870,
-   "commands": 512,
+   "accounted": 536,
+   "at": 1788739084,
+   "commands": 536,
    "failures": [],
    "forbidden": [],
    "identity": "holds",
@@ -5502,9 +5667,9 @@
     "csrbt_page__read_control": {
      "chaos": 0,
      "declined": 0,
-     "driven": 22,
+     "driven": 19,
      "failed": 0,
-     "refused": 2
+     "refused": 5
     },
     "csrbt_page__read_dialogs": {
      "chaos": 0,
@@ -5551,9 +5716,9 @@
     "csrbt_page__set_dialog": {
      "chaos": 0,
      "declined": 0,
-     "driven": 22,
+     "driven": 18,
      "failed": 0,
-     "refused": 2
+     "refused": 6
     },
     "csrbt_page__set_seed": {
      "chaos": 0,
@@ -5579,40 +5744,47 @@
     "csrbt_page__show_pane": {
      "chaos": 0,
      "declined": 0,
-     "driven": 19,
+     "driven": 17,
      "failed": 0,
-     "refused": 5
+     "refused": 7
+    },
+    "csrbt_page__type_text": {
+     "chaos": 0,
+     "declined": 0,
+     "driven": 12,
+     "failed": 0,
+     "refused": 12
     }
    },
    "per_round": 3,
    "plugin": "csrbt-page",
    "price": {
     "actionMs": {
-     "max": 360,
-     "median": 25,
-     "n": 415,
-     "p95": 326,
-     "total": 26272
+     "max": 324,
+     "median": 22,
+     "n": 418,
+     "p95": 318,
+     "total": 24402
     },
     "snapshotMs": {
-     "max": 135,
-     "median": 47,
-     "n": 415,
-     "p95": 93,
-     "total": 21451
+     "max": 62,
+     "median": 28,
+     "n": 418,
+     "p95": 53,
+     "total": 12728
     }
    },
-   "protocolVersion": "1.4",
+   "protocolVersion": "1.5",
    "rounds": 8,
-   "seconds": 56.8,
+   "seconds": 44.6,
    "seed": 2026,
-   "tools": 21,
+   "tools": 22,
    "totals": {
     "chaos": 0,
     "declined": 0,
-    "driven": 415,
+    "driven": 418,
     "failed": 0,
-    "refused": 97
+    "refused": 118
    },
    "transport": "stdio",
    "undriven": [],
@@ -5624,9 +5796,9 @@
    "unschemable": {}
   },
   "csrbt-page/farm-scout.html": {
-   "accounted": 512,
-   "at": 1788421929,
-   "commands": 512,
+   "accounted": 536,
+   "at": 1788737653,
+   "commands": 536,
    "failures": [],
    "forbidden": [],
    "identity": "holds",
@@ -5783,40 +5955,47 @@
     "csrbt_page__show_pane": {
      "chaos": 0,
      "declined": 0,
-     "driven": 21,
+     "driven": 19,
      "failed": 0,
-     "refused": 3
+     "refused": 5
+    },
+    "csrbt_page__type_text": {
+     "chaos": 0,
+     "declined": 0,
+     "driven": 24,
+     "failed": 0,
+     "refused": 0
     }
    },
    "per_round": 3,
    "plugin": "csrbt-page",
    "price": {
     "actionMs": {
-     "max": 333,
-     "median": 9,
-     "n": 381,
-     "p95": 324,
-     "total": 27584
+     "max": 441,
+     "median": 23,
+     "n": 403,
+     "p95": 319,
+     "total": 32637
     },
     "snapshotMs": {
-     "max": 139,
-     "median": 57,
-     "n": 381,
-     "p95": 102,
-     "total": 23593
+     "max": 110,
+     "median": 36,
+     "n": 403,
+     "p95": 66,
+     "total": 15766
     }
    },
-   "protocolVersion": "1.4",
+   "protocolVersion": "1.5",
    "rounds": 8,
-   "seconds": 57.7,
+   "seconds": 54.8,
    "seed": 2026,
-   "tools": 21,
+   "tools": 22,
    "totals": {
     "chaos": 0,
     "declined": 0,
-    "driven": 381,
+    "driven": 403,
     "failed": 0,
-    "refused": 131
+    "refused": 133
    },
    "transport": "stdio",
    "undriven": [],
@@ -5830,9 +6009,9 @@
    "unschemable": {}
   },
   "csrbt-page/field-notebook.html": {
-   "accounted": 512,
-   "at": 1788421980,
-   "commands": 512,
+   "accounted": 536,
+   "at": 1788737698,
+   "commands": 536,
    "failures": [],
    "forbidden": [],
    "identity": "holds",
@@ -5912,9 +6091,9 @@
     "csrbt_page__read_control": {
      "chaos": 0,
      "declined": 0,
-     "driven": 14,
+     "driven": 20,
      "failed": 0,
-     "refused": 10
+     "refused": 4
     },
     "csrbt_page__read_dialogs": {
      "chaos": 0,
@@ -5961,9 +6140,9 @@
     "csrbt_page__set_dialog": {
      "chaos": 0,
      "declined": 0,
-     "driven": 20,
+     "driven": 22,
      "failed": 0,
-     "refused": 4
+     "refused": 2
     },
     "csrbt_page__set_seed": {
      "chaos": 0,
@@ -5989,40 +6168,47 @@
     "csrbt_page__show_pane": {
      "chaos": 0,
      "declined": 0,
-     "driven": 19,
+     "driven": 21,
      "failed": 0,
-     "refused": 5
+     "refused": 3
+    },
+    "csrbt_page__type_text": {
+     "chaos": 0,
+     "declined": 0,
+     "driven": 24,
+     "failed": 0,
+     "refused": 0
     }
    },
    "per_round": 3,
    "plugin": "csrbt-page",
    "price": {
     "actionMs": {
-     "max": 336,
-     "median": 8,
-     "n": 349,
-     "p95": 324,
-     "total": 24388
+     "max": 433,
+     "median": 6,
+     "n": 383,
+     "p95": 319,
+     "total": 27405
     },
     "snapshotMs": {
-     "max": 79,
-     "median": 36,
-     "n": 349,
-     "p95": 63,
-     "total": 13322
+     "max": 53,
+     "median": 21,
+     "n": 383,
+     "p95": 34,
+     "total": 8563
     }
    },
-   "protocolVersion": "1.4",
+   "protocolVersion": "1.5",
    "rounds": 8,
-   "seconds": 48.9,
+   "seconds": 44.2,
    "seed": 2026,
-   "tools": 21,
+   "tools": 22,
    "totals": {
     "chaos": 0,
     "declined": 0,
-    "driven": 349,
+    "driven": 383,
     "failed": 0,
-    "refused": 163
+    "refused": 153
    },
    "transport": "stdio",
    "undriven": [],
@@ -6037,9 +6223,9 @@
    "unschemable": {}
   },
   "csrbt-page/field-season.html": {
-   "accounted": 512,
-   "at": 1788422014,
-   "commands": 512,
+   "accounted": 536,
+   "at": 1788737728,
+   "commands": 536,
    "failures": [],
    "forbidden": [],
    "identity": "holds",
@@ -6112,16 +6298,16 @@
     "csrbt_page__press_step": {
      "chaos": 0,
      "declined": 0,
-     "driven": 3,
+     "driven": 0,
      "failed": 0,
-     "refused": 21
+     "refused": 24
     },
     "csrbt_page__read_control": {
      "chaos": 0,
      "declined": 0,
-     "driven": 22,
+     "driven": 21,
      "failed": 0,
-     "refused": 2
+     "refused": 3
     },
     "csrbt_page__read_dialogs": {
      "chaos": 0,
@@ -6168,9 +6354,9 @@
     "csrbt_page__set_dialog": {
      "chaos": 0,
      "declined": 0,
-     "driven": 23,
+     "driven": 22,
      "failed": 0,
-     "refused": 1
+     "refused": 2
     },
     "csrbt_page__set_seed": {
      "chaos": 0,
@@ -6189,9 +6375,9 @@
     "csrbt_page__set_text": {
      "chaos": 0,
      "declined": 0,
-     "driven": 18,
+     "driven": 12,
      "failed": 0,
-     "refused": 6
+     "refused": 12
     },
     "csrbt_page__show_pane": {
      "chaos": 0,
@@ -6199,37 +6385,44 @@
      "driven": 0,
      "failed": 0,
      "refused": 24
+    },
+    "csrbt_page__type_text": {
+     "chaos": 0,
+     "declined": 0,
+     "driven": 9,
+     "failed": 0,
+     "refused": 15
     }
    },
    "per_round": 3,
    "plugin": "csrbt-page",
    "price": {
     "actionMs": {
-     "max": 335,
-     "median": 6,
-     "n": 314,
-     "p95": 322,
-     "total": 17501
+     "max": 345,
+     "median": 4,
+     "n": 312,
+     "p95": 317,
+     "total": 17062
     },
     "snapshotMs": {
-     "max": 69,
-     "median": 27,
-     "n": 314,
-     "p95": 46,
-     "total": 9259
+     "max": 41,
+     "median": 16,
+     "n": 312,
+     "p95": 26,
+     "total": 5496
     }
    },
-   "protocolVersion": "1.4",
+   "protocolVersion": "1.5",
    "rounds": 8,
-   "seconds": 33.0,
+   "seconds": 29.4,
    "seed": 2026,
-   "tools": 21,
+   "tools": 22,
    "totals": {
     "chaos": 0,
     "declined": 0,
-    "driven": 314,
+    "driven": 312,
     "failed": 0,
-    "refused": 198
+    "refused": 224
    },
    "transport": "stdio",
    "undriven": [],
@@ -6238,6 +6431,7 @@
     "csrbt_page__choose_option",
     "csrbt_page__drop_files",
     "csrbt_page__pick",
+    "csrbt_page__press_step",
     "csrbt_page__set_checkbox",
     "csrbt_page__set_slider",
     "csrbt_page__show_pane"
@@ -6245,9 +6439,9 @@
    "unschemable": {}
   },
   "csrbt-page/food-web.html": {
-   "accounted": 512,
-   "at": 1788422047,
-   "commands": 512,
+   "accounted": 536,
+   "at": 1788737759,
+   "commands": 536,
    "failures": [],
    "forbidden": [],
    "identity": "holds",
@@ -6327,9 +6521,9 @@
     "csrbt_page__read_control": {
      "chaos": 0,
      "declined": 0,
-     "driven": 16,
+     "driven": 15,
      "failed": 0,
-     "refused": 8
+     "refused": 9
     },
     "csrbt_page__read_dialogs": {
      "chaos": 0,
@@ -6376,9 +6570,9 @@
     "csrbt_page__set_dialog": {
      "chaos": 0,
      "declined": 0,
-     "driven": 24,
+     "driven": 22,
      "failed": 0,
-     "refused": 0
+     "refused": 2
     },
     "csrbt_page__set_seed": {
      "chaos": 0,
@@ -6407,37 +6601,44 @@
      "driven": 0,
      "failed": 0,
      "refused": 24
+    },
+    "csrbt_page__type_text": {
+     "chaos": 0,
+     "declined": 0,
+     "driven": 24,
+     "failed": 0,
+     "refused": 0
     }
    },
    "per_round": 3,
    "plugin": "csrbt-page",
    "price": {
     "actionMs": {
-     "max": 330,
-     "median": 6,
-     "n": 312,
-     "p95": 323,
-     "total": 17467
+     "max": 322,
+     "median": 4,
+     "n": 333,
+     "p95": 316,
+     "total": 18726
     },
     "snapshotMs": {
-     "max": 54,
-     "median": 23,
-     "n": 312,
-     "p95": 36,
-     "total": 7590
+     "max": 33,
+     "median": 14,
+     "n": 333,
+     "p95": 22,
+     "total": 5018
     }
    },
-   "protocolVersion": "1.4",
+   "protocolVersion": "1.5",
    "rounds": 8,
-   "seconds": 31.1,
+   "seconds": 29.4,
    "seed": 2026,
-   "tools": 21,
+   "tools": 22,
    "totals": {
     "chaos": 0,
     "declined": 0,
-    "driven": 312,
+    "driven": 333,
     "failed": 0,
-    "refused": 200
+    "refused": 203
    },
    "transport": "stdio",
    "undriven": [],
@@ -6454,9 +6655,9 @@
    "unschemable": {}
   },
   "csrbt-page/fungal-characters.html": {
-   "accounted": 512,
-   "at": 1788422083,
-   "commands": 512,
+   "accounted": 536,
+   "at": 1788737789,
+   "commands": 536,
    "failures": [],
    "forbidden": [],
    "identity": "holds",
@@ -6536,9 +6737,9 @@
     "csrbt_page__read_control": {
      "chaos": 0,
      "declined": 0,
-     "driven": 19,
+     "driven": 18,
      "failed": 0,
-     "refused": 5
+     "refused": 6
     },
     "csrbt_page__read_dialogs": {
      "chaos": 0,
@@ -6616,37 +6817,44 @@
      "driven": 0,
      "failed": 0,
      "refused": 24
+    },
+    "csrbt_page__type_text": {
+     "chaos": 0,
+     "declined": 0,
+     "driven": 0,
+     "failed": 0,
+     "refused": 24
     }
    },
    "per_round": 3,
    "plugin": "csrbt-page",
    "price": {
     "actionMs": {
-     "max": 340,
-     "median": 6,
-     "n": 289,
-     "p95": 327,
-     "total": 17503
+     "max": 358,
+     "median": 5,
+     "n": 288,
+     "p95": 317,
+     "total": 16167
     },
     "snapshotMs": {
-     "max": 93,
-     "median": 38,
-     "n": 289,
-     "p95": 66,
-     "total": 11759
+     "max": 49,
+     "median": 21,
+     "n": 288,
+     "p95": 37,
+     "total": 6677
     }
    },
-   "protocolVersion": "1.4",
+   "protocolVersion": "1.5",
    "rounds": 8,
-   "seconds": 35.2,
+   "seconds": 28.9,
    "seed": 2026,
-   "tools": 21,
+   "tools": 22,
    "totals": {
     "chaos": 0,
     "declined": 0,
-    "driven": 289,
+    "driven": 288,
     "failed": 0,
-    "refused": 223
+    "refused": 248
    },
    "transport": "stdio",
    "undriven": [],
@@ -6659,14 +6867,15 @@
     "csrbt_page__set_checkbox",
     "csrbt_page__set_slider",
     "csrbt_page__set_text",
-    "csrbt_page__show_pane"
+    "csrbt_page__show_pane",
+    "csrbt_page__type_text"
    ],
    "unschemable": {}
   },
   "csrbt-page/greenhouse.html": {
-   "accounted": 512,
-   "at": 1788422141,
-   "commands": 512,
+   "accounted": 536,
+   "at": 1788737843,
+   "commands": 536,
    "failures": [],
    "forbidden": [],
    "identity": "holds",
@@ -6690,9 +6899,9 @@
     "csrbt_page__attach_file": {
      "chaos": 0,
      "declined": 0,
-     "driven": 0,
+     "driven": 1,
      "failed": 0,
-     "refused": 24
+     "refused": 23
     },
     "csrbt_page__capture_screen": {
      "chaos": 0,
@@ -6746,9 +6955,9 @@
     "csrbt_page__read_control": {
      "chaos": 0,
      "declined": 0,
-     "driven": 20,
+     "driven": 21,
      "failed": 0,
-     "refused": 4
+     "refused": 3
     },
     "csrbt_page__read_dialogs": {
      "chaos": 0,
@@ -6795,9 +7004,9 @@
     "csrbt_page__set_dialog": {
      "chaos": 0,
      "declined": 0,
-     "driven": 22,
+     "driven": 24,
      "failed": 0,
-     "refused": 2
+     "refused": 0
     },
     "csrbt_page__set_seed": {
      "chaos": 0,
@@ -6823,45 +7032,51 @@
     "csrbt_page__show_pane": {
      "chaos": 0,
      "declined": 0,
-     "driven": 20,
+     "driven": 17,
      "failed": 0,
-     "refused": 4
+     "refused": 7
+    },
+    "csrbt_page__type_text": {
+     "chaos": 0,
+     "declined": 0,
+     "driven": 24,
+     "failed": 0,
+     "refused": 0
     }
    },
    "per_round": 3,
    "plugin": "csrbt-page",
    "price": {
     "actionMs": {
-     "max": 370,
-     "median": 10,
-     "n": 379,
-     "p95": 331,
-     "total": 31088
+     "max": 428,
+     "median": 22,
+     "n": 404,
+     "p95": 325,
+     "total": 34343
     },
     "snapshotMs": {
-     "max": 113,
-     "median": 40,
-     "n": 379,
-     "p95": 68,
-     "total": 16203
+     "max": 58,
+     "median": 25,
+     "n": 404,
+     "p95": 44,
+     "total": 10896
     }
    },
-   "protocolVersion": "1.4",
+   "protocolVersion": "1.5",
    "rounds": 8,
-   "seconds": 56.8,
+   "seconds": 53.4,
    "seed": 2026,
-   "tools": 21,
+   "tools": 22,
    "totals": {
     "chaos": 0,
     "declined": 0,
-    "driven": 379,
+    "driven": 404,
     "failed": 0,
-    "refused": 133
+    "refused": 132
    },
    "transport": "stdio",
    "undriven": [],
    "unreachable": [
-    "csrbt_page__attach_file",
     "csrbt_page__choose_option",
     "csrbt_page__drop_files",
     "csrbt_page__set_checkbox",
@@ -6870,9 +7085,9 @@
    "unschemable": {}
   },
   "csrbt-page/micro-bench.html": {
-   "accounted": 512,
-   "at": 1788422189,
-   "commands": 512,
+   "accounted": 536,
+   "at": 1788737892,
+   "commands": 536,
    "failures": [],
    "forbidden": [],
    "identity": "holds",
@@ -7001,9 +7216,9 @@
     "csrbt_page__set_dialog": {
      "chaos": 0,
      "declined": 0,
-     "driven": 22,
+     "driven": 20,
      "failed": 0,
-     "refused": 2
+     "refused": 4
     },
     "csrbt_page__set_seed": {
      "chaos": 0,
@@ -7029,40 +7244,47 @@
     "csrbt_page__show_pane": {
      "chaos": 0,
      "declined": 0,
-     "driven": 18,
+     "driven": 22,
      "failed": 0,
-     "refused": 6
+     "refused": 2
+    },
+    "csrbt_page__type_text": {
+     "chaos": 0,
+     "declined": 0,
+     "driven": 24,
+     "failed": 0,
+     "refused": 0
     }
    },
    "per_round": 3,
    "plugin": "csrbt-page",
    "price": {
     "actionMs": {
-     "max": 340,
-     "median": 7,
-     "n": 356,
-     "p95": 324,
-     "total": 24616
+     "max": 441,
+     "median": 6,
+     "n": 382,
+     "p95": 319,
+     "total": 29579
     },
     "snapshotMs": {
-     "max": 81,
-     "median": 32,
-     "n": 356,
-     "p95": 58,
-     "total": 12353
+     "max": 51,
+     "median": 22,
+     "n": 382,
+     "p95": 37,
+     "total": 8851
     }
    },
-   "protocolVersion": "1.4",
+   "protocolVersion": "1.5",
    "rounds": 8,
-   "seconds": 46.5,
+   "seconds": 47.3,
    "seed": 2026,
-   "tools": 21,
+   "tools": 22,
    "totals": {
     "chaos": 0,
     "declined": 0,
-    "driven": 356,
+    "driven": 382,
     "failed": 0,
-    "refused": 156
+    "refused": 154
    },
    "transport": "stdio",
    "undriven": [],
@@ -7077,9 +7299,9 @@
    "unschemable": {}
   },
   "csrbt-page/ordination.html": {
-   "accounted": 512,
-   "at": 1788422235,
-   "commands": 512,
+   "accounted": 536,
+   "at": 1788737935,
+   "commands": 536,
    "failures": [],
    "forbidden": [],
    "identity": "holds",
@@ -7208,9 +7430,9 @@
     "csrbt_page__set_dialog": {
      "chaos": 0,
      "declined": 0,
-     "driven": 21,
+     "driven": 23,
      "failed": 0,
-     "refused": 3
+     "refused": 1
     },
     "csrbt_page__set_seed": {
      "chaos": 0,
@@ -7236,40 +7458,47 @@
     "csrbt_page__show_pane": {
      "chaos": 0,
      "declined": 0,
-     "driven": 21,
+     "driven": 15,
      "failed": 0,
-     "refused": 3
+     "refused": 9
+    },
+    "csrbt_page__type_text": {
+     "chaos": 0,
+     "declined": 0,
+     "driven": 24,
+     "failed": 0,
+     "refused": 0
     }
    },
    "per_round": 3,
    "plugin": "csrbt-page",
    "price": {
     "actionMs": {
-     "max": 365,
-     "median": 8,
-     "n": 361,
-     "p95": 327,
-     "total": 24171
+     "max": 429,
+     "median": 6,
+     "n": 381,
+     "p95": 320,
+     "total": 26874
     },
     "snapshotMs": {
-     "max": 84,
-     "median": 30,
-     "n": 361,
-     "p95": 50,
-     "total": 11455
+     "max": 40,
+     "median": 18,
+     "n": 381,
+     "p95": 29,
+     "total": 7235
     }
    },
-   "protocolVersion": "1.4",
+   "protocolVersion": "1.5",
    "rounds": 8,
-   "seconds": 44.2,
+   "seconds": 41.8,
    "seed": 2026,
-   "tools": 21,
+   "tools": 22,
    "totals": {
     "chaos": 0,
     "declined": 0,
-    "driven": 361,
+    "driven": 381,
     "failed": 0,
-    "refused": 151
+    "refused": 155
    },
    "transport": "stdio",
    "undriven": [],
@@ -7284,9 +7513,9 @@
    "unschemable": {}
   },
   "csrbt-page/pheno-tracker.html": {
-   "accounted": 512,
-   "at": 1788422278,
-   "commands": 512,
+   "accounted": 536,
+   "at": 1788739801,
+   "commands": 536,
    "failures": [],
    "forbidden": [],
    "identity": "holds",
@@ -7366,9 +7595,9 @@
     "csrbt_page__read_control": {
      "chaos": 0,
      "declined": 0,
-     "driven": 15,
+     "driven": 16,
      "failed": 0,
-     "refused": 9
+     "refused": 8
     },
     "csrbt_page__read_dialogs": {
      "chaos": 0,
@@ -7415,9 +7644,9 @@
     "csrbt_page__set_dialog": {
      "chaos": 0,
      "declined": 0,
-     "driven": 20,
+     "driven": 23,
      "failed": 0,
-     "refused": 4
+     "refused": 1
     },
     "csrbt_page__set_seed": {
      "chaos": 0,
@@ -7436,9 +7665,9 @@
     "csrbt_page__set_text": {
      "chaos": 0,
      "declined": 0,
-     "driven": 19,
+     "driven": 23,
      "failed": 0,
-     "refused": 5
+     "refused": 1
     },
     "csrbt_page__show_pane": {
      "chaos": 0,
@@ -7446,37 +7675,44 @@
      "driven": 19,
      "failed": 0,
      "refused": 5
+    },
+    "csrbt_page__type_text": {
+     "chaos": 0,
+     "declined": 0,
+     "driven": 24,
+     "failed": 0,
+     "refused": 0
     }
    },
    "per_round": 3,
    "plugin": "csrbt-page",
    "price": {
     "actionMs": {
-     "max": 337,
-     "median": 6,
-     "n": 333,
-     "p95": 326,
-     "total": 21840
+     "max": 326,
+     "median": 5,
+     "n": 365,
+     "p95": 319,
+     "total": 23363
     },
     "snapshotMs": {
-     "max": 76,
-     "median": 33,
-     "n": 333,
-     "p95": 54,
-     "total": 11488
+     "max": 52,
+     "median": 22,
+     "n": 365,
+     "p95": 36,
+     "total": 8469
     }
    },
-   "protocolVersion": "1.4",
+   "protocolVersion": "1.5",
    "rounds": 8,
-   "seconds": 41.4,
-   "seed": 2026,
-   "tools": 21,
+   "seconds": 39.7,
+   "seed": 2027,
+   "tools": 22,
    "totals": {
     "chaos": 0,
     "declined": 0,
-    "driven": 333,
+    "driven": 365,
     "failed": 0,
-    "refused": 179
+    "refused": 171
    },
    "transport": "stdio",
    "undriven": [],
@@ -7491,9 +7727,9 @@
    "unschemable": {}
   },
   "csrbt-page/plant-characters.html": {
-   "accounted": 512,
-   "at": 1788422312,
-   "commands": 512,
+   "accounted": 536,
+   "at": 1788738005,
+   "commands": 536,
    "failures": [],
    "forbidden": [],
    "identity": "holds",
@@ -7573,9 +7809,9 @@
     "csrbt_page__read_control": {
      "chaos": 0,
      "declined": 0,
-     "driven": 19,
+     "driven": 16,
      "failed": 0,
-     "refused": 5
+     "refused": 8
     },
     "csrbt_page__read_dialogs": {
      "chaos": 0,
@@ -7622,9 +7858,9 @@
     "csrbt_page__set_dialog": {
      "chaos": 0,
      "declined": 0,
-     "driven": 24,
+     "driven": 22,
      "failed": 0,
-     "refused": 0
+     "refused": 2
     },
     "csrbt_page__set_seed": {
      "chaos": 0,
@@ -7653,37 +7889,44 @@
      "driven": 0,
      "failed": 0,
      "refused": 24
+    },
+    "csrbt_page__type_text": {
+     "chaos": 0,
+     "declined": 0,
+     "driven": 0,
+     "failed": 0,
+     "refused": 24
     }
    },
    "per_round": 3,
    "plugin": "csrbt-page",
    "price": {
     "actionMs": {
-     "max": 331,
-     "median": 6,
-     "n": 291,
-     "p95": 323,
-     "total": 16994
+     "max": 320,
+     "median": 5,
+     "n": 286,
+     "p95": 317,
+     "total": 16064
     },
     "snapshotMs": {
-     "max": 70,
-     "median": 29,
-     "n": 291,
-     "p95": 53,
-     "total": 9128
+     "max": 49,
+     "median": 19,
+     "n": 286,
+     "p95": 30,
+     "total": 5825
     }
    },
-   "protocolVersion": "1.4",
+   "protocolVersion": "1.5",
    "rounds": 8,
-   "seconds": 32.6,
+   "seconds": 28.2,
    "seed": 2026,
-   "tools": 21,
+   "tools": 22,
    "totals": {
     "chaos": 0,
     "declined": 0,
-    "driven": 291,
+    "driven": 286,
     "failed": 0,
-    "refused": 221
+    "refused": 250
    },
    "transport": "stdio",
    "undriven": [],
@@ -7696,14 +7939,15 @@
     "csrbt_page__set_checkbox",
     "csrbt_page__set_slider",
     "csrbt_page__set_text",
-    "csrbt_page__show_pane"
+    "csrbt_page__show_pane",
+    "csrbt_page__type_text"
    ],
    "unschemable": {}
   },
   "csrbt-page/releve.html": {
-   "accounted": 512,
-   "at": 1788422405,
-   "commands": 512,
+   "accounted": 536,
+   "at": 1788739200,
+   "commands": 536,
    "failures": [],
    "forbidden": [],
    "identity": "holds",
@@ -7832,9 +8076,9 @@
     "csrbt_page__set_dialog": {
      "chaos": 0,
      "declined": 0,
-     "driven": 24,
+     "driven": 22,
      "failed": 0,
-     "refused": 0
+     "refused": 2
     },
     "csrbt_page__set_seed": {
      "chaos": 0,
@@ -7860,40 +8104,47 @@
     "csrbt_page__show_pane": {
      "chaos": 0,
      "declined": 0,
-     "driven": 17,
+     "driven": 19,
      "failed": 0,
-     "refused": 7
+     "refused": 5
+    },
+    "csrbt_page__type_text": {
+     "chaos": 0,
+     "declined": 0,
+     "driven": 23,
+     "failed": 0,
+     "refused": 1
     }
    },
    "per_round": 3,
    "plugin": "csrbt-page",
    "price": {
     "actionMs": {
-     "max": 380,
-     "median": 25,
-     "n": 409,
-     "p95": 354,
-     "total": 34743
+     "max": 350,
+     "median": 23,
+     "n": 432,
+     "p95": 327,
+     "total": 34637
     },
     "snapshotMs": {
-     "max": 234,
-     "median": 110,
-     "n": 409,
-     "p95": 188,
-     "total": 47124
+     "max": 144,
+     "median": 70,
+     "n": 432,
+     "p95": 119,
+     "total": 32225
     }
    },
-   "protocolVersion": "1.4",
+   "protocolVersion": "1.5",
    "rounds": 8,
-   "seconds": 92.1,
+   "seconds": 75.8,
    "seed": 2026,
-   "tools": 21,
+   "tools": 22,
    "totals": {
     "chaos": 0,
     "declined": 0,
-    "driven": 409,
+    "driven": 432,
     "failed": 0,
-    "refused": 103
+    "refused": 104
    },
    "transport": "stdio",
    "undriven": [],
@@ -7906,9 +8157,9 @@
    "unschemable": {}
   },
   "csrbt-page/selection-log.html": {
-   "accounted": 512,
-   "at": 1788422459,
-   "commands": 512,
+   "accounted": 536,
+   "at": 1788738168,
+   "commands": 536,
    "failures": [],
    "forbidden": [],
    "identity": "holds",
@@ -8037,9 +8288,9 @@
     "csrbt_page__set_dialog": {
      "chaos": 0,
      "declined": 0,
-     "driven": 20,
+     "driven": 21,
      "failed": 0,
-     "refused": 4
+     "refused": 3
     },
     "csrbt_page__set_seed": {
      "chaos": 0,
@@ -8065,40 +8316,47 @@
     "csrbt_page__show_pane": {
      "chaos": 0,
      "declined": 0,
-     "driven": 16,
+     "driven": 18,
      "failed": 0,
-     "refused": 8
+     "refused": 6
+    },
+    "csrbt_page__type_text": {
+     "chaos": 0,
+     "declined": 0,
+     "driven": 24,
+     "failed": 0,
+     "refused": 0
     }
    },
    "per_round": 3,
    "plugin": "csrbt-page",
    "price": {
     "actionMs": {
-     "max": 336,
-     "median": 7,
-     "n": 332,
-     "p95": 326,
-     "total": 23354
+     "max": 417,
+     "median": 5,
+     "n": 359,
+     "p95": 321,
+     "total": 27604
     },
     "snapshotMs": {
-     "max": 100,
-     "median": 38,
-     "n": 332,
-     "p95": 68,
-     "total": 13608
+     "max": 59,
+     "median": 24,
+     "n": 359,
+     "p95": 42,
+     "total": 9005
     }
    },
-   "protocolVersion": "1.4",
+   "protocolVersion": "1.5",
    "rounds": 8,
-   "seconds": 52.5,
+   "seconds": 51.6,
    "seed": 2026,
-   "tools": 21,
+   "tools": 22,
    "totals": {
     "chaos": 0,
     "declined": 0,
-    "driven": 332,
+    "driven": 359,
     "failed": 0,
-    "refused": 180
+    "refused": 177
    },
    "transport": "stdio",
    "undriven": [],
@@ -8114,9 +8372,9 @@
    "unschemable": {}
   },
   "csrbt-page/soil-bench.html": {
-   "accounted": 512,
-   "at": 1788422513,
-   "commands": 512,
+   "accounted": 536,
+   "at": 1788738217,
+   "commands": 536,
    "failures": [],
    "forbidden": [],
    "identity": "holds",
@@ -8182,9 +8440,9 @@
     "csrbt_page__pick": {
      "chaos": 0,
      "declined": 0,
-     "driven": 24,
+     "driven": 18,
      "failed": 0,
-     "refused": 0
+     "refused": 6
     },
     "csrbt_page__press_step": {
      "chaos": 0,
@@ -8196,9 +8454,9 @@
     "csrbt_page__read_control": {
      "chaos": 0,
      "declined": 0,
-     "driven": 22,
+     "driven": 21,
      "failed": 0,
-     "refused": 2
+     "refused": 3
     },
     "csrbt_page__read_dialogs": {
      "chaos": 0,
@@ -8245,9 +8503,9 @@
     "csrbt_page__set_dialog": {
      "chaos": 0,
      "declined": 0,
-     "driven": 22,
+     "driven": 23,
      "failed": 0,
-     "refused": 2
+     "refused": 1
     },
     "csrbt_page__set_seed": {
      "chaos": 0,
@@ -8273,40 +8531,47 @@
     "csrbt_page__show_pane": {
      "chaos": 0,
      "declined": 0,
-     "driven": 17,
+     "driven": 18,
      "failed": 0,
-     "refused": 7
+     "refused": 6
+    },
+    "csrbt_page__type_text": {
+     "chaos": 0,
+     "declined": 0,
+     "driven": 24,
+     "failed": 0,
+     "refused": 0
     }
    },
    "per_round": 3,
    "plugin": "csrbt-page",
    "price": {
     "actionMs": {
-     "max": 356,
-     "median": 10,
-     "n": 381,
-     "p95": 324,
-     "total": 28531
+     "max": 437,
+     "median": 21,
+     "n": 400,
+     "p95": 319,
+     "total": 29957
     },
     "snapshotMs": {
-     "max": 105,
-     "median": 38,
-     "n": 381,
-     "p95": 67,
-     "total": 15402
+     "max": 59,
+     "median": 23,
+     "n": 400,
+     "p95": 38,
+     "total": 9768
     }
    },
-   "protocolVersion": "1.4",
+   "protocolVersion": "1.5",
    "rounds": 8,
-   "seconds": 52.7,
+   "seconds": 47.7,
    "seed": 2026,
-   "tools": 21,
+   "tools": 22,
    "totals": {
     "chaos": 0,
     "declined": 0,
-    "driven": 381,
+    "driven": 400,
     "failed": 0,
-    "refused": 131
+    "refused": 136
    },
    "transport": "stdio",
    "undriven": [],
@@ -8320,9 +8585,9 @@
    "unschemable": {}
   },
   "csrbt-page/soil-recipes.html": {
-   "accounted": 512,
-   "at": 1788422544,
-   "commands": 512,
+   "accounted": 536,
+   "at": 1788738245,
+   "commands": 536,
    "failures": [],
    "forbidden": [],
    "identity": "holds",
@@ -8482,37 +8747,44 @@
      "driven": 0,
      "failed": 0,
      "refused": 24
+    },
+    "csrbt_page__type_text": {
+     "chaos": 0,
+     "declined": 0,
+     "driven": 0,
+     "failed": 0,
+     "refused": 24
     }
    },
    "per_round": 3,
    "plugin": "csrbt-page",
    "price": {
     "actionMs": {
-     "max": 328,
-     "median": 5,
+     "max": 320,
+     "median": 4,
      "n": 290,
-     "p95": 323,
-     "total": 16896
+     "p95": 317,
+     "total": 15859
     },
     "snapshotMs": {
-     "max": 58,
-     "median": 21,
+     "max": 36,
+     "median": 14,
      "n": 290,
-     "p95": 33,
-     "total": 6515
+     "p95": 20,
+     "total": 4288
     }
    },
-   "protocolVersion": "1.4",
+   "protocolVersion": "1.5",
    "rounds": 8,
-   "seconds": 29.3,
+   "seconds": 26.4,
    "seed": 2026,
-   "tools": 21,
+   "tools": 22,
    "totals": {
     "chaos": 0,
     "declined": 0,
     "driven": 290,
     "failed": 0,
-    "refused": 222
+    "refused": 246
    },
    "transport": "stdio",
    "undriven": [],
@@ -8525,14 +8797,15 @@
     "csrbt_page__set_checkbox",
     "csrbt_page__set_slider",
     "csrbt_page__set_text",
-    "csrbt_page__show_pane"
+    "csrbt_page__show_pane",
+    "csrbt_page__type_text"
    ],
    "unschemable": {}
   },
   "csrbt-page/soil-suite.html": {
-   "accounted": 512,
-   "at": 1788422573,
-   "commands": 512,
+   "accounted": 536,
+   "at": 1788738270,
+   "commands": 536,
    "failures": [],
    "forbidden": [],
    "identity": "holds",
@@ -8552,836 +8825,6 @@
      "driven": 0,
      "failed": 0,
      "refused": 24
-    },
-    "csrbt_page__attach_file": {
-     "chaos": 0,
-     "declined": 0,
-     "driven": 0,
-     "failed": 0,
-     "refused": 24
-    },
-    "csrbt_page__capture_screen": {
-     "chaos": 0,
-     "declined": 0,
-     "driven": 24,
-     "failed": 0,
-     "refused": 0
-    },
-    "csrbt_page__choose_option": {
-     "chaos": 0,
-     "declined": 0,
-     "driven": 0,
-     "failed": 0,
-     "refused": 24
-    },
-    "csrbt_page__collect_output": {
-     "chaos": 0,
-     "declined": 0,
-     "driven": 24,
-     "failed": 0,
-     "refused": 0
-    },
-    "csrbt_page__drop_files": {
-     "chaos": 0,
-     "declined": 0,
-     "driven": 0,
-     "failed": 0,
-     "refused": 24
-    },
-    "csrbt_page__open": {
-     "chaos": 0,
-     "declined": 0,
-     "driven": 24,
-     "failed": 0,
-     "refused": 0
-    },
-    "csrbt_page__pick": {
-     "chaos": 0,
-     "declined": 0,
-     "driven": 0,
-     "failed": 0,
-     "refused": 24
-    },
-    "csrbt_page__press_step": {
-     "chaos": 0,
-     "declined": 0,
-     "driven": 0,
-     "failed": 0,
-     "refused": 24
-    },
-    "csrbt_page__read_control": {
-     "chaos": 0,
-     "declined": 0,
-     "driven": 15,
-     "failed": 0,
-     "refused": 9
-    },
-    "csrbt_page__read_dialogs": {
-     "chaos": 0,
-     "declined": 0,
-     "driven": 24,
-     "failed": 0,
-     "refused": 0
-    },
-    "csrbt_page__read_page": {
-     "chaos": 0,
-     "declined": 0,
-     "driven": 24,
-     "failed": 0,
-     "refused": 0
-    },
-    "csrbt_page__read_report": {
-     "chaos": 0,
-     "declined": 0,
-     "driven": 24,
-     "failed": 0,
-     "refused": 0
-    },
-    "csrbt_page__reload": {
-     "chaos": 0,
-     "declined": 0,
-     "driven": 24,
-     "failed": 0,
-     "refused": 0
-    },
-    "csrbt_page__set_checkbox": {
-     "chaos": 0,
-     "declined": 0,
-     "driven": 0,
-     "failed": 0,
-     "refused": 24
-    },
-    "csrbt_page__set_clock": {
-     "chaos": 0,
-     "declined": 0,
-     "driven": 24,
-     "failed": 0,
-     "refused": 0
-    },
-    "csrbt_page__set_dialog": {
-     "chaos": 0,
-     "declined": 0,
-     "driven": 20,
-     "failed": 0,
-     "refused": 4
-    },
-    "csrbt_page__set_seed": {
-     "chaos": 0,
-     "declined": 0,
-     "driven": 24,
-     "failed": 0,
-     "refused": 0
-    },
-    "csrbt_page__set_slider": {
-     "chaos": 0,
-     "declined": 0,
-     "driven": 0,
-     "failed": 0,
-     "refused": 24
-    },
-    "csrbt_page__set_text": {
-     "chaos": 0,
-     "declined": 0,
-     "driven": 0,
-     "failed": 0,
-     "refused": 24
-    },
-    "csrbt_page__show_pane": {
-     "chaos": 0,
-     "declined": 0,
-     "driven": 0,
-     "failed": 0,
-     "refused": 24
-    }
-   },
-   "per_round": 3,
-   "plugin": "csrbt-page",
-   "price": {
-    "actionMs": {
-     "max": 326,
-     "median": 4,
-     "n": 259,
-     "p95": 321,
-     "total": 16092
-    },
-    "snapshotMs": {
-     "max": 46,
-     "median": 16,
-     "n": 259,
-     "p95": 22,
-     "total": 4291
-    }
-   },
-   "protocolVersion": "1.4",
-   "rounds": 8,
-   "seconds": 27.7,
-   "seed": 2026,
-   "tools": 21,
-   "totals": {
-    "chaos": 0,
-    "declined": 0,
-    "driven": 259,
-    "failed": 0,
-    "refused": 253
-   },
-   "transport": "stdio",
-   "undriven": [],
-   "unreachable": [
-    "csrbt_page__activate",
-    "csrbt_page__attach_file",
-    "csrbt_page__choose_option",
-    "csrbt_page__drop_files",
-    "csrbt_page__pick",
-    "csrbt_page__press_step",
-    "csrbt_page__set_checkbox",
-    "csrbt_page__set_slider",
-    "csrbt_page__set_text",
-    "csrbt_page__show_pane"
-   ],
-   "unschemable": {}
-  },
-  "csrbt-page/stand-sheet.html": {
-   "accounted": 512,
-   "at": 1788422667,
-   "commands": 512,
-   "failures": [],
-   "forbidden": [],
-   "identity": "holds",
-   "invariants_broken": [],
-   "page": "stand-sheet.html",
-   "per_action": {
-    "_cross_checks": {
-     "chaos": 0,
-     "declined": 0,
-     "driven": 8,
-     "failed": 0,
-     "refused": 0
-    },
-    "csrbt_page__activate": {
-     "chaos": 0,
-     "declined": 0,
-     "driven": 24,
-     "failed": 0,
-     "refused": 0
-    },
-    "csrbt_page__attach_file": {
-     "chaos": 0,
-     "declined": 0,
-     "driven": 24,
-     "failed": 0,
-     "refused": 0
-    },
-    "csrbt_page__capture_screen": {
-     "chaos": 0,
-     "declined": 0,
-     "driven": 24,
-     "failed": 0,
-     "refused": 0
-    },
-    "csrbt_page__choose_option": {
-     "chaos": 0,
-     "declined": 0,
-     "driven": 0,
-     "failed": 0,
-     "refused": 24
-    },
-    "csrbt_page__collect_output": {
-     "chaos": 0,
-     "declined": 0,
-     "driven": 24,
-     "failed": 0,
-     "refused": 0
-    },
-    "csrbt_page__drop_files": {
-     "chaos": 0,
-     "declined": 0,
-     "driven": 24,
-     "failed": 0,
-     "refused": 0
-    },
-    "csrbt_page__open": {
-     "chaos": 0,
-     "declined": 0,
-     "driven": 24,
-     "failed": 0,
-     "refused": 0
-    },
-    "csrbt_page__pick": {
-     "chaos": 0,
-     "declined": 0,
-     "driven": 24,
-     "failed": 0,
-     "refused": 0
-    },
-    "csrbt_page__press_step": {
-     "chaos": 0,
-     "declined": 0,
-     "driven": 24,
-     "failed": 0,
-     "refused": 0
-    },
-    "csrbt_page__read_control": {
-     "chaos": 0,
-     "declined": 0,
-     "driven": 24,
-     "failed": 0,
-     "refused": 0
-    },
-    "csrbt_page__read_dialogs": {
-     "chaos": 0,
-     "declined": 0,
-     "driven": 24,
-     "failed": 0,
-     "refused": 0
-    },
-    "csrbt_page__read_page": {
-     "chaos": 0,
-     "declined": 0,
-     "driven": 24,
-     "failed": 0,
-     "refused": 0
-    },
-    "csrbt_page__read_report": {
-     "chaos": 0,
-     "declined": 0,
-     "driven": 24,
-     "failed": 0,
-     "refused": 0
-    },
-    "csrbt_page__reload": {
-     "chaos": 0,
-     "declined": 0,
-     "driven": 24,
-     "failed": 0,
-     "refused": 0
-    },
-    "csrbt_page__set_checkbox": {
-     "chaos": 0,
-     "declined": 0,
-     "driven": 0,
-     "failed": 0,
-     "refused": 24
-    },
-    "csrbt_page__set_clock": {
-     "chaos": 0,
-     "declined": 0,
-     "driven": 24,
-     "failed": 0,
-     "refused": 0
-    },
-    "csrbt_page__set_dialog": {
-     "chaos": 0,
-     "declined": 0,
-     "driven": 23,
-     "failed": 0,
-     "refused": 1
-    },
-    "csrbt_page__set_seed": {
-     "chaos": 0,
-     "declined": 0,
-     "driven": 24,
-     "failed": 0,
-     "refused": 0
-    },
-    "csrbt_page__set_slider": {
-     "chaos": 0,
-     "declined": 0,
-     "driven": 24,
-     "failed": 0,
-     "refused": 0
-    },
-    "csrbt_page__set_text": {
-     "chaos": 0,
-     "declined": 0,
-     "driven": 24,
-     "failed": 0,
-     "refused": 0
-    },
-    "csrbt_page__show_pane": {
-     "chaos": 0,
-     "declined": 0,
-     "driven": 13,
-     "failed": 0,
-     "refused": 11
-    }
-   },
-   "per_round": 3,
-   "plugin": "csrbt-page",
-   "price": {
-    "actionMs": {
-     "max": 375,
-     "median": 27,
-     "n": 452,
-     "p95": 350,
-     "total": 35576
-    },
-    "snapshotMs": {
-     "max": 251,
-     "median": 99,
-     "n": 452,
-     "p95": 176,
-     "total": 49433
-    }
-   },
-   "protocolVersion": "1.4",
-   "rounds": 8,
-   "seconds": 92.5,
-   "seed": 2026,
-   "tools": 21,
-   "totals": {
-    "chaos": 0,
-    "declined": 0,
-    "driven": 452,
-    "failed": 0,
-    "refused": 60
-   },
-   "transport": "stdio",
-   "undriven": [],
-   "unreachable": [
-    "csrbt_page__choose_option",
-    "csrbt_page__set_checkbox"
-   ],
-   "unschemable": {}
-  },
-  "csrbt-page/survey-design.html": {
-   "accounted": 512,
-   "at": 1788424958,
-   "commands": 512,
-   "failures": [],
-   "forbidden": [],
-   "identity": "holds",
-   "invariants_broken": [],
-   "page": "survey-design.html",
-   "per_action": {
-    "_cross_checks": {
-     "chaos": 0,
-     "declined": 0,
-     "driven": 8,
-     "failed": 0,
-     "refused": 0
-    },
-    "csrbt_page__activate": {
-     "chaos": 0,
-     "declined": 0,
-     "driven": 24,
-     "failed": 0,
-     "refused": 0
-    },
-    "csrbt_page__attach_file": {
-     "chaos": 0,
-     "declined": 0,
-     "driven": 0,
-     "failed": 0,
-     "refused": 24
-    },
-    "csrbt_page__capture_screen": {
-     "chaos": 0,
-     "declined": 0,
-     "driven": 24,
-     "failed": 0,
-     "refused": 0
-    },
-    "csrbt_page__choose_option": {
-     "chaos": 0,
-     "declined": 0,
-     "driven": 0,
-     "failed": 0,
-     "refused": 24
-    },
-    "csrbt_page__collect_output": {
-     "chaos": 0,
-     "declined": 0,
-     "driven": 24,
-     "failed": 0,
-     "refused": 0
-    },
-    "csrbt_page__drop_files": {
-     "chaos": 0,
-     "declined": 0,
-     "driven": 0,
-     "failed": 0,
-     "refused": 24
-    },
-    "csrbt_page__open": {
-     "chaos": 0,
-     "declined": 0,
-     "driven": 24,
-     "failed": 0,
-     "refused": 0
-    },
-    "csrbt_page__pick": {
-     "chaos": 0,
-     "declined": 0,
-     "driven": 18,
-     "failed": 0,
-     "refused": 6
-    },
-    "csrbt_page__press_step": {
-     "chaos": 0,
-     "declined": 0,
-     "driven": 0,
-     "failed": 0,
-     "refused": 24
-    },
-    "csrbt_page__read_control": {
-     "chaos": 0,
-     "declined": 0,
-     "driven": 23,
-     "failed": 0,
-     "refused": 1
-    },
-    "csrbt_page__read_dialogs": {
-     "chaos": 0,
-     "declined": 0,
-     "driven": 24,
-     "failed": 0,
-     "refused": 0
-    },
-    "csrbt_page__read_page": {
-     "chaos": 0,
-     "declined": 0,
-     "driven": 24,
-     "failed": 0,
-     "refused": 0
-    },
-    "csrbt_page__read_report": {
-     "chaos": 0,
-     "declined": 0,
-     "driven": 24,
-     "failed": 0,
-     "refused": 0
-    },
-    "csrbt_page__reload": {
-     "chaos": 0,
-     "declined": 0,
-     "driven": 24,
-     "failed": 0,
-     "refused": 0
-    },
-    "csrbt_page__set_checkbox": {
-     "chaos": 0,
-     "declined": 0,
-     "driven": 0,
-     "failed": 0,
-     "refused": 24
-    },
-    "csrbt_page__set_clock": {
-     "chaos": 0,
-     "declined": 0,
-     "driven": 24,
-     "failed": 0,
-     "refused": 0
-    },
-    "csrbt_page__set_dialog": {
-     "chaos": 0,
-     "declined": 0,
-     "driven": 23,
-     "failed": 0,
-     "refused": 1
-    },
-    "csrbt_page__set_seed": {
-     "chaos": 0,
-     "declined": 0,
-     "driven": 24,
-     "failed": 0,
-     "refused": 0
-    },
-    "csrbt_page__set_slider": {
-     "chaos": 0,
-     "declined": 0,
-     "driven": 0,
-     "failed": 0,
-     "refused": 24
-    },
-    "csrbt_page__set_text": {
-     "chaos": 0,
-     "declined": 0,
-     "driven": 24,
-     "failed": 0,
-     "refused": 0
-    },
-    "csrbt_page__show_pane": {
-     "chaos": 0,
-     "declined": 0,
-     "driven": 16,
-     "failed": 0,
-     "refused": 8
-    }
-   },
-   "per_round": 3,
-   "plugin": "csrbt-page",
-   "price": {
-    "actionMs": {
-     "max": 369,
-     "median": 7,
-     "n": 352,
-     "p95": 327,
-     "total": 26262
-    },
-    "snapshotMs": {
-     "max": 104,
-     "median": 41,
-     "n": 352,
-     "p95": 76,
-     "total": 15284
-    }
-   },
-   "protocolVersion": "1.4",
-   "rounds": 8,
-   "seconds": 54.6,
-   "seed": 2026,
-   "tools": 21,
-   "totals": {
-    "chaos": 0,
-    "declined": 0,
-    "driven": 352,
-    "failed": 0,
-    "refused": 160
-   },
-   "transport": "stdio",
-   "undriven": [],
-   "unreachable": [
-    "csrbt_page__attach_file",
-    "csrbt_page__choose_option",
-    "csrbt_page__drop_files",
-    "csrbt_page__press_step",
-    "csrbt_page__set_checkbox",
-    "csrbt_page__set_slider"
-   ],
-   "unschemable": {}
-  },
-  "csrbt-page/tree-proofs.html": {
-   "accounted": 512,
-   "at": 1788422753,
-   "commands": 512,
-   "failures": [],
-   "forbidden": [],
-   "identity": "holds",
-   "invariants_broken": [],
-   "page": "tree-proofs.html",
-   "per_action": {
-    "_cross_checks": {
-     "chaos": 0,
-     "declined": 0,
-     "driven": 8,
-     "failed": 0,
-     "refused": 0
-    },
-    "csrbt_page__activate": {
-     "chaos": 0,
-     "declined": 0,
-     "driven": 24,
-     "failed": 0,
-     "refused": 0
-    },
-    "csrbt_page__attach_file": {
-     "chaos": 0,
-     "declined": 0,
-     "driven": 0,
-     "failed": 0,
-     "refused": 24
-    },
-    "csrbt_page__capture_screen": {
-     "chaos": 0,
-     "declined": 0,
-     "driven": 24,
-     "failed": 0,
-     "refused": 0
-    },
-    "csrbt_page__choose_option": {
-     "chaos": 0,
-     "declined": 0,
-     "driven": 0,
-     "failed": 0,
-     "refused": 24
-    },
-    "csrbt_page__collect_output": {
-     "chaos": 0,
-     "declined": 0,
-     "driven": 24,
-     "failed": 0,
-     "refused": 0
-    },
-    "csrbt_page__drop_files": {
-     "chaos": 0,
-     "declined": 0,
-     "driven": 0,
-     "failed": 0,
-     "refused": 24
-    },
-    "csrbt_page__open": {
-     "chaos": 0,
-     "declined": 0,
-     "driven": 24,
-     "failed": 0,
-     "refused": 0
-    },
-    "csrbt_page__pick": {
-     "chaos": 0,
-     "declined": 0,
-     "driven": 0,
-     "failed": 0,
-     "refused": 24
-    },
-    "csrbt_page__press_step": {
-     "chaos": 0,
-     "declined": 0,
-     "driven": 0,
-     "failed": 0,
-     "refused": 24
-    },
-    "csrbt_page__read_control": {
-     "chaos": 0,
-     "declined": 0,
-     "driven": 16,
-     "failed": 0,
-     "refused": 8
-    },
-    "csrbt_page__read_dialogs": {
-     "chaos": 0,
-     "declined": 0,
-     "driven": 24,
-     "failed": 0,
-     "refused": 0
-    },
-    "csrbt_page__read_page": {
-     "chaos": 0,
-     "declined": 0,
-     "driven": 24,
-     "failed": 0,
-     "refused": 0
-    },
-    "csrbt_page__read_report": {
-     "chaos": 0,
-     "declined": 0,
-     "driven": 24,
-     "failed": 0,
-     "refused": 0
-    },
-    "csrbt_page__reload": {
-     "chaos": 0,
-     "declined": 0,
-     "driven": 24,
-     "failed": 0,
-     "refused": 0
-    },
-    "csrbt_page__set_checkbox": {
-     "chaos": 0,
-     "declined": 0,
-     "driven": 0,
-     "failed": 0,
-     "refused": 24
-    },
-    "csrbt_page__set_clock": {
-     "chaos": 0,
-     "declined": 0,
-     "driven": 24,
-     "failed": 0,
-     "refused": 0
-    },
-    "csrbt_page__set_dialog": {
-     "chaos": 0,
-     "declined": 0,
-     "driven": 23,
-     "failed": 0,
-     "refused": 1
-    },
-    "csrbt_page__set_seed": {
-     "chaos": 0,
-     "declined": 0,
-     "driven": 24,
-     "failed": 0,
-     "refused": 0
-    },
-    "csrbt_page__set_slider": {
-     "chaos": 0,
-     "declined": 0,
-     "driven": 0,
-     "failed": 0,
-     "refused": 24
-    },
-    "csrbt_page__set_text": {
-     "chaos": 0,
-     "declined": 0,
-     "driven": 24,
-     "failed": 0,
-     "refused": 0
-    },
-    "csrbt_page__show_pane": {
-     "chaos": 0,
-     "declined": 0,
-     "driven": 0,
-     "failed": 0,
-     "refused": 24
-    }
-   },
-   "per_round": 3,
-   "plugin": "csrbt-page",
-   "price": {
-    "actionMs": {
-     "max": 335,
-     "median": 6,
-     "n": 311,
-     "p95": 324,
-     "total": 17773
-    },
-    "snapshotMs": {
-     "max": 44,
-     "median": 15,
-     "n": 311,
-     "p95": 22,
-     "total": 4948
-    }
-   },
-   "protocolVersion": "1.4",
-   "rounds": 8,
-   "seconds": 28.1,
-   "seed": 2026,
-   "tools": 21,
-   "totals": {
-    "chaos": 0,
-    "declined": 0,
-    "driven": 311,
-    "failed": 0,
-    "refused": 201
-   },
-   "transport": "stdio",
-   "undriven": [],
-   "unreachable": [
-    "csrbt_page__attach_file",
-    "csrbt_page__choose_option",
-    "csrbt_page__drop_files",
-    "csrbt_page__pick",
-    "csrbt_page__press_step",
-    "csrbt_page__set_checkbox",
-    "csrbt_page__set_slider",
-    "csrbt_page__show_pane"
-   ],
-   "unschemable": {}
-  },
-  "csrbt-page/tree-visualizer.html": {
-   "accounted": 512,
-   "at": 1788422786,
-   "commands": 512,
-   "failures": [],
-   "forbidden": [],
-   "identity": "holds",
-   "invariants_broken": [],
-   "page": "tree-visualizer.html",
-   "per_action": {
-    "_cross_checks": {
-     "chaos": 0,
-     "declined": 0,
-     "driven": 8,
-     "failed": 0,
-     "refused": 0
-    },
-    "csrbt_page__activate": {
-     "chaos": 0,
-     "declined": 0,
-     "driven": 24,
-     "failed": 0,
-     "refused": 0
     },
     "csrbt_page__attach_file": {
      "chaos": 0,
@@ -9491,9 +8934,652 @@
     "csrbt_page__set_dialog": {
      "chaos": 0,
      "declined": 0,
-     "driven": 20,
+     "driven": 22,
      "failed": 0,
-     "refused": 4
+     "refused": 2
+    },
+    "csrbt_page__set_seed": {
+     "chaos": 0,
+     "declined": 0,
+     "driven": 24,
+     "failed": 0,
+     "refused": 0
+    },
+    "csrbt_page__set_slider": {
+     "chaos": 0,
+     "declined": 0,
+     "driven": 0,
+     "failed": 0,
+     "refused": 24
+    },
+    "csrbt_page__set_text": {
+     "chaos": 0,
+     "declined": 0,
+     "driven": 0,
+     "failed": 0,
+     "refused": 24
+    },
+    "csrbt_page__show_pane": {
+     "chaos": 0,
+     "declined": 0,
+     "driven": 0,
+     "failed": 0,
+     "refused": 24
+    },
+    "csrbt_page__type_text": {
+     "chaos": 0,
+     "declined": 0,
+     "driven": 0,
+     "failed": 0,
+     "refused": 24
+    }
+   },
+   "per_round": 3,
+   "plugin": "csrbt-page",
+   "price": {
+    "actionMs": {
+     "max": 320,
+     "median": 3,
+     "n": 265,
+     "p95": 316,
+     "total": 15185
+    },
+    "snapshotMs": {
+     "max": 33,
+     "median": 10,
+     "n": 265,
+     "p95": 16,
+     "total": 2905
+    }
+   },
+   "protocolVersion": "1.5",
+   "rounds": 8,
+   "seconds": 24.3,
+   "seed": 2026,
+   "tools": 22,
+   "totals": {
+    "chaos": 0,
+    "declined": 0,
+    "driven": 265,
+    "failed": 0,
+    "refused": 271
+   },
+   "transport": "stdio",
+   "undriven": [],
+   "unreachable": [
+    "csrbt_page__activate",
+    "csrbt_page__attach_file",
+    "csrbt_page__choose_option",
+    "csrbt_page__drop_files",
+    "csrbt_page__pick",
+    "csrbt_page__press_step",
+    "csrbt_page__set_checkbox",
+    "csrbt_page__set_slider",
+    "csrbt_page__set_text",
+    "csrbt_page__show_pane",
+    "csrbt_page__type_text"
+   ],
+   "unschemable": {}
+  },
+  "csrbt-page/stand-sheet.html": {
+   "accounted": 536,
+   "at": 1788739279,
+   "commands": 536,
+   "failures": [],
+   "forbidden": [],
+   "identity": "holds",
+   "invariants_broken": [],
+   "page": "stand-sheet.html",
+   "per_action": {
+    "_cross_checks": {
+     "chaos": 0,
+     "declined": 0,
+     "driven": 8,
+     "failed": 0,
+     "refused": 0
+    },
+    "csrbt_page__activate": {
+     "chaos": 0,
+     "declined": 0,
+     "driven": 24,
+     "failed": 0,
+     "refused": 0
+    },
+    "csrbt_page__attach_file": {
+     "chaos": 0,
+     "declined": 0,
+     "driven": 24,
+     "failed": 0,
+     "refused": 0
+    },
+    "csrbt_page__capture_screen": {
+     "chaos": 0,
+     "declined": 0,
+     "driven": 24,
+     "failed": 0,
+     "refused": 0
+    },
+    "csrbt_page__choose_option": {
+     "chaos": 0,
+     "declined": 0,
+     "driven": 0,
+     "failed": 0,
+     "refused": 24
+    },
+    "csrbt_page__collect_output": {
+     "chaos": 0,
+     "declined": 0,
+     "driven": 24,
+     "failed": 0,
+     "refused": 0
+    },
+    "csrbt_page__drop_files": {
+     "chaos": 0,
+     "declined": 0,
+     "driven": 24,
+     "failed": 0,
+     "refused": 0
+    },
+    "csrbt_page__open": {
+     "chaos": 0,
+     "declined": 0,
+     "driven": 24,
+     "failed": 0,
+     "refused": 0
+    },
+    "csrbt_page__pick": {
+     "chaos": 0,
+     "declined": 0,
+     "driven": 21,
+     "failed": 0,
+     "refused": 3
+    },
+    "csrbt_page__press_step": {
+     "chaos": 0,
+     "declined": 0,
+     "driven": 24,
+     "failed": 0,
+     "refused": 0
+    },
+    "csrbt_page__read_control": {
+     "chaos": 0,
+     "declined": 0,
+     "driven": 24,
+     "failed": 0,
+     "refused": 0
+    },
+    "csrbt_page__read_dialogs": {
+     "chaos": 0,
+     "declined": 0,
+     "driven": 24,
+     "failed": 0,
+     "refused": 0
+    },
+    "csrbt_page__read_page": {
+     "chaos": 0,
+     "declined": 0,
+     "driven": 24,
+     "failed": 0,
+     "refused": 0
+    },
+    "csrbt_page__read_report": {
+     "chaos": 0,
+     "declined": 0,
+     "driven": 24,
+     "failed": 0,
+     "refused": 0
+    },
+    "csrbt_page__reload": {
+     "chaos": 0,
+     "declined": 0,
+     "driven": 24,
+     "failed": 0,
+     "refused": 0
+    },
+    "csrbt_page__set_checkbox": {
+     "chaos": 0,
+     "declined": 0,
+     "driven": 0,
+     "failed": 0,
+     "refused": 24
+    },
+    "csrbt_page__set_clock": {
+     "chaos": 0,
+     "declined": 0,
+     "driven": 24,
+     "failed": 0,
+     "refused": 0
+    },
+    "csrbt_page__set_dialog": {
+     "chaos": 0,
+     "declined": 0,
+     "driven": 22,
+     "failed": 0,
+     "refused": 2
+    },
+    "csrbt_page__set_seed": {
+     "chaos": 0,
+     "declined": 0,
+     "driven": 24,
+     "failed": 0,
+     "refused": 0
+    },
+    "csrbt_page__set_slider": {
+     "chaos": 0,
+     "declined": 0,
+     "driven": 24,
+     "failed": 0,
+     "refused": 0
+    },
+    "csrbt_page__set_text": {
+     "chaos": 0,
+     "declined": 0,
+     "driven": 24,
+     "failed": 0,
+     "refused": 0
+    },
+    "csrbt_page__show_pane": {
+     "chaos": 0,
+     "declined": 0,
+     "driven": 19,
+     "failed": 0,
+     "refused": 5
+    },
+    "csrbt_page__type_text": {
+     "chaos": 0,
+     "declined": 0,
+     "driven": 21,
+     "failed": 0,
+     "refused": 3
+    }
+   },
+   "per_round": 3,
+   "plugin": "csrbt-page",
+   "price": {
+    "actionMs": {
+     "max": 348,
+     "median": 25,
+     "n": 475,
+     "p95": 323,
+     "total": 35888
+    },
+    "snapshotMs": {
+     "max": 168,
+     "median": 67,
+     "n": 475,
+     "p95": 119,
+     "total": 34645
+    }
+   },
+   "protocolVersion": "1.5",
+   "rounds": 8,
+   "seconds": 77.6,
+   "seed": 2026,
+   "tools": 22,
+   "totals": {
+    "chaos": 0,
+    "declined": 0,
+    "driven": 475,
+    "failed": 0,
+    "refused": 61
+   },
+   "transport": "stdio",
+   "undriven": [],
+   "unreachable": [
+    "csrbt_page__choose_option",
+    "csrbt_page__set_checkbox"
+   ],
+   "unschemable": {}
+  },
+  "csrbt-page/survey-design.html": {
+   "accounted": 536,
+   "at": 1788738496,
+   "commands": 536,
+   "failures": [],
+   "forbidden": [],
+   "identity": "holds",
+   "invariants_broken": [],
+   "page": "survey-design.html",
+   "per_action": {
+    "_cross_checks": {
+     "chaos": 0,
+     "declined": 0,
+     "driven": 8,
+     "failed": 0,
+     "refused": 0
+    },
+    "csrbt_page__activate": {
+     "chaos": 0,
+     "declined": 0,
+     "driven": 24,
+     "failed": 0,
+     "refused": 0
+    },
+    "csrbt_page__attach_file": {
+     "chaos": 0,
+     "declined": 0,
+     "driven": 0,
+     "failed": 0,
+     "refused": 24
+    },
+    "csrbt_page__capture_screen": {
+     "chaos": 0,
+     "declined": 0,
+     "driven": 24,
+     "failed": 0,
+     "refused": 0
+    },
+    "csrbt_page__choose_option": {
+     "chaos": 0,
+     "declined": 0,
+     "driven": 0,
+     "failed": 0,
+     "refused": 24
+    },
+    "csrbt_page__collect_output": {
+     "chaos": 0,
+     "declined": 0,
+     "driven": 24,
+     "failed": 0,
+     "refused": 0
+    },
+    "csrbt_page__drop_files": {
+     "chaos": 0,
+     "declined": 0,
+     "driven": 0,
+     "failed": 0,
+     "refused": 24
+    },
+    "csrbt_page__open": {
+     "chaos": 0,
+     "declined": 0,
+     "driven": 24,
+     "failed": 0,
+     "refused": 0
+    },
+    "csrbt_page__pick": {
+     "chaos": 0,
+     "declined": 0,
+     "driven": 21,
+     "failed": 0,
+     "refused": 3
+    },
+    "csrbt_page__press_step": {
+     "chaos": 0,
+     "declined": 0,
+     "driven": 0,
+     "failed": 0,
+     "refused": 24
+    },
+    "csrbt_page__read_control": {
+     "chaos": 0,
+     "declined": 0,
+     "driven": 24,
+     "failed": 0,
+     "refused": 0
+    },
+    "csrbt_page__read_dialogs": {
+     "chaos": 0,
+     "declined": 0,
+     "driven": 24,
+     "failed": 0,
+     "refused": 0
+    },
+    "csrbt_page__read_page": {
+     "chaos": 0,
+     "declined": 0,
+     "driven": 24,
+     "failed": 0,
+     "refused": 0
+    },
+    "csrbt_page__read_report": {
+     "chaos": 0,
+     "declined": 0,
+     "driven": 24,
+     "failed": 0,
+     "refused": 0
+    },
+    "csrbt_page__reload": {
+     "chaos": 0,
+     "declined": 0,
+     "driven": 24,
+     "failed": 0,
+     "refused": 0
+    },
+    "csrbt_page__set_checkbox": {
+     "chaos": 0,
+     "declined": 0,
+     "driven": 0,
+     "failed": 0,
+     "refused": 24
+    },
+    "csrbt_page__set_clock": {
+     "chaos": 0,
+     "declined": 0,
+     "driven": 24,
+     "failed": 0,
+     "refused": 0
+    },
+    "csrbt_page__set_dialog": {
+     "chaos": 0,
+     "declined": 0,
+     "driven": 23,
+     "failed": 0,
+     "refused": 1
+    },
+    "csrbt_page__set_seed": {
+     "chaos": 0,
+     "declined": 0,
+     "driven": 24,
+     "failed": 0,
+     "refused": 0
+    },
+    "csrbt_page__set_slider": {
+     "chaos": 0,
+     "declined": 0,
+     "driven": 0,
+     "failed": 0,
+     "refused": 24
+    },
+    "csrbt_page__set_text": {
+     "chaos": 0,
+     "declined": 0,
+     "driven": 24,
+     "failed": 0,
+     "refused": 0
+    },
+    "csrbt_page__show_pane": {
+     "chaos": 0,
+     "declined": 0,
+     "driven": 16,
+     "failed": 0,
+     "refused": 8
+    },
+    "csrbt_page__type_text": {
+     "chaos": 0,
+     "declined": 0,
+     "driven": 24,
+     "failed": 0,
+     "refused": 0
+    }
+   },
+   "per_round": 3,
+   "plugin": "csrbt-page",
+   "price": {
+    "actionMs": {
+     "max": 448,
+     "median": 6,
+     "n": 380,
+     "p95": 324,
+     "total": 32108
+    },
+    "snapshotMs": {
+     "max": 67,
+     "median": 27,
+     "n": 380,
+     "p95": 49,
+     "total": 10838
+    }
+   },
+   "protocolVersion": "1.5",
+   "rounds": 8,
+   "seconds": 53.8,
+   "seed": 2026,
+   "tools": 22,
+   "totals": {
+    "chaos": 0,
+    "declined": 0,
+    "driven": 380,
+    "failed": 0,
+    "refused": 156
+   },
+   "transport": "stdio",
+   "undriven": [],
+   "unreachable": [
+    "csrbt_page__attach_file",
+    "csrbt_page__choose_option",
+    "csrbt_page__drop_files",
+    "csrbt_page__press_step",
+    "csrbt_page__set_checkbox",
+    "csrbt_page__set_slider"
+   ],
+   "unschemable": {}
+  },
+  "csrbt-page/tree-proofs.html": {
+   "accounted": 536,
+   "at": 1788738525,
+   "commands": 536,
+   "failures": [],
+   "forbidden": [],
+   "identity": "holds",
+   "invariants_broken": [],
+   "page": "tree-proofs.html",
+   "per_action": {
+    "_cross_checks": {
+     "chaos": 0,
+     "declined": 0,
+     "driven": 8,
+     "failed": 0,
+     "refused": 0
+    },
+    "csrbt_page__activate": {
+     "chaos": 0,
+     "declined": 0,
+     "driven": 24,
+     "failed": 0,
+     "refused": 0
+    },
+    "csrbt_page__attach_file": {
+     "chaos": 0,
+     "declined": 0,
+     "driven": 0,
+     "failed": 0,
+     "refused": 24
+    },
+    "csrbt_page__capture_screen": {
+     "chaos": 0,
+     "declined": 0,
+     "driven": 24,
+     "failed": 0,
+     "refused": 0
+    },
+    "csrbt_page__choose_option": {
+     "chaos": 0,
+     "declined": 0,
+     "driven": 0,
+     "failed": 0,
+     "refused": 24
+    },
+    "csrbt_page__collect_output": {
+     "chaos": 0,
+     "declined": 0,
+     "driven": 24,
+     "failed": 0,
+     "refused": 0
+    },
+    "csrbt_page__drop_files": {
+     "chaos": 0,
+     "declined": 0,
+     "driven": 0,
+     "failed": 0,
+     "refused": 24
+    },
+    "csrbt_page__open": {
+     "chaos": 0,
+     "declined": 0,
+     "driven": 24,
+     "failed": 0,
+     "refused": 0
+    },
+    "csrbt_page__pick": {
+     "chaos": 0,
+     "declined": 0,
+     "driven": 0,
+     "failed": 0,
+     "refused": 24
+    },
+    "csrbt_page__press_step": {
+     "chaos": 0,
+     "declined": 0,
+     "driven": 0,
+     "failed": 0,
+     "refused": 24
+    },
+    "csrbt_page__read_control": {
+     "chaos": 0,
+     "declined": 0,
+     "driven": 15,
+     "failed": 0,
+     "refused": 9
+    },
+    "csrbt_page__read_dialogs": {
+     "chaos": 0,
+     "declined": 0,
+     "driven": 24,
+     "failed": 0,
+     "refused": 0
+    },
+    "csrbt_page__read_page": {
+     "chaos": 0,
+     "declined": 0,
+     "driven": 24,
+     "failed": 0,
+     "refused": 0
+    },
+    "csrbt_page__read_report": {
+     "chaos": 0,
+     "declined": 0,
+     "driven": 24,
+     "failed": 0,
+     "refused": 0
+    },
+    "csrbt_page__reload": {
+     "chaos": 0,
+     "declined": 0,
+     "driven": 24,
+     "failed": 0,
+     "refused": 0
+    },
+    "csrbt_page__set_checkbox": {
+     "chaos": 0,
+     "declined": 0,
+     "driven": 0,
+     "failed": 0,
+     "refused": 24
+    },
+    "csrbt_page__set_clock": {
+     "chaos": 0,
+     "declined": 0,
+     "driven": 24,
+     "failed": 0,
+     "refused": 0
+    },
+    "csrbt_page__set_dialog": {
+     "chaos": 0,
+     "declined": 0,
+     "driven": 22,
+     "failed": 0,
+     "refused": 2
     },
     "csrbt_page__set_seed": {
      "chaos": 0,
@@ -9522,37 +9608,260 @@
      "driven": 0,
      "failed": 0,
      "refused": 24
+    },
+    "csrbt_page__type_text": {
+     "chaos": 0,
+     "declined": 0,
+     "driven": 24,
+     "failed": 0,
+     "refused": 0
     }
    },
    "per_round": 3,
    "plugin": "csrbt-page",
    "price": {
     "actionMs": {
-     "max": 358,
-     "median": 6,
-     "n": 311,
-     "p95": 346,
-     "total": 19280
+     "max": 321,
+     "median": 5,
+     "n": 333,
+     "p95": 317,
+     "total": 19189
     },
     "snapshotMs": {
-     "max": 55,
-     "median": 19,
-     "n": 311,
-     "p95": 34,
-     "total": 6389
+     "max": 20,
+     "median": 10,
+     "n": 333,
+     "p95": 14,
+     "total": 3501
     }
    },
-   "protocolVersion": "1.4",
+   "protocolVersion": "1.5",
    "rounds": 8,
-   "seconds": 32.0,
+   "seconds": 28.4,
    "seed": 2026,
-   "tools": 21,
+   "tools": 22,
    "totals": {
     "chaos": 0,
     "declined": 0,
-    "driven": 311,
+    "driven": 333,
     "failed": 0,
-    "refused": 201
+    "refused": 203
+   },
+   "transport": "stdio",
+   "undriven": [],
+   "unreachable": [
+    "csrbt_page__attach_file",
+    "csrbt_page__choose_option",
+    "csrbt_page__drop_files",
+    "csrbt_page__pick",
+    "csrbt_page__press_step",
+    "csrbt_page__set_checkbox",
+    "csrbt_page__set_slider",
+    "csrbt_page__show_pane"
+   ],
+   "unschemable": {}
+  },
+  "csrbt-page/tree-visualizer.html": {
+   "accounted": 536,
+   "at": 1788738556,
+   "commands": 536,
+   "failures": [],
+   "forbidden": [],
+   "identity": "holds",
+   "invariants_broken": [],
+   "page": "tree-visualizer.html",
+   "per_action": {
+    "_cross_checks": {
+     "chaos": 0,
+     "declined": 0,
+     "driven": 8,
+     "failed": 0,
+     "refused": 0
+    },
+    "csrbt_page__activate": {
+     "chaos": 0,
+     "declined": 0,
+     "driven": 24,
+     "failed": 0,
+     "refused": 0
+    },
+    "csrbt_page__attach_file": {
+     "chaos": 0,
+     "declined": 0,
+     "driven": 0,
+     "failed": 0,
+     "refused": 24
+    },
+    "csrbt_page__capture_screen": {
+     "chaos": 0,
+     "declined": 0,
+     "driven": 24,
+     "failed": 0,
+     "refused": 0
+    },
+    "csrbt_page__choose_option": {
+     "chaos": 0,
+     "declined": 0,
+     "driven": 0,
+     "failed": 0,
+     "refused": 24
+    },
+    "csrbt_page__collect_output": {
+     "chaos": 0,
+     "declined": 0,
+     "driven": 24,
+     "failed": 0,
+     "refused": 0
+    },
+    "csrbt_page__drop_files": {
+     "chaos": 0,
+     "declined": 0,
+     "driven": 0,
+     "failed": 0,
+     "refused": 24
+    },
+    "csrbt_page__open": {
+     "chaos": 0,
+     "declined": 0,
+     "driven": 24,
+     "failed": 0,
+     "refused": 0
+    },
+    "csrbt_page__pick": {
+     "chaos": 0,
+     "declined": 0,
+     "driven": 0,
+     "failed": 0,
+     "refused": 24
+    },
+    "csrbt_page__press_step": {
+     "chaos": 0,
+     "declined": 0,
+     "driven": 0,
+     "failed": 0,
+     "refused": 24
+    },
+    "csrbt_page__read_control": {
+     "chaos": 0,
+     "declined": 0,
+     "driven": 16,
+     "failed": 0,
+     "refused": 8
+    },
+    "csrbt_page__read_dialogs": {
+     "chaos": 0,
+     "declined": 0,
+     "driven": 24,
+     "failed": 0,
+     "refused": 0
+    },
+    "csrbt_page__read_page": {
+     "chaos": 0,
+     "declined": 0,
+     "driven": 24,
+     "failed": 0,
+     "refused": 0
+    },
+    "csrbt_page__read_report": {
+     "chaos": 0,
+     "declined": 0,
+     "driven": 24,
+     "failed": 0,
+     "refused": 0
+    },
+    "csrbt_page__reload": {
+     "chaos": 0,
+     "declined": 0,
+     "driven": 24,
+     "failed": 0,
+     "refused": 0
+    },
+    "csrbt_page__set_checkbox": {
+     "chaos": 0,
+     "declined": 0,
+     "driven": 0,
+     "failed": 0,
+     "refused": 24
+    },
+    "csrbt_page__set_clock": {
+     "chaos": 0,
+     "declined": 0,
+     "driven": 24,
+     "failed": 0,
+     "refused": 0
+    },
+    "csrbt_page__set_dialog": {
+     "chaos": 0,
+     "declined": 0,
+     "driven": 21,
+     "failed": 0,
+     "refused": 3
+    },
+    "csrbt_page__set_seed": {
+     "chaos": 0,
+     "declined": 0,
+     "driven": 24,
+     "failed": 0,
+     "refused": 0
+    },
+    "csrbt_page__set_slider": {
+     "chaos": 0,
+     "declined": 0,
+     "driven": 0,
+     "failed": 0,
+     "refused": 24
+    },
+    "csrbt_page__set_text": {
+     "chaos": 0,
+     "declined": 0,
+     "driven": 24,
+     "failed": 0,
+     "refused": 0
+    },
+    "csrbt_page__show_pane": {
+     "chaos": 0,
+     "declined": 0,
+     "driven": 0,
+     "failed": 0,
+     "refused": 24
+    },
+    "csrbt_page__type_text": {
+     "chaos": 0,
+     "declined": 0,
+     "driven": 24,
+     "failed": 0,
+     "refused": 0
+    }
+   },
+   "per_round": 3,
+   "plugin": "csrbt-page",
+   "price": {
+    "actionMs": {
+     "max": 335,
+     "median": 5,
+     "n": 333,
+     "p95": 330,
+     "total": 19916
+    },
+    "snapshotMs": {
+     "max": 36,
+     "median": 11,
+     "n": 333,
+     "p95": 17,
+     "total": 4121
+    }
+   },
+   "protocolVersion": "1.5",
+   "rounds": 8,
+   "seconds": 29.3,
+   "seed": 2026,
+   "tools": 22,
+   "totals": {
+    "chaos": 0,
+    "declined": 0,
+    "driven": 333,
+    "failed": 0,
+    "refused": 203
    },
    "transport": "stdio",
    "undriven": [],
@@ -9569,9 +9878,9 @@
    "unschemable": {}
   },
   "csrbt-page@mcp": {
-   "accounted": 512,
-   "at": 1788425228,
-   "commands": 512,
+   "accounted": 536,
+   "at": 1788740072,
+   "commands": 536,
    "failures": [],
    "forbidden": [],
    "identity": "holds",
@@ -9699,9 +10008,9 @@
     "csrbt_page__set_dialog": {
      "chaos": 0,
      "declined": 0,
-     "driven": 18,
+     "driven": 21,
      "failed": 0,
-     "refused": 6
+     "refused": 3
     },
     "csrbt_page__set_seed": {
      "chaos": 0,
@@ -9727,40 +10036,47 @@
     "csrbt_page__show_pane": {
      "chaos": 0,
      "declined": 0,
-     "driven": 20,
+     "driven": 18,
      "failed": 0,
-     "refused": 4
+     "refused": 6
+    },
+    "csrbt_page__type_text": {
+     "chaos": 0,
+     "declined": 0,
+     "driven": 24,
+     "failed": 0,
+     "refused": 0
     }
    },
    "per_round": 3,
    "plugin": "csrbt-page",
    "price": {
     "actionMs": {
-     "max": 397,
+     "max": 357,
      "median": 24,
-     "n": 390,
-     "p95": 361,
-     "total": 33484
+     "n": 415,
+     "p95": 324,
+     "total": 32028
     },
     "snapshotMs": {
-     "max": 284,
-     "median": 115,
-     "n": 512,
-     "p95": 209,
-     "total": 65348
+     "max": 143,
+     "median": 69,
+     "n": 536,
+     "p95": 123,
+     "total": 40518
     }
    },
-   "protocolVersion": "1.4",
+   "protocolVersion": "1.5",
    "rounds": 8,
-   "seconds": 159.3,
+   "seconds": 113.5,
    "seed": 2026,
-   "tools": 21,
+   "tools": 22,
    "totals": {
     "chaos": 0,
     "declined": 0,
-    "driven": 390,
+    "driven": 415,
     "failed": 0,
-    "refused": 122
+    "refused": 121
    },
    "transport": "mcp",
    "undriven": [],

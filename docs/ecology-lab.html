@@ -2560,11 +2560,34 @@ expect: evenness(pondA) is moderate"></textarea>
     out.append(holder);
   }
 
+  /* A REJECTED KEYSTROKE BUFFER IS NOT AN EMPTY ONE (ADR-151). Both readers
+     below take their counts with `+el.value`, and Chromium hands `+""` back
+     for a blank box AND for one whose contents it could not parse -- so a
+     genotype box holding the reader's own characters was read as zero and
+     answered with "enter non-negative counts", the same sentence a genuinely
+     empty box gets. The exporter on this page already knew the difference
+     (`boxNum` checks validity.badInput); the two live workbenches did not.
+     Named boxes rather than a count, because "one of these three" is not an
+     answer when the reader is looking at three boxes. */
+  function wbBadBoxes(pairs) {
+    return pairs.filter(([, id]) => {
+      const e = document.getElementById(id);
+      return !!(e && e.validity && e.validity.badInput);
+    }).map(([label]) => label);
+  }
+  function wbBadNote(names) {
+    return `<p class="wb-error">${esc(names.join(", "))} ${names.length === 1 ? "holds" : "hold"}
+       something that is not a number — the box is not empty, it holds text this browser cannot
+       read as a number, which is why nothing below has changed.</p>`;
+  }
+
   /* Hardy–Weinberg */
   function runHw() {
     const out = document.getElementById("wb-hw-out");
     const AA = +document.getElementById("wb-aa").value, Ab = +document.getElementById("wb-ab").value,
           bb = +document.getElementById("wb-bb").value;
+    const hwBad = wbBadBoxes([["AA", "wb-aa"], ["Aa", "wb-ab"], ["aa", "wb-bb"]]);
+    if (hwBad.length) { out.innerHTML = wbBadNote(hwBad); return; }
     const n = AA + Ab + bb;
     if (!n || AA < 0 || Ab < 0 || bb < 0) { out.innerHTML = '<p class="wb-error">enter non-negative counts</p>'; return; }
     const p = (2 * AA + Ab) / (2 * n), q = 1 - p;
@@ -2652,6 +2675,9 @@ expect: evenness(pondA) is moderate"></textarea>
     const out = document.getElementById("wb-mr-out");
     const M = +document.getElementById("wb-mrm").value, C = +document.getElementById("wb-mrc").value,
           R = +document.getElementById("wb-mrr").value;
+    const mrBad = wbBadBoxes([["marked M", "wb-mrm"], ["caught C", "wb-mrc"],
+                              ["recaptured R", "wb-mrr"]]);
+    if (mrBad.length) { out.innerHTML = wbBadNote(mrBad); return; }
     if (!(M > 0) || !(C > 0) || R < 0 || R > Math.min(M, C)) {
       out.innerHTML = '<p class="wb-error">need M &gt; 0, C &gt; 0, 0 ≤ R ≤ min(M, C)</p>'; return;
     }

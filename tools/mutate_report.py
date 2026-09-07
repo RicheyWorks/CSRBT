@@ -243,6 +243,27 @@ MUTANTS += [
 
 
 MUTANTS += [
+    # ---- ADR-150: typing is not assigning ----
+    ("type-text clicks the control instead of focusing it",
+     '            try:\n                el.focus()',
+     '            try:\n                el.click()',
+     "refused at once rather than waited on"),
+    ("type-text assigns the value instead of pressing keys",
+     '            self.page.keyboard.type(args["value"], delay=1)',
+     '            el.evaluate("(e, v) => { e.value = v; }", args["value"])',
+     "badInput TRUE"),
+    ("a control that cannot take focus is waited on rather than refused",
+     '                raise Conflict("control cannot take focus right now -- it is hidden, "\n                               "covered or disabled, so there is nothing to type into")\n            if not self.page.evaluate(',
+     '                pass\n            if False and not self.page.evaluate(',
+     "was accepted"),
+    ("typing does not clear what was there first",
+     '            self.page.keyboard.press("Control+a")\n            self.page.keyboard.press("Delete")',
+     '            pass',
+     "typing an empty value CLEARS"),
+    ("type-text accepts a control that is not a text control",
+     '            if tag not in ("INPUT", "TEXTAREA"):\n                raise InvalidArgument("not a text control")',
+     '            if False:\n                raise InvalidArgument("not a text control")',
+     "type-text into a button was accepted"),
     # ---- ADR-145: a picker with nothing showing is still a picker ----
     ("a picker that currently shows no option is not a picker",
      '  const pick = s.closest(".fek-pick");',

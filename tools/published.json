@@ -3,9 +3,9 @@
   "observed": {},
   "pages": {
     "_harness-board.html": {
-      "at": 1788732824,
-      "dated_by": "the file's mtime -- NOT the version, only when this file was last written",
-      "sha": "e81a5aeb6c0437ed36e1c43d4b8b6a6fabb2e0b053bc65a4f29e30e96df0a248",
+      "at": 1788761485,
+      "dated_by": "the fetch time the reader reported -- about the fetch, not about the version",
+      "sha": "85bbc090aa960b5f0f4d8164e43ad00a8d707fb00482c33382baaa932af44585",
       "via": "read"
     },
     "adr-031.html": {
@@ -15,9 +15,9 @@
       "via": "read"
     },
     "breeding-bench.html": {
-      "at": 1788358405,
+      "at": 1788757014,
       "dated_by": "the version epoch in the filename",
-      "sha": "5d2d2d4847000a35d7b43eab0e9c2d13f5262099e7e354c9f93cd4df924e64ac",
+      "sha": "fd61c9a219ee81ac28f27e40dcce83f36074df1b75d8fefb34ea8901e4fc83b6",
       "via": "read"
     },
     "breeding-suite.html": {
@@ -27,21 +27,21 @@
       "via": "read"
     },
     "cell-bench.html": {
-      "at": 1788383130,
+      "at": 1788757053,
       "dated_by": "the version epoch in the filename",
-      "sha": "2568c0c5b4ef5852d9b91cf1cebc5b3f1109faa09f86fd7b5e88de2ed2036ce7",
+      "sha": "b58473c51ab0fadb63de5aef5d142835c7350416f5dae7415ff5bbe3ef98835c",
       "via": "read"
     },
     "collection-sheet.html": {
-      "at": 1788358210,
+      "at": 1788757093,
       "dated_by": "the version epoch in the filename",
-      "sha": "c3af10d99a789b616036fa3ca9ba2a92f9ed71cedbf36a32329615f08277fef3",
+      "sha": "0e47ff4da4e75e7059cc2cd2c12ff757dcfaadc956c8e58bde30c00e0c299e8f",
       "via": "read"
     },
     "cp-bench.html": {
-      "at": 1788383151,
+      "at": 1788757120,
       "dated_by": "the version epoch in the filename",
-      "sha": "0c3b59b56c58fc321f7061c9251c1fad8a741f4877eb995be512b783d00df1ab",
+      "sha": "0c8947665ae1083745128a8199dd854e38ddb3dd9610417a973f1d6df8c2e00d",
       "via": "read"
     },
     "cp-characters.html": {
@@ -57,9 +57,9 @@
       "via": "read"
     },
     "deployment-log.html": {
-      "at": 1788384111,
+      "at": 1788757146,
       "dated_by": "the version epoch in the filename",
-      "sha": "99da0339a3fa6952abd4573537c40c94f3c483b598376730a1cf96914b365a9a",
+      "sha": "59d23897c5f91117585ba12534b8106489d2b191d7f37e6c6d92c234ce79f0c6",
       "via": "read"
     },
     "douglas-explorer.html": {
@@ -111,9 +111,9 @@
       "via": "read"
     },
     "ecology-lab.html": {
-      "at": 1788703601,
-      "dated_by": "the file's mtime -- NOT the version, only when this file was last written",
-      "sha": "b783fd7b623269a5f6b7f129fad1af60bff91f1aeb04523c2694a67b41fd750a",
+      "at": 1788757192,
+      "dated_by": "the version epoch in the filename",
+      "sha": "5efc50da2d626e5191edf0579c06a7c93a25292cd4ccb9fc674e55d106e0c232",
       "via": "read"
     },
     "ecology-teachers-guide.html": {
@@ -129,33 +129,33 @@
       "via": "read"
     },
     "ethogram.html": {
-      "at": 1788358506,
+      "at": 1788757045,
       "dated_by": "the version epoch in the filename",
-      "sha": "b93caf45a04a49f8ffde0d77dbee1df9df9a27bfe701663f92b3e31f80965bcf",
+      "sha": "889d404fc6434e066825bd54cb993a3a818fc2eeb657978ffb9726c0f8d98b84",
       "via": "read"
     },
     "experiment-guide.html": {
-      "at": 1788391728,
+      "at": 1788757086,
       "dated_by": "the version epoch in the filename",
-      "sha": "4715d5b8664ae9a38ee9c87d481e720b6a0833375b074d37bd8ee0167553f42d",
+      "sha": "e36f3d22a796dc3c9ff5d2051c1ca45bb4fc8cb23df40710bc7345fbba18ec79",
       "via": "read"
     },
     "farm-scout.html": {
-      "at": 1788383231,
+      "at": 1788757110,
       "dated_by": "the version epoch in the filename",
-      "sha": "2bc5dd796cb0451d0b5e0a18ad403eb8793fc656c3d001025000a348bf76a1eb",
+      "sha": "9b851d8f778b3c2cf2aa27508320161429fdb954c9b94f3fe43e106000327c95",
       "via": "read"
     },
     "field-notebook.html": {
-      "at": 1788136454,
+      "at": 1788757131,
       "dated_by": "the version epoch in the filename",
-      "sha": "ddc57684ea66dada9d38f1c1ce506381c4d2cda377eb4c62d4cfa1eca2348794",
+      "sha": "94c237a99d7945836238219f63d2d0f72fa0ccb48ea368f2cfa79587d7dfacb0",
       "via": "read"
     },
     "field-season.html": {
-      "at": 1787950863,
-      "dated_by": "the version marker in the copy",
-      "sha": "435ef703264ed68fd717d0d3c6a2943b56a37d57d04f2cea10a7110ac946e2d5",
+      "at": 1788757151,
+      "dated_by": "the version epoch in the filename",
+      "sha": "510d32ba2e5be9ed138a4541ae611330c501ef5bd1f60f1547776cc248155fd2",
       "via": "read"
     },
     "food-web.html": {
@@ -171,27 +171,27 @@
       "via": "read"
     },
     "greenhouse.html": {
-      "at": 1788477162,
+      "at": 1788757186,
       "dated_by": "the version epoch in the filename",
-      "sha": "c9a9de8fc217e8e997f0723967d4826ade00c0ffbe617e3085b2d39f9479c1d2",
+      "sha": "d5cc0013aba0bcbab3519ca8953fa752d5cb0559e1c80c11617f6153c6040985",
       "via": "read"
     },
     "micro-bench.html": {
-      "at": 1788358623,
+      "at": 1788757070,
       "dated_by": "the version epoch in the filename",
-      "sha": "98675a533238c3409ef5c432d8cb462296ad36ae3e99da3d37d95ae2d6f15fc3",
+      "sha": "bb04718f2c5dcd8e419d72e2fe9a5ba3b5ec43a76d42c0c19523818e26168459",
       "via": "read"
     },
     "ordination.html": {
-      "at": 1788384145,
+      "at": 1788757111,
       "dated_by": "the version epoch in the filename",
-      "sha": "4e6174a691950186d7c6884751586fa1aa0ba83fa5379bef5c6cc76cc64cac5d",
+      "sha": "81fbf146cecf3d85d3cb8e2a2fbd4eb5b7af56ef00698a3a88b24e7c5515a3e6",
       "via": "read"
     },
     "pheno-tracker.html": {
-      "at": 1788383241,
+      "at": 1788757142,
       "dated_by": "the version epoch in the filename",
-      "sha": "4936762f76a459dc65f8e319025552cfbae31c0098f1bf88b6bf80e9f77fd560",
+      "sha": "e05ed31f6009ba002de0f2e7b83c6540529bc5d0cb1b484f34765c2f169fe952",
       "via": "read"
     },
     "plant-characters.html": {
@@ -201,27 +201,27 @@
       "via": "read"
     },
     "releve.html": {
-      "at": 1788391608,
+      "at": 1788757183,
       "dated_by": "the version epoch in the filename",
-      "sha": "13ab322bee27e6d4d3e997b947c48abd27c41e0189003ae9625473457f38b671",
+      "sha": "d35eab97d8a1369e18e20d9be961708a1b709028e669d289cb3f85b5544d3121",
       "via": "read"
     },
     "selection-log.html": {
-      "at": 1788358328,
+      "at": 1788757214,
       "dated_by": "the version epoch in the filename",
-      "sha": "ccd37b65290b46fe8d7d7c76c9a3469fd1f07a4b383f258360d76771c0625b09",
+      "sha": "5200c7eab2f1698d84d5609aa99a6c28bd04bb168955a0ff4e8d2e5c2112f682",
       "via": "read"
     },
     "soil-bench.html": {
-      "at": 1788358699,
+      "at": 1788757077,
       "dated_by": "the version epoch in the filename",
-      "sha": "a0b6849873b134b45c5d05f9d0744f0ab164dc44384b54a19faad08a9dc591ba",
+      "sha": "200cb21b2af498236b5a4478dda539ea4f3512cd5cd6dfb9206e523c9912f824",
       "via": "read"
     },
     "soil-recipes.html": {
-      "at": 1788358731,
+      "at": 1788757121,
       "dated_by": "the version epoch in the filename",
-      "sha": "1a43c575a34d8f6b693d0617ce23c22ecff90297da7b08983c799f82f2c78e93",
+      "sha": "182187713a4e5a1ccbd6ef44853dde28cfa4985691abeecce731edc7809e84d8",
       "via": "read"
     },
     "soil-suite.html": {
@@ -231,15 +231,15 @@
       "via": "read"
     },
     "stand-sheet.html": {
-      "at": 1788666987,
-      "dated_by": "the file's mtime -- NOT the version, only when this file was last written",
-      "sha": "dba0ed5f77b425c22a2b56a3e5ba7cb944cf4eb4b82904e6f3b171c88947f920",
+      "at": 1788757167,
+      "dated_by": "the version epoch in the filename",
+      "sha": "ebe780b154144862c5a770bf2da3f335fe6bd45df29babbf58ed03d8ea688e03",
       "via": "read"
     },
     "survey-design.html": {
-      "at": 1788425420,
+      "at": 1788757203,
       "dated_by": "the version epoch in the filename",
-      "sha": "01904d1c221798a29ccec8b384ef75cd1c4ea9557575e722fa37aaefe076120c",
+      "sha": "613d47a594275d51dc3c8fca284900fcb717e472057c73a53f5ef3b49fb3a506",
       "via": "read"
     },
     "tree-proofs.html": {
@@ -249,9 +249,9 @@
       "via": "read"
     },
     "tree-visualizer.html": {
-      "at": 1788477258,
-      "dated_by": "the version epoch in the filename",
-      "sha": "a569295ec470f898c28993bb109c39913f510bbadea01a47cb6ce3da84fa4038",
+      "at": 1788757416,
+      "dated_by": "the fetch time the reader reported -- about the fetch, not about the version",
+      "sha": "95c535bc0089fbe62858bf875482a310a3de080590ecd250d348f754df93d7bc",
       "via": "read"
     }
   }

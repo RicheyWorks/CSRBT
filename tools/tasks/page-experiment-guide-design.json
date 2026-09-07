@@ -475,6 +475,1449 @@
     },
     "output.overflow": 0
    }
+  },
+  {
+   "id": "g150-eng",
+   "action": "activate",
+   "arguments": {
+    "selector": "@control:track-eng"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "g150-eng-reset",
+   "action": "activate",
+   "arguments": {
+    "selector": "@control:eng-reset"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "g150-eng0",
+   "action": "read-report",
+   "expect": {
+    "output.boxes.eng-lint": {
+     "op": "contains",
+     "value": "no question — one sentence, a cost or a comparison"
+    },
+    "output.boxes.eng-lint#2": {
+     "op": "contains",
+     "value": "no floor — without one, every claim is only about the other guy"
+    },
+    "output.boxes.eng-lint#3": {
+     "op": "contains",
+     "value": "no decision rule"
+    },
+    "output.boxes.eng-lint#4": {
+     "op": "contains",
+     "value": "no sizes — two or more shows how the cost scales"
+    }
+   }
+  },
+  {
+   "id": "g150-q",
+   "action": "set-text",
+   "arguments": {
+    "selector": "@control:g-question",
+    "value": "What does one scan over a cold archive cost, end to end?"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "g150-eng1",
+   "action": "read-report",
+   "expect": {
+    "output.boxes.eng-lint": {
+     "op": "excludes",
+     "value": "no question"
+    },
+    "output.boxes.eng-lint#2": {
+     "op": "contains",
+     "value": "no floor"
+    },
+    "output.boxes.eng-lint#3": {
+     "op": "contains",
+     "value": "no decision rule"
+    },
+    "output.boxes.eng-lint#4": {
+     "op": "contains",
+     "value": "no sizes"
+    }
+   }
+  },
+  {
+   "id": "g150-fl",
+   "action": "set-text",
+   "arguments": {
+    "selector": "@control:g-floor",
+    "value": "reading the archive's bytes once, front to back"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "g150-eng2",
+   "action": "read-report",
+   "expect": {
+    "output.boxes.eng-lint": {
+     "op": "excludes",
+     "value": "no floor"
+    },
+    "output.boxes.eng-lint#2": {
+     "op": "contains",
+     "value": "no decision rule"
+    },
+    "output.boxes.eng-lint#3": {
+     "op": "contains",
+     "value": "no sizes"
+    }
+   }
+  },
+  {
+   "id": "g150-sz",
+   "action": "set-text",
+   "arguments": {
+    "selector": "@control:g-sizes",
+    "value": "20000, 60000"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "g150-eng3",
+   "action": "read-report",
+   "expect": {
+    "output.boxes.eng-lint": {
+     "op": "excludes",
+     "value": "no sizes"
+    },
+    "output.boxes.eng-lint#2": {
+     "op": "contains",
+     "value": "no decision rule"
+    }
+   }
+  },
+  {
+   "id": "g150-rl",
+   "action": "set-text",
+   "arguments": {
+    "selector": "@control:g-rule",
+    "value": "fires if the route exceeds 5x the floor at the larger size"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "g150-eng4",
+   "action": "read-report",
+   "expect": {
+    "output.boxes.eng-lint": {
+     "op": "contains",
+     "value": "pre-registration complete — run it, then append the verdict"
+    },
+    "output.boxes.eng-lint#2": {
+     "op": "excludes",
+     "value": "MISSING"
+    }
+   }
+  },
+  {
+   "id": "g150-wl",
+   "action": "set-text",
+   "arguments": {
+    "selector": "@control:g-workload",
+    "value": "60k-op churn, ~5k live keys, seeded generator"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "g150-gs",
+   "action": "set-text",
+   "arguments": {
+    "selector": "@control:g-seed",
+    "value": "7"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "g150-gp",
+   "action": "set-text",
+   "arguments": {
+    "selector": "@control:g-passes",
+    "value": "5"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "g150-st",
+   "action": "set-text",
+   "arguments": {
+    "selector": "@control:g-stakes",
+    "value": "the seam stays held and the workaround is recorded as priced dead"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "g150-prereg",
+   "action": "read-report",
+   "expect": {
+    "output.boxes.eng-out": {
+     "op": "contains",
+     "value": "60k-op churn, ~5k live keys, seeded generator"
+    },
+    "output.boxes.eng-out#2": {
+     "op": "contains",
+     "value": "seed 7"
+    },
+    "output.boxes.eng-out#3": {
+     "op": "contains",
+     "value": "5"
+    },
+    "output.boxes.eng-out#4": {
+     "op": "contains",
+     "value": "the seam stays held and the workaround is recorded as priced dead"
+    }
+   }
+  },
+  {
+   "id": "g150-early",
+   "action": "activate",
+   "arguments": {
+    "selector": "@control:vd-fires"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "g150-no-numbers",
+   "action": "read-report",
+   "expect": {
+    "output.boxes.eng-out": {
+     "op": "contains",
+     "value": "**VERDICT:** _append after the run"
+    }
+   }
+  },
+  {
+   "id": "g150-ph",
+   "action": "set-text",
+   "arguments": {
+    "selector": "@control:g-phases",
+    "value": "inflate, scan"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "g150-i20",
+   "action": "set-text",
+   "arguments": {
+    "selector": "@control:inflate (ms) at n = 20000",
+    "value": "12.34"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "g150-s20",
+   "action": "set-text",
+   "arguments": {
+    "selector": "@control:scan (ms) at n = 20000",
+    "value": "5.6"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "g150-f20",
+   "action": "set-text",
+   "arguments": {
+    "selector": "@control:floor (ms) at n = 20000",
+    "value": "2"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "g150-i60",
+   "action": "set-text",
+   "arguments": {
+    "selector": "@control:inflate (ms) at n = 60000",
+    "value": "100"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "g150-s60",
+   "action": "set-text",
+   "arguments": {
+    "selector": "@control:scan (ms) at n = 60000",
+    "value": "48.6"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "g150-f60",
+   "action": "set-text",
+   "arguments": {
+    "selector": "@control:floor (ms) at n = 60000",
+    "value": "12"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "g150-totals",
+   "action": "read-report",
+   "expect": {
+    "output.boxes.meas": {
+     "op": "contains",
+     "value": "17.9"
+    },
+    "output.boxes.meas#2": {
+     "op": "contains",
+     "value": "148.6"
+    }
+   }
+  },
+  {
+   "id": "g150-vn",
+   "action": "set-text",
+   "arguments": {
+    "selector": "@control:g-verdict-note",
+    "value": "524x against a 5x bar — the columnar cold format is unlocked"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "g150-fires",
+   "action": "activate",
+   "arguments": {
+    "selector": "@control:vd-fires"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "g150-verdict-note",
+   "action": "read-report",
+   "expect": {
+    "output.boxes.eng-out": {
+     "op": "contains",
+     "value": "524x against a 5x bar"
+    },
+    "output.boxes.eng-out#2": {
+     "op": "contains",
+     "value": "VERDICT"
+    }
+   }
+  },
+  {
+   "id": "g150-eco",
+   "action": "activate",
+   "arguments": {
+    "selector": "@control:track-eco"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "g150-eco-reset",
+   "action": "activate",
+   "arguments": {
+    "selector": "@control:eco-reset"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "g150-eco0",
+   "action": "read-report",
+   "expect": {
+    "output.boxes.lint": {
+     "op": "contains",
+     "value": "no phases — nothing will be simulated"
+    },
+    "output.boxes.lint#2": {
+     "op": "contains",
+     "value": "no pre-registered hypotheses — without one, it's a demo, not an experiment"
+    }
+   }
+  },
+  {
+   "id": "g150-k1",
+   "action": "set-text",
+   "arguments": {
+    "selector": "@control:e-keys",
+    "value": "1"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "g150-keys-bad",
+   "action": "read-report",
+   "expect": {
+    "output.boxes.lint": {
+     "op": "contains",
+     "value": "keys out of range [2, 1000000]"
+    }
+   }
+  },
+  {
+   "id": "g150-assign",
+   "action": "set-text",
+   "arguments": {
+    "selector": "@control:e-keys",
+    "value": "one hundred"
+   },
+   "expect": {
+    "ok": true,
+    "output.value": ""
+   }
+  },
+  {
+   "id": "g150-assigned-not-typed",
+   "action": "read-report",
+   "expect": {
+    "output.boxes.lint": {
+     "op": "contains",
+     "value": "keys out of range [2, 1000000]"
+    },
+    "output.boxes.lint#2": {
+     "op": "excludes",
+     "value": "keys is not a whole number"
+    }
+   }
+  },
+  {
+   "id": "g150-k2",
+   "action": "set-text",
+   "arguments": {
+    "selector": "@control:e-keys",
+    "value": "400"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "g150-keys-ok",
+   "action": "read-report",
+   "expect": {
+    "output.boxes.lint": {
+     "op": "excludes",
+     "value": "keys out of range"
+    }
+   }
+  },
+  {
+   "id": "g150-w1",
+   "action": "set-text",
+   "arguments": {
+    "selector": "@control:e-window",
+    "value": "8"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "g150-win-bad",
+   "action": "read-report",
+   "expect": {
+    "output.boxes.lint": {
+     "op": "contains",
+     "value": "window out of range [16, 1000000]"
+    }
+   }
+  },
+  {
+   "id": "g150-w2",
+   "action": "set-text",
+   "arguments": {
+    "selector": "@control:e-window",
+    "value": "500"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "g150-sd1",
+   "action": "type-text",
+   "arguments": {
+    "selector": "@control:e-seed",
+    "value": "not a number"
+   },
+   "expect": {
+    "ok": true,
+    "output.value": "",
+    "output.badInput": true
+   }
+  },
+  {
+   "id": "g150-seed-bad",
+   "action": "read-report",
+   "expect": {
+    "output.boxes.lint": {
+     "op": "contains",
+     "value": "seed is not a whole number"
+    },
+    "output.boxes.lint#2": {
+     "op": "contains",
+     "value": "a BLANK seed would mean 42; this is not blank"
+    }
+   }
+  },
+  {
+   "id": "g150-k3",
+   "action": "type-text",
+   "arguments": {
+    "selector": "@control:e-keys",
+    "value": "one hundred"
+   },
+   "expect": {
+    "ok": true,
+    "output.badInput": true
+   }
+  },
+  {
+   "id": "g150-keys-words",
+   "action": "read-report",
+   "expect": {
+    "output.boxes.lint": {
+     "op": "contains",
+     "value": "keys is not a whole number"
+    },
+    "output.boxes.lint#2": {
+     "op": "excludes",
+     "value": "keys out of range"
+    }
+   }
+  },
+  {
+   "id": "g150-k4",
+   "action": "set-text",
+   "arguments": {
+    "selector": "@control:e-keys",
+    "value": "400"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "g150-w3",
+   "action": "type-text",
+   "arguments": {
+    "selector": "@control:e-window",
+    "value": "3e"
+   },
+   "expect": {
+    "ok": true,
+    "output.value": "",
+    "output.badInput": true
+   }
+  },
+  {
+   "id": "g150-win-words",
+   "action": "read-report",
+   "expect": {
+    "output.boxes.lint": {
+     "op": "contains",
+     "value": "window is not a whole number"
+    }
+   }
+  },
+  {
+   "id": "g150-w4",
+   "action": "set-text",
+   "arguments": {
+    "selector": "@control:e-window",
+    "value": "500"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "g150-sd2",
+   "action": "set-text",
+   "arguments": {
+    "selector": "@control:e-seed",
+    "value": "7"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "g150-seed-ok",
+   "action": "read-report",
+   "expect": {
+    "output.boxes.lint": {
+     "op": "excludes",
+     "value": "seed must be"
+    }
+   }
+  },
+  {
+   "id": "g150-pn",
+   "action": "set-text",
+   "arguments": {
+    "selector": "@control:p-name",
+    "value": "graze"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "g150-po",
+   "action": "set-text",
+   "arguments": {
+    "selector": "@control:p-ops",
+    "value": "2000"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "g150-padd",
+   "action": "activate",
+   "arguments": {
+    "selector": "@control:p-add"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "g150-phased",
+   "action": "read-report",
+   "expect": {
+    "output.boxes.lint": {
+     "op": "excludes",
+     "value": "no phases"
+    },
+    "output.boxes.p-list": {
+     "op": "contains",
+     "value": "graze"
+    }
+   }
+  },
+  {
+   "id": "g150-kind-hot",
+   "action": "choose-option",
+   "arguments": {
+    "selector": "@control:p-kind",
+    "value": "hot — a few keys dominate"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "g150-pn2",
+   "action": "set-text",
+   "arguments": {
+    "selector": "@control:p-name",
+    "value": "bloom"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "g150-hs",
+   "action": "set-text",
+   "arguments": {
+    "selector": "@control:p-hotset",
+    "value": "5"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "g150-hsh",
+   "action": "set-text",
+   "arguments": {
+    "selector": "@control:p-hotshare",
+    "value": "90"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "g150-padd2",
+   "action": "activate",
+   "arguments": {
+    "selector": "@control:p-add"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "g150-hot",
+   "action": "read-report",
+   "expect": {
+    "output.boxes.p-list": {
+     "op": "contains",
+     "value": "bloom"
+    }
+   }
+  },
+  {
+   "id": "g150-kind-churn",
+   "action": "choose-option",
+   "arguments": {
+    "selector": "@control:p-kind",
+    "value": "churn — keys come and go"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "g150-pn3",
+   "action": "set-text",
+   "arguments": {
+    "selector": "@control:p-name",
+    "value": "turnover"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "g150-ap",
+   "action": "set-text",
+   "arguments": {
+    "selector": "@control:p-addpct",
+    "value": "55"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "g150-padd3",
+   "action": "activate",
+   "arguments": {
+    "selector": "@control:p-add"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "g150-churn",
+   "action": "read-report",
+   "expect": {
+    "output.boxes.p-list": {
+     "op": "contains",
+     "value": "turnover"
+    },
+    "output.boxes.eco-out": {
+     "op": "contains",
+     "value": "phase: turnover churn"
+    }
+   }
+  },
+  {
+   "id": "g150-kind-uni",
+   "action": "choose-option",
+   "arguments": {
+    "selector": "@control:p-kind",
+    "value": "uniform — even traffic"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "g150-dupe-name",
+   "action": "set-text",
+   "arguments": {
+    "selector": "@control:d-name",
+    "value": "graze"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "g150-dupe-counts",
+   "action": "set-text",
+   "arguments": {
+    "selector": "@control:d-counts",
+    "value": "cattail=18"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "g150-dupe-add",
+   "action": "activate",
+   "arguments": {
+    "selector": "@control:d-add"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "g150-builder-refuses",
+   "action": "read-report",
+   "expect": {
+    "output.boxes.d-list": {
+     "op": "contains",
+     "value": "No datasets yet"
+    },
+    "output.boxes.lint": {
+     "op": "excludes",
+     "value": "duplicate community name"
+    }
+   }
+  },
+  {
+   "id": "g150-dn",
+   "action": "set-text",
+   "arguments": {
+    "selector": "@control:d-name",
+    "value": "pondA"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "g150-dc",
+   "action": "set-text",
+   "arguments": {
+    "selector": "@control:d-counts",
+    "value": "cattail=18 duckweed=44 frogbit=3"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "g150-dadd",
+   "action": "activate",
+   "arguments": {
+    "selector": "@control:d-add"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "g150-dataset",
+   "action": "read-report",
+   "expect": {
+    "output.boxes.d-list": {
+     "op": "contains",
+     "value": "pondA"
+    },
+    "output.boxes.eco-out": {
+     "op": "contains",
+     "value": "data: pondA cattail=18 duckweed=44 frogbit=3"
+    }
+   }
+  },
+  {
+   "id": "g150-metric",
+   "action": "choose-option",
+   "arguments": {
+    "selector": "@control:x-metric",
+    "value": "shannon"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "g150-xa",
+   "action": "set-text",
+   "arguments": {
+    "selector": "@control:x-args",
+    "value": "lake"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "g150-xop",
+   "action": "choose-option",
+   "arguments": {
+    "selector": "@control:x-op",
+    "value": ">"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "g150-xv",
+   "action": "set-text",
+   "arguments": {
+    "selector": "@control:x-val",
+    "value": "1.2"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "g150-xadd",
+   "action": "activate",
+   "arguments": {
+    "selector": "@control:x-add"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "g150-unknown-community",
+   "action": "read-report",
+   "expect": {
+    "output.boxes.lint": {
+     "op": "contains",
+     "value": "names a community that doesn't exist (lake) — it will grade UNGRADEABLE"
+    }
+   }
+  },
+  {
+   "id": "g150-metric2",
+   "action": "choose-option",
+   "arguments": {
+    "selector": "@control:x-metric",
+    "value": "brayCurtis"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "g150-xa2",
+   "action": "set-text",
+   "arguments": {
+    "selector": "@control:x-args",
+    "value": "graze, pondA"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "g150-xv2",
+   "action": "set-text",
+   "arguments": {
+    "selector": "@control:x-val",
+    "value": "0.5"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "g150-xadd2",
+   "action": "activate",
+   "arguments": {
+    "selector": "@control:x-add"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "g150-no-shared-species",
+   "action": "read-report",
+   "expect": {
+    "output.boxes.lint": {
+     "op": "contains",
+     "value": "compares a simulated phase to entered field data"
+    }
+   }
+  },
+  {
+   "id": "g150-qmetric",
+   "action": "choose-option",
+   "arguments": {
+    "selector": "@control:x-metric",
+    "value": "evenness … is …"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "g150-qargs",
+   "action": "set-text",
+   "arguments": {
+    "selector": "@control:x-args",
+    "value": "graze"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "g150-band",
+   "action": "choose-option",
+   "arguments": {
+    "selector": "@control:x-word",
+    "value": "uneven"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "g150-qadd",
+   "action": "activate",
+   "arguments": {
+    "selector": "@control:x-add"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "g150-banded",
+   "action": "read-report",
+   "expect": {
+    "output.boxes.eco-out": {
+     "op": "contains",
+     "value": "expect: evenness(graze) is uneven"
+    },
+    "output.boxes.x-list": {
+     "op": "contains",
+     "value": "uneven"
+    }
+   }
+  },
+  {
+   "id": "g150-fa",
+   "action": "set-text",
+   "arguments": {
+    "selector": "@control:f-area",
+    "value": "2.5"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "g150-fw",
+   "action": "set-text",
+   "arguments": {
+    "selector": "@control:f-wind",
+    "value": "0.6"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "g150-ft",
+   "action": "set-text",
+   "arguments": {
+    "selector": "@control:f-temp",
+    "value": "1.4"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "g150-fd",
+   "action": "set-text",
+   "arguments": {
+    "selector": "@control:f-dist",
+    "value": "3"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "g150-factors",
+   "action": "read-report",
+   "expect": {
+    "output.boxes.eco-out": {
+     "op": "contains",
+     "value": "factor: area 2.5"
+    },
+    "output.boxes.eco-out#2": {
+     "op": "contains",
+     "value": "factor: wind 0.6"
+    },
+    "output.boxes.eco-out#3": {
+     "op": "contains",
+     "value": "factor: temperature 1.4"
+    },
+    "output.boxes.eco-out#4": {
+     "op": "contains",
+     "value": "factor: distance 3"
+    }
+   }
+  },
+  {
+   "id": "g150-nt",
+   "action": "set-text",
+   "arguments": {
+    "selector": "@control:e-notes",
+    "value": "sampled both ponds after two dry weeks"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "g150-ex",
+   "action": "set-text",
+   "arguments": {
+    "selector": "@control:e-extra",
+    "value": "cross: Rr x Rr observed 5474 1850"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "g150-extras",
+   "action": "read-report",
+   "expect": {
+    "output.boxes.eco-out": {
+     "op": "contains",
+     "value": "cross: Rr x Rr observed 5474 1850"
+    },
+    "output.boxes.eco-out#2": {
+     "op": "contains",
+     "value": "sampled both ponds after two dry weeks"
+    }
+   }
+  },
+  {
+   "id": "g150-nm",
+   "action": "set-text",
+   "arguments": {
+    "selector": "@control:e-name",
+    "value": "meadow disturbance study"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "g150-cmd",
+   "action": "read-report",
+   "expect": {
+    "output.boxes.eco-cmd": "./gradlew ecologyExperiment -Pspec=meadow-disturbance-study.eco"
+   }
+  },
+  {
+   "id": "g150-cl",
+   "action": "activate",
+   "arguments": {
+    "selector": "@control:tab-checklist"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "g150-c1",
+   "action": "set-checkbox",
+   "arguments": {
+    "selector": "@control:c1",
+    "checked": true
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "g150-c2",
+   "action": "set-checkbox",
+   "arguments": {
+    "selector": "@control:c2",
+    "checked": true
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "g150-c3",
+   "action": "set-checkbox",
+   "arguments": {
+    "selector": "@control:c3",
+    "checked": true
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "g150-c4",
+   "action": "set-checkbox",
+   "arguments": {
+    "selector": "@control:c4",
+    "checked": true
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "g150-c5",
+   "action": "set-checkbox",
+   "arguments": {
+    "selector": "@control:c5",
+    "checked": true
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "g150-c6",
+   "action": "set-checkbox",
+   "arguments": {
+    "selector": "@control:c6",
+    "checked": true
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "g150-c7",
+   "action": "set-checkbox",
+   "arguments": {
+    "selector": "@control:c7",
+    "checked": true
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "g150-c8",
+   "action": "set-checkbox",
+   "arguments": {
+    "selector": "@control:c8",
+    "checked": true
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "g150-c9",
+   "action": "set-checkbox",
+   "arguments": {
+    "selector": "@control:c9",
+    "checked": true
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "g150-c10",
+   "action": "set-checkbox",
+   "arguments": {
+    "selector": "@control:c10",
+    "checked": true
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "g150-ticked",
+   "action": "read-control",
+   "arguments": {
+    "selector": "@control:c10"
+   },
+   "expect": {
+    "ok": true,
+    "output.checkbox.checked": true
+   }
+  },
+  {
+   "id": "g150-clear",
+   "action": "activate",
+   "arguments": {
+    "selector": "@control:cl-clear"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "g150-cleared",
+   "action": "read-control",
+   "arguments": {
+    "selector": "@control:c10"
+   },
+   "expect": {
+    "ok": true,
+    "output.checkbox.checked": false
+   }
+  },
+  {
+   "id": "g150-des",
+   "action": "activate",
+   "arguments": {
+    "selector": "@control:tab-designer"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "g150-imp",
+   "action": "set-text",
+   "arguments": {
+    "selector": "@control:imp-text",
+    "value": "name: imported pond study\nkeys: 250\nseed: 9\nwindow: 300\nphase: graze uniform 1500\ndata: pondB duckweed=51 azolla=2\nexpect: evenness(graze) > 0.8\n"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "g150-imp-go",
+   "action": "activate",
+   "arguments": {
+    "selector": "@control:imp-go"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "g150-imported",
+   "action": "read-report",
+   "expect": {
+    "output.boxes.eco-out": {
+     "op": "contains",
+     "value": "name: imported pond study"
+    },
+    "output.boxes.eco-out#2": {
+     "op": "contains",
+     "value": "phase: graze uniform 1500"
+    },
+    "output.boxes.eco-out#3": {
+     "op": "contains",
+     "value": "data: pondB duckweed=51 azolla=2"
+    },
+    "output.boxes.p-list": {
+     "op": "contains",
+     "value": "graze"
+    },
+    "output.boxes.d-list": {
+     "op": "contains",
+     "value": "pondB"
+    }
+   }
+  },
+  {
+   "id": "g150-imp2",
+   "action": "set-text",
+   "arguments": {
+    "selector": "@control:imp-text",
+    "value": "name: clashing study\nkeys: 200\nseed: 3\nwindow: 200\nphase: graze uniform 1000\ndata: graze cattail=18 duckweed=44\nexpect: evenness(graze) > 0.8\n"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "g150-imp-go2",
+   "action": "activate",
+   "arguments": {
+    "selector": "@control:imp-go"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "g150-imported-clash",
+   "action": "read-report",
+   "expect": {
+    "output.boxes.lint": {
+     "op": "contains",
+     "value": "duplicate community name 'graze'"
+    },
+    "output.boxes.p-list": {
+     "op": "contains",
+     "value": "graze"
+    },
+    "output.boxes.d-list": {
+     "op": "contains",
+     "value": "graze"
+    }
+   }
+  },
+  {
+   "id": "g150-intact",
+   "action": "read-page",
+   "expect": {
+    "output.junk": null,
+    "output.errors": {
+     "op": "==",
+     "value": []
+    },
+    "output.overflow": 0
+   }
   }
  ]
 }

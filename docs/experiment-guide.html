@@ -1079,6 +1079,19 @@
 
   /* ── measurements: the numbers, entered after the run ── */
   function val(id, fallback) { return ($(id).value || "").trim() || fallback; }
+  /* A REJECTED KEYSTROKE BUFFER IS NOT AN EMPTY ONE (ADR-150, ADR-151). Every
+     box below is a number input, and a number input whose contents Chromium
+     cannot parse hands the page "" -- the same string a box nobody touched
+     hands it. `validity.badInput` is the only thing that separates them,
+     because it is about the buffer rather than the value. ADR-150 wired three
+     boxes on this page to it; audit_badinput then asked the same question of
+     the other twelve and every one of them read a rejected buffer as blank:
+     the four factors emitted nothing (which the parser reads as the neutral
+     value), the grader's seed and passes fell back to 42 and 3, and a
+     measurement cell said "waiting for every cell", which is what it says
+     about a cell nobody has filled in. Same silence, seven places. */
+  function badEl(e) { return !!(e && e.validity && e.validity.badInput); }
+  function badInput(id) { return badEl($(id)); }
   function measSizes() {
     return val("g-sizes", "").split(",").map(function (s) { return parseInt(s.trim(), 10); })
       .filter(function (n) { return n > 0; })
@@ -1103,8 +1116,20 @@
     return (r >= 10 ? Math.round(r) : Math.round(r * 10) / 10) + "×";
   }
   function anyCompleteRow() { return measSizes().some(rowComplete); }
-  function computedLine(size) {
-    if (!rowComplete(size)) return "waiting for every cell — totals appear when the row is complete";
+  /* WHICH CELL, AND WHY IT IS EMPTY. A measurement cell the browser rejected
+     reads .value back as "" and the row reads as one nobody has finished --
+     the same sentence, for a cell holding the reader's own characters. The
+     grid is asked directly rather than through S.meas, because S.meas holds
+     the value and the value is exactly the thing that cannot tell them apart. */
+  function badCells(grid) {
+    return [].slice.call(grid ? grid.querySelectorAll('input[type="number"]') : [])
+      .filter(badEl).map(function (e) { return e.getAttribute("data-cell") || "a cell"; });
+  }
+  function computedLine(size, grid) {
+    var bad = badCells(grid);
+    if (bad.length) return "waiting for every cell \u2014 " + bad.join(", ")
+      + (bad.length === 1 ? " holds" : " hold") + " something that is not a number";
+    if (!rowComplete(size)) return "waiting for every cell \u2014 totals appear when the row is complete";
     var t = rowTotal(size), f = parseFloat(rowOf(size).floor);
     return "total " + fmtMs(t) + " · floor " + fmtMs(f) + " · " + fmtRatio(t, f) + " the floor";
   }
@@ -1130,18 +1155,23 @@
         var inp = document.createElement("input");
         inp.type = "number"; inp.step = "any"; inp.min = "0"; inp.inputMode = "decimal";
         inp.setAttribute("aria-label", lab.textContent + " at n = " + size);
+        inp.setAttribute("data-cell", lab.textContent);
         if (rowOf(size)[k] !== undefined) inp.value = rowOf(size)[k];
         inp.addEventListener("input", function () {
           if (!S.meas[size]) S.meas[size] = {};
           S.meas[size][k] = inp.value;
-          comp.textContent = computedLine(size);
+          comp.textContent = computedLine(size, grid);
           saveState(); rebuild();
         });
         cell.appendChild(lab); cell.appendChild(inp); grid.appendChild(cell);
       });
       wrap.appendChild(grid);
       var comp = document.createElement("div"); comp.className = "fine";
-      comp.textContent = computedLine(size);
+      // NAMED THE KIT'S WAY (ADR-146). The computed line is a figure, and a
+      // figure whose id is outside read-report's naming is one no task can
+      // hold -- audit_readable said so the moment this line got an id at all.
+      comp.id = "anMeas-" + size;
+      comp.textContent = computedLine(size, grid);
       wrap.appendChild(comp);
       box.appendChild(wrap);
     });
@@ -1281,11 +1311,37 @@
     var out = [];
     function no(t) { out.push({ sev: "no", tag: "PROBLEM", text: t }); }
     function un(t) { out.push({ sev: "un", tag: "WEAK", text: t }); }
-    var keys = parseInt($("e-keys").value, 10);
-    if (isNaN(keys) || keys < 2 || keys > 1000000) no("keys out of range [2, 1000000]");
-    var win = parseInt($("e-window").value, 10);
-    if (isNaN(win) || win < 16 || win > 1000000) no("window out of range [16, 1000000]");
-    if ($("e-seed").value !== "" && isNaN(parseInt($("e-seed").value, 10))) no("seed must be a whole number");
+    /* BLANK AND UNPARSEABLE ARE THE SAME STRING (ADR-150). A number input whose
+       contents Chromium cannot parse reads `.value` back as "" -- so `value !==
+       ""`, the guard that lets a blank seed mean "use 42", also swallowed a seed
+       the user had typed and the browser had rejected. The box showed their
+       text, the protocol carried seed 42, and the linter said nothing. Only
+       `validity.badInput` tells the two apart, which is the interactive lab's
+       own rule (ADR-148's numField: reported, never guessed) reaching the page
+       next door. Keys and window were never silent -- they read as "out of
+       range" -- but that is a different sentence from the true one, and a
+       reader who typed "one hundred" deserves to be told which. */
+    if (badInput("e-keys")) no("keys is not a whole number");
+    else {
+      var keys = parseInt($("e-keys").value, 10);
+      if (isNaN(keys) || keys < 2 || keys > 1000000) no("keys out of range [2, 1000000]");
+    }
+    if (badInput("e-window")) no("window is not a whole number");
+    else {
+      var win = parseInt($("e-window").value, 10);
+      if (isNaN(win) || win < 16 || win > 1000000) no("window out of range [16, 1000000]");
+    }
+    if (badInput("e-seed")) no("seed is not a whole number — the box holds something that is not "
+                               + "one, and a BLANK seed would mean 42; this is not blank");
+    else if ($("e-seed").value !== "" && isNaN(parseInt($("e-seed").value, 10))) no("seed must be a whole number");
+    [["area", "f-area", "1"], ["wind", "f-wind", "1"], ["temperature", "f-temp", "1"],
+     ["distance", "f-dist", "0"]].forEach(function (f) {
+      // A factor box the browser rejected emits NOTHING, and emitting nothing
+      // is how this page says "the neutral value" -- so a typed factor the
+      // browser could not parse silently became 1 (or 0 for distance).
+      if (badInput(f[1])) no(f[0] + " is not a number \u2014 the box holds something that is not "
+                             + "one, and a factor left BLANK means " + f[2] + "; this is not blank");
+    });
 
     var names = communityNames(), seen = {};
     names.forEach(function (n) {
@@ -1333,6 +1389,11 @@
   function lintEng() {
     var out = [];
     function un(t) { out.push({ sev: "un", tag: "MISSING", text: t }); }
+    function no(t) { out.push({ sev: "no", tag: "PROBLEM", text: t }); }
+    if (badInput("g-seed")) no("seed is not a whole number \u2014 the box holds something that is "
+                               + "not one, and a BLANK seed would mean 42; this is not blank");
+    if (badInput("g-passes")) no("timed passes is not a whole number \u2014 the box holds "
+                                 + "something that is not one, and BLANK would mean 3; this is not blank");
     if (!$("g-question").value.trim()) un("no question — one sentence, a cost or a comparison");
     if (!$("g-floor").value.trim()) un("no floor — without one, every claim is only about the other guy");
     if (!$("g-rule").value.trim()) un("no decision rule — if you don't set the bar now, the numbers will set it for you");

@@ -260,6 +260,142 @@
    ],
    "survived": 0
   },
+  "mutate_badinput": {
+   "at": 1788755011,
+   "equivalent": 1,
+   "equivalents": [
+    {
+     "name": "the box's value is restored with type-text instead of set-text",
+     "why": "`plug.execute(\"set-text\", ...)` in the restore -> `type-text`. The restore puts the box back the way the entry left it so the next box is measured against the same page; either action gets the characters in, and the restored value is read by nothing before the next set-text overwrites it. Typing it would be slower and no fixture can tell the two apart -- which is the point of ADR-150's own held claim that type-text is for the cases where the difference matters, not a replacement."
+    }
+   ],
+   "inconclusive": 0,
+   "killed": 24,
+   "mutants": 24,
+   "rows": [
+    {
+     "detail": "1 failure(s); first: a text box holding digits is not a subject: it has no badIn",
+     "name": "every text input is a subject, so a box with no badInput joins the worklist",
+     "verdict": "killed"
+    },
+    {
+     "detail": "18 failure(s); first: every <input type=number> the swarm stamped is one, wherev",
+     "name": "the GOOD reading is never taken, so every box read only on submit is blind",
+     "verdict": "killed"
+    },
+    {
+     "detail": "16 failure(s); first: a box no figure on the page reads until a button is presse",
+     "name": "a live box is one the page ignores",
+     "verdict": "killed"
+    },
+    {
+     "detail": "17 failure(s); first: a box no figure on the page reads until a button is presse",
+     "name": "the bad value is ASSIGNED rather than typed, so badInput never goes true",
+     "verdict": "killed"
+    },
+    {
+     "detail": "6 failure(s); first: a box the browser will not put the token INTO has no subjec",
+     "name": "badInput is not confirmed, so a box the token never reached counts as rejected",
+     "verdict": "killed"
+    },
+    {
+     "detail": "9 failure(s); first: a box whose page checks validity.badInput and says a differ",
+     "name": "blank is compared against blank, so nothing can ever differ",
+     "verdict": "killed"
+    },
+    {
+     "detail": "6 failure(s); first: marking the box aria-invalid is telling them apart as surel",
+     "name": "only text is compared, so a page that marks its bad boxes red reads as silent",
+     "verdict": "killed"
+    },
+    {
+     "detail": "6 failure(s); first: marking the box aria-invalid is telling them apart as surel",
+     "name": "aria-invalid is not part of the mark, which is the one attribute pages set",
+     "verdict": "killed"
+    },
+    {
+     "detail": "1 failure(s); first: a page that answers in an element carrying no id has still ",
+     "name": "only elements with ids are read, so a page that answers in one without an id is silent",
+     "verdict": "killed"
+    },
+    {
+     "detail": "7 failure(s); first: and so is a box the entry BRINGS INTO BEING -- it is in no ",
+     "name": "the states are not walked, so a box behind a tab is never asked",
+     "verdict": "killed"
+    },
+    {
+     "detail": "5 failure(s); first: and so is a box the entry BRINGS INTO BEING -- it is in no ",
+     "name": "the entry is not replayed, so the page is measured with nothing in it",
+     "verdict": "killed"
+    },
+    {
+     "detail": "7 failure(s); first: a box that CANNOT tell them apart at rest and tells them ap",
+     "name": "the first answer is the last one, so a box that tells them apart later is blind",
+     "verdict": "killed"
+    },
+    {
+     "detail": "7 failure(s); first: a box that could not tell them apart, and then goes INERT i",
+     "name": "a later reading always wins, so a box that goes quiet in a later state is demoted",
+     "verdict": "killed"
+    },
+    {
+     "detail": "15 failure(s); first: a box no figure on the page reads until a button is presse",
+     "name": "nothing is dropped for moving on its own, so a clock tells every box apart",
+     "verdict": "killed"
+    },
+    {
+     "detail": "15 failure(s); first: a box no figure on the page reads until a button is presse",
+     "name": "the two readings are taken with no time between them, so nothing looks unstable",
+     "verdict": "killed"
+    },
+    {
+     "detail": "1 failure(s); first: the GOOD value is picked from the box's own bounds: a 7 in ",
+     "name": "the GOOD value ignores the box's own bounds",
+     "verdict": "killed"
+    },
+    {
+     "detail": "11 failure(s); first: ...and it is on the worklist, named: []",
+     "name": "the blind boxes are counted but not named",
+     "verdict": "killed"
+    },
+    {
+     "detail": "2 failure(s); first: a declared box leaves the worklist -- and only that box: ['",
+     "name": "a declared box is subtracted from the count instead of the worklist",
+     "verdict": "killed"
+    },
+    {
+     "detail": "1 failure(s); first: declaring a box exempt WITHOUT a reason is refused: a list ",
+     "name": "a box may be declared exempt with no reason given",
+     "verdict": "killed"
+    },
+    {
+     "detail": "1 failure(s); first: ...and with one, the reason is what is stored: {'nBlind': '",
+     "name": "the reason is not what is stored",
+     "verdict": "killed"
+    },
+    {
+     "detail": "1 failure(s); first: a first reading records what it found and no ceiling: nothi",
+     "name": "a plain run lowers the ceilings, so nothing can ever be above one",
+     "verdict": "killed"
+    },
+    {
+     "detail": "1 failure(s); first: ...and --raise-floors LOWERS the ceiling, because this ratc",
+     "name": "the ceiling ratchets UPWARD, so a page that grows a blind box keeps its pass",
+     "verdict": "killed"
+    },
+    {
+     "detail": "2 failure(s); first: a page carrying MORE blind boxes than its ceiling fails, wi",
+     "name": "a reading above the ceiling is not a failure",
+     "verdict": "killed"
+    },
+    {
+     "detail": "2 failure(s); first: a page carrying MORE blind boxes than its ceiling fails, wi",
+     "name": "the failure is reported and the exit code is not",
+     "verdict": "killed"
+    }
+   ],
+   "survived": 0
+  },
   "mutate_contend": {
    "at": 1788587889,
    "equivalent": 0,
@@ -1559,12 +1695,12 @@
    "survived": 0
   },
   "mutate_report": {
-   "at": 1788654480,
+   "at": 1788741470,
    "equivalent": 0,
    "equivalents": [],
    "inconclusive": 0,
-   "killed": 52,
-   "mutants": 52,
+   "killed": 57,
+   "mutants": 57,
    "rows": [
     {
      "detail": "5 failure(s); first: a .tile and a .stat .st are both figures: the .l/.v pair is",
@@ -1667,7 +1803,7 @@
      "verdict": "killed"
     },
     {
-     "detail": "2 failure(s); first: a pick aimed at something that is not a picker at all is st",
+     "detail": "3 failure(s); first: a pick aimed at something that is not a picker at all is st",
      "name": "a control carries no id",
      "verdict": "killed"
     },
@@ -1814,6 +1950,31 @@
     {
      "detail": "1 failure(s); first: and a selector that names nothing is refused by COUNT: thes",
      "name": "a stale selector is refused without saying the numbering moved",
+     "verdict": "killed"
+    },
+    {
+     "detail": "1 failure(s); first: ...and refused at once rather than waited on: a pointer wou",
+     "name": "type-text clicks the control instead of focusing it",
+     "verdict": "killed"
+    },
+    {
+     "detail": "1 failure(s); first: ...and TYPING the same characters empties it and leaves bad",
+     "name": "type-text assigns the value instead of pressing keys",
+     "verdict": "killed"
+    },
+    {
+     "detail": "1 failure(s); first: type-text into a control that cannot take focus was accepte",
+     "name": "a control that cannot take focus is waited on rather than refused",
+     "verdict": "killed"
+    },
+    {
+     "detail": "2 failure(s); first: typing a value the control accepts leaves it in the box, ba",
+     "name": "typing does not clear what was there first",
+     "verdict": "killed"
+    },
+    {
+     "detail": "1 failure(s); first: type-text into a button was accepted",
+     "name": "type-text accepts a control that is not a text control",
      "verdict": "killed"
     },
     {

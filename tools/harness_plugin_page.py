@@ -34,7 +34,7 @@ sys.path.insert(0, os.path.join(HERE, "verify"))
 import _kit
 import harness as H
 from harness_contract import (ActionSpec, ArgumentSpec, Plugin, PluginDescriptor,
-                              Failed, InvalidArgument, NotFound, Unavailable)
+                              Conflict, Failed, InvalidArgument, NotFound, Unavailable)
 
 # Bytes the harness hands to a file input or a drop zone. Real files, made
 # here rather than read from disk, so a run reads nothing of the operator's
@@ -110,6 +110,12 @@ SEL_RE = re.compile(r"^[a-z_]+:\d+$")
 # selector its action will accept.
 POOL_KINDS = {
     "set-text": ("text_in", "field_in", "pick_search", "step_val"),
+    # NOT pick_search: typing into a picker's search box is what `pick` does,
+    # and putting both actions in that pool made the robot choose between them
+    # -- the walk of one page then drove type-text where it used to drive pick,
+    # and reported pick undriven on a page that offers one. An action added to a
+    # pool competes for it (ADR-150).
+    "type-text": ("text_in", "field_in", "step_val"),
     "pick": ("pick_search",),
     "choose-option": ("select",),
     "set-slider": ("slider",),
@@ -827,6 +833,19 @@ class PagePlugin(Plugin):
                             ArgumentSpec("value", "string", "Value to enter.",
                                          required=True,
                                          examples=["12", "3.5", "Quercus alba", "2026-06-01"])]),
+                ActionSpec("type-text",
+                           "Type a value into a text, number, date or textarea control "
+                           "with real keystrokes, the way a person does. Differs from "
+                           "set-text where a control can tell them apart: typing "
+                           "letters into <input type=number> leaves the value empty "
+                           "AND validity.badInput true, while assigning them leaves "
+                           "badInput false, so a page that reports bad input has a "
+                           "branch only this action can reach.",
+                           "DRAFT",
+                           [ArgumentSpec("selector", "string", "Control selector from a snapshot, e.g. text_in:3", required=True, pattern=SEL_RE.pattern, examples=["dial_btn:2", "text_in:7"]),
+                            ArgumentSpec("value", "string", "Value to type.",
+                                         required=True,
+                                         examples=["12", "one hundred", "2026-06-01"])]),
                 ActionSpec("choose-option",
                            "Choose an option of a select box by value or visible label.",
                            "DRAFT",
@@ -1258,6 +1277,50 @@ class PagePlugin(Plugin):
             r["attached"] = [f["name"] for f in files]
         elif action == "set-text":
             r = self.page.evaluate(ACT, [sel, "text", args["value"]])
+        elif action == "type-text":
+            # ASSIGNING A VALUE IS NOT TYPING (ADR-150). set-text writes through
+            # the value setter, which is what a script does; a person presses
+            # keys. For most controls the two are the same, and for
+            # `<input type=number>` they are not: assigning "one hundred" leaves
+            # `.value` as "" with `validity.badInput` FALSE, while typing it
+            # leaves `.value` as "" with badInput TRUE. A page that tells the
+            # two apart -- and the kit has two that do -- has a whole branch no
+            # task in this kit could reach, because the harness had only the
+            # first way.
+            el = self.page.query_selector('[data-h="%s"]' % sel)
+            if el is None:
+                raise NotFound("control %r is no longer on the page" % sel)
+            tag = el.evaluate("e => e.tagName")
+            if tag not in ("INPUT", "TEXTAREA"):
+                raise InvalidArgument("not a text control")
+            # FOCUS, NOT CLICK. The first draft clicked the control to put the
+            # caret in it, and the robot drives every tool at every control --
+            # including ones a pane reveals but a layout still covers, where a
+            # click waits thirty seconds for a hit test that never comes and
+            # the walk records a FAILURE against the page. Typing needs the
+            # focus, not the pointer; a control that cannot take focus is a
+            # fact about the page (HIDDEN's family), reported as a refusal
+            # rather than waited on.
+            try:
+                el.focus()
+            except Exception:
+                raise Conflict("control cannot take focus right now -- it is hidden, "
+                               "covered or disabled, so there is nothing to type into")
+            if not self.page.evaluate(
+                    "(sel) => document.activeElement === "
+                    "document.querySelector('[data-h=\"' + sel + '\"]')", sel):
+                raise Conflict("control cannot take focus right now -- it is hidden, "
+                               "covered or disabled, so there is nothing to type into")
+            self.page.keyboard.press("Control+a")
+            self.page.keyboard.press("Delete")
+            if args["value"]:
+                self.page.keyboard.type(args["value"], delay=1)
+            r = self.page.evaluate(
+                "(sel) => { const e = document.querySelector('[data-h=\"' + sel + '\"]');"
+                "  e.dispatchEvent(new Event('input', {bubbles:true}));"
+                "  e.dispatchEvent(new Event('change', {bubbles:true}));"
+                "  return {ok: true, value: String(e.value),"
+                "          badInput: !!(e.validity && e.validity.badInput)}; }", sel)
         elif action == "pick":
             r = self.page.evaluate(PICK, [sel, args["value"]])
             self.page.wait_for_timeout(120)

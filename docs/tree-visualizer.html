@@ -444,8 +444,18 @@ function refreshMetrics(){
   document.getElementById("mH").innerHTML=height(T)+(n?' <small>('+(height(T)/Math.max(1,opt)).toFixed(1)+'× optimal)</small>':'');
   document.getElementById("mOpt").textContent=opt;
   document.getElementById("mRot").textContent=T.rotations;
-  const sk=+document.getElementById("selK").value; const sv=selectK(T,sk); document.getElementById("selOut").textContent=sv==null?"—":sv;
-  const rk=+document.getElementById("rnkK").value; const rv=rankOf(T,rk); document.getElementById("rnkOut").textContent=rv==null?"absent":("#"+rv);
+  /* A REJECTED KEYSTROKE BUFFER IS NOT AN EMPTY ONE (ADR-151). `+el.value` is 0
+     for a blank box AND for one Chromium could not parse, so "select k-th" with
+     the reader's own characters in it answered with the same em dash an empty
+     box gets. There is no k to select by; say which of the two happened. */
+  const badBox = id => { const e=document.getElementById(id);
+                         return !!(e && e.validity && e.validity.badInput); };
+  const sk=+document.getElementById("selK").value; const sv=selectK(T,sk);
+  document.getElementById("selOut").textContent =
+    badBox("selK") ? "not a number" : (sv==null?"—":sv);
+  const rk=+document.getElementById("rnkK").value; const rv=rankOf(T,rk);
+  document.getElementById("rnkOut").textContent =
+    badBox("rnkK") ? "not a number" : (rv==null?"absent":("#"+rv));
   document.getElementById("medOut").textContent = n? selectK(T,Math.floor((n+1)/2)) : "—";
 }
 

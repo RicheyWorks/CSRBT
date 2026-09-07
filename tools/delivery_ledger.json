@@ -750,10 +750,20 @@
    "by": "adr149",
    "sha": "a42bee45855f5658d2347382c08f45b2e86c1ef1a4a876b6600bfa432677a330"
   },
+  "docs/ADR-150-assigning-a-value-is-not-typing-2026-09-06.md": {
+   "at": 1788745341,
+   "by": "adr150",
+   "sha": "9aa99c71b2c92e9bb58dbc4dab4bbc7fb2e872f79bb6583e16f1a91b55632fc4"
+  },
+  "docs/ADR-151-a-rejected-buffer-is-not-an-empty-one-2026-09-07.md": {
+   "at": 1788761490,
+   "by": "adr151",
+   "sha": "dcb55f8de1bed62e6242c1c48cf57cb0fc423c3191f17e191fe401254cb9bd00"
+  },
   "docs/AI_HARNESS.md": {
-   "at": 1788732841,
-   "by": "adr149",
-   "sha": "a40c785f3c7d746751cda84bfb7a87d3843f6483dff1f36e4a3d258c6a3a6e17"
+   "at": 1788761490,
+   "by": "adr151",
+   "sha": "ef746c3c12c8e7c1ec1b31439442231c36dc14a9bb551230733feadb8c0d9beb"
   },
   "docs/AUDIT-2026-07-14-capability-coverage.md": {
    "at": 1788676922,
@@ -1440,6 +1450,16 @@
    "by": "adr149",
    "sha": "4c04fe2c7dba2aabbb6d15ff0f7ee1c20874b80fc208c4834d94fac9b9397b40"
   },
+  "docs/CHANGELOG-2026-09-06-adr150-assigning-a-value-is-not-typing.md": {
+   "at": 1788745341,
+   "by": "adr150",
+   "sha": "46856f5f4e42fd8eb372b34818fb3e54db9a8827db01445f3a20746746d4cea0"
+  },
+  "docs/CHANGELOG-2026-09-07-adr151-a-rejected-buffer-is-not-an-empty-one.md": {
+   "at": 1788761490,
+   "by": "adr151",
+   "sha": "e78fbfd4ab5c369e3c6ec589232c4ba9c114300fa02a2724b079a758013ee53f"
+  },
   "docs/DESIGN-adaptive-engine.md": {
    "at": 1788676923,
    "by": "adr146b",
@@ -1566,9 +1586,9 @@
    "sha": "648ac346c28f9d670a5d6667bb798b95981426a8c3e6ef1c1662f8f8697f6ded"
   },
   "docs/breeding-bench.html": {
-   "at": 1788676923,
-   "by": "adr146b",
-   "sha": "ae43bfca239c9fd24e8064e46a75f530bb26ac543a10ded69615aa09c02ea2ea"
+   "at": 1788761490,
+   "by": "adr151",
+   "sha": "a97e3da12966e91d2b61b1cec84f01a233184831d419dfa9f779913747f4230d"
   },
   "docs/breeding-suite.html": {
    "at": 1788676923,
@@ -1576,9 +1596,9 @@
    "sha": "c1f4cc41747dc719d249415005b17e833e120e6629b682e53d8953bacd20a955"
   },
   "docs/cell-bench.html": {
-   "at": 1788676923,
-   "by": "adr146b",
-   "sha": "d3a801cf17a6c1b744963d11a2693101de3ebd3f4f1d03a1723cf28824856086"
+   "at": 1788761490,
+   "by": "adr151",
+   "sha": "5f61db264c37a87781580f97177e3ddf7a2b6329f567e13de17d5de359244837"
   },
   "docs/code-audit-2026-05-30.md": {
    "at": 1788676923,
@@ -1591,14 +1611,14 @@
    "sha": "e9becaa5c548d68981beeefad9483a64e94ac6e0e0205c98883a9c6289453c2f"
   },
   "docs/collection-sheet.html": {
-   "at": 1788676923,
-   "by": "adr146b",
-   "sha": "dc9d86f7a4078c86ad5e7cf49aa355c33bc4efe7e09f05d538822d549025e5fa"
+   "at": 1788761490,
+   "by": "adr151",
+   "sha": "d0374e3746f0d789064602282dcee2906a742d2c1e2f1b4b2e29a84f7d38a7e3"
   },
   "docs/cp-bench.html": {
-   "at": 1788676923,
-   "by": "adr146b",
-   "sha": "0eafa797381ae29e684dd4dad384a063de781cb6c1410740cf3ade04b1642fee"
+   "at": 1788761490,
+   "by": "adr151",
+   "sha": "999a789e49c8285c7737dc7af6688cd47eb90502d6edaffe0f6554d032dcae1b"
   },
   "docs/cp-characters.html": {
    "at": 1788676923,
@@ -1611,9 +1631,9 @@
    "sha": "007a1f6da7dcc8eb24279818cf26395758f207e09affd3214574eb1d0588060f"
   },
   "docs/deployment-log.html": {
-   "at": 1788676924,
-   "by": "adr146b",
-   "sha": "708e936056c668297310bf014fd68ad052ef392db65cdd83268aa753594ad0c6"
+   "at": 1788761490,
+   "by": "adr151",
+   "sha": "a15811b5372932533b2cd81a5e06ed260802d09329dcfb240c7b1c80492bf4df"
   },
   "docs/douglas-explorer.html": {
    "at": 1788676924,
@@ -1666,9 +1686,9 @@
    "sha": "55fde6efe30b2e5d91cd06cd06ae1eb04ada2bdd954229cda3c5c4bbbb2fd338"
   },
   "docs/ecology-lab.html": {
-   "at": 1788705307,
-   "by": "adr148",
-   "sha": "8886eb2505a685a5f4820eecacf17ccbcfeb697e0eb5ed7c5947c663775a3fbf"
+   "at": 1788761490,
+   "by": "adr151",
+   "sha": "725d7112547ff2f12771042716bfd5d15e6682d4633f264b66fa50753fee72d4"
   },
   "docs/ecology-teachers-guide.html": {
    "at": 1788676924,
@@ -1686,9 +1706,9 @@
    "sha": "98eec884fbbeb0b2166b97ca7964c0823dbf1c3a41504ce6e661a1acc206a4bb"
   },
   "docs/ethogram.html": {
-   "at": 1788676924,
-   "by": "adr146b",
-   "sha": "127ef12970803c5f7d1a46fd58377afb472e4775ce545b25827eb30c15ed34ef"
+   "at": 1788761490,
+   "by": "adr151",
+   "sha": "6eab7c2a0bb9bc1a66dd9bbef294101b2bf61207907c34816c02e12c9f066c40"
   },
   "docs/evidence/manifest.json": {
    "at": 1788676924,
@@ -1696,9 +1716,9 @@
    "sha": "28dcfb6002ba20800d85b5a9607d8a06e200bc1f9815ecb12859d0ef094fbde6"
   },
   "docs/experiment-guide.html": {
-   "at": 1788676924,
-   "by": "adr146b",
-   "sha": "0d3c557eade2fcffff7bcad5b0d1fad2847ccc519bf7f1822cfaeefd66161d21"
+   "at": 1788761490,
+   "by": "adr151",
+   "sha": "a52bc4895edf5a7422fc066a43e51c8d16fca2617dc14a4490d25a5454fedf72"
   },
   "docs/experiment-out/crosses.csv": {
    "at": 1788676924,
@@ -1771,19 +1791,19 @@
    "sha": "0340b517042765c76eaa9429b79e46a86bfe5d5d5c5c9de367cdfe49026aba11"
   },
   "docs/farm-scout.html": {
-   "at": 1788676924,
-   "by": "adr146b",
-   "sha": "fb156b8890c37abcf975787c48dc90f5dd5e9cf9556d8b76b17244c59a5f4bb1"
+   "at": 1788761490,
+   "by": "adr151",
+   "sha": "ca1116be43784738ff514fd8b972cd45a8216c15d54778c12bcfb6f83813c31f"
   },
   "docs/field-notebook.html": {
-   "at": 1788676924,
-   "by": "adr146b",
-   "sha": "e6f31cb56e1d11736c899b3e5446078671f1bdfd5bd66d19d966dce2dcaeaad5"
+   "at": 1788761490,
+   "by": "adr151",
+   "sha": "cac4369d5724165f7199cf943c29c1435cebd8b3d25ae0315a0188bc5478d9fd"
   },
   "docs/field-season.html": {
-   "at": 1788676924,
-   "by": "adr146b",
-   "sha": "286fd909dc875ee68ebd522e9aaca2388c8a59b6077c7be08517dc8138964315"
+   "at": 1788761490,
+   "by": "adr151",
+   "sha": "6651588e64d26d8a0cd94669aff31cf2355e729e466f6a9967183b8594dbd347"
   },
   "docs/food-web.html": {
    "at": 1788676924,
@@ -1796,9 +1816,9 @@
    "sha": "e5b9c7bafea072163f6546c9cac05775d616428ff368e7f627187f5a0de8989f"
   },
   "docs/greenhouse.html": {
-   "at": 1788676924,
-   "by": "adr146b",
-   "sha": "24e10e958c90b146c7317ef174a18d1689c273b3768db82559729166f7ea54e7"
+   "at": 1788761490,
+   "by": "adr151",
+   "sha": "48f5e0abb0ddfaed923bb29f2e7cf12c316dbac06a567a5b7bc842d88a02dd15"
   },
   "docs/hardening-audit-2026-07-08.md": {
    "at": 1788676924,
@@ -1836,19 +1856,19 @@
    "sha": "6ef6c67517c5c7e00c15243c4944e070404e655f9f3cae6bc62dd870c16e2f15"
   },
   "docs/micro-bench.html": {
-   "at": 1788676924,
-   "by": "adr146b",
-   "sha": "b9e3a6ebd4a9910180e1080d0c19fd4d34be1fc142e087e4bdd42c40c4a7a0fe"
+   "at": 1788761490,
+   "by": "adr151",
+   "sha": "ac0c2889056fce5acffc5db2b9d108ed5855258cb2a28701ba086a65c30d02c3"
   },
   "docs/ordination.html": {
-   "at": 1788676924,
-   "by": "adr146b",
-   "sha": "b2ba76a5aa4314c891e9c766f5c76a8dd33a2064c6e0ba030af11cdd1591371a"
+   "at": 1788761490,
+   "by": "adr151",
+   "sha": "982880acec97af40b457b605842ecf34132f6c1fade23838e3b1c0c8e14a353d"
   },
   "docs/pheno-tracker.html": {
-   "at": 1788676924,
-   "by": "adr146b",
-   "sha": "cdecd5fb8d7445cd53880ea3dd74d042a1006b49dcbe80e945ea8e1f9479075f"
+   "at": 1788761490,
+   "by": "adr151",
+   "sha": "f344808930942f33582916645ec238322d890a65fa33ea8c5376e7c415eeee45"
   },
   "docs/plant-characters.html": {
    "at": 1788676924,
@@ -1856,9 +1876,9 @@
    "sha": "bfdf709c7fb6d514fe8cfcd814e9155a4cdd358124711c3e0661ab5f5e723c69"
   },
   "docs/releve.html": {
-   "at": 1788676925,
-   "by": "adr146b",
-   "sha": "4832d6b0a9b1fe2763b39ff0a220f0aff6bbede706830c06887cece180be94c7"
+   "at": 1788761490,
+   "by": "adr151",
+   "sha": "859a4101ac789e8020fc8a32f4966a8a56e5bfea1e919121660b2788c6d2fbad"
   },
   "docs/sample-experiment.eco": {
    "at": 1788676925,
@@ -1871,19 +1891,19 @@
    "sha": "bf37dcc4c41aaac1eb79562a372d44e9e59879cf94b553e1daf6968f0623d842"
   },
   "docs/selection-log.html": {
-   "at": 1788676925,
-   "by": "adr146b",
-   "sha": "85b6b5891ad77cfd9e1f4abd181a519ea2c062ebf9c3683ba7afbdd8548375f9"
+   "at": 1788761490,
+   "by": "adr151",
+   "sha": "ddf8899876daf2cfa0341374a4a15c1d94b76e224153b8318f9dd2169ca05703"
   },
   "docs/soil-bench.html": {
-   "at": 1788676925,
-   "by": "adr146b",
-   "sha": "a9dd7c9d311267345d516fcaf46f5ce20903e4923bf6720530aac4a30d7b80d2"
+   "at": 1788761490,
+   "by": "adr151",
+   "sha": "e17a37c107a97f0b384a5f249e95ebfa73da010c9dbf2717e66cedd5cd1d6f20"
   },
   "docs/soil-recipes.html": {
-   "at": 1788676925,
-   "by": "adr146b",
-   "sha": "a17dc536be717eff43c5665b8847b6e2ce80033bcfcae6aeb77112c06352edd3"
+   "at": 1788761490,
+   "by": "adr151",
+   "sha": "21fe44696999d2257029b10a6aa784a2cffed0efa6da3e908c2333f993cb1eee"
   },
   "docs/soil-suite.html": {
    "at": 1788676925,
@@ -1891,9 +1911,9 @@
    "sha": "e4d5f00963499f02b88f802e8b6f65e5d6f35b205dba4662a9aceea4d14132b7"
   },
   "docs/stand-sheet.html": {
-   "at": 1788676925,
-   "by": "adr146b",
-   "sha": "d5b199e4ef11e29ba9bd23ad8e46d4a3b7179ad600df20ea6f5b873874d8351f"
+   "at": 1788761490,
+   "by": "adr151",
+   "sha": "c95d6c5d0da435aad17e2ca18b3cd37513dcb0e4bd2762e4b2138842a2a40e5f"
   },
   "docs/strategy-audit-and-feasibility-2026-05-30.md": {
    "at": 1788676925,
@@ -1901,9 +1921,9 @@
    "sha": "d60acafe7d2504158ee6026aba5bb0747ad71bd809ad072b364129306c8ca624"
   },
   "docs/survey-design.html": {
-   "at": 1788676925,
-   "by": "adr146b",
-   "sha": "bee6a1155aabe9a0916b504ccac17849b445f2c21cedf6b047fe9069e1fd484a"
+   "at": 1788761490,
+   "by": "adr151",
+   "sha": "2fef03f6a81140fb708eddf6296b9a1524981154387eba57d16e33799af06d81"
   },
   "docs/system-design-audit-2026-05-30.md": {
    "at": 1788676925,
@@ -1986,9 +2006,9 @@
    "sha": "5525554471e82c1db95de81b1c0623381c97b4d2e40be131acb7226dc1587ee4"
   },
   "docs/tree-visualizer.html": {
-   "at": 1788676925,
-   "by": "adr146b",
-   "sha": "cff9e83fae96698291cd19721f3b9a2ff53dabe5de27d73503117fd0cfeab348"
+   "at": 1788761490,
+   "by": "adr151",
+   "sha": "d46a2dd979dd1dc1c31768cb721d3e3845bc94403681dea2580a3718ba356a07"
   },
   "docs/viability-map.json": {
    "at": 1788676925,
@@ -2009,6 +2029,11 @@
    "at": 1788676925,
    "by": "adr146b",
    "sha": "cce3cea0ab95827aa12319c680e82952d9ef350bce40099c0092361fa29ece31"
+  },
+  "tools/audit_badinput.py": {
+   "at": 1788761490,
+   "by": "adr151",
+   "sha": "026394962a2587d29e1ce44b80a49f9dea8dfb7834628cc6e9077e888018f6da"
   },
   "tools/audit_claims.py": {
    "at": 1788676925,
@@ -2075,6 +2100,11 @@
    "by": "adr146b",
    "sha": "87a75cf8e4e4a93070153679fbaba41272105d2027a9233e517ff608cf275251"
   },
+  "tools/badinput_ledger.json": {
+   "at": 1788761490,
+   "by": "adr151",
+   "sha": "df27aa1f4cf65fb34eccfc13369b74e611f11f58718d20642969613b0f5dfbaf"
+  },
   "tools/blind_console.py": {
    "at": 1788676925,
    "by": "adr146b",
@@ -2110,10 +2140,20 @@
    "by": "adr149",
    "sha": "6497cbf97e8fc1585006a3ba99e6c80e6a3c74981223afd50e26c3d19aebdfca"
   },
+  "tools/delivery/adr150.json": {
+   "at": 1788745341,
+   "by": "adr150",
+   "sha": "35cd19a2148696119c398c71f3e89a44b221c60be4694de057b32968fa5d546b"
+  },
+  "tools/delivery/adr151.json": {
+   "at": 1788761490,
+   "by": "adr151",
+   "sha": "ab041716c95476f8112a215c1e2b41636e3f285687a147542e791380ea008db5"
+  },
   "tools/delivery_ledger.json": {
-   "at": 1788732841,
-   "by": "adr149",
-   "sha": "a6f0b21fd0a26214df63a748b6e7d800699b0392010a1b73cf51898648f07428"
+   "at": 1788761490,
+   "by": "adr151",
+   "sha": "82af26c4b7ba56f251cf48d427f52692dfb66fc466af17da6075ef001307dae6"
   },
   "tools/dwc.py": {
    "at": 1788676926,
@@ -2156,9 +2196,9 @@
    "sha": "01919e137bdbf702ebc887de41aa026b721916da9d3761ce673812d54a22471f"
   },
   "tools/entry_ledger.json": {
-   "at": 1788732841,
-   "by": "adr149",
-   "sha": "fc5807dc93fa5dad6b107d1fe68d74b8fa0c4cc891b5432442b0e3193ec6f13a"
+   "at": 1788761490,
+   "by": "adr151",
+   "sha": "92f6bc7caba56fb8d64e1bbeefbc278540372636e47995989aeb2e8a03b48e6d"
   },
   "tools/entry_reach.py": {
    "at": 1788676926,
@@ -2166,9 +2206,9 @@
    "sha": "99c46c9126e397d520630b1cbd6282686a547e6e952b87cf3f1c02e781d3d86d"
   },
   "tools/fek.py": {
-   "at": 1788676926,
-   "by": "adr146b",
-   "sha": "d50fb2483333f08c2b90edafb04e83fa7cb414ee38e69ecb13734806748625b2"
+   "at": 1788761490,
+   "by": "adr151",
+   "sha": "ec3444ac34cf411a1feb056ab59dfd202b5aeb02b5efeca320abd64439f2f68b"
   },
   "tools/fek_emit.py": {
    "at": 1788676926,
@@ -2211,14 +2251,14 @@
    "sha": "4bb3b1a07b00f7a3035cc9560c6d920a06e2e6c0688a90d16a7935165fa8110e"
   },
   "tools/harness_board.html": {
-   "at": 1788732841,
-   "by": "adr149",
-   "sha": "68fc8c3cadada3f92e1aecf37c5ba81db62f8f7e70c767143043d590fe3c1d56"
+   "at": 1788761490,
+   "by": "adr151",
+   "sha": "9d5e99ae29c960306b637cb44a9b877264175efcd35e48e01a36568874318b17"
   },
   "tools/harness_board.py": {
-   "at": 1788683836,
-   "by": "adr147",
-   "sha": "af07abbb218fbdb7eac5e7a57cfc5601567dfc3d2e9ad496147a8d080e3c71c5"
+   "at": 1788761490,
+   "by": "adr151",
+   "sha": "c5c6eec8f4badd376072b8983587c75339d4c15dfe672b7746a304b4013aa754"
   },
   "tools/harness_contract.py": {
    "at": 1788676926,
@@ -2251,9 +2291,9 @@
    "sha": "0fefc6546ba228e4d370f838ebbd095c1b9d2d8c6e8d7eef223e5a64f25005ec"
   },
   "tools/harness_plugin_page.py": {
-   "at": 1788676926,
-   "by": "adr146b",
-   "sha": "3ca5adabf76992da94abab702f0f49edebc3a9f9967661eea74b5b56bfe454ce"
+   "at": 1788745341,
+   "by": "adr150",
+   "sha": "40447b26d3a500ec05a7aa6c85ba42fd21a6b71938190f1c233a88c94b2ca5a0"
   },
   "tools/harness_plugin_session.py": {
    "at": 1788676926,
@@ -2296,9 +2336,9 @@
    "sha": "f48304b6ba757326d34ace4d678db5c671db42e5fd99bb369a0d311b292c79a3"
   },
   "tools/mutant_ledger.json": {
-   "at": 1788732841,
-   "by": "adr149",
-   "sha": "3ddb7e6ea55a9c5c3d5ea9e5d74c36175f5e1fc3bdc5ebc52974e000ff73e183"
+   "at": 1788761490,
+   "by": "adr151",
+   "sha": "1741a0cc8c722be26e4e92b3912a66d7adc99521ca94021e54ad155bb0e6bddb"
   },
   "tools/mutant_ledger.py": {
    "at": 1788676926,
@@ -2314,6 +2354,11 @@
    "at": 1788705307,
    "by": "adr148",
    "sha": "20b9420343be7defdd6a2a5e87ff5c4e959e0bcbff246467f5de13e7feba42a4"
+  },
+  "tools/mutate_badinput.py": {
+   "at": 1788761490,
+   "by": "adr151",
+   "sha": "f8b3b80e1866c534a77dfd3028eed8f6f17f33a38c16e508cda08e03d1804060"
   },
   "tools/mutate_contend.py": {
    "at": 1788676927,
@@ -2371,9 +2416,9 @@
    "sha": "59ea599526eee2ae29b559e4ea19d78a34acb23a1a40148df6ffe47af8d99bb1"
   },
   "tools/mutate_report.py": {
-   "at": 1788676927,
-   "by": "adr146b",
-   "sha": "e4a6745cb2a1cdbac51a9cc5c6be23d0cfdf000c14f1dc7b49e747895541e994"
+   "at": 1788745341,
+   "by": "adr150",
+   "sha": "a59c36c6e2cf596f41c2a900d5dc9eb629180809b921aea91d9bb84d0cd55c75"
   },
   "tools/mutate_tasks.py": {
    "at": 1788676927,
@@ -2436,9 +2481,9 @@
    "sha": "15022dcd97ee97f72ec5f907d0cdfef3ee36da9588f9de47e110519ff9f781e8"
   },
   "tools/published.json": {
-   "at": 1788732841,
-   "by": "adr149",
-   "sha": "452cf8c6ec02c1bb815ffac1841df625f8600006d2c07870beb29217191136ca"
+   "at": 1788761490,
+   "by": "adr151",
+   "sha": "2d11693294cf2162f0268d321728046b7ff3bcc0073d1254f7f0d935eb77c179"
   },
   "tools/reach.py": {
    "at": 1788676928,
@@ -2446,9 +2491,9 @@
    "sha": "b176e4e078bd39b22f5056223c6d1949503ff69c2f029a02d3513a7607db39cb"
   },
   "tools/readable_ledger.json": {
-   "at": 1788732841,
-   "by": "adr149",
-   "sha": "676a25119a61accf5602246c809fc6f9b3060e9d9777ba4ed54c01e4064943cb"
+   "at": 1788761490,
+   "by": "adr151",
+   "sha": "4cffc3111a4c46e1f972af21f8aa41de3faf0f10a410b385e66c980960051d46"
   },
   "tools/routes.json": {
    "at": 1788676928,
@@ -2481,9 +2526,9 @@
    "sha": "0a2241a252fa68e80b813e601b7bd67cd8ba5c00b8ad07acc98dcd93a42b0268"
   },
   "tools/task_ledger.json": {
-   "at": 1788732841,
-   "by": "adr149",
-   "sha": "60c13eb0568a56f60a1152c6ae9789875f31d535304e6d4a7f09c751e8f26f55"
+   "at": 1788761490,
+   "by": "adr151",
+   "sha": "3de0bae80c91c902afadfe0b5a6d73564053f48821122047f0da7038f3e2a81f"
   },
   "tools/tasks/fixture-buckets.json": {
    "at": 1788676928,
@@ -2636,9 +2681,9 @@
    "sha": "03172d844dec1a6fe6583146015104b99c42bb322500b24eed2c7925ed4748ea"
   },
   "tools/tasks/page-experiment-guide-design.json": {
-   "at": 1788676928,
-   "by": "adr146b",
-   "sha": "d80415a41a406d3cf7b932a8de9d101c48ec0dd63774c1bcad04052481897105"
+   "at": 1788745341,
+   "by": "adr150",
+   "sha": "88668d8867cf65272bedf4eaab0661023c7592235b580215b5832fbc11b19a73"
   },
   "tools/tasks/page-farm-scout-science.json": {
    "at": 1788676928,
@@ -2771,14 +2816,14 @@
    "sha": "15a9ad96a69cde9458d5f7fca51be947e5bebad787cc069e1bcc64bf7800b592"
   },
   "tools/verify/counts.json": {
-   "at": 1788732841,
-   "by": "adr149",
-   "sha": "b9e3a8f30d07e14280c2194fbb1c03e0dc7a3327e31780d82286815c361328ae"
+   "at": 1788761490,
+   "by": "adr151",
+   "sha": "246115fe93ae4214e0422f9a6a81c9998d234d75ba20371fde0fff5d40ee05de"
   },
   "tools/verify/run_all.py": {
-   "at": 1788683836,
-   "by": "adr147",
-   "sha": "0eff4ecb7fc619e956d0b3c603dd4bb09893f0d7d4e4ab94c76ab63a09ea6b0d"
+   "at": 1788761490,
+   "by": "adr151",
+   "sha": "3e49107c75bdf5bb90c8529ccd93070c3568871f35d0e8195fc62a1562e0804b"
   },
   "tools/verify/verify_advertised.py": {
    "at": 1788676929,
@@ -2794,6 +2839,11 @@
    "at": 1788705307,
    "by": "adr148",
    "sha": "7a49f4c6ec35fe411382fd4895c669b26cb31b78cce3f77dc4a7c501c01d727c"
+  },
+  "tools/verify/verify_badinput.py": {
+   "at": 1788761490,
+   "by": "adr151",
+   "sha": "0da2f5592c7382cdd006487cf0cd0ec1d953a7cdd6fd8f598596ab2da43e406e"
   },
   "tools/verify/verify_board.py": {
    "at": 1788676929,
@@ -2991,9 +3041,9 @@
    "sha": "342f7ca5f5400cc9a2facadf2a4d700d1f42e17d1d4966a9f37cafa82388682f"
   },
   "tools/verify/verify_mcp.py": {
-   "at": 1788676929,
-   "by": "adr146b",
-   "sha": "c24717ff9cedf0bec2a0906fc028cf4bb4dd1917063c400909e7c7fa44ac14f7"
+   "at": 1788745341,
+   "by": "adr150",
+   "sha": "40a25172ec13a1085b574f329058c5b609932f819081569419ca1501f70ba9c6"
   },
   "tools/verify/verify_mutate.py": {
    "at": 1788676929,
@@ -3061,9 +3111,9 @@
    "sha": "b61d84633dcadd31f0dbbc2f93aff5b1ebce5683c90c2ae3532882e34d062136"
   },
   "tools/verify/verify_report.py": {
-   "at": 1788676930,
-   "by": "adr146b",
-   "sha": "227ffaff90419e6e015c0f8a30409cdaf8e19c305da100b26016625cc06f6a53"
+   "at": 1788745341,
+   "by": "adr150",
+   "sha": "2343ad03bad8367e2e54e2f0686dd6d7f8ece88e7414a71a9e1d860c857087a2"
   },
   "tools/verify/verify_routes.py": {
    "at": 1788676930,
@@ -3141,14 +3191,14 @@
    "sha": "36c84a2ce0c9aba0eacddaf22d42e8068a57bb09dd958d2161175ccb03c55524"
   },
   "tools/verify/verify_walk.py": {
-   "at": 1788676930,
-   "by": "adr146b",
-   "sha": "50fe22cd6dbcef4ca26c62f33b6350004ee3b5048367030ecca4a8c5ce7f26f5"
+   "at": 1788745341,
+   "by": "adr150",
+   "sha": "008faf6b7aa5c18c85ce66c04507549e99a86ab366c9c20c604855234f79815a"
   },
   "tools/walk_ledger.json": {
-   "at": 1788676930,
-   "by": "adr146b",
-   "sha": "5a1e98c5d0df1970a4836baaf847b18062b5166dc59b370325c39bf27e91526e"
+   "at": 1788745341,
+   "by": "adr150",
+   "sha": "bc470e68a6bcb4e8eb42f9fef4f19c1e943b4c618b5740f4401ade395d88e0df"
   }
  }
 }

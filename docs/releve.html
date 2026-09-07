@@ -167,7 +167,7 @@
   .rail a.ref { font-weight:600; color:var(--muted); background:none; box-shadow:none; }
   @media print { .rail { display:none !important; } }
 
-  /* ============ Field Entry Kit v1.3.0 ============
+  /* ============ Field Entry Kit v1.4.0 ============
      Large-target, high-contrast entry controls. Sizing is driven by --tap
      rather than per-component numbers so one token retunes the whole kit for
      gloves, cold hands or a wall-mounted tablet. */
@@ -247,6 +247,15 @@
   .fek-field .u { display:flex; align-items:center; padding:0 14px; background:var(--surface-2);
     font:700 13px var(--mono); color:var(--muted); border-left:2px solid var(--border); white-space:nowrap; }
   .fek-field.empty { border-style:dashed; }
+
+  /* --- a box the browser could not parse (v1.4.0, ADR-151) ---
+     Not the same state as empty, and it must not look like it. An empty box is
+     "not recorded yet"; this one holds the reader's own characters and hands
+     the page back the empty string, so without a state of its own the two are
+     one thing on screen as well as in the value. */
+  .fek-step.bad, .fek-field.bad { border-color:var(--ramp-5); border-style:solid; }
+  .fek-bad { font:700 13.5px var(--body); color:var(--ramp-5); margin:6px 0 0; }
+  input[type="number"].fek-badbox { border-color:var(--ramp-5) !important; }
 
   /* --- big toggle chips --- */
   .fek-chips { display:flex; flex-wrap:wrap; gap:9px; }
@@ -801,7 +810,7 @@ var FLORA = [
 </script>
 <script>
 
-/* ---- Field Entry Kit v1.3.0 : constructors return {el, get, set} ---- */
+/* ---- Field Entry Kit v1.4.0 : constructors return {el, get, set} ---- */
 var FEK = (function(){
   function el(t,c,h){ var e=document.createElement(t); if(c) e.className=c;
     if(h!=null) e.innerHTML=h; return e; }
@@ -824,7 +833,30 @@ var FEK = (function(){
     return c==="&"?"&amp;":c==="<"?"&lt;":c===">"?"&gt;":c==='"'?"&quot;":"&#39;"; }); }
   function buzz(m){ try{ if(navigator.vibrate) navigator.vibrate(m||8);}catch(e){} }
 
-  /* ---- field registry (v1.3.0) ----
+  /* ---- a rejected keystroke buffer is not an empty one (v1.4.0, ADR-151) ----
+     `<input type=number>` has a value the page reads and a raw buffer the page
+     cannot see, and when the browser cannot parse the buffer the value it
+     hands over is the EMPTY STRING -- the same string a box nobody touched
+     hands over. Both numeric components here treated that as "not recorded":
+     the stepper and the field each reported null, the row went dashed-empty,
+     and the reader's characters sat in a box the sheet had decided was blank.
+     `validity.badInput` is the only thing that separates them, because it is
+     about the buffer rather than the value. Fixed once, here, rather than in
+     the seven pages that mount these components -- which is what this file is
+     for. */
+  function badBuffer(inp){ return !!(inp && inp.validity && inp.validity.badInput); }
+  function badMark(wrap, box, inp, label, on){
+    var line = wrap.__fekBad;
+    if(on && !line){ line = wrap.__fekBad = el("p","fek-bad"); wrap.appendChild(line); }
+    if(line) line.textContent = on
+      ? ((label||"this box") + " holds something that is not a number")
+      : "";
+    if(box) box.classList.toggle("bad", !!on);
+    if(on) inp.setAttribute("aria-invalid","true"); else inp.removeAttribute("aria-invalid");
+    return on;
+  }
+
+  /* ---- field registry (v1.4.0) ----
      A component writes through to a hidden field via the page's own onchange.
      That is fine going out and useless coming back: nothing could put a
      restored value INTO the widget, so an autosaved session showed default
@@ -885,11 +917,22 @@ var FEK = (function(){
     ["pointerup","pointerleave","pointercancel"].forEach(function(ev){
       minus.addEventListener(ev,holdOff); plus.addEventListener(ev,holdOff); });
     inp.addEventListener("input",function(){
+      if(badMark(wrap, box, inp, o.label, badBuffer(inp))){
+        // A nullable stepper goes to "not recorded", the same as a cleared box,
+        // because there is no number to hold either way -- what changes is that
+        // the row now SAYS which of the two happened. A fixed stepper keeps the
+        // value it had, and says so, rather than silently reading as unchanged.
+        if(nullable && v!==null){ v=null; box.classList.add("empty"); if(o.onchange) o.onchange(null); }
+        return; }
       if(nullable && inp.value===""){ v=null; box.classList.add("empty");
         if(o.onchange) o.onchange(null); return; }
       var x=parseFloat(inp.value);
       if(isFinite(x)){ v=clamp(x); box.classList.remove("empty"); if(o.onchange) o.onchange(v); } });
-    inp.addEventListener("blur",render);
+    // BLUR MUST NOT ERASE THE EVIDENCE. render() writes v back into the box, so
+    // a blur over bad input would replace the reader's characters with the old
+    // number and take the message down with them -- the page quietly deciding
+    // it knew better. The buffer is still bad; leave it, and leave the line up.
+    inp.addEventListener("blur",function(){ if(!badBuffer(inp)) render(); });
     box.appendChild(minus); box.appendChild(inp); box.appendChild(plus);
     wrap.appendChild(lab); wrap.appendChild(box);
     if(o.help) wrap.appendChild(el("p","fek-help",o.help));
@@ -919,10 +962,14 @@ var FEK = (function(){
       paint(); if(!quiet&&o.onchange) o.onchange(v);
     }
     inp.addEventListener("input",function(){
+      if(badMark(wrap, box, inp, o.label, badBuffer(inp))){
+        if(v!==null){ v=null; paint(); if(o.onchange) o.onchange(null); }
+        return; }
       if(inp.value===""){ v=null; paint(); if(o.onchange) o.onchange(null); return; }
       var n=parseFloat(inp.value);
       if(isFinite(n)){ v=Math.min(max,Math.max(min,n)); paint(); if(o.onchange) o.onchange(v); } });
     inp.addEventListener("blur",function(){
+      if(badBuffer(inp)) return;
       if(v!=null && isFinite(v)) inp.value = (dec==null?String(v):String(+v.toFixed(dec)));
       paint(); });
     box.appendChild(inp);
@@ -1042,6 +1089,53 @@ var FEK = (function(){
   function banner(title,body,tone){
     return el("div","fek-banner"+(tone?" "+tone:""),"<b>"+title+"</b>"+body);
   }
+  /* ---- the same rule for a box FEK did not build (v1.4.0, ADR-151) ----
+     The components above now say when a box holds something the browser could
+     not read as a number. Every page that mounts them also carries number
+     boxes of its OWN -- an elevation, an effort value, five camera settings --
+     and those had the same silence for the same reason: `.value` comes back ""
+     and the page reads a blank. One delegated listener rather than a wrapper
+     per box, because the boxes a page builds LATER -- a row added, a pane
+     rendered, a measurement grid opened -- have to be covered too, and a guard
+     that only knew about the boxes present at load would go quiet exactly when
+     the sheet gets long. Capture phase, so the note is up before the page's own
+     handler decides what the box now means. */
+  function boxName(inp){
+    var a=inp.getAttribute("aria-label"); if(a && a.trim()) return a.trim();
+    var l=inp.closest?inp.closest("label"):null;
+    if(l){ var t="",i; for(i=0;i<l.childNodes.length;i++){ var n=l.childNodes[i];
+             if(n.nodeType===3) t+=n.nodeValue; }
+           t=t.replace(/\s+/g," ").trim(); if(t) return t; }
+    if(inp.id){ var lb=document.querySelector('label[for="'+inp.id+'"]');
+                if(lb) return lb.textContent.replace(/\s+/g," ").trim(); }
+    var ph=inp.getAttribute("placeholder");
+    return (ph && ph.trim()) ? ph.trim() : "this box";
+  }
+  function guardBox(inp){
+    var bad = !!(inp.validity && inp.validity.badInput);
+    var note = inp.__fekBadNote;
+    if(bad && !note){
+      note = inp.__fekBadNote = el("p","fek-bad");
+      var after = (inp.closest ? inp.closest("label") : null) || inp;
+      if(after.parentNode) after.parentNode.insertBefore(note, after.nextSibling);
+    }
+    if(note) note.textContent = bad ? (boxName(inp)+" holds something that is not a number") : "";
+    inp.classList.toggle("fek-badbox", bad);
+    if(bad) inp.setAttribute("aria-invalid","true"); else inp.removeAttribute("aria-invalid");
+  }
+  function guard(){
+    document.addEventListener("input",function(ev){
+      var inp=ev.target;
+      if(!inp || inp.tagName!=="INPUT" || inp.type!=="number") return;
+      // a component built here already says it, in its own row
+      if(inp.closest && inp.closest(".fek-step, .fek-field")) return;
+      guardBox(inp);
+    }, true);
+  }
+  if(document.readyState==="loading")
+    document.addEventListener("DOMContentLoaded",guard);
+  else guard();
+
   function mount(host,parts){
     var h=typeof host==="string"?document.getElementById(host):host;
     h.innerHTML=""; parts.forEach(function(p){ h.appendChild(p.el||p); }); return h;
@@ -1050,8 +1144,8 @@ var FEK = (function(){
      design -- still has to escape the data inside it. A private copy of an
      escaper in one page was how the last one got lost when the kit was
      re-emitted over it. */
-  return { version:"1.3.0", esc:escv, setField:setField, fields:fields, step:step, field:field, dial:dial, chips:chips, slider:slider,
-           picker:picker, tiles:tiles, banner:banner, mount:mount, buzz:buzz };
+  return { version:"1.4.0", esc:escv, setField:setField, fields:fields, step:step, field:field, dial:dial, chips:chips, slider:slider,
+           picker:picker, tiles:tiles, banner:banner, mount:mount, buzz:buzz, guard:guard };
 })();
 
 /* ---- Keep v1.0.0 : local autosave, and honesty about what that is ---- */
