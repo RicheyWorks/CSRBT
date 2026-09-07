@@ -13260,6 +13260,895 @@
    "transport": "stdio",
    "verdict": "PASS"
   },
+  "page-ethogram-science": {
+   "at": 1788812229,
+   "confirmed": 68,
+   "goal": "Record one focal-animal continuous session on the ethogram against a clock the harness steps, so every duration is exact: forage 02:30 in two bouts (45.5% of 05:30 observed), vigilant 02:00 in two (36.4%), rest 01:00 (18.2%), 00:30 out of sight excluded from the denominator, six bouts; alarm twice and aggress once, 0.364 and 0.182 per observed minute over 5.5 min; and a transition matrix of three observed transitions, NOT four -- the pair spanning the out-of-sight gap is not a transition anybody watched. The session ran 06:20 and only 06:00 of it is in a state, which the budget now says instead of calling the second number elapsed. Then the five things this page hands over, read -- and the two observers whose ten scans give Cohen\u2019s kappa 0.722 from 80% raw agreement against 28% expected by chance, which is the check the session was designed to be judged by.",
+   "held": true,
+   "id": "page-ethogram-science",
+   "must": "PASS",
+   "refuted": 0,
+   "rungs": [
+    "SENSITIVE_READ",
+    "DRAFT",
+    "MUTATE"
+   ],
+   "rungsWhy": null,
+   "seconds": 4.4,
+   "steps": [
+    {
+     "action": "observe",
+     "expectations": [],
+     "id": "look",
+     "message": "",
+     "ms": null,
+     "result": "driven"
+    },
+    {
+     "action": "show-pane",
+     "expectations": [],
+     "id": "des",
+     "message": "opened pane p-des",
+     "ms": 199,
+     "result": "driven"
+    },
+    {
+     "action": "activate",
+     "expectations": [],
+     "id": "focal",
+     "message": "activate kopt:1",
+     "ms": 42,
+     "result": "driven"
+    },
+    {
+     "action": "activate",
+     "expectations": [],
+     "id": "cont",
+     "message": "activate kopt:4",
+     "ms": 28,
+     "result": "driven"
+    },
+    {
+     "action": "set-text",
+     "expectations": [],
+     "id": "scan",
+     "message": "set-text step_val:0",
+     "ms": 24,
+     "result": "driven"
+    },
+    {
+     "action": "set-text",
+     "expectations": [],
+     "id": "len",
+     "message": "set-text step_val:1",
+     "ms": 26,
+     "result": "driven"
+    },
+    {
+     "action": "set-text",
+     "expectations": [],
+     "id": "obs",
+     "message": "set-text text_in:0",
+     "ms": 29,
+     "result": "driven"
+    },
+    {
+     "action": "set-text",
+     "expectations": [],
+     "id": "date",
+     "message": "set-text text_in:1",
+     "ms": 27,
+     "result": "driven"
+    },
+    {
+     "action": "set-text",
+     "expectations": [],
+     "id": "site",
+     "message": "set-text text_in:2",
+     "ms": 28,
+     "result": "driven"
+    },
+    {
+     "action": "set-text",
+     "expectations": [],
+     "id": "sp",
+     "message": "set-text text_in:3",
+     "ms": 25,
+     "result": "driven"
+    },
+    {
+     "action": "set-text",
+     "expectations": [],
+     "id": "cond",
+     "message": "set-text text_in:4",
+     "ms": 25,
+     "result": "driven"
+    },
+    {
+     "action": "set-text",
+     "expectations": [],
+     "id": "subj",
+     "message": "set-text text_in:5",
+     "ms": 24,
+     "result": "driven"
+    },
+    {
+     "action": "activate",
+     "expectations": [],
+     "id": "addsubj",
+     "message": "activate action_btn:19",
+     "ms": 26,
+     "result": "driven"
+    },
+    {
+     "action": "set-text",
+     "expectations": [],
+     "id": "bname",
+     "message": "set-text text_in:6",
+     "ms": 26,
+     "result": "driven"
+    },
+    {
+     "action": "set-text",
+     "expectations": [],
+     "id": "bcode",
+     "message": "set-text text_in:7",
+     "ms": 25,
+     "result": "driven"
+    },
+    {
+     "action": "activate",
+     "expectations": [],
+     "id": "bkind",
+     "message": "activate dial_btn:0",
+     "ms": 23,
+     "result": "driven"
+    },
+    {
+     "action": "set-text",
+     "expectations": [],
+     "id": "bdesc",
+     "message": "set-text text_in:8",
+     "ms": 25,
+     "result": "driven"
+    },
+    {
+     "action": "activate",
+     "expectations": [],
+     "id": "baddb",
+     "message": "activate action_btn:23",
+     "ms": 26,
+     "result": "driven"
+    },
+    {
+     "action": "read-report",
+     "expectations": [
+      {
+       "detail": "output.boxes.ethoStat == '16 behaviours \u2014 8 states, 8 events.', got '16 behaviours \u2014 8 states, 8 events.'",
+       "path": "output.boxes.ethoStat",
+       "verdict": "CONFIRMED"
+      },
+      {
+       "detail": "output.boxes.ethoList contains 'sun-bask', got \"rest stateRST \u2014 Inactive and stationary, eyes open or closed, not feeding, moving, grooming or interacting.\u2715locomote stateLOC \u2014 Directed movement of the whole body from one place to another, including walking, running, swimming and flight.\u2715forage stateFOR \u2014 Searching for, handling, or ingesting food, including manipulating a food item without swallowing.\u2715vigilant stateVIG \u2014 Stationary with the head raised above shoulder height and eyes open, not feeding or manipulating anything. Ends when the head drops or the animal moves.\u2715groom stateGRM \u2014 Self-directed cleaning of the body surface \u2014 licking, scratching, preening, dust-bathing.\u2715social stateSOC \u2014 Non-agonistic contact or coordinated proximity with another individual: allogrooming, huddling, play.\u2715out of sight stateOOS \u2014 Subject not visible to the observer. Recorded, never left as a gap \u2014 observed time excludes it.\u2715aggress eventAGG \u2014 A directed threat, lunge, chase, strike or bite toward another individual.\u2715submit eventSUB \u2014 Retreat, crouch, or appeasement posture given in response to another individual's approach or threat.\u2715vocalize eventVOC \u2014 Any call audible to the observer. Note call type in the session notes if it can be distinguished.\u2715alarm eventALM \u2014 An alarm call or a whole-body alarm posture given in apparent response to a disturbance.\u2715displace eventDSP \u2014 One individual approaches and another leaves a resource or position, without overt aggression.\u2715scent-mark eventSCM \u2014 Deposition of scent by rubbing, urination or defecation in a manner distinct from elimination.\u2715copulate eventCOP \u2014 Mounting with or without intromission.\u2715provision eventPRV \u2014 Food transferred from one individual to another.\u2715sun-bask stateBSK \u2014 Lying with the flank or belly presented to the sun, limbs extended, not feeding, grooming or moving. Ends when the animal rises or rolls out of the sun.\u2715\"",
+       "path": "output.boxes.ethoList",
+       "verdict": "CONFIRMED"
+      }
+     ],
+     "id": "etho",
+     "message": "0 figure(s), 20 box(es), 1 list(s), 2 table(s), 24 heading(s)",
+     "ms": 7,
+     "result": "driven"
+    },
+    {
+     "action": "set-clock",
+     "expectations": [],
+     "id": "t0",
+     "message": "the clock is frozen at 2026-09-07T09:00:00Z; reload for code that reads it at load",
+     "ms": 8,
+     "result": "driven"
+    },
+    {
+     "action": "show-pane",
+     "expectations": [],
+     "id": "rec",
+     "message": "opened pane p-rec",
+     "ms": 101,
+     "result": "driven"
+    },
+    {
+     "action": "activate",
+     "expectations": [],
+     "id": "start",
+     "message": "activate action_btn:0",
+     "ms": 26,
+     "result": "driven"
+    },
+    {
+     "action": "set-clock",
+     "expectations": [],
+     "id": "c0",
+     "message": "the clock is frozen at 2026-09-07T09:00:20Z; reload for code that reads it at load",
+     "ms": 4,
+     "result": "driven"
+    },
+    {
+     "action": "activate",
+     "expectations": [],
+     "id": "p0",
+     "message": "activate action_btn:7",
+     "ms": 27,
+     "result": "driven"
+    },
+    {
+     "action": "set-clock",
+     "expectations": [],
+     "id": "c1",
+     "message": "the clock is frozen at 2026-09-07T09:01:35Z; reload for code that reads it at load",
+     "ms": 4,
+     "result": "driven"
+    },
+    {
+     "action": "activate",
+     "expectations": [],
+     "id": "p1",
+     "message": "activate action_btn:8",
+     "ms": 25,
+     "result": "driven"
+    },
+    {
+     "action": "set-clock",
+     "expectations": [],
+     "id": "c2",
+     "message": "the clock is frozen at 2026-09-07T09:02:20Z; reload for code that reads it at load",
+     "ms": 4,
+     "result": "driven"
+    },
+    {
+     "action": "activate",
+     "expectations": [],
+     "id": "p2",
+     "message": "activate action_btn:13",
+     "ms": 30,
+     "result": "driven"
+    },
+    {
+     "action": "set-clock",
+     "expectations": [],
+     "id": "c3",
+     "message": "the clock is frozen at 2026-09-07T09:02:35Z; reload for code that reads it at load",
+     "ms": 5,
+     "result": "driven"
+    },
+    {
+     "action": "activate",
+     "expectations": [],
+     "id": "p3",
+     "message": "activate action_btn:7",
+     "ms": 27,
+     "result": "driven"
+    },
+    {
+     "action": "set-clock",
+     "expectations": [],
+     "id": "c4",
+     "message": "the clock is frozen at 2026-09-07T09:03:20Z; reload for code that reads it at load",
+     "ms": 4,
+     "result": "driven"
+    },
+    {
+     "action": "activate",
+     "expectations": [],
+     "id": "p4",
+     "message": "activate action_btn:16",
+     "ms": 32,
+     "result": "driven"
+    },
+    {
+     "action": "set-clock",
+     "expectations": [],
+     "id": "c5",
+     "message": "the clock is frozen at 2026-09-07T09:03:50Z; reload for code that reads it at load",
+     "ms": 4,
+     "result": "driven"
+    },
+    {
+     "action": "activate",
+     "expectations": [],
+     "id": "p5",
+     "message": "activate action_btn:11",
+     "ms": 28,
+     "result": "driven"
+    },
+    {
+     "action": "set-clock",
+     "expectations": [],
+     "id": "c6",
+     "message": "the clock is frozen at 2026-09-07T09:04:20Z; reload for code that reads it at load",
+     "ms": 4,
+     "result": "driven"
+    },
+    {
+     "action": "activate",
+     "expectations": [],
+     "id": "p6",
+     "message": "activate action_btn:5",
+     "ms": 30,
+     "result": "driven"
+    },
+    {
+     "action": "set-clock",
+     "expectations": [],
+     "id": "c7",
+     "message": "the clock is frozen at 2026-09-07T09:05:20Z; reload for code that reads it at load",
+     "ms": 4,
+     "result": "driven"
+    },
+    {
+     "action": "activate",
+     "expectations": [],
+     "id": "p7",
+     "message": "activate action_btn:8",
+     "ms": 25,
+     "result": "driven"
+    },
+    {
+     "action": "set-clock",
+     "expectations": [],
+     "id": "c8",
+     "message": "the clock is frozen at 2026-09-07T09:05:50Z; reload for code that reads it at load",
+     "ms": 5,
+     "result": "driven"
+    },
+    {
+     "action": "activate",
+     "expectations": [],
+     "id": "p8",
+     "message": "activate action_btn:16",
+     "ms": 27,
+     "result": "driven"
+    },
+    {
+     "action": "set-clock",
+     "expectations": [],
+     "id": "cstop",
+     "message": "the clock is frozen at 2026-09-07T09:06:20Z; reload for code that reads it at load",
+     "ms": 4,
+     "result": "driven"
+    },
+    {
+     "action": "activate",
+     "expectations": [],
+     "id": "stop",
+     "message": "activate action_btn:1",
+     "ms": 29,
+     "result": "driven"
+    },
+    {
+     "action": "show-pane",
+     "expectations": [],
+     "id": "bud",
+     "message": "opened pane p-bud",
+     "ms": 89,
+     "result": "driven"
+    },
+    {
+     "action": "read-report",
+     "expectations": [
+      {
+       "detail": "output.by.budBox.elapsed == '06:20', got '06:20'",
+       "path": "output.by.budBox.elapsed",
+       "verdict": "CONFIRMED"
+      },
+      {
+       "detail": "output.by.budBox.observed == '05:30', got '05:30'",
+       "path": "output.by.budBox.observed",
+       "verdict": "CONFIRMED"
+      },
+      {
+       "detail": "output.by.budBox.out of sight == '00:30', got '00:30'",
+       "path": "output.by.budBox.out of sight",
+       "verdict": "CONFIRMED"
+      },
+      {
+       "detail": "output.by.budBox.bouts == '6', got '6'",
+       "path": "output.by.budBox.bouts",
+       "verdict": "CONFIRMED"
+      }
+     ],
+     "id": "tiles",
+     "message": "4 figure(s), 20 box(es), 2 list(s), 5 table(s), 26 heading(s)",
+     "ms": 6,
+     "result": "driven"
+    },
+    {
+     "action": "read-report",
+     "expectations": [
+      {
+       "detail": "output.tables.budBox.1.0 == 'forage', got 'forage'",
+       "path": "output.tables.budBox.1.0",
+       "verdict": "CONFIRMED"
+      },
+      {
+       "detail": "output.tables.budBox.1.1 == '02:30', got '02:30'",
+       "path": "output.tables.budBox.1.1",
+       "verdict": "CONFIRMED"
+      },
+      {
+       "detail": "output.tables.budBox.1.2 == '45.5%', got '45.5%'",
+       "path": "output.tables.budBox.1.2",
+       "verdict": "CONFIRMED"
+      },
+      {
+       "detail": "output.tables.budBox.1.3 == '2', got '2'",
+       "path": "output.tables.budBox.1.3",
+       "verdict": "CONFIRMED"
+      },
+      {
+       "detail": "output.tables.budBox.1.4 == '01:15', got '01:15'",
+       "path": "output.tables.budBox.1.4",
+       "verdict": "CONFIRMED"
+      },
+      {
+       "detail": "output.tables.budBox.2.0 == 'vigilant', got 'vigilant'",
+       "path": "output.tables.budBox.2.0",
+       "verdict": "CONFIRMED"
+      },
+      {
+       "detail": "output.tables.budBox.2.1 == '02:00', got '02:00'",
+       "path": "output.tables.budBox.2.1",
+       "verdict": "CONFIRMED"
+      },
+      {
+       "detail": "output.tables.budBox.2.2 == '36.4%', got '36.4%'",
+       "path": "output.tables.budBox.2.2",
+       "verdict": "CONFIRMED"
+      },
+      {
+       "detail": "output.tables.budBox.2.3 == '2', got '2'",
+       "path": "output.tables.budBox.2.3",
+       "verdict": "CONFIRMED"
+      },
+      {
+       "detail": "output.tables.budBox.2.4 == '01:00', got '01:00'",
+       "path": "output.tables.budBox.2.4",
+       "verdict": "CONFIRMED"
+      },
+      {
+       "detail": "output.tables.budBox.3.0 == 'rest', got 'rest'",
+       "path": "output.tables.budBox.3.0",
+       "verdict": "CONFIRMED"
+      },
+      {
+       "detail": "output.tables.budBox.3.1 == '01:00', got '01:00'",
+       "path": "output.tables.budBox.3.1",
+       "verdict": "CONFIRMED"
+      },
+      {
+       "detail": "output.tables.budBox.3.2 == '18.2%', got '18.2%'",
+       "path": "output.tables.budBox.3.2",
+       "verdict": "CONFIRMED"
+      },
+      {
+       "detail": "output.tables.budBox.3.3 == '1', got '1'",
+       "path": "output.tables.budBox.3.3",
+       "verdict": "CONFIRMED"
+      },
+      {
+       "detail": "output.tables.budBox.3.4 == '01:00', got '01:00'",
+       "path": "output.tables.budBox.3.4",
+       "verdict": "CONFIRMED"
+      }
+     ],
+     "id": "table",
+     "message": "4 figure(s), 20 box(es), 2 list(s), 5 table(s), 26 heading(s)",
+     "ms": 7,
+     "result": "driven"
+    },
+    {
+     "action": "read-report",
+     "expectations": [
+      {
+       "detail": "output.tables.rateBox.1.0 == 'alarm', got 'alarm'",
+       "path": "output.tables.rateBox.1.0",
+       "verdict": "CONFIRMED"
+      },
+      {
+       "detail": "output.tables.rateBox.1.1 == '2', got '2'",
+       "path": "output.tables.rateBox.1.1",
+       "verdict": "CONFIRMED"
+      },
+      {
+       "detail": "output.tables.rateBox.1.2 == '0.364', got '0.364'",
+       "path": "output.tables.rateBox.1.2",
+       "verdict": "CONFIRMED"
+      },
+      {
+       "detail": "output.tables.rateBox.1.3 == '21.8', got '21.8'",
+       "path": "output.tables.rateBox.1.3",
+       "verdict": "CONFIRMED"
+      },
+      {
+       "detail": "output.tables.rateBox.2.0 == 'aggress', got 'aggress'",
+       "path": "output.tables.rateBox.2.0",
+       "verdict": "CONFIRMED"
+      },
+      {
+       "detail": "output.tables.rateBox.2.1 == '1', got '1'",
+       "path": "output.tables.rateBox.2.1",
+       "verdict": "CONFIRMED"
+      },
+      {
+       "detail": "output.tables.rateBox.2.2 == '0.182', got '0.182'",
+       "path": "output.tables.rateBox.2.2",
+       "verdict": "CONFIRMED"
+      },
+      {
+       "detail": "output.tables.rateBox.2.3 == '10.9', got '10.9'",
+       "path": "output.tables.rateBox.2.3",
+       "verdict": "CONFIRMED"
+      },
+      {
+       "detail": "output.boxes.rateBox contains 'per minute of observed time (5.5 min)', got 'Event rateseventnper minper houralarm20.36421.8aggress10.18210.9Rates are per minute of observed time (5.5 min), not elapsed.'",
+       "path": "output.boxes.rateBox",
+       "verdict": "CONFIRMED"
+      }
+     ],
+     "id": "rates",
+     "message": "4 figure(s), 20 box(es), 2 list(s), 5 table(s), 26 heading(s)",
+     "ms": 5,
+     "result": "driven"
+    },
+    {
+     "action": "read-report",
+     "expectations": [
+      {
+       "detail": "output.boxes.transBox contains 'Thin rows.', got 'Transitionsfrom \\\\ toforagevigilantrestnforage\u2014100%\u00b71vigilant100%\u2014\u00b71rest\u00b7100%\u20141Each cell is the probability that the row state was followed by the column state. The diagonal is struck out because states are mutually exclusive here \u2014 a state cannot follow itself, which is a property of the coding scheme rather than a finding.Thin rows. forage, vigilant, rest had fewer than five transitions. Those percentages are noise, not structure.1 pair is not counted. The subject went out of sight between them, so what followed what was not observed. Dropping out-of-sight time from a budget is right; closing the gap it leaves and calling the two neighbours a transition is not.This is a first-order summary: it assumes what happens next depends only on the current state. That is usually false, and it is the assumption to state in a write-up.'",
+       "path": "output.boxes.transBox",
+       "verdict": "CONFIRMED"
+      },
+      {
+       "detail": "output.tables.transBox.1.0 == 'forage', got 'forage'",
+       "path": "output.tables.transBox.1.0",
+       "verdict": "CONFIRMED"
+      },
+      {
+       "detail": "output.tables.transBox.1.1 == '\u2014', got '\u2014'",
+       "path": "output.tables.transBox.1.1",
+       "verdict": "CONFIRMED"
+      },
+      {
+       "detail": "output.tables.transBox.1.2 == '100%', got '100%'",
+       "path": "output.tables.transBox.1.2",
+       "verdict": "CONFIRMED"
+      },
+      {
+       "detail": "output.tables.transBox.1.3 == '\u00b7', got '\u00b7'",
+       "path": "output.tables.transBox.1.3",
+       "verdict": "CONFIRMED"
+      },
+      {
+       "detail": "output.tables.transBox.1.4 == '1', got '1'",
+       "path": "output.tables.transBox.1.4",
+       "verdict": "CONFIRMED"
+      },
+      {
+       "detail": "output.tables.transBox.2.0 == 'vigilant', got 'vigilant'",
+       "path": "output.tables.transBox.2.0",
+       "verdict": "CONFIRMED"
+      },
+      {
+       "detail": "output.tables.transBox.2.1 == '100%', got '100%'",
+       "path": "output.tables.transBox.2.1",
+       "verdict": "CONFIRMED"
+      },
+      {
+       "detail": "output.tables.transBox.2.2 == '\u2014', got '\u2014'",
+       "path": "output.tables.transBox.2.2",
+       "verdict": "CONFIRMED"
+      },
+      {
+       "detail": "output.tables.transBox.2.3 == '\u00b7', got '\u00b7'",
+       "path": "output.tables.transBox.2.3",
+       "verdict": "CONFIRMED"
+      },
+      {
+       "detail": "output.tables.transBox.2.4 == '1', got '1'",
+       "path": "output.tables.transBox.2.4",
+       "verdict": "CONFIRMED"
+      },
+      {
+       "detail": "output.tables.transBox.3.0 == 'rest', got 'rest'",
+       "path": "output.tables.transBox.3.0",
+       "verdict": "CONFIRMED"
+      },
+      {
+       "detail": "output.tables.transBox.3.1 == '\u00b7', got '\u00b7'",
+       "path": "output.tables.transBox.3.1",
+       "verdict": "CONFIRMED"
+      },
+      {
+       "detail": "output.tables.transBox.3.2 == '100%', got '100%'",
+       "path": "output.tables.transBox.3.2",
+       "verdict": "CONFIRMED"
+      },
+      {
+       "detail": "output.tables.transBox.3.3 == '\u2014', got '\u2014'",
+       "path": "output.tables.transBox.3.3",
+       "verdict": "CONFIRMED"
+      },
+      {
+       "detail": "output.tables.transBox.3.4 == '1', got '1'",
+       "path": "output.tables.transBox.3.4",
+       "verdict": "CONFIRMED"
+      }
+     ],
+     "id": "trans",
+     "message": "4 figure(s), 20 box(es), 2 list(s), 5 table(s), 26 heading(s)",
+     "ms": 5,
+     "result": "driven"
+    },
+    {
+     "action": "activate",
+     "expectations": [],
+     "id": "csv",
+     "message": "activate action_btn:41",
+     "ms": 28,
+     "result": "driven"
+    },
+    {
+     "action": "collect-output",
+     "expectations": [
+      {
+       "detail": "output.payloads.0.k in ['copy', 'clipboard', 'download', 'print'], got 'clipboard'",
+       "path": "output.payloads.0.k",
+       "verdict": "CONFIRMED"
+      },
+      {
+       "detail": "output.payloads.0.text contains 'record_type,subject,behaviour,code,kind,t_start_s,t_end_s,duration_s,scan_or_interval', got 'record_type,subject,behaviour,code,kind,t_start_s,t_end_s,duration_s,scan_or_interval\\nstate,subject 1,forage,FOR,state,20.0,95.0,75.0,\\nstate,subject 1,vigilant,VIG,state,95.0,155.0,60.0,\\nstate,subject 1,forage,FOR,state,155.0,230.0,75.0,\\nstate,subject 1,out of sight,OOS,state,230.0,260.0,30.0,\\nstate,subject 1,rest,RST,state,260.0,320.0,60.0,\\nstate,subject 1,vigilant,VIG,state,320.0,380.0,60.0,\\nevent,subject 1,aggress,AGG,event,140.0,,,\\nevent,subject 1,alarm,ALM,event,200.0,,,\\nevent,subject 1,alarm,ALM,event,350.0,,,'",
+       "path": "output.payloads.0.text",
+       "verdict": "CONFIRMED"
+      },
+      {
+       "detail": "output.payloads.0.text contains 'state,subject 1,forage,FOR,state,20.0,95.0,75.0,', got 'record_type,subject,behaviour,code,kind,t_start_s,t_end_s,duration_s,scan_or_interval\\nstate,subject 1,forage,FOR,state,20.0,95.0,75.0,\\nstate,subject 1,vigilant,VIG,state,95.0,155.0,60.0,\\nstate,subject 1,forage,FOR,state,155.0,230.0,75.0,\\nstate,subject 1,out of sight,OOS,state,230.0,260.0,30.0,\\nstate,subject 1,rest,RST,state,260.0,320.0,60.0,\\nstate,subject 1,vigilant,VIG,state,320.0,380.0,60.0,\\nevent,subject 1,aggress,AGG,event,140.0,,,\\nevent,subject 1,alarm,ALM,event,200.0,,,\\nevent,subject 1,alarm,ALM,event,350.0,,,'",
+       "path": "output.payloads.0.text#2",
+       "verdict": "CONFIRMED"
+      }
+     ],
+     "id": "csvout",
+     "message": "1 payload(s)",
+     "ms": 2,
+     "result": "driven"
+    },
+    {
+     "action": "activate",
+     "expectations": [],
+     "id": "ecoc",
+     "message": "activate action_btn:42",
+     "ms": 28,
+     "result": "driven"
+    },
+    {
+     "action": "collect-output",
+     "expectations": [
+      {
+       "detail": "output.payloads.0.text contains '  forage              02:30   45.5%   2 bouts', got '# ethogram session\\n# observer: R. Wright   date: 2026-09-07   site: Bear Cr. meadow\\n# species: Marmota flaviventris\\n# design: focal animal sampling, continuous recording\\n# subjects: subject 1, F-blue\\n# conditions: Overcast, 14 C, light wind. Group of six, two juveniles. Observed from 40 m with 10x42.\\n# elapsed 06:20   observed 05:30\\n\\n  forage              02:30   45.5%   2 bouts\\n  vigilant            02:00   36.4%   2 bouts\\n  rest                01:00   18.2%   1 bouts\\n\\n  aggress             1   0.182/min\\n  alarm               2   0.364/min'",
+       "path": "output.payloads.0.text",
+       "verdict": "CONFIRMED"
+      },
+      {
+       "detail": "output.payloads.0.text contains '  vigilant            02:00   36.4%   2 bouts', got '# ethogram session\\n# observer: R. Wright   date: 2026-09-07   site: Bear Cr. meadow\\n# species: Marmota flaviventris\\n# design: focal animal sampling, continuous recording\\n# subjects: subject 1, F-blue\\n# conditions: Overcast, 14 C, light wind. Group of six, two juveniles. Observed from 40 m with 10x42.\\n# elapsed 06:20   observed 05:30\\n\\n  forage              02:30   45.5%   2 bouts\\n  vigilant            02:00   36.4%   2 bouts\\n  rest                01:00   18.2%   1 bouts\\n\\n  aggress             1   0.182/min\\n  alarm               2   0.364/min'",
+       "path": "output.payloads.0.text#2",
+       "verdict": "CONFIRMED"
+      },
+      {
+       "detail": "output.payloads.0.text contains '  rest                01:00   18.2%   1 bouts', got '# ethogram session\\n# observer: R. Wright   date: 2026-09-07   site: Bear Cr. meadow\\n# species: Marmota flaviventris\\n# design: focal animal sampling, continuous recording\\n# subjects: subject 1, F-blue\\n# conditions: Overcast, 14 C, light wind. Group of six, two juveniles. Observed from 40 m with 10x42.\\n# elapsed 06:20   observed 05:30\\n\\n  forage              02:30   45.5%   2 bouts\\n  vigilant            02:00   36.4%   2 bouts\\n  rest                01:00   18.2%   1 bouts\\n\\n  aggress             1   0.182/min\\n  alarm               2   0.364/min'",
+       "path": "output.payloads.0.text#3",
+       "verdict": "CONFIRMED"
+      },
+      {
+       "detail": "output.payloads.0.text contains '# observer: R. Wright   date: 2026-09-07   site: Bear Cr. meadow', got '# ethogram session\\n# observer: R. Wright   date: 2026-09-07   site: Bear Cr. meadow\\n# species: Marmota flaviventris\\n# design: focal animal sampling, continuous recording\\n# subjects: subject 1, F-blue\\n# conditions: Overcast, 14 C, light wind. Group of six, two juveniles. Observed from 40 m with 10x42.\\n# elapsed 06:20   observed 05:30\\n\\n  forage              02:30   45.5%   2 bouts\\n  vigilant            02:00   36.4%   2 bouts\\n  rest                01:00   18.2%   1 bouts\\n\\n  aggress             1   0.182/min\\n  alarm               2   0.364/min'",
+       "path": "output.payloads.0.text#4",
+       "verdict": "CONFIRMED"
+      },
+      {
+       "detail": "output.payloads.0.text contains '# design: focal animal sampling, continuous recording', got '# ethogram session\\n# observer: R. Wright   date: 2026-09-07   site: Bear Cr. meadow\\n# species: Marmota flaviventris\\n# design: focal animal sampling, continuous recording\\n# subjects: subject 1, F-blue\\n# conditions: Overcast, 14 C, light wind. Group of six, two juveniles. Observed from 40 m with 10x42.\\n# elapsed 06:20   observed 05:30\\n\\n  forage              02:30   45.5%   2 bouts\\n  vigilant            02:00   36.4%   2 bouts\\n  rest                01:00   18.2%   1 bouts\\n\\n  aggress             1   0.182/min\\n  alarm               2   0.364/min'",
+       "path": "output.payloads.0.text#5",
+       "verdict": "CONFIRMED"
+      }
+     ],
+     "id": "ecoout",
+     "message": "1 payload(s)",
+     "ms": 3,
+     "result": "driven"
+    },
+    {
+     "action": "activate",
+     "expectations": [],
+     "id": "budc",
+     "message": "activate action_btn:43",
+     "ms": 29,
+     "result": "driven"
+    },
+    {
+     "action": "collect-output",
+     "expectations": [
+      {
+       "detail": "output.payloads.0.text contains 'behaviour,kind,measure,value,denominator', got 'behaviour,kind,measure,value,denominator\\nforage,state,pct_observed_time,45.45,330.0 s observed\\nvigilant,state,pct_observed_time,36.36,330.0 s observed\\nrest,state,pct_observed_time,18.18,330.0 s observed'",
+       "path": "output.payloads.0.text",
+       "verdict": "CONFIRMED"
+      }
+     ],
+     "id": "budout",
+     "message": "1 payload(s)",
+     "ms": 3,
+     "result": "driven"
+    },
+    {
+     "action": "activate",
+     "expectations": [],
+     "id": "packe",
+     "message": "activate action_btn:44",
+     "ms": 28,
+     "result": "driven"
+    },
+    {
+     "action": "collect-output",
+     "expectations": [
+      {
+       "detail": "output.payloads.0.text contains 'sun-bask', got '{\\n \"name\": \"general vertebrate (built in)\",\\n \"version\": 1,\\n \"behaviours\": [\\n  {\\n   \"id\": \"rest\",\\n   \"code\": \"RST\",\\n   \"name\": \"rest\",\\n   \"kind\": \"state\",\\n   \"desc\": \"Inactive and stationary, eyes open or closed, not feeding, moving, grooming or interacting.\"\\n  },\\n  {\\n   \"id\": \"loc\",\\n   \"code\": \"LOC\",\\n   \"name\": \"locomote\",\\n   \"kind\": \"state\",\\n   \"desc\": \"Directed movement of the whole body from one place to another, including walking, running, swimming and flight.\"\\n  },\\n  {\\n   \"id\": \"forage\",\\n   \"code\": \"FOR\",\\n   \"name\": \"forage\",\\n   \"kind\": \"state\",\\n   \"desc\": \"Searching for, handling, or ingesting food, including manipulating a food item without swallowing.\"\\n  },\\n  {\\n   \"id\": \"vig\",\\n   \"code\": \"VIG\",\\n   \"name\": \"vigilant\",\\n   \"kind\": \"state\",\\n   \"desc\": \"Stationary with the head raised above shoulder height and eyes open, not feeding or manipulating anything. Ends when the head drops or the animal moves.\"\\n  },\\n  {\\n   \"id\": \"groom\",\\n   \"code\": \"GRM\",\\n   \"name\": \"groom\",\\n   \"kind\": \"state\",\\n   \"desc\": \"Self-directed cleaning of the body surface \u2014 licking, scratching, preening, dust-bathing.\"\\n  },\\n  {\\n   \"id\": \"social\",\\n   \"code\": \"SOC\",\\n   \"name\": \"social\",\\n   \"kind\": \"state\",\\n   \"desc\": \"Non-agonistic contact or coordinated proximity with another individual: allogrooming, huddling, play.\"\\n  },\\n  {\\n   \"id\": \"oos\",\\n   \"code\": \"OOS\",\\n   \"name\": \"out of sight\",\\n   \"kind\": \"state\",\\n   \"desc\": \"Subject not visible to the observer. Recorded, never left as a gap \u2014 observed time excludes it.\"\\n  },\\n  {\\n   \"id\": \"agg\",\\n   \"code\": \"AGG\",\\n   \"name\": \"aggress\",\\n   \"kind\": \"event\",\\n   \"desc\": \"A directed threat, lunge, chase, strike or bite toward another individual.\"\\n  },\\n  {\\n   \"id\": \"sub\",\\n   \"code\": \"SUB\",\\n   \"name\": \"submit\",\\n   \"kind\": \"event\",\\n   \"desc\": \"Retreat, crouch, or appeasement posture given in response to another individual\\'s approach or threat.\"\\n  },\\n  {\\n   \"id\": \"voc\",\\n   \"code\": \"VOC\",\\n   \"name\": \"vocalize\",\\n   \"kind\": \"event\",\\n   \"desc\": \"Any call audible to the observer. Note call type in the session notes if it can be distinguished.\"\\n  },\\n  {\\n   \"id\": \"alarm\",\\n   \"code\": \"ALM\",\\n   \"name\": \"alarm\",\\n   \"kind\": \"event\",\\n   \"desc\": \"An alarm call or a whole-body alarm posture given in apparent response to a disturbance.\"\\n  },\\n  {\\n   \"id\": \"disp\",\\n   \"code\": \"DSP\",\\n   \"name\": \"displace\",\\n   \"kind\": \"event\",\\n   \"desc\": \"One individual approaches and another leaves a resource or position, without overt aggression.\"\\n  },\\n  {\\n   \"id\": \"scm\",\\n   \"code\": \"SCM\",\\n   \"name\": \"scent-mark\",\\n   \"kind\": \"event\",\\n   \"desc\": \"Deposition of scent by rubbing, urination or defecation in a manner distinct from elimination.\"\\n  },\\n  {\\n   \"id\": \"cop\",\\n   \"code\": \"COP\",\\n   \"name\": \"copulate\",\\n   \"kind\": \"event\",\\n   \"desc\": \"Mounting with or without intromission.\"\\n  },\\n  {\\n   \"id\": \"prov\",\\n   \"code\": \"PRV\",\\n   \"name\": \"provision\",\\n   \"kind\": \"event\",\\n   \"desc\": \"Food transferred from one individual to another.\"\\n  },\\n  {\\n   \"id\": \"u15_sunbask\",\\n   \"code\": \"BSK\",\\n   \"name\": \"sun-bask\",\\n   \"kind\": \"state\",\\n   \"desc\": \"Lying with the flank or belly presented to the sun, limbs extended, not feeding, grooming or moving. Ends when the animal rises or rolls out of the sun.\"\\n  }\\n ]\\n}'",
+       "path": "output.payloads.0.text",
+       "verdict": "CONFIRMED"
+      }
+     ],
+     "id": "packout",
+     "message": "1 payload(s)",
+     "ms": 3,
+     "result": "driven"
+    },
+    {
+     "action": "activate",
+     "expectations": [],
+     "id": "packp",
+     "message": "activate action_btn:45",
+     "ms": 30,
+     "result": "driven"
+    },
+    {
+     "action": "collect-output",
+     "expectations": [
+      {
+       "detail": "output.payloads.0.text contains 'ethogram', got 'Draft an ethogram for behavioural sampling.\\n\\nSPECIES / SYSTEM: <name the taxon, the setting, and what you are studying>\\n\\nReturn ONLY a JSON object, no prose around it:\\n{ \"name\": \"<species or study name>\", \"version\": 1, \"behaviours\": [ ... ] }\\n\\nEach entry in behaviours[] must have exactly these fields:\\n  id    string, 3-16 lowercase letters/digits/underscore, unique in the file\\n  code  string, 2-4 characters, uppercase, unique \u2014 what goes on the tally sheet\\n  name  string, the short label, lowercase\\n  kind  \"state\" or \"event\"\\n        state = has meaningful DURATION and the animal is either in it or not\\n                (resting, foraging, vigilant). States must be MUTUALLY EXCLUSIVE\\n                and together should cover essentially all of the observed time.\\n        event = a point occurrence you COUNT (a bite, a call, a chase). Duration\\n                is either negligible or not the quantity of interest.\\n  desc  string, the operational definition: what the observer must SEE to score it,\\n        and what ends it. One or two sentences.\\n\\nRULES FOR THE DEFINITIONS \u2014 these are what make the ethogram usable:\\n1. Describe OBSERVABLE POSTURE AND MOVEMENT, never motivation or emotion.\\n   \"head raised above shoulder height, not feeding\" \u2014 not \"alert\" or \"nervous\".\\n2. Every definition must say where the behaviour ENDS, not only where it starts.\\n3. Two observers reading the definition cold must score the same animal the same\\n   way. If a definition needs the observer to already know the species, rewrite it.\\n4. The states must be mutually exclusive. If two states can be true at once, either\\n   merge them or split the dimension into two separate state sets and say so.\\n5. INCLUDE an out-of-sight state. Time budgets are computed over observed time, and\\n   a missing out-of-sight category silently corrupts every percentage.\\n6. Do not invent behaviours the taxon is not known to perform. If unsure whether a\\n   behaviour occurs, leave it out and list it separately as a question.\\n\\n12-25 behaviours is the useful range for a field ethogram.\\n\\nThen, outside the JSON, list any behaviour you were unsure about and why, and name\\nthe pairs of definitions you think are most likely to be confused by two observers.'",
+       "path": "output.payloads.0.text",
+       "verdict": "CONFIRMED"
+      }
+     ],
+     "id": "promptout",
+     "message": "1 payload(s)",
+     "ms": 3,
+     "result": "driven"
+    },
+    {
+     "action": "show-pane",
+     "expectations": [],
+     "id": "rel",
+     "message": "opened pane p-rel",
+     "ms": 92,
+     "result": "driven"
+    },
+    {
+     "action": "set-text",
+     "expectations": [],
+     "id": "ka",
+     "message": "set-text text_in:9",
+     "ms": 25,
+     "result": "driven"
+    },
+    {
+     "action": "set-text",
+     "expectations": [],
+     "id": "kb",
+     "message": "set-text text_in:10",
+     "ms": 26,
+     "result": "driven"
+    },
+    {
+     "action": "activate",
+     "expectations": [],
+     "id": "kgo",
+     "message": "activate action_btn:46",
+     "ms": 27,
+     "result": "driven"
+    },
+    {
+     "action": "read-report",
+     "expectations": [
+      {
+       "detail": "output.by.kOut.Cohen's \u03ba == '0.722', got '0.722'",
+       "path": "output.by.kOut.Cohen's \u03ba",
+       "verdict": "CONFIRMED"
+      },
+      {
+       "detail": "output.by.kOut.raw agreement == '80.0%', got '80.0%'",
+       "path": "output.by.kOut.raw agreement",
+       "verdict": "CONFIRMED"
+      },
+      {
+       "detail": "output.by.kOut.expected by chance == '28.0%', got '28.0%'",
+       "path": "output.by.kOut.expected by chance",
+       "verdict": "CONFIRMED"
+      },
+      {
+       "detail": "output.by.kOut.samples == '10', got '10'",
+       "path": "output.by.kOut.samples",
+       "verdict": "CONFIRMED"
+      },
+      {
+       "detail": "output.by.kOut.categories == '4', got '4'",
+       "path": "output.by.kOut.categories",
+       "verdict": "CONFIRMED"
+      },
+      {
+       "detail": "output.boxes.kMatrix contains 'commonest disagreement', got 'Confusion matrixA \\\\ BFLRVtotalF3\u00b7\u00b714L\u00b71\u00b7\u00b71R\u00b7\u00b72\u00b72V\u00b7\u00b7123The commonest disagreement is F \u2192 V (1\u00d7). That pair of definitions is where to spend the next revision of the ethogram.'",
+       "path": "output.boxes.kMatrix",
+       "verdict": "CONFIRMED"
+      }
+     ],
+     "id": "kappa",
+     "message": "9 figure(s), 20 box(es), 2 list(s), 6 table(s), 27 heading(s)",
+     "ms": 7,
+     "result": "driven"
+    },
+    {
+     "action": "read-report",
+     "expectations": [
+      {
+       "detail": "output.by.budBox.observed == '05:30', got '05:30'",
+       "path": "output.by.budBox.observed",
+       "verdict": "CONFIRMED"
+      },
+      {
+       "detail": "output.tables.budBox.1.0 == 'forage', got 'forage'",
+       "path": "output.tables.budBox.1.0",
+       "verdict": "CONFIRMED"
+      }
+     ],
+     "id": "after",
+     "message": "9 figure(s), 20 box(es), 2 list(s), 6 table(s), 27 heading(s)",
+     "ms": 7,
+     "result": "driven"
+    },
+    {
+     "action": "read-page",
+     "expectations": [
+      {
+       "detail": "output.junk == None, got None",
+       "path": "output.junk",
+       "verdict": "CONFIRMED"
+      },
+      {
+       "detail": "output.errors == [], got []",
+       "path": "output.errors",
+       "verdict": "CONFIRMED"
+      },
+      {
+       "detail": "output.overflow == 0, got 0",
+       "path": "output.overflow",
+       "verdict": "CONFIRMED"
+      }
+     ],
+     "id": "intact",
+     "message": "read the page",
+     "ms": 10,
+     "result": "driven"
+    }
+   ],
+   "target": "page",
+   "targets": [
+    "page"
+   ],
+   "transport": "stdio",
+   "verdict": "PASS"
+  },
   "page-experiment-guide-design": {
    "at": 1788777307,
    "confirmed": 220,

@@ -373,6 +373,51 @@ FEK picker through its filter; a task names a control the page's way with
 tasks — one per data-entry page — enter data and hold the report to a
 hand-checked oracle; a page canary is refuted; 1,316 expectations confirmed.
 
+ADR-154 RECORDED THE ETHOGRAM WHOLE -- the one page in this kit whose product is
+a measurement of TIME, and no task had ever run a session on it. Its only task
+drove the kappa calculator and two design chips: 5 of 16 fields, the worst ratio
+in the kit, and its "Copy log CSV" and "Copy budget CSV" were two of ADR-153's
+nineteen silent buttons, silent for the honest reason that they say "Nothing
+recorded" and nothing ever had been. A TIME BUDGET IS A MEASUREMENT OF
+WALL-CLOCK TIME AND A TASK CANNOT ASSERT A WALL-CLOCK NUMBER -- but the page
+reads Date.now() at every press, so the harness's own clock control answers it:
+FREEZE THE CLOCK, THEN STEP IT. set-clock was in the manifest for freezing a date
+stamp; used as a stepper it turns a stopwatch into an instrument a task can hold,
+which is a use nothing in this kit had made of it. Every duration is then exact
+and the whole budget is an oracle: forage 02:30 in two bouts (45.5% of 05:30
+observed, mean bout 01:15), vigilant 02:00 in two (36.4%), rest 01:00 (18.2%),
+00:30 out of sight excluded from the denominator, six bouts; alarm twice and
+aggress once at 0.364 and 0.182 per OBSERVED minute over 5.5 min. THE EXACT
+NUMBERS FOUND TWO THINGS WRONG. (a) THE ELAPSED TILE WAS NOT ELAPSED: it showed
+observed plus out-of-sight, which is the time that is IN A STATE and not the time
+the session ran, and the two differ by however long the clock runs before the
+first state is tapped and after the last is closed -- on a real session, the time
+it takes to find the animal. The stepped clock made the gap exact: the session
+ran 06:20 and the tile said 06:00. It now shows the elapsed time and names the
+difference, "00:20 of the session is in no state". (b) A TRANSITION IS ADJACENCY,
+NOT ORDER: out-of-sight segments are dropped before the pairs are taken --
+rightly, since out of sight is not a behaviour -- and dropping them CLOSED THE
+GAP, so the state before a disappearance and the state after it were counted as
+one following the other. This session reported FOUR transitions where three were
+observed, and the invented one, forage to rest across 30 s of nothing, was
+exactly the kind of row a transition matrix is read for. Non-adjacent pairs are
+no longer counted and the page says how many it dropped and why. Both are the
+page's own subject matter: it is a page about the difference between what you
+measured and what you can claim. THREE WORKLISTS, ONE PAGE: ethogram 5 -> 16 OF
+16 FIELDS, 3 unread plus 2 silent -> 5 OF 5 OUTPUTS HELD, and the kit 405 -> 416
+of 520 (78% -> 80%) with unread outputs 42 -> 39 of 65 (the two that were silent now emit, so the denominator grows too), held 21 -> 26 and silent 19 -> 17. The two
+silent exports are silent no longer because the session gives them something to
+hand over, which is the mechanism ADR-153 predicted. 68 confirmed expectations, 0
+refuted, including Cohen's kappa 0.722 from 80% raw agreement against 28%
+expected by chance. Held: the stepped clock is not a real session -- it
+reproduces exact durations and nothing about an observer's reaction time, a
+mis-tap, or the scan timer, which under a frozen clock never fires at all, so
+instantaneous and one-zero recording are still driven only by their design chips
+and not by a run; the transition fix counts a pair only when t1 === t0; the "in
+no state" line is a report and not a correction, because the page does not guess
+what the animal was doing before the first tap; and 39 outputs on 15 pages are
+still unread with 17 buttons still silent, on the pages entry_reach still names.
+
 ADR-153 MEASURED WHAT EACH PAGE HANDS OVER, which is the other end of the
 sentence entry_reach measures: entry_reach asks how much of a page's data its own
 task ENTERS, and audit_outputs asks how much of what a page PRODUCES its own task

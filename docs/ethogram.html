@@ -1442,8 +1442,20 @@ var FEK = (function(){
       var per={};
       segs.forEach(function(s){ if(s.beh==="oos") return;
         if(!per[s.beh]) per[s.beh]={ms:0,n:0}; per[s.beh].ms+=(s.t1-s.t0); per[s.beh].n++; });
-      var h=head+'<div class="tiles">'+tile(mmss(obs+oos),"elapsed")+tile(mmss(obs),"observed")+
+      /* THE TILE SAID ELAPSED AND SHOWED SOMETHING ELSE (ADR-154). It summed
+         the segments -- observed plus out-of-sight -- which is the time that
+         is IN A STATE, not the time the session ran. They differ by however
+         long the clock was running before the first state was tapped and after
+         the last one was closed, which on a real session is the time it takes
+         to find the animal. A session driven against a stepped clock made the
+         gap exact: 06:20 on the clock, 06:00 in states, and the tile called
+         06:00 elapsed. */
+      var ran=now(), gap=ran-(obs+oos);
+      var h=head+'<div class="tiles">'+tile(mmss(ran),"elapsed")+tile(mmss(obs),"observed")+
         tile(mmss(oos),"out of sight")+tile(segs.length,"bouts")+'</div>';
+      if(gap>=1000) h+='<p class="fine"><b>'+mmss(gap)+' of the session is in no state.</b> The '+
+        'clock was running before the first state was tapped, or after the last one was closed. '+
+        'It is neither observed time nor out-of-sight time, and nothing below is computed on it.</p>';
       h+='<div class="tw"><table><tr><th>state</th><th class="n">time</th><th class="n">% observed</th>'+
          '<th class="n">bouts</th><th class="n">mean bout</th></tr>';
       Object.keys(per).sort(function(a,b){return per[b].ms-per[a].ms;}).forEach(function(k){
@@ -1531,9 +1543,19 @@ var FEK = (function(){
       var bySubj={};
       segs.forEach(function(s){ if(s.beh==="oos") return; (bySubj[s.subj]=bySubj[s.subj]||[]).push(s); });
       var total=0;
+      /* A TRANSITION IS ADJACENCY, NOT ORDER (ADR-154). Out-of-sight segments
+         are dropped before the pairs are taken -- rightly, since "out of
+         sight" is not a behaviour -- and dropping them closed the gap, so the
+         state before a disappearance and the state after it were counted as
+         one following the other. Nobody watched that happen. A session with a
+         single 30 s gap in it reported four transitions where three were
+         observed, and the invented one was the row this page would have been
+         read for. */
+      var spliced=0;
       Object.keys(bySubj).forEach(function(k){
         var arr=bySubj[k].slice().sort(function(a,b){return a.t0-b.t0;});
         for(var i=0;i+1<arr.length;i++){
+          if(arr[i].t1!==arr[i+1].t0){ spliced++; continue; }
           var a=arr[i].beh,b=arr[i+1].beh;
           if(order.indexOf(a)<0) order.push(a);
           if(order.indexOf(b)<0) order.push(b);
@@ -1562,6 +1584,10 @@ var FEK = (function(){
       if(thin.length) t+='<div class="verdict warn"><b>Thin rows.</b> '+
         thin.map(function(a){return esc((byId(a)||{}).name||a);}).join(", ")+
         ' had fewer than five transitions. Those percentages are noise, not structure.</div>';
+      if(spliced) t+='<p class="fine"><b>'+spliced+' pair'+(spliced===1?" is":"s are")+' not counted.</b> '+
+         'The subject went out of sight between them, so what followed what was not observed. '+
+         'Dropping out-of-sight time from a budget is right; closing the gap it leaves and calling '+
+         'the two neighbours a transition is not.</p>';
       t+='<p class="fine">This is a first-order summary: it assumes what happens next depends only on the '+
          'current state. That is usually false, and it is the assumption to state in a write-up.</p>';
       tb.innerHTML=t;

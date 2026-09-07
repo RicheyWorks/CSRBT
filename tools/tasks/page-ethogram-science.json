@@ -1,0 +1,574 @@
+{
+ "id": "page-ethogram-science",
+ "target": "page",
+ "page": "ethogram.html",
+ "goal": "Record one focal-animal continuous session on the ethogram against a clock the harness steps, so every duration is exact: forage 02:30 in two bouts (45.5% of 05:30 observed), vigilant 02:00 in two (36.4%), rest 01:00 (18.2%), 00:30 out of sight excluded from the denominator, six bouts; alarm twice and aggress once, 0.364 and 0.182 per observed minute over 5.5 min; and a transition matrix of three observed transitions, NOT four -- the pair spanning the out-of-sight gap is not a transition anybody watched. The session ran 06:20 and only 06:00 of it is in a state, which the budget now says instead of calling the second number elapsed. Then the five things this page hands over, read -- and the two observers whose ten scans give Cohen’s kappa 0.722 from 80% raw agreement against 28% expected by chance, which is the check the session was designed to be judged by.",
+ "steps": [
+  {
+   "id": "look",
+   "action": "observe"
+  },
+  {
+   "id": "des",
+   "action": "show-pane",
+   "arguments": {
+    "pane": "p-des"
+   }
+  },
+  {
+   "id": "focal",
+   "action": "activate",
+   "arguments": {
+    "selector": "@control:dSample/focal animal"
+   }
+  },
+  {
+   "id": "cont",
+   "action": "activate",
+   "arguments": {
+    "selector": "@control:dRecord/continuous"
+   }
+  },
+  {
+   "id": "scan",
+   "action": "set-text",
+   "arguments": {
+    "selector": "@control:timeEntry/scan / interval",
+    "value": "60"
+   }
+  },
+  {
+   "id": "len",
+   "action": "set-text",
+   "arguments": {
+    "selector": "@control:timeEntry/session length",
+    "value": "20"
+   }
+  },
+  {
+   "id": "obs",
+   "action": "set-text",
+   "arguments": {
+    "selector": "@control:dObs",
+    "value": "R. Wright"
+   }
+  },
+  {
+   "id": "date",
+   "action": "set-text",
+   "arguments": {
+    "selector": "@control:dDate",
+    "value": "2026-09-07"
+   }
+  },
+  {
+   "id": "site",
+   "action": "set-text",
+   "arguments": {
+    "selector": "@control:dSite",
+    "value": "Bear Cr. meadow"
+   }
+  },
+  {
+   "id": "sp",
+   "action": "set-text",
+   "arguments": {
+    "selector": "@control:dSp",
+    "value": "Marmota flaviventris"
+   }
+  },
+  {
+   "id": "cond",
+   "action": "set-text",
+   "arguments": {
+    "selector": "@control:dCond",
+    "value": "Overcast, 14 C, light wind. Group of six, two juveniles. Observed from 40 m with 10x42."
+   }
+  },
+  {
+   "id": "subj",
+   "action": "set-text",
+   "arguments": {
+    "selector": "@control:sNew",
+    "value": "F-blue"
+   }
+  },
+  {
+   "id": "addsubj",
+   "action": "activate",
+   "arguments": {
+    "selector": "@control:sAdd"
+   }
+  },
+  {
+   "id": "bname",
+   "action": "set-text",
+   "arguments": {
+    "selector": "@control:eName",
+    "value": "sun-bask"
+   }
+  },
+  {
+   "id": "bcode",
+   "action": "set-text",
+   "arguments": {
+    "selector": "@control:eCode",
+    "value": "BSK"
+   }
+  },
+  {
+   "id": "bkind",
+   "action": "activate",
+   "arguments": {
+    "selector": "@control:kindEntry/state"
+   }
+  },
+  {
+   "id": "bdesc",
+   "action": "set-text",
+   "arguments": {
+    "selector": "@control:eDesc",
+    "value": "Lying with the flank or belly presented to the sun, limbs extended, not feeding, grooming or moving. Ends when the animal rises or rolls out of the sun."
+   }
+  },
+  {
+   "id": "baddb",
+   "action": "activate",
+   "arguments": {
+    "selector": "@control:eAdd"
+   }
+  },
+  {
+   "id": "etho",
+   "action": "read-report",
+   "expect": {
+    "output.boxes.ethoStat": "16 behaviours — 8 states, 8 events.",
+    "output.boxes.ethoList": {
+     "op": "contains",
+     "value": "sun-bask"
+    }
+   }
+  },
+  {
+   "id": "t0",
+   "action": "set-clock",
+   "arguments": {
+    "at": "2026-09-07T09:00:00Z"
+   }
+  },
+  {
+   "id": "rec",
+   "action": "show-pane",
+   "arguments": {
+    "pane": "p-rec"
+   }
+  },
+  {
+   "id": "start",
+   "action": "activate",
+   "arguments": {
+    "selector": "@control:rStart"
+   }
+  },
+  {
+   "id": "c0",
+   "action": "set-clock",
+   "arguments": {
+    "at": "2026-09-07T09:00:20Z"
+   }
+  },
+  {
+   "id": "p0",
+   "action": "activate",
+   "arguments": {
+    "selector": "@control:stateGrid/forage"
+   }
+  },
+  {
+   "id": "c1",
+   "action": "set-clock",
+   "arguments": {
+    "at": "2026-09-07T09:01:35Z"
+   }
+  },
+  {
+   "id": "p1",
+   "action": "activate",
+   "arguments": {
+    "selector": "@control:stateGrid/vigilant"
+   }
+  },
+  {
+   "id": "c2",
+   "action": "set-clock",
+   "arguments": {
+    "at": "2026-09-07T09:02:20Z"
+   }
+  },
+  {
+   "id": "p2",
+   "action": "activate",
+   "arguments": {
+    "selector": "@control:eventGrid/aggress"
+   }
+  },
+  {
+   "id": "c3",
+   "action": "set-clock",
+   "arguments": {
+    "at": "2026-09-07T09:02:35Z"
+   }
+  },
+  {
+   "id": "p3",
+   "action": "activate",
+   "arguments": {
+    "selector": "@control:stateGrid/forage"
+   }
+  },
+  {
+   "id": "c4",
+   "action": "set-clock",
+   "arguments": {
+    "at": "2026-09-07T09:03:20Z"
+   }
+  },
+  {
+   "id": "p4",
+   "action": "activate",
+   "arguments": {
+    "selector": "@control:eventGrid/alarm"
+   }
+  },
+  {
+   "id": "c5",
+   "action": "set-clock",
+   "arguments": {
+    "at": "2026-09-07T09:03:50Z"
+   }
+  },
+  {
+   "id": "p5",
+   "action": "activate",
+   "arguments": {
+    "selector": "@control:stateGrid/out of sight"
+   }
+  },
+  {
+   "id": "c6",
+   "action": "set-clock",
+   "arguments": {
+    "at": "2026-09-07T09:04:20Z"
+   }
+  },
+  {
+   "id": "p6",
+   "action": "activate",
+   "arguments": {
+    "selector": "@control:stateGrid/rest"
+   }
+  },
+  {
+   "id": "c7",
+   "action": "set-clock",
+   "arguments": {
+    "at": "2026-09-07T09:05:20Z"
+   }
+  },
+  {
+   "id": "p7",
+   "action": "activate",
+   "arguments": {
+    "selector": "@control:stateGrid/vigilant"
+   }
+  },
+  {
+   "id": "c8",
+   "action": "set-clock",
+   "arguments": {
+    "at": "2026-09-07T09:05:50Z"
+   }
+  },
+  {
+   "id": "p8",
+   "action": "activate",
+   "arguments": {
+    "selector": "@control:eventGrid/alarm"
+   }
+  },
+  {
+   "id": "cstop",
+   "action": "set-clock",
+   "arguments": {
+    "at": "2026-09-07T09:06:20Z"
+   }
+  },
+  {
+   "id": "stop",
+   "action": "activate",
+   "arguments": {
+    "selector": "@control:rStop"
+   }
+  },
+  {
+   "id": "bud",
+   "action": "show-pane",
+   "arguments": {
+    "pane": "p-bud"
+   }
+  },
+  {
+   "id": "tiles",
+   "action": "read-report",
+   "expect": {
+    "output.by.budBox.elapsed": "06:20",
+    "output.by.budBox.observed": "05:30",
+    "output.by.budBox.out of sight": "00:30",
+    "output.by.budBox.bouts": "6"
+   }
+  },
+  {
+   "id": "table",
+   "action": "read-report",
+   "expect": {
+    "output.tables.budBox.1.0": "forage",
+    "output.tables.budBox.1.1": "02:30",
+    "output.tables.budBox.1.2": "45.5%",
+    "output.tables.budBox.1.3": "2",
+    "output.tables.budBox.1.4": "01:15",
+    "output.tables.budBox.2.0": "vigilant",
+    "output.tables.budBox.2.1": "02:00",
+    "output.tables.budBox.2.2": "36.4%",
+    "output.tables.budBox.2.3": "2",
+    "output.tables.budBox.2.4": "01:00",
+    "output.tables.budBox.3.0": "rest",
+    "output.tables.budBox.3.1": "01:00",
+    "output.tables.budBox.3.2": "18.2%",
+    "output.tables.budBox.3.3": "1",
+    "output.tables.budBox.3.4": "01:00"
+   }
+  },
+  {
+   "id": "rates",
+   "action": "read-report",
+   "expect": {
+    "output.tables.rateBox.1.0": "alarm",
+    "output.tables.rateBox.1.1": "2",
+    "output.tables.rateBox.1.2": "0.364",
+    "output.tables.rateBox.1.3": "21.8",
+    "output.tables.rateBox.2.0": "aggress",
+    "output.tables.rateBox.2.1": "1",
+    "output.tables.rateBox.2.2": "0.182",
+    "output.tables.rateBox.2.3": "10.9",
+    "output.boxes.rateBox": {
+     "op": "contains",
+     "value": "per minute of observed time (5.5 min)"
+    }
+   }
+  },
+  {
+   "id": "trans",
+   "action": "read-report",
+   "expect": {
+    "output.boxes.transBox": {
+     "op": "contains",
+     "value": "Thin rows."
+    },
+    "output.tables.transBox.1.0": "forage",
+    "output.tables.transBox.1.1": "—",
+    "output.tables.transBox.1.2": "100%",
+    "output.tables.transBox.1.3": "·",
+    "output.tables.transBox.1.4": "1",
+    "output.tables.transBox.2.0": "vigilant",
+    "output.tables.transBox.2.1": "100%",
+    "output.tables.transBox.2.2": "—",
+    "output.tables.transBox.2.3": "·",
+    "output.tables.transBox.2.4": "1",
+    "output.tables.transBox.3.0": "rest",
+    "output.tables.transBox.3.1": "·",
+    "output.tables.transBox.3.2": "100%",
+    "output.tables.transBox.3.3": "—",
+    "output.tables.transBox.3.4": "1"
+   }
+  },
+  {
+   "id": "csv",
+   "action": "activate",
+   "arguments": {
+    "selector": "@control:csvCopy"
+   }
+  },
+  {
+   "id": "csvout",
+   "action": "collect-output",
+   "expect": {
+    "output.payloads.0.k": {
+     "op": "in",
+     "value": [
+      "copy",
+      "clipboard",
+      "download",
+      "print"
+     ]
+    },
+    "output.payloads.0.text": {
+     "op": "contains",
+     "value": "record_type,subject,behaviour,code,kind,t_start_s,t_end_s,duration_s,scan_or_interval"
+    },
+    "output.payloads.0.text#2": {
+     "op": "contains",
+     "value": "state,subject 1,forage,FOR,state,20.0,95.0,75.0,"
+    }
+   }
+  },
+  {
+   "id": "ecoc",
+   "action": "activate",
+   "arguments": {
+    "selector": "@control:ecoCopy"
+   }
+  },
+  {
+   "id": "ecoout",
+   "action": "collect-output",
+   "expect": {
+    "output.payloads.0.text": {
+     "op": "contains",
+     "value": "  forage              02:30   45.5%   2 bouts"
+    },
+    "output.payloads.0.text#2": {
+     "op": "contains",
+     "value": "  vigilant            02:00   36.4%   2 bouts"
+    },
+    "output.payloads.0.text#3": {
+     "op": "contains",
+     "value": "  rest                01:00   18.2%   1 bouts"
+    },
+    "output.payloads.0.text#4": {
+     "op": "contains",
+     "value": "# observer: R. Wright   date: 2026-09-07   site: Bear Cr. meadow"
+    },
+    "output.payloads.0.text#5": {
+     "op": "contains",
+     "value": "# design: focal animal sampling, continuous recording"
+    }
+   }
+  },
+  {
+   "id": "budc",
+   "action": "activate",
+   "arguments": {
+    "selector": "@control:budCopy"
+   }
+  },
+  {
+   "id": "budout",
+   "action": "collect-output",
+   "expect": {
+    "output.payloads.0.text": {
+     "op": "contains",
+     "value": "behaviour,kind,measure,value,denominator"
+    }
+   }
+  },
+  {
+   "id": "packe",
+   "action": "activate",
+   "arguments": {
+    "selector": "@control:packExport"
+   }
+  },
+  {
+   "id": "packout",
+   "action": "collect-output",
+   "expect": {
+    "output.payloads.0.text": {
+     "op": "contains",
+     "value": "sun-bask"
+    }
+   }
+  },
+  {
+   "id": "packp",
+   "action": "activate",
+   "arguments": {
+    "selector": "@control:packPrompt"
+   }
+  },
+  {
+   "id": "promptout",
+   "action": "collect-output",
+   "expect": {
+    "output.payloads.0.text": {
+     "op": "contains",
+     "value": "ethogram"
+    }
+   }
+  },
+  {
+   "id": "rel",
+   "action": "show-pane",
+   "arguments": {
+    "pane": "p-rel"
+   }
+  },
+  {
+   "id": "ka",
+   "action": "set-text",
+   "arguments": {
+    "selector": "@control:kA",
+    "value": "F F V R L F V V R F"
+   }
+  },
+  {
+   "id": "kb",
+   "action": "set-text",
+   "arguments": {
+    "selector": "@control:kB",
+    "value": "F V V R L F V R R F"
+   }
+  },
+  {
+   "id": "kgo",
+   "action": "activate",
+   "arguments": {
+    "selector": "@control:kGo"
+   }
+  },
+  {
+   "id": "kappa",
+   "action": "read-report",
+   "expect": {
+    "output.by.kOut.Cohen's κ": "0.722",
+    "output.by.kOut.raw agreement": "80.0%",
+    "output.by.kOut.expected by chance": "28.0%",
+    "output.by.kOut.samples": "10",
+    "output.by.kOut.categories": "4",
+    "output.boxes.kMatrix": {
+     "op": "contains",
+     "value": "commonest disagreement"
+    }
+   }
+  },
+  {
+   "id": "after",
+   "action": "read-report",
+   "expect": {
+    "output.by.budBox.observed": "05:30",
+    "output.tables.budBox.1.0": "forage"
+   }
+  },
+  {
+   "id": "intact",
+   "action": "read-page",
+   "expect": {
+    "output.junk": null,
+    "output.errors": {
+     "op": "==",
+     "value": []
+    },
+    "output.overflow": 0
+   }
+  }
+ ]
+}

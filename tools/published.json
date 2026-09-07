@@ -3,9 +3,9 @@
   "observed": {},
   "pages": {
     "_harness-board.html": {
-      "at": 1788783738,
+      "at": 1788817508,
       "dated_by": "the fetch time the reader reported -- about the fetch, not about the version",
-      "sha": "b57f0f05144f64b3a357f256db8f04cffd7b0e45c33e4ca785310c7abfc7a70b",
+      "sha": "7961d9277ba89de15afc906526d8d1eeeb34aa275f5e7df6b0d342ae0377e092",
       "via": "read"
     },
     "adr-031.html": {
@@ -129,9 +129,9 @@
       "via": "read"
     },
     "ethogram.html": {
-      "at": 1788757045,
+      "at": 1788815125,
       "dated_by": "the version epoch in the filename",
-      "sha": "889d404fc6434e066825bd54cb993a3a818fc2eeb657978ffb9726c0f8d98b84",
+      "sha": "da5ed2fc24f88d3e4a496e0a3954a2330cf40fa74795a4935470f98c85c7117f",
       "via": "read"
     },
     "experiment-guide.html": {
