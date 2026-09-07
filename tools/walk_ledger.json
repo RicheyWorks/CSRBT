@@ -233,7 +233,7 @@
   },
   "csrbt-organism": {
    "accounted": 956,
-   "at": 1788334375,
+   "at": 1788769357,
    "commands": 956,
    "failures": [],
    "forbidden": [],
@@ -500,18 +500,18 @@
      "max": 7657,
      "median": 0,
      "n": 895,
-     "p95": 12,
-     "total": 20208
+     "p95": 11,
+     "total": 20244
     },
     "snapshotMs": {
      "max": 10,
      "median": 0,
      "n": 895,
      "p95": 2,
-     "total": 350
+     "total": 325
     }
    },
-   "protocolVersion": "1.2",
+   "protocolVersion": "1.5",
    "rounds": 8,
    "seconds": 21.7,
    "seed": 2026,

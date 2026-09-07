@@ -373,6 +373,60 @@ FEK picker through its filter; a task names a control the page's way with
 tasks — one per data-entry page — enter data and hold the report to a
 hand-checked oracle; a page canary is refuted; 1,316 expectations confirmed.
 
+ADR-152 FOUND A TOOL THAT ONLY WORKED FOR THE ROBOT. `collect-output` is one of
+the 22 actions the page plugin PUBLISHES: it is in the manifest, every task may
+call it, and it is the only way to read what leaves a page through a Copy button,
+a download or a print. What it reads is `window.__S`, and `window.__S` was
+installed by tools/swarm.py as an init script on the context THE ROBOT BUILDS.
+Every other caller -- a task, an audit, a suite, a person driving the gateway by
+hand -- got a page with no capture on it, and the action answered "0 payload(s)":
+NOT AN ERROR, NOT A REFUSAL, but exactly what a page that copied nothing says. A
+tool cannot fail more quietly than by returning the successful answer for the
+other case. 19 pages in this kit carry a Copy, Download, Export or Print button,
+80 of them in all, and NO TASK HAD EVER READ ONE -- and in this kit the button is
+the product: the collection sheet's Darwin Core export, the guide's .eco
+protocol, the ethogram's budget CSV, the deployment log's "thing a reviewer asks
+for and the thing nobody writes down". THE FIX puts the capture in
+harness_plugin_page beside the action that reads it, with swarm importing it, and
+the plugin installs it BOTH as a context init script (so it survives open and
+reload) AND by evaluation into the page that is already open (the ordinary case,
+where an init script added now would not run until the next navigation) --
+guarded, because a second install starts a fresh buffer, throwing away payloads
+nobody has collected, and wraps every wrapper around its own wrapper so each
+toast counts twice with nothing to say so. One more thing had to change: the copy
+hook was installed on DOMContentLoaded, which is free when the script always runs
+first and is NEVER INSTALLED AT ALL when it runs into a page that has already
+loaded -- so the retrofit would have caught downloads and prints and quietly
+missed the one output most of this kit produces. THE SIXTH PAGE TAKEN WHOLE is
+deployment-log.html, the largest data-entry gap left since ADR-150 at 17 of 37,
+three instruments and a log whose product is mostly refusals: a sample rate that
+cannot survey bats, a card that fills before you come back, a clock 10.3 km of
+sound out, a converted camera that cannot produce NDVI, a logger reading its own
+casing. The twenty fields nothing had filled were the RECORD fields, which is not
+a coincidence -- they carry no arithmetic, so no expectation ever needed them,
+and they are the entire point of a deployment log. 17 -> 37 OF 37 FIELDS, 101 ->
+170 confirmed, 101 -> 139 steps, and the kit 385 -> 405 of 520 (74% -> 78%). FOUR
+BRANCHES NOTHING HAD REACHED: the field sheet prints a coords line only when both
+latitude and longitude are there and nothing had ever put either in; the firmware
+box emits a literal "?" into the log when blank, on a page that says in its own
+prose that firmware is not bookkeeping; the two skies the page treats as GOOD --
+fully overcast and clear -- were never asked for, only the broken-cloud warning;
+and every GSD the task had ever held came from one of the three sensors on the
+dial, which fills all four optics boxes at once, so the four inputs beside it --
+the ones a reader with any other camera has to fill in -- had never had a number
+put in them, and typed by hand they give 2.10 cm/px, an 84x63 m footprint, 40
+lines and 2,153 images, and at 20 m/s a refusal (ONE IMAGE EVERY 0.47 S) no task
+had ever made the page say. And the deployment CSV is read off the Copy button by
+collect-output, the first output any task has ever held. verify_report 109,
+mutate_report 64. Held: 79 of the 80 buttons are still unread -- what changed is
+that reading them is now possible, which is a worklist and the obvious next
+slice; the capture is installed by the plugin, so it covers every route the kit
+uses and is not a claim about every possible one; and the flight row records the
+sensor's LABEL from the dial and the GSD from the numbers in the boxes, so with
+hand-typed optics those two describe different cameras -- the page has always
+done this and the task now holds it, which is the first step to deciding whether
+it should.
+
 ADR-151 ASKED THE QUESTION OF EVERY NUMBER BOX IN THE KIT, which ADR-150 had
 found by hand on one page and written down as a worklist. An `<input type=number>`
 holds a value the page reads and a raw keystroke buffer the page cannot see, and

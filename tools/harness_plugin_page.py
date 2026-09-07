@@ -780,6 +780,148 @@ SET_CHECK = r"""
 
 OPEN_PANES = "() => [...document.querySelectorAll('.pane.on')].map(p => p.id)"
 
+# A TOOL THAT ONLY WORKED FOR THE ROBOT (ADR-152). `collect-output` is
+# published by THIS plugin -- it is in the manifest, every task may call it, and
+# it is the only way to read what leaves a page through a Copy button, a
+# download or a print. What it reads is `window.__S`, and `window.__S` was
+# installed by tools/swarm.py, as an init script, on the context the ROBOT
+# builds. Any other caller -- a task, an audit, a suite, a person driving the
+# gateway by hand -- got a page with no __S at all, and `collect-output`
+# answered "0 payload(s)": the same answer a page that emitted nothing gives.
+# So every Copy button, every download and every print in a 41-page kit whose
+# pages produce their real product through exactly those buttons was unreadable
+# to every task, and nothing said so. The capture belongs with the tool that
+# reads it; swarm.py imports CATCH from here, because a rule written twice is a
+# rule that drifts.
+CATCH = r"""
+// INSTALLED ONCE PER WINDOW. It is now added both as a context init script
+// (so it survives open and reload) and evaluated straight into a page that is
+// already loaded, and installing the wrappers twice would double-count every
+// toast and re-wrap Blob around its own wrapper.
+if (!window.__S) {
+window.__S = { out: [], toasts: 0, choosers: 0, lastChooser: "" };
+(function () {
+  var map = {};
+  // A toast raised while an identical toast is still on screen changes nothing
+  // any observer of the DOM can see: the class is already there, so adding it
+  // again is not a mutation. Twelve live controls were accused of being wired
+  // to nothing for exactly this reason (ADR-100). Count the raise where it
+  // happens -- at the call -- rather than hoping to see its result.
+  try {
+    var TA = DOMTokenList.prototype.add;
+    DOMTokenList.prototype.add = function () {
+      try {
+        if (this.contains("toast") &&
+            Array.prototype.indexOf.call(arguments, "on") >= 0)
+          window.__S.toasts++;
+      } catch (e) { }
+      return TA.apply(this, arguments);
+    };
+  } catch (e) { }
+  try {
+    var NB = window.Blob;
+    var WB = function (parts, opts) {
+      var b = new NB(parts || [], opts);
+      try { b.__t = (parts || []).map(String).join(""); } catch (e) { }
+      return b;
+    };
+    WB.prototype = NB.prototype;
+    window.Blob = WB;
+    var CO = URL.createObjectURL.bind(URL);
+    URL.createObjectURL = function (b) {
+      var u = CO(b);
+      try { map[u] = b.__t || ""; } catch (e) { }
+      return u;
+    };
+  } catch (e) { }
+  var push = function (k, name, text) {
+    window.__S.out.push({ k: k, name: String(name || "").slice(0, 80),
+                          text: String(text == null ? "" : text).slice(0, 40000) });
+  };
+  // A page cannot be asked where its drop zones are: a drop listener leaves no
+  // mark in the markup and no CSS selector finds it. Three pages in this kit
+  // take photos and data by drag-and-drop and the harness had never dropped
+  // anything on any of them. Stamp the element as the listener is registered.
+  try {
+    var AEL = EventTarget.prototype.addEventListener;
+    EventTarget.prototype.addEventListener = function (type, fn, opt) {
+      try {
+        if (type === "drop") {
+          if (this.setAttribute && this.nodeType === 1) this.setAttribute("data-h-drop", "1");
+          // A page whose drop target is the WINDOW had no element to stamp, so
+          // it published no drop zone and the harness could not drop anything
+          // on it at all -- which is how the interactive lab's "drop a session
+          // anywhere to reload" went undriven through four ADRs (ADR-135). The
+          // surface a reader drops onto is then the page itself.
+          else if (this === window || this === document) {
+            var mark = function () {
+              if (document.body && !document.body.hasAttribute("data-h-drop"))
+                document.body.setAttribute("data-h-drop", "1");
+            };
+            mark();
+            if (document.readyState === "loading")
+              document.addEventListener("DOMContentLoaded", mark);
+          }
+        }
+      } catch (e) { }
+      return AEL.call(this, type, fn, opt);
+    };
+  } catch (e) { }
+
+  // A button whose whole job is to open the file chooser does nothing else, and
+  // was being judged as an Add that added no row. Opening the chooser IS its
+  // result, so record it as one.
+  try {
+    var IC = HTMLInputElement.prototype.click;
+    HTMLInputElement.prototype.click = function () {
+      try {
+        if (this.type === "file") {
+          window.__S.choosers++;
+          window.__S.lastChooser = this.getAttribute("data-h") || this.id || "";
+          return;                          /* the native dialog never opens */
+        }
+      } catch (e) { }
+      return IC.apply(this, arguments);
+    };
+  } catch (e) { }
+
+  var AC = HTMLAnchorElement.prototype.click;
+  HTMLAnchorElement.prototype.click = function () {
+    if (this.hasAttribute("download")) {
+      var t = map[this.href] || "";
+      if (!t && this.href.slice(0, 5) === "data:") {
+        try { t = decodeURIComponent(this.href.split(",").slice(1).join(",")); } catch (e) { }
+      }
+      push("download", this.getAttribute("download"), t);
+      return;                            /* captured, not followed */
+    }
+    return AC.apply(this, arguments);
+  };
+  try {
+    Object.defineProperty(navigator, "clipboard", { configurable: true, value: {
+      writeText: function (s) { push("clipboard", "", s); return Promise.resolve(); } } });
+  } catch (e) { }
+  window.print = function () { push("print", "", ""); };
+  // A COPY IS CAUGHT WHETHER THIS RAN BEFORE THE DOCUMENT OR AFTER IT (ADR-152).
+  // As an init script this always ran before DOMContentLoaded, so waiting for
+  // that event was free; evaluated into a page that has already loaded, the
+  // event has been and gone and the hook was never installed at all -- and the
+  // one action this whole file exists to serve, collect-output, came back
+  // empty with nothing to say it had not been listening.
+  var hook = function () {
+    var oe = document.execCommand;
+    document.execCommand = function (c) {
+      if (c === "copy") { push("copy", "", String(window.getSelection())); return true; }
+      return oe ? oe.apply(document, arguments) : false;
+    };
+  };
+  if (document.readyState === "loading")
+    document.addEventListener("DOMContentLoaded", hook);
+  else hook();
+})();
+}
+"""
+
 TAKE_OUT = "() => (window.__S ? window.__S.out.splice(0) : [])"
 
 
@@ -797,6 +939,7 @@ class PagePlugin(Plugin):
         self._env = {}
         self.page = page
         self.name = name
+        self._catch()
         # ADR-100's kind list plus whatever the caller adds. It is a parameter
         # rather than an edit to harness.py so that widening what the swarm sees
         # does not silently restate the harness's own published ledger.
@@ -1055,6 +1198,29 @@ class PagePlugin(Plugin):
         return pools
 
     # -- execution ----------------------------------------------------------
+    def _catch(self):
+        """Install the payload capture this plugin's collect-output reads.
+
+        BOTH WAYS, AND NEITHER IS ENOUGH ALONE. As a context init script it
+        survives `open` and `reload`, which is what a session that navigates
+        needs; evaluated into the page that is already loaded, it covers the
+        ordinary case of a plugin built around a page somebody has just opened,
+        where an init script added now would not run until the next navigation.
+        The script guards itself, so the two together install one copy.
+
+        Never raises. A capture that could not be installed leaves
+        collect-output answering exactly what it answered before this existed,
+        and a plugin that refused to be constructed over it would be worse.
+        """
+        try:
+            self.page.context.add_init_script(CATCH)
+        except Exception:
+            pass
+        try:
+            self.page.evaluate("() => { %s }" % CATCH)
+        except Exception:
+            pass
+
     def _reinstall(self):
         """Make this session's environment survive the next navigation.
 

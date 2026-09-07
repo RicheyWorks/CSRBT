@@ -614,6 +614,129 @@ with sync_playwright() as pw:
     ctx.close()
     b.close()
 
+# ---- E. what leaves the page, for a caller who is not the robot (ADR-152) ----
+#
+# `collect-output` is published by the page plugin. What it reads -- window.__S
+# -- was installed by tools/swarm.py, on the context the ROBOT builds, so every
+# other caller got a page with no capture at all and the action answered
+# "0 payload(s)": the same answer a page that emitted nothing gives. This
+# fixture is driven by a plugin built the way a task's runner builds one.
+OUT_FIXTURE = u"""<!doctype html><html><head><meta charset="utf-8"><title>outputs</title></head><body>
+<h1>outputs</h1>
+<div id="toast" class="toast"></div>
+<button id="copy" type="button">Copy the sheet</button>
+<button id="dl" type="button">Download the sheet</button>
+<button id="pr" type="button">Print</button>
+<pre id="anSheet">kind,id\nrecorder,AM-014</pre>
+<script>
+  var $ = function(i){ return document.getElementById(i); };
+  $("copy").addEventListener("click", function(){
+    /* the hidden-textarea pattern: what every Copy button in this kit does */
+    var a = document.createElement("textarea"); a.value = $("anSheet").textContent;
+    a.style.position="fixed"; a.style.opacity="0";
+    document.body.appendChild(a); a.select();
+    try { document.execCommand("copy"); } catch(e){}
+    document.body.removeChild(a);
+    $("toast").classList.add("on");
+  });
+  $("dl").addEventListener("click", function(){
+    var blob = new Blob([$("anSheet").textContent], {type:"text/csv"});
+    var a = document.createElement("a");
+    a.href = URL.createObjectURL(blob); a.download = "sheet.csv";
+    document.body.appendChild(a); a.click(); document.body.removeChild(a);
+  });
+  $("pr").addEventListener("click", function(){ window.print(); });
+</script></body></html>
+"""
+ofx = os.path.join(tmp, "outputs.html")
+io.open(ofx, "w", encoding="utf-8").write(OUT_FIXTURE)
+
+with sync_playwright() as pw:
+    b = pw.chromium.launch()
+    ctx = b.new_context(viewport=H.VIEWPORT)
+    ctx.set_offline(True)
+    ctx.add_init_script(H.STUBS)          # the environment stubs, and NOT the capture
+    pg = ctx.new_page()
+    pg.goto("file://" + ofx.replace(os.sep, "/"), wait_until="domcontentloaded")
+    pg.wait_for_timeout(120)
+    ck(pg.evaluate("() => !!window.__S") is False,
+       "the page starts with no capture on it: this fixture is loaded the way a task's page is, "
+       "not the way the robot's is")
+
+    plug = PP.PagePlugin(pg, "outputs.html")
+    ck(pg.evaluate("() => !!window.__S") is True,
+       "constructing the plugin installs the capture INTO THE PAGE THAT IS ALREADY OPEN -- an init "
+       "script added now would not run until the next navigation, and the ordinary case is a plugin "
+       "built around a page somebody has just opened")
+
+    snap = plug.observe(sensitive=True)
+    sel = dict((c["label"], c["selector"]) for c in snap["controls"])
+
+    plug.execute("activate", {"selector": sel["Copy the sheet"]})
+    ok, msg, out = plug.execute("collect-output", {})
+    pay = out["payloads"]
+    ck(ok and len(pay) == 1 and pay[0]["k"] == "copy",
+       "a Copy button is read by collect-output for a caller that is not the robot -- until ADR-152 "
+       "this answered 0 payload(s), which is what a page that copied nothing answers: %s" % pay)
+    ck(pay and "recorder,AM-014" in pay[0]["text"],
+       "...and the payload is what the page put on the clipboard, not the name of the button: %s"
+       % (pay[0]["text"][:60] if pay else None))
+
+    ok, _, out = plug.execute("collect-output", {})
+    ck(out["payloads"] == [],
+       "collect-output TAKES the payloads: reading them twice does not report them twice")
+
+    plug.execute("activate", {"selector": sel["Download the sheet"]})
+    ok, _, out = plug.execute("collect-output", {})
+    ck(out["payloads"] and out["payloads"][0]["k"] == "download"
+       and out["payloads"][0]["name"] == "sheet.csv"
+       and "recorder,AM-014" in out["payloads"][0]["text"],
+       "a Blob download is captured with its filename and its bytes, and not followed -- the run "
+       "stays on the page: %s" % out["payloads"])
+    ck(pg.url.endswith("outputs.html"), "...which is why the page is still the page: %s" % pg.url[-30:])
+
+    plug.execute("activate", {"selector": sel["Print"]})
+    ok, _, out = plug.execute("collect-output", {})
+    ck(out["payloads"] and out["payloads"][0]["k"] == "print",
+       "and a print is an output too: %s" % out["payloads"])
+
+    # ONE CAPTURE PER WINDOW. It is installed both as an init script and by
+    # evaluation, and a second plugin over the same page must install neither
+    # again -- a re-install throws away the payloads nobody has collected yet
+    # and wraps every wrapper around itself.
+    plug.execute("activate", {"selector": sel["Copy the sheet"]})   # left uncollected
+    before = pg.evaluate("() => window.__S.toasts")
+    plug2 = PP.PagePlugin(pg, "outputs.html")
+    ck(pg.evaluate("() => window.__S.toasts") == before,
+       "a second plugin over the same page does not install the capture twice: a re-install starts "
+       "a fresh __S, so the count of what has already happened would go backwards (%s -> %s)"
+       % (before, pg.evaluate("() => window.__S.toasts")))
+    ok, _, out = plug2.execute("collect-output", {})
+    ck(len(out["payloads"]) == 1,
+       "...and a payload nobody had collected yet is still there to collect: %s" % out["payloads"])
+    plug2.execute("activate", {"selector": sel["Copy the sheet"]})
+    after = pg.evaluate("() => window.__S.toasts")
+    ck(after - before == 1,
+       "...and one press still raises one toast, not two: a wrapper wrapped around its own wrapper "
+       "counts everything twice and nothing says so (%d -> %d)" % (before, after))
+    ok, _, out = plug2.execute("collect-output", {})
+    ck(len(out["payloads"]) == 1,
+       "...and makes one payload: %s" % out["payloads"])
+
+    # AND IT SURVIVES A NAVIGATION, which is what the init script is for.
+    plug.execute("reload", {})
+    pg.wait_for_timeout(120)
+    ck(pg.evaluate("() => !!window.__S") is True,
+       "the capture is on the page after a reload as well: a session that navigates must not lose "
+       "the one tool that reads what leaves the page")
+    plug.observe(sensitive=True)
+    plug.execute("activate", {"selector": sel["Copy the sheet"]})
+    ok, _, out = plug.execute("collect-output", {})
+    ck(out["payloads"] and out["payloads"][0]["k"] == "copy",
+       "...and it still reads a copy after the reload: %s" % out["payloads"])
+    ctx.close()
+    b.close()
+
 print("---")
 print("%d/%d" % (P, P + F))
 raise SystemExit(1 if F else 0)

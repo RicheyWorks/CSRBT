@@ -756,6 +756,189 @@
    }
   },
   {
+   "id": "g152-area",
+   "action": "set-text",
+   "arguments": {
+    "selector": "@control:area",
+    "value": "25"
+   }
+  },
+  {
+   "id": "g152-speed",
+   "action": "set-text",
+   "arguments": {
+    "selector": "@control:ground speed",
+    "value": "8"
+   }
+  },
+  {
+   "id": "g152-sw",
+   "action": "set-text",
+   "arguments": {
+    "selector": "@control:fSw",
+    "value": "6.17"
+   }
+  },
+  {
+   "id": "g152-fl",
+   "action": "set-text",
+   "arguments": {
+    "selector": "@control:fFl",
+    "value": "8.8"
+   }
+  },
+  {
+   "id": "g152-pw",
+   "action": "set-text",
+   "arguments": {
+    "selector": "@control:fPw",
+    "value": "4000"
+   }
+  },
+  {
+   "id": "g152-ph",
+   "action": "set-text",
+   "arguments": {
+    "selector": "@control:fPh",
+    "value": "3000"
+   }
+  },
+  {
+   "id": "g152-custom",
+   "action": "read-report",
+   "expect": {
+    "output.by.gsdStat.GSD": "2.10 cm/px",
+    "output.by.gsdStat.footprint": "84×63 m",
+    "output.by.gsdStat.images": "2153",
+    "output.by.gsdStat.shot every": "1.2 s",
+    "output.by.gsdStat.flight lines": "40",
+    "output.by.gsdStat.flying time": "42 min",
+    "output.boxes.gsdBox": {
+     "op": "contains",
+     "value": "6.17 mm × 120 m ÷ (8.8 mm × 4000 px) = 2.10 cm/px"
+    }
+   }
+  },
+  {
+   "id": "g152-fast",
+   "action": "set-text",
+   "arguments": {
+    "selector": "@control:ground speed",
+    "value": "20"
+   }
+  },
+  {
+   "id": "g152-subsecond",
+   "action": "read-report",
+   "expect": {
+    "output.by.gsdStat.shot every": "0.5 s",
+    "output.by.gsdStat.flying time": "17 min",
+    "output.boxes.gsdBox": {
+     "op": "contains",
+     "value": "One image every 0.47 s."
+    }
+   }
+  },
+  {
+   "id": "g152-slow",
+   "action": "set-text",
+   "arguments": {
+    "selector": "@control:ground speed",
+    "value": "8"
+   }
+  },
+  {
+   "id": "g152-sky8",
+   "action": "set-text",
+   "arguments": {
+    "selector": "@control:fCloud",
+    "value": "8"
+   }
+  },
+  {
+   "id": "g152-overcast",
+   "action": "read-report",
+   "expect": {
+    "output.boxes.skyBox": {
+     "op": "contains",
+     "value": "Fully overcast"
+    }
+   }
+  },
+  {
+   "id": "g152-sky0",
+   "action": "set-text",
+   "arguments": {
+    "selector": "@control:fCloud",
+    "value": "0"
+   }
+  },
+  {
+   "id": "g152-clear",
+   "action": "read-report",
+   "expect": {
+    "output.boxes.skyBox": {
+     "op": "contains",
+     "value": "Clear sky"
+    }
+   }
+  },
+  {
+   "id": "g152-sky4",
+   "action": "set-text",
+   "arguments": {
+    "selector": "@control:fCloud",
+    "value": "4"
+   }
+  },
+  {
+   "id": "g152-fid",
+   "action": "set-text",
+   "arguments": {
+    "selector": "@control:fId",
+    "value": "SGH-2026-08-25-a"
+   }
+  },
+  {
+   "id": "g152-pilot",
+   "action": "set-text",
+   "arguments": {
+    "selector": "@control:fPilot",
+    "value": "R. Marek"
+   }
+  },
+  {
+   "id": "g152-fdate",
+   "action": "set-text",
+   "arguments": {
+    "selector": "@control:fDate",
+    "value": "2026-08-25"
+   }
+  },
+  {
+   "id": "g152-ftime",
+   "action": "set-text",
+   "arguments": {
+    "selector": "@control:fTime",
+    "value": "09:15"
+   }
+  },
+  {
+   "id": "g152-fwind",
+   "action": "set-text",
+   "arguments": {
+    "selector": "@control:fWind",
+    "value": "5"
+   }
+  },
+  {
+   "id": "g152-addfl",
+   "action": "activate",
+   "arguments": {
+    "selector": "@control:addFl"
+   }
+  },
+  {
    "id": "lg",
    "action": "show-pane",
    "arguments": {
@@ -968,6 +1151,37 @@
    }
   },
   {
+   "id": "g152-lunit",
+   "action": "set-text",
+   "arguments": {
+    "selector": "@control:lUnit",
+    "value": "HOBO-03"
+   }
+  },
+  {
+   "id": "g152-lpos",
+   "action": "set-text",
+   "arguments": {
+    "selector": "@control:lPos",
+    "value": "1.5 m, N side of bole"
+   }
+  },
+  {
+   "id": "g152-lstart",
+   "action": "set-text",
+   "arguments": {
+    "selector": "@control:lStart",
+    "value": "2026-06-01"
+   }
+  },
+  {
+   "id": "g152-addlg",
+   "action": "activate",
+   "arguments": {
+    "selector": "@control:addLg"
+   }
+  },
+  {
    "id": "ac2",
    "action": "show-pane",
    "arguments": {
@@ -986,6 +1200,53 @@
    },
    "expect": {
     "ok": true
+   }
+  },
+  {
+   "id": "g152-asite",
+   "action": "set-text",
+   "arguments": {
+    "selector": "@control:aSite",
+    "value": "Sagehen, N bench"
+   }
+  },
+  {
+   "id": "g152-alat",
+   "action": "set-text",
+   "arguments": {
+    "selector": "@control:aLat",
+    "value": "39.4318"
+   }
+  },
+  {
+   "id": "g152-alon",
+   "action": "set-text",
+   "arguments": {
+    "selector": "@control:aLon",
+    "value": "-120.2408"
+   }
+  },
+  {
+   "id": "g152-astart",
+   "action": "set-text",
+   "arguments": {
+    "selector": "@control:aStart",
+    "value": "2026-06-01"
+   }
+  },
+  {
+   "id": "g152-afw",
+   "action": "set-text",
+   "arguments": {
+    "selector": "@control:aFw",
+    "value": "1.10.0"
+   }
+  },
+  {
+   "id": "g152-mono",
+   "action": "activate",
+   "arguments": {
+    "selector": "@control:acEntry/mono"
    }
   },
   {
@@ -1029,6 +1290,101 @@
     "output.boxes.ecoOut": {
      "op": "contains",
      "value": "[recorder]"
+    }
+   }
+  },
+  {
+   "id": "g152-three",
+   "action": "read-report",
+   "expect": {
+    "output.tables.logTable.3.0": "recorder",
+    "output.tables.logTable.1.0": "flight",
+    "output.tables.logTable.2.0": "logger",
+    "output.tables.logTable.1.1": "SGH-2026-08-25-a",
+    "output.tables.logTable.1.2": "R. Marek",
+    "output.tables.logTable.1.3": "2026-08-25 09:15",
+    "output.tables.logTable.1.4": "MicaSense RedEdge, 120 m, GSD 2.10 cm/px, 85/85% overlap",
+    "output.tables.logTable.1.5": "radiometric: panel + DLS; cloud 4 oktas; wind 5 m/s",
+    "output.tables.logTable.2.1": "HOBO-03",
+    "output.tables.logTable.2.2": "1.5 m, N side of bole",
+    "output.tables.logTable.2.4": "every 1 min, 90 d planned",
+    "output.tables.logTable.2.5": "shield: gill-type multi-plate",
+    "output.tables.logTable.3.1": "AM-014",
+    "output.tables.logTable.3.2": "Sagehen, N bench",
+    "output.tables.logTable.3.4": "sr 48 kHz, mono, 600 s in 600 s, 30 d, fw 1.10.0"
+   }
+  },
+  {
+   "id": "g152-sheet",
+   "action": "read-report",
+   "expect": {
+    "output.boxes.ecoOut": {
+     "op": "contains",
+     "value": "coords 39.4318, -120.2408"
+    }
+   }
+  },
+  {
+   "id": "g152-sheet2",
+   "action": "read-report",
+   "expect": {
+    "output.boxes.ecoOut": {
+     "op": "contains",
+     "value": "# Deployment log — 3 deployments"
+    }
+   }
+  },
+  {
+   "id": "g152-sheet3",
+   "action": "read-report",
+   "expect": {
+    "output.boxes.ecoOut": {
+     "op": "contains",
+     "value": "[flight] SGH-2026-08-25-a @ R. Marek 2026-08-25 09:15"
+    }
+   }
+  },
+  {
+   "id": "g152-sheet4",
+   "action": "read-report",
+   "expect": {
+    "output.boxes.ecoOut": {
+     "op": "contains",
+     "value": "[logger] HOBO-03 @ 1.5 m, N side of bole 2026-06-01"
+    }
+   }
+  },
+  {
+   "id": "g152-csv",
+   "action": "activate",
+   "arguments": {
+    "selector": "@control:csvCopy"
+   }
+  },
+  {
+   "id": "g152-payload",
+   "action": "collect-output",
+   "expect": {
+    "output.payloads.0.k": "copy",
+    "output.payloads.0.text": {
+     "op": "contains",
+     "value": "kind,id,site_or_pilot,latitude,longitude,date,settings,caveat"
+    }
+   }
+  },
+  {
+   "id": "g152-after",
+   "action": "read-report",
+   "expect": {
+    "output.tables.logTable.3.0": "recorder",
+    "output.tables.logTable.1.0": "flight",
+    "output.boxes.logTable": {
+     "op": "contains",
+     "value": "no SPL calibration"
+    },
+    "output.boxes.ecoOut": {
+     "op": "contains",
+     "value": "coords 39.4318, -120.2408"
     }
    }
   },

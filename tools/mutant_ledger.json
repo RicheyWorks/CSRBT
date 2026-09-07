@@ -1695,12 +1695,12 @@
    "survived": 0
   },
   "mutate_report": {
-   "at": 1788741470,
+   "at": 1788767548,
    "equivalent": 0,
    "equivalents": [],
    "inconclusive": 0,
-   "killed": 57,
-   "mutants": 57,
+   "killed": 64,
+   "mutants": 64,
    "rows": [
     {
      "detail": "5 failure(s); first: a .tile and a .stat .st are both figures: the .l/.v pair is",
@@ -1985,6 +1985,41 @@
     {
      "detail": "1 failure(s); first: a pick on a plain text input was accepted",
      "name": "anything with a search box is a picker, whatever it is inside",
+     "verdict": "killed"
+    },
+    {
+     "detail": "5 failure(s); first: constructing the plugin installs the capture INTO THE PAGE ",
+     "name": "the capture is only an init script, so a page already open never gets it",
+     "verdict": "killed"
+    },
+    {
+     "detail": "2 failure(s); first: the capture is on the page after a reload as well: a sessio",
+     "name": "the capture is only evaluated, so a reload loses it",
+     "verdict": "killed"
+    },
+    {
+     "detail": "5 failure(s); first: constructing the plugin installs the capture INTO THE PAGE ",
+     "name": "the plugin does not install the capture at all",
+     "verdict": "killed"
+    },
+    {
+     "detail": "3 failure(s); first: a second plugin over the same page does not install the cap",
+     "name": "the capture installs again over itself, doubling every count",
+     "verdict": "killed"
+    },
+    {
+     "detail": "4 failure(s); first: a Copy button is read by collect-output for a caller that i",
+     "name": "the copy hook waits for a DOMContentLoaded that has already been and gone",
+     "verdict": "killed"
+    },
+    {
+     "detail": "5 failure(s); first: collect-output TAKES the payloads: reading them twice does ",
+     "name": "collect-output reads the payloads and leaves them there",
+     "verdict": "killed"
+    },
+    {
+     "detail": "1 failure(s); first: a Blob download is captured with its filename and its bytes",
+     "name": "a download leaves no payload, so a page whose product is a file says nothing",
      "verdict": "killed"
     }
    ],

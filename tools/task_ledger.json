@@ -7102,8 +7102,8 @@
    "verdict": "PASS"
   },
   "page-deployment-log-science": {
-   "at": 1788733415,
-   "confirmed": 137,
+   "at": 1788769290,
+   "confirmed": 174,
    "goal": "On the deployment log: a 48 kHz recorder records up to 24 kHz and cannot survey bats, 192 kHz covers most of it, 384 kHz all; a 60 s in 600 s duty over 14 days at 16-bit mono 48 kHz writes 11.61 GB (10.0%, 33.6 h) and a 32 GB card lasts 39 days, 300/3600 over 30 days 20.74 GB, 60/60 over 7 days 58.06 GB, and 600/600 over 30 days (248.83 GB) fills an 8 GB card; clock drift at 1 s/day is 343 m of sound per day (10.3 km at 30 days); GSD = sensor width x altitude / (focal length x image width): RedEdge 4.17/8.33, P4 3.18/6.36, Sequoia 5.65/11.31 cm/px at 60/120 m; 70/60 overlap is below Pix4D, 85/85 meets it; a logger at 600 s over 90 days takes 12,960 readings and 84,650 memory fills after 588 days, at 60 s over 30 days with 20,000 it fills after 14 days; a logged recorder lands in the table and the .eco export.",
    "held": true,
    "id": "page-deployment-log-science",
@@ -7115,7 +7115,7 @@
     "MUTATE"
    ],
    "rungsWhy": null,
-   "seconds": 5.4,
+   "seconds": 8.0,
    "steps": [
     {
      "action": "observe",
@@ -7166,7 +7166,7 @@
      ],
      "id": "nyq",
      "message": "22 figure(s), 20 box(es), 0 list(s), 0 table(s), 22 heading(s)",
-     "ms": 6,
+     "ms": 7,
      "result": "driven"
     },
     {
@@ -7208,7 +7208,7 @@
      ],
      "id": "k192",
      "message": "activate dial_btn:3",
-     "ms": 22,
+     "ms": 23,
      "result": "driven"
     },
     {
@@ -7222,7 +7222,7 @@
      ],
      "id": "most",
      "message": "22 figure(s), 20 box(es), 0 list(s), 0 table(s), 22 heading(s)",
-     "ms": 4,
+     "ms": 5,
      "result": "driven"
     },
     {
@@ -7264,7 +7264,7 @@
      ],
      "id": "k48",
      "message": "activate dial_btn:1",
-     "ms": 22,
+     "ms": 23,
      "result": "driven"
     },
     {
@@ -7292,7 +7292,7 @@
      ],
      "id": "on60_600",
      "message": "set-text step_val:0",
-     "ms": 23,
+     "ms": 22,
      "result": "driven"
     },
     {
@@ -7320,7 +7320,7 @@
      ],
      "id": "dd60_600",
      "message": "set-text step_val:2",
-     "ms": 23,
+     "ms": 25,
      "result": "driven"
     },
     {
@@ -7377,7 +7377,7 @@
      ],
      "id": "on300_3600",
      "message": "set-text step_val:0",
-     "ms": 25,
+     "ms": 24,
      "result": "driven"
     },
     {
@@ -7391,7 +7391,7 @@
      ],
      "id": "ev300_3600",
      "message": "set-text step_val:1",
-     "ms": 26,
+     "ms": 23,
      "result": "driven"
     },
     {
@@ -7405,7 +7405,7 @@
      ],
      "id": "dd300_3600",
      "message": "set-text step_val:2",
-     "ms": 25,
+     "ms": 22,
      "result": "driven"
     },
     {
@@ -7419,7 +7419,7 @@
      ],
      "id": "cd300_3600",
      "message": "set-text step_val:3",
-     "ms": 27,
+     "ms": 22,
      "result": "driven"
     },
     {
@@ -7448,7 +7448,7 @@
      ],
      "id": "duty300_3600",
      "message": "22 figure(s), 20 box(es), 0 list(s), 0 table(s), 22 heading(s)",
-     "ms": 4,
+     "ms": 3,
      "result": "driven"
     },
     {
@@ -7462,7 +7462,7 @@
      ],
      "id": "on60_60",
      "message": "set-text step_val:0",
-     "ms": 24,
+     "ms": 27,
      "result": "driven"
     },
     {
@@ -7476,7 +7476,7 @@
      ],
      "id": "ev60_60",
      "message": "set-text step_val:1",
-     "ms": 25,
+     "ms": 22,
      "result": "driven"
     },
     {
@@ -7504,7 +7504,7 @@
      ],
      "id": "cd60_60",
      "message": "set-text step_val:3",
-     "ms": 24,
+     "ms": 26,
      "result": "driven"
     },
     {
@@ -7575,7 +7575,7 @@
      ],
      "id": "dd30",
      "message": "set-text step_val:2",
-     "ms": 22,
+     "ms": 24,
      "result": "driven"
     },
     {
@@ -7589,7 +7589,7 @@
      ],
      "id": "cd8",
      "message": "set-text step_val:3",
-     "ms": 24,
+     "ms": 23,
      "result": "driven"
     },
     {
@@ -7622,7 +7622,7 @@
      ],
      "id": "drift1",
      "message": "set-text step_val:2",
-     "ms": 23,
+     "ms": 25,
      "result": "driven"
     },
     {
@@ -7665,7 +7665,7 @@
      ],
      "id": "drift7",
      "message": "set-text step_val:2",
-     "ms": 26,
+     "ms": 22,
      "result": "driven"
     },
     {
@@ -7708,7 +7708,7 @@
      ],
      "id": "drift14",
      "message": "set-text step_val:2",
-     "ms": 25,
+     "ms": 21,
      "result": "driven"
     },
     {
@@ -7751,7 +7751,7 @@
      ],
      "id": "drift30",
      "message": "set-text step_val:2",
-     "ms": 24,
+     "ms": 23,
      "result": "driven"
     },
     {
@@ -7780,7 +7780,7 @@
      ],
      "id": "dr30",
      "message": "22 figure(s), 20 box(es), 0 list(s), 0 table(s), 22 heading(s)",
-     "ms": 4,
+     "ms": 5,
      "result": "driven"
     },
     {
@@ -7794,7 +7794,7 @@
      ],
      "id": "spl",
      "message": "22 figure(s), 20 box(es), 0 list(s), 0 table(s), 22 heading(s)",
-     "ms": 4,
+     "ms": 3,
      "result": "driven"
     },
     {
@@ -7808,7 +7808,7 @@
      ],
      "id": "fl",
      "message": "opened pane p-fl",
-     "ms": 147,
+     "ms": 157,
      "result": "driven"
     },
     {
@@ -7822,7 +7822,7 @@
      ],
      "id": "cam-MicaSense",
      "message": "activate dial_btn:12",
-     "ms": 26,
+     "ms": 25,
      "result": "driven"
     },
     {
@@ -7836,7 +7836,7 @@
      ],
      "id": "altMicaSense60",
      "message": "set-text step_val:4",
-     "ms": 22,
+     "ms": 23,
      "result": "driven"
     },
     {
@@ -7864,7 +7864,7 @@
      ],
      "id": "altMicaSense120",
      "message": "set-text step_val:4",
-     "ms": 23,
+     "ms": 25,
      "result": "driven"
     },
     {
@@ -7878,7 +7878,7 @@
      ],
      "id": "gsdMicaSense120",
      "message": "22 figure(s), 20 box(es), 0 list(s), 0 table(s), 22 heading(s)",
-     "ms": 3,
+     "ms": 4,
      "result": "driven"
     },
     {
@@ -7892,7 +7892,7 @@
      ],
      "id": "cam-P4",
      "message": "activate dial_btn:13",
-     "ms": 26,
+     "ms": 27,
      "result": "driven"
     },
     {
@@ -7906,7 +7906,7 @@
      ],
      "id": "altP460",
      "message": "set-text step_val:4",
-     "ms": 23,
+     "ms": 24,
      "result": "driven"
     },
     {
@@ -7934,7 +7934,7 @@
      ],
      "id": "altP4120",
      "message": "set-text step_val:4",
-     "ms": 25,
+     "ms": 22,
      "result": "driven"
     },
     {
@@ -7962,7 +7962,7 @@
      ],
      "id": "cam-Parrot",
      "message": "activate dial_btn:14",
-     "ms": 26,
+     "ms": 25,
      "result": "driven"
     },
     {
@@ -7976,7 +7976,7 @@
      ],
      "id": "altParrot60",
      "message": "set-text step_val:4",
-     "ms": 23,
+     "ms": 26,
      "result": "driven"
     },
     {
@@ -7990,7 +7990,7 @@
      ],
      "id": "gsdParrot60",
      "message": "22 figure(s), 20 box(es), 0 list(s), 0 table(s), 22 heading(s)",
-     "ms": 3,
+     "ms": 4,
      "result": "driven"
     },
     {
@@ -8004,7 +8004,7 @@
      ],
      "id": "altParrot120",
      "message": "set-text step_val:4",
-     "ms": 22,
+     "ms": 24,
      "result": "driven"
     },
     {
@@ -8018,7 +8018,7 @@
      ],
      "id": "gsdParrot120",
      "message": "22 figure(s), 20 box(es), 0 list(s), 0 table(s), 22 heading(s)",
-     "ms": 4,
+     "ms": 5,
      "result": "driven"
     },
     {
@@ -8032,7 +8032,7 @@
      ],
      "id": "cam-back",
      "message": "activate dial_btn:12",
-     "ms": 25,
+     "ms": 24,
      "result": "driven"
     },
     {
@@ -8046,7 +8046,7 @@
      ],
      "id": "alt120",
      "message": "set-text step_val:4",
-     "ms": 24,
+     "ms": 22,
      "result": "driven"
     },
     {
@@ -8060,7 +8060,7 @@
      ],
      "id": "formula",
      "message": "22 figure(s), 20 box(es), 0 list(s), 0 table(s), 22 heading(s)",
-     "ms": 5,
+     "ms": 4,
      "result": "driven"
     },
     {
@@ -8074,7 +8074,7 @@
      ],
      "id": "fwd70",
      "message": "set-slider slider:0",
-     "ms": 22,
+     "ms": 23,
      "result": "driven"
     },
     {
@@ -8088,7 +8088,7 @@
      ],
      "id": "side60",
      "message": "set-slider slider:1",
-     "ms": 23,
+     "ms": 26,
      "result": "driven"
     },
     {
@@ -8116,7 +8116,7 @@
      ],
      "id": "fwd85",
      "message": "set-slider slider:0",
-     "ms": 24,
+     "ms": 25,
      "result": "driven"
     },
     {
@@ -8130,7 +8130,7 @@
      ],
      "id": "side85",
      "message": "set-slider slider:1",
-     "ms": 22,
+     "ms": 25,
      "result": "driven"
     },
     {
@@ -8144,7 +8144,7 @@
      ],
      "id": "meets",
      "message": "22 figure(s), 20 box(es), 0 list(s), 0 table(s), 22 heading(s)",
-     "ms": 4,
+     "ms": 5,
      "result": "driven"
     },
     {
@@ -8158,7 +8158,7 @@
      ],
      "id": "stock",
      "message": "activate dial_btn:16",
-     "ms": 22,
+     "ms": 29,
      "result": "driven"
     },
     {
@@ -8214,7 +8214,7 @@
      ],
      "id": "incomparable",
      "message": "22 figure(s), 20 box(es), 0 list(s), 0 table(s), 22 heading(s)",
-     "ms": 4,
+     "ms": 5,
      "result": "driven"
     },
     {
@@ -8228,7 +8228,7 @@
      ],
      "id": "both",
      "message": "activate dial_btn:17",
-     "ms": 23,
+     "ms": 26,
      "result": "driven"
     },
     {
@@ -8256,7 +8256,7 @@
      ],
      "id": "cloud",
      "message": "set-text text_in:15",
-     "ms": 23,
+     "ms": 24,
      "result": "driven"
     },
     {
@@ -8274,6 +8274,238 @@
      "result": "driven"
     },
     {
+     "action": "set-text",
+     "expectations": [],
+     "id": "g152-area",
+     "message": "set-text step_val:5",
+     "ms": 25,
+     "result": "driven"
+    },
+    {
+     "action": "set-text",
+     "expectations": [],
+     "id": "g152-speed",
+     "message": "set-text step_val:6",
+     "ms": 26,
+     "result": "driven"
+    },
+    {
+     "action": "set-text",
+     "expectations": [],
+     "id": "g152-sw",
+     "message": "set-text text_in:6",
+     "ms": 24,
+     "result": "driven"
+    },
+    {
+     "action": "set-text",
+     "expectations": [],
+     "id": "g152-fl",
+     "message": "set-text text_in:7",
+     "ms": 26,
+     "result": "driven"
+    },
+    {
+     "action": "set-text",
+     "expectations": [],
+     "id": "g152-pw",
+     "message": "set-text text_in:8",
+     "ms": 23,
+     "result": "driven"
+    },
+    {
+     "action": "set-text",
+     "expectations": [],
+     "id": "g152-ph",
+     "message": "set-text text_in:9",
+     "ms": 26,
+     "result": "driven"
+    },
+    {
+     "action": "read-report",
+     "expectations": [
+      {
+       "detail": "output.by.gsdStat.GSD == '2.10 cm/px', got '2.10 cm/px'",
+       "path": "output.by.gsdStat.GSD",
+       "verdict": "CONFIRMED"
+      },
+      {
+       "detail": "output.by.gsdStat.footprint == '84\u00d763 m', got '84\u00d763 m'",
+       "path": "output.by.gsdStat.footprint",
+       "verdict": "CONFIRMED"
+      },
+      {
+       "detail": "output.by.gsdStat.images == '2153', got '2153'",
+       "path": "output.by.gsdStat.images",
+       "verdict": "CONFIRMED"
+      },
+      {
+       "detail": "output.by.gsdStat.shot every == '1.2 s', got '1.2 s'",
+       "path": "output.by.gsdStat.shot every",
+       "verdict": "CONFIRMED"
+      },
+      {
+       "detail": "output.by.gsdStat.flight lines == '40', got '40'",
+       "path": "output.by.gsdStat.flight lines",
+       "verdict": "CONFIRMED"
+      },
+      {
+       "detail": "output.by.gsdStat.flying time == '42 min', got '42 min'",
+       "path": "output.by.gsdStat.flying time",
+       "verdict": "CONFIRMED"
+      },
+      {
+       "detail": "output.boxes.gsdBox contains '6.17 mm \u00d7 120 m \u00f7 (8.8 mm \u00d7 4000 px) = 2.10 cm/px', got '85/85% overlap meets Pix4D\u2019s 85/85% recommendation for forest and dense vegetation.GSD = sensor width \u00d7 altitude \u00f7 (focal length \u00d7 image width) \u2014 6.17 mm \u00d7 120 m \u00f7 (8.8 mm \u00d7 4000 px) = 2.10 cm/px. Image counts assume a square block 500 m on a side and no turns; a real mission adds both. Flying time excludes the turns, the climb and the return, which is why it is always optimistic \u2014 treat it as a floor, not a plan.'",
+       "path": "output.boxes.gsdBox",
+       "verdict": "CONFIRMED"
+      }
+     ],
+     "id": "g152-custom",
+     "message": "22 figure(s), 20 box(es), 0 list(s), 0 table(s), 22 heading(s)",
+     "ms": 4,
+     "result": "driven"
+    },
+    {
+     "action": "set-text",
+     "expectations": [],
+     "id": "g152-fast",
+     "message": "set-text step_val:6",
+     "ms": 26,
+     "result": "driven"
+    },
+    {
+     "action": "read-report",
+     "expectations": [
+      {
+       "detail": "output.by.gsdStat.shot every == '0.5 s', got '0.5 s'",
+       "path": "output.by.gsdStat.shot every",
+       "verdict": "CONFIRMED"
+      },
+      {
+       "detail": "output.by.gsdStat.flying time == '17 min', got '17 min'",
+       "path": "output.by.gsdStat.flying time",
+       "verdict": "CONFIRMED"
+      },
+      {
+       "detail": "output.boxes.gsdBox contains 'One image every 0.47 s.', got '85/85% overlap meets Pix4D\u2019s 85/85% recommendation for forest and dense vegetation.One image every 0.47 s. Most multispectral sensors cannot sustain a sub-second interval, and a missed trigger at this overlap is a hole. Fly slower or higher.GSD = sensor width \u00d7 altitude \u00f7 (focal length \u00d7 image width) \u2014 6.17 mm \u00d7 120 m \u00f7 (8.8 mm \u00d7 4000 px) = 2.10 cm/px. Image counts assume a square block 500 m on a side and no turns; a real mission adds both. Flying time excludes the turns, the climb and the return, which is why it is always optimistic \u2014 treat it as a floor, not a plan.'",
+       "path": "output.boxes.gsdBox",
+       "verdict": "CONFIRMED"
+      }
+     ],
+     "id": "g152-subsecond",
+     "message": "22 figure(s), 20 box(es), 0 list(s), 0 table(s), 22 heading(s)",
+     "ms": 4,
+     "result": "driven"
+    },
+    {
+     "action": "set-text",
+     "expectations": [],
+     "id": "g152-slow",
+     "message": "set-text step_val:6",
+     "ms": 25,
+     "result": "driven"
+    },
+    {
+     "action": "set-text",
+     "expectations": [],
+     "id": "g152-sky8",
+     "message": "set-text text_in:15",
+     "ms": 25,
+     "result": "driven"
+    },
+    {
+     "action": "read-report",
+     "expectations": [
+      {
+       "detail": "output.boxes.skyBox contains 'Fully overcast', got 'Fully overcast \u2014 stable, diffuse light. Often the most repeatable condition to fly in, and shadows are minimal.'",
+       "path": "output.boxes.skyBox",
+       "verdict": "CONFIRMED"
+      }
+     ],
+     "id": "g152-overcast",
+     "message": "22 figure(s), 20 box(es), 0 list(s), 0 table(s), 22 heading(s)",
+     "ms": 4,
+     "result": "driven"
+    },
+    {
+     "action": "set-text",
+     "expectations": [],
+     "id": "g152-sky0",
+     "message": "set-text text_in:15",
+     "ms": 26,
+     "result": "driven"
+    },
+    {
+     "action": "read-report",
+     "expectations": [
+      {
+       "detail": "output.boxes.skyBox contains 'Clear sky', got 'Clear sky \u2014 stable illumination, strong shadows. Record the time so the shadow fraction is recoverable.'",
+       "path": "output.boxes.skyBox",
+       "verdict": "CONFIRMED"
+      }
+     ],
+     "id": "g152-clear",
+     "message": "22 figure(s), 20 box(es), 0 list(s), 0 table(s), 22 heading(s)",
+     "ms": 4,
+     "result": "driven"
+    },
+    {
+     "action": "set-text",
+     "expectations": [],
+     "id": "g152-sky4",
+     "message": "set-text text_in:15",
+     "ms": 26,
+     "result": "driven"
+    },
+    {
+     "action": "set-text",
+     "expectations": [],
+     "id": "g152-fid",
+     "message": "set-text text_in:10",
+     "ms": 24,
+     "result": "driven"
+    },
+    {
+     "action": "set-text",
+     "expectations": [],
+     "id": "g152-pilot",
+     "message": "set-text text_in:11",
+     "ms": 23,
+     "result": "driven"
+    },
+    {
+     "action": "set-text",
+     "expectations": [],
+     "id": "g152-fdate",
+     "message": "set-text text_in:12",
+     "ms": 24,
+     "result": "driven"
+    },
+    {
+     "action": "set-text",
+     "expectations": [],
+     "id": "g152-ftime",
+     "message": "set-text text_in:13",
+     "ms": 23,
+     "result": "driven"
+    },
+    {
+     "action": "set-text",
+     "expectations": [],
+     "id": "g152-fwind",
+     "message": "set-text text_in:14",
+     "ms": 23,
+     "result": "driven"
+    },
+    {
+     "action": "activate",
+     "expectations": [],
+     "id": "g152-addfl",
+     "message": "activate action_btn:1",
+     "ms": 24,
+     "result": "driven"
+    },
+    {
      "action": "show-pane",
      "expectations": [
       {
@@ -8284,7 +8516,7 @@
      ],
      "id": "lg",
      "message": "opened pane p-lg",
-     "ms": 101,
+     "ms": 103,
      "result": "driven"
     },
     {
@@ -8298,7 +8530,7 @@
      ],
      "id": "iv600",
      "message": "set-text step_val:7",
-     "ms": 23,
+     "ms": 28,
      "result": "driven"
     },
     {
@@ -8312,7 +8544,7 @@
      ],
      "id": "ld600",
      "message": "set-text step_val:8",
-     "ms": 24,
+     "ms": 23,
      "result": "driven"
     },
     {
@@ -8354,7 +8586,7 @@
       }
      ],
      "id": "log600",
-     "message": "22 figure(s), 20 box(es), 0 list(s), 0 table(s), 22 heading(s)",
+     "message": "22 figure(s), 20 box(es), 0 list(s), 1 table(s), 22 heading(s)",
      "ms": 4,
      "result": "driven"
     },
@@ -8383,7 +8615,7 @@
      ],
      "id": "ld60",
      "message": "set-text step_val:8",
-     "ms": 23,
+     "ms": 26,
      "result": "driven"
     },
     {
@@ -8397,7 +8629,7 @@
      ],
      "id": "mem60",
      "message": "set-text step_val:9",
-     "ms": 24,
+     "ms": 23,
      "result": "driven"
     },
     {
@@ -8425,7 +8657,7 @@
       }
      ],
      "id": "log60",
-     "message": "22 figure(s), 20 box(es), 0 list(s), 0 table(s), 22 heading(s)",
+     "message": "22 figure(s), 20 box(es), 0 list(s), 1 table(s), 22 heading(s)",
      "ms": 4,
      "result": "driven"
     },
@@ -8454,7 +8686,7 @@
      ],
      "id": "ld3600",
      "message": "set-text step_val:8",
-     "ms": 24,
+     "ms": 29,
      "result": "driven"
     },
     {
@@ -8468,7 +8700,7 @@
      ],
      "id": "mem3600",
      "message": "set-text step_val:9",
-     "ms": 22,
+     "ms": 23,
      "result": "driven"
     },
     {
@@ -8496,7 +8728,7 @@
       }
      ],
      "id": "log3600",
-     "message": "22 figure(s), 20 box(es), 0 list(s), 0 table(s), 22 heading(s)",
+     "message": "22 figure(s), 20 box(es), 0 list(s), 1 table(s), 22 heading(s)",
      "ms": 4,
      "result": "driven"
     },
@@ -8525,7 +8757,7 @@
      ],
      "id": "ld90",
      "message": "set-text step_val:8",
-     "ms": 23,
+     "ms": 25,
      "result": "driven"
     },
     {
@@ -8539,7 +8771,7 @@
      ],
      "id": "mem20k",
      "message": "set-text step_val:9",
-     "ms": 24,
+     "ms": 22,
      "result": "driven"
     },
     {
@@ -8552,7 +8784,7 @@
       }
      ],
      "id": "overflow",
-     "message": "22 figure(s), 20 box(es), 0 list(s), 0 table(s), 22 heading(s)",
+     "message": "22 figure(s), 20 box(es), 0 list(s), 1 table(s), 22 heading(s)",
      "ms": 4,
      "result": "driven"
     },
@@ -8566,7 +8798,7 @@
       }
      ],
      "id": "shield",
-     "message": "22 figure(s), 20 box(es), 0 list(s), 0 table(s), 22 heading(s)",
+     "message": "22 figure(s), 20 box(es), 0 list(s), 1 table(s), 22 heading(s)",
      "ms": 4,
      "result": "driven"
     },
@@ -8581,7 +8813,7 @@
      ],
      "id": "gill",
      "message": "activate dial_btn:21",
-     "ms": 23,
+     "ms": 21,
      "result": "driven"
     },
     {
@@ -8594,8 +8826,40 @@
       }
      ],
      "id": "gill-note",
-     "message": "22 figure(s), 20 box(es), 0 list(s), 0 table(s), 22 heading(s)",
+     "message": "22 figure(s), 20 box(es), 0 list(s), 1 table(s), 22 heading(s)",
      "ms": 4,
+     "result": "driven"
+    },
+    {
+     "action": "set-text",
+     "expectations": [],
+     "id": "g152-lunit",
+     "message": "set-text text_in:16",
+     "ms": 22,
+     "result": "driven"
+    },
+    {
+     "action": "set-text",
+     "expectations": [],
+     "id": "g152-lpos",
+     "message": "set-text text_in:17",
+     "ms": 22,
+     "result": "driven"
+    },
+    {
+     "action": "set-text",
+     "expectations": [],
+     "id": "g152-lstart",
+     "message": "set-text text_in:18",
+     "ms": 24,
+     "result": "driven"
+    },
+    {
+     "action": "activate",
+     "expectations": [],
+     "id": "g152-addlg",
+     "message": "activate action_btn:2",
+     "ms": 22,
      "result": "driven"
     },
     {
@@ -8609,7 +8873,7 @@
      ],
      "id": "ac2",
      "message": "opened pane p-ac",
-     "ms": 97,
+     "ms": 77,
      "result": "driven"
     },
     {
@@ -8623,7 +8887,55 @@
      ],
      "id": "unit",
      "message": "set-text text_in:0",
+     "ms": 23,
+     "result": "driven"
+    },
+    {
+     "action": "set-text",
+     "expectations": [],
+     "id": "g152-asite",
+     "message": "set-text text_in:1",
+     "ms": 25,
+     "result": "driven"
+    },
+    {
+     "action": "set-text",
+     "expectations": [],
+     "id": "g152-alat",
+     "message": "set-text text_in:2",
+     "ms": 24,
+     "result": "driven"
+    },
+    {
+     "action": "set-text",
+     "expectations": [],
+     "id": "g152-alon",
+     "message": "set-text text_in:3",
      "ms": 22,
+     "result": "driven"
+    },
+    {
+     "action": "set-text",
+     "expectations": [],
+     "id": "g152-astart",
+     "message": "set-text text_in:4",
+     "ms": 24,
+     "result": "driven"
+    },
+    {
+     "action": "set-text",
+     "expectations": [],
+     "id": "g152-afw",
+     "message": "set-text text_in:5",
+     "ms": 22,
+     "result": "driven"
+    },
+    {
+     "action": "activate",
+     "expectations": [],
+     "id": "g152-mono",
+     "message": "activate dial_btn:5",
+     "ms": 24,
      "result": "driven"
     },
     {
@@ -8637,7 +8949,7 @@
      ],
      "id": "addAc",
      "message": "activate action_btn:0",
-     "ms": 24,
+     "ms": 23,
      "result": "driven"
     },
     {
@@ -8651,38 +8963,234 @@
      ],
      "id": "log",
      "message": "opened pane p-log",
-     "ms": 104,
+     "ms": 89,
      "result": "driven"
     },
     {
      "action": "read-report",
      "expectations": [
       {
-       "detail": "output.boxes.logTable contains 'no SPL calibration', got 'kindidwherewhensettingswhat it can and cannot sayrecorderAM-014\u2014\u2014sr 48 kHz, mono, 600 s in 600 s, 30 d, fw ?target birds; Nyquist 24.0 kHz; clock may drift up to 30 s; no SPL calibration'",
+       "detail": "output.boxes.logTable contains 'no SPL calibration', got 'kindidwherewhensettingswhat it can and cannot sayflightSGH-2026-08-25-aR. Marek2026-08-25 09:15MicaSense RedEdge, 120 m, GSD 2.10 cm/px, 85/85% overlapradiometric: panel + DLS; cloud 4 oktas; wind 5 m/sloggerHOBO-031.5 m, N side of bole2026-06-01every 1 min, 90 d plannedshield: gill-type multi-platerecorderAM-014Sagehen, N bench2026-06-01sr 48 kHz, mono, 600 s in 600 s, 30 d, fw 1.10.0target birds; Nyquist 24.0 kHz; clock may drift up to 30 s; no SPL calibration'",
        "path": "output.boxes.logTable",
        "verdict": "CONFIRMED"
       },
       {
-       "detail": "output.tables.logTable.1.0 exists True, got 'recorder'",
+       "detail": "output.tables.logTable.1.0 exists True, got 'flight'",
        "path": "output.tables.logTable.1.0",
        "verdict": "CONFIRMED"
       }
      ],
      "id": "row",
      "message": "22 figure(s), 20 box(es), 0 list(s), 1 table(s), 22 heading(s)",
-     "ms": 5,
+     "ms": 4,
      "result": "driven"
     },
     {
      "action": "read-report",
      "expectations": [
       {
-       "detail": "output.boxes.ecoOut contains '[recorder]', got '# Deployment log \u2014 1 deployment [recorder] AM-014 settings sr 48 kHz, mono, 600 s in 600 s, 30 d, fw ? caveat target birds; Nyquist 24.0 kHz; clock may drift up to 30 s; no SPL calibration'",
+       "detail": "output.boxes.ecoOut contains '[recorder]', got '# Deployment log \u2014 3 deployments [flight] SGH-2026-08-25-a @ R. Marek 2026-08-25 09:15 settings MicaSense RedEdge, 120 m, GSD 2.10 cm/px, 85/85% overlap caveat radiometric: panel + DLS; cloud 4 oktas; wind 5 m/s [logger] HOBO-03 @ 1.5 m, N side of bole 2026-06-01 settings every 1 min, 90 d planned caveat shield: gill-type multi-plate [recorder] AM-014 @ Sagehen, N bench 2026-06-01 coords 39.4318, -120.2408 settings sr 48 kHz, mono, 600 s in 600 s, 30 d, fw 1.10.0 caveat target birds; Nyquist 24.0 kHz; clock may drift up to 30 s; no SPL calibration'",
        "path": "output.boxes.ecoOut",
        "verdict": "CONFIRMED"
       }
      ],
      "id": "eco",
+     "message": "22 figure(s), 20 box(es), 0 list(s), 1 table(s), 22 heading(s)",
+     "ms": 9,
+     "result": "driven"
+    },
+    {
+     "action": "read-report",
+     "expectations": [
+      {
+       "detail": "output.tables.logTable.3.0 == 'recorder', got 'recorder'",
+       "path": "output.tables.logTable.3.0",
+       "verdict": "CONFIRMED"
+      },
+      {
+       "detail": "output.tables.logTable.1.0 == 'flight', got 'flight'",
+       "path": "output.tables.logTable.1.0",
+       "verdict": "CONFIRMED"
+      },
+      {
+       "detail": "output.tables.logTable.2.0 == 'logger', got 'logger'",
+       "path": "output.tables.logTable.2.0",
+       "verdict": "CONFIRMED"
+      },
+      {
+       "detail": "output.tables.logTable.1.1 == 'SGH-2026-08-25-a', got 'SGH-2026-08-25-a'",
+       "path": "output.tables.logTable.1.1",
+       "verdict": "CONFIRMED"
+      },
+      {
+       "detail": "output.tables.logTable.1.2 == 'R. Marek', got 'R. Marek'",
+       "path": "output.tables.logTable.1.2",
+       "verdict": "CONFIRMED"
+      },
+      {
+       "detail": "output.tables.logTable.1.3 == '2026-08-25 09:15', got '2026-08-25 09:15'",
+       "path": "output.tables.logTable.1.3",
+       "verdict": "CONFIRMED"
+      },
+      {
+       "detail": "output.tables.logTable.1.4 == 'MicaSense RedEdge, 120 m, GSD 2.10 cm/px, 85/85% overlap', got 'MicaSense RedEdge, 120 m, GSD 2.10 cm/px, 85/85% overlap'",
+       "path": "output.tables.logTable.1.4",
+       "verdict": "CONFIRMED"
+      },
+      {
+       "detail": "output.tables.logTable.1.5 == 'radiometric: panel + DLS; cloud 4 oktas; wind 5 m/s', got 'radiometric: panel + DLS; cloud 4 oktas; wind 5 m/s'",
+       "path": "output.tables.logTable.1.5",
+       "verdict": "CONFIRMED"
+      },
+      {
+       "detail": "output.tables.logTable.2.1 == 'HOBO-03', got 'HOBO-03'",
+       "path": "output.tables.logTable.2.1",
+       "verdict": "CONFIRMED"
+      },
+      {
+       "detail": "output.tables.logTable.2.2 == '1.5 m, N side of bole', got '1.5 m, N side of bole'",
+       "path": "output.tables.logTable.2.2",
+       "verdict": "CONFIRMED"
+      },
+      {
+       "detail": "output.tables.logTable.2.4 == 'every 1 min, 90 d planned', got 'every 1 min, 90 d planned'",
+       "path": "output.tables.logTable.2.4",
+       "verdict": "CONFIRMED"
+      },
+      {
+       "detail": "output.tables.logTable.2.5 == 'shield: gill-type multi-plate', got 'shield: gill-type multi-plate'",
+       "path": "output.tables.logTable.2.5",
+       "verdict": "CONFIRMED"
+      },
+      {
+       "detail": "output.tables.logTable.3.1 == 'AM-014', got 'AM-014'",
+       "path": "output.tables.logTable.3.1",
+       "verdict": "CONFIRMED"
+      },
+      {
+       "detail": "output.tables.logTable.3.2 == 'Sagehen, N bench', got 'Sagehen, N bench'",
+       "path": "output.tables.logTable.3.2",
+       "verdict": "CONFIRMED"
+      },
+      {
+       "detail": "output.tables.logTable.3.4 == 'sr 48 kHz, mono, 600 s in 600 s, 30 d, fw 1.10.0', got 'sr 48 kHz, mono, 600 s in 600 s, 30 d, fw 1.10.0'",
+       "path": "output.tables.logTable.3.4",
+       "verdict": "CONFIRMED"
+      }
+     ],
+     "id": "g152-three",
+     "message": "22 figure(s), 20 box(es), 0 list(s), 1 table(s), 22 heading(s)",
+     "ms": 12,
+     "result": "driven"
+    },
+    {
+     "action": "read-report",
+     "expectations": [
+      {
+       "detail": "output.boxes.ecoOut contains 'coords 39.4318, -120.2408', got '# Deployment log \u2014 3 deployments [flight] SGH-2026-08-25-a @ R. Marek 2026-08-25 09:15 settings MicaSense RedEdge, 120 m, GSD 2.10 cm/px, 85/85% overlap caveat radiometric: panel + DLS; cloud 4 oktas; wind 5 m/s [logger] HOBO-03 @ 1.5 m, N side of bole 2026-06-01 settings every 1 min, 90 d planned caveat shield: gill-type multi-plate [recorder] AM-014 @ Sagehen, N bench 2026-06-01 coords 39.4318, -120.2408 settings sr 48 kHz, mono, 600 s in 600 s, 30 d, fw 1.10.0 caveat target birds; Nyquist 24.0 kHz; clock may drift up to 30 s; no SPL calibration'",
+       "path": "output.boxes.ecoOut",
+       "verdict": "CONFIRMED"
+      }
+     ],
+     "id": "g152-sheet",
+     "message": "22 figure(s), 20 box(es), 0 list(s), 1 table(s), 22 heading(s)",
+     "ms": 4,
+     "result": "driven"
+    },
+    {
+     "action": "read-report",
+     "expectations": [
+      {
+       "detail": "output.boxes.ecoOut contains '# Deployment log \u2014 3 deployments', got '# Deployment log \u2014 3 deployments [flight] SGH-2026-08-25-a @ R. Marek 2026-08-25 09:15 settings MicaSense RedEdge, 120 m, GSD 2.10 cm/px, 85/85% overlap caveat radiometric: panel + DLS; cloud 4 oktas; wind 5 m/s [logger] HOBO-03 @ 1.5 m, N side of bole 2026-06-01 settings every 1 min, 90 d planned caveat shield: gill-type multi-plate [recorder] AM-014 @ Sagehen, N bench 2026-06-01 coords 39.4318, -120.2408 settings sr 48 kHz, mono, 600 s in 600 s, 30 d, fw 1.10.0 caveat target birds; Nyquist 24.0 kHz; clock may drift up to 30 s; no SPL calibration'",
+       "path": "output.boxes.ecoOut",
+       "verdict": "CONFIRMED"
+      }
+     ],
+     "id": "g152-sheet2",
+     "message": "22 figure(s), 20 box(es), 0 list(s), 1 table(s), 22 heading(s)",
+     "ms": 4,
+     "result": "driven"
+    },
+    {
+     "action": "read-report",
+     "expectations": [
+      {
+       "detail": "output.boxes.ecoOut contains '[flight] SGH-2026-08-25-a @ R. Marek 2026-08-25 09:15', got '# Deployment log \u2014 3 deployments [flight] SGH-2026-08-25-a @ R. Marek 2026-08-25 09:15 settings MicaSense RedEdge, 120 m, GSD 2.10 cm/px, 85/85% overlap caveat radiometric: panel + DLS; cloud 4 oktas; wind 5 m/s [logger] HOBO-03 @ 1.5 m, N side of bole 2026-06-01 settings every 1 min, 90 d planned caveat shield: gill-type multi-plate [recorder] AM-014 @ Sagehen, N bench 2026-06-01 coords 39.4318, -120.2408 settings sr 48 kHz, mono, 600 s in 600 s, 30 d, fw 1.10.0 caveat target birds; Nyquist 24.0 kHz; clock may drift up to 30 s; no SPL calibration'",
+       "path": "output.boxes.ecoOut",
+       "verdict": "CONFIRMED"
+      }
+     ],
+     "id": "g152-sheet3",
+     "message": "22 figure(s), 20 box(es), 0 list(s), 1 table(s), 22 heading(s)",
+     "ms": 4,
+     "result": "driven"
+    },
+    {
+     "action": "read-report",
+     "expectations": [
+      {
+       "detail": "output.boxes.ecoOut contains '[logger] HOBO-03 @ 1.5 m, N side of bole 2026-06-01', got '# Deployment log \u2014 3 deployments [flight] SGH-2026-08-25-a @ R. Marek 2026-08-25 09:15 settings MicaSense RedEdge, 120 m, GSD 2.10 cm/px, 85/85% overlap caveat radiometric: panel + DLS; cloud 4 oktas; wind 5 m/s [logger] HOBO-03 @ 1.5 m, N side of bole 2026-06-01 settings every 1 min, 90 d planned caveat shield: gill-type multi-plate [recorder] AM-014 @ Sagehen, N bench 2026-06-01 coords 39.4318, -120.2408 settings sr 48 kHz, mono, 600 s in 600 s, 30 d, fw 1.10.0 caveat target birds; Nyquist 24.0 kHz; clock may drift up to 30 s; no SPL calibration'",
+       "path": "output.boxes.ecoOut",
+       "verdict": "CONFIRMED"
+      }
+     ],
+     "id": "g152-sheet4",
+     "message": "22 figure(s), 20 box(es), 0 list(s), 1 table(s), 22 heading(s)",
+     "ms": 4,
+     "result": "driven"
+    },
+    {
+     "action": "activate",
+     "expectations": [],
+     "id": "g152-csv",
+     "message": "activate action_btn:5",
+     "ms": 24,
+     "result": "driven"
+    },
+    {
+     "action": "collect-output",
+     "expectations": [
+      {
+       "detail": "output.payloads.0.k == 'copy', got 'copy'",
+       "path": "output.payloads.0.k",
+       "verdict": "CONFIRMED"
+      },
+      {
+       "detail": "output.payloads.0.text contains 'kind,id,site_or_pilot,latitude,longitude,date,settings,caveat', got 'kind,id,site_or_pilot,latitude,longitude,date,settings,caveat\\nflight,SGH-2026-08-25-a,R. Marek,,,2026-08-25 09:15,\"MicaSense RedEdge, 120 m, GSD 2.10 cm/px, 85/85% overlap\",radiometric: panel + DLS; cloud 4 oktas; wind 5 m/s\\nlogger,HOBO-03,\"1.5 m, N side of bole\",,,2026-06-01,\"every 1 min, 90 d planned\",shield: gill-type multi-plate\\nrecorder,AM-014,\"Sagehen, N bench\",39.4318,-120.2408,2026-06-01,\"sr 48 kHz, mono, 600 s in 600 s, 30 d, fw 1.10.0\",target birds; Nyquist 24.0 kHz; clock may drift up to 30 s; no SPL calibration'",
+       "path": "output.payloads.0.text",
+       "verdict": "CONFIRMED"
+      }
+     ],
+     "id": "g152-payload",
+     "message": "1 payload(s)",
+     "ms": 1,
+     "result": "driven"
+    },
+    {
+     "action": "read-report",
+     "expectations": [
+      {
+       "detail": "output.tables.logTable.3.0 == 'recorder', got 'recorder'",
+       "path": "output.tables.logTable.3.0",
+       "verdict": "CONFIRMED"
+      },
+      {
+       "detail": "output.tables.logTable.1.0 == 'flight', got 'flight'",
+       "path": "output.tables.logTable.1.0",
+       "verdict": "CONFIRMED"
+      },
+      {
+       "detail": "output.boxes.logTable contains 'no SPL calibration', got 'kindidwherewhensettingswhat it can and cannot sayflightSGH-2026-08-25-aR. Marek2026-08-25 09:15MicaSense RedEdge, 120 m, GSD 2.10 cm/px, 85/85% overlapradiometric: panel + DLS; cloud 4 oktas; wind 5 m/sloggerHOBO-031.5 m, N side of bole2026-06-01every 1 min, 90 d plannedshield: gill-type multi-platerecorderAM-014Sagehen, N bench2026-06-01sr 48 kHz, mono, 600 s in 600 s, 30 d, fw 1.10.0target birds; Nyquist 24.0 kHz; clock may drift up to 30 s; no SPL calibration'",
+       "path": "output.boxes.logTable",
+       "verdict": "CONFIRMED"
+      },
+      {
+       "detail": "output.boxes.ecoOut contains 'coords 39.4318, -120.2408', got '# Deployment log \u2014 3 deployments [flight] SGH-2026-08-25-a @ R. Marek 2026-08-25 09:15 settings MicaSense RedEdge, 120 m, GSD 2.10 cm/px, 85/85% overlap caveat radiometric: panel + DLS; cloud 4 oktas; wind 5 m/s [logger] HOBO-03 @ 1.5 m, N side of bole 2026-06-01 settings every 1 min, 90 d planned caveat shield: gill-type multi-plate [recorder] AM-014 @ Sagehen, N bench 2026-06-01 coords 39.4318, -120.2408 settings sr 48 kHz, mono, 600 s in 600 s, 30 d, fw 1.10.0 caveat target birds; Nyquist 24.0 kHz; clock may drift up to 30 s; no SPL calibration'",
+       "path": "output.boxes.ecoOut",
+       "verdict": "CONFIRMED"
+      }
+     ],
+     "id": "g152-after",
      "message": "22 figure(s), 20 box(es), 0 list(s), 1 table(s), 22 heading(s)",
      "ms": 4,
      "result": "driven"
@@ -8708,7 +9216,7 @@
      ],
      "id": "intact",
      "message": "read the page",
-     "ms": 8,
+     "ms": 6,
      "result": "driven"
     }
    ],

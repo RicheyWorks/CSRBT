@@ -170,119 +170,12 @@ VERBS = [
 # different invisibilities to the harness: it recorded the clipboard and let the
 # download navigate away. Anchor downloads are intercepted rather than followed,
 # both so the payload can be read and so the run does not wander off the page.
-CATCH = r"""
-window.__S = { out: [], toasts: 0, choosers: 0, lastChooser: "" };
-(function () {
-  var map = {};
-  // A toast raised while an identical toast is still on screen changes nothing
-  // any observer of the DOM can see: the class is already there, so adding it
-  // again is not a mutation. Twelve live controls were accused of being wired
-  // to nothing for exactly this reason (ADR-100). Count the raise where it
-  // happens -- at the call -- rather than hoping to see its result.
-  try {
-    var TA = DOMTokenList.prototype.add;
-    DOMTokenList.prototype.add = function () {
-      try {
-        if (this.contains("toast") &&
-            Array.prototype.indexOf.call(arguments, "on") >= 0)
-          window.__S.toasts++;
-      } catch (e) { }
-      return TA.apply(this, arguments);
-    };
-  } catch (e) { }
-  try {
-    var NB = window.Blob;
-    var WB = function (parts, opts) {
-      var b = new NB(parts || [], opts);
-      try { b.__t = (parts || []).map(String).join(""); } catch (e) { }
-      return b;
-    };
-    WB.prototype = NB.prototype;
-    window.Blob = WB;
-    var CO = URL.createObjectURL.bind(URL);
-    URL.createObjectURL = function (b) {
-      var u = CO(b);
-      try { map[u] = b.__t || ""; } catch (e) { }
-      return u;
-    };
-  } catch (e) { }
-  var push = function (k, name, text) {
-    window.__S.out.push({ k: k, name: String(name || "").slice(0, 80),
-                          text: String(text == null ? "" : text).slice(0, 40000) });
-  };
-  // A page cannot be asked where its drop zones are: a drop listener leaves no
-  // mark in the markup and no CSS selector finds it. Three pages in this kit
-  // take photos and data by drag-and-drop and the harness had never dropped
-  // anything on any of them. Stamp the element as the listener is registered.
-  try {
-    var AEL = EventTarget.prototype.addEventListener;
-    EventTarget.prototype.addEventListener = function (type, fn, opt) {
-      try {
-        if (type === "drop") {
-          if (this.setAttribute && this.nodeType === 1) this.setAttribute("data-h-drop", "1");
-          // A page whose drop target is the WINDOW had no element to stamp, so
-          // it published no drop zone and the harness could not drop anything
-          // on it at all -- which is how the interactive lab's "drop a session
-          // anywhere to reload" went undriven through four ADRs (ADR-135). The
-          // surface a reader drops onto is then the page itself.
-          else if (this === window || this === document) {
-            var mark = function () {
-              if (document.body && !document.body.hasAttribute("data-h-drop"))
-                document.body.setAttribute("data-h-drop", "1");
-            };
-            mark();
-            if (document.readyState === "loading")
-              document.addEventListener("DOMContentLoaded", mark);
-          }
-        }
-      } catch (e) { }
-      return AEL.call(this, type, fn, opt);
-    };
-  } catch (e) { }
-
-  // A button whose whole job is to open the file chooser does nothing else, and
-  // was being judged as an Add that added no row. Opening the chooser IS its
-  // result, so record it as one.
-  try {
-    var IC = HTMLInputElement.prototype.click;
-    HTMLInputElement.prototype.click = function () {
-      try {
-        if (this.type === "file") {
-          window.__S.choosers++;
-          window.__S.lastChooser = this.getAttribute("data-h") || this.id || "";
-          return;                          /* the native dialog never opens */
-        }
-      } catch (e) { }
-      return IC.apply(this, arguments);
-    };
-  } catch (e) { }
-
-  var AC = HTMLAnchorElement.prototype.click;
-  HTMLAnchorElement.prototype.click = function () {
-    if (this.hasAttribute("download")) {
-      var t = map[this.href] || "";
-      if (!t && this.href.slice(0, 5) === "data:") {
-        try { t = decodeURIComponent(this.href.split(",").slice(1).join(",")); } catch (e) { }
-      }
-      push("download", this.getAttribute("download"), t);
-      return;                            /* captured, not followed */
-    }
-    return AC.apply(this, arguments);
-  };
-  try {
-    Object.defineProperty(navigator, "clipboard", { configurable: true, value: {
-      writeText: function (s) { push("clipboard", "", s); return Promise.resolve(); } } });
-  } catch (e) { }
-  window.print = function () { push("print", "", ""); };
-  document.addEventListener("DOMContentLoaded", function () {
-    var oe = document.execCommand;
-    document.execCommand = function (c) {
-      if (c === "copy") { push("copy", "", String(window.getSelection())); return true; }
-      return oe ? oe.apply(document, arguments) : false;
-    };
-  });
-})();
-"""
+# THE CAPTURE LIVES WITH THE TOOL THAT READS IT (ADR-152). It used to be
+# defined here and installed only on the context this file builds, which made
+# `collect-output` -- a tool the page plugin PUBLISHES -- work for the robot
+# and for nobody else. It is now in harness_plugin_page beside collect-output,
+# installed by the plugin itself, and imported here so there is one copy.
+from harness_plugin_page import CATCH
 
 
 def verb(label):
