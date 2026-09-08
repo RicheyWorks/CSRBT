@@ -25397,9 +25397,9 @@
    "verdict": "PASS"
   },
   "page-selection-log-science": {
-   "at": 1788777349,
-   "confirmed": 77,
-   "goal": "On the selection log, enter six individuals A1-A6 with bill depths 8 9 10 11 12 13 mm, let A1 and A2 die and the rest survive, and find the selection analysis right: mean before 10.500, sample SD 1.871, mean after 11.500, differential S 1.000, intensity i and univariate gradient 0.586 (S over the population SD 1.708).",
+   "at": 1788858328,
+   "confirmed": 133,
+   "goal": "On the selection log enter six marked individuals A1-A6 with cohort, sex and age, bill depths 8-13 mm measured by a named observer under a named episode, let A1 and A2 die and the rest survive, add a wing-chord trait, add a seventh bird A7 with a tarsus measurement and link it to A1 and A2 as parents, and get the selection analysis and all three exports right: mean before 10.500, SD 1.871, differential 1.000, intensity 0.586.",
    "held": true,
    "id": "page-selection-log-science",
    "must": "PASS",
@@ -25410,7 +25410,7 @@
     "MUTATE"
    ],
    "rungsWhy": null,
-   "seconds": 3.5,
+   "seconds": 8.0,
    "steps": [
     {
      "action": "observe",
@@ -25442,7 +25442,77 @@
      ],
      "id": "ind",
      "message": "opened pane p-ind",
-     "ms": 4,
+     "ms": 3,
+     "result": "driven"
+    },
+    {
+     "action": "set-text",
+     "expectations": [
+      {
+       "detail": "ok == True, got True",
+       "path": "ok",
+       "verdict": "CONFIRMED"
+      }
+     ],
+     "id": "g158-ep",
+     "message": "set-text text_in:3",
+     "ms": 26,
+     "result": "driven"
+    },
+    {
+     "action": "activate",
+     "expectations": [
+      {
+       "detail": "ok == True, got True",
+       "path": "ok",
+       "verdict": "CONFIRMED"
+      }
+     ],
+     "id": "g158-fc",
+     "message": "activate chip:0",
+     "ms": 25,
+     "result": "driven"
+    },
+    {
+     "action": "activate",
+     "expectations": [
+      {
+       "detail": "ok == True, got True",
+       "path": "ok",
+       "verdict": "CONFIRMED"
+      }
+     ],
+     "id": "g158-sex",
+     "message": "activate dial_btn:1",
+     "ms": 23,
+     "result": "driven"
+    },
+    {
+     "action": "activate",
+     "expectations": [
+      {
+       "detail": "ok == True, got True",
+       "path": "ok",
+       "verdict": "CONFIRMED"
+      }
+     ],
+     "id": "g158-age",
+     "message": "activate dial_btn:5",
+     "ms": 24,
+     "result": "driven"
+    },
+    {
+     "action": "set-text",
+     "expectations": [
+      {
+       "detail": "ok == True, got True",
+       "path": "ok",
+       "verdict": "CONFIRMED"
+      }
+     ],
+     "id": "g158-note",
+     "message": "set-text text_in:2",
+     "ms": 25,
      "result": "driven"
     },
     {
@@ -25470,7 +25540,7 @@
      ],
      "id": "ia1",
      "message": "activate action_btn:0",
-     "ms": 22,
+     "ms": 25,
      "result": "driven"
     },
     {
@@ -25484,7 +25554,7 @@
      ],
      "id": "i2",
      "message": "set-text text_in:0",
-     "ms": 21,
+     "ms": 24,
      "result": "driven"
     },
     {
@@ -25498,7 +25568,7 @@
      ],
      "id": "ia2",
      "message": "activate action_btn:0",
-     "ms": 23,
+     "ms": 25,
      "result": "driven"
     },
     {
@@ -25526,7 +25596,7 @@
      ],
      "id": "ia3",
      "message": "activate action_btn:0",
-     "ms": 23,
+     "ms": 24,
      "result": "driven"
     },
     {
@@ -25540,7 +25610,7 @@
      ],
      "id": "i4",
      "message": "set-text text_in:0",
-     "ms": 22,
+     "ms": 23,
      "result": "driven"
     },
     {
@@ -25554,7 +25624,7 @@
      ],
      "id": "ia4",
      "message": "activate action_btn:0",
-     "ms": 23,
+     "ms": 24,
      "result": "driven"
     },
     {
@@ -25568,7 +25638,7 @@
      ],
      "id": "i5",
      "message": "set-text text_in:0",
-     "ms": 21,
+     "ms": 25,
      "result": "driven"
     },
     {
@@ -25582,7 +25652,7 @@
      ],
      "id": "ia5",
      "message": "activate action_btn:0",
-     "ms": 22,
+     "ms": 26,
      "result": "driven"
     },
     {
@@ -25596,7 +25666,7 @@
      ],
      "id": "i6",
      "message": "set-text text_in:0",
-     "ms": 24,
+     "ms": 23,
      "result": "driven"
     },
     {
@@ -25610,7 +25680,7 @@
      ],
      "id": "ia6",
      "message": "activate action_btn:0",
-     "ms": 21,
+     "ms": 24,
      "result": "driven"
     },
     {
@@ -25624,7 +25694,7 @@
      ],
      "id": "six",
      "message": "0 figure(s), 15 box(es), 2 list(s), 0 table(s), 17 heading(s)",
-     "ms": 4,
+     "ms": 5,
      "result": "driven"
     },
     {
@@ -25638,7 +25708,35 @@
      ],
      "id": "mea",
      "message": "opened pane p-mea",
-     "ms": 134,
+     "ms": 163,
+     "result": "driven"
+    },
+    {
+     "action": "set-text",
+     "expectations": [
+      {
+       "detail": "ok == True, got True",
+       "path": "ok",
+       "verdict": "CONFIRMED"
+      }
+     ],
+     "id": "g158-occ",
+     "message": "set-text text_in:4",
+     "ms": 24,
+     "result": "driven"
+    },
+    {
+     "action": "set-text",
+     "expectations": [
+      {
+       "detail": "ok == True, got True",
+       "path": "ok",
+       "verdict": "CONFIRMED"
+      }
+     ],
+     "id": "g158-who",
+     "message": "set-text text_in:5",
+     "ms": 30,
      "result": "driven"
     },
     {
@@ -25657,7 +25755,7 @@
      ],
      "id": "mp1",
      "message": "pick pick_search:0",
-     "ms": 143,
+     "ms": 150,
      "result": "driven"
     },
     {
@@ -25671,7 +25769,7 @@
      ],
      "id": "mt1",
      "message": "activate chip:3",
-     "ms": 21,
+     "ms": 22,
      "result": "driven"
     },
     {
@@ -25685,7 +25783,7 @@
      ],
      "id": "mv1",
      "message": "set-text field_in:0",
-     "ms": 22,
+     "ms": 24,
      "result": "driven"
     },
     {
@@ -25699,7 +25797,7 @@
      ],
      "id": "ma1",
      "message": "activate action_btn:8",
-     "ms": 24,
+     "ms": 25,
      "result": "driven"
     },
     {
@@ -25718,7 +25816,7 @@
      ],
      "id": "mp2",
      "message": "pick pick_search:0",
-     "ms": 143,
+     "ms": 148,
      "result": "driven"
     },
     {
@@ -25732,7 +25830,7 @@
      ],
      "id": "mt2",
      "message": "activate chip:3",
-     "ms": 22,
+     "ms": 23,
      "result": "driven"
     },
     {
@@ -25746,7 +25844,7 @@
      ],
      "id": "mv2",
      "message": "set-text field_in:0",
-     "ms": 22,
+     "ms": 25,
      "result": "driven"
     },
     {
@@ -25760,7 +25858,7 @@
      ],
      "id": "ma2",
      "message": "activate action_btn:8",
-     "ms": 23,
+     "ms": 27,
      "result": "driven"
     },
     {
@@ -25779,7 +25877,7 @@
      ],
      "id": "mp3",
      "message": "pick pick_search:0",
-     "ms": 142,
+     "ms": 151,
      "result": "driven"
     },
     {
@@ -25793,7 +25891,7 @@
      ],
      "id": "mt3",
      "message": "activate chip:3",
-     "ms": 21,
+     "ms": 24,
      "result": "driven"
     },
     {
@@ -25807,7 +25905,7 @@
      ],
      "id": "mv3",
      "message": "set-text field_in:0",
-     "ms": 22,
+     "ms": 23,
      "result": "driven"
     },
     {
@@ -25821,7 +25919,7 @@
      ],
      "id": "ma3",
      "message": "activate action_btn:8",
-     "ms": 24,
+     "ms": 35,
      "result": "driven"
     },
     {
@@ -25840,7 +25938,7 @@
      ],
      "id": "mp4",
      "message": "pick pick_search:0",
-     "ms": 142,
+     "ms": 152,
      "result": "driven"
     },
     {
@@ -25854,7 +25952,7 @@
      ],
      "id": "mt4",
      "message": "activate chip:3",
-     "ms": 22,
+     "ms": 28,
      "result": "driven"
     },
     {
@@ -25882,7 +25980,7 @@
      ],
      "id": "ma4",
      "message": "activate action_btn:8",
-     "ms": 22,
+     "ms": 23,
      "result": "driven"
     },
     {
@@ -25901,7 +25999,7 @@
      ],
      "id": "mp5",
      "message": "pick pick_search:0",
-     "ms": 147,
+     "ms": 148,
      "result": "driven"
     },
     {
@@ -25915,7 +26013,7 @@
      ],
      "id": "mt5",
      "message": "activate chip:3",
-     "ms": 21,
+     "ms": 23,
      "result": "driven"
     },
     {
@@ -25929,7 +26027,7 @@
      ],
      "id": "mv5",
      "message": "set-text field_in:0",
-     "ms": 21,
+     "ms": 22,
      "result": "driven"
     },
     {
@@ -25976,7 +26074,7 @@
      ],
      "id": "mt6",
      "message": "activate chip:3",
-     "ms": 22,
+     "ms": 24,
      "result": "driven"
     },
     {
@@ -25990,7 +26088,7 @@
      ],
      "id": "mv6",
      "message": "set-text field_in:0",
-     "ms": 21,
+     "ms": 23,
      "result": "driven"
     },
     {
@@ -26004,7 +26102,7 @@
      ],
      "id": "ma6",
      "message": "activate action_btn:8",
-     "ms": 22,
+     "ms": 26,
      "result": "driven"
     },
     {
@@ -26018,7 +26116,7 @@
      ],
      "id": "measured",
      "message": "4 figure(s), 15 box(es), 3 list(s), 0 table(s), 18 heading(s)",
-     "ms": 3,
+     "ms": 4,
      "result": "driven"
     },
     {
@@ -26032,7 +26130,7 @@
      ],
      "id": "ind2",
      "message": "opened pane p-ind",
-     "ms": 67,
+     "ms": 74,
      "result": "driven"
     },
     {
@@ -26046,7 +26144,7 @@
      ],
      "id": "w0",
      "message": "activate dial_btn:7",
-     "ms": 22,
+     "ms": 23,
      "result": "driven"
     },
     {
@@ -26060,7 +26158,7 @@
      ],
      "id": "w1",
      "message": "activate dial_btn:9",
-     "ms": 24,
+     "ms": 23,
      "result": "driven"
     },
     {
@@ -26074,7 +26172,7 @@
      ],
      "id": "w2",
      "message": "activate dial_btn:12",
-     "ms": 21,
+     "ms": 23,
      "result": "driven"
     },
     {
@@ -26088,7 +26186,7 @@
      ],
      "id": "w3",
      "message": "activate dial_btn:14",
-     "ms": 21,
+     "ms": 23,
      "result": "driven"
     },
     {
@@ -26102,7 +26200,7 @@
      ],
      "id": "w4",
      "message": "activate dial_btn:16",
-     "ms": 21,
+     "ms": 25,
      "result": "driven"
     },
     {
@@ -26116,7 +26214,7 @@
      ],
      "id": "w5",
      "message": "activate dial_btn:18",
-     "ms": 21,
+     "ms": 25,
      "result": "driven"
     },
     {
@@ -26130,7 +26228,7 @@
      ],
      "id": "sel",
      "message": "opened pane p-sel",
-     "ms": 87,
+     "ms": 113,
      "result": "driven"
     },
     {
@@ -26184,21 +26282,21 @@
      ],
      "id": "report",
      "message": "9 figure(s), 15 box(es), 3 list(s), 0 table(s), 19 heading(s)",
-     "ms": 4,
+     "ms": 5,
      "result": "driven"
     },
     {
      "action": "read-report",
      "expectations": [
       {
-       "detail": "output.boxes.selOut contains 'Directional selection upward', got '6measured10.500mean before mm1.871SD before (sample, n\u22121)6with fitness1.000differential S mm0.586intensity i (SD units)0.586gradient \u03b2 (univariate)0.198SE of \u03b211.500mean afteri and \u03b2 are the same number here, and that is not a coincidence. For a single trait the standardized differential and the univariate gradient are algebraically identical \u2014 \u03b2 = S/\u03c3 = i. They only diverge once you put several correlated traits in one regression, which is exactly the step that separates direct from indirect selection. Seeing one number twice is the clearest possible sign that a univariate analysis has not done that yet.Directional selection upward on bill depth over the recorded episode, measured on survival. The trait mean moved 1.000 mm (0.59 SD) within the generation.No repeatability for this trait. Measure some individuals twice and the Measure tab will tell you how much your own error is flattening this gradient.n = 6. Gradients on fewer than about thirty individuals are unstable; the SE above is honest arithmetic on a small sample, not a reliable interval.This \u03b2 is univariate. One trait at a time cannot separate direct selection from selection on everything correlated with it. If a larger animal survives better and this trait scales with size, it will show a gradient under no direct selection at all. Export the CSV and fit all your traits together before calling this direct selection.'",
+       "detail": "output.boxes.selOut contains 'Directional selection upward', got '6measured10.500mean before mm1.871SD before (sample, n\u22121)6with fitness1.000differential S mm0.586intensity i (SD units)0.586gradient \u03b2 (univariate)0.198SE of \u03b211.500mean afteri and \u03b2 are the same number here, and that is not a coincidence. For a single trait the standardized differential and the univariate gradient are algebraically identical \u2014 \u03b2 = S/\u03c3 = i. They only diverge once you put several correlated traits in one regression, which is exactly the step that separates direct from indirect selection. Seeing one number twice is the clearest possible sign that a univariate analysis has not done that yet.Directional selection upward on bill depth over \u201cdrought Jun to Dec 2026\u201d, measured on survival. The trait mean moved 1.000 mm (0.59 SD) within the generation.No repeatability for this trait. Measure some individuals twice and the Measure tab will tell you how much your own error is flattening this gradient.n = 6. Gradients on fewer than about thirty individuals are unstable; the SE above is honest arithmetic on a small sample, not a reliable interval.This \u03b2 is univariate. One trait at a time cannot separate direct selection from selection on everything correlated with it. If a larger animal survives better and this trait scales with size, it will show a gradient under no direct selection at all. Export the CSV and fit all your traits together before calling this direct selection.'",
        "path": "output.boxes.selOut",
        "verdict": "CONFIRMED"
       }
      ],
      "id": "upward",
      "message": "9 figure(s), 15 box(es), 3 list(s), 0 table(s), 19 heading(s)",
-     "ms": 3,
+     "ms": 5,
      "result": "driven"
     },
     {
@@ -26212,7 +26310,7 @@
      ],
      "id": "grad",
      "message": "9 figure(s), 15 box(es), 3 list(s), 0 table(s), 19 heading(s)",
-     "ms": 3,
+     "ms": 4,
      "result": "driven"
     },
     {
@@ -26256,7 +26354,7 @@
      ],
      "id": "charts",
      "message": "9 figure(s), 15 box(es), 3 list(s), 0 table(s), 19 heading(s)",
-     "ms": 3,
+     "ms": 4,
      "result": "driven"
     },
     {
@@ -26280,7 +26378,558 @@
      ],
      "id": "intact",
      "message": "read the page",
-     "ms": 5,
+     "ms": 6,
+     "result": "driven"
+    },
+    {
+     "action": "show-pane",
+     "expectations": [
+      {
+       "detail": "ok == True, got True",
+       "path": "ok",
+       "verdict": "CONFIRMED"
+      }
+     ],
+     "id": "g158-tmea",
+     "message": "opened pane p-mea",
+     "ms": 84,
+     "result": "driven"
+    },
+    {
+     "action": "set-text",
+     "expectations": [
+      {
+       "detail": "ok == True, got True",
+       "path": "ok",
+       "verdict": "CONFIRMED"
+      }
+     ],
+     "id": "g158-tn",
+     "message": "set-text text_in:6",
+     "ms": 22,
+     "result": "driven"
+    },
+    {
+     "action": "set-text",
+     "expectations": [
+      {
+       "detail": "ok == True, got True",
+       "path": "ok",
+       "verdict": "CONFIRMED"
+      }
+     ],
+     "id": "g158-tu",
+     "message": "set-text text_in:7",
+     "ms": 22,
+     "result": "driven"
+    },
+    {
+     "action": "activate",
+     "expectations": [
+      {
+       "detail": "ok == True, got True",
+       "path": "ok",
+       "verdict": "CONFIRMED"
+      }
+     ],
+     "id": "g158-tadd",
+     "message": "activate action_btn:10",
+     "ms": 27,
+     "result": "driven"
+    },
+    {
+     "action": "show-pane",
+     "expectations": [
+      {
+       "detail": "ok == True, got True",
+       "path": "ok",
+       "verdict": "CONFIRMED"
+      }
+     ],
+     "id": "g158-a7pane",
+     "message": "opened pane p-ind",
+     "ms": 85,
+     "result": "driven"
+    },
+    {
+     "action": "set-text",
+     "expectations": [
+      {
+       "detail": "ok == True, got True",
+       "path": "ok",
+       "verdict": "CONFIRMED"
+      }
+     ],
+     "id": "g158-a7coh",
+     "message": "set-text text_in:1",
+     "ms": 29,
+     "result": "driven"
+    },
+    {
+     "action": "set-text",
+     "expectations": [
+      {
+       "detail": "ok == True, got True",
+       "path": "ok",
+       "verdict": "CONFIRMED"
+      }
+     ],
+     "id": "g158-a7id",
+     "message": "set-text text_in:0",
+     "ms": 24,
+     "result": "driven"
+    },
+    {
+     "action": "activate",
+     "expectations": [
+      {
+       "detail": "ok == True, got True",
+       "path": "ok",
+       "verdict": "CONFIRMED"
+      }
+     ],
+     "id": "g158-a7add",
+     "message": "activate action_btn:0",
+     "ms": 26,
+     "result": "driven"
+    },
+    {
+     "action": "show-pane",
+     "expectations": [
+      {
+       "detail": "ok == True, got True",
+       "path": "ok",
+       "verdict": "CONFIRMED"
+      }
+     ],
+     "id": "g158-mpane",
+     "message": "opened pane p-mea",
+     "ms": 72,
+     "result": "driven"
+    },
+    {
+     "action": "pick",
+     "expectations": [
+      {
+       "detail": "ok == True, got True",
+       "path": "ok",
+       "verdict": "CONFIRMED"
+      }
+     ],
+     "id": "g158-a7pick",
+     "message": "pick pick_search:0",
+     "ms": 148,
+     "result": "driven"
+    },
+    {
+     "action": "activate",
+     "expectations": [
+      {
+       "detail": "ok == True, got True",
+       "path": "ok",
+       "verdict": "CONFIRMED"
+      }
+     ],
+     "id": "g158-a7tr",
+     "message": "activate chip:5",
+     "ms": 24,
+     "result": "driven"
+    },
+    {
+     "action": "set-text",
+     "expectations": [
+      {
+       "detail": "ok == True, got True",
+       "path": "ok",
+       "verdict": "CONFIRMED"
+      }
+     ],
+     "id": "g158-a7v",
+     "message": "set-text field_in:0",
+     "ms": 22,
+     "result": "driven"
+    },
+    {
+     "action": "activate",
+     "expectations": [
+      {
+       "detail": "ok == True, got True",
+       "path": "ok",
+       "verdict": "CONFIRMED"
+      }
+     ],
+     "id": "g158-a7m",
+     "message": "activate action_btn:9",
+     "ms": 24,
+     "result": "driven"
+    },
+    {
+     "action": "show-pane",
+     "expectations": [
+      {
+       "detail": "ok == True, got True",
+       "path": "ok",
+       "verdict": "CONFIRMED"
+      }
+     ],
+     "id": "g158-hpane",
+     "message": "opened pane p-her",
+     "ms": 88,
+     "result": "driven"
+    },
+    {
+     "action": "pick",
+     "expectations": [
+      {
+       "detail": "ok == True, got True",
+       "path": "ok",
+       "verdict": "CONFIRMED"
+      }
+     ],
+     "id": "g158-poff",
+     "message": "pick pick_search:1",
+     "ms": 145,
+     "result": "driven"
+    },
+    {
+     "action": "pick",
+     "expectations": [
+      {
+       "detail": "ok == True, got True",
+       "path": "ok",
+       "verdict": "CONFIRMED"
+      }
+     ],
+     "id": "g158-pdam",
+     "message": "pick pick_search:2",
+     "ms": 146,
+     "result": "driven"
+    },
+    {
+     "action": "pick",
+     "expectations": [
+      {
+       "detail": "ok == True, got True",
+       "path": "ok",
+       "verdict": "CONFIRMED"
+      }
+     ],
+     "id": "g158-psire",
+     "message": "pick pick_search:3",
+     "ms": 148,
+     "result": "driven"
+    },
+    {
+     "action": "activate",
+     "expectations": [
+      {
+       "detail": "ok == True, got True",
+       "path": "ok",
+       "verdict": "CONFIRMED"
+      }
+     ],
+     "id": "g158-plink",
+     "message": "activate action_btn:17",
+     "ms": 22,
+     "result": "driven"
+    },
+    {
+     "action": "show-pane",
+     "expectations": [
+      {
+       "detail": "ok == True, got True",
+       "path": "ok",
+       "verdict": "CONFIRMED"
+      }
+     ],
+     "id": "g158-a7surv-pane",
+     "message": "opened pane p-ind",
+     "ms": 85,
+     "result": "driven"
+    },
+    {
+     "action": "activate",
+     "expectations": [
+      {
+       "detail": "ok == True, got True",
+       "path": "ok",
+       "verdict": "CONFIRMED"
+      }
+     ],
+     "id": "g158-a7surv",
+     "message": "activate dial_btn:20",
+     "ms": 21,
+     "result": "driven"
+    },
+    {
+     "action": "show-pane",
+     "expectations": [
+      {
+       "detail": "ok == True, got True",
+       "path": "ok",
+       "verdict": "CONFIRMED"
+      }
+     ],
+     "id": "g158-hpane2",
+     "message": "opened pane p-her",
+     "ms": 104,
+     "result": "driven"
+    },
+    {
+     "action": "activate",
+     "expectations": [
+      {
+       "detail": "ok == True, got True",
+       "path": "ok",
+       "verdict": "CONFIRMED"
+      }
+     ],
+     "id": "g158-htr",
+     "message": "activate chip:13",
+     "ms": 22,
+     "result": "driven"
+    },
+    {
+     "action": "show-pane",
+     "expectations": [
+      {
+       "detail": "ok == True, got True",
+       "path": "ok",
+       "verdict": "CONFIRMED"
+      }
+     ],
+     "id": "g158-spane",
+     "message": "opened pane p-sel",
+     "ms": 113,
+     "result": "driven"
+    },
+    {
+     "action": "activate",
+     "expectations": [
+      {
+       "detail": "ok == True, got True",
+       "path": "ok",
+       "verdict": "CONFIRMED"
+      }
+     ],
+     "id": "g158-str",
+     "message": "activate chip:8",
+     "ms": 23,
+     "result": "driven"
+    },
+    {
+     "action": "show-pane",
+     "expectations": [
+      {
+       "detail": "ok == True, got True",
+       "path": "ok",
+       "verdict": "CONFIRMED"
+      }
+     ],
+     "id": "g158-xpane",
+     "message": "opened pane p-her",
+     "ms": 101,
+     "result": "driven"
+    },
+    {
+     "action": "activate",
+     "expectations": [
+      {
+       "detail": "ok == True, got True",
+       "path": "ok",
+       "verdict": "CONFIRMED"
+      }
+     ],
+     "id": "g158-csv",
+     "message": "activate action_btn:19",
+     "ms": 23,
+     "result": "driven"
+    },
+    {
+     "action": "collect-output",
+     "expectations": [
+      {
+       "detail": "output.payloads.0.k in ['copy', 'clipboard', 'download', 'print'], got 'clipboard'",
+       "path": "output.payloads.0.k",
+       "verdict": "CONFIRMED"
+      },
+      {
+       "detail": "output.payloads.0.text contains 'individual,cohort,sex,age,trait,unit,value,occasion,measurer,fitness,episode', got 'individual,cohort,sex,age,trait,unit,value,occasion,measurer,fitness,episode\\nA1,,M,adult,bill depth,mm,8,rep 1,obs A,0,drought Jun to Dec 2026\\nA2,,M,adult,bill depth,mm,9,rep 1,obs A,0,drought Jun to Dec 2026\\nA3,,M,adult,bill depth,mm,10,rep 1,obs A,1,drought Jun to Dec 2026\\nA4,,M,adult,bill depth,mm,11,rep 1,obs A,1,drought Jun to Dec 2026\\nA5,,M,adult,bill depth,mm,12,rep 1,obs A,1,drought Jun to Dec 2026\\nA6,,M,adult,bill depth,mm,13,rep 1,obs A,1,drought Jun to Dec 2026\\nA7,2026,M,adult,tarsus,mm,19.2,rep 1,obs A,1,drought Jun to Dec 2026'",
+       "path": "output.payloads.0.text",
+       "verdict": "CONFIRMED"
+      },
+      {
+       "detail": "output.payloads.0.text contains 'A1,,M,adult,bill depth,mm,8,rep 1,obs A,0,drought Jun to Dec 2026', got 'individual,cohort,sex,age,trait,unit,value,occasion,measurer,fitness,episode\\nA1,,M,adult,bill depth,mm,8,rep 1,obs A,0,drought Jun to Dec 2026\\nA2,,M,adult,bill depth,mm,9,rep 1,obs A,0,drought Jun to Dec 2026\\nA3,,M,adult,bill depth,mm,10,rep 1,obs A,1,drought Jun to Dec 2026\\nA4,,M,adult,bill depth,mm,11,rep 1,obs A,1,drought Jun to Dec 2026\\nA5,,M,adult,bill depth,mm,12,rep 1,obs A,1,drought Jun to Dec 2026\\nA6,,M,adult,bill depth,mm,13,rep 1,obs A,1,drought Jun to Dec 2026\\nA7,2026,M,adult,tarsus,mm,19.2,rep 1,obs A,1,drought Jun to Dec 2026'",
+       "path": "output.payloads.0.text#2",
+       "verdict": "CONFIRMED"
+      },
+      {
+       "detail": "output.payloads.0.text contains 'A7,2026,M,adult,tarsus,mm,19.2,rep 1,obs A,1,drought Jun to Dec 2026', got 'individual,cohort,sex,age,trait,unit,value,occasion,measurer,fitness,episode\\nA1,,M,adult,bill depth,mm,8,rep 1,obs A,0,drought Jun to Dec 2026\\nA2,,M,adult,bill depth,mm,9,rep 1,obs A,0,drought Jun to Dec 2026\\nA3,,M,adult,bill depth,mm,10,rep 1,obs A,1,drought Jun to Dec 2026\\nA4,,M,adult,bill depth,mm,11,rep 1,obs A,1,drought Jun to Dec 2026\\nA5,,M,adult,bill depth,mm,12,rep 1,obs A,1,drought Jun to Dec 2026\\nA6,,M,adult,bill depth,mm,13,rep 1,obs A,1,drought Jun to Dec 2026\\nA7,2026,M,adult,tarsus,mm,19.2,rep 1,obs A,1,drought Jun to Dec 2026'",
+       "path": "output.payloads.0.text#3",
+       "verdict": "CONFIRMED"
+      }
+     ],
+     "id": "g158-csvout",
+     "message": "1 payload(s)",
+     "ms": 1,
+     "result": "driven"
+    },
+    {
+     "action": "activate",
+     "expectations": [
+      {
+       "detail": "ok == True, got True",
+       "path": "ok",
+       "verdict": "CONFIRMED"
+      }
+     ],
+     "id": "g158-ind",
+     "message": "activate action_btn:20",
+     "ms": 25,
+     "result": "driven"
+    },
+    {
+     "action": "collect-output",
+     "expectations": [
+      {
+       "detail": "output.payloads.0.text contains 'individual,cohort,sex,age,fitness,dam,sire,note,bill_depth,bill_length,tarsus,mass,wing_chord', got 'individual,cohort,sex,age,fitness,dam,sire,note,bill_depth,bill_length,tarsus,mass,wing_chord\\nA1,,M,adult,0,,,\"Mist-net 3, 06:40.\",8.000,,,,\\nA2,,M,adult,0,,,,9.000,,,,\\nA3,,M,adult,1,,,,10.000,,,,\\nA4,,M,adult,1,,,,11.000,,,,\\nA5,,M,adult,1,,,,12.000,,,,\\nA6,,M,adult,1,,,,13.000,,,,\\nA7,2026,M,adult,1,A1,A2,,,,19.200,,'",
+       "path": "output.payloads.0.text",
+       "verdict": "CONFIRMED"
+      },
+      {
+       "detail": "output.payloads.0.text contains 'A1,,M,adult,0,,,\"Mist-net 3, 06:40.\",8.000,,,,', got 'individual,cohort,sex,age,fitness,dam,sire,note,bill_depth,bill_length,tarsus,mass,wing_chord\\nA1,,M,adult,0,,,\"Mist-net 3, 06:40.\",8.000,,,,\\nA2,,M,adult,0,,,,9.000,,,,\\nA3,,M,adult,1,,,,10.000,,,,\\nA4,,M,adult,1,,,,11.000,,,,\\nA5,,M,adult,1,,,,12.000,,,,\\nA6,,M,adult,1,,,,13.000,,,,\\nA7,2026,M,adult,1,A1,A2,,,,19.200,,'",
+       "path": "output.payloads.0.text#2",
+       "verdict": "CONFIRMED"
+      },
+      {
+       "detail": "output.payloads.0.text contains 'A7,2026,M,adult,1,A1,A2,,,,19.200,,', got 'individual,cohort,sex,age,fitness,dam,sire,note,bill_depth,bill_length,tarsus,mass,wing_chord\\nA1,,M,adult,0,,,\"Mist-net 3, 06:40.\",8.000,,,,\\nA2,,M,adult,0,,,,9.000,,,,\\nA3,,M,adult,1,,,,10.000,,,,\\nA4,,M,adult,1,,,,11.000,,,,\\nA5,,M,adult,1,,,,12.000,,,,\\nA6,,M,adult,1,,,,13.000,,,,\\nA7,2026,M,adult,1,A1,A2,,,,19.200,,'",
+       "path": "output.payloads.0.text#3",
+       "verdict": "CONFIRMED"
+      }
+     ],
+     "id": "g158-indout",
+     "message": "1 payload(s)",
+     "ms": 1,
+     "result": "driven"
+    },
+    {
+     "action": "activate",
+     "expectations": [
+      {
+       "detail": "ok == True, got True",
+       "path": "ok",
+       "verdict": "CONFIRMED"
+      }
+     ],
+     "id": "g158-eco",
+     "message": "activate action_btn:21",
+     "ms": 22,
+     "result": "driven"
+    },
+    {
+     "action": "collect-output",
+     "expectations": [
+      {
+       "detail": "output.payloads.0.text contains '# episode: drought Jun to Dec 2026   fitness: survived the episode (0/1)', got '# selection log\\n# episode: drought Jun to Dec 2026   fitness: survived the episode (0/1)\\n# 7 individuals, 7 measurements, 1 parent links\\n\\n  bill depth        n=6  mean 10.500  SD 1.871  R=not measured\\n  tarsus            n=1  mean 19.200  SD \u2014  R=not measured\\n\\n# no p-values are computed: effect size and its uncertainty are the quantities of interest'",
+       "path": "output.payloads.0.text",
+       "verdict": "CONFIRMED"
+      },
+      {
+       "detail": "output.payloads.0.text contains '# 7 individuals, 7 measurements, 1 parent links', got '# selection log\\n# episode: drought Jun to Dec 2026   fitness: survived the episode (0/1)\\n# 7 individuals, 7 measurements, 1 parent links\\n\\n  bill depth        n=6  mean 10.500  SD 1.871  R=not measured\\n  tarsus            n=1  mean 19.200  SD \u2014  R=not measured\\n\\n# no p-values are computed: effect size and its uncertainty are the quantities of interest'",
+       "path": "output.payloads.0.text#2",
+       "verdict": "CONFIRMED"
+      },
+      {
+       "detail": "output.payloads.0.text contains 'n=6  mean 10.500  SD 1.871  R=not measured', got '# selection log\\n# episode: drought Jun to Dec 2026   fitness: survived the episode (0/1)\\n# 7 individuals, 7 measurements, 1 parent links\\n\\n  bill depth        n=6  mean 10.500  SD 1.871  R=not measured\\n  tarsus            n=1  mean 19.200  SD \u2014  R=not measured\\n\\n# no p-values are computed: effect size and its uncertainty are the quantities of interest'",
+       "path": "output.payloads.0.text#3",
+       "verdict": "CONFIRMED"
+      },
+      {
+       "detail": "output.payloads.0.text contains 'n=1  mean 19.200  SD \u2014  R=not measured', got '# selection log\\n# episode: drought Jun to Dec 2026   fitness: survived the episode (0/1)\\n# 7 individuals, 7 measurements, 1 parent links\\n\\n  bill depth        n=6  mean 10.500  SD 1.871  R=not measured\\n  tarsus            n=1  mean 19.200  SD \u2014  R=not measured\\n\\n# no p-values are computed: effect size and its uncertainty are the quantities of interest'",
+       "path": "output.payloads.0.text#4",
+       "verdict": "CONFIRMED"
+      }
+     ],
+     "id": "g158-ecoout",
+     "message": "1 payload(s)",
+     "ms": 1,
+     "result": "driven"
+    },
+    {
+     "action": "show-pane",
+     "expectations": [
+      {
+       "detail": "ok == True, got True",
+       "path": "ok",
+       "verdict": "CONFIRMED"
+      }
+     ],
+     "id": "g158-endpane",
+     "message": "opened pane p-sel",
+     "ms": 80,
+     "result": "driven"
+    },
+    {
+     "action": "read-report",
+     "expectations": [
+      {
+       "detail": "ok == True, got True",
+       "path": "ok",
+       "verdict": "CONFIRMED"
+      },
+      {
+       "detail": "output.by.selOut.mean before mm == '10.500', got '10.500'",
+       "path": "output.by.selOut.mean before mm",
+       "verdict": "CONFIRMED"
+      },
+      {
+       "detail": "output.by.selOut.differential S mm == '1.000', got '1.000'",
+       "path": "output.by.selOut.differential S mm",
+       "verdict": "CONFIRMED"
+      },
+      {
+       "detail": "output.by.selOut.intensity i (SD units) == '0.586', got '0.586'",
+       "path": "output.by.selOut.intensity i (SD units)",
+       "verdict": "CONFIRMED"
+      },
+      {
+       "detail": "output.by.selOut.gradient \u03b2 (univariate) == '0.586', got '0.586'",
+       "path": "output.by.selOut.gradient \u03b2 (univariate)",
+       "verdict": "CONFIRMED"
+      },
+      {
+       "detail": "output.by.selOut.mean after == '11.500', got '11.500'",
+       "path": "output.by.selOut.mean after",
+       "verdict": "CONFIRMED"
+      }
+     ],
+     "id": "g158-endreport",
+     "message": "9 figure(s), 15 box(es), 4 list(s), 0 table(s), 19 heading(s)",
+     "ms": 7,
+     "result": "driven"
+    },
+    {
+     "action": "read-page",
+     "expectations": [
+      {
+       "detail": "output.junk == None, got None",
+       "path": "output.junk",
+       "verdict": "CONFIRMED"
+      },
+      {
+       "detail": "output.errors == [], got []",
+       "path": "output.errors",
+       "verdict": "CONFIRMED"
+      },
+      {
+       "detail": "output.overflow == 0, got 0",
+       "path": "output.overflow",
+       "verdict": "CONFIRMED"
+      }
+     ],
+     "id": "g158-endintact",
+     "message": "read the page",
+     "ms": 7,
      "result": "driven"
     }
    ],

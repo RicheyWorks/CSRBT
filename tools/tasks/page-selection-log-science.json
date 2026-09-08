@@ -2,7 +2,7 @@
  "id": "page-selection-log-science",
  "target": "page",
  "page": "selection-log.html",
- "goal": "On the selection log, enter six individuals A1-A6 with bill depths 8 9 10 11 12 13 mm, let A1 and A2 die and the rest survive, and find the selection analysis right: mean before 10.500, sample SD 1.871, mean after 11.500, differential S 1.000, intensity i and univariate gradient 0.586 (S over the population SD 1.708).",
+ "goal": "On the selection log enter six marked individuals A1-A6 with cohort, sex and age, bill depths 8-13 mm measured by a named observer under a named episode, let A1 and A2 die and the rest survive, add a wing-chord trait, add a seventh bird A7 with a tarsus measurement and link it to A1 and A2 as parents, and get the selection analysis and all three exports right: mean before 10.500, SD 1.871, differential 1.000, intensity 0.586.",
  "steps": [
   {
    "id": "look",
@@ -17,6 +17,58 @@
    "action": "show-pane",
    "arguments": {
     "pane": "p-ind"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "g158-ep",
+   "action": "set-text",
+   "arguments": {
+    "selector": "@control:fEp",
+    "value": "drought Jun to Dec 2026"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "g158-fc",
+   "action": "activate",
+   "arguments": {
+    "selector": "@control:fitEntry/survived the episode"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "g158-sex",
+   "action": "activate",
+   "arguments": {
+    "selector": "@control:indEntry/M"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "g158-age",
+   "action": "activate",
+   "arguments": {
+    "selector": "@control:indEntry/adult"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "g158-note",
+   "action": "set-text",
+   "arguments": {
+    "selector": "@control:iNote",
+    "value": "Mist-net 3, 06:40."
    },
    "expect": {
     "ok": true
@@ -160,6 +212,28 @@
    "action": "show-pane",
    "arguments": {
     "pane": "p-mea"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "g158-occ",
+   "action": "set-text",
+   "arguments": {
+    "selector": "@control:mOcc",
+    "value": "rep 1"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "g158-who",
+   "action": "set-text",
+   "arguments": {
+    "selector": "@control:mWho",
+    "value": "obs A"
    },
    "expect": {
     "ok": true
@@ -562,6 +636,396 @@
   },
   {
    "id": "intact",
+   "action": "read-page",
+   "expect": {
+    "output.junk": null,
+    "output.errors": {
+     "op": "==",
+     "value": []
+    },
+    "output.overflow": 0
+   }
+  },
+  {
+   "id": "g158-tmea",
+   "action": "show-pane",
+   "arguments": {
+    "pane": "p-mea"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "g158-tn",
+   "action": "set-text",
+   "arguments": {
+    "selector": "@control:tName",
+    "value": "wing chord"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "g158-tu",
+   "action": "set-text",
+   "arguments": {
+    "selector": "@control:tUnit",
+    "value": "mm"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "g158-tadd",
+   "action": "activate",
+   "arguments": {
+    "selector": "@control:tAdd"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "g158-a7pane",
+   "action": "show-pane",
+   "arguments": {
+    "pane": "p-ind"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "g158-a7coh",
+   "action": "set-text",
+   "arguments": {
+    "selector": "@control:iCoh",
+    "value": "2026"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "g158-a7id",
+   "action": "set-text",
+   "arguments": {
+    "selector": "@control:iId",
+    "value": "A7"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "g158-a7add",
+   "action": "activate",
+   "arguments": {
+    "selector": "@control:iAdd"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "g158-mpane",
+   "action": "show-pane",
+   "arguments": {
+    "pane": "p-mea"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "g158-a7pick",
+   "action": "pick",
+   "arguments": {
+    "selector": "@control:meaEntry",
+    "value": "A7"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "g158-a7tr",
+   "action": "activate",
+   "arguments": {
+    "selector": "@control:meaEntry/tarsus (mm)"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "g158-a7v",
+   "action": "set-text",
+   "arguments": {
+    "selector": "@control:meaEntry/value",
+    "value": "19.2"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "g158-a7m",
+   "action": "activate",
+   "arguments": {
+    "selector": "@control:mAdd"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "g158-hpane",
+   "action": "show-pane",
+   "arguments": {
+    "pane": "p-her"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "g158-poff",
+   "action": "pick",
+   "arguments": {
+    "selector": "@control:offspring filter",
+    "value": "A7"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "g158-pdam",
+   "action": "pick",
+   "arguments": {
+    "selector": "@control:dam filter",
+    "value": "A1"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "g158-psire",
+   "action": "pick",
+   "arguments": {
+    "selector": "@control:sire filter",
+    "value": "A2"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "g158-plink",
+   "action": "activate",
+   "arguments": {
+    "selector": "@control:pAdd"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "g158-a7surv-pane",
+   "action": "show-pane",
+   "arguments": {
+    "pane": "p-ind"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "g158-a7surv",
+   "action": "activate",
+   "arguments": {
+    "selector": "@control:iList/survived#6"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "g158-hpane2",
+   "action": "show-pane",
+   "arguments": {
+    "pane": "p-her"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "g158-htr",
+   "action": "activate",
+   "arguments": {
+    "selector": "@control:hTraitEntry/bill depth (mm)"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "g158-spane",
+   "action": "show-pane",
+   "arguments": {
+    "pane": "p-sel"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "g158-str",
+   "action": "activate",
+   "arguments": {
+    "selector": "@control:sTraitEntry/bill depth (mm)"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "g158-xpane",
+   "action": "show-pane",
+   "arguments": {
+    "pane": "p-her"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "g158-csv",
+   "action": "activate",
+   "arguments": {
+    "selector": "@control:csvCopy"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "g158-csvout",
+   "action": "collect-output",
+   "expect": {
+    "output.payloads.0.k": {
+     "op": "in",
+     "value": [
+      "copy",
+      "clipboard",
+      "download",
+      "print"
+     ]
+    },
+    "output.payloads.0.text": {
+     "op": "contains",
+     "value": "individual,cohort,sex,age,trait,unit,value,occasion,measurer,fitness,episode"
+    },
+    "output.payloads.0.text#2": {
+     "op": "contains",
+     "value": "A1,,M,adult,bill depth,mm,8,rep 1,obs A,0,drought Jun to Dec 2026"
+    },
+    "output.payloads.0.text#3": {
+     "op": "contains",
+     "value": "A7,2026,M,adult,tarsus,mm,19.2,rep 1,obs A,1,drought Jun to Dec 2026"
+    }
+   }
+  },
+  {
+   "id": "g158-ind",
+   "action": "activate",
+   "arguments": {
+    "selector": "@control:indCopy"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "g158-indout",
+   "action": "collect-output",
+   "expect": {
+    "output.payloads.0.text": {
+     "op": "contains",
+     "value": "individual,cohort,sex,age,fitness,dam,sire,note,bill_depth,bill_length,tarsus,mass,wing_chord"
+    },
+    "output.payloads.0.text#2": {
+     "op": "contains",
+     "value": "A1,,M,adult,0,,,\"Mist-net 3, 06:40.\",8.000,,,,"
+    },
+    "output.payloads.0.text#3": {
+     "op": "contains",
+     "value": "A7,2026,M,adult,1,A1,A2,,,,19.200,,"
+    }
+   }
+  },
+  {
+   "id": "g158-eco",
+   "action": "activate",
+   "arguments": {
+    "selector": "@control:ecoCopy"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "g158-ecoout",
+   "action": "collect-output",
+   "expect": {
+    "output.payloads.0.text": {
+     "op": "contains",
+     "value": "# episode: drought Jun to Dec 2026   fitness: survived the episode (0/1)"
+    },
+    "output.payloads.0.text#2": {
+     "op": "contains",
+     "value": "# 7 individuals, 7 measurements, 1 parent links"
+    },
+    "output.payloads.0.text#3": {
+     "op": "contains",
+     "value": "n=6  mean 10.500  SD 1.871  R=not measured"
+    },
+    "output.payloads.0.text#4": {
+     "op": "contains",
+     "value": "n=1  mean 19.200  SD —  R=not measured"
+    }
+   }
+  },
+  {
+   "id": "g158-endpane",
+   "action": "show-pane",
+   "arguments": {
+    "pane": "p-sel"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "g158-endreport",
+   "action": "read-report",
+   "expect": {
+    "ok": true,
+    "output.by.selOut.mean before mm": "10.500",
+    "output.by.selOut.differential S mm": "1.000",
+    "output.by.selOut.intensity i (SD units)": "0.586",
+    "output.by.selOut.gradient β (univariate)": "0.586",
+    "output.by.selOut.mean after": "11.500"
+   }
+  },
+  {
+   "id": "g158-endintact",
    "action": "read-page",
    "expect": {
     "output.junk": null,

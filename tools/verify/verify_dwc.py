@@ -131,8 +131,11 @@ def ready(pg, name):
     # first wait past its own budget -- the suite passed alone and timed out in
     # run_all, which is the worst kind of flake because it looks like a real
     # failure in whichever job happens to lose the race. A wait for a script to
-    # finish parsing is not a performance assertion; it should be generous.
-    pg.wait_for_function("() => typeof DWC !== 'undefined' && !!DWC.TERMS", timeout=60000)
+    # finish parsing is not a performance assertion; it should be generous. 60 s
+    # then lost the same race once more under a heavier -j2 run (ADR-158); the
+    # remedy for a parse-wait that keeps losing is a more generous budget, not a
+    # cleverer wait -- 120 s, well past any honest page-init time.
+    pg.wait_for_function("() => typeof DWC !== 'undefined' && !!DWC.TERMS", timeout=120000)
     pg.wait_for_timeout(150)
 
 

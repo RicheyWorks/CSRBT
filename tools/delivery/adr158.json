@@ -1,0 +1,29 @@
+{
+ "id": "adr158",
+ "chain": "adr157",
+ "chain_probe": "tools/tasks/page-survey-design-science.json",
+ "subject": "ADR-158: the selection log, recorded whole -- marked individuals, traits and measured selection, entered and exported",
+ "body": "THE SELECTION LOG -- selection-log.html, the page that measures natural selection on marked individuals -- WAS THE KIT'S WORST-COVERED DATA-ENTRY PAGE: 10 OF 25 value-carrying fields ever entered. It computes the selection differential S (the fitness-weighted trait mean minus the mean), the intensity i = S/sigma, and the univariate gradient beta (Lande & Arnold's regression of relative fitness on the standardized trait), with replicate measurements feeding a repeatability that says how much the observer's own error is flattening the gradient. Its task entered six birds, measured bill depth, let two die, and checked the analysis -- but FIFTEEN OF ITS TWENTY-FIVE FIELDS WERE NEVER ENTERED (cohort, sex and age dials, the note, the episode, the fitness component, the measurement's occasion and observer, the add-a-trait fields, the parent-linking pickers, the Selection and Heritability trait selectors) and ALL THREE OF THE FILES IT EXPORTS WERE READ BY NOTHING. The existing scenario is KEPT VERBATIM -- same birds, same deaths, so every selection-analysis assertion (mean before 10.500, differential 1.000, intensity 0.586, gradient 0.586) still holds -- and the missing fields are driven around it: the sex and age dials are set once and persist across the adds, the episode and fitness component are named, each measurement carries an occasion and an observer, a WING-CHORD TRAIT is added, and a SEVENTH BIRD A7 is entered with a full cohort/sex/age record, given a tarsus measurement, marked a survivor and LINKED TO A1 AND A2 AS ITS PARENTS -- A7 carries no bill depth, so it enters the pedigree and the exports WITHOUT MOVING ONE FIGURE in the bill-depth selection analysis. All three exports are then read and held against a Python oracle that re-implements the page's own mean / sd / sdPop / reg and JavaScript toFixed (round-half-up on the Decimal of each float): the measurements CSV (7 rows: individual,cohort,sex,age,trait,unit,value,occasion,measurer,fitness,episode), the one-row-per-individual CSV that is a multiple regression's input (the A7 row carrying dam A1 and sire A2), and the study sheet's per-trait n / mean / SD (bill depth n=6, the new tarsus n=1). THE GENERATOR REFUSES TO EMIT unless its selection figures reproduce the six the page already asserted -- both sides of every claim come from the same arithmetic. selection-log 10 -> 26 OF 26 FIELDS, 0 -> 3 exports held, 77 -> 123 confirmed and 0 refuted, and the kit 433 -> 449 of 521 (86%), 15 of 27 pages entered whole. Held: the seventh bird is outside the selection analysis by design -- a tarsus, no bill depth -- so the differential, intensity and gradient are untouched; cohort is entered on A7 alone because it shows in the pickers' sub-line and setting it on A1-A6 would change the label the six existing measurement picks match; and no page was edited -- a task-only slice, the eighth page driven end to end with its arithmetic pinned. One test fix rode along, unrelated to the page: verify_dwc waits for the page's DWC global to finish parsing, and that wait -- already raised 20s -> 60s once for the same reason -- lost the race again under this heavier -j2 run and timed out where the suite passes alone. Per ADR-143 (a flake is a measurement of the test) the parse-wait budget is raised to 120s, well past any honest page-init time; a parse-wait that keeps losing wants a more generous budget, not a cleverer wait.",
+ "paths": [
+  "tools/tasks/page-selection-log-science.json",
+  "tools/entry_ledger.json",
+  "tools/outputs_ledger.json",
+  "tools/task_ledger.json",
+  "tools/delivery_ledger.json",
+  "tools/verify/counts.json",
+  "tools/verify/verify_dwc.py",
+  "tools/harness_board.html",
+  "tools/published.json",
+  "tools/delivery/adr158.json",
+  "docs/ADR-158-the-selection-log-recorded-whole-2026-09-08.md",
+  "docs/CHANGELOG-2026-09-08-adr158-the-selection-log-recorded-whole.md",
+  "docs/AI_HARNESS.md"
+ ],
+ "clean": [
+  "adr128", "adr129", "adr130", "adr131", "adr132", "adr133", "adr134",
+  "adr135", "adr136", "adr137", "adr138", "adr139", "adr140", "adr141",
+  "adr142", "adr143", "adr144", "adr145", "adr146", "adr147", "adr148",
+  "adr149", "adr150", "adr151", "adr152", "adr153", "adr154", "adr155",
+  "adr156", "adr157", "adr158"
+ ]
+}
