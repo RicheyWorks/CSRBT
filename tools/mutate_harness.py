@@ -94,6 +94,26 @@ MUTANTS = [
      'r["note"] = ((r.get("note") or "") + " [needed prior state]").strip()',
      'r["note"] = (r.get("note") or "")',
      "J2"),
+    # ---- L: the instrument's own state must not reach the page (ADR-155) ------
+    # Put the leak back: the counter is no longer reset for each page, so what
+    # gets typed depends on how many fields the RUN has already filled, and a
+    # page measured after other pages is measured differently.
+    ("the fill counter is no longer reset for each page",
+     "        _reset_ticks()      # this page's fills start from one -- see _FILLS\n",
+     "",
+     "L1"),
+    # The same leak by the other door: the reset is called and does nothing.
+    ("resetting the fill counter silently does nothing",
+     "def _reset_ticks():\n    _FILLS.n = 0",
+     "def _reset_ticks():\n    pass",
+     "L1"),
+    # Correct alone, wrong under -j2: a plain global is shared by the two walks
+    # running at once, so each resets the other's counter mid-page.
+    ("the fill counter goes back to being shared between concurrent walks",
+     "_FILLS = threading.local()",
+     "_FILLS = type('G', (), {})()",
+     "L4"),
+
     ("the accounting loses a bucket",
      'BUCKETS = ("driven", "dead", "sequenced", "hidden", "failed", "excluded")',
      'BUCKETS = ("driven", "dead", "sequenced", "hidden", "failed")',

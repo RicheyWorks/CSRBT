@@ -26,6 +26,7 @@ MUTATE_ROLE = "fixture-builder"
 Run:  python3 tools/verify/verify_harness_matrix.py
 """
 import io, json, os, sys, tempfile
+import threading as _thread, time as _time
 
 ROOT = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 sys.path.insert(0, os.path.join(ROOT, "tools"))
@@ -464,8 +465,142 @@ for nm, body in (("k_shut2", SHUT), ("k_none2",
     ck("K7[%s]: and the identity holds" % nm, accounted(r), r["discovered"])
 
 
+# ══ L. THE INSTRUMENT'S OWN STATE MUST NOT REACH THE PAGE ═════════════════════
+# PROMISE: what the harness measures about a page is a fact about THAT PAGE.
+#
+# It was not. The counter that makes every fill a different value -- so a field
+# is never filled with what it already holds -- was a module global shared by
+# every page in the run. survey-design driven ALONE was filled with "harness-3";
+# driven as page 35 of 41 it was filled with "harness-378". Three characters
+# wider, and a row that fitted a 390px phone stopped fitting.
+#
+# This repo's own files carry the receipt. The same two pages, unchanged, at
+# three different answers:
+#
+#   committed ledger (pre-ADR-128)   selection-log 38   survey-design  0
+#   working-copy ledger 08-31        selection-log 38   survey-design 23
+#   a run today on this tree         selection-log  0   survey-design  0
+#
+# Two consequences, and the second is the worse one:
+#   * a finding you cannot reproduce by opening the page it names never gets
+#     fixed; it gets accepted, and an accepted finding is one nobody reads
+#     again. ADR-128 fixed the real layout defect and nobody could tell, because
+#     the number it was meant to move had never been a property of the page --
+#     twelve baseline entries stayed accepted for twenty-six more ADRs;
+#   * whether the kit was GREEN depended on the order the pages were walked in.
+#
+# Section F already claimed determinism and passed throughout, because it
+# compares bucket counts on a fixture with NO TEXT INPUT -- it never looked at
+# what the harness types. A promise checked only where it cannot be broken is
+# not checked.
+print("\n-- L. what the harness typed last does not change what it measures next --")
+
+# L1 IS AN ABSOLUTE STATEMENT, NOT A COMPARISON -- AND THE FIRST VERSION WASN'T
+#
+# It ran the fixture twice, once after a filler page, and compared the two. A
+# mutant that deletes the per-page reset SURVIVED it: sections A-K have already
+# driven dozens of fixtures in this same thread, so with the reset gone BOTH
+# runs start from a high counter, both spill, the two agree, and the check
+# passes. Right about what it compared, wrong about what the comparison meant --
+# which is the defect this whole section is named after, committed inside the
+# check written to catch it.
+#
+# The fix is to stop comparing. What is true of a page whatever ran before it is
+# that its FIRST fill is "harness-1". The fixture below always overflows when
+# filled, and the spill message carries the value that was typed, so the check
+# reads the harness's own report and asserts an absolute fact.
+SPILLY = (
+    '<div style="width:300px"><input id="i" type="text">'
+    '<span id="o" style="white-space:pre;display:inline-block;width:900px"></span>'
+    '</div>'
+    '<script>document.getElementById("i").addEventListener("input",function(){'
+    '  document.getElementById("o").textContent = this.value;'
+    '});</script>')
+
+# Ten text inputs: enough fills to push any process-wide counter well past one.
+FILLER = "".join('<input id="p%d" type="text">' % i for i in range(10))
+
+run("l_filler", FILLER)                     # advance whatever counter exists
+r_after = run("l_after", SPILLY)
+typed = [e for e in r_after["errors"] if "spills" in e]
+
+ck("L1: a page's first fill is harness-1, whatever ran before it",
+   any('"harness-1"' in e for e in typed), typed)
+
+# So L1 cannot be satisfied by a harness that has stopped filling anything, or
+# by a fixture that stopped spilling: the report has to exist to be read.
+ck("L2: and the fixture was actually driven and actually reported",
+   bool(r_after["driven"]) and bool(typed),
+   (labels(r_after, "driven"), typed))
+
+harness._reset_ticks()
+first = harness._tick()
+harness._tick(); harness._tick()
+harness._reset_ticks()
+again = harness._tick()
+ck("L3: the fill counter restarts at one for each page", first == 1 and again == 1,
+   (first, again))
+
+# Concurrency, because the run drives two pages at a time. A per-page reset that
+# is merely a global assignment is still two walks clobbering each other, and
+# that failure appears only under -j2 -- the hardest kind to notice.
+# A BARRIER, NOT A SLEEP. The first version had each thread reset, sleep, then
+# tick -- and a mutant that makes the counter a plain shared global SURVIVED it,
+# because two threads started back to back do not interleave: the first finished
+# reset-and-tick before the second had begun, so both read 1 even while sharing
+# one counter. A concurrency check whose threads never overlap is testing
+# nothing, in the way that is hardest to notice: it passes.
+#
+# The barrier makes the overlap the point. Both walks reset, and only then does
+# either take a number. Sharing one counter, the second gets 2.
+_seen, _bar = [], _thread.Barrier(2)
+def _worker():
+    harness._reset_ticks()
+    _bar.wait()                 # both have reset before either ticks
+    _seen.append(harness._tick())
+ts = [_thread.Thread(target=_worker) for _ in range(2)]
+for t in ts: t.start()
+for t in ts: t.join()
+ck("L4: two walks running at once do not share the counter", _seen == [1, 1], _seen)
+
+ck("L5: and the accounting still holds on the fixtures", accounted(r_after),
+   r_after["discovered"])
+
+# L6 exists because L1-L5 only prove the leak we tripped over is gone. "We fixed
+# the one we found" is not an audit, and the next module-level counter somebody
+# adds will cross pages exactly the same way and pass every check above.
+#
+# The rule: module-level state in harness.py is CONFIGURATION -- the viewport,
+# the kind list, the exclusions -- and configuration is not written to while the
+# walk runs. Anything that must change during a run is per-page, which in a
+# thread pool means thread-local. _FILLS is a threading.local() and is therefore
+# exempt by construction, which is the whole point of it being one.
+import ast as _ast                                               # noqa: E402
+_src = io.open(os.path.join(ROOT, "tools", "harness.py"), encoding="utf-8").read()
+_tree = _ast.parse(_src)
+_MUT = ("append", "extend", "update", "pop", "clear", "setdefault", "insert", "remove")
+_mod = {t.id for n in _tree.body if isinstance(n, _ast.Assign)
+        for t in n.targets if isinstance(t, _ast.Name)}
+_writes = []
+for _n in _ast.walk(_tree):
+    if isinstance(_n, _ast.Global):
+        _writes.append("line %d: global %s" % (_n.lineno, ", ".join(_n.names)))
+    if (isinstance(_n, _ast.Call) and isinstance(_n.func, _ast.Attribute)
+            and isinstance(_n.func.value, _ast.Name)
+            and _n.func.value.id in _mod and _n.func.attr in _MUT):
+        _writes.append("line %d: %s.%s(...)" % (_n.lineno, _n.func.value.id, _n.func.attr))
+    _tg = (_n.targets if isinstance(_n, _ast.Assign)
+           else [_n.target] if isinstance(_n, _ast.AugAssign) else [])
+    for _t in _tg:
+        if (isinstance(_t, _ast.Subscript) and isinstance(_t.value, _ast.Name)
+                and _t.value.id in _mod):
+            _writes.append("line %d: %s[...] = ..." % (_n.lineno, _t.value.id))
+ck("L6: no module-level state in the harness is written to during a run",
+   not _writes, _writes)
+
+
 # ══ I. IS THIS SUITE ITSELF WORTH ANYTHING? ══════════════════════════════════
-# The catalogue in tools/mutate_harness.py breaks the harness fifteen ways on a COPY
+# The catalogue in tools/mutate_harness.py breaks the harness eighteen ways on a COPY
 # and requires this suite to notice each one. Running the whole catalogue here
 # would take minutes, so what is asserted is that the catalogue exists, that
 # every mutant names the check that must kill it, and that every anchor it uses
@@ -475,7 +610,7 @@ for nm, body in (("k_shut2", SHUT), ("k_none2",
 print("\n-- I. the mutation catalogue still bites --")
 import mutate_harness                                            # noqa: E402
 src = io.open(os.path.join(ROOT, "tools", "harness.py"), encoding="utf-8").read()
-ck("I1: the catalogue is not empty", len(mutate_harness.MUTANTS) >= 15,
+ck("I1: the catalogue is not empty", len(mutate_harness.MUTANTS) >= 18,
    len(mutate_harness.MUTANTS))
 if os.environ.get("HARNESS_MUTANT"):
     # A mutation run has deliberately changed the harness, so an anchor that no

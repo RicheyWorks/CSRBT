@@ -1,5 +1,5 @@
 {
- "at": 1788136020,
+ "at": 1788819939,
  "viewport": {
   "width": 390,
   "height": 844
@@ -17,7 +17,7 @@
   "failed": 0,
   "excluded": 1066,
   "discovered": 3699,
-  "invariant_breaks": 61
+  "invariant_breaks": 0
  },
  "pages": [
   {
@@ -162,8 +162,8 @@
    "calls": [],
    "junk_on_load": "",
    "passes": 2,
-   "secs": 1.7,
-   "at": 1788136020
+   "secs": 1.4,
+   "at": 1788819939
   },
   {
    "page": "breeding-bench.html",
@@ -1526,8 +1526,8 @@
     "retried": 2,
     "revived": 2
    },
-   "secs": 30.6,
-   "at": 1788136020
+   "secs": 23.0,
+   "at": 1788819939
   },
   {
    "page": "breeding-suite.html",
@@ -1703,8 +1703,8 @@
    "calls": [],
    "junk_on_load": "",
    "passes": 2,
-   "secs": 1.6,
-   "at": 1788136020
+   "secs": 1.2,
+   "at": 1788819939
   },
   {
    "page": "cell-bench.html",
@@ -2357,8 +2357,8 @@
    "calls": [],
    "junk_on_load": "",
    "passes": 2,
-   "secs": 13.4,
-   "at": 1788136020
+   "secs": 10.6,
+   "at": 1788819939
   },
   {
    "page": "collection-sheet.html",
@@ -2591,7 +2591,7 @@
     {
      "id": "text_in:9",
      "kind": "text_in",
-     "label": "2026-08-31",
+     "label": "2026-09-07",
      "pane": "p-site",
      "note": "filled"
     },
@@ -4585,8 +4585,8 @@
    ],
    "junk_on_load": "",
    "passes": 2,
-   "secs": 52.8,
-   "at": 1788136020
+   "secs": 37.5,
+   "at": 1788819939
   },
   {
    "page": "cp-bench.html",
@@ -4680,6 +4680,13 @@
      "id": "step_val:6",
      "kind": "step_val",
      "label": "Your target: for at least",
+     "pane": "p-sea",
+     "note": "filled"
+    },
+    {
+     "id": "step_val:7",
+     "kind": "step_val",
+     "label": "Temperature today",
      "pane": "p-sea",
      "note": "filled"
     },
@@ -5403,13 +5410,6 @@
      "label": "Save to cross",
      "pane": "p-cro",
      "note": "clicked"
-    },
-    {
-     "id": "step_val:7",
-     "kind": "step_val",
-     "label": "Temperature today",
-     "pane": "p-sea",
-     "note": "filled [needed prior state]"
     }
    ],
    "dead": [],
@@ -5714,12 +5714,8 @@
    "calls": [],
    "junk_on_load": "",
    "passes": 3,
-   "second_chance": {
-    "retried": 1,
-    "revived": 1
-   },
-   "secs": 28.3,
-   "at": 1788136020
+   "secs": 19.1,
+   "at": 1788819939
   },
   {
    "page": "cp-characters.html",
@@ -6125,8 +6121,8 @@
    "calls": [],
    "junk_on_load": "",
    "passes": 2,
-   "secs": 4.1,
-   "at": 1788136020
+   "secs": 2.9,
+   "at": 1788819939
   },
   {
    "page": "cp-suite.html",
@@ -6286,8 +6282,8 @@
    "calls": [],
    "junk_on_load": "",
    "passes": 2,
-   "secs": 1.5,
-   "at": 1788136020
+   "secs": 1.1,
+   "at": 1788819939
   },
   {
    "page": "deployment-log.html",
@@ -7180,8 +7176,8 @@
    ],
    "junk_on_load": "",
    "passes": 2,
-   "secs": 19.3,
-   "at": 1788136020
+   "secs": 14.1,
+   "at": 1788819939
   },
   {
    "page": "douglas-explorer.html",
@@ -7317,8 +7313,8 @@
    "calls": [],
    "junk_on_load": "",
    "passes": 2,
-   "secs": 1.7,
-   "at": 1788136020
+   "secs": 1.5,
+   "at": 1788819939
   },
   {
    "page": "eco-protocol-library.html",
@@ -7520,8 +7516,8 @@
    ],
    "junk_on_load": "",
    "passes": 2,
-   "secs": 2.3,
-   "at": 1788136020
+   "secs": 1.7,
+   "at": 1788819939
   },
   {
    "page": "eco-protocol-reference.html",
@@ -7777,8 +7773,8 @@
    "calls": [],
    "junk_on_load": "",
    "passes": 2,
-   "secs": 1.6,
-   "at": 1788136020
+   "secs": 1.2,
+   "at": 1788819939
   },
   {
    "page": "ecology-essay.html",
@@ -7946,8 +7942,8 @@
    "calls": [],
    "junk_on_load": "",
    "passes": 2,
-   "secs": 1.8,
-   "at": 1788136020
+   "secs": 1.1,
+   "at": 1788819939
   },
   {
    "page": "ecology-field-card.html",
@@ -8091,8 +8087,8 @@
    "calls": [],
    "junk_on_load": "",
    "passes": 2,
-   "secs": 1.6,
-   "at": 1788136020
+   "secs": 1.4,
+   "at": 1788819939
   },
   {
    "page": "ecology-field-guide.html",
@@ -8316,8 +8312,8 @@
    "calls": [],
    "junk_on_load": "",
    "passes": 2,
-   "secs": 1.5,
-   "at": 1788136020
+   "secs": 1.2,
+   "at": 1788819939
   },
   {
    "page": "ecology-glossary.html",
@@ -8517,8 +8513,8 @@
    "calls": [],
    "junk_on_load": "",
    "passes": 2,
-   "secs": 1.5,
-   "at": 1788136020
+   "secs": 1.2,
+   "at": 1788819939
   },
   {
    "page": "ecology-lab-manual.html",
@@ -8782,8 +8778,8 @@
    "calls": [],
    "junk_on_load": "",
    "passes": 2,
-   "secs": 1.7,
-   "at": 1788136020
+   "secs": 1.4,
+   "at": 1788819939
   },
   {
    "page": "ecology-lab.html",
@@ -8807,6 +8803,13 @@
      "id": "text_in:3",
      "kind": "text_in",
      "label": "site A species",
+     "pane": null,
+     "note": "filled"
+    },
+    {
+     "id": "text_in:4",
+     "kind": "text_in",
+     "label": "site A count",
      "pane": null,
      "note": "filled"
     },
@@ -8926,13 +8929,6 @@
      "id": "text_in:24",
      "kind": "text_in",
      "label": "120",
-     "pane": null,
-     "note": "filled"
-    },
-    {
-     "id": "text_in:25",
-     "kind": "text_in",
-     "label": "5",
      "pane": null,
      "note": "filled"
     },
@@ -9364,9 +9360,9 @@
      "note": "clicked (stepped the other way first)"
     },
     {
-     "id": "text_in:4",
+     "id": "text_in:25",
      "kind": "text_in",
-     "label": "site A count",
+     "label": "5",
      "pane": null,
      "note": "filled [needed prior state]"
     },
@@ -9762,8 +9758,8 @@
     "retried": 3,
     "revived": 3
    },
-   "secs": 23.0,
-   "at": 1788136020
+   "secs": 17.7,
+   "at": 1788819939
   },
   {
    "page": "ecology-teachers-guide.html",
@@ -10227,8 +10223,8 @@
    "calls": [],
    "junk_on_load": "",
    "passes": 2,
-   "secs": 1.8,
-   "at": 1788136020
+   "secs": 1.3,
+   "at": 1788819939
   },
   {
    "page": "ecology.html",
@@ -10676,8 +10672,8 @@
    "calls": [],
    "junk_on_load": "",
    "passes": 2,
-   "secs": 1.8,
-   "at": 1788136020
+   "secs": 1.5,
+   "at": 1788819939
   },
   {
    "page": "ethogram.html",
@@ -10742,7 +10738,7 @@
     {
      "id": "text_in:1",
      "kind": "text_in",
-     "label": "2026-08-31",
+     "label": "2026-09-07",
      "pane": "p-des",
      "note": "filled"
     },
@@ -11446,8 +11442,8 @@
    "calls": [],
    "junk_on_load": "",
    "passes": 2,
-   "secs": 12.3,
-   "at": 1788136020
+   "secs": 9.5,
+   "at": 1788819939
   },
   {
    "page": "experiment-guide.html",
@@ -12115,8 +12111,8 @@
    "calls": [],
    "junk_on_load": "",
    "passes": 2,
-   "secs": 5.0,
-   "at": 1788136020
+   "secs": 3.4,
+   "at": 1788819939
   },
   {
    "page": "farm-scout.html",
@@ -12209,7 +12205,7 @@
     {
      "id": "text_in:10",
      "kind": "text_in",
-     "label": "2026-08-31",
+     "label": "2026-09-07",
      "pane": "p-rot",
      "note": "filled"
     },
@@ -12916,21 +12912,21 @@
     {
      "id": "text_in:14",
      "kind": "text_in",
-     "label": "harness-224",
+     "label": "harness-7",
      "pane": "p-rot",
      "note": "filled"
     },
     {
      "id": "text_in:15",
      "kind": "text_in",
-     "label": "harness-226",
+     "label": "harness-8",
      "pane": "p-rot",
      "note": "filled"
     },
     {
      "id": "text_in:16",
      "kind": "text_in",
-     "label": "2026-06-05",
+     "label": "2026-06-10",
      "pane": "p-rot",
      "note": "filled"
     },
@@ -13427,21 +13423,21 @@
     {
      "id": "text_in:26",
      "kind": "text_in",
-     "label": "harness-245",
+     "label": "harness-16",
      "pane": "p-rot",
      "note": "filled"
     },
     {
      "id": "text_in:27",
      "kind": "text_in",
-     "label": "harness-246",
+     "label": "harness-17",
      "pane": "p-rot",
      "note": "filled"
     },
     {
      "id": "text_in:28",
      "kind": "text_in",
-     "label": "2026-06-24",
+     "label": "2026-06-19",
      "pane": "p-rot",
      "note": "filled"
     },
@@ -14787,8 +14783,8 @@
    "calls": [],
    "junk_on_load": "",
    "passes": 3,
-   "secs": 58.4,
-   "at": 1788136020
+   "secs": 43.6,
+   "at": 1788819939
   },
   {
    "page": "field-notebook.html",
@@ -14860,7 +14856,7 @@
     {
      "id": "text_in:4",
      "kind": "text_in",
-     "label": "2026-08-31",
+     "label": "2026-09-07",
      "pane": "p-more",
      "note": "filled"
     },
@@ -15369,8 +15365,8 @@
     "retried": 2,
     "revived": 2
    },
-   "secs": 14.1,
-   "at": 1788136020
+   "secs": 11.7,
+   "at": 1788819939
   },
   {
    "page": "field-season.html",
@@ -15788,8 +15784,8 @@
    "calls": [],
    "junk_on_load": "",
    "passes": 2,
-   "secs": 3.4,
-   "at": 1788136020
+   "secs": 3.0,
+   "at": 1788819939
   },
   {
    "page": "food-web.html",
@@ -16112,8 +16108,8 @@
    ],
    "junk_on_load": "",
    "passes": 2,
-   "secs": 3.0,
-   "at": 1788136020
+   "secs": 2.3,
+   "at": 1788819939
   },
   {
    "page": "fungal-characters.html",
@@ -16717,8 +16713,8 @@
    "calls": [],
    "junk_on_load": "",
    "passes": 2,
-   "secs": 8.8,
-   "at": 1788136020
+   "secs": 6.6,
+   "at": 1788819939
   },
   {
    "page": "greenhouse.html",
@@ -17404,8 +17400,8 @@
    ],
    "junk_on_load": "",
    "passes": 2,
-   "secs": 15.0,
-   "at": 1788136020
+   "secs": 12.0,
+   "at": 1788819939
   },
   {
    "page": "micro-bench.html",
@@ -17919,8 +17915,8 @@
    "calls": [],
    "junk_on_load": "",
    "passes": 3,
-   "secs": 9.3,
-   "at": 1788136020
+   "secs": 7.4,
+   "at": 1788819939
   },
   {
    "page": "ordination.html",
@@ -18344,8 +18340,8 @@
    ],
    "junk_on_load": "",
    "passes": 2,
-   "secs": 7.9,
-   "at": 1788136020
+   "secs": 6.7,
+   "at": 1788819939
   },
   {
    "page": "pheno-tracker.html",
@@ -18424,7 +18420,7 @@
     {
      "id": "text_in:2",
      "kind": "text_in",
-     "label": "2026-08-31",
+     "label": "2026-09-07",
      "pane": "p-run",
      "note": "filled"
     },
@@ -18585,7 +18581,7 @@
     {
      "id": "text_in:7",
      "kind": "text_in",
-     "label": "harness-309",
+     "label": "harness-9",
      "pane": "p-seg",
      "note": "filled"
     },
@@ -19198,8 +19194,8 @@
     "retried": 2,
     "revived": 2
    },
-   "secs": 16.6,
-   "at": 1788136020
+   "secs": 13.5,
+   "at": 1788819939
   },
   {
    "page": "plant-characters.html",
@@ -19725,8 +19721,8 @@
    "calls": [],
    "junk_on_load": "",
    "passes": 2,
-   "secs": 6.7,
-   "at": 1788136020
+   "secs": 5.3,
+   "at": 1788819939
   },
   {
    "page": "releve.html",
@@ -19854,7 +19850,7 @@
     {
      "id": "text_in:4",
      "kind": "text_in",
-     "label": "2026-08-31",
+     "label": "2026-09-07",
      "pane": "p-plot",
      "note": "filled"
     },
@@ -22013,8 +22009,8 @@
    ],
    "junk_on_load": "",
    "passes": 3,
-   "secs": 53.7,
-   "at": 1788136020
+   "secs": 40.7,
+   "at": 1788819939
   },
   {
    "page": "selection-log.html",
@@ -22413,7 +22409,7 @@
      "note": "filled"
     },
     {
-     "id": "step_val:4",
+     "id": "step_val:5",
      "kind": "step_val",
      "label": "1",
      "pane": "p-ind",
@@ -23022,7 +23018,7 @@
      "note": "clicked"
     },
     {
-     "id": "step_val:5",
+     "id": "step_val:4",
      "kind": "step_val",
      "label": "1",
      "pane": "p-ind",
@@ -23323,46 +23319,7 @@
      "why": "nav_link"
     }
    ],
-   "errors": [
-    "spills 37px sideways [action_btn:0 Add individual]: div.row2 w=394, button. w=44",
-    "spills 15px sideways [step_val:0 1]: div.row2 w=372, div.row2 w=372",
-    "spills 15px sideways [step_val:1 1]: div.row2 w=372, div.row2 w=372",
-    "spills 15px sideways [step_val:2 0]: div.row2 w=372, div.row2 w=372",
-    "spills 15px sideways [step_val:3 0]: div.row2 w=372, div.row2 w=372",
-    "spills 15px sideways [step_val:4 1]: div.row2 w=372, div.row2 w=372",
-    "spills 15px sideways [step_val:5 1]: div.row2 w=372, div.row2 w=372",
-    "spills 15px sideways [step_val:6 0]: div.row2 w=372, div.row2 w=372",
-    "spills 15px sideways [step_val:7 1]: div.row2 w=372, div.row2 w=372",
-    "spills 15px sideways [step_val:8 0]: div.row2 w=372, div.row2 w=372",
-    "spills 15px sideways [step_val:9 1]: div.row2 w=372, div.row2 w=372",
-    "spills 15px sideways [step_val:10 0]: div.row2 w=372, div.row2 w=372",
-    "spills 15px sideways [step_val:11 1]: div.row2 w=372, div.row2 w=372",
-    "spills 15px sideways [step_btn:0 \u2212]: div.row2 w=372, div.row2 w=372",
-    "spills 15px sideways [step_btn:1 +]: div.row2 w=372, div.row2 w=372",
-    "spills 15px sideways [step_btn:2 \u2212]: div.row2 w=372, div.row2 w=372",
-    "spills 15px sideways [step_btn:3 +]: div.row2 w=372, div.row2 w=372",
-    "spills 15px sideways [step_btn:4 \u2212]: div.row2 w=372, div.row2 w=372",
-    "spills 15px sideways [step_btn:5 +]: div.row2 w=372, div.row2 w=372",
-    "spills 15px sideways [step_btn:6 \u2212]: div.row2 w=372, div.row2 w=372",
-    "spills 15px sideways [step_btn:7 +]: div.row2 w=372, div.row2 w=372",
-    "spills 15px sideways [step_btn:8 \u2212]: div.row2 w=372, div.row2 w=372",
-    "spills 15px sideways [step_btn:9 +]: div.row2 w=372, div.row2 w=372",
-    "spills 15px sideways [step_btn:10 \u2212]: div.row2 w=372, div.row2 w=372",
-    "spills 15px sideways [step_btn:11 +]: div.row2 w=372, div.row2 w=372",
-    "spills 15px sideways [step_btn:12 \u2212]: div.row2 w=372, div.row2 w=372",
-    "spills 15px sideways [step_btn:13 +]: div.row2 w=372, div.row2 w=372",
-    "spills 15px sideways [step_btn:14 \u2212]: div.row2 w=372, div.row2 w=372",
-    "spills 15px sideways [step_btn:15 +]: div.row2 w=372, div.row2 w=372",
-    "spills 15px sideways [step_btn:16 \u2212]: div.row2 w=372, div.row2 w=372",
-    "spills 15px sideways [step_btn:17 +]: div.row2 w=372, div.row2 w=372",
-    "spills 15px sideways [step_btn:18 \u2212]: div.row2 w=372, div.row2 w=372",
-    "spills 15px sideways [step_btn:19 +]: div.row2 w=372, div.row2 w=372",
-    "spills 15px sideways [step_btn:20 \u2212]: div.row2 w=372, div.row2 w=372",
-    "spills 15px sideways [step_btn:21 +]: div.row2 w=372, div.row2 w=372",
-    "spills 15px sideways [step_btn:22 \u2212]: div.row2 w=372, div.row2 w=372",
-    "spills 15px sideways [step_btn:23 +]: div.row2 w=372, div.row2 w=372",
-    "spills 15px sideways [step_val:5 1]: div.row2 w=372, div.row2 w=372"
-   ],
+   "errors": [],
    "calls": [
     "clipboard",
     "clipboard",
@@ -23375,8 +23332,8 @@
     "retried": 1,
     "revived": 1
    },
-   "secs": 29.6,
-   "at": 1788136020
+   "secs": 23.9,
+   "at": 1788819939
   },
   {
    "page": "soil-bench.html",
@@ -24080,8 +24037,8 @@
    "calls": [],
    "junk_on_load": "",
    "passes": 3,
-   "secs": 12.7,
-   "at": 1788136020
+   "secs": 10.4,
+   "at": 1788819939
   },
   {
    "page": "soil-recipes.html",
@@ -24410,8 +24367,8 @@
    ],
    "junk_on_load": "",
    "passes": 2,
-   "secs": 3.4,
-   "at": 1788136020
+   "secs": 2.6,
+   "at": 1788819939
   },
   {
    "page": "soil-suite.html",
@@ -24579,8 +24536,8 @@
    "calls": [],
    "junk_on_load": "",
    "passes": 2,
-   "secs": 1.7,
-   "at": 1788136020
+   "secs": 1.3,
+   "at": 1788819939
   },
   {
    "page": "stand-sheet.html",
@@ -24729,7 +24686,7 @@
     {
      "id": "text_in:7",
      "kind": "text_in",
-     "label": "2026-08-31",
+     "label": "2026-09-07",
      "pane": "p-plot",
      "note": "filled"
     },
@@ -26669,8 +26626,8 @@
     "retried": 1,
     "revived": 0
    },
-   "secs": 86.6,
-   "at": 1788136020
+   "secs": 79.6,
+   "at": 1788819939
   },
   {
    "page": "survey-design.html",
@@ -26833,7 +26790,7 @@
     {
      "id": "text_in:11",
      "kind": "text_in",
-     "label": "harness-395",
+     "label": "harness-11",
      "pane": "p-abs",
      "note": "filled"
     },
@@ -26854,133 +26811,133 @@
     {
      "id": "pick_opt:0",
      "kind": "pick_opt",
-     "label": "harness-378:survey:01survey \u00b7 Riparian vascular flora, 2026 ",
+     "label": "harness-2:survey:01survey \u00b7 Riparian vascular flora, 2026 se",
      "pane": "p-hier",
      "note": "clicked"
     },
     {
      "id": "pick_opt:1",
      "kind": "pick_opt",
-     "label": "harness-378:site:01site \u00b7 North bench",
+     "label": "harness-2:site:01site \u00b7 North bench",
      "pane": "p-hier",
      "note": "clicked"
     },
     {
      "id": "pick_opt:2",
      "kind": "pick_opt",
-     "label": "harness-378:plot:01plot \u00b7 North bench plot 1",
+     "label": "harness-2:plot:01plot \u00b7 North bench plot 1",
      "pane": "p-hier",
      "note": "clicked"
     },
     {
      "id": "pick_opt:3",
      "kind": "pick_opt",
-     "label": "harness-378:plot:02plot \u00b7 North bench plot 2",
+     "label": "harness-2:plot:02plot \u00b7 North bench plot 2",
      "pane": "p-hier",
      "note": "clicked"
     },
     {
      "id": "pick_opt:4",
      "kind": "pick_opt",
-     "label": "harness-378:site:02site \u00b7 Creek terrace",
+     "label": "harness-2:site:02site \u00b7 Creek terrace",
      "pane": "p-hier",
      "note": "clicked"
     },
     {
      "id": "pick_opt:5",
      "kind": "pick_opt",
-     "label": "harness-378:plot:03plot \u00b7 Creek terrace plot 1",
+     "label": "harness-2:plot:03plot \u00b7 Creek terrace plot 1",
      "pane": "p-hier",
      "note": "clicked"
     },
     {
      "id": "pick_opt:6",
      "kind": "pick_opt",
-     "label": "harness-378:plot:04plot \u00b7 Creek terrace plot 2",
+     "label": "harness-2:plot:04plot \u00b7 Creek terrace plot 2",
      "pane": "p-hier",
      "note": "clicked"
     },
     {
      "id": "pick_opt:7",
      "kind": "pick_opt",
-     "label": "harness-378:plot:01plot \u00b7 North bench plot 1",
+     "label": "harness-2:plot:01plot \u00b7 North bench plot 1",
      "pane": "p-abs",
      "note": "clicked"
     },
     {
      "id": "pick_opt:8",
      "kind": "pick_opt",
-     "label": "harness-378:visit:01visit \u00b7 North bench plot 1, visit 1",
+     "label": "harness-2:visit:01visit \u00b7 North bench plot 1, visit 1",
      "pane": "p-abs",
      "note": "clicked"
     },
     {
      "id": "pick_opt:9",
      "kind": "pick_opt",
-     "label": "harness-378:visit:02visit \u00b7 North bench plot 1, visit 2",
+     "label": "harness-2:visit:02visit \u00b7 North bench plot 1, visit 2",
      "pane": "p-abs",
      "note": "clicked"
     },
     {
      "id": "pick_opt:10",
      "kind": "pick_opt",
-     "label": "harness-378:plot:02plot \u00b7 North bench plot 2",
+     "label": "harness-2:plot:02plot \u00b7 North bench plot 2",
      "pane": "p-abs",
      "note": "clicked"
     },
     {
      "id": "pick_opt:11",
      "kind": "pick_opt",
-     "label": "harness-378:visit:03visit \u00b7 North bench plot 2, visit 1",
+     "label": "harness-2:visit:03visit \u00b7 North bench plot 2, visit 1",
      "pane": "p-abs",
      "note": "clicked"
     },
     {
      "id": "pick_opt:12",
      "kind": "pick_opt",
-     "label": "harness-378:visit:04visit \u00b7 North bench plot 2, visit 2",
+     "label": "harness-2:visit:04visit \u00b7 North bench plot 2, visit 2",
      "pane": "p-abs",
      "note": "clicked"
     },
     {
      "id": "pick_opt:13",
      "kind": "pick_opt",
-     "label": "harness-378:plot:03plot \u00b7 Creek terrace plot 1",
+     "label": "harness-2:plot:03plot \u00b7 Creek terrace plot 1",
      "pane": "p-abs",
      "note": "clicked"
     },
     {
      "id": "pick_opt:14",
      "kind": "pick_opt",
-     "label": "harness-378:visit:05visit \u00b7 Creek terrace plot 1, visit 1",
+     "label": "harness-2:visit:05visit \u00b7 Creek terrace plot 1, visit 1",
      "pane": "p-abs",
      "note": "clicked"
     },
     {
      "id": "pick_opt:15",
      "kind": "pick_opt",
-     "label": "harness-378:visit:06visit \u00b7 Creek terrace plot 1, visit 2",
+     "label": "harness-2:visit:06visit \u00b7 Creek terrace plot 1, visit 2",
      "pane": "p-abs",
      "note": "clicked"
     },
     {
      "id": "pick_opt:16",
      "kind": "pick_opt",
-     "label": "harness-378:plot:04plot \u00b7 Creek terrace plot 2",
+     "label": "harness-2:plot:04plot \u00b7 Creek terrace plot 2",
      "pane": "p-abs",
      "note": "clicked"
     },
     {
      "id": "pick_opt:17",
      "kind": "pick_opt",
-     "label": "harness-378:visit:07visit \u00b7 Creek terrace plot 2, visit 1",
+     "label": "harness-2:visit:07visit \u00b7 Creek terrace plot 2, visit 1",
      "pane": "p-abs",
      "note": "clicked"
     },
     {
      "id": "pick_opt:18",
      "kind": "pick_opt",
-     "label": "harness-378:visit:08visit \u00b7 Creek terrace plot 2, visit 2",
+     "label": "harness-2:visit:08visit \u00b7 Creek terrace plot 2, visit 2",
      "pane": "p-abs",
      "note": "clicked"
     },
@@ -27564,31 +27521,7 @@
      "why": "nav_link"
     }
    ],
-   "errors": [
-    "spills 9px sideways [action_btn:1 Load an example design]: button. w=75, button. w=75",
-    "spills 9px sideways [pick_search:0 parent event filter]: button. w=75, button. w=75",
-    "spills 9px sideways [pick_opt:0 harness-378:survey:01survey \u00b7 ]: button. w=75, button. w=75",
-    "spills 9px sideways [pick_opt:1 harness-378:site:01site \u00b7 Nort]: button. w=75, button. w=75",
-    "spills 9px sideways [pick_opt:2 harness-378:plot:01plot \u00b7 Nort]: button. w=75, button. w=75",
-    "spills 9px sideways [pick_opt:3 harness-378:plot:02plot \u00b7 Nort]: button. w=75, button. w=75",
-    "spills 9px sideways [pick_opt:4 harness-378:site:02site \u00b7 Cree]: button. w=75, button. w=75",
-    "spills 9px sideways [pick_opt:5 harness-378:plot:03plot \u00b7 Cree]: button. w=75, button. w=75",
-    "spills 9px sideways [pick_opt:6 harness-378:plot:04plot \u00b7 Cree]: button. w=75, button. w=75",
-    "spills 9px sideways [action_btn:10 copy ID]: button. w=75, button. w=75",
-    "spills 9px sideways [action_btn:11 remove]: ",
-    "spills 9px sideways [action_btn:12 copy ID]: ",
-    "spills 9px sideways [action_btn:13 remove]: ",
-    "spills 9px sideways [action_btn:14 copy ID]: ",
-    "spills 9px sideways [action_btn:15 remove]: ",
-    "spills 9px sideways [action_btn:16 copy ID]: ",
-    "spills 9px sideways [action_btn:17 remove]: ",
-    "spills 9px sideways [action_btn:18 copy ID]: ",
-    "spills 9px sideways [action_btn:19 remove]: ",
-    "spills 9px sideways [action_btn:20 copy ID]: ",
-    "spills 9px sideways [action_btn:21 remove]: ",
-    "spills 9px sideways [action_btn:22 copy ID]: ",
-    "spills 9px sideways [action_btn:23 remove]: "
-   ],
+   "errors": [],
    "calls": [
     "copy-legacy",
     "copy-legacy",
@@ -27600,8 +27533,8 @@
    ],
    "junk_on_load": "",
    "passes": 3,
-   "secs": 13.6,
-   "at": 1788136020
+   "secs": 10.5,
+   "at": 1788819939
   },
   {
    "page": "tree-proofs.html",
@@ -27726,8 +27659,8 @@
    "calls": [],
    "junk_on_load": "",
    "passes": 2,
-   "secs": 2.9,
-   "at": 1788136020
+   "secs": 2.2,
+   "at": 1788819939
   },
   {
    "page": "tree-visualizer.html",
@@ -27885,8 +27818,8 @@
    "calls": [],
    "junk_on_load": "",
    "passes": 2,
-   "secs": 4.7,
-   "at": 1788136020
+   "secs": 3.5,
+   "at": 1788819939
   }
  ]
 }

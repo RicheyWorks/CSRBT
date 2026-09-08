@@ -1,35 +1,16 @@
 {
  "_comment": "ACCEPTED FINDINGS -- the kit's known defect debt, as measured by tools/harness.py. tools/verify/verify_findings.py fails on anything NOT in this file, so a new dead control, a new raise, or a new layout spill breaks the build instead of printing into a run nobody reads. It also fails on entries here that no longer occur: debt that was paid and not written off makes the list longer than the kit's real problem, which is how a defect register stops being read. A signature is 'page | category | label' -- the harness's own ids renumber whenever a page changes, and a label is what a maintainer actually searches for. ADDING TO THIS FILE IS ACCEPTING A DEFECT. Do it deliberately, and prefer fixing. Signatures are NORMALISED: generated row ids collapse to '#', so a family of identical row spills is one entry rather than twenty-three unstable ones. Counts are recorded but NOT compared -- how many rows a walk builds is a property of the walk, not of the kit (ADR-110). A NEW signature is the regression.",
- "at": 1788136074,
+ "at": 1788820047,
  "totals": {
-  "distinct": 13,
-  "occurrences": 63
+  "distinct": 1,
+  "occurrences": 1
  },
  "by_page": {
-  "survey-design.html": 7,
-  "selection-log.html": 5,
   "stand-sheet.html": 1
  },
- "known": {
-  "selection-log.html": "row2 spills at 390px once a record is in the row -- the flex-chain repair ADR-103 named and left; 37px is the worst in the kit",
-  "survey-design.html": "the same row2 family, 9px, on the copy/remove controls of each row",
-  "ecology-lab.html": "four Workbench textarea fills time out under the walk; the controls work by hand, so either the harness's fill is wrong for that control or the control is, and nobody has measured which",
-  "stand-sheet.html": "'Add photos' leaves no observable trace -- the one genuinely dead control left after ADR-110 cleared ten false ones"
- },
+ "known": {},
  "accepted": {
-  "selection-log.html | spill15px | +": 12,
-  "selection-log.html | spill15px | 0": 5,
-  "selection-log.html | spill15px | 1": 9,
-  "selection-log.html | spill15px | −": 12,
-  "selection-log.html | spill37px | Add individual": 1,
-  "stand-sheet.html | dead | 📷 Add photos": 1,
-  "survey-design.html | spill9px | # ·": 1,
-  "survey-design.html | spill9px | # · Cree": 3,
-  "survey-design.html | spill9px | # · Nort": 3,
-  "survey-design.html | spill9px | Load an example design": 1,
-  "survey-design.html | spill9px | copy ID": 7,
-  "survey-design.html | spill9px | parent event filter": 1,
-  "survey-design.html | spill9px | remove": 7
+  "stand-sheet.html | dead | 📷 Add photos": 1
  },
- "_written_off": "2026-08-31 (ADR-111): the four ecology-lab 'failed | <textarea sample text>' entries are struck. They were never defects in the page. The textareas sit inside a collapsed <details> and the harness's discovery called them visible while its driver could not act on them, so a fill timed out and was filed as 'action raised'. One visibility oracle, and they are now correctly HIDDEN with a reason. Debt written off because it was measured away, not because it was tolerated."
+ "_written_off": "2026-09-07 (ADR-155): all twelve spill entries struck. Five on selection-log were a real layout defect and ADR-128 fixed it on 09-02 -- the entries were never written off because the number they were meant to move had stopped being a property of the page. Seven on survey-design (23 occurrences) were never defects at all: the harness's fill counter was a module global, so the page was typed 'harness-3' when driven alone and 'harness-378' when driven as page 35 of 41, and the extra characters were what did not fit. The same two pages are on record in this repo at three different answers (38/0, 38/23, 0/0). The counter is now thread-local and reset per page, and verify_harness_matrix section L holds it there."
 }

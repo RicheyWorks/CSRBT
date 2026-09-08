@@ -50,7 +50,7 @@ Run:  python3 tools/harness.py            all pages
       python3 tools/harness.py -j 4       four at a time
 """
 import argparse, concurrent.futures as cf, glob, io, json, os, sys, time
-import tempfile
+import tempfile, threading
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, os.path.join(HERE, "verify"))
@@ -71,7 +71,43 @@ IGNORED_CONSOLE = ("fonts.googleapis.com", "fonts.gstatic.com")
 # Typed into rather than pressed: no group to move off.
 TYPED = ("text_in", "pick_search", "field_in", "step_val", "select",
          "slider", "file_in")
-_TICK = 0
+# THE FILL COUNTER IS PER PAGE, NOT PER PROCESS (ADR-155)
+#
+# This makes each fill a different value, so a field is never filled with what
+# it already holds. It was a module global -- and a module global shared by
+# every page in the run is the instrument's own history leaking into the
+# measurement. survey-design driven ALONE is filled with "harness-3"; driven as
+# page 35 of 41 it is filled with "harness-378". Three characters wider, and a
+# row that fitted a 390px phone stops fitting.
+#
+# What that cost is on the record in this repo's own files. The same two pages,
+# unchanged, have been measured at three different answers:
+#
+#   committed ledger (pre-ADR-128)   selection-log 38   survey-design  0
+#   working-copy ledger 08-31        selection-log 38   survey-design 23
+#   a run today on this tree         selection-log  0   survey-design  0
+#
+# ADR-128 fixed the real layout defect on 09-02. Nobody could tell, because the
+# number it was supposed to move had never been a property of the page. Twelve
+# baseline entries stayed accepted for another twenty-six ADRs and the findings
+# ratchet went red without anyone reading why.
+#
+# Thread-local rather than merely reset per page: the run drives two pages at a
+# time, so a plain global assignment would leave the two walks clobbering each
+# other -- the same leak, harder to see, and only under -j2. A fix that is
+# correct when nothing else is running is not a fix for a tool whose whole job
+# is forty-one pages at once.
+_FILLS = threading.local()
+
+
+def _tick():
+    n = getattr(_FILLS, "n", 0) + 1
+    _FILLS.n = n
+    return n
+
+
+def _reset_ticks():
+    _FILLS.n = 0
 
 # Affordance kinds, in the order they are driven. Entry before action: a form
 # filled and then cleared tells you more than a form cleared and then filled.
@@ -362,11 +398,42 @@ PROBE = r"""
     // Naming the element that spills is the difference between a number and a
     // thing to fix: "spills 15px" sent the first triage looking in the wrong
     // place for twenty minutes.
-    wide: [...document.querySelectorAll("*")]
-      .filter(e => e.getBoundingClientRect().right > document.documentElement.clientWidth + 1)
-      .slice(0, 2).map(e => e.tagName.toLowerCase() + "." +
-        String(e.className || "").split(/\s+/)[0] + " w=" +
-        Math.round(e.getBoundingClientRect().width)),
+    // NAMING SOMETHING A MAINTAINER CAN ACT ON (ADR-155)
+    //
+    // This took the first two matches in document order and printed a tag and a
+    // width, which on selection-log read "div.row2 w=372" for a 15px spill: a
+    // 372px box inside a 390px page, too wide for nothing. It took ADR-102,
+    // ADR-103 and ADR-128 to find a defect the report was pointing away from.
+    // Two faults:
+    //
+    //   * Document order is not blame order. Every ancestor of an overflowing
+    //     child also overflows, so the first matches are the outermost
+    //     containers -- innocent by construction, and exactly what got printed.
+    //     The candidates are the elements whose PARENT still fits.
+    //   * A width alone cannot be judged. 372 looks fine until you know the box
+    //     starts at x=33. What is wanted is the right edge against the edge it
+    //     broke, and how far past.
+    wide: (() => {
+      const cw = document.documentElement.clientWidth;
+      const over = e => e.getBoundingClientRect().right > cw + 1;
+      return [...document.querySelectorAll("*")]
+        .filter(e => {
+          const r = e.getBoundingClientRect();
+          if (r.width === 0 && r.height === 0) return false;   // not rendered
+          if (!over(e)) return false;
+          return !(e.parentElement && over(e.parentElement));
+        })
+        .slice(0, 3).map(e => {
+          const r = e.getBoundingClientRect();
+          const cls = String(e.className || "").split(/\s+/).filter(Boolean)[0];
+          const txt = (e.textContent || "").replace(/\s+/g, " ").trim().slice(0, 24);
+          return e.tagName.toLowerCase() + (cls ? "." + cls : "") +
+                 " x=" + Math.round(r.left) + ".." + Math.round(r.right) +
+                 " (+" + Math.round(r.right - cw) + " past " + cw + ")" +
+                 (e.scrollWidth > e.clientWidth + 1 ? " content=" + e.scrollWidth : "") +
+                 (txt ? ' "' + txt + '"' : "");
+        });
+    })(),
     errors: (window.__H ? window.__H.errors.splice(0, 3) : []),
   };
 }
@@ -488,14 +555,13 @@ def act(pg, a):
         # A different value every time. Filling a field with what it already
         # holds changes nothing, and on the second pass the walk was doing
         # exactly that -- then reporting the field as wired to nothing.
-        global _TICK
-        _TICK += 1
+        n = _tick()
         if t == "date":
-            v = "2026-06-%02d" % (1 + _TICK % 28)
+            v = "2026-06-%02d" % (1 + n % 28)
         elif t == "number":
-            v = str(1 + _TICK % 9)
+            v = str(1 + n % 9)
         else:
-            v = "harness-%d" % _TICK
+            v = "harness-%d" % n
         el.fill(v, timeout=ACT_TIMEOUT)
         el.dispatch_event("input")
         el.dispatch_event("change")
@@ -672,6 +738,7 @@ def run_page(name, passes=3, url=None):
             console.append(m.text + "  <- " + url[:80])
         pg.on("console", _console)
         pg.on("pageerror", lambda e: res["errors"].append(str(e)[:200]))
+        _reset_ticks()      # this page's fills start from one -- see _FILLS
         pg.goto(url or _kit.url(name), wait_until="domcontentloaded")
         pg.wait_for_timeout(400)
 
