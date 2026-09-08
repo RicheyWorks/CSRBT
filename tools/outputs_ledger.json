@@ -2,7 +2,7 @@
  "_comment": "Written by tools/audit_outputs.py. Per page: the buttons that hand something over, what came out of each, whether the page's own task reads it, and the ceiling the unread count may not rise above (ADR-153).",
  "pages": {
   "breeding-bench.html": {
-   "at": 1788876761,
+   "at": 1788881121,
    "buttons": 1,
    "ceiling": 0,
    "counts": {
@@ -15,7 +15,7 @@
    "unread": []
   },
   "collection-sheet.html": {
-   "at": 1788876761,
+   "at": 1788881121,
    "buttons": 8,
    "ceiling": 0,
    "counts": {
@@ -28,7 +28,7 @@
    "unread": []
   },
   "cp-bench.html": {
-   "at": 1788876761,
+   "at": 1788881121,
    "buttons": 2,
    "ceiling": 1,
    "counts": {
@@ -41,7 +41,7 @@
    "unread": []
   },
   "cp-characters.html": {
-   "at": 1788876761,
+   "at": 1788881121,
    "buttons": 1,
    "ceiling": 0,
    "counts": {
@@ -54,7 +54,7 @@
    "unread": []
   },
   "cp-suite.html": {
-   "at": 1788876761,
+   "at": 1788881121,
    "buttons": 1,
    "ceiling": 0,
    "counts": {
@@ -67,7 +67,7 @@
    "unread": []
   },
   "deployment-log.html": {
-   "at": 1788876761,
+   "at": 1788881121,
    "buttons": 3,
    "ceiling": 2,
    "counts": {
@@ -83,7 +83,7 @@
    ]
   },
   "eco-protocol-library.html": {
-   "at": 1788876761,
+   "at": 1788881121,
    "buttons": 3,
    "ceiling": 1,
    "counts": {
@@ -98,7 +98,7 @@
    ]
   },
   "eco-protocol-reference.html": {
-   "at": 1788876761,
+   "at": 1788881121,
    "buttons": 1,
    "ceiling": 0,
    "counts": {
@@ -111,7 +111,7 @@
    "unread": []
   },
   "ecology-essay.html": {
-   "at": 1788876761,
+   "at": 1788881121,
    "buttons": 1,
    "ceiling": 0,
    "counts": {
@@ -124,7 +124,7 @@
    "unread": []
   },
   "ecology-field-card.html": {
-   "at": 1788876761,
+   "at": 1788881121,
    "buttons": 1,
    "ceiling": 0,
    "counts": {
@@ -137,7 +137,7 @@
    "unread": []
   },
   "ecology-field-guide.html": {
-   "at": 1788876761,
+   "at": 1788881121,
    "buttons": 1,
    "ceiling": 0,
    "counts": {
@@ -150,7 +150,7 @@
    "unread": []
   },
   "ecology-glossary.html": {
-   "at": 1788876761,
+   "at": 1788881121,
    "buttons": 1,
    "ceiling": 0,
    "counts": {
@@ -163,7 +163,7 @@
    "unread": []
   },
   "ecology-lab-manual.html": {
-   "at": 1788876761,
+   "at": 1788881121,
    "buttons": 1,
    "ceiling": 0,
    "counts": {
@@ -176,7 +176,7 @@
    "unread": []
   },
   "ecology-lab.html": {
-   "at": 1788876761,
+   "at": 1788881121,
    "buttons": 4,
    "ceiling": 0,
    "counts": {
@@ -189,7 +189,7 @@
    "unread": []
   },
   "ecology-teachers-guide.html": {
-   "at": 1788876761,
+   "at": 1788881121,
    "buttons": 4,
    "ceiling": 0,
    "counts": {
@@ -202,7 +202,7 @@
    "unread": []
   },
   "ecology.html": {
-   "at": 1788876761,
+   "at": 1788881121,
    "buttons": 8,
    "ceiling": 0,
    "counts": {
@@ -215,7 +215,7 @@
    "unread": []
   },
   "ethogram.html": {
-   "at": 1788876761,
+   "at": 1788881121,
    "buttons": 5,
    "ceiling": 0,
    "counts": {
@@ -228,7 +228,7 @@
    "unread": []
   },
   "experiment-guide.html": {
-   "at": 1788876761,
+   "at": 1788881121,
    "buttons": 12,
    "ceiling": 5,
    "counts": {
@@ -247,7 +247,7 @@
    ]
   },
   "farm-scout.html": {
-   "at": 1788876761,
+   "at": 1788881121,
    "buttons": 3,
    "ceiling": 3,
    "counts": {
@@ -262,7 +262,7 @@
    ]
   },
   "field-notebook.html": {
-   "at": 1788876761,
+   "at": 1788881121,
    "buttons": 4,
    "ceiling": 3,
    "counts": {
@@ -279,7 +279,7 @@
    ]
   },
   "field-season.html": {
-   "at": 1788876761,
+   "at": 1788881121,
    "buttons": 1,
    "ceiling": 1,
    "counts": {
@@ -294,7 +294,7 @@
    ]
   },
   "food-web.html": {
-   "at": 1788876761,
+   "at": 1788881121,
    "buttons": 3,
    "ceiling": 3,
    "counts": {
@@ -311,7 +311,7 @@
    ]
   },
   "fungal-characters.html": {
-   "at": 1788876761,
+   "at": 1788881121,
    "buttons": 3,
    "ceiling": 0,
    "counts": {
@@ -324,7 +324,7 @@
    "unread": []
   },
   "greenhouse.html": {
-   "at": 1788876761,
+   "at": 1788881121,
    "buttons": 6,
    "ceiling": 0,
    "counts": {
@@ -337,7 +337,7 @@
    "unread": []
   },
   "ordination.html": {
-   "at": 1788876761,
+   "at": 1788881121,
    "buttons": 3,
    "ceiling": 3,
    "counts": {
@@ -354,7 +354,7 @@
    ]
   },
   "pheno-tracker.html": {
-   "at": 1788876761,
+   "at": 1788881121,
    "buttons": 5,
    "ceiling": 3,
    "counts": {
@@ -369,7 +369,7 @@
    ]
   },
   "plant-characters.html": {
-   "at": 1788876761,
+   "at": 1788881121,
    "buttons": 1,
    "ceiling": 0,
    "counts": {
@@ -382,7 +382,7 @@
    "unread": []
   },
   "releve.html": {
-   "at": 1788876761,
+   "at": 1788881121,
    "buttons": 7,
    "ceiling": 0,
    "counts": {
@@ -395,7 +395,7 @@
    "unread": []
   },
   "selection-log.html": {
-   "at": 1788876761,
+   "at": 1788881121,
    "buttons": 3,
    "ceiling": 3,
    "counts": {
@@ -408,7 +408,7 @@
    "unread": []
   },
   "soil-bench.html": {
-   "at": 1788876761,
+   "at": 1788881121,
    "buttons": 1,
    "ceiling": 1,
    "counts": {
@@ -423,7 +423,7 @@
    ]
   },
   "soil-recipes.html": {
-   "at": 1788876761,
+   "at": 1788881121,
    "buttons": 2,
    "ceiling": 2,
    "counts": {
@@ -439,7 +439,7 @@
    ]
   },
   "stand-sheet.html": {
-   "at": 1788876761,
+   "at": 1788881121,
    "buttons": 7,
    "ceiling": 0,
    "counts": {
@@ -452,7 +452,7 @@
    "unread": []
   },
   "survey-design.html": {
-   "at": 1788876761,
+   "at": 1788881121,
    "buttons": 7,
    "ceiling": 0,
    "counts": {

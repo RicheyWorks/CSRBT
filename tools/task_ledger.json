@@ -2451,9 +2451,9 @@
    "verdict": "PASS"
   },
   "page-breeding-bench-science": {
-   "at": 1788777247,
-   "confirmed": 100,
-   "goal": "On the breeding bench: common bean's published minimum is 20 (self) and 10 plants is below it, sweet corn's is 100 (200 preferred), cross-pollinated by wind; 10 pollen and 90 seed parents give Ne = 4*10*90/100 = 36.0 and delta-F 1.39% (13.9% over 10 generations), 50/50 gives 100.0; sweet corn's cited isolation is two miles and 100 m is 3100 m short; keeping 10 of 100 is intensity 1.755 and an expected response 6.14 at h2 0.35 and SD 10, 50 of 100 is 0.798, 200 of 100 is refused; roguing 85 leaves 15 standing; the demo trial (4 entries x 3 blocks, means 10 12 11 14) has grand mean 11.75, MSE 0.167, LSD 0.82 kg, CV 3.5%; one replicate is not a trial; 90 of 100 seeds is 90.0% +/- 3.0% (84.1-95.9%), 30 of 20 is refused; 7 seasons stored is past the conventional window.",
+   "at": 1788879778,
+   "confirmed": 113,
+   "goal": "On the breeding bench: check common bean (min 20) and sweet corn (min 100) populations and Ne, isolation distance for corn and tomato, a selection response R = i x h2 x sigma_P with the heritability and phenotypic SD dialled in explicitly (6.14 units), roguing 85 off-types, a variety trial, germination and storage -- every pane driven, the goal/seed-use/rogue chips chosen, and the figures held against an oracle.",
    "held": true,
    "id": "page-breeding-bench-science",
    "must": "PASS",
@@ -2465,7 +2465,7 @@
     "DESTRUCTIVE"
    ],
    "rungsWhy": "the goal ends by clearing the trial and reading the empty board back: tClear is 'Clear trial'",
-   "seconds": 3.7,
+   "seconds": 5.4,
    "steps": [
     {
      "action": "observe",
@@ -2497,7 +2497,7 @@
      ],
      "id": "pop",
      "message": "opened pane p-pop",
-     "ms": 4,
+     "ms": 5,
      "result": "driven"
     },
     {
@@ -2511,7 +2511,21 @@
      ],
      "id": "bean",
      "message": "pick pick_search:0",
-     "ms": 145,
+     "ms": 150,
+     "result": "driven"
+    },
+    {
+     "action": "activate",
+     "expectations": [
+      {
+       "detail": "ok == True, got True",
+       "path": "ok",
+       "verdict": "CONFIRMED"
+      }
+     ],
+     "id": "g163-goal",
+     "message": "activate dial_btn:0",
+     "ms": 26,
      "result": "driven"
     },
     {
@@ -2545,7 +2559,7 @@
      ],
      "id": "beans",
      "message": "18 figure(s), 12 box(es), 0 list(s), 0 table(s), 21 heading(s)",
-     "ms": 5,
+     "ms": 6,
      "result": "driven"
     },
     {
@@ -2573,7 +2587,7 @@
      ],
      "id": "below",
      "message": "18 figure(s), 12 box(es), 0 list(s), 0 table(s), 21 heading(s)",
-     "ms": 3,
+     "ms": 4,
      "result": "driven"
     },
     {
@@ -2587,7 +2601,7 @@
      ],
      "id": "corn",
      "message": "pick pick_search:0",
-     "ms": 144,
+     "ms": 148,
      "result": "driven"
     },
     {
@@ -2611,7 +2625,7 @@
      ],
      "id": "corns",
      "message": "18 figure(s), 12 box(es), 0 list(s), 0 table(s), 21 heading(s)",
-     "ms": 3,
+     "ms": 4,
      "result": "driven"
     },
     {
@@ -2625,7 +2639,7 @@
      ],
      "id": "nm",
      "message": "set-text step_val:1",
-     "ms": 23,
+     "ms": 25,
      "result": "driven"
     },
     {
@@ -2639,7 +2653,7 @@
      ],
      "id": "nf",
      "message": "set-text step_val:2",
-     "ms": 23,
+     "ms": 26,
      "result": "driven"
     },
     {
@@ -2673,7 +2687,7 @@
      ],
      "id": "ne",
      "message": "18 figure(s), 12 box(es), 0 list(s), 0 table(s), 21 heading(s)",
-     "ms": 3,
+     "ms": 4,
      "result": "driven"
     },
     {
@@ -2687,7 +2701,7 @@
      ],
      "id": "nm50",
      "message": "set-text step_val:1",
-     "ms": 22,
+     "ms": 27,
      "result": "driven"
     },
     {
@@ -2701,7 +2715,7 @@
      ],
      "id": "nf50",
      "message": "set-text step_val:2",
-     "ms": 22,
+     "ms": 26,
      "result": "driven"
     },
     {
@@ -2720,7 +2734,7 @@
      ],
      "id": "ne100",
      "message": "18 figure(s), 12 box(es), 0 list(s), 0 table(s), 21 heading(s)",
-     "ms": 3,
+     "ms": 4,
      "result": "driven"
     },
     {
@@ -2734,7 +2748,21 @@
      ],
      "id": "iso",
      "message": "opened pane p-iso",
-     "ms": 108,
+     "ms": 158,
+     "result": "driven"
+    },
+    {
+     "action": "activate",
+     "expectations": [
+      {
+       "detail": "ok == True, got True",
+       "path": "ok",
+       "verdict": "CONFIRMED"
+      }
+     ],
+     "id": "g163-use",
+     "message": "activate chip:0",
+     "ms": 27,
      "result": "driven"
     },
     {
@@ -2748,7 +2776,7 @@
      ],
      "id": "icorn",
      "message": "pick pick_search:1",
-     "ms": 146,
+     "ms": 150,
      "result": "driven"
     },
     {
@@ -2762,7 +2790,7 @@
      ],
      "id": "d100",
      "message": "set-text step_val:3",
-     "ms": 23,
+     "ms": 29,
      "result": "driven"
     },
     {
@@ -2781,7 +2809,7 @@
      ],
      "id": "short",
      "message": "22 figure(s), 12 box(es), 0 list(s), 0 table(s), 22 heading(s)",
-     "ms": 3,
+     "ms": 6,
      "result": "driven"
     },
     {
@@ -2795,7 +2823,7 @@
      ],
      "id": "d3500",
      "message": "set-text step_val:3",
-     "ms": 23,
+     "ms": 38,
      "result": "driven"
     },
     {
@@ -2809,7 +2837,7 @@
      ],
      "id": "far",
      "message": "22 figure(s), 12 box(es), 0 list(s), 0 table(s), 22 heading(s)",
-     "ms": 3,
+     "ms": 4,
      "result": "driven"
     },
     {
@@ -2823,7 +2851,7 @@
      ],
      "id": "tomato",
      "message": "pick pick_search:1",
-     "ms": 149,
+     "ms": 151,
      "result": "driven"
     },
     {
@@ -2837,7 +2865,7 @@
      ],
      "id": "nocite",
      "message": "21 figure(s), 12 box(es), 0 list(s), 0 table(s), 22 heading(s)",
-     "ms": 3,
+     "ms": 5,
      "result": "driven"
     },
     {
@@ -2851,7 +2879,7 @@
      ],
      "id": "sel",
      "message": "opened pane p-sel",
-     "ms": 75,
+     "ms": 84,
      "result": "driven"
     },
     {
@@ -2865,7 +2893,7 @@
      ],
      "id": "grown",
      "message": "set-text step_val:4",
-     "ms": 24,
+     "ms": 25,
      "result": "driven"
     },
     {
@@ -2879,6 +2907,34 @@
      ],
      "id": "kept",
      "message": "set-text step_val:5",
+     "ms": 31,
+     "result": "driven"
+    },
+    {
+     "action": "set-slider",
+     "expectations": [
+      {
+       "detail": "ok == True, got True",
+       "path": "ok",
+       "verdict": "CONFIRMED"
+      }
+     ],
+     "id": "g163-h2",
+     "message": "set-slider slider:0",
+     "ms": 26,
+     "result": "driven"
+    },
+    {
+     "action": "set-text",
+     "expectations": [
+      {
+       "detail": "ok == True, got True",
+       "path": "ok",
+       "verdict": "CONFIRMED"
+      }
+     ],
+     "id": "g163-sd",
+     "message": "set-text step_val:6",
      "ms": 25,
      "result": "driven"
     },
@@ -2932,7 +2988,7 @@
      ],
      "id": "kept50",
      "message": "set-text step_val:5",
-     "ms": 22,
+     "ms": 24,
      "result": "driven"
     },
     {
@@ -2946,7 +3002,7 @@
      ],
      "id": "half",
      "message": "21 figure(s), 12 box(es), 0 list(s), 0 table(s), 22 heading(s)",
-     "ms": 3,
+     "ms": 5,
      "result": "driven"
     },
     {
@@ -2960,7 +3016,7 @@
      ],
      "id": "kept200",
      "message": "set-text step_val:5",
-     "ms": 23,
+     "ms": 26,
      "result": "driven"
     },
     {
@@ -2979,7 +3035,7 @@
      ],
      "id": "toomany",
      "message": "16 figure(s), 12 box(es), 0 list(s), 0 table(s), 22 heading(s)",
-     "ms": 3,
+     "ms": 4,
      "result": "driven"
     },
     {
@@ -2993,7 +3049,21 @@
      ],
      "id": "kept10",
      "message": "set-text step_val:5",
-     "ms": 21,
+     "ms": 26,
+     "result": "driven"
+    },
+    {
+     "action": "activate",
+     "expectations": [
+      {
+       "detail": "ok == True, got True",
+       "path": "ok",
+       "verdict": "CONFIRMED"
+      }
+     ],
+     "id": "g163-rog",
+     "message": "activate chip:2",
+     "ms": 24,
      "result": "driven"
     },
     {
@@ -3007,7 +3077,7 @@
      ],
      "id": "rog",
      "message": "set-text step_val:7",
-     "ms": 21,
+     "ms": 24,
      "result": "driven"
     },
     {
@@ -3021,7 +3091,7 @@
      ],
      "id": "radd",
      "message": "activate action_btn:0",
-     "ms": 23,
+     "ms": 25,
      "result": "driven"
     },
     {
@@ -3050,7 +3120,7 @@
      ],
      "id": "rogued",
      "message": "24 figure(s), 12 box(es), 1 list(s), 0 table(s), 22 heading(s)",
-     "ms": 3,
+     "ms": 4,
      "result": "driven"
     },
     {
@@ -3064,7 +3134,7 @@
      ],
      "id": "tri",
      "message": "opened pane p-tri",
-     "ms": 93,
+     "ms": 104,
      "result": "driven"
     },
     {
@@ -3078,7 +3148,7 @@
      ],
      "id": "tdemo",
      "message": "activate action_btn:5",
-     "ms": 23,
+     "ms": 26,
      "result": "driven"
     },
     {
@@ -3122,7 +3192,7 @@
      ],
      "id": "trial",
      "message": "30 figure(s), 12 box(es), 1 list(s), 2 table(s), 23 heading(s)",
-     "ms": 4,
+     "ms": 6,
      "result": "driven"
     },
     {
@@ -3141,7 +3211,7 @@
      ],
      "id": "means",
      "message": "30 figure(s), 12 box(es), 1 list(s), 2 table(s), 23 heading(s)",
-     "ms": 3,
+     "ms": 5,
      "result": "driven"
     },
     {
@@ -3169,7 +3239,7 @@
      ],
      "id": "te1",
      "message": "set-text step_val:8",
-     "ms": 21,
+     "ms": 24,
      "result": "driven"
     },
     {
@@ -3183,7 +3253,7 @@
      ],
      "id": "tb1",
      "message": "set-text step_val:9",
-     "ms": 21,
+     "ms": 23,
      "result": "driven"
     },
     {
@@ -3197,7 +3267,7 @@
      ],
      "id": "ty1",
      "message": "set-text step_val:10",
-     "ms": 26,
+     "ms": 23,
      "result": "driven"
     },
     {
@@ -3225,7 +3295,7 @@
      ],
      "id": "te2",
      "message": "set-text step_val:8",
-     "ms": 21,
+     "ms": 24,
      "result": "driven"
     },
     {
@@ -3239,7 +3309,7 @@
      ],
      "id": "tb2",
      "message": "set-text step_val:9",
-     "ms": 21,
+     "ms": 24,
      "result": "driven"
     },
     {
@@ -3253,7 +3323,7 @@
      ],
      "id": "ty2",
      "message": "set-text step_val:10",
-     "ms": 20,
+     "ms": 25,
      "result": "driven"
     },
     {
@@ -3267,7 +3337,7 @@
      ],
      "id": "ta2",
      "message": "activate action_btn:2",
-     "ms": 25,
+     "ms": 24,
      "result": "driven"
     },
     {
@@ -3281,7 +3351,7 @@
      ],
      "id": "te3",
      "message": "set-text step_val:8",
-     "ms": 22,
+     "ms": 26,
      "result": "driven"
     },
     {
@@ -3295,7 +3365,7 @@
      ],
      "id": "tb3",
      "message": "set-text step_val:9",
-     "ms": 21,
+     "ms": 25,
      "result": "driven"
     },
     {
@@ -3309,7 +3379,7 @@
      ],
      "id": "ty3",
      "message": "set-text step_val:10",
-     "ms": 22,
+     "ms": 26,
      "result": "driven"
     },
     {
@@ -3323,7 +3393,7 @@
      ],
      "id": "ta3",
      "message": "activate action_btn:2",
-     "ms": 22,
+     "ms": 24,
      "result": "driven"
     },
     {
@@ -3347,7 +3417,7 @@
      ],
      "id": "onerep",
      "message": "27 figure(s), 12 box(es), 1 list(s), 2 table(s), 23 heading(s)",
-     "ms": 3,
+     "ms": 4,
      "result": "driven"
     },
     {
@@ -3361,7 +3431,7 @@
      ],
      "id": "seed",
      "message": "opened pane p-seed",
-     "ms": 79,
+     "ms": 81,
      "result": "driven"
     },
     {
@@ -3375,7 +3445,7 @@
      ],
      "id": "gn",
      "message": "set-text step_val:11",
-     "ms": 22,
+     "ms": 28,
      "result": "driven"
     },
     {
@@ -3389,7 +3459,7 @@
      ],
      "id": "gup",
      "message": "set-text step_val:12",
-     "ms": 22,
+     "ms": 27,
      "result": "driven"
     },
     {
@@ -3437,7 +3507,7 @@
      ],
      "id": "gn20",
      "message": "set-text step_val:11",
-     "ms": 21,
+     "ms": 24,
      "result": "driven"
     },
     {
@@ -3451,7 +3521,7 @@
      ],
      "id": "gup30",
      "message": "set-text step_val:12",
-     "ms": 22,
+     "ms": 26,
      "result": "driven"
     },
     {
@@ -3465,7 +3535,7 @@
      ],
      "id": "more",
      "message": "23 figure(s), 12 box(es), 1 list(s), 2 table(s), 23 heading(s)",
-     "ms": 3,
+     "ms": 5,
      "result": "driven"
     },
     {
@@ -3479,14 +3549,28 @@
      ],
      "id": "years",
      "message": "set-text step_val:13",
-     "ms": 23,
+     "ms": 26,
+     "result": "driven"
+    },
+    {
+     "action": "pick",
+     "expectations": [
+      {
+       "detail": "ok == True, got True",
+       "path": "ok",
+       "verdict": "CONFIRMED"
+      }
+     ],
+     "id": "g163-scrop",
+     "message": "pick pick_search:2",
+     "ms": 147,
      "result": "driven"
     },
     {
      "action": "read-report",
      "expectations": [
       {
-       "detail": "output.boxes.storOut contains 'Past the conventional window.', got '7seasons storedPast the conventional window.The working figure is that most high-quality, correctly stored seed stays viable at least 3\u20135 years. That is a range and a convention, not a shelf life: onion, parsnip and leek are notoriously short-lived, while brassicas, tomatoes and cucurbits often run well past five years. Run a germination test before you commit ground to it.Cool and dry beats either alone.Seed put away damp does not keep however cold it is, and the usual rule of thumb is that the sum of temperature in \u00b0F and relative humidity should stay under about 100. That is a rule of thumb.'",
+       "detail": "output.boxes.storOut contains 'Past the conventional window.', got '7seasons storedPast the conventional window.The working figure is that most high-quality, correctly stored seed stays viable at least 3\u20135 years. That is a range and a convention, not a shelf life: onion, parsnip and leek are notoriously short-lived, while brassicas, tomatoes and cucurbits often run well past five years. Run a germination test before you commit ground to it. This page holds no species-specific longevity figure for tomato \u2014 that varies too much by storage moisture and temperature to ship a number for.Cool and dry beats either alone.Seed put away damp does not keep however cold it is, and the usual rule of thumb is that the sum of temperature in \u00b0F and relative humidity should stay under about 100. That is a rule of thumb.'",
        "path": "output.boxes.storOut",
        "verdict": "CONFIRMED"
       },
@@ -3498,7 +3582,87 @@
      ],
      "id": "stored",
      "message": "23 figure(s), 12 box(es), 1 list(s), 2 table(s), 23 heading(s)",
-     "ms": 3,
+     "ms": 4,
+     "result": "driven"
+    },
+    {
+     "action": "show-pane",
+     "expectations": [
+      {
+       "detail": "ok == True, got True",
+       "path": "ok",
+       "verdict": "CONFIRMED"
+      }
+     ],
+     "id": "g163-toppane",
+     "message": "opened pane p-pop",
+     "ms": 87,
+     "result": "driven"
+    },
+    {
+     "action": "pick",
+     "expectations": [
+      {
+       "detail": "ok == True, got True",
+       "path": "ok",
+       "verdict": "CONFIRMED"
+      }
+     ],
+     "id": "g163-tom",
+     "message": "pick pick_search:0",
+     "ms": 150,
+     "result": "driven"
+    },
+    {
+     "action": "read-report",
+     "expectations": [
+      {
+       "detail": "ok == True, got True",
+       "path": "ok",
+       "verdict": "CONFIRMED"
+      },
+      {
+       "detail": "output.by.popOut.published minimum == '20', got '20'",
+       "path": "output.by.popOut.published minimum",
+       "verdict": "CONFIRMED"
+      }
+     ],
+     "id": "g163-tomrep",
+     "message": "23 figure(s), 12 box(es), 1 list(s), 2 table(s), 23 heading(s)",
+     "ms": 4,
+     "result": "driven"
+    },
+    {
+     "action": "show-pane",
+     "expectations": [
+      {
+       "detail": "ok == True, got True",
+       "path": "ok",
+       "verdict": "CONFIRMED"
+      }
+     ],
+     "id": "g163-endpane",
+     "message": "opened pane p-sel",
+     "ms": 90,
+     "result": "driven"
+    },
+    {
+     "action": "read-report",
+     "expectations": [
+      {
+       "detail": "ok == True, got True",
+       "path": "ok",
+       "verdict": "CONFIRMED"
+      },
+      {
+       "detail": "output.by.selOut.expected R per generation == '6.14', got '6.14'",
+       "path": "output.by.selOut.expected R per generation",
+       "verdict": "CONFIRMED"
+      }
+     ],
+     "id": "g163-endrep",
+     "message": "23 figure(s), 12 box(es), 1 list(s), 2 table(s), 23 heading(s)",
+     "ms": 4,
      "result": "driven"
     },
     {
@@ -3520,9 +3684,9 @@
        "verdict": "CONFIRMED"
       }
      ],
-     "id": "intact",
+     "id": "g163-endintact",
      "message": "read the page",
-     "ms": 5,
+     "ms": 7,
      "result": "driven"
     }
    ],

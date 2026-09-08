@@ -1,0 +1,28 @@
+{
+ "id": "adr163",
+ "chain": "adr162",
+ "chain_probe": "tools/tasks/page-pheno-tracker-science.json",
+ "subject": "ADR-163: the breeding bench, recorded whole -- population, isolation, selection response, trial and seed, every field driven",
+ "body": "THE BREEDING BENCH -- breeding-bench.html, a home-scale vegetable breeder's bench across six panes (check a POPULATION against the published minimum for its mating system and read Ne, work out an ISOLATION distance, compute a SELECTION RESPONSE R = i x h2 x sigma_P, run a variety TRIAL, and track SEED germination and storage) -- DROVE EVERY PANE and read a response of 6.14, but six of its twenty-one fields were never entered: the breeding-goal dial, the 'my own garden' seed-use chip, the 'off-type' rogue-reason chip, the HERITABILITY and PHENOTYPIC SD that the 6.14 is built from, and a THIRD CROP PICKER tucked into the seed-storage section that no step ever touched. The response is the telling one -- R = i x h2 x sigma_P, and the task asserted 6.14 while the h2 and sigma_P that produce it sat at their defaults, entered by nobody, the same shape of gap as the cell bench's accumulation figure. The existing scenario is kept verbatim (bean below its minimum of 20, corn's Ne, the isolation distances, the 6.14 response, roguing, trial, germination), so its assertions hold, and the six untouched controls are driven around it: the goal dial and the seed-use and rogue chips selected at the value the task already used, the heritability set to 0.35 and the phenotypic SD to 10 (the exact numbers behind the asserted 6.14, now entered rather than assumed), and the seed-storage crop picked. A third crop is selected on the population pane and its published minimum (20, an inbreeder) held against the oracle. breeding-bench 15 -> 21 OF 21 FIELDS, 100 -> 113 confirmed and 0 refuted, and the kit 490 -> 496 of 521 (95%), 20 of 27 pages entered whole. Held: the page carries THREE separate crop pickers (population, isolation, seed-storage) and the storage one was the last field standing -- the task picked crops on the first two and never the third, so the field read as unentered even though 'a crop picker' plainly was driven; setting the heritability and SD to the values the assertion already assumed leaves the 6.14 exactly where it was. No page was edited -- a task-only slice, the thirteenth page driven end to end.",
+ "paths": [
+  "tools/tasks/page-breeding-bench-science.json",
+  "tools/entry_ledger.json",
+  "tools/outputs_ledger.json",
+  "tools/task_ledger.json",
+  "tools/delivery_ledger.json",
+  "tools/verify/counts.json",
+  "tools/harness_board.html",
+  "tools/published.json",
+  "tools/delivery/adr163.json",
+  "docs/ADR-163-the-breeding-bench-recorded-whole-2026-09-08.md",
+  "docs/CHANGELOG-2026-09-08-adr163-the-breeding-bench-recorded-whole.md",
+  "docs/AI_HARNESS.md"
+ ],
+ "clean": [
+  "adr128", "adr129", "adr130", "adr131", "adr132", "adr133", "adr134",
+  "adr135", "adr136", "adr137", "adr138", "adr139", "adr140", "adr141",
+  "adr142", "adr143", "adr144", "adr145", "adr146", "adr147", "adr148",
+  "adr149", "adr150", "adr151", "adr152", "adr153", "adr154", "adr155",
+  "adr156", "adr157", "adr158", "adr159", "adr160", "adr161", "adr162", "adr163"
+ ]
+}
