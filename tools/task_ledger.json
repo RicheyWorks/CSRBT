@@ -6358,9 +6358,9 @@
    "verdict": "PASS"
   },
   "page-cp-bench-science": {
-   "at": 1788777268,
-   "confirmed": 85,
-   "goal": "On the carnivorous-plant bench: TDS readings of 20, 120 and 300 ppm are excellent, usable and too high against the 50/160 ppm conventions; ten 250 mL top-ups at 50 ppm leave 125 mg of solids in the pot, as one watering at 500 ppm; the Sarracenia/Dionaea preset (peat + perlite) is nutrient-free and coir makes it 0.33/5; a plant with no source is counted; trap counts 4, 6, 9 read as up from 4 to 9; the demo dormancy log has 43 of 84 needed days at or below 10 C with a longest run of 15; a cross with 200 seed and 80 seedlings germinated 40.0%.",
+   "at": 1788872146,
+   "confirmed": 104,
+   "goal": "On the carnivorous-plant bench: log TDS readings against the 50/160 ppm conventions from a named water source, work the top-up accumulation to a 500 ppm equivalent, load a media preset and copy the recipe, record a named plant with its provenance and three trap counts, check dormancy need, and log a cross with its note and seed set -- every pane driven and the figures and recipe held against an oracle.",
    "held": true,
    "id": "page-cp-bench-science",
    "must": "PASS",
@@ -6371,7 +6371,7 @@
     "MUTATE"
    ],
    "rungsWhy": null,
-   "seconds": 3.5,
+   "seconds": 6.2,
    "steps": [
     {
      "action": "observe",
@@ -6403,7 +6403,21 @@
      ],
      "id": "wat",
      "message": "opened pane p-wat",
-     "ms": 3,
+     "ms": 5,
+     "result": "driven"
+    },
+    {
+     "action": "activate",
+     "expectations": [
+      {
+       "detail": "ok == True, got True",
+       "path": "ok",
+       "verdict": "CONFIRMED"
+      }
+     ],
+     "id": "g161-src",
+     "message": "activate chip:0",
+     "ms": 26,
      "result": "driven"
     },
     {
@@ -6417,7 +6431,7 @@
      ],
      "id": "tds20",
      "message": "set-text step_val:0",
-     "ms": 22,
+     "ms": 26,
      "result": "driven"
     },
     {
@@ -6431,7 +6445,7 @@
      ],
      "id": "log20",
      "message": "activate action_btn:0",
-     "ms": 22,
+     "ms": 24,
      "result": "driven"
     },
     {
@@ -6460,7 +6474,7 @@
      ],
      "id": "w20",
      "message": "6 figure(s), 14 box(es), 1 list(s), 0 table(s), 24 heading(s)",
-     "ms": 5,
+     "ms": 6,
      "result": "driven"
     },
     {
@@ -6474,7 +6488,7 @@
      ],
      "id": "tds120",
      "message": "set-text step_val:0",
-     "ms": 21,
+     "ms": 23,
      "result": "driven"
     },
     {
@@ -6488,7 +6502,7 @@
      ],
      "id": "log120",
      "message": "activate action_btn:0",
-     "ms": 21,
+     "ms": 27,
      "result": "driven"
     },
     {
@@ -6517,7 +6531,7 @@
      ],
      "id": "w120",
      "message": "6 figure(s), 14 box(es), 1 list(s), 0 table(s), 24 heading(s)",
-     "ms": 2,
+     "ms": 4,
      "result": "driven"
     },
     {
@@ -6531,7 +6545,7 @@
      ],
      "id": "tds300",
      "message": "set-text step_val:0",
-     "ms": 22,
+     "ms": 24,
      "result": "driven"
     },
     {
@@ -6545,7 +6559,7 @@
      ],
      "id": "log300",
      "message": "activate action_btn:0",
-     "ms": 20,
+     "ms": 25,
      "result": "driven"
     },
     {
@@ -6574,7 +6588,7 @@
      ],
      "id": "w300",
      "message": "6 figure(s), 14 box(es), 1 list(s), 0 table(s), 24 heading(s)",
-     "ms": 3,
+     "ms": 5,
      "result": "driven"
     },
     {
@@ -6593,7 +6607,49 @@
      ],
      "id": "three",
      "message": "6 figure(s), 14 box(es), 1 list(s), 0 table(s), 24 heading(s)",
-     "ms": 2,
+     "ms": 4,
+     "result": "driven"
+    },
+    {
+     "action": "set-text",
+     "expectations": [
+      {
+       "detail": "ok == True, got True",
+       "path": "ok",
+       "verdict": "CONFIRMED"
+      }
+     ],
+     "id": "g161-atds",
+     "message": "set-text step_val:1",
+     "ms": 26,
+     "result": "driven"
+    },
+    {
+     "action": "set-text",
+     "expectations": [
+      {
+       "detail": "ok == True, got True",
+       "path": "ok",
+       "verdict": "CONFIRMED"
+      }
+     ],
+     "id": "g161-atop",
+     "message": "set-text step_val:2",
+     "ms": 25,
+     "result": "driven"
+    },
+    {
+     "action": "set-text",
+     "expectations": [
+      {
+       "detail": "ok == True, got True",
+       "path": "ok",
+       "verdict": "CONFIRMED"
+      }
+     ],
+     "id": "g161-avol",
+     "message": "set-text step_val:3",
+     "ms": 24,
      "result": "driven"
     },
     {
@@ -6622,7 +6678,7 @@
      ],
      "id": "accum",
      "message": "6 figure(s), 14 box(es), 1 list(s), 0 table(s), 24 heading(s)",
-     "ms": 2,
+     "ms": 4,
      "result": "driven"
     },
     {
@@ -6636,7 +6692,7 @@
      ],
      "id": "mix",
      "message": "opened pane p-mix",
-     "ms": 129,
+     "ms": 161,
      "result": "driven"
     },
     {
@@ -6650,7 +6706,7 @@
      ],
      "id": "preset",
      "message": "activate chip:6",
-     "ms": 23,
+     "ms": 24,
      "result": "driven"
     },
     {
@@ -6679,7 +6735,7 @@
      ],
      "id": "free",
      "message": "9 figure(s), 14 box(es), 1 list(s), 1 table(s), 24 heading(s)",
-     "ms": 3,
+     "ms": 10,
      "result": "driven"
     },
     {
@@ -6693,7 +6749,7 @@
      ],
      "id": "coir",
      "message": "activate dial_btn:9",
-     "ms": 27,
+     "ms": 31,
      "result": "driven"
     },
     {
@@ -6712,6 +6768,54 @@
      ],
      "id": "notfree",
      "message": "9 figure(s), 14 box(es), 1 list(s), 1 table(s), 24 heading(s)",
+     "ms": 6,
+     "result": "driven"
+    },
+    {
+     "action": "activate",
+     "expectations": [
+      {
+       "detail": "ok == True, got True",
+       "path": "ok",
+       "verdict": "CONFIRMED"
+      }
+     ],
+     "id": "g161-recipe",
+     "message": "activate action_btn:3",
+     "ms": 26,
+     "result": "driven"
+    },
+    {
+     "action": "collect-output",
+     "expectations": [
+      {
+       "detail": "output.payloads.0.k in ['copy', 'clipboard', 'download', 'print'], got 'clipboard'",
+       "path": "output.payloads.0.k",
+       "verdict": "CONFIRMED"
+      },
+      {
+       "detail": "output.payloads.0.text contains 'Carnivorous plant mix \u2014 3 parts', got 'Carnivorous plant mix \u2014 3 parts\\n1 part sphagnum peat\\n1 part perlite\\n1 part coconut coir'",
+       "path": "output.payloads.0.text",
+       "verdict": "CONFIRMED"
+      },
+      {
+       "detail": "output.payloads.0.text contains '1 part sphagnum peat', got 'Carnivorous plant mix \u2014 3 parts\\n1 part sphagnum peat\\n1 part perlite\\n1 part coconut coir'",
+       "path": "output.payloads.0.text#2",
+       "verdict": "CONFIRMED"
+      },
+      {
+       "detail": "output.payloads.0.text contains '1 part perlite', got 'Carnivorous plant mix \u2014 3 parts\\n1 part sphagnum peat\\n1 part perlite\\n1 part coconut coir'",
+       "path": "output.payloads.0.text#3",
+       "verdict": "CONFIRMED"
+      },
+      {
+       "detail": "output.payloads.0.text contains '1 part coconut coir', got 'Carnivorous plant mix \u2014 3 parts\\n1 part sphagnum peat\\n1 part perlite\\n1 part coconut coir'",
+       "path": "output.payloads.0.text#4",
+       "verdict": "CONFIRMED"
+      }
+     ],
+     "id": "g161-recipeout",
+     "message": "1 payload(s)",
      "ms": 3,
      "result": "driven"
     },
@@ -6726,7 +6830,7 @@
      ],
      "id": "pl",
      "message": "opened pane p-pl",
-     "ms": 68,
+     "ms": 100,
      "result": "driven"
     },
     {
@@ -6740,7 +6844,7 @@
      ],
      "id": "genus",
      "message": "pick pick_search:0",
-     "ms": 143,
+     "ms": 158,
      "result": "driven"
     },
     {
@@ -6754,7 +6858,7 @@
      ],
      "id": "pname",
      "message": "set-text text_in:0",
-     "ms": 21,
+     "ms": 26,
      "result": "driven"
     },
     {
@@ -6768,7 +6872,7 @@
      ],
      "id": "padd",
      "message": "activate action_btn:4",
-     "ms": 21,
+     "ms": 26,
      "result": "driven"
     },
     {
@@ -6807,7 +6911,21 @@
      ],
      "id": "plant",
      "message": "13 figure(s), 14 box(es), 2 list(s), 1 table(s), 25 heading(s)",
-     "ms": 3,
+     "ms": 5,
+     "result": "driven"
+    },
+    {
+     "action": "activate",
+     "expectations": [
+      {
+       "detail": "ok == True, got True",
+       "path": "ok",
+       "verdict": "CONFIRMED"
+      }
+     ],
+     "id": "g161-obstype",
+     "message": "activate chip:13",
+     "ms": 25,
      "result": "driven"
     },
     {
@@ -6821,7 +6939,7 @@
      ],
      "id": "op0",
      "message": "pick pick_search:1",
-     "ms": 142,
+     "ms": 150,
      "result": "driven"
     },
     {
@@ -6835,7 +6953,7 @@
      ],
      "id": "oc0",
      "message": "set-text step_val:4",
-     "ms": 21,
+     "ms": 24,
      "result": "driven"
     },
     {
@@ -6849,7 +6967,7 @@
      ],
      "id": "oa0",
      "message": "activate action_btn:5",
-     "ms": 23,
+     "ms": 27,
      "result": "driven"
     },
     {
@@ -6863,7 +6981,7 @@
      ],
      "id": "op1",
      "message": "pick pick_search:1",
-     "ms": 143,
+     "ms": 152,
      "result": "driven"
     },
     {
@@ -6877,7 +6995,7 @@
      ],
      "id": "oc1",
      "message": "set-text step_val:4",
-     "ms": 22,
+     "ms": 27,
      "result": "driven"
     },
     {
@@ -6891,7 +7009,7 @@
      ],
      "id": "oa1",
      "message": "activate action_btn:5",
-     "ms": 22,
+     "ms": 29,
      "result": "driven"
     },
     {
@@ -6905,7 +7023,7 @@
      ],
      "id": "op2",
      "message": "pick pick_search:1",
-     "ms": 144,
+     "ms": 152,
      "result": "driven"
     },
     {
@@ -6919,7 +7037,7 @@
      ],
      "id": "oc2",
      "message": "set-text step_val:4",
-     "ms": 22,
+     "ms": 31,
      "result": "driven"
     },
     {
@@ -6933,7 +7051,7 @@
      ],
      "id": "oa2",
      "message": "activate action_btn:5",
-     "ms": 25,
+     "ms": 28,
      "result": "driven"
     },
     {
@@ -6952,7 +7070,21 @@
      ],
      "id": "obs",
      "message": "13 figure(s), 14 box(es), 2 list(s), 1 table(s), 25 heading(s)",
-     "ms": 4,
+     "ms": 9,
+     "result": "driven"
+    },
+    {
+     "action": "set-text",
+     "expectations": [
+      {
+       "detail": "ok == True, got True",
+       "path": "ok",
+       "verdict": "CONFIRMED"
+      }
+     ],
+     "id": "g161-psr",
+     "message": "set-text text_in:1",
+     "ms": 34,
      "result": "driven"
     },
     {
@@ -6966,7 +7098,49 @@
      ],
      "id": "sea",
      "message": "opened pane p-sea",
-     "ms": 81,
+     "ms": 108,
+     "result": "driven"
+    },
+    {
+     "action": "set-text",
+     "expectations": [
+      {
+       "detail": "ok == True, got True",
+       "path": "ok",
+       "verdict": "CONFIRMED"
+      }
+     ],
+     "id": "g161-dtemp",
+     "message": "set-text step_val:5",
+     "ms": 36,
+     "result": "driven"
+    },
+    {
+     "action": "set-text",
+     "expectations": [
+      {
+       "detail": "ok == True, got True",
+       "path": "ok",
+       "verdict": "CONFIRMED"
+      }
+     ],
+     "id": "g161-dweeks",
+     "message": "set-text step_val:6",
+     "ms": 27,
+     "result": "driven"
+    },
+    {
+     "action": "set-text",
+     "expectations": [
+      {
+       "detail": "ok == True, got True",
+       "path": "ok",
+       "verdict": "CONFIRMED"
+      }
+     ],
+     "id": "g161-stemp",
+     "message": "set-text step_val:7",
+     "ms": 25,
      "result": "driven"
     },
     {
@@ -6980,7 +7154,7 @@
      ],
      "id": "nep",
      "message": "pick pick_search:2",
-     "ms": 143,
+     "ms": 152,
      "result": "driven"
     },
     {
@@ -6994,7 +7168,7 @@
      ],
      "id": "nodorm",
      "message": "13 figure(s), 14 box(es), 2 list(s), 1 table(s), 25 heading(s)",
-     "ms": 3,
+     "ms": 6,
      "result": "driven"
     },
     {
@@ -7008,7 +7182,7 @@
      ],
      "id": "sarr",
      "message": "pick pick_search:2",
-     "ms": 143,
+     "ms": 154,
      "result": "driven"
     },
     {
@@ -7022,7 +7196,7 @@
      ],
      "id": "dorm",
      "message": "13 figure(s), 14 box(es), 2 list(s), 1 table(s), 25 heading(s)",
-     "ms": 3,
+     "ms": 7,
      "result": "driven"
     },
     {
@@ -7036,7 +7210,7 @@
      ],
      "id": "demo",
      "message": "activate action_btn:10",
-     "ms": 22,
+     "ms": 29,
      "result": "driven"
     },
     {
@@ -7070,7 +7244,7 @@
      ],
      "id": "season",
      "message": "17 figure(s), 14 box(es), 2 list(s), 1 table(s), 26 heading(s)",
-     "ms": 5,
+     "ms": 9,
      "result": "driven"
     },
     {
@@ -7084,7 +7258,7 @@
      ],
      "id": "cro",
      "message": "opened pane p-cro",
-     "ms": 77,
+     "ms": 86,
      "result": "driven"
     },
     {
@@ -7098,7 +7272,7 @@
      ],
      "id": "pod",
      "message": "set-text text_in:2",
-     "ms": 22,
+     "ms": 25,
      "result": "driven"
     },
     {
@@ -7112,7 +7286,21 @@
      ],
      "id": "pol",
      "message": "set-text text_in:3",
-     "ms": 21,
+     "ms": 31,
+     "result": "driven"
+    },
+    {
+     "action": "set-text",
+     "expectations": [
+      {
+       "detail": "ok == True, got True",
+       "path": "ok",
+       "verdict": "CONFIRMED"
+      }
+     ],
+     "id": "g161-xnote",
+     "message": "set-text text_in:4",
+     "ms": 28,
      "result": "driven"
     },
     {
@@ -7126,7 +7314,7 @@
      ],
      "id": "cadd",
      "message": "activate action_btn:11",
-     "ms": 23,
+     "ms": 31,
      "result": "driven"
     },
     {
@@ -7140,7 +7328,7 @@
      ],
      "id": "cross",
      "message": "21 figure(s), 14 box(es), 3 list(s), 1 table(s), 27 heading(s)",
-     "ms": 4,
+     "ms": 7,
      "result": "driven"
     },
     {
@@ -7159,7 +7347,7 @@
      ],
      "id": "upick",
      "message": "pick pick_search:3",
-     "ms": 143,
+     "ms": 151,
      "result": "driven"
     },
     {
@@ -7173,7 +7361,7 @@
      ],
      "id": "seed",
      "message": "set-text step_val:8",
-     "ms": 21,
+     "ms": 27,
      "result": "driven"
     },
     {
@@ -7187,7 +7375,7 @@
      ],
      "id": "germ",
      "message": "set-text step_val:9",
-     "ms": 21,
+     "ms": 27,
      "result": "driven"
     },
     {
@@ -7201,7 +7389,7 @@
      ],
      "id": "csave",
      "message": "activate action_btn:13",
-     "ms": 24,
+     "ms": 26,
      "result": "driven"
     },
     {
@@ -7230,7 +7418,40 @@
      ],
      "id": "crosses",
      "message": "21 figure(s), 14 box(es), 3 list(s), 1 table(s), 27 heading(s)",
-     "ms": 3,
+     "ms": 5,
+     "result": "driven"
+    },
+    {
+     "action": "show-pane",
+     "expectations": [
+      {
+       "detail": "ok == True, got True",
+       "path": "ok",
+       "verdict": "CONFIRMED"
+      }
+     ],
+     "id": "g161-endpane",
+     "message": "opened pane p-wat",
+     "ms": 84,
+     "result": "driven"
+    },
+    {
+     "action": "read-report",
+     "expectations": [
+      {
+       "detail": "ok == True, got True",
+       "path": "ok",
+       "verdict": "CONFIRMED"
+      },
+      {
+       "detail": "output.by.wAccumOut.same as one watering at == '500 ppm', got '500 ppm'",
+       "path": "output.by.wAccumOut.same as one watering at",
+       "verdict": "CONFIRMED"
+      }
+     ],
+     "id": "g161-endrep",
+     "message": "21 figure(s), 14 box(es), 3 list(s), 1 table(s), 27 heading(s)",
+     "ms": 10,
      "result": "driven"
     },
     {
@@ -7252,9 +7473,9 @@
        "verdict": "CONFIRMED"
       }
      ],
-     "id": "intact",
+     "id": "g161-endintact",
      "message": "read the page",
-     "ms": 5,
+     "ms": 8,
      "result": "driven"
     }
    ],

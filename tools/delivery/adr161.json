@@ -1,0 +1,28 @@
+{
+ "id": "adr161",
+ "chain": "adr160",
+ "chain_probe": "tools/tasks/page-farm-scout-science.json",
+ "subject": "ADR-161: the carnivorous-plant bench, recorded whole -- water, media, plants, dormancy and crosses, every default driven",
+ "body": "THE CP BENCH -- cp-bench.html, a grower's bench across six tabs (water quality against the 50/160 ppm TDS conventions with a top-up accumulation calc, a media mix from hobby presets, plant records with trap counts, a dormancy check against today's temperature, and crosses with seed set) -- HAD EVERY TAB EXERCISED but ten of its twenty-three fields never entered, and every one was a control SITTING AT A WORKING DEFAULT NOBODY HAD TOUCHED: the RO/DI water source chip, the three accumulation steppers, the trap-count observation type, the dormancy target temperature/duration/today's reading, plus the two free-text fields left blank (a plant's provenance and a cross's note). The accumulation figure is the clearest case -- the task asserted that ten 250 mL top-ups at 50 ppm accumulate to a 500 ppm-equivalent watering and NEVER ONCE SET the TDS, top-up count or volume that produce it. The existing scenario is kept verbatim (three TDS readings excellent/usable/too-high, the 500 ppm accumulation, the dormancy verdicts, the cross's seed set), so its assertions hold, and the ten untouched controls are now driven explicitly: the source chip selected, the accumulation steppers set to the values the assertion already assumed, the observation type chosen, the dormancy steppers set, and the provenance and cross note typed. The media recipe -- the one thing this bench hands a grower to take to the potting bench -- is copied and held against an oracle: 3 parts, 1 sphagnum peat + 1 perlite + 1 coconut coir, built from the Sarracenia-Dionaea preset plus a coir component, the part counts and names computed from the page's own component table. cp-bench 13 -> 23 OF 23 FIELDS, recipe unread -> held, 85 -> 104 confirmed and 0 refuted, and the kit 471 -> 481 of 521 (92%), 18 of 27 pages entered whole. Held: the first plant is deliberately left without a provenance so the 'no source recorded' warning still fires -- the source field is entered afterwards on its own, not on that plant, so the existing assertion is untouched; the observation-type and water-source chips default to the value the task uses, so selecting them changes nothing but records that the harness can drive them. No page was edited -- a task-only slice, the eleventh page driven end to end.",
+ "paths": [
+  "tools/tasks/page-cp-bench-science.json",
+  "tools/entry_ledger.json",
+  "tools/outputs_ledger.json",
+  "tools/task_ledger.json",
+  "tools/delivery_ledger.json",
+  "tools/verify/counts.json",
+  "tools/harness_board.html",
+  "tools/published.json",
+  "tools/delivery/adr161.json",
+  "docs/ADR-161-the-cp-bench-recorded-whole-2026-09-08.md",
+  "docs/CHANGELOG-2026-09-08-adr161-the-cp-bench-recorded-whole.md",
+  "docs/AI_HARNESS.md"
+ ],
+ "clean": [
+  "adr128", "adr129", "adr130", "adr131", "adr132", "adr133", "adr134",
+  "adr135", "adr136", "adr137", "adr138", "adr139", "adr140", "adr141",
+  "adr142", "adr143", "adr144", "adr145", "adr146", "adr147", "adr148",
+  "adr149", "adr150", "adr151", "adr152", "adr153", "adr154", "adr155",
+  "adr156", "adr157", "adr158", "adr159", "adr160", "adr161"
+ ]
+}

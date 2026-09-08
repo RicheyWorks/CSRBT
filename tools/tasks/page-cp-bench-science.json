@@ -2,7 +2,7 @@
  "id": "page-cp-bench-science",
  "target": "page",
  "page": "cp-bench.html",
- "goal": "On the carnivorous-plant bench: TDS readings of 20, 120 and 300 ppm are excellent, usable and too high against the 50/160 ppm conventions; ten 250 mL top-ups at 50 ppm leave 125 mg of solids in the pot, as one watering at 500 ppm; the Sarracenia/Dionaea preset (peat + perlite) is nutrient-free and coir makes it 0.33/5; a plant with no source is counted; trap counts 4, 6, 9 read as up from 4 to 9; the demo dormancy log has 43 of 84 needed days at or below 10 C with a longest run of 15; a cross with 200 seed and 80 seedlings germinated 40.0%.",
+ "goal": "On the carnivorous-plant bench: log TDS readings against the 50/160 ppm conventions from a named water source, work the top-up accumulation to a 500 ppm equivalent, load a media preset and copy the recipe, record a named plant with its provenance and three trap counts, check dormancy need, and log a cross with its note and seed set -- every pane driven and the figures and recipe held against an oracle.",
  "steps": [
   {
    "id": "look",
@@ -17,6 +17,16 @@
    "action": "show-pane",
    "arguments": {
     "pane": "p-wat"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "g161-src",
+   "action": "activate",
+   "arguments": {
+    "selector": "@control:wEntry/RO / DI"
    },
    "expect": {
     "ok": true
@@ -142,6 +152,39 @@
    }
   },
   {
+   "id": "g161-atds",
+   "action": "set-text",
+   "arguments": {
+    "selector": "@control:Water TDS",
+    "value": "50"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "g161-atop",
+   "action": "set-text",
+   "arguments": {
+    "selector": "@control:Top-ups since the last flush",
+    "value": "10"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "g161-avol",
+   "action": "set-text",
+   "arguments": {
+    "selector": "@control:Water added each top-up",
+    "value": "250"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
    "id": "accum",
    "action": "read-report",
    "expect": {
@@ -209,6 +252,47 @@
    }
   },
   {
+   "id": "g161-recipe",
+   "action": "activate",
+   "arguments": {
+    "selector": "@control:mCopy"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "g161-recipeout",
+   "action": "collect-output",
+   "expect": {
+    "output.payloads.0.k": {
+     "op": "in",
+     "value": [
+      "copy",
+      "clipboard",
+      "download",
+      "print"
+     ]
+    },
+    "output.payloads.0.text": {
+     "op": "contains",
+     "value": "Carnivorous plant mix — 3 parts"
+    },
+    "output.payloads.0.text#2": {
+     "op": "contains",
+     "value": "1 part sphagnum peat"
+    },
+    "output.payloads.0.text#3": {
+     "op": "contains",
+     "value": "1 part perlite"
+    },
+    "output.payloads.0.text#4": {
+     "op": "contains",
+     "value": "1 part coconut coir"
+    }
+   }
+  },
+  {
    "id": "pl",
    "action": "show-pane",
    "arguments": {
@@ -263,6 +347,16 @@
     "output.by.pOut.observations": "0",
     "output.by.pOut.without a source": "1",
     "output.by.pOut.losses recorded": "0"
+   }
+  },
+  {
+   "id": "g161-obstype",
+   "action": "activate",
+   "arguments": {
+    "selector": "@control:pObs/Trap count"
+   },
+   "expect": {
+    "ok": true
    }
   },
   {
@@ -373,10 +467,54 @@
    }
   },
   {
+   "id": "g161-psr",
+   "action": "set-text",
+   "arguments": {
+    "selector": "@control:psr",
+    "value": "division from a 2019 nursery plant"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
    "id": "sea",
    "action": "show-pane",
    "arguments": {
     "pane": "p-sea"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "g161-dtemp",
+   "action": "set-text",
+   "arguments": {
+    "selector": "@control:Your target: stay at or below",
+    "value": "10"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "g161-dweeks",
+   "action": "set-text",
+   "arguments": {
+    "selector": "@control:Your target: for at least",
+    "value": "12"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "g161-stemp",
+   "action": "set-text",
+   "arguments": {
+    "selector": "@control:Temperature today",
+    "value": "8"
    },
    "expect": {
     "ok": true
@@ -481,6 +619,17 @@
    }
   },
   {
+   "id": "g161-xnote",
+   "action": "set-text",
+   "arguments": {
+    "selector": "@control:xnote",
+    "value": "hand-pollinated, bagged 3 days"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
    "id": "cadd",
    "action": "activate",
    "arguments": {
@@ -555,7 +704,25 @@
    }
   },
   {
-   "id": "intact",
+   "id": "g161-endpane",
+   "action": "show-pane",
+   "arguments": {
+    "pane": "p-wat"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "g161-endrep",
+   "action": "read-report",
+   "expect": {
+    "ok": true,
+    "output.by.wAccumOut.same as one watering at": "500 ppm"
+   }
+  },
+  {
+   "id": "g161-endintact",
    "action": "read-page",
    "expect": {
     "output.junk": null,
