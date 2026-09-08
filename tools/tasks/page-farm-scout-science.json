@@ -2,7 +2,7 @@
  "id": "page-farm-scout-science",
  "target": "page",
  "page": "farm-scout.html",
- "goal": "On the farm scout's germination pane, test 40 seeds with 33 up wanting 120 plants and find 83%% and 146 seeds to sow (ceil(120/0.825)); 26 up gives 65%% and 185, 18 up 45%% and 267; on the rotation pane, Brassica last season and planned again is flagged within 3 years, and Fabaceae planned instead is a clean rotation; the scout pane's ten stops driven to 2 3 2 4 3 2 3 12 2 3 by the + buttons read mean 3.60 and variance/mean 2.54.",
+ "goal": "On the farm scout, run a full field day: scout aphids across ten stops (avg 3.6/plant, spread 2.54), name the pest and stamp the field, observer and date, tally five pollinator types including one added by hand (11 visits, evenness held), test germination and plan a rotation, then export the field-day report and the CSV -- both held against an oracle.",
  "steps": [
   {
    "id": "look",
@@ -576,7 +576,380 @@
    }
   },
   {
-   "id": "intact",
+   "id": "g160-pest",
+   "action": "set-text",
+   "arguments": {
+    "selector": "@control:scPest",
+    "value": "aphids on kale"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "g160-site",
+   "action": "set-text",
+   "arguments": {
+    "selector": "@control:sSite",
+    "value": "north block"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "g160-obs",
+   "action": "set-text",
+   "arguments": {
+    "selector": "@control:sObs",
+    "value": "R. Ellison"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "g160-date",
+   "action": "set-text",
+   "arguments": {
+    "selector": "@control:sDate",
+    "value": "2026-09-08"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "g160-thresh",
+   "action": "set-text",
+   "arguments": {
+    "selector": "@control:action threshold",
+    "value": "5"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "g160-rotpane",
+   "action": "show-pane",
+   "arguments": {
+    "pane": "p-rot"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "g160-b1y2",
+   "action": "pick",
+   "arguments": {
+    "selector": "@control:two seasons ago filter#0",
+    "value": "Solanaceae"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "g160-b2y2",
+   "action": "pick",
+   "arguments": {
+    "selector": "@control:two seasons ago filter#1",
+    "value": "Brassicaceae"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "g160-b2y1",
+   "action": "pick",
+   "arguments": {
+    "selector": "@control:last season filter#1",
+    "value": "Poaceae"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "g160-b2plan",
+   "action": "pick",
+   "arguments": {
+    "selector": "@control:planned now filter#1",
+    "value": "Fabaceae"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "g160-pollpane",
+   "action": "show-pane",
+   "arguments": {
+    "pane": "p-poll"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "g160-po0_0",
+   "action": "activate",
+   "arguments": {
+    "selector": "@control:poGrid#0"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "g160-po0_1",
+   "action": "activate",
+   "arguments": {
+    "selector": "@control:poGrid#0"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "g160-po0_2",
+   "action": "activate",
+   "arguments": {
+    "selector": "@control:poGrid#0"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "g160-po0_3",
+   "action": "activate",
+   "arguments": {
+    "selector": "@control:poGrid#0"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "g160-po1_0",
+   "action": "activate",
+   "arguments": {
+    "selector": "@control:poGrid#1"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "g160-po1_1",
+   "action": "activate",
+   "arguments": {
+    "selector": "@control:poGrid#1"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "g160-po1_2",
+   "action": "activate",
+   "arguments": {
+    "selector": "@control:poGrid#1"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "g160-po2_0",
+   "action": "activate",
+   "arguments": {
+    "selector": "@control:poGrid#2"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "g160-po2_1",
+   "action": "activate",
+   "arguments": {
+    "selector": "@control:poGrid#2"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "g160-po3_0",
+   "action": "activate",
+   "arguments": {
+    "selector": "@control:poGrid#3"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "g160-ponew",
+   "action": "set-text",
+   "arguments": {
+    "selector": "@control:poNew",
+    "value": "mason"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "g160-poadd",
+   "action": "activate",
+   "arguments": {
+    "selector": "@control:poAdd"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "g160-po4_0",
+   "action": "activate",
+   "arguments": {
+    "selector": "@control:poGrid#4"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "g160-pollrep",
+   "action": "read-report",
+   "expect": {
+    "ok": true,
+    "output.by.poResults.visits": "11",
+    "output.by.poResults.visitor types": "5",
+    "output.by.poResults.effective types": "4.3",
+    "output.by.poResults.evenness": "0.91"
+   }
+  },
+  {
+   "id": "g160-eco",
+   "action": "activate",
+   "arguments": {
+    "selector": "@control:ecoCopy"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "g160-ecoout",
+   "action": "collect-output",
+   "expect": {
+    "output.payloads.0.k": {
+     "op": "in",
+     "value": [
+      "copy",
+      "clipboard",
+      "download",
+      "print"
+     ]
+    },
+    "output.payloads.0.text": {
+     "op": "contains",
+     "value": "# pest scouting — aphids on kale — counts per stop:"
+    },
+    "output.payloads.0.text#2": {
+     "op": "contains",
+     "value": "note: scouting avg 3.6/plant, spread 2.54"
+    },
+    "output.payloads.0.text#3": {
+     "op": "contains",
+     "value": "data: pollinators honeybee=4 bumblebee=3 hoverfly=2 butterfly=1 mason=1"
+    },
+    "output.payloads.0.text#4": {
+     "op": "contains",
+     "value": "note: germination test 18/40 = 45%"
+    },
+    "output.payloads.0.text#5": {
+     "op": "contains",
+     "value": "note: bed 1 planned Fabaceae"
+    },
+    "output.payloads.0.text#6": {
+     "op": "contains",
+     "value": "# field north block — scouted by R. Ellison — 2026-09-08"
+    }
+   }
+  },
+  {
+   "id": "g160-csv",
+   "action": "activate",
+   "arguments": {
+    "selector": "@control:csvCopy"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "g160-csvout",
+   "action": "collect-output",
+   "expect": {
+    "output.payloads.0.text": {
+     "op": "contains",
+     "value": "section,item,value"
+    },
+    "output.payloads.0.text#2": {
+     "op": "contains",
+     "value": "scouting,crop-pest,aphids on kale"
+    },
+    "output.payloads.0.text#3": {
+     "op": "contains",
+     "value": "scouting,stop-8,12"
+    },
+    "output.payloads.0.text#4": {
+     "op": "contains",
+     "value": "pollinators,honeybee,4"
+    },
+    "output.payloads.0.text#5": {
+     "op": "contains",
+     "value": "germination,germinated,18"
+    },
+    "output.payloads.0.text#6": {
+     "op": "contains",
+     "value": "rotation,Bed 1,Fabaceae"
+    },
+    "output.payloads.0.text#7": {
+     "op": "contains",
+     "value": "rotation,Bed 2,Fabaceae"
+    }
+   }
+  },
+  {
+   "id": "g160-endpane",
+   "action": "show-pane",
+   "arguments": {
+    "pane": "p-scout"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "g160-endrep",
+   "action": "read-report",
+   "expect": {
+    "ok": true,
+    "output.by.scResults.avg / plant": "3.6",
+    "output.by.scResults.spread (var/mean)": "2.54"
+   }
+  },
+  {
+   "id": "g160-endintact",
    "action": "read-page",
    "expect": {
     "output.junk": null,

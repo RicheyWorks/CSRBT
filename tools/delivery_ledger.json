@@ -805,10 +805,15 @@
    "by": "adr159",
    "sha": "9d55bd9c9d9c47979d92b3b0a134713dc66fcbd4413df7858a0c7631d267731d"
   },
+  "docs/ADR-160-the-farm-scout-recorded-whole-2026-09-08.md": {
+   "at": 1788871318,
+   "by": "adr160",
+   "sha": "0aff5c429247a35c7f49783e7664de6da52ecba0957ba31eb07a12362beea64b"
+  },
   "docs/AI_HARNESS.md": {
-   "at": 1788868002,
-   "by": "adr159",
-   "sha": "e8b2bfb94295b82ebe413d406fac26821bef731388a4b905ea13fd0be387d6b5"
+   "at": 1788871318,
+   "by": "adr160",
+   "sha": "04a2ca1bfa9db9c354abbac689225681f7f3a79065aec86ca0520ddbeb68dfe7"
   },
   "docs/AUDIT-2026-07-14-capability-coverage.md": {
    "at": 1788676922,
@@ -1550,6 +1555,11 @@
    "by": "adr159",
    "sha": "f356495bf97d5103f00fa9837181ae77f09d0a1ff24920e5316735fd2151f15f"
   },
+  "docs/CHANGELOG-2026-09-08-adr160-the-farm-scout-recorded-whole.md": {
+   "at": 1788871318,
+   "by": "adr160",
+   "sha": "7084afefd849065b5f956bd12aa7e7b1d3dfca0fba83bb9d30ab6c09d961da2b"
+  },
   "docs/DESIGN-adaptive-engine.md": {
    "at": 1788676923,
    "by": "adr146b",
@@ -2285,10 +2295,15 @@
    "by": "adr159",
    "sha": "94fcfbdc02f727578a976d21ac7f659eac54bd63dfce964a4c554271c2640cb9"
   },
+  "tools/delivery/adr160.json": {
+   "at": 1788871318,
+   "by": "adr160",
+   "sha": "6310367e01ffbd3e8625f4f6729e386efaa2a9d3286a7d8063b3074164ee706f"
+  },
   "tools/delivery_ledger.json": {
-   "at": 1788868002,
-   "by": "adr159",
-   "sha": "d2f41605bbb9068ae4f6a1896fe222c56b2d95619d93ccd13c35afe30097923f"
+   "at": 1788871318,
+   "by": "adr160",
+   "sha": "8b7fc8be2a370556aaddcb807fc949d98791fabaf7a39354ef314152563b22de"
   },
   "tools/dwc.py": {
    "at": 1788676926,
@@ -2331,9 +2346,9 @@
    "sha": "01919e137bdbf702ebc887de41aa026b721916da9d3761ce673812d54a22471f"
   },
   "tools/entry_ledger.json": {
-   "at": 1788868002,
-   "by": "adr159",
-   "sha": "fee8957275840a8f3d65ae2876fbf11d6aa5e20b9819ada25234701eafdd183d"
+   "at": 1788871318,
+   "by": "adr160",
+   "sha": "afb096f5efcfa098d89bad554aa7355974337e1140f3733c436f0c54b9fbe2ec"
   },
   "tools/entry_reach.py": {
    "at": 1788676926,
@@ -2386,9 +2401,9 @@
    "sha": "1d5e5bb0fadf4abb88d56125483a66e1bc2367055c7b541aa9d800c6dddde9dc"
   },
   "tools/harness_board.html": {
-   "at": 1788868002,
-   "by": "adr159",
-   "sha": "69722fd430f29aaa1cfad1f04fe73653ffba30518c6c4fe99ff2442a2cfa9808"
+   "at": 1788871318,
+   "by": "adr160",
+   "sha": "93415ff7da3d238bed9fe3b04d01a127ce7b56d1774febe4d4cbf2cd2b340509"
   },
   "tools/harness_board.py": {
    "at": 1788783742,
@@ -2591,9 +2606,9 @@
    "sha": "172e699a8abda0fb0fe773b9204e652001fac70b769e1082739097b699c28db0"
   },
   "tools/outputs_ledger.json": {
-   "at": 1788868002,
-   "by": "adr159",
-   "sha": "f0784fddd1db0eff2155c652713e37e130dac7b89236c8efc52e2abffd811809"
+   "at": 1788871318,
+   "by": "adr160",
+   "sha": "df02b860b3b1b3fdfd328fad9295191165dfdde601c4744950b379dc1582faaa"
   },
   "tools/probe.py": {
    "at": 1788676927,
@@ -2626,9 +2641,9 @@
    "sha": "15022dcd97ee97f72ec5f907d0cdfef3ee36da9588f9de47e110519ff9f781e8"
   },
   "tools/published.json": {
-   "at": 1788868002,
-   "by": "adr159",
-   "sha": "430ada08f781bc88b298bf2eb4a40b423b3e3335b944dea56361bcd4b94a22be"
+   "at": 1788871318,
+   "by": "adr160",
+   "sha": "a6d6c7173c102f09e56abd490cd37c9351b86874ce24280b9d275b23a3a11755"
   },
   "tools/reach.py": {
    "at": 1788676928,
@@ -2671,9 +2686,9 @@
    "sha": "0a2241a252fa68e80b813e601b7bd67cd8ba5c00b8ad07acc98dcd93a42b0268"
   },
   "tools/task_ledger.json": {
-   "at": 1788868002,
-   "by": "adr159",
-   "sha": "987b8d09ac0d8f0e5bb9d063cd8ce732e968f5ae9f344a25cef92516f81a432a"
+   "at": 1788871318,
+   "by": "adr160",
+   "sha": "3a81e35d6c34359bf31019eb0766ac3f13e1c6e9d921e2110060a76ee00a33f2"
   },
   "tools/tasks/fixture-buckets.json": {
    "at": 1788676928,
@@ -2836,9 +2851,9 @@
    "sha": "88668d8867cf65272bedf4eaab0661023c7592235b580215b5832fbc11b19a73"
   },
   "tools/tasks/page-farm-scout-science.json": {
-   "at": 1788676928,
-   "by": "adr146b",
-   "sha": "81adaede4e76930132de04ea1c5ad63a6d307bee6e758f3d2978123a9542d4bf"
+   "at": 1788871318,
+   "by": "adr160",
+   "sha": "4b73f70a367ca332a43abdfcb1039a7d5723b78759736c56207fc71cd2068d07"
   },
   "tools/tasks/page-field-notebook-science.json": {
    "at": 1788676928,
@@ -2966,9 +2981,9 @@
    "sha": "15a9ad96a69cde9458d5f7fca51be947e5bebad787cc069e1bcc64bf7800b592"
   },
   "tools/verify/counts.json": {
-   "at": 1788868002,
-   "by": "adr159",
-   "sha": "cb76143c1b0219930591881954f30fe85d0f99abbb406e2e3e60962d2bb3faae"
+   "at": 1788871318,
+   "by": "adr160",
+   "sha": "3fe01d10b04a45924659393f033c84f0e906f8858b8903bb4766102d9ba64678"
   },
   "tools/verify/run_all.py": {
    "at": 1788783742,

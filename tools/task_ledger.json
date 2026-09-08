@@ -17060,9 +17060,9 @@
    "verdict": "PASS"
   },
   "page-farm-scout-science": {
-   "at": 1788777312,
-   "confirmed": 68,
-   "goal": "On the farm scout's germination pane, test 40 seeds with 33 up wanting 120 plants and find 83%% and 146 seeds to sow (ceil(120/0.825)); 26 up gives 65%% and 185, 18 up 45%% and 267; on the rotation pane, Brassica last season and planned again is flagged within 3 years, and Fabaceae planned instead is a clean rotation; the scout pane's ten stops driven to 2 3 2 4 3 2 3 12 2 3 by the + buttons read mean 3.60 and variance/mean 2.54.",
+   "at": 1788868873,
+   "confirmed": 117,
+   "goal": "On the farm scout, run a full field day: scout aphids across ten stops (avg 3.6/plant, spread 2.54), name the pest and stamp the field, observer and date, tally five pollinator types including one added by hand (11 visits, evenness held), test germination and plan a rotation, then export the field-day report and the CSV -- both held against an oracle.",
    "held": true,
    "id": "page-farm-scout-science",
    "must": "PASS",
@@ -17073,7 +17073,7 @@
     "MUTATE"
    ],
    "rungsWhy": null,
-   "seconds": 3.5,
+   "seconds": 8.2,
    "steps": [
     {
      "action": "observe",
@@ -17105,7 +17105,7 @@
      ],
      "id": "germ",
      "message": "opened pane p-germ",
-     "ms": 102,
+     "ms": 164,
      "result": "driven"
     },
     {
@@ -17119,7 +17119,7 @@
      ],
      "id": "sown",
      "message": "set-text field_in:0",
-     "ms": 25,
+     "ms": 31,
      "result": "driven"
     },
     {
@@ -17133,7 +17133,7 @@
      ],
      "id": "up",
      "message": "set-text field_in:1",
-     "ms": 21,
+     "ms": 23,
      "result": "driven"
     },
     {
@@ -17147,7 +17147,7 @@
      ],
      "id": "want",
      "message": "set-text step_val:1",
-     "ms": 21,
+     "ms": 26,
      "result": "driven"
     },
     {
@@ -17171,7 +17171,7 @@
      ],
      "id": "g83",
      "message": "2 figure(s), 9 box(es), 0 list(s), 0 table(s), 7 heading(s)",
-     "ms": 4,
+     "ms": 6,
      "result": "driven"
     },
     {
@@ -17185,7 +17185,7 @@
      ],
      "id": "decent",
      "message": "2 figure(s), 9 box(es), 0 list(s), 0 table(s), 7 heading(s)",
-     "ms": 2,
+     "ms": 4,
      "result": "driven"
     },
     {
@@ -17199,7 +17199,7 @@
      ],
      "id": "up26",
      "message": "set-text field_in:1",
-     "ms": 22,
+     "ms": 26,
      "result": "driven"
     },
     {
@@ -17218,7 +17218,7 @@
      ],
      "id": "g65",
      "message": "2 figure(s), 9 box(es), 0 list(s), 0 table(s), 7 heading(s)",
-     "ms": 2,
+     "ms": 5,
      "result": "driven"
     },
     {
@@ -17232,7 +17232,7 @@
      ],
      "id": "up18",
      "message": "set-text field_in:1",
-     "ms": 23,
+     "ms": 26,
      "result": "driven"
     },
     {
@@ -17251,7 +17251,7 @@
      ],
      "id": "g45",
      "message": "2 figure(s), 9 box(es), 0 list(s), 0 table(s), 7 heading(s)",
-     "ms": 2,
+     "ms": 4,
      "result": "driven"
     },
     {
@@ -17265,7 +17265,7 @@
      ],
      "id": "poor",
      "message": "2 figure(s), 9 box(es), 0 list(s), 0 table(s), 7 heading(s)",
-     "ms": 2,
+     "ms": 4,
      "result": "driven"
     },
     {
@@ -17279,7 +17279,7 @@
      ],
      "id": "rot",
      "message": "opened pane p-rot",
-     "ms": 89,
+     "ms": 116,
      "result": "driven"
     },
     {
@@ -17293,7 +17293,7 @@
      ],
      "id": "last",
      "message": "pick pick_search:1",
-     "ms": 146,
+     "ms": 151,
      "result": "driven"
     },
     {
@@ -17307,7 +17307,7 @@
      ],
      "id": "plan",
      "message": "pick pick_search:2",
-     "ms": 146,
+     "ms": 151,
      "result": "driven"
     },
     {
@@ -17321,7 +17321,7 @@
      ],
      "id": "flag",
      "message": "2 figure(s), 9 box(es), 0 list(s), 0 table(s), 7 heading(s)",
-     "ms": 2,
+     "ms": 4,
      "result": "driven"
     },
     {
@@ -17335,7 +17335,7 @@
      ],
      "id": "try",
      "message": "2 figure(s), 9 box(es), 0 list(s), 0 table(s), 7 heading(s)",
-     "ms": 2,
+     "ms": 3,
      "result": "driven"
     },
     {
@@ -17349,7 +17349,7 @@
      ],
      "id": "plan2",
      "message": "pick pick_search:2",
-     "ms": 148,
+     "ms": 149,
      "result": "driven"
     },
     {
@@ -17363,7 +17363,7 @@
      ],
      "id": "clean",
      "message": "2 figure(s), 9 box(es), 0 list(s), 0 table(s), 7 heading(s)",
-     "ms": 2,
+     "ms": 4,
      "result": "driven"
     },
     {
@@ -17377,7 +17377,7 @@
      ],
      "id": "scout",
      "message": "opened pane p-scout",
-     "ms": 66,
+     "ms": 90,
      "result": "driven"
     },
     {
@@ -17391,7 +17391,7 @@
      ],
      "id": "s0_0",
      "message": "activate action_btn:1",
-     "ms": 23,
+     "ms": 26,
      "result": "driven"
     },
     {
@@ -17405,7 +17405,7 @@
      ],
      "id": "s0_1",
      "message": "activate action_btn:1",
-     "ms": 21,
+     "ms": 23,
      "result": "driven"
     },
     {
@@ -17419,7 +17419,7 @@
      ],
      "id": "s1_0",
      "message": "activate action_btn:3",
-     "ms": 21,
+     "ms": 25,
      "result": "driven"
     },
     {
@@ -17433,7 +17433,7 @@
      ],
      "id": "s1_1",
      "message": "activate action_btn:3",
-     "ms": 20,
+     "ms": 23,
      "result": "driven"
     },
     {
@@ -17447,7 +17447,7 @@
      ],
      "id": "s1_2",
      "message": "activate action_btn:3",
-     "ms": 21,
+     "ms": 23,
      "result": "driven"
     },
     {
@@ -17461,7 +17461,7 @@
      ],
      "id": "s2_0",
      "message": "activate action_btn:5",
-     "ms": 23,
+     "ms": 24,
      "result": "driven"
     },
     {
@@ -17475,7 +17475,7 @@
      ],
      "id": "s2_1",
      "message": "activate action_btn:5",
-     "ms": 21,
+     "ms": 24,
      "result": "driven"
     },
     {
@@ -17489,7 +17489,7 @@
      ],
      "id": "s3_0",
      "message": "activate action_btn:7",
-     "ms": 21,
+     "ms": 24,
      "result": "driven"
     },
     {
@@ -17503,7 +17503,7 @@
      ],
      "id": "s3_1",
      "message": "activate action_btn:7",
-     "ms": 21,
+     "ms": 26,
      "result": "driven"
     },
     {
@@ -17517,7 +17517,7 @@
      ],
      "id": "s3_2",
      "message": "activate action_btn:7",
-     "ms": 21,
+     "ms": 24,
      "result": "driven"
     },
     {
@@ -17531,7 +17531,7 @@
      ],
      "id": "s3_3",
      "message": "activate action_btn:7",
-     "ms": 22,
+     "ms": 26,
      "result": "driven"
     },
     {
@@ -17545,7 +17545,7 @@
      ],
      "id": "s4_0",
      "message": "activate action_btn:9",
-     "ms": 22,
+     "ms": 24,
      "result": "driven"
     },
     {
@@ -17559,7 +17559,7 @@
      ],
      "id": "s4_1",
      "message": "activate action_btn:9",
-     "ms": 22,
+     "ms": 25,
      "result": "driven"
     },
     {
@@ -17573,7 +17573,7 @@
      ],
      "id": "s4_2",
      "message": "activate action_btn:9",
-     "ms": 21,
+     "ms": 24,
      "result": "driven"
     },
     {
@@ -17587,7 +17587,7 @@
      ],
      "id": "s5_0",
      "message": "activate action_btn:11",
-     "ms": 21,
+     "ms": 27,
      "result": "driven"
     },
     {
@@ -17601,7 +17601,7 @@
      ],
      "id": "s5_1",
      "message": "activate action_btn:11",
-     "ms": 22,
+     "ms": 24,
      "result": "driven"
     },
     {
@@ -17615,7 +17615,7 @@
      ],
      "id": "s6_0",
      "message": "activate action_btn:13",
-     "ms": 23,
+     "ms": 24,
      "result": "driven"
     },
     {
@@ -17629,7 +17629,7 @@
      ],
      "id": "s6_1",
      "message": "activate action_btn:13",
-     "ms": 28,
+     "ms": 23,
      "result": "driven"
     },
     {
@@ -17643,7 +17643,7 @@
      ],
      "id": "s6_2",
      "message": "activate action_btn:13",
-     "ms": 21,
+     "ms": 23,
      "result": "driven"
     },
     {
@@ -17657,7 +17657,7 @@
      ],
      "id": "s7_0",
      "message": "activate action_btn:15",
-     "ms": 21,
+     "ms": 25,
      "result": "driven"
     },
     {
@@ -17671,7 +17671,7 @@
      ],
      "id": "s7_1",
      "message": "activate action_btn:15",
-     "ms": 20,
+     "ms": 24,
      "result": "driven"
     },
     {
@@ -17685,7 +17685,7 @@
      ],
      "id": "s7_2",
      "message": "activate action_btn:15",
-     "ms": 21,
+     "ms": 24,
      "result": "driven"
     },
     {
@@ -17699,7 +17699,7 @@
      ],
      "id": "s7_3",
      "message": "activate action_btn:15",
-     "ms": 21,
+     "ms": 23,
      "result": "driven"
     },
     {
@@ -17713,7 +17713,7 @@
      ],
      "id": "s7_4",
      "message": "activate action_btn:15",
-     "ms": 22,
+     "ms": 23,
      "result": "driven"
     },
     {
@@ -17727,7 +17727,7 @@
      ],
      "id": "s7_5",
      "message": "activate action_btn:15",
-     "ms": 21,
+     "ms": 24,
      "result": "driven"
     },
     {
@@ -17741,7 +17741,7 @@
      ],
      "id": "s7_6",
      "message": "activate action_btn:15",
-     "ms": 25,
+     "ms": 24,
      "result": "driven"
     },
     {
@@ -17755,7 +17755,7 @@
      ],
      "id": "s7_7",
      "message": "activate action_btn:15",
-     "ms": 22,
+     "ms": 24,
      "result": "driven"
     },
     {
@@ -17769,7 +17769,7 @@
      ],
      "id": "s7_8",
      "message": "activate action_btn:15",
-     "ms": 21,
+     "ms": 25,
      "result": "driven"
     },
     {
@@ -17783,7 +17783,7 @@
      ],
      "id": "s7_9",
      "message": "activate action_btn:15",
-     "ms": 21,
+     "ms": 24,
      "result": "driven"
     },
     {
@@ -17811,7 +17811,7 @@
      ],
      "id": "s7_11",
      "message": "activate action_btn:15",
-     "ms": 21,
+     "ms": 24,
      "result": "driven"
     },
     {
@@ -17825,7 +17825,7 @@
      ],
      "id": "s8_0",
      "message": "activate action_btn:17",
-     "ms": 21,
+     "ms": 24,
      "result": "driven"
     },
     {
@@ -17839,7 +17839,7 @@
      ],
      "id": "s8_1",
      "message": "activate action_btn:17",
-     "ms": 21,
+     "ms": 22,
      "result": "driven"
     },
     {
@@ -17853,7 +17853,7 @@
      ],
      "id": "s9_0",
      "message": "activate action_btn:19",
-     "ms": 21,
+     "ms": 23,
      "result": "driven"
     },
     {
@@ -17867,7 +17867,7 @@
      ],
      "id": "s9_1",
      "message": "activate action_btn:19",
-     "ms": 22,
+     "ms": 24,
      "result": "driven"
     },
     {
@@ -17881,7 +17881,7 @@
      ],
      "id": "s9_2",
      "message": "activate action_btn:19",
-     "ms": 21,
+     "ms": 23,
      "result": "driven"
     },
     {
@@ -17910,7 +17910,531 @@
      ],
      "id": "scout-report",
      "message": "6 figure(s), 9 box(es), 0 list(s), 0 table(s), 7 heading(s)",
+     "ms": 4,
+     "result": "driven"
+    },
+    {
+     "action": "set-text",
+     "expectations": [
+      {
+       "detail": "ok == True, got True",
+       "path": "ok",
+       "verdict": "CONFIRMED"
+      }
+     ],
+     "id": "g160-pest",
+     "message": "set-text text_in:0",
+     "ms": 23,
+     "result": "driven"
+    },
+    {
+     "action": "set-text",
+     "expectations": [
+      {
+       "detail": "ok == True, got True",
+       "path": "ok",
+       "verdict": "CONFIRMED"
+      }
+     ],
+     "id": "g160-site",
+     "message": "set-text text_in:2",
+     "ms": 104,
+     "result": "driven"
+    },
+    {
+     "action": "set-text",
+     "expectations": [
+      {
+       "detail": "ok == True, got True",
+       "path": "ok",
+       "verdict": "CONFIRMED"
+      }
+     ],
+     "id": "g160-obs",
+     "message": "set-text text_in:3",
+     "ms": 24,
+     "result": "driven"
+    },
+    {
+     "action": "set-text",
+     "expectations": [
+      {
+       "detail": "ok == True, got True",
+       "path": "ok",
+       "verdict": "CONFIRMED"
+      }
+     ],
+     "id": "g160-date",
+     "message": "set-text text_in:4",
+     "ms": 26,
+     "result": "driven"
+    },
+    {
+     "action": "set-text",
+     "expectations": [
+      {
+       "detail": "ok == True, got True",
+       "path": "ok",
+       "verdict": "CONFIRMED"
+      }
+     ],
+     "id": "g160-thresh",
+     "message": "set-text step_val:0",
+     "ms": 115,
+     "result": "driven"
+    },
+    {
+     "action": "show-pane",
+     "expectations": [
+      {
+       "detail": "ok == True, got True",
+       "path": "ok",
+       "verdict": "CONFIRMED"
+      }
+     ],
+     "id": "g160-rotpane",
+     "message": "opened pane p-rot",
+     "ms": 151,
+     "result": "driven"
+    },
+    {
+     "action": "pick",
+     "expectations": [
+      {
+       "detail": "ok == True, got True",
+       "path": "ok",
+       "verdict": "CONFIRMED"
+      }
+     ],
+     "id": "g160-b1y2",
+     "message": "pick pick_search:0",
+     "ms": 152,
+     "result": "driven"
+    },
+    {
+     "action": "pick",
+     "expectations": [
+      {
+       "detail": "ok == True, got True",
+       "path": "ok",
+       "verdict": "CONFIRMED"
+      }
+     ],
+     "id": "g160-b2y2",
+     "message": "pick pick_search:3",
+     "ms": 149,
+     "result": "driven"
+    },
+    {
+     "action": "pick",
+     "expectations": [
+      {
+       "detail": "ok == True, got True",
+       "path": "ok",
+       "verdict": "CONFIRMED"
+      }
+     ],
+     "id": "g160-b2y1",
+     "message": "pick pick_search:4",
+     "ms": 150,
+     "result": "driven"
+    },
+    {
+     "action": "pick",
+     "expectations": [
+      {
+       "detail": "ok == True, got True",
+       "path": "ok",
+       "verdict": "CONFIRMED"
+      }
+     ],
+     "id": "g160-b2plan",
+     "message": "pick pick_search:5",
+     "ms": 148,
+     "result": "driven"
+    },
+    {
+     "action": "show-pane",
+     "expectations": [
+      {
+       "detail": "ok == True, got True",
+       "path": "ok",
+       "verdict": "CONFIRMED"
+      }
+     ],
+     "id": "g160-pollpane",
+     "message": "opened pane p-poll",
+     "ms": 92,
+     "result": "driven"
+    },
+    {
+     "action": "activate",
+     "expectations": [
+      {
+       "detail": "ok == True, got True",
+       "path": "ok",
+       "verdict": "CONFIRMED"
+      }
+     ],
+     "id": "g160-po0_0",
+     "message": "activate action_btn:22",
+     "ms": 26,
+     "result": "driven"
+    },
+    {
+     "action": "activate",
+     "expectations": [
+      {
+       "detail": "ok == True, got True",
+       "path": "ok",
+       "verdict": "CONFIRMED"
+      }
+     ],
+     "id": "g160-po0_1",
+     "message": "activate action_btn:22",
+     "ms": 25,
+     "result": "driven"
+    },
+    {
+     "action": "activate",
+     "expectations": [
+      {
+       "detail": "ok == True, got True",
+       "path": "ok",
+       "verdict": "CONFIRMED"
+      }
+     ],
+     "id": "g160-po0_2",
+     "message": "activate action_btn:22",
+     "ms": 24,
+     "result": "driven"
+    },
+    {
+     "action": "activate",
+     "expectations": [
+      {
+       "detail": "ok == True, got True",
+       "path": "ok",
+       "verdict": "CONFIRMED"
+      }
+     ],
+     "id": "g160-po0_3",
+     "message": "activate action_btn:22",
+     "ms": 26,
+     "result": "driven"
+    },
+    {
+     "action": "activate",
+     "expectations": [
+      {
+       "detail": "ok == True, got True",
+       "path": "ok",
+       "verdict": "CONFIRMED"
+      }
+     ],
+     "id": "g160-po1_0",
+     "message": "activate action_btn:23",
+     "ms": 25,
+     "result": "driven"
+    },
+    {
+     "action": "activate",
+     "expectations": [
+      {
+       "detail": "ok == True, got True",
+       "path": "ok",
+       "verdict": "CONFIRMED"
+      }
+     ],
+     "id": "g160-po1_1",
+     "message": "activate action_btn:23",
+     "ms": 24,
+     "result": "driven"
+    },
+    {
+     "action": "activate",
+     "expectations": [
+      {
+       "detail": "ok == True, got True",
+       "path": "ok",
+       "verdict": "CONFIRMED"
+      }
+     ],
+     "id": "g160-po1_2",
+     "message": "activate action_btn:23",
+     "ms": 25,
+     "result": "driven"
+    },
+    {
+     "action": "activate",
+     "expectations": [
+      {
+       "detail": "ok == True, got True",
+       "path": "ok",
+       "verdict": "CONFIRMED"
+      }
+     ],
+     "id": "g160-po2_0",
+     "message": "activate action_btn:24",
+     "ms": 23,
+     "result": "driven"
+    },
+    {
+     "action": "activate",
+     "expectations": [
+      {
+       "detail": "ok == True, got True",
+       "path": "ok",
+       "verdict": "CONFIRMED"
+      }
+     ],
+     "id": "g160-po2_1",
+     "message": "activate action_btn:24",
+     "ms": 26,
+     "result": "driven"
+    },
+    {
+     "action": "activate",
+     "expectations": [
+      {
+       "detail": "ok == True, got True",
+       "path": "ok",
+       "verdict": "CONFIRMED"
+      }
+     ],
+     "id": "g160-po3_0",
+     "message": "activate action_btn:25",
+     "ms": 23,
+     "result": "driven"
+    },
+    {
+     "action": "set-text",
+     "expectations": [
+      {
+       "detail": "ok == True, got True",
+       "path": "ok",
+       "verdict": "CONFIRMED"
+      }
+     ],
+     "id": "g160-ponew",
+     "message": "set-text text_in:1",
+     "ms": 24,
+     "result": "driven"
+    },
+    {
+     "action": "activate",
+     "expectations": [
+      {
+       "detail": "ok == True, got True",
+       "path": "ok",
+       "verdict": "CONFIRMED"
+      }
+     ],
+     "id": "g160-poadd",
+     "message": "activate action_btn:26",
+     "ms": 29,
+     "result": "driven"
+    },
+    {
+     "action": "activate",
+     "expectations": [
+      {
+       "detail": "ok == True, got True",
+       "path": "ok",
+       "verdict": "CONFIRMED"
+      }
+     ],
+     "id": "g160-po4_0",
+     "message": "activate action_btn:26",
+     "ms": 23,
+     "result": "driven"
+    },
+    {
+     "action": "read-report",
+     "expectations": [
+      {
+       "detail": "ok == True, got True",
+       "path": "ok",
+       "verdict": "CONFIRMED"
+      },
+      {
+       "detail": "output.by.poResults.visits == '11', got '11'",
+       "path": "output.by.poResults.visits",
+       "verdict": "CONFIRMED"
+      },
+      {
+       "detail": "output.by.poResults.visitor types == '5', got '5'",
+       "path": "output.by.poResults.visitor types",
+       "verdict": "CONFIRMED"
+      },
+      {
+       "detail": "output.by.poResults.effective types == '4.3', got '4.3'",
+       "path": "output.by.poResults.effective types",
+       "verdict": "CONFIRMED"
+      },
+      {
+       "detail": "output.by.poResults.evenness == '0.91', got '0.91'",
+       "path": "output.by.poResults.evenness",
+       "verdict": "CONFIRMED"
+      }
+     ],
+     "id": "g160-pollrep",
+     "message": "10 figure(s), 9 box(es), 0 list(s), 0 table(s), 7 heading(s)",
+     "ms": 4,
+     "result": "driven"
+    },
+    {
+     "action": "activate",
+     "expectations": [
+      {
+       "detail": "ok == True, got True",
+       "path": "ok",
+       "verdict": "CONFIRMED"
+      }
+     ],
+     "id": "g160-eco",
+     "message": "activate action_btn:32",
+     "ms": 126,
+     "result": "driven"
+    },
+    {
+     "action": "collect-output",
+     "expectations": [
+      {
+       "detail": "output.payloads.0.k in ['copy', 'clipboard', 'download', 'print'], got 'clipboard'",
+       "path": "output.payloads.0.k",
+       "verdict": "CONFIRMED"
+      },
+      {
+       "detail": "output.payloads.0.text contains '# pest scouting \u2014 aphids on kale \u2014 counts per stop:', got '# Farm Scout export \u2014 .eco-compatible\\n# field north block \u2014 scouted by R. Ellison \u2014 2026-09-08\\n# pest scouting \u2014 aphids on kale \u2014 counts per stop:\\n#   2 3 2 4 3 2 3 12 2 3\\nnote: scouting avg 3.6/plant, spread 2.54\\ndata: pollinators honeybee=4 bumblebee=3 hoverfly=2 butterfly=1 mason=1\\nnote: germination test 18/40 = 45%\\nnote: bed 1 planned Fabaceae\\nnote: bed 2 planned Fabaceae'",
+       "path": "output.payloads.0.text",
+       "verdict": "CONFIRMED"
+      },
+      {
+       "detail": "output.payloads.0.text contains 'note: scouting avg 3.6/plant, spread 2.54', got '# Farm Scout export \u2014 .eco-compatible\\n# field north block \u2014 scouted by R. Ellison \u2014 2026-09-08\\n# pest scouting \u2014 aphids on kale \u2014 counts per stop:\\n#   2 3 2 4 3 2 3 12 2 3\\nnote: scouting avg 3.6/plant, spread 2.54\\ndata: pollinators honeybee=4 bumblebee=3 hoverfly=2 butterfly=1 mason=1\\nnote: germination test 18/40 = 45%\\nnote: bed 1 planned Fabaceae\\nnote: bed 2 planned Fabaceae'",
+       "path": "output.payloads.0.text#2",
+       "verdict": "CONFIRMED"
+      },
+      {
+       "detail": "output.payloads.0.text contains 'data: pollinators honeybee=4 bumblebee=3 hoverfly=2 butterfly=1 mason=1', got '# Farm Scout export \u2014 .eco-compatible\\n# field north block \u2014 scouted by R. Ellison \u2014 2026-09-08\\n# pest scouting \u2014 aphids on kale \u2014 counts per stop:\\n#   2 3 2 4 3 2 3 12 2 3\\nnote: scouting avg 3.6/plant, spread 2.54\\ndata: pollinators honeybee=4 bumblebee=3 hoverfly=2 butterfly=1 mason=1\\nnote: germination test 18/40 = 45%\\nnote: bed 1 planned Fabaceae\\nnote: bed 2 planned Fabaceae'",
+       "path": "output.payloads.0.text#3",
+       "verdict": "CONFIRMED"
+      },
+      {
+       "detail": "output.payloads.0.text contains 'note: germination test 18/40 = 45%', got '# Farm Scout export \u2014 .eco-compatible\\n# field north block \u2014 scouted by R. Ellison \u2014 2026-09-08\\n# pest scouting \u2014 aphids on kale \u2014 counts per stop:\\n#   2 3 2 4 3 2 3 12 2 3\\nnote: scouting avg 3.6/plant, spread 2.54\\ndata: pollinators honeybee=4 bumblebee=3 hoverfly=2 butterfly=1 mason=1\\nnote: germination test 18/40 = 45%\\nnote: bed 1 planned Fabaceae\\nnote: bed 2 planned Fabaceae'",
+       "path": "output.payloads.0.text#4",
+       "verdict": "CONFIRMED"
+      },
+      {
+       "detail": "output.payloads.0.text contains 'note: bed 1 planned Fabaceae', got '# Farm Scout export \u2014 .eco-compatible\\n# field north block \u2014 scouted by R. Ellison \u2014 2026-09-08\\n# pest scouting \u2014 aphids on kale \u2014 counts per stop:\\n#   2 3 2 4 3 2 3 12 2 3\\nnote: scouting avg 3.6/plant, spread 2.54\\ndata: pollinators honeybee=4 bumblebee=3 hoverfly=2 butterfly=1 mason=1\\nnote: germination test 18/40 = 45%\\nnote: bed 1 planned Fabaceae\\nnote: bed 2 planned Fabaceae'",
+       "path": "output.payloads.0.text#5",
+       "verdict": "CONFIRMED"
+      },
+      {
+       "detail": "output.payloads.0.text contains '# field north block \u2014 scouted by R. Ellison \u2014 2026-09-08', got '# Farm Scout export \u2014 .eco-compatible\\n# field north block \u2014 scouted by R. Ellison \u2014 2026-09-08\\n# pest scouting \u2014 aphids on kale \u2014 counts per stop:\\n#   2 3 2 4 3 2 3 12 2 3\\nnote: scouting avg 3.6/plant, spread 2.54\\ndata: pollinators honeybee=4 bumblebee=3 hoverfly=2 butterfly=1 mason=1\\nnote: germination test 18/40 = 45%\\nnote: bed 1 planned Fabaceae\\nnote: bed 2 planned Fabaceae'",
+       "path": "output.payloads.0.text#6",
+       "verdict": "CONFIRMED"
+      }
+     ],
+     "id": "g160-ecoout",
+     "message": "1 payload(s)",
      "ms": 3,
+     "result": "driven"
+    },
+    {
+     "action": "activate",
+     "expectations": [
+      {
+       "detail": "ok == True, got True",
+       "path": "ok",
+       "verdict": "CONFIRMED"
+      }
+     ],
+     "id": "g160-csv",
+     "message": "activate action_btn:33",
+     "ms": 28,
+     "result": "driven"
+    },
+    {
+     "action": "collect-output",
+     "expectations": [
+      {
+       "detail": "output.payloads.0.text contains 'section,item,value', got 'section,item,value\\nsession,field,north block\\nsession,scouted-by,R. Ellison\\nsession,date,2026-09-08\\nscouting,crop-pest,aphids on kale\\nscouting,stop-1,2\\nscouting,stop-2,3\\nscouting,stop-3,2\\nscouting,stop-4,4\\nscouting,stop-5,3\\nscouting,stop-6,2\\nscouting,stop-7,3\\nscouting,stop-8,12\\nscouting,stop-9,2\\nscouting,stop-10,3\\npollinators,honeybee,4\\npollinators,bumblebee,3\\npollinators,hoverfly,2\\npollinators,butterfly,1\\npollinators,mason,1\\ngermination,sown,40\\ngermination,germinated,18\\nrotation,Bed 1,Fabaceae\\nrotation,Bed 2,Fabaceae'",
+       "path": "output.payloads.0.text",
+       "verdict": "CONFIRMED"
+      },
+      {
+       "detail": "output.payloads.0.text contains 'scouting,crop-pest,aphids on kale', got 'section,item,value\\nsession,field,north block\\nsession,scouted-by,R. Ellison\\nsession,date,2026-09-08\\nscouting,crop-pest,aphids on kale\\nscouting,stop-1,2\\nscouting,stop-2,3\\nscouting,stop-3,2\\nscouting,stop-4,4\\nscouting,stop-5,3\\nscouting,stop-6,2\\nscouting,stop-7,3\\nscouting,stop-8,12\\nscouting,stop-9,2\\nscouting,stop-10,3\\npollinators,honeybee,4\\npollinators,bumblebee,3\\npollinators,hoverfly,2\\npollinators,butterfly,1\\npollinators,mason,1\\ngermination,sown,40\\ngermination,germinated,18\\nrotation,Bed 1,Fabaceae\\nrotation,Bed 2,Fabaceae'",
+       "path": "output.payloads.0.text#2",
+       "verdict": "CONFIRMED"
+      },
+      {
+       "detail": "output.payloads.0.text contains 'scouting,stop-8,12', got 'section,item,value\\nsession,field,north block\\nsession,scouted-by,R. Ellison\\nsession,date,2026-09-08\\nscouting,crop-pest,aphids on kale\\nscouting,stop-1,2\\nscouting,stop-2,3\\nscouting,stop-3,2\\nscouting,stop-4,4\\nscouting,stop-5,3\\nscouting,stop-6,2\\nscouting,stop-7,3\\nscouting,stop-8,12\\nscouting,stop-9,2\\nscouting,stop-10,3\\npollinators,honeybee,4\\npollinators,bumblebee,3\\npollinators,hoverfly,2\\npollinators,butterfly,1\\npollinators,mason,1\\ngermination,sown,40\\ngermination,germinated,18\\nrotation,Bed 1,Fabaceae\\nrotation,Bed 2,Fabaceae'",
+       "path": "output.payloads.0.text#3",
+       "verdict": "CONFIRMED"
+      },
+      {
+       "detail": "output.payloads.0.text contains 'pollinators,honeybee,4', got 'section,item,value\\nsession,field,north block\\nsession,scouted-by,R. Ellison\\nsession,date,2026-09-08\\nscouting,crop-pest,aphids on kale\\nscouting,stop-1,2\\nscouting,stop-2,3\\nscouting,stop-3,2\\nscouting,stop-4,4\\nscouting,stop-5,3\\nscouting,stop-6,2\\nscouting,stop-7,3\\nscouting,stop-8,12\\nscouting,stop-9,2\\nscouting,stop-10,3\\npollinators,honeybee,4\\npollinators,bumblebee,3\\npollinators,hoverfly,2\\npollinators,butterfly,1\\npollinators,mason,1\\ngermination,sown,40\\ngermination,germinated,18\\nrotation,Bed 1,Fabaceae\\nrotation,Bed 2,Fabaceae'",
+       "path": "output.payloads.0.text#4",
+       "verdict": "CONFIRMED"
+      },
+      {
+       "detail": "output.payloads.0.text contains 'germination,germinated,18', got 'section,item,value\\nsession,field,north block\\nsession,scouted-by,R. Ellison\\nsession,date,2026-09-08\\nscouting,crop-pest,aphids on kale\\nscouting,stop-1,2\\nscouting,stop-2,3\\nscouting,stop-3,2\\nscouting,stop-4,4\\nscouting,stop-5,3\\nscouting,stop-6,2\\nscouting,stop-7,3\\nscouting,stop-8,12\\nscouting,stop-9,2\\nscouting,stop-10,3\\npollinators,honeybee,4\\npollinators,bumblebee,3\\npollinators,hoverfly,2\\npollinators,butterfly,1\\npollinators,mason,1\\ngermination,sown,40\\ngermination,germinated,18\\nrotation,Bed 1,Fabaceae\\nrotation,Bed 2,Fabaceae'",
+       "path": "output.payloads.0.text#5",
+       "verdict": "CONFIRMED"
+      },
+      {
+       "detail": "output.payloads.0.text contains 'rotation,Bed 1,Fabaceae', got 'section,item,value\\nsession,field,north block\\nsession,scouted-by,R. Ellison\\nsession,date,2026-09-08\\nscouting,crop-pest,aphids on kale\\nscouting,stop-1,2\\nscouting,stop-2,3\\nscouting,stop-3,2\\nscouting,stop-4,4\\nscouting,stop-5,3\\nscouting,stop-6,2\\nscouting,stop-7,3\\nscouting,stop-8,12\\nscouting,stop-9,2\\nscouting,stop-10,3\\npollinators,honeybee,4\\npollinators,bumblebee,3\\npollinators,hoverfly,2\\npollinators,butterfly,1\\npollinators,mason,1\\ngermination,sown,40\\ngermination,germinated,18\\nrotation,Bed 1,Fabaceae\\nrotation,Bed 2,Fabaceae'",
+       "path": "output.payloads.0.text#6",
+       "verdict": "CONFIRMED"
+      },
+      {
+       "detail": "output.payloads.0.text contains 'rotation,Bed 2,Fabaceae', got 'section,item,value\\nsession,field,north block\\nsession,scouted-by,R. Ellison\\nsession,date,2026-09-08\\nscouting,crop-pest,aphids on kale\\nscouting,stop-1,2\\nscouting,stop-2,3\\nscouting,stop-3,2\\nscouting,stop-4,4\\nscouting,stop-5,3\\nscouting,stop-6,2\\nscouting,stop-7,3\\nscouting,stop-8,12\\nscouting,stop-9,2\\nscouting,stop-10,3\\npollinators,honeybee,4\\npollinators,bumblebee,3\\npollinators,hoverfly,2\\npollinators,butterfly,1\\npollinators,mason,1\\ngermination,sown,40\\ngermination,germinated,18\\nrotation,Bed 1,Fabaceae\\nrotation,Bed 2,Fabaceae'",
+       "path": "output.payloads.0.text#7",
+       "verdict": "CONFIRMED"
+      }
+     ],
+     "id": "g160-csvout",
+     "message": "1 payload(s)",
+     "ms": 2,
+     "result": "driven"
+    },
+    {
+     "action": "show-pane",
+     "expectations": [
+      {
+       "detail": "ok == True, got True",
+       "path": "ok",
+       "verdict": "CONFIRMED"
+      }
+     ],
+     "id": "g160-endpane",
+     "message": "opened pane p-scout",
+     "ms": 90,
+     "result": "driven"
+    },
+    {
+     "action": "read-report",
+     "expectations": [
+      {
+       "detail": "ok == True, got True",
+       "path": "ok",
+       "verdict": "CONFIRMED"
+      },
+      {
+       "detail": "output.by.scResults.avg / plant == '3.6', got '3.6'",
+       "path": "output.by.scResults.avg / plant",
+       "verdict": "CONFIRMED"
+      },
+      {
+       "detail": "output.by.scResults.spread (var/mean) == '2.54', got '2.54'",
+       "path": "output.by.scResults.spread (var/mean)",
+       "verdict": "CONFIRMED"
+      }
+     ],
+     "id": "g160-endrep",
+     "message": "10 figure(s), 9 box(es), 0 list(s), 0 table(s), 7 heading(s)",
+     "ms": 6,
      "result": "driven"
     },
     {
@@ -17932,9 +18456,9 @@
        "verdict": "CONFIRMED"
       }
      ],
-     "id": "intact",
+     "id": "g160-endintact",
      "message": "read the page",
-     "ms": 4,
+     "ms": 8,
      "result": "driven"
     }
    ],
