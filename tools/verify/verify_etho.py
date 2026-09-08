@@ -81,6 +81,18 @@ with sync_playwright() as p:
     pg.click("#rStop"); pg.wait_for_timeout(300)
 
     pg.click('.tab[data-pane="p-bud"]'); pg.wait_for_timeout(300)
+    # The budget pane recomputes the transition matrix on tab-switch, and that
+    # render is heavy enough that a fixed 300ms settle raced the read under
+    # -j2 CPU contention -- #transBox came back empty and every transBox claim
+    # failed as a phantom regression (ADR-143: a flake is a measurement of the
+    # test, not the page). Wait for the panes to be populated instead of
+    # guessing a duration: a real regression that never renders them still
+    # fails, now at the 15s default timeout rather than at 300ms.
+    pg.wait_for_function(
+        "() => { const t=document.querySelector('#transBox'),"
+        " b=document.querySelector('#budBox');"
+        " return t && b && /Transitions/.test(t.textContent)"
+        " && /forage/.test(b.textContent); }")
     bud=pg.inner_text("#budBox")
     ck("budget lists forage", "forage" in bud, bud[:200])
     ck("budget lists vigilant", "vigilant" in bud, "")

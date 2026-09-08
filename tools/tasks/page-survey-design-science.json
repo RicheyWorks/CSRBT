@@ -2,7 +2,7 @@
  "id": "page-survey-design-science",
  "target": "page",
  "page": "survey-design.html",
- "goal": "On the survey design page, load the example design (1 survey, 2 sites, 4 plots, 8 visits = 15 events, no duplicate IDs), find a site with plots refused deletion, attach the absences to visit:01 and find 15 event rows, 15 Humboldt rows (nothing inherited), 3 occurrence rows (2 found + 1 absent) with 1 absence written and 0 refused; clear the target scope and find the absence refused (2 rows, 0 written, 1 refused); restore it, enter effort 45 minutes and an excluded scope, and find the declarations and the export carry them.",
+ "goal": "On the survey design page, load the example design (1 survey, 2 sites, 4 plots, 8 visits = 15 events, no duplicate IDs), find a site with plots refused deletion, attach the absences to visit:01 and find 15 event rows, 15 Humboldt rows (nothing inherited), 3 occurrence rows (2 found + 1 absent) with 1 absence written and 0 refused; clear the target scope and find the absence refused (2 rows, 0 written, 1 refused); restore it, enter effort 45 minutes and an excluded scope, and find the declarations and the export carry them. Then the dataset name and prefix and effort protocol are typed before the example loads so it keeps them, an inventory type and a target taxon are added, and ONE MANUAL SITE (South spring, SGH2026:site:03) is appended under the survey -- 15 -> 16 events, 16 Humboldt rows, occurrences unchanged at 3 -- and the five things the page hands over are read: Event Core, the Humboldt extension, the occurrence table (its per-row UUID excluded, its deterministic columns held), the readme and the print.",
  "policy": {
   "allow": [
    "SENSITIVE_READ",
@@ -32,6 +32,30 @@
    },
    "expect": {
     "ok": true
+   }
+  },
+  {
+   "id": "g157-dsname",
+   "action": "set-text",
+   "arguments": {
+    "selector": "@control:dsName",
+    "value": "Sagehen riparian survey 2026"
+   }
+  },
+  {
+   "id": "g157-dsprefix",
+   "action": "set-text",
+   "arguments": {
+    "selector": "@control:dsPrefix",
+    "value": "SGH2026"
+   }
+  },
+  {
+   "id": "g157-effproto",
+   "action": "set-text",
+   "arguments": {
+    "selector": "@control:scEffProto",
+    "value": "two observers, timed meander search"
    }
   },
   {
@@ -301,6 +325,296 @@
      "op": "contains",
      "value": "eco:isSamplingEffortReported"
     }
+   }
+  },
+  {
+   "id": "g157-scope-pane",
+   "action": "show-pane",
+   "arguments": {
+    "pane": "p-scope"
+   }
+  },
+  {
+   "id": "g157-inv",
+   "action": "set-text",
+   "arguments": {
+    "selector": "@control:scInv",
+    "value": "timed meander search"
+   }
+  },
+  {
+   "id": "g157-invread",
+   "action": "read-report",
+   "expect": {
+    "output.boxes.declBox": {
+     "op": "contains",
+     "value": "timed meander search (free text, not a controlled value)"
+    }
+   }
+  },
+  {
+   "id": "g157-abs-pane",
+   "action": "show-pane",
+   "arguments": {
+    "pane": "p-abs"
+   }
+  },
+  {
+   "id": "g157-txadd",
+   "action": "set-text",
+   "arguments": {
+    "selector": "@control:txAdd",
+    "value": "Epilobium ciliatum"
+   }
+  },
+  {
+   "id": "g157-txbtn",
+   "action": "activate",
+   "arguments": {
+    "selector": "@control:txBtn"
+   }
+  },
+  {
+   "id": "g157-taxa",
+   "action": "read-report",
+   "expect": {
+    "output.boxes.taxaBox": {
+     "op": "contains",
+     "value": "Epilobium ciliatum"
+    }
+   }
+  },
+  {
+   "id": "g157-hier-pane",
+   "action": "show-pane",
+   "arguments": {
+    "pane": "p-hier"
+   }
+  },
+  {
+   "id": "g157-lvl-survey",
+   "action": "activate",
+   "arguments": {
+    "selector": "@control:lvlEntry/survey"
+   }
+  },
+  {
+   "id": "g157-lvl-site",
+   "action": "activate",
+   "arguments": {
+    "selector": "@control:lvlEntry/site"
+   }
+  },
+  {
+   "id": "g157-parent",
+   "action": "pick",
+   "arguments": {
+    "selector": "@control:parentEntry",
+    "value": "SGH2026:survey:01"
+   }
+  },
+  {
+   "id": "g157-evname",
+   "action": "set-text",
+   "arguments": {
+    "selector": "@control:evName",
+    "value": "South spring"
+   }
+  },
+  {
+   "id": "g157-evdate",
+   "action": "set-text",
+   "arguments": {
+    "selector": "@control:evDate",
+    "value": "2026-08-02"
+   }
+  },
+  {
+   "id": "g157-evadd",
+   "action": "activate",
+   "arguments": {
+    "selector": "@control:evAdd"
+   }
+  },
+  {
+   "id": "g157-added",
+   "action": "read-report",
+   "expect": {
+    "output.by.outStat.event rows": "16",
+    "output.by.outStat.Humboldt rows": "16",
+    "output.by.outStat.occurrence rows": "3",
+    "output.by.outStat.absences written": "1",
+    "output.by.outStat.absences refused": "0",
+    "output.boxes.ecoOut": {
+     "op": "contains",
+     "value": "# 16 events, 3 occurrences (1 absent)"
+    },
+    "output.boxes.ecoOut#2": {
+     "op": "contains",
+     "value": "event.csv 16 rows the hierarchy"
+    }
+   }
+  },
+  {
+   "id": "g157-hier-pane2",
+   "action": "show-pane",
+   "arguments": {
+    "pane": "p-hier"
+   }
+  },
+  {
+   "id": "g157-copyid",
+   "action": "activate",
+   "arguments": {
+    "selector": "@control:tree/copy ID"
+   }
+  },
+  {
+   "id": "g157-copyidout",
+   "action": "collect-output",
+   "expect": {
+    "output.payloads.0.k": {
+     "op": "in",
+     "value": [
+      "copy",
+      "clipboard",
+      "download",
+      "print"
+     ]
+    },
+    "output.payloads.0.text": {
+     "op": "contains",
+     "value": "SGH2026:survey:01"
+    }
+   }
+  },
+  {
+   "id": "g157-out-pane",
+   "action": "show-pane",
+   "arguments": {
+    "pane": "p-out"
+   }
+  },
+  {
+   "id": "g157-ev",
+   "action": "activate",
+   "arguments": {
+    "selector": "@control:cpEvent"
+   }
+  },
+  {
+   "id": "g157-evout",
+   "action": "collect-output",
+   "expect": {
+    "output.payloads.0.k": {
+     "op": "in",
+     "value": [
+      "copy",
+      "clipboard",
+      "download",
+      "print"
+     ]
+    },
+    "output.payloads.0.text": {
+     "op": "contains",
+     "value": "eventID,parentEventID,eventType,eventDate,samplingProtocol,verbatimEventName,datasetName"
+    },
+    "output.payloads.0.text#2": {
+     "op": "contains",
+     "value": "SGH2026:site:03,SGH2026:survey:01,site,2026-08-02,,South spring,Sagehen riparian survey 2026"
+    }
+   }
+  },
+  {
+   "id": "g157-hum",
+   "action": "activate",
+   "arguments": {
+    "selector": "@control:cpHum"
+   }
+  },
+  {
+   "id": "g157-humout",
+   "action": "collect-output",
+   "expect": {
+    "output.payloads.0.text": {
+     "op": "contains",
+     "value": "eventID,eco:targetTaxonomicScope,eco:excludedTaxonomicScope"
+    },
+    "output.payloads.0.text#2": {
+     "op": "contains",
+     "value": "SGH2026:site:03,Tracheophyta,Bryophyta|Lichenes,false,false,false,,,,timed meander search,samplingEvents"
+    }
+   }
+  },
+  {
+   "id": "g157-occ",
+   "action": "activate",
+   "arguments": {
+    "selector": "@control:cpOcc"
+   }
+  },
+  {
+   "id": "g157-occout",
+   "action": "collect-output",
+   "expect": {
+    "output.payloads.0.text": {
+     "op": "contains",
+     "value": "occurrenceID,eventID,scientificName,occurrenceStatus"
+    },
+    "output.payloads.0.text#2": {
+     "op": "contains",
+     "value": "SGH2026:visit:01,Typha latifolia,absent,HumanObservation,,searched for within Tracheophyta and not detected"
+    },
+    "output.payloads.0.text#3": {
+     "op": "contains",
+     "value": "SGH2026:visit:01,Carex aquatilis,present,HumanObservation"
+    }
+   }
+  },
+  {
+   "id": "g157-readme",
+   "action": "activate",
+   "arguments": {
+    "selector": "@control:cpRead"
+   }
+  },
+  {
+   "id": "g157-readmeout",
+   "action": "collect-output",
+   "expect": {
+    "output.payloads.0.text": {
+     "op": "contains",
+     "value": "TARGET SCOPE: Tracheophyta"
+    },
+    "output.payloads.0.text#2": {
+     "op": "contains",
+     "value": "Namespace: http://rs.tdwg.org/eco/terms/"
+    },
+    "output.payloads.0.text#3": {
+     "op": "contains",
+     "value": "EXCLUDED:     Bryophyta | Lichenes"
+    }
+   }
+  },
+  {
+   "id": "g157-print",
+   "action": "activate",
+   "arguments": {
+    "selector": "@control:p-out/Print / save PDF"
+   }
+  },
+  {
+   "id": "g157-printout",
+   "action": "collect-output",
+   "expect": {
+    "output.payloads.0.k": "print"
+   }
+  },
+  {
+   "id": "g157-after",
+   "action": "read-report",
+   "expect": {
+    "output.by.outStat.event rows": "16"
    }
   },
   {
