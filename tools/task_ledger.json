@@ -3620,9 +3620,9 @@
    "verdict": "PASS"
   },
   "page-cell-bench-science": {
-   "at": 1788777251,
-   "confirmed": 76,
-   "goal": "On the cell bench: 120 live and 12 dead in 4 large squares at dilution 2 is 6.00x10^5 live cells/mL, 33.0 per square, 90.9% viable, Poisson CV 9.1%; seeding 10 mL at 5x10^4 from 8.5x10^5 stock takes 0.588 mL; 2x10^5 to 1.6x10^6 in 48 h is 3.00 doublings of 16.00 h; standards (0,.041) (5,.238) (10,.442) (20,.851) fit A = 0.0406c + 0.0380 with r2 0.9999 and read A 0.500 as 11.3875; Beer-Lambert 1.842/6500 is 2.83x10^-4 M; A260/A280 1.87; five phases scored once each is a mitotic index of 80.00%.",
+   "at": 1788863607,
+   "confirmed": 100,
+   "goal": "On the cell bench, count 120 live / 12 dead in 4 large squares at dilution 2 (6.00x10^5 live cells/mL, 90.9% viable), enter the chamber factor, sample and target volumes and confluency explicitly, seed and compute doubling time, build a four-point standard curve and read an unknown, a Beer-Lambert concentration and A260/A280/A230 purity, log two 1:4 passages (cumulative PD 4.0), and score a mitotic index -- every calculator driven and every figure held against an oracle.",
    "held": true,
    "id": "page-cell-bench-science",
    "must": "PASS",
@@ -3633,7 +3633,7 @@
     "MUTATE"
    ],
    "rungsWhy": null,
-   "seconds": 2.2,
+   "seconds": 4.0,
    "steps": [
     {
      "action": "observe",
@@ -3663,9 +3663,65 @@
        "verdict": "CONFIRMED"
       }
      ],
+     "id": "g159-sq",
+     "message": "set-text step_val:0",
+     "ms": 23,
+     "result": "driven"
+    },
+    {
+     "action": "set-text",
+     "expectations": [
+      {
+       "detail": "ok == True, got True",
+       "path": "ok",
+       "verdict": "CONFIRMED"
+      }
+     ],
+     "id": "g159-dil",
+     "message": "set-text step_val:1",
+     "ms": 24,
+     "result": "driven"
+    },
+    {
+     "action": "activate",
+     "expectations": [
+      {
+       "detail": "ok == True, got True",
+       "path": "ok",
+       "verdict": "CONFIRMED"
+      }
+     ],
+     "id": "g159-chf",
+     "message": "activate chip:0",
+     "ms": 23,
+     "result": "driven"
+    },
+    {
+     "action": "set-text",
+     "expectations": [
+      {
+       "detail": "ok == True, got True",
+       "path": "ok",
+       "verdict": "CONFIRMED"
+      }
+     ],
+     "id": "g159-vol",
+     "message": "set-text step_val:2",
+     "ms": 25,
+     "result": "driven"
+    },
+    {
+     "action": "set-text",
+     "expectations": [
+      {
+       "detail": "ok == True, got True",
+       "path": "ok",
+       "verdict": "CONFIRMED"
+      }
+     ],
      "id": "live",
      "message": "set-text field_in:0",
-     "ms": 23,
+     "ms": 24,
      "result": "driven"
     },
     {
@@ -3679,7 +3735,7 @@
      ],
      "id": "dead",
      "message": "set-text field_in:1",
-     "ms": 23,
+     "ms": 25,
      "result": "driven"
     },
     {
@@ -3723,7 +3779,7 @@
      ],
      "id": "count",
      "message": "6 figure(s), 16 box(es), 0 list(s), 0 table(s), 18 heading(s)",
-     "ms": 4,
+     "ms": 5,
      "result": "driven"
     },
     {
@@ -3751,7 +3807,7 @@
      ],
      "id": "live600",
      "message": "set-text field_in:0",
-     "ms": 22,
+     "ms": 23,
      "result": "driven"
     },
     {
@@ -3779,7 +3835,7 @@
      ],
      "id": "live120",
      "message": "set-text field_in:0",
-     "ms": 21,
+     "ms": 22,
      "result": "driven"
     },
     {
@@ -3793,7 +3849,7 @@
      ],
      "id": "cul",
      "message": "opened pane p-cul",
-     "ms": 107,
+     "ms": 135,
      "result": "driven"
     },
     {
@@ -3807,7 +3863,7 @@
      ],
      "id": "stock",
      "message": "set-text field_in:2",
-     "ms": 24,
+     "ms": 50,
      "result": "driven"
     },
     {
@@ -3821,7 +3877,21 @@
      ],
      "id": "target",
      "message": "set-text field_in:3",
-     "ms": 22,
+     "ms": 26,
+     "result": "driven"
+    },
+    {
+     "action": "set-text",
+     "expectations": [
+      {
+       "detail": "ok == True, got True",
+       "path": "ok",
+       "verdict": "CONFIRMED"
+      }
+     ],
+     "id": "g159-svol",
+     "message": "set-text step_val:3",
+     "ms": 26,
      "result": "driven"
     },
     {
@@ -3859,7 +3929,7 @@
      ],
      "id": "n0",
      "message": "set-text field_in:4",
-     "ms": 29,
+     "ms": 24,
      "result": "driven"
     },
     {
@@ -3887,7 +3957,21 @@
      ],
      "id": "t",
      "message": "set-text step_val:4",
-     "ms": 21,
+     "ms": 25,
+     "result": "driven"
+    },
+    {
+     "action": "set-slider",
+     "expectations": [
+      {
+       "detail": "ok == True, got True",
+       "path": "ok",
+       "verdict": "CONFIRMED"
+      }
+     ],
+     "id": "g159-conf",
+     "message": "set-slider slider:0",
+     "ms": 23,
      "result": "driven"
     },
     {
@@ -3911,7 +3995,7 @@
      ],
      "id": "grow",
      "message": "12 figure(s), 16 box(es), 0 list(s), 0 table(s), 18 heading(s)",
-     "ms": 2,
+     "ms": 3,
      "result": "driven"
     },
     {
@@ -3925,7 +4009,7 @@
      ],
      "id": "asy",
      "message": "opened pane p-asy",
-     "ms": 68,
+     "ms": 88,
      "result": "driven"
     },
     {
@@ -3939,7 +4023,7 @@
      ],
      "id": "sc0",
      "message": "set-text field_in:6",
-     "ms": 21,
+     "ms": 29,
      "result": "driven"
     },
     {
@@ -3953,7 +4037,7 @@
      ],
      "id": "sa0",
      "message": "set-text field_in:7",
-     "ms": 25,
+     "ms": 26,
      "result": "driven"
     },
     {
@@ -3981,7 +4065,7 @@
      ],
      "id": "sc1",
      "message": "set-text field_in:6",
-     "ms": 21,
+     "ms": 23,
      "result": "driven"
     },
     {
@@ -4009,7 +4093,7 @@
      ],
      "id": "sadd1",
      "message": "activate action_btn:1",
-     "ms": 21,
+     "ms": 25,
      "result": "driven"
     },
     {
@@ -4023,7 +4107,7 @@
      ],
      "id": "sc2",
      "message": "set-text field_in:6",
-     "ms": 23,
+     "ms": 24,
      "result": "driven"
     },
     {
@@ -4037,7 +4121,7 @@
      ],
      "id": "sa2",
      "message": "set-text field_in:7",
-     "ms": 21,
+     "ms": 23,
      "result": "driven"
     },
     {
@@ -4051,7 +4135,7 @@
      ],
      "id": "sadd2",
      "message": "activate action_btn:1",
-     "ms": 20,
+     "ms": 25,
      "result": "driven"
     },
     {
@@ -4065,7 +4149,7 @@
      ],
      "id": "sc3",
      "message": "set-text field_in:6",
-     "ms": 21,
+     "ms": 24,
      "result": "driven"
     },
     {
@@ -4079,7 +4163,7 @@
      ],
      "id": "sa3",
      "message": "set-text field_in:7",
-     "ms": 20,
+     "ms": 24,
      "result": "driven"
     },
     {
@@ -4093,7 +4177,21 @@
      ],
      "id": "sadd3",
      "message": "activate action_btn:1",
-     "ms": 22,
+     "ms": 26,
+     "result": "driven"
+    },
+    {
+     "action": "set-text",
+     "expectations": [
+      {
+       "detail": "ok == True, got True",
+       "path": "ok",
+       "verdict": "CONFIRMED"
+      }
+     ],
+     "id": "g159-stu",
+     "message": "set-text text_in:3",
+     "ms": 23,
      "result": "driven"
     },
     {
@@ -4127,7 +4225,21 @@
      ],
      "id": "curve",
      "message": "16 figure(s), 16 box(es), 1 list(s), 0 table(s), 18 heading(s)",
-     "ms": 3,
+     "ms": 4,
+     "result": "driven"
+    },
+    {
+     "action": "set-text",
+     "expectations": [
+      {
+       "detail": "ok == True, got True",
+       "path": "ok",
+       "verdict": "CONFIRMED"
+      }
+     ],
+     "id": "g159-und",
+     "message": "set-text step_val:5",
+     "ms": 24,
      "result": "driven"
     },
     {
@@ -4141,7 +4253,7 @@
      ],
      "id": "unk",
      "message": "set-text field_in:8",
-     "ms": 20,
+     "ms": 25,
      "result": "driven"
     },
     {
@@ -4165,7 +4277,7 @@
      ],
      "id": "unknown",
      "message": "19 figure(s), 16 box(es), 1 list(s), 0 table(s), 18 heading(s)",
-     "ms": 3,
+     "ms": 4,
      "result": "driven"
     },
     {
@@ -4179,7 +4291,7 @@
      ],
      "id": "unk3",
      "message": "set-text field_in:8",
-     "ms": 23,
+     "ms": 25,
      "result": "driven"
     },
     {
@@ -4193,7 +4305,21 @@
      ],
      "id": "extrap",
      "message": "19 figure(s), 16 box(es), 1 list(s), 0 table(s), 18 heading(s)",
-     "ms": 5,
+     "ms": 6,
+     "result": "driven"
+    },
+    {
+     "action": "set-text",
+     "expectations": [
+      {
+       "detail": "ok == True, got True",
+       "path": "ok",
+       "verdict": "CONFIRMED"
+      }
+     ],
+     "id": "g159-bll",
+     "message": "set-text step_val:6",
+     "ms": 28,
      "result": "driven"
     },
     {
@@ -4221,7 +4347,7 @@
      ],
      "id": "eps",
      "message": "set-text field_in:10",
-     "ms": 21,
+     "ms": 24,
      "result": "driven"
     },
     {
@@ -4235,7 +4361,7 @@
      ],
      "id": "beer",
      "message": "21 figure(s), 16 box(es), 1 list(s), 0 table(s), 18 heading(s)",
-     "ms": 3,
+     "ms": 4,
      "result": "driven"
     },
     {
@@ -4249,7 +4375,7 @@
      ],
      "id": "a260",
      "message": "set-text field_in:11",
-     "ms": 24,
+     "ms": 23,
      "result": "driven"
     },
     {
@@ -4263,7 +4389,7 @@
      ],
      "id": "a280",
      "message": "set-text field_in:12",
-     "ms": 22,
+     "ms": 26,
      "result": "driven"
     },
     {
@@ -4277,7 +4403,7 @@
      ],
      "id": "a230",
      "message": "set-text field_in:13",
-     "ms": 21,
+     "ms": 24,
      "result": "driven"
     },
     {
@@ -4306,7 +4432,7 @@
      ],
      "id": "pur",
      "message": "25 figure(s), 16 box(es), 1 list(s), 0 table(s), 18 heading(s)",
-     "ms": 3,
+     "ms": 4,
      "result": "driven"
     },
     {
@@ -4320,7 +4446,7 @@
      ],
      "id": "mit",
      "message": "opened pane p-mit",
-     "ms": 83,
+     "ms": 82,
      "result": "driven"
     },
     {
@@ -4334,7 +4460,7 @@
      ],
      "id": "ph-interphase",
      "message": "activate action_btn:3",
-     "ms": 24,
+     "ms": 23,
      "result": "driven"
     },
     {
@@ -4348,7 +4474,7 @@
      ],
      "id": "ph-prophase",
      "message": "activate action_btn:4",
-     "ms": 21,
+     "ms": 23,
      "result": "driven"
     },
     {
@@ -4362,7 +4488,7 @@
      ],
      "id": "ph-metaphase",
      "message": "activate action_btn:5",
-     "ms": 21,
+     "ms": 22,
      "result": "driven"
     },
     {
@@ -4376,7 +4502,7 @@
      ],
      "id": "ph-anaphase",
      "message": "activate action_btn:6",
-     "ms": 21,
+     "ms": 34,
      "result": "driven"
     },
     {
@@ -4390,7 +4516,7 @@
      ],
      "id": "ph-telophase",
      "message": "activate action_btn:7",
-     "ms": 22,
+     "ms": 26,
      "result": "driven"
     },
     {
@@ -4419,7 +4545,7 @@
      ],
      "id": "mi",
      "message": "29 figure(s), 16 box(es), 1 list(s), 0 table(s), 18 heading(s)",
-     "ms": 3,
+     "ms": 4,
      "result": "driven"
     },
     {
@@ -4447,7 +4573,181 @@
      ],
      "id": "phases",
      "message": "29 figure(s), 16 box(es), 1 list(s), 1 table(s), 18 heading(s)",
-     "ms": 3,
+     "ms": 5,
+     "result": "driven"
+    },
+    {
+     "action": "show-pane",
+     "expectations": [
+      {
+       "detail": "ok == True, got True",
+       "path": "ok",
+       "verdict": "CONFIRMED"
+      }
+     ],
+     "id": "g159-culpane",
+     "message": "opened pane p-cul",
+     "ms": 79,
+     "result": "driven"
+    },
+    {
+     "action": "set-text",
+     "expectations": [
+      {
+       "detail": "ok == True, got True",
+       "path": "ok",
+       "verdict": "CONFIRMED"
+      }
+     ],
+     "id": "g159-pno1",
+     "message": "set-text text_in:0",
+     "ms": 22,
+     "result": "driven"
+    },
+    {
+     "action": "set-text",
+     "expectations": [
+      {
+       "detail": "ok == True, got True",
+       "path": "ok",
+       "verdict": "CONFIRMED"
+      }
+     ],
+     "id": "g159-psplit1",
+     "message": "set-text text_in:1",
+     "ms": 23,
+     "result": "driven"
+    },
+    {
+     "action": "set-text",
+     "expectations": [
+      {
+       "detail": "ok == True, got True",
+       "path": "ok",
+       "verdict": "CONFIRMED"
+      }
+     ],
+     "id": "g159-pnote1",
+     "message": "set-text text_in:2",
+     "ms": 21,
+     "result": "driven"
+    },
+    {
+     "action": "activate",
+     "expectations": [
+      {
+       "detail": "ok == True, got True",
+       "path": "ok",
+       "verdict": "CONFIRMED"
+      }
+     ],
+     "id": "g159-padd1",
+     "message": "activate action_btn:0",
+     "ms": 22,
+     "result": "driven"
+    },
+    {
+     "action": "set-text",
+     "expectations": [
+      {
+       "detail": "ok == True, got True",
+       "path": "ok",
+       "verdict": "CONFIRMED"
+      }
+     ],
+     "id": "g159-pno2",
+     "message": "set-text text_in:0",
+     "ms": 24,
+     "result": "driven"
+    },
+    {
+     "action": "set-text",
+     "expectations": [
+      {
+       "detail": "ok == True, got True",
+       "path": "ok",
+       "verdict": "CONFIRMED"
+      }
+     ],
+     "id": "g159-psplit2",
+     "message": "set-text text_in:1",
+     "ms": 23,
+     "result": "driven"
+    },
+    {
+     "action": "activate",
+     "expectations": [
+      {
+       "detail": "ok == True, got True",
+       "path": "ok",
+       "verdict": "CONFIRMED"
+      }
+     ],
+     "id": "g159-padd2",
+     "message": "activate action_btn:0",
+     "ms": 23,
+     "result": "driven"
+    },
+    {
+     "action": "read-report",
+     "expectations": [
+      {
+       "detail": "ok == True, got True",
+       "path": "ok",
+       "verdict": "CONFIRMED"
+      },
+      {
+       "detail": "output.boxes.pdStat contains '2 passages logged', got '2 passages logged. Cumulative population doublings from the split ratios \u2248 4.0. Finite cell lines senesce at a characteristic cumulative PD, so this is the number to track \u2014 passage count alone means nothing without the split ratio.'",
+       "path": "output.boxes.pdStat",
+       "verdict": "CONFIRMED"
+      },
+      {
+       "detail": "output.boxes.pdStat contains 'Cumulative population doublings from the split ratios \u2248 4.0', got '2 passages logged. Cumulative population doublings from the split ratios \u2248 4.0. Finite cell lines senesce at a characteristic cumulative PD, so this is the number to track \u2014 passage count alone means nothing without the split ratio.'",
+       "path": "output.boxes.pdStat#2",
+       "verdict": "CONFIRMED"
+      }
+     ],
+     "id": "g159-passrep",
+     "message": "29 figure(s), 16 box(es), 2 list(s), 1 table(s), 18 heading(s)",
+     "ms": 4,
+     "result": "driven"
+    },
+    {
+     "action": "show-pane",
+     "expectations": [
+      {
+       "detail": "ok == True, got True",
+       "path": "ok",
+       "verdict": "CONFIRMED"
+      }
+     ],
+     "id": "g159-endpane",
+     "message": "opened pane p-cnt",
+     "ms": 99,
+     "result": "driven"
+    },
+    {
+     "action": "read-report",
+     "expectations": [
+      {
+       "detail": "ok == True, got True",
+       "path": "ok",
+       "verdict": "CONFIRMED"
+      },
+      {
+       "detail": "output.by.cntOut.live cells/mL == '6.00\u00d710\u2075', got '6.00\u00d710\u2075'",
+       "path": "output.by.cntOut.live cells/mL",
+       "verdict": "CONFIRMED"
+      },
+      {
+       "detail": "output.by.cntOut.viability == '90.9%', got '90.9%'",
+       "path": "output.by.cntOut.viability",
+       "verdict": "CONFIRMED"
+      }
+     ],
+     "id": "g159-endreport",
+     "message": "29 figure(s), 16 box(es), 2 list(s), 1 table(s), 18 heading(s)",
+     "ms": 11,
      "result": "driven"
     },
     {
@@ -4469,9 +4769,9 @@
        "verdict": "CONFIRMED"
       }
      ],
-     "id": "intact",
+     "id": "g159-endintact",
      "message": "read the page",
-     "ms": 5,
+     "ms": 6,
      "result": "driven"
     }
    ],

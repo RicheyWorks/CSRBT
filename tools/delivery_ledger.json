@@ -800,10 +800,15 @@
    "by": "adr158",
    "sha": "96c58be63e78167d9cd552275076e238891cc870a2461edf8d83cc266c98a4a6"
   },
+  "docs/ADR-159-the-cell-bench-recorded-whole-2026-09-08.md": {
+   "at": 1788868002,
+   "by": "adr159",
+   "sha": "9d55bd9c9d9c47979d92b3b0a134713dc66fcbd4413df7858a0c7631d267731d"
+  },
   "docs/AI_HARNESS.md": {
-   "at": 1788860747,
-   "by": "adr158",
-   "sha": "d18a5491cf589af1f444d9ca340082a4c714cacdd828452774a528fe02603710"
+   "at": 1788868002,
+   "by": "adr159",
+   "sha": "e8b2bfb94295b82ebe413d406fac26821bef731388a4b905ea13fd0be387d6b5"
   },
   "docs/AUDIT-2026-07-14-capability-coverage.md": {
    "at": 1788676922,
@@ -1540,6 +1545,11 @@
    "by": "adr158",
    "sha": "fe478e82896007dea708e4dd58826537b5f6973cb25e4fa5350d6635cfb9ec8f"
   },
+  "docs/CHANGELOG-2026-09-08-adr159-the-cell-bench-recorded-whole.md": {
+   "at": 1788868002,
+   "by": "adr159",
+   "sha": "f356495bf97d5103f00fa9837181ae77f09d0a1ff24920e5316735fd2151f15f"
+  },
   "docs/DESIGN-adaptive-engine.md": {
    "at": 1788676923,
    "by": "adr146b",
@@ -2270,10 +2280,15 @@
    "by": "adr158",
    "sha": "d04b9a4d35b33dd88d321d2b76de5608ff54e943e4a226025bab830afdb52dda"
   },
+  "tools/delivery/adr159.json": {
+   "at": 1788868002,
+   "by": "adr159",
+   "sha": "94fcfbdc02f727578a976d21ac7f659eac54bd63dfce964a4c554271c2640cb9"
+  },
   "tools/delivery_ledger.json": {
-   "at": 1788860747,
-   "by": "adr158",
-   "sha": "acbdf965812e6ade4185e1059dbc668c44f0661c2361e494aca1a7d96621e98c"
+   "at": 1788868002,
+   "by": "adr159",
+   "sha": "d2f41605bbb9068ae4f6a1896fe222c56b2d95619d93ccd13c35afe30097923f"
   },
   "tools/dwc.py": {
    "at": 1788676926,
@@ -2316,9 +2331,9 @@
    "sha": "01919e137bdbf702ebc887de41aa026b721916da9d3761ce673812d54a22471f"
   },
   "tools/entry_ledger.json": {
-   "at": 1788860747,
-   "by": "adr158",
-   "sha": "3b82794fb21510e5435d8460b6fbb591cc8343bb6117b57b204e0285020b2eab"
+   "at": 1788868002,
+   "by": "adr159",
+   "sha": "fee8957275840a8f3d65ae2876fbf11d6aa5e20b9819ada25234701eafdd183d"
   },
   "tools/entry_reach.py": {
    "at": 1788676926,
@@ -2371,9 +2386,9 @@
    "sha": "1d5e5bb0fadf4abb88d56125483a66e1bc2367055c7b541aa9d800c6dddde9dc"
   },
   "tools/harness_board.html": {
-   "at": 1788860747,
-   "by": "adr158",
-   "sha": "7dac9d094f85d47a6fc770dd63d7f986a2b92e2563dd9088e2938464b4a15d9a"
+   "at": 1788868002,
+   "by": "adr159",
+   "sha": "69722fd430f29aaa1cfad1f04fe73653ffba30518c6c4fe99ff2442a2cfa9808"
   },
   "tools/harness_board.py": {
    "at": 1788783742,
@@ -2576,9 +2591,9 @@
    "sha": "172e699a8abda0fb0fe773b9204e652001fac70b769e1082739097b699c28db0"
   },
   "tools/outputs_ledger.json": {
-   "at": 1788860747,
-   "by": "adr158",
-   "sha": "c1ff1ca8272edd8778d9ed533a117e8638a2f1131124cbb610a22aa941bc00f8"
+   "at": 1788868002,
+   "by": "adr159",
+   "sha": "f0784fddd1db0eff2155c652713e37e130dac7b89236c8efc52e2abffd811809"
   },
   "tools/probe.py": {
    "at": 1788676927,
@@ -2611,9 +2626,9 @@
    "sha": "15022dcd97ee97f72ec5f907d0cdfef3ee36da9588f9de47e110519ff9f781e8"
   },
   "tools/published.json": {
-   "at": 1788860747,
-   "by": "adr158",
-   "sha": "c3dc96e5d0aaf7cc5b2fd5cda0e6d1e7ffebc7e3dc066bd0c3c017596e7ce28d"
+   "at": 1788868002,
+   "by": "adr159",
+   "sha": "430ada08f781bc88b298bf2eb4a40b423b3e3335b944dea56361bcd4b94a22be"
   },
   "tools/reach.py": {
    "at": 1788676928,
@@ -2656,9 +2671,9 @@
    "sha": "0a2241a252fa68e80b813e601b7bd67cd8ba5c00b8ad07acc98dcd93a42b0268"
   },
   "tools/task_ledger.json": {
-   "at": 1788860747,
-   "by": "adr158",
-   "sha": "5379aa40a7e6a87969fca422024c387ae2eb2c148b475ef81fd751a32974dd25"
+   "at": 1788868002,
+   "by": "adr159",
+   "sha": "987b8d09ac0d8f0e5bb9d063cd8ce732e968f5ae9f344a25cef92516f81a432a"
   },
   "tools/tasks/fixture-buckets.json": {
    "at": 1788676928,
@@ -2711,9 +2726,9 @@
    "sha": "6b38894711d3196ab3d210992c48a4c0ff59826698ee9b329a3c32b5abaa0c93"
   },
   "tools/tasks/page-cell-bench-science.json": {
-   "at": 1788676928,
-   "by": "adr146b",
-   "sha": "c288a97dc2be65465f9dbfcf8a32082f760f4ea4aea6ee4b4ddd52d62ba4bc2f"
+   "at": 1788868002,
+   "by": "adr159",
+   "sha": "ded9bd621515d48e17b8d721ae72a0fb6ed942da3d9ccf060a1eb350b65ac945"
   },
   "tools/tasks/page-collection-sheet-canary.json": {
    "at": 1788676928,
@@ -2951,9 +2966,9 @@
    "sha": "15a9ad96a69cde9458d5f7fca51be947e5bebad787cc069e1bcc64bf7800b592"
   },
   "tools/verify/counts.json": {
-   "at": 1788860747,
-   "by": "adr158",
-   "sha": "f437037a9430aa5571c065c886fd99301821acba49af4a69a330c600da48c095"
+   "at": 1788868002,
+   "by": "adr159",
+   "sha": "cb76143c1b0219930591881954f30fe85d0f99abbb406e2e3e60962d2bb3faae"
   },
   "tools/verify/run_all.py": {
    "at": 1788783742,

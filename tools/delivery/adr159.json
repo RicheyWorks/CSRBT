@@ -1,0 +1,28 @@
+{
+ "id": "adr159",
+ "chain": "adr158",
+ "chain_probe": "tools/tasks/page-selection-log-science.json",
+ "subject": "ADR-159: the cell bench, recorded whole -- every calculator driven, twelve default-valued fields entered, every figure held",
+ "body": "THE CELL BENCH -- cell-bench.html, a bench of nine calculators (hemocytometer count, seeding dilution, doubling time, passage log, linear standard curve, unknown read-off, Beer-Lambert, A260/A280/A230 purity, mitotic index) -- HAD EVERY CALCULATOR EXERCISED but twelve of its twenty-eight value-carrying fields never entered, because they carry a working default and the task simply used it: the square count, the dilution and chamber factors, the sample and target volumes, the confluency slider, the standard-curve units, the unknown's dilution, the cuvette path length, and the ENTIRE PASSAGE LOG whose three inputs were never opened. A FIELD LEFT AT ITS DEFAULT IS ENTERED BY NOBODY -- the report can be right about the number it computed while the harness has no evidence it can drive the control that fed it, the gap the entry-reach ledger exists to make visible. The existing scenario is kept verbatim (count 120/12 -> 6.00x10^5, 90.9% viable; seed; doubling time; four-point standard curve; unknown; Beer-Lambert; purity; mitotic index), so all seventy-six prior assertions hold, and the twelve untouched controls are set explicitly to the value the calculation already assumed -- so no figure moves, the point being that the control was driven, not that the number changed. The passage log is entered for the first time: two 1:4 splits, and the cumulative population doublings (the number a finite cell line's senescence tracks, the reason passage count alone means nothing) is held against an oracle -- log2(4)+log2(4) = 4.0, computed the page's way (log(4)/log(2), summed, toFixed(1)). cell-bench 16 -> 28 OF 28 FIELDS, 76 -> 100 confirmed and 0 refuted, and the kit 449 -> 461 of 521 (88%), 16 of 27 pages entered whole. Held: the confluency slider needed the set-slider action not set-text; the standard-curve units and the passage inputs are raw text inputs with NO FEK LABEL, reachable by element id (@control:stU, @control:pNo) because the resolver matches id when a label is absent -- so no page edit was needed to drive them. A task-only slice, the ninth page driven end to end; the cell bench exports nothing, so its correctness is held on the figures it computes rather than a file it hands over.",
+ "paths": [
+  "tools/tasks/page-cell-bench-science.json",
+  "tools/entry_ledger.json",
+  "tools/outputs_ledger.json",
+  "tools/task_ledger.json",
+  "tools/delivery_ledger.json",
+  "tools/verify/counts.json",
+  "tools/harness_board.html",
+  "tools/published.json",
+  "tools/delivery/adr159.json",
+  "docs/ADR-159-the-cell-bench-recorded-whole-2026-09-08.md",
+  "docs/CHANGELOG-2026-09-08-adr159-the-cell-bench-recorded-whole.md",
+  "docs/AI_HARNESS.md"
+ ],
+ "clean": [
+  "adr128", "adr129", "adr130", "adr131", "adr132", "adr133", "adr134",
+  "adr135", "adr136", "adr137", "adr138", "adr139", "adr140", "adr141",
+  "adr142", "adr143", "adr144", "adr145", "adr146", "adr147", "adr148",
+  "adr149", "adr150", "adr151", "adr152", "adr153", "adr154", "adr155",
+  "adr156", "adr157", "adr158", "adr159"
+ ]
+}

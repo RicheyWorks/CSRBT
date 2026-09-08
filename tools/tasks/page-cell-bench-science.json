@@ -2,7 +2,7 @@
  "id": "page-cell-bench-science",
  "target": "page",
  "page": "cell-bench.html",
- "goal": "On the cell bench: 120 live and 12 dead in 4 large squares at dilution 2 is 6.00x10^5 live cells/mL, 33.0 per square, 90.9% viable, Poisson CV 9.1%; seeding 10 mL at 5x10^4 from 8.5x10^5 stock takes 0.588 mL; 2x10^5 to 1.6x10^6 in 48 h is 3.00 doublings of 16.00 h; standards (0,.041) (5,.238) (10,.442) (20,.851) fit A = 0.0406c + 0.0380 with r2 0.9999 and read A 0.500 as 11.3875; Beer-Lambert 1.842/6500 is 2.83x10^-4 M; A260/A280 1.87; five phases scored once each is a mitotic index of 80.00%.",
+ "goal": "On the cell bench, count 120 live / 12 dead in 4 large squares at dilution 2 (6.00x10^5 live cells/mL, 90.9% viable), enter the chamber factor, sample and target volumes and confluency explicitly, seed and compute doubling time, build a four-point standard curve and read an unknown, a Beer-Lambert concentration and A260/A280/A230 purity, log two 1:4 passages (cumulative PD 4.0), and score a mitotic index -- every calculator driven and every figure held against an oracle.",
  "steps": [
   {
    "id": "look",
@@ -10,6 +10,49 @@
    "expect": {
     "ok": true,
     "snapshot.page": "cell-bench.html"
+   }
+  },
+  {
+   "id": "g159-sq",
+   "action": "set-text",
+   "arguments": {
+    "selector": "@control:cntEntry/large squares counted",
+    "value": "4"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "g159-dil",
+   "action": "set-text",
+   "arguments": {
+    "selector": "@control:cntEntry/dilution factor",
+    "value": "2"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "g159-chf",
+   "action": "activate",
+   "arguments": {
+    "selector": "@control:cntEntry/Neubauer · 0.1 mm (10⁴)"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "g159-vol",
+   "action": "set-text",
+   "arguments": {
+    "selector": "@control:cntEntry/sample volume",
+    "value": "10"
+   },
+   "expect": {
+    "ok": true
    }
   },
   {
@@ -122,6 +165,17 @@
    }
   },
   {
+   "id": "g159-svol",
+   "action": "set-text",
+   "arguments": {
+    "selector": "@control:target volume",
+    "value": "10"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
    "id": "seed",
    "action": "read-report",
    "expect": {
@@ -158,6 +212,17 @@
    "arguments": {
     "selector": "@control:elapsed",
     "value": "48"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "g159-conf",
+   "action": "set-slider",
+   "arguments": {
+    "selector": "@control:confluency at harvest",
+    "value": 70
    },
    "expect": {
     "ok": true
@@ -311,6 +376,17 @@
    }
   },
   {
+   "id": "g159-stu",
+   "action": "set-text",
+   "arguments": {
+    "selector": "@control:stU",
+    "value": "µg/mL"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
    "id": "curve",
    "action": "read-report",
    "expect": {
@@ -319,6 +395,17 @@
     "output.by.curveOut.intercept": "0.0380",
     "output.by.curveOut.r²": "0.9999",
     "output.by.curveOut.standards": "4"
+   }
+  },
+  {
+   "id": "g159-und",
+   "action": "set-text",
+   "arguments": {
+    "selector": "@control:unkEntry/dilution factor",
+    "value": "1"
+   },
+   "expect": {
+    "ok": true
    }
   },
   {
@@ -360,6 +447,17 @@
      "op": "contains",
      "value": "Outside the standard range"
     }
+   }
+  },
+  {
+   "id": "g159-bll",
+   "action": "set-text",
+   "arguments": {
+    "selector": "@control:path length",
+    "value": "1"
+   },
+   "expect": {
+    "ok": true
    }
   },
   {
@@ -526,7 +624,126 @@
    }
   },
   {
-   "id": "intact",
+   "id": "g159-culpane",
+   "action": "show-pane",
+   "arguments": {
+    "pane": "p-cul"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "g159-pno1",
+   "action": "set-text",
+   "arguments": {
+    "selector": "@control:pNo",
+    "value": "5"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "g159-psplit1",
+   "action": "set-text",
+   "arguments": {
+    "selector": "@control:pSplit",
+    "value": "1:4"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "g159-pnote1",
+   "action": "set-text",
+   "arguments": {
+    "selector": "@control:pNote",
+    "value": "thawed from vial N2-14"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "g159-padd1",
+   "action": "activate",
+   "arguments": {
+    "selector": "@control:pAdd"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "g159-pno2",
+   "action": "set-text",
+   "arguments": {
+    "selector": "@control:pNo",
+    "value": "6"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "g159-psplit2",
+   "action": "set-text",
+   "arguments": {
+    "selector": "@control:pSplit",
+    "value": "1:4"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "g159-padd2",
+   "action": "activate",
+   "arguments": {
+    "selector": "@control:pAdd"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "g159-passrep",
+   "action": "read-report",
+   "expect": {
+    "ok": true,
+    "output.boxes.pdStat": {
+     "op": "contains",
+     "value": "2 passages logged"
+    },
+    "output.boxes.pdStat#2": {
+     "op": "contains",
+     "value": "Cumulative population doublings from the split ratios ≈ 4.0"
+    }
+   }
+  },
+  {
+   "id": "g159-endpane",
+   "action": "show-pane",
+   "arguments": {
+    "pane": "p-cnt"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "g159-endreport",
+   "action": "read-report",
+   "expect": {
+    "ok": true,
+    "output.by.cntOut.live cells/mL": "6.00×10⁵",
+    "output.by.cntOut.viability": "90.9%"
+   }
+  },
+  {
+   "id": "g159-endintact",
    "action": "read-page",
    "expect": {
     "output.junk": null,
