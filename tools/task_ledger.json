@@ -23188,9 +23188,9 @@
    "verdict": "PASS"
   },
   "page-pheno-tracker-science": {
-   "at": 1788777332,
-   "confirmed": 77,
-   "goal": "On the pheno tracker, make a run of 8, score every plant on the four dials (vigor x1, structure x1, aroma x2, resistance x1.5) from the pattern 5 4 3 2 1 3 5 2 with the other traits one lower, keep the top three, and find the weighted totals 4.18 4.18 3.18, run mean 2.41, keeper mean 3.85 and selection differential +1.44; then on segregation 9:3, 9:7 and 60:20 each give chi-square 0.00 against their nearest Mendelian ratio.",
+   "at": 1788875463,
+   "confirmed": 102,
+   "goal": "On the pheno tracker: name and stamp a run of 8, score every plant on the four weighted dials, note a standout, star the top three keepers (selection differential +1.44), add a trait, test a 60:20 segregation against the ratios, and export both the run report and the CSV -- every pane driven and the figures and both exports held against an oracle.",
    "held": true,
    "id": "page-pheno-tracker-science",
    "must": "PASS",
@@ -23201,7 +23201,7 @@
     "MUTATE"
    ],
    "rungsWhy": null,
-   "seconds": 3.4,
+   "seconds": 5.9,
    "steps": [
     {
      "action": "observe",
@@ -23233,7 +23233,49 @@
      ],
      "id": "run",
      "message": "opened pane p-run",
-     "ms": 3,
+     "ms": 5,
+     "result": "driven"
+    },
+    {
+     "action": "set-text",
+     "expectations": [
+      {
+       "detail": "ok == True, got True",
+       "path": "ok",
+       "verdict": "CONFIRMED"
+      }
+     ],
+     "id": "g162-name",
+     "message": "set-text text_in:0",
+     "ms": 30,
+     "result": "driven"
+    },
+    {
+     "action": "set-text",
+     "expectations": [
+      {
+       "detail": "ok == True, got True",
+       "path": "ok",
+       "verdict": "CONFIRMED"
+      }
+     ],
+     "id": "g162-obs",
+     "message": "set-text text_in:1",
+     "ms": 24,
+     "result": "driven"
+    },
+    {
+     "action": "set-text",
+     "expectations": [
+      {
+       "detail": "ok == True, got True",
+       "path": "ok",
+       "verdict": "CONFIRMED"
+      }
+     ],
+     "id": "g162-date",
+     "message": "set-text text_in:2",
+     "ms": 23,
      "result": "driven"
     },
     {
@@ -23247,7 +23289,7 @@
      ],
      "id": "n",
      "message": "set-text step_val:0",
-     "ms": 22,
+     "ms": 25,
      "result": "driven"
     },
     {
@@ -23261,7 +23303,7 @@
      ],
      "id": "make",
      "message": "activate action_btn:1",
-     "ms": 22,
+     "ms": 25,
      "result": "driven"
     },
     {
@@ -23275,7 +23317,7 @@
      ],
      "id": "score",
      "message": "opened pane p-score",
-     "ms": 119,
+     "ms": 145,
      "result": "driven"
     },
     {
@@ -23289,7 +23331,7 @@
      ],
      "id": "p1",
      "message": "activate action_btn:10",
-     "ms": 24,
+     "ms": 28,
      "result": "driven"
     },
     {
@@ -23317,7 +23359,7 @@
      ],
      "id": "p1_t1",
      "message": "activate dial_btn:8",
-     "ms": 24,
+     "ms": 23,
      "result": "driven"
     },
     {
@@ -23331,7 +23373,7 @@
      ],
      "id": "p1_t2",
      "message": "activate dial_btn:13",
-     "ms": 22,
+     "ms": 27,
      "result": "driven"
     },
     {
@@ -23345,7 +23387,21 @@
      ],
      "id": "p1_t3",
      "message": "activate dial_btn:18",
-     "ms": 22,
+     "ms": 24,
+     "result": "driven"
+    },
+    {
+     "action": "set-text",
+     "expectations": [
+      {
+       "detail": "ok == True, got True",
+       "path": "ok",
+       "verdict": "CONFIRMED"
+      }
+     ],
+     "id": "g162-pnote",
+     "message": "set-text text_in:4",
+     "ms": 23,
      "result": "driven"
     },
     {
@@ -23359,7 +23415,7 @@
      ],
      "id": "p2",
      "message": "activate action_btn:11",
-     "ms": 22,
+     "ms": 25,
      "result": "driven"
     },
     {
@@ -23387,7 +23443,7 @@
      ],
      "id": "p2_t1",
      "message": "activate dial_btn:7",
-     "ms": 24,
+     "ms": 26,
      "result": "driven"
     },
     {
@@ -23443,7 +23499,7 @@
      ],
      "id": "p3_t0",
      "message": "activate dial_btn:2",
-     "ms": 23,
+     "ms": 24,
      "result": "driven"
     },
     {
@@ -23457,7 +23513,7 @@
      ],
      "id": "p3_t1",
      "message": "activate dial_btn:6",
-     "ms": 22,
+     "ms": 23,
      "result": "driven"
     },
     {
@@ -23471,7 +23527,7 @@
      ],
      "id": "p3_t2",
      "message": "activate dial_btn:11",
-     "ms": 23,
+     "ms": 26,
      "result": "driven"
     },
     {
@@ -23485,7 +23541,7 @@
      ],
      "id": "p3_t3",
      "message": "activate dial_btn:16",
-     "ms": 25,
+     "ms": 28,
      "result": "driven"
     },
     {
@@ -23499,7 +23555,7 @@
      ],
      "id": "p4",
      "message": "activate action_btn:13",
-     "ms": 21,
+     "ms": 23,
      "result": "driven"
     },
     {
@@ -23513,7 +23569,7 @@
      ],
      "id": "p4_t0",
      "message": "activate dial_btn:1",
-     "ms": 22,
+     "ms": 30,
      "result": "driven"
     },
     {
@@ -23527,7 +23583,7 @@
      ],
      "id": "p4_t1",
      "message": "activate dial_btn:5",
-     "ms": 24,
+     "ms": 23,
      "result": "driven"
     },
     {
@@ -23541,7 +23597,7 @@
      ],
      "id": "p4_t2",
      "message": "activate dial_btn:10",
-     "ms": 23,
+     "ms": 25,
      "result": "driven"
     },
     {
@@ -23569,7 +23625,7 @@
      ],
      "id": "p5",
      "message": "activate action_btn:14",
-     "ms": 22,
+     "ms": 24,
      "result": "driven"
     },
     {
@@ -23583,7 +23639,7 @@
      ],
      "id": "p5_t0",
      "message": "activate dial_btn:0",
-     "ms": 21,
+     "ms": 24,
      "result": "driven"
     },
     {
@@ -23597,7 +23653,7 @@
      ],
      "id": "p5_t1",
      "message": "activate dial_btn:5",
-     "ms": 22,
+     "ms": 24,
      "result": "driven"
     },
     {
@@ -23611,7 +23667,7 @@
      ],
      "id": "p5_t2",
      "message": "activate dial_btn:10",
-     "ms": 22,
+     "ms": 23,
      "result": "driven"
     },
     {
@@ -23625,7 +23681,7 @@
      ],
      "id": "p5_t3",
      "message": "activate dial_btn:15",
-     "ms": 22,
+     "ms": 24,
      "result": "driven"
     },
     {
@@ -23639,7 +23695,7 @@
      ],
      "id": "p6",
      "message": "activate action_btn:15",
-     "ms": 22,
+     "ms": 24,
      "result": "driven"
     },
     {
@@ -23653,7 +23709,7 @@
      ],
      "id": "p6_t0",
      "message": "activate dial_btn:2",
-     "ms": 22,
+     "ms": 24,
      "result": "driven"
     },
     {
@@ -23667,7 +23723,7 @@
      ],
      "id": "p6_t1",
      "message": "activate dial_btn:6",
-     "ms": 21,
+     "ms": 28,
      "result": "driven"
     },
     {
@@ -23681,7 +23737,7 @@
      ],
      "id": "p6_t2",
      "message": "activate dial_btn:11",
-     "ms": 24,
+     "ms": 28,
      "result": "driven"
     },
     {
@@ -23695,7 +23751,7 @@
      ],
      "id": "p6_t3",
      "message": "activate dial_btn:16",
-     "ms": 21,
+     "ms": 24,
      "result": "driven"
     },
     {
@@ -23709,7 +23765,7 @@
      ],
      "id": "p7",
      "message": "activate action_btn:16",
-     "ms": 21,
+     "ms": 23,
      "result": "driven"
     },
     {
@@ -23723,7 +23779,7 @@
      ],
      "id": "p7_t0",
      "message": "activate dial_btn:4",
-     "ms": 23,
+     "ms": 25,
      "result": "driven"
     },
     {
@@ -23737,7 +23793,7 @@
      ],
      "id": "p7_t1",
      "message": "activate dial_btn:8",
-     "ms": 22,
+     "ms": 25,
      "result": "driven"
     },
     {
@@ -23751,7 +23807,7 @@
      ],
      "id": "p7_t2",
      "message": "activate dial_btn:13",
-     "ms": 21,
+     "ms": 24,
      "result": "driven"
     },
     {
@@ -23765,7 +23821,7 @@
      ],
      "id": "p7_t3",
      "message": "activate dial_btn:18",
-     "ms": 22,
+     "ms": 24,
      "result": "driven"
     },
     {
@@ -23779,7 +23835,7 @@
      ],
      "id": "p8",
      "message": "activate action_btn:17",
-     "ms": 21,
+     "ms": 25,
      "result": "driven"
     },
     {
@@ -23793,7 +23849,7 @@
      ],
      "id": "p8_t0",
      "message": "activate dial_btn:1",
-     "ms": 21,
+     "ms": 27,
      "result": "driven"
     },
     {
@@ -23807,7 +23863,7 @@
      ],
      "id": "p8_t1",
      "message": "activate dial_btn:5",
-     "ms": 21,
+     "ms": 25,
      "result": "driven"
     },
     {
@@ -23821,7 +23877,7 @@
      ],
      "id": "p8_t2",
      "message": "activate dial_btn:10",
-     "ms": 21,
+     "ms": 25,
      "result": "driven"
     },
     {
@@ -23835,7 +23891,35 @@
      ],
      "id": "p8_t3",
      "message": "activate dial_btn:15",
-     "ms": 23,
+     "ms": 26,
+     "result": "driven"
+    },
+    {
+     "action": "set-text",
+     "expectations": [
+      {
+       "detail": "ok == True, got True",
+       "path": "ok",
+       "verdict": "CONFIRMED"
+      }
+     ],
+     "id": "g162-tnew",
+     "message": "set-text text_in:3",
+     "ms": 130,
+     "result": "driven"
+    },
+    {
+     "action": "set-text",
+     "expectations": [
+      {
+       "detail": "ok == True, got True",
+       "path": "ok",
+       "verdict": "CONFIRMED"
+      }
+     ],
+     "id": "g162-tw",
+     "message": "set-text step_val:1",
+     "ms": 34,
      "result": "driven"
     },
     {
@@ -23849,7 +23933,7 @@
      ],
      "id": "sel",
      "message": "opened pane p-sel",
-     "ms": 107,
+     "ms": 138,
      "result": "driven"
     },
     {
@@ -23863,7 +23947,7 @@
      ],
      "id": "keep0",
      "message": "activate action_btn:22",
-     "ms": 24,
+     "ms": 25,
      "result": "driven"
     },
     {
@@ -23877,7 +23961,7 @@
      ],
      "id": "keep1",
      "message": "activate action_btn:25",
-     "ms": 22,
+     "ms": 24,
      "result": "driven"
     },
     {
@@ -23891,7 +23975,7 @@
      ],
      "id": "keep2",
      "message": "activate action_btn:28",
-     "ms": 22,
+     "ms": 30,
      "result": "driven"
     },
     {
@@ -23930,7 +24014,7 @@
      ],
      "id": "stats",
      "message": "8 figure(s), 8 box(es), 0 list(s), 0 table(s), 9 heading(s)",
-     "ms": 5,
+     "ms": 6,
      "result": "driven"
     },
     {
@@ -23944,7 +24028,63 @@
      ],
      "id": "resp",
      "message": "8 figure(s), 8 box(es), 0 list(s), 0 table(s), 9 heading(s)",
-     "ms": 3,
+     "ms": 4,
+     "result": "driven"
+    },
+    {
+     "action": "activate",
+     "expectations": [
+      {
+       "detail": "ok == True, got True",
+       "path": "ok",
+       "verdict": "CONFIRMED"
+      }
+     ],
+     "id": "g162-mom",
+     "message": "activate action_btn:32",
+     "ms": 32,
+     "result": "driven"
+    },
+    {
+     "action": "pick",
+     "expectations": [
+      {
+       "detail": "ok == True, got True",
+       "path": "ok",
+       "verdict": "CONFIRMED"
+      }
+     ],
+     "id": "g162-ca",
+     "message": "pick pick_search:0",
+     "ms": 146,
+     "result": "driven"
+    },
+    {
+     "action": "pick",
+     "expectations": [
+      {
+       "detail": "ok == True, got True",
+       "path": "ok",
+       "verdict": "CONFIRMED"
+      }
+     ],
+     "id": "g162-cb",
+     "message": "pick pick_search:1",
+     "ms": 148,
+     "result": "driven"
+    },
+    {
+     "action": "activate",
+     "expectations": [
+      {
+       "detail": "ok == True, got True",
+       "path": "ok",
+       "verdict": "CONFIRMED"
+      }
+     ],
+     "id": "g162-cadd",
+     "message": "activate action_btn:46",
+     "ms": 27,
      "result": "driven"
     },
     {
@@ -23958,7 +24098,21 @@
      ],
      "id": "seg",
      "message": "opened pane p-seg",
-     "ms": 73,
+     "ms": 107,
+     "result": "driven"
+    },
+    {
+     "action": "set-text",
+     "expectations": [
+      {
+       "detail": "ok == True, got True",
+       "path": "ok",
+       "verdict": "CONFIRMED"
+      }
+     ],
+     "id": "g162-segtr",
+     "message": "set-text text_in:5",
+     "ms": 24,
      "result": "driven"
     },
     {
@@ -23972,7 +24126,7 @@
      ],
      "id": "a9_3",
      "message": "set-text field_in:0",
-     "ms": 22,
+     "ms": 24,
      "result": "driven"
     },
     {
@@ -23986,7 +24140,7 @@
      ],
      "id": "b9_3",
      "message": "set-text field_in:1",
-     "ms": 22,
+     "ms": 25,
      "result": "driven"
     },
     {
@@ -24010,7 +24164,7 @@
      ],
      "id": "x9_3",
      "message": "8 figure(s), 8 box(es), 0 list(s), 0 table(s), 9 heading(s)",
-     "ms": 2,
+     "ms": 4,
      "result": "driven"
     },
     {
@@ -24024,7 +24178,7 @@
      ],
      "id": "a9_7",
      "message": "set-text field_in:0",
-     "ms": 22,
+     "ms": 24,
      "result": "driven"
     },
     {
@@ -24038,7 +24192,7 @@
      ],
      "id": "b9_7",
      "message": "set-text field_in:1",
-     "ms": 22,
+     "ms": 25,
      "result": "driven"
     },
     {
@@ -24062,7 +24216,7 @@
      ],
      "id": "x9_7",
      "message": "8 figure(s), 8 box(es), 0 list(s), 0 table(s), 9 heading(s)",
-     "ms": 2,
+     "ms": 3,
      "result": "driven"
     },
     {
@@ -24076,7 +24230,7 @@
      ],
      "id": "a60_20",
      "message": "set-text field_in:0",
-     "ms": 23,
+     "ms": 24,
      "result": "driven"
     },
     {
@@ -24090,7 +24244,7 @@
      ],
      "id": "b60_20",
      "message": "set-text field_in:1",
-     "ms": 21,
+     "ms": 27,
      "result": "driven"
     },
     {
@@ -24114,7 +24268,7 @@
      ],
      "id": "x60_20",
      "message": "8 figure(s), 8 box(es), 0 list(s), 0 table(s), 9 heading(s)",
-     "ms": 2,
+     "ms": 4,
      "result": "driven"
     },
     {
@@ -24127,6 +24281,130 @@
       }
      ],
      "id": "also",
+     "message": "8 figure(s), 8 box(es), 0 list(s), 0 table(s), 9 heading(s)",
+     "ms": 4,
+     "result": "driven"
+    },
+    {
+     "action": "activate",
+     "expectations": [
+      {
+       "detail": "ok == True, got True",
+       "path": "ok",
+       "verdict": "CONFIRMED"
+      }
+     ],
+     "id": "g162-eco",
+     "message": "activate action_btn:48",
+     "ms": 23,
+     "result": "driven"
+    },
+    {
+     "action": "collect-output",
+     "expectations": [
+      {
+       "detail": "output.payloads.0.k in ['copy', 'clipboard', 'download', 'print'], got 'clipboard'",
+       "path": "output.payloads.0.k",
+       "verdict": "CONFIRMED"
+      },
+      {
+       "detail": "output.payloads.0.text contains '# Pheno Tracker export \u2014 Blueberry F2', got '# Pheno Tracker export \u2014 Blueberry F2\\n# scored by R. Ellison \u2014 2026-09-08\\n# plant scores (weighted mean of vigor\u00d71, structure\u00d71, aroma\u00d72, resistance\u00d71.5)\\n#   #1  4.18 KEEP  \u2014 strong central lead clean nose\\n#   #7  4.18 KEEP\\n#   #2  3.18 KEEP\\n#   #3  2.18\\n#   #6  2.18\\n#   #4  1.18\\n#   #8  1.18\\n#   #5  1.00\\ndata: blueberry-f2 p1=418 p2=318 p3=218 p4=118 p5=100 p6=218 p7=418 p8=118\\nnote: keepers #1 #2 #7 \u2014 selection differential +1.44 on 1-5\\nnote: mothers in veg #3 \u2014 clone stock, pheno preserved not advanced\\nnote: planned cross female #1 x male #2\\ncross: Aa x Aa observed 60 20   # purple stems \u2014 \u03c7\u00b2 vs 3:1 in a graded protocol'",
+       "path": "output.payloads.0.text",
+       "verdict": "CONFIRMED"
+      },
+      {
+       "detail": "output.payloads.0.text contains '# scored by R. Ellison \u2014 2026-09-08', got '# Pheno Tracker export \u2014 Blueberry F2\\n# scored by R. Ellison \u2014 2026-09-08\\n# plant scores (weighted mean of vigor\u00d71, structure\u00d71, aroma\u00d72, resistance\u00d71.5)\\n#   #1  4.18 KEEP  \u2014 strong central lead clean nose\\n#   #7  4.18 KEEP\\n#   #2  3.18 KEEP\\n#   #3  2.18\\n#   #6  2.18\\n#   #4  1.18\\n#   #8  1.18\\n#   #5  1.00\\ndata: blueberry-f2 p1=418 p2=318 p3=218 p4=118 p5=100 p6=218 p7=418 p8=118\\nnote: keepers #1 #2 #7 \u2014 selection differential +1.44 on 1-5\\nnote: mothers in veg #3 \u2014 clone stock, pheno preserved not advanced\\nnote: planned cross female #1 x male #2\\ncross: Aa x Aa observed 60 20   # purple stems \u2014 \u03c7\u00b2 vs 3:1 in a graded protocol'",
+       "path": "output.payloads.0.text#2",
+       "verdict": "CONFIRMED"
+      },
+      {
+       "detail": "output.payloads.0.text contains '#   #1  4.18 KEEP  \u2014 strong central lead clean nose', got '# Pheno Tracker export \u2014 Blueberry F2\\n# scored by R. Ellison \u2014 2026-09-08\\n# plant scores (weighted mean of vigor\u00d71, structure\u00d71, aroma\u00d72, resistance\u00d71.5)\\n#   #1  4.18 KEEP  \u2014 strong central lead clean nose\\n#   #7  4.18 KEEP\\n#   #2  3.18 KEEP\\n#   #3  2.18\\n#   #6  2.18\\n#   #4  1.18\\n#   #8  1.18\\n#   #5  1.00\\ndata: blueberry-f2 p1=418 p2=318 p3=218 p4=118 p5=100 p6=218 p7=418 p8=118\\nnote: keepers #1 #2 #7 \u2014 selection differential +1.44 on 1-5\\nnote: mothers in veg #3 \u2014 clone stock, pheno preserved not advanced\\nnote: planned cross female #1 x male #2\\ncross: Aa x Aa observed 60 20   # purple stems \u2014 \u03c7\u00b2 vs 3:1 in a graded protocol'",
+       "path": "output.payloads.0.text#3",
+       "verdict": "CONFIRMED"
+      },
+      {
+       "detail": "output.payloads.0.text contains 'note: keepers #1 #2 #7 \u2014 selection differential +1.44 on 1-5', got '# Pheno Tracker export \u2014 Blueberry F2\\n# scored by R. Ellison \u2014 2026-09-08\\n# plant scores (weighted mean of vigor\u00d71, structure\u00d71, aroma\u00d72, resistance\u00d71.5)\\n#   #1  4.18 KEEP  \u2014 strong central lead clean nose\\n#   #7  4.18 KEEP\\n#   #2  3.18 KEEP\\n#   #3  2.18\\n#   #6  2.18\\n#   #4  1.18\\n#   #8  1.18\\n#   #5  1.00\\ndata: blueberry-f2 p1=418 p2=318 p3=218 p4=118 p5=100 p6=218 p7=418 p8=118\\nnote: keepers #1 #2 #7 \u2014 selection differential +1.44 on 1-5\\nnote: mothers in veg #3 \u2014 clone stock, pheno preserved not advanced\\nnote: planned cross female #1 x male #2\\ncross: Aa x Aa observed 60 20   # purple stems \u2014 \u03c7\u00b2 vs 3:1 in a graded protocol'",
+       "path": "output.payloads.0.text#4",
+       "verdict": "CONFIRMED"
+      },
+      {
+       "detail": "output.payloads.0.text contains 'cross: Aa x Aa observed 60 20   # purple stems', got '# Pheno Tracker export \u2014 Blueberry F2\\n# scored by R. Ellison \u2014 2026-09-08\\n# plant scores (weighted mean of vigor\u00d71, structure\u00d71, aroma\u00d72, resistance\u00d71.5)\\n#   #1  4.18 KEEP  \u2014 strong central lead clean nose\\n#   #7  4.18 KEEP\\n#   #2  3.18 KEEP\\n#   #3  2.18\\n#   #6  2.18\\n#   #4  1.18\\n#   #8  1.18\\n#   #5  1.00\\ndata: blueberry-f2 p1=418 p2=318 p3=218 p4=118 p5=100 p6=218 p7=418 p8=118\\nnote: keepers #1 #2 #7 \u2014 selection differential +1.44 on 1-5\\nnote: mothers in veg #3 \u2014 clone stock, pheno preserved not advanced\\nnote: planned cross female #1 x male #2\\ncross: Aa x Aa observed 60 20   # purple stems \u2014 \u03c7\u00b2 vs 3:1 in a graded protocol'",
+       "path": "output.payloads.0.text#5",
+       "verdict": "CONFIRMED"
+      }
+     ],
+     "id": "g162-ecoout",
+     "message": "1 payload(s)",
+     "ms": 1,
+     "result": "driven"
+    },
+    {
+     "action": "activate",
+     "expectations": [
+      {
+       "detail": "ok == True, got True",
+       "path": "ok",
+       "verdict": "CONFIRMED"
+      }
+     ],
+     "id": "g162-csv",
+     "message": "activate action_btn:49",
+     "ms": 25,
+     "result": "driven"
+    },
+    {
+     "action": "collect-output",
+     "expectations": [
+      {
+       "detail": "output.payloads.0.text contains 'plant,vigor (x1),structure (x1),aroma (x2),resistance (x1.5),weighted total,mark,note', got '# run Blueberry F2 \u2014 scored by R. Ellison \u2014 2026-09-08\\nplant,vigor (x1),structure (x1),aroma (x2),resistance (x1.5),weighted total,mark,note\\n#1,5,4,4,4,4.18,keep,strong central lead clean nose\\n#7,5,4,4,4,4.18,keep,\\n#2,4,3,3,3,3.18,keep,\\n#3,3,2,2,2,2.18,mother,\\n#6,3,2,2,2,2.18,,\\n#4,2,1,1,1,1.18,,\\n#8,2,1,1,1,1.18,,\\n#5,1,1,1,1,1.00,,\\n# planned cross: female #1 x male #2'",
+       "path": "output.payloads.0.text",
+       "verdict": "CONFIRMED"
+      },
+      {
+       "detail": "output.payloads.0.text contains '#1,5,4,4,4,4.18,keep,strong central lead clean nose', got '# run Blueberry F2 \u2014 scored by R. Ellison \u2014 2026-09-08\\nplant,vigor (x1),structure (x1),aroma (x2),resistance (x1.5),weighted total,mark,note\\n#1,5,4,4,4,4.18,keep,strong central lead clean nose\\n#7,5,4,4,4,4.18,keep,\\n#2,4,3,3,3,3.18,keep,\\n#3,3,2,2,2,2.18,mother,\\n#6,3,2,2,2,2.18,,\\n#4,2,1,1,1,1.18,,\\n#8,2,1,1,1,1.18,,\\n#5,1,1,1,1,1.00,,\\n# planned cross: female #1 x male #2'",
+       "path": "output.payloads.0.text#2",
+       "verdict": "CONFIRMED"
+      },
+      {
+       "detail": "output.payloads.0.text contains '# run Blueberry F2 \u2014 scored by R. Ellison \u2014 2026-09-08', got '# run Blueberry F2 \u2014 scored by R. Ellison \u2014 2026-09-08\\nplant,vigor (x1),structure (x1),aroma (x2),resistance (x1.5),weighted total,mark,note\\n#1,5,4,4,4,4.18,keep,strong central lead clean nose\\n#7,5,4,4,4,4.18,keep,\\n#2,4,3,3,3,3.18,keep,\\n#3,3,2,2,2,2.18,mother,\\n#6,3,2,2,2,2.18,,\\n#4,2,1,1,1,1.18,,\\n#8,2,1,1,1,1.18,,\\n#5,1,1,1,1,1.00,,\\n# planned cross: female #1 x male #2'",
+       "path": "output.payloads.0.text#3",
+       "verdict": "CONFIRMED"
+      }
+     ],
+     "id": "g162-csvout",
+     "message": "1 payload(s)",
+     "ms": 2,
+     "result": "driven"
+    },
+    {
+     "action": "show-pane",
+     "expectations": [
+      {
+       "detail": "ok == True, got True",
+       "path": "ok",
+       "verdict": "CONFIRMED"
+      }
+     ],
+     "id": "g162-endpane",
+     "message": "opened pane p-sel",
+     "ms": 89,
+     "result": "driven"
+    },
+    {
+     "action": "read-report",
+     "expectations": [
+      {
+       "detail": "ok == True, got True",
+       "path": "ok",
+       "verdict": "CONFIRMED"
+      },
+      {
+       "detail": "output.by.selStats.selection differential S == '+1.44', got '+1.44'",
+       "path": "output.by.selStats.selection differential S",
+       "verdict": "CONFIRMED"
+      }
+     ],
+     "id": "g162-endrep",
      "message": "8 figure(s), 8 box(es), 0 list(s), 0 table(s), 9 heading(s)",
      "ms": 3,
      "result": "driven"
@@ -24150,9 +24428,9 @@
        "verdict": "CONFIRMED"
       }
      ],
-     "id": "intact",
+     "id": "g162-endintact",
      "message": "read the page",
-     "ms": 4,
+     "ms": 8,
      "result": "driven"
     }
    ],

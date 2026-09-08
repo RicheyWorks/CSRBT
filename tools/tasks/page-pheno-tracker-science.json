@@ -2,7 +2,7 @@
  "id": "page-pheno-tracker-science",
  "target": "page",
  "page": "pheno-tracker.html",
- "goal": "On the pheno tracker, make a run of 8, score every plant on the four dials (vigor x1, structure x1, aroma x2, resistance x1.5) from the pattern 5 4 3 2 1 3 5 2 with the other traits one lower, keep the top three, and find the weighted totals 4.18 4.18 3.18, run mean 2.41, keeper mean 3.85 and selection differential +1.44; then on segregation 9:3, 9:7 and 60:20 each give chi-square 0.00 against their nearest Mendelian ratio.",
+ "goal": "On the pheno tracker: name and stamp a run of 8, score every plant on the four weighted dials, note a standout, star the top three keepers (selection differential +1.44), add a trait, test a 60:20 segregation against the ratios, and export both the run report and the CSV -- every pane driven and the figures and both exports held against an oracle.",
  "steps": [
   {
    "id": "look",
@@ -17,6 +17,39 @@
    "action": "show-pane",
    "arguments": {
     "pane": "p-run"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "g162-name",
+   "action": "set-text",
+   "arguments": {
+    "selector": "@control:runName",
+    "value": "Blueberry F2"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "g162-obs",
+   "action": "set-text",
+   "arguments": {
+    "selector": "@control:runObs",
+    "value": "R. Ellison"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "g162-date",
+   "action": "set-text",
+   "arguments": {
+    "selector": "@control:runDate",
+    "value": "2026-09-08"
    },
    "expect": {
     "ok": true
@@ -98,6 +131,17 @@
    "action": "activate",
    "arguments": {
     "selector": "@control:scoreDials/4#3"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "g162-pnote",
+   "action": "set-text",
+   "arguments": {
+    "selector": "@control:pNote",
+    "value": "strong central lead clean nose"
    },
    "expect": {
     "ok": true
@@ -454,6 +498,28 @@
    }
   },
   {
+   "id": "g162-tnew",
+   "action": "set-text",
+   "arguments": {
+    "selector": "@control:traitNew",
+    "value": "yield"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "g162-tw",
+   "action": "set-text",
+   "arguments": {
+    "selector": "@control:weight",
+    "value": "1"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
    "id": "sel",
    "action": "show-pane",
    "arguments": {
@@ -516,10 +582,63 @@
    }
   },
   {
+   "id": "g162-mom",
+   "action": "activate",
+   "arguments": {
+    "selector": "@control:rankBoard/🌿#3"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "g162-ca",
+   "action": "pick",
+   "arguments": {
+    "selector": "@control:seed parent ♀ filter",
+    "value": "#1"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "g162-cb",
+   "action": "pick",
+   "arguments": {
+    "selector": "@control:pollen parent ♂ filter",
+    "value": "#2"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "g162-cadd",
+   "action": "activate",
+   "arguments": {
+    "selector": "@control:crossAdd"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
    "id": "seg",
    "action": "show-pane",
    "arguments": {
     "pane": "p-seg"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "g162-segtr",
+   "action": "set-text",
+   "arguments": {
+    "selector": "@control:segTrait",
+    "value": "purple stems"
    },
    "expect": {
     "ok": true
@@ -629,7 +748,98 @@
    }
   },
   {
-   "id": "intact",
+   "id": "g162-eco",
+   "action": "activate",
+   "arguments": {
+    "selector": "@control:ecoCopy"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "g162-ecoout",
+   "action": "collect-output",
+   "expect": {
+    "output.payloads.0.k": {
+     "op": "in",
+     "value": [
+      "copy",
+      "clipboard",
+      "download",
+      "print"
+     ]
+    },
+    "output.payloads.0.text": {
+     "op": "contains",
+     "value": "# Pheno Tracker export — Blueberry F2"
+    },
+    "output.payloads.0.text#2": {
+     "op": "contains",
+     "value": "# scored by R. Ellison — 2026-09-08"
+    },
+    "output.payloads.0.text#3": {
+     "op": "contains",
+     "value": "#   #1  4.18 KEEP  — strong central lead clean nose"
+    },
+    "output.payloads.0.text#4": {
+     "op": "contains",
+     "value": "note: keepers #1 #2 #7 — selection differential +1.44 on 1-5"
+    },
+    "output.payloads.0.text#5": {
+     "op": "contains",
+     "value": "cross: Aa x Aa observed 60 20   # purple stems"
+    }
+   }
+  },
+  {
+   "id": "g162-csv",
+   "action": "activate",
+   "arguments": {
+    "selector": "@control:csvCopy"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "g162-csvout",
+   "action": "collect-output",
+   "expect": {
+    "output.payloads.0.text": {
+     "op": "contains",
+     "value": "plant,vigor (x1),structure (x1),aroma (x2),resistance (x1.5),weighted total,mark,note"
+    },
+    "output.payloads.0.text#2": {
+     "op": "contains",
+     "value": "#1,5,4,4,4,4.18,keep,strong central lead clean nose"
+    },
+    "output.payloads.0.text#3": {
+     "op": "contains",
+     "value": "# run Blueberry F2 — scored by R. Ellison — 2026-09-08"
+    }
+   }
+  },
+  {
+   "id": "g162-endpane",
+   "action": "show-pane",
+   "arguments": {
+    "pane": "p-sel"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "g162-endrep",
+   "action": "read-report",
+   "expect": {
+    "ok": true,
+    "output.by.selStats.selection differential S": "+1.44"
+   }
+  },
+  {
+   "id": "g162-endintact",
    "action": "read-page",
    "expect": {
     "output.junk": null,
