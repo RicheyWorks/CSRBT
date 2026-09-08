@@ -373,6 +373,51 @@ FEK picker through its filter; a task names a control the page's way with
 tasks — one per data-entry page — enter data and hold the report to a
 hand-checked oracle; a page canary is refuted; 1,316 expectations confirmed.
 
+ADR-156 RECORDED THE GREENHOUSE MONITOR WHOLE -- the kit's environmental
+dashboard, and a page where EVERYTHING IT COMPUTES RESTS ON A LOG and no task had
+ever loaded one. greenhouse.html shows leaf VPD against a target band (Buck 1981,
+leaf/air offset stated rather than assumed), DLI both as PPFD x hours and as the
+trapezoid integral of a logged curve, energy as the trapezoid integral of logged
+watts, and a run-history comparison that measures a new cycle against the
+grower's OWN spread. Its task drove the lux-to-PPFD conversion, a DLI, a g/W and
+the confirm-dialog path -- 6 of 14 fields, its two exports unread. The
+worked-example source exists so the charts have something to show, seven days of
+plausible readings deterministic in their noise, but its timestamps END AT
+Date.now() so its lights-on hours and every figure downstream move with the wall
+clock. A LOG WITH A DATE IN IT IS A LOG THAT DEPENDS ON THE CLOCK: frozen at a
+fixed instant the 337 rows are exact, and the whole readout becomes an oracle
+computed in Python from the same seeded generator, the same Buck equation, the
+same trapezoid -- mean leaf VPD 1.00 kPa (range 0.59-1.43) against the clone band,
+78% of TIME outside by duration, dew point 17.4 C with 9.2 C of margin, DLI
+integrated 50.5 mol/m2/d from the curve rather than the flat formula, 82.9 kWh
+over the log at 0.180/kWh, g/kWh 4.82 against g/W 0.67 rated. THE EXACT NUMBERS
+FOUND A DEFECT: the average draw is energy spread over the days it was integrated
+across -- 82.9 kWh over 7 days is 493 W, about the 75% duty a 640 W lamp on an
+18/6 photoperiod actually runs -- but the page divided by the CYCLE LENGTH a
+grower types instead, so entering 70 days turned the same energy into an average
+of 49 W reported as 8% of rated, with the banner beside it quoting that 8% as the
+duty cycle. A dashboard telling a grower their 640 W light averages 49 W is the
+difference between a lamp on a timer and a lamp that is off. The average draw is
+now kWh over the log's own span, and the task holds that entering a 70-day cycle
+DOES NOT MOVE IT: 493 W before, 493 W after. Holding the cost lines meant
+asserting '$14.92', and the task grammar read a leading $ as the response of a
+step named 14.92, so A LEADING $$ IS NOW ONE LITERAL DOLLAR SIGN -- every task
+that uses $ for a real step reference is unchanged, and verify_tasks and
+mutate_tasks both gained a case. greenhouse 6 -> 14 OF 14 FIELDS, 2 unread
+exports -> 0 (Copy summary, Copy CSV and Print all held), and the kit 416 -> 424
+of 520 (80% -> 82%), unread outputs 39 -> 37. Seven pages are entered whole. 122
+confirmed expectations, 0 refuted, every figure from the oracle. Held: the frozen
+clock fixes the worked example's timestamps and nothing else, so the file, poll,
+serial and manual sources are still driven only by their availability checks,
+which is the honest limit of a page that reads real hardware; the average draw
+over the log's span is right for a log that covers the run, and a log covering
+only part of a longer run still under-reports total energy -- the page says so
+and the cycle-length field is where the grower supplies the rest, which is a
+different thing from silently dividing by it; and 37 outputs on 14 pages are
+still unread with 16 buttons still silent.
+
+ADR-155 FOUND THE INSTRUMENT IN THE MEASUREMENT. Setting out to close the twelve accepted layout spills on selection-log and survey-design carried since ADR-103, the finding was that NONE OF THEM COULD BE REPRODUCED by opening the page -- and the reason is that tools/harness.py kept its fill counter, which makes every field-fill a different value so a field filled with what it already holds is not mistaken for one wired to nothing, AS A MODULE GLOBAL SHARED BY EVERY PAGE IN THE RUN. survey-design driven ALONE is filled with harness-3; driven as page 35 of 41 it is filled with harness-378 -- three characters wider, and a row that fitted 390 px stops fitting. The same two pages, unedited, sit in this repo's own ledgers at three different answers (38/0 pre-ADR-128, 38/23 on 08-31, 0/0 today), and ADR-128 had ALREADY fixed the one real defect among the twelve on 09-02 -- but the baseline never noticed, because the number it was meant to move had stopped being a property of the page. Worse, WHETHER THE KIT WAS GREEN DEPENDED ON THE ORDER THE PAGES HAPPENED TO BE WALKED IN, which under -j2 is thread scheduling, so it was not order-dependent but FLAKY: invariant breaks read 0, 38 or 61 depending on the run. The fix is threading.local() reset at the top of each page -- thread-local rather than merely reset per page, because the run drives two pages at once and a plain global assignment would leave the two walks clobbering each other, the same leak harder to see and only under -j2. THE SPILL REPORT ALSO POINTED NOWHERE: it printed the first two matches in document order, which are the outermost containers and innocent by construction (every ancestor of an overflowing child overflows), with a width alone (w=372 looks fine until you know the box starts at x=33); it now names the outermost element WHOSE PARENT STILL FITS, with its span and overrun (div.row2 x=33..427, +37 past 390) and the value typed. verify_harness_matrix gains SECTION L, six checks (71 -> 77): a page measured after another measures the same, the fixture really driven both times, the counter restarts at one per page, two walks at once do not share it, the accounting holds, and L6 -- no module-level state in harness.py is written during a run, an AST rule so the NEXT cross-page counter is caught before it invents a defect. SECTION F HAD CLAIMED DETERMINISM SINCE ADR-109 AND PASSED EVERY RUN, because it compares bucket counts on a fixture WITH NO TEXT INPUT, so the counter never advanced and nothing compared what the harness types: A PROMISE CHECKED ONLY WHERE IT CANNOT BE BROKEN IS NOT CHECKED. Two of the three new mutants survived the first version of the new checks -- L1 was a comparison and both runs started from the same polluted counter, L4's two threads never overlapped -- and were fixed by asserting an ABSOLUTE fact (a page's first fill is harness-1) and by a threading.Barrier that makes the two walks actually contend; the mutation catalogue is the only reason either was found. mutate_harness 15 -> 18, verify_findings RED -> 12/12, accepted debt 13 distinct -> 1 (stand-sheet's one dead control, the '📷 Add photos' button wired to nothing), no page edited and no coverage moved. THE NAME: the instrument was not mistaken about the page -- the instrument was IN the measurement, its own accumulated state changing what it found while every layer above balanced faithfully, and the defence is not a cleverer check but that ANY STATE A TOOL CARRIES ACROSS THE THINGS IT MEASURES MUST BE RESET BETWEEN THEM, AND SOMETHING HAS TO ASSERT THAT IT WAS.
+
 ADR-154 RECORDED THE ETHOGRAM WHOLE -- the one page in this kit whose product is
 a measurement of TIME, and no task had ever run a session on it. Its only task
 drove the kappa calculator and two design chips: 5 of 16 fields, the worst ratio

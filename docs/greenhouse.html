@@ -2416,7 +2416,15 @@ var GH = (function(){
     var box=$("econOut");
     var s = LOG.length ? GH.summarise(LOG,{stage:stage, leafOffset:leafOff}) : null;
     var kwh = s ? s.kwh : null;
-    var days = cycleDays!=null ? cycleDays : (s ? s.spanDays : null);
+    /* THE DAYS THE ENERGY COVERS ARE THE LOG'S DAYS (ADR-155). The average draw
+       is kWh over the days that kWh was integrated across, and that is the log
+       span whether or not a cycle length has been entered. This used to divide
+       by the cycle length instead: a 7-day log against a 70-day cycle reported a
+       640 W lamp averaging 49 W, 8% of rated, and the banner beside it quoted
+       the "duty cycle" the number implied. The cycle length is a fact about the
+       run and is kept on the run record; it is not a denominator for a
+       quantity the log did not measure across it. */
+    var days = s ? s.spanDays : null;
     var e = GH.economics(grams, ratedW, kwh, days, rate);
 
     var h='<h3 style="margin-top:0">Energy and yield</h3><div class="gh-grid">'
@@ -2493,8 +2501,7 @@ var GH = (function(){
       $("ghOut").textContent=L.join("\n"); return;
     }
     var s=GH.summarise(LOG,{stage:stage, leafOffset:leafOff});
-    var days = cycleDays!=null ? cycleDays : s.spanDays;
-    var e = GH.economics(grams, ratedW, s.kwh, days, rate);
+    var e = GH.economics(grams, ratedW, s.kwh, s.spanDays, rate);   /* the log's days (ADR-155) */
     var conv=GH.lumensToPPFD(luxValue, luxFactor);
     L.push("# readings: "+s.n+" over "+f(s.spanDays,2)+" days");
     L.push("");

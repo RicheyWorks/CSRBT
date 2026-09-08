@@ -139,6 +139,15 @@ MUTANTS = [
      '        result = ("driven" if r.get("ok") else\n                  "refused" if r.get("code") in ("invalid_argument", "not_found", "conflict") else',
      '        result = ("driven" if r.get("ok") else\n                  "driven" if r.get("code") in ("invalid_argument", "not_found", "conflict") else',
      "each step's result is its bucket"),
+    # ---- a dollar figure is not a reference (ADR-155) ----
+    ("a leading $$ is still a reference, so no task can hold a dollar figure",
+     '    if isinstance(value, str) and value.startswith("$$"):\n        return value[1:]',
+     '    if False:\n        return value[1:]',
+     "one literal dollar sign"),
+    ("$$ is stripped to nothing, so the figure loses its sign",
+     '    if isinstance(value, str) and value.startswith("$$"):\n        return value[1:]',
+     '    if isinstance(value, str) and value.startswith("$$"):\n        return value[2:]',
+     "one literal dollar sign"),
 ]
 
 MUTANTS += [

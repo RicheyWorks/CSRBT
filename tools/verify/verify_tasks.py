@@ -81,6 +81,18 @@ done = {"a": resp}
 ck(T.resolve({"x": "$a.output.n", "y": ["$a.ok", 5], "z": "plain"}, done, "t") == {"x": 3, "y": [True, 5], "z": "plain"},
    "references resolve inside dicts and lists, literals pass through")
 ck(T.resolve("$a", done, "t") is resp, "a bare step reference is the whole response")
+def _try_resolve(v):
+    try:
+        return T.resolve(v, done, "t")
+    except Exception as e:                 # a mutant that treats $$ as a reference raises here
+        return ("RAISED", str(e))
+ck(_try_resolve("$$14.92") == "$14.92",
+   "a leading $$ is one literal dollar sign: a task can hold '$14.92', which is what the "
+   "greenhouse monitor prints for the electricity a run cost, and was being read as a reference "
+   "to a step called 14.92 (ADR-155): %r" % (_try_resolve("$$14.92"),))
+ck(_try_resolve({"cost": {"op": "==", "value": "$$0.04"}}) == {"cost": {"op": "==", "value": "$0.04"}},
+   "...inside an expectation as well, where every value is resolved: %r"
+   % (_try_resolve({"cost": {"op": "==", "value": "$$0.04"}}),))
 for ref in ("$b.output.n", "$a.output.none"):
     try:
         T.resolve(ref, done, "t")
@@ -220,7 +232,8 @@ for t in tasks:
     okrefs = True
     for s in t["steps"]:
         for v in json.dumps([s.get("arguments"), s.get("expect")]).split('"'):
-            if v.startswith("$") and not v.startswith("$."):        # "$." is the step's own response
+            # "$." is the step's own response; "$$" is one literal dollar sign (ADR-155)
+            if v.startswith("$") and not v.startswith("$.") and not v.startswith("$$"):
                 okrefs = okrefs and v[1:].partition(".")[0] in seen
         seen.add(s["id"])
     ck(okrefs, "%s: every reference names an earlier step" % t["id"])

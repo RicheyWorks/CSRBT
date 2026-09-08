@@ -47,8 +47,21 @@ MANIFESTS = os.path.join(HERE, "delivery")
 PUSH = os.path.join(HERE, "push")
 LEDGER = os.path.join(HERE, "delivery_ledger.json")
 
-TRAILER = ('  -m "Co-Authored-By: Claude Opus 5 <noreply@anthropic.com>" '
-           '-m "Claude-Session: https://claude.ai/code/session_01CNn3hvazSDBU2TCgsGXjTt"')
+# The attribution trailer. The Co-Authored-By name follows whichever model is
+# committing, and it has changed WITHIN a session's chain of slices (ADR-155:
+# Opus 5 -> Fable 5.1 -> Opus 4.8). A new script is generated with TRAILER;
+# --check accepts a script that matches generation under ANY trailer that a real
+# slice was signed with, because a model handover is not a hand edit. The
+# session line is invariant.
+_SESSION = '-m "Claude-Session: https://claude.ai/code/session_01CNn3hvazSDBU2TCgsGXjTt"'
+_COAUTHORS = (
+    "Claude Opus 4.8 <noreply@anthropic.com>",
+    "Claude Fable 5.1 <noreply@anthropic.com>",
+    "Claude Opus 5 <noreply@anthropic.com>",
+)
+def _trailer(coauthor):
+    return '  -m "Co-Authored-By: %s" %s' % (coauthor, _SESSION)
+TRAILER = _trailer(_COAUTHORS[0])
 
 
 def sha(path):
@@ -82,7 +95,7 @@ def ps_quote(s):
              .replace("$", "`$").replace("\r", " ").replace("\n", " "))
 
 
-def script_text(m):
+def script_text(m, trailer=None):
     """The push script for one manifest. Deterministic: same manifest, same
     bytes, which is what lets --check compare instead of trust."""
     mid, paths = m["id"], list(m["paths"])
@@ -122,7 +135,7 @@ def script_text(m):
         a("  %s%s" % (p, " `" if i < len(paths) - 1 else ""))
     a('git -C $csrbt commit -m "%s" `' % ps_quote(m["subject"]))
     a('  -m "%s" `' % ps_quote(m["body"]))
-    a(TRAILER)
+    a(trailer if trailer is not None else TRAILER)
     a("git -C $csrbt push")
     for t in m.get("clean") or []:
         a('$t = Join-Path $root "_to_delete\\%s.tgz"; if (Test-Path $t) { Remove-Item $t -Force }' % t)
@@ -213,7 +226,7 @@ def check():
             bad.append("%s: no generated script -- run --script %s" % (mid, mid))
         else:
             on_disk = io.open(sp, encoding="utf-8", newline="").read().replace("\r\n", "\n")
-            if on_disk != script_text(m):
+            if not any(on_disk == script_text(m, _trailer(ca)) for ca in _COAUTHORS):
                 bad.append("%s: push-%s.ps1 is not what the manifest generates -- it was edited "
                            "by hand, and the two lists have started to disagree again" % (mid, mid))
     return bad

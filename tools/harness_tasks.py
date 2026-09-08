@@ -256,6 +256,13 @@ def resolve(value, done, where):
     """Replace "$step.path" references, recursively, from the responses so far."""
     if isinstance(value, str) and value.startswith("@control:"):
         return find_control(value[len("@control:"):], done, where)
+    # A DOLLAR FIGURE IS NOT A REFERENCE (ADR-155). "$14.92" is what the
+    # greenhouse monitor prints for the electricity a run cost, and a task that
+    # wanted to hold it was told it referred to a step called "14.92". A leading
+    # "$$" is one literal dollar sign; a single "$" keeps meaning "the step named
+    # after it", which is what every task written before this one relies on.
+    if isinstance(value, str) and value.startswith("$$"):
+        return value[1:]
     if isinstance(value, str) and value.startswith("$"):
         ref = value[1:]
         step, _, path = ref.partition(".")
