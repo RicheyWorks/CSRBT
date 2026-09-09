@@ -35014,9 +35014,9 @@
    "verdict": "PASS"
   },
   "page-tree-visualizer-science": {
-   "at": 1788777372,
-   "confirmed": 80,
-   "goal": "On the tree visualizer, against an independent Python port of its four strategies: the boot red-black tree of 13 keys has height 4 (1.0x the optimal ceil(log2 14) = 4), 0 rotations, select(1) = 4, rank(42) = #7, median 42; inserting 7 makes 14 nodes at height 5 (1.3x), median 30, rank #8; 7 again is already present; 1..20 ascending into red-black is height 7 with 14 rotations; morphing rebuilds from the sorted keys: AVL height 5 (15 rotations), Splay height 20 (a spine, 4.0x), WB height 6, red-black 7. With the page's Math.random seeded (ADR-134), the two random-insert buttons are reproducible: mulberry32 seeded 42, with the page's own skip-a-key-already-present rule, draws 60 first and 19 eleventh, and the tree is 24 nodes after 15 draws.",
+   "at": 1788926526,
+   "confirmed": 91,
+   "goal": "On the tree visualizer, against an independent Python port of its four strategies: the boot red-black tree of 13 keys has height 4 (1.0x the optimal ceil(log2 14) = 4), 0 rotations, select(1) = 4, rank(42) = #7, median 42; inserting 7 makes 14 nodes at height 5 (1.3x), median 30, rank #8; 7 again is already present; 1..20 ascending into red-black is height 7 with 14 rotations; morphing rebuilds from the sorted keys: AVL height 5 (15 rotations), Splay height 20 (a spine, 4.0x), WB height 6, red-black 7. With the page's Math.random seeded (ADR-134), the two random-insert buttons are reproducible: mulberry32 seeded 42, with the page's own skip-a-key-already-present rule, draws 60 first and 19 eleventh, and the tree is 24 nodes after 15 draws. Then the two order-statistic inputs the task never drove -- select k-th and rank-of -- are exercised on a rebuilt three-key tree {10,20,30}: select(2) reads 20 and rank(30) reads #3, the page's own order-statistic queries held against the obvious answers.",
    "held": true,
    "id": "page-tree-visualizer-science",
    "must": "PASS",
@@ -35028,7 +35028,7 @@
     "DESTRUCTIVE"
    ],
    "rungsWhy": "the goal ends by clearing the tree and reading the empty visualizer: bClear is 'Clear'",
-   "seconds": 0.6,
+   "seconds": 1.1,
    "steps": [
     {
      "action": "observe",
@@ -35095,7 +35095,7 @@
      ],
      "id": "boot",
      "message": "4 figure(s), 6 box(es), 0 list(s), 0 table(s), 3 heading(s)",
-     "ms": 4,
+     "ms": 5,
      "result": "driven"
     },
     {
@@ -35109,7 +35109,7 @@
      ],
      "id": "key7",
      "message": "set-text text_in:0",
-     "ms": 20,
+     "ms": 22,
      "result": "driven"
     },
     {
@@ -35123,7 +35123,7 @@
      ],
      "id": "ins7",
      "message": "activate action_btn:5",
-     "ms": 20,
+     "ms": 21,
      "result": "driven"
     },
     {
@@ -35172,7 +35172,7 @@
      ],
      "id": "fourteen",
      "message": "4 figure(s), 6 box(es), 0 list(s), 0 table(s), 3 heading(s)",
-     "ms": 2,
+     "ms": 3,
      "result": "driven"
     },
     {
@@ -35205,7 +35205,7 @@
      ],
      "id": "present",
      "message": "4 figure(s), 6 box(es), 0 list(s), 0 table(s), 3 heading(s)",
-     "ms": 2,
+     "ms": 3,
      "result": "driven"
     },
     {
@@ -35263,7 +35263,7 @@
      ],
      "id": "rb20",
      "message": "4 figure(s), 6 box(es), 0 list(s), 0 table(s), 3 heading(s)",
-     "ms": 2,
+     "ms": 3,
      "result": "driven"
     },
     {
@@ -35277,7 +35277,7 @@
      ],
      "id": "toAVL",
      "message": "activate action_btn:13",
-     "ms": 20,
+     "ms": 21,
      "result": "driven"
     },
     {
@@ -35326,7 +35326,7 @@
      ],
      "id": "mAVL",
      "message": "4 figure(s), 6 box(es), 0 list(s), 0 table(s), 3 heading(s)",
-     "ms": 2,
+     "ms": 12,
      "result": "driven"
     },
     {
@@ -35340,7 +35340,7 @@
      ],
      "id": "toSplay",
      "message": "activate action_btn:14",
-     "ms": 27,
+     "ms": 20,
      "result": "driven"
     },
     {
@@ -35389,7 +35389,7 @@
      ],
      "id": "mSplay",
      "message": "4 figure(s), 6 box(es), 0 list(s), 0 table(s), 3 heading(s)",
-     "ms": 2,
+     "ms": 9,
      "result": "driven"
     },
     {
@@ -35403,7 +35403,7 @@
      ],
      "id": "toWB",
      "message": "activate action_btn:15",
-     "ms": 28,
+     "ms": 22,
      "result": "driven"
     },
     {
@@ -35452,7 +35452,7 @@
      ],
      "id": "mWB",
      "message": "4 figure(s), 6 box(es), 0 list(s), 0 table(s), 3 heading(s)",
-     "ms": 2,
+     "ms": 3,
      "result": "driven"
     },
     {
@@ -35466,7 +35466,7 @@
      ],
      "id": "toRB",
      "message": "activate action_btn:12",
-     "ms": 19,
+     "ms": 20,
      "result": "driven"
     },
     {
@@ -35515,7 +35515,7 @@
      ],
      "id": "mRB",
      "message": "4 figure(s), 6 box(es), 0 list(s), 0 table(s), 3 heading(s)",
-     "ms": 6,
+     "ms": 8,
      "result": "driven"
     },
     {
@@ -35529,7 +35529,7 @@
      ],
      "id": "wipe",
      "message": "activate action_btn:11",
-     "ms": 25,
+     "ms": 21,
      "result": "driven"
     },
     {
@@ -35553,7 +35553,7 @@
      ],
      "id": "seed",
      "message": "Math.random is mulberry32 seeded 42; reload for code that draws at load",
-     "ms": 3,
+     "ms": 4,
      "result": "driven"
     },
     {
@@ -35567,7 +35567,7 @@
      ],
      "id": "rand1",
      "message": "activate action_btn:8",
-     "ms": 19,
+     "ms": 21,
      "result": "driven"
     },
     {
@@ -35581,7 +35581,7 @@
      ],
      "id": "sawFirst",
      "message": "4 figure(s), 6 box(es), 0 list(s), 0 table(s), 3 heading(s)",
-     "ms": 2,
+     "ms": 3,
      "result": "driven"
     },
     {
@@ -35595,7 +35595,7 @@
      ],
      "id": "rand10",
      "message": "activate action_btn:9",
-     "ms": 19,
+     "ms": 20,
      "result": "driven"
     },
     {
@@ -35623,6 +35623,151 @@
      "result": "driven"
     },
     {
+     "action": "activate",
+     "expectations": [
+      {
+       "detail": "ok == True, got True",
+       "path": "ok",
+       "verdict": "CONFIRMED"
+      }
+     ],
+     "id": "g169-clear",
+     "message": "activate action_btn:11",
+     "ms": 19,
+     "result": "driven"
+    },
+    {
+     "action": "set-text",
+     "expectations": [
+      {
+       "detail": "ok == True, got True",
+       "path": "ok",
+       "verdict": "CONFIRMED"
+      }
+     ],
+     "id": "g169-in10",
+     "message": "set-text text_in:0",
+     "ms": 20,
+     "result": "driven"
+    },
+    {
+     "action": "activate",
+     "expectations": [
+      {
+       "detail": "ok == True, got True",
+       "path": "ok",
+       "verdict": "CONFIRMED"
+      }
+     ],
+     "id": "g169-ins10",
+     "message": "activate action_btn:5",
+     "ms": 20,
+     "result": "driven"
+    },
+    {
+     "action": "set-text",
+     "expectations": [
+      {
+       "detail": "ok == True, got True",
+       "path": "ok",
+       "verdict": "CONFIRMED"
+      }
+     ],
+     "id": "g169-in30",
+     "message": "set-text text_in:0",
+     "ms": 20,
+     "result": "driven"
+    },
+    {
+     "action": "activate",
+     "expectations": [
+      {
+       "detail": "ok == True, got True",
+       "path": "ok",
+       "verdict": "CONFIRMED"
+      }
+     ],
+     "id": "g169-ins30",
+     "message": "activate action_btn:5",
+     "ms": 20,
+     "result": "driven"
+    },
+    {
+     "action": "set-text",
+     "expectations": [
+      {
+       "detail": "ok == True, got True",
+       "path": "ok",
+       "verdict": "CONFIRMED"
+      }
+     ],
+     "id": "g169-in20",
+     "message": "set-text text_in:0",
+     "ms": 20,
+     "result": "driven"
+    },
+    {
+     "action": "activate",
+     "expectations": [
+      {
+       "detail": "ok == True, got True",
+       "path": "ok",
+       "verdict": "CONFIRMED"
+      }
+     ],
+     "id": "g169-ins20",
+     "message": "activate action_btn:5",
+     "ms": 21,
+     "result": "driven"
+    },
+    {
+     "action": "set-text",
+     "expectations": [
+      {
+       "detail": "ok == True, got True",
+       "path": "ok",
+       "verdict": "CONFIRMED"
+      }
+     ],
+     "id": "g169-selk",
+     "message": "set-text text_in:1",
+     "ms": 22,
+     "result": "driven"
+    },
+    {
+     "action": "set-text",
+     "expectations": [
+      {
+       "detail": "ok == True, got True",
+       "path": "ok",
+       "verdict": "CONFIRMED"
+      }
+     ],
+     "id": "g169-rnkk",
+     "message": "set-text text_in:2",
+     "ms": 21,
+     "result": "driven"
+    },
+    {
+     "action": "read-report",
+     "expectations": [
+      {
+       "detail": "output.boxes.selOut contains '20', got '20'",
+       "path": "output.boxes.selOut",
+       "verdict": "CONFIRMED"
+      },
+      {
+       "detail": "output.boxes.rnkOut contains '#3', got '#3'",
+       "path": "output.boxes.rnkOut",
+       "verdict": "CONFIRMED"
+      }
+     ],
+     "id": "g169-held",
+     "message": "4 figure(s), 6 box(es), 0 list(s), 0 table(s), 3 heading(s)",
+     "ms": 2,
+     "result": "driven"
+    },
+    {
      "action": "read-page",
      "expectations": [
       {
@@ -35643,7 +35788,7 @@
      ],
      "id": "intact",
      "message": "read the page",
-     "ms": 3,
+     "ms": 8,
      "result": "driven"
     }
    ],

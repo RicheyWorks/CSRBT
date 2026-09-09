@@ -850,10 +850,15 @@
    "by": "adr168",
    "sha": "e4ea67c1678da3f34676bf6c6ff13cd6fe54fd03ac5409f35d2a7366b65cece7"
   },
+  "docs/ADR-169-the-tree-visualizer-recorded-whole-2026-09-09.md": {
+   "at": 1788928595,
+   "by": "adr169",
+   "sha": "f656ff118ba54105280d93067b547eb5f05074de776f15014d597c51a9ff6ca2"
+  },
   "docs/AI_HARNESS.md": {
-   "at": 1788926231,
-   "by": "adr168",
-   "sha": "b0af34875f5405d7a8d2a3302e42e73348ab34f9ea41577341227dad3f51168d"
+   "at": 1788928595,
+   "by": "adr169",
+   "sha": "b305365c66d833ed3c0d39ded278dc6b3a9476aa446f83dda3a13da4e632af00"
   },
   "docs/AUDIT-2026-07-14-capability-coverage.md": {
    "at": 1788676922,
@@ -1640,6 +1645,11 @@
    "by": "adr168",
    "sha": "b83c66eb8c8525bb2f8d27b8a28be575086c66e675815c5fdf05fc59220f9c0f"
   },
+  "docs/CHANGELOG-2026-09-09-adr169-the-tree-visualizer-recorded-whole.md": {
+   "at": 1788928595,
+   "by": "adr169",
+   "sha": "1c47446e6c55ad11e66d0f543026a4e543cd488c93cba0b8a711610cb4910741"
+  },
   "docs/DESIGN-adaptive-engine.md": {
    "at": 1788676923,
    "by": "adr146b",
@@ -2420,10 +2430,15 @@
    "by": "adr168",
    "sha": "c601afc3f14b86ed383967829a79d638b3282325f0a3ffd96f8bba4c151572c8"
   },
+  "tools/delivery/adr169.json": {
+   "at": 1788928595,
+   "by": "adr169",
+   "sha": "2a942ab3c6b94eb4fa55d155051b767d43dfca010d9c2c0dafee227d9bcaa1d1"
+  },
   "tools/delivery_ledger.json": {
-   "at": 1788926231,
-   "by": "adr168",
-   "sha": "e8e7fc21e14575f51471f48fcf3550700acd06e1583fbe5eb7eee15c7301191a"
+   "at": 1788928595,
+   "by": "adr169",
+   "sha": "9ad907b73f689a3c09f2217a15d95a4a579588f210264d29433ef5f13645a902"
   },
   "tools/dwc.py": {
    "at": 1788676926,
@@ -2466,9 +2481,9 @@
    "sha": "01919e137bdbf702ebc887de41aa026b721916da9d3761ce673812d54a22471f"
   },
   "tools/entry_ledger.json": {
-   "at": 1788926231,
-   "by": "adr168",
-   "sha": "72865bf775e26dce815c9ba02a5bef80a999ec2a9bfbf62c920b05ca15b4b1d1"
+   "at": 1788928595,
+   "by": "adr169",
+   "sha": "784aca6ef1035c70d8d2bfe3b290d00e8a678a8ea934461b9a602c65f0f04ea6"
   },
   "tools/entry_reach.py": {
    "at": 1788676926,
@@ -2521,9 +2536,9 @@
    "sha": "1d5e5bb0fadf4abb88d56125483a66e1bc2367055c7b541aa9d800c6dddde9dc"
   },
   "tools/harness_board.html": {
-   "at": 1788926231,
-   "by": "adr168",
-   "sha": "98d36d37dcd7b5781ce48650fe9ce6d51c44e89a9d0f0a1b8cf8b4e3eb28a754"
+   "at": 1788928595,
+   "by": "adr169",
+   "sha": "3d29a3e8933f394d29505f25ecdde5aea6628e52f6cc39801825028e2d0288cb"
   },
   "tools/harness_board.py": {
    "at": 1788783742,
@@ -2761,9 +2776,9 @@
    "sha": "15022dcd97ee97f72ec5f907d0cdfef3ee36da9588f9de47e110519ff9f781e8"
   },
   "tools/published.json": {
-   "at": 1788926231,
-   "by": "adr168",
-   "sha": "683a82af13fbc646ff1344bd5a9f1e0ef2466163d6c44408fc0e057d0fd4d1d5"
+   "at": 1788928595,
+   "by": "adr169",
+   "sha": "d1922742e2b1d4dfb0a3e03e1033ae465140c73e1f1b51577f1a776a7c44e2da"
   },
   "tools/reach.py": {
    "at": 1788676928,
@@ -2806,9 +2821,9 @@
    "sha": "0a2241a252fa68e80b813e601b7bd67cd8ba5c00b8ad07acc98dcd93a42b0268"
   },
   "tools/task_ledger.json": {
-   "at": 1788926231,
-   "by": "adr168",
-   "sha": "a6660335d7817cc82e642c1ab37ed0b653d5cb89f9e449bbb43054823ff64e3c"
+   "at": 1788928595,
+   "by": "adr169",
+   "sha": "3c86eb197b3f749d55a8ad543e6e3585d715e5d577613d10012c24799e2183c5"
   },
   "tools/tasks/fixture-buckets.json": {
    "at": 1788676928,
@@ -3061,9 +3076,9 @@
    "sha": "a721f81be5e9bbc97902233ead31ac1ba1143e75d7d0ff2b50a53d8ae0db447d"
   },
   "tools/tasks/page-tree-visualizer-science.json": {
-   "at": 1788676928,
-   "by": "adr146b",
-   "sha": "573f9d19a1835498e2d68a52c5df65821e4c6b63bfa759a5add4acab75191801"
+   "at": 1788928595,
+   "by": "adr169",
+   "sha": "c065fa5238ff8737f522d93cf12ca15d2b50cdeb74c06f1d6e7fe4c19f5dc419"
   },
   "tools/tasks/two-targets-canary.json": {
    "at": 1788676929,
@@ -3101,9 +3116,9 @@
    "sha": "15a9ad96a69cde9458d5f7fca51be947e5bebad787cc069e1bcc64bf7800b592"
   },
   "tools/verify/counts.json": {
-   "at": 1788926231,
-   "by": "adr168",
-   "sha": "e5a3008a115e1c1c75ffa84c60e5e6866214207b77bb8eb1edfa98b65852e03c"
+   "at": 1788928595,
+   "by": "adr169",
+   "sha": "b93450ad07c3200d069d8b8d00a2c3303d302afa1bea4739cee04633eef84078"
   },
   "tools/verify/run_all.py": {
    "at": 1788783742,
