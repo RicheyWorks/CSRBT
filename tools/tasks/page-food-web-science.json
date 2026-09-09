@@ -2,7 +2,7 @@
  "id": "page-food-web-science",
  "target": "page",
  "page": "food-web.html",
- "goal": "On the food web builder, the pond preset is 9 species and 12 links, connectance L/S^2 = 12/81 = 0.148, longest chain 5 (algae to heron), 2 producers, heron at the top, and its export says the same; the meadow is 10 species, 12 links, 0.120, kestrel at the top; a consumer added with no food source is flagged and makes 11 species at 12/121 = 0.099; undo restores 10.",
+ "goal": "On the food web builder, the pond preset is 9 species and 12 links, connectance L/S^2 = 12/81 = 0.148, longest chain 5 (algae to heron), 2 producers, heron at the top, and its export says the same; the meadow is 10 species, 12 links, 0.120, kestrel at the top; a consumer added with no food source is flagged and makes 11 species at 12/121 = 0.099; undo restores 10. Then the builder's three exports are read: the copied web export is the header line, the connectance-and-chain note and one 'eats' note per link, twelve in the meadow's order, byte for byte; the copied CSV is the edge list, food,eater then twelve rows in the same order; and the print button prints.",
  "policy": {
   "allow": [
    "SENSITIVE_READ",
@@ -168,6 +168,84 @@
     "output.charts.webSvg.aligned.col.0": "grass",
     "output.charts.webSvg.aligned.col.3": "aphid",
     "output.charts.webSvg.aligned.col.9": "kestrel"
+   }
+  },
+  {
+   "id": "g174-eco-copy",
+   "action": "activate",
+   "arguments": {
+    "selector": "@control:ecoCopy"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "g174-eco",
+   "action": "collect-output",
+   "expect": {
+    "output.payloads.0.k": "clipboard",
+    "output.payloads.0.text": "# Food Web Builder export — 10 species, 12 links\nnote: connectance 0.120 — longest chain 5 levels\nnote: grasshopper eats grass\nnote: aphid eats clover\nnote: bee eats wildflowers\nnote: aphid eats wildflowers\nnote: ladybird eats aphid\nnote: spider eats aphid\nnote: spider eats grasshopper\nnote: spider eats bee\nnote: shrew eats ladybird\nnote: shrew eats spider\nnote: shrew eats grasshopper\nnote: kestrel eats shrew",
+    "output.payloads.1": {
+     "op": "exists",
+     "value": false
+    }
+   }
+  },
+  {
+   "id": "g174-csv-copy",
+   "action": "activate",
+   "arguments": {
+    "selector": "@control:csvCopy"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "g174-csv",
+   "action": "collect-output",
+   "expect": {
+    "output.payloads.0.k": "clipboard",
+    "output.payloads.0.text": "food,eater\ngrass,grasshopper\nclover,aphid\nwildflowers,bee\nwildflowers,aphid\naphid,ladybird\naphid,spider\ngrasshopper,spider\nbee,spider\nladybird,shrew\nspider,shrew\ngrasshopper,shrew\nshrew,kestrel",
+    "output.payloads.1": {
+     "op": "exists",
+     "value": false
+    }
+   }
+  },
+  {
+   "id": "g174-print",
+   "action": "activate",
+   "arguments": {
+    "selector": "@control:Print / save PDF"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "g174-printed",
+   "action": "collect-output",
+   "expect": {
+    "output.payloads.0.k": "print",
+    "output.payloads.1": {
+     "op": "exists",
+     "value": false
+    }
+   }
+  },
+  {
+   "id": "g174-still",
+   "action": "read-report",
+   "expect": {
+    "output.by.webStats.species": "10",
+    "output.by.webStats.feeding links": "12",
+    "output.by.webStats.connectance L/S²": "0.120",
+    "output.boxes.ecoOut": {
+     "op": "contains",
+     "value": "note: kestrel eats shrew"
+    }
    }
   },
   {

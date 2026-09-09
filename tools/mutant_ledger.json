@@ -2232,12 +2232,12 @@
    "survived": 0
   },
   "mutate_tasks": {
-   "at": 1788819810,
+   "at": 1788981501,
    "equivalent": 0,
    "equivalents": [],
    "inconclusive": 0,
-   "killed": 65,
-   "mutants": 65,
+   "killed": 67,
+   "mutants": 67,
    "rows": [
     {
      "detail": "4 failure(s); first: every operator grades, a reference grades as its value, a m",
@@ -2295,7 +2295,7 @@
      "verdict": "killed"
     },
     {
-     "detail": "6 failure(s); first: an id wins over a control merely labelled with that name, w",
+     "detail": "7 failure(s); first: an id wins over a control merely labelled with that name, w",
      "name": "kind= swallows a plain id",
      "verdict": "killed"
     },
@@ -2430,7 +2430,7 @@
      "verdict": "killed"
     },
     {
-     "detail": "10 failure(s); first: an id wins over a control merely labelled with that name, ",
+     "detail": "11 failure(s); first: an id wins over a control merely labelled with that name, ",
      "name": "@control is not a reference: the name is passed as the selector",
      "verdict": "killed"
     },
@@ -2440,7 +2440,17 @@
      "verdict": "killed"
     },
     {
-     "detail": "1 failure(s); first: host/label scopes a label every dial shares to one dial",
+     "detail": "1 failure(s); first: a slash in a label is a label (ADR-174): a name that matche",
+     "name": "a slash always splits host from label, so a label with a slash in it names nothing",
+     "verdict": "killed"
+    },
+    {
+     "detail": "3 failure(s); first: host/label scopes a label every dial shares to one dial",
+     "name": "a name with a slash is never read as host/label",
+     "verdict": "killed"
+    },
+    {
+     "detail": "2 failure(s); first: host/label scopes a label every dial shares to one dial",
      "name": "host/label scoping ignores the host",
      "verdict": "killed"
     },

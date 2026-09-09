@@ -20757,9 +20757,9 @@
    "verdict": "PASS"
   },
   "page-food-web-science": {
-   "at": 1788777317,
-   "confirmed": 39,
-   "goal": "On the food web builder, the pond preset is 9 species and 12 links, connectance L/S^2 = 12/81 = 0.148, longest chain 5 (algae to heron), 2 producers, heron at the top, and its export says the same; the meadow is 10 species, 12 links, 0.120, kestrel at the top; a consumer added with no food source is flagged and makes 11 species at 12/121 = 0.099; undo restores 10.",
+   "at": 1788981276,
+   "confirmed": 54,
+   "goal": "On the food web builder, the pond preset is 9 species and 12 links, connectance L/S^2 = 12/81 = 0.148, longest chain 5 (algae to heron), 2 producers, heron at the top, and its export says the same; the meadow is 10 species, 12 links, 0.120, kestrel at the top; a consumer added with no food source is flagged and makes 11 species at 12/121 = 0.099; undo restores 10. Then the builder's three exports are read: the copied web export is the header line, the connectance-and-chain note and one 'eats' note per link, twelve in the meadow's order, byte for byte; the copied CSV is the edge list, food,eater then twelve rows in the same order; and the print button prints.",
    "held": true,
    "id": "page-food-web-science",
    "must": "PASS",
@@ -20771,7 +20771,7 @@
     "DESTRUCTIVE"
    ],
    "rungsWhy": "the goal includes undoing the last link: webUndo is 'Undo'",
-   "seconds": 0.4,
+   "seconds": 0.6,
    "steps": [
     {
      "action": "observe",
@@ -20803,7 +20803,7 @@
      ],
      "id": "pond",
      "message": "activate action_btn:3",
-     "ms": 21,
+     "ms": 27,
      "result": "driven"
     },
     {
@@ -20847,7 +20847,7 @@
      ],
      "id": "pondweb",
      "message": "5 figure(s), 3 box(es), 0 list(s), 0 table(s), 3 heading(s)",
-     "ms": 5,
+     "ms": 8,
      "result": "driven"
     },
     {
@@ -20861,7 +20861,7 @@
      ],
      "id": "pondeco",
      "message": "5 figure(s), 3 box(es), 0 list(s), 0 table(s), 3 heading(s)",
-     "ms": 3,
+     "ms": 4,
      "result": "driven"
     },
     {
@@ -20875,7 +20875,7 @@
      ],
      "id": "meadow",
      "message": "activate action_btn:4",
-     "ms": 20,
+     "ms": 21,
      "result": "driven"
     },
     {
@@ -20914,7 +20914,7 @@
      ],
      "id": "meadowweb",
      "message": "5 figure(s), 3 box(es), 0 list(s), 0 table(s), 3 heading(s)",
-     "ms": 3,
+     "ms": 4,
      "result": "driven"
     },
     {
@@ -20928,7 +20928,7 @@
      ],
      "id": "meadoweco",
      "message": "5 figure(s), 3 box(es), 0 list(s), 0 table(s), 3 heading(s)",
-     "ms": 3,
+     "ms": 4,
      "result": "driven"
     },
     {
@@ -20942,7 +20942,7 @@
      ],
      "id": "name",
      "message": "set-text text_in:0",
-     "ms": 20,
+     "ms": 22,
      "result": "driven"
     },
     {
@@ -20956,7 +20956,7 @@
      ],
      "id": "consumer",
      "message": "activate action_btn:1",
-     "ms": 19,
+     "ms": 20,
      "result": "driven"
     },
     {
@@ -20970,7 +20970,7 @@
      ],
      "id": "add",
      "message": "activate action_btn:2",
-     "ms": 20,
+     "ms": 26,
      "result": "driven"
     },
     {
@@ -21013,7 +21013,7 @@
      ],
      "id": "undo",
      "message": "activate action_btn:6",
-     "ms": 21,
+     "ms": 24,
      "result": "driven"
     },
     {
@@ -21032,7 +21032,7 @@
      ],
      "id": "ten",
      "message": "5 figure(s), 3 box(es), 0 list(s), 0 table(s), 3 heading(s)",
-     "ms": 3,
+     "ms": 4,
      "result": "driven"
     },
     {
@@ -21080,6 +21080,144 @@
      "result": "driven"
     },
     {
+     "action": "activate",
+     "expectations": [
+      {
+       "detail": "ok == True, got True",
+       "path": "ok",
+       "verdict": "CONFIRMED"
+      }
+     ],
+     "id": "g174-eco-copy",
+     "message": "activate action_btn:7",
+     "ms": 21,
+     "result": "driven"
+    },
+    {
+     "action": "collect-output",
+     "expectations": [
+      {
+       "detail": "output.payloads.0.k == 'clipboard', got 'clipboard'",
+       "path": "output.payloads.0.k",
+       "verdict": "CONFIRMED"
+      },
+      {
+       "detail": "output.payloads.0.text == '# Food Web Builder export \u2014 10 species, 12 links\\nnote: connectance 0.120 \u2014 longest chain 5 levels\\nnote: grasshopper eats grass\\nnote: aphid eats clover\\nnote: bee eats wildflowers\\nnote: aphid eats wildflowers\\nnote: ladybird eats aphid\\nnote: spider eats aphid\\nnote: spider eats grasshopper\\nnote: spider eats bee\\nnote: shrew eats ladybird\\nnote: shrew eats spider\\nnote: shrew eats grasshopper\\nnote: kestrel eats shrew', got '# Food Web Builder export \u2014 10 species, 12 links\\nnote: connectance 0.120 \u2014 longest chain 5 levels\\nnote: grasshopper eats grass\\nnote: aphid eats clover\\nnote: bee eats wildflowers\\nnote: aphid eats wildflowers\\nnote: ladybird eats aphid\\nnote: spider eats aphid\\nnote: spider eats grasshopper\\nnote: spider eats bee\\nnote: shrew eats ladybird\\nnote: shrew eats spider\\nnote: shrew eats grasshopper\\nnote: kestrel eats shrew'",
+       "path": "output.payloads.0.text",
+       "verdict": "CONFIRMED"
+      },
+      {
+       "detail": "output.payloads.1 exists False, got None",
+       "path": "output.payloads.1",
+       "verdict": "CONFIRMED"
+      }
+     ],
+     "id": "g174-eco",
+     "message": "1 payload(s)",
+     "ms": 2,
+     "result": "driven"
+    },
+    {
+     "action": "activate",
+     "expectations": [
+      {
+       "detail": "ok == True, got True",
+       "path": "ok",
+       "verdict": "CONFIRMED"
+      }
+     ],
+     "id": "g174-csv-copy",
+     "message": "activate action_btn:8",
+     "ms": 21,
+     "result": "driven"
+    },
+    {
+     "action": "collect-output",
+     "expectations": [
+      {
+       "detail": "output.payloads.0.k == 'clipboard', got 'clipboard'",
+       "path": "output.payloads.0.k",
+       "verdict": "CONFIRMED"
+      },
+      {
+       "detail": "output.payloads.0.text == 'food,eater\\ngrass,grasshopper\\nclover,aphid\\nwildflowers,bee\\nwildflowers,aphid\\naphid,ladybird\\naphid,spider\\ngrasshopper,spider\\nbee,spider\\nladybird,shrew\\nspider,shrew\\ngrasshopper,shrew\\nshrew,kestrel', got 'food,eater\\ngrass,grasshopper\\nclover,aphid\\nwildflowers,bee\\nwildflowers,aphid\\naphid,ladybird\\naphid,spider\\ngrasshopper,spider\\nbee,spider\\nladybird,shrew\\nspider,shrew\\ngrasshopper,shrew\\nshrew,kestrel'",
+       "path": "output.payloads.0.text",
+       "verdict": "CONFIRMED"
+      },
+      {
+       "detail": "output.payloads.1 exists False, got None",
+       "path": "output.payloads.1",
+       "verdict": "CONFIRMED"
+      }
+     ],
+     "id": "g174-csv",
+     "message": "1 payload(s)",
+     "ms": 1,
+     "result": "driven"
+    },
+    {
+     "action": "activate",
+     "expectations": [
+      {
+       "detail": "ok == True, got True",
+       "path": "ok",
+       "verdict": "CONFIRMED"
+      }
+     ],
+     "id": "g174-print",
+     "message": "activate action_btn:9",
+     "ms": 20,
+     "result": "driven"
+    },
+    {
+     "action": "collect-output",
+     "expectations": [
+      {
+       "detail": "output.payloads.0.k == 'print', got 'print'",
+       "path": "output.payloads.0.k",
+       "verdict": "CONFIRMED"
+      },
+      {
+       "detail": "output.payloads.1 exists False, got None",
+       "path": "output.payloads.1",
+       "verdict": "CONFIRMED"
+      }
+     ],
+     "id": "g174-printed",
+     "message": "1 payload(s)",
+     "ms": 2,
+     "result": "driven"
+    },
+    {
+     "action": "read-report",
+     "expectations": [
+      {
+       "detail": "output.by.webStats.species == '10', got '10'",
+       "path": "output.by.webStats.species",
+       "verdict": "CONFIRMED"
+      },
+      {
+       "detail": "output.by.webStats.feeding links == '12', got '12'",
+       "path": "output.by.webStats.feeding links",
+       "verdict": "CONFIRMED"
+      },
+      {
+       "detail": "output.by.webStats.connectance L/S\u00b2 == '0.120', got '0.120'",
+       "path": "output.by.webStats.connectance L/S\u00b2",
+       "verdict": "CONFIRMED"
+      },
+      {
+       "detail": "output.boxes.ecoOut contains 'note: kestrel eats shrew', got '# Food Web Builder export \u2014 10 species, 12 links note: connectance 0.120 \u2014 longest chain 5 levels note: grasshopper eats grass note: aphid eats clover note: bee eats wildflowers note: aphid eats wildflowers note: ladybird eats aphid note: spider eats aphid note: spider eats grasshopper note: spider eats bee note: shrew eats ladybird note: shrew eats spider note: shrew eats grasshopper note: kestrel eats shrew'",
+       "path": "output.boxes.ecoOut",
+       "verdict": "CONFIRMED"
+      }
+     ],
+     "id": "g174-still",
+     "message": "5 figure(s), 3 box(es), 0 list(s), 0 table(s), 3 heading(s)",
+     "ms": 4,
+     "result": "driven"
+    },
+    {
      "action": "read-page",
      "expectations": [
       {
@@ -21100,7 +21238,7 @@
      ],
      "id": "intact",
      "message": "read the page",
-     "ms": 5,
+     "ms": 9,
      "result": "driven"
     }
    ],

@@ -875,10 +875,15 @@
    "by": "adr173",
    "sha": "63d7941ef4df34d75d888ec1cab02d33adde8df8b7f91acf0c0c3b16f208cf8a"
   },
+  "docs/ADR-174-the-food-web-outputs-read-2026-09-09.md": {
+   "at": 1788983626,
+   "by": "adr174",
+   "sha": "6802ecf9f7d595c76568ae21c69f2cad60ac11c06fa8ea7e78d8f23a7cf3ddbb"
+  },
   "docs/AI_HARNESS.md": {
-   "at": 1788981068,
-   "by": "adr173",
-   "sha": "299a9cd5966726d225278a94bba750b08463fae4b2b24b4e8af338d8c8772c4d"
+   "at": 1788983626,
+   "by": "adr174",
+   "sha": "6162373e1c852967d3a9d479f5695a4fbde536bbd191edc688be0cc6d5abb29d"
   },
   "docs/AUDIT-2026-07-14-capability-coverage.md": {
    "at": 1788676922,
@@ -1690,6 +1695,11 @@
    "by": "adr173",
    "sha": "d46193cf163c9f3c226d55858bc8c1110644ac5f6cfe5b35d413849b0eb601d3"
   },
+  "docs/CHANGELOG-2026-09-09-adr174-the-food-web-outputs-read.md": {
+   "at": 1788983626,
+   "by": "adr174",
+   "sha": "dee40f1db358499f68d54560a225df3eb3b4cfc2c1df6b817349695609ea7fe0"
+  },
   "docs/DESIGN-adaptive-engine.md": {
    "at": 1788676923,
    "by": "adr146b",
@@ -2336,9 +2346,9 @@
    "sha": "87a75cf8e4e4a93070153679fbaba41272105d2027a9233e517ff608cf275251"
   },
   "tools/badinput_ledger.json": {
-   "at": 1788981068,
-   "by": "adr173",
-   "sha": "b015476959ed1ff3841e2029bb33be8ffac14b92f0f46dc74f785a7157154787"
+   "at": 1788983626,
+   "by": "adr174",
+   "sha": "0e7551705844e695829bc683af0e8afc56cdfa3421eaeda43b5b1dd8ee478458"
   },
   "tools/blind_console.py": {
    "at": 1788676925,
@@ -2495,10 +2505,15 @@
    "by": "adr173",
    "sha": "fdee27e2f2a17321ea18b1dc650c6ff2de030009b81a3ace3b867a12b7192021"
   },
+  "tools/delivery/adr174.json": {
+   "at": 1788983626,
+   "by": "adr174",
+   "sha": "2340e7f80f5cee9e032a4f5e108c020e9394befa8c39ec3ca2f128b2ae59fddc"
+  },
   "tools/delivery_ledger.json": {
-   "at": 1788981068,
-   "by": "adr173",
-   "sha": "efddc1ef1b65b3adf7f1ec7101c431d83083eee4151f1ea64518649f11015430"
+   "at": 1788983626,
+   "by": "adr174",
+   "sha": "3d04456f2e8ddef99d9cbfbdde611603c8c5816003af4d3551c4b8d00576061a"
   },
   "tools/dwc.py": {
    "at": 1788676926,
@@ -2541,9 +2556,9 @@
    "sha": "01919e137bdbf702ebc887de41aa026b721916da9d3761ce673812d54a22471f"
   },
   "tools/entry_ledger.json": {
-   "at": 1788981068,
-   "by": "adr173",
-   "sha": "4655a2a20b03ada46d7578b9ce9da093babba3901a0a232dfacd97f848a4cbcd"
+   "at": 1788983626,
+   "by": "adr174",
+   "sha": "ee40eaf0077174d017360fdb09871dab630e0d442ec8c4fd1410d8e9adc7f9cb"
   },
   "tools/entry_reach.py": {
    "at": 1788676926,
@@ -2596,9 +2611,9 @@
    "sha": "1d5e5bb0fadf4abb88d56125483a66e1bc2367055c7b541aa9d800c6dddde9dc"
   },
   "tools/harness_board.html": {
-   "at": 1788981068,
-   "by": "adr173",
-   "sha": "7b5cce151db2f69f1bdd9effc123ffc113958d23db8cdbcc88c1791421c7d327"
+   "at": 1788983626,
+   "by": "adr174",
+   "sha": "7ce4f36b1c69ca0cf8c06fbcebb4430ab1c7bdafb354ad1a7e45f775d891429f"
   },
   "tools/harness_board.py": {
    "at": 1788783742,
@@ -2656,9 +2671,9 @@
    "sha": "374e42feeff7f7518edc791650216fafbaf052d8e1f4323d4a388b1abc422c3d"
   },
   "tools/harness_tasks.py": {
-   "at": 1788831534,
-   "by": "adr156",
-   "sha": "6b27138e18bedcee9727da6e865f6c1da06d3a1cae87145175c2413c2f9cfde1"
+   "at": 1788983626,
+   "by": "adr174",
+   "sha": "e45658d1af11272697539e40cd4a8f571f350039c11299cb7bc42d51039a7042"
   },
   "tools/harness_walk.py": {
    "at": 1788676926,
@@ -2681,9 +2696,9 @@
    "sha": "f48304b6ba757326d34ace4d678db5c671db42e5fd99bb369a0d311b292c79a3"
   },
   "tools/mutant_ledger.json": {
-   "at": 1788950311,
-   "by": "adr171",
-   "sha": "8f7e6d1ff8d49a12b5b3bae5011981472cbddcb25554d05a0765b7813c5fc7ab"
+   "at": 1788983626,
+   "by": "adr174",
+   "sha": "dd2d6291026f0e52edba98dc13a30ce171804e3eb07bb5cd6456a425c5b3e54a"
   },
   "tools/mutant_ledger.py": {
    "at": 1788676926,
@@ -2771,9 +2786,9 @@
    "sha": "39462be9ea075c1272be85a0722031348896cb6308d55d1a4237c4d6c214f385"
   },
   "tools/mutate_tasks.py": {
-   "at": 1788831534,
-   "by": "adr156",
-   "sha": "1ce359ee3451802203df08704f373ca023a974da76945de235951fd9a216de31"
+   "at": 1788983626,
+   "by": "adr174",
+   "sha": "1a010ad0580f2c0b96f93d99e3ba1036c6d8add004e60e71580ddb9406c111dc"
   },
   "tools/mutate_walk.py": {
    "at": 1788676927,
@@ -2801,9 +2816,9 @@
    "sha": "172e699a8abda0fb0fe773b9204e652001fac70b769e1082739097b699c28db0"
   },
   "tools/outputs_ledger.json": {
-   "at": 1788981068,
-   "by": "adr173",
-   "sha": "14e9e20fb8f3482d80c1d5c629f9d77f7e075ab2edef3e34cca8ab632ee81523"
+   "at": 1788983626,
+   "by": "adr174",
+   "sha": "beff1a7f33203d1735cd605bdb04ef2756b34a332072229c26b159529d457969"
   },
   "tools/probe.py": {
    "at": 1788676927,
@@ -2836,9 +2851,9 @@
    "sha": "15022dcd97ee97f72ec5f907d0cdfef3ee36da9588f9de47e110519ff9f781e8"
   },
   "tools/published.json": {
-   "at": 1788981068,
-   "by": "adr173",
-   "sha": "1db1a2bcf4cba45572f9db4fef4c2a7baeb5422afdac3a12177efc6710ea3ed2"
+   "at": 1788983626,
+   "by": "adr174",
+   "sha": "9a9a8e14c5ecb31aa10dcbd399d2cc0b0e7af98fa0571e12113ac412ed981909"
   },
   "tools/reach.py": {
    "at": 1788676928,
@@ -2846,9 +2861,9 @@
    "sha": "b176e4e078bd39b22f5056223c6d1949503ff69c2f029a02d3513a7607db39cb"
   },
   "tools/readable_ledger.json": {
-   "at": 1788981068,
-   "by": "adr173",
-   "sha": "67c598e8fdaf921765961f528e28a96e078ee37691eb91f2a218f2f694f6a0cd"
+   "at": 1788983626,
+   "by": "adr174",
+   "sha": "6564ab6ed509d09b8a9d1c948f4ad933f22c7d892430a7e68b2e59e6466ba6a2"
   },
   "tools/routes.json": {
    "at": 1788676928,
@@ -2881,9 +2896,9 @@
    "sha": "0a2241a252fa68e80b813e601b7bd67cd8ba5c00b8ad07acc98dcd93a42b0268"
   },
   "tools/task_ledger.json": {
-   "at": 1788981068,
-   "by": "adr173",
-   "sha": "f00014914dfd8fda4cbcc2db4fde4527dd14829196a19d2a5ca459b74ae0be3f"
+   "at": 1788983626,
+   "by": "adr174",
+   "sha": "e5864f3549c44bd62c473db3bc887f10fac5eab9cc86d92801fde5a12ec5177c"
   },
   "tools/tasks/fixture-buckets.json": {
    "at": 1788676928,
@@ -3061,9 +3076,9 @@
    "sha": "7eaba21688483261e5b011f176fe709a87da388b2522f895d1c345f7e2ddf5c3"
   },
   "tools/tasks/page-food-web-science.json": {
-   "at": 1788676928,
-   "by": "adr146b",
-   "sha": "1d4aff81f3d3ae11a9012d2366923d84ce1e1072f3e5e70f70dfada3f40ee01a"
+   "at": 1788983626,
+   "by": "adr174",
+   "sha": "99a000ac5670a5ec063fc61dfc8b37ed90e33739aadcde68250033c876734f09"
   },
   "tools/tasks/page-fungal-characters-key.json": {
    "at": 1788676928,
@@ -3176,9 +3191,9 @@
    "sha": "15a9ad96a69cde9458d5f7fca51be947e5bebad787cc069e1bcc64bf7800b592"
   },
   "tools/verify/counts.json": {
-   "at": 1788981068,
-   "by": "adr173",
-   "sha": "a4aea09f445bc6a940c7f39ed2a9f8060819062b7215394621181126c69ba34c"
+   "at": 1788983626,
+   "by": "adr174",
+   "sha": "9e481bae053650235865635dfa0c52b08b060c3d87805208e9264ddb2da086d0"
   },
   "tools/verify/run_all.py": {
    "at": 1788783742,
@@ -3361,9 +3376,9 @@
    "sha": "ce5fd960acae588db112bdbad20aa1bcbac932676bdb040de23ad31c739782a9"
   },
   "tools/verify/verify_fw.py": {
-   "at": 1788676929,
-   "by": "adr146b",
-   "sha": "63cad872bee18f180d0b16e156083d6230311011a0f4bcf74141942d493f6536"
+   "at": 1788983626,
+   "by": "adr174",
+   "sha": "5222c10d579271dfe03b5b85fcaf29fca92e993d2a0e7fe4214605b719609244"
   },
   "tools/verify/verify_gh.py": {
    "at": 1788676929,
@@ -3531,9 +3546,9 @@
    "sha": "c29a8a4b4bbbba217f4e0c7b9bed82d0d6e65957f930508ded392502387b0b39"
   },
   "tools/verify/verify_tasks.py": {
-   "at": 1788831534,
-   "by": "adr156",
-   "sha": "4190e415a65f1b617db624af30ca4bc8988635113b285ace254e59631cc8a4d8"
+   "at": 1788983626,
+   "by": "adr174",
+   "sha": "681f9d64460695cf4998879790a2ec272a3e151b2727ade6e8d87378afcb922b"
   },
   "tools/verify/verify_tie_render.py": {
    "at": 1788676930,

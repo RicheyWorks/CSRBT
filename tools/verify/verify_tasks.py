@@ -179,7 +179,9 @@ snap = {"controls": [
     {"selector": "action_btn:7", "kind": "action_btn", "id": None, "host": "iList", "label": "died"},
     {"selector": "action_btn:9", "kind": "action_btn", "id": None, "host": "iList", "label": "died"},
     {"selector": "pick_search:0", "kind": "pick_search", "id": None, "host": "genEntry", "label": "genus filter"},
-    {"selector": "field_in:0", "kind": "field_in", "id": None, "host": "seedEntry", "label": "season #"}]}
+    {"selector": "field_in:0", "kind": "field_in", "id": None, "host": "seedEntry", "label": "season #"},
+    {"selector": "action_btn:11", "kind": "action_btn", "id": None, "host": None, "label": "Print / save PDF"},
+    {"selector": "action_btn:12", "kind": "action_btn", "id": None, "host": "p-more", "label": "Print / save PDF"}]}
 cd = {"look": {"ok": True, "snapshot": snap}}
 
 
@@ -200,6 +202,10 @@ ck(res({"selector": "@control:rCov/4"}) == {"selector": "dial_btn:0"} and
 ck(res("@control:iList/died#1") == "action_btn:9" and res("@control:died#0") == "action_btn:7",
    "#n is the nth match in document order: %s" % res("@control:iList/died#1"))
 ck(res("@control:season #") == "field_in:0", "a label that ends in # is a label, not an index")
+ck(res("@control:Print / save PDF") == "action_btn:11" and res("@control:p-more/Print / save PDF") == "action_btn:12",
+   "a slash in a label is a label (ADR-174): a name that matches whole is taken whole, and only a name nothing "
+   "answers to whole is read as host/label -- the food web's hostless print button is reachable, and the "
+   "notebook's scoped one still is: %s / %s" % (res("@control:Print / save PDF"), res("@control:p-more/Print / save PDF")))
 for bad in ("@control:nothing", "@control:rCov/4#3", "@control:iList/died#2"):
     r_ = res(bad)
     ck(isinstance(r_, str) and r_.startswith("DEFECT") and "no control" in r_,

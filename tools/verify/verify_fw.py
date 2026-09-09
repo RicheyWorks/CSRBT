@@ -413,6 +413,34 @@ ck("the page names the trophic-level definition it uses",
                                  or "not the prey-averaged" in SRC),
    "two standard definitions exist; the page must say which one these numbers are")
 
+# ---- the exports the builder hands over, held by its task to the port (ADR-174) ----
+# audit_outputs found the builder's three exports read by nothing. The task now
+# presses each on the meadow and holds what came out; the literals it holds are
+# pinned HERE, from the port above and the page's stated formats (one "note:
+# <eater> eats <food>" per link, in the order the links were drawn; the CSV an
+# edge list, food,eater), so a task literal that merely transcribed the page's
+# output is caught.
+import io as _io, json as _json
+_TASK = os.path.join(ROOT, "tools", "tasks", "page-food-web-science.json")
+_task = _json.load(_io.open(_TASK, encoding="utf-8")) if os.path.isfile(_TASK) else {"steps": []}
+_steps = dict((st["id"], st) for st in _task["steps"])
+_S, _L = MEADOW_SP, MEADOW_LN
+_want_eco = "\n".join(["# Food Web Builder export — %d species, %d links" % (len(_S), len(_L)),
+                       "note: connectance %.3f — longest chain %d levels"
+                       % (connectance(_S, _L), max(trophic(_S, _L).values()))]
+                      + ["note: %s eats %s" % (q, p_) for p_, q in _L])
+_want_csv = "\n".join(["food,eater"] + ["%s,%s" % (p_, q) for p_, q in _L])
+ck("the task holds the copied web export to the port: header, connectance and chain, one note per link in drawn order",
+   _steps.get("g174-eco", {}).get("expect", {}).get("output.payloads.0.text") == _want_eco
+   and _steps.get("g174-eco", {}).get("expect", {}).get("output.payloads.0.k") == "clipboard", _steps.get("g174-eco"))
+ck("the task holds the copied CSV to the edge list, food,eater, in the same order",
+   _steps.get("g174-csv", {}).get("expect", {}).get("output.payloads.0.text") == _want_csv
+   and _steps.get("g174-csv", {}).get("expect", {}).get("output.payloads.0.k") == "clipboard", _steps.get("g174-csv"))
+ck("the task holds the print to a print, and nothing else leaving with it",
+   _steps.get("g174-printed", {}).get("expect", {}).get("output.payloads.0.k") == "print"
+   and _steps.get("g174-printed", {}).get("expect", {}).get("output.payloads.1") == {"op": "exists", "value": False},
+   _steps.get("g174-printed"))
+
 print("\n".join("PASS  " + x for x in P))
 if F:
     print("\n".join("FAIL  " + x for x in F))

@@ -188,6 +188,16 @@ MUTANTS += [
      '        for key in ("id", "label", "host"):',
      '        for key in ("label", "id", "host"):',
      "an id wins over a control merely labelled"),
+    # ADR-174: a name that matches whole is taken whole; the slash splits only
+    # a name nothing answers to.
+    ("a slash always splits host from label, so a label with a slash in it names nothing",
+     '        if not hits and "/" in name:',
+     '        if "/" in name:',
+     "a slash in a label is a label"),
+    ("a name with a slash is never read as host/label",
+     '        if not hits and "/" in name:',
+     '        if False:',
+     "scopes a label every dial shares"),
     ("host/label scoping ignores the host",
      '        hits = [c for c in controls if c.get("host") == host and c.get("label") == label and c.get("selector")]',
      '        hits = [c for c in controls if c.get("label") == label and c.get("selector")]',

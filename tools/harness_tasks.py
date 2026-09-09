@@ -213,7 +213,9 @@ def find_control(name, done, where):
     row's button has no id and a label shared with every other dial's, so a
     name may be scoped: "@control:rCov/4" is the control labelled "4" whose
     nearest identified ancestor is #rCov; "@control:iList/died#2" the third
-    such. Selectors are the moment's (the widgets rebuild), so a task never
+    such -- a name that matches whole is taken whole, so a label that itself
+    carries a slash ("Print / save PDF") is reachable unscoped. Selectors are
+    the moment's (the widgets rebuild), so a task never
     writes one down; nothing found is the task's DEFECT, not the page's
     refusal."""
     controls = None
@@ -237,15 +239,21 @@ def find_control(name, done, where):
         # for the page's sake, which is the page changing to suit the harness.
         want = name[len("kind="):]
         hits = [c for c in controls if c.get("kind") == want and c.get("selector")]
-    elif "/" in name:
-        host, _, label = name.partition("/")
-        hits = [c for c in controls if c.get("host") == host and c.get("label") == label and c.get("selector")]
     else:
         hits = []
         for key in ("id", "label", "host"):
             hits = [c for c in controls if c.get(key) == name and c.get("selector")]
             if hits:
                 break
+        # A SLASH IN A LABEL IS A LABEL (ADR-174). "Print / save PDF" is what
+        # three pages of this kit call their print button, and a name that
+        # matches whole is that control; only a name nothing answers to whole
+        # is read as host/label. The scoped form was tried FIRST, so a task
+        # could not name the food web's print button at all -- the builder's
+        # button has no host, and "Print " is not one either.
+        if not hits and "/" in name:
+            host, _, label = name.partition("/")
+            hits = [c for c in controls if c.get("host") == host and c.get("label") == label and c.get("selector")]
     if nth >= len(hits):
         raise TaskDefect("%s: no control named %r%s in the latest snapshot"
                          % (where, name, " (match #%d of %d)" % (nth, len(hits)) if hits or nth else ""))
