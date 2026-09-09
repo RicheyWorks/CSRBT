@@ -855,10 +855,15 @@
    "by": "adr169",
    "sha": "f656ff118ba54105280d93067b547eb5f05074de776f15014d597c51a9ff6ca2"
   },
+  "docs/ADR-170-the-carnivorous-plant-key-recorded-whole-2026-09-09.md": {
+   "at": 1788935024,
+   "by": "adr170",
+   "sha": "7b112da79b0ebf00f381901405a696ee9f7798ff6c9901a92d0127a92d7729d2"
+  },
   "docs/AI_HARNESS.md": {
-   "at": 1788928595,
-   "by": "adr169",
-   "sha": "b305365c66d833ed3c0d39ded278dc6b3a9476aa446f83dda3a13da4e632af00"
+   "at": 1788935024,
+   "by": "adr170",
+   "sha": "d0041943fe7a455a5bcffc3f51927129db3cf3b83af4eb725aea3c827c22b20f"
   },
   "docs/AUDIT-2026-07-14-capability-coverage.md": {
    "at": 1788676922,
@@ -1650,6 +1655,11 @@
    "by": "adr169",
    "sha": "1c47446e6c55ad11e66d0f543026a4e543cd488c93cba0b8a711610cb4910741"
   },
+  "docs/CHANGELOG-2026-09-09-adr170-the-carnivorous-plant-key-recorded-whole.md": {
+   "at": 1788935024,
+   "by": "adr170",
+   "sha": "416e24cf05beea837ba93bd02513a24a59cd0d305993b0ea21ae039af999d9a0"
+  },
   "docs/DESIGN-adaptive-engine.md": {
    "at": 1788676923,
    "by": "adr146b",
@@ -2435,10 +2445,15 @@
    "by": "adr169",
    "sha": "2a942ab3c6b94eb4fa55d155051b767d43dfca010d9c2c0dafee227d9bcaa1d1"
   },
+  "tools/delivery/adr170.json": {
+   "at": 1788935024,
+   "by": "adr170",
+   "sha": "bbe02e635f6ecbedf5bb42c262360a914f56b337f5148818e7781939439478a8"
+  },
   "tools/delivery_ledger.json": {
-   "at": 1788928595,
-   "by": "adr169",
-   "sha": "9ad907b73f689a3c09f2217a15d95a4a579588f210264d29433ef5f13645a902"
+   "at": 1788935024,
+   "by": "adr170",
+   "sha": "d8b41eaf9cd70e6c934f206307309b1444045ee8ee3ca83a505999cae0b57a47"
   },
   "tools/dwc.py": {
    "at": 1788676926,
@@ -2481,9 +2496,9 @@
    "sha": "01919e137bdbf702ebc887de41aa026b721916da9d3761ce673812d54a22471f"
   },
   "tools/entry_ledger.json": {
-   "at": 1788928595,
-   "by": "adr169",
-   "sha": "784aca6ef1035c70d8d2bfe3b290d00e8a678a8ea934461b9a602c65f0f04ea6"
+   "at": 1788935024,
+   "by": "adr170",
+   "sha": "ccd6dee64bc2bff2e33d2e5b23132f1327dbbd29ae2a6ee817ff079b9b1403a6"
   },
   "tools/entry_reach.py": {
    "at": 1788676926,
@@ -2536,9 +2551,9 @@
    "sha": "1d5e5bb0fadf4abb88d56125483a66e1bc2367055c7b541aa9d800c6dddde9dc"
   },
   "tools/harness_board.html": {
-   "at": 1788928595,
-   "by": "adr169",
-   "sha": "3d29a3e8933f394d29505f25ecdde5aea6628e52f6cc39801825028e2d0288cb"
+   "at": 1788935024,
+   "by": "adr170",
+   "sha": "bf9d9a9b15a5f0d0577ddac7377d7e5d8c8fd413147471e904662f6c5937b012"
   },
   "tools/harness_board.py": {
    "at": 1788783742,
@@ -2741,9 +2756,9 @@
    "sha": "172e699a8abda0fb0fe773b9204e652001fac70b769e1082739097b699c28db0"
   },
   "tools/outputs_ledger.json": {
-   "at": 1788926231,
-   "by": "adr168",
-   "sha": "8942dfeb5a5bda7fd8ddadfbdb6480c22d2641d2d21e0135716a67164e4cdd7c"
+   "at": 1788935024,
+   "by": "adr170",
+   "sha": "7c414459d79558f1fba5dccabfd73bda4ad2bc8a7457136316bb41ba25702196"
   },
   "tools/probe.py": {
    "at": 1788676927,
@@ -2776,9 +2791,9 @@
    "sha": "15022dcd97ee97f72ec5f907d0cdfef3ee36da9588f9de47e110519ff9f781e8"
   },
   "tools/published.json": {
-   "at": 1788928595,
-   "by": "adr169",
-   "sha": "d1922742e2b1d4dfb0a3e03e1033ae465140c73e1f1b51577f1a776a7c44e2da"
+   "at": 1788935024,
+   "by": "adr170",
+   "sha": "05b0fb2e8bcf13a5ea1ab5c3a5ce0529e722d968fb4900a2644701fdf5e9d259"
   },
   "tools/reach.py": {
    "at": 1788676928,
@@ -2821,9 +2836,9 @@
    "sha": "0a2241a252fa68e80b813e601b7bd67cd8ba5c00b8ad07acc98dcd93a42b0268"
   },
   "tools/task_ledger.json": {
-   "at": 1788928595,
-   "by": "adr169",
-   "sha": "3c86eb197b3f749d55a8ad543e6e3585d715e5d577613d10012c24799e2183c5"
+   "at": 1788935024,
+   "by": "adr170",
+   "sha": "85e579f513a7527b7a0c37bd486d52bba6941eddb9782c7a9bbe38094f8ce54d"
   },
   "tools/tasks/fixture-buckets.json": {
    "at": 1788676928,
@@ -2896,9 +2911,9 @@
    "sha": "d0221a7896b035e8abcd4749df422dbe64cf184c343e02ab02e50f85f60680b2"
   },
   "tools/tasks/page-cp-characters-key.json": {
-   "at": 1788676928,
-   "by": "adr146b",
-   "sha": "904faa45b61d9397c8c89aed8fffbf022ed84ccc6ea93a7e28ad0971bd4b9010"
+   "at": 1788935024,
+   "by": "adr170",
+   "sha": "30163bee6dc3645d4aed38b2a3453bf07d615704f40f3728824a1d8bdf515f67"
   },
   "tools/tasks/page-cp-suite-reference.json": {
    "at": 1788676928,
@@ -3116,9 +3131,9 @@
    "sha": "15a9ad96a69cde9458d5f7fca51be947e5bebad787cc069e1bcc64bf7800b592"
   },
   "tools/verify/counts.json": {
-   "at": 1788928595,
-   "by": "adr169",
-   "sha": "b93450ad07c3200d069d8b8d00a2c3303d302afa1bea4739cee04633eef84078"
+   "at": 1788935024,
+   "by": "adr170",
+   "sha": "b9c815b10f7e704c3ae14c23603a16bd957a7fbab402ed8ac95596075c0e8f7a"
   },
   "tools/verify/run_all.py": {
    "at": 1788783742,
