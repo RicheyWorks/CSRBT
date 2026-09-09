@@ -835,10 +835,15 @@
    "by": "adr165",
    "sha": "a3304091c2d56764c701a65b13335d2e211b400e0377875a30d03c2e41a5da43"
   },
+  "docs/ADR-166-the-ordination-page-recorded-whole-2026-09-09.md": {
+   "at": 1788921023,
+   "by": "adr166",
+   "sha": "9b62961bbbf1e10efb0acb097149dc421d758f9b98ad370071014e5e3faa93fc"
+  },
   "docs/AI_HARNESS.md": {
-   "at": 1788918049,
-   "by": "adr165",
-   "sha": "4f1b7372b3890c124eda438a47b0024a8b883c027a2e9f1b2cd82ce019e06395"
+   "at": 1788921023,
+   "by": "adr166",
+   "sha": "d8c5502814b594514cd231042aa85ffb4abcf26cdc0c10090ffb416679330898"
   },
   "docs/AUDIT-2026-07-14-capability-coverage.md": {
    "at": 1788676922,
@@ -1610,6 +1615,11 @@
    "by": "adr165",
    "sha": "5fbd5b8c2367ab0ce07984ee53e9f95b40aabdfe1f1922744ba0ff655fd92b48"
   },
+  "docs/CHANGELOG-2026-09-09-adr166-the-ordination-page-recorded-whole.md": {
+   "at": 1788921023,
+   "by": "adr166",
+   "sha": "f64dee922e1d92d2e53ebd086d2248cf423d666d91436c35f559caaa7470e0d4"
+  },
   "docs/DESIGN-adaptive-engine.md": {
    "at": 1788676923,
    "by": "adr146b",
@@ -2375,10 +2385,15 @@
    "by": "adr165",
    "sha": "422538131fc94f3c49483fe44a5e0863e01192ffb9b4d859506145022f4f609d"
   },
+  "tools/delivery/adr166.json": {
+   "at": 1788921023,
+   "by": "adr166",
+   "sha": "d0bbb170b76acb791754c8c442380d0a2ed518f8c88edfda3a4d14d46ca6e63b"
+  },
   "tools/delivery_ledger.json": {
-   "at": 1788918049,
-   "by": "adr165",
-   "sha": "3791c316dbcc739a6c058b54530acaab0c27a3ebb3e5ece74321aa9c6b4ae365"
+   "at": 1788921023,
+   "by": "adr166",
+   "sha": "644e13f07cc0e11d5b1954447fd5af8014ca12cffd29706916d9389d81e4c04d"
   },
   "tools/dwc.py": {
    "at": 1788676926,
@@ -2421,9 +2436,9 @@
    "sha": "01919e137bdbf702ebc887de41aa026b721916da9d3761ce673812d54a22471f"
   },
   "tools/entry_ledger.json": {
-   "at": 1788918049,
-   "by": "adr165",
-   "sha": "6b47f933c6281714205e22de785326b634cf99375a4b812c050407b908647207"
+   "at": 1788921023,
+   "by": "adr166",
+   "sha": "5f0ea3ac15cab2490ad6fa75b405f94236c0e4b09ad6e00b91bbbac1773008cb"
   },
   "tools/entry_reach.py": {
    "at": 1788676926,
@@ -2476,9 +2491,9 @@
    "sha": "1d5e5bb0fadf4abb88d56125483a66e1bc2367055c7b541aa9d800c6dddde9dc"
   },
   "tools/harness_board.html": {
-   "at": 1788918049,
-   "by": "adr165",
-   "sha": "08ef7a6fd697fff45ffc924b436aeaab41fc00ec9ecf2937fafa9005508245be"
+   "at": 1788921023,
+   "by": "adr166",
+   "sha": "e33f341460d1c2e11bee14088cc06873f2c304d3c152e4289431f53708556ae4"
   },
   "tools/harness_board.py": {
    "at": 1788783742,
@@ -2716,8 +2731,8 @@
    "sha": "15022dcd97ee97f72ec5f907d0cdfef3ee36da9588f9de47e110519ff9f781e8"
   },
   "tools/published.json": {
-   "at": 1788918049,
-   "by": "adr165",
+   "at": 1788921023,
+   "by": "adr166",
    "sha": "25a41823637a0463ab6d27c7396602bc4b7e8735cf8449ae2a20069f37652bca"
   },
   "tools/reach.py": {
@@ -2761,9 +2776,9 @@
    "sha": "0a2241a252fa68e80b813e601b7bd67cd8ba5c00b8ad07acc98dcd93a42b0268"
   },
   "tools/task_ledger.json": {
-   "at": 1788918049,
-   "by": "adr165",
-   "sha": "cd9e2af9742629a406a18f5f8203453817d1e9878cfff6ce53e415e2dcb1ba73"
+   "at": 1788921023,
+   "by": "adr166",
+   "sha": "1ccaca965aa79e98c3220759ec673f9bb0cda24e69a56e0abcf8d3b7f2fd2fa2"
   },
   "tools/tasks/fixture-buckets.json": {
    "at": 1788676928,
@@ -2961,9 +2976,9 @@
    "sha": "d80637a7c60959f6d02f3a795e56e5828e31079df19a5b4d0e94b11cc77de887"
   },
   "tools/tasks/page-ordination-science.json": {
-   "at": 1788676928,
-   "by": "adr146b",
-   "sha": "71f59b797f0a2d95a7667241d4a751e108c790cfd1a2e4bdac7098367886f26a"
+   "at": 1788921023,
+   "by": "adr166",
+   "sha": "126530faa4e58d8dd28523a9162d46813d156bd4724da9d6acab206c2de933f4"
   },
   "tools/tasks/page-pheno-tracker-science.json": {
    "at": 1788877758,
@@ -3056,9 +3071,9 @@
    "sha": "15a9ad96a69cde9458d5f7fca51be947e5bebad787cc069e1bcc64bf7800b592"
   },
   "tools/verify/counts.json": {
-   "at": 1788918049,
-   "by": "adr165",
-   "sha": "a8541bee228f0a4990593a1472bded8d8bb729612be44db1f723085aca439c90"
+   "at": 1788921023,
+   "by": "adr166",
+   "sha": "d30945cbaad80f38f4dc29a3500a2a1fb224994be51869b7a82d9d6a7fc7fc2d"
   },
   "tools/verify/run_all.py": {
    "at": 1788783742,

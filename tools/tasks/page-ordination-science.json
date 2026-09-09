@@ -2,7 +2,7 @@
  "id": "page-ordination-science",
  "target": "page",
  "page": "ordination.html",
- "goal": "On the ordination page: the two-gradient demo parses to 20 sites x 24 species, NMDS in 2 dimensions carries a stress with Clarke's bands, the Shepard diagram fits 190 pairs (20*19/2), PCoA reports axis percentages over positive eigenvalues only with negative eigenvalues counted for a semi-metric; the no-structure demo will not help you read the picture; three sites are refused (four minimum); four sites at k=2 fit exactly by construction at stress 0.000 with the free-coordinates warning, five sites without it; an empty site, an unreadable value and a quoted comma in a species name are each named, not swallowed.",
+ "goal": "On the ordination page: the two-gradient demo parses to 20 sites x 24 species, NMDS in 2 dimensions carries a stress with Clarke's bands, the Shepard diagram fits 190 pairs (20*19/2), PCoA reports axis percentages over positive eigenvalues only with negative eigenvalues counted for a semi-metric; the no-structure demo will not help you read the picture; three sites are refused (four minimum); four sites at k=2 fit exactly by construction at stress 0.000 with the free-coordinates warning, five sites without it; an empty site, an unreadable value and a quoted comma in a species name are each named, not swallowed. Then every NMDS setting is driven from its own pane -- the square-root transform chip, the Bray-Curtis dissimilarity, the dimensions and the random-starts steppers -- each returned to its default so the seeded ordination is unchanged, and the quoted-data parse is read once more.",
  "steps": [
   {
    "id": "look",
@@ -422,6 +422,86 @@
     "output.charts.ordPlot.points.W": {
      "op": "exists"
     }
+   }
+  },
+  {
+   "id": "g166-datapane",
+   "action": "show-pane",
+   "arguments": {
+    "pane": "p-data"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "g166-sqrtoff",
+   "action": "activate",
+   "arguments": {
+    "selector": "@control:tfEntry/square root"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "g166-sqrton",
+   "action": "activate",
+   "arguments": {
+    "selector": "@control:tfEntry/square root"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "g166-bray",
+   "action": "activate",
+   "arguments": {
+    "selector": "@control:disEntry/Bray-Curtis"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "g166-ordpane",
+   "action": "show-pane",
+   "arguments": {
+    "pane": "p-ord"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "g166-dim",
+   "action": "set-text",
+   "arguments": {
+    "selector": "@control:methEntry/dimensions",
+    "value": "2"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "g166-starts",
+   "action": "set-text",
+   "arguments": {
+    "selector": "@control:methEntry/random starts",
+    "value": "12"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "g166-held",
+   "action": "read-report",
+   "expect": {
+    "output.by.parseOut.sites": "4",
+    "output.by.parseOut.species": "3"
    }
   },
   {

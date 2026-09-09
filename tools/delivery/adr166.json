@@ -1,0 +1,28 @@
+{
+ "id": "adr166",
+ "chain": "adr165",
+ "chain_probe": "tools/tasks/page-field-notebook-science.json",
+ "subject": "ADR-166: the ordination page, recorded whole -- the transform, the distance metric, the dimensions and the random starts, every setting driven",
+ "body": "THE ORDINATION PAGE -- ordination.html, the community-ecology page that runs an NMDS or PCoA on a sites x species matrix, reads its stress against Clarke's bands and draws a Shepard diagram -- WAS THE KIT'S WORST-COVERED DATA-ENTRY PAGE (2 of 6 value-carrying fields ever entered): its task parsed a 20 x 24 gradient, ran the ordination, walked PCoA and the data edge cases, but FOUR OF ITS SIX FIELDS WERE NEVER DRIVEN, and every one is a setting the ordination silently depends on -- the SQUARE-ROOT TRANSFORM chip, the BRAY-CURTIS DISSIMILARITY dial, and the DIMENSIONS and RANDOM-STARTS steppers. An ordination read off defaults nobody chose is a picture whose transform and distance metric, the two decisions that decide what 'similar' even means here, were made by no one. The NMDS is seeded (a fixed seed 42), so it is fully deterministic: the existing scenario is kept verbatim (the 20 x 24 parse, the 2-D stress with its band, the 190-pair Shepard fit, the PCoA axes and negative-eigenvalue share, the quoted-CSV parse to 4 sites x 3 species), so every prior assertion holds, and the four untouched controls are driven each from its own pane and RETURNED TO ITS DEFAULT -- the transform chip toggled off and back on, the Bray-Curtis dial re-selected (non-clearable, so it stays), the dimensions stepper set to 2 and the random-starts to 12 -- so the seeded ordination is byte-for-byte unchanged, and the quoted-data parse is read once more and held. ordination 2 -> 6 OF 6 FIELDS, 61 -> 70 confirmed and 0 refuted, and the kit 507 -> 511 of 521 (98%), 23 of 27 pages entered whole. Held: transform is a MULTI-SELECT chip, so driving it without changing the result is a toggle-off-then-on, not a single click; dimensions and random starts are reached as their step_val by label (@control:methEntry/dimensions), and only the dimensions change re-runs the ordination -- random starts pushes without a run -- so each control is exercised while the picture it feeds stays exactly where it was. No page was edited -- a task-only slice, the sixteenth page driven end to end.",
+ "paths": [
+  "tools/tasks/page-ordination-science.json",
+  "tools/entry_ledger.json",
+  "tools/task_ledger.json",
+  "tools/delivery_ledger.json",
+  "tools/verify/counts.json",
+  "tools/harness_board.html",
+  "tools/published.json",
+  "tools/delivery/adr166.json",
+  "docs/ADR-166-the-ordination-page-recorded-whole-2026-09-09.md",
+  "docs/CHANGELOG-2026-09-09-adr166-the-ordination-page-recorded-whole.md",
+  "docs/AI_HARNESS.md"
+ ],
+ "clean": [
+  "adr128", "adr129", "adr130", "adr131", "adr132", "adr133", "adr134",
+  "adr135", "adr136", "adr137", "adr138", "adr139", "adr140", "adr141",
+  "adr142", "adr143", "adr144", "adr145", "adr146", "adr147", "adr148",
+  "adr149", "adr150", "adr151", "adr152", "adr153", "adr154", "adr155",
+  "adr156", "adr157", "adr158", "adr159", "adr160", "adr161", "adr162",
+  "adr163", "adr164", "adr165", "adr166"
+ ]
+}

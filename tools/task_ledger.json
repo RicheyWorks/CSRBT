@@ -23028,9 +23028,9 @@
    "verdict": "PASS"
   },
   "page-ordination-science": {
-   "at": 1788777327,
-   "confirmed": 61,
-   "goal": "On the ordination page: the two-gradient demo parses to 20 sites x 24 species, NMDS in 2 dimensions carries a stress with Clarke's bands, the Shepard diagram fits 190 pairs (20*19/2), PCoA reports axis percentages over positive eigenvalues only with negative eigenvalues counted for a semi-metric; the no-structure demo will not help you read the picture; three sites are refused (four minimum); four sites at k=2 fit exactly by construction at stress 0.000 with the free-coordinates warning, five sites without it; an empty site, an unreadable value and a quoted comma in a species name are each named, not swallowed.",
+   "at": 1788918816,
+   "confirmed": 70,
+   "goal": "On the ordination page: the two-gradient demo parses to 20 sites x 24 species, NMDS in 2 dimensions carries a stress with Clarke's bands, the Shepard diagram fits 190 pairs (20*19/2), PCoA reports axis percentages over positive eigenvalues only with negative eigenvalues counted for a semi-metric; the no-structure demo will not help you read the picture; three sites are refused (four minimum); four sites at k=2 fit exactly by construction at stress 0.000 with the free-coordinates warning, five sites without it; an empty site, an unreadable value and a quoted comma in a species name are each named, not swallowed. Then every NMDS setting is driven from its own pane -- the square-root transform chip, the Bray-Curtis dissimilarity, the dimensions and the random-starts steppers -- each returned to its default so the seeded ordination is unchanged, and the quoted-data parse is read once more.",
    "held": true,
    "id": "page-ordination-science",
    "must": "PASS",
@@ -23041,7 +23041,7 @@
     "MUTATE"
    ],
    "rungsWhy": null,
-   "seconds": 2.1,
+   "seconds": 3.8,
    "steps": [
     {
      "action": "observe",
@@ -23073,7 +23073,7 @@
      ],
      "id": "data",
      "message": "opened pane p-data",
-     "ms": 3,
+     "ms": 5,
      "result": "driven"
     },
     {
@@ -23087,7 +23087,7 @@
      ],
      "id": "demo",
      "message": "activate action_btn:1",
-     "ms": 72,
+     "ms": 118,
      "result": "driven"
     },
     {
@@ -23111,7 +23111,7 @@
      ],
      "id": "parsed",
      "message": "12 figure(s), 11 box(es), 0 list(s), 1 table(s), 16 heading(s)",
-     "ms": 7,
+     "ms": 15,
      "result": "driven"
     },
     {
@@ -23140,7 +23140,7 @@
      ],
      "id": "nmds",
      "message": "12 figure(s), 11 box(es), 0 list(s), 1 table(s), 16 heading(s)",
-     "ms": 4,
+     "ms": 13,
      "result": "driven"
     },
     {
@@ -23154,7 +23154,7 @@
      ],
      "id": "diag",
      "message": "opened pane p-diag",
-     "ms": 148,
+     "ms": 194,
      "result": "driven"
     },
     {
@@ -23178,7 +23178,7 @@
      ],
      "id": "shepard",
      "message": "12 figure(s), 11 box(es), 0 list(s), 1 table(s), 16 heading(s)",
-     "ms": 5,
+     "ms": 18,
      "result": "driven"
     },
     {
@@ -23192,7 +23192,7 @@
      ],
      "id": "ord",
      "message": "opened pane p-ord",
-     "ms": 95,
+     "ms": 100,
      "result": "driven"
     },
     {
@@ -23206,7 +23206,7 @@
      ],
      "id": "pcoa",
      "message": "activate dial_btn:4",
-     "ms": 23,
+     "ms": 35,
      "result": "driven"
     },
     {
@@ -23230,7 +23230,7 @@
      ],
      "id": "axes",
      "message": "8 figure(s), 11 box(es), 0 list(s), 0 table(s), 16 heading(s)",
-     "ms": 7,
+     "ms": 11,
      "result": "driven"
     },
     {
@@ -23244,7 +23244,7 @@
      ],
      "id": "nmds2",
      "message": "activate dial_btn:3",
-     "ms": 59,
+     "ms": 93,
      "result": "driven"
     },
     {
@@ -23258,7 +23258,7 @@
      ],
      "id": "data2",
      "message": "opened pane p-data",
-     "ms": 93,
+     "ms": 117,
      "result": "driven"
     },
     {
@@ -23272,7 +23272,7 @@
      ],
      "id": "noise",
      "message": "activate action_btn:2",
-     "ms": 92,
+     "ms": 158,
      "result": "driven"
     },
     {
@@ -23286,7 +23286,7 @@
      ],
      "id": "nohelp",
      "message": "12 figure(s), 11 box(es), 0 list(s), 1 table(s), 16 heading(s)",
-     "ms": 4,
+     "ms": 8,
      "result": "driven"
     },
     {
@@ -23300,7 +23300,7 @@
      ],
      "id": "data3",
      "message": "opened pane p-data",
-     "ms": 87,
+     "ms": 117,
      "result": "driven"
     },
     {
@@ -23314,7 +23314,7 @@
      ],
      "id": "three",
      "message": "set-text text_in:0",
-     "ms": 25,
+     "ms": 35,
      "result": "driven"
     },
     {
@@ -23328,7 +23328,7 @@
      ],
      "id": "run3",
      "message": "activate action_btn:0",
-     "ms": 22,
+     "ms": 26,
      "result": "driven"
     },
     {
@@ -23342,7 +23342,7 @@
      ],
      "id": "minimum",
      "message": "8 figure(s), 11 box(es), 0 list(s), 0 table(s), 16 heading(s)",
-     "ms": 3,
+     "ms": 6,
      "result": "driven"
     },
     {
@@ -23370,7 +23370,7 @@
      ],
      "id": "four",
      "message": "set-text text_in:0",
-     "ms": 21,
+     "ms": 25,
      "result": "driven"
     },
     {
@@ -23384,7 +23384,7 @@
      ],
      "id": "run4",
      "message": "activate action_btn:0",
-     "ms": 25,
+     "ms": 31,
      "result": "driven"
     },
     {
@@ -23403,7 +23403,7 @@
      ],
      "id": "free",
      "message": "12 figure(s), 11 box(es), 0 list(s), 1 table(s), 16 heading(s)",
-     "ms": 5,
+     "ms": 8,
      "result": "driven"
     },
     {
@@ -23417,7 +23417,7 @@
      ],
      "id": "data5",
      "message": "opened pane p-data",
-     "ms": 82,
+     "ms": 112,
      "result": "driven"
     },
     {
@@ -23431,7 +23431,7 @@
      ],
      "id": "five",
      "message": "set-text text_in:0",
-     "ms": 22,
+     "ms": 24,
      "result": "driven"
     },
     {
@@ -23445,7 +23445,7 @@
      ],
      "id": "run5",
      "message": "activate action_btn:0",
-     "ms": 29,
+     "ms": 36,
      "result": "driven"
     },
     {
@@ -23464,7 +23464,7 @@
      ],
      "id": "notfree",
      "message": "12 figure(s), 11 box(es), 0 list(s), 1 table(s), 16 heading(s)",
-     "ms": 4,
+     "ms": 7,
      "result": "driven"
     },
     {
@@ -23478,7 +23478,7 @@
      ],
      "id": "data6",
      "message": "opened pane p-data",
-     "ms": 88,
+     "ms": 124,
      "result": "driven"
     },
     {
@@ -23492,7 +23492,7 @@
      ],
      "id": "emptysite",
      "message": "set-text text_in:0",
-     "ms": 23,
+     "ms": 29,
      "result": "driven"
     },
     {
@@ -23520,7 +23520,7 @@
      ],
      "id": "nothing",
      "message": "12 figure(s), 11 box(es), 0 list(s), 1 table(s), 16 heading(s)",
-     "ms": 8,
+     "ms": 5,
      "result": "driven"
     },
     {
@@ -23534,7 +23534,7 @@
      ],
      "id": "data7",
      "message": "opened pane p-data",
-     "ms": 98,
+     "ms": 95,
      "result": "driven"
     },
     {
@@ -23548,7 +23548,7 @@
      ],
      "id": "bad",
      "message": "set-text text_in:0",
-     "ms": 21,
+     "ms": 24,
      "result": "driven"
     },
     {
@@ -23562,7 +23562,7 @@
      ],
      "id": "run7",
      "message": "activate action_btn:0",
-     "ms": 24,
+     "ms": 29,
      "result": "driven"
     },
     {
@@ -23576,7 +23576,7 @@
      ],
      "id": "unreadable",
      "message": "12 figure(s), 11 box(es), 0 list(s), 1 table(s), 16 heading(s)",
-     "ms": 3,
+     "ms": 10,
      "result": "driven"
     },
     {
@@ -23590,7 +23590,7 @@
      ],
      "id": "data8",
      "message": "opened pane p-data",
-     "ms": 86,
+     "ms": 106,
      "result": "driven"
     },
     {
@@ -23604,7 +23604,7 @@
      ],
      "id": "quoted",
      "message": "set-text text_in:0",
-     "ms": 21,
+     "ms": 30,
      "result": "driven"
     },
     {
@@ -23618,7 +23618,7 @@
      ],
      "id": "run8",
      "message": "activate action_btn:0",
-     "ms": 21,
+     "ms": 32,
      "result": "driven"
     },
     {
@@ -23637,7 +23637,7 @@
      ],
      "id": "comma",
      "message": "12 figure(s), 11 box(es), 0 list(s), 1 table(s), 16 heading(s)",
-     "ms": 3,
+     "ms": 8,
      "result": "driven"
     },
     {
@@ -23681,7 +23681,124 @@
      ],
      "id": "charts",
      "message": "12 figure(s), 11 box(es), 0 list(s), 1 table(s), 16 heading(s)",
-     "ms": 3,
+     "ms": 9,
+     "result": "driven"
+    },
+    {
+     "action": "show-pane",
+     "expectations": [
+      {
+       "detail": "ok == True, got True",
+       "path": "ok",
+       "verdict": "CONFIRMED"
+      }
+     ],
+     "id": "g166-datapane",
+     "message": "opened pane p-data",
+     "ms": 125,
+     "result": "driven"
+    },
+    {
+     "action": "activate",
+     "expectations": [
+      {
+       "detail": "ok == True, got True",
+       "path": "ok",
+       "verdict": "CONFIRMED"
+      }
+     ],
+     "id": "g166-sqrtoff",
+     "message": "activate chip:0",
+     "ms": 35,
+     "result": "driven"
+    },
+    {
+     "action": "activate",
+     "expectations": [
+      {
+       "detail": "ok == True, got True",
+       "path": "ok",
+       "verdict": "CONFIRMED"
+      }
+     ],
+     "id": "g166-sqrton",
+     "message": "activate chip:0",
+     "ms": 27,
+     "result": "driven"
+    },
+    {
+     "action": "activate",
+     "expectations": [
+      {
+       "detail": "ok == True, got True",
+       "path": "ok",
+       "verdict": "CONFIRMED"
+      }
+     ],
+     "id": "g166-bray",
+     "message": "activate dial_btn:0",
+     "ms": 25,
+     "result": "driven"
+    },
+    {
+     "action": "show-pane",
+     "expectations": [
+      {
+       "detail": "ok == True, got True",
+       "path": "ok",
+       "verdict": "CONFIRMED"
+      }
+     ],
+     "id": "g166-ordpane",
+     "message": "opened pane p-ord",
+     "ms": 110,
+     "result": "driven"
+    },
+    {
+     "action": "set-text",
+     "expectations": [
+      {
+       "detail": "ok == True, got True",
+       "path": "ok",
+       "verdict": "CONFIRMED"
+      }
+     ],
+     "id": "g166-dim",
+     "message": "set-text step_val:0",
+     "ms": 30,
+     "result": "driven"
+    },
+    {
+     "action": "set-text",
+     "expectations": [
+      {
+       "detail": "ok == True, got True",
+       "path": "ok",
+       "verdict": "CONFIRMED"
+      }
+     ],
+     "id": "g166-starts",
+     "message": "set-text step_val:1",
+     "ms": 22,
+     "result": "driven"
+    },
+    {
+     "action": "read-report",
+     "expectations": [
+      {
+       "detail": "output.by.parseOut.sites == '4', got '4'",
+       "path": "output.by.parseOut.sites",
+       "verdict": "CONFIRMED"
+      },
+      {
+       "detail": "output.by.parseOut.species == '3', got '3'",
+       "path": "output.by.parseOut.species",
+       "verdict": "CONFIRMED"
+      }
+     ],
+     "id": "g166-held",
+     "message": "12 figure(s), 11 box(es), 0 list(s), 1 table(s), 16 heading(s)",
+     "ms": 6,
      "result": "driven"
     },
     {
@@ -23705,7 +23822,7 @@
      ],
      "id": "intact",
      "message": "read the page",
-     "ms": 4,
+     "ms": 6,
      "result": "driven"
     }
    ],
