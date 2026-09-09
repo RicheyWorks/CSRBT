@@ -2,7 +2,7 @@
  "id": "page-field-notebook-science",
  "target": "page",
  "page": "field-notebook.html",
- "goal": "On the field notebook: tally species (10 individuals, 3 species incl. a new clover), quadrats and the 'more' counters, run an ethogram with the scan interval set and a behavior added and tallied, and stamp the session with site, observer and date -- every pane driven and the reads held against an oracle.",
+ "goal": "On the field notebook: tally species (10 individuals, 3 species incl. a new clover), quadrats and the 'more' counters, run an ethogram with the scan interval set and a behavior added and tallied, and stamp the session with site, observer and date -- every pane driven and the reads held against an oracle. Then the notebook's three exports are read: the copied .eco lines are the session header, the focal and site data lines, the quadrat counts 0 1 2 9 and the mark-recapture model 5 4 2, byte for byte; the copied CSV is one row per tally, fifteen rows under section,item,count, the site quoted because it carries a comma; and the print button prints.",
  "steps": [
   {
    "id": "look",
@@ -624,6 +624,84 @@
     "output.boxes.ethoResults": {
      "op": "contains",
      "value": "preen"
+    }
+   }
+  },
+  {
+   "id": "g173-eco-copy",
+   "action": "activate",
+   "arguments": {
+    "selector": "@control:ecoCopy"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "g173-eco",
+   "action": "collect-output",
+   "expect": {
+    "output.payloads.0.k": "clipboard",
+    "output.payloads.0.text": "# Field Notebook export \u2014 paste into your .eco protocol\n# site oak ridge, plot 3 \u2014 observer R. Ellison \u2014 2026-09-09\ndata: focal forage=4 preen=2\ndata: site species-a=6 species-b=3 clover=1\n# quadrat counts (per frame): 0 1 2 9\nmodel: markrecapture 5 4 2\nnote: tallied in the field with the Field Notebook",
+    "output.payloads.1": {
+     "op": "exists",
+     "value": false
+    }
+   }
+  },
+  {
+   "id": "g173-csv-copy",
+   "action": "activate",
+   "arguments": {
+    "selector": "@control:csvCopy"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "g173-csv",
+   "action": "collect-output",
+   "expect": {
+    "output.payloads.0.k": "clipboard",
+    "output.payloads.0.text": "section,item,count\nsession,site,\"oak ridge, plot 3\"\nsession,observer,R. Ellison\nsession,date,2026-09-09\nethogram,forage,4\nethogram,preen,2\nspecies,species-a,6\nspecies,species-b,3\nspecies,clover,1\nquadrat,Q1,0\nquadrat,Q2,1\nquadrat,Q3,2\nquadrat,Q4,9\nmarkrecapture,marked,5\nmarkrecapture,caught,4\nmarkrecapture,recaptured,2",
+    "output.payloads.1": {
+     "op": "exists",
+     "value": false
+    }
+   }
+  },
+  {
+   "id": "g173-print",
+   "action": "activate",
+   "arguments": {
+    "selector": "@control:p-more/Print / save PDF"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "g173-printed",
+   "action": "collect-output",
+   "expect": {
+    "output.payloads.0.k": "print",
+    "output.payloads.1": {
+     "op": "exists",
+     "value": false
+    }
+   }
+  },
+  {
+   "id": "g173-still",
+   "action": "read-report",
+   "expect": {
+    "output.by.p-more.Marked (M)": "5",
+    "output.by.p-more.2nd catch (C)": "4",
+    "output.by.p-more.Recaptured (R)": "2",
+    "output.boxes.ecoOut": {
+     "op": "contains",
+     "value": "model: markrecapture 5 4 2"
     }
    }
   },

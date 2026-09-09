@@ -19276,9 +19276,9 @@
    "verdict": "PASS"
   },
   "page-field-notebook-science": {
-   "at": 1788914930,
-   "confirmed": 80,
-   "goal": "On the field notebook: tally species (10 individuals, 3 species incl. a new clover), quadrats and the 'more' counters, run an ethogram with the scan interval set and a behavior added and tallied, and stamp the session with site, observer and date -- every pane driven and the reads held against an oracle.",
+   "at": 1788978949,
+   "confirmed": 95,
+   "goal": "On the field notebook: tally species (10 individuals, 3 species incl. a new clover), quadrats and the 'more' counters, run an ethogram with the scan interval set and a behavior added and tallied, and stamp the session with site, observer and date -- every pane driven and the reads held against an oracle. Then the notebook's three exports are read: the copied .eco lines are the session header, the focal and site data lines, the quadrat counts 0 1 2 9 and the mark-recapture model 5 4 2, byte for byte; the copied CSV is one row per tally, fifteen rows under section,item,count, the site quoted because it carries a comma; and the print button prints.",
    "held": true,
    "id": "page-field-notebook-science",
    "must": "PASS",
@@ -19289,7 +19289,7 @@
     "MUTATE"
    ],
    "rungsWhy": null,
-   "seconds": 3.6,
+   "seconds": 3.5,
    "steps": [
     {
      "action": "observe",
@@ -19321,7 +19321,7 @@
      ],
      "id": "spec",
      "message": "opened pane p-spec",
-     "ms": 144,
+     "ms": 146,
      "result": "driven"
     },
     {
@@ -19335,7 +19335,7 @@
      ],
      "id": "a0",
      "message": "activate action_btn:19",
-     "ms": 24,
+     "ms": 25,
      "result": "driven"
     },
     {
@@ -19349,7 +19349,7 @@
      ],
      "id": "a1",
      "message": "activate action_btn:19",
-     "ms": 25,
+     "ms": 27,
      "result": "driven"
     },
     {
@@ -19363,7 +19363,7 @@
      ],
      "id": "a2",
      "message": "activate action_btn:19",
-     "ms": 22,
+     "ms": 23,
      "result": "driven"
     },
     {
@@ -19377,7 +19377,7 @@
      ],
      "id": "a3",
      "message": "activate action_btn:19",
-     "ms": 26,
+     "ms": 24,
      "result": "driven"
     },
     {
@@ -19391,7 +19391,7 @@
      ],
      "id": "a4",
      "message": "activate action_btn:19",
-     "ms": 22,
+     "ms": 24,
      "result": "driven"
     },
     {
@@ -19405,7 +19405,7 @@
      ],
      "id": "a5",
      "message": "activate action_btn:19",
-     "ms": 23,
+     "ms": 27,
      "result": "driven"
     },
     {
@@ -19419,7 +19419,7 @@
      ],
      "id": "b0",
      "message": "activate action_btn:20",
-     "ms": 23,
+     "ms": 24,
      "result": "driven"
     },
     {
@@ -19433,7 +19433,7 @@
      ],
      "id": "b1",
      "message": "activate action_btn:20",
-     "ms": 22,
+     "ms": 24,
      "result": "driven"
     },
     {
@@ -19447,7 +19447,7 @@
      ],
      "id": "b2",
      "message": "activate action_btn:20",
-     "ms": 22,
+     "ms": 25,
      "result": "driven"
     },
     {
@@ -19475,7 +19475,7 @@
      ],
      "id": "add",
      "message": "activate action_btn:21",
-     "ms": 26,
+     "ms": 29,
      "result": "driven"
     },
     {
@@ -19489,7 +19489,7 @@
      ],
      "id": "c0",
      "message": "activate action_btn:21",
-     "ms": 22,
+     "ms": 25,
      "result": "driven"
     },
     {
@@ -19547,7 +19547,7 @@
      ],
      "id": "eco",
      "message": "8 figure(s), 9 box(es), 0 list(s), 0 table(s), 6 heading(s)",
-     "ms": 3,
+     "ms": 9,
      "result": "driven"
     },
     {
@@ -19561,7 +19561,7 @@
      ],
      "id": "quad",
      "message": "opened pane p-quad",
-     "ms": 96,
+     "ms": 92,
      "result": "driven"
     },
     {
@@ -19575,7 +19575,7 @@
      ],
      "id": "q2",
      "message": "activate action_btn:12",
-     "ms": 30,
+     "ms": 25,
      "result": "driven"
     },
     {
@@ -19589,7 +19589,7 @@
      ],
      "id": "q3_0",
      "message": "activate action_btn:14",
-     "ms": 31,
+     "ms": 25,
      "result": "driven"
     },
     {
@@ -19617,7 +19617,7 @@
      ],
      "id": "q4_0",
      "message": "activate action_btn:16",
-     "ms": 22,
+     "ms": 23,
      "result": "driven"
     },
     {
@@ -19659,7 +19659,7 @@
      ],
      "id": "q4_3",
      "message": "activate action_btn:16",
-     "ms": 22,
+     "ms": 24,
      "result": "driven"
     },
     {
@@ -19673,7 +19673,7 @@
      ],
      "id": "q4_4",
      "message": "activate action_btn:16",
-     "ms": 24,
+     "ms": 23,
      "result": "driven"
     },
     {
@@ -19701,7 +19701,7 @@
      ],
      "id": "q4_6",
      "message": "activate action_btn:16",
-     "ms": 24,
+     "ms": 28,
      "result": "driven"
     },
     {
@@ -19715,7 +19715,7 @@
      ],
      "id": "q4_7",
      "message": "activate action_btn:16",
-     "ms": 24,
+     "ms": 22,
      "result": "driven"
     },
     {
@@ -19729,7 +19729,7 @@
      ],
      "id": "q4_8",
      "message": "activate action_btn:16",
-     "ms": 22,
+     "ms": 23,
      "result": "driven"
     },
     {
@@ -19768,7 +19768,7 @@
      ],
      "id": "dispersion",
      "message": "13 figure(s), 9 box(es), 0 list(s), 0 table(s), 6 heading(s)",
-     "ms": 4,
+     "ms": 3,
      "result": "driven"
     },
     {
@@ -19782,7 +19782,7 @@
      ],
      "id": "quadeco",
      "message": "13 figure(s), 9 box(es), 0 list(s), 0 table(s), 6 heading(s)",
-     "ms": 5,
+     "ms": 4,
      "result": "driven"
     },
     {
@@ -19796,7 +19796,7 @@
      ],
      "id": "more",
      "message": "opened pane p-more",
-     "ms": 94,
+     "ms": 84,
      "result": "driven"
     },
     {
@@ -19810,7 +19810,7 @@
      ],
      "id": "m0",
      "message": "activate action_btn:25",
-     "ms": 26,
+     "ms": 24,
      "result": "driven"
     },
     {
@@ -19824,7 +19824,7 @@
      ],
      "id": "m1",
      "message": "activate action_btn:25",
-     "ms": 24,
+     "ms": 25,
      "result": "driven"
     },
     {
@@ -19838,7 +19838,7 @@
      ],
      "id": "m2",
      "message": "activate action_btn:25",
-     "ms": 23,
+     "ms": 27,
      "result": "driven"
     },
     {
@@ -19852,7 +19852,7 @@
      ],
      "id": "m3",
      "message": "activate action_btn:25",
-     "ms": 22,
+     "ms": 23,
      "result": "driven"
     },
     {
@@ -19866,7 +19866,7 @@
      ],
      "id": "m4",
      "message": "activate action_btn:25",
-     "ms": 22,
+     "ms": 23,
      "result": "driven"
     },
     {
@@ -19880,7 +19880,7 @@
      ],
      "id": "cc0",
      "message": "activate action_btn:27",
-     "ms": 23,
+     "ms": 24,
      "result": "driven"
     },
     {
@@ -19894,7 +19894,7 @@
      ],
      "id": "cc1",
      "message": "activate action_btn:27",
-     "ms": 21,
+     "ms": 23,
      "result": "driven"
     },
     {
@@ -19908,7 +19908,7 @@
      ],
      "id": "cc2",
      "message": "activate action_btn:27",
-     "ms": 24,
+     "ms": 26,
      "result": "driven"
     },
     {
@@ -19922,7 +19922,7 @@
      ],
      "id": "cc3",
      "message": "activate action_btn:27",
-     "ms": 22,
+     "ms": 25,
      "result": "driven"
     },
     {
@@ -19936,7 +19936,7 @@
      ],
      "id": "nocatch",
      "message": "13 figure(s), 9 box(es), 0 list(s), 0 table(s), 6 heading(s)",
-     "ms": 3,
+     "ms": 4,
      "result": "driven"
     },
     {
@@ -19950,7 +19950,7 @@
      ],
      "id": "r0",
      "message": "activate action_btn:29",
-     "ms": 22,
+     "ms": 24,
      "result": "driven"
     },
     {
@@ -19964,7 +19964,7 @@
      ],
      "id": "r1",
      "message": "activate action_btn:29",
-     "ms": 24,
+     "ms": 22,
      "result": "driven"
     },
     {
@@ -19998,7 +19998,7 @@
      ],
      "id": "lp",
      "message": "13 figure(s), 9 box(es), 0 list(s), 0 table(s), 6 heading(s)",
-     "ms": 4,
+     "ms": 3,
      "result": "driven"
     },
     {
@@ -20012,7 +20012,7 @@
      ],
      "id": "g165-ethopane",
      "message": "opened pane p-etho",
-     "ms": 86,
+     "ms": 85,
      "result": "driven"
     },
     {
@@ -20026,7 +20026,7 @@
      ],
      "id": "g165-scan",
      "message": "set-text step_val:0",
-     "ms": 22,
+     "ms": 24,
      "result": "driven"
     },
     {
@@ -20040,7 +20040,7 @@
      ],
      "id": "g165-ethonew",
      "message": "set-text text_in:0",
-     "ms": 27,
+     "ms": 24,
      "result": "driven"
     },
     {
@@ -20054,7 +20054,7 @@
      ],
      "id": "g165-ethoadd",
      "message": "activate action_btn:7",
-     "ms": 24,
+     "ms": 32,
      "result": "driven"
     },
     {
@@ -20068,7 +20068,7 @@
      ],
      "id": "g165-forage0",
      "message": "activate action_btn:2",
-     "ms": 22,
+     "ms": 24,
      "result": "driven"
     },
     {
@@ -20096,7 +20096,7 @@
      ],
      "id": "g165-forage2",
      "message": "activate action_btn:2",
-     "ms": 22,
+     "ms": 23,
      "result": "driven"
     },
     {
@@ -20110,7 +20110,7 @@
      ],
      "id": "g165-forage3",
      "message": "activate action_btn:2",
-     "ms": 22,
+     "ms": 25,
      "result": "driven"
     },
     {
@@ -20124,7 +20124,7 @@
      ],
      "id": "g165-preen0",
      "message": "activate action_btn:7",
-     "ms": 22,
+     "ms": 26,
      "result": "driven"
     },
     {
@@ -20138,6 +20138,62 @@
      ],
      "id": "g165-preen1",
      "message": "activate action_btn:7",
+     "ms": 27,
+     "result": "driven"
+    },
+    {
+     "action": "show-pane",
+     "expectations": [
+      {
+       "detail": "ok == True, got True",
+       "path": "ok",
+       "verdict": "CONFIRMED"
+      }
+     ],
+     "id": "g165-morepane",
+     "message": "opened pane p-more",
+     "ms": 102,
+     "result": "driven"
+    },
+    {
+     "action": "set-text",
+     "expectations": [
+      {
+       "detail": "ok == True, got True",
+       "path": "ok",
+       "verdict": "CONFIRMED"
+      }
+     ],
+     "id": "g165-site",
+     "message": "set-text text_in:2",
+     "ms": 26,
+     "result": "driven"
+    },
+    {
+     "action": "set-text",
+     "expectations": [
+      {
+       "detail": "ok == True, got True",
+       "path": "ok",
+       "verdict": "CONFIRMED"
+      }
+     ],
+     "id": "g165-obs",
+     "message": "set-text text_in:3",
+     "ms": 22,
+     "result": "driven"
+    },
+    {
+     "action": "set-text",
+     "expectations": [
+      {
+       "detail": "ok == True, got True",
+       "path": "ok",
+       "verdict": "CONFIRMED"
+      }
+     ],
+     "id": "g165-date",
+     "message": "set-text text_in:4",
      "ms": 23,
      "result": "driven"
     },
@@ -20161,7 +20217,7 @@
      "result": "driven"
     },
     {
-     "action": "show-pane",
+     "action": "activate",
      "expectations": [
       {
        "detail": "ok == True, got True",
@@ -20169,27 +20225,37 @@
        "verdict": "CONFIRMED"
       }
      ],
-     "id": "g165-morepane",
-     "message": "opened pane p-more",
-     "ms": 92,
+     "id": "g173-eco-copy",
+     "message": "activate action_btn:31",
+     "ms": 25,
      "result": "driven"
     },
     {
-     "action": "set-text",
+     "action": "collect-output",
      "expectations": [
       {
-       "detail": "ok == True, got True",
-       "path": "ok",
+       "detail": "output.payloads.0.k == 'clipboard', got 'clipboard'",
+       "path": "output.payloads.0.k",
+       "verdict": "CONFIRMED"
+      },
+      {
+       "detail": "output.payloads.0.text == '# Field Notebook export \u2014 paste into your .eco protocol\\n# site oak ridge, plot 3 \u2014 observer R. Ellison \u2014 2026-09-09\\ndata: focal forage=4 preen=2\\ndata: site species-a=6 species-b=3 clover=1\\n# quadrat counts (per frame): 0 1 2 9\\nmodel: markrecapture 5 4 2\\nnote: tallied in the field with the Field Notebook', got '# Field Notebook export \u2014 paste into your .eco protocol\\n# site oak ridge, plot 3 \u2014 observer R. Ellison \u2014 2026-09-09\\ndata: focal forage=4 preen=2\\ndata: site species-a=6 species-b=3 clover=1\\n# quadrat counts (per frame): 0 1 2 9\\nmodel: markrecapture 5 4 2\\nnote: tallied in the field with the Field Notebook'",
+       "path": "output.payloads.0.text",
+       "verdict": "CONFIRMED"
+      },
+      {
+       "detail": "output.payloads.1 exists False, got None",
+       "path": "output.payloads.1",
        "verdict": "CONFIRMED"
       }
      ],
-     "id": "g165-site",
-     "message": "set-text text_in:2",
-     "ms": 24,
+     "id": "g173-eco",
+     "message": "1 payload(s)",
+     "ms": 2,
      "result": "driven"
     },
     {
-     "action": "set-text",
+     "action": "activate",
      "expectations": [
       {
        "detail": "ok == True, got True",
@@ -20197,13 +20263,37 @@
        "verdict": "CONFIRMED"
       }
      ],
-     "id": "g165-obs",
-     "message": "set-text text_in:3",
-     "ms": 21,
+     "id": "g173-csv-copy",
+     "message": "activate action_btn:32",
+     "ms": 23,
      "result": "driven"
     },
     {
-     "action": "set-text",
+     "action": "collect-output",
+     "expectations": [
+      {
+       "detail": "output.payloads.0.k == 'clipboard', got 'clipboard'",
+       "path": "output.payloads.0.k",
+       "verdict": "CONFIRMED"
+      },
+      {
+       "detail": "output.payloads.0.text == 'section,item,count\\nsession,site,\"oak ridge, plot 3\"\\nsession,observer,R. Ellison\\nsession,date,2026-09-09\\nethogram,forage,4\\nethogram,preen,2\\nspecies,species-a,6\\nspecies,species-b,3\\nspecies,clover,1\\nquadrat,Q1,0\\nquadrat,Q2,1\\nquadrat,Q3,2\\nquadrat,Q4,9\\nmarkrecapture,marked,5\\nmarkrecapture,caught,4\\nmarkrecapture,recaptured,2', got 'section,item,count\\nsession,site,\"oak ridge, plot 3\"\\nsession,observer,R. Ellison\\nsession,date,2026-09-09\\nethogram,forage,4\\nethogram,preen,2\\nspecies,species-a,6\\nspecies,species-b,3\\nspecies,clover,1\\nquadrat,Q1,0\\nquadrat,Q2,1\\nquadrat,Q3,2\\nquadrat,Q4,9\\nmarkrecapture,marked,5\\nmarkrecapture,caught,4\\nmarkrecapture,recaptured,2'",
+       "path": "output.payloads.0.text",
+       "verdict": "CONFIRMED"
+      },
+      {
+       "detail": "output.payloads.1 exists False, got None",
+       "path": "output.payloads.1",
+       "verdict": "CONFIRMED"
+      }
+     ],
+     "id": "g173-csv",
+     "message": "1 payload(s)",
+     "ms": 2,
+     "result": "driven"
+    },
+    {
+     "action": "activate",
      "expectations": [
       {
        "detail": "ok == True, got True",
@@ -20211,9 +20301,57 @@
        "verdict": "CONFIRMED"
       }
      ],
-     "id": "g165-date",
-     "message": "set-text text_in:4",
-     "ms": 22,
+     "id": "g173-print",
+     "message": "activate action_btn:33",
+     "ms": 26,
+     "result": "driven"
+    },
+    {
+     "action": "collect-output",
+     "expectations": [
+      {
+       "detail": "output.payloads.0.k == 'print', got 'print'",
+       "path": "output.payloads.0.k",
+       "verdict": "CONFIRMED"
+      },
+      {
+       "detail": "output.payloads.1 exists False, got None",
+       "path": "output.payloads.1",
+       "verdict": "CONFIRMED"
+      }
+     ],
+     "id": "g173-printed",
+     "message": "1 payload(s)",
+     "ms": 3,
+     "result": "driven"
+    },
+    {
+     "action": "read-report",
+     "expectations": [
+      {
+       "detail": "output.by.p-more.Marked (M) == '5', got '5'",
+       "path": "output.by.p-more.Marked (M)",
+       "verdict": "CONFIRMED"
+      },
+      {
+       "detail": "output.by.p-more.2nd catch (C) == '4', got '4'",
+       "path": "output.by.p-more.2nd catch (C)",
+       "verdict": "CONFIRMED"
+      },
+      {
+       "detail": "output.by.p-more.Recaptured (R) == '2', got '2'",
+       "path": "output.by.p-more.Recaptured (R)",
+       "verdict": "CONFIRMED"
+      },
+      {
+       "detail": "output.boxes.ecoOut contains 'model: markrecapture 5 4 2', got '# Field Notebook export \u2014 paste into your .eco protocol # site oak ridge, plot 3 \u2014 observer R. Ellison \u2014 2026-09-09 data: focal forage=4 preen=2 data: site species-a=6 species-b=3 clover=1 # quadrat counts (per frame): 0 1 2 9 model: markrecapture 5 4 2 note: tallied in the field with the Field Notebook'",
+       "path": "output.boxes.ecoOut",
+       "verdict": "CONFIRMED"
+      }
+     ],
+     "id": "g173-still",
+     "message": "18 figure(s), 9 box(es), 0 list(s), 0 table(s), 6 heading(s)",
+     "ms": 3,
      "result": "driven"
     },
     {
@@ -20237,7 +20375,7 @@
      ],
      "id": "g165-endintact",
      "message": "read the page",
-     "ms": 8,
+     "ms": 6,
      "result": "driven"
     }
    ],
