@@ -52,15 +52,21 @@ LEDGER = os.path.join(HERE, "delivery_ledger.json")
 # Opus 5 -> Fable 5.1 -> Opus 4.8). A new script is generated with TRAILER;
 # --check accepts a script that matches generation under ANY trailer that a real
 # slice was signed with, because a model handover is not a hand edit. The
-# session line is invariant.
-_SESSION = '-m "Claude-Session: https://claude.ai/code/session_01CNn3hvazSDBU2TCgsGXjTt"'
+# session line names the session that generated the script (ADR-171: a handoff
+# to a new session is not a hand edit either, so the sessions that real slices
+# were signed from are listed the same way, newest first).
+_SESSIONS = (
+    "https://claude.ai/code/session_01YPcb1A7CejriRgL9xLrhJ3",   # ADR-171 on
+    "https://claude.ai/code/session_01CNn3hvazSDBU2TCgsGXjTt",   # ADR-147 to ADR-170
+)
 _COAUTHORS = (
-    "Claude Opus 4.8 <noreply@anthropic.com>",
     "Claude Fable 5.1 <noreply@anthropic.com>",
+    "Claude Opus 4.8 <noreply@anthropic.com>",
     "Claude Opus 5 <noreply@anthropic.com>",
 )
-def _trailer(coauthor):
-    return '  -m "Co-Authored-By: %s" %s' % (coauthor, _SESSION)
+def _trailer(coauthor, session=None):
+    return ('  -m "Co-Authored-By: %s" -m "Claude-Session: %s"'
+            % (coauthor, session or _SESSIONS[0]))
 TRAILER = _trailer(_COAUTHORS[0])
 
 
@@ -226,7 +232,8 @@ def check():
             bad.append("%s: no generated script -- run --script %s" % (mid, mid))
         else:
             on_disk = io.open(sp, encoding="utf-8", newline="").read().replace("\r\n", "\n")
-            if not any(on_disk == script_text(m, _trailer(ca)) for ca in _COAUTHORS):
+            if not any(on_disk == script_text(m, _trailer(ca, se))
+                       for ca in _COAUTHORS for se in _SESSIONS):
                 bad.append("%s: push-%s.ps1 is not what the manifest generates -- it was edited "
                            "by hand, and the two lists have started to disagree again" % (mid, mid))
     return bad

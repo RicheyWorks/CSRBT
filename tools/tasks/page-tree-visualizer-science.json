@@ -229,6 +229,46 @@
    }
   },
   {
+   "id": "g171-cmp",
+   "action": "activate",
+   "arguments": {
+    "selector": "@control:cmpBtn"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "g171-cards",
+   "action": "read-report",
+   "expect": {
+    "output.boxes.cmpGrid": "Red-Blackh=7height 7nodes 20rotations 14AVLh=5height 5nodes 20rotations 15Splayh=20height 20nodes 20rotations 19Weight-Balancedh=6height 6nodes 20rotations 14",
+    "output.boxes.stratDesc": {
+     "op": "contains",
+     "value": "Compare mode"
+    }
+   }
+  },
+  {
+   "id": "g171-single",
+   "action": "activate",
+   "arguments": {
+    "selector": "@control:cmpBtn"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "g171-back",
+   "action": "read-report",
+   "expect": {
+    "output.by.singleWrap.Nodes": "20",
+    "output.by.singleWrap.Height": "7 (1.4\u00d7 optimal)",
+    "output.by.singleWrap.Rotations (total)": "14"
+   }
+  },
+  {
    "id": "wipe",
    "action": "activate",
    "arguments": {

@@ -35056,8 +35056,8 @@
    "verdict": "PASS"
   },
   "page-tree-visualizer-science": {
-   "at": 1788926526,
-   "confirmed": 91,
+   "at": 1788944512,
+   "confirmed": 98,
    "goal": "On the tree visualizer, against an independent Python port of its four strategies: the boot red-black tree of 13 keys has height 4 (1.0x the optimal ceil(log2 14) = 4), 0 rotations, select(1) = 4, rank(42) = #7, median 42; inserting 7 makes 14 nodes at height 5 (1.3x), median 30, rank #8; 7 again is already present; 1..20 ascending into red-black is height 7 with 14 rotations; morphing rebuilds from the sorted keys: AVL height 5 (15 rotations), Splay height 20 (a spine, 4.0x), WB height 6, red-black 7. With the page's Math.random seeded (ADR-134), the two random-insert buttons are reproducible: mulberry32 seeded 42, with the page's own skip-a-key-already-present rule, draws 60 first and 19 eleventh, and the tree is 24 nodes after 15 draws. Then the two order-statistic inputs the task never drove -- select k-th and rank-of -- are exercised on a rebuilt three-key tree {10,20,30}: select(2) reads 20 and rank(30) reads #3, the page's own order-statistic queries held against the obvious answers.",
    "held": true,
    "id": "page-tree-visualizer-science",
@@ -35070,7 +35070,7 @@
     "DESTRUCTIVE"
    ],
    "rungsWhy": "the goal ends by clearing the tree and reading the empty visualizer: bClear is 'Clear'",
-   "seconds": 1.1,
+   "seconds": 1.2,
    "steps": [
     {
      "action": "observe",
@@ -35165,7 +35165,7 @@
      ],
      "id": "ins7",
      "message": "activate action_btn:5",
-     "ms": 21,
+     "ms": 23,
      "result": "driven"
     },
     {
@@ -35228,7 +35228,7 @@
      ],
      "id": "again",
      "message": "activate action_btn:5",
-     "ms": 20,
+     "ms": 21,
      "result": "driven"
     },
     {
@@ -35261,7 +35261,7 @@
      ],
      "id": "asc",
      "message": "activate action_btn:10",
-     "ms": 20,
+     "ms": 21,
      "result": "driven"
     },
     {
@@ -35319,7 +35319,7 @@
      ],
      "id": "toAVL",
      "message": "activate action_btn:13",
-     "ms": 21,
+     "ms": 22,
      "result": "driven"
     },
     {
@@ -35368,7 +35368,7 @@
      ],
      "id": "mAVL",
      "message": "4 figure(s), 6 box(es), 0 list(s), 0 table(s), 3 heading(s)",
-     "ms": 12,
+     "ms": 14,
      "result": "driven"
     },
     {
@@ -35382,7 +35382,7 @@
      ],
      "id": "toSplay",
      "message": "activate action_btn:14",
-     "ms": 20,
+     "ms": 30,
      "result": "driven"
     },
     {
@@ -35431,7 +35431,7 @@
      ],
      "id": "mSplay",
      "message": "4 figure(s), 6 box(es), 0 list(s), 0 table(s), 3 heading(s)",
-     "ms": 9,
+     "ms": 3,
      "result": "driven"
     },
     {
@@ -35445,7 +35445,7 @@
      ],
      "id": "toWB",
      "message": "activate action_btn:15",
-     "ms": 22,
+     "ms": 21,
      "result": "driven"
     },
     {
@@ -35494,7 +35494,7 @@
      ],
      "id": "mWB",
      "message": "4 figure(s), 6 box(es), 0 list(s), 0 table(s), 3 heading(s)",
-     "ms": 3,
+     "ms": 6,
      "result": "driven"
     },
     {
@@ -35508,7 +35508,7 @@
      ],
      "id": "toRB",
      "message": "activate action_btn:12",
-     "ms": 20,
+     "ms": 21,
      "result": "driven"
     },
     {
@@ -35557,7 +35557,78 @@
      ],
      "id": "mRB",
      "message": "4 figure(s), 6 box(es), 0 list(s), 0 table(s), 3 heading(s)",
-     "ms": 8,
+     "ms": 3,
+     "result": "driven"
+    },
+    {
+     "action": "activate",
+     "expectations": [
+      {
+       "detail": "ok == True, got True",
+       "path": "ok",
+       "verdict": "CONFIRMED"
+      }
+     ],
+     "id": "g171-cmp",
+     "message": "activate action_btn:4",
+     "ms": 28,
+     "result": "driven"
+    },
+    {
+     "action": "read-report",
+     "expectations": [
+      {
+       "detail": "output.boxes.cmpGrid == 'Red-Blackh=7height 7nodes 20rotations 14AVLh=5height 5nodes 20rotations 15Splayh=20height 20nodes 20rotations 19Weight-Balancedh=6height 6nodes 20rotations 14', got 'Red-Blackh=7height 7nodes 20rotations 14AVLh=5height 5nodes 20rotations 15Splayh=20height 20nodes 20rotations 19Weight-Balancedh=6height 6nodes 20rotations 14'",
+       "path": "output.boxes.cmpGrid",
+       "verdict": "CONFIRMED"
+      },
+      {
+       "detail": "output.boxes.stratDesc contains 'Compare mode', got 'Compare mode. Same operations feed all four strategies at once. Lowest height wins \u2014 but which one wins depends on the workload.'",
+       "path": "output.boxes.stratDesc",
+       "verdict": "CONFIRMED"
+      }
+     ],
+     "id": "g171-cards",
+     "message": "4 figure(s), 6 box(es), 0 list(s), 0 table(s), 7 heading(s)",
+     "ms": 2,
+     "result": "driven"
+    },
+    {
+     "action": "activate",
+     "expectations": [
+      {
+       "detail": "ok == True, got True",
+       "path": "ok",
+       "verdict": "CONFIRMED"
+      }
+     ],
+     "id": "g171-single",
+     "message": "activate action_btn:4",
+     "ms": 22,
+     "result": "driven"
+    },
+    {
+     "action": "read-report",
+     "expectations": [
+      {
+       "detail": "output.by.singleWrap.Nodes == '20', got '20'",
+       "path": "output.by.singleWrap.Nodes",
+       "verdict": "CONFIRMED"
+      },
+      {
+       "detail": "output.by.singleWrap.Height == '7 (1.4\u00d7 optimal)', got '7 (1.4\u00d7 optimal)'",
+       "path": "output.by.singleWrap.Height",
+       "verdict": "CONFIRMED"
+      },
+      {
+       "detail": "output.by.singleWrap.Rotations (total) == '14', got '14'",
+       "path": "output.by.singleWrap.Rotations (total)",
+       "verdict": "CONFIRMED"
+      }
+     ],
+     "id": "g171-back",
+     "message": "4 figure(s), 6 box(es), 0 list(s), 0 table(s), 7 heading(s)",
+     "ms": 4,
      "result": "driven"
     },
     {
@@ -35595,7 +35666,7 @@
      ],
      "id": "seed",
      "message": "Math.random is mulberry32 seeded 42; reload for code that draws at load",
-     "ms": 4,
+     "ms": 5,
      "result": "driven"
     },
     {
@@ -35622,7 +35693,7 @@
       }
      ],
      "id": "sawFirst",
-     "message": "4 figure(s), 6 box(es), 0 list(s), 0 table(s), 3 heading(s)",
+     "message": "4 figure(s), 6 box(es), 0 list(s), 0 table(s), 7 heading(s)",
      "ms": 3,
      "result": "driven"
     },
@@ -35637,7 +35708,7 @@
      ],
      "id": "rand10",
      "message": "activate action_btn:9",
-     "ms": 20,
+     "ms": 22,
      "result": "driven"
     },
     {
@@ -35660,8 +35731,8 @@
       }
      ],
      "id": "seeded",
-     "message": "4 figure(s), 6 box(es), 0 list(s), 0 table(s), 3 heading(s)",
-     "ms": 2,
+     "message": "4 figure(s), 6 box(es), 0 list(s), 0 table(s), 7 heading(s)",
+     "ms": 3,
      "result": "driven"
     },
     {
@@ -35675,7 +35746,7 @@
      ],
      "id": "g169-clear",
      "message": "activate action_btn:11",
-     "ms": 19,
+     "ms": 21,
      "result": "driven"
     },
     {
@@ -35689,7 +35760,7 @@
      ],
      "id": "g169-in10",
      "message": "set-text text_in:0",
-     "ms": 20,
+     "ms": 21,
      "result": "driven"
     },
     {
@@ -35703,7 +35774,7 @@
      ],
      "id": "g169-ins10",
      "message": "activate action_btn:5",
-     "ms": 20,
+     "ms": 21,
      "result": "driven"
     },
     {
@@ -35717,7 +35788,7 @@
      ],
      "id": "g169-in30",
      "message": "set-text text_in:0",
-     "ms": 20,
+     "ms": 21,
      "result": "driven"
     },
     {
@@ -35731,7 +35802,7 @@
      ],
      "id": "g169-ins30",
      "message": "activate action_btn:5",
-     "ms": 20,
+     "ms": 22,
      "result": "driven"
     },
     {
@@ -35745,7 +35816,7 @@
      ],
      "id": "g169-in20",
      "message": "set-text text_in:0",
-     "ms": 20,
+     "ms": 21,
      "result": "driven"
     },
     {
@@ -35759,7 +35830,7 @@
      ],
      "id": "g169-ins20",
      "message": "activate action_btn:5",
-     "ms": 21,
+     "ms": 20,
      "result": "driven"
     },
     {
@@ -35805,8 +35876,8 @@
       }
      ],
      "id": "g169-held",
-     "message": "4 figure(s), 6 box(es), 0 list(s), 0 table(s), 3 heading(s)",
-     "ms": 2,
+     "message": "4 figure(s), 6 box(es), 0 list(s), 0 table(s), 7 heading(s)",
+     "ms": 5,
      "result": "driven"
     },
     {
@@ -35830,7 +35901,7 @@
      ],
      "id": "intact",
      "message": "read the page",
-     "ms": 8,
+     "ms": 5,
      "result": "driven"
     }
    ],

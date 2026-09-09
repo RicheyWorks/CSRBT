@@ -55,8 +55,14 @@ MUTANTS = [
      '    for t in []:',
      "tarballs it names are cleaned"),
     # ---- --check ----
+    # ADR-171: this anchor was `if on_disk != script_text(m):` until ADR-155
+    # widened the comparison to every trailer a real slice was signed with, and
+    # the ledger still said "killed" from the run before -- ADR-140's stale
+    # anchor, again. Anchored on the widened line now, and widened again with
+    # it (the session line joined the trailer table).
     ("a hand-edited script is not compared, only its existence",
-     '            if on_disk != script_text(m):',
+     '            if not any(on_disk == script_text(m, _trailer(ca, se))\n'
+     '                       for ca in _COAUTHORS for se in _SESSIONS):',
      '            if False:',
      "edited by hand"),
     ("the comparison ignores what the manifest would generate",

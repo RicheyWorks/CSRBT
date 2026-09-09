@@ -3,9 +3,9 @@
   "observed": {},
   "pages": {
     "_harness-board.html": {
-      "at": 1788935015,
-      "dated_by": "the version epoch in the filename",
-      "sha": "a0c1cd6d1d4d309622457e81e8f3e1e9ac18220a43dd9d80506b10a8e6a0a765",
+      "at": 1788950306,
+      "dated_by": "the fetch time the reader reported -- about the fetch, not about the version",
+      "sha": "f3ba0d41126d67f7f4d4dda47a24856828de8b287b7f25737ad1b60154c60408",
       "via": "read"
     },
     "adr-031.html": {

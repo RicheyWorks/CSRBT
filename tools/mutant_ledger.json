@@ -669,7 +669,7 @@
    "survived": 0
   },
   "mutate_delivery": {
-   "at": 1788680642,
+   "at": 1788946879,
    "equivalent": 0,
    "equivalents": [],
    "inconclusive": 0,
@@ -1715,7 +1715,7 @@
    "survived": 0
   },
   "mutate_readable": {
-   "at": 1788664028,
+   "at": 1788944245,
    "equivalent": 1,
    "equivalents": [
     {
@@ -1724,11 +1724,11 @@
     }
    ],
    "inconclusive": 0,
-   "killed": 23,
-   "mutants": 23,
+   "killed": 30,
+   "mutants": 30,
    "rows": [
     {
-     "detail": "10 failure(s); first: an element written AT BOOT counts: the baseline is what th",
+     "detail": "13 failure(s); first: an element written AT BOOT counts: the baseline is what th",
      "name": "the baseline page runs its own scripts, so a boot figure reads as unchanged",
      "verdict": "killed"
     },
@@ -1758,6 +1758,11 @@
      "verdict": "killed"
     },
     {
+     "detail": "6 failure(s); first: an element the page created and left EMPTY holds no figure ",
+     "name": "an element the page created and left empty is a written figure",
+     "verdict": "killed"
+    },
+    {
      "detail": "6 failure(s); first: a control is not a report, even when its own label changes:",
      "name": "a control's own text is a report",
      "verdict": "killed"
@@ -1770,6 +1775,36 @@
     {
      "detail": "8 failure(s); first: read-report has THREE channels, and a table is read through",
      "name": "boxes are the only channel, so every table and chart is a figure nobody can read",
+     "verdict": "killed"
+    },
+    {
+     "detail": "6 failure(s); first: a labelled figure is read under its label whatever its id i",
+     "name": "a figure's source is not a reading, so every .v with its own id is blind again",
+     "verdict": "killed"
+    },
+    {
+     "detail": "6 failure(s); first: a labelled figure is read under its label whatever its id i",
+     "name": "the reader is not asked where a figure came from",
+     "verdict": "killed"
+    },
+    {
+     "detail": "6 failure(s); first: a composite inside a box is read THROUGH the box -- its tex",
+     "name": "an element inside a box is not read through it",
+     "verdict": "killed"
+    },
+    {
+     "detail": "8 failure(s); first: ...but only when the reader actually RETURNED it: a card pa",
+     "name": "every descendant of a box is read through it, returned or not",
+     "verdict": "killed"
+    },
+    {
+     "detail": "8 failure(s); first: ...but only when the reader actually RETURNED it: a card pa",
+     "name": "a truncated element is read through its box on the strength of its first 4000 characters",
+     "verdict": "killed"
+    },
+    {
+     "detail": "1 failure(s); first: the ledger names what a task can only hold by string, throu",
+     "name": "the box an element is read through is not recorded",
      "verdict": "killed"
     },
     {
@@ -1788,12 +1823,12 @@
      "verdict": "killed"
     },
     {
-     "detail": "6 failure(s); first: an element named the kit's way -- an analysis, an *Out, a *",
+     "detail": "10 failure(s); first: an element named the kit's way -- an analysis, an *Out, a ",
      "name": "read-report is never asked, so nothing is readable",
      "verdict": "killed"
     },
     {
-     "detail": "8 failure(s); first: four unreadable figures on this fixture, no more and no few",
+     "detail": "8 failure(s); first: six unreadable figures on this fixture, no more and no fewe",
      "name": "an entry host is a figure, so every entry kit mount in the kit is on the worklist",
      "verdict": "killed"
     },
@@ -1803,7 +1838,7 @@
      "verdict": "killed"
     },
     {
-     "detail": "8 failure(s); first: and everything else the page writes is on the worklist, NAM",
+     "detail": "9 failure(s); first: ...but only when the reader actually RETURNED it: a card pa",
      "name": "the unreadable elements are counted but not named",
      "verdict": "killed"
     },
@@ -1846,20 +1881,20 @@
    "survived": 0
   },
   "mutate_report": {
-   "at": 1788767548,
+   "at": 1788942883,
    "equivalent": 0,
    "equivalents": [],
    "inconclusive": 0,
-   "killed": 64,
-   "mutants": 64,
+   "killed": 68,
+   "mutants": 68,
    "rows": [
     {
-     "detail": "5 failure(s); first: a .tile and a .stat .st are both figures: the .l/.v pair is",
+     "detail": "7 failure(s); first: a .tile and a .stat .st are both figures: the .l/.v pair is",
      "name": "figures are only .tile again",
      "verdict": "killed"
     },
     {
-     "detail": "1 failure(s); first: flat figures: the first label wins and a second carries #2:",
+     "detail": "2 failure(s); first: flat figures: the first label wins and a second carries #2:",
      "name": "a second label overwrites the first in the flat map",
      "verdict": "killed"
     },
@@ -1879,8 +1914,28 @@
      "verdict": "killed"
     },
     {
-     "detail": "3 failure(s); first: boxes follow the kit's naming -- an*, *Out, *Box, *Stat, *M",
+     "detail": "4 failure(s); first: boxes follow the kit's naming -- an*, *Out, *Box, *Stat, *M",
      "name": "boxes are the old five prefixes only",
+     "verdict": "killed"
+    },
+    {
+     "detail": "1 failure(s); first: and a *Board is a box (ADR-171): the pheno tracker's ranked",
+     "name": "a *Board is not a box",
+     "verdict": "killed"
+    },
+    {
+     "detail": "3 failure(s); first: a figure names the element it was read from: the value's ow",
+     "name": "a figure does not say where it was read from",
+     "verdict": "killed"
+    },
+    {
+     "detail": "2 failure(s); first: a figure names the element it was read from: the value's ow",
+     "name": "a figure's source is its box, never the element itself",
+     "verdict": "killed"
+    },
+    {
+     "detail": "1 failure(s); first: ...else the id of the pair it sits in (a .tile with an id):",
+     "name": "a figure's source skips the pair's own id",
      "verdict": "killed"
     },
     {
@@ -1944,7 +1999,7 @@
      "verdict": "killed"
     },
     {
-     "detail": "2 failure(s); first: a bare .k beside the .v is the label too (the visualizer's ",
+     "detail": "4 failure(s); first: a bare .k beside the .v is the label too (the visualizer's ",
      "name": "a bare .k label is not a figure",
      "verdict": "killed"
     },

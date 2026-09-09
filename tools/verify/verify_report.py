@@ -87,7 +87,10 @@ FIXTURE = u"""<!doctype html><html><head><meta charset="utf-8"><title>report fix
   <input type="text" id="cName">
   <div id="cList"><div class="row2">a</div><div class="row2">b</div><div class="row2">c</div></div>
   <div id="packStat" class="stat"><div class="k"><span class="l">families</span><span class="v">23</span></div></div>
-  <div id="mStats"><div class="stat"><span class="k">Nodes</span><span class="v">13</span></div></div>
+  <div id="mStats"><div class="stat"><span class="k">Nodes</span><span class="v">13</span></div>
+    <div class="stat"><span class="k">Height</span><span class="v" id="mH">4</span></div></div>
+  <div class="tile" id="tCount"><div class="v">7</div><div class="l">count</div></div>
+  <div id="rankBoard">1 #1 4.18</div>
   <div id="ignored-plain">not a box</div>
   <div id="actBar">
     <button type="button" id="bAdd">Add stem</button>
@@ -202,7 +205,8 @@ with sync_playwright() as pw:
     ck(r["by"]["anBox"].get("doubling time") == "1.000 h" and r["by"]["anBox"].get("doubling time #2") == "60.0 min",
        "the same label twice in one box keeps both: %s" % r["by"]["anBox"])
     ck(r["by"]["anBox"].get("DLI") == "38.9 mol/m²/d", "a <small> unit inside the value is spaced off: %r" % r["by"]["anBox"].get("DLI"))
-    ck(r["order"][:3] == ["families", "Nodes", "collections"], "figures are in document order: %s" % r["order"][:3])
+    ck(r["order"][:5] == ["families", "Nodes", "Height", "count", "collections"],
+       "figures are in document order: %s" % r["order"][:5])
     boxes = r["boxes"]
     ck("anBox" in boxes and "lower bound" in boxes["anBox"] and "selOut" in boxes and "eco-out" in boxes and
        "triTable" in boxes and "kMatrix" in boxes and "lPlan" in boxes and "toast" in boxes and "packStat" in boxes
@@ -210,6 +214,21 @@ with sync_playwright() as pw:
        "boxes follow the kit's naming -- an*, *Out, *Box, *Stat, *Matrix, *Plan, *Table, *List, hyphenated, toast: %s" % sorted(boxes))
     ck("kres" in boxes and "msg" in boxes and "spCheck" in boxes,
        "the keys' result, the visualizer's message and the proofs' check are boxes too (ADR-129): %s" % sorted(boxes))
+    ck("rankBoard" in boxes,
+       "and a *Board is a box (ADR-171): the pheno tracker's ranked run and its mothers are figures: %s" % sorted(boxes))
+    # WHERE EACH FIGURE WAS READ FROM (ADR-171): the value element's own id
+    # when it has one, else the pair's, else the box -- so the readable-figures
+    # audit, which counts written elements by id, can credit a figure the
+    # figures channel reads under an id that is not named like a box.
+    srcs = r.get("sources") or {}
+    ck(srcs.get("Height") == "mH",
+       "a figure names the element it was read from: the value's own id when it has one: %s" % srcs)
+    ck(srcs.get("count") == "tCount",
+       "...else the id of the pair it sits in (a .tile with an id): %s" % srcs)
+    ck(srcs.get("Nodes") == "mStats" and srcs.get("families") == "packStat",
+       "...else the box around it, so provenance is never coarser than by: %s" % srcs)
+    ck(set(srcs) <= set(r["figures"]) and all(srcs[k] for k in srcs),
+       "every source is keyed like the figure it belongs to, and none is empty: %s" % srcs)
     ck(r["headings"] == ["Analysis", "Richness"], "the page's headings, in order: %s" % r["headings"])
     ck("ignored-plain" not in boxes and "p-rec" not in boxes and "genEntry" not in boxes,
        "and nothing outside the conventions: %s" % sorted(boxes))

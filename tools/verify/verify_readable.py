@@ -9,9 +9,14 @@ right about four things a fixture can pin exactly:
      the FILE says -- so a figure painted at boot counts, not only one a task
      brings into being -- at the DEEPEST id in each chain, because a parent's
      text changes whenever a child's does. Controls are not reports.
-  B. WHAT COUNTS AS READABLE. All three of read-report's channels: boxes by
-     name, tables by their host, charts by the svg's host. An audit that knew
-     only about boxes would disagree with the reader it exists to measure.
+  B. WHAT COUNTS AS READABLE. Every one of read-report's channels: boxes by
+     name, tables by their host, charts by the svg's host, and (ADR-171) the
+     SOURCE of a labelled figure -- the .v/.l pair's own id, read under its
+     label whatever the id is called -- or the BOX AROUND an element, when the
+     box's returned text carries the element's whole. An audit that knew only
+     about boxes would disagree with the reader it exists to measure, and did:
+     thirteen figures the figures channel read and a task held were counted
+     as figures no task could read.
   C. AN ENTRY HOST IS NOT A REPORT. A div the Field Entry Kit mounts controls
      into changes its text and is not a figure; entry_reach accounts for what
      is inside it. Structural -- it holds a control -- not by name.
@@ -61,6 +66,17 @@ FIXTURE = u"""<!doctype html><html><head><meta charset="utf-8"><title>readable f
   <div id="tableHost"></div>
   <!-- an svg: read-report reads it through the charts channel (ADR-140) -->
   <div id="plotHost"></div>
+  <!-- a labelled figure whose value element has an id outside the convention:
+       the figures channel reads it under its label, and names the id (ADR-171) -->
+  <div class="stat"><div class="l">recaptured</div><div class="v" id="mrX"></div></div>
+  <!-- a composite card inside a box: read THROUGH the box, as a substring of it -->
+  <div id="cmpGrid"><div id="cc-A"></div></div>
+  <!-- a card inside a box, PAST the reader's cap: the DOM has it, the reader does not -->
+  <div id="longBox"><div id="cc-late"></div></div>
+  <!-- a card LONGER than the cap: the audit's own copy is cut at the same length, and a
+       cut copy fitting a cut box is not the card read whole -->
+  <div id="bigBox"><div id="bigCmp"></div></div>
+  <!-- created by the page and left empty: nothing was written into it -->
   <!-- the page never writes this one -->
   <div id="prose">A paragraph the page never touches.</div>
   <!-- a control's own value is not a report -->
@@ -86,6 +102,12 @@ FIXTURE = u"""<!doctype html><html><head><meta charset="utf-8"><title>readable f
   $('anBoot').textContent = 'boot analysis: 3 of 4';
   $('heatload').textContent = 'Folded aspect 0 deg (cool)';
   $('inner').textContent = 'the inner figure: 42';
+  $('mrX').textContent = '2';
+  $('cc-A').textContent = 'AVL h=5 height 5 nodes 20';
+  $('longBox').insertAdjacentText('afterbegin', new Array(4101).join('x'));
+  $('bigCmp').textContent = new Array(4101).join('y');
+  $('cc-late').textContent = 'late card: 9';
+  var blank = document.createElement('div'); blank.id = 'blank'; document.body.appendChild(blank);
   $('tableHost').innerHTML = '<table><tr><th>k</th><th>v</th></tr><tr><td>a</td><td>1</td></tr></table>';
   $('plotHost').innerHTML = '<svg viewBox="0 0 10 10"><text x="1" y="2">9</text>'
     + '<rect x="0" y="0" width="3" height="3"></rect></svg>';
@@ -181,10 +203,28 @@ ck("tableHost" in readable and "tableHost" not in bad,
    % sorted(readable))
 ck("plotHost" in readable and "plotHost" not in bad,
    "...and an svg through the third, the chart reader ADR-140 added: %s" % sorted(readable))
+ck("mrX" in readable and "mrX" not in bad and "mrX" in r.get("sources", []),
+   "a labelled figure is read under its label whatever its id is called, and the reader now says "
+   "WHICH id -- the .v's own -- so the audit credits it (ADR-171): the visualizer's height, the "
+   "notebook's mark-recapture counts and the proofs' potential were held by tasks and counted "
+   "here as figures no task could read: %s / %s" % (sorted(readable), r.get("sources")))
+ck("cc-A" in readable and "cc-A" not in bad and r.get("through", {}).get("cc-A") == "cmpGrid",
+   "a composite inside a box is read THROUGH the box -- its text is in the box's returned text -- "
+   "and the audit says which box, because that is the weakest reading, a substring and not a "
+   "keyed value: %s" % r.get("through"))
+ck("cc-late" in bad and "cc-late" not in readable and "bigCmp" in bad,
+   "...but only when the reader actually RETURNED it: a card past the box's 4000-character cap "
+   "is in the DOM and not in the report, and a card LONGER than the cap is returned cut, not "
+   "whole -- crediting either would be the audit trusting the DOM over the reader it measures: "
+   "%s" % bad)
+ck("blank" not in written,
+   "an element the page created and left EMPTY holds no figure and is not written (the "
+   "greenhouse's source-settings host is empty once a source with no settings is picked): %s"
+   % written)
 ck("heatload" in bad and "tally" in bad and "behind" in bad and "inner" in bad,
    "and everything else the page writes is on the worklist, NAMED -- a task cannot fail to hold "
    "a figure it cannot see: %s" % bad)
-ck(len(bad) == 4, "four unreadable figures on this fixture, no more and no fewer: %s" % bad)
+ck(len(bad) == 6, "six unreadable figures on this fixture, no more and no fewer: %s" % bad)
 
 # ---- C. an entry host is not a report ---------------------------------------
 ck("hostEntry" not in written and "hostEntry" not in bad,
@@ -212,11 +252,11 @@ ck(rc == 0 and led["unreadable"] == bad and "ceiling" not in led,
    "failure: %s" % led)
 rc = R.main(["--raise-floors"])
 led = json.load(io.open(R.LEDGER, encoding="utf-8"))["pages"]["fixture.html"]
-ck(rc == 0 and led.get("ceiling") == 4,
+ck(rc == 0 and led.get("ceiling") == 6,
    "the ceiling is set on request, at today's reading: %s" % led)
 
 state = R.load()
-state["pages"]["fixture.html"]["ceiling"] = 3
+state["pages"]["fixture.html"]["ceiling"] = 5
 R.save(state)
 rc = R.main([])
 ck(rc != 0,
@@ -227,7 +267,7 @@ rc = R.main(["--check"])
 ck(rc != 0, "--check is accepted for symmetry with the kit's other ratchets, and refuses too")
 
 state = R.load()
-state["pages"]["fixture.html"]["ceiling"] = 4
+state["pages"]["fixture.html"]["ceiling"] = 6
 R.save(state)
 ck(R.main([]) == 0, "back at its ceiling, the page passes")
 
@@ -241,13 +281,16 @@ ck(rc == 0 and led["furniture"]["heatload"] == "a rehearsal, not a reading",
    "...and with one, the reason is what is stored: %s" % led.get("furniture"))
 got2 = R.walk("fixture.html", tasks_dir)
 bad2 = R.unreadable(got2["fixture.html"], R.furniture_of(R.load(), "fixture.html"))
-ck(len(bad2) == 3 and "heatload" not in bad2,
+ck(len(bad2) == 5 and "heatload" not in bad2,
    "declared furniture leaves the worklist -- and only that element: %s" % bad2)
 ck(R.main([]) == 0, "the ratchet runs downward: fewer than the ceiling is never a failure")
 rc = R.main(["--raise-floors"])
 led = json.load(io.open(R.LEDGER, encoding="utf-8"))["pages"]["fixture.html"]
-ck(led.get("ceiling") == 3,
+ck(led.get("ceiling") == 5,
    "...and --raise-floors LOWERS it, because this ceiling only ever comes down: %s" % led)
+ck(led.get("through") == {"cc-A": "cmpGrid"},
+   "the ledger names what a task can only hold by string, through the box around it -- the "
+   "weakest reading is not hidden inside the readable count: %s" % led.get("through"))
 
 # ---- E. the audit does not disagree with the reader --------------------------
 ck(set(bad).isdisjoint(readable),

@@ -282,7 +282,7 @@ REPORT = r"""
   // whatever a page calls it next -- the pair is the convention, the class
   // is not (the first draft named four classes and read nothing on the
   // selection log, whose figures are .st).
-  const figures = {}, order = [], seen = new Set(), by = {};
+  const figures = {}, order = [], seen = new Set(), by = {}, sources = {};
   document.querySelectorAll(".v").forEach(v => {
     const t = v.parentElement;
     if (!t || seen.has(t) || order.length >= 200) return;
@@ -309,6 +309,14 @@ REPORT = r"""
     if (box) { const b = by[box] = by[box] || {}; let bk = key, m = 2;
                while (bk in b) { bk = key + " #" + (m++); }        // "doubling time" twice in one box
                b[bk] = val; }
+    // ...and WHERE IT WAS READ FROM (ADR-171): the id of the value element
+    // itself when it has one (the visualizer's #mH, the notebook's #mrC), else
+    // the pair's own id (a .tile with an id), else the box. Provenance, not a
+    // second value: the readable-figures audit counts a page's written elements
+    // by id, and without this a figure read here under its label was counted
+    // as one no task could read, because its id is not named like a box.
+    const src = v.id || t.id || box;
+    if (src) sources[k] = src;
   });
   // A box is read whether or not its pane is open: a report a pane hides is
   // still the page's report, and the robot compares figures, not pixels. Which
@@ -320,14 +328,17 @@ REPORT = r"""
   // *Advice, *Refuse, *Table, *Chart, *Typical, *List, *Grid, *Export,
   // *Lint, *Cmd, *Meas, *Help, *Card, *Legend, *Msg, *Check, *Read, *Desc,
   // *Left, *Res (ADR-129: the keys' kres/kRes, the visualizer's msg, the
-  // proofs' spCheck, the lab's readings) (any case, hyphens allowed:
-  // the experiment guide's eco-out), and the few plain names (coherence,
-  // report, results, outputs, toast, journal). Capped in count and in
-  // characters; a list's rows are counted separately below.
+  // proofs' spCheck, the lab's readings), *Board (ADR-171: the pheno
+  // tracker's rankBoard and momBoard -- a ranked run of scored plants and the
+  // mothers held in veg, figures both, and the ranking board was skipped by
+  // the readable audit as an entry host because each row carries buttons)
+  // (any case, hyphens allowed: the experiment guide's eco-out), and the few
+  // plain names (coherence, report, results, outputs, toast, journal). Capped
+  // in count and in characters; a list's rows are counted separately below.
   // "station-<key>" is the lab's own name for a station (ADR-135): the session
   // key the engine uses, so a figure read off the page is read under the same
   // name the engine reports it under.
-  const BOX = /^(an|out|rep|res|sum)[A-Za-z0-9-]*$|(box|out|stats?|plan|matrix|verdict|tiles|warn|coh|tell|note|advice|refuse|table|chart|typical|list|results|grid|export|lint|cmd|meas|help|card|legend|msg|check|read|desc|left|res)$|^(coherence|report|results|outputs|toast|journal)$|^station-[a-z]+$/i;
+  const BOX = /^(an|out|rep|res|sum)[A-Za-z0-9-]*$|(box|out|stats?|plan|matrix|verdict|tiles|warn|coh|tell|note|advice|refuse|table|chart|typical|list|results|grid|export|lint|cmd|meas|help|card|legend|msg|check|read|desc|left|res|board)$|^(coherence|report|results|outputs|toast|journal)$|^station-[a-z]+$/i;
   const boxes = {}, shown = [];
   document.querySelectorAll("[id]").forEach(e => {
     if (!BOX.test(e.id)) return;
@@ -447,8 +458,8 @@ REPORT = r"""
     const p = r.parentElement; const id = p && p.id ? "#" + p.id : (p ? p.className.split(" ")[0] : "?");
     rows[id] = (rows[id] || 0) + 1;
   });
-  return { figures: figures, by: by, order: order, boxes: boxes, shown: shown, rows: rows, tables: tables,
-           headings: headings, charts: charts,
+  return { figures: figures, by: by, order: order, sources: sources, boxes: boxes, shown: shown, rows: rows,
+           tables: tables, headings: headings, charts: charts,
            route: (document.querySelector(".pane.on") || {}).id || null };
 }
 """
@@ -1033,7 +1044,8 @@ class PagePlugin(Plugin):
                                          required=True, examples=["Amanita", "Pinus contorta", "Quercus"])]),
                 ActionSpec("read-report",
                            "The page's report as it stands: every labelled figure (a .l label "
-                           "beside a .v value) flat and by the box it sits in, every analysis "
+                           "beside a .v value) flat, by the box it sits in and by the id it was "
+                           "read from, every analysis "
                            "box's text (by the kit's id conventions: an*, *Out, *Box, *Stats, "
                            "*Note, *List, *Table, toast...), which boxes a reader can see, "
                            "every table's cells, the row count of every list, and the "

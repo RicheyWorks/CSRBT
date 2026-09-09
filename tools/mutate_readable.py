@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
 """Mutation testing for the readable-figures audit (ADR-146).
 
-`audit_readable.py` says 26 elements across the kit hold a figure `read-report`
-cannot see. That number is a worklist and a ratchet, and a miscount here is
+`audit_readable.py` says how many elements across the kit hold a figure
+`read-report` cannot see. That number is a worklist and a ratchet, and a miscount here is
 invisible in both directions: too high invents work nobody needs to do, too low
 hides a figure no task will ever hold. Neither looks any different from a green
 number. So the measurement is broken on purpose and `verify_readable` has to
@@ -40,9 +40,13 @@ MUTANTS = [
      '    written = changed',
      "DEEPEST id in a chain"),
     ("an element that never changed is written too",
-     '    changed = sorted(k for k, v in after.items() if before.get(k) != v)',
-     '    changed = sorted(after.keys())',
+     '    changed = sorted(k for k, v in after.items() if v and before.get(k) != v)',
+     '    changed = sorted(k for k, v in after.items() if v)',
      "never writes is not a written element"),
+    ("an element the page created and left empty is a written figure",
+     '    changed = sorted(k for k, v in after.items() if v and before.get(k) != v)',
+     '    changed = sorted(k for k, v in after.items() if before.get(k) != v)',
+     "left EMPTY holds no figure"),
     ("a control's own text is a report",
      '    if (e.hasAttribute("data-h")) return;',
      '    if (false) return;',
@@ -53,9 +57,34 @@ MUTANTS = [
      "neither is an <option>"),
     # ---- what counts as readable ----
     ("boxes are the only channel, so every table and chart is a figure nobody can read",
-     '    readable = sorted(set(boxes) | set(channels))',
-     '    readable = sorted(boxes)',
+     '    readable = sorted(set(boxes) | set(channels) | set(figs) | set(through))',
+     '    readable = sorted(set(boxes) | set(figs) | set(through))',
      "read through the second one"),
+    # ---- ADR-171: the figures channel, and the box around an element ----
+    ("a figure's source is not a reading, so every .v with its own id is blind again",
+     '    readable = sorted(set(boxes) | set(channels) | set(figs) | set(through))',
+     '    readable = sorted(set(boxes) | set(channels) | set(through))',
+     "the reader now says WHICH id"),
+    ("the reader is not asked where a figure came from",
+     '    figs = sorted(set(v for v in (rep.get("sources") or {}).values() if v))',
+     '    figs = []',
+     "the reader now says WHICH id"),
+    ("an element inside a box is not read through it",
+     '    readable = sorted(set(boxes) | set(channels) | set(figs) | set(through))',
+     '    readable = sorted(set(boxes) | set(channels) | set(figs))',
+     "read THROUGH the box"),
+    ("every descendant of a box is read through it, returned or not",
+     '            if anc in box_text and txt in box_text[anc]:',
+     '            if anc in box_text:',
+     "actually RETURNED it"),
+    ("a truncated element is read through its box on the strength of its first 4000 characters",
+     '        if not txt or len(txt) >= 4000:     # truncated: "whole" cannot be claimed',
+     '        if not txt:',
+     "actually RETURNED it"),
+    ("the box an element is read through is not recorded",
+     '        if thr:\n            e["through"] = thr',
+     '        if False:\n            e["through"] = thr',
+     "the ledger names what a task can only hold by string"),
     ("a table is a figure nobody can read",
      '  document.querySelectorAll("svg, table").forEach(e => {',
      '  document.querySelectorAll("svg").forEach(e => {',
@@ -69,8 +98,8 @@ MUTANTS = [
      '    const host = e.id || "";',
      "read through the second one"),
     ("read-report is never asked, so nothing is readable",
-     '        boxes = sorted((rep.get("boxes") or {}).keys())',
-     '        boxes = []',
+     '        _ok, _msg, rep = plug.execute("read-report", {})',
+     '        rep = {}',
      "named the kit's way"),
     # ---- an entry host is not a report ----
     ("an entry host is a figure, so every entry kit mount in the kit is on the worklist",

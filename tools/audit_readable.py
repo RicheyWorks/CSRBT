@@ -26,10 +26,23 @@ drifts. The page is asked instead:
                does and the innermost element is the one that owns the figure.
                Controls are excluded: a stepper's readout moving is the control,
                not a report.
-    READABLE   the ids `read-report` actually returned as boxes, from the plugin
-               itself.
+    READABLE   the ids `read-report` actually returned, from the plugin itself:
+               as boxes; as the host of a table or a chart; as the SOURCE of a
+               labelled figure (ADR-171 -- the .v/.l pair's own id, which the
+               figures channel reads under its label and which is not named
+               like a box: the visualizer's #mH, the notebook's #mrC, the
+               proofs' #spPhi); or THROUGH THE BOX AROUND IT, when the box's
+               returned text carries the element's text whole (the
+               visualizer's comparison cards inside #cmpGrid). The last is the
+               weakest reading -- a substring of a blob, not a keyed value --
+               and is reported as such, so the next person can see which
+               figures a task can only hold by string.
 
     UNREADABLE = WRITTEN - READABLE - furniture
+
+    An element that is EMPTY in the entered state holds no figure and is not
+    written, whatever it held on the way (the greenhouse's source-settings host
+    is empty once a source with no settings is picked).
 
 FURNITURE IS DECLARED, NOT GUESSED
 
@@ -115,6 +128,22 @@ CHANNEL_JS = r"""
 }
 """
 
+# The identified ancestors of each of a set of ids, nearest first. A box is
+# read by its text, and its text is every descendant's -- so an element inside
+# a box is read through the box, at the box's granularity (ADR-171).
+CHAIN_JS = r"""
+(ids) => {
+  const out = {};
+  ids.forEach(id => {
+    const e = document.getElementById(id); const chain = [];
+    let p = e && e.parentElement;
+    while (p) { if (p.id) chain.push(p.id); p = p.parentElement; }
+    out[id] = chain;
+  });
+  return out;
+}
+"""
+
 # Which of a set of ids has NO descendant that also has an id -- the innermost
 # owner of a change. A parent's text changes whenever a child's does, so without
 # this every figure is also reported against <body> and every card around it.
@@ -192,20 +221,43 @@ def measure(pg, name, tasks_dir=None, before=None):
     after = pg.evaluate(TEXT_JS, True)
 
     before = before or {}
-    changed = sorted(k for k, v in after.items() if before.get(k) != v)
+    # An empty element holds no figure: written means a figure was written.
+    changed = sorted(k for k, v in after.items() if v and before.get(k) != v)
     written = pg.evaluate(DEEPEST_JS, changed) if changed else []
 
     channels = pg.evaluate(CHANNEL_JS) or {}
     plug = PP.PagePlugin(pg, name)
     try:
         _ok, _msg, rep = plug.execute("read-report", {})
-        boxes = sorted((rep.get("boxes") or {}).keys())
     except Exception:
-        boxes = []
-    readable = sorted(set(boxes) | set(channels))
+        rep = {}
+    box_text = rep.get("boxes") or {}
+    boxes = sorted(box_text.keys())
+    # The source of every labelled figure (ADR-171): read-report says which
+    # element each .v/.l value came from, and that id is readable under the
+    # figure's label whatever the id is called.
+    figs = sorted(set(v for v in (rep.get("sources") or {}).values() if v))
+    # Read THROUGH the box around it: the nearest box ancestor whose returned
+    # text -- capped, as the reader returns it -- carries the element's text
+    # whole. Held against the returned text and not the DOM, because a figure
+    # past the reader's 4000-character cap is a figure the reader did not
+    # return, however much the DOM holds.
+    through = {}
+    direct = set(boxes) | set(channels) | set(figs)
+    rest = [w for w in written if w not in direct]
+    chains = pg.evaluate(CHAIN_JS, rest) if rest else {}
+    for wid in rest:
+        txt = after.get(wid, "")
+        if not txt or len(txt) >= 4000:     # truncated: "whole" cannot be claimed
+            continue
+        for anc in chains.get(wid) or []:
+            if anc in box_text and txt in box_text[anc]:
+                through[wid] = anc
+                break
+    readable = sorted(set(boxes) | set(channels) | set(figs) | set(through))
     return {"task": (ent or {}).get("task"), "driven": (ent or {}).get("driven", 0),
             "written": sorted(written), "readable": readable,
-            "channels": channels}
+            "channels": channels, "sources": figs, "through": through}
 
 
 def walk(only=None, tasks_dir=None):
@@ -305,6 +357,15 @@ def main(argv):
             e["ceiling"] = len(bad)
         e.update({"unreadable": bad, "written": len(r["written"]),
                   "task": r["task"], "at": int(time.time())})
+        # Which written elements a task can only hold by string, through the
+        # box around them -- named, so the weakest reading is not hidden inside
+        # the readable count.
+        thr = dict((k, v) for k, v in (r.get("through") or {}).items()
+                   if k in r["written"] and k not in furn)
+        if thr:
+            e["through"] = thr
+        else:
+            e.pop("through", None)
         mark = "  ABOVE CEILING %d" % ceiling if ceiling is not None and len(bad) > ceiling else ""
         print("%-30s %10d %8d %8d   %s%s"
               % (name, len(bad), len(r["written"]), len(r["readable"]),
