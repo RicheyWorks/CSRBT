@@ -29008,9 +29008,9 @@
    "verdict": "PASS"
   },
   "page-soil-bench-science": {
-   "at": 1788777352,
-   "confirmed": 66,
-   "goal": "On the soil bench: the demo windrow log has 14 of 15 required days at or above 55 C and 5 of 5 turnings while hot, peak 64, not there yet; a 34 C reading is a cooled pile, in-vessel needs only 3 days and is met, 72 C is one reading above 66; 100 L of fresh grass clippings (C:N 20, 2.4% N, 80% moisture, 250 kg/m3) is nitrogen-rich and 200 L of straw (80, 0.7%, 12%, 60) blends to C:N 42.9:1 by sum C over sum N, 37 kg wet, 16 kg dry, 58% moisture; peat + perlite is a nutrient-free mix and compost makes it 1.00/5; the texture key reads holds, ribbon, over 5 cm, smooth as SILTY CLAY and falls apart as SAND.",
+   "at": 1788924168,
+   "confirmed": 72,
+   "goal": "On the soil bench: the demo windrow log has 14 of 15 required days at or above 55 C and 5 of 5 turnings while hot, peak 64, not there yet; a 34 C reading is a cooled pile, in-vessel needs only 3 days and is met, 72 C is one reading above 66; 100 L of fresh grass clippings (C:N 20, 2.4% N, 80% moisture, 250 kg/m3) is nitrogen-rich and 200 L of straw (80, 0.7%, 12%, 60) blends to C:N 42.9:1 by sum C over sum N, 37 kg wet, 16 kg dry, 58% moisture; peat + perlite is a nutrient-free mix and compost makes it 1.00/5; the texture key reads holds, ribbon, over 5 cm, smooth as SILTY CLAY and falls apart as SAND. Then the composting pane's last three untouched controls are driven -- the Celsius temperature-unit chip reselected, the squeeze-test moisture set to bone dry, and the turn chip toggled -- as pending inputs with no reading added, so the demo windrow verdict is unchanged and read once more.",
    "held": true,
    "id": "page-soil-bench-science",
    "must": "PASS",
@@ -29022,7 +29022,7 @@
     "DESTRUCTIVE"
    ],
    "rungsWhy": "the goal includes undoing the last addition: cUndo is 'Undo'",
-   "seconds": 2.1,
+   "seconds": 2.6,
    "steps": [
     {
      "action": "observe",
@@ -29068,7 +29068,7 @@
      ],
      "id": "up",
      "message": "press-step step_btn:1",
-     "ms": 22,
+     "ms": 24,
      "result": "driven"
     },
     {
@@ -29082,7 +29082,7 @@
      ],
      "id": "t56",
      "message": "read step_val:0",
-     "ms": 2,
+     "ms": 3,
      "result": "driven"
     },
     {
@@ -29135,7 +29135,7 @@
      ],
      "id": "pile",
      "message": "4 figure(s), 11 box(es), 1 list(s), 1 table(s), 18 heading(s)",
-     "ms": 6,
+     "ms": 7,
      "result": "driven"
     },
     {
@@ -29149,7 +29149,7 @@
      ],
      "id": "t34",
      "message": "set-text step_val:0",
-     "ms": 22,
+     "ms": 23,
      "result": "driven"
     },
     {
@@ -29163,7 +29163,7 @@
      ],
      "id": "add34",
      "message": "activate action_btn:0",
-     "ms": 21,
+     "ms": 24,
      "result": "driven"
     },
     {
@@ -29191,7 +29191,7 @@
      ],
      "id": "undo",
      "message": "activate action_btn:1",
-     "ms": 21,
+     "ms": 22,
      "result": "driven"
     },
     {
@@ -29205,7 +29205,7 @@
      ],
      "id": "vessel",
      "message": "activate dial_btn:0",
-     "ms": 21,
+     "ms": 23,
      "result": "driven"
     },
     {
@@ -29224,7 +29224,7 @@
      ],
      "id": "meets",
      "message": "3 figure(s), 11 box(es), 1 list(s), 1 table(s), 18 heading(s)",
-     "ms": 3,
+     "ms": 5,
      "result": "driven"
     },
     {
@@ -29238,7 +29238,7 @@
      ],
      "id": "windrow",
      "message": "activate dial_btn:2",
-     "ms": 22,
+     "ms": 23,
      "result": "driven"
     },
     {
@@ -29308,7 +29308,7 @@
      ],
      "id": "rec",
      "message": "opened pane p-rec",
-     "ms": 112,
+     "ms": 116,
      "result": "driven"
     },
     {
@@ -29322,7 +29322,7 @@
      ],
      "id": "grass",
      "message": "pick pick_search:0",
-     "ms": 147,
+     "ms": 145,
      "result": "driven"
     },
     {
@@ -29336,7 +29336,7 @@
      ],
      "id": "v100",
      "message": "set-text step_val:1",
-     "ms": 23,
+     "ms": 22,
      "result": "driven"
     },
     {
@@ -29350,7 +29350,7 @@
      ],
      "id": "radd1",
      "message": "activate action_btn:3",
-     "ms": 21,
+     "ms": 23,
      "result": "driven"
     },
     {
@@ -29383,7 +29383,7 @@
      ],
      "id": "straw",
      "message": "pick pick_search:0",
-     "ms": 143,
+     "ms": 149,
      "result": "driven"
     },
     {
@@ -29397,7 +29397,7 @@
      ],
      "id": "v200",
      "message": "set-text step_val:1",
-     "ms": 21,
+     "ms": 24,
      "result": "driven"
     },
     {
@@ -29411,7 +29411,7 @@
      ],
      "id": "radd2",
      "message": "activate action_btn:3",
-     "ms": 23,
+     "ms": 25,
      "result": "driven"
     },
     {
@@ -29474,7 +29474,7 @@
      ],
      "id": "mix",
      "message": "opened pane p-mix",
-     "ms": 72,
+     "ms": 85,
      "result": "driven"
     },
     {
@@ -29488,7 +29488,7 @@
      ],
      "id": "peat",
      "message": "activate dial_btn:8",
-     "ms": 22,
+     "ms": 25,
      "result": "driven"
     },
     {
@@ -29502,7 +29502,7 @@
      ],
      "id": "perl",
      "message": "activate dial_btn:10",
-     "ms": 21,
+     "ms": 25,
      "result": "driven"
     },
     {
@@ -29536,7 +29536,7 @@
      ],
      "id": "free",
      "message": "14 figure(s), 11 box(es), 2 list(s), 2 table(s), 18 heading(s)",
-     "ms": 4,
+     "ms": 3,
      "result": "driven"
     },
     {
@@ -29550,7 +29550,7 @@
      ],
      "id": "compost",
      "message": "activate dial_btn:15",
-     "ms": 21,
+     "ms": 22,
      "result": "driven"
     },
     {
@@ -29588,7 +29588,7 @@
      ],
      "id": "tex",
      "message": "opened pane p-tex",
-     "ms": 86,
+     "ms": 78,
      "result": "driven"
     },
     {
@@ -29602,7 +29602,7 @@
      ],
      "id": "q1",
      "message": "activate dial_btn:21",
-     "ms": 21,
+     "ms": 22,
      "result": "driven"
     },
     {
@@ -29616,7 +29616,7 @@
      ],
      "id": "q2",
      "message": "activate dial_btn:21",
-     "ms": 21,
+     "ms": 23,
      "result": "driven"
     },
     {
@@ -29644,7 +29644,7 @@
      ],
      "id": "q4",
      "message": "activate dial_btn:21",
-     "ms": 22,
+     "ms": 21,
      "result": "driven"
     },
     {
@@ -29663,7 +29663,7 @@
      ],
      "id": "silty",
      "message": "14 figure(s), 11 box(es), 2 list(s), 2 table(s), 19 heading(s)",
-     "ms": 3,
+     "ms": 4,
      "result": "driven"
     },
     {
@@ -29677,7 +29677,7 @@
      ],
      "id": "startover",
      "message": "activate action_btn:9",
-     "ms": 23,
+     "ms": 29,
      "result": "driven"
     },
     {
@@ -29709,6 +29709,81 @@
      "result": "driven"
     },
     {
+     "action": "show-pane",
+     "expectations": [
+      {
+       "detail": "ok == True, got True",
+       "path": "ok",
+       "verdict": "CONFIRMED"
+      }
+     ],
+     "id": "g168-comppane",
+     "message": "opened pane p-comp",
+     "ms": 69,
+     "result": "driven"
+    },
+    {
+     "action": "activate",
+     "expectations": [
+      {
+       "detail": "ok == True, got True",
+       "path": "ok",
+       "verdict": "CONFIRMED"
+      }
+     ],
+     "id": "g168-unit",
+     "message": "activate chip:0",
+     "ms": 22,
+     "result": "driven"
+    },
+    {
+     "action": "activate",
+     "expectations": [
+      {
+       "detail": "ok == True, got True",
+       "path": "ok",
+       "verdict": "CONFIRMED"
+      }
+     ],
+     "id": "g168-moist",
+     "message": "activate dial_btn:3",
+     "ms": 21,
+     "result": "driven"
+    },
+    {
+     "action": "activate",
+     "expectations": [
+      {
+       "detail": "ok == True, got True",
+       "path": "ok",
+       "verdict": "CONFIRMED"
+      }
+     ],
+     "id": "g168-turn",
+     "message": "activate chip:2",
+     "ms": 25,
+     "result": "driven"
+    },
+    {
+     "action": "read-report",
+     "expectations": [
+      {
+       "detail": "output.by.cOut.days logged at \u226555 \u00b0C == '14 / 15', got '14 / 15'",
+       "path": "output.by.cOut.days logged at \u226555 \u00b0C",
+       "verdict": "CONFIRMED"
+      },
+      {
+       "detail": "output.by.cOut.peak == '64\u00b0', got '64\u00b0'",
+       "path": "output.by.cOut.peak",
+       "verdict": "CONFIRMED"
+      }
+     ],
+     "id": "g168-held",
+     "message": "14 figure(s), 11 box(es), 2 list(s), 2 table(s), 19 heading(s)",
+     "ms": 5,
+     "result": "driven"
+    },
+    {
      "action": "read-page",
      "expectations": [
       {
@@ -29729,7 +29804,7 @@
      ],
      "id": "intact",
      "message": "read the page",
-     "ms": 4,
+     "ms": 6,
      "result": "driven"
     }
    ],

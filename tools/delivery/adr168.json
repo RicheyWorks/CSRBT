@@ -1,0 +1,29 @@
+{
+ "id": "adr168",
+ "chain": "adr167",
+ "chain_probe": "tools/tasks/page-collection-sheet-science.json",
+ "subject": "ADR-168: the soil bench, recorded whole -- the temperature unit, the squeeze-test moisture and the turn chip, every composting input driven",
+ "body": "THE SOIL BENCH -- soil-bench.html, the composting-and-media bench across five panes (a windrow temperature log against the 40 CFR 503 / NOP time-and-temperature rules, a C:N recipe blender, a media mix, and a texture-by-feel key) -- had its log, recipe, mix and key all driven, but THREE CONTROLS IN THE COMPOSTING PANE WERE NEVER TOUCHED, all three inputs to a reading rather than results: the CELSIUS temperature-unit chip, the SQUEEZE-TEST moisture dial, and the TURN chip that records whether the pile was turned that day. The task logged its readings on the defaults -- Celsius, moisture 'Right', not turned -- and never drove the controls that set them, so the bench had no evidence it could record a turning or a moisture class at all. The demo windrow log is kept verbatim (14 of 15 days at or above 55 C, 5 of 5 turnings while hot, peak 64, not yet certified), so its verdict holds, and the three controls are driven as what they are -- PENDING INPUTS for the next reading: the unit chip reselected to Celsius, the moisture set to 'bone dry', and the turn chip toggled, all WITHOUT ADDING A READING, so nothing is logged and the demo verdict is unchanged and read once more. soil-bench 7 -> 10 OF 10 FIELDS, 66 -> 72 confirmed and 0 refuted, and the kit 515 -> 518 of 521 (99%), 25 of 27 pages entered whole. Held: the three controls feed the log only through the 'Add reading' button, so setting them and NOT pressing it drives every one while the certified-days count, the turning tally and the 64 peak all stay exactly where the demo put them; the unit chip's reselection rebuilds the entry controls and recomputes the verdict from the same readings, which is why it is driven first. No page was edited -- a task-only slice, the eighteenth page driven end to end.",
+ "paths": [
+  "tools/tasks/page-soil-bench-science.json",
+  "tools/entry_ledger.json",
+  "tools/outputs_ledger.json",
+  "tools/task_ledger.json",
+  "tools/delivery_ledger.json",
+  "tools/verify/counts.json",
+  "tools/harness_board.html",
+  "tools/published.json",
+  "tools/delivery/adr168.json",
+  "docs/ADR-168-the-soil-bench-recorded-whole-2026-09-09.md",
+  "docs/CHANGELOG-2026-09-09-adr168-the-soil-bench-recorded-whole.md",
+  "docs/AI_HARNESS.md"
+ ],
+ "clean": [
+  "adr128", "adr129", "adr130", "adr131", "adr132", "adr133", "adr134",
+  "adr135", "adr136", "adr137", "adr138", "adr139", "adr140", "adr141",
+  "adr142", "adr143", "adr144", "adr145", "adr146", "adr147", "adr148",
+  "adr149", "adr150", "adr151", "adr152", "adr153", "adr154", "adr155",
+  "adr156", "adr157", "adr158", "adr159", "adr160", "adr161", "adr162",
+  "adr163", "adr164", "adr165", "adr166", "adr167", "adr168"
+ ]
+}

@@ -845,10 +845,15 @@
    "by": "adr167",
    "sha": "7aa6c43e2917b0354bdfb4d278dfcf7c408d4cd3ecb2b9004f3845b31d1bddef"
   },
+  "docs/ADR-168-the-soil-bench-recorded-whole-2026-09-09.md": {
+   "at": 1788926231,
+   "by": "adr168",
+   "sha": "e4ea67c1678da3f34676bf6c6ff13cd6fe54fd03ac5409f35d2a7366b65cece7"
+  },
   "docs/AI_HARNESS.md": {
-   "at": 1788923746,
-   "by": "adr167",
-   "sha": "a63d1f517d723f3fecadbbc387a3fdce8f580399a3f74d62e5ae6a87752425b2"
+   "at": 1788926231,
+   "by": "adr168",
+   "sha": "b0af34875f5405d7a8d2a3302e42e73348ab34f9ea41577341227dad3f51168d"
   },
   "docs/AUDIT-2026-07-14-capability-coverage.md": {
    "at": 1788676922,
@@ -1630,6 +1635,11 @@
    "by": "adr167",
    "sha": "f467f44f7a75ff1ae2ab88eee51673d1e6602b17afab648fd02ebb2151038629"
   },
+  "docs/CHANGELOG-2026-09-09-adr168-the-soil-bench-recorded-whole.md": {
+   "at": 1788926231,
+   "by": "adr168",
+   "sha": "b83c66eb8c8525bb2f8d27b8a28be575086c66e675815c5fdf05fc59220f9c0f"
+  },
   "docs/DESIGN-adaptive-engine.md": {
    "at": 1788676923,
    "by": "adr146b",
@@ -2405,10 +2415,15 @@
    "by": "adr167",
    "sha": "624be75df572666a85974a523ec14a20c219b74e49989f5f8eed1ee4edb53330"
   },
+  "tools/delivery/adr168.json": {
+   "at": 1788926231,
+   "by": "adr168",
+   "sha": "c601afc3f14b86ed383967829a79d638b3282325f0a3ffd96f8bba4c151572c8"
+  },
   "tools/delivery_ledger.json": {
-   "at": 1788923746,
-   "by": "adr167",
-   "sha": "2e813e64c6adff92a09499dc8a94ab8d82a76b977c2c21dff2ddbb77c9bfcc63"
+   "at": 1788926231,
+   "by": "adr168",
+   "sha": "e8e7fc21e14575f51471f48fcf3550700acd06e1583fbe5eb7eee15c7301191a"
   },
   "tools/dwc.py": {
    "at": 1788676926,
@@ -2451,9 +2466,9 @@
    "sha": "01919e137bdbf702ebc887de41aa026b721916da9d3761ce673812d54a22471f"
   },
   "tools/entry_ledger.json": {
-   "at": 1788923746,
-   "by": "adr167",
-   "sha": "d2cfc253b83666a0bfad1c508c61f530535a0d86244c708acc69509e19719f2d"
+   "at": 1788926231,
+   "by": "adr168",
+   "sha": "72865bf775e26dce815c9ba02a5bef80a999ec2a9bfbf62c920b05ca15b4b1d1"
   },
   "tools/entry_reach.py": {
    "at": 1788676926,
@@ -2506,9 +2521,9 @@
    "sha": "1d5e5bb0fadf4abb88d56125483a66e1bc2367055c7b541aa9d800c6dddde9dc"
   },
   "tools/harness_board.html": {
-   "at": 1788923746,
-   "by": "adr167",
-   "sha": "f421d4180069462777d527335ab38705fce382f35000873aa0fd6afb4a45bcfa"
+   "at": 1788926231,
+   "by": "adr168",
+   "sha": "98d36d37dcd7b5781ce48650fe9ce6d51c44e89a9d0f0a1b8cf8b4e3eb28a754"
   },
   "tools/harness_board.py": {
    "at": 1788783742,
@@ -2711,9 +2726,9 @@
    "sha": "172e699a8abda0fb0fe773b9204e652001fac70b769e1082739097b699c28db0"
   },
   "tools/outputs_ledger.json": {
-   "at": 1788923746,
-   "by": "adr167",
-   "sha": "5316d5de51818df0f1d59076d6df002556a9224b04e97d4f41ecd2850d01bcf6"
+   "at": 1788926231,
+   "by": "adr168",
+   "sha": "8942dfeb5a5bda7fd8ddadfbdb6480c22d2641d2d21e0135716a67164e4cdd7c"
   },
   "tools/probe.py": {
    "at": 1788676927,
@@ -2746,9 +2761,9 @@
    "sha": "15022dcd97ee97f72ec5f907d0cdfef3ee36da9588f9de47e110519ff9f781e8"
   },
   "tools/published.json": {
-   "at": 1788923746,
-   "by": "adr167",
-   "sha": "d963ab396f3c484b83258d0bde2b979f49f3015adce3c50a2f861cb0cf61428b"
+   "at": 1788926231,
+   "by": "adr168",
+   "sha": "683a82af13fbc646ff1344bd5a9f1e0ef2466163d6c44408fc0e057d0fd4d1d5"
   },
   "tools/reach.py": {
    "at": 1788676928,
@@ -2791,9 +2806,9 @@
    "sha": "0a2241a252fa68e80b813e601b7bd67cd8ba5c00b8ad07acc98dcd93a42b0268"
   },
   "tools/task_ledger.json": {
-   "at": 1788923746,
-   "by": "adr167",
-   "sha": "c742bb2a186062c802d7d7239ee0405c2c7c55a0964e1135cc69060bfcf1042a"
+   "at": 1788926231,
+   "by": "adr168",
+   "sha": "a6660335d7817cc82e642c1ab37ed0b653d5cb89f9e449bbb43054823ff64e3c"
   },
   "tools/tasks/fixture-buckets.json": {
    "at": 1788676928,
@@ -3016,9 +3031,9 @@
    "sha": "6fc44bd1a0ed6b8e773926e95408c78d947f127ca887f74c3e4c1d7fe3a4d925"
   },
   "tools/tasks/page-soil-bench-science.json": {
-   "at": 1788676928,
-   "by": "adr146b",
-   "sha": "ad12cb4bf5cf913fc12ea200287090a9b3f3f3bd4a33bcd9be846459ab5b2681"
+   "at": 1788926231,
+   "by": "adr168",
+   "sha": "7278182ca9c12d4b0e80db608c7238727ac9b1c87ca381fff82a1ab47bb21b1e"
   },
   "tools/tasks/page-soil-recipes-scaling.json": {
    "at": 1788676928,
@@ -3086,9 +3101,9 @@
    "sha": "15a9ad96a69cde9458d5f7fca51be947e5bebad787cc069e1bcc64bf7800b592"
   },
   "tools/verify/counts.json": {
-   "at": 1788923746,
-   "by": "adr167",
-   "sha": "06a635aee61bc1cad3cf30213ca40d66157665a729144aa50f249440da865598"
+   "at": 1788926231,
+   "by": "adr168",
+   "sha": "e5a3008a115e1c1c75ffa84c60e5e6866214207b77bb8eb1edfa98b65852e03c"
   },
   "tools/verify/run_all.py": {
    "at": 1788783742,
