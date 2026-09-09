@@ -14975,9 +14975,9 @@
    "verdict": "PASS"
   },
   "page-experiment-guide-design": {
-   "at": 1788777307,
-   "confirmed": 220,
-   "goal": "On the experiment guide's designer: measured phases 12.34 + 5.6 ms over a 2 ms floor total 17.9 ms at 9x the floor and 100 + 48.6 over 12 ms 148.6 ms at 12x, the pre-registration table says the same, a verdict without a rule is refused and with one it fires; on the ecology track a named study with one uniform phase and one hypothesis emits exactly the .eco text and lints clean with 6 directives, a logistic model with 3 of 4 parameters is refused and with 4 is emitted. A photograph dropped on the import card is refused by name and imports nothing.",
+   "at": 1788953945,
+   "confirmed": 251,
+   "goal": "On the experiment guide's designer: measured phases 12.34 + 5.6 ms over a 2 ms floor total 17.9 ms at 9x the floor and 100 + 48.6 over 12 ms 148.6 ms at 12x, the pre-registration table says the same, a verdict without a rule is refused and with one it fires; on the ecology track a named study with one uniform phase and one hypothesis emits exactly the .eco text and lints clean with 6 directives, a logistic model with 3 of 4 parameters is refused and with 4 is emitted. A photograph dropped on the import card is refused by name and imports nothing. Then every output the guide hands over is read: the .eco copied and downloaded as clashing-study.eco is the protocol byte for byte (name, keys 200, seed 3, window 200, one uniform phase of 1000, the pondless graze dataset, the evenness hypothesis), the copied pre-registration carries the two measured rows (17.9 ms at 9x, 148.6 ms at 12x) and the fired verdict, the copied JUnit skeleton carries seed 7, sizes 20000 and 60000 and 5 timed passes, and the checklist's print button prints.",
    "held": true,
    "id": "page-experiment-guide-design",
    "must": "PASS",
@@ -14989,7 +14989,7 @@
     "DESTRUCTIVE"
    ],
    "rungsWhy": "the guide's design is read, then eng-reset ('Start over') is pressed and the blank state checked",
-   "seconds": 7.1,
+   "seconds": 10.9,
    "steps": [
     {
      "action": "observe",
@@ -15021,7 +15021,7 @@
      ],
      "id": "designer",
      "message": "activate action_btn:21",
-     "ms": 42,
+     "ms": 65,
      "result": "driven"
     },
     {
@@ -15035,7 +15035,7 @@
      ],
      "id": "eng",
      "message": "activate action_btn:1",
-     "ms": 24,
+     "ms": 30,
      "result": "driven"
     },
     {
@@ -15049,7 +15049,7 @@
      ],
      "id": "reset",
      "message": "activate action_btn:17",
-     "ms": 23,
+     "ms": 38,
      "result": "driven"
     },
     {
@@ -15063,7 +15063,7 @@
      ],
      "id": "sizes",
      "message": "set-text text_in:24",
-     "ms": 25,
+     "ms": 28,
      "result": "driven"
     },
     {
@@ -15077,7 +15077,7 @@
      ],
      "id": "phases",
      "message": "set-text text_in:27",
-     "ms": 24,
+     "ms": 25,
      "result": "driven"
     },
     {
@@ -15091,7 +15091,7 @@
      ],
      "id": "i20",
      "message": "set-text text_in:30",
-     "ms": 22,
+     "ms": 28,
      "result": "driven"
     },
     {
@@ -15105,7 +15105,7 @@
      ],
      "id": "s20",
      "message": "set-text text_in:31",
-     "ms": 21,
+     "ms": 26,
      "result": "driven"
     },
     {
@@ -15119,7 +15119,7 @@
      ],
      "id": "f20",
      "message": "set-text text_in:32",
-     "ms": 22,
+     "ms": 26,
      "result": "driven"
     },
     {
@@ -15133,7 +15133,7 @@
      ],
      "id": "i60",
      "message": "set-text text_in:33",
-     "ms": 24,
+     "ms": 25,
      "result": "driven"
     },
     {
@@ -15147,7 +15147,7 @@
      ],
      "id": "s60",
      "message": "set-text text_in:34",
-     "ms": 22,
+     "ms": 24,
      "result": "driven"
     },
     {
@@ -15161,7 +15161,7 @@
      ],
      "id": "f60",
      "message": "set-text text_in:35",
-     "ms": 22,
+     "ms": 26,
      "result": "driven"
     },
     {
@@ -15178,14 +15178,14 @@
        "verdict": "CONFIRMED"
       },
       {
-       "detail": "output.boxes.eng-out contains '| 20000 | 12.34 | 5.6 | 2 | 17.9 | 9\u00d7 |', got '## Experiment \u2014 (one sentence: what are you measuring?) **Pre-registered 2026-09-07** \u2014 the decision rule below was written before any run. **Floor:** (the least ANY solution could do) **Workload:** (shape and generator); sizes: 20000, 60000; seed 42. **Timing:** one untimed warm-up pass, then 3 timed passes on fresh state, median kept; phases timed separately. | n | inflate (ms) | scan (ms) | floor (ms) | total (ms) | total/floor | | --- | --- | --- | --- | --- | --- | | 20000 | 12.34 | 5.6 | 2 | 17.9 | 9\u00d7 | | 60000 | 100 | 48.6 | 12 | 148.6 | 12\u00d7 | **Pre-registered rule:** (the bar, and what clearing it means) **If it fails the bar:** (what is recorded, what stays held) **VERDICT:** _append after the run \u2014 the measured number beside the bar, and what it means._'",
+       "detail": "output.boxes.eng-out contains '| 20000 | 12.34 | 5.6 | 2 | 17.9 | 9\u00d7 |', got '## Experiment \u2014 (one sentence: what are you measuring?) **Pre-registered 2026-09-09** \u2014 the decision rule below was written before any run. **Floor:** (the least ANY solution could do) **Workload:** (shape and generator); sizes: 20000, 60000; seed 42. **Timing:** one untimed warm-up pass, then 3 timed passes on fresh state, median kept; phases timed separately. | n | inflate (ms) | scan (ms) | floor (ms) | total (ms) | total/floor | | --- | --- | --- | --- | --- | --- | | 20000 | 12.34 | 5.6 | 2 | 17.9 | 9\u00d7 | | 60000 | 100 | 48.6 | 12 | 148.6 | 12\u00d7 | **Pre-registered rule:** (the bar, and what clearing it means) **If it fails the bar:** (what is recorded, what stays held) **VERDICT:** _append after the run \u2014 the measured number beside the bar, and what it means._'",
        "path": "output.boxes.eng-out",
        "verdict": "CONFIRMED"
       }
      ],
      "id": "totals",
      "message": "0 figure(s), 18 box(es), 0 list(s), 6 table(s), 34 heading(s)",
-     "ms": 6,
+     "ms": 10,
      "result": "driven"
     },
     {
@@ -15197,14 +15197,14 @@
        "verdict": "CONFIRMED"
       },
       {
-       "detail": "output.boxes.eng-out contains '| 60000 | 100 | 48.6 | 12 | 148.6 | 12\u00d7 |', got '## Experiment \u2014 (one sentence: what are you measuring?) **Pre-registered 2026-09-07** \u2014 the decision rule below was written before any run. **Floor:** (the least ANY solution could do) **Workload:** (shape and generator); sizes: 20000, 60000; seed 42. **Timing:** one untimed warm-up pass, then 3 timed passes on fresh state, median kept; phases timed separately. | n | inflate (ms) | scan (ms) | floor (ms) | total (ms) | total/floor | | --- | --- | --- | --- | --- | --- | | 20000 | 12.34 | 5.6 | 2 | 17.9 | 9\u00d7 | | 60000 | 100 | 48.6 | 12 | 148.6 | 12\u00d7 | **Pre-registered rule:** (the bar, and what clearing it means) **If it fails the bar:** (what is recorded, what stays held) **VERDICT:** _append after the run \u2014 the measured number beside the bar, and what it means._'",
+       "detail": "output.boxes.eng-out contains '| 60000 | 100 | 48.6 | 12 | 148.6 | 12\u00d7 |', got '## Experiment \u2014 (one sentence: what are you measuring?) **Pre-registered 2026-09-09** \u2014 the decision rule below was written before any run. **Floor:** (the least ANY solution could do) **Workload:** (shape and generator); sizes: 20000, 60000; seed 42. **Timing:** one untimed warm-up pass, then 3 timed passes on fresh state, median kept; phases timed separately. | n | inflate (ms) | scan (ms) | floor (ms) | total (ms) | total/floor | | --- | --- | --- | --- | --- | --- | | 20000 | 12.34 | 5.6 | 2 | 17.9 | 9\u00d7 | | 60000 | 100 | 48.6 | 12 | 148.6 | 12\u00d7 | **Pre-registered rule:** (the bar, and what clearing it means) **If it fails the bar:** (what is recorded, what stays held) **VERDICT:** _append after the run \u2014 the measured number beside the bar, and what it means._'",
        "path": "output.boxes.eng-out",
        "verdict": "CONFIRMED"
       }
      ],
      "id": "totals2",
      "message": "0 figure(s), 18 box(es), 0 list(s), 6 table(s), 34 heading(s)",
-     "ms": 3,
+     "ms": 5,
      "result": "driven"
     },
     {
@@ -15218,7 +15218,7 @@
      ],
      "id": "lint",
      "message": "0 figure(s), 18 box(es), 0 list(s), 6 table(s), 34 heading(s)",
-     "ms": 3,
+     "ms": 6,
      "result": "driven"
     },
     {
@@ -15232,7 +15232,7 @@
      ],
      "id": "early",
      "message": "activate action_btn:11",
-     "ms": 22,
+     "ms": 26,
      "result": "driven"
     },
     {
@@ -15246,7 +15246,7 @@
      ],
      "id": "norule",
      "message": "0 figure(s), 18 box(es), 0 list(s), 6 table(s), 34 heading(s)",
-     "ms": 3,
+     "ms": 5,
      "result": "driven"
     },
     {
@@ -15260,7 +15260,7 @@
      ],
      "id": "rule",
      "message": "set-text text_in:28",
-     "ms": 22,
+     "ms": 31,
      "result": "driven"
     },
     {
@@ -15274,21 +15274,21 @@
      ],
      "id": "fires",
      "message": "activate action_btn:11",
-     "ms": 21,
+     "ms": 26,
      "result": "driven"
     },
     {
      "action": "read-report",
      "expectations": [
       {
-       "detail": "output.boxes.eng-out contains 'VERDICT: THE TRIGGER FIRES', got '## Experiment \u2014 (one sentence: what are you measuring?) **Pre-registered 2026-09-07** \u2014 the decision rule below was written before any run. **Floor:** (the least ANY solution could do) **Workload:** (shape and generator); sizes: 20000, 60000; seed 42. **Timing:** one untimed warm-up pass, then 3 timed passes on fresh state, median kept; phases timed separately. | n | inflate (ms) | scan (ms) | floor (ms) | total (ms) | total/floor | | --- | --- | --- | --- | --- | --- | | 20000 | 12.34 | 5.6 | 2 | 17.9 | 9\u00d7 | | 60000 | 100 | 48.6 | 12 | 148.6 | 12\u00d7 | **Pre-registered rule:** fires above 5x the floor **If it fails the bar:** (what is recorded, what stays held) **VERDICT: THE TRIGGER FIRES** \u2014 (write the sentence: the measured number beside the bar, then the consequence)'",
+       "detail": "output.boxes.eng-out contains 'VERDICT: THE TRIGGER FIRES', got '## Experiment \u2014 (one sentence: what are you measuring?) **Pre-registered 2026-09-09** \u2014 the decision rule below was written before any run. **Floor:** (the least ANY solution could do) **Workload:** (shape and generator); sizes: 20000, 60000; seed 42. **Timing:** one untimed warm-up pass, then 3 timed passes on fresh state, median kept; phases timed separately. | n | inflate (ms) | scan (ms) | floor (ms) | total (ms) | total/floor | | --- | --- | --- | --- | --- | --- | | 20000 | 12.34 | 5.6 | 2 | 17.9 | 9\u00d7 | | 60000 | 100 | 48.6 | 12 | 148.6 | 12\u00d7 | **Pre-registered rule:** fires above 5x the floor **If it fails the bar:** (what is recorded, what stays held) **VERDICT: THE TRIGGER FIRES** \u2014 (write the sentence: the measured number beside the bar, then the consequence)'",
        "path": "output.boxes.eng-out",
        "verdict": "CONFIRMED"
       }
      ],
      "id": "verdict",
      "message": "0 figure(s), 18 box(es), 0 list(s), 6 table(s), 34 heading(s)",
-     "ms": 3,
+     "ms": 5,
      "result": "driven"
     },
     {
@@ -15302,7 +15302,7 @@
      ],
      "id": "ecotrack",
      "message": "activate action_btn:0",
-     "ms": 21,
+     "ms": 27,
      "result": "driven"
     },
     {
@@ -15316,7 +15316,7 @@
      ],
      "id": "ecoreset",
      "message": "activate action_btn:10",
-     "ms": 21,
+     "ms": 28,
      "result": "driven"
     },
     {
@@ -15330,7 +15330,7 @@
      ],
      "id": "name",
      "message": "set-text text_in:1",
-     "ms": 22,
+     "ms": 26,
      "result": "driven"
     },
     {
@@ -15344,7 +15344,7 @@
      ],
      "id": "pname",
      "message": "set-text text_in:5",
-     "ms": 23,
+     "ms": 25,
      "result": "driven"
     },
     {
@@ -15358,7 +15358,7 @@
      ],
      "id": "padd",
      "message": "activate action_btn:4",
-     "ms": 24,
+     "ms": 27,
      "result": "driven"
     },
     {
@@ -15386,7 +15386,7 @@
      ],
      "id": "metric",
      "message": "choose-option select:2",
-     "ms": 22,
+     "ms": 26,
      "result": "driven"
     },
     {
@@ -15400,7 +15400,7 @@
      ],
      "id": "args",
      "message": "set-text text_in:18",
-     "ms": 21,
+     "ms": 23,
      "result": "driven"
     },
     {
@@ -15414,7 +15414,7 @@
      ],
      "id": "val",
      "message": "set-text text_in:19",
-     "ms": 21,
+     "ms": 26,
      "result": "driven"
     },
     {
@@ -15428,7 +15428,7 @@
      ],
      "id": "xadd",
      "message": "activate action_btn:8",
-     "ms": 22,
+     "ms": 26,
      "result": "driven"
     },
     {
@@ -15452,7 +15452,7 @@
      ],
      "id": "spec",
      "message": "0 figure(s), 18 box(es), 0 list(s), 6 table(s), 34 heading(s)",
-     "ms": 3,
+     "ms": 5,
      "result": "driven"
     },
     {
@@ -15466,7 +15466,7 @@
      ],
      "id": "model",
      "message": "choose-option select:1",
-     "ms": 21,
+     "ms": 25,
      "result": "driven"
     },
     {
@@ -15480,7 +15480,7 @@
      ],
      "id": "short",
      "message": "set-text text_in:14",
-     "ms": 21,
+     "ms": 26,
      "result": "driven"
     },
     {
@@ -15494,7 +15494,7 @@
      ],
      "id": "madd",
      "message": "activate action_btn:6",
-     "ms": 22,
+     "ms": 27,
      "result": "driven"
     },
     {
@@ -15508,7 +15508,7 @@
      ],
      "id": "arity",
      "message": "0 figure(s), 18 box(es), 0 list(s), 6 table(s), 34 heading(s)",
-     "ms": 4,
+     "ms": 5,
      "result": "driven"
     },
     {
@@ -15522,7 +15522,7 @@
      ],
      "id": "full",
      "message": "set-text text_in:14",
-     "ms": 22,
+     "ms": 25,
      "result": "driven"
     },
     {
@@ -15536,7 +15536,7 @@
      ],
      "id": "madd2",
      "message": "activate action_btn:6",
-     "ms": 21,
+     "ms": 27,
      "result": "driven"
     },
     {
@@ -15555,7 +15555,7 @@
      ],
      "id": "modelled",
      "message": "0 figure(s), 18 box(es), 0 list(s), 6 table(s), 34 heading(s)",
-     "ms": 3,
+     "ms": 5,
      "result": "driven"
     },
     {
@@ -15569,7 +15569,7 @@
      ],
      "id": "photo",
      "message": "drop-files drop_zone:0",
-     "ms": 23,
+     "ms": 29,
      "result": "driven"
     },
     {
@@ -15593,7 +15593,7 @@
      ],
      "id": "refused",
      "message": "0 figure(s), 18 box(es), 0 list(s), 6 table(s), 34 heading(s)",
-     "ms": 4,
+     "ms": 5,
      "result": "driven"
     },
     {
@@ -15607,7 +15607,7 @@
      ],
      "id": "flat",
      "message": "read the page",
-     "ms": 5,
+     "ms": 10,
      "result": "driven"
     },
     {
@@ -15631,7 +15631,7 @@
      ],
      "id": "intact",
      "message": "read the page",
-     "ms": 4,
+     "ms": 6,
      "result": "driven"
     },
     {
@@ -15645,7 +15645,7 @@
      ],
      "id": "g150-eng",
      "message": "activate action_btn:1",
-     "ms": 24,
+     "ms": 27,
      "result": "driven"
     },
     {
@@ -15659,7 +15659,7 @@
      ],
      "id": "g150-eng-reset",
      "message": "activate action_btn:20",
-     "ms": 22,
+     "ms": 25,
      "result": "driven"
     },
     {
@@ -15688,7 +15688,7 @@
      ],
      "id": "g150-eng0",
      "message": "0 figure(s), 16 box(es), 0 list(s), 6 table(s), 34 heading(s)",
-     "ms": 3,
+     "ms": 5,
      "result": "driven"
     },
     {
@@ -15702,7 +15702,7 @@
      ],
      "id": "g150-q",
      "message": "set-text text_in:21",
-     "ms": 24,
+     "ms": 26,
      "result": "driven"
     },
     {
@@ -15731,7 +15731,7 @@
      ],
      "id": "g150-eng1",
      "message": "0 figure(s), 16 box(es), 0 list(s), 6 table(s), 34 heading(s)",
-     "ms": 3,
+     "ms": 5,
      "result": "driven"
     },
     {
@@ -15745,7 +15745,7 @@
      ],
      "id": "g150-fl",
      "message": "set-text text_in:22",
-     "ms": 22,
+     "ms": 25,
      "result": "driven"
     },
     {
@@ -15769,7 +15769,7 @@
      ],
      "id": "g150-eng2",
      "message": "0 figure(s), 16 box(es), 0 list(s), 6 table(s), 34 heading(s)",
-     "ms": 3,
+     "ms": 5,
      "result": "driven"
     },
     {
@@ -15783,7 +15783,7 @@
      ],
      "id": "g150-sz",
      "message": "set-text text_in:24",
-     "ms": 23,
+     "ms": 28,
      "result": "driven"
     },
     {
@@ -15802,7 +15802,7 @@
      ],
      "id": "g150-eng3",
      "message": "0 figure(s), 18 box(es), 0 list(s), 6 table(s), 34 heading(s)",
-     "ms": 3,
+     "ms": 6,
      "result": "driven"
     },
     {
@@ -15816,7 +15816,7 @@
      ],
      "id": "g150-rl",
      "message": "set-text text_in:28",
-     "ms": 23,
+     "ms": 27,
      "result": "driven"
     },
     {
@@ -15835,7 +15835,7 @@
      ],
      "id": "g150-eng4",
      "message": "0 figure(s), 18 box(es), 0 list(s), 6 table(s), 34 heading(s)",
-     "ms": 3,
+     "ms": 5,
      "result": "driven"
     },
     {
@@ -15849,7 +15849,7 @@
      ],
      "id": "g150-wl",
      "message": "set-text text_in:23",
-     "ms": 22,
+     "ms": 24,
      "result": "driven"
     },
     {
@@ -15863,7 +15863,7 @@
      ],
      "id": "g150-gs",
      "message": "set-text text_in:25",
-     "ms": 21,
+     "ms": 26,
      "result": "driven"
     },
     {
@@ -15877,7 +15877,7 @@
      ],
      "id": "g150-gp",
      "message": "set-text text_in:26",
-     "ms": 20,
+     "ms": 23,
      "result": "driven"
     },
     {
@@ -15891,36 +15891,36 @@
      ],
      "id": "g150-st",
      "message": "set-text text_in:29",
-     "ms": 21,
+     "ms": 25,
      "result": "driven"
     },
     {
      "action": "read-report",
      "expectations": [
       {
-       "detail": "output.boxes.eng-out contains '60k-op churn, ~5k live keys, seeded generator', got \"## Experiment \u2014 What does one scan over a cold archive cost, end to end? **Pre-registered 2026-09-07** \u2014 the decision rule below was written before any run. **Floor:** reading the archive's bytes once, front to back **Workload:** 60k-op churn, ~5k live keys, seeded generator; sizes: 20000, 60000; seed 7. **Timing:** one untimed warm-up pass, then 5 timed passes on fresh state, median kept. | n | route (ms) | floor (ms) | total (ms) | total/floor | | --- | --- | --- | --- | --- | | 20000 | | | | | | 60000 | | | | | **Pre-registered rule:** fires if the route exceeds 5x the floor at the larger size **If it fails the bar:** the seam stays held and the workaround is recorded as priced dead **VERDICT:** _append after the run \u2014 the measured number beside the bar, and what it means._\"",
+       "detail": "output.boxes.eng-out contains '60k-op churn, ~5k live keys, seeded generator', got \"## Experiment \u2014 What does one scan over a cold archive cost, end to end? **Pre-registered 2026-09-09** \u2014 the decision rule below was written before any run. **Floor:** reading the archive's bytes once, front to back **Workload:** 60k-op churn, ~5k live keys, seeded generator; sizes: 20000, 60000; seed 7. **Timing:** one untimed warm-up pass, then 5 timed passes on fresh state, median kept. | n | route (ms) | floor (ms) | total (ms) | total/floor | | --- | --- | --- | --- | --- | | 20000 | | | | | | 60000 | | | | | **Pre-registered rule:** fires if the route exceeds 5x the floor at the larger size **If it fails the bar:** the seam stays held and the workaround is recorded as priced dead **VERDICT:** _append after the run \u2014 the measured number beside the bar, and what it means._\"",
        "path": "output.boxes.eng-out",
        "verdict": "CONFIRMED"
       },
       {
-       "detail": "output.boxes.eng-out contains 'seed 7', got \"## Experiment \u2014 What does one scan over a cold archive cost, end to end? **Pre-registered 2026-09-07** \u2014 the decision rule below was written before any run. **Floor:** reading the archive's bytes once, front to back **Workload:** 60k-op churn, ~5k live keys, seeded generator; sizes: 20000, 60000; seed 7. **Timing:** one untimed warm-up pass, then 5 timed passes on fresh state, median kept. | n | route (ms) | floor (ms) | total (ms) | total/floor | | --- | --- | --- | --- | --- | | 20000 | | | | | | 60000 | | | | | **Pre-registered rule:** fires if the route exceeds 5x the floor at the larger size **If it fails the bar:** the seam stays held and the workaround is recorded as priced dead **VERDICT:** _append after the run \u2014 the measured number beside the bar, and what it means._\"",
+       "detail": "output.boxes.eng-out contains 'seed 7', got \"## Experiment \u2014 What does one scan over a cold archive cost, end to end? **Pre-registered 2026-09-09** \u2014 the decision rule below was written before any run. **Floor:** reading the archive's bytes once, front to back **Workload:** 60k-op churn, ~5k live keys, seeded generator; sizes: 20000, 60000; seed 7. **Timing:** one untimed warm-up pass, then 5 timed passes on fresh state, median kept. | n | route (ms) | floor (ms) | total (ms) | total/floor | | --- | --- | --- | --- | --- | | 20000 | | | | | | 60000 | | | | | **Pre-registered rule:** fires if the route exceeds 5x the floor at the larger size **If it fails the bar:** the seam stays held and the workaround is recorded as priced dead **VERDICT:** _append after the run \u2014 the measured number beside the bar, and what it means._\"",
        "path": "output.boxes.eng-out#2",
        "verdict": "CONFIRMED"
       },
       {
-       "detail": "output.boxes.eng-out contains '5', got \"## Experiment \u2014 What does one scan over a cold archive cost, end to end? **Pre-registered 2026-09-07** \u2014 the decision rule below was written before any run. **Floor:** reading the archive's bytes once, front to back **Workload:** 60k-op churn, ~5k live keys, seeded generator; sizes: 20000, 60000; seed 7. **Timing:** one untimed warm-up pass, then 5 timed passes on fresh state, median kept. | n | route (ms) | floor (ms) | total (ms) | total/floor | | --- | --- | --- | --- | --- | | 20000 | | | | | | 60000 | | | | | **Pre-registered rule:** fires if the route exceeds 5x the floor at the larger size **If it fails the bar:** the seam stays held and the workaround is recorded as priced dead **VERDICT:** _append after the run \u2014 the measured number beside the bar, and what it means._\"",
+       "detail": "output.boxes.eng-out contains '5', got \"## Experiment \u2014 What does one scan over a cold archive cost, end to end? **Pre-registered 2026-09-09** \u2014 the decision rule below was written before any run. **Floor:** reading the archive's bytes once, front to back **Workload:** 60k-op churn, ~5k live keys, seeded generator; sizes: 20000, 60000; seed 7. **Timing:** one untimed warm-up pass, then 5 timed passes on fresh state, median kept. | n | route (ms) | floor (ms) | total (ms) | total/floor | | --- | --- | --- | --- | --- | | 20000 | | | | | | 60000 | | | | | **Pre-registered rule:** fires if the route exceeds 5x the floor at the larger size **If it fails the bar:** the seam stays held and the workaround is recorded as priced dead **VERDICT:** _append after the run \u2014 the measured number beside the bar, and what it means._\"",
        "path": "output.boxes.eng-out#3",
        "verdict": "CONFIRMED"
       },
       {
-       "detail": "output.boxes.eng-out contains 'the seam stays held and the workaround is recorded as priced dead', got \"## Experiment \u2014 What does one scan over a cold archive cost, end to end? **Pre-registered 2026-09-07** \u2014 the decision rule below was written before any run. **Floor:** reading the archive's bytes once, front to back **Workload:** 60k-op churn, ~5k live keys, seeded generator; sizes: 20000, 60000; seed 7. **Timing:** one untimed warm-up pass, then 5 timed passes on fresh state, median kept. | n | route (ms) | floor (ms) | total (ms) | total/floor | | --- | --- | --- | --- | --- | | 20000 | | | | | | 60000 | | | | | **Pre-registered rule:** fires if the route exceeds 5x the floor at the larger size **If it fails the bar:** the seam stays held and the workaround is recorded as priced dead **VERDICT:** _append after the run \u2014 the measured number beside the bar, and what it means._\"",
+       "detail": "output.boxes.eng-out contains 'the seam stays held and the workaround is recorded as priced dead', got \"## Experiment \u2014 What does one scan over a cold archive cost, end to end? **Pre-registered 2026-09-09** \u2014 the decision rule below was written before any run. **Floor:** reading the archive's bytes once, front to back **Workload:** 60k-op churn, ~5k live keys, seeded generator; sizes: 20000, 60000; seed 7. **Timing:** one untimed warm-up pass, then 5 timed passes on fresh state, median kept. | n | route (ms) | floor (ms) | total (ms) | total/floor | | --- | --- | --- | --- | --- | | 20000 | | | | | | 60000 | | | | | **Pre-registered rule:** fires if the route exceeds 5x the floor at the larger size **If it fails the bar:** the seam stays held and the workaround is recorded as priced dead **VERDICT:** _append after the run \u2014 the measured number beside the bar, and what it means._\"",
        "path": "output.boxes.eng-out#4",
        "verdict": "CONFIRMED"
       }
      ],
      "id": "g150-prereg",
      "message": "0 figure(s), 18 box(es), 0 list(s), 6 table(s), 34 heading(s)",
-     "ms": 3,
+     "ms": 5,
      "result": "driven"
     },
     {
@@ -15934,21 +15934,21 @@
      ],
      "id": "g150-early",
      "message": "activate action_btn:14",
-     "ms": 22,
+     "ms": 24,
      "result": "driven"
     },
     {
      "action": "read-report",
      "expectations": [
       {
-       "detail": "output.boxes.eng-out contains '**VERDICT:** _append after the run', got \"## Experiment \u2014 What does one scan over a cold archive cost, end to end? **Pre-registered 2026-09-07** \u2014 the decision rule below was written before any run. **Floor:** reading the archive's bytes once, front to back **Workload:** 60k-op churn, ~5k live keys, seeded generator; sizes: 20000, 60000; seed 7. **Timing:** one untimed warm-up pass, then 5 timed passes on fresh state, median kept. | n | route (ms) | floor (ms) | total (ms) | total/floor | | --- | --- | --- | --- | --- | | 20000 | | | | | | 60000 | | | | | **Pre-registered rule:** fires if the route exceeds 5x the floor at the larger size **If it fails the bar:** the seam stays held and the workaround is recorded as priced dead **VERDICT:** _append after the run \u2014 the measured number beside the bar, and what it means._\"",
+       "detail": "output.boxes.eng-out contains '**VERDICT:** _append after the run', got \"## Experiment \u2014 What does one scan over a cold archive cost, end to end? **Pre-registered 2026-09-09** \u2014 the decision rule below was written before any run. **Floor:** reading the archive's bytes once, front to back **Workload:** 60k-op churn, ~5k live keys, seeded generator; sizes: 20000, 60000; seed 7. **Timing:** one untimed warm-up pass, then 5 timed passes on fresh state, median kept. | n | route (ms) | floor (ms) | total (ms) | total/floor | | --- | --- | --- | --- | --- | | 20000 | | | | | | 60000 | | | | | **Pre-registered rule:** fires if the route exceeds 5x the floor at the larger size **If it fails the bar:** the seam stays held and the workaround is recorded as priced dead **VERDICT:** _append after the run \u2014 the measured number beside the bar, and what it means._\"",
        "path": "output.boxes.eng-out",
        "verdict": "CONFIRMED"
       }
      ],
      "id": "g150-no-numbers",
      "message": "0 figure(s), 18 box(es), 0 list(s), 6 table(s), 34 heading(s)",
-     "ms": 3,
+     "ms": 5,
      "result": "driven"
     },
     {
@@ -15962,7 +15962,7 @@
      ],
      "id": "g150-ph",
      "message": "set-text text_in:27",
-     "ms": 24,
+     "ms": 28,
      "result": "driven"
     },
     {
@@ -15976,7 +15976,7 @@
      ],
      "id": "g150-i20",
      "message": "set-text text_in:30",
-     "ms": 22,
+     "ms": 26,
      "result": "driven"
     },
     {
@@ -15990,7 +15990,7 @@
      ],
      "id": "g150-s20",
      "message": "set-text text_in:31",
-     "ms": 22,
+     "ms": 25,
      "result": "driven"
     },
     {
@@ -16004,7 +16004,7 @@
      ],
      "id": "g150-f20",
      "message": "set-text text_in:32",
-     "ms": 22,
+     "ms": 25,
      "result": "driven"
     },
     {
@@ -16018,7 +16018,7 @@
      ],
      "id": "g150-i60",
      "message": "set-text text_in:33",
-     "ms": 22,
+     "ms": 25,
      "result": "driven"
     },
     {
@@ -16032,7 +16032,7 @@
      ],
      "id": "g150-s60",
      "message": "set-text text_in:34",
-     "ms": 21,
+     "ms": 23,
      "result": "driven"
     },
     {
@@ -16046,7 +16046,7 @@
      ],
      "id": "g150-f60",
      "message": "set-text text_in:35",
-     "ms": 21,
+     "ms": 26,
      "result": "driven"
     },
     {
@@ -16065,7 +16065,7 @@
      ],
      "id": "g150-totals",
      "message": "0 figure(s), 18 box(es), 0 list(s), 6 table(s), 34 heading(s)",
-     "ms": 3,
+     "ms": 4,
      "result": "driven"
     },
     {
@@ -16079,7 +16079,7 @@
      ],
      "id": "g150-vn",
      "message": "set-text text_in:36",
-     "ms": 22,
+     "ms": 25,
      "result": "driven"
     },
     {
@@ -16093,26 +16093,26 @@
      ],
      "id": "g150-fires",
      "message": "activate action_btn:14",
-     "ms": 21,
+     "ms": 27,
      "result": "driven"
     },
     {
      "action": "read-report",
      "expectations": [
       {
-       "detail": "output.boxes.eng-out contains '524x against a 5x bar', got \"## Experiment \u2014 What does one scan over a cold archive cost, end to end? **Pre-registered 2026-09-07** \u2014 the decision rule below was written before any run. **Floor:** reading the archive's bytes once, front to back **Workload:** 60k-op churn, ~5k live keys, seeded generator; sizes: 20000, 60000; seed 7. **Timing:** one untimed warm-up pass, then 5 timed passes on fresh state, median kept; phases timed separately. | n | inflate (ms) | scan (ms) | floor (ms) | total (ms) | total/floor | | --- | --- | --- | --- | --- | --- | | 20000 | 12.34 | 5.6 | 2 | 17.9 | 9\u00d7 | | 60000 | 100 | 48.6 | 12 | 148.6 | 12\u00d7 | **Pre-registered rule:** fires if the route exceeds 5x the floor at the larger size **If it fails the bar:** the seam stays held and the workaround is recorded as priced dead **VERDICT: THE TRIGGER FIRES** \u2014 524x against a 5x bar \u2014 the columnar cold format is unlocked\"",
+       "detail": "output.boxes.eng-out contains '524x against a 5x bar', got \"## Experiment \u2014 What does one scan over a cold archive cost, end to end? **Pre-registered 2026-09-09** \u2014 the decision rule below was written before any run. **Floor:** reading the archive's bytes once, front to back **Workload:** 60k-op churn, ~5k live keys, seeded generator; sizes: 20000, 60000; seed 7. **Timing:** one untimed warm-up pass, then 5 timed passes on fresh state, median kept; phases timed separately. | n | inflate (ms) | scan (ms) | floor (ms) | total (ms) | total/floor | | --- | --- | --- | --- | --- | --- | | 20000 | 12.34 | 5.6 | 2 | 17.9 | 9\u00d7 | | 60000 | 100 | 48.6 | 12 | 148.6 | 12\u00d7 | **Pre-registered rule:** fires if the route exceeds 5x the floor at the larger size **If it fails the bar:** the seam stays held and the workaround is recorded as priced dead **VERDICT: THE TRIGGER FIRES** \u2014 524x against a 5x bar \u2014 the columnar cold format is unlocked\"",
        "path": "output.boxes.eng-out",
        "verdict": "CONFIRMED"
       },
       {
-       "detail": "output.boxes.eng-out contains 'VERDICT', got \"## Experiment \u2014 What does one scan over a cold archive cost, end to end? **Pre-registered 2026-09-07** \u2014 the decision rule below was written before any run. **Floor:** reading the archive's bytes once, front to back **Workload:** 60k-op churn, ~5k live keys, seeded generator; sizes: 20000, 60000; seed 7. **Timing:** one untimed warm-up pass, then 5 timed passes on fresh state, median kept; phases timed separately. | n | inflate (ms) | scan (ms) | floor (ms) | total (ms) | total/floor | | --- | --- | --- | --- | --- | --- | | 20000 | 12.34 | 5.6 | 2 | 17.9 | 9\u00d7 | | 60000 | 100 | 48.6 | 12 | 148.6 | 12\u00d7 | **Pre-registered rule:** fires if the route exceeds 5x the floor at the larger size **If it fails the bar:** the seam stays held and the workaround is recorded as priced dead **VERDICT: THE TRIGGER FIRES** \u2014 524x against a 5x bar \u2014 the columnar cold format is unlocked\"",
+       "detail": "output.boxes.eng-out contains 'VERDICT', got \"## Experiment \u2014 What does one scan over a cold archive cost, end to end? **Pre-registered 2026-09-09** \u2014 the decision rule below was written before any run. **Floor:** reading the archive's bytes once, front to back **Workload:** 60k-op churn, ~5k live keys, seeded generator; sizes: 20000, 60000; seed 7. **Timing:** one untimed warm-up pass, then 5 timed passes on fresh state, median kept; phases timed separately. | n | inflate (ms) | scan (ms) | floor (ms) | total (ms) | total/floor | | --- | --- | --- | --- | --- | --- | | 20000 | 12.34 | 5.6 | 2 | 17.9 | 9\u00d7 | | 60000 | 100 | 48.6 | 12 | 148.6 | 12\u00d7 | **Pre-registered rule:** fires if the route exceeds 5x the floor at the larger size **If it fails the bar:** the seam stays held and the workaround is recorded as priced dead **VERDICT: THE TRIGGER FIRES** \u2014 524x against a 5x bar \u2014 the columnar cold format is unlocked\"",
        "path": "output.boxes.eng-out#2",
        "verdict": "CONFIRMED"
       }
      ],
      "id": "g150-verdict-note",
      "message": "0 figure(s), 18 box(es), 0 list(s), 6 table(s), 34 heading(s)",
-     "ms": 3,
+     "ms": 5,
      "result": "driven"
     },
     {
@@ -16126,7 +16126,7 @@
      ],
      "id": "g150-eco",
      "message": "activate action_btn:0",
-     "ms": 21,
+     "ms": 33,
      "result": "driven"
     },
     {
@@ -16140,7 +16140,7 @@
      ],
      "id": "g150-eco-reset",
      "message": "activate action_btn:13",
-     "ms": 21,
+     "ms": 27,
      "result": "driven"
     },
     {
@@ -16159,7 +16159,7 @@
      ],
      "id": "g150-eco0",
      "message": "0 figure(s), 18 box(es), 0 list(s), 6 table(s), 34 heading(s)",
-     "ms": 3,
+     "ms": 5,
      "result": "driven"
     },
     {
@@ -16173,7 +16173,7 @@
      ],
      "id": "g150-k1",
      "message": "set-text text_in:2",
-     "ms": 22,
+     "ms": 29,
      "result": "driven"
     },
     {
@@ -16187,7 +16187,7 @@
      ],
      "id": "g150-keys-bad",
      "message": "0 figure(s), 18 box(es), 0 list(s), 6 table(s), 34 heading(s)",
-     "ms": 3,
+     "ms": 5,
      "result": "driven"
     },
     {
@@ -16206,7 +16206,7 @@
      ],
      "id": "g150-assign",
      "message": "set-text text_in:2",
-     "ms": 22,
+     "ms": 26,
      "result": "driven"
     },
     {
@@ -16225,7 +16225,7 @@
      ],
      "id": "g150-assigned-not-typed",
      "message": "0 figure(s), 18 box(es), 0 list(s), 6 table(s), 34 heading(s)",
-     "ms": 3,
+     "ms": 4,
      "result": "driven"
     },
     {
@@ -16239,7 +16239,7 @@
      ],
      "id": "g150-k2",
      "message": "set-text text_in:2",
-     "ms": 21,
+     "ms": 28,
      "result": "driven"
     },
     {
@@ -16253,7 +16253,7 @@
      ],
      "id": "g150-keys-ok",
      "message": "0 figure(s), 18 box(es), 0 list(s), 6 table(s), 34 heading(s)",
-     "ms": 3,
+     "ms": 5,
      "result": "driven"
     },
     {
@@ -16267,7 +16267,7 @@
      ],
      "id": "g150-w1",
      "message": "set-text text_in:4",
-     "ms": 22,
+     "ms": 24,
      "result": "driven"
     },
     {
@@ -16281,7 +16281,7 @@
      ],
      "id": "g150-win-bad",
      "message": "0 figure(s), 18 box(es), 0 list(s), 6 table(s), 34 heading(s)",
-     "ms": 3,
+     "ms": 4,
      "result": "driven"
     },
     {
@@ -16295,7 +16295,7 @@
      ],
      "id": "g150-w2",
      "message": "set-text text_in:4",
-     "ms": 22,
+     "ms": 30,
      "result": "driven"
     },
     {
@@ -16319,7 +16319,7 @@
      ],
      "id": "g150-sd1",
      "message": "type-text text_in:3",
-     "ms": 103,
+     "ms": 243,
      "result": "driven"
     },
     {
@@ -16338,7 +16338,7 @@
      ],
      "id": "g150-seed-bad",
      "message": "0 figure(s), 18 box(es), 0 list(s), 6 table(s), 34 heading(s)",
-     "ms": 3,
+     "ms": 4,
      "result": "driven"
     },
     {
@@ -16357,7 +16357,7 @@
      ],
      "id": "g150-k3",
      "message": "type-text text_in:2",
-     "ms": 75,
+     "ms": 98,
      "result": "driven"
     },
     {
@@ -16376,7 +16376,7 @@
      ],
      "id": "g150-keys-words",
      "message": "0 figure(s), 18 box(es), 0 list(s), 6 table(s), 34 heading(s)",
-     "ms": 3,
+     "ms": 5,
      "result": "driven"
     },
     {
@@ -16390,7 +16390,7 @@
      ],
      "id": "g150-k4",
      "message": "set-text text_in:2",
-     "ms": 22,
+     "ms": 26,
      "result": "driven"
     },
     {
@@ -16414,7 +16414,7 @@
      ],
      "id": "g150-w3",
      "message": "type-text text_in:4",
-     "ms": 53,
+     "ms": 72,
      "result": "driven"
     },
     {
@@ -16428,7 +16428,7 @@
      ],
      "id": "g150-win-words",
      "message": "0 figure(s), 18 box(es), 0 list(s), 6 table(s), 34 heading(s)",
-     "ms": 3,
+     "ms": 6,
      "result": "driven"
     },
     {
@@ -16442,7 +16442,7 @@
      ],
      "id": "g150-w4",
      "message": "set-text text_in:4",
-     "ms": 22,
+     "ms": 25,
      "result": "driven"
     },
     {
@@ -16456,7 +16456,7 @@
      ],
      "id": "g150-sd2",
      "message": "set-text text_in:3",
-     "ms": 21,
+     "ms": 25,
      "result": "driven"
     },
     {
@@ -16470,7 +16470,7 @@
      ],
      "id": "g150-seed-ok",
      "message": "0 figure(s), 18 box(es), 0 list(s), 6 table(s), 34 heading(s)",
-     "ms": 3,
+     "ms": 7,
      "result": "driven"
     },
     {
@@ -16484,7 +16484,7 @@
      ],
      "id": "g150-pn",
      "message": "set-text text_in:5",
-     "ms": 22,
+     "ms": 24,
      "result": "driven"
     },
     {
@@ -16498,7 +16498,7 @@
      ],
      "id": "g150-po",
      "message": "set-text text_in:6",
-     "ms": 20,
+     "ms": 24,
      "result": "driven"
     },
     {
@@ -16512,7 +16512,7 @@
      ],
      "id": "g150-padd",
      "message": "activate action_btn:4",
-     "ms": 22,
+     "ms": 26,
      "result": "driven"
     },
     {
@@ -16531,7 +16531,7 @@
      ],
      "id": "g150-phased",
      "message": "0 figure(s), 18 box(es), 0 list(s), 6 table(s), 34 heading(s)",
-     "ms": 3,
+     "ms": 4,
      "result": "driven"
     },
     {
@@ -16545,7 +16545,7 @@
      ],
      "id": "g150-kind-hot",
      "message": "choose-option select:0",
-     "ms": 21,
+     "ms": 30,
      "result": "driven"
     },
     {
@@ -16559,7 +16559,7 @@
      ],
      "id": "g150-pn2",
      "message": "set-text text_in:5",
-     "ms": 21,
+     "ms": 25,
      "result": "driven"
     },
     {
@@ -16573,7 +16573,7 @@
      ],
      "id": "g150-hs",
      "message": "set-text text_in:7",
-     "ms": 20,
+     "ms": 24,
      "result": "driven"
     },
     {
@@ -16587,7 +16587,7 @@
      ],
      "id": "g150-hsh",
      "message": "set-text text_in:8",
-     "ms": 25,
+     "ms": 24,
      "result": "driven"
     },
     {
@@ -16601,7 +16601,7 @@
      ],
      "id": "g150-padd2",
      "message": "activate action_btn:4",
-     "ms": 23,
+     "ms": 25,
      "result": "driven"
     },
     {
@@ -16615,7 +16615,7 @@
      ],
      "id": "g150-hot",
      "message": "0 figure(s), 18 box(es), 0 list(s), 6 table(s), 34 heading(s)",
-     "ms": 4,
+     "ms": 5,
      "result": "driven"
     },
     {
@@ -16629,7 +16629,7 @@
      ],
      "id": "g150-kind-churn",
      "message": "choose-option select:0",
-     "ms": 28,
+     "ms": 27,
      "result": "driven"
     },
     {
@@ -16643,7 +16643,7 @@
      ],
      "id": "g150-pn3",
      "message": "set-text text_in:5",
-     "ms": 23,
+     "ms": 26,
      "result": "driven"
     },
     {
@@ -16657,7 +16657,7 @@
      ],
      "id": "g150-ap",
      "message": "set-text text_in:9",
-     "ms": 21,
+     "ms": 25,
      "result": "driven"
     },
     {
@@ -16671,7 +16671,7 @@
      ],
      "id": "g150-padd3",
      "message": "activate action_btn:4",
-     "ms": 25,
+     "ms": 27,
      "result": "driven"
     },
     {
@@ -16690,7 +16690,7 @@
      ],
      "id": "g150-churn",
      "message": "0 figure(s), 18 box(es), 0 list(s), 6 table(s), 34 heading(s)",
-     "ms": 4,
+     "ms": 5,
      "result": "driven"
     },
     {
@@ -16704,7 +16704,7 @@
      ],
      "id": "g150-kind-uni",
      "message": "choose-option select:0",
-     "ms": 23,
+     "ms": 25,
      "result": "driven"
     },
     {
@@ -16718,7 +16718,7 @@
      ],
      "id": "g150-dupe-name",
      "message": "set-text text_in:15",
-     "ms": 22,
+     "ms": 24,
      "result": "driven"
     },
     {
@@ -16732,7 +16732,7 @@
      ],
      "id": "g150-dupe-counts",
      "message": "set-text text_in:16",
-     "ms": 21,
+     "ms": 24,
      "result": "driven"
     },
     {
@@ -16746,7 +16746,7 @@
      ],
      "id": "g150-dupe-add",
      "message": "activate action_btn:9",
-     "ms": 21,
+     "ms": 26,
      "result": "driven"
     },
     {
@@ -16765,7 +16765,7 @@
      ],
      "id": "g150-builder-refuses",
      "message": "0 figure(s), 18 box(es), 0 list(s), 6 table(s), 34 heading(s)",
-     "ms": 3,
+     "ms": 4,
      "result": "driven"
     },
     {
@@ -16779,7 +16779,7 @@
      ],
      "id": "g150-dn",
      "message": "set-text text_in:15",
-     "ms": 21,
+     "ms": 24,
      "result": "driven"
     },
     {
@@ -16793,7 +16793,7 @@
      ],
      "id": "g150-dc",
      "message": "set-text text_in:16",
-     "ms": 24,
+     "ms": 25,
      "result": "driven"
     },
     {
@@ -16807,7 +16807,7 @@
      ],
      "id": "g150-dadd",
      "message": "activate action_btn:9",
-     "ms": 21,
+     "ms": 26,
      "result": "driven"
     },
     {
@@ -16826,7 +16826,7 @@
      ],
      "id": "g150-dataset",
      "message": "0 figure(s), 18 box(es), 0 list(s), 6 table(s), 34 heading(s)",
-     "ms": 3,
+     "ms": 4,
      "result": "driven"
     },
     {
@@ -16840,7 +16840,7 @@
      ],
      "id": "g150-metric",
      "message": "choose-option select:2",
-     "ms": 22,
+     "ms": 24,
      "result": "driven"
     },
     {
@@ -16854,7 +16854,7 @@
      ],
      "id": "g150-xa",
      "message": "set-text text_in:18",
-     "ms": 22,
+     "ms": 48,
      "result": "driven"
     },
     {
@@ -16868,7 +16868,7 @@
      ],
      "id": "g150-xop",
      "message": "choose-option select:3",
-     "ms": 21,
+     "ms": 48,
      "result": "driven"
     },
     {
@@ -16882,7 +16882,7 @@
      ],
      "id": "g150-xv",
      "message": "set-text text_in:19",
-     "ms": 22,
+     "ms": 26,
      "result": "driven"
     },
     {
@@ -16896,7 +16896,7 @@
      ],
      "id": "g150-xadd",
      "message": "activate action_btn:11",
-     "ms": 21,
+     "ms": 24,
      "result": "driven"
     },
     {
@@ -16910,7 +16910,7 @@
      ],
      "id": "g150-unknown-community",
      "message": "0 figure(s), 18 box(es), 0 list(s), 6 table(s), 34 heading(s)",
-     "ms": 3,
+     "ms": 5,
      "result": "driven"
     },
     {
@@ -16924,7 +16924,7 @@
      ],
      "id": "g150-metric2",
      "message": "choose-option select:2",
-     "ms": 22,
+     "ms": 28,
      "result": "driven"
     },
     {
@@ -16938,7 +16938,7 @@
      ],
      "id": "g150-xa2",
      "message": "set-text text_in:18",
-     "ms": 22,
+     "ms": 27,
      "result": "driven"
     },
     {
@@ -16952,7 +16952,7 @@
      ],
      "id": "g150-xv2",
      "message": "set-text text_in:19",
-     "ms": 22,
+     "ms": 33,
      "result": "driven"
     },
     {
@@ -16966,7 +16966,7 @@
      ],
      "id": "g150-xadd2",
      "message": "activate action_btn:11",
-     "ms": 23,
+     "ms": 25,
      "result": "driven"
     },
     {
@@ -16980,7 +16980,7 @@
      ],
      "id": "g150-no-shared-species",
      "message": "0 figure(s), 18 box(es), 0 list(s), 6 table(s), 34 heading(s)",
-     "ms": 3,
+     "ms": 9,
      "result": "driven"
     },
     {
@@ -16994,7 +16994,7 @@
      ],
      "id": "g150-qmetric",
      "message": "choose-option select:2",
-     "ms": 22,
+     "ms": 27,
      "result": "driven"
     },
     {
@@ -17008,7 +17008,7 @@
      ],
      "id": "g150-qargs",
      "message": "set-text text_in:18",
-     "ms": 21,
+     "ms": 25,
      "result": "driven"
     },
     {
@@ -17022,7 +17022,7 @@
      ],
      "id": "g150-band",
      "message": "choose-option select:4",
-     "ms": 21,
+     "ms": 24,
      "result": "driven"
     },
     {
@@ -17036,7 +17036,7 @@
      ],
      "id": "g150-qadd",
      "message": "activate action_btn:11",
-     "ms": 21,
+     "ms": 26,
      "result": "driven"
     },
     {
@@ -17055,7 +17055,7 @@
      ],
      "id": "g150-banded",
      "message": "0 figure(s), 18 box(es), 0 list(s), 6 table(s), 34 heading(s)",
-     "ms": 3,
+     "ms": 7,
      "result": "driven"
     },
     {
@@ -17069,7 +17069,7 @@
      ],
      "id": "g150-fa",
      "message": "set-text text_in:10",
-     "ms": 21,
+     "ms": 25,
      "result": "driven"
     },
     {
@@ -17083,7 +17083,7 @@
      ],
      "id": "g150-fw",
      "message": "set-text text_in:11",
-     "ms": 22,
+     "ms": 25,
      "result": "driven"
     },
     {
@@ -17097,7 +17097,7 @@
      ],
      "id": "g150-ft",
      "message": "set-text text_in:12",
-     "ms": 21,
+     "ms": 26,
      "result": "driven"
     },
     {
@@ -17111,7 +17111,7 @@
      ],
      "id": "g150-fd",
      "message": "set-text text_in:13",
-     "ms": 21,
+     "ms": 27,
      "result": "driven"
     },
     {
@@ -17140,7 +17140,7 @@
      ],
      "id": "g150-factors",
      "message": "0 figure(s), 18 box(es), 0 list(s), 6 table(s), 34 heading(s)",
-     "ms": 3,
+     "ms": 5,
      "result": "driven"
     },
     {
@@ -17154,7 +17154,7 @@
      ],
      "id": "g150-nt",
      "message": "set-text text_in:17",
-     "ms": 22,
+     "ms": 26,
      "result": "driven"
     },
     {
@@ -17168,7 +17168,7 @@
      ],
      "id": "g150-ex",
      "message": "set-text text_in:20",
-     "ms": 22,
+     "ms": 25,
      "result": "driven"
     },
     {
@@ -17187,7 +17187,7 @@
      ],
      "id": "g150-extras",
      "message": "0 figure(s), 18 box(es), 0 list(s), 6 table(s), 34 heading(s)",
-     "ms": 3,
+     "ms": 4,
      "result": "driven"
     },
     {
@@ -17201,7 +17201,7 @@
      ],
      "id": "g150-nm",
      "message": "set-text text_in:1",
-     "ms": 22,
+     "ms": 24,
      "result": "driven"
     },
     {
@@ -17215,7 +17215,7 @@
      ],
      "id": "g150-cmd",
      "message": "0 figure(s), 18 box(es), 0 list(s), 6 table(s), 34 heading(s)",
-     "ms": 3,
+     "ms": 5,
      "result": "driven"
     },
     {
@@ -17229,7 +17229,7 @@
      ],
      "id": "g150-cl",
      "message": "activate action_btn:31",
-     "ms": 21,
+     "ms": 25,
      "result": "driven"
     },
     {
@@ -17243,7 +17243,7 @@
      ],
      "id": "g150-c1",
      "message": "set-checkbox checkbox:0",
-     "ms": 21,
+     "ms": 25,
      "result": "driven"
     },
     {
@@ -17257,7 +17257,7 @@
      ],
      "id": "g150-c2",
      "message": "set-checkbox checkbox:1",
-     "ms": 21,
+     "ms": 27,
      "result": "driven"
     },
     {
@@ -17271,7 +17271,7 @@
      ],
      "id": "g150-c3",
      "message": "set-checkbox checkbox:2",
-     "ms": 21,
+     "ms": 24,
      "result": "driven"
     },
     {
@@ -17285,7 +17285,7 @@
      ],
      "id": "g150-c4",
      "message": "set-checkbox checkbox:3",
-     "ms": 20,
+     "ms": 24,
      "result": "driven"
     },
     {
@@ -17299,7 +17299,7 @@
      ],
      "id": "g150-c5",
      "message": "set-checkbox checkbox:4",
-     "ms": 21,
+     "ms": 25,
      "result": "driven"
     },
     {
@@ -17313,7 +17313,7 @@
      ],
      "id": "g150-c6",
      "message": "set-checkbox checkbox:5",
-     "ms": 24,
+     "ms": 25,
      "result": "driven"
     },
     {
@@ -17327,7 +17327,7 @@
      ],
      "id": "g150-c7",
      "message": "set-checkbox checkbox:6",
-     "ms": 20,
+     "ms": 24,
      "result": "driven"
     },
     {
@@ -17341,7 +17341,7 @@
      ],
      "id": "g150-c8",
      "message": "set-checkbox checkbox:7",
-     "ms": 20,
+     "ms": 24,
      "result": "driven"
     },
     {
@@ -17355,7 +17355,7 @@
      ],
      "id": "g150-c9",
      "message": "set-checkbox checkbox:8",
-     "ms": 21,
+     "ms": 28,
      "result": "driven"
     },
     {
@@ -17369,7 +17369,7 @@
      ],
      "id": "g150-c10",
      "message": "set-checkbox checkbox:9",
-     "ms": 20,
+     "ms": 24,
      "result": "driven"
     },
     {
@@ -17388,7 +17388,7 @@
      ],
      "id": "g150-ticked",
      "message": "read checkbox:9",
-     "ms": 2,
+     "ms": 3,
      "result": "driven"
     },
     {
@@ -17402,7 +17402,7 @@
      ],
      "id": "g150-clear",
      "message": "activate action_btn:26",
-     "ms": 21,
+     "ms": 24,
      "result": "driven"
     },
     {
@@ -17421,7 +17421,7 @@
      ],
      "id": "g150-cleared",
      "message": "read checkbox:9",
-     "ms": 2,
+     "ms": 4,
      "result": "driven"
     },
     {
@@ -17435,7 +17435,7 @@
      ],
      "id": "g150-des",
      "message": "activate action_btn:28",
-     "ms": 22,
+     "ms": 26,
      "result": "driven"
     },
     {
@@ -17449,7 +17449,7 @@
      ],
      "id": "g150-imp",
      "message": "set-text text_in:0",
-     "ms": 21,
+     "ms": 23,
      "result": "driven"
     },
     {
@@ -17463,7 +17463,7 @@
      ],
      "id": "g150-imp-go",
      "message": "activate action_btn:2",
-     "ms": 23,
+     "ms": 27,
      "result": "driven"
     },
     {
@@ -17497,7 +17497,7 @@
      ],
      "id": "g150-imported",
      "message": "0 figure(s), 18 box(es), 0 list(s), 6 table(s), 34 heading(s)",
-     "ms": 4,
+     "ms": 5,
      "result": "driven"
     },
     {
@@ -17511,7 +17511,7 @@
      ],
      "id": "g150-imp2",
      "message": "set-text text_in:0",
-     "ms": 21,
+     "ms": 24,
      "result": "driven"
     },
     {
@@ -17525,7 +17525,7 @@
      ],
      "id": "g150-imp-go2",
      "message": "activate action_btn:2",
-     "ms": 21,
+     "ms": 26,
      "result": "driven"
     },
     {
@@ -17549,7 +17549,288 @@
      ],
      "id": "g150-imported-clash",
      "message": "0 figure(s), 18 box(es), 0 list(s), 6 table(s), 34 heading(s)",
-     "ms": 3,
+     "ms": 4,
+     "result": "driven"
+    },
+    {
+     "action": "activate",
+     "expectations": [
+      {
+       "detail": "ok == True, got True",
+       "path": "ok",
+       "verdict": "CONFIRMED"
+      }
+     ],
+     "id": "g172-eco-copy",
+     "message": "activate action_btn:11",
+     "ms": 23,
+     "result": "driven"
+    },
+    {
+     "action": "collect-output",
+     "expectations": [
+      {
+       "detail": "output.payloads.0.k == 'clipboard', got 'clipboard'",
+       "path": "output.payloads.0.k",
+       "verdict": "CONFIRMED"
+      },
+      {
+       "detail": "output.payloads.0.text == '# clashing study \u2014 written before the run, graded after.\\n# Run me:  ./gradlew ecologyExperiment -Pspec=clashing-study.eco\\n\\nname: clashing study\\nkeys: 200\\nseed: 3\\nwindow: 200\\n\\nphase: graze uniform 1000\\n\\ndata: graze cattail=18 duckweed=44\\n\\nexpect: evenness(graze) > 0.8\\n', got '# clashing study \u2014 written before the run, graded after.\\n# Run me:  ./gradlew ecologyExperiment -Pspec=clashing-study.eco\\n\\nname: clashing study\\nkeys: 200\\nseed: 3\\nwindow: 200\\n\\nphase: graze uniform 1000\\n\\ndata: graze cattail=18 duckweed=44\\n\\nexpect: evenness(graze) > 0.8\\n'",
+       "path": "output.payloads.0.text",
+       "verdict": "CONFIRMED"
+      },
+      {
+       "detail": "output.payloads.1 exists False, got None",
+       "path": "output.payloads.1",
+       "verdict": "CONFIRMED"
+      }
+     ],
+     "id": "g172-eco",
+     "message": "1 payload(s)",
+     "ms": 2,
+     "result": "driven"
+    },
+    {
+     "action": "activate",
+     "expectations": [
+      {
+       "detail": "ok == True, got True",
+       "path": "ok",
+       "verdict": "CONFIRMED"
+      }
+     ],
+     "id": "g172-eco-dl",
+     "message": "activate action_btn:12",
+     "ms": 28,
+     "result": "driven"
+    },
+    {
+     "action": "collect-output",
+     "expectations": [
+      {
+       "detail": "output.payloads.0.k == 'download', got 'download'",
+       "path": "output.payloads.0.k",
+       "verdict": "CONFIRMED"
+      },
+      {
+       "detail": "output.payloads.0.name == 'clashing-study.eco', got 'clashing-study.eco'",
+       "path": "output.payloads.0.name",
+       "verdict": "CONFIRMED"
+      },
+      {
+       "detail": "output.payloads.0.text == '# clashing study \u2014 written before the run, graded after.\\n# Run me:  ./gradlew ecologyExperiment -Pspec=clashing-study.eco\\n\\nname: clashing study\\nkeys: 200\\nseed: 3\\nwindow: 200\\n\\nphase: graze uniform 1000\\n\\ndata: graze cattail=18 duckweed=44\\n\\nexpect: evenness(graze) > 0.8\\n', got '# clashing study \u2014 written before the run, graded after.\\n# Run me:  ./gradlew ecologyExperiment -Pspec=clashing-study.eco\\n\\nname: clashing study\\nkeys: 200\\nseed: 3\\nwindow: 200\\n\\nphase: graze uniform 1000\\n\\ndata: graze cattail=18 duckweed=44\\n\\nexpect: evenness(graze) > 0.8\\n'",
+       "path": "output.payloads.0.text",
+       "verdict": "CONFIRMED"
+      },
+      {
+       "detail": "output.payloads.1 exists False, got None",
+       "path": "output.payloads.1",
+       "verdict": "CONFIRMED"
+      }
+     ],
+     "id": "g172-dl",
+     "message": "1 payload(s)",
+     "ms": 2,
+     "result": "driven"
+    },
+    {
+     "action": "activate",
+     "expectations": [
+      {
+       "detail": "ok == True, got True",
+       "path": "ok",
+       "verdict": "CONFIRMED"
+      }
+     ],
+     "id": "g172-eng",
+     "message": "activate action_btn:1",
+     "ms": 27,
+     "result": "driven"
+    },
+    {
+     "action": "activate",
+     "expectations": [
+      {
+       "detail": "ok == True, got True",
+       "path": "ok",
+       "verdict": "CONFIRMED"
+      }
+     ],
+     "id": "g172-eng-copy",
+     "message": "activate action_btn:18",
+     "ms": 26,
+     "result": "driven"
+    },
+    {
+     "action": "collect-output",
+     "expectations": [
+      {
+       "detail": "output.payloads.0.k == 'clipboard', got 'clipboard'",
+       "path": "output.payloads.0.k",
+       "verdict": "CONFIRMED"
+      },
+      {
+       "detail": "output.payloads.0.text contains '## Experiment \u2014 What does one scan over a cold archive cost, end to end?', got \"## Experiment \u2014 What does one scan over a cold archive cost, end to end?\\n\\n**Pre-registered 2026-09-09** \u2014 the decision rule below was written before any run.\\n\\n**Floor:** reading the archive's bytes once, front to back\\n**Workload:** 60k-op churn, ~5k live keys, seeded generator; sizes: 20000, 60000; seed 7.\\n**Timing:** one untimed warm-up pass, then 5 timed passes on fresh state, median kept; phases timed separately.\\n\\n| n | inflate (ms) | scan (ms) | floor (ms) | total (ms) | total/floor |\\n| --- | --- | --- | --- | --- | --- |\\n| 20000 | 12.34 | 5.6 | 2 | 17.9 | 9\u00d7 |\\n| 60000 | 100 | 48.6 | 12 | 148.6 | 12\u00d7 |\\n\\n**Pre-registered rule:** fires if the route exceeds 5x the floor at the larger size\\n**If it fails the bar:** the seam stays held and the workaround is recorded as priced dead\\n\\n**VERDICT: THE TRIGGER FIRES** \u2014 524x against a 5x bar \u2014 the columnar cold format is unlocked\\n\"",
+       "path": "output.payloads.0.text",
+       "verdict": "CONFIRMED"
+      },
+      {
+       "detail": "output.payloads.0.text contains '| n | inflate (ms) | scan (ms) | floor (ms) | total (ms) | total/floor |', got \"## Experiment \u2014 What does one scan over a cold archive cost, end to end?\\n\\n**Pre-registered 2026-09-09** \u2014 the decision rule below was written before any run.\\n\\n**Floor:** reading the archive's bytes once, front to back\\n**Workload:** 60k-op churn, ~5k live keys, seeded generator; sizes: 20000, 60000; seed 7.\\n**Timing:** one untimed warm-up pass, then 5 timed passes on fresh state, median kept; phases timed separately.\\n\\n| n | inflate (ms) | scan (ms) | floor (ms) | total (ms) | total/floor |\\n| --- | --- | --- | --- | --- | --- |\\n| 20000 | 12.34 | 5.6 | 2 | 17.9 | 9\u00d7 |\\n| 60000 | 100 | 48.6 | 12 | 148.6 | 12\u00d7 |\\n\\n**Pre-registered rule:** fires if the route exceeds 5x the floor at the larger size\\n**If it fails the bar:** the seam stays held and the workaround is recorded as priced dead\\n\\n**VERDICT: THE TRIGGER FIRES** \u2014 524x against a 5x bar \u2014 the columnar cold format is unlocked\\n\"",
+       "path": "output.payloads.0.text#2",
+       "verdict": "CONFIRMED"
+      },
+      {
+       "detail": "output.payloads.0.text contains '| 20000 | 12.34 | 5.6 | 2 | 17.9 | 9\u00d7 |', got \"## Experiment \u2014 What does one scan over a cold archive cost, end to end?\\n\\n**Pre-registered 2026-09-09** \u2014 the decision rule below was written before any run.\\n\\n**Floor:** reading the archive's bytes once, front to back\\n**Workload:** 60k-op churn, ~5k live keys, seeded generator; sizes: 20000, 60000; seed 7.\\n**Timing:** one untimed warm-up pass, then 5 timed passes on fresh state, median kept; phases timed separately.\\n\\n| n | inflate (ms) | scan (ms) | floor (ms) | total (ms) | total/floor |\\n| --- | --- | --- | --- | --- | --- |\\n| 20000 | 12.34 | 5.6 | 2 | 17.9 | 9\u00d7 |\\n| 60000 | 100 | 48.6 | 12 | 148.6 | 12\u00d7 |\\n\\n**Pre-registered rule:** fires if the route exceeds 5x the floor at the larger size\\n**If it fails the bar:** the seam stays held and the workaround is recorded as priced dead\\n\\n**VERDICT: THE TRIGGER FIRES** \u2014 524x against a 5x bar \u2014 the columnar cold format is unlocked\\n\"",
+       "path": "output.payloads.0.text#3",
+       "verdict": "CONFIRMED"
+      },
+      {
+       "detail": "output.payloads.0.text contains '| 60000 | 100 | 48.6 | 12 | 148.6 | 12\u00d7 |', got \"## Experiment \u2014 What does one scan over a cold archive cost, end to end?\\n\\n**Pre-registered 2026-09-09** \u2014 the decision rule below was written before any run.\\n\\n**Floor:** reading the archive's bytes once, front to back\\n**Workload:** 60k-op churn, ~5k live keys, seeded generator; sizes: 20000, 60000; seed 7.\\n**Timing:** one untimed warm-up pass, then 5 timed passes on fresh state, median kept; phases timed separately.\\n\\n| n | inflate (ms) | scan (ms) | floor (ms) | total (ms) | total/floor |\\n| --- | --- | --- | --- | --- | --- |\\n| 20000 | 12.34 | 5.6 | 2 | 17.9 | 9\u00d7 |\\n| 60000 | 100 | 48.6 | 12 | 148.6 | 12\u00d7 |\\n\\n**Pre-registered rule:** fires if the route exceeds 5x the floor at the larger size\\n**If it fails the bar:** the seam stays held and the workaround is recorded as priced dead\\n\\n**VERDICT: THE TRIGGER FIRES** \u2014 524x against a 5x bar \u2014 the columnar cold format is unlocked\\n\"",
+       "path": "output.payloads.0.text#4",
+       "verdict": "CONFIRMED"
+      },
+      {
+       "detail": "output.payloads.0.text contains '**Workload:** 60k-op churn, ~5k live keys, seeded generator; sizes: 20000, 60000; seed 7.', got \"## Experiment \u2014 What does one scan over a cold archive cost, end to end?\\n\\n**Pre-registered 2026-09-09** \u2014 the decision rule below was written before any run.\\n\\n**Floor:** reading the archive's bytes once, front to back\\n**Workload:** 60k-op churn, ~5k live keys, seeded generator; sizes: 20000, 60000; seed 7.\\n**Timing:** one untimed warm-up pass, then 5 timed passes on fresh state, median kept; phases timed separately.\\n\\n| n | inflate (ms) | scan (ms) | floor (ms) | total (ms) | total/floor |\\n| --- | --- | --- | --- | --- | --- |\\n| 20000 | 12.34 | 5.6 | 2 | 17.9 | 9\u00d7 |\\n| 60000 | 100 | 48.6 | 12 | 148.6 | 12\u00d7 |\\n\\n**Pre-registered rule:** fires if the route exceeds 5x the floor at the larger size\\n**If it fails the bar:** the seam stays held and the workaround is recorded as priced dead\\n\\n**VERDICT: THE TRIGGER FIRES** \u2014 524x against a 5x bar \u2014 the columnar cold format is unlocked\\n\"",
+       "path": "output.payloads.0.text#5",
+       "verdict": "CONFIRMED"
+      },
+      {
+       "detail": "output.payloads.0.text contains 'then 5 timed passes on fresh state, median kept; phases timed separately.', got \"## Experiment \u2014 What does one scan over a cold archive cost, end to end?\\n\\n**Pre-registered 2026-09-09** \u2014 the decision rule below was written before any run.\\n\\n**Floor:** reading the archive's bytes once, front to back\\n**Workload:** 60k-op churn, ~5k live keys, seeded generator; sizes: 20000, 60000; seed 7.\\n**Timing:** one untimed warm-up pass, then 5 timed passes on fresh state, median kept; phases timed separately.\\n\\n| n | inflate (ms) | scan (ms) | floor (ms) | total (ms) | total/floor |\\n| --- | --- | --- | --- | --- | --- |\\n| 20000 | 12.34 | 5.6 | 2 | 17.9 | 9\u00d7 |\\n| 60000 | 100 | 48.6 | 12 | 148.6 | 12\u00d7 |\\n\\n**Pre-registered rule:** fires if the route exceeds 5x the floor at the larger size\\n**If it fails the bar:** the seam stays held and the workaround is recorded as priced dead\\n\\n**VERDICT: THE TRIGGER FIRES** \u2014 524x against a 5x bar \u2014 the columnar cold format is unlocked\\n\"",
+       "path": "output.payloads.0.text#6",
+       "verdict": "CONFIRMED"
+      },
+      {
+       "detail": "output.payloads.0.text contains '**VERDICT: THE TRIGGER FIRES** \u2014 524x against a 5x bar \u2014 the columnar cold format is unlocked', got \"## Experiment \u2014 What does one scan over a cold archive cost, end to end?\\n\\n**Pre-registered 2026-09-09** \u2014 the decision rule below was written before any run.\\n\\n**Floor:** reading the archive's bytes once, front to back\\n**Workload:** 60k-op churn, ~5k live keys, seeded generator; sizes: 20000, 60000; seed 7.\\n**Timing:** one untimed warm-up pass, then 5 timed passes on fresh state, median kept; phases timed separately.\\n\\n| n | inflate (ms) | scan (ms) | floor (ms) | total (ms) | total/floor |\\n| --- | --- | --- | --- | --- | --- |\\n| 20000 | 12.34 | 5.6 | 2 | 17.9 | 9\u00d7 |\\n| 60000 | 100 | 48.6 | 12 | 148.6 | 12\u00d7 |\\n\\n**Pre-registered rule:** fires if the route exceeds 5x the floor at the larger size\\n**If it fails the bar:** the seam stays held and the workaround is recorded as priced dead\\n\\n**VERDICT: THE TRIGGER FIRES** \u2014 524x against a 5x bar \u2014 the columnar cold format is unlocked\\n\"",
+       "path": "output.payloads.0.text#7",
+       "verdict": "CONFIRMED"
+      },
+      {
+       "detail": "output.payloads.1 exists False, got None",
+       "path": "output.payloads.1",
+       "verdict": "CONFIRMED"
+      }
+     ],
+     "id": "g172-prereg",
+     "message": "1 payload(s)",
+     "ms": 2,
+     "result": "driven"
+    },
+    {
+     "action": "activate",
+     "expectations": [
+      {
+       "detail": "ok == True, got True",
+       "path": "ok",
+       "verdict": "CONFIRMED"
+      }
+     ],
+     "id": "g172-eng-skel",
+     "message": "activate action_btn:19",
+     "ms": 25,
+     "result": "driven"
+    },
+    {
+     "action": "collect-output",
+     "expectations": [
+      {
+       "detail": "output.payloads.0.k == 'clipboard', got 'clipboard'",
+       "path": "output.payloads.0.k",
+       "verdict": "CONFIRMED"
+      },
+      {
+       "detail": "output.payloads.0.text == '/**\\n * Pre-registered experiment \u2014 What does one scan over a cold archive cost, end to end?\\n * Floor: reading the archive\\'s bytes once, front to back\\n * Rule (written before the run): fires if the route exceeds 5x the floor at the larger size\\n * Seeded, warm-up discarded, median-of-5 \u2014 ADR-022 methodology.\\n */\\nclass MyExperimentTest {\\n    static final long SEED = 7L;\\n    static final int[] SIZES = {20000, 60000};\\n    static final int TIMED_PASSES = 5;\\n\\n    @org.junit.jupiter.api.Test\\n    void verdictOfRecord() {\\n        for (int n : SIZES) {\\n            runOnce(n, SEED);                       // warm-up: JIT pays off the clock\\n            long[] t = new long[TIMED_PASSES];\\n            for (int i = 0; i < TIMED_PASSES; i++) t[i] = runOnce(n, SEED); // fresh state each pass\\n            java.util.Arrays.sort(t);\\n            long median = t[TIMED_PASSES / 2];\\n            long floor  = measureFloor(n, SEED);\\n            System.out.printf(\"n=%d  median=%,dns  floor=%,dns  ratio=%.1fx%n\",\\n                    n, median, floor, (double) median / Math.max(1, floor));\\n            // Grade against the pre-registered rule HERE \u2014 it was written before this line ran.\\n        }\\n    }\\n\\n    /** Build a fresh apparatus, run the route once, return elapsed nanos. */\\n    long runOnce(int n, long seed) { throw new UnsupportedOperationException(\"apparatus\"); }\\n\\n    /** The least ANY solution could do \u2014 the denominator of every claim. */\\n    long measureFloor(int n, long seed) { throw new UnsupportedOperationException(\"floor\"); }\\n}\\n', got '/**\\n * Pre-registered experiment \u2014 What does one scan over a cold archive cost, end to end?\\n * Floor: reading the archive\\'s bytes once, front to back\\n * Rule (written before the run): fires if the route exceeds 5x the floor at the larger size\\n * Seeded, warm-up discarded, median-of-5 \u2014 ADR-022 methodology.\\n */\\nclass MyExperimentTest {\\n    static final long SEED = 7L;\\n    static final int[] SIZES = {20000, 60000};\\n    static final int TIMED_PASSES = 5;\\n\\n    @org.junit.jupiter.api.Test\\n    void verdictOfRecord() {\\n        for (int n : SIZES) {\\n            runOnce(n, SEED);                       // warm-up: JIT pays off the clock\\n            long[] t = new long[TIMED_PASSES];\\n            for (int i = 0; i < TIMED_PASSES; i++) t[i] = runOnce(n, SEED); // fresh state each pass\\n            java.util.Arrays.sort(t);\\n            long median = t[TIMED_PASSES / 2];\\n            long floor  = measureFloor(n, SEED);\\n            System.out.printf(\"n=%d  median=%,dns  floor=%,dns  ratio=%.1fx%n\",\\n                    n, median, floor, (double) median / Math.max(1, floor));\\n            // Grade against the pre-registered rule HERE \u2014 it was written before this line ran.\\n        }\\n    }\\n\\n    /** Build a fresh apparatus, run the route once, return elapsed nanos. */\\n    long runOnce(int n, long seed) { throw new UnsupportedOperationException(\"apparatus\"); }\\n\\n    /** The least ANY solution could do \u2014 the denominator of every claim. */\\n    long measureFloor(int n, long seed) { throw new UnsupportedOperationException(\"floor\"); }\\n}\\n'",
+       "path": "output.payloads.0.text",
+       "verdict": "CONFIRMED"
+      },
+      {
+       "detail": "output.payloads.1 exists False, got None",
+       "path": "output.payloads.1",
+       "verdict": "CONFIRMED"
+      }
+     ],
+     "id": "g172-skel",
+     "message": "1 payload(s)",
+     "ms": 2,
+     "result": "driven"
+    },
+    {
+     "action": "activate",
+     "expectations": [
+      {
+       "detail": "ok == True, got True",
+       "path": "ok",
+       "verdict": "CONFIRMED"
+      }
+     ],
+     "id": "g172-eco-back",
+     "message": "activate action_btn:0",
+     "ms": 25,
+     "result": "driven"
+    },
+    {
+     "action": "activate",
+     "expectations": [
+      {
+       "detail": "ok == True, got True",
+       "path": "ok",
+       "verdict": "CONFIRMED"
+      }
+     ],
+     "id": "g172-cl",
+     "message": "activate action_btn:27",
+     "ms": 23,
+     "result": "driven"
+    },
+    {
+     "action": "activate",
+     "expectations": [
+      {
+       "detail": "ok == True, got True",
+       "path": "ok",
+       "verdict": "CONFIRMED"
+      }
+     ],
+     "id": "g172-cl-print",
+     "message": "activate action_btn:21",
+     "ms": 27,
+     "result": "driven"
+    },
+    {
+     "action": "collect-output",
+     "expectations": [
+      {
+       "detail": "output.payloads.0.k == 'print', got 'print'",
+       "path": "output.payloads.0.k",
+       "verdict": "CONFIRMED"
+      },
+      {
+       "detail": "output.payloads.1 exists False, got None",
+       "path": "output.payloads.1",
+       "verdict": "CONFIRMED"
+      }
+     ],
+     "id": "g172-print",
+     "message": "1 payload(s)",
+     "ms": 2,
+     "result": "driven"
+    },
+    {
+     "action": "read-report",
+     "expectations": [
+      {
+       "detail": "output.boxes.eco-cmd == './gradlew ecologyExperiment -Pspec=clashing-study.eco', got './gradlew ecologyExperiment -Pspec=clashing-study.eco'",
+       "path": "output.boxes.eco-cmd",
+       "verdict": "CONFIRMED"
+      },
+      {
+       "detail": "output.boxes.eco-out contains 'data: graze cattail=18 duckweed=44', got '# clashing study \u2014 written before the run, graded after. # Run me: ./gradlew ecologyExperiment -Pspec=clashing-study.eco name: clashing study keys: 200 seed: 3 window: 200 phase: graze uniform 1000 data: graze cattail=18 duckweed=44 expect: evenness(graze) > 0.8'",
+       "path": "output.boxes.eco-out",
+       "verdict": "CONFIRMED"
+      }
+     ],
+     "id": "g172-still",
+     "message": "0 figure(s), 18 box(es), 0 list(s), 6 table(s), 34 heading(s)",
+     "ms": 4,
      "result": "driven"
     },
     {
@@ -17573,7 +17854,7 @@
      ],
      "id": "g150-intact",
      "message": "read the page",
-     "ms": 6,
+     "ms": 5,
      "result": "driven"
     }
    ],

@@ -335,6 +335,70 @@ with sync_playwright() as pw:
 
     b.close()
 
+# ── the outputs the page hands over, held by its task to what the grammar and the
+#    arithmetic say (ADR-172) ──
+# audit_outputs found five of this page's exports that nothing read: the .eco
+# copied and downloaded, the pre-registration and the JUnit skeleton copied, the
+# checklist printed. The task now presses each and holds what came out. The
+# literals it holds are pinned HERE, from the .eco grammar (ExperimentSpec's
+# javadoc: one directive per line, groups separated by a blank line) and from
+# the guide's stated arithmetic (total = the sum of the phases; total/floor
+# printed whole at 10x and above, else to one decimal) -- so a task literal
+# that merely transcribed whatever the page emitted would be caught here.
+import io, json
+TASK = os.path.join(ROOT, "tools", "tasks", "page-experiment-guide-design.json")
+task = json.load(io.open(TASK, encoding="utf-8")) if os.path.isfile(TASK) else {"steps": []}
+steps = dict((st["id"], st) for st in task["steps"])
+
+def eco_of(name, keys, seed, window, phases, datasets, expects):
+    slug = re.sub(r"^-+|-+$", "", re.sub(r"[^a-z0-9]+", "-", name.lower())) or "my-experiment"
+    groups = [["# %s — written before the run, graded after." % name,
+               "# Run me:  ./gradlew ecologyExperiment -Pspec=%s.eco" % slug],
+              ["name: " + name, "keys: %d" % keys, "seed: %d" % seed, "window: %d" % window],
+              ["phase: " + p for p in phases], ["data: " + d for d in datasets],
+              ["expect: " + x for x in expects]]
+    return "\n\n".join("\n".join(g) for g in groups if g) + "\n"
+
+# the state the task leaves the eco track in: the imported "clashing study"
+want_eco = eco_of("clashing study", 200, 3, 200, ["graze uniform 1000"],
+                  ["graze cattail=18 duckweed=44"], ["evenness(graze) > 0.8"])
+ck("the task holds the copied .eco to the grammar's text, byte for byte",
+   steps.get("g172-eco", {}).get("expect", {}).get("output.payloads.0.text") == want_eco
+   and steps.get("g172-eco", {}).get("expect", {}).get("output.payloads.0.k") == "clipboard", steps.get("g172-eco"))
+ck("...and the downloaded one to the same bytes, under the study's slug",
+   steps.get("g172-dl", {}).get("expect", {}).get("output.payloads.0.text") == want_eco
+   and steps.get("g172-dl", {}).get("expect", {}).get("output.payloads.0.name") == "clashing-study.eco"
+   and steps.get("g172-dl", {}).get("expect", {}).get("output.payloads.0.k") == "download", steps.get("g172-dl"))
+
+def ratio(total, floor):
+    r = total / floor
+    return ("%d" % round(r)) if r >= 10 else ("%g" % (round(r * 10) / 10.0))
+def row(n, phases, floor):
+    total = sum(phases)
+    return "| %d | %s | %g | %g | %s× |" % (n, " | ".join("%g" % x for x in phases), floor,
+                                             round(total * 10) / 10.0, ratio(total, floor))
+# the two measured rows the task entered: 12.34 + 5.6 over 2, 100 + 48.6 over 12
+r1, r2 = row(20000, [12.34, 5.6], 2), row(60000, [100, 48.6], 12)
+ck("the rows the task holds in the copied pre-registration are the arithmetic's: %s / %s" % (r1, r2),
+   r1 == "| 20000 | 12.34 | 5.6 | 2 | 17.9 | 9× |" and r2 == "| 60000 | 100 | 48.6 | 12 | 148.6 | 12× |")
+held = [v.get("value") for k, v in steps.get("g172-prereg", {}).get("expect", {}).items()
+        if isinstance(v, dict) and v.get("op") == "contains"]
+ck("...and the task holds exactly those rows, the table header and the fired verdict",
+   r1 in held and r2 in held
+   and "| n | inflate (ms) | scan (ms) | floor (ms) | total (ms) | total/floor |" in held
+   and any(h.startswith("**VERDICT: THE TRIGGER FIRES**") for h in held), held)
+
+skel = steps.get("g172-skel", {}).get("expect", {}).get("output.payloads.0.text") or ""
+ck("the task holds the copied JUnit skeleton whole, and it carries the task's seed, sizes and passes",
+   "static final long SEED = 7L;" in skel and "static final int[] SIZES = {20000, 60000};" in skel
+   and "static final int TIMED_PASSES = 5;" in skel and "median-of-5" in skel
+   and skel.startswith("/**\n * Pre-registered experiment — What does one scan over a cold archive cost, end to end?")
+   and skel.rstrip().endswith("}"), skel[:200])
+ck("the checklist's print button is held to a print, and nothing else leaves with it",
+   steps.get("g172-print", {}).get("expect", {}).get("output.payloads.0.k") == "print"
+   and steps.get("g172-print", {}).get("expect", {}).get("output.payloads.1") == {"op": "exists", "value": False},
+   steps.get("g172-print"))
+
 ck("zero console/page errors", not errors, errors[:3])
 print("%d/%d" % (ok, ok + bad))
 sys.exit(0 if bad == 0 else 1)

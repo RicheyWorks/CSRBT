@@ -2,7 +2,7 @@
  "id": "page-experiment-guide-design",
  "target": "page",
  "page": "experiment-guide.html",
- "goal": "On the experiment guide's designer: measured phases 12.34 + 5.6 ms over a 2 ms floor total 17.9 ms at 9x the floor and 100 + 48.6 over 12 ms 148.6 ms at 12x, the pre-registration table says the same, a verdict without a rule is refused and with one it fires; on the ecology track a named study with one uniform phase and one hypothesis emits exactly the .eco text and lints clean with 6 directives, a logistic model with 3 of 4 parameters is refused and with 4 is emitted. A photograph dropped on the import card is refused by name and imports nothing.",
+ "goal": "On the experiment guide's designer: measured phases 12.34 + 5.6 ms over a 2 ms floor total 17.9 ms at 9x the floor and 100 + 48.6 over 12 ms 148.6 ms at 12x, the pre-registration table says the same, a verdict without a rule is refused and with one it fires; on the ecology track a named study with one uniform phase and one hypothesis emits exactly the .eco text and lints clean with 6 directives, a logistic model with 3 of 4 parameters is refused and with 4 is emitted. A photograph dropped on the import card is refused by name and imports nothing. Then every output the guide hands over is read: the .eco copied and downloaded as clashing-study.eco is the protocol byte for byte (name, keys 200, seed 3, window 200, one uniform phase of 1000, the pondless graze dataset, the evenness hypothesis), the copied pre-registration carries the two measured rows (17.9 ms at 9x, 148.6 ms at 12x) and the fired verdict, the copied JUnit skeleton carries seed 7, sizes 20000 and 60000 and 5 timed passes, and the checklist's print button prints.",
  "policy": {
   "allow": [
    "SENSITIVE_READ",
@@ -1904,6 +1904,184 @@
     "output.boxes.d-list": {
      "op": "contains",
      "value": "graze"
+    }
+   }
+  },
+  {
+   "id": "g172-eco-copy",
+   "action": "activate",
+   "arguments": {
+    "selector": "@control:eco-copy"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "g172-eco",
+   "action": "collect-output",
+   "expect": {
+    "output.payloads.0.k": "clipboard",
+    "output.payloads.0.text": "# clashing study — written before the run, graded after.\n# Run me:  ./gradlew ecologyExperiment -Pspec=clashing-study.eco\n\nname: clashing study\nkeys: 200\nseed: 3\nwindow: 200\n\nphase: graze uniform 1000\n\ndata: graze cattail=18 duckweed=44\n\nexpect: evenness(graze) > 0.8\n",
+    "output.payloads.1": {
+     "op": "exists",
+     "value": false
+    }
+   }
+  },
+  {
+   "id": "g172-eco-dl",
+   "action": "activate",
+   "arguments": {
+    "selector": "@control:eco-download"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "g172-dl",
+   "action": "collect-output",
+   "expect": {
+    "output.payloads.0.k": "download",
+    "output.payloads.0.name": "clashing-study.eco",
+    "output.payloads.0.text": "# clashing study — written before the run, graded after.\n# Run me:  ./gradlew ecologyExperiment -Pspec=clashing-study.eco\n\nname: clashing study\nkeys: 200\nseed: 3\nwindow: 200\n\nphase: graze uniform 1000\n\ndata: graze cattail=18 duckweed=44\n\nexpect: evenness(graze) > 0.8\n",
+    "output.payloads.1": {
+     "op": "exists",
+     "value": false
+    }
+   }
+  },
+  {
+   "id": "g172-eng",
+   "action": "activate",
+   "arguments": {
+    "selector": "@control:track-eng"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "g172-eng-copy",
+   "action": "activate",
+   "arguments": {
+    "selector": "@control:eng-copy"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "g172-prereg",
+   "action": "collect-output",
+   "expect": {
+    "output.payloads.0.k": "clipboard",
+    "output.payloads.0.text": {
+     "op": "contains",
+     "value": "## Experiment — What does one scan over a cold archive cost, end to end?"
+    },
+    "output.payloads.0.text#2": {
+     "op": "contains",
+     "value": "| n | inflate (ms) | scan (ms) | floor (ms) | total (ms) | total/floor |"
+    },
+    "output.payloads.0.text#3": {
+     "op": "contains",
+     "value": "| 20000 | 12.34 | 5.6 | 2 | 17.9 | 9× |"
+    },
+    "output.payloads.0.text#4": {
+     "op": "contains",
+     "value": "| 60000 | 100 | 48.6 | 12 | 148.6 | 12× |"
+    },
+    "output.payloads.0.text#5": {
+     "op": "contains",
+     "value": "**Workload:** 60k-op churn, ~5k live keys, seeded generator; sizes: 20000, 60000; seed 7."
+    },
+    "output.payloads.0.text#6": {
+     "op": "contains",
+     "value": "then 5 timed passes on fresh state, median kept; phases timed separately."
+    },
+    "output.payloads.0.text#7": {
+     "op": "contains",
+     "value": "**VERDICT: THE TRIGGER FIRES** — 524x against a 5x bar — the columnar cold format is unlocked"
+    },
+    "output.payloads.1": {
+     "op": "exists",
+     "value": false
+    }
+   }
+  },
+  {
+   "id": "g172-eng-skel",
+   "action": "activate",
+   "arguments": {
+    "selector": "@control:eng-skel"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "g172-skel",
+   "action": "collect-output",
+   "expect": {
+    "output.payloads.0.k": "clipboard",
+    "output.payloads.0.text": "/**\n * Pre-registered experiment — What does one scan over a cold archive cost, end to end?\n * Floor: reading the archive's bytes once, front to back\n * Rule (written before the run): fires if the route exceeds 5x the floor at the larger size\n * Seeded, warm-up discarded, median-of-5 — ADR-022 methodology.\n */\nclass MyExperimentTest {\n    static final long SEED = 7L;\n    static final int[] SIZES = {20000, 60000};\n    static final int TIMED_PASSES = 5;\n\n    @org.junit.jupiter.api.Test\n    void verdictOfRecord() {\n        for (int n : SIZES) {\n            runOnce(n, SEED);                       // warm-up: JIT pays off the clock\n            long[] t = new long[TIMED_PASSES];\n            for (int i = 0; i < TIMED_PASSES; i++) t[i] = runOnce(n, SEED); // fresh state each pass\n            java.util.Arrays.sort(t);\n            long median = t[TIMED_PASSES / 2];\n            long floor  = measureFloor(n, SEED);\n            System.out.printf(\"n=%d  median=%,dns  floor=%,dns  ratio=%.1fx%n\",\n                    n, median, floor, (double) median / Math.max(1, floor));\n            // Grade against the pre-registered rule HERE — it was written before this line ran.\n        }\n    }\n\n    /** Build a fresh apparatus, run the route once, return elapsed nanos. */\n    long runOnce(int n, long seed) { throw new UnsupportedOperationException(\"apparatus\"); }\n\n    /** The least ANY solution could do — the denominator of every claim. */\n    long measureFloor(int n, long seed) { throw new UnsupportedOperationException(\"floor\"); }\n}\n",
+    "output.payloads.1": {
+     "op": "exists",
+     "value": false
+    }
+   }
+  },
+  {
+   "id": "g172-eco-back",
+   "action": "activate",
+   "arguments": {
+    "selector": "@control:track-eco"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "g172-cl",
+   "action": "activate",
+   "arguments": {
+    "selector": "@control:tab-checklist"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "g172-cl-print",
+   "action": "activate",
+   "arguments": {
+    "selector": "@control:cl-print"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "g172-print",
+   "action": "collect-output",
+   "expect": {
+    "output.payloads.0.k": "print",
+    "output.payloads.1": {
+     "op": "exists",
+     "value": false
+    }
+   }
+  },
+  {
+   "id": "g172-still",
+   "action": "read-report",
+   "expect": {
+    "output.boxes.eco-cmd": "./gradlew ecologyExperiment -Pspec=clashing-study.eco",
+    "output.boxes.eco-out": {
+     "op": "contains",
+     "value": "data: graze cattail=18 duckweed=44"
     }
    }
   },
