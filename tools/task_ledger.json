@@ -21819,9 +21819,9 @@
    "verdict": "PASS"
   },
   "page-micro-bench-science": {
-   "at": 1788777324,
-   "confirmed": 74,
-   "goal": "On the micro bench: 148 colonies from 0.1 mL at 10^-5 is 1.48x10^8 CFU/mL (Poisson CV 8.2%); 17 colonies at 10^-6 is TFTC and excluded; 50 at 10^-5 makes the countable mean 9.90x10^7 with the plates disagreeing by 3.0x; a 10^8 titre in 1:10 steps lands in 30-300 at step 5; OD 0.05 0.10 0.20 0.40 at hours 0-3 fits mu = ln 2 = 0.6931 per hour, doubling 1.000 h = 60.0 min, r2 1.0000; an 18 mm zone is measurement only until breakpoints S >= 17 R <= 13 (CLSI M100, 2026) interpret it with an intermediate band 13.5-16.5 mm.",
+   "at": 1788909846,
+   "confirmed": 86,
+   "goal": "On the micro bench: 148 colonies from 0.1 mL plated at 10^-5 is 1.48x10^8 CFU/mL, the plated volume and the serial transfer/diluent volumes set explicitly (1:10 per step, 1.00 log10); a growth curve, and a zone-of-inhibition read against CLSI breakpoints with the medium and organism named -- every pane driven and the figures held against an oracle.",
    "held": true,
    "id": "page-micro-bench-science",
    "must": "PASS",
@@ -21832,7 +21832,7 @@
     "MUTATE"
    ],
    "rungsWhy": null,
-   "seconds": 2.1,
+   "seconds": 2.9,
    "steps": [
     {
      "action": "observe",
@@ -21868,6 +21868,20 @@
      "result": "driven"
     },
     {
+     "action": "set-text",
+     "expectations": [
+      {
+       "detail": "ok == True, got True",
+       "path": "ok",
+       "verdict": "CONFIRMED"
+      }
+     ],
+     "id": "g164-plv",
+     "message": "set-text step_val:1",
+     "ms": 25,
+     "result": "driven"
+    },
+    {
      "action": "press-step",
      "expectations": [
       {
@@ -21892,7 +21906,7 @@
      ],
      "id": "cA",
      "message": "set-text field_in:0",
-     "ms": 24,
+     "ms": 22,
      "result": "driven"
     },
     {
@@ -21906,7 +21920,7 @@
      ],
      "id": "lA",
      "message": "set-text text_in:0",
-     "ms": 21,
+     "ms": 22,
      "result": "driven"
     },
     {
@@ -21920,7 +21934,7 @@
      ],
      "id": "addA",
      "message": "activate action_btn:0",
-     "ms": 22,
+     "ms": 23,
      "result": "driven"
     },
     {
@@ -21959,7 +21973,7 @@
      ],
      "id": "plateA",
      "message": "4 figure(s), 10 box(es), 1 list(s), 1 table(s), 14 heading(s)",
-     "ms": 7,
+     "ms": 5,
      "result": "driven"
     },
     {
@@ -21973,7 +21987,7 @@
      ],
      "id": "nB",
      "message": "set-text step_val:0",
-     "ms": 21,
+     "ms": 23,
      "result": "driven"
     },
     {
@@ -21987,7 +22001,7 @@
      ],
      "id": "cB",
      "message": "set-text field_in:0",
-     "ms": 22,
+     "ms": 23,
      "result": "driven"
     },
     {
@@ -22001,7 +22015,7 @@
      ],
      "id": "lB",
      "message": "set-text text_in:0",
-     "ms": 21,
+     "ms": 22,
      "result": "driven"
     },
     {
@@ -22015,7 +22029,7 @@
      ],
      "id": "addB",
      "message": "activate action_btn:0",
-     "ms": 23,
+     "ms": 24,
      "result": "driven"
     },
     {
@@ -22039,7 +22053,7 @@
      ],
      "id": "plateB",
      "message": "4 figure(s), 10 box(es), 1 list(s), 1 table(s), 14 heading(s)",
-     "ms": 2,
+     "ms": 3,
      "result": "driven"
     },
     {
@@ -22053,7 +22067,7 @@
      ],
      "id": "nC",
      "message": "set-text step_val:0",
-     "ms": 21,
+     "ms": 23,
      "result": "driven"
     },
     {
@@ -22067,7 +22081,7 @@
      ],
      "id": "cC",
      "message": "set-text field_in:0",
-     "ms": 21,
+     "ms": 22,
      "result": "driven"
     },
     {
@@ -22081,7 +22095,7 @@
      ],
      "id": "lC",
      "message": "set-text text_in:0",
-     "ms": 21,
+     "ms": 22,
      "result": "driven"
     },
     {
@@ -22095,7 +22109,7 @@
      ],
      "id": "addC",
      "message": "activate action_btn:0",
-     "ms": 22,
+     "ms": 24,
      "result": "driven"
     },
     {
@@ -22134,7 +22148,7 @@
      ],
      "id": "plateC",
      "message": "4 figure(s), 10 box(es), 1 list(s), 1 table(s), 14 heading(s)",
-     "ms": 2,
+     "ms": 3,
      "result": "driven"
     },
     {
@@ -22148,7 +22162,7 @@
      ],
      "id": "dil",
      "message": "opened pane p-dil",
-     "ms": 130,
+     "ms": 143,
      "result": "driven"
     },
     {
@@ -22162,7 +22176,49 @@
      ],
      "id": "titre",
      "message": "set-text field_in:1",
-     "ms": 22,
+     "ms": 28,
+     "result": "driven"
+    },
+    {
+     "action": "set-text",
+     "expectations": [
+      {
+       "detail": "ok == True, got True",
+       "path": "ok",
+       "verdict": "CONFIRMED"
+      }
+     ],
+     "id": "g164-dvol",
+     "message": "set-text step_val:2",
+     "ms": 21,
+     "result": "driven"
+    },
+    {
+     "action": "set-text",
+     "expectations": [
+      {
+       "detail": "ok == True, got True",
+       "path": "ok",
+       "verdict": "CONFIRMED"
+      }
+     ],
+     "id": "g164-dtr",
+     "message": "set-text step_val:3",
+     "ms": 21,
+     "result": "driven"
+    },
+    {
+     "action": "set-text",
+     "expectations": [
+      {
+       "detail": "ok == True, got True",
+       "path": "ok",
+       "verdict": "CONFIRMED"
+      }
+     ],
+     "id": "g164-dbl",
+     "message": "set-text step_val:4",
+     "ms": 25,
      "result": "driven"
     },
     {
@@ -22191,7 +22247,7 @@
      ],
      "id": "plan",
      "message": "7 figure(s), 10 box(es), 1 list(s), 2 table(s), 14 heading(s)",
-     "ms": 4,
+     "ms": 3,
      "result": "driven"
     },
     {
@@ -22205,7 +22261,7 @@
      ],
      "id": "gr",
      "message": "opened pane p-gr",
-     "ms": 92,
+     "ms": 80,
      "result": "driven"
     },
     {
@@ -22219,7 +22275,7 @@
      ],
      "id": "gt0",
      "message": "set-text field_in:2",
-     "ms": 21,
+     "ms": 24,
      "result": "driven"
     },
     {
@@ -22233,7 +22289,7 @@
      ],
      "id": "go0",
      "message": "set-text field_in:3",
-     "ms": 20,
+     "ms": 21,
      "result": "driven"
     },
     {
@@ -22247,7 +22303,7 @@
      ],
      "id": "gadd0",
      "message": "activate action_btn:4",
-     "ms": 24,
+     "ms": 23,
      "result": "driven"
     },
     {
@@ -22261,7 +22317,7 @@
      ],
      "id": "gt1",
      "message": "set-text field_in:2",
-     "ms": 20,
+     "ms": 21,
      "result": "driven"
     },
     {
@@ -22289,7 +22345,7 @@
      ],
      "id": "gadd1",
      "message": "activate action_btn:4",
-     "ms": 21,
+     "ms": 22,
      "result": "driven"
     },
     {
@@ -22331,7 +22387,7 @@
      ],
      "id": "gadd2",
      "message": "activate action_btn:4",
-     "ms": 21,
+     "ms": 22,
      "result": "driven"
     },
     {
@@ -22359,7 +22415,7 @@
      ],
      "id": "go3",
      "message": "set-text field_in:3",
-     "ms": 25,
+     "ms": 22,
      "result": "driven"
     },
     {
@@ -22412,7 +22468,7 @@
      ],
      "id": "growth",
      "message": "12 figure(s), 10 box(es), 2 list(s), 2 table(s), 15 heading(s)",
-     "ms": 3,
+     "ms": 5,
      "result": "driven"
     },
     {
@@ -22468,7 +22524,7 @@
      ],
      "id": "dense",
      "message": "12 figure(s), 10 box(es), 2 list(s), 2 table(s), 15 heading(s)",
-     "ms": 3,
+     "ms": 4,
      "result": "driven"
     },
     {
@@ -22482,7 +22538,35 @@
      ],
      "id": "zn",
      "message": "opened pane p-zn",
-     "ms": 68,
+     "ms": 78,
+     "result": "driven"
+    },
+    {
+     "action": "set-text",
+     "expectations": [
+      {
+       "detail": "ok == True, got True",
+       "path": "ok",
+       "verdict": "CONFIRMED"
+      }
+     ],
+     "id": "g164-zmed",
+     "message": "set-text text_in:2",
+     "ms": 21,
+     "result": "driven"
+    },
+    {
+     "action": "set-text",
+     "expectations": [
+      {
+       "detail": "ok == True, got True",
+       "path": "ok",
+       "verdict": "CONFIRMED"
+      }
+     ],
+     "id": "g164-zorg",
+     "message": "set-text text_in:1",
+     "ms": 26,
      "result": "driven"
     },
     {
@@ -22496,7 +22580,7 @@
      ],
      "id": "drug",
      "message": "set-text text_in:3",
-     "ms": 21,
+     "ms": 22,
      "result": "driven"
     },
     {
@@ -22510,7 +22594,7 @@
      ],
      "id": "cont",
      "message": "set-text text_in:4",
-     "ms": 25,
+     "ms": 21,
      "result": "driven"
     },
     {
@@ -22524,7 +22608,7 @@
      ],
      "id": "zone",
      "message": "set-text field_in:4",
-     "ms": 22,
+     "ms": 21,
      "result": "driven"
     },
     {
@@ -22538,7 +22622,7 @@
      ],
      "id": "zadd",
      "message": "activate action_btn:17",
-     "ms": 22,
+     "ms": 23,
      "result": "driven"
     },
     {
@@ -22571,7 +22655,7 @@
      ],
      "id": "zs",
      "message": "set-text field_in:5",
-     "ms": 23,
+     "ms": 20,
      "result": "driven"
     },
     {
@@ -22631,6 +22715,72 @@
      "result": "driven"
     },
     {
+     "action": "show-pane",
+     "expectations": [
+      {
+       "detail": "ok == True, got True",
+       "path": "ok",
+       "verdict": "CONFIRMED"
+      }
+     ],
+     "id": "g164-plpane",
+     "message": "opened pane p-pl",
+     "ms": 85,
+     "result": "driven"
+    },
+    {
+     "action": "read-report",
+     "expectations": [
+      {
+       "detail": "ok == True, got True",
+       "path": "ok",
+       "verdict": "CONFIRMED"
+      },
+      {
+       "detail": "output.by.plOut.CFU/mL (mean of countable) == '9.90\u00d710\u2077', got '9.90\u00d710\u2077'",
+       "path": "output.by.plOut.CFU/mL (mean of countable)",
+       "verdict": "CONFIRMED"
+      }
+     ],
+     "id": "g164-plrep",
+     "message": "12 figure(s), 10 box(es), 3 list(s), 2 table(s), 15 heading(s)",
+     "ms": 8,
+     "result": "driven"
+    },
+    {
+     "action": "show-pane",
+     "expectations": [
+      {
+       "detail": "ok == True, got True",
+       "path": "ok",
+       "verdict": "CONFIRMED"
+      }
+     ],
+     "id": "g164-dilpane",
+     "message": "opened pane p-dil",
+     "ms": 102,
+     "result": "driven"
+    },
+    {
+     "action": "read-report",
+     "expectations": [
+      {
+       "detail": "ok == True, got True",
+       "path": "ok",
+       "verdict": "CONFIRMED"
+      },
+      {
+       "detail": "output.by.dilOut.log\u2081\u2080 per step == '1.00', got '1.00'",
+       "path": "output.by.dilOut.log\u2081\u2080 per step",
+       "verdict": "CONFIRMED"
+      }
+     ],
+     "id": "g164-dilrep",
+     "message": "12 figure(s), 10 box(es), 3 list(s), 2 table(s), 15 heading(s)",
+     "ms": 4,
+     "result": "driven"
+    },
+    {
      "action": "read-page",
      "expectations": [
       {
@@ -22649,9 +22799,9 @@
        "verdict": "CONFIRMED"
       }
      ],
-     "id": "intact",
+     "id": "g164-endintact",
      "message": "read the page",
-     "ms": 4,
+     "ms": 5,
      "result": "driven"
     }
    ],

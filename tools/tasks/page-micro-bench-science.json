@@ -2,7 +2,7 @@
  "id": "page-micro-bench-science",
  "target": "page",
  "page": "micro-bench.html",
- "goal": "On the micro bench: 148 colonies from 0.1 mL at 10^-5 is 1.48x10^8 CFU/mL (Poisson CV 8.2%); 17 colonies at 10^-6 is TFTC and excluded; 50 at 10^-5 makes the countable mean 9.90x10^7 with the plates disagreeing by 3.0x; a 10^8 titre in 1:10 steps lands in 30-300 at step 5; OD 0.05 0.10 0.20 0.40 at hours 0-3 fits mu = ln 2 = 0.6931 per hour, doubling 1.000 h = 60.0 min, r2 1.0000; an 18 mm zone is measurement only until breakpoints S >= 17 R <= 13 (CLSI M100, 2026) interpret it with an intermediate band 13.5-16.5 mm.",
+ "goal": "On the micro bench: 148 colonies from 0.1 mL plated at 10^-5 is 1.48x10^8 CFU/mL, the plated volume and the serial transfer/diluent volumes set explicitly (1:10 per step, 1.00 log10); a growth curve, and a zone-of-inhibition read against CLSI breakpoints with the medium and organism named -- every pane driven and the figures held against an oracle.",
  "steps": [
   {
    "id": "look",
@@ -17,6 +17,17 @@
    "action": "show-pane",
    "arguments": {
     "pane": "p-pl"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "g164-plv",
+   "action": "set-text",
+   "arguments": {
+    "selector": "@control:plEntry/volume plated",
+    "value": "0.1"
    },
    "expect": {
     "ok": true
@@ -206,6 +217,39 @@
    "arguments": {
     "selector": "@control:estimated titre",
     "value": "100000000"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "g164-dvol",
+   "action": "set-text",
+   "arguments": {
+    "selector": "@control:dilEntry/volume plated",
+    "value": "0.1"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "g164-dtr",
+   "action": "set-text",
+   "arguments": {
+    "selector": "@control:transfer volume",
+    "value": "1"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "g164-dbl",
+   "action": "set-text",
+   "arguments": {
+    "selector": "@control:diluent volume",
+    "value": "9"
    },
    "expect": {
     "ok": true
@@ -427,6 +471,28 @@
    }
   },
   {
+   "id": "g164-zmed",
+   "action": "set-text",
+   "arguments": {
+    "selector": "@control:zMed",
+    "value": "Mueller-Hinton"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "g164-zorg",
+   "action": "set-text",
+   "arguments": {
+    "selector": "@control:zOrg",
+    "value": "E. coli ATCC 25922"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
    "id": "drug",
    "action": "set-text",
    "arguments": {
@@ -534,7 +600,43 @@
    }
   },
   {
-   "id": "intact",
+   "id": "g164-plpane",
+   "action": "show-pane",
+   "arguments": {
+    "pane": "p-pl"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "g164-plrep",
+   "action": "read-report",
+   "expect": {
+    "ok": true,
+    "output.by.plOut.CFU/mL (mean of countable)": "9.90×10⁷"
+   }
+  },
+  {
+   "id": "g164-dilpane",
+   "action": "show-pane",
+   "arguments": {
+    "pane": "p-dil"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "g164-dilrep",
+   "action": "read-report",
+   "expect": {
+    "ok": true,
+    "output.by.dilOut.log₁₀ per step": "1.00"
+   }
+  },
+  {
+   "id": "g164-endintact",
    "action": "read-page",
    "expect": {
     "output.junk": null,

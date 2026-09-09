@@ -1,0 +1,29 @@
+{
+ "id": "adr164",
+ "chain": "adr163",
+ "chain_probe": "tools/tasks/page-breeding-bench-science.json",
+ "subject": "ADR-164: the micro bench, recorded whole -- plate counts, serial dilution, growth and zones, every volume driven",
+ "body": "THE MICRO BENCH -- micro-bench.html, a microbiology bench (turn colony counts into a CFU/mL = colonies / (volume plated x dilution), plan a serial dilution to land a plate in the countable 30-300 window, fit a growth curve, and read a zone of inhibition against CLSI breakpoints) -- COUNTED PLATES to 1.48x10^8, planned a dilution and interpreted a zone, but six of its eighteen fields were never entered, and every one is a volume or a label the result silently depends on: the PLATED VOLUME (0.1 mL) that the CFU divides by, the TRANSFER and DILUENT VOLUMES (1 mL into 9) that make the 1:10 per step, and the MEDIUM and ORGANISM without which a zone diameter interprets to nothing. The page's own method note makes the point -- 'the plated volume, the transfer and diluent volumes are settings, you choose them' -- and the task had chosen none of them, running entirely on their defaults. The existing scenario is kept verbatim (plate counts to 9.90x10^7 CFU/mL across the countable plates, the dilution stepping 1:10 at 1.00 log10, the growth curve, the zone interpretation), so its assertions hold, and the six untouched fields are set to the values those results already assumed: 0.1 mL plated, 1 mL transferred into 9 mL of diluent, Mueller-Hinton medium and an E. coli ATCC control strain. The count and the dilution plan are then re-read and held against the oracle with the volumes now driven. micro-bench 12 -> 18 OF 18 FIELDS, 74 -> 86 confirmed and 0 refuted, and the kit 496 -> 502 of 521 (96%), 21 of 27 pages entered whole. Held: the 'mean of countable' CFU is 9.90x10^7 (the average of plates inside the 30-300 window), not the 1.48x10^8 of the single best plate, and the confirming read holds the average; setting each volume to the value the calculation already used leaves every figure where it was. No page was edited -- a task-only slice, the fourteenth page driven end to end.",
+ "paths": [
+  "tools/tasks/page-micro-bench-science.json",
+  "tools/entry_ledger.json",
+  "tools/outputs_ledger.json",
+  "tools/task_ledger.json",
+  "tools/delivery_ledger.json",
+  "tools/verify/counts.json",
+  "tools/harness_board.html",
+  "tools/published.json",
+  "tools/delivery/adr164.json",
+  "docs/ADR-164-the-micro-bench-recorded-whole-2026-09-08.md",
+  "docs/CHANGELOG-2026-09-08-adr164-the-micro-bench-recorded-whole.md",
+  "docs/AI_HARNESS.md"
+ ],
+ "clean": [
+  "adr128", "adr129", "adr130", "adr131", "adr132", "adr133", "adr134",
+  "adr135", "adr136", "adr137", "adr138", "adr139", "adr140", "adr141",
+  "adr142", "adr143", "adr144", "adr145", "adr146", "adr147", "adr148",
+  "adr149", "adr150", "adr151", "adr152", "adr153", "adr154", "adr155",
+  "adr156", "adr157", "adr158", "adr159", "adr160", "adr161", "adr162",
+  "adr163", "adr164"
+ ]
+}
