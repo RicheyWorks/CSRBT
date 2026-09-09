@@ -18855,9 +18855,9 @@
    "verdict": "PASS"
   },
   "page-field-notebook-science": {
-   "at": 1788777315,
-   "confirmed": 64,
-   "goal": "On the field notebook, tally species-a x6, species-b x3 and a new species clover x1 and find 10 individuals, 3 species, Shannon H' 0.90, evenness J' 0.82, 2.5 effective species (moderately even) and the .eco line; count 0 1 2 9 in four quadrats for mean 3.00, variance/mean 5.56 (50/3 over 3) and Morisita 2.24 (4*74/132), clumped; mark 5 voles, catch 4 with no recaptures (undefined, on purpose) then 2 recaptures for Lincoln-Petersen 5*4/2 = 10.",
+   "at": 1788914930,
+   "confirmed": 80,
+   "goal": "On the field notebook: tally species (10 individuals, 3 species incl. a new clover), quadrats and the 'more' counters, run an ethogram with the scan interval set and a behavior added and tallied, and stamp the session with site, observer and date -- every pane driven and the reads held against an oracle.",
    "held": true,
    "id": "page-field-notebook-science",
    "must": "PASS",
@@ -18868,7 +18868,7 @@
     "MUTATE"
    ],
    "rungsWhy": null,
-   "seconds": 2.0,
+   "seconds": 3.6,
    "steps": [
     {
      "action": "observe",
@@ -18900,7 +18900,7 @@
      ],
      "id": "spec",
      "message": "opened pane p-spec",
-     "ms": 109,
+     "ms": 144,
      "result": "driven"
     },
     {
@@ -18914,7 +18914,7 @@
      ],
      "id": "a0",
      "message": "activate action_btn:19",
-     "ms": 22,
+     "ms": 24,
      "result": "driven"
     },
     {
@@ -18928,7 +18928,7 @@
      ],
      "id": "a1",
      "message": "activate action_btn:19",
-     "ms": 22,
+     "ms": 25,
      "result": "driven"
     },
     {
@@ -18942,7 +18942,7 @@
      ],
      "id": "a2",
      "message": "activate action_btn:19",
-     "ms": 21,
+     "ms": 22,
      "result": "driven"
     },
     {
@@ -18956,7 +18956,7 @@
      ],
      "id": "a3",
      "message": "activate action_btn:19",
-     "ms": 22,
+     "ms": 26,
      "result": "driven"
     },
     {
@@ -18984,7 +18984,7 @@
      ],
      "id": "a5",
      "message": "activate action_btn:19",
-     "ms": 21,
+     "ms": 23,
      "result": "driven"
     },
     {
@@ -18998,7 +18998,7 @@
      ],
      "id": "b0",
      "message": "activate action_btn:20",
-     "ms": 21,
+     "ms": 23,
      "result": "driven"
     },
     {
@@ -19012,7 +19012,7 @@
      ],
      "id": "b1",
      "message": "activate action_btn:20",
-     "ms": 21,
+     "ms": 22,
      "result": "driven"
     },
     {
@@ -19026,7 +19026,7 @@
      ],
      "id": "b2",
      "message": "activate action_btn:20",
-     "ms": 21,
+     "ms": 22,
      "result": "driven"
     },
     {
@@ -19040,7 +19040,7 @@
      ],
      "id": "new",
      "message": "set-text text_in:1",
-     "ms": 21,
+     "ms": 23,
      "result": "driven"
     },
     {
@@ -19054,7 +19054,7 @@
      ],
      "id": "add",
      "message": "activate action_btn:21",
-     "ms": 21,
+     "ms": 26,
      "result": "driven"
     },
     {
@@ -19112,21 +19112,21 @@
      ],
      "id": "species",
      "message": "8 figure(s), 9 box(es), 0 list(s), 0 table(s), 6 heading(s)",
-     "ms": 4,
+     "ms": 5,
      "result": "driven"
     },
     {
      "action": "read-report",
      "expectations": [
       {
-       "detail": "output.boxes.ecoOut contains 'data: site species-a=6 species-b=3 clover=1', got '# Field Notebook export \u2014 paste into your .eco protocol # 2026-09-07 data: site species-a=6 species-b=3 clover=1 note: tallied in the field with the Field Notebook'",
+       "detail": "output.boxes.ecoOut contains 'data: site species-a=6 species-b=3 clover=1', got '# Field Notebook export \u2014 paste into your .eco protocol # 2026-09-09 data: site species-a=6 species-b=3 clover=1 note: tallied in the field with the Field Notebook'",
        "path": "output.boxes.ecoOut",
        "verdict": "CONFIRMED"
       }
      ],
      "id": "eco",
      "message": "8 figure(s), 9 box(es), 0 list(s), 0 table(s), 6 heading(s)",
-     "ms": 2,
+     "ms": 3,
      "result": "driven"
     },
     {
@@ -19140,7 +19140,7 @@
      ],
      "id": "quad",
      "message": "opened pane p-quad",
-     "ms": 88,
+     "ms": 96,
      "result": "driven"
     },
     {
@@ -19154,7 +19154,7 @@
      ],
      "id": "q2",
      "message": "activate action_btn:12",
-     "ms": 21,
+     "ms": 30,
      "result": "driven"
     },
     {
@@ -19168,7 +19168,7 @@
      ],
      "id": "q3_0",
      "message": "activate action_btn:14",
-     "ms": 22,
+     "ms": 31,
      "result": "driven"
     },
     {
@@ -19196,7 +19196,7 @@
      ],
      "id": "q4_0",
      "message": "activate action_btn:16",
-     "ms": 21,
+     "ms": 22,
      "result": "driven"
     },
     {
@@ -19210,7 +19210,7 @@
      ],
      "id": "q4_1",
      "message": "activate action_btn:16",
-     "ms": 22,
+     "ms": 23,
      "result": "driven"
     },
     {
@@ -19252,7 +19252,7 @@
      ],
      "id": "q4_4",
      "message": "activate action_btn:16",
-     "ms": 21,
+     "ms": 24,
      "result": "driven"
     },
     {
@@ -19266,7 +19266,7 @@
      ],
      "id": "q4_5",
      "message": "activate action_btn:16",
-     "ms": 23,
+     "ms": 25,
      "result": "driven"
     },
     {
@@ -19280,7 +19280,7 @@
      ],
      "id": "q4_6",
      "message": "activate action_btn:16",
-     "ms": 21,
+     "ms": 24,
      "result": "driven"
     },
     {
@@ -19294,7 +19294,7 @@
      ],
      "id": "q4_7",
      "message": "activate action_btn:16",
-     "ms": 21,
+     "ms": 24,
      "result": "driven"
     },
     {
@@ -19347,21 +19347,21 @@
      ],
      "id": "dispersion",
      "message": "13 figure(s), 9 box(es), 0 list(s), 0 table(s), 6 heading(s)",
-     "ms": 3,
+     "ms": 4,
      "result": "driven"
     },
     {
      "action": "read-report",
      "expectations": [
       {
-       "detail": "output.boxes.ecoOut contains '# quadrat counts (per frame): 0 1 2 9', got '# Field Notebook export \u2014 paste into your .eco protocol # 2026-09-07 data: site species-a=6 species-b=3 clover=1 # quadrat counts (per frame): 0 1 2 9 note: tallied in the field with the Field Notebook'",
+       "detail": "output.boxes.ecoOut contains '# quadrat counts (per frame): 0 1 2 9', got '# Field Notebook export \u2014 paste into your .eco protocol # 2026-09-09 data: site species-a=6 species-b=3 clover=1 # quadrat counts (per frame): 0 1 2 9 note: tallied in the field with the Field Notebook'",
        "path": "output.boxes.ecoOut",
        "verdict": "CONFIRMED"
       }
      ],
      "id": "quadeco",
      "message": "13 figure(s), 9 box(es), 0 list(s), 0 table(s), 6 heading(s)",
-     "ms": 2,
+     "ms": 5,
      "result": "driven"
     },
     {
@@ -19375,7 +19375,7 @@
      ],
      "id": "more",
      "message": "opened pane p-more",
-     "ms": 68,
+     "ms": 94,
      "result": "driven"
     },
     {
@@ -19389,7 +19389,7 @@
      ],
      "id": "m0",
      "message": "activate action_btn:25",
-     "ms": 21,
+     "ms": 26,
      "result": "driven"
     },
     {
@@ -19403,7 +19403,7 @@
      ],
      "id": "m1",
      "message": "activate action_btn:25",
-     "ms": 21,
+     "ms": 24,
      "result": "driven"
     },
     {
@@ -19417,7 +19417,7 @@
      ],
      "id": "m2",
      "message": "activate action_btn:25",
-     "ms": 24,
+     "ms": 23,
      "result": "driven"
     },
     {
@@ -19431,7 +19431,7 @@
      ],
      "id": "m3",
      "message": "activate action_btn:25",
-     "ms": 21,
+     "ms": 22,
      "result": "driven"
     },
     {
@@ -19445,7 +19445,7 @@
      ],
      "id": "m4",
      "message": "activate action_btn:25",
-     "ms": 21,
+     "ms": 22,
      "result": "driven"
     },
     {
@@ -19459,7 +19459,7 @@
      ],
      "id": "cc0",
      "message": "activate action_btn:27",
-     "ms": 22,
+     "ms": 23,
      "result": "driven"
     },
     {
@@ -19473,7 +19473,7 @@
      ],
      "id": "cc1",
      "message": "activate action_btn:27",
-     "ms": 22,
+     "ms": 21,
      "result": "driven"
     },
     {
@@ -19487,7 +19487,7 @@
      ],
      "id": "cc2",
      "message": "activate action_btn:27",
-     "ms": 21,
+     "ms": 24,
      "result": "driven"
     },
     {
@@ -19501,7 +19501,7 @@
      ],
      "id": "cc3",
      "message": "activate action_btn:27",
-     "ms": 21,
+     "ms": 22,
      "result": "driven"
     },
     {
@@ -19529,7 +19529,7 @@
      ],
      "id": "r0",
      "message": "activate action_btn:29",
-     "ms": 24,
+     "ms": 22,
      "result": "driven"
     },
     {
@@ -19543,7 +19543,7 @@
      ],
      "id": "r1",
      "message": "activate action_btn:29",
-     "ms": 22,
+     "ms": 24,
      "result": "driven"
     },
     {
@@ -19555,7 +19555,7 @@
        "verdict": "CONFIRMED"
       },
       {
-       "detail": "output.boxes.ecoOut contains 'model: markrecapture 5 4 2', got '# Field Notebook export \u2014 paste into your .eco protocol # 2026-09-07 data: site species-a=6 species-b=3 clover=1 # quadrat counts (per frame): 0 1 2 9 model: markrecapture 5 4 2 note: tallied in the field with the Field Notebook'",
+       "detail": "output.boxes.ecoOut contains 'model: markrecapture 5 4 2', got '# Field Notebook export \u2014 paste into your .eco protocol # 2026-09-09 data: site species-a=6 species-b=3 clover=1 # quadrat counts (per frame): 0 1 2 9 model: markrecapture 5 4 2 note: tallied in the field with the Field Notebook'",
        "path": "output.boxes.ecoOut",
        "verdict": "CONFIRMED"
       },
@@ -19577,7 +19577,222 @@
      ],
      "id": "lp",
      "message": "13 figure(s), 9 box(es), 0 list(s), 0 table(s), 6 heading(s)",
-     "ms": 2,
+     "ms": 4,
+     "result": "driven"
+    },
+    {
+     "action": "show-pane",
+     "expectations": [
+      {
+       "detail": "ok == True, got True",
+       "path": "ok",
+       "verdict": "CONFIRMED"
+      }
+     ],
+     "id": "g165-ethopane",
+     "message": "opened pane p-etho",
+     "ms": 86,
+     "result": "driven"
+    },
+    {
+     "action": "set-text",
+     "expectations": [
+      {
+       "detail": "ok == True, got True",
+       "path": "ok",
+       "verdict": "CONFIRMED"
+      }
+     ],
+     "id": "g165-scan",
+     "message": "set-text step_val:0",
+     "ms": 22,
+     "result": "driven"
+    },
+    {
+     "action": "set-text",
+     "expectations": [
+      {
+       "detail": "ok == True, got True",
+       "path": "ok",
+       "verdict": "CONFIRMED"
+      }
+     ],
+     "id": "g165-ethonew",
+     "message": "set-text text_in:0",
+     "ms": 27,
+     "result": "driven"
+    },
+    {
+     "action": "activate",
+     "expectations": [
+      {
+       "detail": "ok == True, got True",
+       "path": "ok",
+       "verdict": "CONFIRMED"
+      }
+     ],
+     "id": "g165-ethoadd",
+     "message": "activate action_btn:7",
+     "ms": 24,
+     "result": "driven"
+    },
+    {
+     "action": "activate",
+     "expectations": [
+      {
+       "detail": "ok == True, got True",
+       "path": "ok",
+       "verdict": "CONFIRMED"
+      }
+     ],
+     "id": "g165-forage0",
+     "message": "activate action_btn:2",
+     "ms": 22,
+     "result": "driven"
+    },
+    {
+     "action": "activate",
+     "expectations": [
+      {
+       "detail": "ok == True, got True",
+       "path": "ok",
+       "verdict": "CONFIRMED"
+      }
+     ],
+     "id": "g165-forage1",
+     "message": "activate action_btn:2",
+     "ms": 22,
+     "result": "driven"
+    },
+    {
+     "action": "activate",
+     "expectations": [
+      {
+       "detail": "ok == True, got True",
+       "path": "ok",
+       "verdict": "CONFIRMED"
+      }
+     ],
+     "id": "g165-forage2",
+     "message": "activate action_btn:2",
+     "ms": 22,
+     "result": "driven"
+    },
+    {
+     "action": "activate",
+     "expectations": [
+      {
+       "detail": "ok == True, got True",
+       "path": "ok",
+       "verdict": "CONFIRMED"
+      }
+     ],
+     "id": "g165-forage3",
+     "message": "activate action_btn:2",
+     "ms": 22,
+     "result": "driven"
+    },
+    {
+     "action": "activate",
+     "expectations": [
+      {
+       "detail": "ok == True, got True",
+       "path": "ok",
+       "verdict": "CONFIRMED"
+      }
+     ],
+     "id": "g165-preen0",
+     "message": "activate action_btn:7",
+     "ms": 22,
+     "result": "driven"
+    },
+    {
+     "action": "activate",
+     "expectations": [
+      {
+       "detail": "ok == True, got True",
+       "path": "ok",
+       "verdict": "CONFIRMED"
+      }
+     ],
+     "id": "g165-preen1",
+     "message": "activate action_btn:7",
+     "ms": 23,
+     "result": "driven"
+    },
+    {
+     "action": "read-report",
+     "expectations": [
+      {
+       "detail": "ok == True, got True",
+       "path": "ok",
+       "verdict": "CONFIRMED"
+      },
+      {
+       "detail": "output.boxes.ethoResults contains 'preen', got '6observations2behaviors0.64Shannon H\u20320.92evenness J\u20321.9effective (behaviors)Activity budget: even \u2014 effort/individuals spread evenly across categories.forage67%preen33%'",
+       "path": "output.boxes.ethoResults",
+       "verdict": "CONFIRMED"
+      }
+     ],
+     "id": "g165-ethorep",
+     "message": "18 figure(s), 9 box(es), 0 list(s), 0 table(s), 6 heading(s)",
+     "ms": 4,
+     "result": "driven"
+    },
+    {
+     "action": "show-pane",
+     "expectations": [
+      {
+       "detail": "ok == True, got True",
+       "path": "ok",
+       "verdict": "CONFIRMED"
+      }
+     ],
+     "id": "g165-morepane",
+     "message": "opened pane p-more",
+     "ms": 92,
+     "result": "driven"
+    },
+    {
+     "action": "set-text",
+     "expectations": [
+      {
+       "detail": "ok == True, got True",
+       "path": "ok",
+       "verdict": "CONFIRMED"
+      }
+     ],
+     "id": "g165-site",
+     "message": "set-text text_in:2",
+     "ms": 24,
+     "result": "driven"
+    },
+    {
+     "action": "set-text",
+     "expectations": [
+      {
+       "detail": "ok == True, got True",
+       "path": "ok",
+       "verdict": "CONFIRMED"
+      }
+     ],
+     "id": "g165-obs",
+     "message": "set-text text_in:3",
+     "ms": 21,
+     "result": "driven"
+    },
+    {
+     "action": "set-text",
+     "expectations": [
+      {
+       "detail": "ok == True, got True",
+       "path": "ok",
+       "verdict": "CONFIRMED"
+      }
+     ],
+     "id": "g165-date",
+     "message": "set-text text_in:4",
+     "ms": 22,
      "result": "driven"
     },
     {
@@ -19599,9 +19814,9 @@
        "verdict": "CONFIRMED"
       }
      ],
-     "id": "intact",
+     "id": "g165-endintact",
      "message": "read the page",
-     "ms": 5,
+     "ms": 8,
      "result": "driven"
     }
    ],

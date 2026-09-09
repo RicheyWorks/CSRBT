@@ -2,7 +2,7 @@
  "id": "page-field-notebook-science",
  "target": "page",
  "page": "field-notebook.html",
- "goal": "On the field notebook, tally species-a x6, species-b x3 and a new species clover x1 and find 10 individuals, 3 species, Shannon H' 0.90, evenness J' 0.82, 2.5 effective species (moderately even) and the .eco line; count 0 1 2 9 in four quadrats for mean 3.00, variance/mean 5.56 (50/3 over 3) and Morisita 2.24 (4*74/132), clumped; mark 5 voles, catch 4 with no recaptures (undefined, on purpose) then 2 recaptures for Lincoln-Petersen 5*4/2 = 10.",
+ "goal": "On the field notebook: tally species (10 individuals, 3 species incl. a new clover), quadrats and the 'more' counters, run an ethogram with the scan interval set and a behavior added and tallied, and stamp the session with site, observer and date -- every pane driven and the reads held against an oracle.",
  "steps": [
   {
    "id": "look",
@@ -154,8 +154,8 @@
     },
     "output.by.specResults.individuals": "10",
     "output.by.specResults.species": "3",
-    "output.by.specResults.Shannon H′": "0.90",
-    "output.by.specResults.evenness J′": "0.82",
+    "output.by.specResults.Shannon H\u2032": "0.90",
+    "output.by.specResults.evenness J\u2032": "0.82",
     "output.by.specResults.effective (species)": "2.5"
    }
   },
@@ -460,7 +460,7 @@
    "expect": {
     "output.boxes.mrOut": {
      "op": "contains",
-     "value": "N̂ ≈ 10"
+     "value": "N\u0302 \u2248 10"
     },
     "output.boxes.ecoOut": {
      "op": "contains",
@@ -472,7 +472,163 @@
    }
   },
   {
-   "id": "intact",
+   "id": "g165-ethopane",
+   "action": "show-pane",
+   "arguments": {
+    "pane": "p-etho"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "g165-scan",
+   "action": "set-text",
+   "arguments": {
+    "selector": "@control:scan every",
+    "value": "30"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "g165-ethonew",
+   "action": "set-text",
+   "arguments": {
+    "selector": "@control:ethoNew",
+    "value": "preen"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "g165-ethoadd",
+   "action": "activate",
+   "arguments": {
+    "selector": "@control:ethoAdd"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "g165-forage0",
+   "action": "activate",
+   "arguments": {
+    "selector": "@control:ethoGrid#0"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "g165-forage1",
+   "action": "activate",
+   "arguments": {
+    "selector": "@control:ethoGrid#0"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "g165-forage2",
+   "action": "activate",
+   "arguments": {
+    "selector": "@control:ethoGrid#0"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "g165-forage3",
+   "action": "activate",
+   "arguments": {
+    "selector": "@control:ethoGrid#0"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "g165-preen0",
+   "action": "activate",
+   "arguments": {
+    "selector": "@control:ethoGrid#5"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "g165-preen1",
+   "action": "activate",
+   "arguments": {
+    "selector": "@control:ethoGrid#5"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "g165-morepane",
+   "action": "show-pane",
+   "arguments": {
+    "pane": "p-more"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "g165-site",
+   "action": "set-text",
+   "arguments": {
+    "selector": "@control:sSite",
+    "value": "oak ridge, plot 3"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "g165-obs",
+   "action": "set-text",
+   "arguments": {
+    "selector": "@control:sObs",
+    "value": "R. Ellison"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "g165-date",
+   "action": "set-text",
+   "arguments": {
+    "selector": "@control:sDate",
+    "value": "2026-09-09"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "g165-ethorep",
+   "action": "read-report",
+   "expect": {
+    "ok": true,
+    "output.boxes.ethoResults": {
+     "op": "contains",
+     "value": "preen"
+    }
+   }
+  },
+  {
+   "id": "g165-endintact",
    "action": "read-page",
    "expect": {
     "output.junk": null,
