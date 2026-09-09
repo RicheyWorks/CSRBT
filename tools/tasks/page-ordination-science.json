@@ -2,7 +2,7 @@
  "id": "page-ordination-science",
  "target": "page",
  "page": "ordination.html",
- "goal": "On the ordination page: the two-gradient demo parses to 20 sites x 24 species, NMDS in 2 dimensions carries a stress with Clarke's bands, the Shepard diagram fits 190 pairs (20*19/2), PCoA reports axis percentages over positive eigenvalues only with negative eigenvalues counted for a semi-metric; the no-structure demo will not help you read the picture; three sites are refused (four minimum); four sites at k=2 fit exactly by construction at stress 0.000 with the free-coordinates warning, five sites without it; an empty site, an unreadable value and a quoted comma in a species name are each named, not swallowed. Then every NMDS setting is driven from its own pane -- the square-root transform chip, the Bray-Curtis dissimilarity, the dimensions and the random-starts steppers -- each returned to its default so the seeded ordination is unchanged, and the quoted-data parse is read once more.",
+ "goal": "On the ordination page: the two-gradient demo parses to 20 sites x 24 species, NMDS in 2 dimensions carries a stress with Clarke's bands, the Shepard diagram fits 190 pairs (20*19/2), PCoA reports axis percentages over positive eigenvalues only with negative eigenvalues counted for a semi-metric; the no-structure demo will not help you read the picture; three sites are refused (four minimum); four sites at k=2 fit exactly by construction at stress 0.000 with the free-coordinates warning, five sites without it; an empty site, an unreadable value and a quoted comma in a species name are each named, not swallowed. Then every NMDS setting is driven from its own pane -- the square-root transform chip, the Bray-Curtis dissimilarity, the dimensions and the random-starts steppers -- each returned to its default so the seeded ordination is unchanged, and the quoted-data parse is read once more. Then the page's three exports are read: the copied dissimilarity matrix is the 4x4 Bray-Curtis of the square-rooted, Wisconsin-standardised quoted data to six decimals, byte for byte (X to Y 0.189902, X to W 0.101337, Y to Z 0.480846, zeros on the diagonal); the copied coordinates carry site,NMDS1,NMDS2, one row per site and the page's own warning that NMDS axes are arbitrary with stress-1 = 0.0000, and no NaN; and the print button prints.",
  "steps": [
   {
    "id": "look",
@@ -502,6 +502,106 @@
    "expect": {
     "output.by.parseOut.sites": "4",
     "output.by.parseOut.species": "3"
+   }
+  },
+  {
+   "id": "g175-coord",
+   "action": "activate",
+   "arguments": {
+    "selector": "@control:copyCoord"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "g175-coords",
+   "action": "collect-output",
+   "expect": {
+    "output.payloads.0.k": "copy",
+    "output.payloads.0.text": {
+     "op": "contains",
+     "value": "site,NMDS1,NMDS2\nX,"
+    },
+    "output.payloads.0.text#2": {
+     "op": "contains",
+     "value": "\nY,"
+    },
+    "output.payloads.0.text#3": {
+     "op": "contains",
+     "value": "\nZ,"
+    },
+    "output.payloads.0.text#4": {
+     "op": "contains",
+     "value": "\nW,"
+    },
+    "output.payloads.0.text#5": {
+     "op": "contains",
+     "value": "# NMDS axes are arbitrary: this configuration may be rotated or mirrored relative to another run and fit equally well. stress-1 = 0.0000"
+    },
+    "output.payloads.0.text#6": {
+     "op": "excludes",
+     "value": "NaN"
+    },
+    "output.payloads.1": {
+     "op": "exists",
+     "value": false
+    }
+   }
+  },
+  {
+   "id": "g175-dis",
+   "action": "activate",
+   "arguments": {
+    "selector": "@control:copyDis"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "g175-matrix",
+   "action": "collect-output",
+   "expect": {
+    "output.payloads.0.k": "copy",
+    "output.payloads.0.text": ",X,Y,Z,W\nX,0.000000,0.189902,0.290944,0.101337\nY,0.189902,0.000000,0.480846,0.088819\nZ,0.290944,0.480846,0.000000,0.392281\nW,0.101337,0.088819,0.392281,0.000000",
+    "output.payloads.1": {
+     "op": "exists",
+     "value": false
+    }
+   }
+  },
+  {
+   "id": "g175-print",
+   "action": "activate",
+   "arguments": {
+    "selector": "@control:p-ord/Print / save PDF"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "g175-printed",
+   "action": "collect-output",
+   "expect": {
+    "output.payloads.0.k": "print",
+    "output.payloads.1": {
+     "op": "exists",
+     "value": false
+    }
+   }
+  },
+  {
+   "id": "g175-still",
+   "action": "read-report",
+   "expect": {
+    "output.by.parseOut.sites": "4",
+    "output.by.parseOut.species": "3",
+    "output.boxes.ordVerdict": {
+     "op": "contains",
+     "value": "Stress 0.000"
+    }
    }
   },
   {

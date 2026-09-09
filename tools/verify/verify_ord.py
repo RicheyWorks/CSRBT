@@ -642,6 +642,40 @@ ck("both copy handlers guard on the matrix they read, not only on the results",
 ck("and no copy handler is left guarding on RES alone",
    'if(!RES){ toast(' not in _SRC, "an RES-only guard remains")
 
+# ---- the exports the page hands over, held by its task to the port (ADR-175) ----
+# audit_outputs found the page's three exports read by nothing. The task now
+# presses each on its last run -- the quoted four-site data, square-rooted,
+# Wisconsin-standardised, Bray-Curtis -- and holds what came out. The
+# dissimilarity matrix is pinned HERE from the suite's own ports (the same
+# wisconsin() and bray() held against scipy above), six decimals, so a task
+# literal that merely transcribed the page's output is caught. The
+# coordinates are NOT pinned: NMDS axes are arbitrary, as the export itself
+# says, so the task holds the shape, the sites, the warning and the stress.
+import json as _json
+_TASK = os.path.join(ROOT, "tools", "tasks", "page-ordination-science.json")
+_task = _json.load(io.open(_TASK, encoding="utf-8")) if os.path.isfile(_TASK) else {"steps": []}
+_steps = dict((st["id"], st) for st in _task["steps"])
+_sites = ["X", "Y", "Z", "W"]
+if np is None:
+    skip("the task holds the copied dissimilarity matrix to the port", "numpy is not installed")
+else:
+    _X = np.sqrt(np.asarray([[1, 2, 3], [3, 2, 1], [0, 5, 5], [1, 1, 1]], float))
+    _D = bray(wisconsin(_X))
+    _want = "\n".join(["," + ",".join(_sites)] +
+                      [s_ + "," + ",".join("%.6f" % v for v in row) for s_, row in zip(_sites, _D)])
+    ck("the task holds the copied dissimilarity matrix to the port: sqrt, Wisconsin, Bray-Curtis, six decimals",
+       _steps.get("g175-matrix", {}).get("expect", {}).get("output.payloads.0.text") == _want, _steps.get("g175-matrix"))
+_co = _steps.get("g175-coords", {}).get("expect", {})
+_held = [v.get("value") for v in _co.values() if isinstance(v, dict) and v.get("op") == "contains"]
+ck("the task holds the copied coordinates' shape and warning, never a position -- NMDS axes are arbitrary",
+   any(h.startswith("site,NMDS1,NMDS2") for h in _held) and all(("\n%s," % s_) in "".join(_held) for s_ in _sites)
+   and any("NMDS axes are arbitrary" in h and "stress-1 = 0.0000" in h for h in _held)
+   and not any(re.search(r"-?\d\.\d{6}", h) for h in _held), _held)
+ck("the task holds the print to a print, and nothing else leaving with it",
+   _steps.get("g175-printed", {}).get("expect", {}).get("output.payloads.0.k") == "print"
+   and _steps.get("g175-printed", {}).get("expect", {}).get("output.payloads.1") == {"op": "exists", "value": False},
+   _steps.get("g175-printed"))
+
 print("\n".join("PASS  " + x for x in P))
 if SKIP:
     print("\n".join("SKIP  " + x for x in SKIP))

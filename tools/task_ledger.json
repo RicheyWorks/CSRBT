@@ -23725,9 +23725,9 @@
    "verdict": "PASS"
   },
   "page-ordination-science": {
-   "at": 1788918816,
-   "confirmed": 70,
-   "goal": "On the ordination page: the two-gradient demo parses to 20 sites x 24 species, NMDS in 2 dimensions carries a stress with Clarke's bands, the Shepard diagram fits 190 pairs (20*19/2), PCoA reports axis percentages over positive eigenvalues only with negative eigenvalues counted for a semi-metric; the no-structure demo will not help you read the picture; three sites are refused (four minimum); four sites at k=2 fit exactly by construction at stress 0.000 with the free-coordinates warning, five sites without it; an empty site, an unreadable value and a quoted comma in a species name are each named, not swallowed. Then every NMDS setting is driven from its own pane -- the square-root transform chip, the Bray-Curtis dissimilarity, the dimensions and the random-starts steppers -- each returned to its default so the seeded ordination is unchanged, and the quoted-data parse is read once more.",
+   "at": 1788991952,
+   "confirmed": 89,
+   "goal": "On the ordination page: the two-gradient demo parses to 20 sites x 24 species, NMDS in 2 dimensions carries a stress with Clarke's bands, the Shepard diagram fits 190 pairs (20*19/2), PCoA reports axis percentages over positive eigenvalues only with negative eigenvalues counted for a semi-metric; the no-structure demo will not help you read the picture; three sites are refused (four minimum); four sites at k=2 fit exactly by construction at stress 0.000 with the free-coordinates warning, five sites without it; an empty site, an unreadable value and a quoted comma in a species name are each named, not swallowed. Then every NMDS setting is driven from its own pane -- the square-root transform chip, the Bray-Curtis dissimilarity, the dimensions and the random-starts steppers -- each returned to its default so the seeded ordination is unchanged, and the quoted-data parse is read once more. Then the page's three exports are read: the copied dissimilarity matrix is the 4x4 Bray-Curtis of the square-rooted, Wisconsin-standardised quoted data to six decimals, byte for byte (X to Y 0.189902, X to W 0.101337, Y to Z 0.480846, zeros on the diagonal); the copied coordinates carry site,NMDS1,NMDS2, one row per site and the page's own warning that NMDS axes are arbitrary with stress-1 = 0.0000, and no NaN; and the print button prints.",
    "held": true,
    "id": "page-ordination-science",
    "must": "PASS",
@@ -23738,7 +23738,7 @@
     "MUTATE"
    ],
    "rungsWhy": null,
-   "seconds": 3.8,
+   "seconds": 3.2,
    "steps": [
     {
      "action": "observe",
@@ -23770,7 +23770,7 @@
      ],
      "id": "data",
      "message": "opened pane p-data",
-     "ms": 5,
+     "ms": 4,
      "result": "driven"
     },
     {
@@ -23784,7 +23784,7 @@
      ],
      "id": "demo",
      "message": "activate action_btn:1",
-     "ms": 118,
+     "ms": 90,
      "result": "driven"
     },
     {
@@ -23808,7 +23808,7 @@
      ],
      "id": "parsed",
      "message": "12 figure(s), 11 box(es), 0 list(s), 1 table(s), 16 heading(s)",
-     "ms": 15,
+     "ms": 9,
      "result": "driven"
     },
     {
@@ -23837,7 +23837,7 @@
      ],
      "id": "nmds",
      "message": "12 figure(s), 11 box(es), 0 list(s), 1 table(s), 16 heading(s)",
-     "ms": 13,
+     "ms": 7,
      "result": "driven"
     },
     {
@@ -23851,7 +23851,7 @@
      ],
      "id": "diag",
      "message": "opened pane p-diag",
-     "ms": 194,
+     "ms": 151,
      "result": "driven"
     },
     {
@@ -23875,7 +23875,7 @@
      ],
      "id": "shepard",
      "message": "12 figure(s), 11 box(es), 0 list(s), 1 table(s), 16 heading(s)",
-     "ms": 18,
+     "ms": 9,
      "result": "driven"
     },
     {
@@ -23889,7 +23889,7 @@
      ],
      "id": "ord",
      "message": "opened pane p-ord",
-     "ms": 100,
+     "ms": 96,
      "result": "driven"
     },
     {
@@ -23903,7 +23903,7 @@
      ],
      "id": "pcoa",
      "message": "activate dial_btn:4",
-     "ms": 35,
+     "ms": 26,
      "result": "driven"
     },
     {
@@ -23927,7 +23927,7 @@
      ],
      "id": "axes",
      "message": "8 figure(s), 11 box(es), 0 list(s), 0 table(s), 16 heading(s)",
-     "ms": 11,
+     "ms": 5,
      "result": "driven"
     },
     {
@@ -23941,7 +23941,7 @@
      ],
      "id": "nmds2",
      "message": "activate dial_btn:3",
-     "ms": 93,
+     "ms": 78,
      "result": "driven"
     },
     {
@@ -23955,7 +23955,7 @@
      ],
      "id": "data2",
      "message": "opened pane p-data",
-     "ms": 117,
+     "ms": 96,
      "result": "driven"
     },
     {
@@ -23969,7 +23969,7 @@
      ],
      "id": "noise",
      "message": "activate action_btn:2",
-     "ms": 158,
+     "ms": 123,
      "result": "driven"
     },
     {
@@ -23983,7 +23983,7 @@
      ],
      "id": "nohelp",
      "message": "12 figure(s), 11 box(es), 0 list(s), 1 table(s), 16 heading(s)",
-     "ms": 8,
+     "ms": 5,
      "result": "driven"
     },
     {
@@ -23997,7 +23997,7 @@
      ],
      "id": "data3",
      "message": "opened pane p-data",
-     "ms": 117,
+     "ms": 116,
      "result": "driven"
     },
     {
@@ -24011,7 +24011,7 @@
      ],
      "id": "three",
      "message": "set-text text_in:0",
-     "ms": 35,
+     "ms": 26,
      "result": "driven"
     },
     {
@@ -24025,7 +24025,7 @@
      ],
      "id": "run3",
      "message": "activate action_btn:0",
-     "ms": 26,
+     "ms": 23,
      "result": "driven"
     },
     {
@@ -24039,7 +24039,7 @@
      ],
      "id": "minimum",
      "message": "8 figure(s), 11 box(es), 0 list(s), 0 table(s), 16 heading(s)",
-     "ms": 6,
+     "ms": 5,
      "result": "driven"
     },
     {
@@ -24053,7 +24053,7 @@
      ],
      "id": "data4",
      "message": "opened pane p-data",
-     "ms": 5,
+     "ms": 3,
      "result": "driven"
     },
     {
@@ -24067,7 +24067,7 @@
      ],
      "id": "four",
      "message": "set-text text_in:0",
-     "ms": 25,
+     "ms": 22,
      "result": "driven"
     },
     {
@@ -24081,7 +24081,7 @@
      ],
      "id": "run4",
      "message": "activate action_btn:0",
-     "ms": 31,
+     "ms": 27,
      "result": "driven"
     },
     {
@@ -24100,7 +24100,7 @@
      ],
      "id": "free",
      "message": "12 figure(s), 11 box(es), 0 list(s), 1 table(s), 16 heading(s)",
-     "ms": 8,
+     "ms": 6,
      "result": "driven"
     },
     {
@@ -24114,7 +24114,7 @@
      ],
      "id": "data5",
      "message": "opened pane p-data",
-     "ms": 112,
+     "ms": 103,
      "result": "driven"
     },
     {
@@ -24128,7 +24128,7 @@
      ],
      "id": "five",
      "message": "set-text text_in:0",
-     "ms": 24,
+     "ms": 26,
      "result": "driven"
     },
     {
@@ -24142,7 +24142,7 @@
      ],
      "id": "run5",
      "message": "activate action_btn:0",
-     "ms": 36,
+     "ms": 29,
      "result": "driven"
     },
     {
@@ -24161,7 +24161,7 @@
      ],
      "id": "notfree",
      "message": "12 figure(s), 11 box(es), 0 list(s), 1 table(s), 16 heading(s)",
-     "ms": 7,
+     "ms": 4,
      "result": "driven"
     },
     {
@@ -24175,7 +24175,7 @@
      ],
      "id": "data6",
      "message": "opened pane p-data",
-     "ms": 124,
+     "ms": 103,
      "result": "driven"
     },
     {
@@ -24189,7 +24189,7 @@
      ],
      "id": "emptysite",
      "message": "set-text text_in:0",
-     "ms": 29,
+     "ms": 26,
      "result": "driven"
     },
     {
@@ -24203,7 +24203,7 @@
      ],
      "id": "run6",
      "message": "activate action_btn:0",
-     "ms": 32,
+     "ms": 35,
      "result": "driven"
     },
     {
@@ -24217,7 +24217,7 @@
      ],
      "id": "nothing",
      "message": "12 figure(s), 11 box(es), 0 list(s), 1 table(s), 16 heading(s)",
-     "ms": 5,
+     "ms": 8,
      "result": "driven"
     },
     {
@@ -24231,7 +24231,7 @@
      ],
      "id": "data7",
      "message": "opened pane p-data",
-     "ms": 95,
+     "ms": 99,
      "result": "driven"
     },
     {
@@ -24245,7 +24245,7 @@
      ],
      "id": "bad",
      "message": "set-text text_in:0",
-     "ms": 24,
+     "ms": 28,
      "result": "driven"
     },
     {
@@ -24259,7 +24259,7 @@
      ],
      "id": "run7",
      "message": "activate action_btn:0",
-     "ms": 29,
+     "ms": 27,
      "result": "driven"
     },
     {
@@ -24273,7 +24273,7 @@
      ],
      "id": "unreadable",
      "message": "12 figure(s), 11 box(es), 0 list(s), 1 table(s), 16 heading(s)",
-     "ms": 10,
+     "ms": 8,
      "result": "driven"
     },
     {
@@ -24287,7 +24287,7 @@
      ],
      "id": "data8",
      "message": "opened pane p-data",
-     "ms": 106,
+     "ms": 99,
      "result": "driven"
     },
     {
@@ -24301,7 +24301,7 @@
      ],
      "id": "quoted",
      "message": "set-text text_in:0",
-     "ms": 30,
+     "ms": 24,
      "result": "driven"
     },
     {
@@ -24315,7 +24315,7 @@
      ],
      "id": "run8",
      "message": "activate action_btn:0",
-     "ms": 32,
+     "ms": 27,
      "result": "driven"
     },
     {
@@ -24334,7 +24334,7 @@
      ],
      "id": "comma",
      "message": "12 figure(s), 11 box(es), 0 list(s), 1 table(s), 16 heading(s)",
-     "ms": 8,
+     "ms": 3,
      "result": "driven"
     },
     {
@@ -24378,7 +24378,7 @@
      ],
      "id": "charts",
      "message": "12 figure(s), 11 box(es), 0 list(s), 1 table(s), 16 heading(s)",
-     "ms": 9,
+     "ms": 6,
      "result": "driven"
     },
     {
@@ -24392,7 +24392,7 @@
      ],
      "id": "g166-datapane",
      "message": "opened pane p-data",
-     "ms": 125,
+     "ms": 102,
      "result": "driven"
     },
     {
@@ -24406,7 +24406,7 @@
      ],
      "id": "g166-sqrtoff",
      "message": "activate chip:0",
-     "ms": 35,
+     "ms": 27,
      "result": "driven"
     },
     {
@@ -24420,7 +24420,7 @@
      ],
      "id": "g166-sqrton",
      "message": "activate chip:0",
-     "ms": 27,
+     "ms": 25,
      "result": "driven"
     },
     {
@@ -24434,7 +24434,7 @@
      ],
      "id": "g166-bray",
      "message": "activate dial_btn:0",
-     "ms": 25,
+     "ms": 24,
      "result": "driven"
     },
     {
@@ -24448,7 +24448,7 @@
      ],
      "id": "g166-ordpane",
      "message": "opened pane p-ord",
-     "ms": 110,
+     "ms": 95,
      "result": "driven"
     },
     {
@@ -24462,7 +24462,7 @@
      ],
      "id": "g166-dim",
      "message": "set-text step_val:0",
-     "ms": 30,
+     "ms": 24,
      "result": "driven"
     },
     {
@@ -24476,7 +24476,7 @@
      ],
      "id": "g166-starts",
      "message": "set-text step_val:1",
-     "ms": 22,
+     "ms": 23,
      "result": "driven"
     },
     {
@@ -24495,7 +24495,165 @@
      ],
      "id": "g166-held",
      "message": "12 figure(s), 11 box(es), 0 list(s), 1 table(s), 16 heading(s)",
-     "ms": 6,
+     "ms": 4,
+     "result": "driven"
+    },
+    {
+     "action": "activate",
+     "expectations": [
+      {
+       "detail": "ok == True, got True",
+       "path": "ok",
+       "verdict": "CONFIRMED"
+      }
+     ],
+     "id": "g175-coord",
+     "message": "activate action_btn:6",
+     "ms": 25,
+     "result": "driven"
+    },
+    {
+     "action": "collect-output",
+     "expectations": [
+      {
+       "detail": "output.payloads.0.k == 'copy', got 'copy'",
+       "path": "output.payloads.0.k",
+       "verdict": "CONFIRMED"
+      },
+      {
+       "detail": "output.payloads.0.text contains 'site,NMDS1,NMDS2\\nX,', got 'site,NMDS1,NMDS2\\nX,0.000337,0.000804\\nY,-1.048968,-0.016352\\nZ,1.608103,-0.003900\\nW,-0.559472,0.019448\\n# NMDS axes are arbitrary: this configuration may be rotated or mirrored relative to another run and fit equally well. stress-1 = 0.0000'",
+       "path": "output.payloads.0.text",
+       "verdict": "CONFIRMED"
+      },
+      {
+       "detail": "output.payloads.0.text contains '\\nY,', got 'site,NMDS1,NMDS2\\nX,0.000337,0.000804\\nY,-1.048968,-0.016352\\nZ,1.608103,-0.003900\\nW,-0.559472,0.019448\\n# NMDS axes are arbitrary: this configuration may be rotated or mirrored relative to another run and fit equally well. stress-1 = 0.0000'",
+       "path": "output.payloads.0.text#2",
+       "verdict": "CONFIRMED"
+      },
+      {
+       "detail": "output.payloads.0.text contains '\\nZ,', got 'site,NMDS1,NMDS2\\nX,0.000337,0.000804\\nY,-1.048968,-0.016352\\nZ,1.608103,-0.003900\\nW,-0.559472,0.019448\\n# NMDS axes are arbitrary: this configuration may be rotated or mirrored relative to another run and fit equally well. stress-1 = 0.0000'",
+       "path": "output.payloads.0.text#3",
+       "verdict": "CONFIRMED"
+      },
+      {
+       "detail": "output.payloads.0.text contains '\\nW,', got 'site,NMDS1,NMDS2\\nX,0.000337,0.000804\\nY,-1.048968,-0.016352\\nZ,1.608103,-0.003900\\nW,-0.559472,0.019448\\n# NMDS axes are arbitrary: this configuration may be rotated or mirrored relative to another run and fit equally well. stress-1 = 0.0000'",
+       "path": "output.payloads.0.text#4",
+       "verdict": "CONFIRMED"
+      },
+      {
+       "detail": "output.payloads.0.text contains '# NMDS axes are arbitrary: this configuration may be rotated or mirrored relative to another run and fit equally well. stress-1 = 0.0000', got 'site,NMDS1,NMDS2\\nX,0.000337,0.000804\\nY,-1.048968,-0.016352\\nZ,1.608103,-0.003900\\nW,-0.559472,0.019448\\n# NMDS axes are arbitrary: this configuration may be rotated or mirrored relative to another run and fit equally well. stress-1 = 0.0000'",
+       "path": "output.payloads.0.text#5",
+       "verdict": "CONFIRMED"
+      },
+      {
+       "detail": "output.payloads.0.text excludes 'NaN', got 'site,NMDS1,NMDS2\\nX,0.000337,0.000804\\nY,-1.048968,-0.016352\\nZ,1.608103,-0.003900\\nW,-0.559472,0.019448\\n# NMDS axes are arbitrary: this configuration may be rotated or mirrored relative to another run and fit equally well. stress-1 = 0.0000'",
+       "path": "output.payloads.0.text#6",
+       "verdict": "CONFIRMED"
+      },
+      {
+       "detail": "output.payloads.1 exists False, got None",
+       "path": "output.payloads.1",
+       "verdict": "CONFIRMED"
+      }
+     ],
+     "id": "g175-coords",
+     "message": "1 payload(s)",
+     "ms": 2,
+     "result": "driven"
+    },
+    {
+     "action": "activate",
+     "expectations": [
+      {
+       "detail": "ok == True, got True",
+       "path": "ok",
+       "verdict": "CONFIRMED"
+      }
+     ],
+     "id": "g175-dis",
+     "message": "activate action_btn:7",
+     "ms": 29,
+     "result": "driven"
+    },
+    {
+     "action": "collect-output",
+     "expectations": [
+      {
+       "detail": "output.payloads.0.k == 'copy', got 'copy'",
+       "path": "output.payloads.0.k",
+       "verdict": "CONFIRMED"
+      },
+      {
+       "detail": "output.payloads.0.text == ',X,Y,Z,W\\nX,0.000000,0.189902,0.290944,0.101337\\nY,0.189902,0.000000,0.480846,0.088819\\nZ,0.290944,0.480846,0.000000,0.392281\\nW,0.101337,0.088819,0.392281,0.000000', got ',X,Y,Z,W\\nX,0.000000,0.189902,0.290944,0.101337\\nY,0.189902,0.000000,0.480846,0.088819\\nZ,0.290944,0.480846,0.000000,0.392281\\nW,0.101337,0.088819,0.392281,0.000000'",
+       "path": "output.payloads.0.text",
+       "verdict": "CONFIRMED"
+      },
+      {
+       "detail": "output.payloads.1 exists False, got None",
+       "path": "output.payloads.1",
+       "verdict": "CONFIRMED"
+      }
+     ],
+     "id": "g175-matrix",
+     "message": "1 payload(s)",
+     "ms": 2,
+     "result": "driven"
+    },
+    {
+     "action": "activate",
+     "expectations": [
+      {
+       "detail": "ok == True, got True",
+       "path": "ok",
+       "verdict": "CONFIRMED"
+      }
+     ],
+     "id": "g175-print",
+     "message": "activate action_btn:8",
+     "ms": 24,
+     "result": "driven"
+    },
+    {
+     "action": "collect-output",
+     "expectations": [
+      {
+       "detail": "output.payloads.0.k == 'print', got 'print'",
+       "path": "output.payloads.0.k",
+       "verdict": "CONFIRMED"
+      },
+      {
+       "detail": "output.payloads.1 exists False, got None",
+       "path": "output.payloads.1",
+       "verdict": "CONFIRMED"
+      }
+     ],
+     "id": "g175-printed",
+     "message": "1 payload(s)",
+     "ms": 2,
+     "result": "driven"
+    },
+    {
+     "action": "read-report",
+     "expectations": [
+      {
+       "detail": "output.by.parseOut.sites == '4', got '4'",
+       "path": "output.by.parseOut.sites",
+       "verdict": "CONFIRMED"
+      },
+      {
+       "detail": "output.by.parseOut.species == '3', got '3'",
+       "path": "output.by.parseOut.species",
+       "verdict": "CONFIRMED"
+      },
+      {
+       "detail": "output.boxes.ordVerdict contains 'Stress 0.000', got 'Stress 0.000 \u2014 \u201cexcellent\u201d on Clarke\u2019s rule of thumb (the rank order of nearly every pair survives). That is a convention, not a result: Clarke published these bands with a warning against using them mechanically, and stress rises with the number of points for geometric reasons alone. This is 4 sites \u2014 the same stress from more sites is a better outcome, not the same one. A stress this near zero with this few sites is not a result. There are enough free coordinates to place the points exactly however the ordering demands, so the fit is guaranteed and carries no information.'",
+       "path": "output.boxes.ordVerdict",
+       "verdict": "CONFIRMED"
+      }
+     ],
+     "id": "g175-still",
+     "message": "12 figure(s), 11 box(es), 0 list(s), 1 table(s), 16 heading(s)",
+     "ms": 4,
      "result": "driven"
     },
     {
