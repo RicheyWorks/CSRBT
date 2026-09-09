@@ -5093,9 +5093,9 @@
    "verdict": "FAIL"
   },
   "page-collection-sheet-science": {
-   "at": 1788777264,
-   "confirmed": 83,
-   "goal": "On the collection sheet, record a search of 1000 m\u00b2 over 90 minutes and five collections -- Amanita muscaria x1, Suillus brevipes x1, Russula brevipes x1, Cortinarius cf. vanduzerensis x2, Pleurotus pulmonarius x5, each on its host -- then open the analysis and find the sheet's arithmetic right: 5 collections, 10 fruit bodies, Sobs 5, Chao1 6.5 (5 + 3\u00b72 / (2\u00b7(1+1))), singletons/doubletons 3 / 1, Shannon H\u2032 1.359 and Pielou J\u2032 0.845 for p = .1 .1 .1 .2 .5, 0.50 collections per 100 m\u00b2, 3.3 collections per hour.",
+   "at": 1788921465,
+   "confirmed": 90,
+   "goal": "On the collection sheet, record a search of 1000 m\u00b2 over 90 minutes and five collections -- Amanita muscaria x1, Suillus brevipes x1, Russula brevipes x1, Cortinarius cf. vanduzerensis x2, Pleurotus pulmonarius x5, each on its host -- then open the analysis and find the sheet's arithmetic right: 5 collections, 10 fruit bodies, Sobs 5, Chao1 6.5 (5 + 3\u00b72 / (2\u00b7(1+1))), singletons/doubletons 3 / 1, Shannon H\u2032 1.359 and Pielou J\u2032 0.845 for p = .1 .1 .1 .2 .5, 0.50 collections per 100 m\u00b2, 3.3 collections per hour. Then the four chemical spot tests the sheet still lacked -- Melzer's, phenol, alpha-naphthol and syringaldazine -- are recorded on RCW-2026-041 alongside the KOH, ammonia, iron and guaiac already noted, so every reagent field on the sheet carries an observation.",
    "held": true,
    "id": "page-collection-sheet-science",
    "must": "PASS",
@@ -5106,7 +5106,7 @@
     "MUTATE"
    ],
    "rungsWhy": null,
-   "seconds": 10.0,
+   "seconds": 15.0,
    "steps": [
     {
      "action": "observe",
@@ -5138,7 +5138,7 @@
      ],
      "id": "site",
      "message": "opened pane p-site",
-     "ms": 138,
+     "ms": 167,
      "result": "driven"
     },
     {
@@ -5152,7 +5152,7 @@
      ],
      "id": "area",
      "message": "set-text step_val:7",
-     "ms": 22,
+     "ms": 31,
      "result": "driven"
     },
     {
@@ -5166,7 +5166,7 @@
      ],
      "id": "minutes",
      "message": "set-text step_val:8",
-     "ms": 21,
+     "ms": 25,
      "result": "driven"
     },
     {
@@ -5174,7 +5174,7 @@
      "expectations": [],
      "id": "sname",
      "message": "set-text text_in:5",
-     "ms": 22,
+     "ms": 26,
      "result": "driven"
     },
     {
@@ -5182,7 +5182,7 @@
      "expectations": [],
      "id": "sobs",
      "message": "set-text text_in:6",
-     "ms": 22,
+     "ms": 26,
      "result": "driven"
     },
     {
@@ -5190,7 +5190,7 @@
      "expectations": [],
      "id": "sdate",
      "message": "set-text text_in:7",
-     "ms": 21,
+     "ms": 26,
      "result": "driven"
     },
     {
@@ -5198,7 +5198,7 @@
      "expectations": [],
      "id": "slat",
      "message": "set-text text_in:8",
-     "ms": 21,
+     "ms": 28,
      "result": "driven"
     },
     {
@@ -5206,7 +5206,7 @@
      "expectations": [],
      "id": "slon",
      "message": "set-text text_in:9",
-     "ms": 22,
+     "ms": 25,
      "result": "driven"
     },
     {
@@ -5214,7 +5214,7 @@
      "expectations": [],
      "id": "sveg",
      "message": "set-text text_in:10",
-     "ms": 22,
+     "ms": 25,
      "result": "driven"
     },
     {
@@ -5222,7 +5222,7 @@
      "expectations": [],
      "id": "strees",
      "message": "set-text text_in:11",
-     "ms": 21,
+     "ms": 25,
      "result": "driven"
     },
     {
@@ -5230,7 +5230,7 @@
      "expectations": [],
      "id": "sdist",
      "message": "set-text text_in:12",
-     "ms": 22,
+     "ms": 26,
      "result": "driven"
     },
     {
@@ -5238,7 +5238,7 @@
      "expectations": [],
      "id": "selev",
      "message": "set-text step_val:6",
-     "ms": 21,
+     "ms": 24,
      "result": "driven"
     },
     {
@@ -5246,7 +5246,7 @@
      "expectations": [],
      "id": "sduff",
      "message": "set-text step_val:9",
-     "ms": 22,
+     "ms": 29,
      "result": "driven"
     },
     {
@@ -5254,7 +5254,7 @@
      "expectations": [],
      "id": "sage",
      "message": "activate dial_btn:3",
-     "ms": 22,
+     "ms": 26,
      "result": "driven"
     },
     {
@@ -5262,7 +5262,7 @@
      "expectations": [],
      "id": "scwd",
      "message": "activate dial_btn:8",
-     "ms": 21,
+     "ms": 24,
      "result": "driven"
     },
     {
@@ -5270,7 +5270,7 @@
      "expectations": [],
      "id": "wdate",
      "message": "set-text text_in:13",
-     "ms": 21,
+     "ms": 24,
      "result": "driven"
     },
     {
@@ -5278,7 +5278,7 @@
      "expectations": [],
      "id": "wmm",
      "message": "set-text step_val:10",
-     "ms": 21,
+     "ms": 28,
      "result": "driven"
     },
     {
@@ -5286,7 +5286,7 @@
      "expectations": [],
      "id": "w7",
      "message": "set-text step_val:11",
-     "ms": 24,
+     "ms": 27,
      "result": "driven"
     },
     {
@@ -5294,7 +5294,7 @@
      "expectations": [],
      "id": "w30",
      "message": "set-text step_val:12",
-     "ms": 22,
+     "ms": 26,
      "result": "driven"
     },
     {
@@ -5302,7 +5302,7 @@
      "expectations": [],
      "id": "wsoil",
      "message": "set-text step_val:13",
-     "ms": 21,
+     "ms": 26,
      "result": "driven"
     },
     {
@@ -5310,7 +5310,7 @@
      "expectations": [],
      "id": "wair",
      "message": "set-text step_val:14",
-     "ms": 21,
+     "ms": 28,
      "result": "driven"
     },
     {
@@ -5329,7 +5329,7 @@
      ],
      "id": "wx",
      "message": "0 figure(s), 15 box(es), 0 list(s), 0 table(s), 30 heading(s)",
-     "ms": 4,
+     "ms": 7,
      "result": "driven"
     },
     {
@@ -5343,7 +5343,7 @@
      ],
      "id": "wx2",
      "message": "0 figure(s), 15 box(es), 0 list(s), 0 table(s), 30 heading(s)",
-     "ms": 2,
+     "ms": 4,
      "result": "driven"
     },
     {
@@ -5357,7 +5357,7 @@
      ],
      "id": "area-back",
      "message": "read step_val:7",
-     "ms": 2,
+     "ms": 4,
      "result": "driven"
     },
     {
@@ -5371,7 +5371,7 @@
      ],
      "id": "rec",
      "message": "opened pane p-rec",
-     "ms": 66,
+     "ms": 78,
      "result": "driven"
     },
     {
@@ -5390,7 +5390,7 @@
      ],
      "id": "g1",
      "message": "pick pick_search:0",
-     "ms": 143,
+     "ms": 154,
      "result": "driven"
     },
     {
@@ -5404,7 +5404,7 @@
      ],
      "id": "n1",
      "message": "set-text text_in:0",
-     "ms": 23,
+     "ms": 26,
      "result": "driven"
     },
     {
@@ -5418,7 +5418,7 @@
      ],
      "id": "c1",
      "message": "set-text step_val:0",
-     "ms": 21,
+     "ms": 23,
      "result": "driven"
     },
     {
@@ -5432,7 +5432,7 @@
      ],
      "id": "h1",
      "message": "pick pick_search:1",
-     "ms": 144,
+     "ms": 150,
      "result": "driven"
     },
     {
@@ -5440,7 +5440,7 @@
      "expectations": [],
      "id": "num1",
      "message": "set-text text_in:1",
-     "ms": 23,
+     "ms": 25,
      "result": "driven"
     },
     {
@@ -5448,7 +5448,7 @@
      "expectations": [],
      "id": "sub1",
      "message": "activate kopt:0",
-     "ms": 22,
+     "ms": 26,
      "result": "driven"
     },
     {
@@ -5456,7 +5456,7 @@
      "expectations": [],
      "id": "hab1",
      "message": "activate kopt:12",
-     "ms": 21,
+     "ms": 23,
      "result": "driven"
     },
     {
@@ -5464,7 +5464,7 @@
      "expectations": [],
      "id": "hym1",
      "message": "activate kopt:19",
-     "ms": 21,
+     "ms": 23,
      "result": "driven"
     },
     {
@@ -5472,7 +5472,7 @@
      "expectations": [],
      "id": "ch1",
      "message": "activate ck:0",
-     "ms": 23,
+     "ms": 26,
      "result": "driven"
     },
     {
@@ -5480,7 +5480,7 @@
      "expectations": [],
      "id": "ch2",
      "message": "activate ck:1",
-     "ms": 21,
+     "ms": 28,
      "result": "driven"
     },
     {
@@ -5488,7 +5488,7 @@
      "expectations": [],
      "id": "cap1",
      "message": "set-text step_val:2",
-     "ms": 22,
+     "ms": 34,
      "result": "driven"
     },
     {
@@ -5496,7 +5496,7 @@
      "expectations": [],
      "id": "stl1",
      "message": "set-text step_val:3",
-     "ms": 22,
+     "ms": 28,
      "result": "driven"
     },
     {
@@ -5504,7 +5504,7 @@
      "expectations": [],
      "id": "stw1",
      "message": "set-text step_val:4",
-     "ms": 21,
+     "ms": 28,
      "result": "driven"
     },
     {
@@ -5512,7 +5512,7 @@
      "expectations": [],
      "id": "mass1",
      "message": "set-text step_val:5",
-     "ms": 22,
+     "ms": 28,
      "result": "driven"
     },
     {
@@ -5520,7 +5520,7 @@
      "expectations": [],
      "id": "od1",
      "message": "set-text text_in:2",
-     "ms": 21,
+     "ms": 27,
      "result": "driven"
     },
     {
@@ -5528,7 +5528,7 @@
      "expectations": [],
      "id": "br1",
      "message": "set-text text_in:3",
-     "ms": 22,
+     "ms": 32,
      "result": "driven"
     },
     {
@@ -5536,7 +5536,7 @@
      "expectations": [],
      "id": "nt1",
      "message": "set-text text_in:4",
-     "ms": 21,
+     "ms": 25,
      "result": "driven"
     },
     {
@@ -5544,7 +5544,7 @@
      "expectations": [],
      "id": "dist1",
      "message": "set-text step_val:1",
-     "ms": 21,
+     "ms": 26,
      "result": "driven"
     },
     {
@@ -5558,7 +5558,7 @@
      ],
      "id": "a1",
      "message": "activate action_btn:0",
-     "ms": 23,
+     "ms": 30,
      "result": "driven"
     },
     {
@@ -5572,7 +5572,7 @@
      ],
      "id": "g2",
      "message": "pick pick_search:0",
-     "ms": 143,
+     "ms": 147,
      "result": "driven"
     },
     {
@@ -5586,7 +5586,7 @@
      ],
      "id": "n2",
      "message": "set-text text_in:0",
-     "ms": 21,
+     "ms": 25,
      "result": "driven"
     },
     {
@@ -5600,7 +5600,7 @@
      ],
      "id": "c2",
      "message": "set-text step_val:0",
-     "ms": 21,
+     "ms": 25,
      "result": "driven"
     },
     {
@@ -5614,7 +5614,7 @@
      ],
      "id": "h2",
      "message": "pick pick_search:1",
-     "ms": 142,
+     "ms": 148,
      "result": "driven"
     },
     {
@@ -5628,7 +5628,7 @@
      ],
      "id": "a2",
      "message": "activate action_btn:0",
-     "ms": 24,
+     "ms": 25,
      "result": "driven"
     },
     {
@@ -5642,7 +5642,7 @@
      ],
      "id": "g3",
      "message": "pick pick_search:0",
-     "ms": 144,
+     "ms": 152,
      "result": "driven"
     },
     {
@@ -5656,7 +5656,7 @@
      ],
      "id": "n3",
      "message": "set-text text_in:0",
-     "ms": 22,
+     "ms": 26,
      "result": "driven"
     },
     {
@@ -5670,7 +5670,7 @@
      ],
      "id": "c3",
      "message": "set-text step_val:0",
-     "ms": 21,
+     "ms": 24,
      "result": "driven"
     },
     {
@@ -5684,7 +5684,7 @@
      ],
      "id": "h3",
      "message": "pick pick_search:1",
-     "ms": 144,
+     "ms": 147,
      "result": "driven"
     },
     {
@@ -5698,7 +5698,7 @@
      ],
      "id": "a3",
      "message": "activate action_btn:0",
-     "ms": 27,
+     "ms": 29,
      "result": "driven"
     },
     {
@@ -5712,7 +5712,7 @@
      ],
      "id": "g4",
      "message": "pick pick_search:0",
-     "ms": 142,
+     "ms": 149,
      "result": "driven"
     },
     {
@@ -5726,7 +5726,7 @@
      ],
      "id": "n4",
      "message": "set-text text_in:0",
-     "ms": 21,
+     "ms": 26,
      "result": "driven"
     },
     {
@@ -5740,7 +5740,7 @@
      ],
      "id": "c4",
      "message": "set-text step_val:0",
-     "ms": 21,
+     "ms": 27,
      "result": "driven"
     },
     {
@@ -5754,7 +5754,7 @@
      ],
      "id": "h4",
      "message": "pick pick_search:1",
-     "ms": 143,
+     "ms": 148,
      "result": "driven"
     },
     {
@@ -5768,7 +5768,7 @@
      ],
      "id": "a4",
      "message": "activate action_btn:0",
-     "ms": 22,
+     "ms": 34,
      "result": "driven"
     },
     {
@@ -5782,7 +5782,7 @@
      ],
      "id": "g5",
      "message": "pick pick_search:0",
-     "ms": 146,
+     "ms": 151,
      "result": "driven"
     },
     {
@@ -5796,7 +5796,7 @@
      ],
      "id": "n5",
      "message": "set-text text_in:0",
-     "ms": 21,
+     "ms": 25,
      "result": "driven"
     },
     {
@@ -5810,7 +5810,7 @@
      ],
      "id": "c5",
      "message": "set-text step_val:0",
-     "ms": 22,
+     "ms": 25,
      "result": "driven"
     },
     {
@@ -5824,7 +5824,7 @@
      ],
      "id": "h5",
      "message": "pick pick_search:1",
-     "ms": 145,
+     "ms": 150,
      "result": "driven"
     },
     {
@@ -5838,7 +5838,7 @@
      ],
      "id": "a5",
      "message": "activate action_btn:0",
-     "ms": 23,
+     "ms": 29,
      "result": "driven"
     },
     {
@@ -5885,7 +5885,7 @@
      ],
      "id": "listed",
      "message": "10 figure(s), 15 box(es), 1 list(s), 2 table(s), 32 heading(s)",
-     "ms": 5,
+     "ms": 7,
      "result": "driven"
     },
     {
@@ -5893,7 +5893,7 @@
      "expectations": [],
      "id": "prt",
      "message": "opened pane p-prt",
-     "ms": 79,
+     "ms": 99,
      "result": "driven"
     },
     {
@@ -5907,7 +5907,7 @@
      ],
      "id": "ppick",
      "message": "pick pick_search:2",
-     "ms": 145,
+     "ms": 154,
      "result": "driven"
     },
     {
@@ -5923,7 +5923,7 @@
      "expectations": [],
      "id": "phrs",
      "message": "set-text step_val:15",
-     "ms": 21,
+     "ms": 24,
      "result": "driven"
     },
     {
@@ -5931,7 +5931,7 @@
      "expectations": [],
      "id": "pon",
      "message": "activate dial_btn:10",
-     "ms": 21,
+     "ms": 25,
      "result": "driven"
     },
     {
@@ -5939,7 +5939,7 @@
      "expectations": [],
      "id": "rg1",
      "message": "set-text text_in:14",
-     "ms": 22,
+     "ms": 25,
      "result": "driven"
     },
     {
@@ -5947,7 +5947,7 @@
      "expectations": [],
      "id": "rg2",
      "message": "set-text text_in:15",
-     "ms": 21,
+     "ms": 27,
      "result": "driven"
     },
     {
@@ -5955,7 +5955,7 @@
      "expectations": [],
      "id": "rg3",
      "message": "set-text text_in:16",
-     "ms": 22,
+     "ms": 27,
      "result": "driven"
     },
     {
@@ -5963,7 +5963,7 @@
      "expectations": [],
      "id": "rg4",
      "message": "set-text text_in:18",
-     "ms": 22,
+     "ms": 28,
      "result": "driven"
     },
     {
@@ -5971,7 +5971,7 @@
      "expectations": [],
      "id": "psave",
      "message": "activate action_btn:8",
-     "ms": 22,
+     "ms": 24,
      "result": "driven"
     },
     {
@@ -5985,7 +5985,7 @@
      ],
      "id": "note",
      "message": "10 figure(s), 15 box(es), 1 list(s), 2 table(s), 32 heading(s)",
-     "ms": 3,
+     "ms": 6,
      "result": "driven"
     },
     {
@@ -5993,7 +5993,7 @@
      "expectations": [],
      "id": "vpane",
      "message": "opened pane p-vou",
-     "ms": 70,
+     "ms": 107,
      "result": "driven"
     },
     {
@@ -6007,7 +6007,7 @@
      ],
      "id": "vpick",
      "message": "pick pick_search:3",
-     "ms": 145,
+     "ms": 155,
      "result": "driven"
     },
     {
@@ -6015,7 +6015,7 @@
      "expectations": [],
      "id": "vherb",
      "message": "set-text text_in:25",
-     "ms": 20,
+     "ms": 24,
      "result": "driven"
     },
     {
@@ -6023,7 +6023,7 @@
      "expectations": [],
      "id": "vacc",
      "message": "set-text text_in:26",
-     "ms": 21,
+     "ms": 24,
      "result": "driven"
     },
     {
@@ -6031,7 +6031,7 @@
      "expectations": [],
      "id": "vdet",
      "message": "set-text text_in:27",
-     "ms": 23,
+     "ms": 25,
      "result": "driven"
     },
     {
@@ -6039,7 +6039,7 @@
      "expectations": [],
      "id": "vt0",
      "message": "set-text text_in:28",
-     "ms": 21,
+     "ms": 26,
      "result": "driven"
     },
     {
@@ -6047,7 +6047,7 @@
      "expectations": [],
      "id": "vtemp",
      "message": "set-text step_val:17",
-     "ms": 22,
+     "ms": 28,
      "result": "driven"
     },
     {
@@ -6055,7 +6055,7 @@
      "expectations": [],
      "id": "vhrs",
      "message": "set-text step_val:18",
-     "ms": 22,
+     "ms": 25,
      "result": "driven"
     },
     {
@@ -6063,7 +6063,7 @@
      "expectations": [],
      "id": "vslice",
      "message": "activate dial_btn:20",
-     "ms": 22,
+     "ms": 28,
      "result": "driven"
     },
     {
@@ -6071,7 +6071,7 @@
      "expectations": [],
      "id": "vdna",
      "message": "activate dial_btn:22",
-     "ms": 21,
+     "ms": 23,
      "result": "driven"
     },
     {
@@ -6079,7 +6079,7 @@
      "expectations": [],
      "id": "vadd",
      "message": "activate action_btn:16",
-     "ms": 21,
+     "ms": 25,
      "result": "driven"
     },
     {
@@ -6093,7 +6093,7 @@
      ],
      "id": "label",
      "message": "10 figure(s), 15 box(es), 1 list(s), 2 table(s), 32 heading(s)",
-     "ms": 3,
+     "ms": 6,
      "result": "driven"
     },
     {
@@ -6107,7 +6107,7 @@
      ],
      "id": "analysis",
      "message": "opened pane p-an",
-     "ms": 110,
+     "ms": 97,
      "result": "driven"
     },
     {
@@ -6115,7 +6115,7 @@
      "expectations": [],
      "id": "inst",
      "message": "set-text text_in:23",
-     "ms": 24,
+     "ms": 25,
      "result": "driven"
     },
     {
@@ -6123,7 +6123,7 @@
      "expectations": [],
      "id": "coll",
      "message": "set-text text_in:24",
-     "ms": 26,
+     "ms": 30,
      "result": "driven"
     },
     {
@@ -6131,7 +6131,7 @@
      "expectations": [],
      "id": "parent",
      "message": "set-text text_in:22",
-     "ms": 109,
+     "ms": 102,
      "result": "driven"
     },
     {
@@ -6139,7 +6139,7 @@
      "expectations": [],
      "id": "gps",
      "message": "set-text step_val:16",
-     "ms": 106,
+     "ms": 121,
      "result": "driven"
     },
     {
@@ -6153,7 +6153,7 @@
      ],
      "id": "u36",
      "message": "10 figure(s), 15 box(es), 1 list(s), 2 table(s), 32 heading(s)",
-     "ms": 4,
+     "ms": 5,
      "result": "driven"
     },
     {
@@ -6161,7 +6161,7 @@
      "expectations": [],
      "id": "datum",
      "message": "activate dial_btn:18",
-     "ms": 22,
+     "ms": 26,
      "result": "driven"
     },
     {
@@ -6175,7 +6175,7 @@
      ],
      "id": "u5395",
      "message": "10 figure(s), 15 box(es), 1 list(s), 2 table(s), 32 heading(s)",
-     "ms": 3,
+     "ms": 5,
      "result": "driven"
     },
     {
@@ -6183,7 +6183,7 @@
      "expectations": [],
      "id": "datum2",
      "message": "activate dial_btn:15",
-     "ms": 21,
+     "ms": 22,
      "result": "driven"
     },
     {
@@ -6197,7 +6197,7 @@
      ],
      "id": "u36b",
      "message": "10 figure(s), 15 box(es), 1 list(s), 2 table(s), 32 heading(s)",
-     "ms": 4,
+     "ms": 5,
      "result": "driven"
     },
     {
@@ -6216,7 +6216,7 @@
      ],
      "id": "sheet",
      "message": "10 figure(s), 15 box(es), 1 list(s), 2 table(s), 32 heading(s)",
-     "ms": 3,
+     "ms": 5,
      "result": "driven"
     },
     {
@@ -6290,7 +6290,7 @@
      ],
      "id": "report",
      "message": "10 figure(s), 15 box(es), 1 list(s), 2 table(s), 32 heading(s)",
-     "ms": 3,
+     "ms": 5,
      "result": "driven"
     },
     {
@@ -6322,7 +6322,7 @@
      ],
      "id": "g153-csv",
      "message": "1 payload(s)",
-     "ms": 1,
+     "ms": 2,
      "result": "driven"
     },
     {
@@ -6330,7 +6330,7 @@
      "expectations": [],
      "id": "g153-dwc-press",
      "message": "activate action_btn:10",
-     "ms": 22,
+     "ms": 31,
      "result": "driven"
     },
     {
@@ -6342,19 +6342,19 @@
        "verdict": "CONFIRMED"
       },
       {
-       "detail": "output.payloads.0.text contains 'occurrenceID,basisOfRecord,scientificName,eventDate,recordedBy,decimalLatitude,decimalLongitude,geodeticDatum', got 'occurrenceID,basisOfRecord,scientificName,eventDate,recordedBy,decimalLatitude,decimalLongitude,geodeticDatum,coordinateUncertaintyInMeters,locality,locationID,eventID,parentEventID,habitat,taxonRank,kingdom,vernacularName,organismQuantity,organismQuantityType,occurrenceStatus,samplingProtocol,sampleSizeValue,sampleSizeUnit,verbatimElevation,identifiedBy,institutionCode,collectionCode,catalogNumber,associatedTaxa,associatedSequences,occurrenceRemarks,informationWithheld,dataGeneralizations\\nf1a2b1a2-4089-4f03-bc2a-8cf558330dc9,PreservedSpecimen,Amanita muscaria,2026-09-20,R. Wright,45.3736,-121.6960,WGS84,36,Bear Cr. old-growth,,foray:Bear-Cr.-old-growth:2026-09-20,SGH2026:plot:03,\"Tsuga heterophylla / Pseudotsuga zone; dominant trees: Pseudotsuga menziesii, Tsuga heterophylla, Pinus contorta, Populus tremuloides; disturbance: salvage-logged 2019; light ground fire\",species,Fungi,,1,individuals,present,Opportunistic collection (foray); not a plot-based survey,,,620,R. Wright,OSC,Fungi,RCW-2026-041,growing near Pinus contorta,,\"collection 1; substrate soil / duff; solitary; hymenophore gills; distance to host 2; cap 92 mm; stipe 140 x 18 mm; odour: faintly raphanoid; bruising: no change in 5 min; spore print white (18 h); KOH: no reaction on cuticle in 30 s; NH3: flash blue-green, settling to nothing; FE: no reaction on stipe flesh; GUA: slow, weak blue at 30 s; volva or sac at base, warts or patches on cap; Cap viscid when wet, margin appendiculate. Duff 4 cm deep.\",,\\n84806dbc-400e-4561-bb9e-dc5a8a8d6d57,HumanObservation,Suillus brevipes,2026-09-20,R. Wright,45.3736,-121.6960,WGS84,36,Bear Cr. old-growth,,foray:Bear-Cr.-old-growth:2026-09-20,SGH2026:plot:03,\"Tsuga heterophylla / Pseudotsuga zone; dominant trees: Pseudotsuga menziesii, Tsuga heterophylla, Pinus contorta, Populus tremuloides; disturbance: salvage-logged 2019; light ground fire\",species,Fungi,,1,individuals,present,Opportunistic collection (foray); not a plot-based survey,,,620,R. Wright,,,,growing near Pinus contorta,,collection 2,,\\n05f3a687-c9dd-4ea8-ae7b-095b46bbf747,HumanObservation,Russula brevipes,2026-09-20,R. Wright,45.3736,-121.6960,WGS84,36,Bear Cr. old-growth,,foray:Bear-Cr.-old-growth:2026-09-20,SGH2026:plot:03,\"Tsuga heterophylla / Pseudotsuga zone; dominant trees: Pseudotsuga menziesii, Tsuga heterophylla, Pinus contorta, Populus tremuloides; disturbance: salvage-logged 2019; light ground fire\",species,Fungi,,1,individuals,present,Opportunistic collection (foray); not a plot-based survey,,,620,R. Wright,,,,growing near Pseudotsuga menziesii,,collection 3,,\\n1b6642d6-0fa9-4637-b42b-aebe4997e127,HumanObservation,Cortinarius cf. vanduzerensis,2026-09-20,R. Wright,45.3736,-121.6960,WGS84,36,Bear Cr. old-growth,,foray:Bear-Cr.-old-growth:2026-09-20,SGH2026:plot:03,\"Tsuga heterophylla / Pseudotsuga zone; dominant trees: Pseudotsuga menziesii, Tsuga heterophylla, Pinus contorta, Populus tremuloides; disturbance: salvage-logged 2019; light ground fire\",species,Fungi,,2,individuals,present,Opportunistic collection (foray); not a plot-based survey,,,620,R. Wright,,,,growing near Pseudotsuga menziesii,,collection 4,,\\nd907586e-d2b5-4471-990b-4acc6ba547ca,HumanObservation,Pleurotus pulmonarius,2026-09-20,R. Wright,45.3736,-121.6960,WGS84,36,Bear Cr. old-growth,,foray:Bear-Cr.-old-growth:2026-09-20,SGH2026:plot:03,\"Tsuga heterophylla / Pseudotsuga zone; dominant trees: Pseudotsuga menziesii, Tsuga heterophylla, Pinus contorta, Populus tremuloides; disturbance: salvage-logged 2019; light ground fire\",species,Fungi,,5,individuals,present,Opportunistic collection (foray); not a plot-based survey,,,620,R. Wright,,,,growing near Populus tremuloides,,collection 5,,'",
+       "detail": "output.payloads.0.text contains 'occurrenceID,basisOfRecord,scientificName,eventDate,recordedBy,decimalLatitude,decimalLongitude,geodeticDatum', got 'occurrenceID,basisOfRecord,scientificName,eventDate,recordedBy,decimalLatitude,decimalLongitude,geodeticDatum,coordinateUncertaintyInMeters,locality,locationID,eventID,parentEventID,habitat,taxonRank,kingdom,vernacularName,organismQuantity,organismQuantityType,occurrenceStatus,samplingProtocol,sampleSizeValue,sampleSizeUnit,verbatimElevation,identifiedBy,institutionCode,collectionCode,catalogNumber,associatedTaxa,associatedSequences,occurrenceRemarks,informationWithheld,dataGeneralizations\\n1be8c9cf-748a-4e9d-932b-e745b5ad0ffd,PreservedSpecimen,Amanita muscaria,2026-09-20,R. Wright,45.3736,-121.6960,WGS84,36,Bear Cr. old-growth,,foray:Bear-Cr.-old-growth:2026-09-20,SGH2026:plot:03,\"Tsuga heterophylla / Pseudotsuga zone; dominant trees: Pseudotsuga menziesii, Tsuga heterophylla, Pinus contorta, Populus tremuloides; disturbance: salvage-logged 2019; light ground fire\",species,Fungi,,1,individuals,present,Opportunistic collection (foray); not a plot-based survey,,,620,R. Wright,OSC,Fungi,RCW-2026-041,growing near Pinus contorta,,\"collection 1; substrate soil / duff; solitary; hymenophore gills; distance to host 2; cap 92 mm; stipe 140 x 18 mm; odour: faintly raphanoid; bruising: no change in 5 min; spore print white (18 h); KOH: no reaction on cuticle in 30 s; NH3: flash blue-green, settling to nothing; FE: no reaction on stipe flesh; GUA: slow, weak blue at 30 s; volva or sac at base, warts or patches on cap; Cap viscid when wet, margin appendiculate. Duff 4 cm deep.\",,\\n1ea6a1c1-5afd-4a65-9a3c-a95fac60495e,HumanObservation,Suillus brevipes,2026-09-20,R. Wright,45.3736,-121.6960,WGS84,36,Bear Cr. old-growth,,foray:Bear-Cr.-old-growth:2026-09-20,SGH2026:plot:03,\"Tsuga heterophylla / Pseudotsuga zone; dominant trees: Pseudotsuga menziesii, Tsuga heterophylla, Pinus contorta, Populus tremuloides; disturbance: salvage-logged 2019; light ground fire\",species,Fungi,,1,individuals,present,Opportunistic collection (foray); not a plot-based survey,,,620,R. Wright,,,,growing near Pinus contorta,,collection 2,,\\nae575000-1e81-4ec4-991e-4f299d605075,HumanObservation,Russula brevipes,2026-09-20,R. Wright,45.3736,-121.6960,WGS84,36,Bear Cr. old-growth,,foray:Bear-Cr.-old-growth:2026-09-20,SGH2026:plot:03,\"Tsuga heterophylla / Pseudotsuga zone; dominant trees: Pseudotsuga menziesii, Tsuga heterophylla, Pinus contorta, Populus tremuloides; disturbance: salvage-logged 2019; light ground fire\",species,Fungi,,1,individuals,present,Opportunistic collection (foray); not a plot-based survey,,,620,R. Wright,,,,growing near Pseudotsuga menziesii,,collection 3,,\\n50137bbf-0627-4bf8-81b9-73adac5a3676,HumanObservation,Cortinarius cf. vanduzerensis,2026-09-20,R. Wright,45.3736,-121.6960,WGS84,36,Bear Cr. old-growth,,foray:Bear-Cr.-old-growth:2026-09-20,SGH2026:plot:03,\"Tsuga heterophylla / Pseudotsuga zone; dominant trees: Pseudotsuga menziesii, Tsuga heterophylla, Pinus contorta, Populus tremuloides; disturbance: salvage-logged 2019; light ground fire\",species,Fungi,,2,individuals,present,Opportunistic collection (foray); not a plot-based survey,,,620,R. Wright,,,,growing near Pseudotsuga menziesii,,collection 4,,\\n0c4bcff3-660d-46dd-90a5-1a8fd6885235,HumanObservation,Pleurotus pulmonarius,2026-09-20,R. Wright,45.3736,-121.6960,WGS84,36,Bear Cr. old-growth,,foray:Bear-Cr.-old-growth:2026-09-20,SGH2026:plot:03,\"Tsuga heterophylla / Pseudotsuga zone; dominant trees: Pseudotsuga menziesii, Tsuga heterophylla, Pinus contorta, Populus tremuloides; disturbance: salvage-logged 2019; light ground fire\",species,Fungi,,5,individuals,present,Opportunistic collection (foray); not a plot-based survey,,,620,R. Wright,,,,growing near Populus tremuloides,,collection 5,,'",
        "path": "output.payloads.0.text",
        "verdict": "CONFIRMED"
       },
       {
-       "detail": "output.payloads.0.text contains 'Amanita muscaria', got 'occurrenceID,basisOfRecord,scientificName,eventDate,recordedBy,decimalLatitude,decimalLongitude,geodeticDatum,coordinateUncertaintyInMeters,locality,locationID,eventID,parentEventID,habitat,taxonRank,kingdom,vernacularName,organismQuantity,organismQuantityType,occurrenceStatus,samplingProtocol,sampleSizeValue,sampleSizeUnit,verbatimElevation,identifiedBy,institutionCode,collectionCode,catalogNumber,associatedTaxa,associatedSequences,occurrenceRemarks,informationWithheld,dataGeneralizations\\nf1a2b1a2-4089-4f03-bc2a-8cf558330dc9,PreservedSpecimen,Amanita muscaria,2026-09-20,R. Wright,45.3736,-121.6960,WGS84,36,Bear Cr. old-growth,,foray:Bear-Cr.-old-growth:2026-09-20,SGH2026:plot:03,\"Tsuga heterophylla / Pseudotsuga zone; dominant trees: Pseudotsuga menziesii, Tsuga heterophylla, Pinus contorta, Populus tremuloides; disturbance: salvage-logged 2019; light ground fire\",species,Fungi,,1,individuals,present,Opportunistic collection (foray); not a plot-based survey,,,620,R. Wright,OSC,Fungi,RCW-2026-041,growing near Pinus contorta,,\"collection 1; substrate soil / duff; solitary; hymenophore gills; distance to host 2; cap 92 mm; stipe 140 x 18 mm; odour: faintly raphanoid; bruising: no change in 5 min; spore print white (18 h); KOH: no reaction on cuticle in 30 s; NH3: flash blue-green, settling to nothing; FE: no reaction on stipe flesh; GUA: slow, weak blue at 30 s; volva or sac at base, warts or patches on cap; Cap viscid when wet, margin appendiculate. Duff 4 cm deep.\",,\\n84806dbc-400e-4561-bb9e-dc5a8a8d6d57,HumanObservation,Suillus brevipes,2026-09-20,R. Wright,45.3736,-121.6960,WGS84,36,Bear Cr. old-growth,,foray:Bear-Cr.-old-growth:2026-09-20,SGH2026:plot:03,\"Tsuga heterophylla / Pseudotsuga zone; dominant trees: Pseudotsuga menziesii, Tsuga heterophylla, Pinus contorta, Populus tremuloides; disturbance: salvage-logged 2019; light ground fire\",species,Fungi,,1,individuals,present,Opportunistic collection (foray); not a plot-based survey,,,620,R. Wright,,,,growing near Pinus contorta,,collection 2,,\\n05f3a687-c9dd-4ea8-ae7b-095b46bbf747,HumanObservation,Russula brevipes,2026-09-20,R. Wright,45.3736,-121.6960,WGS84,36,Bear Cr. old-growth,,foray:Bear-Cr.-old-growth:2026-09-20,SGH2026:plot:03,\"Tsuga heterophylla / Pseudotsuga zone; dominant trees: Pseudotsuga menziesii, Tsuga heterophylla, Pinus contorta, Populus tremuloides; disturbance: salvage-logged 2019; light ground fire\",species,Fungi,,1,individuals,present,Opportunistic collection (foray); not a plot-based survey,,,620,R. Wright,,,,growing near Pseudotsuga menziesii,,collection 3,,\\n1b6642d6-0fa9-4637-b42b-aebe4997e127,HumanObservation,Cortinarius cf. vanduzerensis,2026-09-20,R. Wright,45.3736,-121.6960,WGS84,36,Bear Cr. old-growth,,foray:Bear-Cr.-old-growth:2026-09-20,SGH2026:plot:03,\"Tsuga heterophylla / Pseudotsuga zone; dominant trees: Pseudotsuga menziesii, Tsuga heterophylla, Pinus contorta, Populus tremuloides; disturbance: salvage-logged 2019; light ground fire\",species,Fungi,,2,individuals,present,Opportunistic collection (foray); not a plot-based survey,,,620,R. Wright,,,,growing near Pseudotsuga menziesii,,collection 4,,\\nd907586e-d2b5-4471-990b-4acc6ba547ca,HumanObservation,Pleurotus pulmonarius,2026-09-20,R. Wright,45.3736,-121.6960,WGS84,36,Bear Cr. old-growth,,foray:Bear-Cr.-old-growth:2026-09-20,SGH2026:plot:03,\"Tsuga heterophylla / Pseudotsuga zone; dominant trees: Pseudotsuga menziesii, Tsuga heterophylla, Pinus contorta, Populus tremuloides; disturbance: salvage-logged 2019; light ground fire\",species,Fungi,,5,individuals,present,Opportunistic collection (foray); not a plot-based survey,,,620,R. Wright,,,,growing near Populus tremuloides,,collection 5,,'",
+       "detail": "output.payloads.0.text contains 'Amanita muscaria', got 'occurrenceID,basisOfRecord,scientificName,eventDate,recordedBy,decimalLatitude,decimalLongitude,geodeticDatum,coordinateUncertaintyInMeters,locality,locationID,eventID,parentEventID,habitat,taxonRank,kingdom,vernacularName,organismQuantity,organismQuantityType,occurrenceStatus,samplingProtocol,sampleSizeValue,sampleSizeUnit,verbatimElevation,identifiedBy,institutionCode,collectionCode,catalogNumber,associatedTaxa,associatedSequences,occurrenceRemarks,informationWithheld,dataGeneralizations\\n1be8c9cf-748a-4e9d-932b-e745b5ad0ffd,PreservedSpecimen,Amanita muscaria,2026-09-20,R. Wright,45.3736,-121.6960,WGS84,36,Bear Cr. old-growth,,foray:Bear-Cr.-old-growth:2026-09-20,SGH2026:plot:03,\"Tsuga heterophylla / Pseudotsuga zone; dominant trees: Pseudotsuga menziesii, Tsuga heterophylla, Pinus contorta, Populus tremuloides; disturbance: salvage-logged 2019; light ground fire\",species,Fungi,,1,individuals,present,Opportunistic collection (foray); not a plot-based survey,,,620,R. Wright,OSC,Fungi,RCW-2026-041,growing near Pinus contorta,,\"collection 1; substrate soil / duff; solitary; hymenophore gills; distance to host 2; cap 92 mm; stipe 140 x 18 mm; odour: faintly raphanoid; bruising: no change in 5 min; spore print white (18 h); KOH: no reaction on cuticle in 30 s; NH3: flash blue-green, settling to nothing; FE: no reaction on stipe flesh; GUA: slow, weak blue at 30 s; volva or sac at base, warts or patches on cap; Cap viscid when wet, margin appendiculate. Duff 4 cm deep.\",,\\n1ea6a1c1-5afd-4a65-9a3c-a95fac60495e,HumanObservation,Suillus brevipes,2026-09-20,R. Wright,45.3736,-121.6960,WGS84,36,Bear Cr. old-growth,,foray:Bear-Cr.-old-growth:2026-09-20,SGH2026:plot:03,\"Tsuga heterophylla / Pseudotsuga zone; dominant trees: Pseudotsuga menziesii, Tsuga heterophylla, Pinus contorta, Populus tremuloides; disturbance: salvage-logged 2019; light ground fire\",species,Fungi,,1,individuals,present,Opportunistic collection (foray); not a plot-based survey,,,620,R. Wright,,,,growing near Pinus contorta,,collection 2,,\\nae575000-1e81-4ec4-991e-4f299d605075,HumanObservation,Russula brevipes,2026-09-20,R. Wright,45.3736,-121.6960,WGS84,36,Bear Cr. old-growth,,foray:Bear-Cr.-old-growth:2026-09-20,SGH2026:plot:03,\"Tsuga heterophylla / Pseudotsuga zone; dominant trees: Pseudotsuga menziesii, Tsuga heterophylla, Pinus contorta, Populus tremuloides; disturbance: salvage-logged 2019; light ground fire\",species,Fungi,,1,individuals,present,Opportunistic collection (foray); not a plot-based survey,,,620,R. Wright,,,,growing near Pseudotsuga menziesii,,collection 3,,\\n50137bbf-0627-4bf8-81b9-73adac5a3676,HumanObservation,Cortinarius cf. vanduzerensis,2026-09-20,R. Wright,45.3736,-121.6960,WGS84,36,Bear Cr. old-growth,,foray:Bear-Cr.-old-growth:2026-09-20,SGH2026:plot:03,\"Tsuga heterophylla / Pseudotsuga zone; dominant trees: Pseudotsuga menziesii, Tsuga heterophylla, Pinus contorta, Populus tremuloides; disturbance: salvage-logged 2019; light ground fire\",species,Fungi,,2,individuals,present,Opportunistic collection (foray); not a plot-based survey,,,620,R. Wright,,,,growing near Pseudotsuga menziesii,,collection 4,,\\n0c4bcff3-660d-46dd-90a5-1a8fd6885235,HumanObservation,Pleurotus pulmonarius,2026-09-20,R. Wright,45.3736,-121.6960,WGS84,36,Bear Cr. old-growth,,foray:Bear-Cr.-old-growth:2026-09-20,SGH2026:plot:03,\"Tsuga heterophylla / Pseudotsuga zone; dominant trees: Pseudotsuga menziesii, Tsuga heterophylla, Pinus contorta, Populus tremuloides; disturbance: salvage-logged 2019; light ground fire\",species,Fungi,,5,individuals,present,Opportunistic collection (foray); not a plot-based survey,,,620,R. Wright,,,,growing near Populus tremuloides,,collection 5,,'",
        "path": "output.payloads.0.text#2",
        "verdict": "CONFIRMED"
       }
      ],
      "id": "g153-dwc",
      "message": "1 payload(s)",
-     "ms": 1,
+     "ms": 3,
      "result": "driven"
     },
     {
@@ -6362,7 +6362,7 @@
      "expectations": [],
      "id": "g153-eco-press",
      "message": "activate action_btn:11",
-     "ms": 20,
+     "ms": 22,
      "result": "driven"
     },
     {
@@ -6386,7 +6386,7 @@
      ],
      "id": "g153-eco",
      "message": "1 payload(s)",
-     "ms": 1,
+     "ms": 2,
      "result": "driven"
     },
     {
@@ -6394,7 +6394,7 @@
      "expectations": [],
      "id": "g153-mat-press",
      "message": "activate action_btn:12",
-     "ms": 22,
+     "ms": 25,
      "result": "driven"
     },
     {
@@ -6418,7 +6418,7 @@
      ],
      "id": "g153-mat",
      "message": "1 payload(s)",
-     "ms": 1,
+     "ms": 3,
      "result": "driven"
     },
     {
@@ -6426,7 +6426,7 @@
      "expectations": [],
      "id": "g153-pack-press",
      "message": "activate action_btn:13",
-     "ms": 22,
+     "ms": 24,
      "result": "driven"
     },
     {
@@ -6445,7 +6445,7 @@
      ],
      "id": "g153-pack",
      "message": "1 payload(s)",
-     "ms": 2,
+     "ms": 3,
      "result": "driven"
     },
     {
@@ -6453,7 +6453,7 @@
      "expectations": [],
      "id": "g153-prompt-press",
      "message": "activate action_btn:14",
-     "ms": 21,
+     "ms": 23,
      "result": "driven"
     },
     {
@@ -6472,7 +6472,7 @@
      ],
      "id": "g153-prompt",
      "message": "1 payload(s)",
-     "ms": 1,
+     "ms": 2,
      "result": "driven"
     },
     {
@@ -6486,7 +6486,105 @@
      ],
      "id": "g153-close",
      "message": "10 figure(s), 15 box(es), 1 list(s), 2 table(s), 32 heading(s)",
-     "ms": 4,
+     "ms": 6,
+     "result": "driven"
+    },
+    {
+     "action": "show-pane",
+     "expectations": [
+      {
+       "detail": "ok == True, got True",
+       "path": "ok",
+       "verdict": "CONFIRMED"
+      }
+     ],
+     "id": "g167-prtpane",
+     "message": "opened pane p-prt",
+     "ms": 85,
+     "result": "driven"
+    },
+    {
+     "action": "pick",
+     "expectations": [
+      {
+       "detail": "ok == True, got True",
+       "path": "ok",
+       "verdict": "CONFIRMED"
+      }
+     ],
+     "id": "g167-repick",
+     "message": "pick pick_search:2",
+     "ms": 147,
+     "result": "driven"
+    },
+    {
+     "action": "set-text",
+     "expectations": [
+      {
+       "detail": "ok == True, got True",
+       "path": "ok",
+       "verdict": "CONFIRMED"
+      }
+     ],
+     "id": "g167-melz",
+     "message": "set-text text_in:17",
+     "ms": 25,
+     "result": "driven"
+    },
+    {
+     "action": "set-text",
+     "expectations": [
+      {
+       "detail": "ok == True, got True",
+       "path": "ok",
+       "verdict": "CONFIRMED"
+      }
+     ],
+     "id": "g167-phen",
+     "message": "set-text text_in:19",
+     "ms": 24,
+     "result": "driven"
+    },
+    {
+     "action": "set-text",
+     "expectations": [
+      {
+       "detail": "ok == True, got True",
+       "path": "ok",
+       "verdict": "CONFIRMED"
+      }
+     ],
+     "id": "g167-nap",
+     "message": "set-text text_in:20",
+     "ms": 24,
+     "result": "driven"
+    },
+    {
+     "action": "set-text",
+     "expectations": [
+      {
+       "detail": "ok == True, got True",
+       "path": "ok",
+       "verdict": "CONFIRMED"
+      }
+     ],
+     "id": "g167-syr",
+     "message": "set-text text_in:21",
+     "ms": 28,
+     "result": "driven"
+    },
+    {
+     "action": "read-report",
+     "expectations": [
+      {
+       "detail": "output.boxes.ecoOut contains 'notes Cap viscid when wet', got \"# macrofungal collection sheet # site: Bear Cr. old-growth collector: R. Wright date: 2026-09-20 # 45.3736, -121.6960 620 m # stand: Tsuga heterophylla / Pseudotsuga zone [Pseudotsuga menziesii, Tsuga heterophylla, Pinus contorta, Populus tremuloides] old-growth # searched: 1000 m\u00b2 in 90 min # last wetting rain: 2026-09-06 32 mm 30-day 96 mm soil 11 \u00b0C collection RCW-2026-041 Amanita muscaria genus Amanita guild ectomycorrhizal bodies 1 210 g fresh substrate soil / duff host Pinus contorta 2 m from stem habit solitary hymenophore gills size cap 92 mm stipe 140\u00d718 mm print white 18 h on white paper odour faintly raphanoid cut no change in 5 min characters volva or sac at base; warts or patches on cap KOH 3&ndasno reaction on cuticle in 30 s NH4OH flash blue-green, settling to nothing FeSO4 no reaction on stipe flesh Guaiac slow, weak blue at 30 s Melzer's inamyloid (flesh, slide) Phenol slowly wine-brown in 2 min &alpha;-Nano reaction Syringaldanot a polypore -- negative notes Cap viscid when wet, margin appendiculate. Duff 4 cm deep. collection #2 Suillus brevipes genus Suillus guild ectomycorrhizal bodies 1 substrate \u2014 host Pinus contorta collection #3 Russula brevipes genus Russula guild ectomycorrhizal bodies 1 substrate \u2014 host Pseudotsuga menziesii collection #4 Cortinarius cf. vanduzerensis genus Cortinarius guild ectomycorrhizal bodies 2 substrate \u2014 host Pseudotsuga menziesii collection #5 Pleurotus pulmonarius genus Pleurotus guild saprotroph \u2014 wood bodies 5 substrate \u2014 host Populus tremuloides # 5 collections 10 fruit bodies 5 taxa # Chao1 6.5 (F1=3, F2=1) \u2014 a lower bound, not a total # Shannon H' 1.359 Pielou J' 0.845 # no edibility is recorded or implied anywhere in this file\"",
+       "path": "output.boxes.ecoOut",
+       "verdict": "CONFIRMED"
+      }
+     ],
+     "id": "g167-held",
+     "message": "10 figure(s), 15 box(es), 1 list(s), 2 table(s), 32 heading(s)",
+     "ms": 5,
      "result": "driven"
     },
     {
@@ -6510,7 +6608,7 @@
      ],
      "id": "intact",
      "message": "read the page",
-     "ms": 6,
+     "ms": 9,
      "result": "driven"
     }
    ],

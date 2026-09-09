@@ -1,0 +1,29 @@
+{
+ "id": "adr167",
+ "chain": "adr166",
+ "chain_probe": "tools/tasks/page-ordination-science.json",
+ "subject": "ADR-167: the collection sheet, recorded whole -- the four chemical spot tests the sheet still lacked, every reagent field recorded",
+ "body": "THE COLLECTION SHEET -- collection-sheet.html, the mycological field-and-herbarium sheet (a search-effort header, five collections with genus/host/count/characters, spore-print and voucher panes, a Darwin Core / Humboldt export) -- IS THE LARGEST DATA-ENTRY PAGE IN THE KIT at 262 controls, and its task already drove 59 of 63 fields, but FOUR CHEMICAL SPOT-TEST INPUTS WERE NEVER FILLED. The reagent panel offers eight tests (KOH, ammonia, iron salts, Melzer's, guaiac, phenol, alpha-naphthol, syringaldazine); the task recorded KOH, ammonia, iron and guaiac and left MELZER'S, PHENOL, ALPHA-NAPHTHOL and SYRINGALDAZINE blank -- and on this sheet a blank reagent field means 'not tested', not 'no reaction', so four real bench tests read as never having been run. The existing scenario is kept verbatim -- the five collections, the diversity statistics (Sobs 5, Chao1 6.5, the Shannon figure), the spore-print verdict, the voucher label and every export (CSV, Darwin Core, ECO, material sheet) are all asserted before the new steps run, so they hold -- and the four missing reagents are recorded on RCW-2026-041 alongside the four already noted, after the export reads, so the sheet's every reagent field carries an observation and the collection's recorded note is read once more to confirm nothing moved. collection-sheet 59 -> 63 OF 63 FIELDS, 83 -> 90 confirmed and 0 refuted, and the kit 511 -> 515 of 521 (99%), 24 of 27 pages entered whole. Held: the reagent inputs write to the current collection's record and feed the export, so they are driven AFTER every export assertion has been graded -- the note the sheet already carried is re-read at the end and still contains 'notes Cap viscid when wet', so adding four reagent lines changed nothing the sheet is trusted for. No page was edited -- a task-only slice, the seventeenth page driven end to end.",
+ "paths": [
+  "tools/tasks/page-collection-sheet-science.json",
+  "tools/entry_ledger.json",
+  "tools/outputs_ledger.json",
+  "tools/task_ledger.json",
+  "tools/delivery_ledger.json",
+  "tools/verify/counts.json",
+  "tools/harness_board.html",
+  "tools/published.json",
+  "tools/delivery/adr167.json",
+  "docs/ADR-167-the-collection-sheet-recorded-whole-2026-09-09.md",
+  "docs/CHANGELOG-2026-09-09-adr167-the-collection-sheet-recorded-whole.md",
+  "docs/AI_HARNESS.md"
+ ],
+ "clean": [
+  "adr128", "adr129", "adr130", "adr131", "adr132", "adr133", "adr134",
+  "adr135", "adr136", "adr137", "adr138", "adr139", "adr140", "adr141",
+  "adr142", "adr143", "adr144", "adr145", "adr146", "adr147", "adr148",
+  "adr149", "adr150", "adr151", "adr152", "adr153", "adr154", "adr155",
+  "adr156", "adr157", "adr158", "adr159", "adr160", "adr161", "adr162",
+  "adr163", "adr164", "adr165", "adr166", "adr167"
+ ]
+}

@@ -840,10 +840,15 @@
    "by": "adr166",
    "sha": "9b62961bbbf1e10efb0acb097149dc421d758f9b98ad370071014e5e3faa93fc"
   },
+  "docs/ADR-167-the-collection-sheet-recorded-whole-2026-09-09.md": {
+   "at": 1788923746,
+   "by": "adr167",
+   "sha": "7aa6c43e2917b0354bdfb4d278dfcf7c408d4cd3ecb2b9004f3845b31d1bddef"
+  },
   "docs/AI_HARNESS.md": {
-   "at": 1788921023,
-   "by": "adr166",
-   "sha": "d8c5502814b594514cd231042aa85ffb4abcf26cdc0c10090ffb416679330898"
+   "at": 1788923746,
+   "by": "adr167",
+   "sha": "a63d1f517d723f3fecadbbc387a3fdce8f580399a3f74d62e5ae6a87752425b2"
   },
   "docs/AUDIT-2026-07-14-capability-coverage.md": {
    "at": 1788676922,
@@ -1620,6 +1625,11 @@
    "by": "adr166",
    "sha": "f64dee922e1d92d2e53ebd086d2248cf423d666d91436c35f559caaa7470e0d4"
   },
+  "docs/CHANGELOG-2026-09-09-adr167-the-collection-sheet-recorded-whole.md": {
+   "at": 1788923746,
+   "by": "adr167",
+   "sha": "f467f44f7a75ff1ae2ab88eee51673d1e6602b17afab648fd02ebb2151038629"
+  },
   "docs/DESIGN-adaptive-engine.md": {
    "at": 1788676923,
    "by": "adr146b",
@@ -2390,10 +2400,15 @@
    "by": "adr166",
    "sha": "d0bbb170b76acb791754c8c442380d0a2ed518f8c88edfda3a4d14d46ca6e63b"
   },
+  "tools/delivery/adr167.json": {
+   "at": 1788923746,
+   "by": "adr167",
+   "sha": "624be75df572666a85974a523ec14a20c219b74e49989f5f8eed1ee4edb53330"
+  },
   "tools/delivery_ledger.json": {
-   "at": 1788921023,
-   "by": "adr166",
-   "sha": "644e13f07cc0e11d5b1954447fd5af8014ca12cffd29706916d9389d81e4c04d"
+   "at": 1788923746,
+   "by": "adr167",
+   "sha": "2e813e64c6adff92a09499dc8a94ab8d82a76b977c2c21dff2ddbb77c9bfcc63"
   },
   "tools/dwc.py": {
    "at": 1788676926,
@@ -2436,9 +2451,9 @@
    "sha": "01919e137bdbf702ebc887de41aa026b721916da9d3761ce673812d54a22471f"
   },
   "tools/entry_ledger.json": {
-   "at": 1788921023,
-   "by": "adr166",
-   "sha": "5f0ea3ac15cab2490ad6fa75b405f94236c0e4b09ad6e00b91bbbac1773008cb"
+   "at": 1788923746,
+   "by": "adr167",
+   "sha": "d2cfc253b83666a0bfad1c508c61f530535a0d86244c708acc69509e19719f2d"
   },
   "tools/entry_reach.py": {
    "at": 1788676926,
@@ -2491,9 +2506,9 @@
    "sha": "1d5e5bb0fadf4abb88d56125483a66e1bc2367055c7b541aa9d800c6dddde9dc"
   },
   "tools/harness_board.html": {
-   "at": 1788921023,
-   "by": "adr166",
-   "sha": "e33f341460d1c2e11bee14088cc06873f2c304d3c152e4289431f53708556ae4"
+   "at": 1788923746,
+   "by": "adr167",
+   "sha": "f421d4180069462777d527335ab38705fce382f35000873aa0fd6afb4a45bcfa"
   },
   "tools/harness_board.py": {
    "at": 1788783742,
@@ -2696,9 +2711,9 @@
    "sha": "172e699a8abda0fb0fe773b9204e652001fac70b769e1082739097b699c28db0"
   },
   "tools/outputs_ledger.json": {
-   "at": 1788918049,
-   "by": "adr165",
-   "sha": "862762b67f896fe15be53c699ea24f75faea8f29d8291f68e18cc213a71beaf7"
+   "at": 1788923746,
+   "by": "adr167",
+   "sha": "5316d5de51818df0f1d59076d6df002556a9224b04e97d4f41ecd2850d01bcf6"
   },
   "tools/probe.py": {
    "at": 1788676927,
@@ -2731,9 +2746,9 @@
    "sha": "15022dcd97ee97f72ec5f907d0cdfef3ee36da9588f9de47e110519ff9f781e8"
   },
   "tools/published.json": {
-   "at": 1788921023,
-   "by": "adr166",
-   "sha": "25a41823637a0463ab6d27c7396602bc4b7e8735cf8449ae2a20069f37652bca"
+   "at": 1788923746,
+   "by": "adr167",
+   "sha": "d963ab396f3c484b83258d0bde2b979f49f3015adce3c50a2f861cb0cf61428b"
   },
   "tools/reach.py": {
    "at": 1788676928,
@@ -2776,9 +2791,9 @@
    "sha": "0a2241a252fa68e80b813e601b7bd67cd8ba5c00b8ad07acc98dcd93a42b0268"
   },
   "tools/task_ledger.json": {
-   "at": 1788921023,
-   "by": "adr166",
-   "sha": "1ccaca965aa79e98c3220759ec673f9bb0cda24e69a56e0abcf8d3b7f2fd2fa2"
+   "at": 1788923746,
+   "by": "adr167",
+   "sha": "c742bb2a186062c802d7d7239ee0405c2c7c55a0964e1135cc69060bfcf1042a"
   },
   "tools/tasks/fixture-buckets.json": {
    "at": 1788676928,
@@ -2841,9 +2856,9 @@
    "sha": "aa5d619dbf07c0dae390543a1cd3a556eda369120b473704b816ceafd098071b"
   },
   "tools/tasks/page-collection-sheet-science.json": {
-   "at": 1788783742,
-   "by": "adr153",
-   "sha": "57c54be13a5e5ce6967738af3297d50024d9a55d9d63f033cd709f3a1394ee49"
+   "at": 1788923746,
+   "by": "adr167",
+   "sha": "6baebc32c726c8bd00aef25aa6b4655e6a90c506463a998308df6aabc5710e7f"
   },
   "tools/tasks/page-cp-bench-science.json": {
    "at": 1788874524,
@@ -3071,9 +3086,9 @@
    "sha": "15a9ad96a69cde9458d5f7fca51be947e5bebad787cc069e1bcc64bf7800b592"
   },
   "tools/verify/counts.json": {
-   "at": 1788921023,
-   "by": "adr166",
-   "sha": "d30945cbaad80f38f4dc29a3500a2a1fb224994be51869b7a82d9d6a7fc7fc2d"
+   "at": 1788923746,
+   "by": "adr167",
+   "sha": "06a635aee61bc1cad3cf30213ca40d66157665a729144aa50f249440da865598"
   },
   "tools/verify/run_all.py": {
    "at": 1788783742,

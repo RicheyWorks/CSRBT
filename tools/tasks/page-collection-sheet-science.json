@@ -2,7 +2,7 @@
  "id": "page-collection-sheet-science",
  "target": "page",
  "page": "collection-sheet.html",
- "goal": "On the collection sheet, record a search of 1000 m² over 90 minutes and five collections -- Amanita muscaria x1, Suillus brevipes x1, Russula brevipes x1, Cortinarius cf. vanduzerensis x2, Pleurotus pulmonarius x5, each on its host -- then open the analysis and find the sheet's arithmetic right: 5 collections, 10 fruit bodies, Sobs 5, Chao1 6.5 (5 + 3·2 / (2·(1+1))), singletons/doubletons 3 / 1, Shannon H′ 1.359 and Pielou J′ 0.845 for p = .1 .1 .1 .2 .5, 0.50 collections per 100 m², 3.3 collections per hour.",
+ "goal": "On the collection sheet, record a search of 1000 m\u00b2 over 90 minutes and five collections -- Amanita muscaria x1, Suillus brevipes x1, Russula brevipes x1, Cortinarius cf. vanduzerensis x2, Pleurotus pulmonarius x5, each on its host -- then open the analysis and find the sheet's arithmetic right: 5 collections, 10 fruit bodies, Sobs 5, Chao1 6.5 (5 + 3\u00b72 / (2\u00b7(1+1))), singletons/doubletons 3 / 1, Shannon H\u2032 1.359 and Pielou J\u2032 0.845 for p = .1 .1 .1 .2 .5, 0.50 collections per 100 m\u00b2, 3.3 collections per hour. Then the four chemical spot tests the sheet still lacked -- Melzer's, phenol, alpha-naphthol and syringaldazine -- are recorded on RCW-2026-041 alongside the KOH, ammonia, iron and guaiac already noted, so every reagent field on the sheet carries an observation.",
  "steps": [
   {
    "id": "look",
@@ -203,7 +203,7 @@
    "expect": {
     "output.boxes.wOut": {
      "op": "contains",
-     "value": "Soil at 10 cm reads 11 °C"
+     "value": "Soil at 10 cm reads 11 \u00b0C"
     }
    }
   },
@@ -934,9 +934,9 @@
     "output.figures.taxa Sobs": "5",
     "output.figures.Chao1": "6.5",
     "output.figures.singletons / doubletons": "3 / 1",
-    "output.figures.Shannon H′": "1.359",
-    "output.figures.Pielou J′": "0.845",
-    "output.figures.collections / 100 m²": "0.50",
+    "output.figures.Shannon H\u2032": "1.359",
+    "output.figures.Pielou J\u2032": "0.845",
+    "output.figures.collections / 100 m\u00b2": "0.50",
     "output.figures.collections / hour": "3.3",
     "output.boxes.anBox": {
      "op": "contains",
@@ -1034,7 +1034,7 @@
     },
     "output.payloads.0.text": {
      "op": "contains",
-     "value": "# searched: 1000 m² in 90 min"
+     "value": "# searched: 1000 m\u00b2 in 90 min"
     },
     "output.payloads.0.text#2": {
      "op": "contains",
@@ -1126,6 +1126,81 @@
   },
   {
    "id": "g153-close",
+   "action": "read-report",
+   "expect": {
+    "output.boxes.ecoOut": {
+     "op": "contains",
+     "value": "notes Cap viscid when wet"
+    }
+   }
+  },
+  {
+   "id": "g167-prtpane",
+   "action": "show-pane",
+   "arguments": {
+    "pane": "p-prt"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "g167-repick",
+   "action": "pick",
+   "arguments": {
+    "selector": "@control:pPickEntry/collection filter",
+    "value": "RCW-2026-041"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "g167-melz",
+   "action": "set-text",
+   "arguments": {
+    "selector": "@control:pRg#3",
+    "value": "inamyloid (flesh, slide)"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "g167-phen",
+   "action": "set-text",
+   "arguments": {
+    "selector": "@control:pRg#5",
+    "value": "slowly wine-brown in 2 min"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "g167-nap",
+   "action": "set-text",
+   "arguments": {
+    "selector": "@control:pRg#6",
+    "value": "no reaction"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "g167-syr",
+   "action": "set-text",
+   "arguments": {
+    "selector": "@control:pRg#7",
+    "value": "not a polypore -- negative"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "g167-held",
    "action": "read-report",
    "expect": {
     "output.boxes.ecoOut": {
