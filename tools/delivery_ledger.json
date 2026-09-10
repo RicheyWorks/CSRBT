@@ -885,10 +885,15 @@
    "by": "adr175",
    "sha": "7f658b64d1eb0019348d897877644c11392221d1f7d666d507e6e7b1e2438003"
   },
+  "docs/ADR-176-the-deployment-log-and-soil-recipes-outputs-read-2026-09-09.md": {
+   "at": 1788996656,
+   "by": "adr176",
+   "sha": "db200f5f7d9a9d6b200970c8b6c87b1b6bb3791c6de3aa715f0ae60fae5c15de"
+  },
   "docs/AI_HARNESS.md": {
-   "at": 1788994143,
-   "by": "adr175",
-   "sha": "498a4cca668af86fc7fb805bf4dd8b045b8d70febcdf7a9bf27e6a1e5cac9792"
+   "at": 1788996656,
+   "by": "adr176",
+   "sha": "bcc727c155bfb90d6406cb92f30af13b255f0f6aa6f880c25e0e92af423fda7c"
   },
   "docs/AUDIT-2026-07-14-capability-coverage.md": {
    "at": 1788676922,
@@ -1710,6 +1715,11 @@
    "by": "adr175",
    "sha": "ebe39c75451427314c72a9ab2496141982da9543a9b6a7502958879467455323"
   },
+  "docs/CHANGELOG-2026-09-09-adr176-the-deployment-log-and-soil-recipes-outputs-read.md": {
+   "at": 1788996656,
+   "by": "adr176",
+   "sha": "f164dad66cb096cf5833d589080a004591b6f89ac06ebfeacece34727babca8b"
+  },
   "docs/DESIGN-adaptive-engine.md": {
    "at": 1788676923,
    "by": "adr146b",
@@ -2356,9 +2366,9 @@
    "sha": "87a75cf8e4e4a93070153679fbaba41272105d2027a9233e517ff608cf275251"
   },
   "tools/badinput_ledger.json": {
-   "at": 1788994143,
-   "by": "adr175",
-   "sha": "8425c3a27c5c582ad0ddeb126f35749e8d0cd45bbb6a23d15f3d472d89448653"
+   "at": 1788996656,
+   "by": "adr176",
+   "sha": "8af5db82314094f586741a5dbed108103f80b1d6d2ef8f0100d8e1a5d572e674"
   },
   "tools/blind_console.py": {
    "at": 1788676925,
@@ -2525,10 +2535,15 @@
    "by": "adr175",
    "sha": "d485b49b573751cfb5496ac61327a31adfcd38505f6fd9aafae00493af0708ad"
   },
+  "tools/delivery/adr176.json": {
+   "at": 1788996656,
+   "by": "adr176",
+   "sha": "21824cdf075747813f1dc6bf8deb20cccd791b626168603b0f1b8cf7a55eb061"
+  },
   "tools/delivery_ledger.json": {
-   "at": 1788994143,
-   "by": "adr175",
-   "sha": "309e7b6e176d069e68bbab8fda09991174c9835d3f9189ba2f1290049729a074"
+   "at": 1788996656,
+   "by": "adr176",
+   "sha": "61d40d24a29a2cb5cbdbcf6e4a30f8c7bd5171925e49f97032b13656d8051430"
   },
   "tools/dwc.py": {
    "at": 1788676926,
@@ -2571,9 +2586,9 @@
    "sha": "01919e137bdbf702ebc887de41aa026b721916da9d3761ce673812d54a22471f"
   },
   "tools/entry_ledger.json": {
-   "at": 1788994143,
-   "by": "adr175",
-   "sha": "326b30a5f774459ba86a41c943e3e5599df9b309cd9b3f21427f1c130ba59dea"
+   "at": 1788996656,
+   "by": "adr176",
+   "sha": "3e6613c0b3cfd21b916d0eaacffa329edc160891a73aa677af5b2f90aada0712"
   },
   "tools/entry_reach.py": {
    "at": 1788676926,
@@ -2626,9 +2641,9 @@
    "sha": "1d5e5bb0fadf4abb88d56125483a66e1bc2367055c7b541aa9d800c6dddde9dc"
   },
   "tools/harness_board.html": {
-   "at": 1788994143,
-   "by": "adr175",
-   "sha": "cd3fc5150a962e6a15d3b43df9cb8491ef4b4f77cbe979cd892235d631211b28"
+   "at": 1788996656,
+   "by": "adr176",
+   "sha": "60967efddb8203b4521827b6392c8d04f6483086bb8498a395015545bf6f8cd5"
   },
   "tools/harness_board.py": {
    "at": 1788783742,
@@ -2831,9 +2846,9 @@
    "sha": "172e699a8abda0fb0fe773b9204e652001fac70b769e1082739097b699c28db0"
   },
   "tools/outputs_ledger.json": {
-   "at": 1788994143,
-   "by": "adr175",
-   "sha": "394c3952e4c3772dd0a0dbd65254f0c2bef51c20814636ff9881533d1ca063fb"
+   "at": 1788996656,
+   "by": "adr176",
+   "sha": "7d304c5495ef238c6e9d4303508ab19eef81d8b55c68b0912a46b76f2973b902"
   },
   "tools/probe.py": {
    "at": 1788676927,
@@ -2866,9 +2881,9 @@
    "sha": "15022dcd97ee97f72ec5f907d0cdfef3ee36da9588f9de47e110519ff9f781e8"
   },
   "tools/published.json": {
-   "at": 1788994143,
-   "by": "adr175",
-   "sha": "6787bb6c01f433d2faa450125779fad42e35d77f669c51258f27d26327135944"
+   "at": 1788996656,
+   "by": "adr176",
+   "sha": "1f0f0b8ad684fb7de6fde3454311f79f6d16502f614aeb705919e9e33a28b307"
   },
   "tools/reach.py": {
    "at": 1788676928,
@@ -2876,9 +2891,9 @@
    "sha": "b176e4e078bd39b22f5056223c6d1949503ff69c2f029a02d3513a7607db39cb"
   },
   "tools/readable_ledger.json": {
-   "at": 1788994143,
-   "by": "adr175",
-   "sha": "31171589cad74dd2ec41b1fe6a2574160878d3eef47e7d8f07cf9bcd3d188052"
+   "at": 1788996656,
+   "by": "adr176",
+   "sha": "085348282dae9d097c0ab8eb9a5b8efb2094657322c04b8eca9fb60437048bb2"
   },
   "tools/routes.json": {
    "at": 1788676928,
@@ -2911,9 +2926,9 @@
    "sha": "0a2241a252fa68e80b813e601b7bd67cd8ba5c00b8ad07acc98dcd93a42b0268"
   },
   "tools/task_ledger.json": {
-   "at": 1788994143,
-   "by": "adr175",
-   "sha": "857aa8e2100b9d8ce6b2be5a2d0e670f19c8dce544472a510e5784d5d36513d3"
+   "at": 1788996656,
+   "by": "adr176",
+   "sha": "389072de50dc306c777a1c6d54199aa36eacd1117544ac3d03db194a413c6202"
   },
   "tools/tasks/fixture-buckets.json": {
    "at": 1788676928,
@@ -2996,9 +3011,9 @@
    "sha": "012ef576d961fa7967adca1a4920f4eeb639d82fcf26078971de2cd63bc56a17"
   },
   "tools/tasks/page-deployment-log-science.json": {
-   "at": 1788773558,
-   "by": "adr152",
-   "sha": "f465c2dab81803743136d2d9df8752f1fe98384347565625cf2b2122822c0d47"
+   "at": 1788996656,
+   "by": "adr176",
+   "sha": "844e0aaaba23838bf5524dcfd26a003498548e29ff116c005810d454b5feda69"
   },
   "tools/tasks/page-douglas-explorer-reference.json": {
    "at": 1788676928,
@@ -3141,9 +3156,9 @@
    "sha": "7278182ca9c12d4b0e80db608c7238727ac9b1c87ca381fff82a1ab47bb21b1e"
   },
   "tools/tasks/page-soil-recipes-scaling.json": {
-   "at": 1788676928,
-   "by": "adr146b",
-   "sha": "06a84f4661be797219bcc3fdf29af7da7e06108af2d006a0c251ed11a6514f24"
+   "at": 1788996656,
+   "by": "adr176",
+   "sha": "11a35a4a785828de036383a55fb6d8e87405bcc0474fee1527baae2d922df173"
   },
   "tools/tasks/page-soil-suite-reference.json": {
    "at": 1788676928,
@@ -3206,9 +3221,9 @@
    "sha": "15a9ad96a69cde9458d5f7fca51be947e5bebad787cc069e1bcc64bf7800b592"
   },
   "tools/verify/counts.json": {
-   "at": 1788994143,
-   "by": "adr175",
-   "sha": "f83f1d29f6cf31b0f62f2183860d1d6f033b6e84a0f67ef8d13a9d79d971cc20"
+   "at": 1788996656,
+   "by": "adr176",
+   "sha": "2ee502885af070d3c014033f5edc2fa927cd1e71ee50cb86d24013a90db97a57"
   },
   "tools/verify/run_all.py": {
    "at": 1788783742,
@@ -3306,9 +3321,9 @@
    "sha": "55a709181c001221e43ea910b602e338f5da13aa6d52ccc6411c2f013ebf2c12"
   },
   "tools/verify/verify_dep.py": {
-   "at": 1788676929,
-   "by": "adr146b",
-   "sha": "e9d15f0dfe5c3c7dd56a0a424448a1a9a62df3ca229a6197e1489944f6a3882b"
+   "at": 1788996656,
+   "by": "adr176",
+   "sha": "5a45172bc188257981d17b29ab62e1ad0c45c1118e6dfe5c479063be131b5abc"
   },
   "tools/verify/verify_dwc.py": {
    "at": 1788860747,
@@ -3506,9 +3521,9 @@
    "sha": "fabf80c326549186deddcd3d9e9560cabbdc1b45afb5495675c67525719cc5f4"
   },
   "tools/verify/verify_recipes.py": {
-   "at": 1788676929,
-   "by": "adr146b",
-   "sha": "b61d84633dcadd31f0dbbc2f93aff5b1ebce5683c90c2ae3532882e34d062136"
+   "at": 1788996656,
+   "by": "adr176",
+   "sha": "62b9e55b0c611506771174d60b99dfe51caf34e1ed773cfa56330e2c61ed40fd"
   },
   "tools/verify/verify_report.py": {
    "at": 1788950311,

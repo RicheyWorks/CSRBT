@@ -2,7 +2,7 @@
  "id": "page-deployment-log-science",
  "target": "page",
  "page": "deployment-log.html",
- "goal": "On the deployment log: a 48 kHz recorder records up to 24 kHz and cannot survey bats, 192 kHz covers most of it, 384 kHz all; a 60 s in 600 s duty over 14 days at 16-bit mono 48 kHz writes 11.61 GB (10.0%, 33.6 h) and a 32 GB card lasts 39 days, 300/3600 over 30 days 20.74 GB, 60/60 over 7 days 58.06 GB, and 600/600 over 30 days (248.83 GB) fills an 8 GB card; clock drift at 1 s/day is 343 m of sound per day (10.3 km at 30 days); GSD = sensor width x altitude / (focal length x image width): RedEdge 4.17/8.33, P4 3.18/6.36, Sequoia 5.65/11.31 cm/px at 60/120 m; 70/60 overlap is below Pix4D, 85/85 meets it; a logger at 600 s over 90 days takes 12,960 readings and 84,650 memory fills after 588 days, at 60 s over 30 days with 20,000 it fills after 14 days; a logged recorder lands in the table and the .eco export.",
+ "goal": "On the deployment log: a 48 kHz recorder records up to 24 kHz and cannot survey bats, 192 kHz covers most of it, 384 kHz all; a 60 s in 600 s duty over 14 days at 16-bit mono 48 kHz writes 11.61 GB (10.0%, 33.6 h) and a 32 GB card lasts 39 days, 300/3600 over 30 days 20.74 GB, 60/60 over 7 days 58.06 GB, and 600/600 over 30 days (248.83 GB) fills an 8 GB card; clock drift at 1 s/day is 343 m of sound per day (10.3 km at 30 days); GSD = sensor width x altitude / (focal length x image width): RedEdge 4.17/8.33, P4 3.18/6.36, Sequoia 5.65/11.31 cm/px at 60/120 m; 70/60 overlap is below Pix4D, 85/85 meets it; a logger at 600 s over 90 days takes 12,960 readings and 84,650 memory fills after 588 days, at 60 s over 30 days with 20,000 it fills after 14 days; a logged recorder lands in the table and the .eco export. Then the log's field sheet is read: Copy field sheet hands over the whole sheet byte for byte — three deployments, the flight's GSD 2.10 cm/px at 120 m, the logger every 1 min for 90 d, the recorder at 48 kHz mono with Nyquist 24.0 kHz — and the print button prints.",
  "steps": [
   {
    "id": "look",
@@ -1385,6 +1385,60 @@
     "output.boxes.ecoOut": {
      "op": "contains",
      "value": "coords 39.4318, -120.2408"
+    }
+   }
+  },
+  {
+   "id": "g176-eco-copy",
+   "action": "activate",
+   "arguments": {
+    "selector": "@control:ecoCopy"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "g176-sheet",
+   "action": "collect-output",
+   "expect": {
+    "output.payloads.0.k": "copy",
+    "output.payloads.0.text": "# Deployment log — 3 deployments\n\n[flight] SGH-2026-08-25-a  @ R. Marek  2026-08-25 09:15\n  settings MicaSense RedEdge, 120 m, GSD 2.10 cm/px, 85/85% overlap\n  caveat   radiometric: panel + DLS; cloud 4 oktas; wind 5 m/s\n\n[logger] HOBO-03  @ 1.5 m, N side of bole  2026-06-01\n  settings every 1 min, 90 d planned\n  caveat   shield: gill-type multi-plate\n\n[recorder] AM-014  @ Sagehen, N bench  2026-06-01\n  coords   39.4318, -120.2408\n  settings sr 48 kHz, mono, 600 s in 600 s, 30 d, fw 1.10.0\n  caveat   target birds; Nyquist 24.0 kHz; clock may drift up to 30 s; no SPL calibration",
+    "output.payloads.1": {
+     "op": "exists",
+     "value": false
+    }
+   }
+  },
+  {
+   "id": "g176-print",
+   "action": "activate",
+   "arguments": {
+    "selector": "@control:p-log/Print / save PDF"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "g176-printed",
+   "action": "collect-output",
+   "expect": {
+    "output.payloads.0.k": "print",
+    "output.payloads.1": {
+     "op": "exists",
+     "value": false
+    }
+   }
+  },
+  {
+   "id": "g176-still",
+   "action": "read-report",
+   "expect": {
+    "output.tables.logTable.3.0": "recorder",
+    "output.boxes.ecoOut": {
+     "op": "contains",
+     "value": "Nyquist 24.0 kHz"
     }
    }
   },

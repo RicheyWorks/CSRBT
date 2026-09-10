@@ -388,6 +388,32 @@ for phrase, why in [
 ]:
     ck("source still carries %s" % why, phrase in SRC, phrase)
 
+# ---- the field sheet the log hands over, held by its task (ADR-176) ----
+# audit_outputs found Copy field sheet and the print read by nothing. The task
+# now presses both and holds the sheet byte for byte; the arithmetic the sheet
+# carries is pinned HERE from the ports above -- the flight's GSD for the
+# sensor the task typed over the RedEdge preset (6.17 mm, 8.8 mm focal, 4000
+# px) at 120 m, and the recorder's Nyquist at 48 kHz -- so a task literal that
+# transcribed a wrong number would be caught.
+import io as _io, json as _json
+_TASK = os.path.join(ROOT, "tools", "tasks", "page-deployment-log-science.json")
+_task = _json.load(_io.open(_TASK, encoding="utf-8")) if os.path.isfile(_TASK) else {"steps": []}
+_steps = dict((st["id"], st) for st in _task["steps"])
+_sheet = _steps.get("g176-sheet", {}).get("expect", {}).get("output.payloads.0.text") or ""
+_gsd = gsd_cm_px(6.17, 120, 8.8, 4000)
+ck("the task holds the copied field sheet whole, and its GSD is the port's (%.2f cm/px at 120 m)" % _gsd,
+   _sheet.startswith("# Deployment log — 3 deployments") and ("GSD %.2f cm/px" % _gsd) in _sheet
+   and _steps.get("g176-sheet", {}).get("expect", {}).get("output.payloads.1") == {"op": "exists", "value": False},
+   _sheet[:120])
+ck("...and the recorder's Nyquist line is half its sample rate (%.1f kHz at 48 kHz, 16-bit mono)" % (48000 / 2000.0),
+   ("Nyquist %.1f kHz" % (48000 / 2000.0)) in _sheet and "sr 48 kHz, mono" in _sheet, _sheet[-200:])
+ck("...and every deployment the task logged is on it, in the order logged: flight, logger, recorder",
+   [ln.split("]")[0][1:] for ln in _sheet.split("\n") if ln.startswith("[")] == ["flight", "logger", "recorder"], _sheet)
+ck("the task holds the print to a print, and nothing else leaving with it",
+   _steps.get("g176-printed", {}).get("expect", {}).get("output.payloads.0.k") == "print"
+   and _steps.get("g176-printed", {}).get("expect", {}).get("output.payloads.1") == {"op": "exists", "value": False},
+   _steps.get("g176-printed"))
+
 print("\n".join("PASS  " + x for x in P))
 if F:
     print("\n".join("FAIL  " + x for x in F))

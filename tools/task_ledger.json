@@ -8123,9 +8123,9 @@
    "verdict": "PASS"
   },
   "page-deployment-log-science": {
-   "at": 1788777278,
-   "confirmed": 174,
-   "goal": "On the deployment log: a 48 kHz recorder records up to 24 kHz and cannot survey bats, 192 kHz covers most of it, 384 kHz all; a 60 s in 600 s duty over 14 days at 16-bit mono 48 kHz writes 11.61 GB (10.0%, 33.6 h) and a 32 GB card lasts 39 days, 300/3600 over 30 days 20.74 GB, 60/60 over 7 days 58.06 GB, and 600/600 over 30 days (248.83 GB) fills an 8 GB card; clock drift at 1 s/day is 343 m of sound per day (10.3 km at 30 days); GSD = sensor width x altitude / (focal length x image width): RedEdge 4.17/8.33, P4 3.18/6.36, Sequoia 5.65/11.31 cm/px at 60/120 m; 70/60 overlap is below Pix4D, 85/85 meets it; a logger at 600 s over 90 days takes 12,960 readings and 84,650 memory fills after 588 days, at 60 s over 30 days with 20,000 it fills after 14 days; a logged recorder lands in the table and the .eco export.",
+   "at": 1788994376,
+   "confirmed": 183,
+   "goal": "On the deployment log: a 48 kHz recorder records up to 24 kHz and cannot survey bats, 192 kHz covers most of it, 384 kHz all; a 60 s in 600 s duty over 14 days at 16-bit mono 48 kHz writes 11.61 GB (10.0%, 33.6 h) and a 32 GB card lasts 39 days, 300/3600 over 30 days 20.74 GB, 60/60 over 7 days 58.06 GB, and 600/600 over 30 days (248.83 GB) fills an 8 GB card; clock drift at 1 s/day is 343 m of sound per day (10.3 km at 30 days); GSD = sensor width x altitude / (focal length x image width): RedEdge 4.17/8.33, P4 3.18/6.36, Sequoia 5.65/11.31 cm/px at 60/120 m; 70/60 overlap is below Pix4D, 85/85 meets it; a logger at 600 s over 90 days takes 12,960 readings and 84,650 memory fills after 588 days, at 60 s over 30 days with 20,000 it fills after 14 days; a logged recorder lands in the table and the .eco export. Then the log's field sheet is read: Copy field sheet hands over the whole sheet byte for byte \u2014 three deployments, the flight's GSD 2.10 cm/px at 120 m, the logger every 1 min for 90 d, the recorder at 48 kHz mono with Nyquist 24.0 kHz \u2014 and the print button prints.",
    "held": true,
    "id": "page-deployment-log-science",
    "must": "PASS",
@@ -8136,7 +8136,7 @@
     "MUTATE"
    ],
    "rungsWhy": null,
-   "seconds": 6.3,
+   "seconds": 7.8,
    "steps": [
     {
      "action": "observe",
@@ -8168,7 +8168,7 @@
      ],
      "id": "ac",
      "message": "opened pane p-ac",
-     "ms": 3,
+     "ms": 4,
      "result": "driven"
     },
     {
@@ -8187,7 +8187,7 @@
      ],
      "id": "nyq",
      "message": "22 figure(s), 20 box(es), 0 list(s), 0 table(s), 22 heading(s)",
-     "ms": 5,
+     "ms": 7,
      "result": "driven"
     },
     {
@@ -8201,7 +8201,7 @@
      ],
      "id": "bats",
      "message": "activate dial_btn:8",
-     "ms": 26,
+     "ms": 27,
      "result": "driven"
     },
     {
@@ -8215,7 +8215,7 @@
      ],
      "id": "alias",
      "message": "22 figure(s), 20 box(es), 0 list(s), 0 table(s), 22 heading(s)",
-     "ms": 3,
+     "ms": 5,
      "result": "driven"
     },
     {
@@ -8229,7 +8229,7 @@
      ],
      "id": "k192",
      "message": "activate dial_btn:3",
-     "ms": 22,
+     "ms": 24,
      "result": "driven"
     },
     {
@@ -8243,7 +8243,7 @@
      ],
      "id": "most",
      "message": "22 figure(s), 20 box(es), 0 list(s), 0 table(s), 22 heading(s)",
-     "ms": 3,
+     "ms": 5,
      "result": "driven"
     },
     {
@@ -8257,7 +8257,7 @@
      ],
      "id": "k384",
      "message": "activate dial_btn:4",
-     "ms": 20,
+     "ms": 25,
      "result": "driven"
     },
     {
@@ -8271,7 +8271,7 @@
      ],
      "id": "full",
      "message": "22 figure(s), 20 box(es), 0 list(s), 0 table(s), 22 heading(s)",
-     "ms": 4,
+     "ms": 5,
      "result": "driven"
     },
     {
@@ -8285,7 +8285,7 @@
      ],
      "id": "k48",
      "message": "activate dial_btn:1",
-     "ms": 22,
+     "ms": 24,
      "result": "driven"
     },
     {
@@ -8299,7 +8299,7 @@
      ],
      "id": "birds",
      "message": "activate dial_btn:7",
-     "ms": 22,
+     "ms": 25,
      "result": "driven"
     },
     {
@@ -8313,7 +8313,7 @@
      ],
      "id": "on60_600",
      "message": "set-text step_val:0",
-     "ms": 22,
+     "ms": 24,
      "result": "driven"
     },
     {
@@ -8327,7 +8327,7 @@
      ],
      "id": "ev60_600",
      "message": "set-text step_val:1",
-     "ms": 22,
+     "ms": 24,
      "result": "driven"
     },
     {
@@ -8341,7 +8341,7 @@
      ],
      "id": "dd60_600",
      "message": "set-text step_val:2",
-     "ms": 22,
+     "ms": 26,
      "result": "driven"
     },
     {
@@ -8355,7 +8355,7 @@
      ],
      "id": "cd60_600",
      "message": "set-text step_val:3",
-     "ms": 21,
+     "ms": 26,
      "result": "driven"
     },
     {
@@ -8384,7 +8384,7 @@
      ],
      "id": "duty60_600",
      "message": "22 figure(s), 20 box(es), 0 list(s), 0 table(s), 22 heading(s)",
-     "ms": 3,
+     "ms": 4,
      "result": "driven"
     },
     {
@@ -8398,7 +8398,7 @@
      ],
      "id": "on300_3600",
      "message": "set-text step_val:0",
-     "ms": 24,
+     "ms": 25,
      "result": "driven"
     },
     {
@@ -8412,7 +8412,7 @@
      ],
      "id": "ev300_3600",
      "message": "set-text step_val:1",
-     "ms": 22,
+     "ms": 27,
      "result": "driven"
     },
     {
@@ -8426,7 +8426,7 @@
      ],
      "id": "dd300_3600",
      "message": "set-text step_val:2",
-     "ms": 22,
+     "ms": 24,
      "result": "driven"
     },
     {
@@ -8440,7 +8440,7 @@
      ],
      "id": "cd300_3600",
      "message": "set-text step_val:3",
-     "ms": 22,
+     "ms": 24,
      "result": "driven"
     },
     {
@@ -8483,7 +8483,7 @@
      ],
      "id": "on60_60",
      "message": "set-text step_val:0",
-     "ms": 21,
+     "ms": 24,
      "result": "driven"
     },
     {
@@ -8497,7 +8497,7 @@
      ],
      "id": "ev60_60",
      "message": "set-text step_val:1",
-     "ms": 22,
+     "ms": 24,
      "result": "driven"
     },
     {
@@ -8511,7 +8511,7 @@
      ],
      "id": "dd60_60",
      "message": "set-text step_val:2",
-     "ms": 21,
+     "ms": 25,
      "result": "driven"
     },
     {
@@ -8525,7 +8525,7 @@
      ],
      "id": "cd60_60",
      "message": "set-text step_val:3",
-     "ms": 22,
+     "ms": 25,
      "result": "driven"
     },
     {
@@ -8554,7 +8554,7 @@
      ],
      "id": "duty60_60",
      "message": "22 figure(s), 20 box(es), 0 list(s), 0 table(s), 22 heading(s)",
-     "ms": 3,
+     "ms": 4,
      "result": "driven"
     },
     {
@@ -8568,7 +8568,7 @@
      ],
      "id": "on600",
      "message": "set-text step_val:0",
-     "ms": 22,
+     "ms": 25,
      "result": "driven"
     },
     {
@@ -8582,7 +8582,7 @@
      ],
      "id": "ev600",
      "message": "set-text step_val:1",
-     "ms": 23,
+     "ms": 24,
      "result": "driven"
     },
     {
@@ -8596,7 +8596,7 @@
      ],
      "id": "dd30",
      "message": "set-text step_val:2",
-     "ms": 23,
+     "ms": 25,
      "result": "driven"
     },
     {
@@ -8610,7 +8610,7 @@
      ],
      "id": "cd8",
      "message": "set-text step_val:3",
-     "ms": 22,
+     "ms": 23,
      "result": "driven"
     },
     {
@@ -8629,7 +8629,7 @@
      ],
      "id": "fills",
      "message": "22 figure(s), 20 box(es), 0 list(s), 0 table(s), 22 heading(s)",
-     "ms": 3,
+     "ms": 4,
      "result": "driven"
     },
     {
@@ -8643,7 +8643,7 @@
      ],
      "id": "drift1",
      "message": "set-text step_val:2",
-     "ms": 23,
+     "ms": 26,
      "result": "driven"
     },
     {
@@ -8672,7 +8672,7 @@
      ],
      "id": "dr1",
      "message": "22 figure(s), 20 box(es), 0 list(s), 0 table(s), 22 heading(s)",
-     "ms": 3,
+     "ms": 5,
      "result": "driven"
     },
     {
@@ -8686,7 +8686,7 @@
      ],
      "id": "drift7",
      "message": "set-text step_val:2",
-     "ms": 23,
+     "ms": 24,
      "result": "driven"
     },
     {
@@ -8729,7 +8729,7 @@
      ],
      "id": "drift14",
      "message": "set-text step_val:2",
-     "ms": 23,
+     "ms": 25,
      "result": "driven"
     },
     {
@@ -8758,7 +8758,7 @@
      ],
      "id": "dr14",
      "message": "22 figure(s), 20 box(es), 0 list(s), 0 table(s), 22 heading(s)",
-     "ms": 3,
+     "ms": 4,
      "result": "driven"
     },
     {
@@ -8772,7 +8772,7 @@
      ],
      "id": "drift30",
      "message": "set-text step_val:2",
-     "ms": 22,
+     "ms": 24,
      "result": "driven"
     },
     {
@@ -8801,7 +8801,7 @@
      ],
      "id": "dr30",
      "message": "22 figure(s), 20 box(es), 0 list(s), 0 table(s), 22 heading(s)",
-     "ms": 3,
+     "ms": 4,
      "result": "driven"
     },
     {
@@ -8815,7 +8815,7 @@
      ],
      "id": "spl",
      "message": "22 figure(s), 20 box(es), 0 list(s), 0 table(s), 22 heading(s)",
-     "ms": 5,
+     "ms": 4,
      "result": "driven"
     },
     {
@@ -8829,7 +8829,7 @@
      ],
      "id": "fl",
      "message": "opened pane p-fl",
-     "ms": 133,
+     "ms": 127,
      "result": "driven"
     },
     {
@@ -8843,7 +8843,7 @@
      ],
      "id": "cam-MicaSense",
      "message": "activate dial_btn:12",
-     "ms": 21,
+     "ms": 24,
      "result": "driven"
     },
     {
@@ -8857,7 +8857,7 @@
      ],
      "id": "altMicaSense60",
      "message": "set-text step_val:4",
-     "ms": 22,
+     "ms": 26,
      "result": "driven"
     },
     {
@@ -8871,7 +8871,7 @@
      ],
      "id": "gsdMicaSense60",
      "message": "22 figure(s), 20 box(es), 0 list(s), 0 table(s), 22 heading(s)",
-     "ms": 3,
+     "ms": 4,
      "result": "driven"
     },
     {
@@ -8885,7 +8885,7 @@
      ],
      "id": "altMicaSense120",
      "message": "set-text step_val:4",
-     "ms": 21,
+     "ms": 24,
      "result": "driven"
     },
     {
@@ -8899,7 +8899,7 @@
      ],
      "id": "gsdMicaSense120",
      "message": "22 figure(s), 20 box(es), 0 list(s), 0 table(s), 22 heading(s)",
-     "ms": 3,
+     "ms": 4,
      "result": "driven"
     },
     {
@@ -8913,7 +8913,7 @@
      ],
      "id": "cam-P4",
      "message": "activate dial_btn:13",
-     "ms": 23,
+     "ms": 27,
      "result": "driven"
     },
     {
@@ -8927,7 +8927,7 @@
      ],
      "id": "altP460",
      "message": "set-text step_val:4",
-     "ms": 22,
+     "ms": 26,
      "result": "driven"
     },
     {
@@ -8941,7 +8941,7 @@
      ],
      "id": "gsdP460",
      "message": "22 figure(s), 20 box(es), 0 list(s), 0 table(s), 22 heading(s)",
-     "ms": 3,
+     "ms": 4,
      "result": "driven"
     },
     {
@@ -8955,7 +8955,7 @@
      ],
      "id": "altP4120",
      "message": "set-text step_val:4",
-     "ms": 23,
+     "ms": 24,
      "result": "driven"
     },
     {
@@ -8969,7 +8969,7 @@
      ],
      "id": "gsdP4120",
      "message": "22 figure(s), 20 box(es), 0 list(s), 0 table(s), 22 heading(s)",
-     "ms": 3,
+     "ms": 4,
      "result": "driven"
     },
     {
@@ -8983,7 +8983,7 @@
      ],
      "id": "cam-Parrot",
      "message": "activate dial_btn:14",
-     "ms": 24,
+     "ms": 28,
      "result": "driven"
     },
     {
@@ -8997,7 +8997,7 @@
      ],
      "id": "altParrot60",
      "message": "set-text step_val:4",
-     "ms": 21,
+     "ms": 23,
      "result": "driven"
     },
     {
@@ -9011,7 +9011,7 @@
      ],
      "id": "gsdParrot60",
      "message": "22 figure(s), 20 box(es), 0 list(s), 0 table(s), 22 heading(s)",
-     "ms": 3,
+     "ms": 4,
      "result": "driven"
     },
     {
@@ -9025,7 +9025,7 @@
      ],
      "id": "altParrot120",
      "message": "set-text step_val:4",
-     "ms": 21,
+     "ms": 24,
      "result": "driven"
     },
     {
@@ -9039,7 +9039,7 @@
      ],
      "id": "gsdParrot120",
      "message": "22 figure(s), 20 box(es), 0 list(s), 0 table(s), 22 heading(s)",
-     "ms": 3,
+     "ms": 4,
      "result": "driven"
     },
     {
@@ -9053,7 +9053,7 @@
      ],
      "id": "cam-back",
      "message": "activate dial_btn:12",
-     "ms": 23,
+     "ms": 25,
      "result": "driven"
     },
     {
@@ -9067,7 +9067,7 @@
      ],
      "id": "alt120",
      "message": "set-text step_val:4",
-     "ms": 22,
+     "ms": 24,
      "result": "driven"
     },
     {
@@ -9081,7 +9081,7 @@
      ],
      "id": "formula",
      "message": "22 figure(s), 20 box(es), 0 list(s), 0 table(s), 22 heading(s)",
-     "ms": 3,
+     "ms": 4,
      "result": "driven"
     },
     {
@@ -9095,7 +9095,7 @@
      ],
      "id": "fwd70",
      "message": "set-slider slider:0",
-     "ms": 21,
+     "ms": 25,
      "result": "driven"
     },
     {
@@ -9109,7 +9109,7 @@
      ],
      "id": "side60",
      "message": "set-slider slider:1",
-     "ms": 22,
+     "ms": 25,
      "result": "driven"
     },
     {
@@ -9123,7 +9123,7 @@
      ],
      "id": "below",
      "message": "22 figure(s), 20 box(es), 0 list(s), 0 table(s), 22 heading(s)",
-     "ms": 4,
+     "ms": 5,
      "result": "driven"
     },
     {
@@ -9137,7 +9137,7 @@
      ],
      "id": "fwd85",
      "message": "set-slider slider:0",
-     "ms": 22,
+     "ms": 25,
      "result": "driven"
     },
     {
@@ -9151,7 +9151,7 @@
      ],
      "id": "side85",
      "message": "set-slider slider:1",
-     "ms": 21,
+     "ms": 25,
      "result": "driven"
     },
     {
@@ -9165,7 +9165,7 @@
      ],
      "id": "meets",
      "message": "22 figure(s), 20 box(es), 0 list(s), 0 table(s), 22 heading(s)",
-     "ms": 3,
+     "ms": 4,
      "result": "driven"
     },
     {
@@ -9193,7 +9193,7 @@
      ],
      "id": "noNDVI",
      "message": "22 figure(s), 20 box(es), 0 list(s), 0 table(s), 22 heading(s)",
-     "ms": 3,
+     "ms": 5,
      "result": "driven"
     },
     {
@@ -9207,7 +9207,7 @@
      ],
      "id": "rededge",
      "message": "activate dial_btn:12",
-     "ms": 21,
+     "ms": 24,
      "result": "driven"
     },
     {
@@ -9221,7 +9221,7 @@
      ],
      "id": "neither",
      "message": "activate dial_btn:20",
-     "ms": 21,
+     "ms": 24,
      "result": "driven"
     },
     {
@@ -9235,7 +9235,7 @@
      ],
      "id": "incomparable",
      "message": "22 figure(s), 20 box(es), 0 list(s), 0 table(s), 22 heading(s)",
-     "ms": 4,
+     "ms": 5,
      "result": "driven"
     },
     {
@@ -9249,7 +9249,7 @@
      ],
      "id": "both",
      "message": "activate dial_btn:17",
-     "ms": 21,
+     "ms": 25,
      "result": "driven"
     },
     {
@@ -9263,7 +9263,7 @@
      ],
      "id": "comparable",
      "message": "22 figure(s), 20 box(es), 0 list(s), 0 table(s), 22 heading(s)",
-     "ms": 3,
+     "ms": 4,
      "result": "driven"
     },
     {
@@ -9277,7 +9277,7 @@
      ],
      "id": "cloud",
      "message": "set-text text_in:15",
-     "ms": 21,
+     "ms": 25,
      "result": "driven"
     },
     {
@@ -9291,7 +9291,7 @@
      ],
      "id": "sky",
      "message": "22 figure(s), 20 box(es), 0 list(s), 0 table(s), 22 heading(s)",
-     "ms": 3,
+     "ms": 4,
      "result": "driven"
     },
     {
@@ -9299,7 +9299,7 @@
      "expectations": [],
      "id": "g152-area",
      "message": "set-text step_val:5",
-     "ms": 22,
+     "ms": 25,
      "result": "driven"
     },
     {
@@ -9307,7 +9307,7 @@
      "expectations": [],
      "id": "g152-speed",
      "message": "set-text step_val:6",
-     "ms": 22,
+     "ms": 29,
      "result": "driven"
     },
     {
@@ -9315,7 +9315,7 @@
      "expectations": [],
      "id": "g152-sw",
      "message": "set-text text_in:6",
-     "ms": 22,
+     "ms": 24,
      "result": "driven"
     },
     {
@@ -9323,7 +9323,7 @@
      "expectations": [],
      "id": "g152-fl",
      "message": "set-text text_in:7",
-     "ms": 21,
+     "ms": 23,
      "result": "driven"
     },
     {
@@ -9331,7 +9331,7 @@
      "expectations": [],
      "id": "g152-pw",
      "message": "set-text text_in:8",
-     "ms": 21,
+     "ms": 24,
      "result": "driven"
     },
     {
@@ -9339,7 +9339,7 @@
      "expectations": [],
      "id": "g152-ph",
      "message": "set-text text_in:9",
-     "ms": 21,
+     "ms": 23,
      "result": "driven"
     },
     {
@@ -9383,7 +9383,7 @@
      ],
      "id": "g152-custom",
      "message": "22 figure(s), 20 box(es), 0 list(s), 0 table(s), 22 heading(s)",
-     "ms": 3,
+     "ms": 5,
      "result": "driven"
     },
     {
@@ -9391,7 +9391,7 @@
      "expectations": [],
      "id": "g152-fast",
      "message": "set-text step_val:6",
-     "ms": 23,
+     "ms": 24,
      "result": "driven"
     },
     {
@@ -9415,7 +9415,7 @@
      ],
      "id": "g152-subsecond",
      "message": "22 figure(s), 20 box(es), 0 list(s), 0 table(s), 22 heading(s)",
-     "ms": 3,
+     "ms": 4,
      "result": "driven"
     },
     {
@@ -9423,7 +9423,7 @@
      "expectations": [],
      "id": "g152-slow",
      "message": "set-text step_val:6",
-     "ms": 22,
+     "ms": 28,
      "result": "driven"
     },
     {
@@ -9431,7 +9431,7 @@
      "expectations": [],
      "id": "g152-sky8",
      "message": "set-text text_in:15",
-     "ms": 21,
+     "ms": 23,
      "result": "driven"
     },
     {
@@ -9445,7 +9445,7 @@
      ],
      "id": "g152-overcast",
      "message": "22 figure(s), 20 box(es), 0 list(s), 0 table(s), 22 heading(s)",
-     "ms": 3,
+     "ms": 4,
      "result": "driven"
     },
     {
@@ -9453,7 +9453,7 @@
      "expectations": [],
      "id": "g152-sky0",
      "message": "set-text text_in:15",
-     "ms": 20,
+     "ms": 25,
      "result": "driven"
     },
     {
@@ -9467,7 +9467,7 @@
      ],
      "id": "g152-clear",
      "message": "22 figure(s), 20 box(es), 0 list(s), 0 table(s), 22 heading(s)",
-     "ms": 3,
+     "ms": 4,
      "result": "driven"
     },
     {
@@ -9475,7 +9475,7 @@
      "expectations": [],
      "id": "g152-sky4",
      "message": "set-text text_in:15",
-     "ms": 21,
+     "ms": 24,
      "result": "driven"
     },
     {
@@ -9483,7 +9483,7 @@
      "expectations": [],
      "id": "g152-fid",
      "message": "set-text text_in:10",
-     "ms": 21,
+     "ms": 24,
      "result": "driven"
     },
     {
@@ -9491,7 +9491,7 @@
      "expectations": [],
      "id": "g152-pilot",
      "message": "set-text text_in:11",
-     "ms": 21,
+     "ms": 24,
      "result": "driven"
     },
     {
@@ -9499,7 +9499,7 @@
      "expectations": [],
      "id": "g152-fdate",
      "message": "set-text text_in:12",
-     "ms": 20,
+     "ms": 23,
      "result": "driven"
     },
     {
@@ -9507,7 +9507,7 @@
      "expectations": [],
      "id": "g152-ftime",
      "message": "set-text text_in:13",
-     "ms": 21,
+     "ms": 26,
      "result": "driven"
     },
     {
@@ -9515,7 +9515,7 @@
      "expectations": [],
      "id": "g152-fwind",
      "message": "set-text text_in:14",
-     "ms": 21,
+     "ms": 27,
      "result": "driven"
     },
     {
@@ -9523,7 +9523,7 @@
      "expectations": [],
      "id": "g152-addfl",
      "message": "activate action_btn:1",
-     "ms": 21,
+     "ms": 26,
      "result": "driven"
     },
     {
@@ -9537,7 +9537,7 @@
      ],
      "id": "lg",
      "message": "opened pane p-lg",
-     "ms": 93,
+     "ms": 100,
      "result": "driven"
     },
     {
@@ -9565,7 +9565,7 @@
      ],
      "id": "ld600",
      "message": "set-text step_val:8",
-     "ms": 22,
+     "ms": 25,
      "result": "driven"
     },
     {
@@ -9579,7 +9579,7 @@
      ],
      "id": "mem600",
      "message": "set-text step_val:9",
-     "ms": 27,
+     "ms": 24,
      "result": "driven"
     },
     {
@@ -9608,7 +9608,7 @@
      ],
      "id": "log600",
      "message": "22 figure(s), 20 box(es), 0 list(s), 1 table(s), 22 heading(s)",
-     "ms": 3,
+     "ms": 5,
      "result": "driven"
     },
     {
@@ -9636,7 +9636,7 @@
      ],
      "id": "ld60",
      "message": "set-text step_val:8",
-     "ms": 21,
+     "ms": 24,
      "result": "driven"
     },
     {
@@ -9650,7 +9650,7 @@
      ],
      "id": "mem60",
      "message": "set-text step_val:9",
-     "ms": 21,
+     "ms": 26,
      "result": "driven"
     },
     {
@@ -9679,7 +9679,7 @@
      ],
      "id": "log60",
      "message": "22 figure(s), 20 box(es), 0 list(s), 1 table(s), 22 heading(s)",
-     "ms": 3,
+     "ms": 4,
      "result": "driven"
     },
     {
@@ -9693,7 +9693,7 @@
      ],
      "id": "iv3600",
      "message": "set-text step_val:7",
-     "ms": 23,
+     "ms": 26,
      "result": "driven"
     },
     {
@@ -9707,7 +9707,7 @@
      ],
      "id": "ld3600",
      "message": "set-text step_val:8",
-     "ms": 26,
+     "ms": 32,
      "result": "driven"
     },
     {
@@ -9721,7 +9721,7 @@
      ],
      "id": "mem3600",
      "message": "set-text step_val:9",
-     "ms": 25,
+     "ms": 24,
      "result": "driven"
     },
     {
@@ -9750,7 +9750,7 @@
      ],
      "id": "log3600",
      "message": "22 figure(s), 20 box(es), 0 list(s), 1 table(s), 22 heading(s)",
-     "ms": 3,
+     "ms": 4,
      "result": "driven"
     },
     {
@@ -9764,7 +9764,7 @@
      ],
      "id": "iv60b",
      "message": "set-text step_val:7",
-     "ms": 21,
+     "ms": 25,
      "result": "driven"
     },
     {
@@ -9778,7 +9778,7 @@
      ],
      "id": "ld90",
      "message": "set-text step_val:8",
-     "ms": 22,
+     "ms": 24,
      "result": "driven"
     },
     {
@@ -9792,7 +9792,7 @@
      ],
      "id": "mem20k",
      "message": "set-text step_val:9",
-     "ms": 21,
+     "ms": 26,
      "result": "driven"
     },
     {
@@ -9806,7 +9806,7 @@
      ],
      "id": "overflow",
      "message": "22 figure(s), 20 box(es), 0 list(s), 1 table(s), 22 heading(s)",
-     "ms": 3,
+     "ms": 4,
      "result": "driven"
     },
     {
@@ -9820,7 +9820,7 @@
      ],
      "id": "shield",
      "message": "22 figure(s), 20 box(es), 0 list(s), 1 table(s), 22 heading(s)",
-     "ms": 3,
+     "ms": 4,
      "result": "driven"
     },
     {
@@ -9834,7 +9834,7 @@
      ],
      "id": "gill",
      "message": "activate dial_btn:21",
-     "ms": 21,
+     "ms": 26,
      "result": "driven"
     },
     {
@@ -9848,7 +9848,7 @@
      ],
      "id": "gill-note",
      "message": "22 figure(s), 20 box(es), 0 list(s), 1 table(s), 22 heading(s)",
-     "ms": 3,
+     "ms": 5,
      "result": "driven"
     },
     {
@@ -9856,7 +9856,7 @@
      "expectations": [],
      "id": "g152-lunit",
      "message": "set-text text_in:16",
-     "ms": 21,
+     "ms": 22,
      "result": "driven"
     },
     {
@@ -9864,7 +9864,7 @@
      "expectations": [],
      "id": "g152-lpos",
      "message": "set-text text_in:17",
-     "ms": 21,
+     "ms": 23,
      "result": "driven"
     },
     {
@@ -9872,7 +9872,7 @@
      "expectations": [],
      "id": "g152-lstart",
      "message": "set-text text_in:18",
-     "ms": 21,
+     "ms": 24,
      "result": "driven"
     },
     {
@@ -9880,7 +9880,7 @@
      "expectations": [],
      "id": "g152-addlg",
      "message": "activate action_btn:2",
-     "ms": 22,
+     "ms": 23,
      "result": "driven"
     },
     {
@@ -9894,7 +9894,7 @@
      ],
      "id": "ac2",
      "message": "opened pane p-ac",
-     "ms": 93,
+     "ms": 82,
      "result": "driven"
     },
     {
@@ -9908,7 +9908,7 @@
      ],
      "id": "unit",
      "message": "set-text text_in:0",
-     "ms": 20,
+     "ms": 23,
      "result": "driven"
     },
     {
@@ -9916,7 +9916,7 @@
      "expectations": [],
      "id": "g152-asite",
      "message": "set-text text_in:1",
-     "ms": 23,
+     "ms": 24,
      "result": "driven"
     },
     {
@@ -9924,7 +9924,7 @@
      "expectations": [],
      "id": "g152-alat",
      "message": "set-text text_in:2",
-     "ms": 22,
+     "ms": 24,
      "result": "driven"
     },
     {
@@ -9932,7 +9932,7 @@
      "expectations": [],
      "id": "g152-alon",
      "message": "set-text text_in:3",
-     "ms": 21,
+     "ms": 23,
      "result": "driven"
     },
     {
@@ -9940,7 +9940,7 @@
      "expectations": [],
      "id": "g152-astart",
      "message": "set-text text_in:4",
-     "ms": 21,
+     "ms": 22,
      "result": "driven"
     },
     {
@@ -9948,7 +9948,7 @@
      "expectations": [],
      "id": "g152-afw",
      "message": "set-text text_in:5",
-     "ms": 21,
+     "ms": 23,
      "result": "driven"
     },
     {
@@ -9956,7 +9956,7 @@
      "expectations": [],
      "id": "g152-mono",
      "message": "activate dial_btn:5",
-     "ms": 22,
+     "ms": 26,
      "result": "driven"
     },
     {
@@ -9970,7 +9970,7 @@
      ],
      "id": "addAc",
      "message": "activate action_btn:0",
-     "ms": 21,
+     "ms": 23,
      "result": "driven"
     },
     {
@@ -9984,7 +9984,7 @@
      ],
      "id": "log",
      "message": "opened pane p-log",
-     "ms": 85,
+     "ms": 88,
      "result": "driven"
     },
     {
@@ -10003,7 +10003,7 @@
      ],
      "id": "row",
      "message": "22 figure(s), 20 box(es), 0 list(s), 1 table(s), 22 heading(s)",
-     "ms": 6,
+     "ms": 4,
      "result": "driven"
     },
     {
@@ -10017,7 +10017,7 @@
      ],
      "id": "eco",
      "message": "22 figure(s), 20 box(es), 0 list(s), 1 table(s), 22 heading(s)",
-     "ms": 3,
+     "ms": 4,
      "result": "driven"
     },
     {
@@ -10101,7 +10101,7 @@
      ],
      "id": "g152-three",
      "message": "22 figure(s), 20 box(es), 0 list(s), 1 table(s), 22 heading(s)",
-     "ms": 3,
+     "ms": 4,
      "result": "driven"
     },
     {
@@ -10115,7 +10115,7 @@
      ],
      "id": "g152-sheet",
      "message": "22 figure(s), 20 box(es), 0 list(s), 1 table(s), 22 heading(s)",
-     "ms": 3,
+     "ms": 4,
      "result": "driven"
     },
     {
@@ -10129,7 +10129,7 @@
      ],
      "id": "g152-sheet2",
      "message": "22 figure(s), 20 box(es), 0 list(s), 1 table(s), 22 heading(s)",
-     "ms": 3,
+     "ms": 4,
      "result": "driven"
     },
     {
@@ -10143,7 +10143,7 @@
      ],
      "id": "g152-sheet3",
      "message": "22 figure(s), 20 box(es), 0 list(s), 1 table(s), 22 heading(s)",
-     "ms": 3,
+     "ms": 4,
      "result": "driven"
     },
     {
@@ -10157,7 +10157,7 @@
      ],
      "id": "g152-sheet4",
      "message": "22 figure(s), 20 box(es), 0 list(s), 1 table(s), 22 heading(s)",
-     "ms": 3,
+     "ms": 7,
      "result": "driven"
     },
     {
@@ -10165,7 +10165,7 @@
      "expectations": [],
      "id": "g152-csv",
      "message": "activate action_btn:5",
-     "ms": 22,
+     "ms": 25,
      "result": "driven"
     },
     {
@@ -10184,7 +10184,7 @@
      ],
      "id": "g152-payload",
      "message": "1 payload(s)",
-     "ms": 1,
+     "ms": 3,
      "result": "driven"
     },
     {
@@ -10213,7 +10213,97 @@
      ],
      "id": "g152-after",
      "message": "22 figure(s), 20 box(es), 0 list(s), 1 table(s), 22 heading(s)",
-     "ms": 3,
+     "ms": 5,
+     "result": "driven"
+    },
+    {
+     "action": "activate",
+     "expectations": [
+      {
+       "detail": "ok == True, got True",
+       "path": "ok",
+       "verdict": "CONFIRMED"
+      }
+     ],
+     "id": "g176-eco-copy",
+     "message": "activate action_btn:6",
+     "ms": 25,
+     "result": "driven"
+    },
+    {
+     "action": "collect-output",
+     "expectations": [
+      {
+       "detail": "output.payloads.0.k == 'copy', got 'copy'",
+       "path": "output.payloads.0.k",
+       "verdict": "CONFIRMED"
+      },
+      {
+       "detail": "output.payloads.0.text == '# Deployment log \u2014 3 deployments\\n\\n[flight] SGH-2026-08-25-a  @ R. Marek  2026-08-25 09:15\\n  settings MicaSense RedEdge, 120 m, GSD 2.10 cm/px, 85/85% overlap\\n  caveat   radiometric: panel + DLS; cloud 4 oktas; wind 5 m/s\\n\\n[logger] HOBO-03  @ 1.5 m, N side of bole  2026-06-01\\n  settings every 1 min, 90 d planned\\n  caveat   shield: gill-type multi-plate\\n\\n[recorder] AM-014  @ Sagehen, N bench  2026-06-01\\n  coords   39.4318, -120.2408\\n  settings sr 48 kHz, mono, 600 s in 600 s, 30 d, fw 1.10.0\\n  caveat   target birds; Nyquist 24.0 kHz; clock may drift up to 30 s; no SPL calibration', got '# Deployment log \u2014 3 deployments\\n\\n[flight] SGH-2026-08-25-a  @ R. Marek  2026-08-25 09:15\\n  settings MicaSense RedEdge, 120 m, GSD 2.10 cm/px, 85/85% overlap\\n  caveat   radiometric: panel + DLS; cloud 4 oktas; wind 5 m/s\\n\\n[logger] HOBO-03  @ 1.5 m, N side of bole  2026-06-01\\n  settings every 1 min, 90 d planned\\n  caveat   shield: gill-type multi-plate\\n\\n[recorder] AM-014  @ Sagehen, N bench  2026-06-01\\n  coords   39.4318, -120.2408\\n  settings sr 48 kHz, mono, 600 s in 600 s, 30 d, fw 1.10.0\\n  caveat   target birds; Nyquist 24.0 kHz; clock may drift up to 30 s; no SPL calibration'",
+       "path": "output.payloads.0.text",
+       "verdict": "CONFIRMED"
+      },
+      {
+       "detail": "output.payloads.1 exists False, got None",
+       "path": "output.payloads.1",
+       "verdict": "CONFIRMED"
+      }
+     ],
+     "id": "g176-sheet",
+     "message": "1 payload(s)",
+     "ms": 2,
+     "result": "driven"
+    },
+    {
+     "action": "activate",
+     "expectations": [
+      {
+       "detail": "ok == True, got True",
+       "path": "ok",
+       "verdict": "CONFIRMED"
+      }
+     ],
+     "id": "g176-print",
+     "message": "activate action_btn:7",
+     "ms": 23,
+     "result": "driven"
+    },
+    {
+     "action": "collect-output",
+     "expectations": [
+      {
+       "detail": "output.payloads.0.k == 'print', got 'print'",
+       "path": "output.payloads.0.k",
+       "verdict": "CONFIRMED"
+      },
+      {
+       "detail": "output.payloads.1 exists False, got None",
+       "path": "output.payloads.1",
+       "verdict": "CONFIRMED"
+      }
+     ],
+     "id": "g176-printed",
+     "message": "1 payload(s)",
+     "ms": 1,
+     "result": "driven"
+    },
+    {
+     "action": "read-report",
+     "expectations": [
+      {
+       "detail": "output.tables.logTable.3.0 == 'recorder', got 'recorder'",
+       "path": "output.tables.logTable.3.0",
+       "verdict": "CONFIRMED"
+      },
+      {
+       "detail": "output.boxes.ecoOut contains 'Nyquist 24.0 kHz', got '# Deployment log \u2014 3 deployments [flight] SGH-2026-08-25-a @ R. Marek 2026-08-25 09:15 settings MicaSense RedEdge, 120 m, GSD 2.10 cm/px, 85/85% overlap caveat radiometric: panel + DLS; cloud 4 oktas; wind 5 m/s [logger] HOBO-03 @ 1.5 m, N side of bole 2026-06-01 settings every 1 min, 90 d planned caveat shield: gill-type multi-plate [recorder] AM-014 @ Sagehen, N bench 2026-06-01 coords 39.4318, -120.2408 settings sr 48 kHz, mono, 600 s in 600 s, 30 d, fw 1.10.0 caveat target birds; Nyquist 24.0 kHz; clock may drift up to 30 s; no SPL calibration'",
+       "path": "output.boxes.ecoOut",
+       "verdict": "CONFIRMED"
+      }
+     ],
+     "id": "g176-still",
+     "message": "22 figure(s), 20 box(es), 0 list(s), 1 table(s), 22 heading(s)",
+     "ms": 4,
      "result": "driven"
     },
     {
@@ -10237,7 +10327,7 @@
      ],
      "id": "intact",
      "message": "read the page",
-     "ms": 4,
+     "ms": 6,
      "result": "driven"
     }
    ],
@@ -30573,9 +30663,9 @@
    "verdict": "PASS"
   },
   "page-soil-recipes-scaling": {
-   "at": 1788777353,
-   "confirmed": 40,
-   "goal": "On the soil recipes page, Subcool's Super Soil at 1x shows its published strings verbatim (25-50 lb castings, 3/4 cup Epsom salts, 2 tbsp humic acid) with a sourced export; at 1/4 every amount scales by the page's rules (6.3-12.5 lb, 3 tbsp, 1.5 tsp -- no half tablespoons) and at 4x (100-200 lb, 3 cups, 8 tbsp); Coot's rock dust is 12-16 cups at 4x and 12 tbsp-1 cup at 1/4 because the two ends land in different units.",
+   "at": 1788994389,
+   "confirmed": 49,
+   "goal": "On the soil recipes page, Subcool's Super Soil at 1x shows its published strings verbatim (25-50 lb castings, 3/4 cup Epsom salts, 2 tbsp humic acid) with a sourced export; at 1/4 every amount scales by the page's rules (6.3-12.5 lb, 3 tbsp, 1.5 tsp -- no half tablespoons) and at 4x (100-200 lb, 3 cups, 8 tbsp); Coot's rock dust is 12-16 cups at 4x and 12 tbsp-1 cup at 1/4 because the two ends land in different units. Then Copy the list hands over Coot's quarter batch byte for byte: the author and source, one part each of peat, compost and aeration, a cup of kelp meal scaled to 4 tbsp, half cups to 2 tbsp, the flax range to 2\u20134 tbsp, the rock dust range to 12 tbsp\u20131 cup, the cook and the warning; and the print button prints.",
    "held": true,
    "id": "page-soil-recipes-scaling",
    "must": "PASS",
@@ -30586,7 +30676,7 @@
     "MUTATE"
    ],
    "rungsWhy": null,
-   "seconds": 0.4,
+   "seconds": 0.5,
    "steps": [
     {
      "action": "observe",
@@ -30618,7 +30708,7 @@
      ],
      "id": "subcool",
      "message": "activate dial_btn:0",
-     "ms": 23,
+     "ms": 22,
      "result": "driven"
     },
     {
@@ -30632,7 +30722,7 @@
      ],
      "id": "one",
      "message": "activate dial_btn:6",
-     "ms": 19,
+     "ms": 21,
      "result": "driven"
     },
     {
@@ -30666,7 +30756,7 @@
      ],
      "id": "published",
      "message": "0 figure(s), 5 box(es), 0 list(s), 2 table(s), 9 heading(s)",
-     "ms": 5,
+     "ms": 6,
      "result": "driven"
     },
     {
@@ -30739,7 +30829,7 @@
      ],
      "id": "scaled-down",
      "message": "0 figure(s), 5 box(es), 0 list(s), 2 table(s), 9 heading(s)",
-     "ms": 5,
+     "ms": 4,
      "result": "driven"
     },
     {
@@ -30753,7 +30843,7 @@
      ],
      "id": "quad",
      "message": "activate dial_btn:8",
-     "ms": 20,
+     "ms": 21,
      "result": "driven"
     },
     {
@@ -30812,7 +30902,7 @@
      ],
      "id": "scaled-up",
      "message": "0 figure(s), 5 box(es), 0 list(s), 2 table(s), 9 heading(s)",
-     "ms": 3,
+     "ms": 4,
      "result": "driven"
     },
     {
@@ -30826,7 +30916,7 @@
      ],
      "id": "coot",
      "message": "activate dial_btn:2",
-     "ms": 19,
+     "ms": 24,
      "result": "driven"
     },
     {
@@ -30845,7 +30935,7 @@
      ],
      "id": "coot4",
      "message": "0 figure(s), 5 box(es), 0 list(s), 2 table(s), 9 heading(s)",
-     "ms": 3,
+     "ms": 4,
      "result": "driven"
     },
     {
@@ -30859,7 +30949,7 @@
      ],
      "id": "cootq",
      "message": "activate dial_btn:4",
-     "ms": 19,
+     "ms": 21,
      "result": "driven"
     },
     {
@@ -30877,6 +30967,96 @@
       }
      ],
      "id": "cootquarter",
+     "message": "0 figure(s), 5 box(es), 0 list(s), 2 table(s), 9 heading(s)",
+     "ms": 4,
+     "result": "driven"
+    },
+    {
+     "action": "activate",
+     "expectations": [
+      {
+       "detail": "ok == True, got True",
+       "path": "ok",
+       "verdict": "CONFIRMED"
+      }
+     ],
+     "id": "g176-rec-copy",
+     "message": "activate action_btn:0",
+     "ms": 21,
+     "result": "driven"
+    },
+    {
+     "action": "collect-output",
+     "expectations": [
+      {
+       "detail": "output.payloads.0.k == 'clipboard', got 'clipboard'",
+       "path": "output.payloads.0.k",
+       "verdict": "CONFIRMED"
+      },
+      {
+       "detail": "output.payloads.0.text == \"# Clackamas Coot's mix  (0.25\u00d7 batch)\\n# Clackamas Coot. The reference recipe for the no-till / living-soil side of the hobby.\\n# source: https://growingorganic.com/soil-guide/coots-soil-mix/\\n# batch: per cubic foot of finished mix\\n\\n## base\\n  1 part  sphagnum peat moss\\n  1 part  compost or worm castings\\n  1 part  aeration \u2014 pumice, lava rock or rice hulls\\n\\n## amendments\\n  4 tbsp  kelp meal\\n  2 tbsp  neem seed meal\\n  2 tbsp  karanja meal\\n  2\u20134 tbsp  flax seed meal\\n  4 tbsp  fine agricultural lime\\n  2 tbsp  gypsum\\n  12 tbsp\u20131 cup  rock dust\\n\\n## cook\\n  Four to six weeks, kept damp. Some growers then top-dress a quarter cup of freshly ground malted barley a week from week three.\\n\\n## watch out\\n  The recipe leans entirely on the compost. The sources are unanimous that poor compost sinks the whole mix, and that is the ingredient hardest to judge by eye.\\n\\n# Transcribed from the source above without adjustment. A grower recipe,\\n# not an agronomic standard: no soil test, no control, no replication.\", got \"# Clackamas Coot's mix  (0.25\u00d7 batch)\\n# Clackamas Coot. The reference recipe for the no-till / living-soil side of the hobby.\\n# source: https://growingorganic.com/soil-guide/coots-soil-mix/\\n# batch: per cubic foot of finished mix\\n\\n## base\\n  1 part  sphagnum peat moss\\n  1 part  compost or worm castings\\n  1 part  aeration \u2014 pumice, lava rock or rice hulls\\n\\n## amendments\\n  4 tbsp  kelp meal\\n  2 tbsp  neem seed meal\\n  2 tbsp  karanja meal\\n  2\u20134 tbsp  flax seed meal\\n  4 tbsp  fine agricultural lime\\n  2 tbsp  gypsum\\n  12 tbsp\u20131 cup  rock dust\\n\\n## cook\\n  Four to six weeks, kept damp. Some growers then top-dress a quarter cup of freshly ground malted barley a week from week three.\\n\\n## watch out\\n  The recipe leans entirely on the compost. The sources are unanimous that poor compost sinks the whole mix, and that is the ingredient hardest to judge by eye.\\n\\n# Transcribed from the source above without adjustment. A grower recipe,\\n# not an agronomic standard: no soil test, no control, no replication.\"",
+       "path": "output.payloads.0.text",
+       "verdict": "CONFIRMED"
+      },
+      {
+       "detail": "output.payloads.1 exists False, got None",
+       "path": "output.payloads.1",
+       "verdict": "CONFIRMED"
+      }
+     ],
+     "id": "g176-list",
+     "message": "1 payload(s)",
+     "ms": 2,
+     "result": "driven"
+    },
+    {
+     "action": "activate",
+     "expectations": [
+      {
+       "detail": "ok == True, got True",
+       "path": "ok",
+       "verdict": "CONFIRMED"
+      }
+     ],
+     "id": "g176-print",
+     "message": "activate action_btn:1",
+     "ms": 21,
+     "result": "driven"
+    },
+    {
+     "action": "collect-output",
+     "expectations": [
+      {
+       "detail": "output.payloads.0.k == 'print', got 'print'",
+       "path": "output.payloads.0.k",
+       "verdict": "CONFIRMED"
+      },
+      {
+       "detail": "output.payloads.1 exists False, got None",
+       "path": "output.payloads.1",
+       "verdict": "CONFIRMED"
+      }
+     ],
+     "id": "g176-printed",
+     "message": "1 payload(s)",
+     "ms": 2,
+     "result": "driven"
+    },
+    {
+     "action": "read-report",
+     "expectations": [
+      {
+       "detail": "output.boxes.recExport contains '4 tbsp kelp meal', got \"# Clackamas Coot's mix (0.25\u00d7 batch) # Clackamas Coot. The reference recipe for the no-till / living-soil side of the hobby. # source: https://growingorganic.com/soil-guide/coots-soil-mix/ # batch: per cubic foot of finished mix ## base 1 part sphagnum peat moss 1 part compost or worm castings 1 part aeration \u2014 pumice, lava rock or rice hulls ## amendments 4 tbsp kelp meal 2 tbsp neem seed meal 2 tbsp karanja meal 2\u20134 tbsp flax seed meal 4 tbsp fine agricultural lime 2 tbsp gypsum 12 tbsp\u20131 cup rock dust ## cook Four to six weeks, kept damp. Some growers then top-dress a quarter cup of freshly ground malted barley a week from week three. ## watch out The recipe leans entirely on the compost. The sources are unanimous that poor compost sinks the whole mix, and that is the ingredient hardest to judge by eye. # Transcribed from the source above without adjustment. A grower recipe, # not an agronomic standard: no soil test, no control, no replication.\"",
+       "path": "output.boxes.recExport",
+       "verdict": "CONFIRMED"
+      },
+      {
+       "detail": "output.boxes.recExport contains '12 tbsp\u20131 cup rock dust', got \"# Clackamas Coot's mix (0.25\u00d7 batch) # Clackamas Coot. The reference recipe for the no-till / living-soil side of the hobby. # source: https://growingorganic.com/soil-guide/coots-soil-mix/ # batch: per cubic foot of finished mix ## base 1 part sphagnum peat moss 1 part compost or worm castings 1 part aeration \u2014 pumice, lava rock or rice hulls ## amendments 4 tbsp kelp meal 2 tbsp neem seed meal 2 tbsp karanja meal 2\u20134 tbsp flax seed meal 4 tbsp fine agricultural lime 2 tbsp gypsum 12 tbsp\u20131 cup rock dust ## cook Four to six weeks, kept damp. Some growers then top-dress a quarter cup of freshly ground malted barley a week from week three. ## watch out The recipe leans entirely on the compost. The sources are unanimous that poor compost sinks the whole mix, and that is the ingredient hardest to judge by eye. # Transcribed from the source above without adjustment. A grower recipe, # not an agronomic standard: no soil test, no control, no replication.\"",
+       "path": "output.boxes.recExport#2",
+       "verdict": "CONFIRMED"
+      }
+     ],
+     "id": "g176-still",
      "message": "0 figure(s), 5 box(es), 0 list(s), 2 table(s), 9 heading(s)",
      "ms": 4,
      "result": "driven"
@@ -30902,7 +31082,7 @@
      ],
      "id": "intact",
      "message": "read the page",
-     "ms": 5,
+     "ms": 6,
      "result": "driven"
     }
    ],

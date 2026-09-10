@@ -16,7 +16,7 @@ Two things have to hold on a page whose whole value is fidelity to a source.
 
 Run:  python3 tools/verify/verify_recipes.py
 """
-import json, os, re, sys
+import io, json, os, re, sys
 from playwright.sync_api import sync_playwright
 
 ROOT = os.path.normpath(os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", ".."))
@@ -134,8 +134,75 @@ with sync_playwright() as pw:
     ck("a quarter of 2 tbsp is printed in teaspoons, not half a tablespoon",
        "tsp" in hum, hum)
 
+    # ---- the export, held to a port of the page's own scaling rules (ADR-176) ----
+    # audit_outputs found Copy the list and the print read by nothing. The task
+    # now presses both on Coot's quarter batch and holds the list byte for
+    # byte; the literal is pinned HERE from the recipe data the page carries
+    # and the rules its prose states: at 1x the published wording, scaled
+    # values in a form a person can measure (a cup below one cup in tbsp, a
+    # tablespoon below one in tsp, to one decimal), a published range keeping
+    # both ends and dropping the first unit only when both agree.
+    def round1(x):
+        v = round(x * 10) / 10.0
+        return ("%d" % v) if v == int(v) else ("%g" % v)
+    def fmt_tbsp(t):
+        return round1(t * 3) + " tsp" if t < 1 else round1(t) + " tbsp"
+    def fmt_cup(c):
+        if c <= 0: return "0"
+        tb = c * 16
+        if tb < 1: return fmt_tbsp(tb)
+        if c < 1: return round1(tb) + " tbsp"
+        return round1(c) + " cup" + ("s" if c >= 2 else "")
+    def scale_one(n, unit, m):
+        v = n * m
+        if unit == "cup": return fmt_cup(v)
+        if unit == "tbsp": return fmt_tbsp(v)
+        if unit == "lb": return round1(v) + " lb"
+        if unit == "gal": return round1(v) + " gal"
+        if unit == "bags": return round1(v) + " bag" + ("s" if v >= 2 else "")
+        if unit == "part": return "1 part"
+        if unit == "pct": return "%d%% by volume" % round(v)
+        return round1(v) + " " + unit
+    def scale_qty(it, m):
+        published, n, unit = it[0], it[2], it[3]
+        hi = it[5] if len(it) > 5 else None
+        if m == 1 and published: return published
+        if hi is not None:
+            a, b = scale_one(n, unit, m), scale_one(hi, unit, m)
+            ua = re.sub(r"s$", "", re.sub(r"^[\d.]+\s*", "", a)); ub = re.sub(r"s$", "", re.sub(r"^[\d.]+\s*", "", b))
+            return (re.sub(r"\s*[a-z]+s?$", "", a, flags=re.I) + "–" + b) if ua == ub else a + "–" + b
+        return scale_one(n, unit, m)
+    def export_of(r, m):
+        L = ["# " + r["name"] + (("  (%g× batch)" % m) if m != 1 else ""), "# " + r["who"],
+             "# source: " + r["url"], "# batch: " + r["batch"], "", "## base"]
+        L += ["  " + scale_qty(it, m) + "  " + it[1] for it in r["base"]]
+        L += ["", "## amendments"] + ["  " + scale_qty(it, m) + "  " + it[1] for it in r["items"]]
+        L += ["", "## cook", "  " + r["cook"]]
+        if r.get("warn"): L += ["", "## watch out", "  " + r["warn"]]
+        L += ["", "# Transcribed from the source above without adjustment. A grower recipe,",
+              "# not an agronomic standard: no soil test, no control, no replication."]
+        return "\n".join(L)
+    full = pg.evaluate("()=>RECIPES.map(r=>({id:r.id,name:r.name,url:r.url,who:r.who,batch:r.batch,"
+                       "cook:r.cook,warn:r.warn,items:r.items,base:r.base}))")
+    coot = next(r for r in full if r["id"] == "coot")
+    click_recipe("Coot"); click_scale("¼")
+    want_q = export_of(coot, 0.25)
+    ck("Coot's quarter batch exports exactly what the port of the page's scaling rules says",
+       pg.inner_text("#recExport") == want_q, pg.inner_text("#recExport")[:200])
+    import json as _json
+    _TASK = os.path.join(ROOT, "tools", "tasks", "page-soil-recipes-scaling.json")
+    _task = _json.load(io.open(_TASK, encoding="utf-8")) if os.path.isfile(_TASK) else {"steps": []}
+    _steps = dict((st["id"], st) for st in _task["steps"])
+    ck("the task holds the copied list to that same text, byte for byte",
+       _steps.get("g176-list", {}).get("expect", {}).get("output.payloads.0.text") == want_q
+       and _steps.get("g176-list", {}).get("expect", {}).get("output.payloads.0.k") == "clipboard", _steps.get("g176-list"))
+    ck("the task holds the print to a print, and nothing else leaving with it",
+       _steps.get("g176-printed", {}).get("expect", {}).get("output.payloads.0.k") == "print"
+       and _steps.get("g176-printed", {}).get("expect", {}).get("output.payloads.1") == {"op": "exists", "value": False},
+       _steps.get("g176-printed"))
+
     # ---- the export carries the provenance ----
-    click_scale("1×")
+    click_recipe("Subcool"); click_scale("1×")
     exp = pg.inner_text("#recExport")
     ck("the export names the author", "SubCool" in exp, exp[:60])
     ck("the export carries the source URL", "https://" in exp, exp[:120])

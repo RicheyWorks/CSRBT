@@ -2,7 +2,7 @@
  "id": "page-soil-recipes-scaling",
  "target": "page",
  "page": "soil-recipes.html",
- "goal": "On the soil recipes page, Subcool's Super Soil at 1x shows its published strings verbatim (25-50 lb castings, 3/4 cup Epsom salts, 2 tbsp humic acid) with a sourced export; at 1/4 every amount scales by the page's rules (6.3-12.5 lb, 3 tbsp, 1.5 tsp -- no half tablespoons) and at 4x (100-200 lb, 3 cups, 8 tbsp); Coot's rock dust is 12-16 cups at 4x and 12 tbsp-1 cup at 1/4 because the two ends land in different units.",
+ "goal": "On the soil recipes page, Subcool's Super Soil at 1x shows its published strings verbatim (25-50 lb castings, 3/4 cup Epsom salts, 2 tbsp humic acid) with a sourced export; at 1/4 every amount scales by the page's rules (6.3-12.5 lb, 3 tbsp, 1.5 tsp -- no half tablespoons) and at 4x (100-200 lb, 3 cups, 8 tbsp); Coot's rock dust is 12-16 cups at 4x and 12 tbsp-1 cup at 1/4 because the two ends land in different units. Then Copy the list hands over Coot's quarter batch byte for byte: the author and source, one part each of peat, compost and aeration, a cup of kelp meal scaled to 4 tbsp, half cups to 2 tbsp, the flax range to 2–4 tbsp, the rock dust range to 12 tbsp–1 cup, the cook and the warning; and the print button prints.",
  "steps": [
   {
    "id": "look",
@@ -132,6 +132,63 @@
    "expect": {
     "output.tables.recOut.10.0": "12 tbsp–1 cup",
     "output.tables.recOut.4.0": "4 tbsp"
+   }
+  },
+  {
+   "id": "g176-rec-copy",
+   "action": "activate",
+   "arguments": {
+    "selector": "@control:recCopy"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "g176-list",
+   "action": "collect-output",
+   "expect": {
+    "output.payloads.0.k": "clipboard",
+    "output.payloads.0.text": "# Clackamas Coot's mix  (0.25× batch)\n# Clackamas Coot. The reference recipe for the no-till / living-soil side of the hobby.\n# source: https://growingorganic.com/soil-guide/coots-soil-mix/\n# batch: per cubic foot of finished mix\n\n## base\n  1 part  sphagnum peat moss\n  1 part  compost or worm castings\n  1 part  aeration — pumice, lava rock or rice hulls\n\n## amendments\n  4 tbsp  kelp meal\n  2 tbsp  neem seed meal\n  2 tbsp  karanja meal\n  2–4 tbsp  flax seed meal\n  4 tbsp  fine agricultural lime\n  2 tbsp  gypsum\n  12 tbsp–1 cup  rock dust\n\n## cook\n  Four to six weeks, kept damp. Some growers then top-dress a quarter cup of freshly ground malted barley a week from week three.\n\n## watch out\n  The recipe leans entirely on the compost. The sources are unanimous that poor compost sinks the whole mix, and that is the ingredient hardest to judge by eye.\n\n# Transcribed from the source above without adjustment. A grower recipe,\n# not an agronomic standard: no soil test, no control, no replication.",
+    "output.payloads.1": {
+     "op": "exists",
+     "value": false
+    }
+   }
+  },
+  {
+   "id": "g176-print",
+   "action": "activate",
+   "arguments": {
+    "selector": "@control:Print / save PDF"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "g176-printed",
+   "action": "collect-output",
+   "expect": {
+    "output.payloads.0.k": "print",
+    "output.payloads.1": {
+     "op": "exists",
+     "value": false
+    }
+   }
+  },
+  {
+   "id": "g176-still",
+   "action": "read-report",
+   "expect": {
+    "output.boxes.recExport": {
+     "op": "contains",
+     "value": "4 tbsp kelp meal"
+    },
+    "output.boxes.recExport#2": {
+     "op": "contains",
+     "value": "12 tbsp–1 cup rock dust"
+    }
    }
   },
   {
