@@ -683,6 +683,93 @@ with sync_playwright() as p:
        and _v("quad-twelve", "output.charts.wb-quad-out.at.11") == want_q["at"][11],
        (_v("quad-twelve", "output.charts.wb-quad-out.spans"), want_q["spans"]))
 
+    # ---------- the terrarium and the theory bench, to ports (ADR-186) ----------
+    # The terrarium's numbers were held as literals since the task was written
+    # -- J' 0.73, 616 immigrations -- transcribed from the page, so a page that
+    # drifted in step with its transcription passed. The stream is mulberry32
+    # (tools/mulberry32.py, the same port the determinism shim is held to), so
+    # every tile, the reading, and every bar of both charts has an oracle now:
+    # _lab_models.meadow/island draw the stream as runMeadow/runIsland do and
+    # hand _lab_charts the rank list and the timeline. The theory bench is a
+    # model the page computes itself; the port is the model, and the chart is
+    # lineChart's arithmetic on it. Held at the page (boot state, then the task's
+    # own slider and box values) and then at the task's literals.
+    import _lab_models as LM
+    def _page_svg(host):
+        return pg.evaluate("""h=>{const s=document.querySelector('#'+h+' svg'); if(!s) return null;
+          const ih=+s.getAttribute('viewBox').split(' ')[3]-12-34;
+          return {d:[...s.querySelectorAll('path')].map(p=>p.getAttribute('d')),
+                  col:[...s.querySelectorAll('text.axis-label')].filter(t=>+t.getAttribute('x')===36).map(t=>t.textContent).reverse(),
+                  viewBox:s.getAttribute('viewBox'),
+                  marks:{circle:s.querySelectorAll('circle').length, rect:s.querySelectorAll('rect').length,
+                         path:s.querySelectorAll('path').length, line:s.querySelectorAll('line').length}};}""", host)
+    def _tiles(host):
+        return pg.evaluate("""h=>Object.fromEntries([...document.querySelectorAll('#'+h+' .tile')].map(t=>[t.querySelector('.l').textContent, t.querySelector('.v').textContent]))""", host)
+    def _text(host): return pg.evaluate("h=>(document.getElementById(h)||{}).textContent||''", host)
+    def _slide(host, v):
+        pg.evaluate("a=>{const e=document.getElementById(a[0]); e.value=a[1]; e.dispatchEvent(new Event('input',{bubbles:true}));}", [host, str(v)])
+        pg.wait_for_timeout(120)
+    def _chart_is(host, w):
+        g = _page_svg(host) or {}
+        marks = dict((a, c) for a, c in g.get("marks", {}).items() if c)
+        return (g.get("d") is not None and [_box(x) for x in g["d"]][:40] == w["spans"] and g["col"] == w["col"]
+                and marks == w["marks"] and max([len(re.findall(r"[MLHVCSQTAmlhvcsqta]", x)) for x in g["d"]] or [0]) == w["longest"]), g
+    for hot, hs, cap in ((60, 5, 12), (95, 5, 12), (60, 20, 32)):
+        _slide("c-hot", hot); _slide("c-set", hs); _slide("c-cap", cap)
+        m = LM.meadow(hot, hs); i = LM.island(cap)
+        ck("the meadow at a %d%% hot share over %d keys: the tiles and the reading are the seeded stream's, as the port draws it" % (hot, hs),
+           _tiles("t-meadow-tiles") == m["tiles"] and _text("t-meadow-read") == m["read"], (_tiles("t-meadow-tiles"), _text("t-meadow-read")))
+        ok, g = _chart_is("t-meadow-chart", LM.meadow_chart(hot, hs))
+        ck("...and its rank chart draws the forty busiest keys as bars where the port's scale puts them, under the port's ticks", ok, (g.get("col"), (g.get("d") or [])[:1]))
+        ck("the island at capacity %d: residents, immigrations, extinctions and mean residence are the stream's" % cap,
+           _tiles("t-island-tiles") == i["tiles"], _tiles("t-island-tiles"))
+        ok, g = _chart_is("t-island-chart", LM.island_chart(cap))
+        ck("...and its turnover chart draws ten intervals as bars where the port puts them", ok, (g.get("col"), (g.get("d") or [])[:1]))
+    def _theory(kind, p, hab):
+        pg.select_option("#wb-model", kind); pg.wait_for_timeout(120)
+        for k, v in zip(("wb-area", "wb-temp", "wb-wind", "wb-dist"), hab): _type(k, str(v))
+        for j, v in enumerate(p): _type("wb-mp%d" % j, str(v))
+    _HAB = (2.5, 1.4, 0.6, 3)
+    _CASES = (("logistic", LM.MODEL_PARAMS["logistic"], (1, 1, 1, 0)), ("logistic", [0.25, 120, 10, 30], _HAB),
+              ("competition", LM.MODEL_PARAMS["competition"], _HAB), ("predation", LM.MODEL_PARAMS["predation"], (1, 1, 1, 0)),
+              ("levins", LM.MODEL_PARAMS["levins"], _HAB), ("island", LM.MODEL_PARAMS["island"], _HAB),
+              ("exponential", LM.MODEL_PARAMS["exponential"], (1, 1, 1, 0)))
+    for kind, p, hab in _CASES:
+        _theory(kind, p, hab)
+        h = dict(zip(("area", "temp", "wind", "dist"), hab))
+        w = LM.theory_chart(kind, p, **h); ok, g = _chart_is("wb-theory-out", w)
+        ck("the theory bench draws %s at %s in habitat %s as the port's model: %d curve(s) of %d points in the port's boxes under its ticks" % (
+            kind, p, hab, len(w["spans"]), w["longest"]), ok, (g.get("col"), g.get("marks"), [_box(x) for x in (g.get("d") or [])], w["spans"]))
+        ck("...under the reading the port states: %s" % LM.theory_note(kind, p, **h), LM.theory_note(kind, p, **h) in _text("wb-theory-out"), _text("wb-theory-out")[:120])
+    # the task's literals, held to the same ports
+    def _held(step, host, w, n_at=1):
+        pre = "output.charts.%s." % host
+        return (_v(step, pre + "spans") == w["spans"] and _v(step, pre + "aligned.col") == w["col"] and _v(step, pre + "marks") == w["marks"]
+                and _v(step, pre + "longest") == w["longest"] and all(_v(step, pre + "at.%d" % j) == w["at"][j] for j in range(n_at)))
+    ck("the lab task holds the terrarium's charts to the port at boot (60%/5, capacity 12), at `uneven` (95%), at `even` (hot set 20) and at `island` (capacity 32)",
+       _held("boot", "t-meadow-chart", LM.meadow_chart(60, 5), 2) and _held("boot", "t-island-chart", LM.island_chart(12), 10)
+       and _held("uneven", "t-meadow-chart", LM.meadow_chart(95, 5), 2) and _held("even", "t-meadow-chart", LM.meadow_chart(60, 20), 2)
+       and _held("island", "t-island-chart", LM.island_chart(32), 10),
+       (_v("uneven", "output.charts.t-meadow-chart.aligned.col"), LM.meadow_chart(95, 5)["col"]))
+    ck("...and the terrarium's tiles and readings at those steps are the stream's numbers",
+       all(_v(s, "output.by.t-meadow-tiles.evenness J′") == LM.meadow(*a)["tiles"]["evenness J′"] and _v(s, "output.boxes.t-meadow-read") == LM.meadow(*a)["read"]
+           for s, a in (("boot", (60, 5)), ("uneven", (95, 5)), ("even", (60, 20))))
+       and _v("boot", "output.by.t-meadow-tiles.effective species") == LM.meadow(60, 5)["tiles"]["effective species"]
+       and _v("boot", "output.by.t-meadow-tiles.Chao1 est\\.") == LM.meadow(60, 5)["tiles"]["Chao1 est."]
+       and all(_v(s, "output.by.t-island-tiles.immigrations") == LM.island(c)["tiles"]["immigrations"]
+               and _v(s, "output.by.t-island-tiles.extinctions") == LM.island(c)["tiles"]["extinctions"]
+               and _v(s, "output.by.t-island-tiles.mean residence") == LM.island(c)["tiles"]["mean residence"] for s, c in (("boot", 12), ("island", 32))),
+       (_v("boot", "output.boxes.t-meadow-read"), _v("island", "output.by.t-island-tiles.mean residence")))
+    _A = dict(zip(("area", "temp", "wind", "dist"), _HAB))
+    ck("the lab task holds the theory bench's chart to the port's model at `logistic-again` (r 0.25, N0 10, 30 steps, the typed habitat), at `competition` (two curves of 81) and at `still` (the defaults, the neutral habitat the import restored)",
+       _held("logistic-again", "wb-theory-out", LM.theory_chart("logistic", [0.25, 120, 10, 30], **_A))
+       and _held("competition", "wb-theory-out", LM.theory_chart("competition", LM.MODEL_PARAMS["competition"], **_A))
+       and _held("still", "wb-theory-out", LM.theory_chart("logistic", LM.MODEL_PARAMS["logistic"]))
+       and _v("logistic-again", "output.boxes.wb-theory-out") == LM.theory_note("logistic", [0.25, 120, 10, 30], **_A) + " habitat: area 2.5 · temp 1.4 · wind 0.6 · distance 3"
+       and _v("competition", "output.boxes.wb-theory-out#2") == LM.theory_note("competition", LM.MODEL_PARAMS["competition"], **_A) + " habitat: area 2.5 · temp 1.4 · wind 0.6 · distance 3"
+       and _v("still", "output.boxes.wb-theory-out") == LM.theory_note("logistic", LM.MODEL_PARAMS["logistic"]) + " habitat: area 1 · temp 1 · wind 1 · distance 0",
+       (_v("still", "output.charts.wb-theory-out.aligned.col"), _v("still", "output.boxes.wb-theory-out")))
+
     b.close()
 
 # static link check

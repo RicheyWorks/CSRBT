@@ -37,7 +37,10 @@ with sync_playwright() as p:
     pg.on("pageerror", lambda e: errs.append(str(e)))
     def _con(m):
         if m.type!="error": return
-        if "ERR_CONNECTION" in m.text or "fonts.googleapis" in m.text: return  # offline container: webfont CDN
+        # offline container: the webfont CDN. A direct container says ERR_CONNECTION_*; one
+        # behind a proxy says ERR_TUNNEL_CONNECTION_FAILED for the same unreachable host, and
+        # Chromium's "Failed to load resource" line names neither the URL nor the host.
+        if "ERR_CONNECTION" in m.text or "ERR_TUNNEL_CONNECTION_FAILED" in m.text or "fonts.googleapis" in m.text: return
         errs.append("console."+m.type+": "+m.text)
     pg.on("console", _con)
     pg.goto(_u("collection-sheet.html"))

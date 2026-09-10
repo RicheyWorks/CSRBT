@@ -11239,9 +11239,9 @@
    "verdict": "PASS"
   },
   "page-ecology-lab-science": {
-   "at": 1789033151,
-   "confirmed": 263,
-   "goal": "Drive the interactive lab's whole workbench against independent Python ports. The seeded terrarium reads evenness J' 0.73, 29.2 effective species and Chao1 100 on the meadow and 616/604 on the island, 0.43 at a 95% hot share, 0.88 at a hot set of 20, 342/310 at capacity 32. THE TWO ENTRY PATHS AGREE: adding heron 5 through the chip adder writes 'heron 5' into the textarea and moves the figures to six species, H' 1.33, J' 0.75, Chao1 6, and typing the old list back into the textarea returns them. Two sites read Jaccard 0.5, Sorensen 0.67, Bray-Curtis 0.35 sharing 3 of 6 kinds, 0.67/0.8/0.29 once site A gains lily, and 1/1/0 when the sites are made identical. Mark-recapture M 120 C 90 R 30 is Lincoln-Petersen 360, Chapman 354, 95% CI 268-440; R = 0 leaves Lincoln-Petersen undefined and Chapman at 11,010; R above min(M, C) is refused. Quadrats 12 0 3 45 2 0 0 28 1 0 are variance/mean 26.12 and Morisita 3.51, eight equal quadrats 0 and 0.82, and one quadrat is refused. Hardy-Weinberg 298/489/213 gives p 0.543, q 0.458, chi-square 0.22, expected 294/496/209 and consistent; 400/489/213 gives 8.19 and out of equilibrium; 250/500/250 gives exactly zero. A monohybrid cross is 3 R_ : 1 rr and Mendel's 5474/1850 is chi-square 0.263 against critical 3.841; incomplete dominance makes it 1 : 2 : 1; the dihybrid is 9 : 3 : 3 : 1 and 315/108/101/32 is 0.47 against 7.815. A three-couplet key walks to butterfly or moth and keeps the trail; a key that points at itself is caught as a loop rather than walked forever. A Newick string of seven taxa is depth 5 and (A,(B,(C,D))) is four and three. A five-card drill at seed 7 deals detritivore first and at seed 0 decomposer -- zero is a seed, not a missing one. The theory bench refuses K = 0, K1 = 0 and a negative distance in the page's own words, and the habitat chip carries area 2.5, temp 1.4, wind 0.6, distance 3. The field station's rank chart is five rounded bars from 34 down to 1 under ticks 0, 9, 18, 27, 36, each bar's box where the chart's own scale puts it; the twelve quadrats draw seven bars (the five empty quadrats draw none) under ticks to 63. At boot the ten station charts under the reader's cap are held to the shipped session they chart: the meadow's two rank-abundance bar charts and its rarefaction curves, the demography station's survivorship steps and growth fit, the archipelago's occupancy steps, the fossils' inherited-fraction bars and the grid's quadrat and leaf bars -- every bar's box, every curve's extent, every tick label, from the session file and the chart's own arithmetic.",
+   "at": 1789078088,
+   "confirmed": 337,
+   "goal": "Drive the interactive lab's whole workbench against independent Python ports. The seeded terrarium reads evenness J' 0.73, 29.2 effective species and Chao1 100 on the meadow and 616/604 on the island, 0.43 at a 95% hot share, 0.88 at a hot set of 20, 342/310 at capacity 32. THE TWO ENTRY PATHS AGREE: adding heron 5 through the chip adder writes 'heron 5' into the textarea and moves the figures to six species, H' 1.33, J' 0.75, Chao1 6, and typing the old list back into the textarea returns them. Two sites read Jaccard 0.5, Sorensen 0.67, Bray-Curtis 0.35 sharing 3 of 6 kinds, 0.67/0.8/0.29 once site A gains lily, and 1/1/0 when the sites are made identical. Mark-recapture M 120 C 90 R 30 is Lincoln-Petersen 360, Chapman 354, 95% CI 268-440; R = 0 leaves Lincoln-Petersen undefined and Chapman at 11,010; R above min(M, C) is refused. Quadrats 12 0 3 45 2 0 0 28 1 0 are variance/mean 26.12 and Morisita 3.51, eight equal quadrats 0 and 0.82, and one quadrat is refused. Hardy-Weinberg 298/489/213 gives p 0.543, q 0.458, chi-square 0.22, expected 294/496/209 and consistent; 400/489/213 gives 8.19 and out of equilibrium; 250/500/250 gives exactly zero. A monohybrid cross is 3 R_ : 1 rr and Mendel's 5474/1850 is chi-square 0.263 against critical 3.841; incomplete dominance makes it 1 : 2 : 1; the dihybrid is 9 : 3 : 3 : 1 and 315/108/101/32 is 0.47 against 7.815. A three-couplet key walks to butterfly or moth and keeps the trail; a key that points at itself is caught as a loop rather than walked forever. A Newick string of seven taxa is depth 5 and (A,(B,(C,D))) is four and three. A five-card drill at seed 7 deals detritivore first and at seed 0 decomposer -- zero is a seed, not a missing one. The theory bench refuses K = 0, K1 = 0 and a negative distance in the page's own words, and the habitat chip carries area 2.5, temp 1.4, wind 0.6, distance 3. The field station's rank chart is five rounded bars from 34 down to 1 under ticks 0, 9, 18, 27, 36, each bar's box where the chart's own scale puts it; the twelve quadrats draw seven bars (the five empty quadrats draw none) under ticks to 63. At boot the ten station charts under the reader's cap are held to the shipped session they chart: the meadow's two rank-abundance bar charts and its rarefaction curves, the demography station's survivorship steps and growth fit, the archipelago's occupancy steps, the fossils' inherited-fraction bars and the grid's quadrat and leaf bars -- every bar's box, every curve's extent, every tick label, from the session file and the chart's own arithmetic. The terrarium's charts are the seeded stream drawn: forty rank bars and ten turnover bars at every slider setting the task visits, each box where the page's own scale puts it. The theory bench's curve is the model: thirty-one points of logistic growth to K 300 in the typed habitat, two curves of eighty-one under competition, and the sixty-one-point default curve once the import has restored the neutral habitat.",
    "held": true,
    "id": "page-ecology-lab-science",
    "must": "PASS",
@@ -11252,7 +11252,7 @@
     "MUTATE"
    ],
    "rungsWhy": "nothing here removes a recorded row -- the drill and the key rebuild their own output, and every box is recomputed from the fields rather than cleared",
-   "seconds": 9.8,
+   "seconds": 8.1,
    "steps": [
     {
      "action": "observe",
@@ -11585,11 +11585,131 @@
        "detail": "output.charts.station-grid #3.at.0 == [52.7, 74], got [52.7, 74]",
        "path": "output.charts.station-grid #3.at.0",
        "verdict": "CONFIRMED"
+      },
+      {
+       "detail": "output.charts.t-meadow-chart.viewBox == '0 0 480 150', got '0 0 480 150'",
+       "path": "output.charts.t-meadow-chart.viewBox",
+       "verdict": "CONFIRMED"
+      },
+      {
+       "detail": "output.charts.t-meadow-chart.marks == {'rect': 40, 'path': 40, 'line': 6}, got {'rect': 40, 'path': 40, 'line': 6}",
+       "path": "output.charts.t-meadow-chart.marks",
+       "verdict": "CONFIRMED"
+      },
+      {
+       "detail": "output.charts.t-meadow-chart.longest == 6, got 6",
+       "path": "output.charts.t-meadow-chart.longest",
+       "verdict": "CONFIRMED"
+      },
+      {
+       "detail": "output.charts.t-meadow-chart.aligned.col == ['560', '420', '280', '140', '0'], got ['560', '420', '280', '140', '0']",
+       "path": "output.charts.t-meadow-chart.aligned.col",
+       "verdict": "CONFIRMED"
+      },
+      {
+       "detail": "output.charts.t-meadow-chart.spans == [[43, 16.95, 51.7, 116], [53.7, 23.46, 62.4, 116], [64.4, 23.64, 73.1, 116], [75.1, 25.5, 83.8, 116], [85.8, 28.29, 94.5, 116], [96.5, 111.35, 105.2, 116], [107.2, 111.35, 115.9, 116], [117.9, 111.73, 126.6, 116], [128.6, 111.73, 137.3, 116], [139.3, 111.91, 148, 116], [150, 111.91, 158.7, 116], [160.7, 112.1, 169.4, 116], [171.4, 112.1, 180.1, 116], [182.1, 112.1, 190.8, 116], [192.8, 112.1, 201.5, 116], [203.5, 112.28, 212.2, 116], [214.2, 112.28, 222.9, 116], [224.9, 112.28, 233.6, 116], [235.6, 112.28, 244.3, 116], [246.3, 112.28, 255, 116], [257, 112.28, 265.7, 116], [267.7, 112.28, 276.4, 116], [278.4, 112.28, 287.1, 116], [289.1, 112.28, 297.8, 116], [299.8, 112.47, 308.5, 116], [310.5, 112.47, 319.2, 116], [321.2, 112.47, 329.9, 116], [331.9, 112.47, 340.6, 116], [342.6, 112.66, 351.3, 116], [353.3, 112.66, 362, 116], [364, 112.66, 372.7, 116], [374.7, 112.66, 383.4, 116], [385.4, 112.66, 394.1, 116], [396.1, 112.66, 404.8, 116], [406.8, 112.66, 415.5, 116], [417.5, 112.66, 426.2, 116], [428.2, 112.66, 436.9, 116], [438.9, 112.66, 447.6, 116], [449.6, 112.66, 458.3, 116], [460.3, 112.84, 469, 116]], got [[43, 16.95, 51.7, 116], [53.7, 23.46, 62.4, 116], [64.4, 23.64, 73.1, 116], [75.1, 25.5, 83.8, 116], [85.8, 28.29, 94.5, 116], [96.5, 111.35, 105.2, 116], [107.2, 111.35, 115.9, 116], [117.9, 111.73, 126.6, 116], [128.6, 111.73, 137.3, 116], [139.3, 111.91, 148, 116], [150, 111.91, 158.7, 116], [160.7, 112.1, 169.4, 116], [171.4, 112.1, 180.1, 116], [182.1, 112.1, 190.8, 116], [192.8, 112.1, 201.5, 116], [203.5, 112.28, 212.2, 116], [214.2, 112.28, 222.9, 116], [224.9, 112.28, 233.6, 116], [235.6, 112.28, 244.3, 116], [246.3, 112.28, 255, 116], [257, 112.28, 265.7, 116], [267.7, 112.28, 276.4, 116], [278.4, 112.28, 287.1, 116], [289.1, 112.28, 297.8, 116], [299.8, 112.47, 308.5, 116], [310.5, 112.47, 319.2, 116], [321.2, 112.47, 329.9, 116], [331.9, 112.47, 340.6, 116], [342.6, 112.66, 351.3, 116], [353.3, 112.66, 362, 116], [364, 112.66, 372.7, 116], [374.7, 112.66, 383.4, 116], [385.4, 112.66, 394.1, 116], [396.1, 112.66, 404.8, 116], [406.8, 112.66, 415.5, 116], [417.5, 112.66, 426.2, 116], [428.2, 112.66, 436.9, 116], [438.9, 112.66, 447.6, 116], [449.6, 112.66, 458.3, 116], [460.3, 112.84, 469, 116]]",
+       "path": "output.charts.t-meadow-chart.spans",
+       "verdict": "CONFIRMED"
+      },
+      {
+       "detail": "output.charts.t-meadow-chart.at.0 == [47.35, 64], got [47.35, 64]",
+       "path": "output.charts.t-meadow-chart.at.0",
+       "verdict": "CONFIRMED"
+      },
+      {
+       "detail": "output.charts.t-meadow-chart.at.1 == [58.05, 64], got [58.05, 64]",
+       "path": "output.charts.t-meadow-chart.at.1",
+       "verdict": "CONFIRMED"
+      },
+      {
+       "detail": "output.charts.t-island-chart.viewBox == '0 0 480 150', got '0 0 480 150'",
+       "path": "output.charts.t-island-chart.viewBox",
+       "verdict": "CONFIRMED"
+      },
+      {
+       "detail": "output.charts.t-island-chart.marks == {'rect': 10, 'path': 10, 'line': 6}, got {'rect': 10, 'path': 10, 'line': 6}",
+       "path": "output.charts.t-island-chart.marks",
+       "verdict": "CONFIRMED"
+      },
+      {
+       "detail": "output.charts.t-island-chart.longest == 6, got 6",
+       "path": "output.charts.t-island-chart.longest",
+       "verdict": "CONFIRMED"
+      },
+      {
+       "detail": "output.charts.t-island-chart.aligned.col == ['69', '52', '35', '17', '0'], got ['69', '52', '35', '17', '0']",
+       "path": "output.charts.t-island-chart.aligned.col",
+       "verdict": "CONFIRMED"
+      },
+      {
+       "detail": "output.charts.t-island-chart.spans == [[43, 28.96, 83.8, 116], [85.8, 16.95, 126.6, 116], [128.6, 19.95, 169.4, 116], [171.4, 19.95, 212.2, 116], [214.2, 16.95, 255, 116], [257, 27.46, 297.8, 116], [299.8, 25.96, 340.6, 116], [342.6, 30.46, 383.4, 116], [385.4, 31.96, 426.2, 116], [428.2, 25.96, 469, 116]], got [[43, 28.96, 83.8, 116], [85.8, 16.95, 126.6, 116], [128.6, 19.95, 169.4, 116], [171.4, 19.95, 212.2, 116], [214.2, 16.95, 255, 116], [257, 27.46, 297.8, 116], [299.8, 25.96, 340.6, 116], [342.6, 30.46, 383.4, 116], [385.4, 31.96, 426.2, 116], [428.2, 25.96, 469, 116]]",
+       "path": "output.charts.t-island-chart.spans",
+       "verdict": "CONFIRMED"
+      },
+      {
+       "detail": "output.charts.t-island-chart.at.0 == [63.4, 64], got [63.4, 64]",
+       "path": "output.charts.t-island-chart.at.0",
+       "verdict": "CONFIRMED"
+      },
+      {
+       "detail": "output.charts.t-island-chart.at.1 == [106.2, 64], got [106.2, 64]",
+       "path": "output.charts.t-island-chart.at.1",
+       "verdict": "CONFIRMED"
+      },
+      {
+       "detail": "output.charts.t-island-chart.at.2 == [149, 64], got [149, 64]",
+       "path": "output.charts.t-island-chart.at.2",
+       "verdict": "CONFIRMED"
+      },
+      {
+       "detail": "output.charts.t-island-chart.at.3 == [191.8, 64], got [191.8, 64]",
+       "path": "output.charts.t-island-chart.at.3",
+       "verdict": "CONFIRMED"
+      },
+      {
+       "detail": "output.charts.t-island-chart.at.4 == [234.6, 64], got [234.6, 64]",
+       "path": "output.charts.t-island-chart.at.4",
+       "verdict": "CONFIRMED"
+      },
+      {
+       "detail": "output.charts.t-island-chart.at.5 == [277.4, 64], got [277.4, 64]",
+       "path": "output.charts.t-island-chart.at.5",
+       "verdict": "CONFIRMED"
+      },
+      {
+       "detail": "output.charts.t-island-chart.at.6 == [320.2, 64], got [320.2, 64]",
+       "path": "output.charts.t-island-chart.at.6",
+       "verdict": "CONFIRMED"
+      },
+      {
+       "detail": "output.charts.t-island-chart.at.7 == [363, 64], got [363, 64]",
+       "path": "output.charts.t-island-chart.at.7",
+       "verdict": "CONFIRMED"
+      },
+      {
+       "detail": "output.charts.t-island-chart.at.8 == [405.8, 64], got [405.8, 64]",
+       "path": "output.charts.t-island-chart.at.8",
+       "verdict": "CONFIRMED"
+      },
+      {
+       "detail": "output.charts.t-island-chart.at.9 == [448.6, 64], got [448.6, 64]",
+       "path": "output.charts.t-island-chart.at.9",
+       "verdict": "CONFIRMED"
+      },
+      {
+       "detail": "output.boxes.t-meadow-read == 'moderately even \u2014 some keys busier than others.', got 'moderately even \u2014 some keys busier than others.'",
+       "path": "output.boxes.t-meadow-read",
+       "verdict": "CONFIRMED"
+      },
+      {
+       "detail": "output.by.t-island-tiles.mean residence == '16 ops', got '16 ops'",
+       "path": "output.by.t-island-tiles.mean residence",
+       "verdict": "CONFIRMED"
       }
      ],
      "id": "boot",
      "message": "49 figure(s), 29 box(es), 0 list(s), 6 table(s), 33 heading(s)",
-     "ms": 45,
+     "ms": 34,
      "result": "driven"
     },
     {
@@ -11603,7 +11723,7 @@
      ],
      "id": "hot95",
      "message": "set-slider slider:0",
-     "ms": 29,
+     "ms": 24,
      "result": "driven"
     },
     {
@@ -11623,11 +11743,46 @@
        "detail": "output.boxes.t-meadow-read == 'uneven \u2014 a few hot keys carry most of the traffic.', got 'uneven \u2014 a few hot keys carry most of the traffic.'",
        "path": "output.boxes.t-meadow-read",
        "verdict": "CONFIRMED"
+      },
+      {
+       "detail": "output.charts.t-meadow-chart.viewBox == '0 0 480 150', got '0 0 480 150'",
+       "path": "output.charts.t-meadow-chart.viewBox",
+       "verdict": "CONFIRMED"
+      },
+      {
+       "detail": "output.charts.t-meadow-chart.marks == {'rect': 40, 'path': 40, 'line': 6}, got {'rect': 40, 'path': 40, 'line': 6}",
+       "path": "output.charts.t-meadow-chart.marks",
+       "verdict": "CONFIRMED"
+      },
+      {
+       "detail": "output.charts.t-meadow-chart.longest == 6, got 6",
+       "path": "output.charts.t-meadow-chart.longest",
+       "verdict": "CONFIRMED"
+      },
+      {
+       "detail": "output.charts.t-meadow-chart.aligned.col == ['806', '605', '403', '202', '0'], got ['806', '605', '403', '202', '0']",
+       "path": "output.charts.t-meadow-chart.aligned.col",
+       "verdict": "CONFIRMED"
+      },
+      {
+       "detail": "output.charts.t-meadow-chart.spans == [[43, 16.95, 51.7, 116], [53.7, 17.21, 62.4, 116], [64.4, 18.24, 73.1, 116], [75.1, 18.63, 83.8, 116], [85.8, 19.02, 94.5, 116], [96.5, 115.1, 105.2, 116], [107.2, 115.23, 115.9, 116], [117.9, 115.23, 126.6, 116], [128.6, 115.36, 137.3, 116], [139.3, 115.36, 148, 116], [150, 115.36, 158.7, 116], [160.7, 115.36, 169.4, 116], [171.4, 115.48, 180.1, 116], [182.1, 115.48, 190.8, 116], [192.8, 115.48, 201.5, 116], [203.5, 115.48, 212.2, 116], [214.2, 115.48, 222.9, 116], [224.9, 115.48, 233.6, 116], [235.6, 115.48, 244.3, 116], [246.3, 115.48, 255, 116], [257, 115.48, 265.7, 116], [267.7, 115.48, 276.4, 116], [278.4, 115.61, 287.1, 116], [289.1, 115.61, 297.8, 116], [299.8, 115.61, 308.5, 116], [310.5, 115.61, 319.2, 116], [321.2, 115.61, 329.9, 116], [331.9, 115.61, 340.6, 116], [342.6, 115.61, 351.3, 116], [353.3, 115.61, 362, 116], [364, 115.61, 372.7, 116], [374.7, 115.61, 383.4, 116], [385.4, 115.61, 394.1, 116], [396.1, 115.61, 404.8, 116], [406.8, 115.61, 415.5, 116], [417.5, 115.61, 426.2, 116], [428.2, 115.61, 436.9, 116], [438.9, 115.74, 447.6, 116], [449.6, 115.74, 458.3, 116], [460.3, 115.74, 469, 116]], got [[43, 16.95, 51.7, 116], [53.7, 17.21, 62.4, 116], [64.4, 18.24, 73.1, 116], [75.1, 18.63, 83.8, 116], [85.8, 19.02, 94.5, 116], [96.5, 115.1, 105.2, 116], [107.2, 115.23, 115.9, 116], [117.9, 115.23, 126.6, 116], [128.6, 115.36, 137.3, 116], [139.3, 115.36, 148, 116], [150, 115.36, 158.7, 116], [160.7, 115.36, 169.4, 116], [171.4, 115.48, 180.1, 116], [182.1, 115.48, 190.8, 116], [192.8, 115.48, 201.5, 116], [203.5, 115.48, 212.2, 116], [214.2, 115.48, 222.9, 116], [224.9, 115.48, 233.6, 116], [235.6, 115.48, 244.3, 116], [246.3, 115.48, 255, 116], [257, 115.48, 265.7, 116], [267.7, 115.48, 276.4, 116], [278.4, 115.61, 287.1, 116], [289.1, 115.61, 297.8, 116], [299.8, 115.61, 308.5, 116], [310.5, 115.61, 319.2, 116], [321.2, 115.61, 329.9, 116], [331.9, 115.61, 340.6, 116], [342.6, 115.61, 351.3, 116], [353.3, 115.61, 362, 116], [364, 115.61, 372.7, 116], [374.7, 115.61, 383.4, 116], [385.4, 115.61, 394.1, 116], [396.1, 115.61, 404.8, 116], [406.8, 115.61, 415.5, 116], [417.5, 115.61, 426.2, 116], [428.2, 115.61, 436.9, 116], [438.9, 115.74, 447.6, 116], [449.6, 115.74, 458.3, 116], [460.3, 115.74, 469, 116]]",
+       "path": "output.charts.t-meadow-chart.spans",
+       "verdict": "CONFIRMED"
+      },
+      {
+       "detail": "output.charts.t-meadow-chart.at.0 == [47.35, 64], got [47.35, 64]",
+       "path": "output.charts.t-meadow-chart.at.0",
+       "verdict": "CONFIRMED"
+      },
+      {
+       "detail": "output.charts.t-meadow-chart.at.1 == [58.05, 64], got [58.05, 64]",
+       "path": "output.charts.t-meadow-chart.at.1",
+       "verdict": "CONFIRMED"
       }
      ],
      "id": "uneven",
      "message": "49 figure(s), 29 box(es), 0 list(s), 6 table(s), 33 heading(s)",
-     "ms": 40,
+     "ms": 31,
      "result": "driven"
     },
     {
@@ -11641,7 +11796,7 @@
      ],
      "id": "hot60",
      "message": "set-slider slider:0",
-     "ms": 26,
+     "ms": 23,
      "result": "driven"
     },
     {
@@ -11655,7 +11810,7 @@
      ],
      "id": "set20",
      "message": "set-slider slider:1",
-     "ms": 22,
+     "ms": 27,
      "result": "driven"
     },
     {
@@ -11675,11 +11830,46 @@
        "detail": "output.boxes.t-meadow-read == 'very even \u2014 no key dominates.', got 'very even \u2014 no key dominates.'",
        "path": "output.boxes.t-meadow-read",
        "verdict": "CONFIRMED"
+      },
+      {
+       "detail": "output.charts.t-meadow-chart.viewBox == '0 0 480 150', got '0 0 480 150'",
+       "path": "output.charts.t-meadow-chart.viewBox",
+       "verdict": "CONFIRMED"
+      },
+      {
+       "detail": "output.charts.t-meadow-chart.marks == {'rect': 40, 'path': 40, 'line': 6}, got {'rect': 40, 'path': 40, 'line': 6}",
+       "path": "output.charts.t-meadow-chart.marks",
+       "verdict": "CONFIRMED"
+      },
+      {
+       "detail": "output.charts.t-meadow-chart.longest == 6, got 6",
+       "path": "output.charts.t-meadow-chart.longest",
+       "verdict": "CONFIRMED"
+      },
+      {
+       "detail": "output.charts.t-meadow-chart.aligned.col == ['154', '116', '77', '39', '0'], got ['154', '116', '77', '39', '0']",
+       "path": "output.charts.t-meadow-chart.aligned.col",
+       "verdict": "CONFIRMED"
+      },
+      {
+       "detail": "output.charts.t-meadow-chart.spans == [[43, 16.95, 51.7, 116], [53.7, 16.95, 62.4, 116], [64.4, 16.95, 73.1, 116], [75.1, 16.95, 83.8, 116], [85.8, 22.34, 94.5, 116], [96.5, 22.34, 105.2, 116], [107.2, 23.69, 115.9, 116], [117.9, 23.69, 126.6, 116], [128.6, 23.69, 137.3, 116], [139.3, 23.69, 148, 116], [150, 24.36, 158.7, 116], [160.7, 25.04, 169.4, 116], [171.4, 25.04, 180.1, 116], [182.1, 25.71, 190.8, 116], [192.8, 27.06, 201.5, 116], [203.5, 27.06, 212.2, 116], [214.2, 27.73, 222.9, 116], [224.9, 30.43, 233.6, 116], [235.6, 31.1, 244.3, 116], [246.3, 34.47, 255, 116], [257, 99.16, 265.7, 116], [267.7, 99.16, 276.4, 116], [278.4, 100.5, 287.1, 116], [289.1, 101.18, 297.8, 116], [299.8, 101.18, 308.5, 116], [310.5, 101.85, 319.2, 116], [321.2, 101.85, 329.9, 116], [331.9, 101.85, 340.6, 116], [342.6, 102.52, 351.3, 116], [353.3, 102.52, 362, 116], [364, 102.52, 372.7, 116], [374.7, 102.52, 383.4, 116], [385.4, 102.52, 394.1, 116], [396.1, 102.52, 404.8, 116], [406.8, 102.52, 415.5, 116], [417.5, 102.52, 426.2, 116], [428.2, 103.2, 436.9, 116], [438.9, 103.2, 447.6, 116], [449.6, 103.2, 458.3, 116], [460.3, 103.87, 469, 116]], got [[43, 16.95, 51.7, 116], [53.7, 16.95, 62.4, 116], [64.4, 16.95, 73.1, 116], [75.1, 16.95, 83.8, 116], [85.8, 22.34, 94.5, 116], [96.5, 22.34, 105.2, 116], [107.2, 23.69, 115.9, 116], [117.9, 23.69, 126.6, 116], [128.6, 23.69, 137.3, 116], [139.3, 23.69, 148, 116], [150, 24.36, 158.7, 116], [160.7, 25.04, 169.4, 116], [171.4, 25.04, 180.1, 116], [182.1, 25.71, 190.8, 116], [192.8, 27.06, 201.5, 116], [203.5, 27.06, 212.2, 116], [214.2, 27.73, 222.9, 116], [224.9, 30.43, 233.6, 116], [235.6, 31.1, 244.3, 116], [246.3, 34.47, 255, 116], [257, 99.16, 265.7, 116], [267.7, 99.16, 276.4, 116], [278.4, 100.5, 287.1, 116], [289.1, 101.18, 297.8, 116], [299.8, 101.18, 308.5, 116], [310.5, 101.85, 319.2, 116], [321.2, 101.85, 329.9, 116], [331.9, 101.85, 340.6, 116], [342.6, 102.52, 351.3, 116], [353.3, 102.52, 362, 116], [364, 102.52, 372.7, 116], [374.7, 102.52, 383.4, 116], [385.4, 102.52, 394.1, 116], [396.1, 102.52, 404.8, 116], [406.8, 102.52, 415.5, 116], [417.5, 102.52, 426.2, 116], [428.2, 103.2, 436.9, 116], [438.9, 103.2, 447.6, 116], [449.6, 103.2, 458.3, 116], [460.3, 103.87, 469, 116]]",
+       "path": "output.charts.t-meadow-chart.spans",
+       "verdict": "CONFIRMED"
+      },
+      {
+       "detail": "output.charts.t-meadow-chart.at.0 == [47.35, 64], got [47.35, 64]",
+       "path": "output.charts.t-meadow-chart.at.0",
+       "verdict": "CONFIRMED"
+      },
+      {
+       "detail": "output.charts.t-meadow-chart.at.1 == [58.05, 64], got [58.05, 64]",
+       "path": "output.charts.t-meadow-chart.at.1",
+       "verdict": "CONFIRMED"
       }
      ],
      "id": "even",
      "message": "49 figure(s), 29 box(es), 0 list(s), 6 table(s), 33 heading(s)",
-     "ms": 31,
+     "ms": 26,
      "result": "driven"
     },
     {
@@ -11693,7 +11883,7 @@
      ],
      "id": "cap32",
      "message": "set-slider slider:2",
-     "ms": 24,
+     "ms": 21,
      "result": "driven"
     },
     {
@@ -11718,11 +11908,91 @@
        "detail": "output.by.t-island-tiles.residents / capacity == '32/32', got '32/32'",
        "path": "output.by.t-island-tiles.residents / capacity",
        "verdict": "CONFIRMED"
+      },
+      {
+       "detail": "output.charts.t-island-chart.viewBox == '0 0 480 150', got '0 0 480 150'",
+       "path": "output.charts.t-island-chart.viewBox",
+       "verdict": "CONFIRMED"
+      },
+      {
+       "detail": "output.charts.t-island-chart.marks == {'rect': 10, 'path': 10, 'line': 6}, got {'rect': 10, 'path': 10, 'line': 6}",
+       "path": "output.charts.t-island-chart.marks",
+       "verdict": "CONFIRMED"
+      },
+      {
+       "detail": "output.charts.t-island-chart.longest == 6, got 6",
+       "path": "output.charts.t-island-chart.longest",
+       "verdict": "CONFIRMED"
+      },
+      {
+       "detail": "output.charts.t-island-chart.aligned.col == ['40', '30', '20', '10', '0'], got ['40', '30', '20', '10', '0']",
+       "path": "output.charts.t-island-chart.aligned.col",
+       "verdict": "CONFIRMED"
+      },
+      {
+       "detail": "output.charts.t-island-chart.spans == [[43, 27.38, 83.8, 116], [85.8, 35.2, 126.6, 116], [128.6, 16.95, 169.4, 116], [171.4, 16.95, 212.2, 116], [214.2, 16.95, 255, 116], [257, 24.77, 297.8, 116], [299.8, 35.2, 340.6, 116], [342.6, 48.23, 383.4, 116], [385.4, 43.02, 426.2, 116], [428.2, 45.62, 469, 116]], got [[43, 27.38, 83.8, 116], [85.8, 35.2, 126.6, 116], [128.6, 16.95, 169.4, 116], [171.4, 16.95, 212.2, 116], [214.2, 16.95, 255, 116], [257, 24.77, 297.8, 116], [299.8, 35.2, 340.6, 116], [342.6, 48.23, 383.4, 116], [385.4, 43.02, 426.2, 116], [428.2, 45.62, 469, 116]]",
+       "path": "output.charts.t-island-chart.spans",
+       "verdict": "CONFIRMED"
+      },
+      {
+       "detail": "output.charts.t-island-chart.at.0 == [63.4, 64], got [63.4, 64]",
+       "path": "output.charts.t-island-chart.at.0",
+       "verdict": "CONFIRMED"
+      },
+      {
+       "detail": "output.charts.t-island-chart.at.1 == [106.2, 64], got [106.2, 64]",
+       "path": "output.charts.t-island-chart.at.1",
+       "verdict": "CONFIRMED"
+      },
+      {
+       "detail": "output.charts.t-island-chart.at.2 == [149, 64], got [149, 64]",
+       "path": "output.charts.t-island-chart.at.2",
+       "verdict": "CONFIRMED"
+      },
+      {
+       "detail": "output.charts.t-island-chart.at.3 == [191.8, 64], got [191.8, 64]",
+       "path": "output.charts.t-island-chart.at.3",
+       "verdict": "CONFIRMED"
+      },
+      {
+       "detail": "output.charts.t-island-chart.at.4 == [234.6, 64], got [234.6, 64]",
+       "path": "output.charts.t-island-chart.at.4",
+       "verdict": "CONFIRMED"
+      },
+      {
+       "detail": "output.charts.t-island-chart.at.5 == [277.4, 64], got [277.4, 64]",
+       "path": "output.charts.t-island-chart.at.5",
+       "verdict": "CONFIRMED"
+      },
+      {
+       "detail": "output.charts.t-island-chart.at.6 == [320.2, 64], got [320.2, 64]",
+       "path": "output.charts.t-island-chart.at.6",
+       "verdict": "CONFIRMED"
+      },
+      {
+       "detail": "output.charts.t-island-chart.at.7 == [363, 64], got [363, 64]",
+       "path": "output.charts.t-island-chart.at.7",
+       "verdict": "CONFIRMED"
+      },
+      {
+       "detail": "output.charts.t-island-chart.at.8 == [405.8, 64], got [405.8, 64]",
+       "path": "output.charts.t-island-chart.at.8",
+       "verdict": "CONFIRMED"
+      },
+      {
+       "detail": "output.charts.t-island-chart.at.9 == [448.6, 64], got [448.6, 64]",
+       "path": "output.charts.t-island-chart.at.9",
+       "verdict": "CONFIRMED"
+      },
+      {
+       "detail": "output.by.t-island-tiles.mean residence == '72 ops', got '72 ops'",
+       "path": "output.by.t-island-tiles.mean residence",
+       "verdict": "CONFIRMED"
       }
      ],
      "id": "island",
      "message": "49 figure(s), 29 box(es), 0 list(s), 6 table(s), 33 heading(s)",
-     "ms": 28,
+     "ms": 31,
      "result": "driven"
     },
     {
@@ -11756,7 +12026,7 @@
      ],
      "id": "field-defaults",
      "message": "49 figure(s), 29 box(es), 0 list(s), 6 table(s), 33 heading(s)",
-     "ms": 27,
+     "ms": 22,
      "result": "driven"
     },
     {
@@ -11770,7 +12040,7 @@
      ],
      "id": "chip-name",
      "message": "set-text text_in:0",
-     "ms": 22,
+     "ms": 19,
      "result": "driven"
     },
     {
@@ -11798,7 +12068,7 @@
      ],
      "id": "chip-add",
      "message": "activate action_btn:15",
-     "ms": 24,
+     "ms": 22,
      "result": "driven"
     },
     {
@@ -11832,7 +12102,7 @@
      ],
      "id": "field-six",
      "message": "49 figure(s), 29 box(es), 0 list(s), 6 table(s), 33 heading(s)",
-     "ms": 30,
+     "ms": 23,
      "result": "driven"
     },
     {
@@ -11865,7 +12135,7 @@
      ],
      "id": "field-text",
      "message": "set-text text_in:2",
-     "ms": 22,
+     "ms": 25,
      "result": "driven"
     },
     {
@@ -11914,7 +12184,7 @@
      ],
      "id": "field-back",
      "message": "49 figure(s), 29 box(es), 0 list(s), 6 table(s), 33 heading(s)",
-     "ms": 29,
+     "ms": 19,
      "result": "driven"
     },
     {
@@ -11943,7 +12213,7 @@
      ],
      "id": "sites-defaults",
      "message": "49 figure(s), 29 box(es), 0 list(s), 6 table(s), 33 heading(s)",
-     "ms": 25,
+     "ms": 18,
      "result": "driven"
     },
     {
@@ -11957,7 +12227,7 @@
      ],
      "id": "lily-name",
      "message": "set-text text_in:3",
-     "ms": 21,
+     "ms": 20,
      "result": "driven"
     },
     {
@@ -12014,7 +12284,7 @@
      ],
      "id": "sites-lily",
      "message": "49 figure(s), 29 box(es), 0 list(s), 6 table(s), 33 heading(s)",
-     "ms": 55,
+     "ms": 47,
      "result": "driven"
     },
     {
@@ -12028,7 +12298,7 @@
      ],
      "id": "site-b-same",
      "message": "set-text text_in:8",
-     "ms": 20,
+     "ms": 21,
      "result": "driven"
     },
     {
@@ -12057,7 +12327,7 @@
      ],
      "id": "sites-identical",
      "message": "49 figure(s), 29 box(es), 0 list(s), 6 table(s), 33 heading(s)",
-     "ms": 26,
+     "ms": 22,
      "result": "driven"
     },
     {
@@ -12071,7 +12341,7 @@
      ],
      "id": "site-a-text",
      "message": "set-text text_in:5",
-     "ms": 22,
+     "ms": 21,
      "result": "driven"
     },
     {
@@ -12100,7 +12370,7 @@
      ],
      "id": "sites-trimmed",
      "message": "49 figure(s), 29 box(es), 0 list(s), 6 table(s), 33 heading(s)",
-     "ms": 28,
+     "ms": 24,
      "result": "driven"
     },
     {
@@ -12114,7 +12384,7 @@
      ],
      "id": "moss-name",
      "message": "set-text text_in:6",
-     "ms": 20,
+     "ms": 19,
      "result": "driven"
     },
     {
@@ -12171,7 +12441,7 @@
      ],
      "id": "sites-moss",
      "message": "49 figure(s), 29 box(es), 0 list(s), 6 table(s), 33 heading(s)",
-     "ms": 27,
+     "ms": 29,
      "result": "driven"
     },
     {
@@ -12195,7 +12465,7 @@
      ],
      "id": "mr-defaults",
      "message": "49 figure(s), 29 box(es), 0 list(s), 6 table(s), 33 heading(s)",
-     "ms": 33,
+     "ms": 27,
      "result": "driven"
     },
     {
@@ -12209,7 +12479,7 @@
      ],
      "id": "mr-r0",
      "message": "set-text text_in:11",
-     "ms": 23,
+     "ms": 21,
      "result": "driven"
     },
     {
@@ -12228,7 +12498,7 @@
      ],
      "id": "mr-zero",
      "message": "48 figure(s), 29 box(es), 0 list(s), 6 table(s), 33 heading(s)",
-     "ms": 28,
+     "ms": 22,
      "result": "driven"
     },
     {
@@ -12242,7 +12512,7 @@
      ],
      "id": "mr-m",
      "message": "set-text text_in:9",
-     "ms": 21,
+     "ms": 22,
      "result": "driven"
     },
     {
@@ -12256,7 +12526,7 @@
      ],
      "id": "mr-c",
      "message": "set-text text_in:10",
-     "ms": 22,
+     "ms": 21,
      "result": "driven"
     },
     {
@@ -12270,7 +12540,7 @@
      ],
      "id": "mr-r",
      "message": "set-text text_in:11",
-     "ms": 21,
+     "ms": 20,
      "result": "driven"
     },
     {
@@ -12294,7 +12564,7 @@
      ],
      "id": "mr-again",
      "message": "49 figure(s), 29 box(es), 0 list(s), 6 table(s), 33 heading(s)",
-     "ms": 28,
+     "ms": 23,
      "result": "driven"
     },
     {
@@ -12308,7 +12578,7 @@
      ],
      "id": "mr-bad",
      "message": "set-text text_in:11",
-     "ms": 21,
+     "ms": 20,
      "result": "driven"
     },
     {
@@ -12355,7 +12625,7 @@
      ],
      "id": "quad-defaults",
      "message": "49 figure(s), 29 box(es), 0 list(s), 6 table(s), 33 heading(s)",
-     "ms": 28,
+     "ms": 27,
      "result": "driven"
     },
     {
@@ -12369,7 +12639,7 @@
      ],
      "id": "quad-even",
      "message": "set-text text_in:12",
-     "ms": 21,
+     "ms": 24,
      "result": "driven"
     },
     {
@@ -12388,7 +12658,7 @@
      ],
      "id": "quad-uniform",
      "message": "49 figure(s), 29 box(es), 0 list(s), 6 table(s), 33 heading(s)",
-     "ms": 25,
+     "ms": 18,
      "result": "driven"
     },
     {
@@ -12402,7 +12672,7 @@
      ],
      "id": "quad-more",
      "message": "set-text text_in:12",
-     "ms": 23,
+     "ms": 20,
      "result": "driven"
     },
     {
@@ -12441,7 +12711,7 @@
      ],
      "id": "quad-twelve",
      "message": "49 figure(s), 29 box(es), 0 list(s), 6 table(s), 33 heading(s)",
-     "ms": 26,
+     "ms": 20,
      "result": "driven"
     },
     {
@@ -12455,7 +12725,7 @@
      ],
      "id": "quad-one",
      "message": "set-text text_in:12",
-     "ms": 23,
+     "ms": 20,
      "result": "driven"
     },
     {
@@ -12469,7 +12739,7 @@
      ],
      "id": "quad-refused",
      "message": "47 figure(s), 29 box(es), 0 list(s), 6 table(s), 33 heading(s)",
-     "ms": 28,
+     "ms": 22,
      "result": "driven"
     },
     {
@@ -12517,7 +12787,7 @@
      ],
      "id": "hw-defaults",
      "message": "49 figure(s), 29 box(es), 0 list(s), 6 table(s), 33 heading(s)",
-     "ms": 29,
+     "ms": 20,
      "result": "driven"
     },
     {
@@ -12531,7 +12801,7 @@
      ],
      "id": "hw-aa",
      "message": "set-text text_in:13",
-     "ms": 20,
+     "ms": 23,
      "result": "driven"
     },
     {
@@ -12555,7 +12825,7 @@
      ],
      "id": "hw-out",
      "message": "49 figure(s), 29 box(es), 0 list(s), 6 table(s), 33 heading(s)",
-     "ms": 50,
+     "ms": 42,
      "result": "driven"
     },
     {
@@ -12569,7 +12839,7 @@
      ],
      "id": "hw-a",
      "message": "set-text text_in:13",
-     "ms": 20,
+     "ms": 22,
      "result": "driven"
     },
     {
@@ -12597,7 +12867,7 @@
      ],
      "id": "hw-b",
      "message": "set-text text_in:15",
-     "ms": 21,
+     "ms": 20,
      "result": "driven"
     },
     {
@@ -12621,7 +12891,7 @@
      ],
      "id": "hw-perfect",
      "message": "49 figure(s), 29 box(es), 0 list(s), 6 table(s), 33 heading(s)",
-     "ms": 26,
+     "ms": 21,
      "result": "driven"
     },
     {
@@ -12650,7 +12920,7 @@
      ],
      "id": "punnett-defaults",
      "message": "49 figure(s), 29 box(es), 0 list(s), 6 table(s), 33 heading(s)",
-     "ms": 26,
+     "ms": 20,
      "result": "driven"
     },
     {
@@ -12664,7 +12934,7 @@
      ],
      "id": "inc-on",
      "message": "set-checkbox checkbox:0",
-     "ms": 21,
+     "ms": 20,
      "result": "driven"
     },
     {
@@ -12678,7 +12948,7 @@
      ],
      "id": "incomplete",
      "message": "49 figure(s), 29 box(es), 0 list(s), 6 table(s), 33 heading(s)",
-     "ms": 31,
+     "ms": 20,
      "result": "driven"
     },
     {
@@ -12706,7 +12976,7 @@
      ],
      "id": "dihybrid",
      "message": "choose-option select:0",
-     "ms": 21,
+     "ms": 20,
      "result": "driven"
     },
     {
@@ -12735,7 +13005,7 @@
      ],
      "id": "nine",
      "message": "49 figure(s), 29 box(es), 0 list(s), 6 table(s), 33 heading(s)",
-     "ms": 26,
+     "ms": 22,
      "result": "driven"
     },
     {
@@ -12763,7 +13033,7 @@
      ],
      "id": "p2",
      "message": "set-text text_in:17",
-     "ms": 20,
+     "ms": 19,
      "result": "driven"
     },
     {
@@ -12777,7 +13047,7 @@
      ],
      "id": "obs2",
      "message": "set-text text_in:18",
-     "ms": 19,
+     "ms": 21,
      "result": "driven"
     },
     {
@@ -12791,7 +13061,7 @@
      ],
      "id": "testcross",
      "message": "49 figure(s), 29 box(es), 0 list(s), 6 table(s), 33 heading(s)",
-     "ms": 28,
+     "ms": 20,
      "result": "driven"
     },
     {
@@ -12805,7 +13075,7 @@
      ],
      "id": "key-in",
      "message": "set-text text_in:19",
-     "ms": 25,
+     "ms": 23,
      "result": "driven"
     },
     {
@@ -12819,7 +13089,7 @@
      ],
      "id": "key-start",
      "message": "49 figure(s), 29 box(es), 0 list(s), 6 table(s), 33 heading(s)",
-     "ms": 25,
+     "ms": 20,
      "result": "driven"
     },
     {
@@ -12847,7 +13117,7 @@
      ],
      "id": "key-two",
      "message": "49 figure(s), 29 box(es), 0 list(s), 6 table(s), 33 heading(s)",
-     "ms": 56,
+     "ms": 48,
      "result": "driven"
     },
     {
@@ -12861,7 +13131,7 @@
      ],
      "id": "key-no",
      "message": "activate action_btn:83",
-     "ms": 21,
+     "ms": 23,
      "result": "driven"
     },
     {
@@ -12875,7 +13145,7 @@
      ],
      "id": "key-three",
      "message": "49 figure(s), 29 box(es), 0 list(s), 6 table(s), 33 heading(s)",
-     "ms": 28,
+     "ms": 21,
      "result": "driven"
     },
     {
@@ -12908,7 +13178,7 @@
      ],
      "id": "key-id",
      "message": "49 figure(s), 29 box(es), 0 list(s), 6 table(s), 33 heading(s)",
-     "ms": 26,
+     "ms": 22,
      "result": "driven"
     },
     {
@@ -12922,7 +13192,7 @@
      ],
      "id": "key-loop",
      "message": "set-text text_in:19",
-     "ms": 24,
+     "ms": 22,
      "result": "driven"
     },
     {
@@ -12936,7 +13206,7 @@
      ],
      "id": "key-loop-yes",
      "message": "activate action_btn:82",
-     "ms": 28,
+     "ms": 21,
      "result": "driven"
     },
     {
@@ -12950,7 +13220,7 @@
      ],
      "id": "key-loops",
      "message": "49 figure(s), 29 box(es), 0 list(s), 6 table(s), 33 heading(s)",
-     "ms": 34,
+     "ms": 21,
      "result": "driven"
     },
     {
@@ -12964,7 +13234,7 @@
      ],
      "id": "key-bad",
      "message": "set-text text_in:19",
-     "ms": 23,
+     "ms": 20,
      "result": "driven"
     },
     {
@@ -12978,7 +13248,7 @@
      ],
      "id": "key-shape",
      "message": "49 figure(s), 29 box(es), 0 list(s), 6 table(s), 33 heading(s)",
-     "ms": 26,
+     "ms": 21,
      "result": "driven"
     },
     {
@@ -12997,7 +13267,7 @@
      ],
      "id": "tree-defaults",
      "message": "49 figure(s), 29 box(es), 0 list(s), 6 table(s), 33 heading(s)",
-     "ms": 26,
+     "ms": 21,
      "result": "driven"
     },
     {
@@ -13011,7 +13281,7 @@
      ],
      "id": "tree-in",
      "message": "set-text text_in:20",
-     "ms": 22,
+     "ms": 21,
      "result": "driven"
     },
     {
@@ -13030,7 +13300,7 @@
      ],
      "id": "tree-small",
      "message": "49 figure(s), 29 box(es), 0 list(s), 6 table(s), 33 heading(s)",
-     "ms": 29,
+     "ms": 19,
      "result": "driven"
     },
     {
@@ -13044,7 +13314,7 @@
      ],
      "id": "tree-bad",
      "message": "set-text text_in:20",
-     "ms": 23,
+     "ms": 22,
      "result": "driven"
     },
     {
@@ -13058,7 +13328,7 @@
      ],
      "id": "tree-refused",
      "message": "47 figure(s), 29 box(es), 0 list(s), 6 table(s), 33 heading(s)",
-     "ms": 34,
+     "ms": 27,
      "result": "driven"
     },
     {
@@ -13072,7 +13342,7 @@
      ],
      "id": "tree-back",
      "message": "set-text text_in:20",
-     "ms": 22,
+     "ms": 21,
      "result": "driven"
     },
     {
@@ -13100,7 +13370,7 @@
      ],
      "id": "deck-seed",
      "message": "set-text text_in:21",
-     "ms": 21,
+     "ms": 19,
      "result": "driven"
     },
     {
@@ -13128,7 +13398,7 @@
      ],
      "id": "deck-first",
      "message": "49 figure(s), 29 box(es), 0 list(s), 6 table(s), 33 heading(s)",
-     "ms": 31,
+     "ms": 23,
      "result": "driven"
     },
     {
@@ -13170,7 +13440,7 @@
      ],
      "id": "deck-flipped",
      "message": "49 figure(s), 29 box(es), 0 list(s), 6 table(s), 33 heading(s)",
-     "ms": 31,
+     "ms": 19,
      "result": "driven"
     },
     {
@@ -13184,7 +13454,7 @@
      ],
      "id": "deck-unflip",
      "message": "set-checkbox checkbox:1",
-     "ms": 21,
+     "ms": 20,
      "result": "driven"
     },
     {
@@ -13198,7 +13468,7 @@
      ],
      "id": "deck-seed0",
      "message": "set-text text_in:21",
-     "ms": 19,
+     "ms": 20,
      "result": "driven"
     },
     {
@@ -13212,7 +13482,7 @@
      ],
      "id": "deck-zero",
      "message": "activate action_btn:82",
-     "ms": 22,
+     "ms": 19,
      "result": "driven"
     },
     {
@@ -13226,7 +13496,7 @@
      ],
      "id": "deck-zero-out",
      "message": "49 figure(s), 29 box(es), 0 list(s), 6 table(s), 33 heading(s)",
-     "ms": 32,
+     "ms": 20,
      "result": "driven"
     },
     {
@@ -13240,7 +13510,7 @@
      ],
      "id": "deck-empty",
      "message": "set-text text_in:22",
-     "ms": 21,
+     "ms": 20,
      "result": "driven"
     },
     {
@@ -13254,7 +13524,7 @@
      ],
      "id": "deck-none",
      "message": "activate action_btn:82",
-     "ms": 21,
+     "ms": 22,
      "result": "driven"
     },
     {
@@ -13268,7 +13538,7 @@
      ],
      "id": "deck-refused",
      "message": "49 figure(s), 29 box(es), 0 list(s), 6 table(s), 33 heading(s)",
-     "ms": 26,
+     "ms": 21,
      "result": "driven"
     },
     {
@@ -13296,7 +13566,7 @@
      ],
      "id": "area",
      "message": "set-text text_in:27",
-     "ms": 25,
+     "ms": 21,
      "result": "driven"
     },
     {
@@ -13310,7 +13580,7 @@
      ],
      "id": "temp",
      "message": "set-text text_in:28",
-     "ms": 22,
+     "ms": 20,
      "result": "driven"
     },
     {
@@ -13324,7 +13594,7 @@
      ],
      "id": "wind",
      "message": "set-text text_in:29",
-     "ms": 20,
+     "ms": 23,
      "result": "driven"
     },
     {
@@ -13338,7 +13608,7 @@
      ],
      "id": "dist",
      "message": "set-text text_in:30",
-     "ms": 21,
+     "ms": 20,
      "result": "driven"
     },
     {
@@ -13352,7 +13622,7 @@
      ],
      "id": "habitat",
      "message": "49 figure(s), 29 box(es), 0 list(s), 6 table(s), 33 heading(s)",
-     "ms": 29,
+     "ms": 21,
      "result": "driven"
     },
     {
@@ -13366,7 +13636,7 @@
      ],
      "id": "k-zero",
      "message": "set-text text_in:24",
-     "ms": 21,
+     "ms": 20,
      "result": "driven"
     },
     {
@@ -13380,7 +13650,7 @@
      ],
      "id": "k-refused",
      "message": "49 figure(s), 29 box(es), 0 list(s), 6 table(s), 33 heading(s)",
-     "ms": 28,
+     "ms": 23,
      "result": "driven"
     },
     {
@@ -13394,7 +13664,7 @@
      ],
      "id": "k-back",
      "message": "set-text text_in:24",
-     "ms": 29,
+     "ms": 20,
      "result": "driven"
     },
     {
@@ -13408,7 +13678,7 @@
      ],
      "id": "steps-bad",
      "message": "set-text text_in:26",
-     "ms": 22,
+     "ms": 21,
      "result": "driven"
     },
     {
@@ -13422,7 +13692,7 @@
      ],
      "id": "steps-refused",
      "message": "49 figure(s), 29 box(es), 0 list(s), 6 table(s), 33 heading(s)",
-     "ms": 28,
+     "ms": 22,
      "result": "driven"
     },
     {
@@ -13436,7 +13706,7 @@
      ],
      "id": "r-up",
      "message": "set-text text_in:23",
-     "ms": 20,
+     "ms": 21,
      "result": "driven"
     },
     {
@@ -13450,7 +13720,7 @@
      ],
      "id": "n0",
      "message": "set-text text_in:25",
-     "ms": 20,
+     "ms": 19,
      "result": "driven"
     },
     {
@@ -13464,14 +13734,14 @@
      ],
      "id": "steps",
      "message": "set-text text_in:26",
-     "ms": 21,
+     "ms": 19,
      "result": "driven"
     },
     {
      "action": "read-report",
      "expectations": [
       {
-       "detail": "output.boxes.wb-theory-out contains 'habitat: area 2.5 \u00b7 temp 1.4 \u00b7 wind 0.6 \u00b7 distance 3', got 'effective r=0.35, K=300 habitat: area 2.5 \u00b7 temp 1.4 \u00b7 wind 0.6 \u00b7 distance 3081162243324t'",
+       "detail": "output.boxes.wb-theory-out contains 'effective r=0.35, K=300 habitat: area 2.5 \u00b7 temp 1.4 \u00b7 wind 0.6 \u00b7 distance 3', got 'effective r=0.35, K=300 habitat: area 2.5 \u00b7 temp 1.4 \u00b7 wind 0.6 \u00b7 distance 3081162243324t'",
        "path": "output.boxes.wb-theory-out",
        "verdict": "CONFIRMED"
       },
@@ -13479,11 +13749,41 @@
        "detail": "output.boxes.wb-theory-out excludes 'cannot be drawn', got 'effective r=0.35, K=300 habitat: area 2.5 \u00b7 temp 1.4 \u00b7 wind 0.6 \u00b7 distance 3081162243324t'",
        "path": "output.boxes.wb-theory-out#2",
        "verdict": "CONFIRMED"
+      },
+      {
+       "detail": "output.charts.wb-theory-out.viewBox == '0 0 980 190', got '0 0 980 190'",
+       "path": "output.charts.wb-theory-out.viewBox",
+       "verdict": "CONFIRMED"
+      },
+      {
+       "detail": "output.charts.wb-theory-out.marks == {'circle': 1, 'rect': 1, 'path': 1, 'line': 7}, got {'circle': 1, 'rect': 1, 'path': 1, 'line': 7}",
+       "path": "output.charts.wb-theory-out.marks",
+       "verdict": "CONFIRMED"
+      },
+      {
+       "detail": "output.charts.wb-theory-out.longest == 31, got 31",
+       "path": "output.charts.wb-theory-out.longest",
+       "verdict": "CONFIRMED"
+      },
+      {
+       "detail": "output.charts.wb-theory-out.aligned.col == ['324', '243', '162', '81', '0'], got ['324', '243', '162', '81', '0']",
+       "path": "output.charts.wb-theory-out.aligned.col",
+       "verdict": "CONFIRMED"
+      },
+      {
+       "detail": "output.charts.wb-theory-out.spans == [[42, 22.67, 970, 151.55]], got [[42, 22.67, 970, 151.55]]",
+       "path": "output.charts.wb-theory-out.spans",
+       "verdict": "CONFIRMED"
+      },
+      {
+       "detail": "output.charts.wb-theory-out.at.0 == [506, 84], got [506, 84]",
+       "path": "output.charts.wb-theory-out.at.0",
+       "verdict": "CONFIRMED"
       }
      ],
      "id": "logistic-again",
      "message": "49 figure(s), 29 box(es), 0 list(s), 6 table(s), 33 heading(s)",
-     "ms": 56,
+     "ms": 46,
      "result": "driven"
     },
     {
@@ -13511,7 +13811,7 @@
      ],
      "id": "dist-refused",
      "message": "49 figure(s), 29 box(es), 0 list(s), 6 table(s), 33 heading(s)",
-     "ms": 30,
+     "ms": 23,
      "result": "driven"
     },
     {
@@ -13525,7 +13825,7 @@
      ],
      "id": "dist-fix",
      "message": "set-text text_in:30",
-     "ms": 21,
+     "ms": 26,
      "result": "driven"
     },
     {
@@ -13539,7 +13839,7 @@
      ],
      "id": "model-comp",
      "message": "choose-option select:2",
-     "ms": 22,
+     "ms": 21,
      "result": "driven"
     },
     {
@@ -13549,11 +13849,46 @@
        "detail": "output.boxes.wb-theory-out contains 'species 1', got 'effective K\u2081=250, K\u2082=200 habitat: area 2.5 \u00b7 temp 1.4 \u00b7 wind 0.6 \u00b7 distance 3species 1 species 2067135202270t'",
        "path": "output.boxes.wb-theory-out",
        "verdict": "CONFIRMED"
+      },
+      {
+       "detail": "output.charts.wb-theory-out.viewBox == '0 0 980 190', got '0 0 980 190'",
+       "path": "output.charts.wb-theory-out.viewBox",
+       "verdict": "CONFIRMED"
+      },
+      {
+       "detail": "output.charts.wb-theory-out.marks == {'circle': 2, 'rect': 1, 'path': 2, 'line': 7}, got {'circle': 2, 'rect': 1, 'path': 2, 'line': 7}",
+       "path": "output.charts.wb-theory-out.marks",
+       "verdict": "CONFIRMED"
+      },
+      {
+       "detail": "output.charts.wb-theory-out.longest == 81, got 81",
+       "path": "output.charts.wb-theory-out.longest",
+       "verdict": "CONFIRMED"
+      },
+      {
+       "detail": "output.charts.wb-theory-out.aligned.col == ['270', '202', '135', '67', '0'], got ['270', '202', '135', '67', '0']",
+       "path": "output.charts.wb-theory-out.aligned.col",
+       "verdict": "CONFIRMED"
+      },
+      {
+       "detail": "output.charts.wb-theory-out.spans == [[42, 22.67, 970, 153.33], [42, 121.13, 970, 156]], got [[42, 22.67, 970, 153.33], [42, 121.13, 970, 156]]",
+       "path": "output.charts.wb-theory-out.spans",
+       "verdict": "CONFIRMED"
+      },
+      {
+       "detail": "output.charts.wb-theory-out.at.0 == [506, 84], got [506, 84]",
+       "path": "output.charts.wb-theory-out.at.0",
+       "verdict": "CONFIRMED"
+      },
+      {
+       "detail": "output.boxes.wb-theory-out contains 'effective K\u2081=250, K\u2082=200 habitat: area 2.5 \u00b7 temp 1.4 \u00b7 wind 0.6 \u00b7 distance 3', got 'effective K\u2081=250, K\u2082=200 habitat: area 2.5 \u00b7 temp 1.4 \u00b7 wind 0.6 \u00b7 distance 3species 1 species 2067135202270t'",
+       "path": "output.boxes.wb-theory-out#2",
+       "verdict": "CONFIRMED"
       }
      ],
      "id": "competition",
      "message": "49 figure(s), 29 box(es), 0 list(s), 6 table(s), 33 heading(s)",
-     "ms": 28,
+     "ms": 22,
      "result": "driven"
     },
     {
@@ -13567,7 +13902,7 @@
      ],
      "id": "k1-zero",
      "message": "set-text text_in:24",
-     "ms": 21,
+     "ms": 20,
      "result": "driven"
     },
     {
@@ -13581,7 +13916,7 @@
      ],
      "id": "k1-refused",
      "message": "49 figure(s), 29 box(es), 0 list(s), 6 table(s), 33 heading(s)",
-     "ms": 31,
+     "ms": 24,
      "result": "driven"
     },
     {
@@ -13595,7 +13930,7 @@
      ],
      "id": "k1-back",
      "message": "set-text text_in:24",
-     "ms": 21,
+     "ms": 20,
      "result": "driven"
     },
     {
@@ -13609,7 +13944,7 @@
      ],
      "id": "model-back",
      "message": "choose-option select:2",
-     "ms": 21,
+     "ms": 23,
      "result": "driven"
     },
     {
@@ -13623,7 +13958,7 @@
      ],
      "id": "build",
      "message": "activate action_btn:83",
-     "ms": 31,
+     "ms": 22,
      "result": "driven"
     },
     {
@@ -13642,7 +13977,7 @@
      ],
      "id": "eco",
      "message": "read readonly_out:0",
-     "ms": 3,
+     "ms": 2,
      "result": "driven"
     },
     {
@@ -13656,7 +13991,7 @@
      ],
      "id": "eco-in",
      "message": "set-text text_in:31",
-     "ms": 26,
+     "ms": 19,
      "result": "driven"
     },
     {
@@ -13684,7 +14019,7 @@
      ],
      "id": "eco-imported",
      "message": "49 figure(s), 29 box(es), 0 list(s), 6 table(s), 33 heading(s)",
-     "ms": 32,
+     "ms": 21,
      "result": "driven"
     },
     {
@@ -13699,11 +14034,46 @@
        "detail": "output.by.wb-field-out.Shannon H\u2032 == '0.91', got '0.91'",
        "path": "output.by.wb-field-out.Shannon H\u2032",
        "verdict": "CONFIRMED"
+      },
+      {
+       "detail": "output.charts.wb-theory-out.viewBox == '0 0 980 190', got '0 0 980 190'",
+       "path": "output.charts.wb-theory-out.viewBox",
+       "verdict": "CONFIRMED"
+      },
+      {
+       "detail": "output.charts.wb-theory-out.marks == {'circle': 1, 'rect': 1, 'path': 1, 'line': 7}, got {'circle': 1, 'rect': 1, 'path': 1, 'line': 7}",
+       "path": "output.charts.wb-theory-out.marks",
+       "verdict": "CONFIRMED"
+      },
+      {
+       "detail": "output.charts.wb-theory-out.longest == 61, got 61",
+       "path": "output.charts.wb-theory-out.longest",
+       "verdict": "CONFIRMED"
+      },
+      {
+       "detail": "output.charts.wb-theory-out.aligned.col == ['129', '97', '65', '32', '0'], got ['129', '97', '65', '32', '0']",
+       "path": "output.charts.wb-theory-out.aligned.col",
+       "verdict": "CONFIRMED"
+      },
+      {
+       "detail": "output.charts.wb-theory-out.spans == [[42, 22.67, 970, 150.43]], got [[42, 22.67, 970, 150.43]]",
+       "path": "output.charts.wb-theory-out.spans",
+       "verdict": "CONFIRMED"
+      },
+      {
+       "detail": "output.charts.wb-theory-out.at.0 == [506, 84], got [506, 84]",
+       "path": "output.charts.wb-theory-out.at.0",
+       "verdict": "CONFIRMED"
+      },
+      {
+       "detail": "output.boxes.wb-theory-out contains 'effective r=0.15, K=120 habitat: area 1 \u00b7 temp 1 \u00b7 wind 1 \u00b7 distance 0', got 'effective r=0.15, K=120 habitat: area 1 \u00b7 temp 1 \u00b7 wind 1 \u00b7 distance 00326597129t'",
+       "path": "output.boxes.wb-theory-out",
+       "verdict": "CONFIRMED"
       }
      ],
      "id": "still",
      "message": "49 figure(s), 29 box(es), 0 list(s), 6 table(s), 33 heading(s)",
-     "ms": 29,
+     "ms": 20,
      "result": "driven"
     },
     {
@@ -13727,7 +14097,7 @@
      ],
      "id": "intact",
      "message": "read the page",
-     "ms": 17,
+     "ms": 10,
      "result": "driven"
     }
    ],
