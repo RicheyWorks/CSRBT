@@ -669,13 +669,33 @@
    "survived": 0
   },
   "mutate_delivery": {
-   "at": 1788946879,
+   "at": 1789035958,
    "equivalent": 0,
    "equivalents": [],
    "inconclusive": 0,
-   "killed": 30,
-   "mutants": 30,
+   "killed": 34,
+   "mutants": 34,
    "rows": [
+    {
+     "detail": "1 failure(s); first: a manifest that does not ask for it gets no guard: every sc",
+     "name": "the guard is generated for every manifest, so every older script fails --check",
+     "verdict": "killed"
+    },
+    {
+     "detail": "1 failure(s); first: the guard asks whether the slice's OWN manifest is in HEAD'",
+     "name": "the guard asks about a path that every slice touches, not the slice's own manifest",
+     "verdict": "killed"
+    },
+    {
+     "detail": "1 failure(s); first: a commit the push never delivered is the one thing a second",
+     "name": "an undelivered commit is never pushed by a second run",
+     "verdict": "killed"
+    },
+    {
+     "detail": "1 failure(s); first: otherwise it says so and exits 0 -- the modified paths it l",
+     "name": "a second run falls through to the add after saying it has nothing to do",
+     "verdict": "killed"
+    },
     {
      "detail": "4 failure(s); first: the script stages tools/one.py, because the manifest names ",
      "name": "the script stages nothing, because the paths are not written into it",
@@ -712,7 +732,7 @@
      "verdict": "killed"
     },
     {
-     "detail": "1 failure(s); first: the chain probes the file the previous slice was supposed t",
+     "detail": "2 failure(s); first: the chain probes the file the previous slice was supposed t",
      "name": "the chain never runs the previous script",
      "verdict": "killed"
     },

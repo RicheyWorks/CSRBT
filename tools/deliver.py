@@ -37,7 +37,25 @@ WHAT --check HOLDS
   * every manifest's generated script is BYTE-IDENTICAL to the one on disk, so
     a hand-edited script is a failure rather than a silent divergence;
   * a manifest's id matches its filename, and its chain names a manifest or an
-    older push script that really is there.
+    older push script that really is there;
+  * a manifest that says "once": true generates a script that PUSHES ONCE
+    (ADR-184): run again after its slice is in HEAD, it pushes if the commit
+    is still unpushed and otherwise does nothing -- it never stages the paths
+    it shares with the next slice under this slice's message.
+
+THE SECOND RUN (ADR-184)
+
+  ADR-183 landed on disk beside a pushed ADR-182, and push-adr182.ps1 was run
+  a second time. It did what it was written to do: `git add` its paths -- the
+  ledgers, the board, the counts, AI_HARNESS, the lab task, verify_eco, all
+  of which ADR-183 had just changed -- and commit them under ADR-182's
+  message. ADR-183's own files (its manifest, its ADR, the module verify_eco
+  now imports) were not on its list and stayed uncommitted, so origin held a
+  suite that imported a module origin did not have. The script had no notion
+  of having already run. A manifest with "once": true generates one that
+  does: its own manifest in HEAD's tree is the fact that the slice was
+  committed, and from then on the script's only legitimate work is a push
+  that did not complete.
 """
 import argparse, glob, hashlib, io, json, os, subprocess, sys, time
 
@@ -123,6 +141,26 @@ def script_text(m, trailer=None):
     a('$csrbt = (Resolve-Path (Join-Path $PSScriptRoot "..\\..")).Path')
     a('$root  = (Resolve-Path (Join-Path $csrbt "..")).Path')
     a('$lock = Join-Path $csrbt ".git\\index.lock"; if (Test-Path $lock) { Remove-Item $lock -Force }')
+    if m.get("once"):
+        # THIS SCRIPT PUSHES ONCE. The slice is committed when its own manifest
+        # is in HEAD's tree (ls-tree prints the entry or nothing, and writes no
+        # stderr for a Stop preference to trip on). After that, the paths it
+        # lists that are modified belong to a LATER slice, and are not this
+        # script's to commit; the one thing left that can be its own is a
+        # commit the push never delivered.
+        a("# THIS SCRIPT PUSHES ONCE (ADR-184). Run a second time, an earlier version of a")
+        a("# script like this committed the NEXT slice's changes to the paths the two share")
+        a("# under this slice's message and left that slice's own files behind. The slice is")
+        a("# committed once its manifest is in HEAD; after that, only an undelivered push is")
+        a("# this script's to finish.")
+        a('$mine = git -C $csrbt ls-tree HEAD -- tools/delivery/%s.json' % mid)
+        a('if ($mine) {')
+        a('  $ahead = git -C $csrbt rev-list --count "@{u}..HEAD"')
+        a('  if ([int]$ahead -gt 0) { Write-Host "%s is committed but not pushed -- pushing"; git -C $csrbt push; Write-Host "%s pushed."; exit 0 }'
+          % (mid, mid.upper()))
+        a('  Write-Host "%s is already pushed -- nothing to do (modified paths belong to a later slice; run its script)"; exit 0'
+          % mid)
+        a('}')
     if m.get("chain"):
         c = m["chain"]
         a("# The slice before this one, wherever its script lives: in the repo from")

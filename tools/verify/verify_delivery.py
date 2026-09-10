@@ -128,6 +128,42 @@ ck(D.script_text(D.load_manifest("adr999")) == txt,
    "generating it twice gives the same bytes -- which is the whole of why --check can compare "
    "instead of trust")
 
+# ---- A2. a script that pushes once (ADR-184) ---------------------------------
+# push-adr182.ps1 run a second time committed ADR-183's changes to the paths the
+# two slices share under ADR-182's message, and left ADR-183's own files behind.
+# A manifest that says "once" generates a guard: the slice's own manifest in
+# HEAD's tree means it was committed, and from then on the script pushes an
+# undelivered commit or does nothing. The fixture cannot run PowerShell, so the
+# guard is held by its text -- where it sits, what it asks git, what it does.
+ck("ls-tree HEAD" not in txt and "already pushed" not in txt,
+   "a manifest that does not ask for it gets no guard: every script before ADR-184 still "
+   "generates byte for byte")
+ONCE = dict(MAN, id="adr996", chain="adr999", chain_probe="tools/one.py", once=True,
+            paths=["tools/one.py", "tools/delivery/adr996.json", "tools/delivery_ledger.json"], clean=[])
+write_manifest(ONCE)
+otxt = D.script_text(ONCE)
+_head = otxt.split("git -C $csrbt add -A")[0]
+ck('$mine = git -C $csrbt ls-tree HEAD -- tools/delivery/adr996.json' in _head,
+   "the guard asks whether the slice's OWN manifest is in HEAD's tree -- the one file that is "
+   "this slice's and no later one's -- and asks with ls-tree, which prints the entry or nothing "
+   "and writes no stderr for a Stop preference to trip on")
+ck("ls-tree HEAD" in _head and "& $prev" in _head and _head.find("ls-tree HEAD") < _head.find("& $prev"),
+   "...and asks BEFORE the chain runs the previous script and before anything is staged: a "
+   "second run must touch nothing")
+ck('if ([int]$ahead -gt 0) { Write-Host "adr996 is committed but not pushed -- pushing"; git -C $csrbt push;' in otxt
+   and 'rev-list --count "@{u}..HEAD"' in otxt,
+   "a commit the push never delivered is the one thing a second run may finish: it counts the "
+   "commits ahead of upstream and pushes them")
+ck('Write-Host "adr996 is already pushed -- nothing to do (modified paths belong to a later slice; run its script)"; exit 0' in otxt
+   and otxt.count("exit 0") == 2,
+   "otherwise it says so and exits 0 -- the modified paths it lists are a later slice's, and it "
+   "names where to go")
+ck(otxt.split("if ($mine) {")[1].split("}")[0].count("git -C $csrbt add") == 0
+   and "git -C $csrbt add -A" in otxt.split("if ($mine) {")[1],
+   "nothing inside the guard stages a path; the add and the commit come after it, for a first run")
+ck(D.script_text(ONCE) == otxt, "the guarded script is as deterministic as the plain one")
+os.remove(os.path.join(D.MANIFESTS, "adr996.json"))
+
 # ---- B. --check -------------------------------------------------------------
 ck(D.check() == [], "a good manifest with its generated script beside it is clean: %s" % D.check())
 

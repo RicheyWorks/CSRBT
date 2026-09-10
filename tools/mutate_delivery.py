@@ -17,6 +17,27 @@ TOOLS = os.path.join(ROOT, "tools")
 SUBJECT = ("deliver.py", "audit_delivery.py")
 
 MUTANTS = [
+    # ---- a script that pushes once (ADR-184) ----
+    ("the guard is generated for every manifest, so every older script fails --check",
+     '    if m.get("once"):\n        # THIS SCRIPT PUSHES ONCE.',
+     '    if True:\n        # THIS SCRIPT PUSHES ONCE.',
+     "gets no guard"),
+    ("the guard asks about a path that every slice touches, not the slice's own manifest",
+     "        a('$mine = git -C $csrbt ls-tree HEAD -- tools/delivery/%s.json' % mid)",
+     "        a('$mine = git -C $csrbt ls-tree HEAD -- tools/delivery_ledger.json')",
+     "the slice's OWN manifest"),
+    ("an undelivered commit is never pushed by a second run",
+     '''        a('  if ([int]$ahead -gt 0) { Write-Host "%s is committed but not pushed -- pushing"; git -C $csrbt push; Write-Host "%s pushed."; exit 0 }'
+          % (mid, mid.upper()))''',
+     '''        a('  if ([int]$ahead -gt 0) { Write-Host "%s is committed but not pushed"; exit 0 }'
+          % (mid,))''',
+     "counts the commits ahead"),
+    ("a second run falls through to the add after saying it has nothing to do",
+     '''        a('  Write-Host "%s is already pushed -- nothing to do (modified paths belong to a later slice; run its script)"; exit 0'
+          % mid)''',
+     '''        a('  Write-Host "%s is already pushed -- nothing to do (modified paths belong to a later slice; run its script)"'
+          % mid)''',
+     "exits 0"),
     # ---- the generated script ----
     ("the script stages nothing, because the paths are not written into it",
      '    for i, p in enumerate(paths):\n        a("  %s%s" % (p, " `" if i < len(paths) - 1 else ""))',
