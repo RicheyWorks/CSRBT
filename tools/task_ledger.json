@@ -10435,9 +10435,9 @@
    "verdict": "PASS"
   },
   "page-eco-protocol-library-reference": {
-   "at": 1788777280,
-   "confirmed": 9,
-   "goal": "The eco-protocol-library page is a reference page with no data entry: its report is its outline. Read through the gateway, it carries exactly its 6 headings in order (Protocol Library ... The shrinking island), and is intact -- no leaked value, no script error, nothing pushed sideways.",
+   "at": 1789009247,
+   "confirmed": 12,
+   "goal": "The eco-protocol-library page is a reference page with no data entry: its report is its outline. Read through the gateway, it carries exactly its 6 headings in order (Protocol Library ... The shrinking island), and is intact -- no leaked value, no script error, nothing pushed sideways. Pressing the first Copy puts exactly one clipboard text on the clipboard: meadow-disturbance.eco whole, 14 lines from name: meadow disturbance study to expect: evenness(bloom) is uneven, with its 3 phases and 5 expectations, one of them deliberately wrong.",
    "held": true,
    "id": "page-eco-protocol-library-reference",
    "must": "PASS",
@@ -10503,6 +10503,30 @@
      "result": "driven"
     },
     {
+     "action": "collect-output",
+     "expectations": [
+      {
+       "detail": "output.payloads.0.k == 'clipboard', got 'clipboard'",
+       "path": "output.payloads.0.k",
+       "verdict": "CONFIRMED"
+      },
+      {
+       "detail": "output.payloads.0.text == 'name: meadow disturbance study\\nkeys: 100\\nseed: 42\\nwindow: 250\\n\\nphase: graze   uniform 2000        # even grazing\\nphase: bloom   hot 2000 5 90        # 5 keys carry 90% of the traffic\\nphase: seasons churn 1500 55        # turnover: births and deaths\\n\\nexpect: evenness(graze) > 0.9\\nexpect: hill1(bloom) < 20\\nexpect: brayCurtis(graze, bloom) > 0.5\\nexpect: evenness(bloom) > 0.9        # deliberately wrong \u2192 REFUTED\\nexpect: evenness(bloom) is uneven', got 'name: meadow disturbance study\\nkeys: 100\\nseed: 42\\nwindow: 250\\n\\nphase: graze   uniform 2000        # even grazing\\nphase: bloom   hot 2000 5 90        # 5 keys carry 90% of the traffic\\nphase: seasons churn 1500 55        # turnover: births and deaths\\n\\nexpect: evenness(graze) > 0.9\\nexpect: hill1(bloom) < 20\\nexpect: brayCurtis(graze, bloom) > 0.5\\nexpect: evenness(bloom) > 0.9        # deliberately wrong \u2192 REFUTED\\nexpect: evenness(bloom) is uneven'",
+       "path": "output.payloads.0.text",
+       "verdict": "CONFIRMED"
+      },
+      {
+       "detail": "output.payloads.1 exists False, got None",
+       "path": "output.payloads.1",
+       "verdict": "CONFIRMED"
+      }
+     ],
+     "id": "g177-eco",
+     "message": "1 payload(s)",
+     "ms": 1,
+     "result": "driven"
+    },
+    {
      "action": "read-report",
      "expectations": [
       {
@@ -10513,7 +10537,7 @@
      ],
      "id": "toast",
      "message": "0 figure(s), 1 box(es), 0 list(s), 0 table(s), 6 heading(s)",
-     "ms": 2,
+     "ms": 3,
      "result": "driven"
     },
     {
@@ -10537,7 +10561,7 @@
      ],
      "id": "intact",
      "message": "read the page",
-     "ms": 4,
+     "ms": 8,
      "result": "driven"
     }
    ],
@@ -17956,9 +17980,9 @@
    "verdict": "PASS"
   },
   "page-farm-scout-science": {
-   "at": 1788868873,
-   "confirmed": 117,
-   "goal": "On the farm scout, run a full field day: scout aphids across ten stops (avg 3.6/plant, spread 2.54), name the pest and stamp the field, observer and date, tally five pollinator types including one added by hand (11 visits, evenness held), test germination and plan a rotation, then export the field-day report and the CSV -- both held against an oracle.",
+   "at": 1789009234,
+   "confirmed": 120,
+   "goal": "On the farm scout, run a full field day: scout aphids across ten stops (avg 3.6/plant, spread 2.54), name the pest and stamp the field, observer and date, tally five pollinator types including one added by hand (11 visits, evenness held), test germination and plan a rotation, then export the field-day report and the CSV -- both held against an oracle. Then Print / save PDF is pressed on the export pane and exactly one print, and nothing else, leaves the page; the scouting figures read the same afterwards.",
    "held": true,
    "id": "page-farm-scout-science",
    "must": "PASS",
@@ -17969,7 +17993,7 @@
     "MUTATE"
    ],
    "rungsWhy": null,
-   "seconds": 8.2,
+   "seconds": 7.6,
    "steps": [
     {
      "action": "observe",
@@ -18001,7 +18025,7 @@
      ],
      "id": "germ",
      "message": "opened pane p-germ",
-     "ms": 164,
+     "ms": 180,
      "result": "driven"
     },
     {
@@ -18015,7 +18039,7 @@
      ],
      "id": "sown",
      "message": "set-text field_in:0",
-     "ms": 31,
+     "ms": 23,
      "result": "driven"
     },
     {
@@ -18043,7 +18067,7 @@
      ],
      "id": "want",
      "message": "set-text step_val:1",
-     "ms": 26,
+     "ms": 24,
      "result": "driven"
     },
     {
@@ -18067,7 +18091,7 @@
      ],
      "id": "g83",
      "message": "2 figure(s), 9 box(es), 0 list(s), 0 table(s), 7 heading(s)",
-     "ms": 6,
+     "ms": 7,
      "result": "driven"
     },
     {
@@ -18081,7 +18105,7 @@
      ],
      "id": "decent",
      "message": "2 figure(s), 9 box(es), 0 list(s), 0 table(s), 7 heading(s)",
-     "ms": 4,
+     "ms": 3,
      "result": "driven"
     },
     {
@@ -18095,7 +18119,7 @@
      ],
      "id": "up26",
      "message": "set-text field_in:1",
-     "ms": 26,
+     "ms": 21,
      "result": "driven"
     },
     {
@@ -18114,7 +18138,7 @@
      ],
      "id": "g65",
      "message": "2 figure(s), 9 box(es), 0 list(s), 0 table(s), 7 heading(s)",
-     "ms": 5,
+     "ms": 3,
      "result": "driven"
     },
     {
@@ -18128,7 +18152,7 @@
      ],
      "id": "up18",
      "message": "set-text field_in:1",
-     "ms": 26,
+     "ms": 27,
      "result": "driven"
     },
     {
@@ -18147,7 +18171,7 @@
      ],
      "id": "g45",
      "message": "2 figure(s), 9 box(es), 0 list(s), 0 table(s), 7 heading(s)",
-     "ms": 4,
+     "ms": 3,
      "result": "driven"
     },
     {
@@ -18161,7 +18185,7 @@
      ],
      "id": "poor",
      "message": "2 figure(s), 9 box(es), 0 list(s), 0 table(s), 7 heading(s)",
-     "ms": 4,
+     "ms": 3,
      "result": "driven"
     },
     {
@@ -18175,7 +18199,7 @@
      ],
      "id": "rot",
      "message": "opened pane p-rot",
-     "ms": 116,
+     "ms": 109,
      "result": "driven"
     },
     {
@@ -18217,7 +18241,7 @@
      ],
      "id": "flag",
      "message": "2 figure(s), 9 box(es), 0 list(s), 0 table(s), 7 heading(s)",
-     "ms": 4,
+     "ms": 3,
      "result": "driven"
     },
     {
@@ -18259,7 +18283,7 @@
      ],
      "id": "clean",
      "message": "2 figure(s), 9 box(es), 0 list(s), 0 table(s), 7 heading(s)",
-     "ms": 4,
+     "ms": 3,
      "result": "driven"
     },
     {
@@ -18273,7 +18297,7 @@
      ],
      "id": "scout",
      "message": "opened pane p-scout",
-     "ms": 90,
+     "ms": 79,
      "result": "driven"
     },
     {
@@ -18287,7 +18311,7 @@
      ],
      "id": "s0_0",
      "message": "activate action_btn:1",
-     "ms": 26,
+     "ms": 25,
      "result": "driven"
     },
     {
@@ -18301,7 +18325,7 @@
      ],
      "id": "s0_1",
      "message": "activate action_btn:1",
-     "ms": 23,
+     "ms": 26,
      "result": "driven"
     },
     {
@@ -18315,7 +18339,7 @@
      ],
      "id": "s1_0",
      "message": "activate action_btn:3",
-     "ms": 25,
+     "ms": 23,
      "result": "driven"
     },
     {
@@ -18329,7 +18353,7 @@
      ],
      "id": "s1_1",
      "message": "activate action_btn:3",
-     "ms": 23,
+     "ms": 22,
      "result": "driven"
     },
     {
@@ -18343,7 +18367,7 @@
      ],
      "id": "s1_2",
      "message": "activate action_btn:3",
-     "ms": 23,
+     "ms": 22,
      "result": "driven"
     },
     {
@@ -18371,7 +18395,7 @@
      ],
      "id": "s2_1",
      "message": "activate action_btn:5",
-     "ms": 24,
+     "ms": 22,
      "result": "driven"
     },
     {
@@ -18385,7 +18409,7 @@
      ],
      "id": "s3_0",
      "message": "activate action_btn:7",
-     "ms": 24,
+     "ms": 26,
      "result": "driven"
     },
     {
@@ -18399,7 +18423,7 @@
      ],
      "id": "s3_1",
      "message": "activate action_btn:7",
-     "ms": 26,
+     "ms": 25,
      "result": "driven"
     },
     {
@@ -18427,7 +18451,7 @@
      ],
      "id": "s3_3",
      "message": "activate action_btn:7",
-     "ms": 26,
+     "ms": 22,
      "result": "driven"
     },
     {
@@ -18441,7 +18465,7 @@
      ],
      "id": "s4_0",
      "message": "activate action_btn:9",
-     "ms": 24,
+     "ms": 22,
      "result": "driven"
     },
     {
@@ -18455,7 +18479,7 @@
      ],
      "id": "s4_1",
      "message": "activate action_btn:9",
-     "ms": 25,
+     "ms": 24,
      "result": "driven"
     },
     {
@@ -18469,7 +18493,7 @@
      ],
      "id": "s4_2",
      "message": "activate action_btn:9",
-     "ms": 24,
+     "ms": 22,
      "result": "driven"
     },
     {
@@ -18483,7 +18507,7 @@
      ],
      "id": "s5_0",
      "message": "activate action_btn:11",
-     "ms": 27,
+     "ms": 23,
      "result": "driven"
     },
     {
@@ -18511,7 +18535,7 @@
      ],
      "id": "s6_0",
      "message": "activate action_btn:13",
-     "ms": 24,
+     "ms": 25,
      "result": "driven"
     },
     {
@@ -18525,7 +18549,7 @@
      ],
      "id": "s6_1",
      "message": "activate action_btn:13",
-     "ms": 23,
+     "ms": 22,
      "result": "driven"
     },
     {
@@ -18553,7 +18577,7 @@
      ],
      "id": "s7_0",
      "message": "activate action_btn:15",
-     "ms": 25,
+     "ms": 23,
      "result": "driven"
     },
     {
@@ -18567,7 +18591,7 @@
      ],
      "id": "s7_1",
      "message": "activate action_btn:15",
-     "ms": 24,
+     "ms": 22,
      "result": "driven"
     },
     {
@@ -18581,7 +18605,7 @@
      ],
      "id": "s7_2",
      "message": "activate action_btn:15",
-     "ms": 24,
+     "ms": 22,
      "result": "driven"
     },
     {
@@ -18595,7 +18619,7 @@
      ],
      "id": "s7_3",
      "message": "activate action_btn:15",
-     "ms": 23,
+     "ms": 22,
      "result": "driven"
     },
     {
@@ -18609,7 +18633,7 @@
      ],
      "id": "s7_4",
      "message": "activate action_btn:15",
-     "ms": 23,
+     "ms": 24,
      "result": "driven"
     },
     {
@@ -18623,7 +18647,7 @@
      ],
      "id": "s7_5",
      "message": "activate action_btn:15",
-     "ms": 24,
+     "ms": 22,
      "result": "driven"
     },
     {
@@ -18651,7 +18675,7 @@
      ],
      "id": "s7_7",
      "message": "activate action_btn:15",
-     "ms": 24,
+     "ms": 22,
      "result": "driven"
     },
     {
@@ -18665,7 +18689,7 @@
      ],
      "id": "s7_8",
      "message": "activate action_btn:15",
-     "ms": 25,
+     "ms": 21,
      "result": "driven"
     },
     {
@@ -18679,7 +18703,7 @@
      ],
      "id": "s7_9",
      "message": "activate action_btn:15",
-     "ms": 24,
+     "ms": 23,
      "result": "driven"
     },
     {
@@ -18721,7 +18745,7 @@
      ],
      "id": "s8_0",
      "message": "activate action_btn:17",
-     "ms": 24,
+     "ms": 22,
      "result": "driven"
     },
     {
@@ -18735,7 +18759,7 @@
      ],
      "id": "s8_1",
      "message": "activate action_btn:17",
-     "ms": 22,
+     "ms": 26,
      "result": "driven"
     },
     {
@@ -18763,7 +18787,7 @@
      ],
      "id": "s9_1",
      "message": "activate action_btn:19",
-     "ms": 24,
+     "ms": 23,
      "result": "driven"
     },
     {
@@ -18777,7 +18801,7 @@
      ],
      "id": "s9_2",
      "message": "activate action_btn:19",
-     "ms": 23,
+     "ms": 22,
      "result": "driven"
     },
     {
@@ -18806,7 +18830,7 @@
      ],
      "id": "scout-report",
      "message": "6 figure(s), 9 box(es), 0 list(s), 0 table(s), 7 heading(s)",
-     "ms": 4,
+     "ms": 3,
      "result": "driven"
     },
     {
@@ -18820,7 +18844,7 @@
      ],
      "id": "g160-pest",
      "message": "set-text text_in:0",
-     "ms": 23,
+     "ms": 22,
      "result": "driven"
     },
     {
@@ -18834,7 +18858,7 @@
      ],
      "id": "g160-site",
      "message": "set-text text_in:2",
-     "ms": 104,
+     "ms": 96,
      "result": "driven"
     },
     {
@@ -18848,7 +18872,7 @@
      ],
      "id": "g160-obs",
      "message": "set-text text_in:3",
-     "ms": 24,
+     "ms": 21,
      "result": "driven"
     },
     {
@@ -18862,7 +18886,7 @@
      ],
      "id": "g160-date",
      "message": "set-text text_in:4",
-     "ms": 26,
+     "ms": 22,
      "result": "driven"
     },
     {
@@ -18876,7 +18900,7 @@
      ],
      "id": "g160-thresh",
      "message": "set-text step_val:0",
-     "ms": 115,
+     "ms": 103,
      "result": "driven"
     },
     {
@@ -18890,7 +18914,7 @@
      ],
      "id": "g160-rotpane",
      "message": "opened pane p-rot",
-     "ms": 151,
+     "ms": 93,
      "result": "driven"
     },
     {
@@ -18904,7 +18928,7 @@
      ],
      "id": "g160-b1y2",
      "message": "pick pick_search:0",
-     "ms": 152,
+     "ms": 149,
      "result": "driven"
     },
     {
@@ -18918,7 +18942,7 @@
      ],
      "id": "g160-b2y2",
      "message": "pick pick_search:3",
-     "ms": 149,
+     "ms": 150,
      "result": "driven"
     },
     {
@@ -18932,7 +18956,7 @@
      ],
      "id": "g160-b2y1",
      "message": "pick pick_search:4",
-     "ms": 150,
+     "ms": 145,
      "result": "driven"
     },
     {
@@ -18960,7 +18984,7 @@
      ],
      "id": "g160-pollpane",
      "message": "opened pane p-poll",
-     "ms": 92,
+     "ms": 75,
      "result": "driven"
     },
     {
@@ -18974,7 +18998,7 @@
      ],
      "id": "g160-po0_0",
      "message": "activate action_btn:22",
-     "ms": 26,
+     "ms": 25,
      "result": "driven"
     },
     {
@@ -18988,7 +19012,7 @@
      ],
      "id": "g160-po0_1",
      "message": "activate action_btn:22",
-     "ms": 25,
+     "ms": 22,
      "result": "driven"
     },
     {
@@ -19002,7 +19026,7 @@
      ],
      "id": "g160-po0_2",
      "message": "activate action_btn:22",
-     "ms": 24,
+     "ms": 22,
      "result": "driven"
     },
     {
@@ -19016,7 +19040,7 @@
      ],
      "id": "g160-po0_3",
      "message": "activate action_btn:22",
-     "ms": 26,
+     "ms": 25,
      "result": "driven"
     },
     {
@@ -19030,7 +19054,7 @@
      ],
      "id": "g160-po1_0",
      "message": "activate action_btn:23",
-     "ms": 25,
+     "ms": 22,
      "result": "driven"
     },
     {
@@ -19044,7 +19068,7 @@
      ],
      "id": "g160-po1_1",
      "message": "activate action_btn:23",
-     "ms": 24,
+     "ms": 23,
      "result": "driven"
     },
     {
@@ -19058,7 +19082,7 @@
      ],
      "id": "g160-po1_2",
      "message": "activate action_btn:23",
-     "ms": 25,
+     "ms": 22,
      "result": "driven"
     },
     {
@@ -19086,7 +19110,7 @@
      ],
      "id": "g160-po2_1",
      "message": "activate action_btn:24",
-     "ms": 26,
+     "ms": 23,
      "result": "driven"
     },
     {
@@ -19100,7 +19124,7 @@
      ],
      "id": "g160-po3_0",
      "message": "activate action_btn:25",
-     "ms": 23,
+     "ms": 22,
      "result": "driven"
     },
     {
@@ -19128,7 +19152,7 @@
      ],
      "id": "g160-poadd",
      "message": "activate action_btn:26",
-     "ms": 29,
+     "ms": 27,
      "result": "driven"
     },
     {
@@ -19142,7 +19166,7 @@
      ],
      "id": "g160-po4_0",
      "message": "activate action_btn:26",
-     "ms": 23,
+     "ms": 24,
      "result": "driven"
     },
     {
@@ -19176,7 +19200,7 @@
      ],
      "id": "g160-pollrep",
      "message": "10 figure(s), 9 box(es), 0 list(s), 0 table(s), 7 heading(s)",
-     "ms": 4,
+     "ms": 5,
      "result": "driven"
     },
     {
@@ -19190,7 +19214,7 @@
      ],
      "id": "g160-eco",
      "message": "activate action_btn:32",
-     "ms": 126,
+     "ms": 117,
      "result": "driven"
     },
     {
@@ -19234,7 +19258,7 @@
      ],
      "id": "g160-ecoout",
      "message": "1 payload(s)",
-     "ms": 3,
+     "ms": 2,
      "result": "driven"
     },
     {
@@ -19248,7 +19272,7 @@
      ],
      "id": "g160-csv",
      "message": "activate action_btn:33",
-     "ms": 28,
+     "ms": 22,
      "result": "driven"
     },
     {
@@ -19292,7 +19316,40 @@
      ],
      "id": "g160-csvout",
      "message": "1 payload(s)",
-     "ms": 2,
+     "ms": 1,
+     "result": "driven"
+    },
+    {
+     "action": "activate",
+     "expectations": [
+      {
+       "detail": "ok == True, got True",
+       "path": "ok",
+       "verdict": "CONFIRMED"
+      }
+     ],
+     "id": "g177-print",
+     "message": "activate action_btn:34",
+     "ms": 21,
+     "result": "driven"
+    },
+    {
+     "action": "collect-output",
+     "expectations": [
+      {
+       "detail": "output.payloads.0.k == 'print', got 'print'",
+       "path": "output.payloads.0.k",
+       "verdict": "CONFIRMED"
+      },
+      {
+       "detail": "output.payloads.1 exists False, got None",
+       "path": "output.payloads.1",
+       "verdict": "CONFIRMED"
+      }
+     ],
+     "id": "g177-printed",
+     "message": "1 payload(s)",
+     "ms": 4,
      "result": "driven"
     },
     {
@@ -19306,7 +19363,7 @@
      ],
      "id": "g160-endpane",
      "message": "opened pane p-scout",
-     "ms": 90,
+     "ms": 73,
      "result": "driven"
     },
     {
@@ -19330,7 +19387,7 @@
      ],
      "id": "g160-endrep",
      "message": "10 figure(s), 9 box(es), 0 list(s), 0 table(s), 7 heading(s)",
-     "ms": 6,
+     "ms": 5,
      "result": "driven"
     },
     {
@@ -19354,7 +19411,7 @@
      ],
      "id": "g160-endintact",
      "message": "read the page",
-     "ms": 8,
+     "ms": 6,
      "result": "driven"
     }
    ],
@@ -20477,9 +20534,9 @@
    "verdict": "PASS"
   },
   "page-field-season-replay": {
-   "at": 1788777316,
-   "confirmed": 35,
-   "goal": "Play season #4217 of the field season game -- mark, recapture, one quadrat survey, file -- and find the seeded meadow exactly as an independent port of its generator says: 29 marked, 33 caught with 8 marks, five quadrats of 10 2 5 45 46 plants across six species, and answering 11 species, uneven, clumped and Lincoln-Petersen 29*33/8 = 120 against a true 101 voles grades 25 + 20 + 25 + 20 = 90, Published.",
+   "at": 1789009242,
+   "confirmed": 41,
+   "goal": "Play season #4217 of the field season game -- mark, recapture, one quadrat survey, file -- and find the seeded meadow exactly as an independent port of its generator says: 29 marked, 33 caught with 8 marks, five quadrats of 10 2 5 45 46 plants across six species, and answering 11 species, uneven, clumped and Lincoln-Petersen 29*33/8 = 120 against a true 101 voles grades 25 + 20 + 25 + 20 = 90, Published. Then Print the season is pressed on the graded results and exactly one print, and nothing else, leaves the page; the results card still says the meadow held 101 voles, richness 25/25, spatial pattern 25/25.",
    "held": true,
    "id": "page-field-season-replay",
    "must": "PASS",
@@ -20490,7 +20547,7 @@
     "MUTATE"
    ],
    "rungsWhy": null,
-   "seconds": 0.6,
+   "seconds": 0.7,
    "steps": [
     {
      "action": "observe",
@@ -20522,7 +20579,7 @@
      ],
      "id": "season",
      "message": "read field_in:0",
-     "ms": 2,
+     "ms": 3,
      "result": "driven"
     },
     {
@@ -20536,7 +20593,7 @@
      ],
      "id": "start",
      "message": "activate action_btn:0",
-     "ms": 21,
+     "ms": 22,
      "result": "driven"
     },
     {
@@ -20550,7 +20607,7 @@
      ],
      "id": "mark",
      "message": "activate action_btn:4",
-     "ms": 21,
+     "ms": 20,
      "result": "driven"
     },
     {
@@ -20569,7 +20626,7 @@
      ],
      "id": "marked",
      "message": "4 figure(s), 8 box(es), 0 list(s), 0 table(s), 5 heading(s)",
-     "ms": 5,
+     "ms": 4,
      "result": "driven"
     },
     {
@@ -20583,7 +20640,7 @@
      ],
      "id": "recap",
      "message": "activate action_btn:5",
-     "ms": 21,
+     "ms": 20,
      "result": "driven"
     },
     {
@@ -20597,7 +20654,7 @@
      ],
      "id": "recaught",
      "message": "4 figure(s), 8 box(es), 0 list(s), 0 table(s), 5 heading(s)",
-     "ms": 3,
+     "ms": 2,
      "result": "driven"
     },
     {
@@ -20665,7 +20722,7 @@
      ],
      "id": "counted",
      "message": "5 figure(s), 8 box(es), 0 list(s), 2 table(s), 5 heading(s)",
-     "ms": 3,
+     "ms": 4,
      "result": "driven"
     },
     {
@@ -20707,7 +20764,7 @@
      ],
      "id": "q1",
      "message": "set-text step_val:0",
-     "ms": 19,
+     "ms": 20,
      "result": "driven"
     },
     {
@@ -20749,7 +20806,7 @@
      ],
      "id": "q4",
      "message": "activate action_btn:7",
-     "ms": 19,
+     "ms": 20,
      "result": "driven"
     },
     {
@@ -20763,7 +20820,7 @@
      ],
      "id": "q4v",
      "message": "read field_in:1",
-     "ms": 2,
+     "ms": 3,
      "result": "driven"
     },
     {
@@ -20777,7 +20834,7 @@
      ],
      "id": "grade",
      "message": "activate action_btn:8",
-     "ms": 20,
+     "ms": 19,
      "result": "driven"
     },
     {
@@ -20812,6 +20869,63 @@
      "id": "review",
      "message": "9 figure(s), 8 box(es), 0 list(s), 2 table(s), 5 heading(s)",
      "ms": 4,
+     "result": "driven"
+    },
+    {
+     "action": "activate",
+     "expectations": [
+      {
+       "detail": "ok == True, got True",
+       "path": "ok",
+       "verdict": "CONFIRMED"
+      }
+     ],
+     "id": "g177-print",
+     "message": "activate action_btn:12",
+     "ms": 20,
+     "result": "driven"
+    },
+    {
+     "action": "collect-output",
+     "expectations": [
+      {
+       "detail": "output.payloads.0.k == 'print', got 'print'",
+       "path": "output.payloads.0.k",
+       "verdict": "CONFIRMED"
+      },
+      {
+       "detail": "output.payloads.1 exists False, got None",
+       "path": "output.payloads.1",
+       "verdict": "CONFIRMED"
+      }
+     ],
+     "id": "g177-printed",
+     "message": "1 payload(s)",
+     "ms": 1,
+     "result": "driven"
+    },
+    {
+     "action": "read-report",
+     "expectations": [
+      {
+       "detail": "output.boxes.resCard contains 'the meadow held 101 voles', got 'Published! \u2605\u2605\u2605Season #4217 \u00b7 peer review of your report \u00b7 90 / 10025/25Richness20/20Evenness25/25Spatial pattern20/30Vole populationRichness: you said 11; the meadow held 11 species. Nailed it.Evenness: you said uneven; the meadow held uneven (J\u2032 0.52). Read the abundances right.Spatial pattern: you said clumped; the meadow held clumped. The variance/mean told the story.Vole population: you said 120; the meadow held 101 voles. More marks or more recapture sessions would tighten the estimate.The reveal. 11 species; the community was uneven (J\u2032 0.52); the pattern was clumped; 101 voles. You spent 3 working days, lost 0 to rain, threw 5 quadrats, and ran 1 recapture session.'",
+       "path": "output.boxes.resCard",
+       "verdict": "CONFIRMED"
+      },
+      {
+       "detail": "output.by.resCard.Richness == '25/25', got '25/25'",
+       "path": "output.by.resCard.Richness",
+       "verdict": "CONFIRMED"
+      },
+      {
+       "detail": "output.by.resCard.Spatial pattern == '25/25', got '25/25'",
+       "path": "output.by.resCard.Spatial pattern",
+       "verdict": "CONFIRMED"
+      }
+     ],
+     "id": "g177-still",
+     "message": "9 figure(s), 8 box(es), 0 list(s), 2 table(s), 5 heading(s)",
+     "ms": 3,
      "result": "driven"
     },
     {
@@ -24779,9 +24893,9 @@
    "verdict": "PASS"
   },
   "page-pheno-tracker-science": {
-   "at": 1788875463,
-   "confirmed": 102,
-   "goal": "On the pheno tracker: name and stamp a run of 8, score every plant on the four weighted dials, note a standout, star the top three keepers (selection differential +1.44), add a trait, test a 60:20 segregation against the ratios, and export both the run report and the CSV -- every pane driven and the figures and both exports held against an oracle.",
+   "at": 1789009240,
+   "confirmed": 105,
+   "goal": "On the pheno tracker: name and stamp a run of 8, score every plant on the four weighted dials, note a standout, star the top three keepers (selection differential +1.44), add a trait, test a 60:20 segregation against the ratios, and export both the run report and the CSV -- every pane driven and the figures and both exports held against an oracle. Then Print / save PDF is pressed on the segregation pane and exactly one print, and nothing else, leaves the page; the selection differential reads +1.44 afterwards.",
    "held": true,
    "id": "page-pheno-tracker-science",
    "must": "PASS",
@@ -24792,7 +24906,7 @@
     "MUTATE"
    ],
    "rungsWhy": null,
-   "seconds": 5.9,
+   "seconds": 5.2,
    "steps": [
     {
      "action": "observe",
@@ -24824,7 +24938,7 @@
      ],
      "id": "run",
      "message": "opened pane p-run",
-     "ms": 5,
+     "ms": 3,
      "result": "driven"
     },
     {
@@ -24838,7 +24952,7 @@
      ],
      "id": "g162-name",
      "message": "set-text text_in:0",
-     "ms": 30,
+     "ms": 22,
      "result": "driven"
     },
     {
@@ -24866,7 +24980,7 @@
      ],
      "id": "g162-date",
      "message": "set-text text_in:2",
-     "ms": 23,
+     "ms": 22,
      "result": "driven"
     },
     {
@@ -24880,7 +24994,7 @@
      ],
      "id": "n",
      "message": "set-text step_val:0",
-     "ms": 25,
+     "ms": 22,
      "result": "driven"
     },
     {
@@ -24894,7 +25008,7 @@
      ],
      "id": "make",
      "message": "activate action_btn:1",
-     "ms": 25,
+     "ms": 22,
      "result": "driven"
     },
     {
@@ -24908,7 +25022,7 @@
      ],
      "id": "score",
      "message": "opened pane p-score",
-     "ms": 145,
+     "ms": 136,
      "result": "driven"
     },
     {
@@ -24922,7 +25036,7 @@
      ],
      "id": "p1",
      "message": "activate action_btn:10",
-     "ms": 28,
+     "ms": 24,
      "result": "driven"
     },
     {
@@ -24936,7 +25050,7 @@
      ],
      "id": "p1_t0",
      "message": "activate dial_btn:4",
-     "ms": 25,
+     "ms": 22,
      "result": "driven"
     },
     {
@@ -24950,7 +25064,7 @@
      ],
      "id": "p1_t1",
      "message": "activate dial_btn:8",
-     "ms": 23,
+     "ms": 22,
      "result": "driven"
     },
     {
@@ -24964,7 +25078,7 @@
      ],
      "id": "p1_t2",
      "message": "activate dial_btn:13",
-     "ms": 27,
+     "ms": 22,
      "result": "driven"
     },
     {
@@ -24978,7 +25092,7 @@
      ],
      "id": "p1_t3",
      "message": "activate dial_btn:18",
-     "ms": 24,
+     "ms": 22,
      "result": "driven"
     },
     {
@@ -24992,7 +25106,7 @@
      ],
      "id": "g162-pnote",
      "message": "set-text text_in:4",
-     "ms": 23,
+     "ms": 21,
      "result": "driven"
     },
     {
@@ -25006,7 +25120,7 @@
      ],
      "id": "p2",
      "message": "activate action_btn:11",
-     "ms": 25,
+     "ms": 21,
      "result": "driven"
     },
     {
@@ -25020,7 +25134,7 @@
      ],
      "id": "p2_t0",
      "message": "activate dial_btn:3",
-     "ms": 25,
+     "ms": 22,
      "result": "driven"
     },
     {
@@ -25034,7 +25148,7 @@
      ],
      "id": "p2_t1",
      "message": "activate dial_btn:7",
-     "ms": 26,
+     "ms": 23,
      "result": "driven"
     },
     {
@@ -25048,7 +25162,7 @@
      ],
      "id": "p2_t2",
      "message": "activate dial_btn:12",
-     "ms": 23,
+     "ms": 22,
      "result": "driven"
     },
     {
@@ -25062,7 +25176,7 @@
      ],
      "id": "p2_t3",
      "message": "activate dial_btn:17",
-     "ms": 23,
+     "ms": 26,
      "result": "driven"
     },
     {
@@ -25076,7 +25190,7 @@
      ],
      "id": "p3",
      "message": "activate action_btn:12",
-     "ms": 23,
+     "ms": 22,
      "result": "driven"
     },
     {
@@ -25104,7 +25218,7 @@
      ],
      "id": "p3_t1",
      "message": "activate dial_btn:6",
-     "ms": 23,
+     "ms": 22,
      "result": "driven"
     },
     {
@@ -25118,7 +25232,7 @@
      ],
      "id": "p3_t2",
      "message": "activate dial_btn:11",
-     "ms": 26,
+     "ms": 22,
      "result": "driven"
     },
     {
@@ -25132,7 +25246,7 @@
      ],
      "id": "p3_t3",
      "message": "activate dial_btn:16",
-     "ms": 28,
+     "ms": 22,
      "result": "driven"
     },
     {
@@ -25146,7 +25260,7 @@
      ],
      "id": "p4",
      "message": "activate action_btn:13",
-     "ms": 23,
+     "ms": 22,
      "result": "driven"
     },
     {
@@ -25160,7 +25274,7 @@
      ],
      "id": "p4_t0",
      "message": "activate dial_btn:1",
-     "ms": 30,
+     "ms": 21,
      "result": "driven"
     },
     {
@@ -25174,7 +25288,7 @@
      ],
      "id": "p4_t1",
      "message": "activate dial_btn:5",
-     "ms": 23,
+     "ms": 21,
      "result": "driven"
     },
     {
@@ -25188,7 +25302,7 @@
      ],
      "id": "p4_t2",
      "message": "activate dial_btn:10",
-     "ms": 25,
+     "ms": 22,
      "result": "driven"
     },
     {
@@ -25230,7 +25344,7 @@
      ],
      "id": "p5_t0",
      "message": "activate dial_btn:0",
-     "ms": 24,
+     "ms": 21,
      "result": "driven"
     },
     {
@@ -25244,7 +25358,7 @@
      ],
      "id": "p5_t1",
      "message": "activate dial_btn:5",
-     "ms": 24,
+     "ms": 21,
      "result": "driven"
     },
     {
@@ -25272,7 +25386,7 @@
      ],
      "id": "p5_t3",
      "message": "activate dial_btn:15",
-     "ms": 24,
+     "ms": 21,
      "result": "driven"
     },
     {
@@ -25286,7 +25400,7 @@
      ],
      "id": "p6",
      "message": "activate action_btn:15",
-     "ms": 24,
+     "ms": 21,
      "result": "driven"
     },
     {
@@ -25300,7 +25414,7 @@
      ],
      "id": "p6_t0",
      "message": "activate dial_btn:2",
-     "ms": 24,
+     "ms": 21,
      "result": "driven"
     },
     {
@@ -25314,7 +25428,7 @@
      ],
      "id": "p6_t1",
      "message": "activate dial_btn:6",
-     "ms": 28,
+     "ms": 22,
      "result": "driven"
     },
     {
@@ -25328,7 +25442,7 @@
      ],
      "id": "p6_t2",
      "message": "activate dial_btn:11",
-     "ms": 28,
+     "ms": 21,
      "result": "driven"
     },
     {
@@ -25342,7 +25456,7 @@
      ],
      "id": "p6_t3",
      "message": "activate dial_btn:16",
-     "ms": 24,
+     "ms": 21,
      "result": "driven"
     },
     {
@@ -25356,7 +25470,7 @@
      ],
      "id": "p7",
      "message": "activate action_btn:16",
-     "ms": 23,
+     "ms": 21,
      "result": "driven"
     },
     {
@@ -25370,7 +25484,7 @@
      ],
      "id": "p7_t0",
      "message": "activate dial_btn:4",
-     "ms": 25,
+     "ms": 23,
      "result": "driven"
     },
     {
@@ -25384,7 +25498,7 @@
      ],
      "id": "p7_t1",
      "message": "activate dial_btn:8",
-     "ms": 25,
+     "ms": 21,
      "result": "driven"
     },
     {
@@ -25398,7 +25512,7 @@
      ],
      "id": "p7_t2",
      "message": "activate dial_btn:13",
-     "ms": 24,
+     "ms": 22,
      "result": "driven"
     },
     {
@@ -25412,7 +25526,7 @@
      ],
      "id": "p7_t3",
      "message": "activate dial_btn:18",
-     "ms": 24,
+     "ms": 25,
      "result": "driven"
     },
     {
@@ -25426,7 +25540,7 @@
      ],
      "id": "p8",
      "message": "activate action_btn:17",
-     "ms": 25,
+     "ms": 21,
      "result": "driven"
     },
     {
@@ -25440,7 +25554,7 @@
      ],
      "id": "p8_t0",
      "message": "activate dial_btn:1",
-     "ms": 27,
+     "ms": 21,
      "result": "driven"
     },
     {
@@ -25454,7 +25568,7 @@
      ],
      "id": "p8_t1",
      "message": "activate dial_btn:5",
-     "ms": 25,
+     "ms": 22,
      "result": "driven"
     },
     {
@@ -25468,7 +25582,7 @@
      ],
      "id": "p8_t2",
      "message": "activate dial_btn:10",
-     "ms": 25,
+     "ms": 22,
      "result": "driven"
     },
     {
@@ -25482,7 +25596,7 @@
      ],
      "id": "p8_t3",
      "message": "activate dial_btn:15",
-     "ms": 26,
+     "ms": 22,
      "result": "driven"
     },
     {
@@ -25496,7 +25610,7 @@
      ],
      "id": "g162-tnew",
      "message": "set-text text_in:3",
-     "ms": 130,
+     "ms": 114,
      "result": "driven"
     },
     {
@@ -25510,7 +25624,7 @@
      ],
      "id": "g162-tw",
      "message": "set-text step_val:1",
-     "ms": 34,
+     "ms": 25,
      "result": "driven"
     },
     {
@@ -25524,7 +25638,7 @@
      ],
      "id": "sel",
      "message": "opened pane p-sel",
-     "ms": 138,
+     "ms": 114,
      "result": "driven"
     },
     {
@@ -25538,7 +25652,7 @@
      ],
      "id": "keep0",
      "message": "activate action_btn:22",
-     "ms": 25,
+     "ms": 23,
      "result": "driven"
     },
     {
@@ -25552,7 +25666,7 @@
      ],
      "id": "keep1",
      "message": "activate action_btn:25",
-     "ms": 24,
+     "ms": 22,
      "result": "driven"
     },
     {
@@ -25566,7 +25680,7 @@
      ],
      "id": "keep2",
      "message": "activate action_btn:28",
-     "ms": 30,
+     "ms": 22,
      "result": "driven"
     },
     {
@@ -25604,7 +25718,7 @@
       }
      ],
      "id": "stats",
-     "message": "8 figure(s), 8 box(es), 0 list(s), 0 table(s), 9 heading(s)",
+     "message": "8 figure(s), 10 box(es), 0 list(s), 0 table(s), 9 heading(s)",
      "ms": 6,
      "result": "driven"
     },
@@ -25618,8 +25732,8 @@
       }
      ],
      "id": "resp",
-     "message": "8 figure(s), 8 box(es), 0 list(s), 0 table(s), 9 heading(s)",
-     "ms": 4,
+     "message": "8 figure(s), 10 box(es), 0 list(s), 0 table(s), 9 heading(s)",
+     "ms": 3,
      "result": "driven"
     },
     {
@@ -25633,7 +25747,7 @@
      ],
      "id": "g162-mom",
      "message": "activate action_btn:32",
-     "ms": 32,
+     "ms": 25,
      "result": "driven"
     },
     {
@@ -25647,7 +25761,7 @@
      ],
      "id": "g162-ca",
      "message": "pick pick_search:0",
-     "ms": 146,
+     "ms": 145,
      "result": "driven"
     },
     {
@@ -25661,7 +25775,7 @@
      ],
      "id": "g162-cb",
      "message": "pick pick_search:1",
-     "ms": 148,
+     "ms": 150,
      "result": "driven"
     },
     {
@@ -25675,7 +25789,7 @@
      ],
      "id": "g162-cadd",
      "message": "activate action_btn:46",
-     "ms": 27,
+     "ms": 24,
      "result": "driven"
     },
     {
@@ -25689,7 +25803,7 @@
      ],
      "id": "seg",
      "message": "opened pane p-seg",
-     "ms": 107,
+     "ms": 97,
      "result": "driven"
     },
     {
@@ -25717,7 +25831,7 @@
      ],
      "id": "a9_3",
      "message": "set-text field_in:0",
-     "ms": 24,
+     "ms": 22,
      "result": "driven"
     },
     {
@@ -25731,7 +25845,7 @@
      ],
      "id": "b9_3",
      "message": "set-text field_in:1",
-     "ms": 25,
+     "ms": 24,
      "result": "driven"
     },
     {
@@ -25754,8 +25868,8 @@
       }
      ],
      "id": "x9_3",
-     "message": "8 figure(s), 8 box(es), 0 list(s), 0 table(s), 9 heading(s)",
-     "ms": 4,
+     "message": "8 figure(s), 10 box(es), 0 list(s), 0 table(s), 9 heading(s)",
+     "ms": 3,
      "result": "driven"
     },
     {
@@ -25769,7 +25883,7 @@
      ],
      "id": "a9_7",
      "message": "set-text field_in:0",
-     "ms": 24,
+     "ms": 25,
      "result": "driven"
     },
     {
@@ -25783,7 +25897,7 @@
      ],
      "id": "b9_7",
      "message": "set-text field_in:1",
-     "ms": 25,
+     "ms": 22,
      "result": "driven"
     },
     {
@@ -25806,7 +25920,7 @@
       }
      ],
      "id": "x9_7",
-     "message": "8 figure(s), 8 box(es), 0 list(s), 0 table(s), 9 heading(s)",
+     "message": "8 figure(s), 10 box(es), 0 list(s), 0 table(s), 9 heading(s)",
      "ms": 3,
      "result": "driven"
     },
@@ -25835,7 +25949,7 @@
      ],
      "id": "b60_20",
      "message": "set-text field_in:1",
-     "ms": 27,
+     "ms": 24,
      "result": "driven"
     },
     {
@@ -25858,8 +25972,8 @@
       }
      ],
      "id": "x60_20",
-     "message": "8 figure(s), 8 box(es), 0 list(s), 0 table(s), 9 heading(s)",
-     "ms": 4,
+     "message": "8 figure(s), 10 box(es), 0 list(s), 0 table(s), 9 heading(s)",
+     "ms": 3,
      "result": "driven"
     },
     {
@@ -25872,8 +25986,8 @@
       }
      ],
      "id": "also",
-     "message": "8 figure(s), 8 box(es), 0 list(s), 0 table(s), 9 heading(s)",
-     "ms": 4,
+     "message": "8 figure(s), 10 box(es), 0 list(s), 0 table(s), 9 heading(s)",
+     "ms": 3,
      "result": "driven"
     },
     {
@@ -25940,7 +26054,7 @@
      ],
      "id": "g162-csv",
      "message": "activate action_btn:49",
-     "ms": 25,
+     "ms": 23,
      "result": "driven"
     },
     {
@@ -25968,6 +26082,39 @@
      "result": "driven"
     },
     {
+     "action": "activate",
+     "expectations": [
+      {
+       "detail": "ok == True, got True",
+       "path": "ok",
+       "verdict": "CONFIRMED"
+      }
+     ],
+     "id": "g177-print",
+     "message": "activate action_btn:50",
+     "ms": 22,
+     "result": "driven"
+    },
+    {
+     "action": "collect-output",
+     "expectations": [
+      {
+       "detail": "output.payloads.0.k == 'print', got 'print'",
+       "path": "output.payloads.0.k",
+       "verdict": "CONFIRMED"
+      },
+      {
+       "detail": "output.payloads.1 exists False, got None",
+       "path": "output.payloads.1",
+       "verdict": "CONFIRMED"
+      }
+     ],
+     "id": "g177-printed",
+     "message": "1 payload(s)",
+     "ms": 1,
+     "result": "driven"
+    },
+    {
      "action": "show-pane",
      "expectations": [
       {
@@ -25978,7 +26125,7 @@
      ],
      "id": "g162-endpane",
      "message": "opened pane p-sel",
-     "ms": 89,
+     "ms": 71,
      "result": "driven"
     },
     {
@@ -25996,7 +26143,7 @@
       }
      ],
      "id": "g162-endrep",
-     "message": "8 figure(s), 8 box(es), 0 list(s), 0 table(s), 9 heading(s)",
+     "message": "8 figure(s), 10 box(es), 0 list(s), 0 table(s), 9 heading(s)",
      "ms": 3,
      "result": "driven"
     },
@@ -26021,7 +26168,7 @@
      ],
      "id": "g162-endintact",
      "message": "read the page",
-     "ms": 8,
+     "ms": 7,
      "result": "driven"
     }
    ],
@@ -29855,9 +30002,9 @@
    "verdict": "PASS"
   },
   "page-soil-bench-science": {
-   "at": 1788924168,
-   "confirmed": 72,
-   "goal": "On the soil bench: the demo windrow log has 14 of 15 required days at or above 55 C and 5 of 5 turnings while hot, peak 64, not there yet; a 34 C reading is a cooled pile, in-vessel needs only 3 days and is met, 72 C is one reading above 66; 100 L of fresh grass clippings (C:N 20, 2.4% N, 80% moisture, 250 kg/m3) is nitrogen-rich and 200 L of straw (80, 0.7%, 12%, 60) blends to C:N 42.9:1 by sum C over sum N, 37 kg wet, 16 kg dry, 58% moisture; peat + perlite is a nutrient-free mix and compost makes it 1.00/5; the texture key reads holds, ribbon, over 5 cm, smooth as SILTY CLAY and falls apart as SAND. Then the composting pane's last three untouched controls are driven -- the Celsius temperature-unit chip reselected, the squeeze-test moisture set to bone dry, and the turn chip toggled -- as pending inputs with no reading added, so the demo windrow verdict is unchanged and read once more.",
+   "at": 1789009246,
+   "confirmed": 78,
+   "goal": "On the soil bench: the demo windrow log has 14 of 15 required days at or above 55 C and 5 of 5 turnings while hot, peak 64, not there yet; a 34 C reading is a cooled pile, in-vessel needs only 3 days and is met, 72 C is one reading above 66; 100 L of fresh grass clippings (C:N 20, 2.4% N, 80% moisture, 250 kg/m3) is nitrogen-rich and 200 L of straw (80, 0.7%, 12%, 60) blends to C:N 42.9:1 by sum C over sum N, 37 kg wet, 16 kg dry, 58% moisture; peat + perlite is a nutrient-free mix and compost makes it 1.00/5; the texture key reads holds, ribbon, over 5 cm, smooth as SILTY CLAY and falls apart as SAND. Then the composting pane's last three untouched controls are driven -- the Celsius temperature-unit chip reselected, the squeeze-test moisture set to bone dry, and the turn chip toggled -- as pending inputs with no reading added, so the demo windrow verdict is unchanged and read once more. Copy recipe on that three-part mix puts exactly one clipboard text on the clipboard: Mix recipe, 3 parts total, then one line per component with its share, 1 part sphagnum peat (33%), 1 part perlite (33%), 1 part finished compost (33%), and the mix reads 1.00/5 afterwards.",
    "held": true,
    "id": "page-soil-bench-science",
    "must": "PASS",
@@ -29915,7 +30062,7 @@
      ],
      "id": "up",
      "message": "press-step step_btn:1",
-     "ms": 24,
+     "ms": 23,
      "result": "driven"
     },
     {
@@ -29943,7 +30090,7 @@
      ],
      "id": "demo",
      "message": "activate action_btn:2",
-     "ms": 22,
+     "ms": 24,
      "result": "driven"
     },
     {
@@ -29996,7 +30143,7 @@
      ],
      "id": "t34",
      "message": "set-text step_val:0",
-     "ms": 23,
+     "ms": 22,
      "result": "driven"
     },
     {
@@ -30010,7 +30157,7 @@
      ],
      "id": "add34",
      "message": "activate action_btn:0",
-     "ms": 24,
+     "ms": 22,
      "result": "driven"
     },
     {
@@ -30052,7 +30199,7 @@
      ],
      "id": "vessel",
      "message": "activate dial_btn:0",
-     "ms": 23,
+     "ms": 22,
      "result": "driven"
     },
     {
@@ -30071,7 +30218,7 @@
      ],
      "id": "meets",
      "message": "3 figure(s), 11 box(es), 1 list(s), 1 table(s), 18 heading(s)",
-     "ms": 5,
+     "ms": 4,
      "result": "driven"
     },
     {
@@ -30085,7 +30232,7 @@
      ],
      "id": "windrow",
      "message": "activate dial_btn:2",
-     "ms": 23,
+     "ms": 21,
      "result": "driven"
     },
     {
@@ -30099,7 +30246,7 @@
      ],
      "id": "t72",
      "message": "set-text step_val:0",
-     "ms": 22,
+     "ms": 21,
      "result": "driven"
     },
     {
@@ -30127,7 +30274,7 @@
      ],
      "id": "over",
      "message": "4 figure(s), 11 box(es), 1 list(s), 1 table(s), 18 heading(s)",
-     "ms": 4,
+     "ms": 3,
      "result": "driven"
     },
     {
@@ -30141,7 +30288,7 @@
      ],
      "id": "undo2",
      "message": "activate action_btn:1",
-     "ms": 22,
+     "ms": 21,
      "result": "driven"
     },
     {
@@ -30155,7 +30302,7 @@
      ],
      "id": "rec",
      "message": "opened pane p-rec",
-     "ms": 116,
+     "ms": 135,
      "result": "driven"
     },
     {
@@ -30230,7 +30377,7 @@
      ],
      "id": "straw",
      "message": "pick pick_search:0",
-     "ms": 149,
+     "ms": 147,
      "result": "driven"
     },
     {
@@ -30244,7 +30391,7 @@
      ],
      "id": "v200",
      "message": "set-text step_val:1",
-     "ms": 24,
+     "ms": 22,
      "result": "driven"
     },
     {
@@ -30258,7 +30405,7 @@
      ],
      "id": "radd2",
      "message": "activate action_btn:3",
-     "ms": 25,
+     "ms": 22,
      "result": "driven"
     },
     {
@@ -30321,7 +30468,7 @@
      ],
      "id": "mix",
      "message": "opened pane p-mix",
-     "ms": 85,
+     "ms": 78,
      "result": "driven"
     },
     {
@@ -30335,7 +30482,7 @@
      ],
      "id": "peat",
      "message": "activate dial_btn:8",
-     "ms": 25,
+     "ms": 26,
      "result": "driven"
     },
     {
@@ -30349,7 +30496,7 @@
      ],
      "id": "perl",
      "message": "activate dial_btn:10",
-     "ms": 25,
+     "ms": 23,
      "result": "driven"
     },
     {
@@ -30383,7 +30530,7 @@
      ],
      "id": "free",
      "message": "14 figure(s), 11 box(es), 2 list(s), 2 table(s), 18 heading(s)",
-     "ms": 3,
+     "ms": 4,
      "result": "driven"
     },
     {
@@ -30425,6 +30572,63 @@
      "result": "driven"
     },
     {
+     "action": "activate",
+     "expectations": [
+      {
+       "detail": "ok == True, got True",
+       "path": "ok",
+       "verdict": "CONFIRMED"
+      }
+     ],
+     "id": "g177-mix-copy",
+     "message": "activate action_btn:8",
+     "ms": 22,
+     "result": "driven"
+    },
+    {
+     "action": "collect-output",
+     "expectations": [
+      {
+       "detail": "output.payloads.0.k == 'clipboard', got 'clipboard'",
+       "path": "output.payloads.0.k",
+       "verdict": "CONFIRMED"
+      },
+      {
+       "detail": "output.payloads.0.text == 'Mix recipe \u2014 3 parts total\\n1 part sphagnum peat  (33%)\\n1 part perlite  (33%)\\n1 part finished compost  (33%)', got 'Mix recipe \u2014 3 parts total\\n1 part sphagnum peat  (33%)\\n1 part perlite  (33%)\\n1 part finished compost  (33%)'",
+       "path": "output.payloads.0.text",
+       "verdict": "CONFIRMED"
+      },
+      {
+       "detail": "output.payloads.1 exists False, got None",
+       "path": "output.payloads.1",
+       "verdict": "CONFIRMED"
+      }
+     ],
+     "id": "g177-mix",
+     "message": "1 payload(s)",
+     "ms": 1,
+     "result": "driven"
+    },
+    {
+     "action": "read-report",
+     "expectations": [
+      {
+       "detail": "output.by.mOut.nutrient load == '1.00 / 5', got '1.00 / 5'",
+       "path": "output.by.mOut.nutrient load",
+       "verdict": "CONFIRMED"
+      },
+      {
+       "detail": "output.tables.mOut.3.0 exists True, got 'finished compost'",
+       "path": "output.tables.mOut.3.0",
+       "verdict": "CONFIRMED"
+      }
+     ],
+     "id": "g177-mix-still",
+     "message": "14 figure(s), 11 box(es), 2 list(s), 2 table(s), 18 heading(s)",
+     "ms": 3,
+     "result": "driven"
+    },
+    {
      "action": "show-pane",
      "expectations": [
       {
@@ -30435,7 +30639,7 @@
      ],
      "id": "tex",
      "message": "opened pane p-tex",
-     "ms": 78,
+     "ms": 73,
      "result": "driven"
     },
     {
@@ -30449,7 +30653,7 @@
      ],
      "id": "q1",
      "message": "activate dial_btn:21",
-     "ms": 22,
+     "ms": 23,
      "result": "driven"
     },
     {
@@ -30463,7 +30667,7 @@
      ],
      "id": "q2",
      "message": "activate dial_btn:21",
-     "ms": 23,
+     "ms": 24,
      "result": "driven"
     },
     {
@@ -30477,7 +30681,7 @@
      ],
      "id": "q3",
      "message": "activate dial_btn:22",
-     "ms": 25,
+     "ms": 21,
      "result": "driven"
     },
     {
@@ -30510,7 +30714,7 @@
      ],
      "id": "silty",
      "message": "14 figure(s), 11 box(es), 2 list(s), 2 table(s), 19 heading(s)",
-     "ms": 4,
+     "ms": 3,
      "result": "driven"
     },
     {
@@ -30524,7 +30728,7 @@
      ],
      "id": "startover",
      "message": "activate action_btn:9",
-     "ms": 29,
+     "ms": 21,
      "result": "driven"
     },
     {
@@ -30538,7 +30742,7 @@
      ],
      "id": "q1b",
      "message": "activate dial_btn:20",
-     "ms": 21,
+     "ms": 23,
      "result": "driven"
     },
     {
@@ -30566,7 +30770,7 @@
      ],
      "id": "g168-comppane",
      "message": "opened pane p-comp",
-     "ms": 69,
+     "ms": 71,
      "result": "driven"
     },
     {
@@ -30580,7 +30784,7 @@
      ],
      "id": "g168-unit",
      "message": "activate chip:0",
-     "ms": 22,
+     "ms": 24,
      "result": "driven"
     },
     {
@@ -30594,7 +30798,7 @@
      ],
      "id": "g168-moist",
      "message": "activate dial_btn:3",
-     "ms": 21,
+     "ms": 22,
      "result": "driven"
     },
     {
@@ -30608,7 +30812,7 @@
      ],
      "id": "g168-turn",
      "message": "activate chip:2",
-     "ms": 25,
+     "ms": 21,
      "result": "driven"
     },
     {
@@ -30627,7 +30831,7 @@
      ],
      "id": "g168-held",
      "message": "14 figure(s), 11 box(es), 2 list(s), 2 table(s), 19 heading(s)",
-     "ms": 5,
+     "ms": 4,
      "result": "driven"
     },
     {
@@ -30651,7 +30855,7 @@
      ],
      "id": "intact",
      "message": "read the page",
-     "ms": 6,
+     "ms": 9,
      "result": "driven"
     }
    ],

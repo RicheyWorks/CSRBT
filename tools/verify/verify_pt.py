@@ -34,6 +34,7 @@ with sync_playwright() as p:
         if "ERR_CONNECTION" in m.text or "ERR_FAILED" in m.text: return
         errs.append(m.text)
     pg.on("console",_con)
+    pg.add_init_script("window.print = () => { window.__printed = (window.__printed || 0) + 1; };")
     pg.goto(_u("pheno-tracker.html"), wait_until="domcontentloaded")
     pg.wait_for_timeout(600)
 
@@ -228,6 +229,12 @@ with sync_playwright() as p:
     eco=pg.evaluate("()=>document.getElementById('ecoOut').textContent")
     ck("export carries the run", len(eco)>60, eco[:150])
     ck("export names the scored plants", "#" in eco, eco[:200])
+    # the segregation pane's print (ADR-177): one print, and the export unchanged by it
+    pg.click('.tab[data-pane="p-seg"]'); pg.wait_for_timeout(250)
+    pg.click("#p-seg button:has-text('Print / save PDF')"); pg.wait_for_timeout(80)
+    ck("Print / save PDF prints, once", pg.evaluate("window.__printed || 0")==1, pg.evaluate("window.__printed"))
+    ck("...and the export it prints beside is the same text afterwards",
+       pg.evaluate("()=>document.getElementById('ecoOut').textContent")==eco, "")
 
     # ---------------- the entry-layer note ----------------
     pg.click('.tab[data-pane="p-seg"]'); pg.wait_for_timeout(250)
@@ -263,6 +270,16 @@ with sync_playwright() as p:
     pg.set_viewport_size({"width":880,"height":1250})
     ck("no errors after the whole run", not errs, errs[:4])
     b.close()
+
+# ---- the task holds the print (ADR-177) ----
+import io as _io, json as _json
+_TASK=_os.path.join(ROOT,"tools","tasks","page-pheno-tracker-science.json")
+_task=_json.load(_io.open(_TASK,encoding="utf-8")) if _os.path.isfile(_TASK) else {"steps":[]}
+_steps=dict((st["id"],st) for st in _task["steps"])
+ck("the task holds the print to a print, and nothing else leaving with it",
+   _steps.get("g177-printed",{}).get("expect",{}).get("output.payloads.0.k")=="print"
+   and _steps.get("g177-printed",{}).get("expect",{}).get("output.payloads.1")=={"op":"exists","value":False},
+   _steps.get("g177-printed"))
 
 for x in F: print("FAIL:",x)
 print("PASS",len(P))

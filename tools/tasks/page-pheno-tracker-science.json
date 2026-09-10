@@ -2,7 +2,7 @@
  "id": "page-pheno-tracker-science",
  "target": "page",
  "page": "pheno-tracker.html",
- "goal": "On the pheno tracker: name and stamp a run of 8, score every plant on the four weighted dials, note a standout, star the top three keepers (selection differential +1.44), add a trait, test a 60:20 segregation against the ratios, and export both the run report and the CSV -- every pane driven and the figures and both exports held against an oracle.",
+ "goal": "On the pheno tracker: name and stamp a run of 8, score every plant on the four weighted dials, note a standout, star the top three keepers (selection differential +1.44), add a trait, test a 60:20 segregation against the ratios, and export both the run report and the CSV -- every pane driven and the figures and both exports held against an oracle. Then Print / save PDF is pressed on the segregation pane and exactly one print, and nothing else, leaves the page; the selection differential reads +1.44 afterwards.",
  "steps": [
   {
    "id": "look",
@@ -817,6 +817,27 @@
     "output.payloads.0.text#3": {
      "op": "contains",
      "value": "# run Blueberry F2 — scored by R. Ellison — 2026-09-08"
+    }
+   }
+  },
+  {
+   "id": "g177-print",
+   "action": "activate",
+   "arguments": {
+    "selector": "@control:Print / save PDF"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "g177-printed",
+   "action": "collect-output",
+   "expect": {
+    "output.payloads.0.k": "print",
+    "output.payloads.1": {
+     "op": "exists",
+     "value": false
     }
    }
   },

@@ -890,10 +890,15 @@
    "by": "adr176",
    "sha": "db200f5f7d9a9d6b200970c8b6c87b1b6bb3791c6de3aa715f0ae60fae5c15de"
   },
+  "docs/ADR-177-the-last-five-outputs-read-2026-09-09.md": {
+   "at": 1789009468,
+   "by": "adr177",
+   "sha": "39d7fb68bb6ce7904b110269482cf2fc2a9b184aea4dfc927bd5df251a73d92a"
+  },
   "docs/AI_HARNESS.md": {
-   "at": 1788996656,
-   "by": "adr176",
-   "sha": "bcc727c155bfb90d6406cb92f30af13b255f0f6aa6f880c25e0e92af423fda7c"
+   "at": 1789009468,
+   "by": "adr177",
+   "sha": "784e96563ac645532eb7c43ae3f52989a3abd362b3fb498e0488ad82a66d7375"
   },
   "docs/AUDIT-2026-07-14-capability-coverage.md": {
    "at": 1788676922,
@@ -1720,6 +1725,11 @@
    "by": "adr176",
    "sha": "f164dad66cb096cf5833d589080a004591b6f89ac06ebfeacece34727babca8b"
   },
+  "docs/CHANGELOG-2026-09-09-adr177-the-last-five-outputs-read.md": {
+   "at": 1789009468,
+   "by": "adr177",
+   "sha": "bef82da574cbc14f46520d808c5b187b3d502d8552b8a0e291054f2452b84f60"
+  },
   "docs/DESIGN-adaptive-engine.md": {
    "at": 1788676923,
    "by": "adr146b",
@@ -2166,9 +2176,9 @@
    "sha": "21fe44696999d2257029b10a6aa784a2cffed0efa6da3e908c2333f993cb1eee"
   },
   "docs/soil-suite.html": {
-   "at": 1788676925,
-   "by": "adr146b",
-   "sha": "e4d5f00963499f02b88f802e8b6f65e5d6f35b205dba4662a9aceea4d14132b7"
+   "at": 1789009468,
+   "by": "adr177",
+   "sha": "1859baad7329bc3a92d3949083370d3c47b88c7cd31eb727e2110c9f83833963"
   },
   "docs/stand-sheet.html": {
    "at": 1788761490,
@@ -2366,9 +2376,9 @@
    "sha": "87a75cf8e4e4a93070153679fbaba41272105d2027a9233e517ff608cf275251"
   },
   "tools/badinput_ledger.json": {
-   "at": 1788996656,
-   "by": "adr176",
-   "sha": "8af5db82314094f586741a5dbed108103f80b1d6d2ef8f0100d8e1a5d572e674"
+   "at": 1789009468,
+   "by": "adr177",
+   "sha": "3a45acf454d31df2be9d341f085d8a5c48ee7a0ad0b1aec726705f073314a5d7"
   },
   "tools/blind_console.py": {
    "at": 1788676925,
@@ -2540,10 +2550,15 @@
    "by": "adr176",
    "sha": "21824cdf075747813f1dc6bf8deb20cccd791b626168603b0f1b8cf7a55eb061"
   },
+  "tools/delivery/adr177.json": {
+   "at": 1789009468,
+   "by": "adr177",
+   "sha": "9097ce9ba99c1fd10d5dbcaac4bf95cbce7ad0a38662e5c870c4db1799e9c868"
+  },
   "tools/delivery_ledger.json": {
-   "at": 1788996656,
-   "by": "adr176",
-   "sha": "61d40d24a29a2cb5cbdbcf6e4a30f8c7bd5171925e49f97032b13656d8051430"
+   "at": 1789009468,
+   "by": "adr177",
+   "sha": "25e09856b3933fd3cd83f3487c3f828832dba3ea0e1b5f942780e4ebb8322600"
   },
   "tools/dwc.py": {
    "at": 1788676926,
@@ -2586,9 +2601,9 @@
    "sha": "01919e137bdbf702ebc887de41aa026b721916da9d3761ce673812d54a22471f"
   },
   "tools/entry_ledger.json": {
-   "at": 1788996656,
-   "by": "adr176",
-   "sha": "3e6613c0b3cfd21b916d0eaacffa329edc160891a73aa677af5b2f90aada0712"
+   "at": 1789009468,
+   "by": "adr177",
+   "sha": "0b426e92ae226bbd77bf585c11434408242981bda10a3a2a4074893be96b2409"
   },
   "tools/entry_reach.py": {
    "at": 1788676926,
@@ -2641,9 +2656,9 @@
    "sha": "1d5e5bb0fadf4abb88d56125483a66e1bc2367055c7b541aa9d800c6dddde9dc"
   },
   "tools/harness_board.html": {
-   "at": 1788996656,
-   "by": "adr176",
-   "sha": "60967efddb8203b4521827b6392c8d04f6483086bb8498a395015545bf6f8cd5"
+   "at": 1789009468,
+   "by": "adr177",
+   "sha": "278b780097d4dfcfd5ae18e2b5f9a0a84d8daef585bbd7445012f1ee2bce5464"
   },
   "tools/harness_board.py": {
    "at": 1788783742,
@@ -2846,9 +2861,9 @@
    "sha": "172e699a8abda0fb0fe773b9204e652001fac70b769e1082739097b699c28db0"
   },
   "tools/outputs_ledger.json": {
-   "at": 1788996656,
-   "by": "adr176",
-   "sha": "7d304c5495ef238c6e9d4303508ab19eef81d8b55c68b0912a46b76f2973b902"
+   "at": 1789009468,
+   "by": "adr177",
+   "sha": "d48432212d56b2da2c92dc205e6111a34d067b6b30fd0353093781f87b869186"
   },
   "tools/probe.py": {
    "at": 1788676927,
@@ -2881,9 +2896,9 @@
    "sha": "15022dcd97ee97f72ec5f907d0cdfef3ee36da9588f9de47e110519ff9f781e8"
   },
   "tools/published.json": {
-   "at": 1788996656,
-   "by": "adr176",
-   "sha": "1f0f0b8ad684fb7de6fde3454311f79f6d16502f614aeb705919e9e33a28b307"
+   "at": 1789009468,
+   "by": "adr177",
+   "sha": "8697094f8e2fd0ca7b708a481ca302a534a7fcf128c402f7f5bf5bb02c0e385c"
   },
   "tools/reach.py": {
    "at": 1788676928,
@@ -2891,9 +2906,9 @@
    "sha": "b176e4e078bd39b22f5056223c6d1949503ff69c2f029a02d3513a7607db39cb"
   },
   "tools/readable_ledger.json": {
-   "at": 1788996656,
-   "by": "adr176",
-   "sha": "085348282dae9d097c0ab8eb9a5b8efb2094657322c04b8eca9fb60437048bb2"
+   "at": 1789009468,
+   "by": "adr177",
+   "sha": "9444bf10e54cb23b685fe459202a1e4a479a1e2d68eb58052b326679326a85ca"
   },
   "tools/routes.json": {
    "at": 1788676928,
@@ -2926,9 +2941,9 @@
    "sha": "0a2241a252fa68e80b813e601b7bd67cd8ba5c00b8ad07acc98dcd93a42b0268"
   },
   "tools/task_ledger.json": {
-   "at": 1788996656,
-   "by": "adr176",
-   "sha": "389072de50dc306c777a1c6d54199aa36eacd1117544ac3d03db194a413c6202"
+   "at": 1789009468,
+   "by": "adr177",
+   "sha": "b1119a9c4171d90c7eb5c1cdfa379bef6140bdc1aaca595763262495568c0dee"
   },
   "tools/tasks/fixture-buckets.json": {
    "at": 1788676928,
@@ -3021,9 +3036,9 @@
    "sha": "31c670dd76d45f56d6aea35cd5d4ccd1a1295dc52c602263feb5ce41468f8e3f"
   },
   "tools/tasks/page-eco-protocol-library-reference.json": {
-   "at": 1788676928,
-   "by": "adr146b",
-   "sha": "faf171306236fbd44e5aca3965212004b316c7208a952bd766a6b5106862b048"
+   "at": 1789009468,
+   "by": "adr177",
+   "sha": "b12bf819d15a91f3476f625719530d140e839950133af15806a5830f2df8544c"
   },
   "tools/tasks/page-eco-protocol-reference-reference.json": {
    "at": 1788676928,
@@ -3091,9 +3106,9 @@
    "sha": "86b89d4a01ce62f2fa0a25c7a210752fcd587e3b48109409f05175e710c1c85d"
   },
   "tools/tasks/page-farm-scout-science.json": {
-   "at": 1788871318,
-   "by": "adr160",
-   "sha": "4b73f70a367ca332a43abdfcb1039a7d5723b78759736c56207fc71cd2068d07"
+   "at": 1789009468,
+   "by": "adr177",
+   "sha": "e9faf5a70923effb5da4ee6498bfcf76103aa7378445d53ee124ddc912ccfcea"
   },
   "tools/tasks/page-field-notebook-science.json": {
    "at": 1788981068,
@@ -3101,9 +3116,9 @@
    "sha": "4a93baba66f30941412a3d411552b87a9c2644c62f43095d0cfdfe8c03b8f013"
   },
   "tools/tasks/page-field-season-replay.json": {
-   "at": 1788676928,
-   "by": "adr146b",
-   "sha": "7eaba21688483261e5b011f176fe709a87da388b2522f895d1c345f7e2ddf5c3"
+   "at": 1789009468,
+   "by": "adr177",
+   "sha": "dbbbefe35441e17cfcdce675c61ea15e890c2b392c64314d91e8b1266f01872a"
   },
   "tools/tasks/page-food-web-science.json": {
    "at": 1788983626,
@@ -3131,9 +3146,9 @@
    "sha": "36ab4031617d19b2c624b63aebaa4a9cfecab466a16c6d059fc4473e3ba68995"
   },
   "tools/tasks/page-pheno-tracker-science.json": {
-   "at": 1788877758,
-   "by": "adr162",
-   "sha": "af8dc84219de8ca858ae8b26258cecb3c65a9b3600084848f568b8ebe16da0ef"
+   "at": 1789009468,
+   "by": "adr177",
+   "sha": "a98d255cb405fc1392d55cf0292d484f8fb7987696b683a4472b9478e1b5ed02"
   },
   "tools/tasks/page-plant-characters-key.json": {
    "at": 1788676928,
@@ -3151,9 +3166,9 @@
    "sha": "6fc44bd1a0ed6b8e773926e95408c78d947f127ca887f74c3e4c1d7fe3a4d925"
   },
   "tools/tasks/page-soil-bench-science.json": {
-   "at": 1788926231,
-   "by": "adr168",
-   "sha": "7278182ca9c12d4b0e80db608c7238727ac9b1c87ca381fff82a1ab47bb21b1e"
+   "at": 1789009468,
+   "by": "adr177",
+   "sha": "0eabfa8c8631569a5b7b2c0cad37e1ca0bed01c6449d5b1999601734dec5292d"
   },
   "tools/tasks/page-soil-recipes-scaling.json": {
    "at": 1788996656,
@@ -3221,9 +3236,9 @@
    "sha": "15a9ad96a69cde9458d5f7fca51be947e5bebad787cc069e1bcc64bf7800b592"
   },
   "tools/verify/counts.json": {
-   "at": 1788996656,
-   "by": "adr176",
-   "sha": "2ee502885af070d3c014033f5edc2fa927cd1e71ee50cb86d24013a90db97a57"
+   "at": 1789009468,
+   "by": "adr177",
+   "sha": "4b3387fe3019af753d661e83460cd2a1b686bfbc3699e3c2f26b5cbbaaec63b5"
   },
   "tools/verify/run_all.py": {
    "at": 1788783742,
@@ -3360,6 +3375,11 @@
    "by": "adr146b",
    "sha": "b3597554427c027af04c19005edb3ad539c46206ed57fac09ab7af6294459f47"
   },
+  "tools/verify/verify_epl.py": {
+   "at": 1789009468,
+   "by": "adr177",
+   "sha": "a22adfce4c1d1c9ea071410420eb31ca2cfa39a9ca3af2a587b82bee4262cd3f"
+  },
   "tools/verify/verify_escaping_slice.py": {
    "at": 1788676929,
    "by": "adr146b",
@@ -3401,9 +3421,9 @@
    "sha": "23a023ce5b50e395b3af2c1cc8172a16ae3cbd5249675468ab9dd687dcb3d3b8"
   },
   "tools/verify/verify_fs.py": {
-   "at": 1788676929,
-   "by": "adr146b",
-   "sha": "ce5fd960acae588db112bdbad20aa1bcbac932676bdb040de23ad31c739782a9"
+   "at": 1789009468,
+   "by": "adr177",
+   "sha": "f5c68c0b453f39df1fa5b84956e974aa996f0dd9093570b3c5068d2a0e136209"
   },
   "tools/verify/verify_fw.py": {
    "at": 1788983626,
@@ -3501,9 +3521,9 @@
    "sha": "3b7d1abdc63582767ce09774693e9fe3f49e87dfc06f6d359be074b89bf9ab04"
   },
   "tools/verify/verify_pt.py": {
-   "at": 1788676929,
-   "by": "adr146b",
-   "sha": "7c13780beb2348b8bb41643b46b22d2dbe05023b9ad21027d202695e8aca3a82"
+   "at": 1789009468,
+   "by": "adr177",
+   "sha": "88b7520be02f2a67ef946c855dc664d86bed7c12851802efc1239b7e8f4dffe5"
   },
   "tools/verify/verify_publish_drift.py": {
    "at": 1788676929,
@@ -3551,9 +3571,9 @@
    "sha": "1793b9d4b45dde17dc856ee5305cb6e7c18183f89e7adf9de87069090009a19d"
   },
   "tools/verify/verify_soil.py": {
-   "at": 1788676930,
-   "by": "adr146b",
-   "sha": "ee183af3adc8eb55afd43e60cca54375a5f4e2248b01ef3cf160be78e4ba5fd0"
+   "at": 1789009468,
+   "by": "adr177",
+   "sha": "881d7ef01e7fd3f1aacde0ab9b9c4b3e3c442b61d85a87faf6e238dca45f6dce"
   },
   "tools/verify/verify_ss.py": {
    "at": 1788676930,
@@ -3596,9 +3616,9 @@
    "sha": "1076ece5682a033e5b96d1fd1e2523fcc22ff895b03ce09d007638acb62a2955"
   },
   "tools/verify/verify_two.py": {
-   "at": 1788676930,
-   "by": "adr146b",
-   "sha": "7fd4055847fbc3bf9111be6ee21fa32898e3b15e3348cd7d3039d8cf96cb383f"
+   "at": 1789009468,
+   "by": "adr177",
+   "sha": "96060f012693c7dc63040e6f5c7a762719cdc72f7611584ba31d21158fc9466a"
   },
   "tools/verify/verify_visualizer_sessions.py": {
    "at": 1788676930,

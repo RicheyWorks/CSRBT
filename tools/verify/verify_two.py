@@ -33,6 +33,7 @@ with sync_playwright() as p:
         if "ERR_CONNECTION" in m.text or "ERR_FAILED" in m.text: return
         errs.append(m.text)
     pg.on("console",_con)
+    pg.add_init_script("window.print = () => { window.__printed = (window.__printed || 0) + 1; };")
 
     def setfield(root, idx, val):
         pg.evaluate("""([r,i,v])=>{const f=[...document.querySelectorAll(r+' .fek-field input')];
@@ -117,6 +118,16 @@ with sync_playwright() as p:
        pg.evaluate("()=>document.getElementById('q4').value")=="214",
        pg.evaluate("()=>document.getElementById('q4').value"))
 
+    # the graded season's print (ADR-177): the results card carries the one
+    # print button on the page, and pressing it prints once
+    pg.evaluate("()=>{document.getElementById('results').style.display='block';}")
+    pg.wait_for_timeout(120)
+    ck("season: Print the season is the results card's button, and the page's only print",
+       pg.eval_on_selector_all("#results button:has-text('Print the season')","e=>e.length")==1
+       and pg.eval_on_selector_all("button[onclick*='print']","e=>e.length")==1, "")
+    pg.click("#results button:has-text('Print the season')"); pg.wait_for_timeout(80)
+    ck("season: Print the season prints, once", pg.evaluate("window.__printed || 0")==1, pg.evaluate("window.__printed"))
+
     for w in (390,768):
         pg.set_viewport_size({"width":w,"height":900}); pg.wait_for_timeout(220)
         over=pg.evaluate("""(w)=>{const bad=[];
@@ -180,6 +191,17 @@ with sync_playwright() as p:
         ck("notebook: FEK targets >= 44px @%d"%w, not small, small)
     ck("notebook: no errors after the run", not errs, errs[:3])
     b.close()
+
+# ---- the season's task holds the print (ADR-177) ----
+import io as _io, json as _json
+_TASK=_os.path.join(ROOT,"tools","tasks","page-field-season-replay.json")
+_task=_json.load(_io.open(_TASK,encoding="utf-8")) if _os.path.isfile(_TASK) else {"steps":[]}
+_steps=dict((st["id"],st) for st in _task["steps"])
+ck("season: the task holds the print to a print, and nothing else leaving with it, after the season is graded",
+   _steps.get("g177-printed",{}).get("expect",{}).get("output.payloads.0.k")=="print"
+   and _steps.get("g177-printed",{}).get("expect",{}).get("output.payloads.1")=={"op":"exists","value":False}
+   and [st["id"] for st in _task["steps"]].index("g177-print") > [st["id"] for st in _task["steps"]].index("grade"),
+   _steps.get("g177-printed"))
 
 for x in F: print("FAIL:",x)
 print("PASS",len(P))

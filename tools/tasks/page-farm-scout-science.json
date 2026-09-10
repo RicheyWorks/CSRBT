@@ -2,7 +2,7 @@
  "id": "page-farm-scout-science",
  "target": "page",
  "page": "farm-scout.html",
- "goal": "On the farm scout, run a full field day: scout aphids across ten stops (avg 3.6/plant, spread 2.54), name the pest and stamp the field, observer and date, tally five pollinator types including one added by hand (11 visits, evenness held), test germination and plan a rotation, then export the field-day report and the CSV -- both held against an oracle.",
+ "goal": "On the farm scout, run a full field day: scout aphids across ten stops (avg 3.6/plant, spread 2.54), name the pest and stamp the field, observer and date, tally five pollinator types including one added by hand (11 visits, evenness held), test germination and plan a rotation, then export the field-day report and the CSV -- both held against an oracle. Then Print / save PDF is pressed on the export pane and exactly one print, and nothing else, leaves the page; the scouting figures read the same afterwards.",
  "steps": [
   {
    "id": "look",
@@ -926,6 +926,27 @@
     "output.payloads.0.text#7": {
      "op": "contains",
      "value": "rotation,Bed 2,Fabaceae"
+    }
+   }
+  },
+  {
+   "id": "g177-print",
+   "action": "activate",
+   "arguments": {
+    "selector": "@control:Print / save PDF"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "g177-printed",
+   "action": "collect-output",
+   "expect": {
+    "output.payloads.0.k": "print",
+    "output.payloads.1": {
+     "op": "exists",
+     "value": false
     }
    }
   },

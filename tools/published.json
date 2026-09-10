@@ -3,9 +3,9 @@
   "observed": {},
   "pages": {
     "_harness-board.html": {
-      "at": 1788996656,
+      "at": 1789009467,
       "dated_by": "the fetch time the reader reported -- about the fetch, not about the version",
-      "sha": "f6732dec8c901d4f9f56870efa8664ca5c44d734f1452b701eaf4a22e5568e0a",
+      "sha": "a975a7271b502c714d1a49a9bc06e9e00b3b009da4a8169229b271ac29f86484",
       "via": "read"
     },
     "adr-031.html": {
@@ -225,9 +225,9 @@
       "via": "read"
     },
     "soil-suite.html": {
-      "at": 1788477284,
-      "dated_by": "the version epoch in the filename",
-      "sha": "8564cf5867ca50f9958506c6937955527db5cced7f63a4d7b46bfb837412e21d",
+      "at": 1789009467,
+      "dated_by": "the fetch time the reader reported -- about the fetch, not about the version",
+      "sha": "07013c8029d8a31a2123d1820ced45238c427023f7f223366b8048f77a33e589",
       "via": "read"
     },
     "stand-sheet.html": {

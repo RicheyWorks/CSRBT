@@ -43,6 +43,19 @@ def blend(items):
     return C/N, wet, dry, (wet-dry)/wet
 CN2,WET2,DRY2,MO2 = blend([(FEED['grass'],100),(FEED['straw'],200)])
 
+# The mix's recipe, as Copy recipe hands it over (ADR-177): a heading with the
+# part total, then one line per component in the order tapped -- "N part(s)
+# <name>  (share%)", the share rounded half-up to a whole percent. Stated here
+# from the page's own prose ("parts", "share"), not read back from its JS.
+def mix_recipe(parts):
+    tot=sum(n for _,n in parts)
+    lines=["Mix recipe — %d parts total"%tot]
+    for name,n in parts:
+        lines.append("%d part%s %s  (%d%%)"%(n,"" if n==1 else "s",name,int(n/tot*100+0.5)))
+    return "\n".join(lines)
+MIX=[("sphagnum peat",1),("perlite",1),("finished compost",1)]
+WANT_MIX=mix_recipe(MIX)
+
 with sync_playwright() as p:
     b=p.chromium.launch(); pg=b.new_page(viewport={"width":880,"height":1250})
     pg.set_default_timeout(15000)
@@ -54,6 +67,8 @@ with sync_playwright() as p:
         if "ERR_CONNECTION" in m.text or "ERR_FAILED" in m.text: return
         errs.append(m.text)
     pg.on("console",_con)
+    pg.add_init_script("Object.defineProperty(navigator, 'clipboard', {get: () => ({"
+        "writeText: t => { window.__copied = t; return Promise.resolve(); }})});")
     pg.goto(_u("soil-bench.html"), wait_until="domcontentloaded"); pg.wait_for_timeout(400)
     ck("no startup errors", not errs, errs[:3])
     ck("5 tabs", pg.eval_on_selector_all(".tab","e=>e.length")==5, "")
@@ -228,6 +243,20 @@ with sync_playwright() as p:
     ck("ordinal caveat present", "ranks, not measurements" in pg.inner_text("#mOut"), "")
     ck("3 components in table", pg.eval_on_selector_all("#mOut table tr","e=>e.length")==4,
        pg.eval_on_selector_all("#mOut table tr","e=>e.length"))
+    # ---------- the recipe the mix hands over (ADR-177) ----------
+    pg.click("#mCopy"); pg.wait_for_timeout(150)
+    got_mix=pg.evaluate("window.__copied || ''")
+    ck("Copy recipe puts the three-part recipe on the clipboard, one line per part with its share",
+       got_mix==WANT_MIX, got_mix)
+    ck("...and the shares are the parts over the total, rounded (33/33/33 for 1:1:1)",
+       got_mix.count("(33%)")==3 and "3 parts total" in got_mix, got_mix)
+    pg.evaluate("window.__copied=''"); pg.click("#mClear"); pg.wait_for_timeout(150)
+    pg.click("#mCopy"); pg.wait_for_timeout(150)
+    ck("an empty mix copies nothing: the page says Empty mix and the clipboard is untouched",
+       pg.evaluate("window.__copied || ''")=="" , pg.evaluate("window.__copied"))
+    addComp("sphagnum peat",1); addComp("perlite",1); addComp("finished compost",1); pg.wait_for_timeout(250)
+    ck("rebuilt 1:1:1, the mix reads the same nutrient load", tile("nutrient load","#mOut")=="1.00 / 5",
+       tile("nutrient load","#mOut"))
 
     # ---------- texture key ----------
     pg.click('.tab[data-pane="p-tex"]'); pg.wait_for_timeout(250)
@@ -262,6 +291,17 @@ with sync_playwright() as p:
             ck("no h-overflow %d %s"%(w,t), ow<=w+1, "%d > %d"%(ow,w))
     ck("no errors at end", not errs, errs[:3])
     b.close()
+
+# ---- the task holds that recipe (ADR-177) ----
+import io as _io, json as _json
+_TASK=_os.path.join(ROOT,"tools","tasks","page-soil-bench-science.json")
+_task=_json.load(_io.open(_TASK,encoding="utf-8")) if _os.path.isfile(_TASK) else {"steps":[]}
+_steps=dict((st["id"],st) for st in _task["steps"])
+ck("the task holds the copied recipe to the port's text, as one clipboard payload and nothing else",
+   _steps.get("g177-mix",{}).get("expect",{}).get("output.payloads.0.text")==WANT_MIX
+   and _steps.get("g177-mix",{}).get("expect",{}).get("output.payloads.0.k")=="clipboard"
+   and _steps.get("g177-mix",{}).get("expect",{}).get("output.payloads.1")=={"op":"exists","value":False},
+   _steps.get("g177-mix"))
 print("PASS %d"%len(P))
 for x in F: print("FAIL:",x)
 print("---"); print("%d/%d"%(len(P),len(P)+len(F)))

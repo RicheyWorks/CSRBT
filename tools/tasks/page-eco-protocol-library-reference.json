@@ -2,7 +2,7 @@
  "id": "page-eco-protocol-library-reference",
  "target": "page",
  "page": "eco-protocol-library.html",
- "goal": "The eco-protocol-library page is a reference page with no data entry: its report is its outline. Read through the gateway, it carries exactly its 6 headings in order (Protocol Library ... The shrinking island), and is intact -- no leaked value, no script error, nothing pushed sideways.",
+ "goal": "The eco-protocol-library page is a reference page with no data entry: its report is its outline. Read through the gateway, it carries exactly its 6 headings in order (Protocol Library ... The shrinking island), and is intact -- no leaked value, no script error, nothing pushed sideways. Pressing the first Copy puts exactly one clipboard text on the clipboard: meadow-disturbance.eco whole, 14 lines from name: meadow disturbance study to expect: evenness(bloom) is uneven, with its 3 phases and 5 expectations, one of them deliberately wrong.",
  "steps": [
   {
    "id": "look",
@@ -35,6 +35,18 @@
    },
    "expect": {
     "ok": true
+   }
+  },
+  {
+   "id": "g177-eco",
+   "action": "collect-output",
+   "expect": {
+    "output.payloads.0.k": "clipboard",
+    "output.payloads.0.text": "name: meadow disturbance study\nkeys: 100\nseed: 42\nwindow: 250\n\nphase: graze   uniform 2000        # even grazing\nphase: bloom   hot 2000 5 90        # 5 keys carry 90% of the traffic\nphase: seasons churn 1500 55        # turnover: births and deaths\n\nexpect: evenness(graze) > 0.9\nexpect: hill1(bloom) < 20\nexpect: brayCurtis(graze, bloom) > 0.5\nexpect: evenness(bloom) > 0.9        # deliberately wrong → REFUTED\nexpect: evenness(bloom) is uneven",
+    "output.payloads.1": {
+     "op": "exists",
+     "value": false
+    }
    }
   },
   {

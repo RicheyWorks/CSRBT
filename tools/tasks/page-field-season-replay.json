@@ -2,7 +2,7 @@
  "id": "page-field-season-replay",
  "target": "page",
  "page": "field-season.html",
- "goal": "Play season #4217 of the field season game -- mark, recapture, one quadrat survey, file -- and find the seeded meadow exactly as an independent port of its generator says: 29 marked, 33 caught with 8 marks, five quadrats of 10 2 5 45 46 plants across six species, and answering 11 species, uneven, clumped and Lincoln-Petersen 29*33/8 = 120 against a true 101 voles grades 25 + 20 + 25 + 20 = 90, Published.",
+ "goal": "Play season #4217 of the field season game -- mark, recapture, one quadrat survey, file -- and find the seeded meadow exactly as an independent port of its generator says: 29 marked, 33 caught with 8 marks, five quadrats of 10 2 5 45 46 plants across six species, and answering 11 species, uneven, clumped and Lincoln-Petersen 29*33/8 = 120 against a true 101 voles grades 25 + 20 + 25 + 20 = 90, Published. Then Print the season is pressed on the graded results and exactly one print, and nothing else, leaves the page; the results card still says the meadow held 101 voles, richness 25/25, spatial pattern 25/25.",
  "steps": [
   {
    "id": "look",
@@ -221,6 +221,39 @@
     "output.by.resCard.Evenness": "20/20",
     "output.by.resCard.Spatial pattern": "25/25",
     "output.by.resCard.Vole population": "20/30"
+   }
+  },
+  {
+   "id": "g177-print",
+   "action": "activate",
+   "arguments": {
+    "selector": "@control:Print the season"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "g177-printed",
+   "action": "collect-output",
+   "expect": {
+    "output.payloads.0.k": "print",
+    "output.payloads.1": {
+     "op": "exists",
+     "value": false
+    }
+   }
+  },
+  {
+   "id": "g177-still",
+   "action": "read-report",
+   "expect": {
+    "output.boxes.resCard": {
+     "op": "contains",
+     "value": "the meadow held 101 voles"
+    },
+    "output.by.resCard.Richness": "25/25",
+    "output.by.resCard.Spatial pattern": "25/25"
    }
   },
   {
