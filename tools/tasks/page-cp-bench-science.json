@@ -2,7 +2,7 @@
  "id": "page-cp-bench-science",
  "target": "page",
  "page": "cp-bench.html",
- "goal": "On the carnivorous-plant bench: log TDS readings against the 50/160 ppm conventions from a named water source, work the top-up accumulation to a 500 ppm equivalent, load a media preset and copy the recipe, record a named plant with its provenance and three trap counts, check dormancy need, and log a cross with its note and seed set -- every pane driven and the figures and recipe held against an oracle. The plant's trap-count chart is one path through its three observations, captioned with the plant's name.",
+ "goal": "On the carnivorous-plant bench: log TDS readings against the 50/160 ppm conventions from a named water source, work the top-up accumulation to a 500 ppm equivalent, load a media preset and copy the recipe, record a named plant with its provenance and three trap counts, check dormancy need, and log a cross with its note and seed set -- every pane driven and the figures and recipe held against an oracle. The plant's trap-count chart is one path through its three observations, captioned with the plant's name. The worked example's fifty-eight readings are drawn as one path and fifty-eight dots against the target band at 10 °C, every position the chart's own scale.",
  "steps": [
   {
    "id": "look",
@@ -583,7 +583,58 @@
     "output.by.sOut.days at or below 10 °C": "43 / 84",
     "output.by.sOut.longest unbroken run": "15",
     "output.by.sOut.readings": "58",
-    "output.by.sOut.of your target": "51%"
+    "output.by.sOut.of your target": "51%",
+    "output.charts.sChart.viewBox": "0 0 620 210",
+    "output.charts.sChart.marks": {
+     "op": "==",
+     "value": {
+      "circle": 58,
+      "rect": 1,
+      "path": 1,
+      "line": 1
+     }
+    },
+    "output.charts.sChart.longest": 58,
+    "output.charts.sChart.spans": {
+     "op": "==",
+     "value": [
+      [
+       38,
+       32.4,
+       604,
+       155.6
+      ]
+     ]
+    },
+    "output.charts.sChart.at.0": {
+     "op": "==",
+     "value": [
+      38,
+      73.5
+     ]
+    },
+    "output.charts.sChart.at.39": {
+     "op": "==",
+     "value": [
+      425.3,
+      122.7
+     ]
+    },
+    "output.charts.sChart.texts": {
+     "op": "==",
+     "value": [
+      {
+       "t": "your target: 10 °C",
+       "x": 44,
+       "y": 82.9
+      },
+      {
+       "t": "reading number — blue is at or below target",
+       "x": 310,
+       "y": 202
+      }
+     ]
+    }
    }
   },
   {

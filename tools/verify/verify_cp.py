@@ -30,6 +30,38 @@ def _fek_version():
     m = _re.search(r'VERSION\s*=\s*"([\d.]+)"', src)
     return m.group(1) if m else None
 
+
+# ---- the chart reader's numbers, in Python (ADR-185) ----
+# read-report rounds every attribute to two places (Math.round(v * 100) / 100,
+# in doubles) and the pages write their coordinates with toFixed(1), whose ties
+# go to the larger digit (0.25 -> "0.3"); both are reproduced here exactly, not
+# approximated, because the claim is equality with what the reader returns.
+import math as _math
+from decimal import Decimal as _Dec, ROUND_HALF_UP as _HALF_UP
+def _r2(v):
+    q = _math.floor(float(v) * 100 + 0.5) / 100
+    return int(q) if q.is_integer() else q
+def _fixed(v, d):
+    return float(_Dec(float(v)).quantize(_Dec(1).scaleb(-d), rounding=_HALF_UP))
+
+def season_chart(temps, target):
+    """docs/cp-bench.html seasonChart(): W 620, H 210, pad 38; x by reading
+    index to the right edge less 16; y from two below the coldest of the
+    readings and the target to two above the hottest; the band rect from the
+    target down to the baseline; one dot per reading; the label seven above."""
+    W, H, Pd = 620, 210, 38
+    lo = min(temps + [target]) - 2; hi = max(temps + [target]) + 2; n = len(temps)
+    X = lambda i: Pd + i / (n - 1) * (W - Pd - 16)
+    Y = lambda t: H - Pd - (t - lo) / (hi - lo) * (H - Pd - 16)
+    dots = [[_r2(_fixed(X(i), 1)), _r2(_fixed(Y(t), 1))] for i, t in enumerate(temps)]
+    rect = [Pd, _fixed(Y(target), 1), W - Pd - 16, _fixed(H - Pd - Y(target), 1)]
+    at = dots + [[_r2(rect[0] + rect[2] / 2), _r2(rect[1] + rect[3] / 2)]]
+    span = [_r2(min(d[0] for d in dots)), _r2(min(d[1] for d in dots)), _r2(max(d[0] for d in dots)), _r2(max(d[1] for d in dots))]
+    texts = [{"t": "your target: %s \u00b0C" % target, "x": Pd + 6, "y": _r2(_fixed(Y(target) - 7, 1))},
+             {"t": "reading number \u2014 blue is at or below target", "x": _r2(W / 2), "y": H - 8}]
+    return {"viewBox": "0 0 %d %d" % (W, H), "marks": {"circle": n, "rect": 1, "path": 1, "line": 1},
+            "longest": n, "spans": [span], "at": at[:40], "texts": texts, "dots": dots, "rect": rect}
+
 P=[];F=[]
 def ck(n,c,e=""): (P if c else F).append(n+(("  << "+str(e)) if (e and not c) else ""))
 
@@ -225,6 +257,21 @@ with sync_playwright() as p:
     ck("no opinion on the number", "cumulative cold" in so, "")
     ck("dormancy chart drawn", pg.eval_on_selector_all("#sChart svg","e=>e.length")==1, "")
     ck("target line labelled 'your target'", "your target" in pg.inner_text("#sChart"), "")
+    # ---- the chart's geometry against the port (ADR-185) ----
+    _sc = season_chart(demo, 10)
+    _got = pg.evaluate("""()=>{const s=document.querySelector('#sChart svg');
+      const r=s.querySelector('rect'), l=s.querySelector('line'), t=s.querySelector('text');
+      return {dots:[...s.querySelectorAll('circle')].map(c=>[+c.getAttribute('cx'),+c.getAttribute('cy')]),
+              rect:[+r.getAttribute('x'),+r.getAttribute('y'),+r.getAttribute('width'),+r.getAttribute('height')],
+              line:[+l.getAttribute('y1'),+l.getAttribute('y2')], text:[t.textContent,+t.getAttribute('x'),+t.getAttribute('y')],
+              blue:[...s.querySelectorAll('circle')].map(c=>c.getAttribute('fill')==='#2B6C8F')};}""")
+    ck("the season chart puts every one of the %d readings where the port's scale puts it" % len(demo),
+       _got["dots"] == _sc["dots"], _got["dots"][:3])
+    ck("the band rect runs from the target line to the baseline, and the line and its label sit on the target",
+       _got["rect"] == _sc["rect"] and _got["line"] == [_sc["rect"][1]] * 2
+       and _got["text"] == [_sc["texts"][0]["t"], _sc["texts"][0]["x"], _sc["texts"][0]["y"]], (_got["rect"], _got["line"], _got["text"]))
+    ck("a dot is blue exactly when its reading is at or below the target",
+       _got["blue"] == [t <= 10 for t in demo], _got["blue"][:6])
 
     # ---------------- CROSSES ----------------
     pg.click('.tab[data-pane="p-cro"]'); pg.wait_for_timeout(250)
@@ -278,6 +325,30 @@ ck("the task holds the trap chart to its own entries: one path through as many p
    _v("output.charts.pOut.marks")=={"path":1} and _v("output.charts.pOut.longest")==len(_counts)==3
    and _v("output.charts.pOut.texts.0.t")=="%s — trap count across %d observations"%(_name[0]["arguments"]["value"],len(_counts)),
    (_v("output.charts.pOut.texts.0.t"),len(_counts)))
+# ---- the season chart and the season summary the task holds (ADR-185) ----
+_se = dict((s["id"], s) for s in _steps).get("season", {}).get("expect", {})
+def _sv(k):
+    x = _se.get(k); return x.get("value") if isinstance(x, dict) and "op" in x else x
+_target = [s for s in _steps if (s.get("arguments") or {}).get("selector") == "@control:Your target: stay at or below"]
+_weeks = [s for s in _steps if (s.get("arguments") or {}).get("selector") == "@control:Your target: for at least"]
+_tg = int(_target[0]["arguments"]["value"]) if _target else 10; _wk = int(_weeks[0]["arguments"]["value"]) if _weeks else 12
+_sc = season_chart(demo, _tg)
+ck("the task holds the season chart to the port: the box of the path, the first and fortieth mark, the two texts, the marks and the count",
+   _sv("output.charts.sChart.spans") == _sc["spans"] and _sv("output.charts.sChart.at.0") == _sc["at"][0]
+   and _sv("output.charts.sChart.at.39") == _sc["at"][39] and _sv("output.charts.sChart.texts") == _sc["texts"]
+   and _sv("output.charts.sChart.marks") == _sc["marks"] and _sv("output.charts.sChart.longest") == len(demo)
+   and _sv("output.charts.sChart.viewBox") == _sc["viewBox"],
+   (_sv("output.charts.sChart.spans"), _sc["spans"], _sv("output.charts.sChart.at.39"), _sc["at"][39]))
+_at = sum(1 for t in demo if t <= _tg); _run = _best = 0
+for t in demo:
+    _run = _run + 1 if t <= _tg else 0; _best = max(_best, _run)
+ck("...and the season tiles it holds are the same readings counted against the target it typed: %d / %d, a run of %d, %d%%, %d short"
+   % (_at, _wk * 7, _best, min(100, round(_at / (_wk * 7) * 100)), _wk * 7 - _at),
+   _sv("output.by.sOut.days at or below %d \u00b0C" % _tg) == "%d / %d" % (_at, _wk * 7)
+   and _sv("output.by.sOut.longest unbroken run") == str(_best) and _sv("output.by.sOut.readings") == str(len(demo))
+   and _sv("output.by.sOut.of your target") == "%d%%" % min(100, round(_at / (_wk * 7) * 100))
+   and (_sv("output.boxes.sOut") or "").startswith("%d days short" % (_wk * 7 - _at)),
+   {k: _sv(k) for k in _se if "sOut" in k})
 print("PASS %d"%len(P))
 for x in F: print("FAIL:",x)
 print("---"); print("%d/%d"%(len(P),len(P)+len(F)))

@@ -36,6 +36,63 @@ def close(a, b, tol):
 
 
 # ---------------- independent model ----------------
+# ---- the worked example, reproduced (ADR-185) ----
+# The demo is a seeded LCG over a week of half-hour rows; the docstring above
+# says no check trusts it, and none did -- but nothing REPRODUCED it either, so
+# the chart it draws could only be held to whatever rows the page held. This is
+# the generator in Python, row for row (toFixed's ties go to the larger digit),
+# and the env chart's own arithmetic on top of it.
+import math as _math
+from decimal import Decimal as _Dec, ROUND_HALF_UP as _HALF_UP
+def _r2(v):
+    q = _math.floor(float(v) * 100 + 0.5) / 100
+    return int(q) if q.is_integer() else q
+def _fixed(v, d):
+    return float(_Dec(float(v)).quantize(_Dec(1).scaleb(-d), rounding=_HALF_UP))
+def demo_rows(end, days=7, per_day=48):
+    seed = 20260826
+    def rnd():
+        nonlocal seed
+        seed = (1664525 * seed + 1013904223) & 0xFFFFFFFF
+        return seed / 4294967296
+    rows = []
+    for i in range(days * per_day, -1, -1):
+        t = end - i * 30 * 60000
+        hour = ((t / 3600000) % 24 + 24) % 24
+        on = 6 <= hour < 24
+        temp = (26 if on else 21) + _math.sin(hour / 24 * 2 * _math.pi) * 1.4 + (rnd() - 0.5) * 0.8
+        rh = (58 if on else 66) - _math.sin(hour / 24 * 2 * _math.pi) * 4 + (rnd() - 0.5) * 3
+        ppfd = 780 + (rnd() - 0.5) * 40 if on else 0
+        w = 640 + (rnd() - 0.5) * 25 if on else 55
+        rows.append({"t": t, "temp": _fixed(temp, 2), "rh": _fixed(rh, 1),
+                     "ppfd": int(_math.floor(ppfd + 0.5)), "w": _fixed(w, 1), "co2": 900 if on else 520})
+    return rows
+GH_BANDS = {"clone": (0.4, 0.8), "veg": (0.8, 1.2), "early": (1.0, 1.4), "late": (1.2, 1.6)}
+def env_chart(rows, stage="veg", offset=2):
+    """docs/greenhouse.html envChart(): W 680, H 260, pad 46; x by time to the
+    right edge less 18; y from 0.15 below the lower of the band floor and the
+    coldest reading to 0.15 above the higher of the band ceiling and the
+    hottest; the band rect and its two lines; the trend line only when the
+    least-squares r2 reaches 0.3; the axis labels to one decimal."""
+    blo, bhi = GH_BANDS[stage]
+    pts = sorted([(r["t"], vpd_leaf(r["temp"], r["rh"], offset)) for r in rows], key=lambda p: p[0])
+    W, H, Pd = 680, 260, 46
+    t0, t1 = pts[0][0], pts[-1][0]; vs = [v for _, v in pts]
+    lo = min(blo, min(vs)) - 0.15; hi = max(bhi, max(vs)) + 0.15
+    X = lambda t: Pd + (t - t0) / max(1, (t1 - t0)) * (W - Pd - 18)
+    Y = lambda v: H - Pd - (v - lo) / max(1e-9, (hi - lo)) * (H - Pd - 22)
+    px = [_fixed(X(t), 1) for t, _ in pts]; py = [_fixed(Y(v), 1) for _, v in pts]
+    slope, icept, rr = ols([t / 86400000 for t, _ in pts], vs)
+    trend = slope is not None and rr is not None and rr >= 0.3
+    rect = [Pd, _fixed(Y(bhi), 1), W - Pd - 18, _fixed(abs(Y(blo) - Y(bhi)), 1)]
+    texts = [{"t": "%s\u2013%s kPa target band" % (blo, bhi), "x": Pd + 6, "y": _r2(_fixed(Y(bhi) - 6, 1))},
+             {"t": "%.1f" % _fixed(hi, 1), "x": 6, "y": _r2(_fixed(Y(hi) + 10, 1))},
+             {"t": "%.1f" % _fixed(lo, 1), "x": 6, "y": _r2(_fixed(H - Pd, 1))},
+             {"t": "solid: your readings \u2014 dashed: least-squares trend" if trend else "time", "x": _r2(W / 2), "y": H - 8}]
+    return {"viewBox": "0 0 %d %d" % (W, H), "marks": {"rect": 1, "line": 3 if trend else 2, "path": 1},
+            "longest": len(pts), "spans": [[_r2(min(px)), _r2(min(py)), _r2(max(px)), _r2(max(py))]],
+            "at": [[_r2(rect[0] + rect[2] / 2), _r2(rect[1] + rect[3] / 2)]], "texts": texts,
+            "path": list(zip(px, py)), "rect": rect, "band_lines": [_fixed(Y(blo), 1), _fixed(Y(bhi), 1)], "trend": trend, "r2": rr}
 
 def svp(t):
     """Buck (1981), kPa."""
@@ -312,6 +369,25 @@ with sync_playwright() as pw:
        pg.evaluate("""()=>Promise.all([GH.get('demo').read({now:1787700000000}),
             GH.get('demo').read({now:1787700000000})])
             .then(([a,b])=>JSON.stringify(a.rows)===JSON.stringify(b.rows))"""), "")
+    # ---- ...and reproduced, row for row (ADR-185) ----
+    _mine = demo_rows(1787700000000)
+    ck("the worked example is reproduced by the Python generator, all %d rows byte for byte" % len(_mine),
+       rows == _mine, [(i, a, b) for i, (a, b) in enumerate(zip(rows, _mine)) if a != b][:2])
+    # ---- the env chart, against the port (ADR-185) ----
+    pg.wait_for_timeout(300)
+    _ec = env_chart(rows, "veg", 2)
+    _got = pg.evaluate("""()=>{const s=document.querySelector('#envChart svg'); if(!s) return null;
+      const r=s.querySelector('rect'), ls=[...s.querySelectorAll('line')], p=s.querySelector('path');
+      return {d:p.getAttribute('d'), rect:[+r.getAttribute('x'),+r.getAttribute('y'),+r.getAttribute('width'),+r.getAttribute('height')],
+              lines:ls.map(l=>+l.getAttribute('y1')), texts:[...s.querySelectorAll('text')].map(t=>({t:t.textContent,x:+t.getAttribute('x'),y:+t.getAttribute('y')}))};}""")
+    _d = "M" + " L".join("%s,%s" % (("%.1f" % x), ("%.1f" % y)) for x, y in _ec["path"])
+    ck("the env chart's path is the worked example's %d readings at the port's coordinates, to the tenth the page writes" % len(rows),
+       _got is not None and _got["d"] == _d, (_got or {}).get("d", "")[:60])
+    ck("the band rect and its two lines sit where the port's scale puts the band, and the labels say what the port says",
+       _got is not None and _got["rect"] == _ec["rect"] and _got["lines"][:2] == _ec["band_lines"]
+       and _got["texts"] == _ec["texts"], _got and (_got["rect"], _got["lines"], _got["texts"]))
+    ck("the trend line is drawn only when r2 reaches 0.3 -- the worked week has none (r2 %.4f), so two lines, not three" % (_ec["r2"] or 0),
+       _got is not None and len(_got["lines"]) == (3 if _ec["trend"] else 2) and not _ec["trend"], _got and len(_got["lines"]))
 
     s = pg.evaluate("()=>GH.summarise(window.__rows||[],{})") if False else None
     summ = pg.evaluate("(r)=>GH.summarise(r,{stage:'veg',leafOffset:2})", rows)
@@ -524,6 +600,39 @@ with sync_playwright() as pw:
 
     ck("no script errors after driving the whole page", not errs, errs[:2])
     b.close()
+
+# ---- the env chart the greenhouse task holds (ADR-185) ----
+# The task fixes the clock, loads the worked example, picks the clones band
+# and a 1.5 degree leaf offset, and reads the chart; every number it holds is
+# recomputed here from those four choices and nothing read from the page.
+import json as _json, datetime as _dt
+_TASK = os.path.join(ROOT, "tools", "tasks", "page-greenhouse-science.json")
+_t = _json.load(open(_TASK, encoding="utf-8")) if os.path.isfile(_TASK) else {"steps": []}
+_st = dict((s["id"], s) for s in _t["steps"])
+def _v(step, k):
+    x = _st.get(step, {}).get("expect", {}).get(k); return x.get("value") if isinstance(x, dict) and "op" in x else x
+_at = (_st.get("g155-t0", {}).get("arguments") or {}).get("at")
+_off = float((_st.get("g155-off", {}).get("arguments") or {}).get("value", 2))
+_stage = "clone" if "clones" in ((_st.get("g155-clone", {}).get("arguments") or {}).get("selector") or "") else "veg"
+if _at:
+    _end = int(_dt.datetime.strptime(_at, "%Y-%m-%dT%H:%M:%SZ").replace(tzinfo=_dt.timezone.utc).timestamp() * 1000)
+    _ec = env_chart(demo_rows(_end), _stage, _off)
+    ck("the task holds the env chart to the port fed from its own clock, band and offset: the path's box, the band rect's centre, the four texts, the marks, %d points" % _ec["longest"],
+       _v("g155-readout", "output.charts.envChart.spans") == _ec["spans"] and _v("g155-readout", "output.charts.envChart.at.0") == _ec["at"][0]
+       and _v("g155-readout", "output.charts.envChart.texts") == _ec["texts"] and _v("g155-readout", "output.charts.envChart.marks") == _ec["marks"]
+       and _v("g155-readout", "output.charts.envChart.longest") == _ec["longest"] and _v("g155-readout", "output.charts.envChart.viewBox") == _ec["viewBox"],
+       (_v("g155-readout", "output.charts.envChart.spans"), _ec["spans"], _v("g155-readout", "output.charts.envChart.texts"), _ec["texts"]))
+    ck("...and the readout figures it holds are the same rows summarised: VPD range %.2f-%.2f kPa, mean %.2f" %
+       (min(v for _, v in [(r["t"], vpd_leaf(r["temp"], r["rh"], _off)) for r in demo_rows(_end)]),
+        max(v for _, v in [(r["t"], vpd_leaf(r["temp"], r["rh"], _off)) for r in demo_rows(_end)]),
+        sum(vpd_leaf(r["temp"], r["rh"], _off) for r in demo_rows(_end)) / len(demo_rows(_end))),
+       _v("g155-readout", "output.by.envOut.VPD range") == "%.2f\u2013%.2f kPa" % (
+           min(vpd_leaf(r["temp"], r["rh"], _off) for r in demo_rows(_end)), max(vpd_leaf(r["temp"], r["rh"], _off) for r in demo_rows(_end)))
+       and _v("g155-readout", "output.by.envOut.mean leaf VPD") == "%.2f kPa" % (sum(vpd_leaf(r["temp"], r["rh"], _off) for r in demo_rows(_end)) / len(demo_rows(_end)))
+       and _v("g155-readout", "output.by.envOut.readings") == str(len(demo_rows(_end))),
+       (_v("g155-readout", "output.by.envOut.VPD range"), _v("g155-readout", "output.by.envOut.mean leaf VPD")))
+else:
+    ck("the greenhouse task fixes its clock, so the worked example it loads is the one the port reproduces", False, "no g155-t0")
 
 print("-" * 70)
 print("%d passed, %d failed" % (ok, bad))

@@ -930,10 +930,15 @@
    "by": "adr184",
    "sha": "a8ccc48e6c066e207f8385e91f837dd49420c64e6451d4fca0bc39af0a5d1672"
   },
+  "docs/ADR-185-the-charts-read-3-2026-09-10.md": {
+   "at": 1789041080,
+   "by": "adr185",
+   "sha": "4db8641069a123670d32fd1069c0532e0b029c52d3458812717ef3fcd64bf9ac"
+  },
   "docs/AI_HARNESS.md": {
-   "at": 1789038486,
-   "by": "adr184",
-   "sha": "e14f5428ced0fa25d0e0808e7cb7c29f4835f02ab023d0554d6cfea5f7326cdf"
+   "at": 1789041080,
+   "by": "adr185",
+   "sha": "ba2d3ac03df50959902448a3616ad6c865adb071aefcb4891380ca97c798aea6"
   },
   "docs/AUDIT-2026-07-14-capability-coverage.md": {
    "at": 1788676922,
@@ -1800,6 +1805,11 @@
    "by": "adr184",
    "sha": "29a53997473f45e211e0d60940b1c30be6966bbe9b816116eec7d220e27d8053"
   },
+  "docs/CHANGELOG-2026-09-10-adr185-the-charts-read-3.md": {
+   "at": 1789041080,
+   "by": "adr185",
+   "sha": "60a5327b423fcbeecf417294bafa9b2963ecd7002d7a1acf63941e810bddb2a8"
+  },
   "docs/DESIGN-adaptive-engine.md": {
    "at": 1788676923,
    "by": "adr146b",
@@ -1966,9 +1976,9 @@
    "sha": "54e86bd234c0a27542114b5b8ceaf67fd1df375ff4ff0df8f9bdee49d9493493"
   },
   "docs/cp-suite.html": {
-   "at": 1789024176,
-   "by": "adr181",
-   "sha": "0a1ff3128b17673964b6acc0630c4866103d6d1b594e00a88eedcd12d37eb8fd"
+   "at": 1789041080,
+   "by": "adr185",
+   "sha": "34aad0f1eaf8bfe0331310063c265af494bc5448d1fec86b4b39687a1f8d1b44"
   },
   "docs/deployment-log.html": {
    "at": 1788761490,
@@ -2446,9 +2456,9 @@
    "sha": "87a75cf8e4e4a93070153679fbaba41272105d2027a9233e517ff608cf275251"
   },
   "tools/badinput_ledger.json": {
-   "at": 1789038486,
-   "by": "adr184",
-   "sha": "1ed308c5d67d00b3e694e2158ea5c3abbf0f50b370019286c517e14aa01b0207"
+   "at": 1789041080,
+   "by": "adr185",
+   "sha": "a61cfc406a94d80896f82e82ccf44b431e310b6e5b2dce3e19b82e88593ec396"
   },
   "tools/blind_console.py": {
    "at": 1788676925,
@@ -2660,10 +2670,15 @@
    "by": "adr184",
    "sha": "f8ed2e264a13e72f10375750f1481ab3bf501384bde279dfc5583897f838e746"
   },
+  "tools/delivery/adr185.json": {
+   "at": 1789041080,
+   "by": "adr185",
+   "sha": "a58a99f52aa8a6d05eabe0c0b969522a7580ef27faeb9cf1346861cf83963764"
+  },
   "tools/delivery_ledger.json": {
-   "at": 1789038486,
-   "by": "adr184",
-   "sha": "ccb254852f7a9173ed36cd1c3c7609273ddac870bba221851c4e033e1138991b"
+   "at": 1789041080,
+   "by": "adr185",
+   "sha": "a2832b3ccf57ac0747ff3a6937a916919f743dc94e637d933d06b13d6fc60a95"
   },
   "tools/dwc.py": {
    "at": 1788676926,
@@ -2706,9 +2721,9 @@
    "sha": "01919e137bdbf702ebc887de41aa026b721916da9d3761ce673812d54a22471f"
   },
   "tools/entry_ledger.json": {
-   "at": 1789038486,
-   "by": "adr184",
-   "sha": "55bdcd31739d0311f44940d1ee8ff60c8eb403d268c4b2d18b084aebb582bf13"
+   "at": 1789041080,
+   "by": "adr185",
+   "sha": "09d1d235377871133350b85df5ba4a4ef783e17660d1a51b6fc141629a54b002"
   },
   "tools/entry_reach.py": {
    "at": 1788676926,
@@ -2761,9 +2776,9 @@
    "sha": "1d5e5bb0fadf4abb88d56125483a66e1bc2367055c7b541aa9d800c6dddde9dc"
   },
   "tools/harness_board.html": {
-   "at": 1789038486,
-   "by": "adr184",
-   "sha": "e6efe8bbdc8355499b614829d90e1c99a19a12d9cd0ea47d000e660deef77d88"
+   "at": 1789041080,
+   "by": "adr185",
+   "sha": "43f8ba7f472ac63a19af3d12e2143551637cef2e72389c5c585be8b2a8d1865f"
   },
   "tools/harness_board.py": {
    "at": 1788783742,
@@ -2966,9 +2981,9 @@
    "sha": "172e699a8abda0fb0fe773b9204e652001fac70b769e1082739097b699c28db0"
   },
   "tools/outputs_ledger.json": {
-   "at": 1789038486,
-   "by": "adr184",
-   "sha": "740f891615f5b213d278af3351e7fb961d676462d24379b1305caadd5b5ed23e"
+   "at": 1789041080,
+   "by": "adr185",
+   "sha": "28bfab09dd51443ef845efdd056118f8aa75df3dc8d2de5ba92c624250eaec7b"
   },
   "tools/probe.py": {
    "at": 1788676927,
@@ -3001,9 +3016,9 @@
    "sha": "15022dcd97ee97f72ec5f907d0cdfef3ee36da9588f9de47e110519ff9f781e8"
   },
   "tools/published.json": {
-   "at": 1789038486,
-   "by": "adr184",
-   "sha": "55704b519fd2a8fe8038fc7ace9a55f4c94ab9ab159c1134bace41acb98c1e7f"
+   "at": 1789041080,
+   "by": "adr185",
+   "sha": "36f789b4ed96b67f7a73bfe700f2065a9f44f989a302b70cb3d40af679e6bf17"
   },
   "tools/reach.py": {
    "at": 1788676928,
@@ -3011,9 +3026,9 @@
    "sha": "b176e4e078bd39b22f5056223c6d1949503ff69c2f029a02d3513a7607db39cb"
   },
   "tools/readable_ledger.json": {
-   "at": 1789038486,
-   "by": "adr184",
-   "sha": "d89a65a582e60be9e73d322fee438b0a7a43daf405c78c7cbb2f896bb204a057"
+   "at": 1789041080,
+   "by": "adr185",
+   "sha": "e1637f4d9fa88cbb2825eb0c0e9700c2a07c711c58524fa81d6d873de3e63f6b"
   },
   "tools/routes.json": {
    "at": 1788676928,
@@ -3046,9 +3061,9 @@
    "sha": "0a2241a252fa68e80b813e601b7bd67cd8ba5c00b8ad07acc98dcd93a42b0268"
   },
   "tools/task_ledger.json": {
-   "at": 1789038486,
-   "by": "adr184",
-   "sha": "ce66af98ee263c2b00a0e2557a9a204ce321aa42aa914103bb9f4592e6192635"
+   "at": 1789041080,
+   "by": "adr185",
+   "sha": "0658f35df918b4a759a61c2a0e02678d9231c985b42df0518c70f59205d680f7"
   },
   "tools/tasks/fixture-buckets.json": {
    "at": 1788676928,
@@ -3116,9 +3131,9 @@
    "sha": "6baebc32c726c8bd00aef25aa6b4655e6a90c506463a998308df6aabc5710e7f"
   },
   "tools/tasks/page-cp-bench-science.json": {
-   "at": 1789024176,
-   "by": "adr181",
-   "sha": "737c371708f93f3b27fdbfa66afd1a118df2c4d3b17372af3f07db3263761868"
+   "at": 1789041080,
+   "by": "adr185",
+   "sha": "5fa4a45458508822bd70a7b1fbcb88c814c697b1b00473f1cb91de64e0bb6571"
   },
   "tools/tasks/page-cp-characters-key.json": {
    "at": 1788935024,
@@ -3236,9 +3251,9 @@
    "sha": "2dffc9d1b162a5e87dd201e4864475947d14fb2c40c6882f8b0e1da922dc177c"
   },
   "tools/tasks/page-greenhouse-science.json": {
-   "at": 1788831534,
-   "by": "adr156",
-   "sha": "7a573f00c9845dad314fe0f463a1d98f7a31c3944c5c880cf45e857630d1f711"
+   "at": 1789041080,
+   "by": "adr185",
+   "sha": "90f702b8dc2d1d0cbdf074d07da12c56e4e35e6559dacd003a83e4c076f530ac"
   },
   "tools/tasks/page-micro-bench-science.json": {
    "at": 1788910185,
@@ -3346,9 +3361,9 @@
    "sha": "2bfaf919074d0a118ce1f763db70eeda63d3e499d93089e14dd137904b578aac"
   },
   "tools/verify/counts.json": {
-   "at": 1789038486,
-   "by": "adr184",
-   "sha": "6fd8e9212da5646866fad19c31035174dce354da8e7445e782b0ade29165433f"
+   "at": 1789041080,
+   "by": "adr185",
+   "sha": "2dad4c79bc6375a2d356b3a93b44bf7b0d279ea99931ad6e27ae09bcbbf2ef3f"
   },
   "tools/verify/run_all.py": {
    "at": 1788783742,
@@ -3421,9 +3436,9 @@
    "sha": "872e0711eb549291844d92e47cdeb320dd4af85314eaf6f99f5811ed67c2af39"
   },
   "tools/verify/verify_cp.py": {
-   "at": 1789024176,
-   "by": "adr181",
-   "sha": "ec162d01ec7bb297a45d6b58a96578f33d88ccf81576f0922fc6a5583df28a55"
+   "at": 1789041080,
+   "by": "adr185",
+   "sha": "5fd1151dc21b71db81bce87fb8ecc9b6b40606faa4d63593c531d6fcb7d1b7ab"
   },
   "tools/verify/verify_cpc.py": {
    "at": 1788676929,
@@ -3546,9 +3561,9 @@
    "sha": "5222c10d579271dfe03b5b85fcaf29fca92e993d2a0e7fe4214605b719609244"
   },
   "tools/verify/verify_gh.py": {
-   "at": 1788676929,
-   "by": "adr146b",
-   "sha": "ba06d799e985f6bf634e6ed2e46197536efa5ff6b915fd125e5ed4594ce25107"
+   "at": 1789041080,
+   "by": "adr185",
+   "sha": "5c6cac61cf33d1a39d05b9094d9b9d8c191caecf76f769aba6bff010176c557b"
   },
   "tools/verify/verify_harness.py": {
    "at": 1788676929,

@@ -2,7 +2,7 @@
  "id": "page-greenhouse-science",
  "target": "page",
  "page": "greenhouse.html",
- "goal": "On the greenhouse monitor: 40,000 lux under HPS (factor 82) converts to 488 umol/m2/s and 31.6 mol/m2/d over 18 h; 600 umol/m2/s is DLI 38.9 (600 x 18 x 0.0036) and 25.9 over 12 h; 400 g on a 600 W rated fixture is 0.67 g/W while every figure that divides by kWh stays blank without a power log; the five example runs (498/78.2, 512/80.9, 471/79.4, 505/81.6 g/kWh baselines and 548/84.1 new) have baseline mean 6.20, sample SD 0.20, CV 3%, per-run z with self excluded +1.1 +0.8 -3.8 -0.1 and the new run at +1.6, at the edge. And the path a reader takes when they say no: the page asks 'Clear every saved run?' before it clears, and answering no keeps the five runs -- a branch nothing could reach before the harness could decide what a dialog gets answered (ADR-134). Then, under a frozen clock, the worked example loaded whole -- 337 readings over 7.0 days -- and read against the clone band with the leaf 1.5 C below air: mean leaf VPD 1.00 kPa (range 0.59–1.44), 78% of TIME outside the band by duration, dew point 17.4 C with 9.8 C of margin, absolute humidity 14.3 g/m3; DLI integrated from the log 50.5 mol/m2/d; 82.9 kWh over the log at 0.180 per kWh, 4.83 g/kWh against 0.67 g/W rated, average draw 493 W (82% of rated) -- and STILL 493 W after a 70-day cycle length is entered, because the average draw is over the days the log covers and not over a cycle the log did not measure; a run saved and marked baseline; and the summary, the CSV and the print, read.",
+ "goal": "On the greenhouse monitor: 40,000 lux under HPS (factor 82) converts to 488 umol/m2/s and 31.6 mol/m2/d over 18 h; 600 umol/m2/s is DLI 38.9 (600 x 18 x 0.0036) and 25.9 over 12 h; 400 g on a 600 W rated fixture is 0.67 g/W while every figure that divides by kWh stays blank without a power log; the five example runs (498/78.2, 512/80.9, 471/79.4, 505/81.6 g/kWh baselines and 548/84.1 new) have baseline mean 6.20, sample SD 0.20, CV 3%, per-run z with self excluded +1.1 +0.8 -3.8 -0.1 and the new run at +1.6, at the edge. And the path a reader takes when they say no: the page asks 'Clear every saved run?' before it clears, and answering no keeps the five runs -- a branch nothing could reach before the harness could decide what a dialog gets answered (ADR-134). Then, under a frozen clock, the worked example loaded whole -- 337 readings over 7.0 days -- and read against the clone band with the leaf 1.5 C below air: mean leaf VPD 1.00 kPa (range 0.59–1.44), 78% of TIME outside the band by duration, dew point 17.4 C with 9.8 C of margin, absolute humidity 14.3 g/m3; DLI integrated from the log 50.5 mol/m2/d; 82.9 kWh over the log at 0.180 per kWh, 4.83 g/kWh against 0.67 g/W rated, average draw 493 W (82% of rated) -- and STILL 493 W after a 70-day cycle length is entered, because the average draw is over the days the log covers and not over a cycle the log did not measure; a run saved and marked baseline; and the summary, the CSV and the print, read. The leaf-VPD chart draws the worked example's 337 readings as one path across the clones band, the axis labelled 0.3 to 1.6 kPa, no trend line because the week has no trend.",
  "policy": {
   "allow": [
    "SENSITIVE_READ",
@@ -411,6 +411,59 @@
     "output.boxes.envChart": {
      "op": "contains",
      "value": "Leaf VPD over 7.0 days"
+    },
+    "output.charts.envChart.viewBox": "0 0 680 260",
+    "output.charts.envChart.marks": {
+     "op": "==",
+     "value": {
+      "rect": 1,
+      "line": 2,
+      "path": 1
+     }
+    },
+    "output.charts.envChart.longest": 337,
+    "output.charts.envChart.spans": {
+     "op": "==",
+     "value": [
+      [
+       46,
+       43.4,
+       662,
+       165.2
+      ]
+     ]
+    },
+    "output.charts.envChart.at.0": {
+     "op": "==",
+     "value": [
+      354,
+      163.95
+     ]
+    },
+    "output.charts.envChart.texts": {
+     "op": "==",
+     "value": [
+      {
+       "t": "0.4–0.8 kPa target band",
+       "x": 52,
+       "y": 129.4
+      },
+      {
+       "t": "1.6",
+       "x": 6,
+       "y": 32
+      },
+      {
+       "t": "0.3",
+       "x": 6,
+       "y": 214
+      },
+      {
+       "t": "time",
+       "x": 340,
+       "y": 252
+      }
+     ]
     }
    }
   },

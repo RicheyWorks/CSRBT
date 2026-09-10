@@ -6620,9 +6620,9 @@
    "verdict": "PASS"
   },
   "page-cp-bench-science": {
-   "at": 1789029974,
-   "confirmed": 109,
-   "goal": "On the carnivorous-plant bench: log TDS readings against the 50/160 ppm conventions from a named water source, work the top-up accumulation to a 500 ppm equivalent, load a media preset and copy the recipe, record a named plant with its provenance and three trap counts, check dormancy need, and log a cross with its note and seed set -- every pane driven and the figures and recipe held against an oracle. The plant's trap-count chart is one path through its three observations, captioned with the plant's name.",
+   "at": 1789039061,
+   "confirmed": 116,
+   "goal": "On the carnivorous-plant bench: log TDS readings against the 50/160 ppm conventions from a named water source, work the top-up accumulation to a 500 ppm equivalent, load a media preset and copy the recipe, record a named plant with its provenance and three trap counts, check dormancy need, and log a cross with its note and seed set -- every pane driven and the figures and recipe held against an oracle. The plant's trap-count chart is one path through its three observations, captioned with the plant's name. The worked example's fifty-eight readings are drawn as one path and fifty-eight dots against the target band at 10 \u00b0C, every position the chart's own scale.",
    "held": true,
    "id": "page-cp-bench-science",
    "must": "PASS",
@@ -6633,7 +6633,7 @@
     "MUTATE"
    ],
    "rungsWhy": null,
-   "seconds": 5.1,
+   "seconds": 5.2,
    "steps": [
     {
      "action": "observe",
@@ -6665,7 +6665,7 @@
      ],
      "id": "wat",
      "message": "opened pane p-wat",
-     "ms": 3,
+     "ms": 4,
      "result": "driven"
     },
     {
@@ -6679,7 +6679,7 @@
      ],
      "id": "g161-src",
      "message": "activate chip:0",
-     "ms": 22,
+     "ms": 24,
      "result": "driven"
     },
     {
@@ -6693,7 +6693,7 @@
      ],
      "id": "tds20",
      "message": "set-text step_val:0",
-     "ms": 22,
+     "ms": 21,
      "result": "driven"
     },
     {
@@ -6707,7 +6707,7 @@
      ],
      "id": "log20",
      "message": "activate action_btn:0",
-     "ms": 23,
+     "ms": 24,
      "result": "driven"
     },
     {
@@ -6736,7 +6736,7 @@
      ],
      "id": "w20",
      "message": "6 figure(s), 14 box(es), 1 list(s), 0 table(s), 24 heading(s)",
-     "ms": 6,
+     "ms": 8,
      "result": "driven"
     },
     {
@@ -6750,7 +6750,7 @@
      ],
      "id": "tds120",
      "message": "set-text step_val:0",
-     "ms": 21,
+     "ms": 22,
      "result": "driven"
     },
     {
@@ -6764,7 +6764,7 @@
      ],
      "id": "log120",
      "message": "activate action_btn:0",
-     "ms": 21,
+     "ms": 22,
      "result": "driven"
     },
     {
@@ -6793,7 +6793,7 @@
      ],
      "id": "w120",
      "message": "6 figure(s), 14 box(es), 1 list(s), 0 table(s), 24 heading(s)",
-     "ms": 3,
+     "ms": 4,
      "result": "driven"
     },
     {
@@ -6807,7 +6807,7 @@
      ],
      "id": "tds300",
      "message": "set-text step_val:0",
-     "ms": 22,
+     "ms": 25,
      "result": "driven"
     },
     {
@@ -6821,7 +6821,7 @@
      ],
      "id": "log300",
      "message": "activate action_btn:0",
-     "ms": 21,
+     "ms": 30,
      "result": "driven"
     },
     {
@@ -6850,7 +6850,7 @@
      ],
      "id": "w300",
      "message": "6 figure(s), 14 box(es), 1 list(s), 0 table(s), 24 heading(s)",
-     "ms": 3,
+     "ms": 4,
      "result": "driven"
     },
     {
@@ -6869,7 +6869,7 @@
      ],
      "id": "three",
      "message": "6 figure(s), 14 box(es), 1 list(s), 0 table(s), 24 heading(s)",
-     "ms": 4,
+     "ms": 3,
      "result": "driven"
     },
     {
@@ -6883,7 +6883,7 @@
      ],
      "id": "g161-atds",
      "message": "set-text step_val:1",
-     "ms": 24,
+     "ms": 23,
      "result": "driven"
     },
     {
@@ -6897,7 +6897,7 @@
      ],
      "id": "g161-atop",
      "message": "set-text step_val:2",
-     "ms": 23,
+     "ms": 24,
      "result": "driven"
     },
     {
@@ -6911,7 +6911,7 @@
      ],
      "id": "g161-avol",
      "message": "set-text step_val:3",
-     "ms": 23,
+     "ms": 24,
      "result": "driven"
     },
     {
@@ -6954,7 +6954,7 @@
      ],
      "id": "mix",
      "message": "opened pane p-mix",
-     "ms": 110,
+     "ms": 117,
      "result": "driven"
     },
     {
@@ -6968,7 +6968,7 @@
      ],
      "id": "preset",
      "message": "activate chip:6",
-     "ms": 22,
+     "ms": 24,
      "result": "driven"
     },
     {
@@ -6997,7 +6997,7 @@
      ],
      "id": "free",
      "message": "9 figure(s), 14 box(es), 1 list(s), 1 table(s), 24 heading(s)",
-     "ms": 4,
+     "ms": 5,
      "result": "driven"
     },
     {
@@ -7011,7 +7011,7 @@
      ],
      "id": "coir",
      "message": "activate dial_btn:9",
-     "ms": 25,
+     "ms": 26,
      "result": "driven"
     },
     {
@@ -7030,7 +7030,7 @@
      ],
      "id": "notfree",
      "message": "9 figure(s), 14 box(es), 1 list(s), 1 table(s), 24 heading(s)",
-     "ms": 5,
+     "ms": 4,
      "result": "driven"
     },
     {
@@ -7044,7 +7044,7 @@
      ],
      "id": "g161-recipe",
      "message": "activate action_btn:3",
-     "ms": 22,
+     "ms": 23,
      "result": "driven"
     },
     {
@@ -7078,7 +7078,7 @@
      ],
      "id": "g161-recipeout",
      "message": "1 payload(s)",
-     "ms": 2,
+     "ms": 1,
      "result": "driven"
     },
     {
@@ -7092,7 +7092,7 @@
      ],
      "id": "pl",
      "message": "opened pane p-pl",
-     "ms": 81,
+     "ms": 76,
      "result": "driven"
     },
     {
@@ -7120,7 +7120,7 @@
      ],
      "id": "pname",
      "message": "set-text text_in:0",
-     "ms": 21,
+     "ms": 24,
      "result": "driven"
     },
     {
@@ -7134,7 +7134,7 @@
      ],
      "id": "padd",
      "message": "activate action_btn:4",
-     "ms": 26,
+     "ms": 25,
      "result": "driven"
     },
     {
@@ -7201,7 +7201,7 @@
      ],
      "id": "op0",
      "message": "pick pick_search:1",
-     "ms": 146,
+     "ms": 148,
      "result": "driven"
     },
     {
@@ -7215,7 +7215,7 @@
      ],
      "id": "oc0",
      "message": "set-text step_val:4",
-     "ms": 25,
+     "ms": 23,
      "result": "driven"
     },
     {
@@ -7229,7 +7229,7 @@
      ],
      "id": "oa0",
      "message": "activate action_btn:5",
-     "ms": 26,
+     "ms": 23,
      "result": "driven"
     },
     {
@@ -7243,7 +7243,7 @@
      ],
      "id": "op1",
      "message": "pick pick_search:1",
-     "ms": 146,
+     "ms": 147,
      "result": "driven"
     },
     {
@@ -7257,7 +7257,7 @@
      ],
      "id": "oc1",
      "message": "set-text step_val:4",
-     "ms": 23,
+     "ms": 25,
      "result": "driven"
     },
     {
@@ -7271,7 +7271,7 @@
      ],
      "id": "oa1",
      "message": "activate action_btn:5",
-     "ms": 23,
+     "ms": 24,
      "result": "driven"
     },
     {
@@ -7285,7 +7285,7 @@
      ],
      "id": "op2",
      "message": "pick pick_search:1",
-     "ms": 144,
+     "ms": 146,
      "result": "driven"
     },
     {
@@ -7299,7 +7299,7 @@
      ],
      "id": "oc2",
      "message": "set-text step_val:4",
-     "ms": 22,
+     "ms": 23,
      "result": "driven"
     },
     {
@@ -7313,7 +7313,7 @@
      ],
      "id": "oa2",
      "message": "activate action_btn:5",
-     "ms": 22,
+     "ms": 26,
      "result": "driven"
     },
     {
@@ -7332,7 +7332,7 @@
      ],
      "id": "obs",
      "message": "13 figure(s), 14 box(es), 2 list(s), 1 table(s), 25 heading(s)",
-     "ms": 5,
+     "ms": 6,
      "result": "driven"
     },
     {
@@ -7360,7 +7360,7 @@
      ],
      "id": "sea",
      "message": "opened pane p-sea",
-     "ms": 76,
+     "ms": 84,
      "result": "driven"
     },
     {
@@ -7374,7 +7374,7 @@
      ],
      "id": "g161-dtemp",
      "message": "set-text step_val:5",
-     "ms": 26,
+     "ms": 28,
      "result": "driven"
     },
     {
@@ -7388,7 +7388,7 @@
      ],
      "id": "g161-dweeks",
      "message": "set-text step_val:6",
-     "ms": 26,
+     "ms": 28,
      "result": "driven"
     },
     {
@@ -7402,7 +7402,7 @@
      ],
      "id": "g161-stemp",
      "message": "set-text step_val:7",
-     "ms": 24,
+     "ms": 23,
      "result": "driven"
     },
     {
@@ -7472,7 +7472,7 @@
      ],
      "id": "demo",
      "message": "activate action_btn:10",
-     "ms": 25,
+     "ms": 24,
      "result": "driven"
     },
     {
@@ -7502,11 +7502,46 @@
        "detail": "output.by.sOut.of your target == '51%', got '51%'",
        "path": "output.by.sOut.of your target",
        "verdict": "CONFIRMED"
+      },
+      {
+       "detail": "output.charts.sChart.viewBox == '0 0 620 210', got '0 0 620 210'",
+       "path": "output.charts.sChart.viewBox",
+       "verdict": "CONFIRMED"
+      },
+      {
+       "detail": "output.charts.sChart.marks == {'circle': 58, 'rect': 1, 'path': 1, 'line': 1}, got {'circle': 58, 'rect': 1, 'path': 1, 'line': 1}",
+       "path": "output.charts.sChart.marks",
+       "verdict": "CONFIRMED"
+      },
+      {
+       "detail": "output.charts.sChart.longest == 58, got 58",
+       "path": "output.charts.sChart.longest",
+       "verdict": "CONFIRMED"
+      },
+      {
+       "detail": "output.charts.sChart.spans == [[38, 32.4, 604, 155.6]], got [[38, 32.4, 604, 155.6]]",
+       "path": "output.charts.sChart.spans",
+       "verdict": "CONFIRMED"
+      },
+      {
+       "detail": "output.charts.sChart.at.0 == [38, 73.5], got [38, 73.5]",
+       "path": "output.charts.sChart.at.0",
+       "verdict": "CONFIRMED"
+      },
+      {
+       "detail": "output.charts.sChart.at.39 == [425.3, 122.7], got [425.3, 122.7]",
+       "path": "output.charts.sChart.at.39",
+       "verdict": "CONFIRMED"
+      },
+      {
+       "detail": "output.charts.sChart.texts == [{'t': 'your target: 10 \u00b0C', 'x': 44, 'y': 82.9}, {'t': 'reading number \u2014 blue is at or below target', 'x': 310, 'y': 202}], got [{'t': 'your target: 10 \u00b0C', 'x': 44, 'y': 82.9}, {'t': 'reading number \u2014 blue is at or below target', 'x': 310, 'y': 202}]",
+       "path": "output.charts.sChart.texts",
+       "verdict": "CONFIRMED"
       }
      ],
      "id": "season",
      "message": "17 figure(s), 14 box(es), 2 list(s), 1 table(s), 26 heading(s)",
-     "ms": 6,
+     "ms": 7,
      "result": "driven"
     },
     {
@@ -7520,7 +7555,7 @@
      ],
      "id": "cro",
      "message": "opened pane p-cro",
-     "ms": 72,
+     "ms": 75,
      "result": "driven"
     },
     {
@@ -7534,7 +7569,7 @@
      ],
      "id": "pod",
      "message": "set-text text_in:2",
-     "ms": 22,
+     "ms": 27,
      "result": "driven"
     },
     {
@@ -7548,7 +7583,7 @@
      ],
      "id": "pol",
      "message": "set-text text_in:3",
-     "ms": 22,
+     "ms": 24,
      "result": "driven"
     },
     {
@@ -7562,7 +7597,7 @@
      ],
      "id": "g161-xnote",
      "message": "set-text text_in:4",
-     "ms": 22,
+     "ms": 23,
      "result": "driven"
     },
     {
@@ -7576,7 +7611,7 @@
      ],
      "id": "cadd",
      "message": "activate action_btn:11",
-     "ms": 24,
+     "ms": 28,
      "result": "driven"
     },
     {
@@ -7590,7 +7625,7 @@
      ],
      "id": "cross",
      "message": "21 figure(s), 14 box(es), 3 list(s), 1 table(s), 27 heading(s)",
-     "ms": 6,
+     "ms": 5,
      "result": "driven"
     },
     {
@@ -7623,7 +7658,7 @@
      ],
      "id": "seed",
      "message": "set-text step_val:8",
-     "ms": 22,
+     "ms": 23,
      "result": "driven"
     },
     {
@@ -7637,7 +7672,7 @@
      ],
      "id": "germ",
      "message": "set-text step_val:9",
-     "ms": 22,
+     "ms": 24,
      "result": "driven"
     },
     {
@@ -7651,7 +7686,7 @@
      ],
      "id": "csave",
      "message": "activate action_btn:13",
-     "ms": 25,
+     "ms": 22,
      "result": "driven"
     },
     {
@@ -7680,7 +7715,7 @@
      ],
      "id": "crosses",
      "message": "21 figure(s), 14 box(es), 3 list(s), 1 table(s), 27 heading(s)",
-     "ms": 4,
+     "ms": 5,
      "result": "driven"
     },
     {
@@ -7694,7 +7729,7 @@
      ],
      "id": "g181-plpane",
      "message": "opened pane p-pl",
-     "ms": 71,
+     "ms": 85,
      "result": "driven"
     },
     {
@@ -7723,7 +7758,7 @@
      ],
      "id": "g181-chart",
      "message": "21 figure(s), 14 box(es), 3 list(s), 1 table(s), 27 heading(s)",
-     "ms": 6,
+     "ms": 8,
      "result": "driven"
     },
     {
@@ -7737,7 +7772,7 @@
      ],
      "id": "g161-endpane",
      "message": "opened pane p-wat",
-     "ms": 101,
+     "ms": 98,
      "result": "driven"
     },
     {
@@ -7756,7 +7791,7 @@
      ],
      "id": "g161-endrep",
      "message": "21 figure(s), 14 box(es), 3 list(s), 1 table(s), 27 heading(s)",
-     "ms": 6,
+     "ms": 4,
      "result": "driven"
     },
     {
@@ -7780,7 +7815,7 @@
      ],
      "id": "g161-endintact",
      "message": "read the page",
-     "ms": 6,
+     "ms": 8,
      "result": "driven"
     }
    ],
@@ -22198,9 +22233,9 @@
    "verdict": "PASS"
   },
   "page-greenhouse-science": {
-   "at": 1789030051,
-   "confirmed": 122,
-   "goal": "On the greenhouse monitor: 40,000 lux under HPS (factor 82) converts to 488 umol/m2/s and 31.6 mol/m2/d over 18 h; 600 umol/m2/s is DLI 38.9 (600 x 18 x 0.0036) and 25.9 over 12 h; 400 g on a 600 W rated fixture is 0.67 g/W while every figure that divides by kWh stays blank without a power log; the five example runs (498/78.2, 512/80.9, 471/79.4, 505/81.6 g/kWh baselines and 548/84.1 new) have baseline mean 6.20, sample SD 0.20, CV 3%, per-run z with self excluded +1.1 +0.8 -3.8 -0.1 and the new run at +1.6, at the edge. And the path a reader takes when they say no: the page asks 'Clear every saved run?' before it clears, and answering no keeps the five runs -- a branch nothing could reach before the harness could decide what a dialog gets answered (ADR-134). Then, under a frozen clock, the worked example loaded whole -- 337 readings over 7.0 days -- and read against the clone band with the leaf 1.5 C below air: mean leaf VPD 1.00 kPa (range 0.59\u20131.44), 78% of TIME outside the band by duration, dew point 17.4 C with 9.8 C of margin, absolute humidity 14.3 g/m3; DLI integrated from the log 50.5 mol/m2/d; 82.9 kWh over the log at 0.180 per kWh, 4.83 g/kWh against 0.67 g/W rated, average draw 493 W (82% of rated) -- and STILL 493 W after a 70-day cycle length is entered, because the average draw is over the days the log covers and not over a cycle the log did not measure; a run saved and marked baseline; and the summary, the CSV and the print, read.",
+   "at": 1789039066,
+   "confirmed": 128,
+   "goal": "On the greenhouse monitor: 40,000 lux under HPS (factor 82) converts to 488 umol/m2/s and 31.6 mol/m2/d over 18 h; 600 umol/m2/s is DLI 38.9 (600 x 18 x 0.0036) and 25.9 over 12 h; 400 g on a 600 W rated fixture is 0.67 g/W while every figure that divides by kWh stays blank without a power log; the five example runs (498/78.2, 512/80.9, 471/79.4, 505/81.6 g/kWh baselines and 548/84.1 new) have baseline mean 6.20, sample SD 0.20, CV 3%, per-run z with self excluded +1.1 +0.8 -3.8 -0.1 and the new run at +1.6, at the edge. And the path a reader takes when they say no: the page asks 'Clear every saved run?' before it clears, and answering no keeps the five runs -- a branch nothing could reach before the harness could decide what a dialog gets answered (ADR-134). Then, under a frozen clock, the worked example loaded whole -- 337 readings over 7.0 days -- and read against the clone band with the leaf 1.5 C below air: mean leaf VPD 1.00 kPa (range 0.59\u20131.44), 78% of TIME outside the band by duration, dew point 17.4 C with 9.8 C of margin, absolute humidity 14.3 g/m3; DLI integrated from the log 50.5 mol/m2/d; 82.9 kWh over the log at 0.180 per kWh, 4.83 g/kWh against 0.67 g/W rated, average draw 493 W (82% of rated) -- and STILL 493 W after a 70-day cycle length is entered, because the average draw is over the days the log covers and not over a cycle the log did not measure; a run saved and marked baseline; and the summary, the CSV and the print, read. The leaf-VPD chart draws the worked example's 337 readings as one path across the clones band, the axis labelled 0.3 to 1.6 kPa, no trend line because the week has no trend.",
    "held": true,
    "id": "page-greenhouse-science",
    "must": "PASS",
@@ -22212,7 +22247,7 @@
     "DESTRUCTIVE"
    ],
    "rungsWhy": "the goal is that wiping the runs REMOVES runChart from the report: runWipe is 'Clear all runs'",
-   "seconds": 3.3,
+   "seconds": 3.4,
    "steps": [
     {
      "action": "observe",
@@ -22244,7 +22279,7 @@
      ],
      "id": "light",
      "message": "opened pane p-light",
-     "ms": 125,
+     "ms": 133,
      "result": "driven"
     },
     {
@@ -22263,7 +22298,7 @@
      ],
      "id": "hps",
      "message": "pick pick_search:0",
-     "ms": 148,
+     "ms": 150,
      "result": "driven"
     },
     {
@@ -22277,7 +22312,7 @@
      ],
      "id": "lux",
      "message": "press-step step_btn:7",
-     "ms": 23,
+     "ms": 24,
      "result": "driven"
     },
     {
@@ -22301,7 +22336,7 @@
      ],
      "id": "converted",
      "message": "9 figure(s), 16 box(es), 0 list(s), 2 table(s), 19 heading(s)",
-     "ms": 6,
+     "ms": 7,
      "result": "driven"
     },
     {
@@ -22315,7 +22350,7 @@
      ],
      "id": "ppfd",
      "message": "set-text step_val:2",
-     "ms": 25,
+     "ms": 23,
      "result": "driven"
     },
     {
@@ -22348,7 +22383,7 @@
      ],
      "id": "pp12",
      "message": "set-text step_val:1",
-     "ms": 25,
+     "ms": 24,
      "result": "driven"
     },
     {
@@ -22376,7 +22411,7 @@
      ],
      "id": "econ",
      "message": "opened pane p-econ",
-     "ms": 75,
+     "ms": 77,
      "result": "driven"
     },
     {
@@ -22404,7 +22439,7 @@
      ],
      "id": "watts",
      "message": "press-step step_btn:11",
-     "ms": 22,
+     "ms": 24,
      "result": "driven"
     },
     {
@@ -22433,7 +22468,7 @@
      ],
      "id": "gpw",
      "message": "9 figure(s), 16 box(es), 0 list(s), 2 table(s), 19 heading(s)",
-     "ms": 4,
+     "ms": 10,
      "result": "driven"
     },
     {
@@ -22447,7 +22482,7 @@
      ],
      "id": "runs",
      "message": "opened pane p-runs",
-     "ms": 90,
+     "ms": 106,
      "result": "driven"
     },
     {
@@ -22461,7 +22496,7 @@
      ],
      "id": "demo",
      "message": "activate action_btn:4",
-     "ms": 25,
+     "ms": 24,
      "result": "driven"
     },
     {
@@ -22490,7 +22525,7 @@
      ],
      "id": "noise",
      "message": "12 figure(s), 16 box(es), 0 list(s), 3 table(s), 20 heading(s)",
-     "ms": 8,
+     "ms": 7,
      "result": "driven"
     },
     {
@@ -22549,7 +22584,7 @@
      ],
      "id": "charts",
      "message": "12 figure(s), 16 box(es), 0 list(s), 3 table(s), 20 heading(s)",
-     "ms": 7,
+     "ms": 10,
      "result": "driven"
     },
     {
@@ -22593,7 +22628,7 @@
      ],
      "id": "table",
      "message": "12 figure(s), 16 box(es), 0 list(s), 3 table(s), 20 heading(s)",
-     "ms": 6,
+     "ms": 5,
      "result": "driven"
     },
     {
@@ -22631,7 +22666,7 @@
      ],
      "id": "sayNo",
      "message": "dialogs answered {'confirm': False}",
-     "ms": 3,
+     "ms": 4,
      "result": "driven"
     },
     {
@@ -22645,7 +22680,7 @@
      ],
      "id": "refuseWipe",
      "message": "activate action_btn:5",
-     "ms": 21,
+     "ms": 23,
      "result": "driven"
     },
     {
@@ -22674,7 +22709,7 @@
      ],
      "id": "asked",
      "message": "1 dialog(s)",
-     "ms": 1,
+     "ms": 2,
      "result": "driven"
     },
     {
@@ -22721,7 +22756,7 @@
      ],
      "id": "doWipe",
      "message": "activate action_btn:5",
-     "ms": 25,
+     "ms": 22,
      "result": "driven"
     },
     {
@@ -22740,7 +22775,7 @@
      ],
      "id": "gone",
      "message": "9 figure(s), 16 box(es), 0 list(s), 2 table(s), 19 heading(s)",
-     "ms": 3,
+     "ms": 4,
      "result": "driven"
     },
     {
@@ -22756,7 +22791,7 @@
      "expectations": [],
      "id": "g155-src",
      "message": "opened pane p-src",
-     "ms": 82,
+     "ms": 89,
      "result": "driven"
     },
     {
@@ -22764,7 +22799,7 @@
      "expectations": [],
      "id": "g155-demo",
      "message": "activate dial_btn:8",
-     "ms": 26,
+     "ms": 27,
      "result": "driven"
     },
     {
@@ -22772,7 +22807,7 @@
      "expectations": [],
      "id": "g155-load",
      "message": "activate action_btn:0",
-     "ms": 55,
+     "ms": 49,
      "result": "driven"
     },
     {
@@ -22811,7 +22846,7 @@
      ],
      "id": "g155-loaded",
      "message": "15 figure(s), 16 box(es), 0 list(s), 2 table(s), 20 heading(s)",
-     "ms": 4,
+     "ms": 6,
      "result": "driven"
     },
     {
@@ -22819,7 +22854,7 @@
      "expectations": [],
      "id": "g155-env",
      "message": "opened pane p-env",
-     "ms": 77,
+     "ms": 85,
      "result": "driven"
     },
     {
@@ -22827,7 +22862,7 @@
      "expectations": [],
      "id": "g155-clone",
      "message": "activate dial_btn:0",
-     "ms": 35,
+     "ms": 33,
      "result": "driven"
     },
     {
@@ -22835,7 +22870,7 @@
      "expectations": [],
      "id": "g155-off",
      "message": "set-text step_val:0",
-     "ms": 34,
+     "ms": 36,
      "result": "driven"
     },
     {
@@ -22905,6 +22940,36 @@
        "detail": "output.boxes.envChart contains 'Leaf VPD over 7.0 days', got 'Leaf VPD over 7.0 days0.4\u20130.8 kPa target band1.60.3time'",
        "path": "output.boxes.envChart",
        "verdict": "CONFIRMED"
+      },
+      {
+       "detail": "output.charts.envChart.viewBox == '0 0 680 260', got '0 0 680 260'",
+       "path": "output.charts.envChart.viewBox",
+       "verdict": "CONFIRMED"
+      },
+      {
+       "detail": "output.charts.envChart.marks == {'rect': 1, 'line': 2, 'path': 1}, got {'rect': 1, 'path': 1, 'line': 2}",
+       "path": "output.charts.envChart.marks",
+       "verdict": "CONFIRMED"
+      },
+      {
+       "detail": "output.charts.envChart.longest == 337, got 337",
+       "path": "output.charts.envChart.longest",
+       "verdict": "CONFIRMED"
+      },
+      {
+       "detail": "output.charts.envChart.spans == [[46, 43.4, 662, 165.2]], got [[46, 43.4, 662, 165.2]]",
+       "path": "output.charts.envChart.spans",
+       "verdict": "CONFIRMED"
+      },
+      {
+       "detail": "output.charts.envChart.at.0 == [354, 163.95], got [354, 163.95]",
+       "path": "output.charts.envChart.at.0",
+       "verdict": "CONFIRMED"
+      },
+      {
+       "detail": "output.charts.envChart.texts == [{'t': '0.4\u20130.8 kPa target band', 'x': 52, 'y': 129.4}, {'t': '1.6', 'x': 6, 'y': 32}, {'t': '0.3', 'x': 6, 'y': 214}, {'t': 'time', 'x': 340, 'y': 252}], got [{'t': '0.4\u20130.8 kPa target band', 'x': 52, 'y': 129.4}, {'t': '1.6', 'x': 6, 'y': 32}, {'t': '0.3', 'x': 6, 'y': 214}, {'t': 'time', 'x': 340, 'y': 252}]",
+       "path": "output.charts.envChart.texts",
+       "verdict": "CONFIRMED"
       }
      ],
      "id": "g155-readout",
@@ -22917,7 +22982,7 @@
      "expectations": [],
      "id": "g155-light",
      "message": "opened pane p-light",
-     "ms": 74,
+     "ms": 71,
      "result": "driven"
     },
     {
@@ -22944,7 +23009,7 @@
      "expectations": [],
      "id": "g155-econ",
      "message": "opened pane p-econ",
-     "ms": 104,
+     "ms": 96,
      "result": "driven"
     },
     {
@@ -22952,7 +23017,7 @@
      "expectations": [],
      "id": "g155-rate",
      "message": "set-text field_in:0",
-     "ms": 30,
+     "ms": 33,
      "result": "driven"
     },
     {
@@ -23006,7 +23071,7 @@
      ],
      "id": "g155-energy",
      "message": "15 figure(s), 16 box(es), 0 list(s), 2 table(s), 20 heading(s)",
-     "ms": 4,
+     "ms": 9,
      "result": "driven"
     },
     {
@@ -23014,7 +23079,7 @@
      "expectations": [],
      "id": "g155-cycle",
      "message": "set-text step_val:6",
-     "ms": 36,
+     "ms": 32,
      "result": "driven"
     },
     {
@@ -23038,7 +23103,7 @@
      ],
      "id": "g155-still",
      "message": "15 figure(s), 16 box(es), 0 list(s), 2 table(s), 20 heading(s)",
-     "ms": 4,
+     "ms": 5,
      "result": "driven"
     },
     {
@@ -23046,7 +23111,7 @@
      "expectations": [],
      "id": "g155-runs",
      "message": "opened pane p-runs",
-     "ms": 66,
+     "ms": 80,
      "result": "driven"
     },
     {
@@ -23054,7 +23119,7 @@
      "expectations": [],
      "id": "g155-label",
      "message": "set-text text_in:0",
-     "ms": 25,
+     "ms": 27,
      "result": "driven"
     },
     {
@@ -23062,7 +23127,7 @@
      "expectations": [],
      "id": "g155-base",
      "message": "activate chip:0",
-     "ms": 22,
+     "ms": 24,
      "result": "driven"
     },
     {
@@ -23078,7 +23143,7 @@
      "expectations": [],
      "id": "g155-save",
      "message": "activate action_btn:3",
-     "ms": 23,
+     "ms": 24,
      "result": "driven"
     },
     {
@@ -23110,7 +23175,7 @@
      "expectations": [],
      "id": "g155-out",
      "message": "opened pane p-out",
-     "ms": 92,
+     "ms": 90,
      "result": "driven"
     },
     {
@@ -23182,7 +23247,7 @@
      "expectations": [],
      "id": "g155-copy",
      "message": "activate action_btn:6",
-     "ms": 23,
+     "ms": 21,
      "result": "driven"
     },
     {
@@ -23229,7 +23294,7 @@
      "expectations": [],
      "id": "g155-csv",
      "message": "activate action_btn:7",
-     "ms": 29,
+     "ms": 26,
      "result": "driven"
     },
     {
@@ -23258,7 +23323,7 @@
      ],
      "id": "g155-csvout",
      "message": "1 payload(s)",
-     "ms": 3,
+     "ms": 2,
      "result": "driven"
     },
     {
@@ -23266,7 +23331,7 @@
      "expectations": [],
      "id": "g155-print",
      "message": "activate action_btn:8",
-     "ms": 24,
+     "ms": 22,
      "result": "driven"
     },
     {
@@ -23323,7 +23388,7 @@
      ],
      "id": "intact",
      "message": "read the page",
-     "ms": 7,
+     "ms": 6,
      "result": "driven"
     }
    ],
