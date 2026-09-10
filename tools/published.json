@@ -3,9 +3,9 @@
   "observed": {},
   "pages": {
     "_harness-board.html": {
-      "at": 1789012925,
+      "at": 1789015419,
       "dated_by": "the fetch time the reader reported -- about the fetch, not about the version",
-      "sha": "725c835cde5a1ee05c14c17ba12ff6dfdf5c119253da372e74065d70d0ef0273",
+      "sha": "5cdf7aa85fc2d5427b748d48fdbb23c1110d7016ac129d0612454ddcee489395",
       "via": "read"
     },
     "adr-031.html": {
@@ -75,9 +75,9 @@
       "via": "read"
     },
     "eco-protocol-reference.html": {
-      "at": 1787875391,
-      "dated_by": "the version marker in the copy",
-      "sha": "ddecebd4f0604ac63efd70385b2decc59cb5be0ef5bdc5df8089b2194d38d896",
+      "at": 1789015419,
+      "dated_by": "the fetch time the reader reported -- about the fetch, not about the version",
+      "sha": "ccd49013ccd54cb7ad6971700fd2dc5fdcf8fe7db44f1f972b6a903153dcf24c",
       "via": "read"
     },
     "ecology-essay.html": {

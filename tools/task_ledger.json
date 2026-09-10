@@ -10625,7 +10625,7 @@
    "verdict": "PASS"
   },
   "page-eco-protocol-reference-reference": {
-   "at": 1788777280,
+   "at": 1789013438,
    "confirmed": 8,
    "goal": "The eco-protocol-reference page is a reference page with no data entry: its report is its outline. Read through the gateway, it carries exactly its 15 headings in order (The .eco Protocol ... How to run it), and 8 table(s), and is intact -- no leaked value, no script error, nothing pushed sideways.",
    "held": true,
@@ -10680,7 +10680,7 @@
      ],
      "id": "outline",
      "message": "0 figure(s), 2 box(es), 0 list(s), 8 table(s), 15 heading(s)",
-     "ms": 5,
+     "ms": 6,
      "result": "driven"
     },
     {
@@ -10704,7 +10704,7 @@
      ],
      "id": "intact",
      "message": "read the page",
-     "ms": 5,
+     "ms": 6,
      "result": "driven"
     }
    ],

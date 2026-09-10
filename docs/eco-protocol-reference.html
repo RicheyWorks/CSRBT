@@ -177,7 +177,9 @@ continues with what parsed.</p>
     <tr><td><code>window:</code> &lt;N&gt;</td><td>The sampling window, in operations, for turnover and rate readings.</td></tr>
   </table>
 <pre><span class="k">name:</span> meadow disturbance study
-<span class="k">keys:</span> 100   <span class="k">seed:</span> 42   <span class="k">window:</span> 250</pre>
+<span class="k">keys:</span> 100
+<span class="k">seed:</span> 42
+<span class="k">window:</span> 250</pre>
 </section>
 
 <!-- PHASE -->
@@ -221,9 +223,12 @@ continues with what parsed.</p>
   <code>sample-experiment.eco</code>.</p>
   <table>
     <tr><th>Model</th><th>Arguments</th><th>Classic result</th></tr>
+    <tr><td><code>exponential</code></td><td>r N0 steps</td><td>Unchecked growth — the null the others are read against.</td></tr>
     <tr><td><code>logistic</code></td><td>r K N0 steps</td><td>Verhulst growth toward K.</td></tr>
+    <tr><td><code>levins</code></td><td>c e p0 steps</td><td>Metapopulation occupancy — colonization against extinction.</td></tr>
     <tr><td><code>island</code></td><td>c e pool S0 steps</td><td>MacArthur–Wilson equilibrium richness &amp; turnover.</td></tr>
-    <tr><td><code>competition</code></td><td>(two-species Lotka–Volterra)</td><td>Coexistence or exclusion.</td></tr>
+    <tr><td><code>competition</code></td><td>r1 K1 r2 K2 a12 a21 N1 N2 steps</td><td>Two-species Lotka–Volterra — coexistence or exclusion.</td></tr>
+    <tr><td><code>predation</code></td><td>r a b m N0 P0 steps</td><td>Lotka–Volterra predator–prey cycles.</td></tr>
     <tr><td><code>hardyweinberg</code></td><td>AA Aa aa</td><td>Allele frequencies + χ² against equilibrium.</td></tr>
     <tr><td><code>eulerlotka</code></td><td>lx:mx pairs, per age</td><td>Net reproductive rate R₀ and intrinsic rate r.</td></tr>
     <tr><td><code>markrecapture</code></td><td>M C R</td><td>Lincoln–Petersen population estimate.</td></tr>
@@ -291,21 +296,29 @@ continues with what parsed.</p>
   in parentheses is a phase label or a data label. Two flavours:</p>
   <table>
     <tr><th>Flavour</th><th>Form</th></tr>
-    <tr><td>Quantitative</td><td><code>expect:</code> metric(scope) <code>&gt; &lt; &gt;= &lt;= =</code> value</td></tr>
+    <tr><td>Quantitative</td><td><code>expect:</code> metric(scope) <code>&lt; &gt; &lt;= &gt;=</code> value</td></tr>
     <tr><td>Pairwise</td><td><code>expect:</code> brayCurtis(a, b) &gt; value &nbsp;·&nbsp; jaccard(a, b) &lt;= value</td></tr>
     <tr><td>Qualitative</td><td><code>expect:</code> metric(scope) <code>is</code> band</td></tr>
   </table>
-  <p style="margin-top:6px"><b>Metrics</b> include <code>evenness</code>, <code>shannon</code>,
-  <code>hill1</code>, <code>richness</code>, <code>dispersion</code>, and the pairwise
-  <code>brayCurtis</code> / <code>jaccard</code> / <code>sorensen</code>. <b>Qualitative bands</b> are
-  the exact words the report uses: <code>even</code> / <code>uneven</code>,
-  <code>random</code> / <code>regular</code> / <code>clumped</code>, and
-  <code>survivorship is type1|type2|type3</code>.</p>
+  <p style="margin-top:6px"><b>Quantitative metrics</b>, one scope each: <code>richness</code>,
+  <code>shannon</code>, <code>evenness</code>, <code>hill1</code>, <code>chao1</code>; pairwise, two
+  scopes: <code>brayCurtis</code> / <code>jaccard</code> / <code>sorensen</code> / <code>pianka</code>.
+  The operators are <code>&lt;</code> <code>&gt;</code> <code>&lt;=</code> <code>&gt;=</code> — there is
+  no <code>=</code>, because a real number never lands on one exactly.</p>
+  <p><b>Qualitative bands</b> are the exact words the report narrates with, graded against the same
+  thresholds:
+  <code>evenness(scope) is very-even|moderate|uneven|dominated</code>,
+  <code>turnover(a, b) is low|moderate|major</code> (Bray–Curtis bands),
+  <code>overlap(a, b) is high|partial|little</code> (Pianka bands),
+  <code>fit(scope) is geometric|brokenstick|uniform</code> (the rank–abundance model that fits best), and
+  <code>survivorship is type1|type2|type3</code> (no scope — the run's own life table, which needs a
+  <code>churn</code> phase to have a census).</p>
 <pre><span class="k">expect:</span> evenness(graze) &gt; 0.9
 <span class="k">expect:</span> hill1(bloom) &lt; 20
 <span class="k">expect:</span> brayCurtis(graze, bloom) &gt; 0.5
 <span class="k">expect:</span> evenness(bloom) &gt; 0.9        <span class="r"># deliberately wrong → REFUTED</span>
 <span class="k">expect:</span> evenness(bloom) is uneven      <span class="c"># qualitative, same bands as the report</span>
+<span class="k">expect:</span> turnover(graze, bloom) is major
 <span class="k">expect:</span> survivorship is type3</pre>
 </section>
 

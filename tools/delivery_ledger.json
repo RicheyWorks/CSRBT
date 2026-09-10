@@ -900,10 +900,15 @@
    "by": "adr178",
    "sha": "c48216ebf84e1d769387dbeb53a441b39d15be284833d97f721518e4d5b821a4"
   },
+  "docs/ADR-179-the-eco-reference-says-what-the-parser-reads-2026-09-10.md": {
+   "at": 1789015420,
+   "by": "adr179",
+   "sha": "c8870a32d63b1f1501d44835899dbaa6e138e7dd5f81f2559a1b2f802452e375"
+  },
   "docs/AI_HARNESS.md": {
-   "at": 1789012926,
-   "by": "adr178",
-   "sha": "d8d647cb13cc40ec971af368433a1f9fc5b72f3c95b215fc804753e4a08d3e06"
+   "at": 1789015420,
+   "by": "adr179",
+   "sha": "94bc5df4aa03f7ba7e81c3961dc7a80016b5ab354b7dad9dcaf2d47004b4c4f5"
   },
   "docs/AUDIT-2026-07-14-capability-coverage.md": {
    "at": 1788676922,
@@ -1740,6 +1745,11 @@
    "by": "adr178",
    "sha": "1a6cccd3a8c567d41c8c73853ec2572d45e00c20428e11adc9ac3faa898d34e6"
   },
+  "docs/CHANGELOG-2026-09-10-adr179-the-eco-reference-says-what-the-parser-reads.md": {
+   "at": 1789015420,
+   "by": "adr179",
+   "sha": "c1052edf1c5c9d106c8787a67ffe23816c825299db05b00e13ce3cc40dd51bca"
+  },
   "docs/DESIGN-adaptive-engine.md": {
    "at": 1788676923,
    "by": "adr146b",
@@ -1926,9 +1936,9 @@
    "sha": "d9cb9d8de9dcce8e50db8147ed6db5fecbbaa4d606d01576085827264a53ea1d"
   },
   "docs/eco-protocol-reference.html": {
-   "at": 1788676924,
-   "by": "adr146b",
-   "sha": "74f7385b673493979866acaf0a69dfae5592afac2adec2c61d75539ce632d076"
+   "at": 1789015420,
+   "by": "adr179",
+   "sha": "4daee8dfc0619b3d29067b7cea4cb232d25f59c78db50c024a480904dd0babd2"
   },
   "docs/ecology-essay.html": {
    "at": 1788676924,
@@ -2386,9 +2396,9 @@
    "sha": "87a75cf8e4e4a93070153679fbaba41272105d2027a9233e517ff608cf275251"
   },
   "tools/badinput_ledger.json": {
-   "at": 1789012926,
-   "by": "adr178",
-   "sha": "b3665aa88497d9625885544b45a097e6f804f7d36c7da432ec5aced675ea8378"
+   "at": 1789015420,
+   "by": "adr179",
+   "sha": "4ec04ee2e333102da616843fc613833e34a350f166004c37f675a49c243939f9"
   },
   "tools/blind_console.py": {
    "at": 1788676925,
@@ -2570,10 +2580,15 @@
    "by": "adr178",
    "sha": "769ced414a48a64b74d36c1779cb0a2b41f7aebf78bc331fec7dc55917224748"
   },
+  "tools/delivery/adr179.json": {
+   "at": 1789015420,
+   "by": "adr179",
+   "sha": "d66b2f4c252accfd143dea641d00f461f75c67e0effdc95bb44cbf563ccce23b"
+  },
   "tools/delivery_ledger.json": {
-   "at": 1789012926,
-   "by": "adr178",
-   "sha": "7c60ecf32f3d94a2940f34fef5623d0f7d442c933c71da46755437a7b920c71c"
+   "at": 1789015420,
+   "by": "adr179",
+   "sha": "1ef28809edc00e99d39f7d9faa1cc3a7b3df6966def873f57e3c9f2a671b5d0a"
   },
   "tools/dwc.py": {
    "at": 1788676926,
@@ -2616,9 +2631,9 @@
    "sha": "01919e137bdbf702ebc887de41aa026b721916da9d3761ce673812d54a22471f"
   },
   "tools/entry_ledger.json": {
-   "at": 1789012926,
-   "by": "adr178",
-   "sha": "023f6e19a839430f8fd9931c0bf42987843577ab7093937d8375fe50d8c90594"
+   "at": 1789015420,
+   "by": "adr179",
+   "sha": "15384e08e32450085f6f5a437563d9d397f34d24912bdacb0987ca2ee7ab8d5f"
   },
   "tools/entry_reach.py": {
    "at": 1788676926,
@@ -2671,9 +2686,9 @@
    "sha": "1d5e5bb0fadf4abb88d56125483a66e1bc2367055c7b541aa9d800c6dddde9dc"
   },
   "tools/harness_board.html": {
-   "at": 1789012926,
-   "by": "adr178",
-   "sha": "3a7e9a65ad1e58435984022264ba6c19ba59f974d2ad4df9aca33a0e7d6dc796"
+   "at": 1789015420,
+   "by": "adr179",
+   "sha": "a6c48659308ebe8832aecf23a8b23c44cb3e923f50ec178158737fe390239dcd"
   },
   "tools/harness_board.py": {
    "at": 1788783742,
@@ -2876,9 +2891,9 @@
    "sha": "172e699a8abda0fb0fe773b9204e652001fac70b769e1082739097b699c28db0"
   },
   "tools/outputs_ledger.json": {
-   "at": 1789012926,
-   "by": "adr178",
-   "sha": "cf2b762b8d4fe072bb50e4ff539458491d144f0f946ab4cd40b35618a804e41f"
+   "at": 1789015420,
+   "by": "adr179",
+   "sha": "522c4a69642441fddc185c20e8772538af8d5de2a67741dc0800b69338f23642"
   },
   "tools/probe.py": {
    "at": 1788676927,
@@ -2911,9 +2926,9 @@
    "sha": "15022dcd97ee97f72ec5f907d0cdfef3ee36da9588f9de47e110519ff9f781e8"
   },
   "tools/published.json": {
-   "at": 1789012926,
-   "by": "adr178",
-   "sha": "fc91187edd4bfa9353800ab0c446bdb27135265f8976ce731adce75f97d6f0c6"
+   "at": 1789015420,
+   "by": "adr179",
+   "sha": "0a24bad2c22ee156cc3dc2248e028bb9dc19404500152c5608be41d658912861"
   },
   "tools/reach.py": {
    "at": 1788676928,
@@ -2921,9 +2936,9 @@
    "sha": "b176e4e078bd39b22f5056223c6d1949503ff69c2f029a02d3513a7607db39cb"
   },
   "tools/readable_ledger.json": {
-   "at": 1789012926,
-   "by": "adr178",
-   "sha": "ef68caf779156625da829cc288f5661b54c5e590a0a9560829725d62e9ed6890"
+   "at": 1789015420,
+   "by": "adr179",
+   "sha": "2418f125189d5a7511d2c94989e0c08c5e90887ef007db74bb54f23b56443029"
   },
   "tools/routes.json": {
    "at": 1788676928,
@@ -2956,9 +2971,9 @@
    "sha": "0a2241a252fa68e80b813e601b7bd67cd8ba5c00b8ad07acc98dcd93a42b0268"
   },
   "tools/task_ledger.json": {
-   "at": 1789012926,
-   "by": "adr178",
-   "sha": "9ef3039334840007b384e004eec1aaad191f6effb787c38ef52621a1fe742a9f"
+   "at": 1789015420,
+   "by": "adr179",
+   "sha": "47a68e14833562a7f654ee79d12ac1537e70cd5894dedaac2ab6aefdf8232e49"
   },
   "tools/tasks/fixture-buckets.json": {
    "at": 1788676928,
@@ -3251,9 +3266,9 @@
    "sha": "15a9ad96a69cde9458d5f7fca51be947e5bebad787cc069e1bcc64bf7800b592"
   },
   "tools/verify/counts.json": {
-   "at": 1789012926,
-   "by": "adr178",
-   "sha": "35911ee94834887182c7bbd8bfe57c43bfa0ca4daa356b2b7ae0619b142f11fb"
+   "at": 1789015420,
+   "by": "adr179",
+   "sha": "81fdac39e70b42274a6812690015a8391a3ccf962e588ad2ea14e1dca1ac1bda"
   },
   "tools/verify/run_all.py": {
    "at": 1788783742,
@@ -3394,6 +3409,11 @@
    "at": 1789012926,
    "by": "adr178",
    "sha": "9ac0c2d64aa7ea0424ea637a69503439bd9d20e5f5b5eec2c548d1b239249ada"
+  },
+  "tools/verify/verify_epr.py": {
+   "at": 1789015420,
+   "by": "adr179",
+   "sha": "594fe1df1c4e82b894ee04fcea03eedc0094e7a140c2ba5150ab1d5eac807cef"
   },
   "tools/verify/verify_escaping_slice.py": {
    "at": 1788676929,
