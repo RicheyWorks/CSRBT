@@ -1715,25 +1715,25 @@
    "survived": 0
   },
   "mutate_readable": {
-   "at": 1788944245,
+   "at": 1789018048,
    "equivalent": 1,
    "equivalents": [
     {
-     "name": "the baseline snapshot is taken with the entry-host rule ON",
-     "why": "`dpg.evaluate(TEXT_JS, False)` -> `(TEXT_JS, True)`. The rule is structural -- skip an element that HOLDS A CONTROL -- and a control is one because H.DISCOVER stamped it data-h. The baseline context runs no scripts at all, so nothing in it is stamped and the flag has nothing to act on. The argument is there to say which side of the measurement the rule belongs to, and no fixture can make it matter."
+     "name": "the baseline snapshot is taken with the flag the entered page is read with",
+     "why": "`dpg.evaluate(TEXT_JS, False)` -> `(TEXT_JS, True)`. Since ADR-180 both sides are read the same way -- a host by what remains once its widgets are removed -- and only the value \"whole\" changes the reading (that mutant is real, and killed). True and False are the same subtraction; the argument survives to say which side of the measurement is which."
     }
    ],
    "inconclusive": 0,
-   "killed": 30,
-   "mutants": 30,
+   "killed": 33,
+   "mutants": 33,
    "rows": [
     {
-     "detail": "13 failure(s); first: an element written AT BOOT counts: the baseline is what th",
+     "detail": "15 failure(s); first: an element written AT BOOT counts: the baseline is what th",
      "name": "the baseline page runs its own scripts, so a boot figure reads as unchanged",
      "verdict": "killed"
     },
     {
-     "detail": "6 failure(s); first: an element the page never writes is not a written element, ",
+     "detail": "8 failure(s); first: an element the page never writes is not a written element, ",
      "name": "there is no baseline, so every paragraph on the page is a figure the page wrote",
      "verdict": "killed"
     },
@@ -1748,12 +1748,12 @@
      "verdict": "killed"
     },
     {
-     "detail": "6 failure(s); first: only the DEEPEST id in a chain owns the change: a parent's ",
+     "detail": "7 failure(s); first: only the DEEPEST id in a chain owns the change: a parent's ",
      "name": "every changed id is reported, not just the deepest",
      "verdict": "killed"
     },
     {
-     "detail": "6 failure(s); first: an element the page never writes is not a written element, ",
+     "detail": "8 failure(s); first: an element the page never writes is not a written element, ",
      "name": "an element that never changed is written too",
      "verdict": "killed"
     },
@@ -1823,22 +1823,37 @@
      "verdict": "killed"
     },
     {
-     "detail": "10 failure(s); first: an element named the kit's way -- an analysis, an *Out, a ",
+     "detail": "11 failure(s); first: an element named the kit's way -- an analysis, an *Out, a ",
      "name": "read-report is never asked, so nothing is readable",
      "verdict": "killed"
     },
     {
-     "detail": "8 failure(s); first: six unreadable figures on this fixture, no more and no fewe",
-     "name": "an entry host is a figure, so every entry kit mount in the kit is on the worklist",
+     "detail": "10 failure(s); first: seven unreadable figures on this fixture, no more and no f",
+     "name": "a host is read whole, controls and all, so every entry kit mount in the kit is on the worklist",
      "verdict": "killed"
     },
     {
-     "detail": "2 failure(s); first: ...so the entry host on it is skipped because the AUDIT sta",
+     "detail": "8 failure(s); first: seven unreadable figures on this fixture, no more and no fe",
+     "name": "a host is skipped whole, and the figures beside its controls with it",
+     "verdict": "killed"
+    },
+    {
+     "detail": "6 failure(s); first: seven unreadable figures on this fixture, no more and no fe",
+     "name": "the kit's widget furniture is a figure",
+     "verdict": "killed"
+    },
+    {
+     "detail": "6 failure(s); first: seven unreadable figures on this fixture, no more and no fe",
+     "name": "the baseline is read whole while the entered page is read beside its controls",
+     "verdict": "killed"
+    },
+    {
+     "detail": "2 failure(s); first: ...so the option div in the entry host on it is subtracted ",
      "name": "the controls are not stamped first, so on a page with no task every mount is a figure",
      "verdict": "killed"
     },
     {
-     "detail": "9 failure(s); first: ...but only when the reader actually RETURNED it: a card pa",
+     "detail": "10 failure(s); first: ...but only when the reader actually RETURNED it: a card p",
      "name": "the unreadable elements are counted but not named",
      "verdict": "killed"
     },
@@ -1881,12 +1896,12 @@
    "survived": 0
   },
   "mutate_report": {
-   "at": 1788942883,
+   "at": 1789017149,
    "equivalent": 0,
    "equivalents": [],
    "inconclusive": 0,
-   "killed": 68,
-   "mutants": 68,
+   "killed": 69,
+   "mutants": 69,
    "rows": [
     {
      "detail": "7 failure(s); first: a .tile and a .stat .st are both figures: the .l/.v pair is",
@@ -1914,13 +1929,18 @@
      "verdict": "killed"
     },
     {
-     "detail": "4 failure(s); first: boxes follow the kit's naming -- an*, *Out, *Box, *Stat, *M",
+     "detail": "5 failure(s); first: boxes follow the kit's naming -- an*, *Out, *Box, *Stat, *M",
      "name": "boxes are the old five prefixes only",
      "verdict": "killed"
     },
     {
      "detail": "1 failure(s); first: and a *Board is a box (ADR-171): the pheno tracker's ranked",
      "name": "a *Board is not a box",
+     "verdict": "killed"
+    },
+    {
+     "detail": "1 failure(s); first: and the event tree is a box (ADR-180): the survey's generat",
+     "name": "the survey's event tree is not a box",
      "verdict": "killed"
     },
     {

@@ -34093,9 +34093,9 @@
    "verdict": "PASS"
   },
   "page-survey-design-science": {
-   "at": 1788845849,
-   "confirmed": 73,
-   "goal": "On the survey design page, load the example design (1 survey, 2 sites, 4 plots, 8 visits = 15 events, no duplicate IDs), find a site with plots refused deletion, attach the absences to visit:01 and find 15 event rows, 15 Humboldt rows (nothing inherited), 3 occurrence rows (2 found + 1 absent) with 1 absence written and 0 refused; clear the target scope and find the absence refused (2 rows, 0 written, 1 refused); restore it, enter effort 45 minutes and an excluded scope, and find the declarations and the export carry them. Then the dataset name and prefix and effort protocol are typed before the example loads so it keeps them, an inventory type and a target taxon are added, and ONE MANUAL SITE (South spring, SGH2026:site:03) is appended under the survey -- 15 -> 16 events, 16 Humboldt rows, occurrences unchanged at 3 -- and the five things the page hands over are read: Event Core, the Humboldt extension, the occurrence table (its per-row UUID excluded, its deterministic columns held), the readme and the print.",
+   "at": 1789016712,
+   "confirmed": 74,
+   "goal": "On the survey design page, load the example design (1 survey, 2 sites, 4 plots, 8 visits = 15 events, no duplicate IDs), find a site with plots refused deletion, attach the absences to visit:01 and find 15 event rows, 15 Humboldt rows (nothing inherited), 3 occurrence rows (2 found + 1 absent) with 1 absence written and 0 refused; clear the target scope and find the absence refused (2 rows, 0 written, 1 refused); restore it, enter effort 45 minutes and an excluded scope, and find the declarations and the export carry them. Then the dataset name and prefix and effort protocol are typed before the example loads so it keeps them, an inventory type and a target taxon are added, and ONE MANUAL SITE (South spring, SGH2026:site:03) is appended under the survey -- 15 -> 16 events, 16 Humboldt rows, occurrences unchanged at 3 -- and the five things the page hands over are read: Event Core, the Humboldt extension, the occurrence table (its per-row UUID excluded, its deterministic columns held), the readme and the print. The event tree itself reads as a box: fifteen rows in hierarchy order, each its type, generated ID, name and date, from SGH2026:survey:01 to SGH2026:visit:08.",
    "held": true,
    "id": "page-survey-design-science",
    "must": "PASS",
@@ -34107,7 +34107,7 @@
     "DESTRUCTIVE"
    ],
    "rungsWhy": "the goal removes a stratum and re-reads the allocation: the control is the row's remove",
-   "seconds": 4.1,
+   "seconds": 5.6,
    "steps": [
     {
      "action": "observe",
@@ -34147,7 +34147,7 @@
      "expectations": [],
      "id": "g157-dsname",
      "message": "set-text text_in:0",
-     "ms": 25,
+     "ms": 26,
      "result": "driven"
     },
     {
@@ -34155,7 +34155,7 @@
      "expectations": [],
      "id": "g157-dsprefix",
      "message": "set-text text_in:1",
-     "ms": 23,
+     "ms": 24,
      "result": "driven"
     },
     {
@@ -34163,7 +34163,7 @@
      "expectations": [],
      "id": "g157-effproto",
      "message": "set-text text_in:8",
-     "ms": 168,
+     "ms": 244,
      "result": "driven"
     },
     {
@@ -34177,7 +34177,7 @@
      ],
      "id": "demo",
      "message": "activate action_btn:1",
-     "ms": 113,
+     "ms": 149,
      "result": "driven"
     },
     {
@@ -34212,11 +34212,16 @@
        "detail": "output.by.treeStat.duplicate IDs == '0', got '0'",
        "path": "output.by.treeStat.duplicate IDs",
        "verdict": "CONFIRMED"
+      },
+      {
+       "detail": "output.boxes.tree == 'surveySGH2026:survey:01Riparian vascular flora, 2026 season \u00b7 2026-06-01/2026-08-31copy IDremovesiteSGH2026:site:01North bench \u00b7 2026-06-01/2026-08-31copy IDremoveplotSGH2026:plot:01North bench plot 1copy IDremovevisitSGH2026:visit:01North bench plot 1, visit 1 \u00b7 2026-06-14copy IDremovevisitSGH2026:visit:02North bench plot 1, visit 2 \u00b7 2026-07-19copy IDremoveplotSGH2026:plot:02North bench plot 2copy IDremovevisitSGH2026:visit:03North bench plot 2, visit 1 \u00b7 2026-06-14copy IDremovevisitSGH2026:visit:04North bench plot 2, visit 2 \u00b7 2026-07-19copy IDremovesiteSGH2026:site:02Creek terrace \u00b7 2026-06-01/2026-08-31copy IDremoveplotSGH2026:plot:03Creek terrace plot 1copy IDremovevisitSGH2026:visit:05Creek terrace plot 1, visit 1 \u00b7 2026-06-14copy IDremovevisitSGH2026:visit:06Creek terrace plot 1, visit 2 \u00b7 2026-07-19copy IDremoveplotSGH2026:plot:04Creek terrace plot 2copy IDremovevisitSGH2026:visit:07Creek terrace plot 2, visit 1 \u00b7 2026-06-14copy IDremovevisitSGH2026:visit:08Creek terrace plot 2, visit 2 \u00b7 2026-07-19copy IDremove', got 'surveySGH2026:survey:01Riparian vascular flora, 2026 season \u00b7 2026-06-01/2026-08-31copy IDremovesiteSGH2026:site:01North bench \u00b7 2026-06-01/2026-08-31copy IDremoveplotSGH2026:plot:01North bench plot 1copy IDremovevisitSGH2026:visit:01North bench plot 1, visit 1 \u00b7 2026-06-14copy IDremovevisitSGH2026:visit:02North bench plot 1, visit 2 \u00b7 2026-07-19copy IDremoveplotSGH2026:plot:02North bench plot 2copy IDremovevisitSGH2026:visit:03North bench plot 2, visit 1 \u00b7 2026-06-14copy IDremovevisitSGH2026:visit:04North bench plot 2, visit 2 \u00b7 2026-07-19copy IDremovesiteSGH2026:site:02Creek terrace \u00b7 2026-06-01/2026-08-31copy IDremoveplotSGH2026:plot:03Creek terrace plot 1copy IDremovevisitSGH2026:visit:05Creek terrace plot 1, visit 1 \u00b7 2026-06-14copy IDremovevisitSGH2026:visit:06Creek terrace plot 1, visit 2 \u00b7 2026-07-19copy IDremoveplotSGH2026:plot:04Creek terrace plot 2copy IDremovevisitSGH2026:visit:07Creek terrace plot 2, visit 1 \u00b7 2026-06-14copy IDremovevisitSGH2026:visit:08Creek terrace plot 2, visit 2 \u00b7 2026-07-19copy IDremove'",
+       "path": "output.boxes.tree",
+       "verdict": "CONFIRMED"
       }
      ],
      "id": "tree",
-     "message": "14 figure(s), 18 box(es), 0 list(s), 2 table(s), 19 heading(s)",
-     "ms": 8,
+     "message": "14 figure(s), 19 box(es), 0 list(s), 2 table(s), 19 heading(s)",
+     "ms": 12,
      "result": "driven"
     },
     {
@@ -34230,7 +34235,7 @@
      ],
      "id": "rm",
      "message": "activate action_btn:5",
-     "ms": 23,
+     "ms": 25,
      "result": "driven"
     },
     {
@@ -34248,8 +34253,8 @@
       }
      ],
      "id": "kept",
-     "message": "14 figure(s), 18 box(es), 0 list(s), 2 table(s), 19 heading(s)",
-     "ms": 5,
+     "message": "14 figure(s), 19 box(es), 0 list(s), 2 table(s), 19 heading(s)",
+     "ms": 7,
      "result": "driven"
     },
     {
@@ -34263,7 +34268,7 @@
      ],
      "id": "abs",
      "message": "opened pane p-abs",
-     "ms": 102,
+     "ms": 97,
      "result": "driven"
     },
     {
@@ -34291,8 +34296,8 @@
       }
      ],
      "id": "taxa",
-     "message": "14 figure(s), 18 box(es), 0 list(s), 2 table(s), 19 heading(s)",
-     "ms": 4,
+     "message": "14 figure(s), 19 box(es), 0 list(s), 2 table(s), 19 heading(s)",
+     "ms": 5,
      "result": "driven"
     },
     {
@@ -34311,7 +34316,7 @@
      ],
      "id": "event",
      "message": "pick pick_search:1",
-     "ms": 149,
+     "ms": 146,
      "result": "driven"
     },
     {
@@ -34325,7 +34330,7 @@
      ],
      "id": "out",
      "message": "opened pane p-out",
-     "ms": 91,
+     "ms": 128,
      "result": "driven"
     },
     {
@@ -34363,8 +34368,8 @@
       }
      ],
      "id": "scoped",
-     "message": "14 figure(s), 18 box(es), 0 list(s), 2 table(s), 19 heading(s)",
-     "ms": 6,
+     "message": "14 figure(s), 19 box(es), 0 list(s), 2 table(s), 19 heading(s)",
+     "ms": 8,
      "result": "driven"
     },
     {
@@ -34377,8 +34382,8 @@
       }
      ],
      "id": "agree",
-     "message": "14 figure(s), 18 box(es), 0 list(s), 2 table(s), 19 heading(s)",
-     "ms": 4,
+     "message": "14 figure(s), 19 box(es), 0 list(s), 2 table(s), 19 heading(s)",
+     "ms": 9,
      "result": "driven"
     },
     {
@@ -34392,7 +34397,7 @@
      ],
      "id": "scope",
      "message": "opened pane p-scope",
-     "ms": 95,
+     "ms": 100,
      "result": "driven"
     },
     {
@@ -34406,7 +34411,7 @@
      ],
      "id": "noscope",
      "message": "set-text text_in:4",
-     "ms": 25,
+     "ms": 21,
      "result": "driven"
     },
     {
@@ -34420,7 +34425,7 @@
      ],
      "id": "out2",
      "message": "opened pane p-out",
-     "ms": 89,
+     "ms": 108,
      "result": "driven"
     },
     {
@@ -34443,8 +34448,8 @@
       }
      ],
      "id": "refused",
-     "message": "14 figure(s), 18 box(es), 0 list(s), 2 table(s), 19 heading(s)",
-     "ms": 5,
+     "message": "14 figure(s), 19 box(es), 0 list(s), 2 table(s), 19 heading(s)",
+     "ms": 10,
      "result": "driven"
     },
     {
@@ -34458,7 +34463,7 @@
      ],
      "id": "scope2",
      "message": "opened pane p-scope",
-     "ms": 100,
+     "ms": 138,
      "result": "driven"
     },
     {
@@ -34472,7 +34477,7 @@
      ],
      "id": "rescope",
      "message": "set-text text_in:4",
-     "ms": 23,
+     "ms": 36,
      "result": "driven"
     },
     {
@@ -34486,7 +34491,7 @@
      ],
      "id": "eff",
      "message": "set-text text_in:6",
-     "ms": 26,
+     "ms": 24,
      "result": "driven"
     },
     {
@@ -34500,7 +34505,7 @@
      ],
      "id": "nounit",
      "message": "set-text text_in:7",
-     "ms": 22,
+     "ms": 33,
      "result": "driven"
     },
     {
@@ -34513,8 +34518,8 @@
       }
      ],
      "id": "half",
-     "message": "14 figure(s), 18 box(es), 0 list(s), 2 table(s), 19 heading(s)",
-     "ms": 5,
+     "message": "14 figure(s), 19 box(es), 0 list(s), 2 table(s), 19 heading(s)",
+     "ms": 6,
      "result": "driven"
     },
     {
@@ -34528,7 +34533,7 @@
      ],
      "id": "unit",
      "message": "set-text text_in:7",
-     "ms": 25,
+     "ms": 31,
      "result": "driven"
     },
     {
@@ -34541,7 +34546,7 @@
       }
      ],
      "id": "whole",
-     "message": "14 figure(s), 18 box(es), 0 list(s), 2 table(s), 19 heading(s)",
+     "message": "14 figure(s), 19 box(es), 0 list(s), 2 table(s), 19 heading(s)",
      "ms": 4,
      "result": "driven"
     },
@@ -34556,7 +34561,7 @@
      ],
      "id": "excl",
      "message": "set-text text_in:5",
-     "ms": 25,
+     "ms": 24,
      "result": "driven"
     },
     {
@@ -34569,8 +34574,8 @@
       }
      ],
      "id": "decision",
-     "message": "14 figure(s), 18 box(es), 0 list(s), 2 table(s), 19 heading(s)",
-     "ms": 4,
+     "message": "14 figure(s), 19 box(es), 0 list(s), 2 table(s), 19 heading(s)",
+     "ms": 13,
      "result": "driven"
     },
     {
@@ -34584,7 +34589,7 @@
      ],
      "id": "out3",
      "message": "opened pane p-out",
-     "ms": 79,
+     "ms": 96,
      "result": "driven"
     },
     {
@@ -34602,8 +34607,8 @@
       }
      ],
      "id": "eco",
-     "message": "14 figure(s), 18 box(es), 0 list(s), 2 table(s), 19 heading(s)",
-     "ms": 5,
+     "message": "14 figure(s), 19 box(es), 0 list(s), 2 table(s), 19 heading(s)",
+     "ms": 10,
      "result": "driven"
     },
     {
@@ -34611,7 +34616,7 @@
      "expectations": [],
      "id": "g157-scope-pane",
      "message": "opened pane p-scope",
-     "ms": 95,
+     "ms": 94,
      "result": "driven"
     },
     {
@@ -34619,7 +34624,7 @@
      "expectations": [],
      "id": "g157-inv",
      "message": "set-text text_in:9",
-     "ms": 22,
+     "ms": 26,
      "result": "driven"
     },
     {
@@ -34632,8 +34637,8 @@
       }
      ],
      "id": "g157-invread",
-     "message": "14 figure(s), 18 box(es), 0 list(s), 2 table(s), 19 heading(s)",
-     "ms": 4,
+     "message": "14 figure(s), 19 box(es), 0 list(s), 2 table(s), 19 heading(s)",
+     "ms": 9,
      "result": "driven"
     },
     {
@@ -34641,7 +34646,7 @@
      "expectations": [],
      "id": "g157-abs-pane",
      "message": "opened pane p-abs",
-     "ms": 99,
+     "ms": 77,
      "result": "driven"
     },
     {
@@ -34649,7 +34654,7 @@
      "expectations": [],
      "id": "g157-txadd",
      "message": "set-text text_in:10",
-     "ms": 22,
+     "ms": 25,
      "result": "driven"
     },
     {
@@ -34657,7 +34662,7 @@
      "expectations": [],
      "id": "g157-txbtn",
      "message": "activate action_btn:32",
-     "ms": 26,
+     "ms": 27,
      "result": "driven"
     },
     {
@@ -34670,8 +34675,8 @@
       }
      ],
      "id": "g157-taxa",
-     "message": "14 figure(s), 18 box(es), 0 list(s), 2 table(s), 19 heading(s)",
-     "ms": 4,
+     "message": "14 figure(s), 19 box(es), 0 list(s), 2 table(s), 19 heading(s)",
+     "ms": 5,
      "result": "driven"
     },
     {
@@ -34679,7 +34684,7 @@
      "expectations": [],
      "id": "g157-hier-pane",
      "message": "opened pane p-hier",
-     "ms": 92,
+     "ms": 87,
      "result": "driven"
     },
     {
@@ -34687,7 +34692,7 @@
      "expectations": [],
      "id": "g157-lvl-survey",
      "message": "activate dial_btn:0",
-     "ms": 23,
+     "ms": 29,
      "result": "driven"
     },
     {
@@ -34703,7 +34708,7 @@
      "expectations": [],
      "id": "g157-parent",
      "message": "pick pick_search:0",
-     "ms": 145,
+     "ms": 270,
      "result": "driven"
     },
     {
@@ -34719,7 +34724,7 @@
      "expectations": [],
      "id": "g157-evdate",
      "message": "set-text text_in:3",
-     "ms": 22,
+     "ms": 24,
      "result": "driven"
     },
     {
@@ -34727,7 +34732,7 @@
      "expectations": [],
      "id": "g157-evadd",
      "message": "activate action_btn:0",
-     "ms": 24,
+     "ms": 23,
      "result": "driven"
     },
     {
@@ -34770,7 +34775,7 @@
       }
      ],
      "id": "g157-added",
-     "message": "14 figure(s), 18 box(es), 0 list(s), 2 table(s), 19 heading(s)",
+     "message": "14 figure(s), 19 box(es), 0 list(s), 2 table(s), 19 heading(s)",
      "ms": 5,
      "result": "driven"
     },
@@ -34787,7 +34792,7 @@
      "expectations": [],
      "id": "g157-copyid",
      "message": "activate action_btn:2",
-     "ms": 23,
+     "ms": 29,
      "result": "driven"
     },
     {
@@ -34806,7 +34811,7 @@
      ],
      "id": "g157-copyidout",
      "message": "1 payload(s)",
-     "ms": 2,
+     "ms": 1,
      "result": "driven"
     },
     {
@@ -34814,7 +34819,7 @@
      "expectations": [],
      "id": "g157-out-pane",
      "message": "opened pane p-out",
-     "ms": 79,
+     "ms": 136,
      "result": "driven"
     },
     {
@@ -34822,7 +34827,7 @@
      "expectations": [],
      "id": "g157-ev",
      "message": "activate action_btn:43",
-     "ms": 27,
+     "ms": 25,
      "result": "driven"
     },
     {
@@ -34854,7 +34859,7 @@
      "expectations": [],
      "id": "g157-hum",
      "message": "activate action_btn:44",
-     "ms": 24,
+     "ms": 26,
      "result": "driven"
     },
     {
@@ -34888,17 +34893,17 @@
      "action": "collect-output",
      "expectations": [
       {
-       "detail": "output.payloads.0.text contains 'occurrenceID,eventID,scientificName,occurrenceStatus', got 'occurrenceID,eventID,scientificName,occurrenceStatus,basisOfRecord,recordedBy,occurrenceRemarks\\n96819d75-a597-4d54-a552-7d1df09ab0ce,SGH2026:visit:01,Carex aquatilis,present,HumanObservation,,\\n918d128e-db73-4fdc-ac78-95eacfa53ca6,SGH2026:visit:01,Salix bebbiana,present,HumanObservation,,\\n5be3f1a4-4d11-4403-83b0-04af6454dbb6,SGH2026:visit:01,Typha latifolia,absent,HumanObservation,,searched for within Tracheophyta and not detected'",
+       "detail": "output.payloads.0.text contains 'occurrenceID,eventID,scientificName,occurrenceStatus', got 'occurrenceID,eventID,scientificName,occurrenceStatus,basisOfRecord,recordedBy,occurrenceRemarks\\ne475ce43-baf9-41bc-8ada-c74cee9cc90d,SGH2026:visit:01,Carex aquatilis,present,HumanObservation,,\\n25eb5761-c182-4113-be24-398c4de77bf5,SGH2026:visit:01,Salix bebbiana,present,HumanObservation,,\\n4b1a795e-2a9b-41a1-bf34-0bee8bb65e61,SGH2026:visit:01,Typha latifolia,absent,HumanObservation,,searched for within Tracheophyta and not detected'",
        "path": "output.payloads.0.text",
        "verdict": "CONFIRMED"
       },
       {
-       "detail": "output.payloads.0.text contains 'SGH2026:visit:01,Typha latifolia,absent,HumanObservation,,searched for within Tracheophyta and not detected', got 'occurrenceID,eventID,scientificName,occurrenceStatus,basisOfRecord,recordedBy,occurrenceRemarks\\n96819d75-a597-4d54-a552-7d1df09ab0ce,SGH2026:visit:01,Carex aquatilis,present,HumanObservation,,\\n918d128e-db73-4fdc-ac78-95eacfa53ca6,SGH2026:visit:01,Salix bebbiana,present,HumanObservation,,\\n5be3f1a4-4d11-4403-83b0-04af6454dbb6,SGH2026:visit:01,Typha latifolia,absent,HumanObservation,,searched for within Tracheophyta and not detected'",
+       "detail": "output.payloads.0.text contains 'SGH2026:visit:01,Typha latifolia,absent,HumanObservation,,searched for within Tracheophyta and not detected', got 'occurrenceID,eventID,scientificName,occurrenceStatus,basisOfRecord,recordedBy,occurrenceRemarks\\ne475ce43-baf9-41bc-8ada-c74cee9cc90d,SGH2026:visit:01,Carex aquatilis,present,HumanObservation,,\\n25eb5761-c182-4113-be24-398c4de77bf5,SGH2026:visit:01,Salix bebbiana,present,HumanObservation,,\\n4b1a795e-2a9b-41a1-bf34-0bee8bb65e61,SGH2026:visit:01,Typha latifolia,absent,HumanObservation,,searched for within Tracheophyta and not detected'",
        "path": "output.payloads.0.text#2",
        "verdict": "CONFIRMED"
       },
       {
-       "detail": "output.payloads.0.text contains 'SGH2026:visit:01,Carex aquatilis,present,HumanObservation', got 'occurrenceID,eventID,scientificName,occurrenceStatus,basisOfRecord,recordedBy,occurrenceRemarks\\n96819d75-a597-4d54-a552-7d1df09ab0ce,SGH2026:visit:01,Carex aquatilis,present,HumanObservation,,\\n918d128e-db73-4fdc-ac78-95eacfa53ca6,SGH2026:visit:01,Salix bebbiana,present,HumanObservation,,\\n5be3f1a4-4d11-4403-83b0-04af6454dbb6,SGH2026:visit:01,Typha latifolia,absent,HumanObservation,,searched for within Tracheophyta and not detected'",
+       "detail": "output.payloads.0.text contains 'SGH2026:visit:01,Carex aquatilis,present,HumanObservation', got 'occurrenceID,eventID,scientificName,occurrenceStatus,basisOfRecord,recordedBy,occurrenceRemarks\\ne475ce43-baf9-41bc-8ada-c74cee9cc90d,SGH2026:visit:01,Carex aquatilis,present,HumanObservation,,\\n25eb5761-c182-4113-be24-398c4de77bf5,SGH2026:visit:01,Salix bebbiana,present,HumanObservation,,\\n4b1a795e-2a9b-41a1-bf34-0bee8bb65e61,SGH2026:visit:01,Typha latifolia,absent,HumanObservation,,searched for within Tracheophyta and not detected'",
        "path": "output.payloads.0.text#3",
        "verdict": "CONFIRMED"
       }
@@ -34913,7 +34918,7 @@
      "expectations": [],
      "id": "g157-readme",
      "message": "activate action_btn:46",
-     "ms": 25,
+     "ms": 26,
      "result": "driven"
     },
     {
@@ -34945,7 +34950,7 @@
      "expectations": [],
      "id": "g157-print",
      "message": "activate action_btn:47",
-     "ms": 22,
+     "ms": 21,
      "result": "driven"
     },
     {
@@ -34972,8 +34977,8 @@
       }
      ],
      "id": "g157-after",
-     "message": "14 figure(s), 18 box(es), 0 list(s), 2 table(s), 19 heading(s)",
-     "ms": 5,
+     "message": "14 figure(s), 19 box(es), 0 list(s), 2 table(s), 19 heading(s)",
+     "ms": 4,
      "result": "driven"
     },
     {
@@ -34997,7 +35002,7 @@
      ],
      "id": "intact",
      "message": "read the page",
-     "ms": 6,
+     "ms": 17,
      "result": "driven"
     }
    ],

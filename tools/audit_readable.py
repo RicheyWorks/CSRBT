@@ -25,7 +25,11 @@ drifts. The page is asked instead:
                id in each chain, because a parent's text changes when its child's
                does and the innermost element is the one that owns the figure.
                Controls are excluded: a stepper's readout moving is the control,
-               not a report.
+               not a report. An element that HOLDS a control is read by what
+               remains once its controls, the entry kit's widget furniture and
+               its links are removed -- on both sides of the comparison -- so a
+               figure written beside a button is written and a widget the kit
+               painted is not (ADR-180; ADR-146 skipped such hosts whole).
     READABLE   the ids `read-report` actually returned, from the plugin itself:
                as boxes; as the host of a table or a chart; as the SOURCE of a
                labelled figure (ADR-171 -- the .v/.l pair's own id, which the
@@ -92,19 +96,34 @@ LEDGER = os.path.join(HERE, "readable_ledger.json")
 TEXT_JS = r"""
 (skipHosts) => {
   const out = {};
+  // AN ENTRY HOST IS READ BESIDE ITS CONTROLS (ADR-180). ADR-146 skipped any
+  // element that holds a control: the Field Entry Kit mounts its widgets into
+  // a div and the div's text then changes, so geoEntry, physEntry, covEntry
+  // and their forty siblings read as "written elements the harness cannot
+  // see" -- true of the string, false of the thing, since what is inside them
+  // is CONTROLS and entry_reach accounts for those. But skipping the host
+  // whole also skipped every figure the page writes BESIDE a control: the
+  // pheno tracker's ranked run (rank, plant, score, and a star to keep it),
+  // the scout's per-stop counts on their tally buttons, the notebook's
+  // quadrat counts, a bed's rotation verdict next to its picker. So a host is
+  // read by what remains once its controls and the kit's widget furniture are
+  // removed -- the same subtraction on both sides of the comparison, so a
+  // label the kit paints at boot is not a figure and a count the page writes
+  // beside a button is. Structural: a control is a control because the swarm
+  // stamped it (data-h), a widget is one by the kit's own class names, and a
+  // link is a control the robot presses. An empty remainder is no figure.
+  const WIDGETS = "[data-h], button, input, select, textarea, label, a[href], " +
+    ".fek-row, .fek-step, .fek-dial, .fek-pick, .fek-field, .fek-slide, .fek-chip, .fek-chips, .fek-lab, .fek-help";
   document.querySelectorAll("[id]").forEach(e => {
     if (e.hasAttribute("data-h")) return;
     const t = (e.tagName || "").toLowerCase();
     if (t === "input" || t === "textarea" || t === "select" || t === "option") return;
-    // AN ENTRY HOST IS NOT A REPORT. The Field Entry Kit mounts its widgets
-    // into a div and the div's text then changes -- so geoEntry, physEntry,
-    // covEntry and their forty siblings across the kit read as "written
-    // elements the harness cannot see", which is true of the string and false
-    // of the thing: what is inside them is CONTROLS, and entry_reach is the
-    // file that accounts for those. Structural rather than by name, because
-    // "*Entry" is a convention and this is a fact: it holds a control.
-    if (skipHosts && e.querySelector("[data-h]")) return;
-    out[e.id] = (e.textContent || "").replace(/\s+/g, " ").trim().slice(0, 4000);
+    let node = e;
+    if (skipHosts !== "whole" && e.querySelector(WIDGETS)) {
+      node = e.cloneNode(true);
+      node.querySelectorAll(WIDGETS).forEach(x => x.remove());
+    }
+    out[e.id] = (node.textContent || "").replace(/\s+/g, " ").trim().slice(0, 4000);
   });
   return out;
 }
@@ -212,8 +231,8 @@ def measure(pg, name, tasks_dir=None, before=None):
     S._settle(pg)
     # Stamp the controls FIRST. The entry-host rule is structural -- "it holds a
     # control" -- and a control is a control because H.DISCOVER said so, so a
-    # page with no task (discovery never runs) would otherwise report every
-    # Field Entry Kit mount on it as a figure the harness cannot read.
+    # page with no task (discovery never runs) would otherwise read every
+    # control's own text as part of the host it sits in.
     try:
         pg.evaluate(H.DISCOVER, H.KINDS)
     except Exception:

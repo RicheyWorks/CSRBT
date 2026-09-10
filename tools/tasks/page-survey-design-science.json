@@ -2,7 +2,7 @@
  "id": "page-survey-design-science",
  "target": "page",
  "page": "survey-design.html",
- "goal": "On the survey design page, load the example design (1 survey, 2 sites, 4 plots, 8 visits = 15 events, no duplicate IDs), find a site with plots refused deletion, attach the absences to visit:01 and find 15 event rows, 15 Humboldt rows (nothing inherited), 3 occurrence rows (2 found + 1 absent) with 1 absence written and 0 refused; clear the target scope and find the absence refused (2 rows, 0 written, 1 refused); restore it, enter effort 45 minutes and an excluded scope, and find the declarations and the export carry them. Then the dataset name and prefix and effort protocol are typed before the example loads so it keeps them, an inventory type and a target taxon are added, and ONE MANUAL SITE (South spring, SGH2026:site:03) is appended under the survey -- 15 -> 16 events, 16 Humboldt rows, occurrences unchanged at 3 -- and the five things the page hands over are read: Event Core, the Humboldt extension, the occurrence table (its per-row UUID excluded, its deterministic columns held), the readme and the print.",
+ "goal": "On the survey design page, load the example design (1 survey, 2 sites, 4 plots, 8 visits = 15 events, no duplicate IDs), find a site with plots refused deletion, attach the absences to visit:01 and find 15 event rows, 15 Humboldt rows (nothing inherited), 3 occurrence rows (2 found + 1 absent) with 1 absence written and 0 refused; clear the target scope and find the absence refused (2 rows, 0 written, 1 refused); restore it, enter effort 45 minutes and an excluded scope, and find the declarations and the export carry them. Then the dataset name and prefix and effort protocol are typed before the example loads so it keeps them, an inventory type and a target taxon are added, and ONE MANUAL SITE (South spring, SGH2026:site:03) is appended under the survey -- 15 -> 16 events, 16 Humboldt rows, occurrences unchanged at 3 -- and the five things the page hands over are read: Event Core, the Humboldt extension, the occurrence table (its per-row UUID excluded, its deterministic columns held), the readme and the print. The event tree itself reads as a box: fifteen rows in hierarchy order, each its type, generated ID, name and date, from SGH2026:survey:01 to SGH2026:visit:08.",
  "policy": {
   "allow": [
    "SENSITIVE_READ",
@@ -77,7 +77,8 @@
     "output.by.treeStat.sites": "2",
     "output.by.treeStat.plots": "4",
     "output.by.treeStat.visits": "8",
-    "output.by.treeStat.duplicate IDs": "0"
+    "output.by.treeStat.duplicate IDs": "0",
+    "output.boxes.tree": "surveySGH2026:survey:01Riparian vascular flora, 2026 season · 2026-06-01/2026-08-31copy IDremovesiteSGH2026:site:01North bench · 2026-06-01/2026-08-31copy IDremoveplotSGH2026:plot:01North bench plot 1copy IDremovevisitSGH2026:visit:01North bench plot 1, visit 1 · 2026-06-14copy IDremovevisitSGH2026:visit:02North bench plot 1, visit 2 · 2026-07-19copy IDremoveplotSGH2026:plot:02North bench plot 2copy IDremovevisitSGH2026:visit:03North bench plot 2, visit 1 · 2026-06-14copy IDremovevisitSGH2026:visit:04North bench plot 2, visit 2 · 2026-07-19copy IDremovesiteSGH2026:site:02Creek terrace · 2026-06-01/2026-08-31copy IDremoveplotSGH2026:plot:03Creek terrace plot 1copy IDremovevisitSGH2026:visit:05Creek terrace plot 1, visit 1 · 2026-06-14copy IDremovevisitSGH2026:visit:06Creek terrace plot 1, visit 2 · 2026-07-19copy IDremoveplotSGH2026:plot:04Creek terrace plot 2copy IDremovevisitSGH2026:visit:07Creek terrace plot 2, visit 1 · 2026-06-14copy IDremovevisitSGH2026:visit:08Creek terrace plot 2, visit 2 · 2026-07-19copy IDremove"
    }
   },
   {

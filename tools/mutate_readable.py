@@ -101,15 +101,27 @@ MUTANTS = [
      '        _ok, _msg, rep = plug.execute("read-report", {})',
      '        rep = {}',
      "named the kit's way"),
-    # ---- an entry host is not a report ----
-    ("an entry host is a figure, so every entry kit mount in the kit is on the worklist",
-     '    if (skipHosts && e.querySelector("[data-h]")) return;',
-     '    if (false) return;',
+    # ---- an entry host is read beside its controls (ADR-180) ----
+    ("a host is read whole, controls and all, so every entry kit mount in the kit is on the worklist",
+     '    if (skipHosts !== "whole" && e.querySelector(WIDGETS)) {',
+     '    if (false) {',
      "mounts CONTROLS into is not a figure"),
+    ("a host is skipped whole, and the figures beside its controls with it",
+     '      node.querySelectorAll(WIDGETS).forEach(x => x.remove());',
+     '      node.textContent = "";',
+     "BESIDE a control is written"),
+    ("the kit's widget furniture is a figure",
+     '    ".fek-row, .fek-step, .fek-dial, .fek-pick, .fek-field, .fek-slide, .fek-chip, .fek-chips, .fek-lab, .fek-help";',
+     '    ".nothing-the-kit-paints";',
+     "widget furniture"),
+    ("the baseline is read whole while the entered page is read beside its controls",
+     '                before = dpg.evaluate(TEXT_JS, False)',
+     '                before = dpg.evaluate(TEXT_JS, "whole")',
+     "ON BOTH SIDES"),
     ("the controls are not stamped first, so on a page with no task every mount is a figure",
      '        pg.evaluate(H.DISCOVER, H.KINDS)',
      '        pass',
-     "the AUDIT stamped the controls"),
+     "the AUDIT stamped it"),
     # ---- the worklist ----
     ("the unreadable elements are counted but not named",
      '    return [i for i in r.get("written", [])',
@@ -147,12 +159,11 @@ MUTANTS = [
 ]
 
 KNOWN_EQUIVALENT = [
-    ("the baseline snapshot is taken with the entry-host rule ON",
-     "`dpg.evaluate(TEXT_JS, False)` -> `(TEXT_JS, True)`. The rule is structural -- skip an "
-     "element that HOLDS A CONTROL -- and a control is one because H.DISCOVER stamped it "
-     "data-h. The baseline context runs no scripts at all, so nothing in it is stamped and the "
-     "flag has nothing to act on. The argument is there to say which side of the measurement "
-     "the rule belongs to, and no fixture can make it matter."),
+    ("the baseline snapshot is taken with the flag the entered page is read with",
+     "`dpg.evaluate(TEXT_JS, False)` -> `(TEXT_JS, True)`. Since ADR-180 both sides are read the "
+     "same way -- a host by what remains once its widgets are removed -- and only the value "
+     "\"whole\" changes the reading (that mutant is real, and killed). True and False are the "
+     "same subtraction; the argument survives to say which side of the measurement is which."),
 ]
 
 

@@ -17,9 +17,15 @@ right about four things a fixture can pin exactly:
      about boxes would disagree with the reader it exists to measure, and did:
      thirteen figures the figures channel read and a task held were counted
      as figures no task could read.
-  C. AN ENTRY HOST IS NOT A REPORT. A div the Field Entry Kit mounts controls
-     into changes its text and is not a figure; entry_reach accounts for what
-     is inside it. Structural -- it holds a control -- not by name.
+  C. AN ENTRY HOST IS READ BESIDE ITS CONTROLS. A div the Field Entry Kit
+     mounts controls into changes its text and is not a figure; entry_reach
+     accounts for what is inside it. But a figure the page writes BESIDE a
+     control -- a ranked row with a star to keep it, a count on a tally
+     button's card -- is a figure, and ADR-146's rule, which skipped the host
+     whole, never saw one (ADR-180). So a host is read by what remains once
+     its controls, the kit's widget furniture and its links are removed, on
+     both sides of the comparison. Structural -- it holds a control -- not by
+     name.
   D. THE RATCHET AND THE FURNITURE. The ceiling falls on request and never
      rises silently; declaring furniture needs a reason that goes into the
      ledger.
@@ -90,6 +96,14 @@ FIXTURE = u"""<!doctype html><html><head><meta charset="utf-8"><title>readable f
   <div id="behind"></div>
   <!-- an entry host: the kit mounts controls into it and its text changes -->
   <div id="hostEntry"></div>
+  <!-- a figure written BESIDE a control: a ranked row with a button to keep it (ADR-180) -->
+  <div id="rankHost"></div>
+  <!-- the same, in a host named the kit's way: readable as a box -->
+  <div id="scoreBoard"></div>
+  <!-- a Field Entry Kit widget, label, help and all: furniture the kit painted, not a figure -->
+  <div id="fekHost"></div>
+  <!-- a static host with a link in it, never touched by the page -->
+  <div id="linkHost"><a href="#p1">One</a> a paragraph beside a link</div>
 </section>
 <script>
   function $(i){ return document.getElementById(i); }
@@ -113,6 +127,11 @@ FIXTURE = u"""<!doctype html><html><head><meta charset="utf-8"><title>readable f
     + '<rect x="0" y="0" width="3" height="3"></rect></svg>';
   $('hostEntry').innerHTML = '<label>picked</label><input aria-label="picked">'
     + '<button type="button">+</button>';
+  $('rankHost').innerHTML = '<div>1 #1 4.18 <button type="button">star</button></div>';
+  $('scoreBoard').innerHTML = '<div>2 #7 3.90 <button type="button">star</button></div>';
+  $('fekHost').innerHTML = '<div class="fek-row"><label class="fek-lab">Core temperature<span class="u">C</span></label>'
+    + '<div class="fek-step"><button type="button">-</button><input class="val" aria-label="Core temperature">'
+    + '<button type="button">+</button></div><p class="fek-help">tap to log</p></div>';
   // ONLY ONCE THE ENTRY RUNS
   $('opt1').textContent = 'b';
   $('go').addEventListener('click', function(){
@@ -143,7 +162,8 @@ FIXTURE2 = u"""<!doctype html><html><head><meta charset="utf-8"><title>no task</
 <script>
   document.getElementById('lonely').textContent = 'a figure nobody reads: 5';
   document.getElementById('mountEntry').innerHTML =
-    '<label>picked</label><input aria-label="picked"><button type="button">+</button>';
+    '<label>picked</label><input aria-label="picked"><button type="button">+</button>'
+    + '<div class="kopt">option a</div>';
 </script></body></html>
 """
 
@@ -224,22 +244,33 @@ ck("blank" not in written,
 ck("heatload" in bad and "tally" in bad and "behind" in bad and "inner" in bad,
    "and everything else the page writes is on the worklist, NAMED -- a task cannot fail to hold "
    "a figure it cannot see: %s" % bad)
-ck(len(bad) == 6, "six unreadable figures on this fixture, no more and no fewer: %s" % bad)
+ck(len(bad) == 7, "seven unreadable figures on this fixture, no more and no fewer: %s" % bad)
 
-# ---- C. an entry host is not a report ---------------------------------------
+# ---- C. an entry host is read beside its controls ------------------------------
 ck("hostEntry" not in written and "hostEntry" not in bad,
    "a div the entry kit mounts CONTROLS into is not a figure: its text changes because controls "
    "arrived in it, and counting it made 41 pages' worth of *Entry hosts read as figures the "
    "harness cannot see -- true of the string, false of the thing: %s" % written)
+ck("rankHost" in written and "rankHost" in bad,
+   "but a figure the page writes BESIDE a control is written: a ranked row with a star to keep it "
+   "is a figure with a button in it, and a host skipped whole never showed one (ADR-180): %s" % written)
+ck("scoreBoard" in written and "scoreBoard" in readable and "scoreBoard" not in bad,
+   "...and when the host is named the kit's way it is readable as a box, button and all: %s" % sorted(readable))
+ck("fekHost" not in written,
+   "the kit's own widget furniture -- the label, the stepper, the help line -- is not a figure: "
+   "what remains once the widgets are removed is nothing: %s" % written)
+ck("linkHost" not in written,
+   "a static host with a link in it is read with the link removed ON BOTH SIDES, so prose the page "
+   "never touches is not written because a link was subtracted from one side only: %s" % written)
 
 got2 = R.walk("fixture2.html", tasks_dir)
 r2 = got2["fixture2.html"]
 ck(r2.get("task") is None,
    "a page with no task replays nothing -- and is still measured: %s" % r2.get("task"))
 ck("mountEntry" not in r2["written"],
-   "...so the entry host on it is skipped because the AUDIT stamped the controls, not because "
-   "somebody else's entry happened to: an audit that leans on the entry for that reports every "
-   "mount on every task-less page as a figure: %s" % r2["written"])
+   "...so the option div in the entry host on it is subtracted because the AUDIT stamped it a "
+   "control, not because somebody else's entry happened to: an audit that leans on the entry for "
+   "that reads every unstamped option on every task-less page as a figure: %s" % r2["written"])
 ck(R.unreadable(r2, {}) == ["lonely"],
    "and the one figure it really does publish blind is the one on the worklist: %s"
    % R.unreadable(r2, {}))
@@ -252,11 +283,11 @@ ck(rc == 0 and led["unreadable"] == bad and "ceiling" not in led,
    "failure: %s" % led)
 rc = R.main(["--raise-floors"])
 led = json.load(io.open(R.LEDGER, encoding="utf-8"))["pages"]["fixture.html"]
-ck(rc == 0 and led.get("ceiling") == 6,
+ck(rc == 0 and led.get("ceiling") == 7,
    "the ceiling is set on request, at today's reading: %s" % led)
 
 state = R.load()
-state["pages"]["fixture.html"]["ceiling"] = 5
+state["pages"]["fixture.html"]["ceiling"] = 6
 R.save(state)
 rc = R.main([])
 ck(rc != 0,
@@ -267,7 +298,7 @@ rc = R.main(["--check"])
 ck(rc != 0, "--check is accepted for symmetry with the kit's other ratchets, and refuses too")
 
 state = R.load()
-state["pages"]["fixture.html"]["ceiling"] = 6
+state["pages"]["fixture.html"]["ceiling"] = 7
 R.save(state)
 ck(R.main([]) == 0, "back at its ceiling, the page passes")
 
@@ -281,12 +312,12 @@ ck(rc == 0 and led["furniture"]["heatload"] == "a rehearsal, not a reading",
    "...and with one, the reason is what is stored: %s" % led.get("furniture"))
 got2 = R.walk("fixture.html", tasks_dir)
 bad2 = R.unreadable(got2["fixture.html"], R.furniture_of(R.load(), "fixture.html"))
-ck(len(bad2) == 5 and "heatload" not in bad2,
+ck(len(bad2) == 6 and "heatload" not in bad2,
    "declared furniture leaves the worklist -- and only that element: %s" % bad2)
 ck(R.main([]) == 0, "the ratchet runs downward: fewer than the ceiling is never a failure")
 rc = R.main(["--raise-floors"])
 led = json.load(io.open(R.LEDGER, encoding="utf-8"))["pages"]["fixture.html"]
-ck(led.get("ceiling") == 5,
+ck(led.get("ceiling") == 6,
    "...and --raise-floors LOWERS it, because this ceiling only ever comes down: %s" % led)
 ck(led.get("through") == {"cc-A": "cmpGrid"},
    "the ledger names what a task can only hold by string, through the box around it -- the "

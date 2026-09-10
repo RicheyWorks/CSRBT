@@ -338,7 +338,7 @@ REPORT = r"""
   // "station-<key>" is the lab's own name for a station (ADR-135): the session
   // key the engine uses, so a figure read off the page is read under the same
   // name the engine reports it under.
-  const BOX = /^(an|out|rep|res|sum)[A-Za-z0-9-]*$|(box|out|stats?|plan|matrix|verdict|tiles|warn|coh|tell|note|advice|refuse|table|chart|typical|list|results|grid|export|lint|cmd|meas|help|card|legend|msg|check|read|desc|left|res|board)$|^(coherence|report|results|outputs|toast|journal)$|^station-[a-z]+$/i;
+  const BOX = /^(an|out|rep|res|sum)[A-Za-z0-9-]*$|(box|out|stats?|plan|matrix|verdict|tiles|warn|coh|tell|note|advice|refuse|table|chart|typical|list|results|grid|export|lint|cmd|meas|help|card|legend|msg|check|read|desc|left|res|board)$|^(coherence|report|results|outputs|toast|journal|tree)$|^station-[a-z]+$/i;
   const boxes = {}, shown = [];
   document.querySelectorAll("[id]").forEach(e => {
     if (!BOX.test(e.id)) return;

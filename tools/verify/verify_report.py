@@ -91,6 +91,7 @@ FIXTURE = u"""<!doctype html><html><head><meta charset="utf-8"><title>report fix
     <div class="stat"><span class="k">Height</span><span class="v" id="mH">4</span></div></div>
   <div class="tile" id="tCount"><div class="v">7</div><div class="l">count</div></div>
   <div id="rankBoard">1 #1 4.18</div>
+  <div id="tree"><div class="n d0"><span class="ty">survey</span><span class="id">SGH:survey:01</span><button type="button">copy ID</button></div></div>
   <div id="ignored-plain">not a box</div>
   <div id="actBar">
     <button type="button" id="bAdd">Add stem</button>
@@ -216,6 +217,8 @@ with sync_playwright() as pw:
        "the keys' result, the visualizer's message and the proofs' check are boxes too (ADR-129): %s" % sorted(boxes))
     ck("rankBoard" in boxes,
        "and a *Board is a box (ADR-171): the pheno tracker's ranked run and its mothers are figures: %s" % sorted(boxes))
+    ck("tree" in boxes and "SGH:survey:01" in boxes["tree"],
+       "and the event tree is a box (ADR-180): the survey's generated IDs are a figure with buttons in it, read whole: %s" % boxes.get("tree"))
     # WHERE EACH FIGURE WAS READ FROM (ADR-171): the value element's own id
     # when it has one, else the pair's, else the box -- so the readable-figures
     # audit, which counts written elements by id, can credit a figure the

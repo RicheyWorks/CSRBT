@@ -11,11 +11,29 @@ eco:targetTaxonomicScope, a marked absence must NOT reach the occurrence table.
 Everything else here is structure -- unique ids, real parents, and the
 Humboldt rule that nothing is inherited.
 """
-import io, os, re, sys
+import io, json, os, re, sys
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 from _kit import url, offline, ROOT
 from playwright.sync_api import sync_playwright
+
+def demo_tree(pre="SGH2026"):
+    """The example design's event rows as the tree draws them: type, ID, name,
+    a date where the event has one, then the two buttons' labels. The ID scheme
+    is the example's: one survey, sites 01-02, plots 01-04 across the sites,
+    visits 01-08 across the plots, zero-padded to two digits."""
+    def row(t, i, n, d=""):
+        return t + i + n + (" · " + d if d else "") + "copy ID" + "remove"
+    out = [row("survey", pre + ":survey:01", "Riparian vascular flora, 2026 season", "2026-06-01/2026-08-31")]
+    for si, sn in enumerate(["North bench", "Creek terrace"]):
+        out.append(row("site", pre + ":site:0%d" % (si + 1), sn, "2026-06-01/2026-08-31"))
+        for pi in (1, 2):
+            out.append(row("plot", pre + ":plot:0%d" % (si * 2 + pi), "%s plot %d" % (sn, pi)))
+            for vi, d in enumerate(["2026-06-14", "2026-07-19"]):
+                out.append(row("visit", pre + ":visit:%02d" % (si * 4 + (pi - 1) * 2 + vi + 1),
+                               "%s plot %d, visit %d" % (sn, pi, vi + 1), d))
+    return out
+TREE_ROWS = demo_tree()
 
 P, F = [], []
 def ck(n, c, e=""):
@@ -75,6 +93,16 @@ with sync_playwright() as p:
     ck("the tree draws one node per event",
        pg.eval_on_selector_all("#tree .n", "e=>e.length") == 15,
        pg.eval_on_selector_all("#tree .n", "e=>e.length"))
+    # ADR-180: the tree is a figure with buttons in it -- generated IDs, names,
+    # dates -- and read-report now reads it as a box. The rows are pinned from
+    # the example's OWN ID scheme (survey, then per site its plots, then per
+    # plot its two visits, numbered across the survey), stated here rather than
+    # read back from the page.
+    rows = pg.eval_on_selector_all("#tree .n", "e=>e.map(x=>x.textContent)")
+    ck("the tree's rows are the example's events in hierarchy order, each with its generated ID",
+       rows == TREE_ROWS, rows[:3])
+    ck("...and the box the reader returns for the tree is those rows, whole",
+       pg.evaluate("()=>document.getElementById('tree').textContent") == "".join(TREE_ROWS), "")
     ck("depth is drawn, not just stored",
        pg.eval_on_selector_all("#tree .n.d1", "e=>e.length") == 2
        and pg.eval_on_selector_all("#tree .n.d3", "e=>e.length") == 8,
@@ -311,6 +339,13 @@ for phrase, why in [
     ("if(x.state===\"absent\" && !t) return;", "the gate, in the data path and not only in prose"),
 ]:
     ck("source carries %s" % why, phrase in SRC, phrase)
+
+# ---- the task holds the tree (ADR-180) ----
+_TASK = os.path.join(ROOT, "tools", "tasks", "page-survey-design-science.json")
+_task = json.load(io.open(_TASK, encoding="utf-8")) if os.path.isfile(_TASK) else {"steps": []}
+_steps = dict((st["id"], st) for st in _task["steps"])
+ck("the task holds the event tree's box to the example's rows, whole -- every generated ID in hierarchy order",
+   _steps.get("tree", {}).get("expect", {}).get("output.boxes.tree") == "".join(TREE_ROWS), _steps.get("tree"))
 
 print("\n".join("PASS  " + x for x in P))
 if F:

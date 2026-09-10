@@ -37,7 +37,7 @@ MUTANTS = [
      '    ',
      "spaced off"),
     ("boxes are the old five prefixes only",
-     '  const BOX = /^(an|out|rep|res|sum)[A-Za-z0-9-]*$|(box|out|stats?|plan|matrix|verdict|tiles|warn|coh|tell|note|advice|refuse|table|chart|typical|list|results|grid|export|lint|cmd|meas|help|card|legend|msg|check|read|desc|left|res|board)$|^(coherence|report|results|outputs|toast|journal)$|^station-[a-z]+$/i;',
+     '  const BOX = /^(an|out|rep|res|sum)[A-Za-z0-9-]*$|(box|out|stats?|plan|matrix|verdict|tiles|warn|coh|tell|note|advice|refuse|table|chart|typical|list|results|grid|export|lint|cmd|meas|help|card|legend|msg|check|read|desc|left|res|board)$|^(coherence|report|results|outputs|toast|journal|tree)$|^station-[a-z]+$/i;',
      '  const BOX = /^(an|out|rep|res|sum)[A-Za-z]*$/;',
      "kit's naming"),
     # ADR-171: the regex line above is the anchor of the mutant above it, and
@@ -48,6 +48,13 @@ MUTANTS = [
      '|desc|left|res|board)$|',
      '|desc|left|res)$|',
      "a *Board is a box"),
+    # ADR-180: the survey's event tree -- generated IDs, names, dates, a copy
+    # and a remove button per row -- was a figure with buttons in it, which
+    # the readable audit skipped whole. Named as a box by its whole id.
+    ("the survey's event tree is not a box",
+     '|^(coherence|report|results|outputs|toast|journal|tree)$|',
+     '|^(coherence|report|results|outputs|toast|journal)$|',
+     "the event tree is a box"),
     ("a figure does not say where it was read from",
      '    if (src) sources[k] = src;',
      '    ',
