@@ -920,10 +920,15 @@
    "by": "adr182",
    "sha": "696a129fba43db6f2f5d704d23636f62e7be4eca5c342b972ea56b9ccb35b691"
   },
+  "docs/ADR-183-the-stations-chart-the-session-2026-09-10.md": {
+   "at": 1789035687,
+   "by": "adr183",
+   "sha": "40b643b78fdc3c59bfb5f89f3cdaafb5f029ae46029528c6dd7eeccf9d771a78"
+  },
   "docs/AI_HARNESS.md": {
-   "at": 1789032676,
-   "by": "adr182",
-   "sha": "c082627676631ea9a031c16fec0d65742e783cf49925cebdfa67a6da2c82e90e"
+   "at": 1789035687,
+   "by": "adr183",
+   "sha": "34f715104adb51991f3b520e2071fa91a816d1614d1a79aae7a822d689f1d151"
   },
   "docs/AUDIT-2026-07-14-capability-coverage.md": {
    "at": 1788676922,
@@ -1780,6 +1785,11 @@
    "by": "adr182",
    "sha": "5a3a42281976466ca503f53cb08742e741607961025f2b2f6edc61ad9c81e8f8"
   },
+  "docs/CHANGELOG-2026-09-10-adr183-the-stations-chart-the-session.md": {
+   "at": 1789035687,
+   "by": "adr183",
+   "sha": "73e12470bf5622fd31e1c67c04dce56f16d72d6611389c28a2e2341a660383b2"
+  },
   "docs/DESIGN-adaptive-engine.md": {
    "at": 1788676923,
    "by": "adr146b",
@@ -2426,9 +2436,9 @@
    "sha": "87a75cf8e4e4a93070153679fbaba41272105d2027a9233e517ff608cf275251"
   },
   "tools/badinput_ledger.json": {
-   "at": 1789032676,
-   "by": "adr182",
-   "sha": "df5cfb68c3c0706202a22342d4f93bdf0b9a9483f1c7cbd2404f8ba7bfaa81bb"
+   "at": 1789035687,
+   "by": "adr183",
+   "sha": "c59196d828a79b35e52980146c7c5684343b92729f437d661867fd981ac4566a"
   },
   "tools/blind_console.py": {
    "at": 1788676925,
@@ -2630,10 +2640,15 @@
    "by": "adr182",
    "sha": "2b393fa18cb14a5d5ae9eae6bedbd4b61a922d1221887e782749535f0c1c33a0"
   },
+  "tools/delivery/adr183.json": {
+   "at": 1789035687,
+   "by": "adr183",
+   "sha": "948d6f92021cbb7530190bce4d0feb0bd745ee1352ec5b482c285ad6f8ce0d33"
+  },
   "tools/delivery_ledger.json": {
-   "at": 1789032676,
-   "by": "adr182",
-   "sha": "45235b89e42612d9d47cc49ce56c653871c057c29fc61b5cb744c4db12989b41"
+   "at": 1789035687,
+   "by": "adr183",
+   "sha": "3e0b383c51226aab80c271cb271e76734df9effbe43751eef3a08f0bcc08feca"
   },
   "tools/dwc.py": {
    "at": 1788676926,
@@ -2676,9 +2691,9 @@
    "sha": "01919e137bdbf702ebc887de41aa026b721916da9d3761ce673812d54a22471f"
   },
   "tools/entry_ledger.json": {
-   "at": 1789032676,
-   "by": "adr182",
-   "sha": "207ed4132431188ff3a58b2959b6d9a1d1286a9b67a57a8d23c93f3acbe82f2b"
+   "at": 1789035687,
+   "by": "adr183",
+   "sha": "39c6d343cc50f5c24f35df21420bb6eb21e451336115d750593716898ba24d9a"
   },
   "tools/entry_reach.py": {
    "at": 1788676926,
@@ -2731,9 +2746,9 @@
    "sha": "1d5e5bb0fadf4abb88d56125483a66e1bc2367055c7b541aa9d800c6dddde9dc"
   },
   "tools/harness_board.html": {
-   "at": 1789032676,
-   "by": "adr182",
-   "sha": "4789cbc11669dac7a9e0b0cdd6d0f857edb86413f12c390704a44710c961e2a8"
+   "at": 1789035687,
+   "by": "adr183",
+   "sha": "182f28551e128f0dbe36e62fc63faa60153f34ce7a2e63ac82abc8b08b962357"
   },
   "tools/harness_board.py": {
    "at": 1788783742,
@@ -2936,9 +2951,9 @@
    "sha": "172e699a8abda0fb0fe773b9204e652001fac70b769e1082739097b699c28db0"
   },
   "tools/outputs_ledger.json": {
-   "at": 1789032676,
-   "by": "adr182",
-   "sha": "449362002a11c26e3c81f31c9fb42f6059ac2ad774d01777b6254ed6700eb6a3"
+   "at": 1789035687,
+   "by": "adr183",
+   "sha": "65aca3cd4b5ae702f90647e1683eb236252ff9b7f542e1b45e485e13da1a088f"
   },
   "tools/probe.py": {
    "at": 1788676927,
@@ -2971,9 +2986,9 @@
    "sha": "15022dcd97ee97f72ec5f907d0cdfef3ee36da9588f9de47e110519ff9f781e8"
   },
   "tools/published.json": {
-   "at": 1789032676,
-   "by": "adr182",
-   "sha": "be7d3418fc481c55a7fd3f6571a2ce29c1c0a0ce32dbc01388d94fb62dc5beac"
+   "at": 1789035687,
+   "by": "adr183",
+   "sha": "dd5a843548acd2dfd1c7e3be0b5736f3f6d8c1c810b10307d5d52924d1ce83cd"
   },
   "tools/reach.py": {
    "at": 1788676928,
@@ -2981,9 +2996,9 @@
    "sha": "b176e4e078bd39b22f5056223c6d1949503ff69c2f029a02d3513a7607db39cb"
   },
   "tools/readable_ledger.json": {
-   "at": 1789032676,
-   "by": "adr182",
-   "sha": "32e9ba0e9bcdbf7b1ea8b7e0131032efd0f6b2f304e88185c3f76f58baa6b1db"
+   "at": 1789035687,
+   "by": "adr183",
+   "sha": "a9621801eccdbc4c659b2c6b45e24c56636804ba1828506b62623e0bedfc7a8d"
   },
   "tools/routes.json": {
    "at": 1788676928,
@@ -3016,9 +3031,9 @@
    "sha": "0a2241a252fa68e80b813e601b7bd67cd8ba5c00b8ad07acc98dcd93a42b0268"
   },
   "tools/task_ledger.json": {
-   "at": 1789032676,
-   "by": "adr182",
-   "sha": "82ea8abb44bfd28fdcbfc07a125b04332c005d827bf85c25fdf65121b11ba618"
+   "at": 1789035687,
+   "by": "adr183",
+   "sha": "ce66af98ee263c2b00a0e2557a9a204ce321aa42aa914103bb9f4592e6192635"
   },
   "tools/tasks/fixture-buckets.json": {
    "at": 1788676928,
@@ -3146,9 +3161,9 @@
    "sha": "d74a58df549a93a8e94a130a0965ba3b2715270a8f2bb2f80abbb71675e3edc4"
   },
   "tools/tasks/page-ecology-lab-science.json": {
-   "at": 1789032676,
-   "by": "adr182",
-   "sha": "75e97e51b6593e0c7eafc053c297f742951471987af7c29961e187b65f49d224"
+   "at": 1789035687,
+   "by": "adr183",
+   "sha": "03c9e8aefc745ead95f0507193572ca7d9b1b76f5b2734d14beb3bce7e3138a5"
   },
   "tools/tasks/page-ecology-reference.json": {
    "at": 1788676928,
@@ -3310,10 +3325,15 @@
    "by": "adr146b",
    "sha": "15a9ad96a69cde9458d5f7fca51be947e5bebad787cc069e1bcc64bf7800b592"
   },
+  "tools/verify/_lab_charts.py": {
+   "at": 1789035687,
+   "by": "adr183",
+   "sha": "2bfaf919074d0a118ce1f763db70eeda63d3e499d93089e14dd137904b578aac"
+  },
   "tools/verify/counts.json": {
-   "at": 1789032676,
-   "by": "adr182",
-   "sha": "0394ec69742e87d46cfdc8273105e63dfd163b56746955a9f0f99e1fa21b06ff"
+   "at": 1789035687,
+   "by": "adr183",
+   "sha": "c55b0321694e2ff1d29742ea5cfb10e72279731e34cb43ed60b619ad0dd56379"
   },
   "tools/verify/run_all.py": {
    "at": 1788783742,
@@ -3421,9 +3441,9 @@
    "sha": "c5f639329360be1285865c569047ff56c006f8d2c205ec709748c77f7678ba25"
   },
   "tools/verify/verify_eco.py": {
-   "at": 1789032676,
-   "by": "adr182",
-   "sha": "1b49384b86f3d9e6cf6aa736b1e3daea15c8a88aa75896d71c70ed9332b9acc7"
+   "at": 1789035687,
+   "by": "adr183",
+   "sha": "c3c14e8d1c0c5b0505ffc9ea9f476650d5c088b79fd649a5e454df467a5ab513"
   },
   "tools/verify/verify_eco_experiment.py": {
    "at": 1788676929,

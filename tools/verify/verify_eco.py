@@ -571,31 +571,11 @@ with sync_playwright() as p:
     # arithmetic, the page's paths are held to it, and the lab task's
     # literals are held to the same port -- a transcribed box cannot pass a
     # scale it does not fit.
-    from decimal import Decimal, ROUND_HALF_UP
-    ML, MR, MT, MB = 42, 10, 12, 34
-    def r2(v): return float(Decimal(repr(v)).quantize(Decimal("0.01"), rounding=ROUND_HALF_UP)) if not float(v).is_integer() else int(v)
-    def num(v): return int(v) if float(v).is_integer() else v
-    def fmt(x, d):
-        q = Decimal(repr(float(x))).quantize(Decimal(1).scaleb(-d), rounding=ROUND_HALF_UP)
-        s = format(q.normalize(), "f") if d else str(int(q))
-        if "." in s: s = s.rstrip("0").rstrip(".")
-        ip, _, fp = s.partition("."); neg = ip.startswith("-"); ip = ip.lstrip("-")
-        ip = "{:,}".format(int(ip))
-        return ("-" if neg else "") + ip + ("." + fp if fp else "")
-    def bar_chart(values, w, h):
-        iw, ih = w - ML - MR, h - MT - MB
-        yMax = max([1] + [v for v in values]) * 1.05
-        dec = 2 if yMax <= 2 else 1 if yMax < 10 else 0
-        ticks = [fmt(yMax * i / 4, dec) for i in range(5)]
-        n = len(values); gap = 2; bw = max(1, iw / n - gap)
-        spans, at = [], []
-        for i, v in enumerate(values):
-            bh = ih * v / yMax; x = ML + i * iw / n + gap / 2; y = MT + ih - bh
-            if v > 0: spans.append([num(r2(x)), num(r2(y)), num(r2(x + bw)), num(r2(y + bh))])
-            at.append([num(r2(ML + i * iw / n + iw / n / 2)), num(r2(MT + ih / 2))])
-        return {"col": list(reversed(ticks)), "spans": spans, "at": at,
-                "marks": {"rect": n, "path": len(spans), "line": 6}, "longest": 6 if spans else 0}
-
+    # The port lives in tools/verify/_lab_charts.py (ADR-183) so the stations
+    # below and the workbench here read the same arithmetic.
+    import _lab_charts as L
+    bar_chart, r2 = L.bar_chart, L.r2
+    def num(v): return v
     def _box(dstr):
         toks = re.findall(r"[a-zA-Z]|[-+]?(?:\d*\.\d+|\d+\.?)(?:e[-+]?\d+)?", dstr, re.I)
         need = {"M":2,"L":2,"H":1,"V":1,"C":6,"S":4,"Q":4,"T":2,"A":7}; cmd=""; cx=cy=sx=sy=0.0; pts=[]; i=0
@@ -632,13 +612,61 @@ with sync_playwright() as p:
     ck("the quadrat chart draws a bar for every count above zero and none for an empty quadrat, twelve hit-rects for twelve quadrats",
        got_q.get("d") is not None and [_box(x) for x in got_q["d"]] == want_q["spans"] and got_q.get("rects") == 12
        and got_q.get("col") == want_q["col"], (got_q.get("col"), (got_q.get("d") or [])[:1]))
-    # the task's literals, held to the same port
+    # ---------- the stations chart THE session (ADR-183) ----------
+    # verify_engine_sessions binds the page's inline SESSION to the shipped
+    # docs/ecology-lab-session.json and that file to the engine; what was
+    # never bound is the DRAWING to the data. Every station chart under the
+    # reader's cap is recomputed here from the session FILE through the port
+    # -- bars from barChart, curves and steps from lineChart with the options
+    # each station passes (the survivorship steps to a 1.05 ceiling with every
+    # other class ticked, the archipelago's to 1.0 with a tick per survey, the
+    # growth fit from the session's own r, K and n0) -- and the page's paths,
+    # ticks and marks are held to it; then the lab task's literals at `boot`.
     import json as _json
     _TASK = _os.path.join(ROOT, "tools", "tasks", "page-ecology-lab-science.json")
     _t = _json.load(io.open(_TASK, encoding="utf-8")) if _os.path.isfile(_TASK) else {"steps": []}
     _st = dict((x["id"], x) for x in _t["steps"])
     def _v(step, k):
         x = _st.get(step, {}).get("expect", {}).get(k); return x.get("value") if isinstance(x, dict) and "op" in x else x
+    _SESSION = _json.load(io.open(_os.path.join(ROOT, "docs", "ecology-lab-session.json"), encoding="utf-8"))
+    _want = L.station_charts(_SESSION)
+    pg.evaluate("()=>render(JSON.parse(JSON.stringify(SESSION)))"); pg.wait_for_timeout(400)
+    _page = pg.evaluate("""()=>{
+        const out={}; const seen={};
+        for (const sv of document.querySelectorAll('svg')) {
+          const host=(sv.closest('[id]')||{}).id||''; if(!/^station-/.test(host)) continue;
+          seen[host]=(seen[host]||0)+1; const key=seen[host]===1?host:host+' #'+seen[host];
+          const ih=+sv.getAttribute('viewBox').split(' ')[3]-12-34;
+          out[key]={d:[...sv.querySelectorAll('path')].map(p=>p.getAttribute('d')),
+                    col:[...sv.querySelectorAll('text.axis-label')].filter(t=>+t.getAttribute('x')===36).map(t=>t.textContent).reverse(),
+                    row:[...sv.querySelectorAll('text.axis-label')].filter(t=>+t.getAttribute('y')===12+ih+13).map(t=>t.textContent),
+                    marks:{circle:sv.querySelectorAll('circle').length, rect:sv.querySelectorAll('rect').length,
+                           path:sv.querySelectorAll('path').length, line:sv.querySelectorAll('line').length}};
+        }
+        return out;}""")
+    for _k in list(_want)[:10]:
+        _w = _want[_k]; _g = _page.get(_k)
+        _marks = dict((a, b) for a, b in (_g or {}).get("marks", {}).items() if b)
+        ck("station chart %s is drawn from the shipped session: every path's box where the port puts it, %d of them" % (_k, len(_w["spans"])),
+           _g is not None and [_box(x) for x in _g["d"]][:40] == _w["spans"], (_g or {}).get("d", [])[:1])
+        ck("...its tick labels, marks and x ticks as the port states them: %s" % _k,
+           _g is not None and _g["col"] == _w["col"] and _marks == _w["marks"]
+           and (_g["row"] if len(_g["row"]) >= 3 else []) == _w["row"], _g and (_g["col"], _g["row"], _marks))
+    ck("the port sees one chart past the reader's sixteen, and the task holds exactly the ten under the cap",
+       len(_want) == 11 and all(("output.charts.%s.spans" % k) in _st.get("boot", {}).get("expect", {}) for k in list(_want)[:10])
+       and not any(("output.charts.%s.spans" % k) in _st.get("boot", {}).get("expect", {}) for k in list(_want)[10:]),
+       sorted(k for k in _st.get("boot", {}).get("expect", {}) if k.endswith(".spans")))
+    _bad = []
+    for _k in list(_want)[:10]:
+        _w = _want[_k]; _pre = "output.charts.%s." % _k
+        if not (_v("boot", _pre + "spans") == _w["spans"] and _v("boot", _pre + "aligned.col") == _w["col"]
+                and _v("boot", _pre + "marks") == _w["marks"] and _v("boot", _pre + "longest") == _w["longest"]
+                and _v("boot", _pre + "at.0") == _w["at"][0]
+                and (_v("boot", _pre + "aligned.row") or []) == _w["row"]):
+            _bad.append(_k)
+    ck("the lab task's literals for the ten station charts are the port's numbers, box for box, tick for tick", not _bad, _bad)
+
+    # the task's literals, held to the same port
     ck("the lab task types the field the port was fed and holds the chart to the port: five boxes, the ticks, the marks, the first hit-rect's centre",
        _st.get("field-text", {}).get("arguments", {}).get("value") == FIELD
        and _v("field-back", "output.charts.wb-field-out.spans") == want["spans"]

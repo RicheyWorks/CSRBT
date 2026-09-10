@@ -2,7 +2,7 @@
  "id": "page-ecology-lab-science",
  "target": "page",
  "page": "ecology-lab.html",
- "goal": "Drive the interactive lab's whole workbench against independent Python ports. The seeded terrarium reads evenness J' 0.73, 29.2 effective species and Chao1 100 on the meadow and 616/604 on the island, 0.43 at a 95% hot share, 0.88 at a hot set of 20, 342/310 at capacity 32. THE TWO ENTRY PATHS AGREE: adding heron 5 through the chip adder writes 'heron 5' into the textarea and moves the figures to six species, H' 1.33, J' 0.75, Chao1 6, and typing the old list back into the textarea returns them. Two sites read Jaccard 0.5, Sorensen 0.67, Bray-Curtis 0.35 sharing 3 of 6 kinds, 0.67/0.8/0.29 once site A gains lily, and 1/1/0 when the sites are made identical. Mark-recapture M 120 C 90 R 30 is Lincoln-Petersen 360, Chapman 354, 95% CI 268-440; R = 0 leaves Lincoln-Petersen undefined and Chapman at 11,010; R above min(M, C) is refused. Quadrats 12 0 3 45 2 0 0 28 1 0 are variance/mean 26.12 and Morisita 3.51, eight equal quadrats 0 and 0.82, and one quadrat is refused. Hardy-Weinberg 298/489/213 gives p 0.543, q 0.458, chi-square 0.22, expected 294/496/209 and consistent; 400/489/213 gives 8.19 and out of equilibrium; 250/500/250 gives exactly zero. A monohybrid cross is 3 R_ : 1 rr and Mendel's 5474/1850 is chi-square 0.263 against critical 3.841; incomplete dominance makes it 1 : 2 : 1; the dihybrid is 9 : 3 : 3 : 1 and 315/108/101/32 is 0.47 against 7.815. A three-couplet key walks to butterfly or moth and keeps the trail; a key that points at itself is caught as a loop rather than walked forever. A Newick string of seven taxa is depth 5 and (A,(B,(C,D))) is four and three. A five-card drill at seed 7 deals detritivore first and at seed 0 decomposer -- zero is a seed, not a missing one. The theory bench refuses K = 0, K1 = 0 and a negative distance in the page's own words, and the habitat chip carries area 2.5, temp 1.4, wind 0.6, distance 3. The field station's rank chart is five rounded bars from 34 down to 1 under ticks 0, 9, 18, 27, 36, each bar's box where the chart's own scale puts it; the twelve quadrats draw seven bars (the five empty quadrats draw none) under ticks to 63.",
+ "goal": "Drive the interactive lab's whole workbench against independent Python ports. The seeded terrarium reads evenness J' 0.73, 29.2 effective species and Chao1 100 on the meadow and 616/604 on the island, 0.43 at a 95% hot share, 0.88 at a hot set of 20, 342/310 at capacity 32. THE TWO ENTRY PATHS AGREE: adding heron 5 through the chip adder writes 'heron 5' into the textarea and moves the figures to six species, H' 1.33, J' 0.75, Chao1 6, and typing the old list back into the textarea returns them. Two sites read Jaccard 0.5, Sorensen 0.67, Bray-Curtis 0.35 sharing 3 of 6 kinds, 0.67/0.8/0.29 once site A gains lily, and 1/1/0 when the sites are made identical. Mark-recapture M 120 C 90 R 30 is Lincoln-Petersen 360, Chapman 354, 95% CI 268-440; R = 0 leaves Lincoln-Petersen undefined and Chapman at 11,010; R above min(M, C) is refused. Quadrats 12 0 3 45 2 0 0 28 1 0 are variance/mean 26.12 and Morisita 3.51, eight equal quadrats 0 and 0.82, and one quadrat is refused. Hardy-Weinberg 298/489/213 gives p 0.543, q 0.458, chi-square 0.22, expected 294/496/209 and consistent; 400/489/213 gives 8.19 and out of equilibrium; 250/500/250 gives exactly zero. A monohybrid cross is 3 R_ : 1 rr and Mendel's 5474/1850 is chi-square 0.263 against critical 3.841; incomplete dominance makes it 1 : 2 : 1; the dihybrid is 9 : 3 : 3 : 1 and 315/108/101/32 is 0.47 against 7.815. A three-couplet key walks to butterfly or moth and keeps the trail; a key that points at itself is caught as a loop rather than walked forever. A Newick string of seven taxa is depth 5 and (A,(B,(C,D))) is four and three. A five-card drill at seed 7 deals detritivore first and at seed 0 decomposer -- zero is a seed, not a missing one. The theory bench refuses K = 0, K1 = 0 and a negative distance in the page's own words, and the habitat chip carries area 2.5, temp 1.4, wind 0.6, distance 3. The field station's rank chart is five rounded bars from 34 down to 1 under ticks 0, 9, 18, 27, 36, each bar's box where the chart's own scale puts it; the twelve quadrats draw seven bars (the five empty quadrats draw none) under ticks to 63. At boot the ten station charts under the reader's cap are held to the shipped session they chart: the meadow's two rank-abundance bar charts and its rarefaction curves, the demography station's survivorship steps and growth fit, the archipelago's occupancy steps, the fossils' inherited-fraction bars and the grid's quadrat and leaf bars -- every bar's box, every curve's extent, every tick label, from the session file and the chart's own arithmetic.",
  "policy": {
   "allow": [
    "SENSITIVE_READ",
@@ -34,7 +34,1270 @@
     "output.by.t-meadow-tiles.Chao1 est\\.": "100",
     "output.by.t-island-tiles.immigrations": "616",
     "output.by.t-island-tiles.extinctions": "604",
-    "output.by.t-island-tiles.residents / capacity": "12/12"
+    "output.by.t-island-tiles.residents / capacity": "12/12",
+    "output.charts.station-meadow.marks": {
+     "op": "==",
+     "value": {
+      "rect": 40,
+      "path": 40,
+      "line": 6
+     }
+    },
+    "output.charts.station-meadow.longest": 6,
+    "output.charts.station-meadow.aligned.col": {
+     "op": "==",
+     "value": [
+      "22",
+      "17",
+      "11",
+      "6",
+      "0"
+     ]
+    },
+    "output.charts.station-meadow.spans": {
+     "op": "==",
+     "value": [
+      [
+       43,
+       18.38,
+       51.7,
+       146
+      ],
+      [
+       53.7,
+       18.38,
+       62.4,
+       146
+      ],
+      [
+       64.4,
+       18.38,
+       73.1,
+       146
+      ],
+      [
+       75.1,
+       18.38,
+       83.8,
+       146
+      ],
+      [
+       85.8,
+       18.38,
+       94.5,
+       146
+      ],
+      [
+       96.5,
+       18.38,
+       105.2,
+       146
+      ],
+      [
+       107.2,
+       18.38,
+       115.9,
+       146
+      ],
+      [
+       117.9,
+       18.38,
+       126.6,
+       146
+      ],
+      [
+       128.6,
+       18.38,
+       137.3,
+       146
+      ],
+      [
+       139.3,
+       18.38,
+       148,
+       146
+      ],
+      [
+       150,
+       18.38,
+       158.7,
+       146
+      ],
+      [
+       160.7,
+       18.38,
+       169.4,
+       146
+      ],
+      [
+       171.4,
+       18.38,
+       180.1,
+       146
+      ],
+      [
+       182.1,
+       18.38,
+       190.8,
+       146
+      ],
+      [
+       192.8,
+       18.38,
+       201.5,
+       146
+      ],
+      [
+       203.5,
+       18.38,
+       212.2,
+       146
+      ],
+      [
+       214.2,
+       18.38,
+       222.9,
+       146
+      ],
+      [
+       224.9,
+       18.38,
+       233.6,
+       146
+      ],
+      [
+       235.6,
+       18.38,
+       244.3,
+       146
+      ],
+      [
+       246.3,
+       18.38,
+       255,
+       146
+      ],
+      [
+       257,
+       18.38,
+       265.7,
+       146
+      ],
+      [
+       267.7,
+       18.38,
+       276.4,
+       146
+      ],
+      [
+       278.4,
+       18.38,
+       287.1,
+       146
+      ],
+      [
+       289.1,
+       18.38,
+       297.8,
+       146
+      ],
+      [
+       299.8,
+       18.38,
+       308.5,
+       146
+      ],
+      [
+       310.5,
+       18.38,
+       319.2,
+       146
+      ],
+      [
+       321.2,
+       18.38,
+       329.9,
+       146
+      ],
+      [
+       331.9,
+       18.38,
+       340.6,
+       146
+      ],
+      [
+       342.6,
+       18.38,
+       351.3,
+       146
+      ],
+      [
+       353.3,
+       18.38,
+       362,
+       146
+      ],
+      [
+       364,
+       18.38,
+       372.7,
+       146
+      ],
+      [
+       374.7,
+       18.38,
+       383.4,
+       146
+      ],
+      [
+       385.4,
+       18.38,
+       394.1,
+       146
+      ],
+      [
+       396.1,
+       18.38,
+       404.8,
+       146
+      ],
+      [
+       406.8,
+       18.38,
+       415.5,
+       146
+      ],
+      [
+       417.5,
+       18.38,
+       426.2,
+       146
+      ],
+      [
+       428.2,
+       18.38,
+       436.9,
+       146
+      ],
+      [
+       438.9,
+       18.38,
+       447.6,
+       146
+      ],
+      [
+       449.6,
+       18.38,
+       458.3,
+       146
+      ],
+      [
+       460.3,
+       18.38,
+       469,
+       146
+      ]
+     ]
+    },
+    "output.charts.station-meadow.at.0": {
+     "op": "==",
+     "value": [
+      47.35,
+      79
+     ]
+    },
+    "output.charts.station-meadow #2.marks": {
+     "op": "==",
+     "value": {
+      "rect": 40,
+      "path": 40,
+      "line": 6
+     }
+    },
+    "output.charts.station-meadow #2.longest": 6,
+    "output.charts.station-meadow #2.aligned.col": {
+     "op": "==",
+     "value": [
+      "402",
+      "302",
+      "201",
+      "101",
+      "0"
+     ]
+    },
+    "output.charts.station-meadow #2.spans": {
+     "op": "==",
+     "value": [
+      [
+       43,
+       18.38,
+       51.7,
+       146
+      ],
+      [
+       53.7,
+       26.38,
+       62.4,
+       146
+      ],
+      [
+       64.4,
+       27.04,
+       73.1,
+       146
+      ],
+      [
+       75.1,
+       27.04,
+       83.8,
+       146
+      ],
+      [
+       85.8,
+       28.04,
+       94.5,
+       146
+      ],
+      [
+       96.5,
+       143.67,
+       105.2,
+       146
+      ],
+      [
+       107.2,
+       144,
+       115.9,
+       146
+      ],
+      [
+       117.9,
+       144,
+       126.6,
+       146
+      ],
+      [
+       128.6,
+       144,
+       137.3,
+       146
+      ],
+      [
+       139.3,
+       144,
+       148,
+       146
+      ],
+      [
+       150,
+       144,
+       158.7,
+       146
+      ],
+      [
+       160.7,
+       144,
+       169.4,
+       146
+      ],
+      [
+       171.4,
+       144,
+       180.1,
+       146
+      ],
+      [
+       182.1,
+       144.33,
+       190.8,
+       146
+      ],
+      [
+       192.8,
+       144.33,
+       201.5,
+       146
+      ],
+      [
+       203.5,
+       144.33,
+       212.2,
+       146
+      ],
+      [
+       214.2,
+       144.33,
+       222.9,
+       146
+      ],
+      [
+       224.9,
+       144.33,
+       233.6,
+       146
+      ],
+      [
+       235.6,
+       144.33,
+       244.3,
+       146
+      ],
+      [
+       246.3,
+       144.33,
+       255,
+       146
+      ],
+      [
+       257,
+       144.33,
+       265.7,
+       146
+      ],
+      [
+       267.7,
+       144.33,
+       276.4,
+       146
+      ],
+      [
+       278.4,
+       144.33,
+       287.1,
+       146
+      ],
+      [
+       289.1,
+       144.67,
+       297.8,
+       146
+      ],
+      [
+       299.8,
+       144.67,
+       308.5,
+       146
+      ],
+      [
+       310.5,
+       144.67,
+       319.2,
+       146
+      ],
+      [
+       321.2,
+       144.67,
+       329.9,
+       146
+      ],
+      [
+       331.9,
+       144.67,
+       340.6,
+       146
+      ],
+      [
+       342.6,
+       144.67,
+       351.3,
+       146
+      ],
+      [
+       353.3,
+       144.67,
+       362,
+       146
+      ],
+      [
+       364,
+       144.67,
+       372.7,
+       146
+      ],
+      [
+       374.7,
+       144.67,
+       383.4,
+       146
+      ],
+      [
+       385.4,
+       144.67,
+       394.1,
+       146
+      ],
+      [
+       396.1,
+       144.67,
+       404.8,
+       146
+      ],
+      [
+       406.8,
+       144.67,
+       415.5,
+       146
+      ],
+      [
+       417.5,
+       144.67,
+       426.2,
+       146
+      ],
+      [
+       428.2,
+       144.67,
+       436.9,
+       146
+      ],
+      [
+       438.9,
+       144.67,
+       447.6,
+       146
+      ],
+      [
+       449.6,
+       144.67,
+       458.3,
+       146
+      ],
+      [
+       460.3,
+       145,
+       469,
+       146
+      ]
+     ]
+    },
+    "output.charts.station-meadow #2.at.0": {
+     "op": "==",
+     "value": [
+      47.35,
+      79
+     ]
+    },
+    "output.charts.station-meadow #3.marks": {
+     "op": "==",
+     "value": {
+      "circle": 2,
+      "rect": 1,
+      "path": 2,
+      "line": 7
+     }
+    },
+    "output.charts.station-meadow #3.longest": 20,
+    "output.charts.station-meadow #3.aligned.col": {
+     "op": "==",
+     "value": [
+      "108",
+      "81",
+      "54",
+      "27",
+      "0"
+     ]
+    },
+    "output.charts.station-meadow #3.spans": {
+     "op": "==",
+     "value": [
+      [
+       42,
+       22.67,
+       970,
+       67.83
+      ],
+      [
+       42,
+       22.67,
+       970,
+       131.29
+      ]
+     ]
+    },
+    "output.charts.station-meadow #3.at.0": {
+     "op": "==",
+     "value": [
+      506,
+      84
+     ]
+    },
+    "output.charts.station-demography.marks": {
+     "op": "==",
+     "value": {
+      "circle": 1,
+      "rect": 1,
+      "path": 1,
+      "line": 7
+     }
+    },
+    "output.charts.station-demography.longest": 11,
+    "output.charts.station-demography.aligned.col": {
+     "op": "==",
+     "value": [
+      "1.05",
+      "0.79",
+      "0.53",
+      "0.26",
+      "0"
+     ]
+    },
+    "output.charts.station-demography.aligned.row": {
+     "op": "==",
+     "value": [
+      "0",
+      "622",
+      "1,244"
+     ]
+    },
+    "output.charts.station-demography.spans": {
+     "op": "==",
+     "value": [
+      [
+       42,
+       18.86,
+       470,
+       155.88
+      ]
+     ]
+    },
+    "output.charts.station-demography.at.0": {
+     "op": "==",
+     "value": [
+      256,
+      84
+     ]
+    },
+    "output.charts.station-demography #2.marks": {
+     "op": "==",
+     "value": {
+      "circle": 2,
+      "rect": 1,
+      "path": 2,
+      "line": 7
+     }
+    },
+    "output.charts.station-demography #2.longest": 37,
+    "output.charts.station-demography #2.aligned.col": {
+     "op": "==",
+     "value": [
+      "151",
+      "113",
+      "76",
+      "38",
+      "0"
+     ]
+    },
+    "output.charts.station-demography #2.spans": {
+     "op": "==",
+     "value": [
+      [
+       42,
+       21.33,
+       470,
+       98
+      ],
+      [
+       42,
+       22.73,
+       470,
+       60.74
+      ]
+     ]
+    },
+    "output.charts.station-demography #2.at.0": {
+     "op": "==",
+     "value": [
+      256,
+      75
+     ]
+    },
+    "output.charts.station-archipelago.marks": {
+     "op": "==",
+     "value": {
+      "circle": 1,
+      "rect": 1,
+      "path": 1,
+      "line": 7
+     }
+    },
+    "output.charts.station-archipelago.longest": 11,
+    "output.charts.station-archipelago.aligned.col": {
+     "op": "==",
+     "value": [
+      "1",
+      "0.75",
+      "0.5",
+      "0.25",
+      "0"
+     ]
+    },
+    "output.charts.station-archipelago.aligned.row": {
+     "op": "==",
+     "value": [
+      "1",
+      "2",
+      "3",
+      "4",
+      "5",
+      "6"
+     ]
+    },
+    "output.charts.station-archipelago.spans": {
+     "op": "==",
+     "value": [
+      [
+       42,
+       12,
+       970,
+       56.67
+      ]
+     ]
+    },
+    "output.charts.station-archipelago.at.0": {
+     "op": "==",
+     "value": [
+      506,
+      79
+     ]
+    },
+    "output.charts.station-fossils.marks": {
+     "op": "==",
+     "value": {
+      "rect": 5,
+      "path": 5,
+      "line": 6
+     }
+    },
+    "output.charts.station-fossils.longest": 6,
+    "output.charts.station-fossils.aligned.col": {
+     "op": "==",
+     "value": [
+      "1.05",
+      "0.79",
+      "0.53",
+      "0.26",
+      "0"
+     ]
+    },
+    "output.charts.station-fossils.spans": {
+     "op": "==",
+     "value": [
+      [
+       43,
+       41.52,
+       226.6,
+       136
+      ],
+      [
+       228.6,
+       41.52,
+       412.2,
+       136
+      ],
+      [
+       414.2,
+       41.52,
+       597.8,
+       136
+      ],
+      [
+       599.8,
+       41.52,
+       783.4,
+       136
+      ],
+      [
+       785.4,
+       41.52,
+       969,
+       136
+      ]
+     ]
+    },
+    "output.charts.station-fossils.at.0": {
+     "op": "==",
+     "value": [
+      134.8,
+      74
+     ]
+    },
+    "output.charts.station-grid.marks": {
+     "op": "==",
+     "value": {
+      "rect": 20,
+      "path": 4,
+      "line": 6
+     }
+    },
+    "output.charts.station-grid.longest": 6,
+    "output.charts.station-grid.aligned.col": {
+     "op": "==",
+     "value": [
+      "32",
+      "24",
+      "16",
+      "8",
+      "0"
+     ]
+    },
+    "output.charts.station-grid.spans": {
+     "op": "==",
+     "value": [
+      [
+       43,
+       17.9,
+       62.4,
+       136
+      ],
+      [
+       235.6,
+       96.63,
+       255,
+       136
+      ],
+      [
+       257,
+       57.27,
+       276.4,
+       136
+      ],
+      [
+       449.6,
+       17.9,
+       469,
+       136
+      ]
+     ]
+    },
+    "output.charts.station-grid.at.0": {
+     "op": "==",
+     "value": [
+      52.7,
+      74
+     ]
+    },
+    "output.charts.station-grid #2.marks": {
+     "op": "==",
+     "value": {
+      "rect": 44,
+      "path": 44,
+      "line": 6
+     }
+    },
+    "output.charts.station-grid #2.longest": 6,
+    "output.charts.station-grid #2.aligned.col": {
+     "op": "==",
+     "value": [
+      "4.2",
+      "3.2",
+      "2.1",
+      "1.1",
+      "0"
+     ]
+    },
+    "output.charts.station-grid #2.spans": {
+     "op": "==",
+     "value": [
+      [
+       43,
+       50.76,
+       50.73,
+       86
+      ],
+      [
+       52.73,
+       50.76,
+       60.45,
+       86
+      ],
+      [
+       62.45,
+       50.76,
+       70.18,
+       86
+      ],
+      [
+       72.18,
+       50.76,
+       79.91,
+       86
+      ],
+      [
+       81.91,
+       50.76,
+       89.64,
+       86
+      ],
+      [
+       91.64,
+       50.76,
+       99.36,
+       86
+      ],
+      [
+       101.36,
+       50.76,
+       109.09,
+       86
+      ],
+      [
+       111.09,
+       50.76,
+       118.82,
+       86
+      ],
+      [
+       120.82,
+       50.76,
+       128.55,
+       86
+      ],
+      [
+       130.55,
+       50.76,
+       138.27,
+       86
+      ],
+      [
+       140.27,
+       50.76,
+       148,
+       86
+      ],
+      [
+       150,
+       50.76,
+       157.73,
+       86
+      ],
+      [
+       159.73,
+       50.76,
+       167.45,
+       86
+      ],
+      [
+       169.45,
+       50.76,
+       177.18,
+       86
+      ],
+      [
+       179.18,
+       50.76,
+       186.91,
+       86
+      ],
+      [
+       188.91,
+       50.76,
+       196.64,
+       86
+      ],
+      [
+       198.64,
+       50.76,
+       206.36,
+       86
+      ],
+      [
+       208.36,
+       50.76,
+       216.09,
+       86
+      ],
+      [
+       218.09,
+       50.76,
+       225.82,
+       86
+      ],
+      [
+       227.82,
+       50.76,
+       235.55,
+       86
+      ],
+      [
+       237.55,
+       50.76,
+       245.27,
+       86
+      ],
+      [
+       247.27,
+       50.76,
+       255,
+       86
+      ],
+      [
+       257,
+       50.76,
+       264.73,
+       86
+      ],
+      [
+       266.73,
+       50.76,
+       274.45,
+       86
+      ],
+      [
+       276.45,
+       50.76,
+       284.18,
+       86
+      ],
+      [
+       286.18,
+       50.76,
+       293.91,
+       86
+      ],
+      [
+       295.91,
+       50.76,
+       303.64,
+       86
+      ],
+      [
+       305.64,
+       50.76,
+       313.36,
+       86
+      ],
+      [
+       315.36,
+       50.76,
+       323.09,
+       86
+      ],
+      [
+       325.09,
+       50.76,
+       332.82,
+       86
+      ],
+      [
+       334.82,
+       50.76,
+       342.55,
+       86
+      ],
+      [
+       344.55,
+       50.76,
+       352.27,
+       86
+      ],
+      [
+       354.27,
+       50.76,
+       362,
+       86
+      ],
+      [
+       364,
+       50.76,
+       371.73,
+       86
+      ],
+      [
+       373.73,
+       50.76,
+       381.45,
+       86
+      ],
+      [
+       383.45,
+       50.76,
+       391.18,
+       86
+      ],
+      [
+       393.18,
+       50.76,
+       400.91,
+       86
+      ],
+      [
+       402.91,
+       50.76,
+       410.64,
+       86
+      ],
+      [
+       412.64,
+       50.76,
+       420.36,
+       86
+      ],
+      [
+       422.36,
+       50.76,
+       430.09,
+       86
+      ]
+     ]
+    },
+    "output.charts.station-grid #2.at.0": {
+     "op": "==",
+     "value": [
+      46.87,
+      49
+     ]
+    },
+    "output.charts.station-grid #3.marks": {
+     "op": "==",
+     "value": {
+      "rect": 20,
+      "path": 20,
+      "line": 6
+     }
+    },
+    "output.charts.station-grid #3.longest": 6,
+    "output.charts.station-grid #3.aligned.col": {
+     "op": "==",
+     "value": [
+      "5.3",
+      "3.9",
+      "2.6",
+      "1.3",
+      "0"
+     ]
+    },
+    "output.charts.station-grid #3.spans": {
+     "op": "==",
+     "value": [
+      [
+       43,
+       17.9,
+       62.4,
+       136
+      ],
+      [
+       64.4,
+       17.9,
+       83.8,
+       136
+      ],
+      [
+       85.8,
+       17.9,
+       105.2,
+       136
+      ],
+      [
+       107.2,
+       17.9,
+       126.6,
+       136
+      ],
+      [
+       128.6,
+       17.9,
+       148,
+       136
+      ],
+      [
+       150,
+       17.9,
+       169.4,
+       136
+      ],
+      [
+       171.4,
+       17.9,
+       190.8,
+       136
+      ],
+      [
+       192.8,
+       17.9,
+       212.2,
+       136
+      ],
+      [
+       214.2,
+       17.9,
+       233.6,
+       136
+      ],
+      [
+       235.6,
+       17.9,
+       255,
+       136
+      ],
+      [
+       257,
+       17.9,
+       276.4,
+       136
+      ],
+      [
+       278.4,
+       17.9,
+       297.8,
+       136
+      ],
+      [
+       299.8,
+       17.9,
+       319.2,
+       136
+      ],
+      [
+       321.2,
+       17.9,
+       340.6,
+       136
+      ],
+      [
+       342.6,
+       17.9,
+       362,
+       136
+      ],
+      [
+       364,
+       17.9,
+       383.4,
+       136
+      ],
+      [
+       385.4,
+       17.9,
+       404.8,
+       136
+      ],
+      [
+       406.8,
+       17.9,
+       426.2,
+       136
+      ],
+      [
+       428.2,
+       17.9,
+       447.6,
+       136
+      ],
+      [
+       449.6,
+       17.9,
+       469,
+       136
+      ]
+     ]
+    },
+    "output.charts.station-grid #3.at.0": {
+     "op": "==",
+     "value": [
+      52.7,
+      74
+     ]
+    }
    }
   },
   {
