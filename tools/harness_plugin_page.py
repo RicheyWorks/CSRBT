@@ -387,13 +387,15 @@ REPORT = r"""
     });
     // The longest drawn series: how many points the biggest polyline or path
     // carries. A curve that lost half its samples still looks like a curve.
+    // A path's points are every command that ends somewhere (ADR-182): a
+    // step line is drawn with H and V and read as ONE point under [ML].
     let longest = 0;
     [...sv.querySelectorAll("polyline, polygon")].slice(0, 40).forEach(e => {
       const pts = (e.getAttribute("points") || "").trim().split(/\s+/).filter(Boolean).length;
       if (pts > longest) longest = pts;
     });
     [...sv.querySelectorAll("path")].slice(0, 40).forEach(e => {
-      const pts = ((e.getAttribute("d") || "").match(/[ML]/g) || []).length;
+      const pts = ((e.getAttribute("d") || "").match(/[MLHVCSQTAmlhvcsqta]/g) || []).length;
       if (pts > longest) longest = pts;
     });
     // TEXT THAT LINES UP, in order, without the page having to declare
@@ -427,12 +429,15 @@ REPORT = r"""
     // The ordination draws circle.dot then text.pt at x+8 -- the pairing is the
     // page's, and reading it is how a task can say where a named site landed.
     const centres = [];
-    [...sv.querySelectorAll("circle, ellipse")].slice(0, 60).forEach(c =>
-      centres.push([num(c.getAttribute("cx")), num(c.getAttribute("cy"))]));
+    const r2 = v => Math.round(v * 100) / 100;
+    [...sv.querySelectorAll("circle, ellipse")].slice(0, 60).forEach(c => {
+      const x = num(c.getAttribute("cx")), y = num(c.getAttribute("cy"));
+      if (x !== null && y !== null) centres.push([x, y]);      // an unplaced mark is nowhere
+    });
     [...sv.querySelectorAll("rect")].slice(0, 60).forEach(r => {
       const x = num(r.getAttribute("x")), y = num(r.getAttribute("y")),
             w = num(r.getAttribute("width")), h = num(r.getAttribute("height"));
-      if (x !== null && y !== null) centres.push([x + (w || 0) / 2, y + (h || 0) / 2]);
+      if (x !== null && y !== null) centres.push([r2(x + (w || 0) / 2), r2(y + (h || 0) / 2)]);
     });
     const points = {};
     texts.forEach(t => {
@@ -445,13 +450,45 @@ REPORT = r"""
       });
       if (near && t.t && !(t.t in points)) points[t.t] = near;
     });
+    // WHERE EACH PATH LIES (ADR-182). The lab draws every bar as a rounded
+    // path (M V Q H Q V Z) and every curve as one path, and neither has a
+    // centre attribute to read -- so a bar chart was read as a row of
+    // transparent hit-rects, all at one y, and the bars' heights were
+    // nowhere in the report. Each path's box is the smallest [x0, y0, x1, y1]
+    // holding every point a command ENDS at, absolute or relative, in the
+    // svg's own units; a curve's control points are not on the curve and are
+    // not counted, which for the lab's bars (control points at the corners)
+    // changes nothing and for a wide curve understates the box a little.
+    const spans = [];
+    const NEED = {M: 2, L: 2, H: 1, V: 1, C: 6, S: 4, Q: 4, T: 2, A: 7};
+    [...sv.querySelectorAll("path")].slice(0, 40).forEach(e => {
+      const toks = (e.getAttribute("d") || "").match(/[a-zA-Z]|[-+]?(?:\d*\.\d+|\d+\.?)(?:e[-+]?\d+)?/gi) || [];
+      let cmd = "", cx = 0, cy = 0, sx = 0, sy = 0, x0 = null, y0 = null, x1 = null, y1 = null, i = 0;
+      while (i < toks.length) {
+        if (/^[a-zA-Z]$/.test(toks[i])) {
+          cmd = toks[i++];
+          if (cmd === "Z" || cmd === "z") { cx = sx; cy = sy; continue; }
+        }
+        const up = cmd.toUpperCase(), rel = cmd !== up, n = NEED[up];
+        if (n === undefined) break;
+        const a = toks.slice(i, i + n).map(parseFloat); i += n;
+        if (a.length < n || a.some(v => !isFinite(v))) break;
+        if (up === "H") { cx = (rel ? cx : 0) + a[0]; }
+        else if (up === "V") { cy = (rel ? cy : 0) + a[0]; }
+        else { cx = (rel ? cx : 0) + a[n - 2]; cy = (rel ? cy : 0) + a[n - 1]; }
+        if (x0 === null || cx < x0) x0 = cx; if (x1 === null || cx > x1) x1 = cx;
+        if (y0 === null || cy < y0) y0 = cy; if (y1 === null || cy > y1) y1 = cy;
+        if (up === "M") { sx = cx; sy = cy; cmd = rel ? "l" : "L"; }   // implicit pairs after M are lines
+      }
+      if (x0 !== null) spans.push([r2(x0), r2(y0), r2(x1), r2(y1)]);
+    });
     const vb = (sv.getAttribute("viewBox") || "").trim();
     // ...and the mark centres themselves, in document order. `points` pairs a
     // mark with a label the page happened to put beside it; a chart whose dots
     // carry no labels still plots them somewhere, and where is the claim.
     charts[key] = {viewBox: vb, texts: texts, n: texts.length, marks: marks,
                    longest: longest, aligned: aligned, points: points,
-                   at: centres.slice(0, 40)};
+                   at: centres.slice(0, 40), spans: spans};
   });
   const rows = {};
   document.querySelectorAll(".row2").forEach(r => {

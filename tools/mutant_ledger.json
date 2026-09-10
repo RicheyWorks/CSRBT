@@ -1896,12 +1896,12 @@
    "survived": 0
   },
   "mutate_report": {
-   "at": 1789017149,
+   "at": 1789029777,
    "equivalent": 0,
    "equivalents": [],
    "inconclusive": 0,
-   "killed": 69,
-   "mutants": 69,
+   "killed": 75,
+   "mutants": 75,
    "rows": [
     {
      "detail": "7 failure(s); first: a .tile and a .stat .st are both figures: the .l/.v pair is",
@@ -2114,7 +2114,7 @@
      "verdict": "killed"
     },
     {
-     "detail": "1 failure(s); first: every mark is counted by what it is -- a chart that plots t",
+     "detail": "2 failure(s); first: every mark is counted by what it is -- a chart that plots t",
      "name": "marks are counted as one kind",
      "verdict": "killed"
     },
@@ -2124,7 +2124,7 @@
      "verdict": "killed"
     },
     {
-     "detail": "1 failure(s); first: and the longest drawn series is how many points it carries ",
+     "detail": "2 failure(s); first: and the longest drawn series is how many points it carries ",
      "name": "a path's points are not counted, only a polyline's",
      "verdict": "killed"
     },
@@ -2144,7 +2144,7 @@
      "verdict": "killed"
     },
     {
-     "detail": "2 failure(s); first: ...and every mark centre is there whether or not anything l",
+     "detail": "3 failure(s); first: ...and every mark centre is there whether or not anything l",
      "name": "a mark's centre is not recorded unless a text named it",
      "verdict": "killed"
     },
@@ -2154,13 +2154,43 @@
      "verdict": "killed"
     },
     {
-     "detail": "2 failure(s); first: ...and every mark centre is there whether or not anything l",
+     "detail": "3 failure(s); first: ...and every mark centre is there whether or not anything l",
      "name": "a rect is placed by its corner, not its middle",
      "verdict": "killed"
     },
     {
      "detail": "1 failure(s); first: the chart carries the space it was drawn in and how many te",
      "name": "the space the chart was drawn in is not reported",
+     "verdict": "killed"
+    },
+    {
+     "detail": "3 failure(s); first: each path's box -- the smallest [x0, y0, x1, y1] holding ev",
+     "name": "a path's box is not read",
+     "verdict": "killed"
+    },
+    {
+     "detail": "2 failure(s); first: each path's box -- the smallest [x0, y0, x1, y1] holding ev",
+     "name": "a relative command is read as absolute",
+     "verdict": "killed"
+    },
+    {
+     "detail": "3 failure(s); first: each path's box -- the smallest [x0, y0, x1, y1] holding ev",
+     "name": "H is not followed, so a bar has no width and a step line no run",
+     "verdict": "killed"
+    },
+    {
+     "detail": "1 failure(s); first: a step line drawn with H and V is followed, and every comma",
+     "name": "a path's points are M and L only, so a step line is one point",
+     "verdict": "killed"
+    },
+    {
+     "detail": "1 failure(s); first: an unplaced mark (a hover dot with no cx yet) is nowhere, n",
+     "name": "an unplaced mark is placed at nothing",
+     "verdict": "killed"
+    },
+    {
+     "detail": "1 failure(s); first: an unplaced mark (a hover dot with no cx yet) is nowhere, n",
+     "name": "a rect's centre is not rounded",
      "verdict": "killed"
     },
     {

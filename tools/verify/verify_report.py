@@ -141,6 +141,13 @@ FIXTURE = u"""<!doctype html><html><head><meta charset="utf-8"><title>report fix
   <svg id="theTrend" viewBox="0 0 100 50" role="img">
     <polyline points="0,40 10,35 20,30 30,28 40,20 50,15 60,10" fill="none"/></svg></div>
   <div id="hiddenPlot" style="display:none"><svg viewBox="0 0 10 10"><circle cx="1" cy="1" r="1"/></svg></div>
+  <svg id="theBars" viewBox="0 0 100 60" role="img">
+    <path d="M10,50 V14 Q10,10 14,10 H26 Q30,10 30,14 V50 Z"/>
+    <path d="m40,50 v-20 q0,-4 4,-4 h12 q4,0 4,4 v20 z"/>
+    <path d="M70,40 H74 V36 H78 V32 H82 V28 H86 V24 H90 V20"/>
+    <rect x="0.1" y="5" width="0.4" height="3"/>
+    <circle r="4"/><circle cx="90" cy="20" r="2"/>
+  </svg>
 </section>
 <script>
   document.querySelectorAll('.tab').forEach(function(t){ t.addEventListener('click', function(){
@@ -406,7 +413,7 @@ with sync_playwright() as pw:
     plug.execute("show-pane", {"pane": "p-an"})     # the chart lives behind the second tab
     ok, msg, r = plug.execute("read-report", {})
     ch = r["charts"]
-    ck(ok and sorted(ch) == ["theChart", "theTrend"],
+    ck(ok and sorted(ch) == ["theBars", "theChart", "theTrend"],
        "a visible <svg> is a chart, keyed by its own id; one that is not shown is not read: %s" % sorted(ch))
     c = ch.get("theChart", {})
     ck(c.get("viewBox") == "0 0 200 100" and c.get("n") == 12,
@@ -434,6 +441,25 @@ with sync_playwright() as pw:
        "the page put nothing beside a mark the reader invents no label")
     ck([t for t in c.get("texts", []) if t["t"] == "gamma"] == [{"t": "gamma", "x": 142, "y": 16}],
        "each text carries the position the page gave it")
+    # ---- ADR-182: a path is placed by its box ----------------------------
+    # A bar drawn as a rounded path (the lab's M V Q H Q V Z) has no cx and no
+    # x/width, so `at` could not place it: a bar chart read as a row of
+    # hit-rects all at one y, and its heights were nowhere in the report.
+    bars = ch.get("theBars", {})
+    ck(bars.get("spans") == [[10, 10, 30, 50], [40, 26, 60, 50], [70, 20, 90, 40]],
+       "each path's box -- the smallest [x0, y0, x1, y1] holding every point a command ends at -- "
+       "is reported in the svg's own units, the curve's control points left out: %s" % bars.get("spans"))
+    ck(bars.get("spans", [[]])[1:2] == [[40, 26, 60, 50]],
+       "a path drawn with relative commands is placed where it ends up, not where its numbers say: %s"
+       % bars.get("spans", [[]])[1:2])
+    ck(bars.get("spans", [[], [], []])[2:3] == [[70, 20, 90, 40]] and bars.get("longest") == 11,
+       "a step line drawn with H and V is followed, and every command that ends somewhere is a point "
+       "of the series -- the step line here is eleven, not one: %s, %s" % (bars.get("spans", [])[2:3], bars.get("longest")))
+    ck(bars.get("at") == [[90, 20], [0.3, 6.5]],
+       "an unplaced mark (a hover dot with no cx yet) is nowhere, not at [null, null], and a rect's "
+       "centre is rounded like every other number here (0.1 + 0.2 is not 0.3 in a float): %s" % bars.get("at"))
+    ck(bars.get("marks") == {"path": 3, "rect": 1, "circle": 2},
+       "...while the unplaced mark is still COUNTED, because it is drawn: %s" % bars.get("marks"))
 
     # ---- F. what an activation would touch (ADR-141) --------------------
     # `activate` is how every button on these pages is pressed, and it was

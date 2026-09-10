@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-import sys, re
+import sys, re, io
 from playwright.sync_api import sync_playwright
 import os as _os
 
@@ -562,6 +562,98 @@ with sync_playwright() as p:
     _one = _curves()
     ck("a series carrying a null coordinate is dropped, not drawn", _one == _all - 1,
        (_all, _one))
+
+    # ---------- the workbench's bar charts, to a port (ADR-182) ----------
+    # The lab draws every bar as a rounded path (barPath: M V Q H Q V Z) on a
+    # frame of fixed margins, y linear to 1.05 x the largest value with ticks
+    # at quarters of it, bars of width iw/n - 2 spaced evenly. read-report
+    # places a path by its box now; the port below states the chart's own
+    # arithmetic, the page's paths are held to it, and the lab task's
+    # literals are held to the same port -- a transcribed box cannot pass a
+    # scale it does not fit.
+    from decimal import Decimal, ROUND_HALF_UP
+    ML, MR, MT, MB = 42, 10, 12, 34
+    def r2(v): return float(Decimal(repr(v)).quantize(Decimal("0.01"), rounding=ROUND_HALF_UP)) if not float(v).is_integer() else int(v)
+    def num(v): return int(v) if float(v).is_integer() else v
+    def fmt(x, d):
+        q = Decimal(repr(float(x))).quantize(Decimal(1).scaleb(-d), rounding=ROUND_HALF_UP)
+        s = format(q.normalize(), "f") if d else str(int(q))
+        if "." in s: s = s.rstrip("0").rstrip(".")
+        ip, _, fp = s.partition("."); neg = ip.startswith("-"); ip = ip.lstrip("-")
+        ip = "{:,}".format(int(ip))
+        return ("-" if neg else "") + ip + ("." + fp if fp else "")
+    def bar_chart(values, w, h):
+        iw, ih = w - ML - MR, h - MT - MB
+        yMax = max([1] + [v for v in values]) * 1.05
+        dec = 2 if yMax <= 2 else 1 if yMax < 10 else 0
+        ticks = [fmt(yMax * i / 4, dec) for i in range(5)]
+        n = len(values); gap = 2; bw = max(1, iw / n - gap)
+        spans, at = [], []
+        for i, v in enumerate(values):
+            bh = ih * v / yMax; x = ML + i * iw / n + gap / 2; y = MT + ih - bh
+            if v > 0: spans.append([num(r2(x)), num(r2(y)), num(r2(x + bw)), num(r2(y + bh))])
+            at.append([num(r2(ML + i * iw / n + iw / n / 2)), num(r2(MT + ih / 2))])
+        return {"col": list(reversed(ticks)), "spans": spans, "at": at,
+                "marks": {"rect": n, "path": len(spans), "line": 6}, "longest": 6 if spans else 0}
+
+    def _box(dstr):
+        toks = re.findall(r"[a-zA-Z]|[-+]?(?:\d*\.\d+|\d+\.?)(?:e[-+]?\d+)?", dstr, re.I)
+        need = {"M":2,"L":2,"H":1,"V":1,"C":6,"S":4,"Q":4,"T":2,"A":7}; cmd=""; cx=cy=sx=sy=0.0; pts=[]; i=0
+        while i < len(toks):
+            if re.match(r"^[a-zA-Z]$", toks[i]):
+                cmd = toks[i]; i += 1
+                if cmd in "Zz": cx, cy = sx, sy; continue
+            up = cmd.upper(); rel = cmd != up; n = need[up]; a = [float(t) for t in toks[i:i+n]]; i += n
+            if up == "H": cx = (cx if rel else 0) + a[0]
+            elif up == "V": cy = (cy if rel else 0) + a[0]
+            else: cx = (cx if rel else 0) + a[n-2]; cy = (cy if rel else 0) + a[n-1]
+            pts.append((cx, cy))
+            if up == "M": sx, sy = cx, cy; cmd = "l" if rel else "L"
+        return [num(r2(min(x for x,_ in pts))), num(r2(min(y for _,y in pts))), num(r2(max(x for x,_ in pts))), num(r2(max(y for _,y in pts)))]
+    def _page_bars(host):
+        return pg.evaluate("""h=>{const s=document.querySelector('#'+h+' svg'); if(!s) return null;
+          return {d:[...s.querySelectorAll('path')].map(p=>p.getAttribute('d')),
+                  col:[...s.querySelectorAll('text.axis-label')].map(t=>t.textContent).reverse(),
+                  rects:s.querySelectorAll('rect').length, lines:s.querySelectorAll('line').length};}""", host)
+    pg.goto(_u("ecology-lab.html"), wait_until="domcontentloaded"); pg.wait_for_timeout(300)
+    FIELD = "robin 34\nsparrow 21\nwren 8\nfinch 3\nthrush 1"
+    def _type(host, text):   # the workbench sits behind a fold; set the value the way a keystroke would leave it
+        pg.evaluate("a=>{const e=document.getElementById(a[0]); e.value=a[1]; e.dispatchEvent(new Event('input',{bubbles:true}));}", [host, text])
+        pg.wait_for_timeout(150)
+    _type("wb-field", FIELD)
+    want = bar_chart([34, 21, 8, 3, 1], 480, 120); got = _page_bars("wb-field-out") or {}
+    ck("the field station's rank chart draws one rounded bar per species, each box where the port's scale puts it",
+       got.get("d") is not None and [_box(x) for x in got["d"]] == want["spans"], (got.get("d") or [])[:2])
+    ck("...under ticks at quarters of 1.05 x the largest count, formatted as the page formats them",
+       got.get("col") == want["col"] and got.get("rects") == 5 and got.get("lines") == 6, got)
+    QUAD = "12 0 3 45 2 0 0 28 1 0 60 0"
+    _type("wb-quad", QUAD)
+    want_q = bar_chart([int(x) for x in QUAD.split()], 480, 110); got_q = _page_bars("wb-quad-out") or {}
+    ck("the quadrat chart draws a bar for every count above zero and none for an empty quadrat, twelve hit-rects for twelve quadrats",
+       got_q.get("d") is not None and [_box(x) for x in got_q["d"]] == want_q["spans"] and got_q.get("rects") == 12
+       and got_q.get("col") == want_q["col"], (got_q.get("col"), (got_q.get("d") or [])[:1]))
+    # the task's literals, held to the same port
+    import json as _json
+    _TASK = _os.path.join(ROOT, "tools", "tasks", "page-ecology-lab-science.json")
+    _t = _json.load(io.open(_TASK, encoding="utf-8")) if _os.path.isfile(_TASK) else {"steps": []}
+    _st = dict((x["id"], x) for x in _t["steps"])
+    def _v(step, k):
+        x = _st.get(step, {}).get("expect", {}).get(k); return x.get("value") if isinstance(x, dict) and "op" in x else x
+    ck("the lab task types the field the port was fed and holds the chart to the port: five boxes, the ticks, the marks, the first hit-rect's centre",
+       _st.get("field-text", {}).get("arguments", {}).get("value") == FIELD
+       and _v("field-back", "output.charts.wb-field-out.spans") == want["spans"]
+       and _v("field-back", "output.charts.wb-field-out.aligned.col") == want["col"]
+       and _v("field-back", "output.charts.wb-field-out.marks") == want["marks"]
+       and _v("field-back", "output.charts.wb-field-out.at.0") == want["at"][0]
+       and _v("field-back", "output.charts.wb-field-out.longest") == 6,
+       (_v("field-back", "output.charts.wb-field-out.spans"), want["spans"]))
+    ck("...and the twelve quadrats it types to seven boxes, twelve hit-rects and ticks to 63",
+       _st.get("quad-more", {}).get("arguments", {}).get("value") == QUAD
+       and _v("quad-twelve", "output.charts.wb-quad-out.spans") == want_q["spans"]
+       and _v("quad-twelve", "output.charts.wb-quad-out.aligned.col") == want_q["col"]
+       and _v("quad-twelve", "output.charts.wb-quad-out.marks") == want_q["marks"]
+       and _v("quad-twelve", "output.charts.wb-quad-out.at.11") == want_q["at"][11],
+       (_v("quad-twelve", "output.charts.wb-quad-out.spans"), want_q["spans"]))
 
     b.close()
 
