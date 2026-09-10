@@ -12,10 +12,11 @@ things that can judge it:
   B. the engine the page says to run it in: every copied protocol is parsed by
      ExperimentSpec with no problem line, its summary counts the phases, models
      and expectations the text carries, and its pre-registered hypotheses are
-     graded -- the line the page marks "deliberately wrong" is the one REFUTED.
-     Where the engine's verdicts disagree with the page's own comments (the
-     two-pond and activity-budget hypotheses), the reading is recorded here so
-     a change to the page is seen; that is a finding, not a pass.
+     graded -- the line the page marks "deliberately wrong" is the one REFUTED,
+     and every other prediction the page makes is CONFIRMED. (ADR-177 found two
+     protocols whose predictions the engine refuted; ADR-178 rewrote them to
+     the bands the data sits in, and this suite holds that no protocol carries
+     a refuted prediction the page did not call wrong.)
   C. the TASK's literal -- what page-eco-protocol-library-reference.json holds
      the first Copy to -- is that same text.
 
@@ -86,15 +87,14 @@ def run_engine(cp, name, text, tmp):
     return rep, json.load(io.open(sess, encoding="utf-8"))
 
 
-# What the page's own comments say each protocol's verdicts should be, and what
-# the engine says today. A line commented "deliberately wrong" must be REFUTED;
-# the rest are the page's predictions. Two protocols' predictions are refuted by
-# the engine -- recorded here as the reading (ADR-177's finding), not as a pass:
-# fixing the page moves these numbers, and this suite will say so.
-KNOWN_REFUTED = {
-    "two-ponds.eco": ["evenness(pondA) is uneven", "brayCurtis(pondA, pondB) > 0.4"],
-    "activity-budget.eco": ["evenness(morning) is uneven", "brayCurtis(morning, afternoon) > 0.3"],
-}
+# A line commented "deliberately wrong" must be REFUTED; every other prediction
+# on the page must be CONFIRMED. ADR-177 found two-ponds.eco grading 1 of 3 and
+# activity-budget.eco 0 of 2 -- predictions the page presented as the
+# experiment's, refuted by the engine -- and recorded them here as the reading;
+# ADR-178 rewrote those four lines to the bands the data sits in (evenness
+# moderate and very-even, turnover moderate, Bray-Curtis > 0.2), so the
+# recorded exceptions are gone and a new protocol with the same fault fails.
+KNOWN_REFUTED = {}
 
 errors = []
 protos = []
@@ -176,8 +176,12 @@ else:
                and len(sess.get("entered") or []) == len(directives(p["text"], "data"))
                and len(sess.get("crosses") or []) == len(directives(p["text"], "cross")),
                (len(sess.get("notes") or []), len(sess.get("entered") or []), len(sess.get("crosses") or [])))
-        ck("the finding is exactly the two protocols recorded: no other protocol has a refuted prediction the page did not call wrong",
-           sorted(KNOWN_REFUTED) == ["activity-budget.eco", "two-ponds.eco"], sorted(KNOWN_REFUTED))
+        ck("no protocol carries a refuted prediction the page did not call wrong: the library's own predictions all hold",
+           KNOWN_REFUTED == {}, KNOWN_REFUTED)
+        ck("the two-pond and activity-budget protocols grade against the bands the data sits in (ADR-178)",
+           any("evenness(pondA) is moderate" in p["text"] and "turnover(pondA, pondB) is moderate" in p["text"] for p in protos)
+           and any("evenness(morning) is very-even" in p["text"] and "brayCurtis(morning, afternoon) > 0.2" in p["text"] for p in protos),
+           [p["name"] for p in protos])
     finally:
         shutil.rmtree(tmp, ignore_errors=True)
 
@@ -191,6 +195,10 @@ ck("the task holds the first Copy to the meadow protocol's text, as one clipboar
    steps.get("g177-eco"))
 ck("...read right after the press it holds", [s["id"] for s in task["steps"]][:4] == ["look", "outline", "copy", "g177-eco"],
    [s["id"] for s in task["steps"]])
+ck("the task holds the second Copy to the two-pond protocol's text -- the one ADR-178 rewrote -- whole",
+   len(protos) > 1 and steps.get("g178-eco2", {}).get("expect", {}).get("output.payloads.0.text") == protos[1]["text"]
+   and steps.get("g178-eco2", {}).get("expect", {}).get("output.payloads.1") == {"op": "exists", "value": False},
+   steps.get("g178-eco2"))
 
 ck("zero console/page errors", not errors, errors[:3])
 print("%d/%d%s" % (ok, ok + bad, ("  (%d skipped)" % len(SKIP)) if SKIP else ""))

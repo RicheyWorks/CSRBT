@@ -2,35 +2,35 @@
  "_comment": "Written by tools/audit_readable.py. Per page: the elements the page writes a figure into that read-report cannot see, and the ceiling that count may not rise above. Furniture is declared with a reason (ADR-146).",
  "pages": {
   "breeding-bench.html": {
-   "at": 1789002803,
+   "at": 1789011644,
    "ceiling": 0,
    "task": "page-breeding-bench-science",
    "unreadable": [],
    "written": 10
   },
   "cell-bench.html": {
-   "at": 1789002803,
+   "at": 1789011644,
    "ceiling": 0,
    "task": "page-cell-bench-science",
    "unreadable": [],
    "written": 14
   },
   "collection-sheet.html": {
-   "at": 1789002803,
+   "at": 1789011644,
    "ceiling": 0,
    "task": "page-collection-sheet-science",
    "unreadable": [],
    "written": 11
   },
   "cp-bench.html": {
-   "at": 1789002803,
+   "at": 1789011644,
    "ceiling": 0,
    "task": "page-cp-bench-science",
    "unreadable": [],
    "written": 9
   },
   "cp-characters.html": {
-   "at": 1789002803,
+   "at": 1789011644,
    "ceiling": 0,
    "furniture": {
     "genCards": "The genus library: eighteen cards of reference prose (family, species count, the tell) painted at boot from the key's own GENERA table. Nothing entered changes it; it is the page's reading matter, like a reference page's headings, and the key's verdict is kRes, which is read."
@@ -40,28 +40,28 @@
    "written": 2
   },
   "deployment-log.html": {
-   "at": 1789002803,
+   "at": 1789011644,
    "ceiling": 0,
    "task": "page-deployment-log-science",
    "unreadable": [],
    "written": 17
   },
   "eco-protocol-library.html": {
-   "at": 1789002803,
+   "at": 1789011644,
    "ceiling": 0,
    "task": "page-eco-protocol-library-reference",
    "unreadable": [],
    "written": 1
   },
   "ecology-lab.html": {
-   "at": 1789002803,
+   "at": 1789011644,
    "ceiling": 0,
    "task": "page-ecology-lab-science",
    "unreadable": [],
    "written": 26
   },
   "ethogram.html": {
-   "at": 1789002803,
+   "at": 1789011644,
    "ceiling": 0,
    "furniture": {
     "clock": "The running stopwatch. It is the recorder's own display of a number the budget now reports properly once the session stops (ADR-154 made the elapsed tile actually elapsed), and reading it mid-session would be reading a moment rather than a session.",
@@ -73,28 +73,28 @@
    "written": 16
   },
   "experiment-guide.html": {
-   "at": 1789002803,
+   "at": 1789011644,
    "ceiling": 0,
    "task": "page-experiment-guide-design",
    "unreadable": [],
    "written": 8
   },
   "farm-scout.html": {
-   "at": 1789002803,
+   "at": 1789011644,
    "ceiling": 0,
    "task": "page-farm-scout-science",
    "unreadable": [],
    "written": 5
   },
   "field-notebook.html": {
-   "at": 1789002803,
+   "at": 1789011644,
    "ceiling": 0,
    "task": "page-field-notebook-science",
    "unreadable": [],
    "written": 9
   },
   "field-season.html": {
-   "at": 1789002803,
+   "at": 1789011644,
    "ceiling": 0,
    "furniture": {
     "dayLabel": "The header's day tag, 'day 4 of 12'. It repeats the 'days left' tile in statTiles (total - day + 1, the page's own daysLeft()), which the figures channel reads and the replay task holds; the tag is the name-plate of a figure already read, not a second one.",
@@ -105,7 +105,7 @@
    "written": 7
   },
   "food-web.html": {
-   "at": 1789002803,
+   "at": 1789011644,
    "ceiling": 0,
    "furniture": {
     "arrow": "An SVG <marker> definition. It is drawing, not a figure, and the chart channel reads the svg that uses it."
@@ -115,98 +115,98 @@
    "written": 4
   },
   "fungal-characters.html": {
-   "at": 1789002803,
+   "at": 1789011644,
    "ceiling": 0,
    "task": "page-fungal-characters-key",
    "unreadable": [],
    "written": 1
   },
   "greenhouse.html": {
-   "at": 1789002803,
+   "at": 1789011644,
    "ceiling": 0,
    "task": "page-greenhouse-science",
    "unreadable": [],
    "written": 13
   },
   "micro-bench.html": {
-   "at": 1789002803,
+   "at": 1789011644,
    "ceiling": 0,
    "task": "page-micro-bench-science",
    "unreadable": [],
    "written": 6
   },
   "ordination.html": {
-   "at": 1789002803,
+   "at": 1789011644,
    "ceiling": 0,
    "task": "page-ordination-science",
    "unreadable": [],
    "written": 13
   },
   "pheno-tracker.html": {
-   "at": 1789002803,
+   "at": 1789011644,
    "ceiling": 0,
    "task": "page-pheno-tracker-science",
    "unreadable": [],
    "written": 5
   },
   "plant-characters.html": {
-   "at": 1789002803,
+   "at": 1789011644,
    "ceiling": 0,
    "task": "page-plant-characters-key",
    "unreadable": [],
    "written": 1
   },
   "releve.html": {
-   "at": 1789002803,
+   "at": 1789011644,
    "ceiling": 0,
    "task": "page-releve-science",
    "unreadable": [],
    "written": 16
   },
   "selection-log.html": {
-   "at": 1789002803,
+   "at": 1789011644,
    "ceiling": 0,
    "task": "page-selection-log-science",
    "unreadable": [],
    "written": 9
   },
   "soil-bench.html": {
-   "at": 1789002803,
+   "at": 1789011644,
    "ceiling": 0,
    "task": "page-soil-bench-science",
    "unreadable": [],
    "written": 8
   },
   "soil-recipes.html": {
-   "at": 1789002803,
+   "at": 1789011644,
    "ceiling": 0,
    "task": "page-soil-recipes-scaling",
    "unreadable": [],
    "written": 4
   },
   "stand-sheet.html": {
-   "at": 1789002803,
+   "at": 1789011644,
    "ceiling": 0,
    "task": "page-stand-sheet-science",
    "unreadable": [],
    "written": 15
   },
   "survey-design.html": {
-   "at": 1789002803,
+   "at": 1789011644,
    "ceiling": 0,
    "task": "page-survey-design-science",
    "unreadable": [],
    "written": 13
   },
   "tree-proofs.html": {
-   "at": 1789002803,
+   "at": 1789011644,
    "ceiling": 0,
    "task": "page-tree-proofs-science",
    "unreadable": [],
    "written": 14
   },
   "tree-visualizer.html": {
-   "at": 1789002803,
+   "at": 1789011644,
    "ceiling": 0,
    "task": "page-tree-visualizer-science",
    "through": {

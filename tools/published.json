@@ -3,9 +3,9 @@
   "observed": {},
   "pages": {
     "_harness-board.html": {
-      "at": 1789009467,
+      "at": 1789012925,
       "dated_by": "the fetch time the reader reported -- about the fetch, not about the version",
-      "sha": "a975a7271b502c714d1a49a9bc06e9e00b3b009da4a8169229b271ac29f86484",
+      "sha": "725c835cde5a1ee05c14c17ba12ff6dfdf5c119253da372e74065d70d0ef0273",
       "via": "read"
     },
     "adr-031.html": {
@@ -69,9 +69,9 @@
       "via": "read"
     },
     "eco-protocol-library.html": {
-      "at": 1787990774,
-      "dated_by": "the version marker in the copy",
-      "sha": "b33e2ef0313359267d0dd565a8b1f6079b0313502a70ee3b237ccb3bc4684e6d",
+      "at": 1789012925,
+      "dated_by": "the fetch time the reader reported -- about the fetch, not about the version",
+      "sha": "97357f1caab03561f1b6d30832c03c828aa2ef534b9701a1cb8c8fc9d51ca997",
       "via": "read"
     },
     "eco-protocol-reference.html": {

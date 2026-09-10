@@ -10435,9 +10435,9 @@
    "verdict": "PASS"
   },
   "page-eco-protocol-library-reference": {
-   "at": 1789009247,
-   "confirmed": 12,
-   "goal": "The eco-protocol-library page is a reference page with no data entry: its report is its outline. Read through the gateway, it carries exactly its 6 headings in order (Protocol Library ... The shrinking island), and is intact -- no leaked value, no script error, nothing pushed sideways. Pressing the first Copy puts exactly one clipboard text on the clipboard: meadow-disturbance.eco whole, 14 lines from name: meadow disturbance study to expect: evenness(bloom) is uneven, with its 3 phases and 5 expectations, one of them deliberately wrong.",
+   "at": 1789009804,
+   "confirmed": 17,
+   "goal": "The eco-protocol-library page is a reference page with no data entry: its report is its outline. Read through the gateway, it carries exactly its 6 headings in order (Protocol Library ... The shrinking island), and is intact -- no leaked value, no script error, nothing pushed sideways. Pressing the first Copy puts exactly one clipboard text on the clipboard: meadow-disturbance.eco whole, 14 lines from name: meadow disturbance study to expect: evenness(bloom) is uneven, with its 3 phases and 5 expectations, one of them deliberately wrong. The second Copy puts two-ponds.eco whole on the clipboard, 10 lines from name: two-pond floristic comparison to expect: turnover(pondA, pondB) is moderate, its 3 expectations the bands the entered counts sit in.",
    "held": true,
    "id": "page-eco-protocol-library-reference",
    "must": "PASS",
@@ -10448,7 +10448,7 @@
     "MUTATE"
    ],
    "rungsWhy": null,
-   "seconds": 0.1,
+   "seconds": 0.2,
    "steps": [
     {
      "action": "observe",
@@ -10499,7 +10499,7 @@
      ],
      "id": "copy",
      "message": "activate action_btn:0",
-     "ms": 21,
+     "ms": 22,
      "result": "driven"
     },
     {
@@ -10541,6 +10541,58 @@
      "result": "driven"
     },
     {
+     "action": "activate",
+     "expectations": [
+      {
+       "detail": "ok == True, got True",
+       "path": "ok",
+       "verdict": "CONFIRMED"
+      }
+     ],
+     "id": "g178-copy2",
+     "message": "activate action_btn:1",
+     "ms": 20,
+     "result": "driven"
+    },
+    {
+     "action": "collect-output",
+     "expectations": [
+      {
+       "detail": "output.payloads.0.k == 'clipboard', got 'clipboard'",
+       "path": "output.payloads.0.k",
+       "verdict": "CONFIRMED"
+      },
+      {
+       "detail": "output.payloads.0.text == 'name: two-pond floristic comparison\\nseed: 7\\n\\ndata: pondA cattail=18 duckweed=44 frogbit=3 azolla=9 rush=6\\ndata: pondB duckweed=51 azolla=2 lily=12 rush=6\\n\\nnote: sampled both ponds after two dry weeks\\nnote(pondA): heavy duckweed mat on the north edge\\n\\nexpect: jaccard(pondA, pondB) <= 0.5     # under half the flora shared\\nexpect: evenness(pondA) is moderate        # duckweed leads, 44 of 80, but four others hold their share\\nexpect: turnover(pondA, pondB) is moderate  # shared duckweed and rush keep the mats closer than they look', got 'name: two-pond floristic comparison\\nseed: 7\\n\\ndata: pondA cattail=18 duckweed=44 frogbit=3 azolla=9 rush=6\\ndata: pondB duckweed=51 azolla=2 lily=12 rush=6\\n\\nnote: sampled both ponds after two dry weeks\\nnote(pondA): heavy duckweed mat on the north edge\\n\\nexpect: jaccard(pondA, pondB) <= 0.5     # under half the flora shared\\nexpect: evenness(pondA) is moderate        # duckweed leads, 44 of 80, but four others hold their share\\nexpect: turnover(pondA, pondB) is moderate  # shared duckweed and rush keep the mats closer than they look'",
+       "path": "output.payloads.0.text",
+       "verdict": "CONFIRMED"
+      },
+      {
+       "detail": "output.payloads.1 exists False, got None",
+       "path": "output.payloads.1",
+       "verdict": "CONFIRMED"
+      }
+     ],
+     "id": "g178-eco2",
+     "message": "1 payload(s)",
+     "ms": 1,
+     "result": "driven"
+    },
+    {
+     "action": "read-report",
+     "expectations": [
+      {
+       "detail": "output.boxes.toast in ['Copied \u2014 save as a .eco file', 'Select & copy manually'], got 'Copied \u2014 save as a .eco file'",
+       "path": "output.boxes.toast",
+       "verdict": "CONFIRMED"
+      }
+     ],
+     "id": "g178-toast",
+     "message": "0 figure(s), 1 box(es), 0 list(s), 0 table(s), 6 heading(s)",
+     "ms": 2,
+     "result": "driven"
+    },
+    {
      "action": "read-page",
      "expectations": [
       {
@@ -10561,7 +10613,7 @@
      ],
      "id": "intact",
      "message": "read the page",
-     "ms": 8,
+     "ms": 5,
      "result": "driven"
     }
    ],
