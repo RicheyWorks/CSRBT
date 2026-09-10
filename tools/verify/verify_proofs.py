@@ -148,5 +148,46 @@ with sync_playwright() as pw:
     ctx.close()
     b.close()
 
+# ---- 6. the charts the task holds (ADR-181) --------------------------------
+# The splay chart's scale is stated by its geometry: bars of width min(22, (W -
+# 2 pad)/n - 3) spaced evenly across the frame, y linear from the baseline to a
+# ceiling maxV = ceil(1.15 * the largest cost), ticks at quarters of maxV. The
+# task holds the ticks the chart printed and the last access's actual cost (5),
+# so the last bar's centre is recomputed HERE from those two figures and the
+# task's literal held to it -- a literal transcribed from the page cannot pass
+# a scale it does not fit. The 2-3-4 view is held to what a 2-3-4 tree IS: the
+# leaves' keys strictly increasing left to right, the root's keys separating
+# them, and 13 to 15 keys in all (13 + press mod 3, the page's own rule).
+import json as _json
+_TASK = os.path.join(_kit.ROOT, "tools", "tasks", "page-tree-proofs-science.json")
+_task = _json.load(io.open(_TASK, encoding="utf-8")) if os.path.isfile(_TASK) else {"steps": []}
+_e = dict((s["id"], s) for s in _task["steps"]).get("seededAccesses", {}).get("expect", {})
+def _v(k):
+    x = _e.get(k); return x.get("value") if isinstance(x, dict) and "op" in x else x
+W_, H_, PAD, N_ = 720, 220, 34, 20
+ticks = _v("output.charts.spChart.aligned.col") or []
+maxV = int(ticks[0]) if ticks else 0
+ck(ticks == ["%.0f" % (maxV * t / 4) for t in (4, 3, 2, 1, 0)] and maxV == 15,
+   "the ticks the task holds are quarters of one ceiling, read top to bottom (%s)" % ticks)
+last_actual = int(_e.get("output.figures.last actual", 0))
+bw = max(4, min(22, (W_ - PAD * 2) / N_ - 3)); gap = ((W_ - PAD * 2) - bw * N_) / (N_ - 1)
+def _y(v): return H_ - PAD - (v / maxV) * (H_ - PAD * 2)
+x19 = round(PAD + 19 * (bw + gap), 1); y19 = round(_y(last_actual), 1); hh = round((H_ - PAD) - y19, 1)
+ck(_v("output.charts.spChart.at.19") == [round(x19 + bw / 2, 2), round(y19 + hh / 2, 2)],
+   "the last bar's centre in the task is where the scale puts an actual cost of %d: %s vs %s"
+   % (last_actual, _v("output.charts.spChart.at.19"), [round(x19 + bw / 2, 2), round(y19 + hh / 2, 2)]))
+ck(_v("output.charts.spChart.marks") == {"rect": N_, "line": 5, "polyline": 1} and _v("output.charts.spChart.longest") == N_,
+   "twenty bars, five grid lines, one amortized line through twenty points: %s" % _v("output.charts.spChart.marks"))
+row = _v("output.charts.rbSvg.aligned.row") or []
+root = _v("output.charts.rbSvg.texts.0.t") or ""
+def _keys(g): return [int(k) for k in g.split(" · ")]
+leaves = [_keys(g) for g in row]; rk = _keys(root)
+ck(len(row) == 4 and len(rk) == 3 and all(k == sorted(k) for k in leaves + [rk]),
+   "the 2-3-4 view the task holds is a 4-node root over four leaves, every group sorted: %s / %s" % (root, row))
+ck(all(max(leaves[i]) < rk[i] < min(leaves[i + 1]) for i in range(3)),
+   "...and the root's keys separate the leaves in order, as a 2-3-4 tree's must: %s between %s" % (rk, row))
+ck(len(rk) + sum(len(k) for k in leaves) in (13, 14, 15),
+   "...holding 13 to 15 keys, the page's own take of 13 + press mod 3 (%d)" % (len(rk) + sum(len(k) for k in leaves)))
+
 print("---"); print("%d/%d" % (P, P + F))
 raise SystemExit(1 if F else 0)

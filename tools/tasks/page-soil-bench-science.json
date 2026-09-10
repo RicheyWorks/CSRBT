@@ -2,7 +2,7 @@
  "id": "page-soil-bench-science",
  "target": "page",
  "page": "soil-bench.html",
- "goal": "On the soil bench: the demo windrow log has 14 of 15 required days at or above 55 C and 5 of 5 turnings while hot, peak 64, not there yet; a 34 C reading is a cooled pile, in-vessel needs only 3 days and is met, 72 C is one reading above 66; 100 L of fresh grass clippings (C:N 20, 2.4% N, 80% moisture, 250 kg/m3) is nitrogen-rich and 200 L of straw (80, 0.7%, 12%, 60) blends to C:N 42.9:1 by sum C over sum N, 37 kg wet, 16 kg dry, 58% moisture; peat + perlite is a nutrient-free mix and compost makes it 1.00/5; the texture key reads holds, ribbon, over 5 cm, smooth as SILTY CLAY and falls apart as SAND. Then the composting pane's last three untouched controls are driven -- the Celsius temperature-unit chip reselected, the squeeze-test moisture set to bone dry, and the turn chip toggled -- as pending inputs with no reading added, so the demo windrow verdict is unchanged and read once more. Copy recipe on that three-part mix puts exactly one clipboard text on the clipboard: Mix recipe, 3 parts total, then one line per component with its share, 1 part sphagnum peat (33%), 1 part perlite (33%), 1 part finished compost (33%), and the mix reads 1.00/5 afterwards.",
+ "goal": "On the soil bench: the demo windrow log has 14 of 15 required days at or above 55 C and 5 of 5 turnings while hot, peak 64, not there yet; a 34 C reading is a cooled pile, in-vessel needs only 3 days and is met, 72 C is one reading above 66; 100 L of fresh grass clippings (C:N 20, 2.4% N, 80% moisture, 250 kg/m3) is nitrogen-rich and 200 L of straw (80, 0.7%, 12%, 60) blends to C:N 42.9:1 by sum C over sum N, 37 kg wet, 16 kg dry, 58% moisture; peat + perlite is a nutrient-free mix and compost makes it 1.00/5; the texture key reads holds, ribbon, over 5 cm, smooth as SILTY CLAY and falls apart as SAND. Then the composting pane's last three untouched controls are driven -- the Celsius temperature-unit chip reselected, the squeeze-test moisture set to bone dry, and the turn chip toggled -- as pending inputs with no reading added, so the demo windrow verdict is unchanged and read once more. Copy recipe on that three-part mix puts exactly one clipboard text on the clipboard: Mix recipe, 3 parts total, then one line per component with its share, 1 part sphagnum peat (33%), 1 part perlite (33%), 1 part finished compost (33%), and the mix reads 1.00/5 afterwards. The temperature chart is read with it: 18 dots on one path, the 55 and 66 degree lines and five turning ticks, the first reading at 32, the peak at 64 on the fifth dot, the last at 49, every position the chart's own scale.",
  "policy": {
   "allow": [
    "SENSITIVE_READ",
@@ -539,7 +539,58 @@
    "action": "read-report",
    "expect": {
     "output.by.cOut.days logged at \u226555 \u00b0C": "14 / 15",
-    "output.by.cOut.peak": "64\u00b0"
+    "output.by.cOut.peak": "64\u00b0",
+    "output.charts.cChart.marks": {
+     "op": "==",
+     "value": {
+      "circle": 18,
+      "line": 7,
+      "rect": 1,
+      "path": 1
+     }
+    },
+    "output.charts.cChart.longest": 18,
+    "output.charts.cChart.texts.0": {
+     "op": "==",
+     "value": {
+      "t": "55 \u00b0C \u2014 the threshold",
+      "x": 48,
+      "y": 68
+     }
+    },
+    "output.charts.cChart.texts.1": {
+     "op": "==",
+     "value": {
+      "t": "66 \u00b0C \u2014 conventional ceiling",
+      "x": 48,
+      "y": 26.2
+     }
+    },
+    "output.charts.cChart.at.0": {
+     "op": "==",
+     "value": [
+      42,
+      162.4
+     ]
+    },
+    "output.charts.cChart.at.4": {
+     "op": "==",
+     "value": [
+      174.2,
+      40.8
+     ]
+    },
+    "output.charts.cChart.at.17": {
+     "op": "==",
+     "value": [
+      604,
+      97.8
+     ]
+    },
+    "output.charts.cChart.points": {
+     "op": "==",
+     "value": {}
+    }
    }
   },
   {

@@ -265,6 +265,19 @@ with sync_playwright() as p:
             ck("no h-overflow %d %s"%(w,t), ow<=w+1, "%d > %d"%(ow,w))
     ck("no errors at end", not errs, errs[:3])
     b.close()
+# ---- the trap-count chart the task holds (ADR-181) ----
+import json as _json
+_TASK=_os.path.join(ROOT,"tools","tasks","page-cp-bench-science.json")
+_task=_json.load(open(_TASK,encoding="utf-8")) if _os.path.isfile(_TASK) else {"steps":[]}
+_steps=_task["steps"]; _e=dict((s["id"],s) for s in _steps).get("g181-chart",{}).get("expect",{})
+def _v(k):
+    x=_e.get(k); return x.get("value") if isinstance(x,dict) and "op" in x else x
+_counts=[s for s in _steps if (s.get("arguments") or {}).get("selector")=="@control:Count (for trap counts)"]
+_name=[s for s in _steps if (s.get("arguments") or {}).get("selector")=="@control:pnm"]
+ck("the task holds the trap chart to its own entries: one path through as many points as trap counts it typed, captioned with the plant it named",
+   _v("output.charts.pOut.marks")=={"path":1} and _v("output.charts.pOut.longest")==len(_counts)==3
+   and _v("output.charts.pOut.texts.0.t")=="%s — trap count across %d observations"%(_name[0]["arguments"]["value"],len(_counts)),
+   (_v("output.charts.pOut.texts.0.t"),len(_counts)))
 print("PASS %d"%len(P))
 for x in F: print("FAIL:",x)
 print("---"); print("%d/%d"%(len(P),len(P)+len(F)))

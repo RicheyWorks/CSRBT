@@ -3,9 +3,9 @@
   "observed": {},
   "pages": {
     "_harness-board.html": {
-      "at": 1789020360,
+      "at": 1789024175,
       "dated_by": "the fetch time the reader reported -- about the fetch, not about the version",
-      "sha": "ea3a12203f8efbd528cea85b811e126dbdd68efce070d67d47bb1a1b1825e1f7",
+      "sha": "2c666d04d3b82867b4525371e40e3682d98fbbcd01c3d58e2b3d84e5db969cbf",
       "via": "read"
     },
     "adr-031.html": {
@@ -51,9 +51,9 @@
       "via": "read"
     },
     "cp-suite.html": {
-      "at": 1788477271,
-      "dated_by": "the version epoch in the filename",
-      "sha": "7536a5b8f9e6d0d9c183504e5747189b6ea64b380c20cf2ad7f6c8e1a5a813c3",
+      "at": 1789024175,
+      "dated_by": "the fetch time the reader reported -- about the fetch, not about the version",
+      "sha": "325a8e2dd721d6f77e14950533613bb1f97d12008e09a4ac7fc7fa588e40948a",
       "via": "read"
     },
     "deployment-log.html": {
@@ -225,9 +225,9 @@
       "via": "read"
     },
     "soil-suite.html": {
-      "at": 1789009467,
+      "at": 1789024175,
       "dated_by": "the fetch time the reader reported -- about the fetch, not about the version",
-      "sha": "07013c8029d8a31a2123d1820ced45238c427023f7f223366b8048f77a33e589",
+      "sha": "bdbaa3cd8711cb94f3667d60122bee019eb40770bbf19795ab8612a77cebe9ab",
       "via": "read"
     },
     "stand-sheet.html": {

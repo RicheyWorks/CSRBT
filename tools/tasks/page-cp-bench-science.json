@@ -2,7 +2,7 @@
  "id": "page-cp-bench-science",
  "target": "page",
  "page": "cp-bench.html",
- "goal": "On the carnivorous-plant bench: log TDS readings against the 50/160 ppm conventions from a named water source, work the top-up accumulation to a 500 ppm equivalent, load a media preset and copy the recipe, record a named plant with its provenance and three trap counts, check dormancy need, and log a cross with its note and seed set -- every pane driven and the figures and recipe held against an oracle.",
+ "goal": "On the carnivorous-plant bench: log TDS readings against the 50/160 ppm conventions from a named water source, work the top-up accumulation to a 500 ppm equivalent, load a media preset and copy the recipe, record a named plant with its provenance and three trap counts, check dormancy need, and log a cross with its note and seed set -- every pane driven and the figures and recipe held against an oracle. The plant's trap-count chart is one path through its three observations, captioned with the plant's name.",
  "steps": [
   {
    "id": "look",
@@ -701,6 +701,31 @@
     "output.by.cOut.set seed": "1",
     "output.by.cOut.seed collected": "200",
     "output.by.cOut.germination overall": "40.0%"
+   }
+  },
+  {
+   "id": "g181-plpane",
+   "action": "show-pane",
+   "arguments": {
+    "pane": "p-pl"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "g181-chart",
+   "action": "read-report",
+   "expect": {
+    "output.charts.pOut.marks": {
+     "op": "==",
+     "value": {
+      "path": 1
+     }
+    },
+    "output.charts.pOut.longest": 3,
+    "output.charts.pOut.texts.0.t": "S. flava 'Claret' — trap count across 3 observations",
+    "output.charts.pOut.viewBox": "0 0 560 170"
    }
   },
   {

@@ -2,7 +2,7 @@
  "id": "page-tree-proofs-science",
  "target": "page",
  "page": "tree-proofs.html",
- "goal": "On the tree proofs page, against an independent Python port of its splay core: a balanced splay tree of 63 keys has potential Φ = Σ log2(size) = 79.3; accessing key 1 costs 6 rotations+1 = 6 actual and 13.0 amortized (ΔΦ +7.0), the same key again costs 1 and 1.0; key 63 costs 7 / 13.0; the worst-case path (63 keys inserted descending) has Φ 290.0 and accessing key 1 costs 63 actual but −77.4 amortized, under the Access Lemma bound 3·log2(63)+1 = 18.9; the minimal AVL trees to height 12 have F(h+2)−1 nodes (1 2 4 7 12 20 33 54 88 143 232 376) under 1.4404·log2(n+2)−0.3277; select(9) over 31 keys takes 5 steps (16 → 8 → 12 → 10 → 9) and select(20) 3 steps (16 → 24 → 20). And the twenty random accesses, which no expectation could hold before ADR-134: with Math.random seeded 7 the page draws keys 1, 4, 62, 45, 33, 26, 30, 16, 35, 46, 17, 10, 49, 33, 13, 24, 19, 34, 19, 62 out of a balanced tree of 63, and an independent splay port totals 131 actual against 152.0 amortized -- the same figures the page prints.",
+ "goal": "On the tree proofs page, against an independent Python port of its splay core: a balanced splay tree of 63 keys has potential Φ = Σ log2(size) = 79.3; accessing key 1 costs 6 rotations+1 = 6 actual and 13.0 amortized (ΔΦ +7.0), the same key again costs 1 and 1.0; key 63 costs 7 / 13.0; the worst-case path (63 keys inserted descending) has Φ 290.0 and accessing key 1 costs 63 actual but −77.4 amortized, under the Access Lemma bound 3·log2(63)+1 = 18.9; the minimal AVL trees to height 12 have F(h+2)−1 nodes (1 2 4 7 12 20 33 54 88 143 232 376) under 1.4404·log2(n+2)−0.3277; select(9) over 31 keys takes 5 steps (16 → 8 → 12 → 10 → 9) and select(20) 3 steps (16 → 24 → 20). And the twenty random accesses, which no expectation could hold before ADR-134: with Math.random seeded 7 the page draws keys 1, 4, 62, 45, 33, 26, 30, 16, 35, 46, 17, 10, 49, 33, 13, 24, 19, 34, 19, 62 out of a balanced tree of 63, and an independent splay port totals 131 actual against 152.0 amortized -- the same figures the page prints. The splay chart draws the twenty accesses as twenty bars under one amortized line with ticks 0, 4, 8, 11, 15, the last bar centred at 675, 160.65 for its actual cost of 5; the red-black tree's 2-3-4 view is five groups, 8 · 20 · 36 over 2 · 5 · 6, 11 · 15 · 18, 26 · 28 and 38 · 39 · 40.",
  "policy": {
   "allow": [
    "SENSITIVE_READ",
@@ -413,7 +413,52 @@
     "output.figures.Σ amortized": "152.0",
     "output.figures.last actual": "5",
     "output.figures.last amortized": "5.8",
-    "snapshot.environment.draws": 20
+    "snapshot.environment.draws": 20,
+    "output.charts.spChart.marks": {
+     "op": "==",
+     "value": {
+      "rect": 20,
+      "line": 5,
+      "polyline": 1
+     }
+    },
+    "output.charts.spChart.longest": 20,
+    "output.charts.spChart.aligned.col": {
+     "op": "==",
+     "value": [
+      "15",
+      "11",
+      "8",
+      "4",
+      "0"
+     ]
+    },
+    "output.charts.spChart.at.19": {
+     "op": "==",
+     "value": [
+      675,
+      160.65
+     ]
+    },
+    "output.charts.spChart.texts.5.t": "bars: actual rotations",
+    "output.charts.spChart.texts.6.t": "line: amortized (actual + ΔΦ)",
+    "output.charts.rbSvg.texts.0.t": "8 · 20 · 36",
+    "output.charts.rbSvg.aligned.row": {
+     "op": "==",
+     "value": [
+      "2 · 5 · 6",
+      "11 · 15 · 18",
+      "26 · 28",
+      "38 · 39 · 40"
+     ]
+    },
+    "output.charts.rbSvg.marks": {
+     "op": "==",
+     "value": {
+      "rect": 5,
+      "line": 4
+     }
+    }
    }
   },
   {

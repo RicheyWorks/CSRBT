@@ -56,6 +56,19 @@ def mix_recipe(parts):
 MIX=[("sphagnum peat",1),("perlite",1),("finished compost",1)]
 WANT_MIX=mix_recipe(MIX)
 
+# The compost chart (ADR-181). The worked example logs eighteen readings; the
+# chart's scale is stated by its own prose and geometry: x runs from the left
+# pad to the right edge less 16 in reading order, y from a floor of 20 (or 4
+# below the coldest) to a ceiling of 70 (or 4 above the hottest), the 55 and
+# 66 lines drawn at those temperatures, one tick per turning. Stated here,
+# from the example's numbers, not read back from the page.
+DEMO=[32,48,58,62,64,61,59,57,56,58,57,56,55,56,57,55,54,49]
+DEMO_TURN=[3,5,7,9,11]                     # zero-based readings that were turned
+CW,CH,CP=620,250,42
+C_LO=min(20,min(DEMO)-4); C_HI=max(70,max(DEMO)+4)
+def cx(i): return round(CP+i/(len(DEMO)-1)*(CW-CP-16),1)
+def cy(t): return round(CH-CP-(t-C_LO)/(C_HI-C_LO)*(CH-CP-18),1)
+
 with sync_playwright() as p:
     b=p.chromium.launch(); pg=b.new_page(viewport={"width":880,"height":1250})
     pg.set_default_timeout(15000)
@@ -180,6 +193,16 @@ with sync_playwright() as p:
     ck("and the two lines say different things, so neither is a copy of the other",
        len({l.strip() for l in chart.splitlines() if "°C" in l and l.strip()}) >= 2,
        [l for l in chart.splitlines() if "°C" in l])
+    # ---- the chart's geometry against the port (ADR-181) ----
+    dots=pg.eval_on_selector_all("#cChart svg circle","e=>e.map(c=>[+c.getAttribute('cx'),+c.getAttribute('cy')])")
+    ck("the chart draws one dot per reading of the worked example, at the port's positions",
+       dots==[[cx(i),cy(t)] for i,t in enumerate(DEMO)], dots[:4])
+    lines=pg.eval_on_selector_all("#cChart svg line","e=>e.map(l=>[+l.getAttribute('x1'),+l.getAttribute('y1'),+l.getAttribute('y2')])")
+    ck("the 55 and 66 degree lines sit at the port's y, and there is one tick per turning, under its reading",
+       [l[1] for l in lines[:2]]==[cy(55),cy(66)] and [l[0] for l in lines[2:]]==[cx(i) for i in DEMO_TURN]
+       and all(l[2]==CH-CP+9 for l in lines[2:]), lines)
+    ck("the peak reading is the highest dot, 64 at the fifth reading",
+       min(dots,key=lambda d:d[1])==[cx(4),cy(64)] and DEMO[4]==max(DEMO), min(dots,key=lambda d:d[1]))
 
     # switch to in-vessel -> 3 days needed -> should now pass
     pg.evaluate("""()=>{const b=[...document.querySelectorAll('#cSetup .fek-dial button')]
@@ -297,6 +320,18 @@ import io as _io, json as _json
 _TASK=_os.path.join(ROOT,"tools","tasks","page-soil-bench-science.json")
 _task=_json.load(_io.open(_TASK,encoding="utf-8")) if _os.path.isfile(_TASK) else {"steps":[]}
 _steps=dict((st["id"],st) for st in _task["steps"])
+_held=_steps.get("g168-held",{}).get("expect",{})
+def _v(k):
+    x=_held.get(k); return x.get("value") if isinstance(x,dict) and "op" in x else x
+ck("the task holds the compost chart to the port: 18 dots, 7 lines (two thresholds, five turnings), the first, peak and last dot where the scale puts them",
+   _v("output.charts.cChart.marks")=={"circle":len(DEMO),"line":2+len(DEMO_TURN),"rect":1,"path":1}
+   and _v("output.charts.cChart.longest")==len(DEMO)
+   and _v("output.charts.cChart.at.0")==[cx(0),cy(DEMO[0])] and _v("output.charts.cChart.at.4")==[cx(4),cy(DEMO[4])]
+   and _v("output.charts.cChart.at.17")==[cx(17),cy(DEMO[17])], {k:_v(k) for k in _held if "charts" in k})
+ck("...and the threshold labels seven units above their lines",
+   _v("output.charts.cChart.texts.0")=={"t":"55 °C — the threshold","x":CP+6,"y":round(cy(55)-7,1)}
+   and _v("output.charts.cChart.texts.1")=={"t":"66 °C — conventional ceiling","x":CP+6,"y":round(cy(66)-7,1)},
+   (_v("output.charts.cChart.texts.0"),_v("output.charts.cChart.texts.1")))
 ck("the task holds the copied recipe to the port's text, as one clipboard payload and nothing else",
    _steps.get("g177-mix",{}).get("expect",{}).get("output.payloads.0.text")==WANT_MIX
    and _steps.get("g177-mix",{}).get("expect",{}).get("output.payloads.0.k")=="clipboard"

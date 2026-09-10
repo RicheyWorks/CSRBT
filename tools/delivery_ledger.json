@@ -910,10 +910,15 @@
    "by": "adr180",
    "sha": "fe42ec3d29c679e3d94633a45296fb09aa105288d440053524635feb83e2e751"
   },
+  "docs/ADR-181-the-charts-read-2-2026-09-10.md": {
+   "at": 1789024176,
+   "by": "adr181",
+   "sha": "ec2313fc17b73eeaeb724543844e0caccab9f3a8da3b2180d4680f3327b4d0b1"
+  },
   "docs/AI_HARNESS.md": {
-   "at": 1789020361,
-   "by": "adr180",
-   "sha": "93ddd03516120a28704783edf8bc96b7379785c72582caf8d633956d8be012ca"
+   "at": 1789024176,
+   "by": "adr181",
+   "sha": "4bf1380e6728ba4440caba43839767c167485c7df9c76bbc116d97b50b5bb950"
   },
   "docs/AUDIT-2026-07-14-capability-coverage.md": {
    "at": 1788676922,
@@ -1760,6 +1765,11 @@
    "by": "adr180",
    "sha": "35a2a9012e6dfd01490638bd779bbe56ba9f792436708666290aa8eb48fd9ff4"
   },
+  "docs/CHANGELOG-2026-09-10-adr181-the-charts-read-2.md": {
+   "at": 1789024176,
+   "by": "adr181",
+   "sha": "943842f601a4f7c77d41103122c8d45650d3d4c815d3732d16a3b6b443316770"
+  },
   "docs/DESIGN-adaptive-engine.md": {
    "at": 1788676923,
    "by": "adr146b",
@@ -1926,9 +1936,9 @@
    "sha": "54e86bd234c0a27542114b5b8ceaf67fd1df375ff4ff0df8f9bdee49d9493493"
   },
   "docs/cp-suite.html": {
-   "at": 1788676924,
-   "by": "adr146b",
-   "sha": "007a1f6da7dcc8eb24279818cf26395758f207e09affd3214574eb1d0588060f"
+   "at": 1789024176,
+   "by": "adr181",
+   "sha": "0a1ff3128b17673964b6acc0630c4866103d6d1b594e00a88eedcd12d37eb8fd"
   },
   "docs/deployment-log.html": {
    "at": 1788761490,
@@ -2206,9 +2216,9 @@
    "sha": "21fe44696999d2257029b10a6aa784a2cffed0efa6da3e908c2333f993cb1eee"
   },
   "docs/soil-suite.html": {
-   "at": 1789009468,
-   "by": "adr177",
-   "sha": "1859baad7329bc3a92d3949083370d3c47b88c7cd31eb727e2110c9f83833963"
+   "at": 1789024176,
+   "by": "adr181",
+   "sha": "257e2d209f87d89d2dce8b8b1a97fcbf982cd7d1a28b290dacda80d670abe503"
   },
   "docs/stand-sheet.html": {
    "at": 1788761490,
@@ -2406,9 +2416,9 @@
    "sha": "87a75cf8e4e4a93070153679fbaba41272105d2027a9233e517ff608cf275251"
   },
   "tools/badinput_ledger.json": {
-   "at": 1789020361,
-   "by": "adr180",
-   "sha": "d33051c3ea2a82146e5c94f43ff4d40bc3c2a667bb30d11ba0d8d7db60b11000"
+   "at": 1789024176,
+   "by": "adr181",
+   "sha": "8e0de299581be639c2d1022991825c82df33dfcde6ab71112a73a75f455e8a51"
   },
   "tools/blind_console.py": {
    "at": 1788676925,
@@ -2600,10 +2610,15 @@
    "by": "adr180",
    "sha": "3b22f1079c3aabe56a4070fbb0419f0a4dc3e68c4952e940b74bb9ce33dfda17"
   },
+  "tools/delivery/adr181.json": {
+   "at": 1789024176,
+   "by": "adr181",
+   "sha": "c2f4f63a778b053fafa43e684660d30c2544d04381b988a38760086d08eb98d3"
+  },
   "tools/delivery_ledger.json": {
-   "at": 1789020361,
-   "by": "adr180",
-   "sha": "f09e28348dc9353a6eb5df2dcc7b4b05b12a643bf441534d1907fd8eb26e9d1b"
+   "at": 1789024176,
+   "by": "adr181",
+   "sha": "34e248a3a921964de71e11f3c2a09895f57b3145ebd896e753fff01fd0f48127"
   },
   "tools/dwc.py": {
    "at": 1788676926,
@@ -2646,9 +2661,9 @@
    "sha": "01919e137bdbf702ebc887de41aa026b721916da9d3761ce673812d54a22471f"
   },
   "tools/entry_ledger.json": {
-   "at": 1789020361,
-   "by": "adr180",
-   "sha": "30ee8d1d664e873f215ab584f191fe8773aba0e8ffa508744d3b6d57f8654123"
+   "at": 1789024176,
+   "by": "adr181",
+   "sha": "9aaad5b629863b5be75c6f5e404ec3138f734319a63599ac2093100f03fb9d9b"
   },
   "tools/entry_reach.py": {
    "at": 1788676926,
@@ -2701,9 +2716,9 @@
    "sha": "1d5e5bb0fadf4abb88d56125483a66e1bc2367055c7b541aa9d800c6dddde9dc"
   },
   "tools/harness_board.html": {
-   "at": 1789020361,
-   "by": "adr180",
-   "sha": "9535a0c6747f4da19cd4f81fc3ca442c665a2cc3f5d6f8471c33ed74ed8a2eb0"
+   "at": 1789024176,
+   "by": "adr181",
+   "sha": "e59b9b5c29d9eb2afbca28a8ebc9c75027a5b7014ed30c731f56d575917afa96"
   },
   "tools/harness_board.py": {
    "at": 1788783742,
@@ -2906,9 +2921,9 @@
    "sha": "172e699a8abda0fb0fe773b9204e652001fac70b769e1082739097b699c28db0"
   },
   "tools/outputs_ledger.json": {
-   "at": 1789020361,
-   "by": "adr180",
-   "sha": "3a7703c668c12b20b9364e89524e58aa78505fd1523adae83cb3c0cd5fdbb2a8"
+   "at": 1789024176,
+   "by": "adr181",
+   "sha": "f983baa7942667eaeee23ff63e8bc71dd1f5f2570fb5da685a09095736ae2ac0"
   },
   "tools/probe.py": {
    "at": 1788676927,
@@ -2941,9 +2956,9 @@
    "sha": "15022dcd97ee97f72ec5f907d0cdfef3ee36da9588f9de47e110519ff9f781e8"
   },
   "tools/published.json": {
-   "at": 1789020361,
-   "by": "adr180",
-   "sha": "0d21d7f6f7ddfa3397ae2108256e377d9d014ecf2953deb8912ec1cb54ed417f"
+   "at": 1789024176,
+   "by": "adr181",
+   "sha": "a67a73ce6a63e5d34c51ba3e14705cc00c37285acb7a9dd63bdd99b262e4a9d1"
   },
   "tools/reach.py": {
    "at": 1788676928,
@@ -2951,9 +2966,9 @@
    "sha": "b176e4e078bd39b22f5056223c6d1949503ff69c2f029a02d3513a7607db39cb"
   },
   "tools/readable_ledger.json": {
-   "at": 1789020361,
-   "by": "adr180",
-   "sha": "33aa8f1a2b5eb5e95817bc0da9392e8c25444591cdd48451887c2cc922fdbcb6"
+   "at": 1789024176,
+   "by": "adr181",
+   "sha": "277807b9ae25d384b19e927f09eef3725a09e488cc1e58aa767a63ddf8812bc4"
   },
   "tools/routes.json": {
    "at": 1788676928,
@@ -2986,9 +3001,9 @@
    "sha": "0a2241a252fa68e80b813e601b7bd67cd8ba5c00b8ad07acc98dcd93a42b0268"
   },
   "tools/task_ledger.json": {
-   "at": 1789020361,
-   "by": "adr180",
-   "sha": "b2fe9d67375296f9a8b603e5b3caf60c4f6dc6925dc412a8f7b25ce115be8f77"
+   "at": 1789024176,
+   "by": "adr181",
+   "sha": "ce67d9422fcca73e909ac9b21d82ab28bcc141679143050ffb8c1390f43c6cee"
   },
   "tools/tasks/fixture-buckets.json": {
    "at": 1788676928,
@@ -3056,9 +3071,9 @@
    "sha": "6baebc32c726c8bd00aef25aa6b4655e6a90c506463a998308df6aabc5710e7f"
   },
   "tools/tasks/page-cp-bench-science.json": {
-   "at": 1788874524,
-   "by": "adr161",
-   "sha": "d0221a7896b035e8abcd4749df422dbe64cf184c343e02ab02e50f85f60680b2"
+   "at": 1789024176,
+   "by": "adr181",
+   "sha": "737c371708f93f3b27fdbfa66afd1a118df2c4d3b17372af3f07db3263761868"
   },
   "tools/tasks/page-cp-characters-key.json": {
    "at": 1788935024,
@@ -3211,9 +3226,9 @@
    "sha": "6fc44bd1a0ed6b8e773926e95408c78d947f127ca887f74c3e4c1d7fe3a4d925"
   },
   "tools/tasks/page-soil-bench-science.json": {
-   "at": 1789009468,
-   "by": "adr177",
-   "sha": "0eabfa8c8631569a5b7b2c0cad37e1ca0bed01c6449d5b1999601734dec5292d"
+   "at": 1789024176,
+   "by": "adr181",
+   "sha": "c35f82b98c08981324c4d8f9f452abd9ddb129e28ab7dd06257cbaab0ad0d63b"
   },
   "tools/tasks/page-soil-recipes-scaling.json": {
    "at": 1788996656,
@@ -3236,9 +3251,9 @@
    "sha": "4b275f377a678f07c9a97c5c57308a73b7cd195e3009c381f9c5f9284514d53f"
   },
   "tools/tasks/page-tree-proofs-science.json": {
-   "at": 1788676928,
-   "by": "adr146b",
-   "sha": "a721f81be5e9bbc97902233ead31ac1ba1143e75d7d0ff2b50a53d8ae0db447d"
+   "at": 1789024176,
+   "by": "adr181",
+   "sha": "304492ea58eaa7fd5e057315b22267f517a0d270a9850a49173ec5eb38804027"
   },
   "tools/tasks/page-tree-visualizer-science.json": {
    "at": 1788950311,
@@ -3281,9 +3296,9 @@
    "sha": "15a9ad96a69cde9458d5f7fca51be947e5bebad787cc069e1bcc64bf7800b592"
   },
   "tools/verify/counts.json": {
-   "at": 1789020361,
-   "by": "adr180",
-   "sha": "1f9d4a800eeeda00e008f6165e18070367386d2f357dbe2811538649ab56fda4"
+   "at": 1789024176,
+   "by": "adr181",
+   "sha": "41e3f833eb0ee720784e3d85a52987e98b5314752d43eb9e23dbc096af82162e"
   },
   "tools/verify/run_all.py": {
    "at": 1788783742,
@@ -3356,9 +3371,9 @@
    "sha": "872e0711eb549291844d92e47cdeb320dd4af85314eaf6f99f5811ed67c2af39"
   },
   "tools/verify/verify_cp.py": {
-   "at": 1788676929,
-   "by": "adr146b",
-   "sha": "978dc54541f7fec91a2ecd9921c92918c16498e59b57abc9d8c29a1da7b8c590"
+   "at": 1789024176,
+   "by": "adr181",
+   "sha": "ec162d01ec7bb297a45d6b58a96578f33d88ccf81576f0922fc6a5583df28a55"
   },
   "tools/verify/verify_cpc.py": {
    "at": 1788676929,
@@ -3566,9 +3581,9 @@
    "sha": "87bbc65ee9bb58c4b2175f622d2f17893c800c8cd334cd1d767c58afd5db840a"
   },
   "tools/verify/verify_proofs.py": {
-   "at": 1788676929,
-   "by": "adr146b",
-   "sha": "3b7d1abdc63582767ce09774693e9fe3f49e87dfc06f6d359be074b89bf9ab04"
+   "at": 1789024176,
+   "by": "adr181",
+   "sha": "dc090169680160a2df49dc4cb0686329a5231881e3613a2d21c7627e73b8516d"
   },
   "tools/verify/verify_pt.py": {
    "at": 1789009468,
@@ -3621,9 +3636,9 @@
    "sha": "1793b9d4b45dde17dc856ee5305cb6e7c18183f89e7adf9de87069090009a19d"
   },
   "tools/verify/verify_soil.py": {
-   "at": 1789009468,
-   "by": "adr177",
-   "sha": "881d7ef01e7fd3f1aacde0ab9b9c4b3e3c442b61d85a87faf6e238dca45f6dce"
+   "at": 1789024176,
+   "by": "adr181",
+   "sha": "bf1b0b4a73a4d5e743b6c83f25c4de631592e3e4116efe7ed7520b7bc2a2c4f4"
   },
   "tools/verify/verify_ss.py": {
    "at": 1788676930,
