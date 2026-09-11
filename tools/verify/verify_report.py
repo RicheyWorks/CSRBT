@@ -27,6 +27,12 @@ gateway child), so the mutant runner can afford to run it many times.
   D. on a real page: the collection sheet's analysis is read behind its
      closed tab, a genus picked by prefix is the genus the sheet records,
      and the experiment guide's aria-controls tabs open their panes
+  F. addresses (ADR-188): every control publishes the shortest name that
+     resolves back to it, the door accepts that name wherever it takes a
+     selector and answers exactly as the runner's find_control does, a
+     positional selector may be stamped with the snapshot it came from and
+     is refused when the numbering has moved, and a name that resolves is
+     never raised to DESTRUCTIVE for being unresolvable
   E. the environment as an argument (ADR-134): with nothing set, Date and
      Math.random are the real ones; set-clock freezes what "now" answers and
      leaves every other Date form alone; set-seed makes Math.random the
@@ -782,6 +788,224 @@ with sync_playwright() as pw:
     ok, _, out = plug.execute("collect-output", {})
     ck(out["payloads"] and out["payloads"][0]["k"] == "copy",
        "...and it still reads a copy after the reload: %s" % out["payloads"])
+    ctx.close()
+    b.close()
+
+# ---- F. addresses (ADR-188) --------------------------------------------------
+#
+# The third blind trial (ADR-187) put four operators on four science pages and
+# all four reported the same thing: `action_btn:N` indexes the whole page and
+# renumbers on every structural change, stable ids are published in the
+# snapshot, and no tool accepted one. So every selector argument now takes an
+# ADDRESS. The claims worth holding are that a published address resolves back
+# to the control that published it, that the door answers a name exactly as the
+# runner's find_control does -- two implementations of ADR-128's grammar, held
+# to each other rather than left to drift -- and that the stamp refuses instead
+# of resolving to whatever moved into an index.
+import harness_tasks as _T
+
+with sync_playwright() as pw:
+    b = pw.chromium.launch()
+    ctx = b.new_context(viewport=H.VIEWPORT)
+    ctx.set_offline(True)
+    ctx.add_init_script(H.STUBS)
+    pg = ctx.new_page()
+    docs = os.environ.get("CSRBT_DOCS_DIR") or os.path.join(_kit.ROOT, "docs")
+    try:
+        from swarm import SWARM_KINDS
+    except Exception:
+        SWARM_KINDS = None
+
+    def _form(a):
+        """an address, split the way the door splits it"""
+        if a.startswith("#"):
+            return "#", a[1:], None
+        if a.startswith("@"):
+            return "@", a[1:], None
+        sel, _, ver = a.partition("@")
+        return ":", sel, ver
+
+    stale_msg = named_no_raise = None
+    for page in ("collection-sheet.html", "stand-sheet.html", "pheno-tracker.html"):
+        pg.goto("file://" + os.path.join(docs, page).replace(os.sep, "/"), wait_until="domcontentloaded")
+        pg.wait_for_timeout(300)
+        plug = PP.PagePlugin(pg, page, kinds=SWARM_KINDS)
+        snap = plug.observe(sensitive=True)
+        rows = snap["controls"]
+
+        # 1. every published address resolves back to the control that published it
+        bad = []
+        for c in rows:
+            r = pg.evaluate(PP.RESOLVE, list(_form(c["address"])))
+            if not r.get("ok") or r["selector"] != c["selector"]:
+                bad.append((c["address"], c["selector"], r.get("why")))
+        ck(rows and not bad,
+           "%s: every one of its %d controls publishes an address that resolves back to itself -- a name that "
+           "did not work would be worse than no name at all: %s" % (page, len(rows), bad[:3]))
+
+        # 2. the door's answer IS the runner's answer, name for name
+        kd, dis, names = {"x": {"snapshot": snap}}, [], 0
+        sibs = {}
+        for c in rows:
+            if c["host"] and c["label"]:
+                sibs.setdefault((c["host"], c["label"]), []).append(c["selector"])
+        for c in rows:
+            scoped = (c["host"] + "/" + c["label"]) if c["host"] and c["label"] else None
+            # the nth-match form too: a label shared by every dial in a row is
+            # the case ADR-128 built "#n" for, and it is the case a mutation
+            # that drops the suffix would sail through if nobody asked for one
+            nth = ("%s#%d" % (scoped, sibs[(c["host"], c["label"])].index(c["selector"]))) if scoped else None
+            for nm in (c["id"], c["label"], scoped, nth):
+                if not nm:
+                    continue
+                try:
+                    want = _T.find_control(nm, kd, "f")
+                except Exception:
+                    continue
+                names += 1
+                got = pg.evaluate(PP.RESOLVE, ["@", nm, None])
+                if not got.get("ok") or got["selector"] != want:
+                    dis.append((nm, want, got.get("selector")))
+        ck(names > 40 and not dis,
+           "%s: the door resolves all %d of its names exactly as the runner's find_control does -- one grammar, two "
+           "implementations, held to each other: %s" % (page, names, dis[:3]))
+
+        # 3. the stamp
+        first = rows[0]
+        live = pg.evaluate(PP.RESOLVE, [":", first["selector"], snap["version"]])
+        dead = pg.evaluate(PP.RESOLVE, [":", first["selector"], "vnotnow"])
+        ck(live.get("ok") and live["selector"] == first["selector"]
+           and not dead.get("ok") and dead.get("why") == "stale"
+           and (dead.get("at") or {}).get("address") == first["address"],
+           "%s: a selector stamped with the snapshot it came from resolves, and one stamped with any other is "
+           "refused as stale and told what is at that index now: %s / %s" % (page, live, dead))
+
+        if page == "collection-sheet.html":
+            # 4. #id is the id and nothing else
+            lab = next((c for c in rows if c["label"] and not c["id"]
+                        and not any(x["id"] == c["label"] for x in rows)), None)
+            ck(lab is not None
+               and pg.evaluate(PP.RESOLVE, ["@", lab["label"], None]).get("ok")
+               and not pg.evaluate(PP.RESOLVE, ["#", lab["label"], None]).get("ok"),
+               "a name that is a label and no control's id answers to @ and not to # -- the two forms are not "
+               "synonyms, or an id would be whatever happened to be written on some other button: %r" % (lab or {}).get("label"))
+
+            # 5. the version moves exactly when the numbering could mean something else
+            v0 = plug.observe(sensitive=True)["version"]
+            plug.execute("set-text", {"selector": "#cName", "value": "Amanita muscaria"})
+            v1 = plug.observe(sensitive=True)["version"]
+            gen = next(c for c in rows if c["kind"] == "pick_search" and c["host"] == "genEntry")
+            plug.execute("set-text", {"selector": gen["address"], "value": "Amanit"})
+            v2 = plug.observe(sensitive=True)["version"]
+            ck(v0 == v1 and v1 != v2,
+               "typing a value leaves the numbering alone and filtering a picker -- which takes options out of the "
+               "document -- moves it: %s -> %s -> %s" % (v0, v1, v2))
+
+            # ...and the version is not "something changed", it is a stated
+            # digest over every selector AND id in document order. Ported here
+            # rather than observed, because a version that watched only the
+            # COUNT would pass every before/after check ever written and still
+            # let an index mean a different control.
+            def _digest(cs):
+                h, txt = 5381, ",".join(c["selector"] + "|" + (c["id"] or "") for c in cs)
+                for ch in txt:
+                    h = ((h * 33) & 0xFFFFFFFF) ^ ord(ch)
+                    h &= 0xFFFFFFFF
+                d, out = h, ""
+                while True:
+                    out = "0123456789abcdefghijklmnopqrstuvwxyz"[d % 36] + out
+                    d //= 36
+                    if not d:
+                        break
+                return "v" + out
+            fresh = plug.observe(sensitive=True)
+            ck(fresh["version"] == _digest(fresh["controls"]),
+               "and the version IS that digest, port for port: %s vs %s"
+               % (fresh["version"], _digest(fresh["controls"])))
+
+            # 6. a name that resolves to nothing is a typo, not a hazard
+            named_no_raise = (plug.risk_for("activate", {"selector": "@no such control here"}),
+                              plug.risk_for("activate", {"selector": "action_btn:999"}))
+            try:
+                plug.execute("activate", {"selector": "@no such control here"})
+                stale_msg = "not refused"
+            except HarnessError as e:
+                stale_msg = str(e)
+            ck(named_no_raise[0] is None and (named_no_raise[1] or [None])[0] == "DESTRUCTIVE"
+               and "no control answers to" in stale_msg,
+               "a NAME that names nothing is refused as not-found and is not raised, while an unresolvable "
+               "POSITIONAL selector is still held at DESTRUCTIVE (ADR-141) -- an index is the moment's and a name "
+               "is not: %s / %s" % (named_no_raise, stale_msg[:60]))
+
+            # 7. the manifest, and the pools
+            spec = next(a for a in plug.descriptor().actions if a.name == "set-text")
+            arg = next(x for x in spec.arguments if x.name == "selector")
+            good = ["text_in:3", "text_in:3@v1x7k", "#cName", "@working name", "@rCov/4", "@kind=drop_zone"]
+            bad2 = ["", "@", "#", "text_in", "text_in:3@v", "text_in:3@x1", "@bad\nname"]
+            import re as _re
+            rx = _re.compile(arg.pattern)
+            ck(all(rx.match(g) for g in good) and not any(rx.match(x) for x in bad2)
+               and all(rx.match(e) for e in arg.examples),
+               "the manifest's selector pattern takes every address form and nothing else, and its own examples "
+               "satisfy it: %s" % [g for g in good if not rx.match(g)])
+            live_n = [c for c in rows if c.get("commandable") and (c.get("visible") or c.get("pane"))]
+            ck(len(snap["argumentPools"].get("address") or []) == len(live_n) and live_n,
+               "the pools publish an address for every control they publish a selector for -- a pool that named "
+               "only indexes is what taught four operators to count buttons: %d of %d"
+               % (len(snap["argumentPools"].get("address") or []), len(live_n)))
+
+        if page == "stand-sheet.html":
+            # 8. a destructive control is destructive by either name
+            dest = (snap["argumentPools"].get("activate.destructive") or [])[:2]
+            same = [(plug.risk_for("activate", {"selector": d}),
+                     plug.risk_for("activate", {"selector": next(c["address"] for c in rows if c["selector"] == d)}))
+                    for d in dest]
+            ck(dest and all(a == b and a and a[0] == "DESTRUCTIVE" for a, b in same),
+               "a control named for removing something is held at DESTRUCTIVE through its address exactly as "
+               "through its index -- the raise reads the control, not the spelling: %s" % same[:1])
+            # 9. the runner's own spelling is accepted verbatim
+            byid = next(c for c in rows if c["id"])
+            try:
+                ok9, _, out9 = plug.execute("read-control", {"selector": "@control:" + byid["id"]})
+            except HarnessError as e:                      # a refusal is an answer, not a crash (ADR-180)
+                ok9, out9 = False, {"selector": str(e)[:80]}
+            ck(ok9 and out9["selector"] == byid["selector"],
+               "the door answers to the runner's own spelling, '@control:<name>', so a task's argument can be "
+               "pasted into a call by hand: %s" % out9.get("selector"))
+    # ---- the three cases no real page of this kit offers ---------------------
+    # An id that another control wears as a LABEL, a label repeated under one
+    # host, and a control with no name at all. The kit's own pages name
+    # everything, which is why these are built rather than found: an address
+    # scheme is only as good as what it does when the page will not help.
+    odd = os.path.join(tempfile.mkdtemp(), "odd.html")
+    io.open(odd, "w", encoding="utf-8").write(
+        u"""<!doctype html><html><head><meta charset="utf-8"><title>odd</title></head><body>
+        <button id="zzTarget">first</button>
+        <button>zzTarget</button>
+        <div id="zzHost"><button>dup</button><button>dup</button></div>
+        <button></button>
+        </body></html>""")
+    pg.goto("file://" + odd.replace(os.sep, "/"), wait_until="domcontentloaded")
+    pg.wait_for_timeout(150)
+    plug = PP.PagePlugin(pg, "odd.html", kinds=SWARM_KINDS)
+    snap = plug.observe(sensitive=True)
+    rows = snap["controls"]
+    by_label = dict((c["label"], c) for c in rows)
+    ck(pg.evaluate(PP.RESOLVE, ["@", "zzTarget", None]).get("selector") == by_label["first"]["selector"],
+       "a name that is one control's id and another's label is the ID's -- the order is id, then label, then host, "
+       "and a page that writes an id on a second button must not be able to steal a name: %s"
+       % pg.evaluate(PP.RESOLVE, ["@", "zzTarget", None]))
+    dups = [c for c in rows if c["label"] == "dup"]
+    ck(len(dups) == 2
+       and pg.evaluate(PP.RESOLVE, ["@", "zzHost/dup#1", None]).get("selector") == dups[1]["selector"]
+       and dups[1]["address"] == "@zzHost/dup#1",
+       "a label repeated under one host is reached by its number, and the second one publishes that as its address: %s"
+       % [c["address"] for c in dups])
+    blank = [c for c in rows if not c["id"] and not c["label"]]
+    ck(len(blank) == 1 and blank[0]["address"] == blank[0]["selector"] + "@" + snap["version"]
+       and pg.evaluate(PP.RESOLVE, list(_form(blank[0]["address"]))).get("selector") == blank[0]["selector"],
+       "and a control the page gives no name at all publishes its INDEX, stamped with this snapshot -- an address "
+       "that cannot be a name says so instead of being empty: %s" % [c["address"] for c in blank])
     ctx.close()
     b.close()
 

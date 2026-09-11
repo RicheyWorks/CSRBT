@@ -34,7 +34,7 @@ sys.path.insert(0, os.path.join(HERE, "verify"))
 import _kit
 import harness as H
 from harness_contract import (ActionSpec, ArgumentSpec, Plugin, PluginDescriptor,
-                              Conflict, Failed, InvalidArgument, NotFound, Unavailable)
+                              Conflict, Failed, HarnessError, InvalidArgument, NotFound, Unavailable)
 
 # Bytes the harness hands to a file input or a drop zone. Real files, made
 # here rather than read from disk, so a run reads nothing of the operator's
@@ -103,6 +103,22 @@ if _SESSION:
     FIXTURES["session"] = _SESSION
 
 SEL_RE = re.compile(r"^[a-z_]+:\d+$")
+# ADR-188: THE ADDRESS GRAMMAR. A selector is the moment's -- the third blind
+# trial watched four operators re-observe after every structural change and
+# compute button offsets by hand, and all four noticed that the snapshot
+# publishes a stable `id` no tool would accept. These are the forms every
+# selector argument now takes:
+#
+#     text_in:3            the moment's index, exactly as before
+#     text_in:3@v1x7k      the same, stamped with the snapshot it came from
+#     #cName               the page's own id
+#     @working name        the page's own name for it: id, label, host,
+#     @rCov/4              host/label, "#n" for the nth such, "kind=" for a
+#     @kind=drop_zone      control the page never named   (ADR-128's grammar)
+STAMP_RE = re.compile(r"^([a-z_]+:\d+)@(v[0-9a-z]{1,10})$")
+ADDR_RE = re.compile(r"^(?:[a-z_]+:\d+(?:@v[0-9a-z]{1,10})?"
+                     r"|#[A-Za-z][A-Za-z0-9_.:-]{0,63}"
+                     r"|@(?:control:)?[^\s\x00][^\r\n\x00]{0,95})$")
 
 # Which discovered kinds each action can act on -- the same knowledge the
 # swarm's DRIVER map holds (verify_contract pins that they agree), published
@@ -154,19 +170,123 @@ LABEL_FN = r"""
       e.getAttribute("title") || "").replace(/\s+/g, " ").trim().slice(0, 60);
 """
 
+ADDR_FN = r"""
+  /* ADR-188: a control's ADDRESS is a name the page owns; a selector is an
+     index the moment owns. This is the runner's find_control (ADR-128), over
+     the live DOM, plus the shortest address that resolves back to a control
+     and a version stamp for the numbering itself. Kept as one fragment so the
+     snapshot, the resolver and the risk read use the same arithmetic. */
+  const _rows = () => [...document.querySelectorAll("[data-h]")].map(e => ({
+    e: e, selector: e.getAttribute("data-h"),
+    kind: (e.getAttribute("data-h") || "").split(":")[0],
+    id: e.id || null,
+    host: (e.parentElement && e.parentElement.closest("[id]") || {}).id || null,
+    label: _label(e) }));
+  const _index = (rows) => {
+    const id = new Map(), label = new Map(), host = new Map(), hl = new Map(), kind = new Map();
+    const push = (m, k, r) => { if (k === null || k === undefined) return;
+                                if (!m.has(k)) m.set(k, []); m.get(k).push(r); };
+    for (const r of rows) {
+      if (!r.selector) continue;
+      push(id, r.id, r); push(label, r.label, r); push(host, r.host, r); push(kind, r.kind, r);
+      if (r.host !== null && r.label !== null) push(hl, r.host + "\u0001" + r.label, r);
+    }
+    return { id: id, label: label, host: host, hl: hl, kind: kind };
+  };
+  /* find_control's own order: id, then label, then host, first hit in document
+     order; "kind=" names a control the page never named; a trailing "#n" is the
+     nth match; a name that matches WHOLE is taken whole, so a label carrying a
+     slash is reachable unscoped (ADR-174). */
+  const _named = (name, idx) => {
+    let nth = 0;
+    const m = /^(.*)#(\d+)$/.exec(name);
+    if (m) { name = m[1]; nth = parseInt(m[2], 10); }
+    let hits = null;
+    if (name.indexOf("kind=") === 0) hits = idx.kind.get(name.slice(5)) || [];
+    else {
+      hits = idx.id.get(name) || idx.label.get(name) || idx.host.get(name) || null;
+      if (!hits && name.indexOf("/") >= 0) {
+        const i = name.indexOf("/");
+        hits = idx.hl.get(name.slice(0, i) + "\u0001" + name.slice(i + 1)) || null;
+      }
+      hits = hits || [];
+    }
+    return nth < hits.length ? hits[nth] : null;
+  };
+  const _byId = (name, idx) => (idx.id.get(name) || [])[0] || null;
+  /* The shortest address that RESOLVES BACK to this control. Every candidate is
+     tried through the resolver itself, so a label that happens to end in "#2",
+     or an id another control answers to first, falls through to the next form
+     rather than being published as a name that does not work. */
+  const _address = (r, idx, ver) => {
+    const cand = [];
+    if (r.id) cand.push("#" + r.id);
+    if (r.label) cand.push("@" + r.label);
+    if (r.host !== null && r.label !== null) {
+      const a = idx.hl.get(r.host + "\u0001" + r.label) || [], n = a.indexOf(r);
+      cand.push("@" + r.host + "/" + r.label);
+      if (n > 0) cand.push("@" + r.host + "/" + r.label + "#" + n);
+    }
+    if (r.label) {
+      const a = idx.label.get(r.label) || [], n = a.indexOf(r);
+      if (n > 0) cand.push("@" + r.label + "#" + n);
+    }
+    if (r.host) cand.push("@" + r.host);
+    for (const c of cand) {
+      if (/[\r\n]/.test(c) || c.length > 96) continue;
+      const got = c.charAt(0) === "#" ? _byId(c.slice(1), idx) : _named(c.slice(1), idx);
+      if (got === r) return c;
+    }
+    return r.selector + "@" + ver;
+  };
+  /* The numbering's own version: a digest of every selector and id in document
+     order, so it moves exactly when an index could mean a different control. */
+  const _version = (rows) => {
+    let h = 5381;
+    const s = rows.map(r => r.selector + "|" + (r.id || "")).join(",");
+    for (let i = 0; i < s.length; i++) h = (Math.imul(h, 33) ^ s.charCodeAt(i)) >>> 0;
+    return "v" + h.toString(36);
+  };
+"""
+
+# One address -> the selector of the moment, or why not (ADR-188).
+RESOLVE = "([form, name, stamp]) => {" + LABEL_FN + ADDR_FN + r"""
+  const rows = _rows(), idx = _index(rows), now = _version(rows);
+  const found = (hit) => ({ ok: true, selector: hit.selector, version: now,
+                            label: hit.label, address: _address(hit, idx, now) });
+  if (form === ":") {
+    const at = rows.filter(r => r.selector === name)[0] || null;
+    if (stamp !== now) {
+      return { ok: false, why: "stale", now: now, stamp: stamp,
+               at: at ? { label: at.label, address: _address(at, idx, now) } : null };
+    }
+    return at ? found(at) : { ok: false, why: "gone", now: now };
+  }
+  const hit = form === "#" ? _byId(name, idx) : _named(name, idx);
+  return hit ? found(hit) : { ok: false, why: "unnamed", now: now };
+}
+"""
+
+
 # Read where a user reads: one round trip, typed, and never a field's contents.
-CONTROLS = "() => {" + LABEL_FN + r"""
+CONTROLS = "() => {" + LABEL_FN + ADDR_FN + r"""
   const out = [];
-  document.querySelectorAll("[data-h]").forEach(e => {
+  const _rw = _rows(), _idx = _index(_rw), _ver = _version(_rw);
+  _rw.forEach(w => {
+    const e = w.e;
     const r = e.getBoundingClientRect(), s = getComputedStyle(e);
     out.push({
-      selector: e.getAttribute("data-h"),
-      kind: (e.getAttribute("data-h") || "").split(":")[0],
+      selector: w.selector,
+      kind: w.kind,
       // The page's own name for the control (ADR-128): a task says
       // "@control:cName" and is readable; the selector is the moment's.
-      id: e.id || null,
-      host: (e.parentElement && e.parentElement.closest("[id]") || {}).id || null,
-      label: _label(e),
+      id: w.id,
+      host: w.host,
+      label: w.label,
+      // ADR-188: the shortest address that resolves back to THIS control, and
+      // which every selector argument accepts. Published beside the selector,
+      // never instead of it, so a client that was reading indexes still is.
+      address: _address(w, _idx, _ver),
       pane: (e.closest(".pane") || {}).id || null,
       target: e.getAttribute("data-pane") || null,
       type: (e.getAttribute("type") || e.tagName).toLowerCase(),
@@ -206,6 +326,10 @@ CONTROLS = "() => {" + LABEL_FN + r"""
   });
   return { route: (document.querySelector(".pane.on") || {}).id || null,
            title: document.title,
+           // ADR-188: the numbering's own version. A selector carrying a
+           // different one is refused rather than resolved to whatever moved
+           // into that index.
+           version: _ver,
            optionValues: [...opts],
            optionChoices: choices,
            pickChoices: picks,
@@ -1020,7 +1144,7 @@ class PagePlugin(Plugin):
                 ActionSpec("set-text",
                            "Type a value into a text, number, date or textarea control.",
                            "DRAFT",
-                           [ArgumentSpec("selector", "string", "Control selector from a snapshot, e.g. text_in:3", required=True, pattern=SEL_RE.pattern, examples=["dial_btn:2", "text_in:7"]),
+                           [ArgumentSpec("selector", "string", "A control address: the snapshot's index (text_in:3), the page's id (#cName) or its name (@working name)", required=True, pattern=ADDR_RE.pattern, examples=["dial_btn:2", "#cName", "@working name"]),
                             ArgumentSpec("value", "string", "Value to enter.",
                                          required=True,
                                          examples=["12", "3.5", "Quercus alba", "2026-06-01"])]),
@@ -1033,25 +1157,25 @@ class PagePlugin(Plugin):
                            "badInput false, so a page that reports bad input has a "
                            "branch only this action can reach.",
                            "DRAFT",
-                           [ArgumentSpec("selector", "string", "Control selector from a snapshot, e.g. text_in:3", required=True, pattern=SEL_RE.pattern, examples=["dial_btn:2", "text_in:7"]),
+                           [ArgumentSpec("selector", "string", "A control address: the snapshot's index (text_in:3), the page's id (#cName) or its name (@working name)", required=True, pattern=ADDR_RE.pattern, examples=["dial_btn:2", "#cName", "@working name"]),
                             ArgumentSpec("value", "string", "Value to type.",
                                          required=True,
                                          examples=["12", "one hundred", "2026-06-01"])]),
                 ActionSpec("choose-option",
                            "Choose an option of a select box by value or visible label.",
                            "DRAFT",
-                           [ArgumentSpec("selector", "string", "Selector of a select.", required=True, pattern=SEL_RE.pattern, examples=["dial_btn:2", "text_in:7"]),
+                           [ArgumentSpec("selector", "string", "Selector of a select.", required=True, pattern=ADDR_RE.pattern, examples=["dial_btn:2", "#cName", "@working name"]),
                             ArgumentSpec("value", "string",
                                          "Option value or its visible text; the snapshot "
                                          "pool choose-option.value lists the page's; the "
                                          "set pool choose-option lists valid (selector, value) pairs.",
                                          required=True, examples=["1", "0"])]),
                 ActionSpec("set-slider", "Move a slider to a value.", "MUTATE",
-                           [ArgumentSpec("selector", "string", "Selector of a slider.", required=True, pattern=SEL_RE.pattern, examples=["dial_btn:2", "text_in:7"]),
+                           [ArgumentSpec("selector", "string", "Selector of a slider.", required=True, pattern=ADDR_RE.pattern, examples=["dial_btn:2", "#cName", "@working name"]),
                             ArgumentSpec("value", "number", "Value within min and max.",
                                          required=True, examples=[0, 1, 50])]),
                 ActionSpec("press-step", "Press a stepper's up or down arrow.", "MUTATE",
-                           [ArgumentSpec("selector", "string", "Selector of a stepper control.", required=True, pattern=SEL_RE.pattern, examples=["dial_btn:2", "text_in:7"]),
+                           [ArgumentSpec("selector", "string", "Selector of a stepper control.", required=True, pattern=ADDR_RE.pattern, examples=["dial_btn:2", "#cName", "@working name"]),
                             ArgumentSpec("direction", "string", "up or down",
                                          required=True, enum=["up", "down"])]),
                 ActionSpec("activate",
@@ -1067,7 +1191,7 @@ class PagePlugin(Plugin):
                            "a supervised session could fill a page and press "
                            "nothing.",
                            "MUTATE",
-                           [ArgumentSpec("selector", "string", "Control selector.", required=True, pattern=SEL_RE.pattern, examples=["dial_btn:2", "text_in:7"])],
+                           [ArgumentSpec("selector", "string", "Control selector.", required=True, pattern=ADDR_RE.pattern, examples=["dial_btn:2", "#cName", "@working name"])],
                            may_rise=True),
                 ActionSpec("pick",
                            "Choose a picker's option by the label a reader sees: type it "
@@ -1076,7 +1200,7 @@ class PagePlugin(Plugin):
                            "refused, not typed in blind.",
                            "DRAFT",
                            [ArgumentSpec("selector", "string", "Selector of a picker's search box.", required=True,
-                                         pattern=SEL_RE.pattern, examples=["pick_search:0"]),
+                                         pattern=ADDR_RE.pattern, examples=["pick_search:0", "@genEntry"]),
                             ArgumentSpec("value", "string", "The option's label, e.g. a genus.",
                                          required=True, examples=["Amanita", "Pinus contorta", "Quercus"])]),
                 ActionSpec("read-report",
@@ -1133,9 +1257,9 @@ class PagePlugin(Plugin):
                            "Read one control including its entered value, group "
                            "state, stepper number, slider position and picker rows.",
                            "SENSITIVE_READ",
-                           [ArgumentSpec("selector", "string", "Control selector.", required=True, pattern=SEL_RE.pattern, examples=["dial_btn:2", "text_in:7"])]),
+                           [ArgumentSpec("selector", "string", "Control selector.", required=True, pattern=ADDR_RE.pattern, examples=["dial_btn:2", "#cName", "@working name"])]),
                 ActionSpec("set-checkbox", "Tick or clear a checkbox.", "DRAFT",
-                           [ArgumentSpec("selector", "string", "Selector of a checkbox.", required=True, pattern=SEL_RE.pattern, examples=["dial_btn:2", "text_in:7"]),
+                           [ArgumentSpec("selector", "string", "Selector of a checkbox.", required=True, pattern=ADDR_RE.pattern, examples=["dial_btn:2", "#cName", "@working name"]),
                             ArgumentSpec("checked", "boolean", "Desired state.",
                                          required=True)]),
                 ActionSpec("attach-file",
@@ -1143,7 +1267,7 @@ class PagePlugin(Plugin):
                            "The bytes come from the caller, so nothing on the "
                            "operator's disk is read and no OS dialog opens.",
                            "DRAFT",
-                           [ArgumentSpec("selector", "string", "Selector of a file input.", required=True, pattern=SEL_RE.pattern, examples=["dial_btn:2", "text_in:7"]),
+                           [ArgumentSpec("selector", "string", "Selector of a file input.", required=True, pattern=ADDR_RE.pattern, examples=["dial_btn:2", "#cName", "@working name"]),
                             ArgumentSpec("files", "array",
                                          "Names of built-in fixture files: image, "
                                          "image2, png, pack, eco, csv, junk, video, "
@@ -1154,7 +1278,7 @@ class PagePlugin(Plugin):
                            "Drop files onto a drop zone, dispatching the same "
                            "dragenter, dragover and drop a hand would.",
                            "DRAFT",
-                           [ArgumentSpec("selector", "string", "Selector of a drop zone.", required=True, pattern=SEL_RE.pattern, examples=["dial_btn:2", "text_in:7"]),
+                           [ArgumentSpec("selector", "string", "Selector of a drop zone.", required=True, pattern=ADDR_RE.pattern, examples=["dial_btn:2", "#cName", "@working name"]),
                             ArgumentSpec("files", "array", "Fixture file names.",
                                          required=True, items="string",
                                          enum=sorted(FIXTURES), examples=["image", "csv"])]),
@@ -1241,6 +1365,12 @@ class PagePlugin(Plugin):
         # them: the client is told, before spending a call, which buttons are
         # the ones that remove work. A pool that merely omitted them would
         # leave a caller to discover the rung by being refused.
+        # ADR-188: and the stable address of every one of them. A pool that
+        # published only indexes is what taught four blind operators to
+        # recompute offsets by hand; these do not move when the page rebuilds.
+        # Keyed "address" rather than "<action>.selector" because it is not a
+        # second pool to choose a call from -- it is the same controls, named.
+        pools["address"] = [c["address"] for c in live if c.get("address")]
         pools["activate.destructive"] = [
             c["selector"] for c in live
             if c["kind"] in POOL_KINDS["activate"] and destroys(c.get("label"))]
@@ -1301,6 +1431,52 @@ class PagePlugin(Plugin):
         except Exception:
             pass
 
+    def _resolve(self, sel):
+        """ADR-188: an address -> the selector of the moment, or a refusal.
+
+        A PLAIN POSITIONAL SELECTOR IS PASSED THROUGH UNTOUCHED. It is what
+        every client wrote before this slice and what the pools still publish
+        first; `_reach` already answers one the page has moved past with the
+        numbering it has now, and that answer is not improved by being given
+        twice. Only the three forms this slice added are resolved here: a
+        stamped positional, an id, and a name."""
+        if not isinstance(sel, str):
+            return sel
+        if sel.startswith("#"):
+            form, name, stamp = "#", sel[1:], None
+        elif sel.startswith("@"):
+            name = sel[1:]
+            if name.startswith("control:"):        # the runner's own spelling, accepted verbatim
+                name = name[len("control:"):]
+            form, stamp = "@", None
+        else:
+            m = STAMP_RE.match(sel)
+            if not m:
+                return sel
+            form, name, stamp = ":", m.group(1), m.group(2)
+        try:
+            r = self.page.evaluate(RESOLVE, [form, name, stamp])
+        except Exception as e:
+            raise Unavailable("page not readable: %s" % str(e)[:120])
+        if r.get("ok"):
+            return r["selector"]
+        if r.get("why") == "stale":
+            at = r.get("at") or None
+            raise NotFound(
+                "%s is stale: it names the numbering of snapshot %s and this page is at %s. %s "
+                "Address a control by the page's own name instead -- every control in a snapshot "
+                "carries one, and a name does not move when the page rebuilds."
+                % (sel, stamp, r.get("now"),
+                   ("%s is %r (%s) now." % (name, at.get("label") or "", at.get("address"))) if at
+                   else "Nothing is at %s now." % name))
+        if r.get("why") == "gone":
+            raise NotFound("%s named the right numbering but there is no %s on the page now" % (sel, name))
+        raise NotFound(
+            "no control answers to %r on this page right now. An address is the page's own name for "
+            "a control: an id (#cName), a label (@working name), a label under its host (@rCov/4, "
+            "@iList/died#2), or a kind for a control the page never named (@kind=drop_zone). Every "
+            "control in a snapshot publishes one, and they are pooled as \"address\"." % sel)
+
     def risk_for(self, action, args):
         """ADR-141: the risk of THIS activation, read off the live page.
 
@@ -1324,6 +1500,18 @@ class PagePlugin(Plugin):
         if action != "activate":
             return None
         sel = args.get("selector")
+        try:
+            # ADR-188: an ADDRESS is resolved before the read, or every stable
+            # name would arrive here as "resolves to nothing" and be raised to
+            # DESTRUCTIVE -- the door refusing the very thing it now accepts.
+            # And an address that names nothing is NOT raised: the rule above
+            # is about a POSITIONAL selector, which is the moment's and which
+            # the trial watched delete a stem while answering ok. A name is not
+            # the moment's, so a name that resolves to nothing is a typo, and
+            # `execute` says so as a not-found.
+            sel = self._resolve(sel)
+        except HarnessError:
+            return None
         try:
             info = self.page.evaluate(IDENTIFY, sel)
         except Exception as e:
@@ -1399,9 +1587,17 @@ class PagePlugin(Plugin):
                 len(r["figures"]), len(r["boxes"]), len(r["rows"]), len(r["tables"]), len(r["headings"])), r
 
         sel = args.get("selector")
-        if sel is not None and not SEL_RE.match(sel):
-            raise InvalidArgument("selector must be kind:index as published by a "
-                                  "snapshot, e.g. dial_btn:2")
+        if sel is not None:
+            if not ADDR_RE.match(sel):
+                raise InvalidArgument(
+                    "selector must be a control address: kind:index as a snapshot publishes it "
+                    "(dial_btn:2), that stamped with the snapshot's version (dial_btn:2@v1x7k), "
+                    "the page's own id (#cName), or the page's own name for it (@working name, "
+                    "@rCov/4, @iList/died#2, @kind=drop_zone)")
+            # The caller's own spelling stays in the request the trace records;
+            # everything downstream works on the selector it resolved to.
+            args = dict(args)
+            args["selector"] = sel = self._resolve(sel)
 
         if action == "set-clock":
             at = args.get("at")

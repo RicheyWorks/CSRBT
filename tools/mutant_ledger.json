@@ -1916,12 +1916,12 @@
    "survived": 0
   },
   "mutate_report": {
-   "at": 1789029777,
+   "at": 1789100611,
    "equivalent": 0,
    "equivalents": [],
    "inconclusive": 0,
-   "killed": 75,
-   "mutants": 75,
+   "killed": 89,
+   "mutants": 89,
    "rows": [
     {
      "detail": "7 failure(s); first: a .tile and a .stat .st are both figures: the .l/.v pair is",
@@ -2296,6 +2296,76 @@
     {
      "detail": "1 failure(s); first: a Blob download is captured with its filename and its bytes",
      "name": "a download leaves no payload, so a page whose product is a file says nothing",
+     "verdict": "killed"
+    },
+    {
+     "detail": "4 failure(s); first: collection-sheet.html: every one of its 307 controls publis",
+     "name": "a published address is not checked against the resolver that has to accept it",
+     "verdict": "killed"
+    },
+    {
+     "detail": "1 failure(s); first: and a control the page gives no name at all publishes its I",
+     "name": "the address falls back to nothing when no name fits",
+     "verdict": "killed"
+    },
+    {
+     "detail": "1 failure(s); first: a name that is one control's id and another's label is the ",
+     "name": "a name is looked up by label before id",
+     "verdict": "killed"
+    },
+    {
+     "detail": "4 failure(s); first: collection-sheet.html: the door resolves all 870 of its nam",
+     "name": "a trailing #n is part of the name",
+     "verdict": "killed"
+    },
+    {
+     "detail": "3 failure(s); first: collection-sheet.html: the door resolves all 870 of its nam",
+     "name": "a scoped name splits on the LAST slash",
+     "verdict": "killed"
+    },
+    {
+     "detail": "1 failure(s); first: and the version IS that digest, port for port: v374djl vs v",
+     "name": "the version ignores the ids and watches only the count",
+     "verdict": "killed"
+    },
+    {
+     "detail": "3 failure(s); first: collection-sheet.html: a selector stamped with the snapshot",
+     "name": "a stamp from another snapshot is resolved anyway",
+     "verdict": "killed"
+    },
+    {
+     "detail": "3 failure(s); first: collection-sheet.html: a selector stamped with the snapshot",
+     "name": "the stale refusal does not say what is at that index now",
+     "verdict": "killed"
+    },
+    {
+     "detail": "1 failure(s); first: a name that is a label and no control's id answers to @ and",
+     "name": "# is a synonym for @",
+     "verdict": "killed"
+    },
+    {
+     "detail": "2 failure(s); first: a NAME that names nothing is refused as not-found and is no",
+     "name": "an address is resolved for the act but not for the risk read",
+     "verdict": "killed"
+    },
+    {
+     "detail": "1 failure(s); first: a NAME that names nothing is refused as not-found and is no",
+     "name": "a name that names nothing is held at DESTRUCTIVE like a stale index",
+     "verdict": "killed"
+    },
+    {
+     "detail": "1 failure(s); first: the pools publish an address for every control they publish",
+     "name": "the pools publish the selectors and not the addresses",
+     "verdict": "killed"
+    },
+    {
+     "detail": "1 failure(s); first: the manifest's selector pattern takes every address form an",
+     "name": "the manifest still advertises the old index-only pattern",
+     "verdict": "killed"
+    },
+    {
+     "detail": "1 failure(s); first: the door answers to the runner's own spelling, '@control:<n",
+     "name": "the runner's own spelling is taken as a label",
      "verdict": "killed"
     }
    ],
