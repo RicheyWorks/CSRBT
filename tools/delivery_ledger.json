@@ -940,10 +940,15 @@
    "by": "adr186",
    "sha": "d2eda0be6b09bba30ac5b2f00de97af7d27f2bb8271b962d2d63d404d2cdd900"
   },
+  "docs/ADR-187-outcomes-not-routes-2026-09-11.md": {
+   "at": 1789088328,
+   "by": "adr187",
+   "sha": "3e5e39a9a72fab77eb9c55d275fc4bc6b4db41ffcc22db4a2771cb2359af4c10"
+  },
   "docs/AI_HARNESS.md": {
-   "at": 1789082976,
-   "by": "adr186",
-   "sha": "173f8ab8405f6b935d5868a8452fc86ee75553d4bc31b05b725a192892a78895"
+   "at": 1789088328,
+   "by": "adr187",
+   "sha": "098448aae3c5d7320f7816cc9a83dc8a25147f72d43d0090daeb0fb0161c4c6d"
   },
   "docs/AUDIT-2026-07-14-capability-coverage.md": {
    "at": 1788676922,
@@ -1820,6 +1825,11 @@
    "by": "adr186",
    "sha": "800ae8e591d9be76996f63783ddba08c1dc451e7f56a165d2fb24a7d625ac303"
   },
+  "docs/CHANGELOG-2026-09-11-adr187-outcomes-not-routes.md": {
+   "at": 1789088328,
+   "by": "adr187",
+   "sha": "a16749ef4309ef224b1ae5b1a06eb62a3153162e9282912c6cf2ffc315f4728a"
+  },
   "docs/DESIGN-adaptive-engine.md": {
    "at": 1788676923,
    "by": "adr146b",
@@ -1869,6 +1879,11 @@
    "at": 1788676923,
    "by": "adr146b",
    "sha": "1be467a598a89464e829e6156418ebd66230cfd56b7d4ef9a7edf6f2b607dd05"
+  },
+  "docs/PLAN-operator-api-2026-09-11.md": {
+   "at": 1789088328,
+   "by": "adr187",
+   "sha": "0ebe55ef8f1d2e71163238d60a5467b132b9a8d9fafa6c24be5f08b3d6668fea"
   },
   "docs/PLAN-two-weeks-2026-09-03.md": {
    "at": 1788676923,
@@ -2466,9 +2481,9 @@
    "sha": "87a75cf8e4e4a93070153679fbaba41272105d2027a9233e517ff608cf275251"
   },
   "tools/badinput_ledger.json": {
-   "at": 1789082976,
-   "by": "adr186",
-   "sha": "4e3fc91cf6123851b13ede5e3426e023d7d090c6c01a478a0ebc9a9e5cbee1c1"
+   "at": 1789088328,
+   "by": "adr187",
+   "sha": "19eba6f5821da2b7083acc380ba546b5d91b85e95d07535e88b3b5e8795fc045"
   },
   "tools/blind_console.py": {
    "at": 1788676925,
@@ -2690,10 +2705,15 @@
    "by": "adr186",
    "sha": "716a9f738bd1d9ab082279eb3484d994124bec5361cf4a8cc1641fda06311117"
   },
+  "tools/delivery/adr187.json": {
+   "at": 1789088328,
+   "by": "adr187",
+   "sha": "625a8dff5d0f3c6988011505917e2833261f46505778b92ed2637bbc53d441ab"
+  },
   "tools/delivery_ledger.json": {
-   "at": 1789082976,
-   "by": "adr186",
-   "sha": "ecb5df42d201c454d5e55ab1182a8ea962d89a90b3acfc71c7c9ebd56e6acbad"
+   "at": 1789088328,
+   "by": "adr187",
+   "sha": "fd1a1015cad5397673f80c3a6b7b5fdc8db0e30ee5499f7b7470ddfeb4a68e99"
   },
   "tools/dwc.py": {
    "at": 1788676926,
@@ -2736,9 +2756,9 @@
    "sha": "01919e137bdbf702ebc887de41aa026b721916da9d3761ce673812d54a22471f"
   },
   "tools/entry_ledger.json": {
-   "at": 1789082976,
-   "by": "adr186",
-   "sha": "7fab1b05ddfcb2a6c1dd0216a7c0a6760a61b740788353388008a45a44fe3a0f"
+   "at": 1789088328,
+   "by": "adr187",
+   "sha": "0d0fcde5d075001a2a1a6110bbd05a2f5fbffd6e3011e7bf3d16c862ce298eb7"
   },
   "tools/entry_reach.py": {
    "at": 1788676926,
@@ -2791,9 +2811,9 @@
    "sha": "1d5e5bb0fadf4abb88d56125483a66e1bc2367055c7b541aa9d800c6dddde9dc"
   },
   "tools/harness_board.html": {
-   "at": 1789082976,
-   "by": "adr186",
-   "sha": "22eec2a695fc269ed4e6568b34014500515e64e70b0d1253dedf8759bedfa26c"
+   "at": 1789088328,
+   "by": "adr187",
+   "sha": "24c9a43a7e5ef36e78420ffad48d2d35cb879424f361eaae4353e4ed2e3be388"
   },
   "tools/harness_board.py": {
    "at": 1788783742,
@@ -2851,9 +2871,9 @@
    "sha": "374e42feeff7f7518edc791650216fafbaf052d8e1f4323d4a388b1abc422c3d"
   },
   "tools/harness_tasks.py": {
-   "at": 1788983626,
-   "by": "adr174",
-   "sha": "e45658d1af11272697539e40cd4a8f571f350039c11299cb7bc42d51039a7042"
+   "at": 1789088328,
+   "by": "adr187",
+   "sha": "2c237f160b2627b6b3b631b1217f161436f7e458d963bf85585aca68470f5f87"
   },
   "tools/harness_walk.py": {
    "at": 1788676926,
@@ -2876,9 +2896,9 @@
    "sha": "f48304b6ba757326d34ace4d678db5c671db42e5fd99bb369a0d311b292c79a3"
   },
   "tools/mutant_ledger.json": {
-   "at": 1789038486,
-   "by": "adr184",
-   "sha": "9f418814b04f901d90a539ad9b5dbc1569e19f3fb60540ad491f0e7c3eb1458f"
+   "at": 1789088328,
+   "by": "adr187",
+   "sha": "43b3e2216a88cf62c51845de0ab3f3107131dee0364c328a74e032d44771690e"
   },
   "tools/mutant_ledger.py": {
    "at": 1788676926,
@@ -2966,9 +2986,9 @@
    "sha": "9b1a79ec17fcadc72b907b8b9bcf0b7230402b30cd8f9021ca47c7cf2dd9c760"
   },
   "tools/mutate_tasks.py": {
-   "at": 1788983626,
-   "by": "adr174",
-   "sha": "1a010ad0580f2c0b96f93d99e3ba1036c6d8add004e60e71580ddb9406c111dc"
+   "at": 1789088328,
+   "by": "adr187",
+   "sha": "19ea34fe3c4d3188350c78ba926a06bf14187ce8a7f4791d06580dfe4148922f"
   },
   "tools/mutate_walk.py": {
    "at": 1788676927,
@@ -2996,9 +3016,9 @@
    "sha": "172e699a8abda0fb0fe773b9204e652001fac70b769e1082739097b699c28db0"
   },
   "tools/outputs_ledger.json": {
-   "at": 1789082976,
-   "by": "adr186",
-   "sha": "12d7541c6841caba5090e16e65187e973d1b916a8b50c22101e2ed4d522d1440"
+   "at": 1789088328,
+   "by": "adr187",
+   "sha": "15b30e4517a92be5e3ba8545bb635560968be0ed26bf74dc42865f1924945063"
   },
   "tools/probe.py": {
    "at": 1788676927,
@@ -3031,9 +3051,9 @@
    "sha": "15022dcd97ee97f72ec5f907d0cdfef3ee36da9588f9de47e110519ff9f781e8"
   },
   "tools/published.json": {
-   "at": 1789082976,
-   "by": "adr186",
-   "sha": "e3109742c223b5242ee23c326c3989e07cd77fa52dc05ad2ec578ef97fc11e2a"
+   "at": 1789088328,
+   "by": "adr187",
+   "sha": "f5ede2cddf965d8fa3bd2007d523759ac4f4a8e8cdd93e6ee999ff33b89718fd"
   },
   "tools/reach.py": {
    "at": 1788676928,
@@ -3041,9 +3061,9 @@
    "sha": "b176e4e078bd39b22f5056223c6d1949503ff69c2f029a02d3513a7607db39cb"
   },
   "tools/readable_ledger.json": {
-   "at": 1789082976,
-   "by": "adr186",
-   "sha": "a6fa057e6efe66c6085830eba5a757224ebde4f03e7d24c586d98dd168fafc2c"
+   "at": 1789088328,
+   "by": "adr187",
+   "sha": "1543d2e660934ba0288f2e353a3ceacf028cc2e6c841db96ae65f4af752114bd"
   },
   "tools/routes.json": {
    "at": 1788676928,
@@ -3076,8 +3096,8 @@
    "sha": "0a2241a252fa68e80b813e601b7bd67cd8ba5c00b8ad07acc98dcd93a42b0268"
   },
   "tools/task_ledger.json": {
-   "at": 1789082976,
-   "by": "adr186",
+   "at": 1789088300,
+   "by": "adr187",
    "sha": "436f1ad5930c5095806b6a99483d869f9f62bfc6df459c86c9aa3a5744c1d964"
   },
   "tools/tasks/fixture-buckets.json": {
@@ -3360,6 +3380,31 @@
    "by": "adr146b",
    "sha": "59e109c3e67b8f4da9161d4abd32c7dfe1e3000df8066a4af02dde0aca21250a"
   },
+  "tools/traces/blind3/PROVENANCE.md": {
+   "at": 1789088328,
+   "by": "adr187",
+   "sha": "c8d7334f4bb94476afc28b60da31ef868f00e9df0f8bbbe101a7eb801f22e1d3"
+  },
+  "tools/traces/blind3/page-breeding-bench-science.jsonl.gz": {
+   "at": 1789088328,
+   "by": "adr187",
+   "sha": "7bcaa90284b4f9c55713ed16e763330607e311342e88bde3ae6d00a7e93f7578"
+  },
+  "tools/traces/blind3/page-collection-sheet-science.jsonl.gz": {
+   "at": 1789088328,
+   "by": "adr187",
+   "sha": "77b306ee5ac64caefb14cfb67ce83a8807e0834587e322810511a7acf35832d8"
+  },
+  "tools/traces/blind3/page-pheno-tracker-science.jsonl.gz": {
+   "at": 1789088328,
+   "by": "adr187",
+   "sha": "3c27d1d66b85968493469e9253401fc8b8b07c446ef393a792b15508244dddfc"
+  },
+  "tools/traces/blind3/page-stand-sheet-science.jsonl.gz": {
+   "at": 1789088328,
+   "by": "adr187",
+   "sha": "645b3bb8979975aa91adc3a89af8b1f55c7abe6e1502520e2a6ddd230d3a14f5"
+  },
   "tools/verify/README.md": {
    "at": 1788676929,
    "by": "adr146b",
@@ -3381,9 +3426,9 @@
    "sha": "b5a35ba0a1cdc46ec58d68e733a4d59aef5c26fe1ccf964894107a9be47e6ae6"
   },
   "tools/verify/counts.json": {
-   "at": 1789082976,
-   "by": "adr186",
-   "sha": "9ef125dce748acc322447f1e8ac1100d51175838da8d87e2baca3f2791464025"
+   "at": 1789088328,
+   "by": "adr187",
+   "sha": "99a042b80728061f3084c63f02942efcbda23a9e80980ef1a8cafe1aa7ec4c94"
   },
   "tools/verify/run_all.py": {
    "at": 1788783742,
@@ -3746,9 +3791,9 @@
    "sha": "c29a8a4b4bbbba217f4e0c7b9bed82d0d6e65957f930508ded392502387b0b39"
   },
   "tools/verify/verify_tasks.py": {
-   "at": 1788983626,
-   "by": "adr174",
-   "sha": "681f9d64460695cf4998879790a2ec272a3e151b2727ade6e8d87378afcb922b"
+   "at": 1789088328,
+   "by": "adr187",
+   "sha": "ad2da286b0d1523906130362faf4ee0757c0cbe326a69aeac51783a5c8d24960"
   },
   "tools/verify/verify_tie_render.py": {
    "at": 1788676930,

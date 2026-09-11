@@ -2302,20 +2302,20 @@
    "survived": 0
   },
   "mutate_tasks": {
-   "at": 1788981501,
+   "at": 1789085651,
    "equivalent": 0,
    "equivalents": [],
    "inconclusive": 0,
-   "killed": 67,
-   "mutants": 67,
+   "killed": 73,
+   "mutants": 73,
    "rows": [
     {
-     "detail": "4 failure(s); first: every operator grades, a reference grades as its value, a m",
+     "detail": "6 failure(s); first: every operator grades, a reference grades as its value, a m",
      "name": "every expectation is CONFIRMED",
      "verdict": "killed"
     },
     {
-     "detail": "7 failure(s); first: every operator grades, a reference grades as its value, a m",
+     "detail": "8 failure(s); first: every operator grades, a reference grades as its value, a m",
      "name": "an operator expectation is always CONFIRMED",
      "verdict": "killed"
     },
@@ -2325,7 +2325,7 @@
      "verdict": "killed"
     },
     {
-     "detail": "3 failure(s); first: excludes CONFIRMS when the value is not in the string or th",
+     "detail": "4 failure(s); first: excludes CONFIRMS when the value is not in the string or th",
      "name": "excludes reads the wrong way round",
      "verdict": "killed"
     },
@@ -2340,12 +2340,12 @@
      "verdict": "killed"
     },
     {
-     "detail": "6 failure(s); first: an op the grader does not know is the TASK's DEFECT, not a ",
+     "detail": "4 failure(s); first: an op the grader does not know is the TASK's DEFECT, not a ",
      "name": "the loader and the grader keep separate op tables",
      "verdict": "killed"
     },
     {
-     "detail": "1 failure(s); first: a trailing #n labels a second claim about the same path, gr",
+     "detail": "5 failure(s); first: a trailing #n labels a second claim about the same path, gr",
      "name": "a trailing #n is part of the path",
      "verdict": "killed"
     },
@@ -2475,7 +2475,7 @@
      "verdict": "killed"
     },
     {
-     "detail": "1 failure(s); first: order is order: a required put after the count has no ok:tr",
+     "detail": "2 failure(s); first: order is order: a required put after the count has no ok:tr",
      "name": "order is not order: a required step may match an earlier call",
      "verdict": "killed"
     },
@@ -2490,7 +2490,7 @@
      "verdict": "killed"
     },
     {
-     "detail": "6 failure(s); first: a step no call satisfies is UNMET and fails the task: no ca",
+     "detail": "10 failure(s); first: a step no call satisfies is UNMET and fails the task: no c",
      "name": "an UNMET required step does not fail the trace",
      "verdict": "killed"
     },
@@ -2555,7 +2555,7 @@
      "verdict": "killed"
     },
     {
-     "detail": "7 failure(s); first: a failure the step did not ask for never satisfies it, even",
+     "detail": "8 failure(s); first: a failure the step did not ask for never satisfies it, even",
      "name": "the licence is not observe's alone: any step is met by any response with a snapshot",
      "verdict": "killed"
     },
@@ -2642,6 +2642,36 @@
     {
      "detail": "1 failure(s); first: a task whose step reads the REFUSED step's snapshot holds: ",
      "name": "a refused step leaves the runner looking at the page as it was before",
+     "verdict": "killed"
+    },
+    {
+     "detail": "4 failure(s); first: a task's outcomes are its reading steps that claim somethin",
+     "name": "an entry step counts as an outcome",
+     "verdict": "killed"
+    },
+    {
+     "detail": "5 failure(s); first: outcomes are matched in any order (c before a), each by the",
+     "name": "an outcome is only matched in the task's order",
+     "verdict": "killed"
+    },
+    {
+     "detail": "6 failure(s); first: outcomes are matched in any order (c before a), each by the",
+     "name": "partial credit is dropped",
+     "verdict": "killed"
+    },
+    {
+     "detail": "1 failure(s); first: a later call that confirms both figures reaches the outcome",
+     "name": "an empty trace passes",
+     "verdict": "killed"
+    },
+    {
+     "detail": "1 failure(s); first: --grade-trace DIR --outcomes grades every trace in the dire",
+     "name": "the outcome grade is written to the ledger",
+     "verdict": "killed"
+    },
+    {
+     "detail": "5 failure(s); first: page-breeding-bench-science: a blind operator who never saw",
+     "name": "a gzipped trace is read as empty",
      "verdict": "killed"
     }
    ],

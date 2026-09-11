@@ -318,6 +318,34 @@ MUTANTS += [
      "the refusal carries one"),
 ]
 
+MUTANTS += [
+    # ---- ADR-187: outcomes, not routes ----
+    ("an entry step counts as an outcome",
+     '        if not (s["action"].startswith("read-") or s["action"] in ("collect-output", "observe")):\n            continue',
+     "        pass",
+     "entry steps and a bare read-page are not"),
+    ("an outcome is only matched in the task's order",
+     "        for i, e in enumerate(trace):\n            if e.get(\"action\") != s[\"action\"]",
+     "        for i, e in enumerate(trace[len(rows):]):\n            if e.get(\"action\") != s[\"action\"]",
+     "matched in any order"),
+    ("partial credit is dropped",
+     '        rows.append({"id": s["id"], "action": s["action"], "claims": len(claims), "confirmed": best,',
+     '        best = best if best == len(claims) else 0\n        rows.append({"id": s["id"], "action": s["action"], "claims": len(claims), "confirmed": best,',
+     "partial credit"),
+    ("an empty trace passes",
+     '            "verdict": "PASS" if rows and all(r["reached"] for r in rows) else',
+     '            "verdict": "PASS" if all(r["reached"] for r in rows) else',
+     "is FAIL not PASS"),
+    ("the outcome grade is written to the ledger",
+     "            rc = rc or (0 if res[\"verdict\"] == \"PASS\" else 1)\n        return rc",
+     "            rc = rc or (0 if res[\"verdict\"] == \"PASS\" else 1)\n            merge_ledger({task[\"id\"] + \"@outcomes\": res})\n        return rc",
+     "writes nothing to the ledger"),
+    ("a gzipped trace is read as empty",
+     '    fh = gzip.open(path, "rt", encoding="utf-8") if path.endswith(".gz") else io.open(path, encoding="utf-8")',
+     '    fh = [] if path.endswith(".gz") else io.open(path, encoding="utf-8")',
+     "reached"),
+]
+
 KNOWN_EQUIVALENT = []
 
 

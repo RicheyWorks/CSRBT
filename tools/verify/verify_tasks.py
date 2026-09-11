@@ -680,6 +680,82 @@ if os.path.isfile(led):
                for e in blind.values()),
        "the ledger carries every blind grade beside the sighted one, each marked blind: %s" % sorted(blind))
 
+# ---- F3. the third blind trial: outcomes, not routes (ADR-187) --------------
+#
+# ADR-141's trial could not press a button. This one, under the door as it
+# stands, put four fresh operators on four science pages -- stand sheet,
+# collection sheet, pheno tracker, breeding bench -- with the goal sentence
+# verbatim and nothing else, and every one of them reported reaching every
+# figure the goal names. Graded as a TRACE they are UNMET at the first step:
+# a science task is a script, every step required in the author's order with
+# the author's arguments. So the grader gained a second question: of the
+# things the task reads the page to say, how many did this operator's trace
+# reach, by any route? That is grade_outcomes, and the numbers below are what
+# it measured on 2026-09-10. They are floors: a widened goal or a better door
+# may raise them, and a change to the grader that lowers one is a regression.
+BLIND3 = os.path.join(T.TRACES_DIR, "blind3")
+b3 = sorted(glob.glob(os.path.join(BLIND3, "*.jsonl.gz")))
+ck(len(b3) == 4 and {os.path.basename(f).split(".")[0] for f in b3} ==
+   {"page-stand-sheet-science", "page-collection-sheet-science", "page-pheno-tracker-science", "page-breeding-bench-science"},
+   "the third trial's four traces, gzipped, one per science page it was pointed at: %s" % [os.path.basename(f) for f in b3])
+p3 = os.path.join(BLIND3, "PROVENANCE.md")
+t3 = io.open(p3, encoding="utf-8").read() if os.path.isfile(p3) else ""
+ck("verbatim" in t3 and "DESTRUCTIVE" in t3 and "attempt" in t3 and "outcomes" in t3 and len(t3) > 2500,
+   "the third trial carries a provenance: the conditions verbatim, the rungs, how many attempts each operator took, "
+   "and what the outcome grade means")
+# the grader itself, on a fixture: order-free, partial credit, a reference claim unreachable, entry steps ignored
+_ft = {"id": "fx", "target": "page", "goal": "g", "steps": [
+    {"id": "e1", "action": "set-text", "arguments": {"selector": "text_in:1", "value": "3"}, "expect": {"ok": True, "output.value": "3"}},
+    {"id": "r1", "action": "read-report", "expect": {"ok": True, "output.figures.a": "1", "output.figures.b": "2"}},
+    {"id": "r2", "action": "read-report", "expect": {"output.figures.c": "3"}},
+    {"id": "r3", "action": "read-control", "expect": {"output.value": "9"}},
+    {"id": "r4", "action": "read-report", "expect": {"output.figures.a": {"op": "==", "value": "$r1.output.figures.a"}}},
+    {"id": "r5", "action": "read-page", "expect": {"ok": True}}]}
+_rr = lambda fig: {"action": "read-report", "arguments": {}, "response": {"ok": True, "output": {"figures": fig}}}
+_tr = [_rr({"c": "3"}), {"action": "read-control", "arguments": {}, "response": {"ok": True, "output": {"value": "9"}}},
+       _rr({"a": "1", "b": "5"}), {"action": "set-text", "arguments": {}, "response": {"ok": True, "output": {}}}]
+_g = T.grade_outcomes(_ft, _tr)
+ck([x[0]["id"] for x in T.outcomes_of(_ft)] == ["r1", "r2", "r3", "r4"],
+   "a task's outcomes are its reading steps that claim something beyond ok -- entry steps and a bare read-page are not: %s"
+   % [x[0]["id"] for x in T.outcomes_of(_ft)])
+ck(_g["outcomes"] == 4 and _g["reached"] == 2 and _g["claims"] == 5 and _g["confirmed"] == 3 and _g["verdict"] == "PARTIAL",
+   "outcomes are matched in any order (c before a), each by the call that confirms most of its claims, with partial "
+   "credit for a readout that got one of two figures, and a claim that refers to another step is unreachable: %s"
+   % {k: _g[k] for k in ("outcomes", "reached", "claims", "confirmed", "verdict")})
+_by = {r["id"]: r for r in _g["steps"]}
+ck(_by["r2"]["call"] == 0 and _by["r3"]["call"] == 1 and _by["r1"]["call"] == 2 and _by["r1"]["confirmed"] == 1
+   and not _by["r1"]["reached"] and _by["r4"]["call"] is None and _by["r4"]["confirmed"] == 0,
+   "...and says which call reached each: %s" % {k: (v["call"], v["confirmed"]) for k, v in _by.items()})
+ck(T.grade_outcomes(_ft, _tr + [_rr({"a": "1", "b": "2"})])["reached"] == 3
+   and T.grade_outcomes(_ft, [])["verdict"] == "FAIL" and T.grade_outcomes({"id": "z", "target": "page", "goal": "", "steps": []}, _tr)["verdict"] == "FAIL",
+   "a later call that confirms both figures reaches the outcome; an empty trace, or a task with no outcomes, is FAIL not PASS")
+# the four traces, held at the floors they measured
+FLOORS = {"page-stand-sheet-science": (30, 57, 88, 125), "page-collection-sheet-science": (5, 21, 26, 45),
+          "page-pheno-tracker-science": (8, 12, 21, 32), "page-breeding-bench-science": (10, 22, 34, 58)}
+for f in b3:
+    tid = os.path.basename(f).split(".")[0]
+    g3 = T.grade_outcomes(by[tid], T.load_trace(f))
+    lo = FLOORS[tid]
+    ck(g3["reached"] >= lo[0] and g3["outcomes"] == lo[1] and g3["confirmed"] >= lo[2] and g3["claims"] == lo[3]
+       and g3["verdict"] in ("PARTIAL", "PASS") and g3["calls"] > 50,
+       "%s: a blind operator who never saw the task reached %d of its %d outcomes (%d of %d claims) by %d calls -- "
+       "at or above the floor the trial measured %s" % (tid, g3["reached"], g3["outcomes"], g3["confirmed"], g3["claims"], g3["calls"], lo[:1] + lo[2:3]))
+    gr = T.grade_trace(by[tid], T.load_trace(f))
+    ck(gr["verdict"] == "FAIL" and gr["met"] < gr["required"] // 4,
+       "%s: and graded as a ROUTE the same trace is unmet by step %d of %d, short of a quarter of the script -- which "
+       "is the finding, not the operator's failure" % (tid, gr["met"] + 1, gr["required"]))
+_out = io.StringIO(); _save, sys.stdout = sys.stdout, _out
+_led_before = io.open(led, "rb").read() if os.path.isfile(led) else b""
+try:
+    _rc = T.main(["--grade-trace", BLIND3, "--outcomes"])
+finally:
+    sys.stdout = _save
+_l3 = [l for l in _out.getvalue().split("\n") if "outcomes reached" in l]
+ck(_rc == 1 and len(_l3) == 4 and all("PARTIAL" in l for l in _l3)
+   and (io.open(led, "rb").read() if os.path.isfile(led) else b"") == _led_before,
+   "--grade-trace DIR --outcomes grades every trace in the directory, exits non-zero while any is short of PASS, and "
+   "writes nothing to the ledger -- an operator's score is not the page's: %d line(s)" % len(_l3))
+
 # ---- G. the science (ADR-128) and the whole kit (ADR-129) ---------------------
 DATA_ENTRY = {"collection-sheet.html", "releve.html", "stand-sheet.html", "ethogram.html", "selection-log.html",
               "farm-scout.html", "pheno-tracker.html", "deployment-log.html", "cell-bench.html", "micro-bench.html",

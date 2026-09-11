@@ -494,8 +494,12 @@ BLIND_DIR = os.path.join(TRACES_DIR, "blind")     # the blind trial (ADR-136)
 
 
 def load_trace(path):
+    """A trace, one JSON object per line; a .gz is read as written (the science
+    traces carry a page snapshot on every response and are kept gzipped)."""
     out = []
-    for i, line in enumerate(io.open(path, encoding="utf-8")):
+    import gzip
+    fh = gzip.open(path, "rt", encoding="utf-8") if path.endswith(".gz") else io.open(path, encoding="utf-8")
+    for i, line in enumerate(fh):
         line = line.strip()
         if not line:
             continue
@@ -592,6 +596,60 @@ def grade_trace(task, trace):
             "confirmed": sum(1 for s in steps for e in s.get("expectations", []) if e["verdict"] == "CONFIRMED"),
             "refuted": 0, "unmet": sum(1 for s in steps if s["result"] == "UNMET"), "seconds": 0}
 
+
+
+def outcomes_of(task):
+    """The task's OUTCOMES: every step that only reads (read-report,
+    read-control, read-page, collect-output, read-dialogs, observe) and claims
+    something beyond `ok` about what it read. A science task is a script --
+    every step required, in the author's order, with the author's arguments --
+    and that is the right shape for holding a page to itself. It is the wrong
+    shape for a blind operator, who reaches the same figures by another route
+    and is UNMET at step three. The outcomes are the part of the script that
+    is the GOAL rather than the route: what the page must be read to say."""
+    out = []
+    for s in task["steps"]:
+        if not (s["action"].startswith("read-") or s["action"] in ("collect-output", "observe")):
+            continue
+        claims = {k: v for k, v in (s.get("expect") or {}).items() if k != "ok"}
+        if claims:
+            out.append((s, claims))
+    return out
+
+
+def grade_outcomes(task, trace):
+    """Hold a trace to a task's OUTCOMES, not its route (ADR-187). Every
+    outcome step is matched against every trace call of its action, in any
+    order, each call on its own; an outcome is REACHED when one call confirms
+    all of its claims, and the count of claims the best call confirmed is kept
+    either way, so a trace that reached nine of ten figures on a readout is
+    not scored as if it had reached none. A claim that refers to another
+    step's answer ("$step.path") has no step to refer to here and is counted
+    unreachable rather than confirmed. Nothing here writes the ledger: the
+    figure this returns is a measurement of an operator, not of the page."""
+    outs = outcomes_of(task)
+    rows = []
+    for s, claims in outs:
+        best, best_i = -1, None
+        for i, e in enumerate(trace):
+            if e.get("action") != s["action"] and not (s["action"] == "observe" and (e.get("response") or {}).get("snapshot")):
+                continue
+            try:
+                graded = grade(claims, e.get("response") or {}, {}, "%s/%s" % (task["id"], s["id"]))
+            except TaskDefect:
+                continue
+            n = sum(1 for _, v, _ in graded if v == "CONFIRMED")
+            if n > best:
+                best, best_i = n, i
+        best = max(best, 0)
+        rows.append({"id": s["id"], "action": s["action"], "claims": len(claims), "confirmed": best,
+                     "reached": best == len(claims), "call": best_i})
+    return {"id": task["id"], "target": task["target"], "goal": task["goal"], "at": int(time.time()),
+            "graded": "outcomes", "calls": len(trace), "asked": len(task["steps"]),
+            "outcomes": len(rows), "reached": sum(1 for r in rows if r["reached"]),
+            "claims": sum(r["claims"] for r in rows), "confirmed": sum(r["confirmed"] for r in rows),
+            "steps": rows,
+            "verdict": "PASS" if rows and all(r["reached"] for r in rows) else "PARTIAL" if any(r["confirmed"] for r in rows) else "FAIL"}
 
 
 def run_tasks(tasks, transport="stdio", log=None, page="collection-sheet.html", seed=42):
@@ -694,7 +752,30 @@ def main(argv):
     ap.add_argument("--grade-trace", metavar="FILE",
                     help="grade a trace (the MCP server's --trace output) against a task named by --task, or by "
                          "the trace's file name")
+    ap.add_argument("--outcomes", action="store_true",
+                    help="with --grade-trace FILE-OR-DIR: hold the trace to the task's OUTCOMES (what the page was "
+                         "read to say), in any order and by any route, and print what was reached; never written to "
+                         "the ledger (ADR-187)")
     a = ap.parse_args(argv)
+    if a.grade_trace and a.outcomes:
+        files = [a.grade_trace] if os.path.isfile(a.grade_trace) else sorted(
+            glob.glob(os.path.join(a.grade_trace, "*.jsonl")) + glob.glob(os.path.join(a.grade_trace, "*.jsonl.gz")))
+        rc = 0
+        for f in files:
+            tid = os.path.basename(f).split(".")[0]
+            try:
+                task = load_task(a.task) if (a.task and len(files) == 1) else load_task(os.path.join(TASKS_DIR, tid + ".json"))
+                res = grade_outcomes(task, load_trace(f))
+            except TaskDefect as e:
+                print("defect: %s" % e)
+                return 2
+            print("%-36s %-8s outcomes reached %d of %d, claims %d of %d, by %d call(s)"
+                  % (task["id"], res["verdict"], res["reached"], res["outcomes"], res["confirmed"], res["claims"], res["calls"]))
+            for r in res["steps"]:
+                print("   %-14s %-16s %s %d/%d%s" % (r["id"], r["action"], "reached " if r["reached"] else "missed  ",
+                                                   r["confirmed"], r["claims"], "" if r["call"] is None else "  call #%d" % r["call"]))
+            rc = rc or (0 if res["verdict"] == "PASS" else 1)
+        return rc
     if a.grade_trace:
         # "all" is every trace under tools/traces, the blind trial's included
         # (ADR-136): a blind trace is graded by exactly the same rules, and
