@@ -37,6 +37,12 @@ gateway child), so the mutant runner can afford to run it many times.
      and waited on before the first call touches it, so a session's FIRST
      action can be an act rather than a look, the risk read of that first
      action sees the page the act will see, and the wait is per document
+  H. the manual (ADR-190): a picker's pool is what it offers rather than a
+     sample of it and the snapshot says shown-of-how-many; read-control
+     answers with the address to call the control by; a box's text is also
+     published split where the page splits it, beside the run of text every
+     task holds; and the prose the page writes about its own arithmetic is
+     handed over as the page wrote it
   E. the environment as an argument (ADR-134): with nothing set, Date and
      Math.random are the real ones; set-clock freezes what "now" answers and
      leaves every other Date form alone; set-seed makes Math.random the
@@ -1106,6 +1112,141 @@ with sync_playwright() as pw:
        "two readings of the numbering that agree, so it waits out a page that is still building: %s"
        % out_s.get("selector"))
     fresh.close()
+
+    # ---- H. the manual (ADR-190) ---------------------------------------------
+    #
+    # Three of ADR-187's remaining findings, and they are all the same
+    # complaint: the door published a figure and withheld what a reader needed
+    # to act on it. A pool that offers six of sixty-six teaches a client that
+    # the pool is not the answer; a control read one at a time that does not
+    # say what to call it sends the reader back to the snapshot; a box that is
+    # one run of text is unreadable ("bean, common20you plan to keep20"); and a
+    # page that prints its own scoring rule while the door publishes only the
+    # score makes an operator recover the rule by experiment.
+    man = ctx.new_page()
+    man.goto("file://" + os.path.join(docs, "collection-sheet.html").replace(os.sep, "/"),
+             wait_until="domcontentloaded")
+    mp = PP.PagePlugin(man, "collection-sheet.html", kinds=SWARM_KINDS)
+    msnap = mp.observe(sensitive=True)
+    pk = [p for p in msnap.get("pickers") or [] if p["kind"] == "pick"]
+    live = [p for p in pk if p["of"]]
+    pool = msnap["argumentPools"]["pick"]
+    ck(live and all(p["shown"] == p["of"] for p in live) and max(p["of"] for p in live) > 6
+       and sum(p["shown"] for p in live) == len(pool),
+       "a picker's pool is every option it offers, not six of them, and the snapshot says shown-of-how-many per "
+       "picker: %s" % [(p["selector"], p["shown"], p["of"]) for p in pk])
+    far = [c["value"] for c in pool if c["selector"] == live[0]["selector"]][20]
+    okp, _, outp = mp.execute("pick", {"selector": live[0]["selector"], "value": far})
+    ck(okp and outp["chose"].startswith(far[:12]),
+       "...and an option past where the old pool stopped is one the picker actually takes: %r -> %s"
+       % (far, outp.get("chose")))
+
+    # a list longer than the cap says so rather than looking complete
+    big = os.path.join(tempfile.mkdtemp(), "big.html")
+    io.open(big, "w", encoding="utf-8").write(
+        u"""<!doctype html><html><head><meta charset="utf-8"><title>big</title></head><body>
+        <div id="bigHost"><div class="fek-pick"><input class="search" aria-label="many">
+        <div class="opts">""" + u"".join(
+            u'<button class="opt" type="button">opt%03d</button>' % i for i in range(PP.PICK_CAP + 25))
+        + u"""</div></div></div></body></html>""")
+    man.goto("file://" + big.replace(os.sep, "/"), wait_until="domcontentloaded")
+    bp = PP.PagePlugin(man, "big.html", kinds=SWARM_KINDS)
+    bsnap = bp.observe(sensitive=True)
+    bpk = [p for p in bsnap.get("pickers") or [] if p["kind"] == "pick"]
+    ck(bpk and bpk[0]["shown"] == PP.PICK_CAP and bpk[0]["of"] == PP.PICK_CAP + 25,
+       "and a list longer than the cap publishes the cap and SAYS how many there were -- a pool that quietly "
+       "stopped is what taught an operator to distrust pools: %s" % bpk[:1])
+
+    # read-control says what to call it
+    man.goto("file://" + os.path.join(docs, "stand-sheet.html").replace(os.sep, "/"),
+             wait_until="domcontentloaded")
+    rp = PP.PagePlugin(man, "stand-sheet.html", kinds=SWARM_KINDS)
+    rsnap = rp.observe(sensitive=True)
+    bad_addr = []
+    for c in rsnap["controls"][:60]:
+        _ok, _m, one = rp.execute("read-control", {"selector": c["selector"]})
+        if one.get("address") != c["address"]:
+            bad_addr.append((c["selector"], c["address"], one.get("address")))
+    ck(not bad_addr,
+       "every control read one at a time answers with the same address the snapshot publishes for it -- a reader "
+       "identifying a control gets the name to call it by, in the same answer: %s" % bad_addr[:2])
+    _ok, _m, byname = rp.execute("read-control", {"selector": rsnap["controls"][0]["address"]})
+    ck(byname.get("address") == rsnap["controls"][0]["address"],
+       "...and that address is one read-control itself takes, so the two ends of the loop meet")
+
+    # a box's text, split, beside the run of text every task holds
+    man.goto("file://" + os.path.join(docs, "breeding-bench.html").replace(os.sep, "/"),
+             wait_until="domcontentloaded")
+    lp = PP.PagePlugin(man, "breeding-bench.html", kinds=SWARM_KINDS)
+    lp.observe(sensitive=True)
+    _ok, _m, rep = lp.execute("read-report", {})
+    multi = [k for k, v in (rep.get("lines") or {}).items() if len(v) > 2]
+    ck(multi and set(rep["lines"]) == set(rep["boxes"]),
+       "every box is published split as well as whole, and the two name the same boxes: %d of %d split into more "
+       "than two lines" % (len(multi), len(rep["boxes"])))
+    invented, compared = [], 0
+    for k0, ls in rep["lines"].items():
+        # a box whose whole text hit read-report's 4000-character cut cannot be
+        # the thing the lines are compared against: the line past the cut is
+        # the box's, and the truncated run of text is what is missing it
+        if len(rep["boxes"][k0]) >= 4000:
+            continue
+        compared += 1
+        flat = rep["boxes"][k0].replace(" ", "")
+        for l in ls:
+            if not l or l != l.strip() or l.replace(" ", "") not in flat:
+                invented.append((k0, l[:40]))
+    ck(compared > 10 and not invented,
+       "...and every line of every box is that box's own text, trimmed, with nothing invented and nothing "
+       "reworded: %s" % invented[:3])
+    # AND NOTHING TWICE. Leaf blocks partition a box; every block would not --
+    # a section's own line would repeat each of its children's. Counted in
+    # characters, because two sibling tiles may legitimately read "10" and
+    # "10.0%" and neither contains the other in any sense that matters.
+    doubled = []
+    for k0, ls in rep["lines"].items():
+        if len(rep["boxes"][k0]) >= 4000 or not ls:
+            continue
+        if sum(len(l.replace(" ", "")) for l in ls) > len(rep["boxes"][k0].replace(" ", "")):
+            doubled.append((k0, len(ls)))
+    ck(not doubled,
+       "...and no box's lines say more than the box does -- a split that took every block rather than the leaves "
+       "would hand a section's text back once for the section and again for each thing in it: %s" % doubled[:3])
+
+    # what the page says about its own arithmetic
+    man.goto("file://" + os.path.join(docs, "pheno-tracker.html").replace(os.sep, "/"),
+             wait_until="domcontentloaded")
+    pp = PP.PagePlugin(man, "pheno-tracker.html", kinds=SWARM_KINDS)
+    pp.observe(sensitive=True)
+    _ok, _m, prep = pp.execute("read-report", {})
+    rules = prep.get("rules") or []
+    text = " ".join(r["t"] for r in rules)
+    ck(len(rules) > 4 and all(r["t"] and len(r["t"]) <= 400 for r in rules)
+       and any(r.get("host") for r in rules),
+       "the page's own prose about itself is handed over, each piece with the identified thing it sits in: "
+       "%d piece(s)" % len(rules))
+    ck("dropped" in text and "weighted" in text,
+       "and on the pheno tracker it carries the scoring rule a blind operator had to recover by experiment -- an "
+       "unscored trait DROPPED from the weighted total rather than counted as a 1 -- quoted, not interpreted: %s"
+       % [r["t"][:80] for r in rules if "dropped" in r["t"]][:1])
+    # prose inside prose, on a page built for it: the kit nests these rarely
+    # enough that a mutant taking every .hint and .fine rather than the
+    # innermost would sail through the real pages
+    nest = os.path.join(tempfile.mkdtemp(), "nest.html")
+    io.open(nest, "w", encoding="utf-8").write(
+        u"""<!doctype html><html><head><meta charset="utf-8"><title>nest</title></head><body>
+        <div id="nHost"><div class="hint">the outer note
+          <p class="fine">the inner rule is the one that says how</p></div></div>
+        </body></html>""")
+    man.goto("file://" + nest.replace(os.sep, "/"), wait_until="domcontentloaded")
+    np_ = PP.PagePlugin(man, "nest.html", kinds=SWARM_KINDS)
+    np_.observe(sensitive=True)
+    _ok, _m, nrep = np_.execute("read-report", {})
+    nr = nrep.get("rules") or []
+    ck(len(nr) == 1 and nr[0]["t"] == "the inner rule is the one that says how" and nr[0]["host"] == "nHost",
+       "prose that contains prose is handed over once, as the innermost piece -- a note wrapping a rule is not the "
+       "rule, and handing back both would say the same thing twice: %s" % [(x["t"][:40], x["host"]) for x in nr])
+    man.close()
     ctx.close()
     b.close()
 

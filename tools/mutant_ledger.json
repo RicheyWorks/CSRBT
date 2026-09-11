@@ -1936,12 +1936,12 @@
    "survived": 0
   },
   "mutate_report": {
-   "at": 1789111011,
+   "at": 1789134440,
    "equivalent": 0,
    "equivalents": [],
    "inconclusive": 0,
-   "killed": 95,
-   "mutants": 95,
+   "killed": 104,
+   "mutants": 104,
    "rows": [
     {
      "detail": "7 failure(s); first: a .tile and a .stat .st are both figures: the .l/.v pair is",
@@ -1969,7 +1969,7 @@
      "verdict": "killed"
     },
     {
-     "detail": "5 failure(s); first: boxes follow the kit's naming -- an*, *Out, *Box, *Stat, *M",
+     "detail": "7 failure(s); first: boxes follow the kit's naming -- an*, *Out, *Box, *Stat, *M",
      "name": "boxes are the old five prefixes only",
      "verdict": "killed"
     },
@@ -2004,7 +2004,7 @@
      "verdict": "killed"
     },
     {
-     "detail": "4 failure(s); first: boxes follow the kit's naming -- an*, *Out, *Box, *Stat, *M",
+     "detail": "6 failure(s); first: boxes follow the kit's naming -- an*, *Out, *Box, *Stat, *M",
      "name": "a box behind a closed tab is dropped again",
      "verdict": "killed"
     },
@@ -2049,7 +2049,7 @@
      "verdict": "killed"
     },
     {
-     "detail": "2 failure(s); first: the snapshot publishes each picker's option labels as an ar",
+     "detail": "3 failure(s); first: the snapshot publishes each picker's option labels as an ar",
      "name": "a picker's options are not published as a pool",
      "verdict": "killed"
     },
@@ -2416,6 +2416,51 @@
     {
      "detail": "2 failure(s); first: the settle marks the document with the version it settled a",
      "name": "the marker is not the version, so nothing ties the two together",
+     "verdict": "killed"
+    },
+    {
+     "detail": "1 failure(s); first: a picker's pool is every option it offers, not six of them,",
+     "name": "a picker publishes a sample of its options again",
+     "verdict": "killed"
+    },
+    {
+     "detail": "1 failure(s); first: and a list longer than the cap publishes the cap and SAYS h",
+     "name": "the snapshot does not say how many there were",
+     "verdict": "killed"
+    },
+    {
+     "detail": "2 failure(s); first: every control read one at a time answers with the same addr",
+     "name": "read-control answers about a selector and nothing else again",
+     "verdict": "killed"
+    },
+    {
+     "detail": "1 failure(s); first: every box is published split as well as whole, and the two ",
+     "name": "a box is published whole and not split",
+     "verdict": "killed"
+    },
+    {
+     "detail": "1 failure(s); first: ...and no box's lines say more than the box does -- a split",
+     "name": "the split takes every block, nested ones included",
+     "verdict": "killed"
+    },
+    {
+     "detail": "1 failure(s); first: ...and every line of every box is that box's own text, trim",
+     "name": "a line cut at the cap keeps the space the cut landed on",
+     "verdict": "killed"
+    },
+    {
+     "detail": "3 failure(s); first: the page's own prose about itself is handed over, each piec",
+     "name": "the page's prose about itself is not handed over",
+     "verdict": "killed"
+    },
+    {
+     "detail": "1 failure(s); first: prose that contains prose is handed over once, as the inner",
+     "name": "a piece of prose that contains another is handed over twice",
+     "verdict": "killed"
+    },
+    {
+     "detail": "2 failure(s); first: the page's own prose about itself is handed over, each piec",
+     "name": "the prose is handed over without the thing it sits in",
      "verdict": "killed"
     }
    ],

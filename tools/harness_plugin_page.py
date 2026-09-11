@@ -105,6 +105,7 @@ if _SESSION:
 
 SEL_RE = re.compile(r"^[a-z_]+:\d+$")
 SETTLE_TRIES, SETTLE_MS = 6, 60        # ADR-189: at most ~300ms of waiting for a page to stop building
+PICK_CAP, POOL_CAP = 80, 600           # ADR-190: options published per list, and in all
 # ADR-188: THE ADDRESS GRAMMAR. A selector is the moment's -- the third blind
 # trial watched four operators re-observe after every structural change and
 # compute button offsets by hand, and all four noticed that the snapshot
@@ -278,7 +279,7 @@ RESOLVE = "([form, name, stamp]) => {" + LABEL_FN + ADDR_FN + r"""
 
 
 # Read where a user reads: one round trip, typed, and never a field's contents.
-CONTROLS = "() => {" + LABEL_FN + ADDR_FN + r"""
+CONTROLS = "() => {" + LABEL_FN + ADDR_FN + ("const PICK_CAP = %d, POOL_CAP = %d;" % (PICK_CAP, POOL_CAP)) + r"""
   const out = [];
   const _rw = _rows(), _idx = _index(_rw), _ver = _version(_rw);
   _rw.forEach(w => {
@@ -311,13 +312,18 @@ CONTROLS = "() => {" + LABEL_FN + ADDR_FN + r"""
   // per select (ADR-124): a value from one select is "no such option" on
   // another, so the union alone left choose-option refused six of six on a
   // page with five selects. The pairs are published as argument SETS.
-  const opts = new Set(), choices = [];
+  const opts = new Set(), choices = [], lists = [];
   document.querySelectorAll("select[data-h]").forEach(sel => {
-    [...sel.options].slice(0, 20).forEach(o => {
-      if (opts.size < 200) opts.add(String(o.value));
-      if (choices.length < 400 && !sel.disabled)
+    const all = [...sel.options];
+    const take = all.slice(0, PICK_CAP);
+    take.forEach(o => {
+      if (opts.size < POOL_CAP) opts.add(String(o.value));
+      if (choices.length < POOL_CAP && !sel.disabled)
         choices.push({ selector: sel.getAttribute("data-h"), value: String(o.value) });
     });
+    lists.push({ selector: sel.getAttribute("data-h"), kind: "select",
+                 host: (sel.parentElement && sel.parentElement.closest("[id]") || {}).id || null,
+                 shown: take.length, of: all.length });
   });
   // A picker's options, as (selector, label) SETS (ADR-128): the labels a
   // reader would type are the page's, not the manifest's examples -- the
@@ -327,11 +333,23 @@ CONTROLS = "() => {" + LABEL_FN + ADDR_FN + r"""
   const picks = [];
   document.querySelectorAll(".fek-pick .search[data-h]").forEach(s => {
     const root = s.closest(".fek-pick");
-    [...root.querySelectorAll(".opt")].slice(0, 6).forEach(o => {
+    // ADR-190: WHAT THE PICKER OFFERS, not a sample of it. This took six of
+    // however many there were, and a blind operator (ADR-187) counted six
+    // published against twenty-eight the picker accepted -- a pool that
+    // undersells teaches a client that the pool is not the answer, which is
+    // the opposite of what a pool is for. Capped, and the cap is REPORTED:
+    // `pickers` below says shown-of-how-many per picker, so a client can see
+    // that it has the whole list rather than assume it.
+    const all = [...root.querySelectorAll(".opt")];
+    const take = all.slice(0, PICK_CAP);
+    take.forEach(o => {
       const c = o.cloneNode(true); c.querySelectorAll("small").forEach(x => x.remove());
       const label = (c.textContent || "").replace(/\s+/g, " ").trim().slice(0, 80);
-      if (label && picks.length < 200) picks.push({ selector: s.getAttribute("data-h"), value: label });
+      if (label && picks.length < POOL_CAP) picks.push({ selector: s.getAttribute("data-h"), value: label });
     });
+    lists.push({ selector: s.getAttribute("data-h"), kind: "pick",
+                 host: (s.parentElement && s.parentElement.closest("[id]") || {}).id || null,
+                 shown: take.length, of: all.length });
   });
   return { route: (document.querySelector(".pane.on") || {}).id || null,
            title: document.title,
@@ -342,6 +360,12 @@ CONTROLS = "() => {" + LABEL_FN + ADDR_FN + r"""
            optionValues: [...opts],
            optionChoices: choices,
            pickChoices: picks,
+           // ADR-190: every list the page offers, with how much of it is
+           // published. A filter takes options OUT of the document on some of
+           // these pages, so "of" is what the picker offers NOW, not what it
+           // could offer -- which is the honest number for a client deciding
+           // whether to clear a filter before it picks.
+           pickers: lists,
            panes: [...document.querySelectorAll(".pane")].map(p => p.id),
            tabs: [...document.querySelectorAll(".tab[data-pane]")].map(
                    t => ({ pane: t.getAttribute("data-pane"),
@@ -472,11 +496,28 @@ REPORT = r"""
   // key the engine uses, so a figure read off the page is read under the same
   // name the engine reports it under.
   const BOX = /^(an|out|rep|res|sum)[A-Za-z0-9-]*$|(box|out|stats?|plan|matrix|verdict|tiles|warn|coh|tell|note|advice|refuse|table|chart|typical|list|results|grid|export|lint|cmd|meas|help|card|legend|msg|check|read|desc|left|res|board)$|^(coherence|report|results|outputs|toast|journal|tree)$|^station-[a-z]+$/i;
-  const boxes = {}, shown = [];
+  const boxes = {}, shown = [], lines = {};
+  // ADR-190: A BOX'S TEXT, SPLIT WHERE THE PAGE SPLITS IT. `boxes` is one run
+  // of text, which is what "bean, common20you plan to keep20" looks like to a
+  // reader (ADR-187), and every task in the kit holds it exactly as it is --
+  // so this is published BESIDE it rather than instead of it. The rule is the
+  // page's own: a LEAF BLOCK is a block element containing no block element,
+  // and its text is one line. `figures` and `by` remain the precise read; this
+  // is for the prose and the rows between them.
+  const BLOCK = "p,li,tr,div,section,h1,h2,h3,h4,h5,figcaption,output,label,pre,blockquote,dt,dd";
+  const leafLines = (e) => {
+    const blocks = [...e.querySelectorAll(BLOCK)].filter(b => !b.querySelector(BLOCK));
+    const out = (blocks.length ? blocks.map(b => norm(b.textContent))
+                               : [norm(e.textContent)]).filter(Boolean);
+    // a line cut at the cap is trimmed again: the cut lands mid-sentence and
+    // would otherwise hand back a trailing space that is not in the page
+    return out.slice(0, 40).map(t => t.slice(0, 300).replace(/\s+$/, ""));
+  };
   document.querySelectorAll("[id]").forEach(e => {
     if (!BOX.test(e.id)) return;
     if (Object.keys(boxes).length >= 64) return;
     boxes[e.id] = norm(e.textContent).slice(0, 4000);
+    lines[e.id] = leafLines(e);
     if (vis(e)) shown.push(e.id);
   });
   // Tables, row by row, cell by cell (capped): the recipe card's
@@ -491,6 +532,21 @@ REPORT = r"""
     tables[key] = [...t.querySelectorAll("tr")].slice(0, 40).map(
       tr => [...tr.children].slice(0, 8).map(c => norm(c.textContent).slice(0, 60)));
   });
+  // ADR-190: WHAT THE PAGE SAYS ABOUT ITSELF. The pheno tracker prints its
+  // scoring rule on the page -- a weighted MEAN over the sum of the weights,
+  // and an unscored trait dropped rather than counted as a 1 -- and a blind
+  // operator had to recover it by experiment, because the door published
+  // every figure the page computed and nothing about how. `.hint` and `.fine`
+  // are the kit's own two conventions for that prose (21 and 24 pages), so
+  // they are what is handed over, each with the identified thing it sits in.
+  // Not interpreted: quoted. The door does not know the rule, and says so by
+  // giving the reader the page's own words for it.
+  const rules = [...document.querySelectorAll("p.hint, p.fine, .hint, .fine")]
+    .filter(e => !e.querySelector(".hint, .fine"))
+    .slice(0, 40)
+    .map(e => ({ t: norm(e.textContent).slice(0, 400),
+                 host: (e.parentElement && e.parentElement.closest("[id]") || {}).id || null }))
+    .filter(r => r.t);
   // The page's headings, in order (ADR-129): a reference page has no
   // figures and no boxes, and its structure IS its report.
   const headings = [...document.querySelectorAll("h1, h2, h3")].slice(0, 80)
@@ -629,6 +685,7 @@ REPORT = r"""
     rows[id] = (rows[id] || 0) + 1;
   });
   return { figures: figures, by: by, order: order, sources: sources, boxes: boxes, shown: shown, rows: rows,
+           lines: lines, rules: rules,
            tables: tables, headings: headings, charts: charts,
            route: (document.querySelector(".pane.on") || {}).id || null };
 }
@@ -636,7 +693,7 @@ REPORT = r"""
 
 # SENSITIVE_READ. Bounded on every axis: one control, capped text, capped option
 # lists, and a truncated flag rather than a silent clip.
-READ_ONE = "(sel) => {" + LABEL_FN + r"""
+READ_ONE = "(sel) => {" + LABEL_FN + ADDR_FN + r"""
   const e = document.querySelector('[data-h="' + sel + '"]');
   if (!e) return null;
   if (e.type === "password") return { refused: "password" };
@@ -653,6 +710,13 @@ READ_ONE = "(sel) => {" + LABEL_FN + r"""
               id: e.id || null, label: _label(e),
               host: (e.parentElement && e.parentElement.closest("[id]") || {}).id || null,
               pane: (e.closest(".pane") || {}).id || null,
+              // ADR-190: and the address to call it by. A control read one at
+              // a time is being IDENTIFIED, and the answer that leaves out the
+              // name the caller would use next is the answer that sends them
+              // back to the snapshot.
+              address: (() => { const rows = _rows(), idx = _index(rows);
+                                const me = rows.filter(r => r.e === e)[0];
+                                return me ? _address(me, idx, _version(rows)) : null; })(),
               // Read now, not at discovery. Visibility on these pages is a
               // property of the moment: a pane opened, a row added, a widget
               // rebuilt. Judging it from a snapshot taken before the seed put
