@@ -74,9 +74,13 @@ REPLAY SAFETY
 """
 import hmac, json, os, re, time
 
-PROTOCOL_VERSION = "1.5"   # 1.1 (ADR-114): bounds, patterns, examples in argument schemas
+PROTOCOL_VERSION = "1.6"   # 1.1 (ADR-114): bounds, patterns, examples in argument schemas
                            # 1.2 (ADR-120): snapshotMs on every execute response -- the snapshot, priced
                            # 1.3 (ADR-124): argumentPools may carry argument SETS, keyed by the action alone
+                           # 1.6 (ADR-189): `stale` -- a refusal for an argument that was right when
+                           #                the client read it and is not right now. It is not
+                           #                invalid_argument (it was valid) and not not_found (the thing
+                           #                exists); it means READ AGAIN, and only a code of its own says so.
                            # 1.4 (ADR-134): a target may publish actions that set the ENVIRONMENT a run
                            #                happens in -- the clock, the seed, the answer a dialog gets --
                            #                so a client can make a non-deterministic path reproducible
@@ -126,6 +130,12 @@ Forbidden = _err("forbidden")
 NotFound = _err("not_found")
 InvalidArgument = _err("invalid_argument")
 Conflict = _err("conflict")
+# ADR-189: the client's argument was right when it was read and is not right
+# now -- a positional selector from a snapshot the page has since rebuilt. The
+# fix is to read again, which is neither what invalid_argument says (the
+# argument was well formed and true) nor what not_found says (the control is
+# there; the caller's name for it is what expired).
+Stale = _err("stale")
 Unavailable = _err("unavailable")
 Failed = _err("failed")
 

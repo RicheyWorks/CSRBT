@@ -498,7 +498,7 @@
    "survived": 0
   },
   "mutate_contract": {
-   "at": 1788560668,
+   "at": 1789104477,
    "equivalent": 1,
    "equivalents": [
     {
@@ -507,8 +507,8 @@
     }
    ],
    "inconclusive": 0,
-   "killed": 31,
-   "mutants": 31,
+   "killed": 35,
+   "mutants": 35,
    "rows": [
     {
      "detail": "8 failure(s); first: an action that declared mayRise is asked, with this call's ",
@@ -591,7 +591,7 @@
      "verdict": "killed"
     },
     {
-     "detail": "8 failure(s); first: a button NAMED for removing work is raised to DESTRUCTIVE, ",
+     "detail": "10 failure(s); first: a button NAMED for removing work is raised to DESTRUCTIVE,",
      "name": "every button is a button: nothing is raised",
      "verdict": "killed"
     },
@@ -631,7 +631,7 @@
      "verdict": "killed"
     },
     {
-     "detail": "1 failure(s); first: the snapshot NAMES them, before a call is spent: []",
+     "detail": "2 failure(s); first: the snapshot NAMES them, before a call is spent: []",
      "name": "the snapshot stops naming which selectors would be raised",
      "verdict": "killed"
     },
@@ -663,6 +663,26 @@
     {
      "detail": "1 failure(s); first: an argument the action does not declare: was allowed",
      "name": "an argument nobody declared is passed through to the target",
+     "verdict": "killed"
+    },
+    {
+     "detail": "2 failure(s); first: every refusal carries its own code, and renders as one a tr",
+     "name": "stale is a spelling of not_found",
+     "verdict": "killed"
+    },
+    {
+     "detail": "1 failure(s); first: and the transport maps it the way it maps the client's othe",
+     "name": "the new code reaches the transport unmapped",
+     "verdict": "killed"
+    },
+    {
+     "detail": "1 failure(s); first: and the robot counts it as a REFUSAL rather than a failure:",
+     "name": "the robot counts a moved selector as a failure of the target",
+     "verdict": "killed"
+    },
+    {
+     "detail": "1 failure(s); first: the manifest states a protocol version (1.6: ADR-189, `stal",
+     "name": "the manifest still says 1.5",
      "verdict": "killed"
     }
    ],
@@ -1916,12 +1936,12 @@
    "survived": 0
   },
   "mutate_report": {
-   "at": 1789100611,
+   "at": 1789111011,
    "equivalent": 0,
    "equivalents": [],
    "inconclusive": 0,
-   "killed": 89,
-   "mutants": 89,
+   "killed": 95,
+   "mutants": 95,
    "rows": [
     {
      "detail": "7 failure(s); first: a .tile and a .stat .st are both figures: the .l/.v pair is",
@@ -2329,7 +2349,7 @@
      "verdict": "killed"
     },
     {
-     "detail": "3 failure(s); first: collection-sheet.html: a selector stamped with the snapshot",
+     "detail": "4 failure(s); first: collection-sheet.html: a selector stamped with the snapshot",
      "name": "a stamp from another snapshot is resolved anyway",
      "verdict": "killed"
     },
@@ -2344,7 +2364,7 @@
      "verdict": "killed"
     },
     {
-     "detail": "2 failure(s); first: a NAME that names nothing is refused as not-found and is no",
+     "detail": "3 failure(s); first: a NAME that names nothing is refused as not-found and is no",
      "name": "an address is resolved for the act but not for the risk read",
      "verdict": "killed"
     },
@@ -2359,13 +2379,43 @@
      "verdict": "killed"
     },
     {
-     "detail": "1 failure(s); first: the manifest's selector pattern takes every address form an",
+     "detail": "2 failure(s); first: the manifest's selector pattern takes every address form an",
      "name": "the manifest still advertises the old index-only pattern",
      "verdict": "killed"
     },
     {
      "detail": "1 failure(s); first: the door answers to the runner's own spelling, '@control:<n",
      "name": "the runner's own spelling is taken as a label",
+     "verdict": "killed"
+    },
+    {
+     "detail": "2 failure(s); first: the FIRST call of a session, by name, on a page nothing has",
+     "name": "the risk read trusts the page as it finds it",
+     "verdict": "killed"
+    },
+    {
+     "detail": "3 failure(s); first: and an act can be the first thing a session does -- no lead",
+     "name": "an act does not settle the page it is about to touch",
+     "verdict": "killed"
+    },
+    {
+     "detail": "1 failure(s); first: a session that navigates settles the page it lands on, not ",
+     "name": "the door settles once per SESSION",
+     "verdict": "killed"
+    },
+    {
+     "detail": "1 failure(s); first: a control the page adds AFTER it finishes loading is there ",
+     "name": "the settle takes the first reading it gets",
+     "verdict": "killed"
+    },
+    {
+     "detail": "1 failure(s); first: a reload settles the document it arrives in and answers wit",
+     "name": "a reload answers without the version it settled at",
+     "verdict": "killed"
+    },
+    {
+     "detail": "2 failure(s); first: the settle marks the document with the version it settled a",
+     "name": "the marker is not the version, so nothing ties the two together",
      "verdict": "killed"
     }
    ],

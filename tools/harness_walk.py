@@ -72,7 +72,7 @@ import argparse, io, json, os, random, secrets, subprocess, sys, time
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 LEDGER = os.path.join(HERE, "walk_ledger.json")
-REFUSAL = ("invalid_argument", "not_found", "conflict")
+REFUSAL = ("invalid_argument", "not_found", "conflict", "stale")   # ADR-189
 OPS = ("manifest", "discover", "observe", "execute", "quit")
 
 

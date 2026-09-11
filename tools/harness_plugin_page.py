@@ -34,7 +34,8 @@ sys.path.insert(0, os.path.join(HERE, "verify"))
 import _kit
 import harness as H
 from harness_contract import (ActionSpec, ArgumentSpec, Plugin, PluginDescriptor,
-                              Conflict, Failed, HarnessError, InvalidArgument, NotFound, Unavailable)
+                              Conflict, Failed, HarnessError, InvalidArgument, NotFound,
+                              Stale, Unavailable)
 
 # Bytes the harness hands to a file input or a drop zone. Real files, made
 # here rather than read from disk, so a run reads nothing of the operator's
@@ -103,6 +104,7 @@ if _SESSION:
     FIXTURES["session"] = _SESSION
 
 SEL_RE = re.compile(r"^[a-z_]+:\d+$")
+SETTLE_TRIES, SETTLE_MS = 6, 60        # ADR-189: at most ~300ms of waiting for a page to stop building
 # ADR-188: THE ADDRESS GRAMMAR. A selector is the moment's -- the third blind
 # trial watched four operators re-observe after every structural change and
 # compute button offsets by hand, and all four noticed that the snapshot
@@ -247,6 +249,13 @@ ADDR_FN = r"""
     for (let i = 0; i < s.length; i++) h = (Math.imul(h, 33) ^ s.charCodeAt(i)) >>> 0;
     return "v" + h.toString(36);
   };
+"""
+
+# The numbering's version alone (ADR-189): the settle loop asks for it many
+# times and has no use for the rest of a snapshot.
+VERSION = "() => {" + LABEL_FN + ADDR_FN + r"""
+  return _version(_rows());
+}
 """
 
 # One address -> the selector of the moment, or why not (ADR-188).
@@ -1305,8 +1314,10 @@ class PagePlugin(Plugin):
     # -- observation --------------------------------------------------------
     def observe(self, sensitive=False):
         try:
-            # Re-stamp first: the widgets rebuild, and a selector a client was
-            # just given must resolve to the same control it named.
+            # ADR-189: settle once per document, then re-stamp: the widgets
+            # rebuild, and a selector a client was just given must resolve to
+            # the same control it named.
+            self._ensure_settled()
             self.page.evaluate(H.DISCOVER, self.kinds)
             s = self.page.evaluate(CONTROLS)
         except Exception as e:
@@ -1431,6 +1442,51 @@ class PagePlugin(Plugin):
         except Exception:
             pass
 
+    def _settle(self):
+        """ADR-189: stamp the page, and wait for the numbering to stop moving.
+
+        The kit's pages build controls in script at load -- a region chip row,
+        a key's options, a picker's list -- so a page that has just been
+        navigated to has `data-h` on nothing until DISCOVER has run, and may
+        still be growing when it has. Three of the four blind operators
+        (ADR-187) opened with a `pick` or an `activate` and were told the page
+        had no control of that kind AT ALL; one had the call escalated to
+        DESTRUCTIVE for naming nothing. A leading `observe` fixed it, and
+        needing one is the door asking the client to do its bookkeeping.
+
+        ADR-188's version digest is exactly the signal to wait on: it moves
+        when a control appears or an index shifts, so two consecutive readings
+        that agree mean the page has stopped building. Bounded, because a page
+        that rewrites controls on a timer would never settle, and a door that
+        hangs is worse than one that acts a moment early."""
+        v = last = None
+        for _ in range(SETTLE_TRIES):
+            try:
+                self.page.evaluate(H.DISCOVER, self.kinds)
+                v = self.page.evaluate(VERSION)
+            except Exception:
+                return None
+            if v == last:
+                break
+            last = v
+            self.page.wait_for_timeout(SETTLE_MS)
+        try:
+            self.page.evaluate("(v) => { window.__H_SETTLED = v || '1'; }", v)
+        except Exception:
+            pass
+        return v
+
+    def _ensure_settled(self):
+        """Once per document. The marker lives on `window`, so a navigation or
+        a reload takes it with the old document and the next call settles the
+        new one -- no bookkeeping in the plugin about where the page has been."""
+        try:
+            if self.page.evaluate("() => window.__H_SETTLED || null"):
+                return
+        except Exception:
+            return                                        # a page that cannot be asked cannot be settled
+        self._settle()
+
     def _resolve(self, sel):
         """ADR-188: an address -> the selector of the moment, or a refusal.
 
@@ -1462,7 +1518,13 @@ class PagePlugin(Plugin):
             return r["selector"]
         if r.get("why") == "stale":
             at = r.get("at") or None
-            raise NotFound(
+            # ADR-189: its own code. This is not invalid_argument -- the
+            # selector was well formed and true when the client read it -- and
+            # not not_found -- the control is on the page; the caller's NAME
+            # for it is what expired. "Read again" is a different instruction
+            # from "you sent nonsense", and a client that cannot tell them
+            # apart retries the wrong thing.
+            raise Stale(
                 "%s is stale: it names the numbering of snapshot %s and this page is at %s. %s "
                 "Address a control by the page's own name instead -- every control in a snapshot "
                 "carries one, and a name does not move when the page rebuilds."
@@ -1499,6 +1561,13 @@ class PagePlugin(Plugin):
         case, not the safe one."""
         if action != "activate":
             return None
+        # ADR-189: SETTLE BEFORE THE RISK READ, not only before the act. The
+        # gateway asks for the risk first, so a plugin that settled only in
+        # `execute` would read the risk of an unbuilt page -- every name
+        # answering to nothing, nothing raised -- and then settle and press
+        # whatever the name turned out to mean. Settling here is what keeps
+        # "@Clear trial" DESTRUCTIVE on the first call of a session.
+        self._ensure_settled()
         sel = args.get("selector")
         try:
             # ADR-188: an ADDRESS is resolved before the read, or every stable
@@ -1537,6 +1606,11 @@ class PagePlugin(Plugin):
         return None
 
     def execute(self, action, args):
+        # ADR-189: every action that is about the page as it stands waits for
+        # the page to stand still first. `open` and `reload` are the two that
+        # are about changing it, and they settle the document they arrive in.
+        if action not in ("open", "reload"):
+            self._ensure_settled()
         if action == "open":
             name = args["page"]
             if not re.match(r"^[a-z0-9][a-z0-9.\-]{0,60}\.html$", name):
@@ -1544,12 +1618,14 @@ class PagePlugin(Plugin):
             self.page.goto(_kit.url(name), wait_until="domcontentloaded")
             self.page.wait_for_timeout(300)
             self.name = name
-            return True, "opened %s" % name, {"page": name}
+            v = self._settle()
+            return True, "opened %s" % name, {"page": name, "version": v}
 
         if action == "reload":
             self.page.reload(wait_until="domcontentloaded")
             self.page.wait_for_timeout(250)
-            return True, "reloaded %s" % (self.name or ""), {"page": self.name}
+            v = self._settle()
+            return True, "reloaded %s" % (self.name or ""), {"page": self.name, "version": v}
 
         if action == "show-pane":
             # Success is "this pane is now open", not "this pane is the first

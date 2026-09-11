@@ -950,10 +950,15 @@
    "by": "adr188",
    "sha": "d6106d22af3ac533b3c13709f56ec65ffd09eb2b33bd15af9a1e38be26f5217c"
   },
+  "docs/ADR-189-settle-and-say-which-2026-09-11.md": {
+   "at": 1789111268,
+   "by": "adr189",
+   "sha": "502ca87649d6a8cd2ecc40f82a6b165923a43703a1e2bb4cfb78f1f0be5ccf83"
+  },
   "docs/AI_HARNESS.md": {
-   "at": 1789100868,
-   "by": "adr188",
-   "sha": "dcf9a45044681f7acf0c8044587f5bab7a8fc624d099e4fa7162e2c5f9b229fa"
+   "at": 1789111268,
+   "by": "adr189",
+   "sha": "c50ae679c5f88bc9b42cd48324fafe60e145dfe6ad980a3e08063a01672b9e70"
   },
   "docs/AUDIT-2026-07-14-capability-coverage.md": {
    "at": 1788676922,
@@ -1840,6 +1845,11 @@
    "by": "adr188",
    "sha": "582bb9588c786269fdf2d62aec276eb9be7d5c8015e1660783962f83b6ed5cb3"
   },
+  "docs/CHANGELOG-2026-09-11-adr189-settle-and-say-which.md": {
+   "at": 1789111268,
+   "by": "adr189",
+   "sha": "5bca9fe7df4e91473c77b28beec59c6e17e9b04151e9770bdd0a537779f4f0b4"
+  },
   "docs/DESIGN-adaptive-engine.md": {
    "at": 1788676923,
    "by": "adr146b",
@@ -2491,9 +2501,9 @@
    "sha": "87a75cf8e4e4a93070153679fbaba41272105d2027a9233e517ff608cf275251"
   },
   "tools/badinput_ledger.json": {
-   "at": 1789100868,
-   "by": "adr188",
-   "sha": "d8e60267ad13aa36837e3911621bd3cdbbaa21d4000fac7047171698eb261869"
+   "at": 1789111268,
+   "by": "adr189",
+   "sha": "34e170af88bc53e931552a688e75105fa76b9a16e419bb98a8f6777983e041f7"
   },
   "tools/blind_console.py": {
    "at": 1788676925,
@@ -2725,10 +2735,15 @@
    "by": "adr188",
    "sha": "e04403354684327b26bce90093008790436f47e326b84f023efd54b09f1ca18e"
   },
+  "tools/delivery/adr189.json": {
+   "at": 1789111268,
+   "by": "adr189",
+   "sha": "00e8782aab8ababea44bc5e8e05ac6d6b3cd8dfddd68703e9c7254949cd26cee"
+  },
   "tools/delivery_ledger.json": {
-   "at": 1789100868,
-   "by": "adr188",
-   "sha": "0e0b13eb719f46184ac2f6b0b03da5dd99f59c863642a001b84c0742740b5184"
+   "at": 1789111268,
+   "by": "adr189",
+   "sha": "3540587e4945c94078a00db7d10548227dc142fde4596e7dd389c5b8d4420b95"
   },
   "tools/dwc.py": {
    "at": 1788676926,
@@ -2771,9 +2786,9 @@
    "sha": "01919e137bdbf702ebc887de41aa026b721916da9d3761ce673812d54a22471f"
   },
   "tools/entry_ledger.json": {
-   "at": 1789100868,
-   "by": "adr188",
-   "sha": "fa6aa722ba6eac5bf6dd7689bc4d6fd98fa447ee10e6ab486d871e68cf4bcd3f"
+   "at": 1789111268,
+   "by": "adr189",
+   "sha": "a02935c097774f9ef1c0b9f941d0c6f2a2a057f24ac722689fb52a1c5e57121b"
   },
   "tools/entry_reach.py": {
    "at": 1788676926,
@@ -2826,9 +2841,9 @@
    "sha": "1d5e5bb0fadf4abb88d56125483a66e1bc2367055c7b541aa9d800c6dddde9dc"
   },
   "tools/harness_board.html": {
-   "at": 1789100868,
-   "by": "adr188",
-   "sha": "d43a86c6dd9c69509387427dba2b18181e207b3f1630b120d952894e8a864ab6"
+   "at": 1789111268,
+   "by": "adr189",
+   "sha": "2333a2b196f60481022994b403ad2a83f37f752b2da7728a7c015a955890f117"
   },
   "tools/harness_board.py": {
    "at": 1788783742,
@@ -2836,9 +2851,9 @@
    "sha": "47962dad2b09701c307062194c81ca6ba6675532f03831004a18b93e7bd986c1"
   },
   "tools/harness_contract.py": {
-   "at": 1788676926,
-   "by": "adr146b",
-   "sha": "505f7bfe42009f1acabda8b3b3b801a941b3c39465601e35cc989454d8323bdd"
+   "at": 1789111268,
+   "by": "adr189",
+   "sha": "d11b74c15f8992d4143a43588bc6f503694b07aa896a7012080e50eb28d31eb3"
   },
   "tools/harness_ledger.json": {
    "at": 1788831534,
@@ -2846,9 +2861,9 @@
    "sha": "623cd675df37c608e4c0b6daec8267cc3b0d03a01e1951af7e328f211c43d688"
   },
   "tools/harness_mcp.py": {
-   "at": 1788676926,
-   "by": "adr146b",
-   "sha": "09a5af2db1b4cf036d4cd3f70459c365e59dee193743866c00419d1f9e556e92"
+   "at": 1789111268,
+   "by": "adr189",
+   "sha": "c1e072e67e872e05fab4254044e983b2b45119e178ca13bfb4ab1d6dcda2015c"
   },
   "tools/harness_plugin_fixture.py": {
    "at": 1788676926,
@@ -2866,9 +2881,9 @@
    "sha": "0fefc6546ba228e4d370f838ebbd095c1b9d2d8c6e8d7eef223e5a64f25005ec"
   },
   "tools/harness_plugin_page.py": {
-   "at": 1789100868,
-   "by": "adr188",
-   "sha": "54ceec5696371bfb0231e12cbe0ef50c0284556185739d4c0ace99aad8a83902"
+   "at": 1789111268,
+   "by": "adr189",
+   "sha": "907a9e50d8b57ef708693c0a1bedebaefc2feab87c7a7758b2451718855939a7"
   },
   "tools/harness_plugin_session.py": {
    "at": 1788676926,
@@ -2891,9 +2906,9 @@
    "sha": "2c237f160b2627b6b3b631b1217f161436f7e458d963bf85585aca68470f5f87"
   },
   "tools/harness_walk.py": {
-   "at": 1788676926,
-   "by": "adr146b",
-   "sha": "83fb8b6be3a00a22754807749565472a97eb2ebc3af3cdf22c3b727d98da3ff0"
+   "at": 1789111268,
+   "by": "adr189",
+   "sha": "4b4920a9f1d7e5ec342a735016033c59668604a438c9c4c5bb40c06f27da6247"
   },
   "tools/keep.py": {
    "at": 1788676926,
@@ -2911,9 +2926,9 @@
    "sha": "f48304b6ba757326d34ace4d678db5c671db42e5fd99bb369a0d311b292c79a3"
   },
   "tools/mutant_ledger.json": {
-   "at": 1789100868,
-   "by": "adr188",
-   "sha": "66f392d298dc3ba18ce2f0983cb44dd1f0f7ea7086c7c1a793c2fc868f11251b"
+   "at": 1789111268,
+   "by": "adr189",
+   "sha": "cc9d705a4b7185c0dec64d2869a1e9f2cc3387163bd600918d5152112d787780"
   },
   "tools/mutant_ledger.py": {
    "at": 1788676926,
@@ -2941,9 +2956,9 @@
    "sha": "a77c8ec78f8f78ca72cceac4281c94b753eea8da683bced1440dbdcf01d36fd4"
   },
   "tools/mutate_contract.py": {
-   "at": 1788676927,
-   "by": "adr146b",
-   "sha": "5b72b11d75d51093b7e0547d435b661193958fa4f17f15e6155b7a4e563318da"
+   "at": 1789111268,
+   "by": "adr189",
+   "sha": "f27f192c59e0566d00aac264eaa26dc25897440c0f11b9ff3c5874d421582879"
   },
   "tools/mutate_delivery.py": {
    "at": 1789038486,
@@ -2996,9 +3011,9 @@
    "sha": "c16bfdfd34cbdf73a220aeecb6fe55cc5a385ca43f798ad0d52d50fb4f80971c"
   },
   "tools/mutate_report.py": {
-   "at": 1789100868,
-   "by": "adr188",
-   "sha": "d8939ca98d5c13d17b4bf207dc52ea8a1dfbe386e961dcad1cfe629caf978818"
+   "at": 1789111268,
+   "by": "adr189",
+   "sha": "fa7a6bb3b1e8ae60e48e088fa78f978c59b76c33f0b4ac8e07fcfb72fbe6c02a"
   },
   "tools/mutate_tasks.py": {
    "at": 1789088328,
@@ -3031,9 +3046,9 @@
    "sha": "172e699a8abda0fb0fe773b9204e652001fac70b769e1082739097b699c28db0"
   },
   "tools/outputs_ledger.json": {
-   "at": 1789100868,
-   "by": "adr188",
-   "sha": "f07a6b5a8414cd5dfdb8898b37533967b3550882adbe2a68eb0957a69e911c21"
+   "at": 1789111268,
+   "by": "adr189",
+   "sha": "2a5126c8f9535cbab2059bcb831baaf52da027d3e78d0c586819ae71fa6ea70c"
   },
   "tools/probe.py": {
    "at": 1788676927,
@@ -3066,9 +3081,9 @@
    "sha": "15022dcd97ee97f72ec5f907d0cdfef3ee36da9588f9de47e110519ff9f781e8"
   },
   "tools/published.json": {
-   "at": 1789100868,
-   "by": "adr188",
-   "sha": "d9268cbf53d6f97dc5e5e58f431a6e0d759a114ebff255a5e4b87469189f02aa"
+   "at": 1789111268,
+   "by": "adr189",
+   "sha": "ee57654c9068ce6db464828bde406c943a73d7b72ca8ab11dbaab93a107e5223"
   },
   "tools/reach.py": {
    "at": 1788676928,
@@ -3076,9 +3091,9 @@
    "sha": "b176e4e078bd39b22f5056223c6d1949503ff69c2f029a02d3513a7607db39cb"
   },
   "tools/readable_ledger.json": {
-   "at": 1789100868,
-   "by": "adr188",
-   "sha": "826a0a95c7f0327e2b7c9ebc932253ed8ab6da3f3873fa71d4823363a986585b"
+   "at": 1789111268,
+   "by": "adr189",
+   "sha": "c4af67eaa74fdcda7732836bd7750f8894671de23142f441e0f2ccc53f161e7d"
   },
   "tools/routes.json": {
    "at": 1788676928,
@@ -3111,8 +3126,8 @@
    "sha": "0a2241a252fa68e80b813e601b7bd67cd8ba5c00b8ad07acc98dcd93a42b0268"
   },
   "tools/task_ledger.json": {
-   "at": 1789100856,
-   "by": "adr188",
+   "at": 1789111257,
+   "by": "adr189",
    "sha": "436f1ad5930c5095806b6a99483d869f9f62bfc6df459c86c9aa3a5744c1d964"
   },
   "tools/tasks/fixture-buckets.json": {
@@ -3441,9 +3456,9 @@
    "sha": "b5a35ba0a1cdc46ec58d68e733a4d59aef5c26fe1ccf964894107a9be47e6ae6"
   },
   "tools/verify/counts.json": {
-   "at": 1789100868,
-   "by": "adr188",
-   "sha": "8d32ca074fde7c07d2a3f3b1a67c015e634e6648ae049e51ba6a112634f9035d"
+   "at": 1789111268,
+   "by": "adr189",
+   "sha": "2a5ee6a5b27bb100af0e5c0022c9fc00179ccb9db2fc29c649d9c22c62c05056"
   },
   "tools/verify/run_all.py": {
    "at": 1788783742,
@@ -3506,9 +3521,9 @@
    "sha": "b3bda976a6e93cc74dc2bd9104bf3eda419cfd0501c2d1386ecfffde2f449b93"
   },
   "tools/verify/verify_contract.py": {
-   "at": 1788676929,
-   "by": "adr146b",
-   "sha": "57c45fbf4dd007b3b2addb0ffff06597318f872c381ad635fbb14ee05d691f13"
+   "at": 1789111268,
+   "by": "adr189",
+   "sha": "d14a29f8f0bc0f21537bc9ce689a7a8e72c0ed5f342888f4bf4911c567257674"
   },
   "tools/verify/verify_contrast_slice.py": {
    "at": 1788676929,
@@ -3756,9 +3771,9 @@
    "sha": "62b9e55b0c611506771174d60b99dfe51caf34e1ed773cfa56330e2c61ed40fd"
   },
   "tools/verify/verify_report.py": {
-   "at": 1789100868,
-   "by": "adr188",
-   "sha": "88f3527e21bf917f911ce6c4da9cbdfd0aef0bf8c8626485afb740be3bed0660"
+   "at": 1789111268,
+   "by": "adr189",
+   "sha": "50e6ba524444ded70294fc9b56b379b52231be4cdb1cf7a7e21707bda7acc6b0"
   },
   "tools/verify/verify_routes.py": {
    "at": 1788676930,
@@ -3836,9 +3851,9 @@
    "sha": "36c84a2ce0c9aba0eacddaf22d42e8068a57bb09dd958d2161175ccb03c55524"
   },
   "tools/verify/verify_walk.py": {
-   "at": 1788745341,
-   "by": "adr150",
-   "sha": "008faf6b7aa5c18c85ce66c04507549e99a86ab366c9c20c604855234f79815a"
+   "at": 1789111268,
+   "by": "adr189",
+   "sha": "17f407544b0c2883b3adc92b13cbe545aca47912b3704c55a16f9fdcab3c02e1"
   },
   "tools/walk_ledger.json": {
    "at": 1788817514,

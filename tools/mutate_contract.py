@@ -24,7 +24,8 @@ import argparse, io, os, shutil, subprocess, sys, tempfile
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 TOOLS = os.path.join(ROOT, "tools")
-SUBJECT = ("harness_contract.py", "harness_plugin_page.py")
+SUBJECT = ("harness_contract.py", "harness_plugin_page.py",
+           "harness_mcp.py", "harness_walk.py")    # ADR-189: the code lives in four files
 
 MUTANTS = [
     # ---- ADR-141: a declared risk is a FLOOR ----------------------------
@@ -195,6 +196,26 @@ DESTRUCTIVE_MARK = DESTRUCTIVE_MARK + ("\\u00d7",)''',
      '''        for k in args:
             if False:''',
      "an argument the action does not declare"),
+]
+
+MUTANTS += [
+    # ---- ADR-189: `stale` is a refusal of its own ------------------------
+    ("stale is a spelling of not_found",
+     'Stale = _err("stale")',
+     'Stale = _err("not_found")',
+     "its own code and not a spelling"),
+    ("the new code reaches the transport unmapped",
+     '        "stale": INVALID_PARAMS,                      # ADR-189: the client\'s, and re-readable',
+     '        ',
+     "with no code left unmapped"),
+    ("the robot counts a moved selector as a failure of the target",
+     'REFUSAL = ("invalid_argument", "not_found", "conflict", "stale")   # ADR-189',
+     'REFUSAL = ("invalid_argument", "not_found", "conflict")',
+     "counts it as a REFUSAL"),
+    ("the manifest still says 1.5",
+     'PROTOCOL_VERSION = "1.6"',
+     'PROTOCOL_VERSION = "1.5"',
+     "states a protocol version"),
 ]
 
 KNOWN_EQUIVALENT = [

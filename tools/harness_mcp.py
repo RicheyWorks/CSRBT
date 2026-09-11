@@ -38,7 +38,7 @@ destructiveHint. The gateway enforces policy regardless of what a host does
 with the hints.
 
 Refusals: a HarnessError that is the CLIENT's (invalid_argument, not_found,
-conflict) is a JSON-RPC error with code -32602; forbidden and unauthorized
+conflict, stale) is a JSON-RPC error with code -32602; forbidden and unauthorized
 are -32001; unavailable is -32002; a target that ran and said no is a normal
 result with isError:true, the way MCP tells a model "this happened and it
 was a no" rather than "you asked wrongly".
@@ -73,6 +73,7 @@ SERVER = {"name": "csrbt-harness", "version": C.PROTOCOL_VERSION}
 PARSE_ERROR, INVALID_REQUEST, METHOD_NOT_FOUND, INVALID_PARAMS = -32700, -32600, -32601, -32602
 POLICY_REFUSED, TARGET_UNAVAILABLE = -32001, -32002
 CODE = {"invalid_argument": INVALID_PARAMS, "not_found": INVALID_PARAMS, "conflict": INVALID_PARAMS,
+        "stale": INVALID_PARAMS,                      # ADR-189: the client's, and re-readable
         "forbidden": POLICY_REFUSED, "unauthorized": POLICY_REFUSED,
         "unavailable": TARGET_UNAVAILABLE, "failed": TARGET_UNAVAILABLE}
 

@@ -422,6 +422,34 @@ MUTANTS += [
      "the runner's own spelling"),
 ]
 
+MUTANTS += [
+    # ---- ADR-189: settling -----------------------------------------------
+    ("the risk read trusts the page as it finds it",
+     '        self._ensure_settled()\n        sel = args.get("selector")',
+     '        sel = args.get("selector")',
+     "still reads as DESTRUCTIVE"),
+    ("an act does not settle the page it is about to touch",
+     '        if action not in ("open", "reload"):\n            self._ensure_settled()',
+     '        if False:\n            self._ensure_settled()',
+     "an act can be the first thing"),
+    ("the door settles once per SESSION",
+     '            if self.page.evaluate("() => window.__H_SETTLED || null"):\n                return',
+     '            if getattr(self, "_ever", False):\n                return\n            self._ever = True',
+     "settles the page it lands on"),
+    ("the settle takes the first reading it gets",
+     '            if v == last:\n                break\n            last = v',
+     '            if True:\n                break\n            last = v',
+     "adds AFTER it finishes loading"),
+    ("a reload answers without the version it settled at",
+     '            v = self._settle()\n            return True, "reloaded %s" % (self.name or ""), {"page": self.name, "version": v}',
+     '            self._settle()\n            return True, "reloaded %s" % (self.name or ""), {"page": self.name}',
+     "answers with its version"),
+    ("the marker is not the version, so nothing ties the two together",
+     "window.__H_SETTLED = v || '1'; }",
+     "window.__H_SETTLED = 'x'; }",
+     "marks the document with the version it settled at"),
+]
+
 KNOWN_EQUIVALENT = []
 
 

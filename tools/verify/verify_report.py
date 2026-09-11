@@ -33,6 +33,10 @@ gateway child), so the mutant runner can afford to run it many times.
      positional selector may be stamped with the snapshot it came from and
      is refused when the numbering has moved, and a name that resolves is
      never raised to DESTRUCTIVE for being unresolvable
+  G. settling (ADR-189): a page that has just been navigated to is stamped
+     and waited on before the first call touches it, so a session's FIRST
+     action can be an act rather than a look, the risk read of that first
+     action sees the page the act will see, and the wait is per document
   E. the environment as an argument (ADR-134): with nothing set, Date and
      Math.random are the real ones; set-clock freezes what "now" answers and
      leaves every other Date form alone; set-seed makes Math.random the
@@ -1006,6 +1010,102 @@ with sync_playwright() as pw:
        and pg.evaluate(PP.RESOLVE, list(_form(blank[0]["address"]))).get("selector") == blank[0]["selector"],
        "and a control the page gives no name at all publishes its INDEX, stamped with this snapshot -- an address "
        "that cannot be a name says so instead of being empty: %s" % [c["address"] for c in blank])
+    # ---- G. settling (ADR-189) -----------------------------------------------
+    #
+    # Three of the four blind operators (ADR-187) opened with a `pick` or an
+    # `activate` and were told the page had no control of that kind at all,
+    # because the kit builds controls in script at load and nothing had stamped
+    # them yet. The door settles now. The check that matters most is not that
+    # the act works -- it is that the RISK READ of that first act sees the same
+    # page the act will, because the gateway asks for the risk first and a
+    # plugin that settled only in `execute` would wave a destructive button
+    # through on the first call of every session.
+    fresh = ctx.new_page()
+    fresh.goto("file://" + os.path.join(docs, "stand-sheet.html").replace(os.sep, "/"),
+               wait_until="domcontentloaded")
+    fp = PP.PagePlugin(fresh, "stand-sheet.html", kinds=SWARM_KINDS)
+    ck(fresh.evaluate("() => window.__H_SETTLED || null") is None,
+       "a page that has only been navigated to is not settled yet")
+    risk0 = fp.risk_for("activate", {"selector": "@↩ Undo"})
+    ck(risk0 and risk0[0] == "DESTRUCTIVE" and "undo" in risk0[1],
+       "the FIRST call of a session, by name, on a page nothing has looked at, still reads as DESTRUCTIVE -- the "
+       "risk read settles the page itself, or it would answer for an empty one and the act would press what the "
+       "name turned out to mean: %s" % (risk0,))
+    # a SECOND untouched page, because the risk read above has already settled
+    # the first one: each claim gets a document nothing has looked at, or the
+    # check is measuring the check before it.
+    fresh2 = ctx.new_page()
+    fresh2.goto("file://" + os.path.join(docs, "stand-sheet.html").replace(os.sep, "/"),
+                wait_until="domcontentloaded")
+    fp2 = PP.PagePlugin(fresh2, "stand-sheet.html", kinds=SWARM_KINDS)
+    try:
+        ok_g, _, out_g = fp2.execute("read-control", {"selector": "#kReset"})
+    except HarnessError as e:
+        ok_g, out_g = False, {"selector": str(e)[:70]}
+    ck(ok_g and str(out_g.get("selector", "")).startswith("action_btn:"),
+       "and an act can be the first thing a session does -- no leading observe, no snapshot, a name: %s"
+       % out_g.get("selector"))
+    fresh2.close()
+    v_g = fresh.evaluate("() => window.__H_SETTLED || null")
+    ck(v_g and v_g == fp.observe(sensitive=True)["version"],
+       "the settle marks the document with the version it settled at, and that is the version the snapshot "
+       "then reports: %s" % v_g)
+    # per document: a reload takes the marker with it, and the answer says so
+    okr, _, outr = fp.execute("reload", {})
+    ck(okr and outr.get("version") and fresh.evaluate("() => window.__H_SETTLED || null") == outr["version"],
+       "a reload settles the document it arrives in and answers with its version -- the marker lives on the "
+       "window, so it leaves with the old document and nothing in the plugin has to remember: %s" % outr)
+    ok2, _, out2 = fp.execute("read-control", {"selector": "#kReset"})
+    ck(ok2, "...and the first call after a reload needs no observe either")
+    # ONCE PER DOCUMENT, not once per session. A plugin that remembered "I have
+    # settled" would be right about the first page and wrong about every page
+    # after it, and a session that navigates is the normal case.
+    fresh.goto("file://" + os.path.join(docs, "collection-sheet.html").replace(os.sep, "/"),
+               wait_until="domcontentloaded")
+    fp.name = "collection-sheet.html"
+    try:
+        ok3, _, out3 = fp.execute("read-control", {"selector": "#cName"})
+    except HarnessError as e:
+        ok3, out3 = False, {"selector": str(e)[:70]}
+    ck(ok3 and str(out3.get("selector", "")).startswith("text_in:"),
+       "a session that navigates settles the page it lands on, not only the one it started on -- the marker is the "
+       "document's, and the document is new: %s" % out3.get("selector"))
+    # the stale refusal carries the new code
+    snap_g = fp.observe(sensitive=True)
+    try:
+        fp.execute("read-control", {"selector": snap_g["controls"][0]["selector"] + "@vgone"})
+        code_g = "not refused"
+    except HarnessError as e:
+        code_g = e.code
+    ck(code_g == "stale",
+       "a selector stamped with a snapshot the page has moved past is refused `stale`, not `not_found` and not "
+       "`invalid_argument`: the argument was well formed and the control is there -- what expired is the "
+       "caller's name for it, and only its own code says read again: %r" % code_g)
+    # a control that is not there when the page finishes loading. The loop
+    # waits for two readings that AGREE, so a control that appears while it is
+    # looking is caught; one reading, or a fixed sleep shorter than the page,
+    # would miss it. It is a bounded wait, not a promise: a page that adds a
+    # control after the loop has given up is a page the door cannot settle,
+    # and that is the honest limit of doing this without a session.
+    slow = os.path.join(tempfile.mkdtemp(), "slow.html")
+    io.open(slow, "w", encoding="utf-8").write(
+        u"""<!doctype html><html><head><meta charset="utf-8"><title>slow</title></head><body>
+        <button id="early">early</button>
+        <script>setTimeout(function () {
+          var b = document.createElement("button");
+          b.id = "late"; b.textContent = "late"; document.body.appendChild(b);
+        }, 40);</script></body></html>""")
+    fresh.goto("file://" + slow.replace(os.sep, "/"), wait_until="domcontentloaded")
+    sp = PP.PagePlugin(fresh, "slow.html", kinds=SWARM_KINDS)
+    try:
+        ok_s, _, out_s = sp.execute("read-control", {"selector": "#late"})
+    except HarnessError as e:
+        ok_s, out_s = False, {"selector": str(e)[:60]}
+    ck(ok_s and out_s.get("selector"),
+       "a control the page adds AFTER it finishes loading is there for the first call too -- the loop waits for "
+       "two readings of the numbering that agree, so it waits out a page that is still building: %s"
+       % out_s.get("selector"))
+    fresh.close()
     ctx.close()
     b.close()
 

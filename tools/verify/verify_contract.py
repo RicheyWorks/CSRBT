@@ -223,9 +223,36 @@ ck(len(g._done) <= C.REPLAY_CACHE_LIMIT,
 # ---- 6. the manifest is enough to build a client from --------------------
 g, _ = gw(allow={"SENSITIVE_READ": True})
 m = g.manifest(TOKEN)
-ck(m["protocolVersion"] == "1.5",
-   "the manifest states a protocol version (1.5: ADR-141, a declared risk is a FLOOR -- an action may be raised "
-   "per call by the target that knows what it was pointed at)")
+ck(m["protocolVersion"] == "1.6",
+   "the manifest states a protocol version (1.6: ADR-189, `stale` is a refusal of its own -- an argument that was "
+   "true when the client read it and is not now, which is neither malformed nor missing)")
+# ---- ADR-189: the refusal vocabulary says WHICH of the client's problems ----
+#
+# A client is told to do a different thing by each of these, and a door that
+# spells three instructions the same way teaches a client to retry blindly:
+# invalid_argument means fix the call, not_found means look for another
+# subject, stale means READ AGAIN and call with what you find. The blind trial
+# watched an operator meet all three as one.
+_codes = {}
+for _name, _mk in (("invalid_argument", C.InvalidArgument), ("not_found", C.NotFound),
+                   ("conflict", C.Conflict), ("stale", C.Stale), ("forbidden", C.Forbidden),
+                   ("unauthorized", C.Unauthorized), ("unavailable", C.Unavailable), ("failed", C.Failed)):
+    _e = _mk("why")
+    _codes[_name] = (_e.code, _e.as_dict())
+ck(all(v[0] == k for k, v in _codes.items())
+   and all(v[1] == {"ok": False, "code": k, "message": "why"} for k, v in _codes.items()),
+   "every refusal carries its own code, and renders as one a transport can map: %s" % sorted(_codes))
+ck(C.Stale("x").code == "stale" and C.Stale("x").code not in ("invalid_argument", "not_found"),
+   "`stale` is its own code and not a spelling of invalid_argument or not_found -- the argument was well formed, "
+   "and the control it named is on the page")
+import harness_mcp as _M
+ck(_M.CODE.get("stale") == _M.INVALID_PARAMS and set(_M.CODE) >= set(_codes),
+   "and the transport maps it the way it maps the client's other mistakes, with no code left unmapped: %s"
+   % sorted(set(_codes) - set(_M.CODE)))
+import harness_walk as _W
+ck("stale" in _W.REFUSAL,
+   "and the robot counts it as a REFUSAL rather than a failure: a selector the page has moved past is the walk "
+   "doing its job, not the target misbehaving: %s" % (_W.REFUSAL,))
 ck(m["strictArguments"] is True, "and that unknown arguments are refused")
 ck(m["tokenMinLength"] == C.TOKEN_MIN, "and the minimum token length")
 ck(set(m["policy"]) == set(C.RISKS), "and the effective policy for every risk")
