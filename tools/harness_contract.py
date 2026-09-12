@@ -127,6 +127,29 @@ def _is_scalar(v):
     return v is None or isinstance(v, (str, int, float, bool))
 
 
+def key_for(path, keys):
+    """What identifies the entries of the list at `path`, or None.
+
+    An exact path wins; otherwise a pattern whose `*` segments match. ADR-191
+    could only name a list it could spell out in full, which was enough for a
+    snapshot -- `controls`, `tabs`, `panes` are fixed names. A REPORT is not:
+    its lists live under ids the PAGE chose (`lines/kCountOut`,
+    `tables/p-method`), and a spec that had to enumerate them would go stale
+    the first time a page grew a box. `lines/*` says what the author means --
+    every list under `lines` is keyed the same way -- without claiming to know
+    what the page will call them."""
+    if path in keys:
+        return keys[path]
+    want = path.split(PATH_SEP)
+    for pat, fields in keys.items():
+        if "*" not in pat:
+            continue
+        segs = pat.split(PATH_SEP)
+        if len(segs) == len(want) and all(a == "*" or a == b for a, b in zip(segs, want)):
+            return fields
+    return None
+
+
 def _key_of(entry, fields):
     """The identity of one entry of a keyed list: the first field it HAS.
 
@@ -192,11 +215,12 @@ def stamp_of(snap, spec=None):
     # uses, so the stamp and the diff can never disagree about whether
     # something moved.
     keys = spec.get("keys") or {}
-    for p in keys:
+    for p in list(paths):
+        fields = key_for(p, keys)
         v = paths.get(p)
-        if isinstance(v, list):
+        if fields is not None and isinstance(v, list):
             paths[p] = sorted(v, key=lambda e: json.dumps(
-                [_key_of(e, keys[p]), e], sort_keys=True, default=str))
+                [_key_of(e, fields), e], sort_keys=True, default=str))
     body = json.dumps([[k, paths[k]] for k in sorted(paths)],
                       sort_keys=True, default=str, ensure_ascii=False)
     h = hashlib.sha256(body.encode("utf-8")).hexdigest()[:12]
@@ -240,7 +264,7 @@ def diff_of(before, after, spec=None, cap=DIFF_CAP):
     for p in sorted(set(pb) | set(pa)):
         in_b, in_a = p in pb, p in pa
         vb, va = pb.get(p), pa.get(p)
-        spec_k = keys.get(p)
+        spec_k = key_for(p, keys)
         if isinstance(vb, list) or isinstance(va, list):
             if not in_b or not in_a:
                 (d["gained"].__setitem__(p, _brief(va)) if in_a else d["lost"].append(p))

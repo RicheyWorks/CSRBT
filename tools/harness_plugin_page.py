@@ -33,7 +33,7 @@ sys.path.insert(0, HERE)
 sys.path.insert(0, os.path.join(HERE, "verify"))
 import _kit
 import harness as H
-from harness_contract import (ActionSpec, ArgumentSpec, Plugin, PluginDescriptor,
+from harness_contract import (ActionSpec, ArgumentSpec, Plugin, PluginDescriptor, diff_of, stamp_of,
                               Conflict, Failed, HarnessError, InvalidArgument, NotFound,
                               Stale, Unavailable)
 
@@ -1196,6 +1196,11 @@ class PagePlugin(Plugin):
         # environment that survives one navigation and not the next would be
         # worse than none at all.
         self._env = {}
+        # ADR-195: the last report this session was served, and its stamp. One
+        # per session, like the gateway's snapshot baseline -- and for the same
+        # reason: a diff is "since you last looked", never "since some moment
+        # the door picked".
+        self._last_report = None
         self.page = page
         self.name = name
         self._catch()
@@ -1298,8 +1303,18 @@ class PagePlugin(Plugin):
                            "*Note, *List, *Table, toast...), which boxes a reader can see, "
                            "every table's cells, the row count of every list, and the "
                            "headings in order. What an "
-                           "operator checks a data-entry page's arithmetic against.",
-                           "SENSITIVE_READ", []),
+                           "operator checks a data-entry page's arithmetic against. Carries a "
+                           "`stamp`; pass the last one back as `since` and this answers with "
+                           "what CHANGED instead of the whole report (ADR-195).",
+                           "SENSITIVE_READ",
+                           [ArgumentSpec("since", "string",
+                                         "The `stamp` of the last report this session read. The "
+                                         "answer is then the change -- which figures moved, which "
+                                         "boxes, which lines appeared -- and not the report. A "
+                                         "stamp this session did not issue gets the whole report "
+                                         "and says so.",
+                                         pattern=r"^s[0-9a-f]{12}$",
+                                         examples=["s3f2a91c40b7e"])]),
                 # ---- the environment as an argument (ADR-134) ----
                 #
                 # A page that reads the clock or the dice answers differently
@@ -1420,6 +1435,22 @@ class PagePlugin(Plugin):
                              "SENSITIVE_READ enabled")
         return s
 
+    # ADR-195: what identity means on a REPORT, which is a different document
+    # from a snapshot and needs saying separately.
+    #
+    # `figures`, `by`, `sources` and `rows` are maps of scalars and diff
+    # themselves. `boxes` is a map of long strings -- a changed box is reported
+    # as that box changing, with the first two hundred characters of each side,
+    # which is what tells a reader WHICH box moved without paying for both
+    # copies. The lists are the interesting part: `lines/*` and `shown` and
+    # `headings` are keyed by their own text, so a line that appeared is named
+    # rather than counted, and `tables/*` are rows of cells with no identity of
+    # their own -- a table reports that it gained or lost rows, which is true,
+    # rather than pretending row three is the same row three.
+    REPORT_IDENTITY = {"keys": {"shown": "self", "headings": "self", "order": "self",
+                                "lines/*": "self", "rules": ["t"]},
+                       "noise": []}
+
     def identity(self, snapshot=None):
         """ADR-191: a control is its ADDRESS, and order is not change.
 
@@ -1500,6 +1531,47 @@ class PagePlugin(Plugin):
         return pools
 
     # -- execution ----------------------------------------------------------
+    # -- the report, and what changed in it (ADR-195) -----------------------
+    def _report(self, r, since=None):
+        """ADR-191 gave the SNAPSHOT a stamp and a `since`. The report got
+        neither, and the fourth blind trial (ADR-194) reported it twice, in two
+        operators' own words: the diff is control-shaped, so an operator
+        watching a computed figure has to re-read the whole report. One of them
+        counted fourteen read-report calls it would not have needed.
+
+        A report is not a snapshot -- it is not taken on every act, it is
+        thirty to a hundred kilobytes, and it is the thing a science task is
+        actually about. So it gets its own stamp, its own baseline, and the
+        same two functions: `stamp_of` and `diff_of` from the contract, with a
+        spec that says what identity means on a report. Two documents, one
+        algorithm; a third would be a third thing to get wrong."""
+        st = stamp_of(r, self.REPORT_IDENTITY)
+        served = dict(r)
+        served["stamp"] = st
+        prev, self._last_report = self._last_report, (st, r)
+        if not since:
+            return True, ("%d figure(s), %d box(es), %d list(s), %d table(s), %d heading(s)"
+                          % (len(r["figures"]), len(r["boxes"]), len(r["rows"]),
+                             len(r["tables"]), len(r["headings"]))), served
+        if prev is None or prev[0] != since:
+            # FAIL TOWARD MORE, exactly as observe does: a stamp this session
+            # holds no report for gets the whole report and the reason, because
+            # a diff against a baseline that is not there would be invented.
+            served["since"] = since
+            served["sinceUnknown"] = (
+                "this session holds no report stamped %r for %s, so there is nothing to "
+                "compare against and the whole report is here instead" % (since, self.name))
+            return True, "the whole report: %r is not a stamp this session issued" % since, served
+        if st == since:
+            return True, "nothing in the report has changed", {
+                "stamp": st, "since": since, "changed": False, "diff": None,
+                "route": r.get("route")}
+        d = diff_of(prev[1], r, self.REPORT_IDENTITY)
+        moved = len(d["fields"]) + len(d["gained"]) + len(d["lost"])
+        return True, "%d figure(s) or box(es) moved since %s" % (moved, since), {
+            "stamp": st, "since": since, "changed": True, "diff": d,
+            "route": r.get("route")}
+
     def _catch(self):
         """Install the payload capture this plugin's collect-output reads.
 
@@ -1771,8 +1843,7 @@ class PagePlugin(Plugin):
                 r = self.page.evaluate(REPORT)
             except Exception as e:
                 raise Unavailable("page not readable: %s" % str(e)[:120])
-            return True, "%d figure(s), %d box(es), %d list(s), %d table(s), %d heading(s)" % (
-                len(r["figures"]), len(r["boxes"]), len(r["rows"]), len(r["tables"]), len(r["headings"])), r
+            return self._report(r, args.get("since"))
 
         sel = args.get("selector")
         if sel is not None:

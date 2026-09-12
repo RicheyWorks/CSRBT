@@ -43,6 +43,10 @@ gateway child), so the mutant runner can afford to run it many times.
      published split where the page splits it, beside the run of text every
      task holds; and the prose the page writes about its own arithmetic is
      handed over as the page wrote it
+  J. the report (ADR-195): a report carries its own stamp and takes a `since`,
+     so an operator watching a computed figure is told which figure moved and
+     which box, in a fraction of the bytes -- the gap the fourth blind trial
+     named twice
   I. the session (ADR-191): a page snapshot carries the observation's own
      stamp beside the numbering's; a page nobody touched answers `nothing
      changed` in a line; and an act answers with what it DID -- the controls
@@ -1419,6 +1423,118 @@ with sync_playwright() as pw:
     ck(q.get("changed") is False,
        "the stamp an act hands back is the one the next `since` calls current, so a client "
        "that reads every response never has to guess where the session is")
+
+    pg.close()
+    ctx.close()
+    b.close()
+
+
+# ---- J. the report, and what changed in it (ADR-195) -------------------------
+#
+# ADR-191 gave the snapshot a stamp and a `since`; the report got neither, and
+# the fourth blind trial (ADR-194) reported it twice, in two operators' own
+# words: the diff is control-shaped, so an operator watching a computed figure
+# has to re-read the whole report. One of them counted fourteen read-report
+# calls it would not have needed. This is that gap closed, with the same two
+# functions the snapshot uses.
+
+with sync_playwright() as pw:
+    b = pw.chromium.launch()
+    ctx = b.new_context(viewport=H.VIEWPORT)
+    ctx.set_offline(True)
+    ctx.add_init_script(H.STUBS)
+    pg = ctx.new_page()
+    docs = os.environ.get("CSRBT_DOCS_DIR") or os.path.join(_kit.ROOT, "docs")
+    try:
+        from swarm import SWARM_KINDS
+    except Exception:
+        SWARM_KINDS = None
+    pg.goto("file://" + os.path.join(docs, "stand-sheet.html").replace(os.sep, "/"),
+            wait_until="domcontentloaded")
+    rp = PP.PagePlugin(pg, "stand-sheet.html", kinds=SWARM_KINDS)
+    rp.observe(sensitive=True)
+
+    _ok, _m, r1 = rp.execute("read-report", {})
+    nfull = len(json.dumps(r1))
+    ck(isinstance(r1.get("stamp"), str) and r1["stamp"].startswith("s") and r1.get("figures"),
+       "a report carries a stamp beside everything it always carried: %r" % r1.get("stamp"))
+    _ok, _m, r1b = rp.execute("read-report", {})
+    ck(r1b["stamp"] == r1["stamp"],
+       "and a report nobody made the page recompute has the same stamp twice: %s vs %s"
+       % (r1["stamp"], r1b["stamp"]))
+
+    _ok, msg, quiet = rp.execute("read-report", {"since": r1b["stamp"]})
+    ck(quiet.get("changed") is False and quiet.get("diff") is None and "figures" not in quiet,
+       "asked with the current stamp it says nothing changed and does NOT send the report "
+       "again: %s" % sorted(quiet))
+    ck(len(json.dumps(quiet)) * 50 < nfull,
+       "which is the whole saving: %d bytes against a %d-byte report"
+       % (len(json.dumps(quiet)), nfull))
+
+    # a change that moves a FIGURE and a BOX
+    base = quiet["stamp"]
+    rp.execute("set-text", {"selector": "@control:kSearch", "value": "white"})
+    _ok, msg, moved = rp.execute("read-report", {"since": base})
+    d = moved["diff"]
+    nd = len(json.dumps(moved))
+    ck(moved["changed"] is True and moved["since"] == base and d,
+       "a stamp behind the current one gets the CHANGE and not the report: %s" % sorted(moved))
+    ck(nd * 5 < nfull,
+       "THE MEASURE, and the thing ADR-194's operators asked for: %d bytes to learn what a "
+       "call did to the report, against %d to read it again" % (nd, nfull))
+    ck(any(k.startswith("boxes/") for k in d["fields"]),
+       "and it names the box that moved, with both sides of it: %s"
+       % list(d["fields"])[:3])
+    ck(all(len(str(v[0])) <= 210 and len(str(v[1])) <= 210 for v in d["fields"].values()),
+       "each side trimmed, because a diff that carried a box's whole text twice would cost "
+       "more than the report it saves")
+    ck(any(k.startswith("lines/") for k in d["appeared"]),
+       "a LINE that appeared is NAMED rather than counted -- which needs the wildcard "
+       "(ADR-195): the lists of a report live under ids the page chose, and a spec that had "
+       "to spell them out would go stale the first time a page grew a box: %s"
+       % list(d["appeared"])[:3])
+
+    # a stamp this session did not issue
+    _ok, _m, lost = rp.execute("read-report", {"since": "s000000000000"})
+    ck("figures" in lost and lost.get("sinceUnknown"),
+       "a stamp this session did not issue gets the WHOLE report and the reason -- the same "
+       "way observe fails toward more (ADR-191), because a diff against a baseline that is "
+       "not there would be invented: %s" % sorted(lost)[:6])
+
+    # the baseline is the last report SERVED
+    _ok, _m, a = rp.execute("read-report", {})
+    rp.execute("set-text", {"selector": "@control:kSearch", "value": "whitebark"})
+    _ok, _m, bb = rp.execute("read-report", {})
+    _ok, _m, stale = rp.execute("read-report", {"since": a["stamp"]})
+    ck(stale.get("sinceUnknown") and "figures" in stale,
+       "and the baseline is the last report this session was SERVED, so a stamp two reads "
+       "old is one the door no longer holds -- said plainly rather than diffed against "
+       "whatever is nearest")
+    _ok, _m, near = rp.execute("read-report", {"since": bb["stamp"]})
+    ck(near.get("changed") is False,
+       "while the stamp from the read just before is current, as it should be")
+
+    # the two stamps are about different documents
+    _ok, _m, before = rp.execute("read-report", {})
+    v0 = rp.observe(sensitive=True)["version"]
+    rp.execute("set-text", {"selector": "#cwdD", "value": "12 8 31 45 9"})
+    _ok, _m, after = rp.execute("read-report", {"since": before["stamp"]})
+    ck(after["changed"] is True and rp.observe(sensitive=True)["version"] == v0,
+       "a report's stamp and ADR-188's `version` are about different documents: five downed-wood "
+       "diameters recomputed two boxes while the page grew and lost no control, so what the page "
+       "SAYS moved and its numbering did not. A door with only one of the two stamps could not "
+       "tell a reader that -- and the converse holds on the same page, where narrowing the key "
+       "renumbered the species buttons and moved the report at once")
+
+    # tables are counted, not keyed
+    src = io.open(os.path.join(_kit.TOOLS_DIR, "harness_plugin_page.py"), encoding="utf-8").read()
+    ck('"lines/*": "self"' in src and '"tables' not in src.split("REPORT_IDENTITY")[1][:400],
+       "a table's rows are NOT keyed: a row of cells has no identity of its own, so a table "
+       "reports that it gained or lost rows rather than pretending row three is the same "
+       "row three")
+    ck("stamp_of(r, self.REPORT_IDENTITY)" in src and "diff_of(prev[1], r, self.REPORT_IDENTITY)" in src,
+       "and the report uses the contract's OWN stamp and diff -- two documents, one "
+       "algorithm; a third would be a third thing to get wrong")
 
     pg.close()
     ctx.close()

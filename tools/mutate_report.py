@@ -564,6 +564,43 @@ def run_one(find, repl, expect):
         shutil.rmtree(tmp, ignore_errors=True)
 
 
+MUTANTS += [
+    # ---- ADR-195: the report's own stamp, and its `since` ------------------
+    ("a report goes out without a stamp, so there is nothing to ask with",
+     '        served["stamp"] = st',
+     '        pass',
+     "a report carries a stamp beside everything"),
+    ("`since` is ignored, so every read is the whole report again",
+     '        if not since:',
+     '        if True:',
+     "does NOT send the report"),
+    ("a report whose stamp did not move is sent anyway, as an empty diff",
+     '        if st == since:\n            return True, "nothing in the report has changed", {',
+     '        if False:\n            return True, "nothing in the report has changed", {',
+     "does NOT send the report"),
+    ("the baseline is the FIRST report served rather than the last",
+     '        prev, self._last_report = self._last_report, (st, r)',
+     '        prev = self._last_report\n        if prev is None:\n            self._last_report = (st, r)',
+     "the read just before is current"),
+    ("a stamp this session never issued is diffed against whatever is nearest",
+     '        if prev is None or prev[0] != since:',
+     '        if prev is None:',
+     "gets the WHOLE report and the reason"),
+    ("the report's lists are keyed by a name, so a page's own ids miss",
+     '                                "lines/*": "self", "rules": ["t"]},',
+     '                                "lines": "self", "rules": ["t"]},',
+     "is NAMED rather than counted"),
+    ("a table's rows are keyed, so row three is taken for row three",
+     '                                "lines/*": "self", "rules": ["t"]},',
+     '                                "lines/*": "self", "tables/*": "self", "rules": ["t"]},',
+     "a table's rows are NOT keyed"),
+    ("the report gets a digest of its own instead of the contract's stamp",
+     '        st = stamp_of(r, self.REPORT_IDENTITY)',
+     '        st = "s" + __import__("hashlib").sha256(\n            repr(sorted(r.items())).encode("utf-8")).hexdigest()[:12]',
+     "uses the contract's OWN stamp and diff"),
+]
+
+
 def main(argv):
     ap = argparse.ArgumentParser()
     ap.add_argument("--list", action="store_true")

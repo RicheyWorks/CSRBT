@@ -579,7 +579,7 @@
    "survived": 0
   },
   "mutate_contract": {
-   "at": 1789208787,
+   "at": 1789215152,
    "equivalent": 1,
    "equivalents": [
     {
@@ -588,8 +588,8 @@
     }
    ],
    "inconclusive": 0,
-   "killed": 60,
-   "mutants": 60,
+   "killed": 65,
+   "mutants": 65,
    "rows": [
     {
      "detail": "8 failure(s); first: an action that declared mayRise is asked, with this call's ",
@@ -772,7 +772,7 @@
      "verdict": "killed"
     },
     {
-     "detail": "2 failure(s); first: a keyed list REORDERED is not a change -- these pages rebui",
+     "detail": "3 failure(s); first: a keyed list REORDERED is not a change -- these pages rebui",
      "name": "the stamp reads a rebuilt list in the order the rebuild produced",
      "verdict": "killed"
     },
@@ -887,8 +887,33 @@
      "verdict": "killed"
     },
     {
-     "detail": "1 failure(s); first: --end closes the door and takes its socket with it BEFORE i",
+     "detail": "2 failure(s); first: --end closes the door and takes its socket with it BEFORE i",
      "name": "a closed session leaves its socket behind, so the next one talks to a corpse",
+     "verdict": "killed"
+    },
+    {
+     "detail": "3 failure(s); first: `lines/*` keys every list under `lines`, whatever the page ",
+     "name": "a pattern in the key spec is not a pattern, only a name",
+     "verdict": "killed"
+    },
+    {
+     "detail": "1 failure(s); first: and nothing else: an exact path still wins, a pattern match",
+     "name": "a pattern matches however many segments the path has",
+     "verdict": "killed"
+    },
+    {
+     "detail": "2 failure(s); first: and nothing else: an exact path still wins, a pattern match",
+     "name": "an exact path is looked up through the pattern loop like any other",
+     "verdict": "killed"
+    },
+    {
+     "detail": "1 failure(s); first: and the stamp reads the wildcard the same way the diff does",
+     "name": "the stamp reads the key spec the old way, so it cannot see a wildcard",
+     "verdict": "killed"
+    },
+    {
+     "detail": "1 failure(s); first: so a wildcard-keyed list names what appeared rather than co",
+     "name": "the diff reads the key spec the old way, so it cannot see a wildcard",
      "verdict": "killed"
     }
    ],
@@ -2283,12 +2308,12 @@
    "survived": 0
   },
   "mutate_report": {
-   "at": 1789172610,
+   "at": 1789217366,
    "equivalent": 0,
    "equivalents": [],
    "inconclusive": 0,
-   "killed": 110,
-   "mutants": 110,
+   "killed": 118,
+   "mutants": 118,
    "rows": [
     {
      "detail": "7 failure(s); first: a .tile and a .stat .st are both figures: the .l/.v pair is",
@@ -2316,7 +2341,7 @@
      "verdict": "killed"
     },
     {
-     "detail": "7 failure(s); first: boxes follow the kit's naming -- an*, *Out, *Box, *Stat, *M",
+     "detail": "9 failure(s); first: boxes follow the kit's naming -- an*, *Out, *Box, *Stat, *M",
      "name": "boxes are the old five prefixes only",
      "verdict": "killed"
     },
@@ -2426,7 +2451,7 @@
      "verdict": "killed"
     },
     {
-     "detail": "2 failure(s); first: a dial option is labelled by its <span>, not by its text ru",
+     "detail": "5 failure(s); first: a dial option is labelled by its <span>, not by its text ru",
      "name": "a dial option is labelled by its whole text",
      "verdict": "killed"
     },
@@ -2781,7 +2806,7 @@
      "verdict": "killed"
     },
     {
-     "detail": "1 failure(s); first: every box is published split as well as whole, and the two ",
+     "detail": "2 failure(s); first: every box is published split as well as whole, and the two ",
      "name": "a box is published whole and not split",
      "verdict": "killed"
     },
@@ -2838,6 +2863,46 @@
     {
      "detail": "2 failure(s); first: the snapshot hands the field's value over AS THE FIELD HOLD",
      "name": "the snapshot's value is a reading of its own rather than the field's",
+     "verdict": "killed"
+    },
+    {
+     "detail": "1 failure(s); first: a report carries a stamp beside everything it always carrie",
+     "name": "a report goes out without a stamp, so there is nothing to ask with",
+     "verdict": "killed"
+    },
+    {
+     "detail": "2 failure(s); first: asked with the current stamp it says nothing changed and do",
+     "name": "`since` is ignored, so every read is the whole report again",
+     "verdict": "killed"
+    },
+    {
+     "detail": "2 failure(s); first: asked with the current stamp it says nothing changed and do",
+     "name": "a report whose stamp did not move is sent anyway, as an empty diff",
+     "verdict": "killed"
+    },
+    {
+     "detail": "1 failure(s); first: while the stamp from the read just before is current, as it",
+     "name": "the baseline is the FIRST report served rather than the last",
+     "verdict": "killed"
+    },
+    {
+     "detail": "2 failure(s); first: a stamp this session did not issue gets the WHOLE report an",
+     "name": "a stamp this session never issued is diffed against whatever is nearest",
+     "verdict": "killed"
+    },
+    {
+     "detail": "2 failure(s); first: a LINE that appeared is NAMED rather than counted -- which ",
+     "name": "the report's lists are keyed by a name, so a page's own ids miss",
+     "verdict": "killed"
+    },
+    {
+     "detail": "1 failure(s); first: a table's rows are NOT keyed: a row of cells has no identit",
+     "name": "a table's rows are keyed, so row three is taken for row three",
+     "verdict": "killed"
+    },
+    {
+     "detail": "1 failure(s); first: and the report uses the contract's OWN stamp and diff -- tw",
+     "name": "the report gets a digest of its own instead of the contract's stamp",
      "verdict": "killed"
     }
    ],

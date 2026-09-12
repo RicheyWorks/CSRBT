@@ -228,18 +228,16 @@ MUTANTS += [
      "the same observation twice gets the same stamp"),
     ("the stamp reads a rebuilt list in the order the rebuild produced",
      '''    keys = spec.get("keys") or {}
-    for p in keys:
-        v = paths.get(p)
-        if isinstance(v, list):''',
+    for p in list(paths):
+        fields = key_for(p, keys)''',
      '''    keys = spec.get("keys") or {}
     for p in []:
-        v = paths.get(p)
-        if isinstance(v, list):''',
+        fields = key_for(p, keys)''',
      "the STAMP does not move with the order"),
     # The diff
     ("a list nobody keyed is diffed entry by entry anyway",
-     '        spec_k = keys.get(p)',
-     '        spec_k = keys.get(p, "self")',
+     '        spec_k = key_for(p, keys)',
+     '        spec_k = key_for(p, keys) or "self"',
      "is counted, never diffed entry by entry"),
     ("an entry with no identity is named by its whole body",
      '''        k = _key_of(e, fields)
@@ -443,6 +441,31 @@ def run_one(find, repl, expect):
                 "%d failure(s); first: %s" % (len(fails), fails[0][6:80]))
     finally:
         shutil.rmtree(tmp, ignore_errors=True)
+
+
+MUTANTS += [
+    # ---- ADR-195: a keyed path may carry a wildcard ------------------------
+    ("a pattern in the key spec is not a pattern, only a name",
+     '        if "*" not in pat:\n            continue',
+     '        continue',
+     "keys every list under"),
+    ("a pattern matches however many segments the path has",
+     '        if len(segs) == len(want) and all(a == "*" or a == b for a, b in zip(segs, want)):',
+     '        if all(a == "*" or a == b for a, b in zip(segs, want)):',
+     "a different length"),
+    ("an exact path is looked up through the pattern loop like any other",
+     '    if path in keys:\n        return keys[path]',
+     '    if path in keys and not any("*" in k for k in keys):\n        return keys[path]',
+     "an exact path"),
+    ("the stamp reads the key spec the old way, so it cannot see a wildcard",
+     '        fields = key_for(p, keys)',
+     '        fields = keys.get(p)',
+     "the stamp reads the wildcard the same way the diff does"),
+    ("the diff reads the key spec the old way, so it cannot see a wildcard",
+     '        spec_k = key_for(p, keys)',
+     '        spec_k = keys.get(p)',
+     "names what appeared rather than counting it"),
+]
 
 
 def main(argv):

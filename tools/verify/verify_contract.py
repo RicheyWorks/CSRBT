@@ -831,6 +831,34 @@ ck("rows" in back and back.get("sinceUnknown"),
    "gone, so the whole snapshot comes back rather than a diff across a replacement: %s"
    % sorted(back))
 
+# ---- 15. a keyed path may carry a wildcard (ADR-195) ----------------------
+#
+# ADR-191's spec could only name a list it could spell out in full, which is
+# enough for a snapshot: `controls`, `tabs`, `panes` are fixed names. A REPORT
+# is not -- its lists live under ids the PAGE chose -- and a spec that had to
+# enumerate them would go stale the first time a page grew a box.
+KW = {"keys": {"lines/*": "self", "rules": ["t"]}}
+ck(C.key_for("lines/kCountOut", KW["keys"]) == "self"
+   and C.key_for("lines/anything-at-all", KW["keys"]) == "self",
+   "`lines/*` keys every list under `lines`, whatever the page called it")
+ck(C.key_for("rules", KW["keys"]) == ["t"] and C.key_for("lines", KW["keys"]) is None
+   and C.key_for("boxes/kList", KW["keys"]) is None
+   and C.key_for("a/b/c", {"a/*": "self"}) is None,
+   "and nothing else: an exact path still wins, a pattern matches segment for segment, and "
+   "one of a different length does not match at all")
+ck(C.key_for("x", {"x": ["id"], "*": "self"}) == ["id"],
+   "an exact path beats a pattern that would also match")
+_wb = {"lines": {"a": ["one", "two"], "b": ["keep"]}}
+_wa = {"lines": {"a": ["two", "one", "three"], "b": ["keep"]}}
+_wd = C.diff_of(_wb, _wa, KW)
+ck(_wd["appeared"].get("lines/a") == ["three"] and not _wd["appeared"].get("lines/b")
+   and not _wd["counts"],
+   "so a wildcard-keyed list names what appeared rather than counting it, and a list that "
+   "only reordered says nothing: %s" % _wd)
+ck(C.stamp_of(_wb, KW) == C.stamp_of({"lines": {"a": ["two", "one"], "b": ["keep"]}}, KW),
+   "and the stamp reads the wildcard the same way the diff does -- order-blind where the "
+   "spec says a list is keyed, or the two would disagree about whether anything moved")
+
 m = g.manifest(TOKEN)
 sess_facts = m.get("session") or {}
 ck(m["protocolVersion"] == "1.7"
