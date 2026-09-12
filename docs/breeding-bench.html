@@ -1160,12 +1160,23 @@ var PURPOSE_NOTE = {
     ["popN"].forEach(function(id){ $(id).addEventListener("click",function(){ setTimeout(popOut,0); }); });
     $("popN").addEventListener("input",popOut);
   }
+  /* A CROP'S BREEDING CLASS AND THE PROVENANCE OF ITS MINIMUM ARE TWO FACTS,
+     and this returned one slot for both. A crop with a cited minimum got
+     why:"cited for this crop", which the warning below then read out as
+     "this crop is cited for this crop" -- and sweet corn, the one crop where
+     "outbreeder" carries the whole argument, was exactly such a crop. Found by
+     the fourth and fifth blind trials. */
+  function klassOf(c){
+    if(c.sys==="cross") return "an outbreeder";
+    if(c.sys==="mixed") return "treated as an outbreeder — it outcrosses enough to matter";
+    return "an inbreeder";
+  }
   function minFor(c){
     if(!c) return null;
-    if(c.minN) return {n:c.minN, pref:c.pref, why:"cited for this crop"};
-    if(c.sys==="cross") return {n:100, why:"outbreeder"};
-    if(c.sys==="mixed") return {n:100, why:"treated as an outbreeder — it outcrosses enough to matter"};
-    return {n:20, why:"inbreeder"};
+    if(c.minN) return {n:c.minN, pref:c.pref, klass:klassOf(c), cited:true};
+    if(c.sys==="cross") return {n:100, klass:klassOf(c)};
+    if(c.sys==="mixed") return {n:100, klass:klassOf(c)};
+    return {n:20, klass:klassOf(c)};
   }
   function popOut(){
     var box=$("popOut"), c=cropBy(cropCtl.get()), N=nCtl.get(), purp=purpCtl.get();
@@ -1181,7 +1192,8 @@ var PURPOSE_NOTE = {
     ]));
     if(!ok) box.appendChild(FEK.banner("Below the published minimum of "+m.n+".",
       "The rule is at least 20 individuals for an inbreeder and 100 for an outbreeder; this crop is "+
-      esc(m.why)+". At "+N+" you are "+(m.n-N)+" short. "+
+      esc(m.klass)+(m.cited?", and carries a cited minimum of its own":"")+". At "+N+" you are "+
+      (m.n-N)+" short. "+
       (c.sys!=="self"
         ? "For an outbreeder that is not a rounding error: the plants carry recessive alleles that heterozygosity has been hiding, and a small sample forces them into the open as lost vigour and poor seed set."
         : "For an inbreeder the cost is milder — mostly a bottleneck and a lost chance to spot off-types — but the floor exists for a reason."),"bad"));
@@ -1203,7 +1215,8 @@ var PURPOSE_NOTE = {
     box.appendChild(FEK.tiles([
       {v:f(Ne,1), l:"Nₑ", tone:Ne>=100?"good":(Ne>=20?"warn":"bad")},
       {v:f(dF*100,2)+"%", l:"ΔF per generation", tone:dF*100<=0.5?"good":(dF*100<=2.5?"warn":"bad")},
-      {v:f(dF*100*10,1)+"%", l:"after 10 generations", tone:dF*100*10<=5?"good":"warn"},
+      {v:f((1-Math.pow(1-dF,10))*100,1)+"%", l:"after 10 generations",
+       tone:(1-Math.pow(1-dF,10))*100<=5?"good":"warn"},
       {v:nm+" / "+nf, l:"pollen / seed parents"}
     ]));
     box.appendChild(FEK.banner("Nₑ = 4 × "+nm+" × "+nf+" / ("+nm+" + "+nf+") = "+f(Ne,1),
@@ -1507,8 +1520,15 @@ var PURPOSE_NOTE = {
       "The interval above is wide for a reason: a proportion from a small sample moves a lot. One hundred "+
       "seeds is the usual test size where you can spare them; 20 will tell you whether the lot is alive but "+
       "not much more.","warn"));
-    box.appendChild(FEK.banner("Sowing rate follows from this.",
-      "At "+f(p*100,1)+"% you need about "+f(1/Math.max(p,0.01),1)+" seeds per plant wanted, before "+
+    /* 1/p CLAMPED AT p = 1% read out as "about 100.0 seeds per plant wanted"
+       at a germination of zero, which is a number where there is none: no
+       seed count gets you a plant from a lot that does not come up. Found by
+       the fifth blind trial. */
+    if(p<=0) box.appendChild(FEK.banner("No sowing rate follows from this.",
+      "Nothing germinated, so there is no number of seeds per plant to quote — the lot is dead or the "+
+      "test was wrong. Re-test before you plan around it.","bad"));
+    else box.appendChild(FEK.banner("Sowing rate follows from this.",
+      "At "+f(p*100,1)+"% you need about "+f(1/p,1)+" seeds per plant wanted, before "+
       "field losses. A germination test in a warm tray flatters what happens in cold spring ground.","cold"));
   }
   function storOut(){

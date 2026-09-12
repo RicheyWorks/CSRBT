@@ -698,8 +698,15 @@ if os.path.isfile(led):
 # reach, by any route? That is grade_outcomes, and the numbers below are what
 # it measured on 2026-09-10. They are floors: a widened goal or a better door
 # may raise them, and a change to the grader that lowers one is a regression.
+# ADR-197: EACH TRIAL IS GRADED AGAINST THE PROTOCOL IT WAS RUN UNDER. A
+# claim names a figure and the value the page gave for it, so the moment the
+# kit fixes a page the live claim moves and every trace recorded before the fix
+# stops confirming it -- floors fall, the suite goes red, and the honest
+# reading of that red is "you edited the ruler", not "the door got worse". A
+# lab keeps the protocol with the data; each trial directory carries `tasks/`.
 BLIND3 = os.path.join(T.TRACES_DIR, "blind3")
 b3 = sorted(glob.glob(os.path.join(BLIND3, "*.jsonl.gz")))
+by3 = T.protocol_of(BLIND3)
 ck(len(b3) == 4 and {os.path.basename(f).split(".")[0] for f in b3} ==
    {"page-stand-sheet-science", "page-collection-sheet-science", "page-pheno-tracker-science", "page-breeding-bench-science"},
    "the third trial's four traces, gzipped, one per science page it was pointed at: %s" % [os.path.basename(f) for f in b3])
@@ -739,13 +746,13 @@ FLOORS = {"page-stand-sheet-science": (30, 57, 88, 125), "page-collection-sheet-
           "page-pheno-tracker-science": (8, 12, 21, 32), "page-breeding-bench-science": (10, 22, 34, 58)}
 for f in b3:
     tid = os.path.basename(f).split(".")[0]
-    g3 = T.grade_outcomes(by[tid], T.load_trace(f))
+    g3 = T.grade_outcomes(by3[tid], T.load_trace(f))
     lo = FLOORS[tid]
     ck(g3["reached"] >= lo[0] and g3["outcomes"] == lo[1] and g3["confirmed"] >= lo[2] and g3["claims"] == lo[3]
        and g3["verdict"] in ("PARTIAL", "PASS") and g3["calls"] > 50,
        "%s: a blind operator who never saw the task reached %d of its %d outcomes (%d of %d claims) by %d calls -- "
        "at or above the floor the trial measured %s" % (tid, g3["reached"], g3["outcomes"], g3["confirmed"], g3["claims"], g3["calls"], lo[:1] + lo[2:3]))
-    gr = T.grade_trace(by[tid], T.load_trace(f))
+    gr = T.grade_trace(by3[tid], T.load_trace(f))
     ck(gr["verdict"] == "FAIL" and gr["met"] < gr["required"] // 4,
        "%s: and graded as a ROUTE the same trace is unmet by step %d of %d, short of a quarter of the script -- which "
        "is the finding, not the operator's failure" % (tid, gr["met"] + 1, gr["required"]))
@@ -771,6 +778,7 @@ ck(_rc == 1 and len(_l3) == 4 and all("PARTIAL" in l for l in _l3)
 # that a stranger got further with it.
 BLIND4 = os.path.join(T.TRACES_DIR, "blind4")
 b4 = sorted(glob.glob(os.path.join(BLIND4, "*.jsonl.gz")))
+by4 = T.protocol_of(BLIND4)
 ck(len(b4) == 4 and {os.path.basename(f).split(".")[0] for f in b4} == set(FLOORS),
    "the fourth trial's four traces, one per science page the third was pointed at -- the same "
    "four, or the comparison is not one: %s" % [os.path.basename(f) for f in b4])
@@ -792,7 +800,7 @@ CALLS = {"page-stand-sheet-science": 123, "page-collection-sheet-science": 100,
 rose = gained = 0
 for f in b4:
     tid = os.path.basename(f).split(".")[0]
-    g4 = T.grade_outcomes(by[tid], T.load_trace(f))
+    g4 = T.grade_outcomes(by4[tid], T.load_trace(f))
     was, now = FLOORS[tid], FOURTH[tid]
     ck(g4["reached"] >= now[0] and g4["confirmed"] >= now[1] and g4["outcomes"] == was[1]
        and g4["claims"] == was[3] and g4["verdict"] in ("PARTIAL", "PASS"),
@@ -812,7 +820,7 @@ for f in b4:
                                                    "page-breeding-bench-science": 229}[tid]))
     rose += g4["reached"] - was[0]
     gained += g4["confirmed"] - was[2]
-    gr4 = T.grade_trace(by[tid], T.load_trace(f))
+    gr4 = T.grade_trace(by4[tid], T.load_trace(f))
     ck(gr4["verdict"] == "FAIL",
        "%s: and graded as a ROUTE it is still FAIL -- a better door does not make a stranger "
        "take the author's steps in the author's order, which is ADR-187's finding standing"
@@ -820,7 +828,7 @@ for f in b4:
 ck(rose >= 29 and gained >= 44,
    "across the four pages the fourth trial reached %d more outcomes and confirmed %d more "
    "claims than the third -- 53 -> 82 of 112 and 169 -> 213 of 260" % (rose, gained))
-ck(sum(T.grade_outcomes(by[os.path.basename(f).split(".")[0]], T.load_trace(f))["calls"]
+ck(sum(T.grade_outcomes(by4[os.path.basename(f).split(".")[0]], T.load_trace(f))["calls"]
        for f in b4) <= 398,
    "in 398 calls against the third trial's 996: the door got cheaper to use, not just further")
 
@@ -829,7 +837,7 @@ ck(sum(T.grade_outcomes(by[os.path.basename(f).split(".")[0]], T.load_trace(f))[
 # is the thing that made the mismatch VISIBLE -- a task that declares the
 # fourth rung, and a brief that prints the declaration.
 need4 = [t["id"] for t in tasks if "DESTRUCTIVE" in T.task_rungs(t)[0]]
-ck(len(need4) >= 2 and all(T.task_rungs(by[i])[1] for i in need4),
+ck(len(need4) >= 2 and all(T.task_rungs(by4[i])[1] for i in need4),
    "%d task(s) declare the fourth rung and every one says why -- which is what made the "
    "mismatch visible: %s" % (len(need4), need4[:3]))
 
@@ -846,6 +854,7 @@ ck(len(need4) >= 2 and all(T.task_rungs(by[i])[1] for i in need4),
 # the grader could not read a diff.
 BLIND5 = os.path.join(T.TRACES_DIR, "blind5")
 b5 = sorted(glob.glob(os.path.join(BLIND5, "*.jsonl.gz")))
+by5 = T.protocol_of(BLIND5)
 ck(len(b5) == 4 and {os.path.basename(f).split(".")[0] for f in b5} == set(FLOORS),
    "the fifth trial's four traces, the same four pages a third time: %s"
    % [os.path.basename(f) for f in b5])
@@ -864,8 +873,8 @@ _rn = _cn = 0
 for f in b5:
     tid = os.path.basename(f).split(".")[0]
     tr = T.load_trace(f)
-    g5 = T.grade_outcomes(by[tid], tr)
-    gn = T.grade_outcomes(by[tid], tr, fold=False)
+    g5 = T.grade_outcomes(by5[tid], tr)
+    gn = T.grade_outcomes(by5[tid], tr, fold=False)
     now = FIFTH[tid]
     ck(g5["reached"] >= now[0] and g5["confirmed"] >= now[1]
        and g5["outcomes"] == FLOORS[tid][1] and g5["claims"] == FLOORS[tid][3]
@@ -884,7 +893,7 @@ for f in b5:
        "stopped being able to see it" % (tid, gn["reached"], gn["outcomes"], gn["calls"]))
     _r5 += g5["reached"]; _c5 += g5["confirmed"]; _k5 += g5["calls"]
     _rn += gn["reached"]; _cn += gn["confirmed"]
-    gr5 = T.grade_trace(by[tid], tr)
+    gr5 = T.grade_trace(by5[tid], tr)
     ck(gr5["verdict"] == "FAIL",
        "%s: and graded as a ROUTE it is still FAIL, three trials running" % tid)
 ck(_r5 >= 80 and _c5 >= 208 and _k5 <= 410,
@@ -992,15 +1001,41 @@ ck(_full4 == _n4 and _full5 * 5 < _n5,
 for f in b4:
     tid = os.path.basename(f).split(".")[0]
     tr = T.load_trace(f)
-    ck(T.grade_outcomes(by[tid], tr)["reached"] == T.grade_outcomes(by[tid], tr, fold=False)["reached"]
+    ck(T.grade_outcomes(by5[tid], tr)["reached"] == T.grade_outcomes(by5[tid], tr, fold=False)["reached"]
        == FOURTH[tid][0],
        "%s: the fourth trial re-graded through the folding grader is unchanged at %d -- a "
        "trace with no diff answers in it has nothing to fold, which is what keeps this a fix "
        "and not a rescoring" % (tid, FOURTH[tid][0]))
 
+# AND THE FROZEN PROTOCOL SAYS WHAT IT IS FOR. Empty drift means the pages
+# these trials touched have not moved since, and the copy is ceremony rather
+# than evidence -- which is a thing worth being able to say rather than assume.
+# Non-empty drift means a page was fixed and names which claims moved, so a
+# reader can see that the trial's score is against the ruler it was measured
+# with and the live task is against the page as it stands.
+_drift = dict((d, T.protocol_drift(os.path.join(T.TRACES_DIR, d))) for d in ("blind3", "blind4", "blind5"))
+for _d in ("blind3", "blind4", "blind5"):
+    _fz = os.path.join(T.TRACES_DIR, _d, "tasks")
+    ck(os.path.isdir(_fz) and len(glob.glob(os.path.join(_fz, "*.json"))) == 4,
+       "%s carries the four task files it was run under, beside its traces" % _d)
+ck(sum(len(v) for v in _drift.values()) >= 1,
+   "and at least one of them has DRIFTED from the live task, which is the whole point of "
+   "keeping it: %s" % {k: v for k, v in _drift.items() if v})
+for _d, _m in _drift.items():
+    for _tid, _moved in _m.items():
+        _live = T.grade_outcomes(dict((t["id"], t) for t in tasks)[_tid],
+                                 T.load_trace(os.path.join(T.TRACES_DIR, _d, _tid + ".jsonl.gz")))
+        _froz = T.grade_outcomes(T.protocol_of(os.path.join(T.TRACES_DIR, _d))[_tid],
+                                 T.load_trace(os.path.join(T.TRACES_DIR, _d, _tid + ".jsonl.gz")))
+        ck(_froz["confirmed"] >= _live["confirmed"],
+           "%s/%s: graded against the LIVE task this trace confirms %d claims and against the "
+           "protocol it was run under %d -- %d claim(s) moved when the page was fixed, and the "
+           "trial's number is the second one: %s"
+           % (_d, _tid, _live["confirmed"], _froz["confirmed"], len(_moved), _moved[:3]))
+
 # The rung ADR-194 could not grant, granted.
 _dest = [os.path.basename(f).split(".")[0] for f in b5
-         if "DESTRUCTIVE" in T.task_rungs(by[os.path.basename(f).split(".")[0]])[0]]
+         if "DESTRUCTIVE" in T.task_rungs(by5[os.path.basename(f).split(".")[0]])[0]]
 ck(len(_dest) == 2 and all(
     any(e.get("action") == "activate" and (e.get("response") or {}).get("ok")
         and (e.get("response") or {}).get("risk") == "DESTRUCTIVE"

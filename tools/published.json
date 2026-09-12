@@ -3,9 +3,9 @@
   "observed": {},
   "pages": {
     "_harness-board.html": {
-      "at": 1789227900,
+      "at": 1789240869,
       "dated_by": "the fetch time the reader reported -- about the fetch, not about the version",
-      "sha": "cd761b86752fe3df31dde5b2039f86bf85db170dbb4c6b81cb2fb18d9a64bdce",
+      "sha": "23ae260360b7f7e629a37a2a665853ade2c04c534003569a6c10fad6c983f79b",
       "via": "read"
     },
     "adr-031.html": {
@@ -15,9 +15,9 @@
       "via": "read"
     },
     "breeding-bench.html": {
-      "at": 1788757014,
-      "dated_by": "the version epoch in the filename",
-      "sha": "fd61c9a219ee81ac28f27e40dcce83f36074df1b75d8fefb34ea8901e4fc83b6",
+      "at": 1789238147,
+      "dated_by": "the fetch time the reader reported -- about the fetch, not about the version",
+      "sha": "5a00d56ddcd5d50fdbac1024f3cc9d72e4a20627819d42e6d0d6022884dabc0e",
       "via": "read"
     },
     "breeding-suite.html": {
@@ -33,9 +33,9 @@
       "via": "read"
     },
     "collection-sheet.html": {
-      "at": 1788757093,
-      "dated_by": "the version epoch in the filename",
-      "sha": "0e47ff4da4e75e7059cc2cd2c12ff757dcfaadc956c8e58bde30c00e0c299e8f",
+      "at": 1789238147,
+      "dated_by": "the fetch time the reader reported -- about the fetch, not about the version",
+      "sha": "316218a86b1d500a7a01941e25000a3607848722185b76b1849dbe87aa7976c6",
       "via": "read"
     },
     "cp-bench.html": {
@@ -189,9 +189,9 @@
       "via": "read"
     },
     "pheno-tracker.html": {
-      "at": 1788757142,
-      "dated_by": "the version epoch in the filename",
-      "sha": "e05ed31f6009ba002de0f2e7b83c6540529bc5d0cb1b484f34765c2f169fe952",
+      "at": 1789238147,
+      "dated_by": "the fetch time the reader reported -- about the fetch, not about the version",
+      "sha": "f82d0dc31aed5e01e60c06c78f78b2fdb825e687d5ca5c85583d01483f9613ca",
       "via": "read"
     },
     "plant-characters.html": {

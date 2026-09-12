@@ -1343,12 +1343,18 @@ var KEEP = (function(){
     var ea=n*ra/(ra+rb), eb=n*rb/(ra+rb);
     if(ea===0||eb===0) return null;
     return (a-ea)*(a-ea)/ea + (b-eb)*(b-eb)/eb; }
+  /* ONE CHOOSER, read by the screen and by the export, so the two cannot
+     disagree about what this cross looks like (ADR-197). */
+  function ratioRows(a,b){
+    return RATIOS.map(function(r){ var x=chi(a,b,r[1],r[2]); return {r:r, x:x}; })
+      .filter(function(o){return o.x!==null;})
+      .sort(function(p,q){return p.x-q.x;});
+  }
+  function bestRatio(a,b){ var rs=ratioRows(a,b); return rs.length? rs[0] : null; }
   function segOut(){
     var a=parseInt($("segA").value,10)||0, b=parseInt($("segB").value,10)||0, n=a+b, box=$("segOut");
     if(n<4){ box.innerHTML='<div class="verdict">Enter your counts — at least a handful of plants.</div>'; ecoOut(); return; }
-    var rows=RATIOS.map(function(r){ var x=chi(a,b,r[1],r[2]); return {r:r, x:x}; })
-      .filter(function(o){return o.x!==null;})
-      .sort(function(p,q){return p.x-q.x;});
+    var rows=ratioRows(a,b);
     var best=rows[0], fits=rows.filter(function(o){return o.x<3.841;});
     var html='<div class="tiles">'
       +'<div class="tile"><div class="v">'+a+' : '+b+'</div><div class="l">observed ('+n+' plants)</div></div>'
@@ -1374,7 +1380,18 @@ var KEEP = (function(){
     if(meta.length) lines.push("# "+meta.join(" — "));
     var sp=scoredPlants();
     if(sp.length){
-      lines.push("# plant scores (weighted mean of "+S.traits.map(function(t){return t.n+"×"+t.w;}).join(", ")+")");
+      /* THE HEADER NAMED EVERY TRAIT AND THE SCORES USED ONLY THE SCORED ONES.
+         totalOf drops an unscored trait from numerator AND denominator -- which
+         is right, and is what the guide says -- so adding a fifth trait nobody
+         scored left the header declaring a five-trait weighted mean over
+         figures that were a four-trait one. Found by the fifth blind trial. */
+      var used=S.traits.filter(function(t){
+        return sp.some(function(p){ return p.scores[t.n]; }); });
+      var unused=S.traits.filter(function(t){ return used.indexOf(t)<0; });
+      lines.push("# plant scores (weighted mean of "+used.map(function(t){return t.n+"×"+t.w;}).join(", ")+")"
+        +(unused.length? "   # "+unused.map(function(t){return t.n;}).join(", ")
+          +(unused.length>1?" were added and scored nothing, so they are not in it":
+            " was added and scored nothing, so it is not in it") : ""));
       sp.slice().sort(function(a,b){return totalOf(b)-totalOf(a);}).forEach(function(p){
         var mark=p.mark==="keep"?" KEEP":p.mark==="cull"?" cull":"";
         lines.push("#   #"+p.id+"  "+totalOf(p).toFixed(2)+mark+(p.note?"  — "+p.note.replace(/\n/g," "):""));
@@ -1393,7 +1410,21 @@ var KEEP = (function(){
     if(ms.length) lines.push("note: mothers in veg "+ms.map(function(p){return "#"+p.id;}).join(" ")+" — clone stock, pheno preserved not advanced");
     S.crosses.forEach(function(c){ lines.push("note: planned cross female #"+c.a+" x male #"+c.b); });
     var a=parseInt($("segA").value,10)||0, b=parseInt($("segB").value,10)||0;
-    if(a+b>=4) lines.push("cross: Aa x Aa observed "+a+" "+b+"   # "+($("segTrait").value||"trait")+" — χ² vs 3:1 in a graded protocol");
+    /* THE EXPORT HARDCODED `Aa x Aa ... vs 3:1` whatever the page had just
+       concluded: with 60:20 the page says 3:1 and the line was right by
+       coincidence, and with 9:7 the page says "two complementary genes" while
+       the line still claimed a monohybrid cross. An export that contradicts the
+       screen it was taken from is worse than no export. Found by the fifth
+       blind trial. */
+    if(a+b>=4){
+      var seg=bestRatio(a,b);
+      lines.push("cross: "+(seg && seg.r[0]==="3:1" ? "Aa x Aa" : "unresolved")
+        +" observed "+a+" "+b+"   # "+($("segTrait").value||"trait")+" — "
+        +(seg? "closest classic ratio "+seg.r[0]+" ("+seg.r[3]+"), χ² "+seg.x.toFixed(2)
+             +(seg.x<3.841?" < 3.84":" ≥ 3.84, no classic ratio fits")
+             : "too few plants to test")
+        +" in a graded protocol");
+    }
     $("ecoOut").textContent = lines.length>1 ? lines.join("\n") : "# score something first — your run export appears here";
   }
   $("ecoCopy").addEventListener("click",function(){
@@ -1408,7 +1439,9 @@ var KEEP = (function(){
     function cell(s){ s=String(s==null?"":s); return /[",\n]/.test(s) ? '"'+s.replace(/"/g,'""')+'"' : s; }
     var sp=scoredPlants();
     if(!sp.length){ toast("Score something first"); return; }
-    var head=["plant"].concat(S.traits.map(function(t){return t.n+" (x"+t.w+")";})).concat(["weighted total","mark","note"]);
+    /* The column holds a weighted MEAN on the 1-5 scale (5.00, not 27.5), and
+       called itself a total. Found by the fifth blind trial. */
+    var head=["plant"].concat(S.traits.map(function(t){return t.n+" (x"+t.w+")";})).concat(["weighted mean","mark","note"]);
     var rows=[head.map(cell).join(",")];
     var meta=["run "+(S.name||"")]; if(S.obs) meta.push("scored by "+S.obs); if(S.date) meta.push(S.date);
     rows.unshift("# "+meta.join(" — "));

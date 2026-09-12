@@ -43,6 +43,8 @@ gateway child), so the mutant runner can afford to run it many times.
      published split where the page splits it, beside the run of text every
      task holds; and the prose the page writes about its own arithmetic is
      handed over as the page wrote it
+  K. the findings (ADR-197): the arithmetic and the exports three blind trials
+     kept re-finding, each held against a number this suite computes itself
   J. the report (ADR-195): a report carries its own stamp and takes a `since`,
      so an operator watching a computed figure is told which figure moved and
      which box, in a fraction of the bytes -- the gap the fourth blind trial
@@ -1537,6 +1539,139 @@ with sync_playwright() as pw:
        "algorithm; a third would be a third thing to get wrong")
 
     pg.close()
+    ctx.close()
+    b.close()
+
+
+# ---- K. what the trials kept finding, and what the pages say now (ADR-197) ---
+#
+# findings.py opens with the sentence this section is the rest of: "A harness
+# that reports is not a harness that guards." It has guarded the UI categories
+# -- dead controls, actions that raise, rows spilling off a phone -- since
+# ADR-110. What it never covered is the class of defect a blind OPERATOR finds:
+# arithmetic that disagrees with its own caption, an export that contradicts
+# the screen it was taken from. Three trials found the same two, independently,
+# and all three filed them. This is those closed, each against a number this
+# suite computes itself rather than one read off the page.
+
+def _page(br, name, sens=True):
+    ctx = br.new_context(viewport=H.VIEWPORT)
+    ctx.set_offline(True)
+    ctx.add_init_script(H.STUBS)
+    pg = ctx.new_page()
+    docs = os.environ.get("CSRBT_DOCS_DIR") or os.path.join(_kit.ROOT, "docs")
+    pg.goto("file://" + os.path.join(docs, name).replace(os.sep, "/"),
+            wait_until="domcontentloaded")
+    p = PP.PagePlugin(pg, name)
+    p.observe(sensitive=sens)
+    return ctx, p
+
+with sync_playwright() as pw:
+    b = pw.chromium.launch()
+
+    # -- the breeding bench ---------------------------------------------------
+    ctx, bp = _page(b, "breeding-bench.html")
+    bp.execute("show-pane", {"pane": "p-pop"})
+    bp.execute("pick", {"selector": "@control:popPick", "value": "corn, sweet"})
+    _o, _m, r = bp.execute("read-report", {})
+    _warn = " ".join(str(v) for v in (r.get("boxes") or {}).values())
+    ck("this crop is an outbreeder" in _warn and "this crop is cited for this crop" not in _warn,
+       "A CROP'S BREEDING CLASS IS NOT THE PROVENANCE OF ITS MINIMUM. Sweet corn carries a cited "
+       "minimum, so the one slot that held both read out as 'this crop is cited for this crop' -- "
+       "on the one crop where 'outbreeder' carries the whole argument. Found by the fourth trial "
+       "and again by the fifth: %s" % _warn[:160])
+
+    for _nm, _nf in (("10", "90"), ("50", "50")):
+        bp.execute("set-text", {"selector": "@control:Pollen parents contributing", "value": _nm})
+        bp.execute("set-text", {"selector": "@control:Seed parents contributing", "value": _nf})
+        _o, _m, r = bp.execute("read-report", {})
+        _ne = 4 * int(_nm) * int(_nf) / float(int(_nm) + int(_nf))
+        _dF = 1.0 / (2 * _ne)
+        _want = "%.1f%%" % round((1 - (1 - _dF) ** 10) * 100, 1)
+        _linear = "%.1f%%" % round(_dF * 100 * 10, 1)
+        _got = ((r.get("by") or {}).get("neOut") or {}).get("after 10 generations")
+        ck(_got == _want and _got != _linear,
+           "TEN GENERATIONS OF INBREEDING COMPOUND, and the caption above the figure said so while "
+           "the figure was 10 x dF: %s/%s parents give Ne %.1f, dF %.2f%%, and after ten "
+           "generations %s -- not the %s the page used to print. The third, fourth and fifth "
+           "blind trials each found this; the page says 'compounding' in two places and in the "
+           "fine print as well" % (_nm, _nf, _ne, _dF * 100, _want, _linear))
+
+    bp.execute("show-pane", {"pane": "p-seed"})
+    _gsel = None
+    for c in bp.observe(sensitive=True)["controls"]:
+        if c.get("label") and "germinated" in str(c.get("label")).lower():
+            _gsel = c.get("address")
+    ck(_gsel is not None, "the seed pane offers a count of what came up: %r" % _gsel)
+    bp.execute("set-text", {"selector": _gsel, "value": "0"})
+    _o, _m, r = bp.execute("read-report", {})
+    _g = " ".join(str(v) for v in (r.get("boxes") or {}).values())
+    ck("No sowing rate follows" in _g and "seeds per plant wanted" not in _g,
+       "AND AT ZERO GERMINATION THERE IS NO SOWING RATE. 1/p clamped at p = 1%% read out as 'about "
+       "100.0 seeds per plant wanted' from a lot that does not come up -- a number where there is "
+       "none. Found by the fifth trial: %s" % _g[-200:])
+    ctx.close()
+
+    # -- the collection sheet -------------------------------------------------
+    ctx, cp = _page(b, "collection-sheet.html")
+    cp.execute("show-pane", {"pane": "p-prt"})
+    _src = io.open(os.path.join(_kit.ROOT, "docs", "collection-sheet.html"), encoding="utf-8").read()
+    ck("plainText" in _src and "RG_W" in _src and 'r[1].replace(/<[^>]+>/g,"")' not in _src,
+       "A REAGENT'S NAME IS HTML and three places treated it as text: tags stripped, entities "
+       "left. The field sheet printed `KOH 3&ndas` -- a ten-character column cutting the encoded "
+       "dash in half and swallowing the separator with it -- and the voucher label sent "
+       "`KOH 3&ndash;10%` to a herbarium. The third, fourth and fifth trials each found it")
+    # THE ORACLE IS THE EXPORT, not the source: one collection, one reagent
+    # observation, and the field sheet the page builds from them.
+    cp.execute("show-pane", {"pane": "p-rec"})
+    cp.execute("pick", {"selector": "@control:genEntry/genus filter", "value": "Amanita"})
+    cp.execute("set-text", {"selector": "@control:cName", "value": "Amanita muscaria"})
+    cp.execute("set-text", {"selector": "@control:fruit bodies counted", "value": "1"})
+    cp.execute("set-text", {"selector": "@control:cNum", "value": "RCW-2026-041"})
+    cp.execute("activate", {"selector": "@control:cAdd"})
+    cp.execute("show-pane", {"pane": "p-prt"})
+    _pk = [x for x in cp.observe(sensitive=True)["argumentPools"].get("pick", [])
+           if x.get("value") == "RCW-2026-041"]
+    ck(_pk, "the print pane offers the collection just recorded: %s" % _pk[:2])
+    cp.execute("pick", {"selector": _pk[0]["selector"], "value": "RCW-2026-041"})
+    cp.execute("set-text", {"selector": "@control:pRg", "value": "no reaction on cuticle in 30 s"})
+    cp.execute("set-text", {"selector": "@control:pRg#7", "value": "not a polypore -- negative"})
+    cp.execute("activate", {"selector": "@control:ecoCopy"})
+    _o, _m, _out = cp.execute("collect-output", {})
+    _eco = "".join(str(p.get("text") or "") for p in (_out.get("payloads") or []))
+    _lines = [l for l in _eco.split("\n") if "reaction on cuticle" in l or "not a polypore" in l]
+    ck(len(_lines) == 2 and all("&" not in l for l in _lines),
+       "the field sheet's reagent lines carry no entity: %s" % _lines)
+    ck(any(l.strip().startswith("KOH 3\u201310%") for l in _lines),
+       "KOH 3\u201310%% is printed as a reader would write it, with the dash the source encoded: %s"
+       % _lines)
+    ck(sorted(l.strip().split(" ")[0] for l in _lines) == ["KOH", "Syringaldazine"]
+       and all(l.strip().startswith("KOH 3\u201310% ") or l.strip().startswith("Syringaldazine ")
+               for l in _lines),
+       "and every name is whole, with a separator after it -- the ten-character column used to "
+       "cut `Syringaldazine` to `Syringalda` and run it straight into the observation: %s"
+       % [l.strip()[:34] for l in _lines])
+    ctx.close()
+
+    # -- the pheno tracker ----------------------------------------------------
+    ctx, pp2 = _page(b, "pheno-tracker.html")
+    pp2.execute("show-pane", {"pane": "p-seg"})
+    for _a, _b, _claims in (("60", "20", True), ("9", "7", False)):
+        pp2.execute("set-text", {"selector": "@control:showing it", "value": _a})
+        pp2.execute("set-text", {"selector": "@control:not showing", "value": _b})
+        pp2.execute("activate", {"selector": "@control:ecoCopy"})
+        _o, _m, _out = pp2.execute("collect-output", {})
+        _eco = "".join(str(p.get("text") or "") for p in (_out.get("payloads") or []))
+        _line = [l for l in _eco.split("\n") if l.startswith("cross:")]
+        ck(len(_line) == 1,
+           "%s : %s is enough plants to test, so the export carries exactly one cross line: %s"
+           % (_a, _b, _line))
+        if _line:
+            ck(("Aa x Aa" in _line[0]) == _claims and "closest classic ratio" in _line[0],
+               "AN EXPORT MAY NOT CONTRADICT THE SCREEN IT WAS TAKEN FROM. The .eco line hardcoded "
+               "`Aa x Aa ... vs 3:1` whatever the page had just concluded -- right by coincidence "
+               "at 60:20 and wrong at 9:7, where the page says two complementary genes. Found by "
+               "the fifth trial: %s" % _line[0])
     ctx.close()
     b.close()
 

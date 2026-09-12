@@ -91,7 +91,12 @@ with sync_playwright() as p:
     setstep("#popN",1,10); setstep("#popN",2,90); pg.wait_for_timeout(300)
     ck("Ne = 36.0", tile("Nₑ","#neOut")=="36.0", tile("Nₑ","#neOut"))
     ck("dF = 1.39%", tile("ΔF per generation","#neOut")=="1.39%", tile("ΔF per generation","#neOut"))
-    ck("10 generations = 13.9%", tile("after 10 generations","#neOut")=="13.9%",
+    # ADR-197: 1 - (1 - dF)^10 and not 10 x dF. This oracle held the linear
+    # figure, which is how a page can be wrong for months with a suite green
+    # over it: the check was copied from the page rather than from the caption
+    # above it, and the caption said "compounding" the whole time.
+    ck("10 generations = 13.1% (compounded, not 10 x dF)",
+       tile("after 10 generations","#neOut")=="13.1%",
        tile("after 10 generations","#neOut"))
     ck("rarer sex flagged", "rarer sex is capping you" in pg.inner_text("#neOut"),
        pg.inner_text("#neOut")[:300])

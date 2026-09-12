@@ -1017,6 +1017,66 @@ def merge_ledger(results, path=LEDGER):
     return led
 
 
+def protocol_of(trace_dir, tasks_dir=TASKS_DIR):
+    """THE TASKS AS THEY STOOD WHEN THIS TRIAL WAS RUN.
+
+    A trial's score is a count of claims confirmed, and a claim names a figure
+    and the value the page gave for it. So the moment the kit FIXES a page --
+    the breeding bench's ten-generation inbreeding was linear under a caption
+    that said compounding, and three separate trials found it -- the task's
+    claim moves with the page, and every trace recorded before the fix stops
+    confirming it. The floors fall, the suite goes red, and the honest reading
+    of that red is not "the door got worse" but "you edited the ruler".
+
+    A lab keeps the protocol with the data. So does this: each trial directory
+    carries `tasks/`, a copy of the task files as of the run, and its traces
+    are graded against THOSE. The live tasks are free to follow the pages.
+
+    A trial with no frozen copy falls back to the live task, which is right for
+    every trial run before this existed and whose pages have not moved since.
+    """
+    out = {}
+    frozen = os.path.join(trace_dir, "tasks")
+    for t in all_tasks(tasks_dir=tasks_dir):
+        out[t["id"]] = t
+    if os.path.isdir(frozen):
+        for f in sorted(glob.glob(os.path.join(frozen, "*.json"))):
+            t = load_task(f)
+            out[t["id"]] = t
+    return out
+
+
+def protocol_drift(trace_dir, tasks_dir=TASKS_DIR):
+    """Which claims the live task holds differently from the frozen one, by
+    step. Empty means the pages this trial touched have not moved since, and
+    the frozen copy is ceremony rather than evidence -- which is worth being
+    able to SAY rather than assume."""
+    frozen = os.path.join(trace_dir, "tasks")
+    if not os.path.isdir(frozen):
+        return {}
+    live = dict((t["id"], t) for t in all_tasks(tasks_dir=tasks_dir))
+    out = {}
+    for f in sorted(glob.glob(os.path.join(frozen, "*.json"))):
+        was = load_task(f)
+        now = live.get(was["id"])
+        if now is None:
+            out[was["id"]] = ["the task no longer exists"]
+            continue
+        moved = []
+        nowby = dict((s["id"], s) for s in now["steps"])
+        for s in was["steps"]:
+            n = nowby.get(s["id"])
+            if n is None:
+                moved.append("%s: gone" % s["id"])
+                continue
+            for p, v in (s.get("expect") or {}).items():
+                if (n.get("expect") or {}).get(p) != v:
+                    moved.append("%s/%s" % (s["id"], p))
+        if moved:
+            out[was["id"]] = moved
+    return out
+
+
 def all_tasks(target=None, tasks_dir=TASKS_DIR):
     out = []
     for f in sorted(glob.glob(os.path.join(tasks_dir, "*.json"))):

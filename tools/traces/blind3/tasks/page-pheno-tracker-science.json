@@ -808,7 +808,7 @@
    "expect": {
     "output.payloads.0.text": {
      "op": "contains",
-     "value": "plant,vigor (x1),structure (x1),aroma (x2),resistance (x1.5),weighted mean,mark,note"
+     "value": "plant,vigor (x1),structure (x1),aroma (x2),resistance (x1.5),weighted total,mark,note"
     },
     "output.payloads.0.text#2": {
      "op": "contains",

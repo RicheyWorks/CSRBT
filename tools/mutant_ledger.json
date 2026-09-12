@@ -2353,15 +2353,15 @@
    "survived": 0
   },
   "mutate_report": {
-   "at": 1789217366,
+   "at": 1789238955,
    "equivalent": 0,
    "equivalents": [],
    "inconclusive": 0,
-   "killed": 118,
-   "mutants": 118,
+   "killed": 124,
+   "mutants": 124,
    "rows": [
     {
-     "detail": "7 failure(s); first: a .tile and a .stat .st are both figures: the .l/.v pair is",
+     "detail": "9 failure(s); first: a .tile and a .stat .st are both figures: the .l/.v pair is",
      "name": "figures are only .tile again",
      "verdict": "killed"
     },
@@ -2386,7 +2386,7 @@
      "verdict": "killed"
     },
     {
-     "detail": "9 failure(s); first: boxes follow the kit's naming -- an*, *Out, *Box, *Stat, *M",
+     "detail": "11 failure(s); first: boxes follow the kit's naming -- an*, *Out, *Box, *Stat, *",
      "name": "boxes are the old five prefixes only",
      "verdict": "killed"
     },
@@ -2496,7 +2496,7 @@
      "verdict": "killed"
     },
     {
-     "detail": "5 failure(s); first: a dial option is labelled by its <span>, not by its text ru",
+     "detail": "2 failure(s); first: a dial option is labelled by its <span>, not by its text ru",
      "name": "a dial option is labelled by its whole text",
      "verdict": "killed"
     },
@@ -2676,7 +2676,7 @@
      "verdict": "killed"
     },
     {
-     "detail": "1 failure(s); first: type-text into a control that cannot take focus was accepte",
+     "detail": "4 failure(s); first: type-text into a control that cannot take focus was accepte",
      "name": "a control that cannot take focus is waited on rather than refused",
      "verdict": "killed"
     },
@@ -2726,7 +2726,7 @@
      "verdict": "killed"
     },
     {
-     "detail": "5 failure(s); first: collect-output TAKES the payloads: reading them twice does ",
+     "detail": "7 failure(s); first: collect-output TAKES the payloads: reading them twice does ",
      "name": "collect-output reads the payloads and leaves them there",
      "verdict": "killed"
     },
@@ -2949,12 +2949,42 @@
      "detail": "1 failure(s); first: and the report uses the contract's OWN stamp and diff -- tw",
      "name": "the report gets a digest of its own instead of the contract's stamp",
      "verdict": "killed"
+    },
+    {
+     "detail": "2 failure(s); first: TEN GENERATIONS OF INBREEDING COMPOUND, and the caption abo",
+     "name": "ten generations of inbreeding go back to being linear",
+     "verdict": "killed"
+    },
+    {
+     "detail": "1 failure(s); first: A CROP'S BREEDING CLASS IS NOT THE PROVENANCE OF ITS MINIMU",
+     "name": "the breeding class is the minimum's provenance again",
+     "verdict": "killed"
+    },
+    {
+     "detail": "1 failure(s); first: AND AT ZERO GERMINATION THERE IS NO SOWING RATE. 1/p clampe",
+     "name": "a dead seed lot gets a sowing rate anyway",
+     "verdict": "killed"
+    },
+    {
+     "detail": "3 failure(s); first: the field sheet's reagent lines carry no entity: ['  KOH 3&",
+     "name": "a reagent name is text after all, so its entities ride into the export",
+     "verdict": "killed"
+    },
+    {
+     "detail": "1 failure(s); first: and every name is whole, with a separator after it -- the t",
+     "name": "the reagent column cuts a long name again",
+     "verdict": "killed"
+    },
+    {
+     "detail": "1 failure(s); first: AN EXPORT MAY NOT CONTRADICT THE SCREEN IT WAS TAKEN FROM. ",
+     "name": "the export claims a monohybrid cross whatever the page concluded",
+     "verdict": "killed"
     }
    ],
    "survived": 0
   },
   "mutate_tasks": {
-   "at": 1789225847,
+   "at": 1789235757,
    "equivalent": 0,
    "equivalents": [],
    "inconclusive": 0,

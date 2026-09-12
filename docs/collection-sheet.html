@@ -1755,6 +1755,19 @@ var DWC = (function(){
     ["green","dull green","#87995A"]
   ];
   var SERIES = ["white","cream","lilac","pink","rust","clay","olive","brown","pbrown","dbrown","choc","black"];
+  /* A REAGENT'S NAME IS HTML, and three places treated it as text.
+     `KOH 3&ndash;10%` had its TAGS stripped and its ENTITIES left, so the
+     field sheet printed `KOH 3&ndas` -- the ten-character column cutting the
+     encoded dash in half and swallowing the separator with it -- and the
+     voucher label printed `KOH 3&ndash;10%` to a herbarium. The third, fourth
+     and fifth blind trials each found this independently. Decoded once, here,
+     and the column is as wide as the widest name. */
+  function plainText(html){
+    var d=document.createElement("div");
+    d.innerHTML=String(html);
+    return (d.textContent||d.innerText||"").replace(/\s+/g," ").trim();
+  }
+  function padTo(s,w){ s=String(s); while(s.length<w) s+=" "; return s; }
   var REAGENTS = [
     ["koh","KOH 3&ndash;10%","potassium hydroxide",1,
      "On cap cuticle and on cut flesh. A sectional character in <i>Cortinarius</i>, a standard one on bolete caps, and it separates the yellow-staining <i>Agaricus</i> group. Caustic &mdash; goggles."],
@@ -1773,6 +1786,9 @@ var DWC = (function(){
     ["syr","Syringaldazine","",0,
      "A laccase test on polypores &mdash; a rough proxy for white rot versus brown rot at the bench."]
   ];
+  /* As wide as the widest DECODED name, so the field sheet's reagent column
+     never cuts one and always leaves a separator. */
+  var RG_W = REAGENTS.reduce(function(w,r){ return Math.max(w, plainText(r[1]).length); }, 0);
   var GUILD = {
     ecm:["ectomycorrhizal","ecm"], woodsap:["saprotroph — wood","woodsap"],
     littersap:["saprotroph — litter/soil","littersap"], par:["parasite","par"],
@@ -2263,7 +2279,7 @@ var DWC = (function(){
     var rgk=Object.keys(c.rg);
     if(rgk.length){
       var rs=rgk.map(function(k){ var r=REAGENTS.filter(function(x){return x[0]===k;})[0];
-        return (r?r[1].replace(/<[^>]+>/g,""):k)+" "+c.rg[k]; });
+        return (r?plainText(r[1]):k)+" "+c.rg[k]; });
       h+='<div class="row"><span class="k">Spot tests:</span> '+esc(rs.join("; "))+'</div>';
     }
     var dry=[];
@@ -2324,7 +2340,7 @@ var DWC = (function(){
       if(c.chars.length) L.push("  characters "+c.chars.join("; "));
       Object.keys(c.rg).forEach(function(k){
         var r=REAGENTS.filter(function(x){return x[0]===k;})[0];
-        L.push("  "+((r?r[1].replace(/<[^>]+>/g,""):k)+"          ").slice(0,10)+c.rg[k]);
+        L.push("  "+padTo(r?plainText(r[1]):k, RG_W)+"  "+c.rg[k]);
       });
       if(c.notes) L.push("  notes     "+c.notes);
       L.push("");

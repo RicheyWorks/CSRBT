@@ -13,6 +13,8 @@ a few seconds.
 import argparse, io, os, shutil, subprocess, sys, tempfile
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+# The pages section K holds to their own arithmetic (ADR-197).
+PAGES = ("breeding-bench.html", "collection-sheet.html", "pheno-tracker.html")
 TOOLS = os.path.join(ROOT, "tools")
 
 MUTANTS = [
@@ -533,6 +535,18 @@ def run_one(find, repl, expect):
         # (tools/harness.py): one catalogue, two files, and the runner finds
         # whichever one carries the anchor rather than making the catalogue
         # say it twice.
+        # ADR-197: A PAGE IS A SUBJECT TOO. verify_report's section K holds the
+        # arithmetic three blind trials kept re-finding, and the code that can
+        # break it is not in tools/ -- it is in docs/*.html. So the mutant's
+        # docs directory is a directory of SYMLINKS to the real one, and a
+        # mutation that lands in a page replaces that one link with a real
+        # file. Nine megabytes are not copied a hundred and thirty times, and
+        # the suite reads the mutated page through CSRBT_DOCS_DIR.
+        docsdst = os.path.join(tmp, "docs")
+        os.makedirs(docsdst)
+        real_docs = os.path.join(ROOT, "docs")
+        for nm in os.listdir(real_docs):
+            os.symlink(os.path.join(real_docs, nm), os.path.join(docsdst, nm))
         path = None
         for cand in ("harness_plugin_page.py", "harness.py"):
             p2 = os.path.join(dst, cand)
@@ -540,13 +554,23 @@ def run_one(find, repl, expect):
                 path = p2
                 break
         if path is None:
+            for nm in PAGES:
+                p2 = os.path.join(real_docs, nm)
+                if io.open(p2, encoding="utf-8").read().count(find) == 1:
+                    os.unlink(os.path.join(docsdst, nm))
+                    path = os.path.join(docsdst, nm)
+                    break
+        if path is None:
             n = sum(io.open(os.path.join(dst, c), encoding="utf-8").read().count(find)
                     for c in ("harness_plugin_page.py", "harness.py"))
+            n += sum(io.open(os.path.join(real_docs, c), encoding="utf-8").read().count(find)
+                     for c in PAGES)
             return ("BAD MUTANT", "anchor matched %d times across the subject -- the mutation never applied" % n)
-        src = io.open(path, encoding="utf-8").read()
+        src = io.open(path if os.path.exists(path)
+                      else os.path.join(real_docs, os.path.basename(path)), encoding="utf-8").read()
         io.open(path, "w", encoding="utf-8", newline="\n").write(src.replace(find, repl, 1))
         suite = os.path.join(dst, "verify", "verify_report.py")
-        env = dict(os.environ, CSRBT_DOCS_DIR=os.path.join(ROOT, "docs"))
+        env = dict(os.environ, CSRBT_DOCS_DIR=docsdst)
         p = subprocess.run([sys.executable, suite], capture_output=True, text=True, timeout=600, env=env)
         out = p.stdout + p.stderr
         fails = [l for l in out.split("\n") if l.startswith("FAIL")]
@@ -598,6 +622,38 @@ MUTANTS += [
      '        st = stamp_of(r, self.REPORT_IDENTITY)',
      '        st = "s" + __import__("hashlib").sha256(\n            repr(sorted(r.items())).encode("utf-8")).hexdigest()[:12]',
      "uses the contract's OWN stamp and diff"),
+]
+
+
+MUTANTS += [
+    # ---- ADR-197: the defects three blind trials kept re-finding -----------
+    # The subject here is a PAGE. Each of these puts back exactly what the
+    # trials found, and section K has to notice.
+    ("ten generations of inbreeding go back to being linear",
+     '      {v:f((1-Math.pow(1-dF,10))*100,1)+"%", l:"after 10 generations",\n'
+     '       tone:(1-Math.pow(1-dF,10))*100<=5?"good":"warn"},',
+     '      {v:f(dF*100*10,1)+"%", l:"after 10 generations", tone:dF*100*10<=5?"good":"warn"},',
+     "TEN GENERATIONS OF INBREEDING COMPOUND"),
+    ("the breeding class is the minimum's provenance again",
+     '    if(c.minN) return {n:c.minN, pref:c.pref, klass:klassOf(c), cited:true};',
+     '    if(c.minN) return {n:c.minN, pref:c.pref, klass:"cited for this crop", cited:false};',
+     "A CROP'S BREEDING CLASS IS NOT THE PROVENANCE"),
+    ("a dead seed lot gets a sowing rate anyway",
+     '    if(p<=0) box.appendChild(FEK.banner("No sowing rate follows from this.",',
+     '    if(false) box.appendChild(FEK.banner("No sowing rate follows from this.",',
+     "AT ZERO GERMINATION THERE IS NO SOWING RATE"),
+    ("a reagent name is text after all, so its entities ride into the export",
+     '    return (d.textContent||d.innerText||"").replace(/\s+/g," ").trim();',
+     '    return String(html).replace(/<[^>]+>/g,"");',
+     "reagent lines carry no entity"),
+    ("the reagent column cuts a long name again",
+     '        L.push("  "+padTo(r?plainText(r[1]):k, RG_W)+"  "+c.rg[k]);',
+     '        L.push("  "+((r?plainText(r[1]):k)+"          ").slice(0,10)+c.rg[k]);',
+     "every name is whole, with a separator after it"),
+    ("the export claims a monohybrid cross whatever the page concluded",
+     '      lines.push("cross: "+(seg && seg.r[0]==="3:1" ? "Aa x Aa" : "unresolved")',
+     '      lines.push("cross: "+(seg && seg.r[0]!=="" ? "Aa x Aa" : "unresolved")',
+     "AN EXPORT MAY NOT CONTRADICT THE SCREEN"),
 ]
 
 
