@@ -1252,6 +1252,147 @@
    ],
    "survived": 0
   },
+  "mutate_http": {
+   "at": 1789189734,
+   "equivalent": 0,
+   "equivalents": [],
+   "inconclusive": 0,
+   "killed": 26,
+   "mutants": 26,
+   "rows": [
+    {
+     "detail": "1 failure(s); first: with the kit's switch on and the HTTP one off, the server r",
+     "name": "a network door opens on the kit's switch alone",
+     "verdict": "killed"
+    },
+    {
+     "detail": "6 failure(s); first: Origin 'http://evil.example': refused -- DNS rebinding is t",
+     "name": "any page anywhere may drive the door",
+     "verdict": "killed"
+    },
+    {
+     "detail": "2 failure(s); first: Origin 'http://127.0.0.1.evil.example': refused -- DNS rebi",
+     "name": "an origin is a substring match, so evil.example.127.0.0.1.nip.io gets in",
+     "verdict": "killed"
+    },
+    {
+     "detail": "6 failure(s); first: no bearer token is 401",
+     "name": "a request with no Origin is refused, and every non-browser host with it",
+     "verdict": "killed"
+    },
+    {
+     "detail": "6 failure(s); first: Origin 'http://evil.example': refused -- DNS rebinding is t",
+     "name": "the token is checked first, so a rebinding request is told to try a token",
+     "verdict": "killed"
+    },
+    {
+     "detail": "4 failure(s); first: no bearer token is 401",
+     "name": "the door takes anyone",
+     "verdict": "killed"
+    },
+    {
+     "detail": "1 failure(s); first: and it is a constant-time comparison, because a token hande",
+     "name": "a token is compared in whatever time it takes",
+     "verdict": "killed"
+    },
+    {
+     "detail": "2 failure(s); first: a token that is nearly right is 401: this compares with com",
+     "name": "any bearer token will do",
+     "verdict": "killed"
+    },
+    {
+     "detail": "1 failure(s); first: and the route is answered BEFORE the token, because a wrong",
+     "name": "the route is checked after the token, so a wrong path asks for credentials",
+     "verdict": "killed"
+    },
+    {
+     "detail": "1 failure(s); first: a SECOND initialize is a conflict: this door fronts one pag",
+     "name": "a second host claims the same page",
+     "verdict": "killed"
+    },
+    {
+     "detail": "4 failure(s); first: a request with NO Origin is a non-browser client and is all",
+     "name": "any session id is this door's",
+     "verdict": "killed"
+    },
+    {
+     "detail": "3 failure(s); first: and the id it issued is then one it does not know",
+     "name": "an ended session's id keeps working",
+     "verdict": "killed"
+    },
+    {
+     "detail": "2 failure(s); first: so the door can be claimed again, with a NEW id -- a sessio",
+     "name": "a session id is a name rather than a secret",
+     "verdict": "killed"
+    },
+    {
+     "detail": "1 failure(s); first: a body over the cap is refused unread: an unbounded read is",
+     "name": "a body of any size is read whole",
+     "verdict": "killed"
+    },
+    {
+     "detail": "2 failure(s); first: a batch is answered as a batch, in order: {\"jsonrpc\": \"2.0\"",
+     "name": "a batch is answered as one message",
+     "verdict": "killed"
+    },
+    {
+     "detail": "7 failure(s); first: a notification on its own is 202 and no body",
+     "name": "a notification is answered with a body it did not ask for",
+     "verdict": "killed"
+    },
+    {
+     "detail": "1 failure(s); first: PUT is not one of this door's three methods",
+     "name": "PUT and PATCH are served",
+     "verdict": "killed"
+    },
+    {
+     "detail": "1 failure(s); first: and a GET that does not ask for an event stream is told wha",
+     "name": "a GET is a GET, stream or no stream",
+     "verdict": "killed"
+    },
+    {
+     "detail": "8 failure(s); first: six calls over six HTTP threads all reached a target that r",
+     "name": "the target is driven from whatever thread the request landed on",
+     "verdict": "killed"
+    },
+    {
+     "detail": "6 failure(s); first: THE OFFICIAL MCP SDK CONNECTS: a client written by someone ",
+     "name": "the pump runs on a thread of its own, which is not the one that stood the target up",
+     "verdict": "killed"
+    },
+    {
+     "detail": "2 failure(s); first: with a stream open the notice arrives THERE: []",
+     "name": "a notice is delivered to the stream AND to the POST",
+     "verdict": "killed"
+    },
+    {
+     "detail": "1 failure(s); first: and they come FIRST (ADR-137): a host must never read the r",
+     "name": "the answer goes out before the notice that its list moved",
+     "verdict": "killed"
+    },
+    {
+     "detail": "1 failure(s); first: and the next POST that CAN take a stream carries them, ahea",
+     "name": "a notice a client could not take is thrown away",
+     "verdict": "killed"
+    },
+    {
+     "detail": "2 failure(s); first: and a second stream on one session is a conflict: two reade",
+     "name": "two readers share one queue",
+     "verdict": "killed"
+    },
+    {
+     "detail": "2 failure(s); first: it binds loopback with nothing set: ('0.0.0.0', None)",
+     "name": "the door binds everywhere by default",
+     "verdict": "killed"
+    },
+    {
+     "detail": "1 failure(s); first: binding anywhere else takes an explicit environment variabl",
+     "name": "binding off loopback says nothing about it",
+     "verdict": "killed"
+    }
+   ],
+   "survived": 0
+  },
   "mutate_lab": {
    "at": 1788346951,
    "equivalent": 1,
