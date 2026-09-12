@@ -579,7 +579,7 @@
    "survived": 0
   },
   "mutate_contract": {
-   "at": 1789215152,
+   "at": 1789225810,
    "equivalent": 1,
    "equivalents": [
     {
@@ -588,8 +588,8 @@
     }
    ],
    "inconclusive": 0,
-   "killed": 65,
-   "mutants": 65,
+   "killed": 74,
+   "mutants": 74,
    "rows": [
     {
      "detail": "8 failure(s); first: an action that declared mayRise is asked, with this call's ",
@@ -687,7 +687,7 @@
      "verdict": "killed"
     },
     {
-     "detail": "3 failure(s); first: the row-removing mark is caught, alone or glued to the row ",
+     "detail": "6 failure(s); first: the row-removing mark is caught, alone or glued to the row ",
      "name": "the destructive vocabulary loses the words with a mark for a name",
      "verdict": "killed"
     },
@@ -777,7 +777,7 @@
      "verdict": "killed"
     },
     {
-     "detail": "3 failure(s); first: a list this target did NOT say it had identity in is counte",
+     "detail": "4 failure(s); first: a list this target did NOT say it had identity in is counte",
      "name": "a list nobody keyed is diffed entry by entry anyway",
      "verdict": "killed"
     },
@@ -887,12 +887,12 @@
      "verdict": "killed"
     },
     {
-     "detail": "2 failure(s); first: --end closes the door and takes its socket with it BEFORE i",
+     "detail": "1 failure(s); first: --end closes the door and takes its socket with it BEFORE i",
      "name": "a closed session leaves its socket behind, so the next one talks to a corpse",
      "verdict": "killed"
     },
     {
-     "detail": "3 failure(s); first: `lines/*` keys every list under `lines`, whatever the page ",
+     "detail": "4 failure(s); first: `lines/*` keys every list under `lines`, whatever the page ",
      "name": "a pattern in the key spec is not a pattern, only a name",
      "verdict": "killed"
     },
@@ -912,8 +912,53 @@
      "verdict": "killed"
     },
     {
-     "detail": "1 failure(s); first: so a wildcard-keyed list names what appeared rather than co",
+     "detail": "2 failure(s); first: so a wildcard-keyed list names what appeared rather than co",
      "name": "the diff reads the key spec the old way, so it cannot see a wildcard",
+     "verdict": "killed"
+    },
+    {
+     "detail": "1 failure(s); first: a box too long to carry is NAMED as trimmed and comes back ",
+     "name": "a diff does not say what it shortened",
+     "verdict": "killed"
+    },
+    {
+     "detail": "3 failure(s); first: both sides of a moved box DIFFER, however far into it the c",
+     "name": "both sides of a moved value are cut from the start again",
+     "verdict": "killed"
+    },
+    {
+     "detail": "2 failure(s); first: and it says it is a window rather than the value",
+     "name": "a window does not say it is one",
+     "verdict": "killed"
+    },
+    {
+     "detail": "1 failure(s); first: a list that was there all along and that nobody keyed is CO",
+     "name": "a list the diff only counted is called restored",
+     "verdict": "killed"
+    },
+    {
+     "detail": "2 failure(s); first: a box too long to carry is NAMED as trimmed and comes back ",
+     "name": "trimmed and unrestored are the same thing after all",
+     "verdict": "killed"
+    },
+    {
+     "detail": "1 failure(s); first: a diff with no register still says what it trimmed, because",
+     "name": "a diff with no register is taken as having trimmed nothing",
+     "verdict": "killed"
+    },
+    {
+     "detail": "1 failure(s); first: and so does a keyed list, from what appeared and what vanis",
+     "name": "what appeared in a keyed list is not put back",
+     "verdict": "killed"
+    },
+    {
+     "detail": "1 failure(s); first: A KEY MAY CONTAIN THE PATH SEPARATOR, and the pages' do -- ",
+     "name": "a path is split back on every separator, whether or not it is one",
+     "verdict": "killed"
+    },
+    {
+     "detail": "2 failure(s); first: while a list the diff only counted is UNRESTORED, which is ",
+     "name": "a stand-in for a whole list that appeared is taken for the list",
      "verdict": "killed"
     }
    ],
@@ -2909,35 +2954,35 @@
    "survived": 0
   },
   "mutate_tasks": {
-   "at": 1789085651,
+   "at": 1789225847,
    "equivalent": 0,
    "equivalents": [],
    "inconclusive": 0,
-   "killed": 73,
-   "mutants": 73,
+   "killed": 80,
+   "mutants": 80,
    "rows": [
     {
-     "detail": "6 failure(s); first: every operator grades, a reference grades as its value, a m",
+     "detail": "15 failure(s); first: every operator grades, a reference grades as its value, a ",
      "name": "every expectation is CONFIRMED",
      "verdict": "killed"
     },
     {
-     "detail": "8 failure(s); first: every operator grades, a reference grades as its value, a m",
+     "detail": "16 failure(s); first: every operator grades, a reference grades as its value, a ",
      "name": "an operator expectation is always CONFIRMED",
      "verdict": "killed"
     },
     {
-     "detail": "1 failure(s); first: a path that is not in the response does not prove absence: ",
+     "detail": "2 failure(s); first: a path that is not in the response does not prove absence: ",
      "name": "excludes is satisfied by a missing path",
      "verdict": "killed"
     },
     {
-     "detail": "4 failure(s); first: excludes CONFIRMS when the value is not in the string or th",
+     "detail": "12 failure(s); first: excludes CONFIRMS when the value is not in the string or t",
      "name": "excludes reads the wrong way round",
      "verdict": "killed"
     },
     {
-     "detail": "1 failure(s); first: excludes is REFUTED when the value IS there -- it is a clai",
+     "detail": "2 failure(s); first: excludes is REFUTED when the value IS there -- it is a clai",
      "name": "excludes is always true",
      "verdict": "killed"
     },
@@ -2952,7 +2997,7 @@
      "verdict": "killed"
     },
     {
-     "detail": "5 failure(s); first: a trailing #n labels a second claim about the same path, gr",
+     "detail": "21 failure(s); first: a trailing #n labels a second claim about the same path, g",
      "name": "a trailing #n is part of the path",
      "verdict": "killed"
     },
@@ -3097,7 +3142,7 @@
      "verdict": "killed"
     },
     {
-     "detail": "10 failure(s); first: a step no call satisfies is UNMET and fails the task: no c",
+     "detail": "18 failure(s); first: a step no call satisfies is UNMET and fails the task: no c",
      "name": "an UNMET required step does not fail the trace",
      "verdict": "killed"
     },
@@ -3212,7 +3257,7 @@
      "verdict": "killed"
     },
     {
-     "detail": "3 failure(s); first: a task that says nothing runs SUPERVISED: 41 task(s) declar",
+     "detail": "5 failure(s); first: 54 task(s) declare the fourth rung and every one says why -",
      "name": "the runner opens every rung again, the way it did until ADR-142",
      "verdict": "killed"
     },
@@ -3252,17 +3297,17 @@
      "verdict": "killed"
     },
     {
-     "detail": "4 failure(s); first: a task's outcomes are its reading steps that claim somethin",
+     "detail": "12 failure(s); first: a task's outcomes are its reading steps that claim somethi",
      "name": "an entry step counts as an outcome",
      "verdict": "killed"
     },
     {
-     "detail": "5 failure(s); first: outcomes are matched in any order (c before a), each by the",
+     "detail": "15 failure(s); first: outcomes are matched in any order (c before a), each by th",
      "name": "an outcome is only matched in the task's order",
      "verdict": "killed"
     },
     {
-     "detail": "6 failure(s); first: outcomes are matched in any order (c before a), each by the",
+     "detail": "17 failure(s); first: outcomes are matched in any order (c before a), each by th",
      "name": "partial credit is dropped",
      "verdict": "killed"
     },
@@ -3277,8 +3322,43 @@
      "verdict": "killed"
     },
     {
-     "detail": "5 failure(s); first: page-breeding-bench-science: a blind operator who never saw",
+     "detail": "32 failure(s); first: page-breeding-bench-science: a blind operator who never sa",
      "name": "a gzipped trace is read as empty",
+     "verdict": "killed"
+    },
+    {
+     "detail": "8 failure(s); first: page-breeding-bench-science: the fifth trial's operator rea",
+     "name": "a diff answer is not an answer: the grader does not fold",
+     "verdict": "killed"
+    },
+    {
+     "detail": "1 failure(s); first: no document this grader rebuilt carries a stand-in where th",
+     "name": "what the diff could not restore is graded anyway",
+     "verdict": "killed"
+    },
+    {
+     "detail": "1 failure(s); first: on all 2 occasion(s) in this trial where an operator read t",
+     "name": "the rebuilt document does not become the next baseline",
+     "verdict": "killed"
+    },
+    {
+     "detail": "10 failure(s); first: page-breeding-bench-science: the fifth trial's operator re",
+     "name": "a document served whole does not become the baseline",
+     "verdict": "killed"
+    },
+    {
+     "detail": "7 failure(s); first: page-breeding-bench-science: the fifth trial's operator rea",
+     "name": "the report and the snapshot share one baseline",
+     "verdict": "killed"
+    },
+    {
+     "detail": "1 failure(s); first: on all 2 occasion(s) in this trial where an operator read t",
+     "name": "an unchanged document is not the document",
+     "verdict": "killed"
+    },
+    {
+     "detail": "5 failure(s); first: page-breeding-bench-science: AND THE SAME TRACE, graded wit",
+     "name": "folding edits the trace it was given",
      "verdict": "killed"
     }
    ],

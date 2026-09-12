@@ -72,6 +72,7 @@ REPLAY SAFETY
     Here the policy is re-applied to the cached response's risk, so tightening
     the policy takes effect on the next call rather than the next restart.
 """
+import copy
 import hashlib, hmac, json, os, re, time
 
 PROTOCOL_VERSION = "1.7"   # 1.1 (ADR-114): bounds, patterns, examples in argument schemas
@@ -101,6 +102,9 @@ REPLAY_CACHE_BYTE_LIMIT = 8 * 1024 * 1024
 # snapshot or it is nothing, and an unbounded one on a page that rebuilt every
 # control would be larger than the snapshot it was meant to replace.
 DIFF_CAP = 40
+# How much of one side of a moved value a diff carries. Two hundred characters
+# names the box a reader is looking for without paying for the box.
+BRIEF_CAP = 200
 # The separator for a path INTO a snapshot. Not "." -- the page's argument pool
 # names contain dots ("choose-option.value", "set-text.selector"), so a dotted
 # path could not say whether it meant a pool called "choose-option.value" or a
@@ -257,7 +261,13 @@ def diff_of(before, after, spec=None, cap=DIFF_CAP):
     keys = spec.get("keys") or {}
     noise = set(spec.get("noise") or ())
     d = {"fields": {}, "gained": {}, "lost": [], "appeared": {}, "vanished": {},
-         "altered": {}, "counts": {}, "capped": [], "noise": sorted(noise)}
+         "altered": {}, "counts": {}, "capped": [], "noise": sorted(noise),
+         # ADR-196: every path whose value in this diff is SHORTER than what
+         # the target actually holds. A diff is evidence -- the fifth blind
+         # trial's operators worked from little else -- and evidence that has
+         # been trimmed has to say so, or a reader that rebuilds the document
+         # from it will hand on a truncated string as if it were the value.
+         "trimmed": []}
     if not isinstance(before, dict) or not isinstance(after, dict):
         return d
     pb, pa = _paths(before, noise), _paths(after, noise)
@@ -267,7 +277,15 @@ def diff_of(before, after, spec=None, cap=DIFF_CAP):
         spec_k = key_for(p, keys)
         if isinstance(vb, list) or isinstance(va, list):
             if not in_b or not in_a:
-                (d["gained"].__setitem__(p, _brief(va)) if in_a else d["lost"].append(p))
+                if in_a:
+                    d["gained"][p] = _brief(va)
+                    # A WHOLE LIST THAT APPEARED is named by its length and not
+                    # by its contents, so this path is one a reader cannot
+                    # rebuild from the diff -- said here rather than left for
+                    # it to discover by finding {"list": 2} where a table was.
+                    d["trimmed"].append(p)
+                else:
+                    d["lost"].append(p)
                 continue
             if spec_k is None:
                 if len(vb) != len(va) or vb != va:
@@ -279,8 +297,11 @@ def diff_of(before, after, spec=None, cap=DIFF_CAP):
             d["lost"].append(p)
         elif in_a and not in_b:
             d["gained"][p] = _brief(va)
+            if _shorter(va, d["gained"][p]):
+                d["trimmed"].append(p)
         elif vb != va:
-            d["fields"][p] = [_brief(vb), _brief(va)]
+            d["fields"][p] = _pair(vb, va, p, d)
+    d["trimmed"] = sorted(set(d["trimmed"]))
     return d
 
 
@@ -311,12 +332,12 @@ def _diff_list(path, vb, va, fields, cap, d):
         if a == b:
             continue
         if not isinstance(a, dict) or not isinstance(b, dict):
-            alt[k] = {"value": [_brief(b), _brief(a)]}
+            alt[k] = {"value": _pair(b, a, "%s[%s].value" % (path, k), d)}
             continue
         moved = {}
         for f in sorted(set(a) | set(b)):
             if a.get(f) != b.get(f):
-                moved[f] = [_brief(b.get(f)), _brief(a.get(f))]
+                moved[f] = _pair(b.get(f), a.get(f), "%s[%s].%s" % (path, k, f), d)
         if moved:
             alt[k] = moved
     if app:
@@ -338,11 +359,251 @@ def _cap(seq, cap, where, total, d):
     return list(seq)
 
 
+def _shorter(full, brief):
+    """Is this the brief of something bigger? Asked of the value, not guessed
+    from the text: a page's own prose may well end in an ellipsis, and a diff
+    that decided what it had trimmed by looking for one would mark real values
+    approximate and miss its own truncations."""
+    if isinstance(full, str):
+        return not isinstance(brief, str) or len(brief) < len(full)
+    return isinstance(full, (list, tuple, dict))
+
+
+def _pair(vb, va, path, d):
+    """BOTH SIDES OF A MOVED VALUE, windowed around the place they differ.
+
+    ADR-195 trimmed each side from the start, which is right for a short box
+    and useless for a long one: the fifth blind trial's breeding-bench
+    operator was told `boxes/storOut` had moved and handed two IDENTICAL
+    strings, because the sentence that changed sat past character two hundred.
+    It had to fall back to read-page to find out what the page now said, which
+    is the re-read the diff exists to avoid.
+
+    So the window is centred on the first character the two sides disagree
+    about, with a little of the text before it for bearings. Same bytes, and
+    the one thing the reader asked for is in them."""
+    if isinstance(vb, str) and isinstance(va, str) and (len(vb) > BRIEF_CAP or len(va) > BRIEF_CAP):
+        i, n = 0, min(len(vb), len(va))
+        while i < n and vb[i] == va[i]:
+            i += 1
+        start = 0 if i <= BRIEF_CAP else i - BRIEF_CAP // 4
+        out = [_window(vb, start), _window(va, start)]
+        d["trimmed"].append(path)
+        return out
+    out = [_brief(vb), _brief(va)]
+    if _shorter(vb, out[0]) or _shorter(va, out[1]):
+        d["trimmed"].append(path)
+    return out
+
+
+def _window(v, start):
+    piece = v[start:start + BRIEF_CAP]
+    return ("…" if start else "") + piece + ("…" if start + BRIEF_CAP < len(v) else "")
+
+
+def apply_diff(before, diff, spec=None):
+    """THE INVERSE OF `diff_of`, and what it could not restore.
+
+    A diff is what a client is given instead of the document, so everything
+    that reads the document has to be able to read its diff -- and the fifth
+    blind trial (ADR-196) is what proved that was not true here. Four
+    operators worked almost entirely from `since` answers, exactly as ADR-195
+    intended, and the GRADER then scored them as if they had never read the
+    page at all: it holds a claim against what a call answered with, and what
+    those calls answered with was a diff.
+
+    Returns {"after", "approximate", "unrestored"}, and the difference between
+    the last two is the whole of what makes this honest:
+
+        approximate  the value is the TARGET'S OWN WORDS and shorter than all
+                     of them -- a windowed box. A reader may believe what is
+                     there and must not read absence into what is not: this
+                     supports "the page said X" and never "the page did not".
+        unrestored   the diff carried no value for this path at all -- a list
+                     it only counted, a bucket it capped, a path it declared
+                     noise, a list of objects whose key nobody named. The
+                     rebuilt document holds a stand-in or a stale value here,
+                     and harness_tasks DELETES these before grading, because a
+                     grader that confirms a claim against {"list": 2} where a
+                     table was is worse than one that misses the claim."""
+    spec = spec or {}
+    keys = spec.get("keys") or {}
+    after = copy.deepcopy(before) if isinstance(before, dict) else {}
+    if not isinstance(diff, dict):
+        return {"after": after, "approximate": []}
+    approx, lost = set(diff.get("trimmed") or ()), set()
+    if "trimmed" not in diff:
+        # A DIFF FROM BEFORE THE REGISTER EXISTED -- every trace recorded up to
+        # ADR-195 is one. What it trimmed is still knowable, because the
+        # shortening was this module's own doing and its shapes are exact: a
+        # list became {"list": n}, an object {"object": n}, and a long string
+        # became precisely BRIEF_CAP characters plus an ellipsis. Derived
+        # rather than guessed, and where the two cannot be told apart -- a page
+        # whose own value is 201 characters ending in an ellipsis -- the path is
+        # called approximate, which loses a claim rather than inventing one.
+        approx.update(_looks_trimmed(diff))
+    lost.update(diff.get("noise") or ())
+    lost.update(diff.get("counts") or ())
+    for c in diff.get("capped") or ():
+        lost.add(str(c.get("where", "")).rsplit(".", 1)[0])
+    for p, pair in (diff.get("fields") or {}).items():
+        _put(after, p, pair[1])
+        if _stand_in(pair[1]):
+            lost.add(p)
+    for p, v in (diff.get("gained") or {}).items():
+        _put(after, p, v)
+        if _stand_in(v):
+            lost.add(p)
+    for p in diff.get("lost") or ():
+        _drop(after, p)
+    for p, entries in (diff.get("appeared") or {}).items():
+        cur = _get(after, p)
+        _put(after, p, (list(cur) if isinstance(cur, list) else []) + list(entries))
+    for p, gone in (diff.get("vanished") or {}).items():
+        cur = _get(after, p)
+        if not isinstance(cur, list):
+            continue
+        # WITHOUT THE TARGET'S KEY SPEC a diff can still be applied exactly as
+        # far as its lists are lists of scalars -- a line, a heading, an option
+        # is its own identity, which is why `self` is the spelling the pages
+        # use. Past that the reader is TOLD rather than guessed at: a list of
+        # objects whose key nobody named is marked approximate and left as it
+        # was, because removing the wrong entry is worse than removing none.
+        fields = key_for(p, keys)
+        if fields is None:
+            if not all(_is_scalar(e) for e in cur):
+                lost.add(p)
+                continue
+            fields = "self"
+        keep = set(gone)
+        _put(after, p, [e for e in cur if _key_of(e, fields) not in keep])
+    for p, moves in (diff.get("altered") or {}).items():
+        cur = _get(after, p)
+        if not isinstance(cur, list):
+            continue
+        fields = key_for(p, keys)
+        if fields is None:
+            lost.add(p)
+            continue
+        by_key = dict((_key_of(e, fields), e) for e in cur)
+        for k, moved in moves.items():
+            e = by_key.get(k)
+            if not isinstance(e, dict):
+                continue
+            for f, pair in moved.items():
+                if f == "value":
+                    continue
+                e[f] = pair[1]
+    return {"after": after, "approximate": sorted(approx - lost),
+            "unrestored": sorted(lost)}
+
+
+def _stand_in(v):
+    """Is this a placeholder this module put where a structure was, rather
+    than a value? {"list": n} and {"object": n} are what `_brief` leaves
+    behind, and nothing a target publishes looks like one."""
+    return (isinstance(v, dict) and len(v) == 1 and ("list" in v or "object" in v)
+            and isinstance(list(v.values())[0], int))
+
+
+def _looks_trimmed(diff):
+    """The paths of a register-less diff whose values carry this module's own
+    marks of shortening."""
+    def short(v):
+        if isinstance(v, dict) and len(v) == 1 and ("list" in v or "object" in v) \
+                and isinstance(list(v.values())[0], int):
+            return True
+        # Both shapes this module has ever produced, and only those: ADR-195's
+        # prefix is exactly BRIEF_CAP characters and a trailing ellipsis, and
+        # ADR-196's window opens with one unless it starts at the beginning --
+        # in which case it is the prefix again.
+        if not isinstance(v, str):
+            return False
+        return v.startswith("\u2026") or (len(v) == BRIEF_CAP + 1 and v.endswith("\u2026"))
+    out = set()
+    for p, pair in (diff.get("fields") or {}).items():
+        if isinstance(pair, list) and len(pair) == 2 and (short(pair[0]) or short(pair[1])):
+            out.add(p)
+    for p, v in (diff.get("gained") or {}).items():
+        if short(v):
+            out.add(p)
+    for p, moves in (diff.get("altered") or {}).items():
+        for k, moved in (moves or {}).items():
+            for f, pair in (moved or {}).items():
+                if isinstance(pair, list) and len(pair) == 2 and (short(pair[0]) or short(pair[1])):
+                    out.add(p)
+    return out
+
+
+def _segments(root, path):
+    """Split a flattened path back into keys, ASKING THE DOCUMENT.
+
+    A path is built by joining keys with PATH_SEP, and the pages put the
+    separator inside their own keys: the breeding bench publishes a figure
+    called `pollen / seed parents`, so `figures/pollen / seed parents` splits
+    naively into four segments and rebuilds as a nested object nobody has.
+    The fifth blind trial is where that showed -- a rebuilt document and the
+    whole report the operator read a moment later disagreed about one figure,
+    and the figure was the one with a slash in its name.
+
+    Joining is lossy; UN-joining does not have to be, because the document is
+    right here. At each level the longest key that matches is taken, which is
+    exact wherever the key exists and falls back to the naive split only for a
+    path the document does not have yet -- a gained one, whose leaf name is
+    then whatever is left."""
+    node, rest, out = root, path, []
+    while True:
+        if not isinstance(node, dict):
+            return out + rest.split(PATH_SEP)
+        if rest in node:
+            return out + [rest]
+        cut = None
+        for k in node:
+            if rest.startswith(k + PATH_SEP) and (cut is None or len(k) > len(cut)):
+                cut = k
+        if cut is None:
+            return out + rest.split(PATH_SEP)
+        out.append(cut)
+        node, rest = node[cut], rest[len(cut) + len(PATH_SEP):]
+
+
+def _get(root, path):
+    node = root
+    for seg in _segments(root, path):
+        if not isinstance(node, dict):
+            return None
+        node = node.get(seg)
+    return node
+
+
+def _put(root, path, v):
+    node, segs = root, _segments(root, path)
+    for seg in segs[:-1]:
+        if not isinstance(node, dict):
+            return
+        nxt = node.get(seg)
+        if not isinstance(nxt, dict):
+            nxt = node[seg] = {}
+        node = nxt
+    if isinstance(node, dict):
+        node[segs[-1]] = v
+
+
+def _drop(root, path):
+    node, segs = root, _segments(root, path)
+    for seg in segs[:-1]:
+        if not isinstance(node, dict):
+            return
+        node = node.get(seg)
+    if isinstance(node, dict):
+        node.pop(segs[-1], None)
+
+
 def _brief(v):
     """A value, small enough to sit in a diff. A diff that carried a page's
     whole box text on each side would cost more than the snapshot it saves."""
-    if isinstance(v, str) and len(v) > 200:
-        return v[:200] + "…"
+    if isinstance(v, str) and len(v) > BRIEF_CAP:
+        return v[:BRIEF_CAP] + "…"
     if isinstance(v, (list, tuple)):
         return {"list": len(v)}
     if isinstance(v, dict):

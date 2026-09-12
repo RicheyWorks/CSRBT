@@ -834,6 +834,183 @@ ck(len(need4) >= 2 and all(T.task_rungs(by[i])[1] for i in need4),
    "mismatch visible: %s" % (len(need4), need4[:3]))
 
 
+# ---- F5. the fifth blind trial (ADR-196) -------------------------------------
+#
+# Same four pages again, same grader, same floors. What changed since the
+# fourth is ADR-195 -- the report carries a stamp and takes a `since` -- and a
+# console that can grant the fourth rung two of the briefs declare.
+#
+# THE OUTCOME NUMBERS ARE LEVEL. What moved is the bytes, and the trial's real
+# finding is about the INSTRUMENT: graded the way the fourth trial was graded,
+# this one falls nineteen outcomes with nobody doing anything worse, because
+# the grader could not read a diff.
+BLIND5 = os.path.join(T.TRACES_DIR, "blind5")
+b5 = sorted(glob.glob(os.path.join(BLIND5, "*.jsonl.gz")))
+ck(len(b5) == 4 and {os.path.basename(f).split(".")[0] for f in b5} == set(FLOORS),
+   "the fifth trial's four traces, the same four pages a third time: %s"
+   % [os.path.basename(f) for f in b5])
+p5 = os.path.join(BLIND5, "PROVENANCE.md")
+t5 = io.open(p5, encoding="utf-8").read() if os.path.isfile(p5) else ""
+ck(all(w in t5 for w in ("removed from the", "fold", "DESTRUCTIVE", "bytes")) and len(t5) > 4000,
+   "with a provenance that carries the conditions, what it measured, and the defect it found "
+   "in the grader rather than in anybody's operating")
+
+FIFTH = {"page-stand-sheet-science": (40, 101), "page-collection-sheet-science": (12, 34),
+         "page-pheno-tracker-science": (9, 25), "page-breeding-bench-science": (19, 48)}
+NAIVE = {"page-stand-sheet-science": (32, 86), "page-collection-sheet-science": (12, 34),
+         "page-pheno-tracker-science": (8, 23), "page-breeding-bench-science": (11, 29)}
+_r5 = _c5 = _k5 = 0
+_rn = _cn = 0
+for f in b5:
+    tid = os.path.basename(f).split(".")[0]
+    tr = T.load_trace(f)
+    g5 = T.grade_outcomes(by[tid], tr)
+    gn = T.grade_outcomes(by[tid], tr, fold=False)
+    now = FIFTH[tid]
+    ck(g5["reached"] >= now[0] and g5["confirmed"] >= now[1]
+       and g5["outcomes"] == FLOORS[tid][1] and g5["claims"] == FLOORS[tid][3]
+       and g5["verdict"] in ("PARTIAL", "PASS"),
+       "%s: the fifth trial's operator reached %d of %d outcomes (%d of %d claims), at or above "
+       "what it measured %s" % (tid, g5["reached"], g5["outcomes"], g5["confirmed"],
+                                g5["claims"], now))
+    ck(g5["reached"] > FLOORS[tid][0] and g5["confirmed"] > FLOORS[tid][2],
+       "%s: still well above the THIRD trial, which is the last door that had neither a "
+       "session nor a diff -- %d against %d outcomes, %d against %d claims"
+       % (tid, g5["reached"], FLOORS[tid][0], g5["confirmed"], FLOORS[tid][2]))
+    ck(gn["reached"] <= NAIVE[tid][0] and gn["confirmed"] <= NAIVE[tid][1]
+       and gn["calls"] == g5["calls"],
+       "%s: AND THE SAME TRACE, graded without folding the diffs back, scores %d of %d "
+       "outcomes on %d identical calls -- the operator did not get worse, the instrument "
+       "stopped being able to see it" % (tid, gn["reached"], gn["outcomes"], gn["calls"]))
+    _r5 += g5["reached"]; _c5 += g5["confirmed"]; _k5 += g5["calls"]
+    _rn += gn["reached"]; _cn += gn["confirmed"]
+    gr5 = T.grade_trace(by[tid], tr)
+    ck(gr5["verdict"] == "FAIL",
+       "%s: and graded as a ROUTE it is still FAIL, three trials running" % tid)
+ck(_r5 >= 80 and _c5 >= 208 and _k5 <= 410,
+   "across the four pages the fifth trial reached %d of 112 outcomes and confirmed %d of 260 "
+   "claims in %d calls -- level with the fourth's 82 and 213 in 398, which is what 'the door "
+   "did not get worse' looks like when it is measured rather than asserted" % (_r5, _c5, _k5))
+ck(_r5 - _rn >= 15 and _c5 - _cn >= 30,
+   "and folding the diffs back is worth %d outcomes and %d claims on this trial alone: that "
+   "is the size of the hole the fifth trial found in the grader, not an improvement to it"
+   % (_r5 - _rn, _c5 - _cn))
+
+# AND THE CHECK THAT MAKES THE REBUILD MORE THAN A STORY: wherever an operator
+# read the report through `since` and then, without touching the page, read the
+# whole thing, the document this grader rebuilt and the document the page
+# served have to AGREE. That is the only place in the kit where the fold can be
+# held against the truth it is standing in for, and it is why the traces are
+# kept: it cost one defect to find. A figure named `pollen / seed parents`
+# carries the path separator inside the key, so the flattened path split back
+# into four segments and rebuilt as an object nobody had.
+_ACTS = {"set-text", "type-text", "pick", "choose-option", "set-slider", "set-checkbox",
+         "press-step", "activate", "attach-file", "drop-files", "set-clock", "set-seed",
+         "set-dialog", "show-pane", "open", "reload"}
+_pairs = _agree = 0
+for f in b5:
+    tr = T.load_trace(f)
+    fo = T.fold_diffs(tr)
+    last = None
+    for i, e in enumerate(tr):
+        a = e.get("action")
+        if a in _ACTS:
+            last = None
+            continue
+        if a != "read-report":
+            continue
+        doc = (e.get("response") or {}).get("output") or {}
+        whole = doc.get("diff") is None and doc.get("changed") is None
+        if whole and last is not None:
+            _pairs += 1
+            _agree += ((fo[last]["response"].get("output") or {}).get("figures")
+                       == doc.get("figures"))
+        last = None if whole else i
+ck(_pairs >= 2 and _agree == _pairs,
+   "on all %d occasion(s) in this trial where an operator read the report by `since` and then "
+   "read the whole thing without touching the page in between, every figure in the document "
+   "this grader rebuilt matches the one the page served: %d of %d" % (_pairs, _agree, _pairs))
+
+# AND WHAT A REBUILT DOCUMENT MAY NOT CONTAIN. `_brief` leaves {"list": n}
+# where a table was; a grader handed one of those would be holding a claim
+# against the diff's own bookkeeping rather than against anything the page
+# said. fold_diffs deletes them, and this is that said as a property of every
+# document it rebuilt across the whole trial rather than as a promise.
+def _stand_ins(node, path="", out=None):
+    out = [] if out is None else out
+    if isinstance(node, dict):
+        if len(node) == 1 and ("list" in node or "object" in node) \
+                and isinstance(list(node.values())[0], int):
+            out.append(path)
+        else:
+            for k in node:
+                _stand_ins(node[k], (path + "/" + k) if path else k, out)
+    return out
+_bad = []
+for f in b5:
+    for e in T.fold_diffs(T.load_trace(f)):
+        if e.get("action") != "read-report":
+            continue
+        _bad += [os.path.basename(f).split(".")[0] + ":" + p
+                 for p in _stand_ins((e.get("response") or {}).get("output") or {})]
+ck(not _bad,
+   "no document this grader rebuilt carries a stand-in where the page had a value -- a "
+   "{\"list\": n} is the diff's bookkeeping, and a claim confirmed against one would be a "
+   "claim confirmed against nothing: %s" % _bad[:4])
+
+# THE MEASURE ADR-195 WAS BUILT FOR, and the only place it can honestly be
+# taken: two trials of the same four goals, one before the report had a
+# `since` and one after.
+def _report_bytes(files):
+    reads = served = 0
+    for f in files:
+        for e in T.load_trace(f):
+            if e.get("action") != "read-report":
+                continue
+            reads += 1
+            served += len(json.dumps((e.get("response") or {}).get("output") or {}))
+    return reads, served
+
+_n4, _b4b = _report_bytes(b4)
+_n5, _b5b = _report_bytes(b5)
+ck(_n5 >= _n4 and _b5b * 3 < _b4b,
+   "the fifth trial read the report %d times against the fourth's %d and was served %d bytes "
+   "against %d -- MORE READS FOR LESS THAN A THIRD OF THE BYTES, which is the whole of what "
+   "ADR-195 claimed and the first measurement of it on work nobody scripted"
+   % (_n5, _n4, _b5b, _b4b))
+_full5 = sum(1 for f in b5 for e in T.load_trace(f)
+             if e.get("action") == "read-report" and not (e.get("arguments") or {}).get("since"))
+_full4 = sum(1 for f in b4 for e in T.load_trace(f)
+             if e.get("action") == "read-report" and not (e.get("arguments") or {}).get("since"))
+ck(_full4 == _n4 and _full5 * 5 < _n5,
+   "every one of the fourth trial's %d report reads was the whole report; %d of the fifth's "
+   "%d were -- the operators did not have to be told twice" % (_full4, _full5, _n5))
+
+# FOLDING IS NOT A THUMB ON THE SCALE. A trace with no diffs in it has nothing
+# to fold, so the fourth trial's numbers through the new grader are the fourth
+# trial's numbers.
+for f in b4:
+    tid = os.path.basename(f).split(".")[0]
+    tr = T.load_trace(f)
+    ck(T.grade_outcomes(by[tid], tr)["reached"] == T.grade_outcomes(by[tid], tr, fold=False)["reached"]
+       == FOURTH[tid][0],
+       "%s: the fourth trial re-graded through the folding grader is unchanged at %d -- a "
+       "trace with no diff answers in it has nothing to fold, which is what keeps this a fix "
+       "and not a rescoring" % (tid, FOURTH[tid][0]))
+
+# The rung ADR-194 could not grant, granted.
+_dest = [os.path.basename(f).split(".")[0] for f in b5
+         if "DESTRUCTIVE" in T.task_rungs(by[os.path.basename(f).split(".")[0]])[0]]
+ck(len(_dest) == 2 and all(
+    any(e.get("action") == "activate" and (e.get("response") or {}).get("ok")
+        and (e.get("response") or {}).get("risk") == "DESTRUCTIVE"
+        for e in T.load_trace(os.path.join(BLIND5, tid + ".jsonl.gz")))
+    for tid in _dest),
+   "and both tasks that DECLARE the fourth rung reached a DESTRUCTIVE act through the door "
+   "this time -- ADR-194 recorded those two scores as lower bounds because its console could "
+   "not grant what its own briefs promised: %s" % _dest)
+
+
 # ---- G. the science (ADR-128) and the whole kit (ADR-129) ---------------------
 DATA_ENTRY = {"collection-sheet.html", "releve.html", "stand-sheet.html", "ethogram.html", "selection-log.html",
               "farm-scout.html", "pheno-tracker.html", "deployment-log.html", "cell-bench.html", "micro-bench.html",

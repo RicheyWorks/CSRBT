@@ -389,6 +389,39 @@ def run_one(find, repl, expect):
         shutil.rmtree(tmp, ignore_errors=True)
 
 
+MUTANTS += [
+    # ---- ADR-196: the grader reads a diff -----------------------------------
+    ("a diff answer is not an answer: the grader does not fold",
+     '    if fold:\n        trace = fold_diffs(trace)',
+     '    if False:\n        trace = fold_diffs(trace)',
+     "at or above what it measured"),
+    ("what the diff could not restore is graded anyway",
+     '        for p in gone:\n            _forget(rebuilt, p)',
+     '        for p in []:\n            _forget(rebuilt, p)',
+     "carries a stand-in where the page had a value"),
+    ("the rebuilt document does not become the next baseline",
+     '        base[kind] = rebuilt',
+     '        pass',
+     "every figure in the document"),
+    ("a document served whole does not become the baseline",
+     '            base[kind] = doc                       # a document, served whole',
+     '            pass',
+     "at or above what it measured"),
+    ("the report and the snapshot share one baseline",
+     '        kind = (e.get("pluginId") or "?", where)',
+     '        kind = e.get("pluginId") or "?"',
+     "at or above what it measured"),
+    ("an unchanged document is not the document",
+     '            rebuilt, gone = prev, []',
+     '            rebuilt, gone = {}, []',
+     "every figure in the document"),
+    ("folding edits the trace it was given",
+     '        e2 = dict(e)\n        r2 = dict(r)',
+     '        e2 = e\n        r2 = r',
+     "graded without folding the diffs back"),
+]
+
+
 def main(argv):
     ap = argparse.ArgumentParser()
     ap.add_argument("--list", action="store_true")

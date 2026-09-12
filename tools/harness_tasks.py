@@ -80,6 +80,7 @@ import argparse, glob, io, json, os, re, secrets, sys, time
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, HERE)
+import harness_contract as C
 from harness_walk import wire_for, SUPERVISED_RUNGS, WALK_RUNGS
 
 TASKS_DIR = os.path.join(HERE, "tasks")
@@ -289,6 +290,14 @@ def resolve(value, done, where):
     return value
 
 
+def _is_hashable(v):
+    try:
+        hash(v)
+        return True
+    except TypeError:
+        return False
+
+
 def grade(expect, response, done, where):
     """[(path, verdict, detail)] for one step's expectations. Inside an
     expectation, "$.path" is this step's own response -- so a step can say
@@ -333,7 +342,14 @@ def grade(expect, response, done, where):
             elif op == "in":
                 ok = got in val if isinstance(val, (list, str, dict)) else False
             elif op == "contains":
-                ok = val in got if isinstance(got, (list, str, dict)) else False
+                # `val in got` on a mapping hashes val, and a claim whose value
+                # is a LIST of cells -- which is how a table row is written --
+                # raised TypeError instead of failing. A claim that cannot be
+                # true is false; it is not a reason for the grader to stop.
+                if isinstance(got, dict) and not _is_hashable(val):
+                    ok = False
+                else:
+                    ok = val in got if isinstance(got, (list, str, dict)) else False
             elif op == "~=":
                 # TWO INSTRUMENTS, ONE NUMBER (ADR-133).
                 #
@@ -672,7 +688,9 @@ def control_of(step):
     `@control:runName` is the name a task author wrote and a reader reads;
     `#cName` is the page's own id; a positional selector is the moment's and is
     the least useful of the three, so it is given last and as itself."""
-    a = step.get("arguments") or {}
+    a = step.get("arguments")
+    if not isinstance(a, dict):
+        return None
     sel = a.get("selector") or a.get("pane") or a.get("key")
     if not isinstance(sel, str):
         return None
@@ -710,7 +728,11 @@ def holds_of(task):
     in the shape a brief hands over and a host can grade itself against."""
     out = []
     for s, claims in outcomes_of(task):
-        a = dict(s.get("arguments") or {})
+        # A step's arguments are a mapping or they are nothing: a brief that
+        # crashed on a malformed one would take the whole ledger with it, and
+        # a task that cannot be described is a task, not an exception.
+        _a = s.get("arguments")
+        a = dict(_a) if isinstance(_a, dict) else {}
         out.append({"step": s["id"], "action": s["action"], "arguments": a,
                     "control": control_of(s), "claims": claims})
     return out
@@ -785,7 +807,90 @@ def brief_of(task, claims=True):
     return "\n".join(L) + "\n"
 
 
-def grade_outcomes(task, trace):
+def fold_diffs(trace):
+    """REBUILD THE DOCUMENT EACH CALL ACTUALLY ANSWERED WITH.
+
+    ADR-195 gave `read-report` a `since`, and the fifth blind trial's four
+    operators used it for all but two of their sixty-one report reads -- which
+    is exactly what it was built for, and which made every one of those reads
+    invisible to this grader. `grade_outcomes` holds a claim against what a
+    call answered with; a `since` answer is a diff, and a diff has no
+    `figures` in it. The stand sheet fell 42 outcomes to 32 and the breeding
+    bench 19 to 11 WITHOUT ANY OPERATOR DOING ANYTHING WORSE -- the drop was
+    proportional, page by page, to how much each had used the new feature.
+
+    A diff is not a smaller answer, it is the same answer stated differently,
+    and everything that reads the document has to be able to read it. So
+    before grading, each read-report and each observe is given back the
+    document it stood for: the last full one this session was served, with
+    every diff since applied, by the contract's own `apply_diff`.
+
+    WHAT THE DIFF CARRIED NO VALUE FOR IS DELETED, not guessed at: a list it
+    only counted, a bucket it capped, a path it declared noise, a table it
+    left as {"list": 2}. Those paths come out of the rebuilt document, so a
+    claim that lands on one is scored unreachable rather than confirmed.
+
+    A TRIMMED BOX IS NOT IN THAT CLASS and is kept. What a window holds is the
+    target's own words, so a claim that finds its text there has found it --
+    the truncation can cost a claim and cannot manufacture one, which is the
+    direction an instrument is allowed to be wrong in.
+
+    The trace is not edited: this returns a new list, and the entries it did
+    not have to rebuild are the same objects."""
+    out, base = [], {}
+    for e in trace:
+        r = e.get("response")
+        if not isinstance(r, dict):
+            out.append(e)
+            continue
+        act, hit = e.get("action"), None
+        if act == "read-report":
+            hit = ("output", r.get("output"))
+        elif isinstance(r.get("snapshot"), dict):
+            hit = ("snapshot", r.get("snapshot"))
+        if not hit or not isinstance(hit[1], dict):
+            out.append(e)
+            continue
+        where, doc = hit
+        kind = (e.get("pluginId") or "?", where)
+        if doc.get("diff") is None and doc.get("changed") is None:
+            base[kind] = doc                       # a document, served whole
+            out.append(e)
+            continue
+        prev = base.get(kind)
+        if prev is None:                           # nothing to rebuild from
+            out.append(e)
+            continue
+        if doc.get("changed") is False:
+            rebuilt, gone = prev, []
+        else:
+            got = C.apply_diff(prev, doc.get("diff") or {})
+            rebuilt, gone = got["after"], got["unrestored"]
+        for p in gone:
+            _forget(rebuilt, p)
+        base[kind] = rebuilt
+        e2 = dict(e)
+        r2 = dict(r)
+        r2[where] = rebuilt
+        e2["response"] = r2
+        out.append(e2)
+    return out
+
+
+def _forget(doc, path):
+    """Take a path out of a rebuilt document entirely. Not blanked, not
+    flagged: absent, so a claim against it is unreachable by the same code
+    path that handles a figure the page never published."""
+    node, segs = doc, C._segments(doc, path)
+    for seg in segs[:-1]:
+        if not isinstance(node, dict):
+            return
+        node = node.get(seg)
+    if isinstance(node, dict):
+        node.pop(segs[-1], None)
+
+
+def grade_outcomes(task, trace, fold=True):
     """Hold a trace to a task's OUTCOMES, not its route (ADR-187). Every
     outcome step is matched against every trace call of its action, in any
     order, each call on its own; an outcome is REACHED when one call confirms
@@ -796,6 +901,12 @@ def grade_outcomes(task, trace):
     unreachable rather than confirmed. Nothing here writes the ledger: the
     figure this returns is a measurement of an operator, not of the page."""
     outs = outcomes_of(task)
+    calls = len(trace)
+    # ADR-196: a diff answer is an answer. `fold=False` is what this grader did
+    # before the fifth blind trial, kept so the cost of not folding stays a
+    # number the suite can print rather than a story about a bad afternoon.
+    if fold:
+        trace = fold_diffs(trace)
     rows = []
     for s, claims in outs:
         best, best_i = -1, None
@@ -813,7 +924,7 @@ def grade_outcomes(task, trace):
         rows.append({"id": s["id"], "action": s["action"], "claims": len(claims), "confirmed": best,
                      "reached": best == len(claims), "call": best_i})
     return {"id": task["id"], "target": task["target"], "goal": task["goal"], "at": int(time.time()),
-            "graded": "outcomes", "calls": len(trace), "asked": len(task["steps"]),
+            "graded": "outcomes", "calls": calls, "asked": len(task["steps"]),
             "outcomes": len(rows), "reached": sum(1 for r in rows if r["reached"]),
             "claims": sum(r["claims"] for r in rows), "confirmed": sum(r["confirmed"] for r in rows),
             "steps": rows,

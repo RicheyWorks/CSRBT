@@ -258,10 +258,10 @@ MUTANTS += [
         pass''',
      "SAYS where it stopped"),
     ("a long value rides the diff whole, twice",
-     '''    if isinstance(v, str) and len(v) > 200:
-        return v[:200] + "…"''',
+     '''    if isinstance(v, str) and len(v) > BRIEF_CAP:
+        return v[:BRIEF_CAP] + "…"''',
      '''    if isinstance(v, str) and False:
-        return v[:200] + "…"''',
+        return v[:BRIEF_CAP] + "…"''',
      "a diff never carries a value whole"),
     # The session
     ("a stamp the door never issued is diffed against whatever it holds",
@@ -458,13 +458,54 @@ MUTANTS += [
      '    if path in keys and not any("*" in k for k in keys):\n        return keys[path]',
      "an exact path"),
     ("the stamp reads the key spec the old way, so it cannot see a wildcard",
-     '        fields = key_for(p, keys)',
-     '        fields = keys.get(p)',
+     '    for p in list(paths):\n        fields = key_for(p, keys)',
+     '    for p in list(paths):\n        fields = keys.get(p)',
      "the stamp reads the wildcard the same way the diff does"),
     ("the diff reads the key spec the old way, so it cannot see a wildcard",
      '        spec_k = key_for(p, keys)',
      '        spec_k = keys.get(p)',
      "names what appeared rather than counting it"),
+]
+
+
+MUTANTS += [
+    # ---- ADR-196: a diff is evidence ---------------------------------------
+    ("a diff does not say what it shortened",
+     '    d["trimmed"] = sorted(set(d["trimmed"]))',
+     '    d["trimmed"] = []',
+     "is NAMED as trimmed"),
+    ("both sides of a moved value are cut from the start again",
+     '        start = 0 if i <= BRIEF_CAP else i - BRIEF_CAP // 4',
+     '        start = 0',
+     "both sides of a moved box DIFFER"),
+    ("a window does not say it is one",
+     '    return ("…" if start else "") + piece + ("…" if start + BRIEF_CAP < len(v) else "")',
+     '    return piece',
+     "it says it is a window rather than the value"),
+    ("a list the diff only counted is called restored",
+     '    lost.update(diff.get("counts") or ())',
+     '    lost.update(())',
+     "COUNTED by the diff and therefore"),
+    ("trimmed and unrestored are the same thing after all",
+     '    return {"after": after, "approximate": sorted(approx - lost),\n            "unrestored": sorted(lost)}',
+     '    return {"after": after, "approximate": [],\n            "unrestored": sorted(lost | approx)}',
+     "comes back approximate"),
+    ("a diff with no register is taken as having trimmed nothing",
+     '    if "trimmed" not in diff:',
+     '    if False:',
+     "a diff with no register still says what it trimmed"),
+    ("what appeared in a keyed list is not put back",
+     '        _put(after, p, (list(cur) if isinstance(cur, list) else []) + list(entries))',
+     '        _put(after, p, list(cur) if isinstance(cur, list) else [])',
+     "and so does a keyed list"),
+    ("a path is split back on every separator, whether or not it is one",
+     '    node, rest, out = root, path, []',
+     '    return path.split(PATH_SEP)\n    node, rest, out = root, path, []',
+     "A KEY MAY CONTAIN THE PATH SEPARATOR"),
+    ("a stand-in for a whole list that appeared is taken for the list",
+     '        if _stand_in(v):\n            lost.add(p)',
+     '        if False:\n            lost.add(p)',
+     "is UNRESTORED"),
 ]
 
 

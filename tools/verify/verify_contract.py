@@ -859,6 +859,85 @@ ck(C.stamp_of(_wb, KW) == C.stamp_of({"lines": {"a": ["two", "one"], "b": ["keep
    "and the stamp reads the wildcard the same way the diff does -- order-blind where the "
    "spec says a list is keyed, or the two would disagree about whether anything moved")
 
+# ---- 16. a diff is evidence: it can be applied, and it says what it trimmed --
+#
+# ADR-195 made the diff the thing a client actually reads, and the fifth blind
+# trial then showed what that costs anything that has to read the document
+# BACK: the grader held every claim against what a call answered with, and
+# what those calls answered with was a diff. So the inverse exists here, beside
+# the thing it inverts, and it is honest about what a diff cannot carry.
+_ab = {"figures": {"n": "3", "q": "keep"}, "boxes": {"k": "x" * 250 + " before " + "y" * 60},
+       "lines": {"k": ["one", "two"]}, "tables": {}}
+_aa = {"figures": {"n": "4", "q": "keep"}, "boxes": {"k": "x" * 250 + " AFTER  " + "y" * 60},
+       "lines": {"k": ["two", "three"]}, "tables": {"t": [["a"], ["b"]]}}
+_as = {"keys": {"lines/*": "self"}, "noise": []}
+_ad = C.diff_of(_ab, _aa, _as)
+_ap = C.apply_diff(_ab, _ad, _as)
+ck(_ap["after"]["figures"] == _aa["figures"],
+   "a value the diff carried whole comes back EXACTLY: %r" % _ap["after"]["figures"])
+ck(_ap["after"]["lines"] == _aa["lines"],
+   "and so does a keyed list, from what appeared and what vanished -- not from a copy of "
+   "the list, which the diff never sent: %r" % _ap["after"]["lines"])
+ck("boxes/k" in _ad["trimmed"] and "boxes/k" in _ap["approximate"]
+   and _ap["after"]["boxes"]["k"] != _aa["boxes"]["k"],
+   "a box too long to carry is NAMED as trimmed and comes back approximate -- the target's "
+   "own words, and fewer of them")
+ck("tables/t" in _ap["unrestored"] and "tables/t" not in _ap["approximate"],
+   "while a list the diff only counted is UNRESTORED, which is a different thing and the "
+   "difference is the whole of what makes this safe to grade with: approximate means believe "
+   "what is here, unrestored means there is nothing of the target's here at all: %s / %s"
+   % (_ap["approximate"], _ap["unrestored"]))
+_sb = {"figures": {"pollen / seed parents": "20 / 20", "n": "1"}}
+_sa = {"figures": {"pollen / seed parents": "50 / 50", "n": "1"}}
+ck(C.apply_diff(_sb, C.diff_of(_sb, _sa, {}), {})["after"] == _sa,
+   "A KEY MAY CONTAIN THE PATH SEPARATOR, and the pages' do -- the breeding bench publishes a "
+   "figure called `pollen / seed parents`. Joining is lossy and un-joining need not be, because "
+   "the document is right here: the longest key that matches wins, which is exact wherever the "
+   "key exists. Split naively this rebuilds as an object nobody has, which is how the fifth "
+   "trial found it: %r" % C.apply_diff(_sb, C.diff_of(_sb, _sa, {}), {})["after"])
+_cb, _ca = {"tables": {"t": [["a"], ["b"]]}}, {"tables": {"t": [["a"], ["c"]]}}
+_cd = C.diff_of(_cb, _ca, {"keys": {}})
+_cp = C.apply_diff(_cb, _cd)
+ck("tables/t" in _cd["counts"] and "tables/t" in _cp["unrestored"]
+   and _cp["after"]["tables"]["t"] == _cb["tables"]["t"],
+   "a list that was there all along and that nobody keyed is COUNTED by the diff and therefore "
+   "unrestored by this: the rebuilt document still holds the old rows, which is exactly why the "
+   "path has to be named rather than left to look current: %s" % _cp["unrestored"])
+ck(C.apply_diff(_ab, C.diff_of(_ab, _ab, _as), _as)["after"] == _ab,
+   "applying the diff of a document against itself changes nothing")
+ck(C.stamp_of(C.apply_diff(_ab, C.diff_of(_ab, _aa, _as), _as)["after"], _as)
+   != C.stamp_of(_ab, _as),
+   "and applying a real one moves the stamp, which is the round trip the two halves owe "
+   "each other")
+
+# THE WINDOW. ADR-195 trimmed each side from the start, which on a long box
+# hands the reader two identical strings and a claim that something moved.
+_wb = "a" * 400 + "the old sentence"
+_wa = "a" * 400 + "the new sentence"
+_wd = C.diff_of({"boxes": {"b": _wb}}, {"boxes": {"b": _wa}}, {"keys": {}})
+_l, _r = _wd["fields"]["boxes/b"]
+ck(_l != _r,
+   "both sides of a moved box DIFFER, however far into it the change sits -- the fifth "
+   "trial's breeding-bench operator was told boxes/storOut had moved and handed two "
+   "identical strings, and had to re-read the page to find out what it now said")
+ck("old" in _l and "new" in _r and len(_l) <= C.BRIEF_CAP + 2 and len(_r) <= C.BRIEF_CAP + 2,
+   "the window is centred on the place they differ and costs the same bytes it always did: "
+   "%d and %d characters" % (len(_l), len(_r)))
+ck(_l.startswith("…") and _r.startswith("…"),
+   "and it says it is a window rather than the value")
+ck(C.diff_of({"b": "short one"}, {"b": "short two"}, {})["trimmed"] == [],
+   "a value that fitted is not called trimmed: the register names what was SHORTENED, not "
+   "everything that moved")
+
+# A DIFF FROM BEFORE THE REGISTER. Every trace up to ADR-195 is one.
+_old_diff = dict(_ad)
+_old_diff.pop("trimmed")
+_op = C.apply_diff(_ab, _old_diff, _as)
+ck("boxes/k" in _op["approximate"] and "tables/t" in _op["unrestored"],
+   "a diff with no register still says what it trimmed, because the shortening was this "
+   "module's own and its shapes are exact -- a stand-in object, or a string of exactly "
+   "BRIEF_CAP characters and an ellipsis: %s" % _op["approximate"])
+
 m = g.manifest(TOKEN)
 sess_facts = m.get("session") or {}
 ck(m["protocolVersion"] == "1.7"
