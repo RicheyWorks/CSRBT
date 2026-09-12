@@ -60,6 +60,10 @@ import argparse, errno, io, json, os, re, secrets, socket, subprocess, sys, temp
 from urllib.parse import quote
 
 HERE = os.path.dirname(os.path.abspath(__file__))
+# What a supervised operator gets unless it is asked for more: read what has
+# been entered, draft, and write. Not DESTRUCTIVE.
+SUPERVISED = ("SENSITIVE_READ", "DRAFT", "MUTATE")
+RUNGS = ("READ", "NAVIGATE", "SENSITIVE_READ", "DRAFT", "MUTATE", "DESTRUCTIVE")
 
 
 def session_dir():
@@ -81,14 +85,27 @@ def sock_path(name):
 class Door(object):
     """The MCP server as a child process, spoken to in JSON-RPC."""
 
-    def __init__(self, target, page, seed, trace, token):
+    def __init__(self, target, page, seed, trace, token, rungs=None):
         env = dict(os.environ)
         env["CSRBT_HARNESS_ENABLED"] = "true"
         env["CSRBT_HARNESS_TOKEN"] = token
-        # the rungs a supervised operator gets: read what is entered, draft,
-        # and write. Not DESTRUCTIVE -- an operator that can wipe the store is
-        # not being supervised, it is being trusted.
-        for rung in ("SENSITIVE_READ", "DRAFT", "MUTATE"):
+        # THE RUNGS ARE THE OPERATOR'S, AND THE FOURTH TRIAL FOUND OUT WHY THAT
+        # MATTERS. This was hard-coded to SENSITIVE_READ, DRAFT and MUTATE --
+        # the supervised set, on the reasoning that an operator who can wipe
+        # the store is not being supervised but trusted. That is still the
+        # DEFAULT and still the right default. What it could not do was run a
+        # task that DECLARES the fourth rung: ADR-142 let a task say "the goal
+        # includes undoing the last tally", ADR-193 put that declaration in the
+        # brief an operator is handed, and ADR-194 handed two operators briefs
+        # saying DESTRUCTIVE was open through a console that could not grant
+        # it. Both were stopped at the goal's last step, by the trial harness
+        # rather than by the door, and both diagnosed it exactly -- the policy
+        # is read from the environment once, when the session's door is
+        # spawned, so no later batch can raise it.
+        #
+        # So it is an argument now. Still opt-in, still named on the command
+        # line, so nobody gets the fourth rung by not thinking about it.
+        for rung in (rungs or SUPERVISED):
             env["CSRBT_HARNESS_ALLOW_" + rung] = "true"
         cmd = [sys.executable, os.path.join(HERE, "harness_mcp.py"),
                "--target", target, "--page", page, "--seed", str(seed)]
@@ -172,8 +189,9 @@ def serve_session(name, a, token):
     srv.bind(path)
     os.chmod(path, 0o600)
     srv.listen(1)
-    door = Door(a.target, a.page, a.seed, a.trace, token)
-    sys.stderr.write("blind session %r open on %s\n" % (name, path))
+    door = Door(a.target, a.page, a.seed, a.trace, token, rungs=a.rungs)
+    sys.stderr.write("blind session %r open on %s, rungs %s\n"
+                     % (name, path, ",".join(a.rungs or SUPERVISED)))
     sys.stderr.flush()
     try:
         while True:
@@ -267,6 +285,8 @@ def start_session(name, a):
            "--target", a.target, "--page", a.page, "--seed", str(a.seed)]
     if a.trace:
         cmd += ["--trace", a.trace]
+    if a.rungs:
+        cmd += ["--rungs", ",".join(a.rungs)]
     subprocess.Popen(cmd, stdin=subprocess.DEVNULL,
                      stdout=open(os.devnull, "w"), stderr=open(path + ".log", "w"),
                      start_new_session=True)
@@ -285,6 +305,14 @@ def main(argv):
     ap.add_argument("--seed", type=int, default=42)
     ap.add_argument("--moves", help="a JSON file of moves; omit to just list what the door offers")
     ap.add_argument("--trace", help="record every call here (the file the grader reads)")
+    ap.add_argument("--rungs", metavar="A,B,C",
+                    type=lambda v: tuple(x.strip().upper() for x in v.split(",") if x.strip()),
+                    help="the rungs this operator is allowed, comma-separated (default: %s). A "
+                         "task that DECLARES the fourth rung -- its brief's RUNGS line says so "
+                         "(ADR-142, ADR-193) -- cannot be operated without naming DESTRUCTIVE "
+                         "here, and the policy is read once when the session's door is spawned, "
+                         "so it cannot be raised mid-session."
+                         % ",".join(SUPERVISED))
     ap.add_argument("--session", metavar="NAME",
                     help="keep the door open between invocations under this name (ADR-191). "
                          "The first call with --target starts it; later calls need only "
@@ -297,6 +325,11 @@ def main(argv):
                          "The default, 0, prints the whole answer -- a snapshot is the discovery "
                          "path and a clipped one does not parse (ADR-141).")
     a = ap.parse_args(argv)
+
+    bad = [r for r in (a.rungs or ()) if r not in RUNGS]
+    if bad:
+        print(json.dumps({"error": "no such rung(s) %s; the ladder is %s" % (bad, list(RUNGS))}))
+        return 2
 
     token = "blind-" + secrets.token_urlsafe(24)
 
@@ -327,7 +360,7 @@ def main(argv):
             print(line)
         return 0
 
-    door = Door(a.target, a.page, a.seed, a.trace, token)
+    door = Door(a.target, a.page, a.seed, a.trace, token, rungs=a.rungs)
     out = []
     try:
         if not a.moves:

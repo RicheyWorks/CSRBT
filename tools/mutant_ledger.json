@@ -579,7 +579,7 @@
    "survived": 0
   },
   "mutate_contract": {
-   "at": 1789164593,
+   "at": 1789208787,
    "equivalent": 1,
    "equivalents": [
     {
@@ -588,8 +588,8 @@
     }
    ],
    "inconclusive": 0,
-   "killed": 56,
-   "mutants": 56,
+   "killed": 60,
+   "mutants": 60,
    "rows": [
     {
      "detail": "8 failure(s); first: an action that declared mayRise is asked, with this call's ",
@@ -857,13 +857,33 @@
      "verdict": "killed"
     },
     {
-     "detail": "2 failure(s); first: A SECOND, SEPARATE INVOCATION reaches the SAME door: the ta",
+     "detail": "4 failure(s); first: A SECOND, SEPARATE INVOCATION reaches the SAME door: the ta",
      "name": "every request gets its own door, so a session remembers nothing",
      "verdict": "killed"
     },
     {
      "detail": "1 failure(s); first: and a stamp issued in one invocation is still the door's ba",
      "name": "the console keeps the stamp to itself",
+     "verdict": "killed"
+    },
+    {
+     "detail": "2 failure(s); first: a session opened with the fourth rung named lists what the ",
+     "name": "the console hands out whatever rungs it likes",
+     "verdict": "killed"
+    },
+    {
+     "detail": "2 failure(s); first: a session opened with the fourth rung named lists what the ",
+     "name": "a rung named on the command line is ignored",
+     "verdict": "killed"
+    },
+    {
+     "detail": "2 failure(s); first: a session opened with the fourth rung named lists what the ",
+     "name": "the rung a session was opened with is lost when the server is spawned",
+     "verdict": "killed"
+    },
+    {
+     "detail": "1 failure(s); first: a rung that is not on the ladder is refused by name rather ",
+     "name": "a rung that is not on the ladder is taken anyway",
      "verdict": "killed"
     },
     {

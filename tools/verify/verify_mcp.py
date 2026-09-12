@@ -629,7 +629,60 @@ finally:
                    capture_output=True, text=True, env=senv, timeout=120)
     shutil.rmtree(sdir, ignore_errors=True)
 
+# -- the rungs are the operator's (ADR-194) ----------------------------------
+#
+# The fourth blind trial handed two operators briefs whose RUNGS line said
+# DESTRUCTIVE -- because their tasks declare it (ADR-142) and ADR-193 started
+# printing the declaration -- through a console that hard-coded the supervised
+# three. Both were stopped at the goal's last step by the TRIAL HARNESS rather
+# than by the door, and both diagnosed it exactly: the policy is read from the
+# environment once, when the session's door is spawned, so no later batch can
+# raise it.
+RSET = "rung-set"
+# Its own session directory: the block above removed the last one, and a helper
+# that writes a moves file into a directory that is gone fails as a missing
+# file rather than as a check.
+sdir = tempfile.mkdtemp(prefix="blind-rungs-")
+senv["CSRBT_BLIND_DIR"] = sdir
+# The fixture only OFFERS a destructive action when it is told it may die
+# (ADR-119). Without it there is no DESTRUCTIVE tool on this target and the two
+# rung sets would list the same thing for a reason that has nothing to do with
+# rungs -- a check that passed either way.
+senv["CSRBT_FIXTURE_DIE"] = "1"
+try:
+    gate = console(["--session", RSET, "--target", "fixture",
+                    "--moves", moves({"list": True})])
+    names = set(t["name"] for t in
+                answers(gate)[0]["answer"]["result"]["tools"]) if answers(gate) else set()
+    console(["--session", RSET, "--end"], timeout=120)
+    wide = console(["--session", RSET, "--target", "fixture",
+                    "--rungs", "SENSITIVE_READ,DRAFT,MUTATE,DESTRUCTIVE",
+                    "--moves", moves({"list": True})])
+    names4 = set(t["name"] for t in
+                 answers(wide)[0]["answer"]["result"]["tools"]) if answers(wide) else set()
+    ck(names and names4 > names,
+       "a session opened with the fourth rung named lists what the supervised three do not: "
+       "%s" % sorted(names4 - names))
+    ck("csrbt_fixture__die" not in names and "csrbt_fixture__die" in names4,
+       "and the thing it lists is the DESTRUCTIVE one -- which is the rung two of the fourth "
+       "trial's four briefs declare, and which the console could not grant at all")
+    bad = console(["--session", RSET + "x", "--target", "fixture", "--rungs", "NOPE",
+                   "--moves", moves({"list": True})], timeout=120)
+    ck("no such rung" in bad.stdout,
+       "a rung that is not on the ladder is refused by name rather than silently dropped: %s"
+       % bad.stdout.strip()[:110])
+finally:
+    console(["--session", RSET, "--end"], timeout=120)
+    console(["--session", RSET + "x", "--end"], timeout=120)
+    shutil.rmtree(sdir, ignore_errors=True)
+    senv.pop("CSRBT_FIXTURE_DIE", None)
+
 src_bc = io.open(BL, encoding="utf-8").read()
+ck('SUPERVISED = ("SENSITIVE_READ", "DRAFT", "MUTATE")' in src_bc
+   and "rungs or SUPERVISED" in src_bc,
+   "and the DEFAULT is still the supervised three: an operator that can wipe the store is not "
+   "being supervised, it is being trusted, and nobody gets the fourth rung by not thinking "
+   "about it")
 ck(src_bc.count("door.rpc(\"tools/call\"") == 1 and "def play(" in src_bc,
    "and both modes interpret a move in ONE place, so a batch and a session cannot drift "
    "into meaning different things by the same move")

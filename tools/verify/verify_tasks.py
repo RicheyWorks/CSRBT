@@ -31,6 +31,11 @@ pins what makes a verdict believable:
      own; a trace that took the fixture's canary task is graded FAIL and
      held; and the committed traces -- a model's, planning from the goal and
      tools/list alone -- are every one PASS
+  F4. the fourth blind trial (ADR-194): the same four pages through the door
+     the five slices built, graded by the same grader against the third
+     trial's floors -- more outcomes reached, more claims confirmed, in fewer
+     calls and one attempt each; and the rung the trial harness could not
+     grant
   G. the science (ADR-128) and the whole kit (ADR-129): every data-entry,
      key, simulator and proof page has a task that enters data through the
      gateway and holds the page's report to a hand-checked oracle; every
@@ -755,6 +760,79 @@ ck(_rc == 1 and len(_l3) == 4 and all("PARTIAL" in l for l in _l3)
    and (io.open(led, "rb").read() if os.path.isfile(led) else b"") == _led_before,
    "--grade-trace DIR --outcomes grades every trace in the directory, exits non-zero while any is short of PASS, and "
    "writes nothing to the ledger -- an operator's score is not the page's: %d line(s)" % len(_l3))
+
+# ---- F4. the fourth blind trial: what the five slices were for (ADR-194) ----
+#
+# Same four pages, same grader, same floors. Between the two trials the door
+# gained names (ADR-188), settling (ADR-189), the manual (ADR-190), the session
+# and the diff (ADR-191), and the operator gained a brief instead of a sentence
+# (ADR-193). This section is the measurement, and it is the only kind of
+# evidence that matters for an API: not that the door is better designed, but
+# that a stranger got further with it.
+BLIND4 = os.path.join(T.TRACES_DIR, "blind4")
+b4 = sorted(glob.glob(os.path.join(BLIND4, "*.jsonl.gz")))
+ck(len(b4) == 4 and {os.path.basename(f).split(".")[0] for f in b4} == set(FLOORS),
+   "the fourth trial's four traces, one per science page the third was pointed at -- the same "
+   "four, or the comparison is not one: %s" % [os.path.basename(f) for f in b4])
+p4 = os.path.join(BLIND4, "PROVENANCE.md")
+t4 = io.open(p4, encoding="utf-8").read() if os.path.isfile(p4) else ""
+ck(all(w in t4 for w in ("blind brief", "DESTRUCTIVE", "attempt", "removed from the",
+                         "lower bound")) and len(t4) > 3500,
+   "the fourth trial carries a provenance: the conditions, what each operator was handed, what "
+   "it measured, and what it found -- including which of its own numbers are floors")
+
+# THE FOURTH TRIAL'S OWN FLOORS. Written down here, from the run, so the next
+# door has something to beat and a regression in this one has something to
+# fail. The third trial's floors are the SAME dictionary above: a trial that
+# did not clear them would be a door that had got worse.
+FOURTH = {"page-stand-sheet-science": (42, 107), "page-collection-sheet-science": (12, 34),
+          "page-pheno-tracker-science": (9, 25), "page-breeding-bench-science": (19, 47)}
+CALLS = {"page-stand-sheet-science": 123, "page-collection-sheet-science": 100,
+         "page-pheno-tracker-science": 87, "page-breeding-bench-science": 88}
+rose = gained = 0
+for f in b4:
+    tid = os.path.basename(f).split(".")[0]
+    g4 = T.grade_outcomes(by[tid], T.load_trace(f))
+    was, now = FLOORS[tid], FOURTH[tid]
+    ck(g4["reached"] >= now[0] and g4["confirmed"] >= now[1] and g4["outcomes"] == was[1]
+       and g4["claims"] == was[3] and g4["verdict"] in ("PARTIAL", "PASS"),
+       "%s: the fourth trial's operator reached %d of %d outcomes (%d of %d claims) -- at or "
+       "above what it measured %s" % (tid, g4["reached"], g4["outcomes"], g4["confirmed"],
+                                      g4["claims"], now))
+    ck(g4["reached"] > was[0] and g4["confirmed"] > was[2],
+       "%s: and MORE than the third trial reached on the same page with the same grader -- "
+       "%d against %d outcomes, %d against %d claims. This is the only evidence that the five "
+       "slices between the trials were worth building"
+       % (tid, g4["reached"], was[0], g4["confirmed"], was[2]))
+    ck(g4["calls"] <= CALLS[tid],
+       "%s: in %d call(s), one attempt, where the third trial took four to six attempts and "
+       "%d-odd calls in all" % (tid, g4["calls"], {"page-stand-sheet-science": 290,
+                                                   "page-collection-sheet-science": 270,
+                                                   "page-pheno-tracker-science": 207,
+                                                   "page-breeding-bench-science": 229}[tid]))
+    rose += g4["reached"] - was[0]
+    gained += g4["confirmed"] - was[2]
+    gr4 = T.grade_trace(by[tid], T.load_trace(f))
+    ck(gr4["verdict"] == "FAIL",
+       "%s: and graded as a ROUTE it is still FAIL -- a better door does not make a stranger "
+       "take the author's steps in the author's order, which is ADR-187's finding standing"
+       % tid)
+ck(rose >= 29 and gained >= 44,
+   "across the four pages the fourth trial reached %d more outcomes and confirmed %d more "
+   "claims than the third -- 53 -> 82 of 112 and 169 -> 213 of 260" % (rose, gained))
+ck(sum(T.grade_outcomes(by[os.path.basename(f).split(".")[0]], T.load_trace(f))["calls"]
+       for f in b4) <= 398,
+   "in 398 calls against the third trial's 996: the door got cheaper to use, not just further")
+
+# The rung the trial could not grant. The console's own end of this is held in
+# verify_mcp, where a mutant runner can afford to break it; what belongs here
+# is the thing that made the mismatch VISIBLE -- a task that declares the
+# fourth rung, and a brief that prints the declaration.
+need4 = [t["id"] for t in tasks if "DESTRUCTIVE" in T.task_rungs(t)[0]]
+ck(len(need4) >= 2 and all(T.task_rungs(by[i])[1] for i in need4),
+   "%d task(s) declare the fourth rung and every one says why -- which is what made the "
+   "mismatch visible: %s" % (len(need4), need4[:3]))
+
 
 # ---- G. the science (ADR-128) and the whole kit (ADR-129) ---------------------
 DATA_ENTRY = {"collection-sheet.html", "releve.html", "stand-sheet.html", "ethogram.html", "selection-log.html",

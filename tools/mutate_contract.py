@@ -340,6 +340,25 @@ MUTANTS += [
      '''            if False:
                 uri += "?since=" + quote(str(m["since"]), safe="")''',
      "is still the door's baseline in the next"),
+    # ---- ADR-194: the rungs are the operator's -----------------------------
+    ("the console hands out whatever rungs it likes",
+     '''        for rung in (rungs or SUPERVISED):''',
+     '''        for rung in RUNGS:''',
+     "lists what the supervised three do not"),
+    ("a rung named on the command line is ignored",
+     '''        for rung in (rungs or SUPERVISED):''',
+     '''        for rung in SUPERVISED:''',
+     "lists what the supervised three do not"),
+    ("the rung a session was opened with is lost when the server is spawned",
+     '''    if a.rungs:
+        cmd += ["--rungs", ",".join(a.rungs)]''',
+     '''    if False:
+        cmd += ["--rungs", ",".join(a.rungs)]''',
+     "lists what the supervised three do not"),
+    ("a rung that is not on the ladder is taken anyway",
+     '''    bad = [r for r in (a.rungs or ()) if r not in RUNGS]''',
+     '''    bad = []''',
+     "refused by name rather than silently dropped"),
     ("a closed session leaves its socket behind, so the next one talks to a corpse",
      '''                    try:
                         os.unlink(path)
