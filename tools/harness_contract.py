@@ -72,9 +72,9 @@ REPLAY SAFETY
     Here the policy is re-applied to the cached response's risk, so tightening
     the policy takes effect on the next call rather than the next restart.
 """
-import hmac, json, os, re, time
+import hashlib, hmac, json, os, re, time
 
-PROTOCOL_VERSION = "1.6"   # 1.1 (ADR-114): bounds, patterns, examples in argument schemas
+PROTOCOL_VERSION = "1.7"   # 1.1 (ADR-114): bounds, patterns, examples in argument schemas
                            # 1.2 (ADR-120): snapshotMs on every execute response -- the snapshot, priced
                            # 1.3 (ADR-124): argumentPools may carry argument SETS, keyed by the action alone
                            # 1.6 (ADR-189): `stale` -- a refusal for an argument that was right when
@@ -88,8 +88,24 @@ PROTOCOL_VERSION = "1.6"   # 1.1 (ADR-114): bounds, patterns, examples in argume
                            #                mayRise is one whose real risk depends on what it was
                            #                pointed at, and the plugin RAISES it per call -- never
                            #                lowers it -- with a reason the response carries.
+                           # 1.7 (ADR-191): every snapshot carries a `stamp`, observe() takes a
+                           #                `since` stamp and answers with what CHANGED, and every
+                           #                execute response carries the same diff against the last
+                           #                snapshot this session was served. A plugin says what
+                           #                identity means on its own snapshot (identity()); the
+                           #                gateway does the diffing, so all three targets diff alike.
 REPLAY_CACHE_LIMIT = 256
 REPLAY_CACHE_BYTE_LIMIT = 8 * 1024 * 1024
+# ADR-191: how many entries of one list, in one bucket of one diff, are named
+# before the diff says it stopped naming them. A diff is a saving over the
+# snapshot or it is nothing, and an unbounded one on a page that rebuilt every
+# control would be larger than the snapshot it was meant to replace.
+DIFF_CAP = 40
+# The separator for a path INTO a snapshot. Not "." -- the page's argument pool
+# names contain dots ("choose-option.value", "set-text.selector"), so a dotted
+# path could not say whether it meant a pool called "choose-option.value" or a
+# field "value" inside a pool called "choose-option".
+PATH_SEP = "/"
 TOKEN_MIN = 24
 SLUG = re.compile(r"^[a-z0-9][a-z0-9-]{0,29}$")
 TOOL_NAME_MAX = 64
@@ -105,6 +121,209 @@ DEFAULT_POLICY = {"READ": True, "NAVIGATE": True, "SENSITIVE_READ": False,
 VALUE_TYPES = ("string", "integer", "number", "boolean", "array")
 _JSON_TYPE = {"string": str, "integer": int, "number": (int, float),
               "boolean": bool, "array": list}
+
+
+def _is_scalar(v):
+    return v is None or isinstance(v, (str, int, float, bool))
+
+
+def _key_of(entry, fields):
+    """The identity of one entry of a keyed list: the first field it HAS.
+
+    A list of scalars is keyed by the scalar ("self"). A list of objects is
+    keyed by the first named field that is present and not null, so a page
+    control is its address when it has one and its selector when it does not
+    -- the same fallback the address grammar itself makes (ADR-188)."""
+    if fields == "self":
+        return entry if _is_scalar(entry) else None
+    if not isinstance(entry, dict):
+        return None
+    for f in fields:
+        v = entry.get(f)
+        if v is not None and _is_scalar(v):
+            return v
+    return None
+
+
+def _walk(node, path, noise, out):
+    """Flatten a snapshot to (path -> value), stopping at keyed lists.
+
+    A keyed list is left WHOLE at its own path, because the diff handles it
+    entry by entry. Everything else lands as a scalar path (compared value by
+    value) or, for a list this snapshot did not claim to have identity in, as
+    one opaque value at its path -- compared by length rather than by content,
+    because a list nobody keyed cannot be diffed without inventing an identity
+    for its entries, and inventing one is how a reordered list reads as
+    everything changing."""
+    if path in noise:
+        return
+    if isinstance(node, dict):
+        for k in node:
+            _walk(node[k], (path + PATH_SEP + k) if path else k, noise, out)
+        return
+    out[path] = node
+
+
+def _paths(snap, noise):
+    out = {}
+    _walk(snap, "", noise, out)
+    return out
+
+
+def stamp_of(snap, spec=None):
+    """A short digest of everything in a snapshot that a reader could notice.
+
+    Its whole job is to answer "has anything moved since I last looked" in a
+    handful of bytes. Paths the plugin declared NOISE are left out -- a replica
+    lag in milliseconds and a thread count move on their own, and a stamp that
+    moved with them would report change on every call and mean nothing. The
+    stamp itself is not a version of the page (`version`, ADR-188, is that);
+    it is a version of the OBSERVATION, and it moves when a value does."""
+    spec = spec or {}
+    noise = set(spec.get("noise") or ())
+    if not isinstance(snap, dict):
+        return None
+    paths = _paths(snap, noise)
+    # A KEYED LIST IS A SET, FOR STAMPING PURPOSES. These pages rebuild their
+    # controls on nearly every act, in whatever order the rebuild happened to
+    # produce, and a stamp that moved with the order would report "changed"
+    # about a page where nothing changed -- and would contradict the empty diff
+    # the same two snapshots produce. Sorted by the same identity the diff
+    # uses, so the stamp and the diff can never disagree about whether
+    # something moved.
+    keys = spec.get("keys") or {}
+    for p in keys:
+        v = paths.get(p)
+        if isinstance(v, list):
+            paths[p] = sorted(v, key=lambda e: json.dumps(
+                [_key_of(e, keys[p]), e], sort_keys=True, default=str))
+    body = json.dumps([[k, paths[k]] for k in sorted(paths)],
+                      sort_keys=True, default=str, ensure_ascii=False)
+    h = hashlib.sha256(body.encode("utf-8")).hexdigest()[:12]
+    return "s" + h
+
+
+def diff_of(before, after, spec=None, cap=DIFF_CAP):
+    """What changed between two snapshots of the same target.
+
+    The gateway computes this, not the plugin, so the page, the organism and
+    the lab all diff alike and one suite holds all three. What the PLUGIN
+    supplies is the only thing the gateway cannot know: what identity means on
+    its own snapshot -- which lists are keyed, and by what -- and which paths
+    are noise. Everything else follows.
+
+        fields    a value that moved, at its path: {"size": [4, 5]}
+        gained    a path that was not there before, with its value
+        lost      a path that is not there now
+        appeared  a whole new entry of a keyed list, so a client can act on it
+                  without re-reading the snapshot
+        vanished  the KEY of an entry that is gone -- not its body, which the
+                  client already had and which is no longer true of anything
+        altered   a key, and the fields of that entry that moved
+        counts    a list nobody keyed: how long it was and how long it is. Not
+                  its contents: a list with no declared identity cannot be
+                  diffed entry by entry without inventing one.
+        capped    where a bucket stopped naming entries, and how many there were
+        noise     the paths that were NOT compared, named rather than dropped
+
+    Order is not change. A keyed list is compared as a mapping from key to
+    entry, so a page that rebuilt its controls in a different order -- which
+    these pages do on every act -- reports the handful that actually moved."""
+    spec = spec or {}
+    keys = spec.get("keys") or {}
+    noise = set(spec.get("noise") or ())
+    d = {"fields": {}, "gained": {}, "lost": [], "appeared": {}, "vanished": {},
+         "altered": {}, "counts": {}, "capped": [], "noise": sorted(noise)}
+    if not isinstance(before, dict) or not isinstance(after, dict):
+        return d
+    pb, pa = _paths(before, noise), _paths(after, noise)
+    for p in sorted(set(pb) | set(pa)):
+        in_b, in_a = p in pb, p in pa
+        vb, va = pb.get(p), pa.get(p)
+        spec_k = keys.get(p)
+        if isinstance(vb, list) or isinstance(va, list):
+            if not in_b or not in_a:
+                (d["gained"].__setitem__(p, _brief(va)) if in_a else d["lost"].append(p))
+                continue
+            if spec_k is None:
+                if len(vb) != len(va) or vb != va:
+                    d["counts"][p] = [len(vb), len(va)]
+                continue
+            _diff_list(p, vb, va, spec_k, cap, d)
+            continue
+        if in_b and not in_a:
+            d["lost"].append(p)
+        elif in_a and not in_b:
+            d["gained"][p] = _brief(va)
+        elif vb != va:
+            d["fields"][p] = [_brief(vb), _brief(va)]
+    return d
+
+
+def _diff_list(path, vb, va, fields, cap, d):
+    """One keyed list, compared as a mapping. Entries with no identity at all
+    are counted rather than named: a client cannot act on an entry it has no
+    way to name again, and pretending otherwise would be the diff inventing a
+    key the target never published."""
+    mb, na = {}, 0
+    for e in vb:
+        k = _key_of(e, fields)
+        if k is not None:
+            mb[k] = e
+    ma = {}
+    for e in va:
+        k = _key_of(e, fields)
+        if k is None:
+            na += 1
+        else:
+            ma[k] = e
+    app = [ma[k] for k in ma if k not in mb]
+    gone = [k for k in mb if k not in ma]
+    alt = {}
+    for k in ma:
+        if k not in mb:
+            continue
+        a, b = ma[k], mb[k]
+        if a == b:
+            continue
+        if not isinstance(a, dict) or not isinstance(b, dict):
+            alt[k] = {"value": [_brief(b), _brief(a)]}
+            continue
+        moved = {}
+        for f in sorted(set(a) | set(b)):
+            if a.get(f) != b.get(f):
+                moved[f] = [_brief(b.get(f)), _brief(a.get(f))]
+        if moved:
+            alt[k] = moved
+    if app:
+        d["appeared"][path] = _cap(app, cap, path + ".appeared", len(app), d)
+    if gone:
+        d["vanished"][path] = _cap(sorted(gone, key=str), cap, path + ".vanished", len(gone), d)
+    if alt:
+        ks = sorted(alt, key=str)
+        kept = _cap(ks, cap, path + ".altered", len(ks), d)
+        d["altered"][path] = dict((k, alt[k]) for k in kept)
+    if na:
+        d["counts"][path + ".unnamed"] = [0, na]
+
+
+def _cap(seq, cap, where, total, d):
+    if total > cap:
+        d["capped"].append({"where": where, "named": cap, "of": total})
+        return list(seq)[:cap]
+    return list(seq)
+
+
+def _brief(v):
+    """A value, small enough to sit in a diff. A diff that carried a page's
+    whole box text on each side would cost more than the snapshot it saves."""
+    if isinstance(v, str) and len(v) > 200:
+        return v[:200] + "…"
+    if isinstance(v, (list, tuple)):
+        return {"list": len(v)}
+    if isinstance(v, dict):
+        return {"object": len(v)}
+    return v
 
 
 class HarnessError(Exception):
@@ -326,6 +545,27 @@ class Plugin(object):
         """Return (ok, message, output). Raise HarnessError to refuse."""
         raise NotImplementedError
 
+    def identity(self, snapshot=None):
+        """ADR-191: what identity means on THIS target's snapshot.
+
+            {"keys":  {"controls": ["address", "selector"], "panes": "self"},
+             "noise": ["jvm", "replicaLagMs"]}
+
+        `keys` names the lists that have identity, by path from the snapshot's
+        root (PATH_SEP-joined), each with the fields that identify an entry --
+        first one present wins -- or "self" for a list of scalars. A list not
+        named here is compared by length, because a list with no declared
+        identity cannot be diffed entry by entry without inventing one.
+
+        `noise` names paths that move on their own -- a lag, a thread count, a
+        wall clock -- which are left out of the stamp AND out of the diff, and
+        NAMED in it, so a reader can see what was not compared rather than
+        conclude it did not change.
+
+        A plugin that says nothing gets a stamp over its whole snapshot and a
+        diff of scalars and counts, which is correct and merely coarse."""
+        return {}
+
     def risk_for(self, action, arguments):
         """ADR-141: the risk of THIS call, for an action that declared may_rise.
 
@@ -479,6 +719,12 @@ class Gateway(object):
         # plugin's replayable responses.
         self._subs = []
         self.changes = 0
+        # ADR-191: the last snapshot this session was SERVED, per plugin, and
+        # its stamp. It is the baseline every diff is taken against -- which is
+        # why a diff is always "since you last looked" and never "since some
+        # moment the door picked", and why a session that has never observed is
+        # told it has no baseline rather than handed a diff against nothing.
+        self._seen = {}
         registry.watch(self._changed)
 
     def subscribe(self, fn):
@@ -499,6 +745,12 @@ class Gateway(object):
         live = set(d.id for d in self.registry.descriptors())
         for key in [k for k in self._done if k.split("\x00", 1)[0] not in live]:
             self._bytes -= self._done.pop(key).nbytes
+        # And its baseline goes with it, for the same reason: a plugin detached
+        # and attached again is a NEW target, and diffing what it says now
+        # against what its predecessor said would report a machine's whole
+        # state as having "changed" when in truth it was replaced.
+        for pid in [k for k in self._seen if k not in live]:
+            self._seen.pop(pid, None)
         self.changes += 1
         for fn in list(self._subs):
             try:
@@ -525,6 +777,18 @@ class Gateway(object):
         return {"protocolVersion": PROTOCOL_VERSION,
                 "replayCacheCommands": REPLAY_CACHE_LIMIT,
                 "replayCacheBytes": REPLAY_CACHE_BYTE_LIMIT,
+                # ADR-191: a client cannot discover a stamp it was never told
+                # about. The manifest says the door keeps one look per target
+                # and what to pass back, so `since` is part of the contract
+                # rather than a trick learned by reading a response closely.
+                "session": {"stamp": "every snapshot carries one; it moves when a value a "
+                                     "reader could notice moves",
+                            "since": "pass the last stamp to observe() to get the CHANGE "
+                                     "instead of the snapshot; an unknown stamp gets the "
+                                     "whole snapshot and says so",
+                            "diff": "every execute response carries the same diff against "
+                                    "the last snapshot this session was served",
+                            "diffCap": DIFF_CAP},
                 "strictArguments": True,
                 "tokenMinLength": TOKEN_MIN,
                 "risks": list(RISKS),
@@ -540,12 +804,49 @@ class Gateway(object):
         self.policy.authorize("READ")
         return [p.as_dict() for p in self.registry.descriptors()]
 
-    def observe(self, token, plugin_id):
+    def observe(self, token, plugin_id, since=None):
+        """A snapshot, or -- given the stamp of the last one -- what CHANGED.
+
+        ADR-187 watched four blind operators re-read a forty-kilobyte snapshot
+        after every structural act, because the door had no way to say "two
+        controls appeared and one value moved". This is that way. `since` is a
+        stamp the door itself issued to THIS session; the answer is the diff
+        and not the snapshot, which is the whole saving.
+
+        It fails toward MORE information, never less. A stamp this session has
+        no baseline for -- a stamp from another door, one lost when a plugin
+        was detached, the first call of a session -- gets the whole snapshot
+        and a line saying why, because a diff against a baseline the door does
+        not hold would be a fabrication, and silence would be worse."""
         self.policy.authenticate(token)
         self.policy.authorize("READ")
         sensitive = bool(self.policy.allow.get("SENSITIVE_READ"))
         p = self.registry.find(plugin_id)
-        return self._fit(p, p.observe(sensitive=sensitive))
+        snap, raw, st = self._stamped(p, p.observe(sensitive=sensitive))
+        prev = self._seen.get(plugin_id)
+        if isinstance(snap, dict):
+            self._seen[plugin_id] = (st, raw)
+        if not since:
+            return snap
+        if not isinstance(snap, dict):
+            return snap
+        head = {"protocolVersion": PROTOCOL_VERSION, "pluginId": plugin_id,
+                "stamp": st, "since": since, "ready": snap.get("ready")}
+        if prev is None or prev[0] != since:
+            snap = dict(snap)
+            snap["since"] = since
+            snap["sinceUnknown"] = (
+                "this session holds no snapshot stamped %r for %s, so there is nothing to "
+                "compare against and the whole snapshot is here instead"
+                % (since, plugin_id))
+            return snap
+        if st == since:
+            head["changed"] = False
+            head["diff"] = None
+            return head
+        head["changed"] = True
+        head["diff"] = diff_of(prev[1], raw, self._spec(p, raw))
+        return head
 
     def execute(self, token, plugin_id, command):
         self.policy.authenticate(token)
@@ -603,14 +904,31 @@ class Gateway(object):
         # of a round trip was the action and how much was the target being
         # asked about itself, and a ledger can hold it to a bound.
         t1 = time.time()
-        snap = self._fit(plugin, plugin.observe(
+        # ADR-191: WHAT THIS ACT DID, beside what the target now is. The
+        # baseline is the last snapshot this session was served -- the one the
+        # client planned this call from -- so the diff answers the question the
+        # client actually has ("did my call land, and what moved") rather than
+        # handing back a second copy of the page and leaving it to compare.
+        before = self._seen.get(plugin_id)
+        snap, raw, st = self._stamped(plugin, plugin.observe(
             sensitive=bool(self.policy.allow.get("SENSITIVE_READ"))))
+        if isinstance(snap, dict):
+            self._seen[plugin_id] = (st, raw)
+        if before is None:
+            diff = {"since": None,
+                    "why": "this session had not observed %s before this call, so there is "
+                           "no baseline to diff against" % plugin_id}
+        else:
+            diff = diff_of(before[1], raw, self._spec(plugin, raw))
+            diff["since"] = before[0]
+            diff["changed"] = before[0] != st
         resp = {"protocolVersion": PROTOCOL_VERSION, "requestId": rid,
                 "pluginId": plugin_id, "action": spec.name, "risk": risk,
                 "declaredRisk": spec.risk, "riskWhy": risk_why,
                 "ok": bool(ok), "replayed": False, "message": message,
                 "output": output, "ms": ms,
                 "snapshotMs": int((time.time() - t1) * 1000),
+                "stamp": st, "diff": diff,
                 "snapshot": snap}
         n = _bytes(output)
         self._done[key] = _Done(body, resp, risk, n)
@@ -621,6 +939,17 @@ class Gateway(object):
         return resp
 
     # -- internals ----------------------------------------------------------
+    @staticmethod
+    def _spec(plugin, snap):
+        """What identity means on this snapshot, asked of the plugin. A plugin
+        that raises while answering is treated as one that said nothing: the
+        diff goes coarse, which is a worse answer and not a wrong one."""
+        try:
+            spec = plugin.identity(snap)
+        except Exception:
+            return {}
+        return spec if isinstance(spec, dict) else {}
+
     def _fit(self, plugin, snap):
         """A snapshot never advertises what this door would refuse (ADR-141).
 
@@ -661,6 +990,24 @@ class Gateway(object):
                                   "why": "%s is not enabled for this session" % gone[a]}
                                  for a in sorted(gone)]
         return snap
+
+    def _stamped(self, plugin, snap):
+        """Fit, stamp, and hand back BOTH the served copy and the fitted one.
+
+        The stamp covers the snapshot AS SERVED, so two sessions at different
+        rungs get different stamps for the same page and a client cannot be
+        handed `unchanged` about a snapshot it was never shown. It is added to
+        the copy that leaves and NOT to the one kept as a baseline: a stamp is
+        the gateway's own bookkeeping, and a baseline carrying it would make
+        every diff report `stamp` as a field that changed -- the door telling
+        a client that the answer to "what changed" is "the answer changed"."""
+        snap = self._fit(plugin, snap)
+        if not isinstance(snap, dict):
+            return snap, snap, None
+        st = stamp_of(snap, self._spec(plugin, snap))
+        served = dict(snap)
+        served["stamp"] = st
+        return served, snap, st
 
     @staticmethod
     def _risk_of(plugin, spec, args):

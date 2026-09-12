@@ -524,6 +524,24 @@ class OrganismPlugin(Plugin):
                              "SENSITIVE_READ")
         return s
 
+    def identity(self, snapshot=None):
+        """ADR-191: this snapshot is almost all counters, so it diffs itself.
+
+        A put moves `size`, `tailSequence`, `wire.puts`, `rub.putsObserved`
+        and `rub.liveBytes`, and a client that reads the diff of one call sees
+        exactly which parts of the composite noticed -- which is the thing the
+        organism's snapshot was always for and which nobody could see without
+        holding two copies side by side.
+
+        NOISE, and it must be named or the rest is useless: `jvm` (threads and
+        file descriptors move as the JVM's own pools grow and shrink) and
+        `replicaLagMs` (a wall-clock measurement that is different every time
+        it is taken). A stamp that moved with those would say "changed" on
+        every single call, and `unchanged` would never be true of a store
+        nobody had touched."""
+        return {"keys": {"argumentPools/generation": "self"},
+                "noise": ["jvm", "replicaLagMs"]}
+
     # -- execution ------------------------------------------------------------
     def execute(self, action, args):
         c = self._c()

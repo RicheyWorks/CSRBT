@@ -498,7 +498,7 @@
    "survived": 0
   },
   "mutate_contract": {
-   "at": 1789104477,
+   "at": 1789164593,
    "equivalent": 1,
    "equivalents": [
     {
@@ -507,8 +507,8 @@
     }
    ],
    "inconclusive": 0,
-   "killed": 35,
-   "mutants": 35,
+   "killed": 56,
+   "mutants": 56,
    "rows": [
     {
      "detail": "8 failure(s); first: an action that declared mayRise is asked, with this call's ",
@@ -641,7 +641,7 @@
      "verdict": "killed"
     },
     {
-     "detail": "15 failure(s); first: reading values, drafting, mutating and generic activation ",
+     "detail": "16 failure(s); first: reading values, drafting, mutating and generic activation ",
      "name": "the harness is on by default",
      "verdict": "killed"
     },
@@ -681,8 +681,113 @@
      "verdict": "killed"
     },
     {
-     "detail": "1 failure(s); first: the manifest states a protocol version (1.6: ADR-189, `stal",
+     "detail": "2 failure(s); first: the manifest states a protocol version (1.7: ADR-191, the s",
      "name": "the manifest still says 1.5",
+     "verdict": "killed"
+    },
+    {
+     "detail": "3 failure(s); first: and the same observation twice gets the same stamp -- a sta",
+     "name": "a number that moves on its own moves the stamp with it",
+     "verdict": "killed"
+    },
+    {
+     "detail": "2 failure(s); first: a keyed list REORDERED is not a change -- these pages rebui",
+     "name": "the stamp reads a rebuilt list in the order the rebuild produced",
+     "verdict": "killed"
+    },
+    {
+     "detail": "3 failure(s); first: a list this target did NOT say it had identity in is counte",
+     "name": "a list nobody keyed is diffed entry by entry anyway",
+     "verdict": "killed"
+    },
+    {
+     "detail": "1 failure(s); first: an entry of a keyed list with no identity AT ALL is counted",
+     "name": "an entry with no identity is named by its whole body",
+     "verdict": "killed"
+    },
+    {
+     "detail": "1 failure(s); first: a bucket that stopped naming entries SAYS where it stopped ",
+     "name": "a bucket stops naming entries and says nothing about it",
+     "verdict": "killed"
+    },
+    {
+     "detail": "1 failure(s); first: a diff never carries a value whole on both sides of an arro",
+     "name": "a long value rides the diff whole, twice",
+     "verdict": "killed"
+    },
+    {
+     "detail": "1 failure(s); first: and having a baseline is not the same as having THAT one: a",
+     "name": "a stamp the door never issued is diffed against whatever it holds",
+     "verdict": "killed"
+    },
+    {
+     "detail": "2 failure(s); first: every execute response carries the diff against the LAST SN",
+     "name": "the act is diffed against the page it made rather than the one it was planned from",
+     "verdict": "killed"
+    },
+    {
+     "detail": "1 failure(s); first: and the next act diffs against THAT, so a chain of calls is",
+     "name": "an act does not move the session on, so every act diffs from the same morning",
+     "verdict": "killed"
+    },
+    {
+     "detail": "1 failure(s); first: the stamp itself is never a field that changed: the answer ",
+     "name": "the baseline carries the stamp, so every diff reports the answer changing",
+     "verdict": "killed"
+    },
+    {
+     "detail": "1 failure(s); first: a session that has never observed is TOLD it has no baselin",
+     "name": "a session with no baseline is handed a diff and no explanation",
+     "verdict": "killed"
+    },
+    {
+     "detail": "1 failure(s); first: a plugin detached and attached again is a NEW target: its p",
+     "name": "a retired target's baseline outlives it",
+     "verdict": "killed"
+    },
+    {
+     "detail": "1 failure(s); first: and a plugin that RAISES while saying what identity means i",
+     "name": "a plugin that cannot say what identity means takes the door down",
+     "verdict": "killed"
+    },
+    {
+     "detail": "1 failure(s); first: and the manifest says the session exists -- a client cannot",
+     "name": "the manifest keeps the session to itself",
+     "verdict": "killed"
+    },
+    {
+     "detail": "4 failure(s); first: ?since= the current stamp answers `nothing changed` and not",
+     "name": "the stamp in the URI is read and thrown away",
+     "verdict": "killed"
+    },
+    {
+     "detail": "1 failure(s); first: a TOOL RESULT carries the diff against the snapshot the cli",
+     "name": "a tool result says what it did and not what it changed",
+     "verdict": "killed"
+    },
+    {
+     "detail": "1 failure(s); first: and never the snapshot: a tool result is read by a model wi",
+     "name": "a tool result carries the whole snapshot after all",
+     "verdict": "killed"
+    },
+    {
+     "detail": "1 failure(s); first: resources/list says so -- a parameter a client can only fin",
+     "name": "the resource does not say a stamp may ride its URI",
+     "verdict": "killed"
+    },
+    {
+     "detail": "2 failure(s); first: A SECOND, SEPARATE INVOCATION reaches the SAME door: the ta",
+     "name": "every request gets its own door, so a session remembers nothing",
+     "verdict": "killed"
+    },
+    {
+     "detail": "1 failure(s); first: and a stamp issued in one invocation is still the door's ba",
+     "name": "the console keeps the stamp to itself",
+     "verdict": "killed"
+    },
+    {
+     "detail": "1 failure(s); first: --end closes the door and takes its socket with it BEFORE i",
+     "name": "a closed session leaves its socket behind, so the next one talks to a corpse",
      "verdict": "killed"
     }
    ],
@@ -1936,12 +2041,12 @@
    "survived": 0
   },
   "mutate_report": {
-   "at": 1789134440,
+   "at": 1789172610,
    "equivalent": 0,
    "equivalents": [],
    "inconclusive": 0,
-   "killed": 104,
-   "mutants": 104,
+   "killed": 110,
+   "mutants": 110,
    "rows": [
     {
      "detail": "7 failure(s); first: a .tile and a .stat .st are both figures: the .l/.v pair is",
@@ -2079,7 +2184,7 @@
      "verdict": "killed"
     },
     {
-     "detail": "1 failure(s); first: a dial option is labelled by its <span>, not by its text ru",
+     "detail": "2 failure(s); first: a dial option is labelled by its <span>, not by its text ru",
      "name": "a dial option is labelled by its whole text",
      "verdict": "killed"
     },
@@ -2334,7 +2439,7 @@
      "verdict": "killed"
     },
     {
-     "detail": "4 failure(s); first: collection-sheet.html: the door resolves all 870 of its nam",
+     "detail": "5 failure(s); first: collection-sheet.html: the door resolves all 870 of its nam",
      "name": "a trailing #n is part of the name",
      "verdict": "killed"
     },
@@ -2461,6 +2566,36 @@
     {
      "detail": "2 failure(s); first: the page's own prose about itself is handed over, each piec",
      "name": "the prose is handed over without the thing it sits in",
+     "verdict": "killed"
+    },
+    {
+     "detail": "2 failure(s); first: the option that was picked is named by its ADDRESS among th",
+     "name": "a control is its index again, so a rebuild reads as a replacement",
+     "verdict": "killed"
+    },
+    {
+     "detail": "1 failure(s); first: and BOTH tabs -- the one that opened and the one that close",
+     "name": "a tab is keyed by what it says rather than by what it opens",
+     "verdict": "killed"
+    },
+    {
+     "detail": "1 failure(s); first: the numbering moved, and the diff says so in one line rathe",
+     "name": "the numbering's own version is called noise",
+     "verdict": "killed"
+    },
+    {
+     "detail": "1 failure(s); first: and a session WITHOUT that rung gets none of them: the reda",
+     "name": "what is in a field is published whatever rung the session holds",
+     "verdict": "killed"
+    },
+    {
+     "detail": "1 failure(s); first: and a control this session may not command hands over nothi",
+     "name": "a control nobody may command hands over its contents too",
+     "verdict": "killed"
+    },
+    {
+     "detail": "2 failure(s); first: the snapshot hands the field's value over AS THE FIELD HOLD",
+     "name": "the snapshot's value is a reading of its own rather than the field's",
      "verdict": "killed"
     }
    ],

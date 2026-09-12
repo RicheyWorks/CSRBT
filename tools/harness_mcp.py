@@ -20,7 +20,9 @@ The mapping, and nothing else:
                                             with the same id gets the replay,
                                             not a second write)
     resources/list, /read     -> observe   (a snapshot is a resource,
-                                            harness://<plugin>/snapshot)
+                                            harness://<plugin>/snapshot, and
+                                            ?since=<stamp> asks it for the
+                                            CHANGE rather than the whole thing)
     ping                      -> {}
 
 Each tool also carries `_meta` -- pluginId, action, risk -- the contract's own
@@ -53,6 +55,7 @@ authentication for a stdio server anyway.
     python3 tools/harness_mcp.py --target organism
 """
 import argparse, io, json, os, sys, time
+from urllib.parse import unquote as _unquote
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, HERE)
@@ -199,9 +202,19 @@ class Server(object):
                          "response": {"ok": False, "code": e.code, "message": e.message, "output": {},
                                       "requestId": rid}})
             raise
+        # ADR-191: THE DIFF RIDES, the snapshot does not. A tool result is read
+        # by a model with a context window, and a snapshot of one of the kit's
+        # science targets runs to seventy kilobytes -- so this body never
+        # carried it, which is
+        # why every blind operator (ADR-187) followed each act with a full
+        # resources/read to find out what that act had done. The diff is that
+        # answer at about a fortieth of the size, so it can ride every call:
+        # what appeared, what went, what moved, and the stamp to ask `since`
+        # with next time.
         body = {"ok": r["ok"], "message": r["message"], "output": r["output"],
                 "replayed": r["replayed"], "risk": r["risk"], "ms": r["ms"],
-                "snapshotMs": r.get("snapshotMs"), "requestId": r["requestId"]}
+                "snapshotMs": r.get("snapshotMs"), "requestId": r["requestId"],
+                "stamp": r.get("stamp"), "diff": r.get("diff")}
         self.record({"pluginId": plugin_id, "action": action, "arguments": params.get("arguments") or {},
                      "response": r})
         return {"content": [{"type": "text", "text": json.dumps(body, default=str)}],
@@ -237,17 +250,35 @@ class Server(object):
 
     def resources(self):
         return [{"uri": "harness://%s/snapshot" % p["id"], "name": "%s snapshot" % p["id"],
-                 "description": "The current observation of %s (redacted unless SENSITIVE_READ)."
-                                % p["title"], "mimeType": "application/json"}
+                 "description": "The current observation of %s (redacted unless SENSITIVE_READ). "
+                                "Append ?since=<stamp> -- the `stamp` of the last snapshot this "
+                                "session read -- to get what CHANGED instead of the whole "
+                                "snapshot; an unknown stamp answers with the whole snapshot and "
+                                "says so." % p["title"], "mimeType": "application/json"}
                 for p in self.gw.discover(self.token)]
 
     def read(self, params):
+        """harness://<plugin>/snapshot, and ADR-191's ?since=<stamp>.
+
+        MCP has no parameters on resources/read beyond the URI, so the stamp
+        rides in the URI's query -- which is what a URI is for, and which
+        leaves a client that has never heard of stamps reading the same
+        resource it always read. A `since` the session has no baseline for is
+        not an error: the whole snapshot comes back with the reason, because
+        the alternative is a host that cannot recover from its own restart."""
         uri = params["uri"]
-        if not (uri.startswith("harness://") and uri.endswith("/snapshot")):
+        base, _, query = uri.partition("?")
+        since = None
+        for part in query.split("&"):
+            k, eq, v = part.partition("=")
+            if eq and k == "since":
+                since = _unquote(v)
+        if not (base.startswith("harness://") and base.endswith("/snapshot")):
             raise HarnessError("not_found", "no resource %r" % uri)
-        plugin_id = uri[len("harness://"):-len("/snapshot")]
-        snap = self.gw.observe(self.token, plugin_id)
-        self.record({"pluginId": plugin_id, "action": "observe", "arguments": {},
+        plugin_id = base[len("harness://"):-len("/snapshot")]
+        snap = self.gw.observe(self.token, plugin_id, since=since)
+        self.record({"pluginId": plugin_id, "action": "observe",
+                     "arguments": {"since": since} if since else {},
                      "response": {"ok": True, "snapshot": snap, "output": {}, "requestId": None}})
         return {"contents": [{"uri": uri, "mimeType": "application/json",
                               "text": json.dumps(snap, default=str)}]}

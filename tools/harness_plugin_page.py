@@ -279,7 +279,7 @@ RESOLVE = "([form, name, stamp]) => {" + LABEL_FN + ADDR_FN + r"""
 
 
 # Read where a user reads: one round trip, typed, and never a field's contents.
-CONTROLS = "() => {" + LABEL_FN + ADDR_FN + ("const PICK_CAP = %d, POOL_CAP = %d;" % (PICK_CAP, POOL_CAP)) + r"""
+CONTROLS = "(sens) => {" + LABEL_FN + ADDR_FN + ("const PICK_CAP = %d, POOL_CAP = %d;" % (PICK_CAP, POOL_CAP)) + r"""
   const out = [];
   const _rw = _rows(), _idx = _index(_rw), _ver = _version(_rw);
   _rw.forEach(w => {
@@ -304,6 +304,20 @@ CONTROLS = "() => {" + LABEL_FN + ADDR_FN + ("const PICK_CAP = %d, POOL_CAP = %d
       enabled: !e.disabled && !e.readOnly,
       selected: e.classList.contains("on"),
       commandable: !e.disabled && !e.readOnly && e.type !== "password",
+      // ADR-191: WHAT IS IN IT, under SENSITIVE_READ and never otherwise.
+      // The redaction line has promised since ADR-108 that entered values are
+      // "omitted; use read-control with SENSITIVE_READ enabled", and a client
+      // holding that rung had to spend one call per control to collect what
+      // the snapshot could have said in the one it was already taking. It also
+      // made the observation's stamp (ADR-191) a lie by omission: a set-text
+      // that entered a name moved nothing the snapshot could see, so the diff
+      // of the act that entered data -- which is what these pages are FOR --
+      // answered `nothing changed`. A password is never read: `commandable`
+      // already excludes it, and this reads nothing that is not commandable.
+      value: (!sens || !(!e.disabled && !e.readOnly && e.type !== "password")) ? undefined
+             : (e.type === "checkbox" || e.type === "radio") ? (e.checked ? "on" : "off")
+             : (e.value === undefined || e.value === null) ? undefined
+             : String(e.value).slice(0, 200),
     });
   });
   // Option VALUES of the page's selects (capped): a client forming a
@@ -1383,7 +1397,7 @@ class PagePlugin(Plugin):
             # the same control it named.
             self._ensure_settled()
             self.page.evaluate(H.DISCOVER, self.kinds)
-            s = self.page.evaluate(CONTROLS)
+            s = self.page.evaluate(CONTROLS, bool(sensitive))
         except Exception as e:
             return {"ready": False, "why": str(e)[:200]}
         s["ready"] = True
@@ -1405,6 +1419,40 @@ class PagePlugin(Plugin):
             s["redacted"] = ("entered values omitted; use read-control with "
                              "SENSITIVE_READ enabled")
         return s
+
+    def identity(self, snapshot=None):
+        """ADR-191: a control is its ADDRESS, and order is not change.
+
+        These pages rebuild their controls on nearly every act -- a chip row
+        redrawn, a picker filtered, a row added -- so the positional selector
+        of a control that did not change is different a call later, and a diff
+        that compared the controls list position by position would report the
+        whole page as having moved every time. Keyed by the ADR-188 address,
+        which is what does not move, falling back to the selector for the few
+        controls that have no name at all; the diff then says the two things
+        that are true: which controls appeared, and which of the ones that
+        stayed had a value, a visibility or a position change.
+
+        The argument pools are NOT keyed, with one exception, and the reason
+        is that every one of them is derived from `controls` -- so a keyed pool
+        would say a second time, in selectors, what the controls list has
+        already said in addresses, and a picker filtered from sixty-six to six
+        would pay for that sentence twice. They are compared by length, and the
+        stamp still covers their contents, so a pool that changed is never
+        reported as unchanged. The exception is `activate.destructive`: it is
+        short, and a button that removes work arriving in or leaving the set
+        the door holds at DESTRUCTIVE is worth a line of its own.
+
+        Nothing here is noise. A page has no self-moving number -- even
+        `environment.draws` is a fact a reader wants (a seeded draw was spent),
+        not a clock ticking underneath."""
+        return {"keys": {"controls": ["address", "selector"],
+                         "pickers": ["selector"],
+                         "tabs": ["pane"],
+                         "panes": "self",
+                         "optionValues": "self",
+                         "argumentPools/activate.destructive": "self"},
+                "noise": []}
 
     def _pools(self, s):
         """ADR-117: what a client holding only the manifest and this snapshot

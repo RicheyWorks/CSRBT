@@ -17,16 +17,24 @@ suite makes falsifiable:
      as resources
   C. the real thing: the server as a child process over the organism, spoken
      to in JSON-RPC from here, with the policy doing its job through it
+  F. the session (ADR-191): ?since= on a snapshot resource, the diff on every
+     tool result and not the snapshot, and a console whose door outlives the
+     invocation that opened it
 
 Run:  python3 tools/verify/verify_mcp.py
 """
-import io, json, os, re, subprocess, sys
+# Declared for tools/mutate.py: this suite asserts about tools/harness_mcp.py and
+# tools/blind_console.py, and its temp dir is a session directory for the console
+# it drives -- a subject.
+MUTATE_ROLE = "subject"
+import io, json, os, re, shutil, subprocess, sys, tempfile
 
 import _kit
 
 sys.path.insert(0, _kit.TOOLS_DIR.rstrip(os.sep))
 import harness_contract as C
 import harness_mcp as M
+import harness_plugin_fixture as FX
 
 P = F = 0
 unverified = []
@@ -158,9 +166,11 @@ ck(rpc("prompts/list")["error"]["code"] == M.METHOD_NOT_FOUND, "an unknown metho
 ck(srv.handle({"id": 1, "method": "ping"})["error"]["code"] == M.INVALID_REQUEST,
    "a message without jsonrpc 2.0 is -32600")
 res = rpc("resources/list")["result"]["resources"]
-ck(res == [{"uri": "harness://fake/snapshot", "name": "fake snapshot",
-            "description": "The current observation of Fake (redacted unless SENSITIVE_READ).",
-            "mimeType": "application/json"}], "a snapshot is a resource: %s" % res)
+ck(len(res) == 1 and res[0]["uri"] == "harness://fake/snapshot"
+   and res[0]["name"] == "fake snapshot" and res[0]["mimeType"] == "application/json"
+   and res[0]["description"].startswith("The current observation of Fake "
+                                        "(redacted unless SENSITIVE_READ)."),
+   "a snapshot is a resource: %s" % res)
 r = rpc("resources/read", {"uri": "harness://fake/snapshot"})
 snap = json.loads(r["result"]["contents"][0]["text"])
 ck(snap["ready"] and snap["sensitive"] is False, "resources/read is observe, redacted under this policy")
@@ -478,6 +488,152 @@ if len(res) == 8:
     order = [o.get("method", "r%s" % o.get("id")) for o in outs]
     ck(order.index("notifications/tools/list_changed") < order.index("r3"),
        "and every notice was written before the response that caused it: %s" % order)
+
+# ---- F. the session, over the transport an AI actually speaks (ADR-191) ----
+#
+# The gateway's own suite holds the stamp and the diff. These are the two
+# places a host meets them: a resource URI, which is the only place MCP lets a
+# parameter ride, and a tool result, which is what a model reads after it acts.
+
+fsrv = M.Server(C.Gateway(C.Registry([FX.FixturePlugin()]),
+                          C.Policy(token=TOKEN, allow={"DRAFT": True, "MUTATE": True},
+                                   enabled=True)), TOKEN)
+
+
+def fread(uri, mid=800):
+    r = fsrv.handle({"jsonrpc": "2.0", "id": mid, "method": "resources/read",
+                     "params": {"uri": uri}})
+    return json.loads(r["result"]["contents"][0]["text"])
+
+
+def fcall(name, args=None, mid=810):
+    r = fsrv.handle({"jsonrpc": "2.0", "id": mid, "method": "tools/call",
+                     "params": {"name": name, "arguments": args or {}}})
+    return json.loads(r["result"]["content"][0]["text"])
+
+
+whole = fread("harness://csrbt-fixture/snapshot", 801)
+ck(isinstance(whole.get("stamp"), str),
+   "a snapshot read as a resource carries its stamp: %r" % whole.get("stamp"))
+same = fread("harness://csrbt-fixture/snapshot?since=" + whole["stamp"], 802)
+ck(same.get("changed") is False and "calls" not in same,
+   "?since= the current stamp answers `nothing changed` and not the snapshot -- MCP has no "
+   "parameters on resources/read, so the stamp rides where a URI puts one: %s" % sorted(same))
+plain = fread("harness://csrbt-fixture/snapshot", 803)
+ck("calls" in plain and "changed" not in plain,
+   "and the same URI WITHOUT the query is the resource it always was: a host that has never "
+   "heard of stamps reads exactly what it read before: %s" % sorted(plain))
+lost = fread("harness://csrbt-fixture/snapshot?since=s-not-from-here", 804)
+ck("calls" in lost and lost.get("sinceUnknown"),
+   "a stamp this session has no baseline for gets the whole snapshot and the reason, "
+   "because a host that cannot recover from its own restart is not usable: %s" % sorted(lost))
+
+base = fread("harness://csrbt-fixture/snapshot", 805)["stamp"]
+body = fcall("csrbt_fixture__ok", {}, 806)
+ck(body.get("stamp") and body["diff"]["since"] == base
+   and body["diff"]["gained"].get("calls/ok") == 1,
+   "a TOOL RESULT carries the diff against the snapshot the client planned the call from, "
+   "and the stamp to ask `since` with next: %s" % body.get("diff"))
+ck("snapshot" not in body,
+   "and never the snapshot: a tool result is read by a model with a context window, and "
+   "the science pages' snapshot is seventy kilobytes -- which is exactly why every blind "
+   "operator followed each act with a full re-read: %s" % sorted(body))
+after = fread("harness://csrbt-fixture/snapshot?since=" + body["stamp"], 807)
+ck(after.get("changed") is False,
+   "and the stamp a tool result hands back is the one the resource then calls current: the "
+   "two halves of the transport agree about where the session is")
+ck(any("?since=" in (r.get("description") or "") for r in fsrv.resources()),
+   "resources/list says so -- a parameter a client can only find by reading responses "
+   "closely is not part of a contract: %s"
+   % [r.get("description", "")[-90:] for r in fsrv.resources()])
+
+# -- the console keeps the door open between invocations ---------------------
+#
+# ADR-187's operators each ran the console four to six times, and every run
+# opened a NEW browser on a fresh page, so the opening moves of every run were
+# the previous run replayed. This is the claim that they need not be.
+BL = os.path.join(_kit.TOOLS_DIR, "blind_console.py")
+sdir = tempfile.mkdtemp(prefix="blind-sess-")
+senv = dict(os.environ)
+senv["CSRBT_BLIND_DIR"] = sdir
+NAME = "suite-f"
+
+
+def console(args, timeout=300):
+    return subprocess.run([sys.executable, BL] + args, capture_output=True,
+                          text=True, env=senv, timeout=timeout)
+
+
+def moves(*ms):
+    fh = tempfile.NamedTemporaryFile("w", suffix=".json", delete=False, dir=sdir)
+    json.dump(list(ms), fh)
+    fh.close()
+    return fh.name
+
+
+def answers(p):
+    return [json.loads(l) for l in p.stdout.strip().split("\n") if l.strip().startswith("{")]
+
+
+try:
+    one = console(["--session", NAME, "--target", "fixture",
+                   "--moves", moves({"call": "csrbt_fixture__ok"},
+                                    {"observe": "csrbt-fixture"})])
+    a1 = answers(one)
+    ck(one.returncode == 0 and len(a1) == 2,
+       "the first invocation of a named session starts the door and plays its moves: rc=%d "
+       "%s" % (one.returncode, one.stderr.strip()[-200:]))
+    snap1 = json.loads(a1[-1]["answer"]["result"]["contents"][0]["text"]) if len(a1) == 2 else {}
+    ck(snap1.get("calls", {}).get("ok") == 1,
+       "and the target saw the call: %s" % snap1.get("calls"))
+
+    two = console(["--session", NAME,
+                   "--moves", moves({"call": "csrbt_fixture__ok"})])
+    a2 = answers(two)
+    try:
+        b2 = json.loads(a2[0]["answer"]["result"]["content"][0]["text"])
+    except Exception as _e:
+        b2 = {"nothing came back": str(_e)[:80], "stderr": two.stderr.strip()[-120:]}
+    ck(two.returncode == 0 and b2.get("diff", {}).get("fields", {}).get("calls/ok") == [1, 2],
+       "A SECOND, SEPARATE INVOCATION reaches the SAME door: the target remembers the first "
+       "call, and the diff spans the gap between two processes. This is the finding the "
+       "third blind trial was really reporting -- four to six restarts each, every one of "
+       "them replaying moves that had already worked: %s" % b2.get("diff"))
+    ck(b2.get("stamp"),
+       "and the second invocation named no target: a session is a name, and what stands "
+       "behind it was settled when it opened")
+
+    three = console(["--session", NAME,
+                     "--moves", moves({"observe": "csrbt-fixture",
+                                       "since": b2.get("stamp") or "s-none"})])
+    try:
+        s3 = json.loads(answers(three)[0]["answer"]["result"]["contents"][0]["text"])
+    except Exception as _e:
+        s3 = {"nothing came back": str(_e)[:80]}
+    ck(s3.get("changed") is False,
+       "and a stamp issued in one invocation is still the door's baseline in the next -- "
+       "which is what a session IS, and which no length of moves file could buy: %s"
+       % sorted(s3))
+
+    end = console(["--session", NAME, "--end"], timeout=120)
+    told = json.loads(end.stdout.strip())
+    ck(told.get("ended") == NAME and told.get("socketRemoved") is True,
+       "--end closes the door and takes its socket with it BEFORE it says so, so nobody can "
+       "connect to a session that has been told it is over: %s" % end.stdout.strip()[:160])
+    gone = console(["--session", NAME, "--end"], timeout=120)
+    ck("not running" in gone.stdout,
+       "and ending a session that is not there says so rather than raising: %s"
+       % gone.stdout.strip()[:120])
+finally:
+    subprocess.run([sys.executable, BL, "--session", NAME, "--end"],
+                   capture_output=True, text=True, env=senv, timeout=120)
+    shutil.rmtree(sdir, ignore_errors=True)
+
+src_bc = io.open(BL, encoding="utf-8").read()
+ck(src_bc.count("door.rpc(\"tools/call\"") == 1 and "def play(" in src_bc,
+   "and both modes interpret a move in ONE place, so a batch and a session cannot drift "
+   "into meaning different things by the same move")
+
 
 total = P + F + len(unverified)
 print("---")

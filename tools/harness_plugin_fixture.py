@@ -109,6 +109,14 @@ class FixturePlugin(Plugin):
                                   "empty-pool.thing": [], "reached.thing": [],
                                   "paired": [{"a": "k1", "b": "v1"}, {"a": "k2", "b": "v2"}]}}
 
+    def identity(self, snapshot=None):
+        """ADR-191: the fixture is deterministic on purpose, so it has no noise
+        -- every number here moved because something called it."""
+        return {"keys": {"arrayLengths": "self",
+                         "argumentPools/pooled.slot": "self",
+                         "argumentPools/paired": ["a"]},
+                "noise": []}
+
     def execute(self, action, args):
         if self.dead:
             raise Unavailable("the fixture died, as asked")

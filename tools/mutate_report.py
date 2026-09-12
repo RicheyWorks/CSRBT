@@ -490,6 +490,34 @@ MUTANTS += [
      "with the identified thing it sits in"),
 ]
 
+MUTANTS += [
+    # ---- ADR-191: the session ---------------------------------------------
+    ("a control is its index again, so a rebuild reads as a replacement",
+     '        return {"keys": {"controls": ["address", "selector"],',
+     '        return {"keys": {"controls": ["selector"],',
+     "reported as that one field moving"),
+    ("a tab is keyed by what it says rather than by what it opens",
+     '                         "tabs": ["pane"],',
+     '                         "tabs": ["label"],',
+     "BOTH tabs"),
+    ("the numbering's own version is called noise",
+     '                         "argumentPools/activate.destructive": "self"},\n                "noise": []}',
+     '                         "argumentPools/activate.destructive": "self"},\n                "noise": ["version"]}',
+     "the numbering moved, and the diff says so"),
+    ("what is in a field is published whatever rung the session holds",
+     '      value: (!sens || !(!e.disabled && !e.readOnly && e.type !== "password")) ? undefined',
+     '      value: (false || !(!e.disabled && !e.readOnly && e.type !== "password")) ? undefined',
+     "a session WITHOUT that rung gets none of them"),
+    ("a control nobody may command hands over its contents too",
+     '      value: (!sens || !(!e.disabled && !e.readOnly && e.type !== "password")) ? undefined',
+     '      value: (!sens || false) ? undefined',
+     "may not command hands over nothing"),
+    ("the snapshot's value is a reading of its own rather than the field's",
+     '             : String(e.value).slice(0, 200),',
+     '             : String(e.value).toLowerCase().slice(0, 200),',
+     "the same value read-control answers with"),
+]
+
 KNOWN_EQUIVALENT = []
 
 

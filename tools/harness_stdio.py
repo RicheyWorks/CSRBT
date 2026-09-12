@@ -64,7 +64,12 @@ def serve(gateway, stdin, stdout):
             elif op == "discover":
                 res = {"ok": True, "plugins": gateway.discover(tok)}
             elif op == "observe":
-                res = {"ok": True, "snapshot": gateway.observe(tok, req.get("plugin"))}
+                # ADR-191: with a `since` stamp this answers the CHANGE and
+                # not the snapshot. Same op, same key in the answer -- a
+                # client that never passes one is reading exactly what it read
+                # before this existed.
+                res = {"ok": True, "snapshot": gateway.observe(tok, req.get("plugin"),
+                                                               since=req.get("since"))}
             elif op == "execute":
                 res = dict(gateway.execute(tok, req.get("plugin"),
                                            req.get("command") or {}))

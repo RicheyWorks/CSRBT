@@ -223,9 +223,10 @@ ck(len(g._done) <= C.REPLAY_CACHE_LIMIT,
 # ---- 6. the manifest is enough to build a client from --------------------
 g, _ = gw(allow={"SENSITIVE_READ": True})
 m = g.manifest(TOKEN)
-ck(m["protocolVersion"] == "1.6",
-   "the manifest states a protocol version (1.6: ADR-189, `stale` is a refusal of its own -- an argument that was "
-   "true when the client read it and is not now, which is neither malformed nor missing)")
+ck(m["protocolVersion"] == "1.7",
+   "the manifest states a protocol version (1.7: ADR-191, the session -- a stamp on every "
+   "snapshot, `since` to be told the change rather than the snapshot, and that same change "
+   "on every execute response)")
 # ---- ADR-189: the refusal vocabulary says WHICH of the client's problems ----
 #
 # A client is told to do a different thing by each of these, and a door that
@@ -610,6 +611,233 @@ r = g.execute(TOKEN, "riser", {"request_id": rid(908), "action": "fixed",
                                "arguments": {"selector": "a:0"}})
 ck("press.selector" in (r.get("snapshot") or {}).get("argumentPools", {}),
    "the snapshot that rides a response is filtered by the same rule")
+
+
+# ---- 14. the session: a stamp, and what changed since it (ADR-191) --------
+# The third blind trial watched four operators re-read a seventy-kilobyte
+# snapshot after every act, because the door had no way to say "two controls
+# appeared and one value moved". These are the claims that make it able to.
+
+class Sessioned(C.Plugin):
+    """A plugin whose snapshot the suite drives: a keyed list, an unkeyed one,
+    a scalar, and a number that moves on its own."""
+
+    def __init__(self, keys=None, noise=None, boom=False):
+        self.rows = [{"id": "a", "v": 1}, {"id": "b", "v": 2}]
+        self.pool = ["p%d" % i for i in range(200)]
+        self.n = 0
+        self.tick = 0
+        self._keys = {"rows": ["id"]} if keys is None else keys
+        self._noise = ["tick"] if noise is None else noise
+        self.boom = boom
+        self._d = C.PluginDescriptor("sess", "Sess", "session fixture", "1.0", [
+            C.ActionSpec("bump", "Move a value.", "MUTATE"),
+            C.ActionSpec("look", "Do nothing.", "READ")])
+
+    def descriptor(self):
+        return self._d
+
+    def identity(self, snapshot=None):
+        if self.boom:
+            raise RuntimeError("this plugin cannot say what identity means")
+        return {"keys": dict(self._keys), "noise": list(self._noise)}
+
+    def observe(self, sensitive=False):
+        self.tick += 1
+        s = {"ready": True, "n": self.n, "tick": self.tick,
+             "rows": [dict(r) for r in self.rows], "pool": list(self.pool)}
+        if sensitive:
+            s["secret"] = "shown"
+        return s
+
+    def execute(self, action, arguments):
+        if action == "bump":
+            self.n += 1
+        return True, "ok", {"n": self.n}
+
+
+def sgw(plug=None, allow=None):
+    plug = plug or Sessioned()
+    return C.Gateway(C.Registry([plug]),
+                     C.Policy(token=TOKEN, allow=allow or {"MUTATE": True},
+                              enabled=True)), plug
+
+
+g, plug = sgw()
+s1 = g.observe(TOKEN, "sess")
+ck(isinstance(s1.get("stamp"), str) and s1["stamp"].startswith("s"),
+   "every snapshot carries a stamp: %r" % s1.get("stamp"))
+s2 = g.observe(TOKEN, "sess")
+ck(s1["stamp"] == s2["stamp"],
+   "and the same observation twice gets the same stamp -- a stamp that moved on its own "
+   "would make `since` mean nothing: %s vs %s" % (s1["stamp"], s2["stamp"]))
+ck(plug.tick == 2 and "tick" not in C.stamp_of.__doc__.lower()[:0] + "",
+   "even though a NOISE field moved between the two (tick %d): a self-moving number is "
+   "left out of the stamp, or nothing is ever unchanged" % plug.tick)
+u = g.observe(TOKEN, "sess", since=s2["stamp"])
+ck(u.get("changed") is False and u.get("diff") is None and "rows" not in u,
+   "asked with the current stamp, the door says nothing changed and does NOT send the "
+   "snapshot again: %s" % sorted(u))
+ck(len(json.dumps(u)) * 4 < len(json.dumps(s2)),
+   "which is the whole saving, and it is a real one: %d bytes against %d"
+   % (len(json.dumps(u)), len(json.dumps(s2))))
+
+# a value moves
+before = u["stamp"]
+plug.rows.append({"id": "c", "v": 3})
+plug.rows[0]["v"] = 9
+plug.pool.append("p3")
+d = g.observe(TOKEN, "sess", since=before)
+ck(d.get("changed") is True and isinstance(d.get("diff"), dict) and "rows" not in d,
+   "a stamp behind the current one gets the CHANGE and not the snapshot: %s" % sorted(d))
+df = d["diff"]
+ck([e["id"] for e in df["appeared"].get("rows", [])] == ["c"],
+   "a new entry of a keyed list appears WHOLE, so a client can act on it without "
+   "re-reading: %s" % df["appeared"])
+ck(df["altered"].get("rows", {}).get("a") == {"v": [1, 9]},
+   "an entry that stayed and moved is named by its key with the fields that moved: %s"
+   % df["altered"])
+ck(df["counts"].get("pool") == [200, 201] and "pool" not in df["appeared"],
+   "a list this target did NOT say it had identity in is counted, never diffed entry by "
+   "entry -- a diff that invented a key would report a reordering as everything "
+   "changing: %s / %s" % (df["counts"], df["appeared"]))
+ck("tick" in df["noise"] and "tick" not in df["fields"],
+   "and the paths that were not compared are NAMED, so a reader can see what the diff is "
+   "silent about rather than conclude it did not move: %s" % df["noise"])
+gl, pl = sgw()
+bl = gl.observe(TOKEN, "sess")["stamp"]
+pl.rows[0]["v"] = "x" * 900
+dl = gl.observe(TOKEN, "sess", since=bl)["diff"]
+ck(len(dl["altered"]["rows"]["a"]["v"][1]) < 300,
+   "a diff never carries a value whole on both sides of an arrow: a page's box text on each "
+   "side of every changed field would cost more than the snapshot the diff exists to save: "
+   "%d characters" % len(dl["altered"]["rows"]["a"]["v"][1]))
+
+ck("stamp" not in df["fields"] and "stamp" not in df["gained"],
+   "the stamp itself is never a field that changed: the answer to 'what changed' is not "
+   "'the answer changed': %s" % df["fields"])
+
+# order is not change
+g2, p2 = sgw()
+b = g2.observe(TOKEN, "sess")["stamp"]
+p2.rows = list(reversed(p2.rows))
+d2 = g2.observe(TOKEN, "sess", since=b)
+ck(d2.get("changed") is False and d2.get("diff") is None,
+   "a keyed list REORDERED is not a change -- these pages rebuild their controls on "
+   "nearly every act, and a positional diff would report the whole page each time: %s"
+   % d2.get("diff"))
+ck(C.stamp_of({"rows": list(p2.rows)}, {"keys": {"rows": ["id"]}})
+   == C.stamp_of({"rows": list(reversed(p2.rows))}, {"keys": {"rows": ["id"]}}),
+   "and the STAMP does not move with the order either, or the door would say `changed` "
+   "over a diff that named nothing -- the stamp and the diff read identity the same way "
+   "or they contradict each other")
+
+# an entry with no identity is counted, not named
+g3, p3 = sgw()
+b = g3.observe(TOKEN, "sess")["stamp"]
+p3.rows.append({"v": 4})
+d3 = g3.observe(TOKEN, "sess", since=b)["diff"]
+ck(d3["counts"].get("rows.unnamed") == [0, 1] and not d3["appeared"],
+   "an entry of a keyed list with no identity AT ALL is counted, not named: a client "
+   "cannot act on something it has no way to name again: %s / %s"
+   % (d3["counts"], d3["appeared"]))
+
+# the cap bites and says so
+g4, p4 = sgw()
+b = g4.observe(TOKEN, "sess")["stamp"]
+p4.rows += [{"id": "x%d" % i, "v": i} for i in range(C.DIFF_CAP + 5)]
+d4 = g4.observe(TOKEN, "sess", since=b)["diff"]
+ck(len(d4["appeared"]["rows"]) == C.DIFF_CAP
+   and d4["capped"] == [{"where": "rows.appeared", "named": C.DIFF_CAP, "of": C.DIFF_CAP + 5}],
+   "a bucket that stopped naming entries SAYS where it stopped and how many there were -- "
+   "a diff is a saving over the snapshot or it is nothing: %s" % d4["capped"])
+
+# the unknown stamp fails toward more
+g5, p5 = sgw()
+first = g5.observe(TOKEN, "sess", since="s-never-issued")
+ck("rows" in first and first.get("sinceUnknown") and first.get("since") == "s-never-issued",
+   "a stamp this session holds no baseline for gets the WHOLE snapshot and the reason -- "
+   "a diff against a baseline the door does not hold would be a fabrication, and silence "
+   "would be worse: %s" % sorted(first))
+g5.observe(TOKEN, "sess")
+p5.rows[0]["v"] = 5
+stray = g5.observe(TOKEN, "sess", since="s-from-another-door")
+ck("rows" in stray and stray.get("sinceUnknown"),
+   "and having a baseline is not the same as having THAT one: a stamp from another door "
+   "gets the snapshot too, rather than a diff taken against whatever this session last "
+   "happened to hold: %s" % sorted(stray))
+
+# the diff rides every act, against what the client planned from
+g6, p6 = sgw()
+base = g6.observe(TOKEN, "sess")["stamp"]
+r = g6.execute(TOKEN, "sess", {"request_id": rid(910), "action": "bump", "arguments": {}})
+ck(r["diff"]["since"] == base and r["diff"]["fields"].get("n") == [0, 1]
+   and r["diff"]["changed"] is True,
+   "every execute response carries the diff against the LAST SNAPSHOT THIS SESSION SAW -- "
+   "the one it planned the call from: %s" % r["diff"])
+ck(isinstance(r.get("stamp"), str) and r["stamp"] != base,
+   "and the stamp to ask `since` with next time: %r" % r.get("stamp"))
+r2 = g6.execute(TOKEN, "sess", {"request_id": rid(911), "action": "bump", "arguments": {}})
+ck(r2["diff"]["since"] == r["stamp"] and r2["diff"]["fields"].get("n") == [1, 2],
+   "and the next act diffs against THAT, so a chain of calls is a chain of changes and "
+   "never a re-read: %s" % r2["diff"])
+r3 = g6.execute(TOKEN, "sess", {"request_id": rid(911), "action": "bump", "arguments": {}})
+ck(r3["replayed"] is True and r3["diff"] == r2["diff"] and p6.n == 2,
+   "a replayed command answers with the diff it answered with the first time: a replay is "
+   "the same response or it is not a replay: n=%d" % p6.n)
+
+g7, p7 = sgw()
+r = g7.execute(TOKEN, "sess", {"request_id": rid(912), "action": "bump", "arguments": {}})
+ck(r["diff"].get("since") is None and "no baseline" in (r["diff"].get("why") or ""),
+   "a session that has never observed is TOLD it has no baseline rather than handed a "
+   "diff against nothing: %s" % r["diff"])
+
+# the stamp covers what was SERVED
+gA, pA = sgw(Sessioned(), allow={"MUTATE": True})
+gB, pB = sgw(pA, allow={"MUTATE": True, "SENSITIVE_READ": True})
+ck(gA.observe(TOKEN, "sess")["stamp"] != gB.observe(TOKEN, "sess")["stamp"],
+   "two sessions at different rungs get different stamps for the same target: the stamp "
+   "covers the snapshot AS SERVED, so nobody is told `unchanged` about a snapshot they "
+   "were never shown")
+
+# a plugin that says nothing still works; one that raises is treated as silent
+gq, pq = sgw(Sessioned(keys={}, noise=[]))
+bq = gq.observe(TOKEN, "sess")["stamp"]
+pq.rows[0]["v"] = 7
+dq = gq.observe(TOKEN, "sess", since=bq)["diff"]
+ck(dq["counts"].get("rows") == [2, 2] and not dq["altered"],
+   "a plugin that declares no identity still gets a stamp and a diff -- coarse, which is a "
+   "worse answer and not a wrong one: %s" % dq["counts"])
+gb, pb = sgw(Sessioned(boom=True))
+try:
+    bb = gb.observe(TOKEN, "sess")["stamp"]
+    pb.rows[0]["v"] = 7
+    db = gb.observe(TOKEN, "sess", since=bb)
+except Exception as _e:
+    db = {"the door fell over": str(_e)[:90]}
+ck(db.get("changed") is True and (db.get("diff") or {}).get("counts", {}).get("rows") == [2, 2],
+   "and a plugin that RAISES while saying what identity means is treated as one that said "
+   "nothing, rather than taking the door down: %s" % db.get("diff"))
+
+# a retired plugin's baseline goes with it
+reg = C.Registry([Sessioned()])
+gr = C.Gateway(reg, C.Policy(token=TOKEN, allow={"MUTATE": True}, enabled=True))
+st = gr.observe(TOKEN, "sess")["stamp"]
+reg.retire("sess")
+reg.register(Sessioned())
+back = gr.observe(TOKEN, "sess", since=st)
+ck("rows" in back and back.get("sinceUnknown"),
+   "a plugin detached and attached again is a NEW target: its predecessor's baseline is "
+   "gone, so the whole snapshot comes back rather than a diff across a replacement: %s"
+   % sorted(back))
+
+m = g.manifest(TOKEN)
+sess_facts = m.get("session") or {}
+ck(m["protocolVersion"] == "1.7"
+   and set(sess_facts) == {"stamp", "since", "diff", "diffCap"}
+   and sess_facts.get("diffCap") == C.DIFF_CAP,
+   "and the manifest says the session exists -- a client cannot discover a stamp it was "
+   "never told about: %s" % sess_facts)
 
 print("---")
 print("%d/%d" % (P, P + F))

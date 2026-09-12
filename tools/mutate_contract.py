@@ -25,7 +25,8 @@ import argparse, io, os, shutil, subprocess, sys, tempfile
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 TOOLS = os.path.join(ROOT, "tools")
 SUBJECT = ("harness_contract.py", "harness_plugin_page.py",
-           "harness_mcp.py", "harness_walk.py")    # ADR-189: the code lives in four files
+           "harness_mcp.py", "harness_walk.py",
+           "blind_console.py")                     # ADR-191: the code lives in five files
 
 MUTANTS = [
     # ---- ADR-141: a declared risk is a FLOOR ----------------------------
@@ -213,9 +214,142 @@ MUTANTS += [
      'REFUSAL = ("invalid_argument", "not_found", "conflict")',
      "counts it as a REFUSAL"),
     ("the manifest still says 1.5",
-     'PROTOCOL_VERSION = "1.6"',
+     'PROTOCOL_VERSION = "1.7"',
      'PROTOCOL_VERSION = "1.5"',
      "states a protocol version"),
+]
+
+MUTANTS += [
+    # ---- ADR-191: the session ---------------------------------------------
+    # The stamp
+    ("a number that moves on its own moves the stamp with it",
+     '    noise = set(spec.get("noise") or ())\n    if not isinstance(snap, dict):',
+     '    noise = set()\n    if not isinstance(snap, dict):',
+     "the same observation twice gets the same stamp"),
+    ("the stamp reads a rebuilt list in the order the rebuild produced",
+     '''    keys = spec.get("keys") or {}
+    for p in keys:
+        v = paths.get(p)
+        if isinstance(v, list):''',
+     '''    keys = spec.get("keys") or {}
+    for p in []:
+        v = paths.get(p)
+        if isinstance(v, list):''',
+     "the STAMP does not move with the order"),
+    # The diff
+    ("a list nobody keyed is diffed entry by entry anyway",
+     '        spec_k = keys.get(p)',
+     '        spec_k = keys.get(p, "self")',
+     "is counted, never diffed entry by entry"),
+    ("an entry with no identity is named by its whole body",
+     '''        k = _key_of(e, fields)
+        if k is None:
+            na += 1
+        else:
+            ma[k] = e''',
+     '''        k = _key_of(e, fields)
+        if k is None:
+            ma[json.dumps(e, sort_keys=True, default=str)] = e
+        else:
+            ma[k] = e''',
+     "no identity AT ALL is counted, not named"),
+    ("a bucket stops naming entries and says nothing about it",
+     '''    if total > cap:
+        d["capped"].append({"where": where, "named": cap, "of": total})''',
+     '''    if total > cap:
+        pass''',
+     "SAYS where it stopped"),
+    ("a long value rides the diff whole, twice",
+     '''    if isinstance(v, str) and len(v) > 200:
+        return v[:200] + "…"''',
+     '''    if isinstance(v, str) and False:
+        return v[:200] + "…"''',
+     "a diff never carries a value whole"),
+    # The session
+    ("a stamp the door never issued is diffed against whatever it holds",
+     '        if prev is None or prev[0] != since:',
+     '        if prev is None:',
+     "having a baseline is not the same as having THAT one"),
+    ("the act is diffed against the page it made rather than the one it was planned from",
+     '            diff = diff_of(before[1], raw, self._spec(plugin, raw))',
+     '            diff = diff_of(raw, raw, self._spec(plugin, raw))',
+     "LAST SNAPSHOT THIS SESSION SAW"),
+    ("an act does not move the session on, so every act diffs from the same morning",
+     '''        snap, raw, st = self._stamped(plugin, plugin.observe(
+            sensitive=bool(self.policy.allow.get("SENSITIVE_READ"))))
+        if isinstance(snap, dict):
+            self._seen[plugin_id] = (st, raw)''',
+     '''        snap, raw, st = self._stamped(plugin, plugin.observe(
+            sensitive=bool(self.policy.allow.get("SENSITIVE_READ"))))
+        if False:
+            self._seen[plugin_id] = (st, raw)''',
+     "a chain of calls is a chain of changes"),
+    ("the baseline carries the stamp, so every diff reports the answer changing",
+     '        return served, snap, st',
+     '        return served, served, st',
+     "the stamp itself is never a field that changed"),
+    ("a session with no baseline is handed a diff and no explanation",
+     '''            diff = {"since": None,
+                    "why": "this session had not observed %s before this call, so there is "
+                           "no baseline to diff against" % plugin_id}''',
+     '''            diff = {"since": None}''',
+     "is TOLD it has no baseline"),
+    ("a retired target's baseline outlives it",
+     '''        for pid in [k for k in self._seen if k not in live]:
+            self._seen.pop(pid, None)''',
+     '''        for pid in []:
+            self._seen.pop(pid, None)''',
+     "is a NEW target"),
+    ("a plugin that cannot say what identity means takes the door down",
+     '''        try:
+            spec = plugin.identity(snap)
+        except Exception:
+            return {}''',
+     '''        if True:
+            spec = plugin.identity(snap)''',
+     "rather than taking the door down"),
+    ("the manifest keeps the session to itself",
+     '                "session": {"stamp": "every snapshot carries one; it moves when a value a "',
+     '                "_session": {"stamp": "every snapshot carries one; it moves when a value a "',
+     "the manifest says the session exists"),
+    # The transport
+    ("the stamp in the URI is read and thrown away",
+     '                since = _unquote(v)',
+     '                since = None',
+     "answers `nothing changed` and not the snapshot"),
+    ("a tool result says what it did and not what it changed",
+     '                "stamp": r.get("stamp"), "diff": r.get("diff")}',
+     '                }',
+     "carries the diff against the snapshot the client planned"),
+    ("a tool result carries the whole snapshot after all",
+     '                "stamp": r.get("stamp"), "diff": r.get("diff")}',
+     '                "stamp": r.get("stamp"), "diff": r.get("diff"),\n                "snapshot": r.get("snapshot")}',
+     "and never the snapshot"),
+    ("the resource does not say a stamp may ride its URI",
+     '                                "Append ?since=<stamp> -- the `stamp` of the last snapshot this "',
+     '                                "The stamp is available. "',
+     "resources/list says so"),
+    # The console
+    ("every request gets its own door, so a session remembers nothing",
+     '                ans = play(door, req.get("moves") or [])',
+     '                ans = play(Door(a.target, a.page, a.seed, a.trace, token), req.get("moves") or [])',
+     "reaches the SAME door"),
+    ("the console keeps the stamp to itself",
+     '''            if m.get("since"):
+                uri += "?since=" + quote(str(m["since"]), safe="")''',
+     '''            if False:
+                uri += "?since=" + quote(str(m["since"]), safe="")''',
+     "is still the door's baseline in the next"),
+    ("a closed session leaves its socket behind, so the next one talks to a corpse",
+     '''                    try:
+                        os.unlink(path)
+                    except OSError:
+                        pass''',
+     '''                    try:
+                        pass
+                    except OSError:
+                        pass''',
+     "takes its socket with it"),
 ]
 
 KNOWN_EQUIVALENT = [
@@ -264,6 +398,15 @@ def run_one(find, repl, expect):
         # drives a real page, not by the contract's fixture plugins.
         if os.path.basename(path) == "harness_plugin_page.py":
             suites = ["verify_report.py"]
+        # ADR-191: and a mutant in the MCP adapter or in the console is asserted
+        # where the transport is driven. The contract's suite runs too, for the
+        # adapter, because ADR-189's refusal-code mapping is held there -- one
+        # file, two suites, and the mutant is killed by whichever one made the
+        # claim rather than by whichever the runner happened to pick.
+        elif os.path.basename(path) == "harness_mcp.py":
+            suites = ["verify_contract.py", "verify_mcp.py"]
+        elif os.path.basename(path) == "blind_console.py":
+            suites = ["verify_mcp.py"]
         fails, out, rc = [], "", 0
         for s in suites:
             p = subprocess.run([sys.executable, os.path.join(dst, "verify", s)],

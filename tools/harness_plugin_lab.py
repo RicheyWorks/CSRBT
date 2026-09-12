@@ -283,6 +283,13 @@ class LabPlugin(Plugin):
             s["redacted"] = "the last protocol's name is shown only under SENSITIVE_READ"
         return s
 
+    def identity(self, snapshot=None):
+        """ADR-191: counters and two name lists. `jvm` is noise here for the
+        same reason it is on the organism -- a thread count is the runtime
+        breathing, not the lab doing anything."""
+        return {"keys": {"workloads": "self", "protocols": "self"},
+                "noise": ["jvm"]}
+
     # -- execution ------------------------------------------------------------
     def execute(self, action, args):
         if action == "protocols":

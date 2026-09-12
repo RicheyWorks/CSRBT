@@ -43,6 +43,12 @@ gateway child), so the mutant runner can afford to run it many times.
      published split where the page splits it, beside the run of text every
      task holds; and the prose the page writes about its own arithmetic is
      handed over as the page wrote it
+  I. the session (ADR-191): a page snapshot carries the observation's own
+     stamp beside the numbering's; a page nobody touched answers `nothing
+     changed` in a line; and an act answers with what it DID -- the controls
+     that moved, keyed by address so a rebuild reads as renumbering rather
+     than as three hundred controls being replaced -- in a tenth of the bytes
+     of the snapshot every blind operator re-read after every act
   E. the environment as an argument (ADR-134): with nothing set, Date and
      Math.random are the real ones; set-clock freezes what "now" answers and
      leaves every other Date form alone; set-seed makes Math.random the
@@ -56,13 +62,14 @@ Run:  python3 tools/verify/verify_report.py
 # asserts about tools/harness_plugin_page.py -- a subject.
 MUTATE_ROLE = "subject"
 import time
-import io, os, sys, tempfile
+import io, json, os, sys, tempfile
 
 import _kit
 
 sys.path.insert(0, _kit.TOOLS_DIR.rstrip(os.sep))
 import harness as H
 import harness_plugin_page as PP
+import harness_contract as C
 from harness_contract import HarnessError
 
 P = F = 0
@@ -1247,6 +1254,173 @@ with sync_playwright() as pw:
        "prose that contains prose is handed over once, as the innermost piece -- a note wrapping a rule is not the "
        "rule, and handing back both would say the same thing twice: %s" % [(x["t"][:40], x["host"]) for x in nr])
     man.close()
+    ctx.close()
+    b.close()
+
+
+# ---- I. the session, on a page that rebuilds (ADR-191) -----------------------
+#
+# The page plugin's part of ADR-191 is one sentence: a control is its ADDRESS.
+# Everything below follows from it, and none of it is true of a diff that
+# compared the controls list position by position -- which is what a diff
+# written without ADR-188 would have had to do, and why these two slices are
+# in this order.
+#
+# The measure is the one the third blind trial asked for: how much does a
+# client have to read to find out what its own call did.
+
+with sync_playwright() as pw:
+    b = pw.chromium.launch()
+    ctx = b.new_context(viewport=H.VIEWPORT)
+    ctx.set_offline(True)
+    ctx.add_init_script(H.STUBS)
+    pg = ctx.new_page()
+    docs = os.environ.get("CSRBT_DOCS_DIR") or os.path.join(_kit.ROOT, "docs")
+    try:
+        from swarm import SWARM_KINDS
+    except Exception:
+        SWARM_KINDS = None
+    pg.goto("file://" + os.path.join(docs, "collection-sheet.html").replace(os.sep, "/"),
+            wait_until="domcontentloaded")
+    plug = PP.PagePlugin(pg, "collection-sheet.html", kinds=SWARM_KINDS)
+    TK = "i" * 30
+    g = C.Gateway(C.Registry([plug]),
+                  C.Policy(token=TK, allow={"SENSITIVE_READ": True, "DRAFT": True,
+                                            "MUTATE": True}, enabled=True))
+    PID = plug.descriptor().id
+
+    snap = g.observe(TK, PID)
+    nsnap = len(json.dumps(snap))
+    ck(snap.get("stamp") and snap.get("version"),
+       "a page snapshot carries BOTH stamps: `version` is the numbering's (ADR-188, what a "
+       "stamped selector is held to) and `stamp` is the observation's (what `since` is asked "
+       "with). They answer different questions and a page that published one of them would "
+       "leave the other unaskable: %r / %r" % (snap.get("stamp"), snap.get("version")))
+    # Something distinctive in a field first, so what follows is about a value
+    # the page is actually holding rather than about a row of empty strings.
+    typed = [c for c in g.observe(TK, PID)["controls"]
+             if c["kind"] == "text_in" and c.get("commandable") and c.get("visible")][0]
+    MIXED = "ZqxMiXeD191"
+    plug.execute("set-text", {"selector": typed["address"] or typed["selector"], "value": MIXED})
+    snap = g.observe(TK, PID)
+    nsnap = len(json.dumps(snap))
+    mine = [c for c in snap["controls"]
+            if (c.get("address") or c["selector"]) == (typed["address"] or typed["selector"])][0]
+    ck(mine.get("value") == MIXED,
+       "the snapshot hands the field's value over AS THE FIELD HOLDS IT -- a reading of its "
+       "own (trimmed, folded, rounded) would be the door editing the page's data on the way "
+       "out, and a client comparing what it typed against what came back would be told it "
+       "had failed: %r" % mine.get("value"))
+
+    vals = [c for c in snap["controls"] if c.get("value") is not None]
+    ck(vals and all(c.get("commandable") for c in vals),
+       "under SENSITIVE_READ a control carries WHAT IS IN IT, so a client holding that rung "
+       "reads the page's entered state in the snapshot it was already taking rather than "
+       "one read-control per control: %d of %d controls" % (len(vals), len(snap["controls"])))
+    _ok1, _m1, one = plug.execute("read-control", {"selector": mine["address"] or mine["selector"]})
+    ck(str(one.get("value")) == mine["value"],
+       "and it is the same value read-control answers with -- two readers of one field, "
+       "held to each other: %r vs %r" % (one.get("value"), mine["value"]))
+    # By a HANDLE to the element, not by its selector: making it read-only
+    # reclassifies it, every text control after it renumbers, and a restore by
+    # the old selector would un-lock whichever control had moved into that
+    # index -- which is the ADR-188 mistake, made by this suite.
+    hand = pg.evaluate_handle("(sel) => document.querySelector('[data-h=\"' + sel + '\"]')",
+                              mine["selector"])
+    pg.evaluate("(e) => { e.readOnly = true; }", hand)
+    locked = plug.observe(sensitive=True)
+    leaked = [c for c in locked["controls"]
+              if not c.get("commandable") and c.get("value") is not None]
+    ck(not leaked,
+       "and a control this session may not command hands over nothing: `commandable` is what "
+       "excludes a password field, so a value published past it would publish one: %s"
+       % [(c["selector"], c["kind"]) for c in leaked[:3]])
+    pg.evaluate("(e) => { e.readOnly = false; }", hand)
+    shy = plug.observe(sensitive=False)
+    ck(all(c.get("value") is None for c in shy["controls"]) and shy.get("redacted"),
+       "and a session WITHOUT that rung gets none of them: the redaction line says entered "
+       "values are omitted, and it has to be true of the snapshot and not only of "
+       "read-control: %d carried a value"
+       % len([c for c in shy["controls"] if c.get("value") is not None]))
+
+    quiet = g.observe(TK, PID, since=snap["stamp"])
+    ck(quiet.get("changed") is False and len(json.dumps(quiet)) * 100 < nsnap,
+       "a page nobody has touched answers `nothing changed` in a line: %d bytes against a "
+       "%d-byte snapshot" % (len(json.dumps(quiet)), nsnap))
+
+    # a pick filters the picker: options leave the document, one becomes selected
+    pool = snap["argumentPools"]["pick"]
+    chosen = pool[0]
+    r = g.execute(TK, PID, {"request_id": "i-1", "action": "pick", "arguments": chosen})
+    d = r["diff"]
+    nd = len(json.dumps(d))
+    ck(r["ok"] and d["changed"] is True and d["since"] == snap["stamp"],
+       "and an act answers with what it did, against the snapshot the client planned it "
+       "from: %s" % {k: d.get(k) for k in ("since", "changed")})
+    ck(nd * 10 < nsnap,
+       "THE MEASURE: what a client must read to learn what its own call did, %d bytes "
+       "against the %d-byte snapshot every ADR-187 operator re-read after every act"
+       % (nd, nsnap))
+    ck(d["fields"].get("version") and d["fields"]["version"][0] != d["fields"]["version"][1],
+       "the numbering moved, and the diff says so in one line rather than leaving a client "
+       "to compare two snapshots for it: %s" % d["fields"].get("version"))
+    alt = d["altered"].get("controls") or {}
+    ck(chosen["value"] in [k.lstrip("@") for k in alt] or ("@" + chosen["value"]) in alt,
+       "the option that was picked is named by its ADDRESS among the controls that changed, "
+       "not by an index: %s" % list(alt)[:4])
+    sel_moved = [k for k, v in alt.items() if "selector" in v and list(v) == ["selector"]]
+    ck(sel_moved,
+       "and a control whose only change is that it RENUMBERED is reported as that one field "
+       "moving -- keyed positionally it would have read as a control vanishing and a "
+       "different one appearing, which is the mistake the whole address grammar exists to "
+       "stop: %s" % [(k, alt[k]) for k in sel_moved[:2]])
+    ck(not d["appeared"].get("controls"),
+       "nothing APPEARED: a filter takes options out of the document, and a diff that said "
+       "three hundred controls arrived would be describing the rebuild rather than the act: "
+       "%s" % list((d["appeared"].get("controls") or [])[:2]))
+    ck(d["counts"].get("pickChoices") and d["counts"]["pickChoices"][1] < d["counts"]["pickChoices"][0],
+       "the pools are counted rather than listed -- every one of them is derived from "
+       "`controls`, so naming each arrival would say the same thing twice and cost for it: "
+       "%s" % d["counts"].get("pickChoices"))
+    ck(any(c["where"].startswith("controls.") for c in d["capped"]) or
+       len(d["vanished"].get("controls") or []) < C.DIFF_CAP,
+       "and where the diff stopped naming, it says so: %s" % d["capped"])
+
+    # a structural act: the pane, and the two tabs that swapped
+    tabs = [t for t in snap["tabs"] if not t["open"]]
+    r2 = g.execute(TK, PID, {"request_id": "i-2", "action": "show-pane",
+                             "arguments": {"pane": tabs[0]["pane"]}})
+    d2 = r2["diff"]
+    ck(d2["fields"].get("route") and d2["fields"]["route"][1] == tabs[0]["pane"],
+       "a pane change moves `route`, and the diff names the pane that is now open: %s"
+       % d2["fields"].get("route"))
+    at = d2["altered"].get("tabs") or {}
+    ck(at.get(tabs[0]["pane"], {}).get("open") == [False, True]
+       and any(v.get("open") == [True, False] for k, v in at.items() if k != tabs[0]["pane"]),
+       "and BOTH tabs -- the one that opened and the one that closed -- keyed by the pane "
+       "each drives: %s" % at)
+
+    # the stamp is the observation's, and it moves for a value the version cannot see
+    s3 = g.observe(TK, PID)
+    texts = [c for c in s3["controls"]
+             if c["kind"] == "text_in" and c.get("commandable") and c.get("visible")]
+    if texts:
+        who = texts[0]["address"] or texts[0]["selector"]
+        r3 = g.execute(TK, PID, {"request_id": "i-3", "action": "set-text",
+                                 "arguments": {"selector": who, "value": "Zqx-191"}})
+        d3 = r3["diff"]
+        ck(d3["changed"] is True and "version" not in d3["fields"],
+           "typing into a field changes the OBSERVATION and not the numbering: the stamp "
+           "moves, `version` does not, and a door that had only `version` could not tell a "
+           "client its own text had landed: %s" % {k: d3["fields"].get(k) for k in ("version",)})
+
+    # and the two ends agree: the stamp an act hands back is what `since` calls current
+    q = g.observe(TK, PID, since=r2["stamp"] if not texts else r3["stamp"])
+    ck(q.get("changed") is False,
+       "the stamp an act hands back is the one the next `since` calls current, so a client "
+       "that reads every response never has to guess where the session is")
+
+    pg.close()
     ctx.close()
     b.close()
 

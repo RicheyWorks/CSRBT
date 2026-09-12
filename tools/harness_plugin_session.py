@@ -93,6 +93,13 @@ class SessionPlugin(Plugin):
                 # trace can show it did
                 "lists": {"tools": "tools/list", "resources": "resources/list"}}
 
+    def identity(self, snapshot=None):
+        """ADR-191: the one target whose snapshot IS a set of names -- which
+        plugins are attached. Keyed as such, so attaching one reports that one
+        arriving rather than a list that changed length."""
+        return {"keys": {"attachable": "self", "attached": "self", "plugins": "self"},
+                "noise": []}
+
     def execute(self, action, arguments):
         if action == "targets":
             live = sorted(d.id for d in self.registry.descriptors())
