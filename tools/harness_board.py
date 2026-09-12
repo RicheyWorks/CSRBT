@@ -59,6 +59,7 @@ HARNESS_SUITES = [
     ("verify_organism", "the organism through the gateway: one oracle per engine"),
     ("verify_lab", "the science engine: the shipped protocol reproduced"),
     ("verify_mcp", "the second transport decides nothing"),
+    ("verify_brief", "a goal hands over every value its task enters, and holds what the grader scores"),
     ("verify_http", "the third transport, and the first one anything else can reach"),
     ("verify_walk", "the robot, every target, both transports, every page"),
     ("verify_tasks", "goals with graded expectations; traces held to them; the science tasks"),
@@ -77,6 +78,7 @@ RUNNERS = [
     ("mutate_http", "the HTTP transport: origin, token, session, thread"),
     ("mutate_walk", "the robot"),
     ("mutate_tasks", "the task runner and grader"),
+    ("mutate_brief", "the brief: what a task gives and what it holds"),
     ("mutate_report", "the page reader, picker and naming"),
     ("mutate_audit_states", "the audits' state walker and accounting"),
     ("mutate_harness", "the swarm's driver"),
@@ -125,6 +127,14 @@ def summary(L):
         "targets": len(targets), "pages": len(pages), "bad_walks": bad_walks,
         "commands": sum(e.get("commands", 0) for e in W.values()),
         "tasks": len(runs), "tasks_held": sum(1 for e in runs.values() if e.get("held")),
+        # ADR-193: what the briefs HAND OVER and what they HOLD. The third
+        # blind trial graded four operators against readings their goals never
+        # named and data they were never given; these two numbers are the
+        # difference between a hard trial and an unfair one, so they are on the
+        # board rather than in a paragraph.
+        "given": sum(e.get("gives") or 0 for e in runs.values()),
+        "held_readings": sum(e.get("holds") or 0 for e in runs.values()),
+        "held_claims": sum(e.get("claims") or 0 for e in runs.values()),
         # ADR-142: how many of them entered their data with no destructive rung.
         # An entry written before that ADR carries no rungs at all and is not
         # counted either way -- a ledger row from a run that did not record the
@@ -224,6 +234,10 @@ def render(L):
         ("%d" % S["commands"], "commands walked", "%d targets × 2 transports, %d pages" % (S["targets"] // 2, S["pages"])),
         ("%d / %d" % (S["tasks_held"], S["tasks"]), "tasks held", "%d / %d traces held, %d expectations confirmed"
          % (S["traces_held"], S["traces"], S["confirmed"])),
+        ("%d" % S["given"], "values handed over",
+         "every value the %d tasks enter is in the brief an operator is given -- %d reading(s) "
+         "and %d claim(s) held, which is what a trial may fairly mark" % (
+             S["tasks"], S["held_readings"], S["held_claims"])),
         ("%d / %d" % (S["supervised"], S["rung_known"]), "entered supervised",
          "tasks that enter their data with no destructive rung; the rest declare it, with a reason"),
         ("%d / %d" % (S["fields_entered"], S["fields"]), "fields entered",

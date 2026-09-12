@@ -483,6 +483,10 @@ def run_task(task, wire, pid, wires=None):
             "rungs": list(task_rungs(task)[0]), "rungsWhy": task_rungs(task)[1],
             "steps": steps, "verdict": verdict, "must": must,
             "held": verdict == must,       # the task did what it was written to do (a canary must FAIL)
+            # ADR-193: what the brief for this task hands over and holds, so the
+            # board can total them and a task that grew a step nobody added to
+            # its brief is a number that moved rather than a thing nobody saw.
+            **brief_counts(task),
             "confirmed": sum(1 for s in steps for e in s.get("expectations", []) if e["verdict"] == "CONFIRMED"),
             "refuted": sum(1 for s in steps for e in s.get("expectations", []) if e["verdict"] == "REFUTED"),
             "seconds": round(time.time() - t0, 1)}
@@ -617,6 +621,170 @@ def outcomes_of(task):
     return out
 
 
+# ---------------------------------------------------------------------------
+# ADR-193: the brief
+# ---------------------------------------------------------------------------
+#
+# The third blind trial (ADR-187) graded four operators against what their
+# TASKS hold and handed them what their GOALS say, and the two are not the same
+# set. The stand-sheet operator was held to a 32 mm rain event, the collection
+# sheet's to "Bear Cr. old-growth" and "R. Wright", the pheno tracker's to a
+# scoring rule -- none of which the goal sentence mentions, and none of which
+# anyone could reach by thinking harder. Measured across the 21 science tasks:
+# 547 values entered, 281 of them appearing nowhere in the goal that was handed
+# over. Fifty-one per cent of the data was withheld from the people being
+# marked on it.
+#
+# So a goal stops being a sentence and becomes a BRIEF, with three parts:
+#
+#     says    the prose, unchanged -- what this is for and what to do
+#     gives   every value the task supplies, with the control that takes it
+#     holds   every reading the task holds, with its claims (ADR-187)
+#
+# `gives` and `holds` are DERIVED FROM THE STEPS, never typed. A brief that
+# was written beside a task could go stale the first time the task was edited,
+# and a stale brief is worse than no brief: it is a promise about data the
+# operator will not find.
+
+# The actions that SUPPLY something -- a value, a file, a seed, a clock. An
+# operator who is not handed these cannot reach what they produce, however well
+# it reasons.
+GIVING = {"set-text": ("value",), "type-text": ("value",), "pick": ("value",),
+          "choose-option": ("value",), "set-slider": ("value",),
+          "set-checkbox": ("checked",), "press-step": ("direction", "times"),
+          "attach-file": ("name", "text", "path"), "drop-files": ("files", "names"),
+          # The ENVIRONMENT is given too (ADR-134). A figure that came out of a
+          # seeded draw or a frozen clock is not reachable by an operator who
+          # was not told the seed, and "your answer differs from mine" is the
+          # least useful thing a grader can say about it.
+          "set-clock": ("at", "clock"), "set-seed": ("seed",),
+          "set-dialog": ("confirm", "prompt"), "answer-dialog": ("confirm", "prompt")}
+# Long enough that a reader would copy rather than retype it: a CSV block, an
+# imported JSON document, a paragraph of field notes. Reported, so a brief says
+# which of its values are bulk rather than pretending a sentence could carry
+# them.
+BULK = 60
+
+
+def control_of(step):
+    """The readable name of the control a step is pointed at.
+
+    `@control:runName` is the name a task author wrote and a reader reads;
+    `#cName` is the page's own id; a positional selector is the moment's and is
+    the least useful of the three, so it is given last and as itself."""
+    a = step.get("arguments") or {}
+    sel = a.get("selector") or a.get("pane") or a.get("key")
+    if not isinstance(sel, str):
+        return None
+    if sel.startswith("@control:"):
+        return sel[len("@control:"):]
+    if sel.startswith("@") or sel.startswith("#"):
+        return sel[1:] if sel.startswith("#") else sel[1:]
+    return sel
+
+
+def gives_of(task):
+    """Every value the task SUPPLIES, in the order it supplies them.
+
+    This is the half of a brief ADR-187 proved was missing. Derived from the
+    steps, so a task edited without its brief cannot leave the brief lying."""
+    out = []
+    for i, s in enumerate(task["steps"]):
+        keys = GIVING.get(s["action"])
+        if not keys:
+            continue
+        a = s.get("arguments") or {}
+        for k in keys:
+            if k not in a or a[k] is None or a[k] == "":
+                continue
+            v = a[k]
+            text = v if isinstance(v, str) else json.dumps(v, ensure_ascii=False)
+            out.append({"step": s.get("id") or "s%d" % i, "action": s["action"],
+                        "control": control_of(s), "argument": k, "value": text,
+                        "chars": len(text), "bulk": len(text) > BULK})
+    return out
+
+
+def holds_of(task):
+    """Every reading the task holds, with its claims -- the outcomes (ADR-187)
+    in the shape a brief hands over and a host can grade itself against."""
+    out = []
+    for s, claims in outcomes_of(task):
+        a = dict(s.get("arguments") or {})
+        out.append({"step": s["id"], "action": s["action"], "arguments": a,
+                    "control": control_of(s), "claims": claims})
+    return out
+
+
+def brief_counts(task):
+    """What a LEDGER ROW says about a task's brief.
+
+    One function, two call sites -- the run and the could-not-stand-up -- so a
+    row's counts cannot depend on which path wrote it. A task has a brief
+    whether or not its target came up, and a ledger whose totals moved with the
+    weather would be a measurement of the weather."""
+    h = holds_of(task)
+    return {"gives": len(gives_of(task)), "holds": len(h),
+            "claims": sum(len(x["claims"]) for x in h)}
+
+
+def goal_of(task):
+    """The brief: what this task is for, what it hands over, what it holds.
+
+    NOT A GATEWAY ACTION, and that is deliberate. A door that served a client
+    its own task would end the blind trial that made this necessary: ADR-136's
+    whole discipline is that the tasks are removed from the filesystem the
+    operator works in. This is what the trial's ORGANISER uses to write the
+    brief, and what a host driving a task it has been GIVEN uses to grade
+    itself as it goes."""
+    gives, holds = gives_of(task), holds_of(task)
+    rungs, why = task_rungs(task)
+    return {"id": task["id"], "target": task["target"], "page": task.get("page"),
+            "must": task.get("must", "PASS"),
+            "says": task["goal"],
+            "gives": gives, "holds": holds,
+            "needs": {"rungs": list(rungs), "why": why},
+            "counts": {"steps": len(task["steps"]), "gives": len(gives),
+                       "bulk": sum(1 for g in gives if g["bulk"]),
+                       "holds": len(holds),
+                       "claims": sum(len(h["claims"]) for h in holds)}}
+
+
+def brief_of(task, claims=True):
+    """The brief as an operator reads it. `claims=False` withholds what the
+    task holds -- which is what a BLIND trial hands over, because an operator
+    told the answers is being asked to transcribe rather than to operate."""
+    g = goal_of(task)
+    L = ["# %s" % g["id"], "",
+         "TARGET: %s%s" % (g["target"], ("  (%s)" % g["page"]) if g["page"] else ""),
+         "RUNGS:  %s%s" % (", ".join(g["needs"]["rungs"]),
+                           ("  -- %s" % g["needs"]["why"]) if g["needs"]["why"] else ""),
+         "", "## What this is for", "", g["says"], "",
+         "## The data to enter (%d value(s), %d of them bulk)"
+         % (g["counts"]["gives"], g["counts"]["bulk"]), ""]
+    if not g["gives"]:
+        L.append("    (this task enters nothing)")
+    for x in g["gives"]:
+        where = x["control"] or "(unnamed control)"
+        v = x["value"]
+        if x["bulk"]:
+            L.append("    %-24s %s  [%d characters]" % (where, x["action"], x["chars"]))
+            L += ["        | " + ln for ln in v.split("\n")]
+        else:
+            L.append("    %-24s %s  %s" % (where, x["action"], json.dumps(v, ensure_ascii=False)))
+    if claims:
+        L += ["", "## What it holds (%d reading(s), %d claim(s))"
+              % (g["counts"]["holds"], g["counts"]["claims"]), ""]
+        for h in g["holds"]:
+            L.append("    %-10s %-14s %s" % (h["step"], h["action"],
+                                             json.dumps(h["claims"], ensure_ascii=False)[:150]))
+    else:
+        L += ["", "## What it holds", "",
+              "    %d reading(s) and %d claim(s), withheld: this is a blind brief."
+              % (g["counts"]["holds"], g["counts"]["claims"])]
+    return "\n".join(L) + "\n"
+
+
 def grade_outcomes(task, trace):
     """Hold a trace to a task's OUTCOMES, not its route (ADR-187). Every
     outcome step is matched against every trace call of its action, in any
@@ -691,6 +859,10 @@ def run_tasks(tasks, transport="stdio", log=None, page="collection-sheet.html", 
                                        # written to be a DEFECT is held when it defects, and hard-coding
                                        # False made the one canary that can reach this path unholdable
                                        "held": task.get("must", "PASS") == "DEFECT",
+                                       # ADR-193: a task has a brief whether or not it ran. A row
+                                       # that left these out would make the ledger's totals depend
+                                       # on which targets happened to come up.
+                                       **brief_counts(task),
                                        "confirmed": 0, "refuted": 0, "seconds": 0,
                                        # every entry names its transport, this one included: the ledger
                                        # holds "held and by which door", and an entry without it is a
@@ -752,11 +924,40 @@ def main(argv):
     ap.add_argument("--grade-trace", metavar="FILE",
                     help="grade a trace (the MCP server's --trace output) against a task named by --task, or by "
                          "the trace's file name")
+    ap.add_argument("--goal", metavar="TASK",
+                    help="print one task's BRIEF as JSON (ADR-193): what it says, every value it "
+                         "gives, every reading it holds. TASK is a task id or a path; `all` is "
+                         "every task. This is not a gateway action -- a door that served a client "
+                         "its own task would end the blind trial (ADR-136) that made it necessary")
+    ap.add_argument("--brief", metavar="TASK",
+                    help="the same brief, as an operator reads it")
+    ap.add_argument("--blind", action="store_true",
+                    help="with --brief: withhold what the task HOLDS. An operator told the "
+                         "answers is being asked to transcribe rather than to operate")
     ap.add_argument("--outcomes", action="store_true",
                     help="with --grade-trace FILE-OR-DIR: hold the trace to the task's OUTCOMES (what the page was "
                          "read to say), in any order and by any route, and print what was reached; never written to "
                          "the ledger (ADR-187)")
     a = ap.parse_args(argv)
+
+    if a.goal or a.brief:
+        want = a.goal or a.brief
+        paths = (sorted(glob.glob(os.path.join(TASKS_DIR, "*.json"))) if want == "all"
+                 else [want if os.path.exists(want)
+                       else os.path.join(TASKS_DIR, want.rstrip(".json") + ".json")])
+        out = []
+        for p in paths:
+            if not os.path.exists(p):
+                sys.stderr.write("no task %r\n" % want)
+                return 2
+            t = load_task(p)
+            out.append(goal_of(t) if a.goal else brief_of(t, claims=not a.blind))
+        if a.goal:
+            print(json.dumps(out if want == "all" else out[0], indent=1, ensure_ascii=False))
+        else:
+            print(("\n" + "-" * 76 + "\n\n").join(out))
+        return 0
+
     if a.grade_trace and a.outcomes:
         files = [a.grade_trace] if os.path.isfile(a.grade_trace) else sorted(
             glob.glob(os.path.join(a.grade_trace, "*.jsonl")) + glob.glob(os.path.join(a.grade_trace, "*.jsonl.gz")))

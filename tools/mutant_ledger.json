@@ -396,6 +396,87 @@
    ],
    "survived": 0
   },
+  "mutate_brief": {
+   "at": 1789203461,
+   "equivalent": 0,
+   "equivalents": [],
+   "inconclusive": 0,
+   "killed": 14,
+   "mutants": 14,
+   "rows": [
+    {
+     "detail": "2 failure(s); first: EVERY value every task supplies is in its brief -- 601 of t",
+     "name": "a brief hands over the values but not the picks",
+     "verdict": "killed"
+    },
+    {
+     "detail": "2 failure(s); first: EVERY value every task supplies is in its brief -- 664 of t",
+     "name": "a file dropped on the page is not data the operator was given",
+     "verdict": "killed"
+    },
+    {
+     "detail": "2 failure(s); first: EVERY value every task supplies is in its brief -- 663 of t",
+     "name": "bad input typed on purpose is not data either",
+     "verdict": "killed"
+    },
+    {
+     "detail": "2 failure(s); first: EVERY value every task supplies is in its brief -- 651 of t",
+     "name": "the seed and the clock are not things a task gives",
+     "verdict": "killed"
+    },
+    {
+     "detail": "2 failure(s); first: EVERY value every task supplies is in its brief -- 660 of t",
+     "name": "a step's direction is route rather than data",
+     "verdict": "killed"
+    },
+    {
+     "detail": "5 failure(s); first: EVERY value every task supplies is in its brief -- 0 of the",
+     "name": "a brief stops at the first step that gives nothing",
+     "verdict": "killed"
+    },
+    {
+     "detail": "1 failure(s); first: and a step added to a task is in its brief at once, with th",
+     "name": "a control is the selector of the moment again",
+     "verdict": "killed"
+    },
+    {
+     "detail": "7 failure(s); first: what a brief HOLDS is exactly what the outcome grader score",
+     "name": "what a brief holds is a sample of what it holds",
+     "verdict": "killed"
+    },
+    {
+     "detail": "2 failure(s); first: 632 claims across the kit, and the brief's count is the gra",
+     "name": "a brief counts its claims as its readings",
+     "verdict": "killed"
+    },
+    {
+     "detail": "1 failure(s); first: and a brief asked for with no argument is the FULL one: bli",
+     "name": "a brief is blind unless somebody asks for the answers",
+     "verdict": "killed"
+    },
+    {
+     "detail": "2 failure(s); first: and withholds what it holds, saying so: an operator told th",
+     "name": "a blind brief hands the answers over after all",
+     "verdict": "killed"
+    },
+    {
+     "detail": "2 failure(s); first: a brief carries the rungs the task declares and the reason ",
+     "name": "a brief guesses the rungs rather than reading the task's",
+     "verdict": "killed"
+    },
+    {
+     "detail": "1 failure(s); first: what a LEDGER ROW says about a brief is what the brief says",
+     "name": "a ledger row stops counting what the brief hands over",
+     "verdict": "killed"
+    },
+    {
+     "detail": "1 failure(s); first: what a LEDGER ROW says about a brief is what the brief says",
+     "name": "a ledger row counts its claims as its readings",
+     "verdict": "killed"
+    }
+   ],
+   "survived": 0
+  },
   "mutate_contend": {
    "at": 1788587889,
    "equivalent": 0,

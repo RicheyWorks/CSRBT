@@ -42,7 +42,7 @@ pins what makes a verdict believable:
 Run:  python3 tools/verify/verify_tasks.py
       CSRBT_TASKS_QUICK=1 python3 tools/verify/verify_tasks.py   # A-C and E only (the mutant runner)
 """
-import copy, glob, io, json, os, sys, tempfile
+import copy, glob, io, json, os, re, sys, tempfile
 
 import _kit
 
