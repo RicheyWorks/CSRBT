@@ -39,6 +39,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: reports-jdk${{ matrix.java }}
+          retention-days: 7
           path: |
             **/build/reports/tests/test
             csrbt-core/build/reports/jacoco
