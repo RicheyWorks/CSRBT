@@ -2353,12 +2353,12 @@
    "survived": 0
   },
   "mutate_report": {
-   "at": 1789238955,
+   "at": 1789263298,
    "equivalent": 0,
    "equivalents": [],
    "inconclusive": 0,
-   "killed": 124,
-   "mutants": 124,
+   "killed": 134,
+   "mutants": 134,
    "rows": [
     {
      "detail": "9 failure(s); first: a .tile and a .stat .st are both figures: the .l/.v pair is",
@@ -2386,7 +2386,7 @@
      "verdict": "killed"
     },
     {
-     "detail": "11 failure(s); first: boxes follow the kit's naming -- an*, *Out, *Box, *Stat, *",
+     "detail": "21 failure(s); first: boxes follow the kit's naming -- an*, *Out, *Box, *Stat, *",
      "name": "boxes are the old five prefixes only",
      "verdict": "killed"
     },
@@ -2676,7 +2676,7 @@
      "verdict": "killed"
     },
     {
-     "detail": "4 failure(s); first: type-text into a control that cannot take focus was accepte",
+     "detail": "1 failure(s); first: type-text into a control that cannot take focus was accepte",
      "name": "a control that cannot take focus is waited on rather than refused",
      "verdict": "killed"
     },
@@ -2979,12 +2979,62 @@
      "detail": "1 failure(s); first: AN EXPORT MAY NOT CONTRADICT THE SCREEN IT WAS TAKEN FROM. ",
      "name": "the export claims a monohybrid cross whatever the page concluded",
      "verdict": "killed"
+    },
+    {
+     "detail": "7 failure(s); first: A CIRCLE'S AREA IS WHAT ITS RADIUS ENCLOSES, not the round ",
+     "name": "a circle's area is rounded to the metre again",
+     "verdict": "killed"
+    },
+    {
+     "detail": "6 failure(s); first: and the expansion factor is 10,000 over that area, to the p",
+     "name": "and the factor goes back to the decimal that hid it",
+     "verdict": "killed"
+    },
+    {
+     "detail": "1 failure(s); first: A 20 x 20 m PLOT IS 400 m\u00b2 EXACTLY, so trimming a circle's ",
+     "name": "trimming the circle's zeros takes the rectangle's decimal with it",
+     "verdict": "killed"
+    },
+    {
+     "detail": "1 failure(s); first: A DEPOSIT'S sampleSizeValue IS THE AREA SAMPLED, and it car",
+     "name": "the deposit's sample size is the plot's nickname again",
+     "verdict": "killed"
+    },
+    {
+     "detail": "1 failure(s); first: and the samplingProtocol beside it quotes the same area -- ",
+     "name": "the protocol and the sample size go back to disagreeing",
+     "verdict": "killed"
+    },
+    {
+     "detail": "1 failure(s); first: associatedTaxa WAS A COLUMN THIS SHEET NEVER FILLED, on a s",
+     "name": "associatedTaxa goes back to a column nobody fills",
+     "verdict": "killed"
+    },
+    {
+     "detail": "1 failure(s); first: associatedTaxa WAS A COLUMN THIS SHEET NEVER FILLED, on a s",
+     "name": "an edge only counts when this stem is the actor",
+     "verdict": "killed"
+    },
+    {
+     "detail": "1 failure(s); first: A TOP HEIGHT OFF ONE STEM IS NOT A STAND FIGURE -- the tile",
+     "name": "the top height loses the sample it was computed from",
+     "verdict": "killed"
+    },
+    {
+     "detail": "1 failure(s); first: A TOP HEIGHT OFF ONE STEM IS NOT A STAND FIGURE -- the tile",
+     "name": "a stem with no height counts as one measured",
+     "verdict": "killed"
+    },
+    {
+     "detail": "2 failure(s); first: A TOP HEIGHT'S NAME MAY NOT MOVE WITH ITS DATA. The sample ",
+     "name": "the sample size climbs back inside the top height's name",
+     "verdict": "killed"
     }
    ],
    "survived": 0
   },
   "mutate_tasks": {
-   "at": 1789235757,
+   "at": 1789264036,
    "equivalent": 0,
    "equivalents": [],
    "inconclusive": 0,
@@ -2997,7 +3047,7 @@
      "verdict": "killed"
     },
     {
-     "detail": "16 failure(s); first: every operator grades, a reference grades as its value, a ",
+     "detail": "19 failure(s); first: every operator grades, a reference grades as its value, a ",
      "name": "an operator expectation is always CONFIRMED",
      "verdict": "killed"
     },

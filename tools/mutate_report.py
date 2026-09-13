@@ -14,7 +14,8 @@ import argparse, io, os, shutil, subprocess, sys, tempfile
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 # The pages section K holds to their own arithmetic (ADR-197).
-PAGES = ("breeding-bench.html", "collection-sheet.html", "pheno-tracker.html")
+PAGES = ("breeding-bench.html", "collection-sheet.html", "pheno-tracker.html",
+         "stand-sheet.html")
 TOOLS = os.path.join(ROOT, "tools")
 
 MUTANTS = [
@@ -654,6 +655,53 @@ MUTANTS += [
      '      lines.push("cross: "+(seg && seg.r[0]==="3:1" ? "Aa x Aa" : "unresolved")',
      '      lines.push("cross: "+(seg && seg.r[0]!=="" ? "Aa x Aa" : "unresolved")',
      "AN EXPORT MAY NOT CONTRADICT THE SCREEN"),
+]
+
+
+MUTANTS += [
+    # ---- ADR-198: the stand sheet's expansion factor -----------------------
+    # The finding ADR-197 filed and left open, because closing it moved three
+    # figures four tasks claimed. Each of these puts one half of it back.
+    ("a circle's area is rounded to the metre again",
+     r'    return round2(a).toFixed(2).replace(/(\.\d*?)0+$/, "$1").replace(/\.$/, "");',
+     '    return a.toFixed(0);',
+     "A CIRCLE'S AREA IS WHAT ITS RADIUS ENCLOSES"),
+    ("and the factor goes back to the decimal that hid it",
+     r'    return round2(e).toFixed(2).replace(/(\.\d)0$/, "$1");',
+     '    return e.toFixed(1);',
+     "the expansion factor is 10,000 over that area"),
+    ("trimming the circle's zeros takes the rectangle's decimal with it",
+     r'    return round2(e).toFixed(2).replace(/(\.\d)0$/, "$1");',
+     r'    return round2(e).toFixed(2).replace(/\.?0+$/, "");',
+     "A 20 x 20 m PLOT IS 400 m"),
+    ("the deposit's sample size is the plot's nickname again",
+     '        sampleSizeValue: A>0 ? fmtArea(A) : "",',
+     '        sampleSizeValue: A>0 ? A.toFixed(0) : "",',
+     "A DEPOSIT'S sampleSizeValue IS THE AREA SAMPLED"),
+    ("the protocol and the sample size go back to disagreeing",
+     '    return geom + (A>0 ? " (" + fmtArea(A) + " m2)" : "")',
+     '    return geom + (A>0 ? " (" + A.toFixed(0) + " m2)" : "")',
+     "arguing with itself"),
+    ("associatedTaxa goes back to a column nobody fills",
+     '        associatedTaxa: assocFor(t).join(" | "),',
+     '        associatedTaxa: "",',
+     "associatedTaxa WAS A COLUMN THIS SHEET NEVER FILLED"),
+    ("an edge only counts when this stem is the actor",
+     '      var isA = me.indexOf(x.a) >= 0, isB = me.indexOf(x.b) >= 0;',
+     '      var isA = me.indexOf(x.a) >= 0, isB = false;',
+     "associatedTaxa WAS A COLUMN THIS SHEET NEVER FILLED"),
+    ("the top height loses the sample it was computed from",
+     "      +'<div class=\"tile\"><div class=\"v\">'+hs.length+'</div><div class=\"l\">heights measured</div></div>';",
+     "      ;",
+     "A TOP HEIGHT OFF ONE STEM IS NOT A STAND FIGURE"),
+    ("a stem with no height counts as one measured",
+     '    var hs=live.filter(function(s){return s.h;});',
+     '    var hs=live.filter(function(s){return true;});',
+     "A TOP HEIGHT OFF ONE STEM IS NOT A STAND FIGURE"),
+    ("the sample size climbs back inside the top height's name",
+     '<div class="l">top height m</div></div>',
+     '<div class="l">top height m ('+"'+hs.length+'"+' measured)</div></div>',
+     "A TOP HEIGHT'S NAME MAY NOT MOVE WITH ITS DATA"),
 ]
 
 

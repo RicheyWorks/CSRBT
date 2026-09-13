@@ -535,7 +535,8 @@
       <input type="hidden" id="sMin" value="5">
       <input type="hidden" id="sBH" value="1.37">
       <div id="sAreaOut" class="verdict"></div>
-      <p class="fine">11.28 m radius = 400 m² = 0.04 ha, the common US fixed plot. 5.64 m = 100 m². State your
+      <p class="fine">11.28 m radius = 399.73 m², the plot everyone calls 400 m² — near enough to name it by,
+        not near enough to scale by, so the sheet computes on the 399.73. 5.64 m = 99.93 m². State your
         minimum tallied diameter — expansion factors are meaningless without it.</p>
     </div>
 
@@ -1844,6 +1845,32 @@ var DWC = (function(){
     var r=num("sRad")||0; return Math.PI*r*r;
   }
   function ef(){ var a=plotArea(); return a>0 ? 10000/a : 0; }
+  /* A FIGURE PRINTED TO ONE DECIMAL AND A COLUMN COMPUTED FROM THE UNROUNDED
+     ONE DO NOT RECONCILE, and this page printed both. A circle of r = 11.28 m
+     is 399.7312 m², which the banner rounded to "400 m²" at an expansion
+     factor of "25.0" -- while the stem CSV's per-hectare column kept the real
+     25.01681, so a 30 cm stem's 0.070686 m² came out as 1.7683 per hectare
+     where the printed factor gives 1.7672. Nothing on the sheet said which of
+     the two a reader should believe, and 400/25.0 is the pair that cannot be
+     right: 10,000/400 is 25.0 exactly, so the area and the factor agreed with
+     each other and neither agreed with the plot. The page makes precisely this
+     point one radius down, insisting r = 5.64 m is "EF 100.1, not 100.0" --
+     and then printed that plot's area as "100 m²", which is the same error
+     it was warning about. Two decimals now, trailing zeros trimmed off the
+     area so a rectangle still reads 400, and held to one on the factor so a
+     rectangle still reads 25.0. A circle says what it is: 399.73 m² at
+     25.02, 99.93 m² at 100.07. Found by the fifth blind trial. */
+  function round2(x){ return Math.round(x*100)/100; }
+  /* Area: as many of the two decimals as carry information, none of the
+     zeros. 400, 399.73, 99.93, 100.5. */
+  function fmtArea(a){
+    return round2(a).toFixed(2).replace(/(\.\d*?)0+$/, "$1").replace(/\.$/, "");
+  }
+  /* Factor: at least one decimal, at most two, because "EF 25" reads as a
+     count and every other expansion factor on this page has a decimal. */
+  function fmtEf(e){
+    return round2(e).toFixed(2).replace(/(\.\d)0$/, "$1");
+  }
 
   /* ================= IDENTIFY ================= */
   function renderKey(){
@@ -2167,7 +2194,16 @@ var DWC = (function(){
       +'<div class="tile"><div class="v">'+(baD*E).toFixed(1)+'</div><div class="l">snag BA m²/ha</div></div>'
       +'<div class="tile"><div class="v">'+qmd.toFixed(1)+'</div><div class="l">QMD cm</div></div>'
       +'<div class="tile"><div class="v">'+Math.round(sdi)+'</div><div class="l">SDI (Reineke)</div></div>';
-    if(topH) h+='<div class="tile"><div class="v">'+topH.toFixed(1)+'</div><div class="l">top height m</div></div>';
+    /* TOP HEIGHT FROM ONE MEASURED STEM IS NOT A STAND FIGURE. The tile read
+       "top height m" whether it rested on one height or forty, and the
+       convention it names -- the mean of the tallest fifth -- is a stand
+       statistic that means nothing at n = 1, where it is just that one stem.
+       The sample travels beside it as its own tile rather than inside the
+       label: a figure whose NAME moves when the data moves cannot be tracked
+       across a session, which is the same instability the pheno tracker was
+       filed for. Found by the fifth blind trial. */
+    if(topH) h+='<div class="tile"><div class="v">'+topH.toFixed(1)+'</div><div class="l">top height m</div></div>'
+      +'<div class="tile"><div class="v">'+hs.length+'</div><div class="l">heights measured</div></div>';
     h+='</div>';
 
     /* composition + importance value */
@@ -2263,7 +2299,7 @@ var DWC = (function(){
     onchange:function(a){ push("sDesign", a[0]||"circ"); geoPaint(); } });
   GEO.rad = FEK.step({ field:"sRad", label:"radius", unit:"m", value:11.28, min:0, max:60, step:0.01, dec:2,
     onchange:function(v){ push("sRad",v); },
-    help:"11.28 m = 400 m² = 0.04 ha, the common US fixed plot. 5.64 m = 100 m²." });
+    help:"11.28 m = 399.73 m², the plot named 400 m². 5.64 m = 99.93 m², the one named 100. The sheet scales on what the radius actually encloses." });
   GEO.len = FEK.step({ field:"sLen", label:"length", unit:"m", value:20, min:0, max:500, step:1, dec:0,
     onchange:function(v){ push("sLen",v); } });
   GEO.wid = FEK.step({ field:"sWid", label:"width", unit:"m", value:20, min:0, max:200, step:1, dec:0,
@@ -2364,8 +2400,8 @@ var DWC = (function(){
   function siteOut(){
     var A=plotArea();
     $("sAreaOut").innerHTML = A>0
-      ? '<b>'+A.toFixed(0)+' m² = '+(A/10000).toFixed(4)+' ha.</b> Expansion factor '+(10000/A).toFixed(1)
-        +' — every stem you tally stands for '+(10000/A).toFixed(1)+' per hectare.'
+      ? '<b>'+fmtArea(A)+' m² = '+(A/10000).toFixed(4)+' ha.</b> Expansion factor '+fmtEf(10000/A)
+        +' — every stem you tally stands for '+fmtEf(10000/A)+' per hectare.'
       : 'Set the plot dimensions — nothing scales to a hectare without them.';
     var a=num("sAsp"), sl=num("sSlope");
     if(a!==null){
@@ -2576,7 +2612,7 @@ var DWC = (function(){
     if(num("sElev")!==null) meta.push(num("sElev")+" m");
     if(meta.length) L.push("# "+meta.join(" — "));
     if(A>0) L.push("# plot: "+(val("sDesign")==="rect"?"rectangle "+val("sLen")+"×"+val("sWid")+" m"
-      :"circle r="+val("sRad")+" m")+" = "+A.toFixed(0)+" m² ("+(A/10000).toFixed(4)+" ha), EF "+E.toFixed(1)
+      :"circle r="+val("sRad")+" m")+" = "+fmtArea(A)+" m² ("+(A/10000).toFixed(4)+" ha), EF "+fmtEf(E)
       +(num("sMin")!==null?", min DBH "+num("sMin")+" cm":"")
       +(num("sBH")!==null?", breast height "+num("sBH").toFixed(2)+" m":""));
     var phys=[];
@@ -2671,7 +2707,10 @@ var DWC = (function(){
     var geom = val("sDesign")==="rect"
       ? ("fixed-area rectangular plot " + (val("sLen")||"?") + " x " + (val("sWid")||"?") + " m")
       : ("fixed-area circular plot, r=" + (val("sRad")||"?") + " m");
-    return geom + (A>0 ? " (" + A.toFixed(0) + " m2)" : "")
+    /* The same figure the banner shows and sampleSizeValue carries. A
+       protocol that says "(400 m2)" beside a sampleSizeValue of 399.73 is
+       a record arguing with itself. */
+    return geom + (A>0 ? " (" + fmtArea(A) + " m2)" : "")
       + (mn!==null ? "; all stems >= " + mn + " cm DBH tallied" : "; minimum tallied DBH not stated");
   }
   function dwcHabitat(){
@@ -2720,12 +2759,46 @@ var DWC = (function(){
         organismQuantity: 1, organismQuantityType: "individuals",
         occurrenceStatus: "present",
         samplingProtocol: proto,
-        sampleSizeValue: A>0 ? A.toFixed(0) : "",
+        /* The same number the banner prints, so a reader recomputing density
+           from the deposit gets the density the sheet showed. */
+        sampleSizeValue: A>0 ? fmtArea(A) : "",
         sampleSizeUnit: A>0 ? "square metre" : "",
+        /* associatedTaxa WAS EMITTED AS A COLUMN AND NEVER POPULATED, on a
+           sheet that records interactions naming tallied species. Darwin Core
+           asks for "a list of identifiers or names of taxa associated with the
+           occurrence", which is what an interaction edge is: this stem's
+           species eats, is eaten by, or hosts the other. Written in the term's
+           own convention -- "<relationship>: <taxon>" -- and empty when this
+           species is in no recorded edge, which is the honest empty rather
+           than the unpopulated one. Found by the fifth blind trial. */
+        associatedTaxa: assocFor(t).join(" | "),
         verbatimElevation: val("sElev") || "",
         occurrenceRemarks: rem.join("; ")
       };
     });
+  }
+
+  /* Every interaction edge this stem's species stands in, as Darwin Core
+     writes an association. The edge list is the page's own record, so nothing
+     is inferred: an edge naming the species by its common name is matched on
+     that, and the other end is named as the reader wrote it. */
+  function assocFor(t){
+    var me = [t.com, t.sci].filter(Boolean);
+    var out = [], seen = {};
+    inters.forEach(function(x){
+      var isA = me.indexOf(x.a) >= 0, isB = me.indexOf(x.b) >= 0;
+      if(!isA && !isB) return;
+      var other = isA ? x.b : x.a;
+      /* Written as a sentence rather than as a "key: taxon" pair, because the
+         pair form cannot say which end of the edge this occurrence is and the
+         page's own verbs do not invert without conjugating them. "mule deer
+         eats this taxon" is unambiguous in either direction. */
+      var verb = typeOf(x.t).dir;
+      var line = isA ? ("this taxon " + verb + " " + other)
+                     : (other + " " + verb + " this taxon");
+      if(other && !seen[line]){ seen[line] = 1; out.push(line); }
+    });
+    return out;
   }
 
   /* The sheet's own eventID, in one place: the row builder needs it and so

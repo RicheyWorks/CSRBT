@@ -68,7 +68,7 @@ Run:  python3 tools/verify/verify_report.py
 # asserts about tools/harness_plugin_page.py -- a subject.
 MUTATE_ROLE = "subject"
 import time
-import io, json, os, sys, tempfile
+import io, json, math, os, re, sys, tempfile
 
 import _kit
 
@@ -1672,6 +1672,102 @@ with sync_playwright() as pw:
                "`Aa x Aa ... vs 3:1` whatever the page had just concluded -- right by coincidence "
                "at 60:20 and wrong at 9:7, where the page says two complementary genes. Found by "
                "the fifth trial: %s" % _line[0])
+    ctx.close()
+
+    # -- L. the stand sheet's expansion factor (ADR-198) ----------------------
+    #
+    # The one finding ADR-197 filed and did not fix, because it moves figures
+    # four tasks claim. A circle of r = 11.28 m encloses 399.7312 m²; the sheet
+    # printed "400 m²" and "Expansion factor 25.0" -- a pair that is internally
+    # consistent, since 10,000/400 IS 25.0, and describes a plot nobody
+    # measured -- while every column computed from it used the real 25.01681.
+    # Two roundings, one visible and one not, and no way for a reader holding
+    # the printed figures to get the exported ones back.
+    #
+    # Checked against arithmetic this suite does itself, off the rendered
+    # sentence rather than off the page's state: the defect was precisely that
+    # the page's own two numbers agreed with each other.
+    ctx, sp = _page(b, "stand-sheet.html")
+
+    def _fig(box):
+        m = re.search(r"([\d.]+)\s*m²", box)
+        e = re.search(r"(?:Expansion factor|EF)\s*([\d.]+)", box)
+        return (float(m.group(1)) if m else None, float(e.group(1)) if e else None)
+
+    sp.execute("show-pane", {"pane": "p-plot"})
+    for _r in ("11.28", "5.64", "20"):
+        sp.execute("set-text", {"selector": "@control:radius", "value": _r})
+        _o, _m, r = sp.execute("read-report", {})
+        _ban = str(((r.get("boxes") or {}).get("sAreaOut")) or "")
+        _A = math.pi * float(_r) ** 2
+        _pa, _pe = _fig(_ban)
+        ck(_pa is not None and abs(_pa - _A) < 0.005,
+           "A CIRCLE'S AREA IS WHAT ITS RADIUS ENCLOSES, not the round number the plot is named "
+           "after: r = %s m is %.4f m², and the banner rounded it to the nearest whole metre. "
+           "Found by the fifth trial: %r" % (_r, _A, _ban[:110]))
+        ck(_pe is not None and abs(_pe - 10000 / _A) < 0.005,
+           "and the expansion factor is 10,000 over that area, to the place that distinguishes "
+           "it -- %.4f, printed as %r" % (10000 / _A, _pe))
+        ck(_pa is not None and _pe is not None
+           and abs(_pa * _pe - 10000) <= 0.005 * (_pa + _pe),
+           "and the two figures a reader holds reconcile to a hectare: %r x %r = %r, which is "
+           "the property '400 m² at EF 25.0' satisfied while describing the wrong plot"
+           % (_pa, _pe, None if _pa is None or _pe is None else round(_pa * _pe, 3)))
+
+    # A rectangle's 400 and 25.0 were never wrong, and the fix must not have
+    # cost them their decimal -- four task claims rest on exactly that string.
+    sp.execute("activate", {"selector": "@control:geoEntry/rectangle / belt"})
+    _o, _m, r = sp.execute("read-report", {})
+    _rect = str(((r.get("boxes") or {}).get("sAreaOut")) or "")
+    ck("400 m²" in _rect and "Expansion factor 25.0 " in _rect and "25.00" not in _rect,
+       "A 20 x 20 m PLOT IS 400 m² EXACTLY, so trimming a circle's rounding may not take the "
+       "rectangle's decimal with it: %r" % _rect[:110])
+    sp.execute("activate", {"selector": "@control:geoEntry/fixed-radius circle"})
+    sp.execute("set-text", {"selector": "@control:radius", "value": "11.28"})
+
+    # The deposit is the other half. sampleSizeValue is what a reader recomputes
+    # density from, and it carried the nickname.
+    sp.execute("show-pane", {"pane": "p-trees"})
+    sp.execute("pick", {"selector": "@control:tEntry", "value": "Douglas-fir"})
+    for _d, _h in (("30", "34"), ("40", None)):
+        sp.execute("set-text", {"selector": "@control:DBH", "value": _d})
+        if _h:
+            sp.execute("set-text", {"selector": "@control:height", "value": _h})
+        sp.execute("activate", {"selector": "@control:tAdd"})
+    sp.execute("show-pane", {"pane": "p-web"})
+    sp.execute("set-text", {"selector": "@control:iA", "value": "mule deer"})
+    sp.execute("set-text", {"selector": "@control:iB", "value": "Douglas-fir"})
+    sp.execute("pick", {"selector": "@control:intEntry", "value": "herbivory / browse"})
+    sp.execute("activate", {"selector": "@control:iAdd"})
+    sp.execute("show-pane", {"pane": "p-plot"})
+    sp.execute("activate", {"selector": "@control:dwcCopy"})
+    _o, _m, _out = sp.execute("collect-output", {})
+    _dep = "".join(str(p.get("text") or "") for p in (_out.get("payloads") or []))
+    ck("399.73,square metre" in _dep and ",400,square metre" not in _dep,
+       "A DEPOSIT'S sampleSizeValue IS THE AREA SAMPLED, and it carried the plot's nickname while "
+       "the sheet's own columns scaled on the area: %r"
+       % [l[:40] for l in _dep.split(",") if "square metre" in l][:2])
+    ck("(399.73 m2)" in _dep,
+       "and the samplingProtocol beside it quotes the same area -- a record that says 400 in one "
+       "field and 399.73 in the next is arguing with itself")
+    ck("mule deer eats this taxon" in _dep,
+       "associatedTaxa WAS A COLUMN THIS SHEET NEVER FILLED, on a sheet that records interactions "
+       "naming the species it tallies. Found by the fifth trial: %r"
+       % _dep[_dep.find("mule deer"):][:60])
+
+    # And the tile that read "top height m" off a single measured stem.
+    sp.execute("show-pane", {"pane": "p-trees"})
+    _o, _m, r = sp.execute("read-report", {})
+    _figs = r.get("figures") or {}
+    ck("top height m" in _figs and not any("measured)" in k for k in _figs),
+       "A TOP HEIGHT'S NAME MAY NOT MOVE WITH ITS DATA. The sample size belongs beside the figure, "
+       "not inside its key -- a key that changes when a stem is added cannot be followed across a "
+       "session, which is the instability the pheno tracker is filed for: %r"
+       % [k for k in _figs if "height" in k])
+    ck(_figs.get("top height m") == "34.0" and _figs.get("heights measured") == "1",
+       "A TOP HEIGHT OFF ONE STEM IS NOT A STAND FIGURE -- the tile said 'top height m' whether "
+       "it rested on one height or forty, and the sample travels beside it now: %r"
+       % {k: v for k, v in _figs.items() if "height" in k})
     ctx.close()
     b.close()
 

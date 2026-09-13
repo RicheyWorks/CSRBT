@@ -32436,11 +32436,11 @@
    "verdict": "PASS"
   },
   "page-stand-sheet-science": {
-   "at": 1789203176,
-   "claims": 125,
-   "confirmed": 231,
+   "at": 1789266574,
+   "claims": 128,
+   "confirmed": 234,
    "gives": 51,
-   "goal": "Enter the stand sheet whole and hold what it computes. BLANK MEANS BLANK: aspect, slope, position, texture, moisture and every cover field stay out of the export until touched, and the method parameters that DO have defaults -- 5 cm minimum tallied DBH, 1.37 m breast height -- are in it from the start. The key narrows 34 species to 16 in the Sierra, 7 in bundles, 4 at five per bundle, 2 matching 'white'; a pack missing its required fields is rejected whole and a good one adds a species and a region. Four live stems -- three Douglas-fir at 30, 40 and 20 cm and a ponderosa at 25 -- on the default 11.28 m circle (400 m2, EF 25.0) give 100 stems/ha, 6.9 m2/ha live basal area, QMD 29.7 cm, SDI 132, and Douglas-fir leads on importance value 78.6 against the pine's 21.4; a 5.64 m radius is 100 m2 at EF 100.1, not 100.0. Aspect SW folds to 180 and reads hot, NW to 90 and warm, NE to 0 and cool (McCune & Keon). Coarse woody debris 12 8 31 45 9 cm on 30 m is 134.7 m3/ha by van Wagner and half that on 60 m. A 39.4312/-120.2381 fix with 30 m of GPS on a 11.28 m plot is 47 m of coordinate uncertainty, 5406 m with the datum unknown. Two interactions recorded, one of them seen; the field sheet carries every figure.",
+   "goal": "Enter the stand sheet whole and hold what it computes. BLANK MEANS BLANK: aspect, slope, position, texture, moisture and every cover field stay out of the export until touched, and the method parameters that DO have defaults -- 5 cm minimum tallied DBH, 1.37 m breast height -- are in it from the start. The key narrows 34 species to 16 in the Sierra, 7 in bundles, 4 at five per bundle, 2 matching 'white'; a pack missing its required fields is rejected whole and a good one adds a species and a region. Four live stems -- three Douglas-fir at 30, 40 and 20 cm and a ponderosa at 25 -- on the default 11.28 m circle (399.73 m2, EF 25.02 -- the plot everyone calls 400) give 100 stems/ha, 6.9 m2/ha live basal area, QMD 29.7 cm, SDI 132, and Douglas-fir leads on importance value 78.6 against the pine's 21.4; a 5.64 m radius is 99.93 m2 at EF 100.07, not 100 m2 at 100.0, and every printed area times its printed factor comes back to 10,000. One stem carries a height, so the sheet reports one height measured beside the top height it computed from it. Aspect SW folds to 180 and reads hot, NW to 90 and warm, NE to 0 and cool (McCune & Keon). Coarse woody debris 12 8 31 45 9 cm on 30 m is 134.7 m3/ha by van Wagner and half that on 60 m. A 39.4312/-120.2381 fix with 30 m of GPS on a 11.28 m plot is 47 m of coordinate uncertainty, 5406 m with the datum unknown. Two interactions recorded, one of them seen, and the Darwin Core deposit carries the tallied species' side of the edge in associatedTaxa; the field sheet carries every figure.",
    "held": true,
    "holds": 57,
    "id": "page-stand-sheet-science",
@@ -32453,7 +32453,7 @@
     "DESTRUCTIVE"
    ],
    "rungsWhy": "the goal includes undoing the last tally: tUndo is 'Undo'",
-   "seconds": 13.5,
+   "seconds": 18.6,
    "steps": [
     {
      "action": "observe",
@@ -32485,7 +32485,7 @@
      ],
      "id": "plot",
      "message": "opened pane p-plot",
-     "ms": 158,
+     "ms": 243,
      "result": "driven"
     },
     {
@@ -32497,22 +32497,22 @@
        "verdict": "CONFIRMED"
       },
       {
-       "detail": "output.boxes.ecoOut excludes '# site:', got '# Stand Sheet \u2014 unnamed-plot # 2026-09-12 # plot: circle r=11.28 m = 400 m\u00b2 (0.0400 ha), EF 25.0, min DBH 5 cm, breast height 1.37 m'",
+       "detail": "output.boxes.ecoOut excludes '# site:', got '# Stand Sheet \u2014 unnamed-plot # 2026-09-13 # plot: circle r=11.28 m = 399.73 m\u00b2 (0.0400 ha), EF 25.02, min DBH 5 cm, breast height 1.37 m'",
        "path": "output.boxes.ecoOut",
        "verdict": "CONFIRMED"
       },
       {
-       "detail": "output.boxes.ecoOut excludes '# cover:', got '# Stand Sheet \u2014 unnamed-plot # 2026-09-12 # plot: circle r=11.28 m = 400 m\u00b2 (0.0400 ha), EF 25.0, min DBH 5 cm, breast height 1.37 m'",
+       "detail": "output.boxes.ecoOut excludes '# cover:', got '# Stand Sheet \u2014 unnamed-plot # 2026-09-13 # plot: circle r=11.28 m = 399.73 m\u00b2 (0.0400 ha), EF 25.02, min DBH 5 cm, breast height 1.37 m'",
        "path": "output.boxes.ecoOut#2",
        "verdict": "CONFIRMED"
       },
       {
-       "detail": "output.boxes.ecoOut excludes '# disturbance:', got '# Stand Sheet \u2014 unnamed-plot # 2026-09-12 # plot: circle r=11.28 m = 400 m\u00b2 (0.0400 ha), EF 25.0, min DBH 5 cm, breast height 1.37 m'",
+       "detail": "output.boxes.ecoOut excludes '# disturbance:', got '# Stand Sheet \u2014 unnamed-plot # 2026-09-13 # plot: circle r=11.28 m = 399.73 m\u00b2 (0.0400 ha), EF 25.02, min DBH 5 cm, breast height 1.37 m'",
        "path": "output.boxes.ecoOut#3",
        "verdict": "CONFIRMED"
       },
       {
-       "detail": "output.boxes.ecoOut excludes '# notes:', got '# Stand Sheet \u2014 unnamed-plot # 2026-09-12 # plot: circle r=11.28 m = 400 m\u00b2 (0.0400 ha), EF 25.0, min DBH 5 cm, breast height 1.37 m'",
+       "detail": "output.boxes.ecoOut excludes '# notes:', got '# Stand Sheet \u2014 unnamed-plot # 2026-09-13 # plot: circle r=11.28 m = 399.73 m\u00b2 (0.0400 ha), EF 25.02, min DBH 5 cm, breast height 1.37 m'",
        "path": "output.boxes.ecoOut#4",
        "verdict": "CONFIRMED"
       },
@@ -32524,36 +32524,36 @@
      ],
      "id": "blank-site",
      "message": "3 figure(s), 25 box(es), 0 list(s), 2 table(s), 23 heading(s)",
-     "ms": 8,
+     "ms": 17,
      "result": "driven"
     },
     {
      "action": "read-report",
      "expectations": [
       {
-       "detail": "output.boxes.ecoOut contains 'min DBH 5 cm', got '# Stand Sheet \u2014 unnamed-plot # 2026-09-12 # plot: circle r=11.28 m = 400 m\u00b2 (0.0400 ha), EF 25.0, min DBH 5 cm, breast height 1.37 m'",
+       "detail": "output.boxes.ecoOut contains 'min DBH 5 cm', got '# Stand Sheet \u2014 unnamed-plot # 2026-09-13 # plot: circle r=11.28 m = 399.73 m\u00b2 (0.0400 ha), EF 25.02, min DBH 5 cm, breast height 1.37 m'",
        "path": "output.boxes.ecoOut",
        "verdict": "CONFIRMED"
       },
       {
-       "detail": "output.boxes.ecoOut contains 'breast height 1.37 m', got '# Stand Sheet \u2014 unnamed-plot # 2026-09-12 # plot: circle r=11.28 m = 400 m\u00b2 (0.0400 ha), EF 25.0, min DBH 5 cm, breast height 1.37 m'",
+       "detail": "output.boxes.ecoOut contains 'breast height 1.37 m', got '# Stand Sheet \u2014 unnamed-plot # 2026-09-13 # plot: circle r=11.28 m = 399.73 m\u00b2 (0.0400 ha), EF 25.02, min DBH 5 cm, breast height 1.37 m'",
        "path": "output.boxes.ecoOut#2",
        "verdict": "CONFIRMED"
       },
       {
-       "detail": "output.boxes.sAreaOut contains '400 m\u00b2 = 0.0400 ha', got '400 m\u00b2 = 0.0400 ha. Expansion factor 25.0 \u2014 every stem you tally stands for 25.0 per hectare.'",
+       "detail": "output.boxes.sAreaOut contains '399.73 m\u00b2 = 0.0400 ha', got '399.73 m\u00b2 = 0.0400 ha. Expansion factor 25.02 \u2014 every stem you tally stands for 25.02 per hectare.'",
        "path": "output.boxes.sAreaOut",
        "verdict": "CONFIRMED"
       },
       {
-       "detail": "output.boxes.sAreaOut contains 'Expansion factor 25.0', got '400 m\u00b2 = 0.0400 ha. Expansion factor 25.0 \u2014 every stem you tally stands for 25.0 per hectare.'",
+       "detail": "output.boxes.sAreaOut contains 'Expansion factor 25.02', got '399.73 m\u00b2 = 0.0400 ha. Expansion factor 25.02 \u2014 every stem you tally stands for 25.02 per hectare.'",
        "path": "output.boxes.sAreaOut#2",
        "verdict": "CONFIRMED"
       }
      ],
      "id": "blank-defaults",
      "message": "3 figure(s), 25 box(es), 0 list(s), 2 table(s), 23 heading(s)",
-     "ms": 8,
+     "ms": 9,
      "result": "driven"
     },
     {
@@ -32567,7 +32567,7 @@
      ],
      "id": "id-pane",
      "message": "opened pane p-id",
-     "ms": 80,
+     "ms": 75,
      "result": "driven"
     },
     {
@@ -32596,7 +32596,7 @@
      ],
      "id": "key-all",
      "message": "3 figure(s), 25 box(es), 0 list(s), 2 table(s), 23 heading(s)",
-     "ms": 7,
+     "ms": 15,
      "result": "driven"
     },
     {
@@ -32610,7 +32610,7 @@
      ],
      "id": "key-sier",
      "message": "activate kopt:3",
-     "ms": 26,
+     "ms": 27,
      "result": "driven"
     },
     {
@@ -32624,7 +32624,7 @@
      ],
      "id": "key-sier-n",
      "message": "3 figure(s), 25 box(es), 0 list(s), 2 table(s), 23 heading(s)",
-     "ms": 7,
+     "ms": 8,
      "result": "driven"
     },
     {
@@ -32638,7 +32638,7 @@
      ],
      "id": "key-fasc",
      "message": "activate kopt:5",
-     "ms": 23,
+     "ms": 22,
      "result": "driven"
     },
     {
@@ -32652,7 +32652,7 @@
      ],
      "id": "key-fasc-n",
      "message": "3 figure(s), 25 box(es), 0 list(s), 2 table(s), 23 heading(s)",
-     "ms": 6,
+     "ms": 8,
      "result": "driven"
     },
     {
@@ -32666,7 +32666,7 @@
      ],
      "id": "key-five",
      "message": "activate kopt:12",
-     "ms": 25,
+     "ms": 27,
      "result": "driven"
     },
     {
@@ -32680,7 +32680,7 @@
      ],
      "id": "key-five-n",
      "message": "3 figure(s), 25 box(es), 0 list(s), 2 table(s), 23 heading(s)",
-     "ms": 5,
+     "ms": 9,
      "result": "driven"
     },
     {
@@ -32694,7 +32694,7 @@
      ],
      "id": "key-q",
      "message": "set-text text_in:0",
-     "ms": 22,
+     "ms": 24,
      "result": "driven"
     },
     {
@@ -32708,7 +32708,7 @@
      ],
      "id": "key-q-n",
      "message": "3 figure(s), 25 box(es), 0 list(s), 2 table(s), 23 heading(s)",
-     "ms": 5,
+     "ms": 9,
      "result": "driven"
     },
     {
@@ -32722,7 +32722,7 @@
      ],
      "id": "key-q2",
      "message": "set-text text_in:0",
-     "ms": 22,
+     "ms": 23,
      "result": "driven"
     },
     {
@@ -32736,7 +32736,7 @@
      ],
      "id": "key-q2-n",
      "message": "3 figure(s), 25 box(es), 0 list(s), 2 table(s), 23 heading(s)",
-     "ms": 6,
+     "ms": 8,
      "result": "driven"
     },
     {
@@ -32750,7 +32750,7 @@
      ],
      "id": "key-sp",
      "message": "activate action_btn:1",
-     "ms": 29,
+     "ms": 32,
      "result": "driven"
     },
     {
@@ -32769,7 +32769,7 @@
      ],
      "id": "key-detail",
      "message": "8 figure(s), 25 box(es), 0 list(s), 2 table(s), 24 heading(s)",
-     "ms": 7,
+     "ms": 8,
      "result": "driven"
     },
     {
@@ -32783,7 +32783,7 @@
      ],
      "id": "key-reset",
      "message": "activate action_btn:0",
-     "ms": 24,
+     "ms": 25,
      "result": "driven"
     },
     {
@@ -32830,7 +32830,7 @@
      ],
      "id": "pack-bad",
      "message": "set-text text_in:1",
-     "ms": 22,
+     "ms": 26,
      "result": "driven"
     },
     {
@@ -32844,7 +32844,7 @@
      ],
      "id": "pack-load-bad",
      "message": "activate action_btn:38",
-     "ms": 23,
+     "ms": 26,
      "result": "driven"
     },
     {
@@ -32863,7 +32863,7 @@
      ],
      "id": "pack-refused",
      "message": "3 figure(s), 25 box(es), 0 list(s), 2 table(s), 23 heading(s)",
-     "ms": 6,
+     "ms": 8,
      "result": "driven"
     },
     {
@@ -32877,7 +32877,7 @@
      ],
      "id": "pack-good",
      "message": "set-text text_in:1",
-     "ms": 23,
+     "ms": 24,
      "result": "driven"
     },
     {
@@ -32891,7 +32891,7 @@
      ],
      "id": "pack-load",
      "message": "activate action_btn:38",
-     "ms": 25,
+     "ms": 29,
      "result": "driven"
     },
     {
@@ -32915,7 +32915,7 @@
      ],
      "id": "pack-loaded",
      "message": "3 figure(s), 25 box(es), 0 list(s), 2 table(s), 23 heading(s)",
-     "ms": 6,
+     "ms": 9,
      "result": "driven"
     },
     {
@@ -32929,7 +32929,7 @@
      ],
      "id": "tally",
      "message": "opened pane p-trees",
-     "ms": 93,
+     "ms": 105,
      "result": "driven"
     },
     {
@@ -32948,7 +32948,7 @@
      ],
      "id": "sp1",
      "message": "pick pick_search:0",
-     "ms": 144,
+     "ms": 150,
      "result": "driven"
     },
     {
@@ -32962,7 +32962,7 @@
      ],
      "id": "d1",
      "message": "set-text step_val:0",
-     "ms": 22,
+     "ms": 25,
      "result": "driven"
     },
     {
@@ -32976,7 +32976,7 @@
      ],
      "id": "h1",
      "message": "set-text step_val:1",
-     "ms": 22,
+     "ms": 25,
      "result": "driven"
     },
     {
@@ -32990,7 +32990,7 @@
      ],
      "id": "crown",
      "message": "activate dial_btn:0",
-     "ms": 24,
+     "ms": 26,
      "result": "driven"
     },
     {
@@ -33004,7 +33004,7 @@
      ],
      "id": "note1",
      "message": "set-text text_in:2",
-     "ms": 22,
+     "ms": 25,
      "result": "driven"
     },
     {
@@ -33018,7 +33018,7 @@
      ],
      "id": "t1",
      "message": "activate action_btn:41",
-     "ms": 25,
+     "ms": 26,
      "result": "driven"
     },
     {
@@ -33032,7 +33032,7 @@
      ],
      "id": "d2",
      "message": "set-text step_val:0",
-     "ms": 22,
+     "ms": 26,
      "result": "driven"
     },
     {
@@ -33046,7 +33046,7 @@
      ],
      "id": "t2",
      "message": "activate action_btn:41",
-     "ms": 24,
+     "ms": 28,
      "result": "driven"
     },
     {
@@ -33060,7 +33060,7 @@
      ],
      "id": "d3",
      "message": "set-text step_val:0",
-     "ms": 23,
+     "ms": 26,
      "result": "driven"
     },
     {
@@ -33074,7 +33074,7 @@
      ],
      "id": "t3",
      "message": "activate action_btn:41",
-     "ms": 23,
+     "ms": 27,
      "result": "driven"
     },
     {
@@ -33093,7 +33093,7 @@
      ],
      "id": "sp2",
      "message": "pick pick_search:0",
-     "ms": 144,
+     "ms": 149,
      "result": "driven"
     },
     {
@@ -33107,7 +33107,7 @@
      ],
      "id": "d4",
      "message": "set-text step_val:0",
-     "ms": 23,
+     "ms": 24,
      "result": "driven"
     },
     {
@@ -33121,7 +33121,7 @@
      ],
      "id": "t4",
      "message": "activate action_btn:41",
-     "ms": 26,
+     "ms": 25,
      "result": "driven"
     },
     {
@@ -33161,23 +33161,28 @@
        "detail": "output.figures.top height m == '34.0', got '34.0'",
        "path": "output.figures.top height m",
        "verdict": "CONFIRMED"
+      },
+      {
+       "detail": "output.figures.heights measured == '1', got '1'",
+       "path": "output.figures.heights measured",
+       "verdict": "CONFIRMED"
       }
      ],
      "id": "stand",
-     "message": "11 figure(s), 25 box(es), 0 list(s), 4 table(s), 24 heading(s)",
-     "ms": 7,
+     "message": "12 figure(s), 25 box(es), 0 list(s), 4 table(s), 24 heading(s)",
+     "ms": 10,
      "result": "driven"
     },
     {
      "action": "read-report",
      "expectations": [
       {
-       "detail": "output.boxes.tStats contains 'Douglas-fir leads on importance value (78.6)', got '4live stems0snags100live stems/ha6.9live BA m\u00b2/ha0.0snag BA m\u00b2/ha29.7QMD cm132SDI (Reineke)34.0top height mCompositionSpeciesnBA m\u00b2/harel. dens %rel. dom %IVDouglas-fir35.7075.082.378.6ponderosa pine11.2325.017.721.4Douglas-fir leads on importance value (78.6) and it leads on both stems and basal area. IV here is the two-part form \u2014 relative frequency needs more than one plot.'",
+       "detail": "output.boxes.tStats contains 'Douglas-fir leads on importance value (78.6)', got '4live stems0snags100live stems/ha6.9live BA m\u00b2/ha0.0snag BA m\u00b2/ha29.7QMD cm132SDI (Reineke)34.0top height m1heights measuredCompositionSpeciesnBA m\u00b2/harel. dens %rel. dom %IVDouglas-fir35.7075.082.378.6ponderosa pine11.2325.017.721.4Douglas-fir leads on importance value (78.6) and it leads on both stems and basal area. IV here is the two-part form \u2014 relative frequency needs more than one plot.'",
        "path": "output.boxes.tStats",
        "verdict": "CONFIRMED"
       },
       {
-       "detail": "output.boxes.tStats contains 'leads on both stems and basal area', got '4live stems0snags100live stems/ha6.9live BA m\u00b2/ha0.0snag BA m\u00b2/ha29.7QMD cm132SDI (Reineke)34.0top height mCompositionSpeciesnBA m\u00b2/harel. dens %rel. dom %IVDouglas-fir35.7075.082.378.6ponderosa pine11.2325.017.721.4Douglas-fir leads on importance value (78.6) and it leads on both stems and basal area. IV here is the two-part form \u2014 relative frequency needs more than one plot.'",
+       "detail": "output.boxes.tStats contains 'leads on both stems and basal area', got '4live stems0snags100live stems/ha6.9live BA m\u00b2/ha0.0snag BA m\u00b2/ha29.7QMD cm132SDI (Reineke)34.0top height m1heights measuredCompositionSpeciesnBA m\u00b2/harel. dens %rel. dom %IVDouglas-fir35.7075.082.378.6ponderosa pine11.2325.017.721.4Douglas-fir leads on importance value (78.6) and it leads on both stems and basal area. IV here is the two-part form \u2014 relative frequency needs more than one plot.'",
        "path": "output.boxes.tStats#2",
        "verdict": "CONFIRMED"
       },
@@ -33193,8 +33198,8 @@
       }
      ],
      "id": "composition",
-     "message": "11 figure(s), 25 box(es), 0 list(s), 4 table(s), 24 heading(s)",
-     "ms": 7,
+     "message": "12 figure(s), 25 box(es), 0 list(s), 4 table(s), 24 heading(s)",
+     "ms": 10,
      "result": "driven"
     },
     {
@@ -33212,8 +33217,8 @@
       }
      ],
      "id": "hist",
-     "message": "11 figure(s), 25 box(es), 0 list(s), 4 table(s), 24 heading(s)",
-     "ms": 24,
+     "message": "12 figure(s), 25 box(es), 0 list(s), 4 table(s), 24 heading(s)",
+     "ms": 33,
      "result": "driven"
     },
     {
@@ -33227,7 +33232,7 @@
      ],
      "id": "d5",
      "message": "set-text step_val:0",
-     "ms": 22,
+     "ms": 26,
      "result": "driven"
     },
     {
@@ -33255,7 +33260,7 @@
      ],
      "id": "t5",
      "message": "activate action_btn:41",
-     "ms": 23,
+     "ms": 25,
      "result": "driven"
     },
     {
@@ -33273,8 +33278,8 @@
       }
      ],
      "id": "one-snag",
-     "message": "11 figure(s), 25 box(es), 0 list(s), 4 table(s), 24 heading(s)",
-     "ms": 24,
+     "message": "12 figure(s), 25 box(es), 0 list(s), 4 table(s), 24 heading(s)",
+     "ms": 45,
      "result": "driven"
     },
     {
@@ -33288,7 +33293,7 @@
      ],
      "id": "live",
      "message": "activate dial_btn:5",
-     "ms": 22,
+     "ms": 25,
      "result": "driven"
     },
     {
@@ -33302,7 +33307,7 @@
      ],
      "id": "undo",
      "message": "activate action_btn:42",
-     "ms": 23,
+     "ms": 24,
      "result": "driven"
     },
     {
@@ -33320,8 +33325,8 @@
       }
      ],
      "id": "no-snag",
-     "message": "11 figure(s), 25 box(es), 0 list(s), 4 table(s), 24 heading(s)",
-     "ms": 7,
+     "message": "12 figure(s), 25 box(es), 0 list(s), 4 table(s), 24 heading(s)",
+     "ms": 9,
      "result": "driven"
     },
     {
@@ -33349,7 +33354,7 @@
      ],
      "id": "t0",
      "message": "activate action_btn:41",
-     "ms": 23,
+     "ms": 24,
      "result": "driven"
     },
     {
@@ -33362,8 +33367,8 @@
       }
      ],
      "id": "refused",
-     "message": "11 figure(s), 25 box(es), 0 list(s), 4 table(s), 24 heading(s)",
-     "ms": 7,
+     "message": "12 figure(s), 25 box(es), 0 list(s), 4 table(s), 24 heading(s)",
+     "ms": 9,
      "result": "driven"
     },
     {
@@ -33377,7 +33382,7 @@
      ],
      "id": "ht",
      "message": "activate action_btn:43",
-     "ms": 23,
+     "ms": 27,
      "result": "driven"
     },
     {
@@ -33391,7 +33396,7 @@
      ],
      "id": "hd",
      "message": "set-text step_val:2",
-     "ms": 22,
+     "ms": 24,
      "result": "driven"
     },
     {
@@ -33405,7 +33410,7 @@
      ],
      "id": "top",
      "message": "set-text step_val:3",
-     "ms": 23,
+     "ms": 26,
      "result": "driven"
     },
     {
@@ -33419,7 +33424,7 @@
      ],
      "id": "base",
      "message": "set-text step_val:4",
-     "ms": 23,
+     "ms": 24,
      "result": "driven"
     },
     {
@@ -33437,8 +33442,8 @@
       }
      ],
      "id": "height",
-     "message": "14 figure(s), 25 box(es), 0 list(s), 4 table(s), 24 heading(s)",
-     "ms": 7,
+     "message": "15 figure(s), 25 box(es), 0 list(s), 4 table(s), 24 heading(s)",
+     "ms": 11,
      "result": "driven"
     },
     {
@@ -33452,7 +33457,7 @@
      ],
      "id": "pct",
      "message": "activate chip:1",
-     "ms": 22,
+     "ms": 25,
      "result": "driven"
     },
     {
@@ -33465,8 +33470,8 @@
       }
      ],
      "id": "height-pct",
-     "message": "14 figure(s), 25 box(es), 0 list(s), 4 table(s), 24 heading(s)",
-     "ms": 7,
+     "message": "15 figure(s), 25 box(es), 0 list(s), 4 table(s), 24 heading(s)",
+     "ms": 10,
      "result": "driven"
     },
     {
@@ -33493,8 +33498,8 @@
       }
      ],
      "id": "height-deg",
-     "message": "14 figure(s), 25 box(es), 0 list(s), 4 table(s), 24 heading(s)",
-     "ms": 7,
+     "message": "15 figure(s), 25 box(es), 0 list(s), 4 table(s), 24 heading(s)",
+     "ms": 10,
      "result": "driven"
     },
     {
@@ -33508,7 +33513,7 @@
      ],
      "id": "plot2",
      "message": "opened pane p-plot",
-     "ms": 107,
+     "ms": 76,
      "result": "driven"
     },
     {
@@ -33522,7 +33527,7 @@
      ],
      "id": "s-plot",
      "message": "set-text text_in:3",
-     "ms": 26,
+     "ms": 28,
      "result": "driven"
     },
     {
@@ -33536,7 +33541,7 @@
      ],
      "id": "s-loc",
      "message": "set-text text_in:4",
-     "ms": 25,
+     "ms": 28,
      "result": "driven"
     },
     {
@@ -33564,7 +33569,7 @@
      ],
      "id": "s-date",
      "message": "set-text text_in:6",
-     "ms": 23,
+     "ms": 26,
      "result": "driven"
     },
     {
@@ -33578,7 +33583,7 @@
      ],
      "id": "s-lat",
      "message": "set-text text_in:7",
-     "ms": 23,
+     "ms": 25,
      "result": "driven"
     },
     {
@@ -33592,7 +33597,7 @@
      ],
      "id": "s-lon",
      "message": "set-text text_in:8",
-     "ms": 26,
+     "ms": 28,
      "result": "driven"
     },
     {
@@ -33606,31 +33611,31 @@
      ],
      "id": "s-elev",
      "message": "set-text text_in:9",
-     "ms": 23,
+     "ms": 29,
      "result": "driven"
     },
     {
      "action": "read-report",
      "expectations": [
       {
-       "detail": "output.boxes.ecoOut contains '# Stand Sheet \u2014 SGH-07', got '# Stand Sheet \u2014 SGH-07 # locality: Tahoe NF, Sagehen Creek, N-facing bench # observer R. Wright \u2014 2026-09-06 \u2014 39.4312, -120.2381 \u2014 1985 m # plot: circle r=11.28 m = 400 m\u00b2 (0.0400 ha), EF 25.0, min DBH 5 cm, breast height 1.37 m # stand: 4 live stems, 0 snags # 100 stems/ha, 6.9 m\u00b2 BA/ha, QMD 29.7 cm, SDI 132 data: sgh-07 Douglas-fir=3 ponderosa-pine=1 # Douglas-fir: 3 stems, 5.70 m\u00b2/ha # ponderosa pine: 1 stems, 1.23 m\u00b2/ha # One plot is a point estimate with no variance. Per-hectare values above scale a single sample.'",
+       "detail": "output.boxes.ecoOut contains '# Stand Sheet \u2014 SGH-07', got '# Stand Sheet \u2014 SGH-07 # locality: Tahoe NF, Sagehen Creek, N-facing bench # observer R. Wright \u2014 2026-09-06 \u2014 39.4312, -120.2381 \u2014 1985 m # plot: circle r=11.28 m = 399.73 m\u00b2 (0.0400 ha), EF 25.02, min DBH 5 cm, breast height 1.37 m # stand: 4 live stems, 0 snags # 100 stems/ha, 6.9 m\u00b2 BA/ha, QMD 29.7 cm, SDI 132 data: sgh-07 Douglas-fir=3 ponderosa-pine=1 # Douglas-fir: 3 stems, 5.70 m\u00b2/ha # ponderosa pine: 1 stems, 1.23 m\u00b2/ha # One plot is a point estimate with no variance. Per-hectare values above scale a single sample.'",
        "path": "output.boxes.ecoOut",
        "verdict": "CONFIRMED"
       },
       {
-       "detail": "output.boxes.ecoOut contains '# locality: Tahoe NF, Sagehen Creek, N-facing bench', got '# Stand Sheet \u2014 SGH-07 # locality: Tahoe NF, Sagehen Creek, N-facing bench # observer R. Wright \u2014 2026-09-06 \u2014 39.4312, -120.2381 \u2014 1985 m # plot: circle r=11.28 m = 400 m\u00b2 (0.0400 ha), EF 25.0, min DBH 5 cm, breast height 1.37 m # stand: 4 live stems, 0 snags # 100 stems/ha, 6.9 m\u00b2 BA/ha, QMD 29.7 cm, SDI 132 data: sgh-07 Douglas-fir=3 ponderosa-pine=1 # Douglas-fir: 3 stems, 5.70 m\u00b2/ha # ponderosa pine: 1 stems, 1.23 m\u00b2/ha # One plot is a point estimate with no variance. Per-hectare values above scale a single sample.'",
+       "detail": "output.boxes.ecoOut contains '# locality: Tahoe NF, Sagehen Creek, N-facing bench', got '# Stand Sheet \u2014 SGH-07 # locality: Tahoe NF, Sagehen Creek, N-facing bench # observer R. Wright \u2014 2026-09-06 \u2014 39.4312, -120.2381 \u2014 1985 m # plot: circle r=11.28 m = 399.73 m\u00b2 (0.0400 ha), EF 25.02, min DBH 5 cm, breast height 1.37 m # stand: 4 live stems, 0 snags # 100 stems/ha, 6.9 m\u00b2 BA/ha, QMD 29.7 cm, SDI 132 data: sgh-07 Douglas-fir=3 ponderosa-pine=1 # Douglas-fir: 3 stems, 5.70 m\u00b2/ha # ponderosa pine: 1 stems, 1.23 m\u00b2/ha # One plot is a point estimate with no variance. Per-hectare values above scale a single sample.'",
        "path": "output.boxes.ecoOut#2",
        "verdict": "CONFIRMED"
       },
       {
-       "detail": "output.boxes.ecoOut contains '# observer R. Wright \u2014 2026-09-06 \u2014 39.4312, -120.2381 \u2014 1985 m', got '# Stand Sheet \u2014 SGH-07 # locality: Tahoe NF, Sagehen Creek, N-facing bench # observer R. Wright \u2014 2026-09-06 \u2014 39.4312, -120.2381 \u2014 1985 m # plot: circle r=11.28 m = 400 m\u00b2 (0.0400 ha), EF 25.0, min DBH 5 cm, breast height 1.37 m # stand: 4 live stems, 0 snags # 100 stems/ha, 6.9 m\u00b2 BA/ha, QMD 29.7 cm, SDI 132 data: sgh-07 Douglas-fir=3 ponderosa-pine=1 # Douglas-fir: 3 stems, 5.70 m\u00b2/ha # ponderosa pine: 1 stems, 1.23 m\u00b2/ha # One plot is a point estimate with no variance. Per-hectare values above scale a single sample.'",
+       "detail": "output.boxes.ecoOut contains '# observer R. Wright \u2014 2026-09-06 \u2014 39.4312, -120.2381 \u2014 1985 m', got '# Stand Sheet \u2014 SGH-07 # locality: Tahoe NF, Sagehen Creek, N-facing bench # observer R. Wright \u2014 2026-09-06 \u2014 39.4312, -120.2381 \u2014 1985 m # plot: circle r=11.28 m = 399.73 m\u00b2 (0.0400 ha), EF 25.02, min DBH 5 cm, breast height 1.37 m # stand: 4 live stems, 0 snags # 100 stems/ha, 6.9 m\u00b2 BA/ha, QMD 29.7 cm, SDI 132 data: sgh-07 Douglas-fir=3 ponderosa-pine=1 # Douglas-fir: 3 stems, 5.70 m\u00b2/ha # ponderosa pine: 1 stems, 1.23 m\u00b2/ha # One plot is a point estimate with no variance. Per-hectare values above scale a single sample.'",
        "path": "output.boxes.ecoOut#3",
        "verdict": "CONFIRMED"
       }
      ],
      "id": "header",
-     "message": "14 figure(s), 25 box(es), 0 list(s), 4 table(s), 24 heading(s)",
-     "ms": 7,
+     "message": "15 figure(s), 25 box(es), 0 list(s), 4 table(s), 24 heading(s)",
+     "ms": 11,
      "result": "driven"
     },
     {
@@ -33651,24 +33656,24 @@
      "action": "read-report",
      "expectations": [
       {
-       "detail": "output.boxes.sAreaOut contains '100 m\u00b2 = 0.0100 ha', got '100 m\u00b2 = 0.0100 ha. Expansion factor 100.1 \u2014 every stem you tally stands for 100.1 per hectare.'",
+       "detail": "output.boxes.sAreaOut contains '99.93 m\u00b2 = 0.0100 ha', got '99.93 m\u00b2 = 0.0100 ha. Expansion factor 100.07 \u2014 every stem you tally stands for 100.07 per hectare.'",
        "path": "output.boxes.sAreaOut",
        "verdict": "CONFIRMED"
       },
       {
-       "detail": "output.boxes.sAreaOut contains 'Expansion factor 100.1', got '100 m\u00b2 = 0.0100 ha. Expansion factor 100.1 \u2014 every stem you tally stands for 100.1 per hectare.'",
+       "detail": "output.boxes.sAreaOut contains 'Expansion factor 100.07', got '99.93 m\u00b2 = 0.0100 ha. Expansion factor 100.07 \u2014 every stem you tally stands for 100.07 per hectare.'",
        "path": "output.boxes.sAreaOut#2",
        "verdict": "CONFIRMED"
       },
       {
-       "detail": "output.boxes.ecoOut contains 'circle r=5.64 m = 100 m\u00b2 (0.0100 ha), EF 100.1', got '# Stand Sheet \u2014 SGH-07 # locality: Tahoe NF, Sagehen Creek, N-facing bench # observer R. Wright \u2014 2026-09-06 \u2014 39.4312, -120.2381 \u2014 1985 m # plot: circle r=5.64 m = 100 m\u00b2 (0.0100 ha), EF 100.1, min DBH 5 cm, breast height 1.37 m # stand: 4 live stems, 0 snags # 400 stems/ha, 27.7 m\u00b2 BA/ha, QMD 29.7 cm, SDI 527 data: sgh-07 Douglas-fir=3 ponderosa-pine=1 # Douglas-fir: 3 stems, 22.79 m\u00b2/ha # ponderosa pine: 1 stems, 4.91 m\u00b2/ha # One plot is a point estimate with no variance. Per-hectare values above scale a single sample.'",
+       "detail": "output.boxes.ecoOut contains 'circle r=5.64 m = 99.93 m\u00b2 (0.0100 ha), EF 100.07', got '# Stand Sheet \u2014 SGH-07 # locality: Tahoe NF, Sagehen Creek, N-facing bench # observer R. Wright \u2014 2026-09-06 \u2014 39.4312, -120.2381 \u2014 1985 m # plot: circle r=5.64 m = 99.93 m\u00b2 (0.0100 ha), EF 100.07, min DBH 5 cm, breast height 1.37 m # stand: 4 live stems, 0 snags # 400 stems/ha, 27.7 m\u00b2 BA/ha, QMD 29.7 cm, SDI 527 data: sgh-07 Douglas-fir=3 ponderosa-pine=1 # Douglas-fir: 3 stems, 22.79 m\u00b2/ha # ponderosa pine: 1 stems, 4.91 m\u00b2/ha # One plot is a point estimate with no variance. Per-hectare values above scale a single sample.'",
        "path": "output.boxes.ecoOut",
        "verdict": "CONFIRMED"
       }
      ],
      "id": "area-100",
-     "message": "14 figure(s), 25 box(es), 0 list(s), 4 table(s), 24 heading(s)",
-     "ms": 8,
+     "message": "15 figure(s), 25 box(es), 0 list(s), 4 table(s), 24 heading(s)",
+     "ms": 10,
      "result": "driven"
     },
     {
@@ -33682,7 +33687,7 @@
      ],
      "id": "rect",
      "message": "activate chip:3",
-     "ms": 23,
+     "ms": 25,
      "result": "driven"
     },
     {
@@ -33696,7 +33701,7 @@
      ],
      "id": "rect-l",
      "message": "set-text step_val:5",
-     "ms": 23,
+     "ms": 24,
      "result": "driven"
     },
     {
@@ -33710,7 +33715,7 @@
      ],
      "id": "rect-w",
      "message": "set-text step_val:6",
-     "ms": 23,
+     "ms": 28,
      "result": "driven"
     },
     {
@@ -33722,19 +33727,19 @@
        "verdict": "CONFIRMED"
       },
       {
-       "detail": "output.boxes.sAreaOut contains 'Expansion factor 25.0', got '400 m\u00b2 = 0.0400 ha. Expansion factor 25.0 \u2014 every stem you tally stands for 25.0 per hectare.'",
+       "detail": "output.boxes.sAreaOut contains 'Expansion factor 25.0 \u2014', got '400 m\u00b2 = 0.0400 ha. Expansion factor 25.0 \u2014 every stem you tally stands for 25.0 per hectare.'",
        "path": "output.boxes.sAreaOut#2",
        "verdict": "CONFIRMED"
       },
       {
-       "detail": "output.boxes.ecoOut contains 'rectangle 20\u00d720 m = 400 m\u00b2 (0.0400 ha), EF 25.0', got '# Stand Sheet \u2014 SGH-07 # locality: Tahoe NF, Sagehen Creek, N-facing bench # observer R. Wright \u2014 2026-09-06 \u2014 39.4312, -120.2381 \u2014 1985 m # plot: rectangle 20\u00d720 m = 400 m\u00b2 (0.0400 ha), EF 25.0, min DBH 5 cm, breast height 1.37 m # stand: 4 live stems, 0 snags # 100 stems/ha, 6.9 m\u00b2 BA/ha, QMD 29.7 cm, SDI 132 data: sgh-07 Douglas-fir=3 ponderosa-pine=1 # Douglas-fir: 3 stems, 5.69 m\u00b2/ha # ponderosa pine: 1 stems, 1.23 m\u00b2/ha # One plot is a point estimate with no variance. Per-hectare values above scale a single sample.'",
+       "detail": "output.boxes.ecoOut contains 'rectangle 20\u00d720 m = 400 m\u00b2 (0.0400 ha), EF 25.0,', got '# Stand Sheet \u2014 SGH-07 # locality: Tahoe NF, Sagehen Creek, N-facing bench # observer R. Wright \u2014 2026-09-06 \u2014 39.4312, -120.2381 \u2014 1985 m # plot: rectangle 20\u00d720 m = 400 m\u00b2 (0.0400 ha), EF 25.0, min DBH 5 cm, breast height 1.37 m # stand: 4 live stems, 0 snags # 100 stems/ha, 6.9 m\u00b2 BA/ha, QMD 29.7 cm, SDI 132 data: sgh-07 Douglas-fir=3 ponderosa-pine=1 # Douglas-fir: 3 stems, 5.69 m\u00b2/ha # ponderosa pine: 1 stems, 1.23 m\u00b2/ha # One plot is a point estimate with no variance. Per-hectare values above scale a single sample.'",
        "path": "output.boxes.ecoOut",
        "verdict": "CONFIRMED"
       }
      ],
      "id": "rect-400",
-     "message": "14 figure(s), 25 box(es), 0 list(s), 4 table(s), 24 heading(s)",
-     "ms": 7,
+     "message": "15 figure(s), 25 box(es), 0 list(s), 4 table(s), 24 heading(s)",
+     "ms": 10,
      "result": "driven"
     },
     {
@@ -33762,14 +33767,14 @@
      ],
      "id": "r-back",
      "message": "set-text step_val:5",
-     "ms": 23,
+     "ms": 24,
      "result": "driven"
     },
     {
      "action": "read-report",
      "expectations": [
       {
-       "detail": "output.boxes.ecoOut contains 'EF 25.0', got '# Stand Sheet \u2014 SGH-07 # locality: Tahoe NF, Sagehen Creek, N-facing bench # observer R. Wright \u2014 2026-09-06 \u2014 39.4312, -120.2381 \u2014 1985 m # plot: circle r=11.28 m = 400 m\u00b2 (0.0400 ha), EF 25.0, min DBH 5 cm, breast height 1.37 m # stand: 4 live stems, 0 snags # 100 stems/ha, 6.9 m\u00b2 BA/ha, QMD 29.7 cm, SDI 132 data: sgh-07 Douglas-fir=3 ponderosa-pine=1 # Douglas-fir: 3 stems, 5.70 m\u00b2/ha # ponderosa pine: 1 stems, 1.23 m\u00b2/ha # One plot is a point estimate with no variance. Per-hectare values above scale a single sample.'",
+       "detail": "output.boxes.ecoOut contains 'EF 25.0', got '# Stand Sheet \u2014 SGH-07 # locality: Tahoe NF, Sagehen Creek, N-facing bench # observer R. Wright \u2014 2026-09-06 \u2014 39.4312, -120.2381 \u2014 1985 m # plot: circle r=11.28 m = 399.73 m\u00b2 (0.0400 ha), EF 25.02, min DBH 5 cm, breast height 1.37 m # stand: 4 live stems, 0 snags # 100 stems/ha, 6.9 m\u00b2 BA/ha, QMD 29.7 cm, SDI 132 data: sgh-07 Douglas-fir=3 ponderosa-pine=1 # Douglas-fir: 3 stems, 5.70 m\u00b2/ha # ponderosa pine: 1 stems, 1.23 m\u00b2/ha # One plot is a point estimate with no variance. Per-hectare values above scale a single sample.'",
        "path": "output.boxes.ecoOut",
        "verdict": "CONFIRMED"
       },
@@ -33780,8 +33785,8 @@
       }
      ],
      "id": "area-400",
-     "message": "14 figure(s), 25 box(es), 0 list(s), 4 table(s), 24 heading(s)",
-     "ms": 7,
+     "message": "15 figure(s), 25 box(es), 0 list(s), 4 table(s), 24 heading(s)",
+     "ms": 10,
      "result": "driven"
     },
     {
@@ -33795,21 +33800,21 @@
      ],
      "id": "bh-130",
      "message": "activate dial_btn:11",
-     "ms": 23,
+     "ms": 24,
      "result": "driven"
     },
     {
      "action": "read-report",
      "expectations": [
       {
-       "detail": "output.boxes.ecoOut contains 'breast height 1.30 m', got '# Stand Sheet \u2014 SGH-07 # locality: Tahoe NF, Sagehen Creek, N-facing bench # observer R. Wright \u2014 2026-09-06 \u2014 39.4312, -120.2381 \u2014 1985 m # plot: circle r=11.28 m = 400 m\u00b2 (0.0400 ha), EF 25.0, min DBH 5 cm, breast height 1.30 m # stand: 4 live stems, 0 snags # 100 stems/ha, 6.9 m\u00b2 BA/ha, QMD 29.7 cm, SDI 132 data: sgh-07 Douglas-fir=3 ponderosa-pine=1 # Douglas-fir: 3 stems, 5.70 m\u00b2/ha # ponderosa pine: 1 stems, 1.23 m\u00b2/ha # One plot is a point estimate with no variance. Per-hectare values above scale a single sample.'",
+       "detail": "output.boxes.ecoOut contains 'breast height 1.30 m', got '# Stand Sheet \u2014 SGH-07 # locality: Tahoe NF, Sagehen Creek, N-facing bench # observer R. Wright \u2014 2026-09-06 \u2014 39.4312, -120.2381 \u2014 1985 m # plot: circle r=11.28 m = 399.73 m\u00b2 (0.0400 ha), EF 25.02, min DBH 5 cm, breast height 1.30 m # stand: 4 live stems, 0 snags # 100 stems/ha, 6.9 m\u00b2 BA/ha, QMD 29.7 cm, SDI 132 data: sgh-07 Douglas-fir=3 ponderosa-pine=1 # Douglas-fir: 3 stems, 5.70 m\u00b2/ha # ponderosa pine: 1 stems, 1.23 m\u00b2/ha # One plot is a point estimate with no variance. Per-hectare values above scale a single sample.'",
        "path": "output.boxes.ecoOut",
        "verdict": "CONFIRMED"
       }
      ],
      "id": "bh-said",
-     "message": "14 figure(s), 25 box(es), 0 list(s), 4 table(s), 24 heading(s)",
-     "ms": 8,
+     "message": "15 figure(s), 25 box(es), 0 list(s), 4 table(s), 24 heading(s)",
+     "ms": 10,
      "result": "driven"
     },
     {
@@ -33837,21 +33842,21 @@
      ],
      "id": "min-10",
      "message": "set-text step_val:6",
-     "ms": 22,
+     "ms": 24,
      "result": "driven"
     },
     {
      "action": "read-report",
      "expectations": [
       {
-       "detail": "output.boxes.ecoOut contains 'min DBH 10 cm', got '# Stand Sheet \u2014 SGH-07 # locality: Tahoe NF, Sagehen Creek, N-facing bench # observer R. Wright \u2014 2026-09-06 \u2014 39.4312, -120.2381 \u2014 1985 m # plot: circle r=11.28 m = 400 m\u00b2 (0.0400 ha), EF 25.0, min DBH 10 cm, breast height 1.37 m # stand: 4 live stems, 0 snags # 100 stems/ha, 6.9 m\u00b2 BA/ha, QMD 29.7 cm, SDI 132 data: sgh-07 Douglas-fir=3 ponderosa-pine=1 # Douglas-fir: 3 stems, 5.70 m\u00b2/ha # ponderosa pine: 1 stems, 1.23 m\u00b2/ha # One plot is a point estimate with no variance. Per-hectare values above scale a single sample.'",
+       "detail": "output.boxes.ecoOut contains 'min DBH 10 cm', got '# Stand Sheet \u2014 SGH-07 # locality: Tahoe NF, Sagehen Creek, N-facing bench # observer R. Wright \u2014 2026-09-06 \u2014 39.4312, -120.2381 \u2014 1985 m # plot: circle r=11.28 m = 399.73 m\u00b2 (0.0400 ha), EF 25.02, min DBH 10 cm, breast height 1.37 m # stand: 4 live stems, 0 snags # 100 stems/ha, 6.9 m\u00b2 BA/ha, QMD 29.7 cm, SDI 132 data: sgh-07 Douglas-fir=3 ponderosa-pine=1 # Douglas-fir: 3 stems, 5.70 m\u00b2/ha # ponderosa pine: 1 stems, 1.23 m\u00b2/ha # One plot is a point estimate with no variance. Per-hectare values above scale a single sample.'",
        "path": "output.boxes.ecoOut",
        "verdict": "CONFIRMED"
       }
      ],
      "id": "min-said",
-     "message": "14 figure(s), 25 box(es), 0 list(s), 4 table(s), 24 heading(s)",
-     "ms": 7,
+     "message": "15 figure(s), 25 box(es), 0 list(s), 4 table(s), 24 heading(s)",
+     "ms": 10,
      "result": "driven"
     },
     {
@@ -33879,7 +33884,7 @@
      ],
      "id": "asp-sw",
      "message": "activate dial_btn:19",
-     "ms": 22,
+     "ms": 29,
      "result": "driven"
     },
     {
@@ -33897,8 +33902,8 @@
       }
      ],
      "id": "hot",
-     "message": "14 figure(s), 25 box(es), 0 list(s), 4 table(s), 24 heading(s)",
-     "ms": 8,
+     "message": "15 figure(s), 25 box(es), 0 list(s), 4 table(s), 24 heading(s)",
+     "ms": 12,
      "result": "driven"
     },
     {
@@ -33912,7 +33917,7 @@
      ],
      "id": "asp-nw",
      "message": "activate dial_btn:21",
-     "ms": 23,
+     "ms": 24,
      "result": "driven"
     },
     {
@@ -33930,8 +33935,8 @@
       }
      ],
      "id": "warm",
-     "message": "14 figure(s), 25 box(es), 0 list(s), 4 table(s), 24 heading(s)",
-     "ms": 8,
+     "message": "15 figure(s), 25 box(es), 0 list(s), 4 table(s), 24 heading(s)",
+     "ms": 11,
      "result": "driven"
     },
     {
@@ -33945,7 +33950,7 @@
      ],
      "id": "asp-ne",
      "message": "activate dial_btn:15",
-     "ms": 22,
+     "ms": 24,
      "result": "driven"
     },
     {
@@ -33963,8 +33968,8 @@
       }
      ],
      "id": "cool",
-     "message": "14 figure(s), 25 box(es), 0 list(s), 4 table(s), 24 heading(s)",
-     "ms": 8,
+     "message": "15 figure(s), 25 box(es), 0 list(s), 4 table(s), 24 heading(s)",
+     "ms": 11,
      "result": "driven"
     },
     {
@@ -33978,7 +33983,7 @@
      ],
      "id": "slope",
      "message": "set-text step_val:7",
-     "ms": 23,
+     "ms": 24,
      "result": "driven"
     },
     {
@@ -33991,8 +33996,8 @@
       }
      ],
      "id": "slope-said",
-     "message": "14 figure(s), 25 box(es), 0 list(s), 4 table(s), 24 heading(s)",
-     "ms": 6,
+     "message": "15 figure(s), 25 box(es), 0 list(s), 4 table(s), 24 heading(s)",
+     "ms": 10,
      "result": "driven"
     },
     {
@@ -34006,7 +34011,7 @@
      ],
      "id": "pos",
      "message": "activate dial_btn:24",
-     "ms": 22,
+     "ms": 26,
      "result": "driven"
     },
     {
@@ -34020,7 +34025,7 @@
      ],
      "id": "soil",
      "message": "activate dial_btn:31",
-     "ms": 23,
+     "ms": 22,
      "result": "driven"
     },
     {
@@ -34048,21 +34053,21 @@
      ],
      "id": "parent",
      "message": "set-text text_in:10",
-     "ms": 23,
+     "ms": 24,
      "result": "driven"
     },
     {
      "action": "read-report",
      "expectations": [
       {
-       "detail": "output.boxes.ecoOut contains '# site: aspect 45\u00b0 \u00b7 slope 35% \u00b7 mid slope \u00b7 mesic \u00b7 sandy loam \u00b7 granodiorite', got '# Stand Sheet \u2014 SGH-07 # locality: Tahoe NF, Sagehen Creek, N-facing bench # observer R. Wright \u2014 2026-09-06 \u2014 39.4312, -120.2381 \u2014 1985 m # plot: circle r=11.28 m = 400 m\u00b2 (0.0400 ha), EF 25.0, min DBH 5 cm, breast height 1.37 m # site: aspect 45\u00b0 \u00b7 slope 35% \u00b7 mid slope \u00b7 mesic \u00b7 sandy loam \u00b7 granodiorite # stand: 4 live stems, 0 snags # 100 stems/ha, 6.9 m\u00b2 BA/ha, QMD 29.7 cm, SDI 132 data: sgh-07 Douglas-fir=3 ponderosa-pine=1 # Douglas-fir: 3 stems, 5.70 m\u00b2/ha # ponderosa pine: 1 stems, 1.23 m\u00b2/ha # One plot is a point estimate with no variance. Per-hectare values above scale a single sample.'",
+       "detail": "output.boxes.ecoOut contains '# site: aspect 45\u00b0 \u00b7 slope 35% \u00b7 mid slope \u00b7 mesic \u00b7 sandy loam \u00b7 granodiorite', got '# Stand Sheet \u2014 SGH-07 # locality: Tahoe NF, Sagehen Creek, N-facing bench # observer R. Wright \u2014 2026-09-06 \u2014 39.4312, -120.2381 \u2014 1985 m # plot: circle r=11.28 m = 399.73 m\u00b2 (0.0400 ha), EF 25.02, min DBH 5 cm, breast height 1.37 m # site: aspect 45\u00b0 \u00b7 slope 35% \u00b7 mid slope \u00b7 mesic \u00b7 sandy loam \u00b7 granodiorite # stand: 4 live stems, 0 snags # 100 stems/ha, 6.9 m\u00b2 BA/ha, QMD 29.7 cm, SDI 132 data: sgh-07 Douglas-fir=3 ponderosa-pine=1 # Douglas-fir: 3 stems, 5.70 m\u00b2/ha # ponderosa pine: 1 stems, 1.23 m\u00b2/ha # One plot is a point estimate with no variance. Per-hectare values above scale a single sample.'",
        "path": "output.boxes.ecoOut",
        "verdict": "CONFIRMED"
       }
      ],
      "id": "site-line",
-     "message": "14 figure(s), 25 box(es), 0 list(s), 4 table(s), 24 heading(s)",
-     "ms": 8,
+     "message": "15 figure(s), 25 box(es), 0 list(s), 4 table(s), 24 heading(s)",
+     "ms": 10,
      "result": "driven"
     },
     {
@@ -34076,7 +34081,7 @@
      ],
      "id": "cov-can",
      "message": "set-slider slider:0",
-     "ms": 23,
+     "ms": 26,
      "result": "driven"
     },
     {
@@ -34090,7 +34095,7 @@
      ],
      "id": "cov-shr",
      "message": "set-slider slider:1",
-     "ms": 22,
+     "ms": 24,
      "result": "driven"
     },
     {
@@ -34104,7 +34109,7 @@
      ],
      "id": "cov-hrb",
      "message": "set-slider slider:2",
-     "ms": 23,
+     "ms": 24,
      "result": "driven"
     },
     {
@@ -34146,21 +34151,21 @@
      ],
      "id": "browse",
      "message": "set-text step_val:9",
-     "ms": 24,
+     "ms": 26,
      "result": "driven"
     },
     {
      "action": "read-report",
      "expectations": [
       {
-       "detail": "output.boxes.ecoOut contains '# cover: canopy 45% \u00b7 shrub 20% \u00b7 herb 15% \u00b7 bare 10% \u00b7 litter 3.5 cm \u00b7 browse line 1.8 m', got '# Stand Sheet \u2014 SGH-07 # locality: Tahoe NF, Sagehen Creek, N-facing bench # observer R. Wright \u2014 2026-09-06 \u2014 39.4312, -120.2381 \u2014 1985 m # plot: circle r=11.28 m = 400 m\u00b2 (0.0400 ha), EF 25.0, min DBH 5 cm, breast height 1.37 m # site: aspect 45\u00b0 \u00b7 slope 35% \u00b7 mid slope \u00b7 mesic \u00b7 sandy loam \u00b7 granodiorite # cover: canopy 45% \u00b7 shrub 20% \u00b7 herb 15% \u00b7 bare 10% \u00b7 litter 3.5 cm \u00b7 browse line 1.8 m # stand: 4 live stems, 0 snags # 100 stems/ha, 6.9 m\u00b2 BA/ha, QMD 29.7 cm, SDI 132 data: sgh-07 Douglas-fir=3 ponderosa-pine=1 # Douglas-fir: 3 stems, 5.70 m\u00b2/ha # ponderosa pine: 1 stems, 1.23 m\u00b2/ha # One plot is a point estimate with no variance. Per-hectare values above scale a single sample.'",
+       "detail": "output.boxes.ecoOut contains '# cover: canopy 45% \u00b7 shrub 20% \u00b7 herb 15% \u00b7 bare 10% \u00b7 litter 3.5 cm \u00b7 browse line 1.8 m', got '# Stand Sheet \u2014 SGH-07 # locality: Tahoe NF, Sagehen Creek, N-facing bench # observer R. Wright \u2014 2026-09-06 \u2014 39.4312, -120.2381 \u2014 1985 m # plot: circle r=11.28 m = 399.73 m\u00b2 (0.0400 ha), EF 25.02, min DBH 5 cm, breast height 1.37 m # site: aspect 45\u00b0 \u00b7 slope 35% \u00b7 mid slope \u00b7 mesic \u00b7 sandy loam \u00b7 granodiorite # cover: canopy 45% \u00b7 shrub 20% \u00b7 herb 15% \u00b7 bare 10% \u00b7 litter 3.5 cm \u00b7 browse line 1.8 m # stand: 4 live stems, 0 snags # 100 stems/ha, 6.9 m\u00b2 BA/ha, QMD 29.7 cm, SDI 132 data: sgh-07 Douglas-fir=3 ponderosa-pine=1 # Douglas-fir: 3 stems, 5.70 m\u00b2/ha # ponderosa pine: 1 stems, 1.23 m\u00b2/ha # One plot is a point estimate with no variance. Per-hectare values above scale a single sample.'",
        "path": "output.boxes.ecoOut",
        "verdict": "CONFIRMED"
       }
      ],
      "id": "cover-line",
-     "message": "14 figure(s), 25 box(es), 0 list(s), 4 table(s), 24 heading(s)",
-     "ms": 7,
+     "message": "15 figure(s), 25 box(es), 0 list(s), 4 table(s), 24 heading(s)",
+     "ms": 12,
      "result": "driven"
     },
     {
@@ -34174,7 +34179,7 @@
      ],
      "id": "cwd",
      "message": "set-text text_in:11",
-     "ms": 26,
+     "ms": 25,
      "result": "driven"
     },
     {
@@ -34202,8 +34207,8 @@
       }
      ],
      "id": "cwd30",
-     "message": "17 figure(s), 25 box(es), 0 list(s), 4 table(s), 24 heading(s)",
-     "ms": 7,
+     "message": "18 figure(s), 25 box(es), 0 list(s), 4 table(s), 24 heading(s)",
+     "ms": 10,
      "result": "driven"
     },
     {
@@ -34234,14 +34239,14 @@
        "verdict": "CONFIRMED"
       },
       {
-       "detail": "output.boxes.ecoOut contains 'coarse woody debris 67.3 m3/ha', got '# Stand Sheet \u2014 SGH-07 # locality: Tahoe NF, Sagehen Creek, N-facing bench # observer R. Wright \u2014 2026-09-06 \u2014 39.4312, -120.2381 \u2014 1985 m # plot: circle r=11.28 m = 400 m\u00b2 (0.0400 ha), EF 25.0, min DBH 5 cm, breast height 1.37 m # site: aspect 45\u00b0 \u00b7 slope 35% \u00b7 mid slope \u00b7 mesic \u00b7 sandy loam \u00b7 granodiorite # cover: canopy 45% \u00b7 shrub 20% \u00b7 herb 15% \u00b7 bare 10% \u00b7 litter 3.5 cm \u00b7 browse line 1.8 m # stand: 4 live stems, 0 snags # 100 stems/ha, 6.9 m\u00b2 BA/ha, QMD 29.7 cm, SDI 132 data: sgh-07 Douglas-fir=3 ponderosa-pine=1 # Douglas-fir: 3 stems, 5.70 m\u00b2/ha # ponderosa pine: 1 stems, 1.23 m\u00b2/ha note: coarse woody debris 67.3 m3/ha from 5 intersects on 60 m (van Wagner line-intercept) # One plot is a point estimate with no variance. Per-hectare values above scale a single sample.'",
+       "detail": "output.boxes.ecoOut contains 'coarse woody debris 67.3 m3/ha', got '# Stand Sheet \u2014 SGH-07 # locality: Tahoe NF, Sagehen Creek, N-facing bench # observer R. Wright \u2014 2026-09-06 \u2014 39.4312, -120.2381 \u2014 1985 m # plot: circle r=11.28 m = 399.73 m\u00b2 (0.0400 ha), EF 25.02, min DBH 5 cm, breast height 1.37 m # site: aspect 45\u00b0 \u00b7 slope 35% \u00b7 mid slope \u00b7 mesic \u00b7 sandy loam \u00b7 granodiorite # cover: canopy 45% \u00b7 shrub 20% \u00b7 herb 15% \u00b7 bare 10% \u00b7 litter 3.5 cm \u00b7 browse line 1.8 m # stand: 4 live stems, 0 snags # 100 stems/ha, 6.9 m\u00b2 BA/ha, QMD 29.7 cm, SDI 132 data: sgh-07 Douglas-fir=3 ponderosa-pine=1 # Douglas-fir: 3 stems, 5.70 m\u00b2/ha # ponderosa pine: 1 stems, 1.23 m\u00b2/ha note: coarse woody debris 67.3 m3/ha from 5 intersects on 60 m (van Wagner line-intercept) # One plot is a point estimate with no variance. Per-hectare values above scale a single sample.'",
        "path": "output.boxes.ecoOut",
        "verdict": "CONFIRMED"
       }
      ],
      "id": "cwd60",
-     "message": "17 figure(s), 25 box(es), 0 list(s), 4 table(s), 24 heading(s)",
-     "ms": 7,
+     "message": "18 figure(s), 25 box(es), 0 list(s), 4 table(s), 24 heading(s)",
+     "ms": 11,
      "result": "driven"
     },
     {
@@ -34255,7 +34260,7 @@
      ],
      "id": "len30",
      "message": "set-text step_val:10",
-     "ms": 23,
+     "ms": 26,
      "result": "driven"
     },
     {
@@ -34269,7 +34274,7 @@
      ],
      "id": "dist-fire",
      "message": "activate kopt:11",
-     "ms": 22,
+     "ms": 30,
      "result": "driven"
     },
     {
@@ -34283,21 +34288,21 @@
      ],
      "id": "dist-log",
      "message": "activate kopt:16",
-     "ms": 22,
+     "ms": 23,
      "result": "driven"
     },
     {
      "action": "read-report",
      "expectations": [
       {
-       "detail": "output.boxes.ecoOut contains '# disturbance: fire scars, logging stumps', got '# Stand Sheet \u2014 SGH-07 # locality: Tahoe NF, Sagehen Creek, N-facing bench # observer R. Wright \u2014 2026-09-06 \u2014 39.4312, -120.2381 \u2014 1985 m # plot: circle r=11.28 m = 400 m\u00b2 (0.0400 ha), EF 25.0, min DBH 5 cm, breast height 1.37 m # site: aspect 45\u00b0 \u00b7 slope 35% \u00b7 mid slope \u00b7 mesic \u00b7 sandy loam \u00b7 granodiorite # cover: canopy 45% \u00b7 shrub 20% \u00b7 herb 15% \u00b7 bare 10% \u00b7 litter 3.5 cm \u00b7 browse line 1.8 m # disturbance: fire scars, logging stumps # stand: 4 live stems, 0 snags # 100 stems/ha, 6.9 m\u00b2 BA/ha, QMD 29.7 cm, SDI 132 data: sgh-07 Douglas-fir=3 ponderosa-pine=1 # Douglas-fir: 3 stems, 5.70 m\u00b2/ha # ponderosa pine: 1 stems, 1.23 m\u00b2/ha note: coarse woody debris 134.7 m3/ha from 5 intersects on 30 m (van Wagner line-intercept) # One plot is a point estimate with no variance. Per-hectare values above scale a single sample.'",
+       "detail": "output.boxes.ecoOut contains '# disturbance: fire scars, logging stumps', got '# Stand Sheet \u2014 SGH-07 # locality: Tahoe NF, Sagehen Creek, N-facing bench # observer R. Wright \u2014 2026-09-06 \u2014 39.4312, -120.2381 \u2014 1985 m # plot: circle r=11.28 m = 399.73 m\u00b2 (0.0400 ha), EF 25.02, min DBH 5 cm, breast height 1.37 m # site: aspect 45\u00b0 \u00b7 slope 35% \u00b7 mid slope \u00b7 mesic \u00b7 sandy loam \u00b7 granodiorite # cover: canopy 45% \u00b7 shrub 20% \u00b7 herb 15% \u00b7 bare 10% \u00b7 litter 3.5 cm \u00b7 browse line 1.8 m # disturbance: fire scars, logging stumps # stand: 4 live stems, 0 snags # 100 stems/ha, 6.9 m\u00b2 BA/ha, QMD 29.7 cm, SDI 132 data: sgh-07 Douglas-fir=3 ponderosa-pine=1 # Douglas-fir: 3 stems, 5.70 m\u00b2/ha # ponderosa pine: 1 stems, 1.23 m\u00b2/ha note: coarse woody debris 134.7 m3/ha from 5 intersects on 30 m (van Wagner line-intercept) # One plot is a point estimate with no variance. Per-hectare values above scale a single sample.'",
        "path": "output.boxes.ecoOut",
        "verdict": "CONFIRMED"
       }
      ],
      "id": "dist-line",
-     "message": "17 figure(s), 25 box(es), 0 list(s), 4 table(s), 24 heading(s)",
-     "ms": 8,
+     "message": "18 figure(s), 25 box(es), 0 list(s), 4 table(s), 24 heading(s)",
+     "ms": 13,
      "result": "driven"
     },
     {
@@ -34311,21 +34316,21 @@
      ],
      "id": "notes",
      "message": "set-text text_in:12",
-     "ms": 22,
+     "ms": 26,
      "result": "driven"
     },
     {
      "action": "read-report",
      "expectations": [
       {
-       "detail": "output.boxes.ecoOut contains '# notes: Two-storey stand: scattered old Douglas-fir over a ponderosa cohort.', got '# Stand Sheet \u2014 SGH-07 # locality: Tahoe NF, Sagehen Creek, N-facing bench # observer R. Wright \u2014 2026-09-06 \u2014 39.4312, -120.2381 \u2014 1985 m # plot: circle r=11.28 m = 400 m\u00b2 (0.0400 ha), EF 25.0, min DBH 5 cm, breast height 1.37 m # site: aspect 45\u00b0 \u00b7 slope 35% \u00b7 mid slope \u00b7 mesic \u00b7 sandy loam \u00b7 granodiorite # cover: canopy 45% \u00b7 shrub 20% \u00b7 herb 15% \u00b7 bare 10% \u00b7 litter 3.5 cm \u00b7 browse line 1.8 m # disturbance: fire scars, logging stumps # stand: 4 live stems, 0 snags # 100 stems/ha, 6.9 m\u00b2 BA/ha, QMD 29.7 cm, SDI 132 data: sgh-07 Douglas-fir=3 ponderosa-pine=1 # Douglas-fir: 3 stems, 5.70 m\u00b2/ha # ponderosa pine: 1 stems, 1.23 m\u00b2/ha note: coarse woody debris 134.7 m3/ha from 5 intersects on 30 m (van Wagner line-intercept) # notes: Two-storey stand: scattered old Douglas-fir over a ponderosa cohort. Stumps of a 1950s entry. # One plot is a point estimate with no variance. Per-hectare values above scale a single sample.'",
+       "detail": "output.boxes.ecoOut contains '# notes: Two-storey stand: scattered old Douglas-fir over a ponderosa cohort.', got '# Stand Sheet \u2014 SGH-07 # locality: Tahoe NF, Sagehen Creek, N-facing bench # observer R. Wright \u2014 2026-09-06 \u2014 39.4312, -120.2381 \u2014 1985 m # plot: circle r=11.28 m = 399.73 m\u00b2 (0.0400 ha), EF 25.02, min DBH 5 cm, breast height 1.37 m # site: aspect 45\u00b0 \u00b7 slope 35% \u00b7 mid slope \u00b7 mesic \u00b7 sandy loam \u00b7 granodiorite # cover: canopy 45% \u00b7 shrub 20% \u00b7 herb 15% \u00b7 bare 10% \u00b7 litter 3.5 cm \u00b7 browse line 1.8 m # disturbance: fire scars, logging stumps # stand: 4 live stems, 0 snags # 100 stems/ha, 6.9 m\u00b2 BA/ha, QMD 29.7 cm, SDI 132 data: sgh-07 Douglas-fir=3 ponderosa-pine=1 # Douglas-fir: 3 stems, 5.70 m\u00b2/ha # ponderosa pine: 1 stems, 1.23 m\u00b2/ha note: coarse woody debris 134.7 m3/ha from 5 intersects on 30 m (van Wagner line-intercept) # notes: Two-storey stand: scattered old Douglas-fir over a ponderosa cohort. Stumps of a 1950s entry. # One plot is a point estimate with no variance. Per-hectare values above scale a single sample.'",
        "path": "output.boxes.ecoOut",
        "verdict": "CONFIRMED"
       }
      ],
      "id": "notes-line",
-     "message": "17 figure(s), 25 box(es), 0 list(s), 4 table(s), 24 heading(s)",
-     "ms": 8,
+     "message": "18 figure(s), 25 box(es), 0 list(s), 4 table(s), 24 heading(s)",
+     "ms": 14,
      "result": "driven"
     },
     {
@@ -34339,7 +34344,7 @@
      ],
      "id": "parent-ev",
      "message": "set-text text_in:13",
-     "ms": 23,
+     "ms": 24,
      "result": "driven"
     },
     {
@@ -34352,8 +34357,8 @@
       }
      ],
      "id": "parent-ev-said",
-     "message": "17 figure(s), 25 box(es), 0 list(s), 4 table(s), 24 heading(s)",
-     "ms": 8,
+     "message": "18 figure(s), 25 box(es), 0 list(s), 4 table(s), 24 heading(s)",
+     "ms": 12,
      "result": "driven"
     },
     {
@@ -34380,8 +34385,8 @@
       }
      ],
      "id": "dwc-47",
-     "message": "17 figure(s), 25 box(es), 0 list(s), 4 table(s), 24 heading(s)",
-     "ms": 7,
+     "message": "18 figure(s), 25 box(es), 0 list(s), 4 table(s), 24 heading(s)",
+     "ms": 10,
      "result": "driven"
     },
     {
@@ -34395,7 +34400,7 @@
      ],
      "id": "dwc-rect",
      "message": "activate chip:3",
-     "ms": 24,
+     "ms": 25,
      "result": "driven"
     },
     {
@@ -34407,14 +34412,14 @@
        "verdict": "CONFIRMED"
       },
       {
-       "detail": "output.boxes.sAreaOut contains 'Expansion factor 25.0', got '400 m\u00b2 = 0.0400 ha. Expansion factor 25.0 \u2014 every stem you tally stands for 25.0 per hectare.'",
+       "detail": "output.boxes.sAreaOut contains 'Expansion factor 25.0 \u2014', got '400 m\u00b2 = 0.0400 ha. Expansion factor 25.0 \u2014 every stem you tally stands for 25.0 per hectare.'",
        "path": "output.boxes.sAreaOut",
        "verdict": "CONFIRMED"
       }
      ],
      "id": "dwc-50",
-     "message": "17 figure(s), 25 box(es), 0 list(s), 4 table(s), 24 heading(s)",
-     "ms": 7,
+     "message": "18 figure(s), 25 box(es), 0 list(s), 4 table(s), 24 heading(s)",
+     "ms": 10,
      "result": "driven"
     },
     {
@@ -34428,7 +34433,7 @@
      ],
      "id": "dwc-circ",
      "message": "activate chip:2",
-     "ms": 22,
+     "ms": 23,
      "result": "driven"
     },
     {
@@ -34441,8 +34446,8 @@
       }
      ],
      "id": "dwc-47-again",
-     "message": "17 figure(s), 25 box(es), 0 list(s), 4 table(s), 24 heading(s)",
-     "ms": 8,
+     "message": "18 figure(s), 25 box(es), 0 list(s), 4 table(s), 24 heading(s)",
+     "ms": 13,
      "result": "driven"
     },
     {
@@ -34456,7 +34461,7 @@
      ],
      "id": "datum-unknown",
      "message": "activate dial_btn:47",
-     "ms": 24,
+     "ms": 23,
      "result": "driven"
     },
     {
@@ -34469,8 +34474,8 @@
       }
      ],
      "id": "dwc-5406",
-     "message": "17 figure(s), 25 box(es), 0 list(s), 4 table(s), 24 heading(s)",
-     "ms": 8,
+     "message": "18 figure(s), 25 box(es), 0 list(s), 4 table(s), 24 heading(s)",
+     "ms": 10,
      "result": "driven"
     },
     {
@@ -34484,7 +34489,7 @@
      ],
      "id": "datum-wgs",
      "message": "activate dial_btn:44",
-     "ms": 23,
+     "ms": 24,
      "result": "driven"
     },
     {
@@ -34497,8 +34502,8 @@
       }
      ],
      "id": "dwc-back",
-     "message": "17 figure(s), 25 box(es), 0 list(s), 4 table(s), 24 heading(s)",
-     "ms": 7,
+     "message": "18 figure(s), 25 box(es), 0 list(s), 4 table(s), 24 heading(s)",
+     "ms": 11,
      "result": "driven"
     },
     {
@@ -34512,7 +34517,7 @@
      ],
      "id": "web",
      "message": "opened pane p-web",
-     "ms": 84,
+     "ms": 74,
      "result": "driven"
     },
     {
@@ -34526,7 +34531,7 @@
      ],
      "id": "i1a",
      "message": "set-text text_in:14",
-     "ms": 23,
+     "ms": 30,
      "result": "driven"
     },
     {
@@ -34540,7 +34545,7 @@
      ],
      "id": "i1b",
      "message": "set-text text_in:15",
-     "ms": 31,
+     "ms": 26,
      "result": "driven"
     },
     {
@@ -34559,7 +34564,7 @@
      ],
      "id": "i1t",
      "message": "pick pick_search:1",
-     "ms": 147,
+     "ms": 148,
      "result": "driven"
     },
     {
@@ -34573,7 +34578,7 @@
      ],
      "id": "i1e",
      "message": "activate dial_btn:49",
-     "ms": 22,
+     "ms": 23,
      "result": "driven"
     },
     {
@@ -34587,7 +34592,7 @@
      ],
      "id": "i1c",
      "message": "activate dial_btn:52",
-     "ms": 25,
+     "ms": 23,
      "result": "driven"
     },
     {
@@ -34601,7 +34606,7 @@
      ],
      "id": "i1n",
      "message": "set-text text_in:16",
-     "ms": 24,
+     "ms": 26,
      "result": "driven"
     },
     {
@@ -34615,7 +34620,7 @@
      ],
      "id": "i1add",
      "message": "activate action_btn:56",
-     "ms": 24,
+     "ms": 25,
      "result": "driven"
     },
     {
@@ -34643,8 +34648,8 @@
       }
      ],
      "id": "one-link",
-     "message": "21 figure(s), 25 box(es), 1 list(s), 4 table(s), 24 heading(s)",
-     "ms": 8,
+     "message": "22 figure(s), 25 box(es), 1 list(s), 4 table(s), 24 heading(s)",
+     "ms": 12,
      "result": "driven"
     },
     {
@@ -34658,7 +34663,7 @@
      ],
      "id": "i2a",
      "message": "set-text text_in:14",
-     "ms": 23,
+     "ms": 24,
      "result": "driven"
     },
     {
@@ -34672,7 +34677,7 @@
      ],
      "id": "i2b",
      "message": "set-text text_in:15",
-     "ms": 23,
+     "ms": 24,
      "result": "driven"
     },
     {
@@ -34691,7 +34696,7 @@
      ],
      "id": "i2t",
      "message": "pick pick_search:1",
-     "ms": 144,
+     "ms": 148,
      "result": "driven"
     },
     {
@@ -34733,7 +34738,7 @@
      ],
      "id": "i2add",
      "message": "activate action_btn:56",
-     "ms": 22,
+     "ms": 23,
      "result": "driven"
     },
     {
@@ -34766,27 +34771,27 @@
       }
      ],
      "id": "two-links",
-     "message": "21 figure(s), 25 box(es), 1 list(s), 4 table(s), 24 heading(s)",
-     "ms": 8,
+     "message": "22 figure(s), 25 box(es), 1 list(s), 4 table(s), 24 heading(s)",
+     "ms": 13,
      "result": "driven"
     },
     {
      "action": "read-report",
      "expectations": [
       {
-       "detail": "output.boxes.ecoOut contains 'note: mule deer eats ponderosa pine # herbivory / browse, sign, confidence high \u2014 browse line at 1.8 m on every stem below the bench', got \"# Stand Sheet \u2014 SGH-07 # locality: Tahoe NF, Sagehen Creek, N-facing bench # observer R. Wright \u2014 2026-09-06 \u2014 39.4312, -120.2381 \u2014 1985 m # plot: circle r=11.28 m = 400 m\u00b2 (0.0400 ha), EF 25.0, min DBH 5 cm, breast height 1.37 m # site: aspect 45\u00b0 \u00b7 slope 35% \u00b7 mid slope \u00b7 mesic \u00b7 sandy loam \u00b7 granodiorite # cover: canopy 45% \u00b7 shrub 20% \u00b7 herb 15% \u00b7 bare 10% \u00b7 litter 3.5 cm \u00b7 browse line 1.8 m # disturbance: fire scars, logging stumps # stand: 4 live stems, 0 snags # 100 stems/ha, 6.9 m\u00b2 BA/ha, QMD 29.7 cm, SDI 132 data: sgh-07 Douglas-fir=3 ponderosa-pine=1 # Douglas-fir: 3 stems, 5.70 m\u00b2/ha # ponderosa pine: 1 stems, 1.23 m\u00b2/ha note: coarse woody debris 134.7 m3/ha from 5 intersects on 30 m (van Wagner line-intercept) # interactions (2) note: mule deer eats ponderosa pine # herbivory / browse, sign, confidence high \u2014 browse line at 1.8 m on every stem below the bench note: Clark's nutcracker disperses whitebark pine # seed dispersal (mutualism), literature, confidence medium # notes: Two-storey stand: scattered old Douglas-fir over a ponderosa cohort. Stumps of a 1950s entry. # One plot is a point estimate with no variance. Per-hectare values above scale a single sample.\"",
+       "detail": "output.boxes.ecoOut contains 'note: mule deer eats ponderosa pine # herbivory / browse, sign, confidence high \u2014 browse line at 1.8 m on every stem below the bench', got \"# Stand Sheet \u2014 SGH-07 # locality: Tahoe NF, Sagehen Creek, N-facing bench # observer R. Wright \u2014 2026-09-06 \u2014 39.4312, -120.2381 \u2014 1985 m # plot: circle r=11.28 m = 399.73 m\u00b2 (0.0400 ha), EF 25.02, min DBH 5 cm, breast height 1.37 m # site: aspect 45\u00b0 \u00b7 slope 35% \u00b7 mid slope \u00b7 mesic \u00b7 sandy loam \u00b7 granodiorite # cover: canopy 45% \u00b7 shrub 20% \u00b7 herb 15% \u00b7 bare 10% \u00b7 litter 3.5 cm \u00b7 browse line 1.8 m # disturbance: fire scars, logging stumps # stand: 4 live stems, 0 snags # 100 stems/ha, 6.9 m\u00b2 BA/ha, QMD 29.7 cm, SDI 132 data: sgh-07 Douglas-fir=3 ponderosa-pine=1 # Douglas-fir: 3 stems, 5.70 m\u00b2/ha # ponderosa pine: 1 stems, 1.23 m\u00b2/ha note: coarse woody debris 134.7 m3/ha from 5 intersects on 30 m (van Wagner line-intercept) # interactions (2) note: mule deer eats ponderosa pine # herbivory / browse, sign, confidence high \u2014 browse line at 1.8 m on every stem below the bench note: Clark's nutcracker disperses whitebark pine # seed dispersal (mutualism), literature, confidence medium # notes: Two-storey stand: scattered old Douglas-fir over a ponderosa cohort. Stumps of a 1950s entry. # One plot is a point estimate with no variance. Per-hectare values above scale a single sample.\"",
        "path": "output.boxes.ecoOut",
        "verdict": "CONFIRMED"
       },
       {
-       "detail": "output.boxes.ecoOut contains \"note: Clark's nutcracker disperses whitebark pine # seed dispersal (mutualism), literature, confidence medium\", got \"# Stand Sheet \u2014 SGH-07 # locality: Tahoe NF, Sagehen Creek, N-facing bench # observer R. Wright \u2014 2026-09-06 \u2014 39.4312, -120.2381 \u2014 1985 m # plot: circle r=11.28 m = 400 m\u00b2 (0.0400 ha), EF 25.0, min DBH 5 cm, breast height 1.37 m # site: aspect 45\u00b0 \u00b7 slope 35% \u00b7 mid slope \u00b7 mesic \u00b7 sandy loam \u00b7 granodiorite # cover: canopy 45% \u00b7 shrub 20% \u00b7 herb 15% \u00b7 bare 10% \u00b7 litter 3.5 cm \u00b7 browse line 1.8 m # disturbance: fire scars, logging stumps # stand: 4 live stems, 0 snags # 100 stems/ha, 6.9 m\u00b2 BA/ha, QMD 29.7 cm, SDI 132 data: sgh-07 Douglas-fir=3 ponderosa-pine=1 # Douglas-fir: 3 stems, 5.70 m\u00b2/ha # ponderosa pine: 1 stems, 1.23 m\u00b2/ha note: coarse woody debris 134.7 m3/ha from 5 intersects on 30 m (van Wagner line-intercept) # interactions (2) note: mule deer eats ponderosa pine # herbivory / browse, sign, confidence high \u2014 browse line at 1.8 m on every stem below the bench note: Clark's nutcracker disperses whitebark pine # seed dispersal (mutualism), literature, confidence medium # notes: Two-storey stand: scattered old Douglas-fir over a ponderosa cohort. Stumps of a 1950s entry. # One plot is a point estimate with no variance. Per-hectare values above scale a single sample.\"",
+       "detail": "output.boxes.ecoOut contains \"note: Clark's nutcracker disperses whitebark pine # seed dispersal (mutualism), literature, confidence medium\", got \"# Stand Sheet \u2014 SGH-07 # locality: Tahoe NF, Sagehen Creek, N-facing bench # observer R. Wright \u2014 2026-09-06 \u2014 39.4312, -120.2381 \u2014 1985 m # plot: circle r=11.28 m = 399.73 m\u00b2 (0.0400 ha), EF 25.02, min DBH 5 cm, breast height 1.37 m # site: aspect 45\u00b0 \u00b7 slope 35% \u00b7 mid slope \u00b7 mesic \u00b7 sandy loam \u00b7 granodiorite # cover: canopy 45% \u00b7 shrub 20% \u00b7 herb 15% \u00b7 bare 10% \u00b7 litter 3.5 cm \u00b7 browse line 1.8 m # disturbance: fire scars, logging stumps # stand: 4 live stems, 0 snags # 100 stems/ha, 6.9 m\u00b2 BA/ha, QMD 29.7 cm, SDI 132 data: sgh-07 Douglas-fir=3 ponderosa-pine=1 # Douglas-fir: 3 stems, 5.70 m\u00b2/ha # ponderosa pine: 1 stems, 1.23 m\u00b2/ha note: coarse woody debris 134.7 m3/ha from 5 intersects on 30 m (van Wagner line-intercept) # interactions (2) note: mule deer eats ponderosa pine # herbivory / browse, sign, confidence high \u2014 browse line at 1.8 m on every stem below the bench note: Clark's nutcracker disperses whitebark pine # seed dispersal (mutualism), literature, confidence medium # notes: Two-storey stand: scattered old Douglas-fir over a ponderosa cohort. Stumps of a 1950s entry. # One plot is a point estimate with no variance. Per-hectare values above scale a single sample.\"",
        "path": "output.boxes.ecoOut#2",
        "verdict": "CONFIRMED"
       }
      ],
      "id": "web-export",
-     "message": "21 figure(s), 25 box(es), 1 list(s), 4 table(s), 24 heading(s)",
-     "ms": 7,
+     "message": "22 figure(s), 25 box(es), 1 list(s), 4 table(s), 24 heading(s)",
+     "ms": 11,
      "result": "driven"
     },
     {
@@ -34800,46 +34805,46 @@
      ],
      "id": "plot3",
      "message": "opened pane p-plot",
-     "ms": 78,
+     "ms": 88,
      "result": "driven"
     },
     {
      "action": "read-report",
      "expectations": [
       {
-       "detail": "output.boxes.ecoOut contains '# stand: 4 live stems, 0 snags', got \"# Stand Sheet \u2014 SGH-07 # locality: Tahoe NF, Sagehen Creek, N-facing bench # observer R. Wright \u2014 2026-09-06 \u2014 39.4312, -120.2381 \u2014 1985 m # plot: circle r=11.28 m = 400 m\u00b2 (0.0400 ha), EF 25.0, min DBH 5 cm, breast height 1.37 m # site: aspect 45\u00b0 \u00b7 slope 35% \u00b7 mid slope \u00b7 mesic \u00b7 sandy loam \u00b7 granodiorite # cover: canopy 45% \u00b7 shrub 20% \u00b7 herb 15% \u00b7 bare 10% \u00b7 litter 3.5 cm \u00b7 browse line 1.8 m # disturbance: fire scars, logging stumps # stand: 4 live stems, 0 snags # 100 stems/ha, 6.9 m\u00b2 BA/ha, QMD 29.7 cm, SDI 132 data: sgh-07 Douglas-fir=3 ponderosa-pine=1 # Douglas-fir: 3 stems, 5.70 m\u00b2/ha # ponderosa pine: 1 stems, 1.23 m\u00b2/ha note: coarse woody debris 134.7 m3/ha from 5 intersects on 30 m (van Wagner line-intercept) # interactions (2) note: mule deer eats ponderosa pine # herbivory / browse, sign, confidence high \u2014 browse line at 1.8 m on every stem below the bench note: Clark's nutcracker disperses whitebark pine # seed dispersal (mutualism), literature, confidence medium # notes: Two-storey stand: scattered old Douglas-fir over a ponderosa cohort. Stumps of a 1950s entry. # One plot is a point estimate with no variance. Per-hectare values above scale a single sample.\"",
+       "detail": "output.boxes.ecoOut contains '# stand: 4 live stems, 0 snags', got \"# Stand Sheet \u2014 SGH-07 # locality: Tahoe NF, Sagehen Creek, N-facing bench # observer R. Wright \u2014 2026-09-06 \u2014 39.4312, -120.2381 \u2014 1985 m # plot: circle r=11.28 m = 399.73 m\u00b2 (0.0400 ha), EF 25.02, min DBH 5 cm, breast height 1.37 m # site: aspect 45\u00b0 \u00b7 slope 35% \u00b7 mid slope \u00b7 mesic \u00b7 sandy loam \u00b7 granodiorite # cover: canopy 45% \u00b7 shrub 20% \u00b7 herb 15% \u00b7 bare 10% \u00b7 litter 3.5 cm \u00b7 browse line 1.8 m # disturbance: fire scars, logging stumps # stand: 4 live stems, 0 snags # 100 stems/ha, 6.9 m\u00b2 BA/ha, QMD 29.7 cm, SDI 132 data: sgh-07 Douglas-fir=3 ponderosa-pine=1 # Douglas-fir: 3 stems, 5.70 m\u00b2/ha # ponderosa pine: 1 stems, 1.23 m\u00b2/ha note: coarse woody debris 134.7 m3/ha from 5 intersects on 30 m (van Wagner line-intercept) # interactions (2) note: mule deer eats ponderosa pine # herbivory / browse, sign, confidence high \u2014 browse line at 1.8 m on every stem below the bench note: Clark's nutcracker disperses whitebark pine # seed dispersal (mutualism), literature, confidence medium # notes: Two-storey stand: scattered old Douglas-fir over a ponderosa cohort. Stumps of a 1950s entry. # One plot is a point estimate with no variance. Per-hectare values above scale a single sample.\"",
        "path": "output.boxes.ecoOut",
        "verdict": "CONFIRMED"
       },
       {
-       "detail": "output.boxes.ecoOut contains '100 stems/ha, 6.9 m\u00b2 BA/ha, QMD 29.7 cm, SDI 132', got \"# Stand Sheet \u2014 SGH-07 # locality: Tahoe NF, Sagehen Creek, N-facing bench # observer R. Wright \u2014 2026-09-06 \u2014 39.4312, -120.2381 \u2014 1985 m # plot: circle r=11.28 m = 400 m\u00b2 (0.0400 ha), EF 25.0, min DBH 5 cm, breast height 1.37 m # site: aspect 45\u00b0 \u00b7 slope 35% \u00b7 mid slope \u00b7 mesic \u00b7 sandy loam \u00b7 granodiorite # cover: canopy 45% \u00b7 shrub 20% \u00b7 herb 15% \u00b7 bare 10% \u00b7 litter 3.5 cm \u00b7 browse line 1.8 m # disturbance: fire scars, logging stumps # stand: 4 live stems, 0 snags # 100 stems/ha, 6.9 m\u00b2 BA/ha, QMD 29.7 cm, SDI 132 data: sgh-07 Douglas-fir=3 ponderosa-pine=1 # Douglas-fir: 3 stems, 5.70 m\u00b2/ha # ponderosa pine: 1 stems, 1.23 m\u00b2/ha note: coarse woody debris 134.7 m3/ha from 5 intersects on 30 m (van Wagner line-intercept) # interactions (2) note: mule deer eats ponderosa pine # herbivory / browse, sign, confidence high \u2014 browse line at 1.8 m on every stem below the bench note: Clark's nutcracker disperses whitebark pine # seed dispersal (mutualism), literature, confidence medium # notes: Two-storey stand: scattered old Douglas-fir over a ponderosa cohort. Stumps of a 1950s entry. # One plot is a point estimate with no variance. Per-hectare values above scale a single sample.\"",
+       "detail": "output.boxes.ecoOut contains '100 stems/ha, 6.9 m\u00b2 BA/ha, QMD 29.7 cm, SDI 132', got \"# Stand Sheet \u2014 SGH-07 # locality: Tahoe NF, Sagehen Creek, N-facing bench # observer R. Wright \u2014 2026-09-06 \u2014 39.4312, -120.2381 \u2014 1985 m # plot: circle r=11.28 m = 399.73 m\u00b2 (0.0400 ha), EF 25.02, min DBH 5 cm, breast height 1.37 m # site: aspect 45\u00b0 \u00b7 slope 35% \u00b7 mid slope \u00b7 mesic \u00b7 sandy loam \u00b7 granodiorite # cover: canopy 45% \u00b7 shrub 20% \u00b7 herb 15% \u00b7 bare 10% \u00b7 litter 3.5 cm \u00b7 browse line 1.8 m # disturbance: fire scars, logging stumps # stand: 4 live stems, 0 snags # 100 stems/ha, 6.9 m\u00b2 BA/ha, QMD 29.7 cm, SDI 132 data: sgh-07 Douglas-fir=3 ponderosa-pine=1 # Douglas-fir: 3 stems, 5.70 m\u00b2/ha # ponderosa pine: 1 stems, 1.23 m\u00b2/ha note: coarse woody debris 134.7 m3/ha from 5 intersects on 30 m (van Wagner line-intercept) # interactions (2) note: mule deer eats ponderosa pine # herbivory / browse, sign, confidence high \u2014 browse line at 1.8 m on every stem below the bench note: Clark's nutcracker disperses whitebark pine # seed dispersal (mutualism), literature, confidence medium # notes: Two-storey stand: scattered old Douglas-fir over a ponderosa cohort. Stumps of a 1950s entry. # One plot is a point estimate with no variance. Per-hectare values above scale a single sample.\"",
        "path": "output.boxes.ecoOut#2",
        "verdict": "CONFIRMED"
       },
       {
-       "detail": "output.boxes.ecoOut contains 'data: sgh-07 Douglas-fir=3 ponderosa-pine=1', got \"# Stand Sheet \u2014 SGH-07 # locality: Tahoe NF, Sagehen Creek, N-facing bench # observer R. Wright \u2014 2026-09-06 \u2014 39.4312, -120.2381 \u2014 1985 m # plot: circle r=11.28 m = 400 m\u00b2 (0.0400 ha), EF 25.0, min DBH 5 cm, breast height 1.37 m # site: aspect 45\u00b0 \u00b7 slope 35% \u00b7 mid slope \u00b7 mesic \u00b7 sandy loam \u00b7 granodiorite # cover: canopy 45% \u00b7 shrub 20% \u00b7 herb 15% \u00b7 bare 10% \u00b7 litter 3.5 cm \u00b7 browse line 1.8 m # disturbance: fire scars, logging stumps # stand: 4 live stems, 0 snags # 100 stems/ha, 6.9 m\u00b2 BA/ha, QMD 29.7 cm, SDI 132 data: sgh-07 Douglas-fir=3 ponderosa-pine=1 # Douglas-fir: 3 stems, 5.70 m\u00b2/ha # ponderosa pine: 1 stems, 1.23 m\u00b2/ha note: coarse woody debris 134.7 m3/ha from 5 intersects on 30 m (van Wagner line-intercept) # interactions (2) note: mule deer eats ponderosa pine # herbivory / browse, sign, confidence high \u2014 browse line at 1.8 m on every stem below the bench note: Clark's nutcracker disperses whitebark pine # seed dispersal (mutualism), literature, confidence medium # notes: Two-storey stand: scattered old Douglas-fir over a ponderosa cohort. Stumps of a 1950s entry. # One plot is a point estimate with no variance. Per-hectare values above scale a single sample.\"",
+       "detail": "output.boxes.ecoOut contains 'data: sgh-07 Douglas-fir=3 ponderosa-pine=1', got \"# Stand Sheet \u2014 SGH-07 # locality: Tahoe NF, Sagehen Creek, N-facing bench # observer R. Wright \u2014 2026-09-06 \u2014 39.4312, -120.2381 \u2014 1985 m # plot: circle r=11.28 m = 399.73 m\u00b2 (0.0400 ha), EF 25.02, min DBH 5 cm, breast height 1.37 m # site: aspect 45\u00b0 \u00b7 slope 35% \u00b7 mid slope \u00b7 mesic \u00b7 sandy loam \u00b7 granodiorite # cover: canopy 45% \u00b7 shrub 20% \u00b7 herb 15% \u00b7 bare 10% \u00b7 litter 3.5 cm \u00b7 browse line 1.8 m # disturbance: fire scars, logging stumps # stand: 4 live stems, 0 snags # 100 stems/ha, 6.9 m\u00b2 BA/ha, QMD 29.7 cm, SDI 132 data: sgh-07 Douglas-fir=3 ponderosa-pine=1 # Douglas-fir: 3 stems, 5.70 m\u00b2/ha # ponderosa pine: 1 stems, 1.23 m\u00b2/ha note: coarse woody debris 134.7 m3/ha from 5 intersects on 30 m (van Wagner line-intercept) # interactions (2) note: mule deer eats ponderosa pine # herbivory / browse, sign, confidence high \u2014 browse line at 1.8 m on every stem below the bench note: Clark's nutcracker disperses whitebark pine # seed dispersal (mutualism), literature, confidence medium # notes: Two-storey stand: scattered old Douglas-fir over a ponderosa cohort. Stumps of a 1950s entry. # One plot is a point estimate with no variance. Per-hectare values above scale a single sample.\"",
        "path": "output.boxes.ecoOut#3",
        "verdict": "CONFIRMED"
       },
       {
-       "detail": "output.boxes.ecoOut contains '# Douglas-fir: 3 stems, 5.70 m\u00b2/ha', got \"# Stand Sheet \u2014 SGH-07 # locality: Tahoe NF, Sagehen Creek, N-facing bench # observer R. Wright \u2014 2026-09-06 \u2014 39.4312, -120.2381 \u2014 1985 m # plot: circle r=11.28 m = 400 m\u00b2 (0.0400 ha), EF 25.0, min DBH 5 cm, breast height 1.37 m # site: aspect 45\u00b0 \u00b7 slope 35% \u00b7 mid slope \u00b7 mesic \u00b7 sandy loam \u00b7 granodiorite # cover: canopy 45% \u00b7 shrub 20% \u00b7 herb 15% \u00b7 bare 10% \u00b7 litter 3.5 cm \u00b7 browse line 1.8 m # disturbance: fire scars, logging stumps # stand: 4 live stems, 0 snags # 100 stems/ha, 6.9 m\u00b2 BA/ha, QMD 29.7 cm, SDI 132 data: sgh-07 Douglas-fir=3 ponderosa-pine=1 # Douglas-fir: 3 stems, 5.70 m\u00b2/ha # ponderosa pine: 1 stems, 1.23 m\u00b2/ha note: coarse woody debris 134.7 m3/ha from 5 intersects on 30 m (van Wagner line-intercept) # interactions (2) note: mule deer eats ponderosa pine # herbivory / browse, sign, confidence high \u2014 browse line at 1.8 m on every stem below the bench note: Clark's nutcracker disperses whitebark pine # seed dispersal (mutualism), literature, confidence medium # notes: Two-storey stand: scattered old Douglas-fir over a ponderosa cohort. Stumps of a 1950s entry. # One plot is a point estimate with no variance. Per-hectare values above scale a single sample.\"",
+       "detail": "output.boxes.ecoOut contains '# Douglas-fir: 3 stems, 5.70 m\u00b2/ha', got \"# Stand Sheet \u2014 SGH-07 # locality: Tahoe NF, Sagehen Creek, N-facing bench # observer R. Wright \u2014 2026-09-06 \u2014 39.4312, -120.2381 \u2014 1985 m # plot: circle r=11.28 m = 399.73 m\u00b2 (0.0400 ha), EF 25.02, min DBH 5 cm, breast height 1.37 m # site: aspect 45\u00b0 \u00b7 slope 35% \u00b7 mid slope \u00b7 mesic \u00b7 sandy loam \u00b7 granodiorite # cover: canopy 45% \u00b7 shrub 20% \u00b7 herb 15% \u00b7 bare 10% \u00b7 litter 3.5 cm \u00b7 browse line 1.8 m # disturbance: fire scars, logging stumps # stand: 4 live stems, 0 snags # 100 stems/ha, 6.9 m\u00b2 BA/ha, QMD 29.7 cm, SDI 132 data: sgh-07 Douglas-fir=3 ponderosa-pine=1 # Douglas-fir: 3 stems, 5.70 m\u00b2/ha # ponderosa pine: 1 stems, 1.23 m\u00b2/ha note: coarse woody debris 134.7 m3/ha from 5 intersects on 30 m (van Wagner line-intercept) # interactions (2) note: mule deer eats ponderosa pine # herbivory / browse, sign, confidence high \u2014 browse line at 1.8 m on every stem below the bench note: Clark's nutcracker disperses whitebark pine # seed dispersal (mutualism), literature, confidence medium # notes: Two-storey stand: scattered old Douglas-fir over a ponderosa cohort. Stumps of a 1950s entry. # One plot is a point estimate with no variance. Per-hectare values above scale a single sample.\"",
        "path": "output.boxes.ecoOut#4",
        "verdict": "CONFIRMED"
       },
       {
-       "detail": "output.boxes.ecoOut contains '# ponderosa pine: 1 stems, 1.23 m\u00b2/ha', got \"# Stand Sheet \u2014 SGH-07 # locality: Tahoe NF, Sagehen Creek, N-facing bench # observer R. Wright \u2014 2026-09-06 \u2014 39.4312, -120.2381 \u2014 1985 m # plot: circle r=11.28 m = 400 m\u00b2 (0.0400 ha), EF 25.0, min DBH 5 cm, breast height 1.37 m # site: aspect 45\u00b0 \u00b7 slope 35% \u00b7 mid slope \u00b7 mesic \u00b7 sandy loam \u00b7 granodiorite # cover: canopy 45% \u00b7 shrub 20% \u00b7 herb 15% \u00b7 bare 10% \u00b7 litter 3.5 cm \u00b7 browse line 1.8 m # disturbance: fire scars, logging stumps # stand: 4 live stems, 0 snags # 100 stems/ha, 6.9 m\u00b2 BA/ha, QMD 29.7 cm, SDI 132 data: sgh-07 Douglas-fir=3 ponderosa-pine=1 # Douglas-fir: 3 stems, 5.70 m\u00b2/ha # ponderosa pine: 1 stems, 1.23 m\u00b2/ha note: coarse woody debris 134.7 m3/ha from 5 intersects on 30 m (van Wagner line-intercept) # interactions (2) note: mule deer eats ponderosa pine # herbivory / browse, sign, confidence high \u2014 browse line at 1.8 m on every stem below the bench note: Clark's nutcracker disperses whitebark pine # seed dispersal (mutualism), literature, confidence medium # notes: Two-storey stand: scattered old Douglas-fir over a ponderosa cohort. Stumps of a 1950s entry. # One plot is a point estimate with no variance. Per-hectare values above scale a single sample.\"",
+       "detail": "output.boxes.ecoOut contains '# ponderosa pine: 1 stems, 1.23 m\u00b2/ha', got \"# Stand Sheet \u2014 SGH-07 # locality: Tahoe NF, Sagehen Creek, N-facing bench # observer R. Wright \u2014 2026-09-06 \u2014 39.4312, -120.2381 \u2014 1985 m # plot: circle r=11.28 m = 399.73 m\u00b2 (0.0400 ha), EF 25.02, min DBH 5 cm, breast height 1.37 m # site: aspect 45\u00b0 \u00b7 slope 35% \u00b7 mid slope \u00b7 mesic \u00b7 sandy loam \u00b7 granodiorite # cover: canopy 45% \u00b7 shrub 20% \u00b7 herb 15% \u00b7 bare 10% \u00b7 litter 3.5 cm \u00b7 browse line 1.8 m # disturbance: fire scars, logging stumps # stand: 4 live stems, 0 snags # 100 stems/ha, 6.9 m\u00b2 BA/ha, QMD 29.7 cm, SDI 132 data: sgh-07 Douglas-fir=3 ponderosa-pine=1 # Douglas-fir: 3 stems, 5.70 m\u00b2/ha # ponderosa pine: 1 stems, 1.23 m\u00b2/ha note: coarse woody debris 134.7 m3/ha from 5 intersects on 30 m (van Wagner line-intercept) # interactions (2) note: mule deer eats ponderosa pine # herbivory / browse, sign, confidence high \u2014 browse line at 1.8 m on every stem below the bench note: Clark's nutcracker disperses whitebark pine # seed dispersal (mutualism), literature, confidence medium # notes: Two-storey stand: scattered old Douglas-fir over a ponderosa cohort. Stumps of a 1950s entry. # One plot is a point estimate with no variance. Per-hectare values above scale a single sample.\"",
        "path": "output.boxes.ecoOut#5",
        "verdict": "CONFIRMED"
       },
       {
-       "detail": "output.boxes.ecoOut contains 'One plot is a point estimate with no variance', got \"# Stand Sheet \u2014 SGH-07 # locality: Tahoe NF, Sagehen Creek, N-facing bench # observer R. Wright \u2014 2026-09-06 \u2014 39.4312, -120.2381 \u2014 1985 m # plot: circle r=11.28 m = 400 m\u00b2 (0.0400 ha), EF 25.0, min DBH 5 cm, breast height 1.37 m # site: aspect 45\u00b0 \u00b7 slope 35% \u00b7 mid slope \u00b7 mesic \u00b7 sandy loam \u00b7 granodiorite # cover: canopy 45% \u00b7 shrub 20% \u00b7 herb 15% \u00b7 bare 10% \u00b7 litter 3.5 cm \u00b7 browse line 1.8 m # disturbance: fire scars, logging stumps # stand: 4 live stems, 0 snags # 100 stems/ha, 6.9 m\u00b2 BA/ha, QMD 29.7 cm, SDI 132 data: sgh-07 Douglas-fir=3 ponderosa-pine=1 # Douglas-fir: 3 stems, 5.70 m\u00b2/ha # ponderosa pine: 1 stems, 1.23 m\u00b2/ha note: coarse woody debris 134.7 m3/ha from 5 intersects on 30 m (van Wagner line-intercept) # interactions (2) note: mule deer eats ponderosa pine # herbivory / browse, sign, confidence high \u2014 browse line at 1.8 m on every stem below the bench note: Clark's nutcracker disperses whitebark pine # seed dispersal (mutualism), literature, confidence medium # notes: Two-storey stand: scattered old Douglas-fir over a ponderosa cohort. Stumps of a 1950s entry. # One plot is a point estimate with no variance. Per-hectare values above scale a single sample.\"",
+       "detail": "output.boxes.ecoOut contains 'One plot is a point estimate with no variance', got \"# Stand Sheet \u2014 SGH-07 # locality: Tahoe NF, Sagehen Creek, N-facing bench # observer R. Wright \u2014 2026-09-06 \u2014 39.4312, -120.2381 \u2014 1985 m # plot: circle r=11.28 m = 399.73 m\u00b2 (0.0400 ha), EF 25.02, min DBH 5 cm, breast height 1.37 m # site: aspect 45\u00b0 \u00b7 slope 35% \u00b7 mid slope \u00b7 mesic \u00b7 sandy loam \u00b7 granodiorite # cover: canopy 45% \u00b7 shrub 20% \u00b7 herb 15% \u00b7 bare 10% \u00b7 litter 3.5 cm \u00b7 browse line 1.8 m # disturbance: fire scars, logging stumps # stand: 4 live stems, 0 snags # 100 stems/ha, 6.9 m\u00b2 BA/ha, QMD 29.7 cm, SDI 132 data: sgh-07 Douglas-fir=3 ponderosa-pine=1 # Douglas-fir: 3 stems, 5.70 m\u00b2/ha # ponderosa pine: 1 stems, 1.23 m\u00b2/ha note: coarse woody debris 134.7 m3/ha from 5 intersects on 30 m (van Wagner line-intercept) # interactions (2) note: mule deer eats ponderosa pine # herbivory / browse, sign, confidence high \u2014 browse line at 1.8 m on every stem below the bench note: Clark's nutcracker disperses whitebark pine # seed dispersal (mutualism), literature, confidence medium # notes: Two-storey stand: scattered old Douglas-fir over a ponderosa cohort. Stumps of a 1950s entry. # One plot is a point estimate with no variance. Per-hectare values above scale a single sample.\"",
        "path": "output.boxes.ecoOut#6",
        "verdict": "CONFIRMED"
       }
      ],
      "id": "sheet",
-     "message": "21 figure(s), 25 box(es), 1 list(s), 4 table(s), 24 heading(s)",
-     "ms": 32,
+     "message": "22 figure(s), 25 box(es), 1 list(s), 4 table(s), 24 heading(s)",
+     "ms": 50,
      "result": "driven"
     },
     {
@@ -34855,7 +34860,7 @@
      "expectations": [],
      "id": "g153-print-press",
      "message": "activate action_btn:54",
-     "ms": 24,
+     "ms": 22,
      "result": "driven"
     },
     {
@@ -34909,7 +34914,7 @@
      "expectations": [],
      "id": "g153-dwc-press",
      "message": "activate action_btn:52",
-     "ms": 24,
+     "ms": 29,
      "result": "driven"
     },
     {
@@ -34921,19 +34926,29 @@
        "verdict": "CONFIRMED"
       },
       {
-       "detail": "output.payloads.0.text contains 'occurrenceID,basisOfRecord,scientificName,eventDate,recordedBy,decimalLatitude,decimalLongitude,geodeticDatum', got 'occurrenceID,basisOfRecord,scientificName,eventDate,recordedBy,decimalLatitude,decimalLongitude,geodeticDatum,coordinateUncertaintyInMeters,locality,locationID,eventID,parentEventID,habitat,taxonRank,kingdom,vernacularName,organismQuantity,organismQuantityType,occurrenceStatus,samplingProtocol,sampleSizeValue,sampleSizeUnit,verbatimElevation,identifiedBy,institutionCode,collectionCode,catalogNumber,associatedTaxa,associatedSequences,occurrenceRemarks,informationWithheld,dataGeneralizations\\nc6c294df-df60-47a2-bf0d-c0195c924908,HumanObservation,Pseudotsuga menziesii,2026-09-06,R. Wright,39.4312,-120.2381,WGS84,47,\"Tahoe NF, Sagehen Creek, N-facing bench\",SGH-07,stand:SGH-07:2026-09-06,SGH2026:plot:03,mid slope; mesic; sandy loam; granodiorite; slope 35%; aspect 45 deg,species,Plantae,Douglas-fir,1,individuals,present,\"fixed-area circular plot, r=11.28 m (400 m2); all stems >= 5 cm DBH tallied\",400,square metre,1985,,,,,,,\"stem 1; DBH 30 cm; height 34 m; crown dominant; live; plot disturbance: fire scars, logging stumps; old bark plates, fire scar on the uphill side\",,\\n2611d71d-0682-4172-bdc7-d95c39e4d850,HumanObservation,Pseudotsuga menziesii,2026-09-06,R. Wright,39.4312,-120.2381,WGS84,47,\"Tahoe NF, Sagehen Creek, N-facing bench\",SGH-07,stand:SGH-07:2026-09-06,SGH2026:plot:03,mid slope; mesic; sandy loam; granodiorite; slope 35%; aspect 45 deg,species,Plantae,Douglas-fir,1,individuals,present,\"fixed-area circular plot, r=11.28 m (400 m2); all stems >= 5 cm DBH tallied\",400,square metre,1985,,,,,,,\"stem 2; DBH 40 cm; crown dominant; live; plot disturbance: fire scars, logging stumps\",,\\nd9460f9e-c20f-4c5c-88c2-028fc01b0c2e,HumanObservation,Pseudotsuga menziesii,2026-09-06,R. Wright,39.4312,-120.2381,WGS84,47,\"Tahoe NF, Sagehen Creek, N-facing bench\",SGH-07,stand:SGH-07:2026-09-06,SGH2026:plot:03,mid slope; mesic; sandy loam; granodiorite; slope 35%; aspect 45 deg,species,Plantae,Douglas-fir,1,individuals,present,\"fixed-area circular plot, r=11.28 m (400 m2); all stems >= 5 cm DBH tallied\",400,square metre,1985,,,,,,,\"stem 3; DBH 20 cm; crown dominant; live; plot disturbance: fire scars, logging stumps\",,\\n2ae3986c-c2d1-4298-9f2f-38c82e5c705d,HumanObservation,Pinus ponderosa,2026-09-06,R. Wright,39.4312,-120.2381,WGS84,47,\"Tahoe NF, Sagehen Creek, N-facing bench\",SGH-07,stand:SGH-07:2026-09-06,SGH2026:plot:03,mid slope; mesic; sandy loam; granodiorite; slope 35%; aspect 45 deg,species,Plantae,ponderosa pine,1,individuals,present,\"fixed-area circular plot, r=11.28 m (400 m2); all stems >= 5 cm DBH tallied\",400,square metre,1985,,,,,,,\"stem 4; DBH 25 cm; crown dominant; live; plot disturbance: fire scars, logging stumps\",,'",
+       "detail": "output.payloads.0.text contains 'occurrenceID,basisOfRecord,scientificName,eventDate,recordedBy,decimalLatitude,decimalLongitude,geodeticDatum', got 'occurrenceID,basisOfRecord,scientificName,eventDate,recordedBy,decimalLatitude,decimalLongitude,geodeticDatum,coordinateUncertaintyInMeters,locality,locationID,eventID,parentEventID,habitat,taxonRank,kingdom,vernacularName,organismQuantity,organismQuantityType,occurrenceStatus,samplingProtocol,sampleSizeValue,sampleSizeUnit,verbatimElevation,identifiedBy,institutionCode,collectionCode,catalogNumber,associatedTaxa,associatedSequences,occurrenceRemarks,informationWithheld,dataGeneralizations\\n70ac5c0d-9b1a-4830-bff7-dc7bdf387f48,HumanObservation,Pseudotsuga menziesii,2026-09-06,R. Wright,39.4312,-120.2381,WGS84,47,\"Tahoe NF, Sagehen Creek, N-facing bench\",SGH-07,stand:SGH-07:2026-09-06,SGH2026:plot:03,mid slope; mesic; sandy loam; granodiorite; slope 35%; aspect 45 deg,species,Plantae,Douglas-fir,1,individuals,present,\"fixed-area circular plot, r=11.28 m (399.73 m2); all stems >= 5 cm DBH tallied\",399.73,square metre,1985,,,,,,,\"stem 1; DBH 30 cm; height 34 m; crown dominant; live; plot disturbance: fire scars, logging stumps; old bark plates, fire scar on the uphill side\",,\\n278d835a-c662-4578-96ba-b0c189da54d7,HumanObservation,Pseudotsuga menziesii,2026-09-06,R. Wright,39.4312,-120.2381,WGS84,47,\"Tahoe NF, Sagehen Creek, N-facing bench\",SGH-07,stand:SGH-07:2026-09-06,SGH2026:plot:03,mid slope; mesic; sandy loam; granodiorite; slope 35%; aspect 45 deg,species,Plantae,Douglas-fir,1,individuals,present,\"fixed-area circular plot, r=11.28 m (399.73 m2); all stems >= 5 cm DBH tallied\",399.73,square metre,1985,,,,,,,\"stem 2; DBH 40 cm; crown dominant; live; plot disturbance: fire scars, logging stumps\",,\\n1e821803-e63f-4ce7-8756-b7ec72b8c44e,HumanObservation,Pseudotsuga menziesii,2026-09-06,R. Wright,39.4312,-120.2381,WGS84,47,\"Tahoe NF, Sagehen Creek, N-facing bench\",SGH-07,stand:SGH-07:2026-09-06,SGH2026:plot:03,mid slope; mesic; sandy loam; granodiorite; slope 35%; aspect 45 deg,species,Plantae,Douglas-fir,1,individuals,present,\"fixed-area circular plot, r=11.28 m (399.73 m2); all stems >= 5 cm DBH tallied\",399.73,square metre,1985,,,,,,,\"stem 3; DBH 20 cm; crown dominant; live; plot disturbance: fire scars, logging stumps\",,\\nbdc2b4e2-56cc-4b73-86aa-a74f444f8e76,HumanObservation,Pinus ponderosa,2026-09-06,R. Wright,39.4312,-120.2381,WGS84,47,\"Tahoe NF, Sagehen Creek, N-facing bench\",SGH-07,stand:SGH-07:2026-09-06,SGH2026:plot:03,mid slope; mesic; sandy loam; granodiorite; slope 35%; aspect 45 deg,species,Plantae,ponderosa pine,1,individuals,present,\"fixed-area circular plot, r=11.28 m (399.73 m2); all stems >= 5 cm DBH tallied\",399.73,square metre,1985,,,,,mule deer eats this taxon,,\"stem 4; DBH 25 cm; crown dominant; live; plot disturbance: fire scars, logging stumps\",,'",
        "path": "output.payloads.0.text",
        "verdict": "CONFIRMED"
       },
       {
-       "detail": "output.payloads.0.text contains 'Pseudotsuga menziesii', got 'occurrenceID,basisOfRecord,scientificName,eventDate,recordedBy,decimalLatitude,decimalLongitude,geodeticDatum,coordinateUncertaintyInMeters,locality,locationID,eventID,parentEventID,habitat,taxonRank,kingdom,vernacularName,organismQuantity,organismQuantityType,occurrenceStatus,samplingProtocol,sampleSizeValue,sampleSizeUnit,verbatimElevation,identifiedBy,institutionCode,collectionCode,catalogNumber,associatedTaxa,associatedSequences,occurrenceRemarks,informationWithheld,dataGeneralizations\\nc6c294df-df60-47a2-bf0d-c0195c924908,HumanObservation,Pseudotsuga menziesii,2026-09-06,R. Wright,39.4312,-120.2381,WGS84,47,\"Tahoe NF, Sagehen Creek, N-facing bench\",SGH-07,stand:SGH-07:2026-09-06,SGH2026:plot:03,mid slope; mesic; sandy loam; granodiorite; slope 35%; aspect 45 deg,species,Plantae,Douglas-fir,1,individuals,present,\"fixed-area circular plot, r=11.28 m (400 m2); all stems >= 5 cm DBH tallied\",400,square metre,1985,,,,,,,\"stem 1; DBH 30 cm; height 34 m; crown dominant; live; plot disturbance: fire scars, logging stumps; old bark plates, fire scar on the uphill side\",,\\n2611d71d-0682-4172-bdc7-d95c39e4d850,HumanObservation,Pseudotsuga menziesii,2026-09-06,R. Wright,39.4312,-120.2381,WGS84,47,\"Tahoe NF, Sagehen Creek, N-facing bench\",SGH-07,stand:SGH-07:2026-09-06,SGH2026:plot:03,mid slope; mesic; sandy loam; granodiorite; slope 35%; aspect 45 deg,species,Plantae,Douglas-fir,1,individuals,present,\"fixed-area circular plot, r=11.28 m (400 m2); all stems >= 5 cm DBH tallied\",400,square metre,1985,,,,,,,\"stem 2; DBH 40 cm; crown dominant; live; plot disturbance: fire scars, logging stumps\",,\\nd9460f9e-c20f-4c5c-88c2-028fc01b0c2e,HumanObservation,Pseudotsuga menziesii,2026-09-06,R. Wright,39.4312,-120.2381,WGS84,47,\"Tahoe NF, Sagehen Creek, N-facing bench\",SGH-07,stand:SGH-07:2026-09-06,SGH2026:plot:03,mid slope; mesic; sandy loam; granodiorite; slope 35%; aspect 45 deg,species,Plantae,Douglas-fir,1,individuals,present,\"fixed-area circular plot, r=11.28 m (400 m2); all stems >= 5 cm DBH tallied\",400,square metre,1985,,,,,,,\"stem 3; DBH 20 cm; crown dominant; live; plot disturbance: fire scars, logging stumps\",,\\n2ae3986c-c2d1-4298-9f2f-38c82e5c705d,HumanObservation,Pinus ponderosa,2026-09-06,R. Wright,39.4312,-120.2381,WGS84,47,\"Tahoe NF, Sagehen Creek, N-facing bench\",SGH-07,stand:SGH-07:2026-09-06,SGH2026:plot:03,mid slope; mesic; sandy loam; granodiorite; slope 35%; aspect 45 deg,species,Plantae,ponderosa pine,1,individuals,present,\"fixed-area circular plot, r=11.28 m (400 m2); all stems >= 5 cm DBH tallied\",400,square metre,1985,,,,,,,\"stem 4; DBH 25 cm; crown dominant; live; plot disturbance: fire scars, logging stumps\",,'",
+       "detail": "output.payloads.0.text contains 'Pseudotsuga menziesii', got 'occurrenceID,basisOfRecord,scientificName,eventDate,recordedBy,decimalLatitude,decimalLongitude,geodeticDatum,coordinateUncertaintyInMeters,locality,locationID,eventID,parentEventID,habitat,taxonRank,kingdom,vernacularName,organismQuantity,organismQuantityType,occurrenceStatus,samplingProtocol,sampleSizeValue,sampleSizeUnit,verbatimElevation,identifiedBy,institutionCode,collectionCode,catalogNumber,associatedTaxa,associatedSequences,occurrenceRemarks,informationWithheld,dataGeneralizations\\n70ac5c0d-9b1a-4830-bff7-dc7bdf387f48,HumanObservation,Pseudotsuga menziesii,2026-09-06,R. Wright,39.4312,-120.2381,WGS84,47,\"Tahoe NF, Sagehen Creek, N-facing bench\",SGH-07,stand:SGH-07:2026-09-06,SGH2026:plot:03,mid slope; mesic; sandy loam; granodiorite; slope 35%; aspect 45 deg,species,Plantae,Douglas-fir,1,individuals,present,\"fixed-area circular plot, r=11.28 m (399.73 m2); all stems >= 5 cm DBH tallied\",399.73,square metre,1985,,,,,,,\"stem 1; DBH 30 cm; height 34 m; crown dominant; live; plot disturbance: fire scars, logging stumps; old bark plates, fire scar on the uphill side\",,\\n278d835a-c662-4578-96ba-b0c189da54d7,HumanObservation,Pseudotsuga menziesii,2026-09-06,R. Wright,39.4312,-120.2381,WGS84,47,\"Tahoe NF, Sagehen Creek, N-facing bench\",SGH-07,stand:SGH-07:2026-09-06,SGH2026:plot:03,mid slope; mesic; sandy loam; granodiorite; slope 35%; aspect 45 deg,species,Plantae,Douglas-fir,1,individuals,present,\"fixed-area circular plot, r=11.28 m (399.73 m2); all stems >= 5 cm DBH tallied\",399.73,square metre,1985,,,,,,,\"stem 2; DBH 40 cm; crown dominant; live; plot disturbance: fire scars, logging stumps\",,\\n1e821803-e63f-4ce7-8756-b7ec72b8c44e,HumanObservation,Pseudotsuga menziesii,2026-09-06,R. Wright,39.4312,-120.2381,WGS84,47,\"Tahoe NF, Sagehen Creek, N-facing bench\",SGH-07,stand:SGH-07:2026-09-06,SGH2026:plot:03,mid slope; mesic; sandy loam; granodiorite; slope 35%; aspect 45 deg,species,Plantae,Douglas-fir,1,individuals,present,\"fixed-area circular plot, r=11.28 m (399.73 m2); all stems >= 5 cm DBH tallied\",399.73,square metre,1985,,,,,,,\"stem 3; DBH 20 cm; crown dominant; live; plot disturbance: fire scars, logging stumps\",,\\nbdc2b4e2-56cc-4b73-86aa-a74f444f8e76,HumanObservation,Pinus ponderosa,2026-09-06,R. Wright,39.4312,-120.2381,WGS84,47,\"Tahoe NF, Sagehen Creek, N-facing bench\",SGH-07,stand:SGH-07:2026-09-06,SGH2026:plot:03,mid slope; mesic; sandy loam; granodiorite; slope 35%; aspect 45 deg,species,Plantae,ponderosa pine,1,individuals,present,\"fixed-area circular plot, r=11.28 m (399.73 m2); all stems >= 5 cm DBH tallied\",399.73,square metre,1985,,,,,mule deer eats this taxon,,\"stem 4; DBH 25 cm; crown dominant; live; plot disturbance: fire scars, logging stumps\",,'",
        "path": "output.payloads.0.text#2",
+       "verdict": "CONFIRMED"
+      },
+      {
+       "detail": "output.payloads.0.text contains 'mule deer eats this taxon', got 'occurrenceID,basisOfRecord,scientificName,eventDate,recordedBy,decimalLatitude,decimalLongitude,geodeticDatum,coordinateUncertaintyInMeters,locality,locationID,eventID,parentEventID,habitat,taxonRank,kingdom,vernacularName,organismQuantity,organismQuantityType,occurrenceStatus,samplingProtocol,sampleSizeValue,sampleSizeUnit,verbatimElevation,identifiedBy,institutionCode,collectionCode,catalogNumber,associatedTaxa,associatedSequences,occurrenceRemarks,informationWithheld,dataGeneralizations\\n70ac5c0d-9b1a-4830-bff7-dc7bdf387f48,HumanObservation,Pseudotsuga menziesii,2026-09-06,R. Wright,39.4312,-120.2381,WGS84,47,\"Tahoe NF, Sagehen Creek, N-facing bench\",SGH-07,stand:SGH-07:2026-09-06,SGH2026:plot:03,mid slope; mesic; sandy loam; granodiorite; slope 35%; aspect 45 deg,species,Plantae,Douglas-fir,1,individuals,present,\"fixed-area circular plot, r=11.28 m (399.73 m2); all stems >= 5 cm DBH tallied\",399.73,square metre,1985,,,,,,,\"stem 1; DBH 30 cm; height 34 m; crown dominant; live; plot disturbance: fire scars, logging stumps; old bark plates, fire scar on the uphill side\",,\\n278d835a-c662-4578-96ba-b0c189da54d7,HumanObservation,Pseudotsuga menziesii,2026-09-06,R. Wright,39.4312,-120.2381,WGS84,47,\"Tahoe NF, Sagehen Creek, N-facing bench\",SGH-07,stand:SGH-07:2026-09-06,SGH2026:plot:03,mid slope; mesic; sandy loam; granodiorite; slope 35%; aspect 45 deg,species,Plantae,Douglas-fir,1,individuals,present,\"fixed-area circular plot, r=11.28 m (399.73 m2); all stems >= 5 cm DBH tallied\",399.73,square metre,1985,,,,,,,\"stem 2; DBH 40 cm; crown dominant; live; plot disturbance: fire scars, logging stumps\",,\\n1e821803-e63f-4ce7-8756-b7ec72b8c44e,HumanObservation,Pseudotsuga menziesii,2026-09-06,R. Wright,39.4312,-120.2381,WGS84,47,\"Tahoe NF, Sagehen Creek, N-facing bench\",SGH-07,stand:SGH-07:2026-09-06,SGH2026:plot:03,mid slope; mesic; sandy loam; granodiorite; slope 35%; aspect 45 deg,species,Plantae,Douglas-fir,1,individuals,present,\"fixed-area circular plot, r=11.28 m (399.73 m2); all stems >= 5 cm DBH tallied\",399.73,square metre,1985,,,,,,,\"stem 3; DBH 20 cm; crown dominant; live; plot disturbance: fire scars, logging stumps\",,\\nbdc2b4e2-56cc-4b73-86aa-a74f444f8e76,HumanObservation,Pinus ponderosa,2026-09-06,R. Wright,39.4312,-120.2381,WGS84,47,\"Tahoe NF, Sagehen Creek, N-facing bench\",SGH-07,stand:SGH-07:2026-09-06,SGH2026:plot:03,mid slope; mesic; sandy loam; granodiorite; slope 35%; aspect 45 deg,species,Plantae,ponderosa pine,1,individuals,present,\"fixed-area circular plot, r=11.28 m (399.73 m2); all stems >= 5 cm DBH tallied\",399.73,square metre,1985,,,,,mule deer eats this taxon,,\"stem 4; DBH 25 cm; crown dominant; live; plot disturbance: fire scars, logging stumps\",,'",
+       "path": "output.payloads.0.text#3",
+       "verdict": "CONFIRMED"
+      },
+      {
+       "detail": "output.payloads.0.text contains '399.73,square metre', got 'occurrenceID,basisOfRecord,scientificName,eventDate,recordedBy,decimalLatitude,decimalLongitude,geodeticDatum,coordinateUncertaintyInMeters,locality,locationID,eventID,parentEventID,habitat,taxonRank,kingdom,vernacularName,organismQuantity,organismQuantityType,occurrenceStatus,samplingProtocol,sampleSizeValue,sampleSizeUnit,verbatimElevation,identifiedBy,institutionCode,collectionCode,catalogNumber,associatedTaxa,associatedSequences,occurrenceRemarks,informationWithheld,dataGeneralizations\\n70ac5c0d-9b1a-4830-bff7-dc7bdf387f48,HumanObservation,Pseudotsuga menziesii,2026-09-06,R. Wright,39.4312,-120.2381,WGS84,47,\"Tahoe NF, Sagehen Creek, N-facing bench\",SGH-07,stand:SGH-07:2026-09-06,SGH2026:plot:03,mid slope; mesic; sandy loam; granodiorite; slope 35%; aspect 45 deg,species,Plantae,Douglas-fir,1,individuals,present,\"fixed-area circular plot, r=11.28 m (399.73 m2); all stems >= 5 cm DBH tallied\",399.73,square metre,1985,,,,,,,\"stem 1; DBH 30 cm; height 34 m; crown dominant; live; plot disturbance: fire scars, logging stumps; old bark plates, fire scar on the uphill side\",,\\n278d835a-c662-4578-96ba-b0c189da54d7,HumanObservation,Pseudotsuga menziesii,2026-09-06,R. Wright,39.4312,-120.2381,WGS84,47,\"Tahoe NF, Sagehen Creek, N-facing bench\",SGH-07,stand:SGH-07:2026-09-06,SGH2026:plot:03,mid slope; mesic; sandy loam; granodiorite; slope 35%; aspect 45 deg,species,Plantae,Douglas-fir,1,individuals,present,\"fixed-area circular plot, r=11.28 m (399.73 m2); all stems >= 5 cm DBH tallied\",399.73,square metre,1985,,,,,,,\"stem 2; DBH 40 cm; crown dominant; live; plot disturbance: fire scars, logging stumps\",,\\n1e821803-e63f-4ce7-8756-b7ec72b8c44e,HumanObservation,Pseudotsuga menziesii,2026-09-06,R. Wright,39.4312,-120.2381,WGS84,47,\"Tahoe NF, Sagehen Creek, N-facing bench\",SGH-07,stand:SGH-07:2026-09-06,SGH2026:plot:03,mid slope; mesic; sandy loam; granodiorite; slope 35%; aspect 45 deg,species,Plantae,Douglas-fir,1,individuals,present,\"fixed-area circular plot, r=11.28 m (399.73 m2); all stems >= 5 cm DBH tallied\",399.73,square metre,1985,,,,,,,\"stem 3; DBH 20 cm; crown dominant; live; plot disturbance: fire scars, logging stumps\",,\\nbdc2b4e2-56cc-4b73-86aa-a74f444f8e76,HumanObservation,Pinus ponderosa,2026-09-06,R. Wright,39.4312,-120.2381,WGS84,47,\"Tahoe NF, Sagehen Creek, N-facing bench\",SGH-07,stand:SGH-07:2026-09-06,SGH2026:plot:03,mid slope; mesic; sandy loam; granodiorite; slope 35%; aspect 45 deg,species,Plantae,ponderosa pine,1,individuals,present,\"fixed-area circular plot, r=11.28 m (399.73 m2); all stems >= 5 cm DBH tallied\",399.73,square metre,1985,,,,,mule deer eats this taxon,,\"stem 4; DBH 25 cm; crown dominant; live; plot disturbance: fire scars, logging stumps\",,'",
+       "path": "output.payloads.0.text#4",
        "verdict": "CONFIRMED"
       }
      ],
      "id": "g153-dwc",
      "message": "1 payload(s)",
-     "ms": 2,
+     "ms": 3,
      "result": "driven"
     },
     {
@@ -34941,7 +34956,7 @@
      "expectations": [],
      "id": "g153-eco-press",
      "message": "activate action_btn:50",
-     "ms": 22,
+     "ms": 23,
      "result": "driven"
     },
     {
@@ -34953,14 +34968,14 @@
        "verdict": "CONFIRMED"
       },
       {
-       "detail": "output.payloads.0.text contains '# plot: circle r=11.28 m = 400 m\u00b2 (0.0400 ha), EF 25.0, min DBH 5 cm, breast height 1.37 m', got \"# Stand Sheet \u2014 SGH-07\\n# locality: Tahoe NF, Sagehen Creek, N-facing bench\\n# observer R. Wright \u2014 2026-09-06 \u2014 39.4312, -120.2381 \u2014 1985 m\\n# plot: circle r=11.28 m = 400 m\u00b2 (0.0400 ha), EF 25.0, min DBH 5 cm, breast height 1.37 m\\n# site: aspect 45\u00b0 \u00b7 slope 35% \u00b7 mid slope \u00b7 mesic \u00b7 sandy loam \u00b7 granodiorite\\n# cover: canopy 45% \u00b7 shrub 20% \u00b7 herb 15% \u00b7 bare 10% \u00b7 litter 3.5 cm \u00b7 browse line 1.8 m\\n# disturbance: fire scars, logging stumps\\n\\n# stand: 4 live stems, 0 snags\\n# 100 stems/ha, 6.9 m\u00b2 BA/ha, QMD 29.7 cm, SDI 132\\ndata: sgh-07 Douglas-fir=3 ponderosa-pine=1\\n#   Douglas-fir: 3 stems, 5.70 m\u00b2/ha\\n#   ponderosa pine: 1 stems, 1.23 m\u00b2/ha\\nnote: coarse woody debris 134.7 m3/ha from 5 intersects on 30 m (van Wagner line-intercept)\\n\\n# interactions (2)\\nnote: mule deer eats ponderosa pine   # herbivory / browse, sign, confidence high \u2014 browse line at 1.8 m on every stem below the bench\\nnote: Clark's nutcracker disperses whitebark pine   # seed dispersal (mutualism), literature, confidence medium\\n\\n# notes: Two-storey stand: scattered old Douglas-fir over a ponderosa cohort. Stumps of a 1950s entry.\\n\\n# One plot is a point estimate with no variance. Per-hectare values above scale a single sample.\"",
+       "detail": "output.payloads.0.text contains '# plot: circle r=11.28 m = 399.73 m\u00b2 (0.0400 ha), EF 25.02, min DBH 5 cm, breast height 1.37 m', got \"# Stand Sheet \u2014 SGH-07\\n# locality: Tahoe NF, Sagehen Creek, N-facing bench\\n# observer R. Wright \u2014 2026-09-06 \u2014 39.4312, -120.2381 \u2014 1985 m\\n# plot: circle r=11.28 m = 399.73 m\u00b2 (0.0400 ha), EF 25.02, min DBH 5 cm, breast height 1.37 m\\n# site: aspect 45\u00b0 \u00b7 slope 35% \u00b7 mid slope \u00b7 mesic \u00b7 sandy loam \u00b7 granodiorite\\n# cover: canopy 45% \u00b7 shrub 20% \u00b7 herb 15% \u00b7 bare 10% \u00b7 litter 3.5 cm \u00b7 browse line 1.8 m\\n# disturbance: fire scars, logging stumps\\n\\n# stand: 4 live stems, 0 snags\\n# 100 stems/ha, 6.9 m\u00b2 BA/ha, QMD 29.7 cm, SDI 132\\ndata: sgh-07 Douglas-fir=3 ponderosa-pine=1\\n#   Douglas-fir: 3 stems, 5.70 m\u00b2/ha\\n#   ponderosa pine: 1 stems, 1.23 m\u00b2/ha\\nnote: coarse woody debris 134.7 m3/ha from 5 intersects on 30 m (van Wagner line-intercept)\\n\\n# interactions (2)\\nnote: mule deer eats ponderosa pine   # herbivory / browse, sign, confidence high \u2014 browse line at 1.8 m on every stem below the bench\\nnote: Clark's nutcracker disperses whitebark pine   # seed dispersal (mutualism), literature, confidence medium\\n\\n# notes: Two-storey stand: scattered old Douglas-fir over a ponderosa cohort. Stumps of a 1950s entry.\\n\\n# One plot is a point estimate with no variance. Per-hectare values above scale a single sample.\"",
        "path": "output.payloads.0.text",
        "verdict": "CONFIRMED"
       }
      ],
      "id": "g153-eco",
      "message": "1 payload(s)",
-     "ms": 2,
+     "ms": 3,
      "result": "driven"
     },
     {
@@ -34968,7 +34983,7 @@
      "expectations": [],
      "id": "g153-web-press",
      "message": "activate action_btn:53",
-     "ms": 22,
+     "ms": 23,
      "result": "driven"
     },
     {
@@ -34992,7 +35007,7 @@
      ],
      "id": "g153-web",
      "message": "1 payload(s)",
-     "ms": 2,
+     "ms": 3,
      "result": "driven"
     },
     {
@@ -35000,7 +35015,7 @@
      "expectations": [],
      "id": "g153-pack-press",
      "message": "activate action_btn:37",
-     "ms": 100,
+     "ms": 89,
      "result": "driven"
     },
     {
@@ -35019,7 +35034,7 @@
      ],
      "id": "g153-pack",
      "message": "1 payload(s)",
-     "ms": 3,
+     "ms": 4,
      "result": "driven"
     },
     {
@@ -35027,7 +35042,7 @@
      "expectations": [],
      "id": "g153-prompt-press",
      "message": "activate action_btn:36",
-     "ms": 23,
+     "ms": 22,
      "result": "driven"
     },
     {
@@ -35046,21 +35061,21 @@
      ],
      "id": "g153-prompt",
      "message": "1 payload(s)",
-     "ms": 2,
+     "ms": 3,
      "result": "driven"
     },
     {
      "action": "read-report",
      "expectations": [
       {
-       "detail": "output.boxes.ecoOut contains '# stand: 4 live stems, 0 snags', got \"# Stand Sheet \u2014 SGH-07 # locality: Tahoe NF, Sagehen Creek, N-facing bench # observer R. Wright \u2014 2026-09-06 \u2014 39.4312, -120.2381 \u2014 1985 m # plot: circle r=11.28 m = 400 m\u00b2 (0.0400 ha), EF 25.0, min DBH 5 cm, breast height 1.37 m # site: aspect 45\u00b0 \u00b7 slope 35% \u00b7 mid slope \u00b7 mesic \u00b7 sandy loam \u00b7 granodiorite # cover: canopy 45% \u00b7 shrub 20% \u00b7 herb 15% \u00b7 bare 10% \u00b7 litter 3.5 cm \u00b7 browse line 1.8 m # disturbance: fire scars, logging stumps # stand: 4 live stems, 0 snags # 100 stems/ha, 6.9 m\u00b2 BA/ha, QMD 29.7 cm, SDI 132 data: sgh-07 Douglas-fir=3 ponderosa-pine=1 # Douglas-fir: 3 stems, 5.70 m\u00b2/ha # ponderosa pine: 1 stems, 1.23 m\u00b2/ha note: coarse woody debris 134.7 m3/ha from 5 intersects on 30 m (van Wagner line-intercept) # interactions (2) note: mule deer eats ponderosa pine # herbivory / browse, sign, confidence high \u2014 browse line at 1.8 m on every stem below the bench note: Clark's nutcracker disperses whitebark pine # seed dispersal (mutualism), literature, confidence medium # notes: Two-storey stand: scattered old Douglas-fir over a ponderosa cohort. Stumps of a 1950s entry. # One plot is a point estimate with no variance. Per-hectare values above scale a single sample.\"",
+       "detail": "output.boxes.ecoOut contains '# stand: 4 live stems, 0 snags', got \"# Stand Sheet \u2014 SGH-07 # locality: Tahoe NF, Sagehen Creek, N-facing bench # observer R. Wright \u2014 2026-09-06 \u2014 39.4312, -120.2381 \u2014 1985 m # plot: circle r=11.28 m = 399.73 m\u00b2 (0.0400 ha), EF 25.02, min DBH 5 cm, breast height 1.37 m # site: aspect 45\u00b0 \u00b7 slope 35% \u00b7 mid slope \u00b7 mesic \u00b7 sandy loam \u00b7 granodiorite # cover: canopy 45% \u00b7 shrub 20% \u00b7 herb 15% \u00b7 bare 10% \u00b7 litter 3.5 cm \u00b7 browse line 1.8 m # disturbance: fire scars, logging stumps # stand: 4 live stems, 0 snags # 100 stems/ha, 6.9 m\u00b2 BA/ha, QMD 29.7 cm, SDI 132 data: sgh-07 Douglas-fir=3 ponderosa-pine=1 # Douglas-fir: 3 stems, 5.70 m\u00b2/ha # ponderosa pine: 1 stems, 1.23 m\u00b2/ha note: coarse woody debris 134.7 m3/ha from 5 intersects on 30 m (van Wagner line-intercept) # interactions (2) note: mule deer eats ponderosa pine # herbivory / browse, sign, confidence high \u2014 browse line at 1.8 m on every stem below the bench note: Clark's nutcracker disperses whitebark pine # seed dispersal (mutualism), literature, confidence medium # notes: Two-storey stand: scattered old Douglas-fir over a ponderosa cohort. Stumps of a 1950s entry. # One plot is a point estimate with no variance. Per-hectare values above scale a single sample.\"",
        "path": "output.boxes.ecoOut",
        "verdict": "CONFIRMED"
       }
      ],
      "id": "g153-close",
-     "message": "21 figure(s), 25 box(es), 1 list(s), 4 table(s), 24 heading(s)",
-     "ms": 7,
+     "message": "22 figure(s), 25 box(es), 1 list(s), 4 table(s), 24 heading(s)",
+     "ms": 12,
      "result": "driven"
     },
     {
@@ -35084,7 +35099,7 @@
      ],
      "id": "intact",
      "message": "read the page",
-     "ms": 7,
+     "ms": 9,
      "result": "driven"
     }
    ],

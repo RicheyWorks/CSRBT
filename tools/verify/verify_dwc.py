@@ -415,10 +415,26 @@ with sync_playwright() as p:
                for r in rows), rows[0]["organismQuantityType"])
         ck("stems-per-hectare is not exported as a quantity",
            all(r["organismQuantity"] == 1 for r in rows), "")
-        ck("sampleSizeValue is the plot area",
-           rows[0]["sampleSizeValue"] == "%.0f" % area, rows[0]["sampleSizeValue"])
+        # ADR-198. This used to read "%.0f" -- 400 for a 399.73 m² circle --
+        # which is the figure the plot is NAMED after, not the one a reader
+        # recomputing density from the deposit needs.
+        ck("sampleSizeValue is the plot area, to the place it differs from the nickname",
+           rows[0]["sampleSizeValue"] == "399.73", rows[0]["sampleSizeValue"])
+        ck("and it is the area, not the nickname",
+           abs(float(rows[0]["sampleSizeValue"]) - area) < 0.005,
+           (rows[0]["sampleSizeValue"], area))
         ck("samplingProtocol states the minimum tallied DBH",
            "5 cm DBH" in rows[0]["samplingProtocol"], rows[0]["samplingProtocol"])
+        # A record whose protocol says one area and whose sampleSizeValue says
+        # another is a record arguing with itself, whichever one is right.
+        ck("samplingProtocol quotes the same area sampleSizeValue does",
+           ("(" + rows[0]["sampleSizeValue"] + " m2)") in rows[0]["samplingProtocol"],
+           rows[0]["samplingProtocol"])
+        # No interaction was recorded in this run, so the honest value is empty
+        # -- not "unknown", and not a column that is always empty either.
+        ck("associatedTaxa is empty when no edge names the species",
+           all(r.get("associatedTaxa", "") == "" for r in rows),
+           [r.get("associatedTaxa") for r in rows][:3])
         ck("stand kingdom is Plantae", rows[0]["kingdom"] == "Plantae", rows[0]["kingdom"])
         ck("stand locality is the typed place name",
            rows[0]["locality"] == "Sagehen Creek", rows[0]["locality"])

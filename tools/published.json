@@ -3,9 +3,9 @@
   "observed": {},
   "pages": {
     "_harness-board.html": {
-      "at": 1789240869,
+      "at": 1789266836,
       "dated_by": "the fetch time the reader reported -- about the fetch, not about the version",
-      "sha": "23ae260360b7f7e629a37a2a665853ade2c04c534003569a6c10fad6c983f79b",
+      "sha": "51aa711a8b471dbaef9418fc669ed085f6986df3898f8f30075f543077b59abb",
       "via": "read"
     },
     "adr-031.html": {
@@ -225,15 +225,15 @@
       "via": "read"
     },
     "soil-suite.html": {
-      "at": 1789041079,
+      "at": 1789266795,
       "dated_by": "the fetch time the reader reported -- about the fetch, not about the version",
-      "sha": "bdbaa3cd8711cb94f3667d60122bee019eb40770bbf19795ab8612a77cebe9ab",
+      "sha": "08fad31fab999d87787810e7d174ec1c1f44856976fda661b4967fca5acfe77e",
       "via": "read"
     },
     "stand-sheet.html": {
-      "at": 1788757167,
-      "dated_by": "the version epoch in the filename",
-      "sha": "ebe780b154144862c5a770bf2da3f335fe6bd45df29babbf58ed03d8ea688e03",
+      "at": 1789266795,
+      "dated_by": "the fetch time the reader reported -- about the fetch, not about the version",
+      "sha": "57f92f3646b2ce5979d76343f54f42732f2567748886685dbc946462448c0bfc",
       "via": "read"
     },
     "survey-design.html": {

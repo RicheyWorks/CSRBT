@@ -21,6 +21,79 @@ def _u(name):
     return "file://" + _os.path.join(ROOT, "docs", name).replace(_os.sep, "/")
 
 
+def _figs(banner):
+    """The two numbers the area banner prints, read back out of the sentence a
+    field worker reads. ADR-198: the whole defect was that these two disagreed
+    with the plot and agreed with each other, so a check that recomputes them
+    from the page's own state would have missed it -- they have to come off
+    the rendered text. Reads the banner's "Expansion factor 25.02" and the
+    field sheet's terser "EF 25.02" alike, so the two can be compared."""
+    import re as _re
+    m = _re.search(r"([\d.]+)\s*m²", banner)
+    e = _re.search(r"(?:Expansion factor|EF)\s*([\d.]+)", banner)
+    return (float(m.group(1)) if m else None, float(e.group(1)) if e else None)
+
+
+def _clip(pg, btn):
+    """What the page's own copy button handed to the clipboard. The button is
+    the real path -- a suite that calls the row builder directly would pass on
+    a page whose button is wired to nothing."""
+    pg.evaluate("""()=>{window.__clip=null;
+      Object.defineProperty(navigator,'clipboard',{configurable:true,
+        value:{writeText:function(t){window.__clip=t;return Promise.resolve();}}});}""")
+    pane = pg.evaluate("""(s)=>{const e=document.querySelector(s); if(!e) return null;
+      const p=e.closest('section.pane'); return p?p.id:null;}""", btn)
+    if pane:
+        pg.evaluate("""(p)=>{const t=document.querySelector('.tab[data-pane="'+p+'"]');
+          if(t) t.click();}""", pane)
+        pg.wait_for_timeout(200)
+    pg.click(btn)
+    pg.wait_for_timeout(250)
+    return pg.evaluate("()=>window.__clip")
+
+
+def _dwc(pg):
+    """The Darwin Core rows the export button builds, caught at DWC.table --
+    the same hook the cross-page deposit suite uses."""
+    pg.evaluate("""()=>{window.__cap=null; var o=DWC.table;
+      DWC.table=function(r){ window.__cap=r; return o(r); };}""")
+    pane = pg.evaluate("""()=>{const e=document.querySelector('#dwcCopy');
+      if(!e) return null; const p=e.closest('section.pane'); return p?p.id:null;}""")
+    if pane:
+        pg.evaluate("""(p)=>{const t=document.querySelector('.tab[data-pane="'+p+'"]');
+          if(t) t.click();}""", pane)
+        pg.wait_for_timeout(200)
+    pg.click("#dwcCopy")
+    pg.wait_for_timeout(250)
+    return pg.evaluate("()=>window.__cap")
+
+
+def _edge(pg, a, b, typename):
+    """Record one interaction the way a thumb does."""
+    pg.click('.tab[data-pane="p-web"]'); pg.wait_for_timeout(220)
+    pg.fill("#iA", a); pg.fill("#iB", b)
+    pg.evaluate("""(n)=>{const o=[...document.querySelectorAll('#intEntry .opt')]
+      .find(x=>x.textContent.indexOf(n)>=0); if(o) o.click();}""", typename)
+    pg.wait_for_timeout(150)
+    pg.click("#iAdd"); pg.wait_for_timeout(220)
+
+
+def _thlab(pg):
+    """The top-height tile's label, or "" when the tile is not shown. ADR-198
+    put the sample size in a tile of its own rather than in this label, so
+    this is checked for STABILITY: a figure whose name moves with the data
+    cannot be followed across a session."""
+    return pg.evaluate("""()=>{const t=[...document.querySelectorAll('#tStats .tile .l')]
+      .find(x=>x.textContent.indexOf('top height')>=0); return t?t.textContent:"";}""")
+
+
+def _slack(area, ef):
+    """How far a printed area times a printed factor may sit off 10,000 and
+    still be nothing but the two roundings. Each is printed to two decimals,
+    so each is within 0.005 of the truth."""
+    return 0.005 * (area + ef) + 1e-9
+
+
 def _fek_version():
     """The version FEK actually declares, read from its source rather than frozen
     here -- a bump is not a regression, and a suite that says otherwise gets
@@ -186,8 +259,25 @@ with sync_playwright() as p:
        pg.eval_on_selector_all("#p-plot select","e=>e.length")==0,
        pg.eval_on_selector_all("#p-plot select","e=>e.map(x=>x.id)"))
     sa=pg.inner_text("#sAreaOut")
-    ck("default plot = 400 m2", "400 m²" in sa, sa[:120])
-    ck("expansion factor stated", "%.1f"%E in sa, sa[:160])
+    # ADR-198. The banner used to round the default circle to "400 m²" at
+    # "EF 25.0" -- a pair that is internally consistent (10,000/400 IS 25.0)
+    # and wrong about the plot, while the CSV scaled on the real 25.01681.
+    # These check the printed figures against the geometry, and then against
+    # each other, which is the property that failed.
+    ck("default circle is printed as what it encloses, not as its nickname",
+       "399.73 m²" in sa and "400 m²" not in sa, sa[:160])
+    ck("expansion factor printed to the place that distinguishes it",
+       "Expansion factor 25.02" in sa, sa[:160])
+    pa, pe = _figs(sa)
+    ck("printed area = πr² to the place printed", abs(pa-A) < 0.005, (pa, A))
+    ck("printed EF = 10,000/area to the place printed", abs(pe-E) < 0.005, (pe, E))
+    # Both figures are printed to two decimals, so each carries up to half a
+    # hundredth of error and the product carries 0.005*(a+e) of it. Anything
+    # beyond that is not rounding, it is two different plots.
+    ck("printed EF and printed area reconcile to a hectare",
+       abs(pa*pe-10000) <= _slack(pa, pe), (pa, pe, pa*pe, _slack(pa, pe)))
+    ck("banner's hectares agree with its square metres",
+       ("%.4f"%(pa/10000)) in sa, sa[:160])
     # switch to rectangle
     pg.evaluate("""()=>{const c=[...document.querySelectorAll('#geoEntry .fek-chip')]
       .find(x=>x.textContent.indexOf('rectangle')>=0); c.click();}""")
@@ -203,7 +293,31 @@ with sync_playwright() as p:
        not any(l.startswith("radius") for l in pg.eval_on_selector_all(
            "#geoEntry .fek-lab","e=>e.map(x=>x.textContent.toLowerCase())")),
        pg.eval_on_selector_all("#geoEntry .fek-lab","e=>e.map(x=>x.textContent)"))
-    ck("20x20 = 400 m2", "400 m²" in pg.inner_text("#sAreaOut"), pg.inner_text("#sAreaOut")[:120])
+    ra=pg.inner_text("#sAreaOut")
+    ck("20x20 = 400 m2", "400 m²" in ra, ra[:120])
+    # A rectangle's 400 and 25.0 were never the bug -- they are exact -- so
+    # ADR-198's trimming must leave them alone, decimal and all.
+    ck("a rectangle keeps the factor's decimal", "Expansion factor 25.0 " in ra, ra[:160])
+    ck("and does not grow one it has not earned", "25.00" not in ra, ra[:160])
+    rpa, rpe = _figs(ra)
+    ck("rectangle figures reconcile too", abs(rpa*rpe-10000) <= _slack(rpa, rpe), (rpa, rpe))
+    # And the other radius the page argues about: it warned that 5.64 m is
+    # "EF 100.1, not 100.0" while printing that plot's area as "100 m²".
+    pg.eval_on_selector("#sDesign","e=>{e.value='circ';e.dispatchEvent(new Event('input',{bubbles:true}))}")
+    pg.eval_on_selector("#sRad","e=>{e.value='5.64';e.dispatchEvent(new Event('input',{bubbles:true}))}")
+    pg.wait_for_timeout(250)
+    ha=pg.inner_text("#sAreaOut")
+    hpa, hpe = _figs(ha)
+    ck("the tenth-hectare plot stops calling itself 100 m2",
+       abs(hpa-math.pi*5.64**2) < 0.005 and "100 m²" not in ha, (hpa, ha[:120]))
+    ck("its factor is the one the page always insisted on",
+       abs(hpe-10000/(math.pi*5.64**2)) < 0.005 and hpe > 100.0, (hpe,))
+    ck("and that pair reconciles as well", abs(hpa*hpe-10000) <= _slack(hpa, hpe), (hpa, hpe))
+    pg.eval_on_selector("#sRad","e=>{e.value='11.28';e.dispatchEvent(new Event('input',{bubbles:true}))}")
+    pg.wait_for_timeout(250)
+    pg.evaluate("""()=>{const c=[...document.querySelectorAll('#geoEntry .fek-chip')]
+      .find(x=>x.textContent.indexOf('rectangle')>=0); c.click();}""")
+    pg.wait_for_timeout(250)
     pg.evaluate("""()=>{const c=[...document.querySelectorAll('#geoEntry .fek-chip')]
       .find(x=>x.textContent.indexOf('circle')>=0); c.click();}""")
     pg.wait_for_timeout(300)
@@ -243,7 +357,20 @@ with sync_playwright() as p:
     # -------------- EXPORT carries the FEK-entered values --------------
     eco=pg.evaluate("()=>document.getElementById('ecoOut').textContent")
     ck("export names the plot geometry", "circle r=11.28 m" in eco, eco[:300])
-    ck("export carries the expansion factor", "EF %.1f"%E in eco, eco[:300])
+    # ADR-198. "EF %.1f" was a prefix of the right answer and of the wrong
+    # one -- "EF 25.0" is in "EF 25.02" -- so it could not have caught this.
+    # The line is read as a line, and reconciled the way the banner is.
+    import re as _re
+    _pl = [l for l in eco.split("\n") if l.startswith("# plot:")]
+    ck("export carries a plot line", len(_pl)==1, _pl[:2])
+    epa, epe = _figs(_pl[0]) if _pl else (None, None)
+    ck("export carries the expansion factor", epe is not None and abs(epe-E) < 0.005, (epe, E))
+    ck("export's area is the plot's, not its nickname",
+       epa is not None and abs(epa-A) < 0.005, (epa, A))
+    ck("export's own two figures reconcile",
+       epa is not None and abs(epa*epe-10000) <= _slack(epa, epe), (epa, epe))
+    ck("export agrees with the banner it was read off",
+       (epa, epe) == (pa, pe), (epa, epe, pa, pe))
     ck("export carries min DBH", "min DBH 5" in eco, eco[:300])
     # Breast height is a method parameter: 1.37 m is North American, 1.30 m is
     # the rest of the world, and DBH is squared into basal area and QMD and
@@ -275,6 +402,90 @@ with sync_playwright() as p:
     ck("export aggregates by species", "Douglas-fir=4" in eco, eco[:500])
     ck("export gives species basal area", "%.2f m²/ha"%(ba*E) in eco, eco[:500])
     ck("export states the one-plot caveat", "point estimate with no variance" in eco, eco[-300:])
+
+    # -------------- ADR-198: the deposits reconcile with the screen ----------
+    # The stem CSV's per-hectare column is computed from the UNROUNDED factor.
+    # That is the right number; the defect was that the sheet printed a factor
+    # you could not get it back from. So the property is not "the column is
+    # exact" -- it is "a reader who has only the printed factor recomputes the
+    # column to within what that factor's own precision allows". Under the old
+    # "EF 25.0" a 30 cm stem is out by 0.0012 m²/ha against a tolerance of
+    # 0.0004, which is what makes this an oracle rather than a restatement.
+    csv = _clip(pg, "#csvCopy")
+    ck("stem CSV copies", csv is not None and csv.count("\n") >= 4, (csv or "")[:80])
+    if csv:
+        head = csv.split("\n")[0].split(",")
+        ck("stem CSV names a per-hectare basal area column",
+           "ba_m2_ha" in head and "ba_m2" in head, head)
+        i_ba, i_ha = head.index("ba_m2"), head.index("ba_m2_ha")
+        bad = []
+        for _ln in csv.split("\n")[1:]:
+            if not _ln.strip():
+                continue
+            _f = _ln.split(",")
+            _ba, _bh = float(_f[i_ba]), float(_f[i_ha])
+            # _ba is printed to 5 decimals and pe to 2, so _ba*pe carries
+            # 0.005*_ba of factor error and a hundred-thousandth of area
+            # error, and _bh itself is printed to 4.
+            tol = 0.005 * _ba + 0.00001 * pe + 0.00005
+            if abs(_bh - _ba * pe) > tol:
+                bad.append((_f[0:2], _ba, _bh, _ba * pe, tol))
+        ck("every per-hectare basal area is recomputable from the printed factor",
+           not bad, bad[:2])
+        # ...and it really is the unrounded factor underneath, recomputed from
+        # the DBH in the same row rather than from the rounded ba_m2 beside it
+        # -- that rounding alone moves the fourth decimal.
+        i_d = head.index("dbh_cm")
+        ck("and the column is not simply the printed factor rounded in",
+           all(("%.4f" % (0.00007854 * float(_l.split(",")[i_d]) ** 2 * E))
+               == _l.split(",")[i_ha]
+               for _l in csv.split("\n")[1:] if _l.strip()),
+           [(_l.split(",")[i_d], _l.split(",")[i_ha]) for _l in csv.split("\n")[1:] if _l.strip()][:3])
+
+    # associatedTaxa was a Darwin Core column this sheet emitted and never
+    # filled, on a sheet that records interactions naming the species it
+    # tallies. Both directions of an edge, because the term cannot say which
+    # end an occurrence sits at unless the value says it.
+    # The species as the DEPOSIT names it, not as the picker renders it: the
+    # option's textContent runs the common name into the scientific one.
+    _r0 = _dwc(pg)
+    me = (_r0[0].get("vernacularName") or "") if _r0 else ""
+    ck("the sheet names its stems' species in the deposit", me != "", me)
+    _edge(pg, "mule deer", me, "herbivory / browse")
+    _edge(pg, me, "soil fungi", "mycorrhizal symbiosis")
+    rows = _dwc(pg)
+    ck("the sheet still exports one row per stem", rows is not None and len(rows) >= 4,
+       None if rows is None else len(rows))
+    if rows:
+        at = rows[0].get("associatedTaxa", "")
+        ck("associatedTaxa is populated from the edges the sheet recorded",
+           at != "", (me, at))
+        ck("an edge the species receives names the species as the recipient",
+           "mule deer eats this taxon" in at, at)
+        ck("an edge the species acts in names it as the actor",
+           "this taxon exchanges with soil fungi" in at, at)
+        ck("the two edges travel as one Darwin Core list", at.count(" | ") == 1, at)
+        ck("and no stem claims an edge naming nobody",
+           all("this taxon" in r.get("associatedTaxa", "") for r in rows),
+           [r.get("associatedTaxa") for r in rows][:2])
+
+    # A top height computed from one measured stem is not a stand figure, and
+    # the tile said "top height m" whether it rested on one height or forty.
+    pg.click('.tab[data-pane="p-trees"]'); pg.wait_for_timeout(250)
+    setstep("#tEntry",0,35); setstep("#tEntry",1,30)
+    pg.click("#tAdd"); pg.wait_for_timeout(250)
+    ck("a top height off one stem says how many stems that is",
+       tile("heights measured","#tStats")=="1", tile("heights measured","#tStats"))
+    ck("and the top-height tile keeps a name that does not move with the data",
+       _thlab(pg)=="top height m", _thlab(pg))
+    setstep("#tEntry",0,36); setstep("#tEntry",1,31)
+    pg.click("#tAdd"); pg.wait_for_timeout(250)
+    ck("and off two it counts them",
+       tile("heights measured","#tStats")=="2", tile("heights measured","#tStats"))
+    ck("the count is not a constant", _thlab(pg)=="top height m", _thlab(pg))
+    ck("a stem with no height is not counted as measured",
+       tile("live stems","#tStats")=="6" and tile("heights measured","#tStats")=="2",
+       (tile("live stems","#tStats"), tile("heights measured","#tStats")))
 
     # -------------- touch targets & viewport --------------
     for w in (390,768):
