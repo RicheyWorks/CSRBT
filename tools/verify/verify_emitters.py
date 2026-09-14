@@ -64,6 +64,8 @@ EMITTERS = [
     ("ord_emit.py",  "ord.py",  r"/\* ---- Ordination v[\d.]+ :", None),
     ("keep_emit.py", "keep.py", r"/\* ---- Keep v[\d.]+ :",
      r"/\* =+ Keep \(local autosave\) v[\d.]+ =+"),
+    ("outbox_emit.py", "outbox.py", r"/\* ---- Outbox v[\d.]+ :",
+     r"/\* =+ Outbox \(what has not left this device\) v[\d.]+ =+"),
     ("nav_emit.py",  "nav.py",  r'<div class="rail">', None),
     ("gh_emit.py",   "gh.py",   r"/\* -+ Greenhouse engine v[\d.]+ -+ \*/",
      r"/\* =+ Greenhouse engine v[\d.]+ =+ \*/"),

@@ -24,7 +24,7 @@ you losing a morning's work to a phone call.
     python3 tools/keep_emit.py           # rewrite every consumer
     python3 tools/keep_emit.py --check   # report drift, write nothing
 """
-VERSION = "1.0.0"
+VERSION = "1.1.0"
 
 CSS = """
   /* ============ Keep (local autosave) v%s ============ */
@@ -178,6 +178,13 @@ var KEEP = (function(){
       if(accepted){ restoredFrom = got.at; }
     }
     paint();
+    /* A PHOTOGRAPH IS AN EDIT (v1.1.0, ADR-206). FEK.photos fires `fek-change`
+       when frames are added, removed or captioned; nothing else does, because
+       a hidden file input and a drop produce neither `input` nor `change`. A
+       page that had to remember to wire this is a page that would forget. */
+    try {
+      document.addEventListener("fek-change", function(){ touch(); }, true);
+    } catch(e){}
     /* A tab closing mid-debounce is exactly the case this exists for. */
     try {
       window.addEventListener("pagehide", function(){ if(timer) flush(); });
@@ -187,7 +194,16 @@ var KEEP = (function(){
 
     return { touch:touch, flush:flush, forget:forget, usable:function(){ return ok; },
              restored:function(){ return restoredFrom; }, savedAt:function(){ return savedAt; },
-             error:function(){ return lastErr; } };
+             error:function(){ return lastErr; },
+             /* v1.1.0 (ADR-203). The page already describes its own state once,
+                here, for the autosave. The outbox needs the same description to
+                say whether it has left the device -- and a SECOND description
+                would be a second thing to keep in step, so the one that is
+                already exercised by every restore is the one it gets. Read
+                through this handle rather than by the page passing its snapshot
+                twice, because two references can be wired to two functions and
+                only one of them would ever be tested. */
+             snapshot:function(){ return o.snapshot(); } };
   }
 
   /* ---- generic form capture ----
