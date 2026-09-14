@@ -1058,7 +1058,7 @@ CATCH = r"""
 // already loaded, and installing the wrappers twice would double-count every
 // toast and re-wrap Blob around its own wrapper.
 if (!window.__S) {
-window.__S = { out: [], toasts: 0, choosers: 0, lastChooser: "" };
+window.__S = { out: [], toasts: 0, choosers: 0, lastChooser: "", said: [], pushed: 0 };
 (function () {
   var map = {};
   // A toast raised while an identical toast is still on screen changes nothing
@@ -1096,6 +1096,10 @@ window.__S = { out: [], toasts: 0, choosers: 0, lastChooser: "" };
   var push = function (k, name, text) {
     window.__S.out.push({ k: k, name: String(name || "").slice(0, 80),
                           text: String(text == null ? "" : text).slice(0, 40000) });
+    // Counted as well as queued, and never decremented: collect-output
+    // SPLICES the queue, so its length cannot say how many payloads the act
+    // just taken produced. A monotonic count read either side of the act can.
+    window.__S.pushed++;
   };
   // A page cannot be asked where its drop zones are: a drop listener leaves no
   // mark in the markup and no CSS selector finds it. Three pages in this kit
@@ -1144,6 +1148,73 @@ window.__S = { out: [], toasts: 0, choosers: 0, lastChooser: "" };
     };
   } catch (e) { }
 
+  // WHAT THE PAGE SAID (ADR-199). Every page in this kit answers a refusal in
+  // a transient message -- "A stem needs a DBH", "No stems to export", "Both
+  // partners are needed" -- and until this existed the door could not hear
+  // one. An act answered `ok` and nothing else, and the only way to learn the
+  // page had refused was a whole read-report, taken inside the message's
+  // 1.7-second life, against a box holding whatever the LAST message was.
+  // Three tasks in this kit are written that way.
+  //
+  // Read from the LIVE REGION rather than from a class name. The platform
+  // already has a definition of "a message the user is meant to receive
+  // without moving focus" -- role=status, role=alert, aria-live -- and a page
+  // whose message is not one is not announcing it to a screen reader either.
+  // So the door reads the standard, and the pages that were not declaring it
+  // are the defect rather than the exception.
+  try {
+    // ONE ENTRY PER WRITE, NOT PER DISTINCT STRING. The first draft skipped a
+    // message identical to the last one still up, and the stand sheet's second
+    // "A stem needs a DBH" -- a second press, a second refusal -- vanished.
+    // That is ADR-100's fault exactly: a raise whose result looks like the
+    // previous state is still a raise, and twelve live controls were once
+    // accused of being wired to nothing for the same reason. Setting
+    // textContent replaces the region's children whether or not the string
+    // changed, so the WRITE is observable even when the text is not; one entry
+    // per observer callback coalesces a write that lands as two records
+    // without coalescing two writes.
+    var take = function (el) {
+      var t;
+      try { t = (el.textContent || "").replace(/\s+/g, " ").trim(); } catch (e) { return; }
+      if (!t) return;                          /* cleared is not a message */
+      if (window.__S.said.length < 16)
+        window.__S.said.push(t.slice(0, 240));
+    };
+    var LIVE = '[role="status"],[role="alert"],[aria-live]:not([aria-live="off"])';
+    var watch = function (el) {
+      if (el.__sWatched) return;
+      el.__sWatched = 1;
+      try {
+        new MutationObserver(function () { take(el); })
+          .observe(el, { childList: true, characterData: true, subtree: true });
+      } catch (e) { }
+      /* Deliberately NOT taking what the region already holds: a page's own
+         state at the moment the door starts watching is not something it said
+         to this session. ADR-199 also emptied every one of them, so there is
+         nothing there to take. */
+    };
+    var scan = function () {
+      try {
+        var l = document.querySelectorAll(LIVE), i;
+        for (i = 0; i < l.length; i++) watch(l[i]);
+      } catch (e) { }
+    };
+    // A live region a page BUILDS -- a verdict rendered into a card, a row
+    // added to a log -- is not there at load, so the roots are rescanned as
+    // the document changes rather than collected once.
+    var boot = function () {
+      scan();
+      try {
+        new MutationObserver(scan).observe(document.documentElement,
+          { childList: true, subtree: true, attributes: true,
+            attributeFilter: ["role", "aria-live"] });
+      } catch (e) { }
+    };
+    if (document.readyState === "loading")
+      document.addEventListener("DOMContentLoaded", boot);
+    else boot();
+  } catch (e) { }
+
   var AC = HTMLAnchorElement.prototype.click;
   HTMLAnchorElement.prototype.click = function () {
     if (this.hasAttribute("download")) {
@@ -1183,6 +1254,15 @@ window.__S = { out: [], toasts: 0, choosers: 0, lastChooser: "" };
 
 TAKE_OUT = "() => (window.__S ? window.__S.out.splice(0) : [])"
 
+# What an act is answerable for: the messages the page raised while it ran, and
+# how many payloads it produced. `pushed` is monotonic and read either side of
+# the act, because the outbox is spliced by collect-output and its LENGTH would
+# report a backlog somebody else left. `said` is spliced here: a message
+# belongs to the act it was raised during, exactly as a payload does.
+TAKE_SAID = ("() => (window.__S ? {said: window.__S.said.splice(0), "
+             "pushed: window.__S.pushed|0} : {said: [], pushed: 0})")
+PUSHED = "() => ((window.__S && window.__S.pushed) | 0)"
+
 
 class PagePlugin(Plugin):
     """One page, one browser tab, behind the four operations."""
@@ -1212,7 +1292,12 @@ class PagePlugin(Plugin):
             self.ID, "CSRBT page",
             "One page of the CSRBT science kit, driven the way a user drives it: "
             "panes are opened before their controls are touched, and selectors "
-            "are re-stamped on every observation because the widgets rebuild.",
+            "are re-stamped on every observation because the widgets rebuild. "
+            "Every act on a control answers with `said` -- the messages the page "
+            "announced while it ran -- and `produced`, the payloads it left for "
+            "collect-output: a page refuses in a message that is gone in under "
+            "two seconds, so a refusal that is not in the act's own answer "
+            "cannot be fetched afterwards.",
             "1.0", [
                 ActionSpec("open", "Load a page of the kit by file name.",
                            "NAVIGATE",
@@ -1281,7 +1366,13 @@ class PagePlugin(Plugin):
                            "which selectors those are before you spend a call. "
                            "Until ADR-141 this was DESTRUCTIVE always, which meant "
                            "a supervised session could fill a page and press "
-                           "nothing.",
+                           "nothing. The answer carries `said` -- what the page "
+                           "announced while the act ran, read from its live "
+                           "regions -- and `produced`, how many payloads the act "
+                           "put where collect-output will find them (ADR-199). "
+                           "`ok` means the control took the press; `said` is "
+                           "whether the page did what the press asked, and a "
+                           "refusal lives only there.",
                            "MUTATE",
                            [ArgumentSpec("selector", "string", "Control selector.", required=True, pattern=ADDR_RE.pattern, examples=["dial_btn:2", "#cName", "@working name"])],
                            may_rise=True),
@@ -1921,6 +2012,12 @@ class PagePlugin(Plugin):
             return True, "read %s" % sel, r
 
         self._reach(sel)
+        # ADR-199: read the payload counter BEFORE the act, so `produced` is
+        # this act's own and not a backlog nobody collected.
+        try:
+            _before = int(self.page.evaluate(PUSHED) or 0)
+        except Exception:
+            _before = 0
         if action == "set-checkbox":
             r = self.page.evaluate(SET_CHECK, [sel, bool(args["checked"])])
         elif action == "attach-file":
@@ -2010,7 +2107,30 @@ class PagePlugin(Plugin):
                 raise NotFound("control %r is no longer on the page -- observe again"
                                % sel)
             raise InvalidArgument("%s: %s" % (sel, r.get("why")))
-        return True, "%s %s" % (action, sel), r
+        # AN ACT ANSWERS WITH WHAT THE PAGE SAID BACK (ADR-199). `ok` means the
+        # control took the act, which is not the same as the page doing what
+        # the act asked -- "A stem needs a DBH" and "Stem 5 recorded" are both
+        # ok:true presses of the same button. The message is transient, so it
+        # cannot be fetched afterwards; it is taken here, with the act it
+        # belongs to. `produced` is how many payloads THIS act put in the
+        # outbox, so an export that exported nothing says so in its own answer
+        # rather than in a second call that cannot tell that from a capture
+        # that was never installed.
+        try:
+            _post = self.page.evaluate(TAKE_SAID) or {}
+        except Exception:
+            _post = {}
+        said = [t for t in (_post.get("said") or []) if t]
+        produced = max(0, int(_post.get("pushed") or 0) - _before)
+        r = dict(r)
+        r["said"] = said
+        r["produced"] = produced
+        note = "%s %s" % (action, sel)
+        if said:
+            note += " -- the page said %r" % (said[0][:120],)
+        if produced:
+            note += " -- %d payload(s) produced" % produced
+        return True, note, r
 
     def _open_pane(self, pane):
         if pane in (self.page.evaluate(OPEN_PANES) or []):

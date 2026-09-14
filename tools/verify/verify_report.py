@@ -68,7 +68,7 @@ Run:  python3 tools/verify/verify_report.py
 # asserts about tools/harness_plugin_page.py -- a subject.
 MUTATE_ROLE = "subject"
 import time
-import io, json, math, os, re, sys, tempfile
+import glob, io, json, math, os, re, sys, tempfile
 
 import _kit
 
@@ -1768,6 +1768,220 @@ with sync_playwright() as pw:
        "A TOP HEIGHT OFF ONE STEM IS NOT A STAND FIGURE -- the tile said 'top height m' whether "
        "it rested on one height or forty, and the sample travels beside it now: %r"
        % {k: v for k, v in _figs.items() if "height" in k})
+    ctx.close()
+
+    # -- M. what the page said back (ADR-199) --------------------------------
+    #
+    # Every page in this kit answers a refusal in a transient message: "A stem
+    # needs a DBH", "No stems to export", "Both partners are needed". `ok` on
+    # an act means the control took the press, which is not the same as the
+    # page doing what the press asked -- and the two are the same answer. The
+    # message lives 1.7 seconds, so it cannot be fetched afterwards; three
+    # tasks in this kit read `boxes.toast` on a whole read-report to get at
+    # one, which is a race dressed as a claim.
+    #
+    # The channel is the LIVE REGION, not a class name: role=status,
+    # role=alert, aria-live are the platform's own definition of a message the
+    # reader is meant to receive without moving focus, and a page whose
+    # message is not one is not announcing it to a screen reader either. So
+    # the door reads the standard and the pages declare it.
+    # The docs directory this run is reading, not the checkout's -- a page
+    # mutant is served through CSRBT_DOCS_DIR, and a kit-wide check that read
+    # past it would be green over a page the run had broken on purpose.
+    _pgs = sorted(glob.glob(os.path.join(
+        os.environ.get("CSRBT_DOCS_DIR") or os.path.join(_kit.ROOT, "docs"), "*.html")))
+    _quiet, _stale = [], []
+    for _f in _pgs:
+        _src = io.open(_f, encoding="utf-8").read()
+        for _m in re.finditer(r'<div[^>]*class="toast"[^>]*>(.*?)</div>', _src):
+            _tag, _txt = _m.group(0), _m.group(1).strip()
+            if 'role="status"' not in _tag or "aria-live" not in _tag:
+                _quiet.append(os.path.basename(_f))
+            if _txt:
+                _stale.append((os.path.basename(_f), _txt[:30]))
+    ck(len(_pgs) > 20 and not _quiet,
+       "A REFUSAL NOBODY HEARS IS NOT A REFUSAL. Twenty of this kit's twenty-one transient "
+       "message elements were plain divs -- never announced to a screen reader, and invisible "
+       "to the door, which is why three tasks poll a report box to read one. Every one is a "
+       "live region now: %s" % (_quiet[:4] or "all %d page(s) clean" % len(_pgs)))
+    ck(not _stale,
+       "and none of them ships with a message in it. A live region is in the accessibility "
+       "tree whether or not it is on screen, so a toast reading 'Saved' before anything was "
+       "saved is a sentence a screen reader can find at any moment: %s" % _stale[:3])
+
+    # Through the door, on a page whose refusals are the point.
+    ctx, sp2 = _page(b, "stand-sheet.html")
+    sp2.execute("show-pane", {"pane": "p-plot"})
+    _o, _m, r = sp2.execute("activate", {"selector": "@control:csvCopy"})
+    ck(r.get("said") == ["No stems to export"] and r.get("produced") == 0,
+       "AN EXPORT THAT EXPORTED NOTHING SAYS SO IN ITS OWN ANSWER. This press used to answer "
+       "ok:true with nothing else, and the only way to learn it had refused was a second call "
+       "that could not tell an empty export from a capture that was never installed: %r"
+       % ({k: r.get(k) for k in ("said", "produced")},))
+    sp2.execute("show-pane", {"pane": "p-trees"})
+    sp2.execute("pick", {"selector": "@control:tEntry", "value": "Douglas-fir"})
+    _o, _m, r = sp2.execute("activate", {"selector": "@control:tAdd"})
+    ck(r.get("said") == ["A stem needs a DBH"],
+       "and a refusal is the page's answer to the act, carried with the act: %r" % (r.get("said"),))
+    _o, _m, r2 = sp2.execute("activate", {"selector": "@control:tAdd"})
+    ck(r2.get("said") == ["A stem needs a DBH"],
+       "THE SAME REFUSAL TWICE IS TWO REFUSALS. A message raised while an identical one is "
+       "still on screen changes nothing a DOM observer can see -- the fault ADR-100 named, "
+       "which accused twelve live controls of being wired to nothing -- so the second press "
+       "must answer with it too: %r" % (r2.get("said"),))
+    sp2.execute("set-text", {"selector": "@control:DBH", "value": "30"})
+    _o, _m, r = sp2.execute("activate", {"selector": "@control:tAdd"})
+    ck(r.get("said") == ["Stem 1 recorded"] and r.get("produced") == 0,
+       "and an act that WORKED is answered in the same channel, so `said` is what the page "
+       "did rather than a list of complaints: %r" % (r.get("said"),))
+    # A read is not an act: it must not consume what the next act is answerable for.
+    sp2.execute("show-pane", {"pane": "p-plot"})
+    _o, _m, r = sp2.execute("activate", {"selector": "@control:csvCopy"})
+    ck(r.get("produced") == 1 and "Stem CSV copied" in " ".join(r.get("said") or []),
+       "A REAL EXPORT COUNTS ITS OWN PAYLOAD. `produced` is read either side of the act, "
+       "because the outbox is SPLICED by collect-output and its length reports a backlog "
+       "somebody else left rather than what this press did: %r"
+       % ({k: r.get(k) for k in ("said", "produced")},))
+    _o, _m, r = sp2.execute("activate", {"selector": "@control:csvCopy"})
+    ck(r.get("produced") == 1,
+       "and the SECOND export, with the first still uncollected, is also one -- not two: %r"
+       % (r.get("produced"),))
+    _o, _m, _out = sp2.execute("collect-output", {})
+    ck(len(_out.get("payloads") or []) == 2,
+       "both of which collect-output then hands over: %d" % len(_out.get("payloads") or []))
+    _o, _m, r = sp2.execute("activate", {"selector": "@control:ecoCopy"})
+    ck(r.get("produced") == 1,
+       "and the count starts from what the page has pushed, not from what the outbox holds, "
+       "so an act after a collection is answered the same way: %r" % (r.get("produced"),))
+    ctx.close()
+
+    # Not one page's property. The collection sheet refuses in the same channel.
+    ctx, cp2 = _page(b, "collection-sheet.html")
+    _said = []
+    for _c in cp2.observe(sensitive=True)["controls"]:
+        if str(_c.get("label") or "").strip().lower() in ("add collection", "add"):
+            _o, _m, r = cp2.execute("activate", {"selector": _c["address"]})
+            _said = r.get("said") or []
+            break
+    ck(_said and all(isinstance(t, str) and t for t in _said),
+       "THE CHANNEL IS THE KIT'S, NOT ONE PAGE'S: a second sheet's refusal reaches the door "
+       "through the same live region, with no page-specific reader: %r" % (_said,))
+    ctx.close()
+
+    # The channel is the STANDARD and not this kit's class name. Built rather
+    # than found, because every live region in the kit happens to be a .toast:
+    # a reader keyed on that class would pass every check above and fail the
+    # first page somebody writes with a role=status log line, an alert bar, or
+    # a live region the kit has no convention for at all.
+    _lr = os.path.join(tempfile.mkdtemp(), "live.html")
+    io.open(_lr, "w", encoding="utf-8").write(
+        u"""<!doctype html><html><head><meta charset="utf-8"><title>live</title></head><body>
+        <div id="zzLog" role="log" aria-live="polite"></div>
+        <div id="zzAlert" role="alert"></div>
+        <div id="zzQuiet"></div>
+        <button id="zzSay">say</button>
+        <button id="zzWarn">warn</button>
+        <button id="zzMute">mute</button>
+        <script>
+        document.getElementById("zzSay").onclick = function(){
+          document.getElementById("zzLog").textContent = "row added"; };
+        document.getElementById("zzWarn").onclick = function(){
+          document.getElementById("zzAlert").textContent = "that will not work"; };
+        document.getElementById("zzMute").onclick = function(){
+          document.getElementById("zzQuiet").textContent = "nobody hears this"; };
+        </script></body></html>""")
+    ctx = b.new_context(viewport=H.VIEWPORT)
+    ctx.add_init_script(H.STUBS)
+    pgl = ctx.new_page()
+    pgl.goto("file://" + _lr.replace(os.sep, "/"), wait_until="domcontentloaded")
+    lp = PP.PagePlugin(pgl, "live.html")
+    lp.observe(sensitive=True)
+    _o, _m, r = lp.execute("activate", {"selector": "#zzSay"})
+    ck(r.get("said") == ["row added"],
+       "A LIVE REGION IS A LIVE REGION WHATEVER THE PAGE CALLS IT. aria-live on an element "
+       "with no class this kit has ever used is still the page speaking, and a reader keyed "
+       "on `.toast` would pass every check above and miss it: %r" % (r.get("said"),))
+    _o, _m, r = lp.execute("activate", {"selector": "#zzWarn"})
+    ck(r.get("said") == ["that will not work"],
+       "and role=alert, which declares no aria-live at all because the role implies it: %r"
+       % (r.get("said"),))
+    _o, _m, r = lp.execute("activate", {"selector": "#zzMute"})
+    ck(r.get("said") == [],
+       "AND A DIV IS NOT A CHANNEL. An element the page writes into but never declares is "
+       "not announced to a screen reader either, so the door reporting it would be inventing "
+       "an accessibility the page does not have -- it is the page that must declare: %r"
+       % (r.get("said"),))
+    ctx.close()
+
+    # -- N. the channel is not the class name, and the kit had two (ADR-200) --
+    #
+    # ADR-199 read the live-region standard and found twenty pages declaring
+    # nothing. It converted every element carrying this kit's `.toast`
+    # convention -- and that convention is not the only way a page here
+    # answers. Two pages answer in a PERSISTENT status line instead: a
+    # dedicated `msg(text, bad)` that writes a sentence into a paragraph and
+    # colours it red when the news is bad. Same job, different furniture, and
+    # the same silence: the greenhouse's "Load a source first -- there is
+    # nothing to save." reached nobody, on a press whose whole outcome is that
+    # sentence.
+    #
+    # PINNED RATHER THAN PATTERN-MATCHED, on purpose. Whether an element is a
+    # message or a caption is a judgement -- the greenhouse's `#logNote`
+    # ("337 readings loaded") is a caption on what a render just drew, and
+    # announcing it on every render is noise, not access. A regex would have to
+    # pretend to make that call. The list states it instead, and the audit that
+    # proposes additions to it is the next slice's work.
+    CHANNELS = {"greenhouse.html": ["srcMsg", "runMsg"],
+                "tree-visualizer.html": ["msg"]}
+    _docs = os.environ.get("CSRBT_DOCS_DIR") or os.path.join(_kit.ROOT, "docs")
+    _mute, _preload = [], []
+    for _f, _ids in sorted(CHANNELS.items()):
+        _src = io.open(os.path.join(_docs, _f), encoding="utf-8").read()
+        for _id in _ids:
+            _m = re.search(r'<[a-z]+[^>]*\bid="%s"[^>]*>(.*?)</[a-z]+>' % re.escape(_id), _src)
+            if not _m:
+                _mute.append("%s#%s (not found)" % (_f, _id)); continue
+            if 'role="status"' not in _m.group(0) or "aria-live" not in _m.group(0):
+                _mute.append("%s#%s" % (_f, _id))
+            if _m.group(1).strip():
+                _preload.append("%s#%s" % (_f, _id))
+    ck(not _mute,
+       "A PAGE THAT ANSWERS IN A PARAGRAPH IS STILL ANSWERING. The kit has two message conventions, not "
+       "one, and ADR-199 only converted the first: %s" % (_mute or "both pages' status lines declare"))
+    ck(not _preload,
+       "and a status line ships empty for the same reason a toast does -- it is in the accessibility tree "
+       "whether or not anybody has pressed anything: %s" % _preload)
+
+    # Through the door: the refusal that reached nobody.
+    ctx, gp = _page(b, "greenhouse.html")
+    _o, _m, r = gp.execute("activate", {"selector": "#runSave"})
+    ck(r.get("said") == ["Load a source first — there is nothing to save."] and r.get("produced") == 0,
+       "SAVE A RUN WITH NOTHING LOADED and the page says so. The whole outcome of this press is that "
+       "sentence, and until the paragraph was declared the act answered ok:true and nothing else: %r"
+       % ({k: r.get(k) for k in ("said", "produced")},))
+    _said = []
+    for _c in gp.observe(sensitive=True)["controls"]:
+        if str(_c.get("label") or "").strip() == "Clear the log":
+            _o, _m, r = gp.execute("activate", {"selector": _c["address"]})
+            _said = r.get("said") or []
+            break
+    ck("Log cleared." in _said,
+       "and the OTHER status line on the same page, written by the other msg(), reaches the door too -- "
+       "the list is per element, not per page: %r" % (_said,))
+    ctx.close()
+
+    # A page outside the .toast family entirely.
+    ctx, tv = _page(b, "tree-visualizer.html")
+    _said = []
+    for _c in tv.observe(sensitive=True)["controls"]:
+        if "random" in str(_c.get("label") or "").lower():
+            _o, _m, r = tv.execute("activate", {"selector": _c["address"]})
+            _said = r.get("said") or []
+            break
+    ck(_said and any("inserted" in t for t in _said),
+       "AND A PAGE THIS KIT'S TOAST CONVENTION NEVER TOUCHED. tree-visualizer answers in a <span> written "
+       "by a three-line arrow function; the door hears it because the page declares it, which is the whole "
+       "argument for reading the standard rather than the class name: %r" % (_said,))
     ctx.close()
     b.close()
 

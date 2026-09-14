@@ -603,7 +603,7 @@
         <button class="btn btn-go" id="srcRun" type="button">Load from this source</button>
         <button class="btn btn-ghost" id="srcClear" type="button">Clear the log</button>
       </div>
-      <p class="fine" id="srcMsg" style="margin-top:10px"></p>
+      <p class="fine" id="srcMsg" role="status" aria-live="polite" style="margin-top:10px"></p>
     </div>
 
     <div class="card">
@@ -645,7 +645,7 @@
         <button class="btn btn-ghost" id="runDemo" type="button">Load five example runs</button>
         <button class="btn btn-ghost" id="runWipe" type="button">Clear all runs</button>
       </div>
-      <p class="fine" id="runMsg"></p>
+      <p class="fine" id="runMsg" role="status" aria-live="polite"></p>
     </div>
 
     <div class="card" id="runOut"></div>
@@ -755,7 +755,7 @@
   <button class="tab" data-pane="p-out" type="button"><span class="ico">📤</span>Export</button>
 </div></div>
 
-<div class="toast" id="toast">Saved</div>
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
 
 <script>
 /* ---- Field Entry Kit v1.4.0 : constructors return {el, get, set} ---- */

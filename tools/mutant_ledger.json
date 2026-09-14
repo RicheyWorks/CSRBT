@@ -2353,12 +2353,12 @@
    "survived": 0
   },
   "mutate_report": {
-   "at": 1789263298,
+   "at": 1789347139,
    "equivalent": 0,
    "equivalents": [],
    "inconclusive": 0,
-   "killed": 134,
-   "mutants": 134,
+   "killed": 145,
+   "mutants": 145,
    "rows": [
     {
      "detail": "9 failure(s); first: a .tile and a .stat .st are both figures: the .l/.v pair is",
@@ -2376,7 +2376,7 @@
      "verdict": "killed"
     },
     {
-     "detail": "1 failure(s); first: the same label twice in one box keeps both: {'collections':",
+     "detail": "4 failure(s); first: the same label twice in one box keeps both: {'collections':",
      "name": "the same label twice in a box keeps one",
      "verdict": "killed"
     },
@@ -2391,7 +2391,7 @@
      "verdict": "killed"
     },
     {
-     "detail": "1 failure(s); first: and a *Board is a box (ADR-171): the pheno tracker's ranked",
+     "detail": "4 failure(s); first: and a *Board is a box (ADR-171): the pheno tracker's ranked",
      "name": "a *Board is not a box",
      "verdict": "killed"
     },
@@ -2401,7 +2401,7 @@
      "verdict": "killed"
     },
     {
-     "detail": "3 failure(s); first: a figure names the element it was read from: the value's ow",
+     "detail": "6 failure(s); first: a figure names the element it was read from: the value's ow",
      "name": "a figure does not say where it was read from",
      "verdict": "killed"
     },
@@ -2421,7 +2421,7 @@
      "verdict": "killed"
     },
     {
-     "detail": "6 failure(s); first: boxes follow the kit's naming -- an*, *Out, *Box, *Stat, *M",
+     "detail": "9 failure(s); first: boxes follow the kit's naming -- an*, *Out, *Box, *Stat, *M",
      "name": "a box behind a closed tab is dropped again",
      "verdict": "killed"
     },
@@ -2476,12 +2476,12 @@
      "verdict": "killed"
     },
     {
-     "detail": "4 failure(s); first: a bare .k beside the .v is the label too (the visualizer's ",
+     "detail": "7 failure(s); first: a bare .k beside the .v is the label too (the visualizer's ",
      "name": "a bare .k label is not a figure",
      "verdict": "killed"
     },
     {
-     "detail": "1 failure(s); first: the page's headings, in order: []",
+     "detail": "4 failure(s); first: the page's headings, in order: []",
      "name": "the headings are not read",
      "verdict": "killed"
     },
@@ -2496,12 +2496,12 @@
      "verdict": "killed"
     },
     {
-     "detail": "2 failure(s); first: a dial option is labelled by its <span>, not by its text ru",
+     "detail": "5 failure(s); first: a dial option is labelled by its <span>, not by its text ru",
      "name": "a dial option is labelled by its whole text",
      "verdict": "killed"
     },
     {
-     "detail": "1 failure(s); first: a behaviour key is labelled by its .nm child: ['forageF']",
+     "detail": "4 failure(s); first: a behaviour key is labelled by its .nm child: ['forageF']",
      "name": "a behaviour key is labelled by its whole text",
      "verdict": "killed"
     },
@@ -2601,7 +2601,7 @@
      "verdict": "killed"
     },
     {
-     "detail": "3 failure(s); first: ...and every mark centre is there whether or not anything l",
+     "detail": "6 failure(s); first: ...and every mark centre is there whether or not anything l",
      "name": "a mark's centre is not recorded unless a text named it",
      "verdict": "killed"
     },
@@ -2626,12 +2626,12 @@
      "verdict": "killed"
     },
     {
-     "detail": "2 failure(s); first: each path's box -- the smallest [x0, y0, x1, y1] holding ev",
+     "detail": "5 failure(s); first: each path's box -- the smallest [x0, y0, x1, y1] holding ev",
      "name": "a relative command is read as absolute",
      "verdict": "killed"
     },
     {
-     "detail": "3 failure(s); first: each path's box -- the smallest [x0, y0, x1, y1] holding ev",
+     "detail": "6 failure(s); first: each path's box -- the smallest [x0, y0, x1, y1] holding ev",
      "name": "H is not followed, so a bar has no width and a step line no run",
      "verdict": "killed"
     },
@@ -2641,7 +2641,7 @@
      "verdict": "killed"
     },
     {
-     "detail": "1 failure(s); first: an unplaced mark (a hover dot with no cx yet) is nowhere, n",
+     "detail": "4 failure(s); first: an unplaced mark (a hover dot with no cx yet) is nowhere, n",
      "name": "an unplaced mark is placed at nothing",
      "verdict": "killed"
     },
@@ -2651,7 +2651,7 @@
      "verdict": "killed"
     },
     {
-     "detail": "2 failure(s); first: read-control answers with the page's own names for the cont",
+     "detail": "5 failure(s); first: read-control answers with the page's own names for the cont",
      "name": "read-control answers about a selector and nothing else, the way it did until ADR-141",
      "verdict": "killed"
     },
@@ -2666,7 +2666,7 @@
      "verdict": "killed"
     },
     {
-     "detail": "1 failure(s); first: ...and refused at once rather than waited on: a pointer wou",
+     "detail": "4 failure(s); first: ...and refused at once rather than waited on: a pointer wou",
      "name": "type-text clicks the control instead of focusing it",
      "verdict": "killed"
     },
@@ -2676,7 +2676,7 @@
      "verdict": "killed"
     },
     {
-     "detail": "1 failure(s); first: type-text into a control that cannot take focus was accepte",
+     "detail": "4 failure(s); first: type-text into a control that cannot take focus was accepte",
      "name": "a control that cannot take focus is waited on rather than refused",
      "verdict": "killed"
     },
@@ -2686,12 +2686,12 @@
      "verdict": "killed"
     },
     {
-     "detail": "1 failure(s); first: type-text into a button was accepted",
+     "detail": "4 failure(s); first: type-text into a button was accepted",
      "name": "type-text accepts a control that is not a text control",
      "verdict": "killed"
     },
     {
-     "detail": "1 failure(s); first: ...so the NEXT pick still works: a control does not stop be",
+     "detail": "4 failure(s); first: ...so the NEXT pick still works: a control does not stop be",
      "name": "a picker that currently shows no option is not a picker",
      "verdict": "killed"
     },
@@ -2716,7 +2716,7 @@
      "verdict": "killed"
     },
     {
-     "detail": "3 failure(s); first: a second plugin over the same page does not install the cap",
+     "detail": "6 failure(s); first: a second plugin over the same page does not install the cap",
      "name": "the capture installs again over itself, doubling every count",
      "verdict": "killed"
     },
@@ -2741,12 +2741,12 @@
      "verdict": "killed"
     },
     {
-     "detail": "1 failure(s); first: and a control the page gives no name at all publishes its I",
+     "detail": "4 failure(s); first: and a control the page gives no name at all publishes its I",
      "name": "the address falls back to nothing when no name fits",
      "verdict": "killed"
     },
     {
-     "detail": "1 failure(s); first: a name that is one control's id and another's label is the ",
+     "detail": "4 failure(s); first: a name that is one control's id and another's label is the ",
      "name": "a name is looked up by label before id",
      "verdict": "killed"
     },
@@ -2756,7 +2756,7 @@
      "verdict": "killed"
     },
     {
-     "detail": "3 failure(s); first: collection-sheet.html: the door resolves all 870 of its nam",
+     "detail": "6 failure(s); first: collection-sheet.html: the door resolves all 870 of its nam",
      "name": "a scoped name splits on the LAST slash",
      "verdict": "killed"
     },
@@ -2771,7 +2771,7 @@
      "verdict": "killed"
     },
     {
-     "detail": "3 failure(s); first: collection-sheet.html: a selector stamped with the snapshot",
+     "detail": "6 failure(s); first: collection-sheet.html: a selector stamped with the snapshot",
      "name": "the stale refusal does not say what is at that index now",
      "verdict": "killed"
     },
@@ -2781,7 +2781,7 @@
      "verdict": "killed"
     },
     {
-     "detail": "3 failure(s); first: a NAME that names nothing is refused as not-found and is no",
+     "detail": "6 failure(s); first: a NAME that names nothing is refused as not-found and is no",
      "name": "an address is resolved for the act but not for the risk read",
      "verdict": "killed"
     },
@@ -2791,7 +2791,7 @@
      "verdict": "killed"
     },
     {
-     "detail": "1 failure(s); first: the pools publish an address for every control they publish",
+     "detail": "4 failure(s); first: the pools publish an address for every control they publish",
      "name": "the pools publish the selectors and not the addresses",
      "verdict": "killed"
     },
@@ -2801,7 +2801,7 @@
      "verdict": "killed"
     },
     {
-     "detail": "1 failure(s); first: the door answers to the runner's own spelling, '@control:<n",
+     "detail": "4 failure(s); first: the door answers to the runner's own spelling, '@control:<n",
      "name": "the runner's own spelling is taken as a label",
      "verdict": "killed"
     },
@@ -2821,7 +2821,7 @@
      "verdict": "killed"
     },
     {
-     "detail": "1 failure(s); first: a control the page adds AFTER it finishes loading is there ",
+     "detail": "4 failure(s); first: a control the page adds AFTER it finishes loading is there ",
      "name": "the settle takes the first reading it gets",
      "verdict": "killed"
     },
@@ -2841,17 +2841,17 @@
      "verdict": "killed"
     },
     {
-     "detail": "1 failure(s); first: and a list longer than the cap publishes the cap and SAYS h",
+     "detail": "4 failure(s); first: and a list longer than the cap publishes the cap and SAYS h",
      "name": "the snapshot does not say how many there were",
      "verdict": "killed"
     },
     {
-     "detail": "2 failure(s); first: every control read one at a time answers with the same addr",
+     "detail": "5 failure(s); first: every control read one at a time answers with the same addr",
      "name": "read-control answers about a selector and nothing else again",
      "verdict": "killed"
     },
     {
-     "detail": "2 failure(s); first: every box is published split as well as whole, and the two ",
+     "detail": "5 failure(s); first: every box is published split as well as whole, and the two ",
      "name": "a box is published whole and not split",
      "verdict": "killed"
     },
@@ -2861,12 +2861,12 @@
      "verdict": "killed"
     },
     {
-     "detail": "1 failure(s); first: ...and every line of every box is that box's own text, trim",
+     "detail": "4 failure(s); first: ...and every line of every box is that box's own text, trim",
      "name": "a line cut at the cap keeps the space the cut landed on",
      "verdict": "killed"
     },
     {
-     "detail": "3 failure(s); first: the page's own prose about itself is handed over, each piec",
+     "detail": "6 failure(s); first: the page's own prose about itself is handed over, each piec",
      "name": "the page's prose about itself is not handed over",
      "verdict": "killed"
     },
@@ -2911,7 +2911,7 @@
      "verdict": "killed"
     },
     {
-     "detail": "1 failure(s); first: a report carries a stamp beside everything it always carrie",
+     "detail": "4 failure(s); first: a page nobody has touched answers `nothing changed` in a li",
      "name": "a report goes out without a stamp, so there is nothing to ask with",
      "verdict": "killed"
     },
@@ -2921,17 +2921,17 @@
      "verdict": "killed"
     },
     {
-     "detail": "2 failure(s); first: asked with the current stamp it says nothing changed and do",
+     "detail": "5 failure(s); first: a page nobody has touched answers `nothing changed` in a li",
      "name": "a report whose stamp did not move is sent anyway, as an empty diff",
      "verdict": "killed"
     },
     {
-     "detail": "1 failure(s); first: while the stamp from the read just before is current, as it",
+     "detail": "4 failure(s); first: a page nobody has touched answers `nothing changed` in a li",
      "name": "the baseline is the FIRST report served rather than the last",
      "verdict": "killed"
     },
     {
-     "detail": "2 failure(s); first: a stamp this session did not issue gets the WHOLE report an",
+     "detail": "5 failure(s); first: a page nobody has touched answers `nothing changed` in a li",
      "name": "a stamp this session never issued is diffed against whatever is nearest",
      "verdict": "killed"
     },
@@ -2941,12 +2941,12 @@
      "verdict": "killed"
     },
     {
-     "detail": "1 failure(s); first: a table's rows are NOT keyed: a row of cells has no identit",
+     "detail": "4 failure(s); first: a page nobody has touched answers `nothing changed` in a li",
      "name": "a table's rows are keyed, so row three is taken for row three",
      "verdict": "killed"
     },
     {
-     "detail": "1 failure(s); first: and the report uses the contract's OWN stamp and diff -- tw",
+     "detail": "4 failure(s); first: a page nobody has touched answers `nothing changed` in a li",
      "name": "the report gets a digest of its own instead of the contract's stamp",
      "verdict": "killed"
     },
@@ -2956,7 +2956,7 @@
      "verdict": "killed"
     },
     {
-     "detail": "1 failure(s); first: A CROP'S BREEDING CLASS IS NOT THE PROVENANCE OF ITS MINIMU",
+     "detail": "4 failure(s); first: a page nobody has touched answers `nothing changed` in a li",
      "name": "the breeding class is the minimum's provenance again",
      "verdict": "killed"
     },
@@ -2981,7 +2981,7 @@
      "verdict": "killed"
     },
     {
-     "detail": "7 failure(s); first: A CIRCLE'S AREA IS WHAT ITS RADIUS ENCLOSES, not the round ",
+     "detail": "10 failure(s); first: a page nobody has touched answers `nothing changed` in a l",
      "name": "a circle's area is rounded to the metre again",
      "verdict": "killed"
     },
@@ -2996,7 +2996,7 @@
      "verdict": "killed"
     },
     {
-     "detail": "1 failure(s); first: A DEPOSIT'S sampleSizeValue IS THE AREA SAMPLED, and it car",
+     "detail": "4 failure(s); first: a page nobody has touched answers `nothing changed` in a li",
      "name": "the deposit's sample size is the plot's nickname again",
      "verdict": "killed"
     },
@@ -3016,7 +3016,7 @@
      "verdict": "killed"
     },
     {
-     "detail": "1 failure(s); first: A TOP HEIGHT OFF ONE STEM IS NOT A STAND FIGURE -- the tile",
+     "detail": "4 failure(s); first: a page nobody has touched answers `nothing changed` in a li",
      "name": "the top height loses the sample it was computed from",
      "verdict": "killed"
     },
@@ -3029,17 +3029,72 @@
      "detail": "2 failure(s); first: A TOP HEIGHT'S NAME MAY NOT MOVE WITH ITS DATA. The sample ",
      "name": "the sample size climbs back inside the top height's name",
      "verdict": "killed"
+    },
+    {
+     "detail": "11 failure(s); first: AN EXPORT THAT EXPORTED NOTHING SAYS SO IN ITS OWN ANSWER.",
+     "name": "the door stops listening to live regions",
+     "verdict": "killed"
+    },
+    {
+     "detail": "4 failure(s); first: AN EXPORT THAT EXPORTED NOTHING SAYS SO IN ITS OWN ANSWER. ",
+     "name": "the door hears any div, declared or not",
+     "verdict": "killed"
+    },
+    {
+     "detail": "1 failure(s); first: THE SAME REFUSAL TWICE IS TWO REFUSALS. A message raised wh",
+     "name": "a repeated message is swallowed as unchanged",
+     "verdict": "killed"
+    },
+    {
+     "detail": "8 failure(s); first: a page nobody has touched answers `nothing changed` in a li",
+     "name": "what the page said is peeked at rather than taken",
+     "verdict": "killed"
+    },
+    {
+     "detail": "5 failure(s); first: a page nobody has touched answers `nothing changed` in a li",
+     "name": "payloads are counted from zero rather than from before the act",
+     "verdict": "killed"
+    },
+    {
+     "detail": "4 failure(s); first: a page nobody has touched answers `nothing changed` in a li",
+     "name": "a page's message goes back to being a plain div",
+     "verdict": "killed"
+    },
+    {
+     "detail": "1 failure(s); first: and none of them ships with a message in it. A live region ",
+     "name": "a page ships a message it has not sent",
+     "verdict": "killed"
+    },
+    {
+     "detail": "5 failure(s); first: a page nobody has touched answers `nothing changed` in a li",
+     "name": "a status line goes back to a paragraph nobody hears",
+     "verdict": "killed"
+    },
+    {
+     "detail": "5 failure(s); first: a page nobody has touched answers `nothing changed` in a li",
+     "name": "the other status line on the same page is left mute",
+     "verdict": "killed"
+    },
+    {
+     "detail": "1 failure(s); first: and a status line ships empty for the same reason a toast d",
+     "name": "a status line ships with a sentence in it",
+     "verdict": "killed"
+    },
+    {
+     "detail": "5 failure(s); first: a page nobody has touched answers `nothing changed` in a li",
+     "name": "the page outside the toast family is left undeclared",
+     "verdict": "killed"
     }
    ],
    "survived": 0
   },
   "mutate_tasks": {
-   "at": 1789264036,
+   "at": 1789286442,
    "equivalent": 0,
    "equivalents": [],
    "inconclusive": 0,
-   "killed": 80,
-   "mutants": 80,
+   "killed": 87,
+   "mutants": 87,
    "rows": [
     {
      "detail": "15 failure(s); first: every operator grades, a reference grades as its value, a ",
@@ -3047,7 +3102,7 @@
      "verdict": "killed"
     },
     {
-     "detail": "19 failure(s); first: every operator grades, a reference grades as its value, a ",
+     "detail": "26 failure(s); first: every operator grades, a reference grades as its value, a ",
      "name": "an operator expectation is always CONFIRMED",
      "verdict": "killed"
     },
@@ -3077,7 +3132,7 @@
      "verdict": "killed"
     },
     {
-     "detail": "21 failure(s); first: a trailing #n labels a second claim about the same path, g",
+     "detail": "22 failure(s); first: any-contains CONFIRMS when SOME message holds the text -- ",
      "name": "a trailing #n is part of the path",
      "verdict": "killed"
     },
@@ -3199,6 +3254,41 @@
     {
      "detail": "2 failure(s); first: a leading $$ is one literal dollar sign: a task can hold '$",
      "name": "$$ is stripped to nothing, so the figure loses its sign",
+     "verdict": "killed"
+    },
+    {
+     "detail": "2 failure(s); first: any-contains CONFIRMS when SOME message holds the text -- t",
+     "name": "any-contains reads the wrong way round",
+     "verdict": "killed"
+    },
+    {
+     "detail": "2 failure(s); first: any-contains CONFIRMS when SOME message holds the text -- t",
+     "name": "any-contains demands the whole message, so a refusal with a tail is missed",
+     "verdict": "killed"
+    },
+    {
+     "detail": "1 failure(s); first: any-contains CONFIRMS when SOME message holds the text -- t",
+     "name": "only the FIRST message is looked at, so a refusal raised second is lost",
+     "verdict": "killed"
+    },
+    {
+     "detail": "2 failure(s); first: none-contains is the mirror: CONFIRMED when no message hold",
+     "name": "the mirror is not a mirror: none-contains answers the same as any-contains",
+     "verdict": "killed"
+    },
+    {
+     "detail": "1 failure(s); first: BOTH DIRECTIONS ARE FALSE ON A PATH THAT IS NOT A LIST. A s",
+     "name": "a path that is not a list is answered about anyway",
+     "verdict": "killed"
+    },
+    {
+     "detail": "1 failure(s); first: a path that is not in the response does not prove silence e",
+     "name": "a missing path proves silence",
+     "verdict": "killed"
+    },
+    {
+     "detail": "8 failure(s); first: every operator grades, a reference grades as its value, a m",
+     "name": "contains on a list is quietly widened to a substring search",
      "verdict": "killed"
     },
     {

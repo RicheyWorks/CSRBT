@@ -15,7 +15,7 @@ import argparse, io, os, shutil, subprocess, sys, tempfile
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 # The pages section K holds to their own arithmetic (ADR-197).
 PAGES = ("breeding-bench.html", "collection-sheet.html", "pheno-tracker.html",
-         "stand-sheet.html")
+         "stand-sheet.html", "greenhouse.html", "tree-visualizer.html")
 TOOLS = os.path.join(ROOT, "tools")
 
 MUTANTS = [
@@ -702,6 +702,57 @@ MUTANTS += [
      '<div class="l">top height m</div></div>',
      '<div class="l">top height m ('+"'+hs.length+'"+' measured)</div></div>',
      "A TOP HEIGHT'S NAME MAY NOT MOVE WITH ITS DATA"),
+]
+
+
+MUTANTS += [
+    # ---- ADR-199: what the page said back -----------------------------------
+    ("the door stops listening to live regions",
+     '''    var LIVE = '[role="status"],[role="alert"],[aria-live]:not([aria-live="off"])';''',
+     '''    var LIVE = '[data-h-never-matches-anything]';''',
+     "AN EXPORT THAT EXPORTED NOTHING SAYS SO IN ITS OWN ANSWER"),
+    ("the door hears any div, declared or not",
+     '''    var LIVE = '[role="status"],[role="alert"],[aria-live]:not([aria-live="off"])';''',
+     '''    var LIVE = '[role="status"],[role="alert"],[aria-live]:not([aria-live="off"]),div';''',
+     "AND A DIV IS NOT A CHANNEL"),
+    ("a repeated message is swallowed as unchanged",
+     '      if (!t) return;                          /* cleared is not a message */',
+     '      if (!t || t === el.__sLast) return; el.__sLast = t;',
+     "THE SAME REFUSAL TWICE IS TWO REFUSALS"),
+    ("what the page said is peeked at rather than taken",
+     'TAKE_SAID = ("() => (window.__S ? {said: window.__S.said.splice(0), "',
+     'TAKE_SAID = ("() => (window.__S ? {said: window.__S.said.slice(0), "',
+     "an act that WORKED is answered in the same channel"),
+    ("payloads are counted from zero rather than from before the act",
+     "            _before = int(self.page.evaluate(PUSHED) or 0)",
+     "            _before = 0",
+     "the SECOND export, with the first still uncollected, is also one"),
+    ("a page's message goes back to being a plain div",
+     '<div class="toast" id="toast" role="status" aria-live="polite"></div>',
+     '<div class="toast" id="toast"></div>',
+     "A REFUSAL NOBODY HEARS IS NOT A REFUSAL"),
+    ("a page ships a message it has not sent",
+     '<div class="toast" id="toast" role="status" aria-live="polite"></div>',
+     '<div class="toast" id="toast" role="status" aria-live="polite">Saved</div>',
+     "none of them ships with a message in it"),
+
+    # ---- ADR-200: the kit had two message conventions, not one ---------------
+    ("a status line goes back to a paragraph nobody hears",
+     '<p class="fine" id="runMsg" role="status" aria-live="polite"></p>',
+     '<p class="fine" id="runMsg"></p>',
+     "A PAGE THAT ANSWERS IN A PARAGRAPH IS STILL ANSWERING"),
+    ("the other status line on the same page is left mute",
+     '<p class="fine" id="srcMsg" role="status" aria-live="polite" style="margin-top:10px"></p>',
+     '<p class="fine" id="srcMsg" style="margin-top:10px"></p>',
+     "A PAGE THAT ANSWERS IN A PARAGRAPH IS STILL ANSWERING"),
+    ("a status line ships with a sentence in it",
+     '<p class="fine" id="runMsg" role="status" aria-live="polite"></p>',
+     '<p class="fine" id="runMsg" role="status" aria-live="polite">Saved.</p>',
+     "a status line ships empty for the same reason a toast does"),
+    ("the page outside the toast family is left undeclared",
+     '<span class="msg" id="msg" role="status" aria-live="polite"></span>',
+     '<span class="msg" id="msg"></span>',
+     "AND A PAGE THIS KIT'S TOAST CONVENTION NEVER TOUCHED"),
 ]
 
 
