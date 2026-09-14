@@ -130,6 +130,27 @@ KINDS = [
     ("swc",         '.swc'),
     ("step_btn",    '.fek-step button'),
     ("file_in",     'input[type=file]'),
+    # A DROP ZONE THE DOOR COULD DROP ON AND NOBODY COULD NAME (ADR-201).
+    # `drop-files` has always taken the kind `drop_zone`, and the refusal a
+    # bad address earns has always ADVERTISED `@kind=drop_zone` -- while this
+    # list, which is what every snapshot is built from, did not carry it. So
+    # the door named an address its own snapshot never published, and the only
+    # drop zones any task could reach were the ones that happened to sit on an
+    # element some OTHER kind already claimed. That is ADR-141's rule
+    # backwards: a snapshot never advertises what the door would refuse, and a
+    # refusal must not advertise what the snapshot does not publish.
+    # The selector is the stamp the capture leaves as a drop listener is
+    # registered -- the same one `drop-files` checks before it will dispatch --
+    # so what is published and what is accepted are read off one mark.
+    ("drop_zone",   '[data-h-drop]'),
+    # AND THE SECOND ONE THE SAME CHECK FOUND (ADR-201). `set-checkbox` pools
+    # `checkbox`, and that kind was in swarm.py's private list and nowhere the
+    # snapshot could see it -- so a tick box was addressable only if the task
+    # already knew its id, and `@kind=checkbox` resolved to nothing. Two of the
+    # door's action pools named kinds it never published; the rule that says
+    # they must not is asserted in verify_harness, over the pools rather than
+    # over a list of the two we happened to notice.
+    ("checkbox",    'input[type=checkbox], input[type=radio]'),
     ("action_btn",  'button'),                     # whatever no widget claimed
     ("link",        '.rail a[href]'),
     ("nav_link",    'a[href]'),        # hub and suite cards; whatever the rail left

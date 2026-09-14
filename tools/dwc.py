@@ -131,6 +131,12 @@ var DWC = (function(){
     "organismQuantity","organismQuantityType","occurrenceStatus","samplingProtocol",
     "sampleSizeValue","sampleSizeUnit","verbatimElevation","identifiedBy",
     "institutionCode","collectionCode","catalogNumber","associatedTaxa","associatedSequences",
+    /* ADR-201: the column was missing, on a kit whose pages take photographs.
+       Darwin Core asks associatedMedia for IDENTIFIERS of the media, not the
+       media -- so what goes here is the frame's name, its CRC-32 and when it
+       was taken, separated by " | " because a filename may hold a comma and a
+       record that splits wrong is worse than one that is hard to read. */
+    "associatedMedia",
     "occurrenceRemarks","informationWithheld","dataGeneralizations"];
 
   function table(records){

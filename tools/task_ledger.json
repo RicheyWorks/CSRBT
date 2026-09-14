@@ -3844,13 +3844,13 @@
    "verdict": "PASS"
   },
   "page-cell-bench-science": {
-   "at": 1789203020,
-   "claims": 41,
-   "confirmed": 100,
+   "at": 1789411744,
+   "claims": 49,
+   "confirmed": 113,
    "gives": 38,
    "goal": "On the cell bench, count 120 live / 12 dead in 4 large squares at dilution 2 (6.00x10^5 live cells/mL, 90.9% viable), enter the chamber factor, sample and target volumes and confluency explicitly, seed and compute doubling time, build a four-point standard curve and read an unknown, a Beer-Lambert concentration and A260/A280/A230 purity, log two 1:4 passages (cumulative PD 4.0), and score a mitotic index -- every calculator driven and every figure held against an oracle.",
    "held": true,
-   "holds": 16,
+   "holds": 20,
    "id": "page-cell-bench-science",
    "must": "PASS",
    "refuted": 0,
@@ -3860,7 +3860,7 @@
     "MUTATE"
    ],
    "rungsWhy": null,
-   "seconds": 4.1,
+   "seconds": 6.6,
    "steps": [
     {
      "action": "observe",
@@ -3892,7 +3892,7 @@
      ],
      "id": "g159-sq",
      "message": "set-text step_val:0",
-     "ms": 25,
+     "ms": 39,
      "result": "driven"
     },
     {
@@ -3906,7 +3906,7 @@
      ],
      "id": "g159-dil",
      "message": "set-text step_val:1",
-     "ms": 24,
+     "ms": 37,
      "result": "driven"
     },
     {
@@ -3920,7 +3920,7 @@
      ],
      "id": "g159-chf",
      "message": "activate chip:0",
-     "ms": 24,
+     "ms": 35,
      "result": "driven"
     },
     {
@@ -3934,7 +3934,7 @@
      ],
      "id": "g159-vol",
      "message": "set-text step_val:2",
-     "ms": 26,
+     "ms": 38,
      "result": "driven"
     },
     {
@@ -3948,7 +3948,7 @@
      ],
      "id": "live",
      "message": "set-text field_in:0",
-     "ms": 23,
+     "ms": 37,
      "result": "driven"
     },
     {
@@ -3962,7 +3962,7 @@
      ],
      "id": "dead",
      "message": "set-text field_in:1",
-     "ms": 25,
+     "ms": 33,
      "result": "driven"
     },
     {
@@ -4005,8 +4005,8 @@
       }
      ],
      "id": "count",
-     "message": "6 figure(s), 16 box(es), 0 list(s), 0 table(s), 18 heading(s)",
-     "ms": 8,
+     "message": "6 figure(s), 18 box(es), 0 list(s), 0 table(s), 19 heading(s)",
+     "ms": 16,
      "result": "driven"
     },
     {
@@ -4019,8 +4019,8 @@
       }
      ],
      "id": "eq",
-     "message": "6 figure(s), 16 box(es), 0 list(s), 0 table(s), 18 heading(s)",
-     "ms": 6,
+     "message": "6 figure(s), 18 box(es), 0 list(s), 0 table(s), 19 heading(s)",
+     "ms": 10,
      "result": "driven"
     },
     {
@@ -4034,7 +4034,7 @@
      ],
      "id": "live600",
      "message": "set-text field_in:0",
-     "ms": 25,
+     "ms": 35,
      "result": "driven"
     },
     {
@@ -4047,8 +4047,8 @@
       }
      ],
      "id": "toomany",
-     "message": "6 figure(s), 16 box(es), 0 list(s), 0 table(s), 18 heading(s)",
-     "ms": 5,
+     "message": "6 figure(s), 18 box(es), 0 list(s), 0 table(s), 19 heading(s)",
+     "ms": 10,
      "result": "driven"
     },
     {
@@ -4062,7 +4062,7 @@
      ],
      "id": "live120",
      "message": "set-text field_in:0",
-     "ms": 26,
+     "ms": 39,
      "result": "driven"
     },
     {
@@ -4076,7 +4076,7 @@
      ],
      "id": "cul",
      "message": "opened pane p-cul",
-     "ms": 156,
+     "ms": 175,
      "result": "driven"
     },
     {
@@ -4090,7 +4090,7 @@
      ],
      "id": "stock",
      "message": "set-text field_in:2",
-     "ms": 28,
+     "ms": 52,
      "result": "driven"
     },
     {
@@ -4104,7 +4104,7 @@
      ],
      "id": "target",
      "message": "set-text field_in:3",
-     "ms": 27,
+     "ms": 34,
      "result": "driven"
     },
     {
@@ -4118,7 +4118,7 @@
      ],
      "id": "g159-svol",
      "message": "set-text step_val:3",
-     "ms": 26,
+     "ms": 34,
      "result": "driven"
     },
     {
@@ -4141,8 +4141,8 @@
       }
      ],
      "id": "seed",
-     "message": "9 figure(s), 16 box(es), 0 list(s), 0 table(s), 18 heading(s)",
-     "ms": 6,
+     "message": "9 figure(s), 18 box(es), 0 list(s), 0 table(s), 19 heading(s)",
+     "ms": 11,
      "result": "driven"
     },
     {
@@ -4156,7 +4156,7 @@
      ],
      "id": "n0",
      "message": "set-text field_in:4",
-     "ms": 25,
+     "ms": 34,
      "result": "driven"
     },
     {
@@ -4170,7 +4170,7 @@
      ],
      "id": "n1",
      "message": "set-text field_in:5",
-     "ms": 25,
+     "ms": 36,
      "result": "driven"
     },
     {
@@ -4184,7 +4184,7 @@
      ],
      "id": "t",
      "message": "set-text step_val:4",
-     "ms": 25,
+     "ms": 40,
      "result": "driven"
     },
     {
@@ -4198,7 +4198,7 @@
      ],
      "id": "g159-conf",
      "message": "set-slider slider:0",
-     "ms": 25,
+     "ms": 36,
      "result": "driven"
     },
     {
@@ -4221,8 +4221,8 @@
       }
      ],
      "id": "grow",
-     "message": "12 figure(s), 16 box(es), 0 list(s), 0 table(s), 18 heading(s)",
-     "ms": 7,
+     "message": "12 figure(s), 18 box(es), 0 list(s), 0 table(s), 19 heading(s)",
+     "ms": 13,
      "result": "driven"
     },
     {
@@ -4236,7 +4236,7 @@
      ],
      "id": "asy",
      "message": "opened pane p-asy",
-     "ms": 79,
+     "ms": 89,
      "result": "driven"
     },
     {
@@ -4250,7 +4250,7 @@
      ],
      "id": "sc0",
      "message": "set-text field_in:6",
-     "ms": 24,
+     "ms": 37,
      "result": "driven"
     },
     {
@@ -4264,7 +4264,7 @@
      ],
      "id": "sa0",
      "message": "set-text field_in:7",
-     "ms": 27,
+     "ms": 33,
      "result": "driven"
     },
     {
@@ -4278,7 +4278,7 @@
      ],
      "id": "sadd0",
      "message": "activate action_btn:1",
-     "ms": 25,
+     "ms": 31,
      "result": "driven"
     },
     {
@@ -4292,7 +4292,7 @@
      ],
      "id": "sc1",
      "message": "set-text field_in:6",
-     "ms": 24,
+     "ms": 32,
      "result": "driven"
     },
     {
@@ -4306,7 +4306,7 @@
      ],
      "id": "sa1",
      "message": "set-text field_in:7",
-     "ms": 25,
+     "ms": 35,
      "result": "driven"
     },
     {
@@ -4320,7 +4320,7 @@
      ],
      "id": "sadd1",
      "message": "activate action_btn:1",
-     "ms": 24,
+     "ms": 33,
      "result": "driven"
     },
     {
@@ -4334,7 +4334,7 @@
      ],
      "id": "sc2",
      "message": "set-text field_in:6",
-     "ms": 25,
+     "ms": 32,
      "result": "driven"
     },
     {
@@ -4348,7 +4348,7 @@
      ],
      "id": "sa2",
      "message": "set-text field_in:7",
-     "ms": 24,
+     "ms": 31,
      "result": "driven"
     },
     {
@@ -4362,7 +4362,7 @@
      ],
      "id": "sadd2",
      "message": "activate action_btn:1",
-     "ms": 27,
+     "ms": 38,
      "result": "driven"
     },
     {
@@ -4376,7 +4376,7 @@
      ],
      "id": "sc3",
      "message": "set-text field_in:6",
-     "ms": 26,
+     "ms": 32,
      "result": "driven"
     },
     {
@@ -4390,7 +4390,7 @@
      ],
      "id": "sa3",
      "message": "set-text field_in:7",
-     "ms": 25,
+     "ms": 31,
      "result": "driven"
     },
     {
@@ -4404,7 +4404,7 @@
      ],
      "id": "sadd3",
      "message": "activate action_btn:1",
-     "ms": 25,
+     "ms": 37,
      "result": "driven"
     },
     {
@@ -4418,7 +4418,7 @@
      ],
      "id": "g159-stu",
      "message": "set-text text_in:3",
-     "ms": 24,
+     "ms": 32,
      "result": "driven"
     },
     {
@@ -4451,8 +4451,8 @@
       }
      ],
      "id": "curve",
-     "message": "16 figure(s), 16 box(es), 1 list(s), 0 table(s), 18 heading(s)",
-     "ms": 7,
+     "message": "16 figure(s), 18 box(es), 1 list(s), 0 table(s), 19 heading(s)",
+     "ms": 11,
      "result": "driven"
     },
     {
@@ -4466,7 +4466,7 @@
      ],
      "id": "g159-und",
      "message": "set-text step_val:5",
-     "ms": 24,
+     "ms": 33,
      "result": "driven"
     },
     {
@@ -4480,7 +4480,7 @@
      ],
      "id": "unk",
      "message": "set-text field_in:8",
-     "ms": 26,
+     "ms": 33,
      "result": "driven"
     },
     {
@@ -4503,8 +4503,8 @@
       }
      ],
      "id": "unknown",
-     "message": "19 figure(s), 16 box(es), 1 list(s), 0 table(s), 18 heading(s)",
-     "ms": 7,
+     "message": "19 figure(s), 18 box(es), 1 list(s), 0 table(s), 19 heading(s)",
+     "ms": 12,
      "result": "driven"
     },
     {
@@ -4518,7 +4518,7 @@
      ],
      "id": "unk3",
      "message": "set-text field_in:8",
-     "ms": 22,
+     "ms": 34,
      "result": "driven"
     },
     {
@@ -4531,8 +4531,8 @@
       }
      ],
      "id": "extrap",
-     "message": "19 figure(s), 16 box(es), 1 list(s), 0 table(s), 18 heading(s)",
-     "ms": 7,
+     "message": "19 figure(s), 18 box(es), 1 list(s), 0 table(s), 19 heading(s)",
+     "ms": 11,
      "result": "driven"
     },
     {
@@ -4546,7 +4546,7 @@
      ],
      "id": "g159-bll",
      "message": "set-text step_val:6",
-     "ms": 24,
+     "ms": 32,
      "result": "driven"
     },
     {
@@ -4560,7 +4560,7 @@
      ],
      "id": "bla",
      "message": "set-text field_in:9",
-     "ms": 25,
+     "ms": 33,
      "result": "driven"
     },
     {
@@ -4574,7 +4574,7 @@
      ],
      "id": "eps",
      "message": "set-text field_in:10",
-     "ms": 25,
+     "ms": 33,
      "result": "driven"
     },
     {
@@ -4587,8 +4587,8 @@
       }
      ],
      "id": "beer",
-     "message": "21 figure(s), 16 box(es), 1 list(s), 0 table(s), 18 heading(s)",
-     "ms": 8,
+     "message": "21 figure(s), 18 box(es), 1 list(s), 0 table(s), 19 heading(s)",
+     "ms": 11,
      "result": "driven"
     },
     {
@@ -4602,7 +4602,7 @@
      ],
      "id": "a260",
      "message": "set-text field_in:11",
-     "ms": 25,
+     "ms": 32,
      "result": "driven"
     },
     {
@@ -4616,7 +4616,7 @@
      ],
      "id": "a280",
      "message": "set-text field_in:12",
-     "ms": 25,
+     "ms": 33,
      "result": "driven"
     },
     {
@@ -4630,7 +4630,7 @@
      ],
      "id": "a230",
      "message": "set-text field_in:13",
-     "ms": 26,
+     "ms": 31,
      "result": "driven"
     },
     {
@@ -4658,8 +4658,8 @@
       }
      ],
      "id": "pur",
-     "message": "25 figure(s), 16 box(es), 1 list(s), 0 table(s), 18 heading(s)",
-     "ms": 7,
+     "message": "25 figure(s), 18 box(es), 1 list(s), 0 table(s), 19 heading(s)",
+     "ms": 12,
      "result": "driven"
     },
     {
@@ -4673,7 +4673,7 @@
      ],
      "id": "mit",
      "message": "opened pane p-mit",
-     "ms": 75,
+     "ms": 94,
      "result": "driven"
     },
     {
@@ -4687,7 +4687,7 @@
      ],
      "id": "ph-interphase",
      "message": "activate action_btn:3",
-     "ms": 28,
+     "ms": 37,
      "result": "driven"
     },
     {
@@ -4701,7 +4701,7 @@
      ],
      "id": "ph-prophase",
      "message": "activate action_btn:4",
-     "ms": 27,
+     "ms": 34,
      "result": "driven"
     },
     {
@@ -4715,7 +4715,7 @@
      ],
      "id": "ph-metaphase",
      "message": "activate action_btn:5",
-     "ms": 25,
+     "ms": 32,
      "result": "driven"
     },
     {
@@ -4729,7 +4729,7 @@
      ],
      "id": "ph-anaphase",
      "message": "activate action_btn:6",
-     "ms": 23,
+     "ms": 33,
      "result": "driven"
     },
     {
@@ -4743,7 +4743,7 @@
      ],
      "id": "ph-telophase",
      "message": "activate action_btn:7",
-     "ms": 26,
+     "ms": 33,
      "result": "driven"
     },
     {
@@ -4771,8 +4771,8 @@
       }
      ],
      "id": "mi",
-     "message": "29 figure(s), 16 box(es), 1 list(s), 0 table(s), 18 heading(s)",
-     "ms": 8,
+     "message": "29 figure(s), 18 box(es), 1 list(s), 0 table(s), 19 heading(s)",
+     "ms": 12,
      "result": "driven"
     },
     {
@@ -4786,7 +4786,7 @@
      ],
      "id": "cyc",
      "message": "press-step step_btn:15",
-     "ms": 25,
+     "ms": 32,
      "result": "driven"
     },
     {
@@ -4799,8 +4799,8 @@
       }
      ],
      "id": "phases",
-     "message": "29 figure(s), 16 box(es), 1 list(s), 1 table(s), 18 heading(s)",
-     "ms": 9,
+     "message": "29 figure(s), 18 box(es), 1 list(s), 1 table(s), 19 heading(s)",
+     "ms": 13,
      "result": "driven"
     },
     {
@@ -4814,7 +4814,7 @@
      ],
      "id": "g159-culpane",
      "message": "opened pane p-cul",
-     "ms": 73,
+     "ms": 95,
      "result": "driven"
     },
     {
@@ -4828,7 +4828,7 @@
      ],
      "id": "g159-pno1",
      "message": "set-text text_in:0",
-     "ms": 29,
+     "ms": 35,
      "result": "driven"
     },
     {
@@ -4842,7 +4842,7 @@
      ],
      "id": "g159-psplit1",
      "message": "set-text text_in:1",
-     "ms": 27,
+     "ms": 33,
      "result": "driven"
     },
     {
@@ -4856,7 +4856,7 @@
      ],
      "id": "g159-pnote1",
      "message": "set-text text_in:2",
-     "ms": 24,
+     "ms": 37,
      "result": "driven"
     },
     {
@@ -4869,8 +4869,8 @@
       }
      ],
      "id": "g159-padd1",
-     "message": "activate action_btn:0",
-     "ms": 24,
+     "message": "activate action_btn:0 -- the page said 'Logged passage 5'",
+     "ms": 31,
      "result": "driven"
     },
     {
@@ -4884,7 +4884,7 @@
      ],
      "id": "g159-pno2",
      "message": "set-text text_in:0",
-     "ms": 23,
+     "ms": 33,
      "result": "driven"
     },
     {
@@ -4898,7 +4898,7 @@
      ],
      "id": "g159-psplit2",
      "message": "set-text text_in:1",
-     "ms": 23,
+     "ms": 37,
      "result": "driven"
     },
     {
@@ -4911,8 +4911,8 @@
       }
      ],
      "id": "g159-padd2",
-     "message": "activate action_btn:0",
-     "ms": 24,
+     "message": "activate action_btn:0 -- the page said 'Logged passage 6'",
+     "ms": 30,
      "result": "driven"
     },
     {
@@ -4935,8 +4935,154 @@
       }
      ],
      "id": "g159-passrep",
-     "message": "29 figure(s), 16 box(es), 2 list(s), 1 table(s), 18 heading(s)",
-     "ms": 8,
+     "message": "29 figure(s), 18 box(es), 2 list(s), 1 table(s), 19 heading(s)",
+     "ms": 12,
+     "result": "driven"
+    },
+    {
+     "action": "show-pane",
+     "expectations": [
+      {
+       "detail": "ok == True, got True",
+       "path": "ok",
+       "verdict": "CONFIRMED"
+      }
+     ],
+     "id": "g205-pane",
+     "message": "opened pane p-out",
+     "ms": 89,
+     "result": "driven"
+    },
+    {
+     "action": "activate",
+     "expectations": [
+      {
+       "detail": "ok == True, got True",
+       "path": "ok",
+       "verdict": "CONFIRMED"
+      }
+     ],
+     "id": "g205-ecoCopy",
+     "message": "activate action_btn:10 -- the page said 'Bench sheet copied' -- 1 payload(s) produced",
+     "ms": 40,
+     "result": "driven"
+    },
+    {
+     "action": "collect-output",
+     "expectations": [
+      {
+       "detail": "output.payloads.0.k == 'copy', got 'copy'",
+       "path": "output.payloads.0.k",
+       "verdict": "CONFIRMED"
+      },
+      {
+       "detail": "output.payloads.0.text contains '## Haemocytometer count\\n  live: 120   dead: 12   squares: 4\\n  chamber factor: 10000 /mL   dilution: 2\u00d7\\n  live cells/mL: 6.000e+5\\n  cells per square (all): 33.0   (within the conventional 20\u201350)\\n  viability: 90.9%\\n  counting CV (Poisson, 1/\u221aN): \u00b19.1%\\n  cells in 10.0 mL: 6.000e+6\\n\\n## Seeding\\n  stock: 8.500e+5 cells/mL   target: 5.000e+4 cells/mL   final volume: 10.00 mL\\n  stock to add: 0.588 mL   medium to add: 9.412 mL\\n\\n## Growth\\n  N0: 2.000e+5   N1: 1.600e+6   interval: 48.0 h\\n  population doublings: 3.000   doubling time: 16.00 h   fold expansion: 8.00\u00d7\\n\\n## Passage log (2)\\n  P5   1:4   thawed from vial N2-14\\n  P6   1:4\\n  cumulative population doublings from the split ratios: 4.0\\n\\n## Standard curve (4 standards)\\n  0.0000 \u00b5g/mL   A = 0.0410\\n  5.0000 \u00b5g/mL   A = 0.2380\\n  10.0000 \u00b5g/mL   A = 0.4420\\n  20.0000 \u00b5g/mL   A = 0.8510\\n  fit: A = 0.0406 \u00d7 c + 0.0380   r\u00b2 = 0.9999   n = 4\\n  unknown: A = 3.000   dilution 1.00\u00d7\\n  concentration in cuvette: 73.0070 \u00b5g/mL   in original sample: 73.0070 \u00b5g/mL\\n  EXTRAPOLATION, NOT A READING: the standards span A 0.041 to 0.851 and this is outside them\\n  A above 1.0 \u2014 Beer\u2013Lambert bends here; the reading falls below true\\n\\n## Beer\u2013Lambert\\n  A: 1.842   \u03b5: 6.500e+3   path: 1.00 cm\\n  concentration: 2.834e-4 M   (2.834e+2 \u00b5M)\\n  A above 1.0 \u2014 outside the reliably linear range\\n\\n## Purity ratios\\n  A260: 1.842   A280: 0.985   A230: 0.812\\n  A260/A280: 1.87\\n  A260/A230: 2.27\\n  if dsDNA (\u00d750): 9.210e+1 ng/\u00b5L   if RNA (\u00d740): 7.368e+1 ng/\u00b5L', got '# Cell bench \u2014 2026-09-14 18:49\\n\\n## Haemocytometer count\\n  live: 120   dead: 12   squares: 4\\n  chamber factor: 10000 /mL   dilution: 2\u00d7\\n  live cells/mL: 6.000e+5\\n  cells per square (all): 33.0   (within the conventional 20\u201350)\\n  viability: 90.9%\\n  counting CV (Poisson, 1/\u221aN): \u00b19.1%\\n  cells in 10.0 mL: 6.000e+6\\n\\n## Seeding\\n  stock: 8.500e+5 cells/mL   target: 5.000e+4 cells/mL   final volume: 10.00 mL\\n  stock to add: 0.588 mL   medium to add: 9.412 mL\\n\\n## Growth\\n  N0: 2.000e+5   N1: 1.600e+6   interval: 48.0 h\\n  population doublings: 3.000   doubling time: 16.00 h   fold expansion: 8.00\u00d7\\n\\n## Passage log (2)\\n  P5   1:4   thawed from vial N2-14\\n  P6   1:4\\n  cumulative population doublings from the split ratios: 4.0\\n\\n## Standard curve (4 standards)\\n  0.0000 \u00b5g/mL   A = 0.0410\\n  5.0000 \u00b5g/mL   A = 0.2380\\n  10.0000 \u00b5g/mL   A = 0.4420\\n  20.0000 \u00b5g/mL   A = 0.8510\\n  fit: A = 0.0406 \u00d7 c + 0.0380   r\u00b2 = 0.9999   n = 4\\n  unknown: A = 3.000   dilution 1.00\u00d7\\n  concentration in cuvette: 73.0070 \u00b5g/mL   in original sample: 73.0070 \u00b5g/mL\\n  EXTRAPOLATION, NOT A READING: the standards span A 0.041 to 0.851 and this is outside them\\n  A above 1.0 \u2014 Beer\u2013Lambert bends here; the reading falls below true\\n\\n## Beer\u2013Lambert\\n  A: 1.842   \u03b5: 6.500e+3   path: 1.00 cm\\n  concentration: 2.834e-4 M   (2.834e+2 \u00b5M)\\n  A above 1.0 \u2014 outside the reliably linear range\\n\\n## Purity ratios\\n  A260: 1.842   A280: 0.985   A230: 0.812\\n  A260/A280: 1.87\\n  A260/A230: 2.27\\n  if dsDNA (\u00d750): 9.210e+1 ng/\u00b5L   if RNA (\u00d740): 7.368e+1 ng/\u00b5L\\n  these are CONVENTIONS, not measurements of purity \u2014 pH- and buffer-sensitive, and blind to DNA vs RNA vs free nucleotides\\n\\n## Mitotic index\\n  interphase: 1   (20.0% of cells, est. 4.80 h)\\n  prophase: 1   (20.0% of cells, est. 4.80 h)\\n  metaphase: 1   (20.0% of cells, est. 4.80 h)\\n  anaphase: 1   (20.0% of cells, est. 4.80 h)\\n  telophase: 1   (20.0% of cells, est. 4.80 h)\\n  cells scored: 5   dividing: 4   mitotic index: 80.00%\\n  CV on the dividing count: \u00b150.0%\\n  fewer than the several hundred cells the convention asks for \u2014 mitoses cluster\\n  durations assume an asynchronous population in steady exponential growth and equal recognisability of every phase; prophase and telophase are reliably under-scored, so their durations here are biased short'",
+       "path": "output.payloads.0.text",
+       "verdict": "CONFIRMED"
+      }
+     ],
+     "id": "g205-ecoCopy-out",
+     "message": "1 payload(s)",
+     "ms": 12,
+     "result": "driven"
+    },
+    {
+     "action": "activate",
+     "expectations": [
+      {
+       "detail": "ok == True, got True",
+       "path": "ok",
+       "verdict": "CONFIRMED"
+      }
+     ],
+     "id": "g205-pasCopy",
+     "message": "activate action_btn:11 -- the page said 'Passage CSV copied \u2014 2 rows' -- 1 payload(s) produced",
+     "ms": 33,
+     "result": "driven"
+    },
+    {
+     "action": "collect-output",
+     "expectations": [
+      {
+       "detail": "output.payloads.0.k == 'copy', got 'copy'",
+       "path": "output.payloads.0.k",
+       "verdict": "CONFIRMED"
+      },
+      {
+       "detail": "output.payloads.0.text contains 'passage,split,note\\n5,1:4,thawed from vial N2-14\\n6,1:4,', got 'passage,split,note\\n5,1:4,thawed from vial N2-14\\n6,1:4,'",
+       "path": "output.payloads.0.text",
+       "verdict": "CONFIRMED"
+      }
+     ],
+     "id": "g205-pasCopy-out",
+     "message": "1 payload(s)",
+     "ms": 4,
+     "result": "driven"
+    },
+    {
+     "action": "activate",
+     "expectations": [
+      {
+       "detail": "ok == True, got True",
+       "path": "ok",
+       "verdict": "CONFIRMED"
+      }
+     ],
+     "id": "g205-stdCopy",
+     "message": "activate action_btn:12 -- the page said 'Standards CSV copied \u2014 4 rows' -- 1 payload(s) produced",
+     "ms": 35,
+     "result": "driven"
+    },
+    {
+     "action": "collect-output",
+     "expectations": [
+      {
+       "detail": "output.payloads.0.k == 'copy', got 'copy'",
+       "path": "output.payloads.0.k",
+       "verdict": "CONFIRMED"
+      },
+      {
+       "detail": "output.payloads.0.text contains 'concentration (\u00b5g/mL),absorbance,fitted_absorbance,residual\\n0,0.041,', got 'concentration (\u00b5g/mL),absorbance,fitted_absorbance,residual\\n0,0.041,0.0380,0.0030\\n5,0.238,0.2409,-0.0029\\n10,0.442,0.4437,-0.0017\\n20,0.851,0.8494,0.0016'",
+       "path": "output.payloads.0.text",
+       "verdict": "CONFIRMED"
+      }
+     ],
+     "id": "g205-stdCopy-out",
+     "message": "1 payload(s)",
+     "ms": 3,
+     "result": "driven"
+    },
+    {
+     "action": "activate",
+     "expectations": [
+      {
+       "detail": "ok == True, got True",
+       "path": "ok",
+       "verdict": "CONFIRMED"
+      }
+     ],
+     "id": "g205-print",
+     "message": "activate action_btn:13 -- 1 payload(s) produced",
+     "ms": 30,
+     "result": "driven"
+    },
+    {
+     "action": "collect-output",
+     "expectations": [
+      {
+       "detail": "output.payloads.0.k == 'print', got 'print'",
+       "path": "output.payloads.0.k",
+       "verdict": "CONFIRMED"
+      },
+      {
+       "detail": "output.payloads.1 exists False, got None",
+       "path": "output.payloads.1",
+       "verdict": "CONFIRMED"
+      }
+     ],
+     "id": "g205-printed",
+     "message": "1 payload(s)",
+     "ms": 3,
      "result": "driven"
     },
     {
@@ -4950,7 +5096,7 @@
      ],
      "id": "g159-endpane",
      "message": "opened pane p-cnt",
-     "ms": 95,
+     "ms": 86,
      "result": "driven"
     },
     {
@@ -4973,8 +5119,8 @@
       }
      ],
      "id": "g159-endreport",
-     "message": "29 figure(s), 16 box(es), 2 list(s), 1 table(s), 18 heading(s)",
-     "ms": 13,
+     "message": "29 figure(s), 18 box(es), 2 list(s), 1 table(s), 19 heading(s)",
+     "ms": 16,
      "result": "driven"
     },
     {
@@ -4998,7 +5144,7 @@
      ],
      "id": "g159-endintact",
      "message": "read the page",
-     "ms": 14,
+     "ms": 15,
      "result": "driven"
     }
    ],
@@ -14723,9 +14869,9 @@
    "verdict": "PASS"
   },
   "page-ethogram-kappa": {
-   "at": 1789203079,
+   "at": 1789420996,
    "claims": 17,
-   "confirmed": 35,
+   "confirmed": 37,
    "gives": 4,
    "goal": "On the ethogram's reliability pane, hand two observers' ten-sample records to the kappa calculator -- A: F F V R L F V V R F, B: F V V R L F V R R F -- and find Cohen's kappa 0.722 from 80% raw agreement and 28% expected by chance (margins F4 V3 R2 L1 against F3 V3 R3 L1 over 10), the confusion matrix present, and records of different length refused with the matrix cleared. And the date the sheet stamps itself with, which is the real clock's and so could never be an expectation: freeze the clock at 2026-03-01T09:00:00Z, reload \u2014 because the page reads the clock once, at load \u2014 and the field says 2026-03-01 (ADR-134).",
    "held": true,
@@ -14736,10 +14882,11 @@
    "rungs": [
     "SENSITIVE_READ",
     "DRAFT",
-    "MUTATE"
+    "MUTATE",
+    "DESTRUCTIVE"
    ],
-   "rungsWhy": null,
-   "seconds": 1.6,
+   "rungsWhy": "ADR-206 gave this page an autosave, so the reload after the clock is frozen restores the sheet the task has just filled in -- including the date it was started on, which is CORRECT and is the reason the saved copy is dropped first. Forgetting a device's copy is destructive and is declared here rather than done quietly.",
+   "seconds": 2.7,
    "steps": [
     {
      "action": "observe",
@@ -14771,7 +14918,7 @@
      ],
      "id": "rel",
      "message": "opened pane p-rel",
-     "ms": 132,
+     "ms": 171,
      "result": "driven"
     },
     {
@@ -14785,7 +14932,7 @@
      ],
      "id": "a",
      "message": "set-text text_in:9",
-     "ms": 23,
+     "ms": 38,
      "result": "driven"
     },
     {
@@ -14799,7 +14946,7 @@
      ],
      "id": "b",
      "message": "set-text text_in:10",
-     "ms": 24,
+     "ms": 31,
      "result": "driven"
     },
     {
@@ -14812,8 +14959,8 @@
       }
      ],
      "id": "go",
-     "message": "activate action_btn:42",
-     "ms": 23,
+     "message": "activate action_btn:44",
+     "ms": 35,
      "result": "driven"
     },
     {
@@ -14851,8 +14998,8 @@
       }
      ],
      "id": "kappa",
-     "message": "5 figure(s), 20 box(es), 1 list(s), 3 table(s), 25 heading(s)",
-     "ms": 8,
+     "message": "5 figure(s), 22 box(es), 1 list(s), 3 table(s), 26 heading(s)",
+     "ms": 14,
      "result": "driven"
     },
     {
@@ -14865,8 +15012,8 @@
       }
      ],
      "id": "few",
-     "message": "5 figure(s), 20 box(es), 1 list(s), 3 table(s), 25 heading(s)",
-     "ms": 7,
+     "message": "5 figure(s), 22 box(es), 1 list(s), 3 table(s), 26 heading(s)",
+     "ms": 12,
      "result": "driven"
     },
     {
@@ -14879,8 +15026,8 @@
       }
      ],
      "id": "matrix",
-     "message": "5 figure(s), 20 box(es), 1 list(s), 3 table(s), 25 heading(s)",
-     "ms": 6,
+     "message": "5 figure(s), 22 box(es), 1 list(s), 3 table(s), 26 heading(s)",
+     "ms": 13,
      "result": "driven"
     },
     {
@@ -14894,7 +15041,7 @@
      ],
      "id": "short",
      "message": "set-text text_in:10",
-     "ms": 23,
+     "ms": 33,
      "result": "driven"
     },
     {
@@ -14907,8 +15054,8 @@
       }
      ],
      "id": "go2",
-     "message": "activate action_btn:42",
-     "ms": 25,
+     "message": "activate action_btn:44",
+     "ms": 36,
      "result": "driven"
     },
     {
@@ -14926,8 +15073,8 @@
       }
      ],
      "id": "refused",
-     "message": "0 figure(s), 20 box(es), 1 list(s), 2 table(s), 24 heading(s)",
-     "ms": 6,
+     "message": "0 figure(s), 22 box(es), 1 list(s), 2 table(s), 25 heading(s)",
+     "ms": 10,
      "result": "driven"
     },
     {
@@ -14941,7 +15088,7 @@
      ],
      "id": "design",
      "message": "opened pane p-des",
-     "ms": 93,
+     "ms": 137,
      "result": "driven"
     },
     {
@@ -14955,7 +15102,7 @@
      ],
      "id": "scan",
      "message": "activate kopt:2",
-     "ms": 22,
+     "ms": 37,
      "result": "driven"
     },
     {
@@ -14969,7 +15116,7 @@
      ],
      "id": "cont",
      "message": "activate kopt:4",
-     "ms": 23,
+     "ms": 32,
      "result": "driven"
     },
     {
@@ -14982,8 +15129,8 @@
       }
      ],
      "id": "incoherent",
-     "message": "0 figure(s), 20 box(es), 1 list(s), 2 table(s), 24 heading(s)",
-     "ms": 5,
+     "message": "0 figure(s), 22 box(es), 1 list(s), 2 table(s), 25 heading(s)",
+     "ms": 10,
      "result": "driven"
     },
     {
@@ -14997,7 +15144,7 @@
      ],
      "id": "focal",
      "message": "activate kopt:1",
-     "ms": 25,
+     "ms": 37,
      "result": "driven"
     },
     {
@@ -15010,8 +15157,36 @@
       }
      ],
      "id": "coherent",
-     "message": "0 figure(s), 20 box(es), 1 list(s), 2 table(s), 24 heading(s)",
-     "ms": 6,
+     "message": "0 figure(s), 22 box(es), 1 list(s), 2 table(s), 25 heading(s)",
+     "ms": 10,
+     "result": "driven"
+    },
+    {
+     "action": "activate",
+     "expectations": [
+      {
+       "detail": "ok == True, got True",
+       "path": "ok",
+       "verdict": "CONFIRMED"
+      }
+     ],
+     "id": "forget",
+     "message": "activate action_btn:43 -- the page said 'Saved copy removed from this device'",
+     "ms": 130,
+     "result": "driven"
+    },
+    {
+     "action": "read-report",
+     "expectations": [
+      {
+       "detail": "ok == True, got True",
+       "path": "ok",
+       "verdict": "CONFIRMED"
+      }
+     ],
+     "id": "forgotten",
+     "message": "0 figure(s), 22 box(es), 1 list(s), 2 table(s), 25 heading(s)",
+     "ms": 14,
      "result": "driven"
     },
     {
@@ -15040,7 +15215,7 @@
      ],
      "id": "freeze",
      "message": "the clock is frozen at 2026-03-01T09:00:00Z; reload for code that reads it at load",
-     "ms": 6,
+     "ms": 9,
      "result": "driven"
     },
     {
@@ -15054,7 +15229,7 @@
      ],
      "id": "again",
      "message": "reloaded ethogram.html",
-     "ms": 352,
+     "ms": 395,
      "result": "driven"
     },
     {
@@ -15073,7 +15248,7 @@
      ],
      "id": "dated",
      "message": "read text_in:1",
-     "ms": 5,
+     "ms": 12,
      "result": "driven"
     },
     {
@@ -15111,7 +15286,7 @@
      ],
      "id": "intact",
      "message": "read the page",
-     "ms": 8,
+     "ms": 10,
      "result": "driven"
     }
    ],
@@ -23904,13 +24079,13 @@
    "verdict": "PASS"
   },
   "page-micro-bench-science": {
-   "at": 1789203123,
-   "claims": 35,
-   "confirmed": 86,
+   "at": 1789411751,
+   "claims": 45,
+   "confirmed": 102,
    "gives": 32,
    "goal": "On the micro bench: 148 colonies from 0.1 mL plated at 10^-5 is 1.48x10^8 CFU/mL, the plated volume and the serial transfer/diluent volumes set explicitly (1:10 per step, 1.00 log10); a growth curve, and a zone-of-inhibition read against CLSI breakpoints with the medium and organism named -- every pane driven and the figures held against an oracle.",
    "held": true,
-   "holds": 13,
+   "holds": 18,
    "id": "page-micro-bench-science",
    "must": "PASS",
    "refuted": 0,
@@ -23920,7 +24095,7 @@
     "MUTATE"
    ],
    "rungsWhy": null,
-   "seconds": 2.9,
+   "seconds": 5.6,
    "steps": [
     {
      "action": "observe",
@@ -23952,7 +24127,7 @@
      ],
      "id": "pl",
      "message": "opened pane p-pl",
-     "ms": 4,
+     "ms": 9,
      "result": "driven"
     },
     {
@@ -23966,7 +24141,7 @@
      ],
      "id": "g164-plv",
      "message": "set-text step_val:1",
-     "ms": 24,
+     "ms": 44,
      "result": "driven"
     },
     {
@@ -23980,7 +24155,7 @@
      ],
      "id": "nA",
      "message": "press-step step_btn:1",
-     "ms": 23,
+     "ms": 37,
      "result": "driven"
     },
     {
@@ -23994,7 +24169,7 @@
      ],
      "id": "cA",
      "message": "set-text field_in:0",
-     "ms": 22,
+     "ms": 37,
      "result": "driven"
     },
     {
@@ -24008,7 +24183,7 @@
      ],
      "id": "lA",
      "message": "set-text text_in:0",
-     "ms": 22,
+     "ms": 35,
      "result": "driven"
     },
     {
@@ -24022,7 +24197,7 @@
      ],
      "id": "addA",
      "message": "activate action_btn:0",
-     "ms": 23,
+     "ms": 44,
      "result": "driven"
     },
     {
@@ -24060,8 +24235,8 @@
       }
      ],
      "id": "plateA",
-     "message": "4 figure(s), 10 box(es), 1 list(s), 1 table(s), 14 heading(s)",
-     "ms": 7,
+     "message": "4 figure(s), 12 box(es), 1 list(s), 1 table(s), 15 heading(s)",
+     "ms": 15,
      "result": "driven"
     },
     {
@@ -24075,7 +24250,7 @@
      ],
      "id": "nB",
      "message": "set-text step_val:0",
-     "ms": 22,
+     "ms": 36,
      "result": "driven"
     },
     {
@@ -24089,7 +24264,7 @@
      ],
      "id": "cB",
      "message": "set-text field_in:0",
-     "ms": 23,
+     "ms": 36,
      "result": "driven"
     },
     {
@@ -24103,7 +24278,7 @@
      ],
      "id": "lB",
      "message": "set-text text_in:0",
-     "ms": 22,
+     "ms": 35,
      "result": "driven"
     },
     {
@@ -24117,7 +24292,7 @@
      ],
      "id": "addB",
      "message": "activate action_btn:0",
-     "ms": 23,
+     "ms": 39,
      "result": "driven"
     },
     {
@@ -24140,8 +24315,8 @@
       }
      ],
      "id": "plateB",
-     "message": "4 figure(s), 10 box(es), 1 list(s), 1 table(s), 14 heading(s)",
-     "ms": 5,
+     "message": "4 figure(s), 12 box(es), 1 list(s), 1 table(s), 15 heading(s)",
+     "ms": 10,
      "result": "driven"
     },
     {
@@ -24155,7 +24330,7 @@
      ],
      "id": "nC",
      "message": "set-text step_val:0",
-     "ms": 24,
+     "ms": 35,
      "result": "driven"
     },
     {
@@ -24169,7 +24344,7 @@
      ],
      "id": "cC",
      "message": "set-text field_in:0",
-     "ms": 23,
+     "ms": 32,
      "result": "driven"
     },
     {
@@ -24183,7 +24358,7 @@
      ],
      "id": "lC",
      "message": "set-text text_in:0",
-     "ms": 22,
+     "ms": 32,
      "result": "driven"
     },
     {
@@ -24197,7 +24372,7 @@
      ],
      "id": "addC",
      "message": "activate action_btn:0",
-     "ms": 23,
+     "ms": 35,
      "result": "driven"
     },
     {
@@ -24235,8 +24410,8 @@
       }
      ],
      "id": "plateC",
-     "message": "4 figure(s), 10 box(es), 1 list(s), 1 table(s), 14 heading(s)",
-     "ms": 5,
+     "message": "4 figure(s), 12 box(es), 1 list(s), 1 table(s), 15 heading(s)",
+     "ms": 9,
      "result": "driven"
     },
     {
@@ -24250,7 +24425,7 @@
      ],
      "id": "dil",
      "message": "opened pane p-dil",
-     "ms": 109,
+     "ms": 173,
      "result": "driven"
     },
     {
@@ -24264,7 +24439,7 @@
      ],
      "id": "titre",
      "message": "set-text field_in:1",
-     "ms": 26,
+     "ms": 36,
      "result": "driven"
     },
     {
@@ -24278,7 +24453,7 @@
      ],
      "id": "g164-dvol",
      "message": "set-text step_val:2",
-     "ms": 25,
+     "ms": 38,
      "result": "driven"
     },
     {
@@ -24292,7 +24467,7 @@
      ],
      "id": "g164-dtr",
      "message": "set-text step_val:3",
-     "ms": 23,
+     "ms": 30,
      "result": "driven"
     },
     {
@@ -24306,7 +24481,7 @@
      ],
      "id": "g164-dbl",
      "message": "set-text step_val:4",
-     "ms": 23,
+     "ms": 34,
      "result": "driven"
     },
     {
@@ -24334,8 +24509,8 @@
       }
      ],
      "id": "plan",
-     "message": "7 figure(s), 10 box(es), 1 list(s), 2 table(s), 14 heading(s)",
-     "ms": 6,
+     "message": "7 figure(s), 12 box(es), 1 list(s), 2 table(s), 15 heading(s)",
+     "ms": 11,
      "result": "driven"
     },
     {
@@ -24349,7 +24524,7 @@
      ],
      "id": "gr",
      "message": "opened pane p-gr",
-     "ms": 66,
+     "ms": 89,
      "result": "driven"
     },
     {
@@ -24363,7 +24538,7 @@
      ],
      "id": "gt0",
      "message": "set-text field_in:2",
-     "ms": 23,
+     "ms": 37,
      "result": "driven"
     },
     {
@@ -24377,7 +24552,7 @@
      ],
      "id": "go0",
      "message": "set-text field_in:3",
-     "ms": 21,
+     "ms": 35,
      "result": "driven"
     },
     {
@@ -24391,7 +24566,7 @@
      ],
      "id": "gadd0",
      "message": "activate action_btn:4",
-     "ms": 26,
+     "ms": 31,
      "result": "driven"
     },
     {
@@ -24405,7 +24580,7 @@
      ],
      "id": "gt1",
      "message": "set-text field_in:2",
-     "ms": 22,
+     "ms": 32,
      "result": "driven"
     },
     {
@@ -24419,7 +24594,7 @@
      ],
      "id": "go1",
      "message": "set-text field_in:3",
-     "ms": 23,
+     "ms": 32,
      "result": "driven"
     },
     {
@@ -24433,7 +24608,7 @@
      ],
      "id": "gadd1",
      "message": "activate action_btn:4",
-     "ms": 25,
+     "ms": 34,
      "result": "driven"
     },
     {
@@ -24447,7 +24622,7 @@
      ],
      "id": "gt2",
      "message": "set-text field_in:2",
-     "ms": 22,
+     "ms": 31,
      "result": "driven"
     },
     {
@@ -24461,7 +24636,7 @@
      ],
      "id": "go2",
      "message": "set-text field_in:3",
-     "ms": 23,
+     "ms": 30,
      "result": "driven"
     },
     {
@@ -24475,7 +24650,7 @@
      ],
      "id": "gadd2",
      "message": "activate action_btn:4",
-     "ms": 21,
+     "ms": 34,
      "result": "driven"
     },
     {
@@ -24489,7 +24664,7 @@
      ],
      "id": "gt3",
      "message": "set-text field_in:2",
-     "ms": 22,
+     "ms": 31,
      "result": "driven"
     },
     {
@@ -24503,7 +24678,7 @@
      ],
      "id": "go3",
      "message": "set-text field_in:3",
-     "ms": 23,
+     "ms": 32,
      "result": "driven"
     },
     {
@@ -24517,7 +24692,7 @@
      ],
      "id": "gadd3",
      "message": "activate action_btn:4",
-     "ms": 23,
+     "ms": 35,
      "result": "driven"
     },
     {
@@ -24555,8 +24730,8 @@
       }
      ],
      "id": "growth",
-     "message": "12 figure(s), 10 box(es), 2 list(s), 2 table(s), 15 heading(s)",
-     "ms": 6,
+     "message": "12 figure(s), 12 box(es), 2 list(s), 2 table(s), 16 heading(s)",
+     "ms": 12,
      "result": "driven"
     },
     {
@@ -24570,7 +24745,7 @@
      ],
      "id": "gt4",
      "message": "set-text field_in:2",
-     "ms": 22,
+     "ms": 33,
      "result": "driven"
     },
     {
@@ -24584,7 +24759,7 @@
      ],
      "id": "go4",
      "message": "set-text field_in:3",
-     "ms": 22,
+     "ms": 36,
      "result": "driven"
     },
     {
@@ -24598,7 +24773,7 @@
      ],
      "id": "gadd4",
      "message": "activate action_btn:4",
-     "ms": 23,
+     "ms": 33,
      "result": "driven"
     },
     {
@@ -24611,8 +24786,8 @@
       }
      ],
      "id": "dense",
-     "message": "12 figure(s), 10 box(es), 2 list(s), 2 table(s), 15 heading(s)",
-     "ms": 7,
+     "message": "12 figure(s), 12 box(es), 2 list(s), 2 table(s), 16 heading(s)",
+     "ms": 13,
      "result": "driven"
     },
     {
@@ -24626,7 +24801,7 @@
      ],
      "id": "zn",
      "message": "opened pane p-zn",
-     "ms": 72,
+     "ms": 95,
      "result": "driven"
     },
     {
@@ -24640,7 +24815,7 @@
      ],
      "id": "g164-zmed",
      "message": "set-text text_in:2",
-     "ms": 22,
+     "ms": 32,
      "result": "driven"
     },
     {
@@ -24654,7 +24829,7 @@
      ],
      "id": "g164-zorg",
      "message": "set-text text_in:1",
-     "ms": 22,
+     "ms": 31,
      "result": "driven"
     },
     {
@@ -24668,7 +24843,7 @@
      ],
      "id": "drug",
      "message": "set-text text_in:3",
-     "ms": 25,
+     "ms": 38,
      "result": "driven"
     },
     {
@@ -24682,7 +24857,7 @@
      ],
      "id": "cont",
      "message": "set-text text_in:4",
-     "ms": 24,
+     "ms": 34,
      "result": "driven"
     },
     {
@@ -24696,7 +24871,7 @@
      ],
      "id": "zone",
      "message": "set-text field_in:4",
-     "ms": 23,
+     "ms": 30,
      "result": "driven"
     },
     {
@@ -24710,7 +24885,7 @@
      ],
      "id": "zadd",
      "message": "activate action_btn:17",
-     "ms": 24,
+     "ms": 33,
      "result": "driven"
     },
     {
@@ -24728,8 +24903,8 @@
       }
      ],
      "id": "measured",
-     "message": "12 figure(s), 10 box(es), 3 list(s), 2 table(s), 15 heading(s)",
-     "ms": 6,
+     "message": "12 figure(s), 12 box(es), 3 list(s), 2 table(s), 16 heading(s)",
+     "ms": 12,
      "result": "driven"
     },
     {
@@ -24743,7 +24918,7 @@
      ],
      "id": "zs",
      "message": "set-text field_in:5",
-     "ms": 24,
+     "ms": 34,
      "result": "driven"
     },
     {
@@ -24757,7 +24932,7 @@
      ],
      "id": "zr",
      "message": "set-text field_in:6",
-     "ms": 24,
+     "ms": 32,
      "result": "driven"
     },
     {
@@ -24771,7 +24946,7 @@
      ],
      "id": "src",
      "message": "set-text text_in:5",
-     "ms": 23,
+     "ms": 32,
      "result": "driven"
     },
     {
@@ -24784,8 +24959,8 @@
       }
      ],
      "id": "interpreted",
-     "message": "12 figure(s), 10 box(es), 3 list(s), 2 table(s), 15 heading(s)",
-     "ms": 7,
+     "message": "12 figure(s), 12 box(es), 3 list(s), 2 table(s), 16 heading(s)",
+     "ms": 11,
      "result": "driven"
     },
     {
@@ -24798,8 +24973,8 @@
       }
      ],
      "id": "band",
-     "message": "12 figure(s), 10 box(es), 3 list(s), 2 table(s), 15 heading(s)",
-     "ms": 6,
+     "message": "12 figure(s), 12 box(es), 3 list(s), 2 table(s), 16 heading(s)",
+     "ms": 12,
      "result": "driven"
     },
     {
@@ -24813,7 +24988,7 @@
      ],
      "id": "g164-plpane",
      "message": "opened pane p-pl",
-     "ms": 74,
+     "ms": 78,
      "result": "driven"
     },
     {
@@ -24831,8 +25006,187 @@
       }
      ],
      "id": "g164-plrep",
-     "message": "12 figure(s), 10 box(es), 3 list(s), 2 table(s), 15 heading(s)",
+     "message": "12 figure(s), 12 box(es), 3 list(s), 2 table(s), 16 heading(s)",
+     "ms": 18,
+     "result": "driven"
+    },
+    {
+     "action": "show-pane",
+     "expectations": [
+      {
+       "detail": "ok == True, got True",
+       "path": "ok",
+       "verdict": "CONFIRMED"
+      }
+     ],
+     "id": "g205-pane",
+     "message": "opened pane p-out",
+     "ms": 115,
+     "result": "driven"
+    },
+    {
+     "action": "activate",
+     "expectations": [
+      {
+       "detail": "ok == True, got True",
+       "path": "ok",
+       "verdict": "CONFIRMED"
+      }
+     ],
+     "id": "g205-ecoCopy",
+     "message": "activate action_btn:19 -- the page said 'Bench sheet copied' -- 1 payload(s) produced",
+     "ms": 40,
+     "result": "driven"
+    },
+    {
+     "action": "collect-output",
+     "expectations": [
+      {
+       "detail": "output.payloads.0.k == 'copy', got 'copy'",
+       "path": "output.payloads.0.k",
+       "verdict": "CONFIRMED"
+      },
+      {
+       "detail": "output.payloads.0.text contains '## Plate counts (3)\\n  TSA-A   10^-5   0.10 mL   148 colonies   countable   1.480e+8 CFU/mL\\n  TSA-B   10^-6   0.10 mL   17 colonies   TFTC   excluded\\n  TSA-C   10^-5   0.10 mL   50 colonies   countable   5.000e+7 CFU/mL\\n  countable plates: 2 of 3   colonies counted: 198\\n  CFU/mL (mean of countable): 9.900e+7   Poisson CV: \u00b17.1%\\n  1 plate(s) excluded \u2014 listed above rather than dropped silently, because which plates you discarded is part of the record\\n  COUNTABLE PLATES DISAGREE BY 3.0\u00d7 \u2014 adjacent dilutions should agree within about a factor of two; this points at the dilution series, not the organism\\n  this is CFU/mL, not cells/mL: a chain, a clump or a hypha gives one colony\\n\\n## Dilution plan\\n  estimate: 1.000e+8 CFU/mL   plated volume: 0.10 mL\\n  transfer 1.00 mL into 9.00 mL blank = 1:10 per step (1.00 log\u2081\u2080)\\n  plate step 5: ~100 colonies expected\\n\\n## Growth curve (5 points)\\n  0.00 h   OD 0.050   ln(OD) -2.996   in fit\\n  1.00 h   OD 0.100   ln(OD) -2.303   in fit\\n  2.00 h   OD 0.200   ln(OD) -1.609   in fit\\n  3.00 h   OD 0.400   ln(OD) -0.916   in fit\\n  4.00 h   OD 1.500   ln(OD) 0.405   in fit\\n  fit over 5 of 5 points: ln(OD) = -3.1215 + 0.8189\u00b7t   r\u00b2 = 0.9770\\n  specific growth rate \u00b5: 0.8189 h\u207b\u00b9   doubling time: 0.846 h (50.8 min)\\n  r\u00b2 below 0.98 \u2014 the window probably includes lag or the approach to stationary; narrow it\\n  POINTS ABOVE OD 0.6 ARE IN THE FIT \u2014 multiple scattering makes a spectrophotometer read low there, which flattens the line and pushes \u00b5 down\\n  \u00b5 is a rate of increase in TURBIDITY; converting to cells/mL needs your own OD-to-CFU calibration for this strain, medium and instrument\\n\\n## Disc diffusion (1 zone)\\n  ampicillin 10 \u00b5g   18.0 mm   S\\n  interpreted against S \u2265 17.0 mm, R \u2264 13.0 mm, CLSI M100, 2026\\n  intermediate band: 13.5\u201316.5 mm', got '# Micro bench \u2014 2026-09-14 18:49\\n\\n## Plate counts (3)\\n  TSA-A   10^-5   0.10 mL   148 colonies   countable   1.480e+8 CFU/mL\\n  TSA-B   10^-6   0.10 mL   17 colonies   TFTC   excluded\\n  TSA-C   10^-5   0.10 mL   50 colonies   countable   5.000e+7 CFU/mL\\n  countable plates: 2 of 3   colonies counted: 198\\n  CFU/mL (mean of countable): 9.900e+7   Poisson CV: \u00b17.1%\\n  1 plate(s) excluded \u2014 listed above rather than dropped silently, because which plates you discarded is part of the record\\n  COUNTABLE PLATES DISAGREE BY 3.0\u00d7 \u2014 adjacent dilutions should agree within about a factor of two; this points at the dilution series, not the organism\\n  this is CFU/mL, not cells/mL: a chain, a clump or a hypha gives one colony\\n\\n## Dilution plan\\n  estimate: 1.000e+8 CFU/mL   plated volume: 0.10 mL\\n  transfer 1.00 mL into 9.00 mL blank = 1:10 per step (1.00 log\u2081\u2080)\\n  plate step 5: ~100 colonies expected\\n\\n## Growth curve (5 points)\\n  0.00 h   OD 0.050   ln(OD) -2.996   in fit\\n  1.00 h   OD 0.100   ln(OD) -2.303   in fit\\n  2.00 h   OD 0.200   ln(OD) -1.609   in fit\\n  3.00 h   OD 0.400   ln(OD) -0.916   in fit\\n  4.00 h   OD 1.500   ln(OD) 0.405   in fit\\n  fit over 5 of 5 points: ln(OD) = -3.1215 + 0.8189\u00b7t   r\u00b2 = 0.9770\\n  specific growth rate \u00b5: 0.8189 h\u207b\u00b9   doubling time: 0.846 h (50.8 min)\\n  r\u00b2 below 0.98 \u2014 the window probably includes lag or the approach to stationary; narrow it\\n  POINTS ABOVE OD 0.6 ARE IN THE FIT \u2014 multiple scattering makes a spectrophotometer read low there, which flattens the line and pushes \u00b5 down\\n  \u00b5 is a rate of increase in TURBIDITY; converting to cells/mL needs your own OD-to-CFU calibration for this strain, medium and instrument\\n\\n## Disc diffusion (1 zone)\\n  ampicillin 10 \u00b5g   18.0 mm   S\\n  interpreted against S \u2265 17.0 mm, R \u2264 13.0 mm, CLSI M100, 2026\\n  intermediate band: 13.5\u201316.5 mm'",
+       "path": "output.payloads.0.text",
+       "verdict": "CONFIRMED"
+      }
+     ],
+     "id": "g205-ecoCopy-out",
+     "message": "1 payload(s)",
+     "ms": 9,
+     "result": "driven"
+    },
+    {
+     "action": "activate",
+     "expectations": [
+      {
+       "detail": "ok == True, got True",
+       "path": "ok",
+       "verdict": "CONFIRMED"
+      }
+     ],
+     "id": "g205-plCopy",
+     "message": "activate action_btn:20 -- the page said 'Plate CSV copied \u2014 3 rows' -- 1 payload(s) produced",
+     "ms": 33,
+     "result": "driven"
+    },
+    {
+     "action": "collect-output",
+     "expectations": [
+      {
+       "detail": "output.payloads.0.k == 'copy', got 'copy'",
+       "path": "output.payloads.0.k",
+       "verdict": "CONFIRMED"
+      },
+      {
+       "detail": "output.payloads.0.text contains 'label,dilution_exponent,volume_ml,colonies,status,cfu_per_ml\\nTSA-A,5,0.1,148,countable,1.480e+8\\nTSA-B,6,0.1,17,TFTC,\\nTSA-C,5,0.1,50,countable,5.000e+7', got 'label,dilution_exponent,volume_ml,colonies,status,cfu_per_ml\\nTSA-A,5,0.1,148,countable,1.480e+8\\nTSA-B,6,0.1,17,TFTC,\\nTSA-C,5,0.1,50,countable,5.000e+7'",
+       "path": "output.payloads.0.text",
+       "verdict": "CONFIRMED"
+      }
+     ],
+     "id": "g205-plCopy-out",
+     "message": "1 payload(s)",
+     "ms": 4,
+     "result": "driven"
+    },
+    {
+     "action": "activate",
+     "expectations": [
+      {
+       "detail": "ok == True, got True",
+       "path": "ok",
+       "verdict": "CONFIRMED"
+      }
+     ],
+     "id": "g205-grCopy",
+     "message": "activate action_btn:21 -- the page said 'Growth CSV copied \u2014 5 rows' -- 1 payload(s) produced",
+     "ms": 34,
+     "result": "driven"
+    },
+    {
+     "action": "collect-output",
+     "expectations": [
+      {
+       "detail": "output.payloads.0.k == 'copy', got 'copy'",
+       "path": "output.payloads.0.k",
+       "verdict": "CONFIRMED"
+      },
+      {
+       "detail": "output.payloads.0.text contains 'hours,od,ln_od,in_fit\\n0,0.05,-2.9957,yes\\n1,0.1,-2.3026,yes\\n2,0.2,-1.6094,yes\\n3,0.4,-0.9163,yes\\n4,1.5,0.4055,yes', got 'hours,od,ln_od,in_fit\\n0,0.05,-2.9957,yes\\n1,0.1,-2.3026,yes\\n2,0.2,-1.6094,yes\\n3,0.4,-0.9163,yes\\n4,1.5,0.4055,yes'",
+       "path": "output.payloads.0.text",
+       "verdict": "CONFIRMED"
+      }
+     ],
+     "id": "g205-grCopy-out",
+     "message": "1 payload(s)",
      "ms": 6,
+     "result": "driven"
+    },
+    {
+     "action": "activate",
+     "expectations": [
+      {
+       "detail": "ok == True, got True",
+       "path": "ok",
+       "verdict": "CONFIRMED"
+      }
+     ],
+     "id": "g205-znCopy",
+     "message": "activate action_btn:22 -- the page said 'Zone CSV copied \u2014 1 row' -- 1 payload(s) produced",
+     "ms": 42,
+     "result": "driven"
+    },
+    {
+     "action": "collect-output",
+     "expectations": [
+      {
+       "detail": "output.payloads.0.k == 'copy', got 'copy'",
+       "path": "output.payloads.0.k",
+       "verdict": "CONFIRMED"
+      },
+      {
+       "detail": "output.payloads.0.text contains 'antimicrobial,disc_content,zone_mm,interpretation,breakpoint_S_mm,breakpoint_R_mm,breakpoint_source\\nampicillin,10 \u00b5g,18,S,17,13,\"CLSI M100, 2026\"', got 'antimicrobial,disc_content,zone_mm,interpretation,breakpoint_S_mm,breakpoint_R_mm,breakpoint_source\\nampicillin,10 \u00b5g,18,S,17,13,\"CLSI M100, 2026\"'",
+       "path": "output.payloads.0.text",
+       "verdict": "CONFIRMED"
+      }
+     ],
+     "id": "g205-znCopy-out",
+     "message": "1 payload(s)",
+     "ms": 6,
+     "result": "driven"
+    },
+    {
+     "action": "activate",
+     "expectations": [
+      {
+       "detail": "ok == True, got True",
+       "path": "ok",
+       "verdict": "CONFIRMED"
+      }
+     ],
+     "id": "g205-print",
+     "message": "activate action_btn:23 -- 1 payload(s) produced",
+     "ms": 36,
+     "result": "driven"
+    },
+    {
+     "action": "collect-output",
+     "expectations": [
+      {
+       "detail": "output.payloads.0.k == 'print', got 'print'",
+       "path": "output.payloads.0.k",
+       "verdict": "CONFIRMED"
+      },
+      {
+       "detail": "output.payloads.1 exists False, got None",
+       "path": "output.payloads.1",
+       "verdict": "CONFIRMED"
+      }
+     ],
+     "id": "g205-printed",
+     "message": "1 payload(s)",
+     "ms": 5,
      "result": "driven"
     },
     {
@@ -24846,7 +25200,7 @@
      ],
      "id": "g164-dilpane",
      "message": "opened pane p-dil",
-     "ms": 87,
+     "ms": 85,
      "result": "driven"
     },
     {
@@ -24864,8 +25218,8 @@
       }
      ],
      "id": "g164-dilrep",
-     "message": "12 figure(s), 10 box(es), 3 list(s), 2 table(s), 15 heading(s)",
-     "ms": 7,
+     "message": "12 figure(s), 12 box(es), 3 list(s), 2 table(s), 16 heading(s)",
+     "ms": 23,
      "result": "driven"
     },
     {
@@ -24889,7 +25243,7 @@
      ],
      "id": "g164-endintact",
      "message": "read the page",
-     "ms": 6,
+     "ms": 8,
      "result": "driven"
     }
    ],
@@ -35095,7 +35449,7 @@
    "verdict": "PASS"
   },
   "page-survey-design-science": {
-   "at": 1789284340,
+   "at": 1789373805,
    "claims": 54,
    "confirmed": 75,
    "gives": 13,
@@ -35112,7 +35466,7 @@
     "DESTRUCTIVE"
    ],
    "rungsWhy": "the goal removes a stratum and re-reads the allocation: the control is the row's remove",
-   "seconds": 6.5,
+   "seconds": 6.4,
    "steps": [
     {
      "action": "observe",
@@ -35144,7 +35498,7 @@
      ],
      "id": "hier",
      "message": "opened pane p-hier",
-     "ms": 6,
+     "ms": 8,
      "result": "driven"
     },
     {
@@ -35152,7 +35506,7 @@
      "expectations": [],
      "id": "g157-dsname",
      "message": "set-text text_in:0",
-     "ms": 33,
+     "ms": 37,
      "result": "driven"
     },
     {
@@ -35160,7 +35514,7 @@
      "expectations": [],
      "id": "g157-dsprefix",
      "message": "set-text text_in:1",
-     "ms": 34,
+     "ms": 36,
      "result": "driven"
     },
     {
@@ -35168,7 +35522,7 @@
      "expectations": [],
      "id": "g157-effproto",
      "message": "set-text text_in:8",
-     "ms": 219,
+     "ms": 201,
      "result": "driven"
     },
     {
@@ -35182,7 +35536,7 @@
      ],
      "id": "demo",
      "message": "activate action_btn:1 -- the page said 'Example design loaded \u2014 1 survey, 2 sites, 4 plots, 8 visits'",
-     "ms": 135,
+     "ms": 157,
      "result": "driven"
     },
     {
@@ -35225,8 +35579,8 @@
       }
      ],
      "id": "tree",
-     "message": "14 figure(s), 19 box(es), 0 list(s), 2 table(s), 19 heading(s)",
-     "ms": 15,
+     "message": "14 figure(s), 19 box(es), 0 list(s), 2 table(s), 20 heading(s)",
+     "ms": 20,
      "result": "driven"
     },
     {
@@ -35250,7 +35604,7 @@
      ],
      "id": "rm",
      "message": "activate action_btn:5 -- the page said 'That event has 2 children \u2014 remove those first'",
-     "ms": 31,
+     "ms": 36,
      "result": "driven"
     },
     {
@@ -35263,8 +35617,8 @@
       }
      ],
      "id": "kept",
-     "message": "14 figure(s), 19 box(es), 0 list(s), 2 table(s), 19 heading(s)",
-     "ms": 11,
+     "message": "14 figure(s), 19 box(es), 0 list(s), 2 table(s), 20 heading(s)",
+     "ms": 14,
      "result": "driven"
     },
     {
@@ -35278,7 +35632,7 @@
      ],
      "id": "abs",
      "message": "opened pane p-abs",
-     "ms": 116,
+     "ms": 95,
      "result": "driven"
     },
     {
@@ -35306,8 +35660,8 @@
       }
      ],
      "id": "taxa",
-     "message": "14 figure(s), 19 box(es), 0 list(s), 2 table(s), 19 heading(s)",
-     "ms": 14,
+     "message": "14 figure(s), 19 box(es), 0 list(s), 2 table(s), 20 heading(s)",
+     "ms": 20,
      "result": "driven"
     },
     {
@@ -35326,7 +35680,7 @@
      ],
      "id": "event",
      "message": "pick pick_search:1",
-     "ms": 161,
+     "ms": 157,
      "result": "driven"
     },
     {
@@ -35340,7 +35694,7 @@
      ],
      "id": "out",
      "message": "opened pane p-out",
-     "ms": 105,
+     "ms": 115,
      "result": "driven"
     },
     {
@@ -35378,8 +35732,8 @@
       }
      ],
      "id": "scoped",
-     "message": "14 figure(s), 19 box(es), 0 list(s), 2 table(s), 19 heading(s)",
-     "ms": 29,
+     "message": "14 figure(s), 19 box(es), 0 list(s), 2 table(s), 20 heading(s)",
+     "ms": 16,
      "result": "driven"
     },
     {
@@ -35392,8 +35746,8 @@
       }
      ],
      "id": "agree",
-     "message": "14 figure(s), 19 box(es), 0 list(s), 2 table(s), 19 heading(s)",
-     "ms": 38,
+     "message": "14 figure(s), 19 box(es), 0 list(s), 2 table(s), 20 heading(s)",
+     "ms": 12,
      "result": "driven"
     },
     {
@@ -35407,7 +35761,7 @@
      ],
      "id": "scope",
      "message": "opened pane p-scope",
-     "ms": 87,
+     "ms": 90,
      "result": "driven"
     },
     {
@@ -35421,7 +35775,7 @@
      ],
      "id": "noscope",
      "message": "set-text text_in:4",
-     "ms": 60,
+     "ms": 35,
      "result": "driven"
     },
     {
@@ -35435,7 +35789,7 @@
      ],
      "id": "out2",
      "message": "opened pane p-out",
-     "ms": 98,
+     "ms": 88,
      "result": "driven"
     },
     {
@@ -35458,8 +35812,8 @@
       }
      ],
      "id": "refused",
-     "message": "14 figure(s), 19 box(es), 0 list(s), 2 table(s), 19 heading(s)",
-     "ms": 12,
+     "message": "14 figure(s), 19 box(es), 0 list(s), 2 table(s), 20 heading(s)",
+     "ms": 18,
      "result": "driven"
     },
     {
@@ -35473,7 +35827,7 @@
      ],
      "id": "scope2",
      "message": "opened pane p-scope",
-     "ms": 102,
+     "ms": 103,
      "result": "driven"
     },
     {
@@ -35487,7 +35841,7 @@
      ],
      "id": "rescope",
      "message": "set-text text_in:4",
-     "ms": 38,
+     "ms": 41,
      "result": "driven"
     },
     {
@@ -35501,7 +35855,7 @@
      ],
      "id": "eff",
      "message": "set-text text_in:6",
-     "ms": 41,
+     "ms": 37,
      "result": "driven"
     },
     {
@@ -35515,7 +35869,7 @@
      ],
      "id": "nounit",
      "message": "set-text text_in:7",
-     "ms": 31,
+     "ms": 36,
      "result": "driven"
     },
     {
@@ -35528,8 +35882,8 @@
       }
      ],
      "id": "half",
-     "message": "14 figure(s), 19 box(es), 0 list(s), 2 table(s), 19 heading(s)",
-     "ms": 16,
+     "message": "14 figure(s), 19 box(es), 0 list(s), 2 table(s), 20 heading(s)",
+     "ms": 13,
      "result": "driven"
     },
     {
@@ -35543,7 +35897,7 @@
      ],
      "id": "unit",
      "message": "set-text text_in:7",
-     "ms": 32,
+     "ms": 36,
      "result": "driven"
     },
     {
@@ -35556,8 +35910,8 @@
       }
      ],
      "id": "whole",
-     "message": "14 figure(s), 19 box(es), 0 list(s), 2 table(s), 19 heading(s)",
-     "ms": 23,
+     "message": "14 figure(s), 19 box(es), 0 list(s), 2 table(s), 20 heading(s)",
+     "ms": 13,
      "result": "driven"
     },
     {
@@ -35571,7 +35925,7 @@
      ],
      "id": "excl",
      "message": "set-text text_in:5",
-     "ms": 59,
+     "ms": 31,
      "result": "driven"
     },
     {
@@ -35584,8 +35938,8 @@
       }
      ],
      "id": "decision",
-     "message": "14 figure(s), 19 box(es), 0 list(s), 2 table(s), 19 heading(s)",
-     "ms": 15,
+     "message": "14 figure(s), 19 box(es), 0 list(s), 2 table(s), 20 heading(s)",
+     "ms": 12,
      "result": "driven"
     },
     {
@@ -35599,7 +35953,7 @@
      ],
      "id": "out3",
      "message": "opened pane p-out",
-     "ms": 83,
+     "ms": 106,
      "result": "driven"
     },
     {
@@ -35617,8 +35971,8 @@
       }
      ],
      "id": "eco",
-     "message": "14 figure(s), 19 box(es), 0 list(s), 2 table(s), 19 heading(s)",
-     "ms": 17,
+     "message": "14 figure(s), 19 box(es), 0 list(s), 2 table(s), 20 heading(s)",
+     "ms": 15,
      "result": "driven"
     },
     {
@@ -35626,7 +35980,7 @@
      "expectations": [],
      "id": "g157-scope-pane",
      "message": "opened pane p-scope",
-     "ms": 116,
+     "ms": 108,
      "result": "driven"
     },
     {
@@ -35634,7 +35988,7 @@
      "expectations": [],
      "id": "g157-inv",
      "message": "set-text text_in:9",
-     "ms": 40,
+     "ms": 36,
      "result": "driven"
     },
     {
@@ -35647,8 +36001,8 @@
       }
      ],
      "id": "g157-invread",
-     "message": "14 figure(s), 19 box(es), 0 list(s), 2 table(s), 19 heading(s)",
-     "ms": 15,
+     "message": "14 figure(s), 19 box(es), 0 list(s), 2 table(s), 20 heading(s)",
+     "ms": 14,
      "result": "driven"
     },
     {
@@ -35656,7 +36010,7 @@
      "expectations": [],
      "id": "g157-abs-pane",
      "message": "opened pane p-abs",
-     "ms": 75,
+     "ms": 83,
      "result": "driven"
     },
     {
@@ -35664,7 +36018,7 @@
      "expectations": [],
      "id": "g157-txadd",
      "message": "set-text text_in:10",
-     "ms": 38,
+     "ms": 32,
      "result": "driven"
     },
     {
@@ -35672,7 +36026,7 @@
      "expectations": [],
      "id": "g157-txbtn",
      "message": "activate action_btn:32 -- the page said 'Epilobium ciliatum added \u2014 tap it to mark found or absent'",
-     "ms": 35,
+     "ms": 34,
      "result": "driven"
     },
     {
@@ -35685,8 +36039,8 @@
       }
      ],
      "id": "g157-taxa",
-     "message": "14 figure(s), 19 box(es), 0 list(s), 2 table(s), 19 heading(s)",
-     "ms": 21,
+     "message": "14 figure(s), 19 box(es), 0 list(s), 2 table(s), 20 heading(s)",
+     "ms": 19,
      "result": "driven"
     },
     {
@@ -35694,7 +36048,7 @@
      "expectations": [],
      "id": "g157-hier-pane",
      "message": "opened pane p-hier",
-     "ms": 106,
+     "ms": 97,
      "result": "driven"
     },
     {
@@ -35702,7 +36056,7 @@
      "expectations": [],
      "id": "g157-lvl-survey",
      "message": "activate dial_btn:0",
-     "ms": 40,
+     "ms": 39,
      "result": "driven"
     },
     {
@@ -35710,7 +36064,7 @@
      "expectations": [],
      "id": "g157-lvl-site",
      "message": "activate dial_btn:1",
-     "ms": 29,
+     "ms": 35,
      "result": "driven"
     },
     {
@@ -35718,7 +36072,7 @@
      "expectations": [],
      "id": "g157-parent",
      "message": "pick pick_search:0",
-     "ms": 167,
+     "ms": 157,
      "result": "driven"
     },
     {
@@ -35734,7 +36088,7 @@
      "expectations": [],
      "id": "g157-evdate",
      "message": "set-text text_in:3",
-     "ms": 38,
+     "ms": 34,
      "result": "driven"
     },
     {
@@ -35742,7 +36096,7 @@
      "expectations": [],
      "id": "g157-evadd",
      "message": "activate action_btn:0 -- the page said 'site added \u2014 SGH2026:site:03'",
-     "ms": 32,
+     "ms": 37,
      "result": "driven"
     },
     {
@@ -35785,8 +36139,8 @@
       }
      ],
      "id": "g157-added",
-     "message": "14 figure(s), 19 box(es), 0 list(s), 2 table(s), 19 heading(s)",
-     "ms": 13,
+     "message": "14 figure(s), 19 box(es), 0 list(s), 2 table(s), 20 heading(s)",
+     "ms": 42,
      "result": "driven"
     },
     {
@@ -35794,7 +36148,7 @@
      "expectations": [],
      "id": "g157-hier-pane2",
      "message": "opened pane p-hier",
-     "ms": 5,
+     "ms": 7,
      "result": "driven"
     },
     {
@@ -35802,7 +36156,7 @@
      "expectations": [],
      "id": "g157-copyid",
      "message": "activate action_btn:2 -- the page said \"Copied SGH2026:survey:01 \u2014 paste it into a field sheet's parent eventID\" -- 1 pa",
-     "ms": 30,
+     "ms": 39,
      "result": "driven"
     },
     {
@@ -35829,7 +36183,7 @@
      "expectations": [],
      "id": "g157-out-pane",
      "message": "opened pane p-out",
-     "ms": 94,
+     "ms": 97,
      "result": "driven"
     },
     {
@@ -35837,7 +36191,7 @@
      "expectations": [],
      "id": "g157-ev",
      "message": "activate action_btn:43 -- the page said 'Event Core copied \u2014 16 events' -- 1 payload(s) produced",
-     "ms": 44,
+     "ms": 43,
      "result": "driven"
     },
     {
@@ -35861,7 +36215,7 @@
      ],
      "id": "g157-evout",
      "message": "1 payload(s)",
-     "ms": 5,
+     "ms": 4,
      "result": "driven"
     },
     {
@@ -35869,7 +36223,7 @@
      "expectations": [],
      "id": "g157-hum",
      "message": "activate action_btn:44 -- the page said 'Humboldt extension copied \u2014 16 rows' -- 1 payload(s) produced",
-     "ms": 29,
+     "ms": 38,
      "result": "driven"
     },
     {
@@ -35888,7 +36242,7 @@
      ],
      "id": "g157-humout",
      "message": "1 payload(s)",
-     "ms": 4,
+     "ms": 5,
      "result": "driven"
     },
     {
@@ -35896,24 +36250,24 @@
      "expectations": [],
      "id": "g157-occ",
      "message": "activate action_btn:45 -- the page said 'Occurrences copied \u2014 3 rows, 1 absent' -- 1 payload(s) produced",
-     "ms": 31,
+     "ms": 32,
      "result": "driven"
     },
     {
      "action": "collect-output",
      "expectations": [
       {
-       "detail": "output.payloads.0.text contains 'occurrenceID,eventID,scientificName,occurrenceStatus', got 'occurrenceID,eventID,scientificName,occurrenceStatus,basisOfRecord,recordedBy,occurrenceRemarks\\n0672f7cf-583f-400d-8020-9f3d09238609,SGH2026:visit:01,Carex aquatilis,present,HumanObservation,,\\n361de312-70b9-4f90-93fb-481b088f312d,SGH2026:visit:01,Salix bebbiana,present,HumanObservation,,\\n78fa55ca-06a9-4ad4-9891-8890aeb92193,SGH2026:visit:01,Typha latifolia,absent,HumanObservation,,searched for within Tracheophyta and not detected'",
+       "detail": "output.payloads.0.text contains 'occurrenceID,eventID,scientificName,occurrenceStatus,basisOfRecord,recordedBy,associatedMedia,occurrenceRemarks', got 'occurrenceID,eventID,scientificName,occurrenceStatus,basisOfRecord,recordedBy,associatedMedia,occurrenceRemarks\\nd22497f0-e671-4578-b22a-b0678bdd040a,SGH2026:visit:01,Carex aquatilis,present,HumanObservation,,,\\nb3c57d26-0563-4665-ac6a-84a868f81fe6,SGH2026:visit:01,Salix bebbiana,present,HumanObservation,,,\\nf075058b-8313-4c93-b7a1-5566eaba59b0,SGH2026:visit:01,Typha latifolia,absent,HumanObservation,,,searched for within Tracheophyta and not detected'",
        "path": "output.payloads.0.text",
        "verdict": "CONFIRMED"
       },
       {
-       "detail": "output.payloads.0.text contains 'SGH2026:visit:01,Typha latifolia,absent,HumanObservation,,searched for within Tracheophyta and not detected', got 'occurrenceID,eventID,scientificName,occurrenceStatus,basisOfRecord,recordedBy,occurrenceRemarks\\n0672f7cf-583f-400d-8020-9f3d09238609,SGH2026:visit:01,Carex aquatilis,present,HumanObservation,,\\n361de312-70b9-4f90-93fb-481b088f312d,SGH2026:visit:01,Salix bebbiana,present,HumanObservation,,\\n78fa55ca-06a9-4ad4-9891-8890aeb92193,SGH2026:visit:01,Typha latifolia,absent,HumanObservation,,searched for within Tracheophyta and not detected'",
+       "detail": "output.payloads.0.text contains 'SGH2026:visit:01,Typha latifolia,absent,HumanObservation,,,searched for within Tracheophyta and not detected', got 'occurrenceID,eventID,scientificName,occurrenceStatus,basisOfRecord,recordedBy,associatedMedia,occurrenceRemarks\\nd22497f0-e671-4578-b22a-b0678bdd040a,SGH2026:visit:01,Carex aquatilis,present,HumanObservation,,,\\nb3c57d26-0563-4665-ac6a-84a868f81fe6,SGH2026:visit:01,Salix bebbiana,present,HumanObservation,,,\\nf075058b-8313-4c93-b7a1-5566eaba59b0,SGH2026:visit:01,Typha latifolia,absent,HumanObservation,,,searched for within Tracheophyta and not detected'",
        "path": "output.payloads.0.text#2",
        "verdict": "CONFIRMED"
       },
       {
-       "detail": "output.payloads.0.text contains 'SGH2026:visit:01,Carex aquatilis,present,HumanObservation', got 'occurrenceID,eventID,scientificName,occurrenceStatus,basisOfRecord,recordedBy,occurrenceRemarks\\n0672f7cf-583f-400d-8020-9f3d09238609,SGH2026:visit:01,Carex aquatilis,present,HumanObservation,,\\n361de312-70b9-4f90-93fb-481b088f312d,SGH2026:visit:01,Salix bebbiana,present,HumanObservation,,\\n78fa55ca-06a9-4ad4-9891-8890aeb92193,SGH2026:visit:01,Typha latifolia,absent,HumanObservation,,searched for within Tracheophyta and not detected'",
+       "detail": "output.payloads.0.text contains 'SGH2026:visit:01,Carex aquatilis,present,HumanObservation,,,', got 'occurrenceID,eventID,scientificName,occurrenceStatus,basisOfRecord,recordedBy,associatedMedia,occurrenceRemarks\\nd22497f0-e671-4578-b22a-b0678bdd040a,SGH2026:visit:01,Carex aquatilis,present,HumanObservation,,,\\nb3c57d26-0563-4665-ac6a-84a868f81fe6,SGH2026:visit:01,Salix bebbiana,present,HumanObservation,,,\\nf075058b-8313-4c93-b7a1-5566eaba59b0,SGH2026:visit:01,Typha latifolia,absent,HumanObservation,,,searched for within Tracheophyta and not detected'",
        "path": "output.payloads.0.text#3",
        "verdict": "CONFIRMED"
       }
@@ -35928,7 +36282,7 @@
      "expectations": [],
      "id": "g157-readme",
      "message": "activate action_btn:46 -- the page said 'Readme copied' -- 1 payload(s) produced",
-     "ms": 41,
+     "ms": 33,
      "result": "driven"
     },
     {
@@ -35952,7 +36306,7 @@
      ],
      "id": "g157-readmeout",
      "message": "1 payload(s)",
-     "ms": 11,
+     "ms": 7,
      "result": "driven"
     },
     {
@@ -35960,7 +36314,7 @@
      "expectations": [],
      "id": "g157-print",
      "message": "activate action_btn:47 -- 1 payload(s) produced",
-     "ms": 29,
+     "ms": 30,
      "result": "driven"
     },
     {
@@ -35974,7 +36328,7 @@
      ],
      "id": "g157-printout",
      "message": "1 payload(s)",
-     "ms": 8,
+     "ms": 5,
      "result": "driven"
     },
     {
@@ -35987,8 +36341,8 @@
       }
      ],
      "id": "g157-after",
-     "message": "14 figure(s), 19 box(es), 0 list(s), 2 table(s), 19 heading(s)",
-     "ms": 21,
+     "message": "14 figure(s), 19 box(es), 0 list(s), 2 table(s), 20 heading(s)",
+     "ms": 16,
      "result": "driven"
     },
     {
@@ -36012,7 +36366,7 @@
      ],
      "id": "intact",
      "message": "read the page",
-     "ms": 12,
+     "ms": 11,
      "result": "driven"
     }
    ],

@@ -118,6 +118,23 @@ MUTANTS = [
      'BUCKETS = ("driven", "dead", "sequenced", "hidden", "failed", "excluded")',
      'BUCKETS = ("driven", "dead", "sequenced", "hidden", "failed")',
      "identity"),
+
+    # ---- an address the refusal names is an address the snapshot publishes ----
+    # (ADR-201)
+    ("the kind list loses the drop zone, so a refusal names an address nothing answers to",
+     '    ("drop_zone",   \'[data-h-drop]\'),\n', "",
+     "EVERY KIND AN ACTION POOLS"),
+    ("the kind list loses the checkbox the same way",
+     '    ("checkbox",    \'input[type=checkbox], input[type=radio]\'),\n', "",
+     "EVERY KIND AN ACTION POOLS"),
+    ("a kind is listed twice, so it is discovered twice and the selectors renumber",
+     '    ("drop_zone",   \'[data-h-drop]\'),\n',
+     '    ("drop_zone",   \'[data-h-drop]\'),\n    ("drop_zone",   \'[data-h-drop]\'),\n',
+     "NO KIND IS LISTED TWICE"),
+    ("the drop zone is found by a class name rather than by the mark the capture leaves",
+     '    ("drop_zone",   \'[data-h-drop]\'),',
+     '    ("drop_zone",   \'.drop\'),',
+     "the MARK THE CAPTURE LEAVES"),
 ]
 
 
@@ -132,6 +149,13 @@ def run_one(name, find, repl, expect, keep=False):
                               "result would have been a lie" % src.count(find))
     io.open(target, "w", encoding="utf-8", newline="\n").write(src.replace(find, repl, 1))
 
+    # TWO SUITES, NOT ONE (ADR-201). The contract matrix is what this runner was
+    # built against, and the rules about WHAT THE KIND LIST MUST CONTAIN -- that
+    # every kind an action pools is a kind the snapshot publishes, and that no
+    # kind is listed twice -- live in verify_harness.py instead. A mutant that
+    # only that suite can see was, until this line, a mutant nothing could see.
+    # Either suite failing is a kill; the kill is attributed by the expect
+    # string as before, across both outputs.
     matrix = os.path.join(dst, "verify", "verify_harness_matrix.py")
     # Section I of the matrix checks that every anchor in this catalogue still
     # matches the harness exactly once. Under mutation the harness is altered on
@@ -142,6 +166,9 @@ def run_one(name, find, repl, expect, keep=False):
     p = subprocess.run([sys.executable, matrix], capture_output=True, text=True,
                        timeout=1800, env=env)
     out = p.stdout + p.stderr
+    p2 = subprocess.run([sys.executable, os.path.join(dst, "verify", "verify_harness.py")],
+                        capture_output=True, text=True, timeout=1800, env=env)
+    out += p2.stdout + p2.stderr
     fails = [l for l in out.split("\n") if l.startswith("FAIL")]
     if not keep:
         shutil.rmtree(tmp, ignore_errors=True)

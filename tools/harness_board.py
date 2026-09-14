@@ -91,6 +91,10 @@ RUNNERS = [
     ("mutate_badinput", "the rejected-buffer audit"),
     ("mutate_outputs", "the outputs audit"),
     ("mutate_delivery", "the delivery manifest and its audit"),
+    ("mutate_fek", "the shared entry layer every data-entry page inlines"),
+    ("mutate_ci", "the CI workflow's path filter, and the matcher that holds it"),
+    ("mutate_outbox", "the outbox: what has not left this device"),
+    ("mutate_keep", "the local autosave layer, and the sentence it says when it cannot save"),
 ]
 
 

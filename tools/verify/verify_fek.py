@@ -376,6 +376,219 @@ with sync_playwright() as p:
        pg.evaluate("""()=>{const s=FEK.slider({label:'x',min:20,max:80,step:5});
          return s.get();}""") == 20, "")
 
+    # ==================== PHOTOGRAPHS (ADR-201) ====================
+    #
+    # One page in this kit took a photograph and twenty did not, on a kit that
+    # emits Darwin Core with `associatedMedia` empty everywhere. The component
+    # is here rather than in a page because a file reader copied into ten
+    # sheets is ten places for a checksum to be computed differently.
+
+    # THE CHECK VALUE, not a value this suite made up. Every CRC-32
+    # implementation in the world agrees that "123456789" is CBF43926; a
+    # checksum this kit computed its own way would match nothing anybody else
+    # computed, which is the entire point of writing it on a field sheet.
+    ck("crc32 agrees with the standard check value: '123456789' is cbf43926",
+       pg.evaluate("() => FEK.crc32(new TextEncoder().encode('123456789'))") == "cbf43926",
+       pg.evaluate("() => FEK.crc32(new TextEncoder().encode('123456789'))"))
+    ck("and it is eight hex digits ALWAYS -- a crc of 0x0000a1b2 written as 'a1b2' is a different "
+       "string from the one the next reader computes",
+       pg.evaluate("() => FEK.crc32(new Uint8Array([])).length") == 8
+       and pg.evaluate("() => FEK.crc32(new Uint8Array([]))") == "00000000",
+       pg.evaluate("() => FEK.crc32(new Uint8Array([]))"))
+    ck("a single changed byte changes it",
+       pg.evaluate("() => FEK.crc32(new Uint8Array([1,2,3]))")
+       != pg.evaluate("() => FEK.crc32(new Uint8Array([1,2,4]))"), "")
+
+    ph = pg.evaluate("""() => {
+      const c = FEK.photos({label:'Photographs', dropId:'zzPh'});
+      const h = document.createElement('div'); h.id='hph';
+      document.body.appendChild(h); h.appendChild(c.el);
+      window.__PH = c;
+      return { zone: !!document.getElementById('zzPh'),
+               live: !!h.querySelector('[role="status"][aria-live]'),
+               empty: c.get().length, media: c.media(),
+               fileInput: !!h.querySelector('input[type=file][accept*="image"]') }; }""")
+    ck("the component builds a drop zone with an ADDRESS -- a drop listener leaves no mark a "
+       "selector can find, and the only control its label offers is the hidden file input",
+       ph["zone"], ph)
+    ck("and a live region of its own, so a refusal is announced rather than swallowed (ADR-199)",
+       ph["live"], ph)
+    ck("with nothing in it, get() is empty and media() is the empty string -- not the word 'none'",
+       ph["empty"] == 0 and ph["media"] == "", ph)
+    ck("and its live region ships EMPTY, for the reason ADR-199 gave: a live region is in the "
+       "accessibility tree whether or not anybody has pressed anything",
+       pg.evaluate("""() => { const e = document.querySelector('#hph [role="status"]');
+         return e ? e.textContent.trim() : '(absent)'; }""") == "", "")
+    ck("and it offers a file input that accepts images, for the reader who has no drag to give",
+       ph["fileInput"], ph)
+
+    # Null-safe on purpose. A check whose element has gone should FAIL, naming
+    # what is missing; a check that throws kills the suite and the mutant
+    # runner reports "inconclusive", which is the one verdict that tells you
+    # nothing at all.
+    DROP = """async (bytes) => {
+      const z = document.getElementById('zzPh');
+      if (!z) return { err: 'the drop zone has no id, so nothing can address it' };
+      const f = new File([new Uint8Array(bytes.b)], bytes.n,
+                         {type: bytes.t, lastModified: Date.UTC(2026,0,2,3,4)});
+      const dt = new DataTransfer(); dt.items.add(f);
+      z.dispatchEvent(new DragEvent('drop', {dataTransfer: dt, bubbles: true}));
+      await new Promise(r => setTimeout(r, 250));
+      const live = document.querySelector('#hph [role="status"]');
+      return { recs: window.__PH.get(), media: window.__PH.media(),
+               said: live ? live.textContent : null }; }"""
+    rec = pg.evaluate(DROP, {"b": [49,50,51,52,53,54,55,56,57], "n": "IMG_7.jpg",
+                             "t": "image/jpeg"})
+    ck("the drop zone is addressable and the drop lands: %r" % (rec.get("err"),),
+       not rec.get("err"), rec.get("err"))
+    if rec.get("err"):
+        rec = {"recs": [], "media": "", "said": ""}
+    # One record, read once and defended once: every claim below is about THIS
+    # dict, and a missing one is a failed check rather than an IndexError that
+    # takes the whole suite with it.
+    _r0 = (rec["recs"] or [{}])[0]
+    ck("a dropped image becomes ONE record carrying the four things that let a row and a frame be "
+       "put back together: name, bytes, capture time, checksum -- plus `have`, which says whether "
+       "this browser is holding the bytes or only the reference (v1.6.0, ADR-206)",
+       len(rec["recs"]) == 1 and sorted(_r0.keys())
+       == ["bytes", "captured", "crc", "have", "label", "name", "note"], rec["recs"])
+    ck("and a frame this browser HOLDS says so", _r0.get("have") is True, _r0)
+    ck("and the checksum is of the FILE'S BYTES, not of its name or its size",
+       _r0.get("crc") == "cbf43926", _r0)
+    ck("`captured` is the file's own timestamp, not the moment it was dropped",
+       str(_r0.get("captured")).startswith("2026-01-0"), _r0.get("captured"))
+    ck("THE RECORD IS THE REFERENCE, NOT THE IMAGE: no base64, no data URL, nothing that would turn "
+       "a 40 kB export into a 4 MB one",
+       _r0 and not any(isinstance(v, str) and ("base64" in v or v.startswith("data:"))
+                       for v in _r0.values()), _r0)
+    ck("media() is Darwin Core shaped -- identifiers OF the media, ' | ' separated because a "
+       "filename may hold a comma",
+       rec["media"] == "IMG_7.jpg (crc32 cbf43926, " + str(_r0.get("captured")) + ")", rec["media"])
+    ck("and the addition is SAID, in the component's own live region",
+       isinstance(rec["said"], str) and "1 photograph added" in rec["said"], rec["said"])
+
+    # TWO frames, because a separator is invisible with one -- and the
+    # separator is the whole reason this column can hold a filename with a
+    # comma in it.
+    rec2 = pg.evaluate(DROP, {"b": [65, 66], "n": "DJI_0192,edited.JPG", "t": "image/jpeg"})
+    ck("a second frame joins the first rather than replacing it",
+       len(rec2.get("recs") or []) == 2, rec2.get("recs"))
+    ck("AND THE SEPARATOR IS ' | ', NOT A COMMA. Darwin Core concatenates identifiers into one "
+       "field, and a filename is allowed to contain a comma -- joining on one makes a two-frame "
+       "record split into three, three tools downstream, silently",
+       isinstance(rec2.get("media"), str) and rec2["media"].count(" | ") == 1
+       and "DJI_0192,edited.JPG" in rec2["media"], rec2.get("media"))
+
+    bad = pg.evaluate(DROP, {"b": [1], "n": "notes.txt", "t": "text/plain"})
+    ck("a file that is not an image is not added",
+       len(bad.get("recs") or []) == 2, bad.get("recs"))
+    ck("AND THE REFUSAL IS SAID AND NAMES THE FILE. A reader who dropped six and got four has to be "
+       "able to find out which two and why -- a silent drop is the fault this kit spent two slices on",
+       isinstance(bad.get("said"), str) and "not an image" in bad["said"]
+       and "notes.txt" in bad["said"], bad.get("said"))
+
+    ck("set() cannot put a photograph back: a page cannot hand a File to a file input, and a "
+       "component that pretended to restore one would be restoring a caption",
+       pg.evaluate("() => window.__PH.set([{name:'x.jpg'}])") is False, "")
+    ck("clear() empties it",
+       pg.evaluate("() => { window.__PH.clear(); return window.__PH.get().length; }") == 0, "")
+
+    # ---- A RESTORE CANNOT BRING A PHOTOGRAPH BACK, AND MUST SAY SO (ADR-206) --
+    #
+    # set() refusing is right and, on its own, is the quiet version of the same
+    # loss: a sheet the autosave restored comes back one frame short and the
+    # reader believes their morning is whole. So the RECORDS survive, the
+    # component says which frames it is missing, and it takes them back BY
+    # CHECKSUM -- which is what makes the caption the reader typed survivable.
+    pg.evaluate("() => window.__PH.clear()")
+    back = pg.evaluate("""() => {
+      const n = window.__PH.restore([
+        {name:'IMG_7.jpg', bytes:9, captured:'2026-01-02 03:04', crc:'cbf43926',
+         label:'voucher 114', note:'cap from above'},
+        {name:'gone.jpg', bytes:4, captured:'', crc:'11111111', label:'', note:''}]);
+      const box = document.querySelector('#hph .fek-await');
+      return { n: n, awaiting: window.__PH.awaiting().length,
+               recs: window.__PH.get(), media: window.__PH.media(),
+               shown: box ? box.innerText : null }; }""")
+    ck("A RESTORED SHEET SAYS WHICH PHOTOGRAPHS IT NO LONGER HOLDS. A page cannot hand a File back "
+       "to a file input; a restore that came back quietly one frame short would leave the reader "
+       "believing their morning is whole, which is the more expensive of the two failures",
+       back["n"] == 2 and back["awaiting"] == 2, back)
+    ck("...and it names them, with the checksum, where the reader can see it",
+       isinstance(back.get("shown"), str) and "not on this device" in back["shown"]
+       and "IMG_7.jpg" in back["shown"] and "cbf43926" in back["shown"], (back.get("shown") or "")[:140])
+    ck("A FRAME THAT WAS TAKEN IS IN THE RECORD WHETHER OR NOT THIS BROWSER HOLDS IT, and `have` "
+       "says which is which -- an export that dropped it would break the only link between the row "
+       "and a file sitting on a camera",
+       len(back["recs"]) == 2 and all(r.get("have") is False for r in back["recs"]), back["recs"])
+    ck("and media() names both, because Darwin Core asks for identifiers and an identifier does not "
+       "stop being one when the bytes are on a card",
+       back["media"].count(" | ") == 1 and "IMG_7.jpg" in back["media"]
+       and "gone.jpg" in back["media"], back["media"])
+
+    # THE COMPONENT ANNOUNCES ITSELF. Adding a frame fires no `input` and no
+    # `change` -- the file input is hidden and a drop is neither -- so before
+    # ADR-206 every autosave in this kit sat still while a reader photographed,
+    # and a session that was ONLY photographs was saved by nothing at all.
+    heard = pg.evaluate("""async () => {
+        let n = 0;
+        const on = () => { n++; };
+        document.addEventListener('fek-change', on, true);
+        const z = document.getElementById('zzPh');
+        if (!z) { document.removeEventListener('fek-change', on, true); return -1; }
+        const f = new File([new Uint8Array([7,7,7])], 'ping.jpg', {type:'image/jpeg'});
+        const dt = new DataTransfer(); dt.items.add(f);
+        z.dispatchEvent(new DragEvent('drop', {dataTransfer: dt, bubbles: true}));
+        await new Promise(r => setTimeout(r, 300));
+        document.removeEventListener('fek-change', on, true);
+        return n; }""")
+    ck("ADDING A PHOTOGRAPH ANNOUNCES ITSELF, with one bubbling event. A hidden file input and a "
+       "drop fire neither `input` nor `change`, so an autosave listening for those sat still while "
+       "a reader photographed four stations -- and a session that was only photographs was saved "
+       "by nothing at all",
+       heard >= 1, heard)
+    pg.evaluate("""() => { window.__PH.clear();
+        window.__PH.restore([{name:'IMG_7.jpg', bytes:9, captured:'2026-01-02 03:04',
+          crc:'cbf43926', label:'voucher 114', note:'cap from above'},
+          {name:'gone.jpg', bytes:4, captured:'', crc:'11111111', label:'', note:''}]); }""")
+
+    again = pg.evaluate(DROP, {"b": [49,50,51,52,53,54,55,56,57], "n": "IMG_7 (1).jpg",
+                               "t": "image/jpeg"})
+    ck("the drop zone is still addressable for the return: %r" % (again.get("err"),),
+       not again.get("err"), again.get("err"))
+    if again.get("err"):
+        again = {"recs": [], "media": "", "said": ""}
+    _held = [r for r in (again["recs"] or []) if r.get("have")]
+    ck("DROPPING THE SAME FILE BACK RETURNS THE CAPTION, MATCHED BY CHECKSUM AND NOT BY NAME. A "
+       "camera roll renames on export and two cards both start at DSC_0001; the checksum is the "
+       "only thing that says this is the frame the caption was written about",
+       len(_held) == 1 and _held[0].get("label") == "voucher 114"
+       and _held[0].get("note") == "cap from above", again["recs"])
+    ck("...and the component says it matched one rather than silently swapping the caption in",
+       isinstance(again.get("said"), str) and "matched by checksum" in again["said"],
+       again.get("said"))
+    ck("and the frame that did NOT come back is still listed as missing, alone",
+       pg.evaluate("() => window.__PH.awaiting().map(x => x.name)") == ["gone.jpg"],
+       pg.evaluate("() => window.__PH.awaiting()"))
+    ck("a file whose bytes differ does NOT claim the caption, whatever it is called",
+       pg.evaluate("""async () => {
+         const z = document.getElementById('zzPh');
+         if (!z) return 'the drop zone has no id, so nothing can address it';
+         const f = new File([new Uint8Array([9,9,9,9])], 'gone.jpg', {type:'image/jpeg'});
+         const dt = new DataTransfer(); dt.items.add(f);
+         z.dispatchEvent(new DragEvent('drop', {dataTransfer: dt, bubbles: true}));
+         await new Promise(r => setTimeout(r, 250));
+         const got = window.__PH.get().filter(r => r.have && r.name === 'gone.jpg');
+         return got.length === 1 && got[0].label === '' && window.__PH.awaiting().length === 1;
+       }""") is True,
+       "a same-named file with different bytes took a caption that was not about it")
+    ck("clear() forgets the awaited frames too, or a cleared sheet would keep asking for a "
+       "photograph that belongs to work nobody has any more",
+       pg.evaluate("""() => { window.__PH.clear();
+         return [window.__PH.awaiting().length, window.__PH.get().length,
+                 document.querySelector('#hph .fek-await').style.display]; }""")
+       == [0, 0, "none"], "")
+
     ck("no errors after the run", not errs, errs[:2])
     b.close()
 

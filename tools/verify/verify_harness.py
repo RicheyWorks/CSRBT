@@ -191,6 +191,40 @@ ck(set(harness.EXCLUDED) <= set(k for k, _ in harness.KINDS),
    "every excluded kind is a kind the harness actually discovers")
 ck(all(len(v) > 40 for v in harness.EXCLUDED.values()),
    "every exclusion carries a reason, not a label")
+
+# ---- 6b. an address the refusal names is an address the snapshot publishes --
+#
+# ADR-201. `drop-files` has always taken a control of kind `drop_zone`, and the
+# refusal a bad address earns has always ADVERTISED `@kind=drop_zone` in its
+# message -- while KINDS, which is what every snapshot is built from, did not
+# carry it. So the door named an address its own snapshot never published, and
+# the only drop zones any task could reach were the ones that happened to sit
+# on an element some other kind already claimed. That is ADR-141's rule
+# backwards: a snapshot never advertises what the door would refuse, and a
+# refusal must not advertise what the snapshot does not publish.
+import harness_plugin_page as _PP
+_kinds = dict(harness.KINDS)
+_pooled = sorted(set(k for ks in _PP.POOL_KINDS.values() for k in ks))
+_orphan = [k for k in _pooled if k not in _kinds]
+ck(not _orphan,
+   "EVERY KIND AN ACTION POOLS IS A KIND THE SNAPSHOT PUBLISHES. An action whose pool names a kind "
+   "KINDS does not discover is an action nothing can ever be addressed for: %s" % _orphan)
+ck(_kinds.get("drop_zone") == '[data-h-drop]',
+   "and a drop zone is found by the MARK THE CAPTURE LEAVES as a drop listener is registered -- the "
+   "same attribute drop-files checks before it will dispatch, so what is published and what is "
+   "accepted are read off one mark rather than two: %r" % (_kinds.get("drop_zone"),))
+import collections as _co
+for _name, _lst in (("KINDS", harness.KINDS), ("SWARM_KINDS", __import__("swarm").SWARM_KINDS)):
+    _dupes = [k for k, n in _co.Counter(k for k, _ in _lst).items() if n > 1]
+    ck(not _dupes,
+       "NO KIND IS LISTED TWICE in %s. The swarm's list is built by filtering this one and adding "
+       "the widened selectors back, so a kind promoted into KINDS and left in the additions appears "
+       "in both -- and that is not harmless: it is discovered twice, the selectors renumber, and a "
+       "diff reports controls appearing that nobody added: %s" % (_name, _dupes))
+ck('data-h-drop' in _PP.CATCH and 'hasAttribute("data-h-drop")' in _PP.CATCH,
+   "the capture stamps that mark, and the dispatcher refuses anything without it -- dispatching drag "
+   "events at an element that is not a drop zone succeeds and does nothing, which is a driven that "
+   "drove nothing (ADR-117)")
 # Six, since ADR-109. "sequenced" holds affordances the harness's OWN setup
 # removed before it could press them -- stepping a stepper the other way, moving
 # a radio group off the option under test. Ten of twenty-one dead findings were

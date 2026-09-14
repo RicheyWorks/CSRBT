@@ -561,15 +561,15 @@
    "expect": {
     "output.payloads.0.text": {
      "op": "contains",
-     "value": "occurrenceID,eventID,scientificName,occurrenceStatus"
+     "value": "occurrenceID,eventID,scientificName,occurrenceStatus,basisOfRecord,recordedBy,associatedMedia,occurrenceRemarks"
     },
     "output.payloads.0.text#2": {
      "op": "contains",
-     "value": "SGH2026:visit:01,Typha latifolia,absent,HumanObservation,,searched for within Tracheophyta and not detected"
+     "value": "SGH2026:visit:01,Typha latifolia,absent,HumanObservation,,,searched for within Tracheophyta and not detected"
     },
     "output.payloads.0.text#3": {
      "op": "contains",
-     "value": "SGH2026:visit:01,Carex aquatilis,present,HumanObservation"
+     "value": "SGH2026:visit:01,Carex aquatilis,present,HumanObservation,,,"
     }
    }
   },

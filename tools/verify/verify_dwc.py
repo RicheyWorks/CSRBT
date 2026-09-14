@@ -492,6 +492,16 @@ with sync_playwright() as p:
     pg.evaluate("(v)=>{var e=document.getElementById('cName'); e.value=v;}", "Cortinarius sp.")
     pg.click("#cAdd")
     pg.wait_for_timeout(300)
+    # ADR-201: a photograph, dropped the way a reader drops one, so the rows
+    # below are asked about a media column that a frame actually put there.
+    pg.evaluate("""async () => {
+      const f = new File([new Uint8Array([49,50,51,52,53,54,55,56,57])], 'IMG_0431.jpg',
+                         {type:'image/jpeg', lastModified: Date.UTC(2026,7,20,9,15)});
+      const dt = new DataTransfer(); dt.items.add(f);
+      document.getElementById('cPhotos').dispatchEvent(
+        new DragEvent('drop', {dataTransfer: dt, bubbles: true}));
+      await new Promise(r => setTimeout(r, 300)); }""")
+    pg.wait_for_timeout(350)
     rows = rows_from_click(pg)
     ck("collection exports both collections", rows is not None and len(rows) == 2,
        None if rows is None else len(rows))
@@ -516,6 +526,25 @@ with sync_playwright() as p:
            a["taxonRank"] == "species", a["taxonRank"])
         ck("scientificName is the working name, unaltered",
            c["scientificName"] == "Cortinarius sp.", c["scientificName"])
+        # ADR-201. THE TERM WAS NOT IN THE COLUMN LIST AT ALL, on a kit whose
+        # pages take photographs -- so every deposit this kit has ever produced
+        # left its media unnamed. What goes in it is an IDENTIFIER of the media,
+        # which is what Darwin Core asks for and what a CSV cell can hold; the
+        # image stays in the tab and in the camera roll.
+        ck("associatedMedia is a column this kit emits",
+           "associatedMedia" in a, sorted(a)[:6])
+        ck("and it carries the frame's NAME and CHECKSUM, not the image",
+           "IMG_0431.jpg" in a.get("associatedMedia", "")
+           and "crc32 cbf43926" in a.get("associatedMedia", ""),
+           a.get("associatedMedia"))
+        ck("nothing base64 and no data: URL rides in the deposit -- a 40 kB export must not "
+           "become a 4 MB one",
+           "base64" not in a.get("associatedMedia", "")
+           and "data:" not in a.get("associatedMedia", ""), a.get("associatedMedia", "")[:60])
+        ck("every occurrence in the deposit carries it, because a session's frames belong to the "
+           "foray and saying so on each row is truer than dropping it",
+           a.get("associatedMedia") == c.get("associatedMedia")
+           and bool(a.get("associatedMedia")), (a.get("associatedMedia"), c.get("associatedMedia")))
         ck("a foray states it is not plot-based",
            "not a plot-based" in a["samplingProtocol"], a["samplingProtocol"])
         ck("a foray exports no sample size",

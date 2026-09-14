@@ -190,9 +190,15 @@ else:
 if not QUICK:
     res = walk_target("page", page="collection-sheet.html", rounds=3, per_round=3)["csrbt-page"]
     hold(res, "page", 22, allow_unreachable=True)
-    ck(set(res["unreachable"]) == {"csrbt_page__choose_option", "csrbt_page__drop_files",
+    # ADR-201: THE DROP ZONE CAME OFF THIS LIST, which is the point. This page
+    # had no way to take a photograph, so the walk correctly reported that it
+    # could not drive `drop_files` on it. It has one now, and the walk drives
+    # it -- the list is what the page offers, not a constant, and an entry
+    # leaving it is a page gaining an affordance rather than a check going
+    # stale.
+    ck(set(res["unreachable"]) == {"csrbt_page__choose_option",
                                   "csrbt_page__set_checkbox", "csrbt_page__set_slider"},
-       "page: collection-sheet has no select, drop zone, checkbox or slider, and the walk says so "
+       "page: collection-sheet has no select, checkbox or slider, and the walk says so "
        "rather than calling them undriven: %s" % res["unreachable"])
     ck(res["per_action"]["csrbt_page__attach_file"]["driven"] >= 1 and
        res["per_action"]["csrbt_page__show_pane"]["driven"] >= 1 and

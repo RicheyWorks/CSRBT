@@ -239,7 +239,7 @@
   .rail a.ref { font-weight:600; color:var(--muted); background:none; box-shadow:none; }
   @media print { .rail { display:none !important; } }
 
-  /* ============ Field Entry Kit v1.4.0 ============
+  /* ============ Field Entry Kit v1.6.0 ============
      Large-target, high-contrast entry controls. Sizing is driven by --tap
      rather than per-component numbers so one token retunes the whole kit for
      gloves, cold hands or a wall-mounted tablet. */
@@ -390,6 +390,45 @@
   .fek-banner.bad  { border-left-color:var(--ramp-5); background:var(--danger-bg); }
   .fek-banner.cold { border-left-color:var(--ramp-0); background:#E6EEF3; }
 
+  /* --- photographs: the record carries the reference, not the image ---
+     (v1.5.0, ADR-201). Sized for a gloved thumb like the rest of the kit, and
+     the thumbnail is large enough to tell two bark shots apart at arm's
+     length, which is the only reason it is on screen at all. */
+  .fek-drop { border:2.5px dashed var(--fek-line); border-radius:var(--fek-r);
+    background:var(--surface); padding:18px 16px; text-align:center;
+    transition:border-color .12s, background .12s; }
+  .fek-drop.on { border-color:var(--ramp-2); background:var(--soft); border-style:solid; }
+  .fek-drop p { margin:0 0 10px; font-size:15px; color:var(--ink-2); }
+  .fek-drop button { min-height:var(--tap); border:0; border-radius:var(--fek-r);
+    background:var(--ramp-2); color:#fff; font:800 16px var(--body); padding:0 22px;
+    cursor:pointer; touch-action:manipulation; }
+  .fek-drop button:active { transform:scale(.97); }
+  .fek-photos { display:grid; grid-template-columns:repeat(auto-fill,minmax(210px,1fr));
+    gap:12px; margin-top:14px; }
+  .fek-photo { border:2px solid var(--border); border-radius:var(--fek-r);
+    background:var(--surface); overflow:hidden; }
+  .fek-photo img { display:block; width:100%; height:150px; object-fit:cover; background:var(--surface-2); }
+  .fek-photo .m { padding:10px 12px 12px; }
+  .fek-photo .m code { display:block; font:500 11.5px var(--mono); color:var(--muted);
+    word-break:break-all; line-height:1.45; }
+  .fek-photo .m input, .fek-photo .m textarea { width:100%; margin-top:8px; border:1.5px solid var(--fek-line);
+    border-radius:10px; padding:9px 10px; font:15px var(--body); background:var(--surface);
+    color:var(--ink); min-height:44px; }
+  .fek-photo .m textarea { min-height:62px; resize:vertical; }
+  .fek-photo .rm { margin-top:8px; min-height:44px; width:100%; border:1.5px solid var(--fek-line);
+    border-radius:10px; background:none; color:var(--ink-2); font:700 14px var(--body); cursor:pointer; }
+  .fek-photo .rm:hover { border-color:var(--ramp-5); color:var(--ramp-5); }
+  .fek-await { margin:8px 0 0; padding:9px 11px; border:1.5px dashed var(--accent, #7A6A3A);
+    border-radius:10px; background:var(--surface-2, #F3EEE0); }
+  .fek-await b { color:var(--accent, #7A6A3A); }
+  .fek-await ul { margin:6px 0 0; padding:0 0 0 18px; font-family:var(--mono, monospace);
+    font-size:11.5px; color:var(--ink-2, #4B5344); line-height:1.6; }
+  .fek-await .cap { color:var(--muted, #6B6B5E); }
+  .fek-shot { font:700 13.5px var(--body); color:var(--ink-2); margin:10px 0 0; min-height:1.2em; }
+  .fek-shot.bad { color:var(--ramp-5); }
+  @media print { .fek-drop, .fek-photo .rm { display:none !important; }
+                 .fek-photo img { height:auto; } }
+
   @media (max-width:420px){ :root { --tap:56px; --tap-sm:46px; } .fek-step .val { font-size:26px; } }
   @media print { .fek-step button, .fek-pick .search { display:none; } }
 
@@ -488,6 +527,29 @@
   </section>
 
   <!-- ============ METHOD ============ -->
+  <!-- ============ TAKE IT HOME ============ -->
+  <section class="pane" id="p-out">
+    <h2>Take it home</h2>
+    <p class="hint">Every plate, point and zone this bench holds, as a sheet you can paste into a
+      notebook &mdash; and each log as CSV. A plate count that lives only on a screen is a plate count
+      you will re-do.</p>
+    <div class="card">
+      <pre class="export" id="ecoOut"># record a plate, a point or a zone &mdash; the bench sheet appears here</pre>
+      <div class="btn-row">
+        <button class="btn btn-go" id="ecoCopy" type="button">Copy bench sheet</button>
+        <button class="btn btn-soft" id="plCopy" type="button">Copy plate CSV</button>
+        <button class="btn btn-soft" id="grCopy" type="button">Copy growth CSV</button>
+        <button class="btn btn-soft" id="znCopy" type="button">Copy zone CSV</button>
+        <button class="btn btn-ghost" onclick="window.print()" type="button">Print / save PDF</button>
+      </div>
+      <p class="fine">Every plate is carried, <b>including the ones outside the countable window</b>, and
+        marked TFTC or TNTC. A plate count reported without the plates that were rejected is a count
+        nobody can audit, and a series where every plate was out of range is a result in itself.
+        Zone diameters carry their breakpoint source, because <b>an S/I/R call without the table it came
+        from is an opinion</b>.</p>
+    </div>
+  </section>
+
   <section class="pane" id="p-met">
     <h2>Method</h2>
 
@@ -654,12 +716,13 @@
   <button class="tab" data-pane="p-dil" type="button"><span class="ico">💧</span>Dilution</button>
   <button class="tab" data-pane="p-gr" type="button"><span class="ico">📈</span>Growth</button>
   <button class="tab" data-pane="p-zn" type="button"><span class="ico">⭕</span>Zones</button>
+  <button class="tab" data-pane="p-out" type="button"><span class="ico">📤</span>Export</button>
   <button class="tab" data-pane="p-met" type="button"><span class="ico">📖</span>Method</button>
 </div></div>
 <div class="toast" id="toast" role="status" aria-live="polite"></div>
 <script>
 
-/* ---- Field Entry Kit v1.4.0 : constructors return {el, get, set} ---- */
+/* ---- Field Entry Kit v1.6.0 : constructors return {el, get, set} ---- */
 var FEK = (function(){
   function el(t,c,h){ var e=document.createElement(t); if(c) e.className=c;
     if(h!=null) e.innerHTML=h; return e; }
@@ -938,6 +1001,295 @@ var FEK = (function(){
   function banner(title,body,tone){
     return el("div","fek-banner"+(tone?" "+tone:""),"<b>"+title+"</b>"+body);
   }
+
+  /* ==================== PHOTOGRAPHS (v1.5.0, ADR-201) ====================
+     THE RECORD CARRIES THE REFERENCE, NOT THE IMAGE.
+
+     One page in this kit took a photograph and twenty did not, on a kit that
+     emits Darwin Core with `associatedMedia` left empty everywhere. A field
+     record whose voucher is a sentence is a weaker record than one that names
+     the frame.
+
+     The image itself does not go into the record, for three reasons that all
+     point the same way. A CSV cell cannot hold a JPEG. A base64 photograph
+     inside a .eco export turns a 40 kB record into a 4 MB one, and the export
+     is a thing people paste into a message. And a photograph's home is the
+     camera roll or the card, where it already is -- Darwin Core asks
+     `associatedMedia` for an IDENTIFIER of the media, not the media.
+
+     So what the record carries is what lets a person -- or a script -- put the
+     row and the file back together six months later:
+
+         filename | bytes | captured | crc32
+
+     CRC-32 AND NOT SHA-256, deliberately. `crypto.subtle` does not exist on a
+     `file://` page, because a file URL is not a secure context, and this kit
+     is opened off a card in the field as often as it is served over https as
+     an artifact. A digest that is only available in one of those two is worse
+     than a weaker one that is the same in both: the whole point is that the
+     number written on the sheet in the field still matches the number computed
+     back at the desk. This is an INTEGRITY check -- has this file changed, is
+     this the same file -- and it is not, and must not be described as,
+     cryptographic.
+
+     CAPTURED IS THE FILE'S MTIME, NOT EXIF. `File.lastModified` is what a
+     browser will give a page without parsing the JPEG, and for a frame straight
+     off a camera it is the shutter. For a file that has been copied between
+     cards, or round-tripped through a messaging app, it is the copy's time.
+     The field is named `captured` because that is what it usually means, and
+     the page says plainly that a copy carries the copy's time.
+
+     THE IMAGES ARE NEVER UPLOADED and never leave the tab. They are object
+     URLs revoked the moment a photograph is removed, so a session that adds and
+     drops a hundred frames does not hold a hundred blobs. Closing the tab
+     discards them, which is correct: the originals are where they belong. */
+  var CRCT = (function(){
+    var t = new Array(256), c, n, k;
+    for (n = 0; n < 256; n++) {
+      c = n;
+      for (k = 0; k < 8; k++) c = (c & 1) ? (0xEDB88320 ^ (c >>> 1)) : (c >>> 1);
+      t[n] = c >>> 0;
+    }
+    return t;
+  })();
+  function crc32(bytes){
+    var c = 0xFFFFFFFF, i;
+    for (i = 0; i < bytes.length; i++) c = CRCT[(c ^ bytes[i]) & 0xFF] ^ (c >>> 8);
+    c = (c ^ 0xFFFFFFFF) >>> 0;
+    /* eight hex digits always: a crc of 0x0000A1B2 written as "a1b2" is a
+       different string from the one the next reader computes, and a checksum
+       you have to remember to pad is a checksum that will be compared wrong. */
+    return ("0000000" + c.toString(16)).slice(-8);
+  }
+  function iso(ms){
+    /* Local minutes, not UTC, because a field sheet is read where it was
+       written. ISO-shaped so it sorts. */
+    if (!ms) return "";
+    var d = new Date(ms), p = function(n){ return (n < 10 ? "0" : "") + n; };
+    return d.getFullYear() + "-" + p(d.getMonth() + 1) + "-" + p(d.getDate())
+         + " " + p(d.getHours()) + ":" + p(d.getMinutes());
+  }
+  function photos(o){
+    o = o || {};
+    var list = [], max = (o.max == null ? 40 : o.max);
+    var wrap = el("div", "fek-row"), lab = el("label", "fek-lab", o.label || "Photographs");
+    var zone = el("div", "fek-drop");
+    /* THE ZONE NEEDS A NAME OF ITS OWN. A drop listener leaves no mark a
+       selector can find, and the control the page's own snapshot offers under
+       this component's label is the hidden FILE INPUT -- so a task that says
+       "drop these on the photographs" landed on the input and was refused as
+       not a drop zone. The id is the address; a page that mounts this without
+       one can still be driven through the file input, and cannot be driven by
+       a drop. */
+    zone.id = o.dropId || (o.field ? o.field + "Drop" : "");
+    if (!zone.id) zone.removeAttribute("id");
+    var inp = el("input");
+    inp.type = "file"; inp.accept = o.accept || "image/*"; inp.multiple = true;
+    inp.style.display = "none";
+    if (o.label) inp.setAttribute("aria-label", o.label);
+    var btn = el("button", null, "📷 Add photos");
+    btn.type = "button";
+    zone.appendChild(el("p", null, o.prompt ||
+      "<b>Shoot the character, not the specimen.</b> Camera or gallery, or drop files here."));
+    zone.appendChild(inp); zone.appendChild(btn);
+    var grid = el("div", "fek-photos");
+    /* Its own live region, by the rule ADR-199 put on every other message in
+       this kit: an addition that is refused -- a PDF dropped on a photo zone,
+       a frame too many -- is announced rather than silently ignored. */
+    var shot = el("p", "fek-shot");
+    shot.setAttribute("role", "status"); shot.setAttribute("aria-live", "polite");
+
+    /* FRAMES THIS SHEET KNOWS ABOUT AND DOES NOT HOLD (v1.6.0, ADR-206).
+       A page can restore what you typed. It cannot restore a photograph: a
+       page cannot hand a File back to a file input, and this component has
+       always refused to pretend otherwise. But a restored sheet that came back
+       quietly WITHOUT its frames is worse than one that admits it, because the
+       reader believes their morning is back. So the record survives the
+       restore even though the bytes do not, the component says which frames
+       are missing and names them, and it takes them back BY CHECKSUM: drop the
+       same files in again and the label and note you typed -- the expensive
+       part -- come back with them. */
+    var await_ = [];
+    var awaitBox = el("div", "fek-await");
+    awaitBox.style.display = "none";
+
+    function say(t, bad){ shot.textContent = t || ""; shot.classList.toggle("bad", !!bad); }
+    function changed(){
+      if (o.onchange) o.onchange(records());
+      /* A REAL EVENT, BECAUSE A PHOTOGRAPH IS AN EDIT (v1.6.0, ADR-206).
+         Adding a frame fires no input and no change -- the file input is
+         hidden and a drop is neither -- so every autosave in this kit sat
+         still while a reader photographed four stations, and a session that
+         was ONLY photographs was saved by nothing. One bubbling event, so the
+         page does not have to remember to wire it and a page added tomorrow
+         is covered on the day it mounts the component. */
+      try { wrap.dispatchEvent(new CustomEvent("fek-change", { bubbles: true })); }
+      catch (e) {}
+    }
+    function records(){
+      /* The awaited frames are IN the record. A photograph that was taken has
+         an identifier whether or not this browser still holds the bytes, and
+         an export that dropped it would lose the only link between the row and
+         a file sitting on a camera. `have` says which is which. */
+      return list.map(function(p){
+        return { name: p.name, bytes: p.bytes, captured: p.captured, crc: p.crc,
+                 label: p.label, note: p.note, have: true };
+      }).concat(await_.map(function(p){
+        return { name: p.name, bytes: p.bytes, captured: p.captured, crc: p.crc,
+                 label: p.label, note: p.note, have: false };
+      }));
+    }
+    function renderAwait(){
+      if (!await_.length) { awaitBox.style.display = "none"; awaitBox.innerHTML = ""; return; }
+      awaitBox.style.display = "";
+      awaitBox.innerHTML = "<b>" + await_.length + " photograph"
+        + (await_.length === 1 ? " is" : "s are") + " on this record and not on this device.</b> "
+        + "A saved sheet keeps what you typed; it cannot keep an image. Add the same file"
+        + (await_.length === 1 ? "" : "s") + " again and the caption you wrote comes back with "
+        + (await_.length === 1 ? "it" : "them") + " \u2014 matched by checksum, so it has to be "
+        + "the same frame."
+        + "<ul>" + await_.map(function(p){
+            return "<li>" + escv(p.name) + " <span class=\"cap\">" + p.bytes + " bytes \u00b7 crc "
+                 + p.crc + (p.label ? " · " + escv(p.label) : "") + "</span></li>";
+          }).join("") + "</ul>";
+    }
+    function render(){
+      grid.innerHTML = "";
+      list.forEach(function(p, i){
+        var d = el("div", "fek-photo");
+        var im = el("img"); im.src = p.url;
+        im.alt = p.label || ("photograph " + (i + 1) + " — " + p.name);
+        var m = el("div", "m");
+        m.appendChild(el("code", null,
+          escv(p.name) + "<br>" + p.bytes + " bytes · crc " + p.crc
+          + (p.captured ? "<br>" + escv(p.captured) : "")));
+        var lv = el("input"); lv.type = "text"; lv.value = p.label;
+        lv.placeholder = o.labelPlaceholder || "voucher / specimen №";
+        lv.setAttribute("aria-label", "voucher for " + p.name);
+        var nt = el("textarea"); nt.value = p.note;
+        nt.placeholder = o.notePlaceholder || "What does this show?";
+        nt.setAttribute("aria-label", "note on " + p.name);
+        var rm = el("button", "rm", "Remove"); rm.type = "button";
+        lv.addEventListener("input", function(){ p.label = lv.value; changed(); });
+        nt.addEventListener("input", function(){ p.note = nt.value; changed(); });
+        rm.addEventListener("click", function(){
+          try { URL.revokeObjectURL(p.url); } catch (e) {}
+          list.splice(list.indexOf(p), 1);
+          render(); say("Removed " + p.name); changed(); buzz();
+        });
+        m.appendChild(lv); m.appendChild(nt); m.appendChild(rm);
+        d.appendChild(im); d.appendChild(m);
+        grid.appendChild(d);
+      });
+    }
+    function add(files){
+      var fs = Array.prototype.slice.call(files || []);
+      if (!fs.length) return;
+      var notImages = fs.filter(function(f){ return !/^image\//.test(f.type || ""); });
+      fs = fs.filter(function(f){ return /^image\//.test(f.type || ""); });
+      var room = Math.max(0, max - list.length), over = fs.length - room;
+      if (over > 0) fs = fs.slice(0, room);
+      var pending = fs.length, added = 0, back = 0;
+      /* A refusal is SAID, not swallowed: the reader who dropped six files and
+         got four has to be able to find out which two, and why. */
+      function done(){
+        if (pending) return;
+        var parts = [];
+        if (added) parts.push(added + " photograph" + (added === 1 ? "" : "s") + " added");
+        if (back) parts.push(back + " matched by checksum, caption restored");
+        if (notImages.length)
+          parts.push(notImages.length + " not an image: "
+                     + notImages.map(function(f){ return f.name; }).slice(0, 3).join(", "));
+        if (over > 0) parts.push(over + " over the limit of " + max);
+        say(parts.join(" — ") || "Nothing added", !added);
+        if (added) { render(); renderAwait(); changed(); buzz(12); }
+      }
+      if (!pending) { done(); return; }
+      fs.forEach(function(f){
+        var rd = new FileReader();
+        rd.onload = function(){
+          var bytes = new Uint8Array(rd.result);
+          var sum = crc32(bytes), lab = "", note = "", i;
+          /* BY CHECKSUM, NOT BY NAME. A camera roll renames on export and two
+             cards both start at DSC_0001; the checksum is the only thing that
+             says this is the frame the caption was written about. */
+          for (i = 0; i < await_.length; i++) {
+            if (await_[i].crc === sum && await_[i].bytes === bytes.length) {
+              lab = await_[i].label || ""; note = await_[i].note || "";
+              await_.splice(i, 1); back++;
+              break;
+            }
+          }
+          list.push({ name: f.name || ("photo-" + (list.length + 1) + ".jpg"),
+                      bytes: bytes.length, captured: iso(f.lastModified),
+                      crc: sum, label: lab, note: note,
+                      url: URL.createObjectURL(f) });
+          added++; pending--; done();
+        };
+        rd.onerror = function(){ pending--; done(); };
+        rd.readAsArrayBuffer(f);
+      });
+    }
+    btn.addEventListener("click", function(){ inp.click(); });
+    inp.addEventListener("change", function(){ add(inp.files); inp.value = ""; });
+    ["dragenter", "dragover"].forEach(function(ev){
+      zone.addEventListener(ev, function(e){ e.preventDefault(); zone.classList.add("on"); }); });
+    ["dragleave", "dragend"].forEach(function(ev){
+      zone.addEventListener(ev, function(){ zone.classList.remove("on"); }); });
+    /* The harness stamps data-h-drop on anything that registers a drop
+       listener, so this zone is drivable by the door with no page markup. */
+    zone.addEventListener("drop", function(e){
+      e.preventDefault(); zone.classList.remove("on");
+      if (e.dataTransfer && e.dataTransfer.files) add(e.dataTransfer.files);
+    });
+    wrap.appendChild(lab); wrap.appendChild(zone); wrap.appendChild(shot);
+    wrap.appendChild(awaitBox); wrap.appendChild(grid);
+    if (o.help) wrap.appendChild(el("p", "fek-help", o.help));
+    render();
+    return reg(o, {
+      el: wrap, get: records, count: function(){ return list.length; },
+      /* set() is deliberately not a way to put images back: a page cannot
+         hand a File to a file input, and a component that pretended to
+         restore a photograph from a record would be restoring a caption. */
+      set: function(){ return false; },
+      /* ...and THIS is what an autosave gets instead (v1.6.0, ADR-206). The
+         records come back, the bytes do not, and the component says so where
+         the reader will see it rather than coming back quietly one frame
+         short. Frames the sheet already holds are left alone -- a restore that
+         listed a photograph you are looking at would be noise. */
+      restore: function(recs){
+        if (!recs || !recs.length) return 0;
+        var held = {}, i;
+        for (i = 0; i < list.length; i++) held[list[i].crc] = 1;
+        await_ = recs.filter(function(r){
+          return r && r.crc && !held[r.crc];
+        }).map(function(r){
+          return { name: r.name, bytes: r.bytes, captured: r.captured, crc: r.crc,
+                   label: r.label || "", note: r.note || "" };
+        });
+        renderAwait();
+        return await_.length;
+      },
+      awaiting: function(){ return await_.slice(); },
+      clear: function(){
+        list.forEach(function(p){ try { URL.revokeObjectURL(p.url); } catch (e) {} });
+        list = []; await_ = []; render(); renderAwait(); say(""); changed();
+      },
+      /* `associatedMedia` the way Darwin Core asks for it: identifiers,
+         concatenated and separated. The separator is " | " because a filename
+         may hold a comma and a record that splits wrong is worse than one that
+         is hard to read. */
+      media: function(){
+        /* Awaited frames are named too. A photograph that was taken has an
+           identifier whether or not this browser still holds it, and a deposit
+           that dropped it would break the only link between the row and a file
+           on a camera. */
+        return list.concat(await_).map(function(p){
+          return p.name + " (crc32 " + p.crc + (p.captured ? ", " + p.captured : "") + ")";
+        }).join(" | ");
+      }
+    });
+  }
   /* ---- the same rule for a box FEK did not build (v1.4.0, ADR-151) ----
      The components above now say when a box holds something the browser could
      not read as a number. Every page that mounts them also carries number
@@ -993,8 +1345,8 @@ var FEK = (function(){
      design -- still has to escape the data inside it. A private copy of an
      escaper in one page was how the last one got lost when the kit was
      re-emitted over it. */
-  return { version:"1.4.0", esc:escv, setField:setField, fields:fields, step:step, field:field, dial:dial, chips:chips, slider:slider,
-           picker:picker, tiles:tiles, banner:banner, mount:mount, buzz:buzz, guard:guard };
+  return { version:"1.6.0", esc:escv, setField:setField, fields:fields, step:step, field:field, dial:dial, chips:chips, slider:slider,
+           picker:picker, photos:photos, crc32:crc32, tiles:tiles, banner:banner, mount:mount, buzz:buzz, guard:guard };
 })();
 
 </script>
@@ -1314,6 +1666,204 @@ var FEK = (function(){
   }
   ["zS","zR","zSrc"].forEach(function(i){ $(i).addEventListener("input",renderZ); });
 
+  /* --------------------------------------------------------- take it home
+     ADR-205. Until this slice, this page accepted plate counts, a dilution
+     plan, a growth curve and a set of zone diameters -- and offered NO WAY TO
+     GET ANY OF IT OUT. Not a copy button, not a CSV, not a print block.
+
+     EVERY PLATE IS CARRIED, INCLUDING THE REJECTED ONES. A CFU/mL reported
+     without the plates that were excluded is a count nobody can audit, and a
+     series where every plate fell outside 30-300 is a result in itself rather
+     than an absence of one. The sheet marks each plate TFTC, TNTC or
+     countable, the same judgement the screen makes.
+
+     AND A ZONE CARRIES ITS BREAKPOINT SOURCE. An S/I/R call without the table
+     and edition it came from is an opinion, which is exactly why this page
+     refuses to ship a table of its own; an export that dropped the source
+     would undo that refusal on the way out of the tab. */
+  function cell(v){ v=String(v==null?"":v); return /[",\n]/.test(v) ? '"'+v.replace(/"/g,'""')+'"' : v; }
+
+  function sheet(){
+    var L=[], any=false;
+    var d=new Date(), p2=function(n){ return (n<10?"0":"")+n; };
+    L.push("# Micro bench — " + d.getFullYear() + "-" + p2(d.getMonth()+1) + "-" + p2(d.getDate())
+           + " " + p2(d.getHours()) + ":" + p2(d.getMinutes()));
+
+    /* ---- plates ---- */
+    if(plates.length){
+      any=true;
+      L.push("", "## Plate counts (" + plates.length + ")");
+      plates.forEach(function(p){
+        var st2=statusOf(p);
+        L.push("  " + (p.label||("10^-"+p.n)) + "   10^-" + p.n + "   " + f(p.v,2) + " mL   "
+               + p.c + " colonies   " + st2
+               + (st2==="countable" ? "   " + cfu(p).toExponential(3) + " CFU/mL" : "   excluded"));
+      });
+      var good=plates.filter(function(p){ return statusOf(p)==="countable"; });
+      if(!good.length){
+        L.push("  NO COUNTABLE PLATE. Every plate is outside the conventional 30–300 window, so there "
+               + "is no defensible CFU/mL from this run — report it as it happened rather than quoting "
+               + "a number from an out-of-range plate.");
+      } else {
+        var vals=good.map(cfu);
+        var mean=vals.reduce(function(a,b){return a+b;},0)/vals.length;
+        var lo=Math.min.apply(null,vals), hi=Math.max.apply(null,vals);
+        var totCol=good.reduce(function(a,p){return a+p.c;},0);
+        L.push("  countable plates: " + good.length + " of " + plates.length
+               + "   colonies counted: " + totCol);
+        L.push("  CFU/mL (mean of countable): " + mean.toExponential(3)
+               + "   Poisson CV: ±" + f(100/Math.sqrt(totCol),1) + "%");
+        if(plates.length>good.length)
+          L.push("  " + (plates.length-good.length) + " plate(s) excluded — listed above rather than "
+                 + "dropped silently, because which plates you discarded is part of the record");
+        if(hi/lo>2)
+          L.push("  COUNTABLE PLATES DISAGREE BY " + f(hi/lo,1) + "× — adjacent dilutions should agree "
+                 + "within about a factor of two; this points at the dilution series, not the organism");
+        L.push("  this is CFU/mL, not cells/mL: a chain, a clump or a hypha gives one colony");
+      }
+    }
+
+    /* ---- the dilution plan ---- */
+    var est=nv("dEst"), dvol=nv("dVol"), tr=nv("dTr"), bl=nv("dBl");
+    if(isFinite(est)&&est>0&&isFinite(dvol)&&dvol>0&&isFinite(tr)&&tr>0&&isFinite(bl)){
+      any=true;
+      var step=tr/(tr+bl), perStep=-Math.log10(step);
+      L.push("", "## Dilution plan");
+      L.push("  estimate: " + est.toExponential(3) + " CFU/mL   plated volume: " + f(dvol,2) + " mL");
+      L.push("  transfer " + f(tr,2) + " mL into " + f(bl,2) + " mL blank = 1:" + f((tr+bl)/tr,0)
+             + " per step (" + f(perStep,2) + " log₁₀)");
+      var conc=est, best=null, k;
+      for(k=0;k<=12;k++){
+        var expc=conc*dvol;
+        if(expc>=30 && expc<=300 && best===null){ best=k; L.push("  plate step " + k + ": ~"
+              + f(expc,0) + " colonies expected"); }
+        conc*=step;
+      }
+      if(best===null) L.push("  NO STEP LANDS IN 30–300 with this plated volume and step size");
+    }
+
+    /* ---- growth ---- */
+    if(pts.length){
+      any=true;
+      L.push("", "## Growth curve (" + pts.length + " point" + (pts.length===1?"":"s") + ")");
+      pts.forEach(function(x){
+        L.push("  " + f(x.t,2) + " h   OD " + f(x.od,3) + "   ln(OD) " + f(Math.log(x.od),3)
+               + (x.use ? "   in fit" : "   EXCLUDED from fit"));
+      });
+      var use=pts.filter(function(x){ return x.use; });
+      if(use.length<3) L.push("  fewer than three points marked as exponential — no fit");
+      else {
+        var g=reg(use.map(function(x){return x.t;}), use.map(function(x){return Math.log(x.od);}));
+        if(g){
+          var mu=g.b, td= mu>0 ? Math.LN2/mu : NaN;
+          L.push("  fit over " + use.length + " of " + pts.length + " points: ln(OD) = "
+                 + f(g.a,4) + " + " + f(mu,4) + "·t   r² = " + f(g.r2,4));
+          L.push("  specific growth rate µ: " + f(mu,4) + " h⁻¹   doubling time: " + f(td,3)
+                 + " h (" + f(td*60,1) + " min)");
+          if(mu<=0) L.push("  SLOPE NOT POSITIVE — the selected points are not growing");
+          if(g.r2<0.98) L.push("  r² below 0.98 — the window probably includes lag or the approach "
+                 + "to stationary; narrow it");
+          var mx=Math.max.apply(null, use.map(function(x){ return x.od; }));
+          if(mx>0.6) L.push("  POINTS ABOVE OD 0.6 ARE IN THE FIT — multiple scattering makes a "
+                 + "spectrophotometer read low there, which flattens the line and pushes µ down");
+          L.push("  µ is a rate of increase in TURBIDITY; converting to cells/mL needs your own "
+                 + "OD-to-CFU calibration for this strain, medium and instrument");
+        }
+      }
+    }
+
+    /* ---- zones ---- */
+    if(zones.length){
+      any=true;
+      var S=nv("zS"), R=nv("zR"), src=val("zSrc"), haveBp=isFinite(S)&&isFinite(R);
+      L.push("", "## Disc diffusion (" + zones.length + " zone" + (zones.length===1?"":"s") + ")");
+      zones.forEach(function(z){
+        var interp = haveBp ? (z.mm>=S ? "S" : (z.mm<=R ? "R" : "I")) : "—";
+        L.push("  " + z.drug + (z.cont ? " " + z.cont : "") + "   " + f(z.mm,1) + " mm   " + interp);
+      });
+      if(!haveBp){
+        L.push("  MEASUREMENT ONLY — NO INTERPRETATION. No breakpoints were entered, and S/I/R cannot "
+               + "be derived from a diameter alone: it depends on the organism, the agent, the disc "
+               + "content, the medium and the method.");
+      } else if(S<=R){
+        L.push("  BREAKPOINTS THE WRONG WAY ROUND: the susceptible threshold must exceed the resistant "
+               + "one, so these interpretations are not to be used");
+      } else {
+        L.push("  interpreted against S ≥ " + f(S,1) + " mm, R ≤ " + f(R,1) + " mm"
+               + (src ? ", " + src : ""));
+        L.push("  intermediate band: " + f(R+0.5,1) + "–" + f(S-0.5,1) + " mm");
+        if(!src) L.push("  NO BREAKPOINT SOURCE RECORDED — an interpretation without the table and its "
+               + "edition is not reproducible, and these tables are revised annually");
+      }
+    }
+
+    if(!any) return "# record a plate, a point or a zone — the bench sheet appears here";
+    return L.join("\n");
+  }
+
+  function ecoOut(){ $("ecoOut").textContent = sheet(); }
+  /* Rebuilt on any entry, so the sheet on the Export tab is never a stale
+     answer to inputs that have since changed. */
+  document.addEventListener("input", ecoOut, true);
+  document.addEventListener("change", ecoOut, true);
+  document.addEventListener("click", function(){ setTimeout(ecoOut, 0); }, true);
+
+  /* A CSV IS AN INSTRUMENT READING, NOT A FLOAT DUMP. `p.c/(p.v*10^-n)` comes
+     out of binary floating point as 147999999.99999997 for a plate the page
+     displays as 1.480e+8, and a column of those says more than the count
+     knows -- eleven figures from a hundred and forty-eight colonies. Every
+     derived column is written at the precision the screen shows. */
+  function plCsv(){
+    var rows=[["label","dilution_exponent","volume_ml","colonies","status","cfu_per_ml"]
+                .map(cell).join(",")];
+    plates.forEach(function(p){
+      var st2=statusOf(p);
+      rows.push([p.label||"", p.n, p.v, p.c, st2,
+                 st2==="countable" ? cfu(p).toExponential(3) : ""].map(cell).join(","));
+    });
+    return rows.join("\n");
+  }
+  function grCsv(){
+    var rows=[["hours","od","ln_od","in_fit"].map(cell).join(",")];
+    pts.forEach(function(x){
+      rows.push([x.t, x.od, Math.log(x.od).toFixed(4), x.use?"yes":"no"].map(cell).join(","));
+    });
+    return rows.join("\n");
+  }
+  function znCsv(){
+    var S=nv("zS"), R=nv("zR"), src=val("zSrc"), haveBp=isFinite(S)&&isFinite(R)&&S>R;
+    var rows=[["antimicrobial","disc_content","zone_mm","interpretation","breakpoint_S_mm",
+               "breakpoint_R_mm","breakpoint_source"].map(cell).join(",")];
+    zones.forEach(function(z){
+      rows.push([z.drug, z.cont||"", z.mm, haveBp ? (z.mm>=S?"S":(z.mm<=R?"R":"I")) : "",
+                 isFinite(S)?S:"", isFinite(R)?R:"", src||""].map(cell).join(","));
+    });
+    return rows.join("\n");
+  }
+
+  function copyText(s,msg,id){
+    var a=document.createElement("textarea"); a.value=s;
+    a.style.position="fixed"; a.style.opacity="0"; document.body.appendChild(a); a.select();
+    /* ADR-203: execCommand reports failure by RETURNING FALSE and throws in
+       only some of the ways it can fail, so the return value is what decides
+       whether this copy happened. */
+    var ok=false; try{ ok=document.execCommand("copy"); }catch(e){}
+    document.body.removeChild(a);
+    toast(ok?msg:"Copy failed — select the text");
+    return ok;
+  }
+  $("ecoCopy").addEventListener("click",function(){
+    ecoOut(); copyText($("ecoOut").textContent,"Bench sheet copied","sheet"); });
+  $("plCopy").addEventListener("click",function(){
+    if(!plates.length){ toast("No plates yet"); return; }
+    copyText(plCsv(),"Plate CSV copied — "+plates.length+" row"+(plates.length===1?"":"s"),"plates"); });
+  $("grCopy").addEventListener("click",function(){
+    if(!pts.length){ toast("No points yet"); return; }
+    copyText(grCsv(),"Growth CSV copied — "+pts.length+" row"+(pts.length===1?"":"s"),"growth"); });
+  $("znCopy").addEventListener("click",function(){
+    if(!zones.length){ toast("No zones recorded"); return; }
+    copyText(znCsv(),"Zone CSV copied — "+zones.length+" row"+(zones.length===1?"":"s"),"zones"); });
+
   /* ---------------------------------------------------------------- tabs */
   document.querySelectorAll(".tab").forEach(function(tb){
     tb.addEventListener("click",function(){
@@ -1322,7 +1872,7 @@ var FEK = (function(){
       window.scrollTo(0,0); buzz();
     });
   });
-  renderPl(); renderGr(); renderZ();
+  renderPl(); renderGr(); renderZ(); ecoOut();
 })();
 </script>
 </body>

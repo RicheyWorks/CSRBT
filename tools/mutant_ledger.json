@@ -477,6 +477,72 @@
    ],
    "survived": 0
   },
+  "mutate_ci": {
+   "at": 1789385752,
+   "equivalent": 0,
+   "equivalents": [],
+   "inconclusive": 0,
+   "killed": 11,
+   "mutants": 11,
+   "rows": [
+    {
+     "detail": "1 failure(s); first: EVERY FILE THE BUILD READS IS INSIDE THE FILTER. A filter t",
+     "name": "the filter loses the pattern that covers every module's sources",
+     "verdict": "killed"
+    },
+    {
+     "detail": "1 failure(s); first: EVERY FILE THE BUILD READS IS INSIDE THE FILTER. A filter t",
+     "name": "the filter loses the build scripts",
+     "verdict": "killed"
+    },
+    {
+     "detail": "1 failure(s); first: EVERY FILE THE BUILD READS IS INSIDE THE FILTER. A filter t",
+     "name": "the wrapper is left out, so a Gradle bump does not run the build",
+     "verdict": "killed"
+    },
+    {
+     "detail": "1 failure(s); first: AND THE WORKFLOW IS INSIDE ITS OWN FILTER. A change to the ",
+     "name": "the workflow is left out of its own filter",
+     "verdict": "killed"
+    },
+    {
+     "detail": "1 failure(s); first: and they are THE SAME LIST. Two filters that drift apart me",
+     "name": "the push filter and the pull_request filter drift apart",
+     "verdict": "killed"
+    },
+    {
+     "detail": "2 failure(s); first: and so does pull_request, or a branch could skip the build ",
+     "name": "the pull_request event loses its filter entirely",
+     "verdict": "killed"
+    },
+    {
+     "detail": "2 failure(s); first: EVERY FILE THE BUILD READS IS INSIDE THE FILTER. A filter t",
+     "name": "the matcher reads `**` as two single-segment stars, so nothing crosses a directory",
+     "verdict": "killed"
+    },
+    {
+     "detail": "1 failure(s); first: and a single star does NOT cross a separator, which is the ",
+     "name": "a single star crosses separators after all",
+     "verdict": "killed"
+    },
+    {
+     "detail": "1 failure(s); first: A PATTERN OUT OF SCOPE IS REFUSED, not quietly treated as c",
+     "name": "a pattern the matcher cannot read is treated as covering everything",
+     "verdict": "killed"
+    },
+    {
+     "detail": "1 failure(s); first: AND IT IS BYTE-IDENTICAL TO THE WORKFLOW. Two copies of one",
+     "name": "the deliverable copy drifts from the workflow it installs",
+     "verdict": "killed"
+    },
+    {
+     "detail": "1 failure(s); first: the tree has a Java build to be about at all: 0 file(s)",
+     "name": "the filter is checked against nothing, because the walk files nothing as build",
+     "verdict": "killed"
+    }
+   ],
+   "survived": 0
+  },
   "mutate_contend": {
    "at": 1788587889,
    "equivalent": 0,
@@ -1322,16 +1388,132 @@
    ],
    "survived": 0
   },
-  "mutate_harness": {
-   "at": 1788826885,
+  "mutate_fek": {
+   "at": 1789417052,
    "equivalent": 0,
    "equivalents": [],
    "inconclusive": 0,
-   "killed": 18,
-   "mutants": 18,
+   "killed": 21,
+   "mutants": 21,
    "rows": [
     {
-     "detail": "1 failure(s); first: FAIL  A2 chip          is discovered   got: ['action_btn', ",
+     "detail": "1 failure(s); first: and it is eight hex digits ALWAYS -- a crc of 0x0000a1b2 wr",
+     "name": "the checksum is not padded, so a small crc is a different string",
+     "verdict": "killed"
+    },
+    {
+     "detail": "7 failure(s); first: crc32 agrees with the standard check value: '123456789' is ",
+     "name": "the table is built with the wrong polynomial",
+     "verdict": "killed"
+    },
+    {
+     "detail": "8 failure(s); first: crc32 agrees with the standard check value: '123456789' is ",
+     "name": "the register is not pre-loaded, so the leading bytes stop mattering",
+     "verdict": "killed"
+    },
+    {
+     "detail": "6 failure(s); first: and the checksum is of the FILE'S BYTES, not of its name or",
+     "name": "the checksum is of the file's SIZE rather than its bytes",
+     "verdict": "killed"
+    },
+    {
+     "detail": "1 failure(s); first: `captured` is the file's own timestamp, not the moment it w",
+     "name": "the capture time is when the file was dropped, not when it was taken",
+     "verdict": "killed"
+    },
+    {
+     "detail": "2 failure(s); first: a dropped image becomes ONE record carrying the four things",
+     "name": "the image itself rides in the record",
+     "verdict": "killed"
+    },
+    {
+     "detail": "2 failure(s); first: AND THE SEPARATOR IS ' | ', NOT A COMMA. Darwin Core concat",
+     "name": "media() joins with a comma, which a filename may contain",
+     "verdict": "killed"
+    },
+    {
+     "detail": "1 failure(s); first: media() is Darwin Core shaped -- identifiers OF the media, ",
+     "name": "media() drops the checksum and keeps only the name",
+     "verdict": "killed"
+    },
+    {
+     "detail": "8 failure(s); first: A RESTORED SHEET SAYS WHICH PHOTOGRAPHS IT NO LONGER HOLDS.",
+     "name": "a restored sheet keeps the frames to itself, so it comes back quietly one short",
+     "verdict": "killed"
+    },
+    {
+     "detail": "1 failure(s); first: A FRAME THAT WAS TAKEN IS IN THE RECORD WHETHER OR NOT THIS",
+     "name": "a frame this browser does not hold is dropped from the record, breaking the only link between a row and a file on a camera",
+     "verdict": "killed"
+    },
+    {
+     "detail": "1 failure(s); first: and media() names both, because Darwin Core asks for identi",
+     "name": "media() forgets the frames that are not on this device",
+     "verdict": "killed"
+    },
+    {
+     "detail": "3 failure(s); first: DROPPING THE SAME FILE BACK RETURNS THE CAPTION, MATCHED BY",
+     "name": "a returning frame is matched by NAME, which a camera roll changes on export",
+     "verdict": "killed"
+    },
+    {
+     "detail": "1 failure(s); first: DROPPING THE SAME FILE BACK RETURNS THE CAPTION, MATCHED BY",
+     "name": "the caption is not carried back with the frame it was written about",
+     "verdict": "killed"
+    },
+    {
+     "detail": "1 failure(s); first: ...and the component says it matched one rather than silent",
+     "name": "a returning frame is swapped in silently, with nothing said",
+     "verdict": "killed"
+    },
+    {
+     "detail": "1 failure(s); first: clear() forgets the awaited frames too, or a cleared sheet ",
+     "name": "clear() leaves the awaited frames behind, so a cleared sheet keeps asking for a photograph belonging to work nobody has",
+     "verdict": "killed"
+    },
+    {
+     "detail": "1 failure(s); first: ADDING A PHOTOGRAPH ANNOUNCES ITSELF, with one bubbling eve",
+     "name": "adding a photograph announces nothing, so every autosave in the kit sits still while a reader photographs four stations",
+     "verdict": "killed"
+    },
+    {
+     "detail": "1 failure(s); first: a file that is not an image is not added  << [{'name': 'IMG",
+     "name": "a file that is not an image is added anyway",
+     "verdict": "killed"
+    },
+    {
+     "detail": "1 failure(s); first: AND THE REFUSAL IS SAID AND NAMES THE FILE. A reader who dr",
+     "name": "the refusal is counted but not said",
+     "verdict": "killed"
+    },
+    {
+     "detail": "5 failure(s); first: and a live region of its own, so a refusal is announced rat",
+     "name": "the component's message element is not a live region",
+     "verdict": "killed"
+    },
+    {
+     "detail": "19 failure(s); first: the component builds a drop zone with an ADDRESS -- a drop",
+     "name": "the drop zone loses the id that is its address",
+     "verdict": "killed"
+    },
+    {
+     "detail": "1 failure(s); first: set() cannot put a photograph back: a page cannot hand a Fi",
+     "name": "set() pretends it can restore a photograph",
+     "verdict": "killed"
+    }
+   ],
+   "survived": 0
+  },
+  "mutate_harness": {
+   "at": 1789353468,
+   "equivalent": 0,
+   "equivalents": [],
+   "inconclusive": 0,
+   "killed": 22,
+   "mutants": 22,
+   "rows": [
+    {
+     "detail": "2 failure(s); first: FAIL  A2 chip          is discovered   got: ['action_btn', ",
      "name": "discovery drops a widget kind",
      "verdict": "killed"
     },
@@ -1341,12 +1523,12 @@
      "verdict": "killed"
     },
     {
-     "detail": "2 failure(s); first: FAIL  D1: NaN reaching the page is reported   got: []",
+     "detail": "4 failure(s); first: FAIL  D1: NaN reaching the page is reported   got: []",
      "name": "junk detector never fires",
      "verdict": "killed"
     },
     {
-     "detail": "3 failure(s); first: FAIL  D4: a row spilling out of a 390px phone is reported, ",
+     "detail": "5 failure(s); first: FAIL  D4: a row spilling out of a 390px phone is reported, ",
      "name": "spill check disabled",
      "verdict": "killed"
     },
@@ -1416,8 +1598,28 @@
      "verdict": "killed"
     },
     {
-     "detail": "4 failure(s); first: FAIL  A1: the accounting identity holds on a page of every ",
+     "detail": "5 failure(s); first: FAIL  A1: the accounting identity holds on a page of every ",
      "name": "the accounting loses a bucket",
+     "verdict": "killed"
+    },
+    {
+     "detail": "2 failure(s); first: FAIL: EVERY KIND AN ACTION POOLS IS A KIND THE SNAPSHOT PUB",
+     "name": "the kind list loses the drop zone, so a refusal names an address nothing answers to",
+     "verdict": "killed"
+    },
+    {
+     "detail": "1 failure(s); first: FAIL: EVERY KIND AN ACTION POOLS IS A KIND THE SNAPSHOT PUB",
+     "name": "the kind list loses the checkbox the same way",
+     "verdict": "killed"
+    },
+    {
+     "detail": "2 failure(s); first: FAIL: NO KIND IS LISTED TWICE in KINDS. The swarm's list is",
+     "name": "a kind is listed twice, so it is discovered twice and the selectors renumber",
+     "verdict": "killed"
+    },
+    {
+     "detail": "1 failure(s); first: FAIL: and a drop zone is found by the MARK THE CAPTURE LEAV",
+     "name": "the drop zone is found by a class name rather than by the mark the capture leaves",
      "verdict": "killed"
     }
    ],
@@ -1559,6 +1761,132 @@
     {
      "detail": "1 failure(s); first: binding anywhere else takes an explicit environment variabl",
      "name": "binding off loopback says nothing about it",
+     "verdict": "killed"
+    }
+   ],
+   "survived": 0
+  },
+  "mutate_keep": {
+   "at": 1789400515,
+   "equivalent": 0,
+   "equivalents": [],
+   "inconclusive": 0,
+   "killed": 23,
+   "mutants": 23,
+   "rows": [
+    {
+     "detail": "4 failure(s); first: A BROWSER THAT IS KEEPING NOTHING SAYS SO, UP FRONT. Storag",
+     "name": "storage is assumed usable rather than probed",
+     "verdict": "killed"
+    },
+    {
+     "detail": "2 failure(s); first: A BROWSER THAT IS KEEPING NOTHING SAYS SO, UP FRONT. Storag",
+     "name": "a browser that keeps nothing is told only when a write fails, not when the page opens",
+     "verdict": "killed"
+    },
+    {
+     "detail": "8 failure(s); first: and the scanner takes a multi-line ternary whole, not just ",
+     "name": "a failed write is swallowed again, which is the whole bug KEEP exists to fix",
+     "verdict": "killed"
+    },
+    {
+     "detail": "3 failure(s); first: and the scanner takes a multi-line ternary whole, not just ",
+     "name": "the classifier stops classifying: every write failure reads as a full store",
+     "verdict": "killed"
+    },
+    {
+     "detail": "2 failure(s); first: and the strip is styled as the failure it is",
+     "name": "a failure is reported but the strip is not styled as one",
+     "verdict": "killed"
+    },
+    {
+     "detail": "9 failure(s); first: the stored blob carries a format stamp  << {\"at\":1789399948",
+     "name": "the saved blob carries no format stamp",
+     "verdict": "killed"
+    },
+    {
+     "detail": "5 failure(s); first: the stored blob carries a timestamp  << {\"format\":1,\"body\":",
+     "name": "the saved blob carries no time, so nothing can say WHEN it saved",
+     "verdict": "killed"
+    },
+    {
+     "detail": "1 failure(s); first: a blob from an unreadable format is ignored, not half-appli",
+     "name": "a blob from a format this page can no longer read is applied anyway",
+     "verdict": "killed"
+    },
+    {
+     "detail": "1 failure(s); first: unparseable storage does not break the page  << [\"Expected ",
+     "name": "unreadable storage is not caught, so one bad blob takes the page down",
+     "verdict": "killed"
+    },
+    {
+     "detail": "2 failure(s); first: a noun containing markup does not become markup in the bann",
+     "name": "the noun is not escaped on the first-run banner",
+     "verdict": "killed"
+    },
+    {
+     "detail": "2 failure(s); first: a noun containing markup is escaped on the RESTORED path to",
+     "name": "the noun is not escaped on the restored banner",
+     "verdict": "killed"
+    },
+    {
+     "detail": "8 failure(s); first: ordination.html says browser storage is not a backup  << Au",
+     "name": "the strip stops saying that a browser copy is not a backup",
+     "verdict": "killed"
+    },
+    {
+     "detail": "12 failure(s); first: ordination.html offers a way to remove the saved copy",
+     "name": "the strip stops offering a way to remove the saved copy",
+     "verdict": "killed"
+    },
+    {
+     "detail": "3 failure(s); first: forget removes the stored copy  << still there",
+     "name": "forget does not cancel the pending write, so the debounced save puts the copy straight back",
+     "verdict": "killed"
+    },
+    {
+     "detail": "1 failure(s); first: forget resets the status strip  << Restored this relev\u00e9 fro",
+     "name": "forget clears the store but leaves the strip claiming a saved copy",
+     "verdict": "killed"
+    },
+    {
+     "detail": "4 failure(s); first: a typed text field comes back",
+     "name": "the snapshot takes only the first field it finds",
+     "verdict": "killed"
+    },
+    {
+     "detail": "2 failure(s); first: the WIDGET shows the restored value, not its construction d",
+     "name": "the restore puts the value in the box and never through the widget, so a correct value sits under a wrong-looking dial",
+     "verdict": "killed"
+    },
+    {
+     "detail": "1 failure(s); first: formRestore still restores the input itself when FEK is abs",
+     "name": "the FEK guard becomes an OR, so a page without FEK throws on restore",
+     "verdict": "killed"
+    },
+    {
+     "detail": "1 failure(s); first: A TAB CLOSING MID-DEBOUNCE FLUSHES RATHER THAN LOSING THE L",
+     "name": "nothing flushes when the tab is hidden, so the last edit dies in the debounce",
+     "verdict": "killed"
+    },
+    {
+     "detail": "2 failure(s); first: A RESTORE THE PAGE REFUSED IS NOT ANNOUNCED AS ONE. restore",
+     "name": "a restore the page REFUSED is announced as one anyway",
+     "verdict": "killed"
+    },
+    {
+     "detail": "1 failure(s); first: A RESTORE THAT THREW IS NOT ANNOUNCED AS ONE EITHER. A page",
+     "name": "a restore that THREW is announced as a success",
+     "verdict": "killed"
+    },
+    {
+     "detail": "1 failure(s); first: every page keep_emit.py inlines KEEP into is a page this su",
+     "name": "a page that inlines the autosave layer is dropped from the list the suite reads",
+     "verdict": "killed"
+    },
+    {
+     "detail": "1 failure(s); first: formRestore still restores the input itself when FEK is abs",
+     "name": "formRestore reports nothing restored, so a caller cannot tell a restore from a no-op",
      "verdict": "killed"
     }
    ],
@@ -1939,8 +2267,119 @@
    ],
    "survived": 0
   },
+  "mutate_outbox": {
+   "at": 1789393932,
+   "equivalent": 0,
+   "equivalents": [],
+   "inconclusive": 0,
+   "killed": 20,
+   "mutants": 20,
+   "rows": [
+    {
+     "detail": "2 failure(s); first: and it REFUSES rather than falling back when FEK is not the",
+     "name": "the hash falls back instead of refusing when the kit's checksum is gone",
+     "verdict": "killed"
+    },
+    {
+     "detail": "2 failure(s); first: the page's UTF-8 encoder agrees with Python's on '\ud83d\udcf7 frame' ",
+     "name": "a character outside the basic plane is encoded as two halves",
+     "verdict": "killed"
+    },
+    {
+     "detail": "4 failure(s); first: the page's UTF-8 encoder agrees with Python's on 'Relev\u00e9 \u2014 ",
+     "name": "a three-byte character loses its top bits",
+     "verdict": "killed"
+    },
+    {
+     "detail": "2 failure(s); first: A RECORD ADDED AFTER AN EXPORT MAKES THAT EXPORT STALE, and",
+     "name": "an export never goes stale, so a sheet edited after its export still reads as sent",
+     "verdict": "killed"
+    },
+    {
+     "detail": "3 failure(s); first: copying one export marks THAT ONE and no other. A ledger wi",
+     "name": "staleness is decided on the size of the export rather than its content",
+     "verdict": "killed"
+    },
+    {
+     "detail": "1 failure(s); first: and the AI prompt and the species pack are not among them -",
+     "name": "a copy that carries no records is counted like one that does, so the strip nags about the AI prompt",
+     "verdict": "killed"
+    },
+    {
+     "detail": "1 failure(s); first: a sheet nobody has typed on has nothing to send  << {'empty",
+     "name": "a sheet nobody has typed on reports every export overdue",
+     "verdict": "killed"
+    },
+    {
+     "detail": "1 failure(s); first: A SHEET THE AUTOSAVE BROUGHT BACK IS ENTIRELY OUTSTANDING. ",
+     "name": "THE BASELINE IS READ OFF A RESTORED SHEET, so a morning the autosave brought back reports itself as nothing to send",
+     "verdict": "killed"
+    },
+    {
+     "detail": "3 failure(s); first: AN EXPORT THE LEDGER DOES NOT KNOW IS AN ERROR, NOT A SHRUG",
+     "name": "an export the sheet never declared is quietly filed under the first one",
+     "verdict": "killed"
+    },
+    {
+     "detail": "1 failure(s); first: A STAMP FOR AN EXPORT THE SHEET NO LONGER HAS IS DROPPED, n",
+     "name": "a stamp for an export the sheet no longer has is carried forward",
+     "verdict": "killed"
+    },
+    {
+     "detail": "2 failure(s); first: with a format stamp, so a ledger this page can no longer re",
+     "name": "the ledger is written without a format stamp",
+     "verdict": "killed"
+    },
+    {
+     "detail": "1 failure(s); first: A LEDGER THAT CANNOT BE WRITTEN DOWN SAYS SO. A full quota ",
+     "name": "a ledger that cannot be written down fails quietly",
+     "verdict": "killed"
+    },
+    {
+     "detail": "8 failure(s); first: ordination.html's outbox line is a live region, so ADR-199'",
+     "name": "the strip stops being a live region, so nothing announces an export landing",
+     "verdict": "killed"
+    },
+    {
+     "detail": "8 failure(s); first: ordination.html says what the outbox is NOT -- a ledger, no",
+     "name": "the strip stops saying it is a ledger and not a transport",
+     "verdict": "killed"
+    },
+    {
+     "detail": "1 failure(s); first: and the reason is spelled out rather than left as a count  ",
+     "name": "a stale export is listed without saying since when",
+     "verdict": "killed"
+    },
+    {
+     "detail": "2 failure(s); first: the strip says so in words, in the live region  << Nothing ",
+     "name": "nothing repaints the strip after an edit, so it reports the sheet as it was at load",
+     "verdict": "killed"
+    },
+    {
+     "detail": "2 failure(s); first: A COPY THE BROWSER REFUSED IS NOT A COPY. The mark lives in",
+     "name": "THE MARK IS TAKEN ON THE CLICK RATHER THAN ON THE COPY",
+     "verdict": "killed"
+    },
+    {
+     "detail": "3 failure(s); first: A COPY THE BROWSER REFUSED IS NOT A COPY. The mark lives in",
+     "name": "one page's fallback goes back to ignoring what execCommand returned",
+     "verdict": "killed"
+    },
+    {
+     "detail": "3 failure(s); first: releve.html: every copy this sheet makes names the export i",
+     "name": "a call site stops naming the export it is copying",
+     "verdict": "killed"
+    },
+    {
+     "detail": "1 failure(s); first: and every export releve.html declares can actually be made.",
+     "name": "the sheet declares an export no call site can make",
+     "verdict": "killed"
+    }
+   ],
+   "survived": 0
+  },
   "mutate_outputs": {
-   "at": 1788780056,
+   "at": 1789408588,
    "equivalent": 1,
    "equivalents": [
     {
@@ -1949,11 +2388,11 @@
     }
    ],
    "inconclusive": 0,
-   "killed": 24,
-   "mutants": 24,
+   "killed": 31,
+   "mutants": 31,
    "rows": [
     {
-     "detail": "7 failure(s); first: a verb INSIDE a word is not a verb: 'Preprint checklist' is",
+     "detail": "11 failure(s); first: a verb INSIDE a word is not a verb: 'Preprint checklist' i",
      "name": "every control is a candidate, so a page's whole toolbar is pressed",
      "verdict": "killed"
     },
@@ -1973,6 +2412,41 @@
      "verdict": "killed"
     },
     {
+     "detail": "4 failure(s); first: A PAGE THAT TAKES RECORDS AND HANDS NOTHING OVER FAILS THE ",
+     "name": "a page with no output button is skipped again, so a data trap makes no row at all",
+     "verdict": "killed"
+    },
+    {
+     "detail": "2 failure(s); first: AND IT DOES NOT NAME THE PAGE THAT IS RIGHT TO HAND NOTHING",
+     "name": "a page that hands nothing over is named whatever it takes in, so the rule is noise",
+     "verdict": "killed"
+    },
+    {
+     "detail": "1 failure(s); first: a declared page passes. The exemption is a written judgemen",
+     "name": "a declaration does not exempt the page, so the written judgement counts for nothing",
+     "verdict": "killed"
+    },
+    {
+     "detail": "1 failure(s); first: ...and with one, THE REASON IS WHAT IS STORED, word for wor",
+     "name": "a page declared exempt keeps no reason, so the ledger says what but never why",
+     "verdict": "killed"
+    },
+    {
+     "detail": "1 failure(s); first: declaring a page exempt without a reason is refused",
+     "name": "declaring a page exempt needs no reason at all",
+     "verdict": "killed"
+    },
+    {
+     "detail": "3 failure(s); first: ...and it is IN THE LEDGER at zero outputs, rather than mis",
+     "name": "a page with no outputs gets no ledger row, only a printed line",
+     "verdict": "killed"
+    },
+    {
+     "detail": "1 failure(s); first: what counts as taking something in is read from harness.TYP",
+     "name": "what a page takes in is counted from a list of its own rather than the kit's",
+     "verdict": "killed"
+    },
+    {
      "detail": "7 failure(s); first: 'Forget this device's copy' matches `copy` and is NOT a can",
      "name": "the gateway's own risk rule is not consulted, and Forget is pressed",
      "verdict": "killed"
@@ -1983,12 +2457,12 @@
      "verdict": "killed"
     },
     {
-     "detail": "11 failure(s); first: a control whose NAME says it hands something over is a can",
+     "detail": "16 failure(s); first: a control whose NAME says it hands something over is a can",
      "name": "the entry is never replayed at all",
      "verdict": "killed"
     },
     {
-     "detail": "11 failure(s); first: a control whose NAME says it hands something over is a can",
+     "detail": "16 failure(s); first: a control whose NAME says it hands something over is a can",
      "name": "the states are not walked, so a button behind a tab is never pressed",
      "verdict": "killed"
     },
@@ -2023,7 +2497,7 @@
      "verdict": "killed"
     },
     {
-     "detail": "6 failure(s); first: an output the task presses and then asks about is HELD: {'k",
+     "detail": "11 failure(s); first: an output the task presses and then asks about is HELD: {'",
      "name": "a task that reads nothing still holds everything",
      "verdict": "killed"
     },
@@ -2068,7 +2542,7 @@
      "verdict": "killed"
     },
     {
-     "detail": "2 failure(s); first: a page carrying MORE unread outputs than its ceiling fails,",
+     "detail": "3 failure(s); first: a page carrying MORE unread outputs than its ceiling fails,",
      "name": "the failure is reported and the exit code is not",
      "verdict": "killed"
     }
@@ -2353,12 +2827,12 @@
    "survived": 0
   },
   "mutate_report": {
-   "at": 1789347139,
+   "at": 1789384743,
    "equivalent": 0,
    "equivalents": [],
    "inconclusive": 0,
-   "killed": 145,
-   "mutants": 145,
+   "killed": 149,
+   "mutants": 149,
    "rows": [
     {
      "detail": "9 failure(s); first: a .tile and a .stat .st are both figures: the .l/.v pair is",
@@ -2376,7 +2850,7 @@
      "verdict": "killed"
     },
     {
-     "detail": "4 failure(s); first: the same label twice in one box keeps both: {'collections':",
+     "detail": "1 failure(s); first: the same label twice in one box keeps both: {'collections':",
      "name": "the same label twice in a box keeps one",
      "verdict": "killed"
     },
@@ -2391,7 +2865,7 @@
      "verdict": "killed"
     },
     {
-     "detail": "4 failure(s); first: and a *Board is a box (ADR-171): the pheno tracker's ranked",
+     "detail": "1 failure(s); first: and a *Board is a box (ADR-171): the pheno tracker's ranked",
      "name": "a *Board is not a box",
      "verdict": "killed"
     },
@@ -2401,7 +2875,7 @@
      "verdict": "killed"
     },
     {
-     "detail": "6 failure(s); first: a figure names the element it was read from: the value's ow",
+     "detail": "3 failure(s); first: a figure names the element it was read from: the value's ow",
      "name": "a figure does not say where it was read from",
      "verdict": "killed"
     },
@@ -2421,7 +2895,7 @@
      "verdict": "killed"
     },
     {
-     "detail": "9 failure(s); first: boxes follow the kit's naming -- an*, *Out, *Box, *Stat, *M",
+     "detail": "6 failure(s); first: boxes follow the kit's naming -- an*, *Out, *Box, *Stat, *M",
      "name": "a box behind a closed tab is dropped again",
      "verdict": "killed"
     },
@@ -2476,12 +2950,12 @@
      "verdict": "killed"
     },
     {
-     "detail": "7 failure(s); first: a bare .k beside the .v is the label too (the visualizer's ",
+     "detail": "4 failure(s); first: a bare .k beside the .v is the label too (the visualizer's ",
      "name": "a bare .k label is not a figure",
      "verdict": "killed"
     },
     {
-     "detail": "4 failure(s); first: the page's headings, in order: []",
+     "detail": "1 failure(s); first: the page's headings, in order: []",
      "name": "the headings are not read",
      "verdict": "killed"
     },
@@ -2496,12 +2970,12 @@
      "verdict": "killed"
     },
     {
-     "detail": "5 failure(s); first: a dial option is labelled by its <span>, not by its text ru",
+     "detail": "2 failure(s); first: a dial option is labelled by its <span>, not by its text ru",
      "name": "a dial option is labelled by its whole text",
      "verdict": "killed"
     },
     {
-     "detail": "4 failure(s); first: a behaviour key is labelled by its .nm child: ['forageF']",
+     "detail": "1 failure(s); first: a behaviour key is labelled by its .nm child: ['forageF']",
      "name": "a behaviour key is labelled by its whole text",
      "verdict": "killed"
     },
@@ -2516,7 +2990,7 @@
      "verdict": "killed"
     },
     {
-     "detail": "1 failure(s); first: and they are the REAL dice, not the seeded generator runnin",
+     "detail": "3 failure(s); first: and they are the REAL dice, not the seeded generator runnin",
      "name": "the shim changes behaviour before anyone asks",
      "verdict": "killed"
     },
@@ -2601,7 +3075,7 @@
      "verdict": "killed"
     },
     {
-     "detail": "6 failure(s); first: ...and every mark centre is there whether or not anything l",
+     "detail": "3 failure(s); first: ...and every mark centre is there whether or not anything l",
      "name": "a mark's centre is not recorded unless a text named it",
      "verdict": "killed"
     },
@@ -2626,12 +3100,12 @@
      "verdict": "killed"
     },
     {
-     "detail": "5 failure(s); first: each path's box -- the smallest [x0, y0, x1, y1] holding ev",
+     "detail": "2 failure(s); first: each path's box -- the smallest [x0, y0, x1, y1] holding ev",
      "name": "a relative command is read as absolute",
      "verdict": "killed"
     },
     {
-     "detail": "6 failure(s); first: each path's box -- the smallest [x0, y0, x1, y1] holding ev",
+     "detail": "3 failure(s); first: each path's box -- the smallest [x0, y0, x1, y1] holding ev",
      "name": "H is not followed, so a bar has no width and a step line no run",
      "verdict": "killed"
     },
@@ -2641,7 +3115,7 @@
      "verdict": "killed"
     },
     {
-     "detail": "4 failure(s); first: an unplaced mark (a hover dot with no cx yet) is nowhere, n",
+     "detail": "1 failure(s); first: an unplaced mark (a hover dot with no cx yet) is nowhere, n",
      "name": "an unplaced mark is placed at nothing",
      "verdict": "killed"
     },
@@ -2651,7 +3125,7 @@
      "verdict": "killed"
     },
     {
-     "detail": "5 failure(s); first: read-control answers with the page's own names for the cont",
+     "detail": "2 failure(s); first: read-control answers with the page's own names for the cont",
      "name": "read-control answers about a selector and nothing else, the way it did until ADR-141",
      "verdict": "killed"
     },
@@ -2666,7 +3140,7 @@
      "verdict": "killed"
     },
     {
-     "detail": "4 failure(s); first: ...and refused at once rather than waited on: a pointer wou",
+     "detail": "1 failure(s); first: ...and refused at once rather than waited on: a pointer wou",
      "name": "type-text clicks the control instead of focusing it",
      "verdict": "killed"
     },
@@ -2676,7 +3150,7 @@
      "verdict": "killed"
     },
     {
-     "detail": "4 failure(s); first: type-text into a control that cannot take focus was accepte",
+     "detail": "1 failure(s); first: type-text into a control that cannot take focus was accepte",
      "name": "a control that cannot take focus is waited on rather than refused",
      "verdict": "killed"
     },
@@ -2686,12 +3160,12 @@
      "verdict": "killed"
     },
     {
-     "detail": "4 failure(s); first: type-text into a button was accepted",
+     "detail": "1 failure(s); first: type-text into a button was accepted",
      "name": "type-text accepts a control that is not a text control",
      "verdict": "killed"
     },
     {
-     "detail": "4 failure(s); first: ...so the NEXT pick still works: a control does not stop be",
+     "detail": "1 failure(s); first: ...so the NEXT pick still works: a control does not stop be",
      "name": "a picker that currently shows no option is not a picker",
      "verdict": "killed"
     },
@@ -2706,7 +3180,7 @@
      "verdict": "killed"
     },
     {
-     "detail": "2 failure(s); first: the capture is on the page after a reload as well: a sessio",
+     "detail": "3 failure(s); first: the capture is on the page after a reload as well: a sessio",
      "name": "the capture is only evaluated, so a reload loses it",
      "verdict": "killed"
     },
@@ -2716,7 +3190,7 @@
      "verdict": "killed"
     },
     {
-     "detail": "6 failure(s); first: a second plugin over the same page does not install the cap",
+     "detail": "3 failure(s); first: a second plugin over the same page does not install the cap",
      "name": "the capture installs again over itself, doubling every count",
      "verdict": "killed"
     },
@@ -2736,32 +3210,32 @@
      "verdict": "killed"
     },
     {
-     "detail": "4 failure(s); first: collection-sheet.html: every one of its 307 controls publis",
+     "detail": "4 failure(s); first: collection-sheet.html: every one of its 309 controls publis",
      "name": "a published address is not checked against the resolver that has to accept it",
      "verdict": "killed"
     },
     {
-     "detail": "4 failure(s); first: and a control the page gives no name at all publishes its I",
+     "detail": "1 failure(s); first: and a control the page gives no name at all publishes its I",
      "name": "the address falls back to nothing when no name fits",
      "verdict": "killed"
     },
     {
-     "detail": "4 failure(s); first: a name that is one control's id and another's label is the ",
+     "detail": "1 failure(s); first: a name that is one control's id and another's label is the ",
      "name": "a name is looked up by label before id",
      "verdict": "killed"
     },
     {
-     "detail": "5 failure(s); first: collection-sheet.html: the door resolves all 870 of its nam",
+     "detail": "5 failure(s); first: collection-sheet.html: the door resolves all 876 of its nam",
      "name": "a trailing #n is part of the name",
      "verdict": "killed"
     },
     {
-     "detail": "6 failure(s); first: collection-sheet.html: the door resolves all 870 of its nam",
+     "detail": "3 failure(s); first: collection-sheet.html: the door resolves all 876 of its nam",
      "name": "a scoped name splits on the LAST slash",
      "verdict": "killed"
     },
     {
-     "detail": "1 failure(s); first: and the version IS that digest, port for port: v374djl vs v",
+     "detail": "1 failure(s); first: and the version IS that digest, port for port: v374djr vs v",
      "name": "the version ignores the ids and watches only the count",
      "verdict": "killed"
     },
@@ -2771,7 +3245,7 @@
      "verdict": "killed"
     },
     {
-     "detail": "6 failure(s); first: collection-sheet.html: a selector stamped with the snapshot",
+     "detail": "3 failure(s); first: collection-sheet.html: a selector stamped with the snapshot",
      "name": "the stale refusal does not say what is at that index now",
      "verdict": "killed"
     },
@@ -2781,7 +3255,7 @@
      "verdict": "killed"
     },
     {
-     "detail": "6 failure(s); first: a NAME that names nothing is refused as not-found and is no",
+     "detail": "3 failure(s); first: a NAME that names nothing is refused as not-found and is no",
      "name": "an address is resolved for the act but not for the risk read",
      "verdict": "killed"
     },
@@ -2791,7 +3265,7 @@
      "verdict": "killed"
     },
     {
-     "detail": "4 failure(s); first: the pools publish an address for every control they publish",
+     "detail": "1 failure(s); first: the pools publish an address for every control they publish",
      "name": "the pools publish the selectors and not the addresses",
      "verdict": "killed"
     },
@@ -2801,7 +3275,7 @@
      "verdict": "killed"
     },
     {
-     "detail": "4 failure(s); first: the door answers to the runner's own spelling, '@control:<n",
+     "detail": "1 failure(s); first: the door answers to the runner's own spelling, '@control:<n",
      "name": "the runner's own spelling is taken as a label",
      "verdict": "killed"
     },
@@ -2811,7 +3285,7 @@
      "verdict": "killed"
     },
     {
-     "detail": "3 failure(s); first: and an act can be the first thing a session does -- no lead",
+     "detail": "5 failure(s); first: and an act can be the first thing a session does -- no lead",
      "name": "an act does not settle the page it is about to touch",
      "verdict": "killed"
     },
@@ -2821,7 +3295,7 @@
      "verdict": "killed"
     },
     {
-     "detail": "4 failure(s); first: a control the page adds AFTER it finishes loading is there ",
+     "detail": "1 failure(s); first: a control the page adds AFTER it finishes loading is there ",
      "name": "the settle takes the first reading it gets",
      "verdict": "killed"
     },
@@ -2841,17 +3315,17 @@
      "verdict": "killed"
     },
     {
-     "detail": "4 failure(s); first: and a list longer than the cap publishes the cap and SAYS h",
+     "detail": "1 failure(s); first: and a list longer than the cap publishes the cap and SAYS h",
      "name": "the snapshot does not say how many there were",
      "verdict": "killed"
     },
     {
-     "detail": "5 failure(s); first: every control read one at a time answers with the same addr",
+     "detail": "2 failure(s); first: every control read one at a time answers with the same addr",
      "name": "read-control answers about a selector and nothing else again",
      "verdict": "killed"
     },
     {
-     "detail": "5 failure(s); first: every box is published split as well as whole, and the two ",
+     "detail": "2 failure(s); first: every box is published split as well as whole, and the two ",
      "name": "a box is published whole and not split",
      "verdict": "killed"
     },
@@ -2861,12 +3335,12 @@
      "verdict": "killed"
     },
     {
-     "detail": "4 failure(s); first: ...and every line of every box is that box's own text, trim",
+     "detail": "1 failure(s); first: ...and every line of every box is that box's own text, trim",
      "name": "a line cut at the cap keeps the space the cut landed on",
      "verdict": "killed"
     },
     {
-     "detail": "6 failure(s); first: the page's own prose about itself is handed over, each piec",
+     "detail": "3 failure(s); first: the page's own prose about itself is handed over, each piec",
      "name": "the page's prose about itself is not handed over",
      "verdict": "killed"
     },
@@ -2911,7 +3385,7 @@
      "verdict": "killed"
     },
     {
-     "detail": "4 failure(s); first: a page nobody has touched answers `nothing changed` in a li",
+     "detail": "1 failure(s); first: a report carries a stamp beside everything it always carrie",
      "name": "a report goes out without a stamp, so there is nothing to ask with",
      "verdict": "killed"
     },
@@ -2921,17 +3395,17 @@
      "verdict": "killed"
     },
     {
-     "detail": "5 failure(s); first: a page nobody has touched answers `nothing changed` in a li",
+     "detail": "4 failure(s); first: a page nobody has touched answers `nothing changed` in a li",
      "name": "a report whose stamp did not move is sent anyway, as an empty diff",
      "verdict": "killed"
     },
     {
-     "detail": "4 failure(s); first: a page nobody has touched answers `nothing changed` in a li",
+     "detail": "3 failure(s); first: a page nobody has touched answers `nothing changed` in a li",
      "name": "the baseline is the FIRST report served rather than the last",
      "verdict": "killed"
     },
     {
-     "detail": "5 failure(s); first: a page nobody has touched answers `nothing changed` in a li",
+     "detail": "2 failure(s); first: a stamp this session did not issue gets the WHOLE report an",
      "name": "a stamp this session never issued is diffed against whatever is nearest",
      "verdict": "killed"
     },
@@ -2941,12 +3415,12 @@
      "verdict": "killed"
     },
     {
-     "detail": "4 failure(s); first: a page nobody has touched answers `nothing changed` in a li",
+     "detail": "1 failure(s); first: a table's rows are NOT keyed: a row of cells has no identit",
      "name": "a table's rows are keyed, so row three is taken for row three",
      "verdict": "killed"
     },
     {
-     "detail": "4 failure(s); first: a page nobody has touched answers `nothing changed` in a li",
+     "detail": "1 failure(s); first: and the report uses the contract's OWN stamp and diff -- tw",
      "name": "the report gets a digest of its own instead of the contract's stamp",
      "verdict": "killed"
     },
@@ -2956,7 +3430,7 @@
      "verdict": "killed"
     },
     {
-     "detail": "4 failure(s); first: a page nobody has touched answers `nothing changed` in a li",
+     "detail": "1 failure(s); first: A CROP'S BREEDING CLASS IS NOT THE PROVENANCE OF ITS MINIMU",
      "name": "the breeding class is the minimum's provenance again",
      "verdict": "killed"
     },
@@ -2981,7 +3455,7 @@
      "verdict": "killed"
     },
     {
-     "detail": "10 failure(s); first: a page nobody has touched answers `nothing changed` in a l",
+     "detail": "7 failure(s); first: A CIRCLE'S AREA IS WHAT ITS RADIUS ENCLOSES, not the round ",
      "name": "a circle's area is rounded to the metre again",
      "verdict": "killed"
     },
@@ -2996,7 +3470,7 @@
      "verdict": "killed"
     },
     {
-     "detail": "4 failure(s); first: a page nobody has touched answers `nothing changed` in a li",
+     "detail": "1 failure(s); first: A DEPOSIT'S sampleSizeValue IS THE AREA SAMPLED, and it car",
      "name": "the deposit's sample size is the plot's nickname again",
      "verdict": "killed"
     },
@@ -3016,7 +3490,7 @@
      "verdict": "killed"
     },
     {
-     "detail": "4 failure(s); first: a page nobody has touched answers `nothing changed` in a li",
+     "detail": "3 failure(s); first: a page nobody has touched answers `nothing changed` in a li",
      "name": "the top height loses the sample it was computed from",
      "verdict": "killed"
     },
@@ -3031,12 +3505,12 @@
      "verdict": "killed"
     },
     {
-     "detail": "11 failure(s); first: AN EXPORT THAT EXPORTED NOTHING SAYS SO IN ITS OWN ANSWER.",
+     "detail": "13 failure(s); first: AN EXPORT THAT EXPORTED NOTHING SAYS SO IN ITS OWN ANSWER.",
      "name": "the door stops listening to live regions",
      "verdict": "killed"
     },
     {
-     "detail": "4 failure(s); first: AN EXPORT THAT EXPORTED NOTHING SAYS SO IN ITS OWN ANSWER. ",
+     "detail": "3 failure(s); first: and an act that WORKED is answered in the same channel, so ",
      "name": "the door hears any div, declared or not",
      "verdict": "killed"
     },
@@ -3046,17 +3520,17 @@
      "verdict": "killed"
     },
     {
-     "detail": "8 failure(s); first: a page nobody has touched answers `nothing changed` in a li",
+     "detail": "5 failure(s); first: and a refusal is the page's answer to the act, carried with",
      "name": "what the page said is peeked at rather than taken",
      "verdict": "killed"
     },
     {
-     "detail": "5 failure(s); first: a page nobody has touched answers `nothing changed` in a li",
+     "detail": "2 failure(s); first: and the SECOND export, with the first still uncollected, is",
      "name": "payloads are counted from zero rather than from before the act",
      "verdict": "killed"
     },
     {
-     "detail": "4 failure(s); first: a page nobody has touched answers `nothing changed` in a li",
+     "detail": "1 failure(s); first: A REFUSAL NOBODY HEARS IS NOT A REFUSAL. Twenty of this kit",
      "name": "a page's message goes back to being a plain div",
      "verdict": "killed"
     },
@@ -3066,12 +3540,12 @@
      "verdict": "killed"
     },
     {
-     "detail": "5 failure(s); first: a page nobody has touched answers `nothing changed` in a li",
+     "detail": "2 failure(s); first: A PAGE THAT ANSWERS IN A PARAGRAPH IS STILL ANSWERING. The ",
      "name": "a status line goes back to a paragraph nobody hears",
      "verdict": "killed"
     },
     {
-     "detail": "5 failure(s); first: a page nobody has touched answers `nothing changed` in a li",
+     "detail": "2 failure(s); first: A PAGE THAT ANSWERS IN A PARAGRAPH IS STILL ANSWERING. The ",
      "name": "the other status line on the same page is left mute",
      "verdict": "killed"
     },
@@ -3081,8 +3555,28 @@
      "verdict": "killed"
     },
     {
-     "detail": "5 failure(s); first: a page nobody has touched answers `nothing changed` in a li",
+     "detail": "2 failure(s); first: A PAGE THAT ANSWERS IN A PARAGRAPH IS STILL ANSWERING. The ",
      "name": "the page outside the toast family is left undeclared",
+     "verdict": "killed"
+    },
+    {
+     "detail": "1 failure(s); first: THE REFERENCE IS IN THE EXPORT WHETHER THE SHEET IS EMPTY O",
+     "name": "a page's photographs reach the empty sheet's export but not the full one",
+     "verdict": "killed"
+    },
+    {
+     "detail": "1 failure(s); first: AND THE EXPORT CARRIES THE REFERENCE -- the filename AND th",
+     "name": "the export carries the frame's name and drops its checksum",
+     "verdict": "killed"
+    },
+    {
+     "detail": "1 failure(s); first: EVERY RECORD-PRODUCING PAGE TAKES A PHOTOGRAPH, and says so",
+     "name": "a page's drop zone loses the id that is its address",
+     "verdict": "killed"
+    },
+    {
+     "detail": "1 failure(s); first: EVERY CARD BELONGS TO A PANE. A card placed between two pan",
+     "name": "a card is moved out from between the panes it belongs to",
      "verdict": "killed"
     }
    ],

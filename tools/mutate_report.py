@@ -753,6 +753,25 @@ MUTANTS += [
      '<span class="msg" id="msg" role="status" aria-live="polite"></span>',
      '<span class="msg" id="msg"></span>',
      "AND A PAGE THIS KIT'S TOAST CONVENTION NEVER TOUCHED"),
+
+    # ---- ADR-201: every record carries its photographs ----------------------
+    ("a page's photographs reach the empty sheet's export but not the full one",
+     '    var _shots = (typeof PHOTOS === "undefined") ? [] : PHOTOS.get();\n    if(_shots.length){',
+     '    var _shots = [];\n    if(_shots.length){',
+     "WHETHER THE SHEET IS EMPTY OR FULL"),
+    ("the export carries the frame's name and drops its checksum",
+     '          L.push("  " + ph.name + "   crc32 " + ph.crc',
+     '          L.push("  " + ph.name + "   "',
+     "AND THE EXPORT CARRIES THE REFERENCE"),
+    ("a page's drop zone loses the id that is its address",
+     'var PHOTOS = FEK.photos({ dropId:"cPhotos", label:"Photographs",',
+     'var PHOTOS = FEK.photos({ label:"Photographs",',
+     "EVERY RECORD-PRODUCING PAGE TAKES A PHOTOGRAPH"),
+    ("a card is moved out from between the panes it belongs to",
+     '    <div class="card"><h3 style="margin-top:0">Labels</h3><div id="vList"></div></div>',
+     '  </section>\n  <div class="card"><h3 style="margin-top:0">Labels</h3><div id="vList"></div></div>\n'
+     '  <section class="pane" id="p-stray">',
+     "EVERY CARD BELONGS TO A PANE"),
 ]
 
 

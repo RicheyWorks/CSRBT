@@ -113,13 +113,20 @@ DRIVER = {
 # registers its drop listener.
 SWARM_KINDS = [k for k in H.KINDS if k[0] not in ("text_in", "file_in",
                                                   "action_btn", "link", "nav_link", "slider")]
+# ADR-201: `checkbox` and `drop_zone` USED TO BE ADDED HERE, and that was the
+# whole defect -- they lived in this file, which only the swarm reads, while
+# `drop-files` and `set-checkbox` pooled them and the door's own refusal
+# advertised `@kind=drop_zone`. Every other reader of a snapshot, every task and
+# every operator, was offered an address nothing answered to. They are in
+# H.KINDS now, so the filter above carries them through and re-adding them here
+# would put each in the list twice -- which is not harmless: a kind listed twice
+# discovers its elements twice, the selectors renumber, and a diff reports
+# controls appearing that nobody added.
 SWARM_KINDS += [
-    ("checkbox",  'input[type=checkbox], input[type=radio]'),
     # ADR-129: every range input, not only the FEK slider -- the lab's three
     # terrarium sliders had never been discovered, so the harness could not
     # move the one experiment on the page
     ("slider",    'input[type=range]'),
-    ("drop_zone", '[data-h-drop]'),
     ("text_in",   'input[type=text], input[type=number], input[type=date], '
                   'input[type=time], input[type=datetime-local], input[type=month], '
                   'input[type=week], input[type=email], input[type=url], '

@@ -1308,6 +1308,31 @@ with sync_playwright() as pw:
              if c["kind"] == "text_in" and c.get("commandable") and c.get("visible")][0]
     MIXED = "ZqxMiXeD191"
     plug.execute("set-text", {"selector": typed["address"] or typed["selector"], "value": MIXED})
+    # SETTLE BEFORE TAKING THE BASELINE.
+    #
+    # "A page nobody has touched" has to mean "and nothing it started is still
+    # in flight". This page autosaves on a debounce, and the widget that
+    # appears when a saved copy exists -- "Forget this device's copy" -- was
+    # arriving AFTER the baseline snapshot and before the `since` read, so the
+    # diff was right and the check was wrong: the page had changed, because the
+    # suite's own edit had asked it to, a second earlier. It passed or failed
+    # on how loaded the machine was, which is not a property of the door.
+    #
+    # Two consecutive stamps that agree is the settle: the stamp is exactly
+    # "has this snapshot moved", so asking it twice is asking the page whether
+    # it is done. Bounded, and the bound failing is a finding rather than a
+    # hang.
+    _prev, _settled = None, False
+    for _i in range(30):
+        _st = g.observe(TK, PID).get("stamp")
+        if _st and _st == _prev:
+            _settled = True
+            break
+        _prev = _st
+        pg.wait_for_timeout(120)
+    ck(_settled,
+       "a page settles: two observations in a row agree on the stamp within 3.6 s of an edit, so "
+       "what follows is about the door and not about what the page was still finishing")
     snap = g.observe(TK, PID)
     nsnap = len(json.dumps(snap))
     mine = [c for c in snap["controls"]
@@ -1349,24 +1374,41 @@ with sync_playwright() as pw:
        "read-control: %d carried a value"
        % len([c for c in shy["controls"] if c.get("value") is not None]))
 
-    quiet = g.observe(TK, PID, since=snap["stamp"])
-    ck(quiet.get("changed") is False and len(json.dumps(quiet)) * 100 < nsnap,
+    # THE BASELINE IS TAKEN AFTER THE TOUCHING STOPS.
+    #
+    # "A page nobody has touched" was being asked with a stamp captured before
+    # the read-only experiment above -- which reclassifies a control, renumbers
+    # every text control after it, and does it twice. The page HAD changed
+    # between those two stamps, because this suite changed it; the diff was
+    # right and the question was asked from the wrong place. Re-baselined here,
+    # after the last thing that touches the page, so the claim is about the
+    # door rather than about what the suite did to get to this line.
+    base = g.observe(TK, PID)
+    nbase = len(json.dumps(base))
+    quiet = g.observe(TK, PID, since=base["stamp"])
+    ck(quiet.get("changed") is False and len(json.dumps(quiet)) * 100 < nbase,
        "a page nobody has touched answers `nothing changed` in a line: %d bytes against a "
-       "%d-byte snapshot" % (len(json.dumps(quiet)), nsnap))
+       "%d-byte snapshot" % (len(json.dumps(quiet)), nbase))
 
     # a pick filters the picker: options leave the document, one becomes selected
-    pool = snap["argumentPools"]["pick"]
+    #
+    # AGAINST THE SNAPSHOT THE CLIENT WAS LAST SERVED, which after the line
+    # above is the `quiet` read and not the one this section opened with. The
+    # claim is that a diff is "since you last looked", so the stamp it is held
+    # to has to be the last one the session actually got.
+    last = quiet.get("stamp") or base["stamp"]
+    pool = base["argumentPools"]["pick"]
     chosen = pool[0]
     r = g.execute(TK, PID, {"request_id": "i-1", "action": "pick", "arguments": chosen})
     d = r["diff"]
     nd = len(json.dumps(d))
-    ck(r["ok"] and d["changed"] is True and d["since"] == snap["stamp"],
+    ck(r["ok"] and d["changed"] is True and d["since"] == last,
        "and an act answers with what it did, against the snapshot the client planned it "
        "from: %s" % {k: d.get(k) for k in ("since", "changed")})
-    ck(nd * 10 < nsnap,
+    ck(nd * 10 < nbase,
        "THE MEASURE: what a client must read to learn what its own call did, %d bytes "
        "against the %d-byte snapshot every ADR-187 operator re-read after every act"
-       % (nd, nsnap))
+       % (nd, nbase))
     ck(d["fields"].get("version") and d["fields"]["version"][0] != d["fields"]["version"][1],
        "the numbering moved, and the diff says so in one line rather than leaving a client "
        "to compare two snapshots for it: %s" % d["fields"].get("version"))
@@ -1553,6 +1595,21 @@ with sync_playwright() as pw:
 # the screen it was taken from. Three trials found the same two, independently,
 # and all three filed them. This is those closed, each against a number this
 # suite computes itself rather than one read off the page.
+
+def _shoot(br, name, sens=True):
+    """_page, but with the capture installed BEFORE the page's own scripts run.
+
+    A drop listener leaves no mark a selector can find, so the capture stamps
+    `data-h-drop` as the listener is registered -- which means it has to be in
+    place first. `_page` builds the plugin after goto, the way a test helper
+    naturally does, and the gateway does not: it opens the page THROUGH the
+    plugin. One reload puts this helper in the gateway's order rather than
+    changing the order for every other section in this file."""
+    ctx, p = _page(br, name, sens)
+    p.page.reload(wait_until="domcontentloaded")
+    p.observe(sensitive=sens)
+    return ctx, p
+
 
 def _page(br, name, sens=True):
     ctx = br.new_context(viewport=H.VIEWPORT)
@@ -1982,6 +2039,123 @@ with sync_playwright() as pw:
        "AND A PAGE THIS KIT'S TOAST CONVENTION NEVER TOUCHED. tree-visualizer answers in a <span> written "
        "by a three-line arrow function; the door hears it because the page declares it, which is the whole "
        "argument for reading the standard rather than the class name: %r" % (_said,))
+    ctx.close()
+
+    # -- O. every record carries its photographs (ADR-201) -------------------
+    #
+    # One page in this kit took a photograph and twenty did not, on a kit that
+    # emits Darwin Core with `associatedMedia` empty everywhere -- the term was
+    # not even in the column list. A field record whose voucher is a sentence
+    # is a weaker record than one that names the frame, and the frame is the
+    # part a determiner asks for first.
+    #
+    # THE RECORD CARRIES THE REFERENCE, NOT THE IMAGE: a CSV cell cannot hold a
+    # JPEG, a base64 photograph turns a 40 kB export into a 4 MB one, and
+    # Darwin Core asks associatedMedia for an IDENTIFIER of the media. So the
+    # property checked here is that the page's own export, whatever shape it
+    # takes, carries the filename AND the checksum -- the two together being
+    # what puts a row and a frame back in the same hand six months later.
+    #
+    # The map is pinned because "is this page a record" is a judgement. A
+    # calculator that produces no record needs no photograph, and a list that
+    # pretended otherwise would be this file deciding what the kit is for.
+    SHOOTS = {"collection-sheet.html": "cPhotos", "releve.html": "rPhotos",
+              "deployment-log.html": "dPhotos", "field-notebook.html": "fnPhotos",
+              "pheno-tracker.html": "ptPhotos", "farm-scout.html": "fsPhotos",
+              "selection-log.html": "slPhotos", "ethogram.html": "etPhotos",
+              "survey-design.html": "sdPhotos"}
+    _mute, _noref, _quiet2 = [], [], []
+    for _pg, _zid in sorted(SHOOTS.items()):
+        ctx, sp = _shoot(b, _pg)
+        try:
+            _o, _m, r = sp.execute("drop-files", {"selector": "#" + _zid, "files": ["image"]})
+            said = r.get("said") or []
+            if not any("photograph" in t for t in said):
+                _mute.append((_pg, said))
+            sp.page.wait_for_timeout(350)
+            txt = sp.page.evaluate(
+                "() => { var e = document.getElementById('ecoOut'); return e ? e.textContent : ''; }")
+            if "IMG_0431.jpg" not in txt or "b6a1c04f" not in txt:
+                _noref.append((_pg, txt[:60]))
+            _o, _m, r2 = sp.execute("drop-files", {"selector": "#" + _zid, "files": ["eco"]})
+            if not any("not an image" in t for t in (r2.get("said") or [])):
+                _quiet2.append((_pg, r2.get("said")))
+        except Exception as _e:
+            _mute.append((_pg, str(_e)[:70]))
+        ctx.close()
+    ck(not _mute,
+       "EVERY RECORD-PRODUCING PAGE TAKES A PHOTOGRAPH, and says so when it does. One page in this "
+       "kit did and twenty did not, which is why associatedMedia was empty everywhere: %s" % _mute[:3])
+    ck(not _noref,
+       "AND THE EXPORT CARRIES THE REFERENCE -- the filename AND the checksum, which together are "
+       "what puts a row and a frame back in the same hand six months later. Not the image: a CSV "
+       "cell cannot hold a JPEG and base64 would turn a 40 kB export into a 4 MB one: %s" % _noref[:3])
+    ck(not _quiet2,
+       "and a file that is not an image is refused OUT LOUD, naming it. A reader who dropped six and "
+       "got four has to be able to find out which two -- a silent drop is the fault ADR-199 and "
+       "ADR-200 spent two slices on: %s" % _quiet2[:3])
+
+    # A SHEET WITH A RECORD ON IT, not only an empty one. The loop above drops a
+    # frame on a fresh page, and a fresh page takes the "nothing recorded yet"
+    # branch of its own export -- so a sheet that carried the reference when it
+    # was empty and dropped it once anything was typed would pass every check
+    # above. A mutant found exactly that: the reference was written twice, in
+    # the empty branch and the full one, and breaking the full one changed
+    # nothing any check could see.
+    ctx, cs = _shoot(b, "collection-sheet.html")
+    cs.execute("set-text", {"selector": "#cName", "value": "Amanita muscaria"})
+    cs.execute("activate", {"selector": "#cAdd"})
+    cs.execute("drop-files", {"selector": "#cPhotos", "files": ["image"]})
+    cs.page.wait_for_timeout(350)
+    _full = cs.page.evaluate(
+        "() => { var e = document.getElementById('ecoOut'); return e ? e.textContent : ''; }")
+    ck("Amanita muscaria" in _full and "IMG_0431.jpg" in _full and "b6a1c04f" in _full,
+       "THE REFERENCE IS IN THE EXPORT WHETHER THE SHEET IS EMPTY OR FULL. A sheet writes its "
+       "photographs from more than one branch -- the one a reader sees before they have typed "
+       "anything, and the one they see after -- and a check that only ever looked at an empty "
+       "sheet would hold half of it: %r" % (_full[:90],))
+    ctx.close()
+
+    # A CARD BETWEEN PANES IS ON EVERY TAB (ADR-201).
+    #
+    # Four of this slice's nine cards were inserted immediately BEFORE a
+    # `<section class="pane">` rather than inside one, which puts them outside
+    # every pane -- so they rendered on all five tabs at once, under whatever
+    # heading happened to be above them. Nothing in this kit noticed. The
+    # pane invariants it does carry are about which pane is SHOWING; none of
+    # them asked whether a card belongs to a pane at all, and a page whose
+    # tabs all show the same extra card is a page whose tabs mean less.
+    #
+    # Read off the rendered document rather than the source, because what
+    # matters is where the element ENDS UP: a card the page builds at runtime
+    # and appends to the wrong host has the same fault and no source scan
+    # would see it.
+    _stray = []
+    for _pg in sorted(SHOOTS) + ["stand-sheet.html", "greenhouse.html"]:
+        ctx, sp = _page(b, _pg)
+        _out = sp.page.evaluate("""() => {
+          if (!document.querySelectorAll('section.pane').length) return [];
+          var out = [], cards = document.querySelectorAll('.card'), i, c, h;
+          for (i = 0; i < cards.length; i++) {
+            c = cards[i];
+            if (c.closest('section.pane')) continue;
+            h = c.querySelector('h2,h3');
+            out.push(c.id || (h ? h.textContent.slice(0, 40) : '(unnamed card)'));
+          }
+          return out; }""")
+        if _out:
+            _stray.append((_pg, _out[:3]))
+        ctx.close()
+    ck(not _stray,
+       "EVERY CARD BELONGS TO A PANE. A card placed between two panes is outside both and shows on "
+       "every tab at once -- four of this slice's nine were, and the kit's pane invariants are all "
+       "about which pane is SHOWING rather than whether a card is in one: %s" % _stray[:3])
+
+    # The Darwin Core column itself is verify_dwc's: that suite already builds
+    # a real collection -- a vouchered one and an unvouchered one, with a site,
+    # coordinates and an institution -- and the claim is about the deposit a
+    # repository receives rather than about the door. Asserting it here as well
+    # would be two suites owning one fact, which is how they drift apart.
     ctx.close()
     b.close()
 
