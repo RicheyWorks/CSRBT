@@ -80,6 +80,20 @@ LEDGER = os.path.join(HERE, "outputs_ledger.json")
 # this kit names buttons after.
 HANDS_OVER = re.compile(r"\b(copy|download|export|print|save)\b|\.csv\b|\.eco\b", re.I)
 
+# HOW MANY ENTRY CONTROLS MAKE A PAGE ONE THAT MUST HAND SOMETHING OVER.
+#
+# Four, because that is above a lone search box or a units toggle on a
+# reference page and far below the nineteen and twenty-nine the two benches
+# this rule was written for accept. The bar is a judgement and is written down
+# rather than tuned: a page above it either hands something over or says in the
+# ledger why it does not.
+TRAP_ENTRY = 4
+
+# What counts as taking something in. The kit already has this list: the kinds
+# a value can be put into. A search box is deliberately here too -- it is one
+# control, and one control is under the bar.
+ENTRY_KINDS = frozenset(H.TYPED) | frozenset(["slider", "checkbox", "select"])
+
 
 def docs_dir():
     return os.environ.get("CSRBT_DOCS_DIR") or os.path.join(ROOT, "docs")
@@ -224,7 +238,23 @@ def measure(pg, name, tasks_dir=None, budget=24):
         rec["pressed"] = k in pressed or rec["id"] in pressed or (rec["label"] or "") in pressed
         rec["held"] = (rec["verdict"] == "emits"
                        and (k in read or rec["id"] in read or (rec["label"] or "") in read))
+    # HOW MUCH THIS PAGE TAKES IN, so that handing nothing over can be judged
+    # rather than skipped (ADR-205). A reference page with a search box and a
+    # bench that accepts twenty-nine typed values are both "pages with no
+    # export"; only one of them is a data trap, and the difference is what
+    # goes in.
+    try:
+        snap = plug.observe(sensitive=True)
+        # The kit's own list of kinds that CARRY A VALUE (harness.TYPED), plus
+        # the composed FEK controls that write through to one. Read from
+        # harness.py rather than restated here, so a kind added tomorrow counts
+        # tomorrow -- the ADR-141 rule this slice is an instance of.
+        entry = len([c for c in snap.get("controls", [])
+                     if c.get("kind") in ENTRY_KINDS])
+    except Exception:
+        entry = 0
     return {"task": (ent or {}).get("task") or (task or {}).get("id"),
+            "entry": entry,
             "buttons": [seen[k] for k in sorted(seen)]}
 
 
@@ -274,6 +304,9 @@ def main(argv):
     ap.add_argument("--raise-floors", action="store_true",
                     help="record today's reading as the ceiling wherever it is LOWER (this "
                          "ratchet runs downward)")
+    ap.add_argument("--declare-page", metavar="PAGE",
+                    help="declare a page that hands nothing over exempt, with a reason "
+                         "(needs --reason)")
     ap.add_argument("--declare", metavar="PAGE:KEY",
                     help="declare one output exempt, with a reason (needs --reason)")
     ap.add_argument("--reason", default="", help="why an output is exempt")
@@ -282,6 +315,16 @@ def main(argv):
     a = ap.parse_args(argv)
     state = load()
     ledger = state.setdefault("pages", {})
+
+    if a.declare_page:
+        if not a.reason.strip():
+            print("declaring a page exempt needs --reason: a list of pages this audit is choosing\n"
+                  "not to care about is only useful if each line says why")
+            return 2
+        ledger.setdefault(a.declare_page, {})["no_outputs"] = a.reason.strip()
+        save(state)
+        print("%s: handing nothing over declared exempt" % a.declare_page)
+        return 0
 
     if a.declare:
         if ":" not in a.declare:
@@ -307,13 +350,43 @@ def main(argv):
              "what the page hands over that no task reads"))
     print("-" * 116)
     tot = dict(blind=0, emits=0, held=0, silent=0)
-    above = []
+    above, traps = [], []
     for name in sorted(got):
         r = got[name]
         if r.get("error"):
             print("%-30s %6s %6s %6s %6s   %s" % (name, "-", "-", "-", "-", r["error"]))
             continue
         if not r.get("buttons"):
+            # A PAGE WITH NO OUTPUT BUTTON USED TO BE SKIPPED ENTIRELY (ADR-205).
+            #
+            # That is the one shape this audit exists to catch and the one shape
+            # it could not see: it enumerates the buttons that hand something
+            # over, so a page with none produced an empty list, no row and no
+            # ledger entry -- and "0 held of 0" never appeared, because nothing
+            # appeared. Two benches accepted twenty-nine and nineteen typed
+            # values apiece and offered no way to get any of it out, for months,
+            # under an audit built to ask exactly that question.
+            #
+            # THE ABSENCE OF A ROW IS THE LOUDEST THING A LEDGER CAN SAY, so it
+            # is a row now. A page that takes nothing in is right to hand
+            # nothing over and passes quietly; a page that takes records and
+            # hands nothing over is a DATA TRAP and must be declared, with a
+            # reason, in the ledger where the judgement can be read.
+            e = ledger.setdefault(name, {})
+            e.update({"unread": [], "buttons": 0, "task": r.get("task"),
+                      "entry": r.get("entry", 0),
+                      "counts": {"emits": 0, "held": 0, "silent": 0, "unreachable": 0},
+                      "at": int(time.time())})
+            why = e.get("no_outputs")
+            if r.get("entry", 0) >= TRAP_ENTRY and not why:
+                traps.append((name, r.get("entry", 0)))
+            print("%-30s %6s %6d %6d %6d   %s"
+                  % (name, "-", 0, 0, 0,
+                     ("DATA TRAP: %d entry control(s) and nothing hands anything over"
+                      % r.get("entry", 0)) if (r.get("entry", 0) >= TRAP_ENTRY and not why)
+                     else ("no outputs, declared: " + why if why
+                           else "no outputs, and %d entry control(s) -- under the bar"
+                                % r.get("entry", 0))))
             continue
         dec = declared_of(state, name)
         bad = blind(r, dec)
@@ -340,13 +413,20 @@ def main(argv):
              % (tot["blind"], tot["emits"])))
     if not a.page:
         save(state)
+    if traps:
+        print("\n%d PAGE(S) TAKE RECORDS AND HAND NOTHING OVER. A page that accepts typed data and\n"
+              "offers no way to get it off the screen is a data trap, and this audit used to SKIP\n"
+              "such a page entirely -- it enumerates output buttons, and a page with none produced\n"
+              "no row at all. Give the page an export, or declare it:\n"
+              "    python3 tools/audit_outputs.py --declare-page PAGE --reason \"...\"" % len(traps))
+        for name, n in traps:
+            print("    %-30s %d entry control(s), 0 outputs" % (name, n))
     if above:
         print("\n%d page(s) grew an output nothing reads. A page can render a correct analysis\n"
               "and export a wrong one, and every suite in this kit would be green:" % len(above))
         for name, now, ceiling in above:
             print("    %-30s %d, ceiling %d" % (name, now, ceiling))
-        return 1
-    return 0
+    return 1 if (above or traps) else 0
 
 
 if __name__ == "__main__":

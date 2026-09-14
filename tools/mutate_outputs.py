@@ -34,6 +34,38 @@ MUTANTS = [
      r'HANDS_OVER = re.compile(r"\b(copy|download|export|print|save)\b|\.csv\b|\.eco\b", re.I)',
      r'HANDS_OVER = re.compile(r"\b(copy|download|export)\b|\.csv\b|\.eco\b", re.I)',
      "a print is an output too"),
+    # ---- the shape the audit could not see (ADR-205) ----
+    ("a page with no output button is skipped again, so a data trap makes no row at all",
+     '            # A PAGE WITH NO OUTPUT BUTTON USED TO BE SKIPPED ENTIRELY (ADR-205).',
+     '            continue',
+     "TAKES RECORDS AND HANDS NOTHING OVER FAILS"),
+    ("a page that hands nothing over is named whatever it takes in, so the rule is noise",
+     '            if r.get("entry", 0) >= TRAP_ENTRY and not why:\n                traps.append((name, r.get("entry", 0)))',
+     '            if not why:\n                traps.append((name, r.get("entry", 0)))',
+     "DOES NOT NAME THE PAGE THAT IS RIGHT TO HAND NOTHING OVER"),
+    ("a declaration does not exempt the page, so the written judgement counts for nothing",
+     '            why = e.get("no_outputs")',
+     '            why = None',
+     "a declared page passes"),
+    ("a page declared exempt keeps no reason, so the ledger says what but never why",
+     '        ledger.setdefault(a.declare_page, {})["no_outputs"] = a.reason.strip()',
+     '        ledger.setdefault(a.declare_page, {})["no_outputs"] = "yes"',
+     "THE REASON IS WHAT IS STORED, word for word"),
+    ("declaring a page exempt needs no reason at all",
+     '    if a.declare_page:\n        if not a.reason.strip():',
+     '    if a.declare_page:\n        if False:',
+     "exempt without a reason is refused"),
+    ("a page with no outputs gets no ledger row, only a printed line",
+     '            e = ledger.setdefault(name, {})\n'
+     '            e.update({"unread": [], "buttons": 0, "task": r.get("task"),',
+     '            e = {}\n'
+     '            e.update({"unread": [], "buttons": 0, "task": r.get("task"),',
+     "IN THE LEDGER at zero outputs"),
+    ("what a page takes in is counted from a list of its own rather than the kit's",
+     'ENTRY_KINDS = frozenset(H.TYPED) | frozenset(["slider", "checkbox", "select"])',
+     'ENTRY_KINDS = frozenset(["text_in"])',
+     "read from harness.TYPED rather than restated"),
+
     # ---- the destructive rule ----
     ("the gateway's own risk rule is not consulted, and Forget is pressed",
      '        if PP.destroys(label, c.get("title") or ""):\n            continue',
@@ -96,8 +128,10 @@ MUTANTS = [
      '            if b.get("verdict") == "emits" and not b.get("held")]',
      "leaves the worklist"),
     ("an output may be declared exempt with no reason given",
-     '        if not a.reason.strip():',
-     '        if False:',
+     '''        page, key = a.declare.split(":", 1)
+        if not a.reason.strip():''',
+     '''        page, key = a.declare.split(":", 1)
+        if False:''',
      "WITHOUT a reason is refused"),
     ("the reason is not what is stored",
      '        ledger.setdefault(page, {}).setdefault("declared", {})[key] = a.reason.strip()',
@@ -116,8 +150,8 @@ MUTANTS = [
      '        if False:\n            above.append((name, len(bad), ceiling))',
      "fails, with no flag"),
     ("the failure is reported and the exit code is not",
-     '            print("    %-30s %d, ceiling %d" % (name, now, ceiling))\n        return 1',
-     '            print("    %-30s %d, ceiling %d" % (name, now, ceiling))\n        return 0',
+     '    return 1 if (above or traps) else 0',
+     '    return 0',
      "fails, with no flag"),
 ]
 

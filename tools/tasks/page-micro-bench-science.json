@@ -618,6 +618,121 @@
    }
   },
   {
+   "id": "g205-pane",
+   "action": "show-pane",
+   "arguments": {
+    "pane": "p-out"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "g205-ecoCopy",
+   "action": "activate",
+   "arguments": {
+    "selector": "@control:ecoCopy"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "g205-ecoCopy-out",
+   "action": "collect-output",
+   "expect": {
+    "output.payloads.0.k": "copy",
+    "output.payloads.0.text": {
+     "op": "contains",
+     "value": "## Plate counts (3)\n  TSA-A   10^-5   0.10 mL   148 colonies   countable   1.480e+8 CFU/mL\n  TSA-B   10^-6   0.10 mL   17 colonies   TFTC   excluded\n  TSA-C   10^-5   0.10 mL   50 colonies   countable   5.000e+7 CFU/mL\n  countable plates: 2 of 3   colonies counted: 198\n  CFU/mL (mean of countable): 9.900e+7   Poisson CV: ±7.1%\n  1 plate(s) excluded — listed above rather than dropped silently, because which plates you discarded is part of the record\n  COUNTABLE PLATES DISAGREE BY 3.0× — adjacent dilutions should agree within about a factor of two; this points at the dilution series, not the organism\n  this is CFU/mL, not cells/mL: a chain, a clump or a hypha gives one colony\n\n## Dilution plan\n  estimate: 1.000e+8 CFU/mL   plated volume: 0.10 mL\n  transfer 1.00 mL into 9.00 mL blank = 1:10 per step (1.00 log₁₀)\n  plate step 5: ~100 colonies expected\n\n## Growth curve (5 points)\n  0.00 h   OD 0.050   ln(OD) -2.996   in fit\n  1.00 h   OD 0.100   ln(OD) -2.303   in fit\n  2.00 h   OD 0.200   ln(OD) -1.609   in fit\n  3.00 h   OD 0.400   ln(OD) -0.916   in fit\n  4.00 h   OD 1.500   ln(OD) 0.405   in fit\n  fit over 5 of 5 points: ln(OD) = -3.1215 + 0.8189·t   r² = 0.9770\n  specific growth rate µ: 0.8189 h⁻¹   doubling time: 0.846 h (50.8 min)\n  r² below 0.98 — the window probably includes lag or the approach to stationary; narrow it\n  POINTS ABOVE OD 0.6 ARE IN THE FIT — multiple scattering makes a spectrophotometer read low there, which flattens the line and pushes µ down\n  µ is a rate of increase in TURBIDITY; converting to cells/mL needs your own OD-to-CFU calibration for this strain, medium and instrument\n\n## Disc diffusion (1 zone)\n  ampicillin 10 µg   18.0 mm   S\n  interpreted against S ≥ 17.0 mm, R ≤ 13.0 mm, CLSI M100, 2026\n  intermediate band: 13.5–16.5 mm"
+    }
+   }
+  },
+  {
+   "id": "g205-plCopy",
+   "action": "activate",
+   "arguments": {
+    "selector": "@control:plCopy"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "g205-plCopy-out",
+   "action": "collect-output",
+   "expect": {
+    "output.payloads.0.k": "copy",
+    "output.payloads.0.text": {
+     "op": "contains",
+     "value": "label,dilution_exponent,volume_ml,colonies,status,cfu_per_ml\nTSA-A,5,0.1,148,countable,1.480e+8\nTSA-B,6,0.1,17,TFTC,\nTSA-C,5,0.1,50,countable,5.000e+7"
+    }
+   }
+  },
+  {
+   "id": "g205-grCopy",
+   "action": "activate",
+   "arguments": {
+    "selector": "@control:grCopy"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "g205-grCopy-out",
+   "action": "collect-output",
+   "expect": {
+    "output.payloads.0.k": "copy",
+    "output.payloads.0.text": {
+     "op": "contains",
+     "value": "hours,od,ln_od,in_fit\n0,0.05,-2.9957,yes\n1,0.1,-2.3026,yes\n2,0.2,-1.6094,yes\n3,0.4,-0.9163,yes\n4,1.5,0.4055,yes"
+    }
+   }
+  },
+  {
+   "id": "g205-znCopy",
+   "action": "activate",
+   "arguments": {
+    "selector": "@control:znCopy"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "g205-znCopy-out",
+   "action": "collect-output",
+   "expect": {
+    "output.payloads.0.k": "copy",
+    "output.payloads.0.text": {
+     "op": "contains",
+     "value": "antimicrobial,disc_content,zone_mm,interpretation,breakpoint_S_mm,breakpoint_R_mm,breakpoint_source\nampicillin,10 µg,18,S,17,13,\"CLSI M100, 2026\""
+    }
+   }
+  },
+  {
+   "id": "g205-print",
+   "action": "activate",
+   "arguments": {
+    "selector": "@control:p-out/Print / save PDF"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "g205-printed",
+   "action": "collect-output",
+   "expect": {
+    "output.payloads.0.k": "print",
+    "output.payloads.1": {
+     "op": "exists",
+     "value": false
+    }
+   }
+  },
+  {
    "id": "g164-dilpane",
    "action": "show-pane",
    "arguments": {

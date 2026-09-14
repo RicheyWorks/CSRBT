@@ -1,7 +1,7 @@
 {
  "_comment": "The kit's route table. A route is a reachable place: a page, or a pane within one. Published so coverage can be checked against a list rather than against whatever the last run happened to visit -- see tools/verify/verify_routes.py, which fails when a page is unrouted or a route uncovered.",
- "at": 1788122999,
- "count": 128,
+ "at": 1789404198,
+ "count": 130,
  "routes": [
   {
    "id": "adr-031.html",
@@ -114,6 +114,14 @@
    "page": "cell-bench.html",
    "pane": "p-mit",
    "selector": ".tab[data-pane=\"p-mit\"]"
+  },
+  {
+   "id": "cell-bench.html#p-out",
+   "kind": "nested",
+   "label": "\ud83d\udce4",
+   "page": "cell-bench.html",
+   "pane": "p-out",
+   "selector": ".tab[data-pane=\"p-out\"]"
   },
   {
    "id": "cell-bench.html#p-met",
@@ -642,6 +650,14 @@
    "page": "micro-bench.html",
    "pane": "p-zn",
    "selector": ".tab[data-pane=\"p-zn\"]"
+  },
+  {
+   "id": "micro-bench.html#p-out",
+   "kind": "nested",
+   "label": "\ud83d\udce4",
+   "page": "micro-bench.html",
+   "pane": "p-out",
+   "selector": ".tab[data-pane=\"p-out\"]"
   },
   {
    "id": "micro-bench.html#p-met",

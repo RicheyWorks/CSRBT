@@ -251,6 +251,95 @@ led = json.load(io.open(A.LEDGER, encoding="utf-8"))["pages"]["fixture.html"]
 ck(led.get("ceiling") == 3,
    "...and --raise-floors LOWERS the ceiling, because this ratchet only ever comes down: %s" % led)
 
+# ---- F. THE PAGE SHAPE THIS AUDIT COULD NOT SEE (ADR-205) -------------------
+#
+# A page with no output button used to be skipped by a single `continue`, so
+# the ONE shape this audit exists to catch -- data in, nothing out -- produced
+# no row, no ledger entry and no number. Two pages of this kit sat that way for
+# months. Two fixtures here: a trap, and a page that is right to hand nothing
+# over, because a rule that named both would be turned off within a week.
+TRAP = u"""<!doctype html><html><head><meta charset="utf-8"><title>trap fixture</title>
+<style>button,input{min-height:44px;font-size:16px}</style></head><body>
+<h1>trap fixture</h1><div id="toast" class="toast"></div>
+<label>Plot <input id="a" type="text" aria-label="Plot"></label>
+<label>Date <input id="b" type="date" aria-label="Date"></label>
+<label>Count <input id="c" type="number" aria-label="Count"></label>
+<label>Observer <input id="d" type="text" aria-label="Observer"></label>
+<label>Notes <textarea id="e" aria-label="Notes"></textarea></label>
+<button id="add" type="button">Add a row</button>
+<pre id="sheet"># nothing yet</pre>
+<script>
+  var rows=[];
+  document.getElementById("add").addEventListener("click",function(){
+    rows.push("row"); document.getElementById("sheet").textContent="# "+rows.length+" row(s)"; });
+</script></body></html>
+"""
+QUIET = u"""<!doctype html><html><head><meta charset="utf-8"><title>quiet fixture</title>
+<style>button,input{min-height:44px;font-size:16px}</style></head><body>
+<h1>quiet fixture</h1><div id="toast" class="toast"></div>
+<label>Search <input id="q" type="text" aria-label="Search the glossary"></label>
+<p>A reference page. Nothing is entered here that anybody would want back.</p>
+</body></html>
+"""
+io.open(os.path.join(docs, "trap.html"), "w", encoding="utf-8").write(TRAP)
+io.open(os.path.join(docs, "quiet.html"), "w", encoding="utf-8").write(QUIET)
+
+tr = A.walk("trap.html", tasks_dir)["trap.html"]
+qt = A.walk("quiet.html", tasks_dir)["quiet.html"]
+ck(not tr.get("buttons") and not qt.get("buttons"),
+   "neither fixture hands anything over, which is the shape under test: %s / %s"
+   % (len(tr.get("buttons") or []), len(qt.get("buttons") or [])))
+ck(tr.get("entry", 0) >= A.TRAP_ENTRY,
+   "THE AUDIT NOW MEASURES WHAT A PAGE TAKES IN, so that handing nothing over can be judged "
+   "rather than skipped. A page with no export used to hit a bare `continue` -- no row, no "
+   "ledger entry, no number -- which is why two benches accepting nineteen and twenty-nine "
+   "typed values sat unreported under an audit built to ask exactly this: %s" % tr.get("entry"))
+ck(qt.get("entry", 0) < A.TRAP_ENTRY,
+   "and a reference page with a search box is UNDER the bar. A rule that called every page "
+   "without an export a data trap would be switched off within a week, and then the real ones "
+   "would be invisible again: %s" % qt.get("entry"))
+ck(A.ENTRY_KINDS >= frozenset(H.TYPED),
+   "what counts as taking something in is read from harness.TYPED rather than restated here, so "
+   "a kind added tomorrow counts tomorrow -- the ADR-141 rule this whole slice is an instance "
+   "of: %s" % sorted(A.ENTRY_KINDS))
+
+import contextlib
+_buf = io.StringIO()
+with contextlib.redirect_stdout(_buf):
+    rc = A.main([])
+said = _buf.getvalue()
+print(said)
+ck(rc != 0, "A PAGE THAT TAKES RECORDS AND HANDS NOTHING OVER FAILS THE AUDIT. It is a data "
+            "trap: the work exists on one screen and there is no way to get it off, and the "
+            "absence of a row is the loudest thing a ledger can say")
+_named = [l for l in said.split("\n") if "entry control(s), 0 outputs" in l]
+ck(any("trap.html" in l for l in _named),
+   "...and the audit NAMES it, on the worklist, rather than only failing: %s" % _named)
+ck(not any("quiet.html" in l for l in _named),
+   "AND IT DOES NOT NAME THE PAGE THAT IS RIGHT TO HAND NOTHING OVER. A rule that called every "
+   "page without an export a data trap would be switched off within a week, and then the real "
+   "ones would be invisible again: %s" % _named)
+led = json.load(io.open(A.LEDGER, encoding="utf-8"))["pages"]
+ck("trap.html" in led and led["trap.html"]["buttons"] == 0,
+   "...and it is IN THE LEDGER at zero outputs, rather than missing from it: %s"
+   % sorted(led))
+ck("quiet.html" in led and led["quiet.html"]["buttons"] == 0,
+   "so is the page that is right to hand nothing over -- a row that says zero is evidence, and "
+   "no row at all is not: %s" % sorted(led))
+
+ck(A.main(["--declare-page", "trap.html"]) != 0,
+   "declaring a page exempt without a reason is refused")
+rc = A.main(["--declare-page", "trap.html", "--reason",
+             "a demo of the rule, in this suite's own fixture directory"])
+led = json.load(io.open(A.LEDGER, encoding="utf-8"))["pages"]
+ck(rc == 0 and led["trap.html"].get("no_outputs")
+   == "a demo of the rule, in this suite's own fixture directory",
+   "...and with one, THE REASON IS WHAT IS STORED, word for word, where the judgement can be "
+   "read. A ledger that recorded only that a page was exempt would be a list of silences: %s"
+   % led["trap.html"].get("no_outputs"))
+ck(A.main([]) == 0,
+   "a declared page passes. The exemption is a written judgement, not a silence")
+
 print("---")
 print("%d/%d" % (P, P + F))
 sys.exit(1 if F else 0)
