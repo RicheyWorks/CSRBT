@@ -11,7 +11,7 @@ because it teaches trust it has not earned.
 So the checks here are in three groups: it saves, it restores (the widget as
 well as the value underneath it), and it says so out loud when it cannot.
 """
-import io, os, re, sys
+import importlib.util, io, os, re, sys
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 from _kit import url, offline, ROOT, TOOLS_DIR
@@ -27,14 +27,25 @@ def ver(mod):
     return m.group(1) if m else None
 
 KEEPV, FEKV = ver("keep.py"), ver("fek.py")
-CONSUMERS = {
-    "ordination.html":       "csrbtOrdination",
-    "releve.html":           "csrbtReleve",
-    "stand-sheet.html":      "csrbtStandSheet",
-    "collection-sheet.html": "csrbtCollectionSheet",
-    # Retrofitted: this page had the silent try/catch that KEEP exists to replace.
-    "pheno-tracker.html":    "phenoTrackerRun1",
-}
+
+# THE CONSUMER LIST IS THE EMITTER'S, NOT A SECOND ONE (ADR-204).
+#
+# It used to be five names written here. `keep_emit.py` inlines KEEP into
+# EIGHT, so three pages -- the deployment log, the survey design and the
+# greenhouse -- carried the autosave layer and this suite never opened them.
+# That is ADR-141's defect again: a list only one reader reads. A page added to
+# the kit tomorrow is covered on the day it is wired rather than on the day
+# somebody remembers this file exists.
+_kespec = importlib.util.spec_from_file_location(
+    "keep_emit", os.path.join(TOOLS_DIR, "keep_emit.py"))
+_ke = importlib.util.module_from_spec(_kespec)
+_kespec.loader.exec_module(_ke)
+CONSUMERS = list(_ke.CONSUMERS)
+
+ck("every page keep_emit.py inlines KEEP into is a page this suite opens, because the list is the "
+   "emitter's rather than a second one kept here -- it was five against the emitter's eight, and "
+   "the three it missed carried the layer untested",
+   len(CONSUMERS) >= 8, CONSUMERS)
 
 ck("tools/keep.py declares a version", bool(KEEPV), KEEPV)
 
@@ -138,7 +149,7 @@ with sync_playwright() as p:
         return pg, errs
 
     # ---------------- every consumer carries the same layer ----------------
-    for name, key in CONSUMERS.items():
+    for name in CONSUMERS:
         pg, errs = page(name)
         ck("%s loads clean" % name, not errs, errs[:2])
         ck("%s carries KEEP" % name, pg.evaluate("()=>typeof KEEP!=='undefined'"), "")
@@ -151,9 +162,12 @@ with sync_playwright() as p:
         ck("%s says browser storage is not a backup" % name,
            "not a backup" in pg.inner_text("#keepBox"), pg.inner_text("#keepBox")[:60])
 
+        # Nothing at all, rather than nothing under one known key: a page whose
+        # storage key was renamed would pass a keyed check by writing somewhere
+        # this suite was not looking.
         ck("%s saves nothing before anything is entered" % name,
-           pg.evaluate("(k)=>localStorage.getItem(k)", key) is None,
-           "an empty sheet wrote a saved copy")
+           pg.evaluate("()=>Object.keys(localStorage).length") == 0,
+           pg.evaluate("()=>Object.keys(localStorage)"))
         pg.close()
 
     # ---------------- it saves, and it comes back ----------------
@@ -201,7 +215,15 @@ with sync_playwright() as p:
             pg.click('.tab[data-pane="%s"]' % pane)
             pg.wait_for_timeout(280)
     show_keep(pg)
-    pg.click("#keepBox [data-keep-forget]"); pg.wait_for_timeout(400)
+    # Pressed only if it is there. A suite that TIMES OUT reaching for a control
+    # reports nothing at all -- no pass, no fail, just a crash -- and a mutation
+    # sweep that removes the button should be told what it broke rather than be
+    # told the instrument fell over.
+    have_forget = pg.eval_on_selector_all("#keepBox [data-keep-forget]", "e=>e.length") == 1
+    ck("the button that removes the saved copy is there to be pressed",
+       have_forget, "no [data-keep-forget] on the strip")
+    if have_forget:
+        pg.click("#keepBox [data-keep-forget]"); pg.wait_for_timeout(400)
     ck("forget removes the stored copy",
        pg.evaluate("()=>localStorage.getItem('csrbtReleve')") is None, "still there")
     ck("forget resets the status strip",
@@ -233,6 +255,228 @@ with sync_playwright() as p:
     ck("unparseable storage leaves a usable sheet",
        pg.eval_on_selector_all("#cAdd", "e=>e.length") == 1, "")
     pg.evaluate("()=>localStorage.clear()")
+    pg.close()
+
+    # ---------------- A BROWSER THAT KEEPS NOTHING SAYS SO ----------------
+    #
+    # This is KEEP's most important sentence and, until ADR-204, the one thing
+    # in this file that nothing asserted -- the suite's own comment eighty lines
+    # down describes the behaviour and then uses it to explain a DIFFERENT
+    # check. A private window, storage switched off, an enterprise policy and a
+    # sandboxed frame all look identical to a page that only wraps setItem in a
+    # try, and the entire reason this component exists is to tell those apart
+    # from "saved" BEFORE the morning is lost rather than after.
+    ctxn = b.new_context()
+    pgn = ctxn.new_page()
+    pgn.set_default_timeout(20000)
+    offline(pgn)
+    pgn.add_init_script("""Object.defineProperty(window,'localStorage',{get:function(){
+        throw new Error('denied'); }});""")
+    nerrs = []
+    pgn.on("pageerror", lambda e: nerrs.append(str(e)))
+    pgn.goto(url("releve.html"), wait_until="domcontentloaded")
+    pgn.wait_for_timeout(900)
+    strip = pgn.inner_text("#keepBox")
+    ck("A BROWSER THAT IS KEEPING NOTHING SAYS SO, UP FRONT. Storage unavailable -- a private "
+       "window, site data off, a policy -- must read as nothing being saved at the moment the page "
+       "opens, not at the moment the work is lost",
+       "not keeping anything" in strip, strip[:110])
+    ck("and it says what to do instead, which is the only useful half of that news",
+       "export before you close the tab" in strip.lower(), strip[:160])
+    ck("and the strip is styled as the failure it is",
+       pgn.eval_on_selector_all("#keepBox.bad", "e=>e.length") == 1, "")
+    ck("KEEP.usable() answers honestly about a browser that throws on the accessor itself",
+       pgn.evaluate("()=>KEEP.usable()") is False, "")
+    ck("a page whose storage is gone still loads without throwing", not nerrs, nerrs[:2])
+    pgn.close()
+    ctxn.close()
+
+    # ---------------- a tab closing mid-debounce -------------------------
+    #
+    # The case KEEP exists for, and nothing drove it. The write is debounced by
+    # half a second, so a page hidden or closed in that window loses exactly the
+    # edit the user made last -- which is the edit they remember making.
+    pg, errs = page("releve.html")
+    pg.evaluate("()=>localStorage.clear()")
+    pg.reload(wait_until="domcontentloaded")
+    pg.wait_for_timeout(700)
+    pg.click('.tab[data-pane="p-plot"]'); pg.wait_for_timeout(200)
+    pg.evaluate(SET, ["sPlot", "PAGEHIDE-01"])
+    pg.evaluate("()=>window.dispatchEvent(new Event('pagehide'))")
+    pg.wait_for_timeout(80)
+    raw = pg.evaluate("()=>localStorage.getItem('csrbtReleve')")
+    ck("A TAB CLOSING MID-DEBOUNCE FLUSHES RATHER THAN LOSING THE LAST EDIT. The write waits half a "
+       "second; a page hidden or closed inside that window would otherwise drop exactly the edit the "
+       "user remembers making",
+       raw is not None and "PAGEHIDE-01" in raw, (raw or "nothing was written")[:80])
+    pg.evaluate("()=>localStorage.clear()")
+    pg.close()
+
+    # ---------------- a restore the page REFUSES -------------------------
+    #
+    # restore() returns false when the page cannot use the blob. The strip must
+    # not then claim a restore that did not happen: "Restored your work from
+    # today 09:14" over a sheet that is empty is the worst sentence this
+    # component could produce.
+    pg, errs = page("ordination.html")
+    told = pg.evaluate("""()=>{
+      const host=document.createElement('div'); host.id='__rbox';
+      document.body.appendChild(host);
+      localStorage.setItem("__r1", JSON.stringify({format:1, at:Date.now(), body:{v:1}}));
+      KEEP.wire({key:"__r1", format:1, mount:"__rbox", noun:"a set",
+        snapshot:function(){ return null; }, restore:function(){ return false; }});
+      const t = host.innerText; host.remove(); localStorage.removeItem("__r1");
+      return t; }""")
+    ck("A RESTORE THE PAGE REFUSED IS NOT ANNOUNCED AS ONE. restore() returning false means the "
+       "blob could not be used, and a strip that said `Restored your work` over a sheet that is "
+       "still empty would be the worst sentence this component could produce",
+       "Restored" not in told, told[:110])
+    ck("and the refusing page is not left claiming a save either", "Saved on" not in told, told[:110])
+    # ...and a restore that THREW is the same news. A page whose restore blew up
+    # halfway has applied some unknown part of the blob; announcing that as a
+    # restore is the same lie with a worse cause.
+    threw = pg.evaluate("""()=>{
+      const host=document.createElement('div'); host.id='__tbox';
+      document.body.appendChild(host);
+      localStorage.setItem("__t1", JSON.stringify({format:1, at:Date.now(), body:{v:1}}));
+      KEEP.wire({key:"__t1", format:1, mount:"__tbox", noun:"a set",
+        snapshot:function(){ return null; },
+        restore:function(){ throw new Error("half-applied"); }});
+      const t = host.innerText; host.remove(); localStorage.removeItem("__t1");
+      return t; }""")
+    ck("A RESTORE THAT THREW IS NOT ANNOUNCED AS ONE EITHER. A page whose restore blew up halfway "
+       "has applied some unknown part of the blob, and calling that a restore is the same lie with "
+       "a worse cause",
+       "Restored" not in threw, threw[:110])
+    ck("no page errors from the refused restore", not errs, errs[:2])
+    pg.close()
+
+    # ---------------- A RESTORE CANNOT BRING A PHOTOGRAPH BACK (ADR-206) ------
+    #
+    # Four sheets mounted FEK.photos and kept nothing at all, so a reader could
+    # photograph four stations, score an hour, take a phone call and lose the
+    # lot. They keep now -- and a page cannot hand a File back to a file input,
+    # so what survives is the RECORD of each frame. A sheet that came back
+    # quietly one frame short would leave the reader believing their morning is
+    # whole, which is the more expensive of the two failures.
+    #
+    # The wiring is checked on EVERY page that has both, statically, because
+    # this is exactly the shape ADR-201 lost for a season: a page whose snapshot
+    # forgot to carry the frames would restore perfectly and lose them, and
+    # nothing on screen would say so.
+    # DRIVEN, NOT SPELLED. The first version of this check looked for
+    # `photos:PHOTOS.get()` in the source and failed three pages that carry the
+    # frames through a local variable -- a check about spelling rather than
+    # about behaviour, which is the kind that gets edited to match the code
+    # instead of the other way round. Every page that mounts the component gets
+    # a frame dropped on it, a save, a reload, and one question: does it say
+    # what it no longer holds?
+    SHOOT = """async (z) => {
+        const el = document.getElementById(z);
+        if (!el) return 'no drop zone #' + z;
+        const f = new File([new Uint8Array([49,50,51,52,53,54,55,56,57])], 'KEEP_7.jpg',
+                           {type:'image/jpeg', lastModified: Date.UTC(2026,0,2,3,4)});
+        const dt = new DataTransfer(); dt.items.add(f);
+        el.dispatchEvent(new DragEvent('drop', {dataTransfer: dt, bubbles: true}));
+        await new Promise(r => setTimeout(r, 350));
+        return null; }"""
+    for name in CONSUMERS:
+        src = io.open(os.path.join(ROOT, "docs", name), encoding="utf-8").read()
+        m = re.search(r'FEK\.photos\(\{\s*dropId:"([A-Za-z0-9_]+)"', src)
+        if not m:
+            continue
+        zone = m.group(1)
+        pg, errs = page(name)
+        pg.evaluate("()=>{try{localStorage.clear();}catch(e){}}")
+        pg.reload(wait_until="domcontentloaded")
+        pg.wait_for_timeout(800)
+        del errs[:]
+        why = pg.evaluate(SHOOT, zone)
+        pg.wait_for_timeout(1400)
+        stored = pg.evaluate("()=>JSON.stringify(Object.keys(localStorage).map("
+                             "function(k){return localStorage.getItem(k);}))")
+        ck("%s CARRIES ITS PHOTOGRAPHS INTO THE AUTOSAVE. A snapshot that forgot them would "
+           "restore perfectly and lose every frame, with nothing on screen saying so" % name,
+           why is None and "cbf43926" in (stored or ""), why or (stored or "")[:80])
+        pg.close()
+
+        pg, errs = page(name)
+        pg.wait_for_timeout(700)
+        aw = pg.inner_text(".fek-await") if pg.eval_on_selector_all(".fek-await", "e=>e.length") \
+            else "(no missing-frames block on the page)"
+        ck("%s SAYS WHICH PHOTOGRAPH IT NO LONGER HOLDS, naming the file and its checksum. The "
+           "bytes cannot come back; a sheet that came back quietly one frame short would leave "
+           "the reader believing their morning is whole" % name,
+           "not on this device" in aw and "KEEP_7.jpg" in aw and "cbf43926" in aw, aw[:130])
+        ck("%s restores a photographed sheet without throwing" % name, not errs, errs[:2])
+        pg.evaluate("()=>{try{localStorage.clear();}catch(e){}}")
+        pg.close()
+
+    pg, errs = page("field-notebook.html")
+    pg.evaluate("()=>{try{localStorage.clear();}catch(e){}}")
+    pg.reload(wait_until="domcontentloaded")
+    pg.wait_for_timeout(800)
+    del errs[:]
+    pg.evaluate("""()=>{const bs=[...document.querySelectorAll('#ethoGrid .tally')];
+        bs[0].click(); bs[0].click(); bs[1].click();}""")
+    pg.evaluate("""async () => {
+        const z = document.getElementById('fnPhotos');
+        const f = new File([new Uint8Array([49,50,51,52,53,54,55,56,57])], 'IMG_44.jpg',
+                           {type:'image/jpeg', lastModified: Date.UTC(2026,0,2,3,4)});
+        const dt = new DataTransfer(); dt.items.add(f);
+        z.dispatchEvent(new DragEvent('drop', {dataTransfer: dt, bubbles: true}));
+        await new Promise(r => setTimeout(r, 300)); }""")
+    pg.evaluate("""()=>{const l=[...document.querySelectorAll('.fek-photo .m input[type=text]')];
+        if(l[0]){ l[0].value='quadrat 3'; l[0].dispatchEvent(new Event('input',{bubbles:true})); }}""")
+    pg.wait_for_timeout(1300)
+    raw = pg.evaluate("()=>localStorage.getItem('csrbtFieldNotebook')")
+    ck("a sheet with photographs on it saves the frames' RECORDS, checksum and caption included",
+       raw and "cbf43926" in raw and "quadrat 3" in raw, (raw or "")[:120])
+    pg.close()
+
+    pg, errs = page("field-notebook.html")
+    pg.wait_for_timeout(700)
+    ck("what was tallied comes back",
+       pg.evaluate("""()=>[...document.querySelectorAll('#ethoGrid .tally')]
+           .slice(0,2).map(b=>b.querySelector('.count').textContent)""") == ["2", "1"],
+       pg.evaluate("""()=>[...document.querySelectorAll('#ethoGrid .tally')]
+           .slice(0,2).map(b=>b.querySelector('.count').textContent)"""))
+    aw = pg.inner_text(".fek-await") if pg.eval_on_selector_all(".fek-await", "e=>e.length") else ""
+    ck("AND THE PAGE SAYS, OUT LOUD, WHICH PHOTOGRAPH IT NO LONGER HOLDS, naming the file and its "
+       "checksum. The bytes are gone; the record, the caption and the way to put them back together "
+       "are not",
+       "not on this device" in aw and "IMG_44.jpg" in aw and "cbf43926" in aw, aw[:150])
+    ck("the restored sheet raises nothing", not errs, errs[:2])
+    pg.evaluate("()=>localStorage.clear()")
+    pg.close()
+
+    # ---------------- A RESTORED SHEET KEEPS ITS OWN DATE (ADR-206) ---------
+    #
+    # Most of these pages date themselves from the clock at load. A sheet the
+    # autosave brings back must NOT be re-dated: the observations were made on
+    # the day the session was started, and a page that stamped today's date
+    # over yesterday's fieldwork would be falsifying a record rather than
+    # restoring one. The ethogram's kappa task had to drop its saved copy
+    # before freezing the clock for exactly this reason; the behaviour it
+    # worked around is asserted here rather than only avoided.
+    pg, errs = page("ethogram.html")
+    pg.evaluate("()=>{try{localStorage.clear();}catch(e){}}")
+    pg.reload(wait_until="domcontentloaded")
+    pg.wait_for_timeout(800)
+    del errs[:]
+    pg.evaluate(SET, ["dDate", "2026-03-01"])
+    pg.evaluate(SET, ["dObs", "R. Test"])
+    pg.wait_for_timeout(1200)
+    pg.close()
+    pg, errs = page("ethogram.html")
+    pg.wait_for_timeout(700)
+    ck("A RESTORED SHEET KEEPS THE DATE IT WAS STARTED ON. These pages date themselves from the "
+       "clock at load; stamping today over yesterday's fieldwork would be falsifying a record "
+       "rather than restoring one",
+       pg.input_value("#dDate") == "2026-03-01", pg.input_value("#dDate"))
+    ck("and the observer with it", pg.input_value("#dObs") == "R. Test", pg.input_value("#dObs"))
+    ck("restoring a dated sheet raises nothing", not errs, errs[:2])
+    pg.evaluate("()=>{try{localStorage.clear();}catch(e){}}")
     pg.close()
 
     # ---------------- it says so when it cannot save ----------------
