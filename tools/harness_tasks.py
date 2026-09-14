@@ -42,6 +42,11 @@ CONTROLS    "@control:<name>" in an argument (ADR-128) is a page control by
 EXPECT      "<dotted.path>": <value>  -- equal to a literal or a reference
             "<dotted.path>": {"op": ">=", "value": 3}   -- ==, !=, >, >=, <, <=,
                               "in", "contains", "exists"
+            "any-contains" / "none-contains" ask about a LIST OF STRINGS: some
+            element holds this text, or none does. `output.said` is that list --
+            what the page announced while this act ran (ADR-199) -- and the pair
+            is symmetric on purpose: a grammar that can only say what IS there
+            makes a task guess at absence, which is ADR-132's lesson.
             A step with no expectations is graded on one thing only: it was
             not FAILED (a refusal or a decline is a result the next step
             can read; a failure is the target's).
@@ -88,7 +93,8 @@ LEDGER = os.path.join(HERE, "task_ledger.json")
 # ONE op table. There were briefly two -- load_task's and the grader's -- which
 # is how a grammar drifts: a task file accepted at load and rejected at grade,
 # or the reverse. Everything that needs to know what an op is reads this.
-OPS = ("==", "!=", ">", ">=", "<", "<=", "~=", "in", "not-in", "contains", "excludes", "exists")
+OPS = ("==", "!=", ">", ">=", "<", "<=", "~=", "in", "not-in", "contains", "excludes",
+       "any-contains", "none-contains", "exists")
 
 
 class TaskDefect(Exception):
@@ -386,6 +392,29 @@ def grade(expect, response, done, where):
                 # the path would read as proof of absence, which is the exact
                 # failure this op was added to stop.
                 ok = val not in got if isinstance(got, (list, str, dict)) else False
+            elif op in ("any-contains", "none-contains"):
+                # WHAT THE PAGE SAID, CLAIMED ON THE ACT THAT MADE IT SAY IT
+                # (ADR-200). ADR-199 gave every act `said`: the messages the
+                # page announced while it ran. It is a LIST, and the claim a
+                # task wants about it is almost never exact equality -- a
+                # refusal reads "model logistic needs 4 parameters (you gave
+                # 2)" and the task is about the first half. `contains` on a
+                # list is exact membership of one element, so the claim could
+                # not be written at all; six steps in three tasks were written
+                # instead as a read-report of the toast BOX, taken inside the
+                # message's 1.7-second life, against whatever the last message
+                # happened to be.
+                #
+                # Both directions, because absence is a claim too and a task
+                # that cannot state it states a guess instead (ADR-132). A
+                # value that is not a string, or a path that is not a list of
+                # them, makes the claim FALSE rather than raising: a claim that
+                # cannot be true is refuted, not a defect in the grader.
+                if not isinstance(got, (list, tuple)) or not isinstance(val, str):
+                    ok = (op == "none-contains") and isinstance(got, (list, tuple))
+                else:
+                    hit = any(isinstance(x, str) and val in x for x in got)
+                    ok = hit if op == "any-contains" else not hit
             elif op == "not-in":
                 ok = got not in val if isinstance(val, (list, str, dict)) else False
             else:

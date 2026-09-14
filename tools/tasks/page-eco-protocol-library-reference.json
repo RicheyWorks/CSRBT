@@ -34,7 +34,12 @@
     "selector": "@control:Copy#0"
    },
    "expect": {
-    "ok": true
+    "ok": true,
+    "output.said": {
+     "op": "any-contains",
+     "value": "Copied — save as a .eco file"
+    },
+    "output.produced": 1
    }
   },
   {
@@ -50,26 +55,18 @@
    }
   },
   {
-   "id": "toast",
-   "action": "read-report",
-   "expect": {
-    "output.boxes.toast": {
-     "op": "in",
-     "value": [
-      "Copied — save as a .eco file",
-      "Select & copy manually"
-     ]
-    }
-   }
-  },
-  {
    "id": "g178-copy2",
    "action": "activate",
    "arguments": {
     "selector": "@control:Copy#1"
    },
    "expect": {
-    "ok": true
+    "ok": true,
+    "output.said": {
+     "op": "any-contains",
+     "value": "Copied — save as a .eco file"
+    },
+    "output.produced": 1
    }
   },
   {
@@ -81,19 +78,6 @@
     "output.payloads.1": {
      "op": "exists",
      "value": false
-    }
-   }
-  },
-  {
-   "id": "g178-toast",
-   "action": "read-report",
-   "expect": {
-    "output.boxes.toast": {
-     "op": "in",
-     "value": [
-      "Copied — save as a .eco file",
-      "Select & copy manually"
-     ]
     }
    }
   },

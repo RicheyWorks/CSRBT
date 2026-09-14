@@ -88,17 +88,18 @@
     "selector": "@control:tree/remove#1"
    },
    "expect": {
-    "ok": true
+    "ok": true,
+    "output.said": {
+     "op": "any-contains",
+     "value": "remove those first"
+    },
+    "output.produced": 0
    }
   },
   {
    "id": "kept",
    "action": "read-report",
    "expect": {
-    "output.boxes.toast": {
-     "op": "contains",
-     "value": "remove those first"
-    },
     "output.by.treeStat.events": "15"
    }
   },

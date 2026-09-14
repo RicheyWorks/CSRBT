@@ -188,17 +188,12 @@
     "selector": "@control:vd-fires"
    },
    "expect": {
-    "ok": true
-   }
-  },
-  {
-   "id": "norule",
-   "action": "read-report",
-   "expect": {
-    "output.boxes.toast": {
-     "op": "contains",
+    "ok": true,
+    "output.said": {
+     "op": "any-contains",
      "value": "No rule, no verdict"
-    }
+    },
+    "output.produced": 0
    }
   },
   {
@@ -378,15 +373,9 @@
     "selector": "@control:m-add"
    },
    "expect": {
-    "ok": true
-   }
-  },
-  {
-   "id": "arity",
-   "action": "read-report",
-   "expect": {
-    "output.boxes.toast": {
-     "op": "contains",
+    "ok": true,
+    "output.said": {
+     "op": "any-contains",
      "value": "model logistic needs 4 parameters"
     }
    }
@@ -409,7 +398,11 @@
     "selector": "@control:m-add"
    },
    "expect": {
-    "ok": true
+    "ok": true,
+    "output.said": {
+     "op": "none-contains",
+     "value": "needs 4 parameters"
+    }
    }
   },
   {
@@ -436,17 +429,17 @@
     ]
    },
    "expect": {
-    "ok": true
+    "ok": true,
+    "output.said": {
+     "op": "any-contains",
+     "value": "Not a text file: IMG_0431.jpg"
+    }
    }
   },
   {
    "id": "refused",
    "action": "read-report",
    "expect": {
-    "output.boxes.toast": {
-     "op": "contains",
-     "value": "Not a text file: IMG_0431.jpg"
-    },
     "output.boxes.eco-out": {
      "op": "contains",
      "value": "model: logistic 0.15 120 5 60"

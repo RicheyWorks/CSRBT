@@ -162,9 +162,69 @@ except T.TaskDefect as e:
     ck("unknown op" in str(e) and "excludes" in str(e),
        "an op the grader does not know is the TASK's DEFECT, not a finding about the kit, and the message names "
        "the ops it does know: %s" % str(e)[:90])
-ck(sorted(T.OPS) == sorted(["==", "!=", ">", ">=", "<", "<=", "~=", "in", "not-in", "contains", "excludes", "exists"]),
+ck(sorted(T.OPS) == sorted(["==", "!=", ">", ">=", "<", "<=", "~=", "in", "not-in", "contains", "excludes",
+                            "any-contains", "none-contains", "exists"]),
    "ONE op table, read by the loader and the grader alike -- two would drift into a file accepted at load and "
    "rejected at grade: %s" % sorted(T.OPS))
+
+# WHAT THE PAGE SAID, CLAIMED ON THE ACT THAT MADE IT SAY IT (ADR-200).
+#
+# ADR-199 gave every act `said`: the list of messages the page announced while
+# it ran. The claim a task wants about that list is almost never exact equality
+# -- a refusal reads "model logistic needs 4 parameters (you gave 2)" and the
+# task is about the first half -- and `contains` on a LIST is exact membership
+# of one element, so the claim could not be written at all. Six steps in three
+# tasks were written instead as a read-report of the toast BOX, taken inside
+# the message's 1.7-second life against whatever the last message happened to
+# be: a race dressed as a claim.
+S = {"output": {"said": ["A stem needs a DBH", "Stem 1 recorded"], "produced": 0,
+                "box": "A stem needs a DBH"}}
+ga = dict((p, v) for p, v, _ in T.grade(
+    {"output.said": {"op": "any-contains", "value": "needs a DBH"},
+     "output.said#2": {"op": "any-contains", "value": "recorded"}}, S, {}, "t"))
+ck(ga.get("output.said") == "CONFIRMED" and ga.get("output.said#2") == "CONFIRMED",
+   "any-contains CONFIRMS when SOME message holds the text -- the whole point, since an act may raise "
+   "more than one and a refusal is rarely the whole string: %s" % ga)
+ck(T.grade({"output.said": {"op": "any-contains", "value": "needs a diameter"}}, S, {}, "t")[0][1] == "REFUTED",
+   "and is REFUTED when no message does, rather than passing on a near miss")
+ck(T.grade({"output.said": {"op": "contains", "value": "needs a DBH"}}, S, {}, "t")[0][1] == "REFUTED",
+   "CONTAINS ON A LIST IS STILL EXACT MEMBERSHIP, unchanged: the new op is a second claim and not a "
+   "loosening of the old one, or every list claim in the kit would have quietly widened")
+# The mirror, because absence is a claim and a task that cannot state it states
+# a guess instead -- ADR-132's lesson, one container deeper.
+gn2 = dict((p, v) for p, v, _ in T.grade(
+    {"output.said": {"op": "none-contains", "value": "needs 4 parameters"},
+     "output.said#2": {"op": "none-contains", "value": "needs a DBH"}}, S, {}, "t"))
+ck(gn2.get("output.said") == "CONFIRMED" and gn2.get("output.said#2") == "REFUTED",
+   "none-contains is the mirror: CONFIRMED when no message holds the text, REFUTED when one does -- which "
+   "is how a task says the refusal did NOT come back once the input was right: %s" % gn2)
+ck(T.grade({"output.said": {"op": "none-contains", "value": "anything"}},
+           {"output": {"said": []}}, {}, "t")[0][1] == "CONFIRMED"
+   and T.grade({"output.said": {"op": "any-contains", "value": "anything"}},
+               {"output": {"said": []}}, {}, "t")[0][1] == "REFUTED",
+   "AN ACT THAT SAID NOTHING said nothing: the empty list confirms the mirror and refutes the claim, "
+   "which is the pair a silent refusal is caught by")
+ck(T.grade({"output.box": {"op": "any-contains", "value": "DBH"}}, S, {}, "t")[0][1] == "REFUTED"
+   and T.grade({"output.box": {"op": "none-contains", "value": "DBH"}}, S, {}, "t")[0][1] == "REFUTED",
+   "BOTH DIRECTIONS ARE FALSE ON A PATH THAT IS NOT A LIST. A string is not a list of messages, and "
+   "answering either way about one would let a task claim about `boxes.toast` in the grammar built to "
+   "get it off `boxes.toast`")
+ck(T.grade({"output.said": {"op": "any-contains", "value": 4}}, S, {}, "t")[0][1] == "REFUTED",
+   "and a value that is not a string is a claim that cannot be true, which is REFUTED and not a grader defect")
+ck(T.grade({"output.gone": {"op": "none-contains", "value": "x"}}, S, {}, "t")[0][1] == "REFUTED",
+   "a path that is not in the response does not prove silence either -- the same rule `excludes` carries, "
+   "so a typo cannot read as evidence")
+# and the six steps that used to poll the box are gone from the kit
+_polls = []
+for _f in sorted(glob.glob(os.path.join(T.TASKS_DIR, "*.json"))):
+    for _st in (json.load(io.open(_f, encoding="utf-8")).get("steps") or []):
+        for _k in (_st.get("expect") or {}):
+            if "boxes.toast" in _k:
+                _polls.append((os.path.basename(_f), _st["id"]))
+ck(not _polls,
+   "NO TASK READS THE TOAST BOX ANY MORE. Six steps in three tasks used to, each a whole read-report taken "
+   "inside a 1.7-second window against a box holding whatever the last message was; every one now claims "
+   "`output.said` on the act that raised it: %s" % _polls[:4])
 # a path may carry a trailing "#n" label so a box can hold two claims: it says
 # the refusal AND it no longer says the answer
 g2 = T.grade({"output.box": {"op": "contains", "value": "clean"},
