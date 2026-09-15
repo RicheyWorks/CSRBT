@@ -11,7 +11,13 @@ because it teaches trust it has not earned.
 So the checks here are in three groups: it saves, it restores (the widget as
 well as the value underneath it), and it says so out loud when it cannot.
 """
-import importlib.util, io, os, re, sys
+
+# FIXTURE-BUILDER (ADR-207). The temp directory this suite reaches for holds a
+# CANARY -- two pages written here so the record-keeping rule can be watched
+# firing on one and staying quiet on the other. They are fixtures, not kit
+# pages, and nothing about them belongs in a coverage sweep.
+MUTATE_ROLE = "fixture-builder"
+import glob, importlib.util, io, os, re, shutil, sys, tempfile
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 from _kit import url, offline, ROOT, TOOLS_DIR
@@ -42,10 +48,19 @@ _ke = importlib.util.module_from_spec(_kespec)
 _kespec.loader.exec_module(_ke)
 CONSUMERS = list(_ke.CONSUMERS)
 
-ck("every page keep_emit.py inlines KEEP into is a page this suite opens, because the list is the "
+# READ OFF THE PAGES, NOT OFF A COUNT (ADR-207). The first version of this check
+# asserted `len(CONSUMERS) >= 8`, which a mutant that dropped a page from the
+# emitter's list walked straight past: sixteen is still at least eight. What the
+# claim is actually about is whether the list COVERS the pages -- so it is
+# compared against the pages that carry the block.
+_inlined = sorted(os.path.basename(_p) for _p in
+                  glob.glob(os.path.join(ROOT, "docs", "*.html"))
+                  if "/* ---- Keep v" in io.open(_p, encoding="utf-8").read())
+ck("EVERY PAGE THAT CARRIES THE AUTOSAVE IS A PAGE THIS SUITE OPENS, because the list is the "
    "emitter's rather than a second one kept here -- it was five against the emitter's eight, and "
-   "the three it missed carried the layer untested",
-   len(CONSUMERS) >= 8, CONSUMERS)
+   "the three it missed carried the layer untested: %s"
+   % sorted(set(_inlined) - set(CONSUMERS)),
+   sorted(CONSUMERS) == _inlined, (sorted(CONSUMERS), _inlined))
 
 ck("tools/keep.py declares a version", bool(KEEPV), KEEPV)
 
@@ -161,6 +176,21 @@ with sync_playwright() as p:
            pg.eval_on_selector_all("#keepBox [data-keep-forget]", "e=>e.length") == 1, "")
         ck("%s says browser storage is not a backup" % name,
            "not a backup" in pg.inner_text("#keepBox"), pg.inner_text("#keepBox")[:60])
+        # v1.3.0 (ADR-209). THE LIVE HANDLE IS REACHABLE FROM OUTSIDE THE PAGE'S
+        # OWN CLOSURE. Every page wires KEEP inside an IIFE and keeps the handle
+        # in a local, so the one description of the page's state that the
+        # autosave and the outbox both already read was reachable from nowhere
+        # else -- and a reader that wanted to know how much a tap had just taken
+        # had to count rows on the screen, where a record shown twice counts
+        # twice. One description, read by everything that needs it (ADR-141).
+        ck("%s exposes the live autosave handle" % name,
+           pg.evaluate("()=>{try{ return typeof KEEP.live==='function' && !!KEEP.live(); }"
+                       "catch(e){ return false; }}"), "")
+        ck("%s answers the same description through the handle as the page keeps"
+           % name,
+           pg.evaluate("()=>{try{ var h=KEEP.live&&KEEP.live(); "
+                       "return !!(h && typeof h.snapshot==='function' "
+                       "&& typeof h.touch==='function'); }catch(e){ return false; }}"), "")
 
         # Nothing at all, rather than nothing under one known key: a page whose
         # storage key was renamed would pass a keyed check by writing somewhere
@@ -351,6 +381,147 @@ with sync_playwright() as p:
     ck("no page errors from the refused restore", not errs, errs[:2])
     pg.close()
 
+    # ---------------- THE STRIP'S BUTTON SURVIVES A REPAINT (ADR-207) --------
+    #
+    # paint() wrote the whole strip with innerHTML, so the forget button was
+    # destroyed and re-created every time the autosave changed state -- which is
+    # every time it saves. A control that does not survive a repaint cannot be
+    # stamped, addressed or kept in focus across one, and audit_focus reported
+    # exactly that, intermittently, on whichever page happened to save while the
+    # sweep was looking. An intermittent finding is the worst kind: it reads as
+    # a flaky instrument rather than as the defect it is.
+    pg, errs = page("releve.html")
+    pg.evaluate("()=>{try{localStorage.clear();}catch(e){}}")
+    pg.reload(wait_until="domcontentloaded")
+    pg.wait_for_timeout(700)
+    del errs[:]
+    same = pg.evaluate("""async () => {
+        const b0 = document.querySelector('#keepBox [data-keep-forget]');
+        if (!b0) return 'no forget button at rest';
+        b0.dataset.marked = 'yes';
+        const el = document.getElementById('sPlot');
+        el.value = 'REPAINT-01';
+        el.dispatchEvent(new Event('input', {bubbles:true}));
+        await new Promise(r => setTimeout(r, 1200));
+        const b1 = document.querySelector('#keepBox [data-keep-forget]');
+        return { same: b0 === b1, marked: !!(b1 && b1.dataset.marked),
+                 said: document.querySelector('#keepBox .st').textContent.slice(0, 40) }; }""")
+    ck("THE STRIP'S BUTTON SURVIVES A REPAINT. Rewriting the strip with innerHTML destroys and "
+       "re-creates it on every save, and a control that does not survive a repaint cannot be "
+       "stamped, addressed or kept in focus across one -- which audit_focus reported as a page "
+       "whose control could not be measured, intermittently, which reads as a flaky instrument "
+       "rather than as the defect it is",
+       isinstance(same, dict) and same.get("same") is True and same.get("marked") is True, same)
+    ck("...and the words still changed, so this is not passing because nothing repainted",
+       isinstance(same, dict) and "Saved on this device" in (same.get("said") or ""), same)
+    ck("no errors from the repaint", not errs, errs[:2])
+    pg.evaluate("()=>{try{localStorage.clear();}catch(e){}}")
+    pg.close()
+
+    # ---------------- A PAGE THAT TAKES RECORDS KEEPS THEM (ADR-207) ---------
+    #
+    # Six pages accepted between eighteen and forty-seven typed values and kept
+    # NONE of them: close the tab, lose the morning. One of them -- the
+    # experiment guide, the page that takes more typed values than any other in
+    # this kit -- carried the exact `try{ setItem }catch(e){}` that KEEP exists
+    # to replace, and the check below that says "no silent setItem left" existed
+    # the whole time and looked only at the pages that had ALREADY been
+    # converted. A rule enforced over the converted set cannot find the
+    # unconverted one.
+    #
+    # AND A RULE WITH NO VIOLATORS LEFT CANNOT SHOW THAT IT FIRES. Every page
+    # keeps now, so the rule passes whether it is working or asleep -- which is
+    # ADR-127's point about a refusal nobody has watched. It is run twice: over
+    # the kit, where it must find nothing, and over a canary directory built
+    # here, where it must find exactly the page that deserves it and leave the
+    # one that does not.
+    KEEPLESS = {
+        "ecology-lab.html":
+            "a workbench, not a record: every box ships with a worked example, and what a "
+            "reader types into it is an exploration of the maths rather than something they "
+            "made. The session files it charts come from the sheets, which keep.",
+    }
+    import harness as _H
+    import harness_plugin_page as _PP
+    _ENTRY = frozenset(_H.TYPED) | frozenset(["slider", "checkbox", "select"])
+    _BAR = 4
+
+    def keepless_in(dirpath):
+        """Pages in a directory that take records and keep none. -> [(name, n)]"""
+        out = []
+        for _p in sorted(glob.glob(os.path.join(dirpath, "*.html"))):
+            _n = os.path.basename(_p)
+            _pg = ctx.new_page()
+            _pg.set_default_timeout(20000)
+            offline(_pg)
+            _pg.goto("file://" + _p.replace(os.sep, "/"), wait_until="domcontentloaded")
+            _pg.wait_for_timeout(400)
+            try:
+                _snap = _PP.PagePlugin(_pg, _n).observe(sensitive=True)
+                _ent = len([c for c in _snap.get("controls", []) if c.get("kind") in _ENTRY])
+            except Exception:
+                _ent = 0
+            _has = _pg.evaluate(
+                "()=>typeof KEEP!=='undefined' && !!document.getElementById('keepBox')")
+            _pg.evaluate("()=>{try{localStorage.clear();}catch(e){}}")
+            _pg.close()
+            if _ent >= _BAR and not _has and _n not in KEEPLESS:
+                out.append((_n, _ent))
+        return out
+
+    def silent_setitem_in(dirpath):
+        """Pages whose own script still writes to storage without KEEP."""
+        out = []
+        for _p in sorted(glob.glob(os.path.join(dirpath, "*.html"))):
+            src = io.open(_p, encoding="utf-8").read()
+            if "localStorage.setItem" in src.split("/* ---- Keep v")[0]:
+                out.append(os.path.basename(_p))
+        return out
+
+    # ---- the canary: a rule nobody has watched fire ----
+    _cdir = tempfile.mkdtemp(prefix="keepcanary_")
+    io.open(os.path.join(_cdir, "trap.html"), "w", encoding="utf-8").write(u"""<!doctype html>
+<html><head><meta charset="utf-8"><title>trap</title></head><body>
+<label>Plot <input type="text" id="a" aria-label="Plot"></label>
+<label>Date <input type="date" id="b" aria-label="Date"></label>
+<label>Count <input type="number" id="c" aria-label="Count"></label>
+<label>Observer <input type="text" id="d" aria-label="Observer"></label>
+<label>Notes <textarea id="e" aria-label="Notes"></textarea></label>
+<script>try{ localStorage.setItem("trap", "1"); }catch(e){}</script>
+</body></html>
+""")
+    io.open(os.path.join(_cdir, "quiet.html"), "w", encoding="utf-8").write(u"""<!doctype html>
+<html><head><meta charset="utf-8"><title>quiet</title></head><body>
+<label>Search <input type="text" id="q" aria-label="Search"></label>
+<p>A reference page.</p>
+</body></html>
+""")
+    _canary = keepless_in(_cdir)
+    ck("THE RULE FIRES. A page that takes five typed values and mounts no autosave is named -- run "
+       "against a canary built here, because every page in the kit keeps now and a rule with no "
+       "violators left passes whether it is working or asleep",
+       [n for n, _ in _canary] == ["trap.html"], _canary)
+    ck("...and it does not name the page that is right to keep nothing. A rule that called every "
+       "page without an autosave a loss would be switched off within a week, and then the real "
+       "ones would be invisible again",
+       "quiet.html" not in [n for n, _ in _canary], _canary)
+    _csilent = silent_setitem_in(_cdir)
+    ck("AND THE SILENT-setItem RULE FIRES TOO, against a page carrying the bare try/catch this "
+       "component was built to replace -- the pattern that sat on the experiment guide for eleven "
+       "slices beside a check that was looking somewhere else",
+       _csilent == ["trap.html"], _csilent)
+    shutil.rmtree(_cdir, ignore_errors=True)
+
+    keepless = keepless_in(os.path.join(ROOT, "docs"))
+    ck("EVERY PAGE THAT TAKES RECORDS KEEPS THEM. A page with %d or more controls you can put a "
+       "value into either mounts the autosave or is named above with a reason -- six pages took "
+       "between eighteen and forty-seven typed values and kept none of them, and the one with the "
+       "most carried the bare try/catch this component was built to replace" % _BAR,
+       not keepless, keepless)
+    for _n, _why in KEEPLESS.items():
+        ck("...and an exemption is a written judgement, not an absence: %s" % _n,
+           len(_why) > 40 and os.path.exists(os.path.join(ROOT, "docs", _n)), _why[:60])
+
     # ---------------- A RESTORE CANNOT BRING A PHOTOGRAPH BACK (ADR-206) ------
     #
     # Four sheets mounted FEK.photos and kept nothing at all, so a reader could
@@ -516,14 +687,18 @@ with sync_playwright() as p:
     pg.close()
 
     # ---------------- the pages no longer claim they do not save ----------
-    for name in CONSUMERS:
-        src = io.open(os.path.join(ROOT, "docs", name), encoding="utf-8").read()
+    # EVERY PAGE, NOT EVERY CONSUMER (ADR-207) -- and the finder above is the
+    # one doing the looking, so the canary that proves it fires proves this too.
+    for _p in sorted(glob.glob(os.path.join(ROOT, "docs", "*.html"))):
+        name = os.path.basename(_p)
+        src = io.open(_p, encoding="utf-8").read()
         ck("%s no longer says it loses your data" % name,
            "closing the tab loses" not in src and "does not save your data" not in src, "")
-        # The pattern KEEP replaced, gone for good: a bare setItem in a try that
-        # swallows the error is the whole bug, and it must not creep back.
-        ck("%s has no silent setItem left" % name,
-           "localStorage.setItem" not in src.split("/* ---- Keep v")[0], "")
+    ck("NO PAGE IN THE KIT HAS A SILENT setItem LEFT. A full quota, a private window and storage "
+       "disabled by policy all look identical to a page that only wraps setItem in a try -- nothing "
+       "saved, nothing said, which is the whole bug KEEP exists to replace",
+       not silent_setitem_in(os.path.join(ROOT, "docs")),
+       silent_setitem_in(os.path.join(ROOT, "docs")))
 
     pg, _ = page("ordination.html")
     met = re.sub(r"\s+", " ", pg.inner_text("#p-met"))

@@ -30,6 +30,16 @@ ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 TOOLS = os.path.join(ROOT, "tools")
 
 MUTANTS = [
+    # ---- the live handle (v1.3.0, ADR-209) ---------------------------------
+    ("the live handle is never recorded, so the page's own description is "
+     "reachable from nowhere",
+     '    LIVE = h;\n    return h;',
+     '    return h;',
+     "exposes the live autosave handle"),
+    ("the module offers a live() that always answers nothing",
+     'live:function(){ return LIVE; },',
+     'live:function(){ return null; },',
+     "exposes the live autosave handle"),
     # ---- the probe: the difference between knowing and assuming ------------
     ("storage is assumed usable rather than probed",
      '    } catch(e){ return false; }\n  }\n\n  function when(ts){',
@@ -89,12 +99,12 @@ MUTANTS = [
 
     # ---- what the page says about what this is ----------------------------
     ("the strip stops saying that a browser copy is not a backup",
-     "+ '<p class=\"note\"><b>This is not a backup.</b> It is one browser on one device, and it goes '",
-     "+ '<p class=\"note\"><b>Autosave.</b> '",
+     "note.innerHTML = '<b>This is not a backup.</b> It is one browser on one device, and it goes '",
+     "note.innerHTML = '<b>Autosave.</b> '",
      "is not a backup"),
     ("the strip stops offering a way to remove the saved copy",
-     '+ \'<button type="button" data-keep-forget>Forget this device\\\\\'s copy</button>\'',
-     "+ ''",
+     '        btn.textContent = "Forget this device\'s copy";',
+     '        btn.removeAttribute("data-keep-forget");',
      "offers a way to remove the saved copy"),
 
     # ---- forgetting really forgets ----------------------------------------
@@ -135,15 +145,51 @@ MUTANTS = [
      '      try { accepted = o.restore(got.body) !== false; } catch(e){ accepted = false; }',
      '      try { accepted = o.restore(got.body) !== false; } catch(e){ accepted = true; }',
      "THAT THREW IS NOT ANNOUNCED AS ONE EITHER"),
+    ("the strip is rewritten whole on every repaint, so its button does not survive one",
+     '      if(!host.firstChild){',
+     '      if(true){\n        host.innerHTML = "";',
+     "THE STRIP'S BUTTON SURVIVES A REPAINT"),
+    ("the strip stops repainting at all, so the button survives by never being touched",
+     '      host.firstChild.innerHTML = msg;',
+     '      host.firstChild.innerHTML = host.firstChild.innerHTML;',
+     "the words still changed"),
+
+    # ---- a page that takes records keeps them (ADR-207) --------------------
+    # Not keep.py: the rule lives in the suite, and what it is FOR is finding a
+    # page that has not been converted. A rule enforced over the converted set
+    # cannot do that, which is exactly how the experiment guide kept its bare
+    # try/catch while the check that looks for it ran green beside it.
+    ("the record-keeping rule names nothing, so a page that keeps nothing passes",
+     '            if _ent >= _BAR and not _has and _n not in KEEPLESS:\n                out.append((_n, _ent))',
+     '            if False:\n                out.append((_n, _ent))',
+     "THE RULE FIRES", "verify/verify_keep.py"),
+    ("the record-keeping rule names EVERY page without an autosave, so it is noise",
+     '            if _ent >= _BAR and not _has and _n not in KEEPLESS:',
+     '            if not _has:',
+     "does not name the page that is right to keep nothing", "verify/verify_keep.py"),
+    ("the bar is dropped to one control, so a search box is a data loss",
+     '    _BAR = 4',
+     '    _BAR = 1',
+     "does not name the page that is right to keep nothing", "verify/verify_keep.py"),
+    ("the silent-setItem finder looks past the page's own script",
+     '            if "localStorage.setItem" in src.split("/* ---- Keep v")[0]:',
+     '            if False:',
+     "THE SILENT-setItem RULE FIRES TOO", "verify/verify_keep.py"),
+    ("a page counts as keeping if it merely carries the component, mounted or not",
+     '            _has = _pg.evaluate(\n'
+     '                "()=>typeof KEEP!==\'undefined\' && !!document.getElementById(\'keepBox\')")',
+     '            _has = _pg.evaluate("()=>true")',
+     "THE RULE FIRES", "verify/verify_keep.py"),
+
     # ---- the list the suite reads, in the file that owns it ----------------
     # Not keep.py: this is the defect ADR-204 found, and it lives in the
     # emitter. The suite reads the emitter's list so that a page wired
     # tomorrow is covered tomorrow; drop a page from that list and the suite
     # must notice it is opening fewer pages than carry the layer.
     ("a page that inlines the autosave layer is dropped from the list the suite reads",
-     '             "survey-design.html", "greenhouse.html"]',
-     '             "survey-design.html"]',
-     "is a page this suite opens", "keep_emit.py"),
+     '             "cell-bench.html", "micro-bench.html", "cp-bench.html", "breeding-bench.html",',
+     '             "cell-bench.html", "micro-bench.html", "cp-bench.html",',
+     "EVERY PAGE THAT CARRIES THE AUTOSAVE IS A PAGE THIS SUITE OPENS", "keep_emit.py"),
 
     ("formRestore reports nothing restored, so a caller cannot tell a restore from a no-op",
      '      n++;\n    }\n    return n;',

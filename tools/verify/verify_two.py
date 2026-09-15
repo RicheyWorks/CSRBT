@@ -28,6 +28,12 @@ with sync_playwright() as p:
     pg.route("**://fonts.googleapis.com/**", lambda r: r.abort())
     pg.route("**://fonts.gstatic.com/**", lambda r: r.abort())
     errs=[]; pg.on("pageerror", lambda e: errs.append(str(e)))
+    # ADR-209: A SUITE MUST ANSWER THE QUESTIONS THE PAGE ASKS. Headless
+    # Chromium DISMISSES an unhandled dialog, so a confirmation added to a
+    # destructive control silently turns every press of it into a no-op --
+    # and a check that presses Clear and then asserts the sheet is empty
+    # would pass only because the page never got to ask.
+    pg.on("dialog", lambda d: d.accept())
     def _con(m):
         if m.type!="error": return
         if "ERR_CONNECTION" in m.text or "ERR_FAILED" in m.text: return

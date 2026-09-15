@@ -229,7 +229,7 @@
   td.ok { color:var(--s1); font-weight:700; } td.no { color:var(--danger); font-weight:700; }
 
 
-  /* ============ Field Entry Kit v1.6.0 ============
+  /* ============ Field Entry Kit v1.7.0 ============
      Large-target, high-contrast entry controls. Sizing is driven by --tap
      rather than per-component numbers so one token retunes the whole kit for
      gloves, cold hands or a wall-mounted tablet. */
@@ -688,7 +688,7 @@
 <div class="toast" id="toast" role="status" aria-live="polite"></div>
 <script>
 
-/* ---- Field Entry Kit v1.6.0 : constructors return {el, get, set} ---- */
+/* ---- Field Entry Kit v1.7.0 : constructors return {el, get, set} ---- */
 var FEK = (function(){
   function el(t,c,h){ var e=document.createElement(t); if(c) e.className=c;
     if(h!=null) e.innerHTML=h; return e; }
@@ -751,6 +751,21 @@ var FEK = (function(){
     return true;
   }
   function fields(){ var out=[]; for(var k in REG) if(REG.hasOwnProperty(k)) out.push(k); return out; }
+  /* v1.7.0 (ADR-210). What every registered widget is holding, read through its
+     own get(). The registry existed so a restored value could go back IN; there
+     was no way to get one OUT except through a hidden input the page had to
+     remember to write to -- so a control that declared a field but had no
+     element behind it was invisible to the autosave, and a control that
+     declared nothing was invisible twice over. A page's typed numbers came back
+     as defaults over correct data, which is the lie ADR-160 introduced the
+     registry to stop. */
+  function values(){
+    var out = {}, k;
+    for (k in REG) if (REG.hasOwnProperty(k)) {
+      try { out[k] = REG[k].get(); } catch (e) { }
+    }
+    return out;
+  }
 
   function step(o){
     o=o||{}; var min=(o.min==null?-Infinity:o.min), max=(o.max==null?Infinity:o.max);
@@ -1311,7 +1326,7 @@ var FEK = (function(){
      design -- still has to escape the data inside it. A private copy of an
      escaper in one page was how the last one got lost when the kit was
      re-emitted over it. */
-  return { version:"1.6.0", esc:escv, setField:setField, fields:fields, step:step, field:field, dial:dial, chips:chips, slider:slider,
+  return { version:"1.7.0", esc:escv, setField:setField, fields:fields, values:values, step:step, field:field, dial:dial, chips:chips, slider:slider,
            picker:picker, photos:photos, crc32:crc32, tiles:tiles, banner:banner, mount:mount, buzz:buzz, guard:guard };
 })();
 </script>
@@ -1578,7 +1593,11 @@ var TEXNOTE = {
     pile.push({id:m.id,n:m.n,cn:m.cn,N:m.N,moist:m.moist,dens:m.dens,k:m.k,vol:volCtl.get()});
     recOut(); recList(); FEK.buzz(12); toast("Added "+m.n);
   });
-  $("rClear").addEventListener("click",function(){ pile=[]; recOut(); recList(); });
+  /* ADR-209 */
+  $("rClear").addEventListener("click",function(){
+    if(pile.length && !confirm("Clear the pile? "+pile.length+" ingredient"+
+       (pile.length===1?"":"s")+" go and there is no undo.")) return;
+    pile=[]; recOut(); recList(); });
 
   function blend(){
     var C=0,N=0,wet=0,dry=0,vol=0,gv=0,bv=0;
@@ -1679,7 +1698,12 @@ var TEXNOTE = {
     lab.textContent="Tap to add a part · long-press or right-click to remove";
     host.appendChild(lab); host.appendChild(g);
   }
-  $("mClear").addEventListener("click",function(){ mix={}; mixUI(); mixOut(); });
+  /* ADR-209 */
+  $("mClear").addEventListener("click",function(){
+    var n=Object.keys(mix).length;
+    if(n && !confirm("Clear the mix? "+n+" component"+(n===1?"":"s")+
+       " go and there is no undo.")) return;
+    mix={}; mixUI(); mixOut(); });
   $("mCopy").addEventListener("click",function(){
     var ks=Object.keys(mix); if(!ks.length){toast("Empty mix");return;}
     var tot=ks.reduce(function(a,k){return a+mix[k];},0);

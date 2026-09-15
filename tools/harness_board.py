@@ -90,6 +90,8 @@ RUNNERS = [
     ("mutate_readable", "the readable-figures audit"),
     ("mutate_badinput", "the rejected-buffer audit"),
     ("mutate_outputs", "the outputs audit"),
+    ("mutate_destructive", "the destructive audit: what one tap takes, and whether the page asks"),
+    ("mutate_restored", "the restored-page audit: what a page says when it comes back"),
     ("mutate_delivery", "the delivery manifest and its audit"),
     ("mutate_fek", "the shared entry layer every data-entry page inlines"),
     ("mutate_ci", "the CI workflow's path filter, and the matcher that holds it"),

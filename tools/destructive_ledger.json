@@ -1,0 +1,358 @@
+{
+ "_comment": "Written by tools/audit_destructive.py. Per page: every control the gateway calls DESTRUCTIVE, how many records one tap of it took, whether the page asked first, and the ceiling the unasked bulk removers may not rise above (ADR-209).",
+ "pages": {
+  "breeding-bench.html": {
+   "at": 1789499519,
+   "bare": [],
+   "ceiling": 0,
+   "controls": 4,
+   "counts": {
+    "asks": 1,
+    "bulk": 0,
+    "ignores": 0,
+    "nothing": 1,
+    "one": 2,
+    "unreachable": 0
+   }
+  },
+  "cell-bench.html": {
+   "at": 1789499519,
+   "bare": [],
+   "ceiling": 0,
+   "controls": 4,
+   "counts": {
+    "asks": 2,
+    "bulk": 0,
+    "ignores": 0,
+    "nothing": 1,
+    "one": 1,
+    "unreachable": 0
+   }
+  },
+  "collection-sheet.html": {
+   "at": 1789499519,
+   "bare": [],
+   "ceiling": 0,
+   "controls": 4,
+   "counts": {
+    "asks": 0,
+    "bulk": 0,
+    "ignores": 0,
+    "nothing": 1,
+    "one": 3,
+    "unreachable": 0
+   }
+  },
+  "cp-bench.html": {
+   "at": 1789499519,
+   "bare": [],
+   "ceiling": 0,
+   "controls": 7,
+   "counts": {
+    "asks": 2,
+    "bulk": 0,
+    "ignores": 0,
+    "nothing": 1,
+    "one": 4,
+    "unreachable": 0
+   }
+  },
+  "cp-characters.html": {
+   "at": 1789499519,
+   "bare": [],
+   "ceiling": 0,
+   "controls": 1,
+   "counts": {
+    "asks": 0,
+    "bulk": 0,
+    "ignores": 0,
+    "nothing": 1,
+    "one": 0,
+    "unreachable": 0
+   }
+  },
+  "deployment-log.html": {
+   "at": 1789499519,
+   "bare": [],
+   "ceiling": 0,
+   "controls": 2,
+   "counts": {
+    "asks": 0,
+    "bulk": 0,
+    "ignores": 0,
+    "nothing": 1,
+    "one": 1,
+    "unreachable": 0
+   }
+  },
+  "ecology-lab.html": {
+   "at": 1789499519,
+   "bare": [],
+   "ceiling": 0,
+   "controls": 2,
+   "counts": {
+    "asks": 0,
+    "bulk": 0,
+    "ignores": 0,
+    "nothing": 2,
+    "one": 0,
+    "unreachable": 0
+   }
+  },
+  "ethogram.html": {
+   "at": 1789499519,
+   "bare": [],
+   "ceiling": 0,
+   "controls": 6,
+   "counts": {
+    "asks": 1,
+    "bulk": 1,
+    "ignores": 0,
+    "nothing": 1,
+    "one": 3,
+    "unreachable": 0
+   },
+   "declared": {
+    "rUndo": "The loss it reads is its own history entry plus the record that entry names: two things leave the autosave and the person loses one. Every Undo in this kit that keeps a stack reads the same way, and a rule that called them bulk deletes would be turned off within a week."
+   }
+  },
+  "experiment-guide.html": {
+   "at": 1789499519,
+   "bare": [],
+   "ceiling": 0,
+   "controls": 8,
+   "counts": {
+    "asks": 2,
+    "bulk": 0,
+    "ignores": 0,
+    "nothing": 3,
+    "one": 3,
+    "unreachable": 0
+   }
+  },
+  "farm-scout.html": {
+   "at": 1789499519,
+   "bare": [],
+   "ceiling": 0,
+   "controls": 4,
+   "counts": {
+    "asks": 0,
+    "bulk": 0,
+    "ignores": 0,
+    "nothing": 2,
+    "one": 2,
+    "unreachable": 0
+   }
+  },
+  "field-notebook.html": {
+   "at": 1789499519,
+   "bare": [],
+   "ceiling": 0,
+   "controls": 5,
+   "counts": {
+    "asks": 1,
+    "bulk": 0,
+    "ignores": 0,
+    "nothing": 4,
+    "one": 0,
+    "unreachable": 0
+   }
+  },
+  "food-web.html": {
+   "at": 1789499519,
+   "bare": [],
+   "ceiling": 0,
+   "controls": 2,
+   "counts": {
+    "asks": 1,
+    "bulk": 0,
+    "ignores": 0,
+    "nothing": 1,
+    "one": 0,
+    "unreachable": 0
+   }
+  },
+  "fungal-characters.html": {
+   "at": 1789499519,
+   "bare": [],
+   "ceiling": 0,
+   "controls": 1,
+   "counts": {
+    "asks": 0,
+    "bulk": 0,
+    "ignores": 0,
+    "nothing": 1,
+    "one": 0,
+    "unreachable": 0
+   }
+  },
+  "greenhouse.html": {
+   "at": 1789499519,
+   "bare": [],
+   "ceiling": 0,
+   "controls": 3,
+   "counts": {
+    "asks": 2,
+    "bulk": 0,
+    "ignores": 0,
+    "nothing": 0,
+    "one": 1,
+    "unreachable": 0
+   }
+  },
+  "micro-bench.html": {
+   "at": 1789499519,
+   "bare": [],
+   "ceiling": 0,
+   "controls": 5,
+   "counts": {
+    "asks": 1,
+    "bulk": 0,
+    "ignores": 0,
+    "nothing": 1,
+    "one": 3,
+    "unreachable": 0
+   }
+  },
+  "ordination.html": {
+   "at": 1789499519,
+   "bare": [],
+   "ceiling": 0,
+   "controls": 2,
+   "counts": {
+    "asks": 1,
+    "bulk": 0,
+    "ignores": 0,
+    "nothing": 1,
+    "one": 0,
+    "unreachable": 0
+   }
+  },
+  "pheno-tracker.html": {
+   "at": 1789499519,
+   "bare": [],
+   "ceiling": 0,
+   "controls": 6,
+   "counts": {
+    "asks": 1,
+    "bulk": 0,
+    "ignores": 0,
+    "nothing": 2,
+    "one": 1,
+    "unreachable": 2
+   }
+  },
+  "plant-characters.html": {
+   "at": 1789499519,
+   "bare": [],
+   "ceiling": 0,
+   "controls": 1,
+   "counts": {
+    "asks": 0,
+    "bulk": 0,
+    "ignores": 0,
+    "nothing": 1,
+    "one": 0,
+    "unreachable": 0
+   }
+  },
+  "releve.html": {
+   "at": 1789499519,
+   "bare": [],
+   "ceiling": 0,
+   "controls": 6,
+   "counts": {
+    "asks": 0,
+    "bulk": 0,
+    "ignores": 0,
+    "nothing": 4,
+    "one": 2,
+    "unreachable": 0
+   }
+  },
+  "selection-log.html": {
+   "at": 1789499519,
+   "bare": [],
+   "ceiling": 0,
+   "controls": 6,
+   "counts": {
+    "asks": 3,
+    "bulk": 0,
+    "ignores": 0,
+    "nothing": 1,
+    "one": 2,
+    "unreachable": 0
+   }
+  },
+  "soil-bench.html": {
+   "at": 1789499519,
+   "bare": [],
+   "ceiling": 0,
+   "controls": 5,
+   "counts": {
+    "asks": 2,
+    "bulk": 0,
+    "ignores": 0,
+    "nothing": 1,
+    "one": 2,
+    "unreachable": 0
+   }
+  },
+  "stand-sheet.html": {
+   "at": 1789499519,
+   "bare": [],
+   "ceiling": 0,
+   "controls": 5,
+   "counts": {
+    "asks": 0,
+    "bulk": 0,
+    "ignores": 0,
+    "nothing": 2,
+    "one": 3,
+    "unreachable": 0
+   }
+  },
+  "survey-design.html": {
+   "at": 1789499519,
+   "bare": [],
+   "ceiling": 0,
+   "controls": 3,
+   "counts": {
+    "asks": 1,
+    "bulk": 0,
+    "ignores": 0,
+    "nothing": 2,
+    "one": 0,
+    "unreachable": 0
+   }
+  },
+  "tree-proofs.html": {
+   "at": 1789499519,
+   "bare": [],
+   "ceiling": 0,
+   "controls": 1,
+   "counts": {
+    "asks": 0,
+    "bulk": 0,
+    "ignores": 0,
+    "nothing": 1,
+    "one": 0,
+    "unreachable": 0
+   }
+  },
+  "tree-visualizer.html": {
+   "at": 1789499519,
+   "bare": [],
+   "ceiling": 0,
+   "controls": 2,
+   "counts": {
+    "asks": 0,
+    "bulk": 0,
+    "ignores": 0,
+    "nothing": 2,
+    "one": 0,
+    "unreachable": 0
+   }
+  }
+ }
+}

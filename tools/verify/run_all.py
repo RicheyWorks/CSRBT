@@ -32,6 +32,8 @@ AUDITS = [
     ("audit_readable", "the figures a page publishes that read-report cannot see"),
     ("audit_badinput", "number boxes that read a rejected keystroke buffer as an empty one"),
     ("audit_outputs",  "what each page hands over, and whether its own task reads it"),
+    ("audit_destructive", "what one tap can destroy, and whether the page asks first"),
+    ("audit_restored", "what a page said before the tab closed, and what it says coming back"),
     ("audit_delivery", "files that are on disk and in no commit"),
 ]
 # A finder, not a gate: it reports a worklist and always exits zero, so running

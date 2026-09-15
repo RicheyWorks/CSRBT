@@ -157,7 +157,7 @@
   .rail a.ref:hover { color:var(--s1); }
   @media print { .rail { display:none !important; } }
 
-  /* ============ Field Entry Kit v1.6.0 ============
+  /* ============ Field Entry Kit v1.7.0 ============
      Large-target, high-contrast entry controls. Sizing is driven by --tap
      rather than per-component numbers so one token retunes the whole kit for
      gloves, cold hands or a wall-mounted tablet. */
@@ -349,7 +349,7 @@
 
   @media (max-width:420px){ :root { --tap:56px; --tap-sm:46px; } .fek-step .val { font-size:26px; } }
   @media print { .fek-step button, .fek-pick .search { display:none; } }
-  /* ============ Keep (local autosave) v1.1.0 ============ */
+  /* ============ Keep (local autosave) v1.4.0 ============ */
   .keep { display:flex; flex-wrap:wrap; align-items:center; gap:10px;
     background:var(--surface-2, #F3EEE0); border:1px solid var(--border, #E3DCC9);
     border-radius:12px; padding:10px 13px; margin:12px 0 2px; }
@@ -577,7 +577,7 @@
 
 <script>
 
-/* ---- Field Entry Kit v1.6.0 : constructors return {el, get, set} ---- */
+/* ---- Field Entry Kit v1.7.0 : constructors return {el, get, set} ---- */
 var FEK = (function(){
   function el(t,c,h){ var e=document.createElement(t); if(c) e.className=c;
     if(h!=null) e.innerHTML=h; return e; }
@@ -640,6 +640,21 @@ var FEK = (function(){
     return true;
   }
   function fields(){ var out=[]; for(var k in REG) if(REG.hasOwnProperty(k)) out.push(k); return out; }
+  /* v1.7.0 (ADR-210). What every registered widget is holding, read through its
+     own get(). The registry existed so a restored value could go back IN; there
+     was no way to get one OUT except through a hidden input the page had to
+     remember to write to -- so a control that declared a field but had no
+     element behind it was invisible to the autosave, and a control that
+     declared nothing was invisible twice over. A page's typed numbers came back
+     as defaults over correct data, which is the lie ADR-160 introduced the
+     registry to stop. */
+  function values(){
+    var out = {}, k;
+    for (k in REG) if (REG.hasOwnProperty(k)) {
+      try { out[k] = REG[k].get(); } catch (e) { }
+    }
+    return out;
+  }
 
   function step(o){
     o=o||{}; var min=(o.min==null?-Infinity:o.min), max=(o.max==null?Infinity:o.max);
@@ -1200,11 +1215,14 @@ var FEK = (function(){
      design -- still has to escape the data inside it. A private copy of an
      escaper in one page was how the last one got lost when the kit was
      re-emitted over it. */
-  return { version:"1.6.0", esc:escv, setField:setField, fields:fields, step:step, field:field, dial:dial, chips:chips, slider:slider,
+  return { version:"1.7.0", esc:escv, setField:setField, fields:fields, values:values, step:step, field:field, dial:dial, chips:chips, slider:slider,
            picker:picker, photos:photos, crc32:crc32, tiles:tiles, banner:banner, mount:mount, buzz:buzz, guard:guard };
 })();
-/* ---- Keep v1.1.0 : local autosave, and honesty about what that is ---- */
+/* ---- Keep v1.4.0 : local autosave, and honesty about what that is ---- */
 var KEEP = (function(){
+  /* The handle the last wire() returned, so a reader outside the page's closure
+     can ask the page what it is holding (v1.3.0, ADR-209). */
+  var LIVE = null;
   function esc(s){ return String(s==null?"":s).replace(/[&<>"']/g,function(c){
     return c==="&"?"&amp;":c==="<"?"&lt;":c===">"?"&gt;":c==='"'?"&quot;":"&#39;"; }); }
 
@@ -1316,17 +1334,31 @@ var KEEP = (function(){
         msg = "Autosave is on. " + esc(noun.charAt(0).toUpperCase() + noun.slice(1))
             + " will still be here if you close the tab.";
       }
-      host.innerHTML =
-        '<p class="st">' + msg + '</p>'
-        + '<button type="button" data-keep-forget>Forget this device\'s copy</button>'
-        + '<p class="note"><b>This is not a backup.</b> It is one browser on one device, and it goes '
-        + 'when site data is cleared, in a private window, or on any other machine. It exists so a '
-        + 'phone call does not cost you a morning. The exports are the durable copy.</p>';
-      var b = host.querySelector("[data-keep-forget]");
-      if(b) b.addEventListener("click", function(){
-        forget();
-        if(o.ontoast) o.ontoast("Saved copy removed from this device");
-      });
+      /* THE BUTTON IS BUILT ONCE (v1.2.0, ADR-207).
+         This wrote the whole strip with innerHTML on every repaint, so the
+         forget button was DESTROYED AND RE-CREATED whenever the autosave
+         changed state -- and the autosave changes state on every save. A
+         control that does not survive a repaint cannot be stamped, addressed
+         or kept in focus across one: audit_focus reported it as "mounted after
+         the last stamp and could not be measured", intermittently, on whichever
+         page happened to save while the sweep was looking. Only the words
+         change now. */
+      if(!host.firstChild){
+        var st = document.createElement("p"); st.className = "st";
+        var btn = document.createElement("button");
+        btn.type = "button"; btn.setAttribute("data-keep-forget", "");
+        btn.textContent = "Forget this device's copy";
+        btn.addEventListener("click", function(){
+          forget();
+          if(o.ontoast) o.ontoast("Saved copy removed from this device");
+        });
+        var note = document.createElement("p"); note.className = "note";
+        note.innerHTML = '<b>This is not a backup.</b> It is one browser on one device, and it goes '
+          + 'when site data is cleared, in a private window, or on any other machine. It exists so a '
+          + 'phone call does not cost you a morning. The exports are the durable copy.';
+        host.appendChild(st); host.appendChild(btn); host.appendChild(note);
+      }
+      host.firstChild.innerHTML = msg;
     }
 
     var got = read();
@@ -1350,7 +1382,7 @@ var KEEP = (function(){
         if(document.visibilityState === "hidden" && timer) flush(); });
     } catch(e){}
 
-    return { touch:touch, flush:flush, forget:forget, usable:function(){ return ok; },
+    var h = { touch:touch, flush:flush, forget:forget, usable:function(){ return ok; },
              restored:function(){ return restoredFrom; }, savedAt:function(){ return savedAt; },
              error:function(){ return lastErr; },
              /* v1.1.0 (ADR-203). The page already describes its own state once,
@@ -1362,6 +1394,17 @@ var KEEP = (function(){
                 twice, because two references can be wired to two functions and
                 only one of them would ever be tested. */
              snapshot:function(){ return o.snapshot(); } };
+    /* v1.3.0 (ADR-209). The live handle, reachable from outside the page's own
+       closure. A page wires KEEP inside an IIFE and keeps the handle in a local,
+       so the description of its state that the autosave and the outbox both
+       already read was reachable from nowhere else -- and an audit asking "how
+       much did that tap take" had to count rows on the screen instead. Rows on
+       the screen are not records: a plate shown once in a list and once in a
+       results table is one record counted twice, and a rule built on that cries
+       wolf on a row remover while under-reading a delete that cascades.
+       One description, read by everything that needs it (ADR-141). */
+    LIVE = h;
+    return h;
   }
 
   /* ---- generic form capture ----
@@ -1377,6 +1420,21 @@ var KEEP = (function(){
       if(e.type === "file" || e.type === "button" || e.type === "submit") continue;
       out[e.id] = (e.type === "checkbox" || e.type === "radio") ? (e.checked ? "1" : "") : e.value;
     }
+    /* v1.4.0 (ADR-210). ...AND EVERY FEK CONTROL THAT DECLARES A FIELD BUT HAS
+       NO ELEMENT BEHIND IT. Walking the DOM finds a page's typed state only
+       where the page also remembered to write it into a hidden input; a
+       component that declared `field:"selN"` and nothing else was invisible
+       here, and its value came back as the widget's default over correct data.
+       Only the ones the DOM walk did not already find, so every page that has
+       been keeping its state through hidden inputs keeps writing exactly the
+       blob it wrote yesterday. */
+    try {
+      if (typeof FEK !== "undefined" && FEK && typeof FEK.values === "function") {
+        var fv = FEK.values(), fk;
+        for (fk in fv) if (fv.hasOwnProperty(fk) && !out.hasOwnProperty(fk)
+                           && fv[fk] != null && fv[fk] !== "") out[fk] = fv[fk];
+      }
+    } catch (e) { }
     return out;
   }
   /* Restoring the hidden field is only half the job: the widget above it still
@@ -1389,7 +1447,12 @@ var KEEP = (function(){
     for(id in map){
       if(!map.hasOwnProperty(id)) continue;
       var e = document.getElementById(id);
-      if(!e) continue;
+      if(!e){
+        /* v1.4.0: a field with no element behind it is a FEK control that
+           declared one; put the value back through the widget's own set(). */
+        if(typeof FEK !== "undefined" && FEK.setField && FEK.setField(id, map[id])) n++;
+        continue;
+      }
       if(e.type === "checkbox" || e.type === "radio") e.checked = !!map[id];
       else e.value = map[id];
       if(typeof FEK !== "undefined" && FEK.setField){
@@ -1405,7 +1468,7 @@ var KEEP = (function(){
     return n;
   }
 
-  return { version:"1.1.0", wire:wire, usable:usable,
+  return { version:"1.4.0", wire:wire, usable:usable, live:function(){ return LIVE; },
            formSnapshot:formSnapshot, formRestore:formRestore };
 })();
 /* ---- Outbox v1.0.0 : what has not left this device ---- */

@@ -27,6 +27,12 @@ with sync_playwright() as p:
     b=p.chromium.launch(); pg=b.new_page(viewport={"width":700,"height":900})
     pg.set_default_timeout(10000)
     errs=[]; pg.on("pageerror", lambda e: errs.append(str(e)))
+    # ADR-209: A SUITE MUST ANSWER THE QUESTIONS THE PAGE ASKS. Headless
+    # Chromium DISMISSES an unhandled dialog, so a confirmation added to a
+    # destructive control silently turns every press of it into a no-op --
+    # and a check that presses Clear and then asserts the sheet is empty
+    # would pass only because the page never got to ask.
+    pg.on("dialog", lambda d: d.accept())
     # Built here, from tools/fek.py, so this suite can never test a stale copy
     # of the component -- which is exactly what it was doing.
     import importlib.util as _ilu
