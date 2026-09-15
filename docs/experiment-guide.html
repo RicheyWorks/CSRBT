@@ -164,6 +164,21 @@
     pre.out, pre.cmd { background:#fff; color:#111; border:1px solid #bbb; white-space:pre-wrap; }
     .app { padding-bottom:16px; }
   }
+  /* ============ Keep (local autosave) v1.4.0 ============ */
+  .keep { display:flex; flex-wrap:wrap; align-items:center; gap:10px;
+    background:var(--surface-2, #F3EEE0); border:1px solid var(--border, #E3DCC9);
+    border-radius:12px; padding:10px 13px; margin:12px 0 2px; }
+  .keep .st { font-family:var(--mono, monospace); font-size:11.5px; color:var(--muted, #6B6B5E);
+    line-height:1.5; flex:1 1 220px; min-width:0; }
+  .keep .st b { color:var(--ink, #23281F); }
+  .keep.bad { border-color:var(--danger, #B23A32); background:var(--danger-bg, #F6E7E5); }
+  .keep.bad .st b { color:var(--danger, #B23A32); }
+  .keep button { border:1.5px solid var(--border, #E3DCC9); background:none; border-radius:10px;
+    padding:0 14px; min-height:var(--tap, 44px); font:700 13px var(--body, sans-serif);
+    color:var(--ink-2, #4B5344); cursor:pointer; touch-action:manipulation; }
+  .keep button:hover { border-color:var(--danger, #B23A32); color:var(--danger, #B23A32); }
+  .keep .note { flex:1 1 100%; font-size:12px; color:var(--muted, #6B6B5E); line-height:1.5; }
+  @media print { .keep { display:none !important; } }
 </style>
 </head>
 <body>
@@ -277,7 +292,8 @@
   <div class="card">
     <h2>Design your experiment</h2>
     <p class="hint">Pick a track. Both walks end with something you can run: a <code>.eco</code> protocol file,
-      or a pre-registered measurement plan with a test skeleton. Your entries autosave on this device.</p>
+      or a pre-registered measurement plan with a test skeleton.</p>
+    <div id="keepBox"></div>
     <div class="choice" role="group" aria-label="Experiment track">
       <button type="button" id="track-eco" class="on">
         <div class="t">&#127807; Ecology protocol</div>
@@ -770,19 +786,289 @@
 <div class="toast" id="toast" role="status" aria-live="polite"></div>
 
 <script>
+/* ---- Keep v1.4.0 : local autosave, and honesty about what that is ---- */
+var KEEP = (function(){
+  /* The handle the last wire() returned, so a reader outside the page's closure
+     can ask the page what it is holding (v1.3.0, ADR-209). */
+  var LIVE = null;
+  function esc(s){ return String(s==null?"":s).replace(/[&<>"']/g,function(c){
+    return c==="&"?"&amp;":c==="<"?"&lt;":c===">"?"&gt;":c==='"'?"&quot;":"&#39;"; }); }
+
+  /* Probe rather than assume. Safari in private mode used to throw on the
+     first write; storage can also be disabled by enterprise policy or by the
+     user, and in a sandboxed frame the accessor itself throws. All three look
+     identical to a page that only wraps setItem in a try. */
+  function usable(){
+    try {
+      var k = "__keep_probe__";
+      window.localStorage.setItem(k, "1");
+      window.localStorage.removeItem(k);
+      return true;
+    } catch(e){ return false; }
+  }
+
+  function when(ts){
+    if(!ts) return "";
+    try {
+      var d = new Date(ts), now = new Date();
+      var same = d.toDateString() === now.toDateString();
+      var hm = ("0"+d.getHours()).slice(-2) + ":" + ("0"+d.getMinutes()).slice(-2);
+      return same ? ("today " + hm) : (d.toISOString().slice(0,10) + " " + hm);
+    } catch(e){ return ""; }
+  }
+
+  function wire(o){
+    o = o || {};
+    var key = o.key, host = typeof o.mount === "string" ? document.getElementById(o.mount) : o.mount;
+    var fmt = o.format == null ? 1 : o.format;
+    var ok = usable(), lastErr = null, savedAt = null, restoredFrom = null, timer = null;
+    var noun = o.noun || "your work";
+
+    function read(){
+      if(!ok) return null;
+      try {
+        var raw = window.localStorage.getItem(key);
+        if(!raw) return null;
+        var p = JSON.parse(raw);
+        /* A format stamp, so a page that changes its state shape does not
+           restore a shape it can no longer read and fail in a way the user
+           reads as data loss. */
+        if(!p || p.format !== fmt) return null;
+        return p;
+      } catch(e){ return null; }
+    }
+
+    function write(){
+      timer = null;
+      if(!ok) return;
+      var body;
+      try { body = o.snapshot(); } catch(e){ lastErr = "could not read the page state"; paint(); return; }
+      if(body == null){
+        try { window.localStorage.removeItem(key); }catch(e){}
+        savedAt = null; lastErr = null; paint(); return;
+      }
+      try {
+        window.localStorage.setItem(key, JSON.stringify({ format:fmt, at:Date.now(), body:body }));
+        savedAt = Date.now(); lastErr = null;
+      } catch(e){
+        /* Do not swallow this. A quota failure that says nothing is worse than
+           no autosave at all, because it teaches the user to trust it. */
+        lastErr = (e && e.name === "QuotaExceededError")
+          ? "this browser's storage is full" : "this browser refused the write";
+      }
+      paint();
+    }
+
+    function touch(){
+      if(!ok) return;
+      if(timer) clearTimeout(timer);
+      timer = setTimeout(write, o.debounce == null ? 500 : o.debounce);
+    }
+
+    function flush(){ if(timer){ clearTimeout(timer); } write(); }
+
+    function forget(){
+      /* Cancel the pending write first. Without this the debounced save from
+         the edit that preceded the click -- or from the click itself, on a
+         page that listens for clicks -- lands a few hundred milliseconds later
+         and puts the copy straight back, which makes the button look like it
+         did nothing. */
+      if(timer){ clearTimeout(timer); timer = null; }
+      try { window.localStorage.removeItem(key); }catch(e){}
+      savedAt = null; restoredFrom = null; lastErr = null; paint();
+      if(o.onforget) o.onforget();
+    }
+
+    function paint(){
+      if(!host) return;
+      /* noprint: this is screen chrome -- a status line about a browser and a
+         button -- and the print audit is right to count anything else that
+         vanishes on paper as content lost. */
+      host.className = "keep noprint" + ((!ok || lastErr) ? " bad" : "");
+      var msg;
+      if(!ok){
+        msg = "<b>This browser is not keeping anything.</b> Storage is unavailable here &mdash; a "
+            + "private window, or site data switched off. Nothing is being saved, so export before "
+            + "you close the tab.";
+      } else if(lastErr){
+        msg = "<b>Autosave failed &mdash; " + esc(lastErr) + ".</b> What is on screen is not saved. "
+            + "Export it now.";
+      } else if(savedAt){
+        msg = "Saved on this device <b>" + esc(when(savedAt)) + "</b>"
+            + (restoredFrom ? " &middot; restored from " + esc(when(restoredFrom)) : "") + ".";
+      } else if(restoredFrom){
+        msg = "Restored " + esc(noun) + " from <b>" + esc(when(restoredFrom)) + "</b> on this device.";
+      } else {
+        msg = "Autosave is on. " + esc(noun.charAt(0).toUpperCase() + noun.slice(1))
+            + " will still be here if you close the tab.";
+      }
+      /* THE BUTTON IS BUILT ONCE (v1.2.0, ADR-207).
+         This wrote the whole strip with innerHTML on every repaint, so the
+         forget button was DESTROYED AND RE-CREATED whenever the autosave
+         changed state -- and the autosave changes state on every save. A
+         control that does not survive a repaint cannot be stamped, addressed
+         or kept in focus across one: audit_focus reported it as "mounted after
+         the last stamp and could not be measured", intermittently, on whichever
+         page happened to save while the sweep was looking. Only the words
+         change now. */
+      if(!host.firstChild){
+        var st = document.createElement("p"); st.className = "st";
+        var btn = document.createElement("button");
+        btn.type = "button"; btn.setAttribute("data-keep-forget", "");
+        btn.textContent = "Forget this device's copy";
+        btn.addEventListener("click", function(){
+          forget();
+          if(o.ontoast) o.ontoast("Saved copy removed from this device");
+        });
+        var note = document.createElement("p"); note.className = "note";
+        note.innerHTML = '<b>This is not a backup.</b> It is one browser on one device, and it goes '
+          + 'when site data is cleared, in a private window, or on any other machine. It exists so a '
+          + 'phone call does not cost you a morning. The exports are the durable copy.';
+        host.appendChild(st); host.appendChild(btn); host.appendChild(note);
+      }
+      host.firstChild.innerHTML = msg;
+    }
+
+    var got = read();
+    if(got){
+      var accepted = false;
+      try { accepted = o.restore(got.body) !== false; } catch(e){ accepted = false; }
+      if(accepted){ restoredFrom = got.at; }
+    }
+    paint();
+    /* A PHOTOGRAPH IS AN EDIT (v1.1.0, ADR-206). FEK.photos fires `fek-change`
+       when frames are added, removed or captioned; nothing else does, because
+       a hidden file input and a drop produce neither `input` nor `change`. A
+       page that had to remember to wire this is a page that would forget. */
+    try {
+      document.addEventListener("fek-change", function(){ touch(); }, true);
+    } catch(e){}
+    /* A tab closing mid-debounce is exactly the case this exists for. */
+    try {
+      window.addEventListener("pagehide", function(){ if(timer) flush(); });
+      document.addEventListener("visibilitychange", function(){
+        if(document.visibilityState === "hidden" && timer) flush(); });
+    } catch(e){}
+
+    var h = { touch:touch, flush:flush, forget:forget, usable:function(){ return ok; },
+             restored:function(){ return restoredFrom; }, savedAt:function(){ return savedAt; },
+             error:function(){ return lastErr; },
+             /* v1.1.0 (ADR-203). The page already describes its own state once,
+                here, for the autosave. The outbox needs the same description to
+                say whether it has left the device -- and a SECOND description
+                would be a second thing to keep in step, so the one that is
+                already exercised by every restore is the one it gets. Read
+                through this handle rather than by the page passing its snapshot
+                twice, because two references can be wired to two functions and
+                only one of them would ever be tested. */
+             snapshot:function(){ return o.snapshot(); } };
+    /* v1.3.0 (ADR-209). The live handle, reachable from outside the page's own
+       closure. A page wires KEEP inside an IIFE and keeps the handle in a local,
+       so the description of its state that the autosave and the outbox both
+       already read was reachable from nowhere else -- and an audit asking "how
+       much did that tap take" had to count rows on the screen instead. Rows on
+       the screen are not records: a plate shown once in a list and once in a
+       results table is one record counted twice, and a rule built on that cries
+       wolf on a row remover while under-reading a delete that cascades.
+       One description, read by everything that needs it (ADR-141). */
+    LIVE = h;
+    return h;
+  }
+
+  /* ---- generic form capture ----
+     Every page in the kit keeps its typed state in elements with ids -- real
+     inputs for text and dates, hidden write-through fields for the FEK
+     widgets. Capturing them by walking the DOM means a page that gains a field
+     does not also have to remember to add it to a list, which is how a
+     hand-maintained list of fields quietly stops covering the newest one. */
+  function formSnapshot(){
+    var out = {}, i, els = document.querySelectorAll("input[id], textarea[id]");
+    for(i=0;i<els.length;i++){
+      var e = els[i];
+      if(e.type === "file" || e.type === "button" || e.type === "submit") continue;
+      out[e.id] = (e.type === "checkbox" || e.type === "radio") ? (e.checked ? "1" : "") : e.value;
+    }
+    /* v1.4.0 (ADR-210). ...AND EVERY FEK CONTROL THAT DECLARES A FIELD BUT HAS
+       NO ELEMENT BEHIND IT. Walking the DOM finds a page's typed state only
+       where the page also remembered to write it into a hidden input; a
+       component that declared `field:"selN"` and nothing else was invisible
+       here, and its value came back as the widget's default over correct data.
+       Only the ones the DOM walk did not already find, so every page that has
+       been keeping its state through hidden inputs keeps writing exactly the
+       blob it wrote yesterday. */
+    try {
+      if (typeof FEK !== "undefined" && FEK && typeof FEK.values === "function") {
+        var fv = FEK.values(), fk;
+        for (fk in fv) if (fv.hasOwnProperty(fk) && !out.hasOwnProperty(fk)
+                           && fv[fk] != null && fv[fk] !== "") out[fk] = fv[fk];
+      }
+    } catch (e) { }
+    return out;
+  }
+  /* Restoring the hidden field is only half the job: the widget above it still
+     shows its construction default, and a correct value under a wrong-looking
+     dial is worse than no restore at all. FEK.setField (v1.3.0) puts the value
+     back through the widget for every component that declared its field. */
+  function formRestore(map){
+    if(!map) return 0;
+    var n = 0, id;
+    for(id in map){
+      if(!map.hasOwnProperty(id)) continue;
+      var e = document.getElementById(id);
+      if(!e){
+        /* v1.4.0: a field with no element behind it is a FEK control that
+           declared one; put the value back through the widget's own set(). */
+        if(typeof FEK !== "undefined" && FEK.setField && FEK.setField(id, map[id])) n++;
+        continue;
+      }
+      if(e.type === "checkbox" || e.type === "radio") e.checked = !!map[id];
+      else e.value = map[id];
+      if(typeof FEK !== "undefined" && FEK.setField){
+        var v = map[id];
+        if(e.type === "number" || /^-?\d+(\.\d+)?$/.test(String(v))) {
+          FEK.setField(id, v === "" ? null : parseFloat(v));
+        } else {
+          FEK.setField(id, v === "" ? null : v);
+        }
+      }
+      n++;
+    }
+    return n;
+  }
+
+  return { version:"1.4.0", wire:wire, usable:usable, live:function(){ return LIVE; },
+           formSnapshot:formSnapshot, formRestore:formRestore };
+})();
+
 (function () {
   "use strict";
   var $ = function (id) { return document.getElementById(id); };
 
-  /* ── storage: best-effort, guarded — a private window or blocked storage must not break the page ── */
+  /* ── storage (ADR-207) ──
+     This page carried the exact pattern KEEP exists to replace: a bare
+     `try{ localStorage.setItem(...) }catch(e){}` that swallowed every failure.
+     A full quota, a private window and storage disabled by policy all produced
+     the same result -- nothing saved, nothing said -- on the page that takes
+     more typed values than any other in this kit. The check that says "no
+     silent setItem left" existed, and looked only at the pages that had
+     already been converted.
+
+     KEEP does the writing now: it probes storage at wire time and says so up
+     front when this browser is keeping nothing, it surfaces a failed write
+     instead of swallowing it, and it states in the page what browser storage
+     is. `saveState` stays as the name every call site uses; it is a debounced
+     touch on the autosave rather than a write of its own. */
   var KEY = "experiment-guider-v1";
-  function loadState() { try { return JSON.parse(localStorage.getItem(KEY)) || {}; } catch (e) { return {}; } }
-  function saveState() { try { localStorage.setItem(KEY, JSON.stringify(S)); } catch (e) { /* best effort */ } }
-  var S = loadState();
-  S.phases = S.phases || []; S.models = S.models || []; S.datasets = S.datasets || [];
-  S.expects = S.expects || []; S.fields = S.fields || {}; S.ticks = S.ticks || {};
-  S.meas = S.meas || {}; S.verdict = S.verdict || null;
-  S.track = S.track === "eng" ? "eng" : "eco";
+  var KEPT = null;
+  function saveState() { if (KEPT) KEPT.touch(); }
+  var S = {};
+  function blankState() {
+    S.phases = S.phases || []; S.models = S.models || []; S.datasets = S.datasets || [];
+    S.expects = S.expects || []; S.fields = S.fields || {}; S.ticks = S.ticks || {};
+    S.meas = S.meas || {}; S.verdict = (S.verdict == null ? null : S.verdict);
+    S.track = S.track === "eng" ? "eng" : "eco";
+  }
+  blankState();
 
   /* ── toast ── */
   var toastT = null;
@@ -1456,8 +1742,31 @@
     }
     saveState(); rebuild(); toast("Cleared");
   }
-  $("eco-reset").addEventListener("click", function () { resetAll(true); });
-  $("eng-reset").addEventListener("click", function () { resetAll(false); });
+  /* ADR-209. "Start over" on the page that takes more typed values than any
+     other in this kit, next to Copy and Download, with no question asked. */
+  function resetCount(ecoSide) {
+    var n = 0, k;
+    if (ecoSide) {
+      n = S.phases.length + S.models.length + S.datasets.length + S.expects.length;
+      ["e-name", "e-notes", "e-extra", "f-area", "f-wind", "f-temp", "f-dist"]
+        .forEach(function (id) { if (String(($(id) || {}).value || "").trim()) n++; });
+    } else {
+      ["g-question", "g-floor", "g-workload", "g-sizes", "g-phases", "g-rule", "g-stakes",
+       "g-verdict-note"].forEach(function (id) {
+        if (String(($(id) || {}).value || "").trim()) n++; });
+      if (S.verdict != null) n++;
+    }
+    return n;
+  }
+  function askReset(ecoSide) {
+    var n = resetCount(ecoSide);
+    if (!n) return true;
+    return confirm("Start over? " + n + " thing" + (n === 1 ? "" : "s") + " you have entered on "
+      + (ecoSide ? "the ecology track" : "the engineering track")
+      + " go, and there is no undo. Copy the protocol first if you want it.");
+  }
+  $("eco-reset").addEventListener("click", function () { if (askReset(true)) resetAll(true); });
+  $("eng-reset").addEventListener("click", function () { if (askReset(false)) resetAll(false); });
 
   /* ── import: the reverse path — read a .eco back into the Designer ── */
   function setField(id, v) { $(id).value = v; S.fields[id] = String(v); }
@@ -1569,9 +1878,55 @@
     saveState(); toast("Cleared");
   });
 
+  /* THE BOXES BEFORE THE RENDERS, and the order is not cosmetic: the
+     measurement rows are BUILT from what is in `g-sizes` and `g-phases`, so
+     a render that ran before those boxes were filled drew no rows at all and
+     a restored design came back without its measurements. */
+  function paintAll() {
+    var i, box, id;
+    for (i = 1; i <= 10; i++) { box = $("c" + i); if (box) box.checked = !!S.ticks["c" + i]; }
+    for (id in S.fields) if (S.fields.hasOwnProperty(id) && $(id)) $(id).value = S.fields[id];
+    showTrack(); renderPhases(); renderModels(); renderDatasets(); renderExpects();
+    renderMeas(); paintVerdict(); rebuild();
+  }
+
   /* ── boot ── */
-  showTrack(); renderPhases(); renderModels(); renderDatasets(); renderExpects();
-  renderMeas(); paintVerdict(); rebuild();
+  paintAll();
+
+  /* ADR-207. Wired after the first paint, so the autosave's restore lands on a
+     page that has already drawn itself once -- the same order every other
+     consumer in this kit uses. */
+  KEPT = KEEP.wire({
+    key: KEY,
+    format: 1,
+    mount: "keepBox",
+    noun: "this design",
+    ontoast: toast,
+    snapshot: function () {
+      var any = S.phases.length || S.models.length || S.datasets.length || S.expects.length
+                || S.verdict != null;
+      var k;
+      if (!any) for (k in S.fields)
+        if (S.fields.hasOwnProperty(k) && String(S.fields[k]).trim() !== "") { any = true; break; }
+      if (!any) for (k in S.ticks) if (S.ticks.hasOwnProperty(k) && S.ticks[k]) { any = true; break; }
+      return any ? S : null;
+    },
+    restore: function (b) {
+      if (!b) return false;
+      S = b;
+      blankState();
+      paintAll();
+      return true;
+    },
+    /* ADR-209. THE BUTTON THAT REMOVES THE BACKUP WAS ALSO REMOVING THE
+       ORIGINAL. "Forget this device's copy" says what it does, and what it did
+       was blank the design on the screen as well -- seventeen records gone to a
+       button whose label promises only that a saved copy stops existing. Every
+       other page in this kit leaves the working state alone; this one did not,
+       and nothing said so. The copy goes; what you are looking at stays, and
+       the next edit saves it again, which is what the label describes. */
+    onforget: function () { }
+  });
 })();
 </script>
 
