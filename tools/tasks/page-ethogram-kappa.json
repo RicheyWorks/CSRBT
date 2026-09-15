@@ -176,6 +176,23 @@
    }
   },
   {
+   "id": "forget",
+   "action": "activate",
+   "arguments": {
+    "selector": "@control:keepBox/Forget this device's copy"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "forgotten",
+   "action": "read-report",
+   "expect": {
+    "ok": true
+   }
+  },
+  {
    "id": "freeze",
    "action": "set-clock",
    "arguments": {
@@ -225,5 +242,17 @@
     "output.overflow": 0
    }
   }
- ]
+ ],
+ "policy": {
+  "allow": [
+   "SENSITIVE_READ",
+   "DRAFT",
+   "MUTATE",
+   "DESTRUCTIVE"
+  ],
+  "needs": [
+   "forget"
+  ],
+  "why": "ADR-206 gave this page an autosave, so the reload after the clock is frozen restores the sheet the task has just filled in -- including the date it was started on, which is CORRECT and is the reason the saved copy is dropped first. Forgetting a device's copy is destructive and is declared here rather than done quietly."
+ }
 }

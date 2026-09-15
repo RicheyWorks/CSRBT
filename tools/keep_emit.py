@@ -20,7 +20,9 @@ keep = importlib.util.module_from_spec(_spec); _spec.loader.exec_module(keep)
 
 CONSUMERS = ["ordination.html", "releve.html", "stand-sheet.html", "collection-sheet.html",
              "pheno-tracker.html", "deployment-log.html",
-             "survey-design.html", "greenhouse.html"]
+             "survey-design.html", "greenhouse.html",
+             # ADR-206: the four sheets that took photographs and kept nothing.
+             "ethogram.html", "field-notebook.html", "selection-log.html", "farm-scout.html"]
 
 JS_RE = re.compile(r"/\* ---- Keep v[\d.]+ :.*?\n\}\)\(\);", re.S)
 
