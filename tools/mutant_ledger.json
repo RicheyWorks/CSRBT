@@ -3854,50 +3854,50 @@
    "survived": 0
   },
   "mutate_restored": {
-   "at": 1789503064,
-   "equivalent": 0,
-   "equivalents": [],
-   "inconclusive": 1,
-   "killed": 14,
-   "mutants": 19,
+   "at": 1789505146,
+   "equivalent": 1,
+   "equivalents": [
+    {
+     "name": "the autosave is never flushed before the reload",
+     "why": "KEEP flushes a pending write on `pagehide`, which a reload fires -- so a page that is about to be reloaded saves whether this audit asks it to or not, and removing the explicit flush changes nothing any check can see. The flush stays because it makes the measurement independent of that: a page whose autosave stopped listening for pagehide would still be measured against what it actually holds, rather than reported clean because nothing was saved to come back from."
+    }
+   ],
+   "inconclusive": 0,
+   "killed": 18,
+   "mutants": 18,
    "rows": [
     {
-     "detail": "9 failure(s); first: a page whose snapshot leaves its records out comes back wit",
+     "detail": "10 failure(s); first: BOTH HALVES OF THE READING ARE COMPARED: the labelled figu",
      "name": "nothing is ever a loss",
      "verdict": "killed"
     },
     {
-     "detail": "9 failure(s); first: a page whose snapshot leaves its records out comes back wit",
+     "detail": "3 failure(s); first: a page whose snapshot leaves its records out comes back wit",
      "name": "only a key that VANISHED counts, so a value that came back wrong is not a loss",
      "verdict": "killed"
     },
     {
-     "detail": "2 failure(s); first: A PAGE THAT KEEPS WHAT IT HOLDS AND REPAINTS IT COMES BACK ",
+     "detail": "3 failure(s); first: A PAGE THAT KEEPS WHAT IT HOLDS AND REPAINTS IT COMES BACK ",
      "name": "every key that changed counts, so the status strips are losses too",
      "verdict": "killed"
     },
     {
-     "detail": "no check failed -- this clause is asserted by nobody",
+     "detail": "1 failure(s); first: A PANE IS A CONTAINER, NOT A REPORT: it changes when anythi",
      "name": "a pane counts, so the same difference is counted twice under its container",
-     "verdict": "SURVIVED"
+     "verdict": "killed"
     },
     {
-     "detail": "no check failed -- this clause is asserted by nobody",
-     "name": "the status list is emptied, so nothing is allowed to say what just happened",
-     "verdict": "SURVIVED"
+     "detail": "2 failure(s); first: A PAGE THAT KEEPS WHAT IT HOLDS AND REPAINTS IT COMES BACK ",
+     "name": "the autosave's own strip is taken off the list, so a restored page reports it as a loss",
+     "verdict": "killed"
     },
     {
      "detail": "2 failure(s); first: every fixture was entered, flushed and reloaded: [('whole.h",
      "name": "the page is never entered, so there is nothing to lose",
-     "verdict": "killed by the wrong check"
+     "verdict": "killed"
     },
     {
-     "detail": "no check failed -- this clause is asserted by nobody",
-     "name": "the autosave is never flushed, so the debounce decides what is kept",
-     "verdict": "SURVIVED"
-    },
-    {
-     "detail": "10 failure(s); first: ...and every one of them came back from its own autosave: ",
+     "detail": "11 failure(s); first: ...and every one of them came back from its own autosave: ",
      "name": "the tab is never reloaded, so the two readings are the same reading",
      "verdict": "killed"
     },
@@ -3907,17 +3907,17 @@
      "verdict": "killed"
     },
     {
-     "detail": "10 failure(s); first: the reading is what the page PUBLISHES -- read-report's fi",
+     "detail": "3 failure(s); first: a page whose snapshot leaves its records out comes back wit",
      "name": "the boxes are dropped from the reading, so only figures are compared",
      "verdict": "killed"
     },
     {
-     "detail": "no check failed -- this clause is asserted by nobody",
+     "detail": "1 failure(s); first: BOTH HALVES OF THE READING ARE COMPARED: the labelled figur",
      "name": "the figures are dropped from the reading, so only prose is compared",
-     "verdict": "SURVIVED"
+     "verdict": "killed"
     },
     {
-     "detail": "1 failure(s); first: a declared difference leaves the worklist: ['box/anStat', '",
+     "detail": "3 failure(s); first: ...and every one of them came back from its own autosave: [",
      "name": "a declaration does not exempt the difference",
      "verdict": "killed"
     },
@@ -3957,7 +3957,7 @@
      "verdict": "killed"
     }
    ],
-   "survived": 4
+   "survived": 0
   },
   "mutate_tasks": {
    "at": 1789455973,

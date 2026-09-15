@@ -130,7 +130,7 @@
   .rail a.ref:hover { color:var(--s1); }
   @media print { .rail { display:none !important; } }
 
-  /* ============ Field Entry Kit v1.6.0 ============
+  /* ============ Field Entry Kit v1.7.0 ============
      Large-target, high-contrast entry controls. Sizing is driven by --tap
      rather than per-component numbers so one token retunes the whole kit for
      gloves, cold hands or a wall-mounted tablet. */
@@ -488,7 +488,7 @@
 
 <script>
 
-/* ---- Field Entry Kit v1.6.0 : constructors return {el, get, set} ---- */
+/* ---- Field Entry Kit v1.7.0 : constructors return {el, get, set} ---- */
 var FEK = (function(){
   function el(t,c,h){ var e=document.createElement(t); if(c) e.className=c;
     if(h!=null) e.innerHTML=h; return e; }
@@ -551,6 +551,21 @@ var FEK = (function(){
     return true;
   }
   function fields(){ var out=[]; for(var k in REG) if(REG.hasOwnProperty(k)) out.push(k); return out; }
+  /* v1.7.0 (ADR-210). What every registered widget is holding, read through its
+     own get(). The registry existed so a restored value could go back IN; there
+     was no way to get one OUT except through a hidden input the page had to
+     remember to write to -- so a control that declared a field but had no
+     element behind it was invisible to the autosave, and a control that
+     declared nothing was invisible twice over. A page's typed numbers came back
+     as defaults over correct data, which is the lie ADR-160 introduced the
+     registry to stop. */
+  function values(){
+    var out = {}, k;
+    for (k in REG) if (REG.hasOwnProperty(k)) {
+      try { out[k] = REG[k].get(); } catch (e) { }
+    }
+    return out;
+  }
 
   function step(o){
     o=o||{}; var min=(o.min==null?-Infinity:o.min), max=(o.max==null?Infinity:o.max);
@@ -1111,7 +1126,7 @@ var FEK = (function(){
      design -- still has to escape the data inside it. A private copy of an
      escaper in one page was how the last one got lost when the kit was
      re-emitted over it. */
-  return { version:"1.6.0", esc:escv, setField:setField, fields:fields, step:step, field:field, dial:dial, chips:chips, slider:slider,
+  return { version:"1.7.0", esc:escv, setField:setField, fields:fields, values:values, step:step, field:field, dial:dial, chips:chips, slider:slider,
            picker:picker, photos:photos, crc32:crc32, tiles:tiles, banner:banner, mount:mount, buzz:buzz, guard:guard };
 })();
 

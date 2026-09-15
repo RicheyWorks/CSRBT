@@ -5,7 +5,7 @@ Single source of truth. Emitted inline into every page that uses it, because
 every page in this kit must stay one self-contained file (artifact CSP, offline
 in the field, printable). Bump VERSION on any change and re-emit consumers.
 """
-VERSION = "1.6.0"
+VERSION = "1.7.0"
 
 CSS = """
   /* ============ Field Entry Kit v%s ============
@@ -266,6 +266,21 @@ var FEK = (function(){
     return true;
   }
   function fields(){ var out=[]; for(var k in REG) if(REG.hasOwnProperty(k)) out.push(k); return out; }
+  /* v1.7.0 (ADR-210). What every registered widget is holding, read through its
+     own get(). The registry existed so a restored value could go back IN; there
+     was no way to get one OUT except through a hidden input the page had to
+     remember to write to -- so a control that declared a field but had no
+     element behind it was invisible to the autosave, and a control that
+     declared nothing was invisible twice over. A page's typed numbers came back
+     as defaults over correct data, which is the lie ADR-160 introduced the
+     registry to stop. */
+  function values(){
+    var out = {}, k;
+    for (k in REG) if (REG.hasOwnProperty(k)) {
+      try { out[k] = REG[k].get(); } catch (e) { }
+    }
+    return out;
+  }
 
   function step(o){
     o=o||{}; var min=(o.min==null?-Infinity:o.min), max=(o.max==null?Infinity:o.max);
@@ -826,7 +841,7 @@ var FEK = (function(){
      design -- still has to escape the data inside it. A private copy of an
      escaper in one page was how the last one got lost when the kit was
      re-emitted over it. */
-  return { version:"%s", esc:escv, setField:setField, fields:fields, step:step, field:field, dial:dial, chips:chips, slider:slider,
+  return { version:"%s", esc:escv, setField:setField, fields:fields, values:values, step:step, field:field, dial:dial, chips:chips, slider:slider,
            picker:picker, photos:photos, crc32:crc32, tiles:tiles, banner:banner, mount:mount, buzz:buzz, guard:guard };
 })();
 """ % (VERSION, VERSION)

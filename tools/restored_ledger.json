@@ -1,0 +1,164 @@
+{
+ "_comment": "Written by tools/audit_restored.py. Per page: what read-report said after the page's own task ran, what it said after the tab was reloaded onto the autosave, and the ceiling the differences may not rise above (ADR-210).",
+ "pages": {
+  "breeding-bench.html": {
+   "at": 1789505888,
+   "back": 38,
+   "ceiling": 0,
+   "lost": [],
+   "restored": true,
+   "said": 38
+  },
+  "cell-bench.html": {
+   "at": 1789505888,
+   "back": 49,
+   "ceiling": 0,
+   "lost": [],
+   "restored": true,
+   "said": 49
+  },
+  "collection-sheet.html": {
+   "at": 1789505888,
+   "back": 26,
+   "ceiling": 0,
+   "declared": {
+    "box/vList": "The label is regenerated from the record and the sheet's current fields, so a label made before the chemical spot tests were typed comes back WITH them. The restored page says more, not less, and nothing that was on it has gone."
+   },
+   "lost": [],
+   "restored": true,
+   "said": 26
+  },
+  "cp-bench.html": {
+   "at": 1789505888,
+   "back": 38,
+   "ceiling": 0,
+   "lost": [],
+   "restored": true,
+   "said": 38
+  },
+  "deployment-log.html": {
+   "at": 1789505888,
+   "back": 43,
+   "ceiling": 0,
+   "lost": [],
+   "restored": true,
+   "said": 43
+  },
+  "ethogram.html": {
+   "at": 1789505888,
+   "back": 31,
+   "ceiling": 0,
+   "declared": {
+    "box/budBox": "The time budget, which carries that clock in its own text.",
+    "box/ecoOut": "The .eco preview stamps the session's elapsed time into the protocol it writes; the same clock, one box along.",
+    "by/budBox/elapsed": "The session clock. It reads the time since the session started, and a reload happens a second later than the reading before it -- a figure that came back identical would mean the clock had stopped."
+   },
+   "lost": [],
+   "restored": true,
+   "said": 31
+  },
+  "experiment-guide.html": {
+   "at": 1789505888,
+   "back": 19,
+   "ceiling": 0,
+   "lost": [],
+   "restored": true,
+   "said": 19
+  },
+  "farm-scout.html": {
+   "at": 1789505888,
+   "back": 21,
+   "ceiling": 0,
+   "lost": [],
+   "restored": true,
+   "said": 21
+  },
+  "field-notebook.html": {
+   "at": 1789505888,
+   "back": 29,
+   "ceiling": 0,
+   "lost": [],
+   "restored": true,
+   "said": 29
+  },
+  "greenhouse.html": {
+   "at": 1789505888,
+   "back": 35,
+   "ceiling": 0,
+   "declared": {
+    "box/runMsg": "The run pane's line about the last save or delete. Same: it reports what just happened, and nothing just happened.",
+    "box/srcMsg": "The source pane's own line about the last fetch -- 'Log cleared.', '412 readings from the controller export'. A sentence about an act, and a reload had no act."
+   },
+   "lost": [],
+   "restored": true,
+   "said": 35
+  },
+  "micro-bench.html": {
+   "at": 1789505888,
+   "back": 26,
+   "ceiling": 0,
+   "lost": [],
+   "restored": true,
+   "said": 26
+  },
+  "ordination.html": {
+   "at": 1789505888,
+   "back": 24,
+   "ceiling": 0,
+   "lost": [],
+   "restored": true,
+   "said": 24
+  },
+  "pheno-tracker.html": {
+   "at": 1789505888,
+   "back": 18,
+   "ceiling": 0,
+   "declared": {
+    "box/pNote": "The per-plant note editor exists only while a plant is selected, and a restored run deliberately comes back with nothing selected -- the note itself is kept in the run and appears the moment a plant is picked. Coming back to the plant you were scoring is worth doing and is filed, not fixed here."
+   },
+   "lost": [],
+   "restored": true,
+   "said": 19
+  },
+  "releve.html": {
+   "at": 1789505888,
+   "back": 46,
+   "ceiling": 0,
+   "declared": {
+    "box/packBox": "The block that holds the pack loader and its verdict; it differs because the verdict inside it does.",
+    "box/packMsg": "The species-pack loader's own verdict on the last paste: 'Rejected -- 3 problems'. It is a sentence about an act, not about the sheet, and a reload had no act."
+   },
+   "lost": [],
+   "restored": true,
+   "said": 46
+  },
+  "selection-log.html": {
+   "at": 1789505888,
+   "back": 26,
+   "ceiling": 0,
+   "lost": [],
+   "restored": true,
+   "said": 26
+  },
+  "stand-sheet.html": {
+   "at": 1789505888,
+   "back": 48,
+   "ceiling": 0,
+   "declared": {
+    "box/packBox": "The block that holds the pack loader and its verdict, open or closed; it differs because the verdict inside it does.",
+    "box/packMsg": "The pack loader's own verdict on the last paste -- 'Loaded. 2 species added'. A sentence about an act, and a reload had no act; what the pack put in the sheet is kept and comes back."
+   },
+   "lost": [],
+   "restored": true,
+   "said": 48
+  },
+  "survey-design.html": {
+   "at": 1789505888,
+   "back": 34,
+   "ceiling": 0,
+   "lost": [],
+   "restored": true,
+   "said": 34
+  }
+ }
+}
