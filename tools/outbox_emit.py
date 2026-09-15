@@ -22,7 +22,11 @@ CONSUMERS = ["ordination.html", "releve.html", "stand-sheet.html", "collection-s
              "pheno-tracker.html", "deployment-log.html",
              "survey-design.html", "greenhouse.html",
              # ADR-206: the four sheets that took photographs and kept nothing.
-             "ethogram.html", "field-notebook.html", "selection-log.html", "farm-scout.html"]
+             "ethogram.html", "field-notebook.html", "selection-log.html", "farm-scout.html",
+             # ADR-207: the last pages that took records and kept none of them.
+             "cell-bench.html", "micro-bench.html", "cp-bench.html",
+             # ADR-208: the data trap -- eighteen typed values and no way out.
+             "breeding-bench.html"]
 
 JS_RE = re.compile(r"/\* ---- Outbox v[\d.]+ :.*?\n\}\)\(\);", re.S)
 

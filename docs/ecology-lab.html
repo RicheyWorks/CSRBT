@@ -1540,6 +1540,12 @@ Is it one long low ridge rather than three small ridges? | =Rose comb (R_pp) | =
        hypotheses, Excel-ready CSVs, a printable report. That is the storage format.</p>
     <button class="wb-btn" id="wb-eco-build" type="button">build .eco lines from my entries</button>
     <textarea id="wb-eco-out" readonly aria-label=".eco lines built from your entries" style="min-height:120px;margin-top:8px" spellcheck="false"></textarea>
+    <!-- ADR-208. The button above BUILT the protocol and then left it in a box.
+         On a phone, selecting the contents of a 120px textarea by hand is the
+         step where the morning is lost: a page that produces something a person
+         is told to save must be able to hand it over. -->
+    <button class="wb-btn" id="wb-eco-copy" type="button">copy the .eco lines</button>
+    <p id="wb-eco-copyOut" role="status" aria-live="polite" class="whatis" style="margin:6px 0 0"></p>
     <div id="wb-eco-left"></div>
     <h3 class="h3" style="margin-top:16px">Import a protocol — read an <code>.eco</code> file back in</h3>
     <p class="whatis">The same road, travelled the other way. Paste a protocol below — or drop a
@@ -3131,6 +3137,32 @@ expect: evenness(pondA) is moderate"></textarea>
   document.getElementById("wb-deck").addEventListener("change", fillDeck);
   document.getElementById("wb-deckstart").addEventListener("click", startDrill);
   document.getElementById("wb-eco-build").addEventListener("click", buildEco);
+  /* ADR-208: and the copy that gets it off the screen. execCommand REPORTS
+     FAILURE BY RETURNING FALSE and throws in only some of the ways it can fail,
+     so the return value is what decides whether this copy happened, and the
+     sentence goes in the success path rather than on the click. */
+  document.getElementById("wb-eco-copy").addEventListener("click", function () {
+    const said = document.getElementById("wb-eco-copyOut");
+    const text = document.getElementById("wb-eco-out").value;
+    if (!text.trim()) {
+      said.textContent = "Nothing built yet — press the button above first.";
+      return;
+    }
+    const ok = () => { said.textContent = "Copied " + text.split("\n").length
+                                        + " line(s). Paste them into a .eco file."; };
+    const legacy = () => {
+      const a = document.createElement("textarea");
+      a.value = text; a.style.position = "fixed"; a.style.opacity = "0";
+      document.body.appendChild(a); a.select();
+      let done = false;
+      try { done = document.execCommand("copy"); } catch (e) { }
+      document.body.removeChild(a);
+      if (done) ok(); else said.textContent = "This browser refused the copy — select the box above.";
+    };
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(text).then(ok, legacy);
+    } else legacy();
+  });
   document.getElementById("wb-eco-import").addEventListener("click",
       () => importEco(document.getElementById("wb-eco-in").value));
   /* A dropped `.eco` file lands in the box first, so what was imported is on screen next to

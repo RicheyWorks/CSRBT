@@ -515,6 +515,34 @@ def run_task(task, wire, pid, wires=None):
             entry["detail"] = "the target failed: %s" % (r.get("message") or "")[:120]
             verdict = "FAIL"
             break
+        # A REFUSAL NOBODY ASKED FOR IS A FAILURE (ADR-208).
+        #
+        # A failure the task did not expect ended the run, one line up, from
+        # ADR-126 on. A REFUSAL did not: the step was recorded `refused`, it
+        # graded nothing because it expected nothing, and the runner moved on
+        # and reported PASS. So a task could name an argument the action does
+        # not take, be told so by the door, and hold -- which is what happened
+        # to the two steps this rule was written from: ADR-208 added a
+        # `collect-output` with a `selector`, the door refused both, and the
+        # bench task reported 115 confirmed and PASS with its exports never
+        # once collected. Every expectation the task DID state was true; the
+        # two it could not state, because the step never ran, were the two
+        # this slice was about.
+        #
+        # THE KIT ALREADY HAS THE GRAMMAR for a refusal a task means to
+        # provoke: `expect: {"ok": false}`, or an expectation about `code` --
+        # the collection sheet's `hostgone` types a filter that matches
+        # nothing and says so. So the rule reads off what the task claimed
+        # rather than a list of steps allowed to be refused: a refused or
+        # declined step that says NOTHING about `ok` or `code` is a task
+        # asking for something the door would not do and not noticing.
+        if result in ("refused", "declined") and not any(
+                p.split("#")[0] in ("ok", "code") or p.startswith("code.")
+                for p, _, _ in graded):
+            entry["detail"] = ("refused, and the task said nothing about being refused: %s"
+                               % (r.get("message") or "")[:120])
+            verdict = "FAIL"
+            break
         if any(v == "REFUTED" for _, v, _ in graded):
             verdict = "FAIL"
             if s.get("stop_on_refute", True):

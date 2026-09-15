@@ -227,7 +227,7 @@
   td.ok { color:var(--s1); font-weight:700; } td.no { color:var(--danger); font-weight:700; }
 
 
-  /* ============ Field Entry Kit v1.6.0 ============
+  /* ============ Field Entry Kit v1.7.0 ============
      Large-target, high-contrast entry controls. Sizing is driven by --tap
      rather than per-component numbers so one token retunes the whole kit for
      gloves, cold hands or a wall-mounted tablet. */
@@ -419,6 +419,37 @@
 
   @media (max-width:420px){ :root { --tap:56px; --tap-sm:46px; } .fek-step .val { font-size:26px; } }
   @media print { .fek-step button, .fek-pick .search { display:none; } }
+  /* ============ Keep (local autosave) v1.4.0 ============ */
+  .keep { display:flex; flex-wrap:wrap; align-items:center; gap:10px;
+    background:var(--surface-2, #F3EEE0); border:1px solid var(--border, #E3DCC9);
+    border-radius:12px; padding:10px 13px; margin:12px 0 2px; }
+  .keep .st { font-family:var(--mono, monospace); font-size:11.5px; color:var(--muted, #6B6B5E);
+    line-height:1.5; flex:1 1 220px; min-width:0; }
+  .keep .st b { color:var(--ink, #23281F); }
+  .keep.bad { border-color:var(--danger, #B23A32); background:var(--danger-bg, #F6E7E5); }
+  .keep.bad .st b { color:var(--danger, #B23A32); }
+  .keep button { border:1.5px solid var(--border, #E3DCC9); background:none; border-radius:10px;
+    padding:0 14px; min-height:var(--tap, 44px); font:700 13px var(--body, sans-serif);
+    color:var(--ink-2, #4B5344); cursor:pointer; touch-action:manipulation; }
+  .keep button:hover { border-color:var(--danger, #B23A32); color:var(--danger, #B23A32); }
+  .keep .note { flex:1 1 100%; font-size:12px; color:var(--muted, #6B6B5E); line-height:1.5; }
+  @media print { .keep { display:none !important; } }
+  /* ============ Outbox (what has not left this device) v1.0.0 ============ */
+  .outbox { background:var(--surface-2, #F3EEE0); border:1px solid var(--border, #E3DCC9);
+    border-radius:12px; padding:10px 13px; margin:4px 0 2px; }
+  .outbox .st { font-family:var(--mono, monospace); font-size:11.5px; color:var(--muted, #6B6B5E);
+    line-height:1.5; margin:0; }
+  .outbox .st b { color:var(--ink, #23281F); }
+  .outbox ul.pend { margin:7px 0 0; padding:0 0 0 18px; font-family:var(--mono, monospace);
+    font-size:11.5px; color:var(--ink-2, #4B5344); line-height:1.6; }
+  .outbox ul.pend li::marker { color:var(--muted, #6B6B5E); }
+  .outbox ul.pend .why { color:var(--muted, #6B6B5E); }
+  .outbox .note { margin:7px 0 0; font-size:12px; color:var(--muted, #6B6B5E); line-height:1.5; }
+  .outbox.hot { border-color:var(--accent, #7A6A3A); }
+  .outbox.hot .st b { color:var(--accent, #7A6A3A); }
+  .outbox.bad { border-color:var(--danger, #B23A32); background:var(--danger-bg, #F6E7E5); }
+  .outbox.bad .st b { color:var(--danger, #B23A32); }
+  @media print { .outbox { display:none !important; } }
 
   .rail { margin:26px 0 4px; }
   .rail .rl { font-family:var(--mono); font-size:11px; letter-spacing:.14em; text-transform:uppercase; color:var(--muted); margin:0 2px 8px; }
@@ -567,9 +598,30 @@
     <div class="card"><h3 style="margin-top:0">Crosses</h3><div class="rowlist" id="cList"></div></div>
   </section>
 
-  <!-- ============ METHOD ============ -->
+  <!-- ============ KEEPING WHAT YOU TYPED ============ -->
   <section class="pane" id="p-met">
     <h2>Method</h2>
+    <div id="keepBox"></div>
+    <div id="sendBox"></div>
+
+    <!-- ADR-208. This page kept a morning's work and could hand over a SOIL RECIPE.
+         The water log, the plants, the observations, the dormancy temperatures and
+         the crosses -- everything with a date on it -- had no way off the screen. -->
+    <div class="card">
+      <h3 style="margin-top:0">Take the bench with you</h3>
+      <p class="fine" style="margin-top:0">Everything logged on this bench, as one sheet: the water
+        readings, the plants and what was seen on them, the dormancy record and every cross. The CSV is
+        one section per table, which is what a spreadsheet opens cleanly and what a reviewer asks for.</p>
+      <div class="btn-row">
+        <button class="btn btn-go" id="bCopy" type="button">Copy the bench sheet</button>
+        <button class="btn btn-soft" id="bDown" type="button">Download bench.csv</button>
+      </div>
+      <p class="fine" style="margin-top:8px">If your viewer blocks downloads (some hosted viewers
+        do, silently), use <b>Copy the bench sheet</b> and paste into a file. The outbox above
+        tracks the copy and not the download, because a refused download says nothing a page can
+        hear.</p>
+      <div id="bOut" class="fine" style="margin-top:8px"></div>
+    </div>
 
     <div class="card">
       <h3 style="margin-top:0">Why water is the whole game</h3>
@@ -727,7 +779,7 @@
 <div class="toast" id="toast" role="status" aria-live="polite"></div>
 <script>
 
-/* ---- Field Entry Kit v1.6.0 : constructors return {el, get, set} ---- */
+/* ---- Field Entry Kit v1.7.0 : constructors return {el, get, set} ---- */
 var FEK = (function(){
   function el(t,c,h){ var e=document.createElement(t); if(c) e.className=c;
     if(h!=null) e.innerHTML=h; return e; }
@@ -790,6 +842,21 @@ var FEK = (function(){
     return true;
   }
   function fields(){ var out=[]; for(var k in REG) if(REG.hasOwnProperty(k)) out.push(k); return out; }
+  /* v1.7.0 (ADR-210). What every registered widget is holding, read through its
+     own get(). The registry existed so a restored value could go back IN; there
+     was no way to get one OUT except through a hidden input the page had to
+     remember to write to -- so a control that declared a field but had no
+     element behind it was invisible to the autosave, and a control that
+     declared nothing was invisible twice over. A page's typed numbers came back
+     as defaults over correct data, which is the lie ADR-160 introduced the
+     registry to stop. */
+  function values(){
+    var out = {}, k;
+    for (k in REG) if (REG.hasOwnProperty(k)) {
+      try { out[k] = REG[k].get(); } catch (e) { }
+    }
+    return out;
+  }
 
   function step(o){
     o=o||{}; var min=(o.min==null?-Infinity:o.min), max=(o.max==null?Infinity:o.max);
@@ -1350,8 +1417,512 @@ var FEK = (function(){
      design -- still has to escape the data inside it. A private copy of an
      escaper in one page was how the last one got lost when the kit was
      re-emitted over it. */
-  return { version:"1.6.0", esc:escv, setField:setField, fields:fields, step:step, field:field, dial:dial, chips:chips, slider:slider,
+  return { version:"1.7.0", esc:escv, setField:setField, fields:fields, values:values, step:step, field:field, dial:dial, chips:chips, slider:slider,
            picker:picker, photos:photos, crc32:crc32, tiles:tiles, banner:banner, mount:mount, buzz:buzz, guard:guard };
+})();
+/* ---- Keep v1.4.0 : local autosave, and honesty about what that is ---- */
+var KEEP = (function(){
+  /* The handle the last wire() returned, so a reader outside the page's closure
+     can ask the page what it is holding (v1.3.0, ADR-209). */
+  var LIVE = null;
+  function esc(s){ return String(s==null?"":s).replace(/[&<>"']/g,function(c){
+    return c==="&"?"&amp;":c==="<"?"&lt;":c===">"?"&gt;":c==='"'?"&quot;":"&#39;"; }); }
+
+  /* Probe rather than assume. Safari in private mode used to throw on the
+     first write; storage can also be disabled by enterprise policy or by the
+     user, and in a sandboxed frame the accessor itself throws. All three look
+     identical to a page that only wraps setItem in a try. */
+  function usable(){
+    try {
+      var k = "__keep_probe__";
+      window.localStorage.setItem(k, "1");
+      window.localStorage.removeItem(k);
+      return true;
+    } catch(e){ return false; }
+  }
+
+  function when(ts){
+    if(!ts) return "";
+    try {
+      var d = new Date(ts), now = new Date();
+      var same = d.toDateString() === now.toDateString();
+      var hm = ("0"+d.getHours()).slice(-2) + ":" + ("0"+d.getMinutes()).slice(-2);
+      return same ? ("today " + hm) : (d.toISOString().slice(0,10) + " " + hm);
+    } catch(e){ return ""; }
+  }
+
+  function wire(o){
+    o = o || {};
+    var key = o.key, host = typeof o.mount === "string" ? document.getElementById(o.mount) : o.mount;
+    var fmt = o.format == null ? 1 : o.format;
+    var ok = usable(), lastErr = null, savedAt = null, restoredFrom = null, timer = null;
+    var noun = o.noun || "your work";
+
+    function read(){
+      if(!ok) return null;
+      try {
+        var raw = window.localStorage.getItem(key);
+        if(!raw) return null;
+        var p = JSON.parse(raw);
+        /* A format stamp, so a page that changes its state shape does not
+           restore a shape it can no longer read and fail in a way the user
+           reads as data loss. */
+        if(!p || p.format !== fmt) return null;
+        return p;
+      } catch(e){ return null; }
+    }
+
+    function write(){
+      timer = null;
+      if(!ok) return;
+      var body;
+      try { body = o.snapshot(); } catch(e){ lastErr = "could not read the page state"; paint(); return; }
+      if(body == null){
+        try { window.localStorage.removeItem(key); }catch(e){}
+        savedAt = null; lastErr = null; paint(); return;
+      }
+      try {
+        window.localStorage.setItem(key, JSON.stringify({ format:fmt, at:Date.now(), body:body }));
+        savedAt = Date.now(); lastErr = null;
+      } catch(e){
+        /* Do not swallow this. A quota failure that says nothing is worse than
+           no autosave at all, because it teaches the user to trust it. */
+        lastErr = (e && e.name === "QuotaExceededError")
+          ? "this browser's storage is full" : "this browser refused the write";
+      }
+      paint();
+    }
+
+    function touch(){
+      if(!ok) return;
+      if(timer) clearTimeout(timer);
+      timer = setTimeout(write, o.debounce == null ? 500 : o.debounce);
+    }
+
+    function flush(){ if(timer){ clearTimeout(timer); } write(); }
+
+    function forget(){
+      /* Cancel the pending write first. Without this the debounced save from
+         the edit that preceded the click -- or from the click itself, on a
+         page that listens for clicks -- lands a few hundred milliseconds later
+         and puts the copy straight back, which makes the button look like it
+         did nothing. */
+      if(timer){ clearTimeout(timer); timer = null; }
+      try { window.localStorage.removeItem(key); }catch(e){}
+      savedAt = null; restoredFrom = null; lastErr = null; paint();
+      if(o.onforget) o.onforget();
+    }
+
+    function paint(){
+      if(!host) return;
+      /* noprint: this is screen chrome -- a status line about a browser and a
+         button -- and the print audit is right to count anything else that
+         vanishes on paper as content lost. */
+      host.className = "keep noprint" + ((!ok || lastErr) ? " bad" : "");
+      var msg;
+      if(!ok){
+        msg = "<b>This browser is not keeping anything.</b> Storage is unavailable here &mdash; a "
+            + "private window, or site data switched off. Nothing is being saved, so export before "
+            + "you close the tab.";
+      } else if(lastErr){
+        msg = "<b>Autosave failed &mdash; " + esc(lastErr) + ".</b> What is on screen is not saved. "
+            + "Export it now.";
+      } else if(savedAt){
+        msg = "Saved on this device <b>" + esc(when(savedAt)) + "</b>"
+            + (restoredFrom ? " &middot; restored from " + esc(when(restoredFrom)) : "") + ".";
+      } else if(restoredFrom){
+        msg = "Restored " + esc(noun) + " from <b>" + esc(when(restoredFrom)) + "</b> on this device.";
+      } else {
+        msg = "Autosave is on. " + esc(noun.charAt(0).toUpperCase() + noun.slice(1))
+            + " will still be here if you close the tab.";
+      }
+      /* THE BUTTON IS BUILT ONCE (v1.2.0, ADR-207).
+         This wrote the whole strip with innerHTML on every repaint, so the
+         forget button was DESTROYED AND RE-CREATED whenever the autosave
+         changed state -- and the autosave changes state on every save. A
+         control that does not survive a repaint cannot be stamped, addressed
+         or kept in focus across one: audit_focus reported it as "mounted after
+         the last stamp and could not be measured", intermittently, on whichever
+         page happened to save while the sweep was looking. Only the words
+         change now. */
+      if(!host.firstChild){
+        var st = document.createElement("p"); st.className = "st";
+        var btn = document.createElement("button");
+        btn.type = "button"; btn.setAttribute("data-keep-forget", "");
+        btn.textContent = "Forget this device's copy";
+        btn.addEventListener("click", function(){
+          forget();
+          if(o.ontoast) o.ontoast("Saved copy removed from this device");
+        });
+        var note = document.createElement("p"); note.className = "note";
+        note.innerHTML = '<b>This is not a backup.</b> It is one browser on one device, and it goes '
+          + 'when site data is cleared, in a private window, or on any other machine. It exists so a '
+          + 'phone call does not cost you a morning. The exports are the durable copy.';
+        host.appendChild(st); host.appendChild(btn); host.appendChild(note);
+      }
+      host.firstChild.innerHTML = msg;
+    }
+
+    var got = read();
+    if(got){
+      var accepted = false;
+      try { accepted = o.restore(got.body) !== false; } catch(e){ accepted = false; }
+      if(accepted){ restoredFrom = got.at; }
+    }
+    paint();
+    /* A PHOTOGRAPH IS AN EDIT (v1.1.0, ADR-206). FEK.photos fires `fek-change`
+       when frames are added, removed or captioned; nothing else does, because
+       a hidden file input and a drop produce neither `input` nor `change`. A
+       page that had to remember to wire this is a page that would forget. */
+    try {
+      document.addEventListener("fek-change", function(){ touch(); }, true);
+    } catch(e){}
+    /* A tab closing mid-debounce is exactly the case this exists for. */
+    try {
+      window.addEventListener("pagehide", function(){ if(timer) flush(); });
+      document.addEventListener("visibilitychange", function(){
+        if(document.visibilityState === "hidden" && timer) flush(); });
+    } catch(e){}
+
+    var h = { touch:touch, flush:flush, forget:forget, usable:function(){ return ok; },
+             restored:function(){ return restoredFrom; }, savedAt:function(){ return savedAt; },
+             error:function(){ return lastErr; },
+             /* v1.1.0 (ADR-203). The page already describes its own state once,
+                here, for the autosave. The outbox needs the same description to
+                say whether it has left the device -- and a SECOND description
+                would be a second thing to keep in step, so the one that is
+                already exercised by every restore is the one it gets. Read
+                through this handle rather than by the page passing its snapshot
+                twice, because two references can be wired to two functions and
+                only one of them would ever be tested. */
+             snapshot:function(){ return o.snapshot(); } };
+    /* v1.3.0 (ADR-209). The live handle, reachable from outside the page's own
+       closure. A page wires KEEP inside an IIFE and keeps the handle in a local,
+       so the description of its state that the autosave and the outbox both
+       already read was reachable from nowhere else -- and an audit asking "how
+       much did that tap take" had to count rows on the screen instead. Rows on
+       the screen are not records: a plate shown once in a list and once in a
+       results table is one record counted twice, and a rule built on that cries
+       wolf on a row remover while under-reading a delete that cascades.
+       One description, read by everything that needs it (ADR-141). */
+    LIVE = h;
+    return h;
+  }
+
+  /* ---- generic form capture ----
+     Every page in the kit keeps its typed state in elements with ids -- real
+     inputs for text and dates, hidden write-through fields for the FEK
+     widgets. Capturing them by walking the DOM means a page that gains a field
+     does not also have to remember to add it to a list, which is how a
+     hand-maintained list of fields quietly stops covering the newest one. */
+  function formSnapshot(){
+    var out = {}, i, els = document.querySelectorAll("input[id], textarea[id]");
+    for(i=0;i<els.length;i++){
+      var e = els[i];
+      if(e.type === "file" || e.type === "button" || e.type === "submit") continue;
+      out[e.id] = (e.type === "checkbox" || e.type === "radio") ? (e.checked ? "1" : "") : e.value;
+    }
+    /* v1.4.0 (ADR-210). ...AND EVERY FEK CONTROL THAT DECLARES A FIELD BUT HAS
+       NO ELEMENT BEHIND IT. Walking the DOM finds a page's typed state only
+       where the page also remembered to write it into a hidden input; a
+       component that declared `field:"selN"` and nothing else was invisible
+       here, and its value came back as the widget's default over correct data.
+       Only the ones the DOM walk did not already find, so every page that has
+       been keeping its state through hidden inputs keeps writing exactly the
+       blob it wrote yesterday. */
+    try {
+      if (typeof FEK !== "undefined" && FEK && typeof FEK.values === "function") {
+        var fv = FEK.values(), fk;
+        for (fk in fv) if (fv.hasOwnProperty(fk) && !out.hasOwnProperty(fk)
+                           && fv[fk] != null && fv[fk] !== "") out[fk] = fv[fk];
+      }
+    } catch (e) { }
+    return out;
+  }
+  /* Restoring the hidden field is only half the job: the widget above it still
+     shows its construction default, and a correct value under a wrong-looking
+     dial is worse than no restore at all. FEK.setField (v1.3.0) puts the value
+     back through the widget for every component that declared its field. */
+  function formRestore(map){
+    if(!map) return 0;
+    var n = 0, id;
+    for(id in map){
+      if(!map.hasOwnProperty(id)) continue;
+      var e = document.getElementById(id);
+      if(!e){
+        /* v1.4.0: a field with no element behind it is a FEK control that
+           declared one; put the value back through the widget's own set(). */
+        if(typeof FEK !== "undefined" && FEK.setField && FEK.setField(id, map[id])) n++;
+        continue;
+      }
+      if(e.type === "checkbox" || e.type === "radio") e.checked = !!map[id];
+      else e.value = map[id];
+      if(typeof FEK !== "undefined" && FEK.setField){
+        var v = map[id];
+        if(e.type === "number" || /^-?\d+(\.\d+)?$/.test(String(v))) {
+          FEK.setField(id, v === "" ? null : parseFloat(v));
+        } else {
+          FEK.setField(id, v === "" ? null : v);
+        }
+      }
+      n++;
+    }
+    return n;
+  }
+
+  return { version:"1.4.0", wire:wire, usable:usable, live:function(){ return LIVE; },
+           formSnapshot:formSnapshot, formRestore:formRestore };
+})();
+/* ---- Outbox v1.0.0 : what has not left this device ---- */
+var OUT = (function(){
+  function esc(s){ return String(s==null?"":s).replace(/[&<>"']/g,function(c){
+    return c==="&"?"&amp;":c==="<"?"&lt;":c===">"?"&gt;":c==='"'?"&quot;":"&#39;"; }); }
+
+  /* UTF-8 by hand rather than TextEncoder, because the two would be two code
+     paths and only one of them would ever be exercised -- and because what is
+     hashed has to be the same bytes on the phone in the field as on the laptop
+     that checks it. Surrogate pairs are joined: a filename or a note holding an
+     emoji must hash as the character it is, not as two halves. */
+  function utf8(s){
+    var out = [], i, c, c2, u;
+    for (i = 0; i < s.length; i++) {
+      c = s.charCodeAt(i);
+      if (c < 0x80) { out.push(c); continue; }
+      if (c < 0x800) { out.push(0xC0 | (c >> 6), 0x80 | (c & 63)); continue; }
+      if (c >= 0xD800 && c <= 0xDBFF && i + 1 < s.length
+          && (c2 = s.charCodeAt(i + 1)) >= 0xDC00 && c2 <= 0xDFFF) {
+        u = 0x10000 + ((c - 0xD800) << 10) + (c2 - 0xDC00); i++;
+        out.push(0xF0 | (u >> 18), 0x80 | ((u >> 12) & 63),
+                 0x80 | ((u >> 6) & 63), 0x80 | (u & 63));
+        continue;
+      }
+      out.push(0xE0 | (c >> 12), 0x80 | ((c >> 6) & 63), 0x80 | (c & 63));
+    }
+    return out;
+  }
+
+  /* ONE hash for the kit. FEK's, because the photographs already carry CRC-32
+     and a sheet whose two checksums disagreed would be a sheet nobody could
+     reconcile. No fallback: a second implementation here would drift silently,
+     and an outbox that hashed with something nothing else uses would report
+     "unchanged" for the wrong reason. */
+  function hash(o){
+    if (typeof FEK === "undefined" || !FEK || typeof FEK.crc32 !== "function") return null;
+    return FEK.crc32(utf8(JSON.stringify(o)));
+  }
+
+  function usable(){
+    try {
+      var k = "__out_probe__";
+      window.localStorage.setItem(k, "1");
+      window.localStorage.removeItem(k);
+      return true;
+    } catch(e){ return false; }
+  }
+
+  function when(ts){
+    if(!ts) return "";
+    try {
+      var d = new Date(ts), now = new Date();
+      var same = d.toDateString() === now.toDateString();
+      var hm = ("0"+d.getHours()).slice(-2) + ":" + ("0"+d.getMinutes()).slice(-2);
+      return same ? ("today " + hm) : (d.toISOString().slice(0,10) + " " + hm);
+    } catch(e){ return ""; }
+  }
+
+  function kb(n){
+    if(!n) return "0 bytes";
+    return n < 1024 ? (n + " bytes") : ((n/1024).toFixed(n < 10240 ? 1 : 0) + " kB");
+  }
+
+  /* One outbox per page, and the module-level sent() finds it. A page's copy
+     helper is defined long before the outbox is wired, so it cannot close over
+     a handle; guarding the call with `typeof` is exactly how ADR-201 lost an
+     export writer for a season. Instead a send that arrives before wiring is
+     REMEMBERED and reported by wire(), which turns a wiring-order mistake into
+     a red line instead of a silence. */
+  var LIVE = null, EARLY = [];
+
+  function wire(o){
+    o = o || {};
+    var key = o.key, host = typeof o.mount === "string" ? document.getElementById(o.mount) : o.mount;
+    var keep = o.keep, defs = o.exports || [], fmt = o.format == null ? 1 : o.format;
+    var ok = usable(), lastErr = null, sends = {}, timer = null;
+
+    function def(id){ var i; for(i=0;i<defs.length;i++) if(defs[i].id === id) return defs[i]; return null; }
+
+    /* The sheet's state comes from KEEP's snapshot and from nowhere else. Two
+       descriptions of "what is on this page" would be two things to keep in
+       step, and the one the outbox used would be the one nobody tested. */
+    function state(){
+      if(!keep || typeof keep.snapshot !== "function") return undefined;
+      try { return keep.snapshot(); } catch(e){ return undefined; }
+    }
+    function nowCrc(){
+      var st = state();
+      if(st === undefined) return null;
+      if(st === null) return "";
+      return hash(st);
+    }
+
+    function load(){
+      if(!ok) return;
+      try {
+        var raw = window.localStorage.getItem(key);
+        if(!raw) return;
+        var p = JSON.parse(raw);
+        if(!p || p.format !== fmt || !p.sends) return;
+        var id;
+        /* Only ids this sheet still declares. An export that was renamed or
+           removed leaves a stamp that can never go stale and would sit in the
+           ledger claiming a copy of something that no longer exists. */
+        for(id in p.sends) if(p.sends.hasOwnProperty(id) && def(id)) sends[id] = p.sends[id];
+      } catch(e){}
+    }
+    function save(){
+      if(!ok) return;
+      try { window.localStorage.setItem(key, JSON.stringify({format:fmt, sends:sends})); }
+      catch(e){
+        lastErr = (e && e.name === "QuotaExceededError")
+          ? "this browser's storage is full, so the outbox will forget what has gone when the tab closes"
+          : "this browser refused to keep the outbox, so it will forget what has gone when the tab closes";
+      }
+    }
+
+    /* THE SHEET AS IT CAME OUT OF THE BOX IS NOT WORK.
+       Three of these pages fill a date in for you, so "the snapshot is not
+       null" is not the same question as "is there anything here to send", and
+       an outbox that opened saying four exports were overdue on a sheet nobody
+       had touched would be ignored by the second morning. So the baseline is
+       the state at wire time -- UNLESS the autosave just restored something,
+       in which case every export is genuinely outstanding and saying so is the
+       entire point. */
+    var base = null;
+
+    function status(){
+      var crc = nowCrc(), rows = [], i, d, s;
+      for(i=0;i<defs.length;i++){
+        d = defs[i]; s = sends[d.id];
+        rows.push({ id:d.id, label:d.label, records:(d.records !== false),
+                    sent:!!s, at:(s?s.at:0), bytes:(s?s.bytes:0),
+                    stale: !!s && crc !== null && crc !== "" && s.crc !== crc });
+      }
+      var never = [], stale = [], last = 0, lastLabel = "", carry = [];
+      var blank = (crc === "") || (base !== null && crc === base);
+      for(i=0;i<rows.length;i++){
+        if(rows[i].at > last){ last = rows[i].at; lastLabel = rows[i].label; }
+        /* A copy that does not carry the sheet's records is DECLARED -- so that
+           no call site can hand out bytes this ledger has never heard of -- but
+           it is not counted. An outbox that nagged you to re-copy an AI prompt
+           every time you added a stem would be an outbox nobody reads, and an
+           outbox nobody reads is worse than none, because the page still looks
+           like it is keeping track. */
+        if(!rows[i].records) continue;
+        carry.push(rows[i]);
+        if(blank) continue;
+        if(!rows[i].sent) never.push(rows[i]);
+        else if(rows[i].stale) stale.push(rows[i]);
+      }
+      return { crc:crc, empty:blank, unreadable:(crc === null), rows:rows,
+               carry:carry, never:never, stale:stale, pending:never.length + stale.length,
+               last:last, lastLabel:lastLabel, err:lastErr, storing:ok };
+    }
+
+    function sent(id, bytes){
+      var d = def(id);
+      if(!d){
+        lastErr = 'an export this sheet does not declare: "' + String(id) + '". '
+                + 'Something left this device and the outbox cannot tell you what';
+        paint(); return false;
+      }
+      var crc = nowCrc();
+      if(crc === null){
+        lastErr = "the outbox could not read this sheet, so it has NOT marked "
+                + d.label + " as gone";
+        paint(); return false;
+      }
+      sends[id] = { crc:crc, at:Date.now(), bytes:(bytes|0) };
+      lastErr = null;
+      save(); paint();
+      return true;
+    }
+
+    function paint(){
+      if(!host) return;
+      var st = status(), msg, tone = "";
+      if(st.unreadable){
+        tone = " bad";
+        msg = "<b>The outbox cannot read this sheet.</b> It is not tracking what has left, so "
+            + "treat nothing here as sent.";
+      } else if(st.err){
+        tone = " bad";
+        msg = "<b>" + esc(st.err) + ".</b>";
+      } else if(st.empty){
+        msg = "Nothing on this sheet yet. The outbox starts counting when you do.";
+      } else if(st.pending === 0){
+        msg = "<b>Everything here has left this device.</b> Last export "
+            + esc(when(st.last)) + (st.lastLabel ? " \u2014 " + esc(st.lastLabel) : "") + ".";
+      } else {
+        tone = " hot";
+        msg = "<b>" + st.pending + " of " + st.carry.length + " export"
+            + (st.carry.length === 1 ? "" : "s") + " on this sheet " + (st.pending === 1 ? "has" : "have")
+            + " not left this device</b>"
+            + (st.last ? " \u2014 last export " + esc(when(st.last)) + "." : " at all.");
+      }
+      var li = "", i, r;
+      for(i=0;i<st.carry.length;i++){
+        r = st.carry[i];
+        if(!r.sent) li += "<li>" + esc(r.label) + " <span class=\"why\">never</span></li>";
+        else if(r.stale) li += "<li>" + esc(r.label) + " <span class=\"why\">changed since "
+                             + esc(when(r.at)) + "</span></li>";
+      }
+      host.className = "outbox noprint" + tone;
+      host.innerHTML =
+        '<p class="st" role="status" aria-live="polite">' + msg + '</p>'
+        + (li ? '<ul class="pend">' + li + '</ul>' : '')
+        + '<p class="note"><b>This is a ledger, not a transport.</b> A page opened from a card '
+        + 'cannot send anything by itself \u2014 what it can do is tell you exactly what is on '
+        + 'this device and nowhere else, so a few minutes of signal go on the right bytes.'
+        + (st.storing ? "" : " Storage is unavailable here, so this list starts again when the tab closes.")
+        + '</p>';
+    }
+
+    /* Repaint on anything that could have changed the sheet, debounced. No page
+       wiring: a page that gained a control would otherwise have to remember to
+       tell the outbox, and the one it forgot would be the one that went stale
+       quietly. */
+    function touch(){
+      if(timer) clearTimeout(timer);
+      timer = setTimeout(function(){ timer = null; paint(); }, o.debounce == null ? 400 : o.debounce);
+    }
+    try {
+      ["input", "change", "click"].forEach(function(ev){
+        document.addEventListener(ev, touch, true); });
+    } catch(e){}
+
+    load();
+    base = (keep && typeof keep.restored === "function" && keep.restored()) ? null : nowCrc();
+    var h = { sent:sent, status:status, paint:paint, touch:touch,
+              usable:function(){ return ok; }, error:function(){ return lastErr; } };
+    LIVE = h;
+    if(EARLY.length){
+      /* An export that happened before the outbox existed is a wiring-order
+         fault, and it is reported rather than replayed: the stamp it would have
+         taken is the state at a moment that has already gone. */
+      lastErr = "an export left this device before the outbox was wired ("
+              + EARLY.map(function(e){ return String(e[0]); }).join(", ") + ")";
+      EARLY = [];
+    }
+    paint();
+    return h;
+  }
+
+  return { version:"1.0.0", wire:wire, utf8:utf8, hash:hash,
+           sent:function(id, bytes){
+             if(!LIVE){ EARLY.push([id, bytes]); return false; }
+             return LIVE.sent(id, bytes);
+           },
+           status:function(){ return LIVE ? LIVE.status() : null; } };
 })();
 </script>
 <script>
@@ -1426,12 +1997,19 @@ var PRESETS = [
   var tt;function toast(m){var t=$("toast");t.textContent=m;t.classList.add("on");
     clearTimeout(tt);tt=setTimeout(function(){t.classList.remove("on");},1700);}
   function f(x,d){return isFinite(x)?x.toFixed(d==null?1:d):"—";}
-  function copyText(s,m){function ok(){toast(m||"Copied");FEK.buzz();}
+  function copyText(s,m,id){
+    /* ADR-203/207. execCommand REPORTS FAILURE BY RETURNING FALSE and throws in
+       only some of the ways it can fail, so the return value is what decides
+       whether this copy happened; and the mark goes in the SUCCESS path, never
+       on the click. */
+    function ok(){toast(m||"Copied");FEK.buzz();OUT.sent(id, s.length);}
     if(navigator.clipboard&&navigator.clipboard.writeText){
       navigator.clipboard.writeText(s).then(ok,function(){lg(s,ok);});} else lg(s,ok);}
   function lg(s,ok){var a=document.createElement("textarea");a.value=s;a.style.position="fixed";
     a.style.opacity="0";document.body.appendChild(a);a.select();
-    try{document.execCommand("copy");ok();}catch(e){toast("Copy failed");}document.body.removeChild(a);}
+    var okc=false; try{okc=document.execCommand("copy");}catch(e){}
+    document.body.removeChild(a);
+    if(okc) ok(); else toast("Copy failed");}
   function genBy(id){for(var i=0;i<GENERA.length;i++) if(GENERA[i].id===id) return GENERA[i]; return null;}
   function compBy(id){for(var i=0;i<CPCOMP.length;i++) if(CPCOMP[i].id===id) return CPCOMP[i]; return null;}
 
@@ -1577,12 +2155,17 @@ var PRESETS = [
     });
     host.appendChild(g);
   }
-  $("mClear").addEventListener("click",function(){ mix={}; mixUI(); mixOut(); });
+  /* ADR-209 */
+  $("mClear").addEventListener("click",function(){
+    var n=Object.keys(mix).length;
+    if(n && !confirm("Clear the mix? "+n+" component"+(n===1?"":"s")+
+       " go and there is no undo.")) return;
+    mix={}; mixUI(); mixOut(); });
   $("mCopy").addEventListener("click",function(){
     var ks=Object.keys(mix); if(!ks.length){toast("Empty mix");return;}
     var tot=ks.reduce(function(a,k){return a+mix[k];},0);
     copyText("Carnivorous plant mix — "+tot+" parts\n"+ks.map(function(k){
-      return mix[k]+" part"+(mix[k]===1?"":"s")+" "+compBy(k).n; }).join("\n"),"Recipe copied");
+      return mix[k]+" part"+(mix[k]===1?"":"s")+" "+compBy(k).n; }).join("\n"),"Recipe copied","recipe");
   });
   function mixOut(preset){
     var box=$("mOut"), ks=Object.keys(mix);
@@ -1628,7 +2211,7 @@ var PRESETS = [
            {value:"flower",label:"Flowering"},{value:"divide",label:"Divided"},
            {value:"repot",label:"Repotted"},{value:"pest",label:"Pest"},{value:"loss",label:"Lost it"}];
   function plantUI(){
-    pGen=FEK.picker({label:"Genus",placeholder:"filter 15 genera…",
+    pGen=FEK.picker({field:"cpPGen",label:"Genus",placeholder:"filter 15 genera…",
       options:GENERA.map(function(g){ return {value:g.id,label:g.n,
         sub:(g.com||"")+" · "+(g.dorm==="all"?"dormancy: all cultivated species":
              g.dorm==="some"?"dormancy: some species":
@@ -1646,11 +2229,11 @@ var PRESETS = [
     FEK.mount("pNew",[pGen,{el:pName},{el:pSrc}]);
   }
   function obsUI(){
-    oPick=FEK.picker({label:"Plant",placeholder:"filter…",
+    oPick=FEK.picker({field:"cpOPick",label:"Plant",placeholder:"filter…",
       options:plants.map(function(p,i){ return {value:String(i),label:p.name||("plant "+(i+1)),
         sub:(genBy(p.gen)||{n:"?"}).n}; })});
-    oKind=FEK.chips({label:"What happened",single:true,value:["count"],options:OBS});
-    oCount=FEK.step({label:"Count (for trap counts)",unit:"",value:0,min:0,max:999,step:1});
+    oKind=FEK.chips({field:"cpOKind",label:"What happened",single:true,value:["count"],options:OBS});
+    oCount=FEK.step({field:"cpOCount",label:"Count (for trap counts)",unit:"",value:0,min:0,max:999,step:1});
     FEK.mount("pObs",[oPick,oKind,oCount]);
   }
   $("pAdd").addEventListener("click",function(){
@@ -1682,6 +2265,11 @@ var PRESETS = [
         (latest!=null?'<span class="cov">'+latest+'</span>':'');
       var x=document.createElement("button"); x.type="button"; x.textContent="✕";
       x.addEventListener("click",function(){
+        /* ADR-209: A DELETE THAT CASCADES MUST SAY SO. The row says how many
+           observations this plant carries; it did not say that removing the
+           plant removed them. Nine records went on one tap of a single ✕. */
+        if(mine.length && !confirm("Remove "+p.name+"? "+mine.length+" observation"+
+           (mine.length===1?"":"s")+" of it go with it, and there is no undo.")) return;
         plants.splice(i,1); obs=obs.filter(function(o){return o.p!==i;})
           .map(function(o){ return o.p>i?{p:o.p-1,kind:o.kind,n:o.n,t:o.t}:o; });
         obsUI(); plantList(); plantOut(); });
@@ -1743,7 +2331,7 @@ var PRESETS = [
       "data.","bad"));
   }
   function seasonUI(){
-    dGen=FEK.picker({label:"Genus (for the dormancy note only)",placeholder:"filter…",
+    dGen=FEK.picker({field:"cpDGen",label:"Genus (for the dormancy note only)",placeholder:"filter…",
       options:GENERA.map(function(g){ return {value:g.id,label:g.n,sub:g.com||""}; }),
       onchange:function(){ seasonOut(); }});
     dTemp=FEK.step({label:"Your target: stay at or below",unit:"°C",value:10,min:-20,max:25,step:1,
@@ -1914,6 +2502,142 @@ var PRESETS = [
   plantUI(); obsUI(); plantList(); plantOut();
   refuseUI(); seasonUI(); seasonOut();
   crossUI(); crossList(); crossOut();
+
+  /* ---- ADR-207: a page that takes records must keep them ----
+     This bench accepted a screen's worth of typed values and kept none of
+     them: close the tab, lose the morning. Six pages were in that state, and
+     they were the last -- the kit's rule is now that a page which takes
+     records keeps them, or says in its suite why it does not. */
+  var KEPT = KEEP.wire({
+    key: "csrbtCpBench",
+    format: 1,
+    mount: "keepBox",
+    noun: "this bench",
+    ontoast: toast,
+    snapshot: function(){
+      var st = { waters:waters, plants:plants, obs:obs, temps:temps, crosses:crosses, mix:mix };
+      var any = waters.length || plants.length || obs.length || temps.length || crosses.length;
+      var f = KEEP.formSnapshot(), k;
+      if(!any) for(k in f) if(f.hasOwnProperty(k) && String(f[k]).trim() !== "") { any = true; break; }
+      return any ? { fields: f, state: st } : null;
+    },
+    restore: function(b){
+      if(!b || !b.state) return false;
+      KEEP.formRestore(b.fields);
+      var st = b.state;
+      waters.length=0;  (st.waters||[]).forEach(function(x){ waters.push(x); });
+      plants.length=0;  (st.plants||[]).forEach(function(x){ plants.push(x); });
+      obs.length=0;     (st.obs||[]).forEach(function(x){ obs.push(x); });
+      temps.length=0;   (st.temps||[]).forEach(function(x){ temps.push(x); });
+      crosses.length=0; (st.crosses||[]).forEach(function(x){ crosses.push(x); });
+      if(st.mix){ var q; for(q in mix) if(mix.hasOwnProperty(q)) delete mix[q];
+        for(q in st.mix) if(st.mix.hasOwnProperty(q)) mix[q]=st.mix[q]; }
+      /* ADR-210: every pane, not the six somebody remembered. The mix grid,
+         the water list, the plant list, the dormancy chart and the bench-sheet
+         count all came back blank over records that were there. */
+      mixUI(); mixOut(); waterOut(); waterList(); accumOut();
+      obsUI(); plantOut(); plantList(); seasonOut(); seasonChart();
+      crossList(); crossOut(); updUI(); benchOut();
+      /* ...and the fields again, because several of these renders REBUILD their
+         own controls: a picker restored before obsUI() runs is a picker that
+         obsUI() then replaces with a fresh one at its default. Restoring the
+         values, painting, and restoring the values again is the honest order on
+         a page that rebuilds its entry controls from its records (ADR-210). */
+      KEEP.formRestore(b.fields);
+      plantOut(); seasonOut();
+      return true;
+    }
+  });
+  ["input", "change", "click"].forEach(function(ev){
+    document.addEventListener(ev, function(){ KEPT.touch(); }, true); });
+  /* ================================================ THE BENCH SHEET ===== */
+  /* ADR-208. A page that keeps what you type and cannot hand any of it over is
+     half a tool: the work survives the tab and dies with the device. The recipe
+     could leave; the water log, the plants, the observations, the dormancy
+     record and the crosses could not. */
+  function benchRows(){
+    var out = [];
+    out.push(["water", "n", "source", "tds_ppm"]);
+    waters.forEach(function(w,i){
+      var src = SOURCES.filter(function(o){ return o.value===w.src; })[0];
+      out.push(["water", i+1, (src?src.label:w.src), w.tds]); });
+    out.push(["mix", "component", "parts", ""]);
+    Object.keys(mix).forEach(function(k){
+      out.push(["mix", compBy(k).n, mix[k], ""]); });
+    out.push(["plant", "n", "genus", "name", "source"]);
+    plants.forEach(function(p,i){
+      out.push(["plant", i+1, (genBy(p.gen)||{n:p.gen}).n, p.name||"", p.src||""]); });
+    out.push(["observation", "n", "plant", "kind", "value"]);
+    obs.forEach(function(o,i){
+      var kind = OBS.filter(function(k){ return k.value===o.kind; })[0];
+      out.push(["observation", i+1, (plants[o.p]||{}).name || ("plant "+((+o.p)+1)),
+                (kind?kind.label:o.kind), o.n]); });
+    /* The dormancy record is a list of temperatures, one a day, and nothing else
+       -- so it is written as what it is rather than dressed up as a table with
+       columns this page has never had. */
+    out.push(["dormancy", "n", "temp_c", "", ""]);
+    temps.forEach(function(t,i){ out.push(["dormancy", i+1, t, "", ""]); });
+    out.push(["cross", "n", "pod", "pollen", "seed", "germinated", "note"]);
+    crosses.forEach(function(c,i){
+      out.push(["cross", i+1, c.pod||"", c.pol||"", (c.seed==null?"":c.seed),
+                (c.germ==null?"":c.germ), c.note||""]); });
+    return out;
+  }
+  function csvCell(v){
+    var t = String(v==null?"":v);
+    return /[",\n]/.test(t) ? '"'+t.replace(/"/g,'""')+'"' : t;
+  }
+  function benchCsv(){
+    return benchRows().map(function(r){ return r.map(csvCell).join(","); }).join("\n") + "\n";
+  }
+  function benchCount(){
+    return waters.length + Object.keys(mix).length + plants.length + obs.length
+         + temps.length + crosses.length;
+  }
+  function benchOut(){
+    var n = benchCount(), b = $("bOut"); if(!b) return;
+    b.innerHTML = n ? ("<b>"+n+" row"+(n===1?"":"s")+"</b> on this bench: "
+        + waters.length + " water, " + Object.keys(mix).length + " mix, " + plants.length
+        + " plant, " + obs.length + " observation, " + temps.length + " dormancy, "
+        + crosses.length + " cross.")
+      : "Nothing logged yet \u2014 the sheet builds itself as you work.";
+  }
+  $("bCopy").addEventListener("click",function(){
+    if(!benchCount()){ toast("Nothing logged yet"); return; }
+    copyText(benchCsv(), "Bench sheet copied", "sheet");
+  });
+  $("bDown").addEventListener("click",function(){
+    if(!benchCount()){ toast("Nothing logged yet"); return; }
+    var csv = benchCsv();
+    var a = document.createElement("a");
+    a.href = URL.createObjectURL(new Blob([csv], {type:"text/csv"}));
+    a.download = "cp-bench.csv";
+    document.body.appendChild(a); a.click(); document.body.removeChild(a);
+    /* THE MARK GOES WHERE THE BYTES WENT (ADR-203). A download cannot report
+       failure the way a clipboard write can, but it can report that it never
+       had anything to hand over, and that is checked above. */
+    /* THE DOWNLOAD IS NOT MARKED IN THE OUTBOX, and that is the honest reading
+       (ADR-208). A hosted viewer can refuse a page-started download silently --
+       no throw, no return value, nothing to test -- so a mark here would be the
+       exact ADR-203 defect one layer along: the ledger reporting a sheet as
+       gone from this device when the browser never let it leave. The copy
+       beside it reports truthfully, because a clipboard write says no. */
+    toast("bench.csv downloaded"); FEK.buzz();
+  });
+  benchOut();
+  document.addEventListener("click", function(){ setTimeout(benchOut, 0); }, true);
+
+  var SENT = OUT.wire({
+    key: "csrbtCpBenchOut",
+    format: 1,
+    mount: "sendBox",
+    keep: KEPT,
+    exports: [
+      { id:"recipe", label:"the mix recipe" },
+      { id:"sheet", label:"the bench sheet" },
+    ]
+  });
+
 })();
 </script>
 </body>

@@ -119,6 +119,28 @@ MUTANTS = [
      '            entry["detail"] = "the target failed: %s" % (r.get("message") or "")[:120]\n            verdict = "FAIL"\n            break',
      '            entry["detail"] = "the target failed: %s" % (r.get("message") or "")[:120]',
      "target's failure and ends the task"),
+    # ---- a refusal nobody asked for (ADR-208) ----
+    ("an unclaimed refusal does not end the task, so a malformed step reports PASS",
+     '            entry["detail"] = ("refused, and the task said nothing about being refused: %s"\n'
+     '                               % (r.get("message") or "")[:120])\n'
+     '            verdict = "FAIL"\n            break',
+     '            entry["detail"] = ("refused, and the task said nothing about being refused: %s"\n'
+     '                               % (r.get("message") or "")[:120])',
+     "says nothing about being refused ends the task"),
+    ("every refusal ends the task, so a task may no longer probe one on purpose",
+     '        if result in ("refused", "declined") and not any(\n'
+     '                p.split("#")[0] in ("ok", "code") or p.startswith("code.")\n'
+     '                for p, _, _ in graded):',
+     '        if result in ("refused", "declined"):',
+     "a refusal, a decline and a failure are results a task can expect"),
+    ("only `code` counts as claiming a refusal, so `ok: false` is no longer the grammar",
+     '                p.split("#")[0] in ("ok", "code") or p.startswith("code.")',
+     '                p.split("#")[0] in ("code",) or p.startswith("code.")',
+     "TASK THAT MEANS TO PROVOKE A REFUSAL SAYS SO"),
+    ("a declined step is let through, so only an explicit refusal is caught",
+     '        if result in ("refused", "declined") and not any(',
+     '        if result in ("refused",) and not any(',
+     "a DECLINE nobody asked for ends the task"),
     ("must is ignored: every PASS is held",
      '            "held": verdict == must,',
      '            "held": verdict == "PASS",',

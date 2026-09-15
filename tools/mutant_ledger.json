@@ -1211,6 +1211,167 @@
    ],
    "survived": 0
   },
+  "mutate_destructive": {
+   "at": 1789495388,
+   "equivalent": 0,
+   "equivalents": [],
+   "inconclusive": 0,
+   "killed": 30,
+   "mutants": 30,
+   "rows": [
+    {
+     "detail": "3 failure(s); first: and the MULTIPLICATION SIGN in the middle of a name is not ",
+     "name": "every control the door presses is a remover, so an export is a delete",
+     "verdict": "killed"
+    },
+    {
+     "detail": "3 failure(s); first: and the MULTIPLICATION SIGN in the middle of a name is not ",
+     "name": "the gateway's rule is restated here, with the multiplication sign in it",
+     "verdict": "killed"
+    },
+    {
+     "detail": "1 failure(s); first: ...and neither is a TEXT BOX whose label says clear. What a",
+     "name": "a text box is a control somebody taps",
+     "verdict": "killed"
+    },
+    {
+     "detail": "1 failure(s); first: which is read from that pool rather than restated here: ['a",
+     "name": "what a control is gets written down here instead of read from the door's pool",
+     "verdict": "killed"
+    },
+    {
+     "detail": "1 failure(s); first: ...and each carries the reason that rule gave, so a row can",
+     "name": "the reason the gateway gave is dropped, so a row cannot be read",
+     "verdict": "killed"
+    },
+    {
+     "detail": "14 failure(s); first: a page with an autosave is read through it: ['screen']",
+     "name": "the loss is counted off the screen even when the page keeps its own state",
+     "verdict": "killed"
+    },
+    {
+     "detail": "14 failure(s); first: a page with an autosave is read through it: ['screen']",
+     "name": "the autosave is never reachable, so every page falls back to the screen",
+     "verdict": "killed"
+    },
+    {
+     "detail": "13 failure(s); first: THREE RECORDS, NOT SIX. The fixture shows every row twice ",
+     "name": "a record's own fields count as records, so an undo reads as a bulk delete",
+     "verdict": "killed"
+    },
+    {
+     "detail": "1 failure(s); first: A TYPED FIELD IS A RECORD. The kappa pane of the ethogram k",
+     "name": "a typed field is not a record, so clearing two text boxes reads as nothing",
+     "verdict": "killed"
+    },
+    {
+     "detail": "1 failure(s); first: A PAGE WITH NO AUTOSAVE IS READ OFF THE SCREEN, and says wh",
+     "name": "which reading was taken is not recorded, so a fallback cannot be told from a real one",
+     "verdict": "killed"
+    },
+    {
+     "detail": "17 failure(s); first: A TYPED FIELD IS A RECORD. The kappa pane of the ethogram ",
+     "name": "the page is never heard to ask",
+     "verdict": "killed"
+    },
+    {
+     "detail": "1 failure(s); first: AND THE ROW SAYS WHERE THE NUMBER CAME FROM. before, after ",
+     "name": "the row reports an `after` it did not measure, so the ledger's own arithmetic is a fiction",
+     "verdict": "killed"
+    },
+    {
+     "detail": "11 failure(s); first: A TYPED FIELD IS A RECORD. The kappa pane of the ethogram ",
+     "name": "asking counts for nothing, so a page that asks is still on the worklist",
+     "verdict": "killed"
+    },
+    {
+     "detail": "5 failure(s); first: ANSWERING NO TO THE DEFIANT ONE CHANGES NOTHING: three reco",
+     "name": "the answer is never given, so only the YES path is ever watched",
+     "verdict": "killed"
+    },
+    {
+     "detail": "13 failure(s); first: A TYPED FIELD IS A RECORD. The kappa pane of the ethogram ",
+     "name": "saying no is the same as saying yes, so the refusal path is not a path",
+     "verdict": "killed"
+    },
+    {
+     "detail": "2 failure(s); first: so the defiant one is IGNORES, not ASKS -- a verdict of its",
+     "name": "a page that asks and destroys anyway still counts as asking",
+     "verdict": "killed"
+    },
+    {
+     "detail": "1 failure(s); first: IT IS ON THE WORKLIST, beside the controls that never asked",
+     "name": "a page that asks and destroys anyway is kept off the worklist",
+     "verdict": "killed"
+    },
+    {
+     "detail": "1 failure(s); first: a control that never asked is not asked a second time -- th",
+     "name": "the second press is made on every control, asked or not",
+     "verdict": "killed"
+    },
+    {
+     "detail": "1 failure(s); first: THREE RECORDS, NOT SIX. The fixture shows every row twice -",
+     "name": "storage is left alone between pages, so the audit measures its own history",
+     "verdict": "killed"
+    },
+    {
+     "detail": "9 failure(s); first: a control that takes ONE record is not on the worklist: eve",
+     "name": "one record is a bulk delete, and the rule starts crying wolf",
+     "verdict": "killed"
+    },
+    {
+     "detail": "10 failure(s); first: ...and the bulk remover on it is still caught: {'key': 'wi",
+     "name": "nothing is ever a bulk delete",
+     "verdict": "killed"
+    },
+    {
+     "detail": "23 failure(s); first: THREE RECORDS, NOT SIX. The fixture shows every row twice ",
+     "name": "the page is measured at rest, so every clear clears nothing",
+     "verdict": "killed"
+    },
+    {
+     "detail": "2 failure(s); first: ...and the page passes at a ceiling of zero, because the ex",
+     "name": "a declaration does not exempt the control",
+     "verdict": "killed"
+    },
+    {
+     "detail": "1 failure(s); first: declaring a bulk remover exempt WITHOUT a reason is refused",
+     "name": "declaring a control exempt needs no reason at all",
+     "verdict": "killed"
+    },
+    {
+     "detail": "1 failure(s); first: ...and with one, THE REASON IS WHAT IS STORED, word for wor",
+     "name": "a declared control keeps no reason, so the ledger says what but never why",
+     "verdict": "killed"
+    },
+    {
+     "detail": "2 failure(s); first: --raise-floors LOWERS the ceiling, because this ratchet onl",
+     "name": "the ratchet runs upward, so a page that grew one records it as the new normal",
+     "verdict": "killed"
+    },
+    {
+     "detail": "4 failure(s); first: A PAGE THAT GREW A CONTROL TAKING A SHEET WITHOUT ASKING FA",
+     "name": "a reading above the ceiling is not a failure",
+     "verdict": "killed"
+    },
+    {
+     "detail": "3 failure(s); first: A PAGE THAT GREW A CONTROL TAKING A SHEET WITHOUT ASKING FA",
+     "name": "the failure is reported and the exit code is not",
+     "verdict": "killed"
+    },
+    {
+     "detail": "1 failure(s); first: ...and it NAMES the page and the control:     a page is ove",
+     "name": "the failure names no page and no control",
+     "verdict": "killed"
+    },
+    {
+     "detail": "2 failure(s); first: a first reading records what it found and no ceiling: {'at'",
+     "name": "the ledger records no worklist, only a count",
+     "verdict": "killed"
+    }
+   ],
+   "survived": 0
+  },
   "mutate_engines": {
    "at": 1788480375,
    "equivalent": 0,
@@ -1767,13 +1928,23 @@
    "survived": 0
   },
   "mutate_keep": {
-   "at": 1789400515,
+   "at": 1789480062,
    "equivalent": 0,
    "equivalents": [],
    "inconclusive": 0,
-   "killed": 23,
-   "mutants": 23,
+   "killed": 32,
+   "mutants": 32,
    "rows": [
+    {
+     "detail": "34 failure(s); first: ordination.html exposes the live autosave handle",
+     "name": "the live handle is never recorded, so the page's own description is reachable from nowhere",
+     "verdict": "killed"
+    },
+    {
+     "detail": "34 failure(s); first: ordination.html exposes the live autosave handle",
+     "name": "the module offers a live() that always answers nothing",
+     "verdict": "killed"
+    },
     {
      "detail": "4 failure(s); first: A BROWSER THAT IS KEEPING NOTHING SAYS SO, UP FRONT. Storag",
      "name": "storage is assumed usable rather than probed",
@@ -1800,7 +1971,7 @@
      "verdict": "killed"
     },
     {
-     "detail": "9 failure(s); first: the stored blob carries a format stamp  << {\"at\":1789399948",
+     "detail": "22 failure(s); first: the stored blob carries a format stamp  << {\"at\":178947692",
      "name": "the saved blob carries no format stamp",
      "verdict": "killed"
     },
@@ -1830,12 +2001,12 @@
      "verdict": "killed"
     },
     {
-     "detail": "8 failure(s); first: ordination.html says browser storage is not a backup  << Au",
+     "detail": "17 failure(s); first: ordination.html says browser storage is not a backup  << A",
      "name": "the strip stops saying that a browser copy is not a backup",
      "verdict": "killed"
     },
     {
-     "detail": "12 failure(s); first: ordination.html offers a way to remove the saved copy",
+     "detail": "23 failure(s); first: ordination.html offers a way to remove the saved copy",
      "name": "the strip stops offering a way to remove the saved copy",
      "verdict": "killed"
     },
@@ -1850,7 +2021,7 @@
      "verdict": "killed"
     },
     {
-     "detail": "4 failure(s); first: a typed text field comes back",
+     "detail": "6 failure(s); first: a typed text field comes back",
      "name": "the snapshot takes only the first field it finds",
      "verdict": "killed"
     },
@@ -1880,7 +2051,42 @@
      "verdict": "killed"
     },
     {
-     "detail": "1 failure(s); first: every page keep_emit.py inlines KEEP into is a page this su",
+     "detail": "1 failure(s); first: THE STRIP'S BUTTON SURVIVES A REPAINT. Rewriting the strip ",
+     "name": "the strip is rewritten whole on every repaint, so its button does not survive one",
+     "verdict": "killed"
+    },
+    {
+     "detail": "15 failure(s); first: a filled sheet reports itself saved  << Forget this device",
+     "name": "the strip stops repainting at all, so the button survives by never being touched",
+     "verdict": "killed"
+    },
+    {
+     "detail": "1 failure(s); first: THE RULE FIRES. A page that takes five typed values and mou",
+     "name": "the record-keeping rule names nothing, so a page that keeps nothing passes",
+     "verdict": "killed"
+    },
+    {
+     "detail": "3 failure(s); first: THE RULE FIRES. A page that takes five typed values and mou",
+     "name": "the record-keeping rule names EVERY page without an autosave, so it is noise",
+     "verdict": "killed"
+    },
+    {
+     "detail": "3 failure(s); first: THE RULE FIRES. A page that takes five typed values and mou",
+     "name": "the bar is dropped to one control, so a search box is a data loss",
+     "verdict": "killed"
+    },
+    {
+     "detail": "1 failure(s); first: AND THE SILENT-setItem RULE FIRES TOO, against a page carry",
+     "name": "the silent-setItem finder looks past the page's own script",
+     "verdict": "killed"
+    },
+    {
+     "detail": "1 failure(s); first: THE RULE FIRES. A page that takes five typed values and mou",
+     "name": "a page counts as keeping if it merely carries the component, mounted or not",
+     "verdict": "killed"
+    },
+    {
+     "detail": "1 failure(s); first: EVERY PAGE THAT CARRIES THE AUTOSAVE IS A PAGE THIS SUITE O",
      "name": "a page that inlines the autosave layer is dropped from the list the suite reads",
      "verdict": "killed"
     },
@@ -2379,7 +2585,7 @@
    "survived": 0
   },
   "mutate_outputs": {
-   "at": 1789408588,
+   "at": 1789457939,
    "equivalent": 1,
    "equivalents": [
     {
@@ -2388,26 +2594,91 @@
     }
    ],
    "inconclusive": 0,
-   "killed": 31,
-   "mutants": 31,
+   "killed": 44,
+   "mutants": 44,
    "rows": [
     {
-     "detail": "11 failure(s); first: a verb INSIDE a word is not a verb: 'Preprint checklist' i",
+     "detail": "13 failure(s); first: a verb INSIDE a word is not a verb: 'Preprint checklist' i",
      "name": "every control is a candidate, so a page's whole toolbar is pressed",
      "verdict": "killed"
     },
     {
-     "detail": "1 failure(s); first: a verb INSIDE a word is not a verb: 'Preprint checklist' is",
+     "detail": "8 failure(s); first: a verb INSIDE a word is not a verb: 'Preprint checklist' is",
      "name": "the verb matches inside a word, so anything with save in it hands something over",
      "verdict": "killed"
     },
     {
-     "detail": "1 failure(s); first: and neither is a TEXT BOX whose label happens to say save -",
-     "name": "a text box is a control that hands something over",
+     "detail": "10 failure(s); first: and neither is a TEXT BOX whose label happens to say save ",
+     "name": "every kind is a control that hands something over, so a text box is pressed as an export",
      "verdict": "killed"
     },
     {
-     "detail": "6 failure(s); first: a control whose NAME says it hands something over is a cand",
+     "detail": "9 failure(s); first: and NOT ONE OF THEM IS A CANDIDATE: a control the door does",
+     "name": "the rule goes back to how a kind is SPELT, so every composed control is pressed",
+     "verdict": "killed"
+    },
+    {
+     "detail": "1 failure(s); first: what a button IS, is read from the door's own activate pool",
+     "name": "what a button is gets written down here instead of read from the door's own pool",
+     "verdict": "killed"
+    },
+    {
+     "detail": "27 failure(s); first: a control whose NAME says it hands something over is a can",
+     "name": "the pool is read but emptied, so nothing is a button at all",
+     "verdict": "killed"
+    },
+    {
+     "detail": "7 failure(s); first: a button named for handing something over that hands NOTHIN",
+     "name": "silence is a number in a column again: nothing is ever named",
+     "verdict": "killed"
+    },
+    {
+     "detail": "8 failure(s); first: a button named for handing something over that hands NOTHIN",
+     "name": "the mute worklist carries the emitting buttons instead of the silent ones",
+     "verdict": "killed"
+    },
+    {
+     "detail": "3 failure(s); first: a declared silent button leaves the mute worklist: ['notes'",
+     "name": "a declared silent button stays on the worklist, so the judgement counts for nothing",
+     "verdict": "killed"
+    },
+    {
+     "detail": "3 failure(s); first: A PAGE THAT GREW A BUTTON HANDING NOTHING OVER FAILS, with ",
+     "name": "the mute ceiling is recorded and never enforced",
+     "verdict": "killed"
+    },
+    {
+     "detail": "2 failure(s); first: --raise-floors LOWERS the mute ceiling, because this ratche",
+     "name": "the mute ratchet runs upward, so a page that grew one records it as the new normal",
+     "verdict": "killed"
+    },
+    {
+     "detail": "2 failure(s); first: and the ledger carries the NAME, where a worklist can be re",
+     "name": "the ledger counts the silent buttons without naming one",
+     "verdict": "killed"
+    },
+    {
+     "detail": "1 failure(s); first: declaring a silent button exempt WITHOUT a reason is refuse",
+     "name": "a silent button can be declared right with no reason given",
+     "verdict": "killed"
+    },
+    {
+     "detail": "1 failure(s); first: ...and with one, THE REASON IS WHAT IS STORED, word for wor",
+     "name": "a declared silent button keeps no reason, so the ledger says what but never why",
+     "verdict": "killed"
+    },
+    {
+     "detail": "2 failure(s); first: A PAGE THAT GREW A BUTTON HANDING NOTHING OVER FAILS, with ",
+     "name": "a risen mute ceiling is printed and the audit still exits zero",
+     "verdict": "killed"
+    },
+    {
+     "detail": "1 failure(s); first: ...and it NAMES the page and the button, rather than only f",
+     "name": "the mute failure names no page and no button",
+     "verdict": "killed"
+    },
+    {
+     "detail": "8 failure(s); first: a control whose NAME says it hands something over is a cand",
      "name": "print is not a verb, so the print path is never measured",
      "verdict": "killed"
     },
@@ -2417,12 +2688,12 @@
      "verdict": "killed"
     },
     {
-     "detail": "2 failure(s); first: AND IT DOES NOT NAME THE PAGE THAT IS RIGHT TO HAND NOTHING",
+     "detail": "3 failure(s); first: AND IT DOES NOT NAME THE PAGE THAT IS RIGHT TO HAND NOTHING",
      "name": "a page that hands nothing over is named whatever it takes in, so the rule is noise",
      "verdict": "killed"
     },
     {
-     "detail": "1 failure(s); first: a declared page passes. The exemption is a written judgemen",
+     "detail": "2 failure(s); first: a declared page passes. The exemption is a written judgemen",
      "name": "a declaration does not exempt the page, so the written judgement counts for nothing",
      "verdict": "killed"
     },
@@ -2437,7 +2708,7 @@
      "verdict": "killed"
     },
     {
-     "detail": "3 failure(s); first: ...and it is IN THE LEDGER at zero outputs, rather than mis",
+     "detail": "4 failure(s); first: ...and it is IN THE LEDGER at zero outputs, rather than mis",
      "name": "a page with no outputs gets no ledger row, only a printed line",
      "verdict": "killed"
     },
@@ -2447,32 +2718,32 @@
      "verdict": "killed"
     },
     {
-     "detail": "7 failure(s); first: 'Forget this device's copy' matches `copy` and is NOT a can",
+     "detail": "15 failure(s); first: 'Forget this device's copy' matches `copy` and is NOT a ca",
      "name": "the gateway's own risk rule is not consulted, and Forget is pressed",
      "verdict": "killed"
     },
     {
-     "detail": "10 failure(s); first: ...and it was not pressed, which is the claim that matters",
+     "detail": "18 failure(s); first: ...and it was not pressed, which is the claim that matters",
      "name": "the page is measured from rest, so an export hands over the empty-state line",
      "verdict": "killed"
     },
     {
-     "detail": "16 failure(s); first: a control whose NAME says it hands something over is a can",
+     "detail": "25 failure(s); first: a control whose NAME says it hands something over is a can",
      "name": "the entry is never replayed at all",
      "verdict": "killed"
     },
     {
-     "detail": "16 failure(s); first: a control whose NAME says it hands something over is a can",
+     "detail": "25 failure(s); first: a control whose NAME says it hands something over is a can",
      "name": "the states are not walked, so a button behind a tab is never pressed",
      "verdict": "killed"
     },
     {
-     "detail": "14 failure(s); first: ...and it was not pressed, which is the claim that matters",
+     "detail": "22 failure(s); first: ...and it was not pressed, which is the claim that matters",
      "name": "the payloads are never asked for, so nothing emits",
      "verdict": "killed"
     },
     {
-     "detail": "12 failure(s); first: a button that refuses while the page is empty and hands ov",
+     "detail": "20 failure(s); first: a button that refuses while the page is empty and hands ov",
      "name": "the button is never pressed, so the payloads are somebody else's",
      "verdict": "killed"
     },
@@ -2482,32 +2753,32 @@
      "verdict": "killed"
     },
     {
-     "detail": "7 failure(s); first: an output the task presses and never asks about is NOT held",
+     "detail": "8 failure(s); first: an output the task presses and never asks about is NOT held",
      "name": "pressing an output counts as reading it",
      "verdict": "killed"
     },
     {
-     "detail": "7 failure(s); first: an output the task presses and never asks about is NOT held",
+     "detail": "8 failure(s); first: an output the task presses and never asks about is NOT held",
      "name": "the task is credited with reading everything it pressed",
      "verdict": "killed"
     },
     {
-     "detail": "7 failure(s); first: an output the task presses and never asks about is NOT held",
+     "detail": "8 failure(s); first: an output the task presses and never asks about is NOT held",
      "name": "a collect-output reads a button the task presses LATER in the run",
      "verdict": "killed"
     },
     {
-     "detail": "11 failure(s); first: an output the task presses and then asks about is HELD: {'",
+     "detail": "12 failure(s); first: an output the task presses and then asks about is HELD: {'",
      "name": "a task that reads nothing still holds everything",
      "verdict": "killed"
     },
     {
-     "detail": "7 failure(s); first: an output the task presses and never asks about is NOT held",
+     "detail": "8 failure(s); first: an output the task presses and never asks about is NOT held",
      "name": "the unread outputs are counted but not named",
      "verdict": "killed"
     },
     {
-     "detail": "6 failure(s); first: a button named for handing something over that hands over N",
+     "detail": "8 failure(s); first: a button named for handing something over that hands over N",
      "name": "a silent button is on the worklist too",
      "verdict": "killed"
     },
@@ -2542,7 +2813,7 @@
      "verdict": "killed"
     },
     {
-     "detail": "3 failure(s); first: a page carrying MORE unread outputs than its ceiling fails,",
+     "detail": "5 failure(s); first: a page carrying MORE unread outputs than its ceiling fails,",
      "name": "the failure is reported and the exit code is not",
      "verdict": "killed"
     }
@@ -3582,13 +3853,119 @@
    ],
    "survived": 0
   },
+  "mutate_restored": {
+   "at": 1789503064,
+   "equivalent": 0,
+   "equivalents": [],
+   "inconclusive": 1,
+   "killed": 14,
+   "mutants": 19,
+   "rows": [
+    {
+     "detail": "9 failure(s); first: a page whose snapshot leaves its records out comes back wit",
+     "name": "nothing is ever a loss",
+     "verdict": "killed"
+    },
+    {
+     "detail": "9 failure(s); first: a page whose snapshot leaves its records out comes back wit",
+     "name": "only a key that VANISHED counts, so a value that came back wrong is not a loss",
+     "verdict": "killed"
+    },
+    {
+     "detail": "2 failure(s); first: A PAGE THAT KEEPS WHAT IT HOLDS AND REPAINTS IT COMES BACK ",
+     "name": "every key that changed counts, so the status strips are losses too",
+     "verdict": "killed"
+    },
+    {
+     "detail": "no check failed -- this clause is asserted by nobody",
+     "name": "a pane counts, so the same difference is counted twice under its container",
+     "verdict": "SURVIVED"
+    },
+    {
+     "detail": "no check failed -- this clause is asserted by nobody",
+     "name": "the status list is emptied, so nothing is allowed to say what just happened",
+     "verdict": "SURVIVED"
+    },
+    {
+     "detail": "2 failure(s); first: every fixture was entered, flushed and reloaded: [('whole.h",
+     "name": "the page is never entered, so there is nothing to lose",
+     "verdict": "killed by the wrong check"
+    },
+    {
+     "detail": "no check failed -- this clause is asserted by nobody",
+     "name": "the autosave is never flushed, so the debounce decides what is kept",
+     "verdict": "SURVIVED"
+    },
+    {
+     "detail": "10 failure(s); first: ...and every one of them came back from its own autosave: ",
+     "name": "the tab is never reloaded, so the two readings are the same reading",
+     "verdict": "killed"
+    },
+    {
+     "detail": "1 failure(s); first: a page whose restore refuses the blob is reported as NOT RE",
+     "name": "whether the page restored is not recorded",
+     "verdict": "killed"
+    },
+    {
+     "detail": "10 failure(s); first: the reading is what the page PUBLISHES -- read-report's fi",
+     "name": "the boxes are dropped from the reading, so only figures are compared",
+     "verdict": "killed"
+    },
+    {
+     "detail": "no check failed -- this clause is asserted by nobody",
+     "name": "the figures are dropped from the reading, so only prose is compared",
+     "verdict": "SURVIVED"
+    },
+    {
+     "detail": "1 failure(s); first: a declared difference leaves the worklist: ['box/anStat', '",
+     "name": "a declaration does not exempt the difference",
+     "verdict": "killed"
+    },
+    {
+     "detail": "1 failure(s); first: declaring a difference expected WITHOUT a reason is refused",
+     "name": "declaring a difference needs no reason at all",
+     "verdict": "killed"
+    },
+    {
+     "detail": "1 failure(s); first: ...and with one, THE REASON IS WHAT IS STORED, word for wor",
+     "name": "a declared difference keeps no reason, so the ledger says what but never why",
+     "verdict": "killed"
+    },
+    {
+     "detail": "2 failure(s); first: --raise-floors LOWERS the ceiling, because this ratchet onl",
+     "name": "the ratchet runs upward, so a page that lost something records it as the new normal",
+     "verdict": "killed"
+    },
+    {
+     "detail": "4 failure(s); first: A PAGE THAT COMES BACK SAYING LESS THAN IT SAID FAILS, with",
+     "name": "a reading above the ceiling is not a failure",
+     "verdict": "killed"
+    },
+    {
+     "detail": "3 failure(s); first: A PAGE THAT COMES BACK SAYING LESS THAN IT SAID FAILS, with",
+     "name": "the failure is reported and the exit code is not",
+     "verdict": "killed"
+    },
+    {
+     "detail": "1 failure(s); first: ...and it NAMES the page and what went:     a page came bac",
+     "name": "the failure names no page and nothing that went",
+     "verdict": "killed"
+    },
+    {
+     "detail": "1 failure(s); first: THE PAGES THIS AUDIT WALKS ARE THE EMITTER'S LIST, not a se",
+     "name": "the pages walked are a list kept here rather than the emitter's",
+     "verdict": "killed"
+    }
+   ],
+   "survived": 4
+  },
   "mutate_tasks": {
-   "at": 1789286442,
+   "at": 1789455973,
    "equivalent": 0,
    "equivalents": [],
    "inconclusive": 0,
-   "killed": 87,
-   "mutants": 87,
+   "killed": 91,
+   "mutants": 91,
    "rows": [
     {
      "detail": "15 failure(s); first: every operator grades, a reference grades as its value, a ",
@@ -3596,7 +3973,7 @@
      "verdict": "killed"
     },
     {
-     "detail": "26 failure(s); first: every operator grades, a reference grades as its value, a ",
+     "detail": "28 failure(s); first: every operator grades, a reference grades as its value, a ",
      "name": "an operator expectation is always CONFIRMED",
      "verdict": "killed"
     },
@@ -3716,6 +4093,26 @@
      "verdict": "killed"
     },
     {
+     "detail": "3 failure(s); first: a REFUSED step that says nothing about being refused ends t",
+     "name": "an unclaimed refusal does not end the task, so a malformed step reports PASS",
+     "verdict": "killed"
+    },
+    {
+     "detail": "1 failure(s); first: the buckets task PASSes: a refusal, a decline and a failure",
+     "name": "every refusal ends the task, so a task may no longer probe one on purpose",
+     "verdict": "killed"
+    },
+    {
+     "detail": "2 failure(s); first: A TASK THAT MEANS TO PROVOKE A REFUSAL SAYS SO, and `expect",
+     "name": "only `code` counts as claiming a refusal, so `ok: false` is no longer the grammar",
+     "verdict": "killed"
+    },
+    {
+     "detail": "1 failure(s); first: ...and a DECLINE nobody asked for ends the task exactly as ",
+     "name": "a declined step is let through, so only an explicit refusal is caught",
+     "verdict": "killed"
+    },
+    {
      "detail": "1 failure(s); first: the canary is REFUTED at its second step, stops there, and ",
      "name": "must is ignored: every PASS is held",
      "verdict": "killed"
@@ -3736,7 +4133,7 @@
      "verdict": "killed"
     },
     {
-     "detail": "2 failure(s); first: each step's result is its bucket: {'r': 'driven', 'd': 'dec",
+     "detail": "5 failure(s); first: each step's result is its bucket: {'r': 'driven', 'd': 'dec",
      "name": "the result buckets are mislabelled: a refusal is driven",
      "verdict": "killed"
     },

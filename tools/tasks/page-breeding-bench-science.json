@@ -783,6 +783,72 @@
    }
   },
   {
+   "id": "g208-bcopy",
+   "action": "activate",
+   "arguments": {
+    "selector": "@control:bCopy"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "g208-bsheet",
+   "action": "collect-output",
+   "expect": {
+    "output.payloads.0.k": {
+     "op": "in",
+     "value": [
+      "copy",
+      "clipboard",
+      "download",
+      "print"
+     ]
+    },
+    "output.payloads.0.text": {
+     "op": "contains",
+     "value": "roguing,1,85,Off-type"
+    },
+    "output.payloads.0.text#2": {
+     "op": "contains",
+     "value": "population,plants grown,100"
+    },
+    "output.payloads.0.text#3": {
+     "op": "contains",
+     "value": "trial,1,"
+    }
+   }
+  },
+  {
+   "id": "g208-bdown",
+   "action": "activate",
+   "arguments": {
+    "selector": "@control:bDown"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "g208-bcsv",
+   "action": "collect-output",
+   "expect": {
+    "output.payloads.0.k": {
+     "op": "in",
+     "value": [
+      "copy",
+      "clipboard",
+      "download",
+      "print"
+     ]
+    },
+    "output.payloads.0.text": {
+     "op": "contains",
+     "value": "population,plants kept as parents,10"
+    }
+   }
+  },
+  {
    "id": "g163-endpane",
    "action": "show-pane",
    "arguments": {

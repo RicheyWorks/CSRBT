@@ -31,6 +31,7 @@ came out:
     HELD        it emits, AND the page's own task presses it and then calls
                 collect-output
     BLIND       it emits, and no task has ever looked -- the worklist
+    MUTE        it is SILENT and undeclared -- the second worklist (ADR-208)
 
 WHAT COUNTS AS A BUTTON THAT HANDS SOMETHING OVER is its label: copy, download,
 export, print, save. Not the payload -- a button is a candidate BEFORE it is
@@ -62,7 +63,21 @@ entry_reach does, and says so.
 
 It is not a claim that a silent button is broken: a page with nothing to export
 is right to export nothing, and the entry that ran before it is only as complete
-as the page's own task.
+as the page's own task. That is why silence is a RATCHET and not a verdict --
+but it is a ratchet now (ADR-208), because for fifty-five ADRs it was a number
+in a column with nothing behind it. Eighteen buttons of this kit were pressed
+with the page's own data in them and handed nothing over; nothing named one, no
+ceiling held one, and the audit exited zero. An export that quietly stopped
+working and a page that never had one read the same.
+
+Some of those eighteen were not buttons. `HANDS_OVER` reads a LABEL and every
+control has one, so a number box captioned "Plants you plan to save seed from"
+was a candidate, was pressed, and was filed as a silent export. The rule that
+was supposed to stop that read `kind.endswith("_in")` -- a check about how a
+kind is SPELT. It catches `text_in` and lets `step_val`, `slider`, `select`,
+`checkbox` and `drop_zone` through, and the suite pinned it with an `<input>`,
+the one kind whose spelling happens to match. What a button is, is now read
+from the door's own `activate` pool.
 """
 import argparse, glob, io, json, os, re, sys, time
 
@@ -93,6 +108,25 @@ TRAP_ENTRY = 4
 # a value can be put into. A search box is deliberately here too -- it is one
 # control, and one control is under the bar.
 ENTRY_KINDS = frozenset(H.TYPED) | frozenset(["slider", "checkbox", "select"])
+
+# WHAT COUNTS AS A CONTROL THAT CAN HAND ANYTHING OVER: one the door will press
+# (ADR-208).
+#
+# A NAME IS NOT A CONTROL. `HANDS_OVER` reads a LABEL, and every control on
+# every page has one -- so a number box captioned "Plants you plan to save seed
+# from" is a candidate by name, gets `activate`d, hands nothing over, and is
+# filed as a silent export. This rule used to be written as
+# `kind.endswith("_in")`: a check about how a kind is SPELT, not about what it
+# does. It catches `text_in`, `field_in`, `file_in` -- and lets `step_val`,
+# `slider`, `select`, `checkbox`, `tab` and `drop_zone` straight through, which
+# is every typed control this kit composes. The suite pinned the rule with an
+# `<input>`, the one kind whose spelling happens to match, so it read green.
+#
+# The positive statement is the one the kit already makes: the kinds
+# `activate` presses, read from the door's own argument pool. A control the
+# door would not press cannot be a button that hands something over, and a
+# kind added to that pool tomorrow counts tomorrow -- ADR-141's rule, again.
+PRESSED = frozenset(PP.POOL_KINDS["activate"])
 
 
 def docs_dir():
@@ -143,7 +177,8 @@ def candidates(snap):
             continue
         if PP.destroys(label, c.get("title") or ""):
             continue
-        if c.get("kind", "").endswith("_in") or c.get("kind") in ("pick_search",):
+        # ADR-208: a control the door does not press is not a button.
+        if c.get("kind") not in PRESSED:
             continue
         out.append(c)
     return out
@@ -211,7 +246,7 @@ def measure(pg, name, tasks_dir=None, budget=24):
                 continue
             left[0] -= 1
             rec = {"key": k, "label": c.get("label"), "host": c.get("host") or "",
-                   "id": c.get("id") or ""}
+                   "id": c.get("id") or "", "kind": c.get("kind") or ""}
             try:
                 plug.execute("activate", {"selector": c["selector"]})
                 S._settle(pg)
@@ -286,6 +321,30 @@ def blind(r, declared):
             if b.get("verdict") == "emits" and not b.get("held") and b["key"] not in declared]
 
 
+def muted_of(state, name):
+    return dict((k, v) for k, v in
+                (state.get("pages", {}).get(name, {}).get("mute_declared") or {}).items())
+
+
+def mute(r, declared):
+    """A SILENT BUTTON IS NOT AN OUTPUT (ADR-208).
+
+    `silent` was a number in a column: a button named for handing something
+    over that was pressed, on a page with the page's own data in it, and handed
+    nothing over. Nothing named it, no ratchet held it, and the audit exited
+    zero -- so a page whose export quietly stopped working and a page that had
+    never had one read the same, and so did a control this audit should never
+    have pressed at all. Eighteen of them stood in this kit.
+
+    The claim is narrow and it is the honest one: a page with nothing to hand
+    over is right to hand nothing over, and the entry that ran before the press
+    is only as complete as the page's own task. So this is a RATCHET, not a
+    verdict -- the count may not rise, it comes down as buttons are fixed, and
+    a button that is right to be silent is declared with a reason."""
+    return [b["key"] for b in r.get("buttons", [])
+            if b.get("verdict") == "silent" and b["key"] not in declared]
+
+
 def counts(r):
     c = {"emits": 0, "silent": 0, "unreachable": 0, "held": 0}
     for b in r.get("buttons", []):
@@ -309,6 +368,9 @@ def main(argv):
                          "(needs --reason)")
     ap.add_argument("--declare", metavar="PAGE:KEY",
                     help="declare one output exempt, with a reason (needs --reason)")
+    ap.add_argument("--declare-mute", metavar="PAGE:KEY",
+                    help="declare one SILENT button right to be silent, with a reason "
+                         "(needs --reason)")
     ap.add_argument("--reason", default="", help="why an output is exempt")
     ap.add_argument("--names", type=int, default=5, help="how many unread outputs to name")
     ap.add_argument("--json", action="store_true", help="the whole reading, for a suite to read")
@@ -324,6 +386,21 @@ def main(argv):
         ledger.setdefault(a.declare_page, {})["no_outputs"] = a.reason.strip()
         save(state)
         print("%s: handing nothing over declared exempt" % a.declare_page)
+        return 0
+
+    if a.declare_mute:
+        if ":" not in a.declare_mute:
+            print("--declare-mute takes PAGE:KEY, e.g. 'cp-bench.html:Copy recipe'")
+            return 2
+        page, key = a.declare_mute.split(":", 1)
+        if not a.reason.strip():
+            print("declaring a silent button exempt needs --reason: a button named for handing\n"
+                  "something over that hands nothing over is either broken or right, and only "
+                  "the\nreason says which")
+            return 2
+        ledger.setdefault(page, {}).setdefault("mute_declared", {})[key] = a.reason.strip()
+        save(state)
+        print("%s: %s declared right to be silent" % (page, key))
         return 0
 
     if a.declare:
@@ -349,8 +426,8 @@ def main(argv):
           % ("PAGE", "UNREAD", "emits", "held", "silent",
              "what the page hands over that no task reads"))
     print("-" * 116)
-    tot = dict(blind=0, emits=0, held=0, silent=0)
-    above, traps = [], []
+    tot = dict(blind=0, emits=0, held=0, silent=0, mute=0)
+    above, traps, loud = [], [], []
     for name in sorted(got):
         r = got[name]
         if r.get("error"):
@@ -373,7 +450,7 @@ def main(argv):
             # hands nothing over is a DATA TRAP and must be declared, with a
             # reason, in the ledger where the judgement can be read.
             e = ledger.setdefault(name, {})
-            e.update({"unread": [], "buttons": 0, "task": r.get("task"),
+            e.update({"unread": [], "mute": [], "buttons": 0, "task": r.get("task"),
                       "entry": r.get("entry", 0),
                       "counts": {"emits": 0, "held": 0, "silent": 0, "unreachable": 0},
                       "at": int(time.time())})
@@ -390,8 +467,11 @@ def main(argv):
             continue
         dec = declared_of(state, name)
         bad = blind(r, dec)
+        mdec = muted_of(state, name)
+        qui = mute(r, mdec)
         c = counts(r)
         tot["blind"] += len(bad)
+        tot["mute"] += len(qui)
         for k in ("emits", "held", "silent"):
             tot[k] += c.get(k, 0)
         e = ledger.setdefault(name, {})
@@ -400,17 +480,25 @@ def main(argv):
             above.append((name, len(bad), ceiling))
         if a.raise_floors and (ceiling is None or len(bad) < ceiling):
             e["ceiling"] = len(bad)
-        e.update({"unread": bad, "buttons": len(r["buttons"]), "task": r.get("task"),
-                  "counts": c, "at": int(time.time())})
+        # THE SECOND RATCHET, AND IT RUNS THE SAME WAY DOWN (ADR-208).
+        mceil = e.get("mute_ceiling")
+        if mceil is not None and len(qui) > mceil:
+            loud.append((name, len(qui), mceil, qui))
+        if a.raise_floors and (mceil is None or len(qui) < mceil):
+            e["mute_ceiling"] = len(qui)
+        e.update({"unread": bad, "mute": qui, "buttons": len(r["buttons"]),
+                  "task": r.get("task"), "counts": c, "at": int(time.time())})
         mark = "  ABOVE CEILING %d" % ceiling if ceiling is not None and len(bad) > ceiling else ""
+        if mceil is not None and len(qui) > mceil:
+            mark += "  ABOVE MUTE CEILING %d" % mceil
         print("%-30s %6d %6d %6d %6d   %s%s"
               % (name, len(bad), c.get("emits", 0), c.get("held", 0), c.get("silent", 0),
                  ", ".join(bad[:a.names]) + (" ..." if len(bad) > a.names else ""), mark))
     print("-" * 116)
     print("%-30s %6d %6d %6d %6d   %s"
           % ("the kit", tot["blind"], tot["emits"], tot["held"], tot["silent"],
-             "%d of %d output(s) leave a page with nothing reading them"
-             % (tot["blind"], tot["emits"])))
+             "%d of %d output(s) leave a page with nothing reading them; %d button(s) "
+             "hand over nothing" % (tot["blind"], tot["emits"], tot["mute"])))
     if not a.page:
         save(state)
     if traps:
@@ -426,7 +514,18 @@ def main(argv):
               "and export a wrong one, and every suite in this kit would be green:" % len(above))
         for name, now, ceiling in above:
             print("    %-30s %d, ceiling %d" % (name, now, ceiling))
-    return 1 if (above or traps) else 0
+    if loud:
+        print("\n%d page(s) grew a BUTTON THAT HANDS NOTHING OVER. It was pressed, on a page with\n"
+              "the page's own data in it, and nothing left. `silent` used to be a number in a\n"
+              "column that nothing named and no ratchet held, so an export that quietly stopped\n"
+              "working read exactly like a page that never had one. Fix it, or say why it is\n"
+              "right to be silent:\n"
+              "    python3 tools/audit_outputs.py --declare-mute PAGE:KEY --reason \"...\""
+              % len(loud))
+        for name, now, mceil, keys in loud:
+            print("    %-30s %d silent, ceiling %d: %s"
+                  % (name, now, mceil, ", ".join(keys[:a.names])))
+    return 1 if (above or traps or loud) else 0
 
 
 if __name__ == "__main__":

@@ -4005,6 +4005,39 @@
    }
   },
   {
+   "id": "g208-ecocopy",
+   "action": "activate",
+   "arguments": {
+    "selector": "@control:wb-eco-copy"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "g208-ecoout",
+   "action": "collect-output",
+   "expect": {
+    "output.payloads.0.k": {
+     "op": "in",
+     "value": [
+      "copy",
+      "clipboard",
+      "download",
+      "print"
+     ]
+    },
+    "output.payloads.0.text": {
+     "op": "contains",
+     "value": "name: my workbench experiment"
+    },
+    "output.payloads.0.text#2": {
+     "op": "contains",
+     "value": "seed: 42"
+    }
+   }
+  },
+  {
    "id": "eco-in",
    "action": "set-text",
    "arguments": {

@@ -52,9 +52,16 @@ _oe = importlib.util.module_from_spec(_oespec)
 _oespec.loader.exec_module(_oe)
 CONSUMERS = list(_oe.CONSUMERS)
 
-ck("every page outbox_emit.py inlines the outbox into is a page this suite drives, because the "
-   "list is the emitter's rather than a second one kept here: %s" % (CONSUMERS,),
-   len(CONSUMERS) >= 12, CONSUMERS)
+# READ OFF THE PAGES, NOT OFF A COUNT (ADR-207). A count is walked straight past
+# by a list that has lost a page; what the claim is about is COVERAGE.
+import glob as _glob
+_inlined = sorted(os.path.basename(_p) for _p in
+                  _glob.glob(os.path.join(ROOT, "docs", "*.html"))
+                  if "/* ---- Outbox v" in io.open(_p, encoding="utf-8").read())
+ck("EVERY PAGE THAT CARRIES THE OUTBOX IS A PAGE THIS SUITE DRIVES, because the list is the "
+   "emitter's rather than a second one kept here: %s"
+   % sorted(set(_inlined) - set(CONSUMERS)),
+   sorted(CONSUMERS) == _inlined, (sorted(CONSUMERS), _inlined))
 
 ck("tools/outbox.py declares a version", bool(OUTV), OUTV)
 ck("KEEP is at the version that exposes its snapshot, which the outbox reads",
@@ -66,15 +73,44 @@ ck("KEEP is at the version that exposes its snapshot, which the outbox reads",
 # Read off the pages, not off a list kept here: a page that gains an export
 # tomorrow has to be covered on the day it gains it, not on the day somebody
 # remembers this file exists.
+# THE LEDGER IS MARKED FROM TWO PLACES, AND THIS READ ONE OF THEM (ADR-208).
+#
+# Every mark used to go through a page's own `copyText(...)`, so reading the
+# last argument of those calls read every export a page could make. A DOWNLOAD
+# cannot: there is no clipboard promise to hang the mark on, so the page calls
+# `SENT.sent("id", bytes)` itself in the path where the bytes went. Both benches
+# grew one in this slice and both were reported as declaring an export no call
+# site could make -- the rule enforced over one of the two shapes the thing it
+# measures actually has, which is ADR-141's defect for the sixth time.
+#
+# The component's own `LIVE.sent(id, bytes)` inside tools/outbox.py is not a
+# call site: `id` there is the parameter being forwarded, and it is excluded by
+# being a non-literal rather than by naming the file, so a page that wrote the
+# same forwarding line would be named too.
+SENT_CALL = re.compile(r"\.sent\(\s*([^,)]+)")
+
+
+def sent_ids(src):
+    out = []
+    for m in SENT_CALL.finditer(src):
+        arg = m.group(1).strip()
+        mm = re.fullmatch(r'"([a-z]+)"', arg)
+        if mm:
+            out.append(mm.group(1))
+        elif arg != "id":          # the component forwarding its own parameter
+            out.append("NOT A LITERAL: " + arg[:40])
+    return out
+
+
 def call_ids(src):
-    """The last argument of every copyText(...) CALL, as written.
+    """The last argument of every copyText(...) CALL, plus every .sent("id").
 
     Parsed by balancing parentheses rather than by regex, because the argument
     lists span lines and hold both quote characters, commas inside strings and
     nested calls. A call whose last argument is not a plain string literal comes
     back as the raw text so the check can name it.
     """
-    out = []
+    out = list(sent_ids(src))
     for m in re.finditer(r"copyText\(", src):
         if src[:m.start()].rstrip().endswith("function"):
             continue
@@ -103,10 +139,34 @@ def decl_ids(src):
     return re.findall(r'\{ id:"([a-z]+)", label:"', src)
 
 
+# THE READER ITSELF, over a source written here (ADR-208).
+#
+# No page in this kit marks the ledger anywhere but through `copyText`, and the
+# two downloads this slice added deliberately do NOT mark it -- a hosted viewer
+# can refuse a page-started download in silence, so a mark there would report a
+# sheet as gone from this device that the browser never let leave. So the second
+# half of the reader has no violator in the kit, and a check run only over the
+# pages would pass just as well if it had never been written. It is driven here
+# instead, which is ADR-207's answer to exactly that: over a source with both
+# shapes in it, and over the component's own forwarding line.
+_both = 'copyText(sheetText(), "Copied", "sheet"); if(ok) SENT.sent("csvv", n);'
+ck("THE LEDGER IS MARKED FROM TWO PLACES and the reader reads both: a copy through the page's own "
+   "copyText, and a call site that marks an export copyText cannot carry",
+   sorted(call_ids(_both)) == ["csvv", "sheet"], sorted(call_ids(_both)))
+ck("and the component forwarding its OWN parameter is not a call site -- excluded by being a "
+   "non-literal rather than by naming the file, so a page that wrote the same line would be named",
+   call_ids("return LIVE.sent(id, bytes);") == [], call_ids("return LIVE.sent(id, bytes);"))
+ck("...while a mark whose id is worked out at run time IS named, rather than passing as nothing",
+   [x for x in call_ids('OUT.sent(which, n);') if x.startswith("NOT A LITERAL")],
+   call_ids('OUT.sent(which, n);'))
+
 for name in CONSUMERS:
     src = io.open(os.path.join(ROOT, "docs", name), encoding="utf-8").read()
     decl, used = decl_ids(src), call_ids(src)
-    ck("%s declares its exports" % name, len(decl) >= 2, decl)
+    # ONE IS ENOUGH. The bar was two, which is a claim about how many exports a
+    # page ought to have rather than about the ledger; the carnivorous-plant
+    # bench makes exactly one copy and its outbox is no less true for it.
+    ck("%s declares its exports" % name, len(decl) >= 1, decl)
     ck("%s declares each export once" % name, len(decl) == len(set(decl)), decl)
     bad = [u for u in used if u.startswith("NOT A LITERAL")]
     ck("%s: every copy this sheet makes names the export it is" % name, not bad, bad[:2])
@@ -359,7 +419,16 @@ with sync_playwright() as p:
               ("ethogram.html",         None,     "ecoCopy",   "sheet"),
               ("field-notebook.html",   None,     "ecoCopy",   "sheet"),
               ("selection-log.html",    None,     "ecoCopy",   "sheet"),
-              ("farm-scout.html",       None,     "ecoCopy",   "sheet")]
+              ("farm-scout.html",       None,     "ecoCopy",   "sheet"),
+              # ADR-207: the benches, which ADR-205 gave exports and this slice
+              # gave a ledger.
+              ("cell-bench.html",       None,     "ecoCopy",   "sheet"),
+              ("micro-bench.html",      None,     "ecoCopy",   "sheet"),
+              ("cp-bench.html",         None,     "mCopy",     "recipe"),
+              # ADR-208: the data trap. Eighteen typed values, no export at all,
+              # and an audit that missed it because the one control it did press
+              # was a number box whose caption says "save".
+              ("breeding-bench.html",   "tDemo",  "bCopy",     "sheet")]
     ck("EVERY CONSUMER IS DRIVEN THROUGH A REAL EXPORT BUTTON, not a representative. The "
        "execCommand fault this checks for was fixed on five pages by ADR-203 and was still alive "
        "on four more, because that check was written over the pages that had an outbox rather "
@@ -383,7 +452,16 @@ with sync_playwright() as p:
         # boring reason that this button never copies anything at all.
         pg, errs = page(name, clear=True)
         if prep:
+            show(pg, prep)       # ADR-208: a worked example can live behind a tab too
             pg.click("#" + prep); pg.wait_for_timeout(700)
+        # A PRESS THAT REFUSES IS NOT A COPY EITHER. Some exports decline on an
+        # empty sheet ("Empty mix"), which would make both halves of this pair
+        # pass for the wrong reason; the page's own preset gives them something
+        # to hand over.
+        if name == "cp-bench.html":
+            pg.evaluate("""()=>{var b=document.querySelector('#mPresets button');
+                if(b) b.click();}""")
+            pg.wait_for_timeout(400)
         pg.evaluate(STUB_OK)
         show(pg, btn)
         pg.click("#" + btn); pg.wait_for_timeout(700)
@@ -395,7 +473,12 @@ with sync_playwright() as p:
 
         pg, errs = page(name, clear=True)
         if prep:
+            show(pg, prep)
             pg.click("#" + prep); pg.wait_for_timeout(700)
+        if name == "cp-bench.html":
+            pg.evaluate("""()=>{var b=document.querySelector('#mPresets button');
+                if(b) b.click();}""")
+            pg.wait_for_timeout(400)
         pg.evaluate(STUB_NO)
         show(pg, btn)
         pg.click("#" + btn); pg.wait_for_timeout(900)

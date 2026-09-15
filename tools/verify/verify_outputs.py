@@ -23,7 +23,7 @@ in both directions unless five things are right, so a fixture pins each:
 Run:  python3 tools/verify/verify_outputs.py
 """
 MUTATE_ROLE = "subject"
-import io, json, os, sys, tempfile
+import contextlib, io, json, os, sys, tempfile
 
 import _kit
 
@@ -70,6 +70,18 @@ FIXTURE = u"""<!doctype html><html><head><meta charset="utf-8"><title>outputs fi
   <button id="add" type="button">Add a row</button>
   <!-- a text box whose LABEL says save: not a control that hands anything over -->
   <label>Plants you plan to save <input id="plans" aria-label="Plants you plan to save"></label>
+  <!-- AND FIVE MORE THAT ARE NOT BUTTONS EITHER (ADR-208), every one of them a
+       kind this kit composes, every label naming a handover, and not one of
+       them spelt with the two characters the rule used to look for -->
+  <div class="fek-step"><button type="button">-</button><span class="val" id="sv"
+    role="spinbutton" aria-label="Plants you plan to save seed from">3</span><button
+    type="button">+</button></div>
+  <div class="fek-slide"><input id="sl" type="range" min="0" max="10" value="4"
+    aria-label="How many rows to export"></div>
+  <label>Copy which sheet <select id="pick" aria-label="Copy which sheet"><option>one</option>
+    <option>two</option></select></label>
+  <label>Print the labels <input id="pl" type="checkbox" aria-label="Print the labels"></label>
+  <div id="drop" data-h-drop aria-label="Drop a photo to save it here">drop here</div>
 </section>
 <section class="pane" id="p2">
   <!-- behind a tab: found only because the states are walked -->
@@ -303,7 +315,6 @@ ck(A.ENTRY_KINDS >= frozenset(H.TYPED),
    "a kind added tomorrow counts tomorrow -- the ADR-141 rule this whole slice is an instance "
    "of: %s" % sorted(A.ENTRY_KINDS))
 
-import contextlib
 _buf = io.StringIO()
 with contextlib.redirect_stdout(_buf):
     rc = A.main([])
@@ -339,6 +350,149 @@ ck(rc == 0 and led["trap.html"].get("no_outputs")
    % led["trap.html"].get("no_outputs"))
 ck(A.main([]) == 0,
    "a declared page passes. The exemption is a written judgement, not a silence")
+
+# ---- G. A SILENT BUTTON IS NOT AN OUTPUT (ADR-208) -------------------------
+#
+# Two halves of one defect. `HANDS_OVER` reads a LABEL, and every control on
+# every page has one -- so the rule that keeps a text box out of the candidate
+# list is doing the whole job of deciding what a button IS. It was written
+# `kind.endswith("_in")`: a check about how a kind is SPELT. It catches
+# `text_in`, `field_in` and `file_in`, and lets `step_val`, `slider`, `select`,
+# `checkbox` and `drop_zone` straight through -- which is most of what this kit
+# composes. Section A above pinned that rule with an `<input>`, the one kind
+# whose spelling happens to match, and it read green for fifty-five ADRs.
+#
+# What made it unobservable is the other half: a control pressed by mistake
+# hands nothing over and is filed `silent`, and `silent` was a number in a
+# column. Nothing named it, no ratchet held it, and the audit exited zero. So
+# an export that quietly stopped working, a control that should never have been
+# pressed, and a page that never had an export all read the same.
+import harness_plugin_page as PP
+
+
+def snap_of(name):
+    """The fixture's own snapshot, so that what is NOT a candidate can be
+    checked against what the page actually offers. A check that only asserts an
+    absence passes just as well when the control was never there."""
+    from playwright.sync_api import sync_playwright
+    with sync_playwright() as pw:
+        b = pw.chromium.launch()
+        ctx = b.new_context(viewport=H.VIEWPORT)
+        ctx.set_offline(True)
+        ctx.add_init_script(H.STUBS)
+        pg = ctx.new_page()
+        pg.goto("file://" + os.path.join(docs, name).replace(os.sep, "/"),
+                wait_until="domcontentloaded")
+        pg.wait_for_timeout(250)
+        pg.evaluate(S.OPEN_DETAILS_JS)
+        out = PP.PagePlugin(pg, name).observe(sensitive=True)
+        ctx.close()
+        b.close()
+        return out
+
+
+sn = snap_of("fixture.html")
+named = [c for c in sn.get("controls", []) if A.HANDS_OVER.search(c.get("label") or "")]
+named_kinds = sorted(set(c.get("kind") for c in named))
+NOT_BUTTONS = ("step_val", "slider", "select", "checkbox", "drop_zone")
+ck(set(NOT_BUTTONS) <= set(named_kinds),
+   "the fixture really does offer a step control, a slider, a select, a tick box and a drop "
+   "zone whose labels every one of them say they hand something over -- a check that only "
+   "asserts an absence passes just as well when the control was never there: %s" % named_kinds)
+
+cand_kinds = sorted(set(c.get("kind") for c in A.candidates(sn)))
+ck(all(k in A.PRESSED for k in cand_kinds),
+   "and NOT ONE OF THEM IS A CANDIDATE: a control the door does not press cannot be a button "
+   "that hands something over: %s" % cand_kinds)
+ck(not (set(NOT_BUTTONS) & set(cand_kinds)),
+   "...named one kind at a time, because this is the list that was wrong: %s"
+   % sorted(set(NOT_BUTTONS) & set(cand_kinds)))
+ck(not any(k.endswith("_in") or k == "pick_search" for k in NOT_BUTTONS),
+   "AND THE RULE THIS REPLACED WOULD HAVE LET EVERY ONE OF THEM THROUGH. It read "
+   "kind.endswith('_in') -- about how a kind is spelt, not about what it does -- and section A "
+   "above pinned it with an <input>, the one kind whose spelling happens to match: %s"
+   % list(NOT_BUTTONS))
+ck(A.PRESSED == frozenset(PP.POOL_KINDS["activate"]),
+   "what a button IS, is read from the door's own activate pool rather than restated here, so a "
+   "kind added to that pool tomorrow counts tomorrow -- ADR-141's rule, for the fifth time: %s"
+   % sorted(A.PRESSED))
+ck("action_btn" in A.PRESSED and "chip" in A.PRESSED,
+   "...and that pool is not empty of the things this kit exports with: %s" % sorted(A.PRESSED))
+
+# the fixture's own silent button, now named rather than counted
+ck(A.mute(r, {}) == ["notes"],
+   "a button named for handing something over that hands NOTHING over is named: 'silent' used to "
+   "be a number in a column, and a number nothing can point at is not a finding: %s"
+   % A.mute(r, {}))
+ck("notes" not in A.blind(r, {}),
+   "...and it is still not on the UNREAD worklist. The two claims are separate: unread is about "
+   "an output nobody looks at, mute is about a button that produces no output at all: %s"
+   % A.blind(r, {}))
+
+led = json.load(io.open(A.LEDGER, encoding="utf-8"))["pages"]["fixture.html"]
+ck(led.get("mute") == ["notes"],
+   "and the ledger carries the NAME, where a worklist can be read off it: %s" % led.get("mute"))
+ck(led.get("mute_ceiling") == 1,
+   "--raise-floors sets a mute ceiling the same way it sets the unread one: %s" % led)
+
+state = A.load()
+state["pages"]["fixture.html"]["mute_ceiling"] = 0
+A.save(state)
+_buf = io.StringIO()
+with contextlib.redirect_stdout(_buf):
+    rc = A.main([])
+said = _buf.getvalue()
+ck(rc != 0,
+   "A PAGE THAT GREW A BUTTON HANDING NOTHING OVER FAILS, with no flag -- run_all runs an audit "
+   "with no arguments, and a ratchet nothing runs is a comment")
+_loud = [l for l in said.split("\n") if "silent, ceiling" in l]
+ck(any("fixture.html" in l and "notes" in l for l in _loud),
+   "...and it NAMES the page and the button, rather than only failing: %s" % _loud)
+
+ck(A.main(["--declare-mute", "fixture.html:notes"]) != 0,
+   "declaring a silent button exempt WITHOUT a reason is refused: a button that hands nothing "
+   "over is either broken or right, and only the reason says which")
+rc = A.main(["--declare-mute", "fixture.html:notes", "--reason",
+             "the notes pane is empty until a reviewer writes in it"])
+led = json.load(io.open(A.LEDGER, encoding="utf-8"))["pages"]["fixture.html"]
+ck(rc == 0 and led.get("mute_declared", {}).get("notes")
+   == "the notes pane is empty until a reviewer writes in it",
+   "...and with one, THE REASON IS WHAT IS STORED, word for word: %s" % led.get("mute_declared"))
+ck(A.mute(r, A.muted_of(A.load(), "fixture.html")) == [],
+   "a declared silent button leaves the mute worklist: %s"
+   % A.mute(r, A.muted_of(A.load(), "fixture.html")))
+ck(A.main([]) == 0,
+   "...and the page passes at a mute ceiling of zero, because the exemption is a written "
+   "judgement rather than a silence")
+ck(sorted(A.blind(r, {})) == ["behind", "dl", "late", "pr"],
+   "and declaring it changed NOTHING about the unread worklist -- two ratchets, two claims, and "
+   "a page can fail either one alone: %s" % sorted(A.blind(r, {})))
+state = A.load()
+state["pages"]["fixture.html"]["mute_ceiling"] = 3
+A.save(state)
+rc = A.main(["--raise-floors"])
+led = json.load(io.open(A.LEDGER, encoding="utf-8"))["pages"]["fixture.html"]
+ck(led.get("mute_ceiling") == 0,
+   "--raise-floors LOWERS the mute ceiling, because this ratchet also only ever comes down: %s"
+   % led)
+# AND IT DOES NOT RAISE IT. Written with a page that is OVER its ceiling, because a
+# ratchet asked to move in the direction it must not move, from a reading that
+# equals the ceiling, is a check with no violator -- ADR-207's finding, and the
+# first draft of this one read green under a mutant that inverted the comparison.
+state = A.load()
+state["pages"]["fixture.html"].pop("mute_declared", None)
+state["pages"]["fixture.html"]["mute_ceiling"] = 0
+A.save(state)
+rc = A.main(["--raise-floors"])
+led = json.load(io.open(A.LEDGER, encoding="utf-8"))["pages"]["fixture.html"]
+ck(led.get("mute_ceiling") == 0 and led.get("mute") == ["notes"],
+   "...and with the declaration taken away and the silent button back on the worklist, a "
+   "--raise-floors run leaves the ceiling where it was rather than recording today's worse "
+   "reading as the new normal: %s" % led)
+ck(rc != 0,
+   "...and that run still fails, because --raise-floors lowers what it can and reports what it "
+   "cannot: a flag that forgave the page it could not ratchet would be a way to turn the rule "
+   "off one page at a time")
 
 print("---")
 print("%d/%d" % (P, P + F))

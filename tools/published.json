@@ -3,9 +3,9 @@
   "observed": {},
   "pages": {
     "_harness-board.html": {
-      "at": 1789424695,
+      "at": 1789499721,
       "dated_by": "the fetch time the reader reported -- about the fetch, not about the version",
-      "sha": "efa7abbe6534bf5f0be42c7837c58d3a6b832de9f94d6f022d62a5921f9be4a5",
+      "sha": "c17fa8587d44c6ea0500b28e4d1995b84882905c538290eb0388c81bfcdff94d",
       "via": "read"
     },
     "adr-031.html": {
@@ -15,9 +15,9 @@
       "via": "read"
     },
     "breeding-bench.html": {
-      "at": 1789424695,
+      "at": 1789499721,
       "dated_by": "the fetch time the reader reported -- about the fetch, not about the version",
-      "sha": "43dba308122c153f3f953049c080333cdbe22177fb28046335a164378ceebc69",
+      "sha": "f10ed01e3abc325dff0418023049018bd749d096e55effde95d14fa2c5197d7e",
       "via": "read"
     },
     "breeding-suite.html": {
@@ -27,21 +27,21 @@
       "via": "read"
     },
     "cell-bench.html": {
-      "at": 1789424695,
+      "at": 1789499721,
       "dated_by": "the fetch time the reader reported -- about the fetch, not about the version",
-      "sha": "3394547cd0e7b30cfc569def98961ee490b2123f8baa0417fddb2c609fc5e251",
+      "sha": "8fcb0cc4db6c1f8c29d0a23111c15a8b2eab475bcfce16f8ba9c0c31b05c2547",
       "via": "read"
     },
     "collection-sheet.html": {
-      "at": 1789424695,
+      "at": 1789499721,
       "dated_by": "the fetch time the reader reported -- about the fetch, not about the version",
-      "sha": "50e486383ff1a727044303bbd27d5eef846b537d969987f7920f66e484882ac0",
+      "sha": "c681a38ce9703698b8b23548daa78f6e508fcd2d4eb372105e68c22db989ccf2",
       "via": "read"
     },
     "cp-bench.html": {
-      "at": 1789424695,
+      "at": 1789499721,
       "dated_by": "the fetch time the reader reported -- about the fetch, not about the version",
-      "sha": "89e0b9c05b58755af5512a4060d1d5d825f0036367fe2caf68780d718b9c792d",
+      "sha": "8a61718c7b97fbb3d7bb7a3ac703e5582bc78322644a543980c7db8ebd16f738",
       "via": "read"
     },
     "cp-characters.html": {
@@ -57,9 +57,9 @@
       "via": "read"
     },
     "deployment-log.html": {
-      "at": 1789424695,
+      "at": 1789499721,
       "dated_by": "the fetch time the reader reported -- about the fetch, not about the version",
-      "sha": "26ead9ba0e56739ab5b816fbdf35583f7ec0669d8dc598af2a1dc87ce24ce329",
+      "sha": "847b773f776dedb5dcc4cbf49054360fbe02d9bc4b895d00bd59e65af628ac3e",
       "via": "read"
     },
     "douglas-explorer.html": {
@@ -111,9 +111,9 @@
       "via": "read"
     },
     "ecology-lab.html": {
-      "at": 1788757192,
-      "dated_by": "the version epoch in the filename",
-      "sha": "5efc50da2d626e5191edf0579c06a7c93a25292cd4ccb9fc674e55d106e0c232",
+      "at": 1789462719,
+      "dated_by": "the fetch time the reader reported -- about the fetch, not about the version",
+      "sha": "1bb7486c96a2cb77803010d1d7c794c3f703d67a072d5770f4bac518ea739095",
       "via": "read"
     },
     "ecology-teachers-guide.html": {
@@ -129,27 +129,27 @@
       "via": "read"
     },
     "ethogram.html": {
-      "at": 1789424695,
+      "at": 1789499721,
       "dated_by": "the fetch time the reader reported -- about the fetch, not about the version",
-      "sha": "d89f90eab4e87a7493dba1bded23936473ea52647714587ad487fd26178cfb29",
+      "sha": "b3d91c9c805c467db057324a53472e1f69efd966d6b92d179c5ba0b9599e3970",
       "via": "read"
     },
     "experiment-guide.html": {
-      "at": 1788757086,
-      "dated_by": "the version epoch in the filename",
-      "sha": "e36f3d22a796dc3c9ff5d2051c1ca45bb4fc8cb23df40710bc7345fbba18ec79",
+      "at": 1789499721,
+      "dated_by": "the fetch time the reader reported -- about the fetch, not about the version",
+      "sha": "7c69534ad232ab0fdf71cff63fc7026b60d1e4f4b96cbdf4a81c3e25dd6196a9",
       "via": "read"
     },
     "farm-scout.html": {
-      "at": 1789424695,
+      "at": 1789499721,
       "dated_by": "the fetch time the reader reported -- about the fetch, not about the version",
-      "sha": "8ab068fada0670bdb6487e41502e88029a552dccda27cf5f7d60b4378fac8661",
+      "sha": "b489fc83bbbd59f5c68aa1e50b8bd84d7baf324e9062b5ba6269d843a0e4b0fd",
       "via": "read"
     },
     "field-notebook.html": {
-      "at": 1789424695,
+      "at": 1789499721,
       "dated_by": "the fetch time the reader reported -- about the fetch, not about the version",
-      "sha": "d47f7d4ca103f6c5f80fd26199cfd3037f09db1277e31bc156d8ffde69b1ffd2",
+      "sha": "ff36ca3f924c154e39b7dc8062c9b4d9c3aa427b23dd578bdcd5265856511d3f",
       "via": "read"
     },
     "field-season.html": {
@@ -171,27 +171,27 @@
       "via": "read"
     },
     "greenhouse.html": {
-      "at": 1789424695,
+      "at": 1789499721,
       "dated_by": "the fetch time the reader reported -- about the fetch, not about the version",
-      "sha": "b144e7ef02298f61b83c39ee1b668cd5a31078dc779fa3c97d1348e8ebc1a2d6",
+      "sha": "0cb68025948cc70948779577d7a31f5073461e8a9e942f240abedd229fa229d6",
       "via": "read"
     },
     "micro-bench.html": {
-      "at": 1789424695,
+      "at": 1789499721,
       "dated_by": "the fetch time the reader reported -- about the fetch, not about the version",
-      "sha": "b0dfcb971602169a92e37f71367aed82f974b798cc19e8fcae551cec498dfa4a",
+      "sha": "b3dfb63fb85265d3d5d3848d262770f6b891e3278ff96ae58a48005c7d4c6204",
       "via": "read"
     },
     "ordination.html": {
-      "at": 1789424695,
+      "at": 1789499721,
       "dated_by": "the fetch time the reader reported -- about the fetch, not about the version",
-      "sha": "a9a76052e1359b642ae9707a908bb59b40c3bfd7d8a995002c42d6aaa34e34ab",
+      "sha": "3902abe505e3f6edd10c79a0934d73e35b5b2045d894a814b025f20a58a986d7",
       "via": "read"
     },
     "pheno-tracker.html": {
-      "at": 1789424695,
+      "at": 1789499721,
       "dated_by": "the fetch time the reader reported -- about the fetch, not about the version",
-      "sha": "74d84404bada58ce4325b26d8a42f54c38962db6bb8ea5b35bf52e945e635d5d",
+      "sha": "0ea844f4c6f8647bf57b0a8e4b83a3ac8ee2a741fc26c450b56b00fe64de2a2d",
       "via": "read"
     },
     "plant-characters.html": {
@@ -201,21 +201,21 @@
       "via": "read"
     },
     "releve.html": {
-      "at": 1789424695,
+      "at": 1789499721,
       "dated_by": "the fetch time the reader reported -- about the fetch, not about the version",
-      "sha": "9d8184ab25d10b90dcdafd98ff6370155eb40fa412b29fc09db5902555cd48af",
+      "sha": "271149dbd88ee5f9aa0ad365943a6fd17608ff7000d71993122140a4d0814fe9",
       "via": "read"
     },
     "selection-log.html": {
-      "at": 1789424695,
+      "at": 1789499721,
       "dated_by": "the fetch time the reader reported -- about the fetch, not about the version",
-      "sha": "9e1ff64b757e4f992680aea52af1e59ca50eace0c1f5637466e1a663dd352c95",
+      "sha": "9a3cc9c58bb2b70038fb2bc21d1bfccc8d5200e70ba42fb56c12e766e0536aba",
       "via": "read"
     },
     "soil-bench.html": {
-      "at": 1789424695,
+      "at": 1789499721,
       "dated_by": "the fetch time the reader reported -- about the fetch, not about the version",
-      "sha": "6e8703f4e1ec3ac54b43ae99171f0ce69ffd9a580ea561e9153f4bf5278821b8",
+      "sha": "39c2eeb249615d2c4bb60d8f1a2024dd530c89c8c625745ca14fa7ae2c0fbf14",
       "via": "read"
     },
     "soil-recipes.html": {
@@ -231,15 +231,15 @@
       "via": "read"
     },
     "stand-sheet.html": {
-      "at": 1789424695,
+      "at": 1789499721,
       "dated_by": "the fetch time the reader reported -- about the fetch, not about the version",
-      "sha": "a00a08eebfe76afb3ed09fbed162e5281fcf1a45b062c12673ea9fbcb31546d6",
+      "sha": "6981ec6bdb98b5637e9efca8b306ced74c8b63a9c01e35a38a1375f215827e0c",
       "via": "read"
     },
     "survey-design.html": {
-      "at": 1789424695,
+      "at": 1789499721,
       "dated_by": "the fetch time the reader reported -- about the fetch, not about the version",
-      "sha": "592fd64e4bb8ac119ad970b814ff3fbe3c837d643fb1c4f65194486173c91b55",
+      "sha": "85b2e0015bcfbc9519b40b2783a456dd8f95aa62ae8ce707d9d9818290f4f5f8",
       "via": "read"
     },
     "tree-proofs.html": {

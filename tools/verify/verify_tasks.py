@@ -433,6 +433,64 @@ ck(rr["verdict"] == "PASS" and rr["held"],
 ck(rr["steps"][1]["result"] == "refused",
    "...and the refusal is still a refusal, not turned into something else: %s" % rr["steps"][1]["result"])
 
+# ---- C3. A REFUSAL NOBODY ASKED FOR IS A FAILURE (ADR-208) -------------------
+#
+# A step that FAILED with nothing said about it ended the task from ADR-126 on
+# (section C above). A step the door REFUSED did not: it graded nothing,
+# because it expected nothing, and the runner moved on and reported PASS. So a
+# task could name an argument its action does not take, be told so by the door,
+# and hold -- with every expectation it DID state true, and the one step whose
+# whole job was to look at what came out never run. That is what happened here:
+# ADR-208's own first draft wrote `collect-output` with a `selector`, both
+# benches reported PASS, and the exports the slice exists to check were never
+# collected once.
+mute = {"id": "fixture-refusal-unclaimed", "target": "fixture",
+        "goal": "a step the door refuses, about which the task says nothing at all" * 2,
+        "steps": [{"id": "a", "action": "ok"},
+                  {"id": "no", "action": "refuse", "arguments": {"n": 3}},
+                  {"id": "after", "action": "ok", "expect": {"ok": True}}]}
+rm = T.run_tasks([mute])["fixture-refusal-unclaimed"]
+ck(rm["verdict"] == "FAIL" and len(rm["steps"]) == 2,
+   "a REFUSED step that says nothing about being refused ends the task, exactly as an "
+   "unexpected failure does -- a task that asks the door for something it will not do and "
+   "does not notice is not a task that held: %s"
+   % [(x["id"], x["result"]) for x in rm["steps"]])
+ck(rm["steps"][1]["result"] == "refused"
+   and "said nothing about being refused" in rm["steps"][1].get("detail", ""),
+   "...and the reason names what was wrong with the TASK, not with the page: %s"
+   % rm["steps"][1].get("detail", "")[:80])
+ck(not rm["held"],
+   "...and it is not held. Every expectation this task stated was true; the one it could not "
+   "state, because the step never ran, is the one that mattered")
+okf = {"id": "fixture-refusal-claimed-ok", "target": "fixture",
+       "goal": "a task that MEANS to provoke a refusal says so, and the kit already has the grammar" * 2,
+       "steps": [{"id": "a", "action": "ok"},
+                 {"id": "no", "action": "refuse", "arguments": {"n": 3}, "expect": {"ok": False}},
+                 {"id": "after", "action": "ok", "expect": {"ok": True}}]}
+ro = T.run_tasks([okf])["fixture-refusal-claimed-ok"]
+ck(ro["verdict"] == "PASS" and ro["held"] and len(ro["steps"]) == 3,
+   "A TASK THAT MEANS TO PROVOKE A REFUSAL SAYS SO, and `expect: {ok: false}` is enough -- the "
+   "rule reads off what the task claimed rather than a list of steps allowed to be refused, "
+   "which would go stale the first time a task grew one: %s"
+   % [(x["id"], x["result"]) for x in ro["steps"]])
+codef = {"id": "fixture-refusal-claimed-code", "target": "fixture",
+         "goal": "and an expectation about the CODE is the other half of that grammar" * 2,
+         "steps": [{"id": "a", "action": "ok"},
+                   {"id": "no", "action": "refuse", "arguments": {"n": 3},
+                    "expect": {"code": "invalid_argument"}},
+                   {"id": "after", "action": "ok", "expect": {"ok": True}}]}
+rc2 = T.run_tasks([codef])["fixture-refusal-claimed-code"]
+ck(rc2["verdict"] == "PASS" and rc2["held"],
+   "...and so is an expectation about `code`: the collection sheet's `hostgone` types a filter "
+   "that matches nothing and says which of the two it is: %s"
+   % [(x["id"], x["result"]) for x in rc2["steps"]])
+_declared = [t for t in tasks
+             for st in t["steps"]
+             if "ok" in (st.get("expect") or {}) or "code" in (st.get("expect") or {})]
+ck(_declared,
+   "and the kit's own tasks already use that grammar, so the rule is not a new dialect nobody "
+   "writes in: %d step(s) across the shipped tasks declare ok or code" % len(_declared))
+
 # ---- D. the real targets -------------------------------------------------------
 cp_org = os.path.join(os.environ.get("CSRBT_WHOLEHOG") or os.path.join(_kit.ROOT, "..", "WholeHog"),
                       "build", "harness", "classpath.txt")
@@ -532,6 +590,51 @@ missing = T.run_task(two, ORG, "csrbt-organism", {"organism": (ORG, "csrbt-organ
 ck(missing["verdict"] == "DEFECT" and "did not open" in (missing["steps"][-1].get("detail") or ""),
    "a step naming a target the runner did not open is the TASK's defect, not a refusal: %s"
    % missing["steps"][-1].get("detail"))
+
+# ---- C3 (continued). AND A DECLINE IS THE SAME CLAIM (ADR-208) --------------
+#
+# `refused` and `declined` are different answers: a refusal carries one of the
+# gateway's refusal codes, a DECLINE is the risk ladder saying this session was
+# never allowed to make that act -- ok false, a requestId, and no code at all.
+# Both are the door saying no, and a task that says nothing about either is a
+# task that did not notice.
+#
+# NO TARGET IN THIS KIT ANSWERS A TASK STEP WITH A DECLINE. The fixture's
+# destructive rung answers `DESTRUCTIVE is not enabled for this session` with
+# code `failed`, which is the OTHER branch. So the decline half of the rule has
+# no violator anywhere in the kit, and narrowing it back to refusals alone
+# changes nothing any check over the real targets could see -- ADR-207's
+# finding, arriving on the rule written to answer ADR-207's finding. It is
+# driven here through a scripted wire instead, which is the canary: a door that
+# answers exactly the way a declining gateway does.
+DECL = FakeWire("declining-door", {
+    "decline": {"ok": False, "requestId": "req-decline-1", "snapshot": {},
+                "message": "MUTATE is not enabled for this session"}})
+dt = {"id": "fixture-decline-unclaimed", "target": "fixture",
+      "goal": "a step the door DECLINES -- the risk ladder, not a refusal -- about which the "
+              "task says nothing at all",
+      "steps": [{"id": "a", "action": "ok", "expect": {"ok": True}},
+                {"id": "no", "action": "decline"},
+                {"id": "after", "action": "ok", "expect": {"ok": True}}]}
+rd = T.run_task(dt, DECL, "csrbt-fixture", {"fixture": (DECL, "csrbt-fixture")})
+ck(rd["steps"][1]["result"] == "declined",
+   "the scripted door DECLINES rather than refusing -- ok false, a requestId, no code -- which "
+   "is the answer no real target in this kit gives a task step: %s" % rd["steps"][1]["result"])
+ck(rd["verdict"] == "FAIL" and len(rd["steps"]) == 2
+   and "said nothing about being refused" in rd["steps"][1].get("detail", ""),
+   "...and a DECLINE nobody asked for ends the task exactly as a refusal does: the ladder "
+   "saying this session may not do that, and the task carrying on regardless, is the same "
+   "defect: %s" % [(x["id"], x["result"]) for x in rd["steps"]])
+DECL2 = FakeWire("declining-door-2", {
+    "decline": {"ok": False, "requestId": "req-decline-2", "snapshot": {},
+                "message": "MUTATE is not enabled for this session"}})
+dt2 = dict(dt, id="fixture-decline-claimed")
+dt2["steps"] = [dict(x) for x in dt["steps"]]
+dt2["steps"][1] = {"id": "no", "action": "decline", "expect": {"ok": False}}
+rd2 = T.run_task(dt2, DECL2, "csrbt-fixture", {"fixture": (DECL2, "csrbt-fixture")})
+ck(rd2["verdict"] == "PASS" and len(rd2["steps"]) == 3,
+   "...and a task that MEANS to be declined says so, in the same grammar: %s"
+   % [(x["id"], x["result"]) for x in rd2["steps"]])
 
 # closing order: a task that opened two targets closes them in the reverse of
 # the order it opened them, so a target that another one depends on outlives it

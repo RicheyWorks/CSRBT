@@ -780,6 +780,72 @@
    }
   },
   {
+   "id": "g208-cpcopy",
+   "action": "activate",
+   "arguments": {
+    "selector": "@control:bCopy"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "g208-cpsheet",
+   "action": "collect-output",
+   "expect": {
+    "output.payloads.0.k": {
+     "op": "in",
+     "value": [
+      "copy",
+      "clipboard",
+      "download",
+      "print"
+     ]
+    },
+    "output.payloads.0.text": {
+     "op": "contains",
+     "value": "water,1,RO / DI,20"
+    },
+    "output.payloads.0.text#2": {
+     "op": "contains",
+     "value": "water,3,RO / DI,300"
+    },
+    "output.payloads.0.text#3": {
+     "op": "contains",
+     "value": "observation,3,"
+    }
+   }
+  },
+  {
+   "id": "g208-cpdown",
+   "action": "activate",
+   "arguments": {
+    "selector": "@control:bDown"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "g208-cpcsv",
+   "action": "collect-output",
+   "expect": {
+    "output.payloads.0.k": {
+     "op": "in",
+     "value": [
+      "copy",
+      "clipboard",
+      "download",
+      "print"
+     ]
+    },
+    "output.payloads.0.text": {
+     "op": "contains",
+     "value": "cross,1,S. leucophylla 'Tarnok',S. flava var. ornata"
+    }
+   }
+  },
+  {
    "id": "g161-endpane",
    "action": "show-pane",
    "arguments": {
