@@ -36,7 +36,13 @@ AUDITS = [
     ("audit_restored", "what a page said before the tab closed, and what it says coming back"),
     ("audit_carried",  "what a page works out that nothing it hands over carries"),
     ("audit_takeaway", "controls whose only channel a published page refuses, and what they say"),
+    ("contend",       "readings taken under load, and whether a pairing fails more than it did"),
     ("audit_delivery", "files that are on disk and in no commit"),
+    # LAST, and it reads no page. Every audit above it that grants exemptions
+    # records what those exemptions took out; this one holds the thirty written
+    # reasons to what the audits above have just found (ADR-218). Running it
+    # after them means it judges this run's readings rather than the one before.
+    ("audit_declared", "exemptions that are no longer about anything"),
 ]
 # A finder, not a gate: it reports a worklist and always exits zero, so running
 # it here would say nothing about pass or fail. Named so it is not forgotten.

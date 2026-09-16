@@ -202,6 +202,48 @@ ck(len(set(C.key_for(t, b, 0) for t, b, _r in C.STANDING)) == len(C.STANDING),
    "and no two entries of the standing set share a key -- two loads for one suite are two "
    "readings, and a sweep that overwrote one with the other would be measuring nothing twice")
 
+# ---- the ratchet (ADR-216) --------------------------------------------------
+# This ledger recorded failures and NOTHING HELD THEM: "1 failed of 52 runs" had
+# been true for weeks and would have gone on being true at 2, at 5, at 20, with
+# the board printing the ratio and no rule anywhere deciding when it mattered.
+# ADR-215 then wrote on the board that the reading was "a known flake with a
+# ratchet" -- a reassuring sentence about a mechanism that did not exist.
+_led = {"suites": {
+    "a beside b": {"runs": 10, "failed": 1, "ceiling": 1, "checks": {}, "beside": ["b"], "cpu": 0},
+    "c beside d": {"runs": 10, "failed": 2, "ceiling": 1, "checks": {}, "beside": ["d"], "cpu": 0},
+    "e beside f": {"runs": 10, "failed": 3, "checks": {}, "beside": ["f"], "cpu": 0},
+}}
+ck(C.above(_led) == [("c beside d", 2, 1)],
+   "A PAIRING THAT FAILS MORE UNDER LOAD THAN IT DID IS ABOVE ITS CEILING, and one that failed "
+   "exactly as often is not: a flake that is getting worse is a race that is getting likelier, "
+   "and the difference between a flake and a claim that is false when the machine is busy is how "
+   "often it happens: %s" % C.above(_led))
+ck([n for n, _f, _c in C.above(_led)] == ["c beside d"],
+   "...and a pairing with NO ceiling yet is not above one -- a first reading records what it "
+   "found and waits to be ratcheted, the way every other ledger in this kit does: %s"
+   % C.above(_led))
+
+_real = json.load(io.open(os.path.join(_kit.ROOT, "tools", "contention_ledger.json"),
+                          encoding="utf-8"))
+_hot = [k for k, e in (_real.get("suites") or {}).items() if e.get("failed", 0)]
+ck(all("ceiling" in e for e in (_real.get("suites") or {}).values()),
+   "every pairing in the shipped ledger carries a ceiling: %s"
+   % [k for k, e in (_real.get("suites") or {}).items() if "ceiling" not in e])
+ck(C.above(_real) == [],
+   "...and none of them is above it: %s" % C.above(_real))
+ck(_hot and not (_real["suites"][_hot[0]].get("declared")),
+   "AND THE ONE THAT FAILS IS NOT DECLARED. A declaration would say it is RIGHT to fail beside "
+   "another suite, and ADR-142's whole point is that a flake that is re-rolled is a measurement "
+   "nobody took. It is held at the count it has reached and may not get worse: %s" % _hot)
+
+_src = io.open(os.path.join(_kit.ROOT, "tools", "contend.py"), encoding="utf-8").read()
+ck("return report()" in _src.split("if not a.suite:")[1].split("plan = [")[0],
+   "BARE INVOCATION REPORTS, so run_all can run it -- a ceiling nothing checks is a number, not "
+   "a ratchet, and this file held the only readings in the kit that nothing ran on a schedule")
+_ra = io.open(os.path.join(_kit.ROOT, "tools", "verify", "run_all.py"),
+              encoding="utf-8").read()
+ck('("contend",' in _ra, "...and run_all runs it")
+
 import shutil
 shutil.rmtree(TMP, ignore_errors=True)
 print("---")

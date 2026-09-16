@@ -95,6 +95,7 @@ RUNNERS = [
     ("mutate_carried", "the carried-figures audit: what a page works out that no export carries"),
     ("mutate_takeaway", "the take-away audit: which channels survive publication, and what the page says"),
     ("mutate_delivery", "the delivery manifest and its audit"),
+    ("mutate_declared", "the exemption reader: whether a written reason is still about anything"),
     ("mutate_fek", "the shared entry layer every data-entry page inlines"),
     ("mutate_ci", "the CI workflow's path filter, and the matcher that holds it"),
     ("mutate_outbox", "the outbox: what has not left this device"),
@@ -308,9 +309,16 @@ def render(L):
         "fields entered": "entry reach: a ratchet that only comes down, not a pass mark",
         "figures readable": "a ratchet that only comes down, not a pass mark",
         "files delivered": "a running total; audit_delivery is the gate, and it runs in run_all",
-        "clean under load": "readings taken under contention, kept because a flake that only "
-                            "shows under load is worth a record; a failed run out of fifty-two is "
-                            "a known flake with a ratchet, not a red suite",
+        # ADR-216: THIS SENTENCE USED TO ASSERT A RATCHET THAT DID NOT EXIST. The
+        # line ADR-215 wrote here called the reading "a known flake with a
+        # ratchet", and the contention ledger had no ceiling, no declaration and
+        # nothing that ran it -- a reassuring sentence about a mechanism nobody
+        # had built, on the one page whose job is to say what the harness can
+        # vouch for. The ratchet exists now, and the sentence says what it does.
+        "clean under load": "a ceiling per pairing that only comes down: a pairing that fails "
+                            "more under load than it did fails tools/contend.py, which run_all "
+                            "runs. The sweep that takes the readings is opt-in and slow; reading "
+                            "them is not",
         "engine tests": "a count; the failures beside it are what gate, and they are zero",
     }
     for big, what, note in tiles:

@@ -139,8 +139,13 @@ ck(all(k == "gate" or v.startswith("a reading, not a gate") and len(v) > 40 for 
    "than leaving the reader to guess why a ratio below 1 sits under a green banner: %s"
    % [v for k, v in _kinds if k != "gate" and not v.startswith("a reading, not a gate")])
 _load = [v for (k, v), w in zip(_kinds, _tiles) if w == "clean under load"]
-ck(_load and _load[0].startswith("a reading, not a gate") and "flake" in _load[0],
-   "...and the tile that started this says so: %s" % _load)
+ck(_load and _load[0].startswith("a reading, not a gate") and "ceiling" in _load[0]
+   and "contend" in _load[0],
+   "...and the tile that started this says so, AND NAMES THE RULE THAT HOLDS IT. ADR-215's first "
+   "version of this line called the reading 'a known flake with a ratchet' when the contention "
+   "ledger had no ceiling, no declaration and nothing that ran it -- a reassuring sentence about "
+   "a mechanism nobody had built, on the one page whose job is to say what the harness can vouch "
+   "for (ADR-216): %s" % _load)
 
 # AND IT FIRES. A rule with no violator cannot show that it works (ADR-207), and
 # this one is asserted against a board that is green: every check above would

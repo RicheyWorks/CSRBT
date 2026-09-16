@@ -1,0 +1,27 @@
+{
+ "id": "adr216",
+ "chain": "adr215",
+ "chain_probe": "docs/ADR-215-which-numbers-decide-the-verdict-2026-09-16.md",
+ "subject": "ADR-216: the fix for a reading that looked like a failure was a sentence asserting a ratchet that did not exist",
+ "body": "ADR-215, an hour old, made every tile on the Harness Board say whether it gates the verdict, and the one that started it -- 6 / 7 clean under load -- got the line 'a failed run out of fifty-two is a known flake with a ratchet, not a red suite'. THERE WAS NO RATCHET: contention_ledger.json had no ceiling, no declaration and nothing that ran it, and contend.py was the only instrument in this kit whose readings nothing checked on a schedule. ADR-203's shape and ADR-212's exactly -- a message asserting what cannot be observed -- except that those were found in code written months earlier and this one was written WHILE FIXING THE PREVIOUS SLICE. What was actually there was one honest reading: verify_organism beside verify_tie_render, 16 runs, 1 failed, with the check named and the co-tenant named. What was missing is what happens NEXT: that reading had been true for weeks and would have gone on being true at 2, at 5, at 20, with the board printing the ratio and no rule deciding when it stopped being acceptable. A flake that is getting worse is a race that is getting likelier, and the difference between a flake and a claim that is false when the machine is busy is how often it happens (ADR-142's own words). Every pairing now carries a ceiling that only comes down; a pairing with no ceiling yet is not above one. contend.py bare now reports so run_all can run it -- a ceiling nothing checks is a number, not a ratchet -- while the slow sweep stays opt-in. The one failure is NOT declared: a declaration would say it is right to fail beside another suite, and it is held at the count it has reached. verify_board requires that tile's line to NAME the rule that holds it; verify_contend 36 to 42.",
+ "paths": [
+  "docs/ADR-216-a-ratchet-that-did-not-exist-2026-09-16.md",
+  "docs/AI_HARNESS.md",
+  "docs/CHANGELOG-2026-09-16-adr216-a-ratchet-that-did-not-exist.md",
+  "tools/contend.py",
+  "tools/contention_ledger.json",
+  "tools/delivery/adr216.json",
+  "tools/harness_board.html",
+  "tools/harness_board.py",
+  "tools/published.json",
+  "tools/push/push-adr216.ps1",
+  "tools/verify/counts.json",
+  "tools/verify/run_all.py",
+  "tools/verify/verify_board.py",
+  "tools/verify/verify_contend.py"
+ ],
+ "clean": [
+  "adr215"
+ ],
+ "once": true
+}

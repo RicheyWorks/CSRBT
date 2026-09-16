@@ -6,6 +6,7 @@
    "beside": [
     "verify_tasks"
    ],
+   "ceiling": 0,
    "checks": {},
    "cpu": 0,
    "failed": 0,
@@ -20,6 +21,7 @@
    "beside": [
     "verify_tasks"
    ],
+   "ceiling": 0,
    "checks": {},
    "cpu": 0,
    "failed": 0,
@@ -34,6 +36,7 @@
    "beside": [
     "verify_tie_render"
    ],
+   "ceiling": 0,
    "checks": {},
    "cpu": 0,
    "failed": 0,
@@ -48,6 +51,7 @@
    "beside": [
     "verify_tasks"
    ],
+   "ceiling": 0,
    "checks": {},
    "cpu": 0,
    "failed": 0,
@@ -62,6 +66,7 @@
    "beside": [
     "verify_tie_render"
    ],
+   "ceiling": 1,
    "checks": {
     "two consecutive physicals are identical through the gateway": 1
    },
@@ -78,6 +83,7 @@
    "beside": [
     "verify_tie_render"
    ],
+   "ceiling": 0,
    "checks": {},
    "cpu": 1,
    "failed": 0,
@@ -92,6 +98,7 @@
    "beside": [
     "verify_tie_render"
    ],
+   "ceiling": 0,
    "checks": {},
    "cpu": 0,
    "failed": 0,

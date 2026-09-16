@@ -233,6 +233,11 @@ def load_ledger():
             "suites": {}}
 
 
+def save_ledger(led):
+    io.open(LEDGER, "w", encoding="utf-8").write(
+        json.dumps(led, indent=1, sort_keys=True, ensure_ascii=False) + "\n")
+
+
 def record(target, beside, cpu, rows):
     """MERGE, never replace, under a key that names the conditions.
 
@@ -265,24 +270,55 @@ def record(target, beside, cpu, rows):
         e["fastest"] = min(e.get("fastest", 10 ** 9), min(secs))
     e["at"] = int(time.time())
     suites[k] = e
-    io.open(LEDGER, "w", encoding="utf-8").write(
-        json.dumps(led, indent=1, sort_keys=True, ensure_ascii=False) + "\n")
+    save_ledger(led)
     return e
 
 
-def report():
+def declared_of(led, name):
+    return (led.get("suites", {}).get(name, {}) or {}).get("declared") or ""
+
+
+def above(led):
+    """Pairings that have failed more than their ceiling allows -> [(name, failed, ceiling)].
+
+    A CEILING THAT ONLY COMES DOWN (ADR-216). This ledger recorded failures and
+    nothing held them: "1 failed of 52 runs" had been true for weeks and would
+    have gone on being true at 2, at 5, at 20, with the board reporting the
+    ratio and no rule anywhere deciding when it mattered. Worse, ADR-215 wrote
+    on the board that the reading was "a known flake with a ratchet" -- a
+    reassuring sentence about a mechanism that did not exist, on the one page
+    whose job is to say what the harness can vouch for. This is that ratchet."""
+    out = []
+    for name, e in sorted((led.get("suites") or {}).items()):
+        c = e.get("ceiling")
+        if c is not None and e.get("failed", 0) > c:
+            out.append((name, e.get("failed", 0), c))
+    return out
+
+
+def report(raise_floors=False):
     led = load_ledger()
     suites = led.get("suites") or {}
     if not suites:
         print("nothing measured under load yet: python3 tools/contend.py --sweep")
         return 0
+    if raise_floors:
+        for name, e in suites.items():
+            c = e.get("ceiling")
+            if c is None or e.get("failed", 0) < c:
+                e["ceiling"] = e.get("failed", 0)
+        save_ledger(led)
     print("under load  --  what each suite says when the machine is busy")
     print("-" * 74)
     bad = 0
     for name in sorted(suites):
         e = suites[name]
         bad += e["failed"] > 0
-        print("%-46s %2d run(s), %d failed" % (name[:46], e["runs"], e["failed"]))
+        c = e.get("ceiling")
+        print("%-46s %2d run(s), %d failed%s%s"
+              % (name[:46], e["runs"], e["failed"],
+                 "" if c is None else "  (ceiling %d)" % c,
+                 "  DECLARED" if e.get("declared") else ""))
         for c in sorted(e.get("checks") or {}, key=lambda k: -e["checks"][k]):
             print("        x%-3d %s" % (e["checks"][c], c[:70]))
         lf = e.get("lastFailure") or {}
@@ -293,7 +329,16 @@ def report():
           "A reading\nwith 0 failures in a handful of runs is bounded, not proven: read the run "
           "count beside it."
           % (bad, len(suites), len(set(e.get("target", k) for k, e in suites.items()))))
-    return 0
+    hot = above(led)
+    if hot:
+        print("\n%d pairing(s) fail more under load than they did. A flake that is getting worse "
+              "is a\nrace that is getting likelier, and the difference between a flake and a claim "
+              "that is\nfalse when the machine is busy is how often it happens. Fix it, or record "
+              "the new\nreading deliberately:\n"
+              "    python3 tools/contend.py --report --raise-floors" % len(hot))
+        for name, f, c in hot:
+            print("    %-46s %d failed, ceiling %d" % (name[:46], f, c))
+    return 1 if hot else 0
 
 
 def main(argv):
@@ -306,6 +351,11 @@ def main(argv):
     ap.add_argument("--sweep", action="store_true", help="run the standing set")
     ap.add_argument("--list", action="store_true", help="print the standing set")
     ap.add_argument("--report", action="store_true", help="print the ledger and stop")
+    ap.add_argument("--raise-floors", action="store_true",
+                    help="record today's failure count as the ceiling wherever it is LOWER")
+    ap.add_argument("--declare", metavar="PAIRING",
+                    help="declare a pairing's failures expected, with a reason (needs --reason)")
+    ap.add_argument("--reason", default="", help="why it is right that this pairing fails")
     ap.add_argument("--no-ledger", action="store_true")
     a = ap.parse_args(argv)
 
@@ -313,14 +363,34 @@ def main(argv):
         for t, b, n in STANDING:
             print("  %-22s %2d run(s) beside %s" % (t, n, ", ".join(b)))
         return 0
-    if a.report:
-        return report()
+    if a.declare:
+        if not a.reason.strip():
+            print("declaring a pairing's failures expected needs --reason: a suite that fails "
+                  "beside\nanother is either racing or asserting something that is false when the "
+                  "machine is\nbusy, and only the reason says which")
+            return 2
+        led = load_ledger()
+        if a.declare not in (led.get("suites") or {}):
+            print("no such pairing: %r -- python3 tools/contend.py --report" % a.declare)
+            return 2
+        led["suites"][a.declare]["declared"] = a.reason.strip()
+        save_ledger(led)
+        print("%s: declared" % a.declare)
+        return 0
+    if a.report or a.raise_floors:
+        return report(raise_floors=a.raise_floors)
 
     plan = [(t, b, n) for t, b, n in STANDING] if a.sweep else None
     if plan is None:
         if not a.suite:
-            print("name a suite (--suite) or run the standing set (--sweep)")
-            return 2
+            # ADR-216: BARE IS REPORT, so that run_all can run it. A ceiling
+            # nothing checks is a number, not a ratchet -- this file held the
+            # only readings in the kit that nothing ran on a schedule, which is
+            # how "1 failed of 52" stayed true for weeks with no rule deciding
+            # when it stopped being acceptable. Running the sweep takes tens of
+            # minutes and is deliberately still opt-in; reading the ledger costs
+            # nothing and is what a run should do.
+            return report()
         plan = [(a.suite, a.beside or ["verify_tie_render"], a.runs)]
 
     rc = 0
