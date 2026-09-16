@@ -478,7 +478,7 @@
    "survived": 0
   },
   "mutate_carried": {
-   "at": 1789514312,
+   "at": 1789557874,
    "equivalent": 1,
    "equivalents": [
     {
@@ -577,7 +577,7 @@
     },
     {
      "detail": "1 failure(s); first: a declared figure leaves the worklist: ['mean value']",
-     "name": "a declaration does not exempt the figure",
+     "name": "a declaration does not exempt the figure (the shared rule, exempt.apply)",
      "verdict": "killed"
     },
     {
@@ -1166,16 +1166,292 @@
    ],
    "survived": 0
   },
-  "mutate_delivery": {
-   "at": 1789035958,
+  "mutate_declared": {
+   "at": 1789556558,
    "equivalent": 0,
    "equivalents": [],
    "inconclusive": 0,
-   "killed": 34,
-   "mutants": 34,
+   "killed": 53,
+   "mutants": 53,
    "rows": [
     {
-     "detail": "1 failure(s); first: a manifest that does not ask for it gets no guard: every sc",
+     "detail": "4 failure(s); first: ...and the row records what was flagged BEFORE the exemptio",
+     "name": "the exemption is applied and nothing is recorded",
+     "verdict": "killed"
+    },
+    {
+     "detail": "2 failure(s); first: ...and everything the reading could have flagged, so a decl",
+     "name": "the raw list is recorded, and the universe is not",
+     "verdict": "killed"
+    },
+    {
+     "detail": "1 failure(s); first: ...and the row records what was flagged BEFORE the exemptio",
+     "name": "the record is what SURVIVED the filter, not what was flagged",
+     "verdict": "killed"
+    },
+    {
+     "detail": "1 failure(s); first: THE RECORD IS A COPY. A row holding the audit's own live li",
+     "name": "the row holds the audit's own live list rather than a copy of it",
+     "verdict": "killed"
+    },
+    {
+     "detail": "1 failure(s); first: A PAGE WITH TWO RATCHETS KEEPS TWO RAW LISTS. audit_outputs",
+     "name": "both ratchets write the same raw key",
+     "verdict": "killed"
+    },
+    {
+     "detail": "1 failure(s); first: a declared finding leaves the list: ['a', 'b']",
+     "name": "the declaration does not exempt anything",
+     "verdict": "killed"
+    },
+    {
+     "detail": "1 failure(s); first: ...and the second set is separate, not a fallback to the fi",
+     "name": "the second declaration set falls back to the first",
+     "verdict": "killed"
+    },
+    {
+     "detail": "1 failure(s); first: a declaration with no reason, or only whitespace, is refuse",
+     "name": "a reason of nothing but spaces will do",
+     "verdict": "killed"
+    },
+    {
+     "detail": "12 failure(s); first: a key the audit still flags is COVERING: ('idle', 'the ite",
+     "name": "nothing is ever covering",
+     "verdict": "killed"
+    },
+    {
+     "detail": "10 failure(s); first: a key that is THERE and not flagged is IDLE -- the exempti",
+     "name": "everything is covering",
+     "verdict": "killed"
+    },
+    {
+     "detail": "4 failure(s); first: a key that is THERE and not flagged is IDLE -- the exemptio",
+     "name": "idle and stale are the same thing, so the fix cannot be chosen",
+     "verdict": "killed"
+    },
+    {
+     "detail": "4 failure(s); first: a key that is not there at all is STALE -- its reason is ab",
+     "name": "a key that names nothing at all is called idle",
+     "verdict": "killed"
+    },
+    {
+     "detail": "1 failure(s); first: a page with no entry in the ledger reads UNREAD, not stale",
+     "name": "a page with no entry in the ledger is judged as if it had one",
+     "verdict": "killed"
+    },
+    {
+     "detail": "5 failure(s); first: an entry with no `seen` list cannot be judged, even when th",
+     "name": "an entry with no universe recorded is judged against the flagged list alone",
+     "verdict": "killed"
+    },
+    {
+     "detail": "2 failure(s); first: A READING FROM AN EARLIER PASS IS NOT EVIDENCE. The key is ",
+     "name": "a reading from an earlier pass is trusted",
+     "verdict": "killed"
+    },
+    {
+     "detail": "11 failure(s); first: a key the audit still flags is COVERING: ('idle', 'the ite",
+     "name": "the raw list is checked after the universe, so every covering key reads idle",
+     "verdict": "killed"
+    },
+    {
+     "detail": "3 failure(s); first: D. EACH RATCHET READS ITS OWN RAW LIST. `b` is flagged by `",
+     "name": "every source reads the `raw` key, whatever ratchet it belongs to",
+     "verdict": "killed"
+    },
+    {
+     "detail": "1 failure(s); first: every failing verdict says in one line what is wrong with i",
+     "name": "a failing verdict carries no complaint",
+     "verdict": "killed"
+    },
+    {
+     "detail": "1 failure(s); first: ...and the window is inclusive, so a pass that takes exactl",
+     "name": "the window is exclusive, so a pass that takes the whole window reads as skipped",
+     "verdict": "killed"
+    },
+    {
+     "detail": "1 failure(s); first: ...while the one-pass ledgers keep theirs",
+     "name": "no reading is ever too old",
+     "verdict": "killed"
+    },
+    {
+     "detail": "3 failure(s); first: C. A PAGE THE AUDIT SKIPPED KEEPS ITS OLD READING FOREVER, ",
+     "name": "the newest reading in a ledger is never found, so every page looks current",
+     "verdict": "killed"
+    },
+    {
+     "detail": "10 failure(s); first: G. A LEDGER WITH A BAD EXEMPTION IN IT FAILS. exit 0",
+     "name": "a bad exemption is reported and the exit code is not",
+     "verdict": "killed"
+    },
+    {
+     "detail": "1 failure(s); first: A LEDGER THAT IS NOT THERE IS NOT AN EMPTY ONE. Its declara",
+     "name": "a ledger that is not there is an empty one",
+     "verdict": "killed"
+    },
+    {
+     "detail": "3 failure(s); first: ...one --forget line per failing declaration, and none for ",
+     "name": "the failing exemptions are counted and never named",
+     "verdict": "killed"
+    },
+    {
+     "detail": "10 failure(s); first: ...one --forget line per failing declaration, and none for",
+     "name": "a covering declaration is listed among the problems",
+     "verdict": "killed"
+    },
+    {
+     "detail": "2 failure(s); first: the tail counts each kind separately: ",
+     "name": "the tail counts every kind as one number",
+     "verdict": "killed"
+    },
+    {
+     "detail": "1 failure(s); first: --source restored reads no carried declarations: AUDIT     ",
+     "name": "--source is ignored, so every audit's declarations are read every time",
+     "verdict": "killed"
+    },
+    {
+     "detail": "1 failure(s); first: ...and the reason it carried, which is the thing worth keep",
+     "name": "--json drops the reason, which is the thing worth keeping",
+     "verdict": "killed"
+    },
+    {
+     "detail": "1 failure(s); first: ...and which --declare put it there, so the removal can be ",
+     "name": "--json does not say which --declare granted it",
+     "verdict": "killed"
+    },
+    {
+     "detail": "1 failure(s); first: THE REMOVAL IS NOT SILENT. A reason is the only record that",
+     "name": "forgetting a declaration does not print the reason it carried",
+     "verdict": "killed"
+    },
+    {
+     "detail": "3 failure(s); first: ...a key that is not declared is refused rather than report",
+     "name": "a key that was never declared is reported as removed",
+     "verdict": "killed"
+    },
+    {
+     "detail": "3 failure(s); first: ...that one and no other: {'j': 'a second one on the same p",
+     "name": "the removal is not written back to the ledger",
+     "verdict": "killed"
+    },
+    {
+     "detail": "1 failure(s); first: ...and the last one removed takes the empty block with it: ",
+     "name": "an emptied declaration block is left behind",
+     "verdict": "killed"
+    },
+    {
+     "detail": "1 failure(s); first: ...while the reading itself is untouched: {}",
+     "name": "forgetting one declaration takes the whole page's reading with it",
+     "verdict": "killed"
+    },
+    {
+     "detail": "1 failure(s); first: A KEY MAY CONTAIN A COLON, and a control's key in this kit ",
+     "name": "a key containing a colon is split into a fourth field",
+     "verdict": "killed"
+    },
+    {
+     "detail": "2 failure(s); first: ...and BEHIND is measured against the newest row of ITS OWN",
+     "name": "BEHIND is how old the reading is rather than how far behind its own ledger",
+     "verdict": "killed"
+    },
+    {
+     "detail": "2 failure(s); first: ...and BEHIND is measured against the newest row of ITS OWN",
+     "name": "BEHIND is not recorded at all",
+     "verdict": "killed"
+    },
+    {
+     "detail": "1 failure(s); first: ...so is a source that does not exist, and it lists them",
+     "name": "a source that does not exist is not named in the complaint",
+     "verdict": "killed"
+    },
+    {
+     "detail": "1 failure(s); first: ...and a spec with too few parts says the shape",
+     "name": "the shape of --forget is not stated when it is got wrong",
+     "verdict": "killed"
+    },
+    {
+     "detail": "8 failure(s); first: a page that is no longer a trap and still hands nothing ove",
+     "name": "a whole-subject declaration is covering whatever the audit now says",
+     "verdict": "killed"
+    },
+    {
+     "detail": "1 failure(s); first: A PAGE THAT HAS GROWN AN EXPORT IS NOT THE PAGE THE REASON ",
+     "name": "a page that has grown an export is merely idle, not stale",
+     "verdict": "killed"
+    },
+    {
+     "detail": "2 failure(s); first: a page that is no longer a trap and still hands nothing ove",
+     "name": "a source with no stale test gets one anyway, so a passing pairing reads stale",
+     "verdict": "killed"
+    },
+    {
+     "detail": "9 failure(s); first: a page the audit still calls a data trap is COVERING",
+     "name": "the audit's own verdict field is not read, so nothing is ever covering",
+     "verdict": "killed"
+    },
+    {
+     "detail": "1 failure(s); first: ...and neither can a reading from an earlier pass",
+     "name": "a whole-subject reading from an earlier pass is trusted",
+     "verdict": "killed"
+    },
+    {
+     "detail": "3 failure(s); first: A LEDGER NOT WRITTEN IN ONE PASS GETS NO FRESHNESS TEST. Th",
+     "name": "every ledger gets the one-pass freshness window, sweep or not",
+     "verdict": "killed"
+    },
+    {
+     "detail": "3 failure(s); first: ...and which is which is stated per source, not decided in ",
+     "name": "the sweep's ledger is declared one-pass, which it is not",
+     "verdict": "killed"
+    },
+    {
+     "detail": "2 failure(s); first: I. A PAIRING AN HOUR BEHIND ITS OWN LEDGER'S NEWEST ROW IS ",
+     "name": "the freshness window is the reader's choice rather than the source's",
+     "verdict": "killed"
+    },
+    {
+     "detail": "1 failure(s); first: ...and BEHIND is measured against the newest row of ITS OWN",
+     "name": "the newest reading is taken from `pages` whatever the ledger calls its rows",
+     "verdict": "killed"
+    },
+    {
+     "detail": "6 failure(s); first: H. a page-level exemption that is not covering fails: AUDIT",
+     "name": "the page-level declaration set is never read",
+     "verdict": "killed"
+    },
+    {
+     "detail": "1 failure(s); first: H. a page-level declaration is removed by name: outputs-pag",
+     "name": "a whole-subject declaration cannot be forgotten",
+     "verdict": "killed"
+    },
+    {
+     "detail": "1 failure(s); first: ...and the reading itself is untouched: {}",
+     "name": "forgetting a whole-subject declaration takes the reading with it",
+     "verdict": "killed"
+    },
+    {
+     "detail": "1 failure(s); first: ...and --source outputs does NOT pick them up: a page decla",
+     "name": "--source matches on a prefix, so a page declaration answers to the button source",
+     "verdict": "killed"
+    },
+    {
+     "detail": "3 failure(s); first: ...and a key flagged by the OTHER ratchet does not count as",
+     "name": "one audit's declarations are never read at all",
+     "verdict": "killed"
+    }
+   ],
+   "survived": 0
+  },
+  "mutate_delivery": {
+   "at": 1789552432,
+   "equivalent": 0,
+   "equivalents": [],
+   "inconclusive": 0,
+   "killed": 38,
+   "mutants": 38,
+   "rows": [
+    {
+     "detail": "3 failure(s); first: THE COMMIT'S EXIT CODE IS READ BEFORE ANYTHING IS PUSHED: a",
      "name": "the guard is generated for every manifest, so every older script fails --check",
      "verdict": "killed"
     },
@@ -1210,13 +1486,33 @@
      "verdict": "killed"
     },
     {
-     "detail": "1 failure(s); first: the subject is escaped for PowerShell -- a quote, a BACKTIC",
-     "name": "the backtick is escaped last, so every other escape is escaped again",
+     "detail": "1 failure(s); first: A STRAIGHT QUOTE IS ESCAPED AND A TYPOGRAPHIC ONE IS NOT SE",
+     "name": "a typographic quote is sent as it was written, the way ADR-217's first answer sent it",
      "verdict": "killed"
     },
     {
-     "detail": "1 failure(s); first: the subject is escaped for PowerShell -- a quote, a BACKTIC",
-     "name": "a quote in the subject is not escaped",
+     "detail": "1 failure(s); first: A MANIFEST THAT QUOTES A PHRASE WITH A SPACE IN IT IS REFUS",
+     "name": "a quoted phrase with a space in it is not refused in the manifest",
+     "verdict": "killed"
+    },
+    {
+     "detail": "1 failure(s); first: A TYPOGRAPHIC DOUBLE QUOTE IS REFUSED WHATEVER IS INSIDE IT",
+     "name": "a typographic quote is not refused in the manifest",
+     "verdict": "killed"
+    },
+    {
+     "detail": "1 failure(s); first: THE COMMIT'S EXIT CODE IS READ BEFORE ANYTHING IS PUSHED: a",
+     "name": "the commit's exit code is not read, so a commit that did nothing is pushed and announced",
+     "verdict": "killed"
+    },
+    {
+     "detail": "1 failure(s); first: AND THE POST-CONDITION, not only the exit code: this slice'",
+     "name": "the post-condition is not checked, so only the tool's own word decides",
+     "verdict": "killed"
+    },
+    {
+     "detail": "1 failure(s); first: ...and the push's exit code before the word: a commit that ",
+     "name": "the push's exit code is not read, so a local commit is announced as pushed",
      "verdict": "killed"
     },
     {
@@ -1225,7 +1521,7 @@
      "verdict": "killed"
     },
     {
-     "detail": "4 failure(s); first: the script is written into the repo, beside its manifest --",
+     "detail": "1 failure(s); first: the script is written into the repo, beside its manifest --",
      "name": "the script is written where it used to live, outside the repo",
      "verdict": "killed"
     },
@@ -3990,7 +4286,7 @@
    "survived": 0
   },
   "mutate_restored": {
-   "at": 1789505146,
+   "at": 1789558896,
    "equivalent": 1,
    "equivalents": [
     {
@@ -4053,7 +4349,7 @@
      "verdict": "killed"
     },
     {
-     "detail": "3 failure(s); first: ...and every one of them came back from its own autosave: [",
+     "detail": "1 failure(s); first: a declared difference leaves the worklist: ['box/anStat', '",
      "name": "a declaration does not exempt the difference",
      "verdict": "killed"
     },
@@ -4096,7 +4392,7 @@
    "survived": 0
   },
   "mutate_takeaway": {
-   "at": 1789526852,
+   "at": 1789558465,
    "equivalent": 0,
    "equivalents": [],
    "inconclusive": 0,

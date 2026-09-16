@@ -21,7 +21,7 @@ MUTANTS = [
     ("the guard is generated for every manifest, so every older script fails --check",
      '    if m.get("once"):\n        # THIS SCRIPT PUSHES ONCE.',
      '    if True:\n        # THIS SCRIPT PUSHES ONCE.',
-     "gets no guard"),
+     "gets no ONCE guard"),
     ("the guard asks about a path that every slice touches, not the slice's own manifest",
      "        a('$mine = git -C $csrbt ls-tree HEAD -- tools/delivery/%s.json' % mid)",
      "        a('$mine = git -C $csrbt ls-tree HEAD -- tools/delivery_ledger.json')",
@@ -51,17 +51,37 @@ MUTANTS = [
      '    mid, paths = m["id"], list(m["paths"])',
      '    mid, paths = m["id"], sorted(m["paths"], reverse=True)',
      "in the manifest's order"),
-    ("the backtick is escaped last, so every other escape is escaped again",
-     '    return (s.replace("`", "``").replace(\'"\', \'`"\')\n             .replace("$", "`$")',
-     '    return (s.replace(\'"\', \'`"\').replace("$", "`$")\n             .replace("`", "``")',
-     "escaped for PowerShell"),
-    ("a quote in the subject is not escaped",
-     '.replace(\'"\', \'`"\')',
-     '.replace(\'"\', \'"\')',
-     "escaped for PowerShell"),
+    ("a typographic quote is sent as it was written, the way ADR-217's first answer sent it",
+     '    s = _curl(s)\n',
+     '    s = s\n',
+     "A STRAIGHT QUOTE IS ESCAPED AND A TYPOGRAPHIC ONE IS NOT SENT AT ALL"),
+    ("a quoted phrase with a space in it is not refused in the manifest",
+     '                if " " in span:',
+     '                if False:',
+     "A MANIFEST THAT QUOTES A PHRASE WITH A SPACE IN IT IS REFUSED"),
+    ("a typographic quote is not refused in the manifest",
+     '            if any(ch in (m.get(key) or "") for ch in CURLY):',
+     '            if False:',
+     "A TYPOGRAPHIC DOUBLE QUOTE IS REFUSED WHATEVER IS INSIDE IT"),
+    ("the commit's exit code is not read, so a commit that did nothing is pushed and announced",
+     '    a(\'if ($LASTEXITCODE -ne 0) { Write-Error "%s: git commit failed ($LASTEXITCODE) -- \'\n'
+     '      \'nothing was committed and nothing will be pushed"; exit 1 }\' % mid.upper())',
+     '    pass',
+     "THE COMMIT'S EXIT CODE IS READ BEFORE ANYTHING IS PUSHED"),
+    ("the post-condition is not checked, so only the tool's own word decides",
+     "    a('if (-not (git -C $csrbt ls-tree HEAD -- tools/delivery/%s.json)) '\n"
+     "      '{ Write-Error \"%s: the commit ran and this slice\\'s manifest is not in HEAD -- refusing to '\n"
+     "      'report a push that did not happen\"; exit 1 }' % (mid, mid.upper()))",
+     "    pass",
+     "AND THE POST-CONDITION"),
+    ("the push's exit code is not read, so a local commit is announced as pushed",
+     '    a(\'if ($LASTEXITCODE -ne 0) { Write-Error "%s: git push failed ($LASTEXITCODE) -- the commit \'\n'
+     '      \'is local and the remote does not have it"; exit 1 }\' % mid.upper())',
+     '    pass',
+     "and the push's exit code before the word"),
     ("a newline in the body is left in",
-     '.replace("\\r", " ").replace("\\n", " "))',
-     ')',
+     '.replace("\\r", " ").replace("\\n", " ")',
+     '',
      "the body is one line"),
     ("the script is written where it used to live, outside the repo",
      '    p = os.path.join(PUSH, "push-%s.ps1" % mid)',
@@ -177,7 +197,8 @@ MUTANTS += [
      "is NOT in the shape run_all"),
 ]
 
-KNOWN_EQUIVALENT = []
+KNOWN_EQUIVALENT = [
+]
 
 
 

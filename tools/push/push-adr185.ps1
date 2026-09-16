@@ -49,7 +49,10 @@ git -C $csrbt add -A `
 git -C $csrbt commit -m "ADR-185: the charts, read (3) -- the cp-bench dormancy chart and the greenhouse leaf-VPD chart held to ports of the pages that draw them; the worked week reproduced row for row; instrument charts unheld 2 -> 0" `
   -m "THE LAST TWO INSTRUMENT CHARTS. The cp-bench's dormancy chart and the greenhouse's leaf-VPD chart drew beside figures their tasks held and were themselves held by nothing. Both are held three ways now: the page's drawing to a Python port of its own scale, the task's literals to the same port, the task to the page by the runner. verify_cp 88 -> 93 ports seasonChart() and holds the 58 dots, rect, line, label and the blue rule; page-cp-bench 109 -> 116. verify_gh 141 -> 147 REPRODUCES the worked example -- the seeded LCG over a week of half-hour rows, 337 rows byte for byte from the clock the task fixes -- and ports envChart() with the band, toFixed's larger-digit ties (0.4 - 0.15 prints '0.3', not Python's '0.2') and the r2 >= 0.3 gate for the trend line the worked week does not earn; page-greenhouse 122 -> 128; the task's readout figures are held to the same rows. cp-suite.html 93/93 verified, republished and measured. No instrument page was edited." `
   -m "Co-Authored-By: Claude Fable 5.1 <noreply@anthropic.com>" -m "Claude-Session: https://claude.ai/code/session_01YPcb1A7CejriRgL9xLrhJ3"
+if ($LASTEXITCODE -ne 0) { Write-Error "ADR185: git commit failed ($LASTEXITCODE) -- nothing was committed and nothing will be pushed"; exit 1 }
+if (-not (git -C $csrbt ls-tree HEAD -- tools/delivery/adr185.json)) { Write-Error "ADR185: the commit ran and this slice's manifest is not in HEAD -- refusing to report a push that did not happen"; exit 1 }
 git -C $csrbt push
+if ($LASTEXITCODE -ne 0) { Write-Error "ADR185: git push failed ($LASTEXITCODE) -- the commit is local and the remote does not have it"; exit 1 }
 $t = Join-Path $root "_to_delete\adr128.tgz"; if (Test-Path $t) { Remove-Item $t -Force }
 $t = Join-Path $root "_to_delete\adr129.tgz"; if (Test-Path $t) { Remove-Item $t -Force }
 $t = Join-Path $root "_to_delete\adr130.tgz"; if (Test-Path $t) { Remove-Item $t -Force }

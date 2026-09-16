@@ -113,10 +113,53 @@ def manifests():
 
 
 def ps_quote(s):
-    """A PowerShell double-quoted string. Backtick is PowerShell's escape, so it
-    has to go first or every later escape is itself escaped."""
-    return (s.replace("`", "``").replace('"', '`"')
-             .replace("$", "`$").replace("\r", " ").replace("\n", " "))
+    """A PowerShell double-quoted string, for an argument that goes to git.exe.
+
+    A DOUBLE QUOTE CANNOT SURVIVE THIS TRIP (ADR-217). Backtick is PowerShell's
+    escape and `` `" `` is a correct PowerShell string -- but PowerShell RE-QUOTES
+    every argument on its way to a native .exe, and an embedded quote comes out
+    the far side splitting git's argv. ADR-215's subject contained the phrase
+    "everything is green" in quotes; git received `is` and `green beside a
+    reading of 6 / 7, ...` as PATHSPECS, printed two errors, committed nothing,
+    and the script went on to print "ADR215 pushed."
+
+    CURLING IT DOES NOT HELP, and that was this file's second wrong answer in an
+    hour: the first fix turned the straight quote into U+201C/U+201D, the script
+    was regenerated, and git split the argument in the same place -- `everything`,
+    `is`, `green beside a reading of ...` as pathspecs. A typographic double
+    quote is a string delimiter to PowerShell as surely as a straight one, and
+    unlike the straight one it cannot be backtick-escaped.
+
+    What the evidence actually says, over sixty slices: a straight quote escaped
+    as `` `" `` survives when the quoted string has NO SPACE in it (`"_in"`,
+    `"buttons"`, `"3e"` all pushed cleanly), and does not when it has one. So the
+    straight quote is escaped as it always was, a typographic one is turned into
+    a SINGLE quote because it cannot be escaped at all, and `--check` refuses a
+    straight-quoted phrase containing a space -- the manifest then says what the
+    commit will say, and the rule is the mechanism rather than a superstition
+    about quotes."""
+    s = s.replace("`", "``")
+    s = _curl(s)
+    s = s.replace('"', '`"')
+    return s.replace("$", "`$").replace("\r", " ").replace("\n", " ")
+
+
+CURLY = u"\u201c\u201d\u201e\u201f"
+
+
+def _curl(s):
+    """A typographic double quote -> a single quote. It delimits a PowerShell
+    string the way a straight one does and cannot be backtick-escaped, so the
+    only safe thing to do with it is not send one."""
+    for ch in CURLY:
+        s = s.replace(ch, "'")
+    return s
+
+
+def _quoted_spans(s):
+    """The text inside each pair of straight double quotes."""
+    parts = s.split('"')
+    return [parts[i] for i in range(1, len(parts), 2)]
 
 
 def script_text(m, trailer=None):
@@ -180,7 +223,21 @@ def script_text(m, trailer=None):
     a('git -C $csrbt commit -m "%s" `' % ps_quote(m["subject"]))
     a('  -m "%s" `' % ps_quote(m["body"]))
     a(trailer if trailer is not None else TRAILER)
+    # A NATIVE COMMAND'S FAILURE IS NOT AN EXCEPTION (ADR-217).
+    # $ErrorActionPreference = "Stop" governs PowerShell cmdlets and says nothing
+    # about git.exe returning 1, so a commit that did nothing ran straight on to
+    # the push and then to "pushed." -- the delivery layer's version of the toast
+    # ADR-203 and ADR-212 are about. The exit code is read, and the POST-CONDITION
+    # is checked as well: this slice's own manifest must be in HEAD afterwards,
+    # which is the one thing that is true if and only if the commit happened.
+    a('if ($LASTEXITCODE -ne 0) { Write-Error "%s: git commit failed ($LASTEXITCODE) -- '
+      'nothing was committed and nothing will be pushed"; exit 1 }' % mid.upper())
+    a('if (-not (git -C $csrbt ls-tree HEAD -- tools/delivery/%s.json)) '
+      '{ Write-Error "%s: the commit ran and this slice\'s manifest is not in HEAD -- refusing to '
+      'report a push that did not happen"; exit 1 }' % (mid, mid.upper()))
     a("git -C $csrbt push")
+    a('if ($LASTEXITCODE -ne 0) { Write-Error "%s: git push failed ($LASTEXITCODE) -- the commit '
+      'is local and the remote does not have it"; exit 1 }' % mid.upper())
     for t in m.get("clean") or []:
         a('$t = Join-Path $root "_to_delete\\%s.tgz"; if (Test-Path $t) { Remove-Item $t -Force }' % t)
     a('Write-Host "%s pushed."' % mid.upper())
@@ -254,6 +311,34 @@ def check():
         for key in ("subject", "body", "paths"):
             if not m.get(key):
                 bad.append("%s: no %s" % (mid, key))
+        # ADR-217: A QUOTED PHRASE WITH A SPACE IN IT CANNOT REACH GIT THROUGH
+        # POWERSHELL. PowerShell re-quotes every argument on its way to a native
+        # .exe and the quote characters do not survive, so git re-splits the
+        # argument on the spaces that were inside them. Six manifests before this
+        # one carried straight quotes in their bodies and every one of them
+        # pushed cleanly -- `"_in"`, `"buttons"`, `"3e"` -- because none of the
+        # quoted strings had a space in it. ADR-215's subject quoted the phrase
+        # "everything is green", git received `is` and `green beside a reading of
+        # 6 / 7, ...` as PATHSPECS, nothing was committed, and the script printed
+        # "ADR215 pushed."
+        #
+        # So the rule is the mechanism and not a blanket ban: a quoted string is
+        # refused when it contains a space. `ps_quote` curls every straight quote
+        # regardless, which makes the script safe; this keeps the manifest saying
+        # what the commit will say where it matters.
+        for key in ("subject", "body"):
+            for span in _quoted_spans(m.get(key) or ""):
+                if " " in span:
+                    bad.append("%s: the %s quotes %r, and a quoted phrase with a SPACE in it does "
+                               "not survive the trip to git.exe -- PowerShell ends the argument "
+                               "at the quote and git reads the words that were inside it as "
+                               "pathspecs (ADR-217). A quoted string with no space in it is fine; "
+                               "use single quotes for anything longer."
+                               % (mid, key, span[:40]))
+            if any(ch in (m.get(key) or "") for ch in CURLY):
+                bad.append("%s: the %s carries a typographic double quote, which delimits a "
+                           "PowerShell string and cannot be backtick-escaped (ADR-217). Use a "
+                           "single quote." % (mid, key))
         for p in m.get("paths") or []:
             if not os.path.isfile(os.path.join(ROOT, p)):
                 bad.append("%s: names %s, which is not there -- the commit would stage nothing "

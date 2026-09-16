@@ -128,6 +128,66 @@ ck(D.script_text(D.load_manifest("adr999")) == txt,
    "generating it twice gives the same bytes -- which is the whole of why --check can compare "
    "instead of trust")
 
+# ---- A1b. a script cannot say it pushed when it did not (ADR-217) -------------
+# ADR-215's subject quoted a phrase with a space in it; PowerShell re-quoted the
+# argument on its way to git.exe, the quotes did not survive, git re-split on the
+# spaces and read the pieces as pathspecs. Nothing was committed. Then `git push`
+# answered "Everything up-to-date" -- true, there was nothing new -- and the
+# script printed "ADR215 pushed." A native command's failure is not a PowerShell
+# exception, so $ErrorActionPreference = "Stop" said nothing about any of it.
+ck(txt.index('$LASTEXITCODE') < txt.index("git -C $csrbt push"),
+   "THE COMMIT'S EXIT CODE IS READ BEFORE ANYTHING IS PUSHED: a commit that did nothing ran "
+   "straight on to the push and then to the word 'pushed' (ADR-217)")
+ck(txt.count("$LASTEXITCODE") >= 2 and
+   txt.index("git -C $csrbt push") < txt.rindex("$LASTEXITCODE") < txt.rindex("Write-Host"),
+   "...and the push's exit code before the word: a commit that is local and a remote that does "
+   "not have it are different states, and only one of them is 'pushed'")
+ck("refusing to report a push that did not happen" in txt
+   and txt.index("refusing to report a push that did not happen") < txt.index("git -C $csrbt push"),
+   "AND THE POST-CONDITION, not only the exit code: this slice's own manifest must be in HEAD "
+   "afterwards, which is the one thing that is true if and only if the commit happened -- an exit "
+   "code is what the tool says about itself and this is what the repository says about it")
+_esc = D.ps_quote(u'he said "tight" and \u201ccurly\u201d here')
+ck('`"tight`"' in _esc and "'curly'" in _esc
+   and not any(ch in _esc for ch in D.CURLY),
+   "A STRAIGHT QUOTE IS ESCAPED AND A TYPOGRAPHIC ONE IS NOT SENT AT ALL. ADR-217's first answer "
+   "was to CURL the straight quote, and the curly one turned out to delimit a PowerShell string "
+   "too -- and unlike the straight one it cannot be backtick-escaped, so the argument ended at "
+   "the opening curly quote and git read the rest as pathspecs. Same failure, one character "
+   "further along: %r" % _esc)
+# A RULE WITH NO VIOLATOR CANNOT SHOW THAT IT FIRES (ADR-207). A manifest that
+# quotes a phrase with a space is written into the fixture directory and --check
+# is required to name it -- and one that quotes a phrase WITHOUT a space is not,
+# because six manifests in this kit do exactly that and pushed cleanly.
+_SPACED = dict(MAN, id="adr995",
+               subject=u'ADR-995: a subject quoting "two words" in it')
+_TIGHT = dict(MAN, id="adr994",
+              subject=u'ADR-994: a subject quoting "oneword" in it')
+_CURLY = dict(MAN, id="adr993",
+              subject=u"ADR-993: a subject quoting \u201coneword\u201d in it")
+write_manifest(_SPACED)
+write_manifest(_TIGHT)
+write_manifest(_CURLY)
+D.write_script("adr995")
+D.write_script("adr994")
+D.write_script("adr993")
+_probs = D.check()
+ck(any("adr993" in b and "typographic double quote" in b for b in _probs),
+   "A TYPOGRAPHIC DOUBLE QUOTE IS REFUSED WHATEVER IS INSIDE IT, because it cannot be escaped: %s"
+   % [b for b in _probs if "adr993" in b])
+ck(any("adr995" in b and "quoted phrase with a SPACE" in b for b in _probs),
+   "A MANIFEST THAT QUOTES A PHRASE WITH A SPACE IN IT IS REFUSED: %s"
+   % [b for b in _probs if "adr995" in b])
+ck(not any("adr994" in b and "quoted phrase with a SPACE" in b for b in _probs),
+   "...AND ONE THAT QUOTES A PHRASE WITHOUT A SPACE IS NOT. Six manifests in this kit quote "
+   '"_in", "buttons" and "3e" and every one of them pushed cleanly: the quote characters do not '
+   "survive PowerShell's re-quoting, git re-splits on whitespace, and an argument with no "
+   "whitespace inside its quotes comes out the far side unharmed. The rule is the mechanism, not "
+   "a blanket ban: %s" % [b for b in _probs if "adr994" in b])
+for _m in ("adr995", "adr994", "adr993"):
+    os.remove(os.path.join(D.MANIFESTS, _m + ".json"))
+    os.remove(os.path.join(D.PUSH, "push-%s.ps1" % _m))
+
 # ---- A2. a script that pushes once (ADR-184) ---------------------------------
 # push-adr182.ps1 run a second time committed ADR-183's changes to the paths the
 # two slices share under ADR-182's message, and left ADR-183's own files behind.
@@ -135,8 +195,10 @@ ck(D.script_text(D.load_manifest("adr999")) == txt,
 # HEAD's tree means it was committed, and from then on the script pushes an
 # undelivered commit or does nothing. The fixture cannot run PowerShell, so the
 # guard is held by its text -- where it sits, what it asks git, what it does.
-ck("ls-tree HEAD" not in txt and "already pushed" not in txt,
-   "a manifest that does not ask for it gets no guard: every script before ADR-184 still "
+ck("$mine = git" not in txt and "already pushed" not in txt,
+   "a manifest that does not ask for it gets no ONCE guard -- and the check is for the guard "
+   "rather than for the words `ls-tree HEAD`, because ADR-217 gave EVERY script a post-condition "
+   "that asks git the same question for a different reason: every script before ADR-184 still "
    "generates byte for byte")
 ONCE = dict(MAN, id="adr996", chain="adr999", chain_probe="tools/one.py", once=True,
             paths=["tools/one.py", "tools/delivery/adr996.json", "tools/delivery_ledger.json"], clean=[])
