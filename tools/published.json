@@ -3,9 +3,9 @@
   "observed": {},
   "pages": {
     "_harness-board.html": {
-      "at": 1789530472,
+      "at": 1789534469,
       "dated_by": "the fetch time the reader reported -- about the fetch, not about the version",
-      "sha": "566f9798b8615e30fbe47123c382608158993dbe78a6a4d5a3843af19b166af0",
+      "sha": "4f4a7137a74d0d25de9961e139cd37c0444fd846bc83a9230cf11e0a04b531db",
       "via": "read"
     },
     "adr-031.html": {
@@ -111,9 +111,9 @@
       "via": "read"
     },
     "ecology-lab.html": {
-      "at": 1789462719,
+      "at": 1789534469,
       "dated_by": "the fetch time the reader reported -- about the fetch, not about the version",
-      "sha": "1bb7486c96a2cb77803010d1d7c794c3f703d67a072d5770f4bac518ea739095",
+      "sha": "f7d307f6f40e29de3f4641d4ad41f17a11bd6f1ddd0c3b51187637b37f7eab5c",
       "via": "read"
     },
     "ecology-teachers-guide.html": {

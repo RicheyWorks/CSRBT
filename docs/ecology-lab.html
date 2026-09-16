@@ -2528,18 +2528,79 @@ expect: evenness(pondA) is moderate"></textarea>
     return spec;
   }
 
+  /* ADR-213: ONE COMPUTATION, TWO READERS. Every number below was worked out
+     inside a render function and existed only as innerHTML, so the .eco protocol
+     this page hands you carried the DATA and none of the ANSWERS -- 32 figures
+     the lab works out reached no file at all (ADR-211). A results block that
+     re-derived the arithmetic beside the renderer would be a second source of
+     truth (ADR-068) and would agree with the panel only until one of them was
+     edited, so each is extracted once and both readers call it. Each returns
+     null when its own inputs are not usable, which is the same condition the
+     panel prints its refusal for. */
+  function statField(text) {
+    const { counts } = parseCounts(text);
+    const vals = Object.values(counts).filter(c => c > 0);
+    const N = vals.reduce((a, b) => a + b, 0);
+    if (!N) return null;
+    const H = jsShannon(vals), S = vals.length;
+    return { S: S, H: H, J: S > 1 ? H / Math.log(S) : 1,
+             eff: Math.exp(H), chao: jsChao1(vals) };
+  }
+  function statQuad(text) {
+    const counts = String(text).split(/[\s,]+/).map(Number)
+        .filter(n => Number.isFinite(n) && n >= 0);
+    if (counts.length < 2) return null;
+    const N = counts.reduce((a, b) => a + b, 0), q = counts.length, mean = N / q;
+    const varr = counts.reduce((s, c) => s + (c - mean) ** 2, 0) / (q - 1);
+    return { counts: counts, q: q, N: N, mean: mean,
+             id: mean ? varr / mean : 0,
+             mor: N > 1 ? q * counts.reduce((s, c) => s + c * (c - 1), 0) / (N * (N - 1)) : 1 };
+  }
+  function statSites(textA, textB) {
+    const A = parseCounts(textA), B = parseCounts(textB);
+    const sa = new Set(A.order), sb = new Set(B.order);
+    if (!sa.size || !sb.size) return null;
+    const shared = [...sa].filter(x => sb.has(x));
+    const union = sa.size + sb.size - shared.length;
+    let sumMin = 0, sumTot = 0;
+    for (const k of new Set([...sa, ...sb])) {
+      const a = A.counts[k] || 0, b = B.counts[k] || 0;
+      sumMin += Math.min(a, b); sumTot += a + b;
+    }
+    return { shared: shared, union: union,
+             j: union ? shared.length / union : 0,
+             sor: 2 * shared.length / (sa.size + sb.size),
+             bc: sumTot ? 1 - 2 * sumMin / sumTot : 0 };
+  }
+  function statMR(M, C, R) {
+    if (!(M > 0) || !(C > 0) || R < 0 || R > Math.min(M, C)) return null;
+    const chap = (M + 1) * (C + 1) / (R + 1) - 1;
+    const varc = (M + 1) * (C + 1) * (M - R) * (C - R) / ((R + 1) ** 2 * (R + 2));
+    const half = 1.96 * Math.sqrt(varc);
+    return { lp: R > 0 ? M * C / R : null, chap: chap,
+             lo: Math.max(0, chap - half), hi: chap + half };
+  }
+  function statHw(AA, Ab, bb) {
+    const n = AA + Ab + bb;
+    if (!n || AA < 0 || Ab < 0 || bb < 0) return null;
+    const p = (2 * AA + Ab) / (2 * n), q = 1 - p;
+    const e = [p * p * n, 2 * p * q * n, q * q * n];
+    let chi = 0;
+    [AA, Ab, bb].forEach((o, i) => { if (e[i] > 0) chi += (o - e[i]) ** 2 / e[i]; });
+    return { n: n, p: p, q: q, e: e, chi: chi };
+  }
+
   /* field data */
   function runField() {
     const out = document.getElementById("wb-field-out");
     const { counts, problems } = parseCounts(document.getElementById("wb-field").value);
+    const st = statField(document.getElementById("wb-field").value);
+    if (!st) { out.innerHTML = '<p class="wb-error">no usable counts yet</p>' + problemHtml(problems); return; }
     const vals = Object.values(counts).filter(c => c > 0);
-    const N = vals.reduce((a, b) => a + b, 0);
-    if (!N) { out.innerHTML = '<p class="wb-error">no usable counts yet</p>' + problemHtml(problems); return; }
-    const H = jsShannon(vals);
-    const S = vals.length, J = S > 1 ? H / Math.log(S) : 1;
+    const H = st.H, S = st.S, J = st.J;
     out.innerHTML =
       `<div class="tiles">${tile(S, "species")}${tile(fmt(H, 2), "Shannon H′")}${tile(fmt(J, 2), "evenness J′")}
-       ${tile(fmt(Math.exp(H), 1), "effective species")}${tile(fmt(jsChao1(vals), 0), "Chao1 est.")}</div>
+       ${tile(fmt(st.eff, 1), "effective species")}${tile(fmt(st.chao, 0), "Chao1 est.")}</div>
        <p class="reading">${evenness(J)}.</p>${problemHtml(problems)}`;
     const holder = document.createElement("div");
     barChart(holder, vals.slice().sort((a, b) => b - a), { w: 480, h: 120, animate: false,
@@ -2550,13 +2611,9 @@ expect: evenness(pondA) is moderate"></textarea>
   /* quadrats */
   function runQuad() {
     const out = document.getElementById("wb-quad-out");
-    const counts = document.getElementById("wb-quad").value.split(/[\s,]+/)
-        .map(Number).filter(n => Number.isFinite(n) && n >= 0);
-    if (counts.length < 2) { out.innerHTML = '<p class="wb-error">need at least two quadrats</p>'; return; }
-    const N = counts.reduce((a, b) => a + b, 0), q = counts.length, mean = N / q;
-    const varr = counts.reduce((s, c) => s + (c - mean) ** 2, 0) / (q - 1);
-    const id = mean ? varr / mean : 0;
-    const mor = N > 1 ? q * counts.reduce((s, c) => s + c * (c - 1), 0) / (N * (N - 1)) : 1;
+    const st = statQuad(document.getElementById("wb-quad").value);
+    if (!st) { out.innerHTML = '<p class="wb-error">need at least two quadrats</p>'; return; }
+    const counts = st.counts, id = st.id, mor = st.mor;
     out.innerHTML =
       `<div class="tiles">${tile(fmt(id, 2), "variance/mean")}${tile(fmt(mor, 2), "Morisita")}</div>
        <p class="reading">${dispersion(id)}.</p>`;
@@ -2594,12 +2651,9 @@ expect: evenness(pondA) is moderate"></textarea>
           bb = +document.getElementById("wb-bb").value;
     const hwBad = wbBadBoxes([["AA", "wb-aa"], ["Aa", "wb-ab"], ["aa", "wb-bb"]]);
     if (hwBad.length) { out.innerHTML = wbBadNote(hwBad); return; }
-    const n = AA + Ab + bb;
-    if (!n || AA < 0 || Ab < 0 || bb < 0) { out.innerHTML = '<p class="wb-error">enter non-negative counts</p>'; return; }
-    const p = (2 * AA + Ab) / (2 * n), q = 1 - p;
-    const e = [p * p * n, 2 * p * q * n, q * q * n];
-    let chi = 0;
-    [AA, Ab, bb].forEach((o, i) => { if (e[i] > 0) chi += (o - e[i]) ** 2 / e[i]; });
+    const st = statHw(AA, Ab, bb);
+    if (!st) { out.innerHTML = '<p class="wb-error">enter non-negative counts</p>'; return; }
+    const p = st.p, q = st.q, e = st.e, chi = st.chi;
     out.innerHTML =
       `<div class="tiles">${tile(fmt(p, 3), "p")}${tile(fmt(q, 3), "q")}${tile(fmt(chi, 2), "χ² (df 1)")}</div>
        <p class="reading">${chi <= CHI_CRIT[0] ? "✅ consistent with equilibrium" : "❌ significantly out of equilibrium"}
@@ -2653,21 +2707,13 @@ expect: evenness(pondA) is moderate"></textarea>
     const out = document.getElementById("wb-sites-out");
     const A = parseCounts(document.getElementById("wb-siteA").value);
     const B = parseCounts(document.getElementById("wb-siteB").value);
-    const sa = new Set(A.order), sb = new Set(B.order);
     const siteProblems = problemHtml([...A.problems, ...B.problems]);
-    if (!sa.size || !sb.size) {
+    const st = statSites(document.getElementById("wb-siteA").value,
+                         document.getElementById("wb-siteB").value);
+    if (!st) {
       out.innerHTML = '<p class="wb-error">enter counts for both sites</p>' + siteProblems; return;
     }
-    const shared = [...sa].filter(x => sb.has(x));
-    const union = sa.size + sb.size - shared.length;
-    const j = union ? shared.length / union : 0;
-    const sor = 2 * shared.length / (sa.size + sb.size);
-    let sumMin = 0, sumTot = 0;
-    for (const k of new Set([...sa, ...sb])) {
-      const a = A.counts[k] || 0, b = B.counts[k] || 0;
-      sumMin += Math.min(a, b); sumTot += a + b;
-    }
-    const bc = sumTot ? 1 - 2 * sumMin / sumTot : 0;
+    const shared = st.shared, union = st.union, j = st.j, sor = st.sor, bc = st.bc;
     const word = bc <= 0.2 ? "nearly identical communities" :
                  bc <= 0.6 ? "moderate turnover" : "major turnover — substantially different communities";
     out.innerHTML =
@@ -2684,16 +2730,14 @@ expect: evenness(pondA) is moderate"></textarea>
     const mrBad = wbBadBoxes([["marked M", "wb-mrm"], ["caught C", "wb-mrc"],
                               ["recaptured R", "wb-mrr"]]);
     if (mrBad.length) { out.innerHTML = wbBadNote(mrBad); return; }
-    if (!(M > 0) || !(C > 0) || R < 0 || R > Math.min(M, C)) {
+    const st = statMR(M, C, R);
+    if (!st) {
       out.innerHTML = '<p class="wb-error">need M &gt; 0, C &gt; 0, 0 ≤ R ≤ min(M, C)</p>'; return;
     }
-    const lp = R > 0 ? M * C / R : null;
-    const chap = (M + 1) * (C + 1) / (R + 1) - 1;
-    const varc = (M + 1) * (C + 1) * (M - R) * (C - R) / ((R + 1) ** 2 * (R + 2));
-    const half = 1.96 * Math.sqrt(varc);
+    const lp = st.lp, chap = st.chap;
     out.innerHTML =
       `<div class="tiles">${lp !== null ? tile(fmt(lp, 0), "Lincoln–Petersen N̂") : ""}
-       ${tile(fmt(chap, 0), "Chapman N̂")}${tile(`${fmt(Math.max(0, chap - half), 0)}–${fmt(chap + half, 0)}`, "95% CI")}</div>
+       ${tile(fmt(chap, 0), "Chapman N̂")}${tile(`${fmt(st.lo, 0)}–${fmt(st.hi, 0)}`, "95% CI")}</div>
        <p class="reading">${lp === null ? "R = 0: Lincoln–Petersen is undefined; Chapman still estimates. " : ""}
        Assumes a closed population, no lost marks, equal catchability.</p>`;
   }
@@ -2964,6 +3008,50 @@ expect: evenness(pondA) is moderate"></textarea>
       lines.push("", "# left out on purpose — the engine would refuse these, and a protocol",
                      "# that said nothing about them would be a quieter kind of wrong:");
       for (const l of left) lines.push("#   " + l.replace(/[\r\n]+/g, " "));
+    }
+
+    /* ADR-213: WHAT THIS PAGE GOT, travelling with the protocol that produced it.
+       Until now the .eco file carried the DATA and the HYPOTHESES and none of the
+       ANSWERS -- 32 figures the lab works out reached no file at all, so a reader
+       handed this protocol had the inputs and had to recompute every result, with
+       no way to tell whether their answer matched the one on the screen.
+
+       AS COMMENTS, AND THAT IS THE POINT. A `.eco` file is a PRE-REGISTRATION --
+       the lines you would RUN -- and this page's own instruction two blocks up is
+       "edit BEFORE you run; that's the discipline". Results written as protocol
+       lines would make the file assert what it is supposed to be asking. Written
+       as comments they are provenance: legal `.eco`, ignored by the engine,
+       survive the copy into a file, and let anyone re-running this protocol see
+       immediately whether they got what the workbench got.
+
+       Every number here comes from the same stat* function the panel above it
+       renders from, never re-derived here (ADR-068). */
+    const said = [];
+    const fs = statField(document.getElementById("wb-field").value);
+    if (fs) said.push(`myfield: ${fs.S} species, Shannon H' ${fmt(fs.H, 2)}`
+      + `, evenness J' ${fmt(fs.J, 2)}, effective ${fmt(fs.eff, 1)}`
+      + `, Chao1 ${fmt(fs.chao, 0)}`);
+    const ss = statSites(document.getElementById("wb-siteA").value,
+                         document.getElementById("wb-siteB").value);
+    if (ss) said.push(`siteA vs siteB: ${ss.shared.length} of ${ss.union} kinds shared`
+      + `, Jaccard ${fmt(ss.j, 2)}, Sorensen ${fmt(ss.sor, 2)}, Bray-Curtis ${fmt(ss.bc, 2)}`);
+    const qs = statQuad(document.getElementById("wb-quad").value);
+    if (qs) said.push(`quadrats: ${qs.q} frames, ${qs.N} individuals`
+      + `, mean ${fmt(qs.mean, 2)}, variance/mean ${fmt(qs.id, 2)}, Morisita ${fmt(qs.mor, 2)}`);
+    const ms = statMR(boxNum("wb-mrm"), boxNum("wb-mrc"), boxNum("wb-mrr"));
+    if (ms) said.push(`mark-recapture: `
+      + (ms.lp === null ? "Lincoln-Petersen undefined (R = 0)"
+                        : `Lincoln-Petersen N ${fmt(ms.lp, 0)}`)
+      /* the panel's own en dash, so the file and the screen read identically */
+      + `, Chapman N ${fmt(ms.chap, 0)}, 95% CI ${fmt(ms.lo, 0)}\u2013${fmt(ms.hi, 0)}`);
+    const hs = statHw(boxNum("wb-aa"), boxNum("wb-ab"), boxNum("wb-bb"));
+    if (hs) said.push(`Hardy-Weinberg: n ${hs.n}, p ${fmt(hs.p, 3)}, q ${fmt(hs.q, 3)}`
+      + `, chi2 (df 1) ${fmt(hs.chi, 2)}`
+      + `, expected ${hs.e.map(x => fmt(x, 0)).join(" / ")}`);
+    if (said.length) {
+      lines.push("", "# what the workbench got from these entries — provenance, not protocol.",
+                     "# Re-run the lines above and you should land on these numbers:");
+      for (const l of said) lines.push("#   " + l);
     }
     document.getElementById("wb-eco-out").value = lines.join("\n");
     document.getElementById("wb-eco-left").innerHTML = !left.length ? "" :

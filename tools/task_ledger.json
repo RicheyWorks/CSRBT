@@ -11649,7 +11649,7 @@
    "verdict": "PASS"
   },
   "page-ecology-lab-science": {
-   "at": 1789451763,
+   "at": 1789531165,
    "claims": 260,
    "confirmed": 341,
    "gives": 61,
@@ -11665,7 +11665,7 @@
     "MUTATE"
    ],
    "rungsWhy": "nothing here removes a recorded row -- the drill and the key rebuild their own output, and every box is recomputed from the fields rather than cleared",
-   "seconds": 9.6,
+   "seconds": 9.7,
    "steps": [
     {
      "action": "observe",
@@ -12121,7 +12121,7 @@
       }
      ],
      "id": "boot",
-     "message": "49 figure(s), 29 box(es), 0 list(s), 6 table(s), 33 heading(s)",
+     "message": "49 figure(s), 30 box(es), 0 list(s), 6 table(s), 33 heading(s)",
      "ms": 42,
      "result": "driven"
     },
@@ -12136,7 +12136,7 @@
      ],
      "id": "hot95",
      "message": "set-slider slider:0",
-     "ms": 29,
+     "ms": 27,
      "result": "driven"
     },
     {
@@ -12194,8 +12194,8 @@
       }
      ],
      "id": "uneven",
-     "message": "49 figure(s), 29 box(es), 0 list(s), 6 table(s), 33 heading(s)",
-     "ms": 33,
+     "message": "49 figure(s), 30 box(es), 0 list(s), 6 table(s), 33 heading(s)",
+     "ms": 29,
      "result": "driven"
     },
     {
@@ -12209,7 +12209,7 @@
      ],
      "id": "hot60",
      "message": "set-slider slider:0",
-     "ms": 41,
+     "ms": 34,
      "result": "driven"
     },
     {
@@ -12223,7 +12223,7 @@
      ],
      "id": "set20",
      "message": "set-slider slider:1",
-     "ms": 27,
+     "ms": 25,
      "result": "driven"
     },
     {
@@ -12281,8 +12281,8 @@
       }
      ],
      "id": "even",
-     "message": "49 figure(s), 29 box(es), 0 list(s), 6 table(s), 33 heading(s)",
-     "ms": 27,
+     "message": "49 figure(s), 30 box(es), 0 list(s), 6 table(s), 33 heading(s)",
+     "ms": 33,
      "result": "driven"
     },
     {
@@ -12296,7 +12296,7 @@
      ],
      "id": "cap32",
      "message": "set-slider slider:2",
-     "ms": 26,
+     "ms": 27,
      "result": "driven"
     },
     {
@@ -12404,7 +12404,7 @@
       }
      ],
      "id": "island",
-     "message": "49 figure(s), 29 box(es), 0 list(s), 6 table(s), 33 heading(s)",
+     "message": "49 figure(s), 30 box(es), 0 list(s), 6 table(s), 33 heading(s)",
      "ms": 32,
      "result": "driven"
     },
@@ -12438,8 +12438,8 @@
       }
      ],
      "id": "field-defaults",
-     "message": "49 figure(s), 29 box(es), 0 list(s), 6 table(s), 33 heading(s)",
-     "ms": 26,
+     "message": "49 figure(s), 30 box(es), 0 list(s), 6 table(s), 33 heading(s)",
+     "ms": 27,
      "result": "driven"
     },
     {
@@ -12481,7 +12481,7 @@
      ],
      "id": "chip-add",
      "message": "activate action_btn:15",
-     "ms": 30,
+     "ms": 33,
      "result": "driven"
     },
     {
@@ -12514,8 +12514,8 @@
       }
      ],
      "id": "field-six",
-     "message": "49 figure(s), 29 box(es), 0 list(s), 6 table(s), 33 heading(s)",
-     "ms": 46,
+     "message": "49 figure(s), 30 box(es), 0 list(s), 6 table(s), 33 heading(s)",
+     "ms": 47,
      "result": "driven"
     },
     {
@@ -12534,7 +12534,7 @@
      ],
      "id": "chip-wrote",
      "message": "read text_in:2",
-     "ms": 18,
+     "ms": 11,
      "result": "driven"
     },
     {
@@ -12548,7 +12548,7 @@
      ],
      "id": "field-text",
      "message": "set-text text_in:2",
-     "ms": 26,
+     "ms": 32,
      "result": "driven"
     },
     {
@@ -12596,8 +12596,8 @@
       }
      ],
      "id": "field-back",
-     "message": "49 figure(s), 29 box(es), 0 list(s), 6 table(s), 33 heading(s)",
-     "ms": 25,
+     "message": "49 figure(s), 30 box(es), 0 list(s), 6 table(s), 33 heading(s)",
+     "ms": 26,
      "result": "driven"
     },
     {
@@ -12625,8 +12625,8 @@
       }
      ],
      "id": "sites-defaults",
-     "message": "49 figure(s), 29 box(es), 0 list(s), 6 table(s), 33 heading(s)",
-     "ms": 26,
+     "message": "49 figure(s), 30 box(es), 0 list(s), 6 table(s), 33 heading(s)",
+     "ms": 25,
      "result": "driven"
     },
     {
@@ -12654,7 +12654,7 @@
      ],
      "id": "lily-count",
      "message": "set-text text_in:4",
-     "ms": 27,
+     "ms": 24,
      "result": "driven"
     },
     {
@@ -12668,7 +12668,7 @@
      ],
      "id": "lily-add",
      "message": "activate action_btn:31",
-     "ms": 25,
+     "ms": 26,
      "result": "driven"
     },
     {
@@ -12696,8 +12696,8 @@
       }
      ],
      "id": "sites-lily",
-     "message": "49 figure(s), 29 box(es), 0 list(s), 6 table(s), 33 heading(s)",
-     "ms": 29,
+     "message": "49 figure(s), 30 box(es), 0 list(s), 6 table(s), 33 heading(s)",
+     "ms": 28,
      "result": "driven"
     },
     {
@@ -12711,7 +12711,7 @@
      ],
      "id": "site-b-same",
      "message": "set-text text_in:8",
-     "ms": 24,
+     "ms": 26,
      "result": "driven"
     },
     {
@@ -12739,8 +12739,8 @@
       }
      ],
      "id": "sites-identical",
-     "message": "49 figure(s), 29 box(es), 0 list(s), 6 table(s), 33 heading(s)",
-     "ms": 27,
+     "message": "49 figure(s), 30 box(es), 0 list(s), 6 table(s), 33 heading(s)",
+     "ms": 32,
      "result": "driven"
     },
     {
@@ -12754,7 +12754,7 @@
      ],
      "id": "site-a-text",
      "message": "set-text text_in:5",
-     "ms": 27,
+     "ms": 28,
      "result": "driven"
     },
     {
@@ -12782,8 +12782,8 @@
       }
      ],
      "id": "sites-trimmed",
-     "message": "49 figure(s), 29 box(es), 0 list(s), 6 table(s), 33 heading(s)",
-     "ms": 28,
+     "message": "49 figure(s), 30 box(es), 0 list(s), 6 table(s), 33 heading(s)",
+     "ms": 24,
      "result": "driven"
     },
     {
@@ -12811,7 +12811,7 @@
      ],
      "id": "moss-count",
      "message": "set-text text_in:7",
-     "ms": 23,
+     "ms": 26,
      "result": "driven"
     },
     {
@@ -12825,7 +12825,7 @@
      ],
      "id": "moss-add",
      "message": "activate action_btn:44",
-     "ms": 29,
+     "ms": 32,
      "result": "driven"
     },
     {
@@ -12853,8 +12853,8 @@
       }
      ],
      "id": "sites-moss",
-     "message": "49 figure(s), 29 box(es), 0 list(s), 6 table(s), 33 heading(s)",
-     "ms": 28,
+     "message": "49 figure(s), 30 box(es), 0 list(s), 6 table(s), 33 heading(s)",
+     "ms": 24,
      "result": "driven"
     },
     {
@@ -12877,8 +12877,8 @@
       }
      ],
      "id": "mr-defaults",
-     "message": "49 figure(s), 29 box(es), 0 list(s), 6 table(s), 33 heading(s)",
-     "ms": 26,
+     "message": "49 figure(s), 30 box(es), 0 list(s), 6 table(s), 33 heading(s)",
+     "ms": 27,
      "result": "driven"
     },
     {
@@ -12892,7 +12892,7 @@
      ],
      "id": "mr-r0",
      "message": "set-text text_in:11",
-     "ms": 28,
+     "ms": 26,
      "result": "driven"
     },
     {
@@ -12910,8 +12910,8 @@
       }
      ],
      "id": "mr-zero",
-     "message": "48 figure(s), 29 box(es), 0 list(s), 6 table(s), 33 heading(s)",
-     "ms": 27,
+     "message": "48 figure(s), 30 box(es), 0 list(s), 6 table(s), 33 heading(s)",
+     "ms": 24,
      "result": "driven"
     },
     {
@@ -12925,7 +12925,7 @@
      ],
      "id": "mr-m",
      "message": "set-text text_in:9",
-     "ms": 26,
+     "ms": 27,
      "result": "driven"
     },
     {
@@ -12939,7 +12939,7 @@
      ],
      "id": "mr-c",
      "message": "set-text text_in:10",
-     "ms": 27,
+     "ms": 23,
      "result": "driven"
     },
     {
@@ -12976,7 +12976,7 @@
       }
      ],
      "id": "mr-again",
-     "message": "49 figure(s), 29 box(es), 0 list(s), 6 table(s), 33 heading(s)",
+     "message": "49 figure(s), 30 box(es), 0 list(s), 6 table(s), 33 heading(s)",
      "ms": 25,
      "result": "driven"
     },
@@ -12991,7 +12991,7 @@
      ],
      "id": "mr-bad",
      "message": "set-text text_in:11",
-     "ms": 25,
+     "ms": 28,
      "result": "driven"
     },
     {
@@ -13004,8 +13004,8 @@
       }
      ],
      "id": "mr-refused",
-     "message": "46 figure(s), 29 box(es), 0 list(s), 6 table(s), 33 heading(s)",
-     "ms": 25,
+     "message": "46 figure(s), 30 box(es), 0 list(s), 6 table(s), 33 heading(s)",
+     "ms": 24,
      "result": "driven"
     },
     {
@@ -13019,7 +13019,7 @@
      ],
      "id": "mr-fix",
      "message": "set-text text_in:11",
-     "ms": 28,
+     "ms": 26,
      "result": "driven"
     },
     {
@@ -13037,8 +13037,8 @@
       }
      ],
      "id": "quad-defaults",
-     "message": "49 figure(s), 29 box(es), 0 list(s), 6 table(s), 33 heading(s)",
-     "ms": 43,
+     "message": "49 figure(s), 30 box(es), 0 list(s), 6 table(s), 33 heading(s)",
+     "ms": 45,
      "result": "driven"
     },
     {
@@ -13052,7 +13052,7 @@
      ],
      "id": "quad-even",
      "message": "set-text text_in:12",
-     "ms": 25,
+     "ms": 24,
      "result": "driven"
     },
     {
@@ -13070,8 +13070,8 @@
       }
      ],
      "id": "quad-uniform",
-     "message": "49 figure(s), 29 box(es), 0 list(s), 6 table(s), 33 heading(s)",
-     "ms": 28,
+     "message": "49 figure(s), 30 box(es), 0 list(s), 6 table(s), 33 heading(s)",
+     "ms": 30,
      "result": "driven"
     },
     {
@@ -13085,7 +13085,7 @@
      ],
      "id": "quad-more",
      "message": "set-text text_in:12",
-     "ms": 27,
+     "ms": 25,
      "result": "driven"
     },
     {
@@ -13123,8 +13123,8 @@
       }
      ],
      "id": "quad-twelve",
-     "message": "49 figure(s), 29 box(es), 0 list(s), 6 table(s), 33 heading(s)",
-     "ms": 24,
+     "message": "49 figure(s), 30 box(es), 0 list(s), 6 table(s), 33 heading(s)",
+     "ms": 29,
      "result": "driven"
     },
     {
@@ -13151,8 +13151,8 @@
       }
      ],
      "id": "quad-refused",
-     "message": "47 figure(s), 29 box(es), 0 list(s), 6 table(s), 33 heading(s)",
-     "ms": 28,
+     "message": "47 figure(s), 30 box(es), 0 list(s), 6 table(s), 33 heading(s)",
+     "ms": 27,
      "result": "driven"
     },
     {
@@ -13199,8 +13199,8 @@
       }
      ],
      "id": "hw-defaults",
-     "message": "49 figure(s), 29 box(es), 0 list(s), 6 table(s), 33 heading(s)",
-     "ms": 25,
+     "message": "49 figure(s), 30 box(es), 0 list(s), 6 table(s), 33 heading(s)",
+     "ms": 30,
      "result": "driven"
     },
     {
@@ -13237,7 +13237,7 @@
       }
      ],
      "id": "hw-out",
-     "message": "49 figure(s), 29 box(es), 0 list(s), 6 table(s), 33 heading(s)",
+     "message": "49 figure(s), 30 box(es), 0 list(s), 6 table(s), 33 heading(s)",
      "ms": 46,
      "result": "driven"
     },
@@ -13252,7 +13252,7 @@
      ],
      "id": "hw-a",
      "message": "set-text text_in:13",
-     "ms": 24,
+     "ms": 25,
      "result": "driven"
     },
     {
@@ -13266,7 +13266,7 @@
      ],
      "id": "hw-h",
      "message": "set-text text_in:14",
-     "ms": 24,
+     "ms": 26,
      "result": "driven"
     },
     {
@@ -13280,7 +13280,7 @@
      ],
      "id": "hw-b",
      "message": "set-text text_in:15",
-     "ms": 25,
+     "ms": 26,
      "result": "driven"
     },
     {
@@ -13303,8 +13303,8 @@
       }
      ],
      "id": "hw-perfect",
-     "message": "49 figure(s), 29 box(es), 0 list(s), 6 table(s), 33 heading(s)",
-     "ms": 28,
+     "message": "49 figure(s), 30 box(es), 0 list(s), 6 table(s), 33 heading(s)",
+     "ms": 27,
      "result": "driven"
     },
     {
@@ -13332,8 +13332,8 @@
       }
      ],
      "id": "punnett-defaults",
-     "message": "49 figure(s), 29 box(es), 0 list(s), 6 table(s), 33 heading(s)",
-     "ms": 24,
+     "message": "49 figure(s), 30 box(es), 0 list(s), 6 table(s), 33 heading(s)",
+     "ms": 27,
      "result": "driven"
     },
     {
@@ -13347,7 +13347,7 @@
      ],
      "id": "inc-on",
      "message": "set-checkbox checkbox:0",
-     "ms": 28,
+     "ms": 30,
      "result": "driven"
     },
     {
@@ -13360,8 +13360,8 @@
       }
      ],
      "id": "incomplete",
-     "message": "49 figure(s), 29 box(es), 0 list(s), 6 table(s), 33 heading(s)",
-     "ms": 26,
+     "message": "49 figure(s), 30 box(es), 0 list(s), 6 table(s), 33 heading(s)",
+     "ms": 27,
      "result": "driven"
     },
     {
@@ -13375,7 +13375,7 @@
      ],
      "id": "inc-off",
      "message": "set-checkbox checkbox:0",
-     "ms": 25,
+     "ms": 28,
      "result": "driven"
     },
     {
@@ -13389,7 +13389,7 @@
      ],
      "id": "dihybrid",
      "message": "choose-option select:0",
-     "ms": 30,
+     "ms": 28,
      "result": "driven"
     },
     {
@@ -13417,8 +13417,8 @@
       }
      ],
      "id": "nine",
-     "message": "49 figure(s), 29 box(es), 0 list(s), 6 table(s), 33 heading(s)",
-     "ms": 25,
+     "message": "49 figure(s), 30 box(es), 0 list(s), 6 table(s), 33 heading(s)",
+     "ms": 32,
      "result": "driven"
     },
     {
@@ -13446,7 +13446,7 @@
      ],
      "id": "p2",
      "message": "set-text text_in:17",
-     "ms": 25,
+     "ms": 24,
      "result": "driven"
     },
     {
@@ -13460,7 +13460,7 @@
      ],
      "id": "obs2",
      "message": "set-text text_in:18",
-     "ms": 25,
+     "ms": 24,
      "result": "driven"
     },
     {
@@ -13473,8 +13473,8 @@
       }
      ],
      "id": "testcross",
-     "message": "49 figure(s), 29 box(es), 0 list(s), 6 table(s), 33 heading(s)",
-     "ms": 26,
+     "message": "49 figure(s), 30 box(es), 0 list(s), 6 table(s), 33 heading(s)",
+     "ms": 27,
      "result": "driven"
     },
     {
@@ -13501,8 +13501,8 @@
       }
      ],
      "id": "key-start",
-     "message": "49 figure(s), 29 box(es), 0 list(s), 6 table(s), 33 heading(s)",
-     "ms": 26,
+     "message": "49 figure(s), 30 box(es), 0 list(s), 6 table(s), 33 heading(s)",
+     "ms": 38,
      "result": "driven"
     },
     {
@@ -13516,7 +13516,7 @@
      ],
      "id": "key-yes",
      "message": "activate action_btn:82",
-     "ms": 23,
+     "ms": 28,
      "result": "driven"
     },
     {
@@ -13529,8 +13529,8 @@
       }
      ],
      "id": "key-two",
-     "message": "49 figure(s), 29 box(es), 0 list(s), 6 table(s), 33 heading(s)",
-     "ms": 25,
+     "message": "49 figure(s), 30 box(es), 0 list(s), 6 table(s), 33 heading(s)",
+     "ms": 28,
      "result": "driven"
     },
     {
@@ -13557,8 +13557,8 @@
       }
      ],
      "id": "key-three",
-     "message": "49 figure(s), 29 box(es), 0 list(s), 6 table(s), 33 heading(s)",
-     "ms": 27,
+     "message": "49 figure(s), 30 box(es), 0 list(s), 6 table(s), 33 heading(s)",
+     "ms": 26,
      "result": "driven"
     },
     {
@@ -13572,7 +13572,7 @@
      ],
      "id": "key-yes2",
      "message": "activate action_btn:82",
-     "ms": 28,
+     "ms": 26,
      "result": "driven"
     },
     {
@@ -13590,8 +13590,8 @@
       }
      ],
      "id": "key-id",
-     "message": "49 figure(s), 29 box(es), 0 list(s), 6 table(s), 33 heading(s)",
-     "ms": 26,
+     "message": "49 figure(s), 30 box(es), 0 list(s), 6 table(s), 33 heading(s)",
+     "ms": 27,
      "result": "driven"
     },
     {
@@ -13619,7 +13619,7 @@
      ],
      "id": "key-loop-yes",
      "message": "activate action_btn:82",
-     "ms": 25,
+     "ms": 30,
      "result": "driven"
     },
     {
@@ -13632,8 +13632,8 @@
       }
      ],
      "id": "key-loops",
-     "message": "49 figure(s), 29 box(es), 0 list(s), 6 table(s), 33 heading(s)",
-     "ms": 29,
+     "message": "49 figure(s), 30 box(es), 0 list(s), 6 table(s), 33 heading(s)",
+     "ms": 27,
      "result": "driven"
     },
     {
@@ -13647,7 +13647,7 @@
      ],
      "id": "key-bad",
      "message": "set-text text_in:19",
-     "ms": 24,
+     "ms": 26,
      "result": "driven"
     },
     {
@@ -13660,8 +13660,8 @@
       }
      ],
      "id": "key-shape",
-     "message": "49 figure(s), 29 box(es), 0 list(s), 6 table(s), 33 heading(s)",
-     "ms": 50,
+     "message": "49 figure(s), 30 box(es), 0 list(s), 6 table(s), 33 heading(s)",
+     "ms": 55,
      "result": "driven"
     },
     {
@@ -13679,8 +13679,8 @@
       }
      ],
      "id": "tree-defaults",
-     "message": "49 figure(s), 29 box(es), 0 list(s), 6 table(s), 33 heading(s)",
-     "ms": 25,
+     "message": "49 figure(s), 30 box(es), 0 list(s), 6 table(s), 33 heading(s)",
+     "ms": 26,
      "result": "driven"
     },
     {
@@ -13712,8 +13712,8 @@
       }
      ],
      "id": "tree-small",
-     "message": "49 figure(s), 29 box(es), 0 list(s), 6 table(s), 33 heading(s)",
-     "ms": 28,
+     "message": "49 figure(s), 30 box(es), 0 list(s), 6 table(s), 33 heading(s)",
+     "ms": 27,
      "result": "driven"
     },
     {
@@ -13727,7 +13727,7 @@
      ],
      "id": "tree-bad",
      "message": "set-text text_in:20",
-     "ms": 24,
+     "ms": 25,
      "result": "driven"
     },
     {
@@ -13740,8 +13740,8 @@
       }
      ],
      "id": "tree-refused",
-     "message": "47 figure(s), 29 box(es), 0 list(s), 6 table(s), 33 heading(s)",
-     "ms": 26,
+     "message": "47 figure(s), 30 box(es), 0 list(s), 6 table(s), 33 heading(s)",
+     "ms": 28,
      "result": "driven"
     },
     {
@@ -13755,7 +13755,7 @@
      ],
      "id": "tree-back",
      "message": "set-text text_in:20",
-     "ms": 25,
+     "ms": 26,
      "result": "driven"
     },
     {
@@ -13769,7 +13769,7 @@
      ],
      "id": "deck-list",
      "message": "set-text text_in:22",
-     "ms": 25,
+     "ms": 26,
      "result": "driven"
     },
     {
@@ -13810,8 +13810,8 @@
       }
      ],
      "id": "deck-first",
-     "message": "49 figure(s), 29 box(es), 0 list(s), 6 table(s), 33 heading(s)",
-     "ms": 36,
+     "message": "49 figure(s), 30 box(es), 0 list(s), 6 table(s), 33 heading(s)",
+     "ms": 28,
      "result": "driven"
     },
     {
@@ -13839,7 +13839,7 @@
      ],
      "id": "deck-again",
      "message": "activate action_btn:82",
-     "ms": 28,
+     "ms": 26,
      "result": "driven"
     },
     {
@@ -13852,8 +13852,8 @@
       }
      ],
      "id": "deck-flipped",
-     "message": "49 figure(s), 29 box(es), 0 list(s), 6 table(s), 33 heading(s)",
-     "ms": 25,
+     "message": "49 figure(s), 30 box(es), 0 list(s), 6 table(s), 33 heading(s)",
+     "ms": 26,
      "result": "driven"
     },
     {
@@ -13867,7 +13867,7 @@
      ],
      "id": "deck-unflip",
      "message": "set-checkbox checkbox:1",
-     "ms": 23,
+     "ms": 25,
      "result": "driven"
     },
     {
@@ -13881,7 +13881,7 @@
      ],
      "id": "deck-seed0",
      "message": "set-text text_in:21",
-     "ms": 26,
+     "ms": 23,
      "result": "driven"
     },
     {
@@ -13895,7 +13895,7 @@
      ],
      "id": "deck-zero",
      "message": "activate action_btn:82",
-     "ms": 26,
+     "ms": 25,
      "result": "driven"
     },
     {
@@ -13908,8 +13908,8 @@
       }
      ],
      "id": "deck-zero-out",
-     "message": "49 figure(s), 29 box(es), 0 list(s), 6 table(s), 33 heading(s)",
-     "ms": 25,
+     "message": "49 figure(s), 30 box(es), 0 list(s), 6 table(s), 33 heading(s)",
+     "ms": 26,
      "result": "driven"
     },
     {
@@ -13923,7 +13923,7 @@
      ],
      "id": "deck-empty",
      "message": "set-text text_in:22",
-     "ms": 24,
+     "ms": 26,
      "result": "driven"
     },
     {
@@ -13937,7 +13937,7 @@
      ],
      "id": "deck-none",
      "message": "activate action_btn:82",
-     "ms": 27,
+     "ms": 26,
      "result": "driven"
     },
     {
@@ -13950,8 +13950,8 @@
       }
      ],
      "id": "deck-refused",
-     "message": "49 figure(s), 29 box(es), 0 list(s), 6 table(s), 33 heading(s)",
-     "ms": 27,
+     "message": "49 figure(s), 30 box(es), 0 list(s), 6 table(s), 33 heading(s)",
+     "ms": 25,
      "result": "driven"
     },
     {
@@ -13979,7 +13979,7 @@
      ],
      "id": "area",
      "message": "set-text text_in:27",
-     "ms": 27,
+     "ms": 26,
      "result": "driven"
     },
     {
@@ -14007,7 +14007,7 @@
      ],
      "id": "wind",
      "message": "set-text text_in:29",
-     "ms": 25,
+     "ms": 26,
      "result": "driven"
     },
     {
@@ -14021,7 +14021,7 @@
      ],
      "id": "dist",
      "message": "set-text text_in:30",
-     "ms": 27,
+     "ms": 25,
      "result": "driven"
     },
     {
@@ -14034,8 +14034,8 @@
       }
      ],
      "id": "habitat",
-     "message": "49 figure(s), 29 box(es), 0 list(s), 6 table(s), 33 heading(s)",
-     "ms": 26,
+     "message": "49 figure(s), 30 box(es), 0 list(s), 6 table(s), 33 heading(s)",
+     "ms": 25,
      "result": "driven"
     },
     {
@@ -14049,7 +14049,7 @@
      ],
      "id": "k-zero",
      "message": "set-text text_in:24",
-     "ms": 26,
+     "ms": 24,
      "result": "driven"
     },
     {
@@ -14062,8 +14062,8 @@
       }
      ],
      "id": "k-refused",
-     "message": "49 figure(s), 29 box(es), 0 list(s), 6 table(s), 33 heading(s)",
-     "ms": 52,
+     "message": "49 figure(s), 30 box(es), 0 list(s), 6 table(s), 33 heading(s)",
+     "ms": 50,
      "result": "driven"
     },
     {
@@ -14091,7 +14091,7 @@
      ],
      "id": "steps-bad",
      "message": "set-text text_in:26",
-     "ms": 31,
+     "ms": 27,
      "result": "driven"
     },
     {
@@ -14104,8 +14104,8 @@
       }
      ],
      "id": "steps-refused",
-     "message": "49 figure(s), 29 box(es), 0 list(s), 6 table(s), 33 heading(s)",
-     "ms": 33,
+     "message": "49 figure(s), 30 box(es), 0 list(s), 6 table(s), 33 heading(s)",
+     "ms": 26,
      "result": "driven"
     },
     {
@@ -14147,7 +14147,7 @@
      ],
      "id": "steps",
      "message": "set-text text_in:26",
-     "ms": 24,
+     "ms": 27,
      "result": "driven"
     },
     {
@@ -14195,8 +14195,8 @@
       }
      ],
      "id": "logistic-again",
-     "message": "49 figure(s), 29 box(es), 0 list(s), 6 table(s), 33 heading(s)",
-     "ms": 25,
+     "message": "49 figure(s), 30 box(es), 0 list(s), 6 table(s), 33 heading(s)",
+     "ms": 23,
      "result": "driven"
     },
     {
@@ -14210,7 +14210,7 @@
      ],
      "id": "dist-bad",
      "message": "set-text text_in:30",
-     "ms": 24,
+     "ms": 25,
      "result": "driven"
     },
     {
@@ -14223,8 +14223,8 @@
       }
      ],
      "id": "dist-refused",
-     "message": "49 figure(s), 29 box(es), 0 list(s), 6 table(s), 33 heading(s)",
-     "ms": 27,
+     "message": "49 figure(s), 30 box(es), 0 list(s), 6 table(s), 33 heading(s)",
+     "ms": 22,
      "result": "driven"
     },
     {
@@ -14238,7 +14238,7 @@
      ],
      "id": "dist-fix",
      "message": "set-text text_in:30",
-     "ms": 25,
+     "ms": 26,
      "result": "driven"
     },
     {
@@ -14300,8 +14300,8 @@
       }
      ],
      "id": "competition",
-     "message": "49 figure(s), 29 box(es), 0 list(s), 6 table(s), 33 heading(s)",
-     "ms": 24,
+     "message": "49 figure(s), 30 box(es), 0 list(s), 6 table(s), 33 heading(s)",
+     "ms": 25,
      "result": "driven"
     },
     {
@@ -14315,7 +14315,7 @@
      ],
      "id": "k1-zero",
      "message": "set-text text_in:24",
-     "ms": 24,
+     "ms": 33,
      "result": "driven"
     },
     {
@@ -14328,8 +14328,8 @@
       }
      ],
      "id": "k1-refused",
-     "message": "49 figure(s), 29 box(es), 0 list(s), 6 table(s), 33 heading(s)",
-     "ms": 31,
+     "message": "49 figure(s), 30 box(es), 0 list(s), 6 table(s), 33 heading(s)",
+     "ms": 29,
      "result": "driven"
     },
     {
@@ -14343,7 +14343,7 @@
      ],
      "id": "k1-back",
      "message": "set-text text_in:24",
-     "ms": 29,
+     "ms": 25,
      "result": "driven"
     },
     {
@@ -14357,7 +14357,7 @@
      ],
      "id": "model-back",
      "message": "choose-option select:2",
-     "ms": 26,
+     "ms": 31,
      "result": "driven"
     },
     {
@@ -14371,7 +14371,7 @@
      ],
      "id": "build",
      "message": "activate action_btn:83",
-     "ms": 28,
+     "ms": 26,
      "result": "driven"
     },
     {
@@ -14383,14 +14383,14 @@
        "verdict": "CONFIRMED"
       },
       {
-       "detail": "output.value contains 'data: ', got \"# built by the Workbench \u2014 paste into your .eco protocol\\nname: my workbench experiment\\nkeys: 100\\nseed: 42\\nwindow: 250\\n\\ndata: myfield robin=34 sparrow=21 wren=8 finch=3 thrush\\ndata: siteA cattail=18 duckweed=44 frogbit=3\\ndata: siteB cattail=18 duckweed=44 frogbit=3 azolla=9 rush=6 lily=7 moss=5\\n\\nmodel: hardyweinberg 250 500 250\\nmodel: markrecapture 200 150 45\\nmodel: logistic 0.15 120 5 60\\nfactor: area 2.5\\nfactor: temperature 1.4\\nfactor: wind 0.6\\nfactor: distance 3\\ncross: Rr x rr\\ntree: mytree (Porifera,(Cnidaria,((Mollusca,Annelida),(Arthropoda,(Echinodermata,Chordata)))));\\n\\n# suggested hypotheses \u2014 edit BEFORE you run; that's the discipline\\nexpect: evenness(myfield) is moderate\\nexpect: turnover(siteA, siteB) is moderate\"",
+       "detail": "output.value contains 'data: ', got \"# built by the Workbench \u2014 paste into your .eco protocol\\nname: my workbench experiment\\nkeys: 100\\nseed: 42\\nwindow: 250\\n\\ndata: myfield robin=34 sparrow=21 wren=8 finch=3 thrush\\ndata: siteA cattail=18 duckweed=44 frogbit=3\\ndata: siteB cattail=18 duckweed=44 frogbit=3 azolla=9 rush=6 lily=7 moss=5\\n\\nmodel: hardyweinberg 250 500 250\\nmodel: markrecapture 200 150 45\\nmodel: logistic 0.15 120 5 60\\nfactor: area 2.5\\nfactor: temperature 1.4\\nfactor: wind 0.6\\nfactor: distance 3\\ncross: Rr x rr\\ntree: mytree (Porifera,(Cnidaria,((Mollusca,Annelida),(Arthropoda,(Echinodermata,Chordata)))));\\n\\n# suggested hypotheses \u2014 edit BEFORE you run; that's the discipline\\nexpect: evenness(myfield) is moderate\\nexpect: turnover(siteA, siteB) is moderate\\n\\n# what the workbench got from these entries \u2014 provenance, not protocol.\\n# Re-run the lines above and you should land on these numbers:\\n#   myfield: 5 species, Shannon H' 1.16, evenness J' 0.72, effective 3.2, Chao1 5\\n#   siteA vs siteB: 3 of 7 kinds shared, Jaccard 0.43, Sorensen 0.6, Bray-Curtis 0.17\\n#   quadrats: 10 frames, 91 individuals, mean 9.1, variance/mean 26.12, Morisita 3.51\\n#   mark-recapture: Lincoln-Petersen N 667, Chapman N 659, 95% CI 521\u2013797\\n#   Hardy-Weinberg: n 1000, p 0.5, q 0.5, chi2 (df 1) 0, expected 250 / 500 / 250\"",
        "path": "output.value",
        "verdict": "CONFIRMED"
       }
      ],
      "id": "eco",
      "message": "read readonly_out:0",
-     "ms": 10,
+     "ms": 9,
      "result": "driven"
     },
     {
@@ -14403,8 +14403,8 @@
       }
      ],
      "id": "g208-ecocopy",
-     "message": "activate action_btn:84 -- the page said 'Copied 23 line(s). Paste them into a .eco file.' -- 1 payload(s) produced",
-     "ms": 25,
+     "message": "activate action_btn:84 -- the page said 'Copied 31 line(s). Paste them into a .eco file.' -- 1 payload(s) produced",
+     "ms": 26,
      "result": "driven"
     },
     {
@@ -14416,19 +14416,19 @@
        "verdict": "CONFIRMED"
       },
       {
-       "detail": "output.payloads.0.text contains 'name: my workbench experiment', got \"# built by the Workbench \u2014 paste into your .eco protocol\\nname: my workbench experiment\\nkeys: 100\\nseed: 42\\nwindow: 250\\n\\ndata: myfield robin=34 sparrow=21 wren=8 finch=3 thrush\\ndata: siteA cattail=18 duckweed=44 frogbit=3\\ndata: siteB cattail=18 duckweed=44 frogbit=3 azolla=9 rush=6 lily=7 moss=5\\n\\nmodel: hardyweinberg 250 500 250\\nmodel: markrecapture 200 150 45\\nmodel: logistic 0.15 120 5 60\\nfactor: area 2.5\\nfactor: temperature 1.4\\nfactor: wind 0.6\\nfactor: distance 3\\ncross: Rr x rr\\ntree: mytree (Porifera,(Cnidaria,((Mollusca,Annelida),(Arthropoda,(Echinodermata,Chordata)))));\\n\\n# suggested hypotheses \u2014 edit BEFORE you run; that's the discipline\\nexpect: evenness(myfield) is moderate\\nexpect: turnover(siteA, siteB) is moderate\"",
+       "detail": "output.payloads.0.text contains 'name: my workbench experiment', got \"# built by the Workbench \u2014 paste into your .eco protocol\\nname: my workbench experiment\\nkeys: 100\\nseed: 42\\nwindow: 250\\n\\ndata: myfield robin=34 sparrow=21 wren=8 finch=3 thrush\\ndata: siteA cattail=18 duckweed=44 frogbit=3\\ndata: siteB cattail=18 duckweed=44 frogbit=3 azolla=9 rush=6 lily=7 moss=5\\n\\nmodel: hardyweinberg 250 500 250\\nmodel: markrecapture 200 150 45\\nmodel: logistic 0.15 120 5 60\\nfactor: area 2.5\\nfactor: temperature 1.4\\nfactor: wind 0.6\\nfactor: distance 3\\ncross: Rr x rr\\ntree: mytree (Porifera,(Cnidaria,((Mollusca,Annelida),(Arthropoda,(Echinodermata,Chordata)))));\\n\\n# suggested hypotheses \u2014 edit BEFORE you run; that's the discipline\\nexpect: evenness(myfield) is moderate\\nexpect: turnover(siteA, siteB) is moderate\\n\\n# what the workbench got from these entries \u2014 provenance, not protocol.\\n# Re-run the lines above and you should land on these numbers:\\n#   myfield: 5 species, Shannon H' 1.16, evenness J' 0.72, effective 3.2, Chao1 5\\n#   siteA vs siteB: 3 of 7 kinds shared, Jaccard 0.43, Sorensen 0.6, Bray-Curtis 0.17\\n#   quadrats: 10 frames, 91 individuals, mean 9.1, variance/mean 26.12, Morisita 3.51\\n#   mark-recapture: Lincoln-Petersen N 667, Chapman N 659, 95% CI 521\u2013797\\n#   Hardy-Weinberg: n 1000, p 0.5, q 0.5, chi2 (df 1) 0, expected 250 / 500 / 250\"",
        "path": "output.payloads.0.text",
        "verdict": "CONFIRMED"
       },
       {
-       "detail": "output.payloads.0.text contains 'seed: 42', got \"# built by the Workbench \u2014 paste into your .eco protocol\\nname: my workbench experiment\\nkeys: 100\\nseed: 42\\nwindow: 250\\n\\ndata: myfield robin=34 sparrow=21 wren=8 finch=3 thrush\\ndata: siteA cattail=18 duckweed=44 frogbit=3\\ndata: siteB cattail=18 duckweed=44 frogbit=3 azolla=9 rush=6 lily=7 moss=5\\n\\nmodel: hardyweinberg 250 500 250\\nmodel: markrecapture 200 150 45\\nmodel: logistic 0.15 120 5 60\\nfactor: area 2.5\\nfactor: temperature 1.4\\nfactor: wind 0.6\\nfactor: distance 3\\ncross: Rr x rr\\ntree: mytree (Porifera,(Cnidaria,((Mollusca,Annelida),(Arthropoda,(Echinodermata,Chordata)))));\\n\\n# suggested hypotheses \u2014 edit BEFORE you run; that's the discipline\\nexpect: evenness(myfield) is moderate\\nexpect: turnover(siteA, siteB) is moderate\"",
+       "detail": "output.payloads.0.text contains 'seed: 42', got \"# built by the Workbench \u2014 paste into your .eco protocol\\nname: my workbench experiment\\nkeys: 100\\nseed: 42\\nwindow: 250\\n\\ndata: myfield robin=34 sparrow=21 wren=8 finch=3 thrush\\ndata: siteA cattail=18 duckweed=44 frogbit=3\\ndata: siteB cattail=18 duckweed=44 frogbit=3 azolla=9 rush=6 lily=7 moss=5\\n\\nmodel: hardyweinberg 250 500 250\\nmodel: markrecapture 200 150 45\\nmodel: logistic 0.15 120 5 60\\nfactor: area 2.5\\nfactor: temperature 1.4\\nfactor: wind 0.6\\nfactor: distance 3\\ncross: Rr x rr\\ntree: mytree (Porifera,(Cnidaria,((Mollusca,Annelida),(Arthropoda,(Echinodermata,Chordata)))));\\n\\n# suggested hypotheses \u2014 edit BEFORE you run; that's the discipline\\nexpect: evenness(myfield) is moderate\\nexpect: turnover(siteA, siteB) is moderate\\n\\n# what the workbench got from these entries \u2014 provenance, not protocol.\\n# Re-run the lines above and you should land on these numbers:\\n#   myfield: 5 species, Shannon H' 1.16, evenness J' 0.72, effective 3.2, Chao1 5\\n#   siteA vs siteB: 3 of 7 kinds shared, Jaccard 0.43, Sorensen 0.6, Bray-Curtis 0.17\\n#   quadrats: 10 frames, 91 individuals, mean 9.1, variance/mean 26.12, Morisita 3.51\\n#   mark-recapture: Lincoln-Petersen N 667, Chapman N 659, 95% CI 521\u2013797\\n#   Hardy-Weinberg: n 1000, p 0.5, q 0.5, chi2 (df 1) 0, expected 250 / 500 / 250\"",
        "path": "output.payloads.0.text#2",
        "verdict": "CONFIRMED"
       }
      ],
      "id": "g208-ecoout",
      "message": "1 payload(s)",
-     "ms": 2,
+     "ms": 3,
      "result": "driven"
     },
     {
@@ -14442,7 +14442,7 @@
      ],
      "id": "eco-in",
      "message": "set-text text_in:31",
-     "ms": 24,
+     "ms": 26,
      "result": "driven"
     },
     {
@@ -14469,8 +14469,8 @@
       }
      ],
      "id": "eco-imported",
-     "message": "49 figure(s), 29 box(es), 0 list(s), 6 table(s), 33 heading(s)",
-     "ms": 56,
+     "message": "49 figure(s), 30 box(es), 0 list(s), 6 table(s), 33 heading(s)",
+     "ms": 57,
      "result": "driven"
     },
     {
@@ -14523,8 +14523,8 @@
       }
      ],
      "id": "still",
-     "message": "49 figure(s), 29 box(es), 0 list(s), 6 table(s), 33 heading(s)",
-     "ms": 27,
+     "message": "49 figure(s), 30 box(es), 0 list(s), 6 table(s), 33 heading(s)",
+     "ms": 26,
      "result": "driven"
     },
     {
@@ -14548,7 +14548,7 @@
      ],
      "id": "intact",
      "message": "read the page",
-     "ms": 14,
+     "ms": 15,
      "result": "driven"
     }
    ],

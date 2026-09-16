@@ -612,6 +612,60 @@ with sync_playwright() as p:
     ck("the quadrat chart draws a bar for every count above zero and none for an empty quadrat, twelve hit-rects for twelve quadrats",
        got_q.get("d") is not None and [_box(x) for x in got_q["d"]] == want_q["spans"] and got_q.get("rects") == 12
        and got_q.get("col") == want_q["col"], (got_q.get("col"), (got_q.get("d") or [])[:1]))
+    # ---------- THE PANEL AND THE PROTOCOL ARE THE SAME NUMBER (ADR-213) ----------
+    # The workbench's five readouts were worked out inside their render
+    # functions and existed only as innerHTML, so the .eco protocol this page
+    # hands you carried the data and none of the answers. They are extracted
+    # now and both readers call the same stat* -- which is only worth anything
+    # if something notices when they stop agreeing. The figures are read off
+    # the PANEL and matched against the protocol text, so an edit to one and
+    # not the other fails here rather than in six months.
+    _type("wb-siteA", "robin 10\nsparrow 4\nwren 2")
+    _type("wb-siteB", "robin 3\nsparrow 9\ncrow 5")
+    pg.evaluate("()=>{const q=(i,v)=>{const e=document.getElementById(i);e.value=v;"
+                "e.dispatchEvent(new Event('input',{bubbles:true}));};"
+                "q('wb-mrm','60');q('wb-mrc','80');q('wb-mrr','12');"
+                "q('wb-aa','35');q('wb-ab','48');q('wb-bb','17');}")
+    pg.wait_for_timeout(200)
+    pg.click("#wb-eco-build"); pg.wait_for_timeout(250)
+    _eco = pg.eval_on_selector("#wb-eco-out", "e=>e.value")
+
+    def _tiles(host):
+        return pg.evaluate(
+            "h=>Object.fromEntries([...document.querySelectorAll('#'+h+' .tile')]"
+            ".map(t=>[t.querySelector('.l').textContent, t.querySelector('.v').textContent]))", host)
+
+    _panels = {"wb-field-out": _tiles("wb-field-out"), "wb-sites-out": _tiles("wb-sites-out"),
+               "wb-quad-out": _tiles("wb-quad-out"), "wb-mr-out": _tiles("wb-mr-out"),
+               "wb-hw-out": _tiles("wb-hw-out")}
+    _missing = [(h, l, v) for h, t in _panels.items() for l, v in t.items()
+                if v not in _eco]
+    ck("every figure the five workbench panels show is in the .eco protocol the page hands you, "
+       "as the same digits: a protocol that carried the data and none of the answers made a "
+       "reader recompute every result with no way to tell whether they matched the screen "
+       "(ADR-211 counted 32 such figures on this page)",
+       not _missing, _missing[:4])
+    ck("...and they travel as COMMENTS, because a .eco file is a pre-registration -- the lines "
+       "you would RUN -- and a result written as a protocol line would make the file assert what "
+       "it is supposed to be asking",
+       "# what the workbench got from these entries" in _eco
+       and all(l.startswith("#") for l in _eco.split("# what the workbench got")[1].split("\n")[1:]
+               if l.strip()),
+       _eco.split("# what the workbench got")[-1][:120])
+    ck("...and the block is absent when there is nothing to report, rather than a header over "
+       "nothing",
+       "# what the workbench got" not in pg.evaluate(
+           "()=>{const ids=['wb-field','wb-siteA','wb-siteB','wb-quad'];"
+           "for(const i of ids){const e=document.getElementById(i);e.value='';"
+           "e.dispatchEvent(new Event('input',{bubbles:true}));}"
+           "for(const i of ['wb-mrm','wb-mrc','wb-mrr','wb-aa','wb-ab','wb-bb']){"
+           "const e=document.getElementById(i);e.value='';"
+           "e.dispatchEvent(new Event('input',{bubbles:true}));}"
+           "document.getElementById('wb-eco-build').click();"
+           "return document.getElementById('wb-eco-out').value;}"),
+       "an empty workbench writes no provenance block")
+    pg.reload(wait_until="domcontentloaded"); pg.wait_for_timeout(300)
+
     # ---------- the stations chart THE session (ADR-183) ----------
     # verify_engine_sessions binds the page's inline SESSION to the shipped
     # docs/ecology-lab-session.json and that file to the engine; what was
