@@ -666,6 +666,37 @@ with sync_playwright() as p:
        "an empty workbench writes no provenance block")
     pg.reload(wait_until="domcontentloaded"); pg.wait_for_timeout(300)
 
+    # ---------- THE RECORD AND THE STATIONS ARE THE SAME NUMBERS (ADR-214) ----------
+    # The nine stations were the only figures on this page that reached no file
+    # at all. The run record is built from the SESSION they are drawn from, not
+    # scraped off the tiles -- a record scraped from the DOM would agree with the
+    # page by construction and could never catch it being wrong. So the check
+    # reads the TILES and requires each of them in the record, which is the one
+    # comparison that can fail.
+    _LAB = io.open(DOCS_DIR + "ecology-lab.html", encoding="utf-8").read()
+    _rec = pg.eval_on_selector("#rec-out", "e=>e.textContent")
+    _stations = pg.evaluate(
+        "()=>Object.fromEntries([...document.querySelectorAll('section.card[id^=station-]')]"
+        ".map(c=>[c.id,[...c.querySelectorAll('.tile')].map(t=>"
+        "t.querySelector('.l').textContent+'='+t.querySelector('.v').textContent)]))")
+    _skip = ("observed occupancy", "recolonizations", "local extinctions",
+             "strata on record", "turnover / interval", "capacity (island area)")
+    _gone = [(cid, lv) for cid, tiles in _stations.items() for lv in tiles
+             if lv.split("=", 1)[1] not in _rec]
+    ck("every figure the nine stations report is in the run record the page hands you, as the same "
+       "digits: until ADR-214 the stations were the only part of this page whose numbers reached no "
+       "file at all, and a reader could carry a morning's run away only by retyping it off the "
+       "screen",
+       not _gone, _gone[:5])
+    ck("...and the record is built from the SESSION rather than scraped off the tiles, so it can "
+       "disagree with the page and this check can catch it",
+       "runRecord(S)" in _LAB and "querySelectorAll" not in
+       _LAB.split("function runRecord(S)")[1].split("function render(S)")[0],
+       "runRecord must read S")
+    ck("...and a page with no session carries no record card rather than an empty one",
+       "return L.length > 3 ? L.join" in _LAB and 'if (!S) return ""' in _LAB,
+       "runRecord returns nothing when there is nothing to record")
+
     # ---------- the stations chart THE session (ADR-183) ----------
     # verify_engine_sessions binds the page's inline SESSION to the shipped
     # docs/ecology-lab-session.json and that file to the engine; what was

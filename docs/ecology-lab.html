@@ -490,9 +490,105 @@ function dataTable(card, headers, rows) {
   card.append(d);
 }
 
+/* ADR-214: THE RUN RECORD. The nine stations below are the only part of this
+   page whose figures reached no file at all (ADR-211, ADR-213): a reader could
+   see that a run's meadow came back at J' 0.52 with 11 effective species and had
+   no way to carry that anywhere except by retyping it off the screen. The
+   session JSON they are drawn from is a file the reader already has, and that is
+   exactly the argument this kit refused for the workbench -- having the inputs
+   is not having the answers.
+
+   READ FROM THE SESSION, NOT FROM THE TILES. Every line here takes the same
+   field the tile beside it takes and formats it the same way, so the record and
+   the stations cannot disagree about a number; a record scraped out of the DOM
+   would agree with the page by construction and could never catch it being
+   wrong. */
+function runRecord(S) {
+  if (!S) return "";
+  const L = ["# ecology lab \u2014 run record", "# read from the session this page charted;",
+             "# the stations above show the same numbers."];
+  const m = S.meadow;
+  if (m && m.phases && m.phases.length) {
+    L.push("", "## The Meadow \u2014 diversity");
+    for (const p of m.phases) {
+      L.push("  " + (p.name ?? "phase") + ": J' " + fmt(p.evenness, 3)
+             + ", effective species " + fmt(p.hill1, 1)
+             + ", Chao1 est. richness " + fmt(p.chao1, 1)
+             + ", curve " + String(p.bestFit ?? "\u2014").replace("_", " ").toLowerCase());
+    }
+    if (m.pianka !== undefined) L.push("  Pianka overlap " + fmt(m.pianka, 3)
+             + ", Bray-Curtis " + fmt(m.brayCurtis, 3));
+  }
+  const d = S.demography, g = S.growth;
+  if (d || g) {
+    L.push("", "## Demography and growth");
+    if (d) L.push("  completed lives " + fmt(d.cohort, 0)
+             + ", mean age at death " + fmt(d.meanAge, 0) + " ops"
+             + (d.type ? ", " + String(d.type).replace("_", " ").toLowerCase() : ""));
+    if (g) L.push("  growth rate r (per op) " + fmt(g.r, 4)
+             + ", carrying capacity K \u2248 " + fmt(g.K, 1) + " keys"
+             + (g.r2 === undefined ? "" : ", r\u00b2 " + fmt(g.r2, 3)));
+  }
+  const a = S.archipelago;
+  if (a) {
+    L.push("", "## The Archipelago \u2014 metapopulation");
+    L.push("  local extinctions " + a.extinctions + ", recolonizations " + a.recolonizations
+           + ", Levins predicted occupancy " + fmt(a.levins * 100, 0) + "%"
+           + ", observed occupancy " + fmt(a.observed * 100, 0) + "%");
+  }
+  const f = S.fossils;
+  if (f) {
+    L.push("", "## The Fossil Record \u2014 inheritance");
+    L.push("  avg turnover per generation " + fmt(f.turnover * 100, 0) + "%"
+           + (f.meanContent === undefined ? ""
+              : ", keys inherited / generation " + fmt(f.meanContent * 100, 1) + "%")
+           + (f.meanStructural === undefined ? ""
+              : ", physical nodes inherited " + fmt(f.meanStructural * 100, 1) + "%"));
+  }
+  const isl = S.island;
+  if (isl) {
+    const last = (isl.timeline && isl.timeline.length)
+      ? isl.timeline[isl.timeline.length - 1] : null;
+    L.push("", "## The Island \u2014 equilibrium");
+    L.push("  capacity (island area) " + isl.capacity
+           + ", immigrations " + isl.immigrations + ", extinctions " + isl.extinctions
+           + ", turnover / interval "
+           + (!last || last.turnover === undefined ? "\u2014" : fmt(last.turnover, 1)));
+  }
+  return L.length > 3 ? L.join("\n") : "";
+}
+
 function render(S) {
   document.getElementById("main").innerHTML = "";
   renderStations(S);
+  /* the record goes at the foot of the stations it describes */
+  const rec = runRecord(S);
+  if (rec) {
+    const c = card("\ud83e\uddfe", "The run record",
+      "Every figure the stations above report, from the session they were drawn from \u2014 so a "
+      + "morning's run leaves with you rather than staying on this screen.", "record");
+    c.insertAdjacentHTML("beforeend",
+      '<pre class="export" id="rec-out" style="white-space:pre-wrap"></pre>'
+      + '<button class="wb-btn" id="rec-copy" type="button">Copy the run record</button>'
+      + '<p id="rec-said" role="status" aria-live="polite" class="whatis" style="margin:6px 0 0"></p>');
+    document.getElementById("rec-out").textContent = rec;
+    document.getElementById("rec-copy").addEventListener("click", function () {
+      const said = document.getElementById("rec-said");
+      const ok = () => { said.textContent = "Copied " + rec.split("\n").length + " line(s)."; };
+      const legacy = () => {
+        const t = document.createElement("textarea");
+        t.value = rec; t.style.position = "fixed"; t.style.opacity = "0";
+        document.body.appendChild(t); t.select();
+        let done = false;
+        try { done = document.execCommand("copy"); } catch (e) { }
+        document.body.removeChild(t);
+        if (done) ok(); else said.textContent = "This browser refused the copy \u2014 select the box above.";
+      };
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(rec).then(ok, legacy);
+      } else legacy();
+    });
+  }
   if (!document.getElementById("main").children.length) {
     document.getElementById("main").innerHTML =
       '<section class="card"><h2>🤔 Nothing to chart in that session</h2>' +

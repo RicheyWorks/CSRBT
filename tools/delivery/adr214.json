@@ -1,0 +1,33 @@
+{
+ "id": "adr214",
+ "chain": "adr213",
+ "chain_probe": "docs/ADR-213-a-protocol-that-carried-no-answers-2026-09-16.md",
+ "subject": "ADR-214: nine stations charted a morning's run and let you carry away none of it",
+ "body": "ADR-213 took the ecology lab from 32 figures that reach no file to 19 and named what was left: the nine stations, rendered from a session JSON by nine independent renderers, whose readings belong to a RUN rather than to a pre-registration. A reader could see that a run's meadow came back at J' 0.52 with 11 effective species and a Chao1 of 103.5 and had exactly one way to carry it anywhere -- retype it off the screen. The obvious objection is that the reader already has the session JSON, and it is the same argument ADR-213 refused for the workbench: HAVING THE INPUTS IS NOT HAVING THE ANSWERS. runRecord(S) takes the same field each tile takes and formats it the same way, and does not touch the DOM -- that is the whole difference between a record and a transcript, because a record scraped out of the page would agree with the page by construction, could never catch it being wrong, and the check holding the two together would be a check on nothing. Built from S they can disagree, and verify_eco reads the figures off the TILES and requires each of them in the record. A page with no session carries no record card rather than a header over nothing, and the lab's own task presses the button and holds the bytes so it is not one more export nothing reads (ADR-153). Six Terrarium readings are declared right to stay on the screen: the two live demonstrations redraw on every drag, so the figure is a picture of a parameter you are moving rather than a record of anything that happened. 132 of 317 at ADR-211, 19 at ADR-213, 0 now.",
+ "paths": [
+  "docs/ADR-214-the-stations-kept-the-run-to-themselves-2026-09-16.md",
+  "docs/AI_HARNESS.md",
+  "docs/CHANGELOG-2026-09-16-adr214-the-stations-kept-the-run-to-themselves.md",
+  "docs/ecology-lab.html",
+  "tools/badinput_ledger.json",
+  "tools/carried_ledger.json",
+  "tools/delivery/adr214.json",
+  "tools/destructive_ledger.json",
+  "tools/entry_ledger.json",
+  "tools/harness_board.html",
+  "tools/outputs_ledger.json",
+  "tools/published.json",
+  "tools/push/push-adr214.ps1",
+  "tools/readable_ledger.json",
+  "tools/restored_ledger.json",
+  "tools/takeaway_ledger.json",
+  "tools/task_ledger.json",
+  "tools/tasks/page-ecology-lab-science.json",
+  "tools/verify/counts.json",
+  "tools/verify/verify_eco.py"
+ ],
+ "clean": [
+  "adr213"
+ ],
+ "once": true
+}
