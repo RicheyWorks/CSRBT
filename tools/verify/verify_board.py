@@ -108,6 +108,62 @@ ck(all(k in page for k in T if not k.endswith(("@trace", "@blind"))), "every tas
 ck("blind trace" in page and "never seen the task" in page,
    "and the board says which column is the blind one, and what blind means")
 
+# ---- 6. the verdict is the gates, and every tile says which it is (ADR-215) ----
+# The verdict was a hand-written conjunction over seven summary fields while the
+# page rendered eleven tiles, six of which do not gate it -- including a
+# "6 / 7 clean under load" sitting beside "Everything the harness knows how to
+# check is green." A reader with those two on one screen has to distrust one of
+# them, and the page said nothing about which.
+_GATES = re.search(r"The verdict is these (\d+) and nothing else: (.*?)\. Every other", page)
+ck(_GATES is not None, "THE PAGE SAYS WHAT ITS VERDICT IS COMPUTED FROM, in the header, beside "
+                       "the verdict")
+if _GATES:
+    _named = [g.strip() for g in _GATES.group(2).split(";")]
+    ck(len(_named) == int(_GATES.group(1)) == 7,
+       "...all of them, counted: %s" % _named)
+    ck(all("NOT MET" not in g for g in _named) == ("verdict good" in page),
+       "THE BANNER IS THE CONJUNCTION OF THOSE GATES AND NOTHING ELSE -- a gate that is not met "
+       "and a green banner on the same page is the board lying about the thing it exists to "
+       "report: %s" % [g for g in _named if "NOT MET" in g])
+    ck(any("walk" in g for g in _named) and any("trace" in g for g in _named),
+       "...INCLUDING THE TWO GATES THAT HAVE NO TILE. The honest shape is not 'every tile gates' "
+       "-- the walks and the traces gate and are not tiles, so the list is named rather than "
+       "inferred from what happens to be displayed: %s" % _named)
+
+_tiles = re.findall(r'<div class="what">(.*?)</div>', page)
+_kinds = re.findall(r'<p class="kind (gate|reading)">(.*?)</p>', page)
+ck(len(_tiles) == len(_kinds) and len(_tiles) == 11,
+   "EVERY TILE DECLARES WHICH IT IS: %d tile(s), %d declaration(s)" % (len(_tiles), len(_kinds)))
+ck(all(k == "gate" or v.startswith("a reading, not a gate") and len(v) > 40 for k, v in _kinds),
+   "...and a tile that does NOT gate says in one line what kind of number it is instead, rather "
+   "than leaving the reader to guess why a ratio below 1 sits under a green banner: %s"
+   % [v for k, v in _kinds if k != "gate" and not v.startswith("a reading, not a gate")])
+_load = [v for (k, v), w in zip(_kinds, _tiles) if w == "clean under load"]
+ck(_load and _load[0].startswith("a reading, not a gate") and "flake" in _load[0],
+   "...and the tile that started this says so: %s" % _load)
+
+# AND IT FIRES. A rule with no violator cannot show that it works (ADR-207), and
+# this one is asserted against a board that is green: every check above would
+# pass on a page whose banner was hard-coded. So a gate is broken on a copy of
+# the ledgers and the page is re-rendered.
+import copy as _copy
+_broke = _copy.deepcopy(L)
+_first = sorted(_broke["counts"]["suites"])[0]
+_broke["counts"]["suites"][_first]["n"] = max(0, _broke["counts"]["suites"][_first].get("of", 1) - 1)
+_bad = B.render(_broke)
+ck("verdict bad" in _bad and "every suite check passes \u2014 NOT MET" in _bad,
+   "A GATE THAT IS NOT MET TURNS THE BANNER RED AND IS NAMED ON THE PAGE -- checked by breaking "
+   "one on a copy of the ledgers, because every check above this one would pass on a board whose "
+   "banner was hard-coded green")
+ck("every task is held \u2014 NOT MET" not in _bad,
+   "...and only the gate that broke is named, so the sentence is a diagnosis rather than an alarm")
+
+_src = io.open(os.path.join(_kit.TOOLS_DIR, "harness_board.py"), encoding="utf-8").read()
+ck("all_green = all(ok for _n, ok, _t in GATES)" in _src,
+   "THE VERDICT IS DERIVED FROM THE NAMED LIST, not restated beside it -- a gate added to the "
+   "list appears on the page the same day, where the old conjunction could be extended without "
+   "the page ever mentioning it")
+
 print("---")
 print("%d/%d" % (P, P + F))
 raise SystemExit(1 if F else 0)

@@ -200,9 +200,31 @@ def render(L):
     T = L["tasks"]["tasks"]
     M = L["mutants"]["runners"]
     E = L["ecosystem"]["engines"]
-    all_green = (S["of"] == S["checks"] and not S["bad_walks"] and S["tasks_held"] == S["tasks"] and
-                 S["traces_held"] == S["traces"] and S["survived"] == 0 and S["inconclusive"] == 0 and
-                 S["engine_failures"] == 0)
+    # WHAT THE VERDICT IS COMPUTED FROM, WRITTEN DOWN AND SHOWN (ADR-215).
+    #
+    # This was a hand-written conjunction over seven summary fields, and the
+    # board rendered eleven tiles. Six of the eleven do not gate the verdict --
+    # including "6 / 7 clean under load", which reads exactly like a failing
+    # ratio and sat beside "Everything the harness knows how to check is green."
+    # A reader with those two on one screen has to distrust one of them, and
+    # nothing on the page said which.
+    #
+    # Two of the gates have no tile at all (the walks and the traces), so the
+    # honest shape is not "every tile gates" -- it is the list, named, rendered,
+    # and the verdict DERIVED from it rather than restated beside it. A gate
+    # added here appears on the page the same day; the old conjunction could be
+    # extended without the page ever mentioning it.
+    GATES = [
+        ("every suite check passes", S["of"] == S["checks"], "suite checks passing"),
+        ("every walk of every target holds", not S["bad_walks"], None),
+        ("every task is held", S["tasks_held"] == S["tasks"], "tasks held"),
+        ("every trace is held", S["traces_held"] == S["traces"], None),
+        ("no mutant survived", S["survived"] == 0, "mutants killed"),
+        ("no mutant was inconclusive", S["inconclusive"] == 0, "mutants killed"),
+        ("no engine suite failed", S["engine_failures"] == 0, "engine tests"),
+    ]
+    all_green = all(ok for _n, ok, _t in GATES)
+    GATED = set(t for _n, _ok, t in GATES if t)
 
     o = []
     o.append('<title>Harness Board</title>')
@@ -229,10 +251,16 @@ def render(L):
              'the suites, the robot\'s walks of every target and every page, the tasks and the traces graded against them, '
              'the mutant runners, and the fourteen engines\' own suites. A number here that disagrees with a ledger '
              'fails <span class="mono">verify_board</span>.</p>'
-             '<div class="verdict %s">%s</div></header>'
+             '<div class="verdict %s">%s</div>'
+             '<p class="gates">The verdict is these %d and nothing else: %s. '
+             'Every other number below is a READING -- a measurement with a ratchet or a worklist '
+             'behind it, which moves on its own schedule and does not decide whether this page is '
+             'green.</p></header>'
              % ("good" if all_green else "bad",
                 "Everything the harness knows how to check is green." if all_green else
-                "Something is not green — read down."))
+                "Something is not green — read down.",
+                len(GATES),
+                "; ".join("%s%s" % (n, "" if ok else " \u2014 NOT MET") for n, ok, _t in GATES)))
 
     # summary strip
     o.append('<section><div class="stats">')
@@ -264,9 +292,36 @@ def render(L):
          % (S["survived"], S["inconclusive"], S["equivalent"])),
         ("%d" % S["engine_tests"], "engine tests", "%d suites, %d failures" % (S["engines"], S["engine_failures"])),
     ]
+    # ADR-215: EVERY TILE SAYS WHICH IT IS. A tile whose label is named by a gate
+    # above carries the verdict; every other tile says, in one line, what kind of
+    # number it is instead -- because a ratio that reads like a score beside a
+    # green banner makes a reader distrust one of the two, and until now the page
+    # gave them nothing to decide with. The reasons live here, beside the tiles,
+    # rather than in a comment nobody renders.
+    WHY = {
+        "commands walked": "a count of what the robot drove; the walks' own verdicts gate, and "
+                           "they are in the table below",
+        "values handed over": "a count of what the briefs give an operator, with a floor rather "
+                              "than a target",
+        "entered supervised": "a ratio with a REASON on the other side -- the rest declare a "
+                              "destructive rung, in writing",
+        "fields entered": "entry reach: a ratchet that only comes down, not a pass mark",
+        "figures readable": "a ratchet that only comes down, not a pass mark",
+        "files delivered": "a running total; audit_delivery is the gate, and it runs in run_all",
+        "clean under load": "readings taken under contention, kept because a flake that only "
+                            "shows under load is worth a record; a failed run out of fifty-two is "
+                            "a known flake with a ratchet, not a red suite",
+        "engine tests": "a count; the failures beside it are what gate, and they are zero",
+    }
     for big, what, note in tiles:
-        o.append('<div class="stat"><div class="big">%s</div><div class="what">%s</div><p>%s</p></div>'
-                 % (esc(big), esc(what), esc(note)))
+        gate = what in GATED
+        assert gate or what in WHY, "a tile must gate the verdict or say what it is instead: " + what
+        o.append('<div class="stat"><div class="big">%s</div><div class="what">%s</div><p>%s</p>'
+                 '<p class="kind %s">%s</p></div>'
+                 % (esc(big), esc(what), esc(note),
+                    "gate" if gate else "reading",
+                    esc("counts toward the verdict" if gate else "a reading, not a gate \u2014 "
+                        + WHY[what])))
     o.append('</div></section>')
 
     # suites
@@ -410,6 +465,11 @@ STYLE = """<style>
   .mono, td.num, .pname, .pnum, .ename, .floor { font-family: "IBM Plex Mono", ui-monospace, monospace; }
   .eyebrow { font-family: "IBM Plex Mono", monospace; font-size: 0.72rem; letter-spacing: 0.14em; text-transform: uppercase; color: var(--ember); font-weight: 600; }
   .hero .lede { font-size: 1.02rem; max-width: 66ch; color: var(--muted); margin: 12px 0 0; }
+  .gates { font-size: 0.86rem; color: var(--muted); max-width: 80ch; margin: 10px 0 0; }
+  .kind { font-family: "IBM Plex Mono", monospace; font-size: 0.64rem; letter-spacing: 0.05em;
+          text-transform: uppercase; margin: 8px 0 0; }
+  .kind.gate { color: var(--good); }
+  .kind.reading { color: var(--na); text-transform: none; letter-spacing: 0; font-size: 0.7rem; }
   .verdict { display: inline-block; margin-top: 16px; font-family: "Bricolage Grotesque", sans-serif; font-weight: 600; padding: 6px 12px; border-radius: 3px; border: 1px solid; }
   .verdict.good { color: var(--good); border-color: var(--good); background: var(--good-soft); }
   .verdict.bad { color: var(--bad); border-color: var(--bad); background: var(--bad-soft); }
