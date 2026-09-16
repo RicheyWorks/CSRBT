@@ -1078,7 +1078,8 @@ var KEEP = (function(){
   }
 
   /* ── copy, with fallback for contexts without the async clipboard ── */
-  function copyText(text, label) {
+  function copyText(text, label, msg) {
+    function said() { return msg || (label + " copied"); }
     function fallback() {
       var ta = document.createElement("textarea");
       ta.value = text; ta.setAttribute("readonly", "");
@@ -1086,10 +1087,10 @@ var KEEP = (function(){
       document.body.appendChild(ta); ta.select();
       var ok = false; try { ok = document.execCommand("copy"); } catch (e) {}
       document.body.removeChild(ta);
-      toast(ok ? label + " copied" : "Copy failed — select the text by hand");
+      toast(ok ? said() : "Copy failed — select the text by hand");
     }
     if (navigator.clipboard && navigator.clipboard.writeText) {
-      navigator.clipboard.writeText(text).then(function () { toast(label + " copied"); }, fallback);
+      navigator.clipboard.writeText(text).then(function () { toast(said()); }, fallback);
     } else { fallback(); }
   }
 
@@ -1718,7 +1719,15 @@ var KEEP = (function(){
     a.download = slug($("e-name").value) + ".eco";
     document.body.appendChild(a); a.click(); document.body.removeChild(a);
     setTimeout(function () { URL.revokeObjectURL(a.href); }, 4000);
-    toast("Downloading " + a.download);
+    /* ADR-212: a sandboxed frame refuses a page-started download silently -- no
+       throw, no return value, nothing to test -- and this kit is read as
+       published artifacts, so "Downloading x.eco" was a sentence no reader of
+       the published guide could rely on. The download is still attempted; the
+       protocol also goes on the clipboard, which reports failure, and the
+       message says which of the two is certain. */
+    copyText(buildEco(), "Protocol",
+             a.download + " copied \u2014 some viewers block a page-started "
+             + "download, so the copy is your protocol");
   });
   $("eng-copy").addEventListener("click", function () { copyText(buildPrereg(), "Pre-registration"); });
   $("eng-skel").addEventListener("click", function () { copyText(buildSkeleton(), "Skeleton"); });

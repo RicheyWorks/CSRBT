@@ -2,7 +2,7 @@
  "id": "page-experiment-guide-design",
  "target": "page",
  "page": "experiment-guide.html",
- "goal": "On the experiment guide's designer: measured phases 12.34 + 5.6 ms over a 2 ms floor total 17.9 ms at 9x the floor and 100 + 48.6 over 12 ms 148.6 ms at 12x, the pre-registration table says the same, a verdict without a rule is refused and with one it fires; on the ecology track a named study with one uniform phase and one hypothesis emits exactly the .eco text and lints clean with 6 directives, a logistic model with 3 of 4 parameters is refused and with 4 is emitted. A photograph dropped on the import card is refused by name and imports nothing. Then every output the guide hands over is read: the .eco copied and downloaded as clashing-study.eco is the protocol byte for byte (name, keys 200, seed 3, window 200, one uniform phase of 1000, the pondless graze dataset, the evenness hypothesis), the copied pre-registration carries the two measured rows (17.9 ms at 9x, 148.6 ms at 12x) and the fired verdict, the copied JUnit skeleton carries seed 7, sizes 20000 and 60000 and 5 timed passes, and the checklist's print button prints.",
+ "goal": "On the experiment guide's designer: measured phases 12.34 + 5.6 ms over a 2 ms floor total 17.9 ms at 9x the floor and 100 + 48.6 over 12 ms 148.6 ms at 12x, the pre-registration table says the same, a verdict without a rule is refused and with one it fires; on the ecology track a named study with one uniform phase and one hypothesis emits exactly the .eco text and lints clean with 6 directives, a logistic model with 3 of 4 parameters is refused and with 4 is emitted. A photograph dropped on the import card is refused by name and imports nothing. Then every output the guide hands over is read: the .eco copied and downloaded as clashing-study.eco is the protocol byte for byte (name, keys 200, seed 3, window 200, one uniform phase of 1000, the pondless graze dataset, the evenness hypothesis), the copied pre-registration carries the two measured rows (17.9 ms at 9x, 148.6 ms at 12x) and the fired verdict, the copied JUnit skeleton carries seed 7, sizes 20000 and 60000 and 5 timed passes, and the checklist's print button prints. Download .eco now hands the protocol over TWICE, by download and by clipboard, the same bytes on both: a published page is a sandboxed frame that refuses a page-started download silently, so the copy is the channel that can report failure.",
  "policy": {
   "allow": [
    "SENSITIVE_READ",
@@ -1939,7 +1939,9 @@
     "output.payloads.0.k": "download",
     "output.payloads.0.name": "clashing-study.eco",
     "output.payloads.0.text": "# clashing study — written before the run, graded after.\n# Run me:  ./gradlew ecologyExperiment -Pspec=clashing-study.eco\n\nname: clashing study\nkeys: 200\nseed: 3\nwindow: 200\n\nphase: graze uniform 1000\n\ndata: graze cattail=18 duckweed=44\n\nexpect: evenness(graze) > 0.8\n",
-    "output.payloads.1": {
+    "output.payloads.1.k": "clipboard",
+    "output.payloads.1.text": "# clashing study — written before the run, graded after.\n# Run me:  ./gradlew ecologyExperiment -Pspec=clashing-study.eco\n\nname: clashing study\nkeys: 200\nseed: 3\nwindow: 200\n\nphase: graze uniform 1000\n\ndata: graze cattail=18 duckweed=44\n\nexpect: evenness(graze) > 0.8\n",
+    "output.payloads.2": {
      "op": "exists",
      "value": false
     }
