@@ -1,0 +1,199 @@
+{
+ "_comment": "Written by tools/audit_carried.py. Per page: how many of the figures it computes appear in something it hands over, which ones do not, and the ceiling that count may not rise above (ADR-211).",
+ "pages": {
+  "breeding-bench.html": {
+   "at": 1789528664,
+   "ceiling": 0,
+   "exports": 2,
+   "figures": 19,
+   "lost": []
+  },
+  "cell-bench.html": {
+   "at": 1789528664,
+   "ceiling": 0,
+   "exports": 4,
+   "figures": 29,
+   "lost": []
+  },
+  "collection-sheet.html": {
+   "at": 1789528664,
+   "ceiling": 0,
+   "exports": 7,
+   "figures": 10,
+   "lost": []
+  },
+  "cp-bench.html": {
+   "at": 1789528664,
+   "ceiling": 0,
+   "exports": 4,
+   "figures": 20,
+   "lost": []
+  },
+  "deployment-log.html": {
+   "at": 1789528664,
+   "ceiling": 0,
+   "exports": 3,
+   "figures": 22,
+   "lost": []
+  },
+  "eco-protocol-library.html": {
+   "at": 1789528664,
+   "ceiling": 0,
+   "exports": 1,
+   "figures": 0,
+   "lost": []
+  },
+  "ecology-lab.html": {
+   "at": 1789528664,
+   "ceiling": 32,
+   "exports": 3,
+   "figures": 47,
+   "lost": [
+    "95% CI",
+    "Bray–Curtis",
+    "Chao1 est. richness #2",
+    "Chapman N̂",
+    "Jaccard",
+    "J′ — hot-patch grazing",
+    "Levins predicted occupancy",
+    "Lincoln–Petersen N̂",
+    "Morisita",
+    "Shannon H′",
+    "Sørensen",
+    "avg turnover per generation",
+    "capacity (island area)",
+    "carrying capacity K",
+    "completed lives",
+    "effective species",
+    "effective species #2",
+    "effective species #4",
+    "evenness J′",
+    "evenness J′ #2",
+    "extinctions",
+    "growth rate r (per op)",
+    "immigrations",
+    "immigrations #2",
+    "keys inherited / generation",
+    "mean age at death",
+    "mean residence",
+    "p",
+    "physical nodes inherited",
+    "q",
+    "residents / capacity",
+    "variance/mean"
+   ]
+  },
+  "ethogram.html": {
+   "at": 1789528664,
+   "ceiling": 0,
+   "exports": 5,
+   "figures": 9,
+   "lost": []
+  },
+  "experiment-guide.html": {
+   "at": 1789528664,
+   "ceiling": 0,
+   "exports": 7,
+   "figures": 0,
+   "lost": []
+  },
+  "farm-scout.html": {
+   "at": 1789528664,
+   "ceiling": 0,
+   "exports": 3,
+   "figures": 10,
+   "lost": []
+  },
+  "field-notebook.html": {
+   "at": 1789528664,
+   "ceiling": 0,
+   "exports": 3,
+   "figures": 18,
+   "lost": []
+  },
+  "food-web.html": {
+   "at": 1789528664,
+   "ceiling": 0,
+   "exports": 3,
+   "figures": 5,
+   "lost": []
+  },
+  "greenhouse.html": {
+   "at": 1789528664,
+   "ceiling": 0,
+   "exports": 5,
+   "figures": 16,
+   "lost": []
+  },
+  "micro-bench.html": {
+   "at": 1789528664,
+   "ceiling": 0,
+   "exports": 5,
+   "figures": 12,
+   "lost": []
+  },
+  "ordination.html": {
+   "at": 1789528664,
+   "ceiling": 0,
+   "exports": 3,
+   "figures": 11,
+   "lost": []
+  },
+  "pheno-tracker.html": {
+   "at": 1789528664,
+   "ceiling": 0,
+   "exports": 3,
+   "figures": 8,
+   "lost": []
+  },
+  "releve.html": {
+   "at": 1789528664,
+   "ceiling": 0,
+   "declared": {
+    "families": "families in the loaded pack, not in the plot; the plot's own family count is the anStats tile next to it and that one is carried",
+    "taxa in pack": "a property of the reference flora pack the reader loaded, not of the plot they recorded -- the pack travels as its own file through 'Export pack', and repeating its size in a releve sheet would say something about the app rather than about the site"
+   },
+   "exports": 7,
+   "figures": 22,
+   "lost": []
+  },
+  "selection-log.html": {
+   "at": 1789528664,
+   "ceiling": 0,
+   "exports": 3,
+   "figures": 9,
+   "lost": []
+  },
+  "soil-bench.html": {
+   "at": 1789528664,
+   "ceiling": 0,
+   "exports": 2,
+   "figures": 14,
+   "lost": []
+  },
+  "soil-recipes.html": {
+   "at": 1789528664,
+   "ceiling": 0,
+   "exports": 2,
+   "figures": 0,
+   "lost": []
+  },
+  "stand-sheet.html": {
+   "at": 1789528664,
+   "ceiling": 0,
+   "declared": {
+    "known interactions": "a count of the interaction records in the loaded species pack, not of anything measured in this stand; the pack is exported as itself and the stand sheet carries the interactions actually recorded on the plot"
+   },
+   "exports": 7,
+   "figures": 22,
+   "lost": []
+  },
+  "survey-design.html": {
+   "at": 1789528664,
+   "ceiling": 0,
+   "exports": 6,
+   "figures": 14,
+   "lost": []
+  }
+ }
+}

@@ -185,7 +185,7 @@
    "action": "collect-output",
    "expect": {
     "output.payloads.0.k": "clipboard",
-    "output.payloads.0.text": "# Food Web Builder export — 10 species, 12 links\nnote: connectance 0.120 — longest chain 5 levels\nnote: grasshopper eats grass\nnote: aphid eats clover\nnote: bee eats wildflowers\nnote: aphid eats wildflowers\nnote: ladybird eats aphid\nnote: spider eats aphid\nnote: spider eats grasshopper\nnote: spider eats bee\nnote: shrew eats ladybird\nnote: shrew eats spider\nnote: shrew eats grasshopper\nnote: kestrel eats shrew",
+    "output.payloads.0.text": "# Food Web Builder export — 10 species, 12 links\nnote: connectance 0.120 — longest chain 5 levels — 3 producers of 10 species\nnote: grasshopper eats grass\nnote: aphid eats clover\nnote: bee eats wildflowers\nnote: aphid eats wildflowers\nnote: ladybird eats aphid\nnote: spider eats aphid\nnote: spider eats grasshopper\nnote: spider eats bee\nnote: shrew eats ladybird\nnote: shrew eats spider\nnote: shrew eats grasshopper\nnote: kestrel eats shrew",
     "output.payloads.1": {
      "op": "exists",
      "value": false

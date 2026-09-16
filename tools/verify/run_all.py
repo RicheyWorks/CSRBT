@@ -34,6 +34,8 @@ AUDITS = [
     ("audit_outputs",  "what each page hands over, and whether its own task reads it"),
     ("audit_destructive", "what one tap can destroy, and whether the page asks first"),
     ("audit_restored", "what a page said before the tab closed, and what it says coming back"),
+    ("audit_carried",  "what a page works out that nothing it hands over carries"),
+    ("audit_takeaway", "controls whose only channel a published page refuses, and what they say"),
     ("audit_delivery", "files that are on disk and in no commit"),
 ]
 # A finder, not a gate: it reports a worklist and always exits zero, so running

@@ -477,6 +477,142 @@
    ],
    "survived": 0
   },
+  "mutate_carried": {
+   "at": 1789514312,
+   "equivalent": 1,
+   "equivalents": [
+    {
+     "name": "each page is measured in its own browser context",
+     "why": "These pages keep their work in localStorage, and a shared context would carry one page's sheet into the next one's export -- the defect ADR-209 found next door, and the reason audit_restored does the same thing. No fixture here can show it, because the fixtures deliberately keep nothing: a fixture that autosaved would be testing KEEP rather than this rule. The separation stays because the kit's real pages do autosave, and a reading taken from a page holding the previous page's data is about neither page."
+    }
+   ],
+   "inconclusive": 0,
+   "killed": 24,
+   "mutants": 24,
+   "rows": [
+    {
+     "detail": "10 failure(s); first: A FIGURE IN NO PAYLOAD IS LOST -- and only that one, so th",
+     "name": "nothing is ever lost",
+     "verdict": "killed"
+    },
+    {
+     "detail": "13 failure(s); first: ...so a figure in scientific notation is carried by a file",
+     "name": "everything is lost, because nothing is ever found",
+     "verdict": "killed"
+    },
+    {
+     "detail": "2 failure(s); first: EVERY NUMBER IN THE FIGURE MUST BE FOUND -- half of a ratio",
+     "name": "only the FIRST number of a figure has to be found",
+     "verdict": "killed"
+    },
+    {
+     "detail": "6 failure(s); first: a superscript exponent is a number: [6.0, 10.0]",
+     "name": "a superscript exponent is left as it was written",
+     "verdict": "killed"
+    },
+    {
+     "detail": "6 failure(s); first: a superscript exponent is a number: [6.0, 105.0]",
+     "name": "`x10^n` is not rewritten as an exponent",
+     "verdict": "killed"
+    },
+    {
+     "detail": "1 failure(s); first: a typographic minus is a minus: [3.5]",
+     "name": "a typographic minus is left as it was written",
+     "verdict": "killed"
+    },
+    {
+     "detail": "2 failure(s); first: ...and a comma before four digits is not a separator either",
+     "name": "every comma after a digit is a thousands separator",
+     "verdict": "killed"
+    },
+    {
+     "detail": "12 failure(s); first: the precision read is the PAGE's -- the size of the last d",
+     "name": "the precision read is nobody's, so every figure is matched to the unit",
+     "verdict": "killed"
+    },
+    {
+     "detail": "1 failure(s); first: A TOKEN IN A PAGE IS NOT ALWAYS A QUANTITY. Half of a hex c",
+     "name": "a token no float can hold is taken as a figure, and the page is reported broken",
+     "verdict": "killed"
+    },
+    {
+     "detail": "3 failure(s); first: A TOKEN IN A PAGE IS NOT ALWAYS A QUANTITY. Half of a hex c",
+     "name": "the exponent is not read, so a figure in scientific notation is matched to its mantissa",
+     "verdict": "killed"
+    },
+    {
+     "detail": "12 failure(s); first: the precision read is the PAGE's -- the size of the last d",
+     "name": "the decimals are not read, so every figure is matched to the unit it is scaled by",
+     "verdict": "killed"
+    },
+    {
+     "detail": "4 failure(s); first: ...so a figure in scientific notation is carried by a file ",
+     "name": "the match is exact, so an export carrying more detail loses the figure",
+     "verdict": "killed"
+    },
+    {
+     "detail": "10 failure(s); first: THE FIGURES ARE THE ONES THE PAGE PUBLISHES, read from rea",
+     "name": "a figure with no number in it is counted as lost",
+     "verdict": "killed"
+    },
+    {
+     "detail": "8 failure(s); first: A PAGE THAT EXPORTS WHAT IT WORKS OUT LOSES NOTHING: ['cell",
+     "name": "the payload is never parsed, so no figure is ever in it",
+     "verdict": "killed"
+    },
+    {
+     "detail": "7 failure(s); first: THE FIGURES ARE THE ONES THE PAGE PUBLISHES, read from read",
+     "name": "the page is never entered, so the export is pressed on an empty sheet",
+     "verdict": "killed"
+    },
+    {
+     "detail": "14 failure(s); first: THE FIGURES ARE THE ONES THE PAGE PUBLISHES, read from rea",
+     "name": "which controls hand something over is decided here, by the label alone",
+     "verdict": "killed"
+    },
+    {
+     "detail": "1 failure(s); first: ...AND A PAGE THAT HANDS NOTHING OVER GETS NO ROW AND NO CE",
+     "name": "a page that hands nothing over is reported as losing everything",
+     "verdict": "killed"
+    },
+    {
+     "detail": "1 failure(s); first: a declared figure leaves the worklist: ['mean value']",
+     "name": "a declaration does not exempt the figure",
+     "verdict": "killed"
+    },
+    {
+     "detail": "1 failure(s); first: declaring a figure right to stay WITHOUT a reason is refuse",
+     "name": "declaring a figure right to stay needs no reason at all",
+     "verdict": "killed"
+    },
+    {
+     "detail": "1 failure(s); first: ...and with one, THE REASON IS WHAT IS STORED, word for wor",
+     "name": "a declaration keeps no reason, so the ledger says what but never why",
+     "verdict": "killed"
+    },
+    {
+     "detail": "2 failure(s); first: --raise-floors LOWERS the ceiling, because this ratchet onl",
+     "name": "the ratchet runs upward, so a page that stopped exporting records it as normal",
+     "verdict": "killed"
+    },
+    {
+     "detail": "4 failure(s); first: A PAGE THAT EXPORTS LESS THAN IT DID FAILS, with no flag --",
+     "name": "a reading above the ceiling is not a failure",
+     "verdict": "killed"
+    },
+    {
+     "detail": "3 failure(s); first: A PAGE THAT EXPORTS LESS THAN IT DID FAILS, with no flag --",
+     "name": "the failure is reported and the exit code is not",
+     "verdict": "killed"
+    },
+    {
+     "detail": "1 failure(s); first: ...and it NAMES the page and the figure that stopped leavin",
+     "name": "the failure names no page and no figure",
+     "verdict": "killed"
+    }
+   ],
+   "survived": 0
+  },
   "mutate_ci": {
    "at": 1789385752,
    "equivalent": 0,
@@ -3954,6 +4090,112 @@
     {
      "detail": "1 failure(s); first: THE PAGES THIS AUDIT WALKS ARE THE EMITTER'S LIST, not a se",
      "name": "the pages walked are a list kept here rather than the emitter's",
+     "verdict": "killed"
+    }
+   ],
+   "survived": 0
+  },
+  "mutate_takeaway": {
+   "at": 1789526852,
+   "equivalent": 0,
+   "equivalents": [],
+   "inconclusive": 0,
+   "killed": 19,
+   "mutants": 19,
+   "rows": [
+    {
+     "detail": "9 failure(s); first: A DOWNLOAD IS NOT A PUBLISHABLE CHANNEL and clipboard, copy",
+     "name": "a download counts as a channel that survives publication",
+     "verdict": "killed"
+    },
+    {
+     "detail": "5 failure(s); first: A DOWNLOAD IS NOT A PUBLISHABLE CHANNEL and clipboard, copy",
+     "name": "the clipboard does not count, so every copy button is stranded too",
+     "verdict": "killed"
+    },
+    {
+     "detail": "2 failure(s); first: A DOWNLOAD IS NOT A PUBLISHABLE CHANNEL and clipboard, copy",
+     "name": "print does not count",
+     "verdict": "killed"
+    },
+    {
+     "detail": "8 failure(s); first: A CONTROL WHOSE ONLY CHANNEL IS A DOWNLOAD IS STRANDED -- a",
+     "name": "nothing is stranded",
+     "verdict": "killed"
+    },
+    {
+     "detail": "5 failure(s); first: the worklist is the stranded controls and nothing else: ['h",
+     "name": "a control that hands nothing over at all is stranded",
+     "verdict": "killed"
+    },
+    {
+     "detail": "6 failure(s); first: A CLAIM IS AN ASSERTION THAT THE PAYLOAD LEFT: None",
+     "name": "nothing is ever a claim",
+     "verdict": "killed"
+    },
+    {
+     "detail": "2 failure(s); first: A MESSAGE THAT HEDGES IS NOT A CLAIM -- the same verb, and ",
+     "name": "a hedged message is a claim too",
+     "verdict": "killed"
+    },
+    {
+     "detail": "4 failure(s); first: A MESSAGE THAT HEDGES IS NOT A CLAIM -- the same verb, and ",
+     "name": "any message at all is a claim",
+     "verdict": "killed"
+    },
+    {
+     "detail": "1 failure(s); first: ...in any tense the pages use",
+     "name": "only the past tense is a claim, so 'Downloading x' is not one",
+     "verdict": "killed"
+    },
+    {
+     "detail": "1 failure(s); first: A CLAIM IS ONLY A CLAIM ON A CONTROL NOTHING REACHES THE RE",
+     "name": "a claim on a control that is not stranded is reported too",
+     "verdict": "killed"
+    },
+    {
+     "detail": "4 failure(s); first: WHAT THE PAGE SAID IS THIS PRESS'S: None",
+     "name": "what the act said is not read at all",
+     "verdict": "killed"
+    },
+    {
+     "detail": "2 failure(s); first: A CONTROL THAT HANDS NOTHING OVER AT ALL IS NOT STRANDED HE",
+     "name": "which controls hand something over is decided here, by the label alone",
+     "verdict": "killed"
+    },
+    {
+     "detail": "1 failure(s); first: a declared control leaves the worklist: ['hand']",
+     "name": "a declaration does not exempt the control",
+     "verdict": "killed"
+    },
+    {
+     "detail": "1 failure(s); first: declaring a stranded control expected WITHOUT a reason is r",
+     "name": "declaring a stranded control needs no reason at all",
+     "verdict": "killed"
+    },
+    {
+     "detail": "1 failure(s); first: ...and with one, THE REASON IS WHAT IS STORED, word for wor",
+     "name": "a declaration keeps no reason, so the ledger says what but never why",
+     "verdict": "killed"
+    },
+    {
+     "detail": "1 failure(s); first: --raise-floors LOWERS the ceiling, because this ratchet onl",
+     "name": "the ratchet runs upward",
+     "verdict": "killed"
+    },
+    {
+     "detail": "1 failure(s); first: A PAGE THAT STRANDS MORE THAN IT DID FAILS, and is named: [",
+     "name": "a reading above the ceiling is not a failure",
+     "verdict": "killed"
+    },
+    {
+     "detail": "1 failure(s); first: A PAGE THAT TELLS THE READER A PAYLOAD LEFT THAT CANNOT LEA",
+     "name": "a claim is reported and the exit code is not",
+     "verdict": "killed"
+    },
+    {
+     "detail": "1 failure(s); first: A PAGE THAT TELLS THE READER A PAYLOAD LEFT THAT CANNOT LEA",
+     "name": "the claim names no page, no control and no sentence",
      "verdict": "killed"
     }
    ],

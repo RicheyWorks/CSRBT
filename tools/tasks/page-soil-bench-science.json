@@ -2,7 +2,7 @@
  "id": "page-soil-bench-science",
  "target": "page",
  "page": "soil-bench.html",
- "goal": "On the soil bench: the demo windrow log has 14 of 15 required days at or above 55 C and 5 of 5 turnings while hot, peak 64, not there yet; a 34 C reading is a cooled pile, in-vessel needs only 3 days and is met, 72 C is one reading above 66; 100 L of fresh grass clippings (C:N 20, 2.4% N, 80% moisture, 250 kg/m3) is nitrogen-rich and 200 L of straw (80, 0.7%, 12%, 60) blends to C:N 42.9:1 by sum C over sum N, 37 kg wet, 16 kg dry, 58% moisture; peat + perlite is a nutrient-free mix and compost makes it 1.00/5; the texture key reads holds, ribbon, over 5 cm, smooth as SILTY CLAY and falls apart as SAND. Then the composting pane's last three untouched controls are driven -- the Celsius temperature-unit chip reselected, the squeeze-test moisture set to bone dry, and the turn chip toggled -- as pending inputs with no reading added, so the demo windrow verdict is unchanged and read once more. Copy recipe on that three-part mix puts exactly one clipboard text on the clipboard: Mix recipe, 3 parts total, then one line per component with its share, 1 part sphagnum peat (33%), 1 part perlite (33%), 1 part finished compost (33%), and the mix reads 1.00/5 afterwards. The temperature chart is read with it: 18 dots on one path, the 55 and 66 degree lines and five turning ticks, the first reading at 32, the peak at 64 on the fifth dot, the last at 49, every position the chart's own scale.",
+ "goal": "On the soil bench: the demo windrow log has 14 of 15 required days at or above 55 C and 5 of 5 turnings while hot, peak 64, not there yet; a 34 C reading is a cooled pile, in-vessel needs only 3 days and is met, 72 C is one reading above 66; 100 L of fresh grass clippings (C:N 20, 2.4% N, 80% moisture, 250 kg/m3) is nitrogen-rich and 200 L of straw (80, 0.7%, 12%, 60) blends to C:N 42.9:1 by sum C over sum N, 37 kg wet, 16 kg dry, 58% moisture; peat + perlite is a nutrient-free mix and compost makes it 1.00/5; the texture key reads holds, ribbon, over 5 cm, smooth as SILTY CLAY and falls apart as SAND. Then the composting pane's last three untouched controls are driven -- the Celsius temperature-unit chip reselected, the squeeze-test moisture set to bone dry, and the turn chip toggled -- as pending inputs with no reading added, so the demo windrow verdict is unchanged and read once more. Copy recipe on that three-part mix puts exactly one clipboard text on the clipboard: Mix recipe, 3 parts total, then one line per component with its share, 1 part sphagnum peat (33%), 1 part perlite (33%), 1 part finished compost (33%), and the mix reads 1.00/5 afterwards. The temperature chart is read with it: 18 dots on one path, the 55 and 66 degree lines and five turning ticks, the first reading at 32, the peak at 64 on the fifth dot, the last at 49, every position the chart's own scale. The bench sheet is copied too: one clipboard text carrying every figure this bench works out -- 18 readings, 14 of 15 days at or above 55 C, 5 of 5 turnings, peak 64, the eighteen temperatures in order, the blend at 42.9:1 over 300 L, 37 kg wet and 16 kg dry at 58% moisture, 33/67 green to brown, and the three-part mix at 3.3, 3.0, 3.0 and 1.00 of 5.",
  "policy": {
   "allow": [
    "SENSITIVE_READ",
@@ -74,10 +74,10 @@
      "op": "contains",
      "value": "more day"
     },
-    "output.by.cOut.days logged at \u226555 \u00b0C": "14 / 15",
+    "output.by.cOut.days logged at ≥55 °C": "14 / 15",
     "output.by.cOut.turnings while hot": "5 / 5",
     "output.by.cOut.readings": "18",
-    "output.by.cOut.peak": "64\u00b0"
+    "output.by.cOut.peak": "64°"
    }
   },
   {
@@ -107,7 +107,7 @@
    "expect": {
     "output.boxes.cOut": {
      "op": "contains",
-     "value": "The pile has cooled below 40 \u00b0C."
+     "value": "The pile has cooled below 40 °C."
     }
    }
   },
@@ -182,7 +182,7 @@
    "expect": {
     "output.boxes.cOut": {
      "op": "contains",
-     "value": "1 reading above 66 \u00b0C."
+     "value": "1 reading above 66 °C."
     }
    }
   },
@@ -382,7 +382,29 @@
    "action": "collect-output",
    "expect": {
     "output.payloads.0.k": "clipboard",
-    "output.payloads.0.text": "Mix recipe \u2014 3 parts total\n1 part sphagnum peat  (33%)\n1 part perlite  (33%)\n1 part finished compost  (33%)",
+    "output.payloads.0.text": "Mix recipe — 3 parts total\n1 part sphagnum peat  (33%)\n1 part perlite  (33%)\n1 part finished compost  (33%)",
+    "output.payloads.1": {
+     "op": "exists",
+     "value": false
+    }
+   }
+  },
+  {
+   "id": "g211-sheet-copy",
+   "action": "activate",
+   "arguments": {
+    "selector": "@control:cCopy"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "id": "g211-sheet",
+   "action": "collect-output",
+   "expect": {
+    "output.payloads.0.k": "clipboard",
+    "output.payloads.0.text": "# Soil Bench sheet\n\n## Compost log — Windrow\n  readings                 18\n  days logged at >=55 C    14 / 15\n  turnings while hot       5 / 5\n  peak                     64 deg\n  temperatures (in order)  32 48 58 62 64 61 59 57 56 58 57 56 55 56 57 55 54 49\n\n## Blend\n  blended C:N              42.9:1\n  total volume             300 L\n  wet mass                 37 kg\n  dry mass                 16 kg\n  moisture as built        58%\n  green : brown by volume  33 / 67\n\n## Mix — 3 parts total\n  1 part sphagnum peat  (33%)\n  1 part perlite  (33%)\n  1 part finished compost  (33%)\n  water holding            3.3 / 5\n  aeration                 3.0 / 5\n  cation exchange          3.0 / 5\n  nutrient                 1.00 / 5",
     "output.payloads.1": {
      "op": "exists",
      "value": false
@@ -414,7 +436,7 @@
    "id": "q1",
    "action": "activate",
    "arguments": {
-    "selector": "@control:tBox/Yes \u2014 it holds"
+    "selector": "@control:tBox/Yes — it holds"
    },
    "expect": {
     "ok": true
@@ -478,7 +500,7 @@
    "id": "q1b",
    "action": "activate",
    "arguments": {
-    "selector": "@control:tBox/No \u2014 it falls apart"
+    "selector": "@control:tBox/No — it falls apart"
    },
    "expect": {
     "ok": true
@@ -508,7 +530,7 @@
    "id": "g168-unit",
    "action": "activate",
    "arguments": {
-    "selector": "@control:cSetup/\u00b0C"
+    "selector": "@control:cSetup/°C"
    },
    "expect": {
     "ok": true
@@ -538,8 +560,8 @@
    "id": "g168-held",
    "action": "read-report",
    "expect": {
-    "output.by.cOut.days logged at \u226555 \u00b0C": "14 / 15",
-    "output.by.cOut.peak": "64\u00b0",
+    "output.by.cOut.days logged at ≥55 °C": "14 / 15",
+    "output.by.cOut.peak": "64°",
     "output.charts.cChart.marks": {
      "op": "==",
      "value": {
@@ -553,7 +575,7 @@
     "output.charts.cChart.texts.0": {
      "op": "==",
      "value": {
-      "t": "55 \u00b0C \u2014 the threshold",
+      "t": "55 °C — the threshold",
       "x": 48,
       "y": 68
      }
@@ -561,7 +583,7 @@
     "output.charts.cChart.texts.1": {
      "op": "==",
      "value": {
-      "t": "66 \u00b0C \u2014 conventional ceiling",
+      "t": "66 °C — conventional ceiling",
       "x": 48,
       "y": 26.2
      }

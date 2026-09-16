@@ -2384,10 +2384,31 @@ var OUT = (function(){
     return [
       "# "+(val("dsName")||"Survey")+" — how to read this deposit",
       "",
+      /* ADR-211: the readme says how many rows each table should have, so that a
+         deposit that arrives short of one is visible without the page that made
+         it. The counts were on the screen and in nothing this page hands over. */
       "Three tables in Darwin Core Event Core, joined on eventID:",
-      "  event.csv       the sampling hierarchy (eventID / parentEventID)",
-      "  humboldt.csv    Humboldt Extension for Ecological Inventories",
-      "  occurrence.csv  what was found, and what was searched for and not found",
+      "  event.csv       the sampling hierarchy (eventID / parentEventID) -- "
+        + eventRows().length + " rows",
+      "  humboldt.csv    Humboldt Extension for Ecological Inventories -- "
+        + humRows().length + " rows",
+      "  occurrence.csv  what was found, and what was searched for and not found -- "
+        + occRows().length + " rows",
+      "",
+      /* ADR-211: the two counters that say whether this deposit is clean --
+         duplicate event IDs, and absences the page refused to write -- go out
+         with it. Both read zero on a good deposit, and a zero that is never
+         written is indistinguishable from a check that was never run. */
+      (function(){
+        var _d={}, _dups=0;
+        events.forEach(function(e){ if(_d[e.id]) _dups++; _d[e.id]=1; });
+        var _occ=occRows();
+        var _abs=_occ.filter(function(r){ return r[3]==="absent"; }).length;
+        var _ref=taxa.filter(function(x){return x.state==="absent";}).length - _abs;
+        return "INTEGRITY:    "+_dups+" duplicate event ID"+(_dups===1?"":"s")
+             + ", "+_abs+" absence"+(_abs===1?"":"s")+" written"
+             + ", "+_ref+" refused";
+      })(),
       "",
       "TARGET SCOPE: "+(t||"NOT DECLARED"),
       val("scExcluded") ? "EXCLUDED:     "+pipes(val("scExcluded")).join(" | ") : "EXCLUDED:     nothing declared",

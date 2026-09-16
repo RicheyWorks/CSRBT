@@ -2505,6 +2505,48 @@ var PURPOSE_NOTE = {
       out.push(["roguing", i+1, r.n, ROGWHY[r.why] || r.why]); });
     out.push(["trial", "n", "entry", "block", "yield"]);
     plots.forEach(function(p,i){ out.push(["trial", i+1, p.e, p.b, p.y]); });
+    /* ADR-211: WHAT THE BENCH WORKED OUT, and not only what was typed into it.
+       The sheet carried the population, the roguing and the trial rows and none
+       of the ten figures this page derives from them: the selection response,
+       the two inbreeding rates, the isolation distance against its citation,
+       the published minimum, what is left standing, and the storage age. */
+    out.push(["derived", "quantity", "value", "unit", "basis"]);
+    try {
+      var _N = selN.get(), _K = selK.get(), _h2 = selH2.get(), _sd = selSD.get();
+      if (_N > 0 && _K > 0 && _K <= _N) {
+        var _p = _K / _N, _i = intensity(_p), _R = _i * _h2 * _sd, _dFs = 1 / (2 * _K);
+        out.push(["derived", "proportion kept", f(_p*100,1), "%", _K + " of " + _N]);
+        out.push(["derived", "intensity i", f(_i,3), "SD units", ""]);
+        out.push(["derived", "expected R per generation", f(_R,2), "trait units",
+                  "i x h2 x sdP, h2 = " + _h2 + ", sdP = " + _sd]);
+        out.push(["derived", "dF per generation (parents kept)", f(_dFs*100,2), "%",
+                  "Ne = " + _K]);
+      }
+    } catch (e) { }
+    try {
+      var _nm = nmCtl.get(), _nf = nfCtl.get();
+      if (_nm > 0 && _nf > 0) {
+        var _Ne = 4*_nm*_nf/(_nm+_nf), _dF = 1/(2*_Ne);
+        out.push(["derived", "Ne", f(_Ne,1), "", _nm + " pollen / " + _nf + " seed parents"]);
+        out.push(["derived", "dF per generation", f(_dF*100,2), "%", ""]);
+        out.push(["derived", "after 10 generations", f((1-Math.pow(1-_dF,10))*100,1), "%", ""]);
+      }
+    } catch (e) { }
+    try {
+      var _c = cropBy(isoCrop.get()), _d = isoDist.get();
+      if (_c) out.push(["derived", "your isolation distance", f(_d,0), "m",
+                        _c.iso ? (_c.isoNote + " cited (" + _c.isoSrc + ")") : "no cited distance"]);
+      var _mc = cropBy(cropCtl.get()), _m = _mc && minFor(_mc);
+      if (_m) out.push(["derived", "published minimum population", _m.n, "plants",
+                        _m.pref ? ("preferred " + _m.pref) : ""]);
+    } catch (e) { }
+    if (rogues.length) {
+      var _tot = rogues.reduce(function(a,r){ return a + r.n; }, 0);
+      out.push(["derived", "rogued in total", _tot, "plants", ""]);
+      try { out.push(["derived", "left standing", selN.get() - _tot, "plants", ""]); } catch (e) { }
+    }
+    try { out.push(["derived", "seasons stored", sYear.get(), "seasons",
+                    (cropBy(sCrop.get()) || {}).n || ""]); } catch (e) { }
     return out;
   }
   function csvCell(v){
@@ -2533,13 +2575,16 @@ var PURPOSE_NOTE = {
     a.href = URL.createObjectURL(new Blob([csv], {type:"text/csv"}));
     a.download = "breeding-bench.csv";
     document.body.appendChild(a); a.click(); document.body.removeChild(a);
-    /* THE DOWNLOAD IS NOT MARKED IN THE OUTBOX, and that is the honest reading
-       (ADR-208). A hosted viewer can refuse a page-started download silently --
-       no throw, no return value, nothing to test -- so a mark here would be the
-       exact ADR-203 defect one layer along: the ledger reporting a sheet as
-       gone from this device when the browser never let it leave. The copy
-       beside it reports truthfully, because a clipboard write says no. */
-    toast("bench.csv downloaded"); FEK.buzz();
+    /* ADR-212: A SANDBOXED FRAME REFUSES A PAGE-STARTED DOWNLOAD SILENTLY, and
+       this kit is read as published artifacts. The handler below already knew
+       that -- it is why the outbox is not marked here -- and then said
+       "bench.csv downloaded" anyway, which is the sentence the outbox
+       was spared from telling. The download is still attempted, because where
+       it works it is the better route; the bytes also go on the clipboard,
+       which is a channel that reports failure, and the message says which of
+       the two the reader can count on. */
+    copyText(csv, "bench.csv copied \u2014 some viewers block a page-started "
+                 + "download, so the copy is your sheet", "sheet");
   });
   benchOut();
   document.addEventListener("click", function(){ setTimeout(benchOut, 0); }, true);

@@ -2015,8 +2015,29 @@ var OUT = (function(){
     var lines=[];
     var e=etho.data(); if(e.length) lines.push("data: focal "+e.map(function(i){return i.name+"="+i.n;}).join(" "));
     var s=spec.data(); if(s.length) lines.push("data: site "+s.map(function(i){return i.name+"="+i.n;}).join(" "));
-    if(quads.length>1 && quads.some(function(q){return q>0;}))
+    /* ADR-211: the indices leave with the counts. This export carried the raw
+       tallies and none of the six figures the page works out from them, so a
+       reader pasting it into a protocol had the data and had to recompute the
+       analysis -- and would not know whether their answer matched the one the
+       observer read in the field. */
+    function _idx(label, d){
+      var c=d.filter(function(i){return i.n>0;}).map(function(i){return i.n;});
+      var N=c.reduce(function(a,b){return a+b;},0);
+      if(!N) return;
+      lines.push("# "+label+": "+N+" in "+c.length+" categories"
+        +", Shannon H' "+shannon(c).toFixed(2)
+        +", evenness J' "+evenness(c).toFixed(2)
+        +", effective "+hill1(c).toFixed(1));
+    }
+    _idx("focal", e); _idx("site", s);
+    if(quads.length>1 && quads.some(function(q){return q>0;})){
       lines.push("# quadrat counts (per frame): "+quads.join(" "));
+      var _tot=quads.reduce(function(a,b){return a+b;},0), _d=dispersion(quads);
+      lines.push("# dispersion: "+quads.length+" quadrats, "+_tot+" individuals"
+        +", mean "+_d.mean.toFixed(2)+" per quadrat"
+        +", variance / mean "+_d.vmr.toFixed(2)
+        +(_d.morisita!==null?(", Morisita "+_d.morisita.toFixed(2)):""));
+    }
     if(mr.M>0&&mr.C>0&&mr.R>0) lines.push("model: markrecapture "+mr.M+" "+mr.C+" "+mr.R);
     /* ADR-201: the frames go in with everything else, and a day that is only
        photographs is still a day -- so this counts toward `lines.length` and

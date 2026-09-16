@@ -3083,6 +3083,17 @@ var DWC = (function(){
     L.push("# "+cols.length+" collections   "+S.n+" fruit bodies   "+T.length+" taxa");
     L.push("# Chao1 "+C.est.toFixed(1)+" (F1="+C.f1+", F2="+C.f2+") — a lower bound, not a total");
     L.push("# Shannon H' "+S.h.toFixed(3)+(S.j?"   Pielou J' "+S.j.toFixed(3):""));
+    /* ADR-211: the effort figures leave with the sheet. Collections per 100 m2,
+       grams per m2 and collections per hour are what make two foragers'
+       sheets comparable at all, and they were on the screen and in neither
+       export -- a reader had the area and the minutes and had to divide. */
+    var _area=num("sArea"), _mins=num("sMin"), _mass=0;
+    cols.forEach(function(c){ _mass+=(c.mass||0); });
+    var _eff=[];
+    if(_area>0) _eff.push((cols.length/_area*100).toFixed(2)+" collections / 100 m2");
+    if(_area>0 && _mass>0) _eff.push((_mass/_area).toFixed(2)+" g fresh / m2");
+    if(_mins>0) _eff.push((cols.length/(_mins/60)).toFixed(1)+" collections / hour");
+    if(_eff.length) L.push("# effort: "+_eff.join("   "));
     L.push("# no edibility is recorded or implied anywhere in this file");
     /* ADR-201: the frames go out with the rest of the sheet, in the one shape
        the whole kit uses -- name, crc32, time, label, note -- so a reader who

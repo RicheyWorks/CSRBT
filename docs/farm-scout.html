@@ -2018,11 +2018,27 @@ var OUT = (function(){
     var tot=pts.reduce(function(a,b){return a+b;},0);
     if(tot){ lines.push("# pest scouting — "+($("scPest").value||"unnamed")+" — counts per stop:");
       lines.push("#   "+pts.join(" "));
+      /* ADR-211: the stop count and the total go with the per-stop counts, and
+         the pollinator indices go with the pollinator tallies. The export
+         carried the raw numbers and none of the seven figures this page works
+         out from them. */
+      lines.push("note: "+pts.length+" stops, "+tot+" pests counted");
       var d=disp(pts); if(d) lines.push("note: scouting avg "+d.mean.toFixed(1)+"/plant, spread "+d.vmr.toFixed(2)); }
     var live=(po||[]).filter(function(i){return i.n>0;});
-    if(live.length) lines.push("data: pollinators "+live.map(function(i){return i.name+"="+i.n;}).join(" "));
+    if(live.length){
+      lines.push("data: pollinators "+live.map(function(i){return i.name+"="+i.n;}).join(" "));
+      var _c=live.map(function(i){return i.n;});
+      var _N=_c.reduce(function(a,b){return a+b;},0);
+      lines.push("note: pollinators "+_N+" visits across "+live.length+" types"
+        +", effective "+Math.exp(shannon(_c)).toFixed(1)
+        +", evenness "+evenness(_c).toFixed(2));
+    }
     var sown=parseInt($("gSown").value,10)||0, up=parseInt($("gUp").value,10)||0;
-    if(sown) lines.push("note: germination test "+up+"/"+sown+" = "+Math.round(100*Math.min(up,sown)/sown)+"%");
+    if(sown){
+      lines.push("note: germination test "+up+"/"+sown+" = "+Math.round(100*Math.min(up,sown)/sown)+"%");
+      var _r=Math.min(up,sown)/sown, _want=parseInt($("gWant").value,10)||0;
+      if(_r>0&&_want>0) lines.push("note: sow "+Math.ceil(_want/_r)+" seeds for "+_want+" plants at that rate");
+    }
     (beds||[]).forEach(function(b){ if(b.plan) lines.push("note: "+b.name.toLowerCase()+" planned "+famLabel(b.plan)
       +((b.plan!=="cover"&&(b.plan===b.y1||b.plan===b.y2))?" (ROTATION CONFLICT)":"")); });
     if(lines.length){

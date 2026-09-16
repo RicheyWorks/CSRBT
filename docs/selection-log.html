@@ -2360,6 +2360,14 @@ var OUT = (function(){
     var w=withFit.map(function(r){ return r.w/mW; });
     var g=reg(z,w);
     var beta=g?g.b:NaN;
+    /* ADR-211: THE FIVE NUMBERS THIS PAGE EXISTS TO PRODUCE HAVE TO BE ABLE TO
+       LEAVE IT. Three exports -- the measurements CSV, the individuals CSV and
+       the study sheet -- and the differential, the intensity, the gradient, its
+       standard error and the mean after selection were in none of them. The
+       sheet carried n, mean, SD and R per trait: the INPUTS to the analysis and
+       not the analysis. */
+    SELN = { trait: t.name, unit: t.unit || "", S: S, i: i_, beta: beta,
+             se: (g ? g.se : NaN), after: mAfter, n: withFit.length, comp: comp };
     h+='<div class="stat">'+
       '<div class="st hi"><div class="v">'+f(S,3)+'</div><div class="l">differential S '+esc(t.unit||"")+'</div></div>'+
       '<div class="st hi"><div class="v">'+f(i_,3)+'</div><div class="l">intensity i (SD units)</div></div>'+
@@ -2564,6 +2572,7 @@ var OUT = (function(){
     onchange:function(){ ecoOut(); } });
   FEK.mount("photoEntry",[PHOTOS]);
 
+  var SELN = null;
   function ecoOut(){
     var L=[];
     L.push("# selection log");
@@ -2580,6 +2589,15 @@ var OUT = (function(){
       L.push(("  "+t.name+"                    ").slice(0,20)+"n="+xs.length+
         "  mean "+f(mean(xs),3)+"  SD "+f(sd(xs),3)+(r?("  R="+f(r.R,3)):"  R=not measured"));
     });
+    if(SELN){
+      L.push("");
+      L.push("# selection on "+SELN.trait+"   n = "+SELN.n+" with fitness recorded");
+      L.push("  differential S       "+f(SELN.S,3)+(SELN.unit?(" "+SELN.unit):""));
+      L.push("  intensity i          "+f(SELN.i,3)+"   (SD units)");
+      L.push("  gradient \u03b2            "+f(SELN.beta,3)+"   (univariate; = i for a single trait)");
+      L.push("  SE of \u03b2               "+(isFinite(SELN.se)?f(SELN.se,3):"\u2014"));
+      L.push("  mean after           "+f(SELN.after,3));
+    }
     L.push("");
     L.push("# no p-values are computed: effect size and its uncertainty are the quantities of interest");
     /* ADR-201: the frames go out with the rest of the record. A session that

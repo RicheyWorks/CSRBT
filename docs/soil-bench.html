@@ -469,7 +469,15 @@
 
     <div class="card" id="cOut"></div>
     <div class="card" id="cChart"></div>
-    <div class="card"><h3 style="margin-top:0">Readings</h3><div class="rowlist" id="cList"></div></div>
+    <div class="card"><h3 style="margin-top:0">Readings</h3><div class="rowlist" id="cList"></div>
+      <div class="btn-row">
+        <!-- ADR-211: until this button existed, the ONE export this page had was
+             the mix recipe, and all fourteen figures the bench works out -- the
+             compliance tally, the peak, the blend, the mix ratings -- stopped at
+             the screen. A pile logged for a month left no file. -->
+        <button class="btn btn-soft" id="cCopy" type="button">Copy the bench sheet</button>
+      </div>
+    </div>
   </section>
 
   <!-- ============ RECIPE ============ -->
@@ -1710,6 +1718,57 @@ var TEXNOTE = {
     var s=ks.map(function(k){ var c=compBy(k);
       return mix[k]+" part"+(mix[k]===1?"":"s")+" "+c.n+"  ("+Math.round(mix[k]/tot*100)+"%)"; }).join("\n");
     copyText("Mix recipe — "+tot+" parts total\n"+s,"Recipe copied");
+  });
+  /* ADR-211: the bench sheet -- every figure this page works out, in the order
+     the panes work them out, so that a pile logged for a month leaves a file. */
+  function benchSheet(){
+    var L=["# Soil Bench sheet"];
+    if(readings.length){
+      var need = method==="windrow" ? {d:15,t:5} : {d:3,t:0};
+      var hot=readings.filter(function(r){return r.t>=55;}).length;
+      var turnsHot=readings.filter(function(r){return r.turn && r.t>=55;}).length;
+      var maxT=Math.max.apply(null,readings.map(function(r){return r.t;}));
+      L.push("");
+      L.push("## Compost log \u2014 "+METHODS.filter(function(m){return m.value===method;})[0].label);
+      L.push("  readings                 "+readings.length);
+      L.push("  days logged at >=55 C    "+hot+" / "+need.d);
+      if(need.t) L.push("  turnings while hot       "+turnsHot+" / "+need.t);
+      L.push("  peak                     "+f(dispT(maxT),0)+" deg");
+      L.push("  temperatures (in order)  "+readings.map(function(r){return f(dispT(r.t),0);}).join(" "));
+    }
+    if(pile.length){
+      var b=blend();
+      L.push("");
+      L.push("## Blend");
+      L.push("  blended C:N              "+f(b.cn,1)+":1");
+      L.push("  total volume             "+f(b.vol,0)+" L");
+      L.push("  wet mass                 "+f(b.wet,0)+" kg");
+      L.push("  dry mass                 "+f(b.dry,0)+" kg");
+      L.push("  moisture as built        "+f(b.moist*100,0)+"%");
+      L.push("  green : brown by volume  "+Math.round(b.gv/Math.max(1,b.vol)*100)
+             +" / "+Math.round(b.bv/Math.max(1,b.vol)*100));
+    }
+    var mk=Object.keys(mix);
+    if(mk.length){
+      var tot=mk.reduce(function(a,k){return a+mix[k];},0);
+      var wat=0,air=0,cec=0,nut=0;
+      mk.forEach(function(k){ var c=compBy(k), w=mix[k]/tot;
+        wat+=c.wat*w; air+=c.air*w; cec+=c.cec*w; nut+=c.nut*w; });
+      L.push("");
+      L.push("## Mix \u2014 "+tot+" parts total");
+      mk.forEach(function(k){ L.push("  "+mix[k]+" part"+(mix[k]===1?"":"s")+" "+compBy(k).n
+        +"  ("+Math.round(mix[k]/tot*100)+"%)"); });
+      L.push("  water holding            "+f(wat,1)+" / 5");
+      L.push("  aeration                 "+f(air,1)+" / 5");
+      L.push("  cation exchange          "+f(cec,1)+" / 5");
+      L.push("  nutrient                 "+f(nut,2)+" / 5");
+    }
+    return L.length>1 ? L.join("\n") : null;
+  }
+  $("cCopy").addEventListener("click",function(){
+    var s=benchSheet();
+    if(!s){ toast("Nothing logged yet"); return; }
+    copyText(s,"Bench sheet copied");
   });
   function compBy(id){ for(var i=0;i<COMP.length;i++) if(COMP[i].id===id) return COMP[i]; return null; }
   function mixOut(){

@@ -2396,6 +2396,9 @@ var OUT = (function(){
       L.push("  stock: " + ss.toExponential(3) + " cells/mL   target: " + stg.toExponential(3)
              + " cells/mL   final volume: " + f(sv,2) + " mL");
       L.push("  stock to add: " + f(v1,3) + " mL   medium to add: " + f(med,3) + " mL");
+      /* ADR-211: the cells the seeding needs is the figure this panel exists to
+         work out, and the sheet carried the two volumes and not it. */
+      L.push("  cells needed: " + need.toExponential(3));
       if(med<0) L.push("  IMPOSSIBLE AS WRITTEN: the stock is more dilute than the target");
       else if(v1<0.01) L.push("  " + f(v1*1000,1) + " µL of stock — pipetting error dominates at this volume");
     }

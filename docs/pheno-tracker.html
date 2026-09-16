@@ -2036,6 +2036,10 @@ var OUT = (function(){
     });
     var keepers=sp.filter(function(p){return p.mark==="keep";});
     var mAll=sp.reduce(function(a,p){return a+totalOf(p);},0)/sp.length;
+    /* ADR-211: the two means the selection differential is the difference of
+       were on the screen and in neither export, so the run export carried the
+       differential and not the numbers it came from. */
+    SELSUM = { n: sp.length, mAll: mAll, keepers: keepers.length, mK: null, S: null };
     var shtml='<div class="tiles">'
       +'<div class="tile"><div class="v">'+sp.length+'</div><div class="l">scored</div></div>'
       +'<div class="tile"><div class="v">'+mAll.toFixed(2)+'</div><div class="l">run mean</div></div>'
@@ -2043,6 +2047,7 @@ var OUT = (function(){
     if(keepers.length){
       var mK=keepers.reduce(function(a,p){return a+totalOf(p);},0)/keepers.length;
       var Sdiff=mK-mAll;
+      SELSUM.mK = mK; SELSUM.S = Sdiff;
       shtml+='<div class="tile"><div class="v">'+mK.toFixed(2)+'</div><div class="l">keeper mean</div></div>'
         +'<div class="tile"><div class="v">'+(Sdiff>=0?"+":"")+Sdiff.toFixed(2)+'</div><div class="l">selection differential S</div></div></div>'
         +'<div class="verdict"><b>Selection differential S = '+(Sdiff>=0?"+":"")+Sdiff.toFixed(2)+'</b> on the 1–5 scale — your keepers stand that far above the run average. '
@@ -2147,6 +2152,7 @@ var OUT = (function(){
      exists it should throw, not shrug. */
   if(PENDING_PHOTOS){ PHOTOS.restore(PENDING_PHOTOS); PENDING_PHOTOS = null; }
 
+  var SELSUM = null;
   function ecoOut(){
     var lines=["# Pheno Tracker export — "+(S.name||"run")];
     var meta=[];
@@ -2199,6 +2205,13 @@ var OUT = (function(){
              +(seg.x<3.841?" < 3.84":" ≥ 3.84, no classic ratio fits")
              : "too few plants to test")
         +" in a graded protocol");
+    }
+    if(SELSUM && SELSUM.n){
+      lines.push("");
+      lines.push("# selection: "+SELSUM.n+" scored, run mean "+SELSUM.mAll.toFixed(2)
+        +(SELSUM.mK!=null ? ("   "+SELSUM.keepers+" keepers, keeper mean "+SELSUM.mK.toFixed(2)
+                             +"   S "+(SELSUM.S>=0?"+":"")+SELSUM.S.toFixed(2))
+                          : "   no keepers marked"));
     }
     /* ADR-201: the frames go out with the rest of the record. A session that
        is only photographs is still a session, so this counts toward whether

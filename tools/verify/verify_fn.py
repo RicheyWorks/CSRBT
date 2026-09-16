@@ -20,6 +20,7 @@ exports to independent statements:
 
 Run:  python3 tools/verify/verify_fn.py
 """
+import decimal, math
 import io, json, math, os, re, sys
 from playwright.sync_api import sync_playwright
 
@@ -55,13 +56,49 @@ def dispersion(counts):
     return mean, var / mean, mor
 
 # ---- B. the exports, from the grammar and RFC 4180 ------------------------------
+def _fx(x, dp):
+    """toFixed: half-UP, which is what the page does and what Python's round
+    does not (ADR-068 -- a check that rounds differently from the page it checks
+    is a second source of truth)."""
+    q = decimal.Decimal(repr(float(x))).quantize(decimal.Decimal(1).scaleb(-dp),
+                                                 rounding=decimal.ROUND_HALF_UP)
+    return ("%%.%df" % dp) % q
+
+
+def _idx_line(label, counts):
+    c = [x for x in counts if x > 0]
+    n = sum(c)
+    H = -sum((x / float(n)) * math.log(x / float(n)) for x in c)
+    J = H / math.log(len(c)) if len(c) > 1 else 1.0
+    return ("# %s: %d in %d categories, Shannon H' %s, evenness J' %s, effective %s"
+            % (label, n, len(c), _fx(H, 2), _fx(J, 2), _fx(math.exp(H), 1)))
+
+
+def _disp_line(quads):
+    n = len(quads)
+    tot = sum(quads)
+    mean = tot / float(n)
+    var = sum((q - mean) ** 2 for q in quads) / float(n - 1)
+    mor = n * sum(q * (q - 1) for q in quads) / float(tot * (tot - 1))
+    return ("# dispersion: %d quadrats, %d individuals, mean %s per quadrat, "
+            "variance / mean %s, Morisita %s"
+            % (n, tot, _fx(mean, 2), _fx(var / mean, 2), _fx(mor, 2)))
+
+
 def eco_lines(session, etho, species, quads, mr):
     site, obs, date = session
     lines = ["# Field Notebook export — paste into your .eco protocol",
              "# site %s — observer %s — %s" % (site, obs, date),
              "data: focal " + " ".join("%s=%d" % x for x in etho),
              "data: site " + " ".join("%s=%d" % x for x in species),
+             # ADR-211: the indices leave with the counts, and this oracle works
+             # them out here rather than repeating the page's strings -- a check
+             # that pasted in what the page printed would agree with it however
+             # wrong it was.
+             _idx_line("focal", [c for _n, c in etho]),
+             _idx_line("site", [c for _n, c in species]),
              "# quadrat counts (per frame): " + " ".join(str(q) for q in quads),
+             _disp_line(quads),
              "model: markrecapture %d %d %d" % mr,
              "note: tallied in the field with the Field Notebook"]
     return "\n".join(lines)

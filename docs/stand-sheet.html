@@ -3400,6 +3400,17 @@ var DWC = (function(){
         L.push("#   "+(p.voucher?"["+p.voucher+"] ":"")+p.name+(p.when?" ("+p.when+")":"")+(p.note?" — "+p.note.replace(/\n/g," "):""));
       });
     }
+    /* ADR-211: a height measured with the clinometer leaves with the sheet.
+       The tool works out a height in metres and in feet and handed neither to
+       any export unless somebody remembered to press "use this height" first --
+       so the one figure most likely to be quoted from a stand sheet was the one
+       figure the sheet did not carry. */
+    var _h = height();
+    if(_h !== null && _h > 0) {
+      L.push("");
+      L.push("# standing height measured: "+_h.toFixed(1)+" m ("+(_h*3.28084).toFixed(0)+" ft)"
+             +"   from "+num("hD").toFixed(1)+" m, top "+num("hT")+"\u00b0, base "+num("hB")+"\u00b0");
+    }
     if(val("sNotes")) { L.push(""); L.push("# notes: "+val("sNotes").replace(/\n/g," / ")); }
     if(stems.length||inters.length||photos.length) {
       L.push("");

@@ -489,8 +489,12 @@
     if(species.length){
       lines.push("# Food Web Builder export — "+species.length+" species, "+links.length+" links");
       var L=levels();
+      /* ADR-211: the producer count is a figure the analysis works out and the
+         export carried everything around it and not that. */
       lines.push("note: connectance "+connectance().toFixed(3)
-        +" — longest chain "+longestChain(L.lv)+" levels");
+        +" \u2014 longest chain "+longestChain(L.lv)+" levels"
+        +" \u2014 "+species.filter(function(x){return x.kind==="producer";}).length+" producers"
+        +" of "+species.length+" species");
       links.forEach(function(l){ lines.push("note: "+byId(l.pred).name+" eats "+byId(l.prey).name); });
     }
     $("ecoOut").textContent = lines.length ? lines.join("\n") : "# build something first — your web export appears here";

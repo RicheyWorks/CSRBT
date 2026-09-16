@@ -2037,6 +2037,7 @@ var OUT = (function(){
   var DRIFT_PER_DAY = 1;  /* s/day, Open Acoustic Devices' stated upper bound */
   var SET_ACCURACY = 0.010; /* s, ±10 ms when the clock is set */
 
+  var lastPlan = null;
   function driftOut(){
     var days=num("aDays")||0;
     var sec = days*DRIFT_PER_DAY;
@@ -2119,6 +2120,8 @@ var OUT = (function(){
     var shots = (shotSpacing>0 && lines>0) ? Math.ceil(lines*(lineLen/shotSpacing+1)) : 0;
     var flightSec = speed>0 ? (lines*lineLen)/speed : 0;
     var interval = speed>0 && shotSpacing>0 ? shotSpacing/speed : 0;
+    /* ADR-211: kept so the sheet can carry it. */
+    lastPlan = { gsd:g, w:footW, h:footH, shots:shots, lines:lines, sec:flightSec };
     $("gsdStat").innerHTML = '<div class="stat">'
       + k("GSD", g.toFixed(2)+'<span class="u"> cm/px</span>')
       + k("footprint", footW.toFixed(0)+'×'+footH.toFixed(0)+'<span class="u"> m</span>')
@@ -2341,6 +2344,47 @@ var OUT = (function(){
     ecoOut();
   }
 
+  /* ADR-211: one reader of the four calculators, used by the field sheet and by
+     the CSV, so the two cannot drift apart. Each block is skipped when its own
+     inputs are unset -- a plan nobody made is not a plan that reads zero. */
+  function planningLines(){
+    var L=[], sr=num("aSr")||0, days=num("aDays")||0;
+    if(sr>0){
+      var ny=nyquist(), t=targetOf(val("aTarget"));
+      L.push("acoustic       "+(sr/1000).toFixed(sr%1000?1:0)+" kHz sample rate, records up to "
+             +(ny/1000).toFixed(ny%1000?1:0)+" kHz; "+esc(t.label)+" needs "+(t.need/1000)
+             +" kHz minimum, "+(t.full/1000)+" kHz for full coverage");
+    }
+    var on=num("aOn")||0, every=num("aEvery")||0, card=num("aCard")||0;
+    if(on>0 && every>0 && days>0){
+      var frac=on/every, recSec=days*86400*frac;
+      /* the page's own byte rate, not a second copy of it */
+      var gb=recSec*bytesPerSec()/1e9;
+      L.push("schedule       "+(100*frac).toFixed(1)+"% duty, "+(recSec/3600).toFixed(1)
+             +" h of audio over "+days+" d, "+gb.toFixed(2)+" GB needed"
+             +(card>0?(" on a "+card+" GB card"):""));
+    }
+    if(days>0){
+      var sec=days*DRIFT_PER_DAY, metres=sec*C_AIR;
+      L.push("clock drift    up to "+sec.toFixed(0)+" s over "+days+" d = "
+             +(metres>=1000?((metres/1000).toFixed(1)+" km"):(metres.toFixed(0)+" m"))
+             +" of apparent distance; GPS sync holds 20 us");
+    }
+    var _g = (typeof lastPlan !== "undefined") ? lastPlan : null;
+    if(_g){
+      L.push("flight plan    GSD "+_g.gsd.toFixed(2)+" cm/px, footprint "+_g.w.toFixed(0)+"x"
+             +_g.h.toFixed(0)+" m, "+_g.shots+" images on "+_g.lines+" line"
+             +(_g.lines===1?"":"s")+", "+(_g.sec/60).toFixed(0)+" min flying");
+    }
+    var iv=num("lInt")||0, mem=num("lMem")||0, ldays=num("lDays")||0;
+    if(iv>0 && mem>0 && ldays>0){
+      L.push("logger         one reading every "+iv+" s = "
+             +Math.floor(ldays*86400/iv).toLocaleString()+" readings; memory holds "
+             +mem.toLocaleString()+", fills after "+((mem*iv)/86400).toFixed(0)+" d");
+    }
+    return L;
+  }
+
   function ecoOut(){
     /* A SHEET WITH NOTHING BUT PHOTOGRAPHS IS STILL A SHEET (ADR-201). The
        early return here answered "nothing logged" whatever else the session
@@ -2361,6 +2405,14 @@ var OUT = (function(){
       L.push("  settings "+r.settings);
       L.push("  caveat   "+r.note);
     });
+    /* ADR-211: THE PLANNING FIGURES GO ON THE SHEET. Every one of the four
+       calculators on this page -- the acoustic budget, the clock drift, the
+       flight plan, the logger's memory -- worked out numbers that decide
+       whether a deployment is defensible, and not one of them left the page.
+       The sheet carried the settings string somebody typed and none of what the
+       page told them those settings would do. */
+    var _P = planningLines();
+    if(_P.length){ L.push(""); L.push("# planning"); _P.forEach(function(x){ L.push("  "+x); }); }
     if(shots.length){
       L.push("");
       L.push("# setup photographs — "+shots.length+" frame"+(shots.length===1?"":"s"));

@@ -426,8 +426,12 @@ _task = _json.load(_io.open(_TASK, encoding="utf-8")) if os.path.isfile(_TASK) e
 _steps = dict((st["id"], st) for st in _task["steps"])
 _S, _L = MEADOW_SP, MEADOW_LN
 _want_eco = "\n".join(["# Food Web Builder export — %d species, %d links" % (len(_S), len(_L)),
-                       "note: connectance %.3f — longest chain %d levels"
-                       % (connectance(_S, _L), max(trophic(_S, _L).values()))]
+                       # ADR-211: the producer count leaves with the web. Worked
+                       # out here from the port's own species list, not copied
+                       # from what the page printed.
+                       "note: connectance %.3f — longest chain %d levels — %d producers of %d species"
+                       % (connectance(_S, _L), max(trophic(_S, _L).values()),
+                          len([k for k in _S if _S[k] == "producer"]), len(_S))]
                       + ["note: %s eats %s" % (q, p_) for p_, q in _L])
 _want_csv = "\n".join(["food,eater"] + ["%s,%s" % (p_, q) for p_, q in _L])
 ck("the task holds the copied web export to the port: header, connectance and chain, one note per link in drawn order",

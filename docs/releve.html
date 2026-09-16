@@ -2902,7 +2902,22 @@ var DWC = (function(){
       var H=0; T.forEach(function(t){ var p=t.cov/tot; if(p>0) H-=p*Math.log(p); });
       var S=T.length, J=S>1?H/Math.log(S):1;
       L.push("");
-      L.push("# "+S+" taxa, Shannon H' "+H.toFixed(2)+" (on cover), evenness J' "+J.toFixed(2));
+      /* ADR-211: the numbers the analysis panel works out leave with the sheet.
+         The effective taxa (exp H') and the adjusted FQI were on the screen and
+         in none of the four exports -- a reader given this sheet had the inputs
+         and had to recompute the answers. */
+      L.push("# "+S+" taxa, Shannon H' "+H.toFixed(2)+" (on cover), evenness J' "+J.toFixed(2)
+             +", effective taxa "+Math.exp(H).toFixed(1));
+      /* the same filter the FQA panel uses: native taxa carrying a C-value,
+         so the sheet and the screen cannot disagree about which taxa scored. */
+      var _wc=T.filter(function(t){return t.nat==="native"&&t.c!=null;});
+      if(_wc.length){
+        var _mc=_wc.reduce(function(a,t){return a+t.c;},0)/_wc.length;
+        L.push("# FQA: mean C (native) "+_mc.toFixed(2)
+               +", FQI "+(_mc*Math.sqrt(_wc.length)).toFixed(1)
+               +", adjusted FQI "+(100*(_mc/10)*(Math.sqrt(_wc.length)/Math.sqrt(S))).toFixed(1)
+               +"  \u2014 in the region those C-values came from");
+      }
       var byStr={}; recs.forEach(function(r){ (byStr[r.str]=byStr[r.str]||[]).push(r); });
       STRATA.forEach(function(s){
         if(!byStr[s.id]) return;

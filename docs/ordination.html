@@ -2662,6 +2662,13 @@ var ORD = (function(){
     if(RES.method==="nmds")
       L.push("# NMDS axes are arbitrary: this configuration may be rotated or mirrored "
            + "relative to another run and fit equally well. stress-1 = " + RES.stress.toFixed(4));
+    /* ADR-211: what the configuration was fitted FROM leaves with it. A file of
+       coordinates with no shape of matrix, no sparsity and no record of how many
+       random starts agreed is a picture somebody has to take on trust. */
+    L.push("# fitted from " + M.sites.length + " sites x " + M.taxa.length + " species = "
+         + (M.sites.length*M.taxa.length) + " cells recorded, " + pctZero() + "% zeroes"
+         + ", " + (M.sites.length*(M.sites.length-1)/2) + " pairs fitted"
+         + (RES.starts ? ("; " + RES.agree + " of " + RES.starts + " random starts agree") : ""));
     copyText(L.join("\n"), "Coordinates copied", "coords");
   });
   $("copyDis").addEventListener("click",function(){

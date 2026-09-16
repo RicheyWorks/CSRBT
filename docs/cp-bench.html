@@ -2581,6 +2581,45 @@ var PRESETS = [
     crosses.forEach(function(c,i){
       out.push(["cross", i+1, c.pod||"", c.pol||"", (c.seed==null?"":c.seed),
                 (c.germ==null?"":c.germ), c.note||""]); });
+    /* ADR-211: WHAT THE BENCH WORKED OUT, and not only what was typed into it.
+       The sheet carried waters, temperatures and observations, and none of the
+       seven figures this page derives from them -- so the salt left in the pot,
+       the mix's three ratings, the dormancy tally and the losses all stopped at
+       the screen. */
+    out.push(["derived", "quantity", "value", "unit", "basis"]);
+    try {
+      if (typeof aTds !== "undefined" && aTds && aTop && aVol) {
+        var _c = aTds.get(), _n = aTop.get(), _v = aVol.get();
+        if (isFinite(_c) && isFinite(_n) && isFinite(_v)) {
+          out.push(["derived", "dissolved solids left in the pot",
+                    f(_c * (_v/1000) * _n, 0), "mg", _n + " top-ups at " + _c + " ppm"]);
+          out.push(["derived", "same as one watering at", f(_n * _c, 0), "ppm", ""]);
+          out.push(["derived", "water evaporated", f(_n * _v / 1000, 1), "L", ""]);
+        }
+      }
+    } catch (e) { }
+    var _mk = Object.keys(mix);
+    if (_mk.length) {
+      var _tot = _mk.reduce(function(a,k){ return a + mix[k]; }, 0);
+      var _w=0, _a=0, _nu=0;
+      _mk.forEach(function(k){ var cc=compBy(k), sh=mix[k]/_tot;
+        _w+=cc.wat*sh; _a+=cc.air*sh; _nu+=cc.nut*sh; });
+      out.push(["derived", "water holding", f(_w,1), "of 5", _tot + " parts"]);
+      out.push(["derived", "aeration", f(_a,1), "of 5", ""]);
+      out.push(["derived", "nutrient load", f(_nu,2), "of 5",
+                _nu > 0 ? "NOT nutrient-free" : "nutrient-free"]);
+    }
+    if (temps.length) {
+      try {
+        var _t = dTemp.get(), _wk = dWeeks.get();
+        out.push(["derived", "days at or below " + _t + " C",
+                  temps.filter(function(x){ return x <= _t; }).length, "of " + (_wk*7), ""]);
+      } catch (e) { }
+    }
+    if (plants.length) {
+      out.push(["derived", "losses recorded",
+                obs.filter(function(o){ return o.kind === "loss"; }).length, "", ""]);
+    }
     return out;
   }
   function csvCell(v){
@@ -2613,16 +2652,16 @@ var PRESETS = [
     a.href = URL.createObjectURL(new Blob([csv], {type:"text/csv"}));
     a.download = "cp-bench.csv";
     document.body.appendChild(a); a.click(); document.body.removeChild(a);
-    /* THE MARK GOES WHERE THE BYTES WENT (ADR-203). A download cannot report
-       failure the way a clipboard write can, but it can report that it never
-       had anything to hand over, and that is checked above. */
-    /* THE DOWNLOAD IS NOT MARKED IN THE OUTBOX, and that is the honest reading
-       (ADR-208). A hosted viewer can refuse a page-started download silently --
-       no throw, no return value, nothing to test -- so a mark here would be the
-       exact ADR-203 defect one layer along: the ledger reporting a sheet as
-       gone from this device when the browser never let it leave. The copy
-       beside it reports truthfully, because a clipboard write says no. */
-    toast("bench.csv downloaded"); FEK.buzz();
+    /* ADR-212: A SANDBOXED FRAME REFUSES A PAGE-STARTED DOWNLOAD SILENTLY, and
+       this kit is read as published artifacts. The handler knew that already --
+       it is why the outbox is not marked here -- and then said "bench.csv
+       downloaded" anyway, which is the sentence the outbox was spared from
+       telling. The download is still attempted, because where it works it is
+       the better route; the bytes also go on the clipboard, which is a channel
+       that reports failure, and the message says which of the two the reader
+       can count on. */
+    copyText(csv, "bench.csv copied \u2014 some viewers block a page-started "
+                 + "download, so the copy is your sheet", "sheet");
   });
   benchOut();
   document.addEventListener("click", function(){ setTimeout(benchOut, 0); }, true);

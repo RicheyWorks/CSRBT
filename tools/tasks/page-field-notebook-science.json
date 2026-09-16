@@ -154,8 +154,8 @@
     },
     "output.by.specResults.individuals": "10",
     "output.by.specResults.species": "3",
-    "output.by.specResults.Shannon H\u2032": "0.90",
-    "output.by.specResults.evenness J\u2032": "0.82",
+    "output.by.specResults.Shannon H′": "0.90",
+    "output.by.specResults.evenness J′": "0.82",
     "output.by.specResults.effective (species)": "2.5"
    }
   },
@@ -460,7 +460,7 @@
    "expect": {
     "output.boxes.mrOut": {
      "op": "contains",
-     "value": "N\u0302 \u2248 10"
+     "value": "N̂ ≈ 10"
     },
     "output.boxes.ecoOut": {
      "op": "contains",
@@ -642,7 +642,7 @@
    "action": "collect-output",
    "expect": {
     "output.payloads.0.k": "clipboard",
-    "output.payloads.0.text": "# Field Notebook export \u2014 paste into your .eco protocol\n# site oak ridge, plot 3 \u2014 observer R. Ellison \u2014 2026-09-09\ndata: focal forage=4 preen=2\ndata: site species-a=6 species-b=3 clover=1\n# quadrat counts (per frame): 0 1 2 9\nmodel: markrecapture 5 4 2\nnote: tallied in the field with the Field Notebook",
+    "output.payloads.0.text": "# Field Notebook export — paste into your .eco protocol\n# site oak ridge, plot 3 — observer R. Ellison — 2026-09-09\ndata: focal forage=4 preen=2\ndata: site species-a=6 species-b=3 clover=1\n# focal: 6 in 2 categories, Shannon H' 0.64, evenness J' 0.92, effective 1.9\n# site: 10 in 3 categories, Shannon H' 0.90, evenness J' 0.82, effective 2.5\n# quadrat counts (per frame): 0 1 2 9\n# dispersion: 4 quadrats, 12 individuals, mean 3.00 per quadrat, variance / mean 5.56, Morisita 2.24\nmodel: markrecapture 5 4 2\nnote: tallied in the field with the Field Notebook",
     "output.payloads.1": {
      "op": "exists",
      "value": false

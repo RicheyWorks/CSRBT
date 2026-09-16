@@ -2514,6 +2514,7 @@ var OUT = (function(){
      kappa over them did not -- the number a reliability check exists to
      produce, gone, with both its inputs sitting on the screen. */
   $("kGo").addEventListener("click", computeKappa);
+  var KAPPA = null;
   function computeKappa(){
     var A=tok(val("kA")), B=tok(val("kB"));
     if(!A.length||!B.length){ $("kOut").innerHTML='<div class="verdict act">Both observers need a sequence.</div>'; return; }
@@ -2542,6 +2543,12 @@ var OUT = (function(){
       'you agreed on '+(po*100).toFixed(0)+'% of samples. Read κ beside the raw agreement, not instead of it.</div>';
     if(n<20) h+='<div class="verdict warn"><b>'+n+' samples is few</b> for a reliability estimate. '+
       'κ on a short sequence moves a great deal for one changed code.</div>';
+    /* ADR-211: THE NUMBER HAS TO BE ABLE TO LEAVE. Three exports of a scored
+       session -- the interval CSV, this sheet, the time budget -- and the
+       reliability panel was in none of them. A kappa that only exists on the
+       screen has to be recomputed by whoever asks about it, from a sequence
+       that is also not in any export. */
+    KAPPA = { k: k, po: po, pe: pe, n: n, cats: cats.length, band: band };
     $("kOut").innerHTML=h;
 
     var m='<h3 style="margin-top:0">Confusion matrix</h3><div class="tw"><table class="mx2"><tr><th>A \\ B</th>';
@@ -2612,6 +2619,16 @@ var OUT = (function(){
         L.push(("  "+((byId(k)||{}).name||k)+"                    ").slice(0,22)+
           ec[k]+"   "+(mins?(ec[k]/mins).toFixed(3):"—")+"/min");
       });
+    }
+    /* ADR-211: the reliability panel leaves with the session it is about. */
+    if(KAPPA){
+      L.push("");
+      L.push("# reliability \u2014 two observers, the same "+KAPPA.n+" samples, "
+             +KAPPA.cats+" categories");
+      L.push("  Cohen's kappa        "+KAPPA.k.toFixed(3)+"   ("+KAPPA.band+
+             ", Landis & Koch \u2014 a rule of thumb, not a result)");
+      L.push("  raw agreement        "+(KAPPA.po*100).toFixed(1)+"%");
+      L.push("  expected by chance   "+(KAPPA.pe*100).toFixed(1)+"%");
     }
     /* ADR-201: the frames go out with the rest of the record. A session that
        is only photographs is still a session, so this counts toward whether
