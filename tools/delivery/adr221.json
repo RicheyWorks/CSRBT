@@ -1,0 +1,32 @@
+{
+ "body": "The doors read their frames as the machine's locale decoded them, parsed them with a lenient json.loads, and trusted every value to be the type they expected. FlowersForever's harness made those decisions deliberately a week earlier after two malformed frames killed its reader; this slice asks the same of these doors AS PROCESSES, WITH BYTES, each frame sent between two good ones. MCP: 100,000 open brackets (RecursionError is not a ValueError), a method that is a number, params that are a list or a string, a tool name that is a list, a uri that is a number -- six frames, six exits; and one malformed UTF-8 byte under a strict stdin, ZERO answers, because the decoder reads ahead and the door died before answering the GOOD frame in front of it. stdio: a bare list, a command that is a list, a plugin that is a list -- and A WRONG TOKEN WITH AN ACCENT IN IT, which needs no credentials: hmac.compare_digest raises TypeError on non-ASCII str, TypeError is not a HarnessError, and it went through every handler to the top of the process. Over HTTP the same header was a dropped connection where a 401 belonged. AND THE DOOR DID NOT HEAR WHAT WAS SENT: with stdin decoded as cp1252, the default on the Windows machine this kit is developed on, a host's UTF-8 dash and accent arrived as five wrong letters and set-text would have typed them into the page; no suite could see it because the task runner is in-process and every piped suite sent ASCII. And json.loads keeps the LAST of a repeated key silently; a command carrying dry_run true and an expires_at in 2001 answered ok and RAN; both spellings of the request id, disagreeing, were filed under the first; a misspelt since was dropped without a word. Arguments have been strict since ADR-097 and the envelope around them never was. tools/harness_frames.py is the wire before it is a message: bytes, strict UTF-8 whatever the code page, one frame bounded at the HTTP door's 1 MiB, strict JSON with a code per refusal, and A REFUSED FRAME IS FOLLOWED BY THE NEXT ONE. All three doors read through it. Shapes are checked before they are used and get the client's own code; a backstop answers anything else and serves the next frame; the token is compared as bytes; the envelope names its fields and the manifest publishes them. The suites' own first run: verify_mcp failed on a COMMENT containing the word page, and verify_contract had asserted since ADR-097 that a command carrying its own risk claim is forbidden -- it was, because the action happened to be blocked, and the claim itself was ignored. verify_frames 115 new, mutate_frames 37 new, verify_contract 180 to 196.",
+ "chain": "adr220",
+ "chain_probe": "docs/ADR-220-the-receipt-before-the-look-2026-09-17.md",
+ "clean": [
+  "adr220"
+ ],
+ "id": "adr221",
+ "once": true,
+ "paths": [
+  "docs/ADR-221-nothing-a-client-sends-closes-a-door-2026-09-17.md",
+  "docs/CHANGELOG-2026-09-17-adr221-nothing-a-client-sends-closes-a-door.md",
+  "tools/harness_frames.py",
+  "tools/harness_stdio.py",
+  "tools/harness_mcp.py",
+  "tools/harness_http.py",
+  "tools/harness_contract.py",
+  "tools/harness_board.py",
+  "tools/mutate_frames.py",
+  "tools/mutate_http.py",
+  "tools/verify/verify_frames.py",
+  "tools/verify/verify_contract.py",
+  "tools/delivery/adr221.json",
+  "docs/AI_HARNESS.md",
+  "tools/harness_board.html",
+  "tools/mutant_ledger.json",
+  "tools/published.json",
+  "tools/verify/counts.json",
+  "tools/delivery_ledger.json"
+ ],
+ "subject": "ADR-221: eleven single frames closed a door, one of them from a caller with no credentials, and on Windows the door heard mojibake"
+}

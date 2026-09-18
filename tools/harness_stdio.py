@@ -41,24 +41,55 @@ import argparse, io, json, os, sys
 HERE = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, HERE)
 sys.path.insert(0, os.path.join(HERE, "verify"))
-from harness_contract import Gateway, HarnessError, Registry
+from harness_contract import Gateway, HarnessError, InvalidArgument, Registry
+from harness_frames import frames
 from harness_targets import require_policy, stand_up, tear_down
 
 
+# ADR-221: what each op's request may carry. `sinse` was dropped without a word
+# and the whole snapshot served to a client that believed it had asked for the
+# change; a field that belongs to another op is the same mistake.
+FIELDS = {"manifest": ("op", "token"), "discover": ("op", "token"),
+          "observe": ("op", "token", "plugin", "since"),
+          "execute": ("op", "token", "plugin", "command"),
+          "quit": ("op", "token")}
+
+
+def _shape(req):
+    """Refuse a request that is not shaped like one, with the client's own code."""
+    if not isinstance(req, dict):
+        raise InvalidArgument("a request is one JSON object per line")
+    op = req.get("op")
+    if isinstance(op, str) and op in FIELDS:
+        extra = sorted(k for k in req if k not in FIELDS[op])
+        if extra:
+            raise InvalidArgument("%s takes %s and has no field %s -- a field this door does not "
+                                  "know is not ignored, because the caller meant something by it"
+                                  % (op, ", ".join(FIELDS[op]), ", ".join(repr(k) for k in extra)))
+    for key in ("plugin", "since"):
+        if req.get(key) is not None and not isinstance(req[key], str):
+            raise InvalidArgument("%s is a string" % key)
+    if "command" in req and not isinstance(req["command"], dict):
+        raise InvalidArgument("a command is an object")
+
+
 def serve(gateway, stdin, stdout):
-    """The entire adapter: parse a line, call one of four, write a line."""
-    for line in stdin:
-        line = line.strip()
-        if not line:
-            continue
-        try:
-            req = json.loads(line)
-        except Exception as e:
+    """The entire adapter: read a frame, call one of four, write a line.
+
+    NOTHING A CLIENT SENDS ENDS THIS LOOP (ADR-221). Eleven single frames did:
+    this door read its lines as the machine's locale decoded them and trusted
+    every value to be the type it expected. It reads bytes through
+    harness_frames now, checks the shape before it uses it, and answers
+    anything it did not foresee as `failed` rather than by leaving."""
+    for req, bad in frames(stdin):
+        if bad is not None:
             _w(stdout, {"ok": False, "code": "invalid_argument",
-                        "message": "not JSON: %s" % str(e)[:120]})
+                        "message": "%s: %s" % (bad.code, bad.message)})
             continue
-        op, tok = req.get("op"), req.get("token")
+        op = tok = None
         try:
+            _shape(req)
+            op, tok = req.get("op"), req.get("token")
             if op == "manifest":
                 res = {"ok": True, "manifest": gateway.manifest(tok)}
             elif op == "discover":
@@ -79,9 +110,15 @@ def serve(gateway, stdin, stdout):
                 return 0
             else:
                 res = {"ok": False, "code": "not_found",
-                       "message": "unknown op %r" % op}
+                       "message": "unknown op %r" % (op,)}
         except HarnessError as e:
             res = e.as_dict()
+        except Exception as e:
+            # THE BACKSTOP. Whatever this is, it is this door's or its target's
+            # fault and not a reason to stop serving the client that met it.
+            res = {"ok": False, "code": "failed",
+                   "message": "the door raised %s while answering %r: %s"
+                              % (type(e).__name__, op, str(e)[:160])}
         _w(stdout, res)
     return 0
 

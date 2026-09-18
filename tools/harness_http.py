@@ -62,6 +62,7 @@ HERE = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, HERE)
 from harness_contract import Gateway, Registry
 from harness_mcp import Server
+import harness_frames as FR
 from harness_targets import require_policy, stand_up, tear_down
 
 PATH = "/mcp"
@@ -241,7 +242,13 @@ class Handler(BaseHTTPRequestHandler):
             return False
         got = (self.headers.get("Authorization") or "")
         want = self.server.door.server.token
-        if not got.startswith("Bearer ") or not hmac.compare_digest(got[7:], want):
+        # ADR-221: AS BYTES. A header arrives as latin-1 text, and compare_digest
+        # raises TypeError on non-ASCII str -- inside this handler that was a
+        # dropped connection and a traceback where a 401 belonged. Encoded back
+        # to latin-1 the header is the bytes the client sent, which is what a
+        # UTF-8 token should be compared with.
+        if not got.startswith("Bearer ") or not hmac.compare_digest(
+                got[7:].encode("latin-1", "replace"), want.encode("utf-8", "surrogatepass")):
             self._refuse(401, "this door takes a bearer token",
                          extra={"WWW-Authenticate": 'Bearer realm="csrbt-harness"'})
             return False
@@ -292,11 +299,14 @@ class Handler(BaseHTTPRequestHandler):
                                      "door's" % BODY_CAP, extra={"Connection": "close"})
         raw = self.rfile.read(n) if n else b""
         try:
-            body = json.loads(raw.decode("utf-8")) if raw else None
-        except Exception as e:
+            # ADR-221: the same strict reader as the pipe doors, so a body one
+            # door refuses no door accepts -- a key given twice, NaN, bytes that
+            # are not UTF-8, a nesting deep enough to raise RecursionError.
+            body = FR.loads(raw) if raw else None
+        except FR.FrameError as e:
             return self._send(400, {"jsonrpc": "2.0", "id": None,
                                     "error": {"code": -32700,
-                                              "message": "parse error: %s" % str(e)[:80]}})
+                                              "message": "parse error (%s): %s" % (e.code, e.message)}})
         batch = isinstance(body, list)
         msgs = body if batch else [body]
         if not msgs or not all(isinstance(m, dict) for m in msgs):

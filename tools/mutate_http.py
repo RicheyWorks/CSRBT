@@ -54,15 +54,18 @@ MUTANTS = [
 
     # ---- the token -------------------------------------------------------
     ("the door takes anyone",
-     '''        if not got.startswith("Bearer ") or not hmac.compare_digest(got[7:], want):''',
+     '''        if not got.startswith("Bearer ") or not hmac.compare_digest(
+                got[7:].encode("latin-1", "replace"), want.encode("utf-8", "surrogatepass")):''',
      '''        if False:''',
      "no bearer token is 401"),
     ("a token is compared in whatever time it takes",
-     '''hmac.compare_digest(got[7:], want)''',
-     '''got[7:] == want''',
+     '''hmac.compare_digest(
+                got[7:].encode("latin-1", "replace"), want.encode("utf-8", "surrogatepass"))''',
+     '''(got[7:].encode("latin-1", "replace") == want.encode("utf-8", "surrogatepass"))''',
      "constant-time comparison"),
     ("any bearer token will do",
-     '''        if not got.startswith("Bearer ") or not hmac.compare_digest(got[7:], want):''',
+     '''        if not got.startswith("Bearer ") or not hmac.compare_digest(
+                got[7:].encode("latin-1", "replace"), want.encode("utf-8", "surrogatepass")):''',
      '''        if not got.startswith("Bearer "):''',
      "a token that is nearly right is 401"),
     ("the route is checked after the token, so a wrong path asks for credentials",

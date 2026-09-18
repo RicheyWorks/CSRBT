@@ -61,6 +61,7 @@ HERE = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, HERE)
 import harness_contract as C
 from harness_contract import Gateway, HarnessError, Registry
+from harness_frames import frames
 from harness_targets import require_policy, stand_up, tear_down
 
 # ADR-137: the one plugin that can change what a session lists. Named here, not
@@ -74,6 +75,7 @@ PROTOCOL = "2025-03-26"
 # came through is the door it thinks it is.
 SERVER = {"name": "csrbt-harness", "version": C.PROTOCOL_VERSION}
 PARSE_ERROR, INVALID_REQUEST, METHOD_NOT_FOUND, INVALID_PARAMS = -32700, -32600, -32601, -32602
+INTERNAL_ERROR = -32603
 POLICY_REFUSED, TARGET_UNAVAILABLE = -32001, -32002
 CODE = {"invalid_argument": INVALID_PARAMS, "not_found": INVALID_PARAMS, "conflict": INVALID_PARAMS,
         "stale": INVALID_PARAMS,                      # ADR-189: the client's, and re-readable
@@ -116,7 +118,18 @@ class Server(object):
         if not isinstance(msg, dict) or msg.get("jsonrpc") != "2.0" or "method" not in msg:
             return self._error(msg.get("id") if isinstance(msg, dict) else None,
                                INVALID_REQUEST, "not a JSON-RPC 2.0 request")
-        method, params, mid = msg["method"], msg.get("params") or {}, msg.get("id")
+        method, params, mid = msg["method"], msg.get("params"), msg.get("id")
+        # ADR-221: THE SHAPE IS CHECKED BEFORE IT IS USED. `"method": 5` reached
+        # .startswith, `"params": ["x"]` reached ["name"], a tool name that was a
+        # list reached a dict lookup, a uri that was a number reached .partition
+        # -- four AttributeErrors and TypeErrors, none of them a HarnessError,
+        # each of which ended the process that was serving the session.
+        if not isinstance(method, str):
+            return self._error(mid, INVALID_REQUEST, "method must be a string")
+        if params is None:
+            params = {}
+        if not isinstance(params, dict):
+            return self._error(mid, INVALID_PARAMS, "params must be an object")
         if method.startswith("notifications/"):
             return None                                   # accepted, silently
         try:
@@ -139,6 +152,12 @@ class Server(object):
                                "%s: %s" % (e.code, e.message))
         except KeyError as e:
             return self._error(mid, INVALID_PARAMS, "missing %s" % e)
+        except Exception as e:
+            # THE BACKSTOP (ADR-221): JSON-RPC has a code for "this server's
+            # fault", and answering with it is the difference between a request
+            # that failed and a session that ended.
+            return self._error(mid, INTERNAL_ERROR, "the door raised %s while answering %s: %s"
+                               % (type(e).__name__, method, str(e)[:160]))
         return {"jsonrpc": "2.0", "id": mid, "result": result}
 
     # -- the four operations ------------------------------------------------
@@ -178,6 +197,10 @@ class Server(object):
 
     def call(self, mid, params):
         name = params["name"]
+        if not isinstance(name, str):
+            raise HarnessError("invalid_argument", "a tool is named by a string")
+        if params.get("arguments") is not None and not isinstance(params["arguments"], dict):
+            raise HarnessError("invalid_argument", "arguments must be an object")
         if self._tools is None:
             self.tools()
         if name not in self._tools:
@@ -193,9 +216,17 @@ class Server(object):
             raise HarnessError("not_found", "no tool %r is listed for this session" % name)
         plugin_id, action = self._tools[name]
         rid = "mcp-%s" % mid if mid is not None else None
+        command = {"request_id": rid, "action": action, "arguments": params.get("arguments") or {}}
+        # ADR-222: a tool call has arguments and nothing else of its own, so the
+        # two things a command may say ABOUT itself ride where MCP puts a
+        # request's metadata. A host that has never heard of them sends none.
+        meta = params.get("_meta")
+        if isinstance(meta, dict):
+            for k in ("expires_at", "if_stamp"):
+                if meta.get(k) is not None:
+                    command[k] = meta[k]
         try:
-            r = self.gw.execute(self.token, plugin_id, {
-                "request_id": rid, "action": action, "arguments": params.get("arguments") or {}})
+            r = self.gw.execute(self.token, plugin_id, command)
         except HarnessError as e:
             # a refusal is part of what the model did, and a task may expect one
             self.record({"pluginId": plugin_id, "action": action, "arguments": params.get("arguments") or {},
@@ -267,6 +298,8 @@ class Server(object):
         not an error: the whole snapshot comes back with the reason, because
         the alternative is a host that cannot recover from its own restart."""
         uri = params["uri"]
+        if not isinstance(uri, str):
+            raise HarnessError("invalid_argument", "a resource is named by a uri, and a uri is a string")
         base, _, query = uri.partition("?")
         since = None
         for part in query.split("&"):
@@ -289,14 +322,14 @@ class Server(object):
 
 
 def serve(server, stdin, stdout):
-    for line in stdin:
-        line = line.strip()
-        if not line:
-            continue
-        try:
-            msg = json.loads(line)
-        except ValueError as e:
-            _w(stdout, server._error(None, PARSE_ERROR, "parse error: %s" % str(e)[:80]))
+    # ADR-221: bytes, decoded here, strictly, one bounded frame at a time. This
+    # loop read `for line in stdin`, which is the machine's locale deciding what
+    # a host's UTF-8 means: a strict one ended the door on one bad byte -- before
+    # the good frame in front of it had been answered -- and a Windows ANSI encoding
+    # turned every dash and accent a host sent into two or three wrong letters.
+    for msg, bad in frames(stdin):
+        if bad is not None:
+            _w(stdout, server._error(None, PARSE_ERROR, "parse error (%s): %s" % (bad.code, bad.message)))
             continue
         resp = server.handle(msg)
         # THE NOTICE GOES OUT BEFORE THE ANSWER. A host that reads its transport
